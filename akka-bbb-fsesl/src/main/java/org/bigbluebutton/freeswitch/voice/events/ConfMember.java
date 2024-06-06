@@ -9,6 +9,8 @@ public class ConfMember {
     public final Boolean locked = false;
     public final String userId;
     public final String callingWith;
+    public final Boolean hold;
+    public final String uuid;
 
     public ConfMember(String userId,
                       String voiceUserId,
@@ -16,7 +18,9 @@ public class ConfMember {
                       String callerIdName,
                       Boolean muted,
                       Boolean speaking,
-                      String callingWith) {
+                      String callingWith,
+                      Boolean hold,
+                      String uuid) {
         this.userId = userId;
         this.voiceUserId = voiceUserId;
         this.callerIdName = callerIdName;
@@ -24,5 +28,7 @@ public class ConfMember {
         this.muted = muted;
         this.speaking = speaking;
         this.callingWith = callingWith;
+        this.hold = hold;
+        this.uuid = uuid;
     }
 }

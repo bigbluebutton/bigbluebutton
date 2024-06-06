@@ -23,7 +23,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import org.bigbluebutton.api2.IBbbWebApiGWApp;
-import org.bigbluebutton.presentation.messages.OfficeDocConversionProgress;
+import org.bigbluebutton.presentation.messages.DocConversionProgress;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -52,7 +52,7 @@ public class OfficeToPdfConversionSuccessFilter {
   }
 
   public void sendProgress(UploadedPresentation pres) {
-    OfficeDocConversionProgress progress = new OfficeDocConversionProgress(pres.getPodId(),
+    DocConversionProgress progress = new DocConversionProgress(pres.getPodId(),
       pres.getMeetingId(),
       pres.getId(),
       pres.getId(),
@@ -60,7 +60,9 @@ public class OfficeToPdfConversionSuccessFilter {
       "notUsedYet",
       "notUsedYet",
       pres.isDownloadable(),
-      pres.getConversionStatus());
+      pres.isRemovable(),
+      pres.getConversionStatus(),
+      pres.getTemporaryPresentationId());
     gw.sendDocConversionMsg(progress);
   }
 

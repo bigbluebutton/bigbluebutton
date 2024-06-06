@@ -1,0 +1,45 @@
+table:
+  name: v_pres_page
+  schema: public
+configuration:
+  column_config: {}
+  custom_column_names: {}
+  custom_name: pres_page
+  custom_root_fields: {}
+object_relationships:
+  - name: presentation
+    using:
+      manual_configuration:
+        column_mapping:
+          presentationId: presentationId
+        insertion_order: null
+        remote_table:
+          name: v_pres_presentation
+          schema: public
+select_permissions:
+  - role: bbb_client
+    permission:
+      columns:
+        - content
+        - height
+        - heightRatio
+        - isCurrentPage
+        - num
+        - pageId
+        - presentationId
+        - scaledHeight
+        - scaledViewBoxHeight
+        - scaledViewBoxWidth
+        - scaledWidth
+        - slideRevealed
+        - urlsJson
+        - viewBoxHeight
+        - viewBoxWidth
+        - width
+        - widthRatio
+        - xOffset
+        - yOffset
+      filter:
+        meetingId:
+          _eq: X-Hasura-PresenterInMeeting
+      allow_aggregations: true

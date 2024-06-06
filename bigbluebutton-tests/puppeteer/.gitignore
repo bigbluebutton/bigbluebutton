@@ -1,0 +1,8 @@
+node_modules/
+screenshots/*
+!screenshots/screenshots.txt
+downloads/*
+!downloads/downloads.txt
+data/
+.env
+__image_snapshots__/

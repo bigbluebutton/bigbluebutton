@@ -102,9 +102,21 @@ class RecordingController {
       log.debug intRecId
     }
 
-    Map<String, String> metadataFilters = ParamsProcessorUtil.processMetaParam(params);
+    Map<String, String> metadataFilters = ParamsProcessorUtil.processMetaParam(params)
 
-    def getRecordingsResult = meetingService.getRecordings2x(internalRecordIds, states, metadataFilters)
+    String offset
+    if(!StringUtils.isEmpty(params.offset)) {
+      offset = params.offset
+      log.info("Requested offset [${offset}]")
+    }
+
+    String limit
+    if(!StringUtils.isEmpty(params.limit)) {
+      limit = params.limit
+      log.info("Requested item limit [${limit}]")
+    }
+
+    def getRecordingsResult = meetingService.getRecordings2x(internalRecordIds, states, metadataFilters, offset, limit)
 
     withFormat {
       xml {

@@ -6,7 +6,8 @@ import UserListContainer from '../user-list/container';
 
 const propTypes = {
   top: PropTypes.number.isRequired,
-  left: PropTypes.number.isRequired,
+  left: PropTypes.number,
+  right: PropTypes.number,
   zIndex: PropTypes.number.isRequired,
   minWidth: PropTypes.number.isRequired,
   width: PropTypes.number.isRequired,
@@ -17,11 +18,16 @@ const propTypes = {
   contextDispatch: PropTypes.func.isRequired,
 };
 
+const defaultProps = {
+  left: null,
+  right: null,
+};
+
 const SidebarNavigation = (props) => {
   const {
-    // display,
     top,
     left,
+    right,
     zIndex,
     minWidth,
     width,
@@ -39,9 +45,6 @@ const SidebarNavigation = (props) => {
   useEffect(() => {
     if (!isResizing) setResizableWidth(width);
   }, [width]);
-
-  useEffect(() => {
-  }, [resizeStartWidth]);
 
   const setSidebarNavWidth = (dWidth) => {
     const newWidth = resizeStartWidth + dWidth;
@@ -72,12 +75,17 @@ const SidebarNavigation = (props) => {
         bottom: isResizable && resizableEdge.bottom,
         right: isResizable && resizableEdge.right,
       }}
+      handleStyles={{
+        right: {
+          right: '-8px',
+        },
+      }}
       handleWrapperClass="resizeSidebarNavWrapper"
       onResizeStart={() => {
         setIsResizing(true);
         setResizeStartWidth(resizableWidth);
       }}
-      onResize={(...[,,, delta]) => setSidebarNavWidth(delta.width)}
+      onResize={(...[, , , delta]) => setSidebarNavWidth(delta.width)}
       onResizeStop={() => {
         setIsResizing(false);
         setResizeStartWidth(0);
@@ -86,6 +94,7 @@ const SidebarNavigation = (props) => {
         position: 'absolute',
         top,
         left,
+        right,
         zIndex,
         width,
         height,
@@ -97,4 +106,5 @@ const SidebarNavigation = (props) => {
 };
 
 SidebarNavigation.propTypes = propTypes;
+SidebarNavigation.defaultProps = defaultProps;
 export default SidebarNavigation;

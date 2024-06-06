@@ -1,0 +1,10 @@
+[Unit]
+Description=step-ca
+After=syslog.target network.target
+
+[Service]
+ExecStart=/usr/bin/step-ca /opt/ca/ca.json
+Type=simple
+
+[Install]
+WantedBy=multi-user.target

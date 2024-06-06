@@ -1,5 +1,6 @@
 package org.bigbluebutton.core.bus
-import akka.actor.ActorRef
+
+import org.apache.pekko.actor.ActorRef
 
 class InMsgBusGW(bus: IncomingEventBusImp) extends InternalEventBus {
   override def publish(event: BigBlueButtonEvent): Unit = {

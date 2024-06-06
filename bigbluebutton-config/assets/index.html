@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BigBlueButton</title>
+    <style>
+        .error-div {
+            background-color: #f2dede;
+            padding: 15px;
+            border-radius: 10px;
+            border-color: #ebccd1;
+        }
+        .error-div-title {
+            font-size: 25px;
+        }
+        .error-message {
+            color: #a94442;
+            font-size: 15px;
+            margin-top: 2px 0 0 0;
+        }
+    </style>
+</head>
+<body style="margin:0">
+    <div style="display: flex; height: 100vh; margin: 0; flex-direction: column; align-items: center; justify-content: center;">
+        <h1 id="welcome-message">Welcome to BigBlueButton!</h1>
+    </div>
+</body>
+<script>
+    const ERRORS_QUERY_LABEL = "errors"
+    const queryString = decodeURI(window.location.search).slice(1);
+    const positionError = queryString.indexOf(ERRORS_QUERY_LABEL);
+    let jsonString;
+    if (positionError !== -1) {
+        jsonString = JSON.parse(queryString.slice(positionError + ERRORS_QUERY_LABEL.length + 1));
+        const welcomeMessage = document.querySelector('#welcome-message');
+        const errorContainer = document.createElement('div');
+        errorContainer.classList.add("error-div");
+        welcomeMessage.before(errorContainer);
+
+        for (let i in jsonString) {
+            const newError = document.createElement('p')
+            newError.classList.add("error-message");
+            newError.innerText = "Error: " + jsonString[i].message;
+            errorContainer.appendChild(newError);
+        }
+
+        welcomeMessage.remove();
+
+        const bigBlueButton = document.createElement('h1');
+        bigBlueButton.innerHTML = "BigBlueButton";
+        errorContainer.before(bigBlueButton);
+    }
+    
+</script>
+</html>

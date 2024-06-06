@@ -1,21 +1,20 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import { defineMessages, injectIntl } from 'react-intl';
-import cx from 'classnames';
-import _ from 'lodash';
-import { styles } from './styles';
+import { throttle } from '/imports/utils/throttle';
+import { range } from '/imports/utils/array-utils';
+import Styled from './styles';
 import VideoListItemContainer from './video-list-item/container';
 import AutoplayOverlay from '../../media/autoplay-overlay/component';
 import logger from '/imports/startup/client/logger';
 import playAndRetry from '/imports/utils/mediaElementPlayRetry';
 import VideoService from '/imports/ui/components/video-provider/service';
-import Button from '/imports/ui/components/button/component';
+import { ACTIONS } from '../../layout/enums';
 
 const propTypes = {
   streams: PropTypes.arrayOf(PropTypes.object).isRequired,
   onVideoItemMount: PropTypes.func.isRequired,
   onVideoItemUnmount: PropTypes.func.isRequired,
-  webcamDraggableDispatch: PropTypes.func.isRequired,
   intl: PropTypes.objectOf(Object).isRequired,
   swapLayout: PropTypes.bool.isRequired,
   numberOfPages: PropTypes.number.isRequired,
@@ -23,24 +22,6 @@ const propTypes = {
 };
 
 const intlMessages = defineMessages({
-  focusLabel: {
-    id: 'app.videoDock.webcamFocusLabel',
-  },
-  focusDesc: {
-    id: 'app.videoDock.webcamFocusDesc',
-  },
-  unfocusLabel: {
-    id: 'app.videoDock.webcamUnfocusLabel',
-  },
-  unfocusDesc: {
-    id: 'app.videoDock.webcamUnfocusDesc',
-  },
-  mirrorLabel: {
-    id: 'app.videoDock.webcamMirrorLabel',
-  },
-  mirrorDesc: {
-    id: 'app.videoDock.webcamMirrorDesc',
-  },
   autoplayBlockedDesc: {
     id: 'app.videoDock.autoplayBlockedDesc',
   },
@@ -77,29 +58,26 @@ const findOptimalGrid = (canvasWidth, canvasHeight, gutter, aspectRatio, numItem
 };
 
 const ASPECT_RATIO = 4 / 3;
-const ACTION_NAME_FOCUS = 'focus';
-const ACTION_NAME_MIRROR = 'mirror';
+// const ACTION_NAME_BACKGROUND = 'blurBackground';
 
 class VideoList extends Component {
   constructor(props) {
     super(props);
 
     this.state = {
-      focusedId: false,
       optimalGrid: {
         cols: 1,
         rows: 1,
         filledArea: 0,
       },
       autoplayBlocked: false,
-      mirroredCameras: [],
     };
 
     this.ticking = false;
     this.grid = null;
     this.canvas = null;
     this.failedMediaElements = [];
-    this.handleCanvasResize = _.throttle(this.handleCanvasResize.bind(this), 66,
+    this.handleCanvasResize = throttle(this.handleCanvasResize.bind(this), 66,
       {
         leading: true,
         trailing: true,
@@ -111,32 +89,33 @@ class VideoList extends Component {
   }
 
   componentDidMount() {
-    const { webcamDraggableDispatch } = this.props;
-    webcamDraggableDispatch(
-      {
-        type: 'setVideoListRef',
-        value: this.grid,
-      },
-    );
-
     this.handleCanvasResize();
     window.addEventListener('resize', this.handleCanvasResize, false);
-    window.addEventListener('layoutSizesSets', this.handleCanvasResize, false);
     window.addEventListener('videoPlayFailed', this.handlePlayElementFailed);
   }
 
   componentDidUpdate(prevProps) {
-    const { layoutType } = this.props;
-    const { layoutType: prevLayoutType } = prevProps;
+    const { layoutType, cameraDock, streams, focusedId } = this.props;
+    const { width: cameraDockWidth, height: cameraDockHeight } = cameraDock;
+    const {
+      layoutType: prevLayoutType,
+      cameraDock: prevCameraDock,
+      streams: prevStreams,
+      focusedId: prevFocusedId,
+    } = prevProps;
+    const { width: prevCameraDockWidth, height: prevCameraDockHeight } = prevCameraDock;
 
-    if (layoutType !== prevLayoutType) {
+    if (layoutType !== prevLayoutType
+      || focusedId !== prevFocusedId
+      || cameraDockWidth !== prevCameraDockWidth
+      || cameraDockHeight !== prevCameraDockHeight
+      || streams.length !== prevStreams.length) {
       this.handleCanvasResize();
     }
   }
 
   componentWillUnmount() {
     window.removeEventListener('resize', this.handleCanvasResize, false);
-    window.removeEventListener('layoutSizesSets', this.handleCanvasResize, false);
     window.removeEventListener('videoPlayFailed', this.handlePlayElementFailed);
   }
 
@@ -181,14 +160,6 @@ class VideoList extends Component {
     }
   }
 
-  handleVideoFocus(id) {
-    const { focusedId } = this.state;
-    this.setState({
-      focusedId: focusedId !== id ? id : false,
-    }, this.handleCanvasResize);
-    window.dispatchEvent(new Event('videoFocusChange'));
-  }
-
   handleCanvasResize() {
     if (!this.ticking) {
       window.requestAnimationFrame(() => {
@@ -202,85 +173,78 @@ class VideoList extends Component {
   setOptimalGrid() {
     const {
       streams,
-      cameraDockBounds,
-      webcamDraggableDispatch,
-      layoutLoaded,
+      cameraDock,
+      layoutContextDispatch,
     } = this.props;
     let numItems = streams.length;
+
     if (numItems < 1 || !this.canvas || !this.grid) {
       return;
     }
-    const { focusedId } = this.state;
-    let canvasWidth;
-    let canvasHeight;
-    const canvasBounds = this.canvas.getBoundingClientRect();
-
-    if (layoutLoaded === 'legacy') {
-      canvasWidth = canvasBounds?.width;
-      canvasHeight = canvasBounds?.height;
-    } else {
-      canvasWidth = cameraDockBounds?.width;
-      canvasHeight = cameraDockBounds?.height;
-    }
+    const { focusedId } = this.props;
+    const canvasWidth = cameraDock?.width;
+    const canvasHeight = cameraDock?.height;
 
     const gridGutter = parseInt(window.getComputedStyle(this.grid)
       .getPropertyValue('grid-row-gap'), 10);
-    const hasFocusedItem = numItems > 2 && focusedId;
+
+    const hasFocusedItem = streams.filter(s => s.stream === focusedId).length && numItems > 2;
+
     // Has a focused item so we need +3 cells
     if (hasFocusedItem) {
       numItems += 3;
     }
-    const optimalGrid = _.range(1, numItems + 1)
+    const optimalGrid = range(1, numItems + 1)
       .reduce((currentGrid, col) => {
         const testGrid = findOptimalGrid(
           canvasWidth, canvasHeight, gridGutter,
           ASPECT_RATIO, numItems, col,
         );
-        // We need a minimun of 2 rows and columns for the focused
+        // We need a minimum of 2 rows and columns for the focused
         const focusedConstraint = hasFocusedItem ? testGrid.rows > 1 && testGrid.columns > 1 : true;
         const betterThanCurrent = testGrid.filledArea > currentGrid.filledArea;
         return focusedConstraint && betterThanCurrent ? testGrid : currentGrid;
       }, { filledArea: 0 });
-    webcamDraggableDispatch(
-      {
-        type: 'setOptimalGrid',
-        value: optimalGrid,
+    layoutContextDispatch({
+      type: ACTIONS.SET_CAMERA_DOCK_OPTIMAL_GRID_SIZE,
+      value: {
+        width: optimalGrid.width,
+        height: optimalGrid.height,
       },
-    );
+    });
     this.setState({
       optimalGrid,
     });
   }
 
-  mirrorCamera(stream) {
-    const { mirroredCameras } = this.state;
-    if (this.cameraIsMirrored(stream)) {
-      this.setState({
-        mirroredCameras: mirroredCameras.filter((x) => x != stream),
-      });
-    } else {
-      this.setState({
-        mirroredCameras: mirroredCameras.concat([stream]),
-      });
-    }
-  }
+  displayPageButtons() {
+    const { numberOfPages, cameraDock } = this.props;
+    const { width: cameraDockWidth } = cameraDock;
 
-  cameraIsMirrored(stream) {
-    const { mirroredCameras } = this.state;
-    return mirroredCameras.indexOf(stream) >= 0;
+    if (!VideoService.isPaginationEnabled() || numberOfPages <= 1 || cameraDockWidth === 0) {
+      return false;
+    }
+
+    return true;
   }
 
   renderNextPageButton() {
-    const { intl, numberOfPages, currentVideoPageIndex } = this.props;
+    const {
+      intl,
+      numberOfPages,
+      currentVideoPageIndex,
+      cameraDock,
+    } = this.props;
+    const { position } = cameraDock;
 
-    if (!VideoService.isPaginationEnabled() || numberOfPages <= 1) return null;
+    if (!this.displayPageButtons()) return null;
 
     const currentPage = currentVideoPageIndex + 1;
     const nextPageLabel = intl.formatMessage(intlMessages.nextPageLabel);
     const nextPageDetailedLabel = `${nextPageLabel} (${currentPage}/${numberOfPages})`;
 
     return (
-      <Button
+      <Styled.NextPageButton
         role="button"
         aria-label={nextPageLabel}
         color="primary"
@@ -289,22 +253,28 @@ class VideoList extends Component {
         onClick={VideoService.getNextVideoPage}
         label={nextPageDetailedLabel}
         hideLabel
-        className={cx(styles.nextPage)}
+        position={position}
       />
     );
   }
 
   renderPreviousPageButton() {
-    const { intl, currentVideoPageIndex, numberOfPages } = this.props;
+    const {
+      intl,
+      currentVideoPageIndex,
+      numberOfPages,
+      cameraDock,
+    } = this.props;
+    const { position } = cameraDock;
 
-    if (!VideoService.isPaginationEnabled() || numberOfPages <= 1) return null;
+    if (!this.displayPageButtons()) return null;
 
     const currentPage = currentVideoPageIndex + 1;
     const prevPageLabel = intl.formatMessage(intlMessages.prevPageLabel);
     const prevPageDetailedLabel = `${prevPageLabel} (${currentPage}/${numberOfPages})`;
 
     return (
-      <Button
+      <Styled.PreviousPageButton
         role="button"
         aria-label={prevPageLabel}
         color="primary"
@@ -313,66 +283,58 @@ class VideoList extends Component {
         onClick={VideoService.getPreviousVideoPage}
         label={prevPageDetailedLabel}
         hideLabel
-        className={cx(styles.previousPage)}
+        position={position}
       />
     );
   }
 
   renderVideoList() {
     const {
-      intl,
       streams,
+      onVirtualBgDrop,
       onVideoItemMount,
       onVideoItemUnmount,
       swapLayout,
+      handleVideoFocus,
+      focusedId,
+      users,
     } = this.props;
-    const { focusedId } = this.state;
-
     const numOfStreams = streams.length;
-    return streams.map((vs) => {
-      const { stream, userId, name } = vs;
-      const isFocused = focusedId === stream;
-      const isFocusedIntlKey = !isFocused ? 'focus' : 'unfocus';
-      const isMirrored = this.cameraIsMirrored(stream);
-      const actions = [{
-        actionName: ACTION_NAME_MIRROR,
-        label: intl.formatMessage(intlMessages.mirrorLabel),
-        description: intl.formatMessage(intlMessages.mirrorDesc),
-        onClick: () => this.mirrorCamera(stream),
-      }];
 
-      if (numOfStreams > 2) {
-        actions.push({
-          actionName: ACTION_NAME_FOCUS,
-          label: intl.formatMessage(intlMessages[`${isFocusedIntlKey}Label`]),
-          description: intl.formatMessage(intlMessages[`${isFocusedIntlKey}Desc`]),
-          onClick: () => this.handleVideoFocus(stream),
-        });
-      }
+    let videoItems = streams;
+
+    return videoItems.map((item) => {
+      const { userId, name } = item;
+      const isStream = !!item.stream;
+      const stream = isStream ? item.stream : null;
+      const key = isStream ? stream : userId;
+      const isFocused = isStream && focusedId === stream && numOfStreams > 2;
 
       return (
-        <div
-          key={stream}
-          className={cx({
-            [styles.videoListItem]: true,
-            [styles.focused]: focusedId === stream && numOfStreams > 2,
-          })}
+        <Styled.VideoListItem
+          key={key}
+          focused={isFocused}
+          data-test="webcamVideoItem"
         >
           <VideoListItemContainer
+            users={users}
             numOfStreams={numOfStreams}
             cameraId={stream}
             userId={userId}
             name={name}
-            mirrored={isMirrored}
-            actions={actions}
+            focused={isFocused}
+            isStream={isStream}
+            onHandleVideoFocus={isStream ? handleVideoFocus : null}
             onVideoItemMount={(videoRef) => {
               this.handleCanvasResize();
-              onVideoItemMount(stream, videoRef);
+              if (isStream) onVideoItemMount(stream, videoRef);
             }}
+            stream={streams.find((s) => s.userId === userId) || {}}
             onVideoItemUnmount={onVideoItemUnmount}
             swapLayout={swapLayout}
+            onVirtualBgDrop={(type, name, data) => { return isStream ? onVirtualBgDrop(stream, type, name, data) : null; }}
           />
-        </div>
+        </Styled.VideoListItem>
       );
     });
   }
@@ -381,33 +343,29 @@ class VideoList extends Component {
     const {
       streams,
       intl,
+      cameraDock,
+      isGridEnabled,
     } = this.props;
     const { optimalGrid, autoplayBlocked } = this.state;
-
-    const canvasClassName = cx({
-      [styles.videoCanvas]: true,
-    });
-
-    const videoListClassName = cx({
-      [styles.videoList]: true,
-    });
+    const { position } = cameraDock;
 
     return (
-      <div
+      <Styled.VideoCanvas
+        position={position}
         ref={(ref) => {
           this.canvas = ref;
         }}
-        className={canvasClassName}
+        style={{
+          minHeight: 'inherit',
+        }}
       >
-
         {this.renderPreviousPageButton()}
 
-        {!streams.length ? null : (
-          <div
+        {!streams.length && !isGridEnabled ? null : (
+          <Styled.VideoList
             ref={(ref) => {
               this.grid = ref;
             }}
-            className={videoListClassName}
             style={{
               width: `${optimalGrid.width}px`,
               height: `${optimalGrid.height}px`,
@@ -416,7 +374,7 @@ class VideoList extends Component {
             }}
           >
             {this.renderVideoList()}
-          </div>
+          </Styled.VideoList>
         )}
         {!autoplayBlocked ? null : (
           <AutoplayOverlay
@@ -426,9 +384,13 @@ class VideoList extends Component {
           />
         )}
 
-        {this.renderNextPageButton()}
+        {
+          (position === 'contentRight' || position === 'contentLeft')
+          && <Styled.Break />
+        }
 
-      </div>
+        {this.renderNextPageButton()}
+      </Styled.VideoCanvas>
     );
   }
 }

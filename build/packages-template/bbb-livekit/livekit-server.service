@@ -1,0 +1,20 @@
+[Unit]
+Description=LiveKit Server
+Wants=redis-server.service
+After=syslog.target network.target freeswitch.service redis-server.service
+PartOf=bigbluebutton.target
+
+[Service]
+Type=exec
+ExecStartPre=-bash -c "umask 077; yq eval-all '. as $item ireduce ({}; . * $item )' /usr/share/livekit-server/livekit.yaml /etc/bigbluebutton/livekit.yaml > ${RUNTIME_DIRECTORY}/livekit.yaml"
+ExecStart=/usr/bin/livekit-server --config "${RUNTIME_DIRECTORY}/livekit.yaml"
+ExecStopPost=rm ${RUNTIME_DIRECTORY}/livekit.yaml
+RuntimeDirectory=livekit-server
+Restart=always
+User=bigbluebutton
+Group=bigbluebutton
+CPUSchedulingPolicy=fifo
+Nice=19
+
+[Install]
+WantedBy=multi-user.target bigbluebutton.target

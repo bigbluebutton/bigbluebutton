@@ -1,14 +1,9 @@
 import React, { Fragment, Component } from 'react';
 import { defineMessages, injectIntl } from 'react-intl';
 import PropTypes from 'prop-types';
-import cx from 'classnames';
-import Toggle from '/imports/ui/components/switch/component';
-import Modal from '/imports/ui/components/modal/simple/component';
-import NoteService from '/imports/ui/components/note/service';
-import Button from '/imports/ui/components/button/component';
-import { styles } from './styles';
-
-const CHAT_ENABLED = Meteor.settings.public.chat.enabled;
+import Toggle from '/imports/ui/components/common/switch/component';
+import Styled from './styles';
+import { isChatEnabled, isSharedNotesEnabled } from '/imports/ui/services/features';
 
 const intlMessages = defineMessages({
   lockViewersTitle: {
@@ -79,10 +74,14 @@ const intlMessages = defineMessages({
     id: 'app.lock-viewers.locked',
     description: 'locked element label',
   },
-  unlockedLabel: {
-    id: 'app.lock-viewers.unlocked',
-    description: 'unlocked element label',
+  hideCursorsLabel: {
+    id: "app.lock-viewers.hideViewersCursor",
+    description: 'label for other viewers cursor',
   },
+  hideAnnotationsLabel: {
+    id: "app.lock-viewers.hideAnnotationsLabel",
+    description: 'label for other viewers annotation',
+  }
 });
 
 const propTypes = {
@@ -100,11 +99,11 @@ class LockViewersComponent extends Component {
   constructor(props) {
     super(props);
 
-    const { meeting: { lockSettingsProps, usersProp } } = this.props;
+    const { meeting: { lockSettings, usersPolicies } } = this.props;
 
     this.state = {
-      lockSettingsProps,
-      usersProp,
+      lockSettingsProps: lockSettings,
+      usersProp: usersPolicies,
     };
   }
 
@@ -130,14 +129,17 @@ class LockViewersComponent extends Component {
 
   displayLockStatus(status) {
     const { intl } = this.props;
-
     return (
-      <span className={styles.toggleLabel}>
-        {status ? intl.formatMessage(intlMessages.lockedLabel)
-          : intl.formatMessage(intlMessages.unlockedLabel)
-        }
-      </span>
+      status && <Styled.ToggleLabel>
+        {intl.formatMessage(intlMessages.lockedLabel)}
+      </Styled.ToggleLabel>
     );
+  }
+
+  componentWillUnmount() {
+    const { closeModal } = this.props;
+
+    closeModal();
   }
 
   render() {
@@ -147,6 +149,9 @@ class LockViewersComponent extends Component {
       showToggleLabel,
       updateLockSettings,
       updateWebcamsOnlyForModerator,
+      isOpen,
+      onRequestClose,
+      priority,
     } = this.props;
 
     const { lockSettingsProps, usersProp } = this.state;
@@ -154,38 +159,36 @@ class LockViewersComponent extends Component {
     const invertColors = true;
 
     return (
-      <Modal
-        overlayClassName={styles.overlay}
-        className={styles.modal}
+      <Styled.LockViewersModal
         onRequestClose={closeModal}
-        hideBorder
-        shouldShowCloseButton={false}
         contentLabel={intl.formatMessage(intlMessages.ariaModalTitle)}
+        title={intl.formatMessage(intlMessages.lockViewersTitle)}
+        {...{
+          isOpen,
+          onRequestClose,
+          priority,
+        }}
       >
-
-        <div className={styles.container}>
-          <div className={styles.header}>
-            <h2 className={styles.title}>{intl.formatMessage(intlMessages.lockViewersTitle)}</h2>
-          </div>
-          <div className={styles.description}>
+        <Styled.Container>
+          <Styled.Description>
             {`${intl.formatMessage(intlMessages.lockViewersDescription)}`}
-          </div>
+          </Styled.Description>
 
-          <div className={styles.form}>
-            <header className={styles.subHeader}>
-              <div className={styles.bold}>{intl.formatMessage(intlMessages.featuresLable)}</div>
-              <div className={styles.bold}>{intl.formatMessage(intlMessages.lockStatusLabel)}</div>
-            </header>
-            <div className={styles.row}>
-              <div className={styles.col} aria-hidden="true">
-                <div className={styles.formElement}>
-                  <div className={styles.label}>
+          <Styled.Form>
+            <Styled.SubHeader>
+              <Styled.Bold>{intl.formatMessage(intlMessages.featuresLable)}</Styled.Bold>
+              <Styled.Bold>{intl.formatMessage(intlMessages.lockStatusLabel)}</Styled.Bold>
+            </Styled.SubHeader>
+            <Styled.Row data-test="lockShareWebcamItem">
+              <Styled.Col aria-hidden="true">
+                <Styled.FormElement>
+                  <Styled.Label>
                     {intl.formatMessage(intlMessages.webcamLabel)}
-                  </div>
-                </div>
-              </div>
-              <div className={styles.col}>
-                <div className={cx(styles.formElement, styles.pullContentRight)}>
+                  </Styled.Label>
+                </Styled.FormElement>
+              </Styled.Col>
+              <Styled.Col>
+                <Styled.FormElementRight>
                   {this.displayLockStatus(lockSettingsProps.disableCam)}
                   <Toggle
                     icons={false}
@@ -196,20 +199,21 @@ class LockViewersComponent extends Component {
                     ariaLabel={intl.formatMessage(intlMessages.webcamLabel)}
                     showToggleLabel={showToggleLabel}
                     invertColors={invertColors}
+                    data-test="lockShareWebcam"
                   />
-                </div>
-              </div>
-            </div>
-            <div className={styles.row}>
-              <div className={styles.col} aria-hidden="true">
-                <div className={styles.formElement}>
-                  <div className={styles.label}>
+                </Styled.FormElementRight>
+              </Styled.Col>
+            </Styled.Row>
+            <Styled.Row data-test="lockSeeOtherViewersWebcamItem">
+              <Styled.Col aria-hidden="true">
+                <Styled.FormElement>
+                  <Styled.Label>
                     {intl.formatMessage(intlMessages.otherViewersWebcamLabel)}
-                  </div>
-                </div>
-              </div>
-              <div className={styles.col}>
-                <div className={cx(styles.formElement, styles.pullContentRight)}>
+                  </Styled.Label>
+                </Styled.FormElement>
+              </Styled.Col>
+              <Styled.Col>
+                <Styled.FormElementRight>
                   {this.displayLockStatus(usersProp.webcamsOnlyForModerator)}
                   <Toggle
                     icons={false}
@@ -220,20 +224,21 @@ class LockViewersComponent extends Component {
                     ariaLabel={intl.formatMessage(intlMessages.otherViewersWebcamLabel)}
                     showToggleLabel={showToggleLabel}
                     invertColors={invertColors}
+                    data-test="lockSeeOtherViewersWebcam"
                   />
-                </div>
-              </div>
-            </div>
-            <div className={styles.row}>
-              <div className={styles.col} aria-hidden="true">
-                <div className={styles.formElement}>
-                  <div className={styles.label}>
+                </Styled.FormElementRight>
+              </Styled.Col>
+            </Styled.Row>
+            <Styled.Row data-test="lockShareMicrophoneItem">
+              <Styled.Col aria-hidden="true">
+                <Styled.FormElement>
+                  <Styled.Label>
                     {intl.formatMessage(intlMessages.microphoneLable)}
-                  </div>
-                </div>
-              </div>
-              <div className={styles.col}>
-                <div className={cx(styles.formElement, styles.pullContentRight)}>
+                  </Styled.Label>
+                </Styled.FormElement>
+              </Styled.Col>
+              <Styled.Col>
+                <Styled.FormElementRight>
                   {this.displayLockStatus(lockSettingsProps.disableMic)}
                   <Toggle
                     icons={false}
@@ -244,23 +249,24 @@ class LockViewersComponent extends Component {
                     ariaLabel={intl.formatMessage(intlMessages.microphoneLable)}
                     showToggleLabel={showToggleLabel}
                     invertColors={invertColors}
+                    data-test="lockShareMicrophone"
                   />
-                </div>
-              </div>
-            </div>
+                </Styled.FormElementRight>
+              </Styled.Col>
+            </Styled.Row>
 
-            {CHAT_ENABLED ? (
+            {isChatEnabled() ? (
               <Fragment>
-                <div className={styles.row}>
-                  <div className={styles.col} aria-hidden="true">
-                    <div className={styles.formElement}>
-                      <div className={styles.label}>
+                <Styled.Row data-test="lockPublicChatItem">
+                  <Styled.Col aria-hidden="true">
+                    <Styled.FormElement>
+                      <Styled.Label>
                         {intl.formatMessage(intlMessages.publicChatLabel)}
-                      </div>
-                    </div>
-                  </div>
-                  <div className={styles.col}>
-                    <div className={cx(styles.formElement, styles.pullContentRight)}>
+                      </Styled.Label>
+                    </Styled.FormElement>
+                  </Styled.Col>
+                  <Styled.Col>
+                    <Styled.FormElementRight>
                       {this.displayLockStatus(lockSettingsProps.disablePublicChat)}
                       <Toggle
                         icons={false}
@@ -271,20 +277,21 @@ class LockViewersComponent extends Component {
                         ariaLabel={intl.formatMessage(intlMessages.publicChatLabel)}
                         showToggleLabel={showToggleLabel}
                         invertColors={invertColors}
+                        data-test="lockPublicChat"
                       />
-                    </div>
-                  </div>
-                </div>
-                <div className={styles.row}>
-                  <div className={styles.col} aria-hidden="true">
-                    <div className={styles.formElement}>
-                      <div className={styles.label}>
+                    </Styled.FormElementRight>
+                  </Styled.Col>
+                </Styled.Row>
+                <Styled.Row data-test="lockPrivateChatItem">
+                  <Styled.Col aria-hidden="true">
+                    <Styled.FormElement>
+                      <Styled.Label>
                         {intl.formatMessage(intlMessages.privateChatLable)}
-                      </div>
-                    </div>
-                  </div>
-                  <div className={styles.col}>
-                    <div className={cx(styles.formElement, styles.pullContentRight)}>
+                      </Styled.Label>
+                    </Styled.FormElement>
+                  </Styled.Col>
+                  <Styled.Col>
+                    <Styled.FormElementRight>
                       {this.displayLockStatus(lockSettingsProps.disablePrivateChat)}
                       <Toggle
                         icons={false}
@@ -295,52 +302,54 @@ class LockViewersComponent extends Component {
                         ariaLabel={intl.formatMessage(intlMessages.privateChatLable)}
                         showToggleLabel={showToggleLabel}
                         invertColors={invertColors}
+                        data-test="lockPrivateChat"
                       />
-                    </div>
-                  </div>
-                </div>
+                    </Styled.FormElementRight>
+                  </Styled.Col>
+                </Styled.Row>
               </Fragment>
             ) : null
             }
-            {NoteService.isEnabled()
+            {isSharedNotesEnabled()
               ? (
-                <div className={styles.row}>
-                  <div className={styles.col} aria-hidden="true">
-                    <div className={styles.formElement}>
-                      <div className={styles.label}>
+                <Styled.Row data-test="lockEditSharedNotesItem">
+                  <Styled.Col aria-hidden="true">
+                    <Styled.FormElement>
+                      <Styled.Label>
                         {intl.formatMessage(intlMessages.notesLabel)}
-                      </div>
-                    </div>
-                  </div>
-                  <div className={styles.col}>
-                    <div className={cx(styles.formElement, styles.pullContentRight)}>
-                      {this.displayLockStatus(lockSettingsProps.disableNote)}
+                      </Styled.Label>
+                    </Styled.FormElement>
+                  </Styled.Col>
+                  <Styled.Col>
+                    <Styled.FormElementRight>
+                      {this.displayLockStatus(lockSettingsProps.disableNotes)}
                       <Toggle
                         icons={false}
-                        defaultChecked={lockSettingsProps.disableNote}
+                        defaultChecked={lockSettingsProps.disableNotes}
                         onChange={() => {
-                          this.toggleLockSettings('disableNote');
+                          this.toggleLockSettings('disableNotes');
                         }}
                         ariaLabel={intl.formatMessage(intlMessages.notesLabel)}
                         showToggleLabel={showToggleLabel}
                         invertColors={invertColors}
+                        data-test="lockEditSharedNotes"
                       />
-                    </div>
-                  </div>
-                </div>
+                    </Styled.FormElementRight>
+                  </Styled.Col>
+                </Styled.Row>
               )
               : null
             }
-            <div className={styles.row}>
-              <div className={styles.col} aria-hidden="true">
-                <div className={styles.formElement}>
-                  <div className={styles.label}>
+            <Styled.Row data-test="lockUserListItem">
+              <Styled.Col aria-hidden="true">
+                <Styled.FormElement>
+                  <Styled.Label>
                     {intl.formatMessage(intlMessages.userListLabel)}
-                  </div>
-                </div>
-              </div>
-              <div className={styles.col}>
-                <div className={cx(styles.formElement, styles.pullContentRight)}>
+                  </Styled.Label>
+                </Styled.FormElement>
+              </Styled.Col>
+              <Styled.Col>
+                <Styled.FormElementRight>
                   {this.displayLockStatus(lockSettingsProps.hideUserList)}
                   <Toggle
                     icons={false}
@@ -351,19 +360,73 @@ class LockViewersComponent extends Component {
                     ariaLabel={intl.formatMessage(intlMessages.userListLabel)}
                     showToggleLabel={showToggleLabel}
                     invertColors={invertColors}
+                    data-test="lockUserList"
                   />
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-        <div className={styles.footer}>
-          <div className={styles.actions}>
-            <Button
+                </Styled.FormElementRight>
+              </Styled.Col>
+            </Styled.Row>
+
+            <Styled.Row data-test="hideViewersCursorItem">
+              <Styled.Col aria-hidden="true">
+                <Styled.FormElement>
+                  <Styled.Label>
+                    {intl.formatMessage(intlMessages.hideCursorsLabel)}
+                  </Styled.Label>
+                </Styled.FormElement>
+              </Styled.Col>
+              <Styled.Col>
+                <Styled.FormElementRight>
+                  {this.displayLockStatus(lockSettingsProps.hideViewersCursor)}
+                  <Toggle
+                    icons={false}
+                    defaultChecked={lockSettingsProps.hideViewersCursor}
+                    onChange={() => {
+                      this.toggleLockSettings('hideViewersCursor');
+                    }}
+                    ariaLabel={intl.formatMessage(intlMessages.hideCursorsLabel)}
+                    showToggleLabel={showToggleLabel}
+                    invertColors={invertColors}
+                    data-test="hideViewersCursor"
+                  />
+                </Styled.FormElementRight>
+              </Styled.Col>
+            </Styled.Row>
+
+            <Styled.Row data-test="hideViewersAnnotation">
+              <Styled.Col aria-hidden="true">
+                <Styled.FormElement>
+                  <Styled.Label>
+                    {intl.formatMessage(intlMessages.hideAnnotationsLabel)}
+                  </Styled.Label>
+                </Styled.FormElement>
+              </Styled.Col>
+              <Styled.Col>
+                <Styled.FormElementRight>
+                  {this.displayLockStatus(lockSettingsProps.hideViewersAnnotation)}
+                  <Toggle
+                    icons={false}
+                    defaultChecked={lockSettingsProps.hideViewersAnnotation}
+                    onChange={() => {
+                      this.toggleLockSettings('hideViewersAnnotation');
+                    }}
+                    ariaLabel={intl.formatMessage(intlMessages.hideAnnotationsLabel)}
+                    showToggleLabel={showToggleLabel}
+                    invertColors={invertColors}
+                    data-test="hideViewersAnnotation"
+                  />
+                </Styled.FormElementRight>
+              </Styled.Col>
+            </Styled.Row>
+          </Styled.Form>
+        </Styled.Container>
+        <Styled.Footer>
+          <Styled.Actions>
+            <Styled.ButtonCancel
               label={intl.formatMessage(intlMessages.buttonCancel)}
               onClick={closeModal}
+              color="secondary"
             />
-            <Button
+            <Styled.ButtonApply
               color="primary"
               label={intl.formatMessage(intlMessages.buttonApply)}
               onClick={() => {
@@ -371,10 +434,11 @@ class LockViewersComponent extends Component {
                 updateWebcamsOnlyForModerator(usersProp.webcamsOnlyForModerator);
                 closeModal();
               }}
+              data-test="applyLockSettings"
             />
-          </div>
-        </div>
-      </Modal>
+          </Styled.Actions>
+        </Styled.Footer>
+      </Styled.LockViewersModal>
     );
   }
 }

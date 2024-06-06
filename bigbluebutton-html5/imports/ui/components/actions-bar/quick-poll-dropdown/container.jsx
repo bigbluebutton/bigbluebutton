@@ -1,14 +1,18 @@
-import React, { useContext } from 'react';
+import React from 'react';
 import { withTracker } from 'meteor/react-meteor-data';
 import { injectIntl } from 'react-intl';
-import QuickPollDropdown from './component';
-import { NLayoutContext } from '../../layout/context/context';
 import PollService from '/imports/ui/components/poll/service';
+import QuickPollDropdown from './component';
+import { useMutation } from '@apollo/client';
+import { layoutDispatch } from '../../layout/context';
+import { POLL_CANCEL } from '/imports/ui/components/poll/mutations';
 
 const QuickPollDropdownContainer = (props) => {
-  const newLayoutContext = useContext(NLayoutContext);
-  const { newLayoutContextDispatch } = newLayoutContext;
-  return <QuickPollDropdown {...{ newLayoutContextDispatch, ...props }} />;
+  const layoutContextDispatch = layoutDispatch();
+
+  const [stopPoll] = useMutation(POLL_CANCEL);
+
+  return <QuickPollDropdown {...{ layoutContextDispatch, stopPoll, ...props }} />;
 };
 
 export default withTracker(() => ({

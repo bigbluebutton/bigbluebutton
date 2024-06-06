@@ -5,7 +5,7 @@ import org.bigbluebutton.common2.domain.PageVO
 case class CurrentPresenter(userId: String, name: String, assignedBy: String)
 case class CurrentPresentationInfo(presenter: CurrentPresenter, presentations: Seq[Presentation])
 case class Presentation(id: String, name: String, current: Boolean = false,
-                        pages: scala.collection.immutable.Map[String, PageVO], downloadable: Boolean)
+                        pages: scala.collection.immutable.Map[String, PageVO], downloadable: Boolean, removable: Boolean)
 
 class PresentationModel {
   private var presentations = new scala.collection.immutable.HashMap[String, Presentation] // todo remove

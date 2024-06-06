@@ -1,0 +1,10 @@
+/var/log/bbb-webrtc-sfu/*.log {
+        daily
+        missingok
+        rotate 7
+        compress
+        notifempty
+        copytruncate
+        dateext
+        dateformat -%Y-%m-%d
+}

@@ -1,13 +1,12 @@
-bbb_version: '2.1.0'
+bbb_version: '3.0.0'
 raw_audio_src: /var/freeswitch/meetings
-raw_video_src: /usr/share/red5/webapps/video/streams
-kurento_video_src: /var/kurento/recordings
-kurento_screenshare_src: /var/kurento/screenshare
-raw_screenshare_src: /usr/share/red5/webapps/screenshare/streams
-raw_webrtc_deskshare_src: /usr/share/red5/webapps/video-broadcast/streams
+mediasoup_video_src: /var/mediasoup/recordings
+mediasoup_screenshare_src: /var/mediasoup/screenshare
+webrtc_recorder_video_src: /var/lib/bbb-webrtc-recorder/recordings
+webrtc_recorder_screenshare_src: /var/lib/bbb-webrtc-recorder/screenshare
 raw_deskshare_src: /var/bigbluebutton/deskshare
 raw_presentation_src: /var/bigbluebutton
-notes_endpoint: http://127.0.0.1:9001/p
+notes_endpoint: http://127.0.0.1:9002/p
 # Specify the notes formats we archive
 # txt, doc and odt are also supported
 notes_formats:
@@ -27,6 +26,21 @@ redis_port: 6379
 # This is useful if you want to track progress status
 # and have another script process it.
 store_recording_status: false
+
+# Whether to anonymize the sender of chat messages in the processed
+# recordings. The settings here are the defaults; they can be overridden
+# by passing meta parameters on the meeting create call.
+# meta param: meta_bbb-anonymize-chat (true/false)
+anonymize_chat: false
+# By default only names of viewers are anonymized - if you would also
+# like to anonymize moderators, you can set this to true:
+# meta param: meta_bbb-anonymize-chat-moderators (true/false)
+anonymize_chat_moderators: false
+
+# By default, recordings assume the Viewer viewpoint (with all locks)
+# so when webcamsOnlyForModerator=true, only moderators webcams are included in recordings.
+# Use this option to ignore locks and assume Moderator viewpoint instead.
+show_moderator_viewpoint: false
 
 # Sequence of recording steps. Keys are the current step, values
 # are the next step(s). Examples:

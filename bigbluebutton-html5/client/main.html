@@ -17,7 +17,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 -->
 
 <head>
-  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
   <style>
     html {
       box-sizing: border-box;
@@ -33,6 +33,15 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
       font-family: 'Source Sans Pro', Arial, sans-serif;
       font-size: 1rem; /* 16px */
       background-color: #06172A;
+    }
+
+    /* language-specific font */
+    body.lang-fa {
+      font-family: Tahoma, 'Source Sans Pro', Arial, sans-serif;
+    }
+
+    :-webkit-full-screen {
+      background-color: inherit;
     }
 
     a {
@@ -74,30 +83,85 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
     [hidden]:not([hidden="false"]) {
       display: none !important;
     }
+
+    ::-webkit-input-placeholder {
+      color: var(--palette-placeholder-text);
+      opacity: 1;
+    }
+
+    :-moz-placeholder, /* Firefox 4 to 18 */
+    ::-moz-placeholder { /* Firefox 19+ */
+      color: var(--palette-placeholder-text);
+      opacity: 1;
+    }
+
+    main {
+      display: initial;
+    }
+
+    .overrideSelect {
+      background-color: #FFF !important;
+      color: #000 !important;
+    }
+
+    .select {
+      background-color: rgba(66, 133, 244, 1) !important;
+      color: #FFF !important;
+    }
+
+    .fade-in {
+      opacity: 1 !important;
+    }
+
+    .fade-out {
+      opacity: 0 !important;
+    }
   </style>
   <script>
     document.addEventListener('gesturestart', function (e) {
       e.preventDefault();
     });
   </script>
-  <script src="compatibility/adapter.js?v=VERSION" language="javascript"></script>
   <script src="compatibility/sip.js?v=VERSION" language="javascript"></script>
-  <script src="compatibility/kurento-utils.js?v=VERSION" language="javascript"></script>
+  <script src="compatibility/tflite-simd.js?v=VERSION" language="javascript"></script>
+  <script src="compatibility/tflite.js?v=VERSION" language="javascript"></script>
   <!-- fonts -->
-  <link rel="preload" href="fonts/BbbIcons/bbb-icons.woff?j1ntjp" as="font" crossorigin="anonymous"/>
-  <link rel="preload" href="fonts/SourceSansPro/SourceSansPro-Light.woff" as="font" crossorigin="anonymous"/>
-  <link rel="preload" href="fonts/SourceSansPro/SourceSansPro-Regular.woff" as="font" crossorigin="anonymous"/>
-  <link rel="preload" href="fonts/SourceSansPro/SourceSansPro-Semibold.woff" as="font" crossorigin="anonymous"/>
-  <link rel="preload" href="fonts/SourceSansPro/SourceSansPro-Bold.woff" as="font" crossorigin="anonymous"/>
-  <link rel="preload" href="fonts/SourceSansPro/SourceSansPro-LightItalic.woff" as="font" crossorigin="anonymous"/>
-  <link rel="preload" href="fonts/SourceSansPro/SourceSansPro-Italic.woff" as="font" crossorigin="anonymous"/>
-  <link rel="preload" href="fonts/SourceSansPro/SourceSansPro-SemiboldItalic.woff" as="font" crossorigin="anonymous"/>
-  <link rel="preload" href="fonts/SourceSansPro/SourceSansPro-BoldItalic.woff" as="font" crossorigin="anonymous"/>
+  <link rel="preload" href="fonts/BbbIcons/bbb-icons.woff2?v=VERSION" as="font" type="font/woff2" crossorigin="anonymous"/>
+  <link rel="preload" href="fonts/SourceSansPro/SourceSansPro-Light.woff?v=VERSION" as="font" crossorigin="anonymous"/>
+  <link rel="preload" href="fonts/SourceSansPro/SourceSansPro-Regular.woff?v=VERSION" as="font" crossorigin="anonymous"/>
+  <link rel="preload" href="fonts/SourceSansPro/SourceSansPro-Semibold.woff?v=VERSION" as="font" crossorigin="anonymous"/>
+  <link rel="preload" href="fonts/SourceSansPro/SourceSansPro-Bold.woff?v=VERSION" as="font" crossorigin="anonymous"/>
+  <link rel="preload" href="fonts/SourceSansPro/SourceSansPro-LightItalic.woff?v=VERSION" as="font" crossorigin="anonymous"/>
+  <link rel="preload" href="fonts/SourceSansPro/SourceSansPro-Italic.woff?v=VERSION" as="font" crossorigin="anonymous"/>
+  <link rel="preload" href="fonts/SourceSansPro/SourceSansPro-SemiboldItalic.woff?v=VERSION" as="font" crossorigin="anonymous"/>
+  <link rel="preload" href="fonts/SourceSansPro/SourceSansPro-BoldItalic.woff?v=VERSION" as="font" crossorigin="anonymous"/>
+
+  <style>
+    @font-face {
+      font-family: 'bbb-icons';
+      src: url('fonts/BbbIcons/bbb-icons.woff2?v=VERSION') format('woff2'),
+        url('fonts/BbbIcons/bbb-icons.woff?v=VERSION') format('woff');
+      font-weight: normal;
+      font-style: normal;
+    }
+  </style>
   <!-- fonts -->
 </head>
 <body style="background-color: #06172A">
-  <div id="app" role="document"></div>
+  <div id="aria-polite-alert" aria-live="polite" aria-atomic="false" class="sr-only"></div>
+  <svg style="display: none; width: 1px; height: 1px;">
+    <defs>
+      <symbol id="redPointer" viewBox="0 0 10 10">
+        <circle cx="5" cy="5" r="4" fill="red" />
+      </symbol>
+    </defs>
+  </svg>
+  <main>
+    <div id="app" role="document">
+  </main>
+  </div>
   <span id="destination"></span>
   <audio id="remote-media" autoplay>
   </audio>
+  <div id="modals-container"></div>
 </body>

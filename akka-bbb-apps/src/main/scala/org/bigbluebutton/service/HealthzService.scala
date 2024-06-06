@@ -1,11 +1,11 @@
 package org.bigbluebutton.service
 
-import akka.actor.{ Actor, ActorLogging, ActorSystem, Props }
-import akka.util.Timeout
+import org.apache.pekko.actor.{ Actor, ActorLogging, ActorSystem, Props }
+import org.apache.pekko.util.Timeout
 
 import scala.concurrent.Future
 import scala.concurrent.duration._
-import akka.pattern.{ AskTimeoutException, ask }
+import org.apache.pekko.pattern.{ AskTimeoutException, ask }
 import org.bigbluebutton.core.BigBlueButtonActor
 
 import java.time.{ Instant, LocalDateTime }

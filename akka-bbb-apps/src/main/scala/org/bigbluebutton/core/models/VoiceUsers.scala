@@ -1,6 +1,7 @@
 package org.bigbluebutton.core.models
 
 import com.softwaremill.quicklens._
+import org.bigbluebutton.core.db.{ UserDAO, UserVoiceDAO }
 
 object VoiceUsers {
   def findWithVoiceUserId(users: VoiceUsers, voiceUserId: String): Option[VoiceUserState] = {
@@ -9,6 +10,10 @@ object VoiceUsers {
 
   def findWIthIntId(users: VoiceUsers, intId: String): Option[VoiceUserState] = {
     users.toVector.find(u => u.intId == intId)
+  }
+
+  def findWithIntIdAndUUID(users: VoiceUsers, intId: String, uuid: String): Option[VoiceUserState] = {
+    users.toVector.find(u => u.uuid == uuid && u.intId == intId)
   }
 
   def findAll(users: VoiceUsers): Vector[VoiceUserState] = users.toVector
@@ -30,9 +35,11 @@ object VoiceUsers {
 
   def add(users: VoiceUsers, user: VoiceUserState): Unit = {
     users.save(user)
+    UserVoiceDAO.insert(user)
   }
 
-  def removeWithIntId(users: VoiceUsers, intId: String): Option[VoiceUserState] = {
+  def removeWithIntId(users: VoiceUsers, meetingId: String, intId: String): Option[VoiceUserState] = {
+    UserVoiceDAO.deleteUserVoice(meetingId, intId)
     users.remove(intId)
   }
 
@@ -52,6 +59,8 @@ object VoiceUsers {
         .modify(_.talking).setTo(false)
         .modify(_.lastStatusUpdateOn).setTo(System.currentTimeMillis())
       users.save(vu)
+      UserVoiceDAO.update(vu)
+      UserVoiceDAO.updateTalking(vu)
       vu
     }
   }
@@ -64,6 +73,8 @@ object VoiceUsers {
         .modify(_.talking).setTo(talking)
         .modify(_.lastStatusUpdateOn).setTo(System.currentTimeMillis())
       users.save(vu)
+      UserVoiceDAO.updateTalking(vu)
+
       vu
     }
   }
@@ -76,6 +87,7 @@ object VoiceUsers {
         .modify(_.lastFloorTime).setTo(timestamp)
         .modify(_.lastStatusUpdateOn).setTo(System.currentTimeMillis())
       users.save(vu)
+      UserVoiceDAO.update(vu)
       vu
     }
   }
@@ -85,6 +97,18 @@ object VoiceUsers {
       u <- findWithVoiceUserId(users, voiceUserId)
     } yield {
       val vu = u.modify(_.floor).setTo(floor)
+        .modify(_.lastStatusUpdateOn).setTo(System.currentTimeMillis())
+      users.save(vu)
+      UserVoiceDAO.update(vu)
+      vu
+    }
+  }
+
+  def holdStateChanged(users: VoiceUsers, intId: String, uuid: String, hold: Boolean): Option[VoiceUserState] = {
+    for {
+      u <- findWithIntIdAndUUID(users, intId, uuid)
+    } yield {
+      val vu = u.modify(_.hold).setTo(hold)
         .modify(_.lastStatusUpdateOn).setTo(System.currentTimeMillis())
       users.save(vu)
       vu
@@ -165,20 +189,26 @@ case class VoiceUserVO2x(
     callingWith:   String,
     listenOnly:    Boolean,
     floor:         Boolean,
-    lastFloorTime: String
+    lastFloorTime: String,
+    hold:          Boolean,
+    uuid:          String
 )
 
 case class VoiceUserState(
     intId:              String,
     voiceUserId:        String,
+    meetingId:          String,
     callingWith:        String,
     callerName:         String,
     callerNum:          String,
+    color:              String,
     muted:              Boolean,
     talking:            Boolean,
     listenOnly:         Boolean,
     calledInto:         String,
     lastStatusUpdateOn: Long,
     floor:              Boolean,
-    lastFloorTime:      String
+    lastFloorTime:      String,
+    hold:               Boolean,
+    uuid:               String
 )

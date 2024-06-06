@@ -72,6 +72,10 @@ public class ApiErrors {
 		errors.add(new String[] {"maxParticipantsReached", "The number of participants allowed for this meeting has been reached."});
 	}
 
+	public void guestDeniedAccess() {
+		errors.add(new String[] {"guestDeniedAccess", "You have been denied access to this meeting based on the meeting's guest policy"});
+	}
+
 	public void addError(String[] error) {
 		errors.add(error);
 	}

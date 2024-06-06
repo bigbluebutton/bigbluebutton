@@ -22,10 +22,12 @@ trait EjectUserFromVoiceCmdMsgHdlr extends RightsManagementTrait {
       for {
         u <- VoiceUsers.findWithIntId(liveMeeting.voiceUsers, msg.body.userId)
       } yield {
-        log.info("Ejecting user from voice.  meetingId=" + props.meetingProp.intId + " userId=" + u.intId)
-        VoiceUsers.ban(liveMeeting.voiceUsers, u)
+        log.info("Ejecting user from voice.  meetingId=" + props.meetingProp.intId + " userId=" + u.intId + " ban=" + msg.body.banUser)
         val event = MsgBuilder.buildEjectUserFromVoiceConfSysMsg(props.meetingProp.intId, props.voiceProp.voiceConf, u.voiceUserId)
         outGW.send(event)
+        if (msg.body.banUser) {
+          VoiceUsers.ban(liveMeeting.voiceUsers, u)
+        }
       }
     }
   }

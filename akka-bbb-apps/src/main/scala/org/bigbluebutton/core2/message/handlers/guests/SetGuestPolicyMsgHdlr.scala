@@ -14,7 +14,7 @@ trait SetGuestPolicyMsgHdlr extends RightsManagementTrait {
   val outGW: OutMsgRouter
 
   def handleSetGuestPolicyMsg(msg: SetGuestPolicyCmdMsg): Unit = {
-    if (permissionFailed(PermissionCheck.MOD_LEVEL, PermissionCheck.VIEWER_LEVEL, liveMeeting.users2x, msg.header.userId)) {
+    if (permissionFailed(PermissionCheck.MOD_LEVEL, PermissionCheck.VIEWER_LEVEL, liveMeeting.users2x, msg.header.userId) || liveMeeting.props.meetingProp.isBreakout) {
       val meetingId = liveMeeting.props.meetingProp.intId
       val reason = "No permission to set guest policy in meeting."
       PermissionCheck.ejectUserForFailedPermission(meetingId, msg.header.userId, reason, outGW, liveMeeting)
@@ -22,7 +22,11 @@ trait SetGuestPolicyMsgHdlr extends RightsManagementTrait {
       val newPolicy = msg.body.policy.toUpperCase()
       if (GuestPolicyType.policyTypes.contains(newPolicy)) {
         val policy = GuestPolicy(newPolicy, msg.body.setBy)
-        GuestsWaiting.setGuestPolicy(liveMeeting.guestsWaiting, policy)
+        GuestsWaiting.setGuestPolicy(
+          liveMeeting.props.meetingProp.intId,
+          liveMeeting.guestsWaiting,
+          policy
+        )
         val event = MsgBuilder.buildGuestPolicyChangedEvtMsg(
           liveMeeting.props.meetingProp.intId, msg.header.userId, newPolicy, msg.body.setBy
         )

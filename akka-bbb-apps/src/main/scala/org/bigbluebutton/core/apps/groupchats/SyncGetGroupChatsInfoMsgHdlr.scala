@@ -11,7 +11,7 @@ trait SyncGetGroupChatsInfoMsgHdlr {
   def handleSyncGetGroupChatsInfo(state: MeetingState2x, liveMeeting: LiveMeeting, bus: MessageBus): MeetingState2x = {
 
     def buildSyncGetGroupChatsRespMsg(allChats: Vector[GroupChatInfo]): BbbCommonEnvCoreMsg = {
-      val routing = Routing.addMsgToHtml5InstanceIdRouting(liveMeeting.props.meetingProp.intId, liveMeeting.props.systemProps.html5InstanceId.toString)
+      val routing = Routing.addMsgToClientRouting(MessageTypes.DIRECT, liveMeeting.props.meetingProp.intId, "nodeJSapp")
       val envelope = BbbCoreEnvelope(SyncGetGroupChatsRespMsg.NAME, routing)
       val header = BbbClientMsgHeader(SyncGetGroupChatsRespMsg.NAME, liveMeeting.props.meetingProp.intId, "nodeJSapp")
       val body = SyncGetGroupChatsRespMsgBody(allChats)
@@ -21,7 +21,7 @@ trait SyncGetGroupChatsInfoMsgHdlr {
     }
 
     def buildSyncGetGroupChatMsgsRespMsg(msgs: Vector[GroupChatMsgToUser], chatId: String): BbbCommonEnvCoreMsg = {
-      val routing = Routing.addMsgToHtml5InstanceIdRouting(liveMeeting.props.meetingProp.intId, liveMeeting.props.systemProps.html5InstanceId.toString)
+      val routing = Routing.addMsgToClientRouting(MessageTypes.DIRECT, liveMeeting.props.meetingProp.intId, "nodeJSapp")
       val envelope = BbbCoreEnvelope(SyncGetGroupChatMsgsRespMsg.NAME, routing)
       val header = BbbClientMsgHeader(SyncGetGroupChatMsgsRespMsg.NAME, liveMeeting.props.meetingProp.intId, "nodeJSapp")
       val body = SyncGetGroupChatMsgsRespMsgBody(chatId, msgs)
@@ -37,11 +37,11 @@ trait SyncGetGroupChatsInfoMsgHdlr {
     val allChats = chats map (pc => {
 
       val msgs = pc.msgs.toVector map (m => GroupChatMsgToUser(m.id, m.createdOn, m.correlationId,
-        m.sender, m.color, m.message))
+        m.sender, m.chatEmphasizedText, m.message))
       val respMsg = buildSyncGetGroupChatMsgsRespMsg(msgs, pc.id)
       bus.outGW.send(respMsg)
 
-      GroupChatInfo(pc.id, pc.name, pc.access, pc.createdBy, pc.users)
+      GroupChatInfo(pc.id, pc.access, pc.createdBy, pc.users)
     })
 
     // publishing a message with the group chat info

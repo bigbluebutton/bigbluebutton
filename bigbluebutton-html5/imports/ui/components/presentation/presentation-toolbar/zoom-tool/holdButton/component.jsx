@@ -1,6 +1,6 @@
 import React, { PureComponent } from 'react';
 import PropTypes from 'prop-types';
-import _ from 'lodash';
+import { uniqueId } from '/imports/utils/string-utils';
 
 const DELAY_MILLISECONDS = 300;
 const STEP_TIME = 100;
@@ -93,7 +93,7 @@ const defaultProps = {
   exec: () => {},
   minBound: null,
   maxBound: Infinity,
-  uniqueKey: _.uniqueId('holdButton-'),
+  uniqueKey: uniqueId('holdButton-'),
   value: 0,
 };
 

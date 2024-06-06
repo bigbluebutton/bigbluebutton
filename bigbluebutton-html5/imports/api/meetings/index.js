@@ -1,23 +1,26 @@
 import { Meteor } from 'meteor/meteor';
 
-const Meetings = new Mongo.Collection('meetings');
-const RecordMeetings = new Mongo.Collection('record-meetings');
-const ExternalVideoMeetings = new Mongo.Collection('external-video-meetings');
-const MeetingTimeRemaining = new Mongo.Collection('meeting-time-remaining');
+const collectionOptions = Meteor.isClient ? {
+  connection: null,
+} : {};
+
+const Meetings = new Mongo.Collection('meetings', collectionOptions);
+const MeetingTimeRemaining = new Mongo.Collection('meeting-time-remaining', collectionOptions);
+const Notifications = new Mongo.Collection('notifications', collectionOptions);
+const LayoutMeetings = new Mongo.Collection('layout-meetings');
 
 if (Meteor.isServer) {
   // types of queries for the meetings:
   // 1. meetingId
 
-  Meetings._ensureIndex({ meetingId: 1 });
-  RecordMeetings._ensureIndex({ meetingId: 1 });
-  ExternalVideoMeetings._ensureIndex({ meetingId: 1 });
-  MeetingTimeRemaining._ensureIndex({ meetingId: 1 });
+  Meetings.createIndexAsync({ meetingId: 1 });
+  MeetingTimeRemaining.createIndexAsync({ meetingId: 1 });
+  LayoutMeetings.createIndexAsync({ meetingId: 1 });
 }
 
 export {
-  RecordMeetings,
-  ExternalVideoMeetings,
   MeetingTimeRemaining,
+  Notifications,
+  LayoutMeetings,
 };
 export default Meetings;

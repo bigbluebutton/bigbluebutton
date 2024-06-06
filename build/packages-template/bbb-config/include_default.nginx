@@ -1,0 +1,9 @@
+# The purpose of this file is to be included in an nginx site configuration.
+# you may copy this file to /etc/bigbluebutton/nginx/include_default.nginx and
+# adapt it to your needs
+#
+# If you are running a cluster setup, you need to change bbb-html5.nginx
+# copy it to /etc/bigbluebutting/nginx/bbb-html5.nginx and include all the
+# components in /usr/share/bigbluebutton/nginx/ that you did not change.
+
+include /usr/share/bigbluebutton/nginx/*.nginx;

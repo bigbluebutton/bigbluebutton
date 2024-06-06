@@ -158,20 +158,7 @@
     -->
     <!-- <param name="rtp-retain-crypto-keys" value="true"/> -->
 
-    <!-- <param name="core-db-dsn" value="pgsql://hostaddr=127.0.0.1 dbname=freeswitch user=freeswitch password='' options='-c client_min_messages=NOTICE'" /> -->
-    <!-- <param name="core-db-dsn" value="dsn:username:password" /> -->
-    <!--
-         Allow to specify the sqlite db at a different location (In this example, move it to ramdrive for
-         better performance on most linux distro (note, you loose the data if you reboot))
-    -->
-    <param name="core-db-name" value="/dev/shm/core.db" /> 
-
-    <!-- The system will create all the db schemas automatically, set this to false to avoid this behaviour -->
-    <!-- <param name="auto-create-schemas" value="true"/> -->
-    <!-- <param name="auto-clear-sql" value="true"/> -->
-    <!-- <param name="enable-early-hangup" value="true"/> -->
-
-    <!-- <param name="core-dbtype" value="MSSQL"/> -->
+    <param name="core-db-dsn" value="sqlite://memory://file:core?mode=memory&amp;cache=shared"/>
 
     <!-- Allow multiple registrations to the same account in the central registration table -->
     <!-- <param name="multiple-registrations" value="true"/> -->

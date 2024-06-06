@@ -18,10 +18,12 @@
 # You should have received a copy of the GNU Lesser General Public License
 # along with BigBlueButton.  If not, see <http://www.gnu.org/licenses/>.
 
+require 'rubygems'
+require 'bundler/setup'
+
 require_relative '../lib/recordandplayback'
 
 require 'recordandplayback/workers'
-require 'rubygems'
 require 'yaml'
 require 'fileutils'
 require 'resque'

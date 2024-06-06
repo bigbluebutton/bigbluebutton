@@ -1,3 +1,4 @@
+#!/bin/sh
 #
 # Update ESL password to match the password from bbb-freeswitch-core, which is
 # listed as a package dependency to ensure that it configures first.
@@ -8,3 +9,6 @@ ESL_PASSWORD=$(xmlstarlet sel -t -m 'configuration/settings/param[@name="passwor
 if [ -n "$ESL_PASSWORD" ]; then
     sed -i "s/ClueCon/$ESL_PASSWORD/g" /etc/bigbluebutton/bbb-fsesl-akka.conf
 fi
+
+# Change ownership of the logging directory
+chown bigbluebutton:bigbluebutton '/var/log/bbb-fsesl-akka'

@@ -1,7 +1,6 @@
 import Logger from './logger';
 import userLeaving from '/imports/api/users/server/methods/userLeaving';
 import { extractCredentials } from '/imports/api/common/server/helpers';
-import AuthTokenValidation from '/imports/api/auth-token-validation';
 import Users from '/imports/api/users';
 import { check } from 'meteor/check';
 
@@ -140,13 +139,6 @@ class ClientConnections {
 
     Logger.debug(`Found ${activeConnections.length} active connections in server`);
 
-    const onlineUsers = AuthTokenValidation
-      .find(
-        { connectionId: { $in: activeConnections } },
-        { fields: { meetingId: 1, userId: 1 } }
-      )
-      .fetch();
-
     const onlineUsersId = onlineUsers.map(({ userId }) => userId);
 
     const usersQuery = { userId: { $nin: onlineUsersId } };
@@ -171,6 +163,10 @@ class ClientConnections {
 
 }
 
-const ClientConnectionsSingleton = new ClientConnections();
+if (!process.env.BBB_HTML5_ROLE || process.env.BBB_HTML5_ROLE === 'frontend') {
+  Logger.info("ClientConnectionsSingleton was created")
 
-export default ClientConnectionsSingleton;
+  const ClientConnectionsSingleton = new ClientConnections();
+
+  export default ClientConnectionsSingleton;
+}

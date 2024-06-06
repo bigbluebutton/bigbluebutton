@@ -1,12 +1,12 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import cx from 'classnames';
-
-import { styles } from './styles';
+import Settings from '/imports/ui/services/settings';
+import Styled from './styles';
+import browserInfo from '/imports/utils/browserInfo';
 
 const propTypes = {
-  children: PropTypes.node.isRequired,
-  moderator: PropTypes.bool.isRequired,
+  children: PropTypes.node,
+  moderator: PropTypes.bool,
   presenter: PropTypes.bool,
   talking: PropTypes.bool,
   muted: PropTypes.bool,
@@ -17,9 +17,11 @@ const propTypes = {
   emoji: PropTypes.bool,
   avatar: PropTypes.string,
   className: PropTypes.string,
+  isSkeleton: PropTypes.bool,
 };
 
 const defaultProps = {
+  children: <></>,
   moderator: false,
   presenter: false,
   talking: false,
@@ -30,13 +32,18 @@ const defaultProps = {
   color: '#000',
   emoji: false,
   avatar: '',
-  className: null,
+  className: '',
+  isSkeleton: false,
 };
+
+const { animations } = Settings.application;
+const { isChrome, isFirefox, isEdge } = browserInfo;
 
 const UserAvatar = ({
   children,
   moderator,
   presenter,
+  className,
   talking,
   muted,
   listenOnly,
@@ -45,51 +52,52 @@ const UserAvatar = ({
   emoji,
   avatar,
   noVoice,
-  className,
   whiteboardAccess,
+  isSkeleton,
 }) => (
+  <>
+    {isSkeleton && (<Styled.Skeleton>{children}</Styled.Skeleton>)}
 
-  <div
-    aria-hidden="true"
-    data-test="userAvatar"
-    className={cx(styles.avatar, {
-      [styles.moderator]: moderator,
-      [styles.presenter]: presenter,
-      [styles.whiteboardAccess]: whiteboardAccess && !presenter,
-      [styles.muted]: muted,
-      [styles.listenOnly]: listenOnly,
-      [styles.voice]: voice,
-      [styles.noVoice]: noVoice && !listenOnly,
-    }, className)}
-    style={{
-      backgroundColor: color,
-      color, // We need the same color on both for the border
-    }}
-  >
+    {!isSkeleton && (
+      <Styled.Avatar
+        aria-hidden="true"
+        data-test={moderator ? 'moderatorAvatar' : 'viewerAvatar'}
+        moderator={moderator}
+        presenter={presenter}
+        className={className}
+        whiteboardAccess={whiteboardAccess && !presenter}
+        muted={muted}
+        listenOnly={listenOnly}
+        voice={voice}
+        noVoice={noVoice && !listenOnly}
+        isChrome={isChrome}
+        isFirefox={isFirefox}
+        isEdge={isEdge}
+        className={className}
+        style={{
+          backgroundColor: color,
+          color, // We need the same color on both for the border
+        }}
+      >
 
-    <div className={cx({
-      [styles.talking]: (talking && !muted && avatar.length === 0),
-    })}
-    />
+        <Styled.Talking talking={talking && !muted} animations={animations} />
 
-    {avatar.length !== 0 && !emoji
-      ? (
-        <div className={styles.image}>
-          <img
-            className={cx(styles.img, {
-              [styles.circle]: !moderator,
-              [styles.square]: moderator,
-            })}
-            src={avatar}
-          />
-        </div>
-      ) : (
-        <div className={styles.content}>
-          {children}
-        </div>
-      )
-    }
-  </div>
+        {avatar.length !== 0 && !emoji
+          ? (
+            <Styled.Image>
+              <Styled.Img
+                moderator={moderator}
+                src={avatar}
+              />
+            </Styled.Image>
+          ) : (
+            <Styled.Content>
+              {children}
+            </Styled.Content>
+          )}
+      </Styled.Avatar>
+    )}
+  </>
 );
 
 UserAvatar.propTypes = propTypes;

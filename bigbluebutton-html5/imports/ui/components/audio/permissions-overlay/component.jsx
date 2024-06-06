@@ -1,8 +1,9 @@
 import React from 'react';
 import { injectIntl, defineMessages } from 'react-intl';
-import Modal from '/imports/ui/components/modal/simple/component';
 import PropTypes from 'prop-types';
-import { styles } from './styles';
+import Styled from './styles';
+import browserInfo from '/imports/utils/browserInfo';
+import Settings from '/imports/ui/services/settings';
 
 const propTypes = {
   intl: PropTypes.object.isRequired,
@@ -20,20 +21,26 @@ const intlMessages = defineMessages({
   },
 });
 
+const { isChrome, isFirefox, isSafari } = browserInfo;
+const { animations } = Settings.application;
+
 const PermissionsOverlay = ({ intl, closeModal }) => (
-  <Modal
-    overlayClassName={styles.overlay}
-    className={styles.hint}
+  <Styled.PermissionsOverlayModal
+    overlayClassName={"permissionsOverlay"}
     onRequestClose={closeModal}
     hideBorder
+    isFirefox={isFirefox}
+    isChrome={isChrome}
+    isSafari={isSafari}
+    animations={animations}
   >
-    <div className={styles.content}>
+    <Styled.Content>
       { intl.formatMessage(intlMessages.title) }
       <small>
         { intl.formatMessage(intlMessages.hint) }
       </small>
-    </div>
-  </Modal>
+    </Styled.Content>
+  </Styled.PermissionsOverlayModal>
 );
 
 PermissionsOverlay.propTypes = propTypes;

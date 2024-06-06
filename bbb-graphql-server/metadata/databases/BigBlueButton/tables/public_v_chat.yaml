@@ -1,0 +1,36 @@
+table:
+  name: v_chat
+  schema: public
+configuration:
+  column_config: {}
+  custom_column_names: {}
+  custom_name: chat
+  custom_root_fields: {}
+object_relationships:
+  - name: participant
+    using:
+      manual_configuration:
+        column_mapping:
+          meetingId: meetingId
+          participantId: userId
+        insertion_order: null
+        remote_table:
+          name: v_user_ref
+          schema: public
+select_permissions:
+  - role: bbb_client
+    permission:
+      columns:
+        - chatId
+        - lastSeenAt
+        - participantId
+        - public
+        - totalMessages
+        - totalUnread
+        - visible
+      filter:
+        _and:
+          - meetingId:
+              _eq: X-Hasura-MeetingId
+          - userId:
+              _eq: X-Hasura-UserId

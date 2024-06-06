@@ -1,9 +1,8 @@
 import React from 'react';
-import cx from 'classnames';
-import Toggle from '/imports/ui/components/switch/component';
+import Toggle from '/imports/ui/components/common/switch/component';
 import { defineMessages, injectIntl } from 'react-intl';
 import BaseMenu from '../base/component';
-import { styles } from '../styles';
+import Styled from './styles';
 
 const intlMessages = defineMessages({
   dataSavingLabel: {
@@ -35,62 +34,76 @@ class DataSaving extends BaseMenu {
   }
 
   render() {
-    const { intl, showToggleLabel, displaySettingsStatus } = this.props;
+    const {
+      intl,
+      showToggleLabel,
+      displaySettingsStatus,
+      isScreenSharingEnabled,
+      isVideoEnabled,
+    } = this.props;
 
     const { viewParticipantsWebcams, viewScreenshare } = this.state.settings;
 
     return (
       <div>
         <div>
-          <h3 className={styles.title}>{intl.formatMessage(intlMessages.dataSavingLabel)}</h3>
-          <h4 className={styles.subtitle}>{intl.formatMessage(intlMessages.dataSavingDesc)}</h4>
+          <Styled.Title>{intl.formatMessage(intlMessages.dataSavingLabel)}</Styled.Title>
+          <Styled.SubTitle>{intl.formatMessage(intlMessages.dataSavingDesc)}</Styled.SubTitle>
         </div>
-        <div className={styles.form}>
-          <div className={styles.row}>
-            <div className={styles.col} aria-hidden="true">
-              <div className={styles.formElement}>
-                <label className={styles.label}>
-                  {intl.formatMessage(intlMessages.webcamLabel)}
-                </label>
-              </div>
-            </div>
-            <div className={styles.col}>
-              <div className={cx(styles.formElement, styles.pullContentRight)}>
-                {displaySettingsStatus(viewParticipantsWebcams)}
-                <Toggle
-                  icons={false}
-                  defaultChecked={viewParticipantsWebcams}
-                  onChange={() => this.handleToggle('viewParticipantsWebcams')}
-                  ariaLabelledBy="webcamToggle"
-                  ariaLabel={intl.formatMessage(intlMessages.webcamLabel)}
-                  showToggleLabel={showToggleLabel}
-                />
-              </div>
-            </div>
-          </div>
-          <div className={styles.row}>
-            <div className={styles.col} aria-hidden="true">
-              <div className={styles.formElement}>
-                <label className={styles.label}>
-                  {intl.formatMessage(intlMessages.screenShareLabel)}
-                </label>
-              </div>
-            </div>
-            <div className={styles.col}>
-              <div className={cx(styles.formElement, styles.pullContentRight)}>
-                {displaySettingsStatus(viewScreenshare)}
-                <Toggle
-                  icons={false}
-                  defaultChecked={viewScreenshare}
-                  onChange={() => this.handleToggle('viewScreenshare')}
-                  ariaLabelledBy="screenShare"
-                  ariaLabel={intl.formatMessage(intlMessages.screenShareLabel)}
-                  showToggleLabel={showToggleLabel}
-                />
-              </div>
-            </div>
-          </div>
-        </div>
+        <Styled.Form>
+          {isVideoEnabled
+            ? (
+              <Styled.Row>
+                <Styled.Col aria-hidden>
+                  <Styled.FormElement>
+                    <Styled.Label>
+                      {intl.formatMessage(intlMessages.webcamLabel)}
+                    </Styled.Label>
+                  </Styled.FormElement>
+                </Styled.Col>
+                <Styled.Col>
+                  <Styled.FormElementRight>
+                    {displaySettingsStatus(viewParticipantsWebcams)}
+                    <Toggle
+                      icons={false}
+                      defaultChecked={viewParticipantsWebcams}
+                      onChange={() => this.handleToggle('viewParticipantsWebcams')}
+                      ariaLabelledBy="webcamToggle"
+                      ariaLabel={`${intl.formatMessage(intlMessages.webcamLabel)} - ${displaySettingsStatus(viewParticipantsWebcams, true)}`}
+                      showToggleLabel={showToggleLabel}
+                    />
+                  </Styled.FormElementRight>
+                </Styled.Col>
+              </Styled.Row>
+            )
+            : null}
+          {isScreenSharingEnabled
+            ? (
+              <Styled.Row>
+                <Styled.Col aria-hidden>
+                  <Styled.FormElement>
+                    <Styled.Label>
+                      {intl.formatMessage(intlMessages.screenShareLabel)}
+                    </Styled.Label>
+                  </Styled.FormElement>
+                </Styled.Col>
+                <Styled.Col>
+                  <Styled.FormElementRight>
+                    {displaySettingsStatus(viewScreenshare)}
+                    <Toggle
+                      icons={false}
+                      defaultChecked={viewScreenshare}
+                      onChange={() => this.handleToggle('viewScreenshare')}
+                      ariaLabelledBy="screenShare"
+                      ariaLabel={`${intl.formatMessage(intlMessages.screenShareLabel)} - ${displaySettingsStatus(viewScreenshare, true)}`}
+                      showToggleLabel={showToggleLabel}
+                    />
+                  </Styled.FormElementRight>
+                </Styled.Col>
+              </Styled.Row>
+            )
+            : null}
+        </Styled.Form>
       </div>
     );
   }

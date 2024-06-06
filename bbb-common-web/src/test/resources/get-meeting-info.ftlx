@@ -19,7 +19,7 @@
   <hasBeenForciblyEnded>${meeting.isForciblyEnded()?c}</hasBeenForciblyEnded>
   <startTime>${meeting.getStartTime()?c}</startTime>
   <endTime>${meeting.getEndTime()?c}</endTime>
-  <participantCount>${meeting.getNumUsers()}</participantCount>
+  <participantCount>${meeting.getNumUsersOnline()}</participantCount>
   <listenerCount>${meeting.getNumListenOnly()}</listenerCount>
   <voiceParticipantCount>${meeting.getNumVoiceJoined()}</voiceParticipantCount>
   <videoCount>${meeting.getNumVideos()}</videoCount>

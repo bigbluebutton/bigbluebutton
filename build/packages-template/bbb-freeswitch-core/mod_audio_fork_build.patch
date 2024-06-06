@@ -1,0 +1,72 @@
+diff --git a/Makefile.am b/Makefile.am
+index f869072ff7..b31807a6f8 100644
+--- a/Makefile.am
++++ b/Makefile.am
+@@ -166,6 +166,14 @@ if HAVE_FVAD
+ CORE_CFLAGS += -DSWITCH_HAVE_FVAD $(LIBFVAD_CFLAGS)
+ endif
+ 
++##
++## libwebsockets
++##
++if HAVE_LWS
++CORE_CFLAGS += -DSWITCH_HAVE_LWS $(LWS_CFLAGS)
++LWS_LIBS += -lwebsockets
++endif
++
+ ##
+ ## libfreeswitch
+ ##
+@@ -233,7 +241,7 @@ endif
+ lib_LTLIBRARIES	         = libfreeswitch.la
+ libfreeswitch_la_CFLAGS  = $(CORE_CFLAGS) $(SQLITE_CFLAGS) $(GUMBO_CFLAGS) $(FVAD_CFLAGS) $(FREETYPE_CFLAGS) $(CURL_CFLAGS) $(PCRE_CFLAGS) $(SPEEX_CFLAGS) $(LIBEDIT_CFLAGS) $(openssl_CFLAGS) $(SOFIA_SIP_CFLAGS) $(AM_CFLAGS) $(TPL_CFLAGS)
+ libfreeswitch_la_LDFLAGS = -version-info 1:0:0 $(AM_LDFLAGS) $(PLATFORM_CORE_LDFLAGS) -no-undefined
+-libfreeswitch_la_LIBADD  = $(CORE_LIBS) $(APR_LIBS) $(SQLITE_LIBS) $(GUMBO_LIBS) $(FVAD_LIBS) $(FREETYPE_LIBS) $(CURL_LIBS) $(PCRE_LIBS) $(SPEEX_LIBS) $(LIBEDIT_LIBS) $(SYSTEMD_LIBS) $(openssl_LIBS) $(PLATFORM_CORE_LIBS) $(TPL_LIBS) $(SPANDSP_LIBS) $(SOFIA_SIP_LIBS)
++libfreeswitch_la_LIBADD  = $(CORE_LIBS) $(APR_LIBS) $(SQLITE_LIBS) $(GUMBO_LIBS) $(FVAD_LIBS) $(FREETYPE_LIBS) $(CURL_LIBS) $(PCRE_LIBS) $(SPEEX_LIBS) $(LIBEDIT_LIBS) $(SYSTEMD_LIBS) $(openssl_LIBS) $(PLATFORM_CORE_LIBS) $(TPL_LIBS) $(SPANDSP_LIBS) $(SOFIA_SIP_LIBS) $(LWS_LIBS)
+ libfreeswitch_la_DEPENDENCIES = $(BUILT_SOURCES)
+ 
+ if HAVE_PNG
+diff --git a/build/modules.conf.in b/build/modules.conf.in
+index 7bf59e2acc..9cab2f6fdb 100644
+--- a/build/modules.conf.in
++++ b/build/modules.conf.in
+@@ -1,3 +1,4 @@
++applications/mod_audio_fork
+ #applications/mod_abstraction
+ applications/mod_av
+ #applications/mod_avmd
+diff --git a/configure.ac b/configure.ac
+index f09196bdfd..fba7b9d676 100644
+--- a/configure.ac
++++ b/configure.ac
+@@ -1590,6 +1590,22 @@ AS_IF([test "x$enable_core_libedit_support" != "xno"],[
+       AC_MSG_ERROR([You need to either install libedit-dev (>= 2.11) or configure with --disable-core-libedit-support])
+       ])])])
+ 
++dnl ---------------------------------------------------------------------------
++dnl - libwebsockets
++dnl ---------------------------------------------------------------------------
++AC_ARG_WITH(lws,
++  [AS_HELP_STRING([--with-lws],
++     [enable support for libwebsockets])],
++  [with_lws="$withval"],
++  [with_lws="no"])
++if test "$with_lws" = "yes"; then
++  PKG_CHECK_MODULES([LWS], [libwebsockets], [
++    AM_CONDITIONAL([HAVE_LWS],[true])], [
++    AC_MSG_RESULT([no]); AM_CONDITIONAL([HAVE_LWS],[false])])
++else
++    AM_CONDITIONAL([HAVE_LWS],[false])
++fi
++
+ AC_ARG_ENABLE(systemd,
+   [AS_HELP_STRING([--enable-systemd], [Compile with systemd notify support])])
+ 
+@@ -2081,6 +2097,7 @@ AC_CONFIG_FILES([Makefile
+ 		tests/unit/Makefile
+ 		src/Makefile
+ 		src/mod/Makefile
++		src/mod/applications/mod_audio_fork/Makefile
+ 		src/mod/applications/mod_abstraction/Makefile
+ 		src/mod/applications/mod_avmd/Makefile
+ 		src/mod/applications/mod_bert/Makefile

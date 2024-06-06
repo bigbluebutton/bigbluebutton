@@ -1,0 +1,232 @@
+table:
+  name: v_user_current
+  schema: public
+configuration:
+  column_config: {}
+  custom_column_names: {}
+  custom_name: user_current
+  custom_root_fields: {}
+object_relationships:
+  - name: connectionStatus
+    using:
+      manual_configuration:
+        column_mapping:
+          userId: userId
+        insertion_order: null
+        remote_table:
+          name: v_user_connectionStatus
+          schema: public
+  - name: customParameters
+    using:
+      manual_configuration:
+        column_mapping:
+          userId: userId
+        insertion_order: null
+        remote_table:
+          name: v_user_customParameter
+          schema: public
+  - name: guestStatusDetails
+    using:
+      manual_configuration:
+        column_mapping:
+          userId: userId
+        insertion_order: null
+        remote_table:
+          name: v_user_guest
+          schema: public
+  - name: lastBreakoutRoom
+    using:
+      manual_configuration:
+        column_mapping:
+          userId: userId
+        insertion_order: null
+        remote_table:
+          name: v_user_breakoutRoom
+          schema: public
+  - name: meeting
+    using:
+      manual_configuration:
+        column_mapping:
+          meetingId: meetingId
+        insertion_order: null
+        remote_table:
+          name: v_meeting
+          schema: public
+  - name: reaction
+    using:
+      manual_configuration:
+        column_mapping:
+          userId: userId
+        insertion_order: null
+        remote_table:
+          name: v_user_reaction_current
+          schema: public
+  - name: sharedNotesSession
+    using:
+      manual_configuration:
+        column_mapping:
+          userId: userId
+        insertion_order: null
+        remote_table:
+          name: v_sharedNotes_session
+          schema: public
+  - name: transcriptionError
+    using:
+      manual_configuration:
+        column_mapping:
+          userId: userId
+        insertion_order: null
+        remote_table:
+          name: v_user_transcriptionError
+          schema: public
+  - name: userClientSettings
+    using:
+      manual_configuration:
+        column_mapping:
+          userId: userId
+        insertion_order: null
+        remote_table:
+          name: v_user_clientSettings
+          schema: public
+  - name: voice
+    using:
+      manual_configuration:
+        column_mapping:
+          userId: userId
+        insertion_order: null
+        remote_table:
+          name: v_user_voice
+          schema: public
+array_relationships:
+  - name: breakoutRooms
+    using:
+      manual_configuration:
+        column_mapping:
+          meetingId: parentMeetingId
+        insertion_order: null
+        remote_table:
+          name: v_breakoutRoom
+          schema: public
+  - name: cameras
+    using:
+      manual_configuration:
+        column_mapping:
+          userId: userId
+        insertion_order: null
+        remote_table:
+          name: v_user_camera
+          schema: public
+  - name: chats
+    using:
+      manual_configuration:
+        column_mapping:
+          userId: userId
+        insertion_order: null
+        remote_table:
+          name: v_chat
+          schema: public
+  - name: presPagesWritable
+    using:
+      manual_configuration:
+        column_mapping:
+          meetingId: meetingId
+          userId: userId
+        insertion_order: null
+        remote_table:
+          name: v_pres_page_writers
+          schema: public
+select_permissions:
+  - role: bbb_client
+    permission:
+      columns:
+        - authToken
+        - authed
+        - avatar
+        - away
+        - banned
+        - clientType
+        - enforceLayout
+        - color
+        - disconnected
+        - echoTestRunningAt
+        - ejectReason
+        - ejectReasonCode
+        - ejected
+        - emoji
+        - expired
+        - extId
+        - guest
+        - guestStatus
+        - hasDrawPermissionOnCurrentPage
+        - isDialIn
+        - isModerator
+        - isOnline
+        - isRunningEchoTest
+        - joinErrorCode
+        - joinErrorMessage
+        - joined
+        - locked
+        - loggedOut
+        - mobile
+        - name
+        - nameSortable
+        - pinned
+        - presenter
+        - raiseHand
+        - registeredAt
+        - registeredOn
+        - role
+        - speechLocale
+        - inactivityWarningDisplay
+        - inactivityWarningTimeoutSecs
+        - userId
+      filter:
+        _and:
+          - meetingId:
+              _eq: X-Hasura-MeetingId
+          - userId:
+              _eq: X-Hasura-UserId
+  - role: not_joined_bbb_client
+    permission:
+      columns:
+        - authToken
+        - authed
+        - banned
+        - color
+        - disconnected
+        - ejectReason
+        - ejectReasonCode
+        - ejected
+        - expired
+        - isOnline
+        - isModerator
+        - extId
+        - guest
+        - guestStatus
+        - joinErrorCode
+        - joinErrorMessage
+        - joined
+        - loggedOut
+        - name
+        - registeredAt
+        - registeredOn
+        - userId
+      filter:
+        _and:
+          - meetingId:
+              _eq: X-Hasura-MeetingId
+          - userId:
+              _eq: X-Hasura-UserId
+    comment: ""
+update_permissions:
+  - role: bbb_client
+    permission:
+      columns:
+        - echoTestRunningAt
+      filter:
+        _and:
+          - meetingId:
+              _eq: X-Hasura-MeetingId
+          - userId:
+              _eq: X-Hasura-UserId
+      check: null

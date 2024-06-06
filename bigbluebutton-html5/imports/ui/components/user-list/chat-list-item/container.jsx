@@ -1,22 +1,26 @@
-import React, { useContext } from 'react';
+import React from 'react';
 import ChatListItem from './component';
-import { NLayoutContext } from '../../layout/context/context';
+import { layoutSelect, layoutSelectInput, layoutDispatch } from '../../layout/context';
+import Service from '/imports/ui/components/user-list/service';
 
 const ChatListItemContainer = (props) => {
-  const newLayoutContext = useContext(NLayoutContext);
-  const { newLayoutContextState, newLayoutContextDispatch } = newLayoutContext;
-  const { input, idChatOpen } = newLayoutContextState;
-  const { sidebarContent } = input;
+  const sidebarContent = layoutSelectInput((i) => i.sidebarContent);
+  const idChatOpen = layoutSelect((i) => i.idChatOpen);
+  const layoutContextDispatch = layoutDispatch();
+
   const { sidebarContentPanel } = sidebarContent;
   const sidebarContentIsOpen = sidebarContent.isOpen;
+
+  const { isPublicChat } = Service;
 
   return (
     <ChatListItem
       {...{
         sidebarContentIsOpen,
         sidebarContentPanel,
-        newLayoutContextDispatch,
+        layoutContextDispatch,
         idChatOpen,
+        isPublicChat,
         ...props,
       }}
     />

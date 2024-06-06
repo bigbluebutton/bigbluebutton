@@ -1,0 +1,571 @@
+type Mutation {
+  allUsersClearEmoji: Boolean
+}
+
+type Mutation {
+  allUsersClearReaction: Boolean
+}
+
+type Mutation {
+  breakoutRoomCreate(
+    record: Boolean!
+    captureNotes: Boolean!
+    captureSlides: Boolean!
+    durationInMinutes: Int!
+    sendInviteToModerators: Boolean!
+    rooms: [BreakoutRoom]!
+  ): Boolean
+}
+
+type Mutation {
+  breakoutRoomEndAll: Boolean
+}
+
+type Mutation {
+  breakoutRoomMoveUser(
+    userId: String!
+    fromBreakoutRoomId: String!
+    toBreakoutRoomId: String!
+  ): Boolean
+}
+
+type Mutation {
+  breakoutRoomRequestJoinUrl(
+    breakoutRoomId: String!
+  ): Boolean
+}
+
+type Mutation {
+  breakoutRoomSendMessageToAll(
+    message: String!
+  ): Boolean
+}
+
+type Mutation {
+  breakoutRoomSetTime(
+    timeInMinutes: Int!
+  ): Boolean
+}
+
+type Mutation {
+  cameraBroadcastStart(
+    stream: String!
+  ): Boolean
+}
+
+type Mutation {
+  cameraBroadcastStop(
+    stream: String!
+  ): Boolean
+}
+
+type Mutation {
+  captionSetOwner(
+    locale: String!
+    ownerUserId: String!
+  ): Boolean
+}
+
+type Mutation {
+  captionSubmitText(
+    transcriptId: String!
+    start: Int!
+    end: Int!
+    text: String!
+    transcript: String!
+    locale: String!
+    isFinal: Boolean!
+  ): Boolean
+}
+
+type Mutation {
+  chatCreateWithUser(
+    userId: String!
+  ): Boolean
+}
+
+type Mutation {
+  chatPublicClearHistory: Boolean
+}
+
+type Mutation {
+  chatRemove(
+    chatId: String!
+  ): Boolean
+}
+
+type Mutation {
+  chatSendMessage(
+    chatId: String!
+    chatMessageInMarkdownFormat: String!
+  ): Boolean
+}
+
+type Mutation {
+  chatSetTyping(
+    chatId: String
+  ): Boolean
+}
+
+type Mutation {
+  externalVideoStart(
+    externalVideoUrl: String!
+  ): Boolean
+}
+
+type Mutation {
+  externalVideoStop: Boolean
+}
+
+type Mutation {
+  externalVideoUpdate(
+    status: String!
+    rate: Float!
+    time: Float!
+    state: Float!
+  ): Boolean
+}
+
+type Mutation {
+  guestUsersSetLobbyMessage(
+    message: String!
+  ): Boolean
+}
+
+type Mutation {
+  guestUsersSetLobbyMessagePrivate(
+    guestId: String!
+    message: String!
+  ): Boolean
+}
+
+type Mutation {
+  guestUsersSetPolicy(
+    guestPolicy: String!
+  ): Boolean
+}
+
+type Mutation {
+  guestUsersSubmitApprovalStatus(
+    guests: [GuestUserApprovalStatus]!
+  ): Boolean
+}
+
+type Mutation {
+  meetingEnd: Boolean
+}
+
+type Mutation {
+  meetingLayoutSetProps(
+    layout: String!
+    syncWithPresenterLayout: Boolean!
+    presentationIsOpen: Boolean!
+    isResizing: Boolean!
+    cameraPosition: String
+    focusedCamera: String!
+    presentationVideoRate: Float!
+  ): Boolean
+}
+
+type Mutation {
+  meetingLayoutSetSyncWithPresenterLayout(
+    syncWithPresenterLayout: Boolean!
+  ): Boolean
+}
+
+type Mutation {
+  meetingLockSettingsSetProps(
+    disableCam: Boolean!
+    disableMic: Boolean!
+    disablePrivChat: Boolean!
+    disablePubChat: Boolean!
+    disableNotes: Boolean!
+    hideUserList: Boolean!
+    lockOnJoin: Boolean!
+    lockOnJoinConfigurable: Boolean!
+    hideViewersCursor: Boolean!
+    hideViewersAnnotation: Boolean!
+  ): Boolean
+}
+
+type Mutation {
+  meetingRecordingSetStatus(
+    recording: Boolean!
+  ): Boolean
+}
+
+type Mutation {
+  meetingSetMuted(
+    muted: Boolean!
+    exceptPresenter: Boolean
+  ): Boolean
+}
+
+type Mutation {
+  meetingSetWebcamOnlyForModerator(
+    webcamsOnlyForModerator: Boolean!
+  ): Boolean
+}
+
+type Mutation {
+  pluginDataChannelDeleteEntry(
+    pluginName: String!
+    channelName: String!
+    subChannelName: String!
+    entryId: String!
+  ): Boolean
+}
+
+type Mutation {
+  pluginDataChannelPushEntry(
+    pluginName: String!
+    subChannelName: String!
+    channelName: String!
+    payloadJson: String!
+    toRoles: [String]!
+    toUserIds: [String]!
+  ): Boolean
+}
+
+type Mutation {
+  pluginDataChannelReset(
+    pluginName: String!
+    channelName: String!
+    subChannelName: String!
+  ): Boolean
+}
+
+type Mutation {
+  pollCancel: Boolean
+}
+
+type Mutation {
+  pollCreate(
+    pollId: String!
+    pollType: String!
+    secretPoll: Boolean!
+    question: String!
+    isMultipleResponse: Boolean!
+    answers: [String]
+  ): Boolean
+}
+
+type Mutation {
+  pollPublishResult(
+    pollId: String!
+  ): Boolean
+}
+
+type Mutation {
+  pollSubmitUserTypedVote(
+    pollId: String!
+    answer: String!
+  ): Boolean
+}
+
+type Mutation {
+  pollSubmitUserVote(
+    pollId: String!
+    answerIds: [Int]
+  ): Boolean
+}
+
+type Mutation {
+  presAnnotationDelete(
+    pageId: String!
+    annotationsIds: [String]!
+  ): Boolean
+}
+
+type Mutation {
+  presAnnotationDeleteAll(
+    pageId: String!
+  ): Boolean
+}
+
+type Mutation {
+  presAnnotationSubmit(
+    pageId: String!
+    annotations: json!
+  ): Boolean
+}
+
+type Mutation {
+  presentationExport(
+    presentationId: String!
+    fileStateType: String!
+  ): Boolean
+}
+
+type Mutation {
+  presentationPublishCursor(
+    whiteboardId: String!
+    xPercent: Float!
+    yPercent: Float!
+  ): Boolean
+}
+
+type Mutation {
+  presentationRemove(
+    presentationId: String!
+  ): Boolean
+}
+
+type Mutation {
+  presentationRequestUploadToken(
+    podId: String!
+    filename: String!
+    uploadTemporaryId: String!
+  ): Boolean
+}
+
+type Mutation {
+  presentationSetCurrent(
+    presentationId: String!
+  ): Boolean
+}
+
+type Mutation {
+  presentationSetDownloadable(
+    presentationId: String!
+    downloadable: Boolean!
+    fileStateType: String!
+  ): Boolean
+}
+
+type Mutation {
+  presentationSetPage(
+    presentationId: String!
+    pageId: String!
+  ): Boolean
+}
+
+type Mutation {
+  presentationSetRenderedInToast(
+    presentationId: String!
+  ): Boolean
+}
+
+type Mutation {
+  presentationSetWriters(
+    pageId: String!
+    usersIds: [String]!
+  ): Boolean
+}
+
+type Mutation {
+  presentationSetZoom(
+    presentationId: String!
+    pageId: String!
+    pageNum: Int!
+    xOffset: Float!
+    yOffset: Float!
+    widthRatio: Float!
+    heightRatio: Float!
+  ): Boolean
+}
+
+type Mutation {
+  sharedNotesCreateSession(
+    sharedNotesExtId: String!
+  ): Boolean
+}
+
+type Mutation {
+  sharedNotesSetPinned(
+    sharedNotesExtId: String!
+    pinned: Boolean!
+  ): Boolean
+}
+
+type Mutation {
+  timerActivate(
+    stopwatch: Boolean!
+    running: Boolean!
+    time: Int!
+    track: String
+  ): Boolean
+}
+
+type Mutation {
+  timerDeactivate: Boolean
+}
+
+type Mutation {
+  timerReset: Boolean
+}
+
+type Mutation {
+  timerSetSongTrack(
+    track: String!
+  ): Boolean
+}
+
+type Mutation {
+  timerSetTime(
+    time: Int!
+  ): Boolean
+}
+
+type Mutation {
+  timerStart: Boolean
+}
+
+type Mutation {
+  timerStop: Boolean
+}
+
+type Mutation {
+  timerSwitchMode(
+    stopwatch: Boolean!
+  ): Boolean
+}
+
+type Mutation {
+  userEjectCameras(
+    userId: String!
+  ): Boolean
+}
+
+type Mutation {
+  userEjectFromMeeting(
+    userId: String!
+    banUser: Boolean!
+  ): Boolean
+}
+
+type Mutation {
+  userEjectFromVoice(
+    userId: String!
+    banUser: Boolean
+  ): Boolean
+}
+
+type Mutation {
+  userJoinMeeting(
+    authToken: String!
+    clientType: String!
+  ): Boolean
+}
+
+type Mutation {
+  userLeaveMeeting: Boolean
+}
+
+type Mutation {
+  userSendActivitySign: Boolean
+}
+
+type Mutation {
+  userSetAway(
+    away: Boolean!
+  ): Boolean
+}
+
+type Mutation {
+  userSetCameraPinned(
+    userId: String!
+    pinned: Boolean!
+  ): Boolean
+}
+
+type Mutation {
+  userSetConnectionAlive(
+    networkRttInMs: Float!
+  ): Boolean
+}
+
+type Mutation {
+  userSetEmojiStatus(
+    emoji: String!
+  ): Boolean
+}
+
+type Mutation {
+  userSetExitReason(
+    exitReason: String!
+  ): Boolean
+}
+
+type Mutation {
+  userSetLocked(
+    userId: String!
+    locked: Boolean!
+  ): Boolean
+}
+
+type Mutation {
+  userSetMobileFlag(
+    mobile: Boolean!
+  ): Boolean
+}
+
+type Mutation {
+  userSetMuted(
+    userId: String
+    muted: Boolean!
+  ): Boolean
+}
+
+type Mutation {
+  userSetPresenter(
+    userId: String!
+  ): Boolean
+}
+
+type Mutation {
+  userSetRaiseHand(
+    raiseHand: Boolean!
+    userId: String
+  ): Boolean
+}
+
+type Mutation {
+  userSetReactionEmoji(
+    reactionEmoji: String!
+  ): Boolean
+}
+
+type Mutation {
+  userSetRole(
+    userId: String!
+    role: String!
+  ): Boolean
+}
+
+type Mutation {
+  userSetSpeechLocale(
+    locale: String!
+    provider: String!
+  ): Boolean
+}
+
+type Mutation {
+  userThirdPartyInfoResquest(
+    externalUserId: String!
+  ): Boolean
+}
+
+type Mutation {
+  userTransferVoiceToMeeting(
+    fromMeetingId: String!
+    toMeetingId: String!
+  ): Boolean
+}
+
+input BreakoutRoom {
+  captureNotesFilename: String!
+  captureSlidesFilename: String!
+  freeJoin: Boolean!
+  isDefaultName: Boolean!
+  name: String!
+  sequence: Int!
+  shortName: String!
+  users: [String]!
+}
+
+input GuestUserApprovalStatus {
+  guest: String!
+  status: String!
+}
+

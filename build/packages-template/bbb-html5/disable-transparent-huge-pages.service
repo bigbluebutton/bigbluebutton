@@ -1,0 +1,13 @@
+[Unit]
+Description=Disable Transparent Huge Pages
+PartOf=bigbluebutton.target
+ConditionPathIsDirectory=/sys/kernel/mm/transparent_hugepage
+
+[Service]
+Type=oneshot
+ExecStart=/bin/sh -c "/bin/echo "never" | tee /sys/kernel/mm/transparent_hugepage/enabled"
+ExecStart=/bin/sh -c "/bin/echo "never" | tee /sys/kernel/mm/transparent_hugepage/defrag"
+RemainAfterExit=yes
+
+[Install]
+WantedBy=multi-user.target bigbluebutton.target

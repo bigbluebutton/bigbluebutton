@@ -1,9 +1,8 @@
 import React, { PureComponent } from 'react';
 import { defineMessages, injectIntl } from 'react-intl';
 import PropTypes from 'prop-types';
-import Modal from '/imports/ui/components/modal/simple/component';
-import Button from '/imports/ui/components/button/component';
-import { styles } from './styles';
+import Styled from './styles';
+import { notify } from '/imports/ui/services/notification';
 
 const ASK_MODERATOR = 'ASK_MODERATOR';
 const ALWAYS_ACCEPT = 'ALWAYS_ACCEPT';
@@ -22,6 +21,10 @@ const intlMessages = defineMessages({
     id: 'app.guest-policy.description',
     description: 'Guest policy description',
   },
+  policyBtnDesc: {
+    id: 'app.guest-policy.policyBtnDesc',
+    description: 'aria description for guest policy button',
+  },
   askModerator: {
     id: 'app.guest-policy.button.askModerator',
     description: 'Ask moderator button label',
@@ -34,10 +37,13 @@ const intlMessages = defineMessages({
     id: 'app.guest-policy.button.alwaysDeny',
     description: 'Always deny button label',
   },
+  feedbackMessage: {
+    id: 'app.guest-policy.feedbackMessage',
+    description: 'Feedback message for guest policy change',
+  },
 });
 
 const propTypes = {
-  closeModal: PropTypes.func.isRequired,
   intl: PropTypes.shape({
     formatMessage: PropTypes.func.isRequired,
   }).isRequired,
@@ -46,72 +52,97 @@ const propTypes = {
 };
 
 class GuestPolicyComponent extends PureComponent {
+  constructor(props) {
+    super(props);
+
+    this.handleChangePolicy = this.handleChangePolicy.bind(this);
+  }
+
+  componentWillUnmount() {
+    const { setIsOpen } = this.props;
+
+    setIsOpen(false);
+  }
+
+  handleChangePolicy(policyRule, messageId) {
+    const { intl, changeGuestPolicy } = this.props;
+
+    changeGuestPolicy(policyRule);
+
+    notify(intl.formatMessage(intlMessages.feedbackMessage) + intl.formatMessage(messageId), 'success');
+  }
+
   render() {
     const {
-      closeModal,
+      setIsOpen,
       intl,
       guestPolicy,
-      changeGuestPolicy,
+      isOpen,
+      onRequestClose,
+      priority,
     } = this.props;
 
     return (
-      <Modal
-        overlayClassName={styles.overlay}
-        className={styles.modal}
-        onRequestClose={closeModal}
-        hideBorder
+      <Styled.GuestPolicyModal
+        onRequestClose={() => setIsOpen(false)}
         contentLabel={intl.formatMessage(intlMessages.ariaModalTitle)}
+        title={intl.formatMessage(intlMessages.guestPolicyTitle)}
+        {...{
+          isOpen,
+          onRequestClose,
+          priority,
+        }}
       >
-        <div
-          className={styles.container}
+        <Styled.Container
           data-test="guestPolicySettingsModal"
         >
-          <div className={styles.header}>
-            <h2 className={styles.title}>
-              {intl.formatMessage(intlMessages.guestPolicyTitle)}
-            </h2>
-          </div>
-          <div className={styles.description}>
+          <Styled.Description>
             {intl.formatMessage(intlMessages.guestPolicyDescription)}
-          </div>
+          </Styled.Description>
 
-          <div className={styles.content}>
-            <Button
+          <Styled.Content>
+            <Styled.GuestPolicyButton
               color="primary"
-              className={styles.button}
               disabled={guestPolicy === ASK_MODERATOR}
               label={intl.formatMessage(intlMessages.askModerator)}
+              aria-describedby={guestPolicy === ASK_MODERATOR ? 'selected-btn-desc' : 'policy-btn-desc'}
+              aria-pressed={guestPolicy === ASK_MODERATOR}
               data-test="askModerator"
               onClick={() => {
-                changeGuestPolicy(ASK_MODERATOR);
-                closeModal();
+                this.handleChangePolicy(ASK_MODERATOR, intlMessages.askModerator);
+                setIsOpen(false);
               }}
             />
-            <Button
+            <Styled.GuestPolicyButton
               color="primary"
-              className={styles.button}
               disabled={guestPolicy === ALWAYS_ACCEPT}
               label={intl.formatMessage(intlMessages.alwaysAccept)}
+              aria-describedby={guestPolicy === ALWAYS_ACCEPT ? 'selected-btn-desc' : 'policy-btn-desc'}
+              aria-pressed={guestPolicy === ALWAYS_ACCEPT}
               data-test="alwaysAccept"
               onClick={() => {
-                changeGuestPolicy(ALWAYS_ACCEPT);
-                closeModal();
+                this.handleChangePolicy(ALWAYS_ACCEPT, intlMessages.alwaysAccept);
+                setIsOpen(false);
               }}
             />
-            <Button
+            <Styled.GuestPolicyButton
               color="primary"
-              className={styles.button}
               disabled={guestPolicy === ALWAYS_DENY}
               label={intl.formatMessage(intlMessages.alwaysDeny)}
+              aria-describedby={guestPolicy === ALWAYS_DENY ? 'selected-btn-desc' : 'policy-btn-desc'}
+              aria-pressed={guestPolicy === ALWAYS_DENY}
               data-test="alwaysDeny"
               onClick={() => {
-                changeGuestPolicy(ALWAYS_DENY);
-                closeModal();
+                this.handleChangePolicy(ALWAYS_DENY, intlMessages.alwaysDeny);
+                setIsOpen(false);
               }}
             />
+          </Styled.Content>
+          <div id="policy-btn-desc" aria-hidden className="sr-only">
+            {intl.formatMessage(intlMessages.policyBtnDesc)}
           </div>
-        </div>
-      </Modal>
+        </Styled.Container>
+      </Styled.GuestPolicyModal>
     );
   }
 }

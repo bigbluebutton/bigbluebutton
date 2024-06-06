@@ -1,25 +1,39 @@
 import React from 'react';
 import SidebarContent from './component';
-import NewLayoutContext from '../layout/context/context';
+import { layoutSelectInput, layoutSelectOutput, layoutDispatch } from '../layout/context';
+import { useSubscription } from '@apollo/client';
+import {
+  CURRENT_PRESENTATION_PAGE_SUBSCRIPTION,
+} from '/imports/ui/components/whiteboard/queries';
+import useCurrentUser from '/imports/ui/core/hooks/useCurrentUser';
 
-const SidebarContentContainer = (props) => {
-  const { newLayoutContextState, newLayoutContextDispatch } = props;
-  const {
-    output, input,
-  } = newLayoutContextState;
-  const { sidebarContent: sidebarContentInput } = input;
+const SidebarContentContainer = () => {
+  const sidebarContentInput = layoutSelectInput((i) => i.sidebarContent);
+  const sidebarContentOutput = layoutSelectOutput((i) => i.sidebarContent);
+  const layoutContextDispatch = layoutDispatch();
   const { sidebarContentPanel } = sidebarContentInput;
-  const { sidebarContent } = output;
+  const { data: currentUserData } = useCurrentUser((user) => ({
+    presenter: user.presenter,
+    isModerator: user.isModerator,
+  }));
+  const amIPresenter = currentUserData?.presenter;
+  const amIModerator = currentUserData?.isModerator;
 
-  if (sidebarContent.display === false) return null;
+  const { data: presentationPageData } = useSubscription(CURRENT_PRESENTATION_PAGE_SUBSCRIPTION);
+  const presentationPage = presentationPageData?.pres_page_curr[0] || {};
+
+  const currentSlideId = presentationPage?.pageId;
 
   return (
     <SidebarContent
-      {...sidebarContent}
-      contextDispatch={newLayoutContextDispatch}
+      {...sidebarContentOutput}
+      contextDispatch={layoutContextDispatch}
       sidebarContentPanel={sidebarContentPanel}
+      amIPresenter={amIPresenter}
+      amIModerator={amIModerator}
+      currentSlideId={currentSlideId}
     />
   );
 };
 
-export default NewLayoutContext.withConsumer(SidebarContentContainer);
+export default SidebarContentContainer;

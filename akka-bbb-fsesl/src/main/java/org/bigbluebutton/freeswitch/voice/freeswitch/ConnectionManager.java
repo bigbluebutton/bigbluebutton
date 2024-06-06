@@ -94,6 +94,7 @@ public class ConnectionManager {
 					//c.addEventFilter(EVENT_NAME, "background_job");
 					c.addEventFilter(EVENT_NAME, "CHANNEL_EXECUTE");
 					c.addEventFilter(EVENT_NAME, "CHANNEL_STATE");
+					c.addEventFilter(EVENT_NAME, "CHANNEL_CALLSTATE");
 					subscribed = true;
 				} else {
 					// Let's check for status every minute.
@@ -204,10 +205,45 @@ public class ConnectionManager {
 		}
 	}
 
+	public void deaf(DeafUserCommand duc) {
+		Client c = manager.getESLClient();
+		if (c.canSend()) {
+			c.sendAsyncApiCommand(duc.getCommand(), duc.getCommandArgs());
+		}
+	}
+
+	public void hold(HoldUserCommand huc) {
+		Client c = manager.getESLClient();
+		if (c.canSend()) {
+			c.sendAsyncApiCommand(huc.getCommand(), huc.getCommandArgs());
+		}
+	}
+
+	public void playSound(PlaySoundCommand psc) {
+		Client c = manager.getESLClient();
+		if (c.canSend()) {
+			c.sendAsyncApiCommand(psc.getCommand(), psc.getCommandArgs());
+		}
+	}
+
+	public void stopSound(StopSoundCommand ssc) {
+		Client c = manager.getESLClient();
+		if (c.canSend()) {
+			c.sendAsyncApiCommand(ssc.getCommand(), ssc.getCommandArgs());
+		}
+	}
+
 	public void tranfer(TransferUserToMeetingCommand tutmc) {
 		Client c = manager.getESLClient();
 		if (c.canSend()) {
 			c.sendAsyncApiCommand(tutmc.getCommand(), tutmc.getCommandArgs());
+		}
+	}
+
+	public void holdChannel(HoldChannelCommand hcc) {
+		Client c = manager.getESLClient();
+		if (c.canSend()) {
+			c.sendAsyncApiCommand(hcc.getCommand(), hcc.getCommandArgs());
 		}
 	}
 
@@ -231,22 +267,6 @@ public class ConnectionManager {
 			EslMessage response = c.sendSyncApiCommand(rcc.getCommand(),
 					rcc.getCommandArgs());
 			rcc.handleResponse(response, conferenceEventListener);
-		}
-	}
-
-	public void broadcastRTMP(ScreenshareBroadcastRTMPCommand rtmp) {
-		Client c = manager.getESLClient();
-		if (c.canSend()) {
-			EslMessage response = c.sendSyncApiCommand(rtmp.getCommand(), rtmp.getCommandArgs());
-			rtmp.handleResponse(response, conferenceEventListener);
-		}
-	}
-
-	public void hangUp(ScreenshareHangUpCommand huCmd) {
-		Client c = manager.getESLClient();
-		if (c.canSend()) {
-			EslMessage response = c.sendSyncApiCommand(huCmd.getCommand(), huCmd.getCommandArgs());
-			huCmd.handleResponse(response, conferenceEventListener);
 		}
 	}
 }

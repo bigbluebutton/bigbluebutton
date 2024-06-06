@@ -6,12 +6,17 @@ on:
       - opened
       - synchronize
 
+permissions:
+  contents: read
+
 jobs:
   main:
+    permissions:
+      pull-requests: write  # for eps1lon/actions-label-merge-conflict to label PRs
     runs-on: ubuntu-latest
     steps:
       - name: Check for dirty pull requests
-        uses: eps1lon/actions-label-merge-conflict@releases/2.x
+        uses: eps1lon/actions-label-merge-conflict@v3
         with:
           dirtyLabel: "status: conflict"
           repoToken: "${{ secrets.GITHUB_TOKEN }}"

@@ -1,0 +1,27 @@
+- comment: ""
+  definition:
+    query:
+      collection_name: allowed-queries
+      query_name: clientSettings
+  methods:
+    - GET
+  name: clientSettings
+  url: clientSettings
+- comment: ""
+  definition:
+    query:
+      collection_name: allowed-queries
+      query_name: clientStartupSettings
+  methods:
+    - GET
+  name: clientStartupSettings
+  url: clientStartupSettings
+- comment: ""
+  definition:
+    query:
+      collection_name: allowed-queries
+      query_name: UserCurrent
+  methods:
+    - GET
+  name: UserCurrent
+  url: usercurrent

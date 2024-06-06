@@ -57,8 +57,18 @@ public class FreeswitchConferenceEventListener implements ConferenceEventListene
         if (event instanceof VoiceUserJoinedEvent) {
           VoiceUserJoinedEvent evt = (VoiceUserJoinedEvent) event;
           vcs.userJoinedVoiceConf(evt.getRoom(), evt.getVoiceUserId(), evt.getUserId(), evt.getCallerIdName(),
-            evt.getCallerIdNum(), evt.getMuted(), evt.getSpeaking(), evt.getCallingWith());
-        } else if (event instanceof VoiceConfRunningEvent) {
+            evt.getCallerIdNum(), evt.getMuted(), evt.getSpeaking(), evt.getCallingWith(),
+            evt.getHold(),
+            evt.getUUID());
+        } else if (event instanceof ChannelHoldChangedEvent) {
+          ChannelHoldChangedEvent evt = (ChannelHoldChangedEvent) event;
+          vcs.channelHoldChanged(
+            evt.getRoom(),
+            evt.getUserId(),
+            evt.getUUID(),
+            evt.isHeld()
+          );
+        }  else if (event instanceof VoiceConfRunningEvent) {
           VoiceConfRunningEvent evt = (VoiceConfRunningEvent) event;
           vcs.voiceConfRunning(evt.getRoom(), evt.isRunning());
         } else if (event instanceof VoiceUserLeftEvent) {
@@ -73,22 +83,6 @@ public class FreeswitchConferenceEventListener implements ConferenceEventListene
         } else if (event instanceof VoiceStartRecordingEvent) {
           VoiceStartRecordingEvent evt = (VoiceStartRecordingEvent) event;
           vcs.voiceConfRecordingStarted(evt.getRoom(), evt.getRecordingFilename(), evt.startRecord(), evt.getTimestamp());
-        } else if (event instanceof ScreenshareStartedEvent) {
-          ScreenshareStartedEvent evt = (ScreenshareStartedEvent) event;
-          vcs.deskShareStarted(evt.getRoom(), evt.getCallerIdNum(), evt.getCallerIdName());
-        } else if (event instanceof DeskShareEndedEvent) {
-          DeskShareEndedEvent evt = (DeskShareEndedEvent) event;
-          vcs.deskShareEnded(evt.getRoom(), evt.getCallerIdNum(), evt.getCallerIdName());
-        } else if (event instanceof ScreenshareRTMPBroadcastEvent) {
-          if (((ScreenshareRTMPBroadcastEvent) event).getBroadcast()) {
-            ScreenshareRTMPBroadcastEvent evt = (ScreenshareRTMPBroadcastEvent) event;
-            vcs.deskShareRTMPBroadcastStarted(evt.getRoom(), evt.getBroadcastingStreamUrl(),
-              evt.getVideoWidth(), evt.getVideoHeight(), evt.getTimestamp(), evt.getHasAudio());
-          } else {
-            ScreenshareRTMPBroadcastEvent evt = (ScreenshareRTMPBroadcastEvent) event;
-            vcs.deskShareRTMPBroadcastStopped(evt.getRoom(), evt.getBroadcastingStreamUrl(),
-              evt.getVideoWidth(), evt.getVideoHeight(), evt.getTimestamp());
-          }
         } else if (event instanceof AudioFloorChangedEvent) {
           AudioFloorChangedEvent evt = (AudioFloorChangedEvent) event;
           vcs.audioFloorChanged(

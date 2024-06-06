@@ -1,7 +1,7 @@
 package org.bigbluebutton.core.running
 
-import akka.actor.ActorContext
-import akka.event.{ LogSource, Logging }
+import org.apache.pekko.actor.ActorContext
+import org.apache.pekko.event.{ LogSource, Logging }
 
 object MyType {
   implicit val logSource: LogSource[AnyRef] = new LogSource[AnyRef] {

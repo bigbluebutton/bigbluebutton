@@ -3,8 +3,8 @@ package org.bigbluebutton.api2.endpoint.redis
 import org.bigbluebutton.api2.SystemConfiguration
 import org.bigbluebutton.common2.bus._
 import org.bigbluebutton.common2.redis.{ RedisConfig, RedisSubscriberProvider }
-import akka.actor.ActorSystem
-import akka.actor.Props
+import org.apache.pekko.actor.ActorSystem
+import org.apache.pekko.actor.Props
 
 import io.lettuce.core.pubsub.RedisPubSubListener
 
@@ -32,7 +32,7 @@ object WebRedisSubscriberActor {
       patternsToSubscribe,
       forwardMsgToChannel,
       oldJsonChannel
-    ).withDispatcher("akka.redis-subscriber-worker-dispatcher")
+    ).withDispatcher("pekko.redis-subscriber-worker-dispatcher")
 }
 
 class WebRedisSubscriberActor(

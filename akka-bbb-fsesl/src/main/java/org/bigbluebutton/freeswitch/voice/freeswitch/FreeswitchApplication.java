@@ -28,8 +28,13 @@ import org.bigbluebutton.freeswitch.voice.freeswitch.actions.EjectUserCommand;
 import org.bigbluebutton.freeswitch.voice.freeswitch.actions.FreeswitchCommand;
 import org.bigbluebutton.freeswitch.voice.freeswitch.actions.GetAllUsersCommand;
 import org.bigbluebutton.freeswitch.voice.freeswitch.actions.MuteUserCommand;
+import org.bigbluebutton.freeswitch.voice.freeswitch.actions.DeafUserCommand;
+import org.bigbluebutton.freeswitch.voice.freeswitch.actions.HoldUserCommand;
+import org.bigbluebutton.freeswitch.voice.freeswitch.actions.PlaySoundCommand;
+import org.bigbluebutton.freeswitch.voice.freeswitch.actions.StopSoundCommand;
 import org.bigbluebutton.freeswitch.voice.freeswitch.actions.RecordConferenceCommand;
 import org.bigbluebutton.freeswitch.voice.freeswitch.actions.TransferUserToMeetingCommand;
+import org.bigbluebutton.freeswitch.voice.freeswitch.actions.HoldChannelCommand;
 import org.bigbluebutton.freeswitch.voice.freeswitch.actions.*;
 
 import org.slf4j.Logger;
@@ -123,6 +128,26 @@ public class FreeswitchApplication implements  IDelayedCommandListener{
     queueMessage(mpc);
   }
 
+  public void deafUser(String voiceConfId, String voiceUserId, Boolean deaf) {
+    DeafUserCommand duc = new DeafUserCommand(voiceConfId, voiceUserId, deaf, USER);
+    queueMessage(duc);
+  }
+
+  public void holdUser(String voiceConfId, String voiceUserId, Boolean hold) {
+    HoldUserCommand huc = new HoldUserCommand(voiceConfId, voiceUserId, hold, USER);
+    queueMessage(huc);
+  }
+
+  public void playSound(String voiceConfId, String voiceUserId, String soundPath) {
+    PlaySoundCommand psc = new PlaySoundCommand(voiceConfId, voiceUserId, soundPath, USER);
+    queueMessage(psc);
+  }
+
+  public void stopSound(String voiceConfId, String voiceUserId) {
+    StopSoundCommand ssc = new StopSoundCommand(voiceConfId, voiceUserId, USER);
+    queueMessage(ssc);
+  }
+
   public void eject(String voiceConfId, String voiceUserId) {
     EjectUserCommand mpc = new EjectUserCommand(voiceConfId, voiceUserId, USER);
     queueMessage(mpc);
@@ -131,6 +156,11 @@ public class FreeswitchApplication implements  IDelayedCommandListener{
   public void ejectAll(String voiceConfId) {
     EjectAllUsersCommand mpc = new EjectAllUsersCommand(voiceConfId, USER);
     queueMessage(mpc);
+  }
+
+  public void holdChannel(String voiceConfId, String uuid, Boolean hold) {
+    HoldChannelCommand hcc = new HoldChannelCommand(voiceConfId, uuid, hold, USER);
+    queueMessage(hcc);
   }
 
   private Long genTimestamp() {
@@ -147,17 +177,6 @@ public class FreeswitchApplication implements  IDelayedCommandListener{
     queueMessage(rcc);
   }
 
-  public void deskShareBroadcastRTMP(String voiceConfId, String streamUrl, String timestamp, Boolean broadcast) {
-    ScreenshareBroadcastRTMPCommand rtmp = new ScreenshareBroadcastRTMPCommand(voiceConfId, USER,
-            streamUrl, timestamp, broadcast);
-    queueMessage(rtmp);
-  }
-
-  public void deskShareHangUp(String voiceConfId, String fsConferenceName, String timestamp) {
-    ScreenshareHangUpCommand huCmd = new ScreenshareHangUpCommand(voiceConfId, fsConferenceName, USER, timestamp);
-    queueMessage(huCmd);
-  }
-
   private void sendMessageToFreeswitch(final FreeswitchCommand command) {
     Runnable task = new Runnable() {
       public void run() {
@@ -169,6 +188,18 @@ public class FreeswitchApplication implements  IDelayedCommandListener{
           } else if (command instanceof MuteUserCommand) {
             MuteUserCommand cmd = (MuteUserCommand) command;
             manager.mute(cmd);
+          } else if (command instanceof DeafUserCommand) {
+            DeafUserCommand cmd = (DeafUserCommand) command;
+            manager.deaf(cmd);
+          } else if (command instanceof HoldUserCommand) {
+            HoldUserCommand cmd = (HoldUserCommand) command;
+            manager.hold(cmd);
+          } else if (command instanceof PlaySoundCommand) {
+            PlaySoundCommand cmd = (PlaySoundCommand) command;
+            manager.playSound(cmd);
+          } else if (command instanceof StopSoundCommand) {
+            StopSoundCommand cmd = (StopSoundCommand) command;
+            manager.stopSound(cmd);
           } else if (command instanceof EjectUserCommand) {
             EjectUserCommand cmd = (EjectUserCommand) command;
             manager.eject(cmd);
@@ -185,11 +216,6 @@ public class FreeswitchApplication implements  IDelayedCommandListener{
             manager.tranfer(cmd);
           } else if (command instanceof RecordConferenceCommand) {
             manager.record((RecordConferenceCommand) command);
-          } else if (command instanceof ScreenshareBroadcastRTMPCommand) {
-            manager.broadcastRTMP((ScreenshareBroadcastRTMPCommand) command);
-          } else if (command instanceof ScreenshareHangUpCommand) {
-            ScreenshareHangUpCommand cmd = (ScreenshareHangUpCommand) command;
-            manager.hangUp(cmd);
           } else if (command instanceof BroadcastConferenceCommand) {
             manager.broadcast((BroadcastConferenceCommand) command);
           } else if (command instanceof ConferenceCheckRecordCommand) {
@@ -200,6 +226,10 @@ public class FreeswitchApplication implements  IDelayedCommandListener{
             manager.forceEjectUser((ForceEjectUserCommand) command);
           } else if (command instanceof GetUsersStatusCommand) {
             manager.getUsersStatus((GetUsersStatusCommand) command);
+          } else if (command instanceof HoldChannelCommand) {
+            manager.holdChannel((HoldChannelCommand) command);
+          } else {
+            log.warn("Unknown command: " + command.getCommand());
           }
         } catch (RuntimeException e) {
           log.warn(e.getMessage());

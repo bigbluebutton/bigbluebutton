@@ -4,25 +4,30 @@ import org.bigbluebutton.core.running.MeetingActor
 import java.net.URLEncoder
 import scala.collection.SortedSet
 import org.apache.commons.codec.digest.DigestUtils
+import org.bigbluebutton.SystemConfiguration
 
 trait BreakoutApp2x extends BreakoutRoomCreatedMsgHdlr
   with BreakoutRoomsListMsgHdlr
   with BreakoutRoomUsersUpdateMsgHdlr
   with CreateBreakoutRoomsCmdMsgHdlr
   with EndAllBreakoutRoomsMsgHdlr
-  with ExtendBreakoutRoomsTimeMsgHdlr
+  with UpdateBreakoutRoomsTimeMsgHdlr
+  with ChangeUserBreakoutReqMsgHdlr
+  with SendMessageToAllBreakoutRoomsMsgHdlr
+  with SendMessageToBreakoutRoomInternalMsgHdlr
   with RequestBreakoutJoinURLReqMsgHdlr
   with SendBreakoutUsersUpdateMsgHdlr
   with TransferUserToMeetingRequestHdlr
   with EndBreakoutRoomInternalMsgHdlr
-  with ExtendBreakoutRoomTimeInternalMsgHdlr
+  with UpdateBreakoutRoomTimeInternalMsgHdlr
+  with EjectUserFromBreakoutInternalMsgHdlr
   with BreakoutRoomEndedInternalMsgHdlr {
 
   this: MeetingActor =>
 
 }
 
-object BreakoutRoomsUtil {
+object BreakoutRoomsUtil extends SystemConfiguration {
   def createMeetingIds(id: String, index: Int): (String, String) = {
     val timeStamp = System.currentTimeMillis()
     val externalHash = DigestUtils.sha1Hex(id.concat("-").concat(timeStamp.toString()).concat("-").concat(index.toString()))
@@ -44,7 +49,13 @@ object BreakoutRoomsUtil {
   //checksum() -- Return a checksum based on SHA-1 digest
   //
   def checksum(s: String): String = {
-    DigestUtils.sha256Hex(s);
+    checkSumAlgorithmForBreakouts match {
+      case "sha1"   => DigestUtils.sha1Hex(s);
+      case "sha256" => DigestUtils.sha256Hex(s);
+      case "sha384" => DigestUtils.sha384Hex(s);
+      case "sha512" => DigestUtils.sha512Hex(s);
+      case _        => DigestUtils.sha256Hex(s); // default
+    }
   }
 
   def calculateChecksum(apiCall: String, baseString: String, sharedSecret: String): String = {

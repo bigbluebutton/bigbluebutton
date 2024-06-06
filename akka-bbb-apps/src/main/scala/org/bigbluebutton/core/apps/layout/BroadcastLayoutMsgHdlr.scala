@@ -1,10 +1,12 @@
 package org.bigbluebutton.core.apps.layout
 
 import org.bigbluebutton.common2.msgs._
-import org.bigbluebutton.core.models.Layouts
+import org.bigbluebutton.core.models.{ Layouts, LayoutsType }
 import org.bigbluebutton.core.running.OutMsgRouter
 import org.bigbluebutton.core2.MeetingStatus2x
 import org.bigbluebutton.core.apps.{ PermissionCheck, RightsManagementTrait }
+import org.bigbluebutton.core.db.{ LayoutDAO, NotificationDAO }
+import org.bigbluebutton.core2.message.senders.MsgBuilder
 
 trait BroadcastLayoutMsgHdlr extends RightsManagementTrait {
   this: LayoutApp2x =>
@@ -12,14 +14,31 @@ trait BroadcastLayoutMsgHdlr extends RightsManagementTrait {
   val outGW: OutMsgRouter
 
   def handleBroadcastLayoutMsg(msg: BroadcastLayoutMsg): Unit = {
-    if (permissionFailed(PermissionCheck.MOD_LEVEL, PermissionCheck.VIEWER_LEVEL, liveMeeting.users2x, msg.header.userId)) {
+
+    if (liveMeeting.props.meetingProp.disabledFeatures.contains("layouts")) {
+      val meetingId = liveMeeting.props.meetingProp.intId
+      val reason = "Layouts is disabled for this meeting."
+      PermissionCheck.ejectUserForFailedPermission(meetingId, msg.header.userId, reason, outGW, liveMeeting)
+    } else if (permissionFailed(PermissionCheck.GUEST_LEVEL, PermissionCheck.PRESENTER_LEVEL, liveMeeting.users2x, msg.header.userId)) {
       val meetingId = liveMeeting.props.meetingProp.intId
       val reason = "No permission to broadcast layout to meeting."
       PermissionCheck.ejectUserForFailedPermission(meetingId, msg.header.userId, reason, outGW, liveMeeting)
     } else {
-      Layouts.setCurrentLayout(liveMeeting.layouts, msg.body.layout, msg.header.userId)
+      if (LayoutsType.layoutsType.contains(msg.body.layout)) {
+        val newlayout = LayoutsType.layoutsType.getOrElse(msg.body.layout, "")
 
-      sendBroadcastLayoutEvtMsg(msg.header.userId)
+        Layouts.setCurrentLayout(liveMeeting.layouts, newlayout)
+        Layouts.setPushLayout(liveMeeting.layouts, msg.body.pushLayout)
+        Layouts.setPresentationIsOpen(liveMeeting.layouts, msg.body.presentationIsOpen)
+        Layouts.setCameraDockIsResizing(liveMeeting.layouts, msg.body.isResizing)
+        Layouts.setCameraPosition(liveMeeting.layouts, msg.body.cameraPosition)
+        Layouts.setFocusedCamera(liveMeeting.layouts, msg.body.focusedCamera)
+        Layouts.setPresentationVideoRate(liveMeeting.layouts, msg.body.presentationVideoRate)
+        Layouts.setRequestedBy(liveMeeting.layouts, msg.header.userId)
+
+        LayoutDAO.insertOrUpdate(liveMeeting.props.meetingProp.intId, liveMeeting.layouts)
+        sendBroadcastLayoutEvtMsg(msg.header.userId)
+      }
     }
   }
 
@@ -30,12 +49,31 @@ trait BroadcastLayoutMsgHdlr extends RightsManagementTrait {
 
     val body = BroadcastLayoutEvtMsgBody(
       Layouts.getCurrentLayout(liveMeeting.layouts),
-      MeetingStatus2x.getPermissions(liveMeeting.status).lockedLayout,
-      Layouts.getLayoutSetter(liveMeeting.layouts), affectedUsers
+      Layouts.getPushLayout(liveMeeting.layouts),
+      Layouts.getPresentationIsOpen(liveMeeting.layouts),
+      Layouts.getCameraDockIsResizing(liveMeeting.layouts),
+      Layouts.getCameraPosition(liveMeeting.layouts),
+      Layouts.getFocusedCamera(liveMeeting.layouts),
+      Layouts.getPresentationVideoRate(liveMeeting.layouts),
+      Layouts.getLayoutSetter(liveMeeting.layouts)
     )
     val event = BroadcastLayoutEvtMsg(header, body)
     val msgEvent = BbbCommonEnvCoreMsg(envelope, event)
 
     outGW.send(msgEvent)
+
+    if (body.pushLayout) {
+      val notifyEvent = MsgBuilder.buildNotifyUserInMeetingEvtMsg(
+        fromUserId,
+        liveMeeting.props.meetingProp.intId,
+        "info",
+        "user",
+        "app.layoutUpdate.label",
+        "Notification to when the presenter changes size of cams",
+        Vector()
+      )
+      outGW.send(notifyEvent)
+      NotificationDAO.insert(notifyEvent)
+    }
   }
 }

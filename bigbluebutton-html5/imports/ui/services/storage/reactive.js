@@ -1,13 +1,13 @@
-import _ from 'lodash';
 import { Tracker } from 'meteor/tracker';
 import { EJSON } from 'meteor/ejson';
+import { isObject, isArray, isString } from 'radash';
 
 // Reactive wrapper for browser Storage's
 
 export default class StorageTracker {
   constructor(storage, prefix = '') {
     if (!(storage instanceof Storage)) {
-      throw `Expecting a instanceof Storage recieve a '${storage.constructor.name}' instance`;
+      throw `Expecting a instanceof Storage receive a '${storage.constructor.name}' instance`;
     }
 
     this._trackers = {};
@@ -37,7 +37,7 @@ export default class StorageTracker {
 
     let value = this._storage.getItem(prefixedKey);
 
-    if (value && _.isString(value)) {
+    if (value && isString(value)) {
       try {
         value = EJSON.parse(value);
       } catch (e) {}
@@ -50,13 +50,7 @@ export default class StorageTracker {
     const prefixedKey = this._prefixedKey(key);
     this._ensureDeps(prefixedKey);
 
-    // let currentValue = this.getItem(prefixedKey);
-    //
-    // if (_.isEqual(currentValue, value)) {
-    //   return;
-    // }
-
-    if (_.isObject(value)) {
+    if (isObject(value) || isArray(value)) {
       value = EJSON.stringify(value);
     }
 
@@ -67,6 +61,7 @@ export default class StorageTracker {
   removeItem(key) {
     const prefixedKey = this._prefixedKey(key);
     this._storage.removeItem(prefixedKey);
+    if (!this._trackers[prefixedKey]) return;
     this._trackers[prefixedKey].changed();
     delete this._trackers[prefixedKey];
   }

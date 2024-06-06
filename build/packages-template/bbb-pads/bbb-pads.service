@@ -1,0 +1,17 @@
+[Unit]
+Description=BigBlueButton Pads
+Wants=redis-server.service etherpad.service
+After=syslog.target network.target redis-server.service etherpad.service
+PartOf=bigbluebutton.target
+
+[Service]
+WorkingDirectory=/usr/local/bigbluebutton/bbb-pads
+ExecStart=/usr/bin/node index.js
+Restart=always
+SyslogIdentifier=bbb-pads
+User=bigbluebutton
+Group=bigbluebutton
+Environment=NODE_ENV=production
+
+[Install]
+WantedBy=multi-user.target bigbluebutton.target

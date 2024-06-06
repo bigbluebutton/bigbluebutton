@@ -1,10 +1,10 @@
 package org.bigbluebutton.core
 
 import java.io.{ PrintWriter, StringWriter }
-import akka.actor._
-import akka.actor.ActorLogging
-import akka.actor.SupervisorStrategy.Resume
-import akka.util.Timeout
+import org.apache.pekko.actor._
+import org.apache.pekko.actor.ActorLogging
+import org.apache.pekko.actor.SupervisorStrategy.Resume
+import org.apache.pekko.util.Timeout
 
 import scala.concurrent.duration._
 import org.bigbluebutton.core.bus._
@@ -13,7 +13,10 @@ import org.bigbluebutton.SystemConfiguration
 
 import java.util.concurrent.TimeUnit
 import org.bigbluebutton.common2.msgs._
+import org.bigbluebutton.core.db.{ DatabaseConnection, MeetingDAO }
+import org.bigbluebutton.core.domain.MeetingEndReason
 import org.bigbluebutton.core.running.RunningMeeting
+import org.bigbluebutton.core.util.ColorPicker
 import org.bigbluebutton.core2.RunningMeetings
 import org.bigbluebutton.core2.message.senders.MsgBuilder
 import org.bigbluebutton.service.HealthzService
@@ -54,6 +57,10 @@ class BigBlueButtonActor(
 
   override def preStart() {
     bbbMsgBus.subscribe(self, meetingManagerChannel)
+    DatabaseConnection.initialize()
+
+    //Terminate all previous meetings, as they will not function following the akka-apps restart
+    MeetingDAO.setAllMeetingsEnded(MeetingEndReason.ENDED_DUE_TO_SERVICE_INTERRUPTION, "system")
   }
 
   override def postStop() {
@@ -72,14 +79,16 @@ class BigBlueButtonActor(
   private def handleBbbCommonEnvCoreMsg(msg: BbbCommonEnvCoreMsg): Unit = {
     msg.core match {
 
-      case m: CreateMeetingReqMsg         => handleCreateMeetingReqMsg(m)
-      case m: RegisterUserReqMsg          => handleRegisterUserReqMsg(m)
-      case m: EjectDuplicateUserReqMsg    => handleEjectDuplicateUserReqMsg(m)
-      case m: GetAllMeetingsReqMsg        => handleGetAllMeetingsReqMsg(m)
-      case m: GetRunningMeetingsReqMsg    => handleGetRunningMeetingsReqMsg(m)
-      case m: CheckAlivePingSysMsg        => handleCheckAlivePingSysMsg(m)
-      case m: ValidateConnAuthTokenSysMsg => handleValidateConnAuthTokenSysMsg(m)
-      case _                              => log.warning("Cannot handle " + msg.envelope.name)
+      case m: CreateMeetingReqMsg                    => handleCreateMeetingReqMsg(m)
+      case m: RegisterUserReqMsg                     => handleRegisterUserReqMsg(m)
+      case m: GetAllMeetingsReqMsg                   => handleGetAllMeetingsReqMsg(m)
+      case m: GetRunningMeetingsReqMsg               => handleGetRunningMeetingsReqMsg(m)
+      case m: CheckAlivePingSysMsg                   => handleCheckAlivePingSysMsg(m)
+      case m: ValidateConnAuthTokenSysMsg            => handleValidateConnAuthTokenSysMsg(m)
+      case _: UserGraphqlConnectionEstablishedSysMsg => //Ignore
+      case _: UserGraphqlConnectionClosedSysMsg      => //Ignore
+      case _: CheckGraphqlMiddlewareAlivePongSysMsg  => //Ignore
+      case _                                         => log.warning("Cannot handle " + msg.envelope.name)
     }
   }
 
@@ -105,16 +114,6 @@ class BigBlueButtonActor(
     }
   }
 
-  def handleEjectDuplicateUserReqMsg(msg: EjectDuplicateUserReqMsg): Unit = {
-    log.debug("RECEIVED EjectDuplicateUserReqMsg msg {}", msg)
-    for {
-      m <- RunningMeetings.findWithId(meetings, msg.header.meetingId)
-    } yield {
-      log.debug("FORWARDING EjectDuplicateUserReqMsg")
-      m.actorRef forward (msg)
-    }
-  }
-
   def handleCreateMeetingReqMsg(msg: CreateMeetingReqMsg): Unit = {
     log.debug("RECEIVED CreateMeetingReqMsg msg {}", msg)
 
@@ -127,11 +126,9 @@ class BigBlueButtonActor(
         // Subscribe to meeting and voice events.
         eventBus.subscribe(m.actorRef, m.props.meetingProp.intId)
         eventBus.subscribe(m.actorRef, m.props.voiceProp.voiceConf)
-        eventBus.subscribe(m.actorRef, m.props.screenshareProps.screenshareConf)
 
         bbbMsgBus.subscribe(m.actorRef, m.props.meetingProp.intId)
         bbbMsgBus.subscribe(m.actorRef, m.props.voiceProp.voiceConf)
-        bbbMsgBus.subscribe(m.actorRef, m.props.screenshareProps.screenshareConf)
 
         RunningMeetings.add(meetings, m)
 
@@ -157,7 +154,7 @@ class BigBlueButtonActor(
   }
 
   private def handleGetAllMeetingsReqMsg(msg: GetAllMeetingsReqMsg): Unit = {
-    RunningMeetings.meetings(meetings).filter(_.props.systemProps.html5InstanceId == msg.body.html5InstanceId).foreach(m => {
+    RunningMeetings.meetings(meetings).foreach(m => {
       m.actorRef ! msg
     })
   }
@@ -177,11 +174,9 @@ class BigBlueButtonActor(
       // Unsubscribe to meeting and voice events.
       eventBus.unsubscribe(m.actorRef, m.props.meetingProp.intId)
       eventBus.unsubscribe(m.actorRef, m.props.voiceProp.voiceConf)
-      eventBus.unsubscribe(m.actorRef, m.props.screenshareProps.screenshareConf)
 
       bbbMsgBus.unsubscribe(m.actorRef, m.props.meetingProp.intId)
       bbbMsgBus.unsubscribe(m.actorRef, m.props.voiceProp.voiceConf)
-      bbbMsgBus.unsubscribe(m.actorRef, m.props.screenshareProps.screenshareConf)
 
       // Delay sending DisconnectAllUsers to allow messages to reach the client
       // before the connections are closed.
@@ -191,9 +186,6 @@ class BigBlueButtonActor(
         val disconnectEvnt = MsgBuilder.buildDisconnectAllClientsSysMsg(msg.meetingId, "meeting-destroyed")
         m2.outMsgRouter.send(disconnectEvnt)
 
-        val stopTranscodersCmd = MsgBuilder.buildStopMeetingTranscodersSysCmdMsg(msg.meetingId)
-        m2.outMsgRouter.send(stopTranscodersCmd)
-
         log.info("Destroyed meetingId={}", msg.meetingId)
         val destroyedEvent = MsgBuilder.buildMeetingDestroyedEvtMsg(msg.meetingId)
         m2.outMsgRouter.send(destroyedEvent)
@@ -201,6 +193,15 @@ class BigBlueButtonActor(
         // Stop the meeting actor.
         context.stop(m.actorRef)
       }
+
+      //      MeetingDAO.delete(msg.meetingId)
+      //      MeetingDAO.setMeetingEnded(msg.meetingId)
+      //      Removing the meeting is enough, all other tables has "ON DELETE CASCADE"
+      //      UserDAO.softDeleteAllFromMeeting(msg.meetingId)
+      //      MeetingRecordingDAO.updateStopped(msg.meetingId, "")
+
+      //Remove ColorPicker idx of the meeting
+      ColorPicker.reset(m.props.meetingProp.intId)
     }
   }
 

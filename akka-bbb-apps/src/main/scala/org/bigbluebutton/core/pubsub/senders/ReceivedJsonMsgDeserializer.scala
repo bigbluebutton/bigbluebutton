@@ -39,6 +39,14 @@ trait ReceivedJsonMsgDeserializer extends SystemConfiguration {
     }
   }
 
+  def routePadMsg[B <: PadStandardMsg](envelope: BbbCoreEnvelope, jsonNode: JsonNode)(implicit tag: TypeTag[B]): Unit = {
+    for {
+      m <- deserialize[B](jsonNode)
+    } yield {
+      send(m.header.meetingId, envelope, m)
+    }
+  }
+
   def routeVoiceMsg[B <: VoiceStandardMsg](envelope: BbbCoreEnvelope, jsonNode: JsonNode)(implicit tag: TypeTag[B]): Unit = {
     for {
       m <- deserialize[B](jsonNode)

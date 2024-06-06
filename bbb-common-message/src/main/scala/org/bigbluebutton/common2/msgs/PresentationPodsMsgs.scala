@@ -13,7 +13,7 @@ case class RemovePresentationPodPubMsgBody(podId: String)
 
 object PresentationUploadTokenReqMsg { val NAME = "PresentationUploadTokenReqMsg" }
 case class PresentationUploadTokenReqMsg(header: BbbClientMsgHeader, body: PresentationUploadTokenReqMsgBody) extends StandardMsg
-case class PresentationUploadTokenReqMsgBody(podId: String, filename: String)
+case class PresentationUploadTokenReqMsgBody(podId: String, filename: String, uploadTemporaryId: String)
 
 object GetAllPresentationPodsReqMsg { val NAME = "GetAllPresentationPodsReqMsg" }
 case class GetAllPresentationPodsReqMsg(header: BbbClientMsgHeader, body: GetAllPresentationPodsReqMsgBody) extends StandardMsg
@@ -23,22 +23,24 @@ object SetCurrentPagePubMsg { val NAME = "SetCurrentPagePubMsg" }
 case class SetCurrentPagePubMsg(header: BbbClientMsgHeader, body: SetCurrentPagePubMsgBody) extends StandardMsg
 case class SetCurrentPagePubMsgBody(podId: String, presentationId: String, pageId: String)
 
-object SetPresenterInPodReqMsg { val NAME = "SetPresenterInPodReqMsg" }
-case class SetPresenterInPodReqMsg(header: BbbClientMsgHeader, body: SetPresenterInPodReqMsgBody) extends StandardMsg
-case class SetPresenterInPodReqMsgBody(podId: String, nextPresenterId: String)
-
 object RemovePresentationPubMsg { val NAME = "RemovePresentationPubMsg" }
 case class RemovePresentationPubMsg(header: BbbClientMsgHeader, body: RemovePresentationPubMsgBody) extends StandardMsg
 case class RemovePresentationPubMsgBody(podId: String, presentationId: String)
 
 object SetPresentationDownloadablePubMsg { val NAME = "SetPresentationDownloadablePubMsg" }
 case class SetPresentationDownloadablePubMsg(header: BbbClientMsgHeader, body: SetPresentationDownloadablePubMsgBody) extends StandardMsg
-case class SetPresentationDownloadablePubMsgBody(podId: String, presentationId: String, downloadable: Boolean)
+case class SetPresentationDownloadablePubMsgBody(podId: String, presentationId: String, downloadable: Boolean,
+                                                 fileStateType: String)
 
 object ResizeAndMovePagePubMsg { val NAME = "ResizeAndMovePagePubMsg" }
 case class ResizeAndMovePagePubMsg(header: BbbClientMsgHeader, body: ResizeAndMovePagePubMsgBody) extends StandardMsg
 case class ResizeAndMovePagePubMsgBody(podId: String, presentationId: String, pageId: String, xOffset: Double,
-                                       yOffset: Double, widthRatio: Double, heightRatio: Double)
+                                       yOffset: Double, widthRatio: Double, heightRatio: Double, slideNumber: Int)
+
+object SlideResizedPubMsg { val NAME = "SlideResizedPubMsg" }
+case class SlideResizedPubMsg(header: BbbClientMsgHeader, body: SlideResizedPubMsgBody) extends StandardMsg
+case class SlideResizedPubMsgBody(pageId: String, width: Double, height: Double,
+                                       xOffset: Double, yOffset: Double, widthRatio: Double, heightRatio: Double)
 
 object SetCurrentPresentationPubMsg { val NAME = "SetCurrentPresentationPubMsg" }
 case class SetCurrentPresentationPubMsg(header: BbbClientMsgHeader, body: SetCurrentPresentationPubMsgBody) extends StandardMsg
@@ -52,11 +54,12 @@ case class PresentationConversionUpdateSysPubMsg(
     body:   PresentationConversionUpdateSysPubMsgBody
 ) extends StandardMsg
 case class PresentationConversionUpdateSysPubMsgBody(
-    podId:          String,
-    messageKey:     String,
-    code:           String,
-    presentationId: String,
-    presName:       String
+    podId:                   String,
+    messageKey:              String,
+    code:                    String,
+    presentationId:          String,
+    presName:                String,
+    temporaryPresentationId: String
 )
 
 object PresentationPageCountErrorSysPubMsg { val NAME = "PresentationPageCountErrorSysPubMsg" }
@@ -65,7 +68,7 @@ case class PresentationPageCountErrorSysPubMsg(
     body:   PresentationPageCountErrorSysPubMsgBody
 ) extends StandardMsg
 case class PresentationPageCountErrorSysPubMsgBody(podId: String, messageKey: String, code: String, presentationId: String,
-                                                   numberOfPages: Int, maxNumberPages: Int, presName: String)
+                                                   numberOfPages: Int, maxNumberPages: Int, presName: String, temporaryPresentationId: String)
 
 object PdfConversionInvalidErrorSysPubMsg { val NAME = "PdfConversionInvalidErrorSysPubMsg" }
 case class PdfConversionInvalidErrorSysPubMsg(
@@ -113,12 +116,14 @@ case class PresentationConversionRequestReceivedSysMsg(
     body:   PresentationConversionRequestReceivedSysMsgBody
 ) extends StandardMsg
 case class PresentationConversionRequestReceivedSysMsgBody(
-    podId:          String,
-    presentationId: String,
-    current:        Boolean,
-    presName:       String,
-    downloadable:   Boolean,
-    authzToken:     String
+    podId:                   String,
+    presentationId:          String,
+    temporaryPresentationId: String,
+    current:                 Boolean,
+    presName:                String,
+    downloadable:            Boolean,
+    removable:               Boolean,
+    authzToken:              String
 )
 
 object PresentationPageConversionStartedSysMsg { val NAME = "PresentationPageConversionStartedSysMsg" }
@@ -130,8 +135,11 @@ case class PresentationPageConversionStartedSysMsgBody(
     podId:          String,
     presentationId: String,
     current:        Boolean,
+    default:        Boolean,
     presName:       String,
+    presFilenameConverted: String,
     downloadable:   Boolean,
+    removable:      Boolean,
     authzToken:     String,
     numPages:       Int
 )
@@ -162,6 +170,38 @@ case class PresentationUploadedFileTooLargeErrorSysPubMsgBody(
     maxFileSize:       Int
 )
 
+object PresentationHasInvalidMimeTypeErrorSysPubMsg { val NAME = "PresentationHasInvalidMimeTypeErrorSysPubMsg" }
+case class PresentationHasInvalidMimeTypeErrorSysPubMsg(
+      header: BbbClientMsgHeader,
+      body:   PresentationHasInvalidMimeTypeErrorSysPubMsgBody
+) extends StandardMsg
+case class PresentationHasInvalidMimeTypeErrorSysPubMsgBody(
+    podId:                   String,
+    meetingId:               String,
+    presentationName:        String,
+    temporaryPresentationId: String,
+    presentationId:          String,
+    messageKey:              String,
+    fileMime:              String,
+    fileExtension:         String,
+)
+
+object PresentationUploadedFileTimeoutErrorSysPubMsg { val NAME = "PresentationUploadedFileTimeoutErrorSysPubMsg" }
+case class PresentationUploadedFileTimeoutErrorSysPubMsg(
+    header: BbbClientMsgHeader,
+    body:   PresentationUploadedFileTimeoutErrorSysPubMsgBody
+) extends StandardMsg
+case class PresentationUploadedFileTimeoutErrorSysPubMsgBody(
+    podId:                   String,
+    meetingId:               String,
+    presentationName:        String,
+    page:                    Int,
+    messageKey:              String,
+    temporaryPresentationId: String,
+    presentationId:          String,
+    maxNumberOfAttempts:     Int,
+)
+
 // ------------ bbb-common-web to akka-apps ------------
 
 // ------------ akka-apps to client ------------
@@ -179,7 +219,7 @@ case class PdfConversionInvalidErrorEvtMsgBody(podId: String, messageKey: String
 
 object PresentationUploadTokenPassRespMsg { val NAME = "PresentationUploadTokenPassRespMsg" }
 case class PresentationUploadTokenPassRespMsg(header: BbbClientMsgHeader, body: PresentationUploadTokenPassRespMsgBody) extends StandardMsg
-case class PresentationUploadTokenPassRespMsgBody(podId: String, authzToken: String, filename: String)
+case class PresentationUploadTokenPassRespMsgBody(podId: String, authzToken: String, filename: String, temporaryPresentationId: String, presentationId: String)
 
 object PresentationUploadTokenFailRespMsg { val NAME = "PresentationUploadTokenFailRespMsg" }
 case class PresentationUploadTokenFailRespMsg(header: BbbClientMsgHeader, body: PresentationUploadTokenFailRespMsgBody) extends StandardMsg
@@ -187,11 +227,11 @@ case class PresentationUploadTokenFailRespMsgBody(podId: String, filename: Strin
 
 object PresentationConversionUpdateEvtMsg { val NAME = "PresentationConversionUpdateEvtMsg" }
 case class PresentationConversionUpdateEvtMsg(header: BbbClientMsgHeader, body: PresentationConversionUpdateEvtMsgBody) extends BbbCoreMsg
-case class PresentationConversionUpdateEvtMsgBody(podId: String, messageKey: String, code: String, presentationId: String, presName: String)
+case class PresentationConversionUpdateEvtMsgBody(podId: String, messageKey: String, code: String, presentationId: String, presName: String, temporaryPresentationId: String)
 
 object PresentationPageCountErrorEvtMsg { val NAME = "PresentationPageCountErrorEvtMsg" }
 case class PresentationPageCountErrorEvtMsg(header: BbbClientMsgHeader, body: PresentationPageCountErrorEvtMsgBody) extends BbbCoreMsg
-case class PresentationPageCountErrorEvtMsgBody(podId: String, messageKey: String, code: String, presentationId: String, numberOfPages: Int, maxNumberPages: Int, presName: String)
+case class PresentationPageCountErrorEvtMsgBody(podId: String, messageKey: String, code: String, presentationId: String, numberOfPages: Int, maxNumberPages: Int, presName: String, temporaryPresentationId: String)
 
 object PresentationPageGeneratedEvtMsg { val NAME = "PresentationPageGeneratedEvtMsg" }
 case class PresentationPageGeneratedEvtMsg(header: BbbClientMsgHeader, body: PresentationPageGeneratedEvtMsgBody) extends BbbCoreMsg
@@ -217,6 +257,20 @@ object PresentationUploadedFileTooLargeErrorEvtMsg { val NAME = "PresentationUpl
 case class PresentationUploadedFileTooLargeErrorEvtMsg(header: BbbClientMsgHeader, body: PresentationUploadedFileTooLargeErrorEvtMsgBody) extends BbbCoreMsg
 case class PresentationUploadedFileTooLargeErrorEvtMsgBody(podId: String, messageKey: String, code: String, presentationName: String, presentationToken: String, fileSize: Int, maxFileSize: Int)
 
+object PresentationHasInvalidMimeTypeErrorEvtMsg { val NAME = "PresentationHasInvalidMimeTypeErrorEvtMsg" }
+case class PresentationHasInvalidMimeTypeErrorEvtMsg(header: BbbClientMsgHeader, body: PresentationHasInvalidMimeTypeErrorEvtMsgBody) extends BbbCoreMsg
+case class PresentationHasInvalidMimeTypeErrorEvtMsgBody(podId: String, meetingId: String, presentationName: String,
+                                                          temporaryPresentationId: String, presentationId: String,
+                                                          messageKey: String, fileMime: String, fileExtension: String,
+                                                        )
+
+object PresentationUploadedFileTimeoutErrorEvtMsg { val NAME = "PresentationUploadedFileTimeoutErrorEvtMsg" }
+case class PresentationUploadedFileTimeoutErrorEvtMsg(header: BbbClientMsgHeader, body: PresentationUploadedFileTimeoutErrorEvtMsgBody) extends BbbCoreMsg
+case class PresentationUploadedFileTimeoutErrorEvtMsgBody(podId: String, meetingId: String, presentationName: String,
+                                                          page: Int, messageKey: String,
+                                                          temporaryPresentationId: String, presentationId: String,
+                                                          maxNumberOfAttempts: Int)
+
 object PresentationConversionRequestReceivedEventMsg { val NAME = "PresentationConversionRequestReceivedEventMsg" }
 case class PresentationConversionRequestReceivedEventMsg(
     header: BbbClientMsgHeader,
@@ -228,6 +282,7 @@ case class PresentationConversionRequestReceivedEventMsgBody(
     current:        Boolean,
     presName:       String,
     downloadable:   Boolean,
+    removable:      Boolean,
     authzToken:     String
 )
 
@@ -242,6 +297,7 @@ case class PresentationPageConversionStartedEventMsgBody(
     current:        Boolean,
     presName:       String,
     downloadable:   Boolean,
+    removable:      Boolean,
     numPages:       Int,
     authzToken:     String
 )
@@ -279,7 +335,8 @@ case class RemovePresentationEvtMsgBody(podId: String, presentationId: String)
 
 object SetPresentationDownloadableEvtMsg { val NAME = "SetPresentationDownloadableEvtMsg" }
 case class SetPresentationDownloadableEvtMsg(header: BbbClientMsgHeader, body: SetPresentationDownloadableEvtMsgBody) extends BbbCoreMsg
-case class SetPresentationDownloadableEvtMsgBody(podId: String, presentationId: String, downloadable: Boolean, presFilename: String)
+case class SetPresentationDownloadableEvtMsgBody(podId: String, presentationId: String, downloadable: Boolean,
+                                                 presFilename: String, downloadableExtension: String)
 
 object ResizeAndMovePageEvtMsg { val NAME = "ResizeAndMovePageEvtMsg" }
 case class ResizeAndMovePageEvtMsg(header: BbbClientMsgHeader, body: ResizeAndMovePageEvtMsgBody) extends BbbCoreMsg
@@ -300,5 +357,5 @@ case class SyncGetPresentationPodsRespMsgBody(pods: Vector[PresentationPodVO])
 // ------------ akka-apps to bbb-common-web ------------
 object PresentationUploadTokenSysPubMsg { val NAME = "PresentationUploadTokenSysPubMsg" }
 case class PresentationUploadTokenSysPubMsg(header: BbbClientMsgHeader, body: PresentationUploadTokenSysPubMsgBody) extends BbbCoreMsg
-case class PresentationUploadTokenSysPubMsgBody(podId: String, authzToken: String, filename: String, meetingId: String)
+case class PresentationUploadTokenSysPubMsgBody(podId: String, authzToken: String, filename: String, meetingId: String, presentationId: String)
 // ------------ akka-apps to bbb-common-web ------------

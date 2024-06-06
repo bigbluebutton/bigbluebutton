@@ -20,6 +20,7 @@ package org.bigbluebutton.web.controllers
 
 import grails.converters.*
 import org.bigbluebutton.api.messaging.messages.PresentationUploadToken
+import org.bigbluebutton.presentation.SupportedFileTypes
 import org.grails.web.mime.DefaultMimeUtility
 import org.bigbluebutton.api.ParamsProcessorUtil;
 
@@ -29,6 +30,7 @@ import org.apache.commons.io.FilenameUtils;
 import org.bigbluebutton.web.services.PresentationService
 import org.bigbluebutton.presentation.UploadedPresentation
 import org.bigbluebutton.api.MeetingService;
+import org.bigbluebutton.api.util.ParamsUtil;
 import org.bigbluebutton.api.Util;
 
 class PresentationController {
@@ -48,8 +50,26 @@ class PresentationController {
       def originalContentLengthString = request.getHeader("x-original-content-length")
 
       def originalContentLength = 0
-      if (originalContentLengthString.isNumber()) {
+      // x-original-content-length may be missing (for example in CORS OPTION requests)
+      if (null != originalContentLengthString && originalContentLengthString.isNumber()) {
         originalContentLength = originalContentLengthString as int
+      }
+      if (request.getHeader("x-original-method") == 'OPTIONS') {
+        if (meetingService.authzTokenIsValid(presentationToken)) {
+          log.debug "OPTIONS SUCCESS \n"
+          response.setStatus(200)
+          response.addHeader("Cache-Control", "no-cache")
+          response.contentType = 'plain/text'
+          response.outputStream << 'upload-success';
+          return;
+        } else {
+          log.debug "OPTIONS FAIL\n"
+          response.setStatus(403)
+          response.addHeader("Cache-Control", "no-cache")
+          response.contentType = 'plain/text'
+          response.outputStream << 'upload-fail';
+          return;
+        }
       }
 
       if (null != presentationToken
@@ -81,13 +101,16 @@ class PresentationController {
 
   def upload = {
     // check if the authorization token provided is valid
-    if (null == params.authzToken || !meetingService.authzTokenIsValidAndExpired(params.authzToken)) {
+    if (null == params.authzToken || !meetingService.authzTokenIsValid(params.authzToken)) {
       log.debug "WARNING! AuthzToken=" + params.authzToken + " was not valid in meetingId=" + params.conference
       response.addHeader("Cache-Control", "no-cache")
       response.contentType = 'plain/text'
       response.outputStream << 'invalid auth token'
       return
     }
+
+    PresentationUploadToken presUploadToken = meetingService.getPresentationUploadToken(params.authzToken)
+    meetingService.expirePresentationUploadToken(params.authzToken)
 
     def meetingId = params.conference
     if (Util.isMeetingIdValidFormat(meetingId)) {
@@ -107,8 +130,24 @@ class PresentationController {
       return
     }
 
+    if (meetingService.isMeetingWithDisabledPresentation(meetingId)) {
+      log.error "This meeting has presentation as a disabledFeature, it is not possible to upload anything"
+      response.addHeader("Cache-Control", "no-cache")
+      response.contentType = 'plain/text'
+      response.outputStream << 'presentation in disabled features'
+      return
+    }
+
     def isDownloadable = params.boolean('is_downloadable') //instead of params.is_downloadable
     def podId = params.pod_id
+
+    // Defaults current to false (optional upload parameter)
+    def current = false
+    
+    if (null != params.current) {
+      current = params.current.toBoolean()
+    }
+    
     log.debug "@Default presentation pod" + podId
 
     def uploadFailed = false
@@ -116,8 +155,9 @@ class PresentationController {
     def presOrigFilename = ""
     def presFilename = ""
     def filenameExt = ""
-    def presId = ""
+    def presId = presUploadToken.presentationId
     def pres = null
+    def temporaryPresentationId = params.temporaryPresentationId
 
     def file = request.getFile('fileUpload')
     if (file && !file.empty) {
@@ -125,6 +165,7 @@ class PresentationController {
       // Gets the name minus the path from a full fileName.
       // a/b/c.txt --> c.txt
       presFilename =  FilenameUtils.getName(presOrigFilename)
+      presFilename = ParamsUtil.stripTags(presFilename)
       filenameExt = FilenameUtils.getExtension(presFilename)
     } else {
       log.warn "Upload failed. File Empty."
@@ -138,7 +179,6 @@ class PresentationController {
       uploadFailed = true
     } else {
       String presentationDir = presentationService.getPresentationDir()
-      presId = Util.generatePresentationId(presFilename)
       File uploadDir = Util.createPresentationDir(meetingId, presentationDir, presId)
       if (uploadDir != null) {
         def newFilename = Util.createNewFilename(presId, filenameExt)
@@ -147,31 +187,41 @@ class PresentationController {
       }
     }
 
-    log.debug("processing file upload " + presFilename)
+    log.debug("processing file upload " + presFilename + " (presId: " + presId + ")")
     def presentationBaseUrl = presentationService.presentationBaseUrl
+    def isPresentationMimeTypeValid = SupportedFileTypes.isPresentationMimeTypeValid(pres, filenameExt)
     UploadedPresentation uploadedPres = new UploadedPresentation(
             podId,
             meetingId,
             presId,
+            temporaryPresentationId,
             presFilename,
             presentationBaseUrl,
-            false /* default presentation */,
+            current,
             params.authzToken,
             uploadFailed,
             uploadFailReasons
     )
-
-    if (isDownloadable) {
-      log.debug "@Setting file to be downloadable..."
-      uploadedPres.setDownloadable();
+    if (isPresentationMimeTypeValid) {
+      if (isDownloadable) {
+        log.debug "@Setting file to be downloadable..."
+        uploadedPres.setDownloadable();
+      }
+      uploadedPres.setUploadedFile(pres);
+      presentationService.processUploadedPresentation(uploadedPres)
+      log.debug("file upload success " + presFilename)
+      response.addHeader("Cache-Control", "no-cache")
+      response.contentType = 'plain/text'
+      response.outputStream << 'upload-success'
+    } else {
+      def mimeType = SupportedFileTypes.detectMimeType(pres)
+      presentationService.sendDocConversionFailedOnMimeType(uploadedPres, mimeType, filenameExt)
+      org.bigbluebutton.presentation.Util.deleteDirectoryFromFileHandlingErrors(pres)
+      log.debug("file upload failed " + presFilename)
+      response.addHeader("Cache-Control", "no-cache")
+      response.contentType = 'plain/text'
+      response.outputStream << 'upload-failed'
     }
-
-    uploadedPres.setUploadedFile(pres);
-    presentationService.processUploadedPresentation(uploadedPres)
-    log.debug("file upload success " + presFilename)
-    response.addHeader("Cache-Control", "no-cache")
-    response.contentType = 'plain/text'
-    response.outputStream << 'upload-success'
   }
 
   def testConversion = {
@@ -190,33 +240,6 @@ class PresentationController {
 
     presentationService.processDelegatedPresentation(conference, room, presentation_name, returnCode, totalSlides, slidesCompleted)
     redirect(action: list)
-  }
-
-  def showSlide = {
-    log.debug "############### HERE"
-    def presentationName = params.presentation_name
-    def conf = params.conference
-    def rm = params.room
-    def slide = params.id
-
-    log.error "Nginx should be serving this SWF file! meetingId={} ,presId={} ,page={}", conf, presentationName, slide
-
-    InputStream is = null;
-    try {
-      def pres = presentationService.showSlide(conf, rm, presentationName, slide)
-      if (pres.exists()) {
-        log.debug "###### SLIDE FOUND ######"
-        def bytes = pres.readBytes()
-        response.addHeader("Cache-Control", "no-cache")
-        response.contentType = 'application/x-shockwave-flash'
-        response.outputStream << bytes;
-      } else {
-        log.debug "###### SLIDE NNOOOOOOT FOUND ######"
-      }
-    } catch (IOException e) {
-      log.error("Failed to read SWF file. meetingId=" + conf + ",presId=" + presentationName + ",page=" + slide);
-      log.error("Error reading SWF file.\n" + e.getMessage());
-    }
   }
 
   def showSvgImage = {
@@ -319,6 +342,7 @@ class PresentationController {
     def presId = params.presId
     def presFilename = params.presFilename
     def meetingId = params.meetingId
+    def filename = params.filename
 
     log.debug "Controller: Download request for $presFilename"
 
@@ -329,7 +353,7 @@ class PresentationController {
         log.debug "Controller: Sending pdf reply for $presFilename"
 
         def bytes = pres.readBytes()
-        def responseName = pres.getName();
+        def responseName = filename;
         def mimeType = grailsMimeUtility.getMimeTypeForURI(responseName)
         def mimeName = mimeType != null ? mimeType.name : 'application/octet-stream'
 

@@ -1,15 +1,24 @@
 import Users from '/imports/api/users';
 import Auth from '/imports/ui/services/auth';
 import Settings from '/imports/ui/services/settings';
-import { notify } from '/imports/ui/services/notification';
+import {notify} from '/imports/ui/services/notification';
 import GuestService from '/imports/ui/components/waiting-users/service';
+import Intl from '/imports/ui/services/locale';
 
 const getUserRoles = () => {
   const user = Users.findOne({
     userId: Auth.userID,
   });
 
-  return user.role;
+  return user?.role;
+};
+
+const isPresenter = () => {
+  const user = Users.findOne({
+    userId: Auth.userID,
+  });
+
+  return user?.presenter;
 };
 
 const showGuestNotification = () => {
@@ -20,18 +29,22 @@ const showGuestNotification = () => {
   return guestPolicy === 'ASK_MODERATOR';
 };
 
-const updateSettings = (obj, msg) => {
-  Object.keys(obj).forEach(k => (Settings[k] = obj[k]));
-  Settings.save();
+const isKeepPushingLayoutEnabled = () => window.meetingClientSettings.public.layout.showPushLayoutToggle;
 
-  if (msg) {
+const updateSettings = (obj, msgDescriptor, mutation) => {
+  Object.keys(obj).forEach(k => (Settings[k] = obj[k]));
+  Settings.save(mutation);
+
+  if (msgDescriptor) {
     // prevents React state update on unmounted component
     setTimeout(() => {
-      notify(
-        msg,
-        'info',
-        'settings',
-      );
+      Intl.formatMessage(msgDescriptor).then((txt) => {
+        notify(
+          txt,
+          'info',
+          'settings',
+        );
+      });
     }, 0);
   }
 };
@@ -40,7 +53,9 @@ const getAvailableLocales = () => fetch('./locale-list').then(locales => locales
 
 export {
   getUserRoles,
+  isPresenter,
   showGuestNotification,
   updateSettings,
+  isKeepPushingLayoutEnabled,
   getAvailableLocales,
 };

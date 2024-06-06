@@ -1,5 +1,6 @@
 package org.bigbluebutton.core.apps.presentationpod
 
+import org.apache.commons.codec.digest.DigestUtils
 import org.bigbluebutton.common2.domain._
 import org.bigbluebutton.core.domain._
 import org.bigbluebutton.core.models._
@@ -47,7 +48,6 @@ object PresentationPodsApp {
           id = page.id,
           num = page.num,
           thumbUri = page.urls.getOrElse("thumb", ""),
-          swfUri = page.urls.getOrElse("swf", ""),
           txtUri = page.urls.getOrElse("text", ""),
           svgUri = page.urls.getOrElse("svg", ""),
           current = page.current,
@@ -58,8 +58,8 @@ object PresentationPodsApp {
         )
       }
 
-      PresentationVO(p.id, p.name, p.current,
-        pages.toVector, p.downloadable)
+      PresentationVO(p.id, "", p.name, p.current,
+        pages.toVector, p.downloadable, p.removable, false, "")
     }
 
     PresentationPodVO(pod.id, pod.currentPresenter, presentationVOs.toVector)
@@ -74,23 +74,26 @@ object PresentationPodsApp {
     state.update(podManager)
   }
 
-  def translatePresentationToPresentationVO(pres: PresentationInPod): PresentationVO = {
+  def translatePresentationToPresentationVO(pres: PresentationInPod, temporaryPresentationId: String,
+                                            defaultPresentation: Boolean, filenameConverted: String): PresentationVO = {
     val pages = pres.pages.values.map { page =>
       PageVO(
         id = page.id,
         num = page.num,
         thumbUri = page.urls.getOrElse("thumb", ""),
-        swfUri = page.urls.getOrElse("swf", ""),
         txtUri = page.urls.getOrElse("text", ""),
         svgUri = page.urls.getOrElse("svg", ""),
         current = page.current,
         xOffset = page.xOffset,
         yOffset = page.yOffset,
         widthRatio = page.widthRatio,
-        heightRatio = page.heightRatio
+        heightRatio = page.heightRatio,
+        width = page.width,
+        height = page.height
       )
     }
-    PresentationVO(pres.id, pres.name, pres.current, pages.toVector, pres.downloadable)
+    PresentationVO(pres.id, temporaryPresentationId, pres.name, pres.current, pages.toVector, pres.downloadable,
+      pres.removable, defaultPresentation, filenameConverted)
   }
 
   def setCurrentPresentationInPod(state: MeetingState2x, podId: String, nextCurrentPresId: String): Option[PresentationPod] = {
@@ -105,5 +108,11 @@ object PresentationPodsApp {
   def generateToken(podId: String, userId: String): String = {
     "PresUploadToken-" + RandomStringGenerator.randomAlphanumericString(8) + podId + "-" + userId
   }
+
+  def generatePresentationId(presFilename: String) = {
+    val timestamp = System.currentTimeMillis
+    DigestUtils.sha1Hex(presFilename + RandomStringGenerator.randomAlphanumericString(8)) + "-" + timestamp
+  }
+
 }
 

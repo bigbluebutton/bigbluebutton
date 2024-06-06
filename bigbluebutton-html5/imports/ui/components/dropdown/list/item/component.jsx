@@ -1,10 +1,8 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import { defineMessages, injectIntl } from 'react-intl';
-import _ from 'lodash';
-import cx from 'classnames';
-import Icon from '/imports/ui/components/icon/component';
-import { styles } from '../styles';
+import Styled from './styles';
+import { uniqueId } from '/imports/utils/string-utils';
 
 const propTypes = {
   icon: PropTypes.string,
@@ -12,6 +10,7 @@ const propTypes = {
   description: PropTypes.string,
   accessKey: PropTypes.string,
   tabIndex: PropTypes.number,
+  disabled: PropTypes.bool,
 };
 
 const defaultProps = {
@@ -20,6 +19,7 @@ const defaultProps = {
   description: '',
   tabIndex: 0,
   accessKey: null,
+  disabled: false,
 };
 
 const messages = defineMessages({
@@ -31,8 +31,8 @@ const messages = defineMessages({
 class DropdownListItem extends Component {
   constructor(props) {
     super(props);
-    this.labelID = _.uniqueId('dropdown-item-label-');
-    this.descID = _.uniqueId('dropdown-item-desc-');
+    this.labelID = uniqueId('dropdown-item-label-');
+    this.descID = uniqueId('dropdown-item-desc-');
   }
 
   renderDefault() {
@@ -41,13 +41,13 @@ class DropdownListItem extends Component {
     } = this.props;
 
     return [
-      (icon ? <Icon iconName={icon} key="icon" className={styles.itemIcon} /> : null),
+      (icon ? <Styled.ItemIcon iconName={icon} key="icon" /> : null),
       (
-        <span className={styles.itemLabel} key="label" accessKey={accessKey}>
+        <Styled.ItemLabel key="label" accessKey={accessKey}>
           {label}
-        </span>
+        </Styled.ItemLabel>
       ),
-      (iconRight ? <Icon iconName={iconRight} key="iconRight" className={styles.iconRight} /> : null),
+      (iconRight ? <Styled.IconRight iconName={iconRight} key="iconRight" /> : null),
     ];
   }
 
@@ -64,22 +64,24 @@ class DropdownListItem extends Component {
       className,
       style,
       intl,
+      disabled,
+      'data-test': dataTest,
     } = this.props;
 
     const isSelected = className && className.includes('emojiSelected');
     const _label = isSelected ? `${label} (${intl.formatMessage(messages.activeAriaLabel)})` : label;
     return (
-      <li
+      <Styled.Item
         id={id}
         ref={injectRef}
-        onClick={onClick}
-        onKeyDown={onKeyDown}
+        onClick={disabled ? () => {} : onClick}
+        onKeyDown={disabled ? () => {} : onKeyDown}
         tabIndex={tabIndex}
         aria-labelledby={this.labelID}
         aria-describedby={this.descID}
-        className={cx(styles.item, className)}
         style={style}
         role="menuitem"
+        data-test={dataTest}
       >
         {
           children || this.renderDefault()
@@ -90,7 +92,7 @@ class DropdownListItem extends Component {
             : null
         }
         <span id={this.descID} key="describedby" hidden>{description}</span>
-      </li>
+      </Styled.Item>
     );
   }
 }

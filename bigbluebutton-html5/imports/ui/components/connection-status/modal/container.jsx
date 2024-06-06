@@ -1,18 +1,30 @@
 import React from 'react';
-import _ from 'lodash';
-import { withTracker } from 'meteor/react-meteor-data';
-import { withModalMounter } from '/imports/ui/components/modal/service';
-import Settings from '/imports/ui/services/settings';
-import ConnectionStatusService from '../service';
-import ConnectionStatusComponent from './component';
+import { useSubscription } from '@apollo/client';
+import { CONNECTION_STATUS_REPORT_SUBSCRIPTION } from '../queries';
+import Service from '../service';
+import Component from './component';
+import useCurrentUser from '/imports/ui/core/hooks/useCurrentUser';
+import { useGetStats } from '../../video-provider/video-provider-graphql/hooks';
 
-const connectionStatusContainer = props => <ConnectionStatusComponent {...props} />;
+const ConnectionStatusContainer = (props) => {
+  const { data } = useSubscription(CONNECTION_STATUS_REPORT_SUBSCRIPTION);
+  const connectionData = data ? Service.sortConnectionData(data.user_connectionStatusReport) : [];
+  const { data: currentUser } = useCurrentUser((u) => ({ isModerator: u.isModerator }));
+  const amIModerator = !!currentUser?.isModerator;
+  const { isGridLayout, paginationsEnabled, viewParticipantsWebcams } = props;
+  const getVideoStreamsStats = useGetStats(
+    isGridLayout,
+    paginationsEnabled,
+    viewParticipantsWebcams,
+  );
+  return (
+    <Component
+      connectionData={connectionData}
+      amIModerator={amIModerator}
+      getVideoStreamsStats={getVideoStreamsStats}
+      {...props}
+    />
+  );
+};
 
-export default withModalMounter(withTracker(({ mountModal }) => ({
-  closeModal: (dataSaving, intl) => {
-    ConnectionStatusService.updateDataSavingSettings(dataSaving, intl);
-    mountModal(null);
-  },
-  connectionStatus: ConnectionStatusService.getConnectionStatus(),
-  dataSaving: _.clone(Settings.dataSaving),
-}))(connectionStatusContainer));
+export default ConnectionStatusContainer;

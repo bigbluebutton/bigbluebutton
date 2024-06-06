@@ -18,8 +18,12 @@ public class ParamsUtil {
   public static final String INVALID_CHARS = ",";
 
   public static String stripControlChars(String text) {
-    return text.replaceAll("\\p{Cc}", "");
+    return text.replaceAll("\\p{Cc}", "").trim();
   }
+
+  public static String stripTags(String text) {
+    return text.replaceAll("<[^>]*>", "");
+}
 
   public static String escapeHTMLTags(String value) {
     return StringEscapeUtils.escapeHtml4(value);
@@ -53,20 +57,13 @@ public class ParamsUtil {
     return token;
   }
 
-  public static String getPadId(String url) {
-    String padId = "undefined";
-    try {
-      String decodedURL = URLDecoder.decode(url, "UTF-8");
-      String[] splitURL = decodedURL.split("\\?");
-      // If there is no query params, it's an invalid URL already
-      if (splitURL.length == 2) {
-        String[] params = splitURL[0].split("\\/");
-        // /p/pad/<padId>
-        if (params.length >= 4) padId = params[3];
-      }
-    } catch (UnsupportedEncodingException e) {
-      log.error(e.toString());
+  public static String sanitizeString(String inputString) {
+    if(inputString == null) {
+      return "";
     }
-    return padId;
+
+    String sanitizedString = stripControlChars(inputString);
+    String trimmedString = sanitizedString.trim();
+    return trimmedString;
   }
 }

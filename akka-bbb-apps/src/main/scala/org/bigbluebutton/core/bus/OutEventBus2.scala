@@ -1,7 +1,7 @@
 package org.bigbluebutton.core.bus
 
-import akka.actor.ActorRef
-import akka.event.{ EventBus, LookupClassification }
+import org.apache.pekko.actor.ActorRef
+import org.apache.pekko.event.{ EventBus, LookupClassification }
 import org.bigbluebutton.common2.msgs.{ BbbCommonEnvCoreMsg }
 
 case class BbbOutMessage(val topic: String, val payload: BbbCommonEnvCoreMsg)

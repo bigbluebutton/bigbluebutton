@@ -1,62 +1,62 @@
 import React, { useContext } from 'react';
 import { Meteor } from 'meteor/meteor';
 import { withTracker } from 'meteor/react-meteor-data';
-import { Session } from 'meteor/session';
 import Meetings from '/imports/api/meetings';
+import Breakouts from '/imports/api/breakouts';
 import Auth from '/imports/ui/services/auth';
 import getFromUserSettings from '/imports/ui/services/users-settings';
-import userListService from '/imports/ui/components/user-list/service';
-import { ChatContext } from '/imports/ui/components/components-data/chat-context/context';
-import { GroupChatContext } from '/imports/ui/components/components-data/group-chat-context/context';
-import { UsersContext } from '/imports/ui/components/components-data/users-context/context';
-import NoteService from '/imports/ui/components/note/service';
-import Service from './service';
 import NavBar from './component';
-import { NLayoutContext } from '../layout/context/context';
+import { layoutSelectInput, layoutSelectOutput, layoutDispatch } from '../layout/context';
+import { PluginsContext } from '/imports/ui/components/components-data/plugin-context/context';
+import { PANELS } from '/imports/ui/components/layout/enums';
+import useCurrentUser from '/imports/ui/core/hooks/useCurrentUser';
+import useChat from '/imports/ui/core/hooks/useChat';
+import useHasUnreadNotes from '../notes/hooks/useHasUnreadNotes';
+import { useShortcut } from '../../core/hooks/useShortcut';
 
-const PUBLIC_CONFIG = Meteor.settings.public;
-const ROLE_MODERATOR = PUBLIC_CONFIG.user.role_moderator;
-
-const checkUnreadMessages = ({
-  groupChatsMessages, groupChats, users, idChatOpen,
-}) => {
-  const activeChats = userListService.getActiveChats({ groupChatsMessages, groupChats, users });
-  const hasUnreadMessages = activeChats
-    .filter((chat) => chat.userId !== idChatOpen)
-    .some((chat) => chat.unreadCounter > 0);
-
-  return hasUnreadMessages;
-};
+const PUBLIC_CONFIG = window.meetingClientSettings.public;
 
 const NavBarContainer = ({ children, ...props }) => {
-  const newLayoutContext = useContext(NLayoutContext);
-  const { newLayoutContextState, newLayoutContextDispatch } = newLayoutContext;
-  const usingChatContext = useContext(ChatContext);
-  const usingUsersContext = useContext(UsersContext);
-  const usingGroupChatContext = useContext(GroupChatContext);
-  const { chats: groupChatsMessages } = usingChatContext;
-  const { users } = usingUsersContext;
-  const { groupChat: groupChats } = usingGroupChatContext;
-  const {
-    layoutManagerLoaded,
-    ...rest
-  } = props;
-  const {
-    input, output,
-  } = newLayoutContextState;
-  const { sidebarContent, sidebarNavigation } = input;
-  const { sidebarNavPanel } = sidebarNavigation;
+  const { pluginsExtensibleAreasAggregatedState } = useContext(PluginsContext);
+  const unread = useHasUnreadNotes();
+
+  const sidebarContent = layoutSelectInput((i) => i.sidebarContent);
+  const sidebarNavigation = layoutSelectInput((i) => i.sidebarNavigation);
+  const navBar = layoutSelectOutput((i) => i.navBar);
+  const layoutContextDispatch = layoutDispatch();
+  const sharedNotes = layoutSelectInput((i) => i.sharedNotes);
+  const { isPinned: notesIsPinned } = sharedNotes;
+
   const { sidebarContentPanel } = sidebarContent;
-  const { navBar } = output;
-  const hasUnreadNotes = NoteService.hasUnreadNotes(sidebarContentPanel);
-  const hasUnreadMessages = checkUnreadMessages(
-    { groupChatsMessages, groupChats, users: users[Auth.meetingID] },
-  );
+  const { sidebarNavPanel } = sidebarNavigation;
+
+  const toggleUserList = useShortcut('toggleUserList');
+
+  const hasUnreadNotes = sidebarContentPanel !== PANELS.SHARED_NOTES && unread && !notesIsPinned;
+
+  const { data: chats } = useChat((chat) => ({
+    totalUnread: chat.totalUnread,
+  }));
+
+  const hasUnreadMessages = chats && chats.reduce((acc, chat) => acc + chat?.totalUnread, 0) > 0;
+
+  const { data: currentUserData } = useCurrentUser((user) => ({
+    isModerator: user.isModerator,
+  }));
+  const amIModerator = currentUserData?.isModerator;
 
   const isExpanded = !!sidebarContentPanel || !!sidebarNavPanel;
 
-  const currentUser = users[Auth.meetingID][Auth.userID];
-  const amIModerator = currentUser.role === ROLE_MODERATOR;
+  const hideNavBar = getFromUserSettings('bbb_hide_nav_bar', false);
+
+  if (hideNavBar || navBar.display === false) return null;
+
+  let pluginNavBarItems = [];
+  if (pluginsExtensibleAreasAggregatedState.navBarItems) {
+    pluginNavBarItems = [
+      ...pluginsExtensibleAreasAggregatedState.navBarItems,
+    ];
+  }
 
   return (
     <NavBar
@@ -64,14 +64,16 @@ const NavBarContainer = ({ children, ...props }) => {
         amIModerator,
         hasUnreadMessages,
         hasUnreadNotes,
-        layoutManagerLoaded,
         sidebarNavPanel,
         sidebarContentPanel,
         sidebarNavigation,
         sidebarContent,
-        newLayoutContextDispatch,
+        layoutContextDispatch,
         isExpanded,
-        ...rest,
+        currentUserId: Auth.userID,
+        pluginNavBarItems,
+        shortcuts: toggleUserList,
+        ...props,
       }}
       style={{ ...navBar }}
     >
@@ -83,34 +85,44 @@ const NavBarContainer = ({ children, ...props }) => {
 export default withTracker(() => {
   const CLIENT_TITLE = getFromUserSettings('bbb_client_title', PUBLIC_CONFIG.app.clientTitle);
 
-  let meetingTitle;
+  let meetingTitle, breakoutNum, breakoutName, meetingName;
   const meetingId = Auth.meetingID;
   const meetingObject = Meetings.findOne({
     meetingId,
-  }, { fields: { 'meetingProp.name': 1, 'breakoutProps.sequence': 1 } });
+  }, { fields: { name: 1, 'breakoutPolicies.sequence': 1, meetingId: 1 } });
 
   if (meetingObject != null) {
-    meetingTitle = meetingObject.meetingProp.name;
+    meetingTitle = meetingObject.name;
     let titleString = `${CLIENT_TITLE} - ${meetingTitle}`;
-    if (meetingObject.breakoutProps) {
-      const breakoutNum = meetingObject.breakoutProps.sequence;
+    document.title = titleString;
+
+    if (meetingObject.breakoutPolicies) {
+      breakoutNum = meetingObject.breakoutPolicies.sequence;
       if (breakoutNum > 0) {
-        titleString = `${breakoutNum} - ${titleString}`;
+        const breakoutObject = Breakouts.findOne({
+          breakoutId: meetingObject.meetingId,
+        }, { fields: { shortName: 1 } });
+        if (breakoutObject) {
+          breakoutName = breakoutObject.shortName;
+          meetingName = meetingTitle.replace(`(${breakoutName})`, '').trim();
+        }
       }
     }
-    document.title = titleString;
   }
 
-  const { connectRecordingObserver, processOutsideToggleRecording } = Service;
-
-  const layoutManagerLoaded = Session.get('layoutManagerLoaded');
+  const IS_DIRECT_LEAVE_BUTTON_ENABLED = getFromUserSettings(
+    'bbb_direct_leave_button',
+    PUBLIC_CONFIG.app.defaultSettings.application.directLeaveButton,
+  );
 
   return {
     currentUserId: Auth.userID,
-    processOutsideToggleRecording,
-    connectRecordingObserver,
     meetingId,
     presentationTitle: meetingTitle,
-    layoutManagerLoaded,
+    breakoutNum,
+    breakoutName,
+    meetingName,
+    isDirectLeaveButtonEnabled: IS_DIRECT_LEAVE_BUTTON_ENABLED,
+    isMeteorConnected: Meteor.status().connected,
   };
 })(NavBarContainer);

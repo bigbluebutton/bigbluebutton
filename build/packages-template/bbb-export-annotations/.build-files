@@ -1,0 +1,6 @@
+after-install.sh
+bbb-export-annotations.service
+before-remove.sh
+build.sh
+opts-jammy.sh
+opts-global.sh

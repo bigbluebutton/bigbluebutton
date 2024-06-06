@@ -1,73 +1,101 @@
 package org.bigbluebutton.core.models
 
+import org.bigbluebutton.core.db.UserCameraDAO
+
+import collection.immutable.HashMap
+
 object Webcams {
   def findWithStreamId(webcams: Webcams, streamId: String): Option[WebcamStream] = {
-    webcams.toVector.find(w => w.stream.id == streamId)
+    webcams.toVector.find(webcam => webcam.streamId == streamId)
   }
 
   def findWebcamsForUser(webcams: Webcams, userId: String): Vector[WebcamStream] = {
-    webcams.toVector.filter(w => w.stream.userId == userId)
+    webcams.toVector.filter(webcam => webcam.userId == userId)
   }
 
   def findAll(webcams: Webcams): Vector[WebcamStream] = webcams.toVector
 
-  def addWebcamBroadcastStream(webcams: Webcams, webcamStream: WebcamStream): Option[WebcamStream] = {
-
-    findWithStreamId(webcams, webcamStream.streamId) match {
-      case Some(p) => {
-        None
-      }
+  def addWebcamStream(meetingId: String, webcams: Webcams, webcam: WebcamStream): Option[WebcamStream] = {
+    findWithStreamId(webcams, webcam.streamId) match {
       case None => {
-        webcams.save(webcamStream)
-        Some(webcamStream)
+        UserCameraDAO.insert(meetingId, webcam)
+        Some(webcams.save(webcam))
       }
+      case _ => None
     }
   }
 
-  def removeWebcamBroadcastStream(webcams: Webcams, streamId: String): Option[WebcamStream] = {
+  def removeWebcamStream(webcams: Webcams, streamId: String): Option[WebcamStream] = {
     for {
-      stream <- findWithStreamId(webcams, streamId)
-      removedStream <- webcams.remove(streamId)
-    } yield removedStream
+      webcam <- {
+        UserCameraDAO.delete(streamId)
+        webcams.remove(streamId)
+      }
+    } yield webcam
   }
 
-  def updateWebcamStream(webcams: Webcams, streamId: String, userId: String): Option[WebcamStream] = {
+  def hasWebcamStream(webcams: Webcams, streamId: String): Boolean = {
     findWithStreamId(webcams, streamId) match {
-      case Some(value) => {
-        val mediaStream: MediaStream = MediaStream(value.stream.id, value.stream.url, userId, value.stream.attributes,
-          value.stream.viewers)
-        val webcamStream: WebcamStream = WebcamStream(streamId, mediaStream)
-        webcams.update(streamId, webcamStream)
-        Some(webcamStream)
-      }
-      case None => {
-        None
-      }
+      case Some(webcam) => true
+      case _            => false
+    }
+  }
+
+  def addSubscriber(webcams: Webcams, streamId: String, userId: String): Unit = {
+    findWithStreamId(webcams, streamId) match {
+      case Some(webcam) => webcams.addSubscriber(webcam, userId)
+      case _            =>
+    }
+  }
+
+  def removeSubscriber(webcams: Webcams, streamId: String, userId: String): Unit = {
+    findWithStreamId(webcams, streamId) match {
+      case Some(webcam) => webcams.removeSubscriber(webcam, userId)
+      case _            =>
+    }
+  }
+
+  def isSubscriber(webcams: Webcams, userId: String, streamId: String): Boolean = {
+    findWithStreamId(webcams, streamId) match {
+      case Some(webcam) => webcam.subscribers contains userId
+      case None         => false
+    }
+  }
+
+  def isPublisher(webcams: Webcams, userId: String, streamId: String): Boolean = {
+    findWithStreamId(webcams, streamId) match {
+      case Some(webcam) => webcam.userId == userId && webcam.streamId.startsWith(userId)
+      case None         => false
     }
   }
 }
 
 class Webcams {
-  private var webcams: collection.immutable.HashMap[String, WebcamStream] = new collection.immutable.HashMap[String, WebcamStream]
+  private var webcams: HashMap[String, WebcamStream] = new HashMap[String, WebcamStream]
 
   private def toVector: Vector[WebcamStream] = webcams.values.toVector
 
   private def save(webcam: WebcamStream): WebcamStream = {
-    webcams += webcam.stream.id -> webcam
+    webcams += webcam.streamId -> webcam
     webcam
   }
 
   private def remove(streamId: String): Option[WebcamStream] = {
-    val webcam = webcams.get(streamId)
-    webcam foreach (u => webcams -= streamId)
-    webcam
+    for {
+      webcam <- webcams.get(streamId)
+    } yield {
+      webcams -= streamId
+      webcam
+    }
   }
 
-  private def update(streamId: String, webcamStream: WebcamStream): WebcamStream = {
-    val webcam = remove(streamId)
+  private def addSubscriber(webcam: WebcamStream, userId: String): Unit = {
+    save(webcam.copy(subscribers = webcam.subscribers + userId))
+  }
 
-    save(webcamStream)
+  private def removeSubscriber(webcam: WebcamStream, userId: String): Unit = {
+    save(webcam.copy(subscribers = webcam.subscribers - userId))
   }
 }
 
-case class WebcamStream(streamId: String, stream: MediaStream)
+case class WebcamStream(streamId: String, userId: String, subscribers: Set[String])

@@ -15,7 +15,7 @@ trait LogoutAndEndMeetingCmdMsgHdlr extends RightsManagementTrait {
   val eventBus: InternalEventBus
 
   def handleLogoutAndEndMeetingCmdMsg(msg: LogoutAndEndMeetingCmdMsg, state: MeetingState2x): Unit = {
-    if (permissionFailed(PermissionCheck.MOD_LEVEL, PermissionCheck.VIEWER_LEVEL, liveMeeting.users2x, msg.header.userId)) {
+    if (permissionFailed(PermissionCheck.MOD_LEVEL, PermissionCheck.VIEWER_LEVEL, liveMeeting.users2x, msg.header.userId) || liveMeeting.props.meetingProp.isBreakout) {
       val meetingId = liveMeeting.props.meetingProp.intId
       val reason = "No permission to end meeting on logout."
       PermissionCheck.ejectUserForFailedPermission(meetingId, msg.header.userId, reason, outGW, liveMeeting)

@@ -1,22 +1,20 @@
 import React, { useEffect, useState } from 'react';
 import PropTypes from 'prop-types';
-import cx from 'classnames';
 import { defineMessages, injectIntl } from 'react-intl';
-import _ from 'lodash';
+import { debounce } from '/imports/utils/debounce';
 import withShortcutHelper from '/imports/ui/components/shortcut-help/service';
-import { styles } from './styles';
-import ChatAvatar from './chat-avatar/component';
-import ChatIcon from './chat-icon/component';
-import ChatUnreadCounter from './chat-unread-messages/component';
+import Styled from './styles';
+import UserAvatar from '/imports/ui/components/user-avatar/component';
 import { ACTIONS, PANELS } from '../../layout/enums';
+import Icon from '/imports/ui/components/common/icon/component';
 
 const DEBOUNCE_TIME = 1000;
-const CHAT_CONFIG = Meteor.settings.public.chat;
+const CHAT_CONFIG = window.meetingClientSettings.public.chat;
 const PUBLIC_CHAT_KEY = CHAT_CONFIG.public_id;
 
 let globalAppplyStateToProps = () => {};
 
-const throttledFunc = _.debounce(() => {
+const throttledFunc = debounce(() => {
   globalAppplyStateToProps();
 }, DEBOUNCE_TIME, { trailing: true, leading: true });
 
@@ -46,13 +44,14 @@ const propTypes = {
   intl: PropTypes.shape({
     formatMessage: PropTypes.func.isRequired,
   }).isRequired,
-  tabIndex: PropTypes.number.isRequired,
+  tabIndex: PropTypes.number,
   isPublicChat: PropTypes.func.isRequired,
   shortcuts: PropTypes.string,
 };
 
 const defaultProps = {
   shortcuts: '',
+  tabIndex: -1,
 };
 
 const ChatListItem = (props) => {
@@ -67,15 +66,12 @@ const ChatListItem = (props) => {
     shortcuts: TOGGLE_CHAT_PUB_AK,
     sidebarContentIsOpen,
     sidebarContentPanel,
-    newLayoutContextDispatch,
+    layoutContextDispatch,
   } = props;
 
   const chatPanelOpen = sidebarContentIsOpen && sidebarContentPanel === PANELS.CHAT;
 
   const isCurrentChat = chat.chatId === activeChatId && chatPanelOpen;
-  const linkClasses = {};
-
-  linkClasses[styles.active] = isCurrentChat;
 
   const [stateUreadCount, setStateUreadCount] = useState(0);
 
@@ -90,7 +86,7 @@ const ChatListItem = (props) => {
 
   useEffect(() => {
     if (chat.userId !== PUBLIC_CHAT_KEY && chat.userId === idChatOpen) {
-      newLayoutContextDispatch({
+      layoutContextDispatch({
         type: ACTIONS.SET_ID_CHAT_OPEN,
         value: chat.chatId,
       });
@@ -102,85 +98,104 @@ const ChatListItem = (props) => {
 
     if (sidebarContentIsOpen && sidebarContentPanel === PANELS.CHAT) {
       if (idChatOpen === chat.chatId) {
-        newLayoutContextDispatch({
+        layoutContextDispatch({
           type: ACTIONS.SET_SIDEBAR_CONTENT_IS_OPEN,
           value: false,
         });
-        newLayoutContextDispatch({
+        layoutContextDispatch({
           type: ACTIONS.SET_SIDEBAR_CONTENT_PANEL,
           value: PANELS.NONE,
         });
-        newLayoutContextDispatch({
+        layoutContextDispatch({
           type: ACTIONS.SET_ID_CHAT_OPEN,
           value: '',
         });
       } else {
-        newLayoutContextDispatch({
+        layoutContextDispatch({
           type: ACTIONS.SET_ID_CHAT_OPEN,
           value: chat.chatId,
         });
       }
     } else {
-      newLayoutContextDispatch({
+      layoutContextDispatch({
         type: ACTIONS.SET_SIDEBAR_CONTENT_IS_OPEN,
         value: true,
       });
-      newLayoutContextDispatch({
+      layoutContextDispatch({
         type: ACTIONS.SET_SIDEBAR_CONTENT_PANEL,
         value: PANELS.CHAT,
       });
-      newLayoutContextDispatch({
+      layoutContextDispatch({
         type: ACTIONS.SET_ID_CHAT_OPEN,
         value: chat.chatId,
       });
     }
   };
 
+  const localizedChatName = isPublicChat(chat)
+    ? intl.formatMessage(intlMessages.titlePublic)
+    : chat.name;
+
+  const arialabel = `${localizedChatName} ${
+    stateUreadCount > 1
+      ? intl.formatMessage(intlMessages.unreadPlural, { 0: stateUreadCount })
+      : intl.formatMessage(intlMessages.unreadSingular)}`;
+
   return (
-    <div
+    <Styled.ChatListItem
       data-test="chatButton"
       role="button"
-      className={cx(styles.chatListItem, linkClasses)}
       aria-expanded={isCurrentChat}
+      active={isCurrentChat}
       tabIndex={tabIndex}
       accessKey={isPublicChat(chat) ? TOGGLE_CHAT_PUB_AK : null}
       onClick={handleClickToggleChat}
       id="chat-toggle-button"
       aria-label={isPublicChat(chat) ? intl.formatMessage(intlMessages.titlePublic) : chat.name}
-      onKeyPress={() => {}}
+      onKeyDown={(e) => {
+        if (e.key === 'Enter') {
+          e.preventDefault();
+          e.stopPropagation();
+        }
+      }}
     >
-
-      <div className={styles.chatListItemLink}>
-        <div className={styles.chatIcon}>
+      <Styled.ChatListItemLink>
+        <Styled.ChatIcon>
           {chat.icon
-            ? <ChatIcon icon={chat.icon} />
-            : (
-              <ChatAvatar
-                isModerator={chat.isModerator}
-                color={chat.color}
+            ? (
+              <Styled.ChatThumbnail>
+                <Icon iconName={chat.icon} />
+              </Styled.ChatThumbnail>
+            ) : (
+              <UserAvatar
+                moderator={chat.isModerator}
                 avatar={chat.avatar}
-                name={chat.name.toLowerCase().slice(0, 2)}
-              />
+                color={chat.color}
+              >
+                {chat.name.toLowerCase().slice(0, 2)}
+              </UserAvatar>
             )}
-        </div>
-        <div className={styles.chatName}>
+        </Styled.ChatIcon>
+        <Styled.ChatName>
           {!compact
             ? (
-              <span className={styles.chatNameMain}>
+              <Styled.ChatNameMain>
                 {isPublicChat(chat)
                   ? intl.formatMessage(intlMessages.titlePublic) : chat.name}
-              </span>
+              </Styled.ChatNameMain>
             ) : null}
-        </div>
+        </Styled.ChatName>
         {(stateUreadCount > 0)
           ? (
-            <ChatUnreadCounter
-              counter={stateUreadCount}
-            />
+            <Styled.UnreadMessages aria-label={arialabel}>
+              <Styled.UnreadMessagesText aria-hidden="true">
+                {stateUreadCount}
+              </Styled.UnreadMessagesText>
+            </Styled.UnreadMessages>
           )
           : null}
-      </div>
-    </div>
+      </Styled.ChatListItemLink>
+    </Styled.ChatListItem>
   );
 };
 

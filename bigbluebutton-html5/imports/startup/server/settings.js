@@ -2,25 +2,28 @@
 import { Meteor } from 'meteor/meteor';
 import fs from 'fs';
 import YAML from 'yaml';
-import _ from 'lodash';
+import { defaultsDeep } from '/imports/utils/array-utils';
 
 const DEFAULT_SETTINGS_FILE_PATH = process.env.BBB_HTML5_SETTINGS || 'assets/app/config/settings.yml';
 const LOCAL_SETTINGS_FILE_PATH = process.env.BBB_HTML5_LOCAL_SETTINGS || '/etc/bigbluebutton/bbb-html5.yml';
 
-
 try {
   if (fs.existsSync(DEFAULT_SETTINGS_FILE_PATH)) {
-    const SETTINGS = YAML.parse(fs.readFileSync(DEFAULT_SETTINGS_FILE_PATH, 'utf-8'));
+    let SETTINGS = YAML.parse(fs.readFileSync(DEFAULT_SETTINGS_FILE_PATH, 'utf-8'));
 
     if (fs.existsSync(LOCAL_SETTINGS_FILE_PATH)) {
       console.log('Local configuration found! Merging with default configuration...');
       const LOCAL_CONFIG = YAML.parse(fs.readFileSync(LOCAL_SETTINGS_FILE_PATH, 'utf-8'));
-      _.merge(SETTINGS, LOCAL_CONFIG);
+      SETTINGS = defaultsDeep(LOCAL_CONFIG, SETTINGS);
     } else console.log('Local Configuration not found! Loading default configuration...');
 
     Meteor.settings = SETTINGS;
     Meteor.settings.public.app.instanceId = ''; // no longer use instanceId in URLs. Likely permanent change
     // Meteor.settings.public.app.instanceId = `/${INSTANCE_ID}`;
+
+    Meteor.settings.public.packages = {
+      'dynamic-import': { useLocationOrigin: true },
+    };
 
     __meteor_runtime_config__.PUBLIC_SETTINGS = SETTINGS.public;
   } else {

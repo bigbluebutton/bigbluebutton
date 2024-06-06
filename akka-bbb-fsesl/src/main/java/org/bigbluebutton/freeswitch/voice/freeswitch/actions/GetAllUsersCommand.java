@@ -108,7 +108,9 @@ public class GetAllUsersCommand extends FreeswitchCommand {
                         }
 
                         VoiceUserJoinedEvent pj = new VoiceUserJoinedEvent(voiceUserId, member.getId().toString(), confXML.getConferenceRoom(),
-                                callerId, callerIdName, member.getMuted(), member.getSpeaking(), "none");
+                                callerId, callerIdName, member.getMuted(), member.getSpeaking(), "none",
+                                member.getHold(),
+                                uuid);
                         eventListener.handleConferenceEvent(pj);
                     } else if ("recording_node".equals(member.getMemberType())) {
 

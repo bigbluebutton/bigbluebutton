@@ -1,24 +1,22 @@
 import React, { Component } from 'react';
-import cx from 'classnames';
-import _ from 'lodash';
-import { styles } from '../styles';
+import Styled from './styles';
+import { uniqueId } from '/imports/utils/string-utils';
 
 export default class DropdownListTitle extends Component {
   constructor(props) {
     super(props);
-    this.labelID = _.uniqueId('labelContext-');
+    this.labelID = uniqueId('labelContext-');
   }
 
   render() {
     const {
-      className,
       children,
     } = this.props;
 
     return (
-      <li className={cx(styles.title, className)} aria-hidden>
+      <Styled.Title aria-hidden>
         {children}
-      </li>
+      </Styled.Title>
     );
   }
 }

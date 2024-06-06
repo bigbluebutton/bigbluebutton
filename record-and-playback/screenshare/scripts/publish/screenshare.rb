@@ -19,14 +19,14 @@
 # along with BigBlueButton.  If not, see <http://www.gnu.org/licenses/>.
 
 require File.expand_path('../../../lib/recordandplayback', __FILE__)
-require 'trollop'
+require 'optimist'
 require 'yaml'
 
-opts = Trollop::options do
+opts = Optimist::options do
   opt :meeting_id, "Meeting id to publish", :type => String
   opt :stderr, "Log output to stderr"
 end
-Trollop::dir :meeting_id, "must be provided" unless opts[:meeting_id]
+Optimist::dir :meeting_id, "must be provided" unless opts[:meeting_id]
 
 match = /(.*)-(.*)/.match(opts[:meeting_id])
 meeting_id = match[1]

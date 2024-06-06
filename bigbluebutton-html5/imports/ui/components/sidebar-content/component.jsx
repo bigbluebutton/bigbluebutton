@@ -2,17 +2,20 @@ import React, { useState, useEffect } from 'react';
 import PropTypes from 'prop-types';
 import Resizable from 're-resizable';
 import { ACTIONS, PANELS } from '../layout/enums';
-import ChatContainer from '/imports/ui/components/chat/container';
-import NoteContainer from '/imports/ui/components/note/container';
+import ChatContainer from '/imports/ui/components/chat/chat-graphql/component';
+import NotesContainer from '/imports/ui/components/notes/component';
 import PollContainer from '/imports/ui/components/poll/container';
-import CaptionsContainer from '/imports/ui/components/captions/pad/container';
-import BreakoutRoomContainer from '/imports/ui/components/breakout-room/container';
-import WaitingUsersPanel from '/imports/ui/components/waiting-users/container';
-import { styles } from '/imports/ui/components/app/styles';
+import BreakoutRoomContainer from '../breakout-room/breakout-room/component';
+import TimerContainer from '/imports/ui/components/timer/panel/component';
+import GuestUsersManagementPanel from '/imports/ui/components/waiting-users/waiting-users-graphql/component';
+import Styled from './styles';
+import ErrorBoundary from '/imports/ui/components/common/error-boundary/component';
+import FallbackView from '/imports/ui/components/common/fallback-errors/fallback-view/component';
 
 const propTypes = {
   top: PropTypes.number.isRequired,
-  left: PropTypes.number.isRequired,
+  left: PropTypes.number,
+  right: PropTypes.number,
   zIndex: PropTypes.number.isRequired,
   minWidth: PropTypes.number.isRequired,
   width: PropTypes.number.isRequired,
@@ -23,10 +26,16 @@ const propTypes = {
   contextDispatch: PropTypes.func.isRequired,
 };
 
+const defaultProps = {
+  left: null,
+  right: null,
+};
+
 const SidebarContent = (props) => {
   const {
     top,
     left,
+    right,
     zIndex,
     minWidth,
     width,
@@ -38,6 +47,10 @@ const SidebarContent = (props) => {
     resizableEdge,
     contextDispatch,
     sidebarContentPanel,
+    amIPresenter,
+    isSharedNotesPinned,
+    currentSlideId,
+    amIModerator,
   } = props;
 
   const [resizableWidth, setResizableWidth] = useState(width);
@@ -52,9 +65,6 @@ const SidebarContent = (props) => {
       setResizableHeight(height);
     }
   }, [width, height]);
-
-  useEffect(() => {
-  }, [resizeStartWidth, resizeStartHeight]);
 
   const setSidebarContentSize = (dWidth, dHeight) => {
     const newWidth = resizeStartWidth + dWidth;
@@ -73,6 +83,9 @@ const SidebarContent = (props) => {
       },
     });
   };
+
+  const smallSidebar = width < (maxWidth / 2);
+  const pollDisplay = sidebarContentPanel === PANELS.POLL ? 'inherit' : 'none';
 
   return (
     <Resizable
@@ -106,25 +119,48 @@ const SidebarContent = (props) => {
         position: 'absolute',
         top,
         left,
+        right,
         zIndex,
         width,
         height,
       }}
+      handleStyles={{
+        left: { height: '100vh' },
+        right: { height: '100vh' },
+      }}
     >
-      {sidebarContentPanel === PANELS.CHAT && <ChatContainer />}
-      {sidebarContentPanel === PANELS.SHARED_NOTES && <NoteContainer />}
-      {sidebarContentPanel === PANELS.CAPTIONS && <CaptionsContainer />}
-      {sidebarContentPanel === PANELS.POLL
+      {sidebarContentPanel === PANELS.CHAT
         && (
-          <div className={styles.poll} style={{ minWidth, top: '0' }} id="pollPanel">
-            <PollContainer />
-          </div>
+          <ErrorBoundary
+            Fallback={FallbackView}
+          >
+            <ChatContainer width={width} />
+          </ErrorBoundary>
         )}
+      {!isSharedNotesPinned && (
+        <NotesContainer
+          isToSharedNotesBeShow={sidebarContentPanel === PANELS.SHARED_NOTES}
+        />
+      )}
       {sidebarContentPanel === PANELS.BREAKOUT && <BreakoutRoomContainer />}
-      {sidebarContentPanel === PANELS.WAITING_USERS && <WaitingUsersPanel />}
+      {sidebarContentPanel === PANELS.TIMER && <TimerContainer isModerator={amIModerator} />}
+      {sidebarContentPanel === PANELS.WAITING_USERS && <GuestUsersManagementPanel />}
+      {sidebarContentPanel === PANELS.POLL && (
+        <Styled.Poll
+          style={{ minWidth, top: '0', display: pollDisplay }}
+          id="pollPanel"
+        >
+          <PollContainer
+            smallSidebar={smallSidebar}
+            amIPresenter={amIPresenter}
+            currentSlideId={currentSlideId}
+          />
+        </Styled.Poll>
+      )}
     </Resizable>
   );
 };
 
 SidebarContent.propTypes = propTypes;
+SidebarContent.defaultProps = defaultProps;
 export default SidebarContent;

@@ -1,0 +1,38 @@
+name: Typescript - validate code (eslint)
+on:
+  push:
+    branches:
+      - "develop"
+      - "v2.[5-9].x-release"
+      - "v[3-9].*.x-release"
+    paths:
+      - "bigbluebutton-html5/**.ts"
+      - "bigbluebutton-html5/**.tsx"
+      - "bigbluebutton-html5/package.json"
+      - "bigbluebutton-html5/package-lock.json"
+  pull_request:
+    types: [opened, synchronize, reopened]
+    paths:
+      - "bigbluebutton-html5/**.ts"
+      - "bigbluebutton-html5/**.tsx"
+      - "bigbluebutton-html5/package.json"
+      - "bigbluebutton-html5/package-lock.json"
+permissions:
+  contents: read
+jobs:
+  ts-code-validation:
+    runs-on: ubuntu-22.04
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
+      - name: Merge branches
+        uses: ./.github/actions/merge-branches
+      - name: install meteor
+        run: curl https://install.meteor.com/ | sh
+      - name: run meteor npm install
+        working-directory: bigbluebutton-html5
+        run: meteor npm install
+      - name: typescript code validation with eslint
+        working-directory: bigbluebutton-html5
+        run: npx eslint . --ext .ts,.tsx

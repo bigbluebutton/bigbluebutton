@@ -1,123 +1,70 @@
-import React, { Component } from 'react';
-import browserInfo from '/imports/utils/browserInfo';
-import { Meteor } from 'meteor/meteor';
+/* eslint-disable no-nested-ternary */
+import React, { useEffect, useRef, useState } from 'react';
+import { injectIntl, defineMessages, useIntl } from 'react-intl';
 import PropTypes from 'prop-types';
-import _ from 'lodash';
-import cx from 'classnames';
-import Dropdown from '/imports/ui/components/dropdown/component';
-import Icon from '/imports/ui/components/icon/component';
-import FullscreenService from '/imports/ui/components/fullscreen-button/service';
-import FullscreenButtonContainer from '/imports/ui/components/fullscreen-button/container';
-import { styles } from '../styles';
-import { withDraggableConsumer } from '/imports/ui/components/media/webcam-draggable-overlay/context';
-import VideoService from '../../service';
+import UserActions from '/imports/ui/components/video-provider/video-list/video-list-item/user-actions/component';
+import UserStatus from '/imports/ui/components/video-provider/video-list/video-list-item/user-status/component';
+import PinArea from '/imports/ui/components/video-provider/video-list/video-list-item/pin-area/component';
+import UserAvatarVideo from '/imports/ui/components/video-provider/video-list/video-list-item/user-avatar/component';
+import ViewActions from '/imports/ui/components/video-provider/video-list/video-list-item/view-actions/component';
 import {
   isStreamStateUnhealthy,
   subscribeToStreamStateChange,
   unsubscribeFromStreamStateChange,
 } from '/imports/ui/services/bbb-webrtc-sfu/stream-state-service';
-import deviceInfo from '/imports/utils/deviceInfo';
+import Settings from '/imports/ui/services/settings';
+import VideoService from '/imports/ui/components/video-provider/service';
+import Styled from './styles';
+import { withDragAndDrop } from './drag-and-drop/component';
+import Auth from '/imports/ui/services/auth';
 
-const ALLOW_FULLSCREEN = Meteor.settings.public.app.allowFullscreen;
+const intlMessages = defineMessages({
+  disableDesc: {
+    id: 'app.videoDock.webcamDisableDesc',
+  },
+});
 
-class VideoListItem extends Component {
-  constructor(props) {
-    super(props);
-    this.videoTag = null;
+const VIDEO_CONTAINER_WIDTH_BOUND = 125;
 
-    this.state = {
-      videoIsReady: false,
-      isFullscreen: false,
-      isStreamHealthy: false,
-    };
+const VideoListItem = (props) => {
+  const {
+    name, voiceUser, isFullscreenContext, layoutContextDispatch, user, onHandleVideoFocus,
+    cameraId, numOfStreams, focused, onVideoItemMount, onVideoItemUnmount,
+    makeDragOperations, dragging, draggingOver, isRTL, isStream, settingsSelfViewDisable,
+    disabledCams, amIModerator, stream,
+  } = props;
 
-    this.mirrorOwnWebcam = VideoService.mirrorOwnWebcam(props.userId);
+  const intl = useIntl();
 
-    this.setVideoIsReady = this.setVideoIsReady.bind(this);
-    this.onFullscreenChange = this.onFullscreenChange.bind(this);
-    this.onStreamStateChange = this.onStreamStateChange.bind(this);
-    this.updateOrientation = this.updateOrientation.bind(this);
-  }
+  const [videoDataLoaded, setVideoDataLoaded] = useState(false);
+  const [isStreamHealthy, setIsStreamHealthy] = useState(false);
+  const [isMirrored, setIsMirrored] = useState(VideoService.mirrorOwnWebcam(user?.userId));
+  const [isVideoSqueezed, setIsVideoSqueezed] = useState(false);
+  const [isSelfViewDisabled, setIsSelfViewDisabled] = useState(false);
 
-  componentDidMount() {
-    const { onVideoItemMount, webcamDraggableDispatch, cameraId } = this.props;
-
-    webcamDraggableDispatch(
-      {
-        type: 'setVideoRef',
-        value: this.videoTag,
-      },
-    );
-
-    onVideoItemMount(this.videoTag);
-    this.videoTag.addEventListener('loadeddata', this.setVideoIsReady);
-    this.videoContainer.addEventListener('fullscreenchange', this.onFullscreenChange);
-    subscribeToStreamStateChange(cameraId, this.onStreamStateChange);
-    window.addEventListener('resize', this.updateOrientation);
-  }
-
-  componentDidUpdate() {
-    const playElement = (elem) => {
-      if (elem.paused) {
-        elem.play().catch((error) => {
-          // NotAllowedError equals autoplay issues, fire autoplay handling event
-          if (error.name === 'NotAllowedError') {
-            const tagFailedEvent = new CustomEvent('videoPlayFailed', { detail: { mediaTag: elem } });
-            window.dispatchEvent(tagFailedEvent);
-          }
-        });
-      }
-    };
-
-    // This is here to prevent the videos from freezing when they're
-    // moved around the dom by react, e.g., when  changing the user status
-    // see https://bugs.chromium.org/p/chromium/issues/detail?id=382879
-    if (this.videoTag) {
-      playElement(this.videoTag);
+  const resizeObserver = new ResizeObserver((entry) => {
+    if (entry && entry[0]?.contentRect?.width < VIDEO_CONTAINER_WIDTH_BOUND) {
+      return setIsVideoSqueezed(true);
     }
-  }
+    return setIsVideoSqueezed(false);
+  });
 
-  componentWillUnmount() {
-    const { cameraId, onVideoItemUnmount } = this.props;
+  const videoTag = useRef();
+  const videoContainer = useRef();
 
-    this.videoTag.removeEventListener('loadeddata', this.setVideoIsReady);
-    this.videoContainer.removeEventListener('fullscreenchange', this.onFullscreenChange);
-    unsubscribeFromStreamStateChange(cameraId, this.onStreamStateChange);
-    onVideoItemUnmount(cameraId);
-    window.removeEventListener('resize', this.updateOrientation);
-  }
+  const videoIsReady = isStreamHealthy && videoDataLoaded && !isSelfViewDisabled;
+  const { animations, webcamBorderHighlightColor } = Settings.application;
+  const talking = voiceUser?.talking;
 
-  onStreamStateChange(e) {
+  const onStreamStateChange = (e) => {
     const { streamState } = e.detail;
-    const { isStreamHealthy } = this.state;
-
     const newHealthState = !isStreamStateUnhealthy(streamState);
     e.stopPropagation();
+    setIsStreamHealthy(newHealthState);
+  };
 
-    if (newHealthState !== isStreamHealthy) {
-      this.setState({ isStreamHealthy: newHealthState });
-    }
-  }
-
-  onFullscreenChange() {
-    const { webcamDraggableDispatch } = this.props;
-    const { isFullscreen } = this.state;
-    const serviceIsFullscreen = FullscreenService.isFullScreen(this.videoContainer);
-
-    if (isFullscreen !== serviceIsFullscreen) {
-      this.setState({ isFullscreen: serviceIsFullscreen });
-      webcamDraggableDispatch(
-        {
-          type: 'setIsCameraFullscreen',
-          value: serviceIsFullscreen,
-        },
-      );
-    }
-  }
-
-  setVideoIsReady() {
-    const { videoIsReady } = this.state;
-    if (!videoIsReady) this.setState({ videoIsReady: true });
+  const onLoadedData = () => {
+    setVideoDataLoaded(true);
     window.dispatchEvent(new Event('resize'));
 
     /* used when re-sharing cameras after leaving a breakout room.
@@ -125,167 +72,244 @@ class VideoListItem extends Component {
     so we only share the second camera after the first
     has finished loading (can't share more than one at the same time) */
     Session.set('canConnect', true);
-  }
+  };
 
-  getAvailableActions() {
-    const {
-      actions,
-      cameraId,
-      name,
-    } = this.props;
+  // component did mount
+  useEffect(() => {
+    subscribeToStreamStateChange(cameraId, onStreamStateChange);
+    onVideoItemMount(videoTag.current);
+    resizeObserver.observe(videoContainer.current);
+    videoTag?.current?.addEventListener('loadeddata', onLoadedData);
 
-    return _.compact([
-      <Dropdown.DropdownListTitle className={styles.hiddenDesktop} key="name">{name}</Dropdown.DropdownListTitle>,
-      <Dropdown.DropdownListSeparator className={styles.hiddenDesktop} key="sep" />,
-      ...actions.map((action) => (<Dropdown.DropdownListItem key={`${cameraId}-${action.actionName}`} {...action} />)),
-    ]);
-  }
+    return () => {
+      videoTag?.current?.removeEventListener('loadeddata', onLoadedData);
+      resizeObserver.disconnect();
+    };
+  }, []);
 
-  updateOrientation() {
-    this.setState({ isPortrait: deviceInfo.isPortrait() });
-  }
+  // component will mount
+  useEffect(() => {
+    const playElement = (elem) => {
+      if (elem.paused) {
+        elem.play().catch((error) => {
+          // NotAllowedError equals autoplay issues, fire autoplay handling event
+          if (error.name === 'NotAllowedError') {
+            const tagFailedEvent = new CustomEvent('videoPlayFailed', { detail: { mediaElement: elem } });
+            window.dispatchEvent(tagFailedEvent);
+          }
+        });
+      }
+    };
+    if (!isSelfViewDisabled && videoDataLoaded) {
+      playElement(videoTag.current);
+    }
+    if ((isSelfViewDisabled && user.userId === Auth.userID) || disabledCams?.includes(cameraId)) {
+      videoTag.current.pause();
+    }
+  }, [isSelfViewDisabled, videoDataLoaded]);
 
-  renderFullscreenButton() {
-    const { name } = this.props;
-    const { isFullscreen } = this.state;
+  // component will unmount
+  useEffect(() => () => {
+    unsubscribeFromStreamStateChange(cameraId, onStreamStateChange);
+    onVideoItemUnmount(cameraId);
+  }, []);
 
-    if (!ALLOW_FULLSCREEN) return null;
+  useEffect(() => {
+    setIsSelfViewDisabled(settingsSelfViewDisable);
+  }, [settingsSelfViewDisable]);
 
-    return (
-      <FullscreenButtonContainer
-        data-test="presentationFullscreenButton"
-        fullscreenRef={this.videoContainer}
-        elementName={name}
-        isFullscreen={isFullscreen}
-        dark
+  const renderSqueezedButton = () => (
+    <UserActions
+      name={name}
+      user={{ ...user, ...stream }}
+      videoContainer={videoContainer}
+      isVideoSqueezed={isVideoSqueezed}
+      cameraId={cameraId}
+      numOfStreams={numOfStreams}
+      onHandleVideoFocus={onHandleVideoFocus}
+      focused={focused}
+      onHandleMirror={() => setIsMirrored((value) => !value)}
+      isMirrored={isMirrored}
+      isRTL={isRTL}
+      isStream={isStream}
+      onHandleDisableCam={() => setIsSelfViewDisabled((value) => !value)}
+      isSelfViewDisabled={isSelfViewDisabled}
+      amIModerator={amIModerator}
+    />
+  );
+
+  const renderWebcamConnecting = () => (
+    <Styled.WebcamConnecting
+      data-test="webcamConnecting"
+      animations={animations}
+    >
+      <UserAvatarVideo
+        user={{ ...user, ...stream }}
+        voiceUser={voiceUser}
+        unhealthyStream={videoDataLoaded && !isStreamHealthy}
+        squeezed={false}
       />
-    );
-  }
+      <Styled.BottomBar>
+        <UserActions
+          name={name}
+          user={{ ...user, ...stream }}
+          cameraId={cameraId}
+          numOfStreams={numOfStreams}
+          onHandleVideoFocus={onHandleVideoFocus}
+          focused={focused}
+          onHandleMirror={() => setIsMirrored((value) => !value)}
+          isMirrored={isMirrored}
+          isRTL={isRTL}
+          isStream={isStream}
+          onHandleDisableCam={() => setIsSelfViewDisabled((value) => !value)}
+          isSelfViewDisabled={isSelfViewDisabled}
+          amIModerator={amIModerator}
+        />
+        <UserStatus
+          voiceUser={voiceUser}
+          user={{ ...user, ...stream }}
+        />
+      </Styled.BottomBar>
+    </Styled.WebcamConnecting>
+  );
 
-  render() {
-    const {
-      videoIsReady,
-      isFullscreen,
-      isStreamHealthy,
-      isPortrait,
-    } = this.state;
-    const {
-      name,
-      voiceUser,
-      numOfStreams,
-      swapLayout,
-      mirrored,
-      webcamDraggableState,
-    } = this.props;
-    const availableActions = this.getAvailableActions();
-    const enableVideoMenu = Meteor.settings.public.kurento.enableVideoMenu || false;
-    const shouldRenderReconnect = !isStreamHealthy && videoIsReady;
+  const renderWebcamConnectingSqueezed = () => (
+    <Styled.WebcamConnecting
+      data-test="webcamConnectingSqueezed"
+      animations={animations}
+    >
+      <UserAvatarVideo
+        user={{ ...user, ...stream }}
+        unhealthyStream={videoDataLoaded && !isStreamHealthy}
+        squeezed
+      />
+      {renderSqueezedButton()}
+    </Styled.WebcamConnecting>
+  );
 
-    const { isFirefox } = browserInfo;
-    const { isPhone } = deviceInfo;
-    const isTethered = isPhone && isPortrait;
+  const renderDefaultButtons = () => (
+    <>
+      <Styled.TopBar>
+        <PinArea
+          user={{ ...user, ...stream }}
+          amIModerator={amIModerator}
+        />
+        <ViewActions
+          videoContainer={videoContainer}
+          name={name}
+          cameraId={cameraId}
+          isFullscreenContext={isFullscreenContext}
+          layoutContextDispatch={layoutContextDispatch}
+          isStream={isStream}
+        />
+      </Styled.TopBar>
+      <Styled.BottomBar>
+        <UserActions
+          name={name}
+          user={{ ...user, ...stream }}
+          cameraId={cameraId}
+          numOfStreams={numOfStreams}
+          onHandleVideoFocus={onHandleVideoFocus}
+          focused={focused}
+          onHandleMirror={() => setIsMirrored((value) => !value)}
+          isMirrored={isMirrored}
+          isRTL={isRTL}
+          isStream={isStream}
+          onHandleDisableCam={() => setIsSelfViewDisabled((value) => !value)}
+          isSelfViewDisabled={isSelfViewDisabled}
+          amIModerator={amIModerator}
+        />
+        <UserStatus
+          voiceUser={voiceUser}
+          user={{ ...user, ...stream }}
+        />
+      </Styled.BottomBar>
+    </>
+  );
 
-    return (
-      <div
-        data-test={voiceUser.talking ? 'webcamItemTalkingUser' : 'webcamItem'}
-        className={cx({
-          [styles.content]: true,
-          [styles.talking]: voiceUser.talking,
-        })}
+  return (
+    <Styled.Content
+      ref={videoContainer}
+      talking={talking}
+      customHighlight={webcamBorderHighlightColor}
+      fullscreen={isFullscreenContext}
+      data-test={talking ? 'webcamItemTalkingUser' : 'webcamItem'}
+      animations={animations}
+      isStream={isStream}
+      {...{
+        ...makeDragOperations(user?.userId),
+        dragging,
+        draggingOver,
+      }}
+    >
+
+      <Styled.VideoContainer
+        $selfViewDisabled={(isSelfViewDisabled && user.userId === Auth.userID)
+          || disabledCams.includes(cameraId)}
       >
-        {
-          !videoIsReady
-          && (
-            <div
-              data-test="webcamConnecting"
-              className={cx({
-                [styles.connecting]: true,
-                [styles.content]: true,
-                [styles.talking]: voiceUser.talking,
-              })}
-            >
-              <span className={styles.loadingText}>{name}</span>
-            </div>
-          )
+        <Styled.Video
+          mirrored={isMirrored}
+          unhealthyStream={videoDataLoaded && !isStreamHealthy}
+          data-test={isMirrored ? 'mirroredVideoContainer' : 'videoContainer'}
+          ref={videoTag}
+          muted="muted"
+          autoPlay
+          playsInline
+        />
+      </Styled.VideoContainer>
 
-        }
+      {isStream && ((isSelfViewDisabled && user.userId === Auth.userID)
+      || disabledCams.includes(cameraId)) && (
+        <Styled.VideoDisabled>
+          {intl.formatMessage(intlMessages.disableDesc)}
+        </Styled.VideoDisabled>
+      )}
 
-        {
-          shouldRenderReconnect
-          && <div className={styles.reconnecting} />
-        }
+      {/* eslint-disable-next-line no-nested-ternary */}
 
-        <div
-          className={styles.videoContainer}
-          ref={(ref) => { this.videoContainer = ref; }}
-        >
-          <video
-            muted
-            data-test={this.mirrorOwnWebcam ? 'mirroredVideoContainer' : 'videoContainer'}
-            className={cx({
-              [styles.media]: true,
-              [styles.cursorGrab]: !webcamDraggableState.dragging
-                && !isFullscreen && !swapLayout,
-              [styles.cursorGrabbing]: webcamDraggableState.dragging
-                && !isFullscreen && !swapLayout,
-              [styles.mirroredVideo]: (this.mirrorOwnWebcam && !mirrored)
-                || (!this.mirrorOwnWebcam && mirrored),
-              [styles.unhealthyStream]: shouldRenderReconnect,
-            })}
-            ref={(ref) => { this.videoTag = ref; }}
-            autoPlay
-            playsInline
-          />
-          {videoIsReady && this.renderFullscreenButton()}
-        </div>
-        {videoIsReady
-          && (
-            <div className={styles.info}>
-              {enableVideoMenu && availableActions.length >= 3
-                ? (
-                  <Dropdown tethered={isTethered} placement="right bottom" className={isFirefox ? styles.dropdownFireFox : styles.dropdown}>
-                    <Dropdown.DropdownTrigger className={styles.dropdownTrigger}>
-                      <span>{name}</span>
-                    </Dropdown.DropdownTrigger>
-                    <Dropdown.DropdownContent placement="top left" className={styles.dropdownContent}>
-                      <Dropdown.DropdownList className={styles.dropdownList}>
-                        {availableActions}
-                      </Dropdown.DropdownList>
-                    </Dropdown.DropdownContent>
-                  </Dropdown>
-                )
-                : (
-                  <div className={isFirefox ? styles.dropdownFireFox
-                    : styles.dropdown}
-                  >
-                    <span className={cx({
-                      [styles.userName]: true,
-                      [styles.noMenu]: numOfStreams < 3,
-                    })}
-                    >
-                      {name}
-                    </span>
-                  </div>
-                )}
-              {voiceUser.muted && !voiceUser.listenOnly ? <Icon className={styles.muted} iconName="unmute_filled" /> : null}
-              {voiceUser.listenOnly ? <Icon className={styles.voice} iconName="listen" /> : null}
-              {voiceUser.joined && !voiceUser.muted ? <Icon className={styles.voice} iconName="unmute" /> : null}
-            </div>
-          )}
-      </div>
-    );
-  }
-}
+      {(videoIsReady || (isSelfViewDisabled || disabledCams.includes(cameraId))) && (
+        isVideoSqueezed ? renderSqueezedButton() : renderDefaultButtons()
+      )}
+      {!videoIsReady && (!isSelfViewDisabled || !isStream) && (
+        isVideoSqueezed ? renderWebcamConnectingSqueezed() : renderWebcamConnecting()
+      )}
+      {((isSelfViewDisabled && user.userId === Auth.userID) || disabledCams.includes(cameraId))
+      && renderWebcamConnecting()}
+    </Styled.Content>
+  );
+};
 
-export default withDraggableConsumer(VideoListItem);
+export default withDragAndDrop(injectIntl(VideoListItem));
 
 VideoListItem.defaultProps = {
   numOfStreams: 0,
+  onVideoItemMount: () => { },
+  onVideoItemUnmount: () => { },
+  onVirtualBgDrop: () => { },
 };
 
 VideoListItem.propTypes = {
-  actions: PropTypes.arrayOf(PropTypes.object).isRequired,
   cameraId: PropTypes.string.isRequired,
   name: PropTypes.string.isRequired,
   numOfStreams: PropTypes.number,
+  intl: PropTypes.shape({
+    formatMessage: PropTypes.func.isRequired,
+  }).isRequired,
+  onHandleVideoFocus: PropTypes.func.isRequired,
+  onVideoItemMount: PropTypes.func,
+  onVideoItemUnmount: PropTypes.func,
+  onVirtualBgDrop: PropTypes.func,
+  isFullscreenContext: PropTypes.bool.isRequired,
+  layoutContextDispatch: PropTypes.func.isRequired,
+  user: PropTypes.shape({
+    pin: PropTypes.bool.isRequired,
+    userId: PropTypes.string.isRequired,
+  }).isRequired,
+  voiceUser: PropTypes.shape({
+    muted: PropTypes.bool.isRequired,
+    listenOnly: PropTypes.bool.isRequired,
+    talking: PropTypes.bool.isRequired,
+    joined: PropTypes.bool.isRequired,
+  }).isRequired,
+  focused: PropTypes.bool.isRequired,
 };

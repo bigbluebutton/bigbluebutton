@@ -14,7 +14,7 @@ import java.util.concurrent.*;
 public class PresentationConversionCompletionService {
     private static Logger log = LoggerFactory.getLogger(PresentationConversionCompletionService.class);
 
-    private SwfSlidesGenerationProgressNotifier notifier;
+    private SlidesGenerationProgressNotifier notifier;
 
     private ExecutorService executor;
     private volatile boolean processProgress = false;
@@ -36,11 +36,16 @@ public class PresentationConversionCompletionService {
         if (msg instanceof PresentationConvertMessage) {
             PresentationConvertMessage m = (PresentationConvertMessage) msg;
             PresentationToConvert p = new PresentationToConvert(m.pres);
-            presentationsToConvert.put(p.getKey(), p);
-        } else if (msg instanceof PageConvertProgressMessage) {
 
+            String presentationToConvertKey = p.getKey() + "_" + m.pres.getMeetingId();
+
+            presentationsToConvert.put(presentationToConvertKey, p);
+        } else if (msg instanceof PageConvertProgressMessage) {
             PageConvertProgressMessage m = (PageConvertProgressMessage) msg;
-            PresentationToConvert p = presentationsToConvert.get(m.presId);
+
+            String presentationToConvertKey = m.presId + "_" + m.meetingId;
+
+            PresentationToConvert p = presentationsToConvert.get(presentationToConvertKey);
             if (p != null) {
                 p.incrementPagesCompleted();
                 notifier.sendConversionUpdateMessage(p.getPagesCompleted(), p.pres, m.page);
@@ -52,7 +57,9 @@ public class PresentationConversionCompletionService {
     }
 
     private void handleEndProcessing(PresentationToConvert p) {
-        presentationsToConvert.remove(p.getKey());
+        String presentationToConvertKey = p.getKey() + "_" + p.pres.getMeetingId();
+
+        presentationsToConvert.remove(presentationToConvertKey);
 
         Map<String, Object> logData = new HashMap<String, Object>();
         logData = new HashMap<String, Object>();
@@ -98,7 +105,7 @@ public class PresentationConversionCompletionService {
         processProgress = false;
     }
 
-    public void setSwfSlidesGenerationProgressNotifier(SwfSlidesGenerationProgressNotifier notifier) {
+    public void setSlidesGenerationProgressNotifier(SlidesGenerationProgressNotifier notifier) {
         this.notifier = notifier;
     }
 }

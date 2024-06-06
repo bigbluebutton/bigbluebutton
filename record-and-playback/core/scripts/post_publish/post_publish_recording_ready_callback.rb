@@ -20,7 +20,7 @@
 # with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 #
 
-require "trollop"
+require "optimist"
 require 'net/http'
 require "jwt"
 require "java_properties"
@@ -30,7 +30,7 @@ logger = Logger.new("/var/log/bigbluebutton/post_publish.log", 'weekly' )
 logger.level = Logger::INFO
 BigBlueButton.logger = logger
 
-opts = Trollop::options do
+opts = Optimist::options do
   opt :meeting_id, "Meeting id to archive", :type => String
   opt :format, "Playback format name", :type => String
 end

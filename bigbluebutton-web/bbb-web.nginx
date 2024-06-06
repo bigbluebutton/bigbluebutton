@@ -7,18 +7,18 @@
 	       		proxy_redirect     default;
         	        proxy_set_header   X-Forwarded-For   $proxy_add_x_forwarded_for;
 
-                	# Workaround IE refusal to set cookies in iframe
-	                add_header P3P 'CP="No P3P policy available"';
+                    # Workaround IE refusal to set cookies in iframe
+                    add_header P3P 'CP="No P3P policy available"';
 		}
 
 
 		location ~ "^\/bigbluebutton\/presentation\/(?<prestoken>[a-zA-Z0-9_-]+)/upload$" {
-	        	proxy_pass         http://127.0.0.1:8090;
+			proxy_pass         http://127.0.0.1:8090;
 			proxy_redirect     default;
 			proxy_set_header   X-Forwarded-For   $proxy_add_x_forwarded_for;
 
 			# Workaround IE refusal to set cookies in iframe
-		        add_header P3P 'CP="No P3P policy available"';
+			add_header P3P 'CP="No P3P policy available"';
 
 			# high limit for presentation as bbb-web will reject upload if larger than configured
 			client_max_body_size       1000m;
@@ -68,6 +68,7 @@
 			proxy_set_header        X-Original-URI $request_uri;
 			proxy_set_header	Content-Length "";
 			proxy_set_header	X-Original-Content-Length $http_content_length;
+			proxy_set_header	X-Original-Method $request_method;
 
 			# high limit for presentation as bbb-web will reject upload if larger than configured
 			client_max_body_size       1000m;
@@ -84,6 +85,14 @@
 		#
 		# and make sure to add sessionToken param in the request URI
 		location = /bigbluebutton/connection/checkAuthorization {
+			internal;
+			proxy_pass               http://127.0.0.1:8090;
+			proxy_pass_request_body  off;
+			proxy_set_header         Content-Length "";
+			proxy_set_header         X-Original-URI $request_uri;
+		}
+
+		location = /bigbluebutton/connection/legacyCheckAuthorization {
 			internal;
 			proxy_pass               http://127.0.0.1:8090;
 			proxy_pass_request_body  off;

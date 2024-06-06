@@ -1,0 +1,32 @@
+table:
+  name: v_sharedNotes_session
+  schema: public
+configuration:
+  column_config: {}
+  custom_column_names: {}
+  custom_name: sharedNotes_session
+  custom_root_fields: {}
+object_relationships:
+  - name: sharedNotes
+    using:
+      manual_configuration:
+        column_mapping:
+          meetingId: meetingId
+          sharedNotesExtId: sharedNotesExtId
+        insertion_order: null
+        remote_table:
+          name: v_sharedNotes
+          schema: public
+select_permissions:
+  - role: bbb_client
+    permission:
+      columns:
+        - padId
+        - sessionId
+        - sharedNotesExtId
+      filter:
+        _and:
+          - meetingId:
+              _eq: X-Hasura-MeetingId
+          - userId:
+              _eq: X-Hasura-UserId

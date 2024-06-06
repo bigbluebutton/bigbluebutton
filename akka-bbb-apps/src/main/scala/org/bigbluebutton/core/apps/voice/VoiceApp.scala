@@ -1,16 +1,27 @@
 package org.bigbluebutton.core.apps.voice
 
+import org.apache.pekko.actor.{ActorContext, ActorSystem, Cancellable}
 import org.bigbluebutton.SystemConfiguration
 import org.bigbluebutton.LockSettingsUtil
-import org.bigbluebutton.common2.msgs.{ BbbClientMsgHeader, BbbCommonEnvCoreMsg, BbbCoreEnvelope, ConfVoiceUser, MessageTypes, Routing, UserJoinedVoiceConfToClientEvtMsg, UserJoinedVoiceConfToClientEvtMsgBody, UserLeftVoiceConfToClientEvtMsg, UserLeftVoiceConfToClientEvtMsgBody, UserMutedVoiceEvtMsg, UserMutedVoiceEvtMsgBody }
 import org.bigbluebutton.core.apps.breakout.BreakoutHdlrHelpers
 import org.bigbluebutton.core.bus.InternalEventBus
-import org.bigbluebutton.core.models.{ Users2x, VoiceUserState, VoiceUsers }
-import org.bigbluebutton.core.running.{ LiveMeeting, OutMsgRouter }
 import org.bigbluebutton.core2.MeetingStatus2x
 import org.bigbluebutton.core2.message.senders.MsgBuilder
+import org.bigbluebutton.common2.msgs._
+import org.bigbluebutton.core.running.{LiveMeeting, MeetingActor, OutMsgRouter}
+import org.bigbluebutton.core.models._
+import org.bigbluebutton.core.apps.users.UsersApp
+import org.bigbluebutton.core.db.{UserDAO, UserVoiceDAO}
+import org.bigbluebutton.core.util.ColorPicker
+import org.bigbluebutton.core.util.TimeUtil
+
+import scala.collection.immutable.Map
+import scala.concurrent.duration._
+
 
 object VoiceApp extends SystemConfiguration {
+  // Key is userId
+  var toggleListenOnlyTasks: Map[String, Cancellable] = Map()
 
   def genRecordPath(
       recordDir:       String,
@@ -33,18 +44,7 @@ object VoiceApp extends SystemConfiguration {
     }
   }
 
-  def startRecordingVoiceConference(liveMeeting: LiveMeeting, outGW: OutMsgRouter, stream: String): Unit = {
-    MeetingStatus2x.voiceRecordingStart(liveMeeting.status, stream)
-    val event = MsgBuilder.buildStartRecordingVoiceConfSysMsg(
-      liveMeeting.props.meetingProp.intId,
-      liveMeeting.props.voiceProp.voiceConf,
-      stream
-    )
-    outGW.send(event)
-  }
-
   def stopRecordingVoiceConference(liveMeeting: LiveMeeting, outGW: OutMsgRouter): Unit = {
-
     val recStreams = MeetingStatus2x.getVoiceRecordingStreams(liveMeeting.status)
 
     recStreams foreach { rs =>
@@ -54,6 +54,27 @@ object VoiceApp extends SystemConfiguration {
       )
       outGW.send(event)
     }
+  }
+
+  def startRecordingVoiceConference(
+      liveMeeting:          LiveMeeting,
+      outGW:                OutMsgRouter
+  ): Unit = {
+    val meetingId = liveMeeting.props.meetingProp.intId
+    val now = TimeUtil.timeNowInMs()
+    val recordFile = genRecordPath(
+      voiceConfRecordPath,
+      meetingId,
+      now,
+      voiceConfRecordCodec
+    )
+    MeetingStatus2x.voiceRecordingStart(liveMeeting.status, recordFile)
+    val event = MsgBuilder.buildStartRecordingVoiceConfSysMsg(
+      liveMeeting.props.meetingProp.intId,
+      liveMeeting.props.voiceProp.voiceConf,
+      recordFile
+    )
+    outGW.send(event)
   }
 
   def broadcastUserMutedVoiceEvtMsg(
@@ -91,7 +112,7 @@ object VoiceApp extends SystemConfiguration {
       outGW:       OutMsgRouter,
       voiceUserId: String,
       muted:       Boolean
-  ): Unit = {
+  )(implicit context: ActorContext): Unit = {
     for {
       mutedUser <- VoiceUsers.userMuted(liveMeeting.voiceUsers, voiceUserId, muted)
     } yield {
@@ -104,12 +125,31 @@ object VoiceApp extends SystemConfiguration {
         )
       }
 
-      broadcastUserMutedVoiceEvtMsg(
-        liveMeeting.props.meetingProp.intId,
-        mutedUser,
-        liveMeeting.props.voiceProp.voiceConf,
-        outGW
+      // Ask for the audio channel to be switched to listen only mode
+      // if the user is muted, otherwise switch back to normal mode
+      // This is only effective if the "transparent listen only" mode is active
+      // for the target user.
+      toggleListenOnlyMode(
+        liveMeeting,
+        outGW,
+        mutedUser.intId,
+        muted,
+        toggleListenOnlyAfterMuteTimer
       )
+
+      // If the user is muted or unmuted with an unheld channel, broadcast
+      // the event right away.
+      // If the user is unmuted, but channel is held, we need to wait for the 
+      // channel to be active again to broadcast the event. See
+      // VoiceApp.handleChannelHoldChanged for this second case.
+      if (muted || (!muted && !mutedUser.hold)) {
+        broadcastUserMutedVoiceEvtMsg(
+          liveMeeting.props.meetingProp.intId,
+          mutedUser,
+          liveMeeting.props.voiceProp.voiceConf,
+          outGW
+        )
+      }
 
     }
   }
@@ -119,7 +159,7 @@ object VoiceApp extends SystemConfiguration {
       outGW:       OutMsgRouter,
       eventBus:    InternalEventBus,
       users:       Vector[ConfVoiceUser]
-  ): Unit = {
+  )(implicit context: ActorContext): Unit = {
     users foreach { cvu =>
       VoiceUsers.findWithVoiceUserId(
         liveMeeting.voiceUsers,
@@ -152,20 +192,25 @@ object VoiceApp extends SystemConfiguration {
               }
             }
           case None =>
-            handleUserJoinedVoiceConfEvtMsg(
-              liveMeeting,
-              outGW,
-              eventBus,
-              liveMeeting.props.voiceProp.voiceConf,
-              cvu.intId,
-              cvu.voiceUserId,
-              cvu.callingWith,
-              cvu.callerIdName,
-              cvu.callerIdNum,
-              cvu.muted,
-              cvu.talking,
-              cvu.calledInto
-            )
+            if (!cvu.intId.startsWith(IntIdPrefixType.DIAL_IN)) {
+              handleUserJoinedVoiceConfEvtMsg(
+                liveMeeting,
+                outGW,
+                eventBus,
+                liveMeeting.props.voiceProp.voiceConf,
+                cvu.intId,
+                cvu.voiceUserId,
+                cvu.callingWith,
+                cvu.callerIdName,
+                cvu.callerIdNum,
+                ColorPicker.nextColor(liveMeeting.props.meetingProp.intId),
+                cvu.muted,
+                cvu.talking,
+                cvu.calledInto,
+                cvu.hold,
+                cvu.uuid,
+              )
+            }
         }
     }
 
@@ -193,7 +238,7 @@ object VoiceApp extends SystemConfiguration {
   ): Unit = {
     for {
       u <- VoiceUsers.findWithIntId(liveMeeting.voiceUsers, userid)
-      oldU <- VoiceUsers.removeWithIntId(liveMeeting.voiceUsers, userid)
+      oldU <- VoiceUsers.removeWithIntId(liveMeeting.voiceUsers, u.meetingId, u.intId)
     } yield {
       val event = MsgBuilder.buildEjectUserFromVoiceConfSysMsg(liveMeeting.props.meetingProp.intId, liveMeeting.props.voiceProp.voiceConf, oldU.voiceUserId)
       outGW.send(event)
@@ -210,9 +255,12 @@ object VoiceApp extends SystemConfiguration {
       callingWith:  String,
       callerIdName: String,
       callerIdNum:  String,
+      color:        String,
       muted:        Boolean,
       talking:      Boolean,
-      callingInto:  String
+      callingInto:  String,
+      hold:         Boolean,
+      uuid:         String  = "unused"
   ): Unit = {
 
     def broadcastEvent(voiceUserState: VoiceUserState): Unit = {
@@ -237,6 +285,7 @@ object VoiceApp extends SystemConfiguration {
         voiceUserState.voiceUserId,
         voiceUserState.callerName,
         voiceUserState.callerNum,
+        voiceUserState.color,
         voiceUserState.muted,
         voiceUserState.talking,
         voiceUserState.callingWith,
@@ -253,7 +302,6 @@ object VoiceApp extends SystemConfiguration {
       )
       outGW.send(msgEvent)
     }
-
     checkAndEjectOldDuplicateVoiceConfUser(intId, liveMeeting, outGW)
 
     val isListenOnly = if (callerIdName.startsWith("LISTENONLY")) true else false
@@ -261,18 +309,24 @@ object VoiceApp extends SystemConfiguration {
     val voiceUserState = VoiceUserState(
       intId,
       voiceUserId,
+      meetingId = liveMeeting.props.meetingProp.intId,
       callingWith,
       callerIdName,
       callerIdNum,
+      color,
       muted,
       talking,
       listenOnly = isListenOnly,
       callingInto,
       System.currentTimeMillis(),
       floor = false,
-      lastFloorTime = "0"
+      lastFloorTime = "0",
+      hold,
+      uuid
     )
     VoiceUsers.add(liveMeeting.voiceUsers, voiceUserState)
+    UserVoiceDAO.update(voiceUserState)
+    UserDAO.updateVoiceUserJoined(voiceUserState)
 
     broadcastEvent(voiceUserState)
 
@@ -304,6 +358,17 @@ object VoiceApp extends SystemConfiguration {
 
   }
 
+  def removeUserFromVoiceConf(
+      liveMeeting:  LiveMeeting,
+      outGW:        OutMsgRouter,
+      voiceUserId:  String,
+    ): Unit = {
+    val guest = GuestApprovedVO(voiceUserId, GuestStatus.DENY)
+      UsersApp.approveOrRejectGuest(liveMeeting, outGW, guest, SystemUser.ID)
+      val event = MsgBuilder.buildEjectUserFromVoiceConfSysMsg(liveMeeting.props.meetingProp.intId, liveMeeting.props.voiceProp.voiceConf, voiceUserId)
+      outGW.send(event)
+  }
+
   def handleUserLeftVoiceConfEvtMsg(
       liveMeeting: LiveMeeting,
       outGW:       OutMsgRouter,
@@ -328,7 +393,7 @@ object VoiceApp extends SystemConfiguration {
     for {
       user <- VoiceUsers.findWithVoiceUserId(liveMeeting.voiceUsers, voiceUserId)
     } yield {
-      VoiceUsers.removeWithIntId(liveMeeting.voiceUsers, user.intId)
+      VoiceUsers.removeWithIntId(liveMeeting.voiceUsers, user.meetingId, user.intId)
       broadcastEvent(user)
     }
 
@@ -337,6 +402,172 @@ object VoiceApp extends SystemConfiguration {
         liveMeeting,
         eventBus
       )
+    }
+  }
+
+/** Toggle audio for the given user in voice conference.
+ *
+ * We first stop the current audio being played, preventing the playback
+ * to also mix the "You are the first person ..." audio.
+ * After that we check if we are turning on/off based on enabled param. If
+ * enabled is false we:
+ *  - play a sound to let user know that an action is required
+ *       (eg. guest approval) from the server/room.
+ *  - put the user on hold, so DTMFs for mute / deaf mute are also disabled
+ *  - mute the user (other participants won't hear users's audio)
+ *  - deaf the user (user won't hear other participant's audio)
+ * If disabled, we remove user from hold, mute and deaf states, allowing the
+ * user to interact with the room.
+ */
+  def toggleUserAudioInVoiceConf(
+    liveMeeting: LiveMeeting,
+    outGW:       OutMsgRouter,
+    voiceUserId: String,
+    enabled: Boolean
+  ): Unit = {
+    val stopEvent = MsgBuilder.buildStopSoundInVoiceConfSysMsg(
+      liveMeeting.props.meetingProp.intId,
+      liveMeeting.props.voiceProp.voiceConf,
+      ""
+    )
+    outGW.send(stopEvent)
+
+    if (!enabled) {
+      val playEvent = MsgBuilder.buildPlaySoundInVoiceConfSysMsg(
+        liveMeeting.props.meetingProp.intId,
+        liveMeeting.props.voiceProp.voiceConf,
+        voiceUserId,
+        dialInApprovalAudioPath
+      )
+      outGW.send(playEvent)
+    }
+
+    val holdEvent = MsgBuilder.buildHoldUserInVoiceConfSysMsg(
+      liveMeeting.props.meetingProp.intId,
+      liveMeeting.props.voiceProp.voiceConf,
+      voiceUserId,
+      !enabled
+    )
+    outGW.send(holdEvent)
+
+    val muteEvent = MsgBuilder.buildMuteUserInVoiceConfSysMsg(
+      liveMeeting.props.meetingProp.intId,
+      liveMeeting.props.voiceProp.voiceConf,
+      voiceUserId,
+      !enabled
+    )
+    outGW.send(muteEvent)
+
+    val deafEvent = MsgBuilder.buildDeafUserInVoiceConfSysMsg(
+      liveMeeting.props.meetingProp.intId,
+      liveMeeting.props.voiceProp.voiceConf,
+      voiceUserId,
+      !enabled
+    )
+    outGW.send(deafEvent)
+  }
+
+  def removeToggleListenOnlyTask(userId: String): Unit = {
+    toggleListenOnlyTasks get userId  match {
+      case Some(task) =>
+        task.cancel()
+        toggleListenOnlyTasks = toggleListenOnlyTasks - userId
+      case _ =>
+    }
+  }
+
+  def toggleListenOnlyMode(
+    liveMeeting:    LiveMeeting,
+    outGW:          OutMsgRouter,
+    userId:         String,
+    enabled:        Boolean,
+    delay:          Int = 0
+  )(implicit context: ActorContext): Unit = {
+    implicit def executionContext = context.system.dispatcher
+    def broacastEvent(): Unit = {
+      val event = MsgBuilder.buildToggleListenOnlyModeSysMsg(
+        liveMeeting.props.meetingProp.intId,
+        liveMeeting.props.voiceProp.voiceConf,
+        userId,
+        enabled
+      )
+      outGW.send(event)
+    }
+
+    // Guarantee there are no other tasks for this channel
+    removeToggleListenOnlyTask(userId)
+
+    if (enabled && delay > 0) {
+      // If we are enabling listen only mode, we wait a bit before actually
+      // dispatching the command - the idea is that recently muted users
+      // are more likely to unmute themselves right after the action, so this
+      // should make frequent mute-unmute transitions smoother.
+      // This is just one of the heuristics we have to implement for this to
+      // work seamlessly, but it's a start. - prlanzarin Aug 04 2023
+      val newTask = context.system.scheduler.scheduleOnce(delay seconds) {
+        broacastEvent()
+        removeToggleListenOnlyTask(userId)
+      }
+
+      toggleListenOnlyTasks = toggleListenOnlyTasks + (userId -> newTask)
+    } else {
+      // If we are disabling listen only mode, we can broadcast the event
+      // right away
+      broacastEvent()
+    }
+  }
+
+  def holdChannelInVoiceConf(
+    liveMeeting:  LiveMeeting,
+    outGW:        OutMsgRouter,
+    uuid:         String,
+    hold:         Boolean
+  ): Unit = {
+    val event = MsgBuilder.buildHoldChannelInVoiceConfSysMsg(
+      liveMeeting.props.meetingProp.intId,
+      liveMeeting.props.voiceProp.voiceConf,
+      uuid,
+      hold
+    )
+
+    outGW.send(event)
+  }
+
+  def handleChannelHoldChanged(
+    liveMeeting:  LiveMeeting,
+    outGW:        OutMsgRouter,
+    intId:        String,
+    uuid:         String,
+    hold:         Boolean
+  )(implicit context: ActorContext): Unit = {
+    VoiceUsers.holdStateChanged(
+      liveMeeting.voiceUsers,
+      intId,
+      uuid,
+      hold
+    ) match {
+      case Some(vu) =>
+        // Mute vs hold state mismatch, enforce hold state again. 
+        // Mute state is the predominant one here.
+        if (vu.muted != hold) {
+          toggleListenOnlyMode(
+            liveMeeting,
+            outGW,
+            intId,
+            vu.muted
+          )
+        }
+
+        // User unmuted and channel is not on hold, broadcast user unmuted
+        if (!vu.muted && !vu.hold) {
+          broadcastUserMutedVoiceEvtMsg(
+            liveMeeting.props.meetingProp.intId,
+            vu,
+            liveMeeting.props.voiceProp.voiceConf,
+            outGW
+          )
+        }
+      case _ =>
     }
   }
 }

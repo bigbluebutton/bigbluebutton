@@ -1,0 +1,42 @@
+table:
+  name: v_poll_user
+  schema: public
+configuration:
+  column_config: {}
+  custom_column_names: {}
+  custom_name: poll_user
+  custom_root_fields: {}
+object_relationships:
+  - name: user
+    using:
+      manual_configuration:
+        column_mapping:
+          userId: userId
+        insertion_order: null
+        remote_table:
+          name: v_user_ref
+          schema: public
+select_permissions:
+  - role: bbb_client
+    permission:
+      columns:
+        - optionDescIds
+        - optionIds
+        - pollId
+        - questionText
+        - responded
+        - type
+        - userId
+      filter:
+        _or:
+          - _and:
+              - meetingId:
+                  _eq: X-Hasura-MeetingId
+              - userId:
+                  _eq: X-Hasura-UserId
+          - _and:
+              - pollOwnerMeetingId:
+                  _eq: X-Hasura-MeetingId
+              - pollOwnerId:
+                  _eq: X-Hasura-UserId
+      allow_aggregations: true

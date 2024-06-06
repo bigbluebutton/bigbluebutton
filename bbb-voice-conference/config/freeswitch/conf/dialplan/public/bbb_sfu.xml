@@ -1,0 +1,11 @@
+<include>
+    <extension name="bbb_webrtc_call" continue="true">
+      <condition field="${sip_user_agent}" expression="bbb-webrtc-sfu" break="on-false">
+        <action application="set" data="presence_data=from_bbb-webrtc-sfu"/>
+        <action application="set" data="bbb_authorized=true"/>
+        <action application="set" data="rtp_manual_rtp_bugs=ACCEPT_ANY_PACKETS"/>
+        <action application="set" data="jb_use_timestamps=true"/>
+        <action application="transfer" data="${destination_number} XML default"/>
+      </condition>
+    </extension>
+</include>

@@ -5,7 +5,7 @@ import io.lettuce.core.event.Event
 import io.lettuce.core.event.EventBus
 import io.lettuce.core.event.connection.{ ConnectionDeactivatedEvent, ConnectionActivatedEvent, ConnectedEvent, DisconnectedEvent }
 import reactor.core.Disposable
-import akka.event.LoggingAdapter
+import org.apache.pekko.event.LoggingAdapter
 
 case class RedisConfig(host: String, port: Int, password: Option[String], expireKey: Int)
 

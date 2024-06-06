@@ -2,15 +2,14 @@ import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import { defineMessages } from 'react-intl';
 
-import Button from '/imports/ui/components/button/component';
-import Modal from '/imports/ui/components/modal/simple/component';
-import { makeCall } from '/imports/ui/services/api';
-
-import { styles } from './styles';
-import { Meteor } from "meteor/meteor";
+import Button from '/imports/ui/components/common/button/component';
+import ModalSimple from '/imports/ui/components/common/modal/simple/component';
+import Styled from './styles';
 
 const propTypes = {
-  intl: PropTypes.object.isRequired,
+  intl: PropTypes.shape({
+    formatMessage: PropTypes.func.isRequired,
+  }).isRequired,
   responseDelay: PropTypes.number.isRequired,
 };
 
@@ -28,8 +27,6 @@ const intlMessages = defineMessages({
     description: 'Check button for activity modal',
   },
 });
-
-const handleInactivityDismiss = () => makeCall('userActivitySign');
 
 class ActivityCheck extends Component {
   constructor(props) {
@@ -64,7 +61,7 @@ class ActivityCheck extends Component {
     const { responseDelay } = this.state;
 
     return setInterval(() => {
-      if(responseDelay == 0) return;
+      if (responseDelay === 0) return;
 
       const remainingTime = responseDelay - 1;
 
@@ -79,36 +76,38 @@ class ActivityCheck extends Component {
   }
 
   playAudioAlert() {
-    this.alert = new Audio(`${Meteor.settings.public.app.cdn + Meteor.settings.public.app.basename + Meteor.settings.public.app.instanceId}/resources/sounds/notify.mp3`);
+    this.alert = new Audio(`${window.meetingClientSettings.public.app.cdn + window.meetingClientSettings.public.app.basename + window.meetingClientSettings.public.app.instanceId}/resources/sounds/notify.mp3`);
     this.alert.addEventListener('ended', () => { this.alert.src = null; });
     this.alert.play();
   }
 
   render() {
-    const { intl } = this.props;
+    const { intl, userActivitySign } = this.props;
 
     const { responseDelay } = this.state;
 
     return (
-      <Modal
+      <ModalSimple
         hideBorder
-        onRequestClose={handleInactivityDismiss}
+        onRequestClose={() => userActivitySign()}
         shouldCloseOnOverlayClick={false}
         shouldShowCloseButton={false}
+        priority="high"
+        isOpen
       >
-        <div className={styles.activityModalContent}>
+        <Styled.ActivityModalContent>
           <h1>{intl.formatMessage(intlMessages.activityCheckTitle)}</h1>
           <p>{intl.formatMessage(intlMessages.activityCheckLabel, { 0: responseDelay })}</p>
           <Button
             color="primary"
             disabled={responseDelay <= 0}
             label={intl.formatMessage(intlMessages.activityCheckButton)}
-            onClick={handleInactivityDismiss}
+            onClick={() => userActivitySign()}
             role="button"
             size="lg"
           />
-        </div>
-      </Modal>
+        </Styled.ActivityModalContent>
+      </ModalSimple>
     );
   }
 }

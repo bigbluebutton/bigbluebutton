@@ -1,11 +1,11 @@
 import React, { PureComponent } from 'react';
-import { withModalMounter } from '/imports/ui/components/modal/service';
 import { defineMessages, injectIntl } from 'react-intl';
-import Button from '/imports/ui/components/button/component';
-import ConnectionStatusModalContainer from '/imports/ui/components/connection-status/modal/container';
+import Button from '/imports/ui/components/common/button/component';
+import ConnectionStatusModalComponent from '/imports/ui/components/connection-status/modal/container';
 import ConnectionStatusService from '/imports/ui/components/connection-status/service';
 import Icon from '/imports/ui/components/connection-status/icon/component';
-import { styles } from './styles';
+import Styled from './styles';
+import Auth from '/imports/ui/services/auth';
 
 const intlMessages = defineMessages({
   label: {
@@ -19,15 +19,40 @@ const intlMessages = defineMessages({
 });
 
 class ConnectionStatusButton extends PureComponent {
+  constructor(props) {
+    super(props);
+    this.state = {
+      isModalOpen: false,
+    }
+  }
+
   renderIcon(level = 'normal') {
     return(
-      <div className={styles.iconWrapper}>
+      <Styled.IconWrapper>
         <Icon
           level={level}
           grayscale
         />
-      </div>
+      </Styled.IconWrapper>
     );
+  }
+
+  setModalIsOpen = (isOpen) => this.setState({ isModalOpen: isOpen }); 
+
+  renderModal(isModalOpen) {
+    const { isGridLayout, paginationEnabled, viewParticipantsWebcams } = this.props;
+    return (
+      isModalOpen ?
+      <ConnectionStatusModalComponent
+        {...{
+          isModalOpen,
+          setModalIsOpen: this.setModalIsOpen,
+          isGridLayout,
+          paginationEnabled,
+          viewParticipantsWebcams,
+        }}
+      /> : null
+    )
   }
 
   render() {
@@ -35,10 +60,12 @@ class ConnectionStatusButton extends PureComponent {
       intl,
       connected,
     } = this.props;
+    const { isModalOpen } = this.state;
+
 
     if (!connected) {
       return (
-        <div className={styles.buttonWrapper}>
+        <Styled.ButtonWrapper>
           <Button
             customIcon={this.renderIcon()}
             label={intl.formatMessage(intlMessages.label)}
@@ -51,17 +78,17 @@ class ConnectionStatusButton extends PureComponent {
             onClick={() => {}}
             data-test="connectionStatusButton"
           />
-        </div>
+          {this.renderModal(isModalOpen)}
+        </Styled.ButtonWrapper>
       );
     }
 
     const {
-      stats,
-      mountModal,
+      myCurrentStatus,
     } = this.props;
 
     let color;
-    switch (stats) {
+    switch (myCurrentStatus) {
       case 'warning':
         color = 'success';
         break;
@@ -77,24 +104,23 @@ class ConnectionStatusButton extends PureComponent {
         color = 'success';
     }
 
-    const level = stats ? stats : 'normal';
-
     return (
-      <div className={styles.buttonWrapper}>
+      <Styled.ButtonWrapper>
         <Button
-          customIcon={this.renderIcon(level)}
+          customIcon={this.renderIcon(myCurrentStatus)}
           label={intl.formatMessage(intlMessages.label)}
           hideLabel
           aria-label={intl.formatMessage(intlMessages.description)}
           size="sm"
           color={color}
           circle
-          onClick={() => mountModal(<ConnectionStatusModalContainer />)}
+          onClick={() => this.setState({isModalOpen: true})}
           data-test="connectionStatusButton"
         />
-      </div>
+        {this.renderModal(isModalOpen)}
+      </Styled.ButtonWrapper>
     );
   }
 }
 
-export default injectIntl(withModalMounter(ConnectionStatusButton));
+export default injectIntl(ConnectionStatusButton);

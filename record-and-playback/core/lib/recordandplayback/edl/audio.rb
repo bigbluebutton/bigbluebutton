@@ -23,7 +23,7 @@ module BigBlueButton
       FFMPEG_AEVALSRC = "aevalsrc=s=48000:c=stereo:exprs=0|0"
       FFMPEG_AFORMAT = "aresample=async=1000,aformat=sample_fmts=s16:sample_rates=48000:channel_layouts=stereo"
       FFMPEG_WF_CODEC = 'libvorbis'
-      FFMPEG_WF_ARGS = ['-vn', '-c:a', FFMPEG_WF_CODEC, '-q:a', '2', '-f', 'ogg']
+      FFMPEG_WF_ARGS = ['-c:a', FFMPEG_WF_CODEC, '-q:a', '2', '-f', 'ogg']
       WF_EXT = 'ogg'
 
       def self.dump(edl)
@@ -51,7 +51,7 @@ module BigBlueButton
         ffmpeg_cmd += ['-filter_complex', "amix=inputs=#{inputs.length}"]
 
         output = "#{output_basename}.#{WF_EXT}"
-        ffmpeg_cmd += [*FFMPEG_WF_ARGS, output]
+        ffmpeg_cmd += ['-vn', *FFMPEG_WF_ARGS, output]
 
         BigBlueButton.logger.info "Running audio mixer..."
         exitstatus = BigBlueButton.exec_ret(*ffmpeg_cmd)
@@ -120,12 +120,16 @@ module BigBlueButton
 
             # Check for and handle audio files with mismatched lengths (generated
             # by buggy versions of freeswitch in old BigBlueButton
-            if entry[:original_duration] && (audioinfo[audio[:filename]][:duration].to_f / entry[:original_duration]) < 0.997 &&
-               ((entry[:original_duration] - audioinfo[audio[:filename]][:duration]).to_f /
-                      entry[:original_duration]).abs < 0.05
-              BigBlueButton.logger.warn "  Audio file length mismatch, adjusting speed to #{speed}"
+            if ((audioinfo[audio[:filename]][:format][:format_name] == 'wav' ||
+                 audioinfo[audio[:filename]][:audio][:codec_name] == 'vorbis') &&
+                 entry[:original_duration] &&
+                 (audioinfo[audio[:filename]][:duration].to_f / entry[:original_duration]) < 0.997 &&
+                 ((entry[:original_duration] - audioinfo[audio[:filename]][:duration]).to_f /
+                   entry[:original_duration]).abs < 0.05)
+
               speed = audioinfo[audio[:filename]][:duration].to_f / entry[:original_duration]
               seek = 0
+              BigBlueButton.logger.warn "  Audio file length mismatch, adjusting speed to #{speed}"
             end
 
             # Skip this input and generate silence if the seekpoint is past the end of the audio, which can happen
@@ -143,7 +147,7 @@ module BigBlueButton
 
             ffmpeg_filter << ",atempo=#{speed},atrim=start=#{ms_to_s(audio[:timestamp])}" if speed != 1
 
-            ffmpeg_filter << ",asetpts=PTS-STARTPTS"
+            ffmpeg_filter << ",asetpts=N"
           else
             BigBlueButton.logger.info "  Generating silence"
 
@@ -182,7 +186,7 @@ module BigBlueButton
         ffmpeg_cmd << '-filter_complex_script' << filter_complex_script
 
         output = "#{output_basename}.#{WF_EXT}"
-        ffmpeg_cmd += [*FFMPEG_WF_ARGS, output]
+        ffmpeg_cmd += ['-vn', *FFMPEG_WF_ARGS, output]
 
         BigBlueButton.logger.info "Running audio processing..."
         exitstatus = BigBlueButton.exec_ret(*ffmpeg_cmd)

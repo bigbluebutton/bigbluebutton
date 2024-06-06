@@ -1,28 +1,24 @@
 import React from 'react';
 import { withTracker } from 'meteor/react-meteor-data';
-import { withModalMounter } from '/imports/ui/components/modal/service';
 import ScreenshareButton from './component';
-import getFromUserSettings from '/imports/ui/services/users-settings';
+import { isScreenSharingEnabled } from '/imports/ui/services/features';
 import {
-  isVideoBroadcasting,
+  isScreenBroadcasting,
   dataSavingSetting,
 } from '/imports/ui/components/screenshare/service';
 
-const ScreenshareButtonContainer = props => <ScreenshareButton {...props} />;
+const ScreenshareButtonContainer = (props) => <ScreenshareButton {...props} />;
 
 /*
  * All props, including the ones that are inherited from actions-bar
- * isVideoBroadcasting,
+ * isScreenBroadcasting,
  * amIPresenter,
  * screenSharingCheck,
  * isMeteorConnected,
  * screenshareDataSavingSetting,
  */
-export default withModalMounter(withTracker(({ mountModal }) => ({
-  isVideoBroadcasting: isVideoBroadcasting(),
+export default withTracker(() => ({
+  isScreenBroadcasting: isScreenBroadcasting(),
   screenshareDataSavingSetting: dataSavingSetting(),
-  enabled: getFromUserSettings(
-    'bbb_enable_screen_sharing',
-    Meteor.settings.public.kurento.enableScreensharing
-  ),
-}))(ScreenshareButtonContainer));
+  enabled: isScreenSharingEnabled(),
+}))(ScreenshareButtonContainer);

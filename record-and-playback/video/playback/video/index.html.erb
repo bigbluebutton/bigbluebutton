@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="UTF-8">
+    <title><%= meetingName %></title>
+    <link rel="stylesheet" href="css/normalize.css">
+    <link rel="stylesheet" href="video-js/video-js.min.css">
+    <link rel="stylesheet" href="css/video.css">
+    <script src="video-js/video.min.js"></script>
+    <script src="js/popcorn-complete.min.js"></script>
+    <script src="js/popcorn.chattimeline.js"></script>
+    <script src="js/video.js"></script>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+  </head>
+  <body>
+    <header>
+      <h1><%= meetingName %></h1>
+    </header>
+
+    <main>
+      <div id="main-area">
+        <div id="error-area">
+          <p id="firefox-format-warning" style="display:none">Firefox on your operating system does not currently support the video format used in this recording. Please try a different browser, such as Safari or Chrome.</p>
+        </div>
+        <div id="video-area">
+          <video id="video" class="video-js vjs-fill vjs-default-skin vjs-big-play-centered" controls>
+            <% video_props['formats'].each_with_index do |format, i| %>
+              <source src="video-<%= i %>.<%= format[:extension] %>" type="<%= CGI.escapeHTML(format[:mimetype]) %>">
+            <% end %>
+            <% captions.each do |caption| %>
+              <track kind="captions" label="<%= CGI.escapeHTML(caption['localeName']) %>" src="caption_<%= CGI.escapeHTML(caption['locale']) %>.vtt" srclang="<%= CGI.escapeHTML(caption['locale']) %>.vtt">
+            <% end %>
+          </video>
+        </div>
+      </div>
+      <div id="chat-area" <% if !haveChat %>style="display:none"<% end %>>
+        <h2 class="visually-hidden">Chat Messages</h2>
+        <input type="checkbox" name="exposechat" id="exposechat" value="exposechat" class="visually-hidden" checked="checked">
+        <label for="exposechat" class="visually-hidden">Read chat messages</label>
+        <div id="chat" aria-live="polite" role="region" area-label="Chat Messages"></div>
+      </div>
+    </main>
+
+    <footer>Recorded with <a href="http://bigbluebutton.org">BigBlueButton</a>.</footer>
+  </body>
+</html>

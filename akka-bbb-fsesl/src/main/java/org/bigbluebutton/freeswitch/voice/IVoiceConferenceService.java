@@ -22,7 +22,9 @@ public interface IVoiceConferenceService {
                            String callerIdNum,
                            Boolean muted,
                            Boolean speaking,
-                           String avatarURL);
+                           String avatarURL,
+                           Boolean hold,
+                           String uuid);
 
   void voiceUsersStatus(String voiceConfId,
                         java.util.List<ConfMember> confMembers,
@@ -42,27 +44,6 @@ public interface IVoiceConferenceService {
   void userTalkingInVoiceConf(String voiceConfId,
                               String voiceUserId,
                               Boolean talking);
-
-  void deskShareStarted(String voiceConfId,
-                        String callerIdNum,
-                        String callerIdName);
-
-  void deskShareEnded(String voiceConfId,
-                      String callerIdNum,
-                      String callerIdName);
-
-  void deskShareRTMPBroadcastStarted(String room,
-                                     String streamname,
-                                     Integer videoWidth,
-                                     Integer videoHeight,
-                                     String timestamp,
-                                     boolean hasAudio);
-
-  void deskShareRTMPBroadcastStopped(String room,
-                                     String streamname,
-                                     Integer videoWidth,
-                                     Integer videoHeight,
-                                     String timestamp);
 
   void audioFloorChanged(String room,
                          String voiceUserId,
@@ -88,4 +69,9 @@ public interface IVoiceConferenceService {
                                   Long receivedResponseTimestamp);
 
   void freeswitchHeartbeatEvent(Map<String, String> heartbeat);
+
+  void channelHoldChanged(String voiceConfId,
+                          String userId,
+                          String uuid,
+                          Boolean hold);
 }

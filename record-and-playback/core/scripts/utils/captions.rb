@@ -27,11 +27,11 @@
 require File.expand_path('../../../lib/recordandplayback', __FILE__)
 
 require 'rubygems'
-require 'trollop'
+require 'optimist'
 require 'yaml'
 require 'json'
 
-opts = Trollop::options do
+opts = Optimist::options do
   opt :meeting_id, "Meeting id to archive", :type => String
 end
 

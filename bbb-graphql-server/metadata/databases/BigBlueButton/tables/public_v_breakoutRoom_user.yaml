@@ -1,0 +1,37 @@
+table:
+  name: v_breakoutRoom_user
+  schema: public
+configuration:
+  column_config: {}
+  custom_column_names: {}
+  custom_name: breakoutRoom_user
+  custom_root_fields: {}
+select_permissions:
+  - role: bbb_client
+    permission:
+      columns:
+        - assignedAt
+        - breakoutRoomId
+        - inviteDismissedAt
+        - joinURL
+        - joinedAt
+      filter:
+        _and:
+          - meetingId:
+              _eq: X-Hasura-MeetingId
+          - userId:
+              _eq: X-Hasura-UserId
+    comment: ""
+update_permissions:
+  - role: bbb_client
+    permission:
+      columns:
+        - inviteDismissedAt
+      filter:
+        _and:
+          - meetingId:
+              _eq: X-Hasura-MeetingId
+          - userId:
+              _eq: X-Hasura-UserId
+      check: null
+    comment: ""

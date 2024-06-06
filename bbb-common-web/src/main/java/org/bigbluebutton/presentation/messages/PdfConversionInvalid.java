@@ -9,13 +9,14 @@ public class PdfConversionInvalid implements IDocConversionMsg {
   public final String uploaderId;
   public final String authzToken;
   public final Boolean downloadable;
+  public final Boolean removable;
   public final String key;
   public final Integer bigPageNumber;
   public final Integer bigPageSize;
 
   public PdfConversionInvalid(String podId, String meetingId, String presId, String presInstance,
                               String filename, String uploaderId, String authzToken,
-                              Boolean downloadable, Integer bigPageNumber, Integer bigPageSize, String key) {
+                              Boolean downloadable, Boolean removable, Integer bigPageNumber, Integer bigPageSize, String key) {
     this.podId = podId;
     this.meetingId = meetingId;
     this.presId = presId;
@@ -24,6 +25,7 @@ public class PdfConversionInvalid implements IDocConversionMsg {
     this.uploaderId = uploaderId;
     this.authzToken = authzToken;
     this.downloadable = downloadable;
+    this.removable = removable;
     this.bigPageNumber = bigPageNumber;
     this.bigPageSize = bigPageSize;
     this.key = key;

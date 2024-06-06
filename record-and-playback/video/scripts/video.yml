@@ -1,0 +1,81 @@
+publish_dir: /var/bigbluebutton/published/video
+playback_dir: /usr/local/bigbluebutton/core/playback/video
+# offset applied to audio in the output video file
+# audio_offset = 1000 means that the audio will be delayed by 1000ms
+audio_offset: 0
+
+layout:
+  width: 1280
+  height: 720
+  framerate: 24
+  areas:
+    - name: presentation
+      x: 0
+      y: 0
+      width: 960
+      height: 720
+    - name: webcam
+      x: 960
+      y: 0
+      width: 320
+      height: 720
+    - name: deskshare
+      x: 0
+      y: 0
+      width: 960
+      height: 720
+      pad: true
+nopresentation_layout:
+  width: 1280
+  height: 720
+  framerate: 24
+  areas:
+    - name: webcam
+      x: 0
+      y: 0
+      width: 1280
+      height: 720
+nowebcam_layout:
+  width: 1280
+  height: 720
+  framerate: 24
+  areas:
+    - name: presentation
+      x: 0
+      y: 0
+      width: 1280
+      height: 720
+    - name: deskshare
+      x: 0
+      y: 0
+      width: 1280
+      height: 720
+      pad: true
+formats:
+  - mimetype: 'video/mp4'
+    extension: m4v
+    parameters:
+      - [ '-c:v', 'copy', # Use working format codec defined in core/lib/recordandplayback/edl/video.rb
+          '-c:a', 'aac', '-b:a', '128K',
+          '-f', 'mp4', '-movflags', 'faststart' ]
+    postprocess: []
+  #- mimetype: 'video/webm;codecs="vp09.00.41.08,opus"'
+  #  extension: webm
+  #  parameters:
+  #    # Default single-pass encode
+  #    #- [ '-c:v', 'libvpx-vp9', '-level', '4.1', '-b:v', '1800K', '-minrate', '900K', '-maxrate', '2610K',
+  #    #    '-crf', '31', '-quality', 'good', '-speed', '2', '-tile-columns', '2', '-threads', '2',
+  #    #    '-force_key_frames', 'expr:gte(t,n_forced*10)',
+  #    #    '-c:a', 'libopus', '-b:a', '64K',
+  #    #    '-f', 'webm' ]
+  #    # Slower but better quality two-pass encode
+  #    - [ '-c:v', 'libvpx-vp9', '-level', '4.1', '-b:v', '1800K', '-minrate', '900K', '-maxrate', '2610K',
+  #        '-crf', '31', '-quality', 'good', '-pass', '1', '-speed', '4', '-tile-columns', '2', '-threads', '2',
+  #        '-force_key_frames', 'expr:gte(t,n_forced*10)',
+  #        '-an',
+  #        '-f', 'webm' ]
+  #    - [ '-c:v', 'libvpx-vp9', '-level', '4.1', '-b:v', '1800K', '-minrate', '900K', '-maxrate', '2610K',
+  #        '-crf', '31', '-quality', 'good', '-pass', '2', '-speed', '2', '-tile-columns', '2', '-threads', '2',
+  #        '-force_key_frames', 'expr:gte(t,n_forced*10)',
+  #        '-c:a', 'libopus', '-b:a', '64K',
+  #        '-f', 'webm' ]

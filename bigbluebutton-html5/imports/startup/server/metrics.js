@@ -5,12 +5,6 @@ import path from 'path';
 import { Meteor } from 'meteor/meteor';
 import Logger from './logger';
 
-const {
-  metricsDumpIntervalMs,
-  metricsFolderPath,
-  removeMeetingOnEnd,
-} = Meteor.settings.private.redis.metrics;
-
 class Metrics {
   constructor() {
     this.metrics = {};
@@ -40,6 +34,8 @@ class Metrics {
   processEvent(meetingId, eventName, size, processingStartTimestamp) {
     const currentProcessingTimestamp = Date.now();
     const processTime = currentProcessingTimestamp - processingStartTimestamp;
+
+    this.addEvent(meetingId, eventName, size);
 
     if (!this.metrics[meetingId].wasInQueue.hasOwnProperty(eventName)) {
       this.metrics[meetingId].wasInQueue[eventName] = {

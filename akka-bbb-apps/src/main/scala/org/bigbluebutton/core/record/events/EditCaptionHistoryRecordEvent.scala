@@ -32,12 +32,12 @@ class EditCaptionHistoryRecordEvent extends AbstractCaptionRecordEvent {
     eventMap.put(END_INDEX, endIndex.toString)
   }
 
-  def setLocale(locale: String) {
-    eventMap.put(LOCALE, locale)
+  def setName(name: String) {
+    eventMap.put(NAME, name)
   }
 
-  def setLocaleCode(localeCode: String) {
-    eventMap.put(LOCALE_CODE, localeCode)
+  def setLocale(locale: String) {
+    eventMap.put(LOCALE, locale)
   }
 
   def setText(text: String) {
@@ -48,7 +48,7 @@ class EditCaptionHistoryRecordEvent extends AbstractCaptionRecordEvent {
 object EditCaptionHistoryRecordEvent {
   protected final val START_INDEX = "startIndex"
   protected final val END_INDEX = "endIndex"
-  protected final val LOCALE = "locale"
-  protected final val LOCALE_CODE = "localeCode"
+  protected final val NAME = "locale"
+  protected final val LOCALE = "localeCode"
   protected final val TEXT = "text"
 }

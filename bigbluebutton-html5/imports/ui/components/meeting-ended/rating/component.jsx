@@ -1,8 +1,9 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
-import _ from 'lodash';
+import { range } from '/imports/utils/array-utils';
 import { defineMessages, injectIntl } from 'react-intl';
-import { styles } from './styles';
+import Styled from './styles';
+import { uniqueId } from '/imports/utils/string-utils';
 
 const intlMessages = defineMessages({
   legendTitle: {
@@ -41,11 +42,11 @@ class Rating extends Component {
     const { intl } = this.props;
 
     return (
-      <div className={styles.starRating}>
+      <Styled.StarRating>
         <fieldset>
-          <legend className={styles.legend}>{intl.formatMessage(intlMessages.legendTitle)}</legend>
+          <Styled.Legend>{intl.formatMessage(intlMessages.legendTitle)}</Styled.Legend>
           {
-            _.range(num)
+            range(0, num)
               .map(i => [
                 (
                   <input
@@ -53,21 +54,21 @@ class Rating extends Component {
                     id={`${i + 1}star`}
                     name="rating"
                     value={i + 1}
-                    key={_.uniqueId('star-')}
+                    key={uniqueId('star-')}
                     onChange={() => this.clickStar(i + 1)}
                   />
                 ),
                 (
                   <label
                     htmlFor={`${i + 1}star`}
-                    key={_.uniqueId('star-')}
+                    key={uniqueId('star-')}
                     aria-label={`${i + 1} ${intl.formatMessage(intlMessages.starLabel)}`}
                   />
                 ),
               ]).reverse()
           }
         </fieldset>
-      </div>
+      </Styled.StarRating>
     );
   }
 
@@ -76,7 +77,7 @@ class Rating extends Component {
       total,
     } = this.props;
     return (
-      <div className={styles.father}>
+      <div>
         {
           this.renderStars(total)
         }

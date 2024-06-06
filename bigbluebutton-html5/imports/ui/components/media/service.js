@@ -1,26 +1,17 @@
-import Presentations from '/imports/api/presentations';
-import { isVideoBroadcasting } from '/imports/ui/components/screenshare/service';
-import { getVideoUrl } from '/imports/ui/components/external-video-player/service';
-import Auth from '/imports/ui/services/auth';
-import Users from '/imports/api/users';
+import { isScreenBroadcasting, isCameraAsContentBroadcasting } from '/imports/ui/components/screenshare/service';
 import Settings from '/imports/ui/services/settings';
 import getFromUserSettings from '/imports/ui/services/users-settings';
+import {
+  isScreenSharingEnabled, isCameraAsContentEnabled, isPresentationEnabled,
+} from '/imports/ui/services/features';
+import { ACTIONS } from '../layout/enums';
+import UserService from '/imports/ui/components/user-list/service';
+import VideoStreams from '/imports/api/video-streams';
+import Auth from '/imports/ui/services/auth/index';
 
-const LAYOUT_CONFIG = Meteor.settings.public.layout;
-const KURENTO_CONFIG = Meteor.settings.public.kurento;
-
-const getPresentationInfo = () => {
-  const currentPresentation = Presentations.findOne({
-    current: true,
-  });
-
-  return {
-    current_presentation: (currentPresentation != null),
-  };
-};
-
-const isUserPresenter = () => Users.findOne({ userId: Auth.userID },
-  { fields: { presenter: 1 } }).presenter;
+const LAYOUT_CONFIG = window.meetingClientSettings.public.layout;
+const KURENTO_CONFIG = window.meetingClientSettings.public.kurento;
+const PRESENTATION_CONFIG = window.meetingClientSettings.public.presentation;
 
 function shouldShowWhiteboard() {
   return true;
@@ -28,52 +19,52 @@ function shouldShowWhiteboard() {
 
 function shouldShowScreenshare() {
   const { viewScreenshare } = Settings.dataSaving;
-  const enableScreensharing = getFromUserSettings('bbb_enable_screen_sharing', KURENTO_CONFIG.enableScreensharing);
-  return enableScreensharing && viewScreenshare && isVideoBroadcasting();
-}
-
-function shouldShowExternalVideo() {
-  const { enabled: enableExternalVideo } = Meteor.settings.public.externalVideoPlayer;
-  return enableExternalVideo && getVideoUrl();
+  return (isScreenSharingEnabled() || isCameraAsContentEnabled())
+    && (viewScreenshare || UserService.isUserPresenter())
+    && (isScreenBroadcasting() || isCameraAsContentBroadcasting());
 }
 
 function shouldShowOverlay() {
   return getFromUserSettings('bbb_enable_video', KURENTO_CONFIG.enableVideo);
 }
 
-const swapLayout = {
-  value: getFromUserSettings('bbb_auto_swap_layout', LAYOUT_CONFIG.autoSwapLayout),
-  tracker: new Tracker.Dependency(),
+const setPresentationIsOpen = (layoutContextDispatch, value) => {
+  layoutContextDispatch({
+    type: ACTIONS.SET_PRESENTATION_IS_OPEN,
+    value,
+  });
 };
 
-const setSwapLayout = () => {
-  swapLayout.value = getFromUserSettings('bbb_auto_swap_layout', LAYOUT_CONFIG.autoSwapLayout);
-  swapLayout.tracker.changed();
-};
+const isThereWebcamOn = (meetingID) => {
+  return VideoStreams.find({
+    meetingId: meetingID
+  }).count() > 0;
+}
 
-const toggleSwapLayout = () => {
-  window.dispatchEvent(new Event('togglePresentationHide'));
-  swapLayout.value = !swapLayout.value;
-  swapLayout.tracker.changed();
-};
+const buildLayoutWhenPresentationAreaIsDisabled = (
+  layoutContextDispatch,
+  isSharingVideo,
+  isSharedNotesPinned,
+) => {
+  const hasScreenshare = isScreenSharingEnabled();
+  const isThereWebcam = isThereWebcamOn(Auth.meetingID);
+  const isGeneralMediaOff = !hasScreenshare && !isSharedNotesPinned && !isSharingVideo
+  const webcamIsOnlyContent = isThereWebcam && isGeneralMediaOff;
+  const isThereNoMedia = !isThereWebcam && isGeneralMediaOff;
+  const isPresentationDisabled = !isPresentationEnabled();
 
-export const shouldEnableSwapLayout = () => !shouldShowScreenshare() && !shouldShowExternalVideo();
+  if (isPresentationDisabled && (webcamIsOnlyContent || isThereNoMedia)) {
+    setPresentationIsOpen(layoutContextDispatch, false);
+  }
 
-export const getSwapLayout = () => {
-  swapLayout.tracker.depend();
-  return swapLayout.value;
-};
+}
 
 export default {
-  getPresentationInfo,
+  buildLayoutWhenPresentationAreaIsDisabled,
   shouldShowWhiteboard,
   shouldShowScreenshare,
-  shouldShowExternalVideo,
   shouldShowOverlay,
-  isUserPresenter,
-  isVideoBroadcasting,
-  toggleSwapLayout,
-  shouldEnableSwapLayout,
-  getSwapLayout,
-  setSwapLayout,
+  isScreenBroadcasting,
+  isCameraAsContentBroadcasting,
+  setPresentationIsOpen,
 };

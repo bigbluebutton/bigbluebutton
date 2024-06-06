@@ -18,6 +18,27 @@ object BreakoutHdlrHelpers extends SystemConfiguration {
       breakoutId:        String
   ) {
     for {
+      (redirectToHtml5JoinURL, redirectJoinURL) <- getRedirectUrls(liveMeeting, userId, externalMeetingId, roomSequence)
+    } yield {
+      sendJoinURLMsg(
+        outGW,
+        liveMeeting.props.meetingProp.intId,
+        breakoutId,
+        externalMeetingId,
+        userId,
+        redirectJoinURL,
+        redirectToHtml5JoinURL
+      )
+    }
+  }
+
+  def getRedirectUrls(
+      liveMeeting:       LiveMeeting,
+      userId:            String,
+      externalMeetingId: String,
+      roomSequence:      String
+  ): Option[(String, String)] = {
+    for {
       user <- Users2x.findWithIntId(liveMeeting.users2x, userId)
       apiCall = "join"
       (redirectParams, redirectToHtml5Params) = BreakoutRoomsUtil.joinParams(user.name, userId + "-" + roomSequence, true,
@@ -31,15 +52,7 @@ object BreakoutHdlrHelpers extends SystemConfiguration {
       redirectToHtml5JoinURL = BreakoutRoomsUtil.createJoinURL(bbbWebAPI, apiCall, redirectToHtml5BaseString,
         BreakoutRoomsUtil.calculateChecksum(apiCall, redirectToHtml5BaseString, bbbWebSharedSecret))
     } yield {
-      sendJoinURLMsg(
-        outGW,
-        liveMeeting.props.meetingProp.intId,
-        breakoutId,
-        externalMeetingId,
-        userId,
-        redirectJoinURL,
-        redirectToHtml5JoinURL
-      )
+      (redirectToHtml5JoinURL, redirectJoinURL)
     }
   }
 
@@ -65,6 +78,29 @@ object BreakoutHdlrHelpers extends SystemConfiguration {
     }
 
     val msgEvent = build(meetingId, breakoutId, userId, redirectJoinURL, redirectToHtml5JoinURL)
+    outGW.send(msgEvent)
+
+  }
+
+  def sendChangeUserBreakoutMsg(
+      outGW:                  OutMsgRouter,
+      meetingId:              String,
+      userId:                 String,
+      fromBreakoutId:         String,
+      toBreakoutId:           String,
+      redirectToHtml5JoinURL: String
+  ): Unit = {
+    def build(meetingId: String, userId: String, fromBreakoutId: String, toBreakoutId: String, redirectToHtml5JoinURL: String): BbbCommonEnvCoreMsg = {
+      val routing = Routing.addMsgToClientRouting(MessageTypes.DIRECT, meetingId, userId)
+      val envelope = BbbCoreEnvelope(ChangeUserBreakoutEvtMsg.NAME, routing)
+      val header = BbbClientMsgHeader(ChangeUserBreakoutEvtMsg.NAME, meetingId, userId)
+
+      val body = ChangeUserBreakoutEvtMsgBody(meetingId, userId, fromBreakoutId, toBreakoutId, redirectToHtml5JoinURL)
+      val event = ChangeUserBreakoutEvtMsg(header, body)
+      BbbCommonEnvCoreMsg(envelope, event)
+    }
+
+    val msgEvent = build(meetingId, userId, fromBreakoutId, toBreakoutId, redirectToHtml5JoinURL)
     outGW.send(msgEvent)
 
   }

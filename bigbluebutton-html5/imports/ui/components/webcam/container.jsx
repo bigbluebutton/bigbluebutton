@@ -1,87 +1,99 @@
-import React, { useContext } from 'react';
-
-import { withModalMounter } from '/imports/ui/components/modal/service';
+import React from 'react';
 import { withTracker } from 'meteor/react-meteor-data';
-import Settings from '/imports/ui/services/settings';
-import MediaService, { getSwapLayout, shouldEnableSwapLayout } from '/imports/ui/components/media/service';
-import Auth from '/imports/ui/services/auth';
-import breakoutService from '/imports/ui/components/breakout-room/service';
 import VideoService from '/imports/ui/components/video-provider/service';
-
-import { NLayoutContext } from '../layout/context/context';
-import WebcamComponent from './component';
+import { useSubscription } from '@apollo/client';
+import {
+  layoutSelect,
+  layoutSelectInput,
+  layoutSelectOutput,
+  layoutDispatch,
+} from '../layout/context';
+import WebcamComponent from '/imports/ui/components/webcam/component';
+import { LAYOUT_TYPE } from '../layout/enums';
+import { sortVideoStreams } from '/imports/ui/components/video-provider/stream-sorting';
+import {
+  CURRENT_PRESENTATION_PAGE_SUBSCRIPTION,
+} from '/imports/ui/components/whiteboard/queries';
+const { defaultSorting: DEFAULT_SORTING } = window.meetingClientSettings.public.kurento.cameraSortingModes;
+import useCurrentUser from '/imports/ui/core/hooks/useCurrentUser';
+import WebcamContainerGraphql from './webcam-graphql/component';
 
 const WebcamContainer = ({
   audioModalIsOpen,
-  swapLayout,
   usersVideo,
-  disableVideo,
+  layoutType,
+  isLayoutSwapped,
 }) => {
-  const LayoutContext = useContext(NLayoutContext);
-  const { newLayoutContextState } = LayoutContext;
-  const { output } = newLayoutContextState;
-  const { cameraDock } = output;
+  const fullscreen = layoutSelect((i) => i.fullscreen);
+  const isRTL = layoutSelect((i) => i.isRTL);
+  const cameraDockInput = layoutSelectInput((i) => i.cameraDock);
+  const focusedId = layoutSelectInput((i) => i.focusedId);
+  const presentation = layoutSelectOutput((i) => i.presentation);
+  const cameraDock = layoutSelectOutput((i) => i.cameraDock);
+  const layoutContextDispatch = layoutDispatch();
+  const { data: presentationPageData } = useSubscription(CURRENT_PRESENTATION_PAGE_SUBSCRIPTION);
+  const presentationPage = presentationPageData?.pres_page_curr[0] || {};
+  const hasPresentation = !!presentationPage?.presentationId;
 
-  return !disableVideo
-    && !audioModalIsOpen
-    && usersVideo.length > 0
+  const swapLayout = !hasPresentation || isLayoutSwapped;
+
+  let floatingOverlay = false;
+  let hideOverlay = false;
+
+  if (swapLayout) {
+    floatingOverlay = true;
+    hideOverlay = true;
+  }
+
+  const { cameraOptimalGridSize } = cameraDockInput;
+  const { display: displayPresentation } = presentation;
+
+  const { data: currentUserData } = useCurrentUser((user) => ({
+    presenter: user.presenter,
+  }));
+
+  const isGridEnabled = layoutType === LAYOUT_TYPE.VIDEO_FOCUS;
+
+  return !audioModalIsOpen
+    && (usersVideo.length > 0 || isGridEnabled)
     ? (
       <WebcamComponent
         {...{
           swapLayout,
           usersVideo,
-          cameraDockBounds: cameraDock,
+          focusedId: cameraDock.focusedId,
+          cameraDock,
+          cameraOptimalGridSize,
+          layoutContextDispatch,
+          fullscreen,
+          isPresenter: currentUserData?.presenter,
+          displayPresentation,
+          isRTL,
+          isGridEnabled,
+          floatingOverlay,
+          hideOverlay,
         }}
       />
     )
     : null;
 };
 
-let userWasInBreakout = false;
-
-export default withModalMounter(withTracker(() => {
-  const { dataSaving } = Settings;
-  const { viewParticipantsWebcams } = dataSaving;
-  const { current_presentation: hasPresentation } = MediaService.getPresentationInfo();
+withTracker(() => {
   const data = {
     audioModalIsOpen: Session.get('audioModalIsOpen'),
     isMeteorConnected: Meteor.status().connected,
   };
 
-  const userIsInBreakout = breakoutService.getBreakoutUserIsIn(Auth.userID);
-  let deviceIds = Session.get('deviceIds');
+  const { streams: usersVideo, gridUsers } = VideoService.getVideoStreams();
 
-  if (!userIsInBreakout && userWasInBreakout && deviceIds && deviceIds !== '') {
-    /* used when re-sharing cameras after leaving a breakout room.
-    it is needed in cases where the user has more than one active camera
-    so we only share the second camera after the first
-    has finished loading (can't share more than one at the same time) */
-    const canConnect = Session.get('canConnect');
-
-    deviceIds = deviceIds.split(',');
-
-    if (canConnect) {
-      const deviceId = deviceIds.shift();
-
-      Session.set('canConnect', false);
-      Session.set('WebcamDeviceId', deviceId);
-      Session.set('deviceIds', deviceIds.join(','));
-
-      VideoService.joinVideo(deviceId);
-    }
+  if (gridUsers.length > 0) {
+    const items = usersVideo.concat(gridUsers);
+    data.usersVideo = sortVideoStreams(items, DEFAULT_SORTING);
   } else {
-    userWasInBreakout = userIsInBreakout;
-  }
-
-  const { streams: usersVideo } = VideoService.getVideoStreams();
-  data.usersVideo = usersVideo;
-  data.swapLayout = (getSwapLayout() || !hasPresentation) && shouldEnableSwapLayout();
-  data.disableVideo = !viewParticipantsWebcams;
-
-  if (data.swapLayout) {
-    data.floatingOverlay = true;
-    data.hideOverlay = true;
+    data.usersVideo = usersVideo;
   }
 
   return data;
-})(WebcamContainer));
+})(WebcamContainer);
+
+export default WebcamContainerGraphql;

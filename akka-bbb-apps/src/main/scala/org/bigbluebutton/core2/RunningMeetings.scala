@@ -1,5 +1,6 @@
 package org.bigbluebutton.core2
 
+import org.bigbluebutton.core.db.MeetingDAO
 import org.bigbluebutton.core.running.RunningMeeting
 
 object RunningMeetings {

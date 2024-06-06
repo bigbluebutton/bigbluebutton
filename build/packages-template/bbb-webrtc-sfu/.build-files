@@ -1,0 +1,9 @@
+after-install.sh
+bbb-webrtc-sfu.logrotate
+bbb-webrtc-sfu.service
+before-install.sh
+before-remove.sh
+build.sh
+opts-jammy.sh
+opts-centos7.sh
+webrtc-sfu.nginx

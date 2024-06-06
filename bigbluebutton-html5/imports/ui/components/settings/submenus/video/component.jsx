@@ -1,9 +1,8 @@
 import React from 'react';
-import Toggle from '/imports/ui/components/switch/component';
-import cx from 'classnames';
+import Toggle from '/imports/ui/components/common/switch/component';
 import { defineMessages, injectIntl } from 'react-intl';
 import BaseMenu from '../base/component';
-import { styles } from '../styles';
+import Styled from './styles';
 
 const intlMessages = defineMessages({
   videoSectionTitle: {
@@ -46,73 +45,67 @@ class VideoMenu extends BaseMenu {
     const { intl } = this.props;
 
     return (
-      <div className={styles.tabContent}>
-        <div className={styles.header}>
-          <h3 className={styles.title}>{intl.formatMessage(intlMessages.videoSectionTitle)}</h3>
+      <div>
+        <div>
+          <Styled.Title>
+            {intl.formatMessage(intlMessages.videoSectionTitle)}
+          </Styled.Title>
         </div>
 
-        <div className={styles.form}>
-          <div className={styles.row}>
-            <div className={styles.col}>
-              <div
-                className={styles.formElement}
-                aria-label={intl.formatMessage(intlMessages.videoSourceLabel)}
-              >
-                <label htmlFor="videoSourceSelect" className={cx(styles.label, styles.labelSmall)}>
+        <Styled.Form>
+          <Styled.Row>
+            <Styled.Col>
+              <Styled.FormElement aria-label={intl.formatMessage(intlMessages.videoSourceLabel)}>
+                <Styled.LabelSmall htmlFor="videoSourceSelect">
                   {intl.formatMessage(intlMessages.videoSourceLabel)}
-                </label>
-                <select
+                </Styled.LabelSmall>
+                <Styled.Select
                   id="videoSourceSelect"
                   defaultValue="-1"
-                  className={styles.select}
                 >
                   <option value="-1" disabled>
                     {intl.formatMessage(intlMessages.videoOptionLabel)}
                   </option>
-                </select>
-              </div>
-            </div>
-            <div className={styles.col}>
-              <div
-                className={styles.formElement}
-                aria-label={intl.formatMessage(intlMessages.videoQualityLabel)}
-              >
-                <label htmlFor="videoSelectQuality" className={cx(styles.label, styles.labelSmall)}>
+                </Styled.Select>
+              </Styled.FormElement>
+            </Styled.Col>
+            <Styled.Col>
+              <Styled.FormElement aria-label={intl.formatMessage(intlMessages.videoQualityLabel)}>
+                <Styled.LabelSmall htmlFor="videoSelectQuality">
                   {intl.formatMessage(intlMessages.videoQualityLabel)}
-                </label>
-                <select
+                </Styled.LabelSmall>
+                <Styled.Select
                   id="videoSelectQuality"
                   defaultValue="-1"
-                  className={styles.select}
                 >
                   <option value="-1" disabled>
                     {intl.formatMessage(intlMessages.qualityOptionLabel)}
                   </option>
-                </select>
-              </div>
-            </div>
-          </div>
-          <div className={styles.row}>
-            <div className={styles.col}>
-              <div className={styles.formElement}>
-                <div className={styles.label}>
+                </Styled.Select>
+              </Styled.FormElement>
+            </Styled.Col>
+          </Styled.Row>
+          <Styled.Row>
+            <Styled.Col>
+              <Styled.FormElement>
+                <Styled.Label>
                   {intl.formatMessage(intlMessages.participantsCamLabel)}
-                </div>
-              </div>
-            </div>
-            <div className={styles.col}>
-              <div className={cx(styles.formElement, styles.pullContentRight)}>
+                </Styled.Label>
+              </Styled.FormElement>
+            </Styled.Col>
+            <Styled.Col>
+              <Styled.FormElementRight>
                 <Toggle
                   icons={false}
                   defaultChecked={this.state.viewParticipantsWebcams}
                   onChange={() => this.handleToggle('viewParticipantsWebcams')}
-                  ariaLabelledBy={'viewCamLabel'}
+                  ariaLabelledBy="viewCamLabel"
                   ariaLabel={intl.formatMessage(intlMessages.participantsCamLabel)}
                 />
-              </div>
-            </div>
-          </div>
-        </div>
+              </Styled.FormElementRight>
+            </Styled.Col>
+          </Styled.Row>
+        </Styled.Form>
       </div>
     );
   }

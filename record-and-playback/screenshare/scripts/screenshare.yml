@@ -4,6 +4,7 @@ playback_dir: /usr/local/bigbluebutton/core/playback/screenshare
 layout:
   :width: 1280
   :height: 720
+  :framerate: 25
   :areas:
     - :name: :deskshare
       :x: 0

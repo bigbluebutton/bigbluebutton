@@ -3,16 +3,22 @@ import PropTypes from 'prop-types';
 import { defineMessages, injectIntl } from 'react-intl';
 import deviceInfo from '/imports/utils/deviceInfo';
 import injectWbResizeEvent from '/imports/ui/components/presentation/resize-wrapper/component';
-import Button from '/imports/ui/components/button/component';
-import { HUNDRED_PERCENT, MAX_PERCENT, STEP } from '/imports/utils/slideCalcUtils';
-import cx from 'classnames';
-import { styles } from './styles.scss';
+import Button from '/imports/ui/components/common/button/component';
+import {
+  HUNDRED_PERCENT,
+  MAX_PERCENT,
+  STEP,
+} from '/imports/utils/slideCalcUtils';
+import {
+  PresentationToolbarItemType,
+} from 'bigbluebutton-html-plugin-sdk/dist/cjs/extensible-areas/presentation-toolbar-item/enums';
+import Styled from './styles';
 import ZoomTool from './zoom-tool/component';
-import FullscreenButtonContainer from '../../fullscreen-button/container';
-import TooltipContainer from '/imports/ui/components/tooltip/container';
-import QuickPollDropdownContainer from '/imports/ui/components/actions-bar/quick-poll-dropdown/container';
-import FullscreenService from '/imports/ui/components/fullscreen-button/service';
+import SmartMediaShareContainer from './smart-video-share/container';
+import TooltipContainer from '/imports/ui/components/common/tooltip/container';
 import KEY_CODES from '/imports/utils/keyCodes';
+import Spinner from '/imports/ui/components/common/spinner/component';
+import Separator from '/imports/ui/components/common/separator/component';
 
 const intlMessages = defineMessages({
   previousSlideLabel: {
@@ -75,34 +81,139 @@ const intlMessages = defineMessages({
     id: 'app.presentationUploder.title',
     description: 'presentation area element label',
   },
+  toolbarMultiUserOn: {
+    id: 'app.whiteboard.toolbar.multiUserOn',
+    description: 'Whiteboard toolbar turn multi-user on menu',
+  },
+  toolbarMultiUserOff: {
+    id: 'app.whiteboard.toolbar.multiUserOff',
+    description: 'Whiteboard toolbar turn multi-user off menu',
+  },
+  pan: {
+    id: 'app.whiteboard.toolbar.tools.hand',
+    description: 'presentation toolbar pan label',
+  },
 });
-
-const ALLOW_FULLSCREEN = Meteor.settings.public.app.allowFullscreen;
 
 class PresentationToolbar extends PureComponent {
   constructor(props) {
     super(props);
 
+    this.state = {
+      wasFTWActive: false,
+    };
+
+    this.setWasActive = this.setWasActive.bind(this);
+    this.handleFTWSlideChange = this.handleFTWSlideChange.bind(this);
     this.handleSkipToSlideChange = this.handleSkipToSlideChange.bind(this);
     this.change = this.change.bind(this);
     this.renderAriaDescs = this.renderAriaDescs.bind(this);
-    this.switchSlide = this.switchSlide.bind(this);
     this.nextSlideHandler = this.nextSlideHandler.bind(this);
     this.previousSlideHandler = this.previousSlideHandler.bind(this);
+    this.fullscreenToggleHandler = this.fullscreenToggleHandler.bind(this);
+    this.switchSlide = this.switchSlide.bind(this);
+    this.handleSwitchWhiteboardMode = this.handleSwitchWhiteboardMode.bind(this);
   }
 
   componentDidMount() {
     document.addEventListener('keydown', this.switchSlide);
   }
 
+  componentDidUpdate(prevProps) {
+    const { zoom, setIsPanning, fitToWidth, fitToWidthHandler, currentSlideNum } = this.props;
+    const { wasFTWActive } = this.state;
+
+    if (zoom <= HUNDRED_PERCENT && zoom !== prevProps.zoom && !fitToWidth) setIsPanning();
+
+    if ((prevProps?.currentSlideNum !== currentSlideNum) && (!fitToWidth && wasFTWActive)) {
+      setTimeout(() => {
+        fitToWidthHandler();
+        this.setWasActive(false);
+      }, 150)
+    }
+  }
+
   componentWillUnmount() {
     document.removeEventListener('keydown', this.switchSlide);
+  }
+
+  setWasActive(wasFTWActive) {
+    this.setState({ wasFTWActive });
+  }
+
+  handleFTWSlideChange() {
+    const { fitToWidth, fitToWidthHandler } = this.props;
+    if (fitToWidth) {
+      fitToWidthHandler();
+      this.setWasActive(fitToWidth);
+    }
+  }
+
+  handleSkipToSlideChange(event) {
+    const { skipToSlide } = this.props;
+    const requestedSlideNum = Number.parseInt(event.target.value, 10);
+
+    this.handleFTWSlideChange();
+    if (event) event.currentTarget.blur();
+    skipToSlide(requestedSlideNum);
+  }
+
+  handleSwitchWhiteboardMode() {
+    const {
+      multiUser,
+      whiteboardId,
+      removeWhiteboardGlobalAccess,
+      addWhiteboardGlobalAccess,
+    } = this.props;
+    if (multiUser) {
+      return removeWhiteboardGlobalAccess(whiteboardId);
+    }
+    return addWhiteboardGlobalAccess(whiteboardId);
+  }
+
+  fullscreenToggleHandler() {
+    const {
+      fullscreenElementId,
+      isFullscreen,
+      layoutContextDispatch,
+      fullscreenAction,
+      fullscreenRef,
+      handleToggleFullScreen,
+    } = this.props;
+
+    handleToggleFullScreen(fullscreenRef);
+    const newElement = isFullscreen ? '' : fullscreenElementId;
+
+    layoutContextDispatch({
+      type: fullscreenAction,
+      value: {
+        element: newElement,
+        group: '',
+      },
+    });
+  }
+
+  nextSlideHandler(event) {
+    const { nextSlide, endCurrentPoll } = this.props;
+
+    this.handleFTWSlideChange();
+    if (event) event.currentTarget.blur();
+    endCurrentPoll();
+    nextSlide();
+  }
+
+  previousSlideHandler(event) {
+    const { previousSlide, endCurrentPoll } = this.props;
+
+    this.handleFTWSlideChange();
+    if (event) event.currentTarget.blur();
+    endCurrentPoll();
+    previousSlide();
   }
 
   switchSlide(event) {
     const { target, which } = event;
     const isBody = target.nodeName === 'BODY';
-    const { fullscreenRef } = this.props;
 
     if (isBody) {
       switch (which) {
@@ -115,46 +226,60 @@ class PresentationToolbar extends PureComponent {
           this.nextSlideHandler();
           break;
         case KEY_CODES.ENTER:
-          FullscreenService.toggleFullScreen(fullscreenRef);
+          this.fullscreenToggleHandler();
           break;
         default:
       }
     }
   }
 
-  handleSkipToSlideChange(event) {
-    const {
-      skipToSlide,
-      podId,
-    } = this.props;
-    const requestedSlideNum = Number.parseInt(event.target.value, 10);
-    skipToSlide(requestedSlideNum, podId);
-  }
-
-  nextSlideHandler() {
-    const {
-      nextSlide,
-      currentSlideNum,
-      numberOfSlides,
-      podId,
-    } = this.props;
-
-    nextSlide(currentSlideNum, numberOfSlides, podId);
-  }
-
-  previousSlideHandler() {
-    const {
-      previousSlide,
-      currentSlideNum,
-      podId,
-    } = this.props;
-
-    previousSlide(currentSlideNum, podId);
-  }
-
   change(value) {
     const { zoomChanger } = this.props;
     zoomChanger(value);
+  }
+
+  renderToolbarPluginItems() {
+    let pluginProvidedItems = [];
+    if (this.props) {
+      const {
+        pluginProvidedPresentationToolbarItems,
+      } = this.props;
+      pluginProvidedItems = pluginProvidedPresentationToolbarItems;
+    }
+
+    return pluginProvidedItems?.map((ppb) => {
+      let componentToReturn;
+      const ppbId = ppb.id;
+
+      switch (ppb.type) {
+        case PresentationToolbarItemType.BUTTON:
+          componentToReturn = (
+            <Button
+              key={ppbId}
+              style={{ marginLeft: '2px' }}
+              label={ppb.label}
+              onClick={ppb.onClick}
+              tooltipLabel={ppb.tooltip}
+            />
+          );
+          break;
+        case PresentationToolbarItemType.SPINNER:
+          componentToReturn = (
+            <Spinner
+              key={ppbId}
+            />
+          );
+          break;
+        case PresentationToolbarItemType.SEPARATOR:
+          componentToReturn = (
+            <Separator />
+          );
+          break;
+        default:
+          componentToReturn = null;
+      }
+      return componentToReturn;
+    });
   }
 
   renderAriaDescs() {
@@ -192,15 +317,11 @@ class PresentationToolbar extends PureComponent {
     const { intl } = this.props;
     const optionList = [];
     for (let i = 1; i <= numberOfSlides; i += 1) {
-      optionList.push((
-        <option
-          value={i}
-          key={i}
-        >
-          {
-            intl.formatMessage(intlMessages.goToSlide, { 0: i })
-          }
-        </option>));
+      optionList.push(
+        <option value={i} key={i}>
+          {intl.formatMessage(intlMessages.goToSlide, { 0: i })}
+        </option>,
+      );
     }
 
     return optionList;
@@ -214,15 +335,14 @@ class PresentationToolbar extends PureComponent {
       fitToWidth,
       intl,
       zoom,
-      isFullscreen,
-      fullscreenRef,
       isMeteorConnected,
       isPollingEnabled,
       amIPresenter,
-      currentSlidHasContent,
-      parseCurrentSlideContent,
       startPoll,
       currentSlide,
+      slidePosition,
+      multiUserSize,
+      multiUser,
     } = this.props;
 
     const { isMobile } = deviceInfo;
@@ -232,143 +352,163 @@ class PresentationToolbar extends PureComponent {
 
     const prevSlideAriaLabel = startOfSlides
       ? intl.formatMessage(intlMessages.previousSlideLabel)
-      : `${intl.formatMessage(intlMessages.previousSlideLabel)} (${currentSlideNum <= 1 ? '' : (currentSlideNum - 1)})`;
+      : `${intl.formatMessage(intlMessages.previousSlideLabel)} (${currentSlideNum <= 1 ? '' : currentSlideNum - 1
+      })`;
 
     const nextSlideAriaLabel = endOfSlides
       ? intl.formatMessage(intlMessages.nextSlideLabel)
-      : `${intl.formatMessage(intlMessages.nextSlideLabel)} (${currentSlideNum >= 1 ? (currentSlideNum + 1) : ''})`;
+      : `${intl.formatMessage(intlMessages.nextSlideLabel)} (${currentSlideNum >= 1 ? currentSlideNum + 1 : ''
+      })`;
 
     return (
-      <div id="presentationToolbarWrapper" className={styles.presentationToolbarWrapper}>
+      <Styled.PresentationToolbarWrapper
+        id="presentationToolbarWrapper"
+      >
         {this.renderAriaDescs()}
-        {
-          <div>
-            {isPollingEnabled
-              ? (
-                <QuickPollDropdownContainer
-                  {...{
-                    currentSlidHasContent,
-                    intl,
-                    amIPresenter,
-                    parseCurrentSlideContent,
-                    startPoll,
-                    currentSlide,
-                  }}
-                  className={styles.presentationBtn}
-                />
-              ) : null
-          }
-          </div>
-        }
-        {
-          <div className={styles.presentationSlideControls}>
-            <Button
-              role="button"
-              aria-label={prevSlideAriaLabel}
-              aria-describedby={startOfSlides ? 'noPrevSlideDesc' : 'prevSlideDesc'}
-              disabled={startOfSlides || !isMeteorConnected}
-              color="default"
-              icon="left_arrow"
-              size="md"
-              onClick={this.previousSlideHandler}
-              label={intl.formatMessage(intlMessages.previousSlideLabel)}
-              hideLabel
-              className={cx(styles.prevSlide, styles.presentationBtn)}
-              data-test="prevSlide"
+        <Styled.QuickPollButtonWrapper>
+          {this.renderToolbarPluginItems()}
+          {isPollingEnabled ? (
+            <Styled.QuickPollButton
+              {...{
+                intl,
+                amIPresenter,
+                startPoll,
+                currentSlide,
+              }}
             />
+          ) : null}
 
-            <TooltipContainer title={intl.formatMessage(intlMessages.selectLabel)}>
-              <select
-                id="skipSlide"
-                aria-label={intl.formatMessage(intlMessages.skipSlideLabel)}
-                aria-describedby="skipSlideDesc"
-                aria-live="polite"
-                aria-relevant="all"
-                disabled={!isMeteorConnected}
-                value={currentSlideNum}
-                onChange={this.handleSkipToSlideChange}
-                className={styles.skipSlideSelect}
-                data-test="skipSlide"
-              >
-                {this.renderSkipSlideOpts(numberOfSlides)}
-              </select>
-            </TooltipContainer>
-            <Button
-              role="button"
-              aria-label={nextSlideAriaLabel}
-              aria-describedby={endOfSlides ? 'noNextSlideDesc' : 'nextSlideDesc'}
-              disabled={endOfSlides || !isMeteorConnected}
-              color="default"
-              icon="right_arrow"
-              size="md"
-              onClick={this.nextSlideHandler}
-              label={intl.formatMessage(intlMessages.nextSlideLabel)}
-              hideLabel
-              className={cx(styles.skipSlide, styles.presentationBtn)}
-              data-test="nextSlide"
-            />
-          </div>
-        }
-        {
-          <div className={styles.presentationZoomControls}>
-            {
-              !isMobile
-                ? (
-                  <TooltipContainer>
-                    <ZoomTool
-                      zoomValue={zoom}
-                      change={this.change}
-                      minBound={HUNDRED_PERCENT}
-                      maxBound={MAX_PERCENT}
-                      step={STEP}
-                      isMeteorConnected={isMeteorConnected}
-                    />
-                  </TooltipContainer>
-                )
-                : null
+          <SmartMediaShareContainer {...{ intl, currentSlide }} />
+        </Styled.QuickPollButtonWrapper>
+        <Styled.PresentationSlideControls>
+          <Styled.PrevSlideButton
+            role="button"
+            aria-label={prevSlideAriaLabel}
+            aria-describedby={
+              startOfSlides ? 'noPrevSlideDesc' : 'prevSlideDesc'
             }
-            <Button
-              role="button"
-              aria-describedby={fitToWidth ? 'fitPageDesc' : 'fitWidthDesc'}
-              aria-label={fitToWidth
-                ? `${intl.formatMessage(intlMessages.presentationLabel)} ${intl.formatMessage(intlMessages.fitToPage)}`
-                : `${intl.formatMessage(intlMessages.presentationLabel)} ${intl.formatMessage(intlMessages.fitToWidth)}`
-              }
-              color="default"
+            disabled={startOfSlides || !isMeteorConnected}
+            color="light"
+            circle
+            icon="left_arrow"
+            size="md"
+            onClick={this.previousSlideHandler}
+            label={intl.formatMessage(intlMessages.previousSlideLabel)}
+            hideLabel
+            data-test="prevSlide"
+          />
+
+          <TooltipContainer
+            title={intl.formatMessage(intlMessages.selectLabel)}
+          >
+            <Styled.SkipSlideSelect
+              id="skipSlide"
+              aria-label={intl.formatMessage(intlMessages.skipSlideLabel)}
+              aria-describedby="skipSlideDesc"
+              aria-live="polite"
+              aria-relevant="all"
               disabled={!isMeteorConnected}
-              icon="fit_to_width"
-              size="md"
-              circle={false}
-              onClick={fitToWidthHandler}
-              label={fitToWidth
-                ? intl.formatMessage(intlMessages.fitToPage)
-                : intl.formatMessage(intlMessages.fitToWidth)
-              }
-              hideLabel
-              className={cx(styles.fitToWidth, styles.presentationBtn)}
-            />
-            {
-              ALLOW_FULLSCREEN
-                ? (
-                  <FullscreenButtonContainer
-                    fullscreenRef={fullscreenRef}
-                    isFullscreen={isFullscreen}
-                    elementName={intl.formatMessage(intlMessages.presentationLabel)}
-                    className={styles.presentationBtn}
-                  />
-                )
-                : null
+              value={currentSlideNum}
+              onChange={this.handleSkipToSlideChange}
+              data-test="skipSlide"
+            >
+              {this.renderSkipSlideOpts(numberOfSlides)}
+            </Styled.SkipSlideSelect>
+          </TooltipContainer>
+          <Styled.NextSlideButton
+            role="button"
+            aria-label={nextSlideAriaLabel}
+            aria-describedby={
+              endOfSlides ? 'noNextSlideDesc' : 'nextSlideDesc'
             }
-          </div>
-        }
-      </div>
+            disabled={endOfSlides || !isMeteorConnected}
+            color="light"
+            circle
+            icon="right_arrow"
+            size="md"
+            onClick={this.nextSlideHandler}
+            label={intl.formatMessage(intlMessages.nextSlideLabel)}
+            hideLabel
+            data-test="nextSlide"
+          />
+        </Styled.PresentationSlideControls>
+        <Styled.PresentationZoomControls>
+          <Styled.WBAccessButton
+            data-test={multiUser ? 'turnMultiUsersWhiteboardOff' : 'turnMultiUsersWhiteboardOn'}
+            role="button"
+            aria-label={
+              multiUser
+                ? intl.formatMessage(intlMessages.toolbarMultiUserOff)
+                : intl.formatMessage(intlMessages.toolbarMultiUserOn)
+            }
+            color="light"
+            disabled={!isMeteorConnected}
+            icon={multiUser ? 'multi_whiteboard' : 'whiteboard'}
+            size="md"
+            circle
+            onClick={() => this.handleSwitchWhiteboardMode(!multiUser)}
+            label={
+              multiUser
+                ? intl.formatMessage(intlMessages.toolbarMultiUserOff)
+                : intl.formatMessage(intlMessages.toolbarMultiUserOn)
+            }
+            hideLabel
+          />
+          {multiUser ? (
+            <Styled.MultiUserTool
+              onClick={() => this.handleSwitchWhiteboardMode(!multiUser)}
+            >
+              {multiUserSize}
+            </Styled.MultiUserTool>
+          ) : (
+            <Styled.MUTPlaceholder />
+          )}
+          {!isMobile ? (
+            <TooltipContainer>
+              <ZoomTool
+                slidePosition={slidePosition}
+                zoomValue={zoom}
+                currentSlideNum={currentSlideNum}
+                change={this.change}
+                minBound={HUNDRED_PERCENT}
+                maxBound={MAX_PERCENT}
+                step={STEP}
+                isMeteorConnected={isMeteorConnected}
+              />
+            </TooltipContainer>
+          ) : null}
+          <Styled.FitToWidthButton
+            role="button"
+            data-test="fitToWidthButton"
+            aria-describedby={fitToWidth ? 'fitPageDesc' : 'fitWidthDesc'}
+            aria-label={
+              fitToWidth
+                ? `${intl.formatMessage(
+                  intlMessages.presentationLabel,
+                )} ${intl.formatMessage(intlMessages.fitToPage)}`
+                : `${intl.formatMessage(
+                  intlMessages.presentationLabel,
+                )} ${intl.formatMessage(intlMessages.fitToWidth)}`
+            }
+            color="light"
+            disabled={!isMeteorConnected}
+            icon="fit_to_width"
+            size="md"
+            circle
+            onClick={fitToWidthHandler}
+            label={fitToWidth
+              ? intl.formatMessage(intlMessages.fitToPage)
+              : intl.formatMessage(intlMessages.fitToWidth)}
+            hideLabel
+            $fitToWidth={fitToWidth}
+          />
+        </Styled.PresentationZoomControls>
+      </Styled.PresentationToolbarWrapper>
     );
   }
 }
 
 PresentationToolbar.propTypes = {
-  // The Id for the current pod. Should always be default pod
-  podId: PropTypes.string.isRequired,
   // Number of current slide being displayed
   currentSlideNum: PropTypes.number.isRequired,
   // Total number of slides in this presentation
@@ -383,15 +523,29 @@ PresentationToolbar.propTypes = {
   zoomChanger: PropTypes.func.isRequired,
   fitToWidthHandler: PropTypes.func.isRequired,
   fitToWidth: PropTypes.bool.isRequired,
-  fullscreenRef: PropTypes.instanceOf(Element),
-  isFullscreen: PropTypes.bool.isRequired,
   zoom: PropTypes.number.isRequired,
   isMeteorConnected: PropTypes.bool.isRequired,
+  fullscreenElementId: PropTypes.string.isRequired,
+  fullscreenAction: PropTypes.string.isRequired,
+  isFullscreen: PropTypes.bool.isRequired,
+  layoutContextDispatch: PropTypes.func.isRequired,
+  setIsPanning: PropTypes.func.isRequired,
+  multiUser: PropTypes.bool.isRequired,
+  whiteboardId: PropTypes.string.isRequired,
+  removeWhiteboardGlobalAccess: PropTypes.func.isRequired,
+  addWhiteboardGlobalAccess: PropTypes.func.isRequired,
+  fullscreenRef: PropTypes.instanceOf(Element),
+  handleToggleFullScreen: PropTypes.func.isRequired,
+  isPollingEnabled: PropTypes.bool.isRequired,
+  amIPresenter: PropTypes.bool.isRequired,
+  startPoll: PropTypes.func.isRequired,
+  currentSlide: PropTypes.shape().isRequired,
+  slidePosition: PropTypes.shape().isRequired,
+  multiUserSize: PropTypes.number.isRequired,
 };
 
 PresentationToolbar.defaultProps = {
   fullscreenRef: null,
 };
-
 
 export default injectWbResizeEvent(injectIntl(PresentationToolbar));

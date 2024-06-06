@@ -1,52 +1,100 @@
 import React from 'react';
-import { withModalMounter } from '/imports/ui/components/modal/service';
+import { useMutation } from '@apollo/client';
 import { withTracker } from 'meteor/react-meteor-data';
-import deviceInfo from '/imports/utils/deviceInfo';
-import Users from '/imports/api/users';
-import Meetings from '/imports/api/meetings';
-import Auth from '/imports/ui/services/auth';
 import Service from './service';
 import VideoPreview from './component';
-import VideoService from '../video-provider/service';
+import VideoService from '../video-provider/video-provider-graphql/service';
+import ScreenShareService from '/imports/ui/components/screenshare/service';
+import logger from '/imports/startup/client/logger';
+import { SCREENSHARING_ERRORS } from '/imports/api/screenshare/client/bridge/errors';
+import { EXTERNAL_VIDEO_STOP } from '../external-video-player/mutations';
+import {
+  useSharedDevices, useHasVideoStream, useHasCapReached, useIsUserLocked, useStreams,
+  useExitVideo,
+  useStopVideo,
+} from '/imports/ui/components/video-provider/video-provider-graphql/hooks';
 
-const VideoPreviewContainer = props => <VideoPreview {...props} />;
+const VideoPreviewContainer = (props) => {
+  const {
+    buildStartSharingCameraAsContent,
+    buildStopSharing,
+    hasCapReached,
+    ...rest
+  } = props;
+  const [stopExternalVideoShare] = useMutation(EXTERNAL_VIDEO_STOP);
 
-const ROLE_MODERATOR = Meteor.settings.public.user.role_moderator;
+  const { streams } = useStreams();
+  const exitVideo = useExitVideo();
+  const stopVideo = useStopVideo();
+  const startSharingCameraAsContent = buildStartSharingCameraAsContent(stopExternalVideoShare);
+  const stopSharing = buildStopSharing(streams, exitVideo, stopVideo);
+  const sharedDevices = useSharedDevices();
+  const hasVideoStream = useHasVideoStream();
+  const camCapReached = useHasCapReached();
+  const isCamLocked = useIsUserLocked();
 
-const isCamLocked = () => {
-  const meeting = Meetings.findOne({ meetingId: Auth.meetingID },
-    { fields: { 'lockSettingsProps.disableCam': 1 } });
-  const user = Users.findOne({ meetingId: Auth.meetingID, userId: Auth.userID },
-    { fields: { locked: 1, role: 1 } });
-
-  if (meeting.lockSettingsProps !== undefined) {
-    if (user.locked && user.role !== ROLE_MODERATOR) {
-      return meeting.lockSettingsProps.disableCam;
-    }
-  }
-  return false;
+  return (
+    <VideoPreview
+      {...{
+        startSharingCameraAsContent,
+        stopSharing,
+        sharedDevices,
+        hasVideoStream,
+        camCapReached,
+        isCamLocked,
+        ...rest,
+      }}
+    />
+  );
 };
 
-export default withModalMounter(withTracker(({ mountModal }) => ({
+export default withTracker(({ setIsOpen, callbackToClose }) => ({
   startSharing: (deviceId) => {
-    mountModal(null);
+    callbackToClose();
+    setIsOpen(false);
     VideoService.joinVideo(deviceId);
   },
-  stopSharing: (deviceId) => {
-    mountModal(null);
+  buildStartSharingCameraAsContent: (stopExternalVideoShare) => (deviceId) => {
+    callbackToClose();
+    setIsOpen(false);
+    const handleFailure = (error) => {
+      const {
+        errorCode = SCREENSHARING_ERRORS.UNKNOWN_ERROR.errorCode,
+        errorMessage = error.message,
+      } = error;
+
+      logger.error({
+        logCode: 'camera_as_content_failed',
+        extraInfo: { errorCode, errorMessage },
+      }, `Sharing camera as content failed: ${errorMessage} (code=${errorCode})`);
+
+      ScreenShareService.screenshareHasEnded();
+    };
+    ScreenShareService.shareScreen(
+      stopExternalVideoShare,
+      true, handleFailure, { stream: Service.getStream(deviceId)._mediaStream },
+    );
+    ScreenShareService.setCameraAsContentDeviceId(deviceId);
+  },
+  buildStopSharing: (streams, exitVideo, stopVideo) => (deviceId) => {
+    callbackToClose();
+    setIsOpen(false);
     if (deviceId) {
-      const stream = VideoService.getMyStream(deviceId);
-      if (stream) VideoService.stopVideo(stream);
+      const streamId = VideoService.getMyStreamId(deviceId, streams);
+      if (streamId) stopVideo(streamId);
     } else {
-      VideoService.exitVideo();
+      exitVideo();
     }
   },
-  sharedDevices: VideoService.getSharedDevices(),
-  isCamLocked: isCamLocked(),
-  closeModal: () => mountModal(null),
-  changeWebcam: deviceId => Service.changeWebcam(deviceId),
+  stopSharingCameraAsContent: () => {
+    callbackToClose();
+    setIsOpen(false);
+    ScreenShareService.screenshareHasEnded();
+  },
+  cameraAsContentDeviceId: ScreenShareService.getCameraAsContentDeviceId(),
+  closeModal: () => {
+    callbackToClose();
+    setIsOpen(false);
+  },
   webcamDeviceId: Service.webcamDeviceId(),
-  changeProfile: profileId => Service.changeProfile(profileId),
-  hasMediaDevices: deviceInfo.hasMediaDevices,
-  hasVideoStream: VideoService.hasVideoStream(),
-}))(VideoPreviewContainer));
+}))(VideoPreviewContainer);

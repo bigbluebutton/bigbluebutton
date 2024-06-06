@@ -22,5 +22,9 @@
   "oc": {
     "englishName": "Occitan",
     "nativeName": "Occitan"
+  },
+  "uz@Cyrl": {
+    "englishName": "Uzbek (Cyrillic)",
+    "nativeName": "ўзбек тили"
   }
 }

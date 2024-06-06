@@ -1,13 +1,17 @@
 import { Meteor } from 'meteor/meteor';
 
-const Users = new Mongo.Collection('users');
+const collectionOptions = Meteor.isClient ? {
+  connection: null,
+} : {};
+
+const Users = new Mongo.Collection('users', collectionOptions);
 
 if (Meteor.isServer) {
   // types of queries for the users:
   // 1. meetingId
   // 2. meetingId, userId
-
-  Users._ensureIndex({ meetingId: 1, userId: 1 });
+  // { connection: Meteor.isClient ? null : true }
+  Users.createIndexAsync({ meetingId: 1, userId: 1 });
 }
 
 export default Users;

@@ -13,7 +13,7 @@ if [ "$DOCKER_CHECK"  = "0" ]; then
 	apt update;
 	apt install apt-transport-https ca-certificates curl software-properties-common
 	curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo apt-key add -
-	add-apt-repository "deb [arch=amd64] https://download.docker.com/linux/ubuntu bionic stable"
+	add-apt-repository "deb [arch=amd64] https://download.docker.com/linux/ubuntu focal stable"
 	apt update
 	apt install docker-ce -y
 	systemctl enable docker
@@ -34,11 +34,9 @@ fi
 FOLDER_CHECK=`[ -d /usr/share/bbb-libreoffice-conversion/ ] && echo 1 || echo 0`
 if [ "$FOLDER_CHECK" = "0" ]; then
 	echo "Install folder doesn't exists, installing"
-	mkdir -m 755 /usr/share/bbb-libreoffice-conversion/
-	cp assets/convert-local.sh /usr/share/bbb-libreoffice-conversion/convert.sh
-	chmod 755 /usr/share/bbb-libreoffice-conversion/convert.sh
-	cp assets/etherpad-export.sh /usr/share/bbb-libreoffice-conversion/etherpad-export.sh
-	chmod 755 /usr/share/bbb-libreoffice-conversion/etherpad-export.sh
+	install -Dm755 assets/convert-local.sh /usr/share/bbb-libreoffice-conversion/convert.sh
+	install -Dm755 assets/convert-cool.sh /usr/share/bbb-libreoffice-conversion/convert-cool.sh
+	install -Dm755 assets/etherpad-export.sh /usr/share/bbb-libreoffice-conversion/etherpad-export.sh
 	chown -R root /usr/share/bbb-libreoffice-conversion/
 else
 	echo "Install folder already exists"
@@ -48,6 +46,8 @@ FILE_SUDOERS_CHECK=`[ -f /etc/sudoers.d/zzz-bbb-docker-libreoffice ] && echo 1 |
 if [ "$FILE_SUDOERS_CHECK" = "0" ]; then
 	echo "Sudoers file doesn't exists, installing"
 	cp assets/zzz-bbb-docker-libreoffice /etc/sudoers.d/zzz-bbb-docker-libreoffice
+	chmod 0440 /etc/sudoers.d/zzz-bbb-docker-libreoffice
+	chown root:root /etc/sudoers.d/zzz-bbb-docker-libreoffice
 else
 	echo "Sudoers file already exists"
 fi;

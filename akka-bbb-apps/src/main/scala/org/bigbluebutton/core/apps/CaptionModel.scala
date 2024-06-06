@@ -6,9 +6,9 @@ import scala.collection.immutable.HashMap
 class CaptionModel {
   private var transcripts = new HashMap[String, TranscriptVO]()
 
-  private def createTranscript(locale: String, localeCode: String, ownerId: String): TranscriptVO = {
-    val transcript = TranscriptVO(ownerId, "", localeCode)
-    transcripts += locale -> transcript
+  private def createTranscript(name: String, locale: String, ownerId: String): TranscriptVO = {
+    val transcript = TranscriptVO(ownerId, "", locale)
+    transcripts += name -> transcript
     transcript
   }
 
@@ -20,7 +20,7 @@ class CaptionModel {
     return None
   }
 
-  def updateTranscriptOwner(locale: String, localeCode: String, ownerId: String): Map[String, TranscriptVO] = {
+  def updateTranscriptOwner(name: String, locale: String, ownerId: String): Map[String, TranscriptVO] = {
     var updatedTranscripts = new HashMap[String, TranscriptVO]
 
     // clear owner from previous locale
@@ -33,14 +33,14 @@ class CaptionModel {
       })
     }
     // change the owner if it does exist
-    if (transcripts contains locale) {
-      val newTranscript = transcripts(locale).copy(ownerId = ownerId)
+    if (transcripts contains name) {
+      val newTranscript = transcripts(name).copy(ownerId = ownerId)
 
-      transcripts += locale -> newTranscript
-      updatedTranscripts += locale -> newTranscript
+      transcripts += name -> newTranscript
+      updatedTranscripts += name -> newTranscript
     } else { // create the locale if it doesn't exist
-      val addedTranscript = createTranscript(locale, localeCode, ownerId)
-      updatedTranscripts += locale -> addedTranscript
+      val addedTranscript = createTranscript(name, locale, ownerId)
+      updatedTranscripts += name -> addedTranscript
     }
 
     updatedTranscripts
@@ -50,28 +50,51 @@ class CaptionModel {
     transcripts
   }
 
-  def editHistory(userId: String, startIndex: Integer, endIndex: Integer, locale: String, text: String): Boolean = {
+  def editHistory(userId: String, startIndex: Integer, endIndex: Integer, name: String, text: String): Boolean = {
     var successfulEdit = false
     //println("editHistory entered")
-    if (transcripts contains locale) {
-      val oldTranscript = transcripts(locale)
-      if (oldTranscript.ownerId == userId) {
-        //println("editHistory found locale:" + locale)
-        val oText: String = transcripts(locale).text
+    if (transcripts contains name) {
+      val oldTranscript = transcripts(name)
+      if (oldTranscript.ownerId == userId || userId == "system") {
+        //println("editHistory found name:" + name)
+        val oText: String = transcripts(name).text
 
         if (startIndex >= 0 && endIndex <= oText.length && startIndex <= endIndex) {
           //println("editHistory passed index test")
           val sText: String = oText.substring(0, startIndex)
           val eText: String = oText.substring(endIndex)
 
-          transcripts += locale -> transcripts(locale).copy(text = (sText + text + eText))
-          //println("editHistory new history is: " + transcripts(locale).text)
+          transcripts += name -> transcripts(name).copy(text = (sText + text + eText))
+          //println("editHistory new history is: " + transcripts(name).text)
           successfulEdit = true
         }
       }
     }
 
     successfulEdit
+  }
+
+  def getTextTail(name: String): String = {
+    var tail = ""
+    if (transcripts contains name) {
+      val text = transcripts(name).text
+      if (text.size > 256) {
+        tail = text.slice(text.size - 256, text.size)
+      } else {
+        tail = text
+      }
+    }
+
+    tail
+  }
+
+  def getLocale(name: String): String = {
+    var locale = ""
+    if (transcripts contains name) {
+      locale = transcripts(name).locale
+    }
+
+    locale
   }
 
   def checkCaptionOwnerLogOut(userId: String): Option[(String, TranscriptVO)] = {
@@ -88,10 +111,10 @@ class CaptionModel {
     rtnTranscript
   }
 
-  def isUserCaptionOwner(userId: String, locale: String): Boolean = {
+  def isUserCaptionOwner(userId: String, name: String): Boolean = {
     var isOwner: Boolean = false;
 
-    if (transcripts.contains(locale) && transcripts(locale).ownerId == userId) {
+    if (transcripts.contains(name) && transcripts(name).ownerId == userId) {
       isOwner = true;
     }
 

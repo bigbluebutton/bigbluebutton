@@ -19,7 +19,7 @@
 
 require File.expand_path('../../../lib/recordandplayback', __FILE__)
 require 'logger'
-require 'trollop'
+require 'optimist'
 require 'yaml'
 
 AUDIO_ARCHIVE_FORMAT = {
@@ -54,7 +54,10 @@ def archive_notes(meeting_id, notes_endpoint, notes_formats, raw_archive_dir)
   FileUtils.mkdir_p(notes_dir)
 
   tmp_note = "#{notes_dir}/tmp_note.txt"
-  BigBlueButton.try_download("#{notes_endpoint}/#{CGI.escape notes_id}/export/txt", tmp_note)
+  base_path_notes = CGI.escape notes_id
+  if base_path_notes != "undefined"
+    BigBlueButton.try_download("#{notes_endpoint}/#{base_path_notes}/export/txt", tmp_note)
+  end
   if File.exist? tmp_note
     # If the notes are empty, do not archive them
     blank = false
@@ -108,6 +111,42 @@ def delete_audio(meeting_id, audio_dir)
   end
 end
 
+def remux_and_archive(source_dir, dest_dir)
+  files = Dir.glob("#{source_dir}/*")
+
+  if files.empty?
+    BigBlueButton.logger.warn("No media files found in #{source_dir}")
+    return
+  end
+
+  BigBlueButton.logger.info("Remuxing and archiving files at #{source_dir}")
+  FileUtils.mkdir_p(dest_dir)
+
+  files .each do |file|
+    ext = File.extname(file)
+    next if ext.empty?
+    # These can potentially be webm (VP8/VP9), mp4 (H.264), or mkv (VP8/VP9/H.264)
+    output_basename = File.join(dest_dir, File.basename(file, ext))
+    format = {
+      extension: ext.delete_prefix('.'),
+      parameters: [
+        %w[-c copy],
+      ]
+    }
+    BigBlueButton::EDL.encode(
+      nil,
+      file,
+      format,
+      output_basename
+    )
+  rescue StandardError => e
+    BigBlueButton.logger.warn("Failed to remux #{file}, archiving anyways: #{e}")
+    # Archive the file anyways - later steps (eg sanity) might strip it out
+    # if invalid or fix it if necessary
+    FileUtils.cp(file, "#{output_basename}#{ext}")
+  end
+end
+
 def archive_directory(source, dest)
   BigBlueButton.logger.info("Archiving contents of #{source}")
   FileUtils.mkdir_p(dest)
@@ -155,11 +194,11 @@ end
 
 ################## START ################################
 
-opts = Trollop::options do
+opts = Optimist::options do
   opt :meeting_id, "Meeting id to archive", type: :string
   opt :break_timestamp, "Chapter break end timestamp", type: :integer
 end
-Trollop::die :meeting_id, "must be provided" if opts[:meeting_id].nil?
+Optimist::die :meeting_id, "must be provided" if opts[:meeting_id].nil?
 
 meeting_id = opts[:meeting_id]
 break_timestamp = opts[:break_timestamp]
@@ -169,14 +208,16 @@ audio_dir = props['raw_audio_src']
 recording_dir = props['recording_dir']
 raw_archive_dir = "#{recording_dir}/raw"
 deskshare_dir = props['raw_deskshare_src']
-screenshare_dir = props['raw_screenshare_src']
 redis_host = props['redis_host']
 redis_port = props['redis_port']
 redis_password = props['redis_password']
 presentation_dir = props['raw_presentation_src']
-video_dir = props['raw_video_src']
 kurento_video_dir = props['kurento_video_src']
 kurento_screenshare_dir = props['kurento_screenshare_src']
+mediasoup_video_dir = props['mediasoup_video_src']
+mediasoup_screenshare_dir = props['mediasoup_screenshare_src']
+webrtc_recorder_video_dir = props['webrtc_recorder_video_src']
+webrtc_recorder_screenshare_dir = props['webrtc_recorder_screenshare_src']
 log_dir = props['log_dir']
 notes_endpoint = props['notes_endpoint']
 notes_formats = props['notes_formats']
@@ -201,26 +242,30 @@ archive_audio(meeting_id, audio_dir, raw_archive_dir)
 archive_notes(meeting_id, notes_endpoint, notes_formats, raw_archive_dir)
 # Presentation files
 archive_directory("#{presentation_dir}/#{meeting_id}/#{meeting_id}", "#{target_dir}/presentation")
-# Red5 media
-archive_directory("#{screenshare_dir}/#{meeting_id}", "#{target_dir}/deskshare")
-archive_directory("#{video_dir}/#{meeting_id}", "#{target_dir}/video/#{meeting_id}")
 # Kurento media
-archive_directory("#{kurento_screenshare_dir}/#{meeting_id}", "#{target_dir}/deskshare")
-archive_directory("#{kurento_video_dir}/#{meeting_id}", "#{target_dir}/video/#{meeting_id}")
+remux_and_archive("#{kurento_screenshare_dir}/#{meeting_id}", "#{target_dir}/deskshare")
+remux_and_archive("#{kurento_video_dir}/#{meeting_id}", "#{target_dir}/video/#{meeting_id}")
+# mediasoup media
+archive_directory("#{mediasoup_screenshare_dir}/#{meeting_id}", "#{target_dir}/deskshare")
+archive_directory("#{mediasoup_video_dir}/#{meeting_id}", "#{target_dir}/video/#{meeting_id}")
+# bbb-webrtc-recorder media
+remux_and_archive("#{webrtc_recorder_screenshare_dir}/#{meeting_id}", "#{target_dir}/deskshare")
+remux_and_archive("#{webrtc_recorder_video_dir}/#{meeting_id}", "#{target_dir}/video/#{meeting_id}")
 
 # If this was the last (or only) segment in a recording, delete the original media files
 if break_timestamp.nil?
   BigBlueButton.logger.info('Deleting originals of archived media files.')
   # FreeSWITCH Audio files
   delete_audio(meeting_id, audio_dir)
-  # Red5 media
-  # TODO: need to figure out how to set permissions used when red5 creates directories
-  # does this even matter? we're removing red5 soon...
-  # FileUtils.rm_rf("#{screenshare_dir}/#{meeting_id}")
-  # FileUtils.rm_rf("#{video_dir}/#{meeting_id}")
   # Kurento media
   FileUtils.rm_rf("#{kurento_screenshare_dir}/#{meeting_id}")
   FileUtils.rm_rf("#{kurento_video_dir}/#{meeting_id}")
+  # mediasoup media
+  FileUtils.rm_rf("#{mediasoup_screenshare_dir}/#{meeting_id}")
+  FileUtils.rm_rf("#{mediasoup_video_dir}/#{meeting_id}")
+  # bbb-webrtc-recorder media
+  FileUtils.rm_rf("#{webrtc_recorder_screenshare_dir}/#{meeting_id}")
+  FileUtils.rm_rf("#{webrtc_recorder_video_dir}/#{meeting_id}")
 end
 
 if not archive_has_recording_marks?(meeting_id, raw_archive_dir, break_timestamp)

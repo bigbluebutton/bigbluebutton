@@ -1,9 +1,12 @@
 package org.bigbluebutton.core.apps.users
 
 import org.bigbluebutton.common2.msgs._
-import org.bigbluebutton.core.models.{ RegisteredUsers, Roles, Users2x }
+import org.bigbluebutton.core.models.{ RegisteredUsers, Roles, UserState, Users2x }
 import org.bigbluebutton.core.running.{ LiveMeeting, OutMsgRouter }
 import org.bigbluebutton.core.apps.{ PermissionCheck, RightsManagementTrait }
+import org.bigbluebutton.LockSettingsUtil
+import org.bigbluebutton.core.db.NotificationDAO
+import org.bigbluebutton.core2.message.senders.{ MsgBuilder, Sender }
 
 trait ChangeUserRoleCmdMsgHdlr extends RightsManagementTrait {
   this: UsersApp =>
@@ -12,7 +15,7 @@ trait ChangeUserRoleCmdMsgHdlr extends RightsManagementTrait {
   val outGW: OutMsgRouter
 
   def handleChangeUserRoleCmdMsg(msg: ChangeUserRoleCmdMsg) {
-    if (permissionFailed(PermissionCheck.MOD_LEVEL, PermissionCheck.VIEWER_LEVEL, liveMeeting.users2x, msg.header.userId)) {
+    if (permissionFailed(PermissionCheck.MOD_LEVEL, PermissionCheck.VIEWER_LEVEL, liveMeeting.users2x, msg.header.userId) || liveMeeting.props.meetingProp.isBreakout) {
       val meetingId = liveMeeting.props.meetingProp.intId
       val reason = "No permission to change user role in meeting."
       PermissionCheck.ejectUserForFailedPermission(meetingId, msg.header.userId, reason, outGW, liveMeeting)
@@ -28,18 +31,52 @@ trait ChangeUserRoleCmdMsgHdlr extends RightsManagementTrait {
         } yield {
           RegisteredUsers.updateUserRole(liveMeeting.registeredUsers, u, userRole)
         }
-        val promoteGuest = !liveMeeting.props.usersProp.authenticatedGuest
+        val promoteGuest = !liveMeeting.props.usersProp.authenticatedGuest || liveMeeting.props.usersProp.allowPromoteGuestToModerator
         if (msg.body.role == Roles.MODERATOR_ROLE && (!uvo.guest || promoteGuest)) {
           // Promote non-guest users.
+          val notifyEvent = MsgBuilder.buildNotifyUserInMeetingEvtMsg(
+            msg.body.userId,
+            liveMeeting.props.meetingProp.intId,
+            "info",
+            "user",
+            "app.toast.promotedLabel",
+            "Notification message when promoted",
+            Vector()
+          )
+          outGW.send(notifyEvent)
+          NotificationDAO.insert(notifyEvent)
+
           Users2x.changeRole(liveMeeting.users2x, uvo, msg.body.role)
           val event = buildUserRoleChangedEvtMsg(liveMeeting.props.meetingProp.intId, msg.body.userId,
             msg.body.changedBy, Roles.MODERATOR_ROLE)
           outGW.send(event)
         } else if (msg.body.role == Roles.VIEWER_ROLE) {
-          Users2x.changeRole(liveMeeting.users2x, uvo, msg.body.role)
+          val notifyEvent = MsgBuilder.buildNotifyUserInMeetingEvtMsg(
+            msg.body.userId,
+            liveMeeting.props.meetingProp.intId,
+            "info",
+            "user",
+            "app.toast.demotedLabel",
+            "Notification message when demoted",
+            Vector()
+          )
+          outGW.send(notifyEvent)
+          NotificationDAO.insert(notifyEvent)
+
+          val newUvo: UserState = Users2x.changeRole(liveMeeting.users2x, uvo, msg.body.role)
           val event = buildUserRoleChangedEvtMsg(liveMeeting.props.meetingProp.intId, msg.body.userId,
             msg.body.changedBy, Roles.VIEWER_ROLE)
+
+          LockSettingsUtil.enforceCamLockSettingsForAllUsers(liveMeeting, outGW)
+
           outGW.send(event)
+        }
+
+        // Force reconnection with graphql to refresh permissions
+        for {
+          u <- RegisteredUsers.findWithUserId(uvo.intId, liveMeeting.registeredUsers)
+        } yield {
+          Sender.sendForceUserGraphqlReconnectionSysMsg(liveMeeting.props.meetingProp.intId, uvo.intId, u.sessionToken, "role_changed", outGW)
         }
       }
     }

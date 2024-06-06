@@ -44,7 +44,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 	<bean id="redisMessageDistributor"
 		class="org.bigbluebutton.api.messaging.MessageDistributor">
 		<property name="messageHandler">
-			<ref local="redisMessageHandler" />
+			<ref bean="redisMessageHandler" />
 		</property>
 		<property name="messageListeners">
 			<set>

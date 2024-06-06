@@ -3,6 +3,9 @@
 <response>
     <#-- Where code is a 'SUCCESS' String -->
     <returncode>${returnCode}</returncode>
-    <version>${version}</version>
+    <version>${apiVersion}</version>
+    <apiVersion>${apiVersion}</apiVersion>
+    <bbbVersion>${bbbVersion}</bbbVersion>
+    <graphqlWebsocketUrl>${graphqlWebsocketUrl}</graphqlWebsocketUrl>
 </response>
 </#compress>

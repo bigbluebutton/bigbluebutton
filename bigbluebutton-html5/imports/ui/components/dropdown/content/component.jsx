@@ -1,34 +1,14 @@
 import React, { Component, Children, cloneElement } from 'react';
-import PropTypes from 'prop-types';
-import cx from 'classnames';
-import { styles } from '../styles';
-
-const PLACEMENTS = [
-  'top left', 'top', 'top right',
-  'right top', 'right', 'right bottom',
-  'bottom right', 'bottom', 'bottom left',
-  'left bottom', 'left', 'left top',
-];
-
-const propTypes = {
-  /**
-   * Placements of the dropdown and its caret
-   * @defaultValue 'top'
-   */
-  placement: PropTypes.oneOf(PLACEMENTS),
-};
+import Styled from './styles';
 
 const defaultProps = {
-  placement: 'top',
   'aria-expanded': false,
 };
 
 export default class DropdownContent extends Component {
   render() {
     const {
-      placement,
       children,
-      className,
       dropdownToggle,
       dropdownShow,
       dropdownHide,
@@ -36,8 +16,6 @@ export default class DropdownContent extends Component {
       keepOpen,
       ...restProps
     } = this.props;
-
-    const placementName = placement.split(' ').join('-');
 
     const boundChildren = Children.map(children, child => cloneElement(child, {
       dropdownIsOpen,
@@ -48,18 +26,16 @@ export default class DropdownContent extends Component {
     }));
 
     return (
-      <div
+      <Styled.Content
         data-test="dropdownContent"
-        className={cx(styles.content, styles[placementName], className)}
         {...restProps}
       >
-        <div className={styles.scrollable}>
+        <Styled.Scrollable>
           {boundChildren}
-        </div>
-      </div>
+        </Styled.Scrollable>
+      </Styled.Content>
     );
   }
 }
 
-DropdownContent.propTypes = propTypes;
 DropdownContent.defaultProps = defaultProps;

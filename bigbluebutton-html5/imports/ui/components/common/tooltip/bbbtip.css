@@ -1,0 +1,18 @@
+.tippy-box[data-theme~='bbbtip']{
+    color:#fff;
+    background-color:#333333;
+    padding: .25rem .5rem;
+    border-radius: 4px;
+    user-select: none;
+}
+
+.tippy-box[data-theme~='bbbtip']>.tippy-svg-arrow{
+    fill: #333333;
+    background-color: transparent;
+}
+
+.tippy-box[data-theme~='bbbtip']>.tippy-content{
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}

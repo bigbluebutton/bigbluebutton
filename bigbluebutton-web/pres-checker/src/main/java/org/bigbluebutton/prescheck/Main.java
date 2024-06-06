@@ -33,9 +33,12 @@ public class Main {
 
   private boolean check(Main main, String file) {
   	boolean valid = true;
-  	XMLSlideShow xmlSlideShow;
+  	FileInputStream stream = null;
+  	XMLSlideShow xmlSlideShow = null;
+
       try {
-        xmlSlideShow = new XMLSlideShow(new FileInputStream(file));
+        stream = new FileInputStream(file);
+        xmlSlideShow = new XMLSlideShow(stream);
         valid &= !main.embedsEmf(xmlSlideShow);
         valid &= !main.containsTinyTileBackground(xmlSlideShow);
         valid &= !main.allSlidesAreHidden(xmlSlideShow);
@@ -43,6 +46,12 @@ public class Main {
         xmlSlideShow.close();
       } catch (IOException e) {
         valid = false;
+      } finally {
+          try {
+              if(stream != null) stream.close();
+          } catch(IOException e) {
+              e.printStackTrace();
+          }
       }
 
       return valid;
@@ -99,9 +108,9 @@ public class Main {
   private final class TinyTileBackgroundPredicate
       implements Predicate<XSLFPictureData> {
     public boolean evaluate(XSLFPictureData img) {
-      return img.getContentType() != null
-          && img.getContentType().equals("image/jpeg")
-          && LittleEndian.getLong(img.getChecksum()) == 4114937224L;
+        return img.getContentType() != null
+                && ((img.getContentType().equals("image/jpeg") && LittleEndian.getLong(img.getChecksum()) == 4114937224L) ||
+                (img.getContentType().equals("image/png") && LittleEndian.getLong(img.getChecksum()) == 3207965638L));
     }
   }
 

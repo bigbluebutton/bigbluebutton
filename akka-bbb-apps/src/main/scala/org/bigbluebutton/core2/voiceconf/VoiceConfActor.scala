@@ -1,6 +1,6 @@
 package org.bigbluebutton.core2.voiceconf
 
-import akka.actor.{ Actor, ActorLogging, FSM }
+import org.apache.pekko.actor.{ Actor, ActorLogging, FSM }
 import org.bigbluebutton.SystemConfiguration
 
 sealed trait VoiceConfState

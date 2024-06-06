@@ -14,11 +14,13 @@
     <load module="mod_commands"/>
     <load module="mod_conference"/>
     <load module="mod_dptools"/>
+    <load module="mod_audio_fork"/>
 
     <!-- Dialplan Interfaces -->
     <load module="mod_dialplan_xml"/>
 
     <!-- Codec Interfaces -->
+    <load module="mod_spandsp"/>
     <load module="mod_opus"/>
     <load module="mod_opusfile"/>
 

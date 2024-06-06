@@ -1,50 +1,38 @@
-import React, { useContext } from 'react';
+import React from 'react';
 import { withTracker } from 'meteor/react-meteor-data';
-import { Session } from 'meteor/session';
-import Auth from '/imports/ui/services/auth';
-import Storage from '/imports/ui/services/storage/session';
 import UserContent from './component';
-import GuestUsers from '/imports/api/guest-users/';
-import { NLayoutContext } from '../../layout/context/context';
-import { UsersContext } from '/imports/ui/components/components-data/users-context/context';
-
-const CLOSED_CHAT_LIST_KEY = 'closedChatList';
-const STARTED_CHAT_LIST_KEY = 'startedChatList';
+import WaitingUsersService from '/imports/ui/components/waiting-users/service';
+import useCurrentUser from '/imports/ui/core/hooks/useCurrentUser';
+import useMeeting from '/imports/ui/core/hooks/useMeeting';
 
 const UserContentContainer = (props) => {
-  const newLayoutContext = useContext(NLayoutContext);
-  const { newLayoutContextState, newLayoutContextDispatch } = newLayoutContext;
-  const { input } = newLayoutContextState;
-  const { sidebarContent } = input;
-  const { sidebarContentPanel } = sidebarContent;
-  const usingUsersContext = useContext(UsersContext);
-  const { users } = usingUsersContext;
-  const currentUser = {
-    userId: Auth.userID,
-    presenter: users[Auth.meetingID][Auth.userID].presenter,
-    locked: users[Auth.meetingID][Auth.userID].locked,
-    role: users[Auth.meetingID][Auth.userID].role,
-  };
+  const { data: currentUser } = useCurrentUser((user) => ({
+    userId: user.userId,
+    presenter: user.presenter,
+    locked: user.locked,
+    role: user.role,
+    isModerator: user.isModerator,
+  }));
+
+  const {
+    data: currentMeeting,
+  } = useMeeting((m) => ({
+    componentsFlags: m.componentsFlags,
+  }));
+  const { isGuestLobbyMessageEnabled } = WaitingUsersService;
+
   return (
     <UserContent
       {...{
-        newLayoutContextDispatch,
-        sidebarContentPanel,
+        isGuestLobbyMessageEnabled,
+        currentUser,
+        isTimerActive: currentMeeting?.componentsFlags?.hasTimer && currentUser.isModerator,
         ...props,
       }}
-      currentUser={currentUser}
     />
   );
 };
 
 export default withTracker(() => ({
-  pollIsOpen: Session.equals('isPollOpen', true),
-  forcePollOpen: Session.equals('forcePollOpen', true),
-  currentClosedChats: Storage.getItem(CLOSED_CHAT_LIST_KEY) || [],
-  startedChats: Session.get(STARTED_CHAT_LIST_KEY) || [],
-  pendingUsers: GuestUsers.find({
-    meetingId: Auth.meetingID,
-    approved: false,
-    denied: false,
-  }).fetch(),
+  isWaitingRoomEnabled: WaitingUsersService.isWaitingRoomEnabled(),
 }))(UserContentContainer);

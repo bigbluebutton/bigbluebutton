@@ -40,7 +40,7 @@ public class BezierPath extends ArrayList<BezierPath.Node>
     private static final long serialVersionUID=1L;
 
     /** Constant for having only control point C0 in effect. C0 is the point
-     * through whitch the curve passes. */
+     * through which the curve passes. */
     public static final int C0_MASK = 0;
     /** Constant for having control point C1 in effect (in addition
      * to C0). C1 controls the curve going towards C0.

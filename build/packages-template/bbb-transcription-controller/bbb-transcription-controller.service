@@ -1,0 +1,18 @@
+[Unit]
+Description=BigBlueButton Transcription Controller
+Wants=redis-server.service
+After=syslog.target network.target redis-server.service freeswitch.service bbb-apps-akka.service
+PartOf=bigbluebutton.target
+
+[Service]
+WorkingDirectory=/usr/local/bigbluebutton/bbb-transcription-controller
+ExecStart=/usr/bin/node app.js
+Restart=always
+SyslogIdentifier=bbb-transcription-controller
+User=bigbluebutton
+Group=bigbluebutton
+Environment=NODE_ENV=production
+Environment=NODE_CONFIG_DIR=/etc/bigbluebutton/bbb-transcription-controller/:/usr/local/bigbluebutton/bbb-transcription-controller/config/
+
+[Install]
+WantedBy=multi-user.target bigbluebutton.target

@@ -1,7 +1,7 @@
 package org.bigbluebutton.core.apps.voice
 
 import org.bigbluebutton.common2.msgs.{ BbbClientMsgHeader, BbbCommonEnvCoreMsg, BbbCoreEnvelope, MessageTypes, Routing, VoiceCallStateEvtMsg, VoiceCallStateEvtMsgBody, VoiceConfCallStateEvtMsg }
-import org.bigbluebutton.core.models.{ VoiceUserState, VoiceUsers }
+import org.bigbluebutton.core.db.{ UserVoiceConfStateDAO, UserVoiceDAO }
 import org.bigbluebutton.core.running.{ LiveMeeting, MeetingActor, OutMsgRouter }
 
 trait VoiceConfCallStateEvtMsgHdlr {
@@ -38,5 +38,9 @@ trait VoiceConfCallStateEvtMsgHdlr {
     val event = VoiceCallStateEvtMsg(header, body)
     val msgEvent = BbbCommonEnvCoreMsg(envelope, event)
     outGW.send(msgEvent)
+
+    if (msg.body.userId.nonEmpty) {
+      UserVoiceConfStateDAO.insertOrUpdate(liveMeeting.props.meetingProp.intId, msg.body.userId, msg.body.voiceConf, msg.body.callSession, msg.body.clientSession, msg.body.callState)
+    }
   }
 }

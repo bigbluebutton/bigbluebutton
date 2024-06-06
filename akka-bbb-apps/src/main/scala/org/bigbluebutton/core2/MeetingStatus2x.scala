@@ -1,7 +1,6 @@
 package org.bigbluebutton.core2
 
 import java.util.concurrent.TimeUnit
-
 import org.bigbluebutton.core.util.TimeUtil
 
 case class Permissions(
@@ -9,11 +8,12 @@ case class Permissions(
     disableMic:             Boolean = false,
     disablePrivChat:        Boolean = false,
     disablePubChat:         Boolean = false,
-    disableNote:            Boolean = false,
+    disableNotes:           Boolean = false,
     hideUserList:           Boolean = false,
-    lockedLayout:           Boolean = false,
     lockOnJoin:             Boolean = true,
-    lockOnJoinConfigurable: Boolean = false
+    lockOnJoinConfigurable: Boolean = false,
+    hideViewersCursor:      Boolean = false,
+    hideViewersAnnotation:  Boolean = false
 )
 
 case class MeetingExtensionProp(maxExtensions: Int = 2, numExtensions: Int = 0, extendByMinutes: Int = 20,
@@ -103,6 +103,7 @@ object MeetingStatus2x {
     status.permissionsChangedOn = System.currentTimeMillis()
   }
   def getPermissionsChangedOn(status: MeetingStatus2x): Long = status.permissionsChangedOn
+  def areNotesDisabled(status: MeetingStatus2x): Boolean = status.permissions.disableNotes
   def meetingHasEnded(status: MeetingStatus2x) = status.meetingEnded = true
   def hasMeetingEnded(status: MeetingStatus2x): Boolean = status.meetingEnded
   def timeNowInMinutes(status: MeetingStatus2x): Long = TimeUnit.NANOSECONDS.toMinutes(System.nanoTime())

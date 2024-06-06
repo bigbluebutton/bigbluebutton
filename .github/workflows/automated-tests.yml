@@ -1,0 +1,412 @@
+name: "Automated tests"
+on:
+  push:
+    branches:
+      - "develop"
+      - "v2.[5-9].x-release"
+      - "v[3-9].*.x-release"
+    paths-ignore:
+      - "docs/**"
+      - "**/*.md"
+  pull_request:
+    types: [opened, synchronize, reopened]
+    paths-ignore:
+      - "docs/**"
+      - "**/*.md"
+      - "bigbluebutton-html5/public/locales/*.json"
+permissions:
+  contents: read
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+jobs:
+  build-package:
+    runs-on: ubuntu-22.04
+    strategy:
+      fail-fast: false
+      matrix:
+        package:
+          [
+            bbb-apps-akka,
+            bbb-config,
+            bbb-export-annotations,
+            bbb-learning-dashboard,
+            bbb-playback-record,
+            bbb-graphql-server,
+            bbb-etherpad,
+            bbb-web,
+            bbb-fsesl-akka,
+            bbb-html5,
+            bbb-freeswitch,
+            bbb-webrtc,
+            others,
+          ]
+        include:
+          - package: bbb-apps-akka
+            cache-files-list: akka-bbb-apps bbb-common-message
+          - package: bbb-config
+            cache-files-list: bigbluebutton-config
+          - package: bbb-export-annotations
+            cache-files-list: bbb-export-annotations
+          - package: bbb-learning-dashboard
+            cache-files-list: bbb-learning-dashboard
+          - package: bbb-playback-record
+            build-list: bbb-playback bbb-playback-notes bbb-playback-podcast bbb-playback-presentation bbb-playback-screenshare bbb-playback-video bbb-record-core
+          - package: bbb-graphql-server
+            build-name: bbb-graphql-server
+            build-list: bbb-graphql-server bbb-graphql-middleware bbb-graphql-actions
+          - package: bbb-etherpad
+            cache-files-list: bbb-etherpad.placeholder.sh
+            cache-urls-list: https://api.github.com/repos/mconf/ep_pad_ttl/commits https://api.github.com/repos/alangecker/bbb-etherpad-plugin/commits https://api.github.com/repos/mconf/ep_redis_publisher/commits https://api.github.com/repos/alangecker/bbb-etherpad-skin/commits
+          - package: bbb-web
+            cache-files-list: bigbluebutton-web bbb-common-message bbb-common-web
+          - package: bbb-fsesl-akka
+            cache-files-list: akka-bbb-fsesl bbb-common-message
+          - package: bbb-html5
+            build-list: bbb-html5-nodejs bbb-html5
+            cache-files-list: bigbluebutton-html5
+          - package: bbb-freeswitch
+            build-list: bbb-freeswitch-core bbb-freeswitch-sounds
+            cache-files-list: freeswitch.placeholder.sh
+            cache-urls-list: http://bigbluebutton.org/downloads/sounds.tar.gz
+          - package: bbb-webrtc
+            build-list: bbb-webrtc-sfu bbb-webrtc-recorder
+            cache-files-list: bbb-webrtc-sfu.placeholder.sh bbb-webrtc-recorder.placeholder.sh
+          - package: others
+            build-list: bbb-mkclean bbb-pads bbb-libreoffice-docker bbb-transcription-controller bigbluebutton bbb-livekit
+    steps:
+      - uses: actions/checkout@v4
+      - name: Merge branches
+        uses: ./.github/actions/merge-branches
+      - name: Set cache-key vars
+        run: |
+          BUILD_DIRS="$(echo '${{ matrix.build-list || matrix.package }}' | sed 's/[^ ]\+/build\/packages-template\/&/g')"
+          echo "Including build dirs: $BUILD_DIRS"
+          echo "CACHE_KEY_FILES=$(echo '${{ matrix.cache-files-list }} '$BUILD_DIRS' .gitlab-ci.yml build/deb-helper.sh' | xargs -n1 git log -1 --format=%h -- | tr '\n' '-' | sed 's/-$//')" >> $GITHUB_ENV
+          echo "CACHE_KEY_URLS=$(echo '${{ matrix.cache-urls-list }}' | xargs -r -n 1 curl -Is | grep -i 'Last-Modified' | md5sum | cut -c1-10)" >> $GITHUB_ENV
+          cat bigbluebutton-config/bigbluebutton-release >> $GITHUB_ENV
+          echo "FORCE_GIT_REV=0" >> $GITHUB_ENV #used by setup.sh
+          echo "FORCE_COMMIT_DATE=0" >> $GITHUB_ENV #used by setup.sh
+      - name: Handle cache
+        if: matrix.cache-files-list != ''
+        id: cache-action
+        uses: actions/cache@v4
+        with:
+          path: artifacts.tar
+          key: ${{ runner.os }}-${{ matrix.package }}-${{ env.BIGBLUEBUTTON_RELEASE }}-commits-${{ env.CACHE_KEY_FILES }}-urls-${{ env.CACHE_KEY_URLS }}
+      - if: ${{ steps.cache-action.outputs.cache-hit != 'true' }}
+        name: Generate artifacts
+        shell: bash
+        run: |
+          ./build/get_external_dependencies.sh
+          echo "${{ matrix.build-list || matrix.package }}" | xargs -n 1 ./build/setup.sh
+          tar cvf artifacts.tar artifacts/
+      - name: Archive packages
+        uses: actions/upload-artifact@v4
+        with:
+          name: artifacts_${{ matrix.package }}.tar
+          path: artifacts.tar
+  install-and-run-tests:
+    needs: build-package
+    runs-on: ubuntu-22.04
+    strategy:
+      fail-fast: false
+      matrix:
+        shard: [1, 2, 3, 4, 5, 6, 7, 8]
+    env:
+      shard: ${{ matrix.shard }}/8
+    steps:
+      - uses: actions/checkout@v4
+      - name: Merge branches
+        uses: ./.github/actions/merge-branches
+      - run: ./build/get_external_dependencies.sh
+      - name: Download artifacts_bbb-apps-akka
+        uses: actions/download-artifact@v4
+        with:
+          name: artifacts_bbb-apps-akka.tar
+      - run: tar xf artifacts.tar
+      - name: Download artifacts_bbb-config
+        uses: actions/download-artifact@v4
+        with:
+          name: artifacts_bbb-config.tar
+      - run: tar xf artifacts.tar
+      - name: Download artifacts_bbb-export-annotations
+        uses: actions/download-artifact@v4
+        with:
+          name: artifacts_bbb-export-annotations.tar
+      - run: tar xf artifacts.tar
+      - name: Download artifacts_bbb-learning-dashboard
+        uses: actions/download-artifact@v4
+        with:
+          name: artifacts_bbb-learning-dashboard.tar
+      - run: tar xf artifacts.tar
+      - name: Download artifacts_bbb-playback-record
+        uses: actions/download-artifact@v4
+        with:
+          name: artifacts_bbb-playback-record.tar
+      - run: tar xf artifacts.tar
+      - name: Download artifacts_bbb-graphql-server
+        uses: actions/download-artifact@v4
+        with:
+          name: artifacts_bbb-graphql-server.tar
+      - run: tar xf artifacts.tar
+      - name: Download artifacts_bbb-etherpad
+        uses: actions/download-artifact@v4
+        with:
+          name: artifacts_bbb-etherpad.tar
+      - run: tar xf artifacts.tar
+      - name: Download artifacts_bbb-freeswitch
+        uses: actions/download-artifact@v4
+        with:
+          name: artifacts_bbb-freeswitch.tar
+      - run: tar xf artifacts.tar
+      - name: Download artifacts_bbb-webrtc
+        uses: actions/download-artifact@v4
+        with:
+          name: artifacts_bbb-webrtc.tar
+      - run: tar xf artifacts.tar
+      - name: Download artifacts_bbb-web
+        uses: actions/download-artifact@v4
+        with:
+          name: artifacts_bbb-web.tar
+      - run: tar xf artifacts.tar
+      - name: Download artifacts_bbb-fsesl-akka
+        uses: actions/download-artifact@v4
+        with:
+          name: artifacts_bbb-fsesl-akka.tar
+      - run: tar xf artifacts.tar
+      - name: Download artifacts_bbb-html5
+        uses: actions/download-artifact@v4
+        with:
+          name: artifacts_bbb-html5.tar
+      - run: tar xf artifacts.tar
+      - name: Download artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: artifacts_others.tar
+      - run: tar xf artifacts.tar
+      - name: Extracting files .tar
+        run: |
+          set -e
+          pwd
+          echo "----ls artifacts/----"
+          ls artifacts/
+          echo "Done"
+      - name: Generate CA
+        run: |
+          sudo -i <<EOF
+          set -e
+          mkdir /root/bbb-ci-ssl/
+          cd /root/bbb-ci-ssl/
+          openssl rand -base64 48 > /root/bbb-ci-ssl/bbb-dev-ca.pass ;
+          chmod 600 /root/bbb-ci-ssl/bbb-dev-ca.pass ;
+          openssl genrsa -des3 -out bbb-dev-ca.key -passout file:/root/bbb-ci-ssl/bbb-dev-ca.pass 2048 ;
+          openssl req -x509 -new -nodes -key bbb-dev-ca.key -sha256 -days 1460 -passin file:/root/bbb-ci-ssl/bbb-dev-ca.pass -out bbb-dev-ca.crt -subj "/C=CA/ST=BBB/L=BBB/O=BBB/OU=BBB/CN=BBB-DEV" ;
+          EOF
+      - name: Trust CA
+        run: |
+          sudo -i <<EOF
+          set -e
+          sudo mkdir /usr/local/share/ca-certificates/bbb-dev/
+          sudo cp /root/bbb-ci-ssl/bbb-dev-ca.crt /usr/local/share/ca-certificates/bbb-dev/
+          sudo chmod 644 /usr/local/share/ca-certificates/bbb-dev/bbb-dev-ca.crt
+          sudo update-ca-certificates
+          EOF
+      - name: Generate certificate
+        run: |
+          sudo sh -c '
+          cd /root/bbb-ci-ssl/
+          echo "$(hostname -I | cut -d" " -f1) bbb-ci.test" >> /etc/hosts
+          openssl genrsa -out bbb-ci.test.key 2048
+          rm -f bbb-ci.test.csr bbb-ci.test.crt bbb-ci.test.key
+          cat > bbb-ci.test.ext << EOF
+          authorityKeyIdentifier=keyid,issuer
+          basicConstraints=CA:FALSE
+          keyUsage = digitalSignature, nonRepudiation, keyEncipherment, dataEncipherment
+          subjectAltName = @alt_names
+          [alt_names]
+          DNS.1 = bbb-ci.test
+          EOF
+          openssl req -nodes -newkey rsa:2048 -keyout bbb-ci.test.key -out bbb-ci.test.csr -subj "/C=CA/ST=BBB/L=BBB/O=BBB/OU=BBB/CN=bbb-ci.test" -addext "subjectAltName = DNS:bbb-ci.test"
+          openssl x509 -req -in bbb-ci.test.csr -CA bbb-dev-ca.crt -CAkey bbb-dev-ca.key -CAcreateserial -out bbb-ci.test.crt -days 825 -sha256 -passin file:/root/bbb-ci-ssl/bbb-dev-ca.pass -extfile bbb-ci.test.ext
+          cd
+
+          mkdir -p /local/certs/
+          cp /root/bbb-ci-ssl/bbb-dev-ca.crt /local/certs/
+          cat /root/bbb-ci-ssl/bbb-ci.test.crt > /local/certs/fullchain.pem
+          cat /root/bbb-ci-ssl/bbb-dev-ca.crt >> /local/certs/fullchain.pem
+          cat /root/bbb-ci-ssl/bbb-ci.test.key > /local/certs/privkey.pem
+          '
+      - name: Setup local repository
+        shell: bash
+        run: |
+          sudo -i <<EOF
+          set -e
+          apt install -yq dpkg-dev
+          cd /root && wget -nv http://ci.bbb.imdt.dev/cache-3rd-part-packages.tar
+          cp -r /home/runner/work/bigbluebutton/bigbluebutton/artifacts/ /artifacts/
+          cd /artifacts && tar xf /root/cache-3rd-part-packages.tar
+          cd /artifacts && dpkg-scanpackages . /dev/null | gzip -9c > Packages.gz
+          echo "deb [trusted=yes] file:/artifacts/ ./" >> /etc/apt/sources.list
+          EOF
+      - name: Prepare for install
+        run: |
+          sudo sh -c '
+          apt --purge -y remove apache2-bin
+          '
+      - name: Install BBB
+        uses: nick-fields/retry@v3
+        env:
+          NODE_EXTRA_CA_CERTS: /usr/local/share/ca-certificates/bbb-dev/bbb-dev-ca.crt
+          ACTIONS_RUNNER_DEBUG: true
+        with:
+          timeout_minutes: 25
+          max_attempts: 2
+          command: |
+            sudo -i <<EOF
+            set -e
+            cd /root/ && wget -nv https://raw.githubusercontent.com/bigbluebutton/bbb-install/v3.0.x-release/bbb-install.sh -O bbb-install.sh
+            cat bbb-install.sh | sed "s|> /etc/apt/sources.list.d/bigbluebutton.list||g" | bash -s -- -v jammy-30-dev -s bbb-ci.test -j -d /certs/
+            bbb-conf --salt bbbci
+            sed -i "s/\"minify\": true,/\"minify\": false,/" /usr/share/etherpad-lite/settings.json
+            bbb-conf --restart
+            EOF
+      - name: List systemctl services
+        timeout-minutes: 1
+        run: |
+          sudo -i <<EOF
+          systemctl --type=service --state=running,exited,failed --all --no-pager --no-legend
+          EOF
+      - name: Install test dependencies
+        working-directory: ./bigbluebutton-tests/playwright
+        run: |
+          sh -c '
+          npm ci
+          npx playwright install-deps
+          npx playwright install
+          '
+      - name: Run tests
+        uses: nick-fields/retry@v3
+        with:
+          timeout_minutes: 25
+          max_attempts: 2
+          command: |
+            cd ./bigbluebutton-tests/playwright
+            npm run test-chromium-ci -- --shard ${{ env.shard }}
+        env:
+          NODE_EXTRA_CA_CERTS: /usr/local/share/ca-certificates/bbb-dev/bbb-dev-ca.crt
+          ACTIONS_RUNNER_DEBUG: true
+          BBB_URL: https://bbb-ci.test/bigbluebutton/api
+          BBB_SECRET: bbbci
+      - name: Run Firefox tests
+        working-directory: ./bigbluebutton-tests/playwright
+        if: |
+          contains(github.event.pull_request.labels.*.name, 'test Firefox') ||
+          contains(github.event.pull_request.labels.*.name, 'Test Firefox')
+        env:
+          NODE_EXTRA_CA_CERTS: /usr/local/share/ca-certificates/bbb-dev/bbb-dev-ca.crt
+          ACTIONS_RUNNER_DEBUG: true
+          BBB_URL: https://bbb-ci.test/bigbluebutton/api
+          BBB_SECRET: bbbci
+        # patch playwright's firefox so that it uses the system's root certificate authority
+        run: |
+          sh -c '
+          find $HOME/.cache/ms-playwright -name libnssckbi.so -exec rm {} \; -exec ln -s /usr/lib/x86_64-linux-gnu/pkcs11/p11-kit-trust.so {} \;
+          npm run test-firefox-ci -- --shard ${{ env.shard }}
+          '
+      - if: always() && github.event_name == 'pull_request'
+        name: Upload blob report to GitHub Actions Artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: blob-report-${{ matrix.shard }}
+          path: bigbluebutton-tests/playwright/blob-report
+      - if: failure()
+        name: Prepare artifacts (configs and logs)
+        run: |
+          sudo -i <<EOF
+          mkdir configs
+          cp /etc/haproxy/haproxy.cfg configs/haproxy.cfg
+          touch /etc/bigbluebutton/turn-stun-servers.xml
+          cp /etc/bigbluebutton/turn-stun-servers.xml configs/turn-stun-servers.xml
+          cp /opt/freeswitch/etc/freeswitch/vars.xml configs/freeswitch_vars.xml
+          cp /opt/freeswitch/etc/freeswitch/sip_profiles/external.xml configs/freeswitch_sip_profiles_external.xml
+          cp /etc/bigbluebutton/bbb-apps-akka.conf configs/bbb-apps-akka.conf
+          cp /etc/bigbluebutton/bbb-fsesl-akka.conf configs/bbb-fsesl-akka.conf
+          cp /etc/bigbluebutton/bbb-html5.yml configs/bbb-html5.yml
+          cp /etc/bigbluebutton/bbb-web.properties configs/bbb-web.properties
+          cp /etc/bigbluebutton/bigbluebutton-release configs/bigbluebutton-release
+          cp /etc/bigbluebutton/turn-stun-servers.xml configs/turn-stun-servers.xml
+          cp /usr/local/bigbluebutton/bbb-webrtc-sfu/config/default.yml configs/bbb-webrtc-sfu-default.yml
+          cp /etc/bbb-webrtc-recorder/bbb-webrtc-recorder.yml configs/bbb-webrtc-recorder-default.yml
+          cp /usr/share/bigbluebutton/nginx/sip.nginx configs/nginx_sip.nginx
+          cp /etc/hosts /configs/hosts
+          mv configs /home/runner/work/bigbluebutton/bigbluebutton/configs
+          chmod a+r -R /home/runner/work/bigbluebutton/bigbluebutton/configs
+          bbb-conf --zip
+          ls -t /root/*.tar.gz | head -1 | xargs -I '{}' cp '{}' /home/runner/work/bigbluebutton/bigbluebutton/bbb-logs.tar.gz
+          echo "MATRIX_SHARD=${{ matrix.shard }}_8" >> $GITHUB_ENV
+          EOF
+      - if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: bbb-configs-${{ env.MATRIX_SHARD }}
+          path: configs
+      - if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: bbb-logs-${{ env.MATRIX_SHARD }}
+          path: ./bbb-logs.tar.gz
+  upload-report:
+    if: always() && !contains(github.event.head_commit.message, 'Merge pull request')
+    needs: install-and-run-tests
+    runs-on: ubuntu-latest
+    env:
+      hasReportData: ${{ needs.install-and-run-tests.result == 'success' || needs.install-and-run-tests.result == 'failure' }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 18
+      - name: Install dependencies
+        if: ${{ env.hasReportData }}
+        working-directory: ./bigbluebutton-tests/playwright
+        run: npm ci
+      - name: Merge artifacts
+        uses: actions/upload-artifact/merge@v4
+        with:
+          name: all-blob-reports
+          pattern: blob-report-*
+          delete-merged: true
+      - name: Download all blob reports from GitHub Actions Artifacts
+        if: ${{ env.hasReportData }}
+        uses: actions/download-artifact@v4
+        with:
+          pattern: all-blob-reports-*
+          path: bigbluebutton-tests/playwright/all-blob-reports
+          merge-multiple: true
+      - name: Merge into HTML Report
+        if: ${{ env.hasReportData }}
+        working-directory: ./bigbluebutton-tests/playwright
+        run: npx playwright merge-reports --reporter html ./all-blob-reports
+      - name: Upload HTML tests report
+        if: ${{ env.hasReportData }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: tests-report
+          overwrite: true
+          path: |
+            bigbluebutton-tests/playwright/playwright-report
+            bigbluebutton-tests/playwright/test-results
+      - name: Write PR data for auto-comment
+        if: github.event_name == 'pull_request'
+        working-directory: ./
+        run: |
+          mkdir -p ./pr-comment-data
+          echo ${{ github.event.number }} > ./pr-comment-data/pr_number
+          echo ${{ github.run_id }} > ./pr-comment-data/workflow_id
+      - name: Upload PR data for auto-comment
+        if: github.event_name == 'pull_request'
+        uses: actions/upload-artifact@v4
+        with:
+          name: pr-comment-data
+          path: pr-comment-data

@@ -1,127 +1,56 @@
 import React, { PureComponent } from 'react';
 import PropTypes from 'prop-types';
-import { styles } from './styles';
-import UserParticipantsContainer from './user-participants/container';
-import UserMessages from './user-messages/container';
-import UserNotesContainer from './user-notes/container';
-import UserCaptionsContainer from './user-captions/container';
-import WaitingUsers from './waiting-users/component';
-import UserPolls from './user-polls/component';
-import BreakoutRoomItem from './breakout-room/component';
+import Styled from './styles';
+import UserListParticipants from './user-participants/user-list-participants/component';
+import ChatList from './user-messages/chat-list/component';
+import UserNotesContainer from '../user-list-graphql/user-list-content/user-notes/component';
+import TimerContainer from './timer/container';
+import GuestPanelOpenerContainer from '../user-list-graphql/user-participants-title/guest-panel-opener/component';
+import UserPollsContainer from './user-polls/container';
+import BreakoutRoomContainer from './breakout-room/container';
+import { isChatEnabled } from '/imports/ui/services/features';
+import UserTitleContainer from '../user-list-graphql/user-participants-title/component';
 
 const propTypes = {
+  currentUser: PropTypes.shape({
+    role: PropTypes.string.isRequired,
+    presenter: PropTypes.bool.isRequired,
+  }),
   compact: PropTypes.bool,
-  intl: PropTypes.shape({
-    formatMessage: PropTypes.func.isRequired,
-  }).isRequired,
-  currentUser: PropTypes.shape({}).isRequired,
-  isPublicChat: PropTypes.func.isRequired,
-  setEmojiStatus: PropTypes.func.isRequired,
-  clearAllEmojiStatus: PropTypes.func.isRequired,
-  roving: PropTypes.func.isRequired,
-  pollIsOpen: PropTypes.bool.isRequired,
-  forcePollOpen: PropTypes.bool.isRequired,
-  requestUserInformation: PropTypes.func.isRequired,
+  isTimerActive: PropTypes.bool,
 };
 
+const ROLE_MODERATOR = window.meetingClientSettings.public.user.role_moderator;
 const defaultProps = {
+  currentUser: {
+    role: '',
+    presenter: false,
+  },
   compact: false,
+  isTimerActive: false,
 };
-const CHAT_ENABLED = Meteor.settings.public.chat.enabled;
-const ROLE_MODERATOR = Meteor.settings.public.user.role_moderator;
 
 class UserContent extends PureComponent {
   render() {
     const {
-      compact,
-      intl,
       currentUser,
-      setEmojiStatus,
-      clearAllEmojiStatus,
-      roving,
-      isPublicChat,
-      pollIsOpen,
-      forcePollOpen,
-      hasBreakoutRoom,
-      pendingUsers,
-      requestUserInformation,
-      currentClosedChats,
-      sidebarContentPanel,
-      newLayoutContextDispatch,
-      startedChats,
+      isTimerActive,
+      compact,
     } = this.props;
 
     return (
-      <div
-        data-test="userListContent"
-        className={styles.content}
-      >
-        {CHAT_ENABLED
-          ? (
-            <UserMessages
-              {...{
-                isPublicChat,
-                compact,
-                intl,
-                roving,
-                currentClosedChats,
-                startedChats,
-              }}
-            />
-          ) : null}
-        {currentUser.role === ROLE_MODERATOR
-          ? (
-            <UserCaptionsContainer
-              {...{
-                intl,
-              }}
-            />
-          ) : null}
-        <UserNotesContainer
-          {...{
-            intl,
-          }}
-        />
-        {pendingUsers.length > 0 && currentUser.role === ROLE_MODERATOR
-          ? (
-            <WaitingUsers
-              {...{
-                intl,
-                pendingUsers,
-                sidebarContentPanel,
-                newLayoutContextDispatch,
-              }}
-            />
-          ) : null}
-        <UserPolls
-          isPresenter={currentUser.presenter}
-          {...{
-            pollIsOpen,
-            forcePollOpen,
-            sidebarContentPanel,
-            newLayoutContextDispatch,
-          }}
-        />
-        <BreakoutRoomItem
-          isPresenter={currentUser.presenter}
-          {...{
-            hasBreakoutRoom,
-            sidebarContentPanel,
-            newLayoutContextDispatch,
-          }}
-        />
-        <UserParticipantsContainer
-          {...{
-            compact,
-            intl,
-            currentUser,
-            setEmojiStatus,
-            clearAllEmojiStatus,
-            roving,
-            requestUserInformation,
-          }}
-        />
-      </div>
+      <Styled.Content data-test="userListContent">
+        {isChatEnabled() ? <ChatList /> : null}
+        <UserNotesContainer />
+        {isTimerActive && <TimerContainer isModerator={currentUser?.role === ROLE_MODERATOR} />}
+        {currentUser?.role === ROLE_MODERATOR ? (
+          <GuestPanelOpenerContainer />
+        ) : null}
+        <UserPollsContainer isPresenter={currentUser?.presenter} />
+        <BreakoutRoomContainer />
+        <UserTitleContainer />
+        <UserListParticipants compact={compact} />
+      </Styled.Content>
     );
   }
 }

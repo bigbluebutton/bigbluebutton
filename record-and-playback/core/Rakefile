@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require 'resque/tasks'
+require 'rake/testtask'
 
 task 'resque:setup' => :environment do
   props = BigBlueButton.read_props
@@ -16,4 +17,10 @@ end
 task :environment do
   require_relative 'lib/boot'
   require 'recordandplayback/workers'
+end
+
+Rake::TestTask.new(:test) do |t|
+  t.libs << 'test'
+  t.libs << 'lib'
+  t.test_files = FileList['test/**/test_*.rb']
 end

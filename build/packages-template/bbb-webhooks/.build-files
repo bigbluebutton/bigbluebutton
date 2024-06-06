@@ -1,0 +1,7 @@
+after-install.sh
+bbb-webhooks.service
+before-install.sh
+before-remove.sh
+build.sh
+opts-jammy.sh
+webhooks.nginx

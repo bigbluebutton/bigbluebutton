@@ -1,14 +1,15 @@
 import { Meteor } from 'meteor/meteor';
 import { withTracker } from 'meteor/react-meteor-data';
-import React, { Fragment } from 'react';
+import React, { useEffect } from 'react';
 import { defineMessages, injectIntl } from 'react-intl';
-import _ from 'lodash';
 import Auth from '/imports/ui/services/auth';
-import Meetings, { MeetingTimeRemaining } from '/imports/api/meetings';
-import BreakoutRemainingTime from '/imports/ui/components/breakout-room/breakout-remaining-time/container';
-import { styles } from './styles.scss';
+import Meetings from '/imports/api/meetings';
+import { isEmpty } from 'radash';
+import MeetingRemainingTime from '/imports/ui/components/common/remaining-time/meeting-duration/component';
+import Styled from './styles';
+import { layoutSelectInput, layoutDispatch } from '../layout/context';
+import { ACTIONS } from '../layout/enums';
 
-import breakoutService from '/imports/ui/components/breakout-room/service';
 import NotificationsBar from './component';
 
 // disconnected and trying to open a new connection
@@ -19,11 +20,6 @@ const STATUS_FAILED = 'failed';
 
 // failed to connect and waiting to try to reconnect
 const STATUS_WAITING = 'waiting';
-
-const METEOR_SETTINGS_APP = Meteor.settings.public.app;
-
-const REMAINING_TIME_THRESHOLD = METEOR_SETTINGS_APP.remainingTimeThreshold;
-const REMAINING_TIME_ALERT_THRESHOLD = METEOR_SETTINGS_APP.remainingTimeAlertThreshold;
 
 const intlMessages = defineMessages({
   failedMessage: {
@@ -42,25 +38,9 @@ const intlMessages = defineMessages({
     id: 'app.retryNow',
     description: 'Retry now text for reconnection counter',
   },
-  breakoutTimeRemaining: {
-    id: 'app.breakoutTimeRemainingMessage',
-    description: 'Message that tells how much time is remaining for the breakout room',
-  },
-  breakoutWillClose: {
-    id: 'app.breakoutWillCloseMessage',
-    description: 'Message that tells time has ended and breakout will close',
-  },
   calculatingBreakoutTimeRemaining: {
     id: 'app.calculatingBreakoutTimeRemaining',
     description: 'Message that tells that the remaining time is being calculated',
-  },
-  meetingTimeRemaining: {
-    id: 'app.meeting.meetingTimeRemaining',
-    description: 'Message that tells how much time is remaining for the meeting',
-  },
-  meetingWillClose: {
-    id: 'app.meeting.meetingTimeHasEnded',
-    description: 'Message that tells time has ended and meeting will close',
   },
   alertMeetingEndsUnderMinutes: {
     id: 'app.meeting.alertMeetingEndsUnderMinutes',
@@ -74,10 +54,26 @@ const intlMessages = defineMessages({
 
 const NotificationsBarContainer = (props) => {
   const { message, color } = props;
-  if (_.isEmpty(message)) {
+
+  const notificationsBar = layoutSelectInput((i) => i.notificationsBar);
+  const layoutContextDispatch = layoutDispatch();
+
+  const { hasNotification } = notificationsBar;
+
+  useEffect(() => {
+    const localHasNotification = !!message;
+
+    if (localHasNotification !== hasNotification) {
+      layoutContextDispatch({
+        type: ACTIONS.SET_HAS_NOTIFICATIONS_BAR,
+        value: localHasNotification,
+      });
+    }
+  }, [message, hasNotification]);
+
+  if (isEmpty(message)) {
     return null;
   }
-
 
   return (
     <NotificationsBar color={color}>
@@ -134,12 +130,12 @@ export default injectIntl(withTracker(({ intl }) => {
         const sec = Math.round((retryTime - (new Date()).getTime()) / 1000);
         retryInterval = startCounter(sec, setRetrySeconds, getRetrySeconds, retryInterval);
         data.message = (
-          <Fragment>
+          <>
             {intl.formatMessage(intlMessages.waitingMessage, { 0: getRetrySeconds() })}
-            <button className={styles.retryButton} type="button" onClick={reconnect}>
+            <Styled.RetryButton type="button" onClick={reconnect}>
               {intl.formatMessage(intlMessages.retryNow)}
-            </button>
-          </Fragment>
+            </Styled.RetryButton>
+          </>
         );
         break;
       }
@@ -151,50 +147,22 @@ export default injectIntl(withTracker(({ intl }) => {
   }
 
   const meetingId = Auth.meetingID;
-  const breakouts = breakoutService.getBreakouts();
 
-  const msg = { id: `${intlMessages.alertBreakoutEndsUnderMinutes.id}${REMAINING_TIME_ALERT_THRESHOLD == 1 ? 'Singular' : 'Plural'}` };
+  const Meeting = Meetings.findOne({ meetingId },
+    { fields: { isBreakout: 1, componentsFlags: 1 } });
 
-  if (breakouts.length > 0) {
-    const currentBreakout = breakouts.find(b => b.breakoutId === meetingId);
-
-    if (currentBreakout) {
-      data.message = (
-        <BreakoutRemainingTime
-          breakoutRoom={currentBreakout}
-          messageDuration={intlMessages.breakoutTimeRemaining}
-          timeEndedMessage={intlMessages.breakoutWillClose}
-          alertMessage={
-            intl.formatMessage(msg, {0: REMAINING_TIME_ALERT_THRESHOLD})
-          }
-          alertUnderMinutes={REMAINING_TIME_ALERT_THRESHOLD}
-        />
-      );
-    }
+  if (Meeting.isBreakout) {
+    data.message = (
+      <MeetingRemainingTime />
+    );
   }
 
-  const meetingTimeRemaining = MeetingTimeRemaining.findOne({ meetingId });
-  const Meeting = Meetings.findOne({ meetingId },
-    { fields: { 'meetingProp.isBreakout': 1 } });
+  if (Meeting) {
+    const { isBreakout, componentsFlags } = Meeting;
 
-  if (meetingTimeRemaining && Meeting) {
-    const { timeRemaining } = meetingTimeRemaining;
-    const { isBreakout } = Meeting.meetingProp;
-    const underThirtyMin = timeRemaining && timeRemaining <= (REMAINING_TIME_THRESHOLD * 60);
-
-    const msg = { id: `${intlMessages.alertMeetingEndsUnderMinutes.id}${REMAINING_TIME_ALERT_THRESHOLD == 1 ? 'Singular' : 'Plural'}` };
-
-    if (underThirtyMin && !isBreakout) {
+    if (componentsFlags.showRemainingTime && !isBreakout) {
       data.message = (
-        <BreakoutRemainingTime
-          breakoutRoom={meetingTimeRemaining}
-          messageDuration={intlMessages.meetingTimeRemaining}
-          timeEndedMessage={intlMessages.meetingWillClose}
-          alertMessage={
-            intl.formatMessage(msg, {0: REMAINING_TIME_ALERT_THRESHOLD})
-          }
-          alertUnderMinutes={REMAINING_TIME_ALERT_THRESHOLD}
-        />
+        <MeetingRemainingTime />
       );
     }
   }

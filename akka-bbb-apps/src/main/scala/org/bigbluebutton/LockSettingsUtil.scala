@@ -1,9 +1,18 @@
 package org.bigbluebutton
 
 import org.bigbluebutton.common2.msgs.{ BbbCommonEnvCoreMsg, BbbCoreEnvelope, BbbCoreHeaderWithMeetingId, MessageTypes, MuteUserInVoiceConfSysMsg, MuteUserInVoiceConfSysMsgBody, Routing }
-import org.bigbluebutton.core.models.{ Roles, Users2x, VoiceUserState, VoiceUsers }
 import org.bigbluebutton.core.running.{ LiveMeeting, OutMsgRouter }
 import org.bigbluebutton.core2.{ MeetingStatus2x }
+import org.bigbluebutton.core.apps.webcam.CameraHdlrHelpers
+import org.bigbluebutton.core.models.{
+  Roles,
+  Users2x,
+  UserState,
+  VoiceUserState,
+  VoiceUsers,
+  Webcams,
+  WebcamStream
+}
 
 object LockSettingsUtil {
 
@@ -63,6 +72,85 @@ object LockSettingsUtil {
       if (vu.listenOnly && !vu.muted) {
         muteUserInVoiceConf(liveMeeting, outGW, vu, true)
       }
+    }
+  }
+
+  def isMicrophoneSharingLocked(user: UserState, liveMeeting: LiveMeeting): Boolean = {
+    val permissions = MeetingStatus2x.getPermissions(liveMeeting.status)
+
+    user.role == Roles.VIEWER_ROLE && user.locked && permissions.disableMic
+  }
+
+  def isCameraBroadcastLocked(user: UserState, liveMeeting: LiveMeeting): Boolean = {
+    val permissions = MeetingStatus2x.getPermissions(liveMeeting.status)
+
+    user.role == Roles.VIEWER_ROLE && user.locked && permissions.disableCam
+  }
+
+  def isCameraSubscribeLocked(
+      user: UserState, stream: WebcamStream, liveMeeting: LiveMeeting
+  ): Boolean = {
+    var locked = false
+
+    for {
+      publisher <- Users2x.findWithIntId(liveMeeting.users2x, stream.userId)
+    } yield {
+      if (MeetingStatus2x.webcamsOnlyForModeratorEnabled(liveMeeting.status)
+        && publisher.role != Roles.MODERATOR_ROLE
+        && user.role == Roles.VIEWER_ROLE
+        && user.locked) {
+        locked = true
+      }
+    }
+
+    locked
+  }
+
+  private def enforceSeeOtherViewersForUser(
+      user: UserState, liveMeeting: LiveMeeting, outGW: OutMsgRouter
+  ): Unit = {
+    if (MeetingStatus2x.webcamsOnlyForModeratorEnabled(liveMeeting.status)) {
+      Webcams.findAll(liveMeeting.webcams) foreach { webcam =>
+
+        if (isCameraSubscribeLocked(user, webcam, liveMeeting)
+          && Webcams.isSubscriber(liveMeeting.webcams, user.intId, webcam.streamId)) {
+          CameraHdlrHelpers.requestCamSubscriptionEjection(
+            liveMeeting.props.meetingProp.intId,
+            user.intId,
+            webcam.streamId,
+            outGW
+          )
+        }
+      }
+    }
+  }
+
+  private def enforceDisableCamForUser(
+      user: UserState, liveMeeting: LiveMeeting, outGW: OutMsgRouter
+  ): Unit = {
+    if (isCameraBroadcastLocked(user, liveMeeting)) {
+      val broadcastedWebcams = Webcams.findWebcamsForUser(liveMeeting.webcams, user.intId)
+      broadcastedWebcams foreach { webcam =>
+        CameraHdlrHelpers.requestBroadcastedCamEjection(
+          liveMeeting.props.meetingProp.intId,
+          user.intId,
+          webcam.streamId,
+          outGW
+        )
+      }
+    }
+  }
+
+  def enforceCamLockSettingsForUser(
+      user: UserState, liveMeeting: LiveMeeting, outGW: OutMsgRouter
+  ): Unit = {
+    enforceDisableCamForUser(user, liveMeeting, outGW)
+    enforceSeeOtherViewersForUser(user, liveMeeting, outGW)
+  }
+
+  def enforceCamLockSettingsForAllUsers(liveMeeting: LiveMeeting, outGW: OutMsgRouter): Unit = {
+    Users2x.findLockedViewers(liveMeeting.users2x).foreach { user =>
+      enforceCamLockSettingsForUser(user, liveMeeting, outGW)
     }
   }
 }

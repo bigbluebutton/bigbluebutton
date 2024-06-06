@@ -1,5 +1,8 @@
 package org.bigbluebutton.core.apps
 
+import org.bigbluebutton.core.running.{ LiveMeeting, OutMsgRouter }
+import org.bigbluebutton.core2.message.senders.MsgBuilder
+
 object ScreenshareModel {
   def resetDesktopSharingParams(status: ScreenshareModel) = {
     status.broadcastingRTMP = false
@@ -88,6 +91,14 @@ object ScreenshareModel {
   def getHasAudio(status: ScreenshareModel): Boolean = {
     status.hasAudio
   }
+
+  def setContentType(status: ScreenshareModel, contentType: String): Unit = {
+    status.contentType = contentType
+  }
+
+  def getContentType(status: ScreenshareModel): String = {
+    status.contentType
+  }
 }
 
 class ScreenshareModel {
@@ -100,4 +111,5 @@ class ScreenshareModel {
   private var screenshareConf: String = ""
   private var timestamp: String = ""
   private var hasAudio = false
+  private var contentType = "camera"
 }
