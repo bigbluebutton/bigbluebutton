@@ -9,7 +9,7 @@ import { GraphqlDataHookSubscriptionResponse } from '../../Types/hook';
 import useDeepComparison from '../../hooks/useDeepComparison';
 import GrahqlSubscriptionStore, { stringToHash } from '../singletons/subscriptionStore';
 
-const makePatchedQuery = (query: DocumentNode | TypedQueryDocumentNode) => {
+export const makePatchedQuery = (query: DocumentNode | TypedQueryDocumentNode) => {
   if (!query) {
     throw new Error('Error: query is not defined');
   }

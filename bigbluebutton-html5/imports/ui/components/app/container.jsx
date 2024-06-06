@@ -26,7 +26,6 @@ import {
 } from './service';
 
 import App from './component';
-import useToggleVoice from '../audio/audio-graphql/hooks/useToggleVoice';
 import useUserChangedLocalSettings from '../../services/settings/hooks/useUserChangedLocalSettings';
 import { PINNED_PAD_SUBSCRIPTION } from '../notes/queries';
 import useDeduplicatedSubscription from '../../core/hooks/useDeduplicatedSubscription';
@@ -35,6 +34,7 @@ import { useIsSharing, useSharingContentType } from '../screenshare/service';
 import useSettings from '../../services/settings/hooks/useSettings';
 import { SETTINGS } from '../../services/settings/enums';
 import { useStorageKey } from '../../services/storage/hooks';
+import useMuteMicrophone from '../audio/audio-graphql/hooks/useMuteMicrophone';
 
 const AppContainer = (props) => {
   const layoutType = useRef(null);
@@ -88,13 +88,13 @@ const AppContainer = (props) => {
 
   const [setSyncWithPresenterLayout] = useMutation(SET_SYNC_WITH_PRESENTER_LAYOUT);
   const [setMeetingLayoutProps] = useMutation(SET_LAYOUT_PROPS);
-  const toggleVoice = useToggleVoice();
   const setLocalSettings = useUserChangedLocalSettings();
   const { data: pinnedPadData } = useDeduplicatedSubscription(PINNED_PAD_SUBSCRIPTION);
   const isSharedNotesPinnedFromGraphql = !!pinnedPadData
     && pinnedPadData.sharedNotes[0]?.sharedNotesExtId === NOTES_CONFIG.id;
   const isSharedNotesPinned = sharedNotesInput?.isPinned && isSharedNotesPinnedFromGraphql;
   const isThereWebcam = VideoStreamsState.getStreams().length > 0;
+  const muteMicrophone = useMuteMicrophone();
 
   const { data: currentUserData } = useCurrentUser((user) => ({
     enforceLayout: user.enforceLayout,
@@ -254,7 +254,6 @@ const AppContainer = (props) => {
           shouldShowScreenshare,
           isSharedNotesPinned,
           shouldShowPresentation,
-          toggleVoice,
           setLocalSettings,
           genericComponentId: genericComponent.genericComponentId,
           audioCaptions: <AudioCaptionsLiveContainer />,
@@ -266,6 +265,7 @@ const AppContainer = (props) => {
           fontSize,
           isLargeFont,
           ignorePollNotifications,
+          muteMicrophone,
         }}
         {...otherProps}
       />

@@ -159,7 +159,7 @@ class App extends Component {
       intl,
       layoutContextDispatch,
       isRTL,
-      toggleVoice,
+      muteMicrophone,
     } = this.props;
     const { browserName } = browserInfo;
     const { osName } = deviceInfo;
@@ -210,7 +210,7 @@ class App extends Component {
     if (CONFIRMATION_ON_LEAVE) {
       window.onbeforeunload = (event) => {
         if (AudioService.isUsingAudio() && !AudioService.isMuted()) {
-          AudioService.muteMicrophone(toggleVoice);
+          muteMicrophone();
         }
         event.stopImmediatePropagation();
         event.preventDefault();
