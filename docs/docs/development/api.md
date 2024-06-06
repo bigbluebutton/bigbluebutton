@@ -548,7 +548,9 @@ There is a XML response for this call only when the `redirect` parameter is set 
 </response>
 ```
 
-### insertDocument
+See [Passing custom parameters to the client on join](/administration/customize/#passing-custom-parameters-to-the-client-on-join) for additional `join` parameters that can override default settings for the user.
+
+### `POST` insertDocument
 
 This endpoint insert one or more documents into a running meeting via API call
 
