@@ -115,6 +115,11 @@ class UrlMappings {
       action = [GET: 'learningDashboard', POST: 'learningDashboard']
     }
 
+
+    "/bigbluebutton/api/sendChatMessage"(controller: "api") {
+      action = [GET: 'sendChatMessage']
+    }
+
     "/bigbluebutton/api/getRecordings"(controller: "recording") {
       action = [GET: 'getRecordingsHandler', POST: 'getRecordingsHandler']
     }
