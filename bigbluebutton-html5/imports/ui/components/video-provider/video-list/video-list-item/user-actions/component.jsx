@@ -93,7 +93,7 @@ const UserActions = (props) => {
       dataTest: 'mirrorWebcamBtn',
     });
 
-    if (numOfStreams > 2) {
+    if (numOfStreams >= 2) {
       menuItems.push({
         key: `${cameraId}-focus`,
         label: intl.formatMessage(intlMessages[`${isFocusedIntlKey}Label`]),

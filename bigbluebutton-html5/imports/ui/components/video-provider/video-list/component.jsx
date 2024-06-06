@@ -188,7 +188,7 @@ class VideoList extends Component {
     const gridGutter = parseInt(window.getComputedStyle(this.grid)
       .getPropertyValue('grid-row-gap'), 10);
 
-    const hasFocusedItem = streams.filter(s => s.stream === focusedId).length && numItems > 2;
+    const hasFocusedItem = streams.filter(s => s.stream === focusedId).length && numItems >= 2;
 
     // Has a focused item so we need +3 cells
     if (hasFocusedItem) {
@@ -201,7 +201,7 @@ class VideoList extends Component {
           ASPECT_RATIO, numItems, col,
         );
         // We need a minimun of 2 rows and columns for the focused
-        const focusedConstraint = hasFocusedItem ? testGrid.rows > 1 && testGrid.columns > 1 : true;
+        const focusedConstraint = hasFocusedItem ? testGrid.rows > 1 || testGrid.columns > 1 : true;
         const betterThanCurrent = testGrid.filledArea > currentGrid.filledArea;
         return focusedConstraint && betterThanCurrent ? testGrid : currentGrid;
       }, { filledArea: 0 });
@@ -302,7 +302,7 @@ class VideoList extends Component {
 
     return streams.map((vs) => {
       const { stream, userId, name } = vs;
-      const isFocused = focusedId === stream && numOfStreams > 2;
+      const isFocused = focusedId === stream && numOfStreams >= 2;
 
       return (
         <Styled.VideoListItem
