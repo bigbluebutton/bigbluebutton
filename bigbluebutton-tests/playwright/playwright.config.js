@@ -29,9 +29,11 @@ const config = {
     timeout: ELEMENT_WAIT_TIME,
     toMatchSnapshot: {
       maxDiffPixelRatio: 0.05,
+      timeout: ELEMENT_WAIT_TIME,
     },
     toHaveScreenshot: {
       maxDiffPixelRatio: 0.05,
+      timeout: ELEMENT_WAIT_TIME,
     },
   },
 };
