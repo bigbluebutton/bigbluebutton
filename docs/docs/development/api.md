@@ -1025,7 +1025,7 @@ Update metadata for a given recordID (or set of record IDs). Available since ver
 </response>
 ```
 
-### `POST` getRecordingTextTracks
+### `GET` `POST` getRecordingTextTracks
 
 Get a list of the caption/subtitle files currently available for a recording. It will include information about the captions (language, etc.), as well as a download link. This may be useful to retrieve live or automatically transcribed subtitles from a recording for manual editing.
 
@@ -1105,7 +1105,7 @@ missingParameter
 noRecordings
 : No recording was found matching the provided recording ID.
 
-### putRecordingTextTrack
+### `POST` putRecordingTextTrack
 
 Upload a caption or subtitle file to add it to the recording. If there is any existing track with the same values for kind and lang, it will be replaced.
 
