@@ -17,9 +17,9 @@ export type ConnectingStream = {
   name: string;
   userId: string;
   type: 'connecting';
-} | null;
+};
 
-const connectingStream = makeVar<ConnectingStream>(null);
+const connectingStream = makeVar<ConnectingStream | null>(null);
 
 const useConnectingStream = (streams?: Stream[]) => {
   const connecting = useReactiveVar(connectingStream);
@@ -35,9 +35,11 @@ const useConnectingStream = (streams?: Stream[]) => {
   return connecting;
 };
 
-const setConnectingStream = (stream: ConnectingStream) => {
+const setConnectingStream = (stream: ConnectingStream | null) => {
   connectingStream(stream);
 };
+
+const getConnectingStream = () => connectingStream();
 
 export type Stream = {
   stream: string;
@@ -65,6 +67,7 @@ export {
   setVideoState,
   getVideoState,
   useConnectingStream,
+  getConnectingStream,
   setConnectingStream,
   setStreams,
   getStreams,
@@ -76,6 +79,7 @@ export default {
   setVideoState,
   getVideoState,
   useConnectingStream,
+  getConnectingStream,
   setConnectingStream,
   setStreams,
   getStreams,

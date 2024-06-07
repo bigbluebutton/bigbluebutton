@@ -21,6 +21,7 @@ import {
 } from '/imports/ui/components/video-provider/video-provider-graphql/stream-sorting';
 import {
   useVideoState,
+  getConnectingStream,
   setVideoState,
   useConnectingStream,
   streams,
@@ -487,11 +488,11 @@ export const useLockUser = () => {
 export const useStopVideo = () => {
   const [cameraBroadcastStop] = useMutation(CAMERA_BROADCAST_STOP);
   const [getOwnVideoStreams] = useOwnVideoStreamsQuery();
-  const exit = useExitVideo(true);
 
   return useCallback(async (cameraId?: string) => {
     const { data } = await getOwnVideoStreams();
     const streams = data?.user_camera ?? [];
+    const connectingStream = getConnectingStream();
     const hasTargetStream = streams.some((s) => s.streamId === cameraId);
     const hasOtherStream = streams.some((s) => s.streamId !== cameraId);
 
@@ -499,12 +500,10 @@ export const useStopVideo = () => {
       cameraBroadcastStop({ variables: { cameraId } });
     }
 
-    if (!hasOtherStream) {
+    if (!hasOtherStream && !connectingStream) {
       videoService.exitedVideo();
     } else {
-      exit().then(() => {
-        videoService.exitedVideo();
-      });
+      videoService.stopConnectingStream();
     }
   }, [cameraBroadcastStop]);
 };
