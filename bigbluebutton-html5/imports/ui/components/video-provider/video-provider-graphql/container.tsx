@@ -82,7 +82,6 @@ const VideoProviderContainerGraphql: React.FC<VideoProviderContainerGraphqlProps
     streams,
     gridUsers,
     totalNumberOfStreams,
-    users,
   } = useVideoStreams(isGridEnabled, paginationEnabled, viewParticipantsWebcams);
 
   let usersVideo: VideoItem[] = streams;
@@ -96,7 +95,13 @@ const VideoProviderContainerGraphql: React.FC<VideoProviderContainerGraphqlProps
     && currentUser?.locked
   ) {
     usersVideo = usersVideo.filter(
-      (uv) => (uv.type !== 'connecting' && uv.isModerator) || uv.userId === currentUserId,
+      (uv) => (
+        (
+          (uv.type === 'stream' && uv.user.isModerator)
+          || (uv.type === 'grid' && uv.isModerator)
+        )
+        || uv.userId === currentUserId
+      ),
     );
   }
 
@@ -124,7 +129,6 @@ const VideoProviderContainerGraphql: React.FC<VideoProviderContainerGraphqlProps
       isUserLocked={isUserLocked}
       currentVideoPageIndex={currentVideoPageIndex}
       streams={usersVideo}
-      users={users}
       info={info}
       playStart={playStart}
       exitVideo={exitVideo}

@@ -13,7 +13,7 @@ import Auth from '/imports/ui/services/auth';
 import { PluginsContext } from '/imports/ui/components/components-data/plugin-context/context';
 import { notify } from '/imports/ui/services/notification';
 import { SET_CAMERA_PINNED } from '/imports/ui/core/graphql/mutations/userMutations';
-import { VideoItem } from '../../../types';
+import { VideoItem } from '/imports/ui/components/video-provider/video-provider-graphql/types';
 import { ACTIONS } from '/imports/ui/components/layout/enums';
 
 const intlMessages = defineMessages({
@@ -134,7 +134,7 @@ const UserActions: React.FC<UserActionProps> = (props) => {
   }, []);
 
   const getAvailableActions = () => {
-    const pinned = stream.type === 'stream' && stream.pinned;
+    const pinned = stream.type === 'stream' && stream.user.pinned;
     const { userId } = stream;
     const isPinnedIntlKey = !pinned ? 'pin' : 'unpin';
     const isFocusedIntlKey = !focused ? 'focus' : 'unfocus';

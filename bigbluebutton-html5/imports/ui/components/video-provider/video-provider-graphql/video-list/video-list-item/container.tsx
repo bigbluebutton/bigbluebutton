@@ -5,7 +5,7 @@ import VoiceUsers from '/imports/api/voice-users/';
 import useCurrentUser from '/imports/ui/core/hooks/useCurrentUser';
 import { layoutSelect, layoutDispatch } from '/imports/ui/components/layout/context';
 import VideoListItem from './component';
-import { StreamUser, VideoItem } from '../../types';
+import { VideoItem } from '../../types';
 import { Layout } from '/imports/ui/components/layout/layoutTypes';
 import useSettings from '/imports/ui/services/settings/hooks/useSettings';
 import { SETTINGS } from '/imports/ui/services/settings/enums';
@@ -21,7 +21,6 @@ type TrackerData = {
 }
 
 type TrackerProps = {
-  user: Partial<StreamUser>;
   numOfStreams: number;
   cameraId: string | null;
   userId: string;
@@ -50,7 +49,6 @@ const VideoListItemContainer: React.FC<VideoListItemContainerProps> = (props) =>
     onVideoItemUnmount,
     onVirtualBgDrop,
     stream,
-    user,
     voiceUser,
   } = props;
 
@@ -90,7 +88,6 @@ const VideoListItemContainer: React.FC<VideoListItemContainerProps> = (props) =>
       onVirtualBgDrop={onVirtualBgDrop}
       settingsSelfViewDisable={settingsSelfViewDisable}
       stream={stream}
-      user={user}
       voiceUser={voiceUser}
     />
   );

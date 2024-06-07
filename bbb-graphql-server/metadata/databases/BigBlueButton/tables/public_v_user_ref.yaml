@@ -6,6 +6,16 @@ configuration:
   custom_column_names: {}
   custom_name: user_ref
   custom_root_fields: {}
+object_relationships:
+  - name: reaction
+    using:
+      manual_configuration:
+        column_mapping:
+          userId: userId
+        insertion_order: null
+        remote_table:
+          name: v_user_reaction_current
+          schema: public
 select_permissions:
   - role: bbb_client
     permission:

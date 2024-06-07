@@ -1,4 +1,5 @@
 import { useEffect, useRef } from 'react';
+import { throttle } from 'radash';
 import logger from '/imports/startup/client/logger';
 import {
   VIDEO_STREAMS_SUBSCRIPTION,
@@ -7,6 +8,8 @@ import {
 import { setStreams } from './state';
 import { AdapterProps } from '../../components-data/graphqlToMiniMongoAdapterManager/component';
 import useDeduplicatedSubscription from '/imports/ui/core/hooks/useDeduplicatedSubscription';
+
+const throttledSetStreams = throttle({ interval: 500 }, setStreams);
 
 const VideoStreamAdapter: React.FC<AdapterProps> = ({
   onReady,
@@ -23,24 +26,23 @@ const VideoStreamAdapter: React.FC<AdapterProps> = ({
     }
 
     if (!data) {
-      setStreams([]);
+      throttledSetStreams([]);
       return;
     }
 
     const streams = data.user_camera.map(({ streamId, user, voice }) => ({
       stream: streamId,
       deviceId: streamId.split('_')[3],
-      userId: user.userId,
       name: user.name,
       nameSortable: user.nameSortable,
-      pinned: user.pinned,
-      floor: voice?.floor || false,
-      lastFloorTime: voice?.lastFloorTime || '0',
-      isModerator: user.isModerator,
+      userId: user.userId,
+      user,
+      floor: voice?.floor ?? false,
+      lastFloorTime: voice?.lastFloorTime ?? '0',
       type: 'stream' as const,
     }));
 
-    setStreams(streams);
+    throttledSetStreams(streams);
   }, [data]);
 
   useEffect(() => {
