@@ -20,7 +20,6 @@ const UserStatus: React.FC<UserStatusProps> = (props) => {
   const muted = voiceUser?.muted;
   const voiceUserJoined = voiceUser?.joined;
   const emoji = data?.reaction?.reactionEmoji;
-  const raiseHand = data?.raiseHand;
   const away = data?.away;
   return (
     <div>
