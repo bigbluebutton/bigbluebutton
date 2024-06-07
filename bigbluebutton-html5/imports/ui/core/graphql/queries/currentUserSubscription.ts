@@ -95,12 +95,6 @@ subscription userCurrentSubscription {
       listenOnly
       talking
     }
-    presPagesWritable {
-      isCurrentPage
-      changedModeOn
-      pageId
-      presentationId
-    }
     welcomeMsgs {
       welcomeMsg
       welcomeMsgForModerators
