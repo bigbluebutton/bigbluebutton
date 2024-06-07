@@ -77,6 +77,12 @@ location /bbb-01/html5client/ {
   proxy_set_header Upgrade $http_upgrade;
   proxy_set_header Connection "Upgrade";
 }
+location /bbb-01/bigbluebutton/api {
+  proxy_pass https://bbb-01.example.com/bigbluebutton/api;
+  proxy_http_version 1.1;
+  proxy_set_header Upgrade $http_upgrade;
+  proxy_set_header Connection "Upgrade";
+}
 ```
 
 Repeat this `location` directive for every BigBlueButton server.
