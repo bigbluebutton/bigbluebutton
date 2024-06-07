@@ -65,21 +65,31 @@ const StartupDataFetch: React.FC<StartupDataFetchProps> = ({
       setLoading(false);
       return;
     }
-    const clientStartupSettings = `/api/rest/clientStartupSettings/?sessionToken=${sessionToken}`;
-    const url = new URL(`${window.location.origin}${clientStartupSettings}`);
-    fetch(url, { method: 'get' })
+    const apipath = window.location.pathname.match('^(.*)/html5client/join$')[1]
+    fetch(`https://${window.location.hostname}${apipath}/bigbluebutton/api`, {
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    }).then((resp) => resp.json())
+      .then((data: Response) => {
+      const url = `${data.response.graphqlApiUrl}/clientStartupSettings/?sessionToken=${sessionToken}`;
+      fetch(url, { method: 'get', credentials: 'include' })
       .then((resp) => resp.json())
       .then((data: Response) => {
-        const settings = data.meeting_clientSettings[0];
-        sessionStorage.setItem('clientStartupSettings', JSON.stringify(settings || {}));
-        setSettingsFetched(true);
-        clearTimeout(timeoutRef.current);
-        setLoading(false);
+          const settings = data.meeting_clientSettings[0];
+          sessionStorage.setItem('clientStartupSettings', JSON.stringify(settings || {}));
+          setSettingsFetched(true);
+          clearTimeout(timeoutRef.current);
+          setLoading(false);
       }).catch(() => {
-        Session.setItem('errorMessageDescription', 'meeting_ended');
-        setError('Error fetching startup data');
-        setLoading(false);
+          Session.setItem('errorMessageDescription', 'meeting_ended');
+          setError('Error fetching startup data');
+          setLoading(false);
       });
+    }).catch((error) => {
+      setLoading(false);
+      throw new Error('Error fetching GraphQL URL: '.concat(error.message || ''));
+    });
   }, []);
 
   return (

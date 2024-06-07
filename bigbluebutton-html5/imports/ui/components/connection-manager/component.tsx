@@ -67,7 +67,8 @@ const ConnectionManager: React.FC<ConnectionManagerProps> = ({ children }): Reac
   const [graphqlUrl, setGraphqlUrl] = React.useState<string>('');
   const loadingContextInfo = useContext(LoadingContext);
   useEffect(() => {
-    fetch(`https://${window.location.hostname}/bigbluebutton/api`, {
+    const apipath = window.location.pathname.match('^(.*)/html5client/join$')[1]
+    fetch(`https://${window.location.hostname}${apipath}/bigbluebutton/api`, {
       headers: {
         'Content-Type': 'application/json',
       },

@@ -27,25 +27,35 @@ const SettingsLoader: React.FC = () => {
   }, []);
 
   useEffect(() => {
-    const urlParams = new URLSearchParams(window.location.search);
-    const sessionToken = urlParams.get('sessionToken');
-    const clientStartupSettings = `/api/rest/clientSettings/?sessionToken=${sessionToken}`;
-    const url = new URL(`${window.location.origin}${clientStartupSettings}`);
-    fetch(url, { method: 'get' })
-      .then((resp) => resp.json())
+    const apipath = window.location.pathname.match('^(.*)/html5client/join$')[1]
+    fetch(`https://${window.location.hostname}${apipath}/bigbluebutton/api`, {
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    }).then((resp) => resp.json())
       .then((data: Response) => {
-        const settings = data?.meeting_clientSettings[0].clientSettingsJson;
+      const urlParams = new URLSearchParams(window.location.search);
+      const sessionToken = urlParams.get('sessionToken');
+      const clientStartupSettings = `/clientSettings/?sessionToken=${sessionToken}`;
+      const url = new URL(`${data.response.graphqlApiUrl}${clientStartupSettings}`);
+      fetch(url, { method: 'get', credentials: 'include' })
+	.then((resp) => resp.json())
+	.then((data: Response) => {
+	  const settings = data?.meeting_clientSettings[0].clientSettingsJson;
 
-        window.meetingClientSettings = JSON.parse(JSON.stringify(settings as unknown as MeetingClientSettings));
-        const Meteor = { settings: {} };
-        Meteor.settings = window.meetingClientSettings;
-        setMeetingSettings(settings as unknown as MeetingClientSettings);
-        setAllowToRender(true);
-      }).catch(() => {
-        loadingContextInfo.setLoading(false, '');
-        throw new Error('Error on requesting client settings data.');
-      });
-    // }
+	  window.meetingClientSettings = JSON.parse(JSON.stringify(settings as unknown as MeetingClientSettings));
+	  const Meteor = { settings: {} };
+	  Meteor.settings = window.meetingClientSettings;
+	  setMeetingSettings(settings as unknown as MeetingClientSettings);
+	  setAllowToRender(true);
+	}).catch(() => {
+	  loadingContextInfo.setLoading(false, '');
+	  throw new Error('Error on requesting client settings data.');
+	});
+    }).catch((error) => {
+      setLoading(false);
+      throw new Error('Error fetching GraphQL URL: '.concat(error.message || ''));
+    });
   }, []);
   return (
     (allowToRender)
