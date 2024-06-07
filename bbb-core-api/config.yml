@@ -2,7 +2,17 @@
 server:
   host: localhost # bbb-core-api host
   port: 9100 # bbb-core-api port
-  url: http://bigbluebutton.example.com
+  bigbluebutton:
+    # This URL is where the BBB client is accessible. When a user successfully
+    # enters a name and password, they are redirected here to load the client.
+    # Do not commit changes to this field.
+    url: http://bigbluebutton.example.com
+    # Assign URL where the logged-out participant will be redirected after sign-out.
+    # If "default", it returns to bigbluebutton.web.serverURL
+    logout_url: default
+    logo:
+      use_default_logo: false
+      default_logo_url: http://bigbluebutton.example.com/images/logo.png
   grpc:
     host: localhost # akka-apps gRPC host
     port: 9000 # akka-apps gRPC port
@@ -24,6 +34,7 @@ meeting:
     cap: 0 # Per meeting camera share limit (0 means no limit)
     max_pinned: 3 # Maximum number of cameras that can be pinned simultaneously
     mod_only: false # Allow webcam streaming reception only to and from moderators
+    allow_mods_to_eject: false
   features:
     # List of features to disable (comma-separated)
     # https://docs.bigbluebutton.org/3.0/development/api/#create
@@ -63,6 +74,28 @@ meeting:
     max_conurrent_access: 3 # Maximum number of sessions for each external user ID in the same meeting (0 means no limit)
     allow_duplicate_ext_user_id: true # Deprecated use max_concurrent_access instead to control user concurrent access to meetings
     guest_policy: ALWAYS_ACCEPT # Default guest policy. Valid values are ALWAYS_ACCEPT, ALWAYS_DENY, and ASK_MODERATOR
+    allow_mods_to_unmute: false
+    authenticated_guest: true
+    allow_promote_guest: false
+  # Default Meeting Layout
+  # Accepted values are the standard layouts: CUSTOM_LAYOUT, SMART_LAYOUT, PRESENTATION_FOCUS, VIDEO_FOCUS
+  # but also several layouts which are not meant to be selectable via UI: CAMERAS_ONLY, PARTICIPANTS_CHAT_ONLY, PRESENTATION_ONLY
+  layout: CUSTOM_LAYOUT
+  # Default lock settings
+  lock:
+    disable:
+      cam: false
+      mic: false
+      notes: false
+      chat:
+        private: false
+        public: false
+    on_join: true
+    on_join_configurable: false
+    hide:
+      user_list: false
+      viewers_cursor: false
+      viewers_annotation: false
 
 # Default user settings
 user:

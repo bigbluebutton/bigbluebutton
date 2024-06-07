@@ -6,11 +6,13 @@ import (
 	"crypto/sha256"
 	"crypto/sha512"
 	"encoding/hex"
+	"encoding/json"
 	"encoding/xml"
 	"hash"
 	"log"
 	"net/http"
 	"net/url"
+	"regexp"
 	"strconv"
 	"strings"
 	"time"
@@ -166,6 +168,13 @@ func (app *Config) processCreateQueryParams(params *url.Values) (*common.Meeting
 
 	settings.VoiceProps = voiceProps
 	settings.WelcomeProps = app.processWelcomeProps(params, isBreakout, settings.VoiceProps.DialNumber, settings.VoiceProps.VoiceBridge, settings.MeetingProps.Name)
+	settings.UsersProps = app.processUsersProps(params)
+	settings.MetadataProps = app.processMetadataProps(params)
+	settings.LockSettingsProps = app.processLockSettingsProps(params)
+	settings.SystemProps = app.processSystemProps(params)
+	settings.GroupProps = app.processGroupProps(params)
+
+	/* TODO: Implement client settings override */
 
 	return &settings, nil
 }
@@ -308,11 +317,11 @@ func (app *Config) processWelcomeProps(params *url.Values, isBreakout bool, dial
 		welcomeMessageTemplate += "<br><br>" + app.Meeting.Welcome.Message.Footer
 	}
 
-	welcomeMessage := replaceKeywords(welcomeMessageTemplate, dialNumber, voiceBridge, meetingName, app.Server.Url)
+	welcomeMessage := replaceKeywords(welcomeMessageTemplate, dialNumber, voiceBridge, meetingName, app.Server.BigBlueButton.Url)
 
 	modOnlyMsg := util.GetStringOrDefaultValue(validation.StripCtrlChars(params.Get("moderatorOnlyMessage")), "")
 	if modOnlyMsg != "" {
-		modOnlyMsg = replaceKeywords(modOnlyMsg, dialNumber, voiceBridge, meetingName, app.Server.Url)
+		modOnlyMsg = replaceKeywords(modOnlyMsg, dialNumber, voiceBridge, meetingName, app.Server.BigBlueButton.Url)
 	}
 
 	return &common.WelcomeProps{
@@ -333,7 +342,94 @@ func (app *Config) processUsersProps(params *url.Values) *common.UsersProps {
 		WebcamsOnlyForMod:         util.GetBoolOrDefaultValue(params.Get("webcamsOnlyForModerator"), app.Meeting.Cameras.ModOnly),
 		UserCameraCap:             util.GetInt32OrDefaultValue(params.Get("userCameraCap"), app.User.Camera.Cap),
 		GuestPolicy:               util.GetStringOrDefaultValue(validation.StripCtrlChars(params.Get("guestPolicy")), app.Meeting.Users.GuestPolicy),
+		MeetingLayout:             util.GetStringOrDefaultValue(validation.StripCtrlChars(params.Get("meetingLayout")), app.Meeting.Layout),
+		AllowModsUnmuteUsers:      util.GetBoolOrDefaultValue(params.Get("allowModsToUnmuteUsers"), app.Meeting.Users.AllowModsToUnmute),
+		AllowModsEjectCameras:     util.GetBoolOrDefaultValue(params.Get("allowModsToEjectCameras"), app.Meeting.Cameras.AllowModsToEject),
+		AuthenticatedGuest:        app.Meeting.Users.AuthenticatedGuest,
+		AllowPromoteGuest:         util.GetBoolOrDefaultValue(params.Get("allowPromoteGuestToModerator"), app.Meeting.Users.AllowPromoteGuest),
 	}
+}
+
+func (app *Config) processMetadataProps(params *url.Values) *common.MetadataProps {
+	r, _ := regexp.Compile("meta_[a-zA-Z][a-zA-Z0-9-]*$")
+	metadata := make(map[string]string)
+	for k, v := range *params {
+		if r.MatchString(k) {
+			metadata[strings.ToLower(strings.TrimPrefix(k, "meta_"))] = v[0]
+		}
+	}
+	return &common.MetadataProps{
+		Metadata: metadata,
+	}
+}
+
+func (app *Config) processLockSettingsProps(params *url.Values) *common.LockSettingsProps {
+	disableNotes := util.GetBoolOrDefaultValue(params.Get("lockSettingsDisableNotes"), app.Meeting.Lock.Disable.Notes)
+	disableNotes = util.GetBoolOrDefaultValue(params.Get("lockSettingsDisableNote"), disableNotes)
+
+	return &common.LockSettingsProps{
+		DisableCam:             util.GetBoolOrDefaultValue(params.Get("lockSettingsDisbaleCam"), app.Meeting.Lock.Disable.Cam),
+		DisableMic:             util.GetBoolOrDefaultValue(params.Get("lockSettingsDisableMic"), app.Meeting.Lock.Disable.Mic),
+		DisablePrivateChat:     util.GetBoolOrDefaultValue(params.Get("lockSettingsDisablePrivateChat"), app.Meeting.Lock.Disable.Chat.Private),
+		DisablePublicChat:      util.GetBoolOrDefaultValue(params.Get("lockSettingsDisablePublicChat"), app.Meeting.Lock.Disable.Chat.Public),
+		DisableNotes:           disableNotes,
+		HideUserList:           util.GetBoolOrDefaultValue(params.Get("lockSettingsHideUserList"), app.Meeting.Lock.Hide.UserList),
+		LockOnJoin:             util.GetBoolOrDefaultValue(params.Get("lockSettingsLockOnJoin"), app.Meeting.Lock.OnJoin),
+		LockOnJoinConfigurable: util.GetBoolOrDefaultValue(params.Get("lockSettingsOnJoinConfigurable"), app.Meeting.Lock.OnJoinConfigurable),
+		HideViewersCursor:      util.GetBoolOrDefaultValue(params.Get("lockSettingsHideViewersCursor"), app.Meeting.Lock.Hide.ViewersCursor),
+		HideViewersAnnotation:  util.GetBoolOrDefaultValue(params.Get("lockSettingsHideViewersAnnotation"), app.Meeting.Lock.Hide.ViewersAnnotation),
+	}
+}
+
+func (app *Config) processSystemProps(params *url.Values) *common.SystemProps {
+	logoutUrl := util.GetStringOrDefaultValue(validation.StripCtrlChars(params.Get("logoutURL")), "")
+	defaultLogoutUrl := app.Server.BigBlueButton.LogoutUrl
+	if logoutUrl == "" {
+		if defaultLogoutUrl == "" || defaultLogoutUrl == "default" {
+			logoutUrl = app.Server.BigBlueButton.Url
+		} else {
+			logoutUrl = defaultLogoutUrl
+		}
+	}
+
+	customLogoUrl := util.GetStringOrDefaultValue(validation.StripCtrlChars(params.Get("logo")), "")
+	if customLogoUrl == "" && app.Server.BigBlueButton.Logo.UseDefaultLogo {
+		customLogoUrl = app.Server.BigBlueButton.Logo.DefaultLogoUrl
+	}
+
+	return &common.SystemProps{
+		LoginUrl:      util.GetStringOrDefaultValue(validation.StripCtrlChars(params.Get("loginURL")), ""),
+		LogoutUrl:     logoutUrl,
+		CustomLogoUrl: customLogoUrl,
+		BannerText:    util.GetStringOrDefaultValue(validation.StripCtrlChars(params.Get("bannerText")), ""),
+		BannerColour:  util.GetStringOrDefaultValue(validation.StripCtrlChars(params.Get("bannerColor")), ""),
+	}
+}
+
+func (app *Config) processGroupProps(params *url.Values) []*common.GroupProps {
+	type Group struct {
+		Id     string   `json:"id"`
+		Name   string   `json:"name"`
+		Roster []string `json:"roster"`
+	}
+
+	var groups []Group
+	if groupsParam := params.Get("groups"); groupsParam != "" {
+		if err := json.Unmarshal([]byte(groupsParam), &groups); err != nil {
+			log.Println("Error unmarshalling groups parameter", err)
+			return nil
+		}
+	}
+
+	groupProps := make([]*common.GroupProps, len(groups))
+	for i, g := range groups {
+		groupProps[i] = &common.GroupProps{
+			GroupId:     g.Id,
+			Name:        g.Name,
+			UsersExtIds: g.Roster,
+		}
+	}
+	return groupProps
 }
 
 func replaceKeywords(message string, dialNumber string, voiceBridge string, meetingName string, url string) string {

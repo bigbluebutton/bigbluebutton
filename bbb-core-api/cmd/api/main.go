@@ -17,9 +17,16 @@ type Config struct {
 	ChecksumAlgorithms map[string]struct{}          `yaml:"-"`
 	DisabledFeatures   map[string]struct{}          `yaml:"-"`
 	Server             struct {
-		Host string `yaml:"host"`
-		Port string `yaml:"port"`
-		Url  string `yaml:"url"`
+		Host          string `yaml:"host"`
+		Port          string `yaml:"port"`
+		BigBlueButton struct {
+			Url       string `yaml:"url"`
+			LogoutUrl string `yaml:"logout_url"`
+			Logo      struct {
+				UseDefaultLogo bool   `yaml:"useDefaultLogo"`
+				DefaultLogoUrl string `yaml:"defaultLogoUrl"`
+			} `yaml:"logo"`
+		} `yaml:"bigbluebutton"`
 		Grpc struct {
 			Host string `yaml:"host"`
 			Port string `yaml:"port"`
@@ -33,9 +40,10 @@ type Config struct {
 	} `yaml:"security"`
 	Meeting struct {
 		Cameras struct {
-			Cap       int32 `yaml:"cap"`
-			MaxPinned int32 `yaml:"max_pinned"`
-			ModOnly   bool  `yaml:"mod_only"`
+			Cap              int32 `yaml:"cap"`
+			MaxPinned        int32 `yaml:"max_pinned"`
+			ModOnly          bool  `yaml:"mod_only"`
+			AllowModsToEject bool  `yaml:"allow_mods_to_eject"`
 		} `yaml:"cameras"`
 		Features struct {
 			Disabled []string `yaml:"disabled"`
@@ -63,7 +71,29 @@ type Config struct {
 			MaxConcurrentAccess     int32  `yaml:"max_concurrent_access"`
 			AllowDuplicateExtUserId bool   `yaml:"allow_duplicate_ext_user_id"`
 			GuestPolicy             string `yaml:"guest_policy"`
+			AllowModsToUnmute       bool   `yaml:"allow_mods_to_unmute"`
+			AuthenticatedGuest      bool   `yaml:"authenticated_guest"`
+			AllowPromoteGuest       bool   `yaml:"allow_promote_guest"`
 		} `yaml:"users"`
+		Layout string `yaml:"layout"`
+		Lock   struct {
+			Disable struct {
+				Cam   bool `yaml:"cam"`
+				Mic   bool `yaml:"mic"`
+				Notes bool `yaml:"notes"`
+				Chat  struct {
+					Private bool `yaml:"private"`
+					Public  bool `yaml:"public"`
+				} `yaml:"chat"`
+			} `yaml:"disable"`
+			OnJoin             bool `yaml:"on_join"`
+			OnJoinConfigurable bool `yaml:"on_join_configurable"`
+			Hide               struct {
+				UserList          bool `yaml:"user_list"`
+				ViewersCursor     bool `yaml:"viewers_cursor"`
+				ViewersAnnotation bool `yaml:"viewers_annotation"`
+			} `yaml:"hide"`
+		} `yaml:"lock"`
 	} `yaml:"meeting"`
 	User struct {
 		Camera struct {
