@@ -1,7 +1,7 @@
 import React, { useEffect } from 'react';
 import PropTypes from 'prop-types';
 import { withTracker } from 'meteor/react-meteor-data';
-import { Session } from 'meteor/session';
+import Session from '/imports/ui/services/storage/in-memory';
 import { injectIntl, defineMessages } from 'react-intl';
 import { range } from '/imports/utils/array-utils';
 import AppService from '/imports/ui/components/app/service';
@@ -24,6 +24,7 @@ import useCurrentUser from '/imports/ui/core/hooks/useCurrentUser';
 import { toggleMuteMicrophone } from '/imports/ui/components/audio/audio-graphql/audio-controls/input-stream-live-selector/service';
 import useSettings from '../../services/settings/hooks/useSettings';
 import { SETTINGS } from '../../services/settings/enums';
+import { useStorageKey } from '../../services/storage/hooks';
 
 const intlMessages = defineMessages({
   joinedAudio: {
@@ -79,8 +80,6 @@ const AudioContainer = (props) => {
     setVideoPreviewModalIsOpen,
     isVideoPreviewModalOpen,
     hasBreakoutRooms,
-    userSelectedMicrophone,
-    userSelectedListenOnly,
     meetingIsBreakout,
     init,
     intl,
@@ -91,6 +90,8 @@ const AudioContainer = (props) => {
 
   const prevProps = usePreviousValue(props);
   const toggleVoice = useToggleVoice();
+  const userSelectedMicrophone = !!useStorageKey('clientUserSelectedMicrophone', 'session');
+  const userSelectedListenOnly = useStorageKey('clientUserSelectedListenOnly', 'session');
   const { hasBreakoutRooms: hadBreakoutRooms } = prevProps || {};
   const userIsReturningFromBreakoutRoom = hadBreakoutRooms && !hasBreakoutRooms;
 
@@ -209,8 +210,6 @@ export default lockContextContainer(injectIntl(withTracker(({
   return {
     hasBreakoutRooms,
     meetingIsBreakout,
-    userSelectedMicrophone,
-    userSelectedListenOnly,
     isAudioModalOpen,
     setAudioModalIsOpen,
     init: async (toggleVoice) => {
@@ -221,7 +220,7 @@ export default lockContextContainer(injectIntl(withTracker(({
         }
         return Promise.resolve(false);
       }
-      Session.set('audioModalIsOpen', true);
+      Session.setItem('audioModalIsOpen', true);
       if (enableVideo && autoShareWebcam) {
         openAudioModal();
         openVideoPreviewModal();
@@ -245,8 +244,6 @@ AudioContainer.defaultProps = {
 AudioContainer.propTypes = {
   hasBreakoutRooms: PropTypes.bool.isRequired,
   meetingIsBreakout: PropTypes.bool.isRequired,
-  userSelectedListenOnly: PropTypes.bool.isRequired,
-  userSelectedMicrophone: PropTypes.bool.isRequired,
   isAudioModalOpen: PropTypes.bool.isRequired,
   setAudioModalIsOpen: PropTypes.func.isRequired,
   setVideoPreviewModalIsOpen: PropTypes.func.isRequired,

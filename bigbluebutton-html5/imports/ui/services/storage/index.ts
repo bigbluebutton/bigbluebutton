@@ -1,7 +1,8 @@
 import Local from './local';
+import ObservableStorage from './observable';
 import Session from './session';
 
-let StorageSingleton = null;
+let StorageSingleton: ObservableStorage | null = null;
 export const getStorageSingletonInstance = () => {
   const APP_CONFIG = window.meetingClientSettings.public.app;
 

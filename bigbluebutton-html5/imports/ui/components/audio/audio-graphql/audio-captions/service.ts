@@ -1,6 +1,7 @@
 import { unique } from 'radash';
 import { setAudioCaptionEnable } from '/imports/ui/core/local-states/useAudioCaptionEnable';
 import { isLiveTranscriptionEnabled } from '/imports/ui/services/features';
+import Session from '/imports/ui/services/storage/in-memory';
 
 export const isAudioTranscriptionEnabled = () => isLiveTranscriptionEnabled();
 
@@ -26,7 +27,7 @@ export const getSpeechVoices = () => {
 export const setAudioCaptions = (value: boolean) => {
   setAudioCaptionEnable(value);
   // @ts-ignore - Exist while we have meteor in the project
-  Session.set('audioCaptions', value);
+  Session.setItem('audioCaptions', value);
 };
 
 // SpeechLocale or CaptionLocale

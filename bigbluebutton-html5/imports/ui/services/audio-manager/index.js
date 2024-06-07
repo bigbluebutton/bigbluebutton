@@ -21,6 +21,7 @@ import {
 import MediaStreamUtils from '/imports/utils/media-stream-utils';
 import { makeVar } from '@apollo/client';
 import AudioErrors from '/imports/ui/services/audio-manager/error-codes';
+import Session from '/imports/ui/services/storage/in-memory';
 
 const DEFAULT_AUDIO_BRIDGES_PATH = '/imports/api/audio/client/';
 const CALL_STATES = {
@@ -501,7 +502,7 @@ class AudioManager {
         isListenOnly: this.isListenOnly,
       });
     }
-    Session.set('audioModalIsOpen', false);
+    Session.setItem('audioModalIsOpen', false);
 
     // Enforce correct output device on audio join
     this.changeOutputDevice(this.outputDeviceId, true);

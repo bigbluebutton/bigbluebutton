@@ -49,7 +49,8 @@ case class UsersProp(
     meetingLayout:            String,
     allowModsToUnmuteUsers:   Boolean,
     allowModsToEjectCameras:  Boolean,
-    authenticatedGuest:       Boolean
+    authenticatedGuest:       Boolean,
+    waitingGuestUsersTimeout: Long,
 )
 
 case class MetadataProp(metadata: collection.immutable.Map[String, String])

@@ -14,6 +14,7 @@ import { SET_PRESENTER } from '/imports/ui/core/graphql/mutations/userMutations'
 import { TIMER_ACTIVATE, TIMER_DEACTIVATE } from '../../timer/mutations';
 import Auth from '/imports/ui/services/auth';
 import { PRESENTATION_SET_CURRENT } from '../../presentation/mutations';
+import { useStorageKey } from '/imports/ui/services/storage/hooks';
 
 const ActionsDropdownContainer = (props) => {
   const sidebarContent = layoutSelectInput((i) => i.sidebarContent);
@@ -69,6 +70,8 @@ const ActionsDropdownContainer = (props) => {
     }, 500);
   };
 
+  const isDropdownOpen = useStorageKey('dropdownOpen');
+
   return (
     <ActionsDropdown
       {...{
@@ -80,7 +83,7 @@ const ActionsDropdownContainer = (props) => {
         actionButtonDropdownItems,
         presentations,
         isTimerFeatureEnabled: isTimerFeatureEnabled(),
-        isDropdownOpen: Session.get('dropdownOpen'),
+        isDropdownOpen,
         setPresentation,
         isCameraAsContentEnabled: isCameraAsContentEnabled(),
         handleTakePresenter,

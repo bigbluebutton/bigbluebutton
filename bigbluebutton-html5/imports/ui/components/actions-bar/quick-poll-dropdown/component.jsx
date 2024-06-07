@@ -6,6 +6,7 @@ import Styled from './styles';
 import { PANELS, ACTIONS } from '../../layout/enums';
 import { uniqueId, safeMatch } from '/imports/utils/string-utils';
 import PollService from '/imports/ui/components/poll/service';
+import Session from '/imports/ui/services/storage/in-memory';
 
 const intlMessages = defineMessages({
   quickPollLabel: {
@@ -241,8 +242,8 @@ const QuickPollDropdown = (props) => {
       type: ACTIONS.SET_SIDEBAR_CONTENT_PANEL,
       value: PANELS.POLL,
     });
-    Session.set('forcePollOpen', true);
-    Session.set('pollInitiated', true);
+    Session.setItem('forcePollOpen', true);
+    Session.setItem('pollInitiated', true);
   };
 
   const getAvailableQuickPolls = (

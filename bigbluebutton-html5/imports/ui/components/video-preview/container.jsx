@@ -13,6 +13,7 @@ import {
   useExitVideo,
   useStopVideo,
 } from '/imports/ui/components/video-provider/video-provider-graphql/hooks';
+import { useStorageKey } from '../../services/storage/hooks';
 
 const VideoPreviewContainer = (props) => {
   const {
@@ -28,6 +29,7 @@ const VideoPreviewContainer = (props) => {
   const hasVideoStream = useHasVideoStream();
   const camCapReached = useHasCapReached();
   const isCamLocked = useIsUserLocked();
+  const webcamDeviceId = useStorageKey('WebcamDeviceId');
 
   const stopSharing = (deviceId) => {
     callbackToClose();
@@ -72,6 +74,7 @@ const VideoPreviewContainer = (props) => {
         hasVideoStream,
         camCapReached,
         isCamLocked,
+        webcamDeviceId,
         ...props,
       }}
     />
@@ -93,7 +96,6 @@ const VideoPreviewContainerTracker = withTracker(({ setIsOpen, callbackToClose }
     callbackToClose();
     setIsOpen(false);
   },
-  webcamDeviceId: Service.webcamDeviceId(),
 }))(VideoPreviewContainer);
 
 // TODO: Remove this

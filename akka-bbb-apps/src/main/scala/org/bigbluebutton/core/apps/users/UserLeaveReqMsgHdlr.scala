@@ -19,6 +19,12 @@ trait UserLeaveReqMsgHdlr extends HandlerHelpers {
   def handleUserClosedAllGraphqlConnectionsInternalMsg(msg: UserClosedAllGraphqlConnectionsInternalMsg, state: MeetingState2x): MeetingState2x = {
     log.info("Received user closed all graphql connections. user {} meetingId={}", msg.userId, liveMeeting.props.meetingProp.intId)
 
+    for {
+      regUser <- RegisteredUsers.findWithUserId(msg.userId, liveMeeting.registeredUsers)
+    } yield {
+      RegisteredUsers.updateUserConnectedToGraphql(liveMeeting.registeredUsers, regUser, graphqlConnected = false)
+    }
+
     handleUserLeaveReq(msg.userId, liveMeeting.props.meetingProp.intId, loggedOut = false, state)
   }
 

@@ -1249,8 +1249,6 @@ Do the same in `/usr/share/bbb-web/WEB-INF/classes/bigbluebutton.properties` in 
 
 ```
 defaultHTML5ClientUrl=${bigbluebutton.web.serverURL}/html5client/join
-
-defaultGuestWaitURL=${bigbluebutton.web.serverURL}/html5client/guestWait
 ```
 
 In configuration file for the HTML5 client, located in `/usr/share/meteor/bundle/programs/server/assets/app/config/settings.yml`, change the entry for `public.app.basename`:

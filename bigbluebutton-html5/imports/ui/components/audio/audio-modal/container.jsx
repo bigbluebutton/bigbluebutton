@@ -15,17 +15,18 @@ import {
   joinListenOnly,
   leaveEchoTest,
 } from './service';
-import Storage from '/imports/ui/services/storage/session';
 import Service from '../service';
 import AudioModalService from '/imports/ui/components/audio/audio-modal/service';
 import useCurrentUser from '/imports/ui/core/hooks/useCurrentUser';
 import AudioManager from '/imports/ui/services/audio-manager';
+import { useStorageKey } from '/imports/ui/services/storage/hooks';
 
 const AudioModalContainer = (props) => {
   const { data: currentUserData } = useCurrentUser((user) => ({
     away: user.away,
     isModerator: user.isModerator,
   }));
+  const getEchoTest = useStorageKey('getEchoTest', 'session');
 
   const away = currentUserData?.away;
   const isModerator = currentUserData?.isModerator;
@@ -44,6 +45,18 @@ const AudioModalContainer = (props) => {
   const isEchoTest = useReactiveVar(AudioManager._isEchoTest.value);
   const autoplayBlocked = useReactiveVar(AudioManager._autoplayBlocked.value);
 
+  const { autoJoin, skipCheck, skipCheckOnJoin } = props;
+  const joinFullAudioImmediately = (
+    autoJoin
+    && (
+      skipCheck
+      || (skipCheckOnJoin && !getEchoTest)
+    ))
+    || (
+      skipCheck
+      || (skipCheckOnJoin && !getEchoTest)
+    );
+
   return (
     <AudioModal
       away={away}
@@ -57,6 +70,8 @@ const AudioModalContainer = (props) => {
       isListenOnly={isListenOnly}
       isEchoTest={isEchoTest}
       autoplayBlocked={autoplayBlocked}
+      getEchoTest={getEchoTest}
+      joinFullAudioImmediately={joinFullAudioImmediately}
       {...props}
     />
   );
@@ -72,7 +87,6 @@ export default lockContextContainer(withTracker(({ userLocks, setIsOpen }) => {
   const skipCheckOnJoin = getFromUserSettings('bbb_skip_check_audio_on_first_join', APP_CONFIG.skipCheckOnJoin);
   const autoJoin = getFromUserSettings('bbb_auto_join_audio', APP_CONFIG.autoJoin);
   const meeting = Meetings.findOne({ meetingId: Auth.meetingID }, { fields: { voiceSettings: 1 } });
-  const getEchoTest = Storage.getItem('getEchoTest');
 
   let formattedDialNum = '';
   let formattedTelVoice = '';
@@ -87,17 +101,6 @@ export default lockContextContainer(withTracker(({ userLocks, setIsOpen }) => {
   }
 
   const meetingIsBreakout = AppService.meetingIsBreakout();
-
-  const joinFullAudioImmediately = (
-    autoJoin
-    && (
-      skipCheck
-      || (skipCheckOnJoin && !getEchoTest)
-    ))
-    || (
-      skipCheck
-      || (skipCheckOnJoin && !getEchoTest)
-    );
 
   const { isIe } = browserInfo;
 
@@ -127,7 +130,9 @@ export default lockContextContainer(withTracker(({ userLocks, setIsOpen }) => {
     formattedTelVoice,
     combinedDialInNum,
     audioLocked: userLocks.userMic,
-    joinFullAudioImmediately,
+    autoJoin,
+    skipCheck,
+    skipCheckOnJoin,
     isMobileNative: navigator.userAgent.toLowerCase().includes('bbbnative'),
     isIE: isIe,
     handleAllowAutoplay: () => Service.handleAllowAutoplay(),

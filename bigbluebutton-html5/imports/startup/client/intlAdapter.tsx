@@ -2,7 +2,7 @@ import React, { useContext, useEffect } from 'react';
 import { useIntl } from 'react-intl';
 import * as PluginSdk from 'bigbluebutton-html-plugin-sdk';
 import { getSettingsSingletonInstance } from '/imports/ui/services/settings';
-import { Session } from 'meteor/session';
+import Session from '/imports/ui/services/storage/in-memory';
 import { formatLocaleCode } from '/imports/utils/string-utils';
 import useCurrentLocale from '/imports/ui/core/local-states/useCurrentLocale';
 import { LoadingContext } from '/imports/ui/components/common/loading-screen/loading-screen-HOC/component';
@@ -56,7 +56,7 @@ const IntlAdapter: React.FC<IntlAdapterProps> = ({
         // @ts-ignore - JS code
         Settings.application.isRTL = false;
       }
-      Session.set('isLargeFont', LARGE_FONT_LANGUAGES.includes(currentLocale.substring(0, 2)));
+      Session.setItem('isLargeFont', LARGE_FONT_LANGUAGES.includes(currentLocale.substring(0, 2)));
       document.getElementsByTagName('html')[0].lang = formattedLocale;
       document.body.classList.add(`lang-${language}`);
       Settings.save(setLocalSettings);

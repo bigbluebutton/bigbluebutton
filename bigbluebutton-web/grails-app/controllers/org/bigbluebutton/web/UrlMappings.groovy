@@ -104,7 +104,7 @@ class UrlMappings {
     }
 
     "/bigbluebutton/api/insertDocument"(controller: "api") {
-      action = [GET: 'insertDocument', POST: 'insertDocument']
+      action = [POST: 'insertDocument']
     }
 
     "/bigbluebutton/api/getJoinUrl"(controller: "api") {
@@ -113,6 +113,11 @@ class UrlMappings {
 
     "/bigbluebutton/api/learningDashboard"(controller: "api") {
       action = [GET: 'learningDashboard', POST: 'learningDashboard']
+    }
+
+
+    "/bigbluebutton/api/sendChatMessage"(controller: "api") {
+      action = [GET: 'sendChatMessage']
     }
 
     "/bigbluebutton/api/getRecordings"(controller: "recording") {
