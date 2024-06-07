@@ -222,23 +222,6 @@ class App extends Component {
       };
     }
 
-    if (transcriptionSettings) {
-      const { partialUtterances, minUtteranceLength } = transcriptionSettings;
-      const setLocalSettings = useUserChangedLocalSettings();
-      if (partialUtterances !== undefined || minUtteranceLength !== undefined) {
-        logger.info({ logCode: 'app_component_set_speech_options' }, 'Setting initial speech options');
-
-        Settings.transcription.partialUtterances = !!partialUtterances;
-        Settings.transcription.minUtteranceLength = parseInt(minUtteranceLength, 10);
-        Settings.save(setLocalSettings);
-
-        setSpeechOptions(
-          Settings.transcription.partialUtterances,
-          Settings.transcription.minUtteranceLength,
-        );
-      }
-    }
-
     logger.info({ logCode: 'app_component_componentdidmount' }, 'Client loaded successfully');
   }
 

@@ -34,13 +34,13 @@ const SettingsContainer = (props) => {
   const application = useSettings(SETTINGS.APPLICATION);
   const audio = useSettings(SETTINGS.AUDIO);
   const dataSaving = useSettings(SETTINGS.DATA_SAVING);
+  const transcription = useSettings(SETTINGS.TRANSCRIPTION);
   const availableLocales = getAvailableLocales();
   const isPresenter = currentUser?.presenter ?? false;
   const isModerator = currentUser?.isModerator ?? false;
   const isScreenSharingEnabled = useIsScreenSharingEnabled();
   const showGuestNotification = meeting?.usersPolicies?.guestPolicy === ASK_MODERATOR;
   const isReactionsEnabled = UserReactionService.useIsEnabled();
-  const transcription = useSettings(SETTINGS.TRANSCRIPTION);
   const isGladiaEnabled = AudioCaptionsService.isGladia();
 
   return (
@@ -51,6 +51,7 @@ const SettingsContainer = (props) => {
         application,
         audio,
         dataSaving,
+        transcription,
         availableLocales,
         isPresenter,
         isModerator,
@@ -59,7 +60,6 @@ const SettingsContainer = (props) => {
         isReactionsEnabled,
         showToggleLabel: false,
         isVideoEnabled: window.meetingClientSettings.public.kurento.enableVideo,
-        transcription,
         isGladiaEnabled,
       }}
       layoutContextDispatch={layoutContextDispatch}
