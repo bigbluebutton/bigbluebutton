@@ -71,6 +71,7 @@ class MeetingActorAudit(
 
   def handleMonitorNumberOfWebUsers() {
     eventBus.publish(BigBlueButtonEvent(props.meetingProp.intId, MonitorNumberOfUsersInternalMsg(props.meetingProp.intId)))
+    eventBus.publish(BigBlueButtonEvent(props.meetingProp.intId, MonitorGuestWaitPresenceInternalMsg(props.meetingProp.intId)))
 
     // Trigger updating users of time remaining on meeting.
     eventBus.publish(BigBlueButtonEvent(props.meetingProp.intId, SendTimeRemainingAuditInternalMsg(props.meetingProp.intId, 0)))

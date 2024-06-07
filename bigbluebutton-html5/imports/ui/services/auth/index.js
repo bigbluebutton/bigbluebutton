@@ -1,6 +1,7 @@
 /* eslint prefer-promise-reject-errors: 0 */
-import Storage from '/imports/ui/services/storage/session';
 import { makeVar, useReactiveVar } from '@apollo/client';
+import Storage from '/imports/ui/services/storage/session';
+import Session from '/imports/ui/services/storage/in-memory';
 
 class Auth {
   constructor() {
@@ -8,7 +9,7 @@ class Auth {
 
     const queryParams = new URLSearchParams(document.location.search);
     if (queryParams.has('sessionToken')
-      && queryParams.get('sessionToken') !== Session.get('sessionToken')) {
+      && queryParams.get('sessionToken') !== Session.getItem('sessionToken')) {
       return;
     }
 

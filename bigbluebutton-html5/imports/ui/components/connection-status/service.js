@@ -1,7 +1,7 @@
 import { defineMessages } from 'react-intl';
 import { makeVar } from '@apollo/client';
 import Auth from '/imports/ui/services/auth';
-import { Session } from 'meteor/session';
+import Session from '/imports/ui/services/storage/in-memory';
 import { notify } from '/imports/ui/services/notification';
 import AudioService from '/imports/ui/components/audio/service';
 import ScreenshareService from '/imports/ui/components/screenshare/service';
@@ -91,7 +91,7 @@ const sortOnline = (a, b) => {
 const isEnabled = () => window.meetingClientSettings.public.stats.enabled;
 
 const getNotified = () => {
-  const notified = Session.get('connectionStatusNotified');
+  const notified = Session.getItem('connectionStatusNotified');
 
   // Since notified can be undefined we need a boolean verification
   return notified === true;
@@ -107,7 +107,7 @@ const notification = (level, intl) => {
   if (notified) {
     return null;
   }
-  Session.set('connectionStatusNotified', true);
+  Session.setItem('connectionStatusNotified', true);
 
   if (intl) notify(intl.formatMessage(intlMessages.notification), level, 'warning');
 };

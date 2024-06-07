@@ -1,6 +1,5 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { defineMessages, useIntl } from 'react-intl';
-import { Session } from 'meteor/session';
 import { Meteor } from 'meteor/meteor';
 import useCurrentUser from '/imports/ui/core/hooks/useCurrentUser';
 import Header from '/imports/ui/components/common/control-header/component';
@@ -20,6 +19,7 @@ import ResponseChoices from './components/ResponseChoices';
 import ResponseTypes from './components/ResponseTypes';
 import PollQuestionArea from './components/PollQuestionArea';
 import LiveResultContainer from './components/LiveResult';
+import Session from '/imports/ui/services/storage/in-memory';
 import useDeduplicatedSubscription from '../../core/hooks/useDeduplicatedSubscription';
 
 const POLL_SETTINGS = Meteor.settings.public.poll;
@@ -350,7 +350,7 @@ const PollCreationPanel: React.FC<PollCreationPanelProps> = ({
 
   const handleToggle = () => {
     const toggledValue = !secretPoll;
-    Session.set('secretPoll', toggledValue);
+    Session.setItem('secretPoll', toggledValue);
     setSecretPoll(toggledValue);
   };
 
@@ -373,7 +373,7 @@ const PollCreationPanel: React.FC<PollCreationPanelProps> = ({
 
   useEffect(() => {
     return () => {
-      Session.set('secretPoll', false);
+      Session.setItem('secretPoll', false);
     };
   }, []);
 
@@ -505,8 +505,8 @@ const PollCreationPanel: React.FC<PollCreationPanelProps> = ({
               type: ACTIONS.SET_SIDEBAR_CONTENT_PANEL,
               value: PANELS.NONE,
             });
-            Session.set('forcePollOpen', false);
-            Session.set('pollInitiated', false);
+            Session.setItem('forcePollOpen', false);
+            Session.setItem('pollInitiated', false);
           },
         }}
         customRightButton={null}

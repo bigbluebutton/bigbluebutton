@@ -138,9 +138,13 @@ func handleSubscriptionMessage(hc *common.HasuraConnection, messageMap map[strin
 						}
 
 						lastDataChecksumWas := subscription.LastReceivedDataChecksum
+						lastDataAsJsonWas := subscription.LastReceivedData
 						cacheKey := fmt.Sprintf("%s-%s-%v-%v", string(subscription.Type), subscription.OperationName, subscription.LastReceivedDataChecksum, dataChecksum)
 
 						//Store LastReceivedData Checksum
+						if msgpatch.RawDataCacheStorageMode == "memory" {
+							subscription.LastReceivedData = dataAsJson
+						}
 						subscription.LastReceivedDataChecksum = dataChecksum
 						hc.BrowserConn.ActiveSubscriptionsMutex.Lock()
 						hc.BrowserConn.ActiveSubscriptions[queryId] = subscription
@@ -148,7 +152,7 @@ func handleSubscriptionMessage(hc *common.HasuraConnection, messageMap map[strin
 
 						//Apply msg patch when it supports it
 						if subscription.JsonPatchSupported {
-							msgpatch.PatchMessage(&messageMap, queryId, dataKey, dataAsJson, hc.BrowserConn, cacheKey, lastDataChecksumWas, dataChecksum)
+							msgpatch.PatchMessage(&messageMap, queryId, dataKey, lastDataAsJsonWas, dataAsJson, hc.BrowserConn.Id, hc.BrowserConn.SessionToken, cacheKey, lastDataChecksumWas, dataChecksum)
 						}
 					}
 				}

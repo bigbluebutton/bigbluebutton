@@ -91,6 +91,23 @@ RangeLoop:
 								}
 							}
 
+							//Validate if subscription is allowed
+							if deniedSubscriptions := os.Getenv("BBB_GRAPHQL_MIDDLEWARE_DENIED_SUBSCRIPTIONS"); deniedSubscriptions != "" {
+								deniedSubscriptionsSlice := strings.Split(deniedSubscriptions, ",")
+								subscriptionAllowed := true
+								for _, s := range deniedSubscriptionsSlice {
+									if s == operationName {
+										subscriptionAllowed = false
+										break
+									}
+								}
+
+								if !subscriptionAllowed {
+									log.Infof("Subscription %s not allowed!", operationName)
+									continue
+								}
+							}
+
 							messageType = common.Subscription
 
 							browserConnection.ActiveSubscriptionsMutex.RLock()
@@ -168,7 +185,7 @@ RangeLoop:
 
 					browserConnection.ActiveSubscriptionsMutex.RUnlock()
 					if jsonPatchSupported {
-						msgpatch.RemoveConnSubscriptionCacheFile(browserConnection, queryId)
+						msgpatch.RemoveConnSubscriptionCacheFile(browserConnection.Id, browserConnection.SessionToken, queryId)
 					}
 					browserConnection.ActiveSubscriptionsMutex.Lock()
 					delete(browserConnection.ActiveSubscriptions, queryId)

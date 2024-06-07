@@ -44,7 +44,6 @@ import ActionsBarContainer from '../actions-bar/container';
 import PushLayoutEngine from '../layout/push-layout/pushLayoutEngine';
 import AudioService from '/imports/ui/components/audio/service';
 import NotesContainer from '/imports/ui/components/notes/component';
-import DEFAULT_VALUES from '../layout/defaultValues';
 import AppService from '/imports/ui/components/app/service';
 import TimeSync from './app-graphql/time-sync/component';
 import PresentationUploaderToastContainer from '/imports/ui/components/presentation/presentation-toast/presentation-uploader-toast/container';
@@ -283,7 +282,7 @@ class App extends Component {
     if (deviceType === null || prevProps.deviceType !== deviceType) this.throttledDeviceType();
 
     const CHAT_CONFIG = window.meetingClientSettings.public.chat;
-    const PUBLIC_CHAT_ID = CHAT_CONFIG.public_id;
+    const PUBLIC_CHAT_ID = CHAT_CONFIG.public_group_id;
 
     if (
       selectedLayout !== prevProps.selectedLayout

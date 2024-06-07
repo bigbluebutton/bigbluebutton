@@ -97,7 +97,6 @@ Add these options to `/etc/bigbluebutton/bbb-web.properties`:
 defaultHTML5ClientUrl=https://bbb-proxy.example.com/bbb-01/html5client/join
 presentationBaseURL=https://bbb-01.example.com/bigbluebutton/presentation
 accessControlAllowOrigin=https://bbb-proxy.example.com
-defaultGuestWaitURL=https://bbb-01.example.com/bbb-01/html5client/guestWait
 graphqlWebsocketUrl=wss://bbb-01.example.com/v1/graphql
 ```
 

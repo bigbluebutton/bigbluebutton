@@ -1,6 +1,6 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { defineMessages, useIntl } from 'react-intl';
-import { Session } from 'meteor/session';
+import Session from '/imports/ui/services/storage/in-memory';
 import UserActions from '/imports/ui/components/video-provider/video-provider-graphql/video-list/video-list-item/user-actions/component';
 import UserStatus from '/imports/ui/components/video-provider/video-provider-graphql/video-list/video-list-item/user-status/component';
 import PinArea from '/imports/ui/components/video-provider/video-provider-graphql/video-list/video-list-item/pin-area/component';
@@ -103,7 +103,7 @@ const VideoListItem: React.FC<VideoListItemProps> = (props) => {
     it is needed in cases where the user has more than one active camera
     so we only share the second camera after the first
     has finished loading (can't share more than one at the same time) */
-    Session.set('canConnect', true);
+    Session.setItem('canConnect', true);
   };
 
   // component did mount

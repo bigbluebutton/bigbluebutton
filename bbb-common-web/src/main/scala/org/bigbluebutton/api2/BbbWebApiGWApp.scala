@@ -5,6 +5,8 @@ import org.apache.pekko.actor.ActorSystem
 import org.apache.pekko.event.Logging
 import org.bigbluebutton.api.domain.{BreakoutRoomsParams, Group, LockSettingsParams}
 import org.bigbluebutton.api.messaging.converters.messages._
+import org.bigbluebutton.api.messaging.messages.ChatMessageFromApi
+import org.bigbluebutton.api.model.request.SendChatMessage
 import org.bigbluebutton.api2.bus._
 import org.bigbluebutton.api2.endpoint.redis.WebRedisSubscriberActor
 import org.bigbluebutton.common2.redis.MessageSender
@@ -130,7 +132,11 @@ class BbbWebApiGWApp(
                     createTime: java.lang.Long, createDate: String, isBreakout: java.lang.Boolean,
                     sequence: java.lang.Integer,
                     freeJoin: java.lang.Boolean,
-                    metadata: java.util.Map[String, String], guestPolicy: String, authenticatedGuest: java.lang.Boolean, meetingLayout: String,
+                    metadata: java.util.Map[String, String],
+                    guestPolicy: String,
+                    authenticatedGuest: java.lang.Boolean,
+                    waitingGuestUsersTimeout: java.lang.Long,
+                    meetingLayout: String,
                     welcomeMsgTemplate: String, welcomeMsg: String, welcomeMsgForModerators: String,
                     dialNumber:                             String,
                     maxUsers:                               java.lang.Integer,
@@ -215,7 +221,8 @@ class BbbWebApiGWApp(
       userCameraCap = userCameraCap.intValue(),
       guestPolicy = guestPolicy, meetingLayout = meetingLayout, allowModsToUnmuteUsers = allowModsToUnmuteUsers.booleanValue(),
       allowModsToEjectCameras = allowModsToEjectCameras.booleanValue(),
-      authenticatedGuest = authenticatedGuest.booleanValue()
+      authenticatedGuest = authenticatedGuest.booleanValue(),
+      waitingGuestUsersTimeout = waitingGuestUsersTimeout.longValue()
     )
     val metadataProp = MetadataProp(mapAsScalaMap(metadata).toMap)
 
@@ -294,11 +301,6 @@ class BbbWebApiGWApp(
     msgToAkkaAppsEventBus.publish(MsgToAkkaApps(toAkkaAppsChannel, event))
   }
 
-  def guestWaitingLeft(meetingId: String, intUserId: String): Unit = {
-    val event = MsgBuilder.buildGuestWaitingLeftMsg(meetingId, intUserId)
-    msgToAkkaAppsEventBus.publish(MsgToAkkaApps(toAkkaAppsChannel, event))
-  }
-
   def destroyMeeting(msg: DestroyMeetingMessage): Unit = {
     val event = MsgBuilder.buildDestroyMeetingSysCmdMsg(msg)
     msgToAkkaAppsEventBus.publish(MsgToAkkaApps(toAkkaAppsChannel, event))
@@ -374,6 +376,13 @@ class BbbWebApiGWApp(
       msgToAkkaAppsEventBus.publish(MsgToAkkaApps(toAkkaAppsChannel, event))
     } else if (msg.isInstanceOf[DocInvalidMimeType]) {
       val event = MsgBuilder.buildPresentationHasInvalidMimeType(msg.asInstanceOf[DocInvalidMimeType])
+      msgToAkkaAppsEventBus.publish(MsgToAkkaApps(toAkkaAppsChannel, event))
+    }
+  }
+
+  def sendChatMessage(msg: ChatMessageFromApi): Unit ={
+    if (msg.isInstanceOf[ChatMessageFromApi]){
+      val event = MsgBuilder.buildSendChatMessageFromApi(msg.asInstanceOf[ChatMessageFromApi])
       msgToAkkaAppsEventBus.publish(MsgToAkkaApps(toAkkaAppsChannel, event))
     }
   }
