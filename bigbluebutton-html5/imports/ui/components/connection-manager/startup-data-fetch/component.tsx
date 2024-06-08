@@ -1,5 +1,5 @@
 import React, { useEffect } from 'react';
-import Session from '/imports/ui/services/storage/in-memory';
+import { Session } from 'meteor/session';
 import { v4 as uuid } from 'uuid';
 import { ErrorScreen } from '../../error-screen/component';
 import LoadingScreen from '../../common/loading-screen/component';
@@ -65,31 +65,35 @@ const StartupDataFetch: React.FC<StartupDataFetchProps> = ({
       setLoading(false);
       return;
     }
-    const apipath = window.location.pathname.match('^(.*)/html5client/join$')[1]
+    const md = window.location.pathname.match('^(.*)/html5client/join$');
+    if (md == null) {
+      throw new Error('Failed to match BBB client URI');
+    }
+    const apipath = md[1];
     fetch(`https://${window.location.hostname}${apipath}/bigbluebutton/api`, {
       headers: {
         'Content-Type': 'application/json',
       },
     }).then((resp) => resp.json())
-      .then((data: Response) => {
-      const url = `${data.response.graphqlApiUrl}/clientStartupSettings/?sessionToken=${sessionToken}`;
-      fetch(url, { method: 'get', credentials: 'include' })
-      .then((resp) => resp.json())
-      .then((data: Response) => {
-          const settings = data.meeting_clientSettings[0];
-          sessionStorage.setItem('clientStartupSettings', JSON.stringify(settings || {}));
-          setSettingsFetched(true);
-          clearTimeout(timeoutRef.current);
-          setLoading(false);
-      }).catch(() => {
-          Session.setItem('errorMessageDescription', 'meeting_ended');
-          setError('Error fetching startup data');
-          setLoading(false);
+      .then((data) => {
+        const url = `${data.response.graphqlApiUrl}/clientStartupSettings/?sessionToken=${sessionToken}`;
+        fetch(url, { method: 'get', credentials: 'include' })
+          .then((resp) => resp.json())
+          .then((data: Response) => {
+            const settings = data.meeting_clientSettings[0];
+            sessionStorage.setItem('clientStartupSettings', JSON.stringify(settings || {}));
+            setSettingsFetched(true);
+            clearTimeout(timeoutRef.current);
+            setLoading(false);
+          }).catch(() => {
+            Session.set('errorMessageDescription', 'meeting_ended');
+            setError('Error fetching startup data');
+            setLoading(false);
+          });
+      }).catch((error) => {
+        setLoading(false);
+        throw new Error('Error fetching GraphQL URL: '.concat(error.message || ''));
       });
-    }).catch((error) => {
-      setLoading(false);
-      throw new Error('Error fetching GraphQL URL: '.concat(error.message || ''));
-    });
   }, []);
 
   return (

@@ -67,7 +67,11 @@ const ConnectionManager: React.FC<ConnectionManagerProps> = ({ children }): Reac
   const [graphqlUrl, setGraphqlUrl] = React.useState<string>('');
   const loadingContextInfo = useContext(LoadingContext);
   useEffect(() => {
-    const apipath = window.location.pathname.match('^(.*)/html5client/join$')[1]
+    const md = window.location.pathname.match('^(.*)/html5client/join$');
+    if (md == null) {
+      throw new Error('Failed to match BBB client URI');
+    }
+    const apipath = md[1];
     fetch(`https://${window.location.hostname}${apipath}/bigbluebutton/api`, {
       headers: {
         'Content-Type': 'application/json',
