@@ -79,13 +79,9 @@ export interface User {
   extId: string;
   name: string;
   nameSortable: string;
-  banned: boolean;
   isModerator: boolean;
   clientType: string;
-  disconnected: boolean;
   isOnline: boolean;
-  isRunningEchoTest: boolean;
-  echoTestRunningAt: number;
   ejectReason: string;
   ejectReasonCode: string;
   ejected: boolean;
@@ -108,18 +104,15 @@ export interface User {
   voice?: Partial<Voice>;
   locked: boolean;
   registeredAt: string;
-  registeredOn: number;
   hasDrawPermissionOnCurrentPage: boolean;
   lastBreakoutRoom?: LastBreakoutRoom;
   cameras: Array<Cameras>;
   presPagesWritable: Array<PresPagesWritable>;
   speechLocale: string;
   captionLocale: string;
-  authed: boolean;
   size: number;
   away: boolean;
   raiseHand: boolean;
   reaction: Reaction;
   breakoutRooms: BreakoutRooms;
-  customParameters: Array<CustomParameter>;
 }
