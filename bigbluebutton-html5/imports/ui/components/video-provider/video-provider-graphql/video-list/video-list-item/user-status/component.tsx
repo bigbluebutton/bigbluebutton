@@ -19,14 +19,12 @@ const UserStatus: React.FC<UserStatusProps> = (props) => {
   const listenOnly = voiceUser?.listenOnly;
   const muted = voiceUser?.muted;
   const voiceUserJoined = voiceUser?.joined;
-  const emoji = data?.reaction?.reactionEmoji;
-  const raiseHand = data?.raiseHand;
+  const emoji = data?.reactionEmoji;
   const away = data?.away;
   return (
     <div>
-      {away && !raiseHand && '⏰'}
-      {raiseHand && '✋'}
-      {(emoji && emoji !== 'none' && !raiseHand && !away) && emoji}
+      {away && <span>⏰</span>}
+      {(emoji && emoji !== 'none' && !away) && <span>{emoji}</span>}
       {(muted && !listenOnly) && <Styled.Muted iconName="unmute_filled" />}
       {listenOnly && <Styled.Voice iconName="listen" /> }
       {(voiceUserJoined && !muted) && <Styled.Voice iconName="unmute" />}

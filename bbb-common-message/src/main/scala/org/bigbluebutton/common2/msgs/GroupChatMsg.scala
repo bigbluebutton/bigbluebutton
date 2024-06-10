@@ -7,6 +7,7 @@ object GroupChatAccess {
 
 object GroupChatMessageType {
   val DEFAULT = "default"
+  val API = "api"
   val PRESENTATION = "presentation"
   val POLL = "poll"
   val BREAKOUTROOM_MOD_MSG = "breakoutRoomModeratorMsg"
@@ -89,6 +90,16 @@ case class GroupChatUserRemovedEvtMsgBody(requesterId: String, chats: Vector[Str
 object SendGroupChatMessageMsg { val NAME = "SendGroupChatMessageMsg" }
 case class SendGroupChatMessageMsg(header: BbbClientMsgHeader, body: SendGroupChatMessageMsgBody) extends StandardMsg
 case class SendGroupChatMessageMsgBody(chatId: String, msg: GroupChatMsgFromUser)
+
+object SendGroupChatMessageFromApiSysPubMsg { val NAME = "SendGroupChatMessageFromApiSysPubMsg" }
+case class SendGroupChatMessageFromApiSysPubMsg(
+    header: BbbClientMsgHeader,
+    body:   SendGroupChatMessageFromApiSysPubMsgBody
+) extends StandardMsg
+case class SendGroupChatMessageFromApiSysPubMsgBody(
+    userName: String,
+    message:  String
+)
 
 object GroupChatMessageBroadcastEvtMsg { val NAME = "GroupChatMessageBroadcastEvtMsg" }
 case class GroupChatMessageBroadcastEvtMsg(header: BbbClientMsgHeader, body: GroupChatMessageBroadcastEvtMsgBody) extends BbbCoreMsg

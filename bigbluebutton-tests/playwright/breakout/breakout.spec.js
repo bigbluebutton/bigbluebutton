@@ -41,7 +41,7 @@ test.describe.parallel('Breakout @ci', () => {
     });
   });
 
-  test.describe.parallel('After creating @ci', () => {
+  test.describe.parallel('After creating', () => {
     // https://docs.bigbluebutton.org/2.6/release-tests.html#moderators-creating-breakout-rooms-and-assiging-users-automated
     test('Join Breakout room', async ({ browser, context, page }) => {
       const join = new Join(browser, context);
@@ -123,14 +123,14 @@ test.describe.parallel('Breakout @ci', () => {
     test('Export breakout room shared notes @flaky', async ({ browser, context, page }) => {
       const join = new Join(browser, context);
       await join.initPages(page);
-      await join.create(true); // capture breakout notes
+      await join.create(true);
       await join.exportBreakoutNotes();
     });
 
-    test('Export breakout room whiteboard annotations @flaky', async ({ browser, context, page }) => {
+    test('Export breakout room whiteboard annotations', async ({ browser, context, page }) => {
       const join = new Join(browser, context);
       await join.initPages(page);
-      await join.create(false, true); // capture breakout whiteboard
+      await join.create(false, true);
       await join.exportBreakoutWhiteboard();
     });
 

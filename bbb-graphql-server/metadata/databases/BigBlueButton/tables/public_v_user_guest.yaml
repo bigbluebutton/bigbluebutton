@@ -42,6 +42,7 @@ select_permissions:
       columns:
         - guestLobbyMessage
         - guestStatus
+        - isAllowed
         - positionInWaitingQueue
       filter:
         _and:

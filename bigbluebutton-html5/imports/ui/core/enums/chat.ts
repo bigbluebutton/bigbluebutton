@@ -8,6 +8,7 @@ export const enum ChatCommands {
 
 export const enum ChatMessageType {
   TEXT = 'default',
+  API = 'api',
   POLL = 'poll',
   PRESENTATION = 'presentation',
   CHAT_CLEAR = 'publicChatHistoryCleared',

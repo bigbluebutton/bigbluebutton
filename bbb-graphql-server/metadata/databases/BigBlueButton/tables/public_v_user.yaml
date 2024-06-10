@@ -34,15 +34,6 @@ object_relationships:
         remote_table:
           name: v_meeting
           schema: public
-  - name: reaction
-    using:
-      manual_configuration:
-        column_mapping:
-          userId: userId
-        insertion_order: null
-        remote_table:
-          name: v_user_reaction_current
-          schema: public
   - name: voice
     using:
       manual_configuration:
@@ -81,6 +72,7 @@ select_permissions:
         - away
         - awayTime
         - banned
+        - captionLocale
         - clientType
         - color
         - disconnected
@@ -105,10 +97,10 @@ select_permissions:
         - presenter
         - raiseHand
         - raiseHandTime
+        - reactionEmoji
         - registeredOn
         - role
         - speechLocale
-        - captionLocale
         - userId
       filter:
         _and:

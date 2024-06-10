@@ -81,6 +81,7 @@ public class Meeting {
 	private String guestLobbyMessage = "";
 	private Map<String,String> usersWithGuestLobbyMessages;
 	private Boolean authenticatedGuest = false;
+	private long waitingGuestUsersTimeout = 30000;
 	private String meetingLayout = MeetingLayout.SMART_LAYOUT;
 	private boolean userHasJoined = false;
 	private Map<String, String> guestUsersWithPositionInWaitingLine;
@@ -165,6 +166,7 @@ public class Meeting {
         isBreakout = builder.isBreakout;
         guestPolicy = builder.guestPolicy;
         authenticatedGuest = builder.authenticatedGuest;
+		waitingGuestUsersTimeout = builder.waitingGuestUsersTimeout;
 		meetingLayout = builder.meetingLayout;
         allowRequestsWithoutSession = builder.allowRequestsWithoutSession;
         breakoutRoomsParams = builder.breakoutRoomsParams;
@@ -499,6 +501,14 @@ public class Meeting {
 
 	public Boolean getAuthenticatedGuest() {
 		return authenticatedGuest;
+	}
+
+	public void setWaitingGuestUsersTimeout(long waitingGuestUsersTimeout) {
+		waitingGuestUsersTimeout = waitingGuestUsersTimeout;
+	}
+
+	public long getWaitingGuestUsersTimeout() {
+		return waitingGuestUsersTimeout;
 	}
 
 	public void setMeetingLayout(String layout) {
@@ -910,6 +920,7 @@ public class Meeting {
     	private boolean isBreakout;
     	private String guestPolicy;
     	private Boolean authenticatedGuest;
+    	private long waitingGuestUsersTimeout;
     	private Boolean allowRequestsWithoutSession;
 		private String meetingLayout;
     	private BreakoutRoomsParams breakoutRoomsParams;
@@ -1095,6 +1106,11 @@ public class Meeting {
     		authenticatedGuest = authGuest;
     		return this;
     	}
+
+		public Builder withWaitingGuestUsersTimeout(long waitingGuestUsersTimeout) {
+			this.waitingGuestUsersTimeout = waitingGuestUsersTimeout;
+			return this;
+		}
 
     	public Builder withAllowRequestsWithoutSession(Boolean value) {
     		allowRequestsWithoutSession = value;

@@ -101,6 +101,7 @@ class MeetingActor(
 
   object CheckVoiceRecordingInternalMsg
   object SyncVoiceUserStatusInternalMsg
+  object MeetingTasksExecutor
   object MeetingInfoAnalyticsMsg
   object MeetingInfoAnalyticsLogMsg
 
@@ -243,6 +244,13 @@ class MeetingActor(
     MeetingInfoAnalyticsMsg
   )
 
+  context.system.scheduler.schedule(
+    5 seconds,
+    5 seconds,
+    self,
+    MeetingTasksExecutor
+  )
+
   def receive = {
     case SyncVoiceUserStatusInternalMsg =>
       checkVoiceConfUsersStatus()
@@ -252,6 +260,8 @@ class MeetingActor(
       handleMeetingInfoAnalyticsLogging()
     case MeetingInfoAnalyticsMsg =>
       handleMeetingInfoAnalyticsService()
+    case MeetingTasksExecutor =>
+      handleMeetingTasksExecutor()
     //=============================
 
     // 2x messages
@@ -272,6 +282,7 @@ class MeetingActor(
     //=======================================
     // internal messages
     case msg: MonitorNumberOfUsersInternalMsg     => handleMonitorNumberOfUsers(msg)
+    case msg: MonitorGuestWaitPresenceInternalMsg => handleMonitorGuestWaitPresenceInternalMsg(msg)
     case msg: SetPresenterInDefaultPodInternalMsg => state = presentationPodsApp.handleSetPresenterInDefaultPodInternalMsg(msg, state, liveMeeting, msgBus)
     case msg: UserClosedAllGraphqlConnectionsInternalMsg =>
       state = handleUserClosedAllGraphqlConnectionsInternalMsg(msg, state)
@@ -652,7 +663,6 @@ class MeetingActor(
       case m: GuestsWaitingApprovedMsg =>
         handleGuestsWaitingApprovedMsg(m)
         updateUserLastActivity(m.header.userId)
-      case m: GuestWaitingLeftMsg                => handleGuestWaitingLeftMsg(m)
       case m: GetGuestPolicyReqMsg               => handleGetGuestPolicyReqMsg(m)
       case m: UpdatePositionInWaitingQueueReqMsg => handleUpdatePositionInWaitingQueueReqMsg(m)
       case m: SetPrivateGuestLobbyMessageCmdMsg =>
@@ -696,6 +706,8 @@ class MeetingActor(
       case m: SendGroupChatMessageMsg =>
         state = groupChatApp.handle(m, state, liveMeeting, msgBus)
         updateUserLastActivity(m.body.msg.sender.id)
+      case m: SendGroupChatMessageFromApiSysPubMsg =>
+        state = groupChatApp.handle(m, state, liveMeeting, msgBus)
 
       // Plugin
       case m: PluginDataChannelPushEntryMsg   => pluginHdlrs.handle(m, state, liveMeeting)
@@ -773,6 +785,25 @@ class MeetingActor(
     val meetingInfoAnalyticsLogMsg: MeetingInfoAnalytics = prepareMeetingInfo()
     val event2 = MsgBuilder.buildMeetingInfoAnalyticsServiceMsg(meetingInfoAnalyticsLogMsg)
     outGW.send(event2)
+  }
+
+  private def handleMeetingTasksExecutor(): Unit = {
+    clearExpiredReactionEmojis()
+  }
+
+  private def clearExpiredReactionEmojis(): Unit = {
+    val userReactionExpire = getConfigPropertyValueByPathAsIntOrElse(liveMeeting.clientSettings, "public.userReaction.expire", 30)
+    val now = System.currentTimeMillis()
+
+    for {
+      user <- Users2x.findAll(liveMeeting.users2x)
+    } yield {
+      if (user.reactionEmoji != null && user.reactionEmoji != "none") {
+        if (now - user.reactionChangedOn > userReactionExpire * 1000) {
+          Users2x.setReactionEmoji(liveMeeting.users2x, user.intId, "none", 0)
+        }
+      }
+    }
   }
 
   private def prepareMeetingInfo(): MeetingInfoAnalytics = {
@@ -912,6 +943,25 @@ class MeetingActor(
     processUserInactivityAudit()
     checkIfNeedToEndMeetingWhenNoAuthedUsers(liveMeeting)
     checkIfNeedToEndMeetingWhenNoModerators(liveMeeting)
+  }
+
+  def handleMonitorGuestWaitPresenceInternalMsg(msg: MonitorGuestWaitPresenceInternalMsg) {
+    if (liveMeeting.props.usersProp.waitingGuestUsersTimeout > 0) {
+      for {
+        regUser <- RegisteredUsers.findAll(liveMeeting.registeredUsers)
+      } yield {
+        if (!regUser.loggedOut
+          && regUser.guestStatus == GuestStatus.WAIT
+          && !regUser.graphqlConnected
+          && regUser.graphqlDisconnectedOn != 0) {
+          val diff = System.currentTimeMillis() - regUser.graphqlDisconnectedOn
+          if (diff > liveMeeting.props.usersProp.waitingGuestUsersTimeout) {
+            GuestsWaiting.remove(liveMeeting.guestsWaiting, regUser.id)
+            UsersApp.guestWaitingLeft(liveMeeting, regUser.id, outGW)
+          }
+        }
+      }
+    }
   }
 
   def checkVoiceConfUsersStatus(): Unit = {

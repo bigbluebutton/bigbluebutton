@@ -35,6 +35,7 @@ import VideoStreamsState from '../video-provider/video-provider-graphql/state';
 import { useIsSharing, useSharingContentType } from '../screenshare/service';
 import useSettings from '../../services/settings/hooks/useSettings';
 import { SETTINGS } from '../../services/settings/enums';
+import { useStorageKey } from '../../services/storage/hooks';
 
 const AppContainer = (props) => {
   const layoutType = useRef(null);
@@ -55,6 +56,9 @@ const AppContainer = (props) => {
     meetingLayoutVideoRate,
     ...otherProps
   } = props;
+
+  const isLargeFont = useStorageKey('isLargeFont');
+  const ignorePollNotifications = useStorageKey('ignorePollNotifications');
 
   const NOTES_CONFIG = window.meetingClientSettings.public.notes;
 
@@ -264,6 +268,8 @@ const AppContainer = (props) => {
           pushAlertEnabled,
           darkTheme,
           fontSize,
+          isLargeFont,
+          ignorePollNotifications,
         }}
         {...otherProps}
       />
@@ -350,7 +356,6 @@ const AppTracker = withTracker((props) => {
     meetingLayoutVideoRate,
     pushLayoutMeeting,
     shouldShowScreenshare,
-    isLargeFont: Session.get('isLargeFont'),
     presentationRestoreOnUpdate: getFromUserSettings(
       'bbb_force_restore_presentation_on_new_events',
       window.meetingClientSettings.public.presentation.restoreOnUpdate,
@@ -358,7 +363,6 @@ const AppTracker = withTracker((props) => {
     hidePresentationOnJoin: getFromUserSettings('bbb_hide_presentation_on_join', LAYOUT_CONFIG.hidePresentationOnJoin),
     hideActionsBar: getFromUserSettings('bbb_hide_actions_bar', false),
     hideNavBar: getFromUserSettings('bbb_hide_nav_bar', false),
-    ignorePollNotifications: Session.get('ignorePollNotifications'),
     User: currentUser,
   };
 })(AppContainer);

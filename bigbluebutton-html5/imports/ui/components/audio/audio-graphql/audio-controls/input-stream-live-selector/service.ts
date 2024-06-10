@@ -50,7 +50,7 @@ export const toggleMuteMicrophone = (
       },
       'microphone unmuted by user',
     );
-    toggleVoice(Auth.userID!, false);
+    toggleVoice(Auth.userID as string, false);
   } else {
     logger.info(
       {
@@ -59,7 +59,7 @@ export const toggleMuteMicrophone = (
       },
       'microphone muted by user',
     );
-    toggleVoice(Auth.userID!, true);
+    toggleVoice(Auth.userID as string, true);
   }
 };
 

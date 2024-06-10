@@ -17,6 +17,9 @@ import "@bigbluebutton/tldraw/tldraw.css";
 import SlideCalcUtil from "/imports/utils/slideCalcUtils";
 import { HUNDRED_PERCENT } from "/imports/utils/slideCalcUtils";
 // eslint-disable-next-line import/no-extraneous-dependencies
+import Settings from '/imports/ui/services/settings';
+import meetingClientSettingsInitialValues from '/imports/ui/core/initial-values/meetingClientSettings';
+import getFromUserSettings from '/imports/ui/services/users-settings';
 import KEY_CODES from "/imports/utils/keyCodes";
 import Styled from "./styles";
 import {
@@ -138,7 +141,7 @@ const Whiteboard = React.memo(function Whiteboard(props) {
   const initialViewBoxWidthRef = React.useRef(null);
 
   const THRESHOLD = 0.1;
-  const CAMERA_UPDATE_DELAY = 1000;
+  const CAMERA_UPDATE_DELAY = 650;
   const lastKnownHeight = React.useRef(presentationAreaHeight);
   const lastKnownWidth = React.useRef(presentationAreaWidth);
 
@@ -227,15 +230,71 @@ const Whiteboard = React.memo(function Whiteboard(props) {
   );
 
   const handleKeyDown = (event) => {
-    if (!isPresenterRef.current) {
-      if (
-        !hasWBAccessRef.current ||
-        (hasWBAccessRef.current && !tlEditorRef.current?.getEditingShape())
-      ) {
+    if (event.key === 'Escape') {
+      tlEditorRef.current?.deselect(...tlEditorRef.current?.getSelectedShapes());
+      return;
+    }
+
+    const editingShape = tlEditorRef.current?.getEditingShape();
+    if (editingShape && (isPresenterRef.current || hasWBAccessRef.current)) {
+      return;
+    }
+
+    // Mapping of simple key shortcuts to tldraw functions
+    const simpleKeyMap = {
+      'v': () => tlEditorRef.current?.setCurrentTool("select"),
+      'd': () => tlEditorRef.current?.setCurrentTool("draw"),
+      'e': () => tlEditorRef.current?.setCurrentTool("eraser"),
+      'h': () => tlEditorRef.current?.setCurrentTool("hand"),
+      'r': () => tlEditorRef.current?.setCurrentTool("rectangle"),
+      'o': () => tlEditorRef.current?.setCurrentTool("ellipse"),
+      'a': () => tlEditorRef.current?.setCurrentTool("arrow"),
+      'l': () => tlEditorRef.current?.setCurrentTool("line"),
+      't': () => tlEditorRef.current?.setCurrentTool("text"),
+      'f': () => tlEditorRef.current?.setCurrentTool("frame"),
+      'n': () => tlEditorRef.current?.setCurrentTool("note"),
+    };
+
+    if (event.ctrlKey) {
+      const ctrlKeyMap = {
+        'a': () => {
+          tlEditorRef.current?.selectAll();
+          tlEditorRef.current?.setCurrentTool("select");
+        },
+        'd': () => {
+          tlEditorRef.current?.duplicateShapes(tlEditorRef.current?.getSelectedShapes(), { x: 10, y: 10 });
+          tlEditorRef.current?.selectNone();
+        },
+      };
+      if (ctrlKeyMap[event.key]) {
         event.preventDefault();
         event.stopPropagation();
+        ctrlKeyMap[event.key]();
         return;
       }
+    }
+
+    if (simpleKeyMap[event.key]) {
+      event.preventDefault();
+      event.stopPropagation();
+      simpleKeyMap[event.key]();
+      return;
+    }
+
+    const moveDistance = 10;
+    const selectedShapes = tlEditorRef.current?.getSelectedShapes().map(shape => shape.id);
+
+    const arrowKeyMap = {
+      'ArrowUp': { x: 0, y: -moveDistance },
+      'ArrowDown': { x: 0, y: moveDistance },
+      'ArrowLeft': { x: -moveDistance, y: 0 },
+      'ArrowRight': { x: moveDistance, y: 0 },
+    };
+
+    if (arrowKeyMap[event.key]) {
+      event.preventDefault();
+      event.stopPropagation();
+      tlEditorRef.current?.nudgeShapes(selectedShapes, arrowKeyMap[event.key], { squashing: true });
     }
   };
 
@@ -518,6 +577,21 @@ const Whiteboard = React.memo(function Whiteboard(props) {
         delete remoteShape.questionType;
         toAdd.push(remoteShape);
       } else if (!isEqual(localShape, remoteShape) && prevShape) {
+        const remoteShapeMeta = remoteShape?.meta;
+        const isCreatedByCurrentUser = remoteShapeMeta?.createdBy === currentUser?.userId;
+        const isUpdatedByCurrentUser = remoteShapeMeta?.updatedBy === currentUser?.userId;
+
+        // System-level shapes (background image) lack createdBy and updatedBy metadata, which can cause false positives.
+        // These cases expect an early return and shouldn't be updated.
+        if (
+          remoteShapeMeta && (
+            (isCreatedByCurrentUser && isUpdatedByCurrentUser)
+            || (!isCreatedByCurrentUser && isUpdatedByCurrentUser)
+          )
+        ) {
+          return;
+        }
+
         const diff = {
           id: remoteShape.id,
           type: remoteShape.type,
@@ -1175,6 +1249,62 @@ const Whiteboard = React.memo(function Whiteboard(props) {
     presentationAreaWidth,
     presentationAreaHeight,
   ]);
+
+  React.useEffect (() => {
+    const bbb_multi_user_tools = getFromUserSettings(
+      'bbb_multi_user_tools',
+      meetingClientSettingsInitialValues.public.whiteboard.toolbar.multiUserTools,
+    );
+      const allElements = document.querySelectorAll('[data-testid^="tools."]');
+
+      if (bbb_multi_user_tools.length >= 1 && !isModerator) {
+        allElements.forEach((element) => {
+          const toolName = element.getAttribute('data-testid').split('.')[1];
+
+          if (!bbb_multi_user_tools.includes(toolName)) {
+            element.style.display = 'none';
+          }
+        });
+      }
+    }),[]
+
+    React.useEffect (() => {
+      const bbb_presenter_tools = getFromUserSettings(
+        'bbb_presenter_tools',
+        meetingClientSettingsInitialValues.public.whiteboard.toolbar.presenterTools,
+      );
+        const allElements = document.querySelectorAll('[data-testid^="tools."]');
+
+        if (bbb_presenter_tools.length >= 1 && isPresenter) {
+          allElements.forEach((element) => {
+            const toolName = element.getAttribute('data-testid').split('.')[1];
+
+            if (!bbb_presenter_tools.includes(toolName)) {
+              element.style.display = 'none';
+            }
+          });
+        }
+      }),[]
+
+      React.useEffect (() => {
+        const bbb_multi_user_pen_only = getFromUserSettings(
+          'bbb_multi_user_pen_only',
+          false,
+        );
+          const allElements = document.querySelectorAll('[data-testid^="tools."]');
+
+          if (bbb_multi_user_pen_only && !isModerator && !isPresenter) {
+            allElements.forEach((element) => {
+              const toolName = element.getAttribute('data-testid').split('.')[1];
+
+              if (toolName != 'draw') {
+                element.style.display = 'none';
+              } else {
+                element.style.display = 'flex';
+              }
+            });
+          }
+        }),[]
 
   const customTools = [NoopTool];
 

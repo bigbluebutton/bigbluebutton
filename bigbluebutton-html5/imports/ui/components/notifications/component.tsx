@@ -11,6 +11,7 @@ import {
   userLeavePushAlert,
 } from './service';
 import useDeduplicatedSubscription from '../../core/hooks/useDeduplicatedSubscription';
+import { getSettingsSingletonInstance } from '/imports/ui/services/settings';
 
 const Notifications: React.FC = () => {
   const [registeredAt, setRegisteredAt] = React.useState<string>(new Date().toISOString());
@@ -35,10 +36,31 @@ const Notifications: React.FC = () => {
     isModerator: u.isModerator,
   }));
 
+  const Settings = getSettingsSingletonInstance();
+  const {
+    userJoinPushAlerts,
+    userLeavePushAlerts,
+    guestWaitingPushAlerts,
+  } = Settings.application;
+
+  const excludedMessageIds = [];
+
+  if (!userJoinPushAlerts) {
+    excludedMessageIds.push('app.notification.userJoinPushAlert');
+  }
+
+  if (!userLeavePushAlerts) {
+    excludedMessageIds.push('app.notification.userLeavePushAlert');
+  }
+
+  if (!guestWaitingPushAlerts) {
+    excludedMessageIds.push('app.userList.guest.pendingGuestAlert');
+  }
+
   const {
     data: notificationsStream,
   } = useDeduplicatedSubscription<NotificationResponse>(getNotificationsStream, {
-    variables: { initialCursor: '2024-04-18' },
+    variables: { initialCursor: '2024-04-18', excludedMessageIds },
   });
 
   const notifier = (notification: Notification) => {

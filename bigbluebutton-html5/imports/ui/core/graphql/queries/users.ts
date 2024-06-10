@@ -23,6 +23,7 @@ subscription UserListSubscription($offset: Int!, $limit: Int!) {
     away
     raiseHand
     emoji
+    reactionEmoji
     avatar
     presenter
     pinned
@@ -53,9 +54,6 @@ subscription UserListSubscription($offset: Int!, $limit: Int!) {
       sequence
       shortName
       currentlyInRoom
-    }
-    reaction {
-      reactionEmoji
     }
   }
 }`;

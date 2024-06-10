@@ -8,6 +8,7 @@ import POLL_SUBSCRIPTION from '/imports/ui/core/graphql/queries/pollSubscription
 import { POLL_CANCEL, POLL_CREATE } from '/imports/ui/components/poll/mutations';
 import { PRESENTATION_SET_PAGE } from '../mutations';
 import PresentationToolbar from './component';
+import Session from '/imports/ui/services/storage/in-memory';
 import useDeduplicatedSubscription from '/imports/ui/core/hooks/useDeduplicatedSubscription';
 
 const PresentationToolbarContainer = (props) => {
@@ -66,8 +67,8 @@ const PresentationToolbarContainer = (props) => {
   };
 
   const startPoll = (pollType, pollId, answers = [], question, isMultipleResponse = false) => {
-    Session.set('openPanel', 'poll');
-    Session.set('forcePollOpen', true);
+    Session.setItem('openPanel', 'poll');
+    Session.setItem('forcePollOpen', true);
     window.dispatchEvent(new Event('panelChanged'));
 
     createPoll({

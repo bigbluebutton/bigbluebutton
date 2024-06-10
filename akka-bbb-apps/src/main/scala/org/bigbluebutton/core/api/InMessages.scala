@@ -25,6 +25,12 @@ case class MonitorNumberOfUsersInternalMsg(meetingID: String) extends InMessage
  * Audit message sent to meeting to trigger updating clients of meeting time remaining.
  * @param meetingId
  */
+case class MonitorGuestWaitPresenceInternalMsg(meetingId: String) extends InMessage
+
+/**
+ * Audit message sent to meeting to trigger updating clients of meeting time remaining.
+ * @param meetingId
+ */
 case class SendTimeRemainingAuditInternalMsg(meetingId: String, timeUpdatedInMinutes: Int) extends InMessage
 
 /**
