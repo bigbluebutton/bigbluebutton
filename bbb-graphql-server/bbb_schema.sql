@@ -274,6 +274,8 @@ CREATE TABLE "user" (
     "awayTime" timestamp with time zone,
 	"emoji" varchar,
 	"emojiTime" timestamp with time zone,
+	"reactionEmoji" varchar(25),
+	"reactionEmojiTime" timestamp with time zone,
 	"guestStatusSetByModerator" varchar(50),
 	"guestLobbyMessage" text,
 	"mobile" bool,
@@ -371,6 +373,8 @@ AS SELECT "user"."userId",
     "user"."raiseHandTime",
     "user"."emoji",
     "user"."emojiTime",
+    "user"."reactionEmoji",
+    "user"."reactionEmojiTime",
     "user"."guest",
     "user"."guestStatus",
     "user"."mobile",
@@ -424,6 +428,7 @@ AS SELECT "user"."userId",
     "user"."away",
     "user"."raiseHand",
     "user"."emoji",
+    "user"."reactionEmoji",
     "user"."guest",
     "user"."guestStatus",
     "user"."mobile",
@@ -496,6 +501,7 @@ AS SELECT
     "user"."away",
     "user"."raiseHand",
     "user"."emoji",
+    "user"."reactionEmoji",
     "user"."guest",
     "user"."guestStatus",
     "user"."mobile",
@@ -866,9 +872,15 @@ CREATE TABLE "user_reaction" (
 );
 create index "idx_user_reaction_user_meeting" on "user_reaction" ("userId", "meetingId");
 
---Set expiresAt on isert or update user_reaction
+--Set expiresAt on insert or update user_reaction
+--Set user.reactionEmoji with the latest emoji inserted
 CREATE OR REPLACE FUNCTION "update_user_reaction_trigger_func"() RETURNS TRIGGER AS $$
 BEGIN
+    UPDATE "user"
+    SET "reactionEmoji" = nullif(lower(NEW."reactionEmoji"),'none'),
+        "reactionEmojiTime" = case when NULLIF(LOWER(NEW."reactionEmoji"),'none') is null then null else current_timestamp end
+    WHERE "userId" = NEW."userId" AND "meetingId" = NEW."meetingId";
+
     NEW."expiresAt" := NEW."createdAt" + '1 seconds'::INTERVAL * NEW."durationInSeconds";
     RETURN NEW;
 END;
@@ -888,12 +900,6 @@ CREATE VIEW v_user_reaction AS
 SELECT ur."meetingId", ur."userId", ur."reactionEmoji", ur."createdAt", ur."expiresAt"
 FROM "user_reaction" ur
 WHERE "expiresAt" >= current_timestamp;
-
-CREATE VIEW v_user_reaction_current AS
-SELECT ur."meetingId", ur."userId", (array_agg(ur."reactionEmoji" ORDER BY ur."expiresAt" DESC))[1] as "reactionEmoji"
-FROM "user_reaction" ur
-WHERE "expiresAt" >= current_timestamp
-GROUP BY ur."meetingId", ur."userId";
 
 CREATE TABLE "user_transcriptionError"(
 	"meetingId" varchar(100),

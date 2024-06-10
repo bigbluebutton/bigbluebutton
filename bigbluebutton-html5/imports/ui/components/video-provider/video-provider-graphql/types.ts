@@ -13,9 +13,7 @@ export type User = {
   clientType: string;
   raiseHand: boolean;
   isModerator: boolean;
-  reaction: {
-    reactionEmoji: string;
-  };
+  reactionEmoji: string;
 }
 
 export type ConnectingStream = {

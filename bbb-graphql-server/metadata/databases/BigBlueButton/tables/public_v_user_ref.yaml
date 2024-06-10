@@ -24,6 +24,7 @@ select_permissions:
         - avatar
         - away
         - banned
+        - captionLocale
         - clientType
         - color
         - disconnected
@@ -45,10 +46,10 @@ select_permissions:
         - pinned
         - presenter
         - raiseHand
+        - reactionEmoji
         - registeredOn
         - role
         - speechLocale
-        - captionLocale
         - userId
       filter:
         meetingId:

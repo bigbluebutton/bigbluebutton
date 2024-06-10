@@ -43,9 +43,7 @@ export const VIDEO_STREAMS_SUBSCRIPTION = gql`
         clientType
         raiseHand
         isModerator
-        reaction {
-          reactionEmoji
-        }
+        reactionEmoji
       }
       voice {
         floor
@@ -108,9 +106,7 @@ export const GRID_USERS_SUBSCRIPTION = gql`
       clientType
       raiseHand
       isModerator
-      reaction {
-        reactionEmoji
-      }
+      reactionEmoji
     }
   }
 `;

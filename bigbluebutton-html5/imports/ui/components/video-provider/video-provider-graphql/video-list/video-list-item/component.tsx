@@ -104,9 +104,7 @@ const VideoListItem: React.FC<VideoListItemProps> = (props) => {
     clientType: u.clientType,
     raiseHand: u.raiseHand,
     isModerator: u.isModerator,
-    reaction: {
-      reactionEmoji: u.reaction?.reactionEmoji ?? '',
-    },
+    reactionEmoji: u.reactionEmoji,
   }));
 
   let user;
