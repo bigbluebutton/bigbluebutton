@@ -91,7 +91,7 @@ export interface App {
   emojiRain: EmojiRain
   enableNetworkStats: boolean
   enableCopyNetworkStatsButton: boolean
-  userSettingsStorage: string
+  userSettingsStorage: 'local' | 'session'
   defaultSettings: DefaultSettings
   shortcuts: Shortcuts
   branding: Branding

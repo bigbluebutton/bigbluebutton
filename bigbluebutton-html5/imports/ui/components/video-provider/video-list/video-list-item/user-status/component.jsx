@@ -8,7 +8,7 @@ const UserStatus = (props) => {
   const listenOnly = voiceUser?.listenOnly;
   const muted = voiceUser?.muted;
   const voiceUserJoined = voiceUser?.joined;
-  const emoji = user?.reaction?.reactionEmoji;
+  const emoji = user?.reactionEmoji;
   const raiseHand = user?.raiseHand;
   const away = user?.away;
   return (

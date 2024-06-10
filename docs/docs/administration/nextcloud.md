@@ -129,4 +129,4 @@ It may look something like this (`/etc/apache2/sites-available/000-default.conf`
  - If even with all these solutions your let's encrypt is not working, follow on with one of
  [these alternatives](https://help.nextcloud.com/t/domain-not-working-after-letsencrypt/83862), particularly this one:
 
-`"The default vhost is used whenever a client is accessing your server by direct IP-addres(...)"`
+`"The default vhost is used whenever a client is accessing your server by direct IP-address(...)"`

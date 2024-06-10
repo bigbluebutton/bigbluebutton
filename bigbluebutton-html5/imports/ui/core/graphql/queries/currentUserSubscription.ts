@@ -16,6 +16,7 @@ subscription userCurrentSubscription {
     ejectReasonCode
     ejected
     emoji
+    reactionEmoji
     enforceLayout
     expired
     extId
@@ -43,13 +44,11 @@ subscription userCurrentSubscription {
     registeredOn
     role
     speechLocale
+    captionLocale
     userId
     customParameters {
       parameter
       value
-    }
-    reaction {
-      reactionEmoji
     }
     breakoutRooms {
       currentRoomJoined
@@ -94,12 +93,10 @@ subscription userCurrentSubscription {
       listenOnly
       talking
     }
-    presPagesWritable {
-      isCurrentPage
-      changedModeOn
-      pageId
-      presentationId
-    } 
+    welcomeMsgs {
+      welcomeMsg
+      welcomeMsgForModerators
+    }
   }
 }
 `;

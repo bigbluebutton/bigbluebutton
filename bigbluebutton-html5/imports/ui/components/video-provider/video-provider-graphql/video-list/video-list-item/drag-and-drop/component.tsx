@@ -9,7 +9,7 @@ import { EFFECT_TYPES } from '/imports/ui/services/virtual-background/service';
 import VirtualBgService from '/imports/ui/components/video-preview/virtual-background/service';
 import logger from '/imports/startup/client/logger';
 import withFileReader from '/imports/ui/components/common/file-reader/component';
-import { Session } from 'meteor/session';
+import Session from '/imports/ui/services/storage/in-memory';
 
 const { MIME_TYPES_ALLOWED, MAX_FILE_SIZE } = VirtualBgService;
 
@@ -23,9 +23,6 @@ const intlMessages = defineMessages({
     description: 'Confirmation modal description',
   },
 });
-
-const PUBLIC_CONFIG = window.meetingClientSettings.public;
-const ENABLE_WEBCAM_BACKGROUND_UPLOAD = PUBLIC_CONFIG.virtualBackgrounds.enableVirtualBackgroundUpload;
 
 interface DragAndDropProps {
   readFile: (
@@ -130,10 +127,13 @@ const DragAndDrop: React.FC<DragAndDropProps> = (props) => {
   const callback = (checked: boolean) => {
     if (!file) return;
     handleStartAndSaveVirtualBackground(file);
-    Session.set('skipBackgroundDropConfirmation', checked);
+    Session.setItem('skipBackgroundDropConfirmation', checked);
   };
 
   const makeDragOperations = useCallback((userId: string) => {
+    const PUBLIC_CONFIG = window.meetingClientSettings.public;
+    const ENABLE_WEBCAM_BACKGROUND_UPLOAD = PUBLIC_CONFIG.virtualBackgrounds.enableVirtualBackgroundUpload;
+
     if (!userId || Auth.userID !== userId || !ENABLE_WEBCAM_BACKGROUND_UPLOAD || !isStream) return {};
 
     const startAndSaveVirtualBackground = (file: File) => handleStartAndSaveVirtualBackground(file);
@@ -153,7 +153,7 @@ const DragAndDrop: React.FC<DragAndDropProps> = (props) => {
         const { files } = e.dataTransfer;
         const file = files[0];
 
-        if (Session.get('skipBackgroundDropConfirmation')) {
+        if (Session.getItem('skipBackgroundDropConfirmation')) {
           return startAndSaveVirtualBackground(file);
         }
 

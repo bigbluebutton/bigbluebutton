@@ -10,12 +10,17 @@ import (
 	"github.com/iMDT/bbb-graphql-middleware/internal/msgpatch"
 	log "github.com/sirupsen/logrus"
 	"hash/crc32"
+	"nhooyr.io/websocket"
 	"nhooyr.io/websocket/wsjson"
 	"sync"
 )
 
 // HasuraConnectionReader consumes messages from Hasura connection and add send to the browser channel
-func HasuraConnectionReader(hc *common.HasuraConnection, fromHasuraToBrowserChannel *common.SafeChannel, fromBrowserToHasuraChannel *common.SafeChannel, wg *sync.WaitGroup) {
+func HasuraConnectionReader(
+	hc *common.HasuraConnection,
+	fromHasuraToBrowserChannel *common.SafeChannel,
+	fromBrowserToHasuraChannel *common.SafeChannel,
+	wg *sync.WaitGroup) {
 	log := log.WithField("_routine", "HasuraConnectionReader").WithField("browserConnectionId", hc.BrowserConn.Id).WithField("hasuraConnectionId", hc.Id)
 	defer log.Debugf("finished")
 	log.Debugf("starting")
@@ -27,10 +32,27 @@ func HasuraConnectionReader(hc *common.HasuraConnection, fromHasuraToBrowserChan
 		// Read a message from hasura
 		var message interface{}
 		err := wsjson.Read(hc.Context, hc.Websocket, &message)
+
+		var closeError *websocket.CloseError
+
 		if err != nil {
 			if errors.Is(err, context.Canceled) {
 				log.Debugf("Closing Hasura ws connection as Context was cancelled!")
+			} else if errors.As(err, &closeError) {
+				hc.WebsocketCloseError = closeError
+				log.Debug("WebSocket connection closed: status = %v, reason = %s", closeError.Code, closeError.Reason)
+				//TODO check if it should send {"type":"connection_error","payload":"Authentication hook unauthorized this request"}
 			} else {
+				if websocket.CloseStatus(err) == -1 {
+					//It doesn't have a CloseError, it will reconnect do Hasura
+				} else {
+					//In case Hasura sent an CloseError, it will forward it to browser and disconnect
+					hc.WebsocketCloseError = &websocket.CloseError{
+						Code:   websocket.CloseStatus(err),
+						Reason: "Graphql connection closed with error" + err.Error(),
+					}
+				}
+
 				log.Debugf("Error reading message from Hasura: %v", err)
 			}
 			return
@@ -116,9 +138,13 @@ func handleSubscriptionMessage(hc *common.HasuraConnection, messageMap map[strin
 						}
 
 						lastDataChecksumWas := subscription.LastReceivedDataChecksum
+						lastDataAsJsonWas := subscription.LastReceivedData
 						cacheKey := fmt.Sprintf("%s-%s-%v-%v", string(subscription.Type), subscription.OperationName, subscription.LastReceivedDataChecksum, dataChecksum)
 
 						//Store LastReceivedData Checksum
+						if msgpatch.RawDataCacheStorageMode == "memory" {
+							subscription.LastReceivedData = dataAsJson
+						}
 						subscription.LastReceivedDataChecksum = dataChecksum
 						hc.BrowserConn.ActiveSubscriptionsMutex.Lock()
 						hc.BrowserConn.ActiveSubscriptions[queryId] = subscription
@@ -126,7 +152,7 @@ func handleSubscriptionMessage(hc *common.HasuraConnection, messageMap map[strin
 
 						//Apply msg patch when it supports it
 						if subscription.JsonPatchSupported {
-							msgpatch.PatchMessage(&messageMap, queryId, dataKey, dataAsJson, hc.BrowserConn, cacheKey, lastDataChecksumWas, dataChecksum)
+							msgpatch.PatchMessage(&messageMap, queryId, dataKey, lastDataAsJsonWas, dataAsJson, hc.BrowserConn.Id, hc.BrowserConn.SessionToken, cacheKey, lastDataChecksumWas, dataChecksum)
 						}
 					}
 				}

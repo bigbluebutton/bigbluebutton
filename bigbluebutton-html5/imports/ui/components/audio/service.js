@@ -1,20 +1,9 @@
 import Users from '/imports/api/users';
 import Auth from '/imports/ui/services/auth';
-import { throttle } from '/imports/utils/throttle';
-import { debounce } from '/imports/utils/debounce';
 import AudioManager from '/imports/ui/services/audio-manager';
 import Meetings from '/imports/api/meetings';
-import VoiceUsers from '/imports/api/voice-users';
 import logger from '/imports/startup/client/logger';
 import Storage from '../../services/storage/session';
-
-const ROLE_MODERATOR = window.meetingClientSettings.public.user.role_moderator;
-const TOGGLE_MUTE_THROTTLE_TIME = window.meetingClientSettings.public.media.toggleMuteThrottleTime;
-const SHOW_VOLUME_METER = window.meetingClientSettings.public.media.showVolumeMeter;
-const {
-  enabled: LOCAL_ECHO_TEST_ENABLED,
-  initialHearingState: LOCAL_ECHO_INIT_HEARING_STATE,
-} = window.meetingClientSettings.public.media.localEchoTest;
 
 const MUTED_KEY = 'muted';
 
@@ -72,49 +61,6 @@ const init = (messages, intl, toggleVoice, speechLocale) => {
   return AudioManager.init(userData, audioEventHandler(toggleVoice));
 };
 
-const muteMicrophone = (toggleVoice) => {
-  const user = VoiceUsers.findOne({
-    userId: Auth.userID,
-  }, { fields: { muted: 1 } });
-
-  if (!user.muted) {
-    logger.info({
-      logCode: 'audiomanager_mute_audio',
-      extraInfo: { logType: 'user_action' },
-    }, 'User wants to leave conference. Microphone muted');
-    AudioManager.setSenderTrackEnabled(false);
-    toggleVoice(Auth.userID, true);
-  }
-};
-
-const isVoiceUser = () => {
-  const voiceUser = VoiceUsers.findOne({ userId: Auth.userID },
-    { fields: { joined: 1 } });
-  return voiceUser ? voiceUser.joined : false;
-};
-
-const toggleMuteMicrophone = throttle((toggleVoice) => {
-  const user = VoiceUsers.findOne({
-    userId: Auth.userID,
-  }, { fields: { muted: 1 } });
-
-  Storage.setItem(MUTED_KEY, !user.muted);
-
-  if (user.muted) {
-    logger.info({
-      logCode: 'audiomanager_unmute_audio',
-      extraInfo: { logType: 'user_action' },
-    }, 'microphone unmuted by user');
-    toggleVoice(Auth.userID, false);
-  } else {
-    logger.info({
-      logCode: 'audiomanager_mute_audio',
-      extraInfo: { logType: 'user_action' },
-    }, 'microphone muted by user');
-    toggleVoice(Auth.userID, true);
-  }
-}, TOGGLE_MUTE_THROTTLE_TIME);
-
 export default {
   init,
   exitAudio: () => AudioManager.exitAudio(),
@@ -123,7 +69,6 @@ export default {
   joinListenOnly: () => AudioManager.joinListenOnly(),
   joinMicrophone: () => AudioManager.joinMicrophone(),
   joinEchoTest: () => AudioManager.joinEchoTest(),
-  toggleMuteMicrophone: debounce(toggleMuteMicrophone, 500, { leading: true, trailing: false }),
   changeInputDevice: (inputDeviceId) => AudioManager.changeInputDevice(inputDeviceId),
   changeInputStream: (newInputStream) => { AudioManager.inputStream = newInputStream; },
   liveChangeInputDevice: (inputDeviceId) => AudioManager.liveChangeInputDevice(inputDeviceId),
@@ -151,24 +96,17 @@ export default {
   outputDeviceId: () => AudioManager.outputDeviceId,
   isEchoTest: () => AudioManager.isEchoTest,
   error: () => AudioManager.error,
-  isUserModerator: () => Users.findOne({ userId: Auth.userID },
-    { fields: { role: 1 } })?.role === ROLE_MODERATOR,
-  isVoiceUser,
   autoplayBlocked: () => AudioManager.autoplayBlocked,
   handleAllowAutoplay: () => AudioManager.handleAllowAutoplay(),
   playAlertSound: (url) => AudioManager.playAlertSound(url),
   updateAudioConstraints:
     (constraints) => AudioManager.updateAudioConstraints(constraints),
   recoverMicState,
-  muteMicrophone: (toggleVoice) => muteMicrophone(toggleVoice),
   isReconnecting: () => AudioManager.isReconnecting,
   setBreakoutAudioTransferStatus: (status) => AudioManager
     .setBreakoutAudioTransferStatus(status),
   getBreakoutAudioTransferStatus: () => AudioManager
     .getBreakoutAudioTransferStatus(),
   getStats: () => AudioManager.getStats(),
-  localEchoEnabled: LOCAL_ECHO_TEST_ENABLED,
-  localEchoInitHearingState: LOCAL_ECHO_INIT_HEARING_STATE,
-  showVolumeMeter: SHOW_VOLUME_METER,
   notify: (message, error, icon) => { AudioManager.notify(message, error, icon); },
 };

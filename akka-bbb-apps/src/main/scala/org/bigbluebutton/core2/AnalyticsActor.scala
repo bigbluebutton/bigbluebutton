@@ -77,7 +77,6 @@ class AnalyticsActor(val includeChat: Boolean) extends Actor with ActorLogging {
       case m: UserDisconnectedFromGlobalAudioMsg             => logMessage(msg)
       case m: AssignPresenterReqMsg                          => logMessage(msg)
       case m: ChangeUserPinStateReqMsg                       => logMessage(msg)
-      case m: ChangeUserMobileFlagReqMsg                     => logMessage(msg)
       case m: UserConnectionAliveReqMsg                      => logMessage(msg)
       case m: ScreenshareRtmpBroadcastStartedVoiceConfEvtMsg => logMessage(msg)
       case m: ScreenshareRtmpBroadcastStoppedVoiceConfEvtMsg => logMessage(msg)
@@ -152,7 +151,6 @@ class AnalyticsActor(val includeChat: Boolean) extends Actor with ActorLogging {
       // Guest Management
       case m: GuestsWaitingApprovedMsg => logMessage(msg)
       case m: GuestsWaitingApprovedEvtMsg => logMessage(msg)
-      case m: GuestWaitingLeftMsg => logMessage(msg)
       case m: GuestWaitingLeftEvtMsg => logMessage(msg)
       case m: GuestsWaitingForApprovalEvtMsg => logMessage(msg)
       case m: UpdatePositionInWaitingQueueReqMsg => logMessage(msg)

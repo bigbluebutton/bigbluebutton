@@ -33,9 +33,7 @@ export interface VideoStreamsUsersResponse {
     clientType: string;
     raiseHand: boolean;
     isModerator: boolean;
-    reaction: {
-      reactionEmoji: string;
-    };
+    reactionEmoji: string;
   }[];
 }
 
@@ -65,10 +63,11 @@ export const VIDEO_STREAMS_SUBSCRIPTION = gql`
 `;
 
 export const OWN_VIDEO_STREAMS_QUERY = gql`
-  query OwnVideoStreams($userId: String!) {
+  query OwnVideoStreams($userId: String!, $streamIdPrefix: String!) {
     user_camera(
       where: {
-        userId: { _eq: $userId }
+        userId: { _eq: $userId },
+        streamId: { _like: $streamIdPrefix }
       },
     ) {
       streamId
@@ -117,9 +116,7 @@ export const GRID_USERS_SUBSCRIPTION = gql`
       userId
       raiseHand
       isModerator
-      reaction {
-        reactionEmoji
-      }
+      reactionEmoji
     }
   }
 `;
@@ -148,9 +145,7 @@ export const VIDEO_STREAMS_USERS_FILTERED_SUBSCRIPTION = gql`
       userId
       raiseHand
       isModerator
-      reaction {
-        reactionEmoji
-      }
+      reactionEmoji
     }
   }
 `;

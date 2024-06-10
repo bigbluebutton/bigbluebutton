@@ -4,7 +4,6 @@ import (
 	"bytes"
 	"encoding/json"
 	"fmt"
-	"github.com/iMDT/bbb-graphql-middleware/internal/bbb_web"
 	"github.com/iMDT/bbb-graphql-middleware/internal/common"
 	log "github.com/sirupsen/logrus"
 	"io/ioutil"
@@ -18,20 +17,12 @@ var graphqlActionsUrl = os.Getenv("BBB_GRAPHQL_MIDDLEWARE_GRAPHQL_ACTIONS_URL")
 
 func GraphqlActionsClient(
 	browserConnection *common.BrowserConnection,
-	cookies []*http.Cookie,
 	fromBrowserToGqlActionsChannel *common.SafeChannel,
-	fromBrowserToHasuraChannel *common.SafeChannel,
 	fromHasuraToBrowserChannel *common.SafeChannel) error {
 
 	log := log.WithField("_routine", "GraphqlActionsClient").WithField("browserConnectionId", browserConnection.Id)
 	log.Debug("Starting GraphqlActionsClient")
 	defer log.Debug("Finished GraphqlActionsClient")
-
-	sessionVariables, err := bbb_web.BBBWebClient(browserConnection, cookies)
-	if err != nil {
-		log.Error("It was not able to load session variables from AuthHook", err)
-		return nil
-	}
 
 RangeLoop:
 	for {
@@ -61,7 +52,7 @@ RangeLoop:
 					if okQuery && okVariables && strings.HasPrefix(query, "mutation") {
 						if funcName, inputs, err := parseGraphQLMutation(query, variables); err == nil {
 							mutationFuncName = funcName
-							if err = SendGqlActionsRequest(funcName, inputs, sessionVariables); err == nil {
+							if err = SendGqlActionsRequest(funcName, inputs, browserConnection.BBBWebSessionVariables); err == nil {
 							} else {
 								errorMessage = err.Error()
 								log.Error("It was not able to send the request to Graphql Actions", err)
@@ -77,15 +68,13 @@ RangeLoop:
 						browserResponseData := map[string]interface{}{
 							"id":   queryId,
 							"type": "error",
-							"payload": map[string]interface{}{
-								"data": nil,
-								"errors": []interface{}{
-									map[string]interface{}{
-										"message": errorMessage,
-									},
+							"payload": []interface{}{
+								map[string]interface{}{
+									"message": errorMessage,
 								},
 							},
 						}
+
 						fromHasuraToBrowserChannel.Send(browserResponseData)
 					} else {
 						//Action sent successfully, return data msg to client

@@ -15,7 +15,6 @@ import {
   statusIconSize,
   borderSize,
   statusInfoHeight,
-  presentationMenuHeight,
 } from '/imports/ui/stylesheets/styled-components/general';
 
 const DropdownButton = styled.button`
@@ -25,7 +24,9 @@ const DropdownButton = styled.button`
   color: ${colorGrayDark};
   cursor: pointer;
   padding: .3rem .5rem;
-  padding-bottom: 6px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
   tab-index: 0;
 
   &:hover {
@@ -43,15 +44,21 @@ const Left = styled.div`
   height: 44px;
 
   > div {
-    padding: 2px 4px 2px 4px;
+    padding: 2px 4px;
     background-color: ${colorWhite};
     width: 50px;
     height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
   }
 
   button {
     height: 100%;
     width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
   }
 
   [dir="rtl"] & {

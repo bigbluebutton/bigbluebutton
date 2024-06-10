@@ -1,9 +1,7 @@
-import { Session } from 'meteor/session';
-import Settings from '/imports/ui/services/settings';
+import { getSettingsSingletonInstance } from '/imports/ui/services/settings';
 import Auth from '/imports/ui/services/auth';
 import Meetings from '/imports/api/meetings';
 import Users from '/imports/api/users';
-import UserListService from '/imports/ui/components/user-list/service';
 import { meetingIsBreakout } from '/imports/ui/components/app/service';
 import { notify } from '/imports/ui/services/notification';
 import deviceInfo from '/imports/utils/deviceInfo';
@@ -11,9 +9,8 @@ import browserInfo from '/imports/utils/browserInfo';
 import getFromUserSettings from '/imports/ui/services/users-settings';
 import VideoPreviewService from '/imports/ui/components/video-preview/service';
 import Storage from '/imports/ui/services/storage/session';
-import BBBStorage from '/imports/ui/services/storage';
+import { getStorageSingletonInstance } from '/imports/ui/services/storage';
 import logger from '/imports/startup/client/logger';
-import { debounce } from '/imports/utils/debounce';
 import getFromMeetingSettings from '/imports/ui/services/meeting-settings';
 import {
   setVideoState,
@@ -22,32 +19,9 @@ import {
   Stream,
 } from './state';
 import WebRtcPeer from '/imports/ui/services/webrtc-base/peer';
-import { Constraints2, DesktopPageSizes, MobilePageSizes } from '/imports/ui/Types/meetingClientSettings';
+import { Constraints2 } from '/imports/ui/Types/meetingClientSettings';
 import MediaStreamUtils from '/imports/utils/media-stream-utils';
-
-const CAMERA_PROFILES = window.meetingClientSettings.public.kurento.cameraProfiles;
-const MULTIPLE_CAMERAS = window.meetingClientSettings.public.app.enableMultipleCameras;
-
-const SFU_URL = window.meetingClientSettings.public.kurento.wsUrl;
-const ROLE_MODERATOR = window.meetingClientSettings.public.user.role_moderator;
-const ROLE_VIEWER = window.meetingClientSettings.public.user.role_viewer;
-const MIRROR_WEBCAM = window.meetingClientSettings.public.app.mirrorOwnWebcam;
-const PIN_WEBCAM = window.meetingClientSettings.public.kurento.enableVideoPin;
-const {
-  thresholds: CAMERA_QUALITY_THRESHOLDS = [],
-  applyConstraints: CAMERA_QUALITY_THR_CONSTRAINTS = false,
-  debounceTime: CAMERA_QUALITY_THR_DEBOUNCE = 2500,
-} = window.meetingClientSettings.public.kurento.cameraQualityThresholds;
-const {
-  paginationToggleEnabled: PAGINATION_TOGGLE_ENABLED,
-  pageChangeDebounceTime: PAGE_CHANGE_DEBOUNCE_TIME,
-  desktopPageSizes: DESKTOP_PAGE_SIZES,
-  mobilePageSizes: MOBILE_PAGE_SIZES,
-} = window.meetingClientSettings.public.kurento.pagination;
-const PAGINATION_THRESHOLDS_CONF = window.meetingClientSettings.public.kurento.paginationThresholds;
-const PAGINATION_THRESHOLDS = PAGINATION_THRESHOLDS_CONF.thresholds.sort((t1, t2) => t1.users - t2.users);
-const PAGINATION_THRESHOLDS_ENABLED = PAGINATION_THRESHOLDS_CONF.enabled;
-const DEFAULT_VIDEO_MEDIA_SERVER = window.meetingClientSettings.public.kurento.videoMediaServer;
+import Session from '/imports/ui/services/storage/in-memory';
 
 const TOKEN = '_';
 
@@ -68,6 +42,8 @@ class VideoService {
 
   private deviceId: string | null = null;
 
+  private readonly clientSessionUUID: string;
+
   constructor() {
     this.userParameterProfile = null;
     this.isMobile = deviceInfo.isMobile;
@@ -75,6 +51,7 @@ class VideoService {
     this.numberOfDevices = 0;
     this.record = null;
     this.hackRecordViewer = null;
+    this.clientSessionUUID = sessionStorage.getItem('clientSessionUUID') || '0';
 
     if (navigator.mediaDevices) {
       this.updateNumberOfDevices = this.updateNumberOfDevices.bind(this);
@@ -116,6 +93,7 @@ class VideoService {
   }
 
   static isUserLocked() {
+    const ROLE_MODERATOR = VideoService.getRoleModerator();
     return !!Users.findOne({
       userId: Auth.userID,
       locked: true,
@@ -127,11 +105,11 @@ class VideoService {
     this.deviceId = deviceId;
     Storage.setItem('isFirstJoin', false);
     if (!VideoService.isUserLocked()) {
-      const streamName = VideoService.buildStreamName(Auth.userID ?? '', deviceId);
+      const streamName = this.buildStreamName(deviceId);
       const stream = {
         stream: streamName,
-        userId: Auth.userID ?? '',
-        name: Auth.fullname ?? '',
+        userId: Auth.userID as string,
+        name: Auth.fullname as string,
         type: 'connecting' as const,
       };
       setConnectingStream(stream);
@@ -142,21 +120,22 @@ class VideoService {
     }
   }
 
-  joinedVideo() {
+  static joinedVideo() {
     setVideoState((curr) => ({
       ...curr,
       isConnected: true,
       isConnecting: false,
     }));
-    this.stopConnectingStream();
   }
 
-  static storeDeviceIds(streams: Stream[]) {
+  storeDeviceIds(streams: Stream[]) {
     const deviceIds: string[] = [];
-    streams.filter((s) => s.userId === Auth.userID).forEach((s) => {
-      deviceIds.push(s.deviceId);
-    });
-    Session.set('deviceIds', deviceIds.join());
+    streams
+      .filter((s) => this.isLocalStream(s.stream))
+      .forEach((s) => {
+        deviceIds.push(s.deviceId);
+      });
+    Session.setItem('deviceIds', deviceIds.join());
   }
 
   exitedVideo() {
@@ -169,15 +148,16 @@ class VideoService {
   }
 
   static getAuthenticatedURL() {
+    const SFU_URL = window.meetingClientSettings.public.kurento.wsUrl;
     return Auth.authenticateURL(SFU_URL);
   }
 
-  shouldRenderPaginationToggle() {
-    return PAGINATION_TOGGLE_ENABLED && (this.getMyPageSize() ?? 0) > 0;
+  static getCameraProfiles() {
+    return window.meetingClientSettings.public.kurento.cameraProfiles;
   }
 
   static isPaginationEnabled() {
-    // @ts-expect-error -> Untyped object.
+    const Settings = getSettingsSingletonInstance();
     return Settings.application.paginationEnabled;
   }
 
@@ -224,57 +204,8 @@ class VideoService {
     VideoService.setCurrentVideoPageIndex(previousPage);
   }
 
-  getPageSizeDictionary() {
-    if (!PAGINATION_THRESHOLDS_ENABLED || PAGINATION_THRESHOLDS.length <= 0) {
-      return !this.isMobile ? DESKTOP_PAGE_SIZES : MOBILE_PAGE_SIZES;
-    }
-
-    let targetThreshold;
-    const userCount = UserListService.getUserCount();
-    const processThreshold = (
-      threshold: {
-        desktopPageSizes?: DesktopPageSizes,
-        mobilePageSizes?: MobilePageSizes,
-      } = {
-        desktopPageSizes: DESKTOP_PAGE_SIZES,
-        mobilePageSizes: MOBILE_PAGE_SIZES,
-      },
-    ) => {
-      if (!this.isMobile) {
-        return threshold.desktopPageSizes || DESKTOP_PAGE_SIZES;
-      }
-      return threshold.mobilePageSizes || MOBILE_PAGE_SIZES;
-    };
-
-    if (userCount < PAGINATION_THRESHOLDS[0].users) return processThreshold();
-
-    for (let mapIndex = PAGINATION_THRESHOLDS.length - 1; mapIndex >= 0; mapIndex -= 1) {
-      targetThreshold = PAGINATION_THRESHOLDS[mapIndex];
-      if (targetThreshold.users <= userCount) {
-        return processThreshold(targetThreshold);
-      }
-    }
-    return null;
-  }
-
-  getMyPageSize() {
-    let size;
-    const myRole = VideoService.getMyRole();
-    const pageSizes = this.getPageSizeDictionary();
-    switch (myRole) {
-      case ROLE_MODERATOR:
-        size = pageSizes?.moderator;
-        break;
-      case ROLE_VIEWER:
-      default:
-        size = pageSizes?.viewer;
-    }
-
-    return size;
-  }
-
   static isGridEnabled() {
-    return Session.get('isGridEnabled');
+    return Session.getItem('isGridEnabled');
   }
 
   stopConnectingStream() {
@@ -282,11 +213,12 @@ class VideoService {
     setConnectingStream(null);
   }
 
-  static buildStreamName(userId: string, deviceId: string) {
-    return `${userId}${TOKEN}${deviceId}`;
+  buildStreamName(deviceId: string) {
+    return `${this.getPrefix()}${TOKEN}${deviceId}`;
   }
 
   static getMediaServerAdapter() {
+    const DEFAULT_VIDEO_MEDIA_SERVER = window.meetingClientSettings.public.kurento.videoMediaServer;
     return getFromMeetingSettings('media-server-video', DEFAULT_VIDEO_MEDIA_SERVER);
   }
 
@@ -295,7 +227,25 @@ class VideoService {
       { fields: { role: 1 } })?.role;
   }
 
+  static getRoleModerator() {
+    return window.meetingClientSettings.public.user.role_moderator;
+  }
+
+  static getRoleViewer() {
+    return window.meetingClientSettings.public.user.role_viewer;
+  }
+
+  static getPageChangeDebounceTime() {
+    const {
+      pageChangeDebounceTime: PAGE_CHANGE_DEBOUNCE_TIME,
+    } = window.meetingClientSettings.public.kurento.pagination;
+
+    return PAGE_CHANGE_DEBOUNCE_TIME;
+  }
+
   getRecord() {
+    const ROLE_MODERATOR = VideoService.getRoleModerator();
+
     if (this.record === null) {
       this.record = getFromUserSettings('bbb_record_video', true);
     }
@@ -324,13 +274,14 @@ class VideoService {
   }
 
   static mirrorOwnWebcam(userId: string | null = null) {
+    const MIRROR_WEBCAM = window.meetingClientSettings.public.app.mirrorOwnWebcam;
     const isOwnWebcam = userId ? Auth.userID === userId : true;
     const isEnabledMirroring = getFromUserSettings('bbb_mirror_own_webcam', MIRROR_WEBCAM);
     return isOwnWebcam && isEnabledMirroring;
   }
 
   static isPinEnabled() {
-    return PIN_WEBCAM;
+    return window.meetingClientSettings.public.kurento.enableVideoPin;
   }
 
   static isVideoPinEnabledForCurrentUser(isModerator: boolean) {
@@ -342,16 +293,21 @@ class VideoService {
       && !isBreakout);
   }
 
-  static getMyStreamId(deviceId: string, streams: Stream[]) {
-    const videoStream = streams.find((vs) => vs.userId === Auth.userID && vs.deviceId === deviceId);
+  getMyStreamId(deviceId: string, streams: Stream[]) {
+    const videoStream = streams.find(
+      (vs) => this.isLocalStream(vs.stream)
+        && vs.deviceId === deviceId,
+    );
     return videoStream ? videoStream.stream : null;
   }
 
-  static isLocalStream(cameraId: string) {
-    return !!Auth.userID && cameraId?.startsWith(Auth.userID);
+  isLocalStream(cameraId = '') {
+    return cameraId.startsWith(this.getPrefix());
   }
 
   static getCameraProfile() {
+    const CAMERA_PROFILES = VideoService.getCameraProfiles();
+    const BBBStorage = getStorageSingletonInstance();
     const profileId = BBBStorage.getItem('WebcamProfileId') || '';
     const cameraProfile = CAMERA_PROFILES.find((profile) => profile.id === profileId)
       || CAMERA_PROFILES.find((profile) => profile.default)
@@ -395,6 +351,7 @@ class VideoService {
   }
 
   getUserParameterProfile() {
+    const CAMERA_PROFILES = VideoService.getCameraProfiles();
     if (this.userParameterProfile === null) {
       this.userParameterProfile = getFromUserSettings(
         'bbb_preferred_camera_profile',
@@ -406,6 +363,7 @@ class VideoService {
   }
 
   isMultipleCamerasEnabled() {
+    const MULTIPLE_CAMERAS = window.meetingClientSettings.public.app.enableMultipleCameras;
     return MULTIPLE_CAMERAS
       && !VideoPreviewService.getSkipVideoPreview()
       && !this.isMobile
@@ -414,6 +372,7 @@ class VideoService {
   }
 
   static isProfileBetter(newProfileId: string, originalProfileId: string) {
+    const CAMERA_PROFILES = VideoService.getCameraProfiles();
     return CAMERA_PROFILES.findIndex(({ id }) => id === newProfileId)
       > CAMERA_PROFILES.findIndex(({ id }) => id === originalProfileId);
   }
@@ -473,7 +432,11 @@ class VideoService {
   }
 
   static applyCameraProfile(peer: WebRtcPeer, profileId: string) {
+    const CAMERA_PROFILES = VideoService.getCameraProfiles();
     const profile = CAMERA_PROFILES.find((targetProfile) => targetProfile.id === profileId);
+    const {
+      applyConstraints: CAMERA_QUALITY_THR_CONSTRAINTS = false,
+    } = window.meetingClientSettings.public.kurento.cameraQualityThresholds;
 
     if (!profile
       || peer == null
@@ -519,6 +482,10 @@ class VideoService {
   }
 
   static getThreshold(numberOfPublishers: number) {
+    const {
+      thresholds: CAMERA_QUALITY_THRESHOLDS = [],
+    } = window.meetingClientSettings.public.kurento.cameraQualityThresholds;
+
     let targetThreshold = { threshold: 0, profile: 'original' };
     let finalThreshold = { threshold: 0, profile: 'original' };
 
@@ -554,6 +521,10 @@ class VideoService {
       });
     });
   }
+
+  getPrefix() {
+    return `${Auth.userID}${TOKEN}${this.clientSessionUUID}`;
+  }
 }
 
 const videoService = new VideoService();
@@ -561,7 +532,7 @@ const videoService = new VideoService();
 export default {
   addCandidateToPeer: VideoService.addCandidateToPeer,
   getInfo: VideoService.getInfo,
-  getMyStreamId: VideoService.getMyStreamId,
+  getMyStreamId: videoService.getMyStreamId.bind(videoService),
   getAuthenticatedURL: VideoService.getAuthenticatedURL,
   getRole: VideoService.getRole,
   getMediaServerAdapter: VideoService.getMediaServerAdapter,
@@ -571,20 +542,19 @@ export default {
   getNextVideoPage: VideoService.getNextVideoPage,
   getCurrentVideoPageIndex: VideoService.getCurrentVideoPageIndex,
   isVideoPinEnabledForCurrentUser: VideoService.isVideoPinEnabledForCurrentUser,
-  isLocalStream: VideoService.isLocalStream,
+  isLocalStream: videoService.isLocalStream.bind(videoService),
   isPaginationEnabled: VideoService.isPaginationEnabled,
   mirrorOwnWebcam: VideoService.mirrorOwnWebcam,
   processInboundIceQueue: VideoService.processInboundIceQueue,
-  storeDeviceIds: VideoService.storeDeviceIds,
+  storeDeviceIds: videoService.storeDeviceIds.bind(videoService),
+  joinedVideo: () => VideoService.joinedVideo(),
   exitedVideo: () => videoService.exitedVideo(),
   getPreloadedStream: () => videoService.getPreloadedStream(),
   getRecord: () => videoService.getRecord(),
-  getPageChangeDebounceTime: () => { return PAGE_CHANGE_DEBOUNCE_TIME; },
+  getPageChangeDebounceTime: () => VideoService.getPageChangeDebounceTime(),
   getUserParameterProfile: () => videoService.getUserParameterProfile(),
   isMultipleCamerasEnabled: () => videoService.isMultipleCamerasEnabled(),
   joinVideo: (deviceId: string) => videoService.joinVideo(deviceId),
-  joinedVideo: () => videoService.joinedVideo(),
-  shouldRenderPaginationToggle: () => videoService.shouldRenderPaginationToggle(),
   updateNumberOfDevices: (devices: MediaDeviceInfo[]) => videoService.updateNumberOfDevices(devices),
   stopConnectingStream: videoService.stopConnectingStream,
   updatePeerDictionaryReference: (
@@ -593,10 +563,9 @@ export default {
   webRtcPeersRef: () => videoService.webRtcPeersRef,
   isMobile: videoService.isMobile,
   notify: (message: string) => notify(message, 'error', 'video'),
-  applyCameraProfile: debounce(
-    VideoService.applyCameraProfile,
-    CAMERA_QUALITY_THR_DEBOUNCE,
-    { leading: false, trailing: true },
-  ),
+  applyCameraProfile: VideoService.applyCameraProfile,
   setTrackEnabled: (value: boolean) => videoService.setTrackEnabled(value),
+  getRoleModerator: VideoService.getRoleModerator,
+  getRoleViewer: VideoService.getRoleViewer,
+  getPrefix: videoService.getPrefix.bind(videoService),
 };

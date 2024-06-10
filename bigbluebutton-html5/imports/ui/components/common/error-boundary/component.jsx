@@ -73,7 +73,7 @@ class ErrorBoundary extends Component {
       // delay to termintate the connection, for user receive the end eject message
       setTimeout(() => {
         apolloClient.setLink(ApolloLink.empty());
-        ws.close();
+        ws.terminate();
       }, 5000);
     }
     this.setState({

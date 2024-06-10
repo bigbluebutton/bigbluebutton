@@ -29,7 +29,7 @@
     ]
   },
   "dependencies": {
-    "@apollo/client": "^3.9.8",
+    "@apollo/client": "^3.10.4",
     "@babel/runtime": "^7.17.9",
     "@browser-bunyan/server-stream": "^1.8.0",
     "@emoji-mart/data": "^1.1.2",
@@ -40,7 +40,7 @@
     "@mconf/bbb-diff": "^1.2.0",
     "@mui/material": "^5.12.2",
     "@mui/system": "^5.12.3",
-    "@tldraw/tldraw": "^2.0.0-alpha.19",
+    "@bigbluebutton/tldraw": "^2.0.0-alpha.20",
     "@types/node": "^20.5.7",
     "@types/ramda": "^0.29.2",
     "@types/react": "^18.2.18",
@@ -93,7 +93,6 @@
     "react-toastify": "^4.5.2",
     "react-toggle": "^4.1.2",
     "react-transition-group": "^2.9.0",
-    "react-virtualized": "^9.22.4",
     "recharts": "^2.7.2",
     "reconnecting-websocket": "~v4.4.0",
     "sanitize-html": "2.12.1",
@@ -114,7 +113,6 @@
     "@types/emoji-mart": "^3.0.9",
     "@types/meteor": "^2.9.3",
     "@types/react-dom": "^18.2.7",
-    "@types/react-virtualized": "^9.21.22",
     "@types/styled-components": "^5.1.26",
     "@types/uuid": "^9.0.2",
     "@typescript-eslint/eslint-plugin": "^6.4.0",

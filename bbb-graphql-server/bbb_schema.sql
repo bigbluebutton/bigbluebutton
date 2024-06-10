@@ -274,6 +274,8 @@ CREATE TABLE "user" (
     "awayTime" timestamp with time zone,
 	"emoji" varchar,
 	"emojiTime" timestamp with time zone,
+	"reactionEmoji" varchar(25),
+	"reactionEmojiTime" timestamp with time zone,
 	"guestStatusSetByModerator" varchar(50),
 	"guestLobbyMessage" text,
 	"mobile" bool,
@@ -289,6 +291,7 @@ CREATE TABLE "user" (
 	"pinned" bool,
 	"locked" bool,
 	"speechLocale" varchar(255),
+	"captionLocale" varchar(255),
 	"inactivityWarningDisplay" bool default FALSE,
 	"inactivityWarningTimeoutSecs" numeric,
 	"hasDrawPermissionOnCurrentPage" bool default FALSE,
@@ -370,6 +373,8 @@ AS SELECT "user"."userId",
     "user"."raiseHandTime",
     "user"."emoji",
     "user"."emojiTime",
+    "user"."reactionEmoji",
+    "user"."reactionEmojiTime",
     "user"."guest",
     "user"."guestStatus",
     "user"."mobile",
@@ -388,6 +393,7 @@ AS SELECT "user"."userId",
     "user"."pinned",
     CASE WHEN "user"."role" = 'MODERATOR' THEN false ELSE "user"."locked" END "locked",
     "user"."speechLocale",
+    "user"."captionLocale",
     CASE WHEN "user"."echoTestRunningAt" > current_timestamp - INTERVAL '3 seconds' THEN TRUE ELSE FALSE END "isRunningEchoTest",
     "user"."hasDrawPermissionOnCurrentPage",
     CASE WHEN "user"."role" = 'MODERATOR' THEN true ELSE false END "isModerator",
@@ -422,6 +428,7 @@ AS SELECT "user"."userId",
     "user"."away",
     "user"."raiseHand",
     "user"."emoji",
+    "user"."reactionEmoji",
     "user"."guest",
     "user"."guestStatus",
     "user"."mobile",
@@ -446,6 +453,7 @@ AS SELECT "user"."userId",
     "user"."pinned",
     CASE WHEN "user"."role" = 'MODERATOR' THEN false ELSE "user"."locked" END "locked",
     "user"."speechLocale",
+    "user"."captionLocale",
     "user"."hasDrawPermissionOnCurrentPage",
     "user"."echoTestRunningAt",
     CASE WHEN "user"."echoTestRunningAt" > current_timestamp - INTERVAL '3 seconds' THEN TRUE ELSE FALSE END "isRunningEchoTest",
@@ -475,7 +483,8 @@ u."isDenied",
 COALESCE(NULLIF(u."guestLobbyMessage",''),NULLIF(mup."guestLobbyMessage",'')) AS "guestLobbyMessage"
 FROM "user" u
 JOIN "meeting_usersPolicies" mup using("meetingId")
-where u."guestStatus" = 'WAIT';
+where u."guestStatus" = 'WAIT'
+and u."loggedOut" is false;
 
 --v_user_ref will be used only as foreign key (not possible to fetch this table directly through graphql)
 --it is necessary because v_user has some conditions like "lockSettings-hideUserList"
@@ -492,6 +501,7 @@ AS SELECT
     "user"."away",
     "user"."raiseHand",
     "user"."emoji",
+    "user"."reactionEmoji",
     "user"."guest",
     "user"."guestStatus",
     "user"."mobile",
@@ -510,6 +520,7 @@ AS SELECT
     "user"."pinned",
     CASE WHEN "user"."role" = 'MODERATOR' THEN false ELSE "user"."locked" END "locked",
     "user"."speechLocale",
+    "user"."captionLocale",
     "user"."hasDrawPermissionOnCurrentPage",
     CASE WHEN "user"."role" = 'MODERATOR' THEN true ELSE false END "isModerator",
     CASE WHEN "user"."joined" IS true AND "user"."expired" IS false AND "user"."loggedOut" IS false AND "user"."ejected" IS NOT TRUE THEN true ELSE false END "isOnline"
@@ -665,7 +676,7 @@ LEFT JOIN "user_voice" user_talking ON (
 
 
 CREATE TABLE "user_camera" (
-	"streamId" varchar(100) PRIMARY KEY,
+	"streamId" varchar(150) PRIMARY KEY,
 	"meetingId" varchar(100),
     "userId" varchar(50),
     FOREIGN KEY ("meetingId", "userId") REFERENCES "user"("meetingId","userId") ON DELETE CASCADE
@@ -807,6 +818,9 @@ CREATE INDEX "idx_user_connectionStatusMetrics_UnstableReport" ON "user_connecti
 CREATE TABLE "user_graphqlConnection" (
 	"graphqlConnectionId" serial PRIMARY KEY,
 	"sessionToken" varchar(16),
+	"clientSessionUUID" varchar(36),
+	"clientType" varchar(50),
+	"clientIsMobile" bool,
 	"middlewareUID" varchar(36),
 	"middlewareConnectionId" varchar(12),
 	"establishedAt" timestamp with time zone,
@@ -858,9 +872,15 @@ CREATE TABLE "user_reaction" (
 );
 create index "idx_user_reaction_user_meeting" on "user_reaction" ("userId", "meetingId");
 
---Set expiresAt on isert or update user_reaction
+--Set expiresAt on insert or update user_reaction
+--Set user.reactionEmoji with the latest emoji inserted
 CREATE OR REPLACE FUNCTION "update_user_reaction_trigger_func"() RETURNS TRIGGER AS $$
 BEGIN
+    UPDATE "user"
+    SET "reactionEmoji" = nullif(lower(NEW."reactionEmoji"),'none'),
+        "reactionEmojiTime" = case when NULLIF(LOWER(NEW."reactionEmoji"),'none') is null then null else current_timestamp end
+    WHERE "userId" = NEW."userId" AND "meetingId" = NEW."meetingId";
+
     NEW."expiresAt" := NEW."createdAt" + '1 seconds'::INTERVAL * NEW."durationInSeconds";
     RETURN NEW;
 END;
@@ -880,12 +900,6 @@ CREATE VIEW v_user_reaction AS
 SELECT ur."meetingId", ur."userId", ur."reactionEmoji", ur."createdAt", ur."expiresAt"
 FROM "user_reaction" ur
 WHERE "expiresAt" >= current_timestamp;
-
-CREATE VIEW v_user_reaction_current AS
-SELECT ur."meetingId", ur."userId", (array_agg(ur."reactionEmoji" ORDER BY ur."expiresAt" DESC))[1] as "reactionEmoji"
-FROM "user_reaction" ur
-WHERE "expiresAt" >= current_timestamp
-GROUP BY ur."meetingId", ur."userId";
 
 CREATE TABLE "user_transcriptionError"(
 	"meetingId" varchar(100),
@@ -1773,11 +1787,11 @@ CREATE TABLE "caption_locale" (
     "meetingId" varchar(100) NOT NULL REFERENCES "meeting"("meetingId") ON DELETE CASCADE,
     "locale" varchar(15) NOT NULL,
     "captionType" varchar(100) NOT NULL, --Audio Transcription or Typed Caption
-    "ownerUserId" varchar(50),
+    "createdBy" varchar(50),
     "createdAt" timestamp with time zone default current_timestamp,
     "updatedAt" timestamp with time zone,
     CONSTRAINT "caption_locale_pk" primary key ("meetingId","locale","captionType"),
-    FOREIGN KEY ("meetingId", "ownerUserId") REFERENCES "user"("meetingId","userId") ON DELETE CASCADE
+    FOREIGN KEY ("meetingId", "createdBy") REFERENCES "user"("meetingId","userId") ON DELETE CASCADE
 );
 create index "idx_caption_locale_pk_reverse" on "caption_locale"("locale","meetingId","captionType");
 create index "idx_caption_locale_pk_reverse_b" on "caption_locale"("captionType","meetingId","locale");
@@ -1798,11 +1812,11 @@ CREATE OR REPLACE FUNCTION "update_caption_locale_owner_func"() RETURNS TRIGGER 
 BEGIN
     WITH upsert AS (
         UPDATE "caption_locale" SET
-        "ownerUserId" = NEW."userId",
+        "createdBy" = NEW."userId",
         "updatedAt" = current_timestamp
         WHERE "meetingId"=NEW."meetingId" AND "locale"=NEW."locale" AND "captionType"= NEW."captionType"
     RETURNING *)
-    INSERT INTO "caption_locale"("meetingId","locale","captionType","ownerUserId")
+    INSERT INTO "caption_locale"("meetingId","locale","captionType","createdBy")
     SELECT NEW."meetingId", NEW."locale", NEW."captionType", NEW."userId"
     WHERE NOT EXISTS (SELECT * FROM upsert);
 
@@ -1822,7 +1836,7 @@ FROM "caption"
 WHERE "createdAt" > current_timestamp - INTERVAL '5 seconds';
 
 CREATE OR REPLACE VIEW "v_caption_activeLocales" AS
-select distinct "meetingId", "locale", "ownerUserId", "captionType"
+select distinct "meetingId", "locale", "createdBy", "captionType"
 from "caption_locale";
 
 create index "idx_caption_typed_activeLocales" on "caption"("meetingId","locale","userId") where "captionType" = 'TYPED';
@@ -1968,13 +1982,12 @@ select "meeting"."meetingId",
         ) as "hasExternalVideo",
         exists (
             select 1
+            from "v_caption_activeLocales"
+            where "v_caption_activeLocales"."meetingId" = "meeting"."meetingId"
+        ) or exists (
+            select 1
             from "v_user"
             where "v_user"."meetingId" = "meeting"."meetingId"
             and NULLIF("speechLocale",'') is not null
-        ) or exists (
-            select 1
-            from "sharedNotes"
-            where "sharedNotes"."meetingId" = "meeting"."meetingId"
-            and "model" = 'captions'
-        ) as "hasCaption"
+        )as "hasCaption"
 from "meeting";

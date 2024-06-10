@@ -9,10 +9,17 @@ export interface GetUserCurrentResponse {
     joinErrorMessage: string;
     ejectReasonCode: string;
     loggedOut: boolean;
+    guestStatus: string;
+    guestStatusDetails: {
+      guestLobbyMessage: string | null;
+      positionInWaitingQueue: number;
+      isAllowed: boolean;
+    } | null;
     meeting: {
       ended: boolean;
       endedReasonCode: string;
       endedByUserName: string;
+      logoutUrl: string;
     };
   }>;
 }
@@ -61,19 +68,27 @@ subscription getUserCurrent {
       joined
       ejectReasonCode
       loggedOut
+      guestStatus
       meeting {
         ended
         endedReasonCode
         endedByUserName
+        logoutUrl
+      }
+      guestStatusDetails {
+        guestLobbyMessage
+        positionInWaitingQueue
+        isAllowed
       }
     }
   }
 `;
 export const userJoinMutation = gql`
-mutation UserJoin($authToken: String!, $clientType: String!) {
+mutation UserJoin($authToken: String!, $clientType: String!, $clientIsMobile: Boolean!) {
   userJoinMeeting(
     authToken: $authToken,
     clientType: $clientType,
+    clientIsMobile: $clientIsMobile,
   )
 }
 `;

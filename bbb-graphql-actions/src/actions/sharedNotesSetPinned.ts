@@ -6,7 +6,7 @@ export default function buildRedisMessage(sessionVariables: Record<string, unkno
   throwErrorIfInvalidInput(input,
       [
         {name: 'sharedNotesExtId', type: 'string', required: true},
-        {name: 'pinned', type: 'string', required: true},
+        {name: 'pinned', type: 'boolean', required: true},
       ]
   )
 

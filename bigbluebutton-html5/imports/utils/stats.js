@@ -1,10 +1,7 @@
 import logger from '/imports/startup/client/logger';
 
-const STATS = window.meetingClientSettings.public.stats;
-
 // Probes done in an interval
 const PROBES = 5;
-const INTERVAL = STATS.interval / PROBES;
 
 const stop = callback => {
   logger.debug(
@@ -45,6 +42,7 @@ const isActive = conn => {
 };
 
 const collect = (conn, callback) => {
+  const INTERVAL = window.meetingClientSettings.public.stats.interval / PROBES;
   let stats = [];
 
   const monitor = (conn, stats) => {

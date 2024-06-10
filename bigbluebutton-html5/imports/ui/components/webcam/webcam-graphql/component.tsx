@@ -1,9 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import Resizable from 're-resizable';
 import Draggable, { DraggableEvent } from 'react-draggable';
-import { Session } from 'meteor/session';
-import { withTracker } from 'meteor/react-meteor-data';
-import { useSubscription } from '@apollo/client';
 import { useVideoStreams } from '/imports/ui/components/video-provider/video-provider-graphql/hooks';
 import {
   layoutSelect,
@@ -11,7 +8,6 @@ import {
   layoutSelectOutput,
   layoutDispatch,
 } from '/imports/ui/components/layout/context';
-import Settings from '/imports/ui/services/settings';
 import { LAYOUT_TYPE, ACTIONS, CAMERADOCK_POSITION } from '/imports/ui/components/layout/enums';
 import { CURRENT_PRESENTATION_PAGE_SUBSCRIPTION } from '/imports/ui/components/whiteboard/queries';
 import useCurrentUser from '/imports/ui/core/hooks/useCurrentUser';
@@ -21,6 +17,10 @@ import Storage from '/imports/ui/services/storage/session';
 import Styled from './styles';
 import { Input, Layout, Output } from '/imports/ui/components/layout/layoutTypes';
 import { VideoItem } from '/imports/ui/components/video-provider/video-provider-graphql/types';
+import useDeduplicatedSubscription from '/imports/ui/core/hooks/useDeduplicatedSubscription';
+import useSettings from '/imports/ui/services/settings/hooks/useSettings';
+import { SETTINGS } from '/imports/ui/services/settings/enums';
+import { useStorageKey } from '/imports/ui/services/storage/hooks';
 
 interface WebcamComponentGraphqlProps {
   cameraDock: Output['cameraDock'];
@@ -299,19 +299,13 @@ const WebcamComponentGraphql: React.FC<WebcamComponentGraphqlProps> = ({
 };
 
 interface WebcamContainerGraphqlProps {
-  audioModalIsOpen: boolean;
   isLayoutSwapped: boolean;
   layoutType: string;
-  paginationEnabled: boolean;
-  viewParticipantsWebcams: boolean;
 }
 
 const WebcamContainerGraphql: React.FC<WebcamContainerGraphqlProps> = ({
-  audioModalIsOpen,
   isLayoutSwapped,
   layoutType,
-  paginationEnabled,
-  viewParticipantsWebcams,
 }) => {
   const fullscreen = layoutSelect((i: Layout) => i.fullscreen);
   const isRTL = layoutSelect((i: Layout) => i.isRTL);
@@ -319,9 +313,13 @@ const WebcamContainerGraphql: React.FC<WebcamContainerGraphqlProps> = ({
   const presentation = layoutSelectOutput((i: Output) => i.presentation);
   const cameraDock = layoutSelectOutput((i: Output) => i.cameraDock);
   const layoutContextDispatch = layoutDispatch();
-  const { data: presentationPageData } = useSubscription(CURRENT_PRESENTATION_PAGE_SUBSCRIPTION);
+  const { data: presentationPageData } = useDeduplicatedSubscription(CURRENT_PRESENTATION_PAGE_SUBSCRIPTION);
   const presentationPage = presentationPageData?.pres_page_curr[0] || {};
   const hasPresentation = !!presentationPage?.presentationId;
+  // @ts-ignore JS code
+  const { paginationEnabled } = useSettings(SETTINGS.APPLICATION);
+  // @ts-ignore JS code
+  const { viewParticipantsWebcams } = useSettings(SETTINGS.DATA_SAVING);
 
   const swapLayout = !hasPresentation || isLayoutSwapped;
 
@@ -354,6 +352,8 @@ const WebcamContainerGraphql: React.FC<WebcamContainerGraphqlProps> = ({
     usersVideo = videoUsers;
   }
 
+  const audioModalIsOpen = useStorageKey('audioModalIsOpen');
+
   return !audioModalIsOpen && (usersVideo.length > 0 || isGridEnabled)
     ? (
       <WebcamComponentGraphql
@@ -377,26 +377,4 @@ const WebcamContainerGraphql: React.FC<WebcamContainerGraphqlProps> = ({
     : null;
 };
 
-type TrackerData = {
-  audioModalIsOpen: boolean;
-  paginationEnabled: boolean;
-  viewParticipantsWebcams: boolean;
-};
-
-type TrackerProps = {
-  isLayoutSwapped: boolean;
-  layoutType: string;
-};
-
-export default withTracker<TrackerData, TrackerProps>(() => {
-  const audioModalIsOpen = Session.get('audioModalIsOpen');
-  // @ts-expect-error -> Untyped object.
-  const { paginationEnabled } = Settings.application;
-  // @ts-expect-error -> Untyped object.
-  const { viewParticipantsWebcams } = Settings.dataSaving;
-  return {
-    audioModalIsOpen,
-    paginationEnabled,
-    viewParticipantsWebcams,
-  };
-})(WebcamContainerGraphql);
+export default WebcamContainerGraphql;

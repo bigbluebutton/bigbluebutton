@@ -1,7 +1,7 @@
 import React, {
   useEffect, useMemo, useRef, useState,
 } from 'react';
-import { useMutation, useSubscription } from '@apollo/client';
+import { useMutation } from '@apollo/client';
 import { defineMessages, useIntl } from 'react-intl';
 import Checkbox from '/imports/ui/components/common/checkbox/component';
 import useCurrentUser from '/imports/ui/core/hooks/useCurrentUser';
@@ -15,8 +15,7 @@ import {
 } from './queries';
 import Service from './service';
 import Styled from './styles';
-
-const MAX_INPUT_CHARS = window.meetingClientSettings.public.poll.maxTypedAnswerLength;
+import useDeduplicatedSubscription from '../../core/hooks/useDeduplicatedSubscription';
 
 const intlMessages = defineMessages({
   pollingTitleLabel: {
@@ -135,6 +134,8 @@ const PollingGraphql: React.FC<PollingGraphqlProps> = (props) => {
       type,
     } = poll;
     const defaultPoll = isDefaultPoll(type);
+
+    const MAX_INPUT_CHARS = window.meetingClientSettings.public.poll.maxTypedAnswerLength;
 
     return (
       <div>
@@ -255,6 +256,7 @@ const PollingGraphql: React.FC<PollingGraphqlProps> = (props) => {
 
             return (
               <Styled.CheckboxContainer key={option.optionId}>
+                {/* eslint-disable-next-line */}
                 <td>
                   <Styled.PollingCheckbox data-test="optionsAnswers">
                     <Checkbox
@@ -330,7 +332,7 @@ const PollingGraphqlContainer: React.FC = () => {
     userId: u.userId,
     presenter: u.presenter,
   }));
-  const { data: hasPendingPollData, error, loading } = useSubscription<HasPendingPollResponse>(
+  const { data: hasPendingPollData, error, loading } = useDeduplicatedSubscription<HasPendingPollResponse>(
     hasPendingPoll,
     {
       variables: { userId: currentUserData?.userId },

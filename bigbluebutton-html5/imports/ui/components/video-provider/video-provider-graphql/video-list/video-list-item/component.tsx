@@ -1,17 +1,16 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { defineMessages, useIntl } from 'react-intl';
-import { Session } from 'meteor/session';
+import Session from '/imports/ui/services/storage/in-memory';
 import UserActions from '/imports/ui/components/video-provider/video-provider-graphql/video-list/video-list-item/user-actions/component';
 import UserStatus from '/imports/ui/components/video-provider/video-provider-graphql/video-list/video-list-item/user-status/component';
 import PinArea from '/imports/ui/components/video-provider/video-provider-graphql/video-list/video-list-item/pin-area/component';
 import UserAvatarVideo from '/imports/ui/components/video-provider/video-provider-graphql/video-list/video-list-item/user-avatar/component';
-import ViewActions from '/imports/ui/components/video-provider/video-provider-graphql/video-list/video-list-item/view-actions/component';
 import {
   isStreamStateUnhealthy,
   subscribeToStreamStateChange,
   unsubscribeFromStreamStateChange,
 } from '/imports/ui/services/bbb-webrtc-sfu/stream-state-service';
-import Settings from '/imports/ui/services/settings';
+import { getSettingsSingletonInstance } from '/imports/ui/services/settings';
 import VideoService from '/imports/ui/components/video-provider/video-provider-graphql/service';
 import Styled from './styles';
 import withDragAndDrop from './drag-and-drop/component';
@@ -41,7 +40,7 @@ interface VideoListItemProps {
   onVideoItemMount: (ref: HTMLVideoElement) => void;
   onVideoItemUnmount: (stream: string) => void;
   settingsSelfViewDisable: boolean;
-  stream: VideoItem | undefined;
+  stream: VideoItem;
   user: Partial<StreamUser>;
   makeDragOperations: (userId?: string) => {
     onDragOver: (e: DragEvent) => void,
@@ -85,7 +84,7 @@ const VideoListItem: React.FC<VideoListItemProps> = (props) => {
   const videoContainer = useRef<HTMLDivElement | null>(null);
 
   const videoIsReady = isStreamHealthy && videoDataLoaded && !isSelfViewDisabled;
-  // @ts-expect-error -> Untyped object.
+  const Settings = getSettingsSingletonInstance();
   const { animations, webcamBorderHighlightColor } = Settings.application;
   const talking = voiceUser?.talking;
 
@@ -104,7 +103,7 @@ const VideoListItem: React.FC<VideoListItemProps> = (props) => {
     it is needed in cases where the user has more than one active camera
     so we only share the second camera after the first
     has finished loading (can't share more than one at the same time) */
-    Session.set('canConnect', true);
+    Session.setItem('canConnect', true);
   };
 
   // component did mount
@@ -154,7 +153,6 @@ const VideoListItem: React.FC<VideoListItemProps> = (props) => {
   const renderSqueezedButton = () => (
     <UserActions
       name={name}
-      user={user}
       stream={stream}
       videoContainer={videoContainer}
       isVideoSqueezed={isVideoSqueezed}
@@ -169,6 +167,8 @@ const VideoListItem: React.FC<VideoListItemProps> = (props) => {
       onHandleDisableCam={() => setIsSelfViewDisabled((value) => !value)}
       isSelfViewDisabled={isSelfViewDisabled}
       amIModerator={amIModerator}
+      isFullscreenContext={isFullscreenContext}
+      layoutContextDispatch={layoutContextDispatch}
     />
   );
 
@@ -178,15 +178,18 @@ const VideoListItem: React.FC<VideoListItemProps> = (props) => {
       animations={animations}
     >
       <UserAvatarVideo
-        user={{ ...user, ...stream }}
+        user={user}
+        stream={stream}
         voiceUser={voiceUser}
         unhealthyStream={videoDataLoaded && !isStreamHealthy}
         squeezed={false}
       />
+      <Styled.TopBar>
+        {user?.raiseHand && <Styled.RaiseHand>✋</Styled.RaiseHand>}
+      </Styled.TopBar>
       <Styled.BottomBar>
         <UserActions
           name={name}
-          user={user}
           stream={stream}
           cameraId={cameraId}
           numOfStreams={numOfStreams}
@@ -199,10 +202,14 @@ const VideoListItem: React.FC<VideoListItemProps> = (props) => {
           onHandleDisableCam={() => setIsSelfViewDisabled((value) => !value)}
           isSelfViewDisabled={isSelfViewDisabled}
           amIModerator={amIModerator}
+          videoContainer={videoContainer}
+          isFullscreenContext={isFullscreenContext}
+          layoutContextDispatch={layoutContextDispatch}
         />
         <UserStatus
           voiceUser={voiceUser}
-          user={{ ...user, ...stream }}
+          user={user}
+          stream={stream}
         />
       </Styled.BottomBar>
     </Styled.WebcamConnecting>
@@ -215,6 +222,7 @@ const VideoListItem: React.FC<VideoListItemProps> = (props) => {
     >
       <UserAvatarVideo
         user={user}
+        stream={stream}
         unhealthyStream={videoDataLoaded && !isStreamHealthy}
         squeezed
       />
@@ -225,24 +233,15 @@ const VideoListItem: React.FC<VideoListItemProps> = (props) => {
   const renderDefaultButtons = () => (
     <>
       <Styled.TopBar>
+        {user.raiseHand && <Styled.RaiseHand>✋</Styled.RaiseHand>}
         <PinArea
-          user={user}
           stream={stream}
           amIModerator={amIModerator}
-        />
-        <ViewActions
-          videoContainer={videoContainer}
-          name={name}
-          cameraId={cameraId}
-          isFullscreenContext={isFullscreenContext}
-          layoutContextDispatch={layoutContextDispatch}
-          isStream={isStream}
         />
       </Styled.TopBar>
       <Styled.BottomBar>
         <UserActions
           name={name}
-          user={user}
           stream={stream}
           cameraId={cameraId}
           numOfStreams={numOfStreams}
@@ -255,10 +254,14 @@ const VideoListItem: React.FC<VideoListItemProps> = (props) => {
           onHandleDisableCam={() => setIsSelfViewDisabled((value) => !value)}
           isSelfViewDisabled={isSelfViewDisabled}
           amIModerator={amIModerator}
+          videoContainer={videoContainer}
+          isFullscreenContext={isFullscreenContext}
+          layoutContextDispatch={layoutContextDispatch}
         />
         <UserStatus
           voiceUser={voiceUser}
-          user={{ ...user, ...stream }}
+          user={user}
+          stream={stream}
         />
       </Styled.BottomBar>
     </>

@@ -21,10 +21,6 @@ import useMeetingSettings from '/imports/ui/core/local-states/useMeetingSettings
 import useCurrentUser from '/imports/ui/core/hooks/useCurrentUser';
 import useMeeting from '/imports/ui/core/hooks/useMeeting';
 
-// @ts-ignore - temporary, while meteor exists in the project
-// const CHAT_CONFIG = window.meetingClientSettings.public.chat;
-// const ENABLE_SAVE_AND_COPY_PUBLIC_CHAT = CHAT_CONFIG.enableSaveAndCopyPublicChat;
-
 const intlMessages = defineMessages({
   clear: {
     id: 'app.chat.dropdown.clear',
