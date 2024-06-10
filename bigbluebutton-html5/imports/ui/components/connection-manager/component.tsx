@@ -130,6 +130,7 @@ const ConnectionManager: React.FC<ConnectionManagerProps> = ({ children }): Reac
             error: (error) => {
               logger.error(`Error: on subscription to server: ${error}`);
               loadingContextInfo.setLoading(false, '');
+              connectionStatus.setConnectedStatus(false);
               setErrorCounts((prev: number) => prev + 1);
             },
             closed: () => {
