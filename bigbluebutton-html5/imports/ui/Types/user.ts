@@ -45,10 +45,6 @@ export interface CustomParameter {
   value: string;
 }
 
-export interface Reaction {
-  reactionEmoji: string;
-}
-
 export interface BreakoutRooms {
   currentRoomJoined: boolean;
   assignedAt: string;
@@ -90,6 +86,7 @@ export interface User {
   color: string;
   avatar: string;
   emoji: string;
+  reactionEmoji: string;
   presenter?: boolean;
   pinned?: boolean;
   guest?: boolean;
@@ -113,6 +110,5 @@ export interface User {
   size: number;
   away: boolean;
   raiseHand: boolean;
-  reaction: Reaction;
   breakoutRooms: BreakoutRooms;
 }

@@ -12,6 +12,7 @@ subscription userCurrentSubscription {
     ejectReasonCode
     ejected
     emoji
+    reactionEmoji
     enforceLayout
     extId
     guest
@@ -38,9 +39,6 @@ subscription userCurrentSubscription {
     speechLocale
     captionLocale
     userId
-    reaction {
-      reactionEmoji
-    }
     breakoutRooms {
       currentRoomJoined
       assignedAt
