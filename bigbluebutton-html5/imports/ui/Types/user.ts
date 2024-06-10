@@ -72,9 +72,6 @@ export interface BreakoutRooms {
   showInvitation: boolean;
   startedAt: string;
 }
-export interface UserClientSettings {
-  userClientSettingsJson: string;
-}
 
 export interface User {
   authToken: string;
@@ -125,5 +122,4 @@ export interface User {
   reaction: Reaction;
   breakoutRooms: BreakoutRooms;
   customParameters: Array<CustomParameter>;
-  userClientSettings: UserClientSettings;
 }

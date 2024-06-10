@@ -85,9 +85,6 @@ subscription userCurrentSubscription {
     cameras {
       streamId
     }
-    userClientSettings {
-      userClientSettingsJson
-    }
     voice {
       joined
       muted
