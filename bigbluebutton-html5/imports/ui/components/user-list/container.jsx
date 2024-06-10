@@ -5,7 +5,6 @@ import { useStorageKey } from '../../services/storage/hooks';
 
 const UserListContainer = (props) => {
   const CustomLogoUrl = useStorageKey('CustomLogoUrl', 'session');
-  console.log('🚀 -> UserListContainer -> window.meetingClientSettings:', window.meetingClientSettings);
   return (
     <UserList
       CustomLogoUrl={CustomLogoUrl}
