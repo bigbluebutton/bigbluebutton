@@ -257,6 +257,10 @@ public class MeetingService implements MessageListener {
     }
   }
 
+  public void sendChatMessage(String meetingId, String name, String message) {
+    gw.sendChatMessage(new ChatMessageFromApi(meetingId, name, message));
+  }
+
   private void kickOffProcessingOfRecording(Meeting m) {
     if (m.isRecord() && m.getNumUsers() == 0) {
       processRecording(m);

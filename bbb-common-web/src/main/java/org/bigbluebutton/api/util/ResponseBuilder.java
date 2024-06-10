@@ -242,6 +242,19 @@ public class ResponseBuilder {
         return ftl;
     }
 
+    public String buildSendChatMessageResponse(String message, String returnCode) {
+
+        StringWriter xmlText = new StringWriter();
+
+        Map<String, Object> data = new HashMap<String, Object>();
+        data.put("returnCode", returnCode);
+        data.put("message", message);
+
+        processData(getTemplate("send-chat-message.ftlx"), data, xmlText);
+
+        return xmlText.toString();
+    }
+
     private void processData(Template template, Map data, StringWriter out) {
         try {
             template.process(data, out);

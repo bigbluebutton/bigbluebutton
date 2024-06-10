@@ -16,6 +16,7 @@ import getMeetingInfoEndpointTableData from '../data/getMeetingInfo.tsx';
 import getRecordingsEndpointTableData from '../data/getRecordings.tsx';
 import getRecordingTextTracksEndpointTableData from '../data/getRecordingTextTracks.tsx';
 import insertDocumentEndpointTableData from '../data/insertDocument.tsx';
+import sendChatMessageEndpointTableData from '../data/sendChatMessage.tsx';
 import isMeetingRunningEndpointTableData from '../data/isMeetingRunning.tsx';
 import joinEndpointTableData from '../data/join.tsx';
 import publishRecordingsEndpointTableData from '../data/publishRecordings.tsx';
@@ -34,6 +35,7 @@ For developers, this API enables you to
 - insert documents
 - get recordings for past meetings (and delete them)
 - upload closed caption files for meetings
+- send a public chat message
 
 To make an API call to your BigBlueButton server, your application makes HTTPS requests to the BigBlueButton server API endpoint (usually the server's hostname followed by `/bigbluebutton/api`). All API calls must include checksum computed with a secret shared with the BigBlueButton server.
 
@@ -92,7 +94,7 @@ Updated in 2.5:
 
 - **create** - **Added:** `meetingCameraCap`, `groups`, `disabledFeatures`, `meetingExpireIfNoUserJoinedInMinutes`, `meetingExpireWhenLastUserLeftInMinutes`, `preUploadedPresentationOverrideDefault`; **Deprecated:** `learningDashboardEnabled`, `breakoutRoomsEnabled`, `virtualBackgroundsDisabled`.
 
-- **insertDocument** endopoint was first introduced
+- **insertDocument** endpoint was first introduced
 
 Updated in 2.6:
 
@@ -111,6 +113,7 @@ Updated in 3.0:
 
 - **create** - **Added parameters:** `allowOverrideClientSettingsOnCreateCall`, `loginURL`. Parameter `meetingLayout` supports a few new options: CAMERAS_ONLY, PARTICIPANTS_CHAT_ONLY, PRESENTATION_ONLY; **Added POST module:** `clientSettingsOverride`.
 - **join** - **Added:** `enforceLayout`, `userdata-bbb_default_layout`. **Removed:** `defaultLayout` (replaced by `userdata-bbb_default_layout`) and removed support for all HTTP request methods except GET.
+- **sendChatMessage** endpoint was first introduced.
 
 ## API Data Types
 
@@ -245,6 +248,7 @@ The following section describes the administration calls
 | create              | Creates a new meeting.                                                                         |
 | join                | Join a new user to an existing meeting.                                                        |
 | end                 | Ends meeting.                                                                                  |
+| sendChatMessage     | Send a message to the public chat.                                                             |
 | insertDocument      | Insert a batch of documents via API call                                                       |
 
 ### Monitoring
@@ -1207,6 +1211,35 @@ Missing parameter error
     "returncode": "FAILED"
   }
 }
+```
+
+
+### `GET` sendChatMessage
+
+This call enables you to send a message to the public chat of a running meeting.
+
+**Resource URL:**
+
+http&#58;//yourserver.com/bigbluebutton/api/sendChatMessage?[parameters]&checksum=[checksum]
+
+**Parameters:**
+
+```mdx-code-block
+<APITableComponent data={sendChatMessage}/>
+```
+
+**Example Requests:**
+
+http&#58;//yourserver.com/bigbluebutton/api/sendChatMessage?meetingID=test01&message=my+test&userName=System+Admin&checksum=1234
+
+**Example Response:**
+
+```xml
+<response>
+    <returncode>SUCCESS</returncode>
+    <messageKey></messageKey>
+    <message></message>
+</response>
 ```
 
 ## API Sample Code

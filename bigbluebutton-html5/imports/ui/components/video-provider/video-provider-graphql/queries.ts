@@ -33,9 +33,7 @@ export interface VideoStreamsUsersResponse {
     clientType: string;
     raiseHand: boolean;
     isModerator: boolean;
-    reaction: {
-      reactionEmoji: string;
-    };
+    reactionEmoji: string;
   }[];
 }
 
@@ -118,9 +116,7 @@ export const GRID_USERS_SUBSCRIPTION = gql`
       userId
       raiseHand
       isModerator
-      reaction {
-        reactionEmoji
-      }
+      reactionEmoji
     }
   }
 `;
@@ -149,9 +145,7 @@ export const VIDEO_STREAMS_USERS_FILTERED_SUBSCRIPTION = gql`
       userId
       raiseHand
       isModerator
-      reaction {
-        reactionEmoji
-      }
+      reactionEmoji
     }
   }
 `;
