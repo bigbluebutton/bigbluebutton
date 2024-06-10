@@ -1,6 +1,5 @@
 import React from 'react';
 import Users from '/imports/api/users';
-import VoiceUsers from '/imports/api/voice-users';
 import Breakouts from '/imports/api/breakouts';
 import Meetings from '/imports/api/meetings';
 import Auth from '/imports/ui/services/auth';
@@ -291,16 +290,6 @@ const getUsersProp = () => {
     allowModsToUnmuteUsers: false,
     allowModsToEjectCameras: false,
     authenticatedGuest: false,
-  };
-};
-
-const curatedVoiceUser = (userId) => {
-  const voiceUser = VoiceUsers.findOne({ userId });
-  return {
-    isVoiceUser: voiceUser ? voiceUser.joined : false,
-    isMuted: voiceUser ? voiceUser.muted && !voiceUser.listenOnly : false,
-    isTalking: voiceUser ? voiceUser.talking && !voiceUser.muted : false,
-    isListenOnly: voiceUser ? voiceUser.listenOnly : false,
   };
 };
 
@@ -606,7 +595,6 @@ export default {
   toggleVoice,
   getActiveChats,
   getAvailableActions,
-  curatedVoiceUser,
   normalizeEmojiName,
   isMeetingLocked,
   isPublicChat,
