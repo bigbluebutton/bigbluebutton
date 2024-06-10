@@ -24,7 +24,7 @@ import WebcamContainer from '../webcam/container';
 import PresentationContainer from '../presentation/container';
 import ScreenshareContainer from '../screenshare/container';
 import ExternalVideoPlayerContainer from '../external-video-player/external-video-player-graphql/component';
-import GenericComponentContainer from '../generic-component-content/container';
+import GenericMainContentContainer from '../generic-content/generic-main-content/container';
 import EmojiRainContainer from '../emoji-rain/container';
 import Styled from './styles';
 import { DEVICE_TYPE, ACTIONS, SMALL_VIEWPORT_BREAKPOINT, PANELS } from '../layout/enums';
@@ -545,7 +545,7 @@ class App extends Component {
       presentationIsOpen,
       darkTheme,
       intl,
-      genericComponentId,
+      genericMainContentId,
       speechLocale,
       connected,
     } = this.props;
@@ -581,8 +581,8 @@ class App extends Component {
           <NavBarContainer main="new" />
           <WebcamContainer isLayoutSwapped={!presentationIsOpen} layoutType={selectedLayout} />
           <ExternalVideoPlayerContainer />
-          <GenericComponentContainer
-            genericComponentId={genericComponentId}
+          <GenericMainContentContainer
+            genericMainContentId={genericMainContentId}
           />
           {
           shouldShowPresentation

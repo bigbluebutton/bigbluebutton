@@ -75,7 +75,7 @@ const AppContainer = (props) => {
   } = useSettings(SETTINGS.DATA_SAVING);
 
   const sidebarContent = layoutSelectInput((i) => i.sidebarContent);
-  const genericComponent = layoutSelectInput((i) => i.genericComponent);
+  const genericMainContent = layoutSelectInput((i) => i.genericMainContent);
   const sidebarNavigation = layoutSelectInput((i) => i.sidebarNavigation);
   const actionsBarStyle = layoutSelectOutput((i) => i.actionBar);
   const captionsStyle = layoutSelectOutput((i) => i.captions);
@@ -199,7 +199,7 @@ const AppContainer = (props) => {
 
   const shouldShowExternalVideo = isExternalVideoEnabled() && isSharingVideo;
 
-  const shouldShowGenericComponent = !!genericComponent.genericComponentId;
+  const shouldShowGenericMainContent = !!genericMainContent.genericContentId;
 
   const validateEnforceLayout = (currentUser) => {
     const layoutTypes = Object.keys(LAYOUT_TYPE);
@@ -210,7 +210,7 @@ const AppContainer = (props) => {
   const shouldShowScreenshare = propsShouldShowScreenshare
     && (viewScreenshare || isPresenter);
   const shouldShowPresentation = (!shouldShowScreenshare && !isSharedNotesPinned
-    && !shouldShowExternalVideo && !shouldShowGenericComponent
+    && !shouldShowExternalVideo && !shouldShowGenericMainContent
     && (presentationIsOpen || presentationRestoreOnUpdate)) && isPresentationEnabled();
 
   if (!currentUserData) return null;
@@ -259,7 +259,7 @@ const AppContainer = (props) => {
           isSharedNotesPinned,
           shouldShowPresentation,
           setLocalSettings,
-          genericComponentId: genericComponent.genericComponentId,
+          genericMainContentId: genericMainContent.genericContentId,
           audioCaptions: <AudioCaptionsLiveContainer />,
           inactivityWarningDisplay,
           inactivityWarningTimeoutSecs,
