@@ -418,6 +418,9 @@ class ReceivedJsonMsgHandlerActor(
       case PluginDataChannelPushEntryMsg.NAME =>
         routeGenericMsg[PluginDataChannelPushEntryMsg](envelope, jsonNode)
 
+      case PluginDataChannelReplaceEntryMsg.NAME =>
+        routeGenericMsg[PluginDataChannelReplaceEntryMsg](envelope, jsonNode)
+
       case PluginDataChannelDeleteEntryMsg.NAME =>
         routeGenericMsg[PluginDataChannelDeleteEntryMsg](envelope, jsonNode)
 

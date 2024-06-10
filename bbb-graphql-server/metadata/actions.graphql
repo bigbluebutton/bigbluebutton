@@ -228,6 +228,16 @@ type Mutation {
 }
 
 type Mutation {
+  pluginDataChannelReplaceEntry(
+    pluginName: String!
+    subChannelName: String!
+    channelName: String!
+    entryId: String!
+    payloadJson: String!
+  ): Boolean
+}
+
+type Mutation {
   pluginDataChannelReset(
     pluginName: String!
     channelName: String!
