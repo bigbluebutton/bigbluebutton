@@ -324,6 +324,11 @@ const ExternalVideoPlayer: React.FC<ExternalVideoPlayerProps> = ({
 
     if (playing && isPresenter) {
       currentTime = playerRef.current?.getCurrentTime() || 0;
+    } else if (playing && !isPresenter) {
+      const presenterCurrentTime = playerRef.current?.getCurrentTime() || 0;
+      const presenterDuration = playerRef.current?.getDuration() || 0;
+      const syncedTime = (presenterCurrentTime / presenterDuration) * duration;
+      currentTime = syncedTime;
     }
   };
 
