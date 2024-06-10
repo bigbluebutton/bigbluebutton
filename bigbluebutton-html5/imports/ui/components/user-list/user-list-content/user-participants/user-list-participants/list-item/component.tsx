@@ -153,6 +153,7 @@ const UserListItem: React.FC<UserListItemProps> = ({ user, lockSettings }) => {
       <span key={itemToRender.id}>
         { itemToRender.icon
           && <Icon iconName={itemToRender.icon} /> }
+        <> </>
         {itemToRender.label}
       </span>,
     );
