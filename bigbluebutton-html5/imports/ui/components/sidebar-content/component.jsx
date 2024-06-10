@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import PropTypes from 'prop-types';
 import Resizable from 're-resizable';
+import { GenericContentType } from 'bigbluebutton-html-plugin-sdk/dist/cjs/extensible-areas/generic-content/enums';
 import { ACTIONS, PANELS } from '../layout/enums';
 import ChatContainer from '/imports/ui/components/chat/chat-graphql/component';
 import NotesContainer from '/imports/ui/components/notes/component';
@@ -11,6 +12,7 @@ import GuestUsersManagementPanel from '/imports/ui/components/waiting-users/wait
 import Styled from './styles';
 import ErrorBoundary from '/imports/ui/components/common/error-boundary/component';
 import FallbackView from '/imports/ui/components/common/fallback-errors/fallback-view/component';
+import GenericSidekickContentContainer from '/imports/ui/components/generic-content/generic-sidekick-content/container';
 
 const propTypes = {
   top: PropTypes.number.isRequired,
@@ -156,6 +158,11 @@ const SidebarContent = (props) => {
             currentSlideId={currentSlideId}
           />
         </Styled.Poll>
+      )}
+      {sidebarContentPanel.includes(PANELS.GENERIC_SIDEKICK_CONTENT) && (
+        <GenericSidekickContentContainer
+          genericSidekickContentId={sidebarContentPanel}
+        />
       )}
     </Resizable>
   );

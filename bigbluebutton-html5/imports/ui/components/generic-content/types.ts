@@ -12,3 +12,12 @@ export interface GenericMainContentProps {
     renderFunctionComponents: GenericMainContent[];
 }
 
+export interface GenericSidekickContentContainerProps { 
+    genericSidekickContentId: string;
+}
+
+export interface GenericSidekickContentProps {
+    genericContentId: string;
+    renderFunction: (element: HTMLElement) => void;
+    genericContentLabel: string;
+}

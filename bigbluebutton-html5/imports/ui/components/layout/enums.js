@@ -133,5 +133,6 @@ export const PANELS = {
   SHARED_NOTES: 'shared-notes',
   TIMER: 'timer',
   WAITING_USERS: 'waiting-users',
+  GENERIC_SIDEKICK_CONTENT: 'generic-sidekick-content',
   NONE: 'none',
 };
