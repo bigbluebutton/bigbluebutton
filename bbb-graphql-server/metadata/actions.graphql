@@ -469,6 +469,13 @@ type Mutation {
 }
 
 type Mutation {
+  userSetCaptionLocale(
+    locale: String!
+    provider: String!
+  ): Boolean
+}
+
+type Mutation {
   userSetConnectionAlive(
     networkRttInMs: Float!
   ): Boolean
@@ -528,13 +535,6 @@ type Mutation {
 
 type Mutation {
   userSetSpeechLocale(
-    locale: String!
-    provider: String!
-  ): Boolean
-}
-
-type Mutation {
-  userSetCaptionLocale(
     locale: String!
     provider: String!
   ): Boolean

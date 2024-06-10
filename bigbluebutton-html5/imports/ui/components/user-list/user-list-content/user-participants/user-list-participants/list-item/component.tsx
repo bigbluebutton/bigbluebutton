@@ -160,7 +160,7 @@ const UserListItem: React.FC<UserListItemProps> = ({ user, lockSettings }) => {
 
   const reactionsEnabled = isReactionsEnabled();
 
-  const userAvatarFiltered = (user.raiseHand === true || user.away === true || (user.reaction && user.reaction.reactionEmoji !== 'none')) ? '' : user.avatar;
+  const userAvatarFiltered = (user.raiseHand === true || user.away === true || (user.reactionEmoji && user.reactionEmoji !== 'none')) ? '' : user.avatar;
 
   const emojiIcons = [
     {
@@ -192,8 +192,8 @@ const UserListItem: React.FC<UserListItemProps> = ({ user, lockSettings }) => {
     if (user.emoji !== 'none' && user.emoji !== 'notAway') {
       return <Icon iconName={normalizeEmojiName(user.emoji)} />;
     }
-    if (user.reaction && user.reaction.reactionEmoji !== 'none') {
-      return user.reaction.reactionEmoji;
+    if (user.reactionEmoji && user.reactionEmoji !== 'none') {
+      return user.reactionEmoji;
     }
     if (user.name && userAvatarFiltered.length === 0) {
       return user.name.toLowerCase().slice(0, 2);

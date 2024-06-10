@@ -16,6 +16,7 @@ subscription userCurrentSubscription {
     ejectReasonCode
     ejected
     emoji
+    reactionEmoji
     enforceLayout
     expired
     extId
@@ -48,9 +49,6 @@ subscription userCurrentSubscription {
     customParameters {
       parameter
       value
-    }
-    reaction {
-      reactionEmoji
     }
     breakoutRooms {
       currentRoomJoined

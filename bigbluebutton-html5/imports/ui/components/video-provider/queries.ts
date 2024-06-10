@@ -23,9 +23,7 @@ subscription getvideoData($userIds: [String]!) {
     userId
     raiseHand
     isModerator
-    reaction {
-      reactionEmoji
-    }
+    reactionEmoji
   }
 }
 `;
@@ -46,9 +44,7 @@ subscription getVideoDataGrid {
     clientType
     userId
     raiseHand
-    reaction {
-      reactionEmoji
-    }
+    reactionEmoji
   }
 }
 `;
