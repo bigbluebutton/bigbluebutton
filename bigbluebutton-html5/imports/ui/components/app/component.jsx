@@ -547,6 +547,7 @@ class App extends Component {
       intl,
       genericComponentId,
       speechLocale,
+      connected,
     } = this.props;
 
     const {
@@ -574,7 +575,7 @@ class App extends Component {
           {this.renderActivityCheck()}
           <ScreenReaderAlertContainer />
           <BannerBarContainer />
-          <NotificationsBarContainer />
+          <NotificationsBarContainer connected={connected} />
           <SidebarNavigationContainer />
           <SidebarContentContainer isSharedNotesPinned={isSharedNotesPinned} />
           <NavBarContainer main="new" />

@@ -12,7 +12,7 @@ import { isPresentationEnabled, isExternalVideoEnabled } from '/imports/ui/servi
 import useCurrentUser from '/imports/ui/core/hooks/useCurrentUser';
 import useMeeting from '/imports/ui/core/hooks/useMeeting';
 import { ACTIONS, LAYOUT_TYPE, PRESENTATION_AREA } from '/imports/ui/components/layout/enums';
-import { useMutation } from '@apollo/client';
+import { useMutation, useReactiveVar } from '@apollo/client';
 import {
   layoutSelect,
   layoutSelectInput,
@@ -28,6 +28,7 @@ import {
 import App from './component';
 import useUserChangedLocalSettings from '../../services/settings/hooks/useUserChangedLocalSettings';
 import { PINNED_PAD_SUBSCRIPTION } from '../notes/queries';
+import connectionStatus from '../../core/graphql/singletons/connectionStatus';
 import useDeduplicatedSubscription from '../../core/hooks/useDeduplicatedSubscription';
 import VideoStreamsState from '../video-provider/video-provider-graphql/state';
 import { useIsSharing, useSharingContentType } from '../screenshare/service';
@@ -116,6 +117,8 @@ const AppContainer = (props) => {
   const presentationIsOpen = isOpen;
 
   const { focusedId } = cameraDock;
+
+  const connected = useReactiveVar(connectionStatus.getConnectedStatusVar());
 
   useEffect(() => {
     if (
@@ -216,6 +219,7 @@ const AppContainer = (props) => {
     ? (
       <App
         {...{
+          connected,
           actionsBarStyle,
           captionsStyle,
           currentUserId,
