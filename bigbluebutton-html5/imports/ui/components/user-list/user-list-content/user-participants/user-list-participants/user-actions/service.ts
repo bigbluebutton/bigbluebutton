@@ -21,8 +21,6 @@ export const generateActionsPermissions = (
 ) => {
   const subjectUserVoice = subjectUser.voice;
 
-  const USER_STATUS_ENABLED = window.meetingClientSettings.public.userStatus.enabled;
-
   const amIModerator = currentUser.isModerator;
   const isDialInUser = isVoiceOnlyUser(subjectUser.userId);
   const amISubjectUser = isMe(subjectUser.userId);
@@ -64,8 +62,6 @@ export const generateActionsPermissions = (
     && !isBreakout
     && !(isSubjectUserGuest && usersPolicies?.authenticatedGuest);
 
-  const allowedToChangeStatus = amISubjectUser && USER_STATUS_ENABLED;
-
   const allowedToChangeUserLockStatus = amIModerator
     && !isSubjectUserModerator
     && lockSettings?.hasActiveLockSetting;
@@ -80,9 +76,6 @@ export const generateActionsPermissions = (
   const allowedToSetPresenter = amIModerator
     && !subjectUser.presenter
     && !isDialInUser;
-  // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-  // @ts-ignore - temporary, while meteor exists in the project
-  const allowedToSetAway = amISubjectUser && !USER_STATUS_ENABLED;
 
   return {
     allowedToChatPrivately,
@@ -93,11 +86,9 @@ export const generateActionsPermissions = (
     allowedToSetPresenter,
     allowedToPromote,
     allowedToDemote,
-    allowedToChangeStatus,
     allowedToChangeUserLockStatus,
     allowedToChangeWhiteboardAccess,
     allowedToEjectCameras,
-    allowedToSetAway,
   };
 };
 

@@ -107,16 +107,14 @@ export function isPresentationEnabled() {
 
 export function isReactionsEnabled() {
   const USER_REACTIONS_ENABLED = window.meetingClientSettings.public.userReaction.enabled;
-  const REACTIONS_BUTTON_ENABLED = window.meetingClientSettings.public.app.reactionsButton.enabled;
 
-  return getDisabledFeatures().indexOf('reactions') === -1 && USER_REACTIONS_ENABLED && REACTIONS_BUTTON_ENABLED;
+  return getDisabledFeatures().indexOf('reactions') === -1 && USER_REACTIONS_ENABLED;
 }
 
 export function useIsReactionsEnabled() {
   const USER_REACTIONS_ENABLED = window.meetingClientSettings.public.userReaction.enabled;
-  const REACTIONS_BUTTON_ENABLED = window.meetingClientSettings.public.app.reactionsButton.enabled;
 
-  return useDisabledFeatures().indexOf('reactions') === -1 && USER_REACTIONS_ENABLED && REACTIONS_BUTTON_ENABLED;
+  return useDisabledFeatures().indexOf('reactions') === -1 && USER_REACTIONS_ENABLED;
 }
 
 export function isTimerFeatureEnabled() {

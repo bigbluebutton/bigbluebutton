@@ -308,7 +308,6 @@ const getAvailableActions = (
   amIModerator, isBreakoutRoom, subjectUser, subjectVoiceUser, usersProp, amIPresenter,
 ) => {
   const ROLE_MODERATOR = window.meetingClientSettings.public.user.role_moderator;
-  const USER_STATUS_ENABLED = window.meetingClientSettings.public.userStatus.enabled;
 
   const isDialInUser = isVoiceOnlyUser(subjectUser.userId) || subjectUser.phone_user;
   const amISubjectUser = isMe(subjectUser.userId);
@@ -355,8 +354,6 @@ const getAvailableActions = (
     && !isBreakoutRoom
     && !(isSubjectUserGuest && usersProp.authenticatedGuest);
 
-  const allowedToChangeStatus = amISubjectUser && USER_STATUS_ENABLED;
-
   const allowedToChangeUserLockStatus = amIModerator
     && !isSubjectUserModerator
     && isMeetingLocked(Auth.meetingID);
@@ -368,8 +365,6 @@ const getAvailableActions = (
     && !amISubjectUser
     && usersProp.allowModsToEjectCameras;
 
-  const allowedToSetAway = amISubjectUser && !USER_STATUS_ENABLED;
-
   return {
     allowedToChatPrivately,
     allowedToMuteAudio,
@@ -379,11 +374,9 @@ const getAvailableActions = (
     allowedToSetPresenter,
     allowedToPromote,
     allowedToDemote,
-    allowedToChangeStatus,
     allowedToChangeUserLockStatus,
     allowedToChangeWhiteboardAccess,
     allowedToEjectCameras,
-    allowedToSetAway,
   };
 };
 

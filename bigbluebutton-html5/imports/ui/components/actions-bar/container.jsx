@@ -6,9 +6,22 @@ import { useMutation } from '@apollo/client';
 import getFromUserSettings from '/imports/ui/services/users-settings';
 import Auth from '/imports/ui/services/auth';
 import ActionsBar from './component';
-import { layoutSelectOutput, layoutDispatch } from '../layout/context';
-import { isExternalVideoEnabled, isPollingEnabled, isPresentationEnabled, isTimerFeatureEnabled } from '/imports/ui/services/features';
-import { isScreenBroadcasting, isCameraAsContentBroadcasting, useIsSharing, useSharingContentType } from '/imports/ui/components/screenshare/service';
+import {
+  layoutSelectOutput,
+  layoutDispatch,
+} from '../layout/context';
+import {
+  isExternalVideoEnabled,
+  isPollingEnabled,
+  isPresentationEnabled,
+  isTimerFeatureEnabled,
+} from '/imports/ui/services/features';
+import {
+  isScreenBroadcasting,
+  isCameraAsContentBroadcasting,
+  useIsSharing,
+  useSharingContentType,
+} from '/imports/ui/components/screenshare/service';
 import { PluginsContext } from '/imports/ui/components/components-data/plugin-context/context';
 import {
   CURRENT_PRESENTATION_PAGE_SUBSCRIPTION,
@@ -103,9 +116,8 @@ const ActionsBarContainer = (props) => {
 
 const isReactionsButtonEnabled = () => {
   const USER_REACTIONS_ENABLED = window.meetingClientSettings.public.userReaction.enabled;
-  const REACTIONS_BUTTON_ENABLED = window.meetingClientSettings.public.app.reactionsButton.enabled;
 
-  return USER_REACTIONS_ENABLED && REACTIONS_BUTTON_ENABLED;
+  return USER_REACTIONS_ENABLED;
 };
 
 const ActionsBarTracker = withTracker(({ isSharing, sharingContentType }) => ({

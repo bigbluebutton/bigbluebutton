@@ -13,7 +13,6 @@ export interface Public {
   timer: Timer
   chat: Chat
   userReaction: UserReaction
-  userStatus: UserStatus
   notes: Notes
   layout: Layout
   pads: Pads
@@ -541,10 +540,6 @@ export interface UserReaction {
 export interface Reaction {
   id: string
   native: string
-}
-
-export interface UserStatus {
-  enabled: boolean
 }
 
 export interface Notes {
