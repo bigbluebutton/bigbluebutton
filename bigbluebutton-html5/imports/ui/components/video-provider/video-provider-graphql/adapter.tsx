@@ -7,22 +7,38 @@ import {
 } from './queries';
 import { setStreams } from './state';
 import { AdapterProps } from '../../components-data/graphqlToMiniMongoAdapterManager/component';
-import useDeduplicatedSubscription from '/imports/ui/core/hooks/useDeduplicatedSubscription';
+import createUseSubscription from '/imports/ui/core/hooks/createUseSubscription';
 
 const throttledSetStreams = throttle({ interval: 500 }, setStreams);
+
+type SubscriptionData = VideoStreamsResponse['user_camera'][number];
+
+const useVideoStreamsSubscription = createUseSubscription(
+  VIDEO_STREAMS_SUBSCRIPTION,
+  {},
+  true,
+);
 
 const VideoStreamAdapter: React.FC<AdapterProps> = ({
   onReady,
   children,
 }) => {
   const ready = useRef(false);
-  const { data, loading, error } = useDeduplicatedSubscription<VideoStreamsResponse>(VIDEO_STREAMS_SUBSCRIPTION);
+  const { data, loading, errors } = useVideoStreamsSubscription();
 
   useEffect(() => {
     if (loading) return;
 
-    if (error) {
-      logger.error(`Video streams subscription failed. ${error.name}: ${error.message}`, error);
+    if (errors) {
+      errors.forEach((error) => {
+        logger.error({
+          logCode: 'video_stream_sub_error',
+          extraInfo: {
+            errorName: error.name,
+            errorMessage: error.message,
+          },
+        }, 'Video streams subscription failed.');
+      });
     }
 
     if (!data) {
@@ -30,7 +46,7 @@ const VideoStreamAdapter: React.FC<AdapterProps> = ({
       return;
     }
 
-    const streams = data.user_camera.map(({ streamId, user, voice }) => ({
+    const streams = (data as SubscriptionData[]).map(({ streamId, user, voice }) => ({
       stream: streamId,
       deviceId: streamId.split('_')[3],
       name: user.name,
