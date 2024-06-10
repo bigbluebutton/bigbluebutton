@@ -76,11 +76,6 @@ export interface UserClientSettings {
   userClientSettingsJson: string;
 }
 
-export interface WelcomeMsgs {
-  welcomeMsg: string;
-  welcomeMsgForModerators: string;
-}
-
 export interface User {
   authToken: string;
   userId: string;
@@ -131,5 +126,4 @@ export interface User {
   breakoutRooms: BreakoutRooms;
   customParameters: Array<CustomParameter>;
   userClientSettings: UserClientSettings;
-  welcomeMsgs: WelcomeMsgs;
 }

@@ -95,10 +95,6 @@ subscription userCurrentSubscription {
       listenOnly
       talking
     }
-    welcomeMsgs {
-      welcomeMsg
-      welcomeMsgForModerators
-    }
   }
 }
 `;
