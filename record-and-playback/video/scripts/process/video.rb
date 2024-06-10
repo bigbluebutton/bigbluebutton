@@ -67,6 +67,7 @@ events = Nokogiri::XML(File.open("#{raw_archive_dir}/events.xml"))
 initial_timestamp = BigBlueButton::Events.first_event_timestamp(events)
 final_timestamp = BigBlueButton::Events.last_event_timestamp(events)
 duration = BigBlueButton::Events.get_recording_length(events)
+participants = BigBlueButton::Events.get_num_participants(events)
 metadata = events.at_xpath('/recording/metadata')
 
 logger.info 'Generating video events list'
@@ -281,6 +282,7 @@ metadata_xml = Nokogiri::XML::Builder.new do |xml|
     xml.published('true')
     xml.start_time(start_real_time)
     xml.end_time(start_real_time + final_timestamp - initial_timestamp)
+    xml.participants(participants)
     xml.playback do
       xml.format('video')
       xml.link("#{props['playback_protocol']}://#{props['playback_host']}/playback/video/#{meeting_id}/")
