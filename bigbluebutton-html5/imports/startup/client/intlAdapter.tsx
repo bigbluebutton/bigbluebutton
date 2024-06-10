@@ -69,11 +69,13 @@ const IntlAdapter: React.FC<IntlAdapterProps> = ({
     );
     // @ts-ignore - JS code
     const { locale } = Settings.application;
+    const clientSettings = JSON.parse(sessionStorage.getItem('clientStartupSettings') || '{}');
+    const { overrideLocale } = clientSettings;
     if (
       typeof locale === 'string'
       && locale !== currentLocale
     ) {
-      setCurrentLocale(locale);
+      setCurrentLocale(overrideLocale || locale);
     } else {
       setUp();
     }
