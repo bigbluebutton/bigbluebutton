@@ -35,8 +35,6 @@ trait PluginDataChannelReplaceEntryMsgHdlr extends HandlerHelpers {
           }
         }
 
-        println(s"\n\n\n\n\n teste ---> ${msg.body.payloadJson}")
-
         if (!hasPermission.contains(true)) {
           println(s"No permission to write in plugin: '${msg.body.pluginName}', data channel: '${msg.body.channelName}'.")
         } else {

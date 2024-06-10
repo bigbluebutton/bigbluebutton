@@ -142,20 +142,6 @@ object PluginDataChannelEntryDAO {
       case Success(rowsAffected) => DatabaseConnection.logger.debug(s"$rowsAffected row(s) updated with new payloadJson on pluginDataChannelEntry table!")
       case Failure(e)            => DatabaseConnection.logger.debug(s"Error updating with new payloadJson for table pluginDataChannelEntry: $e")
     }
-
-//    DatabaseConnection.db.run(
-//      sqlu"""UPDATE "pluginDataChannelEntry" SET
-//                "payloadJson" = payloadJson
-//                WHERE "deletedAt" is null
-//                AND "meetingId" = ${meetingId}
-//                AND "pluginName" = ${pluginName}
-//                AND "channelName" = ${channelName}
-//                AND "subChannelName" = ${subChannelName}
-//                AND "entryId" = ${entryId}"""
-//    ).onComplete {
-//      case Success(rowsAffected) => DatabaseConnection.logger.debug(s"$rowsAffected row(s) updated with new payloadJson on pluginDataChannelEntry table!")
-//      case Failure(e)            => DatabaseConnection.logger.debug(s"Error updating with new payloadJson for table pluginDataChannelEntry: $e")
-//    }
   }
 
 }
