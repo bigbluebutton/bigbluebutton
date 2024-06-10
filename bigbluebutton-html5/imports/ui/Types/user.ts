@@ -77,6 +77,7 @@ export interface User {
   nameSortable: string;
   isModerator: boolean;
   clientType: string;
+  disconnected: boolean;
   isOnline: boolean;
   ejectReason: string;
   ejectReasonCode: string;
@@ -107,6 +108,7 @@ export interface User {
   presPagesWritable: Array<PresPagesWritable>;
   speechLocale: string;
   captionLocale: string;
+  authed: boolean;
   size: number;
   away: boolean;
   raiseHand: boolean;
