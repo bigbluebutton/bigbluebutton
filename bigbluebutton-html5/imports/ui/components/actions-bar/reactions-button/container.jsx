@@ -21,7 +21,7 @@ const ReactionsButtonContainer = ({ ...props }) => {
     raiseHand: user.raiseHand,
     away: user.away,
     voice: user.voice,
-    reaction: user.reaction,
+    reactionEmoji: user.reactionEmoji,
   }));
 
   const currentUser = {
@@ -36,7 +36,7 @@ const ReactionsButtonContainer = ({ ...props }) => {
 
   return (
     <ReactionsButton {...{
-      currentUserReaction: currentUserData?.reaction?.reactionEmoji ?? 'none',
+      currentUserReaction: currentUserData?.reactionEmoji ?? 'none',
       layoutContextDispatch,
       sidebarContentPanel,
       isMobile,

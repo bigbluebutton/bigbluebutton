@@ -101,6 +101,7 @@ class MeetingActor(
 
   object CheckVoiceRecordingInternalMsg
   object SyncVoiceUserStatusInternalMsg
+  object MeetingTasksExecutor
   object MeetingInfoAnalyticsMsg
   object MeetingInfoAnalyticsLogMsg
 
@@ -243,6 +244,13 @@ class MeetingActor(
     MeetingInfoAnalyticsMsg
   )
 
+  context.system.scheduler.schedule(
+    5 seconds,
+    5 seconds,
+    self,
+    MeetingTasksExecutor
+  )
+
   def receive = {
     case SyncVoiceUserStatusInternalMsg =>
       checkVoiceConfUsersStatus()
@@ -252,6 +260,8 @@ class MeetingActor(
       handleMeetingInfoAnalyticsLogging()
     case MeetingInfoAnalyticsMsg =>
       handleMeetingInfoAnalyticsService()
+    case MeetingTasksExecutor =>
+      handleMeetingTasksExecutor()
     //=============================
 
     // 2x messages
@@ -775,6 +785,25 @@ class MeetingActor(
     val meetingInfoAnalyticsLogMsg: MeetingInfoAnalytics = prepareMeetingInfo()
     val event2 = MsgBuilder.buildMeetingInfoAnalyticsServiceMsg(meetingInfoAnalyticsLogMsg)
     outGW.send(event2)
+  }
+
+  private def handleMeetingTasksExecutor(): Unit = {
+    clearExpiredReactionEmojis()
+  }
+
+  private def clearExpiredReactionEmojis(): Unit = {
+    val userReactionExpire = getConfigPropertyValueByPathAsIntOrElse(liveMeeting.clientSettings, "public.userReaction.expire", 30)
+    val now = System.currentTimeMillis()
+
+    for {
+      user <- Users2x.findAll(liveMeeting.users2x)
+    } yield {
+      if (user.reactionEmoji != null && user.reactionEmoji != "none") {
+        if (now - user.reactionChangedOn > userReactionExpire * 1000) {
+          Users2x.setReactionEmoji(liveMeeting.users2x, user.intId, "none", 0)
+        }
+      }
+    }
   }
 
   private def prepareMeetingInfo(): MeetingInfoAnalytics = {
