@@ -125,10 +125,6 @@ const propTypes = {
   darkTheme: PropTypes.bool.isRequired,
 };
 
-const defaultProps = {
-  actionsbar: null,
-};
-
 const isLayeredView = window.matchMedia(`(max-width: ${SMALL_VIEWPORT_BREAKPOINT}px)`);
 
 class App extends Component {
@@ -650,6 +646,5 @@ class App extends Component {
 }
 
 App.propTypes = propTypes;
-App.defaultProps = defaultProps;
 
 export default injectIntl(App);

@@ -27,14 +27,28 @@ const intlMessages = defineMessages({
 
 const VIDEO_CONTAINER_WIDTH_BOUND = 125;
 
-const VideoListItem = (props) => {
-  const {
-    name, voiceUser, isFullscreenContext, layoutContextDispatch, user, onHandleVideoFocus,
-    cameraId, numOfStreams, focused, onVideoItemMount, onVideoItemUnmount,
-    makeDragOperations, dragging, draggingOver, isRTL, isStream, settingsSelfViewDisable,
-    disabledCams, amIModerator, stream,
-  } = props;
-
+const VideoListItem = ({
+  name,
+  voiceUser,
+  isFullscreenContext,
+  layoutContextDispatch,
+  user,
+  onHandleVideoFocus,
+  cameraId,
+  numOfStreams = 0,
+  focused,
+  onVideoItemMount = () => {},
+  onVideoItemUnmount = () => {},
+  makeDragOperations,
+  dragging,
+  draggingOver,
+  isRTL,
+  isStream,
+  settingsSelfViewDisable,
+  disabledCams,
+  amIModerator,
+  stream,
+}) => {
   const intl = useIntl();
 
   const [videoDataLoaded, setVideoDataLoaded] = useState(false);
@@ -283,13 +297,6 @@ const VideoListItem = (props) => {
 
 export default withDragAndDrop(injectIntl(VideoListItem));
 
-VideoListItem.defaultProps = {
-  numOfStreams: 0,
-  onVideoItemMount: () => { },
-  onVideoItemUnmount: () => { },
-  onVirtualBgDrop: () => { },
-};
-
 VideoListItem.propTypes = {
   cameraId: PropTypes.string.isRequired,
   name: PropTypes.string.isRequired,
@@ -300,7 +307,6 @@ VideoListItem.propTypes = {
   onHandleVideoFocus: PropTypes.func.isRequired,
   onVideoItemMount: PropTypes.func,
   onVideoItemUnmount: PropTypes.func,
-  onVirtualBgDrop: PropTypes.func,
   isFullscreenContext: PropTypes.bool.isRequired,
   layoutContextDispatch: PropTypes.func.isRequired,
   user: PropTypes.shape({

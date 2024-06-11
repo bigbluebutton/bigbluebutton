@@ -42,12 +42,16 @@ const shouldEnableBackgroundUpload = () => {
   return ENABLE_UPLOAD && isCustomVirtualBackgroundsEnabled();
 };
 
+const defaultInitialVirtualBgState = {
+  type: EFFECT_TYPES.NONE_TYPE,
+};
+
 const VirtualBgSelector = ({
   intl,
   handleVirtualBgSelected,
   locked,
-  showThumbnails,
-  initialVirtualBgState,
+  showThumbnails = false,
+  initialVirtualBgState = defaultInitialVirtualBgState,
   isVisualEffects,
   readFile,
 }) => {
@@ -517,11 +521,5 @@ const VirtualBgSelector = ({
 };
 
 VirtualBgSelector.propTypes = propTypes;
-VirtualBgSelector.defaultProps = {
-  showThumbnails: false,
-  initialVirtualBgState: {
-    type: EFFECT_TYPES.NONE_TYPE,
-  },
-};
 
 export default injectIntl(withFileReader(VirtualBgSelector, MIME_TYPES_ALLOWED, MAX_FILE_SIZE));

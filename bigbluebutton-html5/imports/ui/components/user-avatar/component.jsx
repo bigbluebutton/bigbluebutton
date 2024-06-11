@@ -20,39 +20,23 @@ const propTypes = {
   isSkeleton: PropTypes.bool,
 };
 
-const defaultProps = {
-  children: <></>,
-  moderator: false,
-  presenter: false,
-  talking: false,
-  muted: false,
-  listenOnly: false,
-  voice: false,
-  noVoice: false,
-  color: '#000',
-  emoji: false,
-  avatar: '',
-  className: '',
-  isSkeleton: false,
-};
-
 const { isChrome, isFirefox, isEdge } = browserInfo;
 
 const UserAvatar = ({
-  children,
-  moderator,
-  presenter,
-  className,
-  talking,
-  muted,
-  listenOnly,
-  color,
-  voice,
-  emoji,
-  avatar,
-  noVoice,
-  whiteboardAccess,
-  isSkeleton,
+  children = <></>,
+  moderator = false,
+  presenter = false,
+  className = '',
+  talking = false,
+  muted = false,
+  listenOnly = false,
+  color = '#000',
+  voice = false,
+  emoji = false,
+  avatar = '',
+  noVoice = false,
+  whiteboardAccess = false,
+  isSkeleton = false,
 }) => {
   const Settings = getSettingsSingletonInstance();
   const { animations } = Settings.application;
@@ -76,7 +60,6 @@ const UserAvatar = ({
           isChrome={isChrome}
           isFirefox={isFirefox}
           isEdge={isEdge}
-          className={className}
           style={{
             backgroundColor: color,
             color, // We need the same color on both for the border
@@ -105,6 +88,5 @@ const UserAvatar = ({
 };
 
 UserAvatar.propTypes = propTypes;
-UserAvatar.defaultProps = defaultProps;
 
 export default UserAvatar;

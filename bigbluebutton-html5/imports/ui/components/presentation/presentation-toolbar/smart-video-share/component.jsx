@@ -25,10 +25,13 @@ const createAction = (url, startWatching) => {
   }
 };
 
-export const SmartMediaShare = (props) => {
-  const {
-    currentSlide, intl, isMobile, isRTL, startWatching,
-  } = props;
+export const SmartMediaShare = ({
+  currentSlide = undefined,
+  intl,
+  isMobile,
+  isRTL,
+  startWatching,
+}) => {
   const linkPatt = /(https?:\/\/.*?)(?=\s|$)/g;
   const externalLinks = safeMatch(linkPatt, currentSlide?.content?.replace(/[\r\n]/g, '  '), false);
   if (!externalLinks) return null;
@@ -85,8 +88,4 @@ SmartMediaShare.propTypes = {
   }).isRequired,
   isMobile: PropTypes.bool.isRequired,
   isRTL: PropTypes.bool.isRequired,
-};
-
-SmartMediaShare.defaultProps = {
-  currentSlide: undefined,
 };

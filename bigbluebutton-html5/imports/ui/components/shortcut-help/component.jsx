@@ -269,12 +269,13 @@ const renderItemWhiteBoard = (func, key, alt) => {
   );
 }
 
-const ShortcutHelpComponent = (props) => {
-  const { intl, shortcuts,
-    isOpen,
-    onRequestClose,
-    priority,
-  } = props;
+const ShortcutHelpComponent = ({
+  intl = {},
+  shortcuts,
+  isOpen,
+  onRequestClose,
+  priority,
+}) => {
   const { browserName } = browserInfo;
   const { isIos, isMacos } = deviceInfo;
   const [ selectedTab, setSelectedTab] = React.useState(0);
@@ -442,10 +443,6 @@ const ShortcutHelpComponent = (props) => {
       </Styled.SettingsTabs>
     </ModalSimple>
   );
-};
-
-ShortcutHelpComponent.defaultProps = {
-  intl: {},
 };
 
 ShortcutHelpComponent.propTypes = {
