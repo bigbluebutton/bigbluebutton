@@ -76,6 +76,7 @@ const propTypes = {
   intl: PropTypes.shape({
     formatMessage: PropTypes.func.isRequired,
   }).isRequired,
+  allowSnapshotOfCurrentSlide: PropTypes.bool,
   handleToggleFullscreen: PropTypes.func.isRequired,
   isFullscreen: PropTypes.bool,
   elementName: PropTypes.string,
@@ -99,7 +100,7 @@ const propTypes = {
 };
 
 const defaultProps = {
-  allowSnapshotOfCurrentSlide: PropTypes.bool.isRequired,
+  allowSnapshotOfCurrentSlide: false,
   isIphone: false,
   isFullscreen: false,
   isRTL: false,
@@ -136,7 +137,7 @@ const PresentationMenu = (props) => {
     slideNum,
     currentUser,
     whiteboardId,
-    persistShape
+    persistShape,
   } = props;
 
   const [state, setState] = useState({
@@ -152,7 +153,7 @@ const PresentationMenu = (props) => {
     ? intl.formatMessage(intlMessages.exitFullscreenLabel)
     : intl.formatMessage(intlMessages.fullscreenLabel)
   );
-  
+
   const formattedVisibilityLabel = (visible) => (visible
     ? intl.formatMessage(intlMessages.hideToolsDesc)
     : intl.formatMessage(intlMessages.showToolsDesc)
@@ -198,9 +199,15 @@ const PresentationMenu = (props) => {
         const fileContent = e.target.result;
         const dataObj = extractShapes(JSON.parse(fileContent));
         const dataArray = Object.values(dataObj);
-        dataArray.forEach(shape => {
-          shape.parentId = `page:${slideNum}`;
-          shape.meta.createdBy = currentUser.userId;
+        dataArray.forEach((originalShape) => {
+          const shape = {
+            ...originalShape,
+            parentId: `page:${slideNum}`,
+            meta: {
+              ...originalShape.meta,
+              createdBy: currentUser.userId,
+            },
+          };
           persistShape(shape, whiteboardId, currentUser.isModerator);
         });
       };
@@ -211,14 +218,14 @@ const PresentationMenu = (props) => {
     }
   };
 
-  const handleFileClick = () => {
-    const fileInput = document.getElementById('hiddenFileInput');
-    if (fileInput) {
-      fileInput.click();
-    } else {
-      console.error('File input not found');
-    }
-  };
+  // const handleFileClick = () => {
+  //   const fileInput = document.getElementById('hiddenFileInput');
+  //   if (fileInput) {
+  //     fileInput.click();
+  //   } else {
+  //     console.error('File input not found');
+  //   }
+  // };
 
   function renderToastContent() {
     const { loading, hasError } = state;
@@ -385,15 +392,15 @@ const PresentationMenu = (props) => {
       },
     );
 
-    if (props.amIPresenter) {
-      menuItems.push({
-        key: 'list-item-load-shapes',
-        dataTest: 'loadShapes',
-        label: 'Load .tldr Data',
-        icon: 'pen_tool',
-        onClick: handleFileClick,
-      });
-    }
+    // if (props.amIPresenter) {
+    //   menuItems.push({
+    //     key: 'list-item-load-shapes',
+    //     dataTest: 'loadShapes',
+    //     label: 'Load .tldr Data',
+    //     icon: 'pen_tool',
+    //     onClick: handleFileClick,
+    //   });
+    // }
 
     presentationDropdownItems.forEach((item, index) => {
       switch (item.type) {
@@ -454,7 +461,7 @@ const PresentationMenu = (props) => {
   }
 
   return (
-    <Styled.Left id='WhiteboardOptionButton'>
+    <Styled.Left id="WhiteboardOptionButton">
       <BBBMenu
         trigger={(
           <TooltipContainer title={intl.formatMessage(intlMessages.optionsLabel)}>
@@ -467,7 +474,46 @@ const PresentationMenu = (props) => {
                 setIsDropdownOpen((isOpen) => !isOpen);
               }}
             >
-              <Styled.ButtonIcon iconName="more" />
+              <svg width="22" height="22" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path
+                  d="
+                    M9 11.25H11.25
+                    M11.25 11.25H13.5
+                    M11.25 11.25V9
+                    M11.25 11.25V13.5
+                    M4 7H5.5
+                    C5.89782 7 6.27936 6.84196 6.56066 6.56066
+                    C6.84196 6.27936 7 5.89782 7 5.5V4
+                    C7 3.60218 6.84196 3.22064 6.56066 2.93934
+                    C6.27936 2.65804 5.89782 2.5 5.5 2.5H4
+                    C3.60218 2.5 3.22064 2.65804 2.93934 2.93934
+                    C2.65804 3.22064 2.5 3.60218 2.5 4V5.5
+                    C2.5 5.89782 2.65804 6.27936 2.93934 6.56066
+                    C3.22064 6.84196 3.60218 7 4 7
+                    ZM4 13.5H5.5
+                    C5.89782 13.5 6.27936 13.342 6.56066 13.0607
+                    C6.84196 12.7794 7 12.3978 7 12V10.5
+                    C7 10.1022 6.84196 9.72064 6.56066 9.43934
+                    C6.27936 9.15804 5.89782 9 5.5 9H4
+                    C3.60218 9 3.22064 9.15804 2.93934 9.43934
+                    C2.65804 9.72064 2.5 10.1022 2.5 10.5V12
+                    C2.5 12.3978 2.65804 12.7794 2.93934 13.0607
+                    C3.22064 13.342 3.60218 13.5 4 13.5
+                    ZM10.5 7H12
+                    C12.3978 7 12.7794 6.84196 13.0607 6.56066
+                    C13.342 6.27936 13.5 5.89782 13.5 5.5V4
+                    C13.5 3.60218 13.342 3.22064 13.0607 2.93934
+                    C12.7794 2.65804 12.3978 2.5 12 2.5H10.5
+                    C10.1022 2.5 9.72064 2.65804 9.43934 2.93934
+                    C9.15804 3.22064 9 3.60218 9 4V5.5
+                    C9 5.89782 9.15804 6.27936 9.43934 6.56066
+                    C9.72064 6.84196 10.1022 7 10.5 7
+                  "
+                  stroke="#4E5A66"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                />
+              </svg>
             </Styled.DropdownButton>
           </TooltipContainer>
         )}

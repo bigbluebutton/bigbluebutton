@@ -27,13 +27,16 @@ func HasuraConnectionWriter(hc *common.HasuraConnection, fromBrowserToHasuraChan
 
 	//Send authentication (init) message at first
 	//It will not use the channel (fromBrowserToHasuraChannel) because this msg must bypass ChannelFreeze
-	if initMessage != nil {
-		log.Infof("it's a reconnection, injecting authentication (init) message")
-		err := wsjson.Write(hc.Context, hc.Websocket, initMessage)
-		if err != nil {
-			log.Errorf("error on write authentication (init) message (we're disconnected from hasura): %v", err)
-			return
-		}
+	if initMessage == nil {
+		log.Errorf("it can't start Hasura Connection because initMessage is null")
+		return
+	}
+
+	//Send init connection message to Hasura to start
+	err := wsjson.Write(hc.Context, hc.Websocket, initMessage)
+	if err != nil {
+		log.Errorf("error on write authentication (init) message (we're disconnected from hasura): %v", err)
+		return
 	}
 
 RangeLoop:
@@ -55,7 +58,7 @@ RangeLoop:
 
 				var fromBrowserMessageAsMap = fromBrowserMessage.(map[string]interface{})
 
-				if fromBrowserMessageAsMap["type"] == "start" {
+				if fromBrowserMessageAsMap["type"] == "subscribe" {
 					var queryId = fromBrowserMessageAsMap["id"].(string)
 
 					//Identify type based on query string
@@ -78,6 +81,23 @@ RangeLoop:
 								for _, s := range allowedSubscriptionsSlice {
 									if s == operationName {
 										subscriptionAllowed = true
+										break
+									}
+								}
+
+								if !subscriptionAllowed {
+									log.Infof("Subscription %s not allowed!", operationName)
+									continue
+								}
+							}
+
+							//Validate if subscription is allowed
+							if deniedSubscriptions := os.Getenv("BBB_GRAPHQL_MIDDLEWARE_DENIED_SUBSCRIPTIONS"); deniedSubscriptions != "" {
+								deniedSubscriptionsSlice := strings.Split(deniedSubscriptions, ",")
+								subscriptionAllowed := true
+								for _, s := range deniedSubscriptionsSlice {
+									if s == operationName {
+										subscriptionAllowed = false
 										break
 									}
 								}
@@ -154,7 +174,7 @@ RangeLoop:
 					//saveItToFile(fmt.Sprintf("%s-%s-%02s", string(messageType), operationName, queryId), fromBrowserMessageAsMap)
 				}
 
-				if fromBrowserMessageAsMap["type"] == "stop" {
+				if fromBrowserMessageAsMap["type"] == "complete" {
 					var queryId = fromBrowserMessageAsMap["id"].(string)
 					browserConnection.ActiveSubscriptionsMutex.RLock()
 					jsonPatchSupported := browserConnection.ActiveSubscriptions[queryId].JsonPatchSupported
@@ -165,7 +185,7 @@ RangeLoop:
 
 					browserConnection.ActiveSubscriptionsMutex.RUnlock()
 					if jsonPatchSupported {
-						msgpatch.RemoveConnSubscriptionCacheFile(browserConnection, queryId)
+						msgpatch.RemoveConnSubscriptionCacheFile(browserConnection.Id, browserConnection.SessionToken, queryId)
 					}
 					browserConnection.ActiveSubscriptionsMutex.Lock()
 					delete(browserConnection.ActiveSubscriptions, queryId)
@@ -174,7 +194,9 @@ RangeLoop:
 				}
 
 				if fromBrowserMessageAsMap["type"] == "connection_init" {
-					browserConnection.ConnectionInitMessage = fromBrowserMessageAsMap
+					//browserConnection.ConnectionInitMessage = fromBrowserMessageAsMap
+					//Skip message once it is handled by ConnInitHandler already
+					continue
 				}
 
 				log.Tracef("sending to hasura: %v", fromBrowserMessageAsMap)

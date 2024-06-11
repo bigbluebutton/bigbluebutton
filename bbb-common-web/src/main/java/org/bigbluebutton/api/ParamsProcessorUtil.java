@@ -30,6 +30,11 @@ import com.google.gson.Gson;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
+import org.jsoup.Jsoup;
+import org.jsoup.nodes.Document;
+import org.jsoup.safety.Safelist;
+import org.jsoup.nodes.Element;
+import org.jsoup.select.Elements;
 
 import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.commons.lang3.RandomStringUtils;
@@ -72,13 +77,13 @@ public class ParamsProcessorUtil {
     private String defaultHTML5ClientUrl;
 
     private String graphqlWebsocketUrl;
-    private String defaultGuestWaitURL;
     private Boolean allowRequestsWithoutSession = false;
     private Integer defaultHttpSessionTimeout = 14400;
     private Boolean useDefaultAvatar = false;
     private String defaultAvatarURL;
     private String defaultGuestPolicy;
     private Boolean authenticatedGuest;
+    private Long waitingGuestUsersTimeout;
     private String defaultMeetingLayout;
     private int defaultMeetingDuration;
     private boolean disableRecordingDefault;
@@ -470,10 +475,11 @@ public class ParamsProcessorUtil {
             isBreakout = Boolean.valueOf(params.get(ApiParams.IS_BREAKOUT));
         }
 
-        String welcomeMessageTemplate = processWelcomeMessage(
-                params.get(ApiParams.WELCOME), isBreakout);
-        String welcomeMessage = substituteKeywords(welcomeMessageTemplate,
-                dialNumber, telVoice, meetingName);
+        String welcomeMessageTemplate = processWelcomeMessage(params.get(ApiParams.WELCOME), isBreakout);
+        String welcomeMessage = substituteKeywords(welcomeMessageTemplate,dialNumber, telVoice, meetingName);
+        welcomeMessage = sanitizeHtmlRemovingUnsafeTags(welcomeMessage);
+        welcomeMessage = welcomeMessage.replace("href=\"event:", "href=\"");
+        welcomeMessage = insertBlankTargetToLinks(welcomeMessage);
 
         String internalMeetingId = convertToInternalMeetingId(externalMeetingId);
 
@@ -757,9 +763,11 @@ public class ParamsProcessorUtil {
                 .withMaxPinnedCameras(maxPinnedCameras)
                 .withMetadata(meetingInfo)
                 .withWelcomeMessageTemplate(welcomeMessageTemplate)
-                .withWelcomeMessage(welcomeMessage).isBreakout(isBreakout)
+                .withWelcomeMessage(welcomeMessage)
+                .withIsBreakout(isBreakout)
                 .withGuestPolicy(guestPolicy)
                 .withAuthenticatedGuest(authenticatedGuest)
+                .withWaitingGuestUsersTimeout(waitingGuestUsersTimeout)
                 .withAllowRequestsWithoutSession(allowRequestsWithoutSession)
                 .withMeetingLayout(meetingLayout)
 				.withBreakoutRoomsParams(breakoutParams)
@@ -776,9 +784,12 @@ public class ParamsProcessorUtil {
 
         if (!StringUtils.isEmpty(params.get(ApiParams.MODERATOR_ONLY_MESSAGE))) {
             String moderatorOnlyMessageTemplate = params.get(ApiParams.MODERATOR_ONLY_MESSAGE);
-            String moderatorOnlyMessage = substituteKeywords(moderatorOnlyMessageTemplate,
-                    dialNumber, telVoice, meetingName);
-            meeting.setModeratorOnlyMessage(moderatorOnlyMessage);
+            String welcomeMsgForModerators = substituteKeywords(moderatorOnlyMessageTemplate, dialNumber, telVoice, meetingName);
+            welcomeMsgForModerators = sanitizeHtmlRemovingUnsafeTags(welcomeMsgForModerators);
+            welcomeMsgForModerators = welcomeMsgForModerators.replace("href=\"event:", "href=\"");
+            welcomeMsgForModerators = insertBlankTargetToLinks(welcomeMsgForModerators);
+
+            meeting.setWelcomeMsgForModerators(welcomeMsgForModerators);
         }
 
         if (!StringUtils.isEmpty(params.get(ApiParams.MEETING_ENDED_CALLBACK_URL))) {
@@ -868,10 +879,6 @@ public class ParamsProcessorUtil {
         return graphqlWebsocketUrl;
     }
 
-	public String getDefaultGuestWaitURL() {
-		return defaultGuestWaitURL;
-        }
-
 	public Boolean getUseDefaultLogo() {
 		return useDefaultLogo;
 	}
@@ -920,6 +927,27 @@ public class ParamsProcessorUtil {
         if (!StringUtils.isEmpty(defaultWelcomeMessageFooter) && !isBreakout)
             welcomeMessage += "<br><br>" + defaultWelcomeMessageFooter;
         return welcomeMessage;
+    }
+
+    public String sanitizeHtmlRemovingUnsafeTags(String original) {
+        Safelist safelist = new Safelist()
+                .addTags("a", "b", "br", "i", "img", "li", "small", "span", "strong", "u", "ul")
+                .addAttributes("a", "href", "target")
+                .addAttributes("img", "src", "width", "height")
+                .addProtocols("a", "href", "https", "mailto", "tel");
+
+        return Jsoup.clean(original, safelist);
+    }
+
+    private static String insertBlankTargetToLinks(String html) {
+        Document document = Jsoup.parse(html);
+        Elements links = document.select("a[href]");  // Select all <a> elements with an href attribute
+
+        for (Element link : links) {
+            link.attr("target", "_blank");  // Set target="_blank" attribute
+        }
+
+        return document.body().html();  // Return the modified HTML
     }
 
 	public String convertToInternalMeetingId(String extMeetingId) {
@@ -1214,10 +1242,6 @@ public class ParamsProcessorUtil {
         this.graphqlWebsocketUrl = graphqlWebsocketUrl.replace("https://","wss://");
     }
 
-	public void setDefaultGuestWaitURL(String url) {
-		this.defaultGuestWaitURL = url;
-        }
-
 	public void setUseDefaultLogo(Boolean value) {
 		this.useDefaultLogo = value;
 	}
@@ -1290,7 +1314,11 @@ public class ParamsProcessorUtil {
 		this.authenticatedGuest = value;
 	}
 
-  public void setDefaultMeetingLayout(String meetingLayout) {
+    public void setWaitingGuestUsersTimeout(Long value) {
+        this.waitingGuestUsersTimeout = value;
+    }
+
+    public void setDefaultMeetingLayout(String meetingLayout) {
 		this.defaultMeetingLayout =  meetingLayout;
 	}
 

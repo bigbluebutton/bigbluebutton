@@ -5,6 +5,7 @@ import EndMeetingConfirmationContainer from '/imports/ui/components/end-meeting-
 import BBBMenu from '/imports/ui/components/common/menu/component';
 import { colorDanger, colorWhite } from '/imports/ui/stylesheets/styled-components/palette';
 import Styled from './styles';
+import Session from '/imports/ui/services/storage/in-memory';
 
 const intlMessages = defineMessages({
   leaveMeetingBtnLabel: {
@@ -77,7 +78,7 @@ class LeaveMeetingButton extends PureComponent {
     userLeaveMeeting();
     // we don't check askForFeedbackOnLogout here,
     // it is checked in meeting-ended component
-    Session.set('codeError', this.LOGOUT_CODE);
+    Session.setItem('codeError', this.LOGOUT_CODE);
   }
 
   renderMenuItems() {

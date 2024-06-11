@@ -7,7 +7,6 @@ import { Layout, Output } from '../../../layout/layoutTypes';
 
 interface VideoListContainerProps {
   streams: VideoItem[];
-  swapLayout: boolean;
   currentVideoPageIndex: number;
   cameraDock: Output['cameraDock'];
   focusedId: string;
@@ -29,7 +28,6 @@ const VideoListContainer: React.FC<VideoListContainerProps> = (props) => {
     focusedId,
     handleVideoFocus,
     isGridEnabled,
-    swapLayout,
     users,
     onVideoItemMount,
     onVideoItemUnmount,
@@ -45,7 +43,6 @@ const VideoListContainer: React.FC<VideoListContainerProps> = (props) => {
           layoutType={layoutType}
           layoutContextDispatch={layoutContextDispatch}
           numberOfPages={numberOfPages}
-          swapLayout={swapLayout}
           currentVideoPageIndex={currentVideoPageIndex}
           cameraDock={cameraDock}
           focusedId={focusedId}

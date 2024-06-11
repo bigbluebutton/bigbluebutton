@@ -42,11 +42,11 @@ class SharedNotes extends MultiUsers {
     const editedMessage = '!Hello';
     await expect(notesLocator).toContainText(editedMessage, { timeout: ELEMENT_WAIT_TIME });
 
-    const wbBox = await this.modPage.getElementBoundingBox(e.etherpadFrame);
-    await expect(this.modPage.page).toHaveScreenshot('sharednotes-1.png', {
-      maxDiffPixels: 10,
-      clip: wbBox,
-    });
+    //! avoiding the following screenshot comparison due to https://github.com/microsoft/playwright/issues/18827
+    // const wbBox = await this.modPage.getLocator(e.etherpadFrame);
+    // await expect(wbBox).toHaveScreenshot('sharednotes-type.png', {
+    //   maxDiffPixels: 100,
+    // });
 
     await notesLocator.press('Control+Z');
     await notesLocator.press('Control+Z');
@@ -222,13 +222,13 @@ class SharedNotes extends MultiUsers {
     await this.userPage.waitAndClick(e.minimizePresentation);
     await this.userPage.hasElement(e.restorePresentation);
     await startSharedNotes(this.modPage);
+    const notesLocator = getNotesLocator(this.modPage);
+    await notesLocator.type('Hello');
     await this.modPage.waitAndClick(e.notesOptions);
     await this.modPage.waitAndClick(e.pinNotes);
     await this.modPage.hasElement(e.unpinNotes);
 
     await this.userPage.hasElement(e.minimizePresentation);
-    const notesLocator = getNotesLocator(this.modPage);
-    await notesLocator.type('Hello');
     const notesLocatorUser = getNotesLocator(this.userPage);
     await expect(notesLocator).toContainText(/Hello/, { timeout: 20000 });
     await expect(notesLocatorUser).toContainText(/Hello/);

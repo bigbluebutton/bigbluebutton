@@ -1,6 +1,7 @@
 package org.bigbluebutton.api2
 
 import org.bigbluebutton.api.messaging.converters.messages._
+import org.bigbluebutton.api.messaging.messages.ChatMessageFromApi
 import org.bigbluebutton.api2.meeting.RegisterUser
 import org.bigbluebutton.common2.domain.{ DefaultProps, PageVO, PresentationPageConvertedVO, PresentationVO }
 import org.bigbluebutton.common2.msgs._
@@ -52,15 +53,6 @@ object MsgBuilder {
       avatarURL = msg.avatarURL, guest = msg.guest, authed = msg.authed, guestStatus = msg.guestStatus,
       excludeFromDashboard = msg.excludeFromDashboard, enforceLayout = msg.enforceLayout, customParameters = msg.customParameters)
     val req = RegisterUserReqMsg(header, body)
-    BbbCommonEnvCoreMsg(envelope, req)
-  }
-
-  def buildGuestWaitingLeftMsg(meetingId: String, userId: String): BbbCommonEnvCoreMsg = {
-    val routing = collection.immutable.HashMap("sender" -> "bbb-web")
-    val envelope = BbbCoreEnvelope(GuestWaitingLeftMsg.NAME, routing)
-    val header = BbbClientMsgHeader(GuestWaitingLeftMsg.NAME, meetingId, "not-used")
-    val body = GuestWaitingLeftMsgBody(userId)
-    val req = GuestWaitingLeftMsg(header, body)
     BbbCommonEnvCoreMsg(envelope, req)
   }
 
@@ -356,6 +348,19 @@ object MsgBuilder {
       messageKey = msg.messageKey, fileMime = msg.fileMime, fileExtension = msg.fileExtension)
 
     val req = PresentationHasInvalidMimeTypeErrorSysPubMsg(header, body)
+    BbbCommonEnvCoreMsg(envelope, req)
+  }
+
+  def buildSendChatMessageFromApi(msg: ChatMessageFromApi): BbbCommonEnvCoreMsg = {
+    val routing = collection.immutable.HashMap("sender" -> "bbb-web")
+    val envelope = BbbCoreEnvelope(SendGroupChatMessageFromApiSysPubMsg.NAME, routing)
+    val header = BbbClientMsgHeader(SendGroupChatMessageFromApiSysPubMsg.NAME, msg.meetingId, "not-used")
+
+    val body = SendGroupChatMessageFromApiSysPubMsgBody(
+      userName = msg.name, message = msg.message
+    )
+
+    val req = SendGroupChatMessageFromApiSysPubMsg(header, body)
     BbbCommonEnvCoreMsg(envelope, req)
   }
 

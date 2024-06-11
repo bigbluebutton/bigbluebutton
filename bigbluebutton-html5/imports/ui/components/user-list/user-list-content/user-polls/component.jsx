@@ -49,6 +49,7 @@ const UserPolls = ({
             role="button"
             tabIndex={0}
             data-test="pollMenuButton"
+            active={sidebarContentPanel === PANELS.POLL}
             onClick={handleClickTogglePoll}
             onKeyDown={(e) => {
               if (e.key === 'Enter') {

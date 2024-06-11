@@ -26,7 +26,6 @@ cp bbb-html5.nginx staging/usr/share/bigbluebutton/nginx
 
 mkdir -p staging/etc/nginx/conf.d
 cp bbb-html5-conn-limit.conf staging/etc/nginx/conf.d
-cp bbb-html5-meteor-assets-cache.conf staging/etc/nginx/conf.d
 
 mkdir -p staging/etc/systemd/system
 cp mongod.service staging/etc/systemd/system

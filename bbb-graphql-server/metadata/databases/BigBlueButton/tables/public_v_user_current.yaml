@@ -52,15 +52,6 @@ object_relationships:
         remote_table:
           name: v_meeting
           schema: public
-  - name: reaction
-    using:
-      manual_configuration:
-        column_mapping:
-          userId: userId
-        insertion_order: null
-        remote_table:
-          name: v_user_reaction_current
-          schema: public
   - name: sharedNotesSession
     using:
       manual_configuration:
@@ -96,6 +87,15 @@ object_relationships:
         insertion_order: null
         remote_table:
           name: v_user_voice
+          schema: public
+  - name: welcomeMsgs
+    using:
+      manual_configuration:
+        column_mapping:
+          userId: userId
+        insertion_order: null
+        remote_table:
+          name: v_user_welcomeMsgs
           schema: public
 array_relationships:
   - name: breakoutRooms
@@ -144,8 +144,8 @@ select_permissions:
         - avatar
         - away
         - banned
+        - captionLocale
         - clientType
-        - enforceLayout
         - color
         - disconnected
         - echoTestRunningAt
@@ -153,11 +153,14 @@ select_permissions:
         - ejectReasonCode
         - ejected
         - emoji
+        - enforceLayout
         - expired
         - extId
         - guest
         - guestStatus
         - hasDrawPermissionOnCurrentPage
+        - inactivityWarningDisplay
+        - inactivityWarningTimeoutSecs
         - isDialIn
         - isModerator
         - isOnline
@@ -173,12 +176,11 @@ select_permissions:
         - pinned
         - presenter
         - raiseHand
+        - reactionEmoji
         - registeredAt
         - registeredOn
         - role
         - speechLocale
-        - inactivityWarningDisplay
-        - inactivityWarningTimeoutSecs
         - userId
       filter:
         _and:

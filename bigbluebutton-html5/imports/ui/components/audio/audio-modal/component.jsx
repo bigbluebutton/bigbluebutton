@@ -1,6 +1,5 @@
 import React, { useEffect, useState } from 'react';
 import PropTypes from 'prop-types';
-import { Session } from 'meteor/session';
 import {
   defineMessages, injectIntl, FormattedMessage,
 } from 'react-intl';
@@ -12,7 +11,7 @@ import EchoTest from '../echo-test/component';
 import Help from '../help/component';
 import AudioDial from '../audio-dial/component';
 import AudioAutoplayPrompt from '../autoplay/component';
-import Settings from '/imports/ui/services/settings';
+import { getSettingsSingletonInstance } from '/imports/ui/services/settings';
 import usePreviousValue from '/imports/ui/hooks/usePreviousValue';
 import { SET_AWAY } from '/imports/ui/components/user-list/user-list-content/user-participants/user-list-participants/user-actions/mutations';
 import VideoService from '/imports/ui/components/video-provider/video-provider-graphql/service';
@@ -21,6 +20,7 @@ import useToggleVoice from '/imports/ui/components/audio/audio-graphql/hooks/use
 import {
   muteAway,
 } from '/imports/ui/components/audio/audio-graphql/audio-controls/input-stream-live-selector/service';
+import Session from '/imports/ui/services/storage/in-memory';
 
 const propTypes = {
   intl: PropTypes.shape({
@@ -66,6 +66,7 @@ const propTypes = {
     NO_SSL: PropTypes.number.isRequired,
   }).isRequired,
   getTroubleshootingLink: PropTypes.func.isRequired,
+  away: PropTypes.bool,
 };
 
 const defaultProps = {
@@ -73,6 +74,7 @@ const defaultProps = {
   outputDeviceId: null,
   resolve: null,
   joinFullAudioImmediately: false,
+  away: false,
 };
 
 const intlMessages = defineMessages({
@@ -190,6 +192,7 @@ const AudioModal = (props) => {
     priority,
     setIsOpen,
     getTroubleshootingLink,
+    away,
   } = props;
 
   const prevAutoplayBlocked = usePreviousValue(autoplayBlocked);
@@ -280,6 +283,8 @@ const AudioModal = (props) => {
   };
 
   const disableAwayMode = () => {
+    if (!away) return;
+
     muteAway(false, true, voiceToggle);
     setAway({
       variables: {
@@ -493,7 +498,7 @@ const AudioModal = (props) => {
   };
 
   const renderContent = () => {
-    const { animations } = Settings.application;
+    const { animations } = getSettingsSingletonInstance().application;
 
     if (skipAudioOptions()) {
       return (
@@ -539,7 +544,7 @@ const AudioModal = (props) => {
       exitAudio();
     }
     if (resolve) resolve();
-    Session.set('audioModalIsOpen', false);
+    Session.setItem('audioModalIsOpen', false);
   }, []);
 
   let title = content

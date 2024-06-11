@@ -7,6 +7,7 @@ import { EFFECT_TYPES } from '/imports/ui/services/virtual-background/service';
 import VirtualBgService from '/imports/ui/components/video-preview/virtual-background/service';
 import logger from '/imports/startup/client/logger';
 import withFileReader from '/imports/ui/components/common/file-reader/component';
+import Session from '/imports/ui/services/storage/in-memory';
 
 const { MIME_TYPES_ALLOWED, MAX_FILE_SIZE } = VirtualBgService;
 
@@ -21,8 +22,6 @@ const intlMessages = defineMessages({
   },
 });
 
-const ENABLE_WEBCAM_BACKGROUND_UPLOAD = window.meetingClientSettings.public.virtualBackgrounds.enableVirtualBackgroundUpload;
-
 const DragAndDrop = (props) => {
   const { children, intl, readFile, onVirtualBgDrop: onAction, isStream } = props;
 
@@ -31,6 +30,8 @@ const DragAndDrop = (props) => {
   const [isConfirmModalOpen, setConfirmModalIsOpen] = useState(false);
   const [file, setFile] = useState(false);
   const { dispatch: dispatchCustomBackground } = useContext(CustomVirtualBackgroundsContext);
+
+  const ENABLE_WEBCAM_BACKGROUND_UPLOAD = window.meetingClientSettings.public.virtualBackgrounds.enableVirtualBackgroundUpload;
 
   let callback;
   const resetEvent = (e) => {
@@ -102,7 +103,7 @@ const DragAndDrop = (props) => {
 
   callback = (checked) => {
     handleStartAndSaveVirtualBackground(file);
-    Session.set('skipBackgroundDropConfirmation', checked);
+    Session.setItem('skipBackgroundDropConfirmation', checked);
   };
 
   const makeDragOperations = useCallback((userId) => {

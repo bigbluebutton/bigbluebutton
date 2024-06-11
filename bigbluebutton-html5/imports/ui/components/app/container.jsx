@@ -7,50 +7,41 @@ import AudioCaptionsLiveContainer from '/imports/ui/components/audio/audio-graph
 import { notify } from '/imports/ui/services/notification';
 import getFromUserSettings from '/imports/ui/services/users-settings';
 import deviceInfo from '/imports/utils/deviceInfo';
-import Settings from '/imports/ui/services/settings';
 import MediaService from '/imports/ui/components/media/service';
 import { isPresentationEnabled, isExternalVideoEnabled } from '/imports/ui/services/features';
 import useCurrentUser from '/imports/ui/core/hooks/useCurrentUser';
 import useMeeting from '/imports/ui/core/hooks/useMeeting';
-import { LAYOUT_TYPE } from '/imports/ui/components/layout/enums';
-import { useMutation, useSubscription } from '@apollo/client';
+import { ACTIONS, LAYOUT_TYPE, PRESENTATION_AREA } from '/imports/ui/components/layout/enums';
+import { useMutation, useReactiveVar } from '@apollo/client';
 import {
   layoutSelect,
   layoutSelectInput,
   layoutSelectOutput,
   layoutDispatch,
 } from '../layout/context';
-import { SET_MOBILE_FLAG } from '/imports/ui/core/graphql/mutations/userMutations';
 import { SET_SYNC_WITH_PRESENTER_LAYOUT, SET_LAYOUT_PROPS } from './mutations';
 
 import {
-  getFontSize,
   getBreakoutRooms,
 } from './service';
 
 import App from './component';
-import useToggleVoice from '../audio/audio-graphql/hooks/useToggleVoice';
 import useUserChangedLocalSettings from '../../services/settings/hooks/useUserChangedLocalSettings';
 import { PINNED_PAD_SUBSCRIPTION } from '../notes/queries';
-
-const CUSTOM_STYLE_URL = window.meetingClientSettings.public.app.customStyleUrl;
-const NOTES_CONFIG = window.meetingClientSettings.public.notes;
+import connectionStatus from '../../core/graphql/singletons/connectionStatus';
+import useDeduplicatedSubscription from '../../core/hooks/useDeduplicatedSubscription';
+import VideoStreamsState from '../video-provider/video-provider-graphql/state';
+import { useIsSharing, useSharingContentType } from '../screenshare/service';
+import useSettings from '../../services/settings/hooks/useSettings';
+import { SETTINGS } from '../../services/settings/enums';
+import { useStorageKey } from '../../services/storage/hooks';
+import useMuteMicrophone from '../audio/audio-graphql/hooks/useMuteMicrophone';
 
 const AppContainer = (props) => {
-  function usePrevious(value) {
-    const ref = useRef();
-    useEffect(() => {
-      ref.current = value;
-    });
-    return ref.current;
-  }
-
   const layoutType = useRef(null);
 
   const {
     actionsbar,
-    selectedLayout,
-    pushLayout,
     pushLayoutMeeting,
     currentUserId,
     shouldShowScreenshare: propsShouldShowScreenshare,
@@ -63,9 +54,25 @@ const AppContainer = (props) => {
     meetingLayoutCameraPosition,
     meetingLayoutFocusedCamera,
     meetingLayoutVideoRate,
-    viewScreenshare,
     ...otherProps
   } = props;
+
+  const isLargeFont = useStorageKey('isLargeFont');
+  const ignorePollNotifications = useStorageKey('ignorePollNotifications');
+
+  const NOTES_CONFIG = window.meetingClientSettings.public.notes;
+
+  const {
+    selectedLayout,
+    pushLayout,
+    audioAlertEnabled,
+    pushAlertEnabled,
+    darkTheme,
+    fontSize = '16px',
+  } = useSettings(SETTINGS.APPLICATION);
+  const {
+    viewScreenshare,
+  } = useSettings(SETTINGS.DATA_SAVING);
 
   const sidebarContent = layoutSelectInput((i) => i.sidebarContent);
   const genericComponentMainContent = layoutSelectInput((i) => i.genericComponentMainContent);
@@ -77,25 +84,18 @@ const AppContainer = (props) => {
   const presentation = layoutSelectInput((i) => i.presentation);
   const sharedNotesInput = layoutSelectInput((i) => i.sharedNotes);
   const deviceType = layoutSelect((i) => i.deviceType);
+  const hasExternalVideoOnLayout = layoutSelectInput((i) => i.externalVideo.hasExternalVideo);
   const layoutContextDispatch = layoutDispatch();
 
-  const [setMobileFlag] = useMutation(SET_MOBILE_FLAG);
   const [setSyncWithPresenterLayout] = useMutation(SET_SYNC_WITH_PRESENTER_LAYOUT);
   const [setMeetingLayoutProps] = useMutation(SET_LAYOUT_PROPS);
-  const toggleVoice = useToggleVoice();
   const setLocalSettings = useUserChangedLocalSettings();
-  const { data: pinnedPadData } = useSubscription(PINNED_PAD_SUBSCRIPTION);
+  const { data: pinnedPadData } = useDeduplicatedSubscription(PINNED_PAD_SUBSCRIPTION);
   const isSharedNotesPinnedFromGraphql = !!pinnedPadData
     && pinnedPadData.sharedNotes[0]?.sharedNotesExtId === NOTES_CONFIG.id;
   const isSharedNotesPinned = sharedNotesInput?.isPinned && isSharedNotesPinnedFromGraphql;
-
-  const setMobileUser = (mobile) => {
-    setMobileFlag({
-      variables: {
-        mobile,
-      },
-    });
-  };
+  const isThereWebcam = VideoStreamsState.getStreams().length > 0;
+  const muteMicrophone = useMuteMicrophone();
 
   const { data: currentUserData } = useCurrentUser((user) => ({
     enforceLayout: user.enforceLayout,
@@ -117,6 +117,8 @@ const AppContainer = (props) => {
   const presentationIsOpen = isOpen;
 
   const { focusedId } = cameraDock;
+
+  const connected = useReactiveVar(connectionStatus.getConnectedStatusVar());
 
   useEffect(() => {
     if (
@@ -165,14 +167,35 @@ const AppContainer = (props) => {
   };
 
   const { data: currentMeeting } = useMeeting((m) => ({
-    externalVideo: m.externalVideo,
+    componentsFlags: m.componentsFlags,
   }));
 
-  const isSharingVideo = !!currentMeeting?.externalVideo?.externalVideoUrl;
+  const isSharingVideo = currentMeeting?.componentsFlags.hasExternalVideo;
 
   useEffect(() => {
-    MediaService.buildLayoutWhenPresentationAreaIsDisabled(layoutContextDispatch, isSharingVideo, sharedNotesInput?.isPinned);
+    MediaService.buildLayoutWhenPresentationAreaIsDisabled(
+      layoutContextDispatch,
+      isSharingVideo,
+      sharedNotesInput?.isPinned,
+      isThereWebcam,
+    );
   });
+
+  useEffect(() => {
+    if (isSharingVideo && !hasExternalVideoOnLayout) {
+      layoutContextDispatch({
+        type: ACTIONS.SET_PILE_CONTENT_FOR_PRESENTATION_AREA,
+        value: {
+          content: PRESENTATION_AREA.EXTERNAL_VIDEO,
+          open: true,
+        },
+      });
+      layoutContextDispatch({
+        type: ACTIONS.SET_HAS_EXTERNAL_VIDEO,
+        value: true,
+      });
+    }
+  }, [isSharingVideo]);
 
   const shouldShowExternalVideo = isExternalVideoEnabled() && isSharingVideo;
 
@@ -196,6 +219,7 @@ const AppContainer = (props) => {
     ? (
       <App
         {...{
+          connected,
           actionsBarStyle,
           captionsStyle,
           currentUserId,
@@ -234,13 +258,18 @@ const AppContainer = (props) => {
           shouldShowScreenshare,
           isSharedNotesPinned,
           shouldShowPresentation,
-          setMobileUser,
-          toggleVoice,
           setLocalSettings,
           genericComponentMainContentId: genericComponentMainContent.genericComponentMainContentId,
-          audioCaptions: <AudioCaptionsLiveContainer speechLocale={currentUserData?.speechLocale} />,
+          audioCaptions: <AudioCaptionsLiveContainer />,
           inactivityWarningDisplay,
           inactivityWarningTimeoutSecs,
+          audioAlertEnabled,
+          pushAlertEnabled,
+          darkTheme,
+          fontSize,
+          isLargeFont,
+          ignorePollNotifications,
+          muteMicrophone,
         }}
         {...otherProps}
       />
@@ -259,7 +288,12 @@ const currentUserEmoji = (currentUser) => (currentUser
   }
 );
 
-export default withTracker(() => {
+const AppTracker = withTracker((props) => {
+  const {
+    viewScreenshare,
+    isScreenSharing,
+    screenSharingContentType,
+  } = props;
   const currentUser = Users.findOne(
     { userId: Auth.userID },
     {
@@ -286,13 +320,14 @@ export default withTracker(() => {
   const meetingLayoutUpdatedAt = new Date(layout.updatedAt).getTime();
 
   const meetingPresentationIsOpen = !layout.presentationMinimized;
-
-
-  const AppSettings = Settings.application;
-  const { selectedLayout, pushLayout } = AppSettings;
-  const { viewScreenshare } = Settings.dataSaving;
-  const shouldShowScreenshare = MediaService.shouldShowScreenshare();
+  const shouldShowScreenshare = MediaService.shouldShowScreenshare(
+    viewScreenshare,
+    isScreenSharing,
+    screenSharingContentType,
+  );
   let customStyleUrl = getFromUserSettings('bbb_custom_style_url', false);
+
+  const CUSTOM_STYLE_URL = window.meetingClientSettings.public.app.customStyleUrl;
 
   if (!customStyleUrl && CUSTOM_STYLE_URL) {
     customStyleUrl = CUSTOM_STYLE_URL;
@@ -302,7 +337,6 @@ export default withTracker(() => {
 
   return {
     audioCaptions: <AudioCaptionsLiveContainer />,
-    fontSize: getFontSize(),
     hasBreakoutRooms: getBreakoutRooms().length > 0,
     customStyle: getFromUserSettings('bbb_custom_style', false),
     customStyleUrl,
@@ -320,15 +354,8 @@ export default withTracker(() => {
     meetingLayoutCameraPosition,
     meetingLayoutFocusedCamera,
     meetingLayoutVideoRate,
-    selectedLayout,
-    pushLayout,
     pushLayoutMeeting,
-    audioAlertEnabled: AppSettings.chatAudioAlerts,
-    pushAlertEnabled: AppSettings.chatPushAlerts,
-    darkTheme: AppSettings.darkTheme,
     shouldShowScreenshare,
-    viewScreenshare,
-    isLargeFont: Session.get('isLargeFont'),
     presentationRestoreOnUpdate: getFromUserSettings(
       'bbb_force_restore_presentation_on_new_events',
       window.meetingClientSettings.public.presentation.restoreOnUpdate,
@@ -336,7 +363,22 @@ export default withTracker(() => {
     hidePresentationOnJoin: getFromUserSettings('bbb_hide_presentation_on_join', LAYOUT_CONFIG.hidePresentationOnJoin),
     hideActionsBar: getFromUserSettings('bbb_hide_actions_bar', false),
     hideNavBar: getFromUserSettings('bbb_hide_nav_bar', false),
-    ignorePollNotifications: Session.get('ignorePollNotifications'),
     User: currentUser,
   };
 })(AppContainer);
+
+// TODO: Remove this
+// Temporary component until we remove all trackers
+export default (props) => {
+  const isScreenSharing = useIsSharing();
+  const screenSharingContentType = useSharingContentType();
+  return (
+    <AppTracker
+      {...{
+        ...props,
+        isScreenSharing,
+        screenSharingContentType,
+      }}
+    />
+  );
+};

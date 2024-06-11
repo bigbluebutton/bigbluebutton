@@ -1,6 +1,5 @@
 import React from 'react';
 import Users from '/imports/api/users';
-import VoiceUsers from '/imports/api/voice-users';
 import Breakouts from '/imports/api/breakouts';
 import Meetings from '/imports/api/meetings';
 import Auth from '/imports/ui/services/auth';
@@ -8,20 +7,13 @@ import Storage from '/imports/ui/services/storage/session';
 import { EMOJI_STATUSES } from '/imports/utils/statuses';
 import KEY_CODES from '/imports/utils/keyCodes';
 import AudioService from '/imports/ui/components/audio/service';
-import VideoService from '/imports/ui/components/video-provider/video-provider-graphql/service';
 import logger from '/imports/startup/client/logger';
-import { Session } from 'meteor/session';
-import Settings from '/imports/ui/services/settings';
+import Session from '/imports/ui/services/storage/in-memory';
+import { getSettingsSingletonInstance } from '/imports/ui/services/settings';
 import { notify } from '/imports/ui/services/notification';
 import { FormattedMessage } from 'react-intl';
 import { getDateString } from '/imports/utils/string-utils';
 import { isEmpty } from 'radash';
-
-const CHAT_CONFIG = window.meetingClientSettings.public.chat;
-const PUBLIC_CHAT_ID = CHAT_CONFIG.public_id;
-const PUBLIC_GROUP_CHAT_ID = CHAT_CONFIG.public_group_id;
-const ROLE_MODERATOR = window.meetingClientSettings.public.user.role_moderator;
-const USER_STATUS_ENABLED = window.meetingClientSettings.public.userStatus.enabled;
 
 const DIAL_IN_CLIENT_TYPE = 'dial-in-user';
 
@@ -86,6 +78,8 @@ const sortUsersByRaiseHand = (a, b) => sortByPropTime('raiseHand', 'raiseHandTim
 const sortUsersByReaction = (a, b) => sortByPropTime('reaction', 'reactionTime', 'none', a, b);
 
 const sortUsersByModerator = (a, b) => {
+  const ROLE_MODERATOR = window.meetingClientSettings.public.user.role_moderator;
+
   if (a.role === ROLE_MODERATOR && b.role === ROLE_MODERATOR) {
     return 0;
   } if (a.role === ROLE_MODERATOR) {
@@ -135,9 +129,10 @@ const sortUsers = (a, b) => {
   return sort;
 };
 
-const isPublicChat = (chat) => (
-  chat.userId === PUBLIC_CHAT_ID
-);
+const isPublicChat = (chat) => {
+  const CHAT_CONFIG = window.meetingClientSettings.public.chat;
+  return chat.userId === CHAT_CONFIG.public_id;
+};
 
 const getUserCount = () => Users.find({ meetingId: Auth.meetingID }).count();
 
@@ -147,6 +142,9 @@ const hasBreakoutRoom = () => Breakouts.find({ parentMeetingId: Auth.meetingID }
 const isMe = (userId) => userId === Auth.userID;
 
 const getActiveChats = ({ groupChatsMessages, groupChats, users }) => {
+  const PUBLIC_GROUP_CHAT_ID = window.meetingClientSettings.public.chat.public_group_id;
+  const PUBLIC_CHAT_ID = window.meetingClientSettings.public.chat.public_id;
+
   if (isEmpty(groupChats) && isEmpty(users)) return [];
 
   const chatIds = Object.keys(groupChats);
@@ -192,7 +190,9 @@ const getActiveChats = ({ groupChatsMessages, groupChats, users }) => {
       const groupChatsParticipants = groupChats[chatId].participants;
       const otherParticipant = groupChatsParticipants.filter((user) => user.id !== Auth.userID)[0];
       const user = users[otherParticipant.id];
-      const startedChats = Session.get(STARTED_CHAT_LIST_KEY) || [];
+      const startedChats = Session.getItem(STARTED_CHAT_LIST_KEY) || [];
+
+      const ROLE_MODERATOR = window.meetingClientSettings.public.user.role_moderator;
 
       return {
         color: user?.color || '#7b1fa2',
@@ -221,6 +221,7 @@ const getActiveChats = ({ groupChatsMessages, groupChats, users }) => {
   const currentClosedChats = Storage.getItem(CLOSED_CHAT_LIST_KEY) || [];
   const removeClosedChats = chatInfo.filter((chat) => !currentClosedChats.find(closedChat => closedChat.chatId === chat.chatId)
     && chat.shouldDisplayInChatList);
+
   const sortByChatIdAndUnread = removeClosedChats.sort((a, b) => {
     if (a.chatId === PUBLIC_GROUP_CHAT_ID) {
       return -1;
@@ -292,19 +293,12 @@ const getUsersProp = () => {
   };
 };
 
-const curatedVoiceUser = (userId) => {
-  const voiceUser = VoiceUsers.findOne({ userId });
-  return {
-    isVoiceUser: voiceUser ? voiceUser.joined : false,
-    isMuted: voiceUser ? voiceUser.muted && !voiceUser.listenOnly : false,
-    isTalking: voiceUser ? voiceUser.talking && !voiceUser.muted : false,
-    isListenOnly: voiceUser ? voiceUser.listenOnly : false,
-  };
-};
-
 const getAvailableActions = (
   amIModerator, isBreakoutRoom, subjectUser, subjectVoiceUser, usersProp, amIPresenter,
 ) => {
+  const ROLE_MODERATOR = window.meetingClientSettings.public.user.role_moderator;
+  const USER_STATUS_ENABLED = window.meetingClientSettings.public.userStatus.enabled;
+
   const isDialInUser = isVoiceOnlyUser(subjectUser.userId) || subjectUser.phone_user;
   const amISubjectUser = isMe(subjectUser.userId);
   const isSubjectUserModerator = subjectUser.role === ROLE_MODERATOR;
@@ -426,13 +420,13 @@ const roving = (...args) => {
 
   this.selectedElement = element;
   const numberOfChilds = elementsList.childElementCount;
-  const menuOpen = Session.get('dropdownOpen') || false;
+  const menuOpen = Session.getItem('dropdownOpen') || false;
 
   if (menuOpen) {
     const menuChildren = document.activeElement.getElementsByTagName('li');
 
     if ([KEY_CODES.ESCAPE, KEY_CODES.ARROW_LEFT].includes(event.keyCode)) {
-      Session.set('dropdownOpen', false);
+      Session.setItem('dropdownOpen', false);
       document.activeElement.click();
     }
 
@@ -453,7 +447,7 @@ const roving = (...args) => {
   }
 
   if ([KEY_CODES.ESCAPE, KEY_CODES.TAB].includes(event.keyCode)) {
-    Session.set('dropdownOpen', false);
+    Session.setItem('dropdownOpen', false);
     changeState(null);
   }
 
@@ -538,6 +532,7 @@ export const getUserNamesLink = (docTitle, fnSortedLabel, lnSortedLabel, users) 
 };
 
 const UserJoinedMeetingAlert = (obj) => {
+  const Settings = getSettingsSingletonInstance();
   const {
     userJoinAudioAlerts,
     userJoinPushAlerts,
@@ -566,6 +561,7 @@ const UserJoinedMeetingAlert = (obj) => {
 }
 
 const UserLeftMeetingAlert = (obj) => {
+  const Settings = getSettingsSingletonInstance();
   const {
     userLeaveAudioAlerts,
     userLeavePushAlerts,
@@ -599,7 +595,6 @@ export default {
   toggleVoice,
   getActiveChats,
   getAvailableActions,
-  curatedVoiceUser,
   normalizeEmojiName,
   isMeetingLocked,
   isPublicChat,

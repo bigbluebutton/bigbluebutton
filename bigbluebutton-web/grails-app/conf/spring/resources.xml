@@ -34,7 +34,6 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
         </property>
     </bean>
 
-    <bean id="waitingGuestCleanupTimerTask" class="org.bigbluebutton.web.services.WaitingGuestCleanupTimerTask"/>
     <bean id="userCleanupTimerTask" class="org.bigbluebutton.web.services.UserCleanupTimerTask"/>
     <bean id="enteredUserCleanupTimerTask" class="org.bigbluebutton.web.services.EnteredUserCleanupTimerTask"/>
 
@@ -51,14 +50,12 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
         <property name="presDownloadService" ref="presDownloadService"/>
         <property name="paramsProcessorUtil" ref="paramsProcessorUtil"/>
         <property name="stunTurnService" ref="stunTurnService"/>
-        <property name="waitingGuestCleanupTimerTask" ref="waitingGuestCleanupTimerTask"/>
         <property name="userCleanupTimerTask" ref="userCleanupTimerTask"/>
         <property name="sessionsCleanupDelayInMinutes" value="${sessionsCleanupDelayInMinutes}"/>
         <property name="enteredUserCleanupTimerTask" ref="enteredUserCleanupTimerTask"/>
         <property name="gw" ref="bbbWebApiGWApp"/>
         <property name="callbackUrlService" ref="callbackUrlService"/>
         <property name="usersTimeout" value="${usersTimeout}"/>
-        <property name="waitingGuestUsersTimeout" value="${waitingGuestUsersTimeout}"/>
         <property name="enteredUsersTimeout" value="${enteredUsersTimeout}"/>
         <property name="slidesGenerationProgressNotifier" ref="slidesGenerationProgressNotifier"/>
     </bean>
@@ -147,7 +144,6 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
         <property name="graphqlWebsocketUrl" value="${graphqlWebsocketUrl}"/>
         <property name="useDefaultLogo" value="${useDefaultLogo}"/>
         <property name="defaultLogoURL" value="${defaultLogoURL}"/>
-        <property name="defaultGuestWaitURL" value="${defaultGuestWaitURL}"/>
         <property name="allowRequestsWithoutSession" value="${allowRequestsWithoutSession}"/>
         <property name="defaultHttpSessionTimeout" value="${defaultHttpSessionTimeout}"/>
         <property name="defaultMeetingDuration" value="${defaultMeetingDuration}"/>
@@ -165,6 +161,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
         <property name="defaultAvatarURL" value="${defaultAvatarURL}"/>
         <property name="defaultGuestPolicy" value="${defaultGuestPolicy}"/>
         <property name="authenticatedGuest" value="${authenticatedGuest}"/>
+        <property name="waitingGuestUsersTimeout" value="${waitingGuestUsersTimeout}"/>
         <property name="defaultMeetingLayout" value="${defaultMeetingLayout}"/>
         <property name="meetingExpireIfNoUserJoinedInMinutes" value="${meetingExpireIfNoUserJoinedInMinutes}"/>
         <property name="meetingExpireWhenLastUserLeftInMinutes" value="${meetingExpireWhenLastUserLeftInMinutes}"/>

@@ -12,11 +12,12 @@ import {
   subscribeToStreamStateChange,
   unsubscribeFromStreamStateChange,
 } from '/imports/ui/services/bbb-webrtc-sfu/stream-state-service';
-import Settings from '/imports/ui/services/settings';
+import { getSettingsSingletonInstance } from '/imports/ui/services/settings';
 import VideoService from '/imports/ui/components/video-provider/service';
 import Styled from './styles';
 import { withDragAndDrop } from './drag-and-drop/component';
 import Auth from '/imports/ui/services/auth';
+import Session from '/imports/ui/services/storage/in-memory';
 
 const intlMessages = defineMessages({
   disableDesc: {
@@ -53,6 +54,7 @@ const VideoListItem = (props) => {
   const videoContainer = useRef();
 
   const videoIsReady = isStreamHealthy && videoDataLoaded && !isSelfViewDisabled;
+  const Settings = getSettingsSingletonInstance();
   const { animations, webcamBorderHighlightColor } = Settings.application;
   const talking = voiceUser?.talking;
 
@@ -71,7 +73,7 @@ const VideoListItem = (props) => {
     it is needed in cases where the user has more than one active camera
     so we only share the second camera after the first
     has finished loading (can't share more than one at the same time) */
-    Session.set('canConnect', true);
+    Session.setItem('canConnect', true);
   };
 
   // component did mount

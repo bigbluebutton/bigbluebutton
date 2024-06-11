@@ -166,13 +166,15 @@ exports.virtualBackgrounds = 'div[data-test="virtualBackground"]';
 exports.learningDashboard = 'li[data-test="learningDashboard"]';
 
 // Timer
+exports.timerContainer = 'div[data-test="timerContainer"]';
+exports.stopwatchContainer = 'div[data-test="stopwatchContainer"]';
 exports.timerStopwatchFeature = 'li[data-test="timerStopWatchFeature"]';
 exports.timerCurrent = 'span[data-test="timerCurrent"]';
 exports.startStopTimer = 'button[data-test="startStopTimer"]';
 exports.resetTimerStopwatch = 'button[data-test="resetTimerStopWatch"]';
-exports.timerButton = 'button[data-test="timer"]';
+exports.timerButton = 'button[data-test="timerButton"]';
 exports.timerIndicator = 'div[data-test="timeIndicator"]';
-exports.stopwatch = 'button[data-test="stopwatch"]';
+exports.stopwatch = 'button[data-test="stopwatchButton"]';
 exports.hoursInput = 'input[data-test="hoursInput"]';
 exports.minutesInput = 'input[data-test="minutesInput"]';
 exports.secondsInput = 'input[data-test="secondsInput"]';
@@ -461,6 +463,7 @@ exports.wbTextShape = 'button[data-testid="tools.text"]';
 exports.wbTypedText = 'div[data-shape="text"]';
 exports.wbTypedStickyNote = 'div[data-shape-type="note"]';
 exports.wbDrawnRectangle = 'div[data-shape-type="geo"]';
+exports.wbPollShape = 'div[data-shape-type="poll"]';
 exports.wbDrawnLine = 'div[data-shape="draw"]';
 exports.multiUsersWhiteboardOn = 'button[data-test="turnMultiUsersWhiteboardOn"]';
 exports.multiUsersWhiteboardOff = 'button[data-test="turnMultiUsersWhiteboardOff"]';

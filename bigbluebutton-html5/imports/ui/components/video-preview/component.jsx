@@ -15,12 +15,11 @@ import MediaStreamUtils from '/imports/utils/media-stream-utils';
 import { notify } from '/imports/ui/services/notification';
 import {
   EFFECT_TYPES,
-  SHOW_THUMBNAILS,
   setSessionVirtualBackgroundInfo,
   getSessionVirtualBackgroundInfo,
   isVirtualBackgroundSupported,
 } from '/imports/ui/services/virtual-background/service';
-import Settings from '/imports/ui/services/settings';
+import { getSettingsSingletonInstance } from '/imports/ui/services/settings';
 import { isVirtualBackgroundsEnabled } from '/imports/ui/services/features';
 import Checkbox from '/imports/ui/components/common/checkbox/component'
 
@@ -29,9 +28,6 @@ const VIEW_STATES = {
   found: 'found',
   error: 'error',
 };
-
-const ENABLE_CAMERA_BRIGHTNESS = window.meetingClientSettings.public.app.enableCameraBrightness;
-const CAMERA_BRIGHTNESS_AVAILABLE = ENABLE_CAMERA_BRIGHTNESS && isVirtualBackgroundSupported();
 
 const propTypes = {
   intl: PropTypes.object.isRequired,
@@ -368,6 +364,9 @@ class VideoPreview extends Component {
   }
 
   startCameraBrightness() {
+    const ENABLE_CAMERA_BRIGHTNESS = window.meetingClientSettings.public.app.enableCameraBrightness;
+    const CAMERA_BRIGHTNESS_AVAILABLE = ENABLE_CAMERA_BRIGHTNESS && isVirtualBackgroundSupported();
+
     if (CAMERA_BRIGHTNESS_AVAILABLE) {
       const setBrightnessInfo = () => {
         const stream = this.currentVideoStream || {};
@@ -431,6 +430,9 @@ class VideoPreview extends Component {
     const { sharedDevices } = this.props;
     const { webcamDeviceId } = this.state;
     const shared = this.isAlreadyShared(webcamDeviceId);
+
+    const ENABLE_CAMERA_BRIGHTNESS = window.meetingClientSettings.public.app.enableCameraBrightness;
+    const CAMERA_BRIGHTNESS_AVAILABLE = ENABLE_CAMERA_BRIGHTNESS && isVirtualBackgroundSupported();
 
     if (type !== EFFECT_TYPES.NONE_TYPE || CAMERA_BRIGHTNESS_AVAILABLE) {
       return this.startVirtualBackground(this.currentVideoStream, type, name, customParams).then((switched) => {
@@ -752,6 +754,10 @@ class VideoPreview extends Component {
     const shared = sharedDevices.includes(webcamDeviceId);
     const shouldShowVirtualBackgrounds = isVirtualBackgroundsEnabled() && !cameraAsContent;
 
+    const CAMERA_PROFILES = window.meetingClientSettings.public.kurento.cameraProfiles || [];
+    // Filtered, without hidden profiles
+    const PREVIEW_CAMERA_PROFILES = CAMERA_PROFILES.filter(p => !p.hidden);
+
     if (isVisualEffects) {
       return (
         <>
@@ -827,14 +833,14 @@ class VideoPreview extends Component {
                 <Styled.Label htmlFor="setQuality">
                   {intl.formatMessage(intlMessages.qualityLabel)}
                 </Styled.Label>
-                {PreviewService.PREVIEW_CAMERA_PROFILES.length > 0
+                {PREVIEW_CAMERA_PROFILES.length > 0
                   ? (
                     <Styled.Select
                       id="setQuality"
                       value={selectedProfile || ''}
                       onChange={this.handleSelectProfile}
                     >
-                      {PreviewService.PREVIEW_CAMERA_PROFILES.map((profile) => {
+                      {PREVIEW_CAMERA_PROFILES.map((profile) => {
                         const label = intlMessages[`${profile.id}`]
                           ? intl.formatMessage(intlMessages[`${profile.id}`])
                           : profile.name;
@@ -876,6 +882,9 @@ class VideoPreview extends Component {
     const {
       webcamDeviceId,
     } = this.state;
+
+    const ENABLE_CAMERA_BRIGHTNESS = window.meetingClientSettings.public.app.enableCameraBrightness;
+
     if (!ENABLE_CAMERA_BRIGHTNESS) return null;
 
     const { intl } = this.props;
@@ -950,6 +959,10 @@ class VideoPreview extends Component {
       name: this.currentVideoStream.virtualBgName
     } : getSessionVirtualBackgroundInfo(webcamDeviceId);
 
+    const {
+      showThumbnails: SHOW_THUMBNAILS = true,
+    } = window.meetingClientSettings.public.virtualBackgrounds;
+    
     return (
       <VirtualBgSelector
         handleVirtualBgSelected={this.handleVirtualBgSelected}
@@ -972,6 +985,7 @@ class VideoPreview extends Component {
       previewError,
     } = this.state;
 
+    const Settings = getSettingsSingletonInstance();
     const { animations } = Settings.application;
 
     switch (viewState) {

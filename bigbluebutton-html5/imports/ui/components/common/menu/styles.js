@@ -134,6 +134,16 @@ const BBBMenuItem = styled(MenuItem)`
   `}
 `;
 
+const Skeleton = styled.div`
+  padding: 12px 16px;
+  font-size: 0.9em !important;
+  line-height: 1;
+`;
+
+const SkeletonWrapper = styled.span`
+  width: 100%;
+`;
+
 export default {
   MenuWrapper,
   MenuItemWrapper,
@@ -142,4 +152,6 @@ export default {
   IconRight,
   BBBMenuItem,
   BBBMenuInformation,
+  Skeleton,
+  SkeletonWrapper,
 };

@@ -21,7 +21,6 @@ const propTypes = {
   isTimerActive: PropTypes.bool,
 };
 
-const ROLE_MODERATOR = window.meetingClientSettings.public.user.role_moderator;
 const defaultProps = {
   currentUser: {
     role: '',
@@ -38,6 +37,8 @@ class UserContent extends PureComponent {
       isTimerActive,
       compact,
     } = this.props;
+
+    const ROLE_MODERATOR = window.meetingClientSettings.public.user.role_moderator;
 
     return (
       <Styled.Content data-test="userListContent">

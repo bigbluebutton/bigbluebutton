@@ -39,7 +39,7 @@ class Join extends Create {
   async joinAndShareWebcam() {
     const breakoutPage = await this.joinRoom();
 
-    const { videoPreviewTimeout } = getSettings();
+    const { videoPreviewTimeout } = this.userPage.settings;
     await breakoutPage.shareWebcam(true, videoPreviewTimeout);
   }
 
@@ -172,7 +172,7 @@ class Join extends Create {
     const shareNotesPDF = await this.modPage.getLocatorByIndex(e.actionsItem, 1);
     await expect(shareNotesPDF).toHaveText(/Notes/, { timeout: 30000 });
     await expect(this.modPage.getLocatorByIndex(e.actionsItem, 2)).toHaveText("Upload/Manage presentations"); //This checks if no other content was exported.
-    await this.modPage.checkElementCount(e.actionsItem, 9);
+    await this.modPage.checkElementCount(e.actionsItem, 8);
     await shareNotesPDF.click();
 
     const wbBox = await this.modPage.getLocator(e.whiteboard);
@@ -219,16 +219,15 @@ class Join extends Create {
     const whiteboardPDF = await this.modPage.getLocatorByIndex(e.actionsItem, 1);
     await expect(whiteboardPDF).toHaveText(/Whiteboard/, { timeout: 30000 });
     await expect(this.modPage.getLocatorByIndex(e.actionsItem, 2)).toHaveText("Upload/Manage presentations"); //This checks if no other content was exported.
-    await this.modPage.checkElementCount(e.actionsItem, 9);
+    await this.modPage.checkElementCount(e.actionsItem, 8);
     await whiteboardPDF.click();
     await this.modPage.waitAndClick('i[type="info"]');
     await this.modPage.waitAndClick(e.currentPresentationToast);
 
-    //! below lines commented due to https://github.com/bigbluebutton/bigbluebutton/issues/18233
-    //! once it's fixed, re-add lines to the code
+    //! avoiding the following screenshot comparison due to https://github.com/microsoft/playwright/issues/18827
     // const wbBox = await this.modPage.getLocator(e.whiteboard);
     // await expect(wbBox).toHaveScreenshot('capture-breakout-whiteboard.png', {
-    //   maxDiffPixels: 1000,
+    //   maxDiffPixels: 1500,
     // });
   }
 

@@ -12,6 +12,7 @@ import Auth from '/imports/ui/services/auth';
 import { PluginsContext } from '/imports/ui/components/components-data/plugin-context/context';
 import { notify } from '/imports/ui/services/notification';
 import { SET_CAMERA_PINNED } from '/imports/ui/core/graphql/mutations/userMutations';
+import Session from '/imports/ui/services/storage/in-memory';
 
 const intlMessages = defineMessages({
   focusLabel: {
@@ -108,10 +109,10 @@ const UserActions = (props) => {
 
     const toggleDisableCam = () => {
       if (!isCameraDisabled) {
-        Session.set('disabledCams', [...disabledCams, cameraId]);
+        Session.setItem('disabledCams', [...disabledCams, cameraId]);
         notify(intl.formatMessage(intlMessages.disableWarning), 'info', 'warning');
       } else {
-        Session.set('disabledCams', disabledCams.filter((cId) => cId !== cameraId));
+        Session.setItem('disabledCams', disabledCams.filter((cId) => cId !== cameraId));
       }
     };
 

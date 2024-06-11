@@ -1,16 +1,18 @@
 import { unique } from 'radash';
 import { setAudioCaptionEnable } from '/imports/ui/core/local-states/useAudioCaptionEnable';
 import { isLiveTranscriptionEnabled } from '/imports/ui/services/features';
-
-const CONFIG = window.meetingClientSettings.public.app.audioCaptions;
-const PROVIDER = CONFIG.provider;
-const LANGUAGES = CONFIG.language.available;
+import Session from '/imports/ui/services/storage/in-memory';
 
 export const isAudioTranscriptionEnabled = () => isLiveTranscriptionEnabled();
 
-export const isWebSpeechApi = () => PROVIDER === 'webspeech';
+export const isWebSpeechApi = () => {
+  const PROVIDER = window.meetingClientSettings.public.app.audioCaptions.provider;
+  return PROVIDER === 'webspeech';
+};
 
 export const getSpeechVoices = () => {
+  const LANGUAGES = window.meetingClientSettings.public.app.audioCaptions.language.available;
+
   if (!isWebSpeechApi()) return LANGUAGES;
 
   return unique(
@@ -25,19 +27,24 @@ export const getSpeechVoices = () => {
 export const setAudioCaptions = (value: boolean) => {
   setAudioCaptionEnable(value);
   // @ts-ignore - Exist while we have meteor in the project
-  Session.set('audioCaptions', value);
+  Session.setItem('audioCaptions', value);
 };
 
-export const setSpeechLocale = (value: string, setUserSpeechLocale: (a: string, b: string) => void) => {
-  setUserSpeechLocale(value, CONFIG.provider);
+// SpeechLocale or CaptionLocale
+export const setUserLocaleProperty = (value: string, setUserLocaleCallback: (a: string, b: string) => void) => {
+  const PROVIDER = window.meetingClientSettings.public.app.audioCaptions.provider;
+  setUserLocaleCallback(value, PROVIDER);
 };
 
-export const useFixedLocale = () => isAudioTranscriptionEnabled() && CONFIG.language.forceLocale;
+export const useFixedLocale = () => {
+  const FORCE_LOCALE = window.meetingClientSettings.public.app.audioCaptions.language.forceLocale;
+  return isAudioTranscriptionEnabled() && FORCE_LOCALE;
+};
 
 export default {
   getSpeechVoices,
   isAudioTranscriptionEnabled,
-  setSpeechLocale,
+  setUserLocaleProperty,
   setAudioCaptions,
   isWebSpeechApi,
   useFixedLocale,

@@ -14,25 +14,59 @@ import {
   joinListenOnly,
   leaveEchoTest,
 } from './service';
-import Storage from '/imports/ui/services/storage/session';
 import Service from '../service';
 import AudioModalService from '/imports/ui/components/audio/audio-modal/service';
+import useCurrentUser from '/imports/ui/core/hooks/useCurrentUser';
+import { useStorageKey } from '/imports/ui/services/storage/hooks';
 
-const AudioModalContainer = (props) => <AudioModal {...props} />;
+const AudioModalContainer = (props) => {
+  const { data: currentUserData } = useCurrentUser((user) => ({
+    away: user.away,
+    isModerator: user.isModerator,
+  }));
+  const getEchoTest = useStorageKey('getEchoTest', 'session');
 
-const APP_CONFIG = window.meetingClientSettings.public.app;
+  const away = currentUserData?.away;
+  const isModerator = currentUserData?.isModerator;
+
+  const APP_CONFIG = window.meetingClientSettings.public.app;
+  const forceListenOnly = getFromUserSettings('bbb_force_listen_only', APP_CONFIG.forceListenOnly);
+
+  const forceListenOnlyAttendee = forceListenOnly && !isModerator;
+
+  const { autoJoin, skipCheck, skipCheckOnJoin } = props;
+  const joinFullAudioImmediately = (
+    autoJoin
+    && (
+      skipCheck
+      || (skipCheckOnJoin && !getEchoTest)
+    ))
+    || (
+      skipCheck
+      || (skipCheckOnJoin && !getEchoTest)
+    );
+
+  return (
+    <AudioModal
+      away={away}
+      forceListenOnlyAttendee={forceListenOnlyAttendee}
+      getEchoTest={getEchoTest}
+      joinFullAudioImmediately={joinFullAudioImmediately}
+      {...props}
+    />
+  );
+};
 
 const invalidDialNumbers = ['0', '613-555-1212', '613-555-1234', '0000'];
 const isRTL = document.documentElement.getAttribute('dir') === 'rtl';
 
 export default lockContextContainer(withTracker(({ userLocks, setIsOpen }) => {
+  const APP_CONFIG = window.meetingClientSettings.public.app;
   const listenOnlyMode = getFromUserSettings('bbb_listen_only_mode', APP_CONFIG.listenOnlyMode);
-  const forceListenOnly = getFromUserSettings('bbb_force_listen_only', APP_CONFIG.forceListenOnly);
   const skipCheck = getFromUserSettings('bbb_skip_check_audio', APP_CONFIG.skipCheck);
   const skipCheckOnJoin = getFromUserSettings('bbb_skip_check_audio_on_first_join', APP_CONFIG.skipCheckOnJoin);
   const autoJoin = getFromUserSettings('bbb_auto_join_audio', APP_CONFIG.autoJoin);
   const meeting = Meetings.findOne({ meetingId: Auth.meetingID }, { fields: { voiceSettings: 1 } });
-  const getEchoTest = Storage.getItem('getEchoTest');
 
   let formattedDialNum = '';
   let formattedTelVoice = '';
@@ -48,20 +82,13 @@ export default lockContextContainer(withTracker(({ userLocks, setIsOpen }) => {
 
   const meetingIsBreakout = AppService.meetingIsBreakout();
 
-  const joinFullAudioImmediately = (
-    autoJoin
-    && (
-      skipCheck
-      || (skipCheckOnJoin && !getEchoTest)
-    ))
-    || (
-      skipCheck
-      || (skipCheckOnJoin && !getEchoTest)
-    );
-
-  const forceListenOnlyAttendee = forceListenOnly && !Service.isUserModerator();
-
   const { isIe } = browserInfo;
+
+  const SHOW_VOLUME_METER = window.meetingClientSettings.public.media.showVolumeMeter;
+
+  const {
+    enabled: LOCAL_ECHO_TEST_ENABLED,
+  } = window.meetingClientSettings.public.media.localEchoTest;
 
   return ({
     meetingIsBreakout,
@@ -83,15 +110,16 @@ export default lockContextContainer(withTracker(({ userLocks, setIsOpen }) => {
     inputDeviceId: Service.inputDeviceId(),
     outputDeviceId: Service.outputDeviceId(),
     showPermissionsOvelay: Service.isWaitingPermissions(),
-    showVolumeMeter: Service.showVolumeMeter,
-    localEchoEnabled: Service.localEchoEnabled,
+    showVolumeMeter: SHOW_VOLUME_METER,
+    localEchoEnabled: LOCAL_ECHO_TEST_ENABLED,
     listenOnlyMode,
     formattedDialNum,
     formattedTelVoice,
     combinedDialInNum,
     audioLocked: userLocks.userMic,
-    joinFullAudioImmediately,
-    forceListenOnlyAttendee,
+    autoJoin,
+    skipCheck,
+    skipCheckOnJoin,
     isMobileNative: navigator.userAgent.toLowerCase().includes('bbbnative'),
     isIE: isIe,
     autoplayBlocked: Service.autoplayBlocked(),

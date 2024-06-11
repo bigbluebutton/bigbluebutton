@@ -36,7 +36,7 @@ case class PasswordProp(moderatorPass: String, viewerPass: String, learningDashb
 
 case class RecordProp(record: Boolean, autoStartRecording: Boolean, allowStartStopRecording: Boolean, recordFullDurationMedia: Boolean, keepEvents: Boolean)
 
-case class WelcomeProp(welcomeMsgTemplate: String, welcomeMsg: String, modOnlyMessage: String)
+case class WelcomeProp(welcomeMsg: String, welcomeMsgForModerators: String)
 
 case class VoiceProp(telVoice: String, voiceConf: String, dialNumber: String, muteOnStart: Boolean)
 
@@ -49,7 +49,8 @@ case class UsersProp(
     meetingLayout:            String,
     allowModsToUnmuteUsers:   Boolean,
     allowModsToEjectCameras:  Boolean,
-    authenticatedGuest:       Boolean
+    authenticatedGuest:       Boolean,
+    waitingGuestUsersTimeout: Long,
 )
 
 case class MetadataProp(metadata: collection.immutable.Map[String, String])

@@ -4,20 +4,16 @@ export const CURRENT_USER_SUBSCRIPTION = gql`
 subscription userCurrentSubscription {
   user_current {
     authToken
-    authed
     avatar
     away
-    banned
     clientType
     color
-    disconnected
-    echoTestRunningAt
     ejectReason
     ejectReasonCode
     ejected
     emoji
+    reactionEmoji
     enforceLayout
-    expired
     extId
     guest
     guestStatus
@@ -27,7 +23,6 @@ subscription userCurrentSubscription {
     isDialIn
     isModerator
     isOnline
-    isRunningEchoTest
     joinErrorCode
     joinErrorMessage
     joined
@@ -40,17 +35,10 @@ subscription userCurrentSubscription {
     presenter
     raiseHand
     registeredAt
-    registeredOn
     role
     speechLocale
+    captionLocale
     userId
-    customParameters {
-      parameter
-      value
-    }
-    reaction {
-      reactionEmoji
-    }
     breakoutRooms {
       currentRoomJoined
       assignedAt
@@ -75,29 +63,19 @@ subscription userCurrentSubscription {
       currentRoomIsOnline
     }
     lastBreakoutRoom {
-      breakoutRoomId
       currentlyInRoom
-      isDefaultName
       sequence
       shortName
     }
     cameras {
       streamId
     }
-    userClientSettings {
-      userClientSettingsJson
-    }
     voice {
       joined
       muted
       spoke
       listenOnly
-    }
-    presPagesWritable {
-      isCurrentPage
-      changedModeOn
-      pageId
-      presentationId
+      talking
     }
   }
 }

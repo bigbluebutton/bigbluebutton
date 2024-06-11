@@ -1,6 +1,7 @@
 import deviceInfo from '/imports/utils/deviceInfo';
 import browserInfo from '/imports/utils/browserInfo';
 import { createVirtualBackgroundService } from '/imports/ui/services/virtual-background';
+import Session from '/imports/ui/services/storage/in-memory';
 
 const BLUR_FILENAME = 'blur.jpg';
 const EFFECT_TYPES = {
@@ -8,11 +9,6 @@ const EFFECT_TYPES = {
   IMAGE_TYPE: 'image',
   NONE_TYPE: 'none',
 }
-
-// TODO I'm sure this is centralized somewhere; fetch it from "there" if possible
-const BASE_PATH = window.meetingClientSettings.public.app.cdn
-  + window.meetingClientSettings.public.app.basename
-  + window.meetingClientSettings.public.app.instanceId;
 
 const MODELS = {
   model96: {
@@ -31,13 +27,37 @@ const MODELS = {
   },
 };
 
-const {
-  thumbnailsPath: THUMBNAILS_PATH = '/resources/images/virtual-backgrounds/thumbnails/',
-  fileNames: IMAGE_NAMES = ['home.jpg', 'coffeeshop.jpg', 'board.jpg'],
-  storedOnBBB: IS_STORED_ON_BBB = true,
-  imagesPath: IMAGES_PATH = '/resources/images/virtual-backgrounds/',
-  showThumbnails: SHOW_THUMBNAILS = true,
-} = window.meetingClientSettings.public.virtualBackgrounds;
+const getBasePath = () => {
+  const BASE_PATH = window.meetingClientSettings.public.app.cdn
+  + window.meetingClientSettings.public.app.basename
+  + window.meetingClientSettings.public.app.instanceId;
+
+  return BASE_PATH;
+};
+
+const getThumbnailsPath = () => {
+  const {
+    thumbnailsPath: THUMBNAILS_PATH = '/resources/images/virtual-backgrounds/thumbnails/',
+  } = window.meetingClientSettings.public.virtualBackgrounds;
+
+  return THUMBNAILS_PATH;
+};
+
+const getImageNames = () => {
+  const {
+    fileNames: IMAGE_NAMES = ['home.jpg', 'coffeeshop.jpg', 'board.jpg'],
+  } = window.meetingClientSettings.public.virtualBackgrounds;
+
+  return IMAGE_NAMES;
+};
+
+const getIsStoredOnBBB = () => {
+  const {
+    storedOnBBB: IS_STORED_ON_BBB = true,
+  } = window.meetingClientSettings.public.virtualBackgrounds;
+
+  return IS_STORED_ON_BBB;
+};
 
 const createVirtualBackgroundStream = (type, name, isVirtualBackground, stream, customParams) => {
   const buildParams = {
@@ -55,10 +75,10 @@ const createVirtualBackgroundStream = (type, name, isVirtualBackground, stream, 
 
 const getVirtualBackgroundThumbnail = (name) => {
   if (name === BLUR_FILENAME) {
-    return BASE_PATH + '/resources/images/virtual-backgrounds/thumbnails/' + name;
+    return getBasePath() + '/resources/images/virtual-backgrounds/thumbnails/' + name;
   }
 
-  return (IS_STORED_ON_BBB ? BASE_PATH : '') + THUMBNAILS_PATH + name;
+  return (getIsStoredOnBBB() ? getBasePath() : '') + getThumbnailsPath() + name;
 }
 
 // Stores the last chosen camera effect into the session storage in the following format:
@@ -66,39 +86,39 @@ const getVirtualBackgroundThumbnail = (name) => {
 //   type: <EFFECT_TYPES>,
 //   name: effect filename, if any
 // }
-const setSessionVirtualBackgroundInfo = (type, name, deviceId) => {
-  return Session.set(`VirtualBackgroundInfo_${deviceId}`, { type, name });
-}
+const setSessionVirtualBackgroundInfo = (type, name, deviceId) => (
+  Session.setItem(`VirtualBackgroundInfo_${deviceId}`, { type, name })
+);
 
-const getSessionVirtualBackgroundInfo = (deviceId) => {
-  return Session.get(`VirtualBackgroundInfo_${deviceId}`) || {
+const getSessionVirtualBackgroundInfo = (deviceId) => (
+  Session.getItem(`VirtualBackgroundInfo_${deviceId}`) || {
     type: EFFECT_TYPES.NONE_TYPE,
-  };
-}
+  }
+);
 
-const getSessionVirtualBackgroundInfoWithDefault = (deviceId) => {
-  return Session.get(`VirtualBackgroundInfo_${deviceId}`) || {
+const getSessionVirtualBackgroundInfoWithDefault = (deviceId) => (
+  Session.getItem(`VirtualBackgroundInfo_${deviceId}`) || {
     type: EFFECT_TYPES.BLUR_TYPE,
     name: BLUR_FILENAME,
-  };
-}
+  }
+);
 
 const isVirtualBackgroundSupported = () => {
   return !(deviceInfo.isIos || browserInfo.isSafari);
 }
 
 const getVirtualBgImagePath = () => {
-  return (IS_STORED_ON_BBB ? BASE_PATH : '') + IMAGES_PATH;
+  const {
+    imagesPath: IMAGES_PATH = '/resources/images/virtual-backgrounds/',
+  } = window.meetingClientSettings.public.virtualBackgrounds;
+
+  return (getIsStoredOnBBB() ? getBasePath() : '') + IMAGES_PATH;
 }
 
 export {
-  BASE_PATH,
+  getBasePath,
+  getImageNames,
   MODELS,
-  THUMBNAILS_PATH,
-  SHOW_THUMBNAILS,
-  IMAGE_NAMES,
-  IS_STORED_ON_BBB,
-  IMAGES_PATH,
   BLUR_FILENAME,
   EFFECT_TYPES,
   setSessionVirtualBackgroundInfo,
@@ -108,4 +128,4 @@ export {
   createVirtualBackgroundStream,
   getVirtualBackgroundThumbnail,
   getVirtualBgImagePath,
-}
+};

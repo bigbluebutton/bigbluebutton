@@ -1,12 +1,9 @@
 import React from 'react';
 import { defineMessages, useIntl } from 'react-intl';
-import Settings from '/imports/ui/services/settings';
+import { getSettingsSingletonInstance } from '/imports/ui/services/settings';
 import Styled from '../styles';
 import { getNameInitials } from '../service';
 import TextInput from '/imports/ui/components/text-input/component';
-
-// @ts-ignore - temporary while settings are still in .js
-const { animations } = Settings.application;
 
 const intlMessages = defineMessages({
   accept: {
@@ -46,6 +43,9 @@ const renderGuestUserItem = (
   isGuestLobbyMessageEnabled: boolean,
 ) => {
   const intl = useIntl();
+  const Settings = getSettingsSingletonInstance();
+  const animations = Settings?.application?.animations;
+
   return (
     <React.Fragment key={`user-${userId}`}>
       <Styled.ListItem key={`userlist-item-${userId}`} animations={animations}>
@@ -114,7 +114,8 @@ const renderGuestUserItem = (
             <i>
               &quot;
               {privateGuestLobbyMessage && privateGuestLobbyMessage !== ''
-                ? privateGuestLobbyMessage
+              // eslint-disable-next-line react/no-danger
+                ? <span dangerouslySetInnerHTML={{ __html: privateGuestLobbyMessage }} />
                 : intl.formatMessage(intlMessages.emptyMessage)}
               &quot;
             </i>

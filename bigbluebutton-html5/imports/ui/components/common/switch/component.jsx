@@ -1,7 +1,7 @@
 import React from 'react';
 import Toggle from 'react-toggle';
 import { defineMessages, injectIntl } from 'react-intl';
-import Settings from '/imports/ui/services/settings';
+import { getSettingsSingletonInstance } from '/imports/ui/services/settings';
 import Styled from './styles';
 
 const intlMessages = defineMessages({
@@ -35,6 +35,7 @@ class Switch extends Toggle {
       ...inputProps
     } = this.props;
 
+    const Settings = getSettingsSingletonInstance();
     const { animations } = Settings.application;
 
     const {

@@ -111,10 +111,6 @@ const intlMessages = defineMessages({
   },
 });
 
-// eslint-disable-next-line @typescript-eslint/ban-ts-comment
-// @ts-ignore - temporary, while meteor exists in the project
-const { dynamicGuestPolicy } = window.meetingClientSettings.public.app;
-
 interface RenderModalProps {
   setIsOpen: React.Dispatch<React.SetStateAction<boolean>>;
   isOpen: boolean;
@@ -230,6 +226,8 @@ const UserTitleOptions: React.FC<UserTitleOptionsProps> = ({
     );
   };
 
+  const { dynamicGuestPolicy } = window.meetingClientSettings.public.app;
+
   const actions = useMemo(() => {
     const canCreateBreakout = isModerator
       && !isBreakout
@@ -305,7 +303,7 @@ const UserTitleOptions: React.FC<UserTitleOptionsProps> = ({
       {
         key: 'separator-02',
         isSeparator: true,
-        allow: true,
+        allow: canCreateBreakout,
       },
       {
         allow: isLearningDashboardEnabled(),
@@ -320,7 +318,7 @@ const UserTitleOptions: React.FC<UserTitleOptionsProps> = ({
         dataTest: 'learningDashboard',
       },
     ].filter(({ allow }) => allow);
-  }, [isModerator, hasBreakoutRooms, isMeetingMuted, locale]);
+  }, [isModerator, hasBreakoutRooms, isMeetingMuted, locale, intl]);
 
   const newLocal = 'true';
   return (
@@ -383,7 +381,7 @@ const UserTitleOptionsContainer: React.FC = () => {
   const { data: meetingInfo } = useMeeting((meeting: Partial<Meeting>) => ({
     voiceSettings: meeting?.voiceSettings,
     isBreakout: meeting?.isBreakout,
-    breakoutPolicies: meeting?.breakoutPolicies,
+    componentsFlags: meeting?.componentsFlags,
     name: meeting?.name,
   }));
 
@@ -394,14 +392,15 @@ const UserTitleOptionsContainer: React.FC = () => {
   // in case of current user isn't load yet
   if (!currentUser?.isModerator ?? true) return null;
 
+  const hasBreakoutRooms = meetingInfo?.componentsFlags?.hasBreakoutRoom ?? false;
+
   return (
     <UserTitleOptions
       isRTL={isRTL}
       isMeetingMuted={meetingInfo?.voiceSettings?.muteOnStart}
       isBreakout={meetingInfo?.isBreakout}
       isModerator={currentUser?.isModerator ?? false}
-      hasBreakoutRooms={meetingInfo?.breakoutPolicies?.breakoutRooms !== undefined
-        && meetingInfo.breakoutPolicies.breakoutRooms.length > 0}
+      hasBreakoutRooms={hasBreakoutRooms}
       meetingName={meetingInfo?.name}
     />
   );
