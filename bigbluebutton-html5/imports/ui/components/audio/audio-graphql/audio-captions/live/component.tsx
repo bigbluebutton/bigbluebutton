@@ -68,7 +68,7 @@ const AudioCaptionsLiveContainer: React.FC = () => {
     loading: AudioCaptionsLiveLoading,
     error: AudioCaptionsLiveError,
   } = useDeduplicatedSubscription<getCaptions>(GET_CAPTIONS, {
-    variables: { locale: currentUser?.speechLocale ?? 'en-US' },
+    variables: { locale: currentUser?.captionLocale ?? 'en-US' },
   });
 
   const [audioCaptionsEnable] = useAudioCaptionEnable();
