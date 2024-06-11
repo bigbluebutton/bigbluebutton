@@ -149,19 +149,17 @@ const AudioCaptionsButton: React.FC<AudioCaptionsButtonProps> = ({
     dividerTop: true,
     onClick: () => {
       selectedLocale.current = 'auto';
-      AudioCaptionsService.setSpeechLocale(selectedLocale.current, setUserSpeechLocale);
+      AudioCaptionsService.setSpeechLocale(selectedLocale.current, setUserCaptionLocale);
     },
   } : undefined;
 
   const getAvailableLocales = () => {
     let indexToInsertSeparator = -1;
     const availableVoicesObjectToMenu: (MenuOptionItemType | MenuSeparatorItemType)[] = availableVoices
+      .filter((availableVoice) => availableVoice !== 'auto')
       .map((availableVoice: string, index: number) => {
         if (availableVoice === availableVoices[0]) {
           indexToInsertSeparator = index;
-        }
-        if (availableVoice === 'auto') {
-          return null;
         }
         return (
           {

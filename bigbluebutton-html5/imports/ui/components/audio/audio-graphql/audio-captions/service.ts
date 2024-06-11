@@ -3,6 +3,7 @@ import { setAudioCaptionEnable } from '/imports/ui/core/local-states/useAudioCap
 import { isLiveTranscriptionEnabled } from '/imports/ui/services/features';
 import getFromUserSettings from '/imports/ui/services/users-settings';
 import { Caption } from './live/queries';
+import Session from '/imports/ui/services/storage/in-memory';
 
 export const splitTranscript = (obj: Caption) => {
   const CAPTIONS_CONFIG = window.meetingClientSettings.public.captions;
@@ -36,7 +37,6 @@ export const splitTranscript = (obj: Caption) => {
 
   return transcripts.map((t) => { return { ...obj, captionText: t }; });
 };
-import Session from '/imports/ui/services/storage/in-memory';
 
 export const isAudioTranscriptionEnabled = () => isLiveTranscriptionEnabled();
 
