@@ -2,7 +2,6 @@ import Users from '/imports/api/users';
 import Auth from '/imports/ui/services/auth';
 import AudioManager from '/imports/ui/services/audio-manager';
 import Meetings from '/imports/api/meetings';
-import VoiceUsers from '/imports/api/voice-users';
 import logger from '/imports/startup/client/logger';
 import Storage from '../../services/storage/session';
 import { useReactiveVar } from '@apollo/client';
@@ -63,27 +62,6 @@ const init = (messages, intl, toggleVoice, speechLocale) => {
   return AudioManager.init(userData, audioEventHandler(toggleVoice));
 };
 
-const muteMicrophone = (toggleVoice) => {
-  const user = VoiceUsers.findOne({
-    userId: Auth.userID,
-  }, { fields: { muted: 1 } });
-
-  if (!user.muted) {
-    logger.info({
-      logCode: 'audiomanager_mute_audio',
-      extraInfo: { logType: 'user_action' },
-    }, 'User wants to leave conference. Microphone muted');
-    AudioManager.setSenderTrackEnabled(false);
-    toggleVoice(Auth.userID, true);
-  }
-};
-
-const isVoiceUser = () => {
-  const voiceUser = VoiceUsers.findOne({ userId: Auth.userID },
-    { fields: { joined: 1 } });
-  return voiceUser ? voiceUser.joined : false;
-};
-
 const useIsUsingAudio = () => {
   const isConnected = useReactiveVar(AudioManager._isConnected.value);
   const isConnecting = useReactiveVar(AudioManager._isConnecting.value);
@@ -123,14 +101,12 @@ export default {
   isConnecting: () => AudioManager.isConnecting,
   isListenOnly: () => AudioManager.isListenOnly,
   isEchoTest: () => AudioManager.isEchoTest,
-  isVoiceUser,
   autoplayBlocked: () => AudioManager.autoplayBlocked,
   handleAllowAutoplay: () => AudioManager.handleAllowAutoplay(),
   playAlertSound: (url) => AudioManager.playAlertSound(url),
   updateAudioConstraints:
     (constraints) => AudioManager.updateAudioConstraints(constraints),
   recoverMicState,
-  muteMicrophone: (toggleVoice) => muteMicrophone(toggleVoice),
   isReconnecting: () => AudioManager.isReconnecting,
   setBreakoutAudioTransferStatus: (status) => AudioManager
     .setBreakoutAudioTransferStatus(status),

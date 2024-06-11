@@ -1,5 +1,4 @@
 import Auth from '/imports/ui/services/auth';
-import VoiceUsers from '/imports/api/voice-users';
 import SIPBridge from '/imports/api/audio/client/bridge/sip';
 import SFUAudioBridge from '/imports/api/audio/client/bridge/sfu-audio-bridge';
 import logger from '/imports/startup/client/logger';
@@ -22,6 +21,9 @@ import MediaStreamUtils from '/imports/utils/media-stream-utils';
 import { makeVar } from '@apollo/client';
 import AudioErrors from '/imports/ui/services/audio-manager/error-codes';
 import Session from '/imports/ui/services/storage/in-memory';
+import GrahqlSubscriptionStore, { stringToHash } from '/imports/ui/core/singletons/subscriptionStore';
+import { makePatchedQuery } from '../../core/hooks/createUseSubscription';
+import { VOICE_USERS_SUBSCRIPTION } from '../../components/audio/audio-graphql/queries';
 
 const DEFAULT_AUDIO_BRIDGES_PATH = '/imports/api/audio/client/';
 const CALL_STATES = {
@@ -440,7 +442,7 @@ class AudioManager {
     return this.bridge.transferCall(this.onAudioJoin.bind(this));
   }
 
-  onVoiceUserChanges(fields) {
+  onVoiceUserChanges(fields = {}) {
     if (fields.muted !== undefined && fields.muted !== this.isMuted) {
       let muteState;
       this.isMuted = fields.muted;
@@ -471,10 +473,25 @@ class AudioManager {
 
     // listen to the VoiceUsers changes and update the flag
     if (!this.muteHandle) {
-      const query = VoiceUsers.find({ userId: Auth.userID }, { fields: { muted: 1, talking: 1 } });
-      this.muteHandle = query.observeChanges({
-        added: (id, fields) => this.onVoiceUserChanges(fields),
-        changed: (id, fields) => this.onVoiceUserChanges(fields),
+      const patchedSub = makePatchedQuery(VOICE_USERS_SUBSCRIPTION);
+      const subHash = stringToHash(JSON.stringify({
+        subscription: patchedSub,
+        variables: {},
+      }));
+      this.muteHandle = GrahqlSubscriptionStore.makeSubscription(
+        patchedSub,
+        {},
+        'no-cache',
+      );
+      window.addEventListener('graphqlSubscription', (e) => {
+        const { subscriptionHash, response } = e.detail;
+        if (subscriptionHash === subHash) {
+          const { data } = response;
+          if (data) {
+            const voiceUser = data.user_voice.find((v) => v.userId === Auth.userID);
+            this.onVoiceUserChanges(voiceUser);
+          }
+        }
       });
     }
     const secondsToActivateAudio = (new Date() - this.audioJoinStartTime) / 1000;
