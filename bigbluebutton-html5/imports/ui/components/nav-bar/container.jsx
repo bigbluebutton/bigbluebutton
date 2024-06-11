@@ -1,8 +1,6 @@
 import React, { useContext } from 'react';
+import { defineMessages, useIntl } from 'react-intl';
 import { Meteor } from 'meteor/meteor';
-import { withTracker } from 'meteor/react-meteor-data';
-import Meetings from '/imports/api/meetings';
-import Breakouts from '/imports/api/breakouts';
 import Auth from '/imports/ui/services/auth';
 import getFromUserSettings from '/imports/ui/services/users-settings';
 import NavBar from './component';
@@ -13,10 +11,20 @@ import useCurrentUser from '/imports/ui/core/hooks/useCurrentUser';
 import useChat from '/imports/ui/core/hooks/useChat';
 import useHasUnreadNotes from '../notes/hooks/useHasUnreadNotes';
 import { useShortcut } from '../../core/hooks/useShortcut';
+import useMeeting from '../../core/hooks/useMeeting';
+import { registerTitleView } from '/imports/utils/dom-utils';
+
+const intlMessages = defineMessages({
+  defaultViewLabel: {
+    id: 'app.title.defaultViewLabel',
+    description: 'view name appended to document title',
+  },
+});
 
 const NavBarContainer = ({ children, ...props }) => {
   const { pluginsExtensibleAreasAggregatedState } = useContext(PluginsContext);
   const unread = useHasUnreadNotes();
+  const intl = useIntl();
 
   const sidebarContent = layoutSelectInput((i) => i.sidebarContent);
   const sidebarNavigation = layoutSelectInput((i) => i.sidebarNavigation);
@@ -47,6 +55,33 @@ const NavBarContainer = ({ children, ...props }) => {
 
   const hideNavBar = getFromUserSettings('bbb_hide_nav_bar', false);
 
+  const PUBLIC_CONFIG = window.meetingClientSettings.public;
+  const CLIENT_TITLE = getFromUserSettings('bbb_client_title', PUBLIC_CONFIG.app.clientTitle);
+  const IS_DIRECT_LEAVE_BUTTON_ENABLED = getFromUserSettings(
+    'bbb_direct_leave_button',
+    PUBLIC_CONFIG.app.defaultSettings.application.directLeaveButton,
+  );
+
+  let meetingTitle;
+  let breakoutNum;
+  let breakoutName;
+  let meetingName;
+
+  const { data: meeting } = useMeeting((m) => ({
+    name: m.name,
+    meetingId: m.meetingId,
+    breakoutPolicies: {
+      sequence: m.breakoutPolicies.sequence,
+    },
+  }));
+
+  if (meeting) {
+    meetingTitle = meeting.name;
+    const titleString = `${CLIENT_TITLE} - ${meetingTitle}`;
+    document.title = titleString;
+    registerTitleView(intl.formatMessage(intlMessages.defaultViewLabel));
+  }
+
   if (hideNavBar || navBar.display === false) return null;
 
   let pluginNavBarItems = [];
@@ -71,6 +106,13 @@ const NavBarContainer = ({ children, ...props }) => {
         currentUserId: Auth.userID,
         pluginNavBarItems,
         shortcuts: toggleUserList,
+        meetingId: meeting.meetingId,
+        presentationTitle: meetingTitle,
+        breakoutNum,
+        breakoutName,
+        meetingName,
+        isDirectLeaveButtonEnabled: IS_DIRECT_LEAVE_BUTTON_ENABLED,
+        isMeteorConnected: Meteor.status().connected,
         ...props,
       }}
       style={{ ...navBar }}
@@ -80,49 +122,4 @@ const NavBarContainer = ({ children, ...props }) => {
   );
 };
 
-export default withTracker(() => {
-  const PUBLIC_CONFIG = window.meetingClientSettings.public;
-
-  const CLIENT_TITLE = getFromUserSettings('bbb_client_title', PUBLIC_CONFIG.app.clientTitle);
-
-  let meetingTitle, breakoutNum, breakoutName, meetingName;
-  const meetingId = Auth.meetingID;
-  const meetingObject = Meetings.findOne({
-    meetingId,
-  }, { fields: { name: 1, 'breakoutPolicies.sequence': 1, meetingId: 1 } });
-
-  if (meetingObject != null) {
-    meetingTitle = meetingObject.name;
-    let titleString = `${CLIENT_TITLE} - ${meetingTitle}`;
-    document.title = titleString;
-
-    if (meetingObject.breakoutPolicies) {
-      breakoutNum = meetingObject.breakoutPolicies.sequence;
-      if (breakoutNum > 0) {
-        const breakoutObject = Breakouts.findOne({
-          breakoutId: meetingObject.meetingId,
-        }, { fields: { shortName: 1 } });
-        if (breakoutObject) {
-          breakoutName = breakoutObject.shortName;
-          meetingName = meetingTitle.replace(`(${breakoutName})`, '').trim();
-        }
-      }
-    }
-  }
-
-  const IS_DIRECT_LEAVE_BUTTON_ENABLED = getFromUserSettings(
-    'bbb_direct_leave_button',
-    PUBLIC_CONFIG.app.defaultSettings.application.directLeaveButton,
-  );
-
-  return {
-    currentUserId: Auth.userID,
-    meetingId,
-    presentationTitle: meetingTitle,
-    breakoutNum,
-    breakoutName,
-    meetingName,
-    isDirectLeaveButtonEnabled: IS_DIRECT_LEAVE_BUTTON_ENABLED,
-    isMeteorConnected: Meteor.status().connected,
-  };
-})(NavBarContainer);
+export default NavBarContainer;
