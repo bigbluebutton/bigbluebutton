@@ -24,17 +24,16 @@ const UserAvatarVideo: React.FC<UserAvatarVideoProps> = (props) => {
     name = '', color = '', avatar = '', emoji = '', isModerator,
   } = data;
   let {
-    presenter, clientType,
+    presenter = false, clientType,
   } = data;
 
   const { talking = false } = voiceUser;
 
   const handleUserIcon = () => {
     if (emoji !== 'none') {
-      // @ts-expect-error -> Untyped component.
       return <Icon iconName={UserListService.normalizeEmojiName(emoji)} />;
     }
-    return name.toLowerCase().slice(0, 2);
+    return <>{name.toLowerCase().slice(0, 2)}</>;
   };
 
   // hide icons when squeezed

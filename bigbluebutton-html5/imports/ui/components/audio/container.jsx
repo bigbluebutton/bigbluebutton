@@ -237,10 +237,6 @@ export default lockContextContainer(injectIntl(withTracker(({
   };
 })(AudioContainer)));
 
-AudioContainer.defaultProps = {
-  microphoneConstraints: undefined,
-};
-
 AudioContainer.propTypes = {
   hasBreakoutRooms: PropTypes.bool.isRequired,
   meetingIsBreakout: PropTypes.bool.isRequired,
@@ -255,5 +251,4 @@ AudioContainer.propTypes = {
   userLocks: PropTypes.shape({
     userMic: PropTypes.bool.isRequired,
   }).isRequired,
-  microphoneConstraints: PropTypes.shape({}),
 };

@@ -14,7 +14,7 @@ const intlMessages = defineMessages({
 
 const UserPolls = ({
   intl,
-  isPresenter,
+  isPresenter = false,
   pollIsOpen,
   forcePollOpen,
   sidebarContentPanel,
@@ -75,8 +75,4 @@ UserPolls.propTypes = {
   isPresenter: PropTypes.bool,
   pollIsOpen: PropTypes.bool.isRequired,
   forcePollOpen: PropTypes.bool.isRequired,
-};
-
-UserPolls.defaultProps = {
-  isPresenter: false,
 };

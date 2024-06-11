@@ -26,16 +26,11 @@ const propTypes = {
   contextDispatch: PropTypes.func.isRequired,
 };
 
-const defaultProps = {
-  left: null,
-  right: null,
-};
-
 const SidebarContent = (props) => {
   const {
     top,
-    left,
-    right,
+    left = null,
+    right = null,
     zIndex,
     minWidth,
     width,
@@ -162,5 +157,4 @@ const SidebarContent = (props) => {
 };
 
 SidebarContent.propTypes = propTypes;
-SidebarContent.defaultProps = defaultProps;
 export default SidebarContent;

@@ -29,10 +29,6 @@ const propTypes = {
   screenshareDataSavingSetting: PropTypes.bool.isRequired,
 };
 
-const defaultProps = {
-  amIPresenter: false,
-};
-
 const intlMessages = defineMessages({
   desktopShareLabel: {
     id: 'app.actionsBar.actionsDropdown.desktopShareLabel',
@@ -121,7 +117,7 @@ const ScreenshareButton = ({
   intl,
   enabled,
   isScreenBroadcasting,
-  amIPresenter,
+  amIPresenter = false,
   isMeteorConnected,
 }) => {
   const [stopExternalVideoShare] = useMutation(EXTERNAL_VIDEO_STOP);
@@ -218,5 +214,4 @@ const ScreenshareButton = ({
 };
 
 ScreenshareButton.propTypes = propTypes;
-ScreenshareButton.defaultProps = defaultProps;
 export default injectIntl(memo(ScreenshareButton));

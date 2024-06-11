@@ -1,6 +1,5 @@
 import React, { Component } from 'react';
 import { withTracker } from 'meteor/react-meteor-data';
-import PropTypes from 'prop-types';
 import Auth from '/imports/ui/services/auth';
 import AppContainer from '/imports/ui/components/app/container';
 import { getSettingsSingletonInstance } from '/imports/ui/services/settings';
@@ -22,14 +21,6 @@ import { useStorageKey } from '/imports/ui/services/storage/hooks';
 const HTML = document.getElementsByTagName('html')[0];
 
 let checkedUserSettings = false;
-
-const propTypes = {
-  approved: PropTypes.bool,
-};
-
-const defaultProps = {
-  approved: false,
-};
 
 const fullscreenChangedEvents = [
   'fullscreenchange',
@@ -181,9 +172,6 @@ class Base extends Component {
     );
   }
 }
-
-Base.propTypes = propTypes;
-Base.defaultProps = defaultProps;
 
 const BaseContainer = (props) => {
   const codeError = useStorageKey('codeError');

@@ -73,13 +73,22 @@ const intlMessages = defineMessages({
   },
 });
 
-const UserActions = (props) => {
-  const {
-    name, cameraId, numOfStreams, onHandleVideoFocus, user, focused, onHandleMirror,
-    isVideoSqueezed, videoContainer, isRTL, isStream, isSelfViewDisabled, isMirrored,
-    amIModerator,
-  } = props;
-
+const UserActions = ({
+  name,
+  cameraId,
+  numOfStreams,
+  onHandleVideoFocus = () => {},
+  user,
+  focused = false,
+  onHandleMirror,
+  isVideoSqueezed = false,
+  videoContainer = () => {},
+  isRTL,
+  isStream,
+  isSelfViewDisabled,
+  isMirrored,
+  amIModerator,
+}) => {
   const { pluginsExtensibleAreasAggregatedState } = useContext(PluginsContext);
 
   let userCameraDropdownItems = [];
@@ -273,13 +282,6 @@ const UserActions = (props) => {
 };
 
 export default UserActions;
-
-UserActions.defaultProps = {
-  focused: false,
-  isVideoSqueezed: false,
-  videoContainer: () => { },
-  onHandleVideoFocus: () => {},
-};
 
 UserActions.propTypes = {
   name: PropTypes.string.isRequired,
