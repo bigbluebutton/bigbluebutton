@@ -159,7 +159,7 @@ class App extends Component {
       intl,
       layoutContextDispatch,
       isRTL,
-      toggleVoice,
+      muteMicrophone,
       transcriptionSettings,
       setSpeechOptions,
     } = this.props;
@@ -212,7 +212,7 @@ class App extends Component {
     if (CONFIRMATION_ON_LEAVE) {
       window.onbeforeunload = (event) => {
         if (AudioService.isUsingAudio() && !AudioService.isMuted()) {
-          AudioService.muteMicrophone(toggleVoice);
+          muteMicrophone();
         }
         event.stopImmediatePropagation();
         event.preventDefault();
@@ -549,6 +549,7 @@ class App extends Component {
       intl,
       genericComponentId,
       speechLocale,
+      connected,
     } = this.props;
 
     const {
@@ -576,7 +577,7 @@ class App extends Component {
           {this.renderActivityCheck()}
           <ScreenReaderAlertContainer />
           <BannerBarContainer />
-          <NotificationsBarContainer />
+          <NotificationsBarContainer connected={connected} />
           <SidebarNavigationContainer />
           <SidebarContentContainer isSharedNotesPinned={isSharedNotesPinned} />
           <NavBarContainer main="new" />
