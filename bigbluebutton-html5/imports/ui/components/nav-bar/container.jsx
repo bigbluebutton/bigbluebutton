@@ -80,6 +80,14 @@ const NavBarContainer = ({ children, ...props }) => {
     const titleString = `${CLIENT_TITLE} - ${meetingTitle}`;
     document.title = titleString;
     registerTitleView(intl.formatMessage(intlMessages.defaultViewLabel));
+
+    if (meeting.breakoutPolicies) {
+      breakoutNum = meeting.breakoutPolicies.sequence;
+      if (breakoutNum > 0) {
+        breakoutName = meetingTitle;
+        meetingName = meetingTitle.replace(`(${breakoutName})`, '').trim();
+      }
+    }
   }
 
   if (hideNavBar || navBar.display === false) return null;
