@@ -94,6 +94,7 @@ export interface User {
   guestStatus: string;
   joinErrorCode: string;
   joinErrorMessage: string;
+  inactivityWarningDisplay: boolean;
   joined: boolean;
   loggedOut: boolean;
   mobile?: boolean;

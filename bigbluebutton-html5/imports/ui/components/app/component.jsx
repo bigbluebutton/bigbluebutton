@@ -50,6 +50,7 @@ import PresentationUploaderToastContainer from '/imports/ui/components/presentat
 import BreakoutJoinConfirmationContainerGraphQL from '../breakout-join-confirmation/breakout-join-confirmation-graphql/component';
 import FloatingWindowContainer from '/imports/ui/components/floating-window/container';
 import ChatAlertContainerGraphql from '../chat/chat-graphql/alert/component';
+import { notify } from '/imports/ui/services/notification';
 
 // [move settings]
 const MOBILE_MEDIA = 'only screen and (max-width: 40em)';
@@ -224,7 +225,6 @@ class App extends Component {
 
   componentDidUpdate(prevProps) {
     const {
-      notify,
       currentUserEmoji,
       currentUserAway,
       currentUserRaiseHand,
