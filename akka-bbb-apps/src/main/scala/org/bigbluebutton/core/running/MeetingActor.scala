@@ -656,7 +656,6 @@ class MeetingActor(
       case m: SetGuestPolicyCmdMsg                           => handleSetGuestPolicyMsg(m)
       case m: SetGuestLobbyMessageCmdMsg                     => handleSetGuestLobbyMessageMsg(m)
       case m: GuestsWaitingApprovedMsg                       => handleGuestsWaitingApprovedMsg(m)
-      case m: GuestWaitingLeftMsg                            => handleGuestWaitingLeftMsg(m)
       case m: GetGuestPolicyReqMsg                           => handleGetGuestPolicyReqMsg(m)
       case m: UpdatePositionInWaitingQueueReqMsg             => handleUpdatePositionInWaitingQueueReqMsg(m)
       case m: SetPrivateGuestLobbyMessageCmdMsg              => handleSetPrivateGuestLobbyMessageCmdMsg(m)
