@@ -2,7 +2,7 @@ import { Meteor } from 'meteor/meteor';
 import AudioService from '/imports/ui/components/audio/service';
 import AudioManager from '/imports/ui/services/audio-manager';
 import VideoService from '/imports/ui/components/video-provider/video-provider-graphql/service';
-import { Stream } from '/imports/ui/components/video-provider/video-provider-graphql/state';
+import type { Stream } from '/imports/ui/components/video-provider/video-provider-graphql/types';
 import { screenshareHasEnded } from '/imports/ui/components/screenshare/service';
 import { didUserSelectedListenOnly, didUserSelectedMicrophone } from '../../audio/audio-modal/service';
 import logger from '/imports/startup/client/logger';

@@ -22,7 +22,7 @@ import {
 import { notify } from '/imports/ui/services/notification';
 import { shouldForceRelay } from '/imports/ui/services/bbb-webrtc-sfu/utils';
 import WebRtcPeer from '/imports/ui/services/webrtc-base/peer';
-import { StreamItem, StreamUser, VideoItem } from './types';
+import { StreamItem, VideoItem } from './types';
 import { Output } from '../../layout/layoutTypes';
 
 const intlClientErrors = defineMessages({
@@ -109,7 +109,6 @@ interface VideoProviderGraphqlProps {
   isUserLocked: boolean;
   currentVideoPageIndex: number;
   streams: VideoItem[];
-  users: StreamUser[];
   info: {
     userId: string | null | undefined;
     userName: string | null | undefined;
@@ -1343,7 +1342,6 @@ class VideoProviderGraphql extends Component<VideoProviderGraphqlProps, VideoPro
       focusedId,
       handleVideoFocus,
       isGridEnabled,
-      users,
     } = this.props;
 
     return (
@@ -1356,7 +1354,6 @@ class VideoProviderGraphql extends Component<VideoProviderGraphqlProps, VideoPro
           focusedId,
           handleVideoFocus,
           isGridEnabled,
-          users,
         }}
         onVideoItemMount={this.createVideoTag}
         onVideoItemUnmount={this.destroyVideoTag}

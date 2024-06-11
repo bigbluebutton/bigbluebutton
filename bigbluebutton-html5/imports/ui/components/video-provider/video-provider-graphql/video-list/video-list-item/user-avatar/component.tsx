@@ -2,10 +2,10 @@ import React from 'react';
 import Styled from './styles';
 import Icon from '/imports/ui/components/common/icon/component';
 import UserListService from '/imports/ui/components/user-list/service';
-import { StreamUser, VideoItem } from '../../../types';
+import { User, VideoItem } from '/imports/ui/components/video-provider/video-provider-graphql/types';
 
 interface UserAvatarVideoProps {
-  user: Partial<StreamUser>;
+  user: Partial<User>;
   stream: VideoItem;
   // eslint-disable-next-line react/require-default-props
   voiceUser?: {

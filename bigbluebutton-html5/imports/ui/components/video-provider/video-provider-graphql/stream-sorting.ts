@@ -13,9 +13,9 @@ export const sortPin = (s1: StreamItem, s2: StreamItem) => {
   if (s2.type === 'connecting') {
     return -1;
   }
-  if (s1.pinned) {
+  if (s1.user.pinned) {
     return -1;
-  } if (s2.pinned) {
+  } if (s2.user.pinned) {
     return 1;
   }
   return 0;
