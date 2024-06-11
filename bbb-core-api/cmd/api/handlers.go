@@ -206,7 +206,27 @@ func (app *Config) createMeeting(w http.ResponseWriter, r *http.Request) {
 	log.Println("Handling createMeeting request")
 
 	params := r.URL.Query()
-	app.processCreateQueryParams(&params)
+	var payload model.Response
+	log.Println(payload)
+
+	settings, err := app.processCreateQueryParams(&params)
+	if err != nil {
+		// TODO handler errors from parameters processing
+		return
+	}
+
+	ctx, cancel := context.WithTimeout(context.Background(), time.Second)
+	defer cancel()
+	res, err := app.BbbCore.CreateMeeting(ctx, &bbbcore.CreateMeetingRequest{
+		MeetingSettings: settings,
+	})
+	if err != nil {
+		log.Println(err)
+		// TODO handle errors from create call
+		return
+	}
+
+	log.Println(res)
 }
 
 func (app *Config) createMeetingPost(w http.ResponseWriter, r *http.Request) {

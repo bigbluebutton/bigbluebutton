@@ -73,6 +73,7 @@ class BigBlueButtonActor(
     case msg: IsMeetingRunning          => handleIsMeetingRunning(sender(), msg)
     case msg: GetMeeting                => handleGetMeeting(sender(), msg)
     case msg: GetMeetings               => handleGetMeetings(sender(), msg)
+    case msg: GetNextVoiceBridge        => handleGetNextVoiceBridge(sender(), msg)
 
     // 2x messages
     case msg: BbbCommonEnvCoreMsg       => handleBbbCommonEnvCoreMsg(msg)
@@ -232,5 +233,9 @@ class BigBlueButtonActor(
 
   private def handleGetMeetings(sender: ActorRef, msg: GetMeetings): Unit = {
     sender ! RunningMeetings.meetingsMap(meetings)
+  }
+
+  private def handleGetNextVoiceBridge(sender: ActorRef, msg: GetNextVoiceBridge): Unit = {
+    sender ! RunningMeetings.nextVoiceBridge(meetings)
   }
 }

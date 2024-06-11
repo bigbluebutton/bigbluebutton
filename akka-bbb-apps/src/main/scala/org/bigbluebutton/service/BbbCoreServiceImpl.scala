@@ -15,7 +15,7 @@ import org.bigbluebutton.protos._
 import scala.collection.immutable.VectorMap
 import scala.concurrent.Future
 import scala.concurrent.duration.DurationInt
-import scala.util.Random
+import org.bigbluebutton.core.api.GetNextVoiceBridge
 class BbbCoreServiceImpl(implicit materializer: Materializer, bbbActor: ActorRef) extends BbbCoreService {
 
   import materializer.executionContext
@@ -92,33 +92,13 @@ class BbbCoreServiceImpl(implicit materializer: Materializer, bbbActor: ActorRef
   override def generateVoiceBridge(in: GenerateVoiceBridgeRequest): Future[GenerateVoiceBridgeResponse] = {
     implicit val timeout: Timeout = 3.seconds
 
-    def randomNumeric(length: Int): String = {
-      if (length > 0) {
-        val random = new Random
-        (1 to length).map(_ => random.nextInt(10)).mkString
-      } else {
-        ""
-      }
+    def prependZeros(number: Int, length: Int): String = {
+      String.format(s"%0${length}d", number.asInstanceOf[Object])
     }
 
-    val runningMeetingsFuture: Future[VectorMap[String, RunningMeeting]] = (bbbActor ? GetMeetings()).mapTo[VectorMap[String, RunningMeeting]]
-
-    runningMeetingsFuture.flatMap { runningMeetings =>
-      val attempts = 20
-
-      def attemptGenerate(attempt: Int): Future[GenerateVoiceBridgeResponse] = {
-        if (attempt >= attempts) {
-          Future.failed(GrpcServiceException(Code.DEADLINE_EXCEEDED, "operationFailed", Seq(ErrorResponse("operationFailed", s"Failed to generate unique voice bridge after $attempts attempts"))))
-        } else {
-          val voiceBridge = randomNumeric(in.length)
-          if (runningMeetings.values.exists(_.props.voiceProp.voiceConf == voiceBridge)) {
-            attemptGenerate(attempt + 1)
-          } else {
-            Future.successful(GenerateVoiceBridgeResponse(voiceBridge))
-          }
-        }
-      }
-      attemptGenerate(0)
-    }
+    (bbbActor ? GetNextVoiceBridge()).mapTo[Int].map(v => {
+      val voiceBridge = prependZeros(v, in.length)
+      GenerateVoiceBridgeResponse(voiceBridge)
+    })
   }
 }
