@@ -68,14 +68,6 @@ export interface BreakoutRooms {
   showInvitation: boolean;
   startedAt: string;
 }
-export interface UserClientSettings {
-  userClientSettingsJson: string;
-}
-
-export interface WelcomeMsgs {
-  welcomeMsg: string;
-  welcomeMsgForModerators: string;
-}
 
 export interface User {
   authToken: string;
@@ -83,13 +75,10 @@ export interface User {
   extId: string;
   name: string;
   nameSortable: string;
-  banned: boolean;
   isModerator: boolean;
   clientType: string;
   disconnected: boolean;
   isOnline: boolean;
-  isRunningEchoTest: boolean;
-  echoTestRunningAt: number;
   ejectReason: string;
   ejectReasonCode: string;
   ejected: boolean;
@@ -113,7 +102,6 @@ export interface User {
   voice?: Partial<Voice>;
   locked: boolean;
   registeredAt: string;
-  registeredOn: number;
   hasDrawPermissionOnCurrentPage: boolean;
   lastBreakoutRoom?: LastBreakoutRoom;
   cameras: Array<Cameras>;
@@ -125,7 +113,4 @@ export interface User {
   away: boolean;
   raiseHand: boolean;
   breakoutRooms: BreakoutRooms;
-  customParameters: Array<CustomParameter>;
-  userClientSettings: UserClientSettings;
-  welcomeMsgs: WelcomeMsgs;
 }
