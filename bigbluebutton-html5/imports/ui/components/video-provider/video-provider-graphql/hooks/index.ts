@@ -29,15 +29,14 @@ import {
 } from '../state';
 import {
   OWN_VIDEO_STREAMS_QUERY,
-  VIDEO_STREAMS_USERS_FILTERED_SUBSCRIPTION,
   GRID_USERS_SUBSCRIPTION,
   VIEWERS_IN_WEBCAM_COUNT_SUBSCRIPTION,
-  VideoStreamsUsersResponse,
+  GridUsersResponse,
   OwnVideoStreamsResponse,
 } from '../queries';
 import videoService from '../service';
 import { CAMERA_BROADCAST_STOP } from '../mutations';
-import { GridItem, StreamItem, StreamUser } from '../types';
+import { GridItem, StreamItem } from '../types';
 import { DesktopPageSizes, MobilePageSizes } from '/imports/ui/Types/meetingClientSettings';
 import logger from '/imports/startup/client/logger';
 import useDeduplicatedSubscription from '/imports/ui/core/hooks/useDeduplicatedSubscription';
@@ -239,35 +238,20 @@ export const useStreams = () => {
 export const useStreamUsers = (isGridEnabled: boolean) => {
   const { streams } = useStreams();
   const gridSize = useGridSize();
-  const [users, setUsers] = useState<StreamUser[]>([]);
   const [gridUsers, setGridUsers] = useState<GridItem[]>([]);
-  const userIds = useMemo(() => streams.map((s) => s.userId), [streams]);
+  const userIds = useMemo(() => streams.map((s) => s.user.userId), [streams]);
   const streamCount = streams.length;
-  const { data, loading, error } = useDeduplicatedSubscription<VideoStreamsUsersResponse>(
-    VIDEO_STREAMS_USERS_FILTERED_SUBSCRIPTION,
-    { variables: { userIds } },
-  );
   const {
     data: gridData,
     loading: gridLoading,
     error: gridError,
-  } = useDeduplicatedSubscription<VideoStreamsUsersResponse>(
+  } = useDeduplicatedSubscription<GridUsersResponse>(
     GRID_USERS_SUBSCRIPTION,
     {
       variables: { exceptUserIds: userIds, limit: Math.max(gridSize - streamCount, 0) },
       skip: !isGridEnabled,
     },
   );
-
-  useEffect(() => {
-    if (loading) return;
-
-    if (error) {
-      logger.error(`Stream users subscription failed. name=${error.name}`, error);
-    }
-
-    setUsers(data ? data.user : []);
-  }, [data]);
 
   useEffect(() => {
     if (gridLoading) return;
@@ -289,10 +273,9 @@ export const useStreamUsers = (isGridEnabled: boolean) => {
 
   return {
     streams,
-    users,
     gridUsers,
-    loading: loading || gridLoading,
-    error: error || gridError,
+    loading: gridLoading,
+    error: gridError,
   };
 };
 
@@ -348,7 +331,7 @@ export const useVideoStreams = (
 ) => {
   const [state] = useVideoState();
   const { currentVideoPageIndex, numberOfPages } = state;
-  const { users, gridUsers, streams: videoStreams } = useStreamUsers(isGridEnabled);
+  const { gridUsers, streams: videoStreams } = useStreamUsers(isGridEnabled);
   const connectingStream = useConnectingStream(videoStreams);
   const myPageSize = useMyPageSize();
   const isPaginationEnabled = useIsPaginationEnabled(paginationEnabled);
@@ -368,11 +351,11 @@ export const useVideoStreams = (
   if (isPaginationEnabled) {
     const [filtered, others] = partition(
       streams,
-      (vs: StreamItem) => videoService.isLocalStream(vs.stream) || (vs.type === 'stream' && vs.pinned),
+      (vs: StreamItem) => videoService.isLocalStream(vs.stream) || (vs.type === 'stream' && vs.user.pinned),
     );
     const [pin, mine] = partition(
       filtered,
-      (vs: StreamItem) => vs.type === 'stream' && vs.pinned,
+      (vs: StreamItem) => vs.type === 'stream' && vs.user.pinned,
     );
 
     if (myPageSize !== 0) {
@@ -415,7 +398,6 @@ export const useVideoStreams = (
     streams,
     gridUsers,
     totalNumberOfStreams: streams.length,
-    users,
   };
 };
 
