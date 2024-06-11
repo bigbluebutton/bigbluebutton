@@ -126,7 +126,7 @@ test.describe.parallel('User', () => {
           await guestPolicy.denyEveryone();
         });
 
-        test.only('Remember choice', async ({ browser, browserName, context, page }) => {
+        test('Remember choice', async ({ browser, browserName, context, page }) => {
           test.skip(browserName === 'firefox', 'The test is inconsistent on ci');
           const guestPolicy = new GuestPolicy(browser, context);
           await guestPolicy.initModPage(page);
