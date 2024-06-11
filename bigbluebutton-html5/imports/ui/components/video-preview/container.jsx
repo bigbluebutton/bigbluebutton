@@ -103,6 +103,4 @@ const VideoPreviewContainer = (props) => {
   );
 };
 
-// TODO: Remove this
-// Temporary component until we remove all trackers
 export default VideoPreviewContainer;
