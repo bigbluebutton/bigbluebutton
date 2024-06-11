@@ -3,11 +3,12 @@ import {
 } from '@apollo/client';
 import { GraphQLWsLink } from '@apollo/client/link/subscriptions';
 import { createClient } from 'graphql-ws';
-import React, { useContext, useEffect } from 'react';
+import { onError } from '@apollo/client/link/error';
+import React, { useContext, useEffect, useRef } from 'react';
 import { LoadingContext } from '/imports/ui/components/common/loading-screen/loading-screen-HOC/component';
 import logger from '/imports/startup/client/logger';
-import { onError } from '@apollo/client/link/error';
 import apolloContextHolder from '../../core/graphql/apolloContextHolder/apolloContextHolder';
+import connectionStatus from '../../core/graphql/singletons/connectionStatus';
 import deviceInfo from '/imports/utils/deviceInfo';
 
 interface ConnectionManagerProps {
@@ -66,6 +67,8 @@ const ConnectionManager: React.FC<ConnectionManagerProps> = ({ children }): Reac
   const [graphqlUrlApolloClient, setApolloClient] = React.useState<ApolloClient<NormalizedCacheObject> | null>(null);
   const [graphqlUrl, setGraphqlUrl] = React.useState<string>('');
   const loadingContextInfo = useContext(LoadingContext);
+  const numberOfAttempts = useRef(20);
+  const [errorCounts, setErrorCounts] = React.useState(0);
   useEffect(() => {
     fetch(`https://${window.location.hostname}/bigbluebutton/api`, {
       headers: {
@@ -81,6 +84,12 @@ const ConnectionManager: React.FC<ConnectionManagerProps> = ({ children }): Reac
     logger.info('Fetching GraphQL URL');
     loadingContextInfo.setLoading(true, '1/5');
   }, []);
+
+  useEffect(() => {
+    if (errorCounts === numberOfAttempts.current) {
+      throw new Error('Error connecting to server, retrying attempts exceeded');
+    }
+  }, [errorCounts]);
 
   useEffect(() => {
     logger.info('Connecting to GraphQL server');
@@ -101,7 +110,14 @@ const ConnectionManager: React.FC<ConnectionManagerProps> = ({ children }): Reac
       try {
         const subscription = createClient({
           url: graphqlUrl,
-          retryAttempts: 2,
+          retryAttempts: numberOfAttempts.current,
+          retryWait: async () => {
+            return new Promise((res) => {
+              setTimeout(() => {
+                res();
+              }, 10000);
+            });
+          },
           connectionParams: {
             headers: {
               'X-Session-Token': sessionToken,
@@ -114,7 +130,17 @@ const ConnectionManager: React.FC<ConnectionManagerProps> = ({ children }): Reac
             error: (error) => {
               logger.error(`Error: on subscription to server: ${error}`);
               loadingContextInfo.setLoading(false, '');
-              throw new Error(`Error: on subscription to server: ${JSON.stringify(error)}`);
+              connectionStatus.setConnectedStatus(false);
+              setErrorCounts((prev: number) => prev + 1);
+            },
+            closed: () => {
+              connectionStatus.setConnectedStatus(false);
+            },
+            connected: () => {
+              connectionStatus.setConnectedStatus(true);
+            },
+            connecting: () => {
+              connectionStatus.setConnectedStatus(false);
             },
           },
         });

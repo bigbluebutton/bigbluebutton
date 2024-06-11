@@ -12,7 +12,7 @@ import { isPresentationEnabled, isExternalVideoEnabled } from '/imports/ui/servi
 import useCurrentUser from '/imports/ui/core/hooks/useCurrentUser';
 import useMeeting from '/imports/ui/core/hooks/useMeeting';
 import { ACTIONS, LAYOUT_TYPE, PRESENTATION_AREA } from '/imports/ui/components/layout/enums';
-import { useMutation } from '@apollo/client';
+import { useMutation, useReactiveVar } from '@apollo/client';
 import {
   layoutSelect,
   layoutSelectInput,
@@ -26,15 +26,16 @@ import {
 } from './service';
 
 import App from './component';
-import useToggleVoice from '../audio/audio-graphql/hooks/useToggleVoice';
 import useUserChangedLocalSettings from '../../services/settings/hooks/useUserChangedLocalSettings';
 import { PINNED_PAD_SUBSCRIPTION } from '../notes/queries';
+import connectionStatus from '../../core/graphql/singletons/connectionStatus';
 import useDeduplicatedSubscription from '../../core/hooks/useDeduplicatedSubscription';
 import VideoStreamsState from '../video-provider/video-provider-graphql/state';
 import { useIsSharing, useSharingContentType } from '../screenshare/service';
 import useSettings from '../../services/settings/hooks/useSettings';
 import { SETTINGS } from '../../services/settings/enums';
 import { useStorageKey } from '../../services/storage/hooks';
+import useMuteMicrophone from '../audio/audio-graphql/hooks/useMuteMicrophone';
 
 const AppContainer = (props) => {
   const layoutType = useRef(null);
@@ -88,13 +89,13 @@ const AppContainer = (props) => {
 
   const [setSyncWithPresenterLayout] = useMutation(SET_SYNC_WITH_PRESENTER_LAYOUT);
   const [setMeetingLayoutProps] = useMutation(SET_LAYOUT_PROPS);
-  const toggleVoice = useToggleVoice();
   const setLocalSettings = useUserChangedLocalSettings();
   const { data: pinnedPadData } = useDeduplicatedSubscription(PINNED_PAD_SUBSCRIPTION);
   const isSharedNotesPinnedFromGraphql = !!pinnedPadData
     && pinnedPadData.sharedNotes[0]?.sharedNotesExtId === NOTES_CONFIG.id;
   const isSharedNotesPinned = sharedNotesInput?.isPinned && isSharedNotesPinnedFromGraphql;
   const isThereWebcam = VideoStreamsState.getStreams().length > 0;
+  const muteMicrophone = useMuteMicrophone();
 
   const { data: currentUserData } = useCurrentUser((user) => ({
     enforceLayout: user.enforceLayout,
@@ -116,6 +117,8 @@ const AppContainer = (props) => {
   const presentationIsOpen = isOpen;
 
   const { focusedId } = cameraDock;
+
+  const connected = useReactiveVar(connectionStatus.getConnectedStatusVar());
 
   useEffect(() => {
     if (
@@ -216,6 +219,7 @@ const AppContainer = (props) => {
     ? (
       <App
         {...{
+          connected,
           actionsBarStyle,
           captionsStyle,
           currentUserId,
@@ -254,7 +258,6 @@ const AppContainer = (props) => {
           shouldShowScreenshare,
           isSharedNotesPinned,
           shouldShowPresentation,
-          toggleVoice,
           setLocalSettings,
           genericComponentId: genericComponent.genericComponentId,
           audioCaptions: <AudioCaptionsLiveContainer />,
@@ -266,6 +269,7 @@ const AppContainer = (props) => {
           fontSize,
           isLargeFont,
           ignorePollNotifications,
+          muteMicrophone,
         }}
         {...otherProps}
       />

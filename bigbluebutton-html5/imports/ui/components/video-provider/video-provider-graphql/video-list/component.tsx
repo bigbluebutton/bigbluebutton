@@ -68,7 +68,6 @@ interface VideoListProps {
   layoutType: string;
   layoutContextDispatch: (...args: unknown[]) => void;
   numberOfPages: number;
-  swapLayout: boolean;
   currentVideoPageIndex: number;
   cameraDock: Output['cameraDock'];
   focusedId: string;
@@ -342,7 +341,6 @@ class VideoList extends Component<VideoListProps, VideoListState> {
       onVirtualBgDrop,
       onVideoItemMount,
       onVideoItemUnmount,
-      swapLayout,
       handleVideoFocus,
       focusedId,
     } = this.props;
@@ -375,7 +373,6 @@ class VideoList extends Component<VideoListProps, VideoListState> {
             }}
             stream={item}
             onVideoItemUnmount={onVideoItemUnmount}
-            swapLayout={swapLayout}
             onVirtualBgDrop={
               (type, name, data) => {
                 return isStream ? onVirtualBgDrop(item.stream, type, name, data) : Promise.resolve(null);
