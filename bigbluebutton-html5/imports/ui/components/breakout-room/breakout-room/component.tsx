@@ -228,7 +228,7 @@ const BreakoutRoom: React.FC<BreakoutRoomProps> = ({
                   ) : (
                     <Styled.BreakoutActions>
                       {
-                        breakout.currentRoomJoined
+                        breakout.isUserCurrentlyInRoom
                           ? (
                             <Styled.AlreadyConnected data-test="alreadyConnected">
                               {intl.formatMessage(intlMessages.alreadyConnected)}

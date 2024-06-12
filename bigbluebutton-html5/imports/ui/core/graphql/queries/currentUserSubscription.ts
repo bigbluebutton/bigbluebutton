@@ -40,27 +40,23 @@ subscription userCurrentSubscription {
     captionLocale
     userId
     breakoutRooms {
-      currentRoomJoined
+      hasJoined
       assignedAt
       breakoutRoomId
-      currentRoomPriority
-      currentRoomRegisteredAt
+      isLastAssignedRoom
       durationInSeconds
       endedAt
       freeJoin
       inviteDismissedAt
       isDefaultName
       joinURL
-      lastRoomIsOnline
-      lastRoomJoinedAt
-      lastRoomJoinedId
       name
       sendInvitationToModerators
       sequence
       shortName
       showInvitation
       startedAt
-      currentRoomIsOnline
+      isUserCurrentlyInRoom
     }
     lastBreakoutRoom {
       currentlyInRoom
