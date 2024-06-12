@@ -37,7 +37,6 @@ import SidebarNavigationContainer from '../sidebar-navigation/container';
 import SidebarContentContainer from '../sidebar-content/container';
 import PluginsEngineManager from '../plugins-engine/manager';
 import { getSettingsSingletonInstance } from '/imports/ui/services/settings';
-import { registerTitleView } from '/imports/utils/dom-utils';
 import Notifications from '../notifications/component';
 import GlobalStyles from '/imports/ui/stylesheets/styled-components/globalStyles';
 import ActionsBarContainer from '../actions-bar/container';
@@ -161,8 +160,6 @@ class App extends Component {
     } = this.props;
     const { browserName } = browserInfo;
     const { osName } = deviceInfo;
-
-    registerTitleView(intl.formatMessage(intlMessages.defaultViewLabel));
 
     layoutContextDispatch({
       type: ACTIONS.SET_IS_RTL,
