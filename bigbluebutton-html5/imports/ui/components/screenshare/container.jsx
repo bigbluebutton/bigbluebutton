@@ -1,6 +1,6 @@
 import React from 'react';
 import { withTracker } from 'meteor/react-meteor-data';
-import { useMutation } from '@apollo/client';
+import { useMutation, useReactiveVar } from '@apollo/client';
 import { defineMessages } from 'react-intl';
 import {
   getSharingContentType,
@@ -16,11 +16,11 @@ import {
 import ScreenshareComponent from './component';
 import { layoutSelect, layoutSelectOutput, layoutDispatch } from '../layout/context';
 import getFromUserSettings from '/imports/ui/services/users-settings';
-import AudioService from '/imports/ui/components/audio/service';
 import MediaService from '/imports/ui/components/media/service';
 import { EXTERNAL_VIDEO_STOP } from '../external-video-player/mutations';
 import { PINNED_PAD_SUBSCRIPTION } from '../notes/queries';
 import useDeduplicatedSubscription from '../../core/hooks/useDeduplicatedSubscription';
+import AudioManager from '/imports/ui/services/audio-manager';
 
 const screenshareIntlMessages = defineMessages({
   // SCREENSHARE
@@ -132,6 +132,7 @@ const ScreenshareContainer = (props) => {
   const selectedInfo = contentTypeInfo || defaultInfo;
   const isSharing = useIsSharing();
   const sharingContentType = useSharingContentType();
+  const outputDeviceId = useReactiveVar(AudioManager._outputDeviceId.value);
 
   if (
     isScreenBroadcasting(isSharing, sharingContentType)
@@ -148,6 +149,7 @@ const ScreenshareContainer = (props) => {
           fullscreenElementId,
           isSharedNotesPinned,
           stopExternalVideoShare,
+          outputDeviceId,
           ...selectedInfo,
         }
         }
@@ -165,6 +167,5 @@ export default withTracker(() => {
     toggleSwapLayout: MediaService.toggleSwapLayout,
     hidePresentationOnJoin: getFromUserSettings('bbb_hide_presentation_on_join', LAYOUT_CONFIG.hidePresentationOnJoin),
     enableVolumeControl: shouldEnableVolumeControl(),
-    outputDeviceId: AudioService.outputDeviceId(),
   };
 })(ScreenshareContainer);
