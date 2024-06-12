@@ -519,7 +519,13 @@ const AudioModal = ({
         handleGoToEchoTest();
       }
     }
-  }, []);
+  }, [
+    audioLocked,
+    isUsingAudio,
+    forceListenOnlyAttendee,
+    joinFullAudioImmediately,
+    listenOnlyMode,
+  ]);
 
   useEffect(() => {
     if (autoplayBlocked) {
