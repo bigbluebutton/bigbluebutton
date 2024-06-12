@@ -7,6 +7,7 @@ export interface LockSettings {
   hasActiveLockSetting: boolean;
   hideUserList: boolean;
   hideViewersCursor: boolean;
+  hideViewersAnnotation: false,
   meetingId: boolean;
   webcamsOnlyForModerator: boolean;
   lockOnJoin: boolean;
