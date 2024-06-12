@@ -315,7 +315,7 @@ const ExternalVideoPlayer: React.FC<ExternalVideoPlayerProps> = ({
   };
 
   const handleOnReady = () => {
-    currentTime = 0;
+    currentTime = -1;
   };
 
   const handleProgress = (state: OnProgressProps) => {
