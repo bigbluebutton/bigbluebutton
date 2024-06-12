@@ -50,8 +50,8 @@ import PresentationUploaderToastContainer from '/imports/ui/components/presentat
 import BreakoutJoinConfirmationContainerGraphQL from '../breakout-join-confirmation/breakout-join-confirmation-graphql/component';
 import FloatingWindowContainer from '/imports/ui/components/floating-window/container';
 import ChatAlertContainerGraphql from '../chat/chat-graphql/alert/component';
+import useUserChangedLocalSettings from '/imports/ui/services/settings/hooks/useUserChangedLocalSettings';
 
-// [move settings]
 const MOBILE_MEDIA = 'only screen and (max-width: 40em)';
 
 const intlMessages = defineMessages({
@@ -156,6 +156,8 @@ class App extends Component {
       layoutContextDispatch,
       isRTL,
       muteMicrophone,
+      transcriptionSettings,
+      setSpeechOptions,
     } = this.props;
     const { browserName } = browserInfo;
     const { osName } = deviceInfo;

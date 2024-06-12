@@ -58,6 +58,7 @@ class Base extends Component {
 
   componentDidMount() {
     const { animations, usersVideo, layoutContextDispatch } = this.props;
+    const CAPTIONS_ALWAYS_VISIBLE = window.meetingClientSettings.public.app.audioCaptions.alwaysVisible;
 
     layoutContextDispatch({
       type: ACTIONS.SET_NUM_CAMERAS,
@@ -71,6 +72,7 @@ class Base extends Component {
       document.addEventListener(event, this.handleFullscreenChange);
     });
     Session.setItem('isFullscreen', false);
+    Session.setItem('audioCaptions', CAPTIONS_ALWAYS_VISIBLE);
   }
 
   componentDidUpdate(prevProps) {
