@@ -35,8 +35,8 @@ exports.logo = 'logo=https://bigbluebutton.org/wp-content/uploads/2021/01/BigBlu
 exports.enableVideo = 'userdata-bbb_enable_video=false';
 exports.autoShareWebcam = 'userdata-bbb_auto_share_webcam=true';
 exports.multiUserPenOnly = 'userdata-bbb_multi_user_pen_only=true';
-exports.presenterTools = 'userdata-bbb_presenter_tools=["pencil","hand"]';
-exports.multiUserTools = 'userdata-bbb_multi_user_tools=["pencil","hand"]';
+exports.presenterTools = 'userdata-bbb_presenter_tools=["select","draw", "arrow"]';
+exports.multiUserTools = 'userdata-bbb_multi_user_tools=["arrow","text"]';
 const cssCode = `${e.presentationTitle}{display: none;}`;
 exports.customStyle = `userdata-bbb_custom_style=${cssCode}`;
 exports.customStyleUrl = 'userdata-bbb_custom_style_url=https://develop.bigbluebutton.org/css-test-file.css';
