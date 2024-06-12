@@ -132,6 +132,13 @@ const AppContainer = (props) => {
     }
   }, [meetingLayout, layoutContextDispatch, layoutType]);
 
+  useEffect(() => {
+    layoutContextDispatch({
+      type: ACTIONS.SET_LAYOUT_TYPE,
+      value: selectedLayout,
+    });
+  }, [selectedLayout]);
+
   const horizontalPosition = cameraDock.position === 'contentLeft' || cameraDock.position === 'contentRight';
   // this is not exactly right yet
   let presentationVideoRate;
