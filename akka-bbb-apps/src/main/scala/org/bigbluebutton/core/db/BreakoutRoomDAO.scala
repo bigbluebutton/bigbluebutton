@@ -3,9 +3,11 @@ package org.bigbluebutton.core.db
 import org.bigbluebutton.core.apps.BreakoutModel
 import org.bigbluebutton.core.apps.breakout.BreakoutHdlrHelpers
 import org.bigbluebutton.core.domain.BreakoutRoom2x
+import org.bigbluebutton.core.models.{Roles, Users2x}
 import org.bigbluebutton.core.running.LiveMeeting
 import slick.jdbc.PostgresProfile.api._
 
+import scala.util.Random
 import scala.util.{Failure, Success}
 import scala.concurrent.ExecutionContext.Implicits.global
 
@@ -60,20 +62,55 @@ object BreakoutRoomDAO {
         case Success(rowsAffected) => {
           DatabaseConnection.logger.debug(s"$rowsAffected row(s) inserted on BreakoutRoom table!")
 
-          //Insert users
+          //Insert assigned users
           DatabaseConnection.db.run(DBIO.sequence(
             for {
               (_, room) <- breakout.rooms
               userId <- room.assignedUsers
               (redirectToHtml5JoinURL, redirectJoinURL) <- BreakoutHdlrHelpers.getRedirectUrls(liveMeeting, userId, room.externalId, room.sequence.toString())
             } yield {
-              BreakoutRoomUserDAO.prepareInsert(room.id, liveMeeting.props.meetingProp.intId, userId, redirectToHtml5JoinURL)
+              BreakoutRoomUserDAO.prepareInsert(room.id, liveMeeting.props.meetingProp.intId, userId, redirectToHtml5JoinURL, wasAssignedByMod = true)
             }
           ).transactionally)
             .onComplete {
               case Success(rowsAffected) => DatabaseConnection.logger.debug(s"$rowsAffected row(s) inserted on breakoutRoom_user table!")
               case Failure(e) => DatabaseConnection.logger.debug(s"Error inserting breakoutRoom_user: $e")
             }
+
+
+
+          //Assign left users to a random room in case it is freeJoin
+          val freeJoin = breakout.rooms.exists(r => r._2.freeJoin)
+          if(freeJoin) {
+            val assignedUsers = (for {
+              (_, room) <- breakout.rooms
+              userId <- room.assignedUsers
+            } yield {
+              userId
+            }).toVector
+
+            val nonAssignedUsers = Users2x.findAll(liveMeeting.users2x)
+              .filterNot(user => assignedUsers.contains(user.intId))
+              .filterNot(user => user.role == Roles.MODERATOR_ROLE)
+              .map(_.intId)
+
+            val roomsSeq = breakout.rooms.values.toSeq
+
+            DatabaseConnection.db.run(DBIO.sequence(
+                for {
+                  userId <- nonAssignedUsers
+                  randomIndex = Random.nextInt(roomsSeq.length)
+                  room <- Some(roomsSeq(randomIndex))
+                  (redirectToHtml5JoinURL, redirectJoinURL) <- BreakoutHdlrHelpers.getRedirectUrls(liveMeeting, userId, room.externalId, room.sequence.toString())
+                } yield {
+                  BreakoutRoomUserDAO.prepareInsert(room.id, liveMeeting.props.meetingProp.intId, userId, redirectToHtml5JoinURL, wasAssignedByMod = true)
+                }
+              ).transactionally)
+              .onComplete {
+                case Success(rowsAffected) => DatabaseConnection.logger.debug(s"$rowsAffected row(s) inserted on breakoutRoom_user table!")
+                case Failure(e) => DatabaseConnection.logger.debug(s"Error inserting breakoutRoom_user: $e")
+              }
+          }
         }
         case Failure(e) => DatabaseConnection.logger.debug(s"Error inserting BreakoutRoom: $e")
       }
