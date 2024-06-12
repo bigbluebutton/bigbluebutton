@@ -218,7 +218,7 @@ func (app *Config) createMeeting(w http.ResponseWriter, r *http.Request) {
 	ctx, cancel := context.WithTimeout(context.Background(), time.Second)
 	defer cancel()
 	res, err := app.BbbCore.CreateMeeting(ctx, &bbbcore.CreateMeetingRequest{
-		MeetingSettings: settings,
+		CreateMeetingSettings: settings,
 	})
 	if err != nil {
 		log.Println(err)

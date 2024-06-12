@@ -54,7 +54,7 @@ message GetMeetingsStreamRequest {
 }
 
 message CreateMeetingRequest {
-  MeetingSettings meeting_settings = 1;
+  CreateMeetingSettings create_meeting_settings = 1;
 }
 
 message CreateMeetingResponse {

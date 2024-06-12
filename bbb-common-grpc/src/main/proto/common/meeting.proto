@@ -58,7 +58,7 @@ message MeetingInfo {
     BreakoutInfo breakout_info = 16;
 }
 
-message MeetingProps {
+message MeetingSettings {
     string name = 1;
     string meeting_ext_id = 2;
     string meeting_int_id = 3;
@@ -71,7 +71,7 @@ message MeetingProps {
     string pres_upload_ext_url = 10;
 }
 
-message BreakoutProps {
+message BreakoutSettings {
     string parent_meeting_id = 1;
     int32 sequence = 2;
     bool free_join = 3;
@@ -84,7 +84,7 @@ message BreakoutProps {
     string capture_slides_file_name = 10;
 }
 
-message DurationProps {
+message DurationSettings {
     int32 duration = 1;
     int64 create_time = 2;
     string create_date = 3;
@@ -98,13 +98,13 @@ message DurationProps {
     int32 learning_dashboard_cleanup_delay_in_min = 11;
 }
 
-message PasswordProps {
+message PasswordSettings {
     string moderator_pw = 1;
     string attendee_pw = 2;
     string learning_dashboard_access_token = 3;
 }
 
-message RecordProps {
+message RecordSettings {
     bool record = 1;
     bool auto_start_recording = 2;
     bool allow_start_stop_recording = 3;
@@ -112,20 +112,20 @@ message RecordProps {
     bool keep_events = 5;
 }
 
-message WelcomeProps {
+message WelcomeSettings {
     string welcome_msg_template = 1;
     string welcome_msg = 2;
     string mod_only_msg = 3;
 }
 
-message VoiceProps {
+message VoiceSettings {
     string voice_bridge = 1;
     string voice_conf = 2;
     string dial_number = 3;
     bool mute_on_start = 4;
 }
 
-message UsersProps {
+message UsersSettings {
     int32 max_users = 1;
     int32 max_user_concurrent_accesses = 2;
     bool webcams_only_for_mod = 3;
@@ -138,11 +138,11 @@ message UsersProps {
     bool allow_promote_guest = 10;
 }
 
-message MetadataProps {
+message MetadataSettings {
     map<string, string> metadata = 1;
 }
 
-message LockSettingsProps {
+message LockSettings {
     bool disable_cam = 1;
     bool disable_mic = 2;
     bool disable_private_chat = 3;
@@ -155,7 +155,7 @@ message LockSettingsProps {
     bool hide_viewers_annotation = 10;
 }
 
-message SystemProps {
+message SystemSettings {
     string login_url = 1;
     string logout_url = 2;
     string custom_logo_url = 3;
@@ -163,24 +163,24 @@ message SystemProps {
     string banner_colour = 5;
 }
 
-message GroupProps {
+message GroupSettings {
     string group_id = 1;
     string name = 2;
     repeated string users_ext_ids = 3;
 }
 
-message MeetingSettings {
-    MeetingProps meeting_props = 1;
-    BreakoutProps breakout_props = 2;
-    DurationProps duration_props = 3;
-    PasswordProps password_props = 4;
-    RecordProps record_props = 5;
-    WelcomeProps welcome_props = 6;
-    VoiceProps voice_props = 7;
-    UsersProps users_props = 8;
-    MetadataProps metadata_props = 9;
-    LockSettingsProps lock_settings_props = 10;
-    SystemProps system_props = 11;
-    repeated GroupProps group_props = 12;
+message CreateMeetingSettings {
+    MeetingSettings meeting_settings = 1;
+    BreakoutSettings breakout_settings = 2;
+    DurationSettings duration_settings = 3;
+    PasswordSettings password_settings = 4;
+    RecordSettings record_settings = 5;
+    WelcomeSettings welcome_settings = 6;
+    VoiceSettings voice_settings = 7;
+    UsersSettings users_settings = 8;
+    MetadataSettings metadata_settings = 9;
+    LockSettings lock_settings = 10;
+    SystemSettings system_settings = 11;
+    repeated GroupSettings group_settings = 12;
     string override_client_settings = 13;
 }

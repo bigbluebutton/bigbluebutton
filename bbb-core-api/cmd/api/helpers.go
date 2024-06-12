@@ -134,8 +134,8 @@ func (app *Config) removeQueryParam(queryString, param string) string {
 	return strings.Join(newEntries, "&")
 }
 
-func (app *Config) processCreateQueryParams(params *url.Values) (*common.MeetingSettings, error) {
-	var settings common.MeetingSettings
+func (app *Config) processCreateQueryParams(params *url.Values) (*common.CreateMeetingSettings, error) {
+	var settings common.CreateMeetingSettings
 
 	createTime := time.Now().UnixMilli()
 
@@ -152,34 +152,34 @@ func (app *Config) processCreateQueryParams(params *url.Values) (*common.Meeting
 			return nil, err
 		}
 		parentMeetingInfo = res.MeetingInfo
-		settings.BreakoutProps = app.processBreakoutProps(params, parentMeetingInfo)
+		settings.BreakoutSettings = app.processBreakoutSettings(params, parentMeetingInfo)
 	}
 
 	learningDashboardEnabled := false
-	settings.MeetingProps, learningDashboardEnabled = app.processMeetingProps(params, createTime, isBreakout, parentMeetingInfo)
-	settings.DurationProps = app.processDurationProps(params, createTime)
-	settings.PasswordProps = app.processPasswordProps(params, learningDashboardEnabled)
-	settings.RecordProps = app.processRecordProps(params)
+	settings.MeetingSettings, learningDashboardEnabled = app.processMeetingSettings(params, createTime, isBreakout, parentMeetingInfo)
+	settings.DurationSettings = app.processDurationSettings(params, createTime)
+	settings.PasswordSettings = app.processPasswordSettings(params, learningDashboardEnabled)
+	settings.RecordSettings = app.processRecordSettings(params)
 
-	voiceProps, err := app.processVoiceProps(params)
+	voiceProps, err := app.processVoiceSettings(params)
 	if err != nil {
 		return nil, err
 	}
 
-	settings.VoiceProps = voiceProps
-	settings.WelcomeProps = app.processWelcomeProps(params, isBreakout, settings.VoiceProps.DialNumber, settings.VoiceProps.VoiceBridge, settings.MeetingProps.Name)
-	settings.UsersProps = app.processUsersProps(params)
-	settings.MetadataProps = app.processMetadataProps(params)
-	settings.LockSettingsProps = app.processLockSettingsProps(params)
-	settings.SystemProps = app.processSystemProps(params)
-	settings.GroupProps = app.processGroupProps(params)
+	settings.VoiceSettings = voiceProps
+	settings.WelcomeSettings = app.processWelcomeSettings(params, isBreakout, settings.VoiceSettings.DialNumber, settings.VoiceSettings.VoiceBridge, settings.MeetingSettings.Name)
+	settings.UsersSettings = app.processUsersSettings(params)
+	settings.MetadataSettings = app.processMetadataSettings(params)
+	settings.LockSettings = app.processLockSettings(params)
+	settings.SystemSettings = app.processSystemSettings(params)
+	settings.GroupSettings = app.processGroupSettings(params)
 
 	/* TODO: Implement client settings override */
 
 	return &settings, nil
 }
 
-func (app *Config) processMeetingProps(params *url.Values, createTime int64, isBreakout bool, parentMeetingInfo *common.MeetingInfo) (*common.MeetingProps, bool) {
+func (app *Config) processMeetingSettings(params *url.Values, createTime int64, isBreakout bool, parentMeetingInfo *common.MeetingInfo) (*common.MeetingSettings, bool) {
 	var meetingIntId string
 	var meetingExtId string
 
@@ -217,7 +217,7 @@ func (app *Config) processMeetingProps(params *url.Values, createTime int64, isB
 		learningDashboardEnabled = true
 	}
 
-	return &common.MeetingProps{
+	return &common.MeetingSettings{
 		Name:                validation.StripCtrlChars(params.Get("name")),
 		MeetingExtId:        meetingExtId,
 		MeetingIntId:        meetingIntId,
@@ -231,8 +231,8 @@ func (app *Config) processMeetingProps(params *url.Values, createTime int64, isB
 	}, learningDashboardEnabled
 }
 
-func (app *Config) processBreakoutProps(params *url.Values, parentMeetingInfo *common.MeetingInfo) *common.BreakoutProps {
-	return &common.BreakoutProps{
+func (app *Config) processBreakoutSettings(params *url.Values, parentMeetingInfo *common.MeetingInfo) *common.BreakoutSettings {
+	return &common.BreakoutSettings{
 		ParentMeetingId:       parentMeetingInfo.MeetingIntId,
 		Sequence:              util.GetInt32OrDefaultValue(params.Get("sequence"), 0),
 		FreeJoin:              util.GetBoolOrDefaultValue(params.Get("freeJoin"), false),
@@ -246,8 +246,8 @@ func (app *Config) processBreakoutProps(params *url.Values, parentMeetingInfo *c
 	}
 }
 
-func (app *Config) processDurationProps(params *url.Values, createTime int64) *common.DurationProps {
-	return &common.DurationProps{
+func (app *Config) processDurationSettings(params *url.Values, createTime int64) *common.DurationSettings {
+	return &common.DurationSettings{
 		Duration:                           int32(util.GetInt32OrDefaultValue(params.Get("duration"), app.Meeting.Duration)),
 		CreateTime:                         createTime,
 		CreateDate:                         time.UnixMilli(createTime).String(),
@@ -262,26 +262,26 @@ func (app *Config) processDurationProps(params *url.Values, createTime int64) *c
 	}
 }
 
-func (app *Config) processPasswordProps(params *url.Values, learningDashboardEnabled bool) *common.PasswordProps {
+func (app *Config) processPasswordSettings(params *url.Values, learningDashboardEnabled bool) *common.PasswordSettings {
 	learningDashboardAccessToken := ""
 	if learningDashboardEnabled {
 		learningDashboardAccessToken = randstr.String(12)
 	}
 
-	return &common.PasswordProps{
+	return &common.PasswordSettings{
 		ModeratorPw:                  util.GetStringOrDefaultValue(validation.StripCtrlChars(params.Get("moderatorPW")), ""),
 		AttendeePw:                   util.GetStringOrDefaultValue(validation.StripCtrlChars(params.Get("attendeePW")), ""),
 		LearningDashboardAccessToken: learningDashboardAccessToken,
 	}
 }
 
-func (app *Config) processRecordProps(params *url.Values) *common.RecordProps {
+func (app *Config) processRecordSettings(params *url.Values) *common.RecordSettings {
 	record := false
 	if !app.Recording.Disabled {
 		record = util.GetBoolOrDefaultValue(params.Get("record"), false)
 	}
 
-	return &common.RecordProps{
+	return &common.RecordSettings{
 		Record:                  record,
 		AutoStartRecording:      util.GetBoolOrDefaultValue(params.Get("autoStartRecording"), app.Recording.AutoStart),
 		AllowStartStopRecording: util.GetBoolOrDefaultValue(params.Get("allowStartStopRecording"), app.Recording.AllowStartStopRecording),
@@ -290,7 +290,7 @@ func (app *Config) processRecordProps(params *url.Values) *common.RecordProps {
 	}
 }
 
-func (app *Config) processVoiceProps(params *url.Values) (*common.VoiceProps, error) {
+func (app *Config) processVoiceSettings(params *url.Values) (*common.VoiceSettings, error) {
 	voiceBridge := util.GetStringOrDefaultValue(validation.StripCtrlChars(params.Get("voiceBridge")), "")
 	if voiceBridge == "" {
 		ctx, cancel := context.WithTimeout(context.Background(), time.Second)
@@ -303,7 +303,7 @@ func (app *Config) processVoiceProps(params *url.Values) (*common.VoiceProps, er
 		voiceBridge = res.VoiceBridge
 	}
 
-	return &common.VoiceProps{
+	return &common.VoiceSettings{
 		VoiceBridge: voiceBridge,
 		VoiceConf:   voiceBridge,
 		DialNumber:  util.GetStringOrDefaultValue(validation.StripCtrlChars(params.Get("dialNumber")), app.Meeting.Voice.DialAccessNumber),
@@ -311,7 +311,7 @@ func (app *Config) processVoiceProps(params *url.Values) (*common.VoiceProps, er
 	}, nil
 }
 
-func (app *Config) processWelcomeProps(params *url.Values, isBreakout bool, dialNumber string, voiceBridge string, meetingName string) *common.WelcomeProps {
+func (app *Config) processWelcomeSettings(params *url.Values, isBreakout bool, dialNumber string, voiceBridge string, meetingName string) *common.WelcomeSettings {
 	welcomeMessageTemplate := util.GetStringOrDefaultValue(validation.StripCtrlChars(params.Get("welcome")), app.Meeting.Welcome.Message.Template)
 	if app.Meeting.Welcome.Message.Footer != "" && isBreakout {
 		welcomeMessageTemplate += "<br><br>" + app.Meeting.Welcome.Message.Footer
@@ -324,19 +324,19 @@ func (app *Config) processWelcomeProps(params *url.Values, isBreakout bool, dial
 		modOnlyMsg = replaceKeywords(modOnlyMsg, dialNumber, voiceBridge, meetingName, app.Server.BigBlueButton.Url)
 	}
 
-	return &common.WelcomeProps{
+	return &common.WelcomeSettings{
 		WelcomeMsgTemplate: welcomeMessageTemplate,
 		WelcomeMsg:         welcomeMessage,
 		ModOnlyMsg:         modOnlyMsg,
 	}
 }
 
-func (app *Config) processUsersProps(params *url.Values) *common.UsersProps {
+func (app *Config) processUsersSettings(params *url.Values) *common.UsersSettings {
 	maxUserConcurentAccess := app.Meeting.Users.MaxConcurrentAccess
 	if !app.Meeting.Users.AllowDuplicateExtUserId {
 		maxUserConcurentAccess = 1
 	}
-	return &common.UsersProps{
+	return &common.UsersSettings{
 		MaxUsers:                  util.GetInt32OrDefaultValue(params.Get("maxParticipants"), app.Meeting.Users.Max),
 		MaxUserConcurrentAccesses: maxUserConcurentAccess,
 		WebcamsOnlyForMod:         util.GetBoolOrDefaultValue(params.Get("webcamsOnlyForModerator"), app.Meeting.Cameras.ModOnly),
@@ -350,7 +350,7 @@ func (app *Config) processUsersProps(params *url.Values) *common.UsersProps {
 	}
 }
 
-func (app *Config) processMetadataProps(params *url.Values) *common.MetadataProps {
+func (app *Config) processMetadataSettings(params *url.Values) *common.MetadataSettings {
 	r, _ := regexp.Compile("meta_[a-zA-Z][a-zA-Z0-9-]*$")
 	metadata := make(map[string]string)
 	for k, v := range *params {
@@ -358,16 +358,16 @@ func (app *Config) processMetadataProps(params *url.Values) *common.MetadataProp
 			metadata[strings.ToLower(strings.TrimPrefix(k, "meta_"))] = v[0]
 		}
 	}
-	return &common.MetadataProps{
+	return &common.MetadataSettings{
 		Metadata: metadata,
 	}
 }
 
-func (app *Config) processLockSettingsProps(params *url.Values) *common.LockSettingsProps {
+func (app *Config) processLockSettings(params *url.Values) *common.LockSettings {
 	disableNotes := util.GetBoolOrDefaultValue(params.Get("lockSettingsDisableNotes"), app.Meeting.Lock.Disable.Notes)
 	disableNotes = util.GetBoolOrDefaultValue(params.Get("lockSettingsDisableNote"), disableNotes)
 
-	return &common.LockSettingsProps{
+	return &common.LockSettings{
 		DisableCam:             util.GetBoolOrDefaultValue(params.Get("lockSettingsDisbaleCam"), app.Meeting.Lock.Disable.Cam),
 		DisableMic:             util.GetBoolOrDefaultValue(params.Get("lockSettingsDisableMic"), app.Meeting.Lock.Disable.Mic),
 		DisablePrivateChat:     util.GetBoolOrDefaultValue(params.Get("lockSettingsDisablePrivateChat"), app.Meeting.Lock.Disable.Chat.Private),
@@ -381,7 +381,7 @@ func (app *Config) processLockSettingsProps(params *url.Values) *common.LockSett
 	}
 }
 
-func (app *Config) processSystemProps(params *url.Values) *common.SystemProps {
+func (app *Config) processSystemSettings(params *url.Values) *common.SystemSettings {
 	logoutUrl := util.GetStringOrDefaultValue(validation.StripCtrlChars(params.Get("logoutURL")), "")
 	defaultLogoutUrl := app.Server.BigBlueButton.LogoutUrl
 	if logoutUrl == "" {
@@ -397,7 +397,7 @@ func (app *Config) processSystemProps(params *url.Values) *common.SystemProps {
 		customLogoUrl = app.Server.BigBlueButton.Logo.DefaultLogoUrl
 	}
 
-	return &common.SystemProps{
+	return &common.SystemSettings{
 		LoginUrl:      util.GetStringOrDefaultValue(validation.StripCtrlChars(params.Get("loginURL")), ""),
 		LogoutUrl:     logoutUrl,
 		CustomLogoUrl: customLogoUrl,
@@ -406,7 +406,7 @@ func (app *Config) processSystemProps(params *url.Values) *common.SystemProps {
 	}
 }
 
-func (app *Config) processGroupProps(params *url.Values) []*common.GroupProps {
+func (app *Config) processGroupSettings(params *url.Values) []*common.GroupSettings {
 	type Group struct {
 		Id     string   `json:"id"`
 		Name   string   `json:"name"`
@@ -421,9 +421,9 @@ func (app *Config) processGroupProps(params *url.Values) []*common.GroupProps {
 		}
 	}
 
-	groupProps := make([]*common.GroupProps, len(groups))
+	groupProps := make([]*common.GroupSettings, len(groups))
 	for i, g := range groups {
-		groupProps[i] = &common.GroupProps{
+		groupProps[i] = &common.GroupSettings{
 			GroupId:     g.Id,
 			Name:        g.Name,
 			UsersExtIds: g.Roster,

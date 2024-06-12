@@ -3,6 +3,7 @@ package org.bigbluebutton.core.api
 import org.bigbluebutton.core.apps.users.UserEstablishedGraphqlConnectionInternalMsgHdlr
 import org.bigbluebutton.core.domain.{ BreakoutUser, BreakoutVoiceUser }
 import spray.json.JsObject
+import org.bigbluebutton.common2.domain.DefaultProps
 case class InMessageHeader(name: String)
 case class InHeaderAndJsonPayload(header: InMessageHeader, payload: JsObject)
 case class MessageProcessException(message: String) extends Exception(message)
@@ -145,3 +146,4 @@ case class GetMeeting(meetingId: String) extends InMessage
 case class GetMeetings() extends InMessage
 case class GetMeetingInfo() extends InMessage
 case class GetNextVoiceBridge() extends InMessage
+case class CreateMeeting(props: DefaultProps) extends InMessage

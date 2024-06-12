@@ -15,7 +15,10 @@ import org.bigbluebutton.protos._
 import scala.collection.immutable.VectorMap
 import scala.concurrent.Future
 import scala.concurrent.duration.DurationInt
+import scala.reflect.runtime.universe._
 import org.bigbluebutton.core.api.GetNextVoiceBridge
+import org.bigbluebutton.common2.domain.MeetingProp
+import org.bigbluebutton.common2.domain.DefaultProps
 class BbbCoreServiceImpl(implicit materializer: Materializer, bbbActor: ActorRef) extends BbbCoreService {
 
   import materializer.executionContext
@@ -37,7 +40,7 @@ class BbbCoreServiceImpl(implicit materializer: Materializer, bbbActor: ActorRef
       case Some(runningMeeting) => (runningMeeting.actorRef ? GetMeetingInfo()).mapTo[MeetingInfo].map(msg => MeetingInfoResponse(Some(msg)))
 
       // If no meeting with the provided ID is running then return an error
-      case None                 => Future.failed(GrpcServiceException(Code.NOT_FOUND, "notFound", Seq(new ErrorResponse("notFound", "A meeting with that ID does not exist"))))
+      case None                 => Future.failed(GrpcServiceException(Code.NOT_FOUND, "notFound", Seq(new ErrorResponse("notFound", "A meeting with that ID does not exist."))))
     }
   }
 
@@ -67,7 +70,7 @@ class BbbCoreServiceImpl(implicit materializer: Materializer, bbbActor: ActorRef
       }
 
       // If there are no RunningMeetings, either because none are running or an invalid meetingId was provided, then return an error.
-      if (meetingsToReturn.isEmpty) Source.failed(GrpcServiceException(Code.NOT_FOUND, "notFound", Seq(new ErrorResponse("notFound", "No meetings were found"))))
+      if (meetingsToReturn.isEmpty) Source.failed(GrpcServiceException(Code.NOT_FOUND, "notFound", Seq(new ErrorResponse("notFound", "No meetings were found."))))
       else {
         // Create a source using the final collection of RunningMeetings that should be returned.
         // Attempt to map every element of the stream, i.e. each RunningMeeting, to a MeetingInfoResponse.
@@ -87,7 +90,49 @@ class BbbCoreServiceImpl(implicit materializer: Materializer, bbbActor: ActorRef
     }
   }
 
-  override def createMeeting(in: CreateMeetingRequest): Future[CreateMeetingResponse] = ???
+  override def createMeeting(in: CreateMeetingRequest): Future[CreateMeetingResponse] = {
+    implicit val timeout: Timeout = 3.seconds
+
+    def allSettingsPresent(settings: CreateMeetingSettings): Boolean = {
+      val mirror: Mirror = runtimeMirror(settings.getClass.getClassLoader)
+      val instanceMirror: InstanceMirror = mirror.reflect(settings)
+      val classSymbol: ClassSymbol = instanceMirror.symbol.asClass
+      val fields: List[Symbol] = classSymbol.primaryConstructor.asMethod.paramLists.flatten
+
+      fields.forall { field =>
+        val fieldMirror: FieldMirror = instanceMirror.reflectField(field.asTerm)
+        fieldMirror.get match {
+          case opt: Option[_] => opt.isDefined
+          case _              => true
+        }
+      }
+    }
+
+    // def settingsToProps(settings: MeetingSettings): DefaultProps = {
+    //   val meetingProps = settings.meetingProps.get
+    //   val meetingProp = MeetingProp(
+    //     name = meetingProps.name,
+    //     extId = meetingProps.meetingExtId,
+    //     intId = meetingProps.meetingIntId,
+    //     meetingCameraCap = meetingProps.meetingCameraCap,
+    //     maxPinnedCameras = meetingProps.maxPinnedCameras,
+    //     isBreakout = meetingProps.isBreakout,
+    //     disabledFeatures = meetingProps.disabledFeatures.toVector,
+    //     notifyRecordingIsOn = meetingProps.notifyRecordingIsOn,
+    //     presentationUploadExternalDescription = meetingProps.presUploadExtDesc,
+    //     presentationUploadExternalUrl = meetingProps.presUploadExtUrl
+    //   )
+
+    // }
+
+    in.createMeetingSettings match {
+      case Some(settings) =>
+        if (!allSettingsPresent(settings)) Future.failed(GrpcServiceException(Code.INVALID_ARGUMENT, "missingSettings", Seq(new ErrorResponse("missingSettings", "Some meeting settings were not provided."))))
+        // val defaultProps = settingsToProps(settings)
+        Future.successful(CreateMeetingResponse())
+      case None => Future.failed(GrpcServiceException(Code.INVALID_ARGUMENT, "missingSettings", Seq(new ErrorResponse("missingSettings", "No meeting settings were provided."))))
+    }
+  }
 
   override def generateVoiceBridge(in: GenerateVoiceBridgeRequest): Future[GenerateVoiceBridgeResponse] = {
     implicit val timeout: Timeout = 3.seconds
