@@ -5,11 +5,13 @@ const SUBMIT_TRANSCRIPT = gql`
     $transcriptId: String!
     $transcript: String!
     $locale: String!
+    $captionType: String!
   ) {
     captionSubmitTranscript(
       transcriptId: $transcriptId,
       transcript: $transcript,
       locale: $locale,
+      captionType: $captionType
     )
   }
 `;

@@ -32,13 +32,14 @@ object CaptionTypes {
 
 object CaptionDAO {
 
-  def insertOrUpdateAudioCaption(captionId: String, meetingId: String, userId: String, transcript: String, locale: String) = {
+  def insertOrUpdateCaption(captionId: String, meetingId: String, userId: String, transcript: String, locale: String,
+                            captionType: String = CaptionTypes.AUDIO_TRANSCRIPTION) = {
     DatabaseConnection.db.run(
       TableQuery[CaptionTableDef].insertOrUpdate(
         CaptionDbModel(
           captionId = captionId,
           meetingId = meetingId,
-          captionType = CaptionTypes.AUDIO_TRANSCRIPTION,
+          captionType = captionType,
           userId = userId,
           locale = locale,
           captionText = transcript,

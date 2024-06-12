@@ -1,9 +1,11 @@
 import * as React from 'react';
-import PluginCaptionServerCommandsHandler from './caption/handler';
+import PluginSaveCaptionServerCommandsManager from './caption/save/manager';
+import PluginAddLocaleCaptionServerCommandsManager from './caption/add-locale/manager';
 
 const PluginServerCommandsHandler = () => (
   <>
-    <PluginCaptionServerCommandsHandler />
+    <PluginSaveCaptionServerCommandsManager />
+    <PluginAddLocaleCaptionServerCommandsManager />
   </>
 );
 

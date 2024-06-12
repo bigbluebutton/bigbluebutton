@@ -15,6 +15,7 @@ case class CaptionSubmitTranscriptPubMsgBody(
                                        transcriptId: String,
                                        transcript:   String,
                                        locale:       String,
+                                       captionType:  String,
                                      )
 object CaptionSubmitTranscriptSuccessEvtMsg { val NAME = "CaptionSubmitTranscriptSuccessEvtMsg" }
 case class CaptionSubmitTranscriptSuccessEvtMsg(header: BbbClientMsgHeader, body: CaptionSubmitTranscriptSuccessEvtMsgBody) extends StandardMsg
@@ -22,6 +23,7 @@ case class CaptionSubmitTranscriptSuccessEvtMsgBody(
                                               transcriptId: String,
                                               transcript:   String,
                                               locale:       String,
+                                              captionType:  String,
                                             )
 
 object SendCaptionHistoryReqMsg { val NAME = "SendCaptionHistoryReqMsg" }

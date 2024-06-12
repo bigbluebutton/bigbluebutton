@@ -64,13 +64,13 @@ class CaptionApp2x(implicit val context: ActorContext) extends RightsManagementT
       val envelope = BbbCoreEnvelope(CaptionSubmitTranscriptSuccessEvtMsg.NAME, routing)
       val header = BbbClientMsgHeader(CaptionSubmitTranscriptSuccessEvtMsg.NAME, liveMeeting.props.meetingProp.intId, msg.header.userId)
 
-      val body = CaptionSubmitTranscriptSuccessEvtMsgBody(transcriptId, transcript, locale)
+      val body = CaptionSubmitTranscriptSuccessEvtMsgBody(transcriptId, transcript, locale, msg.body.captionType)
       val event = CaptionSubmitTranscriptSuccessEvtMsg(header, body)
       val msgEvent = BbbCommonEnvCoreMsg(envelope, event)
       bus.outGW.send(msgEvent)
     }
-    CaptionDAO.insertOrUpdateAudioCaption(msg.body.transcriptId, meetingId, msg.header.userId,
-      msg.body.transcript, msg.body.locale)
+    CaptionDAO.insertOrUpdateCaption(msg.body.transcriptId, meetingId, msg.header.userId,
+      msg.body.transcript, msg.body.locale, msg.body.captionType)
 
     broadcastSuccessEvent(msg.body.transcriptId, msg.body.transcript, msg.body.locale)
   }
