@@ -444,7 +444,7 @@
     "app.downloadPresentationButton.label": "プレゼンのダウンロード",
     "app.connectingMessage": "接続中...",
     "app.waitingMessage": "接続が切れました。 {0} 秒で再接続します ...",
-    "app.retryNow": "すぐに再接続",
+    "app.reconnectingMessage": "接続が切れました。再接続しています。",
     "app.muteWarning.label": "自分のミュートを解除するため{0}をクリック",
     "app.muteWarning.disableMessage": "ミュートの警告は、次にアンミュートするまで無効になります",
     "app.muteWarning.tooltip": "クリックすると閉じます。次にアンミュートするまで警告は無効になります。",

@@ -1,4 +1,5 @@
 import React from 'react';
+import { useReactiveVar } from '@apollo/client';
 import { withTracker } from 'meteor/react-meteor-data';
 import browserInfo from '/imports/utils/browserInfo';
 import getFromUserSettings from '/imports/ui/services/users-settings';
@@ -17,6 +18,7 @@ import {
 import Service from '../service';
 import AudioModalService from '/imports/ui/components/audio/audio-modal/service';
 import useCurrentUser from '/imports/ui/core/hooks/useCurrentUser';
+import AudioManager from '/imports/ui/services/audio-manager';
 import { useStorageKey } from '/imports/ui/services/storage/hooks';
 
 const AudioModalContainer = (props) => {
@@ -33,6 +35,15 @@ const AudioModalContainer = (props) => {
   const forceListenOnly = getFromUserSettings('bbb_force_listen_only', APP_CONFIG.forceListenOnly);
 
   const forceListenOnlyAttendee = forceListenOnly && !isModerator;
+  const inputDeviceId = useReactiveVar(AudioManager._inputDeviceId.value);
+  const outputDeviceId = useReactiveVar(AudioManager._outputDeviceId.value);
+  const showPermissionsOvelay = useReactiveVar(AudioManager._isWaitingPermissions.value);
+  const isUsingAudio = Service.useIsUsingAudio();
+  const isConnecting = useReactiveVar(AudioManager._isConnecting.value);
+  const isConnected = useReactiveVar(AudioManager._isConnected.value);
+  const isListenOnly = useReactiveVar(AudioManager._isListenOnly.value);
+  const isEchoTest = useReactiveVar(AudioManager._isEchoTest.value);
+  const autoplayBlocked = useReactiveVar(AudioManager._autoplayBlocked.value);
 
   const { autoJoin, skipCheck, skipCheckOnJoin } = props;
   const joinFullAudioImmediately = (
@@ -50,6 +61,15 @@ const AudioModalContainer = (props) => {
     <AudioModal
       away={away}
       forceListenOnlyAttendee={forceListenOnlyAttendee}
+      inputDeviceId={inputDeviceId}
+      outputDeviceId={outputDeviceId}
+      showPermissionsOvelay={showPermissionsOvelay}
+      isUsingAudio={isUsingAudio}
+      isConnecting={isConnecting}
+      isConnected={isConnected}
+      isListenOnly={isListenOnly}
+      isEchoTest={isEchoTest}
+      autoplayBlocked={autoplayBlocked}
       getEchoTest={getEchoTest}
       joinFullAudioImmediately={joinFullAudioImmediately}
       {...props}
@@ -103,13 +123,6 @@ export default lockContextContainer(withTracker(({ userLocks, setIsOpen }) => {
       .changeOutputDevice(outputDeviceId, isLive),
     joinEchoTest: () => Service.joinEchoTest(),
     exitAudio: () => Service.exitAudio(),
-    isConnecting: Service.isConnecting(),
-    isConnected: Service.isConnected(),
-    isUsingAudio: Service.isUsingAudio(),
-    isEchoTest: Service.isEchoTest(),
-    inputDeviceId: Service.inputDeviceId(),
-    outputDeviceId: Service.outputDeviceId(),
-    showPermissionsOvelay: Service.isWaitingPermissions(),
     showVolumeMeter: SHOW_VOLUME_METER,
     localEchoEnabled: LOCAL_ECHO_TEST_ENABLED,
     listenOnlyMode,
@@ -122,12 +135,10 @@ export default lockContextContainer(withTracker(({ userLocks, setIsOpen }) => {
     skipCheckOnJoin,
     isMobileNative: navigator.userAgent.toLowerCase().includes('bbbnative'),
     isIE: isIe,
-    autoplayBlocked: Service.autoplayBlocked(),
     handleAllowAutoplay: () => Service.handleAllowAutoplay(),
     notify: Service.notify,
     isRTL,
     AudioError,
     getTroubleshootingLink: AudioModalService.getTroubleshootingLink,
-    isListenOnly: Service.isListenOnly(),
   });
 })(AudioModalContainer));

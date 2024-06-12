@@ -76,7 +76,7 @@ function assertAsMetadata(metadata: unknown): asserts metadata is Metadata {
 
 const ChatPollContent: React.FC<ChatPollContentProps> = ({
   metadata: string,
-  height,
+  height = undefined,
 }) => {
   const intl = useIntl();
 
@@ -112,10 +112,6 @@ const ChatPollContent: React.FC<ChatPollContentProps> = ({
       </ResponsiveContainer>
     </div>
   );
-};
-
-ChatPollContent.defaultProps = {
-  height: undefined,
 };
 
 export default ChatPollContent;

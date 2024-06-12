@@ -1,9 +1,9 @@
 import React from 'react';
 import Styled from './styles';
-import { StreamUser, VideoItem } from '../../../types';
+import { User, VideoItem } from '/imports/ui/components/video-provider/video-provider-graphql/types';
 
 interface UserStatusProps {
-  user: Partial<StreamUser>;
+  user: Partial<User>;
   stream: VideoItem;
   voiceUser: {
     muted: boolean;
