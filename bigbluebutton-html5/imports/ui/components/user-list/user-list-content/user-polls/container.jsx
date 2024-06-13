@@ -7,7 +7,7 @@ const UserPollsContainer = (props) => {
   const sidebarContent = layoutSelectInput((i) => i.sidebarContent);
   const { sidebarContentPanel } = sidebarContent;
   const layoutContextDispatch = layoutDispatch();
-  const pollIsOpen = useStorageKey('isPollOpen');
+  const pollIsOpen = useStorageKey('isPollOpen') || false;
   const forcePollOpen = useStorageKey('forcePollOpen');
 
   return (
