@@ -13,13 +13,15 @@ import {
   Output,
 } from '/imports/ui/components/layout/layoutTypes';
 import { PluginsContext } from '/imports/ui/components/components-data/plugin-context/context';
+import { GenericContentType } from 'bigbluebutton-html-plugin-sdk/dist/cjs/extensible-areas/generic-content-item/enums';
 import GenericMainContent from './component';
 import { ACTIONS, PRESENTATION_AREA } from '/imports/ui/components/layout/enums';
 import getDifferenceBetweenLists from '../utils';
 import { GenericMainContentContainerProps } from '../types';
-import { GenericContentType } from 'bigbluebutton-html-plugin-sdk/dist/cjs/extensible-areas/generic-content/enums';
 
-const GenericMainContentContainer: React.FC<GenericMainContentContainerProps> = (props: GenericMainContentContainerProps) => {
+const GenericMainContentContainer: React.FC<GenericMainContentContainerProps> = (
+  props: GenericMainContentContainerProps,
+) => {
   const { genericMainContentId } = props;
 
   const previousPluginGenericContainerContents = useRef<PluginSdk.GenericContentMainArea[]>([]);
@@ -30,6 +32,7 @@ const GenericMainContentContainer: React.FC<GenericMainContentContainerProps> = 
   let genericContainerContentExtensibleArea = [] as PluginSdk.GenericContentMainArea[];
 
   if (pluginsExtensibleAreasAggregatedState.genericContents) {
+    const genericContainerContent = pluginsExtensibleAreasAggregatedState.genericContents
       .filter((g) => g.type === GenericContentType.MAIN_AREA) as PluginSdk.GenericContentMainArea[];
     genericContainerContentExtensibleArea = [
       ...genericContainerContent,
@@ -37,7 +40,10 @@ const GenericMainContentContainer: React.FC<GenericMainContentContainerProps> = 
     const [
       genericContentsAdded,
       genericContentsRemoved,
-    ] = getDifferenceBetweenLists(previousPluginGenericContainerContents.current, genericContainerContentExtensibleArea);
+    ] = getDifferenceBetweenLists(
+      previousPluginGenericContainerContents.current,
+      genericContainerContentExtensibleArea,
+    );
     if (genericContentsAdded.length > 0 || genericContentsRemoved.length > 0) {
       previousPluginGenericContainerContents.current = [...genericContainerContentExtensibleArea];
       genericContentsAdded.forEach((g) => {

@@ -5,7 +5,6 @@ import GenericContentItem from '../generic-content-item/component';
 import { layoutDispatch } from '/imports/ui/components/layout/context';
 import { PANELS, ACTIONS } from '/imports/ui/components/layout/enums';
 
-
 const GenericSidekickContent: React.FC<GenericSidekickContentProps> = ({
   renderFunction,
   genericContentId,

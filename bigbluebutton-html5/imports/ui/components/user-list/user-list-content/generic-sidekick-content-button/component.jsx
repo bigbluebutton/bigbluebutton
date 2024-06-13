@@ -1,6 +1,5 @@
 import React, { useContext } from 'react';
-import PluginSdk from 'bigbluebutton-html-plugin-sdk';
-import { GenericContentType } from 'bigbluebutton-html-plugin-sdk/dist/cjs/extensible-areas/generic-content/enums';
+import { GenericContentType } from 'bigbluebutton-html-plugin-sdk/dist/cjs/extensible-areas/generic-content-item/enums';
 import Icon from '/imports/ui/components/common/icon/component';
 import Styled from './styles';
 import { ACTIONS, PANELS } from '/imports/ui/components/layout/enums';
@@ -11,6 +10,7 @@ const GenericSidekickContentNavButton = ({ sidebarContentPanel, layoutContextDis
   let genericSidekickContentExtensibleArea = [];
 
   if (pluginsExtensibleAreasAggregatedState.genericContents) {
+    const genericMainContent = pluginsExtensibleAreasAggregatedState.genericContents
       .filter((g) => g.type === GenericContentType.SIDEKICK_AREA);
     genericSidekickContentExtensibleArea = [...genericMainContent];
   }
@@ -45,15 +45,15 @@ const GenericSidekickContentNavButton = ({ sidebarContentPanel, layoutContextDis
             }}
           >
             <Icon iconName={gsc.buttonIcon} />
-              <span>
-                {gsc.name}
-              </span>
+            <span>
+              {gsc.name}
+            </span>
           </Styled.ListItem>
         </Styled.List>
       </Styled.ScrollableList>
     </Styled.Section>
   ));
-  return <>{genericSidekickContentNavButtons}</>
-}
+  return <>{genericSidekickContentNavButtons}</>;
+};
 
 export default GenericSidekickContentNavButton;
