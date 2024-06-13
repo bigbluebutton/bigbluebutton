@@ -1,22 +1,20 @@
 import React from 'react';
-import { withTracker } from 'meteor/react-meteor-data';
 import { useMutation, useReactiveVar } from '@apollo/client';
 import { defineMessages } from 'react-intl';
 import {
   getSharingContentType,
   getBroadcastContentType,
-  isScreenGloballyBroadcasting,
-  isCameraAsContentGloballyBroadcasting,
   isScreenBroadcasting,
   isCameraAsContentBroadcasting,
-  shouldEnableVolumeControl,
   useIsSharing,
   useSharingContentType,
+  useIsScreenGloballyBroadcasting,
+  useIsCameraAsContentGloballyBroadcasting,
+  useShouldEnableVolumeControl,
 } from './service';
 import ScreenshareComponent from './component';
 import { layoutSelect, layoutSelectOutput, layoutDispatch } from '../layout/context';
 import getFromUserSettings from '/imports/ui/services/users-settings';
-import MediaService from '/imports/ui/components/media/service';
 import { EXTERNAL_VIDEO_STOP } from '../external-video-player/mutations';
 import { PINNED_PAD_SUBSCRIPTION } from '../notes/queries';
 import useDeduplicatedSubscription from '../../core/hooks/useDeduplicatedSubscription';
@@ -105,6 +103,7 @@ const ScreenshareContainer = (props) => {
   const { data: pinnedPadData } = useDeduplicatedSubscription(PINNED_PAD_SUBSCRIPTION);
 
   const NOTES_CONFIG = window.meetingClientSettings.public.notes;
+  const LAYOUT_CONFIG = window.meetingClientSettings.public.layout;
 
   const isSharedNotesPinned = !!pinnedPadData
     && pinnedPadData.sharedNotes[0]?.sharedNotesExtId === NOTES_CONFIG.id;
@@ -133,6 +132,9 @@ const ScreenshareContainer = (props) => {
   const isSharing = useIsSharing();
   const sharingContentType = useSharingContentType();
   const outputDeviceId = useReactiveVar(AudioManager._outputDeviceId.value);
+  const screenIsGloballyBroadcasting = useIsScreenGloballyBroadcasting();
+  const cameraAsContentIsGloballyBroadcasting = useIsCameraAsContentGloballyBroadcasting();
+  const enableVolumeControl = useShouldEnableVolumeControl();
 
   if (
     isScreenBroadcasting(isSharing, sharingContentType)
@@ -150,6 +152,13 @@ const ScreenshareContainer = (props) => {
           isSharedNotesPinned,
           stopExternalVideoShare,
           outputDeviceId,
+          enableVolumeControl,
+          isGloballyBroadcasting: screenIsGloballyBroadcasting
+            || cameraAsContentIsGloballyBroadcasting,
+          hidePresentationOnJoin: getFromUserSettings(
+            'bbb_hide_presentation_on_join',
+            LAYOUT_CONFIG.hidePresentationOnJoin,
+          ),
           ...selectedInfo,
         }
         }
@@ -159,13 +168,4 @@ const ScreenshareContainer = (props) => {
   return null;
 };
 
-export default withTracker(() => {
-  const LAYOUT_CONFIG = window.meetingClientSettings.public.layout;
-
-  return {
-    isGloballyBroadcasting: isScreenGloballyBroadcasting() || isCameraAsContentGloballyBroadcasting(),
-    toggleSwapLayout: MediaService.toggleSwapLayout,
-    hidePresentationOnJoin: getFromUserSettings('bbb_hide_presentation_on_join', LAYOUT_CONFIG.hidePresentationOnJoin),
-    enableVolumeControl: shouldEnableVolumeControl(),
-  };
-})(ScreenshareContainer);
+export default ScreenshareContainer;

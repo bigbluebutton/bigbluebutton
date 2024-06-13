@@ -8,6 +8,8 @@ import AudioService from '/imports/ui/components/audio/service';
 import MediaStreamUtils from '/imports/utils/media-stream-utils';
 import ConnectionStatusService from '/imports/ui/components/connection-status/service';
 import browserInfo from '/imports/utils/browserInfo';
+import createUseSubscription from '/imports/ui/core/hooks/createUseSubscription';
+import { SCREENSHARE_SUBSCRIPTION } from './queries';
 
 const SCREENSHARE_MEDIA_ELEMENT_NAME = 'screenshareVideo';
 
@@ -22,6 +24,8 @@ const CONTENT_TYPE_SCREENSHARE = 'screenshare';
 const isSharingVar = makeVar(false);
 const sharingContentTypeVar = makeVar(false);
 const cameraAsContentDeviceIdTypeVar = makeVar('');
+
+const useScreenshare = createUseSubscription(SCREENSHARE_SUBSCRIPTION, {}, true);
 
 const useIsSharing = () => useReactiveVar(isSharingVar);
 const useSharingContentType = () => useReactiveVar(sharingContentTypeVar);
@@ -108,6 +112,11 @@ const isScreenGloballyBroadcasting = () => {
   return (!screenshareEntry ? false : !!screenshareEntry.screenshare.stream);
 };
 
+const useIsScreenGloballyBroadcasting = () => {
+  const { data } = useScreenshare();
+  return Boolean(data && data[0] && data[0].stream);
+};
+
 // A simplified, trackable version of isCameraContentBroadcasting that DOES NOT
 // account for the presenter's local sharing state.
 // It reflects the GLOBAL camera as content sharing state (akka-apps)
@@ -116,6 +125,12 @@ const isCameraAsContentGloballyBroadcasting = () => {
     { fields: { 'screenshare.stream': 1 } });
 
   return (!cameraAsContentEntry ? false : !!cameraAsContentEntry.screenshare.stream);
+};
+
+const useIsCameraAsContentGloballyBroadcasting = () => {
+  const { data } = useScreenshare();
+
+  return Boolean(data && data[0] && data[0].contentType === CONTENT_TYPE_CAMERA && data[0].stream);
 };
 
 // when the meeting information has been updated check to see if it was
@@ -159,6 +174,12 @@ const screenshareHasAudio = () => {
   }
 
   return !!screenshareEntry.screenshare.hasAudio;
+};
+
+const useScreenshareHasAudio = () => {
+  const { data } = useScreenshare();
+
+  return Boolean(data && data[0] && data[0].hasAudio);
 };
 
 const getBroadcastContentType = () => {
@@ -205,6 +226,14 @@ const shouldEnableVolumeControl = () => {
 
   return VOLUME_CONTROL_ENABLED && screenshareHasAudio();
 }
+
+const useShouldEnableVolumeControl = () => {
+  const SCREENSHARE_CONFIG = window.meetingClientSettings.public.kurento.screenshare;
+  const VOLUME_CONTROL_ENABLED = SCREENSHARE_CONFIG.enableVolumeControl;
+  const hasAudio = useScreenshareHasAudio();
+
+  return VOLUME_CONTROL_ENABLED && hasAudio;
+};
 
 const attachLocalPreviewStream = (mediaElement) => {
   const { isTabletApp } = browserInfo;
@@ -394,4 +423,7 @@ export {
   useCameraAsContentDeviceIdType,
   useIsSharing,
   useSharingContentType,
+  useIsScreenGloballyBroadcasting,
+  useIsCameraAsContentGloballyBroadcasting,
+  useShouldEnableVolumeControl,
 };
