@@ -11,6 +11,7 @@ import { INITIAL_INPUT_STATE, INITIAL_OUTPUT_STATE } from './initState';
 import useUpdatePresentationAreaContentForPlugin from '/imports/ui/components/plugins-engine/ui-data-hooks/layout/presentation-area/utils';
 import { isPresentationEnabled } from '/imports/ui/services/features';
 import useDeduplicatedSubscription from '../../core/hooks/useDeduplicatedSubscription';
+import { usePrevious } from '../whiteboard/utils';
 
 // variable to debug in console log
 const debug = false;
@@ -1332,6 +1333,7 @@ const reducer = (state, action) => {
 
 const updatePresentationAreaContent = (
   layoutContextState,
+  previousLayoutType,
   previousPresentationAreaContentActions,
   layoutContextDispatch,
 ) => {
@@ -1343,7 +1345,7 @@ const updatePresentationAreaContent = (
   if (!equals(
     currentPresentationAreaContentActions,
     previousPresentationAreaContentActions.current,
-  )) {
+  ) || layoutType !== previousLayoutType) {
     const CHAT_CONFIG = window.meetingClientSettings.public.chat;
     const PUBLIC_CHAT_ID = CHAT_CONFIG.public_id;
 
@@ -1473,9 +1475,13 @@ const LayoutContextProvider = (props) => {
 
   const [layoutContextState, layoutContextDispatch] = useReducer(reducer, initState);
   const { children } = props;
+  const { layoutType } = layoutContextState;
+  const previousLayoutType = usePrevious(layoutType);
+
   useEffect(() => {
     updatePresentationAreaContent(
       layoutContextState,
+      previousLayoutType,
       previousPresentationAreaContentActions,
       layoutContextDispatch,
     );
