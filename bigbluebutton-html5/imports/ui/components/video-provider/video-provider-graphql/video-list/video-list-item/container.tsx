@@ -3,7 +3,7 @@ import PropTypes from 'prop-types';
 import useCurrentUser from '/imports/ui/core/hooks/useCurrentUser';
 import { layoutSelect, layoutDispatch } from '/imports/ui/components/layout/context';
 import VideoListItem from './component';
-import { StreamUser, VideoItem } from '../../types';
+import { VideoItem } from '../../types';
 import { Layout } from '/imports/ui/components/layout/layoutTypes';
 import useSettings from '/imports/ui/services/settings/hooks/useSettings';
 import { SETTINGS } from '/imports/ui/services/settings/enums';
@@ -11,7 +11,6 @@ import { useStorageKey } from '/imports/ui/services/storage/hooks';
 import useVoiceUsers from '/imports/ui/components/audio/audio-graphql/hooks/useVoiceUsers';
 
 interface VideoListItemContainerProps {
-  user: Partial<StreamUser>;
   numOfStreams: number;
   cameraId: string | null;
   userId: string;
@@ -37,7 +36,7 @@ const VideoListItemContainer: React.FC<VideoListItemContainerProps> = (props) =>
     onVideoItemUnmount,
     onVirtualBgDrop,
     stream,
-    user,
+    userId,
   } = props;
 
   const fullscreen = layoutSelect((i: Layout) => i.fullscreen);
@@ -62,7 +61,7 @@ const VideoListItemContainer: React.FC<VideoListItemContainerProps> = (props) =>
     joined: v.joined,
     userId: v.userId,
   }));
-  const voiceUser = voiceUsers.data?.find((v) => v.userId === user.userId);
+  const voiceUser = voiceUsers.data?.find((v) => v.userId === userId);
 
   return (
     <VideoListItem
@@ -84,7 +83,6 @@ const VideoListItemContainer: React.FC<VideoListItemContainerProps> = (props) =>
       onVirtualBgDrop={onVirtualBgDrop}
       settingsSelfViewDisable={settingsSelfViewDisable}
       stream={stream}
-      user={user}
       voiceUser={voiceUser}
     />
   );

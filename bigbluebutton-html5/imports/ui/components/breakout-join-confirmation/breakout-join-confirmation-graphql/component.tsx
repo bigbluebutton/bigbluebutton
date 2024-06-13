@@ -85,7 +85,7 @@ const BreakoutJoinConfirmation: React.FC<BreakoutJoinConfirmationProps> = ({
   const [waiting, setWaiting] = React.useState(false);
   const [isOpen, setIsOpen] = React.useState(false);
 
-  const defaultSelectedBreakoutId = breakouts.find(({ showInvitation }) => showInvitation)?.breakoutRoomId
+  const defaultSelectedBreakoutId = breakouts.find(({ isLastAssignedRoom }) => isLastAssignedRoom)?.breakoutRoomId
     || firstBreakoutId;
 
   const [selectValue, setSelectValue] = React.useState(defaultSelectedBreakoutId);
@@ -248,7 +248,7 @@ const BreakoutJoinConfirmationContainer: React.FC = () => {
     <BreakoutJoinConfirmation
       freeJoin={freeJoin}
       breakouts={breakoutData.breakoutRoom}
-      currentUserJoined={currentUser?.breakoutRooms?.currentRoomJoined ?? false}
+      currentUserJoined={currentUser?.breakoutRooms?.isUserCurrentlyInRoom ?? false}
       firstBreakoutId={breakoutRoomId}
       isUsingAudio={isUsingAudio}
       exitVideo={exitVideo}

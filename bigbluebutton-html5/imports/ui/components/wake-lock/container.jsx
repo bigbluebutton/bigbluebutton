@@ -14,10 +14,6 @@ const propTypes = {
   autoJoin: PropTypes.bool.isRequired,
 };
 
-const defaultProps = {
-  areAudioModalsOpen: false,
-};
-
 function usePrevious(value) {
   const ref = useRef();
   useEffect(() => {
@@ -58,6 +54,5 @@ const WakeLockContainer = (props) => {
 };
 
 WakeLockContainer.propTypes = propTypes;
-WakeLockContainer.defaultProps = defaultProps;
 
 export default WakeLockContainer;

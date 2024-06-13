@@ -16,11 +16,6 @@ const propTypes = {
   initialHearingState: PropTypes.bool,
 };
 
-const defaultProps = {
-  stream: null,
-  initialHearingState: false,
-};
-
 const intlMessages = defineMessages({
   stopAudioFeedbackLabel: {
     id: 'app.audio.stopAudioFeedback',
@@ -34,8 +29,8 @@ const intlMessages = defineMessages({
 
 const LocalEcho = ({
   intl,
-  stream,
-  initialHearingState,
+  stream = null,
+  initialHearingState = false,
 }) => {
   const loopbackAgent = useRef(null);
   const [hearing, setHearing] = useState(initialHearingState);
@@ -83,6 +78,5 @@ const LocalEcho = ({
 };
 
 LocalEcho.propTypes = propTypes;
-LocalEcho.defaultProps = defaultProps;
 
 export default injectIntl(React.memo(LocalEcho));

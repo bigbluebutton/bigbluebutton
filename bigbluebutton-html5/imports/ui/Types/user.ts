@@ -46,21 +46,17 @@ export interface CustomParameter {
 }
 
 export interface BreakoutRooms {
-  currentRoomJoined: boolean;
+  hasJoined: boolean;
   assignedAt: string;
   breakoutRoomId: string;
-  currentRoomIsOnline: boolean | null;
-  currentRoomPriority: number;
-  currentRoomRegisteredAt: string | null;
+  isUserCurrentlyInRoom: boolean | null;
+  isLastAssignedRoom: boolean | null;
   durationInSeconds: number;
   endedAt: string | null;
   freeJoin: boolean;
   inviteDismissedAt: string | null;
   isDefaultName: boolean;
   joinURL: string;
-  lastRoomIsOnline: boolean;
-  lastRoomJoinedAt: string;
-  lastRoomJoinedId: string;
   name: string;
   sendInvitationToModerators: boolean;
   sequence: number;

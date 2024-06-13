@@ -37,7 +37,6 @@ import SidebarNavigationContainer from '../sidebar-navigation/container';
 import SidebarContentContainer from '../sidebar-content/container';
 import PluginsEngineManager from '../plugins-engine/manager';
 import { getSettingsSingletonInstance } from '/imports/ui/services/settings';
-import { registerTitleView } from '/imports/utils/dom-utils';
 import Notifications from '../notifications/component';
 import GlobalStyles from '/imports/ui/stylesheets/styled-components/globalStyles';
 import ActionsBarContainer from '../actions-bar/container';
@@ -52,7 +51,6 @@ import FloatingWindowContainer from '/imports/ui/components/floating-window/cont
 import ChatAlertContainerGraphql from '../chat/chat-graphql/alert/component';
 import { notify } from '/imports/ui/services/notification';
 
-// [move settings]
 const MOBILE_MEDIA = 'only screen and (max-width: 40em)';
 
 const intlMessages = defineMessages({
@@ -126,10 +124,6 @@ const propTypes = {
   darkTheme: PropTypes.bool.isRequired,
 };
 
-const defaultProps = {
-  actionsbar: null,
-};
-
 const isLayeredView = window.matchMedia(`(max-width: ${SMALL_VIEWPORT_BREAKPOINT}px)`);
 
 class App extends Component {
@@ -161,11 +155,11 @@ class App extends Component {
       layoutContextDispatch,
       isRTL,
       muteMicrophone,
+      transcriptionSettings,
+      setSpeechOptions,
     } = this.props;
     const { browserName } = browserInfo;
     const { osName } = deviceInfo;
-
-    registerTitleView(intl.formatMessage(intlMessages.defaultViewLabel));
 
     layoutContextDispatch({
       type: ACTIONS.SET_IS_RTL,
@@ -650,6 +644,5 @@ class App extends Component {
 }
 
 App.propTypes = propTypes;
-App.defaultProps = defaultProps;
 
 export default injectIntl(App);

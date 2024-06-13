@@ -1,13 +1,9 @@
 import React, { useEffect, useRef } from 'react';
-import { withTracker } from 'meteor/react-meteor-data';
-import Auth from '/imports/ui/services/auth';
-import Users from '/imports/api/users';
-import Meetings from '/imports/api/meetings';
 import AudioCaptionsLiveContainer from '/imports/ui/components/audio/audio-graphql/audio-captions/live/component';
 import getFromUserSettings from '/imports/ui/services/users-settings';
 import deviceInfo from '/imports/utils/deviceInfo';
 import MediaService from '/imports/ui/components/media/service';
-import { isPresentationEnabled, isExternalVideoEnabled, useIsScreenSharingEnabled } from '/imports/ui/services/features';
+import { isPresentationEnabled, isExternalVideoEnabled } from '/imports/ui/services/features';
 import useCurrentUser from '/imports/ui/core/hooks/useCurrentUser';
 import useMeeting from '/imports/ui/core/hooks/useMeeting';
 import { ACTIONS, LAYOUT_TYPE, PRESENTATION_AREA } from '/imports/ui/components/layout/enums';
@@ -19,6 +15,7 @@ import {
   layoutDispatch,
 } from '../layout/context';
 import { SET_SYNC_WITH_PRESENTER_LAYOUT, SET_LAYOUT_PROPS } from './mutations';
+import useSetSpeechOptions from '../audio/audio-graphql/hooks/useSetSpeechOptions';
 
 import App from './component';
 import useUserChangedLocalSettings from '../../services/settings/hooks/useUserChangedLocalSettings';
@@ -108,6 +105,8 @@ const AppContainer = (props) => {
     fontSize = '16px',
   } = useSettings(SETTINGS.APPLICATION);
 
+  const { partialUtterances, minUtteranceLength } = useSettings(SETTINGS.TRANSCRIPTION);
+
   const sidebarContent = layoutSelectInput((i) => i.sidebarContent);
   const genericComponent = layoutSelectInput((i) => i.genericComponent);
   const sidebarNavigation = layoutSelectInput((i) => i.sidebarNavigation);
@@ -124,6 +123,7 @@ const AppContainer = (props) => {
   const [setSyncWithPresenterLayout] = useMutation(SET_SYNC_WITH_PRESENTER_LAYOUT);
   const [setMeetingLayoutProps] = useMutation(SET_LAYOUT_PROPS);
   const setLocalSettings = useUserChangedLocalSettings();
+  const setSpeechOptions = useSetSpeechOptions();
   const { data: pinnedPadData } = useDeduplicatedSubscription(PINNED_PAD_SUBSCRIPTION);
   const isSharedNotesPinnedFromGraphql = !!pinnedPadData
     && pinnedPadData.sharedNotes[0]?.sharedNotesExtId === NOTES_CONFIG.id;
@@ -243,6 +243,24 @@ const AppContainer = (props) => {
     && !shouldShowExternalVideo && !shouldShowGenericComponent
     && (presentationIsOpen || presentationRestoreOnUpdate)) && isPresentationEnabled();
 
+  // First from settings.yml
+  if (partialUtterances || minUtteranceLength) {
+    useEffect(() => {
+      setSpeechOptions(
+        partialUtterances,
+        minUtteranceLength,
+      );
+    }, [partialUtterances, minUtteranceLength]);
+  }
+
+  // Update after editing app savings
+  useEffect(() => {
+    setSpeechOptions(
+      partialUtterances,
+      minUtteranceLength,
+    );
+  }, [partialUtterances, minUtteranceLength]);
+
   if (!currentUserData) return null;
 
   const customStyleUrl = getFromUserSettings('bbb_custom_style_url', false)
@@ -308,6 +326,7 @@ const AppContainer = (props) => {
           audioCaptions: <AudioCaptionsLiveContainer />,
           inactivityWarningDisplay,
           inactivityWarningTimeoutSecs,
+          setSpeechOptions,
           audioAlertEnabled,
           pushAlertEnabled,
           darkTheme,
