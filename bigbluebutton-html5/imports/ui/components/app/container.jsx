@@ -50,7 +50,6 @@ const AppContainer = (props) => {
     actionsbar,
     currentUserId,
     shouldShowScreenshare: propsShouldShowScreenshare,
-    presentationRestoreOnUpdate,
     isModalOpen,
     ...otherProps
   } = props;
@@ -82,6 +81,10 @@ const AppContainer = (props) => {
   const meetingLayout = LAYOUT_TYPE[currentMeeting?.layout.currentLayoutType];
   const meetingLayoutUpdatedAt = new Date(currentMeeting?.layout.updatedAt).getTime();
   const meetingPresentationIsOpen = !currentMeeting?.layout.presentationMinimized;
+  const presentationRestoreOnUpdate = getFromUserSettings(
+    'bbb_force_restore_presentation_on_new_events',
+    window.meetingClientSettings.public.presentation.restoreOnUpdate,
+  );
 
   const {
     propagateLayout: pushLayoutMeeting,
@@ -234,7 +237,8 @@ const AppContainer = (props) => {
     return enforceLayout && layoutTypes.includes(enforceLayout) ? enforceLayout : null;
   };
 
-  const shouldShowScreenshare = (viewScreenshare || isPresenter);
+  const shouldShowScreenshare = (viewScreenshare || isPresenter)
+    && currentMeeting?.componentsFlags?.hasScreenshare;
   const shouldShowPresentation = (!shouldShowScreenshare && !isSharedNotesPinned
     && !shouldShowExternalVideo && !shouldShowGenericComponent
     && (presentationIsOpen || presentationRestoreOnUpdate)) && isPresentationEnabled();
@@ -248,10 +252,7 @@ const AppContainer = (props) => {
     ? (
       <App
         {...{
-          presentationRestoreOnUpdate: getFromUserSettings(
-            'bbb_force_restore_presentation_on_new_events',
-            window.meetingClientSettings.public.presentation.restoreOnUpdate,
-          ),
+          presentationRestoreOnUpdate,
           hidePresentationOnJoin: getFromUserSettings('bbb_hide_presentation_on_join', LAYOUT_CONFIG.hidePresentationOnJoin),
           hideActionsBar: getFromUserSettings('bbb_hide_actions_bar', false),
           hideNavBar: getFromUserSettings('bbb_hide_nav_bar', false),
