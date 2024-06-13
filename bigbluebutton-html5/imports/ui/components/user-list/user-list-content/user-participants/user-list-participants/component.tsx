@@ -14,6 +14,7 @@ import useDeduplicatedSubscription from '/imports/ui/core/hooks/useDeduplicatedS
 import UserListParticipantsPageContainer from './page/component';
 import IntersectionWatcher from './intersection-watcher/intersectionWatcher';
 import { setLocalUserList } from '/imports/ui/core/hooks/useLoadedUserList';
+import { uniqueId } from '/imports/utils/string-utils';
 
 interface UserListParticipantsProps {
   count: number;
@@ -105,6 +106,7 @@ const UserListParticipants: React.FC<UserListParticipantsProps> = ({
             const restOfUsers = count % 50;
             return (
               <IntersectionWatcher
+                key={uniqueId()}
                 ParentRef={userListRef}
                 isLastItem={isLastItem}
                 restOfUsers={isLastItem ? restOfUsers : 50}
