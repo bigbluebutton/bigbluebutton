@@ -227,17 +227,11 @@ const propTypes = {
     formatMessage: PropTypes.func.isRequired,
   }).isRequired,
   userId: PropTypes.string.isRequired,
-  emoji: PropTypes.string,
   sidebarContentPanel: PropTypes.string.isRequired,
   layoutContextDispatch: PropTypes.func.isRequired,
   muted: PropTypes.bool.isRequired,
 };
 
-const defaultProps = {
-  emoji: '',
-};
-
 ReactionsButton.propTypes = propTypes;
-ReactionsButton.defaultProps = defaultProps;
 
 export default withShortcutHelper(ReactionsButton, ['raiseHand']);

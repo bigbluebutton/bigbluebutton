@@ -12,7 +12,7 @@ import { isPresentationEnabled, isExternalVideoEnabled } from '/imports/ui/servi
 import useCurrentUser from '/imports/ui/core/hooks/useCurrentUser';
 import useMeeting from '/imports/ui/core/hooks/useMeeting';
 import { ACTIONS, LAYOUT_TYPE, PRESENTATION_AREA } from '/imports/ui/components/layout/enums';
-import { useMutation } from '@apollo/client';
+import { useMutation, useReactiveVar } from '@apollo/client';
 import {
   layoutSelect,
   layoutSelectInput,
@@ -20,21 +20,23 @@ import {
   layoutDispatch,
 } from '../layout/context';
 import { SET_SYNC_WITH_PRESENTER_LAYOUT, SET_LAYOUT_PROPS } from './mutations';
+import useSetSpeechOptions from '../audio/audio-graphql/hooks/useSetSpeechOptions';
 
 import {
   getBreakoutRooms,
 } from './service';
 
 import App from './component';
-import useToggleVoice from '../audio/audio-graphql/hooks/useToggleVoice';
 import useUserChangedLocalSettings from '../../services/settings/hooks/useUserChangedLocalSettings';
 import { PINNED_PAD_SUBSCRIPTION } from '../notes/queries';
+import connectionStatus from '../../core/graphql/singletons/connectionStatus';
 import useDeduplicatedSubscription from '../../core/hooks/useDeduplicatedSubscription';
 import VideoStreamsState from '../video-provider/video-provider-graphql/state';
 import { useIsSharing, useSharingContentType } from '../screenshare/service';
 import useSettings from '../../services/settings/hooks/useSettings';
 import { SETTINGS } from '../../services/settings/enums';
 import { useStorageKey } from '../../services/storage/hooks';
+import useMuteMicrophone from '../audio/audio-graphql/hooks/useMuteMicrophone';
 
 const AppContainer = (props) => {
   const layoutType = useRef(null);
@@ -53,6 +55,7 @@ const AppContainer = (props) => {
     meetingLayoutCameraPosition,
     meetingLayoutFocusedCamera,
     meetingLayoutVideoRate,
+    transcriptionSettings,
     ...otherProps
   } = props;
 
@@ -72,6 +75,7 @@ const AppContainer = (props) => {
   const {
     viewScreenshare,
   } = useSettings(SETTINGS.DATA_SAVING);
+  const { partialUtterances, minUtteranceLength } = useSettings(SETTINGS.TRANSCRIPTION);
 
   const sidebarContent = layoutSelectInput((i) => i.sidebarContent);
   const genericComponent = layoutSelectInput((i) => i.genericComponent);
@@ -88,13 +92,14 @@ const AppContainer = (props) => {
 
   const [setSyncWithPresenterLayout] = useMutation(SET_SYNC_WITH_PRESENTER_LAYOUT);
   const [setMeetingLayoutProps] = useMutation(SET_LAYOUT_PROPS);
-  const toggleVoice = useToggleVoice();
   const setLocalSettings = useUserChangedLocalSettings();
+  const setSpeechOptions = useSetSpeechOptions();
   const { data: pinnedPadData } = useDeduplicatedSubscription(PINNED_PAD_SUBSCRIPTION);
   const isSharedNotesPinnedFromGraphql = !!pinnedPadData
     && pinnedPadData.sharedNotes[0]?.sharedNotesExtId === NOTES_CONFIG.id;
   const isSharedNotesPinned = sharedNotesInput?.isPinned && isSharedNotesPinnedFromGraphql;
   const isThereWebcam = VideoStreamsState.getStreams().length > 0;
+  const muteMicrophone = useMuteMicrophone();
 
   const { data: currentUserData } = useCurrentUser((user) => ({
     enforceLayout: user.enforceLayout,
@@ -116,6 +121,8 @@ const AppContainer = (props) => {
   const presentationIsOpen = isOpen;
 
   const { focusedId } = cameraDock;
+
+  const connected = useReactiveVar(connectionStatus.getConnectedStatusVar());
 
   useEffect(() => {
     if (
@@ -210,12 +217,31 @@ const AppContainer = (props) => {
     && !shouldShowExternalVideo && !shouldShowGenericComponent
     && (presentationIsOpen || presentationRestoreOnUpdate)) && isPresentationEnabled();
 
+  // First from settings.yml
+  if (transcriptionSettings.partialUtterances || transcriptionSettings.minUtteranceLength) {
+    useEffect(() => {
+      setSpeechOptions(
+        transcriptionSettings.partialUtterances,
+        transcriptionSettings.minUtteranceLength,
+      );
+    }, [transcriptionSettings.partialUtterances, transcriptionSettings.minUtteranceLength]);
+  }
+
+  // Update after editing app savings
+  useEffect(() => {
+    setSpeechOptions(
+      partialUtterances,
+      minUtteranceLength,
+    );
+  }, [partialUtterances, minUtteranceLength]);
+
   if (!currentUserData) return null;
 
   return currentUserId
     ? (
       <App
         {...{
+          connected,
           actionsBarStyle,
           captionsStyle,
           currentUserId,
@@ -254,18 +280,19 @@ const AppContainer = (props) => {
           shouldShowScreenshare,
           isSharedNotesPinned,
           shouldShowPresentation,
-          toggleVoice,
           setLocalSettings,
           genericComponentId: genericComponent.genericComponentId,
           audioCaptions: <AudioCaptionsLiveContainer />,
           inactivityWarningDisplay,
           inactivityWarningTimeoutSecs,
+          setSpeechOptions,
           audioAlertEnabled,
           pushAlertEnabled,
           darkTheme,
           fontSize,
           isLargeFont,
           ignorePollNotifications,
+          muteMicrophone,
         }}
         {...otherProps}
       />
@@ -331,6 +358,11 @@ const AppTracker = withTracker((props) => {
 
   const LAYOUT_CONFIG = window.meetingClientSettings.public.layout;
 
+  const transcriptionSettings = {
+    partialUtterances: getFromUserSettings('bbb_transcription_partial_utterances'),
+    minUtteranceLength: getFromUserSettings('bbb_transcription_min_utterance_length'),
+  };
+
   return {
     audioCaptions: <AudioCaptionsLiveContainer />,
     hasBreakoutRooms: getBreakoutRooms().length > 0,
@@ -360,6 +392,7 @@ const AppTracker = withTracker((props) => {
     hideActionsBar: getFromUserSettings('bbb_hide_actions_bar', false),
     hideNavBar: getFromUserSettings('bbb_hide_nav_bar', false),
     User: currentUser,
+    transcriptionSettings,
   };
 })(AppContainer);
 

@@ -10,7 +10,7 @@ import playAndRetry from '/imports/utils/mediaElementPlayRetry';
 import VideoService from '../service';
 import { ACTIONS } from '/imports/ui/components/layout/enums';
 import { Output } from '../../../layout/layoutTypes';
-import { StreamUser, VideoItem } from '../types';
+import { VideoItem } from '../types';
 
 const intlMessages = defineMessages({
   autoplayBlockedDesc: {
@@ -68,13 +68,11 @@ interface VideoListProps {
   layoutType: string;
   layoutContextDispatch: (...args: unknown[]) => void;
   numberOfPages: number;
-  swapLayout: boolean;
   currentVideoPageIndex: number;
   cameraDock: Output['cameraDock'];
   focusedId: string;
   handleVideoFocus: (id: string) => void;
   isGridEnabled: boolean;
-  users: StreamUser[];
   streams: VideoItem[];
   intl: IntlShape;
   onVideoItemMount: (stream: string, video: HTMLVideoElement) => void;
@@ -343,10 +341,8 @@ class VideoList extends Component<VideoListProps, VideoListState> {
       onVirtualBgDrop,
       onVideoItemMount,
       onVideoItemUnmount,
-      swapLayout,
       handleVideoFocus,
       focusedId,
-      users,
     } = this.props;
     const numOfStreams = streams.length;
 
@@ -356,7 +352,6 @@ class VideoList extends Component<VideoListProps, VideoListState> {
       const stream = isStream ? item.stream : null;
       const key = isStream ? stream : userId;
       const isFocused = isStream && focusedId === stream && numOfStreams > 2;
-      const user = users.find((u) => u.userId === userId) || {};
 
       return (
         <Styled.VideoListItem
@@ -365,7 +360,6 @@ class VideoList extends Component<VideoListProps, VideoListState> {
           data-test="webcamVideoItem"
         >
           <VideoListItemContainer
-            user={user}
             numOfStreams={numOfStreams}
             cameraId={stream}
             userId={userId}
@@ -379,7 +373,6 @@ class VideoList extends Component<VideoListProps, VideoListState> {
             }}
             stream={item}
             onVideoItemUnmount={onVideoItemUnmount}
-            swapLayout={swapLayout}
             onVirtualBgDrop={
               (type, name, data) => {
                 return isStream ? onVirtualBgDrop(item.stream, type, name, data) : Promise.resolve(null);

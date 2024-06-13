@@ -7,6 +7,7 @@ import {
   isAudioTranscriptionEnabled,
   setUserLocaleProperty,
   useFixedLocale,
+  isGladia,
 } from '../service';
 import useCurrentUser from '/imports/ui/core/hooks/useCurrentUser';
 import { SET_SPEECH_LOCALE } from '/imports/ui/core/graphql/mutations/userMutations';
@@ -23,6 +24,10 @@ const intlMessages = defineMessages({
   unsupported: {
     id: 'app.audio.captions.speech.unsupported',
     description: 'Audio speech recognition unsupported',
+  },
+  auto: {
+    id: 'app.audio.captions.speech.auto',
+    description: 'Audio speech recognition auto',
   },
   'de-DE': {
     id: 'app.audio.captions.select.de-DE',
@@ -130,6 +135,16 @@ const AudioCaptionsSelect: React.FC<AudioCaptionsSelectProps> = ({
         >
           {intl.formatMessage(intlMessages.disabled)}
         </option>
+        {isGladia()
+          ? (
+            <option
+              key="auto"
+              value="auto"
+            >
+              {intl.formatMessage(intlMessages.auto)}
+            </option>
+          )
+          : null}
         {speechVoices.map((v) => (
           <option
             key={v}

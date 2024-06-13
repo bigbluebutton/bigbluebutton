@@ -5,6 +5,7 @@ import logger from '/imports/startup/client/logger';
 import Styled from './styles';
 import useAudioCaptionEnable from '/imports/ui/core/local-states/useAudioCaptionEnable';
 import useCurrentUser from '/imports/ui/core/hooks/useCurrentUser';
+import { splitTranscript } from '../service';
 import useDeduplicatedSubscription from '/imports/ui/core/hooks/useDeduplicatedSubscription';
 
 interface AudioCaptionsLiveProps {
@@ -68,7 +69,7 @@ const AudioCaptionsLiveContainer: React.FC = () => {
     loading: AudioCaptionsLiveLoading,
     error: AudioCaptionsLiveError,
   } = useDeduplicatedSubscription<getCaptions>(GET_CAPTIONS, {
-    variables: { locale: currentUser?.speechLocale ?? 'en-US' },
+    variables: { locale: currentUser?.captionLocale ?? 'en-US' },
   });
 
   const [audioCaptionsEnable] = useAudioCaptionEnable();
@@ -92,7 +93,10 @@ const AudioCaptionsLiveContainer: React.FC = () => {
 
   return (
     <AudioCaptionsLive
-      captions={AudioCaptionsLiveData.caption}
+      captions={AudioCaptionsLiveData.caption.map((c) => {
+        const splits = splitTranscript(c);
+        return splits;
+      }).flat().filter((c) => c.captionText)}
     />
   );
 };

@@ -6,6 +6,7 @@ const SETTINGS = {
   DATA_SAVING: 'dataSaving',
   ANIMATIONS: 'animations',
   SELF_VIEW_DISABLE: 'selfViewDisable',
+  TRANSCRIPTION: 'transcription',
 } as const;
 
 const CHANGED_SETTINGS = 'changed_settings';

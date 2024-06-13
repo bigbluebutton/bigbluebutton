@@ -634,6 +634,7 @@ class Presentation extends PureComponent {
         multiUser={multiUser}
         whiteboardId={currentSlide?.id}
         numberOfSlides={totalPages}
+        layoutSwapped={false}
       />
     );
   }

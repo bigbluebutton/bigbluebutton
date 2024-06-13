@@ -515,7 +515,7 @@ const CreateBreakoutRoomContainer: React.FC<CreateBreakoutRoomContainerProps> = 
   isOpen,
   setIsOpen,
   priority,
-  isUpdate,
+  isUpdate = false,
 }) => {
   const [fetchedBreakouts, setFetchedBreakouts] = React.useState(false);
   // isBreakoutRecordable - get from meeting breakout policies breakoutPolicies/record
@@ -575,14 +575,6 @@ const CreateBreakoutRoomContainer: React.FC<CreateBreakoutRoomContainerProps> = 
       runningRooms={breakoutsData?.breakoutRoom ?? []}
     />
   );
-};
-
-CreateBreakoutRoomContainer.defaultProps = {
-  isUpdate: false,
-};
-
-CreateBreakoutRoom.defaultProps = {
-  isUpdate: false,
 };
 
 export default CreateBreakoutRoomContainer;

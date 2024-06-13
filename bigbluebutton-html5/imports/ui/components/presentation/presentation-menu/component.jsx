@@ -99,40 +99,25 @@ const propTypes = {
   })).isRequired,
 };
 
-const defaultProps = {
-  allowSnapshotOfCurrentSlide: false,
-  isIphone: false,
-  isFullscreen: false,
-  isRTL: false,
-  elementName: '',
-  meetingName: '',
-  fullscreenRef: null,
-  elementId: '',
-  elementGroup: '',
-  currentElement: '',
-  currentGroup: '',
-  tldrawAPI: null,
-};
-
 const PresentationMenu = (props) => {
   const {
     intl,
-    isFullscreen,
-    elementId,
-    elementName,
-    elementGroup,
-    currentElement,
-    currentGroup,
-    fullscreenRef,
-    tldrawAPI,
+    isFullscreen = false,
+    elementId = '',
+    elementName = '',
+    elementGroup = '',
+    currentElement = '',
+    currentGroup = '',
+    fullscreenRef = null,
+    tldrawAPI = null,
     handleToggleFullscreen,
     layoutContextDispatch,
-    meetingName,
-    isIphone,
-    isRTL,
+    meetingName = '',
+    isIphone = false,
+    isRTL = false,
     isToolbarVisible,
     setIsToolbarVisible,
-    allowSnapshotOfCurrentSlide,
+    allowSnapshotOfCurrentSlide = false,
     presentationDropdownItems,
     slideNum,
     currentUser,
@@ -541,6 +526,5 @@ const PresentationMenu = (props) => {
 };
 
 PresentationMenu.propTypes = propTypes;
-PresentationMenu.defaultProps = defaultProps;
 
 export default injectIntl(PresentationMenu);

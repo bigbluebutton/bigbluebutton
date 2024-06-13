@@ -31,6 +31,8 @@ import { notifyShapeNumberExceeded, getCustomEditorAssetUrls, getCustomAssetUrls
 
 import NoopTool from './custom-tools/noop-tool/component';
 
+import { PollShapeUtil } from './custom-shapes/poll/component';
+
 // Helper functions
 const deleteLocalStorageItemsWithPrefix = (prefix) => {
   const keysToRemove = Object.keys(localStorage).filter((key) =>
@@ -60,15 +62,19 @@ const determineViewerFitToWidth = (currentPresentationPage) => {
   );
 };
 
+const defaultUser = {
+  userId: '',
+};
+
 const Whiteboard = React.memo(function Whiteboard(props) {
   const {
-    isPresenter,
+    isPresenter = false,
     removeShapes,
     persistShapeWrapper,
     shapes,
     assets,
-    currentUser,
-    whiteboardId,
+    currentUser = defaultUser,
+    whiteboardId = undefined,
     zoomSlide,
     curPageId,
     zoomChanger,
@@ -91,7 +97,7 @@ const Whiteboard = React.memo(function Whiteboard(props) {
     isToolbarVisible,
     isModerator,
     currentPresentationPage,
-    presentationId,
+    presentationId = undefined,
     hasWBAccess,
     bgShape,
     publishCursorUpdate,
@@ -146,6 +152,9 @@ const Whiteboard = React.memo(function Whiteboard(props) {
   const lastKnownWidth = React.useRef(presentationAreaWidth);
 
   const [shapesVersion, setShapesVersion] = React.useState(0);
+
+  const customShapeUtils = [PollShapeUtil];
+  const customTools = [NoopTool];
 
   const setIsMouseDown = (val) => {
     isMouseDownRef.current = val;
@@ -1306,8 +1315,6 @@ const Whiteboard = React.memo(function Whiteboard(props) {
           }
         }),[]
 
-  const customTools = [NoopTool];
-
   return (
     <div
       ref={whiteboardRef}
@@ -1320,6 +1327,7 @@ const Whiteboard = React.memo(function Whiteboard(props) {
         forceMobile={true}
         hideUi={hasWBAccessRef.current || isPresenter ? false : true}
         onMount={handleTldrawMount}
+        shapeUtils={customShapeUtils}
         tools={customTools}
       />
       <Styled.TldrawV2GlobalStyle
@@ -1361,7 +1369,6 @@ Whiteboard.propTypes = {
   intl: PropTypes.shape({
     formatMessage: PropTypes.func.isRequired,
   }).isRequired,
-  svgUri: PropTypes.string,
   maxStickyNoteLength: PropTypes.number.isRequired,
   fontFamily: PropTypes.string.isRequired,
   colorStyle: PropTypes.string.isRequired,
@@ -1381,22 +1388,6 @@ Whiteboard.propTypes = {
   isFullscreen: PropTypes.bool.isRequired,
   layoutContextDispatch: PropTypes.func.isRequired,
   fullscreenAction: PropTypes.string.isRequired,
-  fullscreenRef: PropTypes.instanceOf(Element),
   handleToggleFullScreen: PropTypes.func.isRequired,
-  numberOfPages: PropTypes.number,
-  sidebarNavigationWidth: PropTypes.number,
   presentationId: PropTypes.string,
-};
-
-Whiteboard.defaultProps = {
-  fullscreenRef: undefined,
-  svgUri: undefined,
-  whiteboardId: undefined,
-  sidebarNavigationWidth: 0,
-  presentationId: undefined,
-  currentUser: {
-    userId: "",
-  },
-  isPresenter: false,
-  numberOfPages: 0,
 };
