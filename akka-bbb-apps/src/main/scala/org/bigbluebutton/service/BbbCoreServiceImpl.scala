@@ -19,6 +19,19 @@ import scala.reflect.runtime.universe._
 import org.bigbluebutton.core.api.GetNextVoiceBridge
 import org.bigbluebutton.common2.domain.MeetingProp
 import org.bigbluebutton.common2.domain.DefaultProps
+import org.bigbluebutton.common2.domain.DurationProps
+import org.bigbluebutton.common2.domain.PasswordProp
+import org.bigbluebutton.common2.domain.RecordProp
+import org.bigbluebutton.common2.domain.BreakoutProps
+import org.bigbluebutton.common2.domain.WelcomeProp
+import org.bigbluebutton.common2.domain.VoiceProp
+import org.bigbluebutton.common2.domain.UsersProp
+import org.bigbluebutton.common2.domain.MetadataProp
+import org.bigbluebutton.common2.domain.LockSettingsProps
+import org.bigbluebutton.common2.domain.SystemProps
+import org.bigbluebutton.common2.domain.GroupProps
+import org.bigbluebutton.core.api.CreateMeeting
+import org.bigbluebutton.core.api.HasUserJoined
 class BbbCoreServiceImpl(implicit materializer: Materializer, bbbActor: ActorRef) extends BbbCoreService {
 
   import materializer.executionContext
@@ -108,28 +121,172 @@ class BbbCoreServiceImpl(implicit materializer: Materializer, bbbActor: ActorRef
       }
     }
 
-    // def settingsToProps(settings: MeetingSettings): DefaultProps = {
-    //   val meetingProps = settings.meetingProps.get
-    //   val meetingProp = MeetingProp(
-    //     name = meetingProps.name,
-    //     extId = meetingProps.meetingExtId,
-    //     intId = meetingProps.meetingIntId,
-    //     meetingCameraCap = meetingProps.meetingCameraCap,
-    //     maxPinnedCameras = meetingProps.maxPinnedCameras,
-    //     isBreakout = meetingProps.isBreakout,
-    //     disabledFeatures = meetingProps.disabledFeatures.toVector,
-    //     notifyRecordingIsOn = meetingProps.notifyRecordingIsOn,
-    //     presentationUploadExternalDescription = meetingProps.presUploadExtDesc,
-    //     presentationUploadExternalUrl = meetingProps.presUploadExtUrl
-    //   )
+    def settingsToProps(settings: CreateMeetingSettings): DefaultProps = {
+      val meetingSettings = settings.meetingSettings.get
+      val meetingProp = MeetingProp(
+        name = meetingSettings.name,
+        extId = meetingSettings.meetingExtId,
+        intId = meetingSettings.meetingIntId,
+        meetingCameraCap = meetingSettings.meetingCameraCap,
+        maxPinnedCameras = meetingSettings.maxPinnedCameras,
+        isBreakout = meetingSettings.isBreakout,
+        disabledFeatures = meetingSettings.disabledFeatures.toVector,
+        notifyRecordingIsOn = meetingSettings.notifyRecordingIsOn,
+        presentationUploadExternalDescription = meetingSettings.presUploadExtDesc,
+        presentationUploadExternalUrl = meetingSettings.presUploadExtUrl
+      )
+      
+      val durationSettings = settings.durationSettings.get
+      val durationProps = DurationProps(
+        duration = durationSettings.duration,
+        createdTime = durationSettings.createTime,
+        createdDate = durationSettings.createDate,
+        meetingExpireIfNoUserJoinedInMinutes = durationSettings.meetingExpNoUserJoinedInMin,
+        meetingExpireWhenLastUserLeftInMinutes = durationSettings.meetingExpLastUserLeftInMin,
+        userInactivityInspectTimerInMinutes = durationSettings.userInactivityInspectTimeInMin,
+        userInactivityThresholdInMinutes = durationSettings.userInactivityThresholdInMin,
+        userActivitySignResponseDelayInMinutes = durationSettings.userActivitySignResponseDelayInMin,
+        endWhenNoModerator = durationSettings.endWhenNoMod,
+        endWhenNoModeratorDelayInMinutes = durationSettings.endWhenNoModDelayInMin
+      )
 
-    // }
+      val passwordSettings = settings.passwordSettings.get
+      val passwordProp = PasswordProp(
+        moderatorPass = passwordSettings.moderatorPw,
+        viewerPass = passwordSettings.attendeePw,
+        learningDashboardAccessToken = passwordSettings.learningDashboardAccessToken
+      )
+
+      val recordSettings = settings.recordSettings.get
+      val recordProp = RecordProp(
+        record = recordSettings.record,
+        autoStartRecording = recordSettings.autoStartRecording,
+        allowStartStopRecording = recordSettings.allowStartStopRecording,
+        recordFullDurationMedia = recordSettings.recordFullDurationMedia,
+        keepEvents = recordSettings.keepEvents
+      )
+
+      val breakoutSettings = settings.breakoutSettings.get
+      val breakoutProps = BreakoutProps(
+        parentId = breakoutSettings.parentMeetingId,
+        sequence = breakoutSettings.sequence,
+        freeJoin = breakoutSettings.freeJoin,
+        breakoutRooms = breakoutSettings.breakoutRooms.toVector,
+        record = breakoutSettings.record,
+        privateChatEnabled = breakoutSettings.privateChatEnabled,
+        captureNotes = breakoutSettings.captureNotes,
+        captureSlides = breakoutSettings.captureSlides,
+        captureNotesFilename = breakoutSettings.captureNotesFileName,
+        captureSlidesFilename = breakoutSettings.captureSlidesFileName
+      )
+
+      val welcomeSettings = settings.welcomeSettings.get
+      val welcomeProp = WelcomeProp(
+        welcomeMsgTemplate = welcomeSettings.welcomeMsgTemplate,
+        welcomeMsg = welcomeSettings.welcomeMsg,
+        modOnlyMessage = welcomeSettings.modOnlyMsg
+      )
+
+      val voiceSettings = settings.voiceSettings.get
+      val voiceProp = VoiceProp(
+        telVoice = voiceSettings.voiceBridge,
+        voiceConf = voiceSettings.voiceConf,
+        dialNumber = voiceSettings.dialNumber,
+        muteOnStart = voiceSettings.muteOnStart
+      )
+
+      val userSettings = settings.userSettings.get
+      val usersProp = UsersProp(
+        maxUsers = userSettings.maxUsers,
+        maxUserConcurrentAccesses = userSettings.maxUserConcurrentAccesses,
+        webcamsOnlyForModerator = userSettings.webcamsOnlyForMod,
+        userCameraCap = userSettings.userCameraCap,
+        guestPolicy = userSettings.guestPolicy,
+        meetingLayout = userSettings.meetingLayout,
+        allowModsToUnmuteUsers = userSettings.allowModsUnmuteUsers,
+        allowModsToEjectCameras = userSettings.allowModsEjectCameras,
+        authenticatedGuest = userSettings.authenticatedGuest,
+        allowPromoteGuestToModerator = userSettings.allowPromoteGuest
+      )
+
+      val metadataSettings = settings.metadataSettings.get
+      val metadataProp = MetadataProp(
+        metadata = metadataSettings.metadata
+      )
+
+      val lockSettings = settings.lockSettings.get
+      val lockSettingsProps = LockSettingsProps(
+        disableCam = lockSettings.disableCam,
+        disableMic = lockSettings.disableMic,
+        disablePrivateChat = lockSettings.disablePrivateChat,
+        disablePublicChat = lockSettings.disablePublicChat,
+        disableNotes = lockSettings.disableNotes,
+        hideUserList = lockSettings.hideUserList,
+        lockOnJoin = lockSettings.lockOnJoin,
+        lockOnJoinConfigurable = lockSettings.lockOnJoinConfigurable,
+        hideViewersCursor = lockSettings.hideViewersCursor,
+        hideViewersAnnotation = lockSettings.hideViewersAnnotation
+      )
+
+      val systemSettings = settings.systemSettings.get
+      val systemProps = SystemProps(
+        loginUrl = systemSettings.loginUrl,
+        logoutUrl = systemSettings.logoutUrl,
+        customLogoURL = systemSettings.customLogoUrl,
+        bannerText = systemSettings.bannerText,
+        bannerColor = systemSettings.bannerColour
+      )
+
+      val groups = settings.groupSettings.map(g => GroupProps(
+        groupId = g.groupId,
+        name = g.name,
+        usersExtId = g.usersExtIds.toVector
+      )).toVector
+
+      DefaultProps(
+        meetingProp = meetingProp,
+        breakoutProps = breakoutProps,
+        durationProps = durationProps,
+        password = passwordProp,
+        recordProp = recordProp,
+        welcomeProp = welcomeProp,
+        voiceProp = voiceProp,
+        usersProp = usersProp,
+        metadataProp = metadataProp,
+        lockSettingsProps = lockSettingsProps,
+        systemProps = systemProps,
+        groups = groups,
+        overrideClientSettings = settings.overrideClientSettings
+      )
+    }
+
 
     in.createMeetingSettings match {
       case Some(settings) =>
         if (!allSettingsPresent(settings)) Future.failed(GrpcServiceException(Code.INVALID_ARGUMENT, "missingSettings", Seq(new ErrorResponse("missingSettings", "Some meeting settings were not provided."))))
-        // val defaultProps = settingsToProps(settings)
-        Future.successful(CreateMeetingResponse())
+        val defaultProps = settingsToProps(settings)
+        (bbbActor ? CreateMeeting(defaultProps)).mapTo[(RunningMeeting, Boolean)].flatMap {
+          case (meeting, isDuplicate) => {
+            (meeting.actorRef ? HasUserJoined()).mapTo[Boolean].map(hasUserJoined => {
+              CreateMeetingResponse(
+              meetingExtId = meeting.props.meetingProp.extId,
+              meetingIntId = meeting.props.meetingProp.intId,
+              parentMeetingId = meeting.props.breakoutProps.parentId,
+              attendeePw = meeting.props.password.viewerPass,
+              moderatorPw = meeting.props.password.moderatorPass,
+              createTime = meeting.props.durationProps.createdTime,
+              voiceBridge = meeting.props.voiceProp.voiceConf,
+              dialNumber = meeting.props.voiceProp.dialNumber,
+              createDate = meeting.props.durationProps.createdDate,
+              hasUserJoined = hasUserJoined,
+              duration = meeting.props.durationProps.duration,
+              hasBeenForciblyEnded = false,
+              isDuplicate = isDuplicate
+              )
+            })
+          }
+          case _ => Future.failed(GrpcServiceException(Code.INTERNAL, "createError", Seq(new ErrorResponse("createError", "An unknown error occurred while attempting to create meeting."))))
+        }
       case None => Future.failed(GrpcServiceException(Code.INVALID_ARGUMENT, "missingSettings", Seq(new ErrorResponse("missingSettings", "No meeting settings were provided."))))
     }
   }

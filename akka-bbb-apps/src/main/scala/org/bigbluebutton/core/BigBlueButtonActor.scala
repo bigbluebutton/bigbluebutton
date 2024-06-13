@@ -74,6 +74,7 @@ class BigBlueButtonActor(
     case msg: GetMeeting                => handleGetMeeting(sender(), msg)
     case msg: GetMeetings               => handleGetMeetings(sender(), msg)
     case msg: GetNextVoiceBridge        => handleGetNextVoiceBridge(sender(), msg)
+    case msg: CreateMeeting             => handleCreateMeeting(sender(), msg)
 
     // 2x messages
     case msg: BbbCommonEnvCoreMsg       => handleBbbCommonEnvCoreMsg(msg)
@@ -237,5 +238,28 @@ class BigBlueButtonActor(
 
   private def handleGetNextVoiceBridge(sender: ActorRef, msg: GetNextVoiceBridge): Unit = {
     sender ! RunningMeetings.nextVoiceBridge(meetings)
+  }
+
+  private def handleCreateMeeting(sender: ActorRef, msg: CreateMeeting): Unit = {
+    RunningMeetings.findWithId(meetings, msg.props.meetingProp.intId) match {
+      case None =>
+        log.info("Creating meeting. meetingId={}", msg.props.meetingProp.intId)
+
+        val m = RunningMeeting(msg.props, outGW, eventBus)
+
+        // Subscribe to meeting and voice events.
+        eventBus.subscribe(m.actorRef, m.props.meetingProp.intId)
+        eventBus.subscribe(m.actorRef, m.props.voiceProp.voiceConf)
+
+        bbbMsgBus.subscribe(m.actorRef, m.props.meetingProp.intId)
+        bbbMsgBus.subscribe(m.actorRef, m.props.voiceProp.voiceConf)
+
+        RunningMeetings.add(meetings, m)
+
+        sender ! (m, false)
+      case Some(m) =>
+        log.info("Meeting already created. meetingID={}", msg.props.meetingProp.intId)
+        sender ! (m, true)
+    }
   }
 }

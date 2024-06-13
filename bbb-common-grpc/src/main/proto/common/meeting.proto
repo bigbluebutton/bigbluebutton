@@ -125,7 +125,7 @@ message VoiceSettings {
     bool mute_on_start = 4;
 }
 
-message UsersSettings {
+message UserSettings {
     int32 max_users = 1;
     int32 max_user_concurrent_accesses = 2;
     bool webcams_only_for_mod = 3;
@@ -177,7 +177,7 @@ message CreateMeetingSettings {
     RecordSettings record_settings = 5;
     WelcomeSettings welcome_settings = 6;
     VoiceSettings voice_settings = 7;
-    UsersSettings users_settings = 8;
+    UserSettings user_settings = 8;
     MetadataSettings metadata_settings = 9;
     LockSettings lock_settings = 10;
     SystemSettings system_settings = 11;
