@@ -3,7 +3,6 @@ import { IntlShape, defineMessages, injectIntl } from 'react-intl';
 import { notify } from '/imports/ui/services/notification';
 import { toast } from 'react-toastify';
 import Styled from './styles';
-import { LockSettings } from '/imports/ui/Types/meeting';
 
 const intlMessages = defineMessages({
   suggestLockTitle: {
@@ -32,7 +31,7 @@ interface LockViewersNotifyComponentProps {
   viewersInWebcam: number;
   limitOfViewersInWebcam: number;
   limitOfViewersInWebcamIsEnable: boolean;
-  lockSettings: LockSettings;
+  lockSettingsDisableCam: boolean;
   webcamOnlyForModerator: boolean;
   intl: IntlShape;
 }
@@ -49,7 +48,7 @@ class LockViewersNotifyComponent extends Component<LockViewersNotifyComponentPro
   componentDidUpdate() {
     const {
       viewersInWebcam,
-      lockSettings,
+      lockSettingsDisableCam,
       limitOfViewersInWebcam,
       webcamOnlyForModerator,
       currentUserIsModerator,
@@ -57,7 +56,7 @@ class LockViewersNotifyComponent extends Component<LockViewersNotifyComponentPro
     } = this.props;
     const viwerersInWebcamGreaterThatLimit = (viewersInWebcam >= limitOfViewersInWebcam)
     && limitOfViewersInWebcamIsEnable;
-    const webcamForViewersIsLocked = lockSettings.disableCam || webcamOnlyForModerator;
+    const webcamForViewersIsLocked = lockSettingsDisableCam || webcamOnlyForModerator;
 
     if (viwerersInWebcamGreaterThatLimit
       && !webcamForViewersIsLocked

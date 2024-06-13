@@ -1,24 +1,18 @@
 import React from 'react';
-import { withTracker } from 'meteor/react-meteor-data';
-import Meetings from '/imports/api/meetings';
-import Auth from '/imports/ui/services/auth';
 import { useMutation } from '@apollo/client';
 import ManyUsersComponent from './component';
 import useCurrentUser from '/imports/ui/core/hooks/useCurrentUser';
 import { SET_WEBCAM_ONLY_FOR_MODERATOR } from '/imports/ui/components/lock-viewers/mutations';
 import { useViewersInWebcamCount } from '../hooks';
-import { LockSettings } from '/imports/ui/Types/meeting';
+import useMeeting from '/imports/ui/core/hooks/useMeeting';
 
-interface ManyUsersContainerProps {
-  lockSettings: LockSettings,
-  webcamOnlyForModerator: boolean,
-  limitOfViewersInWebcam: number,
-  limitOfViewersInWebcamIsEnable: boolean,
-}
-
-const ManyUsersContainer: React.FC<ManyUsersContainerProps> = (props) => {
+const ManyUsersContainer: React.FC = () => {
   const { data: currentUserData } = useCurrentUser((user) => ({
     isModerator: user.isModerator,
+  }));
+  const { data: meetingData } = useMeeting((m) => ({
+    usersPolicies: m.usersPolicies,
+    lockSettings: m.lockSettings,
   }));
 
   const [setWebcamOnlyForModerator] = useMutation(SET_WEBCAM_ONLY_FOR_MODERATOR);
@@ -35,35 +29,20 @@ const ManyUsersContainer: React.FC<ManyUsersContainerProps> = (props) => {
 
   const currentUserIsModerator = !!currentUserData?.isModerator;
 
-  const {
-    limitOfViewersInWebcam,
-    limitOfViewersInWebcamIsEnable,
-    lockSettings,
-    webcamOnlyForModerator,
-  } = props;
+  const webcamOnlyForModerator = !!meetingData?.usersPolicies?.webcamsOnlyForModerator;
+  const lockSettingsDisableCam = !!meetingData?.lockSettings?.disableCam;
 
   return (
     <ManyUsersComponent
       toggleWebcamsOnlyForModerator={toggleWebcamsOnlyForModerator}
       currentUserIsModerator={currentUserIsModerator}
       viewersInWebcam={viewersInWebcam}
-      limitOfViewersInWebcam={limitOfViewersInWebcam}
-      limitOfViewersInWebcamIsEnable={limitOfViewersInWebcamIsEnable}
-      lockSettings={lockSettings}
+      limitOfViewersInWebcam={window.meetingClientSettings.public.app.viewersInWebcam}
+      limitOfViewersInWebcamIsEnable={window.meetingClientSettings.public.app.enableLimitOfViewersInWebcam}
+      lockSettingsDisableCam={lockSettingsDisableCam}
       webcamOnlyForModerator={webcamOnlyForModerator}
     />
   );
 };
 
-export default withTracker(() => {
-  const meeting = Meetings.findOne({
-    meetingId: Auth.meetingID,
-  }, { fields: { 'usersPolicies.webcamsOnlyForModerator': 1, lockSettings: 1 } });
-  return {
-    lockSettings: meeting.lockSettings,
-    webcamOnlyForModerator: meeting.usersPolicies.webcamsOnlyForModerator,
-    limitOfViewersInWebcam: window.meetingClientSettings.public.app.viewersInWebcam,
-    limitOfViewersInWebcamIsEnable: window.meetingClientSettings
-      .public.app.enableLimitOfViewersInWebcam,
-  };
-})(ManyUsersContainer);
+export default ManyUsersContainer;
