@@ -613,7 +613,7 @@
     "app.submenu.video.videoQualityLabel": "ビデオ品質",
     "app.submenu.video.qualityOptionLabel": "ビデオ品質を選択",
     "app.submenu.video.participantsCamLabel": "参加者のウェブカメラを見ています",
-    "app.submenu.transcription.desc": "口述の方法を調整する",
+    "app.submenu.transcription.desc": "書き起こしの方法を調整する",
     "app.submenu.transcription.sectionTitle": "口述の設定",
     "app.settings.applicationTab.label": "アプリケーション",
     "app.settings.audioTab.label": "音声",
