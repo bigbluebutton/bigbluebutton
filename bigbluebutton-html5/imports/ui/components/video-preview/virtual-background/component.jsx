@@ -503,15 +503,17 @@ const VirtualBgSelector = ({
 
   return (
     <>
-      {!isVisualEffects && (
+      {!isVisualEffects && isVirtualBackgroundSupported() ? (
+        renderSelector()
+      ) : (
         <Styled.Label>
-          {!isVirtualBackgroundSupported()
-            ? intl.formatMessage(intlMessages.virtualBackgroundSettingsDisabledLabel)
-            : intl.formatMessage(intlMessages.virtualBackgroundSettingsLabel)}
+          {intl.formatMessage(
+            !isVirtualBackgroundSupported()
+              ? intlMessages.virtualBackgroundSettingsLabel
+              : intlMessages.virtualBackgroundSettingsDisabledLabel,
+          )}
         </Styled.Label>
       )}
-
-      {renderSelector()}
     </>
   );
 };

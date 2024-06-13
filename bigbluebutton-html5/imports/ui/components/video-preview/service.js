@@ -3,6 +3,7 @@ import { getStorageSingletonInstance } from '/imports/ui/services/storage';
 import getFromUserSettings from '/imports/ui/services/users-settings';
 import MediaStreamUtils from '/imports/utils/media-stream-utils';
 import VideoService from '/imports/ui/components/video-provider/video-provider-graphql/service';
+import getFromMeetingSettings from '/imports/ui/services/meeting-settings';
 import BBBVideoStream from '/imports/ui/services/webrtc-base/bbb-video-stream';
 import browserInfo from '/imports/utils/browserInfo';
 
@@ -10,6 +11,26 @@ import browserInfo from '/imports/utils/browserInfo';
 const GUM_MAX_RETRIES = 5;
 const GUM_RETRY_DELAY = 200;
 const CAMERA_AS_CONTENT_PROFILE_ID = 'fhd';
+
+const handleHiddenCameraProfiles = () => {
+  const CAMERA_PROFILES = window.meetingClientSettings.public.kurento.cameraProfiles || [];
+  // Get metadata
+  let cameras = getFromMeetingSettings('show-camera-profiles');
+  // Verify if received metadata
+  if (typeof cameras === 'string') {
+    // Turn it into an array of camera ids
+    cameras = cameras.replace(/[ "]/g, '').split(',');
+    // Search the profiles that match with the metadata and change the hidden attribute
+    cameras.forEach((data) => {
+      CAMERA_PROFILES.forEach((profile) => {
+        if (data === profile.id) { profile.hidden = false; }
+      });
+    });
+  }
+  // Filtered, without hidden profiles
+  const newCameraProfiles = CAMERA_PROFILES.filter(p => !p.hidden);
+  return newCameraProfiles;
+}
 
 const getDefaultProfile = () => {
   const BBBStorage = getStorageSingletonInstance();
@@ -250,4 +271,5 @@ export default {
   getCameraProfile,
   doGUM,
   terminateCameraStream,
+  handleHiddenCameraProfiles,
 };

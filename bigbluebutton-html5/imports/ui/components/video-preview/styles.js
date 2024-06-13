@@ -1,12 +1,18 @@
 import styled, { css, keyframes } from 'styled-components';
 import {
+  borderSizeSmall,
   borderSize,
   borderSizeLarge,
+  mdPaddingX,
+  titlePositionLeft,
+  lgPaddingY,
 } from '/imports/ui/stylesheets/styled-components/general';
 import {
   colorGrayLabel,
   colorWhite,
+  colorBlack,
   colorGrayLighter,
+  colorGrayLightest,
   colorPrimary,
   colorText,
 } from '/imports/ui/stylesheets/styled-components/palette';
@@ -14,10 +20,16 @@ import {
   fontSizeLarge,
   lineHeightComputed,
   headingsFontWeight,
+  fontSizeLarger,
+  fontSizeSmall,
 } from '/imports/ui/stylesheets/styled-components/typography';
 import { smallOnly, landscape } from '/imports/ui/stylesheets/styled-components/breakpoints';
 import ModalSimple from '/imports/ui/components/common/modal/simple/component';
 import ModalStyles from '/imports/ui/components/common/modal/simple/styles';
+import Button from '/imports/ui/components/common/button/component';
+import {
+  Tab, Tabs, TabList,
+} from 'react-tabs';
 
 const Warning = styled.div`
   text-align: center;
@@ -51,11 +63,16 @@ const Col = styled.div`
   }
 `;
 
+const BackgroundCol = styled.div`
+  display: flex;
+  flex-direction: column;
+`;
+
 const VideoCol = styled(Col)`
   align-items: center;
 
   @media ${landscape} {
-     width: 33.3%;
+     width: 50%;
    }
 `;
 
@@ -97,7 +114,6 @@ const Content = styled.div`
   overflow: auto;
   color: ${colorText};
   font-weight: normal;
-  padding: ${lineHeightComputed} 0;
 
   @media ${smallOnly} {
     flex-direction: column;
@@ -116,11 +132,12 @@ const BrowserWarning = styled.p`
 
 const Footer = styled.div`
   display: flex;
+  flex-direction: column;
 `;
 
 const Actions = styled.div`
-  margin-left: auto;
-  margin-right: auto;
+  display: flex;
+  justify-content: flex-end;
 
   [dir="rtl"] & {
     margin-right: auto;
@@ -244,12 +261,112 @@ const MarkerDynamicWrapper = styled.div`
   user-select: none;
 `;
 
+const Container = styled.div`
+  padding: 0 calc(${mdPaddingX} / 2 + ${borderSize});
+`;
+
+const Header = styled.div`
+  margin: 0;
+  padding: 0;
+  border: none;
+  line-height: ${titlePositionLeft};
+  margin-bottom: ${lgPaddingY};
+`;
+
+const WebcamTabs = styled(Tabs)`
+  display: flex;
+  flex-flow: column;
+
+  &:hover {
+    cursor: pointer;
+  }
+
+`;
+
+const WebcamTabList = styled(TabList)`
+  display: flex;
+  justify-content: space-around;
+  padding: 0;
+  list-style-type: none;
+`;
+
+const WebcamTabSelector = styled(Tab)`
+  display: flex;
+  justify-content: center;
+  flex-grow: 1;
+  text-align: center;
+  font-weight: bold;
+  color: ${colorGrayLighter};
+
+  &.is-selected {
+    border: none;
+    color: ${colorBlack};
+  }
+`;
+
+const HeaderSeparator = styled.div`
+  border-left: 1px solid ${colorText};
+  content: '|';
+  margin: 0 1.5rem; 
+  height: 1.5rem;
+  align-self: center;
+  opacity: 0.75;
+`;
+
+const BottomSeparator = styled.div`
+  position: relative;
+  width: 100%;
+  height: ${borderSizeSmall};
+  background-color: ${colorGrayLightest};
+  margin-top: calc(${lineHeightComputed} * 1.25);
+  margin-bottom: calc(${lineHeightComputed} * 1.25);
+`;
+
+const IconSvg = styled.img`
+  height: ${fontSizeLarger};
+  border-radius: 5px;
+  margin: 5px;
+
+`;
+
+const SharingButton = styled(Button)`
+  margin: 0 0.5rem;
+  border-radius: 5px;
+  height: 2.5rem;
+  font-weight: bold;
+  text-transform: uppercase;
+  font-size: ${fontSizeSmall};
+`;
+
+const CancelButton = styled(Button)`
+  background-color: transparent;
+  color: red;
+  border: 1px solid red;
+  margin: 0 0.5rem;
+  border-radius: 5px;
+  height: 2.5rem;
+  font-weight: bold;
+  text-transform: uppercase;
+  font-size: ${fontSizeSmall};
+`;
+
 export default {
   Warning,
   Main,
   Text,
   Col,
+  Container,
+  Header,
+  WebcamTabs,
+  WebcamTabList,
+  WebcamTabSelector,
+  HeaderSeparator,
+  BottomSeparator,
   VideoCol,
+  BackgroundCol,
+  IconSvg,
+  SharingButton,
+  CancelButton,
   Label,
   Select,
   Content,
