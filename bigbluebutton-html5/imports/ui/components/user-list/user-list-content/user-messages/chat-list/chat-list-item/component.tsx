@@ -27,6 +27,7 @@ const intlMessages = defineMessages({
 
 interface ChatListItemProps {
   chat: Chat,
+  chatNodeRef: React.Ref<HTMLButtonElement>,
 }
 
 const ChatListItem = (props: ChatListItemProps) => {
@@ -40,6 +41,7 @@ const ChatListItem = (props: ChatListItemProps) => {
   const TOGGLE_CHAT_PUB_AK: string = useShortcut('togglePublicChat');
   const {
     chat,
+    chatNodeRef,
   } = props;
 
   const countUnreadMessages = chat.totalUnread || 0;
@@ -149,6 +151,7 @@ const ChatListItem = (props: ChatListItemProps) => {
           e.stopPropagation();
         }
       }}
+      ref={chatNodeRef}
     >
       <Styled.ChatListItemLink>
         <Styled.ChatIcon>
