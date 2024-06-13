@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useMemo } from 'react';
 import { LockStruct } from './context';
 import { withLockContext } from './withContext';
 import useCurrentUser from '/imports/ui/core/hooks/useCurrentUser';
@@ -29,7 +29,7 @@ const lockContextContainer = (component) => (props) => {
   lockSetting.userLocks.hideViewersCursor = userIsLocked && lockSettings?.hideViewersCursor;
   lockSetting.userLocks.hideViewersAnnotation = userIsLocked && lockSettings?.hideViewersAnnotation;
 
-  const ComponentWithContext = withLockContext(component);
+  const ComponentWithContext = useMemo(() => withLockContext(component), []);
   // eslint-disable-next-line react/prop-types
   const { children } = props;
   return (
