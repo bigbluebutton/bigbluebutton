@@ -11,11 +11,11 @@ const GenericSidekickContentNavButton = ({ sidebarContentPanel, layoutContextDis
   let genericSidekickContentExtensibleArea = [];
 
   if (pluginsExtensibleAreasAggregatedState.genericContents) {
-    const genericMainContent = pluginsExtensibleAreasAggregatedState.genericContents.filter((g) => g.type === GenericContentType.SIDEKICK_CONTENT);
+      .filter((g) => g.type === GenericContentType.SIDEKICK_AREA);
     genericSidekickContentExtensibleArea = [...genericMainContent];
   }
 
-  const genericSidekickContentId = (id) => PANELS.GENERIC_SIDEKICK_CONTENT + id;
+  const genericSidekickContentId = (id) => PANELS.GENERIC_CONTENT_SIDEKICK + id;
 
   if (genericSidekickContentExtensibleArea.length === 0) return null;
   const genericSidekickContentNavButtons = genericSidekickContentExtensibleArea.map((gsc) => (

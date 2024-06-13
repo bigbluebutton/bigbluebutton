@@ -22,15 +22,15 @@ import { GenericContentType } from 'bigbluebutton-html-plugin-sdk/dist/cjs/exten
 const GenericMainContentContainer: React.FC<GenericMainContentContainerProps> = (props: GenericMainContentContainerProps) => {
   const { genericMainContentId } = props;
 
-  const previousPluginGenericContainerContents = useRef<PluginSdk.GenericMainContent[]>([]);
+  const previousPluginGenericContainerContents = useRef<PluginSdk.GenericContentMainArea[]>([]);
   const {
     pluginsExtensibleAreasAggregatedState,
   } = useContext(PluginsContext);
   const layoutContextDispatch: DispatcherFunction = layoutDispatch();
-  let genericContainerContentExtensibleArea = [] as PluginSdk.GenericMainContent[];
+  let genericContainerContentExtensibleArea = [] as PluginSdk.GenericContentMainArea[];
 
   if (pluginsExtensibleAreasAggregatedState.genericContents) {
-    const genericContainerContent = pluginsExtensibleAreasAggregatedState.genericContents.filter((g) => g.type === GenericContentType.MAIN_CONTENT) as PluginSdk.GenericMainContent[];
+      .filter((g) => g.type === GenericContentType.MAIN_AREA) as PluginSdk.GenericContentMainArea[];
     genericContainerContentExtensibleArea = [
       ...genericContainerContent,
     ];

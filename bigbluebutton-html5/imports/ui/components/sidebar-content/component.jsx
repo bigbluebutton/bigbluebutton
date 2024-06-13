@@ -159,7 +159,7 @@ const SidebarContent = (props) => {
           />
         </Styled.Poll>
       )}
-      {sidebarContentPanel.includes(PANELS.GENERIC_SIDEKICK_CONTENT) && (
+      {sidebarContentPanel.includes(PANELS.GENERIC_CONTENT_SIDEKICK) && (
         <GenericSidekickContentContainer
           genericSidekickContentId={sidebarContentPanel}
         />
