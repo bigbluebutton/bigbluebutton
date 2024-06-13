@@ -173,12 +173,17 @@ const AudioContainer = (props) => {
   };
 
   useEffect(() => {
+    // Data is not loaded yet.
+    // We don't whether the meeting is a breakout or not.
+    // So, postpone the decision.
+    if (meetingIsBreakout === undefined) return;
+
     init(toggleVoice).then(() => {
       if (meetingIsBreakout && !Service.isUsingAudio()) {
         joinAudio();
       }
     });
-  }, []);
+  }, [meetingIsBreakout]);
 
   useEffect(() => {
     if (userIsReturningFromBreakoutRoom) {
