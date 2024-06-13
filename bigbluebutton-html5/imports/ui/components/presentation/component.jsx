@@ -594,6 +594,7 @@ class Presentation extends PureComponent {
       fitToWidth,
       totalPages,
       userIsPresenter,
+      hasPoll,
     } = this.props;
     const { zoom, isPanning } = this.state;
 
@@ -635,6 +636,7 @@ class Presentation extends PureComponent {
         whiteboardId={currentSlide?.id}
         numberOfSlides={totalPages}
         layoutSwapped={false}
+        hasPoll={hasPoll}
       />
     );
   }
