@@ -125,10 +125,6 @@ export function isPresentationEnabled() {
   return getDisabledFeatures().indexOf('presentation') === -1;
 }
 
-export function useIsPresentationEnabled() {
-  return useDisabledFeatures().indexOf('presentation') === -1;
-}
-
 export function isReactionsEnabled() {
   const USER_REACTIONS_ENABLED = window.meetingClientSettings.public.userReaction.enabled;
   const REACTIONS_BUTTON_ENABLED = window.meetingClientSettings.public.app.reactionsButton.enabled;
