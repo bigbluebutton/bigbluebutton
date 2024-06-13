@@ -114,7 +114,12 @@ const isScreenGloballyBroadcasting = () => {
 
 const useIsScreenGloballyBroadcasting = () => {
   const { data } = useScreenshare();
-  return Boolean(data && data[0] && data[0].stream);
+  return Boolean(
+    data
+    && data[0]
+    && data[0].contentType === CONTENT_TYPE_SCREENSHARE
+    && data[0].stream,
+  );
 };
 
 // A simplified, trackable version of isCameraContentBroadcasting that DOES NOT
@@ -145,6 +150,15 @@ const isScreenBroadcasting = (active, sharingContentType) => {
   if (screenIsShared && isSharing) {
     setIsSharing(false);
   }
+
+  return sharing || screenIsShared;
+};
+
+const useIsScreenBroadcasting = () => {
+  const active = useIsSharing();
+  const sharingContentType = useSharingContentType();
+  const screenIsShared = useIsScreenGloballyBroadcasting();
+  const sharing = active && sharingContentType === CONTENT_TYPE_SCREENSHARE;
 
   return sharing || screenIsShared;
 };
@@ -426,4 +440,5 @@ export {
   useIsScreenGloballyBroadcasting,
   useIsCameraAsContentGloballyBroadcasting,
   useShouldEnableVolumeControl,
+  useIsScreenBroadcasting,
 };
