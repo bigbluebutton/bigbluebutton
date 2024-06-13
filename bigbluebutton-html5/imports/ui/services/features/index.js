@@ -81,12 +81,24 @@ export function isDownloadPresentationWithAnnotationsEnabled() {
   return getDisabledFeatures().indexOf('downloadPresentationWithAnnotations') === -1 && window.meetingClientSettings.public.presentation.allowDownloadWithAnnotations;
 }
 
+export function useIsDownloadPresentationWithAnnotationsEnabled() {
+  return getDisabledFeatures().indexOf('downloadPresentationWithAnnotations') === -1 && window.meetingClientSettings.public.presentation.allowDownloadWithAnnotations;
+}
+
 export function isDownloadPresentationConvertedToPdfEnabled() {
+  return getDisabledFeatures().indexOf('downloadPresentationConvertedToPdf') === -1;
+}
+
+export function useIsDownloadPresentationConvertedToPdfEnabled() {
   return getDisabledFeatures().indexOf('downloadPresentationConvertedToPdf') === -1;
 }
 
 export function isDownloadPresentationOriginalFileEnabled() {
   return getDisabledFeatures().indexOf('downloadPresentationOriginalFile') === -1 && window.meetingClientSettings.public.presentation.allowDownloadOriginal;
+}
+
+export function useIsDownloadPresentationOriginalFileEnabled() {
+  return useDisabledFeatures().indexOf('downloadPresentationOriginalFile') === -1 && window.meetingClientSettings.public.presentation.allowDownloadOriginal;
 }
 
 export function isSnapshotOfCurrentSlideEnabled() {
@@ -103,6 +115,10 @@ export function isImportSharedNotesFromBreakoutRoomsEnabled() {
 
 export function isPresentationEnabled() {
   return getDisabledFeatures().indexOf('presentation') === -1;
+}
+
+export function useIsPresentationEnabled() {
+  return useDisabledFeatures().indexOf('presentation') === -1;
 }
 
 export function isReactionsEnabled() {

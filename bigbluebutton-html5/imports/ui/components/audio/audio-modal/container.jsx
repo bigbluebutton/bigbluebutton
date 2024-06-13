@@ -1,12 +1,8 @@
-import React from 'react';
+import React, { useCallback } from 'react';
 import { useReactiveVar } from '@apollo/client';
-import { withTracker } from 'meteor/react-meteor-data';
 import browserInfo from '/imports/utils/browserInfo';
 import getFromUserSettings from '/imports/ui/services/users-settings';
 import AudioModal from './component';
-import Meetings from '/imports/api/meetings';
-import Auth from '/imports/ui/services/auth';
-import lockContextContainer from '/imports/ui/components/lock-viewers/context/container';
 import AudioError from '/imports/ui/services/audio-manager/error-codes';
 import AppService from '/imports/ui/components/app/service';
 import {
@@ -20,8 +16,15 @@ import AudioModalService from '/imports/ui/components/audio/audio-modal/service'
 import useCurrentUser from '/imports/ui/core/hooks/useCurrentUser';
 import AudioManager from '/imports/ui/services/audio-manager';
 import { useStorageKey } from '/imports/ui/services/storage/hooks';
+import useMeeting from '/imports/ui/core/hooks/useMeeting';
+import useLockContext from '/imports/ui/components/lock-viewers/hooks/useLockContext';
+
+const invalidDialNumbers = ['0', '613-555-1212', '613-555-1234', '0000'];
 
 const AudioModalContainer = (props) => {
+  const { data: meeting } = useMeeting((m) => ({
+    voiceSettings: m.voiceSettings,
+  }));
   const { data: currentUserData } = useCurrentUser((user) => ({
     away: user.away,
     isModerator: user.isModerator,
@@ -31,8 +34,33 @@ const AudioModalContainer = (props) => {
   const away = currentUserData?.away;
   const isModerator = currentUserData?.isModerator;
 
+  const isRTL = document.documentElement.getAttribute('dir') === 'rtl';
   const APP_CONFIG = window.meetingClientSettings.public.app;
   const forceListenOnly = getFromUserSettings('bbb_force_listen_only', APP_CONFIG.forceListenOnly);
+  const listenOnlyMode = getFromUserSettings('bbb_listen_only_mode', APP_CONFIG.listenOnlyMode);
+  const skipCheck = getFromUserSettings('bbb_skip_check_audio', APP_CONFIG.skipCheck);
+  const skipCheckOnJoin = getFromUserSettings('bbb_skip_check_audio_on_first_join', APP_CONFIG.skipCheckOnJoin);
+  const autoJoin = getFromUserSettings('bbb_auto_join_audio', APP_CONFIG.autoJoin);
+
+  let formattedDialNum = '';
+  let formattedTelVoice = '';
+  let combinedDialInNum = '';
+  if (meeting && meeting.voiceSettings) {
+    const { dialNumber, telVoice } = meeting.voiceSettings;
+    if (invalidDialNumbers.indexOf(dialNumber) < 0) {
+      formattedDialNum = dialNumber;
+      formattedTelVoice = telVoice;
+      combinedDialInNum = `${dialNumber.replace(/\D+/g, '')},,,${telVoice.replace(/\D+/g, '')}`;
+    }
+  }
+
+  const { isIe } = browserInfo;
+
+  const SHOW_VOLUME_METER = window.meetingClientSettings.public.media.showVolumeMeter;
+
+  const {
+    enabled: LOCAL_ECHO_TEST_ENABLED,
+  } = window.meetingClientSettings.public.media.localEchoTest;
 
   const forceListenOnlyAttendee = forceListenOnly && !isModerator;
   const inputDeviceId = useReactiveVar(AudioManager._inputDeviceId.value);
@@ -44,8 +72,15 @@ const AudioModalContainer = (props) => {
   const isListenOnly = useReactiveVar(AudioManager._isListenOnly.value);
   const isEchoTest = useReactiveVar(AudioManager._isEchoTest.value);
   const autoplayBlocked = useReactiveVar(AudioManager._autoplayBlocked.value);
+  const meetingIsBreakout = AppService.useMeetingIsBreakout();
+  const { userLocks } = useLockContext();
 
-  const { autoJoin, skipCheck, skipCheckOnJoin } = props;
+  const { setIsOpen } = props;
+  const close = useCallback(() => closeModal(() => setIsOpen(false)), [setIsOpen]);
+  const joinMic = useCallback(
+    (skipEchoTest) => joinMicrophone(skipEchoTest || skipCheck || skipCheckOnJoin),
+    [skipCheck, skipCheckOnJoin],
+  );
   const joinFullAudioImmediately = (
     autoJoin
     && (
@@ -72,73 +107,37 @@ const AudioModalContainer = (props) => {
       autoplayBlocked={autoplayBlocked}
       getEchoTest={getEchoTest}
       joinFullAudioImmediately={joinFullAudioImmediately}
+      meetingIsBreakout={meetingIsBreakout}
+      closeModal={close}
+      joinMicrophone={joinMic}
+      joinListenOnly={joinListenOnly}
+      leaveEchoTest={leaveEchoTest}
+      changeInputDevice={Service.changeInputDevice}
+      changeInputStream={Service.changeInputStream}
+      changeOutputDevice={Service.changeOutputDevice}
+      joinEchoTest={Service.joinEchoTest}
+      exitAudio={Service.exitAudio}
+      showVolumeMeter={SHOW_VOLUME_METER}
+      localEchoEnabled={LOCAL_ECHO_TEST_ENABLED}
+      listenOnlyMode={listenOnlyMode}
+      formattedDialNum={formattedDialNum}
+      formattedTelVoice={formattedTelVoice}
+      combinedDialInNum={combinedDialInNum}
+      audioLocked={userLocks.userMic}
+      autoJoin={autoJoin}
+      skipCheck={skipCheck}
+      skipCheckOnJoin={skipCheckOnJoin}
+      isMobileNative={navigator.userAgent.toLowerCase().includes('bbbnative')}
+      isIE={isIe}
+      handleAllowAutoplay={Service.handleAllowAutoplay}
+      notify={Service.notify}
+      isRTL={isRTL}
+      AudioError={AudioError}
+      getTroubleshootingLink={AudioModalService.getTroubleshootingLink}
+      setIsOpen={setIsOpen}
       {...props}
     />
   );
 };
 
-const invalidDialNumbers = ['0', '613-555-1212', '613-555-1234', '0000'];
-const isRTL = document.documentElement.getAttribute('dir') === 'rtl';
-
-export default lockContextContainer(withTracker(({ userLocks, setIsOpen }) => {
-  const APP_CONFIG = window.meetingClientSettings.public.app;
-  const listenOnlyMode = getFromUserSettings('bbb_listen_only_mode', APP_CONFIG.listenOnlyMode);
-  const skipCheck = getFromUserSettings('bbb_skip_check_audio', APP_CONFIG.skipCheck);
-  const skipCheckOnJoin = getFromUserSettings('bbb_skip_check_audio_on_first_join', APP_CONFIG.skipCheckOnJoin);
-  const autoJoin = getFromUserSettings('bbb_auto_join_audio', APP_CONFIG.autoJoin);
-  const meeting = Meetings.findOne({ meetingId: Auth.meetingID }, { fields: { voiceSettings: 1 } });
-
-  let formattedDialNum = '';
-  let formattedTelVoice = '';
-  let combinedDialInNum = '';
-  if (meeting && meeting.voiceSettings) {
-    const { dialNumber, telVoice } = meeting.voiceSettings;
-    if (invalidDialNumbers.indexOf(dialNumber) < 0) {
-      formattedDialNum = dialNumber;
-      formattedTelVoice = telVoice;
-      combinedDialInNum = `${dialNumber.replace(/\D+/g, '')},,,${telVoice.replace(/\D+/g, '')}`;
-    }
-  }
-
-  const meetingIsBreakout = AppService.meetingIsBreakout();
-
-  const { isIe } = browserInfo;
-
-  const SHOW_VOLUME_METER = window.meetingClientSettings.public.media.showVolumeMeter;
-
-  const {
-    enabled: LOCAL_ECHO_TEST_ENABLED,
-  } = window.meetingClientSettings.public.media.localEchoTest;
-
-  return ({
-    meetingIsBreakout,
-    closeModal: () => closeModal(() => setIsOpen(false)),
-    joinMicrophone: (skipEchoTest) => joinMicrophone(skipEchoTest || skipCheck || skipCheckOnJoin),
-    joinListenOnly,
-    leaveEchoTest,
-    changeInputDevice: (inputDeviceId) => Service
-      .changeInputDevice(inputDeviceId),
-    changeInputStream: (inputStream) => Service.changeInputStream(inputStream),
-    changeOutputDevice: (outputDeviceId, isLive) => Service
-      .changeOutputDevice(outputDeviceId, isLive),
-    joinEchoTest: () => Service.joinEchoTest(),
-    exitAudio: () => Service.exitAudio(),
-    showVolumeMeter: SHOW_VOLUME_METER,
-    localEchoEnabled: LOCAL_ECHO_TEST_ENABLED,
-    listenOnlyMode,
-    formattedDialNum,
-    formattedTelVoice,
-    combinedDialInNum,
-    audioLocked: userLocks.userMic,
-    autoJoin,
-    skipCheck,
-    skipCheckOnJoin,
-    isMobileNative: navigator.userAgent.toLowerCase().includes('bbbnative'),
-    isIE: isIe,
-    handleAllowAutoplay: () => Service.handleAllowAutoplay(),
-    notify: Service.notify,
-    isRTL,
-    AudioError,
-    getTroubleshootingLink: AudioModalService.getTroubleshootingLink,
-  });
-})(AudioModalContainer));
+export default AudioModalContainer;

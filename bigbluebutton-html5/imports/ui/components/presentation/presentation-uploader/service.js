@@ -11,6 +11,7 @@ import { notify } from '/imports/ui/services/notification';
 import apolloContextHolder from '/imports/ui/core/graphql/apolloContextHolder/apolloContextHolder';
 import { getPresentationUploadToken } from './queries';
 import { requestPresentationUploadTokenMutation } from './mutation';
+import useMeeting from '/imports/ui/core/hooks/useMeeting';
 
 const TOKEN_TIMEOUT = 5000;
 const POD_ID = 'DEFAULT_PRESENTATION_POD';
@@ -284,6 +285,23 @@ const getExternalUploadData = () => {
   };
 };
 
+const useExternalUploadData = () => {
+  const { data: meeting } = useMeeting((m) => ({
+    presentationUploadExternalDescription: m.presentationUploadExternalDescription,
+    presentationUploadExternalUrl: m.presentationUploadExternalUrl,
+  }));
+
+  const {
+    presentationUploadExternalDescription,
+    presentationUploadExternalUrl,
+  } = meeting || {};
+
+  return {
+    presentationUploadExternalDescription,
+    presentationUploadExternalUrl,
+  };
+};
+
 function handleFiledrop(files, files2, that, intl, intlMessages) {
   if (that) {
     const { fileValidMimeTypes } = that.props;
@@ -360,4 +378,5 @@ export default {
   getExternalUploadData,
   uploadAndConvertPresentation,
   handleFiledrop,
+  useExternalUploadData,
 };
