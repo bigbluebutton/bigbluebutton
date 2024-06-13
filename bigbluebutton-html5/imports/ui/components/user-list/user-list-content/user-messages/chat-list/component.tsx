@@ -1,7 +1,6 @@
 import React from 'react';
 import { TransitionGroup, CSSTransition } from 'react-transition-group';
 import { defineMessages, useIntl } from 'react-intl';
-import { findDOMNode } from 'react-dom';
 import Styled from './styles';
 import ChatListItem from './chat-list-item/component';
 import useChat from '/imports/ui/core/hooks/useChat';
@@ -50,8 +49,7 @@ const ChatList: React.FC<ChatListProps> = ({ chats }) => {
   }, [selectedChat]);
 
   const rove = (event: React.KeyboardEvent) => {
-    // eslint-disable-next-line react/no-find-dom-node
-    const msgItemsRef = findDOMNode(messageItemsRef.current);
+    const msgItemsRef = messageItemsRef.current;
     const msgItemsRefChild = msgItemsRef?.firstChild;
     roving(event, setSelectedChat, msgItemsRefChild, selectedChat);
     event.stopPropagation();
