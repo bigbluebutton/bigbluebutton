@@ -10,7 +10,7 @@ import DEFAULT_VALUES from '/imports/ui/components/layout/defaultValues';
 import { INITIAL_INPUT_STATE } from '/imports/ui/components/layout/initState';
 import { ACTIONS, PANELS } from '/imports/ui/components/layout/enums';
 import { defaultsDeep } from '/imports/utils/array-utils';
-import { isPresentationEnabled } from '/imports/ui/services/features';
+import { useIsPresentationEnabled } from '/imports/ui/services/features';
 import Session from '/imports/ui/services/storage/in-memory';
 
 const windowWidth = () => window.document.documentElement.clientWidth;
@@ -50,6 +50,7 @@ const VideoFocusLayout = (props) => {
   const sidebarContentOutput = layoutSelectOutput((i) => i.sidebarContent);
 
   const prevDeviceType = usePrevious(deviceType);
+  const isPresentationEnabled = useIsPresentationEnabled();
 
   const throttledCalculatesLayout = throttle(() => calculatesLayout(), 50, {
     trailing: true,
@@ -177,7 +178,7 @@ const VideoFocusLayout = (props) => {
     const { isPinned: isSharedNotesPinned } = sharedNotesInput;
 
     const navBarHeight = calculatesNavbarHeight();
-    const hasPresentation = isPresentationEnabled() && slidesLength !== 0;
+    const hasPresentation = isPresentationEnabled && slidesLength !== 0;
     const isGeneralMediaOff = !hasPresentation && !hasExternalVideo
       && !hasScreenShare && !isSharedNotesPinned && !genericComponentId;
 

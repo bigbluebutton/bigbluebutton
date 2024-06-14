@@ -1,7 +1,6 @@
 import Users from '/imports/api/users';
 import Auth from '/imports/ui/services/auth';
 import AudioManager from '/imports/ui/services/audio-manager';
-import Meetings from '/imports/api/meetings';
 import logger from '/imports/startup/client/logger';
 import Storage from '../../services/storage/session';
 import { useReactiveVar } from '@apollo/client';
@@ -35,7 +34,7 @@ const audioEventHandler = (toggleVoice) => (event) => {
   }
 };
 
-const init = (messages, intl, toggleVoice, speechLocale) => {
+const init = (messages, intl, toggleVoice, speechLocale, voiceConf) => {
   AudioManager.setAudioMessages(messages, intl);
   if (AudioManager.initialized) return Promise.resolve(false);
   const meetingId = Auth.meetingID;
@@ -43,8 +42,7 @@ const init = (messages, intl, toggleVoice, speechLocale) => {
   const { sessionToken } = Auth;
   const User = Users.findOne({ userId }, { fields: { name: 1 } });
   const username = User.name;
-  const Meeting = Meetings.findOne({ meetingId: Auth.meetingID }, { fields: { 'voiceSettings.voiceConf': 1 } });
-  const voiceBridge = Meeting.voiceSettings.voiceConf;
+  const voiceBridge = voiceConf;
 
   // FIX ME
   const microphoneLockEnforced = false;

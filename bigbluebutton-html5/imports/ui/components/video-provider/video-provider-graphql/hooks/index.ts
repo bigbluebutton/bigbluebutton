@@ -40,6 +40,7 @@ import { GridItem, StreamItem } from '../types';
 import { DesktopPageSizes, MobilePageSizes } from '/imports/ui/Types/meetingClientSettings';
 import logger from '/imports/startup/client/logger';
 import useDeduplicatedSubscription from '/imports/ui/core/hooks/useDeduplicatedSubscription';
+import { useMeetingIsBreakout } from '/imports/ui/components/app/service';
 
 const FILTER_VIDEO_STATS = [
   'outbound-rtp',
@@ -560,4 +561,11 @@ export const useShouldRenderPaginationToggle = () => {
   } = window.meetingClientSettings.public.kurento.pagination;
 
   return PAGINATION_TOGGLE_ENABLED && myPageSize > 0;
+};
+
+export const useIsVideoPinEnabledForCurrentUser = (isModerator: boolean) => {
+  const isBreakout = useMeetingIsBreakout();
+  const isPinEnabled = videoService.isPinEnabled();
+
+  return !!(isModerator && isPinEnabled && !isBreakout);
 };

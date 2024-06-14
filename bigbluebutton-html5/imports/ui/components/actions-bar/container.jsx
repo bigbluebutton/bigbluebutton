@@ -6,10 +6,10 @@ import Auth from '/imports/ui/services/auth';
 import ActionsBar from './component';
 import { layoutSelectOutput, layoutDispatch } from '../layout/context';
 import {
-  isTimerFeatureEnabled,
   useIsExternalVideoEnabled,
   useIsPollingEnabled,
   useIsPresentationEnabled,
+  useIsTimerFeatureEnabled,
 } from '/imports/ui/services/features';
 
 import { PluginsContext } from '/imports/ui/components/components-data/plugin-context/context';
@@ -93,6 +93,8 @@ const ActionsBarContainer = (props) => {
   const allowExternalVideo = useIsExternalVideoEnabled();
   const connected = useReactiveVar(connectionStatus.getConnectedStatusVar());
   const intl = useIntl();
+  const isPresentationEnabled = useIsPresentationEnabled();
+  const isTimerFeatureEnabled = useIsTimerFeatureEnabled();
   if (actionsBarStyle.display === false) return null;
   if (!currentMeeting) return null;
 
@@ -111,6 +113,7 @@ const ActionsBarContainer = (props) => {
         intl,
         allowExternalVideo,
         isPollingEnabled,
+        isPresentationEnabled,
         currentUser,
         amIModerator,
         layoutContextDispatch,
@@ -122,7 +125,7 @@ const ActionsBarContainer = (props) => {
         stopExternalVideoShare,
         isSharedNotesPinned,
         isTimerActive: currentMeeting.componentsFlags.hasTimer,
-        isTimerEnabled: isTimerFeatureEnabled(),
+        isTimerEnabled: isTimerFeatureEnabled,
         isRaiseHandButtonEnabled: RAISE_HAND_BUTTON_ENABLED,
         isRaiseHandButtonCentered: RAISE_HAND_BUTTON_CENTERED,
       }

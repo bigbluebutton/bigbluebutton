@@ -8,7 +8,6 @@ import TimerContainer from './timer/container';
 import GuestPanelOpenerContainer from '../user-list-graphql/user-participants-title/guest-panel-opener/component';
 import UserPollsContainer from './user-polls/container';
 import BreakoutRoomContainer from './breakout-room/container';
-import { isChatEnabled } from '/imports/ui/services/features';
 import UserTitleContainer from '../user-list-graphql/user-participants-title/component';
 
 const propTypes = {
@@ -35,13 +34,14 @@ class UserContent extends PureComponent {
       currentUser,
       isTimerActive,
       compact,
+      isChatEnabled,
     } = this.props;
 
     const ROLE_MODERATOR = window.meetingClientSettings.public.user.role_moderator;
 
     return (
       <Styled.Content data-test="userListContent">
-        {isChatEnabled() ? <ChatList /> : null}
+        {isChatEnabled ? <ChatList /> : null}
         <UserNotesContainer />
         {isTimerActive && <TimerContainer isModerator={currentUser?.role === ROLE_MODERATOR} />}
         {currentUser?.role === ROLE_MODERATOR ? (

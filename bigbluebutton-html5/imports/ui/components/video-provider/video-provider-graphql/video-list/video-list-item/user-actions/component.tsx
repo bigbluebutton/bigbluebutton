@@ -4,7 +4,6 @@ import { useMutation } from '@apollo/client';
 import Session from '/imports/ui/services/storage/in-memory';
 import { UserCameraDropdownInterface } from 'bigbluebutton-html-plugin-sdk';
 import browserInfo from '/imports/utils/browserInfo';
-import VideoService from '/imports/ui/components/video-provider/video-provider-graphql/service';
 import FullscreenService from '/imports/ui/components/common/fullscreen-button/service';
 import BBBMenu from '/imports/ui/components/common/menu/component';
 import { UserCameraDropdownItemType } from 'bigbluebutton-html-plugin-sdk/dist/cjs/extensible-areas/user-camera-dropdown-item/enums';
@@ -15,6 +14,7 @@ import { notify } from '/imports/ui/services/notification';
 import { SET_CAMERA_PINNED } from '/imports/ui/core/graphql/mutations/userMutations';
 import { VideoItem } from '/imports/ui/components/video-provider/video-provider-graphql/types';
 import { ACTIONS } from '/imports/ui/components/layout/enums';
+import { useIsVideoPinEnabledForCurrentUser } from '/imports/ui/components/video-provider/video-provider-graphql/hooks';
 
 const intlMessages = defineMessages({
   focusLabel: {
@@ -120,6 +120,7 @@ const UserActions: React.FC<UserActionProps> = (props) => {
   const { isFirefox } = browserInfo;
 
   const [setCameraPinned] = useMutation(SET_CAMERA_PINNED);
+  const pinEnabledForCurrentUser = useIsVideoPinEnabledForCurrentUser(amIModerator);
 
   useEffect(() => () => {
     if (isFullscreenContext) {
@@ -195,7 +196,7 @@ const UserActions: React.FC<UserActionProps> = (props) => {
       });
     }
 
-    if (VideoService.isVideoPinEnabledForCurrentUser(amIModerator) && isStream) {
+    if (pinEnabledForCurrentUser && isStream) {
       menuItems.push({
         key: `${cameraId}-pin`,
         label: intl.formatMessage(intlMessages[`${isPinnedIntlKey}Label`]),

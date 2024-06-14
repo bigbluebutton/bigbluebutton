@@ -11,7 +11,7 @@ import VideoFocusLayout from '/imports/ui/components/layout/layout-manager/video
 import CamerasOnlyLayout from '/imports/ui/components/layout/layout-manager/camerasOnly';
 import PresentationOnlyLayout from '/imports/ui/components/layout/layout-manager/presentationOnlyLayout';
 import ParticipantsAndChatOnlyLayout from '/imports/ui/components/layout/layout-manager/participantsAndChatOnlyLayout';
-import { isPresentationEnabled } from '/imports/ui/services/features';
+import { useIsPresentationEnabled } from '/imports/ui/services/features';
 
 const propTypes = {
   layoutType: PropTypes.string.isRequired,
@@ -35,6 +35,8 @@ const LayoutEngine = ({ layoutType }) => {
   const isRTL = layoutSelect((i) => i.isRTL);
   const fontSize = layoutSelect((i) => i.fontSize);
   const deviceType = layoutSelect((i) => i.deviceType);
+
+  const isPresentationEnabled = useIsPresentationEnabled();
 
   const isMobile = deviceType === DEVICE_TYPE.MOBILE;
   const isTablet = deviceType === DEVICE_TYPE.TABLET;
@@ -69,7 +71,7 @@ const LayoutEngine = ({ layoutType }) => {
     }
 
     const navBarHeight = calculatesNavbarHeight();
-    const hasPresentation = isPresentationEnabled() && slidesLength !== 0;
+    const hasPresentation = isPresentationEnabled && slidesLength !== 0;
     const isGeneralMediaOff = !hasPresentation
       && !hasExternalVideo && !hasScreenShare
       && !isSharedNotesPinned && !genericComponentId;

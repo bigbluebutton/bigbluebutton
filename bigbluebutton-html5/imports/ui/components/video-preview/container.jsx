@@ -14,6 +14,7 @@ import {
   useStopVideo,
 } from '/imports/ui/components/video-provider/video-provider-graphql/hooks';
 import { useStorageKey } from '../../services/storage/hooks';
+import { useIsCustomVirtualBackgroundsEnabled, useIsVirtualBackgroundsEnabled } from '../../services/features';
 
 const VideoPreviewContainer = (props) => {
   const {
@@ -31,6 +32,8 @@ const VideoPreviewContainer = (props) => {
   const camCapReached = useHasCapReached();
   const isCamLocked = useIsUserLocked();
   const webcamDeviceId = useStorageKey('WebcamDeviceId');
+  const isVirtualBackgroundsEnabled = useIsVirtualBackgroundsEnabled();
+  const isCustomVirtualBackgroundsEnabled = useIsCustomVirtualBackgroundsEnabled();
 
   const stopSharing = (deviceId) => {
     callbackToClose();
@@ -69,7 +72,7 @@ const VideoPreviewContainer = (props) => {
   const startSharing = (deviceId) => {
     callbackToClose();
     setIsOpen(false);
-    VideoService.joinVideo(deviceId);
+    VideoService.joinVideo(deviceId, isCamLocked);
   };
 
   const stopSharingCameraAsContent = () => {
@@ -97,6 +100,8 @@ const VideoPreviewContainer = (props) => {
         camCapReached,
         isCamLocked,
         webcamDeviceId,
+        isVirtualBackgroundsEnabled,
+        isCustomVirtualBackgroundsEnabled,
         ...props,
       }}
     />

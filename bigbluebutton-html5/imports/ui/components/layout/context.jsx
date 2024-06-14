@@ -9,7 +9,7 @@ import {
 import DEFAULT_VALUES from '/imports/ui/components/layout/defaultValues';
 import { INITIAL_INPUT_STATE, INITIAL_OUTPUT_STATE } from './initState';
 import useUpdatePresentationAreaContentForPlugin from '/imports/ui/components/plugins-engine/ui-data-hooks/layout/presentation-area/utils';
-import { isPresentationEnabled } from '/imports/ui/services/features';
+import { useIsPresentationEnabled } from '/imports/ui/services/features';
 import useDeduplicatedSubscription from '../../core/hooks/useDeduplicatedSubscription';
 
 // variable to debug in console log
@@ -1334,6 +1334,7 @@ const updatePresentationAreaContent = (
   layoutContextState,
   previousPresentationAreaContentActions,
   layoutContextDispatch,
+  isPresentationEnabled,
 ) => {
   const { layoutType } = layoutContextState;
   const { sidebarContent } = layoutContextState.input;
@@ -1365,9 +1366,9 @@ const updatePresentationAreaContent = (
       }
       case PRESENTATION_AREA.PINNED_NOTES: {
         if (
-          (sidebarContent.isOpen || !isPresentationEnabled())
+          (sidebarContent.isOpen || !isPresentationEnabled)
           && (sidebarContent.sidebarContentPanel === PANELS.SHARED_NOTES
-            || !isPresentationEnabled())
+            || !isPresentationEnabled)
         ) {
           if (layoutType === LAYOUT_TYPE.VIDEO_FOCUS) {
             layoutContextDispatch({
@@ -1472,12 +1473,14 @@ const LayoutContextProvider = (props) => {
   const { data: pinnedPadData } = useDeduplicatedSubscription(PINNED_PAD_SUBSCRIPTION);
 
   const [layoutContextState, layoutContextDispatch] = useReducer(reducer, initState);
+  const isPresentationEnabled = useIsPresentationEnabled();
   const { children } = props;
   useEffect(() => {
     updatePresentationAreaContent(
       layoutContextState,
       previousPresentationAreaContentActions,
       layoutContextDispatch,
+      isPresentationEnabled,
     );
   }, [layoutContextState]);
   useEffect(() => {

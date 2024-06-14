@@ -12,7 +12,7 @@ import { layoutSelectInput, layoutDispatch } from '../../ui/components/layout/co
 import { useVideoStreams } from '/imports/ui/components/video-provider/video-provider-graphql/hooks';
 import DebugWindow from '/imports/ui/components/debug-window/component';
 import { ACTIONS, PANELS } from '../../ui/components/layout/enums';
-import { isChatEnabled } from '/imports/ui/services/features';
+import { useIsChatEnabled } from '/imports/ui/services/features';
 import useUserChangedLocalSettings from '/imports/ui/services/settings/hooks/useUserChangedLocalSettings';
 import useSettings from '/imports/ui/services/settings/hooks/useSettings';
 import { SETTINGS } from '/imports/ui/services/settings/enums';
@@ -82,6 +82,7 @@ class Base extends Component {
       sidebarContentPanel,
       usersVideo,
       setLocalSettings,
+      isChatEnabled,
     } = this.props;
 
     if (usersVideo !== prevProps.usersVideo) {
@@ -114,7 +115,7 @@ class Base extends Component {
         Settings.save(setLocalSettings);
 
         if (getFromUserSettings('bbb_show_participants_on_login', window.meetingClientSettings.public.layout.showParticipantsOnLogin) && !deviceInfo.isPhone) {
-          if (isChatEnabled() && getFromUserSettings('bbb_show_public_chat_on_login', !window.meetingClientSettings.public.chat.startClosed)) {
+          if (isChatEnabled && getFromUserSettings('bbb_show_public_chat_on_login', !window.meetingClientSettings.public.chat.startClosed)) {
             const PUBLIC_CHAT_ID = window.meetingClientSettings.public.chat.public_group_id;
 
             layoutContextDispatch({
@@ -194,6 +195,7 @@ const BaseContainer = (props) => {
     viewParticipantsWebcams,
   );
   const loggedIn = Auth.useLoggedIn();
+  const isChatEnabled = useIsChatEnabled();
 
   return (
     <Base
@@ -206,6 +208,7 @@ const BaseContainer = (props) => {
         viewScreenshare,
         codeError,
         loggedIn,
+        isChatEnabled,
         ...props,
       }}
     />

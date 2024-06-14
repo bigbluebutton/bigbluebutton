@@ -1,8 +1,6 @@
 import { getSettingsSingletonInstance } from '/imports/ui/services/settings';
 import Auth from '/imports/ui/services/auth';
-import Meetings from '/imports/api/meetings';
 import Users from '/imports/api/users';
-import { meetingIsBreakout } from '/imports/ui/components/app/service';
 import { notify } from '/imports/ui/services/notification';
 import deviceInfo from '/imports/utils/deviceInfo';
 import browserInfo from '/imports/utils/browserInfo';
@@ -86,25 +84,10 @@ class VideoService {
     }
   }
 
-  static disableCam() {
-    const m = Meetings.findOne({ meetingId: Auth.meetingID },
-      { fields: { 'lockSettings.disableCam': 1 } });
-    return m.lockSettings ? m.lockSettings.disableCam : false;
-  }
-
-  static isUserLocked() {
-    const ROLE_MODERATOR = VideoService.getRoleModerator();
-    return !!Users.findOne({
-      userId: Auth.userID,
-      locked: true,
-      role: { $ne: ROLE_MODERATOR },
-    }, { fields: {} }) && VideoService.disableCam();
-  }
-
-  joinVideo(deviceId: string) {
+  joinVideo(deviceId: string, isUserLocked: boolean) {
     this.deviceId = deviceId;
     Storage.setItem('isFirstJoin', false);
-    if (!VideoService.isUserLocked()) {
+    if (!isUserLocked) {
       const streamName = this.buildStreamName(deviceId);
       const stream = {
         stream: streamName,
@@ -261,19 +244,6 @@ class VideoService {
     return this.record && hackRecord;
   }
 
-  static getInfo() {
-    const m = Meetings.findOne({ meetingId: Auth.meetingID },
-      { fields: { 'voiceSettings.voiceConf': 1 } });
-    const voiceBridge = m.voiceSettings ? m.voiceSettings.voiceConf : null;
-    return {
-      userId: Auth.userID,
-      userName: Auth.fullname,
-      meetingId: Auth.meetingID,
-      sessionToken: Auth.sessionToken,
-      voiceBridge,
-    };
-  }
-
   static mirrorOwnWebcam(userId: string | null = null) {
     const MIRROR_WEBCAM = window.meetingClientSettings.public.app.mirrorOwnWebcam;
     const isOwnWebcam = userId ? Auth.userID === userId : true;
@@ -283,15 +253,6 @@ class VideoService {
 
   static isPinEnabled() {
     return window.meetingClientSettings.public.kurento.enableVideoPin;
-  }
-
-  static isVideoPinEnabledForCurrentUser(isModerator: boolean) {
-    const isBreakout = meetingIsBreakout();
-    const isPinEnabled = VideoService.isPinEnabled();
-
-    return !!(isModerator
-      && isPinEnabled
-      && !isBreakout);
   }
 
   getMyStreamId(deviceId: string, streams: Stream[]) {
@@ -532,7 +493,6 @@ const videoService = new VideoService();
 
 export default {
   addCandidateToPeer: VideoService.addCandidateToPeer,
-  getInfo: VideoService.getInfo,
   getMyStreamId: videoService.getMyStreamId.bind(videoService),
   getAuthenticatedURL: VideoService.getAuthenticatedURL,
   getRole: VideoService.getRole,
@@ -542,7 +502,6 @@ export default {
   getPreviousVideoPage: VideoService.getPreviousVideoPage,
   getNextVideoPage: VideoService.getNextVideoPage,
   getCurrentVideoPageIndex: VideoService.getCurrentVideoPageIndex,
-  isVideoPinEnabledForCurrentUser: VideoService.isVideoPinEnabledForCurrentUser,
   isLocalStream: videoService.isLocalStream.bind(videoService),
   isPaginationEnabled: VideoService.isPaginationEnabled,
   mirrorOwnWebcam: VideoService.mirrorOwnWebcam,
@@ -555,7 +514,7 @@ export default {
   getPageChangeDebounceTime: () => VideoService.getPageChangeDebounceTime(),
   getUserParameterProfile: () => videoService.getUserParameterProfile(),
   isMultipleCamerasEnabled: () => videoService.isMultipleCamerasEnabled(),
-  joinVideo: (deviceId: string) => videoService.joinVideo(deviceId),
+  joinVideo: (deviceId: string, isUserLocked: boolean) => videoService.joinVideo(deviceId, isUserLocked),
   updateNumberOfDevices: (devices: MediaDeviceInfo[]) => videoService.updateNumberOfDevices(devices),
   stopConnectingStream: videoService.stopConnectingStream,
   updatePeerDictionaryReference: (
@@ -569,4 +528,5 @@ export default {
   getRoleModerator: VideoService.getRoleModerator,
   getRoleViewer: VideoService.getRoleViewer,
   getPrefix: videoService.getPrefix.bind(videoService),
+  isPinEnabled: VideoService.isPinEnabled,
 };
