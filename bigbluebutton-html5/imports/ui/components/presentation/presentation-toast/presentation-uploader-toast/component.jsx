@@ -479,6 +479,7 @@ export const PresentationUploaderToast = ({intl, convertingPresentations, upload
   }, [presentations]);
 
   let activeToast = Session.getItem('presentationUploaderToastId');
+  const activeToastString = activeToast?.toString();
   const showToast = presentationsToConvert.length > 0;
 
   if (showToast && !activeToast) {
@@ -491,10 +492,10 @@ export const PresentationUploaderToast = ({intl, convertingPresentations, upload
     });
     Session.setItem('presentationUploaderToastId', activeToast);
   } else if (!showToast && activeToast) {
-    handleDismissToast(activeToast);
+    handleDismissToast(activeToastString);
     Session.setItem('presentationUploaderToastId', null);
   } else {
-    toast.update(activeToast, {
+    toast.update(activeToastString, {
       render: renderToastList(presentationsToConvert, intl),
     });
   }
