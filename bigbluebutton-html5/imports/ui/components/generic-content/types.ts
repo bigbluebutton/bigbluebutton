@@ -12,7 +12,7 @@ export interface GenericContentMainAreaProps {
     renderFunctionComponents: GenericContentMainArea[];
 }
 
-export interface GenericContentSidekickContainerProps { 
+export interface GenericContentSidekickContainerProps {
     genericSidekickContentId: string;
 }
 
