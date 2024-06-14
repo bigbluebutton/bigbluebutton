@@ -1,6 +1,5 @@
 import React from 'react';
 import { useMutation } from '@apollo/client';
-import { withTracker } from 'meteor/react-meteor-data';
 import Service from './service';
 import VideoPreview from './component';
 import VideoService from '../video-provider/video-provider-graphql/service';
@@ -14,6 +13,7 @@ import {
   useStopVideo,
 } from '/imports/ui/components/video-provider/video-provider-graphql/hooks';
 import { useStorageKey } from '../../services/storage/hooks';
+import { useIsCustomVirtualBackgroundsEnabled, useIsVirtualBackgroundsEnabled } from '../../services/features';
 
 const VideoPreviewContainer = (props) => {
   const {
@@ -31,6 +31,9 @@ const VideoPreviewContainer = (props) => {
   const camCapReached = useHasCapReached();
   const isCamLocked = useIsUserLocked();
   const webcamDeviceId = useStorageKey('WebcamDeviceId');
+  const isVirtualBackgroundsEnabled = useIsVirtualBackgroundsEnabled();
+  const isCustomVirtualBackgroundsEnabled = useIsCustomVirtualBackgroundsEnabled();
+  const isCameraAsContentBroadcasting = ScreenShareService.useIsCameraAsContentBroadcasting();
 
   const stopSharing = (deviceId) => {
     callbackToClose();
@@ -60,6 +63,7 @@ const VideoPreviewContainer = (props) => {
       ScreenShareService.screenshareHasEnded();
     };
     ScreenShareService.shareScreen(
+      isCameraAsContentBroadcasting,
       stopExternalVideoShare,
       true, handleFailure, { stream: Service.getStream(deviceId)._mediaStream },
     );
@@ -69,7 +73,7 @@ const VideoPreviewContainer = (props) => {
   const startSharing = (deviceId) => {
     callbackToClose();
     setIsOpen(false);
-    VideoService.joinVideo(deviceId);
+    VideoService.joinVideo(deviceId, isCamLocked);
   };
 
   const stopSharingCameraAsContent = () => {
@@ -97,6 +101,8 @@ const VideoPreviewContainer = (props) => {
         camCapReached,
         isCamLocked,
         webcamDeviceId,
+        isVirtualBackgroundsEnabled,
+        isCustomVirtualBackgroundsEnabled,
         ...props,
       }}
     />

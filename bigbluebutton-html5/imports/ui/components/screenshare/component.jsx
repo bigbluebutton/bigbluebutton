@@ -94,9 +94,10 @@ class ScreenshareComponent extends React.Component {
       startPreviewSizeBig,
       outputDeviceId,
       isSharedNotesPinned,
+      hasAudio,
     } = this.props;
 
-    screenshareHasStarted(isPresenter, { outputDeviceId });
+    screenshareHasStarted(hasAudio, isPresenter, { outputDeviceId });
     // Autoplay failure handling
     window.addEventListener('screensharePlayFailed', this.handlePlayElementFailed);
     // Stream health state tracker to propagate UI changes on reconnections

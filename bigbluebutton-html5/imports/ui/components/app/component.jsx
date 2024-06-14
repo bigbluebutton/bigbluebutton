@@ -542,6 +542,7 @@ class App extends Component {
       genericMainContentId,
       speechLocale,
       connected,
+      isPresentationEnabled,
     } = this.props;
 
     const {
@@ -557,7 +558,10 @@ class App extends Component {
         <TimeSync />
         <Notifications />
         {this.mountPushLayoutEngine()}
-        {selectedLayout ? <LayoutEngine layoutType={selectedLayout} /> : null}
+        <LayoutEngine
+          layoutType={selectedLayout}
+          isPresentationEnabled={isPresentationEnabled}
+        />
         <GlobalStyles />
         <Styled.Layout
           id="layout"

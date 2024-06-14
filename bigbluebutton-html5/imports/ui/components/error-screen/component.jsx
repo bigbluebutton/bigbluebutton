@@ -1,7 +1,6 @@
 import React, { PureComponent } from 'react';
 import PropTypes from 'prop-types';
 import { defineMessages, injectIntl } from 'react-intl';
-import { Meteor } from 'meteor/meteor';
 import Session from '/imports/ui/services/storage/in-memory';
 import Styled from './styles';
 
@@ -100,7 +99,7 @@ class ErrorScreen extends PureComponent {
       .getUserMedia({ audio: true, video: true })
       .then((m) => m.getTracks().forEach((t) => t.stop()));
     window.dispatchEvent(new Event('StopAudioTracks'));
-    callback(endedReason, () => Meteor.disconnect());
+    callback(endedReason, () => {});
     console.error({ logCode: 'startup_client_usercouldnotlogin_error' }, `User could not log in HTML5, hit ${code}`);
   }
 

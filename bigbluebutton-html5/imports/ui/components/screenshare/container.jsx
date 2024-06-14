@@ -3,14 +3,13 @@ import { useMutation, useReactiveVar } from '@apollo/client';
 import { defineMessages } from 'react-intl';
 import {
   getSharingContentType,
-  getBroadcastContentType,
-  isScreenBroadcasting,
-  isCameraAsContentBroadcasting,
-  useIsSharing,
-  useSharingContentType,
   useIsScreenGloballyBroadcasting,
   useIsCameraAsContentGloballyBroadcasting,
   useShouldEnableVolumeControl,
+  useIsScreenBroadcasting,
+  useIsCameraAsContentBroadcasting,
+  useScreenshareHasAudio,
+  useBroadcastContentType,
 } from './service';
 import ScreenshareComponent from './component';
 import { layoutSelect, layoutSelectOutput, layoutDispatch } from '../layout/context';
@@ -125,21 +124,20 @@ const ScreenshareContainer = (props) => {
     },
   };
 
-  const getContentType = () => (isPresenter ? getSharingContentType() : getBroadcastContentType());
+  const broadcastContentType = useBroadcastContentType();
+  const getContentType = () => (isPresenter ? getSharingContentType() : broadcastContentType);
   const contentTypeInfo = info[getContentType()];
   const defaultInfo = info.camera;
   const selectedInfo = contentTypeInfo || defaultInfo;
-  const isSharing = useIsSharing();
-  const sharingContentType = useSharingContentType();
   const outputDeviceId = useReactiveVar(AudioManager._outputDeviceId.value);
   const screenIsGloballyBroadcasting = useIsScreenGloballyBroadcasting();
   const cameraAsContentIsGloballyBroadcasting = useIsCameraAsContentGloballyBroadcasting();
   const enableVolumeControl = useShouldEnableVolumeControl();
+  const isScreenBroadcasting = useIsScreenBroadcasting();
+  const isCameraAsContentBroadcasting = useIsCameraAsContentBroadcasting();
+  const hasAudio = useScreenshareHasAudio();
 
-  if (
-    isScreenBroadcasting(isSharing, sharingContentType)
-    || isCameraAsContentBroadcasting(isSharing, sharingContentType)
-  ) {
+  if (isScreenBroadcasting || isCameraAsContentBroadcasting) {
     return (
       <ScreenshareComponent
         {
@@ -153,6 +151,7 @@ const ScreenshareContainer = (props) => {
           stopExternalVideoShare,
           outputDeviceId,
           enableVolumeControl,
+          hasAudio,
           isGloballyBroadcasting: screenIsGloballyBroadcasting
             || cameraAsContentIsGloballyBroadcasting,
           hidePresentationOnJoin: getFromUserSettings(

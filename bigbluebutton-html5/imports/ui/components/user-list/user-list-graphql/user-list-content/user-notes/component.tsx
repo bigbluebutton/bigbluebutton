@@ -63,7 +63,7 @@ interface UserNotesGraphqlProps {
   markNotesAsRead: () => void,
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   toggleNotesPanel: (sidebarContentPanel: any, layoutContextDispatch: any) => void,
-  isEnabled: () => boolean,
+  isEnabled: boolean,
 }
 
 interface UserNotesContainerGraphqlProps {
@@ -172,7 +172,7 @@ const UserNotesGraphql: React.FC<UserNotesGraphqlProps> = (props) => {
     );
   };
 
-  if (!isEnabled()) return null;
+  if (!isEnabled) return null;
 
   return (
     <Styled.Messages>
@@ -209,6 +209,7 @@ const UserNotesContainerGraphql: React.FC<UserNotesContainerGraphqlProps> = (pro
 
   const hasUnreadNotes = useHasUnreadNotes();
   const markNotesAsRead = () => setNotesLastRev(rev);
+  const isEnabled = NotesService.useIsEnabled();
 
   return (
     <UserNotesGraphql
@@ -219,7 +220,7 @@ const UserNotesContainerGraphql: React.FC<UserNotesContainerGraphqlProps> = (pro
       hasUnreadNotes={hasUnreadNotes}
       markNotesAsRead={markNotesAsRead}
       toggleNotesPanel={NotesService.toggleNotesPanel}
-      isEnabled={NotesService.isEnabled}
+      isEnabled={isEnabled}
     />
   );
 };

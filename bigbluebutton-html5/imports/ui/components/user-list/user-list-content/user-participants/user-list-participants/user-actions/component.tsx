@@ -26,7 +26,7 @@ import {
   isVoiceOnlyUser,
 } from './service';
 
-import { isChatEnabled } from '/imports/ui/services/features';
+import { useIsChatEnabled } from '/imports/ui/services/features';
 import { layoutDispatch } from '/imports/ui/components/layout/context';
 import { PANELS, ACTIONS } from '/imports/ui/components/layout/enums';
 import { EMOJI_STATUSES } from '/imports/utils/statuses';
@@ -215,6 +215,7 @@ const UserActions: React.FC<UserActionsProps> = ({
   const [presentationSetWriters] = useMutation(PRESENTATION_SET_WRITERS);
   const [getWriters] = useLazyQuery(CURRENT_PAGE_WRITERS_QUERY, { fetchPolicy: 'no-cache' });
   const voiceToggle = useToggleVoice();
+  const isChatEnabled = useIsChatEnabled();
 
   const handleWhiteboardAccessChange = async () => {
     try {
@@ -351,7 +352,7 @@ const UserActions: React.FC<UserActionsProps> = ({
       icon: user.pinned ? 'pin-video_off' : 'pin-video_on',
     },
     {
-      allowed: isChatEnabled()
+      allowed: isChatEnabled
         && (
           currentUser.isModerator ? allowedToChatPrivately
             : allowedToChatPrivately && (

@@ -13,7 +13,6 @@ import PresentationDownloadDropdown from './presentation-download-dropdown/compo
 import { getSettingsSingletonInstance } from '/imports/ui/services/settings';
 import Radio from '/imports/ui/components/common/radio/component';
 import { unique } from 'radash';
-import { isPresentationEnabled } from '/imports/ui/services/features';
 import Session from '/imports/ui/services/storage/in-memory';
 
 const { isMobile } = deviceInfo;
@@ -587,11 +586,12 @@ class PresentationUploader extends Component {
       dispatchChangePresentationDownloadable,
       setPresentation,
       removePresentation,
+      presentationEnabled,
     } = this.props;
     const { disableActions, presentations } = this.state;
     const presentationsToSave = presentations;
 
-    if (!isPresentationEnabled()) {
+    if (!presentationEnabled) {
       this.setState(
         { presentations: [] },
         Session.setItem('showUploadPresentationView', false),
@@ -621,6 +621,7 @@ class PresentationUploader extends Component {
         propPresentations,
         setPresentation,
         removePresentation,
+        presentationEnabled,
       )
         .then(() => {
           const hasError = presentations.some((p) => !!p.uploadErrorMsgKey);

@@ -3,7 +3,7 @@ import AudioCaptionsLiveContainer from '/imports/ui/components/audio/audio-graph
 import getFromUserSettings from '/imports/ui/services/users-settings';
 import deviceInfo from '/imports/utils/deviceInfo';
 import MediaService from '/imports/ui/components/media/service';
-import { isPresentationEnabled, isExternalVideoEnabled } from '/imports/ui/services/features';
+import { useIsPresentationEnabled, useIsScreenSharingEnabled, useIsExternalVideoEnabled } from '/imports/ui/services/features';
 import useCurrentUser from '/imports/ui/core/hooks/useCurrentUser';
 import useMeeting from '/imports/ui/core/hooks/useMeeting';
 import { ACTIONS, LAYOUT_TYPE, PRESENTATION_AREA } from '/imports/ui/components/layout/enums';
@@ -130,6 +130,9 @@ const AppContainer = (props) => {
   const isSharedNotesPinned = sharedNotesInput?.isPinned && isSharedNotesPinnedFromGraphql;
   const isThereWebcam = VideoStreamsState.getStreams().length > 0;
   const muteMicrophone = useMuteMicrophone();
+  const isScreenSharingEnabled = useIsScreenSharingEnabled();
+  const isExternalVideoEnabled = useIsExternalVideoEnabled();
+  const isPresentationEnabled = useIsPresentationEnabled();
 
   const { data: currentUserData } = useCurrentUser((user) => ({
     enforceLayout: user.enforceLayout,
@@ -215,6 +218,8 @@ const AppContainer = (props) => {
       isSharingVideo,
       sharedNotesInput?.isPinned,
       isThereWebcam,
+      isScreenSharingEnabled,
+      isPresentationEnabled,
     );
   });
 
@@ -234,13 +239,13 @@ const AppContainer = (props) => {
     }
   }, [isSharingVideo]);
 
-  const shouldShowExternalVideo = isExternalVideoEnabled() && isSharingVideo;
+  const shouldShowExternalVideo = isExternalVideoEnabled && isSharingVideo;
 
   const shouldShowGenericMainContent = !!genericMainContent.genericContentId;
 
-  const validateEnforceLayout = (currentUser) => {
+  const validateEnforceLayout = (currUser) => {
     const layoutTypes = Object.keys(LAYOUT_TYPE);
-    const enforceLayout = currentUser?.enforceLayout;
+    const enforceLayout = currUser?.enforceLayout;
     return enforceLayout && layoutTypes.includes(enforceLayout) ? enforceLayout : null;
   };
 
@@ -248,7 +253,7 @@ const AppContainer = (props) => {
     && currentMeeting?.componentsFlags?.hasScreenshare;
   const shouldShowPresentation = (!shouldShowScreenshare && !isSharedNotesPinned
     && !shouldShowExternalVideo && !shouldShowGenericMainContent
-    && (presentationIsOpen || presentationRestoreOnUpdate)) && isPresentationEnabled();
+    && (presentationIsOpen || presentationRestoreOnUpdate)) && isPresentationEnabled;
 
   useEffect(() => {
     setSpeechOptions(
@@ -337,6 +342,7 @@ const AppContainer = (props) => {
           isLargeFont,
           ignorePollNotifications,
           muteMicrophone,
+          isPresentationEnabled,
         }}
         {...otherProps}
       />

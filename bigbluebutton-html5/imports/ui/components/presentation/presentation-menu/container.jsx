@@ -1,11 +1,10 @@
-import React from 'react';
-import { useContext } from 'react';
+import React, { useContext } from 'react';
 import PropTypes from 'prop-types';
 import PresentationMenu from './component';
 import FullscreenService from '/imports/ui/components/common/fullscreen-button/service';
 import Auth from '/imports/ui/services/auth';
 import { layoutSelect, layoutDispatch } from '/imports/ui/components/layout/context';
-import { isSnapshotOfCurrentSlideEnabled } from '/imports/ui/services/features';
+import { useIsSnapshotOfCurrentSlideEnabled } from '/imports/ui/services/features';
 import { PluginsContext } from '/imports/ui/components/components-data/plugin-context/context';
 import {
   CURRENT_PAGE_WRITERS_SUBSCRIPTION,
@@ -16,7 +15,6 @@ import {
   persistShape,
 } from '/imports/ui/components/whiteboard/service';
 import useDeduplicatedSubscription from '/imports/ui/core/hooks/useDeduplicatedSubscription';
-
 
 const PresentationMenuContainer = (props) => {
   const fullscreen = layoutSelect((i) => i.fullscreen);
@@ -45,6 +43,7 @@ const PresentationMenuContainer = (props) => {
 
   const handleToggleFullscreen = (ref) => FullscreenService.toggleFullScreen(ref);
   const isIphone = !!(navigator.userAgent.match(/iPhone/i));
+  const allowSnapshotOfCurrentSlide = useIsSnapshotOfCurrentSlideEnabled();
 
   return (
     <PresentationMenu
@@ -60,7 +59,7 @@ const PresentationMenuContainer = (props) => {
         meetingName: meetingInfo?.name,
         handleToggleFullscreen,
         isIphone,
-        allowSnapshotOfCurrentSlide: isSnapshotOfCurrentSlideEnabled(),
+        allowSnapshotOfCurrentSlide,
         persistShape,
       }}
     />
