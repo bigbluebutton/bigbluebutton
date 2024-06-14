@@ -9,6 +9,19 @@ export const USER_SET_MUTED = gql`
   }
 `;
 
+export const USER_SET_SPEECH_OPTIONS = gql`
+  mutation UserSetSpeechOptions(
+    $partialUtterances: Boolean!
+    $minUtteranceLength: Float!
+  ) {
+    userSetSpeechOptions(
+      partialUtterances: $partialUtterances
+      minUtteranceLength: $minUtteranceLength
+    )
+  }
+`;
+
 export default {
   USER_SET_MUTED,
+  USER_SET_SPEECH_OPTIONS,
 };

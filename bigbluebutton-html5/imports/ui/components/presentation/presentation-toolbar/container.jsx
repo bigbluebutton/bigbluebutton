@@ -125,7 +125,3 @@ PresentationToolbarContainer.propTypes = {
   // Actions required for the presenter toolbar
   layoutSwapped: PropTypes.bool,
 };
-
-PresentationToolbarContainer.defaultProps = {
-  layoutSwapped: false,
-};

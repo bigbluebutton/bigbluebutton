@@ -9,16 +9,10 @@ interface IconProps {
   className?: string;
 }
 
-const defaultProps = {
-  prependIconName: 'icon-bbb-',
-  rotate: false,
-  className: '',
-};
-
 const Icon: React.FC<IconProps> = ({
-  className,
-  prependIconName,
-  iconName,
+  className = '',
+  prependIconName = 'icon-bbb-',
+  iconName = '',
   rotate = false,
 }) => (
   <Styled.Icon
@@ -26,7 +20,5 @@ const Icon: React.FC<IconProps> = ({
     $rotate={rotate}
   />
 );
-
-Icon.defaultProps = defaultProps;
 
 export default memo(Icon);

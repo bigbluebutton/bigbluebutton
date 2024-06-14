@@ -1,5 +1,6 @@
 import { makeVar, useReactiveVar } from '@apollo/client';
 import createUseLocalState from '/imports/ui/core/local-states/createUseLocalState';
+import type { ConnectingStream, Stream } from './types';
 
 const [useVideoState, setVideoState, videoState] = createUseLocalState({
   isConnecting: false,
@@ -11,13 +12,6 @@ const [useVideoState, setVideoState, videoState] = createUseLocalState({
 });
 
 const getVideoState = () => videoState();
-
-export type ConnectingStream = {
-  stream: string;
-  name: string;
-  userId: string;
-  type: 'connecting';
-};
 
 const connectingStream = makeVar<ConnectingStream | null>(null);
 
@@ -40,19 +34,6 @@ const setConnectingStream = (stream: ConnectingStream | null) => {
 };
 
 const getConnectingStream = () => connectingStream();
-
-export type Stream = {
-  stream: string;
-  deviceId: string;
-  userId: string;
-  name: string;
-  nameSortable: string;
-  pinned: boolean;
-  floor: boolean;
-  lastFloorTime: string;
-  isModerator: boolean;
-  type: 'stream';
-}
 
 const streams = makeVar<Stream[]>([]);
 

@@ -20,6 +20,7 @@ import {
   layoutDispatch,
 } from '../layout/context';
 import { SET_SYNC_WITH_PRESENTER_LAYOUT, SET_LAYOUT_PROPS } from './mutations';
+import useSetSpeechOptions from '../audio/audio-graphql/hooks/useSetSpeechOptions';
 
 import {
   getBreakoutRooms,
@@ -54,6 +55,7 @@ const AppContainer = (props) => {
     meetingLayoutCameraPosition,
     meetingLayoutFocusedCamera,
     meetingLayoutVideoRate,
+    transcriptionSettings,
     ...otherProps
   } = props;
 
@@ -73,6 +75,7 @@ const AppContainer = (props) => {
   const {
     viewScreenshare,
   } = useSettings(SETTINGS.DATA_SAVING);
+  const { partialUtterances, minUtteranceLength } = useSettings(SETTINGS.TRANSCRIPTION);
 
   const sidebarContent = layoutSelectInput((i) => i.sidebarContent);
   const genericComponent = layoutSelectInput((i) => i.genericComponent);
@@ -90,6 +93,7 @@ const AppContainer = (props) => {
   const [setSyncWithPresenterLayout] = useMutation(SET_SYNC_WITH_PRESENTER_LAYOUT);
   const [setMeetingLayoutProps] = useMutation(SET_LAYOUT_PROPS);
   const setLocalSettings = useUserChangedLocalSettings();
+  const setSpeechOptions = useSetSpeechOptions();
   const { data: pinnedPadData } = useDeduplicatedSubscription(PINNED_PAD_SUBSCRIPTION);
   const isSharedNotesPinnedFromGraphql = !!pinnedPadData
     && pinnedPadData.sharedNotes[0]?.sharedNotesExtId === NOTES_CONFIG.id;
@@ -131,6 +135,13 @@ const AppContainer = (props) => {
       MediaService.setPresentationIsOpen(layoutContextDispatch, true);
     }
   }, [meetingLayout, layoutContextDispatch, layoutType]);
+
+  useEffect(() => {
+    layoutContextDispatch({
+      type: ACTIONS.SET_LAYOUT_TYPE,
+      value: selectedLayout,
+    });
+  }, [selectedLayout]);
 
   const horizontalPosition = cameraDock.position === 'contentLeft' || cameraDock.position === 'contentRight';
   // this is not exactly right yet
@@ -213,6 +224,24 @@ const AppContainer = (props) => {
     && !shouldShowExternalVideo && !shouldShowGenericComponent
     && (presentationIsOpen || presentationRestoreOnUpdate)) && isPresentationEnabled();
 
+  // First from settings.yml
+  if (transcriptionSettings.partialUtterances || transcriptionSettings.minUtteranceLength) {
+    useEffect(() => {
+      setSpeechOptions(
+        transcriptionSettings.partialUtterances,
+        transcriptionSettings.minUtteranceLength,
+      );
+    }, [transcriptionSettings.partialUtterances, transcriptionSettings.minUtteranceLength]);
+  }
+
+  // Update after editing app savings
+  useEffect(() => {
+    setSpeechOptions(
+      partialUtterances,
+      minUtteranceLength,
+    );
+  }, [partialUtterances, minUtteranceLength]);
+
   if (!currentUserData) return null;
 
   return currentUserId
@@ -263,6 +292,7 @@ const AppContainer = (props) => {
           audioCaptions: <AudioCaptionsLiveContainer />,
           inactivityWarningDisplay,
           inactivityWarningTimeoutSecs,
+          setSpeechOptions,
           audioAlertEnabled,
           pushAlertEnabled,
           darkTheme,
@@ -335,6 +365,11 @@ const AppTracker = withTracker((props) => {
 
   const LAYOUT_CONFIG = window.meetingClientSettings.public.layout;
 
+  const transcriptionSettings = {
+    partialUtterances: getFromUserSettings('bbb_transcription_partial_utterances'),
+    minUtteranceLength: getFromUserSettings('bbb_transcription_min_utterance_length'),
+  };
+
   return {
     audioCaptions: <AudioCaptionsLiveContainer />,
     hasBreakoutRooms: getBreakoutRooms().length > 0,
@@ -364,6 +399,7 @@ const AppTracker = withTracker((props) => {
     hideActionsBar: getFromUserSettings('bbb_hide_actions_bar', false),
     hideNavBar: getFromUserSettings('bbb_hide_nav_bar', false),
     User: currentUser,
+    transcriptionSettings,
   };
 })(AppContainer);
 

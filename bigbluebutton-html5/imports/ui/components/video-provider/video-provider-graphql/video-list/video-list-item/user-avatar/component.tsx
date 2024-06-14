@@ -2,10 +2,10 @@ import React from 'react';
 import Styled from './styles';
 import Icon from '/imports/ui/components/common/icon/component';
 import UserListService from '/imports/ui/components/user-list/service';
-import { StreamUser, VideoItem } from '../../../types';
+import { User, VideoItem } from '/imports/ui/components/video-provider/video-provider-graphql/types';
 
 interface UserAvatarVideoProps {
-  user: Partial<StreamUser>;
+  user: Partial<User>;
   stream: VideoItem;
   // eslint-disable-next-line react/require-default-props
   voiceUser?: {
@@ -24,17 +24,16 @@ const UserAvatarVideo: React.FC<UserAvatarVideoProps> = (props) => {
     name = '', color = '', avatar = '', emoji = '', isModerator,
   } = data;
   let {
-    presenter, clientType,
+    presenter = false, clientType,
   } = data;
 
   const { talking = false } = voiceUser;
 
   const handleUserIcon = () => {
     if (emoji !== 'none') {
-      // @ts-expect-error -> Untyped component.
       return <Icon iconName={UserListService.normalizeEmojiName(emoji)} />;
     }
-    return name.toLowerCase().slice(0, 2);
+    return <>{name.toLowerCase().slice(0, 2)}</>;
   };
 
   // hide icons when squeezed

@@ -1,12 +1,9 @@
 import React, { useContext } from 'react';
-import { withTracker } from 'meteor/react-meteor-data';
 import deviceInfo from '/imports/utils/deviceInfo';
 import browserInfo from '/imports/utils/browserInfo';
 import OptionsDropdown from './component';
 import FullscreenService from '/imports/ui/components/common/fullscreen-button/service';
-import { meetingIsBreakout } from '/imports/ui/components/app/service';
-import { layoutSelectInput, layoutSelect } from '../../layout/context';
-import { SMALL_VIEWPORT_BREAKPOINT } from '../../layout/enums';
+import { layoutSelect } from '../../layout/context';
 import { PluginsContext } from '/imports/ui/components/components-data/plugin-context/context';
 import { USER_LEAVE_MEETING } from '/imports/ui/core/graphql/mutations/userMutations';
 import { useMutation } from '@apollo/client';
@@ -23,8 +20,6 @@ const noIOSFullscreen = !!(((isSafari && !isValidSafariVersion) || isIphone));
 const setAudioCaptions = (value) => Session.setItem('audioCaptions', value);
 
 const OptionsDropdownContainer = (props) => {
-  const { width: browserWidth } = layoutSelectInput((i) => i.browser);
-  const isMobile = browserWidth <= SMALL_VIEWPORT_BREAKPOINT;
   const isRTL = layoutSelect((i) => i.isRTL);
   const { pluginsExtensibleAreasAggregatedState } = useContext(PluginsContext);
   let optionsDropdownItems = [];
@@ -38,6 +33,7 @@ const OptionsDropdownContainer = (props) => {
     data: currentMeeting,
   } = useMeeting((m) => ({
     componentsFlags: m.componentsFlags,
+    isBreakout: m.isBreakout,
   }));
 
   const componentsFlags = currentMeeting?.componentsFlags;
@@ -50,7 +46,6 @@ const OptionsDropdownContainer = (props) => {
 
   return (
     <OptionsDropdown {...{
-      isMobile,
       isRTL,
       optionsDropdownItems,
       userLeaveMeeting,
@@ -58,22 +53,17 @@ const OptionsDropdownContainer = (props) => {
       shortcuts: openOptions,
       audioCaptionsActive,
       isDropdownOpen,
+      handleToggleFullscreen: FullscreenService.toggleFullScreen,
+      audioCaptionsSet: (value) => setAudioCaptions(value),
+      isMobile: deviceInfo.isMobile,
+      noIOSFullscreen,
+      isBreakoutRoom: currentMeeting?.isBreakout,
+      // TODO: Replace/Remove
+      isMeteorConnected: true,
       ...props,
     }}
     />
   );
 };
 
-export default withTracker((props) => {
-  const handleToggleFullscreen = () => FullscreenService.toggleFullScreen();
-  return {
-    amIModerator: props.amIModerator,
-
-    audioCaptionsSet: (value) => setAudioCaptions(value),
-    isMobile: deviceInfo.isMobile,
-    handleToggleFullscreen,
-    noIOSFullscreen,
-    isMeteorConnected: Meteor.status().connected,
-    isBreakoutRoom: meetingIsBreakout(),
-  };
-})(OptionsDropdownContainer);
+export default OptionsDropdownContainer;

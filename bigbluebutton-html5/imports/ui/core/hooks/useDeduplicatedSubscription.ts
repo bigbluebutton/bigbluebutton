@@ -1,7 +1,9 @@
 import { useEffect, useMemo, useRef } from 'react';
-import GrahqlSubscriptionStore, { stringToHash } from '/imports/ui/core/singletons/subscriptionStore';
+import GrahqlSubscriptionStore, { stringToHash, SubscriptionStructure } from '/imports/ui/core/singletons/subscriptionStore';
 import { DocumentNode, TypedQueryDocumentNode } from 'graphql';
-import { OperationVariables, SubscriptionHookOptions, useReactiveVar } from '@apollo/client';
+import {
+  OperationVariables, SubscriptionHookOptions, makeVar, useReactiveVar,
+} from '@apollo/client';
 // same as useSubscription type
 //  eslint-disable-next-line @typescript-eslint/no-explicit-any
 const useDeduplicatedSubscription = <T = any>(
@@ -11,7 +13,11 @@ const useDeduplicatedSubscription = <T = any>(
   const subscriptionHashRef = useRef<string>('');
   const subscriptionRef = useRef <DocumentNode | TypedQueryDocumentNode | null>(null);
   const optionsRef = useRef(options);
-  const subscriptionHash = stringToHash(JSON.stringify({ subscription, variables: options?.variables }));
+  const subscriptionHash = stringToHash(JSON.stringify({
+    subscription,
+    variables: options?.variables,
+    skip: options?.skip,
+  }));
 
   useEffect(() => {
     return () => {
@@ -32,8 +38,17 @@ const useDeduplicatedSubscription = <T = any>(
   }, [subscriptionHash]);
 
   const sub = useMemo(() => {
+    if (options?.skip) {
+      return makeVar<SubscriptionStructure<T>>({
+        count: 0,
+        data: null,
+        error: null,
+        loading: true,
+        sub: null,
+      });
+    }
     return GrahqlSubscriptionStore.makeSubscription<T>(subscription, options?.variables);
-  }, [subscriptionHash]);
+  }, [subscriptionHash, options?.skip]);
   return useReactiveVar(sub);
 };
 
