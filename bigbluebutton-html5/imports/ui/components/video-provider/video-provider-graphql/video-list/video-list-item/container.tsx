@@ -64,7 +64,7 @@ const VideoListItemContainer: React.FC<VideoListItemContainerProps> = (props) =>
   }));
   const voiceUser = voiceUsers.data?.find((v) => v.userId === userId);
 
-  if (!voiceUser || isEmpty(voiceUser)) return null;
+  if (!user || isEmpty(user)) return null;
 
   return (
     <VideoListItem
