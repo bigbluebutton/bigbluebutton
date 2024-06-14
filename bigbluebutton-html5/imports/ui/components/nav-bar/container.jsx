@@ -114,7 +114,7 @@ const NavBarContainer = ({ children, ...props }) => {
         currentUserId: Auth.userID,
         pluginNavBarItems,
         shortcuts: toggleUserList,
-        meetingId: meeting.meetingId,
+        meetingId: meeting?.meetingId,
         presentationTitle: meetingTitle,
         breakoutNum,
         breakoutName,
