@@ -9,7 +9,6 @@ import {
   CAMERADOCK_POSITION,
 } from '/imports/ui/components/layout/enums';
 import { defaultsDeep } from '/imports/utils/array-utils';
-import { useIsPresentationEnabled } from '/imports/ui/services/features';
 import Session from '/imports/ui/services/storage/in-memory';
 
 const windowWidth = () => window.document.documentElement.clientWidth;
@@ -49,7 +48,7 @@ const PresentationFocusLayout = (props) => {
   const layoutContextDispatch = layoutDispatch();
 
   const prevDeviceType = usePrevious(deviceType);
-  const isPresentationEnabled = useIsPresentationEnabled();
+  const { isPresentationEnabled } = props;
 
   const throttledCalculatesLayout = throttle(() => calculatesLayout(),
     50, { trailing: true, leading: true });
@@ -76,7 +75,7 @@ const PresentationFocusLayout = (props) => {
     } else {
       throttledCalculatesLayout();
     }
-  }, [input, deviceType, isRTL, fontSize, fullscreen]);
+  }, [input, deviceType, isRTL, fontSize, fullscreen, isPresentationEnabled]);
 
   const init = () => {
     const { sidebarContentPanel } = sidebarContentInput;

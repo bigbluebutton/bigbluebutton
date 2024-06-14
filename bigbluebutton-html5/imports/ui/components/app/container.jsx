@@ -335,6 +335,7 @@ const AppContainer = (props) => {
           isLargeFont,
           ignorePollNotifications,
           muteMicrophone,
+          isPresentationEnabled,
         }}
         {...otherProps}
       />

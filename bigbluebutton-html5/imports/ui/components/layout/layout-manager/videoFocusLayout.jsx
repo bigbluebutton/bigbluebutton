@@ -10,7 +10,6 @@ import DEFAULT_VALUES from '/imports/ui/components/layout/defaultValues';
 import { INITIAL_INPUT_STATE } from '/imports/ui/components/layout/initState';
 import { ACTIONS, PANELS } from '/imports/ui/components/layout/enums';
 import { defaultsDeep } from '/imports/utils/array-utils';
-import { useIsPresentationEnabled } from '/imports/ui/services/features';
 import Session from '/imports/ui/services/storage/in-memory';
 
 const windowWidth = () => window.document.documentElement.clientWidth;
@@ -50,7 +49,7 @@ const VideoFocusLayout = (props) => {
   const sidebarContentOutput = layoutSelectOutput((i) => i.sidebarContent);
 
   const prevDeviceType = usePrevious(deviceType);
-  const isPresentationEnabled = useIsPresentationEnabled();
+  const { isPresentationEnabled } = props;
 
   const throttledCalculatesLayout = throttle(() => calculatesLayout(), 50, {
     trailing: true,
@@ -79,7 +78,7 @@ const VideoFocusLayout = (props) => {
     } else {
       throttledCalculatesLayout();
     }
-  }, [input, deviceType, isRTL, fontSize, fullscreen]);
+  }, [input, deviceType, isRTL, fontSize, fullscreen, isPresentationEnabled]);
 
   const init = () => {
     const { sidebarContentPanel } = sidebarContentInput;

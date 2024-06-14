@@ -131,10 +131,6 @@ const useIsCameraAsContentBroadcasting = () => {
   const sharing = active && sharingContentType === CONTENT_TYPE_CAMERA;
   const cameraAsContentIsShared = useIsCameraAsContentGloballyBroadcasting();
 
-  if (cameraAsContentIsShared && isSharing) {
-    setIsSharing(false);
-  }
-
   return sharing || cameraAsContentIsShared;
 };
 

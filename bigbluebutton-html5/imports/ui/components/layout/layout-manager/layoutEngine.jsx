@@ -11,13 +11,13 @@ import VideoFocusLayout from '/imports/ui/components/layout/layout-manager/video
 import CamerasOnlyLayout from '/imports/ui/components/layout/layout-manager/camerasOnly';
 import PresentationOnlyLayout from '/imports/ui/components/layout/layout-manager/presentationOnlyLayout';
 import ParticipantsAndChatOnlyLayout from '/imports/ui/components/layout/layout-manager/participantsAndChatOnlyLayout';
-import { useIsPresentationEnabled } from '/imports/ui/services/features';
 
 const propTypes = {
   layoutType: PropTypes.string.isRequired,
+  isPresentationEnabled: PropTypes.bool.isRequired,
 };
 
-const LayoutEngine = ({ layoutType }) => {
+const LayoutEngine = ({ layoutType, isPresentationEnabled }) => {
   const bannerBarInput = layoutSelectInput((i) => i.bannerBar);
   const notificationsBarInput = layoutSelectInput((i) => i.notificationsBar);
   const cameraDockInput = layoutSelectInput((i) => i.cameraDock);
@@ -35,8 +35,6 @@ const LayoutEngine = ({ layoutType }) => {
   const isRTL = layoutSelect((i) => i.isRTL);
   const fontSize = layoutSelect((i) => i.fontSize);
   const deviceType = layoutSelect((i) => i.deviceType);
-
-  const isPresentationEnabled = useIsPresentationEnabled();
 
   const isMobile = deviceType === DEVICE_TYPE.MOBILE;
   const isTablet = deviceType === DEVICE_TYPE.TABLET;
@@ -337,16 +335,16 @@ const LayoutEngine = ({ layoutType }) => {
   switch (layoutType) {
     case LAYOUT_TYPE.CUSTOM_LAYOUT:
       layout?.setAttribute('data-layout', LAYOUT_TYPE.CUSTOM_LAYOUT);
-      return <CustomLayout {...common} />;
+      return <CustomLayout {...common} isPresentationEnabled={isPresentationEnabled} />;
     case LAYOUT_TYPE.SMART_LAYOUT:
       layout?.setAttribute('data-layout', LAYOUT_TYPE.SMART_LAYOUT);
-      return <SmartLayout {...common} />;
+      return <SmartLayout {...common} isPresentationEnabled={isPresentationEnabled} />;
     case LAYOUT_TYPE.PRESENTATION_FOCUS:
       layout?.setAttribute('data-layout', LAYOUT_TYPE.PRESENTATION_FOCUS);
-      return <PresentationFocusLayout {...common} />;
+      return <PresentationFocusLayout {...common} isPresentationEnabled={isPresentationEnabled} />;
     case LAYOUT_TYPE.VIDEO_FOCUS:
       layout?.setAttribute('data-layout', LAYOUT_TYPE.VIDEO_FOCUS);
-      return <VideoFocusLayout {...common} />;
+      return <VideoFocusLayout {...common} isPresentationEnabled={isPresentationEnabled} />;
     case LAYOUT_TYPE.CAMERAS_ONLY:
       layout?.setAttribute('data-layout', LAYOUT_TYPE.CAMERAS_ONLY);
       return <CamerasOnlyLayout {...common} />;
@@ -358,7 +356,7 @@ const LayoutEngine = ({ layoutType }) => {
       return <ParticipantsAndChatOnlyLayout {...common} />;
     default:
       layout?.setAttribute('data-layout', LAYOUT_TYPE.CUSTOM_LAYOUT);
-      return <CustomLayout {...common} />;
+      return <CustomLayout {...common} isPresentationEnabled={isPresentationEnabled} />;
   }
 };
 

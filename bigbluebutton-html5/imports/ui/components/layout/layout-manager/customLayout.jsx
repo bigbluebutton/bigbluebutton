@@ -6,7 +6,6 @@ import { INITIAL_INPUT_STATE } from '/imports/ui/components/layout/initState';
 import { ACTIONS, CAMERADOCK_POSITION, PANELS } from '../enums';
 import Storage from '/imports/ui/services/storage/session';
 import { defaultsDeep } from '/imports/utils/array-utils';
-import { useIsPresentationEnabled } from '/imports/ui/services/features';
 import Session from '/imports/ui/services/storage/in-memory';
 
 const windowWidth = () => window.document.documentElement.clientWidth;
@@ -49,7 +48,7 @@ const CustomLayout = (props) => {
 
   const prevDeviceType = usePrevious(deviceType);
   const prevIsResizing = usePrevious(isResizing);
-  const isPresentationEnabled = useIsPresentationEnabled();
+  const { isPresentationEnabled } = props;
 
   const throttledCalculatesLayout = throttle(() => calculatesLayout(),
     50, { trailing: true, leading: true });
@@ -76,7 +75,7 @@ const CustomLayout = (props) => {
     } else {
       throttledCalculatesLayout();
     }
-  }, [input, deviceType, isRTL, fontSize, fullscreen]);
+  }, [input, deviceType, isRTL, fontSize, fullscreen, isPresentationEnabled]);
 
   const calculatesDropAreas = (sidebarNavWidth, sidebarContentWidth, cameraDockBounds) => {
     const { height: actionBarHeight } = calculatesActionbarHeight();
