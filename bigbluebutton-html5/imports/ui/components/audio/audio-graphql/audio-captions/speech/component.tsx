@@ -66,12 +66,14 @@ const AudioCaptionsSpeech: React.FC<AudioCaptionsSpeechProps> = ({
   const [setSpeechLocaleMutation] = useMutation(SET_SPEECH_LOCALE);
 
   const setUserSpeechLocale = (speechLocale: string, provider: string) => {
-    setSpeechLocaleMutation({
-      variables: {
-        locale: speechLocale,
-        provider,
-      },
-    });
+    if (speechLocale !== '') {
+      setSpeechLocaleMutation({
+        variables: {
+          locale: speechLocale,
+          provider,
+        },
+      });
+    }
   };
 
   const setDefaultLocale = () => {
