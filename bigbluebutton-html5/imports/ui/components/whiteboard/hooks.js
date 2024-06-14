@@ -54,7 +54,7 @@ const useMouseEvents = ({ whiteboardRef, tlEditorRef, isWheelZoomRef, initialZoo
         tlEditorRef?.current?.updateInstanceState({ canMoveCamera: true });
     };
 
-    const handleMouseDown = (event) => {
+    const handleMouseDownWhiteboard = (event) => {
         if (!isPresenter && !hasWBAccess) {
             const updateProps = { isReadonly: true };
 
@@ -66,6 +66,17 @@ const useMouseEvents = ({ whiteboardRef, tlEditorRef, isWheelZoomRef, initialZoo
         }
 
         setIsMouseDown(true);
+    };
+
+    const handleMouseDownWindow = (event) => {
+        const presentationInnerWrapper = document.getElementById('presentationInnerWrapper');
+        if (!(presentationInnerWrapper && presentationInnerWrapper.contains(event.target))) {
+          const editingShape = tlEditorRef.current?.getEditingShape();
+          if (editingShape) {
+            return tlEditorRef.current?.setEditingShape(null);
+          }
+        }
+        return undefined;
     };
 
     const handleMouseEnter = () => {
@@ -187,8 +198,10 @@ const useMouseEvents = ({ whiteboardRef, tlEditorRef, isWheelZoomRef, initialZoo
     React.useEffect(() => {
         const whiteboardElement = whiteboardRef.current;
 
+        window.addEventListener('mousedown', handleMouseDownWindow);
+
         if (whiteboardElement) {
-            whiteboardElement.addEventListener("mousedown", handleMouseDown);
+            whiteboardElement.addEventListener("mousedown", handleMouseDownWhiteboard);
             whiteboardElement.addEventListener("mouseup", handleMouseUp);
             whiteboardElement.addEventListener("mouseenter", handleMouseEnter);
             whiteboardElement.addEventListener("mouseleave", handleMouseLeave);
@@ -197,21 +210,18 @@ const useMouseEvents = ({ whiteboardRef, tlEditorRef, isWheelZoomRef, initialZoo
 
         return () => {
             if (whiteboardElement) {
-                whiteboardElement.removeEventListener("mousedown", handleMouseDown);
+                whiteboardElement.removeEventListener("mousedown", handleMouseDownWhiteboard);
                 whiteboardElement.removeEventListener("mouseup", handleMouseUp);
                 whiteboardElement.removeEventListener("mouseenter", handleMouseEnter);
                 whiteboardElement.removeEventListener("mouseleave", handleMouseLeave);
                 whiteboardElement.removeEventListener("wheel", handleMouseWheel);
             }
+
+            window.removeEventListener('mousedown', handleMouseDownWindow);
         };
     }, [
         whiteboardRef,
-        tlEditorRef, 
-        handleMouseDown,
-        handleMouseUp, 
-        handleMouseEnter,
-        handleMouseLeave, 
-        handleMouseWheel
+        tlEditorRef,
     ]);
 };
 
