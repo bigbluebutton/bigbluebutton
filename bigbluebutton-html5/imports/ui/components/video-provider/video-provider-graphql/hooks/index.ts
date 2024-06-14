@@ -9,7 +9,6 @@ import {
   useLazyQuery,
   useMutation,
 } from '@apollo/client';
-import { Meteor } from 'meteor/meteor';
 import Auth from '/imports/ui/services/auth';
 import useCurrentUser from '/imports/ui/core/hooks/useCurrentUser';
 import useMeeting from '/imports/ui/core/hooks/useMeeting';
@@ -61,7 +60,8 @@ export const useDisableReason = () => {
   const locks = {
     videoLocked,
     camCapReached: hasCapReached && !hasVideoStream,
-    meteorDisconnected: !Meteor.status().connected,
+    // TODO: Remove
+    meteorDisconnected: false,
   };
   const locksKeys = Object.keys(locks);
   const disableReason = locksKeys
