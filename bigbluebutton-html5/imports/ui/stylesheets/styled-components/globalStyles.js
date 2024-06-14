@@ -105,7 +105,8 @@ const GlobalStyle = createGlobalStyle`
     width: 20rem !important;
     cursor: pointer;
     background-color: ${colorWhite};
-
+    font-family: unset;
+    min-height: unset;
     &:hover,
     &:focus {
       background-color: #EEE;
@@ -113,10 +114,10 @@ const GlobalStyle = createGlobalStyle`
   }
 
   .toastBodyClass {
-    margin: auto auto;
     flex: 1;
     background-color: inherit;
     max-width: 17.75rem !important;
+    padding: 0;
   }
 
   @keyframes track-progress {

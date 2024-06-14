@@ -269,7 +269,9 @@ class Presentation extends PureComponent {
                 this.currentPresentationToastId = null;
               },
               autoClose: shouldCloseToast,
-              className: 'actionToast currentPresentationToast',
+              className: 'actionToast currentPresentationToast toastClass',
+              type: 'info',
+              bodyClassName: 'toastBodyClass',
             },
           );
         }

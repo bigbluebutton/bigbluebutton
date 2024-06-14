@@ -30,6 +30,7 @@ import {
   jumboPaddingY,
 } from '/imports/ui/stylesheets/styled-components/general';
 import { smallOnly } from '/imports/ui/stylesheets/styled-components/breakpoints';
+import 'react-toastify/dist/ReactToastify.css';
 
 const CloseIcon = styled(Icon)`
   background: transparent;
@@ -187,6 +188,7 @@ const ToastifyContainer = styled(Toastify)`
   top: 4.5rem;
   max-height: 75vh;
   overflow: hidden;
+  width: unset;
 
   [dir="rtl"] & {
     right: auto;
