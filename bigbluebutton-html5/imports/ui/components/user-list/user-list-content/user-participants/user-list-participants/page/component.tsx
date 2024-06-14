@@ -41,7 +41,7 @@ const UsersListParticipantsPage: React.FC<UsersListParticipantsPage> = ({
       {
         users.map((user) => {
           return (
-            <Styled.UserListItem style={{ direction: isRTL }}>
+            <Styled.UserListItem key={user.userId} style={{ direction: isRTL }}>
               <UserActions
                 user={user}
                 currentUser={currentUser as User}
