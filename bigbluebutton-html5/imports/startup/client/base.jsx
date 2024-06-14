@@ -212,12 +212,4 @@ const BaseContainer = (props) => {
   );
 };
 
-export default withTracker(() => {
-  let userSubscriptionHandler;
-
-  return {
-    userSubscriptionHandler,
-    isMeteorConnected: Meteor.status().connected,
-    meetingIsBreakout: AppService.meetingIsBreakout(),
-  };
-})(BaseContainer);
+export default BaseContainer;

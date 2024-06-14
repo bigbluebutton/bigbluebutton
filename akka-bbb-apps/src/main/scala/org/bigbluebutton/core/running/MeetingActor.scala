@@ -274,6 +274,9 @@ class MeetingActor(
     case m: GetRunningMeetingStateReqMsg          => handleGetRunningMeetingStateReqMsg(m)
     case m: ValidateConnAuthTokenSysMsg           => handleValidateConnAuthTokenSysMsg(m)
 
+    //API Msgs
+    case m: GetUserApiMsg                         => usersApp.handleGetUsersMeetingReqMsg(m, sender)
+
     // Meeting
     case m: DestroyMeetingSysCmdMsg               => handleDestroyMeetingSysCmdMsg(m)
 

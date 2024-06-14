@@ -20,6 +20,7 @@ const VideoPreviewContainer = (props) => {
     callbackToClose,
     setIsOpen,
   } = props;
+  const cameraAsContentDeviceId = ScreenShareService.useCameraAsContentDeviceIdType();
   const [stopExternalVideoShare] = useMutation(EXTERNAL_VIDEO_STOP);
 
   const { streams } = useStreams();
@@ -65,9 +66,30 @@ const VideoPreviewContainer = (props) => {
     ScreenShareService.setCameraAsContentDeviceId(deviceId);
   };
 
+  const startSharing = (deviceId) => {
+    callbackToClose();
+    setIsOpen(false);
+    VideoService.joinVideo(deviceId);
+  };
+
+  const stopSharingCameraAsContent = () => {
+    callbackToClose();
+    setIsOpen(false);
+    ScreenShareService.screenshareHasEnded();
+  };
+
+  const closeModal = () => {
+    callbackToClose();
+    setIsOpen(false);
+  };
+
   return (
     <VideoPreview
       {...{
+        stopSharingCameraAsContent,
+        closeModal,
+        startSharing,
+        cameraAsContentDeviceId,
         startSharingCameraAsContent,
         stopSharing,
         sharedDevices,
@@ -81,33 +103,4 @@ const VideoPreviewContainer = (props) => {
   );
 };
 
-const VideoPreviewContainerTracker = withTracker(({ setIsOpen, callbackToClose }) => ({
-  startSharing: (deviceId) => {
-    callbackToClose();
-    setIsOpen(false);
-    VideoService.joinVideo(deviceId);
-  },
-  stopSharingCameraAsContent: () => {
-    callbackToClose();
-    setIsOpen(false);
-    ScreenShareService.screenshareHasEnded();
-  },
-  closeModal: () => {
-    callbackToClose();
-    setIsOpen(false);
-  },
-}))(VideoPreviewContainer);
-
-// TODO: Remove this
-// Temporary component until we remove all trackers
-export default (props) => {
-  const cameraAsContentDeviceId = ScreenShareService.useCameraAsContentDeviceIdType();
-  return (
-    <VideoPreviewContainerTracker
-      {...{
-        ...props,
-        cameraAsContentDeviceId,
-      }}
-    />
-  );
-};
+export default VideoPreviewContainer;
