@@ -24,8 +24,8 @@ const GraphqlToMiniMongoAdapterManager: React.FC<GraphqlToMiniMongoAdapterManage
     [key: string]: number;
   }>({});
   const adapterComponents = useRef([
-    UserGrapQlMiniMongoAdapter,
-    MeetingGrapQlMiniMongoAdapter,
+    // UserGrapQlMiniMongoAdapter,
+    // MeetingGrapQlMiniMongoAdapter,
     VideoStreamAdapter,
   ]);
 
@@ -46,7 +46,7 @@ const GraphqlToMiniMongoAdapterManager: React.FC<GraphqlToMiniMongoAdapterManage
   return (
     <>
       {/* screenshare loads conditionally  so can't be used on lock loading */}
-      <ScreenShareGraphQlMiniMongoAdapterContainer />
+      {/* <ScreenShareGraphQlMiniMongoAdapterContainer /> */}
       {nestAdapters}
       {adapterLoaded ? children : null}
     </>
