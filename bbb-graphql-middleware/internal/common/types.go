@@ -36,7 +36,9 @@ type BrowserConnection struct {
 	Id                          string             // browser connection id
 	Websocket                   *websocket.Conn    // websocket of browser connection
 	SessionToken                string             // session token of this connection
-	BBBWebSessionVariables      map[string]string  // graphql session variables provided by bbb-web
+	MeetingId                   string             // auth info provided by bbb-web
+	UserId                      string             // auth info provided by bbb-web
+	BBBWebSessionVariables      map[string]string  // graphql session variables provided by akka-apps
 	ClientSessionUUID           string             // self-generated unique id for this client
 	Context                     context.Context    // browser connection context
 	ContextCancelFunc           context.CancelFunc // function to cancel the browser context (and so, the browser connection)
