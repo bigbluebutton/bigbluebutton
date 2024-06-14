@@ -432,14 +432,21 @@ function renderExportToast(presToShow, intl) {
   );
 }
 
-export const PresentationUploaderToast = ({intl, convertingPresentations, uploadingPresentations, presentations }) => {
-  const presentationsToConvert = convertingPresentations.concat(uploadingPresentations);
+export const PresentationUploaderToast = ({
+  intl,
+  convertingPresentations,
+  uploadingPresentations,
+  presentations,
+}) => {
+  const presentationsToConvert = convertingPresentations
+    .concat(uploadingPresentations)
+    .filter((p) => p);
   const prevPresentations = usePreviousValue(presentations);
 
   useEffect(() => {
     presentations.forEach((p) => {
-      const prevPropPres = prevPresentations.find((pres) => pres.presentationId === p.presentationId);
-  
+      const prevPropPres = (prevPresentations || [])
+        .find((pres) => pres.presentationId === p.presentationId);
       // display notification when presentation is exported
       let exportToastId = Session.getItem('presentationUploaderExportToastId');
 
@@ -479,10 +486,11 @@ export const PresentationUploaderToast = ({intl, convertingPresentations, upload
   }, [presentations]);
 
   let activeToast = Session.getItem('presentationUploaderToastId');
-  const showToast = presentationsToConvert.length > 0;
+  const presentationsToConvertFiltered = presentationsToConvert.filter((p) => p);
+  const showToast = presentationsToConvertFiltered.length > 0;
 
   if (showToast && !activeToast) {
-    activeToast = toast.info(() => renderToastList(presentationsToConvert, intl), {
+    activeToast = toast.info(() => renderToastList(presentationsToConvertFiltered, intl), {
       hideProgressBar: true,
       autoClose: false,
       newestOnTop: true,
@@ -495,7 +503,7 @@ export const PresentationUploaderToast = ({intl, convertingPresentations, upload
     Session.setItem('presentationUploaderToastId', null);
   } else {
     toast.update(activeToast, {
-      render: renderToastList(presentationsToConvert, intl),
+      render: renderToastList(presentationsToConvertFiltered, intl),
     });
   }
   return null;

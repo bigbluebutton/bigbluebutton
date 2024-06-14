@@ -89,12 +89,12 @@ const ActionsBarContainer = (props) => {
     && pinnedPadData.sharedNotes[0]?.sharedNotesExtId === NOTES_CONFIG.id;
 
   const isSharedNotesPinned = isSharedNotesPinnedFromGraphql;
-  const isPollingEnabled = useIsPollingEnabled() && useIsPresentationEnabled();
   const allowExternalVideo = useIsExternalVideoEnabled();
   const connected = useReactiveVar(connectionStatus.getConnectedStatusVar());
   const intl = useIntl();
   const isPresentationEnabled = useIsPresentationEnabled();
   const isTimerFeatureEnabled = useIsTimerFeatureEnabled();
+  const isPollingEnabled = useIsPollingEnabled() && isPresentationEnabled;
   if (actionsBarStyle.display === false) return null;
   if (!currentMeeting) return null;
 
