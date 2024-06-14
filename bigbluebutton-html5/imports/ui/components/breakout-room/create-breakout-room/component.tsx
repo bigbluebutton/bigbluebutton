@@ -377,7 +377,7 @@ const CreateBreakoutRoom: React.FC<CreateBreakoutRoomProps> = ({
         label: intl.formatMessage(intlMessages.sendInvitationToMods),
       },
     ];
-  }, [isBreakoutRecordable]);
+  }, [isBreakoutRecordable, isImportPresentationWithAnnotationsEnabled, isImportSharedNotesEnabled]);
 
   const form = useMemo(() => {
     if (isUpdate) return null;

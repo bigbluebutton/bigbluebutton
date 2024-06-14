@@ -1479,7 +1479,6 @@ const LayoutContextProvider = (props) => {
   const { children } = props;
   const { layoutType } = layoutContextState;
   const previousLayoutType = usePrevious(layoutType);
-  console.log(layoutContextState);
 
   useEffect(() => {
     updatePresentationAreaContent(

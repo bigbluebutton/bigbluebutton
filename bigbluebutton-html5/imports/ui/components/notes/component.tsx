@@ -21,6 +21,7 @@ import {
   useIsScreenBroadcasting,
 } from '/imports/ui/components/screenshare/service';
 import useDeduplicatedSubscription from '../../core/hooks/useDeduplicatedSubscription';
+import { useIsPresentationEnabled } from '../../services/features';
 
 const intlMessages = defineMessages({
   hide: {
@@ -55,6 +56,7 @@ interface NotesGraphqlProps extends NotesContainerGraphqlProps {
   isRTL: boolean;
   shouldShowSharedNotesOnPresentationArea: boolean;
   handlePinSharedNotes: (pinned: boolean) => void;
+  isPresentationEnabled: boolean;
 }
 
 let timoutRef: NodeJS.Timeout | undefined;
@@ -73,6 +75,7 @@ const NotesGraphql: React.FC<NotesGraphqlProps> = (props) => {
     isToSharedNotesBeShow,
     shouldShowSharedNotesOnPresentationArea,
     handlePinSharedNotes,
+    isPresentationEnabled,
   } = props;
   const [shouldRenderNotes, setShouldRenderNotes] = useState(false);
   const intl = useIntl();
@@ -153,7 +156,7 @@ const NotesGraphql: React.FC<NotesGraphqlProps> = (props) => {
             label: intl.formatMessage(intlMessages.title),
           }}
           customRightButton={
-            <NotesDropdown handlePinSharedNotes={handlePinSharedNotes} />
+            <NotesDropdown handlePinSharedNotes={handlePinSharedNotes} presentationEnabled={isPresentationEnabled} />
           }
         />
       ) : renderHeaderOnMedia()}
@@ -195,6 +198,7 @@ const NotesContainerGraphql: React.FC<NotesContainerGraphqlProps> = (props) => {
 
   const [stopExternalVideoShare] = useMutation(EXTERNAL_VIDEO_STOP);
   const isScreenBroadcasting = useIsScreenBroadcasting();
+  const isPresentationEnabled = useIsPresentationEnabled();
 
   const handlePinSharedNotes = (pinned: boolean) => {
     if (pinned) {
@@ -217,6 +221,7 @@ const NotesContainerGraphql: React.FC<NotesContainerGraphqlProps> = (props) => {
       isRTL={isRTL}
       isToSharedNotesBeShow={isToSharedNotesBeShow}
       handlePinSharedNotes={handlePinSharedNotes}
+      isPresentationEnabled={isPresentationEnabled}
     />
   );
 };
