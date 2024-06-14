@@ -1482,7 +1482,7 @@ const LayoutContextProvider = (props) => {
       layoutContextDispatch,
       isPresentationEnabled,
     );
-  }, [layoutContextState]);
+  }, [layoutContextState, isPresentationEnabled]);
   useEffect(() => {
     const isSharedNotesPinned = !!pinnedPadData
       && pinnedPadData.sharedNotes[0]?.pinned;
