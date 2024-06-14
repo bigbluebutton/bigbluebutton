@@ -82,7 +82,7 @@ export interface ExternalVideo {
     right?: number;
 }
 
-export interface GenericMainContent {
+export interface GenericContentMainArea {
     genericContentId?: string;
     browserHeight?: number;
     browserWidth?: number;
@@ -248,7 +248,7 @@ interface Input {
     cameraDock: CameraDock
     customParameters: NonNullable<unknown>;
     externalVideo: ExternalVideo;
-    genericMainContent: GenericMainContent;
+    genericMainContent: GenericContentMainArea;
     navBar: NavBar;
     notificationsBar: NotificationsBar;
     presentation: Presentation;
@@ -265,7 +265,7 @@ interface Output {
     captions: Captions;
     dropZoneAreas: DropzoneAreas;
     externalVideo: ExternalVideo;
-    genericMainContent: GenericMainContent;
+    genericMainContent: GenericContentMainArea;
     mediaArea: Size;
     navBar: NavBar;
     presentation: Presentation;

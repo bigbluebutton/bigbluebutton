@@ -1,9 +1,9 @@
 import React from 'react';
 import * as Styled from '../styles';
-import { GenericMainContentProps } from '../types';
+import { GenericContentMainAreaProps } from '../types';
 import GenericContentItem from '../generic-content-item/component';
 
-const GenericMainContent: React.FC<GenericMainContentProps> = ({
+const GenericMainContent: React.FC<GenericContentMainAreaProps> = ({
   isResizing,
   genericContentLayoutInformation,
   renderFunctionComponents,

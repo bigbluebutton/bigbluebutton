@@ -4,11 +4,11 @@ import { GenericContentType } from 'bigbluebutton-html-plugin-sdk/dist/cjs/exten
 import { PluginsContext } from '/imports/ui/components/components-data/plugin-context/context';
 import { PANELS } from '/imports/ui/components/layout/enums';
 import GenericSidekickContent from './component';
-import { GenericSidekickContentContainerProps } from '../types';
+import { GenericContentSidekickContainerProps } from '../types';
 import logger from '/imports/startup/client/logger';
 
-const GenericSidekickContentContainer: React.FC<GenericSidekickContentContainerProps> = (
-  props: GenericSidekickContentContainerProps,
+const GenericContentSidekickContainer: React.FC<GenericContentSidekickContainerProps> = (
+  props: GenericContentSidekickContainerProps,
 ) => {
   const { genericSidekickContentId } = props;
   const genericSidekickContentIdIsolated = genericSidekickContentId.replace(PANELS.GENERIC_CONTENT_SIDEKICK, '');
@@ -47,4 +47,4 @@ const GenericSidekickContentContainer: React.FC<GenericSidekickContentContainerP
   );
 };
 
-export default GenericSidekickContentContainer;
+export default GenericContentSidekickContainer;

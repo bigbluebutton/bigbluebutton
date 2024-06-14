@@ -1,18 +1,18 @@
-import { GenericMainContent } from 'bigbluebutton-html-plugin-sdk';
-import { GenericMainContent as GenericMainContentLayout } from '../layout/layoutTypes';
+import { GenericContentMainArea } from 'bigbluebutton-html-plugin-sdk';
+import { GenericContentMainArea as GenericContentMainAreaLayout } from '../layout/layoutTypes';
 
-export interface GenericMainContentContainerProps {
+export interface GenericContentMainAreaContainerProps {
     genericMainContentId: string;
 }
 
-export interface GenericMainContentProps {
+export interface GenericContentMainAreaProps {
     isResizing: boolean;
     genericContentId: string;
-    genericContentLayoutInformation: GenericMainContentLayout;
-    renderFunctionComponents: GenericMainContent[];
+    genericContentLayoutInformation: GenericContentMainAreaLayout;
+    renderFunctionComponents: GenericContentMainArea[];
 }
 
-export interface GenericSidekickContentContainerProps { 
+export interface GenericContentSidekickContainerProps { 
     genericSidekickContentId: string;
 }
 

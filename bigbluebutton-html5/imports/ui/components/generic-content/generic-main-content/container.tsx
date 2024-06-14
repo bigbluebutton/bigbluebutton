@@ -8,7 +8,7 @@ import {
 } from '/imports/ui/components/layout/context';
 import {
   DispatcherFunction,
-  GenericMainContent as GenericContentFromLayout,
+  GenericContentMainArea as GenericContentMainAreaFromLayout,
   Input,
   Output,
 } from '/imports/ui/components/layout/layoutTypes';
@@ -17,10 +17,10 @@ import { GenericContentType } from 'bigbluebutton-html-plugin-sdk/dist/cjs/exten
 import GenericMainContent from './component';
 import { ACTIONS, PRESENTATION_AREA } from '/imports/ui/components/layout/enums';
 import getDifferenceBetweenLists from '../utils';
-import { GenericMainContentContainerProps } from '../types';
+import { GenericContentMainAreaContainerProps } from '../types';
 
-const GenericMainContentContainer: React.FC<GenericMainContentContainerProps> = (
-  props: GenericMainContentContainerProps,
+const GenericContentMainAreaContainer: React.FC<GenericContentMainAreaContainerProps> = (
+  props: GenericContentMainAreaContainerProps,
 ) => {
   const { genericMainContentId } = props;
 
@@ -69,7 +69,7 @@ const GenericMainContentContainer: React.FC<GenericMainContentContainerProps> = 
     }
   }
 
-  const genericContentLayoutInformation: GenericContentFromLayout = layoutSelectOutput(
+  const genericContentLayoutInformation: GenericContentMainAreaFromLayout = layoutSelectOutput(
     (i: Output) => i.genericMainContent,
   );
 
@@ -89,4 +89,4 @@ const GenericMainContentContainer: React.FC<GenericMainContentContainerProps> = 
   );
 };
 
-export default GenericMainContentContainer;
+export default GenericContentMainAreaContainer;
