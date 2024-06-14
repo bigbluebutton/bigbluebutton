@@ -17,8 +17,8 @@ const GenericContentPluginStateContainer = ((
     pluginApi,
   } = props;
   const [
-    genericContents,
-    setGenericContents,
+    genericContentItems,
+    setGenericContentItems,
   ] = useState<PluginSdk.GenericContentInterface[]>([]);
 
   const {
@@ -28,25 +28,25 @@ const GenericContentPluginStateContainer = ((
 
   useEffect(() => {
     // Change this plugin provided toolbar items
-    extensibleAreaMap[uuid].genericContents = genericContents;
+    extensibleAreaMap[uuid].genericContentItems = genericContentItems;
 
     // Update context with computed aggregated list of all plugin provided toolbar items
-    const aggregatedGenericContents = (
+    const aggregatedGenericContentItems = (
       [] as PluginSdk.GenericContentInterface[]).concat(
       ...Object.values(extensibleAreaMap)
-        .map((extensibleArea: ExtensibleArea) => extensibleArea.genericContents),
+        .map((extensibleArea: ExtensibleArea) => extensibleArea.genericContentItems),
     );
     setPluginsExtensibleAreasAggregatedState(
       {
         ...pluginsExtensibleAreasAggregatedState,
-        genericContents: aggregatedGenericContents,
+        genericContentItems: aggregatedGenericContentItems,
       },
     );
-  }, [genericContents]);
+  }, [genericContentItems]);
 
-  pluginApi.setGenericContents = (items: PluginSdk.GenericContentInterface[]) => {
+  pluginApi.setGenericContentItems = (items: PluginSdk.GenericContentInterface[]) => {
     const itemsWithId = items.map(generateItemWithId) as PluginSdk.GenericContentInterface[];
-    setGenericContents(itemsWithId);
+    setGenericContentItems(itemsWithId);
     return itemsWithId.map((i) => i.id);
   };
   return null;

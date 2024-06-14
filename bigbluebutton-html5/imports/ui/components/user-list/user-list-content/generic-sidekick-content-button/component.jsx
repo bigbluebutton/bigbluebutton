@@ -9,8 +9,8 @@ const GenericSidekickContentNavButton = ({ sidebarContentPanel, layoutContextDis
   const { pluginsExtensibleAreasAggregatedState } = useContext(PluginsContext);
   let genericSidekickContentExtensibleArea = [];
 
-  if (pluginsExtensibleAreasAggregatedState.genericContents) {
-    const genericMainContent = pluginsExtensibleAreasAggregatedState.genericContents
+  if (pluginsExtensibleAreasAggregatedState.genericContentItems) {
+    const genericMainContent = pluginsExtensibleAreasAggregatedState.genericContentItems
       .filter((g) => g.type === GenericContentType.SIDEKICK_AREA);
     genericSidekickContentExtensibleArea = [...genericMainContent];
   }

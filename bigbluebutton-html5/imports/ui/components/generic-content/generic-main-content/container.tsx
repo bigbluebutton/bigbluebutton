@@ -31,22 +31,22 @@ const GenericMainContentContainer: React.FC<GenericMainContentContainerProps> = 
   const layoutContextDispatch: DispatcherFunction = layoutDispatch();
   let genericContainerContentExtensibleArea = [] as PluginSdk.GenericContentMainArea[];
 
-  if (pluginsExtensibleAreasAggregatedState.genericContents) {
-    const genericContainerContent = pluginsExtensibleAreasAggregatedState.genericContents
+  if (pluginsExtensibleAreasAggregatedState.genericContentItems) {
+    const genericContainerContent = pluginsExtensibleAreasAggregatedState.genericContentItems
       .filter((g) => g.type === GenericContentType.MAIN_AREA) as PluginSdk.GenericContentMainArea[];
     genericContainerContentExtensibleArea = [
       ...genericContainerContent,
     ];
     const [
-      genericContentsAdded,
-      genericContentsRemoved,
+      genericContentItemsAdded,
+      genericContentItemsRemoved,
     ] = getDifferenceBetweenLists(
       previousPluginGenericContainerContents.current,
       genericContainerContentExtensibleArea,
     );
-    if (genericContentsAdded.length > 0 || genericContentsRemoved.length > 0) {
+    if (genericContentItemsAdded.length > 0 || genericContentItemsRemoved.length > 0) {
       previousPluginGenericContainerContents.current = [...genericContainerContentExtensibleArea];
-      genericContentsAdded.forEach((g) => {
+      genericContentItemsAdded.forEach((g) => {
         layoutContextDispatch({
           type: ACTIONS.SET_PILE_CONTENT_FOR_PRESENTATION_AREA,
           value: {
@@ -56,7 +56,7 @@ const GenericMainContentContainer: React.FC<GenericMainContentContainerProps> = 
           },
         });
       });
-      genericContentsRemoved.forEach((g) => {
+      genericContentItemsRemoved.forEach((g) => {
         layoutContextDispatch({
           type: ACTIONS.SET_PILE_CONTENT_FOR_PRESENTATION_AREA,
           value: {

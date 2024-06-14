@@ -18,8 +18,8 @@ const GenericSidekickContentContainer: React.FC<GenericSidekickContentContainerP
   } = useContext(PluginsContext);
   let genericSidekickContentExtensibleArea = [] as PluginSdk.GenericContentSidekickArea[];
 
-  if (pluginsExtensibleAreasAggregatedState.genericContents) {
-    const genericMainContent = pluginsExtensibleAreasAggregatedState.genericContents
+  if (pluginsExtensibleAreasAggregatedState.genericContentItems) {
+    const genericMainContent = pluginsExtensibleAreasAggregatedState.genericContentItems
       .filter((g) => g.type === GenericContentType.SIDEKICK_AREA) as PluginSdk.GenericContentSidekickArea[];
     genericSidekickContentExtensibleArea = [...genericMainContent];
   }
