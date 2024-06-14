@@ -243,15 +243,12 @@ const AppContainer = (props) => {
     && !shouldShowExternalVideo && !shouldShowGenericComponent
     && (presentationIsOpen || presentationRestoreOnUpdate)) && isPresentationEnabled();
 
-  // First from settings.yml
-  if (partialUtterances || minUtteranceLength) {
-    useEffect(() => {
-      setSpeechOptions(
-        partialUtterances,
-        minUtteranceLength,
-      );
-    }, [partialUtterances, minUtteranceLength]);
-  }
+  useEffect(() => {
+    setSpeechOptions(
+      partialUtterances,
+      minUtteranceLength,
+    );
+  }, [partialUtterances, minUtteranceLength]);
 
   // Update after editing app savings
   useEffect(() => {
@@ -260,11 +257,10 @@ const AppContainer = (props) => {
       minUtteranceLength,
     );
   }, [partialUtterances, minUtteranceLength]);
-
-  if (!currentUserData) return null;
-
   const customStyleUrl = getFromUserSettings('bbb_custom_style_url', false)
   || window.meetingClientSettings.public.app.customStyleUrl;
+
+  if (!currentUserData) return null;
 
   return currentUser?.userId
     ? (

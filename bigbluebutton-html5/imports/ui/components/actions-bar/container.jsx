@@ -6,10 +6,10 @@ import Auth from '/imports/ui/services/auth';
 import ActionsBar from './component';
 import { layoutSelectOutput, layoutDispatch } from '../layout/context';
 import {
+  isPollingEnabled,
+  isPresentationEnabled,
   isTimerFeatureEnabled,
   useIsExternalVideoEnabled,
-  useIsPollingEnabled,
-  useIsPresentationEnabled,
 } from '/imports/ui/services/features';
 
 import { PluginsContext } from '/imports/ui/components/components-data/plugin-context/context';
@@ -89,7 +89,7 @@ const ActionsBarContainer = (props) => {
     && pinnedPadData.sharedNotes[0]?.sharedNotesExtId === NOTES_CONFIG.id;
 
   const isSharedNotesPinned = isSharedNotesPinnedFromGraphql;
-  const isPollingEnabled = useIsPollingEnabled() && useIsPresentationEnabled();
+  const pollingEnabled = isPollingEnabled() && isPresentationEnabled();
   const allowExternalVideo = useIsExternalVideoEnabled();
   const connected = useReactiveVar(connectionStatus.getConnectedStatusVar());
   const intl = useIntl();
@@ -110,7 +110,7 @@ const ActionsBarContainer = (props) => {
         && sceenShareType?.screenshare[0]?.contentType,
         intl,
         allowExternalVideo,
-        isPollingEnabled,
+        isPollingEnabled: pollingEnabled,
         currentUser,
         amIModerator,
         layoutContextDispatch,
