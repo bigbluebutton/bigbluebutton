@@ -468,7 +468,10 @@ const CreateBreakoutRoom: React.FC<CreateBreakoutRoomProps> = ({
         <Styled.Separator />
       </React.Fragment>
     );
-  }, [durationTime, durationIsValid, numberOfRooms, numberOfRoomsIsValid]);
+  }, [
+    durationTime, durationIsValid, numberOfRooms, numberOfRoomsIsValid,
+    isImportPresentationWithAnnotationsEnabled, isImportSharedNotesEnabled,
+  ]);
 
   return (
     <ModalFullscreen
