@@ -52,7 +52,6 @@ const VirtualBgSelector = ({
   locked,
   showThumbnails = false,
   initialVirtualBgState = defaultInitialVirtualBgState,
-  isVisualEffects,
   readFile,
 }) => {
   const IMAGE_NAMES = getImageNames();
@@ -269,7 +268,6 @@ const VirtualBgSelector = ({
       return (
         <Styled.ThumbnailButtonWrapper
           key={`blur-${index}`}
-          isVisualEffects={isVisualEffects}
         >
           <Styled.ThumbnailButton
             background={getVirtualBackgroundThumbnail(BLUR_FILENAME)}
@@ -282,7 +280,6 @@ const VirtualBgSelector = ({
             disabled={disabled}
             ref={ref => { inputElementsRef.current[index] = ref; }}
             onClick={() => _virtualBgSelected(EFFECT_TYPES.BLUR_TYPE, 'Blur', index)}
-            isVisualEffects={isVisualEffects}
           />
           <div aria-hidden className="sr-only" id={`vr-cam-btn-blur`}>
             {intl.formatMessage(intlMessages.camBgAriaDesc, { 0: EFFECT_TYPES.BLUR_TYPE })}
@@ -300,7 +297,6 @@ const VirtualBgSelector = ({
       return (
         <Styled.ThumbnailButtonWrapper
           key={`${imageName}-${index + 1}`}
-          isVisualEffects={isVisualEffects}
         >
           <Styled.ThumbnailButton
             id={`${imageName}-${index + 1}`}
@@ -314,7 +310,6 @@ const VirtualBgSelector = ({
             ref={ref => inputElementsRef.current[index] = ref}
             onClick={() => _virtualBgSelected(EFFECT_TYPES.IMAGE_TYPE, imageName, index)}
             disabled={disabled}
-            isVisualEffects={isVisualEffects}
             background={getVirtualBackgroundThumbnail(imageName)}
             data-test="selectDefaultBackground"
           />
@@ -334,7 +329,6 @@ const VirtualBgSelector = ({
       return (
         <Styled.ThumbnailButtonWrapper
           key={`${filename}-${index + 1}`}
-          isVisualEffects={isVisualEffects}
         >
           <Styled.ThumbnailButton
             id={`${filename}-${index + 1}`}
@@ -353,7 +347,6 @@ const VirtualBgSelector = ({
               { file: data, uniqueId },
             )}
             disabled={disabled}
-            isVisualEffects={isVisualEffects}
             background={data}
             data-test="selectCustomBackground"
           />
@@ -399,7 +392,6 @@ const VirtualBgSelector = ({
               customBgSelectorRef.current.click();
             }
           }}
-          isVisualEffects={isVisualEffects}
           data-test="inputBackgroundButton"
         />
         <input
@@ -427,7 +419,6 @@ const VirtualBgSelector = ({
           tabIndex={disabled ? -1 : 0}
           disabled={disabled}
           onClick={() => _virtualBgSelected(EFFECT_TYPES.NONE_TYPE)}
-          isVisualEffects={isVisualEffects}
           data-test="noneBackgroundButton"
         />
         <div aria-hidden className="sr-only" id={`vr-cam-btn-none`}>
@@ -454,7 +445,6 @@ const VirtualBgSelector = ({
         <Styled.BgWrapper
           role="group"
           aria-label={intl.formatMessage(intlMessages.virtualBackgroundSettingsLabel)}
-          isVisualEffects={isVisualEffects}
           brightnessEnabled={ENABLE_CAMERA_BRIGHTNESS}
           data-test="virtualBackground"
         >
@@ -507,17 +497,15 @@ const VirtualBgSelector = ({
 
   return (
     <>
-      {!isVisualEffects && isVirtualBackgroundSupported() ? (
-        renderSelector()
-      ) : (
-        <Styled.Label>
-          {intl.formatMessage(
-            !isVirtualBackgroundSupported()
-              ? intlMessages.virtualBackgroundSettingsLabel
-              : intlMessages.virtualBackgroundSettingsDisabledLabel,
-          )}
-        </Styled.Label>
-      )}
+      <Styled.Label>
+        {intl.formatMessage(
+          isVirtualBackgroundSupported()
+            ? intlMessages.virtualBackgroundSettingsLabel
+            : intlMessages.virtualBackgroundSettingsDisabledLabel,
+        )}
+      </Styled.Label>
+
+      {renderSelector()}
     </>
   );
 };

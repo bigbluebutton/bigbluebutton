@@ -46,10 +46,6 @@ const BgNoneButton = styled(Button)`
   border: ${borderSizeSmall} solid ${userThumbnailBorder};
   margin: 0.5rem 0.5rem;
   flex-shrink: 0;
-
-  ${({ isVisualEffects }) => isVisualEffects && `
-    margin: 0.15rem;
-  `}
 `;
 
 const ThumbnailButton = styled(Button)`
@@ -131,10 +127,6 @@ const Label = styled.label`
 const ThumbnailButtonWrapper = styled.div`
   position: relative;
   margin: 0.5rem 0.5rem;
-
-  ${({ isVisualEffects }) => isVisualEffects && `
-    margin: 0.15rem;
-  `}
 `;
 
 const ButtonWrapper = styled.div`

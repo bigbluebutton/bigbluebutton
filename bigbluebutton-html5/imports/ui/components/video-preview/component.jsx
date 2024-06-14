@@ -748,7 +748,6 @@ class VideoPreview extends Component {
     const {
       intl,
       sharedDevices,
-      isVisualEffects,
       cameraAsContent,
     } = this.props;
 
@@ -1175,7 +1174,6 @@ class VideoPreview extends Component {
         shouldCloseOnOverlayClick={allowCloseModal}
         isPhone={deviceInfo.isPhone}
         data-test="webcamSettingsModal"
-        //title={title}
         {...{
           isOpen,
           priority,
