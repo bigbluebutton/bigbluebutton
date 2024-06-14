@@ -125,6 +125,7 @@ const PresentationContainer = (props) => {
     num: currentPresentationPage?.num,
     presentationId: currentPresentationPage?.presentationId,
     svgUri: slideSvgUrl,
+    infiniteCanvas: currentPresentationPage.infiniteCanvas,
   } : null;
 
   let slidePosition;
@@ -201,42 +202,43 @@ const PresentationContainer = (props) => {
   return (
     <Presentation
       {
-      ...{
-        layoutContextDispatch,
-        numCameras,
-        ...props,
-        userIsPresenter,
-        presentationBounds: presentation,
-        fullscreenContext,
-        fullscreenElementId,
-        isMobile: deviceType === DEVICE_TYPE.MOBILE,
-        isIphone,
-        currentSlide,
-        slidePosition,
-        downloadPresentationUri: `${APP_CONFIG.bbbWebBase}/${currentPresentationPage?.downloadFileUri}`,
-        multiUser: (multiUserData.hasAccess || multiUserData.active) && presentationIsOpen,
-        presentationIsDownloadable: currentPresentationPage?.downloadable,
-        mountPresentation: !!currentSlide,
-        currentPresentationId: currentPresentationPage?.presentationId,
-        totalPages: currentPresentationPage?.totalPages || 0,
-        notify,
-        zoomSlide,
-        publishedPoll: poll?.published || false,
-        restoreOnUpdate: getFromUserSettings(
-          'bbb_force_restore_presentation_on_new_events',
-          window.meetingClientSettings.public.presentation.restoreOnUpdate,
-        ),
-        addWhiteboardGlobalAccess: getUsers,
-        removeWhiteboardGlobalAccess,
-        multiUserSize: multiUserData.size,
-        isViewersAnnotationsLocked,
-        setPresentationIsOpen: MediaService.setPresentationIsOpen,
-        isDefaultPresentation: currentPresentationPage?.isDefaultPresentation,
-        presentationName: currentPresentationPage?.presentationName,
-        presentationAreaSize,
-        currentUser,
-        hasPoll,
-      }
+        ...{
+          layoutContextDispatch,
+          numCameras,
+          ...props,
+          userIsPresenter,
+          presentationBounds: presentation,
+          fullscreenContext,
+          fullscreenElementId,
+          isMobile: deviceType === DEVICE_TYPE.MOBILE,
+          isIphone,
+          currentSlide,
+          slidePosition,
+          downloadPresentationUri: `${APP_CONFIG.bbbWebBase}/${currentPresentationPage?.downloadFileUri}`,
+          multiUser: (multiUserData.hasAccess || multiUserData.active) && presentationIsOpen,
+          presentationIsDownloadable: currentPresentationPage?.downloadable,
+          mountPresentation: !!currentSlide,
+          currentPresentationId: currentPresentationPage?.presentationId,
+          totalPages: currentPresentationPage?.totalPages || 0,
+          notify,
+          zoomSlide,
+          publishedPoll: poll?.published || false,
+          restoreOnUpdate: getFromUserSettings(
+            'bbb_force_restore_presentation_on_new_events',
+            window.meetingClientSettings.public.presentation.restoreOnUpdate,
+          ),
+          addWhiteboardGlobalAccess: getUsers,
+          removeWhiteboardGlobalAccess,
+          multiUserSize: multiUserData.size,
+          isViewersAnnotationsLocked,
+          setPresentationIsOpen: MediaService.setPresentationIsOpen,
+          isDefaultPresentation: currentPresentationPage?.isDefaultPresentation,
+          presentationName: currentPresentationPage?.presentationName,
+          presentationAreaSize,
+          currentUser,
+          hasPoll,
+          currentPresentationPage,
+        }
       }
     />
   );

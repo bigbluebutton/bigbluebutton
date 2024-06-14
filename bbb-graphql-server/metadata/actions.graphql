@@ -358,6 +358,13 @@ type Mutation {
 }
 
 type Mutation {
+  presentationSetPageInfiniteCanvas(
+    infiniteCanvas: Boolean!
+    pageId: String!
+  ): Boolean
+}
+
+type Mutation {
   presentationSetRenderedInToast(
     presentationId: String!
   ): Boolean

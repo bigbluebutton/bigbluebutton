@@ -117,6 +117,7 @@ const Whiteboard = React.memo(function Whiteboard(props) {
     locale,
     darkTheme,
     selectedLayout,
+    isInfiniteCanvas,
   } = props;
 
   clearTldrawCache();
@@ -648,7 +649,7 @@ const Whiteboard = React.memo(function Whiteboard(props) {
 
         // Adjust camera position to ensure it stays within bounds
         const panned = next?.id?.includes("camera") && (prev.x !== next.x || prev.y !== next.y);
-        if (panned) {
+        if (panned && !currentPresentationPageRef.current?.infiniteCanvas) {
           // Horizontal bounds check
           if (next.x > 0) {
             next.x = 0;

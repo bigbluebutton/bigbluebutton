@@ -147,6 +147,7 @@ class ZoomTool extends PureComponent {
       intl,
       isMeteorConnected,
       step,
+      isInfiniteCanvas,
     } = this.props;
     const { stateZoomValue } = this.state;
 
@@ -170,6 +171,7 @@ class ZoomTool extends PureComponent {
             exec={this.decrement}
             value={zoomValue}
             minBound={minBound}
+            isInfiniteCanvas={isInfiniteCanvas}
           >
             <Styled.DecreaseZoomButton
               color="light"
@@ -182,7 +184,7 @@ class ZoomTool extends PureComponent {
               data-test="zoomOutBtn"
               icon="substract"
               onClick={() => { }}
-              disabled={(zoomValue <= minBound) || !isMeteorConnected}
+              disabled={(zoomValue <= minBound) || !isMeteorConnected || isInfiniteCanvas}
               hideLabel
             />
             <div id="zoomOutDescription" hidden>{intl.formatMessage(intlMessages.zoomOutDesc)}</div>
@@ -213,6 +215,7 @@ class ZoomTool extends PureComponent {
             exec={this.increment}
             value={zoomValue}
             maxBound={maxBound}
+            isInfiniteCanvas={isInfiniteCanvas}
           >
             <Styled.IncreaseZoomButton
               color="light"
@@ -225,7 +228,7 @@ class ZoomTool extends PureComponent {
               data-test="zoomInBtn"
               icon="add"
               onClick={() => { }}
-              disabled={(zoomValue >= maxBound) || !isMeteorConnected}
+              disabled={(zoomValue >= maxBound) || !isMeteorConnected || isInfiniteCanvas}
               hideLabel
             />
             <div id="zoomInDescription" hidden>{intl.formatMessage(intlMessages.zoomInDesc)}</div>
