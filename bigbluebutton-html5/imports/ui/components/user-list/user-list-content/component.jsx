@@ -10,6 +10,8 @@ import UserPollsContainer from './user-polls/container';
 import BreakoutRoomContainer from './breakout-room/container';
 import { isChatEnabled } from '/imports/ui/services/features';
 import UserTitleContainer from '../user-list-graphql/user-participants-title/component';
+import { GenericSidekickContent } from 'bigbluebutton-html-plugin-sdk';
+import GenericSidekickContentNavButtonContainer from './generic-sidekick-content-button/container';
 
 const propTypes = {
   currentUser: PropTypes.shape({
@@ -46,9 +48,10 @@ class UserContent extends PureComponent {
         {isTimerActive && <TimerContainer isModerator={currentUser?.role === ROLE_MODERATOR} />}
         {currentUser?.role === ROLE_MODERATOR ? (
           <GuestPanelOpenerContainer />
-        ) : null}
+          ) : null}
         <UserPollsContainer isPresenter={currentUser?.presenter} />
         <BreakoutRoomContainer />
+        <GenericSidekickContentNavButtonContainer />
         <UserTitleContainer />
         <UserListParticipants compact={compact} />
       </Styled.Content>

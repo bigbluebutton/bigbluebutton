@@ -1,3 +1,3 @@
-export interface GenericComponentItemProps {
+export interface GenericContentItemProps {
     renderFunction: (element: HTMLElement) => void;
 }
