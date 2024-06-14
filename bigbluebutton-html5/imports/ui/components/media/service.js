@@ -1,21 +1,8 @@
-import { isScreenBroadcasting, isCameraAsContentBroadcasting } from '/imports/ui/components/screenshare/service';
 import getFromUserSettings from '/imports/ui/services/users-settings';
 import { ACTIONS } from '../layout/enums';
-import UserService from '/imports/ui/components/user-list/service';
 
 function shouldShowWhiteboard() {
   return true;
-}
-
-function shouldShowScreenshare(
-  viewScreenshare, active, sharingContentType, isScreenSharingEnabled, isCameraAsContentEnabled,
-) {
-  return (isScreenSharingEnabled || isCameraAsContentEnabled)
-    && (viewScreenshare || UserService.isUserPresenter())
-    && (
-      isScreenBroadcasting(active, sharingContentType)
-      || isCameraAsContentBroadcasting(active, sharingContentType)
-    );
 }
 
 function shouldShowOverlay() {
@@ -52,9 +39,6 @@ const buildLayoutWhenPresentationAreaIsDisabled = (
 export default {
   buildLayoutWhenPresentationAreaIsDisabled,
   shouldShowWhiteboard,
-  shouldShowScreenshare,
   shouldShowOverlay,
-  isScreenBroadcasting,
-  isCameraAsContentBroadcasting,
   setPresentationIsOpen,
 };

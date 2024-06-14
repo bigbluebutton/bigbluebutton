@@ -18,9 +18,7 @@ import { PIN_NOTES } from './mutations';
 import { EXTERNAL_VIDEO_STOP } from '/imports/ui/components/external-video-player/mutations';
 import {
   screenshareHasEnded,
-  isScreenBroadcasting,
-  useIsSharing,
-  useSharingContentType,
+  useIsScreenBroadcasting,
 } from '/imports/ui/components/screenshare/service';
 import useDeduplicatedSubscription from '../../core/hooks/useDeduplicatedSubscription';
 
@@ -196,13 +194,12 @@ const NotesContainerGraphql: React.FC<NotesContainerGraphqlProps> = (props) => {
     && pinnedPadData.sharedNotes[0]?.sharedNotesExtId === NOTES_CONFIG.id;
 
   const [stopExternalVideoShare] = useMutation(EXTERNAL_VIDEO_STOP);
-  const isSharingScreen = useIsSharing();
-  const sharingContentType = useSharingContentType();
+  const isScreenBroadcasting = useIsScreenBroadcasting();
 
   const handlePinSharedNotes = (pinned: boolean) => {
     if (pinned) {
       stopExternalVideoShare();
-      if (isScreenBroadcasting(isSharingScreen, sharingContentType)) screenshareHasEnded();
+      if (isScreenBroadcasting) screenshareHasEnded();
     }
     pinSharedNotes({ variables: { pinned } });
   };
