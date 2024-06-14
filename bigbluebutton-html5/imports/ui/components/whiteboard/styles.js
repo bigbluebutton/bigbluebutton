@@ -50,7 +50,6 @@ const TldrawV2GlobalStyle = createGlobalStyle`
     position: relative;
   }
 
-  // Add the following lines to override height and width attributes for .tl-overlays__item
   .tl-overlays__item {
     height: auto !important;
     width: auto !important;
@@ -82,12 +81,13 @@ const TldrawV2GlobalStyle = createGlobalStyle`
     }
   `}
 
+  .tlui-helper-buttons,
   [data-testid="main.page-menu"],
   [data-testid="main.menu"],
   [data-testid="tools.more.laser"],
   [data-testid="tools.asset"],
   [data-testid="page-menu.button"],
-  tlui-menu-zone {
+  .tlui-menu-zone {
     display: none !important;
   }
 

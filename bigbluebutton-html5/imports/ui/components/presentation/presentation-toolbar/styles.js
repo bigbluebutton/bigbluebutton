@@ -280,6 +280,34 @@ const WBAccessButton = styled(Button)`
   }
 `;
 
+const InfiniteCanvasButton = styled(Button)`
+  border: none !important;
+
+  svg {
+    [dir="rtl"] & {
+      -webkit-transform: scale(-1, 1);
+      -moz-transform: scale(-1, 1);
+      -ms-transform: scale(-1, 1);
+      -o-transform: scale(-1, 1);
+      transform: scale(-1, 1);
+    }
+  }
+
+  position: relative;
+  color: ${toolbarButtonColor};
+  background-color: ${colorOffWhite};
+  border-radius: 0;
+  box-shadow: none !important;
+  border: 0;
+  margin-left: 2px;
+  margin-right: 2px;
+
+  &:focus {
+    background-color: ${colorOffWhite};
+    border: 0;
+  }
+`;
+
 export default {
   PresentationToolbarWrapper,
   QuickPollButton,
@@ -293,4 +321,5 @@ export default {
   MultiUserTool,
   WBAccessButton,
   MUTPlaceholder,
+  InfiniteCanvasButton,
 };

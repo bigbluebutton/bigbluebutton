@@ -89,6 +89,14 @@ const intlMessages = defineMessages({
     id: 'app.whiteboard.toolbar.multiUserOff',
     description: 'Whiteboard toolbar turn multi-user off menu',
   },
+  infiniteCanvasOn: {
+    id: 'app.whiteboard.toolbar.infiniteCanvasOn',
+    description: 'Whiteboard toolbar turn infinite canvas on',
+  },
+  infiniteCanvasOff: {
+    id: 'app.whiteboard.toolbar.infiniteCanvasOff',
+    description: 'Whiteboard toolbar turn infinite canvas off',
+  },
   pan: {
     id: 'app.whiteboard.toolbar.tools.hand',
     description: 'presentation toolbar pan label',
@@ -120,7 +128,9 @@ class PresentationToolbar extends PureComponent {
   }
 
   componentDidUpdate(prevProps) {
-    const { zoom, setIsPanning, fitToWidth, fitToWidthHandler, currentSlideNum } = this.props;
+    const {
+      zoom, setIsPanning, fitToWidth, fitToWidthHandler, currentSlideNum,
+    } = this.props;
     const { wasFTWActive } = this.state;
 
     if (zoom <= HUNDRED_PERCENT && zoom !== prevProps.zoom && !fitToWidth) setIsPanning();
@@ -129,16 +139,12 @@ class PresentationToolbar extends PureComponent {
       setTimeout(() => {
         fitToWidthHandler();
         this.setWasActive(false);
-      }, 150)
+      }, 150);
     }
   }
 
   componentWillUnmount() {
     document.removeEventListener('keydown', this.switchSlide);
-  }
-
-  setWasActive(wasFTWActive) {
-    this.setState({ wasFTWActive });
   }
 
   handleFTWSlideChange() {
@@ -169,6 +175,10 @@ class PresentationToolbar extends PureComponent {
       return removeWhiteboardGlobalAccess(whiteboardId);
     }
     return addWhiteboardGlobalAccess(whiteboardId);
+  }
+
+  setWasActive(wasFTWActive) {
+    this.setState({ wasFTWActive });
   }
 
   fullscreenToggleHandler() {
@@ -343,6 +353,9 @@ class PresentationToolbar extends PureComponent {
       slidePosition,
       multiUserSize,
       multiUser,
+      setPresentationPageInfiniteCanvas,
+      allowInfiniteCanvas,
+      infiniteCanvasIcon,
     } = this.props;
 
     const { isMobile } = deviceInfo;
@@ -359,6 +372,8 @@ class PresentationToolbar extends PureComponent {
       ? intl.formatMessage(intlMessages.nextSlideLabel)
       : `${intl.formatMessage(intlMessages.nextSlideLabel)} (${currentSlideNum >= 1 ? currentSlideNum + 1 : ''
       })`;
+
+    const isInfiniteCanvas = currentSlide?.infiniteCanvas;
 
     return (
       <Styled.PresentationToolbarWrapper
@@ -433,6 +448,30 @@ class PresentationToolbar extends PureComponent {
           />
         </Styled.PresentationSlideControls>
         <Styled.PresentationZoomControls>
+          {(allowInfiniteCanvas) && (
+          <Styled.InfiniteCanvasButton
+            data-test={isInfiniteCanvas ? 'turnInfiniteCanvasOff' : 'turnInfiniteCanvasOn'}
+            role="button"
+            aria-label={
+              isInfiniteCanvas
+                ? intl.formatMessage(intlMessages.infiniteCanvasOff)
+                : intl.formatMessage(intlMessages.infiniteCanvasOn)
+            }
+            color="light"
+            disabled={!isMeteorConnected}
+            customIcon={infiniteCanvasIcon(isInfiniteCanvas)}
+            size="md"
+            circle
+            onClick={() => { setPresentationPageInfiniteCanvas(!isInfiniteCanvas); }}
+            label={
+              isInfiniteCanvas
+                ? intl.formatMessage(intlMessages.infiniteCanvasOff)
+                : intl.formatMessage(intlMessages.infiniteCanvasOn)
+            }
+            hideLabel
+          />
+          )}
+
           <Styled.WBAccessButton
             data-test={multiUser ? 'turnMultiUsersWhiteboardOff' : 'turnMultiUsersWhiteboardOn'}
             role="button"
@@ -473,6 +512,7 @@ class PresentationToolbar extends PureComponent {
                 minBound={HUNDRED_PERCENT}
                 maxBound={MAX_PERCENT}
                 step={STEP}
+                isInfiniteCanvas={isInfiniteCanvas}
                 isMeteorConnected={isMeteorConnected}
               />
             </TooltipContainer>
