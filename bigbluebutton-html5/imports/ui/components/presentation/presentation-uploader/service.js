@@ -3,7 +3,7 @@ import Auth from '/imports/ui/services/auth';
 import logger from '/imports/startup/client/logger';
 import { partition } from '/imports/utils/array-utils';
 import update from 'immutability-helper';
-import { Random } from 'meteor/random';
+import { v4 as uuid } from 'uuid';
 import { uniqueId } from '/imports/utils/string-utils';
 import { notify } from '/imports/ui/services/notification';
 import apolloContextHolder from '/imports/ui/core/graphql/apolloContextHolder/apolloContextHolder';
@@ -91,7 +91,7 @@ const uploadAndConvertPresentation = (
 ) => {
   if (!file) return Promise.resolve();
 
-  const temporaryPresentationId = uniqueId(Random.id(20));
+  const temporaryPresentationId = uniqueId(uuid());
 
   const data = new FormData();
   data.append('fileUpload', file);

@@ -558,14 +558,10 @@ class App extends Component {
         <TimeSync />
         <Notifications />
         {this.mountPushLayoutEngine()}
-        {selectedLayout
-          ? (
-            <LayoutEngine
-              layoutType={selectedLayout}
-              isPresentationEnabled={isPresentationEnabled}
-            />
-          )
-          : null}
+        <LayoutEngine
+          layoutType={selectedLayout}
+          isPresentationEnabled={isPresentationEnabled}
+        />
         <GlobalStyles />
         <Styled.Layout
           id="layout"

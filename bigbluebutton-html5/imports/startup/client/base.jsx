@@ -1,11 +1,8 @@
 import React, { Component } from 'react';
-import { withTracker } from 'meteor/react-meteor-data';
 import Auth from '/imports/ui/services/auth';
 import AppContainer from '/imports/ui/components/app/container';
 import { getSettingsSingletonInstance } from '/imports/ui/services/settings';
 import Session from '/imports/ui/services/storage/in-memory';
-import { Meteor } from 'meteor/meteor';
-import AppService from '/imports/ui/components/app/service';
 import deviceInfo from '/imports/utils/deviceInfo';
 import getFromUserSettings from '/imports/ui/services/users-settings';
 import { layoutSelectInput, layoutDispatch } from '../../ui/components/layout/context';

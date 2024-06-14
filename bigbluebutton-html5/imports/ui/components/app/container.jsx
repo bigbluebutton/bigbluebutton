@@ -104,6 +104,7 @@ const AppContainer = (props) => {
     darkTheme,
     fontSize = '16px',
   } = useSettings(SETTINGS.APPLICATION);
+  console.log(selectedLayout)
 
   const { partialUtterances, minUtteranceLength } = useSettings(SETTINGS.TRANSCRIPTION);
 

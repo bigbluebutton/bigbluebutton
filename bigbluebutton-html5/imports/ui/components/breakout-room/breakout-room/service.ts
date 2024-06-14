@@ -1,4 +1,3 @@
-import { Meteor } from 'meteor/meteor';
 import AudioService from '/imports/ui/components/audio/service';
 import AudioManager from '/imports/ui/services/audio-manager';
 import VideoService from '/imports/ui/components/video-provider/video-provider-graphql/service';
@@ -14,10 +13,6 @@ export const getIsMicrophoneUser = () => {
 
 export const getIsReconnecting = () => {
   return AudioService.isReconnecting();
-};
-
-export const getIsConnected = () => {
-  return Meteor.status().connected;
 };
 
 export const forceExitAudio = () => {

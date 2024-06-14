@@ -1,6 +1,5 @@
 import React from 'react';
 import { useMutation } from '@apollo/client';
-import { withTracker } from 'meteor/react-meteor-data';
 import Service from './service';
 import VideoPreview from './component';
 import VideoService from '../video-provider/video-provider-graphql/service';
