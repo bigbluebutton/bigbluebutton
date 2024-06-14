@@ -52,7 +52,7 @@ class ScreenshareComponent extends React.Component {
     this.state = {
       loaded: false,
       autoplayBlocked: false,
-      mediaFlowing: false,
+      mediaFlowing: true,
       switched: false,
       // Volume control hover toolbar
       showHoverToolBar: false,
@@ -527,9 +527,8 @@ class ScreenshareComponent extends React.Component {
     // 3 - The media was loaded, the stream was globally broadcasted BUT the stream
     // state transitioned to an unhealthy stream. tl;dr: screen sharing reconnection
     const shouldRenderConnectingState = !loaded
-      || (isPresenter && !isGloballyBroadcasting)
-      || (!mediaFlowing && loaded && isGloballyBroadcasting);
-
+    || (isPresenter && !isGloballyBroadcasting)
+    || (!mediaFlowing && loaded && isGloballyBroadcasting);
 
     const display = (width > 0 && height > 0) ? 'inherit' : 'none';
     const Settings = getSettingsSingletonInstance();

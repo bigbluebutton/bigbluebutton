@@ -41,6 +41,14 @@ export function useIsPollingEnabled() {
   return useDisabledFeatures().indexOf('polls') === -1 && window.meetingClientSettings.public.poll.enabled;
 }
 
+export function useIsPresentationEnabled() {
+  return useDisabledFeatures().indexOf('presentation') === -1;
+}
+
+export function useIsExternalVideoEnabled() {
+  return useDisabledFeatures().indexOf('externalVideos') === -1 && window.meetingClientSettings.public.externalVideoPlayer.enabled;
+}
+
 export function isExternalVideoEnabled() {
   return getDisabledFeatures().indexOf('externalVideos') === -1 && window.meetingClientSettings.public.externalVideoPlayer.enabled;
 }
@@ -115,10 +123,6 @@ export function isImportSharedNotesFromBreakoutRoomsEnabled() {
 
 export function isPresentationEnabled() {
   return getDisabledFeatures().indexOf('presentation') === -1;
-}
-
-export function useIsPresentationEnabled() {
-  return useDisabledFeatures().indexOf('presentation') === -1;
 }
 
 export function isReactionsEnabled() {
