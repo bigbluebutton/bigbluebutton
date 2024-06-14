@@ -329,7 +329,6 @@ const ChatMessageForm: React.FC<ChatMessageFormProps> = ({
           bubbles: true,
           cancelable: true,
         });
-
         handleSubmit(event);
       }
     };
@@ -437,7 +436,6 @@ const ChatMessageForm: React.FC<ChatMessageFormProps> = ({
                   value: false,
                 },
               }));
-              setIsTextAreaFocused(false);
             }}
             onChange={handleMessageChange}
             onKeyDown={handleMessageKeyDown}

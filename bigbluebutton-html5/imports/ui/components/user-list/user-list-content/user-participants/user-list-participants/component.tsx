@@ -105,6 +105,8 @@ const UserListParticipants: React.FC<UserListParticipantsProps> = ({
             const restOfUsers = count % 50;
             return (
               <IntersectionWatcher
+                // eslint-disable-next-line react/no-array-index-key
+                key={i}
                 ParentRef={userListRef}
                 isLastItem={isLastItem}
                 restOfUsers={isLastItem ? restOfUsers : 50}
