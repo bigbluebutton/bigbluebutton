@@ -5,9 +5,6 @@ import React, {
   useState,
 } from 'react';
 
-import UserGrapQlMiniMongoAdapter from '/imports/ui/components/components-data/userGrapQlMiniMongoAdapter/component';
-import MeetingGrapQlMiniMongoAdapter from '/imports/ui/components/components-data/meetingGrapQlMiniMongoAdapter/component';
-import ScreenShareGraphQlMiniMongoAdapterContainer from '/imports/ui/components/components-data/screenshareGraphQlMiniMongoAdapter/component';
 import VideoStreamAdapter from '/imports/ui/components/video-provider/video-provider-graphql/adapter';
 
 interface GraphqlToMiniMongoAdapterManagerProps {
