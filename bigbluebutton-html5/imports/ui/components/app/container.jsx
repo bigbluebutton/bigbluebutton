@@ -109,7 +109,7 @@ const AppContainer = (props) => {
   const { partialUtterances, minUtteranceLength } = useSettings(SETTINGS.TRANSCRIPTION);
 
   const sidebarContent = layoutSelectInput((i) => i.sidebarContent);
-  const genericComponent = layoutSelectInput((i) => i.genericComponent);
+  const genericMainContent = layoutSelectInput((i) => i.genericMainContent);
   const sidebarNavigation = layoutSelectInput((i) => i.sidebarNavigation);
   const actionsBarStyle = layoutSelectOutput((i) => i.actionBar);
   const captionsStyle = layoutSelectOutput((i) => i.captions);
@@ -242,7 +242,7 @@ const AppContainer = (props) => {
 
   const shouldShowExternalVideo = isExternalVideoEnabled && isSharingVideo;
 
-  const shouldShowGenericComponent = !!genericComponent.genericComponentId;
+  const shouldShowGenericMainContent = !!genericMainContent.genericContentId;
 
   const validateEnforceLayout = (currUser) => {
     const layoutTypes = Object.keys(LAYOUT_TYPE);
@@ -253,7 +253,7 @@ const AppContainer = (props) => {
   const shouldShowScreenshare = (viewScreenshare || isPresenter)
     && currentMeeting?.componentsFlags?.hasScreenshare;
   const shouldShowPresentation = (!shouldShowScreenshare && !isSharedNotesPinned
-    && !shouldShowExternalVideo && !shouldShowGenericComponent
+    && !shouldShowExternalVideo && !shouldShowGenericMainContent
     && (presentationIsOpen || presentationRestoreOnUpdate)) && isPresentationEnabled;
 
   useEffect(() => {
@@ -331,7 +331,7 @@ const AppContainer = (props) => {
           isSharedNotesPinned,
           shouldShowPresentation,
           setLocalSettings,
-          genericComponentId: genericComponent.genericComponentId,
+          genericMainContentId: genericMainContent.genericContentId,
           audioCaptions: <AudioCaptionsLiveContainer />,
           inactivityWarningDisplay,
           inactivityWarningTimeoutSecs,

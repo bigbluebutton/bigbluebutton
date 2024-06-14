@@ -1,7 +1,7 @@
 import React, { useEffect, useRef } from 'react';
-import { GenericComponentItemProps } from './types';
+import { GenericContentItemProps } from './types';
 
-const GenericComponentItem: React.FC<GenericComponentItemProps> = (props) => {
+const GenericContentItem: React.FC<GenericContentItemProps> = (props) => {
   const {
     renderFunction,
   } = props;
@@ -23,4 +23,4 @@ const GenericComponentItem: React.FC<GenericComponentItemProps> = (props) => {
   );
 };
 
-export default GenericComponentItem;
+export default GenericContentItem;

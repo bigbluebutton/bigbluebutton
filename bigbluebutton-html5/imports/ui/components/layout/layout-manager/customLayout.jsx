@@ -33,7 +33,7 @@ const CustomLayout = (props) => {
 
   const presentationInput = layoutSelectInput((i) => i.presentation);
   const externalVideoInput = layoutSelectInput((i) => i.externalVideo);
-  const genericComponentInput = layoutSelectInput((i) => i.genericComponent);
+  const genericMainContentInput = layoutSelectInput((i) => i.genericMainContent);
   const screenShareInput = layoutSelectInput((i) => i.screenShare);
   const sharedNotesInput = layoutSelectInput((i) => i.sharedNotes);
 
@@ -165,8 +165,8 @@ const CustomLayout = (props) => {
             externalVideo: {
               hasExternalVideo: input.externalVideo.hasExternalVideo,
             },
-            genericComponent: {
-              genericComponentId: input.genericComponent.genericComponentId,
+            genericMainContent: {
+              genericContentId: input.genericMainContent.genericContentId,
             },
             screenShare: {
               hasScreenShare: input.screenShare.hasScreenShare,
@@ -209,8 +209,8 @@ const CustomLayout = (props) => {
             externalVideo: {
               hasExternalVideo: input.externalVideo.hasExternalVideo,
             },
-            genericComponent: {
-              genericComponentId: input.genericComponent.genericComponentId,
+            genericMainContent: {
+              genericContentId: input.genericMainContent.genericContentId,
             },
             screenShare: {
               hasScreenShare: input.screenShare.hasScreenShare,
@@ -232,13 +232,13 @@ const CustomLayout = (props) => {
   const calculatesSidebarContentHeight = (cameraDockHeight) => {
     const { isOpen, slidesLength } = presentationInput;
     const { hasExternalVideo } = externalVideoInput;
-    const { genericComponentId } = genericComponentInput;
+    const { genericContentId } = genericMainContentInput;
     const { hasScreenShare } = screenShareInput;
     const { isPinned: isSharedNotesPinned } = sharedNotesInput;
 
     const hasPresentation = isPresentationEnabled && slidesLength !== 0;
     const isGeneralMediaOff = !hasPresentation && !hasExternalVideo
-      && !hasScreenShare && !isSharedNotesPinned && !genericComponentId;
+      && !hasScreenShare && !isSharedNotesPinned && !genericContentId;
 
     let sidebarContentHeight = 0;
     if (sidebarContentInput.isOpen) {
@@ -410,7 +410,7 @@ const CustomLayout = (props) => {
   const calculatesMediaBounds = (sidebarNavWidth, sidebarContentWidth, cameraDockBounds) => {
     const { isOpen, slidesLength } = presentationInput;
     const { hasExternalVideo } = externalVideoInput;
-    const { genericComponentId } = genericComponentInput;
+    const { genericContentId } = genericMainContentInput;
     const { hasScreenShare } = screenShareInput;
     const { isPinned: isSharedNotesPinned } = sharedNotesInput;
 
@@ -425,7 +425,7 @@ const CustomLayout = (props) => {
 
     const hasPresentation = isPresentationEnabled && slidesLength !== 0;
     const isGeneralMediaOff = !hasPresentation && !hasExternalVideo
-      && !hasScreenShare && !isSharedNotesPinned && !genericComponentId;
+      && !hasScreenShare && !isSharedNotesPinned && !genericContentId;
 
     if (!isOpen || isGeneralMediaOff) {
       mediaBounds.width = 0;
@@ -441,7 +441,7 @@ const CustomLayout = (props) => {
       fullscreenElement === 'Presentation' ||
       fullscreenElement === 'Screenshare' ||
       fullscreenElement === 'ExternalVideo' ||
-      fullscreenElement === 'GenericComponent'
+      fullscreenElement === 'GenericContent'
     ) {
       mediaBounds.width = windowWidth();
       mediaBounds.height = windowHeight();
@@ -749,7 +749,7 @@ const CustomLayout = (props) => {
     });
     
     layoutContextDispatch({
-      type: ACTIONS.SET_GENERIC_COMPONENT_OUTPUT,
+      type: ACTIONS.SET_GENERIC_CONTENT_OUTPUT,
       value: {
         width: mediaBounds.width,
         height: mediaBounds.height,
