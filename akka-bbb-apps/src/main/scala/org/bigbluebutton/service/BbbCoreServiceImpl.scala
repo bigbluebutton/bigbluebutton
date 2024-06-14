@@ -135,7 +135,7 @@ class BbbCoreServiceImpl(implicit materializer: Materializer, bbbActor: ActorRef
         presentationUploadExternalDescription = meetingSettings.presUploadExtDesc,
         presentationUploadExternalUrl = meetingSettings.presUploadExtUrl
       )
-      
+
       val durationSettings = settings.durationSettings.get
       val durationProps = DurationProps(
         duration = durationSettings.duration,
@@ -260,28 +260,27 @@ class BbbCoreServiceImpl(implicit materializer: Materializer, bbbActor: ActorRef
       )
     }
 
-
     in.createMeetingSettings match {
       case Some(settings) =>
-        if (!allSettingsPresent(settings)) Future.failed(GrpcServiceException(Code.INVALID_ARGUMENT, "missingSettings", Seq(new ErrorResponse("missingSettings", "Some meeting settings were not provided."))))
+        // if (!allSettingsPresent(settings)) Future.failed(GrpcServiceException(Code.INVALID_ARGUMENT, "missingSettings", Seq(new ErrorResponse("missingSettings", "Some meeting settings were not provided."))))
         val defaultProps = settingsToProps(settings)
         (bbbActor ? CreateMeeting(defaultProps)).mapTo[(RunningMeeting, Boolean)].flatMap {
           case (meeting, isDuplicate) => {
             (meeting.actorRef ? HasUserJoined()).mapTo[Boolean].map(hasUserJoined => {
               CreateMeetingResponse(
-              meetingExtId = meeting.props.meetingProp.extId,
-              meetingIntId = meeting.props.meetingProp.intId,
-              parentMeetingId = meeting.props.breakoutProps.parentId,
-              attendeePw = meeting.props.password.viewerPass,
-              moderatorPw = meeting.props.password.moderatorPass,
-              createTime = meeting.props.durationProps.createdTime,
-              voiceBridge = meeting.props.voiceProp.voiceConf,
-              dialNumber = meeting.props.voiceProp.dialNumber,
-              createDate = meeting.props.durationProps.createdDate,
-              hasUserJoined = hasUserJoined,
-              duration = meeting.props.durationProps.duration,
-              hasBeenForciblyEnded = false,
-              isDuplicate = isDuplicate
+                meetingExtId = meeting.props.meetingProp.extId,
+                meetingIntId = meeting.props.meetingProp.intId,
+                parentMeetingId = meeting.props.breakoutProps.parentId,
+                attendeePw = meeting.props.password.viewerPass,
+                moderatorPw = meeting.props.password.moderatorPass,
+                createTime = meeting.props.durationProps.createdTime,
+                voiceBridge = meeting.props.voiceProp.voiceConf,
+                dialNumber = meeting.props.voiceProp.dialNumber,
+                createDate = meeting.props.durationProps.createdDate,
+                hasUserJoined = hasUserJoined,
+                duration = meeting.props.durationProps.duration,
+                hasBeenForciblyEnded = false,
+                isDuplicate = isDuplicate
               )
             })
           }

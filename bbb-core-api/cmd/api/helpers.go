@@ -145,15 +145,15 @@ func (app *Config) processCreateQueryParams(params *url.Values) (*common.CreateM
 		ctx, cancel := context.WithTimeout(context.Background(), time.Second)
 		defer cancel()
 		res, err := app.BbbCore.GetMeetingInfo(ctx, &bbbcore.MeetingInfoRequest{
-			MeetingId: util.GetStringOrDefaultValue(params.Get("parentMeetingID"), ""),
+			MeetingId: util.GetStringOrDefaultValue(validation.StripCtrlChars(params.Get("parentMeetingID")), ""),
 		})
 		if err != nil {
 			log.Println(err)
 			return nil, err
 		}
 		parentMeetingInfo = res.MeetingInfo
-		settings.BreakoutSettings = app.processBreakoutSettings(params, parentMeetingInfo)
 	}
+	settings.BreakoutSettings = app.processBreakoutSettings(params, parentMeetingInfo)
 
 	learningDashboardEnabled := false
 	settings.MeetingSettings, learningDashboardEnabled = app.processMeetingSettings(params, createTime, isBreakout, parentMeetingInfo)
@@ -191,7 +191,7 @@ func (app *Config) processMeetingSettings(params *url.Values, createTime int64, 
 		meetingExtId = app.generateHashString(data, sha1.New()) + strconv.Itoa(int(createTime))
 	} else {
 		meetingExtId = validation.StripCtrlChars(params.Get("meetingID"))
-		meetingIntId = app.generateHashString(meetingExtId, sha1.New()) + strconv.Itoa(int(createTime))
+		meetingIntId = app.generateHashString(meetingExtId, sha1.New()) + "-" + strconv.Itoa(int(createTime))
 	}
 
 	disabledFeaturesMap := make(map[string]struct{})
@@ -232,8 +232,14 @@ func (app *Config) processMeetingSettings(params *url.Values, createTime int64, 
 }
 
 func (app *Config) processBreakoutSettings(params *url.Values, parentMeetingInfo *common.MeetingInfo) *common.BreakoutSettings {
+	var parentMeetingId string
+	if parentMeetingInfo == nil {
+		parentMeetingId = ""
+	} else {
+		parentMeetingId = parentMeetingInfo.MeetingIntId
+	}
 	return &common.BreakoutSettings{
-		ParentMeetingId:       parentMeetingInfo.MeetingIntId,
+		ParentMeetingId:       parentMeetingId,
 		Sequence:              util.GetInt32OrDefaultValue(params.Get("sequence"), 0),
 		FreeJoin:              util.GetBoolOrDefaultValue(params.Get("freeJoin"), false),
 		BreakoutRooms:         make([]string, 0),

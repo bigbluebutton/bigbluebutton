@@ -288,7 +288,7 @@ class MeetingActor(
 
     // Internal gRPC messages
     case msg: GetMeetingInfo        => sender() ! handleGetMeetingInfo()
-    case msg: HasUserJoined      => sender() ! hasAuthedUserJoined(liveMeeting.status)
+    case msg: HasUserJoined         => sender() ! hasAuthedUserJoined(liveMeeting.status)
 
     case msg: ExtendMeetingDuration => handleExtendMeetingDuration(msg)
     case msg: SendTimeRemainingAuditInternalMsg =>

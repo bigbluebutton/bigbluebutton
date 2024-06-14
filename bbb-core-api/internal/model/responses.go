@@ -8,20 +8,37 @@ import (
 )
 
 const (
+	ValidationErrorKey = "validationError"
+
 	ReturnCodeSuccess string = "SUCCESS"
 	ReturnCodeFailure string = "FAILED"
 
 	ChecksumErrorKey string = "checksumError"
-	ChecksumErrorMsg string = "Checksums do not match"
+	ChecksumErrorMsg string = "Checksums do not match."
 
 	MeetingIdMissingErrorKey string = "missingParamMeetingID"
-	MeetingIdMissingErrorMsg string = "You must provide a meeting ID"
+	MeetingIdMissingErrorMsg string = "You must provide a meeting ID."
 
-	MeetingIdLengthErrorKey string = "validationError"
-	MeetingIdLengthErrorMsg string = "Meeting ID must be between 2 and 256 characters"
+	MeetingIdLengthErrorKey string = ValidationErrorKey
+	MeetingIdLengthErrorMsg string = "Meeting ID must be between 2 and 256 characters."
 
-	MeetingIdFormatErrorKey string = "validationError"
-	MeetingIdFormatErrorMsg string = "Meeting ID cannot contain ','"
+	MeetingIdFormatErrorKey string = ValidationErrorKey
+	MeetingIdFormatErrorMsg string = "Meeting ID cannot contain ','."
+
+	MeetingNameMissingErrorKey string = ValidationErrorKey
+	MeetingNameMissingErrorMsg string = "You must provide a meeting name."
+
+	MeetingNameSizeErrorKey string = ValidationErrorKey
+	MeetingNameSizeErrorMsg string = "Meeting name must be between 2 and 256 characters."
+
+	VoiceBridgeInvalidFormatErrorKey string = ValidationErrorKey
+	VoiceBridgeInvalidformatErrorMsg string = "Voice bridge must be an integer."
+
+	VoiceBridgeInUserErrorKey string = "nonUniqueVoiceBridge"
+	VoiceBridgeInUserErrorMsg string = "The selected voice bridge is already in use."
+
+	PasswordLengthErrorKey = "invalidPassword"
+	PasswordLengthErrorMsg = "Passwords must be between 2 and 64 character in length"
 )
 
 type Response struct {

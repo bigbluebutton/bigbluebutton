@@ -28,9 +28,9 @@ func (app *Config) routes() http.Handler {
 
 	mux.Get("/getMeetings", app.getMeetings)
 
-	mux.Get("/createMeeting", app.createMeeting)
+	mux.Get("/create", app.createMeeting)
 
-	mux.Post("/createMeeting", app.createMeetingPost)
+	mux.Post("/create", app.createMeetingPost)
 
 	return mux
 }

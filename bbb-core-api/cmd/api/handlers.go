@@ -209,14 +209,69 @@ func (app *Config) createMeeting(w http.ResponseWriter, r *http.Request) {
 	var payload model.Response
 	log.Println(payload)
 
+	ok, key, msg := app.isChecksumValid(r, "getMeetings")
+	if !ok {
+		payload.ReturnCode = model.ReturnCodeFailure
+		payload.MessageKey = key
+		payload.Message = msg
+		app.writeXML(w, http.StatusAccepted, payload)
+		return
+	}
+
+	ok, key, msg = validation.IsMeetingIdValid(params.Get("meetingID"))
+	if !ok {
+		payload.ReturnCode = model.ReturnCodeFailure
+		payload.MessageKey = key
+		payload.Message = msg
+		app.writeXML(w, http.StatusAccepted, payload)
+		return
+	}
+
+	ok, key, msg = validation.IsMeetingNameValid(params.Get("name"))
+	if !ok {
+		payload.ReturnCode = model.ReturnCodeFailure
+		payload.MessageKey = key
+		payload.Message = msg
+		app.writeXML(w, http.StatusAccepted, payload)
+		return
+	}
+
+	ctx, cancel := context.WithTimeout(context.Background(), time.Second)
+	defer cancel()
+
+	voiceBridge := params.Get("voiceBridge")
+	if voiceBridge != "" {
+		ok = validation.IsValidInteger(voiceBridge)
+		if !ok {
+			payload.ReturnCode = model.ReturnCodeFailure
+			payload.MessageKey = model.VoiceBridgeInvalidFormatErrorKey
+			payload.Message = model.VoiceBridgeInvalidformatErrorMsg
+			app.writeXML(w, http.StatusAccepted, payload)
+			return
+		}
+
+		// TODO: check if provided voice bridge is unique
+
+	}
+
+	attendeePw := params.Get("attendeePW")
+	if attendeePw != "" {
+		ok = validation.IsValidLength(attendeePw, 2, 64)
+		if !ok {
+			payload.ReturnCode = model.ReturnCodeFailure
+			payload.MessageKey = model.PasswordLengthErrorKey
+			payload.Message = model.PasswordLengthErrorMsg
+			app.writeXML(w, http.StatusAccepted, payload)
+			return
+		}
+	}
+
 	settings, err := app.processCreateQueryParams(&params)
 	if err != nil {
 		// TODO handler errors from parameters processing
 		return
 	}
 
-	ctx, cancel := context.WithTimeout(context.Background(), time.Second)
-	defer cancel()
 	res, err := app.BbbCore.CreateMeeting(ctx, &bbbcore.CreateMeetingRequest{
 		CreateMeetingSettings: settings,
 	})
