@@ -1,4 +1,3 @@
-import Users from '/imports/api/users';
 import Auth from '/imports/ui/services/auth';
 import AudioManager from '/imports/ui/services/audio-manager';
 import logger from '/imports/startup/client/logger';
@@ -34,14 +33,12 @@ const audioEventHandler = (toggleVoice) => (event) => {
   }
 };
 
-const init = (messages, intl, toggleVoice, speechLocale, voiceConf) => {
+const init = (messages, intl, toggleVoice, speechLocale, voiceConf, username) => {
   AudioManager.setAudioMessages(messages, intl);
   if (AudioManager.initialized) return Promise.resolve(false);
   const meetingId = Auth.meetingID;
   const userId = Auth.userID;
   const { sessionToken } = Auth;
-  const User = Users.findOne({ userId }, { fields: { name: 1 } });
-  const username = User.name;
   const voiceBridge = voiceConf;
 
   // FIX ME

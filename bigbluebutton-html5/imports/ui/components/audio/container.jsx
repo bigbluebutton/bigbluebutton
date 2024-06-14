@@ -131,6 +131,7 @@ const AudioContainer = (props) => {
       voiceConf: m?.voiceSettings?.voiceConf,
     },
   }));
+  const { data: currentUserName } = useCurrentUser((u) => u.name);
 
   const openAudioModal = () => setAudioModalIsOpen(true);
 
@@ -146,6 +147,7 @@ const AudioContainer = (props) => {
       toggleVoice,
       speechLocale,
       meeting?.voiceSettings?.voiceConf,
+      currentUserName,
     );
     if ((!autoJoin || didMountAutoJoin)) {
       if (enableVideo && autoShareWebcam) {

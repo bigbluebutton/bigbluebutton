@@ -1,6 +1,5 @@
 import { getSettingsSingletonInstance } from '/imports/ui/services/settings';
 import Auth from '/imports/ui/services/auth';
-import Users from '/imports/api/users';
 import { notify } from '/imports/ui/services/notification';
 import deviceInfo from '/imports/utils/deviceInfo';
 import browserInfo from '/imports/utils/browserInfo';
@@ -206,11 +205,6 @@ class VideoService {
     return getFromMeetingSettings('media-server-video', DEFAULT_VIDEO_MEDIA_SERVER);
   }
 
-  static getMyRole() {
-    return Users.findOne({ userId: Auth.userID },
-      { fields: { role: 1 } })?.role;
-  }
-
   static getRoleModerator() {
     return window.meetingClientSettings.public.user.role_moderator;
   }
@@ -227,7 +221,7 @@ class VideoService {
     return PAGE_CHANGE_DEBOUNCE_TIME;
   }
 
-  getRecord() {
+  getRecord(myRole?: string) {
     const ROLE_MODERATOR = VideoService.getRoleModerator();
 
     if (this.record === null) {
@@ -239,7 +233,7 @@ class VideoService {
       this.hackRecordViewer = value ? value.toLowerCase() === 'true' : true;
     }
 
-    const hackRecord = VideoService.getMyRole() === ROLE_MODERATOR || this.hackRecordViewer;
+    const hackRecord = myRole === ROLE_MODERATOR || this.hackRecordViewer;
 
     return this.record && hackRecord;
   }
@@ -510,7 +504,7 @@ export default {
   joinedVideo: () => VideoService.joinedVideo(),
   exitedVideo: () => videoService.exitedVideo(),
   getPreloadedStream: () => videoService.getPreloadedStream(),
-  getRecord: () => videoService.getRecord(),
+  getRecord: (myRole?: string) => videoService.getRecord(myRole),
   getPageChangeDebounceTime: () => VideoService.getPageChangeDebounceTime(),
   getUserParameterProfile: () => videoService.getUserParameterProfile(),
   isMultipleCamerasEnabled: () => videoService.isMultipleCamerasEnabled(),

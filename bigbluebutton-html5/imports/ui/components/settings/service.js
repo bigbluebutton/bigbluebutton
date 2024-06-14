@@ -1,24 +1,6 @@
-import Users from '/imports/api/users';
-import Auth from '/imports/ui/services/auth';
 import { getSettingsSingletonInstance } from '/imports/ui/services/settings';
 import { notify } from '/imports/ui/services/notification';
 import intlHolder from '../../core/singletons/intlHolder';
-
-const getUserRoles = () => {
-  const user = Users.findOne({
-    userId: Auth.userID,
-  });
-
-  return user?.role;
-};
-
-const isPresenter = () => {
-  const user = Users.findOne({
-    userId: Auth.userID,
-  });
-
-  return user?.presenter;
-};
 
 const isKeepPushingLayoutEnabled = () => window.meetingClientSettings.public.layout.showPushLayoutToggle;
 
@@ -43,8 +25,6 @@ const updateSettings = (obj, msgDescriptor, mutation) => {
 const getAvailableLocales = () => fetch('./locale-list').then(locales => locales.json());
 
 export {
-  getUserRoles,
-  isPresenter,
   updateSettings,
   isKeepPushingLayoutEnabled,
   getAvailableLocales,

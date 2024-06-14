@@ -1,23 +1,4 @@
-import Users from '/imports/api/users';
 import Auth from '/imports/ui/services/auth';
-
-const isModerator = () => {
-  const ROLE_MODERATOR = window.meetingClientSettings.public.user.role_moderator;
-
-  const user = Users.findOne(
-    {
-      meetingId: Auth.meetingID,
-      userId: Auth.userID,
-    },
-    { fields: { role: 1 } },
-  );
-
-  if (user && user.role === ROLE_MODERATOR) {
-    return true;
-  }
-
-  return false;
-};
 
 const setLearningDashboardCookie = (token) => {
   if (token !== null) {
@@ -39,7 +20,6 @@ const openLearningDashboardUrl = (lang, token) => {
 };
 
 export default {
-  isModerator,
   setLearningDashboardCookie,
   openLearningDashboardUrl,
 };

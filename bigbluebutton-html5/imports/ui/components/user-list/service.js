@@ -1,5 +1,4 @@
 import React from 'react';
-import Users from '/imports/api/users';
 import Breakouts from '/imports/api/breakouts';
 import Auth from '/imports/ui/services/auth';
 import Storage from '/imports/ui/services/storage/session';
@@ -132,8 +131,6 @@ const isPublicChat = (chat) => {
   const CHAT_CONFIG = window.meetingClientSettings.public.chat;
   return chat.userId === CHAT_CONFIG.public_id;
 };
-
-const getUserCount = () => Users.find({ meetingId: Auth.meetingID }).count();
 
 const hasBreakoutRoom = () => Breakouts.find({ parentMeetingId: Auth.meetingID },
   { fields: {} }).count() > 0;
@@ -283,17 +280,6 @@ const toggleVoice = (userId, voiceToggle) => {
   }
 };
 
-const getEmoji = () => {
-  const currentUser = Users.findOne({ userId: Auth.userID },
-    { fields: { emoji: 1 } });
-
-  if (!currentUser) {
-    return false;
-  }
-
-  return currentUser.emoji;
-};
-
 const focusFirstDropDownItem = () => {
   const dropdownContent = document.querySelector('div[data-test="dropdownContent"][style="visibility: visible;"]');
   if (!dropdownContent) return;
@@ -377,12 +363,6 @@ const sortUsersByLastName = (a, b) => {
   const bUser = { sortName: b.lastName ? b.lastName : '' };
 
   return sortUsersByName(aUser, bUser);
-};
-
-const isUserPresenter = (userId = Auth.userID) => {
-  const user = Users.findOne({ userId },
-    { fields: { presenter: 1 } });
-  return user ? user.presenter : false;
 };
 
 export const getUserNamesLink = (docTitle, fnSortedLabel, lnSortedLabel, users, meetingName) => {
@@ -490,10 +470,7 @@ export default {
   getCustomLogoUrl,
   hasBreakoutRoom,
   getEmojiList: () => EMOJI_STATUSES,
-  getEmoji,
   focusFirstDropDownItem,
-  isUserPresenter,
-  getUserCount,
   sortUsersByCurrent,
   UserJoinedMeetingAlert,
   UserLeftMeetingAlert,
