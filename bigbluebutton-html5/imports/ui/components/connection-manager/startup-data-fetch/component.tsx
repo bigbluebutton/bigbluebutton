@@ -65,12 +65,12 @@ const StartupDataFetch: React.FC<StartupDataFetchProps> = ({
       setLoading(false);
       return;
     }
-    const md = window.location.pathname.match('^(.*)/html5client/join$');
-    if (md == null) {
+    const pathMatch = window.location.pathname.match('^(.*)/html5client/join$');
+    if (pathMatch == null) {
       throw new Error('Failed to match BBB client URI');
     }
-    const apipath = md[1];
-    fetch(`https://${window.location.hostname}${apipath}/bigbluebutton/api`, {
+    const serverPathPrefix = pathMatch[1];
+    fetch(`https://${window.location.hostname}${serverPathPrefix}/bigbluebutton/api`, {
       headers: {
         'Content-Type': 'application/json',
       },
