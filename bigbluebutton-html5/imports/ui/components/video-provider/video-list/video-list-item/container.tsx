@@ -3,7 +3,7 @@ import PropTypes from 'prop-types';
 import useCurrentUser from '/imports/ui/core/hooks/useCurrentUser';
 import { layoutSelect, layoutDispatch } from '/imports/ui/components/layout/context';
 import VideoListItem from './component';
-import { VideoItem } from '../../types';
+import { VideoItem } from '/imports/ui/components/video-provider/types';
 import { Layout } from '/imports/ui/components/layout/layoutTypes';
 import useSettings from '/imports/ui/services/settings/hooks/useSettings';
 import { SETTINGS } from '/imports/ui/services/settings/enums';

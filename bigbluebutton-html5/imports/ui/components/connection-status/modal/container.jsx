@@ -3,7 +3,7 @@ import { CONNECTION_STATUS_REPORT_SUBSCRIPTION } from '../queries';
 import Service from '../service';
 import Component from './component';
 import useCurrentUser from '/imports/ui/core/hooks/useCurrentUser';
-import { useGetStats } from '../../video-provider/video-provider-graphql/hooks';
+import { useGetStats } from '../../video-provider/hooks';
 import useDeduplicatedSubscription from '/imports/ui/core/hooks/useDeduplicatedSubscription';
 
 const ConnectionStatusContainer = (props) => {

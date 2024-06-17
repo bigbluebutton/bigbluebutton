@@ -1,9 +1,9 @@
 import React from 'react';
-import VideoList from '/imports/ui/components/video-provider/video-provider-graphql/video-list/component';
+import VideoList from '/imports/ui/components/video-provider/video-list/component';
 import { layoutSelect, layoutDispatch } from '/imports/ui/components/layout/context';
-import { useNumberOfPages } from '../hooks';
-import { VideoItem } from '../types';
-import { Layout, Output } from '../../../layout/layoutTypes';
+import { useNumberOfPages } from '/imports/ui/components/video-provider/hooks';
+import { VideoItem } from '/imports/ui/components/video-provider/types';
+import { Layout, Output } from '/imports/ui/components/layout/layoutTypes';
 
 interface VideoListContainerProps {
   streams: VideoItem[];

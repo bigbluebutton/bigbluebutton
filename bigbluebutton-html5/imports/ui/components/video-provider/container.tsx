@@ -22,7 +22,7 @@ import WebRtcPeer from '/imports/ui/services/webrtc-base/peer';
 import useSettings from '/imports/ui/services/settings/hooks/useSettings';
 import { SETTINGS } from '/imports/ui/services/settings/enums';
 
-interface VideoProviderContainerGraphqlProps {
+interface VideoProviderContainerProps {
   focusedId: string;
   swapLayout: boolean;
   isGridEnabled: boolean;
@@ -30,7 +30,7 @@ interface VideoProviderContainerGraphqlProps {
   handleVideoFocus:(id: string) => void;
 }
 
-const VideoProviderContainerGraphql: React.FC<VideoProviderContainerGraphqlProps> = (props) => {
+const VideoProviderContainer: React.FC<VideoProviderContainerProps> = (props) => {
   const {
     cameraDock,
     focusedId,
@@ -142,4 +142,4 @@ const VideoProviderContainerGraphql: React.FC<VideoProviderContainerGraphqlProps
   );
 };
 
-export default VideoProviderContainerGraphql;
+export default VideoProviderContainer;

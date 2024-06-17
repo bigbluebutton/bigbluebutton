@@ -10,7 +10,7 @@ import {
   getAvailableLocales,
 } from './service';
 import useUserChangedLocalSettings from '../../services/settings/hooks/useUserChangedLocalSettings';
-import { useShouldRenderPaginationToggle } from '/imports/ui/components/video-provider/video-provider-graphql/hooks';
+import { useShouldRenderPaginationToggle } from '/imports/ui/components/video-provider/hooks';
 import useSettings from '/imports/ui/services/settings/hooks/useSettings';
 import { SETTINGS } from '/imports/ui/services/settings/enums';
 import useCurrentUser from '/imports/ui/core/hooks/useCurrentUser';

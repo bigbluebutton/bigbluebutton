@@ -6,7 +6,7 @@ import Session from '/imports/ui/services/storage/in-memory';
 import deviceInfo from '/imports/utils/deviceInfo';
 import getFromUserSettings from '/imports/ui/services/users-settings';
 import { layoutSelectInput, layoutDispatch } from '../../ui/components/layout/context';
-import { useVideoStreams } from '/imports/ui/components/video-provider/video-provider-graphql/hooks';
+import { useVideoStreams } from '/imports/ui/components/video-provider/hooks';
 import DebugWindow from '/imports/ui/components/debug-window/component';
 import { ACTIONS, PANELS } from '../../ui/components/layout/enums';
 import { useIsChatEnabled } from '/imports/ui/services/features';

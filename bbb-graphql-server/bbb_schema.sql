@@ -127,16 +127,17 @@ create view "v_meeting_voiceSettings" as select * from meeting_voice;
 
 create table "meeting_usersPolicies" (
 	"meetingId" 		varchar(100) primary key references "meeting"("meetingId") ON DELETE CASCADE,
-    "maxUsers"                  integer,
-    "maxUserConcurrentAccesses" integer,
-    "webcamsOnlyForModerator"   boolean,
-    "userCameraCap"             integer,
-    "guestPolicy"               varchar(100),
-    "guestLobbyMessage"         text,
-    "meetingLayout"             varchar(100),
-    "allowModsToUnmuteUsers"    boolean,
-    "allowModsToEjectCameras"   boolean,
-    "authenticatedGuest"        boolean
+    "maxUsers"                     integer,
+    "maxUserConcurrentAccesses"    integer,
+    "webcamsOnlyForModerator"      boolean,
+    "userCameraCap"                integer,
+    "guestPolicy"                  varchar(100),
+    "guestLobbyMessage"            text,
+    "meetingLayout"                varchar(100),
+    "allowModsToUnmuteUsers"       boolean,
+    "allowModsToEjectCameras"      boolean,
+    "authenticatedGuest"           boolean,
+    "allowPromoteGuestToModerator" boolean
 );
 create index "idx_meeting_usersPolicies_meetingId" on "meeting_usersPolicies"("meetingId");
 
@@ -152,6 +153,7 @@ SELECT "meeting_usersPolicies"."meetingId",
     "meeting_usersPolicies"."allowModsToUnmuteUsers",
     "meeting_usersPolicies"."allowModsToEjectCameras",
     "meeting_usersPolicies"."authenticatedGuest",
+    "meeting_usersPolicies"."allowPromoteGuestToModerator",
     "meeting"."isBreakout" is false "moderatorsCanMuteAudio",
     "meeting"."isBreakout" is false and "meeting_usersPolicies"."allowModsToUnmuteUsers" is true "moderatorsCanUnmuteAudio"
    FROM "meeting_usersPolicies"

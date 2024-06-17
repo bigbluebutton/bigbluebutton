@@ -5,7 +5,7 @@ import { PluginsContext } from '/imports/ui/components/components-data/plugin-co
 import useUserChangedLocalSettings from '/imports/ui/services/settings/hooks/useUserChangedLocalSettings';
 import {
   useDisableReason, useExitVideo, useHasVideoStream, useStatus, useStopVideo,
-} from '/imports/ui/components/video-provider/video-provider-graphql/hooks';
+} from '/imports/ui/components/video-provider/hooks';
 import JoinVideoButton from './component';
 
 const JoinVideoOptionsContainer: React.FC = () => {
