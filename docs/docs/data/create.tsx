@@ -396,6 +396,13 @@ const createEndpointTableData = [
     "required": false,
     "type": "String",
     "description": (<>If passed it will use this string as the name of the presentation uploaded via <code className="language-plaintext highlighter-rouge">preUploadedPresentation</code> (added 2.7.2)</>)
+  },
+  {
+    "name": "allowPromoteGuestToModerator",
+    "required": false,
+    "type": "Boolean",
+    "default": "false",
+    "description": (<> If passed as true, we allow moderators to promote guests to moderators even if the authenticatedGuest config is enabled. The defaultAllowPromoteGuestToModerator configuration sets this behaviour globally for all meetings if no api parameter is passed (added in BBB 2.7.9/3.0.0-alpha.7)</>)
   }
 ]
 
