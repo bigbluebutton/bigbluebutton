@@ -77,6 +77,7 @@ public class ParamsProcessorUtil {
     private String defaultHTML5ClientUrl;
 
     private String graphqlWebsocketUrl;
+    private String graphqlApiUrl;
     private Boolean allowRequestsWithoutSession = false;
     private Integer defaultHttpSessionTimeout = 14400;
     private Boolean useDefaultAvatar = false;
@@ -886,6 +887,10 @@ public class ParamsProcessorUtil {
         return graphqlWebsocketUrl;
     }
 
+    public String getGraphqlApiUrl() {
+        return graphqlApiUrl;
+    }
+
 	public Boolean getUseDefaultLogo() {
 		return useDefaultLogo;
 	}
@@ -1247,6 +1252,10 @@ public class ParamsProcessorUtil {
 
     public void setGraphqlWebsocketUrl(String graphqlWebsocketUrl) {
         this.graphqlWebsocketUrl = graphqlWebsocketUrl.replace("https://","wss://");
+    }
+
+    public void setGraphqlApiUrl(String graphqlApiUrl) {
+        this.graphqlApiUrl = graphqlApiUrl;
     }
 
 	public void setUseDefaultLogo(Boolean value) {

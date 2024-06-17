@@ -142,6 +142,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
         <property name="defaultNumDigitsForTelVoice" value="${defaultNumDigitsForTelVoice}"/>
         <property name="defaultHTML5ClientUrl" value="${defaultHTML5ClientUrl}"/>
         <property name="graphqlWebsocketUrl" value="${graphqlWebsocketUrl}"/>
+        <property name="graphqlApiUrl" value="${graphqlApiUrl}"/>
         <property name="useDefaultLogo" value="${useDefaultLogo}"/>
         <property name="defaultLogoURL" value="${defaultLogoURL}"/>
         <property name="allowRequestsWithoutSession" value="${allowRequestsWithoutSession}"/>
