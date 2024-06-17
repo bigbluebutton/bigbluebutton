@@ -77,7 +77,6 @@ public class ParamsProcessorUtil {
     private String defaultHTML5ClientUrl;
 
     private String graphqlWebsocketUrl;
-    private String defaultGuestWaitURL;
     private Boolean allowRequestsWithoutSession = false;
     private Integer defaultHttpSessionTimeout = 14400;
     private Boolean useDefaultAvatar = false;
