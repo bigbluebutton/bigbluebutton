@@ -1,16 +1,9 @@
 import React from 'react';
 import { defineMessages, useIntl } from 'react-intl';
-import { Meteor } from 'meteor/meteor';
 import { useMutation } from '@apollo/client';
 import Styled from '../styles';
 import { pollTypes, checkPollType } from '../service';
 import { POLL_CREATE } from '../mutations';
-
-const CHAT_CONFIG = Meteor.settings.public.chat;
-const PUBLIC_CHAT_KEY = CHAT_CONFIG.public_id;
-
-const POLL_SETTINGS = Meteor.settings.public.poll;
-const MAX_CUSTOM_FIELDS = POLL_SETTINGS.maxCustom;
 
 const intlMessages = defineMessages({
   startPollLabel: {
@@ -68,6 +61,11 @@ const StartPollButton: React.FC<StartPollButtonProps> = ({
   isMultipleResponse,
   hasCurrentPresentation,
 }) => {
+  const CHAT_CONFIG = window.meetingClientSettings.public.chat;
+  const PUBLIC_CHAT_KEY = CHAT_CONFIG.public_id;
+
+  const POLL_SETTINGS = window.meetingClientSettings.public.poll;
+  const MAX_CUSTOM_FIELDS = POLL_SETTINGS.maxCustom;
   const intl = useIntl();
 
   const [createPoll] = useMutation(POLL_CREATE);

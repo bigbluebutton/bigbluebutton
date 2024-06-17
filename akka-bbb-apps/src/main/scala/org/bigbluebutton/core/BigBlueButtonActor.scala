@@ -71,9 +71,24 @@ class BigBlueButtonActor(
     // Internal messages
     case msg: DestroyMeetingInternalMsg => handleDestroyMeeting(msg)
 
+    //Api messages
+    case msg: GetUserApiMsg             => handleGetUserApiMsg(msg, sender)
+
     // 2x messages
     case msg: BbbCommonEnvCoreMsg       => handleBbbCommonEnvCoreMsg(msg)
     case _                              => // do nothing
+  }
+
+  def handleGetUserApiMsg(msg: GetUserApiMsg, actorRef: ActorRef): Unit = {
+    log.debug("RECEIVED GetUserApiMsg msg {}", msg)
+
+    RunningMeetings.findWithId(meetings, msg.meetingId) match {
+      case Some(m) =>
+        m.actorRef forward (msg)
+
+      case None =>
+        actorRef ! ApiResponseFailure("Meeting not found!")
+    }
   }
 
   private def handleBbbCommonEnvCoreMsg(msg: BbbCommonEnvCoreMsg): Unit = {

@@ -122,6 +122,7 @@ interface VideoProviderGraphqlProps {
   stopVideo: (cameraId?: string) => void;
   applyCameraProfile: (peer: WebRtcPeer, profileId: string) => void;
   intl: IntlShape;
+  myRole: string | undefined;
 }
 
 class VideoProviderGraphql extends Component<VideoProviderGraphqlProps, VideoProviderGraphqlState> {
@@ -787,6 +788,7 @@ class VideoProviderGraphql extends Component<VideoProviderGraphqlProps, VideoPro
   }
 
   async createWebRTCPeer(stream: string, isLocal: boolean) {
+    const { myRole } = this.props;
     let iceServers = [];
     const role = VideoService.getRole(isLocal);
     const peerBuilderFunc = isLocal
@@ -860,7 +862,7 @@ class VideoProviderGraphql extends Component<VideoProviderGraphqlProps, VideoPro
           role,
           sdpOffer: offer,
           bitrate,
-          record: VideoService.getRecord(),
+          record: VideoService.getRecord(myRole),
           mediaServer: VideoService.getMediaServerAdapter(),
         };
 

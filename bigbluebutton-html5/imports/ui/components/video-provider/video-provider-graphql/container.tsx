@@ -8,6 +8,7 @@ import {
   useInfo,
   useIsUserLocked,
   useLockUser,
+  useMyRole,
   useStopVideo,
   useVideoStreams,
 } from './hooks';
@@ -111,6 +112,7 @@ const VideoProviderContainerGraphql: React.FC<VideoProviderContainerGraphqlProps
   const lockUser = useLockUser();
   const stopVideo = useStopVideo();
   const info = useInfo();
+  const myRole = useMyRole();
 
   if (!usersVideo.length && !isGridEnabled) return null;
 
@@ -135,6 +137,7 @@ const VideoProviderContainerGraphql: React.FC<VideoProviderContainerGraphqlProps
       lockUser={lockUser}
       stopVideo={stopVideo}
       applyCameraProfile={applyCameraProfile as (peer: WebRtcPeer, profileId: string) => void}
+      myRole={myRole}
     />
   );
 };

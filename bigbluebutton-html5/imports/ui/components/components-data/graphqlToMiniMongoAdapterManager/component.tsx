@@ -5,9 +5,6 @@ import React, {
   useState,
 } from 'react';
 
-import UserGrapQlMiniMongoAdapter from '/imports/ui/components/components-data/userGrapQlMiniMongoAdapter/component';
-import MeetingGrapQlMiniMongoAdapter from '/imports/ui/components/components-data/meetingGrapQlMiniMongoAdapter/component';
-import ScreenShareGraphQlMiniMongoAdapterContainer from '/imports/ui/components/components-data/screenshareGraphQlMiniMongoAdapter/component';
 import VideoStreamAdapter from '/imports/ui/components/video-provider/video-provider-graphql/adapter';
 
 interface GraphqlToMiniMongoAdapterManagerProps {
@@ -24,8 +21,8 @@ const GraphqlToMiniMongoAdapterManager: React.FC<GraphqlToMiniMongoAdapterManage
     [key: string]: number;
   }>({});
   const adapterComponents = useRef([
-    UserGrapQlMiniMongoAdapter,
-    MeetingGrapQlMiniMongoAdapter,
+    // UserGrapQlMiniMongoAdapter,
+    // MeetingGrapQlMiniMongoAdapter,
     VideoStreamAdapter,
   ]);
 
@@ -46,7 +43,7 @@ const GraphqlToMiniMongoAdapterManager: React.FC<GraphqlToMiniMongoAdapterManage
   return (
     <>
       {/* screenshare loads conditionally  so can't be used on lock loading */}
-      <ScreenShareGraphQlMiniMongoAdapterContainer />
+      {/* <ScreenShareGraphQlMiniMongoAdapterContainer /> */}
       {nestAdapters}
       {adapterLoaded ? children : null}
     </>

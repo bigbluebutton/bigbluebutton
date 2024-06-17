@@ -1,6 +1,5 @@
 import React from 'react';
 import { useMutation } from '@apollo/client';
-import { withTracker } from 'meteor/react-meteor-data';
 import Service from './service';
 import VideoPreview from './component';
 import VideoService from '../video-provider/video-provider-graphql/service';
@@ -14,12 +13,14 @@ import {
   useStopVideo,
 } from '/imports/ui/components/video-provider/video-provider-graphql/hooks';
 import { useStorageKey } from '../../services/storage/hooks';
+import { useIsCustomVirtualBackgroundsEnabled, useIsVirtualBackgroundsEnabled } from '../../services/features';
 
 const VideoPreviewContainer = (props) => {
   const {
     callbackToClose,
     setIsOpen,
   } = props;
+  const cameraAsContentDeviceId = ScreenShareService.useCameraAsContentDeviceIdType();
   const [stopExternalVideoShare] = useMutation(EXTERNAL_VIDEO_STOP);
 
   const { streams } = useStreams();
@@ -30,6 +31,9 @@ const VideoPreviewContainer = (props) => {
   const camCapReached = useHasCapReached();
   const isCamLocked = useIsUserLocked();
   const webcamDeviceId = useStorageKey('WebcamDeviceId');
+  const isVirtualBackgroundsEnabled = useIsVirtualBackgroundsEnabled();
+  const isCustomVirtualBackgroundsEnabled = useIsCustomVirtualBackgroundsEnabled();
+  const isCameraAsContentBroadcasting = ScreenShareService.useIsCameraAsContentBroadcasting();
 
   const stopSharing = (deviceId) => {
     callbackToClose();
@@ -59,15 +63,37 @@ const VideoPreviewContainer = (props) => {
       ScreenShareService.screenshareHasEnded();
     };
     ScreenShareService.shareScreen(
+      isCameraAsContentBroadcasting,
       stopExternalVideoShare,
       true, handleFailure, { stream: Service.getStream(deviceId)._mediaStream },
     );
     ScreenShareService.setCameraAsContentDeviceId(deviceId);
   };
 
+  const startSharing = (deviceId) => {
+    callbackToClose();
+    setIsOpen(false);
+    VideoService.joinVideo(deviceId, isCamLocked);
+  };
+
+  const stopSharingCameraAsContent = () => {
+    callbackToClose();
+    setIsOpen(false);
+    ScreenShareService.screenshareHasEnded();
+  };
+
+  const closeModal = () => {
+    callbackToClose();
+    setIsOpen(false);
+  };
+
   return (
     <VideoPreview
       {...{
+        stopSharingCameraAsContent,
+        closeModal,
+        startSharing,
+        cameraAsContentDeviceId,
         startSharingCameraAsContent,
         stopSharing,
         sharedDevices,
@@ -75,39 +101,12 @@ const VideoPreviewContainer = (props) => {
         camCapReached,
         isCamLocked,
         webcamDeviceId,
+        isVirtualBackgroundsEnabled,
+        isCustomVirtualBackgroundsEnabled,
         ...props,
       }}
     />
   );
 };
 
-const VideoPreviewContainerTracker = withTracker(({ setIsOpen, callbackToClose }) => ({
-  startSharing: (deviceId) => {
-    callbackToClose();
-    setIsOpen(false);
-    VideoService.joinVideo(deviceId);
-  },
-  stopSharingCameraAsContent: () => {
-    callbackToClose();
-    setIsOpen(false);
-    ScreenShareService.screenshareHasEnded();
-  },
-  closeModal: () => {
-    callbackToClose();
-    setIsOpen(false);
-  },
-}))(VideoPreviewContainer);
-
-// TODO: Remove this
-// Temporary component until we remove all trackers
-export default (props) => {
-  const cameraAsContentDeviceId = ScreenShareService.useCameraAsContentDeviceIdType();
-  return (
-    <VideoPreviewContainerTracker
-      {...{
-        ...props,
-        cameraAsContentDeviceId,
-      }}
-    />
-  );
-};
+export default VideoPreviewContainer;

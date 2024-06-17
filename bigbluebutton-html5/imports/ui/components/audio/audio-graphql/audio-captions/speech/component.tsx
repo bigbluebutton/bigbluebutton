@@ -21,10 +21,10 @@ import logger from '/imports/startup/client/logger';
 import AudioManager from '/imports/ui/services/audio-manager';
 import useCurrentUser from '/imports/ui/core/hooks/useCurrentUser';
 import {
-  isAudioTranscriptionEnabled,
   isWebSpeechApi,
   setUserLocaleProperty,
   setSpeechLocale,
+  useIsAudioTranscriptionEnabled,
 } from '../service';
 import { SET_SPEECH_LOCALE } from '/imports/ui/core/graphql/mutations/userMutations';
 import { SUBMIT_TEXT } from './mutations';
@@ -64,14 +64,17 @@ const AudioCaptionsSpeech: React.FC<AudioCaptionsSpeechProps> = ({
   const prevIdRef = useRef('');
   const prevTranscriptRef = useRef('');
   const [setSpeechLocaleMutation] = useMutation(SET_SPEECH_LOCALE);
+  const isAudioTranscriptionEnabled = useIsAudioTranscriptionEnabled();
 
   const setUserSpeechLocale = (speechLocale: string, provider: string) => {
-    setSpeechLocaleMutation({
-      variables: {
-        locale: speechLocale,
-        provider,
-      },
-    });
+    if (speechLocale !== '') {
+      setSpeechLocaleMutation({
+        variables: {
+          locale: speechLocale,
+          provider,
+        },
+      });
+    }
   };
 
   const setDefaultLocale = () => {
@@ -83,7 +86,7 @@ const AudioCaptionsSpeech: React.FC<AudioCaptionsSpeechProps> = ({
   };
 
   const initSpeechRecognition = () => {
-    if (!isAudioTranscriptionEnabled()) return null;
+    if (!isAudioTranscriptionEnabled) return null;
 
     if (!isWebSpeechApi()) {
       setDefaultLocale();

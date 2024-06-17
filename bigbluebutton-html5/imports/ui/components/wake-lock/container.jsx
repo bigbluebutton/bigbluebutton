@@ -24,7 +24,7 @@ function usePrevious(value) {
 
 const WakeLockContainer = (props) => {
   if (!Service.isMobile()) return null;
-
+  const APP_CONFIG = window.meetingClientSettings.public.app;
   const { autoJoin } = props;
   const inEchoTest = useStorageKey('inEchoTest');
   const audioModalIsOpen = useStorageKey('audioModalIsOpen');
@@ -44,6 +44,9 @@ const WakeLockContainer = (props) => {
     <WakeLock
       setLocalSettings={setLocalSettings}
       wakeLockSettings={wakeLockSettings}
+      request={Service.request}
+      release={Service.release}
+      autoJoin={getFromUserSettings('bbb_auto_join_audio', APP_CONFIG.autoJoin)}
       areAudioModalsOpen={areAudioModalsOpen}
       {...props}
     />
@@ -52,12 +55,4 @@ const WakeLockContainer = (props) => {
 
 WakeLockContainer.propTypes = propTypes;
 
-export default withTracker(() => {
-  const APP_CONFIG = window.meetingClientSettings.public.app;
-
-  return {
-    request: Service.request,
-    release: Service.release,
-    autoJoin: getFromUserSettings('bbb_auto_join_audio', APP_CONFIG.autoJoin),
-  };
-})(WakeLockContainer);
+export default WakeLockContainer;

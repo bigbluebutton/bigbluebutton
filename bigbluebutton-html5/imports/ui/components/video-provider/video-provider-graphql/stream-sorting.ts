@@ -75,10 +75,10 @@ export const sortLocalAlphabetical = (s1: StreamItem, s2: StreamItem) => mandato
     || UserListService.sortUsersByName(s1, s2);
 
 export const sortPresenter = (s1: StreamItem, s2: StreamItem) => {
-  if (UserListService.isUserPresenter(s1.userId)) {
+  if (s1.type === 'stream' && s1.user.presenter) {
     return -1;
   }
-  if (UserListService.isUserPresenter(s2.userId)) {
+  if (s2.type === 'stream' && s2.user.presenter) {
     return 1;
   }
   return 0;

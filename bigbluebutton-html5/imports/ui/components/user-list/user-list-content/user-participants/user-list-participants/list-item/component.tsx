@@ -16,7 +16,7 @@ import { uniqueId } from '/imports/utils/string-utils';
 import normalizeEmojiName from './service';
 import { convertRemToPixels } from '/imports/utils/dom-utils';
 import { PluginsContext } from '/imports/ui/components/components-data/plugin-context/context';
-import { isReactionsEnabled } from '/imports/ui/services/features';
+import { useIsReactionsEnabled } from '/imports/ui/services/features';
 
 const messages = defineMessages({
   moderator: {
@@ -158,7 +158,7 @@ const UserListItem: React.FC<UserListItemProps> = ({ user, lockSettings }) => {
     );
   });
 
-  const reactionsEnabled = isReactionsEnabled();
+  const reactionsEnabled = useIsReactionsEnabled();
 
   const userAvatarFiltered = (user.raiseHand === true || user.away === true || (user.reactionEmoji && user.reactionEmoji !== 'none')) ? '' : user.avatar;
 

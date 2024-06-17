@@ -1,7 +1,7 @@
 import React from 'react';
 import Settings from './component';
 import { layoutDispatch } from '../layout/context';
-import { useIsScreenSharingEnabled } from '/imports/ui/services/features';
+import { useIsChatEnabled, useIsScreenSharingEnabled } from '/imports/ui/services/features';
 import UserReactionService from '/imports/ui/components/user-reaction/service';
 import AudioCaptionsService from '/imports/ui/components/audio/audio-graphql/audio-captions/service';
 
@@ -42,6 +42,7 @@ const SettingsContainer = (props) => {
   const showGuestNotification = meeting?.usersPolicies?.guestPolicy === ASK_MODERATOR;
   const isReactionsEnabled = UserReactionService.useIsEnabled();
   const isGladiaEnabled = AudioCaptionsService.isGladia();
+  const isChatEnabled = useIsChatEnabled();
 
   return (
     <Settings
@@ -61,6 +62,7 @@ const SettingsContainer = (props) => {
         showToggleLabel: false,
         isVideoEnabled: window.meetingClientSettings.public.kurento.enableVideo,
         isGladiaEnabled,
+        isChatEnabled,
       }}
       layoutContextDispatch={layoutContextDispatch}
       setLocalSettings={setLocalSettings}

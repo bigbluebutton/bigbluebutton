@@ -1,13 +1,13 @@
 import React from 'react';
-import * as Styled from './styles';
-import { GenericComponentProps } from './types';
-import GenericComponentItem from './generic-component-item/component';
+import * as Styled from '../styles';
+import { GenericContentMainAreaProps } from '../types';
+import GenericContentItem from '../generic-content-item/component';
 
-const GenericComponentContent: React.FC<GenericComponentProps> = ({
+const GenericMainContent: React.FC<GenericContentMainAreaProps> = ({
   isResizing,
-  genericComponentLayoutInformation,
+  genericContentLayoutInformation,
   renderFunctionComponents,
-  genericComponentId,
+  genericContentId,
 }) => {
   const {
     height,
@@ -15,11 +15,11 @@ const GenericComponentContent: React.FC<GenericComponentProps> = ({
     top,
     left,
     right,
-  } = genericComponentLayoutInformation;
+  } = genericContentLayoutInformation;
 
   const isMinimized = width === 0 && height === 0;
 
-  const componentToRender = renderFunctionComponents.filter((g) => genericComponentId === g.id);
+  const componentToRender = renderFunctionComponents.filter((g) => genericContentId === g.id);
   return (
     <Styled.Container
       style={{
@@ -32,7 +32,7 @@ const GenericComponentContent: React.FC<GenericComponentProps> = ({
       isResizing={isResizing}
       isMinimized={isMinimized}
     >
-      <GenericComponentItem
+      <GenericContentItem
         key={componentToRender[0]?.id}
         renderFunction={componentToRender[0]?.contentFunction}
       />
@@ -40,4 +40,4 @@ const GenericComponentContent: React.FC<GenericComponentProps> = ({
   );
 };
 
-export default GenericComponentContent;
+export default GenericMainContent;

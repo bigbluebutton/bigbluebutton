@@ -20,7 +20,6 @@ import {
   isVirtualBackgroundSupported,
 } from '/imports/ui/services/virtual-background/service';
 import { getSettingsSingletonInstance } from '/imports/ui/services/settings';
-import { isVirtualBackgroundsEnabled } from '/imports/ui/services/features';
 import Checkbox from '/imports/ui/components/common/checkbox/component'
 import AppService from '/imports/ui/components/app/service';
 
@@ -948,9 +947,10 @@ class VideoPreview extends Component {
   renderTabsContent(tabNumber) {
     const {
       cameraAsContent,
+      isVirtualBackgroundsEnabled,
     } = this.props;
   
-    const shouldShowVirtualBackgrounds = isVirtualBackgroundsEnabled() && !cameraAsContent;
+    const shouldShowVirtualBackgrounds = isVirtualBackgroundsEnabled && !cameraAsContent;
   
     return (
       <Styled.ContentCol>

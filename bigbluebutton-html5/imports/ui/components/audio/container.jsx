@@ -24,6 +24,7 @@ import useSettings from '../../services/settings/hooks/useSettings';
 import { SETTINGS } from '../../services/settings/enums';
 import { useStorageKey } from '../../services/storage/hooks';
 import { BREAKOUT_COUNT } from './queries';
+import useMeeting from '../../core/hooks/useMeeting';
 
 const intlMessages = defineMessages({
   joinedAudio: {
@@ -125,6 +126,12 @@ const AudioContainer = (props) => {
   const { data: breakoutCountData } = useSubscription(BREAKOUT_COUNT);
   const hasBreakoutRooms = (breakoutCountData?.breakoutRoom_aggregate?.aggregate?.count ?? 0) > 0;
   const meetingIsBreakout = useMeetingIsBreakout();
+  const { data: meeting } = useMeeting((m) => ({
+    voiceSettings: {
+      voiceConf: m?.voiceSettings?.voiceConf,
+    },
+  }));
+  const { data: currentUserName } = useCurrentUser((u) => u.name);
 
   const openAudioModal = () => setAudioModalIsOpen(true);
 
@@ -134,7 +141,14 @@ const AudioContainer = (props) => {
   };
 
   const init = async () => {
-    await Service.init(messages, intl, toggleVoice, speechLocale);
+    await Service.init(
+      messages,
+      intl,
+      toggleVoice,
+      speechLocale,
+      meeting?.voiceSettings?.voiceConf,
+      currentUserName,
+    );
     if ((!autoJoin || didMountAutoJoin)) {
       if (enableVideo && autoShareWebcam) {
         openVideoPreviewModal();

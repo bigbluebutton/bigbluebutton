@@ -115,7 +115,7 @@ const createEndpointTableData = [
     "name": "breakoutRoomsRecord",
     "required": "Optional(Breakout Room)",
     "type": "Boolean",
-    "default": "true",
+    "default": "false",
     "description": (<>If set to false, breakout rooms will not be recorded.</>)
   },
   {
