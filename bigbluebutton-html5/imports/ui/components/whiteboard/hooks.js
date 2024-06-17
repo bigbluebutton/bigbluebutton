@@ -39,10 +39,6 @@ const useMouseEvents = ({ whiteboardRef, tlEditorRef, isWheelZoomRef, initialZoo
     const timeoutIdRef = React.useRef();
 
     const handleMouseUp = () => {
-        if (!isPresenter && !hasWBAccess) {
-            tlEditorRef?.current?.updateInstanceState({ isReadonly: false });
-        }
-
         if (timeoutIdRef.current) {
             clearTimeout(timeoutIdRef.current);
         }
@@ -51,12 +47,12 @@ const useMouseEvents = ({ whiteboardRef, tlEditorRef, isWheelZoomRef, initialZoo
             setIsMouseDown(false);
         }, 1000);
 
-        tlEditorRef?.current?.updateInstanceState({ canMoveCamera: true });
+        tlEditorRef?.current?.updateInstanceState({ canMoveCamera: true, isReadonly: false });
     };
 
     const handleMouseDownWhiteboard = (event) => {
         if (!isPresenter && !hasWBAccess) {
-            const updateProps = { isReadonly: true };
+            let updateProps = { isReadonly: false };
 
             if (event.button === 1) {
                 updateProps.canMoveCamera = false;
