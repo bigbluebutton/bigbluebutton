@@ -83,6 +83,7 @@ public class ParamsProcessorUtil {
     private String defaultAvatarURL;
     private String defaultGuestPolicy;
     private Boolean authenticatedGuest;
+    private Boolean defaultAllowPromoteGuestToModerator;
     private Long waitingGuestUsersTimeout;
     private String defaultMeetingLayout;
     private int defaultMeetingDuration;
@@ -678,6 +679,11 @@ public class ParamsProcessorUtil {
         	guestPolicy = params.get(ApiParams.GUEST_POLICY);
 		    }
 
+        Boolean allowPromoteGuestToModerator = defaultAllowPromoteGuestToModerator;
+        if (!StringUtils.isEmpty(params.get(ApiParams.ALLOW_PROMOTE_GUEST_TO_MODERATOR))) {
+          allowPromoteGuestToModerator = Boolean.parseBoolean(params.get(ApiParams.ALLOW_PROMOTE_GUEST_TO_MODERATOR));
+		    }
+
         String presentationUploadExternalDescription = defaultPresentationUploadExternalDescription;
         if (!StringUtils.isEmpty(params.get(ApiParams.PRESENTATION_UPLOAD_EXTERNAL_DESCRIPTION))) {
             presentationUploadExternalDescription = params.get(ApiParams.PRESENTATION_UPLOAD_EXTERNAL_DESCRIPTION);
@@ -767,6 +773,7 @@ public class ParamsProcessorUtil {
                 .withIsBreakout(isBreakout)
                 .withGuestPolicy(guestPolicy)
                 .withAuthenticatedGuest(authenticatedGuest)
+                .withAllowPromoteGuestToModerator(allowPromoteGuestToModerator)
                 .withWaitingGuestUsersTimeout(waitingGuestUsersTimeout)
                 .withAllowRequestsWithoutSession(allowRequestsWithoutSession)
                 .withMeetingLayout(meetingLayout)
@@ -1302,7 +1309,7 @@ public class ParamsProcessorUtil {
 		this.useDefaultAvatar = value;
 	}
 
-	public void setdefaultAvatarURL(String url) {
+	public void setDefaultAvatarURL(String url) {
 		this.defaultAvatarURL = url;
 	}
 
@@ -1312,6 +1319,10 @@ public class ParamsProcessorUtil {
 
 	public void setAuthenticatedGuest(Boolean value) {
 		this.authenticatedGuest = value;
+	}
+
+	public void setDefaultAllowPromoteGuestToModerator(Boolean value) {
+		this.defaultAllowPromoteGuestToModerator = value;
 	}
 
     public void setWaitingGuestUsersTimeout(Long value) {

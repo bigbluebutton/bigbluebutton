@@ -6,7 +6,6 @@ import org.apache.pekko.event.Logging
 import org.bigbluebutton.api.domain.{BreakoutRoomsParams, Group, LockSettingsParams}
 import org.bigbluebutton.api.messaging.converters.messages._
 import org.bigbluebutton.api.messaging.messages.ChatMessageFromApi
-import org.bigbluebutton.api.model.request.SendChatMessage
 import org.bigbluebutton.api2.bus._
 import org.bigbluebutton.api2.endpoint.redis.WebRedisSubscriberActor
 import org.bigbluebutton.common2.redis.MessageSender
@@ -135,6 +134,7 @@ class BbbWebApiGWApp(
                     metadata: java.util.Map[String, String],
                     guestPolicy: String,
                     authenticatedGuest: java.lang.Boolean,
+                    allowPromoteGuestToModerator: java.lang.Boolean,
                     waitingGuestUsersTimeout: java.lang.Long,
                     meetingLayout: String,
                     welcomeMsgTemplate: String, welcomeMsg: String, welcomeMsgForModerators: String,
@@ -222,6 +222,7 @@ class BbbWebApiGWApp(
       guestPolicy = guestPolicy, meetingLayout = meetingLayout, allowModsToUnmuteUsers = allowModsToUnmuteUsers.booleanValue(),
       allowModsToEjectCameras = allowModsToEjectCameras.booleanValue(),
       authenticatedGuest = authenticatedGuest.booleanValue(),
+      allowPromoteGuestToModerator = allowPromoteGuestToModerator.booleanValue(),
       waitingGuestUsersTimeout = waitingGuestUsersTimeout.longValue()
     )
     val metadataProp = MetadataProp(mapAsScalaMap(metadata).toMap)
