@@ -145,6 +145,7 @@ const Whiteboard = React.memo(function Whiteboard(props) {
   const isModeratorRef = React.useRef(isModerator);
   const currentPresentationPageRef = React.useRef(currentPresentationPage);
   const initialViewBoxWidthRef = React.useRef(null);
+  const previousTool = React.useRef(null);
 
   const THRESHOLD = 0.1;
   const CAMERA_UPDATE_DELAY = 650;
@@ -246,6 +247,12 @@ const Whiteboard = React.memo(function Whiteboard(props) {
 
     const editingShape = tlEditorRef.current?.getEditingShape();
     if (editingShape && (isPresenterRef.current || hasWBAccessRef.current)) {
+      return;
+    }
+
+    if (event.key === ' ' && tlEditorRef.current?.getCurrentToolId() !== 'hand') {
+      previousTool.current = tlEditorRef.current?.getCurrentToolId();
+      tlEditorRef.current?.setCurrentTool("hand");
       return;
     }
 
@@ -789,6 +796,13 @@ const Whiteboard = React.memo(function Whiteboard(props) {
       if ((event.key === "z" || event.key === "Z") && undoRedoIntervalId) {
         clearInterval(undoRedoIntervalId);
         undoRedoIntervalId = null;
+      }
+
+      if (event.key === ' ') {
+        if (previousTool.current) {
+          tlEditorRef.current?.setCurrentTool(previousTool.current);
+          previousTool.current = null;
+        }
       }
     };
 
