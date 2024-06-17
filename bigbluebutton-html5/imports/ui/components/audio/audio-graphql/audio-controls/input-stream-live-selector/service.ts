@@ -6,11 +6,15 @@ import logger from '/imports/startup/client/logger';
 import AudioManager from '/imports/ui/services/audio-manager';
 import VideoService from '/imports/ui/components/video-provider/video-provider-graphql/service';
 import Auth from '/imports/ui/services/auth';
+import { debounce } from '/imports/utils/debounce';
+import { throttle } from '/imports/utils/throttle';
 
 const MUTED_KEY = 'muted';
 const DEVICE_LABEL_MAX_LENGTH = 40;
 const CLIENT_DID_USER_SELECTED_MICROPHONE_KEY = 'clientUserSelectedMicrophone';
 const CLIENT_DID_USER_SELECTED_LISTEN_ONLY_KEY = 'clientUserSelectedListenOnly';
+const TOGGLE_MUTE_THROTTLE_TIME = 300;
+const TOGGLE_MUTE_DEBOUNCE_TIME = 500;
 
 export const handleLeaveAudio = (meetingIsBreakout: boolean) => {
   if (!meetingIsBreakout) {
@@ -36,7 +40,7 @@ export const handleLeaveAudio = (meetingIsBreakout: boolean) => {
   );
 };
 
-export const toggleMuteMicrophone = (
+const toggleMuteMicrophoneThrottled = throttle((
   muted: boolean,
   toggleVoice: (userId: string, muted: boolean) => void,
 ) => {
@@ -61,6 +65,13 @@ export const toggleMuteMicrophone = (
     );
     toggleVoice(Auth.userID as string, true);
   }
+}, TOGGLE_MUTE_THROTTLE_TIME);
+
+const toggleMuteMicrophoneDebounced = debounce(toggleMuteMicrophoneThrottled, TOGGLE_MUTE_DEBOUNCE_TIME,
+  { leading: true, trailing: false });
+
+export const toggleMuteMicrophone = (muted: boolean, toggleVoice: (userId: string, muted: boolean) => void) => {
+  return toggleMuteMicrophoneDebounced(muted, toggleVoice);
 };
 
 export const truncateDeviceName = (deviceName: string) => {
@@ -105,10 +116,10 @@ export const muteAway = (
 
   // mute/unmute microphone
   if (muted === away && muted === Boolean(prevAwayMuted)) {
-    toggleMuteMicrophone(muted, voiceToggle);
+    toggleMuteMicrophoneThrottled(muted, voiceToggle);
     Storage.setItem('prevAwayMuted', !muted);
   } else if (!away && !muted && Boolean(prevAwayMuted)) {
-    toggleMuteMicrophone(muted, voiceToggle);
+    toggleMuteMicrophoneThrottled(muted, voiceToggle);
   }
 
   // mute/unmute speaker
