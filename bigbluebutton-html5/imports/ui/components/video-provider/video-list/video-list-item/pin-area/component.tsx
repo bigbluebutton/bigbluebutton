@@ -3,8 +3,8 @@ import { defineMessages, useIntl } from 'react-intl';
 import { useMutation } from '@apollo/client';
 import Styled from './styles';
 import { SET_CAMERA_PINNED } from '/imports/ui/core/graphql/mutations/userMutations';
-import { VideoItem } from '/imports/ui/components/video-provider/video-provider-graphql/types';
-import { useIsVideoPinEnabledForCurrentUser } from '/imports/ui/components/video-provider/video-provider-graphql/hooks';
+import { VideoItem } from '/imports/ui/components/video-provider/types';
+import { useIsVideoPinEnabledForCurrentUser } from '/imports/ui/components/video-provider/hooks';
 
 const intlMessages = defineMessages({
   unpinLabel: {

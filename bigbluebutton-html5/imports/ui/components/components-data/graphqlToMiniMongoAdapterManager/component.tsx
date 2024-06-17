@@ -5,7 +5,7 @@ import React, {
   useState,
 } from 'react';
 
-import VideoStreamAdapter from '/imports/ui/components/video-provider/video-provider-graphql/adapter';
+import VideoStreamAdapter from '/imports/ui/components/video-provider/adapter';
 
 interface GraphqlToMiniMongoAdapterManagerProps {
   children: React.ReactNode;

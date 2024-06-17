@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import Resizable from 're-resizable';
 import Draggable, { DraggableEvent } from 'react-draggable';
-import { useVideoStreams } from '/imports/ui/components/video-provider/video-provider-graphql/hooks';
+import { useVideoStreams } from '/imports/ui/components/video-provider/hooks';
 import {
   layoutSelect,
   layoutSelectInput,
@@ -12,11 +12,11 @@ import { LAYOUT_TYPE, ACTIONS, CAMERADOCK_POSITION } from '/imports/ui/component
 import { CURRENT_PRESENTATION_PAGE_SUBSCRIPTION } from '/imports/ui/components/whiteboard/queries';
 import useCurrentUser from '/imports/ui/core/hooks/useCurrentUser';
 import DropAreaContainer from './drop-areas/container';
-import VideoProviderContainer from '/imports/ui/components/video-provider/video-provider-graphql/container';
+import VideoProviderContainer from '/imports/ui/components/video-provider/container';
 import Storage from '/imports/ui/services/storage/session';
 import Styled from './styles';
 import { Input, Layout, Output } from '/imports/ui/components/layout/layoutTypes';
-import { VideoItem } from '/imports/ui/components/video-provider/video-provider-graphql/types';
+import { VideoItem } from '/imports/ui/components/video-provider/types';
 import useDeduplicatedSubscription from '/imports/ui/core/hooks/useDeduplicatedSubscription';
 import useSettings from '/imports/ui/services/settings/hooks/useSettings';
 import { SETTINGS } from '/imports/ui/services/settings/enums';

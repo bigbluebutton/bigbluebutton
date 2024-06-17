@@ -12,9 +12,9 @@ import Auth from '/imports/ui/services/auth';
 import { PluginsContext } from '/imports/ui/components/components-data/plugin-context/context';
 import { notify } from '/imports/ui/services/notification';
 import { SET_CAMERA_PINNED } from '/imports/ui/core/graphql/mutations/userMutations';
-import { VideoItem } from '/imports/ui/components/video-provider/video-provider-graphql/types';
+import { VideoItem } from '/imports/ui/components/video-provider/types';
 import { ACTIONS } from '/imports/ui/components/layout/enums';
-import { useIsVideoPinEnabledForCurrentUser } from '/imports/ui/components/video-provider/video-provider-graphql/hooks';
+import { useIsVideoPinEnabledForCurrentUser } from '/imports/ui/components/video-provider/hooks';
 
 const intlMessages = defineMessages({
   focusLabel: {

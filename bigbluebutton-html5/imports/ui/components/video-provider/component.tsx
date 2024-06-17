@@ -23,7 +23,7 @@ import { notify } from '/imports/ui/services/notification';
 import { shouldForceRelay } from '/imports/ui/services/bbb-webrtc-sfu/utils';
 import WebRtcPeer from '/imports/ui/services/webrtc-base/peer';
 import { StreamItem, VideoItem } from './types';
-import { Output } from '../../layout/layoutTypes';
+import { Output } from '/imports/ui/components/layout/layoutTypes';
 
 const intlClientErrors = defineMessages({
   permissionError: {
