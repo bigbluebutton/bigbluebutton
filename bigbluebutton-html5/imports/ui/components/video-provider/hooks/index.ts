@@ -17,7 +17,7 @@ import { USER_AGGREGATE_COUNT_SUBSCRIPTION } from '/imports/ui/core/graphql/quer
 import {
   getSortingMethod,
   sortVideoStreams,
-} from '/imports/ui/components/video-provider/video-provider-graphql/stream-sorting';
+} from '/imports/ui/components/video-provider/stream-sorting';
 import {
   useVideoState,
   getConnectingStream,

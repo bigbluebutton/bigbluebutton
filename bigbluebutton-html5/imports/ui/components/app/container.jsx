@@ -22,7 +22,7 @@ import useUserChangedLocalSettings from '../../services/settings/hooks/useUserCh
 import { PINNED_PAD_SUBSCRIPTION } from '../notes/queries';
 import connectionStatus from '../../core/graphql/singletons/connectionStatus';
 import useDeduplicatedSubscription from '../../core/hooks/useDeduplicatedSubscription';
-import VideoStreamsState from '../video-provider/video-provider-graphql/state';
+import VideoStreamsState from '../video-provider/state';
 import useSettings from '../../services/settings/hooks/useSettings';
 import { SETTINGS } from '../../services/settings/enums';
 import { useStorageKey } from '../../services/storage/hooks';

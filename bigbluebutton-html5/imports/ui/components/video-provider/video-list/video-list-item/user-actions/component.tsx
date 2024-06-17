@@ -1,18 +1,20 @@
-import React, { useContext } from 'react';
+import React, { MutableRefObject, useContext, useEffect } from 'react';
 import { defineMessages, useIntl } from 'react-intl';
+import { useMutation } from '@apollo/client';
+import Session from '/imports/ui/services/storage/in-memory';
+import { UserCameraDropdownInterface } from 'bigbluebutton-html-plugin-sdk';
 import browserInfo from '/imports/utils/browserInfo';
-import VideoService from '/imports/ui/components/video-provider/service';
 import FullscreenService from '/imports/ui/components/common/fullscreen-button/service';
 import BBBMenu from '/imports/ui/components/common/menu/component';
-import PropTypes from 'prop-types';
 import { UserCameraDropdownItemType } from 'bigbluebutton-html-plugin-sdk/dist/cjs/extensible-areas/user-camera-dropdown-item/enums';
-import { useMutation } from '@apollo/client';
 import Styled from './styles';
 import Auth from '/imports/ui/services/auth';
 import { PluginsContext } from '/imports/ui/components/components-data/plugin-context/context';
 import { notify } from '/imports/ui/services/notification';
 import { SET_CAMERA_PINNED } from '/imports/ui/core/graphql/mutations/userMutations';
-import Session from '/imports/ui/services/storage/in-memory';
+import { VideoItem } from '/imports/ui/components/video-provider/types';
+import { ACTIONS } from '/imports/ui/components/layout/enums';
+import { useIsVideoPinEnabledForCurrentUser } from '/imports/ui/components/video-provider/hooks';
 
 const intlMessages = defineMessages({
   focusLabel: {
@@ -61,6 +63,10 @@ const intlMessages = defineMessages({
     id: 'app.videoDock.webcamFullscreenLabel',
     description: 'Make fullscreen option label',
   },
+  exitFullscreenLabel: {
+    id: 'app.videoDock.webcamExitFullscreenLabel',
+    description: 'Make exit fullscreen option label',
+  },
   squeezedLabel: {
     id: 'app.videoDock.webcamSqueezedButtonLabel',
     description: 'User selected webcam squeezed options',
@@ -73,25 +79,36 @@ const intlMessages = defineMessages({
   },
 });
 
-const UserActions = ({
-  name,
-  cameraId,
-  numOfStreams,
-  onHandleVideoFocus = () => {},
-  user,
-  focused = false,
-  onHandleMirror,
-  isVideoSqueezed = false,
-  videoContainer = () => {},
-  isRTL,
-  isStream,
-  isSelfViewDisabled,
-  isMirrored,
-  amIModerator,
-}) => {
+interface UserActionProps {
+  name: string;
+  stream: VideoItem;
+  cameraId: string;
+  numOfStreams: number;
+  onHandleVideoFocus: ((id: string) => void) | null;
+  focused: boolean;
+  onHandleMirror: () => void;
+  isMirrored: boolean;
+  isRTL: boolean;
+  isStream: boolean;
+  onHandleDisableCam: () => void;
+  isSelfViewDisabled: boolean;
+  amIModerator: boolean;
+  isVideoSqueezed?: boolean,
+  videoContainer?: MutableRefObject<HTMLDivElement | null>,
+  isFullscreenContext: boolean;
+  layoutContextDispatch: (...args: unknown[]) => void;
+}
+
+const UserActions: React.FC<UserActionProps> = (props) => {
+  const {
+    name, cameraId, numOfStreams, onHandleVideoFocus, stream, focused, onHandleMirror,
+    isVideoSqueezed = false, videoContainer, isRTL, isStream, isSelfViewDisabled, isMirrored,
+    amIModerator, isFullscreenContext, layoutContextDispatch,
+  } = props;
+
   const { pluginsExtensibleAreasAggregatedState } = useContext(PluginsContext);
 
-  let userCameraDropdownItems = [];
+  let userCameraDropdownItems: UserCameraDropdownInterface[] = [];
   if (pluginsExtensibleAreasAggregatedState.userCameraDropdownItems) {
     userCameraDropdownItems = [
       ...pluginsExtensibleAreasAggregatedState.userCameraDropdownItems,
@@ -103,16 +120,30 @@ const UserActions = ({
   const { isFirefox } = browserInfo;
 
   const [setCameraPinned] = useMutation(SET_CAMERA_PINNED);
+  const pinEnabledForCurrentUser = useIsVideoPinEnabledForCurrentUser(amIModerator);
+
+  useEffect(() => () => {
+    if (isFullscreenContext) {
+      layoutContextDispatch({
+        type: ACTIONS.SET_FULLSCREEN_ELEMENT,
+        value: {
+          element: '',
+          group: '',
+        },
+      });
+    }
+  }, []);
 
   const getAvailableActions = () => {
-    const pinned = user?.pin;
-    const userId = user?.userId;
+    const pinned = stream.type === 'stream' && stream.user.pinned;
+    const { userId } = stream;
     const isPinnedIntlKey = !pinned ? 'pin' : 'unpin';
     const isFocusedIntlKey = !focused ? 'focus' : 'unfocus';
     const isMirroredIntlKey = !isMirrored ? 'enableMirror' : 'disableMirror';
-    const disabledCams = Session.get('disabledCams') || [];
-    const isCameraDisabled = disabledCams && disabledCams?.includes(cameraId);
+    const disabledCams = (Session.getItem('disabledCams') || []) as string[];
+    const isCameraDisabled = Array.isArray(disabledCams) && disabledCams?.includes(cameraId);
     const enableSelfCamIntlKey = !isCameraDisabled ? 'disable' : 'enable';
+    const ALLOW_FULLSCREEN = window.meetingClientSettings.public.app.allowFullscreen;
 
     const menuItems = [];
 
@@ -121,7 +152,7 @@ const UserActions = ({
         Session.setItem('disabledCams', [...disabledCams, cameraId]);
         notify(intl.formatMessage(intlMessages.disableWarning), 'info', 'warning');
       } else {
-        Session.setItem('disabledCams', disabledCams.filter((cId) => cId !== cameraId));
+        Session.setItem('disabledCams', disabledCams.filter((cId: string) => cId !== cameraId));
       }
     };
 
@@ -133,24 +164,14 @@ const UserActions = ({
         onClick: () => { },
         disabled: true,
       });
-
-      if (isStream) {
-        menuItems.push(
-          {
-            key: `${cameraId}-fullscreen`,
-            label: intl.formatMessage(intlMessages.fullscreenLabel),
-            description: intl.formatMessage(intlMessages.fullscreenLabel),
-            onClick: () => FullscreenService.toggleFullScreen(videoContainer.current),
-          },
-        );
-      }
     }
+
     if (userId === Auth.userID && isStream && !isSelfViewDisabled) {
       menuItems.push({
         key: `${cameraId}-disable`,
         label: intl.formatMessage(intlMessages[`${enableSelfCamIntlKey}Label`]),
         description: intl.formatMessage(intlMessages[`${enableSelfCamIntlKey}Label`]),
-        onClick: () => toggleDisableCam(cameraId),
+        onClick: () => toggleDisableCam(),
         dataTest: 'selfViewDisableBtn',
       });
     }
@@ -160,7 +181,7 @@ const UserActions = ({
         key: `${cameraId}-mirror`,
         label: intl.formatMessage(intlMessages[`${isMirroredIntlKey}Label`]),
         description: intl.formatMessage(intlMessages[`${isMirroredIntlKey}Desc`]),
-        onClick: () => onHandleMirror(cameraId),
+        onClick: () => onHandleMirror(),
         dataTest: 'mirrorWebcamBtn',
       });
     }
@@ -170,12 +191,12 @@ const UserActions = ({
         key: `${cameraId}-focus`,
         label: intl.formatMessage(intlMessages[`${isFocusedIntlKey}Label`]),
         description: intl.formatMessage(intlMessages[`${isFocusedIntlKey}Desc`]),
-        onClick: () => onHandleVideoFocus(cameraId),
+        onClick: () => onHandleVideoFocus?.(cameraId),
         dataTest: 'FocusWebcamBtn',
       });
     }
 
-    if (VideoService.isVideoPinEnabledForCurrentUser(amIModerator) && isStream) {
+    if (pinEnabledForCurrentUser && isStream) {
       menuItems.push({
         key: `${cameraId}-pin`,
         label: intl.formatMessage(intlMessages[`${isPinnedIntlKey}Label`]),
@@ -192,13 +213,45 @@ const UserActions = ({
       });
     }
 
+    if (isStream && ALLOW_FULLSCREEN) {
+      menuItems.push(
+        {
+          key: `${cameraId}-fullscreen`,
+          label: isFullscreenContext
+            ? intl.formatMessage(intlMessages.exitFullscreenLabel)
+            : intl.formatMessage(intlMessages.fullscreenLabel),
+          description: isFullscreenContext
+            ? intl.formatMessage(intlMessages.exitFullscreenLabel)
+            : intl.formatMessage(intlMessages.fullscreenLabel),
+          dataTest: 'webcamsFullscreenButton',
+          onClick: () => {
+            setTimeout(() => {
+              layoutContextDispatch({
+                type: ACTIONS.SET_FULLSCREEN_ELEMENT,
+                value: {
+                  element: isFullscreenContext ? '' : cameraId,
+                  group: isFullscreenContext ? '' : 'webcams',
+                },
+              });
+
+              // @ts-ignore JS code
+              FullscreenService.toggleFullScreen(videoContainer?.current);
+            }, 100);
+          },
+        },
+      );
+    }
+
     userCameraDropdownItems.forEach((pluginItem) => {
       switch (pluginItem.type) {
         case UserCameraDropdownItemType.OPTION:
           menuItems.push({
             key: pluginItem.id,
+            // @ts-expect-error -> Plugin-related.
             label: pluginItem.label,
+            // @ts-expect-error -> Plugin-related.
             onClick: pluginItem.onClick,
+            // @ts-expect-error -> Plugin-related.
             icon: pluginItem.icon,
           });
           break;
@@ -233,6 +286,9 @@ const UserActions = ({
           />
         )}
         actions={getAvailableActions()}
+        opts={{
+          container: isFullscreenContext ? videoContainer?.current : document.body,
+        }}
       />
     </Styled.MenuWrapperSqueezed>
   );
@@ -246,14 +302,14 @@ const UserActions = ({
               <Styled.DropdownTrigger
                 tabIndex={0}
                 data-test="dropdownWebcamButton"
-                isRTL={isRTL}
+                $isRTL={isRTL}
               >
                 {name}
               </Styled.DropdownTrigger>
             )}
             actions={getAvailableActions()}
             opts={{
-              id: `webcam-${user?.userId}-dropdown-menu`,
+              id: `webcam-${stream.userId}-dropdown-menu`,
               keepMounted: true,
               transitionDuration: 0,
               elevation: 3,
@@ -261,12 +317,13 @@ const UserActions = ({
               fullwidth: 'true',
               anchorOrigin: { vertical: 'bottom', horizontal: isRTL ? 'right' : 'left' },
               transformOrigin: { vertical: 'top', horizontal: isRTL ? 'right' : 'left' },
+              container: isFullscreenContext ? videoContainer?.current : document.body,
             }}
           />
         )
         : (
-          <Styled.Dropdown isFirefox={isFirefox}>
-            <Styled.UserName noMenu={numOfStreams < 3}>
+          <Styled.Dropdown $isFirefox={isFirefox}>
+            <Styled.UserName $noMenu={numOfStreams < 3}>
               {name}
             </Styled.UserName>
           </Styled.Dropdown>
@@ -282,22 +339,3 @@ const UserActions = ({
 };
 
 export default UserActions;
-
-UserActions.propTypes = {
-  name: PropTypes.string.isRequired,
-  cameraId: PropTypes.string.isRequired,
-  numOfStreams: PropTypes.number.isRequired,
-  onHandleVideoFocus: PropTypes.func,
-  user: PropTypes.shape({
-    pin: PropTypes.bool.isRequired,
-    userId: PropTypes.string.isRequired,
-  }).isRequired,
-  focused: PropTypes.bool,
-  isVideoSqueezed: PropTypes.bool,
-  videoContainer: PropTypes.oneOfType([
-    PropTypes.func,
-    PropTypes.shape({ current: PropTypes.instanceOf(Element) }),
-  ]),
-  onHandleMirror: PropTypes.func.isRequired,
-  onHandleDisableCam: PropTypes.func.isRequired,
-};

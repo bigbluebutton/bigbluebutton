@@ -1,6 +1,6 @@
 import React from 'react';
 import Styled from './styles';
-import { User, VideoItem } from '/imports/ui/components/video-provider/video-provider-graphql/types';
+import { User, VideoItem } from '/imports/ui/components/video-provider/types';
 
 interface UserStatusProps {
   user: Partial<User>;

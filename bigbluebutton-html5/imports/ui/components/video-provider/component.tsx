@@ -23,7 +23,7 @@ import { notify } from '/imports/ui/services/notification';
 import { shouldForceRelay } from '/imports/ui/services/bbb-webrtc-sfu/utils';
 import WebRtcPeer from '/imports/ui/services/webrtc-base/peer';
 import { StreamItem, VideoItem } from './types';
-import { Output } from '../../layout/layoutTypes';
+import { Output } from '/imports/ui/components/layout/layoutTypes';
 
 const intlClientErrors = defineMessages({
   permissionError: {
@@ -91,11 +91,11 @@ const intlSFUErrors = defineMessages({
   },
 });
 
-interface VideoProviderGraphqlState {
+interface VideoProviderState {
   socketOpen: boolean;
 }
 
-interface VideoProviderGraphqlProps {
+interface VideoProviderProps {
   cameraDock: Output['cameraDock'];
   focusedId: string;
   handleVideoFocus: (id: string) => void;
@@ -125,7 +125,7 @@ interface VideoProviderGraphqlProps {
   myRole: string | undefined;
 }
 
-class VideoProviderGraphql extends Component<VideoProviderGraphqlProps, VideoProviderGraphqlState> {
+class VideoProvider extends Component<VideoProviderProps, VideoProviderState> {
   onBeforeUnload() {
     const { exitVideo } = this.props;
     exitVideo();
@@ -184,7 +184,7 @@ class VideoProviderGraphql extends Component<VideoProviderGraphqlProps, VideoPro
 
   private videoTags: Record<string, HTMLVideoElement>;
 
-  constructor(props: VideoProviderGraphqlProps) {
+  constructor(props: VideoProviderProps) {
     super(props);
     const { info } = this.props;
 
@@ -225,7 +225,7 @@ class VideoProviderGraphql extends Component<VideoProviderGraphqlProps, VideoPro
     window.addEventListener('beforeunload', this.onBeforeUnload);
   }
 
-  componentDidUpdate(prevProps: VideoProviderGraphqlProps) {
+  componentDidUpdate(prevProps: VideoProviderProps) {
     const {
       isUserLocked,
       streams,
@@ -1115,7 +1115,7 @@ class VideoProviderGraphql extends Component<VideoProviderGraphqlProps, VideoPro
     const isLocal = VideoService.isLocalStream(stream);
     const peer = this.webRtcPeers[stream];
 
-    if (VideoProviderGraphql.shouldAttachVideoStream(peer, videoElement)) {
+    if (VideoProvider.shouldAttachVideoStream(peer, videoElement)) {
       const pc = peer.peerConnection;
       // Notify current stream state again on attachment since the
       // video-list-item component may not have been mounted before the stream
@@ -1123,7 +1123,7 @@ class VideoProviderGraphql extends Component<VideoProviderGraphqlProps, VideoPro
       // This is necessary to ensure that the video element is properly
       // hidden/shown when the stream is attached.
       notifyStreamStateChange(stream, pc.connectionState);
-      VideoProviderGraphql.attach(peer, videoElement);
+      VideoProvider.attach(peer, videoElement);
 
       if (isLocal) {
         if (peer.bbbVideoStream == null) {
@@ -1137,7 +1137,7 @@ class VideoProviderGraphql extends Component<VideoProviderGraphqlProps, VideoPro
         );
         const { type, name } = getSessionVirtualBackgroundInfo(deviceId);
 
-        VideoProviderGraphql.restoreVirtualBackground(peer.bbbVideoStream, type, name).catch((error) => {
+        VideoProvider.restoreVirtualBackground(peer.bbbVideoStream, type, name).catch((error) => {
           this.handleVirtualBgError(error, type, name);
         });
       }
@@ -1156,7 +1156,7 @@ class VideoProviderGraphql extends Component<VideoProviderGraphqlProps, VideoPro
           .catch(reject);
       }
     }).catch((error) => {
-      VideoProviderGraphql.handleVirtualBgErrorByDropping(error, type, name);
+      VideoProvider.handleVirtualBgErrorByDropping(error, type, name);
     });
   }
 
@@ -1330,7 +1330,7 @@ class VideoProviderGraphql extends Component<VideoProviderGraphqlProps, VideoPro
         }
       });
       Promise.all(trackReplacers).then(() => {
-        VideoProviderGraphql.attach(peer, videoElement);
+        VideoProvider.attach(peer, videoElement);
       });
     }
   }
@@ -1365,4 +1365,4 @@ class VideoProviderGraphql extends Component<VideoProviderGraphqlProps, VideoPro
   }
 }
 
-export default injectIntl(VideoProviderGraphql);
+export default injectIntl(VideoProvider);

@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import Resizable from 're-resizable';
 import Draggable, { DraggableEvent } from 'react-draggable';
-import { useVideoStreams } from '/imports/ui/components/video-provider/video-provider-graphql/hooks';
+import { useVideoStreams } from '/imports/ui/components/video-provider/hooks';
 import {
   layoutSelect,
   layoutSelectInput,
@@ -12,17 +12,17 @@ import { LAYOUT_TYPE, ACTIONS, CAMERADOCK_POSITION } from '/imports/ui/component
 import { CURRENT_PRESENTATION_PAGE_SUBSCRIPTION } from '/imports/ui/components/whiteboard/queries';
 import useCurrentUser from '/imports/ui/core/hooks/useCurrentUser';
 import DropAreaContainer from './drop-areas/container';
-import VideoProviderContainer from '/imports/ui/components/video-provider/video-provider-graphql/container';
+import VideoProviderContainer from '/imports/ui/components/video-provider/container';
 import Storage from '/imports/ui/services/storage/session';
 import Styled from './styles';
 import { Input, Layout, Output } from '/imports/ui/components/layout/layoutTypes';
-import { VideoItem } from '/imports/ui/components/video-provider/video-provider-graphql/types';
+import { VideoItem } from '/imports/ui/components/video-provider/types';
 import useDeduplicatedSubscription from '/imports/ui/core/hooks/useDeduplicatedSubscription';
 import useSettings from '/imports/ui/services/settings/hooks/useSettings';
 import { SETTINGS } from '/imports/ui/services/settings/enums';
 import { useStorageKey } from '/imports/ui/services/storage/hooks';
 
-interface WebcamComponentGraphqlProps {
+interface WebcamComponentProps {
   cameraDock: Output['cameraDock'];
   swapLayout: boolean;
   focusedId: string;
@@ -35,7 +35,7 @@ interface WebcamComponentGraphqlProps {
   isGridEnabled: boolean;
 }
 
-const WebcamComponentGraphql: React.FC<WebcamComponentGraphqlProps> = ({
+const WebcamComponent: React.FC<WebcamComponentProps> = ({
   cameraDock,
   swapLayout,
   focusedId,
@@ -298,12 +298,12 @@ const WebcamComponentGraphql: React.FC<WebcamComponentGraphqlProps> = ({
   );
 };
 
-interface WebcamContainerGraphqlProps {
+interface WebcamContainerProps {
   isLayoutSwapped: boolean;
   layoutType: string;
 }
 
-const WebcamContainerGraphql: React.FC<WebcamContainerGraphqlProps> = ({
+const WebcamContainer: React.FC<WebcamContainerProps> = ({
   isLayoutSwapped,
   layoutType,
 }) => {
@@ -356,7 +356,7 @@ const WebcamContainerGraphql: React.FC<WebcamContainerGraphqlProps> = ({
 
   return !audioModalIsOpen && (usersVideo.length > 0 || isGridEnabled)
     ? (
-      <WebcamComponentGraphql
+      <WebcamComponent
         {...{
           swapLayout,
           usersVideo,
@@ -377,4 +377,4 @@ const WebcamContainerGraphql: React.FC<WebcamContainerGraphqlProps> = ({
     : null;
 };
 
-export default WebcamContainerGraphql;
+export default WebcamContainer;
