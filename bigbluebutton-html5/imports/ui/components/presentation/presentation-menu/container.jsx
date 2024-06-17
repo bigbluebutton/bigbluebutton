@@ -20,7 +20,7 @@ const PresentationMenuContainer = (props) => {
   const fullscreen = layoutSelect((i) => i.fullscreen);
   const { element: currentElement, group: currentGroup } = fullscreen;
   const layoutContextDispatch = layoutDispatch();
-  const { elementId } = props;
+  const { elementId, whiteboardId } = props;
   const isFullscreen = currentElement === elementId;
   const isRTL = layoutSelect((i) => i.isRTL);
   const { pluginsExtensibleAreasAggregatedState } = useContext(PluginsContext);
@@ -33,6 +33,10 @@ const PresentationMenuContainer = (props) => {
 
   const { data: whiteboardWritersData } = useDeduplicatedSubscription(
     CURRENT_PAGE_WRITERS_SUBSCRIPTION,
+    {
+      variables: { pageId: whiteboardId },
+      skip: !whiteboardId,
+    },
   );
   const whiteboardWriters = whiteboardWritersData?.pres_page_writers || [];
   const hasWBAccess = whiteboardWriters?.some((writer) => writer.userId === Auth.userID);
