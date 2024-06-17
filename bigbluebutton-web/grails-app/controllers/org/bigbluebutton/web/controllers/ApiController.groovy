@@ -87,7 +87,6 @@ class ApiController {
 
     def contentType = request.getHeader("content-type")
 
-    String defaultServerUrl = paramsProcessorUtil.defaultServerUrl
     if(contentType == 'application/json') {
       withFormat {
         json {
