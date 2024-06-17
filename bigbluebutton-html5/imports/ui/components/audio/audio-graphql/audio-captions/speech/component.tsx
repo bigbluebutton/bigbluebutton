@@ -65,6 +65,7 @@ const AudioCaptionsSpeech: React.FC<AudioCaptionsSpeechProps> = ({
   const prevTranscriptRef = useRef('');
   const [setSpeechLocaleMutation] = useMutation(SET_SPEECH_LOCALE);
   const isAudioTranscriptionEnabled = useIsAudioTranscriptionEnabled();
+  const fixedLocaleResult = useFixedLocale();
 
   const setUserSpeechLocale = (speechLocale: string, provider: string) => {
     if (speechLocale !== '') {
@@ -78,7 +79,7 @@ const AudioCaptionsSpeech: React.FC<AudioCaptionsSpeechProps> = ({
   };
 
   const setDefaultLocale = () => {
-    if (useFixedLocale() || localeAsDefaultSelected()) {
+    if (fixedLocaleResult || localeAsDefaultSelected()) {
       setSpeechLocale(getLocale(), setUserSpeechLocale);
     } else {
       setSpeechLocale(navigator.language, setUserSpeechLocale);
@@ -101,7 +102,7 @@ const AudioCaptionsSpeech: React.FC<AudioCaptionsSpeechProps> = ({
     speechRecognition.continuous = true;
     speechRecognition.interimResults = true;
 
-    if (useFixedLocale() || localeAsDefaultSelected()) {
+    if (fixedLocaleResult || localeAsDefaultSelected()) {
       setUserLocaleProperty(getLocale(), setUserSpeechLocale);
     } else {
       setUserLocaleProperty(navigator.language, setUserSpeechLocale);
