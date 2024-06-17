@@ -218,6 +218,11 @@ const useMouseEvents = ({ whiteboardRef, tlEditorRef, isWheelZoomRef, initialZoo
     }, [
         whiteboardRef,
         tlEditorRef,
+        handleMouseDownWhiteboard,
+        handleMouseUp,
+        handleMouseEnter,
+        handleMouseLeave,
+        handleMouseWheel,
     ]);
 };
 
