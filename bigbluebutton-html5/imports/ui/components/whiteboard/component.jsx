@@ -250,7 +250,7 @@ const Whiteboard = React.memo(function Whiteboard(props) {
       return;
     }
 
-    if (event.key === ' ' && tlEditorRef.current?.getCurrentToolId() !== 'hand') {
+    if (event.key === ' ' && tlEditorRef.current?.getCurrentToolId() !== 'hand' && isPresenterRef.current) {
       previousTool.current = tlEditorRef.current?.getCurrentToolId();
       tlEditorRef.current?.setCurrentTool("hand");
       return;
