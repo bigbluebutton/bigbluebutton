@@ -77,10 +77,10 @@ if [ ! -f staging/usr/share/meteor/bundle/programs/web.browser/app/locales/index
 fi
 
 cp workers-start.sh staging/usr/share/meteor/bundle
-chmod +x staging/usr/share/meteor/bundle/workers-start.sh
+chmod +rx staging/usr/share/meteor/bundle/workers-start.sh
 
 cp mongod_start_pre.sh staging/usr/share/meteor/bundle
-chmod +x staging/usr/share/meteor/bundle/mongod_start_pre.sh
+chmod +rx staging/usr/share/meteor/bundle/mongod_start_pre.sh
 
 cp mongo-ramdisk.conf staging/usr/share/meteor/bundle
 # cp mongo-ramdisk.conf staging/etc/mongod.conf

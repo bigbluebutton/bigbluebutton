@@ -81,6 +81,7 @@ public class Meeting {
 	private String guestLobbyMessage = "";
 	private Map<String,String> usersWithGuestLobbyMessages;
 	private Boolean authenticatedGuest = false;
+    private Boolean allowPromoteGuestToModerator = false;
 	private long waitingGuestUsersTimeout = 30000;
 	private String meetingLayout = MeetingLayout.SMART_LAYOUT;
 	private boolean userHasJoined = false;
@@ -166,8 +167,9 @@ public class Meeting {
         isBreakout = builder.isBreakout;
         guestPolicy = builder.guestPolicy;
         authenticatedGuest = builder.authenticatedGuest;
-		waitingGuestUsersTimeout = builder.waitingGuestUsersTimeout;
-		meetingLayout = builder.meetingLayout;
+        allowPromoteGuestToModerator = builder.allowPromoteGuestToModerator;
+        waitingGuestUsersTimeout = builder.waitingGuestUsersTimeout;
+        meetingLayout = builder.meetingLayout;
         allowRequestsWithoutSession = builder.allowRequestsWithoutSession;
         breakoutRoomsParams = builder.breakoutRoomsParams;
         lockSettingsParams = builder.lockSettingsParams;
@@ -503,13 +505,21 @@ public class Meeting {
 		return authenticatedGuest;
 	}
 
-	public void setWaitingGuestUsersTimeout(long waitingGuestUsersTimeout) {
-		waitingGuestUsersTimeout = waitingGuestUsersTimeout;
+	public void setAllowPromoteGuestToModerator(Boolean value) {
+		allowPromoteGuestToModerator = value;
 	}
 
-	public long getWaitingGuestUsersTimeout() {
-		return waitingGuestUsersTimeout;
+	public Boolean getAllowPromoteGuestToModerator() {
+		return allowPromoteGuestToModerator;
 	}
+
+    public void setWaitingGuestUsersTimeout(long waitingGuestUsersTimeout) {
+        waitingGuestUsersTimeout = waitingGuestUsersTimeout;
+    }
+
+    public long getWaitingGuestUsersTimeout() {
+        return waitingGuestUsersTimeout;
+    }
 
 	public void setMeetingLayout(String layout) {
 		meetingLayout = layout;
@@ -920,7 +930,8 @@ public class Meeting {
     	private boolean isBreakout;
     	private String guestPolicy;
     	private Boolean authenticatedGuest;
-    	private long waitingGuestUsersTimeout;
+    	private Boolean allowPromoteGuestToModerator;
+        private long waitingGuestUsersTimeout;
     	private Boolean allowRequestsWithoutSession;
 		private String meetingLayout;
     	private BreakoutRoomsParams breakoutRoomsParams;
@@ -1107,8 +1118,13 @@ public class Meeting {
     		return this;
     	}
 
-		public Builder withWaitingGuestUsersTimeout(long waitingGuestUsersTimeout) {
-			this.waitingGuestUsersTimeout = waitingGuestUsersTimeout;
+    	public Builder withAllowPromoteGuestToModerator(Boolean value) {
+		    allowPromoteGuestToModerator = value;
+    		return this;
+    	}
+
+		public Builder withWaitingGuestUsersTimeout(long value) {
+			waitingGuestUsersTimeout = value;
 			return this;
 		}
 

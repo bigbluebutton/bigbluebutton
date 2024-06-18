@@ -50,7 +50,7 @@ const PresentationOnlyLayout = (props) => {
       fullscreenElement === 'Presentation'
       || fullscreenElement === 'Screenshare'
       || fullscreenElement === 'ExternalVideo'
-      || fullscreenElement === 'GenericComponent'
+      || fullscreenElement === 'GenericContent'
     ) {
       mediaBounds.width = windowWidth();
       mediaBounds.height = windowHeight();
@@ -292,7 +292,7 @@ const PresentationOnlyLayout = (props) => {
     });
 
     layoutContextDispatch({
-      type: ACTIONS.SET_GENERIC_COMPONENT_OUTPUT,
+      type: ACTIONS.SET_GENERIC_CONTENT_OUTPUT,
       value: {
         width: isOpen ? mediaBounds.width : 0,
         height: isOpen ? mediaBounds.height : 0,
@@ -360,8 +360,8 @@ const PresentationOnlyLayout = (props) => {
           externalVideo: {
             hasExternalVideo: input.externalVideo.hasExternalVideo,
           },
-          genericComponent: {
-            genericComponentId: input.genericComponent.genericComponentId,
+          genericMainContent: {
+            genericContentId: input.genericMainContent.genericContentId,
           },
           screenShare: {
             hasScreenShare: input.screenShare.hasScreenShare,

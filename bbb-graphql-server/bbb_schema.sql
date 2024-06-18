@@ -5,6 +5,17 @@ CREATE OR REPLACE FUNCTION immutable_lower_unaccent(text)
 				SELECT lower(unaccent('unaccent', $1))
 				$$ LANGUAGE SQL IMMUTABLE;
 
+--remove_emojis will be used to create nameSortable
+CREATE OR REPLACE FUNCTION remove_emojis(text) RETURNS text AS $$
+DECLARE
+    input_string ALIAS FOR $1;
+    output_string text;
+BEGIN
+    output_string := regexp_replace(input_string, '[^\u0000-\uFFFF]', '', 'g');
+    RETURN output_string;
+END;
+$$ LANGUAGE plpgsql IMMUTABLE;
+
 -- ========== Meeting tables
 
 create table "meeting" (
@@ -127,16 +138,17 @@ create view "v_meeting_voiceSettings" as select * from meeting_voice;
 
 create table "meeting_usersPolicies" (
 	"meetingId" 		varchar(100) primary key references "meeting"("meetingId") ON DELETE CASCADE,
-    "maxUsers"                  integer,
-    "maxUserConcurrentAccesses" integer,
-    "webcamsOnlyForModerator"   boolean,
-    "userCameraCap"             integer,
-    "guestPolicy"               varchar(100),
-    "guestLobbyMessage"         text,
-    "meetingLayout"             varchar(100),
-    "allowModsToUnmuteUsers"    boolean,
-    "allowModsToEjectCameras"   boolean,
-    "authenticatedGuest"        boolean
+    "maxUsers"                     integer,
+    "maxUserConcurrentAccesses"    integer,
+    "webcamsOnlyForModerator"      boolean,
+    "userCameraCap"                integer,
+    "guestPolicy"                  varchar(100),
+    "guestLobbyMessage"            text,
+    "meetingLayout"                varchar(100),
+    "allowModsToUnmuteUsers"       boolean,
+    "allowModsToEjectCameras"      boolean,
+    "authenticatedGuest"           boolean,
+    "allowPromoteGuestToModerator" boolean
 );
 create index "idx_meeting_usersPolicies_meetingId" on "meeting_usersPolicies"("meetingId");
 
@@ -152,6 +164,7 @@ SELECT "meeting_usersPolicies"."meetingId",
     "meeting_usersPolicies"."allowModsToUnmuteUsers",
     "meeting_usersPolicies"."allowModsToEjectCameras",
     "meeting_usersPolicies"."authenticatedGuest",
+    "meeting_usersPolicies"."allowPromoteGuestToModerator",
     "meeting"."isBreakout" is false "moderatorsCanMuteAudio",
     "meeting"."isBreakout" is false and "meeting_usersPolicies"."allowModsToUnmuteUsers" is true "moderatorsCanUnmuteAudio"
    FROM "meeting_usersPolicies"
@@ -318,7 +331,7 @@ ALTER TABLE "user" ADD COLUMN "isDenied" boolean GENERATED ALWAYS AS ("guestStat
 ALTER TABLE "user" ADD COLUMN "registeredAt" timestamp with time zone GENERATED ALWAYS AS (to_timestamp("registeredOn"::double precision / 1000)) STORED;
 
 --Used to sort the Userlist
-ALTER TABLE "user" ADD COLUMN "nameSortable" varchar(255) GENERATED ALWAYS AS (immutable_lower_unaccent("name")) STORED;
+ALTER TABLE "user" ADD COLUMN "nameSortable" varchar(255) GENERATED ALWAYS AS (trim(remove_emojis(immutable_lower_unaccent("name")))) STORED;
 
 CREATE INDEX "idx_user_waiting" ON "user"("meetingId") where "isWaiting" is true;
 
@@ -406,10 +419,7 @@ AS SELECT "user"."userId",
     CASE WHEN "user"."role" = 'MODERATOR' THEN true ELSE false END "isModerator",
     "user"."isOnline"
   FROM "user"
-  WHERE "user"."loggedOut" IS FALSE
-  AND "user"."expired" IS FALSE
-  AND "user"."ejected" IS NOT TRUE
-  AND "user"."joined" IS TRUE;
+  WHERE "user"."isOnline" is true;
 
 CREATE INDEX "idx_v_user_meetingId" ON "user"("meetingId") 
                 where "user"."loggedOut" IS FALSE
@@ -417,11 +427,19 @@ CREATE INDEX "idx_v_user_meetingId" ON "user"("meetingId")
                 AND "user"."ejected" IS NOT TRUE
                 and "user"."joined" IS TRUE;
 
-CREATE INDEX "idx_v_user_meetingId_orderByColumns" ON "user"("meetingId","role","raiseHandTime","awayTime","emojiTime","isDialIn","hasDrawPermissionOnCurrentPage","nameSortable","userId")
-                where "user"."loggedOut" IS FALSE
-                AND "user"."expired" IS FALSE
-                AND "user"."ejected" IS NOT TRUE
-                and "user"."joined" IS TRUE;
+CREATE INDEX "idx_v_user_meetingId_orderByColumns" ON "user"(
+                        "meetingId",
+                        "presenter",
+                        "role",
+                        "raiseHandTime",
+                        "emojiTime",
+                        "isDialIn",
+                        "hasDrawPermissionOnCurrentPage",
+                        "nameSortable",
+                        "registeredAt",
+                        "userId"
+                        )
+                where "user"."isOnline" is true;
 
 CREATE OR REPLACE VIEW "v_user_current"
 AS SELECT "user"."userId",
@@ -1877,7 +1895,7 @@ SELECT
 	FLOOR(EXTRACT(EPOCH FROM current_timestamp) * 1000)::bigint AS "currentTimeMillis";
 
 ------------------------------------
-----audioCaption or typedCaption
+----caption
 
 CREATE TABLE "caption_locale" (
     "meetingId" varchar(100) NOT NULL REFERENCES "meeting"("meetingId") ON DELETE CASCADE,
@@ -2080,10 +2098,5 @@ select "meeting"."meetingId",
             select 1
             from "v_caption_activeLocales"
             where "v_caption_activeLocales"."meetingId" = "meeting"."meetingId"
-        ) or exists (
-            select 1
-            from "v_user"
-            where "v_user"."meetingId" = "meeting"."meetingId"
-            and NULLIF("speechLocale",'') is not null
-        )as "hasCaption"
+        ) as "hasCaption"
 from "meeting";
