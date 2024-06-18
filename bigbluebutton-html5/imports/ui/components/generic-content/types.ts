@@ -17,6 +17,7 @@ export interface GenericContentSidekickContainerProps {
 }
 
 export interface GenericSidekickContentProps {
+    layoutContextDispatch: (...args: unknown[]) => void;
     genericContentId: string;
     renderFunction: (element: HTMLElement) => void;
     genericContentLabel: string;

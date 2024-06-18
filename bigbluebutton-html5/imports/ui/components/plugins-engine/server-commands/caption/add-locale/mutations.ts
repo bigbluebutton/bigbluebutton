@@ -8,6 +8,4 @@ export const CAPTION_ADD_LOCALE = gql`
   }
 `;
 
-export default {
-  CAPTION_ADD_LOCALE,
-};
+export default CAPTION_ADD_LOCALE;
