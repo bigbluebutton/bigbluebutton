@@ -11,7 +11,7 @@ export default function buildRedisMessage(sessionVariables: Record<string, unkno
       ]
   )
 
-  const eventName = `PluginDataChannelDeleteMessageMsg`;
+  const eventName = `PluginDataChannelDeleteEntryMsg`;
 
   const routing = {
     meetingId: sessionVariables['x-hasura-meetingid'] as String,

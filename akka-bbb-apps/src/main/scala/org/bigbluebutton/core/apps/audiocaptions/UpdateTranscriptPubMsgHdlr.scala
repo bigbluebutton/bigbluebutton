@@ -82,7 +82,7 @@ trait UpdateTranscriptPubMsgHdlr {
       for {
         u <- Users2x.findWithIntId(liveMeeting.users2x, msg.header.userId)
       } yield {
-        CaptionDAO.insertOrUpdateAudioCaption(msg.body.transcriptId, meetingId, msg.header.userId, transcript, u.speechLocale)
+        CaptionDAO.insertOrUpdateCaption(msg.body.transcriptId, meetingId, msg.header.userId, transcript, u.speechLocale)
       }
 
       broadcastEvent(
