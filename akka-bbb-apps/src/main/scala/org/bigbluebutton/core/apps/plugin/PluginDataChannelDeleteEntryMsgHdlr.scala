@@ -25,9 +25,9 @@ trait PluginDataChannelDeleteEntryMsgHdlr extends HandlerHelpers {
         println(s"Data channel '${msg.body.channelName}' not found in plugin '${msg.body.pluginName}'.")
       } else {
         val hasPermission = for {
-          deletePermission <- pluginsConfig(msg.body.pluginName).dataChannels(msg.body.channelName).deletePermission
+          replaceOrDeletePermission <- pluginsConfig(msg.body.pluginName).dataChannels(msg.body.channelName).replaceOrDeletePermission
         } yield {
-          deletePermission.toLowerCase match {
+          replaceOrDeletePermission.toLowerCase match {
             case "all"       => true
             case "moderator" => user.role == Roles.MODERATOR_ROLE
             case "presenter" => user.presenter

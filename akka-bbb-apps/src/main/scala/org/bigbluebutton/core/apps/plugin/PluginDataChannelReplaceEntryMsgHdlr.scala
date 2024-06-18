@@ -25,13 +25,23 @@ trait PluginDataChannelReplaceEntryMsgHdlr extends HandlerHelpers {
         println(s"Data channel '${msg.body.channelName}' not found in plugin '${msg.body.pluginName}'.")
       } else {
         val hasPermission = for {
-          writePermission <- pluginsConfig(msg.body.pluginName).dataChannels(msg.body.channelName).writePermission
+          replaceOrDeletePermission <- pluginsConfig(msg.body.pluginName).dataChannels(msg.body.channelName).replaceOrDeletePermission
         } yield {
-          writePermission.toLowerCase match {
+          replaceOrDeletePermission.toLowerCase match {
             case "all"       => true
             case "moderator" => user.role == Roles.MODERATOR_ROLE
             case "presenter" => user.presenter
-            case _           => false
+            case "sender" => {
+              val senderUserId = PluginDataChannelEntryDAO.getMessageSender(
+                meetingId,
+                msg.body.pluginName,
+                msg.body.channelName,
+                msg.body.subChannelName,
+                msg.body.entryId
+              )
+              senderUserId == msg.header.userId
+            }
+            case _ => false
           }
         }
 
