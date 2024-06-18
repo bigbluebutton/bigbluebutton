@@ -114,7 +114,7 @@ const ParticipantsAndChatOnlyLayout = (props) => {
       fullscreenElement === 'Presentation'
       || fullscreenElement === 'Screenshare'
       || fullscreenElement === 'ExternalVideo'
-      || fullscreenElement === 'GenericComponent'
+      || fullscreenElement === 'GenericContent'
     ) {
       mediaBounds.width = windowWidth();
       mediaBounds.height = windowHeight();
@@ -339,7 +339,7 @@ const ParticipantsAndChatOnlyLayout = (props) => {
     });
 
     layoutContextDispatch({
-      type: ACTIONS.SET_GENERIC_COMPONENT_OUTPUT,
+      type: ACTIONS.SET_GENERIC_CONTENT_OUTPUT,
       value: {
         display: false,
         width: 0,
@@ -412,8 +412,8 @@ const ParticipantsAndChatOnlyLayout = (props) => {
             width: 0,
             height: 0,
           },
-          genericComponent: {
-            genericComponentId: undefined,
+          genericMainContent: {
+            genericContentId: undefined,
             width: 0,
             height: 0,
           },

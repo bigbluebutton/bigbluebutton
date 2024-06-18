@@ -1,15 +1,11 @@
 import React from 'react';
 import { defineMessages, useIntl } from 'react-intl';
-import { Meteor } from 'meteor/meteor';
 import Checkbox from '/imports/ui/components/common/checkbox/component';
 import Toggle from '/imports/ui/components/common/switch/component';
 import Styled from '../styles';
 import { pollTypes, isDefaultPoll } from '../service';
 import StartPollButton from './StartPollButton';
 import PollInputs from './PollInputs';
-
-const POLL_SETTINGS = Meteor.settings.public.poll;
-const MAX_CUSTOM_FIELDS = POLL_SETTINGS.maxCustom;
 
 const intlMessages = defineMessages({
   enableMultipleResponseLabel: {
@@ -71,6 +67,8 @@ const ResponseArea: React.FC<ResponseAreaProps> = ({
   handleInputChange,
   handleRemoveOption,
 }) => {
+  const POLL_SETTINGS = window.meetingClientSettings.public.poll;
+  const MAX_CUSTOM_FIELDS = POLL_SETTINGS.maxCustom;
   const intl = useIntl();
   const defaultPoll = isDefaultPoll(type as string);
   if (defaultPoll || type === pollTypes.Response) {

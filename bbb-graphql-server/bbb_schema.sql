@@ -127,16 +127,17 @@ create view "v_meeting_voiceSettings" as select * from meeting_voice;
 
 create table "meeting_usersPolicies" (
 	"meetingId" 		varchar(100) primary key references "meeting"("meetingId") ON DELETE CASCADE,
-    "maxUsers"                  integer,
-    "maxUserConcurrentAccesses" integer,
-    "webcamsOnlyForModerator"   boolean,
-    "userCameraCap"             integer,
-    "guestPolicy"               varchar(100),
-    "guestLobbyMessage"         text,
-    "meetingLayout"             varchar(100),
-    "allowModsToUnmuteUsers"    boolean,
-    "allowModsToEjectCameras"   boolean,
-    "authenticatedGuest"        boolean
+    "maxUsers"                     integer,
+    "maxUserConcurrentAccesses"    integer,
+    "webcamsOnlyForModerator"      boolean,
+    "userCameraCap"                integer,
+    "guestPolicy"                  varchar(100),
+    "guestLobbyMessage"            text,
+    "meetingLayout"                varchar(100),
+    "allowModsToUnmuteUsers"       boolean,
+    "allowModsToEjectCameras"      boolean,
+    "authenticatedGuest"           boolean,
+    "allowPromoteGuestToModerator" boolean
 );
 create index "idx_meeting_usersPolicies_meetingId" on "meeting_usersPolicies"("meetingId");
 
@@ -152,6 +153,7 @@ SELECT "meeting_usersPolicies"."meetingId",
     "meeting_usersPolicies"."allowModsToUnmuteUsers",
     "meeting_usersPolicies"."allowModsToEjectCameras",
     "meeting_usersPolicies"."authenticatedGuest",
+    "meeting_usersPolicies"."allowPromoteGuestToModerator",
     "meeting"."isBreakout" is false "moderatorsCanMuteAudio",
     "meeting"."isBreakout" is false and "meeting_usersPolicies"."allowModsToUnmuteUsers" is true "moderatorsCanUnmuteAudio"
    FROM "meeting_usersPolicies"
@@ -1877,7 +1879,7 @@ SELECT
 	FLOOR(EXTRACT(EPOCH FROM current_timestamp) * 1000)::bigint AS "currentTimeMillis";
 
 ------------------------------------
-----audioCaption or typedCaption
+----caption
 
 CREATE TABLE "caption_locale" (
     "meetingId" varchar(100) NOT NULL REFERENCES "meeting"("meetingId") ON DELETE CASCADE,
@@ -2080,10 +2082,5 @@ select "meeting"."meetingId",
             select 1
             from "v_caption_activeLocales"
             where "v_caption_activeLocales"."meetingId" = "meeting"."meetingId"
-        ) or exists (
-            select 1
-            from "v_user"
-            where "v_user"."meetingId" = "meeting"."meetingId"
-            and NULLIF("speechLocale",'') is not null
-        )as "hasCaption"
+        ) as "hasCaption"
 from "meeting";

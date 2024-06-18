@@ -17,7 +17,6 @@ import withFileReader from '/imports/ui/components/common/file-reader/component'
 import Skeleton, { SkeletonTheme } from 'react-loading-skeleton';
 import 'react-loading-skeleton/dist/skeleton.css';
 import { getSettingsSingletonInstance } from '/imports/ui/services/settings';
-import { isCustomVirtualBackgroundsEnabled } from '/imports/ui/services/features';
 
 const { MIME_TYPES_ALLOWED, MAX_FILE_SIZE } = VirtualBgService;
 
@@ -36,10 +35,10 @@ const propTypes = {
 
 const SKELETON_COUNT = 5;
 
-const shouldEnableBackgroundUpload = () => {
+const shouldEnableBackgroundUpload = (isCustomVirtualBackgroundsEnabled) => {
   const VIRTUAL_BACKGROUNDS_CONFIG = window.meetingClientSettings.public.virtualBackgrounds;
   const ENABLE_UPLOAD = VIRTUAL_BACKGROUNDS_CONFIG.enableVirtualBackgroundUpload;
-  return ENABLE_UPLOAD && isCustomVirtualBackgroundsEnabled();
+  return ENABLE_UPLOAD && isCustomVirtualBackgroundsEnabled;
 };
 
 const defaultInitialVirtualBgState = {
@@ -54,6 +53,7 @@ const VirtualBgSelector = ({
   initialVirtualBgState = defaultInitialVirtualBgState,
   isVisualEffects,
   readFile,
+  isCustomVirtualBackgroundsEnabled,
 }) => {
   const IMAGE_NAMES = getImageNames();
 
@@ -129,7 +129,7 @@ const VirtualBgSelector = ({
   const { MIME_TYPES_ALLOWED } = VirtualBgService;
 
   useEffect(() => {
-    if (shouldEnableBackgroundUpload()) {
+    if (shouldEnableBackgroundUpload(isCustomVirtualBackgroundsEnabled)) {
       if (!defaultSetUp) {
         const defaultBackgrounds = ['Blur', ...IMAGE_NAMES].map((imageName) => ({
           uniqueId: imageName,
@@ -143,7 +143,7 @@ const VirtualBgSelector = ({
       }
       if (!loaded) loadFromDB();
     }
-  }, []);
+  }, [isCustomVirtualBackgroundsEnabled]);
 
   const _virtualBgSelected = (type, name, index, customParams) =>
     handleVirtualBgSelected(type, name, customParams)
@@ -159,7 +159,7 @@ const VirtualBgSelector = ({
 
         if (!index || index < 0) return;
 
-        if (!shouldEnableBackgroundUpload()) {
+        if (!shouldEnableBackgroundUpload(isCustomVirtualBackgroundsEnabled)) {
           findDOMNode(inputElementsRef.current[index]).focus();
         } else {
           if (customParams) {
@@ -458,7 +458,7 @@ const VirtualBgSelector = ({
           brightnessEnabled={ENABLE_CAMERA_BRIGHTNESS}
           data-test="virtualBackground"
         >
-          {shouldEnableBackgroundUpload() && (
+          {shouldEnableBackgroundUpload(isCustomVirtualBackgroundsEnabled) && (
             <>
               {!ready && renderSkeleton()}
 
@@ -483,7 +483,7 @@ const VirtualBgSelector = ({
             </>
           )}
 
-          {!shouldEnableBackgroundUpload() && (
+          {!shouldEnableBackgroundUpload(isCustomVirtualBackgroundsEnabled) && (
             <>
               {renderNoneButton()}
 

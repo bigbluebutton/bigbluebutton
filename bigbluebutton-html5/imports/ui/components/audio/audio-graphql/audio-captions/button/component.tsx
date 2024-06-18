@@ -139,13 +139,14 @@ const AudioCaptionsButton: React.FC<AudioCaptionsButtonProps> = ({
   const shouldRenderChevron = isSupported;
   const shouldRenderSelector = isSupported && availableVoices.length > 0;
 
+  const isAudioTranscriptionEnabled = AudioCaptionsService.useIsAudioTranscriptionEnabled();
   const autoLanguage = AudioCaptionsService.isGladia() ? {
     icon: '',
     label: intl.formatMessage(intlMessages.autoDetect),
     key: 'auto',
     iconRight: selectedLocale.current === 'auto' ? 'check' : null,
     customStyles: (selectedLocale.current === 'auto') && Styled.SelectedLabel,
-    disabled: !AudioCaptionsService.isAudioTranscriptionEnabled(),
+    disabled: !isAudioTranscriptionEnabled,
     dividerTop: true,
     onClick: () => {
       selectedLocale.current = 'auto';
@@ -168,7 +169,7 @@ const AudioCaptionsButton: React.FC<AudioCaptionsButtonProps> = ({
             key: availableVoice,
             iconRight: selectedLocale.current === availableVoice ? 'check' : null,
             customStyles: (selectedLocale.current === availableVoice) && Styled.SelectedLabel,
-            disabled: !AudioCaptionsService.isAudioTranscriptionEnabled(),
+            disabled: !isAudioTranscriptionEnabled,
             dividerTop: !AudioCaptionsService.isGladia() && availableVoice === availableVoices[0],
             onClick: () => {
               selectedLocale.current = availableVoice;

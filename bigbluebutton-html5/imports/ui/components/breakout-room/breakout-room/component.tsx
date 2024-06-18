@@ -23,7 +23,7 @@ import {
   forceExitAudio,
   stopVideo,
 } from './service';
-import { useExitVideo, useStreams } from '../../video-provider/video-provider-graphql/hooks';
+import { useExitVideo, useStreams } from '/imports/ui/components/video-provider/hooks';
 import useDeduplicatedSubscription from '/imports/ui/core/hooks/useDeduplicatedSubscription';
 
 interface BreakoutRoomProps {
