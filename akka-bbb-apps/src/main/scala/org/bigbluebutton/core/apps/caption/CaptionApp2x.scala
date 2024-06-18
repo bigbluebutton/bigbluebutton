@@ -55,11 +55,11 @@ class CaptionApp2x(implicit val context: ActorContext) extends RightsManagementT
     val meetingId = liveMeeting.props.meetingProp.intId
     def broadcastSuccessEvent(transcriptId: String, transcript: String, locale: String): Unit = {
       val routing = Routing.addMsgToClientRouting(MessageTypes.BROADCAST_TO_MEETING, liveMeeting.props.meetingProp.intId, msg.header.userId)
-      val envelope = BbbCoreEnvelope(CaptionSubmitTranscriptSuccessEvtMsg.NAME, routing)
-      val header = BbbClientMsgHeader(CaptionSubmitTranscriptSuccessEvtMsg.NAME, liveMeeting.props.meetingProp.intId, msg.header.userId)
+      val envelope = BbbCoreEnvelope(CaptionSubmitTranscriptEvtMsg.NAME, routing)
+      val header = BbbClientMsgHeader(CaptionSubmitTranscriptEvtMsg.NAME, liveMeeting.props.meetingProp.intId, msg.header.userId)
 
-      val body = CaptionSubmitTranscriptSuccessEvtMsgBody(transcriptId, transcript, locale, msg.body.captionType)
-      val event = CaptionSubmitTranscriptSuccessEvtMsg(header, body)
+      val body = CaptionSubmitTranscriptEvtMsgBody(transcriptId, transcript, locale, msg.body.captionType)
+      val event = CaptionSubmitTranscriptEvtMsg(header, body)
       val msgEvent = BbbCommonEnvCoreMsg(envelope, event)
       bus.outGW.send(msgEvent)
     }

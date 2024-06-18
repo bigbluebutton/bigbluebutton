@@ -17,9 +17,9 @@ case class CaptionSubmitTranscriptPubMsgBody(
                                               locale:       String,
                                               captionType:  String,
                                             )
-object CaptionSubmitTranscriptSuccessEvtMsg { val NAME = "CaptionSubmitTranscriptSuccessEvtMsg" }
-case class CaptionSubmitTranscriptSuccessEvtMsg(header: BbbClientMsgHeader, body: CaptionSubmitTranscriptSuccessEvtMsgBody) extends StandardMsg
-case class CaptionSubmitTranscriptSuccessEvtMsgBody(
+object CaptionSubmitTranscriptEvtMsg { val NAME = "CaptionSubmitTranscriptEvtMsg" }
+case class CaptionSubmitTranscriptEvtMsg(header: BbbClientMsgHeader, body: CaptionSubmitTranscriptEvtMsgBody) extends StandardMsg
+case class CaptionSubmitTranscriptEvtMsgBody(
                                                      transcriptId: String,
                                                      transcript:   String,
                                                      locale:       String,
