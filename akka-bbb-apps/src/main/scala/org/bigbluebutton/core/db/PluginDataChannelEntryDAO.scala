@@ -21,7 +21,7 @@ case class PluginDataChannelEntryDbModel(
     subChannelName:     String,
     entryId:            Option[String] = None,
     payloadJson:        JsValue,
-    fromUserId:         String,
+    createdBy:         String,
     toRoles:            Option[List[String]],
     toUserIds:          Option[List[String]],
     createdAt:          java.sql.Timestamp,
@@ -35,16 +35,16 @@ class PluginDataChannelEntryDbTableDef(tag: Tag) extends Table[PluginDataChannel
   val subChannelName = column[String]("subChannelName")
   val entryId = column[Option[String]]("entryId", O.PrimaryKey)
   val payloadJson = column[JsValue]("payloadJson")
-  val fromUserId = column[String]("fromUserId")
+  val createdBy = column[String]("createdBy")
   val toRoles = column[Option[List[String]]]("toRoles")
   val toUserIds = column[Option[List[String]]]("toUserIds")
   val createdAt = column[java.sql.Timestamp]("createdAt")
   val deletedAt = column[Option[java.sql.Timestamp]]("deletedAt")
-  override def * = (meetingId, pluginName, channelName, subChannelName, entryId, payloadJson, fromUserId, toRoles, toUserIds, createdAt, deletedAt) <> (PluginDataChannelEntryDbModel.tupled, PluginDataChannelEntryDbModel.unapply)
+  override def * = (meetingId, pluginName, channelName, subChannelName, entryId, payloadJson, createdBy, toRoles, toUserIds, createdAt, deletedAt) <> (PluginDataChannelEntryDbModel.tupled, PluginDataChannelEntryDbModel.unapply)
 }
 
 object PluginDataChannelEntryDAO {
-  def insert(meetingId: String, pluginName: String, channelName: String, subChannelName: String, senderUserId: String,
+  def insert(meetingId: String, pluginName: String, channelName: String, subChannelName: String, createdBy: String,
              payloadJson: Map[String, Any], toRoles: List[String], toUserIds: List[String]) = {
     DatabaseConnection.db.run(
       TableQuery[PluginDataChannelEntryDbTableDef].forceInsert(
@@ -55,7 +55,7 @@ object PluginDataChannelEntryDAO {
           channelName = channelName,
           subChannelName = subChannelName,
           payloadJson = JsonUtils.mapToJson(payloadJson),
-          fromUserId = senderUserId,
+          createdBy = createdBy,
           toRoles = toRoles.map(_.toUpperCase).filter(Permission.allowedRoles.contains) match {
             case Nil => None
             case filtered => Some(filtered)
@@ -88,9 +88,9 @@ object PluginDataChannelEntryDAO {
     }
   }
 
-  def getMessageSender(meetingId: String, pluginName: String, channelName: String,
-                       subChannelName: String, entryId: String): String = {
-      val query = sql"""SELECT "fromUserId"
+  def getEntryCreator(meetingId: String, pluginName: String, channelName: String,
+                      subChannelName: String, entryId: String): String = {
+      val query = sql"""SELECT "createdBy"
              FROM "pluginDataChannelEntry"
                 WHERE "deletedAt" is null
                 AND "meetingId" = ${meetingId}

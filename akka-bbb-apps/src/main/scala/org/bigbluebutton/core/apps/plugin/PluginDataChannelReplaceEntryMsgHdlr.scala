@@ -31,15 +31,15 @@ trait PluginDataChannelReplaceEntryMsgHdlr extends HandlerHelpers {
             case "all"       => true
             case "moderator" => user.role == Roles.MODERATOR_ROLE
             case "presenter" => user.presenter
-            case "sender" => {
-              val senderUserId = PluginDataChannelEntryDAO.getMessageSender(
+            case "creator" => {
+              val creatorUserId = PluginDataChannelEntryDAO.getEntryCreator(
                 meetingId,
                 msg.body.pluginName,
                 msg.body.channelName,
                 msg.body.subChannelName,
                 msg.body.entryId
               )
-              senderUserId == msg.header.userId
+              creatorUserId == msg.header.userId
             }
             case _ => false
           }
