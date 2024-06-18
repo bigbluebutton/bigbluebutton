@@ -63,8 +63,6 @@ const GenericSidekickContentNavButton = ({
         ))}
       </Styled.Section>
     ));
-  } else {
-    
   }
   return null;
 };
