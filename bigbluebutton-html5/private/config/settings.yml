@@ -494,7 +494,7 @@ public:
       # user to enable/disable it
       paginationToggleEnabled: true
       # how long (in ms) the negotiation will be debounced after a page change.
-      pageChangeDebounceTime: 2500
+      pageChangeDebounceTime: 1000
       # video page sizes for DESKTOP endpoints. It stands for the number of SUBSCRIBER streams.
       # PUBLISHERS aren't accounted for .
       # A page size of 0 (zero) means that the page size is unlimited (disabled).
