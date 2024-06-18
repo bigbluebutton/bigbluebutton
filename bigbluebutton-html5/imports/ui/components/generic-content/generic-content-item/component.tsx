@@ -16,6 +16,7 @@ const GenericContentItem: React.FC<GenericContentItemProps> = (props) => {
   return (
     <div
       style={{
+        height: '100%',
         overflow: 'hidden',
       }}
       ref={elementRef}
