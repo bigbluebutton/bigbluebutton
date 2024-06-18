@@ -1,5 +1,5 @@
 import React, { useEffect } from 'react';
-import { Session } from 'meteor/session';
+import Session from '/imports/ui/services/storage/in-memory';
 import { v4 as uuid } from 'uuid';
 import { ErrorScreen } from '../../error-screen/component';
 import LoadingScreen from '../../common/loading-screen/component';
@@ -86,7 +86,7 @@ const StartupDataFetch: React.FC<StartupDataFetchProps> = ({
             clearTimeout(timeoutRef.current);
             setLoading(false);
           }).catch(() => {
-            Session.set('errorMessageDescription', 'meeting_ended');
+            Session.setItem('errorMessageDescription', 'meeting_ended');
             setError('Error fetching startup data');
             setLoading(false);
           });
