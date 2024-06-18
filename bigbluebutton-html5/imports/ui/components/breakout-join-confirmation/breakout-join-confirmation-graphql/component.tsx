@@ -16,8 +16,8 @@ import { BREAKOUT_ROOM_REQUEST_JOIN_URL } from '../../breakout-room/mutations';
 import useDeduplicatedSubscription from '/imports/ui/core/hooks/useDeduplicatedSubscription';
 import AudioManager from '/imports/ui/services/audio-manager';
 import AudioService from '/imports/ui/components/audio/service';
-import VideoService from '/imports/ui/components/video-provider/video-provider-graphql/service';
-import { useExitVideo, useStreams } from '/imports/ui/components/video-provider/video-provider-graphql/hooks';
+import VideoService from '/imports/ui/components/video-provider/service';
+import { useExitVideo, useStreams } from '/imports/ui/components/video-provider/hooks';
 import logger from '/imports/startup/client/logger';
 import { rejoinAudio } from '../../breakout-room/breakout-room/service';
 import { useBreakoutExitObserver } from './hooks';
@@ -85,7 +85,7 @@ const BreakoutJoinConfirmation: React.FC<BreakoutJoinConfirmationProps> = ({
   const [waiting, setWaiting] = React.useState(false);
   const [isOpen, setIsOpen] = React.useState(false);
 
-  const defaultSelectedBreakoutId = breakouts.find(({ showInvitation }) => showInvitation)?.breakoutRoomId
+  const defaultSelectedBreakoutId = breakouts.find(({ isLastAssignedRoom }) => isLastAssignedRoom)?.breakoutRoomId
     || firstBreakoutId;
 
   const [selectValue, setSelectValue] = React.useState(defaultSelectedBreakoutId);
@@ -248,7 +248,7 @@ const BreakoutJoinConfirmationContainer: React.FC = () => {
     <BreakoutJoinConfirmation
       freeJoin={freeJoin}
       breakouts={breakoutData.breakoutRoom}
-      currentUserJoined={currentUser?.breakoutRooms?.currentRoomJoined ?? false}
+      currentUserJoined={currentUser?.breakoutRooms?.isUserCurrentlyInRoom ?? false}
       firstBreakoutId={breakoutRoomId}
       isUsingAudio={isUsingAudio}
       exitVideo={exitVideo}

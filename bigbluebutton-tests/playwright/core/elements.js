@@ -451,7 +451,7 @@ exports.webcamMirroredVideoPreview = 'video[data-test="mirroredVideoPreview"]';
 // Whiteboard
 exports.whiteboard = 'div[data-testid="canvas"]';
 exports.wbLayer = 'div[data-testid="layer"]';
-exports.wbToolbar = 'div[class="tlui-toolbar__tools"]';
+exports.wbToolbar = 'div[class^="tlui-toolbar__tools tlui-toolbar__tools__mobile"]';
 exports.wbShapesButton = 'button[data-testid="tools.more"]';
 exports.wbRectangleShape = 'button[data-testid="tools.rectangle"]';
 exports.wbEllipseShape = 'button[data-testid="tools.more.ellipse"]';
@@ -463,6 +463,7 @@ exports.wbTextShape = 'button[data-testid="tools.text"]';
 exports.wbTypedText = 'div[data-shape="text"]';
 exports.wbTypedStickyNote = 'div[data-shape-type="note"]';
 exports.wbDrawnRectangle = 'div[data-shape-type="geo"]';
+exports.wbPollShape = 'div[data-shape-type="poll"]';
 exports.wbDrawnLine = 'div[data-shape="draw"]';
 exports.multiUsersWhiteboardOn = 'button[data-test="turnMultiUsersWhiteboardOn"]';
 exports.multiUsersWhiteboardOff = 'button[data-test="turnMultiUsersWhiteboardOff"]';

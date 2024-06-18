@@ -124,6 +124,10 @@ const TldrawV2GlobalStyle = createGlobalStyle`
     bottom: 9.5rem !important;
   }
 
+  [id*="shape:poll-result"] {
+    background-color: white !important;
+  }
+
   ${({ presentationHeight }) => {
     const minRange = { height: 345, top: 14 };
     const maxRange = { height: 1200, top: 384 };

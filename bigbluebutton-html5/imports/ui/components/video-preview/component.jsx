@@ -8,7 +8,7 @@ import VirtualBgSelector from '/imports/ui/components/video-preview/virtual-back
 import logger from '/imports/startup/client/logger';
 import browserInfo from '/imports/utils/browserInfo';
 import PreviewService from './service';
-import VideoService from '../video-provider/video-provider-graphql/service';
+import VideoService from '/imports/ui/components/video-provider/service';
 import Styled from './styles';
 import deviceInfo from '/imports/utils/deviceInfo';
 import MediaStreamUtils from '/imports/utils/media-stream-utils';
@@ -20,7 +20,6 @@ import {
   isVirtualBackgroundSupported,
 } from '/imports/ui/services/virtual-background/service';
 import { getSettingsSingletonInstance } from '/imports/ui/services/settings';
-import { isVirtualBackgroundsEnabled } from '/imports/ui/services/features';
 import Checkbox from '/imports/ui/components/common/checkbox/component'
 
 const VIEW_STATES = {
@@ -743,6 +742,7 @@ class VideoPreview extends Component {
       sharedDevices,
       isVisualEffects,
       cameraAsContent,
+      isVirtualBackgroundsEnabled,
     } = this.props;
 
     const {
@@ -752,7 +752,7 @@ class VideoPreview extends Component {
     } = this.state;
 
     const shared = sharedDevices.includes(webcamDeviceId);
-    const shouldShowVirtualBackgrounds = isVirtualBackgroundsEnabled() && !cameraAsContent;
+    const shouldShowVirtualBackgrounds = isVirtualBackgroundsEnabled && !cameraAsContent;
 
     const CAMERA_PROFILES = window.meetingClientSettings.public.kurento.cameraProfiles || [];
     // Filtered, without hidden profiles
@@ -761,7 +761,7 @@ class VideoPreview extends Component {
     if (isVisualEffects) {
       return (
         <>
-          {isVirtualBackgroundsEnabled() && this.renderVirtualBgSelector()}
+          {isVirtualBackgroundsEnabled && this.renderVirtualBgSelector()}
         </>
       );
     }
@@ -952,7 +952,7 @@ class VideoPreview extends Component {
   }
 
   renderVirtualBgSelector() {
-    const { isVisualEffects } = this.props;
+    const { isVisualEffects, isCustomVirtualBackgroundsEnabled } = this.props;
     const { isStartSharingDisabled, webcamDeviceId } = this.state;
     const initialVirtualBgState = this.currentVideoStream ? {
       type: this.currentVideoStream.virtualBgType,
@@ -970,6 +970,7 @@ class VideoPreview extends Component {
         showThumbnails={SHOW_THUMBNAILS}
         initialVirtualBgState={initialVirtualBgState}
         isVisualEffects={isVisualEffects}
+        isCustomVirtualBackgroundsEnabled={isCustomVirtualBackgroundsEnabled}
       />
     );
   }

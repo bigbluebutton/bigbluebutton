@@ -6,7 +6,7 @@ import { defineMessages, useIntl } from 'react-intl';
 import BBBMenu from '/imports/ui/components/common/menu/component';
 import { layoutSelect } from '/imports/ui/components/layout/context';
 import { Layout } from '/imports/ui/components/layout/layoutTypes';
-import { useLazyQuery, useMutation } from '@apollo/client';
+import { useLazyQuery, useMutation, useQuery } from '@apollo/client';
 import { uid } from 'radash';
 import { isEmpty } from 'ramda';
 import {
@@ -20,6 +20,7 @@ import { CHAT_PUBLIC_CLEAR_HISTORY } from './mutations';
 import useMeetingSettings from '/imports/ui/core/local-states/useMeetingSettings';
 import useCurrentUser from '/imports/ui/core/hooks/useCurrentUser';
 import useMeeting from '/imports/ui/core/hooks/useMeeting';
+import { GET_WELCOME_MESSAGE, WelcomeMsgsResponse } from '/imports/ui/components/chat/chat-graphql/chat-popup/queries';
 
 const intlMessages = defineMessages({
   clear: {
@@ -66,12 +67,12 @@ const ChatActions: React.FC = () => {
   const [chatPublicClearHistory] = useMutation(CHAT_PUBLIC_CLEAR_HISTORY);
   const { data: currentUserData, loading: currentUserLoading } = useCurrentUser((u) => ({
     isModerator: u.isModerator,
-    welcomeMsgs: u.welcomeMsgs,
   }));
   const { data: meetingData, loading: meetingLoading } = useMeeting((m) => ({
     isBreakout: m.isBreakout,
     name: m.name,
   }));
+  const { data: welcomeData } = useQuery<WelcomeMsgsResponse>(GET_WELCOME_MESSAGE);
   const [
     getChatMessageHistory,
     {
@@ -107,17 +108,22 @@ const ChatActions: React.FC = () => {
   useEffect(() => {
     if (currentUserData) {
       setUserIsmoderator(!!currentUserData.isModerator);
-      if (
-        !isEmpty(currentUserData.welcomeMsgs?.welcomeMsg || '')
-        || !isEmpty(currentUserData.welcomeMsgs?.welcomeMsgForModerators || '')
-      ) {
-        setShowShowWelcomeMessages(true);
-      }
     }
     if (meetingData) {
       setMeetingIsBreakout(!!meetingData.isBreakout);
     }
   }, [currentUserData, meetingData]);
+
+  useEffect(() => {
+    if (welcomeData) {
+      if (
+        !isEmpty(welcomeData.user_welcomeMsgs[0]?.welcomeMsg || '')
+        || !isEmpty(welcomeData.user_welcomeMsgs[0]?.welcomeMsgForModerators || '')
+      ) {
+        setShowShowWelcomeMessages(true);
+      }
+    }
+  }, [welcomeData]);
 
   const actions = useMemo(() => {
     const dropdownActions = [

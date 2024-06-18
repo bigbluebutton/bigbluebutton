@@ -45,8 +45,4 @@ const SkeletonUserListItem: React.FC<SkeletonUserListItemProps> = ({
   );
 };
 
-SkeletonUserListItem.defaultProps = {
-  enableAnimation: true,
-};
-
 export default SkeletonUserListItem;

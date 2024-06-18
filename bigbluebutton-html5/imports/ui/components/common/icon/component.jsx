@@ -12,19 +12,12 @@ const propTypes = {
   color: PropTypes.string,
 };
 
-const defaultProps = {
-  prependIconName: 'icon-bbb-',
-  rotate: false,
-  className: '',
-  color: undefined,
-};
-
 const Icon = ({
-  className,
-  prependIconName,
+  className = '',
+  prependIconName = 'icon-bbb-',
   iconName,
-  rotate,
-  color,
+  rotate = false,
+  color = undefined,
   ...props
 }) => (
   <Styled.Icon
@@ -39,4 +32,3 @@ const Icon = ({
 export default memo(Icon);
 
 Icon.propTypes = propTypes;
-Icon.defaultProps = defaultProps;

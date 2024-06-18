@@ -11,6 +11,7 @@ import ScreenshareBridgeService from '/imports/api/screenshare/client/bridge/ser
 import {
   shareScreen,
   screenshareHasEnded,
+  useIsCameraAsContentBroadcasting,
 } from '/imports/ui/components/screenshare/service';
 import { SCREENSHARING_ERRORS } from '/imports/api/screenshare/client/bridge/errors';
 import Button from '/imports/ui/components/common/button/component';
@@ -27,10 +28,6 @@ const propTypes = {
   isScreenBroadcasting: PropTypes.bool.isRequired,
   isMeteorConnected: PropTypes.bool.isRequired,
   screenshareDataSavingSetting: PropTypes.bool.isRequired,
-};
-
-const defaultProps = {
-  amIPresenter: false,
 };
 
 const intlMessages = defineMessages({
@@ -121,10 +118,11 @@ const ScreenshareButton = ({
   intl,
   enabled,
   isScreenBroadcasting,
-  amIPresenter,
+  amIPresenter = false,
   isMeteorConnected,
 }) => {
   const [stopExternalVideoShare] = useMutation(EXTERNAL_VIDEO_STOP);
+  const isCameraAsContentBroadcasting = useIsCameraAsContentBroadcasting();
 
   // This is the failure callback that will be passed to the /api/screenshare/kurento.js
   // script on the presenter's call
@@ -197,7 +195,7 @@ const ScreenshareButton = ({
               if (isSafari && !ScreenshareBridgeService.HAS_DISPLAY_MEDIA) {
                 setScreenshareUnavailableModalIsOpen(true);
               } else {
-                shareScreen(stopExternalVideoShare, amIPresenter, handleFailure);
+                shareScreen(isCameraAsContentBroadcasting, stopExternalVideoShare, amIPresenter, handleFailure);
               }
             }}
           id={amIBroadcasting ? 'unshare-screen-button' : 'share-screen-button'}
@@ -218,5 +216,4 @@ const ScreenshareButton = ({
 };
 
 ScreenshareButton.propTypes = propTypes;
-ScreenshareButton.defaultProps = defaultProps;
 export default injectIntl(memo(ScreenshareButton));

@@ -16,6 +16,7 @@ import { User } from '/imports/ui/Types/user';
 import { SET_CAPTION_LOCALE } from '/imports/ui/core/graphql/mutations/userMutations';
 import useMeeting from '/imports/ui/core/hooks/useMeeting';
 import { ActiveCaptionsResponse, getactiveCaptions } from './queries';
+import AudioCaptionsService from '/imports/ui/components/audio/audio-graphql/audio-captions/service';
 import useDeduplicatedSubscription from '/imports/ui/core/hooks/useDeduplicatedSubscription';
 
 const intlMessages = defineMessages({
@@ -44,6 +45,10 @@ const intlMessages = defineMessages({
   language: {
     id: 'app.audio.captions.button.language',
     description: 'Audio speech recognition language label',
+  },
+  autoDetect: {
+    id: 'app.audio.captions.button.autoDetect',
+    description: 'Audio speech recognition language auto detect',
   },
   'de-DE': {
     id: 'app.audio.captions.select.de-DE',
@@ -134,9 +139,25 @@ const AudioCaptionsButton: React.FC<AudioCaptionsButtonProps> = ({
   const shouldRenderChevron = isSupported;
   const shouldRenderSelector = isSupported && availableVoices.length > 0;
 
+  const isAudioTranscriptionEnabled = AudioCaptionsService.useIsAudioTranscriptionEnabled();
+  const autoLanguage = AudioCaptionsService.isGladia() ? {
+    icon: '',
+    label: intl.formatMessage(intlMessages.autoDetect),
+    key: 'auto',
+    iconRight: selectedLocale.current === 'auto' ? 'check' : null,
+    customStyles: (selectedLocale.current === 'auto') && Styled.SelectedLabel,
+    disabled: !isAudioTranscriptionEnabled,
+    dividerTop: true,
+    onClick: () => {
+      selectedLocale.current = 'auto';
+      AudioCaptionsService.setSpeechLocale(selectedLocale.current, setUserCaptionLocale);
+    },
+  } : undefined;
+
   const getAvailableLocales = () => {
     let indexToInsertSeparator = -1;
     const availableVoicesObjectToMenu: (MenuOptionItemType | MenuSeparatorItemType)[] = availableVoices
+      .filter((availableVoice) => availableVoice !== 'auto')
       .map((availableVoice: string, index: number) => {
         if (availableVoice === availableVoices[0]) {
           indexToInsertSeparator = index;
@@ -148,7 +169,8 @@ const AudioCaptionsButton: React.FC<AudioCaptionsButtonProps> = ({
             key: availableVoice,
             iconRight: selectedLocale.current === availableVoice ? 'check' : null,
             customStyles: (selectedLocale.current === availableVoice) && Styled.SelectedLabel,
-            disabled: false,
+            disabled: !isAudioTranscriptionEnabled,
+            dividerTop: !AudioCaptionsService.isGladia() && availableVoice === availableVoices[0],
             onClick: () => {
               selectedLocale.current = availableVoice;
               setUserLocaleProperty(selectedLocale.current, setUserCaptionLocale);
@@ -193,6 +215,7 @@ const AudioCaptionsButton: React.FC<AudioCaptionsButtonProps> = ({
         customStyles: Styled.TitleLabel,
         disabled: true,
       },
+      autoLanguage,
       ...getAvailableLocales(),
       {
         key: 'divider',
@@ -203,7 +226,7 @@ const AudioCaptionsButton: React.FC<AudioCaptionsButtonProps> = ({
       {
         key: 'separator-02',
         isSeparator: true,
-      }];
+      }].filter((e) => e);
     }
 
     // typed captions

@@ -1,9 +1,8 @@
-import Users from '/imports/api/users';
 import Auth from '/imports/ui/services/auth';
 import AudioManager from '/imports/ui/services/audio-manager';
-import Meetings from '/imports/api/meetings';
 import logger from '/imports/startup/client/logger';
 import Storage from '../../services/storage/session';
+import { useReactiveVar } from '@apollo/client';
 
 const MUTED_KEY = 'muted';
 
@@ -34,16 +33,13 @@ const audioEventHandler = (toggleVoice) => (event) => {
   }
 };
 
-const init = (messages, intl, toggleVoice, speechLocale) => {
+const init = (messages, intl, toggleVoice, speechLocale, voiceConf, username) => {
   AudioManager.setAudioMessages(messages, intl);
   if (AudioManager.initialized) return Promise.resolve(false);
   const meetingId = Auth.meetingID;
   const userId = Auth.userID;
   const { sessionToken } = Auth;
-  const User = Users.findOne({ userId }, { fields: { name: 1 } });
-  const username = User.name;
-  const Meeting = Meetings.findOne({ meetingId: Auth.meetingID }, { fields: { 'voiceSettings.voiceConf': 1 } });
-  const voiceBridge = Meeting.voiceSettings.voiceConf;
+  const voiceBridge = voiceConf;
 
   // FIX ME
   const microphoneLockEnforced = false;
@@ -61,6 +57,14 @@ const init = (messages, intl, toggleVoice, speechLocale) => {
   return AudioManager.init(userData, audioEventHandler(toggleVoice));
 };
 
+const useIsUsingAudio = () => {
+  const isConnected = useReactiveVar(AudioManager._isConnected.value);
+  const isConnecting = useReactiveVar(AudioManager._isConnecting.value);
+  const isHangingUp = useReactiveVar(AudioManager._isHangingUp.value);
+  const isEchoTest = useReactiveVar(AudioManager._isEchoTest.value);
+  return Boolean(isConnected || isConnecting || isHangingUp || isEchoTest);
+};
+
 export default {
   init,
   exitAudio: () => AudioManager.exitAudio(),
@@ -72,7 +76,10 @@ export default {
   changeInputDevice: (inputDeviceId) => AudioManager.changeInputDevice(inputDeviceId),
   changeInputStream: (newInputStream) => { AudioManager.inputStream = newInputStream; },
   liveChangeInputDevice: (inputDeviceId) => AudioManager.liveChangeInputDevice(inputDeviceId),
-  changeOutputDevice: (outputDeviceId, isLive) => AudioManager.changeOutputDevice(outputDeviceId, isLive),
+  changeOutputDevice: (
+    outputDeviceId,
+    isLive,
+  ) => AudioManager.changeOutputDevice(outputDeviceId, isLive),
   isConnectedToBreakout: () => {
     const transferStatus = AudioManager.getBreakoutAudioTransferStatus();
     if (transferStatus.status
@@ -85,17 +92,10 @@ export default {
       && transferStatus.breakoutMeetingId !== Auth.meetingID) return false;
     return AudioManager.isConnected;
   },
-  isTalking: () => AudioManager.isTalking,
-  isHangingUp: () => AudioManager.isHangingUp,
   isUsingAudio: () => AudioManager.isUsingAudio(),
-  isWaitingPermissions: () => AudioManager.isWaitingPermissions,
-  isMuted: () => AudioManager.isMuted,
   isConnecting: () => AudioManager.isConnecting,
   isListenOnly: () => AudioManager.isListenOnly,
-  inputDeviceId: () => AudioManager.inputDeviceId,
-  outputDeviceId: () => AudioManager.outputDeviceId,
   isEchoTest: () => AudioManager.isEchoTest,
-  error: () => AudioManager.error,
   autoplayBlocked: () => AudioManager.autoplayBlocked,
   handleAllowAutoplay: () => AudioManager.handleAllowAutoplay(),
   playAlertSound: (url) => AudioManager.playAlertSound(url),
@@ -109,4 +109,5 @@ export default {
     .getBreakoutAudioTransferStatus(),
   getStats: () => AudioManager.getStats(),
   notify: (message, error, icon) => { AudioManager.notify(message, error, icon); },
+  useIsUsingAudio,
 };

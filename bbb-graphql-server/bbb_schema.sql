@@ -127,16 +127,17 @@ create view "v_meeting_voiceSettings" as select * from meeting_voice;
 
 create table "meeting_usersPolicies" (
 	"meetingId" 		varchar(100) primary key references "meeting"("meetingId") ON DELETE CASCADE,
-    "maxUsers"                  integer,
-    "maxUserConcurrentAccesses" integer,
-    "webcamsOnlyForModerator"   boolean,
-    "userCameraCap"             integer,
-    "guestPolicy"               varchar(100),
-    "guestLobbyMessage"         text,
-    "meetingLayout"             varchar(100),
-    "allowModsToUnmuteUsers"    boolean,
-    "allowModsToEjectCameras"   boolean,
-    "authenticatedGuest"        boolean
+    "maxUsers"                     integer,
+    "maxUserConcurrentAccesses"    integer,
+    "webcamsOnlyForModerator"      boolean,
+    "userCameraCap"                integer,
+    "guestPolicy"                  varchar(100),
+    "guestLobbyMessage"            text,
+    "meetingLayout"                varchar(100),
+    "allowModsToUnmuteUsers"       boolean,
+    "allowModsToEjectCameras"      boolean,
+    "authenticatedGuest"           boolean,
+    "allowPromoteGuestToModerator" boolean
 );
 create index "idx_meeting_usersPolicies_meetingId" on "meeting_usersPolicies"("meetingId");
 
@@ -152,6 +153,7 @@ SELECT "meeting_usersPolicies"."meetingId",
     "meeting_usersPolicies"."allowModsToUnmuteUsers",
     "meeting_usersPolicies"."allowModsToEjectCameras",
     "meeting_usersPolicies"."authenticatedGuest",
+    "meeting_usersPolicies"."allowPromoteGuestToModerator",
     "meeting"."isBreakout" is false "moderatorsCanMuteAudio",
     "meeting"."isBreakout" is false and "meeting_usersPolicies"."allowModsToUnmuteUsers" is true "moderatorsCanUnmuteAudio"
    FROM "meeting_usersPolicies"
@@ -309,7 +311,6 @@ COMMENT ON COLUMN "user"."disconnected" IS 'This column is set true when the use
 COMMENT ON COLUMN "user"."expired" IS 'This column is set true after 10 seconds with disconnected=true';
 COMMENT ON COLUMN "user"."loggedOut" IS 'This column is set to true when the user click the button to Leave meeting';
 
-
 --Virtual columns isDialIn, isModerator, isOnline, isWaiting, isAllowed, isDenied
 ALTER TABLE "user" ADD COLUMN "isDialIn" boolean GENERATED ALWAYS AS ("clientType" = 'dial-in-user') STORED;
 ALTER TABLE "user" ADD COLUMN "isWaiting" boolean GENERATED ALWAYS AS ("guestStatus" = 'WAIT') STORED;
@@ -323,8 +324,16 @@ ALTER TABLE "user" ADD COLUMN "nameSortable" varchar(255) GENERATED ALWAYS AS (i
 
 CREATE INDEX "idx_user_waiting" ON "user"("meetingId") where "isWaiting" is true;
 
---ALTER TABLE "user" ADD COLUMN "isModerator" boolean GENERATED ALWAYS AS (CASE WHEN "role" = 'MODERATOR' THEN true ELSE false END) STORED;
---ALTER TABLE "user" ADD COLUMN "isOnline" boolean GENERATED ALWAYS AS (CASE WHEN "joined" IS true AND "loggedOut" IS false THEN true ELSE false END) STORED;
+ALTER TABLE "user" ADD COLUMN "isModerator" boolean GENERATED ALWAYS AS (CASE WHEN "role" = 'MODERATOR' THEN true ELSE false END) STORED;
+ALTER TABLE "user" ADD COLUMN "isOnline" boolean GENERATED ALWAYS AS (
+    CASE WHEN
+            "user"."joined" IS true
+            AND "user"."expired" IS false
+            AND "user"."loggedOut" IS false
+            AND "user"."ejected" IS NOT true
+        THEN true
+        ELSE false
+        END) STORED;
 
 -- user (on update emoji, raiseHand or away: set new time)
 CREATE OR REPLACE FUNCTION update_user_emoji_time_trigger_func()
@@ -397,8 +406,8 @@ AS SELECT "user"."userId",
     CASE WHEN "user"."echoTestRunningAt" > current_timestamp - INTERVAL '3 seconds' THEN TRUE ELSE FALSE END "isRunningEchoTest",
     "user"."hasDrawPermissionOnCurrentPage",
     CASE WHEN "user"."role" = 'MODERATOR' THEN true ELSE false END "isModerator",
-    CASE WHEN "user"."joined" IS true AND "user"."expired" IS false AND "user"."loggedOut" IS false AND "user"."ejected" IS NOT TRUE THEN true ELSE false END "isOnline"
-   FROM "user"
+    "user"."isOnline"
+  FROM "user"
   WHERE "user"."loggedOut" IS FALSE
   AND "user"."expired" IS FALSE
   AND "user"."ejected" IS NOT TRUE
@@ -458,7 +467,7 @@ AS SELECT "user"."userId",
     "user"."echoTestRunningAt",
     CASE WHEN "user"."echoTestRunningAt" > current_timestamp - INTERVAL '3 seconds' THEN TRUE ELSE FALSE END "isRunningEchoTest",
     CASE WHEN "user"."role" = 'MODERATOR' THEN true ELSE false END "isModerator",
-    CASE WHEN "user"."joined" IS true AND "user"."expired" IS false AND "user"."loggedOut" IS false AND "user"."ejected" IS NOT TRUE THEN true ELSE false END "isOnline",
+    "user"."isOnline",
     "user"."inactivityWarningDisplay",
     "user"."inactivityWarningTimeoutSecs"
    FROM "user";
@@ -523,7 +532,7 @@ AS SELECT
     "user"."captionLocale",
     "user"."hasDrawPermissionOnCurrentPage",
     CASE WHEN "user"."role" = 'MODERATOR' THEN true ELSE false END "isModerator",
-    CASE WHEN "user"."joined" IS true AND "user"."expired" IS false AND "user"."loggedOut" IS false AND "user"."ejected" IS NOT TRUE THEN true ELSE false END "isOnline"
+    "user"."isOnline"
    FROM "user";
 
 create table "user_customParameter"(
@@ -1624,52 +1633,141 @@ CREATE TABLE "breakoutRoom_user" (
 	"assignedAt" timestamp with time zone,
 	"joinedAt" timestamp with time zone,
 	"inviteDismissedAt" timestamp with time zone,
+	"userJoinedSomeRoomAt" timestamp with time zone,
+	"isLastAssignedRoom" boolean,
+	"isLastJoinedRoom" boolean,
+	"isUserCurrentlyInRoom" boolean,
 	CONSTRAINT "breakoutRoom_user_pkey" PRIMARY KEY ("breakoutRoomId", "meetingId", "userId"),
 	FOREIGN KEY ("meetingId", "userId") REFERENCES "user"("meetingId","userId") ON DELETE CASCADE
 );
 create index "idx_breakoutRoom_user_meeting_user" on "breakoutRoom_user" ("meetingId", "userId");
 create index "idx_breakoutRoom_user_user_meeting" on "breakoutRoom_user" ("userId", "meetingId");
 
+ALTER TABLE "breakoutRoom_user" ADD COLUMN "showInvitation" boolean GENERATED ALWAYS AS (
+    CASE WHEN
+            "isLastAssignedRoom" IS true
+            and "isUserCurrentlyInRoom" is null
+            AND ("joinedAt" is null or "assignedAt" > "joinedAt")
+            AND ("userJoinedSomeRoomAt" is null or "assignedAt" > "userJoinedSomeRoomAt")
+            AND ("inviteDismissedAt" is null or "assignedAt" > "inviteDismissedAt")
+        THEN true
+        ELSE false
+        END) STORED;
+       --AND ("isModerator" is false OR "sendInvitationToModerators")
+
+--Trigger to populate `isLastAssignedRoom` and `isLastJoinedRoom`
+CREATE OR REPLACE FUNCTION "ins_upd_del_breakoutRoom_user_trigger_func"() RETURNS TRIGGER AS $$
+BEGIN
+    IF TG_OP = 'DELETE' THEN
+        -- Determine the latest assigned room and latest joined room for the remaining rows
+        PERFORM
+            set_last_room(OLD."meetingId", OLD."userId");
+    ELSE
+        -- For INSERT or UPDATE
+        PERFORM
+            set_last_room(NEW."meetingId", NEW."userId");
+    END IF;
+
+    RETURN NULL;
+END;
+$$ LANGUAGE plpgsql;
+
+CREATE OR REPLACE FUNCTION set_last_room(meetingId varchar(100), userId varchar(50)) RETURNS VOID AS $$
+DECLARE
+    "latestAssignedRoomId" varchar(100);
+    "latestJoinedRoomId" varchar(100);
+    "latestJoinedAt" timestamp with time zone;
+BEGIN
+    SELECT "breakoutRoomId"
+    INTO "latestAssignedRoomId"
+    FROM "breakoutRoom_user"
+    WHERE "meetingId" = meetingId
+      AND "userId" = userId
+      AND "assignedAt" IS NOT NULL
+    ORDER BY "assignedAt" DESC NULLS LAST
+    LIMIT 1;
+
+    SELECT "breakoutRoomId"
+    INTO "latestJoinedRoomId"
+    FROM "breakoutRoom_user"
+    WHERE "meetingId" = meetingId
+      AND "userId" = userId
+      AND "joinedAt" IS NOT NULL
+    ORDER BY "joinedAt" DESC NULLS LAST
+    LIMIT 1;
+
+    UPDATE "breakoutRoom_user" bu
+    SET "isLastAssignedRoom" = CASE
+            WHEN "latestAssignedRoomId" IS NOT NULL AND bu."breakoutRoomId" = "latestAssignedRoomId" THEN TRUE
+            ELSE FALSE
+        END,
+        "isLastJoinedRoom" = CASE
+            WHEN "latestJoinedRoomId" IS NOT NULL AND bu."breakoutRoomId" = "latestJoinedRoomId" THEN TRUE
+            ELSE FALSE
+        END
+    WHERE bu."meetingId" = meetingId
+      AND bu."userId" = userId
+      AND (bu."isLastAssignedRoom" IS DISTINCT FROM (CASE WHEN "latestAssignedRoomId" IS NOT NULL AND bu."breakoutRoomId" = "latestAssignedRoomId" THEN TRUE ELSE FALSE END)
+       OR bu."isLastJoinedRoom" IS DISTINCT FROM (CASE WHEN "latestJoinedRoomId" IS NOT NULL AND bu."breakoutRoomId" = "latestJoinedRoomId" THEN TRUE ELSE FALSE END));
+
+       --userJoinedSomeRoomAt
+       SELECT max("joinedAt")
+           INTO "latestJoinedAt"
+           from "breakoutRoom_user" bru
+           where bru."meetingId" = meetingId
+           and bru."userId" = userId;
+
+       update "breakoutRoom_user" set "userJoinedSomeRoomAt" = "latestJoinedAt"
+          where "breakoutRoom_user"."meetingId" = meetingId
+          and "breakoutRoom_user"."userId" = userId
+          and "breakoutRoom_user"."userJoinedSomeRoomAt" != "latestJoinedAt";
+END;
+$$ LANGUAGE plpgsql;
+
+CREATE TRIGGER "ins_upd_del_breakoutRoom_user_trigger"
+AFTER INSERT OR UPDATE OR DELETE ON "breakoutRoom_user"
+FOR EACH ROW EXECUTE FUNCTION "ins_upd_del_breakoutRoom_user_trigger_func"();
+
+
+CREATE OR REPLACE FUNCTION "update_bkroom_isUserCurrentlyInRoom_trigger_func"()
+RETURNS TRIGGER AS $$
+BEGIN
+    IF NEW."isOnline" <> OLD."isOnline" THEN
+        update "breakoutRoom_user" set "isUserCurrentlyInRoom" = a."isOnline"
+	   from (
+		   select
+		   bru."breakoutRoomId", bru."userId", bkroom_user."isOnline"
+		   from "user" bkroom_user
+		   join meeting_breakout mb on mb."meetingId" = bkroom_user."meetingId"
+		   join "breakoutRoom" br on br."parentMeetingId" = mb."parentId" and mb."sequence" = br."sequence"
+		   join "user" u on u."meetingId" = br."parentMeetingId"  and bkroom_user."extId" = u."extId" || '-' || br."sequence"
+		   join "breakoutRoom_user" bru on bru."userId" = u."userId" and bru."breakoutRoomId" = br."breakoutRoomId"
+		   where bkroom_user."userId" = NEW."userId"
+	   ) a
+		where "breakoutRoom_user"."breakoutRoomId" = a."breakoutRoomId"
+		and "breakoutRoom_user"."userId" = a."userId";
+    END IF;
+    RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+
+CREATE TRIGGER "update_bkroom_isUserCurrentlyInRoom_trigger" AFTER UPDATE OF "isOnline" ON "user"
+    FOR EACH ROW EXECUTE FUNCTION "update_bkroom_isUserCurrentlyInRoom_trigger_func"();
 
 CREATE OR REPLACE VIEW "v_breakoutRoom" AS
-SELECT *,
-    --showInvitation flag
-    case WHEN 1=1
-    	--this is not the last room the user joined
-    	-- AND "lastRoomJoinedId" != "breakoutRoomId" --the next condition turn this one useless
-    	--user didn't joined some room after assigned
-    	AND ("lastRoomJoinedAt" IS NULL OR "lastRoomJoinedAt" < "assignedAt")
-    	--user didn't close the invitation already
-    	and ("inviteDismissedAt" is NULL OR "assignedAt" > "inviteDismissedAt")
-    	--user is not online in other room
-    	AND "lastRoomIsOnline" IS FALSE
-    	--this is this the last assignment?
-    	AND "currentRoomPriority" = 1
-    	--user is not moderator or sendInviteToMod flag is true
-    	AND ("isModerator" is false OR "sendInvitationToModerators")
-    	THEN TRUE ELSE FALSE END "showInvitation"
-from (
-    SELECT u."meetingId" as "userMeetingId", u."userId", b."parentMeetingId", b."breakoutRoomId", b."freeJoin", b."sequence", b."name", b."isDefaultName",
+SELECT u."meetingId" as "userMeetingId", u."userId", b."parentMeetingId", b."breakoutRoomId", b."freeJoin",
+            b."sequence", b."name", b."isDefaultName",
             b."shortName", b."startedAt", b."endedAt", b."durationInSeconds", b."sendInvitationToModerators",
-                bu."assignedAt", bu."joinURL", bu."inviteDismissedAt", u."role" = 'MODERATOR' as "isModerator",
-                --CASE WHEN b."durationInSeconds" = 0 THEN NULL ELSE b."startedAt" + b."durationInSeconds" * '1 second'::INTERVAL END AS "willEndAt",
-                ub."isOnline" AS "currentRoomIsOnline",
-                ub."registeredAt" AS "currentRoomRegisteredAt",
-                ub."joined" AS "currentRoomJoined",
-                rank() OVER (partition BY u."meetingId", u."userId" order by "assignedAt" desc nulls last) as "currentRoomPriority",
-                max(bu."joinedAt") OVER (partition BY u."meetingId", u."userId") AS "lastRoomJoinedAt",
-                max(bu."breakoutRoomId") OVER (partition BY u."meetingId", u."userId" ORDER BY bu."joinedAt") AS "lastRoomJoinedId",
-                sum(CASE WHEN ub."isOnline" THEN 1 ELSE 0 END) OVER (partition BY u."meetingId", u."userId") > 0 as "lastRoomIsOnline"
+            bu."assignedAt", bu."joinURL", bu."inviteDismissedAt", u."role" = 'MODERATOR' as "isModerator",
+            bu."isLastAssignedRoom", bu."isLastJoinedRoom", bu."isUserCurrentlyInRoom", bu."showInvitation",
+            bu."joinedAt" is not null as "hasJoined"
     FROM "user" u
     JOIN "breakoutRoom" b ON b."parentMeetingId" = u."meetingId"
     LEFT JOIN "breakoutRoom_user" bu ON bu."meetingId" = u."meetingId" AND bu."userId" = u."userId" AND bu."breakoutRoomId" = b."breakoutRoomId"
-    LEFT JOIN "meeting" mb ON mb."extId" = b."externalId"
-    LEFT JOIN "v_user" ub ON ub."meetingId" = mb."meetingId" and ub."extId" = u."extId" || '-' || b."sequence"
     WHERE (bu."assignedAt" IS NOT NULL
             OR b."freeJoin" IS TRUE
             OR u."role" = 'MODERATOR')
-    AND b."endedAt" IS NULL
-) a;
+    AND b."endedAt" IS NULL;
 
 CREATE OR REPLACE VIEW "v_breakoutRoom_assignedUser" AS
 SELECT "parentMeetingId", "breakoutRoomId", "userMeetingId", "userId"
@@ -1685,7 +1783,7 @@ SELECT DISTINCT
         "userId",
         false as "isAudioOnly"
 FROM "v_breakoutRoom"
-WHERE "currentRoomIsOnline" IS TRUE
+WHERE "isUserCurrentlyInRoom" IS TRUE
 union --include users that joined only with audio
 select parent_user."meetingId" as "parentMeetingId",
         bk_user."meetingId" as "breakoutRoomId",
@@ -1781,7 +1879,7 @@ SELECT
 	FLOOR(EXTRACT(EPOCH FROM current_timestamp) * 1000)::bigint AS "currentTimeMillis";
 
 ------------------------------------
-----audioCaption or typedCaption
+----caption
 
 CREATE TABLE "caption_locale" (
     "meetingId" varchar(100) NOT NULL REFERENCES "meeting"("meetingId") ON DELETE CASCADE,
@@ -1984,10 +2082,5 @@ select "meeting"."meetingId",
             select 1
             from "v_caption_activeLocales"
             where "v_caption_activeLocales"."meetingId" = "meeting"."meetingId"
-        ) or exists (
-            select 1
-            from "v_user"
-            where "v_user"."meetingId" = "meeting"."meetingId"
-            and NULLIF("speechLocale",'') is not null
-        )as "hasCaption"
+        ) as "hasCaption"
 from "meeting";

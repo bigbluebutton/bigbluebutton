@@ -113,6 +113,7 @@ const PresentationContainer = (props) => {
 
   const { data: pollData } = useDeduplicatedSubscription(POLL_SUBSCRIPTION);
   const poll = pollData?.poll[0] || {};
+  const hasPoll = pollData?.poll?.length > 0;
 
   const currentSlide = currentPresentationPage ? {
     content: currentPresentationPage.content,
@@ -234,6 +235,7 @@ const PresentationContainer = (props) => {
         presentationName: currentPresentationPage?.presentationName,
         presentationAreaSize,
         currentUser,
+        hasPoll,
       }
       }
     />

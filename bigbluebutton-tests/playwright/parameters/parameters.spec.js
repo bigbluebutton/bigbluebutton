@@ -512,12 +512,11 @@ test.describe.parallel('Custom Parameters', () => {
     });
   });
 
-  test.describe.parallel('Whiteboard', () => {
-    test.skip();
+  test.describe.parallel('Whiteboard @ci', () => {
     test('Multi Users Pen Only', async ({ browser, context, page }) => {
       const customParam = new CustomParameters(browser, context);
-      await customParam.initModPage(page, true, { joinParameter: c.multiUserPenOnly });
-      await customParam.initUserPage(true, context, { useModMeetingId: true, createParameter: c.multiUserPenOnly });
+      await customParam.initModPage(page, true);
+      await customParam.initUserPage(true, context, { useModMeetingId: true, joinParameter: c.multiUserPenOnly });
       await customParam.multiUserPenOnly();
     });
 

@@ -41,7 +41,7 @@ const UsersListParticipantsPage: React.FC<UsersListParticipantsPage> = ({
       {
         users.map((user) => {
           return (
-            <Styled.UserListItem style={{ direction: isRTL }}>
+            <Styled.UserListItem key={user.userId} style={{ direction: isRTL }}>
               <UserActions
                 user={user}
                 currentUser={currentUser as User}
@@ -102,6 +102,14 @@ const UserListParticipantsPageContainer: React.FC<UserListParticipantsContainerP
   const pageId = presentationPage?.pageId;
 
   useEffect(() => {
+    setVisibleUsers((prev) => {
+      const newList = { ...prev };
+      newList[index] = users;
+      return newList;
+    });
+  }, [usersData]);
+
+  useEffect(() => {
     return () => {
       setVisibleUsers((prev) => {
         // eslint-disable-next-line
@@ -120,11 +128,6 @@ const UserListParticipantsPageContainer: React.FC<UserListParticipantsContainerP
     ));
   }
 
-  setVisibleUsers((prev) => {
-    // eslint-disable-next-line
-    prev[index] = users;
-    return prev;
-  });
   return (
     <UsersListParticipantsPage
       users={users ?? []}

@@ -32,6 +32,7 @@ interface ChatNameMainProps {
 
 interface ChatListItemProps {
   active: boolean;
+  ref: React.Ref<HTMLElement | undefined>;
 }
 
 const ChatListItemLink = styled.div`

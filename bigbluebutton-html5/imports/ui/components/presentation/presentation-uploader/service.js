@@ -3,14 +3,13 @@ import Auth from '/imports/ui/services/auth';
 import logger from '/imports/startup/client/logger';
 import { partition } from '/imports/utils/array-utils';
 import update from 'immutability-helper';
-import { Random } from 'meteor/random';
-import Meetings from '/imports/api/meetings';
+import { v4 as uuid } from 'uuid';
 import { uniqueId } from '/imports/utils/string-utils';
-import { isPresentationEnabled } from '/imports/ui/services/features';
 import { notify } from '/imports/ui/services/notification';
 import apolloContextHolder from '/imports/ui/core/graphql/apolloContextHolder/apolloContextHolder';
 import { getPresentationUploadToken } from './queries';
 import { requestPresentationUploadTokenMutation } from './mutation';
+import useMeeting from '/imports/ui/core/hooks/useMeeting';
 
 const TOKEN_TIMEOUT = 5000;
 const POD_ID = 'DEFAULT_PRESENTATION_POD';
@@ -92,7 +91,7 @@ const uploadAndConvertPresentation = (
 ) => {
   if (!file) return Promise.resolve();
 
-  const temporaryPresentationId = uniqueId(Random.id(20));
+  const temporaryPresentationId = uniqueId(uuid());
 
   const data = new FormData();
   data.append('fileUpload', file);
@@ -236,8 +235,9 @@ const handleSavePresentation = (
   currentPresentations = [],
   setPresentation,
   removePresentation,
+  isPresentationEnabled,
 ) => {
-  if (!isPresentationEnabled()) {
+  if (!isPresentationEnabled) {
     return null;
   }
 
@@ -264,19 +264,16 @@ const handleSavePresentation = (
   );
 };
 
-const getExternalUploadData = () => {
+const useExternalUploadData = () => {
+  const { data: meeting } = useMeeting((m) => ({
+    presentationUploadExternalDescription: m.presentationUploadExternalDescription,
+    presentationUploadExternalUrl: m.presentationUploadExternalUrl,
+  }));
+
   const {
     presentationUploadExternalDescription,
     presentationUploadExternalUrl,
-  } = Meetings.findOne(
-    { meetingId: Auth.meetingID },
-    {
-      fields: {
-        presentationUploadExternalDescription: 1,
-        presentationUploadExternalUrl: 1,
-      },
-    },
-  );
+  } = meeting || {};
 
   return {
     presentationUploadExternalDescription,
@@ -357,7 +354,7 @@ export default {
   handleSavePresentation,
   persistPresentationChanges,
   requestPresentationUploadToken,
-  getExternalUploadData,
   uploadAndConvertPresentation,
   handleFiledrop,
+  useExternalUploadData,
 };
