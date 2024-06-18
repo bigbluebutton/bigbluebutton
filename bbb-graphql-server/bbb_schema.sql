@@ -5,6 +5,17 @@ CREATE OR REPLACE FUNCTION immutable_lower_unaccent(text)
 				SELECT lower(unaccent('unaccent', $1))
 				$$ LANGUAGE SQL IMMUTABLE;
 
+--remove_emojis will be used to create nameSortable
+CREATE OR REPLACE FUNCTION remove_emojis(text) RETURNS text AS $$
+DECLARE
+    input_string ALIAS FOR $1;
+    output_string text;
+BEGIN
+    output_string := regexp_replace(input_string, '[^\u0000-\uFFFF]', '', 'g');
+    RETURN output_string;
+END;
+$$ LANGUAGE plpgsql IMMUTABLE;
+
 -- ========== Meeting tables
 
 create table "meeting" (
@@ -320,7 +331,7 @@ ALTER TABLE "user" ADD COLUMN "isDenied" boolean GENERATED ALWAYS AS ("guestStat
 ALTER TABLE "user" ADD COLUMN "registeredAt" timestamp with time zone GENERATED ALWAYS AS (to_timestamp("registeredOn"::double precision / 1000)) STORED;
 
 --Used to sort the Userlist
-ALTER TABLE "user" ADD COLUMN "nameSortable" varchar(255) GENERATED ALWAYS AS (immutable_lower_unaccent("name")) STORED;
+ALTER TABLE "user" ADD COLUMN "nameSortable" varchar(255) GENERATED ALWAYS AS (trim(remove_emojis(immutable_lower_unaccent("name")))) STORED;
 
 CREATE INDEX "idx_user_waiting" ON "user"("meetingId") where "isWaiting" is true;
 
@@ -408,10 +419,7 @@ AS SELECT "user"."userId",
     CASE WHEN "user"."role" = 'MODERATOR' THEN true ELSE false END "isModerator",
     "user"."isOnline"
   FROM "user"
-  WHERE "user"."loggedOut" IS FALSE
-  AND "user"."expired" IS FALSE
-  AND "user"."ejected" IS NOT TRUE
-  AND "user"."joined" IS TRUE;
+  WHERE "user"."isOnline" is true;
 
 CREATE INDEX "idx_v_user_meetingId" ON "user"("meetingId") 
                 where "user"."loggedOut" IS FALSE
@@ -419,11 +427,19 @@ CREATE INDEX "idx_v_user_meetingId" ON "user"("meetingId")
                 AND "user"."ejected" IS NOT TRUE
                 and "user"."joined" IS TRUE;
 
-CREATE INDEX "idx_v_user_meetingId_orderByColumns" ON "user"("meetingId","role","raiseHandTime","awayTime","emojiTime","isDialIn","hasDrawPermissionOnCurrentPage","nameSortable","userId")
-                where "user"."loggedOut" IS FALSE
-                AND "user"."expired" IS FALSE
-                AND "user"."ejected" IS NOT TRUE
-                and "user"."joined" IS TRUE;
+CREATE INDEX "idx_v_user_meetingId_orderByColumns" ON "user"(
+                        "meetingId",
+                        "presenter",
+                        "role",
+                        "raiseHandTime",
+                        "emojiTime",
+                        "isDialIn",
+                        "hasDrawPermissionOnCurrentPage",
+                        "nameSortable",
+                        "registeredAt",
+                        "userId"
+                        )
+                where "user"."isOnline" is true;
 
 CREATE OR REPLACE VIEW "v_user_current"
 AS SELECT "user"."userId",
