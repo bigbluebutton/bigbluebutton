@@ -53,14 +53,14 @@ export const generateActionsPermissions = (
     && !isSubjectUserModerator
     && !isDialInUser
     && !isBreakout
-    && !(isSubjectUserGuest && usersPolicies?.authenticatedGuest);
+    && !(isSubjectUserGuest && usersPolicies?.authenticatedGuest && !usersPolicies?.allowPromoteGuestToModerator);
 
   const allowedToDemote = amIModerator
     && !amISubjectUser
     && isSubjectUserModerator
     && !isDialInUser
     && !isBreakout
-    && !(isSubjectUserGuest && usersPolicies?.authenticatedGuest);
+    && !(isSubjectUserGuest && usersPolicies?.authenticatedGuest && !usersPolicies?.allowPromoteGuestToModerator);
 
   const allowedToChangeUserLockStatus = amIModerator
     && !isSubjectUserModerator

@@ -89,9 +89,10 @@ public:
     # https://developer.mozilla.org/en-US/docs/Web/API/Web_Speech_API/Using_the_Web_Speech_API#speech_recognition
     audioCaptions:
       enabled: false
+      alwaysVisible: false
       # mobile: <Boolean> - controls speech transcription availability on mobile
       mobile: false
-      # provider: [webspeech, vosk, whisper, deepspeech]
+      # provider: [webspeech, vosk, gladia]
       provider: webspeech
       language:
         available:
@@ -241,6 +242,12 @@ public:
       dataSaving:
         viewParticipantsWebcams: true
         viewScreenshare: true
+      # Options that are sent to the transcription backed (only Gladia is supported for now)
+      transcription:
+        # Indicates if the transcription backend should include partial results
+        partialUtterances: true
+        # The minumum length (in seconds) an utterance has to have for we to use it
+        minUtteranceLength: 1
     shortcuts:
       openOptions:
         accesskey: O
@@ -559,8 +566,17 @@ public:
       color: '#ffffff'
       family: Calibri
       size: 24px
+    # maximum number of simultaneous captions on screen
+    captionLimit: 3
+    # maximum size of a caption line in characters
+    lineLimit: 60
+    # maximum number of lines a caption can have on screen
     lines: 2
+    # time the captions will hang on screen after last updated
     time: 5000
+    # Default pad which will store automatically generated captions
+    defaultPad: en
+    showButton: false
     locales:
       - locale: "af"
         name: "Afrikaans"

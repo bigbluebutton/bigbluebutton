@@ -1,6 +1,6 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { defineMessages } from 'react-intl';
+import { defineMessages, useIntl } from 'react-intl';
 import Dropdown from '/imports/ui/components/dropdown/component';
 import Styled from './styles';
 import { PANELS, ACTIONS } from '../../layout/enums';
@@ -40,16 +40,12 @@ const intlMessages = defineMessages({
 });
 
 const propTypes = {
-  intl: PropTypes.shape({
-    formatMessage: PropTypes.func.isRequired,
-  }).isRequired,
   amIPresenter: PropTypes.bool.isRequired,
 };
 
 const QuickPollDropdown = (props) => {
   const {
     amIPresenter,
-    intl,
     startPoll,
     stopPoll,
     currentSlide,
@@ -58,6 +54,8 @@ const QuickPollDropdown = (props) => {
     layoutContextDispatch,
     pollTypes,
   } = props;
+
+  const intl = useIntl();
 
   const POLL_SETTINGS = window.meetingClientSettings.public.poll;
   const MAX_CUSTOM_FIELDS = POLL_SETTINGS.maxCustom;

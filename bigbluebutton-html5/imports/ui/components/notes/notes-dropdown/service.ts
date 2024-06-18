@@ -5,7 +5,7 @@ import { UploadingPresentations } from '/imports/api/presentations';
 import { uniqueId } from '/imports/utils/string-utils';
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
-async function convertAndUpload(presentations: any, padId: string) {
+async function convertAndUpload(presentations: any, padId: string, presentationEnabled = true) {
   let filename = 'Shared_Notes';
   const duplicates = presentations.filter(
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -54,7 +54,7 @@ async function convertAndUpload(presentations: any, padId: string) {
     onUpload: () => { },
     onProgress: () => { },
     onDone: () => { },
-  });
+  }, undefined, undefined, undefined, presentationEnabled);
 }
 
 export default {

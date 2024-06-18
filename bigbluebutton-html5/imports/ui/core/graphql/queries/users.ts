@@ -4,14 +4,16 @@ export const USER_LIST_SUBSCRIPTION = gql`
 subscription UserListSubscription($offset: Int!, $limit: Int!) {
   user(limit:$limit, offset: $offset, 
                 order_by: [
+                  {presenter: desc},
                   {role: asc},
                   {raiseHandTime: asc_nulls_last},
                   {emojiTime: asc_nulls_last},
                   {isDialIn: desc},
                   {hasDrawPermissionOnCurrentPage: desc},
                   {nameSortable: asc},
+                  {registeredAt: asc},
                   {userId: asc}
-                ]) {     
+                ]) {
     isDialIn
     userId
     extId
@@ -23,6 +25,7 @@ subscription UserListSubscription($offset: Int!, $limit: Int!) {
     away
     raiseHand
     emoji
+    reactionEmoji
     avatar
     presenter
     pinned
@@ -53,9 +56,6 @@ subscription UserListSubscription($offset: Int!, $limit: Int!) {
       sequence
       shortName
       currentlyInRoom
-    }
-    reaction {
-      reactionEmoji
     }
   }
 }`;

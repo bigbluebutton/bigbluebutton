@@ -23,7 +23,7 @@ import {
   forceExitAudio,
   stopVideo,
 } from './service';
-import { useExitVideo, useStreams } from '../../video-provider/video-provider-graphql/hooks';
+import { useExitVideo, useStreams } from '/imports/ui/components/video-provider/hooks';
 import useDeduplicatedSubscription from '/imports/ui/core/hooks/useDeduplicatedSubscription';
 
 interface BreakoutRoomProps {
@@ -228,7 +228,7 @@ const BreakoutRoom: React.FC<BreakoutRoomProps> = ({
                   ) : (
                     <Styled.BreakoutActions>
                       {
-                        breakout.currentRoomJoined
+                        breakout.isUserCurrentlyInRoom
                           ? (
                             <Styled.AlreadyConnected data-test="alreadyConnected">
                               {intl.formatMessage(intlMessages.alreadyConnected)}

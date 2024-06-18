@@ -20,7 +20,12 @@ import {
 import logger from '/imports/startup/client/logger';
 import AudioManager from '/imports/ui/services/audio-manager';
 import useCurrentUser from '/imports/ui/core/hooks/useCurrentUser';
-import { isAudioTranscriptionEnabled, isWebSpeechApi, setUserLocaleProperty } from '../service';
+import {
+  isWebSpeechApi,
+  setUserLocaleProperty,
+  setSpeechLocale,
+  useIsAudioTranscriptionEnabled,
+} from '../service';
 import { SET_SPEECH_LOCALE } from '/imports/ui/core/graphql/mutations/userMutations';
 import { SUBMIT_TEXT } from './mutations';
 
@@ -59,18 +64,35 @@ const AudioCaptionsSpeech: React.FC<AudioCaptionsSpeechProps> = ({
   const prevIdRef = useRef('');
   const prevTranscriptRef = useRef('');
   const [setSpeechLocaleMutation] = useMutation(SET_SPEECH_LOCALE);
+  const isAudioTranscriptionEnabled = useIsAudioTranscriptionEnabled();
+  const fixedLocaleResult = useFixedLocale();
 
   const setUserSpeechLocale = (speechLocale: string, provider: string) => {
-    setSpeechLocaleMutation({
-      variables: {
-        locale: speechLocale,
-        provider,
-      },
-    });
+    if (speechLocale !== '') {
+      setSpeechLocaleMutation({
+        variables: {
+          locale: speechLocale,
+          provider,
+        },
+      });
+    }
+  };
+
+  const setDefaultLocale = () => {
+    if (fixedLocaleResult || localeAsDefaultSelected()) {
+      setSpeechLocale(getLocale(), setUserSpeechLocale);
+    } else {
+      setSpeechLocale(navigator.language, setUserSpeechLocale);
+    }
   };
 
   const initSpeechRecognition = () => {
-    if (!isAudioTranscriptionEnabled() && !isWebSpeechApi()) return null;
+    if (!isAudioTranscriptionEnabled) return null;
+
+    if (!isWebSpeechApi()) {
+      setDefaultLocale();
+      return null;
+    }
 
     if (!hasSpeechRecognitionSupport()) return null;
 
@@ -80,7 +102,7 @@ const AudioCaptionsSpeech: React.FC<AudioCaptionsSpeechProps> = ({
     speechRecognition.continuous = true;
     speechRecognition.interimResults = true;
 
-    if (useFixedLocale() || localeAsDefaultSelected()) {
+    if (fixedLocaleResult || localeAsDefaultSelected()) {
       setUserLocaleProperty(getLocale(), setUserSpeechLocale);
     } else {
       setUserLocaleProperty(navigator.language, setUserSpeechLocale);

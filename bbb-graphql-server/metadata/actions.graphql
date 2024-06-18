@@ -469,6 +469,20 @@ type Mutation {
 }
 
 type Mutation {
+  userSetSpeechOptions(
+    partialUtterances: Boolean!
+    minUtteranceLength: Float!
+  ): Boolean
+}
+
+type Mutation {
+  userSetCaptionLocale(
+    locale: String!
+    provider: String!
+  ): Boolean
+}
+
+type Mutation {
   userSetConnectionAlive(
     networkRttInMs: Float!
   ): Boolean
@@ -534,13 +548,6 @@ type Mutation {
 }
 
 type Mutation {
-  userSetCaptionLocale(
-    locale: String!
-    provider: String!
-  ): Boolean
-}
-
-type Mutation {
   userThirdPartyInfoResquest(
     externalUserId: String!
   ): Boolean
@@ -568,4 +575,3 @@ input GuestUserApprovalStatus {
   guest: String!
   status: String!
 }
-

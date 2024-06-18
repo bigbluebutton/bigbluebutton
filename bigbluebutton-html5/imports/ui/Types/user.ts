@@ -45,40 +45,24 @@ export interface CustomParameter {
   value: string;
 }
 
-export interface Reaction {
-  reactionEmoji: string;
-}
-
 export interface BreakoutRooms {
-  currentRoomJoined: boolean;
+  hasJoined: boolean;
   assignedAt: string;
   breakoutRoomId: string;
-  currentRoomIsOnline: boolean | null;
-  currentRoomPriority: number;
-  currentRoomRegisteredAt: string | null;
+  isUserCurrentlyInRoom: boolean | null;
+  isLastAssignedRoom: boolean | null;
   durationInSeconds: number;
   endedAt: string | null;
   freeJoin: boolean;
   inviteDismissedAt: string | null;
   isDefaultName: boolean;
   joinURL: string;
-  lastRoomIsOnline: boolean;
-  lastRoomJoinedAt: string;
-  lastRoomJoinedId: string;
   name: string;
   sendInvitationToModerators: boolean;
   sequence: number;
   shortName: string;
   showInvitation: boolean;
   startedAt: string;
-}
-export interface UserClientSettings {
-  userClientSettingsJson: string;
-}
-
-export interface WelcomeMsgs {
-  welcomeMsg: string;
-  welcomeMsgForModerators: string;
 }
 
 export interface User {
@@ -87,13 +71,10 @@ export interface User {
   extId: string;
   name: string;
   nameSortable: string;
-  banned: boolean;
   isModerator: boolean;
   clientType: string;
   disconnected: boolean;
   isOnline: boolean;
-  isRunningEchoTest: boolean;
-  echoTestRunningAt: number;
   ejectReason: string;
   ejectReasonCode: string;
   ejected: boolean;
@@ -102,12 +83,14 @@ export interface User {
   color: string;
   avatar: string;
   emoji: string;
+  reactionEmoji: string;
   presenter?: boolean;
   pinned?: boolean;
   guest?: boolean;
   guestStatus: string;
   joinErrorCode: string;
   joinErrorMessage: string;
+  inactivityWarningDisplay: boolean;
   joined: boolean;
   loggedOut: boolean;
   mobile?: boolean;
@@ -116,7 +99,6 @@ export interface User {
   voice?: Partial<Voice>;
   locked: boolean;
   registeredAt: string;
-  registeredOn: number;
   hasDrawPermissionOnCurrentPage: boolean;
   lastBreakoutRoom?: LastBreakoutRoom;
   cameras: Array<Cameras>;
@@ -127,9 +109,5 @@ export interface User {
   size: number;
   away: boolean;
   raiseHand: boolean;
-  reaction: Reaction;
   breakoutRooms: BreakoutRooms;
-  customParameters: Array<CustomParameter>;
-  userClientSettings: UserClientSettings;
-  welcomeMsgs: WelcomeMsgs;
 }

@@ -117,6 +117,7 @@ export interface WakeLock {
 }
 
 export interface AudioCaptions {
+  alwaysVisible: boolean
   enabled: boolean
   mobile: boolean
   provider: string
@@ -161,10 +162,16 @@ export interface EmojiRain {
   emojiSize: number
 }
 
+export interface Transcription {
+  partialUtterances: boolean
+  minUtteranceLength: number
+}
+
 export interface DefaultSettings {
   application: Application
   audio: Audio
   dataSaving: DataSaving
+  transcription: Transcription
 }
 
 export interface Application {
@@ -456,6 +463,10 @@ export interface Captions {
   lines: number
   time: number
   locales: Locales[]
+  defaultPad: string
+  showButton: boolean
+  lineLimit: number
+  captionLimit: number
 }
 
 export interface Font {

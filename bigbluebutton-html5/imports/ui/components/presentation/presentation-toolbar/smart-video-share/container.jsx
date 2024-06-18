@@ -1,5 +1,4 @@
 import React from 'react';
-import { withTracker } from 'meteor/react-meteor-data';
 import { useMutation } from '@apollo/client';
 import { SmartMediaShare } from './component';
 import Panopto from '../../../external-video-player/custom-players/panopto';
