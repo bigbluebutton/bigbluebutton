@@ -15,8 +15,8 @@ import useMeeting from '/imports/ui/core/hooks/useMeeting';
 import {
   persistShape,
 } from '/imports/ui/components/whiteboard/service';
+import { getSettingsSingletonInstance } from '/imports/ui/services/settings';
 import useDeduplicatedSubscription from '/imports/ui/core/hooks/useDeduplicatedSubscription';
-
 
 const PresentationMenuContainer = (props) => {
   const fullscreen = layoutSelect((i) => i.fullscreen);
@@ -24,7 +24,8 @@ const PresentationMenuContainer = (props) => {
   const layoutContextDispatch = layoutDispatch();
   const { elementId } = props;
   const isFullscreen = currentElement === elementId;
-  const isRTL = layoutSelect((i) => i.isRTL);
+  const Settings = getSettingsSingletonInstance();
+  const { isRTL } = Settings.application;
   const { pluginsExtensibleAreasAggregatedState } = useContext(PluginsContext);
   let presentationDropdownItems = [];
   if (pluginsExtensibleAreasAggregatedState.presentationDropdownItems) {

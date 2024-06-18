@@ -46,7 +46,7 @@ const initPresentationAreaContentActions = [{
 const initState = {
   presentationAreaContentActions: initPresentationAreaContentActions,
   deviceType: null,
-  isRTL: false,
+  isRTL: DEFAULT_VALUES.isRTL,
   layoutType: DEFAULT_VALUES.layoutType,
   fontSize: DEFAULT_VALUES.fontSize,
   idChatOpen: '',
