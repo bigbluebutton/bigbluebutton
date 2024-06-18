@@ -66,13 +66,6 @@ subscription userCurrentSubscription {
     cameras {
       streamId
     }
-    voice {
-      joined
-      muted
-      spoke
-      listenOnly
-      talking
-    }
   }
 }
 `;

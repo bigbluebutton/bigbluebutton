@@ -309,7 +309,6 @@ const AudioCaptionsSpeechContainer: React.FC = () => {
   } = useCurrentUser(
     (user) => ({
       speechLocale: user.speechLocale,
-      voice: user.voice,
     }),
   );
 
