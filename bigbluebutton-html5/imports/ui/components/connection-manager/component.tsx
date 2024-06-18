@@ -69,6 +69,8 @@ const ConnectionManager: React.FC<ConnectionManagerProps> = ({ children }): Reac
   const loadingContextInfo = useContext(LoadingContext);
   const numberOfAttempts = useRef(20);
   const [errorCounts, setErrorCounts] = React.useState(0);
+  const activeSocket = useRef<WebSocket>();
+  const timedOut = useRef<ReturnType<typeof setTimeout>>();
   useEffect(() => {
     const pathMatch = window.location.pathname.match('^(.*)/html5client/join$');
     if (pathMatch == null) {
@@ -116,11 +118,12 @@ const ConnectionManager: React.FC<ConnectionManagerProps> = ({ children }): Reac
         const subscription = createClient({
           url: graphqlUrl,
           retryAttempts: numberOfAttempts.current,
+          keepAlive: 10_000,
           retryWait: async () => {
             return new Promise((res) => {
               setTimeout(() => {
                 res();
-              }, 10000);
+              }, 10_000);
             });
           },
           connectionParams: {
@@ -141,11 +144,28 @@ const ConnectionManager: React.FC<ConnectionManagerProps> = ({ children }): Reac
             closed: () => {
               connectionStatus.setConnectedStatus(false);
             },
-            connected: () => {
+            connected: (socket) => {
+              activeSocket.current = socket as WebSocket;
               connectionStatus.setConnectedStatus(true);
             },
             connecting: () => {
               connectionStatus.setConnectedStatus(false);
+            },
+            ping: (received) => {
+              if (!received) {
+                timedOut.current = setTimeout(() => {
+                  if (activeSocket?.current?.readyState === WebSocket.OPEN) {
+                    connectionStatus.setConnectedStatus(false);
+                    activeSocket?.current?.close(4408, 'Request Timeout');
+                  }
+                }, 5_000);
+              }
+            },
+            pong: () => {
+              clearTimeout(timedOut.current);
+              if (!connectionStatus.getConnectedStatus()) {
+                connectionStatus.setConnectedStatus(true);
+              }
             },
           },
         });
