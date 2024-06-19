@@ -924,6 +924,7 @@ class VideoPreview extends Component {
   }
 
   renderVirtualBgSelector() {
+    const { isCustomVirtualBackgroundsEnabled } = this.props;
     const { isStartSharingDisabled, webcamDeviceId } = this.state;
     const initialVirtualBgState = this.currentVideoStream ? {
       type: this.currentVideoStream.virtualBgType,
@@ -940,6 +941,7 @@ class VideoPreview extends Component {
         locked={isStartSharingDisabled}
         showThumbnails={SHOW_THUMBNAILS}
         initialVirtualBgState={initialVirtualBgState}
+        isCustomVirtualBackgroundsEnabled={isCustomVirtualBackgroundsEnabled}
       />
     );
   }
@@ -1138,6 +1140,7 @@ class VideoPreview extends Component {
       isOpen,
       priority,
       cameraAsContent,
+      isVirtualBackgroundsEnabled,
     } = this.props;
 
     const { selectedTab } = this.state;
@@ -1192,10 +1195,10 @@ class VideoPreview extends Component {
                     darkThemeState={darkThemeState}
                   />
                   <span 
-                    id="backgrounds-title">{intl.formatMessage(intlMessages.webcamSettingsTitle)}
+                    id="webcam-settings-title">{intl.formatMessage(intlMessages.webcamSettingsTitle)}
                   </span>
                 </Styled.WebcamTabSelector>
-                {!cameraAsContent && (
+                {(isVirtualBackgroundsEnabled && !cameraAsContent) && (
                 <>
                   <Styled.HeaderSeparator />
                   <Styled.WebcamTabSelector selectedClassName="is-selected">
@@ -1203,7 +1206,7 @@ class VideoPreview extends Component {
                       src={WebcamBackgroundImg}
                       darkThemeState={darkThemeState}
                     />
-                    <span id="webcam-settings-title">{intl.formatMessage(intlMessages.webcamVirtualBackgroundTitle)}</span>
+                    <span id="backgrounds-title">{intl.formatMessage(intlMessages.webcamVirtualBackgroundTitle)}</span>
                   </Styled.WebcamTabSelector>
                 </>
               )}

@@ -18,7 +18,7 @@ class DisabledFeatures extends MultiUsers {
 
     await this.modPage.waitForSelector(e.audioModal, ELEMENT_WAIT_LONGER_TIME);
 
-    if(speechRecognitionEnabled) {
+    if (speechRecognitionEnabled) {
       await this.modPage.wasRemoved(e.speechRecognition);
     } else {
       await this.modPage.wasRemoved(e.speechRecognitionUnsupported);
@@ -64,7 +64,7 @@ class DisabledFeatures extends MultiUsers {
 
   async virtualBackgrounds() {
     await this.modPage.waitAndClick(e.joinVideo);
-    await this.modPage.wasRemoved(e.virtualBackgrounds);
+    await this.modPage.wasRemoved(e.backgroundSettingsTitle);
   }
 
   async downloadPresentationWithAnnotations() {
@@ -93,8 +93,8 @@ class DisabledFeatures extends MultiUsers {
   }
 
   async customVirtualBackground() {
-    await this.modPage.waitAndClick (e.joinVideo);
-    await this.modPage.waitForSelector(e.webcamSettingsModal);
+    await this.modPage.waitAndClick(e.joinVideo);
+    await this.modPage.waitAndClick(e.backgroundSettingsTitle);
     await this.modPage.wasRemoved(e.inputBackgroundButton);
   }
 
@@ -123,7 +123,7 @@ class DisabledFeatures extends MultiUsers {
 
     await this.modPage.waitForSelector(e.audioModal, ELEMENT_WAIT_LONGER_TIME);
 
-    if(speechRecognitionEnabled) {
+    if (speechRecognitionEnabled) {
       await this.modPage.wasRemoved(e.speechRecognition);
     } else {
       await this.modPage.wasRemoved(e.speechRecognitionUnsupported);
@@ -169,6 +169,7 @@ class DisabledFeatures extends MultiUsers {
 
   async virtualBackgroundsExclude() {
     await this.modPage.waitAndClick(e.joinVideo);
+    await this.modPage.waitAndClick(e.backgroundSettingsTitle);
     await this.modPage.hasElement(e.virtualBackgrounds);
   }
 
@@ -199,8 +200,8 @@ class DisabledFeatures extends MultiUsers {
   }
 
   async customVirtualBackgroundExclude() {
-    await this.modPage.waitAndClick (e.joinVideo);
-    await this.modPage.waitForSelector(e.webcamSettingsModal);
+    await this.modPage.waitAndClick(e.joinVideo);
+    await this.modPage.waitAndClick(e.backgroundSettingsTitle);
     await this.modPage.hasElement(e.inputBackgroundButton);
   }
 
