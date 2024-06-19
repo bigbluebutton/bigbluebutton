@@ -4,7 +4,7 @@ import {
   CursorCoordinatesResponse,
   CursorSubscriptionResponse,
   cursorUserSubscription,
-  getcursorsCoordinatesStream,
+  getCursorsCoordinatesStream,
   userCursorResponse,
 } from './queries';
 import useDeduplicatedSubscription from '../../core/hooks/useDeduplicatedSubscription';
@@ -34,7 +34,7 @@ export const useMergedCursorData = () => {
   const cursorSubscriptionDataString = JSON.stringify(cursorSubscriptionData);
 
   const { data: cursorCoordinatesData } = useDeduplicatedSubscription<CursorCoordinatesResponse>(
-    getcursorsCoordinatesStream,
+    getCursorsCoordinatesStream,
   );
   const cursorCoordinatesDataString = JSON.stringify(cursorCoordinatesData);
 
