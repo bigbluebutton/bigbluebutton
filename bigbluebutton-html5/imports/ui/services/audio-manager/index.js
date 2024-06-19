@@ -23,7 +23,7 @@ import AudioErrors from '/imports/ui/services/audio-manager/error-codes';
 import Session from '/imports/ui/services/storage/in-memory';
 import GrahqlSubscriptionStore, { stringToHash } from '/imports/ui/core/singletons/subscriptionStore';
 import { makePatchedQuery } from '../../core/hooks/createUseSubscription';
-import WHO_IS_TALKING from '../../core/graphql/queries/whoIsTalking';
+import { VOICE_USERS_SUBSCRIPTION } from '../../components/audio/audio-graphql/queries';
 
 const DEFAULT_AUDIO_BRIDGES_PATH = '/imports/api/audio/client/';
 const CALL_STATES = {
@@ -473,7 +473,7 @@ class AudioManager {
 
     // listen to the VoiceUsers changes and update the flag
     if (!this.muteHandle) {
-      const patchedSub = makePatchedQuery(WHO_IS_TALKING);
+      const patchedSub = makePatchedQuery(VOICE_USERS_SUBSCRIPTION);
       const subHash = stringToHash(JSON.stringify({
         subscription: patchedSub,
         variables: {},

@@ -11,9 +11,13 @@ import { User } from '/imports/ui/Types/user';
 import useCurrentUser from '/imports/ui/core/hooks/useCurrentUser';
 import { muteUser } from './service';
 import useToggleVoice from '../../../audio/audio-graphql/hooks/useToggleVoice';
+import TALKING_INDICATOR_SUBSCRIPTION from '/imports/ui/core/graphql/queries/userVoiceSubscription';
 import { setTalkingIndicatorList } from '/imports/ui/core/hooks/useTalkingIndicator';
 import useDeduplicatedSubscription from '/imports/ui/core/hooks/useDeduplicatedSubscription';
-import useWhoIsTalking from '/imports/ui/core/hooks/useWhoIsTalking';
+
+interface TalkingIndicatorSubscriptionData {
+  user_voice: Array<Partial<UserVoice>>;
+}
 
 const TALKING_INDICATORS_MAX = 8;
 
@@ -179,13 +183,17 @@ const TalkingIndicatorContainer: React.FC = (() => {
     }));
 
     const {
-      voices: talkingUsersData,
+      data: talkingIndicatorData,
       loading: talkingIndicatorLoading,
       error: talkingIndicatorError,
-    } = useWhoIsTalking({
-      showTalkingIndicator: true,
-      limit: TALKING_INDICATORS_MAX,
-    });
+    } = useDeduplicatedSubscription<TalkingIndicatorSubscriptionData>(
+      TALKING_INDICATOR_SUBSCRIPTION,
+      {
+        variables: {
+          limit: TALKING_INDICATORS_MAX,
+        },
+      },
+    );
 
     const {
       data: isBreakoutData,
@@ -206,7 +214,7 @@ const TalkingIndicatorContainer: React.FC = (() => {
       );
     }
 
-    const talkingUsers = Object.values(talkingUsersData);
+    const talkingUsers = talkingIndicatorData?.user_voice ?? [];
     const isBreakout = isBreakoutData?.meeting[0]?.isBreakout ?? false;
     setTalkingIndicatorList(talkingUsers);
     return (

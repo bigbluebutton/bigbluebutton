@@ -18,7 +18,6 @@ import MutedAlert from '/imports/ui/components/muted-alert/component';
 import MuteToggle from './buttons/muteToggle';
 import ListenOnly from './buttons/listenOnly';
 import LiveSelection from './buttons/LiveSelection';
-import useWhoIsTalking from '/imports/ui/core/hooks/useWhoIsTalking';
 
 const AUDIO_INPUT = 'audioinput';
 const AUDIO_OUTPUT = 'audiooutput';
@@ -216,35 +215,27 @@ const InputStreamLiveSelector: React.FC<InputStreamLiveSelectorProps> = ({
 };
 
 const InputStreamLiveSelectorContainer: React.FC = () => {
-  const { voices: talkingUsers } = useWhoIsTalking();
+  const { data: currentUser } = useCurrentUser((u: Partial<User>) => {
+    if (!u.voice) {
+      return {
+        presenter: u.presenter,
+        isModerator: u.isModerator,
+      };
+    }
 
-  const { data: currentUserData } = useCurrentUser((u: Partial<User>) => {
     return {
       userId: u.userId,
       presenter: u.presenter,
       isModerator: u.isModerator,
       locked: u?.locked ?? false,
       away: u?.away,
+      voice: {
+        muted: u?.voice?.muted ?? false,
+        listenOnly: u?.voice?.listenOnly ?? false,
+        talking: u?.voice?.talking ?? false,
+      },
     };
   });
-  const currentUserVoice = currentUserData?.userId
-    ? talkingUsers[currentUserData.userId]
-    : null;
-  const currentUser = currentUserVoice ? {
-    userId: currentUserData?.userId,
-    presenter: currentUserData?.presenter,
-    isModerator: currentUserData?.isModerator,
-    locked: currentUserData?.locked,
-    away: currentUserData?.away,
-    voice: {
-      muted: currentUserVoice.muted,
-      listenOnly: currentUserVoice.listenOnly,
-      talking: currentUserVoice.talking,
-    },
-  } : {
-    presenter: currentUserData?.presenter,
-    isModerator: currentUserData?.isModerator,
-  };
 
   const { data: currentMeeting } = useMeeting((m: Partial<Meeting>) => {
     return {
