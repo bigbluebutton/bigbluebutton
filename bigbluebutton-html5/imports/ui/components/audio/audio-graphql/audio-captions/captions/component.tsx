@@ -174,6 +174,7 @@ const AudioCaptionsSelectContainer: React.FC = () => {
   } = useCurrentUser(
     (user) => ({
       speechLocale: user.speechLocale,
+      voice: user.voice,
     }),
   );
   const isEnabled = useIsAudioTranscriptionEnabled();

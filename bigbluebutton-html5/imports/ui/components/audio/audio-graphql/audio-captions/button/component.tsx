@@ -302,6 +302,7 @@ const AudioCaptionsButtonContainer: React.FC = () => {
   } = useCurrentUser(
     (user: Partial<User>) => ({
       captionLocale: user.captionLocale,
+      voice: user.voice,
       speechLocale: user.speechLocale,
     }),
   );

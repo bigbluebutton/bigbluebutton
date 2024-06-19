@@ -15,7 +15,6 @@ import { joinListenOnly } from './service';
 import Styled from './styles';
 import InputStreamLiveSelectorContainer from './input-stream-live-selector/component';
 import { UPDATE_ECHO_TEST_RUNNING } from './queries';
-import useWhoIsTalking from '/imports/ui/core/hooks/useWhoIsTalking';
 
 const intlMessages = defineMessages({
   joinAudio: {
@@ -124,17 +123,13 @@ const AudioControls: React.FC<AudioControlsProps> = ({
 export const AudioControlsContainer: React.FC = () => {
   const { data: currentUser } = useCurrentUser((u: Partial<User>) => {
     return {
-      userId: u.userId,
       presenter: u.presenter,
       isModerator: u.isModerator,
       locked: u?.locked ?? false,
+      voice: u.voice,
       away: u.away,
     };
   });
-  const { voices: talkingUsers } = useWhoIsTalking();
-  const currentUserVoice = currentUser?.userId
-    ? talkingUsers[currentUser.userId]
-    : null;
 
   const { data: currentMeeting } = useMeeting((m: Partial<Meeting>) => {
     return {
@@ -159,7 +154,7 @@ export const AudioControlsContainer: React.FC = () => {
   if (!currentUser || !currentMeeting) return null;
   return (
     <AudioControls
-      inAudio={Boolean(currentUserVoice)}
+      inAudio={!!currentUser.voice ?? false}
       isConnected={isConnected}
       disabled={isConnecting || isHangingUp}
       isEchoTest={isEchoTest}

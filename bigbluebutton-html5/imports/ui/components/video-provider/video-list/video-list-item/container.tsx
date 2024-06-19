@@ -8,7 +8,7 @@ import { Layout } from '/imports/ui/components/layout/layoutTypes';
 import useSettings from '/imports/ui/services/settings/hooks/useSettings';
 import { SETTINGS } from '/imports/ui/services/settings/enums';
 import { useStorageKey } from '/imports/ui/services/storage/hooks';
-import useWhoIsTalking from '/imports/ui/core/hooks/useWhoIsTalking';
+import useVoiceUsers from '/imports/ui/components/audio/audio-graphql/hooks/useVoiceUsers';
 
 interface VideoListItemContainerProps {
   numOfStreams: number;
@@ -54,8 +54,14 @@ const VideoListItemContainer: React.FC<VideoListItemContainerProps> = (props) =>
   const amIModerator = currentUserData?.isModerator;
 
   const disabledCams = useStorageKey('disabledCams') || [];
-  const { voices: talkingUsers } = useWhoIsTalking();
-  const voiceUser = talkingUsers[userId];
+  const voiceUsers = useVoiceUsers((v) => ({
+    muted: v.muted,
+    listenOnly: v.listenOnly,
+    talking: v.talking,
+    joined: v.joined,
+    userId: v.userId,
+  }));
+  const voiceUser = voiceUsers.data?.find((v) => v.userId === userId);
 
   return (
     <VideoListItem

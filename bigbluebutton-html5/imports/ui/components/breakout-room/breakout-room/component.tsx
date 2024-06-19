@@ -25,7 +25,6 @@ import {
 } from './service';
 import { useExitVideo, useStreams } from '/imports/ui/components/video-provider/hooks';
 import useDeduplicatedSubscription from '/imports/ui/core/hooks/useDeduplicatedSubscription';
-import useWhoIsTalking from '/imports/ui/core/hooks/useWhoIsTalking';
 
 interface BreakoutRoomProps {
   breakouts: BreakoutRoom[];
@@ -318,13 +317,9 @@ const BreakoutRoomContainer: React.FC = () => {
   } = useCurrentUser((u) => ({
     isModerator: u.isModerator,
     presenter: u.presenter,
+    voice: u.voice,
     userId: u.userId,
   }));
-  const { voices: talkingUsers } = useWhoIsTalking();
-  const currentUserVoice = currentUserData?.userId
-    ? talkingUsers[currentUserData.userId]
-    : null;
-  const currentUserJoinedAudio = Boolean(currentUserVoice?.joined);
 
   const {
     data: breakoutData,
@@ -353,7 +348,7 @@ const BreakoutRoomContainer: React.FC = () => {
       isModerator={currentUserData.isModerator ?? false}
       presenter={currentUserData.presenter ?? false}
       durationInSeconds={meetingData.durationInSeconds ?? 0}
-      userJoinedAudio={currentUserJoinedAudio}
+      userJoinedAudio={currentUserData?.voice?.joined ?? false}
       userId={currentUserData.userId ?? ''}
       meetingId={meetingData.meetingId ?? ''}
     />

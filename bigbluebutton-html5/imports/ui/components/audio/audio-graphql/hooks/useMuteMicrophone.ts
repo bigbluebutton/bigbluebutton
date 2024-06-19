@@ -3,20 +3,17 @@ import useCurrentUser from '/imports/ui/core/hooks/useCurrentUser';
 import logger from '/imports/startup/client/logger';
 import AudioManager from '/imports/ui/services/audio-manager';
 import useToggleVoice from './useToggleVoice';
-import useWhoIsTalking from '/imports/ui/core/hooks/useWhoIsTalking';
 
 const useMuteMicrophone = () => {
   const { data: currentUser } = useCurrentUser((u) => ({
     userId: u.userId,
+    voice: {
+      muted: u.voice?.muted,
+    },
   }));
-  const { voices: talkingUsers } = useWhoIsTalking();
   const toggleVoice = useToggleVoice();
-
-  const currentUserVoice = currentUser?.userId
-    ? talkingUsers[currentUser.userId]
-    : null;
-  const muted = Boolean(currentUserVoice?.muted);
-  const userId = currentUser?.userId;
+  const muted = !!currentUser?.voice?.muted;
+  const userId = currentUser?.userId ?? '';
 
   return useCallback(() => {
     if (!muted) {
