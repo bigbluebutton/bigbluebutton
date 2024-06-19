@@ -81,7 +81,10 @@ func ConnectionHandler(w http.ResponseWriter, r *http.Request) {
 		if bcExists {
 			sessionTokenRemoved := BrowserConnections[browserConnectionId].SessionToken
 			delete(BrowserConnections, browserConnectionId)
-			go SendUserGraphqlConnectionClosedSysMsg(sessionTokenRemoved, browserConnectionId)
+
+			if sessionTokenRemoved != "" {
+				go SendUserGraphqlConnectionClosedSysMsg(sessionTokenRemoved, browserConnectionId)
+			}
 		}
 		BrowserConnectionsMutex.Unlock()
 
