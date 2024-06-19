@@ -25,6 +25,7 @@ import useTimeSync from '/imports/ui/core/local-states/useTimeSync';
 import RecordingNotify from './notify/component';
 import RecordingContainer from '/imports/ui/components/recording/container';
 import useDeduplicatedSubscription from '/imports/ui/core/hooks/useDeduplicatedSubscription';
+import useWhoIsTalking from '/imports/ui/core/hooks/useWhoIsTalking';
 
 const intlMessages = defineMessages({
   notificationRecordingStart: {
@@ -297,13 +298,11 @@ const RecordingIndicatorContainer: React.FC = () => {
   const { data: currentUser } = useCurrentUser((user: Partial<User>) => ({
     userId: user.userId,
     isModerator: user.isModerator,
-    voice: user.voice
-      ? {
-        joined: user.voice.joined,
-        listenOnly: user.voice.listenOnly,
-      }
-      : null,
   } as Partial<User>));
+  const { voices: talkingUsers } = useWhoIsTalking();
+  const currentUserVoice = currentUser?.userId
+    ? talkingUsers[currentUser.userId]
+    : null;
 
   const { data: currentMeeting } = useMeeting((meeting) => ({
     meetingId: meeting.meetingId,
@@ -346,7 +345,7 @@ const RecordingIndicatorContainer: React.FC = () => {
       autoStartRecording={meetingRecordingPolicies?.autoStartRecording ?? false}
       record={meetingRecordingPolicies?.record ?? false}
       recording={meetingRecording?.isRecording ?? false}
-      micUser={(currentUser?.voice && !currentUser?.voice.listenOnly) ?? false}
+      micUser={!currentUserVoice?.listenOnly}
       isPhone={isMobile}
       recordingNotificationEnabled={
         (meetingRecording?.startedBy !== currentUser?.userId

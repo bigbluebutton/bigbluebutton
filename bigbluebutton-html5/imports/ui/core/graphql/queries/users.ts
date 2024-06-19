@@ -36,13 +36,6 @@ subscription UserListSubscription($offset: Int!, $limit: Int!) {
     clientType
     disconnected
     loggedOut
-    voice {
-      joined
-      listenOnly
-      talking
-      muted
-      voiceUserId
-    }
     cameras {
       streamId
     }

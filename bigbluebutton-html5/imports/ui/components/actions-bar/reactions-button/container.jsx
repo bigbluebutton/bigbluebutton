@@ -7,6 +7,7 @@ import Auth from '/imports/ui/services/auth';
 import useCurrentUser from '/imports/ui/core/hooks/useCurrentUser';
 import useSettings from '/imports/ui/services/settings/hooks/useSettings';
 import { SETTINGS } from '/imports/ui/services/settings/enums';
+import useWhoIsTalking from '/imports/ui/core/hooks/useWhoIsTalking';
 
 const ReactionsButtonContainer = ({ ...props }) => {
   const layoutContextDispatch = layoutDispatch();
@@ -20,16 +21,17 @@ const ReactionsButtonContainer = ({ ...props }) => {
     emoji: user.emoji,
     raiseHand: user.raiseHand,
     away: user.away,
-    voice: user.voice,
     reactionEmoji: user.reactionEmoji,
+    userId: user.userId,
   }));
+  const { voices: talkingUsers } = useWhoIsTalking();
 
   const currentUser = {
     userId: Auth.userID,
     emoji: currentUserData?.emoji,
     raiseHand: currentUserData?.raiseHand,
     away: currentUserData?.away,
-    muted: currentUserData?.voice?.muted || false,
+    muted: Boolean(currentUserData?.userId && talkingUsers[currentUserData.userId]?.muted),
   };
 
   const { autoCloseReactionsBar } = useSettings(SETTINGS.APPLICATION);
