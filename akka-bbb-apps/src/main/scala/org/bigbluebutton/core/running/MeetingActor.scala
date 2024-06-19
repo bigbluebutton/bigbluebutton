@@ -714,9 +714,10 @@ class MeetingActor(
         state = groupChatApp.handle(m, state, liveMeeting, msgBus)
 
       // Plugin
-      case m: PluginDataChannelPushEntryMsg   => pluginHdlrs.handle(m, state, liveMeeting)
-      case m: PluginDataChannelDeleteEntryMsg => pluginHdlrs.handle(m, state, liveMeeting)
-      case m: PluginDataChannelResetMsg       => pluginHdlrs.handle(m, state, liveMeeting)
+      case m: PluginDataChannelPushEntryMsg    => pluginHdlrs.handle(m, state, liveMeeting)
+      case m: PluginDataChannelReplaceEntryMsg => pluginHdlrs.handle(m, state, liveMeeting)
+      case m: PluginDataChannelDeleteEntryMsg  => pluginHdlrs.handle(m, state, liveMeeting)
+      case m: PluginDataChannelResetMsg        => pluginHdlrs.handle(m, state, liveMeeting)
 
       // Webcams
       case m: UserBroadcastCamStartMsg =>

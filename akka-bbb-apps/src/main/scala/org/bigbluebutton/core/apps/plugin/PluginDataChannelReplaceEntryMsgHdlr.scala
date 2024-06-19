@@ -1,15 +1,15 @@
 package org.bigbluebutton.core.apps.plugin
 
 import org.bigbluebutton.ClientSettings
-import org.bigbluebutton.common2.msgs.PluginDataChannelDeleteEntryMsg
-import org.bigbluebutton.core.db.PluginDataChannelEntryDAO
+import org.bigbluebutton.common2.msgs.PluginDataChannelReplaceEntryMsg
+import org.bigbluebutton.core.db.{JsonUtils, PluginDataChannelEntryDAO}
 import org.bigbluebutton.core.domain.MeetingState2x
-import org.bigbluebutton.core.models.{ Roles, Users2x }
-import org.bigbluebutton.core.running.{ HandlerHelpers, LiveMeeting }
+import org.bigbluebutton.core.models.{Roles, Users2x}
+import org.bigbluebutton.core.running.{HandlerHelpers, LiveMeeting}
 
-trait PluginDataChannelDeleteEntryMsgHdlr extends HandlerHelpers {
+trait PluginDataChannelReplaceEntryMsgHdlr extends HandlerHelpers {
 
-  def handle(msg: PluginDataChannelDeleteEntryMsg, state: MeetingState2x, liveMeeting: LiveMeeting): Unit = {
+  def handle(msg: PluginDataChannelReplaceEntryMsg, state: MeetingState2x, liveMeeting: LiveMeeting): Unit = {
     val pluginsDisabled: Boolean = liveMeeting.props.meetingProp.disabledFeatures.contains("plugins")
     val meetingId = liveMeeting.props.meetingProp.intId
 
@@ -46,14 +46,15 @@ trait PluginDataChannelDeleteEntryMsgHdlr extends HandlerHelpers {
         }
 
         if (!hasPermission.contains(true)) {
-          println(s"No permission to delete in plugin: '${msg.body.pluginName}', data channel: '${msg.body.channelName}'.")
+          println(s"No permission to write in plugin: '${msg.body.pluginName}', data channel: '${msg.body.channelName}'.")
         } else {
-          PluginDataChannelEntryDAO.delete(
-            meetingId,
+          PluginDataChannelEntryDAO.replace(
+            msg.header.meetingId,
             msg.body.pluginName,
             msg.body.channelName,
             msg.body.subChannelName,
-            msg.body.entryId
+            msg.body.entryId,
+            JsonUtils.mapToJson(msg.body.payloadJson),
           )
         }
       }

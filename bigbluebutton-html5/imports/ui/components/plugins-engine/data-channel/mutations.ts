@@ -36,3 +36,17 @@ export const PLUGIN_DATA_CHANNEL_DELETE_MUTATION = gql`
     )
   }
 `;
+
+export const PLUGIN_DATA_CHANNEL_REPLACE_MUTATION = gql`
+  mutation PluginDataChannelReplaceEntry($pluginName: String!, 
+    $subChannelName: String!, $channelName: String!, 
+    $payloadJson: json!, $entryId: String!) {
+      pluginDataChannelReplaceEntry(
+        entryId: $entryId,
+        pluginName: $pluginName,
+        channelName: $channelName,
+        subChannelName: $subChannelName,
+        payloadJson: $payloadJson
+      )
+    }
+`;
