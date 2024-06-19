@@ -164,6 +164,12 @@ object RegisteredUsers {
     u
   }
 
+  def updateUserCustomData(users: RegisteredUsers, user: RegisteredUser, userCustomData: Map[String, String]): RegisteredUser = {
+    val u = user.modify(_.userCustomData).setTo(userCustomData)
+    users.save(u)
+    u
+  }
+
 }
 
 class RegisteredUsers {
@@ -202,6 +208,7 @@ case class RegisteredUser(
     joined:                   Boolean,
     banned:                   Boolean,
     loggedOut:                Boolean,
-    lastBreakoutRoom:         BreakoutRoom2x = null
+    lastBreakoutRoom:         BreakoutRoom2x = null,
+    userCustomData:           Map[String, String] = Map.empty
 )
 
