@@ -10,7 +10,6 @@ import logger from '/imports/startup/client/logger';
 import apolloContextHolder from '../../core/graphql/apolloContextHolder/apolloContextHolder';
 import connectionStatus from '../../core/graphql/singletons/connectionStatus';
 import deviceInfo from '/imports/utils/deviceInfo';
-import { NetworkError } from '@apollo/client/errors';
 
 interface ConnectionManagerProps {
   children: React.ReactNode;
