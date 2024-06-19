@@ -19,7 +19,7 @@
       database_url: postgres://postgres:bbb_graphql@127.0.0.1:5432/bbb_graphql
       isolation_level: read-committed
       pool_settings:
-        connection_lifetime: 600
+        connection_lifetime: 3600
         max_connections: 100
       use_prepared_statements: true
   tables: "!include BigBlueButton/tables/tables.yaml"
