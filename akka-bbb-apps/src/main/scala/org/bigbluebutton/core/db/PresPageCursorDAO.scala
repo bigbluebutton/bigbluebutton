@@ -47,4 +47,19 @@ object PresPageCursorDAO {
     }
   }
 
+  def clearUnusedCursors(meetingId: String, pageId: String, enabledUsers: Array[String]): Unit = {
+    val deleteQuery = TableQuery[PresPageCursorDbTableDef]
+      .filter(_.pageId === pageId)
+
+    if(enabledUsers.length > 0) {
+      deleteQuery.filter(_.meetingId === meetingId)
+      deleteQuery.filterNot(_.userId inSet enabledUsers)
+    }
+
+    DatabaseConnection.db.run(deleteQuery.delete).onComplete {
+      case Success(rowsAffected) => DatabaseConnection.logger.debug(s"Users deleted from pres_page_cursor ${pageId}")
+      case Failure(e) => DatabaseConnection.logger.error(s"Error deleting users from pres_page_cursor: $e")
+    }
+  }
+
 }
