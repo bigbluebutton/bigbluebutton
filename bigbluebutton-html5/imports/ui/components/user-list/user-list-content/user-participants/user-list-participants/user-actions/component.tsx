@@ -213,7 +213,13 @@ const UserActions: React.FC<UserActionsProps> = ({
   const layoutContextDispatch = layoutDispatch();
 
   const [presentationSetWriters] = useMutation(PRESENTATION_SET_WRITERS);
-  const [getWriters] = useLazyQuery(CURRENT_PAGE_WRITERS_QUERY, { fetchPolicy: 'no-cache' });
+  const [getWriters] = useLazyQuery(
+    CURRENT_PAGE_WRITERS_QUERY,
+    {
+      variables: { pageId },
+      fetchPolicy: 'no-cache',
+    },
+  );
   const voiceToggle = useToggleVoice();
   const isChatEnabled = useIsChatEnabled();
 

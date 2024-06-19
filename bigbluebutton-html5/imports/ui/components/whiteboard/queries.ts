@@ -137,12 +137,14 @@ export const CURRENT_PAGE_WRITERS_SUBSCRIPTION = gql`
   }
 `;
 
-export const CURRENT_PAGE_WRITERS_QUERY = gql`query currentPageWritersQuery {
-  pres_page_writers {
-    userId
-    pageId
+export const CURRENT_PAGE_WRITERS_QUERY = gql`
+  query currentPageWritersQuery($pageId: String!) {
+    pres_page_writers(where: { pageId: { _eq: $pageId } }) {
+      userId
+      pageId
+    }
   }
-}`;
+`;
 
 export const cursorUserSubscription = gql`
   subscription CursorSubscription {
