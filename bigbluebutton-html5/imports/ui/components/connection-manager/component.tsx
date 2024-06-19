@@ -10,6 +10,7 @@ import logger from '/imports/startup/client/logger';
 import apolloContextHolder from '../../core/graphql/apolloContextHolder/apolloContextHolder';
 import connectionStatus from '../../core/graphql/singletons/connectionStatus';
 import deviceInfo from '/imports/utils/deviceInfo';
+import { NetworkError } from '@apollo/client/errors';
 
 interface ConnectionManagerProps {
   children: React.ReactNode;
@@ -71,6 +72,7 @@ const ConnectionManager: React.FC<ConnectionManagerProps> = ({ children }): Reac
   const [errorCounts, setErrorCounts] = React.useState(0);
   const activeSocket = useRef<WebSocket>();
   const timedOut = useRef<ReturnType<typeof setTimeout>>();
+  const [terminalError, setTerminalError] = React.useState<string>('');
   useEffect(() => {
     const pathMatch = window.location.pathname.match('^(.*)/html5client/join$');
     if (pathMatch == null) {
@@ -99,6 +101,12 @@ const ConnectionManager: React.FC<ConnectionManagerProps> = ({ children }): Reac
   }, [errorCounts]);
 
   useEffect(() => {
+    if (terminalError) {
+      throw new Error(terminalError);
+    }
+  }, [terminalError]);
+
+  useEffect(() => {
     logger.info('Connecting to GraphQL server');
     loadingContextInfo.setLoading(true, '2/5');
     if (graphqlUrl) {
@@ -125,6 +133,15 @@ const ConnectionManager: React.FC<ConnectionManagerProps> = ({ children }): Reac
                 res();
               }, 10_000);
             });
+          },
+          shouldRetry: (error) => {
+            // @ts-ignore - error is not a string
+            if (error.code === 4403) {
+              loadingContextInfo.setLoading(false, '');
+              setTerminalError('Session token is invalid');
+              return false;
+            }
+            return true;
           },
           connectionParams: {
             headers: {
