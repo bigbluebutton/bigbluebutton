@@ -197,7 +197,6 @@ const NotesContainerGraphql: React.FC<NotesContainerGraphqlProps> = (props) => {
   const { isOpen: isSidebarContentOpen } = sidebarContent;
   const isGridLayout = useStorageKey('isGridEnabled');
 
-  console.log('isGridLayout', isGridLayout, 'isSidebarContentOpen', isSidebarContentOpen);
   const shouldShowSharedNotesOnPresentationArea = isGridLayout ? !!pinnedPadData
     && pinnedPadData.sharedNotes[0]?.sharedNotesExtId === NOTES_CONFIG.id && isSidebarContentOpen : !!pinnedPadData
     && pinnedPadData.sharedNotes[0]?.sharedNotesExtId === NOTES_CONFIG.id;
