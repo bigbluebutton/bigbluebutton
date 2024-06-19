@@ -614,11 +614,9 @@ GENERATED ALWAYS AS (to_timestamp("endTime"::double precision / 1000)) STORED;
 
 CREATE OR REPLACE VIEW "v_user_voice" AS
 SELECT
-	"user_voice"."userId",
+	"user_voice".*,
 	greatest(coalesce(user_voice."startTime", 0), coalesce(user_voice."endTime", 0)) AS "lastSpeakChangedAt",
-	case when "user_voice"."talking" or "user_voice"."hideTalkingIndicatorAt" > now() then true else false end as "showTalkingIndicator",
-	user_voice."talking",
-	user_voice."hideTalkingIndicatorAt"
+	case when "user_voice"."talking" or "user_voice"."hideTalkingIndicatorAt" > now() then true else false end as "showTalkingIndicator"
 FROM "user_voice"
 WHERE "user_voice"."joined" is true;
 
