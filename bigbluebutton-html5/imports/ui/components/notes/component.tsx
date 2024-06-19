@@ -6,6 +6,7 @@ import PadContainer from '/imports/ui/components/pads/pads-graphql/component';
 import browserInfo from '/imports/utils/browserInfo';
 import Header from '/imports/ui/components/common/control-header/component';
 import NotesDropdown from './notes-dropdown/component';
+import useMeeting from '/imports/ui/core/hooks/useMeeting';
 import {
   PANELS, ACTIONS,
 } from '/imports/ui/components/layout/enums';
@@ -22,6 +23,7 @@ import {
 } from '/imports/ui/components/screenshare/service';
 import useDeduplicatedSubscription from '../../core/hooks/useDeduplicatedSubscription';
 import { useIsPresentationEnabled } from '../../services/features';
+import { useStorageKey } from '/imports/ui/services/storage/hooks';
 
 const intlMessages = defineMessages({
   hide: {
@@ -193,7 +195,12 @@ const NotesContainerGraphql: React.FC<NotesContainerGraphqlProps> = (props) => {
   const NOTES_CONFIG = window.meetingClientSettings.public.notes;
 
   const isRTL = document.documentElement.getAttribute('dir') === 'rtl';
-  const shouldShowSharedNotesOnPresentationArea = !!pinnedPadData
+  const { isOpen: isSidebarContentOpen } = sidebarContent;
+  const isGridLayout = useStorageKey('isGridEnabled');
+
+  console.log('isGridLayout', isGridLayout, 'isSidebarContentOpen', isSidebarContentOpen);
+  const shouldShowSharedNotesOnPresentationArea = isGridLayout ? !!pinnedPadData
+    && pinnedPadData.sharedNotes[0]?.sharedNotesExtId === NOTES_CONFIG.id && isSidebarContentOpen : !!pinnedPadData
     && pinnedPadData.sharedNotes[0]?.sharedNotesExtId === NOTES_CONFIG.id;
 
   const [stopExternalVideoShare] = useMutation(EXTERNAL_VIDEO_STOP);
