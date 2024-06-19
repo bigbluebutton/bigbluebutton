@@ -6,7 +6,6 @@ import PadContainer from '/imports/ui/components/pads/pads-graphql/component';
 import browserInfo from '/imports/utils/browserInfo';
 import Header from '/imports/ui/components/common/control-header/component';
 import NotesDropdown from './notes-dropdown/component';
-import useMeeting from '/imports/ui/core/hooks/useMeeting';
 import {
   PANELS, ACTIONS,
 } from '/imports/ui/components/layout/enums';
