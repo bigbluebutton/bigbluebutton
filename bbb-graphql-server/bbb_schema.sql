@@ -612,28 +612,15 @@ GENERATED ALWAYS AS (to_timestamp("startTime"::double precision / 1000)) STORED;
 ALTER TABLE "user_voice" ADD COLUMN "endedAt" timestamp with time zone
 GENERATED ALWAYS AS (to_timestamp("endTime"::double precision / 1000)) STORED;
 
-CREATE INDEX "idx_user_voice_userId_talking" ON "user_voice"("meetingId", "userId","talking");
-CREATE INDEX "idx_user_voice_userId_hideTalkingIndicatorAt" ON "user_voice"("meetingId", "userId","hideTalkingIndicatorAt");
-
 CREATE OR REPLACE VIEW "v_user_voice" AS
 SELECT
-	"user_voice" .*,
+	"user_voice"."userId",
 	greatest(coalesce(user_voice."startTime", 0), coalesce(user_voice."endTime", 0)) AS "lastSpeakChangedAt",
-	user_talking."userId" IS NOT NULL "showTalkingIndicator"
+	case when "user_voice"."talking" or "user_voice"."hideTalkingIndicatorAt" > now() then true else false end as "showTalkingIndicator",
+	user_voice."talking",
+	user_voice."hideTalkingIndicatorAt"
 FROM "user_voice"
-LEFT JOIN "user_voice" user_talking ON (
-                                        user_talking."meetingId" = user_voice."meetingId" and
-                                        user_talking."userId" = user_voice."userId" and
-                                        user_talking."talking" IS TRUE
-                                        )
-                                       OR
-                                       (
-                                       user_talking."meetingId" = user_voice."meetingId" and
-                                       user_talking."userId" = user_voice."userId" and
-                                       user_talking."hideTalkingIndicatorAt" > now()
-                                       )
 WHERE "user_voice"."joined" is true;
-
 
 
 ---TEMPORARY MINIMONGO ADAPTER START
