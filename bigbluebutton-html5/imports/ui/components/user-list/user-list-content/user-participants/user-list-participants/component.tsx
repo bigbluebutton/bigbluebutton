@@ -101,24 +101,34 @@ const UserListParticipants: React.FC<UserListParticipantsProps> = ({
       <Styled.VirtualizedList ref={userListRef}>
         {
           Array.from({ length: amountOfPages }).map((_, i) => {
+            console.log("🚀 -> Array.from -> i:", i)
             const isLastItem = amountOfPages === (i + 1);
             const restOfUsers = count % 50;
-            return (
-              <IntersectionWatcher
-                // eslint-disable-next-line react/no-array-index-key
-                key={i}
-                ParentRef={userListRef}
-                isLastItem={isLastItem}
-                restOfUsers={isLastItem ? restOfUsers : 50}
-              >
+            return i === 0
+              ? (
                 <UserListParticipantsPageContainer
                   index={i}
                   isLastItem={isLastItem}
                   restOfUsers={isLastItem ? restOfUsers : 50}
                   setVisibleUsers={setVisibleUsers}
                 />
-              </IntersectionWatcher>
-            );
+              )
+              : (
+                <IntersectionWatcher
+                  // eslint-disable-next-line react/no-array-index-key
+                  key={i}
+                  ParentRef={userListRef}
+                  isLastItem={isLastItem}
+                  restOfUsers={isLastItem ? restOfUsers : 50}
+                >
+                  <UserListParticipantsPageContainer
+                    index={i}
+                    isLastItem={isLastItem}
+                    restOfUsers={isLastItem ? restOfUsers : 50}
+                    setVisibleUsers={setVisibleUsers}
+                  />
+                </IntersectionWatcher>
+              );
           })
         }
       </Styled.VirtualizedList>
