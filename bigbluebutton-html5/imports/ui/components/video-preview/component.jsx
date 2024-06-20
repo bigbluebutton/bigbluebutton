@@ -789,15 +789,16 @@ class VideoPreview extends Component {
   renderQualitySelector() {
     const {
       intl,
-      webcamDeviceId,
       cameraAsContent,
     } = this.props
 
-    const { selectedProfile, availableWebcams } = this.state;
+    const {
+      selectedProfile,
+      availableWebcams,
+      webcamDeviceId, 
+    } = this.state;
 
     const shared = this.isAlreadyShared(webcamDeviceId);
-
-    if (cameraAsContent) return;
 
     if (shared) { 
       return (
@@ -806,19 +807,26 @@ class VideoPreview extends Component {
         </Styled.Label>
       );
     }
+    
+    if (cameraAsContent) return;
+
+    const CAMERA_PROFILES = window.meetingClientSettings.public.kurento.cameraProfiles || [];
+    // Filtered, without hidden profiles
+    const PREVIEW_CAMERA_PROFILES = CAMERA_PROFILES.filter(p => !p.hidden);
+
     return (
       <>
         <Styled.Label htmlFor="setQuality">
           {intl.formatMessage(intlMessages.qualityLabel)}
         </Styled.Label>
-        {PreviewService.handleHiddenCameraProfiles().length > 0
+        {PREVIEW_CAMERA_PROFILES.length > 0
           ? (
             <Styled.Select
               id="setQuality"
               value={selectedProfile || ''}
               onChange={this.handleSelectProfile}
             >
-              {PreviewService.handleHiddenCameraProfiles().map((profile) => {
+              {PREVIEW_CAMERA_PROFILES.map((profile) => {
                 const label = intlMessages[`${profile.id}`]
                   ? intl.formatMessage(intlMessages[`${profile.id}`])
                   : profile.name;
@@ -850,6 +858,7 @@ class VideoPreview extends Component {
   renderBrightnessInput() {
     const {
       cameraAsContent,
+      cameraAsContentDeviceId,
     } = this.props;
     const {
       webcamDeviceId,
@@ -868,7 +877,7 @@ class VideoPreview extends Component {
       ? (brightness * 100) / 200
       : ((200 - brightness) * 100) / 200;
 
-    if(cameraAsContent){ return null }
+    if(cameraAsContent || webcamDeviceId === cameraAsContentDeviceId){ return null }
 
     return (
       <Styled.InternCol>
@@ -1140,10 +1149,11 @@ class VideoPreview extends Component {
       isOpen,
       priority,
       cameraAsContent,
+      cameraAsContentDeviceId,
       isVirtualBackgroundsEnabled,
     } = this.props;
 
-    const { selectedTab } = this.state;
+    const { selectedTab, webcamDeviceId } = this.state;
     
     const BASE_NAME = window.meetingClientSettings.public.app.basename;
     const WebcamSettingsImg = `${BASE_NAME}/resources/images/webcam_settings.svg`;
@@ -1168,6 +1178,10 @@ class VideoPreview extends Component {
     const allowCloseModal = !!(deviceError || previewError)
     || !PreviewService.getSkipVideoPreview()
     || forceOpen;
+
+    const shouldShowVirtualBackgroundsTab = isVirtualBackgroundsEnabled 
+    && !cameraAsContent
+    && !(webcamDeviceId === cameraAsContentDeviceId)
 
     return (
       <Styled.VideoPreviewModal
@@ -1195,10 +1209,10 @@ class VideoPreview extends Component {
                     darkThemeState={darkThemeState}
                   />
                   <span 
-                    id="webcam-settings-title">{intl.formatMessage(intlMessages.webcamSettingsTitle)}
+                    id="webcam-settings-title">{this.getModalTitle()}
                   </span>
                 </Styled.WebcamTabSelector>
-                {(isVirtualBackgroundsEnabled && !cameraAsContent) && (
+                {shouldShowVirtualBackgroundsTab && (
                 <>
                   <Styled.HeaderSeparator />
                   <Styled.WebcamTabSelector selectedClassName="is-selected">
