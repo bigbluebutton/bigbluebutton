@@ -69,6 +69,9 @@ const ConnectionManager: React.FC<ConnectionManagerProps> = ({ children }): Reac
   const loadingContextInfo = useContext(LoadingContext);
   const numberOfAttempts = useRef(20);
   const [errorCounts, setErrorCounts] = React.useState(0);
+  const activeSocket = useRef<WebSocket>();
+  const timedOut = useRef<ReturnType<typeof setTimeout>>();
+  const [terminalError, setTerminalError] = React.useState<string>('');
   useEffect(() => {
     const pathMatch = window.location.pathname.match('^(.*)/html5client/join$');
     if (pathMatch == null) {
@@ -97,6 +100,12 @@ const ConnectionManager: React.FC<ConnectionManagerProps> = ({ children }): Reac
   }, [errorCounts]);
 
   useEffect(() => {
+    if (terminalError) {
+      throw new Error(terminalError);
+    }
+  }, [terminalError]);
+
+  useEffect(() => {
     logger.info('Connecting to GraphQL server');
     loadingContextInfo.setLoading(true, '2/5');
     if (graphqlUrl) {
@@ -116,12 +125,22 @@ const ConnectionManager: React.FC<ConnectionManagerProps> = ({ children }): Reac
         const subscription = createClient({
           url: graphqlUrl,
           retryAttempts: numberOfAttempts.current,
+          keepAlive: 10_000,
           retryWait: async () => {
             return new Promise((res) => {
               setTimeout(() => {
                 res();
-              }, 10000);
+              }, 10_000);
             });
+          },
+          shouldRetry: (error) => {
+            // @ts-ignore - error is not a string
+            if (error.code === 4403) {
+              loadingContextInfo.setLoading(false, '');
+              setTerminalError('Session token is invalid');
+              return false;
+            }
+            return true;
           },
           connectionParams: {
             headers: {
@@ -141,11 +160,28 @@ const ConnectionManager: React.FC<ConnectionManagerProps> = ({ children }): Reac
             closed: () => {
               connectionStatus.setConnectedStatus(false);
             },
-            connected: () => {
+            connected: (socket) => {
+              activeSocket.current = socket as WebSocket;
               connectionStatus.setConnectedStatus(true);
             },
             connecting: () => {
               connectionStatus.setConnectedStatus(false);
+            },
+            ping: (received) => {
+              if (!received) {
+                timedOut.current = setTimeout(() => {
+                  if (activeSocket?.current?.readyState === WebSocket.OPEN) {
+                    connectionStatus.setConnectedStatus(false);
+                    activeSocket?.current?.close(4408, 'Request Timeout');
+                  }
+                }, 5_000);
+              }
+            },
+            pong: () => {
+              clearTimeout(timedOut.current);
+              if (!connectionStatus.getConnectedStatus()) {
+                connectionStatus.setConnectedStatus(true);
+              }
             },
           },
         });
