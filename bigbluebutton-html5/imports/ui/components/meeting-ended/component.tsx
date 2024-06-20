@@ -8,6 +8,7 @@ import React, {
 import { defineMessages, useIntl } from 'react-intl';
 import { isEmpty } from 'radash';
 import { ApolloLink, useQuery } from '@apollo/client';
+import { Meteor } from 'meteor/meteor';
 import {
   JoinErrorCodeTable,
   MeetingEndedTable,
@@ -22,7 +23,6 @@ import Rating from './rating/component';
 import { LoadingContext } from '../common/loading-screen/loading-screen-HOC/component';
 import logger from '/imports/startup/client/logger';
 import apolloContextHolder from '/imports/ui/core/graphql/apolloContextHolder/apolloContextHolder';
-import { Meteor } from 'meteor/meteor';
 
 const intlMessage = defineMessages({
   410: {
