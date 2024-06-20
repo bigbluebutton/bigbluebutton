@@ -104,9 +104,9 @@ Updated in 2.6:
 
 Updated in 2.7:
 
-- **create** - **Added:** `preUploadedPresentation`, `preUploadedPresentationName`, `disabledFeatures` options`cameraAsContent`, `snapshotOfCurrentSlide`, `downloadPresentationOriginalFile`, `downloadPresentationConvertedToPdf`, `timer`, `learningDashboardDownloadSessionData` (2.7.5).
+- **create** - **Added:** `preUploadedPresentation`, `preUploadedPresentationName`, `allowPromoteGuestToModerator`, `disabledFeatures` options`cameraAsContent`, `snapshotOfCurrentSlide`, `downloadPresentationOriginalFile`, `downloadPresentationConvertedToPdf`, `timer`, `learningDashboardDownloadSessionData` (2.7.5).
 
-- **join** - **Added:** `allowPromoteGuestToModerator`, `redirectErrorUrl`, `userdata-bbb_fullaudio_bridge` and removed support for all HTTP request methods except GET
+- **join** - **Added:** `redirectErrorUrl`, `userdata-bbb_fullaudio_bridge` and removed support for all HTTP request methods except GET
 
 ## API Data Types
 
