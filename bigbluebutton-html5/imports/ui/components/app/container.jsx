@@ -236,6 +236,11 @@ const AppContainer = (props) => {
         type: ACTIONS.SET_HAS_EXTERNAL_VIDEO,
         value: true,
       });
+    } else if (hasExternalVideoOnLayout) {
+      layoutContextDispatch({
+        type: ACTIONS.SET_HAS_EXTERNAL_VIDEO,
+        value: false,
+      });
     }
   }, [isSharingVideo]);
 

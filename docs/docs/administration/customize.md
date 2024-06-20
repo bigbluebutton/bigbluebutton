@@ -1379,7 +1379,7 @@ Useful tools for development:
 
 | Parameter                             | Description                                                                               | Default value |
 | ------------------------------------- | ----------------------------------------------------------------------------------------- | ------------- |
-| `userdata-bbb_display_branding_area=` | If set to `true`, the client will display the branding area in the upper left hand corner | `false`       |
+| `userdata-bbb_display_branding_area=` | If set to `true`, the client will display the branding area in the upper left hand corner | `true`       |
 
 #### Shortcut parameters
 
