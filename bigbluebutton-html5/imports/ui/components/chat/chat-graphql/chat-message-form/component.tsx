@@ -133,6 +133,7 @@ const ChatMessageForm: React.FC<ChatMessageFormProps> = ({
   const [message, setMessage] = React.useState('');
   const [showEmojiPicker, setShowEmojiPicker] = React.useState(false);
   const [isTextAreaFocused, setIsTextAreaFocused] = React.useState(false);
+  const [isBlocked, setIsBlocked] = React.useState(false);
   const textAreaRef: RefObject<TextareaAutosize> = useRef<TextareaAutosize>(null);
   const { isMobile } = deviceInfo;
   const prevChatId = usePreviousValue(chatId);
@@ -330,6 +331,14 @@ const ChatMessageForm: React.FC<ChatMessageFormProps> = ({
           cancelable: true,
         });
         handleSubmit(event);
+        if (e.key === 'Enter' && !isBlocked) {
+          event.preventDefault();
+          if (message.trim() !== '') {
+            setMessage('');
+            setIsBlocked(true);
+            setTimeout(() => setIsBlocked(false), 100);
+          }
+        }
       }
     };
     const handleFillChatFormThroughPlugin = ((
