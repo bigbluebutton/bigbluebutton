@@ -6,7 +6,7 @@ class ApolloContextHolder {
 
   private link: Client | null = null;
 
-  private sholdRetry: boolean = true;
+  private shouldRetry: boolean = true;
 
   public setClient(client: ApolloClient<NormalizedCacheObject>): void {
     this.client = client;
@@ -31,11 +31,11 @@ class ApolloContextHolder {
   }
 
   public setShouldRetry(shouldRetry: boolean): void {
-    this.sholdRetry = shouldRetry;
+    this.shouldRetry = shouldRetry;
   }
 
   public getShouldRetry(): boolean {
-    return this.sholdRetry;
+    return this.shouldRetry;
   }
 }
 
