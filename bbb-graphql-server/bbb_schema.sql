@@ -595,6 +595,7 @@ CREATE TABLE "user_voice" (
 	"voiceConfCallState" varchar(30),
 	"endTime" bigint,
 	"startTime" bigint,
+	"voiceActivityAt" timestamp with time zone,
 	CONSTRAINT "user_voice_pkey" PRIMARY KEY ("meetingId","userId"),
     FOREIGN KEY ("meetingId", "userId") REFERENCES "user"("meetingId","userId") ON DELETE CASCADE
 );
@@ -614,6 +615,7 @@ GENERATED ALWAYS AS (to_timestamp("endTime"::double precision / 1000)) STORED;
 
 CREATE INDEX "idx_user_voice_userId_talking" ON "user_voice"("meetingId", "userId","talking");
 CREATE INDEX "idx_user_voice_userId_hideTalkingIndicatorAt" ON "user_voice"("meetingId", "userId","hideTalkingIndicatorAt");
+CREATE INDEX "idx_user_voice_userId_voiceActivityAt" ON "user_voice"("meetingId", "voiceActivityAt") WHERE "voiceActivityAt" is not null;
 
 CREATE OR REPLACE VIEW "v_user_voice" AS
 SELECT
@@ -634,6 +636,45 @@ LEFT JOIN "user_voice" user_talking ON (
                                        )
 WHERE "user_voice"."joined" is true;
 
+--Populate voiceActivityAt to provide users that are active in audio via stream subscription using the view v_user_voice_activity
+CREATE OR REPLACE FUNCTION "update_user_voice_voiceActivityAt_trigger_func"() RETURNS TRIGGER AS $$
+BEGIN
+    NEW."voiceActivityAt" := CASE WHEN
+    								NEW."muted" IS false
+    								or (OLD."muted" IS false and NEW."muted" is true)
+    								or NEW."talking" is true
+    								or (OLD."talking" IS true and NEW."talking" is false)
+    								or (NEW."startTime" != OLD."startTime")
+    								or (NEW."endTime" != OLD."endTime")
+    								THEN current_timestamp
+                                  ELSE OLD."voiceActivityAt"
+                             END;
+    RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+
+CREATE TRIGGER "update_user_voice_voiceActivityAt_trigger" BEFORE INSERT OR UPDATE ON "user_voice" FOR EACH ROW
+EXECUTE FUNCTION "update_user_voice_voiceActivityAt_trigger_func"();
+
+CREATE OR REPLACE VIEW "v_user_voice_activity" AS
+select
+	"user_voice"."meetingId",
+	"user_voice"."userId",
+	"user_voice"."muted",
+	"user_voice"."talking",
+    "user_voice"."startTime",
+    "user_voice"."endTime",
+	"user_voice"."voiceActivityAt"
+FROM "user_voice"
+WHERE "voiceActivityAt" is not null
+AND --filter recent activities to avoid receiving all history every time it starts the streming
+    ("voiceActivityAt" > current_timestamp - '10 seconds'::interval
+       OR "user_voice"."muted" is false
+        OR "user_voice"."talking" is true
+     )
+;
+
+----
 
 
 ---TEMPORARY MINIMONGO ADAPTER START

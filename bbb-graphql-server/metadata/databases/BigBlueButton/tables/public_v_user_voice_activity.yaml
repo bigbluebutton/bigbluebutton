@@ -1,0 +1,17 @@
+table:
+  name: v_user_voice_activity
+  schema: public
+select_permissions:
+  - role: bbb_client
+    permission:
+      columns:
+        - endTime
+        - muted
+        - startTime
+        - talking
+        - userId
+        - voiceActivityAt
+      filter:
+        voiceActivityAt:
+          _eq: X-Hasura-MeetingId
+    comment: ""
