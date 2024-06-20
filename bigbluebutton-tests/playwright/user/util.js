@@ -1,11 +1,5 @@
 const e = require('../core/elements');
 
-async function setStatus(page, status) {
-  await page.waitAndClick(e.currentUser);
-  await page.waitAndClick(e.setStatus);
-  await page.waitAndClick(status);
-}
-
 async function openLockViewers(test) {
   await test.waitAndClick(e.manageUsers);
   await test.waitAndClick(e.lockViewersButton);
@@ -51,7 +45,6 @@ async function timeInSeconds(locator) {
   return timeInSeconds;
 }
 
-exports.setStatus = setStatus;
 exports.openLockViewers = openLockViewers;
 exports.setGuestPolicyOption = setGuestPolicyOption;
 exports.checkAvatarIcon = checkAvatarIcon;
