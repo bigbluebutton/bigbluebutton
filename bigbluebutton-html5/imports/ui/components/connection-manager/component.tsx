@@ -123,6 +123,9 @@ const ConnectionManager: React.FC<ConnectionManagerProps> = ({ children }): Reac
               }, 10000);
             });
           },
+          shouldRetry: () => {
+            return apolloContextHolder.getShouldRetry();
+          },
           connectionParams: {
             headers: {
               'X-Session-Token': sessionToken,

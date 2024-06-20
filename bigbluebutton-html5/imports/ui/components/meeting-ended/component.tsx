@@ -22,6 +22,7 @@ import Rating from './rating/component';
 import { LoadingContext } from '../common/loading-screen/loading-screen-HOC/component';
 import logger from '/imports/startup/client/logger';
 import apolloContextHolder from '/imports/ui/core/graphql/apolloContextHolder/apolloContextHolder';
+import { Meteor } from 'meteor/meteor';
 
 const intlMessage = defineMessages({
   410: {
@@ -373,6 +374,8 @@ const MeetingEnded: React.FC<MeetingEndedProps> = ({
       apolloClient.stop();
     }
 
+    apolloContextHolder.setShouldRetry(false);
+
     const ws = apolloContextHolder.getLink();
     // stops client connection after 5 seconds, if made immediately some data is lost
     if (ws) {
@@ -382,6 +385,7 @@ const MeetingEnded: React.FC<MeetingEndedProps> = ({
         apolloClient.setLink(ApolloLink.empty());
         // closes the connection
         ws.terminate();
+        Meteor.disconnect();
       }, 5000);
     }
   }, []);
