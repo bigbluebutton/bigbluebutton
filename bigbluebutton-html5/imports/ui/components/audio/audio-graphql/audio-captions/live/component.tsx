@@ -35,7 +35,7 @@ const AudioCaptionsLive: React.FC<AudioCaptionsLiveProps> = ({
                       color={user.color}
                       moderator={user.isModerator}
                     >
-                      {user.avatar ? '' : user.name.toLowerCase().slice(0, 2)}
+                      {user.avatar ? '' : user.name.slice(0, 2)}
                     </Styled.UserAvatar>
                   </Styled.UserAvatarWrapper>
                 )}
