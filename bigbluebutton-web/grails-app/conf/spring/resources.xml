@@ -165,6 +165,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
         <property name="defaultAvatarURL" value="${defaultAvatarURL}"/>
         <property name="defaultGuestPolicy" value="${defaultGuestPolicy}"/>
         <property name="authenticatedGuest" value="${authenticatedGuest}"/>
+        <property name="defaultAllowPromoteGuestToModerator" value="${defaultAllowPromoteGuestToModerator}"/>
         <property name="defaultMeetingLayout" value="${defaultMeetingLayout}"/>
         <property name="meetingExpireIfNoUserJoinedInMinutes" value="${meetingExpireIfNoUserJoinedInMinutes}"/>
         <property name="meetingExpireWhenLastUserLeftInMinutes" value="${meetingExpireWhenLastUserLeftInMinutes}"/>

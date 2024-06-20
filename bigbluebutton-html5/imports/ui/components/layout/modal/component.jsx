@@ -20,8 +20,9 @@ const LayoutModalComponent = (props) => {
   } = props;
 
   const [selectedLayout, setSelectedLayout] = useState(application.selectedLayout);
+  const [updateAllUsed, setUpdateAllUsed] = useState(false);
 
-  const BASE_NAME = Meteor.settings.public.app.basename;
+  const BASE_NAME = Meteor.settings.public.app.cdn + Meteor.settings.public.app.basename;
 
   const LAYOUTS_PATH = `${BASE_NAME}/resources/images/layouts/`;
   const isKeepPushingLayoutEnabled = SettingsService.isKeepPushingLayoutEnabled();
@@ -43,8 +44,16 @@ const LayoutModalComponent = (props) => {
       id: 'app.layout.modal.layoutLabel',
       description: 'Layout label',
     },
+    layoutToastLabelAuto: {
+      id: 'app.layout.modal.layoutToastLabelAuto',
+      description: 'Layout toast label',
+    },
     layoutToastLabel: {
       id: 'app.layout.modal.layoutToastLabel',
+      description: 'Layout toast label',
+    },
+    layoutToastLabelAutoOff: {
+      id: 'app.layout.modal.layoutToastLabelAutoOff',
       description: 'Layout toast label',
     },
     customLayout: {
@@ -82,7 +91,15 @@ const LayoutModalComponent = (props) => {
       application:
       { ...application, selectedLayout, pushLayout: updateAll },
     };
-    updateSettings(obj, intlMessages.layoutToastLabel);
+    if ((isModerator || isPresenter) && updateAll) {
+      updateSettings(obj, intlMessages.layoutToastLabelAuto);
+      setUpdateAllUsed(true);
+    } else if ((isModerator || isPresenter) && !updateAll && !updateAllUsed) {
+      updateSettings(obj, intlMessages.layoutToastLabelAutoOff);
+      setUpdateAllUsed(false);
+    } else {
+      updateSettings(obj, intlMessages.layoutToastLabel);
+    }
     setIsOpen(false);
   };
 

@@ -44,6 +44,7 @@ trait TestFixtures {
   val keepEvents = false
   val guestPolicy = "ALWAYS_ASK"
   val authenticatedGuest = false
+  val allowPromoteGuestToModerator = false
   val metadata: collection.immutable.Map[String, String] = Map("foo" -> "bar", "bar" -> "baz", "baz" -> "foo")
   val captureNotesFilename = s"Room 0${sequence} (Notes)"
   val captureSlidesFilename = s"Room 0${sequence} (Whiteboard)"
@@ -71,7 +72,8 @@ trait TestFixtures {
   val voiceProp = VoiceProp(telVoice = voiceConfId, voiceConf = voiceConfId, dialNumber = dialNumber, muteOnStart = muteOnStart)
   val usersProp = UsersProp(maxUsers = maxUsers, webcamsOnlyForModerator = webcamsOnlyForModerator,
     userCameraCap = userCameraCap,
-    guestPolicy = guestPolicy, allowModsToUnmuteUsers = allowModsToUnmuteUsers, allowModsToEjectCameras = allowModsToEjectCameras, authenticatedGuest = authenticatedGuest)
+    guestPolicy = guestPolicy, allowModsToUnmuteUsers = allowModsToUnmuteUsers, allowModsToEjectCameras = allowModsToEjectCameras,
+    authenticatedGuest = authenticatedGuest, allowPromoteGuestToModerator = allowPromoteGuestToModerator)
   val metadataProp = new MetadataProp(metadata)
   val defaultProps = DefaultProps(meetingProp, breakoutProps, durationProps, password, recordProp, welcomeProp, voiceProp,
     usersProp, metadataProp)

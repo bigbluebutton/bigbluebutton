@@ -1,5 +1,5 @@
 require('dotenv').config();
-const sha1 = require('sha1');
+const sha = require('sha.js');
 const axios = require('axios');
 const { test, expect } = require('@playwright/test');
 const xml2js = require('xml2js');
@@ -11,6 +11,24 @@ const { format } = require('node:util');
 const chalk = require('chalk');
 const parameters = require('./parameters');
 
+function getChecksum(text, secret) {
+  let algorithm = (process.env.CHECKSUM || '').toLowerCase();
+  if (!['sha1', 'sha256', 'sha512'].includes(algorithm)) {
+    switch (secret.length) {
+      case 128:
+        algorithm = 'sha512';
+        break;
+      case 64:
+        algorithm = 'sha256';
+        break;
+      case 40:
+      default:
+        algorithm = 'sha1'
+    }
+  }
+  return sha(algorithm).update(text).digest('hex');
+}
+
 function getRandomInt(min, max) {
   min = Math.ceil(min);
   max = Math.floor(max);
@@ -20,7 +38,7 @@ function getRandomInt(min, max) {
 function apiCallUrl(name, callParams) {
   const query = new URLSearchParams(callParams).toString();
   const apiCall = `${name}${query}${parameters.secret}`;
-  const checksum = sha1(apiCall);
+  const checksum = getChecksum(apiCall, parameters.secret);
   const url = `${parameters.server}/${name}?${query}&checksum=${checksum}`;
   return url;
 }
@@ -38,7 +56,7 @@ function createMeetingUrl(params, createParameter, customMeetingId) {
     + `&allowStartStopRecording=true&autoStartRecording=false&welcome=${params.welcome}`;
   const query = createParameter !== undefined ? `${baseQuery}&${createParameter}` : baseQuery;
   const apiCall = `create${query}${params.secret}`;
-  const checksum = sha1(apiCall);
+  const checksum = getChecksum(apiCall, parameters.secret);
   const url = `${params.server}/create?${query}&checksum=${checksum}`;
   return url;
 }
@@ -61,7 +79,7 @@ function getJoinURL(meetingID, params, moderator, joinParameter) {
   const baseQuery = `fullName=${params.fullName}&meetingID=${meetingID}&password=${pw}`;
   const query = joinParameter !== undefined ? `${baseQuery}&${joinParameter}` : baseQuery;
   const apiCall = `join${query}${params.secret}`;
-  const checksum = sha1(apiCall);
+  const checksum = getChecksum(apiCall, parameters.secret);
   return `${params.server}/join?${query}&checksum=${checksum}`;
 }
 

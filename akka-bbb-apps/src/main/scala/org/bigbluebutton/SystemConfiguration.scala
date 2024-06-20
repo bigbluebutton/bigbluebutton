@@ -10,6 +10,7 @@ trait SystemConfiguration {
   lazy val bbbWebPort = Try(config.getInt("services.bbbWebPort")).getOrElse(8888)
   lazy val bbbWebAPI = Try(config.getString("services.bbbWebAPI")).getOrElse("localhost")
   lazy val bbbWebSharedSecret = Try(config.getString("services.sharedSecret")).getOrElse("changeme")
+  lazy val checkSumAlgorithmForBreakouts = Try(config.getString("services.checkSumAlgorithmForBreakouts")).getOrElse("sha256")
   lazy val bbbWebModeratorPassword = Try(config.getString("services.moderatorPassword")).getOrElse("changeme")
   lazy val bbbWebViewerPassword = Try(config.getString("services.viewerPassword")).getOrElse("changeme")
   lazy val keysExpiresInSec = Try(config.getInt("redis.keyExpiry")).getOrElse(14 * 86400) // 14 days

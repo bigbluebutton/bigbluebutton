@@ -54,6 +54,10 @@ const intlMessages = defineMessages({
     id: 'app.audio.captions.select.es-ES',
     description: 'Audio speech recognition spanish language',
   },
+  'ca-ES': {
+    id: 'app.audio.captions.select.ca-ES',
+    description: 'Audio speech recognition catalan language',
+  },
   'fr-FR': {
     id: 'app.audio.captions.select.fr-FR',
     description: 'Audio speech recognition french language',
@@ -133,7 +137,7 @@ const CaptionsButton = ({
     availableVoices.map((availableVoice) => (
       {
         icon: '',
-        label: intl.formatMessage(intlMessages[availableVoice]),
+        label: intlMessages[availableVoice] ? intl.formatMessage(intlMessages[availableVoice]) : availableVoice,
         key: availableVoice,
         iconRight: selectedLocale.current === availableVoice ? 'check' : null,
         customStyles: (selectedLocale.current === availableVoice) && Styled.SelectedLabel,

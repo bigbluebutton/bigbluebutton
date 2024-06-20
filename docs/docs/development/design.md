@@ -195,4 +195,4 @@ When a user joins a session, a dialogue box will appear signifying which auto ro
 
 <hr/>
 
-If you have any questions or feedback, please join [the BigBlueButton community](https://bigbluebutton.org/support/community/) and post them to the [bigbluebutton-dev](https://groups.google.com/forum/#!forum/bigbluebutton-dev) mailing list. We look forward to hearing from you.
+If you have any questions or feedback, please join [the BigBlueButton community](https://bigbluebutton.org/community-support/) and post them to the [bigbluebutton-dev](https://groups.google.com/forum/#!forum/bigbluebutton-dev) mailing list. We look forward to hearing from you.

@@ -92,7 +92,7 @@ class UserParticipants extends Component {
 
   selectEl(el) {
     if (!el) return null;
-    if (el.getAttribute('tabindex')) return el?.focus();
+    if (typeof el.getAttribute === 'function' && el.getAttribute('tabindex')) return el?.focus();
     this.selectEl(el?.firstChild);
   }
 

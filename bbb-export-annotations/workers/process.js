@@ -703,6 +703,10 @@ function overlay_triangle(svg, annotation) {
 }
 
 function overlay_text(svg, annotation) {
+  if (annotation.size == null || annotation.size.length < 2) {
+    return
+  }
+  
   const [textBoxWidth, textBoxHeight] = annotation.size;
   const fontColor = color_to_hex(annotation.style.color);
   const font = determine_font_from_family(annotation.style.font);
@@ -731,30 +735,34 @@ function overlay_text(svg, annotation) {
 }
 
 function overlay_annotation(svg, currentAnnotation) {
-  switch (currentAnnotation.type) {
-    case 'arrow':
-      overlay_arrow(svg, currentAnnotation);
-      break;
-    case 'draw':
-      overlay_draw(svg, currentAnnotation);
-      break;
-    case 'ellipse':
-      overlay_ellipse(svg, currentAnnotation);
-      break;
-    case 'rectangle':
-      overlay_rectangle(svg, currentAnnotation);
-      break;
-    case 'sticky':
-      overlay_sticky(svg, currentAnnotation);
-      break;
-    case 'triangle':
-      overlay_triangle(svg, currentAnnotation);
-      break;
-    case 'text':
-      overlay_text(svg, currentAnnotation);
-      break;
-    default:
-      logger.info(`Unknown annotation type ${currentAnnotation.type}.`);
+  try {
+    switch (currentAnnotation.type) {
+      case 'arrow':
+        overlay_arrow(svg, currentAnnotation);
+        break;
+      case 'draw':
+        overlay_draw(svg, currentAnnotation);
+        break;
+      case 'ellipse':
+        overlay_ellipse(svg, currentAnnotation);
+        break;
+      case 'rectangle':
+        overlay_rectangle(svg, currentAnnotation);
+        break;
+      case 'sticky':
+        overlay_sticky(svg, currentAnnotation);
+        break;
+      case 'triangle':
+        overlay_triangle(svg, currentAnnotation);
+        break;
+      case 'text':
+        overlay_text(svg, currentAnnotation);
+        break;
+      default:
+        logger.info(`Unknown annotation type ${currentAnnotation.type}.`);
+    }
+  } catch (error) {
+    logger.warn("Failed to overlay annotation", { failedAnnotation: currentAnnotation, error: error });
   }
 }
 
@@ -786,9 +794,11 @@ function overlay_annotations(svg, currentSlideAnnotations) {
 // Process the presentation pages and annotations into a PDF file
 async function process_presentation_annotations() {
   const client = redis.createClient({
-    host: config.redis.host,
-    port: config.redis.port,
     password: config.redis.password,
+    socket: {
+        host: config.redis.host,
+        port: config.redis.port
+    }
   });
 
   await client.connect();
@@ -860,11 +870,18 @@ async function process_presentation_annotations() {
       }
     });
 
-    // Scale slide back to its original size
+/**
+ * Constructs the command arguments for converting an annotated slide from SVG to PDF format.
+ * `cairoSVGUnsafeFlag` should be enabled (true) for CairoSVG versions >= 2.7.0
+ * to allow external resources, such as presentation slides, to be loaded.
+ *
+ * @const {string[]} convertAnnotatedSlide - The command arguments for the conversion process.
+ */
     const convertAnnotatedSlide = [
       SVGfile,
       '--output-width', to_px(slideWidth),
       '--output-height', to_px(slideHeight),
+      ...(config.process.cairoSVGUnsafeFlag ? ['-u'] : []),
       '-o', PDFfile,
     ];
 

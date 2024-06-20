@@ -94,6 +94,7 @@ export default function Whiteboard(props) {
   const [zoom, setZoom] = React.useState(HUNDRED_PERCENT);
   const [tldrawZoom, setTldrawZoom] = React.useState(1);
   const zoomValueRef = React.useRef(zoomValue);
+  const isMouseDownRef = React.useRef(false);
   const [isMounting, setIsMounting] = React.useState(true);
   const prevShapes = usePrevious(shapes);
   const prevSlidePosition = usePrevious(slidePosition);
@@ -145,8 +146,11 @@ export default function Whiteboard(props) {
     } else {
       setIsPanning(false);
       setPanSelected(false);
-      panButton.classList.add('selectOverride');
-      panButton.classList.remove('select');
+      if (panButton) {
+        // only presenter has the pan button
+        panButton.classList.add('selectOverride');
+        panButton.classList.remove('select');
+      }
     }
   };
 
@@ -218,6 +222,7 @@ export default function Whiteboard(props) {
         tldrawAPI?.completeSession?.();
       }
     }
+    isMouseDownRef.current = false;
   };
 
   const checkVisibility = () => {
@@ -256,12 +261,18 @@ export default function Whiteboard(props) {
     window.dispatchEvent(new Event('resize'));
   }
 
+  const setIsMouseDown = () => {
+    isMouseDownRef.current = true;
+  }
+
   React.useEffect(() => {
     document.addEventListener('mouseup', checkClientBounds);
     document.addEventListener('visibilitychange', checkVisibility);
+    document.addEventListener('mousedown', setIsMouseDown);
 
     return () => {
       document.removeEventListener('mouseup', checkClientBounds);
+      document.removeEventListener('mousedown', setIsMouseDown);
       document.removeEventListener('visibilitychange', checkVisibility);
       const canvas = document.getElementById('canvas');
       if (canvas) {
@@ -465,15 +476,14 @@ export default function Whiteboard(props) {
 
   // change tldraw camera when slidePosition changes
   React.useEffect(() => {
+    const camera = tldrawAPI?.getPageState()?.camera;
     if (tldrawAPI && !isPresenter && curPageId && slidePosition) {
       const newZoom = calculateZoom(slidePosition.viewBoxWidth, slidePosition.viewBoxHeight);
       tldrawAPI?.setCamera([slidePosition.x, slidePosition.y], newZoom, 'zoomed');
     }
 
-    const camera = tldrawAPI?.getPageState()?.camera;
     if (isPresenter && slidePosition && camera) {
       const zoomFitSlide = calculateZoom(slidePosition.width, slidePosition.height);
-      const zoomCamera = (zoomFitSlide * zoomValue) / HUNDRED_PERCENT;
       let zoomToolbar = Math.round(
         ((HUNDRED_PERCENT * camera.zoom) / zoomFitSlide) * 100,
       ) / 100;
@@ -483,6 +493,28 @@ export default function Whiteboard(props) {
       }
     }
   }, [curPageId, slidePosition]);
+
+  React.useEffect(() => {
+    if (isPresenter && slidePosition && !isMounting) {
+      const zoomFitSlide = calculateZoom(slidePosition?.width, slidePosition?.height);
+      const zoomCamera = (zoomFitSlide * zoomValue) / HUNDRED_PERCENT;
+      let viewedRegionW = SlideCalcUtil.calcViewedRegionWidth(
+        tldrawAPI?.viewport?.width, slidePosition?.width,
+      );
+      let viewedRegionH = SlideCalcUtil.calcViewedRegionHeight(
+        tldrawAPI?.viewport?.height, slidePosition?.height,
+      );
+
+      zoomSlide(
+        parseInt(curPageId, 10),
+        podId,
+        viewedRegionW,
+        viewedRegionH,
+        slidePosition?.x,
+        slidePosition?.y,
+      );
+    }
+  }, [curPageId]);
 
   // update zoom according to toolbar
   React.useEffect(() => {
@@ -613,6 +645,12 @@ export default function Whiteboard(props) {
 
   const handleOnKeyDown = (event) => {
     const { which, ctrlKey } = event;
+
+    if (isMouseDownRef.current) {
+      event.preventDefault();
+      event.stopPropagation();
+      return;
+    }
 
     switch (which) {
       case KEY_CODES.ARROW_LEFT:

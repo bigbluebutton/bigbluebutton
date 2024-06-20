@@ -7,6 +7,17 @@ import DropAreaContainer from './drop-areas/container';
 import VideoProviderContainer from '/imports/ui/components/video-provider/container';
 import Storage from '/imports/ui/services/storage/session';
 import { colorContentBackground } from '/imports/ui/stylesheets/styled-components/palette';
+import { defineMessages } from 'react-intl';
+import {
+  isPresenter,
+} from '/imports/ui/components/settings/service';
+
+const intlMessages = defineMessages({
+  layoutToastLabelAuto: {
+    id: 'app.layout.modal.layoutToastLabelAuto',
+    description: 'Layout toast label',
+  },
+});
 
 const WebcamComponent = ({
   cameraDock,

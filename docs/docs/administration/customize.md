@@ -71,6 +71,7 @@ And adjust it to the desired number of days. If you would instead like to comple
 
 ```bash
 remove_raw_of_published_recordings
+```
 
 #### Delete recordings older than N days
 
@@ -629,7 +630,7 @@ mediaThresholds:
   perUser: 0
 ```
 
-For example, the following settings would limit the overall number of media across all meetings to 1000 streams, the maximum number of webcam streams per meeting to 300, and no limit on the number of webcam streams per user.
+For example, the following settings would limit the overall number of media accross all meetings to 1000 streams, the maximum number of webcam streams per meeting to 300, and no limit on the number of webcam streams per user.
 
 ```
 mediaThresholds:
@@ -867,7 +868,7 @@ To create the dialplan, use the XML below and save it to `/opt/freeswitch/conf/d
    <action application="start_dtmf" />
    <action application="answer"/>
    <action application="sleep" data="1000"/>
-   <action application="play_and_get_digits" data="5 7 3 30000 # conference/conf-pin.wav ivr/ivr-that_was_an_invalid_entry.wav pin \d+"/>
+   <action application="play_and_get_digits" data="9 9 3 30000 # conference/conf-pin.wav ivr/ivr-that_was_an_invalid_entry.wav pin \d+"/>
 
    <!-- Uncomment the following block if you want to mask the phone number in the list of participants. -->
    <!-- Instead of `01711233121` it will then show `xxx-xxx-3121`. -->
@@ -890,7 +891,7 @@ To create the dialplan, use the XML below and save it to `/opt/freeswitch/conf/d
  <condition field="${pin}" expression="^\d{5}$">
    <action application="answer"/>
    <action application="sleep" data="1000"/>
-   <action application="play_and_get_digits" data="5 7 3 30000 # conference/conf-bad-pin.wav ivr/ivr-that_was_an_invalid_entry.wav pin \d+"/>
+   <action application="play_and_get_digits" data="9 9 3 30000 # conference/conf-bad-pin.wav ivr/ivr-that_was_an_invalid_entry.wav pin \d+"/>
    <action application="transfer" data="SEND_TO_CONFERENCE XML public"/>
  </condition>
 </extension>
@@ -1346,6 +1347,31 @@ public:
 
 Restart BigBlueButton with `sudo bbb-conf --restart` and you should now see the options for live captions when joining audio.
 
+### Configuration of gladia.io
+
+To use gladia.io for automatic speech-to-text transcriptions, you first need to obtain an API key from [gladia.io](https://www.gladia.io).  You can sign up for free credentials to test the integration.
+
+Next, you must be using BigBlueButton 2.7.4 (pass `-v focal-270`) or later on Ubuntu 20.04 server with a public IP and hostname.  
+
+Once you have BigBlueButton installed, run `sudo apt install bbb-transcription-controller` to install BigBlueButton's transcription service which supports gladia.io.
+
+Next, run `sudo bbb-conf --setip <hostname>` where \<hostname\> is the external hostname of the server (same as was passed to bbb-install.sh). This will update the bbb-transcription-controller configuration.
+
+Next, to enable gladia.io, run the following two commands
+
+```
+yq w -i /etc/bigbluebutton/bbb-html5.yml public.app.audioCaptions.enabled true
+yq w -i /etc/bigbluebutton/bbb-html5.yml public.app.audioCaptions.provider gladia
+```
+
+Next, set the gladia.io API key using the command below, replacing \<gladia_api_key\> with a glada.io API key obtained above.
+
+```
+yq w -i /usr/local/bigbluebutton/bbb-transcription-controller/config/default.yml gladia.startMessage '{"x_gladia_key": "<gladia-api-key>", "sample_rate": 0, "bit_depth": 16, "model_type": "fast", "endpointing": 10 }'
+```
+
+Restart the BigBlueButton server with `bbb-conf --restart`.  You will now be able to select a speech-to-text option when joining audio (including auto translate).  When one or more users have selected the option, a CC button will appear at the bottom and a Transcript panel will also be available.
+
 
 ### Configuration of global settings
 
@@ -1431,7 +1457,7 @@ Useful tools for development:
 | `userdata-bbb_skip_check_audio=`               | If set to `true`, the user will not see the "echo test" prompt when sharing audio                                                                                                                                                                                                                                               | `false`       |
 | `userdata-bbb_skip_check_audio_on_first_join=` | (Introduced in BigBlueButton 2.3) If set to `true`, the user will not see the "echo test" when sharing audio for the first time in the session. If the user stops sharing, next time they try to share audio the echo test window will be displayed, allowing for configuration changes to be made prior to sharing audio again | `false`       |
 | `userdata-bbb_override_default_locale=`        | (Introduced in BigBlueButton 2.3) If set to `de`, the user's browser preference will be ignored - the client will be shown in 'de' (i.e. German) regardless of the otherwise preferred locale 'en' (or other)                                                                                                                   | `null`        |
-| `userdata-bbb_hide_presentation_on_join`        | (Introduced in BigBlueButton 2.6) If set to `true` it will make the user enter the meeting with presentation minimized (Only for non-presenters), not peremanent.                                                                                                                   | `false`        |
+| `userdata-bbb_hide_presentation_on_join`        | (Introduced in BigBlueButton 2.6) If set to `true` it will make the user enter the meeting with presentation minimized (Only for non-presenters), not permanent.                                                                                                                   | `false`        |
 | `userdata-bbb_direct_leave_button`        | (Introduced in BigBlueButton 2.7) If set to `true` it will make a button to leave the meeting appear to the left of the Options menu.                                                                                                                   | `false`        |
 | `userdata-bbb_show_animations_default` | (Introduced in BigBlueButton 2.7.4) If set to `false` the default value for the Animations toggle in Settings will be 'off' | `true` |
 
@@ -1476,7 +1502,7 @@ Useful tools for development:
 | `userdata-bbb_presenter_tools=`     | Pass in an array of permitted tools from `settings.yml`                                                         | all enabled   |
 | `userdata-bbb_multi_user_tools=`    | Pass in an array of permitted tools for non-presenters from `settings.yml`                                      | all enabled   |
 
-#### Themeing & styling parameters
+#### Theming & styling parameters
 
 | Parameter                        | Description                                                                                                          | Default value |
 | -------------------------------- | -------------------------------------------------------------------------------------------------------------------- | ------------- |

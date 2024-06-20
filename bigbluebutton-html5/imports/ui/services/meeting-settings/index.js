@@ -2,11 +2,10 @@ import Auth from '/imports/ui/services/auth';
 import Meetings from '/imports/api/meetings';
 
 export default function getFromMeetingSettings(setting, defaultValue) {
-  const prop = Meetings.findOne(
+  const meeting = Meetings.findOne(
     { meetingId: Auth.meetingID },
-    { fields: { 'metadataProp': 1 } },
-  ).metadataProp;
-  const value = prop.metadata ? prop.metadata[setting] : undefined;
+    { fields: { metadataProp: 1 } },
+  );
 
-  return value || defaultValue;
+  return meeting?.metadataProp?.metadata?.[setting] ?? defaultValue;
 }

@@ -45,6 +45,7 @@ import org.bigbluebutton.web.services.turn.StunServer
 import org.bigbluebutton.web.services.turn.RemoteIceCandidate
 import org.json.JSONArray
 import javax.servlet.ServletRequest
+import javax.servlet.http.HttpServletRequest
 
 class ApiController {
   private static final String CONTROLLER_NAME = 'ApiController'
@@ -115,8 +116,7 @@ class ApiController {
 
     Map.Entry<String, String> validationResponse = validateRequest(
             ValidationService.ApiCall.CREATE,
-            request.getParameterMap(),
-            request.getQueryString()
+            request
     )
 
     if(!(validationResponse == null)) {
@@ -208,7 +208,6 @@ class ApiController {
     }
   }
 
-
   /**********************************************
    * JOIN API
    *********************************************/
@@ -220,8 +219,7 @@ class ApiController {
 
     Map.Entry<String, String> validationResponse = validateRequest(
             ValidationService.ApiCall.JOIN,
-            request.getParameterMap(),
-            request.getQueryString()
+            request
     )
 
     HashMap<String, String> roles = new HashMap<String, String>();
@@ -520,8 +518,7 @@ class ApiController {
 
     Map.Entry<String, String> validationResponse = validateRequest(
             ValidationService.ApiCall.MEETING_RUNNING,
-            request.getParameterMap(),
-            request.getQueryString()
+            request
     )
 
     if(!(validationResponse == null)) {
@@ -551,8 +548,7 @@ class ApiController {
 
     Map.Entry<String, String> validationResponse = validateRequest(
             ValidationService.ApiCall.END,
-            request.getParameterMap(),
-            request.getQueryString()
+            request
     )
 
     if(!(validationResponse == null)) {
@@ -595,8 +591,7 @@ class ApiController {
 
     Map.Entry<String, String> validationResponse = validateRequest(
             ValidationService.ApiCall.GET_MEETING_INFO,
-            request.getParameterMap(),
-            request.getQueryString()
+            request
     )
 
     if(!(validationResponse == null)) {
@@ -604,7 +599,8 @@ class ApiController {
       return
     }
 
-    Meeting meeting = ServiceUtils.findMeetingFromMeetingID(params.meetingID);
+    String meetingId = params.list("meetingID")[0]
+    Meeting meeting = ServiceUtils.findMeetingFromMeetingID(meetingId);
 
     withFormat {
       xml {
@@ -622,8 +618,7 @@ class ApiController {
 
     Map.Entry<String, String> validationResponse = validateRequest(
             ValidationService.ApiCall.GET_MEETINGS,
-            request.getParameterMap(),
-            request.getQueryString()
+            request
     )
 
     if(!(validationResponse == null)) {
@@ -660,8 +655,7 @@ class ApiController {
 
     Map.Entry<String, String> validationResponse = validateRequest(
             ValidationService.ApiCall.GET_SESSIONS,
-            request.getParameterMap(),
-            request.getQueryString()
+            request
     )
 
     if(!(validationResponse == null)) {
@@ -719,8 +713,7 @@ class ApiController {
 
     Map.Entry<String, String> validationResponse = validateRequest(
             ValidationService.ApiCall.GUEST_WAIT,
-            request.getParameterMap(),
-            request.getQueryString()
+            request
     )
     if(!(validationResponse == null)) {
       msgKey = validationResponse.getKey()
@@ -833,8 +826,7 @@ class ApiController {
 
     Map.Entry<String, String> validationResponse = validateRequest(
             ValidationService.ApiCall.ENTER,
-            request.getParameterMap(),
-            request.getQueryString(),
+            request
     )
     if(!(validationResponse == null)) {
       respMessage = validationResponse.getValue()
@@ -991,8 +983,7 @@ class ApiController {
 
     Map.Entry<String, String> validationResponse = validateRequest(
             ValidationService.ApiCall.STUNS,
-            request.getParameterMap(),
-            request.getQueryString(),
+            request
     )
 
     if(!(validationResponse == null)) {
@@ -1068,8 +1059,7 @@ class ApiController {
 
     Map.Entry<String, String> validationResponse = validateRequest(
             ValidationService.ApiCall.SIGN_OUT,
-            request.getParameterMap(),
-            request.getQueryString()
+            request
     )
 
     if(validationResponse == null) {
@@ -1113,8 +1103,7 @@ class ApiController {
 
     Map.Entry<String, String> validationResponse = validateRequest(
             ValidationService.ApiCall.INSERT_DOCUMENT,
-            request.getParameterMap(),
-            request.getQueryString()
+            request
     )
 
     def externalMeetingId = params.meetingID.toString()
@@ -1129,14 +1118,14 @@ class ApiController {
       if (uploadDocuments(meeting, true)) {
         withFormat {
           xml {
-            render(text: responseBuilder.buildInsertDocumentResponse("Presentation is being uploaded", RESP_CODE_SUCCESS)
+            render(text: responseBuilder.buildInsertDocumentResponse("documentInserted", "Presentation is being uploaded", RESP_CODE_SUCCESS)
                     , contentType: "text/xml")
           }
         }
-      } else if (meetingService.isMeetingWithDisabledPresentation(meetingId)) {
+      } else if (meetingService.isMeetingWithDisabledPresentation(meeting.getInternalId())) {
         withFormat {
           xml {
-            render(text: responseBuilder.buildInsertDocumentResponse("Presentation feature is disabled, ignoring.",
+            render(text: responseBuilder.buildInsertDocumentResponse("presentationDisabled", "Presentation feature is disabled, ignoring.",
                     RESP_CODE_FAILED), contentType: "text/xml")
           }
         }
@@ -1145,7 +1134,7 @@ class ApiController {
       log.warn("Meeting with externalID ${externalMeetingId} doesn't exist.")
       withFormat {
         xml {
-          render(text: responseBuilder.buildInsertDocumentResponse(
+          render(text: responseBuilder.buildInsertDocumentResponse("notFound",
                   "Meeting with id [${externalMeetingId}] not found.", RESP_CODE_FAILED),
                   contentType: "text/xml")
         }
@@ -1166,8 +1155,7 @@ class ApiController {
 
     Map.Entry<String, String> validationResponse = validateRequest(
             ValidationService.ApiCall.GET_JOIN_URL,
-            request.getParameterMap(),
-            request.getQueryString(),
+            request
     )
 
     //Validate Session
@@ -1266,8 +1254,7 @@ class ApiController {
 
     Map.Entry<String, String> validationResponse = validateRequest(
             ValidationService.ApiCall.LEARNING_DASHBOARD,
-            request.getParameterMap(),
-            request.getQueryString(),
+            request
     )
 
     //Validate Session
@@ -1945,8 +1932,8 @@ class ApiController {
     redirect(url: newUri)
   }
 
-  private Map.Entry<String, String> validateRequest(ValidationService.ApiCall apiCall, Map<String, String[]> params, String queryString) {
-    Map<String, String> violations = validationService.validate(apiCall, params, queryString)
+  private Map.Entry<String, String> validateRequest(ValidationService.ApiCall apiCall, HttpServletRequest request) {
+    Map<String, String> violations = validationService.validate(apiCall, request)
     Map.Entry<String, String> response = null
 
     if(!violations.isEmpty()) {

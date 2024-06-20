@@ -75,7 +75,7 @@ BigBlueButton web application is a Java-based application written in Scala. It i
 
 The BigBlueButton API provides a third-party integration (such as the [BigBlueButtonBN plugin](https://moodle.org/plugins/mod_bigbluebuttonbn) for Moodle) with an endpoint to control the BigBlueButton server.
 
-Every access to BigBlueButton comes through a front-end portal (we refer to as a third-party application). BigBlueButton integrates Moodle, Wordpress, Canvas, Sakai, MatterMost, and others (see [third-party integrations](https://bigbluebutton.org/integrations/)). BigBlueButton comes with its own front-end called [Greenlight](/greenlight/v3/install). When using a learning management system (LMS) such as Moodle, teachers can setup BigBlueButton rooms within their course and students can access the rooms and their recordings.
+Every access to BigBlueButton comes through a front-end portal (we refer to as a third-party application). BigBlueButton integrates Moodle, Wordpress, Canvas, Sakai, MatterMost, and others (see [third-party integrations](https://bigbluebutton.org/schools/integrations/)). BigBlueButton comes with its own front-end called [Greenlight](/greenlight/v3/install). When using a learning management system (LMS) such as Moodle, teachers can setup BigBlueButton rooms within their course and students can access the rooms and their recordings.
 
 The BigBlueButton comes with some simple [API demos](/administration/install#install). Regardless of which front-end you use, they all use the [API](/development/api) under the hood.
 
@@ -132,11 +132,11 @@ The conversion process sends progress messages to the client through the Redis p
 
 The diagram below describes the flow of the presentation conversion. We take in consideration the configuration for enabling and disabling SWF, SVG and PNG conversion.
 
-![General Conversion Flow](/img/diagrams/Presentation Conversion Diagram-General Conversion Flow.png)
+![General Conversion Flow](/img/diagrams/presentation-conversion-diagram-general-conversion-flow.png)
 
 Then below the SVG conversion flow. It covers the conversion fallback. Sometimes we detect that the generated SVG file is heavy to load by the browser, we use the fallback to put a rasterized image inside the SVG file and make its loading light for the browser.
 
-![SVG Conversion Flow](/img/diagrams/Presentation Conversion Diagram-SVG Conversion Flow.png)
+![SVG Conversion Flow](/img/diagrams/presentation-conversion-diagram-svg-conversion-flow.png)
 
 ### Internal network connections
 

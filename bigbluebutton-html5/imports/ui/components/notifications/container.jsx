@@ -22,6 +22,14 @@ export default injectIntl(withTracker(({ intl }) => {
       if (obj.messageId === 'app.notification.userLeavePushAlert') {
         return UserService.UserLeftMeetingAlert(obj);
       }
+      if (obj.messageId === 'app.layoutUpdate.label') {
+        const last = new Date(Session.get('lastLayoutUpdateNotification'));
+        const now = new Date();
+        if (now - last < 1000) {
+          return {};
+        }
+        Session.set('lastLayoutUpdateNotification', now);
+      }
 
       notify(
         <FormattedMessage

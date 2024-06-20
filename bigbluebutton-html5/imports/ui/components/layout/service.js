@@ -5,7 +5,7 @@ const setPushLayout = (pushLayout) => {
 };
 
 const setMeetingLayout = (options) => {
-  makeCall('changeLayout', options)
+  makeCall('changeLayout', options);
 };
 
 export default {

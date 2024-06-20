@@ -20,7 +20,8 @@
       "maxImageHeight": 1080,
       "textScaleFactor": 2,
       "pointsPerInch": 72,
-      "pixelsPerInch": 96
+      "pixelsPerInch": 96,
+      "cairoSVGUnsafeFlag": false
     },
     "notifier": {
       "pod_id": "DEFAULT_PRESENTATION_POD",

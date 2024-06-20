@@ -142,7 +142,8 @@ class MeetingEnded extends PureComponent {
       this.localUserRole = user.role;
     }
 
-    const meeting = Meetings.findOne({ id: user?.meetingID });
+    const meetingID = user?.meetingId || Auth.meetingID;
+    const meeting = Meetings.findOne({ id: meetingID });
     if (meeting) {
       this.endWhenNoModeratorMinutes = meeting.durationProps.endWhenNoModeratorDelayInMinutes;
 

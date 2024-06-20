@@ -300,7 +300,7 @@ Yes. The steps are covered in the [install](/administration/install) documentati
 
 #### Ubuntu
 
-Older versions of BigBlueButton, up to and including version 2.4, required **Ubuntu 18.04 64-bit**.  The current version of BigBlueButto n2.5 requires **Ubuntu 20.04 64-bit**.  See [Install BigBlueButton](/administration/install).
+Older versions of BigBlueButton, up to and including version 2.4, required **Ubuntu 18.04 64-bit**.  BigBlueButton 2.5, 2.6, 2.7 require **Ubuntu 20.04 64-bit**.  See [Install BigBlueButton](/administration/install).
 
 We (the core developers) have not installed BigBlueButton on any other version of Ubuntu. It probably won't work.
 
@@ -446,7 +446,7 @@ Additionally, you can see [commercial support](https://bigbluebutton.org/commerc
 
 Since BigBlueButton is controlled by its [API](/development/api), there isn't an administrative panel for BigBlueButton. Most of the server maintenance functions are handled by [bbb-conf](/administration/bbb-conf).
 
-The most common way to use BigBlueButton is to use an existing application that has a plugin. See [list of integrations](https://bigbluebutton.org/integrations/).
+The most common way to use BigBlueButton is to use an existing application that has a plugin. See [list of integrations](https://bigbluebutton.org/schools/integrations/).
 
 BigBlueButton also comes with an easy-to-use front-end called [Greenlight](/greenlight/v3/install).
 
@@ -526,7 +526,7 @@ Absolutely. To see an example of this, check out [GreenLight on our pool of demo
 
 #### How do I setup new classrooms in BigBlueButton
 
-If you are using Sakai, Moodle, Drupal, Joomla, Wordpress or other systems that already have a [BigBlueButton integration](https://bigbluebutton.org/support), then installing the integration provides the easiest way to enable your users to access BigBlueButton sessions.
+If you are using Sakai, Moodle, Drupal, Joomla, Wordpress or other systems that already have a [BigBlueButton integration](https://bigbluebutton.org/schools/integrations/), then installing the integration provides the easiest way to enable your users to access BigBlueButton sessions.
 
 Alternatively, you can set up [Greenlight](/greenlight/v3/install) to be able to easily manage classrooms.
 
@@ -883,7 +883,7 @@ Log and configuration file information can be found [here](/administration/confi
 
 #### When will feature X be implemented
 
-BigBlueButton is built by a group of (very determined) open source developers that volunteer their time to the project. Some of us also work for companies that provide [commercial support](https://bigbluebutton.org/support) for BigBlueButton.
+BigBlueButton is built by a group of (very determined) open source developers that volunteer their time to the project. Some of us also work for companies that provide [commercial support](https://bigbluebutton.org/commercial-support) for BigBlueButton.
 
 We want to make BigBlueButton the leading open source web conferencing system for on-line learning. That's no small task, but we've been focused since 2008 on this goal. Today, BigBlueButton is used all around the world and localized into over 50 languages.
 
@@ -905,7 +905,7 @@ If your feature belongs in category (3), you have options. BigBlueButton is an o
 
 The BigBlueButton project does not accept donations. We think it's a poor business model for running an open source project as it suggests the developers are working for charity.
 
-If you want to help the project financially, you can approach some of the companies offering [commercial support](https://bigbluebutton.org/support) for BigBlueButton and engage their services. Doing so creates a healthy ecosystem around the project where companies are encouraged to contribute their resources to improve the project to create a larger pool of potential customers wanting their services.
+If you want to help the project financially, you can approach some of the companies offering [commercial support](https://bigbluebutton.org/commercial-support) for BigBlueButton and engage their services. Doing so creates a healthy ecosystem around the project where companies are encouraged to contribute their resources to improve the project to create a larger pool of potential customers wanting their services.
 
 We appreciate positive feedback on our project as well. If you are on Twitter, send us a tweet to `@bigbluebutton`. That helps raise awareness of our project so others can benefit from it as well.
 

@@ -399,7 +399,7 @@ class MeetingActor(
       case m: ChangeUserPinStateReqMsg      => usersApp.handleChangeUserPinStateReqMsg(m)
       case m: ChangeUserMobileFlagReqMsg    => usersApp.handleChangeUserMobileFlagReqMsg(m)
       case m: SetUserSpeechLocaleReqMsg     => usersApp.handleSetUserSpeechLocaleReqMsg(m)
-      case m: SetUserSpeechOptionsReqMsg => usersApp.handleSetUserSpeechOptionsReqMsg(m)
+      case m: SetUserSpeechOptionsReqMsg    => usersApp.handleSetUserSpeechOptionsReqMsg(m)
 
       // Client requested to eject user
       case m: EjectUserFromMeetingCmdMsg =>
@@ -583,6 +583,7 @@ class MeetingActor(
 
       // AudioCaptions
       case m: UpdateTranscriptPubMsg                         => audioCaptionsApp2x.handle(m, liveMeeting, msgBus)
+      case m: TranscriptionProviderErrorMsg                  => audioCaptionsApp2x.handleTranscriptionProviderErrorMsg(m, liveMeeting, msgBus)
 
       // GroupChat
       case m: CreateGroupChatReqMsg =>

@@ -77,6 +77,7 @@ const propTypes = {
   disable: PropTypes.bool.isRequired,
   talking: PropTypes.bool,
   notify: PropTypes.func.isRequired,
+  isMobile: PropTypes.bool.isRequired,
 };
 
 const defaultProps = {
@@ -95,7 +96,7 @@ class InputStreamLiveSelector extends Component {
     super(props);
     this.updateDeviceList = this.updateDeviceList.bind(this);
     this.renderDeviceList = this.renderDeviceList.bind(this);
-    this.renderListenOnlyButton = this.renderListenOnlyButton.bind(this);
+    this.renderAudioButton = this.renderAudioButton.bind(this);
     this.renderMuteToggleButton = this.renderMuteToggleButton.bind(this);
     this.renderButtonsWithSelectorDevice = this.renderButtonsWithSelectorDevice.bind(this);
     this.renderButtonsWithoutSelectorDevice = this.renderButtonsWithoutSelectorDevice.bind(this);
@@ -345,18 +346,23 @@ class InputStreamLiveSelector extends Component {
     );
   }
 
-  renderListenOnlyButton() {
+  renderAudioButton() {
     const {
       handleLeaveAudio,
       intl,
       shortcuts,
       isListenOnly,
+      _enableDynamicDeviceSelection,
+      isMobile,
     } = this.props;
 
+    const actAsSelectorTrigger = _enableDynamicDeviceSelection && isMobile;
     return (
       <Button
         aria-label={intl.formatMessage(intlMessages.leaveAudio)}
-        label={intl.formatMessage(intlMessages.leaveAudio)}
+        label={actAsSelectorTrigger
+          ? intl.formatMessage(intlMessages.changeAudioDevice)
+          : intl.formatMessage(intlMessages.leaveAudio)}
         accessKey={shortcuts.leaveaudio}
         data-test="leaveListenOnly"
         hideLabel
@@ -364,11 +370,33 @@ class InputStreamLiveSelector extends Component {
         icon={isListenOnly ? 'listen' : 'volume_level_2'}
         size="lg"
         circle
-        onClick={(e) => {
-          e.stopPropagation();
-          handleLeaveAudio();
-        }}
+        onClick={actAsSelectorTrigger
+          ? () => null
+          : (e) => {
+            e.stopPropagation();
+            handleLeaveAudio();
+          }}
       />
+    );
+  }
+
+  renderMenuTrigger() {
+    const { intl, isMobile, isListenOnly } = this.props;
+
+    return (
+      <>
+        {!isListenOnly && !isMobile
+          ? this.renderMuteToggleButton()
+          : this.renderAudioButton()}
+        <Styled.AudioDropdown
+          data-test="audioDropdownMenu"
+          emoji="device_list_selector"
+          label={intl.formatMessage(intlMessages.changeAudioDevice)}
+          hideLabel
+          tabIndex={0}
+          rotate
+        />
+      </>
     );
   }
 
@@ -433,23 +461,10 @@ class InputStreamLiveSelector extends Component {
             aria-hidden="true"
           />
         ) : null}
+        {(!isListenOnly && isMobile) && this.renderMuteToggleButton()}
         <BBBMenu
           customStyles={!isMobile ? customStyles : null}
-          trigger={(
-            <>
-              {isListenOnly
-                ? this.renderListenOnlyButton()
-                : this.renderMuteToggleButton()}
-              <Styled.AudioDropdown
-                data-test="audioDropdownMenu"
-                emoji="device_list_selector"
-                label={intl.formatMessage(intlMessages.changeAudioDevice)}
-                hideLabel
-                tabIndex={0}
-                rotate
-              />
-            </>
-          )}
+          trigger={this.renderMenuTrigger()}
           actions={dropdownListComplete}
           opts={{
             id: 'audio-selector-dropdown-menu',
@@ -469,11 +484,11 @@ class InputStreamLiveSelector extends Component {
   renderButtonsWithoutSelectorDevice() {
     const { isListenOnly } = this.props;
     return isListenOnly
-      ? this.renderListenOnlyButton()
+      ? this.renderAudioButton()
       : (
         <>
           {this.renderMuteToggleButton()}
-          {this.renderListenOnlyButton()}
+          {this.renderAudioButton()}
         </>
       );
   }

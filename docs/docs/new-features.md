@@ -133,12 +133,12 @@ The new mode is *turned off by default* and is considered *experimental*. To ena
 ### Upgraded components
 
 Under the hood, BigBlueButton 2.7 installs on Ubuntu 20.04 64-bit, and the following key components have been upgraded
-- Spring 2.7.12
+- Spring 2.7.17
 - React 18
 - NodeJS 18 (up from 16) for `bbb-pads`, `bbb-export-annotations`, `bbb-webrtc-sfu`, `bbb-etherpad`, `bbb-webhooks`
 - Java 17 (up from 11) for `bbb-common-message`, `bbb-common-web`, `bigbluebutton-web`, `akka-bbb-apps`, `bbb-fsesl-client`, and `akka-bbb-fsesl`
 - Meteor 2.13
-- Grails 5.3.2
+- Grails 6.1
 - GORM 7.3.1
 - Groovy 3.0.11
 
@@ -147,6 +147,12 @@ For full details on what is new in BigBlueButton 2.7, see the release notes.
 
 Recent releases:
 
+- [2.7.9](https://github.com/bigbluebutton/bigbluebutton/releases/tag/v2.7.9)
+- [2.7.8](https://github.com/bigbluebutton/bigbluebutton/releases/tag/v2.7.8)
+- [2.7.7](https://github.com/bigbluebutton/bigbluebutton/releases/tag/v2.7.7)
+- [2.7.6](https://github.com/bigbluebutton/bigbluebutton/releases/tag/v2.7.6)
+- [2.7.5](https://github.com/bigbluebutton/bigbluebutton/releases/tag/v2.7.5)
+- [2.7.4](https://github.com/bigbluebutton/bigbluebutton/releases/tag/v2.7.4)
 - [2.7.3](https://github.com/bigbluebutton/bigbluebutton/releases/tag/v2.7.3)
 - [2.7.2](https://github.com/bigbluebutton/bigbluebutton/releases/tag/v2.7.2)
 - [2.7.1](https://github.com/bigbluebutton/bigbluebutton/releases/tag/v2.7.1)
@@ -188,6 +194,14 @@ preUploadedPresentationName=ScientificPaper.pdf
 
 In the above example on meeting creation BigBlueButton will pull the pdf, will convert it and when you join the meeting there will be only one presentation based on the sample.pdf url, named ScientificPaper.pdf.
 If `preUploadedPresentationOverrideDefault=false` (or omitted, since `false` is the default value), in the meeting you will see `default.pdf` as the current presentation and one more preloaded presentation called ScientificPaper.pdf to which you can switch at any point without having to wait for conversion to take place.
+
+#### Improved support for various SHA algorithms for checksum calculation
+
+In BigBlueButton 2.6.17/2.7.5 we added a new configuration property for bbb-apps-akka package under `services` called `checkSumAlgorithmForBreakouts`. By default the value is `"sha256"`. It controls the algorithm for checksum calculation for the breakout rooms join link. In case you overwrite bbb-web's `supportedChecksumAlgorithms` property removing sha256 you will need to set a supported algorithm here too. For example if you want to only use `sha512`, set `supportedChecksumAlgorithms=sha512` in `/etc/bigbluebutton/bbb-web.properties` and also set `checkSumAlgorithmForBreakouts="sha512"` in `/etc/bigbluebutton/bbb-apps-akka.conf` and then restart BigBlueButton.
+
+#### Removed support for POST requests on `join` endpoint and Content-Type headers are now required
+
+In BigBlueButton 2.6.18/2.7.8 POST requests are no longer allowed for the `join` endpoint. To ensure they are validated properly, a `Content-Type` header must also be provided for POST requests that contain data in the request body. Endpoints now support a limited set of content types that includes `text/xml`, `application/xml`, `application/x-www-form-url-encoded`, and `multipart/form-data`. By default each endpoint only supports `application/x-www-form-urlencoded` and `multipart/form-data`, but individual endpoints can override this and define their own set of supported content types. The `create` endpoint supports all of the four previously listed content types while `insertDocument` supports only `text/xml` and `application/xml`. Any requests with a content type that differs from the set supported by the target endpoint will be rejected with a new `unsupportedContentType` error.  
 
 ### Development
 

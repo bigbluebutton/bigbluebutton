@@ -30,7 +30,7 @@ public:
     appName: BigBlueButton HTML5 Client
     bbbServerVersion: HTML5_FULL_BBB_VERSION
     displayBbbServerVersion: true
-    copyright: '©2023 BigBlueButton Inc.'
+    copyright: '©2024 BigBlueButton Inc.'
     html5ClientBuild: HTML5_CLIENT_VERSION
     helpLink: https://bigbluebutton.org/html5/
     delayForUnmountOfSharedNote: 120000
@@ -95,7 +95,11 @@ public:
       # provider: [webspeech, vosk, gladia]
       provider: webspeech
       language:
+        # Available languages will depend on the transcription service
+        # Google: https://cloud.google.com/speech-to-text/docs/speech-to-text-supported-languages
+        # Gladia: https://docs-v1.gladia.io/reference/supported-languages
         available:
+        # - ca-ES
         # - de-DE
           - en-US
           - es-ES
@@ -136,6 +140,7 @@ public:
       breakoutRoomLimit: 16
     # https://github.com/bigbluebutton/bigbluebutton/pull/10826
     customHeartbeat: false
+    customHeartbeatUseDataFrames: true
     showAllAvailableLocales: true
     # Show "Audio Filters for Microphone" option in settings menu.
     # When set to true, users are able to enable/disable microphone constraints,
@@ -244,7 +249,7 @@ public:
         # Indicates if the transcription backend should include partial results
         partialUtterances: true
         # The minumum length (in seconds) an utterance has to have for we to use it
-        minUtteranceLength: 3
+        minUtteranceLength: 1
     shortcuts:
       openOptions:
         accesskey: O
@@ -770,6 +775,15 @@ public:
     #  audio: high
     #  webcam: medium
     #  screenshare: medium
+    #
+    # audioTroubleshootingLinks: links to help users troubleshoot audio issues
+    # If no link is provided, the audio troubleshooting button will not be shown.
+    # Index is the error code:
+    #   - 7: permission denied error code
+    #   - 0: unknown error
+    #audioTroubleshootingLinks:
+    #  7: 'https://link.bigbluebutton.org/perm'
+    #  0: 'https://link.bigbluebutton.org/unk'
   stats:
     enabled: true
     interval: 10000
@@ -1025,9 +1039,9 @@ private:
     - browser: ie
       version: Infinity
     - browser: safari
-      version: [12, 1]
+      version: [13, 1]
     - browser: mobileSafari
-      version: [12, 1]
+      version: [13, 4]
     - browser: opera
       version: 50
     - browser: electron

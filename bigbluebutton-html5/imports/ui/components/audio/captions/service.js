@@ -4,7 +4,7 @@ import Auth from '/imports/ui/services/auth';
 const CAPTIONS_CONFIG = Meteor.settings.public.captions;
 const CAPTIONS_ALWAYS_VISIBLE = Meteor.settings.public.app.audioCaptions.alwaysVisible;
 const CHARACTERS_PER_LINE = CAPTIONS_CONFIG.lineLimit;
-const LINES_PER_MESSAGE = CAPTIONS_CONFIG.line;
+const LINES_PER_MESSAGE = CAPTIONS_CONFIG.lines;
 const CAPTION_TIME = CAPTIONS_CONFIG.time;
 const CAPTION_LIMIT = CAPTIONS_CONFIG.captionLimit;
 
@@ -29,7 +29,9 @@ function splitTranscript(obj) {
     }
   }
 
-  transcripts.push(result)
+  if (result.length) {
+    transcripts.push(result)
+  }
   transcripts.push(currentLine.trim())
 
   return transcripts.map((t) => { return { ...obj, transcript: t} });

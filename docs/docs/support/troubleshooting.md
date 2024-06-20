@@ -160,7 +160,7 @@ For example:
 
 No. Scalability improves a lot with mediasoup, but there are still a couple of bottlenecks that can be hit as far  **as far as the media stack is concerned**. Namely:
   - The signaling server (bbb-webrtc-sfu): it does not scale vertically indefinitely. 
-  - The mediasoup worker balancing algorithm implemented by bbb-webrtc-sfu is still focused on multiparty meetings with a restrained number of users. If your goal is thousand-user 1-N (streaming-like) meetings, you may max out CPU usage on certain mediasoup workers even though there are other idle oworkers free.
+  - The mediasoup worker balancing algorithm implemented by bbb-webrtc-sfu is still focused on multiparty meetings with a restrained number of users. If your goal is thousand-user 1-N (streaming-like) meetings, you may max out CPU usage on certain mediasoup workers even though there are other idle workers free.
 
 ### bbb-webrtc-sfu fails to start with a SETSCHEDULER error
 

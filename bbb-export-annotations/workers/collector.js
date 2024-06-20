@@ -25,9 +25,11 @@ const jobType = exportJob.jobType;
 
 async function collectAnnotationsFromRedis() {
   const client = redis.createClient({
-    host: config.redis.host,
-    port: config.redis.port,
     password: config.redis.password,
+    socket: {
+        host: config.redis.host,
+        port: config.redis.port
+    }
   });
 
   client.on('error', (err) => logger.info('Redis Client Error', err));
