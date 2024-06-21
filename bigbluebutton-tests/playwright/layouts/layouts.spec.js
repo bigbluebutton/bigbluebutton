@@ -9,7 +9,6 @@ const hidePresentationToast = encodeCustomParams(PARAMETER_HIDE_PRESENTATION_TOA
 
 test.describe("Layout @ci", () => {
   const layouts = new Layouts();
-
   test.describe.configure({ mode: fullyParallel ? 'parallel' : 'serial' });
   test[fullyParallel ? 'beforeEach' : 'beforeAll'](async ({ browser }) => {
     await initializePages(layouts, browser, { isMultiUser: true, createParameter: hidePresentationToast });

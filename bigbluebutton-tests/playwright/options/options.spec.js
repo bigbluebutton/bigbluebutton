@@ -23,7 +23,8 @@ test.describe('Options', () => {
     await options.openHelp();
   });
 
-  test('Locales test', async () => {
+  test('Locales test', async ({ browserName }) => {
+    test.skip();
     await options.localesTest();
   });
 

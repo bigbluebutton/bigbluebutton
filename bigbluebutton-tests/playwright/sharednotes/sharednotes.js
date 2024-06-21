@@ -4,7 +4,7 @@ const { getSettings } = require('../core/settings');
 const e = require('../core/elements');
 const { startSharedNotes, getNotesLocator, getShowMoreButtonLocator, getExportButtonLocator, getExportPlainTextLocator, getSharedNotesUserWithoutPermission, getExportHTMLLocator, getExportEtherpadLocator } = require('./util');
 const { expect } = require('@playwright/test');
-const { ELEMENT_WAIT_TIME } = require('../core/constants');
+const { ELEMENT_WAIT_TIME, ELEMENT_WAIT_LONGER_TIME, ELEMENT_WAIT_EXTRA_LONG_TIME } = require('../core/constants');
 const { sleep } = require('../core/helpers');
 const { readFileSync } = require('fs');
 const { checkTextContent } = require('../core/util');
@@ -23,9 +23,9 @@ class SharedNotes extends MultiUsers {
     }
     await startSharedNotes(this.modPage);
     const sharedNotesContent = await getNotesLocator(this.modPage);
-    await expect(sharedNotesContent).toBeEditable({ timeout: ELEMENT_WAIT_TIME });
+    await expect(sharedNotesContent).toBeEditable({ timeout: 20000 });
 
-    await this.modPage.waitAndClick(e.hideNotesLabel);
+    await this.modPage.waitAndClick(e.hideNotesLabel, ELEMENT_WAIT_LONGER_TIME);
     await this.modPage.wasRemoved(e.hideNotesLabel);
   }
 

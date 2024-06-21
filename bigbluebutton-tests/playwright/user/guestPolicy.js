@@ -97,6 +97,7 @@ class GuestPolicy extends MultiUsers {
 
   async alwaysAccept() {
     await setGuestPolicyOption(this.modPage, e.askModerator);
+    await this.modPage.hasElement(e.waitingUsersBtn);
     await setGuestPolicyOption(this.modPage, e.alwaysAccept);
     await sleep(500);
     await this.initUserPage(false, this.context, { shouldCheckAllInitialSteps: false });
