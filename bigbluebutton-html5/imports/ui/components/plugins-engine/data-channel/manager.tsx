@@ -48,7 +48,7 @@ const PluginDataChannelManager: React.ElementType<PluginDataChannelManagerProps>
           totalUses: (previousMap.get(uniqueId)?.totalUses || 0) + deltaSubscribe,
           subChannelName,
           channelName,
-          types: newArrayTypes,
+          types: [...new Set(newArrayTypes)],
         });
         return newMap;
       }
