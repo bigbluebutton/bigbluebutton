@@ -16,6 +16,9 @@ select_permissions:
         - talking
         - userId
         - voiceActivityAt
+        - color
+        - name
+        - speechLocale
       filter:
         meetingId:
           _eq: X-Hasura-MeetingId

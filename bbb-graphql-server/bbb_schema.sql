@@ -664,8 +664,12 @@ select
 	"user_voice"."talking",
     "user_voice"."startTime",
     "user_voice"."endTime",
-	"user_voice"."voiceActivityAt"
+	"user_voice"."voiceActivityAt",
+    "user"."color",
+    "user"."name",
+    "user"."speechLocale"
 FROM "user_voice"
+JOIN "user" ON "user"."userId" = "user_voice"."userId"
 WHERE "voiceActivityAt" is not null
 AND --filter recent activities to avoid receiving all history every time it starts the streming
     ("voiceActivityAt" > current_timestamp - '10 seconds'::interval

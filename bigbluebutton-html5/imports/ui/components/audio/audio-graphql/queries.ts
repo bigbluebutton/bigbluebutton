@@ -4,7 +4,6 @@ interface VoiceUsers {
   joined: string | null;
   listenOnly: string | null;
   muted: string | null;
-  talking: string | null;
   userId: string;
 }
 
@@ -17,8 +16,6 @@ export const VOICE_USERS_SUBSCRIPTION = gql`
     user_voice {
       joined
       listenOnly
-      muted
-      talking
       userId
     }
   }
