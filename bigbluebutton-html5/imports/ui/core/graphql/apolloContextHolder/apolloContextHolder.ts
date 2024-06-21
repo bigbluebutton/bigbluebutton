@@ -6,6 +6,8 @@ class ApolloContextHolder {
 
   private link: Client | null = null;
 
+  private shouldRetry: boolean = true;
+
   public setClient(client: ApolloClient<NormalizedCacheObject>): void {
     this.client = client;
   }
@@ -26,6 +28,14 @@ class ApolloContextHolder {
       throw new Error('SubscriptionClient has not been initialized yet');
     }
     return this.link;
+  }
+
+  public setShouldRetry(shouldRetry: boolean): void {
+    this.shouldRetry = shouldRetry;
+  }
+
+  public getShouldRetry(): boolean {
+    return this.shouldRetry;
   }
 }
 
