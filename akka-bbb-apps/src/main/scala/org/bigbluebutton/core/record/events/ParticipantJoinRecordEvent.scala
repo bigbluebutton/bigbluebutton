@@ -48,10 +48,7 @@ class ParticipantJoinRecordEvent extends AbstractParticipantRecordEvent {
   }
 
   def setUserCustomData(userCustomData: Map[String, String]): Unit = {
-    if (userCustomData.nonEmpty) {
-      val json = userCustomData.toJson
-      eventMap.put(USER_CUSTOM_DATA, json.compactPrint)
-    }
+    eventMap.put(USER_CUSTOM_DATA, userCustomData.toJson.compactPrint)
   }
 }
 
