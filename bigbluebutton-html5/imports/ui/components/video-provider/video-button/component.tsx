@@ -5,7 +5,6 @@ import { IntlShape, defineMessages, injectIntl } from 'react-intl';
 import deviceInfo from '/imports/utils/deviceInfo';
 import { debounce } from '/imports/utils/debounce';
 import BBBMenu from '/imports/ui/components/common/menu/component';
-import { useIsVirtualBackgroundsEnabled } from '/imports/ui/services/features';
 import Button from '/imports/ui/components/common/button/component';
 import VideoPreviewContainer from '/imports/ui/components/video-preview/container';
 import { CameraSettingsDropdownItemType } from 'bigbluebutton-html-plugin-sdk/dist/cjs/extensible-areas/camera-settings-dropdown-item/enums';
@@ -87,15 +86,9 @@ const JoinVideoButton: React.FC<JoinVideoButtonProps> = ({
   const isDesktopSharingCamera = hasVideoStream && !isMobile;
 
   const ENABLE_WEBCAM_SELECTOR_BUTTON = window.meetingClientSettings.public.app.enableWebcamSelectorButton;
-  const ENABLE_CAMERA_BRIGHTNESS = window.meetingClientSettings.public.app.enableCameraBrightness;
 
   const shouldEnableWebcamSelectorButton = ENABLE_WEBCAM_SELECTOR_BUTTON
     && isDesktopSharingCamera;
-  const isVirtualBackgroundsEnabled = useIsVirtualBackgroundsEnabled();
-  const shouldEnableWebcamVisualEffectsButton = (isVirtualBackgroundsEnabled
-    || ENABLE_CAMERA_BRIGHTNESS)
-    && hasVideoStream
-    && !isMobile;
   const exitVideo = () => isDesktopSharingCamera && (!VideoService.isMultipleCamerasEnabled()
     || shouldEnableWebcamSelectorButton);
 
@@ -164,16 +157,6 @@ const JoinVideoButton: React.FC<JoinVideoButtonProps> = ({
           label: intl.formatMessage(intlMessages.advancedVideo),
           onClick: () => handleOpenAdvancedOptions(),
           dataTest: 'advancedVideoSettingsButton',
-        },
-      );
-    }
-
-    if (shouldEnableWebcamVisualEffectsButton) {
-      actions.push(
-        {
-          key: 'virtualBgSelection',
-          label: intl.formatMessage(intlMessages.visualEffects),
-          onClick: () => handleOpenAdvancedOptions(() => setPropsToPassModal({ isVisualEffects: true })),
         },
       );
     }
