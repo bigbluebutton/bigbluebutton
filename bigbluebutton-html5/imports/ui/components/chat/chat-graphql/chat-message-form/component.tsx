@@ -336,7 +336,7 @@ const ChatMessageForm: React.FC<ChatMessageFormProps> = ({
           if (message.trim() !== '') {
             setMessage('');
             setIsBlocked(true);
-            setTimeout(() => setIsBlocked(false), 100);
+            setTimeout(() => setIsBlocked(false), 300);
           }
         }
       }
