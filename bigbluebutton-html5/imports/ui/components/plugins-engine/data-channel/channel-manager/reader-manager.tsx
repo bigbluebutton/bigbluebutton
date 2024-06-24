@@ -1,11 +1,15 @@
-import React, { useEffect, useRef } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { DocumentNode } from 'graphql';
 
-import { GraphqlResponseWrapper, UpdatedEventDetails } from 'bigbluebutton-html-plugin-sdk/dist/cjs/core/types';
+import {
+  GraphqlResponseWrapper, HookEventWrapper, SubscribedEventDetails, UpdatedEventDetails,
+} from 'bigbluebutton-html-plugin-sdk/dist/cjs/core/types';
 import { DataChannelHooks, DataChannelTypes } from 'bigbluebutton-html-plugin-sdk/dist/cjs/data-channel/enums';
 
-import { PLUGIN_DATA_CHANNEL_LATEST_ITEM, PLUGIN_DATA_CHANNEL_NEW_ITEMS, PLUGIN_DATA_CHANNEL_All_ITEMS } from '../subscriptions';
 import createUseSubscription from '/imports/ui/core/hooks/createUseSubscription';
+import { HookEvents } from 'bigbluebutton-html-plugin-sdk/dist/cjs/core/enum';
+import { DataChannelArguments } from 'bigbluebutton-html-plugin-sdk/dist/cjs/data-channel/types';
+import { PLUGIN_DATA_CHANNEL_LATEST_ITEM, PLUGIN_DATA_CHANNEL_NEW_ITEMS, PLUGIN_DATA_CHANNEL_All_ITEMS } from '../subscriptions';
 
 export interface DataChannelItemManagerReaderProps {
   pluginName: string;
@@ -32,6 +36,7 @@ export const DataChannelItemManagerReader: React.ElementType<DataChannelItemMana
     subChannelName,
     dataChannelIdentifier,
   } = props;
+  const [sendSignal, setSendSignal] = useState<boolean>(false);
   const cursor = useRef(new Date());
   let subscription: DocumentNode;
   const variables: SubscriptionVariables = {
@@ -62,6 +67,30 @@ export const DataChannelItemManagerReader: React.ElementType<DataChannelItemMana
     variables, usePatchedSubscription)((obj) => obj);
 
   useEffect(() => {
+    const subscribeHandler: EventListener = (
+      (event: HookEventWrapper<void>) => {
+        if (event.detail.hook === DataChannelHooks.DATA_CHANNEL_BUILDER) {
+          const eventDetails = event.detail as SubscribedEventDetails;
+          const hookArguments = eventDetails?.hookArguments as DataChannelArguments;
+          const dataChannelTypeFromEvent = hookArguments.dataChannelType!;
+          if (hookArguments?.channelName && hookArguments?.pluginName
+            && hookArguments.subChannelName === subChannelName
+            && hookArguments.pluginName === pluginName
+            && hookArguments.channelName === channelName
+            && dataChannelTypeFromEvent === dataChannelType
+          ) {
+            setSendSignal((signal) => !signal);
+          }
+        }
+      }) as EventListener;
+
+    window.addEventListener(HookEvents.SUBSCRIBED, subscribeHandler);
+    return () => {
+      window.removeEventListener(HookEvents.SUBSCRIBED, subscribeHandler);
+    };
+  }, []);
+
+  useEffect(() => {
     const dataResult = {
       data: dataResultFromSubscription.data,
       loading: dataResultFromSubscription.loading,
@@ -82,7 +111,7 @@ export const DataChannelItemManagerReader: React.ElementType<DataChannelItemMana
       },
     }),
     );
-  }, [dataResultFromSubscription]);
+  }, [dataResultFromSubscription, sendSignal]);
 
   return null;
 };
