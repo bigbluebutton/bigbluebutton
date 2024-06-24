@@ -3,7 +3,6 @@ import Toggle from '/imports/ui/components/common/switch/component';
 import { defineMessages, injectIntl } from 'react-intl';
 import BaseMenu from '../base/component';
 import Styled from './styles';
-import { isChatEnabled } from '/imports/ui/services/features';
 
 const intlMessages = defineMessages({
   notificationSectionTitle: {
@@ -61,6 +60,7 @@ class NotificationMenu extends BaseMenu {
       showGuestNotification,
       showToggleLabel,
       displaySettingsStatus,
+      isChatEnabled,
     } = this.props;
 
     const { settings } = this.state;
@@ -87,7 +87,7 @@ class NotificationMenu extends BaseMenu {
             </Styled.ColHeading>
           </Styled.Row>
 
-          {isChatEnabled() ? (
+          {isChatEnabled ? (
             <Styled.Row>
               <Styled.Col>
                 <Styled.Label aria-hidden>

@@ -347,6 +347,8 @@ class ReceivedJsonMsgHandlerActor(
         routeGenericMsg[AddCaptionLocalePubMsg](envelope, jsonNode)
       case SendCaptionHistoryReqMsg.NAME =>
         routeGenericMsg[SendCaptionHistoryReqMsg](envelope, jsonNode)
+      case CaptionSubmitTranscriptPubMsg.NAME =>
+        routeGenericMsg[CaptionSubmitTranscriptPubMsg](envelope, jsonNode)
 
       // Chat
       case GetChatHistoryReqMsg.NAME =>
@@ -415,6 +417,9 @@ class ReceivedJsonMsgHandlerActor(
       //Plugin
       case PluginDataChannelPushEntryMsg.NAME =>
         routeGenericMsg[PluginDataChannelPushEntryMsg](envelope, jsonNode)
+
+      case PluginDataChannelReplaceEntryMsg.NAME =>
+        routeGenericMsg[PluginDataChannelReplaceEntryMsg](envelope, jsonNode)
 
       case PluginDataChannelDeleteEntryMsg.NAME =>
         routeGenericMsg[PluginDataChannelDeleteEntryMsg](envelope, jsonNode)

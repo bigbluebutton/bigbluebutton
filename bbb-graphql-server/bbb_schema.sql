@@ -5,6 +5,17 @@ CREATE OR REPLACE FUNCTION immutable_lower_unaccent(text)
 				SELECT lower(unaccent('unaccent', $1))
 				$$ LANGUAGE SQL IMMUTABLE;
 
+--remove_emojis will be used to create nameSortable
+CREATE OR REPLACE FUNCTION remove_emojis(text) RETURNS text AS $$
+DECLARE
+    input_string ALIAS FOR $1;
+    output_string text;
+BEGIN
+    output_string := regexp_replace(input_string, '[^\u0000-\uFFFF]', '', 'g');
+    RETURN output_string;
+END;
+$$ LANGUAGE plpgsql IMMUTABLE;
+
 -- ========== Meeting tables
 
 create table "meeting" (
@@ -127,16 +138,17 @@ create view "v_meeting_voiceSettings" as select * from meeting_voice;
 
 create table "meeting_usersPolicies" (
 	"meetingId" 		varchar(100) primary key references "meeting"("meetingId") ON DELETE CASCADE,
-    "maxUsers"                  integer,
-    "maxUserConcurrentAccesses" integer,
-    "webcamsOnlyForModerator"   boolean,
-    "userCameraCap"             integer,
-    "guestPolicy"               varchar(100),
-    "guestLobbyMessage"         text,
-    "meetingLayout"             varchar(100),
-    "allowModsToUnmuteUsers"    boolean,
-    "allowModsToEjectCameras"   boolean,
-    "authenticatedGuest"        boolean
+    "maxUsers"                     integer,
+    "maxUserConcurrentAccesses"    integer,
+    "webcamsOnlyForModerator"      boolean,
+    "userCameraCap"                integer,
+    "guestPolicy"                  varchar(100),
+    "guestLobbyMessage"            text,
+    "meetingLayout"                varchar(100),
+    "allowModsToUnmuteUsers"       boolean,
+    "allowModsToEjectCameras"      boolean,
+    "authenticatedGuest"           boolean,
+    "allowPromoteGuestToModerator" boolean
 );
 create index "idx_meeting_usersPolicies_meetingId" on "meeting_usersPolicies"("meetingId");
 
@@ -152,6 +164,7 @@ SELECT "meeting_usersPolicies"."meetingId",
     "meeting_usersPolicies"."allowModsToUnmuteUsers",
     "meeting_usersPolicies"."allowModsToEjectCameras",
     "meeting_usersPolicies"."authenticatedGuest",
+    "meeting_usersPolicies"."allowPromoteGuestToModerator",
     "meeting"."isBreakout" is false "moderatorsCanMuteAudio",
     "meeting"."isBreakout" is false and "meeting_usersPolicies"."allowModsToUnmuteUsers" is true "moderatorsCanUnmuteAudio"
    FROM "meeting_usersPolicies"
@@ -318,7 +331,7 @@ ALTER TABLE "user" ADD COLUMN "isDenied" boolean GENERATED ALWAYS AS ("guestStat
 ALTER TABLE "user" ADD COLUMN "registeredAt" timestamp with time zone GENERATED ALWAYS AS (to_timestamp("registeredOn"::double precision / 1000)) STORED;
 
 --Used to sort the Userlist
-ALTER TABLE "user" ADD COLUMN "nameSortable" varchar(255) GENERATED ALWAYS AS (immutable_lower_unaccent("name")) STORED;
+ALTER TABLE "user" ADD COLUMN "nameSortable" varchar(255) GENERATED ALWAYS AS (trim(remove_emojis(immutable_lower_unaccent("name")))) STORED;
 
 CREATE INDEX "idx_user_waiting" ON "user"("meetingId") where "isWaiting" is true;
 
@@ -406,10 +419,7 @@ AS SELECT "user"."userId",
     CASE WHEN "user"."role" = 'MODERATOR' THEN true ELSE false END "isModerator",
     "user"."isOnline"
   FROM "user"
-  WHERE "user"."loggedOut" IS FALSE
-  AND "user"."expired" IS FALSE
-  AND "user"."ejected" IS NOT TRUE
-  AND "user"."joined" IS TRUE;
+  WHERE "user"."isOnline" is true;
 
 CREATE INDEX "idx_v_user_meetingId" ON "user"("meetingId") 
                 where "user"."loggedOut" IS FALSE
@@ -417,11 +427,19 @@ CREATE INDEX "idx_v_user_meetingId" ON "user"("meetingId")
                 AND "user"."ejected" IS NOT TRUE
                 and "user"."joined" IS TRUE;
 
-CREATE INDEX "idx_v_user_meetingId_orderByColumns" ON "user"("meetingId","role","raiseHandTime","awayTime","emojiTime","isDialIn","hasDrawPermissionOnCurrentPage","nameSortable","userId")
-                where "user"."loggedOut" IS FALSE
-                AND "user"."expired" IS FALSE
-                AND "user"."ejected" IS NOT TRUE
-                and "user"."joined" IS TRUE;
+CREATE INDEX "idx_v_user_meetingId_orderByColumns" ON "user"(
+                        "meetingId",
+                        "presenter",
+                        "role",
+                        "raiseHandTime",
+                        "emojiTime",
+                        "isDialIn",
+                        "hasDrawPermissionOnCurrentPage",
+                        "nameSortable",
+                        "registeredAt",
+                        "userId"
+                        )
+                where "user"."isOnline" is true;
 
 CREATE OR REPLACE VIEW "v_user_current"
 AS SELECT "user"."userId",
@@ -577,6 +595,7 @@ CREATE TABLE "user_voice" (
 	"voiceConfCallState" varchar(30),
 	"endTime" bigint,
 	"startTime" bigint,
+	"voiceActivityAt" timestamp with time zone,
 	CONSTRAINT "user_voice_pkey" PRIMARY KEY ("meetingId","userId"),
     FOREIGN KEY ("meetingId", "userId") REFERENCES "user"("meetingId","userId") ON DELETE CASCADE
 );
@@ -596,6 +615,7 @@ GENERATED ALWAYS AS (to_timestamp("endTime"::double precision / 1000)) STORED;
 
 CREATE INDEX "idx_user_voice_userId_talking" ON "user_voice"("meetingId", "userId","talking");
 CREATE INDEX "idx_user_voice_userId_hideTalkingIndicatorAt" ON "user_voice"("meetingId", "userId","hideTalkingIndicatorAt");
+CREATE INDEX "idx_user_voice_userId_voiceActivityAt" ON "user_voice"("meetingId", "voiceActivityAt") WHERE "voiceActivityAt" is not null;
 
 CREATE OR REPLACE VIEW "v_user_voice" AS
 SELECT
@@ -616,6 +636,45 @@ LEFT JOIN "user_voice" user_talking ON (
                                        )
 WHERE "user_voice"."joined" is true;
 
+--Populate voiceActivityAt to provide users that are active in audio via stream subscription using the view v_user_voice_activity
+CREATE OR REPLACE FUNCTION "update_user_voice_voiceActivityAt_trigger_func"() RETURNS TRIGGER AS $$
+BEGIN
+    NEW."voiceActivityAt" := CASE WHEN
+    								NEW."muted" IS false
+    								or (OLD."muted" IS false and NEW."muted" is true)
+    								or NEW."talking" is true
+    								or (OLD."talking" IS true and NEW."talking" is false)
+    								or (NEW."startTime" != OLD."startTime")
+    								or (NEW."endTime" != OLD."endTime")
+    								THEN current_timestamp
+                                  ELSE OLD."voiceActivityAt"
+                             END;
+    RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+
+CREATE TRIGGER "update_user_voice_voiceActivityAt_trigger" BEFORE INSERT OR UPDATE ON "user_voice" FOR EACH ROW
+EXECUTE FUNCTION "update_user_voice_voiceActivityAt_trigger_func"();
+
+CREATE OR REPLACE VIEW "v_user_voice_activity" AS
+select
+	"user_voice"."meetingId",
+	"user_voice"."userId",
+	"user_voice"."muted",
+	"user_voice"."talking",
+    "user_voice"."startTime",
+    "user_voice"."endTime",
+	"user_voice"."voiceActivityAt"
+FROM "user_voice"
+WHERE "voiceActivityAt" is not null
+AND --filter recent activities to avoid receiving all history every time it starts the streming
+    ("voiceActivityAt" > current_timestamp - '10 seconds'::interval
+       OR "user_voice"."muted" is false
+        OR "user_voice"."talking" is true
+     )
+;
+
+----
 
 
 ---TEMPORARY MINIMONGO ADAPTER START
@@ -810,8 +869,12 @@ CREATE OR REPLACE VIEW "v_user_connectionStatusReport" AS
 SELECT u."meetingId", u."userId",
 max(cs."connectionAliveAt") AS "connectionAliveAt",
 max(cs."status") AS "currentStatus",
---COALESCE(max(cs."applicationRttInMs"),(EXTRACT(EPOCH FROM (current_timestamp - max(cs."connectionAliveAt"))) * 1000)) AS "applicationRttInMs",
-CASE WHEN max(cs."connectionAliveAt") < current_timestamp - INTERVAL '1 millisecond' * max(cs."connectionAliveAtMaxIntervalMs") THEN TRUE ELSE FALSE END AS "clientNotResponding",
+CASE WHEN
+    u."isOnline"
+    AND max(cs."connectionAliveAt") < current_timestamp - INTERVAL '1 millisecond' * max(cs."connectionAliveAtMaxIntervalMs")
+    THEN TRUE
+    ELSE FALSE
+END AS "clientNotResponding",
 (array_agg(csm."status" ORDER BY csm."lastOccurrenceAt" DESC))[1] as "lastUnstableStatus",
 max(csm."lastOccurrenceAt") AS "lastUnstableStatusAt"
 FROM "user" u
@@ -1877,7 +1940,7 @@ SELECT
 	FLOOR(EXTRACT(EPOCH FROM current_timestamp) * 1000)::bigint AS "currentTimeMillis";
 
 ------------------------------------
-----audioCaption or typedCaption
+----caption
 
 CREATE TABLE "caption_locale" (
     "meetingId" varchar(100) NOT NULL REFERENCES "meeting"("meetingId") ON DELETE CASCADE,
@@ -2011,13 +2074,13 @@ CREATE TABLE "pluginDataChannelEntry" (
 	"entryId" varchar(50) DEFAULT uuid_generate_v4(),
     "subChannelName" varchar(255),
 	"payloadJson" jsonb,
-	"fromUserId" varchar(50),
+	"createdBy" varchar(50),
 	"toRoles" varchar[], --MODERATOR, VIEWER, PRESENTER
 	"toUserIds" varchar[],
 	"createdAt" timestamp with time zone DEFAULT current_timestamp,
 	"deletedAt" timestamp with time zone,
 	CONSTRAINT "pluginDataChannel_pkey" PRIMARY KEY ("meetingId","pluginName","channelName","entryId", "subChannelName"),
-	FOREIGN KEY ("meetingId", "fromUserId") REFERENCES "user"("meetingId","userId") ON DELETE CASCADE
+	FOREIGN KEY ("meetingId", "createdBy") REFERENCES "user"("meetingId","userId") ON DELETE CASCADE
 );
 create index "idx_pluginDataChannelEntry_pk_reverse" on "pluginDataChannelEntry"("pluginName", "meetingId", "channelName", "subChannelName");
 create index "idx_pluginDataChannelEntry_pk_reverse_b" on "pluginDataChannelEntry"("channelName", "pluginName", "meetingId", "subChannelName");
@@ -2026,7 +2089,7 @@ create index "idx_pluginDataChannelEntry_channelName" on "pluginDataChannelEntry
 create index "idx_pluginDataChannelEntry_roles" on "pluginDataChannelEntry"("meetingId", "toRoles", "toUserIds", "createdAt") where "deletedAt" is null;
 
 CREATE OR REPLACE VIEW "v_pluginDataChannelEntry" AS
-SELECT u."meetingId", u."userId", m."pluginName", m."channelName", m."subChannelName", m."entryId", m."payloadJson", m."fromUserId", m."toRoles", m."createdAt"
+SELECT u."meetingId", u."userId", m."pluginName", m."channelName", m."subChannelName", m."entryId", m."payloadJson", m."createdBy", m."toRoles", m."createdAt"
 FROM "user" u
 JOIN "pluginDataChannelEntry" m ON m."meetingId" = u."meetingId"
 			AND ((m."toRoles" IS NULL AND m."toUserIds" IS NULL)
@@ -2087,10 +2150,5 @@ select "meeting"."meetingId",
             select 1
             from "v_caption_activeLocales"
             where "v_caption_activeLocales"."meetingId" = "meeting"."meetingId"
-        ) or exists (
-            select 1
-            from "v_user"
-            where "v_user"."meetingId" = "meeting"."meetingId"
-            and NULLIF("speechLocale",'') is not null
-        )as "hasCaption"
+        ) as "hasCaption"
 from "meeting";

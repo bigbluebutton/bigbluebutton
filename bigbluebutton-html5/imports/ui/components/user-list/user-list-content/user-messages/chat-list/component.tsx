@@ -1,7 +1,6 @@
 import React from 'react';
 import { TransitionGroup, CSSTransition } from 'react-transition-group';
 import { defineMessages, useIntl } from 'react-intl';
-import { findDOMNode } from 'react-dom';
 import Styled from './styles';
 import ChatListItem from './chat-list-item/component';
 import useChat from '/imports/ui/core/hooks/useChat';
@@ -20,7 +19,7 @@ interface ChatListProps {
     chats: Chat[],
 }
 
-const getActiveChats = (chats: Chat[]) => chats.map((chat) => (
+const getActiveChats = (chats: Chat[], chatNodeRef: React.Ref<HTMLButtonElement>) => chats.map((chat) => (
   <CSSTransition
     classNames="transition"
     appear
@@ -29,10 +28,12 @@ const getActiveChats = (chats: Chat[]) => chats.map((chat) => (
     timeout={0}
     component="div"
     key={chat.chatId}
+    nodeRef={chatNodeRef}
   >
     <Styled.ListTransition>
       <ChatListItem
         chat={chat}
+        chatNodeRef={chatNodeRef}
       />
     </Styled.ListTransition>
   </CSSTransition>
@@ -43,6 +44,7 @@ const ChatList: React.FC<ChatListProps> = ({ chats }) => {
   const messageItemsRef = React.useRef<HTMLDivElement | null >(null);
   const [selectedChat, setSelectedChat] = React.useState<HTMLElement>();
   const { roving } = Service;
+  const chatNodeRef = React.useRef<HTMLButtonElement | null>(null);
 
   React.useEffect(() => {
     const firstChild = (selectedChat as HTMLElement)?.firstChild;
@@ -50,8 +52,7 @@ const ChatList: React.FC<ChatListProps> = ({ chats }) => {
   }, [selectedChat]);
 
   const rove = (event: React.KeyboardEvent) => {
-    // eslint-disable-next-line react/no-find-dom-node
-    const msgItemsRef = findDOMNode(messageItemsRef.current);
+    const msgItemsRef = messageItemsRef.current;
     const msgItemsRefChild = msgItemsRef?.firstChild;
     roving(event, setSelectedChat, msgItemsRefChild, selectedChat);
     event.stopPropagation();
@@ -73,7 +74,7 @@ const ChatList: React.FC<ChatListProps> = ({ chats }) => {
       >
         <Styled.List ref={messageItemsRef}>
           <TransitionGroup>
-            {getActiveChats(chats) ?? null}
+            {getActiveChats(chats, chatNodeRef) ?? null}
           </TransitionGroup>
         </Styled.List>
       </Styled.ScrollableList>

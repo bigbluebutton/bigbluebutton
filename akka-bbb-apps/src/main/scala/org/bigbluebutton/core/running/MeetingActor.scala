@@ -274,6 +274,9 @@ class MeetingActor(
     case m: GetRunningMeetingStateReqMsg          => handleGetRunningMeetingStateReqMsg(m)
     case m: ValidateConnAuthTokenSysMsg           => handleValidateConnAuthTokenSysMsg(m)
 
+    //API Msgs
+    case m: GetUserApiMsg                         => usersApp.handleGetUsersMeetingReqMsg(m, sender)
+
     // Meeting
     case m: DestroyMeetingSysCmdMsg               => handleDestroyMeetingSysCmdMsg(m)
 
@@ -651,6 +654,7 @@ class MeetingActor(
       case m: EditCaptionHistoryPubMsg                => captionApp2x.handle(m, liveMeeting, msgBus)
       case m: AddCaptionLocalePubMsg                  => captionApp2x.handle(m, liveMeeting, msgBus)
       case m: SendCaptionHistoryReqMsg                => captionApp2x.handle(m, liveMeeting, msgBus)
+      case m: CaptionSubmitTranscriptPubMsg           => captionApp2x.handle(m, liveMeeting, msgBus)
 
       // Guests
       case m: GetGuestsWaitingApprovalReqMsg          => handleGetGuestsWaitingApprovalReqMsg(m)
@@ -710,9 +714,10 @@ class MeetingActor(
         state = groupChatApp.handle(m, state, liveMeeting, msgBus)
 
       // Plugin
-      case m: PluginDataChannelPushEntryMsg   => pluginHdlrs.handle(m, state, liveMeeting)
-      case m: PluginDataChannelDeleteEntryMsg => pluginHdlrs.handle(m, state, liveMeeting)
-      case m: PluginDataChannelResetMsg       => pluginHdlrs.handle(m, state, liveMeeting)
+      case m: PluginDataChannelPushEntryMsg    => pluginHdlrs.handle(m, state, liveMeeting)
+      case m: PluginDataChannelReplaceEntryMsg => pluginHdlrs.handle(m, state, liveMeeting)
+      case m: PluginDataChannelDeleteEntryMsg  => pluginHdlrs.handle(m, state, liveMeeting)
+      case m: PluginDataChannelResetMsg        => pluginHdlrs.handle(m, state, liveMeeting)
 
       // Webcams
       case m: UserBroadcastCamStartMsg =>

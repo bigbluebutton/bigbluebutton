@@ -20,6 +20,8 @@ export function LockStruct() {
       userNotes: false,
       userPrivateChat: false,
       userPublicChat: false,
+      hideViewersCursor: false,
+      hideViewersAnnotation: false,
     },
   });
 }

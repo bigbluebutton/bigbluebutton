@@ -71,6 +71,12 @@ actions:
       handler: '{{HASURA_BBB_GRAPHQL_ACTIONS_ADAPTER_URL}}'
     permissions:
       - role: bbb_client
+  - name: captionSubmitTranscript
+    definition:
+      kind: synchronous
+      handler: '{{HASURA_BBB_GRAPHQL_ACTIONS_ADAPTER_URL}}'
+    permissions:
+      - role: bbb_client
   - name: chatCreateWithUser
     definition:
       kind: synchronous
@@ -192,6 +198,12 @@ actions:
     permissions:
       - role: bbb_client
   - name: pluginDataChannelPushEntry
+    definition:
+      kind: synchronous
+      handler: '{{HASURA_BBB_GRAPHQL_ACTIONS_ADAPTER_URL}}'
+    permissions:
+      - role: bbb_client
+  - name: pluginDataChannelReplaceEntry
     definition:
       kind: synchronous
       handler: '{{HASURA_BBB_GRAPHQL_ACTIONS_ADAPTER_URL}}'
@@ -427,12 +439,6 @@ actions:
       handler: '{{HASURA_BBB_GRAPHQL_ACTIONS_ADAPTER_URL}}'
     permissions:
       - role: bbb_client
-  - name: userSetSpeechOptions
-    definition:
-      kind: synchronous
-      handler: '{{HASURA_BBB_GRAPHQL_ACTIONS_ADAPTER_URL}}'
-    permissions:
-      - role: bbb_client
   - name: userSetConnectionAlive
     definition:
       kind: synchronous
@@ -488,6 +494,12 @@ actions:
     permissions:
       - role: bbb_client
   - name: userSetSpeechLocale
+    definition:
+      kind: synchronous
+      handler: '{{HASURA_BBB_GRAPHQL_ACTIONS_ADAPTER_URL}}'
+    permissions:
+      - role: bbb_client
+  - name: userSetSpeechOptions
     definition:
       kind: synchronous
       handler: '{{HASURA_BBB_GRAPHQL_ACTIONS_ADAPTER_URL}}'

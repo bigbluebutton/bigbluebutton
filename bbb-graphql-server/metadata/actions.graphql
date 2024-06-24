@@ -78,6 +78,14 @@ type Mutation {
 }
 
 type Mutation {
+  captionSubmitTranscript(
+    transcriptId: String!
+    transcript: String!
+    locale: String!
+  ): Boolean
+}
+
+type Mutation {
   chatCreateWithUser(
     userId: String!
   ): Boolean
@@ -223,6 +231,16 @@ type Mutation {
     payloadJson: String!
     toRoles: [String]!
     toUserIds: [String]!
+  ): Boolean
+}
+
+type Mutation {
+  pluginDataChannelReplaceEntry(
+    pluginName: String!
+    subChannelName: String!
+    channelName: String!
+    entryId: String!
+    payloadJson: String!
   ): Boolean
 }
 
@@ -469,13 +487,6 @@ type Mutation {
 }
 
 type Mutation {
-  userSetSpeechOptions(
-    partialUtterances: Boolean!
-    minUtteranceLength: Float!
-  ): Boolean
-}
-
-type Mutation {
   userSetCaptionLocale(
     locale: String!
     provider: String!
@@ -548,6 +559,13 @@ type Mutation {
 }
 
 type Mutation {
+  userSetSpeechOptions(
+    partialUtterances: Boolean!
+    minUtteranceLength: Float!
+  ): Boolean
+}
+
+type Mutation {
   userThirdPartyInfoResquest(
     externalUserId: String!
   ): Boolean
@@ -575,3 +593,4 @@ input GuestUserApprovalStatus {
   guest: String!
   status: String!
 }
+

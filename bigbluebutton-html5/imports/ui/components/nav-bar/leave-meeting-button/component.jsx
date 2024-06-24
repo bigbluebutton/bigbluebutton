@@ -40,7 +40,7 @@ const propTypes = {
   }).isRequired,
   amIModerator: PropTypes.bool,
   isBreakoutRoom: PropTypes.bool,
-  isMeteorConnected: PropTypes.bool.isRequired,
+  connected: PropTypes.bool.isRequired,
   isDropdownOpen: PropTypes.bool,
   isMobile: PropTypes.bool.isRequired,
   userLeaveMeeting: PropTypes.func.isRequired,
@@ -83,7 +83,7 @@ class LeaveMeetingButton extends PureComponent {
 
   renderMenuItems() {
     const {
-      intl, amIModerator, isBreakoutRoom, isMeteorConnected,
+      intl, amIModerator, isBreakoutRoom, connected,
     } = this.props;
 
     const allowedToEndMeeting = amIModerator && !isBreakoutRoom;
@@ -92,7 +92,7 @@ class LeaveMeetingButton extends PureComponent {
 
     this.menuItems = [];
 
-    if (allowLogoutSetting && isMeteorConnected) {
+    if (allowLogoutSetting && connected) {
       this.menuItems.push(
         {
           key: 'list-item-logout',
@@ -105,7 +105,7 @@ class LeaveMeetingButton extends PureComponent {
       );
     }
 
-    if (allowedToEndMeeting && isMeteorConnected) {
+    if (allowedToEndMeeting && connected) {
       const customStyles = { background: colorDanger, color: colorWhite };
 
       this.menuItems.push(

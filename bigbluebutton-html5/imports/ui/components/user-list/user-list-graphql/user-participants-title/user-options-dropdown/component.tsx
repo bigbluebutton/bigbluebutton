@@ -20,7 +20,7 @@ import {
 } from './service';
 import { User } from '/imports/ui/Types/user';
 import useCurrentUser from '/imports/ui/core/hooks/useCurrentUser';
-import { isBreakoutRoomsEnabled, isLearningDashboardEnabled } from '/imports/ui/services/features';
+import { useIsBreakoutRoomsEnabled, useIsLearningDashboardEnabled } from '/imports/ui/services/features';
 import { useMutation, useLazyQuery } from '@apollo/client';
 import { CLEAR_ALL_EMOJI } from '/imports/ui/core/graphql/mutations/userMutations';
 import { SET_MUTED } from './mutations';
@@ -146,6 +146,7 @@ interface UserTitleOptionsProps {
   isModerator: boolean;
   hasBreakoutRooms: boolean | undefined;
   meetingName: string | undefined;
+  learningDashboardToken: string | undefined;
 }
 
 const UserTitleOptions: React.FC<UserTitleOptionsProps> = ({
@@ -155,6 +156,7 @@ const UserTitleOptions: React.FC<UserTitleOptionsProps> = ({
   isModerator,
   hasBreakoutRooms,
   meetingName,
+  learningDashboardToken,
 }) => {
   const intl = useIntl();
   const { locale } = intl;
@@ -177,6 +179,8 @@ const UserTitleOptions: React.FC<UserTitleOptionsProps> = ({
   const [setMuted] = useMutation(SET_MUTED);
   const [getUsers, { data: usersData, error: usersError }] = useLazyQuery(GET_USER_NAMES, { fetchPolicy: 'no-cache' });
   const users = usersData?.user || [];
+  const isLearningDashboardEnabled = useIsLearningDashboardEnabled();
+  const isBreakoutRoomsEnabled = useIsBreakoutRoomsEnabled();
 
   if (usersError) {
     logger.error({
@@ -232,7 +236,7 @@ const UserTitleOptions: React.FC<UserTitleOptionsProps> = ({
     const canCreateBreakout = isModerator
       && !isBreakout
       && !hasBreakoutRooms
-      && isBreakoutRoomsEnabled();
+      && isBreakoutRoomsEnabled;
     return [
       {
         allow: !isBreakout,
@@ -306,19 +310,19 @@ const UserTitleOptions: React.FC<UserTitleOptionsProps> = ({
         allow: canCreateBreakout,
       },
       {
-        allow: isLearningDashboardEnabled(),
+        allow: isLearningDashboardEnabled,
         icon: 'multi_whiteboard',
         iconRight: 'popout_window',
         label: intl.formatMessage(intlMessages.learningDashboardLabel),
         description: `${intl.formatMessage(intlMessages.learningDashboardDesc)}
         ${intl.formatMessage(intlMessages.newTab)}`,
         key: uuids.current[8],
-        onClick: () => { openLearningDashboardUrl(locale); },
+        onClick: () => { openLearningDashboardUrl(locale, learningDashboardToken); },
         dividerTop: true,
         dataTest: 'learningDashboard',
       },
     ].filter(({ allow }) => allow);
-  }, [isModerator, hasBreakoutRooms, isMeetingMuted, locale, intl]);
+  }, [isModerator, hasBreakoutRooms, isMeetingMuted, locale, intl, isBreakoutRoomsEnabled, isLearningDashboardEnabled]);
 
   const newLocal = 'true';
   return (
@@ -383,6 +387,7 @@ const UserTitleOptionsContainer: React.FC = () => {
     isBreakout: meeting?.isBreakout,
     componentsFlags: meeting?.componentsFlags,
     name: meeting?.name,
+    learningDashboardAccessToken: meeting.learningDashboardAccessToken,
   }));
 
   const { data: currentUser } = useCurrentUser((user: Partial<User>) => ({
@@ -402,6 +407,7 @@ const UserTitleOptionsContainer: React.FC = () => {
       isModerator={currentUser?.isModerator ?? false}
       hasBreakoutRooms={hasBreakoutRooms}
       meetingName={meetingInfo?.name}
+      learningDashboardToken={meetingInfo?.learningDashboardAccessToken}
     />
   );
 };

@@ -6,7 +6,7 @@ import org.bigbluebutton.common2.msgs._
 import org.bigbluebutton.core.bus.MessageBus
 import org.bigbluebutton.core.running.LiveMeeting
 import org.bigbluebutton.core.apps.{ PermissionCheck, RightsManagementTrait }
-import org.bigbluebutton.core.db.{ CaptionLocaleDAO, CaptionTypes }
+import org.bigbluebutton.core.db.{ CaptionDAO, CaptionLocaleDAO, CaptionTypes }
 
 class CaptionApp2x(implicit val context: ActorContext) extends RightsManagementTrait {
   val log = Logging(context.system, getClass)
@@ -51,7 +51,23 @@ class CaptionApp2x(implicit val context: ActorContext) extends RightsManagementT
       }
     }
   }
+  def handle(msg: CaptionSubmitTranscriptPubMsg, liveMeeting: LiveMeeting, bus: MessageBus): Unit = {
+    val meetingId = liveMeeting.props.meetingProp.intId
+    def broadcastSuccessEvent(transcriptId: String, transcript: String, locale: String): Unit = {
+      val routing = Routing.addMsgToClientRouting(MessageTypes.BROADCAST_TO_MEETING, liveMeeting.props.meetingProp.intId, msg.header.userId)
+      val envelope = BbbCoreEnvelope(CaptionSubmitTranscriptEvtMsg.NAME, routing)
+      val header = BbbClientMsgHeader(CaptionSubmitTranscriptEvtMsg.NAME, liveMeeting.props.meetingProp.intId, msg.header.userId)
 
+      val body = CaptionSubmitTranscriptEvtMsgBody(transcriptId, transcript, locale, msg.body.captionType)
+      val event = CaptionSubmitTranscriptEvtMsg(header, body)
+      val msgEvent = BbbCommonEnvCoreMsg(envelope, event)
+      bus.outGW.send(msgEvent)
+    }
+    CaptionDAO.insertOrUpdateCaption(msg.body.transcriptId, meetingId, msg.header.userId,
+      msg.body.transcript, msg.body.locale, msg.body.captionType)
+
+    broadcastSuccessEvent(msg.body.transcriptId, msg.body.transcript, msg.body.locale)
+  }
   def handle(msg: SendCaptionHistoryReqMsg, liveMeeting: LiveMeeting, bus: MessageBus): Unit = {
     def broadcastEvent(msg: SendCaptionHistoryReqMsg, history: Map[String, TranscriptVO]): Unit = {
       val routing = Routing.addMsgToClientRouting(MessageTypes.DIRECT, liveMeeting.props.meetingProp.intId, msg.header.userId)

@@ -3,6 +3,7 @@ package websrv
 import (
 	"context"
 	"fmt"
+	"github.com/iMDT/bbb-graphql-middleware/internal/akka_apps"
 	"github.com/iMDT/bbb-graphql-middleware/internal/bbb_web"
 	"github.com/iMDT/bbb-graphql-middleware/internal/common"
 	"github.com/iMDT/bbb-graphql-middleware/internal/gql_actions"
@@ -80,7 +81,10 @@ func ConnectionHandler(w http.ResponseWriter, r *http.Request) {
 		if bcExists {
 			sessionTokenRemoved := BrowserConnections[browserConnectionId].SessionToken
 			delete(BrowserConnections, browserConnectionId)
-			go SendUserGraphqlConnectionClosedSysMsg(sessionTokenRemoved, browserConnectionId)
+
+			if sessionTokenRemoved != "" {
+				go SendUserGraphqlConnectionClosedSysMsg(sessionTokenRemoved, browserConnectionId)
+			}
 		}
 		BrowserConnectionsMutex.Unlock()
 
@@ -268,13 +272,13 @@ func invalidateHasuraConnectionForSessionToken(bc *common.BrowserConnection, ses
 
 func refreshUserSessionVariables(browserConnection *common.BrowserConnection) error {
 	BrowserConnectionsMutex.RLock()
-	browserSessionToken := browserConnection.SessionToken
+	browserUserId := browserConnection.UserId
+	browserMeetingId := browserConnection.MeetingId
 	browserConnectionId := browserConnection.Id
-	browserConnectionCookies := browserConnection.BrowserRequestCookies
 	BrowserConnectionsMutex.RUnlock()
 
 	// Check authorization
-	sessionVariables, err := bbb_web.BBBWebClient(browserConnectionId, browserSessionToken, browserConnectionCookies)
+	sessionVariables, err := akka_apps.AkkaAppsClient(browserConnectionId, browserMeetingId, browserUserId)
 	if err != nil {
 		log.Error(err)
 		return fmt.Errorf("error on checking sessionToken authorization")
@@ -331,7 +335,7 @@ func connectionInitHandler(
 			}
 
 			// Check authorization
-			sessionVariables, err := bbb_web.BBBWebClient(browserConnectionId, sessionToken, browserConnectionCookies)
+			meetingId, userId, err := bbb_web.BBBWebClient(browserConnectionId, sessionToken, browserConnectionCookies)
 			if err != nil {
 				log.Error(err)
 				return fmt.Errorf("error on checking sessionToken authorization")
@@ -343,9 +347,12 @@ func connectionInitHandler(
 			BrowserConnectionsMutex.Lock()
 			browserConnection.SessionToken = sessionToken
 			browserConnection.ClientSessionUUID = clientSessionUUID
-			browserConnection.BBBWebSessionVariables = sessionVariables
+			browserConnection.MeetingId = meetingId
+			browserConnection.UserId = userId
 			browserConnection.ConnectionInitMessage = fromBrowserMessageAsMap
 			BrowserConnectionsMutex.Unlock()
+
+			refreshUserSessionVariables(browserConnection)
 
 			go SendUserGraphqlConnectionEstablishedSysMsg(
 				sessionToken,

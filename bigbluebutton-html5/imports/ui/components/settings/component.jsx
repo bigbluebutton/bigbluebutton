@@ -189,6 +189,7 @@ class Settings extends Component {
       isReactionsEnabled,
       isGladiaEnabled,
       paginationToggleEnabled,
+      isChatEnabled,
     } = this.props;
 
     const {
@@ -263,6 +264,7 @@ class Settings extends Component {
             showGuestNotification={showGuestNotification}
             showToggleLabel={showToggleLabel}
             displaySettingsStatus={this.displaySettingsStatus}
+            isChatEnabled={isChatEnabled}
             {...{ isModerator }}
           />
         </Styled.SettingsTabPanel>
