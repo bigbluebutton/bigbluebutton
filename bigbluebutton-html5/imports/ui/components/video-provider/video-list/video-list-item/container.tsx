@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useMemo } from 'react';
 import PropTypes from 'prop-types';
 import useCurrentUser from '/imports/ui/core/hooks/useCurrentUser';
 import { layoutSelect, layoutDispatch } from '/imports/ui/components/layout/context';
@@ -64,11 +64,11 @@ const VideoListItemContainer: React.FC<VideoListItemContainerProps> = (props) =>
   const { data: talkingUsers } = useWhoIsTalking();
   const { data: unmutedUsers } = useWhoIsUnmuted();
   const voiceUser = voiceUsers.data?.find((v) => v.userId === userId) ?? {};
-  const voiceData = {
+  const voiceData = useMemo(() => ({
     ...voiceUser,
     talking: talkingUsers[userId],
     muted: !unmutedUsers.has(userId),
-  };
+  }), [voiceUser, talkingUsers, unmutedUsers, userId]);
 
   return (
     <VideoListItem
