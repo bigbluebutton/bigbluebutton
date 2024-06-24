@@ -404,7 +404,8 @@ export const useVideoStreams = (
 
 export const useHasVideoStream = () => {
   const { streams } = useStreams();
-  return streams.some((s) => videoService.isLocalStream(s.stream));
+  const connectingStream = useConnectingStream();
+  return !!connectingStream || streams.some((s) => videoService.isLocalStream(s.stream));
 };
 
 const useOwnVideoStreamsQuery = () => useLazyQuery<OwnVideoStreamsResponse>(

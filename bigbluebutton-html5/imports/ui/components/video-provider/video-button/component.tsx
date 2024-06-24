@@ -145,8 +145,6 @@ const JoinVideoButton: React.FC<JoinVideoButtonProps> = ({
     ? intl.formatMessage(intlMessages[disableReason as keyof typeof intlMessages])
     : intl.formatMessage(intlMessages[getMessageFromStatus() as keyof typeof intlMessages]);
 
-  const isSharing = hasVideoStream || status === 'videoConnecting';
-
   const renderUserActions = () => {
     const actions = [];
 
@@ -223,9 +221,9 @@ const JoinVideoButton: React.FC<JoinVideoButtonProps> = ({
           data-test={hasVideoStream ? 'leaveVideo' : 'joinVideo'}
           onClick={handleOnClick}
           hideLabel
-          color={isSharing ? 'primary' : 'default'}
-          icon={isSharing ? 'video' : 'video_off'}
-          ghost={!isSharing}
+          color={hasVideoStream ? 'primary' : 'default'}
+          icon={hasVideoStream ? 'video' : 'video_off'}
+          ghost={!hasVideoStream}
           size="lg"
           circle
           disabled={!!disableReason}
