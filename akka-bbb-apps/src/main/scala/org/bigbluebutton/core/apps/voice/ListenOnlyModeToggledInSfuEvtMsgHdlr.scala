@@ -12,7 +12,11 @@ trait ListenOnlyModeToggledInSfuEvtMsgHdlr {
 
   def handleListenOnlyModeToggledInSfuEvtMsg(msg: ListenOnlyModeToggledInSfuEvtMsg): Unit = {
     for {
-      vu <- VoiceUsers.findWithIntId(liveMeeting.voiceUsers, msg.body.userId)
+      vu <- VoiceUsers.findWithIntIdAndCallerNum(
+        liveMeeting.voiceUsers,
+        msg.body.userId,
+        msg.body.callerNum
+      )
     } yield {
       VoiceApp.holdChannelInVoiceConf(
         liveMeeting,

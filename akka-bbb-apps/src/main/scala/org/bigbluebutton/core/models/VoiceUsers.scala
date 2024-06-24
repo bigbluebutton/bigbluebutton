@@ -16,6 +16,10 @@ object VoiceUsers {
     users.toVector.find(u => u.uuid == uuid && u.intId == intId)
   }
 
+  def findWithIntIdAndCallerNum(users: VoiceUsers, intId: String, callerNum: String): Option[VoiceUserState] = {
+    users.toVector.find(u => u.callerNum == callerNum && u.intId == intId)
+  }
+
   def findAll(users: VoiceUsers): Vector[VoiceUserState] = users.toVector
 
   def findAllNonListenOnlyVoiceUsers(users: VoiceUsers): Vector[VoiceUserState] = users.toVector.filter(u => u.listenOnly == false)
