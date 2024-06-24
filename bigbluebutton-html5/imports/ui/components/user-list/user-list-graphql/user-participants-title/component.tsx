@@ -4,9 +4,11 @@ import { USER_AGGREGATE_COUNT_SUBSCRIPTION } from '/imports/ui/core/graphql/quer
 import UserTitleOptionsContainer from './user-options-dropdown/component';
 import Styled from './styles';
 import useDeduplicatedSubscription from '/imports/ui/core/hooks/useDeduplicatedSubscription';
+import { USER_WITH_AUDIO_AGGREGATE_COUNT_SUBSCRIPTION } from './queries';
 
 interface UserTitleProps {
   count: number;
+  countWithAudio: number;
 }
 
 const messages = defineMessages({
@@ -18,13 +20,19 @@ const messages = defineMessages({
 
 const UserTitle: React.FC<UserTitleProps> = ({
   count,
+  countWithAudio,
 }) => {
   const intl = useIntl();
   return (
     <Styled.Container>
       <Styled.SmallTitle>
         {intl.formatMessage(messages.usersTitle)}
-        {` (${count.toLocaleString('en-US', { notation: 'standard' })})`}
+        <span data-test="users-count">
+          {` (${count.toLocaleString('en-US', { notation: 'standard' })})`}
+        </span>
+        <span data-test="users-with-audio-count" hidden>
+          {` (${countWithAudio.toLocaleString('en-US', { notation: 'standard' })})`}
+        </span>
       </Styled.SmallTitle>
       <UserTitleOptionsContainer />
     </Styled.Container>
@@ -35,8 +43,18 @@ const UserTitleContainer: React.FC = () => {
   const {
     data: countData,
   } = useDeduplicatedSubscription(USER_AGGREGATE_COUNT_SUBSCRIPTION);
+  const {
+    data: audioUsersCountData,
+  } = useDeduplicatedSubscription(USER_WITH_AUDIO_AGGREGATE_COUNT_SUBSCRIPTION);
   const count = countData?.user_aggregate?.aggregate?.count || 0;
-  return <UserTitle count={count} />;
+  const countWithAudio = audioUsersCountData?.user_aggregate?.aggregate?.count || 0;
+
+  return (
+    <UserTitle
+      count={count}
+      countWithAudio={countWithAudio}
+    />
+  );
 };
 
 export default UserTitleContainer;
