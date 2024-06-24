@@ -371,7 +371,7 @@ test.describe.parallel('Custom Parameters', () => {
     await customParam.askForFeedbackOnLogout();
   });
 
-  test('Display Branding Area', async ({ browser, context, page }) => {
+  test('Display Branding Area @ci', async ({ browser, context, page }) => {
     const customParam = new CustomParameters(browser, context);
     await customParam.initModPage(page, true, { createParameter: `${c.displayBrandingArea}&${encodeCustomParams(c.logo)}` });
     await customParam.displayBrandingArea();

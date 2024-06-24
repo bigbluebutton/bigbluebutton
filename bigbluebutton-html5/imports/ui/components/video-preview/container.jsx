@@ -30,7 +30,8 @@ const VideoPreviewContainer = (props) => {
   const hasVideoStream = useHasVideoStream();
   const camCapReached = useHasCapReached();
   const isCamLocked = useIsUserLocked();
-  const webcamDeviceId = useStorageKey('WebcamDeviceId');
+  const settingsStorage = window.meetingClientSettings.public.app.userSettingsStorage;
+  const webcamDeviceId = useStorageKey('WebcamDeviceId', settingsStorage);
   const isVirtualBackgroundsEnabled = useIsVirtualBackgroundsEnabled();
   const isCustomVirtualBackgroundsEnabled = useIsCustomVirtualBackgroundsEnabled();
   const isCameraAsContentBroadcasting = ScreenShareService.useIsCameraAsContentBroadcasting();

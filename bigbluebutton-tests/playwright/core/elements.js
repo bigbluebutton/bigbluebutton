@@ -429,7 +429,9 @@ exports.advancedVideoSettingsBtn = 'li[data-test="advancedVideoSettingsButton"]'
 exports.mirrorWebcamBtn = 'li[data-test="mirrorWebcamBtn"]';
 exports.focusWebcamBtn = 'li[data-test="focusWebcamBtn"]';
 exports.pinWebcamBtn = 'li[data-test="pinWebcamBtn"]';
-exports.webcamFullscreenButton = 'button[data-test="webcamFullscreenButton"]';
+exports.webcamsFullscreenButton = 'li[data-test="webcamsFullscreenButton"]';
+exports.webcamSettingsTitle = 'span[id="webcam-settings-title"]';
+exports.backgroundSettingsTitle = 'span[id="backgrounds-title"]';
 exports.selectDefaultBackground = 'button[data-test="selectDefaultBackground"]';
 exports.selectCustomBackground = 'button[data-test="selectCustomBackground"]';
 exports.removeCustomBackground = 'button[data-test="removeCustomBackground"]';

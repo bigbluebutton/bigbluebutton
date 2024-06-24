@@ -26,7 +26,17 @@ const GenericContentSidekickContainer: React.FC<GenericContentSidekickContainerP
     genericContentSidekickAreaExtensibleArea = [...genericContentSidekickArea];
   }
 
-  if (genericContentSidekickAreaExtensibleArea.length === 0) {
+  const pickedGenericSidekickContent = genericContentSidekickAreaExtensibleArea
+    .filter((gsc) => gsc.id === genericSidekickContentIdIsolated)[0];
+
+  if (genericContentSidekickAreaExtensibleArea.length === 0 || !pickedGenericSidekickContent) {
+    logger.error({
+      logCode: 'generic_sidekick_content_not_found',
+      extraInfo: {
+        genericSidekickContentId,
+        genericSidekickContentIdIsolated,
+      },
+    }, `Generic sidekick content with id ${genericSidekickContentIdIsolated} not found`);
     layoutContextDispatch({
       type: ACTIONS.SET_SIDEBAR_CONTENT_IS_OPEN,
       value: false,
@@ -36,18 +46,6 @@ const GenericContentSidekickContainer: React.FC<GenericContentSidekickContainerP
       value: PANELS.NONE,
     });
     return null;
-  }
-  const pickedGenericSidekickContent = genericContentSidekickAreaExtensibleArea
-    .filter((gsc) => gsc.id === genericSidekickContentIdIsolated)[0];
-
-  if (!pickedGenericSidekickContent) {
-    logger.error({
-      logCode: 'generic_sidekick_content_not_found',
-      extraInfo: {
-        genericSidekickContentId,
-        genericSidekickContentIdIsolated,
-      },
-    }, `Generic sidekick content with id ${genericSidekickContentIdIsolated} not found`);
   }
 
   return (

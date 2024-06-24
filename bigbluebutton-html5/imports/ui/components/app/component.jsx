@@ -239,10 +239,9 @@ class App extends Component {
         && currentUserEmoji.status !== 'raiseHand'
         && currentUserEmoji.status !== 'away'
     ) {
-      const formattedEmojiStatus = intl.formatMessage({ id: `app.actionsBar.emojiMenu.${currentUserEmoji.status}Label` })
-        || currentUserEmoji.status;
+      const formattedEmojiStatus = currentUserEmoji.status;
 
-      if (currentUserEmoji.status === 'none') {
+      if (currentUserEmoji.status === null) {
         notify(
           intl.formatMessage(intlMessages.clearedEmoji),
           'info',

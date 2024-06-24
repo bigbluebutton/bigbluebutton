@@ -140,6 +140,8 @@ const ConnectionManager: React.FC<ConnectionManagerProps> = ({ children }): Reac
               setTerminalError('Session token is invalid');
               return false;
             }
+
+            if (!apolloContextHolder.getShouldRetry()) return false;
             return true;
           },
           connectionParams: {
