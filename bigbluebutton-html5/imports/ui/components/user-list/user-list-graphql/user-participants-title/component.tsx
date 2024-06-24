@@ -27,11 +27,11 @@ const UserTitle: React.FC<UserTitleProps> = ({
     <Styled.Container>
       <Styled.SmallTitle>
         {intl.formatMessage(messages.usersTitle)}
-        <span data-test="users-count">
+        <span
+          data-test-users-count={count}
+          data-test-users-with-audio-count={countWithAudio}
+        >
           {` (${count.toLocaleString('en-US', { notation: 'standard' })})`}
-        </span>
-        <span data-test="users-with-audio-count" hidden>
-          {` (${countWithAudio.toLocaleString('en-US', { notation: 'standard' })})`}
         </span>
       </Styled.SmallTitle>
       <UserTitleOptionsContainer />
