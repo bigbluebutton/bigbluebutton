@@ -555,6 +555,7 @@ case class VoiceConfCallStateEvtMsgBody(
     callSession:      String,
     clientSession:    String,
     userId:           String,
+    voiceUserId:      String,
     callerName:       String,
     callState:        String,
     origCallerIdName: String,
