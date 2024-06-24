@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useState } from 'react';
 import logger from '/imports/startup/client/logger';
 import VOICE_ACTIVITY, { VoiceActivityResponse } from '/imports/ui/core/graphql/queries/whoIsTalking';
 import useDeduplicatedSubscription from './useDeduplicatedSubscription';
@@ -7,8 +7,6 @@ type VoiceItem = VoiceActivityResponse['user_voice_activity_stream'][number] & {
   showTalkingIndicator: boolean | undefined;
 };
 
-const TALKING_INDICATOR_TIMEOUT = 5000;
-
 const useVoiceActivity = () => {
   const {
     data,
@@ -16,7 +14,6 @@ const useVoiceActivity = () => {
     error,
   } = useDeduplicatedSubscription<VoiceActivityResponse>(VOICE_ACTIVITY);
   const [record, setRecord] = useState<Record<string, VoiceItem>>({});
-  const timeoutRegistry = useRef<Record<string, NodeJS.Timeout>>({});
 
   if (error) {
     logger.error({
@@ -33,9 +30,7 @@ const useVoiceActivity = () => {
 
     if (data) {
       data.user_voice_activity_stream.forEach((voice) => {
-        const {
-          userId, talking, endTime, muted,
-        } = voice;
+        const { userId, muted } = voice;
 
         if (muted) {
           delete voiceActivity[userId];
@@ -45,24 +40,7 @@ const useVoiceActivity = () => {
         voiceActivity[userId] = Object.assign(
           voiceActivity[userId] || {},
           voice,
-          { showTalkingIndicator: talking || voiceActivity[userId]?.showTalkingIndicator },
         );
-
-        if (talking && timeoutRegistry.current[userId]) {
-          clearTimeout(timeoutRegistry.current[userId]);
-        }
-
-        if (endTime) {
-          timeoutRegistry.current[userId] = setTimeout(() => {
-            setRecord((prevRecord) => ({
-              ...prevRecord,
-              [userId]: Object.assign(
-                prevRecord[userId] || {},
-                { showTalkingIndicator: false },
-              ),
-            }));
-          }, TALKING_INDICATOR_TIMEOUT);
-        }
       });
     }
 

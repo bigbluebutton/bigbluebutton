@@ -12,8 +12,8 @@ import { muteUser } from './service';
 import useToggleVoice from '../../../audio/audio-graphql/hooks/useToggleVoice';
 import { setTalkingIndicatorList } from '/imports/ui/core/hooks/useTalkingIndicator';
 import useDeduplicatedSubscription from '/imports/ui/core/hooks/useDeduplicatedSubscription';
-import useVoiceActivity from '/imports/ui/core/hooks/useVoiceActivity';
 import { VoiceActivityResponse } from '/imports/ui/core/graphql/queries/whoIsTalking';
+import useTalkingUsers from '/imports/ui/core/hooks/useTalkingUsers';
 
 const TALKING_INDICATORS_MAX = 8;
 
@@ -186,27 +186,22 @@ const TalkingIndicatorContainer: React.FC = (() => {
     } = useDeduplicatedSubscription<IsBreakoutSubscriptionData>(MEETING_ISBREAKOUT_SUBSCRIPTION);
 
     const toggleVoice = useToggleVoice();
-    const {
-      data: voiceActivity,
-      loading: voiceActivityLoading,
-      error: voiceActivityError,
-    } = useVoiceActivity();
-    const talkingUsers = useMemo(() => Object.values(voiceActivity)
-      .filter((v) => v.showTalkingIndicator)
+    const { data: talkingUsersData, loading: talkingUsersLoading, error: talkingUsersError } = useTalkingUsers();
+    const talkingUsers = useMemo(() => Object.values(talkingUsersData)
       .sort((v1, v2) => {
         if (!v1.startTime && !v2.startTime) return 0;
         if (!v1.startTime) return 1;
         if (!v2.startTime) return -1;
         return v2.startTime - v1.startTime;
-      }).slice(0, TALKING_INDICATORS_MAX), [voiceActivity]);
+      }).slice(0, TALKING_INDICATORS_MAX), [talkingUsersData]);
 
-    if (voiceActivityLoading || isBreakoutLoading) return null;
+    if (talkingUsersLoading || isBreakoutLoading) return null;
 
-    if (voiceActivityError || isBreakoutError) {
+    if (talkingUsersError || isBreakoutError) {
       return (
         <div>
           error:
-          { JSON.stringify(voiceActivityError || isBreakoutError) }
+          { JSON.stringify(talkingUsersError || isBreakoutError) }
         </div>
       );
     }
