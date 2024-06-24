@@ -659,6 +659,7 @@ case class ToggleListenOnlyModeSysMsg(
 case class ToggleListenOnlyModeSysMsgBody(
     voiceConf: String,
     userId:    String,
+    callerNum: String,
     enabled:   Boolean
 )
 
@@ -675,5 +676,6 @@ case class ListenOnlyModeToggledInSfuEvtMsgBody(
     meetingId: String,
     voiceConf: String,
     userId:    String,
+    callerNum: String,
     enabled:   Boolean
 )
