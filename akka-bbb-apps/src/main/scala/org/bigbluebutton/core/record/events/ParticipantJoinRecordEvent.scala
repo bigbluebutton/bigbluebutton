@@ -47,8 +47,8 @@ class ParticipantJoinRecordEvent extends AbstractParticipantRecordEvent {
     eventMap.put(ROLE, role)
   }
 
-  def setCustomParameters(userCustomData: Map[String, String]): Unit = {
-    eventMap.put(CUSTOM_PARAMETERS, userCustomData.toJson.compactPrint)
+  def setUserdata(userCustomData: Map[String, String]): Unit = {
+    eventMap.put(USER_DATA, userCustomData.toJson.compactPrint)
   }
 }
 
@@ -57,7 +57,7 @@ object ParticipantJoinRecordEvent {
   protected final val EXT_USER_ID = "externalUserId"
   protected final val NAME = "name"
   protected final val ROLE = "role"
-  protected final val CUSTOM_PARAMETERS = "customParameters"
+  protected final val USER_DATA = "userdata"
 }
 
 object ParticipantJoinRecordEventJsonProtocol extends DefaultJsonProtocol {
