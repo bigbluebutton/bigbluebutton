@@ -637,11 +637,12 @@ object MsgBuilder {
       meetingId: String,
       voiceConf: String,
       userId:    String,
+      callerNum: String,
       enabled:   Boolean
   ): BbbCommonEnvCoreMsg = {
     val routing = collection.immutable.HashMap("sender" -> "bbb-apps-akka")
     val envelope = BbbCoreEnvelope(ToggleListenOnlyModeSysMsg.NAME, routing)
-    val body = ToggleListenOnlyModeSysMsgBody(voiceConf, userId, enabled)
+    val body = ToggleListenOnlyModeSysMsgBody(voiceConf, userId, callerNum, enabled)
     val header = BbbCoreHeaderWithMeetingId(ToggleListenOnlyModeSysMsg.NAME, meetingId)
     val event = ToggleListenOnlyModeSysMsg(header, body)
 

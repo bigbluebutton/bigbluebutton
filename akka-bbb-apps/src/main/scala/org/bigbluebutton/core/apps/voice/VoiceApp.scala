@@ -131,6 +131,7 @@ object VoiceApp extends SystemConfiguration {
         liveMeeting,
         outGW,
         mutedUser.intId,
+        mutedUser.callerNum,
         muted,
         toggleListenOnlyAfterMuteTimer
       )
@@ -476,6 +477,7 @@ object VoiceApp extends SystemConfiguration {
     liveMeeting:    LiveMeeting,
     outGW:          OutMsgRouter,
     userId:         String,
+    callerNum:      String,
     enabled:        Boolean,
     delay:          Int = 0
   )(implicit context: ActorContext): Unit = {
@@ -485,6 +487,7 @@ object VoiceApp extends SystemConfiguration {
         liveMeeting.props.meetingProp.intId,
         liveMeeting.props.voiceProp.voiceConf,
         userId,
+        callerNum,
         enabled
       )
       outGW.send(event)
@@ -550,6 +553,7 @@ object VoiceApp extends SystemConfiguration {
             liveMeeting,
             outGW,
             intId,
+            vu.callerNum,
             vu.muted
           )
         }
