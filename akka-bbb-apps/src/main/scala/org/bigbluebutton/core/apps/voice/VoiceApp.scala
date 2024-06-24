@@ -546,9 +546,10 @@ object VoiceApp extends SystemConfiguration {
       hold
     ) match {
       case Some(vu) =>
-        // Mute vs hold state mismatch, enforce hold state again. 
-        // Mute state is the predominant one here.
-        if (vu.muted != hold) {
+        // Mute vs hold state mismatch. Enforce it if the user is unmuted,
+        // but hold is active, to avoid the user being unable to talk when
+        // the channel is active again.
+        if (!vu.muted && vu.hold) {
           toggleListenOnlyMode(
             liveMeeting,
             outGW,
