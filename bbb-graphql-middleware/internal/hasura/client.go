@@ -24,8 +24,8 @@ var hasuraEndpoint = os.Getenv("BBB_GRAPHQL_MIDDLEWARE_HASURA_WS")
 // Hasura client connection
 func HasuraClient(
 	browserConnection *common.BrowserConnection,
-	fromBrowserToHasuraChannel *common.SafeChannel,
-	fromHasuraToBrowserChannel *common.SafeChannel) error {
+	fromBrowserToHasuraChannel *common.SafeChannelByte,
+	fromHasuraToBrowserChannel *common.SafeChannelByte) error {
 	log := log.WithField("_routine", "HasuraClient").WithField("browserConnectionId", browserConnection.Id)
 	common.ActivitiesOverviewStarted("__HasuraConnection")
 	defer common.ActivitiesOverviewCompleted("__HasuraConnection")
