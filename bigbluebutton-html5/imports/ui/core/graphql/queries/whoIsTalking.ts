@@ -7,9 +7,11 @@ export interface VoiceActivityResponse {
     muted: boolean;
     talking: boolean;
     userId: string;
-    color: string;
-    name: string;
-    speechLocale: string | undefined;
+    user: {
+      color: string;
+      name: string;
+      speechLocale: string | undefined;
+    };
   }>;
 }
 
@@ -24,9 +26,11 @@ export const VOICE_ACTIVITY = gql`
       endTime
       talking
       userId
-      color
-      name
-      speechLocale
+      user {
+        color
+        name
+        speechLocale
+      }
     }
   }
 `;

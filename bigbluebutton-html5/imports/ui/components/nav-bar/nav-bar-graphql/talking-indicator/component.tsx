@@ -75,9 +75,11 @@ const TalkingIndicator: React.FC<TalkingIndicatorProps> = ({
     const {
       talking,
       muted,
-      color,
-      speechLocale,
-      name,
+      user: {
+        color,
+        speechLocale,
+        name,
+      },
     } = talkingUser;
 
     const ariaLabel = intl.formatMessage(talking
@@ -225,7 +227,7 @@ const TalkingIndicatorContainer: React.FC = (() => {
     }
 
     const isBreakout = isBreakoutData?.meeting[0]?.isBreakout ?? false;
-    setTalkingIndicatorList(talkingUsers);
+    setTalkingIndicatorList(talkingUsers.map(({ user, ...rest }) => ({ ...rest, ...user })));
     return (
       <TalkingIndicator
         talkingUsers={talkingUsers}
