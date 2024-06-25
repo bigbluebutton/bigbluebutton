@@ -1,7 +1,9 @@
 package websrv
 
 import (
+	"bytes"
 	"context"
+	"encoding/json"
 	"fmt"
 	"github.com/iMDT/bbb-graphql-middleware/internal/akka_apps"
 	"github.com/iMDT/bbb-graphql-middleware/internal/bbb_web"
@@ -95,10 +97,10 @@ func ConnectionHandler(w http.ResponseWriter, r *http.Request) {
 	log.Infof("connection accepted")
 
 	// Create channels
-	fromBrowserToHasuraConnectionEstablishingChannel := common.NewSafeChannel(bufferSize)
-	fromBrowserToHasuraChannel := common.NewSafeChannel(bufferSize)
-	fromBrowserToGqlActionsChannel := common.NewSafeChannel(bufferSize)
-	fromHasuraToBrowserChannel := common.NewSafeChannel(bufferSize)
+	fromBrowserToHasuraConnectionEstablishingChannel := common.NewSafeChannelByte(bufferSize)
+	fromBrowserToHasuraChannel := common.NewSafeChannelByte(bufferSize)
+	fromBrowserToGqlActionsChannel := common.NewSafeChannelByte(bufferSize)
+	fromHasuraToBrowserChannel := common.NewSafeChannelByte(bufferSize)
 
 	// Configure the wait group (to hold this routine execution until both are completed)
 	var wgAll sync.WaitGroup
@@ -295,7 +297,7 @@ func refreshUserSessionVariables(browserConnection *common.BrowserConnection) er
 
 func connectionInitHandler(
 	browserConnection *common.BrowserConnection,
-	fromBrowserToHasuraConnectionEstablishingChannel *common.SafeChannel) error {
+	fromBrowserToHasuraConnectionEstablishingChannel *common.SafeChannelByte) error {
 
 	BrowserConnectionsMutex.RLock()
 	browserConnectionId := browserConnection.Id
@@ -309,9 +311,13 @@ func connectionInitHandler(
 			//Received all messages. Channel is closed
 			return fmt.Errorf("error on receiving init connection")
 		}
-		var fromBrowserMessageAsMap = fromBrowserMessage.(map[string]interface{})
+		if bytes.Contains(fromBrowserMessage, []byte("\"connection_init\"")) {
+			var fromBrowserMessageAsMap map[string]interface{}
+			if err := json.Unmarshal(fromBrowserMessage, &fromBrowserMessageAsMap); err != nil {
+				log.Errorf("failed to unmarshal message: %v", err)
+				continue
+			}
 
-		if fromBrowserMessageAsMap["type"] == "connection_init" {
 			var payloadAsMap = fromBrowserMessageAsMap["payload"].(map[string]interface{})
 			var headersAsMap = payloadAsMap["headers"].(map[string]interface{})
 			var sessionToken, existsSessionToken = headersAsMap["X-Session-Token"].(string)
@@ -349,7 +355,7 @@ func connectionInitHandler(
 			browserConnection.ClientSessionUUID = clientSessionUUID
 			browserConnection.MeetingId = meetingId
 			browserConnection.UserId = userId
-			browserConnection.ConnectionInitMessage = fromBrowserMessageAsMap
+			browserConnection.ConnectionInitMessage = fromBrowserMessage
 			BrowserConnectionsMutex.Unlock()
 
 			refreshUserSessionVariables(browserConnection)
