@@ -1,4 +1,5 @@
 import styled, { createGlobalStyle } from 'styled-components';
+import { colorOffWhite } from '/imports/ui/stylesheets/styled-components/palette';
 
 const TldrawV2GlobalStyle = createGlobalStyle`
   ${({ isPresenter, hasWBAccess }) => (!isPresenter && hasWBAccess) && `
@@ -70,15 +71,35 @@ const TldrawV2GlobalStyle = createGlobalStyle`
 
   .tlui-toolbar__extras {
     position: fixed !important;
-    top: -2px !important;
-    left: 40px !important;
+    top: 2px !important;
+    
+  }
+
+  .tlui-toolbar__extras__controls {
+    border-radius: var(--radius-4);
+    border: none;
+    background-color: ${colorOffWhite};
+    box-shadow: 0px 0px 2px rgba(0, 0, 0, 0.16),
+      0px 2px 3px rgba(0, 0, 0, 0.24),
+      0px 2px 6px rgba(0, 0, 0, 0.1);
   }
 
   ${({ isRTL }) => (!isRTL) && `
     .tlui-toolbar__extras {
-      position: fixed !important;
-      top: -2px !important;
+      right: 0;
+      left: 50px !important;
+    }
+  `}
+
+  ${({ isRTL }) => (isRTL) && `
+    .tlui-toolbar__extras {
       right: 50px !important;
+      left: 0;
+    }
+
+    .tlui-toolbar__extras__controls {
+      margin-right: 8px;
+      margin-left: 0;
     }
   `}
 
@@ -87,7 +108,7 @@ const TldrawV2GlobalStyle = createGlobalStyle`
   [data-testid="tools.more.laser"],
   [data-testid="tools.asset"],
   [data-testid="page-menu.button"],
-  tlui-menu-zone {
+  .tlui-menu-zone {
     display: none !important;
   }
 
