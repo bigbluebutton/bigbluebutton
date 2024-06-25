@@ -324,6 +324,10 @@ const Whiteboard = React.memo(function Whiteboard(props) {
   }, [tlEditorRef]);
 
   const handleKeyDown = useCallback((event) => {
+    const debouncedUndo = debounce({ delay: 150 }, () => {
+      tlEditorRef.current?.undo();
+    });
+
     if (event.key === 'Escape') {
       tlEditorRef.current?.deselect(...tlEditorRef.current?.getSelectedShapes());
       return;
@@ -381,6 +385,7 @@ const Whiteboard = React.memo(function Whiteboard(props) {
             handlePaste();
           }
         },
+        'z': debouncedUndo,
       };
       if (ctrlKeyMap[event.key]) {
         event.preventDefault();
