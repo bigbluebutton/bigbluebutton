@@ -17,6 +17,8 @@ import normalizeEmojiName from './service';
 import { convertRemToPixels } from '/imports/utils/dom-utils';
 import { PluginsContext } from '/imports/ui/components/components-data/plugin-context/context';
 import { useIsReactionsEnabled } from '/imports/ui/services/features';
+import useWhoIsTalking from '/imports/ui/core/hooks/useWhoIsTalking';
+import useWhoIsUnmuted from '/imports/ui/core/hooks/useWhoIsUnmuted';
 
 const messages = defineMessages({
   moderator: {
@@ -100,7 +102,13 @@ const UserListItem: React.FC<UserListItemProps> = ({ user, lockSettings }) => {
   }
 
   const intl = useIntl();
-  const voiceUser = user.voice;
+  const { data: talkingUsers } = useWhoIsTalking();
+  const { data: unmutedUsers } = useWhoIsUnmuted();
+  const voiceUser = {
+    ...user.voice,
+    talking: talkingUsers[user.userId],
+    muted: !unmutedUsers.has(user.userId),
+  };
   const subs = [];
 
   const LABEL = window.meetingClientSettings.public.user.label;

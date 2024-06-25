@@ -25,6 +25,7 @@ import { SETTINGS } from '../../services/settings/enums';
 import { useStorageKey } from '../../services/storage/hooks';
 import { BREAKOUT_COUNT } from './queries';
 import useMeeting from '../../core/hooks/useMeeting';
+import useWhoIsUnmuted from '../../core/hooks/useWhoIsUnmuted';
 
 const intlMessages = defineMessages({
   joinedAudio: {
@@ -173,7 +174,9 @@ const AudioContainer = (props) => {
   const { hasBreakoutRooms: hadBreakoutRooms } = prevProps || {};
   const userIsReturningFromBreakoutRoom = hadBreakoutRooms && !hasBreakoutRooms;
 
-  const { data: currentUserMuted } = useCurrentUser((u) => u?.voice?.muted ?? false);
+  const { data: currentUser } = useCurrentUser((u) => ({ userId: u.userId }));
+  const { data: unmutedUsers } = useWhoIsUnmuted();
+  const currentUserMuted = currentUser?.userId && !unmutedUsers.has(currentUser.userId);
 
   const joinAudio = () => {
     if (Service.isConnected()) return;
