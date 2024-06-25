@@ -151,6 +151,8 @@
     "app.userList.menu.away": "Set yourself as away",
     "app.userList.menu.notAway": "Set yourself as active",
     "app.userList.menu.chat.label": "Start a private chat",
+    "app.userList.menu.lockPublicChat.label": "Lock public chat",
+    "app.userList.menu.unlockPublicChat.label": "Unlock public chat",
     "app.userList.menu.clearStatus.label": "Clear status",
     "app.userList.menu.removeUser.label": "Remove user",
     "app.userList.menu.removeConfirmation.label": "Remove user ({0})",

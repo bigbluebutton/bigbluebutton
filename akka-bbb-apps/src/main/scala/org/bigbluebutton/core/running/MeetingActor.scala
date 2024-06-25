@@ -514,6 +514,7 @@ class MeetingActor(
         handleSetLockSettings(m)
         updateUserLastActivity(m.body.setBy)
       case m: LockUserInMeetingCmdMsg                        => handleLockUserInMeetingCmdMsg(m)
+      case m: LockUserChatInMeetingCmdMsg                    => handleLockUserChatInMeetingCmdMsg(m)
       case m: LockUsersInMeetingCmdMsg                       => handleLockUsersInMeetingCmdMsg(m)
       case m: GetLockSettingsReqMsg                          => handleGetLockSettingsReqMsg(m)
 

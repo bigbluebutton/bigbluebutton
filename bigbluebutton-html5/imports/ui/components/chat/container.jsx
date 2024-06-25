@@ -150,6 +150,8 @@ const ChatContainer = (props) => {
     partnerIsLoggedOut = !!(users[Auth.meetingID][idUser]?.loggedOut
       || users[Auth.meetingID][idUser]?.ejected);
     isChatLocked = isChatLockedPrivate && !(users[Auth.meetingID][idUser]?.role === ROLE_MODERATOR);
+  } else if (users[Auth.meetingID][Auth.userID]?.chatLocked === true) {
+      isChatLocked = true;
   } else {
     isChatLocked = isChatLockedPublic;
   }
