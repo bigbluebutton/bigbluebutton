@@ -420,6 +420,7 @@ class UserListItem extends PureComponent {
       {
         allowed: isChatEnabled()
           && user.role !== ROLE_MODERATOR
+          && currentUser.role === ROLE_MODERATOR
           && !isDialInUser
           && isMeteorConnected,
         key: 'lockChat',
@@ -819,7 +820,7 @@ class UserListItem extends PureComponent {
       );
     }
 
-    if (isThisMeetingLocked && user.locked && user.role !== ROLE_MODERATOR) {
+    if (((isThisMeetingLocked && user.locked) || user.chatLocked) && user.role !== ROLE_MODERATOR) {
       userNameSub.push(
         <span key={uniqueId('lock-')}>
           <Icon iconName="lock" />
