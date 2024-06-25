@@ -253,12 +253,14 @@ const Whiteboard = React.memo(function Whiteboard(props) {
     });
   };
 
-  const handleCut = useCallback(() => {
+  const handleCut = useCallback((shouldCopy) => {
     const selectedShapes = tlEditorRef.current?.getSelectedShapes();
     if (!selectedShapes || selectedShapes.length === 0) {
       return;
     }
-    handleCopy();
+    if (shouldCopy) {
+      handleCopy();
+    }
     tlEditorRef.current?.deleteShapes(selectedShapes.map(shape => shape.id));
   }, [tlEditorRef]);
 
@@ -327,6 +329,11 @@ const Whiteboard = React.memo(function Whiteboard(props) {
       return;
     }
 
+    if (event.key === 'Delete') {
+      handleCut(false);
+      return;
+    }
+
     const editingShape = tlEditorRef.current?.getEditingShape();
     if (editingShape && (isPresenterRef.current || hasWBAccessRef.current)) {
       return;
@@ -364,7 +371,7 @@ const Whiteboard = React.memo(function Whiteboard(props) {
           tlEditorRef.current?.selectNone();
         },
         'x': () => {
-          handleCut();
+          handleCut(true);
         },
         'c': () => {
           handleCopy();
