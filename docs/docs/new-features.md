@@ -66,10 +66,13 @@ We have enhanced the view of the polling results that appear over the whiteboard
 We have made significant changes to the architecture of BigBlueButton and have introduced support to plugins -- optional custom modules included in the client which allow expanding the capabilities of BigBlueButton. A data channel is provided to allow for data exchange between clients. See the [HTML5 Plugin SDK](https://github.com/bigbluebutton/bigbluebutton-html-plugin-sdk) for examples and more information.
 
 At the moment of writing these documentation, the official list of plugins includes: 
-- [Select Random User](https://github.com/bigbluebutton/plugins/tree/main/pick-random-user-plugin)
-- [Generic Link Share](https://github.com/bigbluebutton/plugins/tree/main/generic-link-share)
-- [Session Share](https://github.com/bigbluebutton/plugins/tree/main/session-share)
-- [Decrease external video's volume on speak](https://github.com/bigbluebutton/plugins/tree/main/decrease-volume-on-speak)
+- [Select Random User](https://github.com/bigbluebutton/plugin-pick-random-user)
+- [Share a link](https://github.com/bigbluebutton/plugin-generic-link-share)
+- [H5P plugin for BigBlueButton](https://github.com/bigbluebutton/plugin-h5p)
+- [Session share](https://github.com/bigbluebutton/plugin-session-share)
+- [Decrease the volume of external video when someone speaks](https://github.com/bigbluebutton/plugin-decrease-volume-on-speak)
+- [Typed captions](https://github.com/bigbluebutton/plugin-typed-captions)
+- [Source code highlight](https://github.com/bigbluebutton/plugin-code-highlight)
 
 #### Replaced Akka framework with Pekko
 

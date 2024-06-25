@@ -2137,7 +2137,14 @@ select "meeting"."meetingId",
             select 1
             from "v_screenshare"
             where "v_screenshare"."meetingId" = "meeting"."meetingId"
+            and "contentType" = 'screenshare'
         ) as "hasScreenshare",
+        exists (
+            select 1
+            from "v_screenshare"
+            where "v_screenshare"."meetingId" = "meeting"."meetingId"
+            and "contentType" = 'camera'
+        ) as "hasCameraAsContent",
         exists (
             select 1
             from "v_externalVideo"
