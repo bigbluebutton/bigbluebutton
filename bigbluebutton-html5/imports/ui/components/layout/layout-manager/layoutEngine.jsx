@@ -11,7 +11,6 @@ import VideoFocusLayout from '/imports/ui/components/layout/layout-manager/video
 import CamerasOnlyLayout from '/imports/ui/components/layout/layout-manager/camerasOnly';
 import PresentationOnlyLayout from '/imports/ui/components/layout/layout-manager/presentationOnlyLayout';
 import ParticipantsAndChatOnlyLayout from '/imports/ui/components/layout/layout-manager/participantsAndChatOnlyLayout';
-import { isPresentationEnabled } from '/imports/ui/services/features';
 import { getSettingsSingletonInstance } from '/imports/ui/services/settings';
 
 const propTypes = {
@@ -19,7 +18,7 @@ const propTypes = {
   isPresentationEnabled: PropTypes.bool.isRequired,
 };
 
-const LayoutEngine = ({ layoutType }) => {
+const LayoutEngine = ({ layoutType, isPresentationEnabled }) => {
   const bannerBarInput = layoutSelectInput((i) => i.bannerBar);
   const notificationsBarInput = layoutSelectInput((i) => i.notificationsBar);
   const cameraDockInput = layoutSelectInput((i) => i.cameraDock);
