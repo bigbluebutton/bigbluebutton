@@ -33,7 +33,7 @@ const useTalkingUsers = () => {
         voice,
       );
 
-      if (talkingUsers[userId] && timeoutRegistry.current[userId]) {
+      if (timeoutRegistry.current[userId]) {
         clearTimeout(timeoutRegistry.current[userId]);
       }
 
