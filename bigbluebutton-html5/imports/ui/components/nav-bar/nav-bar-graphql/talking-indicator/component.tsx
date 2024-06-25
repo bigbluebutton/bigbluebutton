@@ -14,8 +14,13 @@ import { setTalkingIndicatorList } from '/imports/ui/core/hooks/useTalkingIndica
 import useDeduplicatedSubscription from '/imports/ui/core/hooks/useDeduplicatedSubscription';
 import { VoiceActivityResponse } from '/imports/ui/core/graphql/queries/whoIsTalking';
 import useTalkingUsers from '/imports/ui/core/hooks/useTalkingUsers';
+import { partition } from '/imports/utils/array-utils';
 
 const TALKING_INDICATORS_MAX = 8;
+
+type VoiceItem = VoiceActivityResponse['user_voice_activity_stream'][number] & {
+  showTalkingIndicator: boolean | undefined;
+};
 
 const intlMessages = defineMessages({
   wasTalking: {
@@ -187,13 +192,26 @@ const TalkingIndicatorContainer: React.FC = (() => {
 
     const toggleVoice = useToggleVoice();
     const { data: talkingUsersData, loading: talkingUsersLoading, error: talkingUsersError } = useTalkingUsers();
-    const talkingUsers = useMemo(() => Object.values(talkingUsersData)
-      .sort((v1, v2) => {
-        if (!v1.startTime && !v2.startTime) return 0;
-        if (!v1.startTime) return 1;
-        if (!v2.startTime) return -1;
-        return v2.startTime - v1.startTime;
-      }).slice(0, TALKING_INDICATORS_MAX), [talkingUsersData]);
+    const talkingUsers = useMemo(() => {
+      const [muted, unmuted] = partition(
+        Object.values(talkingUsersData),
+        (v: VoiceItem) => v.muted,
+      ) as [VoiceItem[], VoiceItem[]];
+      return [
+        ...unmuted.sort((v1, v2) => {
+          if (!v1.startTime && !v2.startTime) return 0;
+          if (!v1.startTime) return 1;
+          if (!v2.startTime) return -1;
+          return v1.startTime - v2.startTime;
+        }),
+        ...muted.sort((v1, v2) => {
+          if (!v1.endTime && !v2.endTime) return 0;
+          if (!v1.endTime) return 1;
+          if (!v2.endTime) return -1;
+          return v1.endTime - v2.endTime;
+        }),
+      ].slice(0, TALKING_INDICATORS_MAX);
+    }, [talkingUsersData]);
 
     if (talkingUsersLoading || isBreakoutLoading) return null;
 

@@ -26,14 +26,14 @@ const useTalkingUsers = () => {
     ) as [VoiceItem[], VoiceItem[]];
 
     Object.values(voiceActivity).forEach((voice) => {
-      const { endTime, talking, userId } = voice;
+      const { endTime, userId } = voice;
 
       talkingUsers[userId] = Object.assign(
         talkingUsers[userId] || {},
         voice,
       );
 
-      if (talking && timeoutRegistry.current[userId]) {
+      if (talkingUsers[userId] && timeoutRegistry.current[userId]) {
         clearTimeout(timeoutRegistry.current[userId]);
       }
 
