@@ -1,6 +1,6 @@
 import * as React from "react";
 import PropTypes from "prop-types";
-import { useRef } from "react";
+import { useRef, useCallback } from "react";
 import { debounce, isEqual } from "radash";
 import {
   Tldraw,
@@ -14,6 +14,7 @@ import {
   setDefaultEditorAssetUrls,
 } from "@bigbluebutton/tldraw";
 import "@bigbluebutton/tldraw/tldraw.css";
+import { compressToBase64, decompressFromBase64 } from 'lz-string';
 import SlideCalcUtil from "/imports/utils/slideCalcUtils";
 import { HUNDRED_PERCENT } from "/imports/utils/slideCalcUtils";
 // eslint-disable-next-line import/no-extraneous-dependencies
@@ -157,6 +158,10 @@ const Whiteboard = React.memo(function Whiteboard(props) {
   const customShapeUtils = [PollShapeUtil];
   const customTools = [NoopTool];
 
+  let clipboardContent = null;
+  let isPasting = false;
+  let pasteTimeout = null;
+
   const setIsMouseDown = (val) => {
     isMouseDownRef.current = val;
   };
@@ -239,7 +244,84 @@ const Whiteboard = React.memo(function Whiteboard(props) {
     whiteboardIdRef.current
   );
 
-  const handleKeyDown = (event) => {
+  const pasteTldrawContent = (editor, clipboard, point) => {
+    const p = point ?? (editor.inputs.shiftKey ? editor.inputs.currentPagePoint : undefined);
+    editor.mark('paste');
+    editor.putContentOntoCurrentPage(clipboard, {
+      point: p,
+      select: true,
+    });
+  };
+
+  const handleCut = useCallback(() => {
+    const selectedShapes = tlEditorRef.current?.getSelectedShapes();
+    if (!selectedShapes || selectedShapes.length === 0) {
+      return;
+    }
+    handleCopy();
+    tlEditorRef.current?.deleteShapes(selectedShapes.map(shape => shape.id));
+  }, [tlEditorRef]);
+
+  const handleCopy = useCallback(() => {
+    const selectedShapes = tlEditorRef.current?.getSelectedShapes();
+    if (!selectedShapes || selectedShapes.length === 0) {
+      return;
+    }
+    const content = tlEditorRef.current?.getContentFromCurrentPage(selectedShapes.map(shape => shape.id));
+    if (content) {
+      clipboardContent = content;
+      const stringifiedClipboard = compressToBase64(
+        JSON.stringify({
+          type: 'application/tldraw',
+          kind: 'content',
+          data: content,
+        })
+      );
+
+      if (navigator.clipboard?.write) {
+        const htmlBlob = new Blob([`<tldraw>${stringifiedClipboard}</tldraw>`], {
+          type: 'text/html',
+        });
+
+        navigator.clipboard.write([
+          new ClipboardItem({
+            'text/html': htmlBlob,
+            'text/plain': new Blob([''], { type: 'text/plain' }),
+          }),
+        ]);
+      } else if (navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(`<tldraw>${stringifiedClipboard}</tldraw>`);
+      }
+    }
+  }, [tlEditorRef]);
+
+  const handlePaste = useCallback(() => {
+    if (isPasting) {
+      return;
+    }
+    isPasting = true;
+
+    clearTimeout(pasteTimeout);
+    pasteTimeout = setTimeout(() => {
+      if (clipboardContent) {
+        pasteTldrawContent(tlEditorRef.current, clipboardContent);
+        isPasting = false;
+      } else {
+        navigator.clipboard.readText().then((text) => {
+          const match = text.match(/<tldraw>(.*)<\/tldraw>/);
+          if (match && match[1]) {
+            const content = JSON.parse(decompressFromBase64(match[1]));
+            pasteTldrawContent(tlEditorRef.current, content);
+          }
+          isPasting = false;
+        }).catch((error) => {
+          isPasting = false;
+        });
+      }
+    }, 100);
+  }, [tlEditorRef]);
+
+  const handleKeyDown = useCallback((event) => {
     if (event.key === 'Escape') {
       tlEditorRef.current?.deselect(...tlEditorRef.current?.getSelectedShapes());
       return;
@@ -281,6 +363,17 @@ const Whiteboard = React.memo(function Whiteboard(props) {
           tlEditorRef.current?.duplicateShapes(tlEditorRef.current?.getSelectedShapes(), { x: 10, y: 10 });
           tlEditorRef.current?.selectNone();
         },
+        'x': () => {
+          handleCut();
+        },
+        'c': () => {
+          handleCopy();
+        },
+        'v': () => {
+          if (!isPasting) {
+            handlePaste();
+          }
+        },
       };
       if (ctrlKeyMap[event.key]) {
         event.preventDefault();
@@ -312,7 +405,7 @@ const Whiteboard = React.memo(function Whiteboard(props) {
       event.stopPropagation();
       tlEditorRef.current?.nudgeShapes(selectedShapes, arrowKeyMap[event.key], { squashing: true });
     }
-  };
+  }, [tlEditorRef, isPresenterRef, hasWBAccessRef, previousTool, handleCut, handleCopy, handlePaste]);
 
   const handleTldrawMount = (editor) => {
     setTlEditor(editor);
