@@ -153,7 +153,6 @@ func handleSubscriptionMessage(hc *common.HasuraConnection, message *[]byte, sub
 
 	lastDataChecksumWas := subscription.LastReceivedDataChecksum
 	lastReceivedDataWas := subscription.LastReceivedData
-	//cacheKey := fmt.Sprintf("%v-%v", subscription.LastReceivedDataChecksum, dataChecksum)
 	cacheKey := subscription.LastReceivedDataChecksum | dataChecksum
 
 	//Store LastReceivedData Checksum

@@ -77,8 +77,6 @@ func CreateJsonPatch(original []byte, modified []byte, idFieldName string) []byt
 }
 
 func CreateJsonPatchFromMaps(original []map[string]interface{}, modified []map[string]interface{}, modifiedJson []byte, idFieldName string) []byte {
-	//modifiedJson, _ := json.Marshal(modified)
-
 	//CREATE PATCHES FOR OPERATION "REPLACE"
 	replacesPatches, originalWithReplaces := CreateReplacePatches(original, modified, idFieldName)
 

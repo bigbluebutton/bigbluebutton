@@ -75,8 +75,6 @@ RangeLoop:
 					streamCursorField := ""
 					streamCursorVariableName := ""
 					var streamCursorInitialValue interface{}
-					//payload := browserMessage.Payload
-					//operationName := browserMessage.Payload.OperationName
 
 					query := browserMessage.Payload.Query
 					if query != "" {
