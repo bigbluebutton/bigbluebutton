@@ -15,11 +15,11 @@ test.describe('Shared Notes', () => {
     await sharedNotes.openSharedNotes();
   });
 
-  test('Type in shared notes', async () => {
+  test('Type in shared notes @ci', async () => {
     await sharedNotes.typeInSharedNotes();
   });
 
-  test('Formate text in shared notes', async () => {
+  test('Formate text in shared notes @ci', async () => {
     await sharedNotes.formatTextInSharedNotes();
   });
 
@@ -27,7 +27,7 @@ test.describe('Shared Notes', () => {
     await sharedNotes.exportSharedNotes(testInfo);
   });
 
-  test('Convert notes to whiteboard', async () => {
+  test('Convert notes to presentation @ci', async () => {
     await sharedNotes.convertNotesToWhiteboard();
   });
 
@@ -39,7 +39,7 @@ test.describe('Shared Notes', () => {
     await sharedNotes.seeNotesWithoutEditPermission();
   });
 
-  test('Pin and unpin notes onto whiteboard', async () => {
+  test('Pin and unpin notes onto whiteboard @ci', async () => {
     await sharedNotes.pinAndUnpinNotesOntoWhiteboard();
   });
 });

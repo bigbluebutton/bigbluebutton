@@ -1,27 +1,17 @@
 /* eslint prefer-promise-reject-errors: 0 */
-import { Tracker } from 'meteor/tracker';
-
+import { makeVar, useReactiveVar } from '@apollo/client';
 import Storage from '/imports/ui/services/storage/session';
+import Session from '/imports/ui/services/storage/in-memory';
 
-import allowRedirectToLogoutURL from '/imports/ui/components/meeting-ended/service';
-import { ValidationStates } from '/imports/api/auth-token-validation';
-import logger from '/imports/startup/client/logger';
-import { makeVar } from '@apollo/client';
-
-const CONNECTION_TIMEOUT = window.meetingClientSettings.public.app.connectionTimeout;
 class Auth {
   constructor() {
-    this._loggedIn = {
-      value: false,
-      tracker: new Tracker.Dependency(),
-    };
+    this._loggedIn = makeVar(false);
 
     const queryParams = new URLSearchParams(document.location.search);
     if (queryParams.has('sessionToken')
-      && queryParams.get('sessionToken') !== Session.get('sessionToken')) {
+      && queryParams.get('sessionToken') !== Session.getItem('sessionToken')) {
       return;
     }
-
 
     this._meetingID = Storage.getItem('meetingID');
     this._userID = Storage.getItem('userID');
@@ -120,13 +110,15 @@ class Auth {
   }
 
   get loggedIn() {
-    this._loggedIn.tracker.depend();
-    return this._loggedIn.value;
+    return this._loggedIn();
   }
 
   set loggedIn(value) {
-    this._loggedIn.value = value;
-    this._loggedIn.tracker.changed();
+    this._loggedIn(value);
+  }
+
+  useLoggedIn() {
+    return useReactiveVar(this._loggedIn);
   }
 
   get credentials() {
@@ -206,64 +198,22 @@ class Auth {
     });
   }
 
-  authenticate(force) {
-    if (this.loggedIn && !force) {
-      return Promise.resolve();
+  allowRedirectToLogoutURL() {
+    const ALLOW_DEFAULT_LOGOUT_URL = window.meetingClientSettings.public.app.allowDefaultLogoutUrl;
+    const protocolPattern = /^((http|https):\/\/)/;
+    if (this.logoutURL) {
+      // default logoutURL
+      // compare only the host to ignore protocols
+      const urlWithoutProtocolForAuthLogout = this.logoutURL.replace(protocolPattern, '');
+      const urlWithoutProtocolForLocationOrigin = window.location.origin.replace(protocolPattern, '');
+      if (urlWithoutProtocolForAuthLogout === urlWithoutProtocolForLocationOrigin) {
+        return ALLOW_DEFAULT_LOGOUT_URL;
+      }
+      // custom logoutURL
+      return true;
     }
-
-    if (!(this.meetingID && this.userID && this.token)) {
-      return Promise.reject({
-        error: 401,
-        description: Session.get('errorMessageDescription') ? Session.get('errorMessageDescription') : 'Authentication failed due to missing credentials',
-      });
-    }
-
-    this.loggedIn = false;
-    this.isAuthenticating = true;
-
-    return this.validateAuthToken()
-      .then(() => {
-        this.loggedIn = true;
-        this.uniqueClientSession = `${this.sessionToken}-${Math.random().toString(36).substring(6)}`;
-      })
-      .catch((err) => {
-        logger.error(`Failed to validate token: ${err.description}`);
-        Session.set('codeError', err.error);
-        Session.set('errorMessageDescription', err.description);
-      })
-      .finally(() => {
-        this.isAuthenticating = false;
-      });
-  }
-
-  validateAuthToken() {
-    return new Promise((resolve, reject) => {
-      const validationTimeout = setTimeout(() => {
-        reject({
-          error: 408,
-          description: 'Authentication timeout',
-        });
-      }, CONNECTION_TIMEOUT);
-      Meteor.callAsync('validateAuthToken', this.meetingID, this.userID, this.token, this.externUserID)
-        .then((result) => {
-          const authenticationTokenValidation = result;
-          if (!authenticationTokenValidation) return;
-
-          switch (authenticationTokenValidation.validationStatus) {
-            case ValidationStates.INVALID:
-              reject({ error: 403, description: authenticationTokenValidation.reason });
-              break;
-            case ValidationStates.VALIDATED:
-              clearTimeout(validationTimeout);
-              this.connectionID = authenticationTokenValidation.connectionId;
-              this.connectionAuthTime = new Date().getTime();
-              Session.set('userWillAuth', false);
-              setTimeout(() => resolve(true), 100);
-              break;
-            default:
-          }
-        });
-    });
+    // no logout url
+    return false;
   }
 
   authenticateURL(url) {

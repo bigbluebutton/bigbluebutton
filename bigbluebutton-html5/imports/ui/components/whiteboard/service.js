@@ -1,5 +1,4 @@
 import Auth from '/imports/ui/services/auth';
-import WhiteboardMultiUser from '/imports/api/whiteboard-multi-user';
 import PollService from '/imports/ui/components/poll/service';
 import { defineMessages } from 'react-intl';
 import { notify } from '/imports/ui/services/notification';
@@ -74,20 +73,6 @@ const sendAnnotation = (annotation, submitAnnotations) => {
     annotationsQueue.push(annotation);
   }
   if (!annotationsSenderIsRunning) setTimeout(() => proccessAnnotationsQueue(submitAnnotations), annotationsBufferTimeMin);
-};
-
-const getMultiUser = (whiteboardId) => {
-  const data = WhiteboardMultiUser.findOne(
-    {
-      meetingId: Auth.meetingID,
-      whiteboardId,
-    },
-    { fields: { multiUser: 1 } },
-  );
-
-  if (!data || !data.multiUser || !Array.isArray(data.multiUser)) return [];
-
-  return data.multiUser;
 };
 
 const persistShape = async (shape, whiteboardId, isModerator, submitAnnotations) => {
@@ -176,7 +161,6 @@ const formatAnnotations = (annotations, intl, curPageId, currentPresentationPage
     if (annotationInfo.questionType) {
       // poll result, convert it to text and create tldraw shape
       if (!annotationInfo.props) {
-        const { POLL_BAR_CHAR } = PollService;
         annotationInfo.answers = annotationInfo.answers.reduce(
           caseInsensitiveReducer, [],
         );
@@ -186,26 +170,18 @@ const formatAnnotations = (annotations, intl, curPageId, currentPresentationPage
         const lines = pollResult.split('\n');
         const longestLine = lines.reduce((a, b) => (a.length > b.length ? a : b), '').length;
 
-        // add empty spaces after last ∎ in each of the lines to make them all the same length
-        pollResult = lines.map((line) => {
-          if (!line.includes(POLL_BAR_CHAR) || line.length === longestLine) return line;
-
-          const splitLine = line.split(`${POLL_BAR_CHAR} `);
-          const spaces = ' '.repeat(longestLine - line.length);
-          return `${splitLine[0]} ${spaces} ${splitLine[1]}`;
-        }).join('\n');
-
         // Text measurement estimation
         const averageCharWidth = 14;
         const lineHeight = 32;
+        const padding = 2;
 
-        const annotationWidth = longestLine * averageCharWidth; // Estimate width
-        const annotationHeight = lines.length * lineHeight; // Estimate height
+        const annotationWidth = longestLine * averageCharWidth;
+        const annotationHeight = lines.length * lineHeight;
 
         const slideWidth = currentPresentationPage?.scaledWidth;
         const slideHeight = currentPresentationPage?.scaledHeight;
-        const xPosition = slideWidth - annotationWidth;
-        const yPosition = slideHeight - annotationHeight;
+        const xPosition = slideWidth - annotationWidth - padding;
+        const yPosition = slideHeight - annotationHeight - padding;
 
         annotationInfo = {
           x: xPosition,
@@ -218,22 +194,18 @@ const formatAnnotations = (annotations, intl, curPageId, currentPresentationPage
           index: 'a1',
           id: `${annotationInfo.id}`,
           meta: {},
-          type: 'geo',
+          type: 'poll',
           props: {
-            url: '',
-            text: `${pollResult}`,
             color: 'black',
-            font: 'mono',
             fill: 'semi',
-            dash: 'draw',
             w: annotationWidth,
             h: annotationHeight,
-            size: 'm',
-            growY: 0,
-            align: 'middle',
-            geo: 'rectangle',
-            verticalAlign: 'middle',
-            labelColor: 'black',
+            answers: annotationInfo.answers,
+            numRespondents: annotationInfo.numRespondents,
+            numResponders: annotationInfo.numResponders,
+            questionText: annotationInfo.questionText,
+            questionType: annotationInfo.questionType,
+            question: annotationInfo.question || "",
           },
         };
       } else {
@@ -248,22 +220,18 @@ const formatAnnotations = (annotations, intl, curPageId, currentPresentationPage
           index: annotationInfo.index,
           id: annotationInfo.id,
           meta: annotationInfo.meta,
-          type: 'geo',
+          type: 'poll',
           props: {
-            url: '',
-            text: annotationInfo.props.text,
-            color: annotationInfo.props.color,
-            font: annotationInfo.props.font,
-            fill: annotationInfo.props.fill,
-            dash: annotationInfo.props.dash,
+            color: 'black',
+            fill: 'semi',
             h: annotationInfo.props.h,
             w: annotationInfo.props.w,
-            size: annotationInfo.props.size,
-            growY: 0,
-            align: 'middle',
-            geo: annotationInfo.props.geo,
-            verticalAlign: 'middle',
-            labelColor: annotationInfo.props.labelColor,
+            answers: annotationInfo.answers,
+            numRespondents: annotationInfo.numRespondents,
+            numResponders: annotationInfo.numResponders,
+            questionText: annotationInfo.questionText,
+            questionType: annotationInfo.questionType,
+            question: annotationInfo.question || '',
           },
         };
       }
@@ -278,13 +246,131 @@ const formatAnnotations = (annotations, intl, curPageId, currentPresentationPage
   return result;
 };
 
+const getCustomEditorAssetUrls = () => {
+  const BASENAME = window.meetingClientSettings.public.app.basename;
+  const TL_TEXT_PATHS = `${BASENAME}/fonts/tldraw`;
+
+  return {
+    fonts: {
+      draw: `${TL_TEXT_PATHS}/Shantell_Sans-Tldrawish.woff2`,
+      serif: `${TL_TEXT_PATHS}/IBMPlexSerif-Medium.woff2`,
+      sansSerif: `${TL_TEXT_PATHS}/IBMPlexSans-Medium.woff2`,
+      monospace: `${TL_TEXT_PATHS}/IBMPlexMono-Medium.woff2`,
+    },
+  };
+};
+
+const getCustomAssetUrls = () => {
+  const BASENAME = window.meetingClientSettings.public.app.basename;
+  const TL_ICON_PATHS = `${BASENAME}/svgs/tldraw`;
+  return {
+    icons: {
+      'menu': `${TL_ICON_PATHS}/menu.svg`,
+      'undo': `${TL_ICON_PATHS}/undo.svg`,
+      'redo': `${TL_ICON_PATHS}/redo.svg`,
+      'trash': `${TL_ICON_PATHS}/trash.svg`,
+      'duplicate': `${TL_ICON_PATHS}/duplicate.svg`,
+      'unlock': `${TL_ICON_PATHS}/unlock.svg`,
+      'arrowhead-none': `${TL_ICON_PATHS}/arrowhead-none.svg`,
+      'arrowhead-arrow': `${TL_ICON_PATHS}/arrowhead-arrow.svg`,
+      'arrowhead-triangle': `${TL_ICON_PATHS}/arrowhead-triangle.svg`,
+      'arrowhead-square': `${TL_ICON_PATHS}/arrowhead-square.svg`,
+      'arrowhead-dot': `${TL_ICON_PATHS}/arrowhead-dot.svg`,
+      'arrowhead-diamond': `${TL_ICON_PATHS}/arrowhead-diamond.svg`,
+      'arrowhead-triangle-inverted': `${TL_ICON_PATHS}/arrowhead-triangle-inverted.svg`,
+      'arrowhead-bar': `${TL_ICON_PATHS}/arrowhead-bar.svg`,
+      'dots-horizontal': `${TL_ICON_PATHS}/dots-horizontal.svg`,
+      'dots-vertical': `${TL_ICON_PATHS}/dots-vertical.svg`,
+      'tool-pointer': `${TL_ICON_PATHS}/tool-pointer.svg`,
+      'tool-media': `${TL_ICON_PATHS}/tool-media.svg`,
+      'tool-hand': `${TL_ICON_PATHS}/tool-hand.svg`,
+      'tool-pencil': `${TL_ICON_PATHS}/tool-pencil.svg`,
+      'tool-eraser': `${TL_ICON_PATHS}/tool-eraser.svg`,
+      'tool-arrow': `${TL_ICON_PATHS}/tool-arrow.svg`,
+      'tool-text': `${TL_ICON_PATHS}/tool-text.svg`,
+      'tool-laser': `${TL_ICON_PATHS}/tool-laser.svg`,
+      'tool-note': `${TL_ICON_PATHS}/tool-note.svg`,
+      'tool-line': `${TL_ICON_PATHS}/tool-line.svg`,
+      'tool-highlight': `${TL_ICON_PATHS}/tool-highlight.svg`,
+      'tool-frame': `${TL_ICON_PATHS}/tool-frame.svg`,
+      'chevron-up': `${TL_ICON_PATHS}/chevron-up.svg`,
+      'chevron-down': `${TL_ICON_PATHS}/chevron-down.svg`,
+      'chevron-right': `${TL_ICON_PATHS}/chevron-right.svg`,
+      'blob': `${TL_ICON_PATHS}/blob.svg`,
+      'geo-rectangle': `${TL_ICON_PATHS}/geo-rectangle.svg`,
+      'geo-ellipse': `${TL_ICON_PATHS}/geo-ellipse.svg`,
+      'geo-diamond': `${TL_ICON_PATHS}/geo-diamond.svg`,
+      'geo-triangle': `${TL_ICON_PATHS}/geo-triangle.svg`,
+      'geo-trapezoid': `${TL_ICON_PATHS}/geo-trapezoid.svg`,
+      'geo-rhombus': `${TL_ICON_PATHS}/geo-rhombus.svg`,
+      'geo-rhombus-2': `${TL_ICON_PATHS}/geo-rhombus-2.svg`,
+      'geo-pentagon': `${TL_ICON_PATHS}/geo-pentagon.svg`,
+      'geo-octagon': `${TL_ICON_PATHS}/geo-octagon.svg`,
+      'geo-hexagon': `${TL_ICON_PATHS}/geo-hexagon.svg`,
+      'geo-cloud': `${TL_ICON_PATHS}/geo-cloud.svg`,
+      'geo-star': `${TL_ICON_PATHS}/geo-star.svg`,
+      'geo-oval': `${TL_ICON_PATHS}/geo-oval.svg`,
+      'geo-x-box': `${TL_ICON_PATHS}/geo-x-box.svg`,
+      'geo-check-box': `${TL_ICON_PATHS}/geo-check-box.svg`,
+      'geo-arrow-left': `${TL_ICON_PATHS}/geo-arrow-left.svg`,
+      'geo-arrow-up': `${TL_ICON_PATHS}/geo-arrow-up.svg`,
+      'geo-arrow-down': `${TL_ICON_PATHS}/geo-arrow-down.svg`,
+      'geo-arrow-right': `${TL_ICON_PATHS}/geo-arrow-right.svg`,
+      'align-left': `${TL_ICON_PATHS}/align-left.svg`,
+      'align-top': `${TL_ICON_PATHS}/align-top.svg`,
+      'align-right': `${TL_ICON_PATHS}/align-right.svg`,
+      'align-center-horizontal': `${TL_ICON_PATHS}/align-center-horizontal.svg`,
+      'align-bottom': `${TL_ICON_PATHS}/align-bottom.svg`,
+      'align-center-vertical': `${TL_ICON_PATHS}/align-center-vertical.svg`,
+      'stretch-vertical': `${TL_ICON_PATHS}/stretch-vertical.svg`,
+      'stretch-horizontal': `${TL_ICON_PATHS}/stretch-horizontal.svg`,
+      'distribute-horizontal': `${TL_ICON_PATHS}/distribute-horizontal.svg`,
+      'distribute-vertical': `${TL_ICON_PATHS}/distribute-vertical.svg`,
+      'stack-horizontal': `${TL_ICON_PATHS}/stack-horizontal.svg`,
+      'stack-vertical': `${TL_ICON_PATHS}/stack-vertical.svg`,
+      'send-to-back': `${TL_ICON_PATHS}/send-to-back.svg`,
+      'send-backward': `${TL_ICON_PATHS}/send-backward.svg`,
+      'bring-forward': `${TL_ICON_PATHS}/bring-forward.svg`,
+      'bring-to-front': `${TL_ICON_PATHS}/bring-to-front.svg`,
+      'reset-zoom': `${TL_ICON_PATHS}/reset-zoom.svg`,
+      'rotate-cw': `${TL_ICON_PATHS}/rotate-cw.svg`,
+      'link': `${TL_ICON_PATHS}/link.svg`,
+      'group': `${TL_ICON_PATHS}/group.svg`,
+      'color': `${TL_ICON_PATHS}/color.svg`,
+      'fill-none': `${TL_ICON_PATHS}/fill-none.svg`,
+      'fill-semi': `${TL_ICON_PATHS}/fill-semi.svg`,
+      'fill-solid': `${TL_ICON_PATHS}/fill-solid.svg`,
+      'fill-pattern': `${TL_ICON_PATHS}/fill-pattern.svg`,
+      'dash-draw': `${TL_ICON_PATHS}/dash-draw.svg`,
+      'dash-dashed': `${TL_ICON_PATHS}/dash-dashed.svg`,
+      'dash-dotted': `${TL_ICON_PATHS}/dash-dotted.svg`,
+      'dash-solid': `${TL_ICON_PATHS}/dash-solid.svg`,
+      'size-small': `${TL_ICON_PATHS}/size-small.svg`,
+      'size-medium': `${TL_ICON_PATHS}/size-medium.svg`,
+      'size-large': `${TL_ICON_PATHS}/size-large.svg`,
+      'size-extra-large': `${TL_ICON_PATHS}/size-extra-large.svg`,
+      'font-draw': `${TL_ICON_PATHS}/font-draw.svg`,
+      'font-sans': `${TL_ICON_PATHS}/font-sans.svg`,
+      'font-serif': `${TL_ICON_PATHS}/font-serif.svg`,
+      'font-mono': `${TL_ICON_PATHS}/font-mono.svg`,
+      'text-align-left': `${TL_ICON_PATHS}/text-align-left.svg`,
+      'text-align-center': `${TL_ICON_PATHS}/text-align-center.svg`,
+      'text-align-right': `${TL_ICON_PATHS}/text-align-right.svg`,
+      'vertical-align-center': `${TL_ICON_PATHS}/vertical-align-center.svg`,
+      'vertical-align-start': `${TL_ICON_PATHS}/vertical-align-start.svg`,
+      'vertical-align-end': `${TL_ICON_PATHS}/vertical-align-end.svg`,
+    },
+  };
+};
+
 export {
   initDefaultPages,
   sendAnnotation,
-  getMultiUser,
   persistShape,
   notifyNotAllowedChange,
   notifyShapeNumberExceeded,
   toggleToolsAnimations,
   formatAnnotations,
+  getCustomEditorAssetUrls,
+  getCustomAssetUrls,
 };

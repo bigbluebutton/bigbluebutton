@@ -1,15 +1,12 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { Meteor } from 'meteor/meteor';
 import getFromUserSettings from '/imports/ui/services/users-settings';
-import Settings from '/imports/ui/services/settings';
+import { getSettingsSingletonInstance } from '/imports/ui/services/settings';
 import MediaService from '/imports/ui/components/media/service';
 import { LAYOUT_TYPE, ACTIONS } from '../enums';
 import { isMobile } from '../utils';
 import { updateSettings } from '/imports/ui/components/settings/service';
-import { Session } from 'meteor/session';
-
-const HIDE_PRESENTATION = window.meetingClientSettings.public.layout.hidePresentationOnJoin;
+import Session from '/imports/ui/services/storage/in-memory';
 
 const equalDouble = (n1, n2) => {
   const precision = 0.01;
@@ -70,10 +67,13 @@ class PushLayoutEngine extends React.Component {
       pushLayoutMeeting,
     } = this.props;
 
+    const Settings = getSettingsSingletonInstance();
+
     const changeLayout = LAYOUT_TYPE[getFromUserSettings('bbb_change_layout', null)];
     const defaultLayout = LAYOUT_TYPE[getFromUserSettings('bbb_default_layout', null)];
+    const enforcedLayout = LAYOUT_TYPE[enforceLayout] || null;
 
-    Settings.application.selectedLayout = enforceLayout
+    Settings.application.selectedLayout = enforcedLayout
       || changeLayout
       || defaultLayout
       || meetingLayout;
@@ -83,16 +83,18 @@ class PushLayoutEngine extends React.Component {
       selectedLayout = selectedLayout === 'custom' ? 'smart' : selectedLayout;
       Settings.application.selectedLayout = selectedLayout;
     }
-    Session.set('isGridEnabled', selectedLayout === LAYOUT_TYPE.VIDEO_FOCUS);
+    Session.setItem('isGridEnabled', selectedLayout === LAYOUT_TYPE.VIDEO_FOCUS);
 
     Settings.save(setLocalSettings);
+
+    const HIDE_PRESENTATION = window.meetingClientSettings.public.layout.hidePresentationOnJoin;
 
     const shouldOpenPresentation = shouldShowScreenshare || shouldShowExternalVideo;
     let presentationIsOpen = !getFromUserSettings('bbb_hide_presentation_on_join', HIDE_PRESENTATION);
     presentationIsOpen = pushLayoutMeeting ? meetingPresentationIsOpen : presentationIsOpen;
     presentationIsOpen = shouldOpenPresentation || presentationIsOpen;
     MediaService.setPresentationIsOpen(layoutContextDispatch, presentationIsOpen);
-    Session.set('presentationLastState', presentationIsOpen);
+    Session.setItem('presentationLastState', presentationIsOpen);
 
     if (selectedLayout === 'custom') {
       setTimeout(() => {
@@ -165,6 +167,7 @@ class PushLayoutEngine extends React.Component {
     const shouldSwitchLayout = isPresenter
       ? meetingLayoutDidChange || enforceLayoutDidChange
       : ((meetingLayoutDidChange || pushLayoutMeetingDidChange) && pushLayoutMeeting) || enforceLayoutDidChange;
+    const Settings = getSettingsSingletonInstance();
 
     if (shouldSwitchLayout) {
       let contextLayout = enforceLayout || meetingLayout;
@@ -277,7 +280,7 @@ class PushLayoutEngine extends React.Component {
     }
 
     if (selectedLayout !== prevProps.selectedLayout) {
-      Session.set('isGridEnabled', selectedLayout === LAYOUT_TYPE.VIDEO_FOCUS);
+      Session.setItem('isGridEnabled', selectedLayout === LAYOUT_TYPE.VIDEO_FOCUS);
     }
   }
 

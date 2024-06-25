@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { useSubscription, gql } from '@apollo/client';
+import { gql } from '@apollo/client';
 import logger from '/imports/startup/client/logger';
 import { CustomSubscriptionArguments } from 'bigbluebutton-html-plugin-sdk/dist/cjs/data-consumption/domain/shared/custom-subscription/types';
 import { SubscribedEventDetails, UpdatedEventDetails } from 'bigbluebutton-html-plugin-sdk/dist/cjs/core/types';
@@ -9,6 +9,7 @@ import {
 import { DataConsumptionHooks } from 'bigbluebutton-html-plugin-sdk/dist/cjs/data-consumption/enums';
 
 import { HookWithArgumentsContainerProps } from './types';
+import useDeduplicatedSubscription from '/imports/ui/core/hooks/useDeduplicatedSubscription';
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
 const CustomSubscriptionHookContainer = (props: HookWithArgumentsContainerProps) => {
@@ -19,7 +20,7 @@ const CustomSubscriptionHookContainer = (props: HookWithArgumentsContainerProps)
 
   let customSubscriptionData: any;
   try {
-    const subscriptionResult = useSubscription(gql`${queryFromPlugin}`, {
+    const subscriptionResult = useDeduplicatedSubscription(gql`${queryFromPlugin}`, {
       variables,
     });
     customSubscriptionData = subscriptionResult;

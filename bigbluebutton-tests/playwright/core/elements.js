@@ -94,6 +94,7 @@ exports.warningNoUserAssigned = 'span[data-test="warningNoUserAssigned"]';
 exports.timeRemaining = 'span[data-test="timeRemaining"]';
 exports.captureBreakoutSharedNotes = 'input[id="captureNotesBreakoutCheckbox"]';
 exports.captureBreakoutWhiteboard = 'input[id="captureSlidesBreakoutCheckbox"]';
+exports.selectBreakoutRoomBtn = 'select[data-test="selectBreakoutRoomBtn"]';
 exports.roomOption = 'option[data-test="roomOption"]';
 
 // Chat
@@ -165,13 +166,15 @@ exports.virtualBackgrounds = 'div[data-test="virtualBackground"]';
 exports.learningDashboard = 'li[data-test="learningDashboard"]';
 
 // Timer
+exports.timerContainer = 'div[data-test="timerContainer"]';
+exports.stopwatchContainer = 'div[data-test="stopwatchContainer"]';
 exports.timerStopwatchFeature = 'li[data-test="timerStopWatchFeature"]';
 exports.timerCurrent = 'span[data-test="timerCurrent"]';
 exports.startStopTimer = 'button[data-test="startStopTimer"]';
 exports.resetTimerStopwatch = 'button[data-test="resetTimerStopWatch"]';
-exports.timerButton = 'button[data-test="timer"]';
+exports.timerButton = 'button[data-test="timerButton"]';
 exports.timerIndicator = 'div[data-test="timeIndicator"]';
-exports.stopwatch = 'button[data-test="stopwatch"]';
+exports.stopwatch = 'button[data-test="stopwatchButton"]';
 exports.hoursInput = 'input[data-test="hoursInput"]';
 exports.minutesInput = 'input[data-test="minutesInput"]';
 exports.secondsInput = 'input[data-test="secondsInput"]';
@@ -373,10 +376,6 @@ exports.askModerator = 'button[data-test="askModerator"]';
 exports.alwaysAccept = 'button[data-test="alwaysAccept"]';
 exports.alwaysDeny = 'button[data-test="alwaysDeny"]';
 exports.deniedMessageElement = 'p[class="error-message"]';
-exports.selectRandomUser = 'li[data-test="selectRandomUser"]';
-exports.noViewersSelectedMessage = 'div[data-test="noViewersSelectedMessage"]';
-exports.selectedUserName = 'div[data-test="selectedUserName"]';
-exports.selectAgainRadomUser = 'button[data-test="selectAgainRadomUser"]';
 exports.promoteToModerator = 'li[data-test="promoteToModerator"]';
 exports.demoteToViewer = 'li[data-test="demoteToViewer"]';
 exports.makePresenter = 'li[data-test="makePresenter"]';
@@ -408,13 +407,6 @@ exports.hideViewersAnnotation = 'input[data-test="hideViewersAnnotation"]';
 exports.hideViewersCursor = 'input[data-test="hideViewersCursor"]';
 exports.whiteboardCursorIndicator = 'div[data-test="whiteboardCursorIndicator"]';
 
-// Closed Captions
-exports.writeClosedCaptions = 'li[data-test="writeClosedCaptions"]';
-exports.startWritingClosedCaptions = 'button[data-test="startWritingClosedCaptions"]';
-exports.startViewingClosedCaptionsBtn = 'button[data-test="startViewingClosedCaptionsBtn"]';
-exports.startViewingClosedCaptions = 'button[data-test="startViewingClosedCaptions"]';
-exports.liveCaptions = 'div[data-test="liveCaptions"]';
-
 // Locales
 exports.locales = ['af', 'ar', 'az', 'bg-BG', 'bn', 'ca', 'cs-CZ', 'da', 'de',
   'dv', 'el-GR', 'en', 'eo', 'es', 'es-419', 'es-ES', 'es-MX', 'et', 'eu',
@@ -437,7 +429,9 @@ exports.advancedVideoSettingsBtn = 'li[data-test="advancedVideoSettingsButton"]'
 exports.mirrorWebcamBtn = 'li[data-test="mirrorWebcamBtn"]';
 exports.focusWebcamBtn = 'li[data-test="focusWebcamBtn"]';
 exports.pinWebcamBtn = 'li[data-test="pinWebcamBtn"]';
-exports.webcamFullscreenButton = 'button[data-test="webcamFullscreenButton"]';
+exports.webcamsFullscreenButton = 'li[data-test="webcamsFullscreenButton"]';
+exports.webcamSettingsTitle = 'span[id="webcam-settings-title"]';
+exports.backgroundSettingsTitle = 'span[id="backgrounds-title"]';
 exports.selectDefaultBackground = 'button[data-test="selectDefaultBackground"]';
 exports.selectCustomBackground = 'button[data-test="selectCustomBackground"]';
 exports.removeCustomBackground = 'button[data-test="removeCustomBackground"]';
@@ -459,7 +453,7 @@ exports.webcamMirroredVideoPreview = 'video[data-test="mirroredVideoPreview"]';
 // Whiteboard
 exports.whiteboard = 'div[data-testid="canvas"]';
 exports.wbLayer = 'div[data-testid="layer"]';
-exports.wbToolbar = 'div[class="tlui-toolbar__tools"]';
+exports.wbToolbar = 'div[class^="tlui-toolbar__tools tlui-toolbar__tools__mobile"]';
 exports.wbShapesButton = 'button[data-testid="tools.more"]';
 exports.wbRectangleShape = 'button[data-testid="tools.rectangle"]';
 exports.wbEllipseShape = 'button[data-testid="tools.more.ellipse"]';
@@ -471,6 +465,7 @@ exports.wbTextShape = 'button[data-testid="tools.text"]';
 exports.wbTypedText = 'div[data-shape="text"]';
 exports.wbTypedStickyNote = 'div[data-shape-type="note"]';
 exports.wbDrawnRectangle = 'div[data-shape-type="geo"]';
+exports.wbPollShape = 'div[data-shape-type="poll"]';
 exports.wbDrawnLine = 'div[data-shape="draw"]';
 exports.multiUsersWhiteboardOn = 'button[data-test="turnMultiUsersWhiteboardOn"]';
 exports.multiUsersWhiteboardOff = 'button[data-test="turnMultiUsersWhiteboardOff"]';

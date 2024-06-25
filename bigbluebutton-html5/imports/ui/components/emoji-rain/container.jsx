@@ -1,11 +1,27 @@
-import React from 'react';
-import { withTracker } from 'meteor/react-meteor-data';
+import React, { useRef } from 'react';
 import EmojiRain from './component';
-import UserReaction from '/imports/api/user-reaction';
-import Auth from '/imports/ui/services/auth';
+import { getEmojisToRain } from './queries';
+import useDeduplicatedSubscription from '../../core/hooks/useDeduplicatedSubscription';
 
-const EmojiRainContainer = (props) => <EmojiRain {...props} />;
+const EmojiRainContainer = () => {
+  const nowDate = useRef(new Date().toUTCString());
 
-export default withTracker(() => ({
-  reactions: UserReaction.find({ meetingId: Auth.meetingID }).fetch(),
-}))(EmojiRainContainer);
+  const {
+    data: emojisToRainData,
+  } = useDeduplicatedSubscription(getEmojisToRain, {
+    variables: {
+      initialCursor: nowDate.current,
+    },
+  });
+  const emojisArray = emojisToRainData?.user_reaction_stream || [];
+
+  const reactions = emojisArray.length === 0 ? []
+    : emojisArray.map((reaction) => ({
+      reaction: reaction.reactionEmoji,
+      creationDate: new Date(reaction.createdAt),
+    }));
+
+  return <EmojiRain reactions={reactions} />;
+};
+
+export default EmojiRainContainer;

@@ -22,7 +22,7 @@ for dir in $DIRS; do
   mkdir -p staging$dir
 done
 
-git clone --branch v2.37.0 https://github.com/iMDT/hasura-graphql-engine.git
+git clone --branch v2.40.0 https://github.com/iMDT/hasura-graphql-engine.git
 cat hasura-graphql-engine/hasura-graphql.part-a* > hasura-graphql
 rm -rf hasura-graphql-engine/
 chmod +x hasura-graphql
@@ -31,7 +31,11 @@ cp -r hasura-graphql staging/usr/local/bin/hasura-graphql-engine
 cp -r hasura-config.env staging/etc/default/bbb-graphql-server
 cp -r bbb_schema.sql metadata config.yaml staging/usr/share/bbb-graphql-server
 
-cp ./bbb-graphql-server.service staging/lib/systemd/system/bbb-graphql-server.service
+#Copy BBB configs for Postgres
+mkdir -p staging/etc/postgresql/16/main/conf.d
+cp bbb-pg.conf staging/etc/postgresql/16/main/conf.d
+
+cp bbb-graphql-server.service staging/lib/systemd/system/bbb-graphql-server.service
 
 mkdir -p hasura-cli
 cd hasura-cli

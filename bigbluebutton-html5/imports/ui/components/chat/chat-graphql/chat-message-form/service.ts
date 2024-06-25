@@ -1,6 +1,9 @@
 export const textToMarkdown = (message: string) => {
   const parsedMessage = message || '';
 
+  const CODE_BLOCK_REGEX = /```([\s\S]*?)```/g;
+  const isCode = parsedMessage.search(CODE_BLOCK_REGEX);
+
   // regular expression to match urls
   const urlRegex = /(http(s)?:\/\/.)?(www\.)?[-a-zA-Z0-9@:%._+~#=]{2,256}\.[a-z]{2,6}\b([-a-zA-Z0-9@:%_+.~#?&//=]*)/g;
 
@@ -20,7 +23,9 @@ export const textToMarkdown = (message: string) => {
     }
     return match;
   };
-
+  if (isCode !== -1) {
+    return parsedMessage.trim();
+  }
   return parsedMessage
     .trim()
     .replace(urlRegex, '[$&]($&)')

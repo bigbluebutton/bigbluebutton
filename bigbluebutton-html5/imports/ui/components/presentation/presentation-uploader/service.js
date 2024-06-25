@@ -1,21 +1,17 @@
 import { UploadingPresentations } from '/imports/api/presentations';
-import PresentationUploadToken from '/imports/api/presentation-upload-token';
 import Auth from '/imports/ui/services/auth';
-import { Meteor } from 'meteor/meteor';
-import { makeCall } from '/imports/ui/services/api';
 import logger from '/imports/startup/client/logger';
 import { partition } from '/imports/utils/array-utils';
 import update from 'immutability-helper';
-import { Random } from 'meteor/random';
-import Meetings from '/imports/api/meetings';
+import { v4 as uuid } from 'uuid';
 import { uniqueId } from '/imports/utils/string-utils';
-import { isPresentationEnabled } from '/imports/ui/services/features';
 import { notify } from '/imports/ui/services/notification';
+import apolloContextHolder from '/imports/ui/core/graphql/apolloContextHolder/apolloContextHolder';
+import { getPresentationUploadToken } from './queries';
+import { requestPresentationUploadTokenMutation } from './mutation';
+import useMeeting from '/imports/ui/core/hooks/useMeeting';
 
-const CONVERSION_TIMEOUT = 300000;
 const TOKEN_TIMEOUT = 5000;
-const PRESENTATION_CONFIG = window.meetingClientSettings.public.presentation;
-
 const POD_ID = 'DEFAULT_PRESENTATION_POD';
 
 // fetch doesn't support progress. So we use xhr which support progress.
@@ -46,37 +42,41 @@ const requestPresentationUploadToken = (
   meetingId,
   filename,
 ) => new Promise((resolve, reject) => {
-  makeCall('requestPresentationUploadToken', POD_ID, filename, temporaryPresentationId);
+  const client = apolloContextHolder.getClient();
+  client.mutate({
+    mutation: requestPresentationUploadTokenMutation,
+    variables: {
+      podId: POD_ID,
+      filename,
+      uploadTemporaryId: temporaryPresentationId,
+    },
+  });
 
-  let computation = null;
   const timeout = setTimeout(() => {
-    computation.stop();
     reject(new Error({ code: 408, message: 'requestPresentationUploadToken timeout' }));
   }, TOKEN_TIMEOUT);
 
-  Tracker.autorun((c) => {
-    computation = c;
-    const sub = Meteor.subscribe('presentation-upload-token', POD_ID, filename, temporaryPresentationId);
-    if (!sub.ready()) return;
-
-    const PresentationToken = PresentationUploadToken.findOne({
-      podId: POD_ID,
-      meetingId,
-      temporaryPresentationId,
-      used: false,
+  const getData = (n = 0) => {
+    if (n > 10) return;
+    let recursiveTimeout = null;
+    client.query({
+      query: getPresentationUploadToken,
+      variables: {
+        uploadTemporaryId: temporaryPresentationId,
+      },
+      fetchPolicy: 'network-only',
+    }).then((result) => {
+      if (result.data.pres_presentation_uploadToken.length > 0) {
+        clearTimeout(recursiveTimeout);
+        clearTimeout(timeout);
+        resolve(result.data.pres_presentation_uploadToken[0].uploadToken);
+      }
     });
-
-    if (!PresentationToken || !('failed' in PresentationToken)) return;
-
-    if (!PresentationToken.failed) {
-      clearTimeout(timeout);
-      resolve(PresentationToken.authzToken);
-    }
-
-    if (PresentationToken.failed) {
-      reject(new Error({ code: 401, message: `requestPresentationUploadToken token ${PresentationToken.authzToken} failed` }));
-    }
-  });
+    recursiveTimeout = setTimeout(() => {
+      getData(n + 1);
+    }, 1000);
+  };
+  setTimeout(getData, 100);
 });
 
 const uploadAndConvertPresentation = (
@@ -91,7 +91,7 @@ const uploadAndConvertPresentation = (
 ) => {
   if (!file) return Promise.resolve();
 
-  const temporaryPresentationId = uniqueId(Random.id(20));
+  const temporaryPresentationId = uniqueId(uuid());
 
   const data = new FormData();
   data.append('fileUpload', file);
@@ -131,7 +131,6 @@ const uploadAndConvertPresentation = (
 
   return requestPresentationUploadToken(temporaryPresentationId, meetingId, file.name)
     .then((token) => {
-      makeCall('setUsedToken', token);
       UploadingPresentations.upsert({
         temporaryPresentationId,
       }, {
@@ -236,10 +235,13 @@ const handleSavePresentation = (
   currentPresentations = [],
   setPresentation,
   removePresentation,
+  isPresentationEnabled,
 ) => {
-  if (!isPresentationEnabled()) {
+  if (!isPresentationEnabled) {
     return null;
   }
+
+  const PRESENTATION_CONFIG = window.meetingClientSettings.public.presentation;
 
   if (!isFromPresentationUploaderInterface) {
     if (presentations.length === 0) {
@@ -262,19 +264,16 @@ const handleSavePresentation = (
   );
 };
 
-const getExternalUploadData = () => {
+const useExternalUploadData = () => {
+  const { data: meeting } = useMeeting((m) => ({
+    presentationUploadExternalDescription: m.presentationUploadExternalDescription,
+    presentationUploadExternalUrl: m.presentationUploadExternalUrl,
+  }));
+
   const {
     presentationUploadExternalDescription,
     presentationUploadExternalUrl,
-  } = Meetings.findOne(
-    { meetingId: Auth.meetingID },
-    {
-      fields: {
-        presentationUploadExternalDescription: 1,
-        presentationUploadExternalUrl: 1,
-      },
-    },
-  );
+  } = meeting || {};
 
   return {
     presentationUploadExternalDescription,
@@ -355,7 +354,7 @@ export default {
   handleSavePresentation,
   persistPresentationChanges,
   requestPresentationUploadToken,
-  getExternalUploadData,
   uploadAndConvertPresentation,
   handleFiledrop,
+  useExternalUploadData,
 };

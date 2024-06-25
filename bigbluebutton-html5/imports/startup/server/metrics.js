@@ -2,14 +2,7 @@
 
 import fs from 'fs';
 import path from 'path';
-import { Meteor } from 'meteor/meteor';
 import Logger from './logger';
-
-const {
-  metricsDumpIntervalMs,
-  metricsFolderPath,
-  removeMeetingOnEnd,
-} = Meteor.settings.private.redis.metrics;
 
 class Metrics {
   constructor() {
@@ -101,7 +94,7 @@ class Metrics {
   }
 
   startDumpFile() {
-    Meteor.setInterval(() => {
+    setInterval(() => {
       try {
         const fileDate = new Date();
         const fullYear = fileDate.getFullYear();

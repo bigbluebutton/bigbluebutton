@@ -3,17 +3,17 @@ import { defineMessages, injectIntl } from 'react-intl';
 import PropTypes from 'prop-types';
 import EndMeetingConfirmationContainer from '/imports/ui/components/end-meeting-confirmation/container';
 import AboutContainer from '/imports/ui/components/about/container';
-import MobileAppModal from '/imports/ui/components/mobile-app-modal/container';
+import MobileAppModal from '/imports/ui/components/mobile-app-modal/mobile-app-modal-graphql/component';
 import OptionsMenuContainer from '/imports/ui/components/settings/container';
 import BBBMenu from '/imports/ui/components/common/menu/component';
 import ShortcutHelpComponent from '/imports/ui/components/shortcut-help/component';
-import withShortcutHelper from '/imports/ui/components/shortcut-help/service';
 import FullscreenService from '/imports/ui/components/common/fullscreen-button/service';
 import { colorDanger, colorWhite } from '/imports/ui/stylesheets/styled-components/palette';
 import { OptionsDropdownItemType } from 'bigbluebutton-html-plugin-sdk/dist/cjs/extensible-areas/options-dropdown-item/enums';
 import Styled from './styles';
 import browserInfo from '/imports/utils/browserInfo';
 import deviceInfo from '/imports/utils/deviceInfo';
+import Session from '/imports/ui/services/storage/in-memory';
 
 const intlMessages = defineMessages({
   optionsLabel: {
@@ -130,8 +130,6 @@ const defaultProps = {
   audioCaptionsEnabled: false,
 };
 
-const ALLOW_FULLSCREEN = window.meetingClientSettings.public.app.allowFullscreen;
-const BBB_TABLET_APP_CONFIG = window.meetingClientSettings.public.app.bbbTabletApp;
 const { isSafari, isTabletApp } = browserInfo;
 const FULLSCREEN_CHANGE_EVENT = isSafari ? 'webkitfullscreenchange' : 'fullscreenchange';
 
@@ -184,6 +182,8 @@ class OptionsDropdown extends PureComponent {
     } = this.props;
     const { isFullscreen } = this.state;
 
+    const ALLOW_FULLSCREEN = window.meetingClientSettings.public.app.allowFullscreen;
+
     if (noIOSFullscreen || !ALLOW_FULLSCREEN) return null;
 
     let fullscreenLabel = intl.formatMessage(intlMessages.fullscreenLabel);
@@ -215,7 +215,7 @@ class OptionsDropdown extends PureComponent {
     userLeaveMeeting();
     // we don't check askForFeedbackOnLogout here,
     // it is checked in meeting-ended component
-    Session.set('codeError', this.LOGOUT_CODE);
+    Session.setItem('codeError', this.LOGOUT_CODE);
   }
 
   setAboutModalIsOpen(value) {
@@ -257,6 +257,8 @@ class OptionsDropdown extends PureComponent {
     this.menuItems = [];
 
     this.getFullscreenItem(this.menuItems);
+
+    const BBB_TABLET_APP_CONFIG = window.meetingClientSettings.public.app.bbbTabletApp;
 
     this.menuItems.push(
       {
@@ -460,4 +462,4 @@ class OptionsDropdown extends PureComponent {
 }
 OptionsDropdown.propTypes = propTypes;
 OptionsDropdown.defaultProps = defaultProps;
-export default withShortcutHelper(injectIntl(OptionsDropdown), 'openOptions');
+export default injectIntl(OptionsDropdown);

@@ -2,7 +2,7 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import { defineMessages, injectIntl } from 'react-intl';
 import Button from '/imports/ui/components/common/button/component';
-
+import Session from '/imports/ui/services/storage/in-memory';
 
 const propTypes = {
   intl: PropTypes.shape({
@@ -69,7 +69,7 @@ const PresentationOptionsContainer = ({
       onClick={() => {
         setPresentationIsOpen(layoutContextDispatch, !presentationIsOpen);
         if (!hasExternalVideo && !hasScreenshare && !hasPinnedSharedNotes) {
-          Session.set('presentationLastState', !presentationIsOpen);
+          Session.setItem('presentationLastState', !presentationIsOpen);
         }
       }}
       id="restore-presentation"

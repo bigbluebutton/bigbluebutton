@@ -1,5 +1,6 @@
 import React, { useEffect } from 'react';
-import { Session } from 'meteor/session';
+import Session from '/imports/ui/services/storage/in-memory';
+import { v4 as uuid } from 'uuid';
 import { ErrorScreen } from '../../error-screen/component';
 import LoadingScreen from '../../common/loading-screen/component';
 
@@ -12,6 +13,7 @@ interface Response {
     learningDashboardBase: string,
     fallbackLocale: string,
     fallbackOnEmptyString: boolean,
+    mediaTag: string,
     clientLog: {
       server: {
         level: string,
@@ -51,6 +53,10 @@ const StartupDataFetch: React.FC<StartupDataFetchProps> = ({
       setError('Timeout on fetching startup data');
       setLoading(false);
     }, connectionTimeout);
+
+    const clientSessionUUID = uuid();
+    sessionStorage.setItem('clientSessionUUID', clientSessionUUID);
+
     const urlParams = new URLSearchParams(window.location.search);
     const sessionToken = urlParams.get('sessionToken');
 
@@ -59,21 +65,34 @@ const StartupDataFetch: React.FC<StartupDataFetchProps> = ({
       setLoading(false);
       return;
     }
-    const clientStartupSettings = '/api/rest/clientStartupSettings/';
-    const url = new URL(`${window.location.origin}${clientStartupSettings}`);
-    const headers = new Headers({ 'X-Session-Token': sessionToken, 'Content-Type': 'application/json' });
-    fetch(url, { method: 'get', headers })
-      .then((resp) => resp.json())
-      .then((data: Response) => {
-        const settings = data.meeting_clientSettings[0];
-        sessionStorage.setItem('clientStartupSettings', JSON.stringify(settings || {}));
-        setSettingsFetched(true);
-        clearTimeout(timeoutRef.current);
+    const pathMatch = window.location.pathname.match('^(.*)/html5client/join$');
+    if (pathMatch == null) {
+      throw new Error('Failed to match BBB client URI');
+    }
+    const serverPathPrefix = pathMatch[1];
+    fetch(`https://${window.location.hostname}${serverPathPrefix}/bigbluebutton/api`, {
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    }).then((resp) => resp.json())
+      .then((data) => {
+        const url = `${data.response.graphqlApiUrl}/clientStartupSettings/?sessionToken=${sessionToken}`;
+        fetch(url, { method: 'get', credentials: 'include' })
+          .then((resp) => resp.json())
+          .then((data: Response) => {
+            const settings = data.meeting_clientSettings[0];
+            sessionStorage.setItem('clientStartupSettings', JSON.stringify(settings || {}));
+            setSettingsFetched(true);
+            clearTimeout(timeoutRef.current);
+            setLoading(false);
+          }).catch(() => {
+            Session.setItem('errorMessageDescription', 'meeting_ended');
+            setError('Error fetching startup data');
+            setLoading(false);
+          });
+      }).catch((error) => {
         setLoading(false);
-      }).catch(() => {
-        Session.set('errorMessageDescription', 'meeting_ended');
-        setError('Error fetching startup data');
-        setLoading(false);
+        throw new Error('Error fetching GraphQL URL: '.concat(error.message || ''));
       });
   }, []);
 

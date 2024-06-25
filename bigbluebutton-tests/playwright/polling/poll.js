@@ -64,8 +64,8 @@ class Polling extends MultiUsers {
     await this.modPage.waitAndClick(e.publishPollingLabel);
     await this.modPage.wasRemoved(e.pollingContainer, 'should close the polling container after publishing the label');
 
-    await this.modPage.hasElement(e.wbDrawnRectangle, 'should display a rectangle on the whiteboard with the polls results for the moderator', ELEMENT_WAIT_LONGER_TIME);
-    await this.userPage.hasElement(e.wbDrawnRectangle, 'should display a rectangle on the whiteboard with the polls results for the attendee');
+    await this.modPage.hasElement(e.wbPollShape, ELEMENT_WAIT_LONGER_TIME);
+    await this.userPage.hasElement(e.wbPollShape);
   }
 
   async stopPoll() {
@@ -266,7 +266,7 @@ class Polling extends MultiUsers {
     await this.modPage.hasElement(e.whiteboard, 'should display the whiteboard when the moderator joins the meeting', ELEMENT_WAIT_LONGER_TIME);
     await util.startPoll(this.modPage);
 
-    const wbDrawnRectangleLocator = await this.modPage.getLocator(e.wbDrawnRectangle);
+    const wbDrawnRectangleLocator = await this.modPage.getLocator(e.wbPollShape);
     const initialWbDrawnRectangleCount = await wbDrawnRectangleLocator.count();
 
     await this.modPage.hasElementDisabled(e.publishPollingLabel, 'should display the publish poll button disabled before the poll is answered');
@@ -297,7 +297,7 @@ class Polling extends MultiUsers {
     await this.userPage.waitAndClick(e.zoomInButton);
     await this.userPage.waitAndClick(e.resetZoomButton);
 
-    const wbDrawnRectangleUserLocator = await this.userPage.getLocator(e.wbDrawnRectangle).last();
+    const wbDrawnRectangleUserLocator = await this.userPage.getLocator(e.wbPollShape).last();
     await wbDrawnRectangleUserLocator.dblclick({ timeout: ELEMENT_WAIT_TIME });
     await this.userPage.page.keyboard.type('testUser');
     await expect(wbDrawnRectangleUserLocator, 'should display the edit that the attendee made to the poll results rectangle on the whiteboard').toContainText('testUser');
@@ -311,10 +311,10 @@ class Polling extends MultiUsers {
     await util.startPoll(this.modPage);
     await this.userPage.waitAndClick(e.pollAnswerOptionBtn);
     await util.uploadSPresentationForTestingPolls(this.modPage, e.questionSlideFileName);
-    await this.modPage.hasElement(e.quickPoll, 'should display the quick poll button for the moderator after the slide being uploaded');
+    await this.modPage.hasElement(e.quickPoll, ELEMENT_WAIT_LONGER_TIME);
     await this.modPage.waitAndClick(e.publishPollingLabel);
     // Check poll results
-    await this.modPage.hasElement(e.wbDrawnRectangle, 'should display the rectangle with poll results information');
+    await this.modPage.hasElement(e.wbPollShape);
   }
 
   async startNewPoll() {

@@ -5,6 +5,7 @@ export interface Caption {
   user: Pick<User, 'avatar' | 'color' | 'isModerator' | 'name'>;
   captionText: string;
   captionId: string;
+  captionType: string;
   createdAt: string;
 }
 
@@ -26,8 +27,8 @@ export interface GetAudioCaptions {
 }
 
 export const GET_CAPTIONS = gql`
-  subscription getCaptions {
-    caption {
+  subscription getCaptions($locale: String!) {
+    caption(where: {locale: {_eq: $locale}}) {
       user {
         avatar
         color
@@ -36,6 +37,7 @@ export const GET_CAPTIONS = gql`
       }
       captionText
       captionId
+      captionType
       createdAt
     }
   }

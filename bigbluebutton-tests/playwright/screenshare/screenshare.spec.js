@@ -13,6 +13,12 @@ test.describe.parallel('Screenshare', () => {
     await screenshare.startSharing();
   });
 
+  test('Start screenshare stops external video @ci', async ({ browser, page }) => {
+    const screenshare = new ScreenShare(browser, page);
+    await screenshare.init(true, true);
+    await screenshare.screenshareStopsExternalVideo();
+  });
+
   test.describe.parallel('Mobile', () => {
     test.beforeEach(({ browserName }) => {
       test.skip(browserName === 'firefox', 'Mobile tests are not able in Firefox browser');

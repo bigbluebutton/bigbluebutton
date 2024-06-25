@@ -216,9 +216,10 @@ class ConnectionStatusComponent extends PureComponent {
    * @return {Promise} A Promise that resolves when process started.
    */
   async startMonitoringNetwork() {
-    let previousData = await Service.getNetworkData();
+    const { getVideoStreamsStats } = this.props;
+    let previousData = await Service.getNetworkData(getVideoStreamsStats);
     this.rateInterval = Meteor.setInterval(async () => {
-      const data = await Service.getNetworkData();
+      const data = await Service.getNetworkData(getVideoStreamsStats);
 
       const {
         outbound: audioCurrentUploadRate,

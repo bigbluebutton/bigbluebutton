@@ -15,9 +15,9 @@ This document assumes the reader understands the current [BigBlueButton architec
 
 BigBlueButton records all the events and media data generated during a BigBlueButton session for later playback.
 
-If you want to see the Record and Playback (RaP) feature in action, there is a [demo](https://demo.bigbluebutton.org/gl) where you can record a BigBlueButton session and play it back after it is listed under "Recorded Sessions" on the same page. This demo is also available on your server if you have [installed it](/administration/install#6.-install-api-demos). Processing and publishing the media for playback after the end of your session may take a few minutes.
+If you want to see the Record and Playback (RaP) feature in action, use Greenlight on the demo server and record a session [demo](https://demo.bigbluebutton.org/gl). You can then play it back after it is listed under "Recorded Sessions" on the same page. Processing and publishing the media for playback after the end of your session may take a few minutes.
 
-Like BigBlueButton sessions, the management of recordings should be handled by [third-party software](https://bigbluebutton.org/integrations/). Third-party software consumes the [BigBlueButton API](/development/api) to accomplish that. As a user, you may want to use third-party software which sets the right value to the parameter "record". As a developer, you may want to use a (not official) library that implements the API calls in your preferred language or implement it by yourself.
+Like BigBlueButton sessions, the management of recordings should be handled by [third-party software](https://bigbluebutton.org/schools/integrations/). Third-party software consumes the [BigBlueButton API](/development/api) to accomplish that. As a user, you may want to use third-party software which sets the right value to the parameter "record". As a developer, you may want to use a (not official) library that implements the API calls in your preferred language or implement it by yourself.
 
 From a technical point of view, in the BigBlueButton API, when you pass the parameter `record=true` with [create](/development/api#create), BigBlueButton will create a session that has recording enabled. In this case, it will add a new button to the toolbar at the top of the window with a circle icon which a moderator in the session can use to indicate sections of the meeting to be recorded.
 
@@ -27,7 +27,7 @@ After the session finishes, the BigBlueButton server will run an archive script 
 
 After the recording is archived, BigBlueButton will run one (or more) ingest and processing scripts, named workflows, that will _process_ and _publish_ the captured data into a format for _playback_.
 
-![Record and Playback - Overview](/img/diagrams/Record and Playback Service Diagram-RAP - Overview.png)
+![Record and Playback - Overview](/img/diagrams/record-and-playback-service-diagram-rap-overview.png)
 
 ## Record and Playback Phases
 
@@ -50,26 +50,26 @@ Whiteboard, cursor, chat and other events are stored on Redis. Webcam videos (.f
 
 The Archive phase involves placing the captured media and events into a **raw** directory. That directory contains ALL the necessary media and files to work with.
 
-![Record and Playback - Archive](/img/diagrams/Record and Playback Service Diagram-RAP - Archive.png)
+![Record and Playback - Archive](/img/diagrams/record-and-playback-service-diagram-rap-archive.png)
 
 ### Sanity
 
 The Sanity phase involves checking that all the archived files are _valid_ for processing. For example
 that media files have not zero length and events were archived.
 
-![Record and Playback - Sanity](/img/diagrams/Record and Playback Service Diagram-RAP - Sanity.png)
+![Record and Playback - Sanity](/img/diagrams/record-and-playback-service-diagram-rap-sanity.png)
 
 ### Process
 
 The Process phase involves processing the valid archived files of the recording according to the workflow (e.g., presentation). Usually, it involves parsing the archived events, converting media files to other formats or concatenating them, etc.
 
-![Record and Playback - Process](/img/diagrams/Record and Playback Service Diagram-RAP - Process.png)
+![Record and Playback - Process](/img/diagrams/record-and-playback-service-diagram-rap-process.png)
 
 ### Publish
 
 The Publish phase involves generating metadata and taking many or all the processed files and placing them in a directory exposed publicly for later playback.
 
-![Record and Playback - Publish](/img/diagrams/Record and Playback Service Diagram-RAP - Publish.png)
+![Record and Playback - Publish](/img/diagrams/record-and-playback-service-diagram-rap-publish.png)
 
 ### Post-Scripts
 
@@ -87,7 +87,15 @@ Some examples of things you might use the post-scripts to do:
 
 The Playback phase involves taking the published files (audio, webcam, deskshare, chat, events, notes, captions, polls, metadata) and playing them in the browser.
 
-Using the workflow **presentation**, playback is handled by HTML, CSS, and Javascript libraries; it is fully available in Mozilla Firefox and Google Chrome (also in Android devices). In other browsers like Opera or Safari the playback will work without all its functionality, e.g., thumbnails won't be shown. There is not a unique video file for playback, there is not an available button or link to download the recording. We have opened an [issue](https://github.com/bigbluebutton/bigbluebutton/issues/1969) for this enhancement.
+Using the workflow **presentation**, playback is handled by HTML, CSS, and Javascript libraries;
+it is fully available in Mozilla Firefox and Google Chrome (also on Android devices). In other
+browsers like Opera or Safari the playback will work without all its functionality, e.g.,
+thumbnails won't be shown.
+
+There is not a unique video file for playback in the **presentation** workflow.
+However, the **video** workflow can be used to generate that unique video file.
+This workflow is not enabled by default. [See section below](#deploying-other-formats) to
+learn how to enable it.
 
 ## Media storage
 
@@ -96,12 +104,10 @@ Some Record and Playback phases store the media they handle in different directo
 ### Captured files
 
 - AUDIO: `/var/freeswitch/meetings`
-- WEBCAM (Flash): `/usr/share/red5/webapps/video/streams`
-- WEBCAM (HTML5): `/var/kurento/recordings`
-- SCREEN SHARING (Flash): `/var/usr/share/red5/webapps/screenshare/streams`
-- SCREEN SHARING (HTML5): `/var/kurento/screenshare`
-- SLIDES: `/var/bigbluebutton`
-- NOTES: `http://localhost:9001/p` (port 9002 on BBB 2.5+)
+- WEBCAM: `/var/lib/bbb-webrtc-recorder/recordings/<meetingid>`
+- SCREEN SHARING: `/var/lib/bbb-webrtc-recorder/screenshare/<meetingid>`
+- SLIDES: `/var/bigbluebutton/<meetingid>`
+- NOTES: `http://localhost:9002/p`
 - EVENTS: `Redis`
 
 #### Archived files

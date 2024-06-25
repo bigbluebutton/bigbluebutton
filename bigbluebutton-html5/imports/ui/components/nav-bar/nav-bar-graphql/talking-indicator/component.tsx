@@ -1,4 +1,3 @@
-import { useSubscription } from '@apollo/client';
 import React, { useEffect, useMemo } from 'react';
 import { defineMessages, useIntl } from 'react-intl';
 import {
@@ -14,15 +13,11 @@ import { muteUser } from './service';
 import useToggleVoice from '../../../audio/audio-graphql/hooks/useToggleVoice';
 import TALKING_INDICATOR_SUBSCRIPTION from '/imports/ui/core/graphql/queries/userVoiceSubscription';
 import { setTalkingIndicatorList } from '/imports/ui/core/hooks/useTalkingIndicator';
+import useDeduplicatedSubscription from '/imports/ui/core/hooks/useDeduplicatedSubscription';
 
 interface TalkingIndicatorSubscriptionData {
   user_voice: Array<Partial<UserVoice>>;
 }
-
-// eslint-disable-next-line @typescript-eslint/ban-ts-comment
-// @ts-ignore - temporary, while meteor exists in the project
-const APP_CONFIG = window.meetingClientSettings.public.app;
-const { enableTalkingIndicator } = APP_CONFIG;
 
 const TALKING_INDICATORS_MAX = 8;
 
@@ -58,7 +53,7 @@ interface TalkingIndicatorProps {
   isBreakout: boolean;
   moreThanMaxIndicators: boolean;
   isModerator: boolean;
-  toggleVoice: (userId?: string | null, muted?: boolean | null) => void;
+  toggleVoice: (userId: string, muted: boolean) => void;
 }
 
 const TalkingIndicator: React.FC<TalkingIndicatorProps> = ({
@@ -181,7 +176,6 @@ const TalkingIndicator: React.FC<TalkingIndicatorProps> = ({
 };
 
 const TalkingIndicatorContainer: React.FC = (() => {
-  if (!enableTalkingIndicator) return () => null;
   return () => {
     const { data: currentUser } = useCurrentUser((u: Partial<User>) => ({
       userId: u?.userId,
@@ -192,7 +186,7 @@ const TalkingIndicatorContainer: React.FC = (() => {
       data: talkingIndicatorData,
       loading: talkingIndicatorLoading,
       error: talkingIndicatorError,
-    } = useSubscription<TalkingIndicatorSubscriptionData>(
+    } = useDeduplicatedSubscription<TalkingIndicatorSubscriptionData>(
       TALKING_INDICATOR_SUBSCRIPTION,
       {
         variables: {
@@ -205,7 +199,7 @@ const TalkingIndicatorContainer: React.FC = (() => {
       data: isBreakoutData,
       loading: isBreakoutLoading,
       error: isBreakoutError,
-    } = useSubscription<IsBreakoutSubscriptionData>(MEETING_ISBREAKOUT_SUBSCRIPTION);
+    } = useDeduplicatedSubscription<IsBreakoutSubscriptionData>(MEETING_ISBREAKOUT_SUBSCRIPTION);
 
     const toggleVoice = useToggleVoice();
 

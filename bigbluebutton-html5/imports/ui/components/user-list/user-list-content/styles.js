@@ -17,9 +17,8 @@ import {
   colorGrayDark,
   colorGrayLight,
   colorGrayLighter,
-  listItemBgHover,
-  itemFocusBorder,
   unreadMessagesBg,
+  colorGrayLightest,
 } from '/imports/ui/stylesheets/styled-components/palette';
 import { fontSizeSmall } from '/imports/ui/stylesheets/styled-components/typography';
 import { ScrollboxVertical } from '/imports/ui/stylesheets/styled-components/scrollable';
@@ -129,10 +128,12 @@ const ListItem = styled(Styled.ListItem)`
     text-overflow: ellipsis;
   }
 
-  &:active {
-    background-color: ${listItemBgHover};
-    box-shadow: inset 0 0 0 ${borderSize} ${itemFocusBorder}, inset 1px 0 0 1px ${itemFocusBorder};
-  }
+  ${({ active }) => active && `
+  outline: transparent;
+  outline-style: dotted;
+  outline-width: ${borderSize};
+  background-color: ${colorGrayLightest};
+`}
 `;
 
 const UnreadMessages = styled(FlexColumn)`

@@ -54,11 +54,21 @@ class WhiteboardModel extends SystemConfiguration {
 
     for (annotation <- annotations) {
       val oldAnnotation = wb.annotationsMap.get(annotation.id)
-      if (!oldAnnotation.isEmpty) {
+      if (oldAnnotation.isDefined) {
         val hasPermission = isPresenter || isModerator || oldAnnotation.get.userId == userId
         if (hasPermission) {
-          // Merge old and new annotation properties
-          val mergedAnnotationInfo = deepMerge(oldAnnotation.get.annotationInfo, annotation.annotationInfo)
+          // Determine if the annotation is a line shape
+          val isLineShape = annotation.annotationInfo.get("type").contains("line")
+
+          // Merge old and new annotation properties with special handling for line shape
+          val mergedAnnotationInfo = if (isLineShape) {
+            val newProps = annotation.annotationInfo.get("props").asInstanceOf[Option[Map[String, Any]]].getOrElse(Map.empty)
+            val oldProps = oldAnnotation.get.annotationInfo.get("props").asInstanceOf[Option[Map[String, Any]]].getOrElse(Map.empty)
+            val updatedProps = overwriteLineShapeHandles(oldProps, newProps)
+            annotation.annotationInfo + ("props" -> updatedProps)
+          } else {
+            deepMerge(oldAnnotation.get.annotationInfo, annotation.annotationInfo)
+          }
 
           // Apply cleaning if it's an arrow annotation
           val finalAnnotationInfo = if (annotation.annotationInfo.get("type").contains("arrow")) {
@@ -90,6 +100,15 @@ class WhiteboardModel extends SystemConfiguration {
     annotationsAdded
   }
 
+  private def overwriteLineShapeHandles(oldProps: Map[String, Any], newProps: Map[String, Any]): Map[String, Any] = {
+    val newHandles = newProps.get("handles")
+    val updatedProps = oldProps ++ newProps.filter {
+      case ("handles", _) => false // Remove the old handles
+      case _              => true
+    }
+    updatedProps ++ newHandles.map("handles" -> _)
+  }
+
   private def cleanArrowAnnotationProps(annotationInfo: Map[String, _]): Map[String, _] = {
     annotationInfo.get("props") match {
       case Some(props: Map[String, _]) =>
@@ -106,7 +125,7 @@ class WhiteboardModel extends SystemConfiguration {
   private def cleanEndOrStartProps(props: Map[String, _]): Map[String, _] = {
     props.get("type") match {
       case Some("binding") => props - ("x", "y") // Remove 'x' and 'y' for 'binding' type
-      case Some("point")   => props - ("boundShapeId", "normalizedAnchor", "isExact") // Remove unwanted properties for 'point' type
+      case Some("point")   => props - ("boundShapeId", "normalizedAnchor", "isExact", "isPrecise") // Remove unwanted properties for 'point' type
       case _               => props
     }
   }

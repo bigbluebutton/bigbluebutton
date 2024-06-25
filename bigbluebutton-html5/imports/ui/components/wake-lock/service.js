@@ -1,8 +1,6 @@
 import logger from '/imports/startup/client/logger';
 import deviceInfo from '/imports/utils/deviceInfo';
 
-const WAKELOCK_ENABLED = window.meetingClientSettings.public.app.wakeLock.enabled;
-
 const WAKELOCK_ERRORS = {
   NOT_SUPPORTED: {
     locale: 'wakeLockNotSupported',
@@ -11,8 +9,8 @@ const WAKELOCK_ERRORS = {
   REQUEST_FAILED: {
     locale: 'wakeLockAcquireFailed',
     error: 'wake_lock_request_error',
-  }
-}
+  },
+};
 
 class WakeLock {
   constructor() {
@@ -21,6 +19,7 @@ class WakeLock {
   }
 
   static isEnabled() {
+    const WAKELOCK_ENABLED = window.meetingClientSettings.public.app.wakeLock.enabled;
     return WAKELOCK_ENABLED;
   }
 
@@ -52,7 +51,7 @@ class WakeLock {
   async request() {
     if (!this.isSupported()) {
       logger.warn({
-        logCode: WAKELOCK_ERRORS.NOT_SUPPORTED,
+        logCode: WAKELOCK_ERRORS.NOT_SUPPORTED.error,
       }, 'Wake lock API not supported');
       return {
         ...WAKELOCK_ERRORS.NOT_SUPPORTED,
@@ -67,7 +66,7 @@ class WakeLock {
       document.addEventListener('fullscreenchange', this.handleVisibilityChanged.bind(this));
     } catch (err) {
       logger.warn({
-        logCode: WAKELOCK_ERRORS.REQUEST_FAILED,
+        logCode: WAKELOCK_ERRORS.REQUEST_FAILED.error,
         extraInfo: {
           errorName: err.name,
           errorMessage: err.message,

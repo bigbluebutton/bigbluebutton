@@ -1,12 +1,13 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { defineMessages, useIntl } from 'react-intl';
 import { useMutation } from '@apollo/client';
 
 import {
   getSpeechVoices,
-  isAudioTranscriptionEnabled,
-  setSpeechLocale,
+  setUserLocaleProperty,
   useFixedLocale,
+  isGladia,
+  useIsAudioTranscriptionEnabled,
 } from '../service';
 import useCurrentUser from '/imports/ui/core/hooks/useCurrentUser';
 import { SET_SPEECH_LOCALE } from '/imports/ui/core/graphql/mutations/userMutations';
@@ -23,6 +24,10 @@ const intlMessages = defineMessages({
   unsupported: {
     id: 'app.audio.captions.speech.unsupported',
     description: 'Audio speech recognition unsupported',
+  },
+  auto: {
+    id: 'app.audio.captions.speech.auto',
+    description: 'Audio speech recognition auto',
   },
   'de-DE': {
     id: 'app.audio.captions.select.de-DE',
@@ -82,12 +87,14 @@ const AudioCaptionsSelect: React.FC<AudioCaptionsSelectProps> = ({
   const [setSpeechLocaleMutation] = useMutation(SET_SPEECH_LOCALE);
 
   const setUserSpeechLocale = (speechLocale: string, provider: string) => {
-    setSpeechLocaleMutation({
-      variables: {
-        locale: speechLocale,
-        provider,
-      },
-    });
+    if (speechLocale !== '') {
+      setSpeechLocaleMutation({
+        variables: {
+          locale: speechLocale,
+          provider,
+        },
+      });
+    }
   };
 
   if (!isTranscriptionEnabled || useLocaleHook) return null;
@@ -108,7 +115,7 @@ const AudioCaptionsSelect: React.FC<AudioCaptionsSelectProps> = ({
 
   const onChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
     const { value } = e.target;
-    setSpeechLocale(value, setUserSpeechLocale);
+    setUserLocaleProperty(value, setUserSpeechLocale);
   };
 
   return (
@@ -130,6 +137,16 @@ const AudioCaptionsSelect: React.FC<AudioCaptionsSelectProps> = ({
         >
           {intl.formatMessage(intlMessages.disabled)}
         </option>
+        {isGladia()
+          ? (
+            <option
+              key="auto"
+              value="auto"
+            >
+              {intl.formatMessage(intlMessages.auto)}
+            </option>
+          )
+          : null}
         {speechVoices.map((v) => (
           <option
             key={v}
@@ -144,6 +161,14 @@ const AudioCaptionsSelect: React.FC<AudioCaptionsSelectProps> = ({
 };
 
 const AudioCaptionsSelectContainer: React.FC = () => {
+  const [voicesList, setVoicesList] = React.useState<string[]>([]);
+  const voices = getSpeechVoices();
+
+  useEffect(() => {
+    if (voices && voicesList.length === 0) {
+      setVoicesList(voices);
+    }
+  }, [voices]);
   const {
     data: currentUser,
   } = useCurrentUser(
@@ -152,16 +177,14 @@ const AudioCaptionsSelectContainer: React.FC = () => {
       voice: user.voice,
     }),
   );
-  const isEnabled = isAudioTranscriptionEnabled();
-  const voices = getSpeechVoices();
-
+  const isEnabled = useIsAudioTranscriptionEnabled();
   if (!currentUser || !isEnabled || !voices) return null;
 
   return (
     <AudioCaptionsSelect
       isTranscriptionEnabled={isEnabled}
       speechLocale={currentUser.speechLocale ?? ''}
-      speechVoices={voices}
+      speechVoices={voices || voicesList}
     />
   );
 };

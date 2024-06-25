@@ -105,7 +105,8 @@ class Page {
   }
 
   async shareWebcam(shouldConfirmSharing = true, videoPreviewTimeout = ELEMENT_WAIT_TIME) {
-    const { webcamSharingEnabled } = this.settings;
+    const { webcamSharingEnabled } = this.settings || await generateSettingsData(this.page);
+
     test.fail(!webcamSharingEnabled, 'Webcam sharing is disabled');
 
     if(!webcamSharingEnabled) {
@@ -117,9 +118,9 @@ class Page {
       await this.hasElement(e.videoPreview, 'should display the video preview when sharing webcam ', videoPreviewTimeout);
       await this.waitAndClick(e.startSharingWebcam);
     }
-    await this.hasElement(e.webcamContainer, 'should display the webcam container after the camera is shared', VIDEO_LOADING_WAIT_TIME);
-    await this.hasElement(e.leaveVideo, 'should display the leave video after the camera is shared', VIDEO_LOADING_WAIT_TIME);
-    await this.wasRemoved(e.webcamConnecting, 'should the webcam connecting element disappear');
+    await this.waitForSelector(e.webcamContainer, VIDEO_LOADING_WAIT_TIME);
+    await this.waitForSelector(e.leaveVideo, VIDEO_LOADING_WAIT_TIME);
+    await this.wasRemoved(e.webcamConnecting, VIDEO_LOADING_WAIT_TIME);
   }
 
   getLocator(selector) {
@@ -173,7 +174,7 @@ class Page {
 
   async type(selector, text) {
     const handle = this.getLocator(selector);
-    await handle.focus();
+    //await handle.focus();
     await handle.type(text, { timeout: ELEMENT_WAIT_TIME });
   }
 
@@ -313,6 +314,15 @@ class Page {
 
   async setHeightWidthViewPortSize() {
     await this.page.setViewportSize({ width: 1366, height: 768 });
+  }
+
+  async getYoutubeFrame() {
+    await this.waitForSelector(e.youtubeFrame);
+    const iframeElement = await this.getLocator('iframe').elementHandle();
+    const frame = await iframeElement.contentFrame();
+    await frame.waitForURL(/youtube/, { timeout: ELEMENT_WAIT_TIME });
+    const ytFrame = new Page(this.page.browser, frame);
+    return ytFrame;
   }
 }
 

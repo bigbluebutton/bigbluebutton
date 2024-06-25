@@ -9,6 +9,7 @@ import DEFAULT_VALUES from '/imports/ui/components/layout/defaultValues';
 import { INITIAL_INPUT_STATE } from '/imports/ui/components/layout/initState';
 import { ACTIONS } from '/imports/ui/components/layout/enums';
 import { defaultsDeep } from '/imports/utils/array-utils';
+import Session from '/imports/ui/services/storage/in-memory';
 
 const CamerasOnlyLayout = (props) => {
   const { bannerAreaHeight, isMobile, calculatesNavbarHeight } = props;
@@ -297,7 +298,7 @@ const CamerasOnlyLayout = (props) => {
     });
 
     layoutContextDispatch({
-      type: ACTIONS.SET_GENERIC_COMPONENT_OUTPUT,
+      type: ACTIONS.SET_GENERIC_CONTENT_OUTPUT,
       value: {
         display: false,
         width: mediaBounds.width,
@@ -365,8 +366,8 @@ const CamerasOnlyLayout = (props) => {
           externalVideo: {
             hasExternalVideo: false,
           },
-          genericComponent: {
-            genericComponentId: undefined,
+          genericMainContent: {
+            genericContentId: undefined,
           },
           screenShare: {
             hasScreenShare: false,
@@ -375,7 +376,7 @@ const CamerasOnlyLayout = (props) => {
         INITIAL_INPUT_STATE,
       ),
     });
-    Session.set('layoutReady', true);
+    Session.setItem('layoutReady', true);
     throttledCalculatesLayout();
   };
 

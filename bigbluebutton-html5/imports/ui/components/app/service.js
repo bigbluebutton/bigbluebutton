@@ -1,16 +1,11 @@
 import Breakouts from '/imports/api/breakouts';
 import Meetings from '/imports/api/meetings';
-import Settings from '/imports/ui/services/settings';
 import Auth from '/imports/ui/services/auth/index';
 import deviceInfo from '/imports/utils/deviceInfo';
 import Styled from './styles';
 import DarkReader from 'darkreader';
 import logger from '/imports/startup/client/logger';
-
-export const getFontSize = () => {
-  const applicationSettings = Settings.application;
-  return applicationSettings ? applicationSettings.fontSize : '16px';
-};
+import useMeeting from '../../core/hooks/useMeeting';
 
 export const getBreakoutRooms = () => Breakouts.find().fetch();
 
@@ -19,6 +14,14 @@ export function meetingIsBreakout() {
     { meetingId: Auth.meetingID },
     { fields: { isBreakout: 1 } },
   );
+  return meeting && meeting.isBreakout;
+}
+
+export function useMeetingIsBreakout() {
+  const { data: meeting } = useMeeting((m) => ({
+    isBreakout: m.isBreakout,
+  }));
+
   return meeting && meeting.isBreakout;
 }
 
@@ -56,9 +59,9 @@ export const isDarkThemeEnabled = () => {
 };
 
 export default {
-  getFontSize,
   meetingIsBreakout,
   getBreakoutRooms,
   setDarkTheme,
   isDarkThemeEnabled,
+  useMeetingIsBreakout,
 };

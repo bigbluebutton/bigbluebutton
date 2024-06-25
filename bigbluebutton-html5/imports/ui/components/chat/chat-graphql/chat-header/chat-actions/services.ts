@@ -34,8 +34,10 @@ export const generateExportedMessages = (
   intl: IntlShape,
 ): string => {
   const welcomeMessage = htmlDecode(welcomeSettings.welcomeMsg);
-  const modOnlyMessage = welcomeSettings.welcomeMsgForModerators && htmlDecode(welcomeSettings.welcomeMsgForModerators);
-  const systemMessages = `${welcomeMessage ? `system: ${welcomeMessage}` : ''}\n ${modOnlyMessage ? `system: ${modOnlyMessage}` : ''}\n`;
+  const welcomeMsgForModerators = welcomeSettings.welcomeMsgForModerators
+      && htmlDecode(welcomeSettings.welcomeMsgForModerators);
+  const systemMessages = `${welcomeMessage ? `system: ${welcomeMessage}` : ''}\n 
+  ${welcomeMsgForModerators ? `system: ${welcomeMsgForModerators}` : ''}\n`;
 
   const text = messages.reduce((acc, message) => {
     const date = new Date(message.createdAt);

@@ -8,9 +8,8 @@ class Layouts extends MultiUsers {
     await this.modPage.waitAndClick(e.manageLayoutBtn);
     await this.modPage.waitAndClick(e.focusOnPresentation);
     await this.modPage.waitAndClick(e.updateLayoutBtn);
-    await this.modPage.waitAndClick(e.toastContainer);
     await this.modPage.closeAllToastNotifications();
-    await this.modPage.wasRemoved(e.toastContainer, 'toast notification should disappear after a while that the layout has changed');
+    await this.modPage.wasRemoved(e.toastContainer);
 
     await checkScreenshots(this, 'should be the layout focus on presentation', e.webcamContainer, 'focus-on-presentation');
   }
@@ -20,9 +19,8 @@ class Layouts extends MultiUsers {
     await this.modPage.waitAndClick(e.manageLayoutBtn);
     await this.modPage.waitAndClick(e.focusOnVideo);
     await this.modPage.waitAndClick(e.updateLayoutBtn);
-    await this.modPage.waitAndClick(e.toastContainer);
     await this.modPage.closeAllToastNotifications();
-    await this.modPage.wasRemoved(e.toastContainer, 'toast notification should disappear after a while that the layout has changed');
+    await this.modPage.wasRemoved(e.toastContainer);
 
     await checkScreenshots(this, 'should be the grid layout', e.webcamContainer, 'grid-layout');
   }
@@ -32,9 +30,8 @@ class Layouts extends MultiUsers {
     await this.modPage.waitAndClick(e.manageLayoutBtn);
     await this.modPage.waitAndClick(e.smartLayout);
     await this.modPage.waitAndClick(e.updateLayoutBtn);
-    await this.modPage.waitAndClick(e.toastContainer);
     await this.modPage.closeAllToastNotifications();
-    await this.modPage.wasRemoved(e.toastContainer, 'toast notification should disappear after a while that the layout has changed');
+    await this.modPage.wasRemoved(e.toastContainer);
 
     await checkScreenshots(this, 'should the cameras be above the presentation', e.webcamContainer, 'smart-layout', 1);
 
@@ -50,9 +47,8 @@ class Layouts extends MultiUsers {
     await this.modPage.waitAndClick(e.manageLayoutBtn);
     await this.modPage.waitAndClick(e.customLayout);
     await this.modPage.waitAndClick(e.updateLayoutBtn);
-    await this.modPage.waitAndClick(e.toastContainer);
     await this.modPage.closeAllToastNotifications();
-    await this.modPage.wasRemoved(e.toastContainer, 'toast notification should disappear after a while that the layout has changed');
+    await this.modPage.wasRemoved(e.toastContainer);
 
     await checkScreenshots(this, 'should be on custom layout', 'video', 'custom-layout', 1);
 
@@ -88,8 +84,8 @@ class Layouts extends MultiUsers {
     await this.modPage.waitAndClick(e.manageLayoutBtn);
     await this.modPage.waitAndClick(e.customLayout);
     await this.modPage.waitAndClick(e.updateEveryoneLayoutBtn);
-    await this.modPage.waitAndClick(e.toastContainer);
-    await this.modPage.wasRemoved(e.toastContainer, 'toast notification should disappear after a while that the layout has changed');
+    await this.modPage.closeAllToastNotifications();
+    await this.modPage.wasRemoved(e.toastContainer);
 
     // Presenter minimizes presentation
     await this.modPage.waitAndClick(e.minimizePresentation);

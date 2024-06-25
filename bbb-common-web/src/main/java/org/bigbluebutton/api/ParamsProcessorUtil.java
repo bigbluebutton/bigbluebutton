@@ -30,6 +30,11 @@ import com.google.gson.Gson;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
+import org.jsoup.Jsoup;
+import org.jsoup.nodes.Document;
+import org.jsoup.safety.Safelist;
+import org.jsoup.nodes.Element;
+import org.jsoup.select.Elements;
 
 import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.commons.lang3.RandomStringUtils;
@@ -72,13 +77,15 @@ public class ParamsProcessorUtil {
     private String defaultHTML5ClientUrl;
 
     private String graphqlWebsocketUrl;
-    private String defaultGuestWaitURL;
+    private String graphqlApiUrl;
     private Boolean allowRequestsWithoutSession = false;
     private Integer defaultHttpSessionTimeout = 14400;
     private Boolean useDefaultAvatar = false;
     private String defaultAvatarURL;
     private String defaultGuestPolicy;
     private Boolean authenticatedGuest;
+    private Boolean defaultAllowPromoteGuestToModerator;
+    private Long waitingGuestUsersTimeout;
     private String defaultMeetingLayout;
     private int defaultMeetingDuration;
     private boolean disableRecordingDefault;
@@ -134,7 +141,6 @@ public class ParamsProcessorUtil {
     private Integer maxUserConcurrentAccesses = 0;
   	private Boolean defaultEndWhenNoModerator = false;
   	private Integer defaultEndWhenNoModeratorDelayInMinutes = 1;
-  	private Integer defaultHtml5InstanceId = 1;
 
     private String bbbVersion = "";
     private Boolean allowRevealOfBBBVersion = false;
@@ -454,6 +460,7 @@ public class ParamsProcessorUtil {
         // Get all the other relevant parameters and generate defaults if none
         // has been provided.
         String dialNumber = processDialNumber(params.get(ApiParams.DIAL_NUMBER));
+        String loginUrl = params.get(ApiParams.LOGIN_URL);
         String logoutUrl = processLogoutUrl(params.get(ApiParams.LOGOUT_URL));
         boolean record = processRecordMeeting(params.get(ApiParams.RECORD));
         int maxUsers = processMaxUser(params.get(ApiParams.MAX_PARTICIPANTS));
@@ -470,10 +477,11 @@ public class ParamsProcessorUtil {
             isBreakout = Boolean.valueOf(params.get(ApiParams.IS_BREAKOUT));
         }
 
-        String welcomeMessageTemplate = processWelcomeMessage(
-                params.get(ApiParams.WELCOME), isBreakout);
-        String welcomeMessage = substituteKeywords(welcomeMessageTemplate,
-                dialNumber, telVoice, meetingName);
+        String welcomeMessageTemplate = processWelcomeMessage(params.get(ApiParams.WELCOME), isBreakout);
+        String welcomeMessage = substituteKeywords(welcomeMessageTemplate,dialNumber, telVoice, meetingName);
+        welcomeMessage = sanitizeHtmlRemovingUnsafeTags(welcomeMessage);
+        welcomeMessage = welcomeMessage.replace("href=\"event:", "href=\"");
+        welcomeMessage = insertBlankTargetToLinks(welcomeMessage);
 
         String internalMeetingId = convertToInternalMeetingId(externalMeetingId);
 
@@ -672,6 +680,11 @@ public class ParamsProcessorUtil {
         	guestPolicy = params.get(ApiParams.GUEST_POLICY);
 		    }
 
+        Boolean allowPromoteGuestToModerator = defaultAllowPromoteGuestToModerator;
+        if (!StringUtils.isEmpty(params.get(ApiParams.ALLOW_PROMOTE_GUEST_TO_MODERATOR))) {
+          allowPromoteGuestToModerator = Boolean.parseBoolean(params.get(ApiParams.ALLOW_PROMOTE_GUEST_TO_MODERATOR));
+		    }
+
         String presentationUploadExternalDescription = defaultPresentationUploadExternalDescription;
         if (!StringUtils.isEmpty(params.get(ApiParams.PRESENTATION_UPLOAD_EXTERNAL_DESCRIPTION))) {
             presentationUploadExternalDescription = params.get(ApiParams.PRESENTATION_UPLOAD_EXTERNAL_DESCRIPTION);
@@ -730,8 +743,6 @@ public class ParamsProcessorUtil {
 
         String avatarURL = useDefaultAvatar ? defaultAvatarURL : "";
 
-        int html5InstanceId = processHtml5InstanceId(params.get(ApiParams.HTML5_INSTANCE_ID));
-
         if(defaultAllowDuplicateExtUserid == false) {
             log.warn("[DEPRECATION] use `maxUserConcurrentAccesses=1` instead of `allowDuplicateExtUserid=false`");
             maxUserConcurrentAccesses = 1;
@@ -742,7 +753,9 @@ public class ParamsProcessorUtil {
                 internalMeetingId, createTime).withName(meetingName)
                 .withMaxUsers(maxUsers).withModeratorPass(modPass)
                 .withViewerPass(viewerPass).withRecording(record)
-                .withDuration(meetingDuration).withLogoutUrl(logoutUrl)
+                .withDuration(meetingDuration)
+                .withLoginUrl(loginUrl)
+                .withLogoutUrl(logoutUrl)
                 .withLogoutTimer(logoutTimer)
                 .withBannerText(bannerText).withBannerColor(bannerColor)
                 .withTelVoice(telVoice).withWebVoice(webVoice)
@@ -757,15 +770,17 @@ public class ParamsProcessorUtil {
                 .withMaxPinnedCameras(maxPinnedCameras)
                 .withMetadata(meetingInfo)
                 .withWelcomeMessageTemplate(welcomeMessageTemplate)
-                .withWelcomeMessage(welcomeMessage).isBreakout(isBreakout)
+                .withWelcomeMessage(welcomeMessage)
+                .withIsBreakout(isBreakout)
                 .withGuestPolicy(guestPolicy)
                 .withAuthenticatedGuest(authenticatedGuest)
+                .withAllowPromoteGuestToModerator(allowPromoteGuestToModerator)
+                .withWaitingGuestUsersTimeout(waitingGuestUsersTimeout)
                 .withAllowRequestsWithoutSession(allowRequestsWithoutSession)
                 .withMeetingLayout(meetingLayout)
 				.withBreakoutRoomsParams(breakoutParams)
 				.withLockSettingsParams(lockSettingsParams)
 				.withMaxUserConcurrentAccesses(maxUserConcurrentAccesses)
-                .withHTML5InstanceId(html5InstanceId)
                 .withLearningDashboardCleanupDelayInMinutes(learningDashboardCleanupMins)
                 .withLearningDashboardAccessToken(learningDashboardAccessToken)
                 .withGroups(groups)
@@ -777,9 +792,12 @@ public class ParamsProcessorUtil {
 
         if (!StringUtils.isEmpty(params.get(ApiParams.MODERATOR_ONLY_MESSAGE))) {
             String moderatorOnlyMessageTemplate = params.get(ApiParams.MODERATOR_ONLY_MESSAGE);
-            String moderatorOnlyMessage = substituteKeywords(moderatorOnlyMessageTemplate,
-                    dialNumber, telVoice, meetingName);
-            meeting.setModeratorOnlyMessage(moderatorOnlyMessage);
+            String welcomeMsgForModerators = substituteKeywords(moderatorOnlyMessageTemplate, dialNumber, telVoice, meetingName);
+            welcomeMsgForModerators = sanitizeHtmlRemovingUnsafeTags(welcomeMsgForModerators);
+            welcomeMsgForModerators = welcomeMsgForModerators.replace("href=\"event:", "href=\"");
+            welcomeMsgForModerators = insertBlankTargetToLinks(welcomeMsgForModerators);
+
+            meeting.setWelcomeMsgForModerators(welcomeMsgForModerators);
         }
 
         if (!StringUtils.isEmpty(params.get(ApiParams.MEETING_ENDED_CALLBACK_URL))) {
@@ -792,7 +810,6 @@ public class ParamsProcessorUtil {
 		meeting.setUserInactivityInspectTimerInMinutes(userInactivityInspectTimerInMinutes);
 		meeting.setUserActivitySignResponseDelayInMinutes(userActivitySignResponseDelayInMinutes);
 		meeting.setUserInactivityThresholdInMinutes(userInactivityThresholdInMinutes);
-//		meeting.setHtml5InstanceId(html5InstanceId);
         meeting.setEndWhenNoModerator(endWhenNoModerator);
         meeting.setEndWhenNoModeratorDelayInMinutes(endWhenNoModeratorDelayInMinutes);
 
@@ -870,9 +887,9 @@ public class ParamsProcessorUtil {
         return graphqlWebsocketUrl;
     }
 
-	public String getDefaultGuestWaitURL() {
-		return defaultGuestWaitURL;
-        }
+    public String getGraphqlApiUrl() {
+        return graphqlApiUrl;
+    }
 
 	public Boolean getUseDefaultLogo() {
 		return useDefaultLogo;
@@ -924,6 +941,27 @@ public class ParamsProcessorUtil {
         return welcomeMessage;
     }
 
+    public String sanitizeHtmlRemovingUnsafeTags(String original) {
+        Safelist safelist = new Safelist()
+                .addTags("a", "b", "br", "i", "img", "li", "small", "span", "strong", "u", "ul")
+                .addAttributes("a", "href", "target")
+                .addAttributes("img", "src", "width", "height")
+                .addProtocols("a", "href", "https", "mailto", "tel");
+
+        return Jsoup.clean(original, safelist);
+    }
+
+    private static String insertBlankTargetToLinks(String html) {
+        Document document = Jsoup.parse(html);
+        Elements links = document.select("a[href]");  // Select all <a> elements with an href attribute
+
+        for (Element link : links) {
+            link.attr("target", "_blank");  // Set target="_blank" attribute
+        }
+
+        return document.body().html();  // Return the modified HTML
+    }
+
 	public String convertToInternalMeetingId(String extMeetingId) {
 		return DigestUtils.sha1Hex(extMeetingId);
 	}
@@ -973,17 +1011,6 @@ public class ParamsProcessorUtil {
 		}
 
 		return rec;
-	}
-
-	public int processHtml5InstanceId(String instanceId) {
-		int html5InstanceId = 1;
-		try {
-            html5InstanceId = Integer.parseInt(instanceId);
-		} catch(Exception ex) {
-            html5InstanceId = defaultHtml5InstanceId;
-		}
-
-		return html5InstanceId;
 	}
 
 	public int processMaxUser(String maxUsers) {
@@ -1227,9 +1254,9 @@ public class ParamsProcessorUtil {
         this.graphqlWebsocketUrl = graphqlWebsocketUrl.replace("https://","wss://");
     }
 
-	public void setDefaultGuestWaitURL(String url) {
-		this.defaultGuestWaitURL = url;
-        }
+    public void setGraphqlApiUrl(String graphqlApiUrl) {
+        this.graphqlApiUrl = graphqlApiUrl;
+    }
 
 	public void setUseDefaultLogo(Boolean value) {
 		this.useDefaultLogo = value;
@@ -1291,7 +1318,7 @@ public class ParamsProcessorUtil {
 		this.useDefaultAvatar = value;
 	}
 
-	public void setdefaultAvatarURL(String url) {
+	public void setDefaultAvatarURL(String url) {
 		this.defaultAvatarURL = url;
 	}
 
@@ -1303,7 +1330,15 @@ public class ParamsProcessorUtil {
 		this.authenticatedGuest = value;
 	}
 
-  public void setDefaultMeetingLayout(String meetingLayout) {
+	public void setDefaultAllowPromoteGuestToModerator(Boolean value) {
+		this.defaultAllowPromoteGuestToModerator = value;
+	}
+
+    public void setWaitingGuestUsersTimeout(Long value) {
+        this.waitingGuestUsersTimeout = value;
+    }
+
+    public void setDefaultMeetingLayout(String meetingLayout) {
 		this.defaultMeetingLayout =  meetingLayout;
 	}
 

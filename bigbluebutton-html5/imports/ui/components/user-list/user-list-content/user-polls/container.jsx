@@ -1,25 +1,26 @@
 import React from 'react';
-import { withTracker } from 'meteor/react-meteor-data';
 import UserPolls from './component';
 import { layoutSelectInput, layoutDispatch } from '../../../layout/context';
+import { useStorageKey } from '/imports/ui/services/storage/hooks';
 
 const UserPollsContainer = (props) => {
   const sidebarContent = layoutSelectInput((i) => i.sidebarContent);
   const { sidebarContentPanel } = sidebarContent;
   const layoutContextDispatch = layoutDispatch();
+  const pollIsOpen = useStorageKey('isPollOpen') || false;
+  const forcePollOpen = useStorageKey('forcePollOpen') || false;
 
   return (
     <UserPolls
       {...{
         sidebarContentPanel,
         layoutContextDispatch,
+        pollIsOpen,
+        forcePollOpen,
         ...props,
       }}
     />
   );
 };
 
-export default withTracker(({ isPresenter }) => ({
-  pollIsOpen: Session.equals('isPollOpen', true),
-  forcePollOpen: Session.equals('forcePollOpen', true),
-}))(UserPollsContainer);
+export default UserPollsContainer;

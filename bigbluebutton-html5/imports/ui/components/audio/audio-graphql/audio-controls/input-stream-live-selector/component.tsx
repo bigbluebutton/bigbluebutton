@@ -7,7 +7,6 @@ import AudioManager from '/imports/ui/services/audio-manager';
 import useCurrentUser from '/imports/ui/core/hooks/useCurrentUser';
 import { User } from '/imports/ui/Types/user';
 import { defineMessages, useIntl } from 'react-intl';
-import Settings from '/imports/ui/services/settings';
 import {
   handleLeaveAudio, liveChangeInputDevice, liveChangeOutputDevice, notify, toggleMuteMicrophone,
 } from './service';
@@ -16,24 +15,13 @@ import { Meeting } from '/imports/ui/Types/meeting';
 import logger from '/imports/startup/client/logger';
 import Auth from '/imports/ui/services/auth';
 import MutedAlert from '/imports/ui/components/muted-alert/component';
-import Mutetoggle from './buttons/muteToggle';
+import MuteToggle from './buttons/muteToggle';
 import ListenOnly from './buttons/listenOnly';
 import LiveSelection from './buttons/LiveSelection';
-
-// @ts-ignore - temporary, while meteor exists in the project
-const { enableDynamicAudioDeviceSelection } = window.meetingClientSettings.public.app;
-// @ts-ignore - temporary, while meteor exists in the project
-const MUTE_ALERT_CONFIG = window.meetingClientSettings.public.app.mutedAlert;
-
-// @ts-ignore - temporary while settings are still in .js
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
-const { animations } = Settings.application;
 
 const AUDIO_INPUT = 'audioinput';
 const AUDIO_OUTPUT = 'audiooutput';
 const DEFAULT_DEVICE = 'default';
-
-const { enabled: muteAlertEnabled } = MUTE_ALERT_CONFIG;
 
 const intlMessages = defineMessages({
   changeAudioDevice: {
@@ -77,6 +65,7 @@ interface InputStreamLiveSelectorProps {
   outputDeviceId: string;
   inputStream: string;
   meetingIsBreakout: boolean;
+  away: boolean;
 }
 
 const InputStreamLiveSelector: React.FC<InputStreamLiveSelectorProps> = ({
@@ -94,12 +83,19 @@ const InputStreamLiveSelector: React.FC<InputStreamLiveSelectorProps> = ({
   outputDeviceId,
   inputStream,
   meetingIsBreakout,
+  away,
 }) => {
   const intl = useIntl();
   // eslint-disable-next-line no-undef
   const [inputDevices, setInputDevices] = React.useState<InputDeviceInfo[]>([]);
   const [outputDevices, setOutputDevices] = React.useState<MediaDeviceInfo[]>([]);
   const { isMobile } = deviceInfo;
+
+  // @ts-ignore - temporary, while meteor exists in the project
+  const { enableDynamicAudioDeviceSelection } = window.meetingClientSettings.public.app;
+  // @ts-ignore - temporary, while meteor exists in the project
+  const MUTE_ALERT_CONFIG = window.meetingClientSettings.public.app.mutedAlert;
+  const { enabled: muteAlertEnabled } = MUTE_ALERT_CONFIG;
 
   const updateDevices = (isAudioConnected: boolean) => {
     navigator.mediaDevices.enumerateDevices()
@@ -161,13 +157,13 @@ const InputStreamLiveSelector: React.FC<InputStreamLiveSelectorProps> = ({
   }, [inputDeviceId]);
 
   useEffect(() => {
-    if (enableDynamicAudioDeviceSelection && !isMobile) {
+    if (enableDynamicAudioDeviceSelection) {
       updateDevices(inAudio);
     }
   }, [inAudio]);
 
   return (
-    <div>
+    <>
       {inAudio && inputStream && muteAlertEnabled && !listenOnly && muted && showMute ? (
         <MutedAlert
           {...{
@@ -178,7 +174,7 @@ const InputStreamLiveSelector: React.FC<InputStreamLiveSelectorProps> = ({
       ) : null}
       {
 
-        enableDynamicAudioDeviceSelection && !isMobile ? (
+        enableDynamicAudioDeviceSelection ? (
           <LiveSelection
             listenOnly={listenOnly}
             inputDevices={inputDevices}
@@ -191,27 +187,30 @@ const InputStreamLiveSelector: React.FC<InputStreamLiveSelectorProps> = ({
             disabled={disabled || isAudioLocked}
             isAudioLocked={isAudioLocked}
             toggleMuteMicrophone={toggleMuteMicrophone}
+            away={away}
           />
         ) : (
           <>
             {(isConnected && !listenOnly) && (
-              <Mutetoggle
+              <MuteToggle
                 talking={talking}
                 muted={muted}
                 disabled={disabled || isAudioLocked}
                 isAudioLocked={isAudioLocked}
                 toggleMuteMicrophone={toggleMuteMicrophone}
+                away={away}
               />
             )}
             <ListenOnly
               listenOnly={listenOnly}
               handleLeaveAudio={handleLeaveAudio}
               meetingIsBreakout={meetingIsBreakout}
+              actAsDeviceSelector={enableDynamicAudioDeviceSelection && isMobile}
             />
           </>
         )
       }
-    </div>
+    </>
   );
 };
 
@@ -229,6 +228,7 @@ const InputStreamLiveSelectorContainer: React.FC = () => {
       presenter: u.presenter,
       isModerator: u.isModerator,
       locked: u?.locked ?? false,
+      away: u?.away,
       voice: {
         muted: u?.voice?.muted ?? false,
         listenOnly: u?.voice?.listenOnly ?? false,
@@ -274,6 +274,7 @@ const InputStreamLiveSelectorContainer: React.FC = () => {
       outputDeviceId={outputDeviceId}
       inputStream={inputStream}
       meetingIsBreakout={currentMeeting?.isBreakout ?? false}
+      away={currentUser?.away ?? false}
     />
   );
 };

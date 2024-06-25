@@ -5,7 +5,6 @@ const collectionOptions = Meteor.isClient ? {
 } : {};
 
 const Meetings = new Mongo.Collection('meetings', collectionOptions);
-const RecordMeetings = new Mongo.Collection('record-meetings', collectionOptions);
 const MeetingTimeRemaining = new Mongo.Collection('meeting-time-remaining', collectionOptions);
 const Notifications = new Mongo.Collection('notifications', collectionOptions);
 const LayoutMeetings = new Mongo.Collection('layout-meetings');
@@ -15,13 +14,11 @@ if (Meteor.isServer) {
   // 1. meetingId
 
   Meetings.createIndexAsync({ meetingId: 1 });
-  RecordMeetings.createIndexAsync({ meetingId: 1 });
   MeetingTimeRemaining.createIndexAsync({ meetingId: 1 });
   LayoutMeetings.createIndexAsync({ meetingId: 1 });
 }
 
 export {
-  RecordMeetings,
   MeetingTimeRemaining,
   Notifications,
   LayoutMeetings,

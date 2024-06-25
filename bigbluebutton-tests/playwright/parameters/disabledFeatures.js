@@ -18,8 +18,8 @@ class DisabledFeatures extends MultiUsers {
 
     await this.modPage.hasElement(e.audioModal, 'should display the audio modal', ELEMENT_WAIT_LONGER_TIME);
 
-    if(speechRecognitionEnabled) {
-      await this.modPage.wasRemoved(e.speechRecognition, 'should not display the speech recognition');
+    if (speechRecognitionEnabled) {
+      await this.modPage.wasRemoved(e.speechRecognition);
     } else {
       await this.modPage.wasRemoved(e.speechRecognitionUnsupported, 'should not display the speech recognition message saying that is unsupported');
     }
@@ -64,7 +64,7 @@ class DisabledFeatures extends MultiUsers {
 
   async virtualBackgrounds() {
     await this.modPage.waitAndClick(e.joinVideo);
-    await this.modPage.wasRemoved(e.virtualBackgrounds, 'should not display the options to choose a background when sharing webcam');
+    await this.modPage.wasRemoved(e.backgroundSettingsTitle);
   }
 
   async downloadPresentationWithAnnotations() {
@@ -93,9 +93,9 @@ class DisabledFeatures extends MultiUsers {
   }
 
   async customVirtualBackground() {
-    await this.modPage.waitAndClick (e.joinVideo);
-    await this.modPage.hasElement(e.webcamSettingsModal, 'should display the webcam settings modal after joining video');
-    await this.modPage.wasRemoved(e.inputBackgroundButton, 'should not display the input background button for custom layout when starts sharing webcam');
+    await this.modPage.waitAndClick(e.joinVideo);
+    await this.modPage.waitAndClick(e.backgroundSettingsTitle);
+    await this.modPage.wasRemoved(e.inputBackgroundButton);
   }
 
   async slideSnapshot() {
@@ -123,8 +123,8 @@ class DisabledFeatures extends MultiUsers {
 
     await this.modPage.waitForSelector(e.audioModal, ELEMENT_WAIT_LONGER_TIME);
 
-    if(speechRecognitionEnabled) {
-      await this.modPage.wasRemoved(e.speechRecognition, 'should not display the speech recognition');
+    if (speechRecognitionEnabled) {
+      await this.modPage.wasRemoved(e.speechRecognition);
     } else {
       await this.modPage.wasRemoved(e.speechRecognitionUnsupported, 'should not display the speech recognition unsupported message');
     }
@@ -169,7 +169,8 @@ class DisabledFeatures extends MultiUsers {
 
   async virtualBackgroundsExclude() {
     await this.modPage.waitAndClick(e.joinVideo);
-    await this.modPage.hasElement(e.virtualBackgrounds, 'should display the virtual backgrounds when sharing webcam');
+    await this.modPage.waitAndClick(e.backgroundSettingsTitle);
+    await this.modPage.hasElement(e.virtualBackgrounds);
   }
 
   async downloadPresentationWithAnnotationsExclude() {
@@ -199,9 +200,9 @@ class DisabledFeatures extends MultiUsers {
   }
 
   async customVirtualBackgroundExclude() {
-    await this.modPage.waitAndClick (e.joinVideo);
-    await this.modPage.hasElement(e.webcamSettingsModal, 'should display the webcam settings modal when joining video');
-    await this.modPage.hasElement(e.inputBackgroundButton, 'should display the input background option when the webcam settings modal appear');
+    await this.modPage.waitAndClick(e.joinVideo);
+    await this.modPage.waitAndClick(e.backgroundSettingsTitle);
+    await this.modPage.hasElement(e.inputBackgroundButton);
   }
 
   async slideSnapshotExclude() {

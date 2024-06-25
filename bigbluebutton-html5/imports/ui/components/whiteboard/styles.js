@@ -3,7 +3,7 @@ import styled, { createGlobalStyle } from 'styled-components';
 const TldrawV2GlobalStyle = createGlobalStyle`
   ${({ isPresenter, hasWBAccess }) => (!isPresenter && hasWBAccess) && `
     [data-testid="tools.hand"] {
-      display: none;
+      display: none !important;
     }
   `}
 
@@ -13,24 +13,9 @@ const TldrawV2GlobalStyle = createGlobalStyle`
     }
   `}
 
-  ${({ isRTL }) => (!isRTL) && `
-    .tlui-menu-zone {
-      right: auto;
-      left: 3.5rem;
-    }
-  `}
-
-  ${({ isRTL }) => (isRTL) && `
-    .tlui-menu-zone {
-      right: 3.5rem;
-      left: auto;
-    }
-  `}
-
   ${({ isToolbarVisible }) => (!isToolbarVisible) && `
     .tlui-toolbar,
-    .tlui-style-panel__wrapper,
-    .tlui-menu-zone {
+    .tlui-style-panel__wrapper {
       visibility: hidden;
     }
     #WhiteboardOptionButton {
@@ -83,12 +68,26 @@ const TldrawV2GlobalStyle = createGlobalStyle`
     }
   `}
 
+  .tlui-toolbar__extras {
+    position: fixed !important;
+    top: -2px !important;
+    left: 40px !important;
+  }
+
+  ${({ isRTL }) => (!isRTL) && `
+    .tlui-toolbar__extras {
+      position: fixed !important;
+      top: -2px !important;
+      right: 50px !important;
+    }
+  `}
+
   [data-testid="main.page-menu"],
   [data-testid="main.menu"],
   [data-testid="tools.more.laser"],
   [data-testid="tools.asset"],
-  .tlui-buttons__horizontal > :nth-child(1),
-  .tlui-buttons__horizontal > :nth-child(2) {
+  [data-testid="page-menu.button"],
+  tlui-menu-zone {
     display: none !important;
   }
 
@@ -96,6 +95,84 @@ const TldrawV2GlobalStyle = createGlobalStyle`
     height: auto !important;
     width: auto !important;
   }
+
+  .tlui-layout__mobile .tlui-button__tool {
+    height: 30px !important;
+    width: 20px !important;
+  }
+
+  .tlui-toolbar__inner {
+    flex-direction: column-reverse !important;
+  }
+
+  .tlui-toolbar__tools {
+    flex-direction: column !important;
+  }
+
+  .tlui-toolbar {
+    align-items: end !important;
+  }
+
+  .tlui-layout__bottom {
+    grid-row: auto / auto !important;
+    position: absolute !important;
+    right: 10px !important;
+  }
+
+  [data-side="bottom"][data-align="end"][data-state="open"][role="dialog"] {
+    right: 3.5rem !important;
+    bottom: 9.5rem !important;
+  }
+
+  [id*="shape:poll-result"] {
+    background-color: white !important;
+  }
+
+  ${({ presentationHeight }) => {
+    const minRange = { height: 345, top: 14 };
+    const maxRange = { height: 1200, top: 384 };
+
+    const interpolateTop = (height) => {
+      if (height <= minRange.height) return `${minRange.top}px`;
+      if (height >= maxRange.height) return `${maxRange.top}px`;
+
+      const slope = (maxRange.top - minRange.top) / (maxRange.height - minRange.height);
+      const interpolatedTop = minRange.top + slope * (height - minRange.height);
+      return `${interpolatedTop}px`;
+    };
+
+    const topValue = interpolateTop(presentationHeight);
+
+    let additionalStyles = '';
+    if (presentationHeight <= 332) {
+      additionalStyles += `
+        .tlui-layout__mobile .tlui-button__tool > .tlui-icon {
+          height: 11px !important;
+          width: 11px !important;
+        }
+
+        .tlui-toolbar__tools {
+          flex-direction: row !important;
+        }
+
+        .tlui-toolbar__inner {
+          flex-direction: row-reverse !important;
+        }
+
+        .tlui-layout__bottom {
+          grid-row: auto / auto !important;
+          position: relative !important;
+          top: 2px !important;
+        }
+
+        [data-side="top"][role="dialog"] {
+          left: 10rem !important;
+        }
+      `;
+    }
+
+    return `.tlui-layout__bottom { top: ${topValue} !important; }${additionalStyles}`;
+  }}
 `;
 
 const EditableWBWrapper = styled.div`

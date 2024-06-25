@@ -25,6 +25,12 @@ case class MonitorNumberOfUsersInternalMsg(meetingID: String) extends InMessage
  * Audit message sent to meeting to trigger updating clients of meeting time remaining.
  * @param meetingId
  */
+case class MonitorGuestWaitPresenceInternalMsg(meetingId: String) extends InMessage
+
+/**
+ * Audit message sent to meeting to trigger updating clients of meeting time remaining.
+ * @param meetingId
+ */
 case class SendTimeRemainingAuditInternalMsg(meetingId: String, timeUpdatedInMinutes: Int) extends InMessage
 
 /**
@@ -121,13 +127,6 @@ case class CapturePresentationReqInternalMsg(userId: String, parentMeetingId: St
 case class SetPresenterInDefaultPodInternalMsg(presenterId: String) extends InMessage
 
 /**
- * Sent by breakout room to parent meeting to obtain padId
- * @param breakoutId
- * @param filename
- */
-case class CaptureSharedNotesReqInternalMsg(breakoutId: String, filename: String) extends InMessage
-
-/**
  * Sent by GraphqlActionsActor to inform MeetingActor that user disconnected
  * @param userId
  */
@@ -137,4 +136,14 @@ case class UserClosedAllGraphqlConnectionsInternalMsg(userId: String) extends In
  * Sent by GraphqlActionsActor to inform MeetingActor that user came back from disconnection
  * @param userId
  */
-case class UserEstablishedGraphqlConnectionInternalMsg(userId: String) extends InMessage
+case class UserEstablishedGraphqlConnectionInternalMsg(userId: String, clientType: String, isMobile: Boolean) extends InMessage
+
+/**
+ * API endpoint /userInfo to provide User Session Variables messages
+ */
+case class GetUserApiMsg(meetingId: String, userIntId: String)
+case class UserInfosApiMsg(infos: Map[String, Any])
+
+trait ApiResponse
+case class ApiResponseSuccess(msg: String, any: Any = null) extends ApiResponse
+case class ApiResponseFailure(msg: String, any: Any = null) extends ApiResponse

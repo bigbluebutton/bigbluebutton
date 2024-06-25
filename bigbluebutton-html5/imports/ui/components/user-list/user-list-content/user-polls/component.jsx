@@ -14,7 +14,7 @@ const intlMessages = defineMessages({
 
 const UserPolls = ({
   intl,
-  isPresenter,
+  isPresenter = false,
   pollIsOpen,
   forcePollOpen,
   sidebarContentPanel,
@@ -49,6 +49,7 @@ const UserPolls = ({
             role="button"
             tabIndex={0}
             data-test="pollMenuButton"
+            active={sidebarContentPanel === PANELS.POLL}
             onClick={handleClickTogglePoll}
             onKeyDown={(e) => {
               if (e.key === 'Enter') {
@@ -71,7 +72,7 @@ UserPolls.propTypes = {
   intl: PropTypes.shape({
     formatMessage: PropTypes.func.isRequired,
   }).isRequired,
-  isPresenter: PropTypes.bool.isRequired,
+  isPresenter: PropTypes.bool,
   pollIsOpen: PropTypes.bool.isRequired,
   forcePollOpen: PropTypes.bool.isRequired,
 };

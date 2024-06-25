@@ -180,29 +180,23 @@ class CustomParameters extends MultiUsers {
 
   async multiUserPenOnly() {
     await this.modPage.waitAndClick(e.multiUsersWhiteboardOn);
-    await this.userPage.waitAndClick(e.wbToolbar);
-    const resp = await this.userPage.page.evaluate((toolsElement) => {
-      return document.querySelectorAll(toolsElement)[0].parentElement.childElementCount === 1;
-    }, e.wbToolbar);
-    expect(resp).toBeTruthy();
+    await this.userPage.hasElement(e.wbToolbar);
+    const toolsCount = await this.userPage.getSelectorCount(`${e.wbToolbar} button:visible`);
+    await expect(toolsCount, 'should display only 1 tool (pen)').toBe(1);
   }
 
   async presenterTools() {
-    await this.modPage.hasElement(e.whiteboard, 'should display the whiteboard', ELEMENT_WAIT_LONGER_TIME);
-    await this.modPage.waitAndClick(e.wbToolbar);
-    const resp = await this.modPage.page.evaluate(([toolsElement, toolbarListSelector]) => {
-      return document.querySelectorAll(toolsElement)[0].parentElement.querySelector(toolbarListSelector).childElementCount === 2;
-    }, [e.wbToolbar, e.toolbarToolsList]);
-    expect(resp, 'should display the presenter tools on the whiteboard').toBeTruthy();
+    await this.modPage.waitForSelector(e.whiteboard, ELEMENT_WAIT_LONGER_TIME);
+    await this.modPage.hasElement(e.wbToolbar);
+    const toolsCount = await this.modPage.getSelectorCount(`${e.wbToolbar} button:visible`);
+    await expect(toolsCount, 'should display only the 3 elements passed in the parameter (select, draw and arrow)').toBe(3);
   }
 
   async multiUserTools() {
     await this.modPage.waitAndClick(e.multiUsersWhiteboardOn);
-    await this.userPage.waitAndClick(e.wbToolbar);
-    const resp = await this.userPage.page.evaluate(([toolsElement, toolbarListSelector]) => {
-      return document.querySelectorAll(toolsElement)[0].parentElement.querySelector(toolbarListSelector).childElementCount === 2;
-    }, [e.wbToolbar, e.toolbarToolsList]);
-    expect(resp, 'should display the whiteboard tools for all the users in the room who has the multi whiteboard access').toBeTruthy();
+    await this.userPage.hasElement(e.wbToolbar);
+    const toolsCount = await this.userPage.getSelectorCount(`${e.wbToolbar} button:visible`);
+    await expect(toolsCount, 'should display only the 2 elements passed in the parameter (arrow and text)').toBe(2);
   }
 
   async autoShareWebcam() {

@@ -1,8 +1,7 @@
 import React, { useEffect, useState } from 'react';
-import { useSubscription } from '@apollo/client';
 import { defineMessages, useIntl } from 'react-intl';
 import Icon from '/imports/ui/components/common/icon/component';
-import NotesService from '/imports/ui/components/notes/notes-graphql/service';
+import NotesService from '/imports/ui/components/notes/service';
 import lockContextContainer from '/imports/ui/components/lock-viewers/context/container';
 import { PANELS } from '/imports/ui/components/layout/enums';
 import { notify } from '/imports/ui/services/notification';
@@ -10,14 +9,13 @@ import { layoutSelectInput, layoutDispatch } from '/imports/ui/components/layout
 import {
   PINNED_PAD_SUBSCRIPTION,
   PinnedPadSubscriptionResponse,
-} from '/imports/ui/components/notes/notes-graphql/queries';
+} from '/imports/ui/components/notes/queries';
 import Styled from './styles';
 import usePreviousValue from '/imports/ui/hooks/usePreviousValue';
 import useRev from '/imports/ui/components/pads/pads-graphql/hooks/useRev';
-import useNotesLastRev from '/imports/ui/components/notes/notes-graphql/hooks/useNotesLastRev';
-import useHasUnreadNotes from '/imports/ui/components/notes/notes-graphql/hooks/useHasUnreadNotes';
-
-const NOTES_CONFIG = window.meetingClientSettings.public.notes;
+import useNotesLastRev from '../../../../notes/hooks/useNotesLastRev';
+import useHasUnreadNotes from '../../../../notes/hooks/useHasUnreadNotes';
+import useDeduplicatedSubscription from '/imports/ui/core/hooks/useDeduplicatedSubscription';
 
 const intlMessages = defineMessages({
   title: {
@@ -65,7 +63,7 @@ interface UserNotesGraphqlProps {
   markNotesAsRead: () => void,
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   toggleNotesPanel: (sidebarContentPanel: any, layoutContextDispatch: any) => void,
-  isEnabled: () => boolean,
+  isEnabled: boolean,
 }
 
 interface UserNotesContainerGraphqlProps {
@@ -138,6 +136,8 @@ const UserNotesGraphql: React.FC<UserNotesGraphqlProps> = (props) => {
         aria-describedby="lockedNotes"
         role="button"
         tabIndex={0}
+        active={notesOpen}
+        data-test="sharedNotesButton"
         onClick={() => toggleNotesPanel(sidebarContentPanel, layoutContextDispatch)}
         // @ts-ignore
         onKeyDown={(e) => {
@@ -173,7 +173,7 @@ const UserNotesGraphql: React.FC<UserNotesGraphqlProps> = (props) => {
     );
   };
 
-  if (!isEnabled()) return null;
+  if (!isEnabled) return null;
 
   return (
     <Styled.Messages>
@@ -194,7 +194,10 @@ const UserNotesGraphql: React.FC<UserNotesGraphqlProps> = (props) => {
 const UserNotesContainerGraphql: React.FC<UserNotesContainerGraphqlProps> = (props) => {
   const { userLocks } = props;
   const disableNotes = userLocks.userNotes;
-  const { data: pinnedPadData } = useSubscription<PinnedPadSubscriptionResponse>(PINNED_PAD_SUBSCRIPTION);
+  const { data: pinnedPadData } = useDeduplicatedSubscription<PinnedPadSubscriptionResponse>(PINNED_PAD_SUBSCRIPTION);
+
+  const NOTES_CONFIG = window.meetingClientSettings.public.notes;
+
   const isPinned = !!pinnedPadData && pinnedPadData.sharedNotes[0]?.sharedNotesExtId === NOTES_CONFIG.id;
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -202,11 +205,12 @@ const UserNotesContainerGraphql: React.FC<UserNotesContainerGraphqlProps> = (pro
   const { sidebarContentPanel } = sidebarContent;
   const layoutContextDispatch = layoutDispatch();
 
-  const rev = useRev(NotesService.ID);
+  const rev = useRev(NOTES_CONFIG.id);
   const { setNotesLastRev } = useNotesLastRev();
 
   const hasUnreadNotes = useHasUnreadNotes();
   const markNotesAsRead = () => setNotesLastRev(rev);
+  const isEnabled = NotesService.useIsEnabled();
 
   return (
     <UserNotesGraphql
@@ -217,7 +221,7 @@ const UserNotesContainerGraphql: React.FC<UserNotesContainerGraphqlProps> = (pro
       hasUnreadNotes={hasUnreadNotes}
       markNotesAsRead={markNotesAsRead}
       toggleNotesPanel={NotesService.toggleNotesPanel}
-      isEnabled={NotesService.isEnabled}
+      isEnabled={isEnabled}
     />
   );
 };

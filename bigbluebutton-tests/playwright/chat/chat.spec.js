@@ -12,7 +12,7 @@ test.describe('Chat', () => {
   });
 
   // https://docs.bigbluebutton.org/2.6/release-tests.html#public-message-automated
-  test('Send public message @ci', async () => {
+  test.only('Send public message @ci', async () => {
     await chat.sendPublicMessage();
   });
 
@@ -33,7 +33,7 @@ test.describe('Chat', () => {
     await chat.saveChat(testInfo);
   });
 
-  test('Verify character limit', async () => {
+  test('Verify character limit @ci', async () => {
     await chat.characterLimit();
   });
 

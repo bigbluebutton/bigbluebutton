@@ -10,10 +10,6 @@ const propTypes = {
   type: PropTypes.oneOf(Object.values(toast.TYPE)).isRequired,
 };
 
-const defaultProps = {
-  icon: null,
-};
-
 const defaultIcons = {
   [toast.TYPE.INFO]: 'help',
   [toast.TYPE.SUCCESS]: 'checkmark',
@@ -23,7 +19,7 @@ const defaultIcons = {
 };
 
 const Toast = ({
-  icon,
+  icon = null,
   type,
   message,
   content,
@@ -53,4 +49,3 @@ const Toast = ({
 export default Toast;
 
 Toast.propTypes = propTypes;
-Toast.defaultProps = defaultProps;

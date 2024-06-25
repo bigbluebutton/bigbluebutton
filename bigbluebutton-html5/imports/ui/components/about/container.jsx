@@ -1,22 +1,14 @@
 import React from 'react';
-import { withTracker } from 'meteor/react-meteor-data';
 
 import AboutComponent from './component';
 
 const AboutContainer = (props) => {
-  const { children } = props;
+  const { children, ...rest } = props;
   return (
-    <AboutComponent {...props}>
+    <AboutComponent {...rest} settings={window.meetingClientSettings.public.app}>
       {children}
     </AboutComponent>
   );
 };
 
-const getClientBuildInfo = () => (
-  {
-    settings: window.meetingClientSettings.public.app,
-
-  }
-);
-
-export default withTracker(() => getClientBuildInfo())(AboutContainer);
+export default AboutContainer;

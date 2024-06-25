@@ -6,11 +6,9 @@ import * as PluginSdk from 'bigbluebutton-html-plugin-sdk';
 import logger from '/imports/startup/client/logger';
 import { UserListDropdownItemType } from 'bigbluebutton-html-plugin-sdk/dist/cjs/extensible-areas/user-list-dropdown-item/enums';
 import {
-  SET_AWAY,
   SET_ROLE,
   USER_EJECT_CAMERAS,
   CHAT_CREATE_WITH_USER,
-  REQUEST_USER_INFO,
 } from './mutations';
 import {
   SET_CAMERA_PINNED,
@@ -28,7 +26,7 @@ import {
   isVoiceOnlyUser,
 } from './service';
 
-import { isChatEnabled } from '/imports/ui/services/features';
+import { useIsChatEnabled } from '/imports/ui/services/features';
 import { layoutDispatch } from '/imports/ui/components/layout/context';
 import { PANELS, ACTIONS } from '/imports/ui/components/layout/enums';
 import { EMOJI_STATUSES } from '/imports/utils/statuses';
@@ -150,14 +148,6 @@ const messages = defineMessages({
     id: 'app.audio.backLabel',
     description: 'label for option to hide emoji menu',
   },
-  awayLabel: {
-    id: 'app.userList.menu.away',
-    description: 'Text for identifying away user',
-  },
-  notAwayLabel: {
-    id: 'app.userList.menu.notAway',
-    description: 'Text for identifying not away user',
-  },
 });
 const makeDropdownPluginItem: (
   userDropdownItems: PluginSdk.UserListDropdownInterface[]) => DropdownItem[] = (
@@ -223,8 +213,15 @@ const UserActions: React.FC<UserActionsProps> = ({
   const layoutContextDispatch = layoutDispatch();
 
   const [presentationSetWriters] = useMutation(PRESENTATION_SET_WRITERS);
-  const [getWriters] = useLazyQuery(CURRENT_PAGE_WRITERS_QUERY, { fetchPolicy: 'no-cache' });
+  const [getWriters] = useLazyQuery(
+    CURRENT_PAGE_WRITERS_QUERY,
+    {
+      variables: { pageId },
+      fetchPolicy: 'no-cache',
+    },
+  );
   const voiceToggle = useToggleVoice();
+  const isChatEnabled = useIsChatEnabled();
 
   const handleWhiteboardAccessChange = async () => {
     try {
@@ -278,10 +275,8 @@ const UserActions: React.FC<UserActionsProps> = ({
     allowedToPromote,
     allowedToDemote,
     allowedToChangeUserLockStatus,
-    allowUserLookup,
     allowedToRemove,
     allowedToEjectCameras,
-    allowedToSetAway,
   } = actionsnPermitions;
 
   const userLocked = user.locked
@@ -303,7 +298,6 @@ const UserActions: React.FC<UserActionsProps> = ({
     (page: { pageId: string; userId: string }) => (page.pageId === pageId && page.userId === user.userId),
   );
 
-  const [setAway] = useMutation(SET_AWAY);
   const [setRole] = useMutation(SET_ROLE);
   const [chatCreateWithUser] = useMutation(CHAT_CREATE_WITH_USER);
   const [setCameraPinned] = useMutation(SET_CAMERA_PINNED);
@@ -313,7 +307,6 @@ const UserActions: React.FC<UserActionsProps> = ({
   const [setEmojiStatus] = useMutation(SET_EMOJI_STATUS);
   const [setLocked] = useMutation(SET_LOCKED);
   const [userEjectCameras] = useMutation(USER_EJECT_CAMERAS);
-  const [requestUserInfo] = useMutation(REQUEST_USER_INFO);
 
   const removeUser = (userId: string, banUser: boolean) => {
     if (isVoiceOnlyUser(user.userId)) {
@@ -365,7 +358,7 @@ const UserActions: React.FC<UserActionsProps> = ({
       icon: user.pinned ? 'pin-video_off' : 'pin-video_on',
     },
     {
-      allowed: isChatEnabled()
+      allowed: isChatEnabled
         && (
           currentUser.isModerator ? allowedToChatPrivately
             : allowedToChatPrivately && (
@@ -423,7 +416,7 @@ const UserActions: React.FC<UserActionsProps> = ({
       key: 'mute',
       label: intl.formatMessage(messages.MuteUserAudioLabel),
       onClick: () => {
-        toggleVoice(user.userId, voiceToggle);
+        toggleVoice(user.userId, true, voiceToggle);
         setOpenUserAction(null);
       },
       icon: 'mute',
@@ -435,7 +428,7 @@ const UserActions: React.FC<UserActionsProps> = ({
       key: 'unmute',
       label: intl.formatMessage(messages.UnmuteUserAudioLabel),
       onClick: () => {
-        toggleVoice(user.userId, voiceToggle);
+        toggleVoice(user.userId, false, voiceToggle);
         setOpenUserAction(null);
       },
       icon: 'unmute',
@@ -523,20 +516,6 @@ const UserActions: React.FC<UserActionsProps> = ({
       dataTest: 'unlockUserButton',
     },
     {
-      allowed: allowUserLookup,
-      key: 'directoryLookup',
-      label: intl.formatMessage(messages.DirectoryLookupLabel),
-      onClick: () => {
-        requestUserInfo({
-          variables: {
-            extId: user.extId,
-          },
-        });
-        setOpenUserAction(null);
-      },
-      icon: 'user',
-    },
-    {
       allowed: allowedToRemove,
       key: 'remove',
       label: intl.formatMessage(messages.RemoveUserLabel, { 0: user.name }),
@@ -563,20 +542,6 @@ const UserActions: React.FC<UserActionsProps> = ({
       },
       icon: 'video_off',
       dataTest: 'ejectCamera',
-    },
-    {
-      allowed: allowedToSetAway,
-      key: 'setAway',
-      label: intl.formatMessage(user.away ? messages.notAwayLabel : messages.awayLabel),
-      onClick: () => {
-        setAway({
-          variables: {
-            away: !user.away,
-          },
-        });
-        setOpenUserAction(null);
-      },
-      icon: 'time',
     },
     ...makeDropdownPluginItem(userDropdownItems.filter(
       (item: PluginSdk.UserListDropdownInterface) => (item?.type !== UserListDropdownItemType.INFORMATION),

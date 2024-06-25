@@ -1,11 +1,16 @@
 package org.bigbluebutton.api.model.request;
 
+import jakarta.ws.rs.core.MediaType;
 import org.bigbluebutton.api.model.constraint.*;
 import org.bigbluebutton.api.service.SessionService;
+
+import javax.servlet.http.HttpServletRequest;
 import javax.validation.constraints.NotNull;
 import java.util.Map;
+import java.util.Set;
 
-public class Enter implements Request<Enter.Params> {
+@ContentTypeConstraint
+public class Enter extends RequestWithSession<Enter.Params>{
 
     public enum Params implements RequestParameters {
         SESSION_TOKEN("sessionToken");
@@ -27,7 +32,8 @@ public class Enter implements Request<Enter.Params> {
 
     private SessionService sessionService;
 
-    public Enter() {
+    public Enter(HttpServletRequest servletRequest) {
+        super(servletRequest);
         sessionService = new SessionService();
     }
 

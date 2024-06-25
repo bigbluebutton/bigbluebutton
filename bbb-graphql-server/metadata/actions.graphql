@@ -60,6 +60,12 @@ type Mutation {
 }
 
 type Mutation {
+  captionAddLocale(
+    locale: String!
+  ): Boolean
+}
+
+type Mutation {
   captionSubmitText(
     transcriptId: String!
     start: Int!
@@ -68,6 +74,14 @@ type Mutation {
     transcript: String!
     locale: String!
     isFinal: Boolean!
+  ): Boolean
+}
+
+type Mutation {
+  captionSubmitTranscript(
+    transcriptId: String!
+    transcript: String!
+    locale: String!
   ): Boolean
 }
 
@@ -201,17 +215,19 @@ type Mutation {
 }
 
 type Mutation {
-  pluginDataChannelDeleteMessage(
+  pluginDataChannelDeleteEntry(
     pluginName: String!
-    dataChannel: String!
-    messageId: String!
+    channelName: String!
+    subChannelName: String!
+    entryId: String!
   ): Boolean
 }
 
 type Mutation {
-  pluginDataChannelDispatchMessage(
+  pluginDataChannelPushEntry(
     pluginName: String!
-    dataChannel: String!
+    subChannelName: String!
+    channelName: String!
     payloadJson: String!
     toRoles: [String]!
     toUserIds: [String]!
@@ -219,9 +235,20 @@ type Mutation {
 }
 
 type Mutation {
+  pluginDataChannelReplaceEntry(
+    pluginName: String!
+    subChannelName: String!
+    channelName: String!
+    entryId: String!
+    payloadJson: String!
+  ): Boolean
+}
+
+type Mutation {
   pluginDataChannelReset(
     pluginName: String!
-    dataChannel: String!
+    channelName: String!
+    subChannelName: String!
   ): Boolean
 }
 
@@ -460,6 +487,13 @@ type Mutation {
 }
 
 type Mutation {
+  userSetCaptionLocale(
+    locale: String!
+    provider: String!
+  ): Boolean
+}
+
+type Mutation {
   userSetConnectionAlive(
     networkRttInMs: Float!
   ): Boolean
@@ -481,12 +515,6 @@ type Mutation {
   userSetLocked(
     userId: String!
     locked: Boolean!
-  ): Boolean
-}
-
-type Mutation {
-  userSetMobileFlag(
-    mobile: Boolean!
   ): Boolean
 }
 
@@ -531,6 +559,13 @@ type Mutation {
 }
 
 type Mutation {
+  userSetSpeechOptions(
+    partialUtterances: Boolean!
+    minUtteranceLength: Float!
+  ): Boolean
+}
+
+type Mutation {
   userThirdPartyInfoResquest(
     externalUserId: String!
   ): Boolean
@@ -558,12 +593,4 @@ input GuestUserApprovalStatus {
   guest: String!
   status: String!
 }
-
-type Mutation {
-  captionSetOwner(
-    locale: String!
-    ownerUserId: String!
-  ): Boolean
-}
-
 

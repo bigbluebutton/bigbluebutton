@@ -39,7 +39,7 @@ class Join extends Create {
   async joinAndShareWebcam() {
     const breakoutPage = await this.joinRoom();
 
-    const { videoPreviewTimeout } = getSettings();
+    const { videoPreviewTimeout } = this.userPage.settings;
     await breakoutPage.shareWebcam(true, videoPreviewTimeout);
   }
 
@@ -61,6 +61,7 @@ class Join extends Create {
     await breakoutUserPage.hasElement(e.presentationTitle, 'should have the presentation title once the user is on the breakout room.');
 
     await this.modPage.waitAndClick(e.breakoutRoomsItem);
+    await this.modPage.hasElement(e.breakoutRemainingTime);
     await this.modPage.type(e.chatBox, "test");
     await this.modPage.waitAndClick(e.sendButton);
 
@@ -171,7 +172,7 @@ class Join extends Create {
     const shareNotesPDF = await this.modPage.getLocatorByIndex(e.actionsItem, 1);
     await expect(shareNotesPDF, 'should have the Notes name on the share notes pdf').toHaveText(/Notes/, { timeout: 30000 });
     await expect(this.modPage.getLocatorByIndex(e.actionsItem, 2)).toHaveText("Upload/Manage presentations"); //This checks if no other content was exported.
-    await this.modPage.checkElementCount(e.actionsItem, 9, 'should have the default actions options and the exported content from the breakouts.');
+    await this.modPage.checkElementCount(e.actionsItem, 8);
     await shareNotesPDF.click();
 
     const wbBox = await this.modPage.getLocator(e.whiteboard);
@@ -216,25 +217,26 @@ class Join extends Create {
     await this.modPage.hasElement(e.presentationUploadProgressToast, 'should display the presentation upload progress toast', ELEMENT_WAIT_LONGER_TIME);
     await this.modPage.waitAndClick(e.actions);
     const whiteboardPDF = await this.modPage.getLocatorByIndex(e.actionsItem, 1);
-    await expect(whiteboardPDF, 'should have the whiteboard name on the exported file from the breakouts').toHaveText(/Whiteboard/, { timeout: 30000 });
-    await expect(this.modPage.getLocatorByIndex(e.actionsItem, 2), 'Should not export other content').toHaveText("Upload/Manage presentations"); //This checks if no other content was exported.
-    await this.modPage.checkElementCount(e.actionsItem, 9, 'should display the default actions button and the exported content');
+    await expect(whiteboardPDF).toHaveText(/Whiteboard/, { timeout: 30000 });
+    await expect(this.modPage.getLocatorByIndex(e.actionsItem, 2)).toHaveText("Upload/Manage presentations"); //This checks if no other content was exported.
+    await this.modPage.checkElementCount(e.actionsItem, 8);
     await whiteboardPDF.click();
     await this.modPage.waitAndClick('i[type="info"]');
     await this.modPage.waitAndClick(e.currentPresentationToast);
 
-    //! below lines commented due to https://github.com/bigbluebutton/bigbluebutton/issues/18233
-    //! once it's fixed, re-add lines to the code
+    //! avoiding the following screenshot comparison due to https://github.com/microsoft/playwright/issues/18827
     // const wbBox = await this.modPage.getLocator(e.whiteboard);
     // await expect(wbBox).toHaveScreenshot('capture-breakout-whiteboard.png', {
-    //   maxDiffPixels: 1000,
+    //   maxDiffPixels: 1500,
     // });
   }
 
   async userCanChooseRoom() {
     await this.userPage.bringToFront();
 
-    await this.userPage.checkElementCount(e.roomOption, 2, 'should have two breakout room options');
+    await this.userPage.hasElementEnabled(e.selectBreakoutRoomBtn);
+    await this.userPage.hasElementEnabled(e.modalConfirmButton);
+    await this.userPage.checkElementCount(e.roomOption, 2);
 
     await this.userPage.getLocator(`${e.fullscreenModal} >> select`).selectOption({index: 1});
     await this.userPage.waitAndClick(e.modalConfirmButton);

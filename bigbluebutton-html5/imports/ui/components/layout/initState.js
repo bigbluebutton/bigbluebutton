@@ -95,8 +95,8 @@ export const INITIAL_INPUT_STATE = {
     browserWidth: 0,
     browserHeight: 0,
   },
-  genericComponent: {
-    genericComponentId: undefined,
+  genericMainContent: {
+    genericContentId: undefined,
     width: 0,
     height: 0,
     browserWidth: 0,
@@ -241,7 +241,7 @@ export const INITIAL_OUTPUT_STATE = {
     tabOrder: 0,
     zIndex: 1,
   },
-  genericComponent: {
+  genericMainContent: {
     display: false,
     width: 0,
     height: 0,

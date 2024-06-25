@@ -19,7 +19,7 @@ class Chat extends MultiUsers {
 
     await this.modPage.type(e.chatBox, e.message);
     await this.userPage.hasElement(e.typingIndicator, 'should display the typing indicator element');
-    await this.modPage.waitAndClick(e.sendButton);
+    await this.modPage.page.click(e.sendButton);
     await this.modPage.checkElementCount(e.chatUserMessageText, 1, 'should have on message on the public chat');
   }
 

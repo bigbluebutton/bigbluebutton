@@ -1,13 +1,15 @@
 import React from 'react';
 import { defineMessages, useIntl } from 'react-intl';
+import { useMutation } from '@apollo/client';
 import Styled from '../styles';
 import { useShortcut } from '/imports/ui/core/hooks/useShortcut';
-import Settings from '/imports/ui/services/settings';
+import { getSettingsSingletonInstance } from '/imports/ui/services/settings';
 import useToggleVoice from '../../../hooks/useToggleVoice';
-
-// eslint-disable-next-line @typescript-eslint/ban-ts-comment
-// @ts-ignore - temporary while settings are still in .js
-const { animations } = Settings.application;
+import { SET_AWAY } from '/imports/ui/components/user-list/user-list-content/user-participants/user-list-participants/user-actions/mutations';
+import VideoService from '/imports/ui/components/video-provider/service';
+import {
+  muteAway,
+} from '/imports/ui/components/audio/audio-graphql/audio-controls/input-stream-live-selector/service';
 
 const intlMessages = defineMessages({
   muteAudio: {
@@ -18,6 +20,10 @@ const intlMessages = defineMessages({
     id: 'app.actionsBar.unmuteLabel',
     description: 'Unmute audio button label',
   },
+  umuteAudioAndSetActive: {
+    id: 'app.actionsBar.unmuteAndSetActiveLabel',
+    description: 'unmute audio button label when user is away',
+  },
 });
 
 interface MuteToggleProps {
@@ -25,24 +31,41 @@ interface MuteToggleProps {
   muted: boolean;
   disabled: boolean;
   isAudioLocked: boolean;
-  toggleMuteMicrophone: (muted: boolean, toggleVoice: (userId?: string | null, muted?: boolean | null) => void) => void;
+  toggleMuteMicrophone: (muted: boolean, toggleVoice: (userId: string, muted: boolean) => void) => void;
+  away: boolean;
 }
 
-export const Mutetoggle: React.FC<MuteToggleProps> = ({
+export const MuteToggle: React.FC<MuteToggleProps> = ({
   talking,
   muted,
   disabled,
   isAudioLocked,
   toggleMuteMicrophone,
+  away,
 }) => {
   const intl = useIntl();
   const toggleMuteShourtcut = useShortcut('toggleMute');
   const toggleVoice = useToggleVoice();
+  const [setAway] = useMutation(SET_AWAY);
 
-  const label = muted ? intl.formatMessage(intlMessages.unmuteAudio)
+  const unmuteAudioLabel = away ? intlMessages.umuteAudioAndSetActive : intlMessages.unmuteAudio;
+  const label = muted ? intl.formatMessage(unmuteAudioLabel)
     : intl.formatMessage(intlMessages.muteAudio);
+  const Settings = getSettingsSingletonInstance();
+  const animations = Settings?.application?.animations;
+
   const onClickCallback = (e: React.MouseEvent<HTMLButtonElement>) => {
     e.stopPropagation();
+
+    if (muted && away) {
+      muteAway(muted, true, toggleVoice);
+      VideoService.setTrackEnabled(true);
+      setAway({
+        variables: {
+          away: false,
+        },
+      });
+    }
     toggleMuteMicrophone(muted, toggleVoice);
   };
   return (
@@ -66,4 +89,4 @@ export const Mutetoggle: React.FC<MuteToggleProps> = ({
   );
 };
 
-export default Mutetoggle;
+export default MuteToggle;

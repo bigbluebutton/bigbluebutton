@@ -63,7 +63,6 @@ public:
     wakeLock: 
       enabled: true
     allowDefaultLogoutUrl: true
-    allowUserLookup: false
     dynamicGuestPolicy: true
     enableGuestLobbyMessage: true
     guestPolicyExtraAllowOptions: false
@@ -88,12 +87,12 @@ public:
     # Automatic transcription requires the browser to support the web
     # speech API, which involves sending voice data to third-party servers!
     # https://developer.mozilla.org/en-US/docs/Web/API/Web_Speech_API/Using_the_Web_Speech_API#speech_recognition
-    skipMeteorConnection: false
     audioCaptions:
       enabled: false
+      alwaysVisible: false
       # mobile: <Boolean> - controls speech transcription availability on mobile
       mobile: false
-      # provider: [webspeech, vosk, whisper, deepspeech]
+      # provider: [webspeech, vosk, gladia]
       provider: webspeech
       language:
         available:
@@ -137,6 +136,7 @@ public:
       breakoutRoomLimit: 16
     # https://github.com/bigbluebutton/bigbluebutton/pull/10826
     customHeartbeat: false
+    customHeartbeatUseDataFrames: true
     showAllAvailableLocales: true
     # Show "Audio Filters for Microphone" option in settings menu.
     # When set to true, users are able to enable/disable microphone constraints,
@@ -242,6 +242,12 @@ public:
       dataSaving:
         viewParticipantsWebcams: true
         viewScreenshare: true
+      # Options that are sent to the transcription backed (only Gladia is supported for now)
+      transcription:
+        # Indicates if the transcription backend should include partial results
+        partialUtterances: true
+        # The minumum length (in seconds) an utterance has to have for we to use it
+        minUtteranceLength: 1
     shortcuts:
       openOptions:
         accesskey: O
@@ -488,7 +494,7 @@ public:
       # user to enable/disable it
       paginationToggleEnabled: true
       # how long (in ms) the negotiation will be debounced after a page change.
-      pageChangeDebounceTime: 2500
+      pageChangeDebounceTime: 1000
       # video page sizes for DESKTOP endpoints. It stands for the number of SUBSCRIBER streams.
       # PUBLISHERS aren't accounted for .
       # A page size of 0 (zero) means that the page size is unlimited (disabled).
@@ -560,8 +566,17 @@ public:
       color: '#ffffff'
       family: Calibri
       size: 24px
+    # maximum number of simultaneous captions on screen
+    captionLimit: 3
+    # maximum size of a caption line in characters
+    lineLimit: 60
+    # maximum number of lines a caption can have on screen
     lines: 2
+    # time the captions will hang on screen after last updated
     time: 5000
+    # Default pad which will store automatically generated captions
+    defaultPad: en
+    showButton: false
     locales:
       - locale: "af"
         name: "Afrikaans"
@@ -586,6 +601,8 @@ public:
       - locale: "el-GR"
         name: "Ελληνικά"
       - locale: "en"
+        name: "English"
+      - locale: "en-US"
         name: "English"
       - locale: "eo"
         name: "Esperanto"
@@ -886,6 +903,15 @@ public:
     #  audio: high
     #  webcam: medium
     #  screenshare: medium
+    #
+    # audioTroubleshootingLinks: links to help users troubleshoot audio issues
+    # If no link is provided, the audio troubleshooting button will not be shown.
+    # Index is the error code:
+    #   - 7: permission denied error code
+    #   - 0: unknown error
+    #audioTroubleshootingLinks:
+    #  7: 'https://link.bigbluebutton.org/perm'
+    #  0: 'https://link.bigbluebutton.org/unk'
   stats:
     enabled: true
     interval: 10000
@@ -1043,35 +1069,44 @@ public:
         - value: 20
         - value: 16
       tools:
+        - icon: select_tool
+          value: select
+        - icon: hand_tool
+          value: hand
+        - icon: draw_tool
+          value: draw
+        - icon: eraser_tool
+          value: eraser
+        - icon: arrow_tool
+          value: arrow
         - icon: text_tool
           value: text
-        - icon: line_tool
-          value: line
-        - icon: circle_tool
-          value: ellipse
-        - icon: triangle_tool
-          value: triangle
+        - icon: note_tool
+          value: note
         - icon: rectangle_tool
           value: rectangle
-        - icon: pen_tool
-          value: pencil
-        - icon: hand
-          value: hand
+        - icon: more_tool
+          value: more
       presenterTools:
-        - text
-        - line
-        - ellipse
-        - triangle
-        - rectangle
-        - pencil
+        - select
         - hand
-      multiUserTools:
+        - draw
+        - eraser
+        - arrow
         - text
-        - line
-        - ellipse
-        - triangle
+        - note
         - rectangle
-        - pencil
+        - more
+      multiUserTools:
+        - select
+        - hand
+        - draw
+        - eraser
+        - arrow
+        - text
+        - note
+        - rectangle
+        - more
   clientLog:
     server:
       enabled: false
@@ -1113,29 +1148,6 @@ private:
     localesUrl: /locale-list
     pencilChunkLength: 100
     loadSlidesFromHttpAlways: false
-  redis:
-    host: 127.0.0.1
-    port: '6379'
-    timeout: 5000
-    password: null
-    debug: false
-    metrics:
-      queueMetrics: false
-      metricsDumpIntervalMs: 60000
-      metricsFolderPath: METRICS_FOLDER
-      removeMeetingOnEnd: true
-    channels:
-      toAkkaApps: to-akka-apps-redis-channel
-      toThirdParty: to-third-party-redis-channel
-    subscribeTo:
-      - to-html5-redis-channel
-      - from-akka-apps-[^f]*
-      - from-third-party-redis-channel
-    async:
-      - from-akka-apps-wb-redis-channel
-    ignored:
-      - CheckAlivePongSysMsg
-      - DoLatencyTracerMsg
   serverLog:
     level: info
     streamerLog: false
@@ -1176,5 +1188,3 @@ private:
     path: '/metrics'
     # Whether default metrics for Node.js processes should be exported
     collectDefaultMetrics: false
-    # Whether redis metrics should be exported
-    collectRedisMetrics: false

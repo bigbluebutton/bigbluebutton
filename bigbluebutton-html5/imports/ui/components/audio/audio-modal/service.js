@@ -24,9 +24,13 @@ export const joinMicrophone = (skipEchoTest = false) => {
   Storage.setItem(CLIENT_DID_USER_SELECTED_MICROPHONE_KEY, true);
   Storage.setItem(CLIENT_DID_USER_SELECTED_LISTEN_ONLY_KEY, false);
 
+  const {
+    enabled: LOCAL_ECHO_TEST_ENABLED,
+  } = window.meetingClientSettings.public.media.localEchoTest;
+
   const call = new Promise((resolve, reject) => {
     try {
-      if ((skipEchoTest && !Service.isConnected()) || Service.localEchoEnabled) {
+      if ((skipEchoTest && !Service.isConnected()) || LOCAL_ECHO_TEST_ENABLED) {
         return resolve(Service.joinMicrophone());
       }
 
@@ -47,19 +51,15 @@ export const joinListenOnly = () => {
   Storage.setItem(CLIENT_DID_USER_SELECTED_MICROPHONE_KEY, false);
   Storage.setItem(CLIENT_DID_USER_SELECTED_LISTEN_ONLY_KEY, true);
 
-  const call = new Promise((resolve) => {
-    Service.joinListenOnly().then(() => {
-      // Autoplay block wasn't triggered. Close the modal. If autoplay was
-      // blocked, that'll be handled in the modal component when then
-      // prop transitions to a state where it was handled OR the user opts
-      // to close the modal.
-      if (!Service.autoplayBlocked()) {
-        document.dispatchEvent(new Event("CLOSE_MODAL_AUDIO"));
-      }
-      resolve();
-    });
-  });
-  return call.catch((error) => {
+  return Service.joinListenOnly().then(() => {
+    // Autoplay block wasn't triggered. Close the modal. If autoplay was
+    // blocked, that'll be handled in the modal component when then
+    // prop transitions to a state where it was handled OR the user opts
+    // to close the modal.
+    if (!Service.autoplayBlocked()) {
+      document.dispatchEvent(new Event("CLOSE_MODAL_AUDIO"));
+    }
+  }).catch((error) => {
     throw error;
   });
 };
@@ -78,6 +78,13 @@ export const closeModal = (callback) => {
   callback();
 };
 
+const getTroubleshootingLink = (errorCode) => {
+  const TROUBLESHOOTING_LINKS = Meteor.settings.public.media.audioTroubleshootingLinks;
+
+  if (TROUBLESHOOTING_LINKS) return TROUBLESHOOTING_LINKS[errorCode] || TROUBLESHOOTING_LINKS[0];
+  return null;
+};
+
 export default {
   joinMicrophone,
   closeModal,
@@ -85,4 +92,5 @@ export default {
   leaveEchoTest,
   didUserSelectedMicrophone,
   didUserSelectedListenOnly,
+  getTroubleshootingLink,
 };

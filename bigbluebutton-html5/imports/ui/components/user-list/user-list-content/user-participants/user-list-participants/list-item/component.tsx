@@ -16,7 +16,7 @@ import { uniqueId } from '/imports/utils/string-utils';
 import normalizeEmojiName from './service';
 import { convertRemToPixels } from '/imports/utils/dom-utils';
 import { PluginsContext } from '/imports/ui/components/components-data/plugin-context/context';
-import { isReactionsEnabled } from '/imports/ui/services/features';
+import { useIsReactionsEnabled } from '/imports/ui/services/features';
 
 const messages = defineMessages({
   moderator: {
@@ -48,9 +48,6 @@ const messages = defineMessages({
     description: 'Text for identifying your user',
   },
 });
-
-// @ts-ignore - temporary, while meteor exists in the project
-const LABEL = window.meetingClientSettings.public.user.label;
 
 const { isChrome, isFirefox, isEdge } = browserInfo;
 
@@ -106,6 +103,8 @@ const UserListItem: React.FC<UserListItemProps> = ({ user, lockSettings }) => {
   const voiceUser = user.voice;
   const subs = [];
 
+  const LABEL = window.meetingClientSettings.public.user.label;
+
   if (user.isModerator && LABEL.moderator) {
     subs.push(intl.formatMessage(messages.moderator));
   }
@@ -153,15 +152,15 @@ const UserListItem: React.FC<UserListItemProps> = ({ user, lockSettings }) => {
     subs.push(
       <span key={itemToRender.id}>
         { itemToRender.icon
-          && <Icon iconName={itemToRender.icon} /> }
+          && <Styled.UserAdditionalInformationIcon iconName={itemToRender.icon} /> }
         {itemToRender.label}
       </span>,
     );
   });
 
-  const reactionsEnabled = isReactionsEnabled();
+  const reactionsEnabled = useIsReactionsEnabled();
 
-  const userAvatarFiltered = (user.raiseHand === true || user.away === true || (user.reaction && user.reaction.reactionEmoji !== 'none')) ? '' : user.avatar;
+  const userAvatarFiltered = (user.raiseHand === true || user.away === true || (user.reactionEmoji && user.reactionEmoji !== 'none')) ? '' : user.avatar;
 
   const emojiIcons = [
     {
@@ -193,8 +192,8 @@ const UserListItem: React.FC<UserListItemProps> = ({ user, lockSettings }) => {
     if (user.emoji !== 'none' && user.emoji !== 'notAway') {
       return <Icon iconName={normalizeEmojiName(user.emoji)} />;
     }
-    if (user.reaction && user.reaction.reactionEmoji !== 'none') {
-      return user.reaction.reactionEmoji;
+    if (user.reactionEmoji && user.reactionEmoji !== 'none') {
+      return user.reactionEmoji;
     }
     if (user.name && userAvatarFiltered.length === 0) {
       return user.name.toLowerCase().slice(0, 2);

@@ -5,28 +5,41 @@ package org.bigbluebutton.common2.msgs
 /**
  * Sent from graphql-actions to bbb-akka
  */
-object PluginDataChannelDispatchMessageMsg { val NAME = "PluginDataChannelDispatchMessageMsg" }
-case class PluginDataChannelDispatchMessageMsg(header: BbbClientMsgHeader, body: PluginDataChannelDispatchMessageMsgBody) extends StandardMsg
-case class PluginDataChannelDispatchMessageMsgBody(
+object PluginDataChannelPushEntryMsg { val NAME = "PluginDataChannelPushEntryMsg" }
+case class PluginDataChannelPushEntryMsg(header: BbbClientMsgHeader, body: PluginDataChannelPushEntryMsgBody) extends StandardMsg
+case class PluginDataChannelPushEntryMsgBody(
                                               pluginName: String,
-                                              dataChannel: String,
-                                              payloadJson: String,
+                                              channelName: String,
+                                              subChannelName: String,
+                                              payloadJson: Map[String, Any],
                                               toRoles: List[String],
                                               toUserIds: List[String],
                                             )
 
-object PluginDataChannelDeleteMessageMsg { val NAME = "PluginDataChannelDeleteMessageMsg" }
-case class PluginDataChannelDeleteMessageMsg(header: BbbClientMsgHeader, body: PluginDataChannelDeleteMessageMsgBody) extends StandardMsg
-case class PluginDataChannelDeleteMessageMsgBody(
-                                                    pluginName: String,
-                                                    dataChannel: String,
-                                                    messageId: String
-                                                  )
+object PluginDataChannelReplaceEntryMsg { val NAME = "PluginDataChannelReplaceEntryMsg" }
+case class PluginDataChannelReplaceEntryMsg(header: BbbClientMsgHeader, body: PluginDataChannelReplaceEntryMsgBody) extends StandardMsg
+case class PluginDataChannelReplaceEntryMsgBody(
+                                              pluginName: String,
+                                              channelName: String,
+                                              subChannelName: String,
+                                              payloadJson: Map[String, Any],
+                                              entryId: String,
+                                            )
+
+object PluginDataChannelDeleteEntryMsg { val NAME = "PluginDataChannelDeleteEntryMsg" }
+case class PluginDataChannelDeleteEntryMsg(header: BbbClientMsgHeader, body: PluginDataChannelDeleteEntryMsgBody) extends StandardMsg
+case class PluginDataChannelDeleteEntryMsgBody(
+                                                pluginName: String,
+                                                subChannelName: String,
+                                                channelName: String,
+                                                entryId: String
+                                              )
 
 
 object PluginDataChannelResetMsg { val NAME = "PluginDataChannelResetMsg" }
 case class PluginDataChannelResetMsg(header: BbbClientMsgHeader, body: PluginDataChannelResetMsgBody) extends StandardMsg
 case class PluginDataChannelResetMsgBody(
-                                                    pluginName: String,
-                                                    dataChannel: String
-                                                  )
+                                          pluginName: String,
+                                          subChannelName: String,
+                                          channelName: String
+                                        )

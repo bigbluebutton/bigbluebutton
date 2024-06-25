@@ -25,7 +25,10 @@ export interface Public {
   clientLog: ClientLog
   virtualBackgrounds: VirtualBackgrounds
 }
-
+export interface Locales {
+  locale: string
+  name: string
+}
 export interface App {
   instanceId: string
   mobileFontSize: string
@@ -57,7 +60,6 @@ export interface App {
   askForConfirmationOnLeave: boolean
   wakeLock: WakeLock
   allowDefaultLogoutUrl: boolean
-  allowUserLookup: boolean
   dynamicGuestPolicy: boolean
   enableGuestLobbyMessage: boolean
   guestPolicyExtraAllowOptions: boolean
@@ -89,7 +91,7 @@ export interface App {
   emojiRain: EmojiRain
   enableNetworkStats: boolean
   enableCopyNetworkStatsButton: boolean
-  userSettingsStorage: string
+  userSettingsStorage: 'local' | 'session'
   defaultSettings: DefaultSettings
   shortcuts: Shortcuts
   branding: Branding
@@ -116,6 +118,7 @@ export interface WakeLock {
 }
 
 export interface AudioCaptions {
+  alwaysVisible: boolean
   enabled: boolean
   mobile: boolean
   provider: string
@@ -160,10 +163,16 @@ export interface EmojiRain {
   emojiSize: number
 }
 
+export interface Transcription {
+  partialUtterances: boolean
+  minUtteranceLength: number
+}
+
 export interface DefaultSettings {
   application: Application
   audio: Audio
   dataSaving: DataSaving
+  transcription: Transcription
 }
 
 export interface Application {
@@ -295,6 +304,7 @@ export interface Kurento {
   cameraQualityThresholds: CameraQualityThresholds
   pagination: Pagination
   paginationThresholds: PaginationThresholds
+  videoMediaServer?: string
 }
 
 export interface CameraWsOptions {
@@ -453,6 +463,11 @@ export interface Captions {
   font: Font
   lines: number
   time: number
+  locales: Locales[]
+  defaultPad: string
+  showButton: boolean
+  lineLimit: number
+  captionLimit: number
 }
 
 export interface Font {
@@ -773,7 +788,6 @@ export interface VirtualBackgrounds {
 export interface Private {
   analytics: Analytics
   app: App2
-  redis: Redis
   serverLog: ServerLog
   minBrowserVersions: MinBrowserVersion[]
   prometheus: Prometheus
@@ -788,19 +802,6 @@ export interface App2 {
   localesUrl: string
   pencilChunkLength: number
   loadSlidesFromHttpAlways: boolean
-}
-
-export interface Redis {
-  host: string
-  port: string
-  timeout: number
-  password: string | null
-  debug: boolean
-  metrics: Metrics
-  channels: Channels
-  subscribeTo: string[]
-  async: string[]
-  ignored: string[]
 }
 
 export interface Metrics {
@@ -836,7 +837,6 @@ export interface Prometheus {
   enabled: boolean
   path: string
   collectDefaultMetrics: boolean
-  collectRedisMetrics: boolean
 }
 
 export default MeetingClientSettings;
