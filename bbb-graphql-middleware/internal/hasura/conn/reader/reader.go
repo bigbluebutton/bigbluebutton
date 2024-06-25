@@ -153,7 +153,7 @@ func handleSubscriptionMessage(hc *common.HasuraConnection, message *[]byte, sub
 
 	lastDataChecksumWas := subscription.LastReceivedDataChecksum
 	lastReceivedDataWas := subscription.LastReceivedData
-	cacheKey := subscription.LastReceivedDataChecksum | dataChecksum
+	cacheKey := mergeUint32(subscription.LastReceivedDataChecksum, dataChecksum)
 
 	//Store LastReceivedData Checksum
 	if msgpatch.RawDataCacheStorageMode == "memory" {
@@ -170,6 +170,10 @@ func handleSubscriptionMessage(hc *common.HasuraConnection, message *[]byte, sub
 	}
 
 	return true
+}
+
+func mergeUint32(a, b uint32) uint32 {
+	return (a << 16) | (b >> 16)
 }
 
 func handleStreamingMessage(hc *common.HasuraConnection, message []byte, subscription common.GraphQlSubscription, queryId string) {
