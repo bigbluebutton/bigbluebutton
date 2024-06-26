@@ -765,8 +765,6 @@ public:
         native: '👎'
       - id: 'clap'
         native: '👏'
-  userStatus:
-    enabled: false
   notes:
     enabled: true
     id: notes

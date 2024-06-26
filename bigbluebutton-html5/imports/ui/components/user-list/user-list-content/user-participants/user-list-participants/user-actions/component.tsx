@@ -265,7 +265,6 @@ const UserActions: React.FC<UserActionsProps> = ({
     isBreakout,
   );
   const {
-    allowedToChangeStatus,
     allowedToChatPrivately,
     allowedToResetStatus,
     allowedToMuteAudio,
@@ -330,15 +329,6 @@ const UserActions: React.FC<UserActionsProps> = ({
     ...makeDropdownPluginItem(userDropdownItems.filter(
       (item: PluginSdk.UserListDropdownInterface) => (item?.type === UserListDropdownItemType.INFORMATION),
     )),
-    {
-      allowed: allowedToChangeStatus,
-      key: 'setstatus',
-      label: intl.formatMessage(messages.statusTriggerLabel),
-      onClick: () => setShowNestedOptions(true),
-      icon: 'user',
-      iconRight: 'right_arrow',
-      dataTest: 'setStatus',
-    },
     {
       allowed: user.cameras.length > 0
         && isVideoPinEnabledForCurrentUser(currentUser, isBreakout),
@@ -549,13 +539,6 @@ const UserActions: React.FC<UserActionsProps> = ({
   ];
 
   const nestedOptions = [
-    {
-      allowed: allowedToChangeStatus,
-      key: 'back',
-      label: intl.formatMessage(messages.backTriggerLabel),
-      onClick: () => setShowNestedOptions(false),
-      icon: 'left_arrow',
-    },
     {
       allowed: showNestedOptions,
       key: 'separator-01',

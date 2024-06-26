@@ -4,6 +4,13 @@ import { useMutation, useReactiveVar } from '@apollo/client';
 import getFromUserSettings from '/imports/ui/services/users-settings';
 import Auth from '/imports/ui/services/auth';
 import ActionsBar from './component';
+
+import {
+  isScreenBroadcasting,
+  isCameraAsContentBroadcasting,
+  useIsSharing,
+  useSharingContentType,
+} from '/imports/ui/components/screenshare/service';
 import { layoutSelectOutput, layoutDispatch } from '../layout/context';
 import {
   useIsExternalVideoEnabled,

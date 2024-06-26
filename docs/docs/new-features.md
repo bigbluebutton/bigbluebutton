@@ -54,6 +54,9 @@ We have enhanced the view of the polling results that appear over the whiteboard
 ### Engagement
 
 <!-- ####  -->
+**Deprecation Notice:**
+
+The `userStatus` feature was removed due to deprecation. It has been replaced by `userReaction`.
 
 
 <!-- ### Analytics -->
