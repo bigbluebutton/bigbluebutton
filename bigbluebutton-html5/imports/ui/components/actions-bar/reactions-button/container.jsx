@@ -31,7 +31,7 @@ const ReactionsButtonContainer = ({ ...props }) => {
     emoji: currentUserData?.emoji,
     raiseHand: currentUserData?.raiseHand,
     away: currentUserData?.away,
-    muted: !unmutedUsers.has(Auth.userID),
+    muted: !unmutedUsers[Auth.userID],
   };
 
   const { autoCloseReactionsBar } = useSettings(SETTINGS.APPLICATION);

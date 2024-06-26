@@ -240,7 +240,7 @@ const InputStreamLiveSelectorContainer: React.FC = () => {
   const { data: talkingUsers } = useWhoIsTalking();
   const { data: unmutedUsers } = useWhoIsUnmuted();
   const talking = Boolean(currentUser?.userId && talkingUsers[currentUser.userId]);
-  const muted = Boolean(currentUser?.userId && !unmutedUsers.has(currentUser.userId));
+  const muted = Boolean(currentUser?.userId && !unmutedUsers[currentUser.userId]);
 
   const { data: currentMeeting } = useMeeting((m: Partial<Meeting>) => {
     return {

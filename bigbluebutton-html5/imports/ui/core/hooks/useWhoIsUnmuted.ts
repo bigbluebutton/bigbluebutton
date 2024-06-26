@@ -1,4 +1,4 @@
-import { useMemo } from 'react';
+import { useEffect, useState } from 'react';
 import useVoiceActivity from './useVoiceActivity';
 
 const useWhoIsUnmuted = () => {
@@ -6,14 +6,29 @@ const useWhoIsUnmuted = () => {
     data: voiceActivity,
     loading,
   } = useVoiceActivity();
+  const [unmutedUsers, setUnmutedUsers] = useState<Record<string, boolean>>({});
 
-  const record = useMemo(() => {
-    const mutedUsers: Set<string> = new Set(Object.keys(voiceActivity));
-    return mutedUsers;
+  useEffect(() => {
+    if (!voiceActivity) return;
+
+    const newUnmutedUsers = { ...unmutedUsers };
+
+    voiceActivity.forEach((voice) => {
+      const { userId, muted } = voice;
+
+      if (muted) {
+        delete newUnmutedUsers[userId];
+        return;
+      }
+
+      newUnmutedUsers[userId] = true;
+    });
+
+    setUnmutedUsers(newUnmutedUsers);
   }, [voiceActivity]);
 
   return {
-    data: record,
+    data: unmutedUsers,
     loading,
   };
 };

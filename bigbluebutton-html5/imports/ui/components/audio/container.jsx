@@ -176,7 +176,7 @@ const AudioContainer = (props) => {
 
   const { data: currentUser } = useCurrentUser((u) => ({ userId: u.userId }));
   const { data: unmutedUsers } = useWhoIsUnmuted();
-  const currentUserMuted = currentUser?.userId && !unmutedUsers.has(currentUser.userId);
+  const currentUserMuted = currentUser?.userId && !unmutedUsers[currentUser.userId];
 
   const joinAudio = () => {
     if (Service.isConnected()) return;

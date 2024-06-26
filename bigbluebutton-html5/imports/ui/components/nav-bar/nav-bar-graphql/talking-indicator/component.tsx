@@ -199,18 +199,28 @@ const TalkingIndicatorContainer: React.FC = (() => {
         Object.values(talkingUsersData),
         (v: VoiceItem) => v.muted,
       ) as [VoiceItem[], VoiceItem[]];
+      const [talking, silent] = partition(
+        unmuted,
+        (v: VoiceItem) => v.talking,
+      ) as [VoiceItem[], VoiceItem[]];
       return [
-        ...unmuted.sort((v1, v2) => {
+        ...talking.sort((v1, v2) => {
           if (!v1.startTime && !v2.startTime) return 0;
           if (!v1.startTime) return 1;
           if (!v2.startTime) return -1;
           return v1.startTime - v2.startTime;
         }),
+        ...silent.sort((v1, v2) => {
+          if (!v1.endTime && !v2.endTime) return 0;
+          if (!v1.endTime) return 1;
+          if (!v2.endTime) return -1;
+          return v2.endTime - v1.endTime;
+        }),
         ...muted.sort((v1, v2) => {
           if (!v1.endTime && !v2.endTime) return 0;
           if (!v1.endTime) return 1;
           if (!v2.endTime) return -1;
-          return v1.endTime - v2.endTime;
+          return v2.endTime - v1.endTime;
         }),
       ].slice(0, TALKING_INDICATORS_MAX);
     }, [talkingUsersData]);
