@@ -34,7 +34,10 @@ async function usersPersistentData() {
       meetingId,
       $or: [
         {
-          'shouldPersist.hasMessages': true,
+          'shouldPersist.hasMessages.public': true,
+        },
+        {
+          'shouldPersist.hasMessages.private': true,
         },
         {
           loggedOut: false,
