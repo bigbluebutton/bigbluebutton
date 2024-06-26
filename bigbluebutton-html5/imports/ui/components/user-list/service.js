@@ -674,6 +674,10 @@ const getGroupChatPrivate = (senderUserId, receiver) => {
   }
 };
 
+const toggleUserChatLock = (userId, isLocked) => {
+  makeCall('toggleUserChatLock', userId, isLocked);
+}
+
 const toggleUserLock = (userId, lockStatus) => {
   makeCall('toggleUserLock', userId, lockStatus);
 };
@@ -820,6 +824,7 @@ export default {
   roving,
   getCustomLogoUrl,
   getGroupChatPrivate,
+  toggleUserChatLock,
   hasBreakoutRoom,
   getEmojiList: () => EMOJI_STATUSES,
   getEmoji,

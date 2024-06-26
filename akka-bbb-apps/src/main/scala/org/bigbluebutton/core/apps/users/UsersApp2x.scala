@@ -5,6 +5,7 @@ import org.bigbluebutton.core.running.MeetingActor
 trait UsersApp2x
   extends UserLeaveReqMsgHdlr
   with LockUserInMeetingCmdMsgHdlr
+  with LockUserChatInMeetingCmdMsgHdlr
   with LockUsersInMeetingCmdMsgHdlr
   with GetLockSettingsReqMsgHdlr
   with ChangeUserEmojiCmdMsgHdlr
