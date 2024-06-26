@@ -80,7 +80,7 @@ const Dropdown = styled.div<{
 `;
 
 const MenuWrapper = styled.div`
-  max-width: 75%;
+  max-width: 60%;
 `;
 
 const MenuWrapperSqueezed = styled.div`
