@@ -73,7 +73,8 @@ trait HandlerHelpers extends SystemConfiguration {
         color = regUser.color,
         clientType = clientType,
         pickExempted = false,
-        userLeftFlag = UserLeftFlag(false, 0)
+        userLeftFlag = UserLeftFlag(false, 0),
+        userCustomData = regUser.userCustomData
       )
     }
 

@@ -63,6 +63,14 @@ trait RegisterUserReqMsgHdlr {
 
     RegisteredUsers.add(liveMeeting.registeredUsers, regUser)
 
+    val userCustomData: Map[String, String] = msg.body.userCustomData.map {
+      case (k, v) => k -> v.toString
+    }
+
+    if (userCustomData.nonEmpty) {
+      RegisteredUsers.updateUserCustomData(liveMeeting.registeredUsers, regUser, userCustomData)
+    }
+
     log.info("Register user success. meetingId=" + liveMeeting.props.meetingProp.intId
       + " userId=" + msg.body.extUserId + " user=" + regUser)
 

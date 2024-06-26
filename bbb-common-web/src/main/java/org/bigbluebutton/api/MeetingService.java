@@ -426,10 +426,19 @@ public class MeetingService implements MessageListener {
   }
 
   private void processRegisterUser(RegisterUser message) {
+    Map<String, Object> userCustomData = null;
+    Meeting meeting = meetings.get(message.meetingID);
+    if (meeting != null) {
+      userCustomData = meeting.getUserCustomData(message.externUserID);
+    }
+    if (userCustomData == null) {
+      userCustomData = new HashMap<>();
+    }
+
     gw.registerUser(message.meetingID,
       message.internalUserId, message.fullname, message.role,
       message.externUserID, message.authToken, message.avatarURL, message.guest,
-            message.authed, message.guestStatus, message.excludeFromDashboard);
+            message.authed, message.guestStatus, message.excludeFromDashboard, userCustomData);
   }
 
     public Meeting getMeeting(String meetingId) {

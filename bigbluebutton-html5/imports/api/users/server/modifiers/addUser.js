@@ -33,6 +33,7 @@ export default async function addUser(meetingId, userData) {
     color: String,
     pin: Boolean,
     clientType: String,
+    userCustomData: Match.Optional(Match.Any),
   });
 
   const userId = user.intId;
@@ -42,6 +43,8 @@ export default async function addUser(meetingId, userData) {
     userId,
   };
   const Meeting = await Meetings.findOneAsync({ meetingId });
+
+  const { userCustomData, ...restOfUser } = user;
 
   const userInfos = {
     meetingId,
@@ -57,7 +60,7 @@ export default async function addUser(meetingId, userData) {
     responseDelay: 0,
     loggedOut: false,
     left: false,
-    ...flat(user),
+    ...flat(restOfUser),
   };
 
   const modifier = {
