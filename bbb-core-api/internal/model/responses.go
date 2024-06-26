@@ -31,14 +31,23 @@ const (
 	MeetingNameSizeErrorKey string = ValidationErrorKey
 	MeetingNameSizeErrorMsg string = "Meeting name must be between 2 and 256 characters."
 
-	VoiceBridgeInvalidFormatErrorKey string = ValidationErrorKey
-	VoiceBridgeInvalidformatErrorMsg string = "Voice bridge must be an integer."
+	VoiceBridgeFormatErrorKey string = ValidationErrorKey
+	VoiceBridgeFormatErrorMsg string = "Voice bridge must be an integer."
 
 	VoiceBridgeInUserErrorKey string = "nonUniqueVoiceBridge"
 	VoiceBridgeInUserErrorMsg string = "The selected voice bridge is already in use."
 
 	PasswordLengthErrorKey = "invalidPassword"
 	PasswordLengthErrorMsg = "Passwords must be between 2 and 64 character in length"
+
+	IsBreakoutRoomFormatErrorKey string = ValidationErrorKey
+	IsBreakoutRoomFormatErrorMsg string = "You must provide a boolean value (true or false) for the breakout room"
+
+	RecordFormatErrorKey string = ValidationErrorKey
+	RecordFormatErrorMsg string = "Record must be a boolean value (true or false)"
+
+	CreateMeetingErrorKey string = "createFailed"
+	CreateMeetingErrorMsg string = "Failed to create meeting"
 )
 
 type Response struct {

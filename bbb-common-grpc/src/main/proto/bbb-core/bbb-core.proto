@@ -53,6 +53,14 @@ message GetMeetingsStreamRequest {
   string meeting_id = 1;
 }
 
+message VoiceBridgeInUseRequest {
+  string voice_bridge = 1;
+}
+
+message VoiceBridgeInUseResponse {
+  bool in_use = 1;
+}
+
 message CreateMeetingRequest {
   CreateMeetingSettings create_meeting_settings = 1;
 }
@@ -86,6 +94,7 @@ service BbbCoreService {
   rpc getMeetingInfo(MeetingInfoRequest) returns (MeetingInfoResponse);
   rpc listMeetings(ListMeetingsRequest) returns (ListMeetingsResponse);
   rpc getMeetingsStream(GetMeetingsStreamRequest) returns (stream MeetingInfoResponse);
+  rpc isVoiceBridgeInUse(VoiceBridgeInUseRequest) returns (VoiceBridgeInUseResponse);
   rpc createMeeting(CreateMeetingRequest) returns (CreateMeetingResponse);
   rpc generateVoiceBridge(GenerateVoiceBridgeRequest) returns (GenerateVoiceBridgeResponse);
 }

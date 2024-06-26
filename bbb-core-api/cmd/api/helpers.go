@@ -168,7 +168,7 @@ func (app *Config) processCreateQueryParams(params *url.Values) (*common.CreateM
 
 	settings.VoiceSettings = voiceProps
 	settings.WelcomeSettings = app.processWelcomeSettings(params, isBreakout, settings.VoiceSettings.DialNumber, settings.VoiceSettings.VoiceBridge, settings.MeetingSettings.Name)
-	settings.UsersSettings = app.processUsersSettings(params)
+	settings.UserSettings = app.processUsersSettings(params)
 	settings.MetadataSettings = app.processMetadataSettings(params)
 	settings.LockSettings = app.processLockSettings(params)
 	settings.SystemSettings = app.processSystemSettings(params)
@@ -337,12 +337,12 @@ func (app *Config) processWelcomeSettings(params *url.Values, isBreakout bool, d
 	}
 }
 
-func (app *Config) processUsersSettings(params *url.Values) *common.UsersSettings {
+func (app *Config) processUsersSettings(params *url.Values) *common.UserSettings {
 	maxUserConcurentAccess := app.Meeting.Users.MaxConcurrentAccess
 	if !app.Meeting.Users.AllowDuplicateExtUserId {
 		maxUserConcurentAccess = 1
 	}
-	return &common.UsersSettings{
+	return &common.UserSettings{
 		MaxUsers:                  util.GetInt32OrDefaultValue(params.Get("maxParticipants"), app.Meeting.Users.Max),
 		MaxUserConcurrentAccesses: maxUserConcurentAccess,
 		WebcamsOnlyForMod:         util.GetBoolOrDefaultValue(params.Get("webcamsOnlyForModerator"), app.Meeting.Cameras.ModOnly),

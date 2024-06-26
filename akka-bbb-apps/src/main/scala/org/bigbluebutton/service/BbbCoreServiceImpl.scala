@@ -15,7 +15,6 @@ import org.bigbluebutton.protos._
 import scala.collection.immutable.VectorMap
 import scala.concurrent.Future
 import scala.concurrent.duration.DurationInt
-import scala.reflect.runtime.universe._
 import org.bigbluebutton.core.api.GetNextVoiceBridge
 import org.bigbluebutton.common2.domain.MeetingProp
 import org.bigbluebutton.common2.domain.DefaultProps
@@ -105,21 +104,6 @@ class BbbCoreServiceImpl(implicit materializer: Materializer, bbbActor: ActorRef
 
   override def createMeeting(in: CreateMeetingRequest): Future[CreateMeetingResponse] = {
     implicit val timeout: Timeout = 3.seconds
-
-    def allSettingsPresent(settings: CreateMeetingSettings): Boolean = {
-      val mirror: Mirror = runtimeMirror(settings.getClass.getClassLoader)
-      val instanceMirror: InstanceMirror = mirror.reflect(settings)
-      val classSymbol: ClassSymbol = instanceMirror.symbol.asClass
-      val fields: List[Symbol] = classSymbol.primaryConstructor.asMethod.paramLists.flatten
-
-      fields.forall { field =>
-        val fieldMirror: FieldMirror = instanceMirror.reflectField(field.asTerm)
-        fieldMirror.get match {
-          case opt: Option[_] => opt.isDefined
-          case _              => true
-        }
-      }
-    }
 
     def settingsToProps(settings: CreateMeetingSettings): DefaultProps = {
       val meetingSettings = settings.meetingSettings.get

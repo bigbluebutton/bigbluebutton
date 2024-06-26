@@ -244,14 +244,32 @@ func (app *Config) createMeeting(w http.ResponseWriter, r *http.Request) {
 		ok = validation.IsValidInteger(voiceBridge)
 		if !ok {
 			payload.ReturnCode = model.ReturnCodeFailure
-			payload.MessageKey = model.VoiceBridgeInvalidFormatErrorKey
-			payload.Message = model.VoiceBridgeInvalidformatErrorMsg
+			payload.MessageKey = model.VoiceBridgeFormatErrorKey
+			payload.Message = model.VoiceBridgeFormatErrorMsg
 			app.writeXML(w, http.StatusAccepted, payload)
 			return
 		}
 
-		// TODO: check if provided voice bridge is unique
+		// TODO: check if provided voice bridge is in use
+		res, err := app.BbbCore.IsVoiceBridgeInUse(ctx, &bbbcore.VoiceBridgeInUseRequest{
+			VoiceBridge: voiceBridge,
+		})
+		if err != nil {
+			log.Println(err)
+			payload.ReturnCode = model.ReturnCodeFailure
+			payload.MessageKey = model.CreateMeetingErrorKey
+			payload.Message = model.CreateMeetingErrorMsg
+			app.writeXML(w, http.StatusAccepted, payload)
+			return
+		}
 
+		if res.InUse {
+			payload.ReturnCode = model.ReturnCodeFailure
+			payload.MessageKey = model.VoiceBridgeInUserErrorKey
+			payload.Message = model.VoiceBridgeInUserErrorMsg
+			app.writeXML(w, http.StatusAccepted, payload)
+			return
+		}
 	}
 
 	attendeePw := params.Get("attendeePW")
@@ -261,6 +279,42 @@ func (app *Config) createMeeting(w http.ResponseWriter, r *http.Request) {
 			payload.ReturnCode = model.ReturnCodeFailure
 			payload.MessageKey = model.PasswordLengthErrorKey
 			payload.Message = model.PasswordLengthErrorMsg
+			app.writeXML(w, http.StatusAccepted, payload)
+			return
+		}
+	}
+
+	moderatorPw := params.Get("moderatorPW")
+	if moderatorPw != "" {
+		ok = validation.IsValidLength(moderatorPw, 2, 64)
+		if !ok {
+			payload.ReturnCode = model.ReturnCodeFailure
+			payload.MessageKey = model.PasswordLengthErrorKey
+			payload.Message = model.PasswordLengthErrorMsg
+			app.writeXML(w, http.StatusAccepted, payload)
+			return
+		}
+	}
+
+	isBreakoutRoom := params.Get("isBreakoutRoom")
+	if isBreakoutRoom != "" {
+		ok = validation.IsValidBoolean(isBreakoutRoom)
+		if !ok {
+			payload.ReturnCode = model.ReturnCodeFailure
+			payload.MessageKey = model.IsBreakoutRoomFormatErrorKey
+			payload.Message = model.IsBreakoutRoomFormatErrorMsg
+			app.writeXML(w, http.StatusAccepted, payload)
+			return
+		}
+	}
+
+	record := params.Get("record")
+	if record != "" {
+		ok = validation.IsValidBoolean(record)
+		if !ok {
+			payload.ReturnCode = model.ReturnCodeFailure
+			payload.MessageKey = model.RecordFormatErrorKey
+			payload.Message = model.RecordFormatErrorMsg
 			app.writeXML(w, http.StatusAccepted, payload)
 			return
 		}

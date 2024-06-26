@@ -55,3 +55,19 @@ func IsValidLength(s string, min int, max int) bool {
 	trimmed := strings.TrimSpace(s)
 	return len(trimmed) >= min && len(trimmed) <= max
 }
+
+func IsValidBoolean(s string) bool {
+	if s != "" {
+		lower := strings.ToLower(s)
+		switch lower {
+		case "true":
+		case "false":
+		case "0":
+		case "1":
+			return true
+		default:
+			return false
+		}
+	}
+	return true
+}
