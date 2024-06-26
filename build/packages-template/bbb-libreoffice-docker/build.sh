@@ -28,9 +28,6 @@ chmod +x staging/usr/share/bbb-libreoffice-conversion/convert-local.sh
 chmod +x staging/usr/share/bbb-libreoffice-conversion/convert-remote.sh
 chmod +x staging/usr/share/bbb-libreoffice-conversion/etherpad-export.sh
 
-
-cp -r docker staging/usr/share/bbb-libreoffice
-
 ##
 
 . ./opts-$DISTRO.sh
