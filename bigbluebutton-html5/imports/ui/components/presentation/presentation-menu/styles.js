@@ -24,7 +24,7 @@ const DropdownButton = styled.button`
   box-shadow: 0px 0px 2px rgba(0, 0, 0, 0.16),
     0px 2px 3px rgba(0, 0, 0, 0.24),
     0px 2px 6px rgba(0, 0, 0, 0.1);
-  color: ${colorGrayDark};
+  color: #2d2d2d;
   cursor: pointer;
   padding: .3rem .5rem;
   display: flex;

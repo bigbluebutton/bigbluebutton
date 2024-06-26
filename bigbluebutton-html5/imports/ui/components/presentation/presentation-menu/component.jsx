@@ -494,7 +494,7 @@ const PresentationMenu = (props) => {
                     C9 5.89782 9.15804 6.27936 9.43934 6.56066
                     C9.72064 6.84196 10.1022 7 10.5 7
                   "
-                  stroke="#4E5A66"
+                  stroke="currentcolor"
                   strokeLinecap="round"
                   strokeLinejoin="round"
                 />
