@@ -31,6 +31,8 @@ const intlMessages = defineMessages({
 const propTypes = {
   shortcuts: PropTypes.objectOf(PropTypes.string).isRequired,
   handleToggleMuteMicrophone: PropTypes.func.isRequired,
+  handleMuteMicrophone: PropTypes.func.isRequired,
+  handleUnmuteMicrophone: PropTypes.func.isRequired,
   handleLeaveAudio: PropTypes.func.isRequired,
   disable: PropTypes.bool.isRequired,
   muted: PropTypes.bool.isRequired,
@@ -48,12 +50,58 @@ class AudioControls extends PureComponent {
     super(props);
 
     this.state = {
-      isAudioModalOpen: false,
+      pttPressed: false,
+      isUnmuteTriggered: false,
+      isAudioModalOpen: false
     };
+    this.unmuteTimer = null;
 
     this.renderButtonsAndStreamSelector = this.renderButtonsAndStreamSelector.bind(this);
     this.renderJoinLeaveButton = this.renderJoinLeaveButton.bind(this);
     this.setAudioModalIsOpen = this.setAudioModalIsOpen.bind(this);
+    this.handlePushToTalkDown = this.handlePushToTalk.bind(this, 'down');
+    this.handlePushToTalkUp = this.handlePushToTalk.bind(this, 'up');
+  }
+
+  componentDidMount() {
+    document.addEventListener('keydown', this.handlePushToTalkDown);
+    document.addEventListener('keyup', this.handlePushToTalkUp);
+  }
+
+  componentWillUnmount() {
+    if (this.unmuteTimer) {
+      clearTimeout(this.unmuteTimer);
+    }
+    document.removeEventListener('keydown', this.handlePushToTalkDown);
+    document.removeEventListener('keyup', this.handlePushToTalkUp);
+  }
+
+  handlePushToTalk(action, event) {
+    const { handleUnmuteMicrophone, handleMuteMicrophone, pushToTalkEnabled } = this.props;
+    if (isAudioModalOpen || !pushToTalkEnabled || ['INPUT', 'TEXTAREA', 'SELECT'].includes(event.target.tagName.toUpperCase())) return;
+
+    const { pttPressed, isUnmuteTriggered } = this.state;
+    if (event.key !== 'm') return;
+
+    if (action === 'down' && !pttPressed) {
+      this.setState({ pttPressed: true }, () => {
+        this.unmuteTimer = setTimeout(() => {
+          if (this.state.pttPressed) {
+            handleUnmuteMicrophone();
+            this.setState({ isUnmuteTriggered: true });
+          }
+        }, 300);
+      });
+    } else if (action === 'up' && pttPressed) {
+      this.setState({ pttPressed: false }, () => {
+        if (!this.state.isUnmuteTriggered) {
+          clearTimeout(this.unmuteTimer);
+        } else {
+          handleMuteMicrophone();
+          this.setState({ isUnmuteTriggered: false });
+        }
+      });
+    }
   }
 
   renderJoinButton() {

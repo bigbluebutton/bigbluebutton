@@ -7,6 +7,7 @@ import logger from '/imports/startup/client/logger';
 import Auth from '/imports/ui/services/auth';
 import Storage from '/imports/ui/services/storage/session';
 import getFromUserSettings from '/imports/ui/services/users-settings';
+import SettingsService from '/imports/ui/services/settings';
 import AudioControls from './component';
 import {
   setUserSelectedMicrophone,
@@ -59,6 +60,8 @@ const {
   isTalking,
   toggleMuteMicrophone,
   joinListenOnly,
+  muteMicrophone,
+  unmuteMicrophone,
 } = Service;
 
 export default withUsersConsumer(
@@ -77,6 +80,7 @@ export default withUsersConsumer(
       }
 
       return ({
+        pushToTalkEnabled: SettingsService?.application?.pushToTalkEnabled,
         showMute: isConnected() && !isListenOnly() && !isEchoTest() && !userLocks.userMic,
         muted: isConnected() && !isListenOnly() && isMuted(),
         inAudio: isConnected() && !isEchoTest(),
@@ -90,6 +94,8 @@ export default withUsersConsumer(
         inputStream: AudioManager.inputStream,
         isViewer,
         isPresenter,
+        handleMuteMicrophone: () => muteMicrophone(),
+        handleUnmuteMicrophone: () => unmuteMicrophone(),
         isConnected,
       });
     })(AudioControlsContainer),
