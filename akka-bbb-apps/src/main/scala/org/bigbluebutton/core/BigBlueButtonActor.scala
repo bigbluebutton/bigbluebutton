@@ -237,7 +237,7 @@ class BigBlueButtonActor(
   }
 
   private def handleGetNextVoiceBridge(sender: ActorRef, msg: GetNextVoiceBridge): Unit = {
-    sender ! RunningMeetings.nextVoiceBridge(meetings)
+    sender ! RunningMeetings.getVoiceBridge(meetings)
   }
 
   private def handleCreateMeeting(sender: ActorRef, msg: CreateMeeting): Unit = {

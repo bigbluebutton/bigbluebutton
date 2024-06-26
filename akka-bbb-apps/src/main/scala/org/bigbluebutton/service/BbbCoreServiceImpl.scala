@@ -31,6 +31,7 @@ import org.bigbluebutton.common2.domain.SystemProps
 import org.bigbluebutton.common2.domain.GroupProps
 import org.bigbluebutton.core.api.CreateMeeting
 import org.bigbluebutton.core.api.HasUserJoined
+
 class BbbCoreServiceImpl(implicit materializer: Materializer, bbbActor: ActorRef) extends BbbCoreService {
 
   import materializer.executionContext
@@ -281,9 +282,14 @@ class BbbCoreServiceImpl(implicit materializer: Materializer, bbbActor: ActorRef
       String.format(s"%0${length}d", number.asInstanceOf[Object])
     }
 
-    (bbbActor ? GetNextVoiceBridge()).mapTo[Int].map(v => {
-      val voiceBridge = prependZeros(v, in.length)
-      GenerateVoiceBridgeResponse(voiceBridge)
-    })
+    (bbbActor ? GetNextVoiceBridge()).mapTo[Int].flatMap {
+      case -1 => Future.failed(GrpcServiceException(Code.RESOURCE_EXHAUSTED, "noVoiceBridge", Seq(new ErrorResponse("noVoiceBridge", "There are no more voice bridges available."))))
+      case v: Int =>
+        if (v >= Math.pow(10, in.length)) Future.failed(GrpcServiceException(Code.OUT_OF_RANGE, "voiceBridgeOutOfRange", Seq(new ErrorResponse("voiceBridgeOutOfRange", "Voice bridge out of valid range."))))
+        val voiceBridge = prependZeros(v, in.length)
+        Future.successful(GenerateVoiceBridgeResponse(voiceBridge))
+    }
   }
+
+  override def isVoiceBridgeInUse(in: VoiceBridgeInUseRequest): Future[VoiceBridgeInUseResponse] = ???
 }

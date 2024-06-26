@@ -322,7 +322,11 @@ func (app *Config) createMeeting(w http.ResponseWriter, r *http.Request) {
 
 	settings, err := app.processCreateQueryParams(&params)
 	if err != nil {
-		// TODO handler errors from parameters processing
+		log.Println(err)
+		payload.ReturnCode = model.ReturnCodeFailure
+		payload.MessageKey = model.CreateMeetingErrorKey
+		payload.Message = model.CreateMeetingErrorMsg
+		app.writeXML(w, http.StatusAccepted, payload)
 		return
 	}
 
@@ -331,7 +335,10 @@ func (app *Config) createMeeting(w http.ResponseWriter, r *http.Request) {
 	})
 	if err != nil {
 		log.Println(err)
-		// TODO handle errors from create call
+		payload.ReturnCode = model.ReturnCodeFailure
+		payload.MessageKey = model.CreateMeetingErrorKey
+		payload.Message = model.CreateMeetingErrorMsg
+		app.writeXML(w, http.StatusAccepted, payload)
 		return
 	}
 
