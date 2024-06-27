@@ -437,20 +437,21 @@ case class UserState(
     guestStatus:           String,
     emoji:                 String,
     reactionEmoji:         String,
-    reactionChangedOn:     Long         = 0,
+    reactionChangedOn:     Long                = 0,
     raiseHand:             Boolean,
     away:                  Boolean,
     locked:                Boolean,
     presenter:             Boolean,
     avatar:                String,
     color:                 String,
-    roleChangedOn:         Long         = System.currentTimeMillis(),
-    lastActivityTime:      Long         = System.currentTimeMillis(),
-    lastInactivityInspect: Long         = 0,
+    roleChangedOn:         Long                = System.currentTimeMillis(),
+    lastActivityTime:      Long                = System.currentTimeMillis(),
+    lastInactivityInspect: Long                = 0,
     clientType:            String,
     userLeftFlag:          UserLeftFlag,
-    speechLocale:          String       = "",
-    captionLocale:         String       = ""
+    speechLocale:          String              = "",
+    captionLocale:         String              = "",
+    customParameters:      Map[String, String] = Map.empty
 
 )
 

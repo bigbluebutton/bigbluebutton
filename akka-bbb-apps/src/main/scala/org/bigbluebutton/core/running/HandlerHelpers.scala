@@ -74,7 +74,8 @@ trait HandlerHelpers extends SystemConfiguration {
         avatar = regUser.avatarURL,
         color = regUser.color,
         clientType = clientType,
-        userLeftFlag = UserLeftFlag(false, 0)
+        userLeftFlag = UserLeftFlag(false, 0),
+        customParameters = regUser.customParameters
       )
     }
 
