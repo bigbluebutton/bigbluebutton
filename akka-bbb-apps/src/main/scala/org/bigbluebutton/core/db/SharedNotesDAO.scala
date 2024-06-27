@@ -28,7 +28,7 @@ class SharedNotesDbTableDef(tag: Tag) extends Table[SharedNotesDbModel](tag, Non
 
 object SharedNotesDAO {
   def insert(meetingId: String, group: PadGroup, padId: String, name: String) = {
-    DatabaseConnection.db.run(
+    DatabaseConnection.enqueue(
       TableQuery[SharedNotesDbTableDef].insertOrUpdate(
         SharedNotesDbModel(
           meetingId = meetingId,
@@ -39,22 +39,16 @@ object SharedNotesDAO {
           pinned = false
         )
       )
-    ).onComplete {
-        case Success(rowsAffected) => DatabaseConnection.logger.debug(s"$rowsAffected row(s) inserted on SharedNotes table!")
-        case Failure(e)            => DatabaseConnection.logger.debug(s"Error inserting SharedNotes: $e")
-      }
+    )
   }
 
   def updatePinned(meetingId: String, sharedNotesExtId: String, pinned: Boolean) = {
-    DatabaseConnection.db.run(
+    DatabaseConnection.enqueue(
       TableQuery[SharedNotesDbTableDef]
         .filter(_.meetingId === meetingId)
         .filter(_.sharedNotesExtId === sharedNotesExtId)
         .map(n => n.pinned)
         .update(pinned)
-    ).onComplete {
-        case Success(rowsAffected) => DatabaseConnection.logger.debug(s"$rowsAffected row(s) updated pinned on SharedNotes table!")
-        case Failure(e)            => DatabaseConnection.logger.error(s"Error updating pinned SharedNotes: $e")
-      }
+    )
   }
 }

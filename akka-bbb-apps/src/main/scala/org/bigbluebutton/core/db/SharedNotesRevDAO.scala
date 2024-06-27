@@ -32,7 +32,7 @@ class SharedNotesRevDbTableDef(tag: Tag) extends Table[SharedNotesRevDbModel](ta
 
 object SharedNotesRevDAO {
   def insert(meetingId: String, sharedNotesExtId: String, revId: Int, userId: String, changeset: String) = {
-    DatabaseConnection.db.run(
+    DatabaseConnection.enqueue(
       TableQuery[SharedNotesRevDbTableDef].insertOrUpdate(
         SharedNotesRevDbModel(
           meetingId = meetingId,
@@ -46,23 +46,17 @@ object SharedNotesRevDAO {
           createdAt = new java.sql.Timestamp(System.currentTimeMillis())
         )
       )
-    ).onComplete {
-        case Success(rowsAffected) => DatabaseConnection.logger.debug(s"$rowsAffected row(s) inserted on SharedNotesRev table!")
-        case Failure(e)            => DatabaseConnection.logger.debug(s"Error inserting SharedNotesRev: $e")
-      }
+    )
   }
 
   def update(meetingId: String, sharedNotesExtId: String, revId: Int, start: Int, end: Int, text: String) = {
-    DatabaseConnection.db.run(
+    DatabaseConnection.enqueue(
       TableQuery[SharedNotesRevDbTableDef]
         .filter(_.meetingId === meetingId)
         .filter(_.sharedNotesExtId === sharedNotesExtId)
         .filter(_.rev === revId)
         .map(n => (n.start, n.end, n.diff))
         .update((Some(start), Some(end), Some(text)))
-    ).onComplete {
-        case Success(rowsAffected) => DatabaseConnection.logger.debug(s"$rowsAffected row(s) updated Rev on SharedNotes table!")
-        case Failure(e)            => DatabaseConnection.logger.error(s"Error updating Rev SharedNotes: $e")
-      }
+    )
   }
 }

@@ -69,7 +69,7 @@ class UserStateDbTableDef(tag: Tag) extends Table[UserStateDbModel](tag, None, "
 
 object UserStateDAO {
   def update(userState: UserState) = {
-    DatabaseConnection.db.run(
+    DatabaseConnection.enqueue(
       TableQuery[UserStateDbTableDef]
         .filter(_.meetingId === userState.meetingId)
         .filter(_.userId === userState.intId)
@@ -87,40 +87,31 @@ object UserStateDAO {
           userState.clientType,
           userState.userLeftFlag.left
         ))
-    ).onComplete {
-      case Success(rowsAffected) => DatabaseConnection.logger.debug(s"$rowsAffected row(s) updated on user table!")
-      case Failure(e) => DatabaseConnection.logger.error(s"Error updating user: $e")
-    }
+    )
   }
 
   def updateEjected(meetingId: String, userId: String, ejectReason: String, ejectReasonCode: String, ejectedByModerator: String) = {
-    DatabaseConnection.db.run(
+    DatabaseConnection.enqueue(
       TableQuery[UserStateDbTableDef]
         .filter(_.meetingId === meetingId)
         .filter(_.userId === userId)
         .map(u => (u.ejected, u.ejectReason, u.ejectReasonCode, u.ejectedByModerator))
         .update((true, Some(ejectReason), Some(ejectReasonCode), Some(ejectedByModerator)))
-    ).onComplete {
-      case Success(rowsAffected) => DatabaseConnection.logger.debug(s"$rowsAffected row(s) updated ejected=true on user table!")
-      case Failure(e) => DatabaseConnection.logger.error(s"Error updating ejected=true user: $e")
-    }
+    )
   }
 
   def updateExpired(meetingId: String, userId: String, expired: Boolean) = {
-    DatabaseConnection.db.run(
+    DatabaseConnection.enqueue(
       TableQuery[UserStateDbTableDef]
         .filter(_.meetingId === meetingId)
         .filter(_.userId === userId)
         .map(u => (u.expired))
         .update((expired))
-    ).onComplete {
-      case Success(rowsAffected) => DatabaseConnection.logger.debug(s"$rowsAffected row(s) updated expired=true on user table!")
-      case Failure(e) => DatabaseConnection.logger.error(s"Error updating expired=true user: $e")
-    }
+    )
   }
 
   def updateGuestStatus(meetingId: String, userId: String, guestStatus: String, guestStatusSetByModerator: String) = {
-    DatabaseConnection.db.run(
+    DatabaseConnection.enqueue(
       TableQuery[UserStateDbTableDef]
         .filter(_.meetingId === meetingId)
         .filter(_.userId === userId)
@@ -132,27 +123,21 @@ object UserStateDAO {
             case _ => None
           }
         ))
-    ).onComplete {
-      case Success(rowsAffected) => DatabaseConnection.logger.debug(s"$rowsAffected row(s) updated guestStatus on user table!")
-      case Failure(e) => DatabaseConnection.logger.error(s"Error updating guestStatus user: $e")
-    }
+    )
   }
 
   def updateGuestLobbyMessage(meetingId: String, userId: String, guestLobbyMessage: String) = {
-    DatabaseConnection.db.run(
+    DatabaseConnection.enqueue(
       TableQuery[UserStateDbTableDef]
         .filter(_.meetingId === meetingId)
         .filter(_.userId === userId)
         .map(u => u.guestLobbyMessage)
         .update(Some(guestLobbyMessage))
-    ).onComplete {
-      case Success(rowsAffected) => DatabaseConnection.logger.debug(s"$rowsAffected row(s) updated guestLobbyMessage on user table!")
-      case Failure(e) => DatabaseConnection.logger.error(s"Error updating guestLobbyMessage user: $e")
-    }
+    )
   }
 
   def updateInactivityWarning(meetingId: String, userId: String, inactivityWarningDisplay: Boolean, inactivityWarningTimeoutSecs: Long) = {
-    DatabaseConnection.db.run(
+    DatabaseConnection.enqueue(
       TableQuery[UserStateDbTableDef]
         .filter(_.meetingId === meetingId)
         .filter(_.userId === userId)
@@ -163,10 +148,7 @@ object UserStateDAO {
             case timeout: Long => Some(timeout)
             case _ => None
         }))
-    ).onComplete {
-      case Success(rowsAffected) => DatabaseConnection.logger.debug(s"$rowsAffected row(s) updated inactivityWarningDisplay on user table!")
-      case Failure(e) => DatabaseConnection.logger.error(s"Error updating inactivityWarningDisplay user: $e")
-    }
+    )
   }
 
 }

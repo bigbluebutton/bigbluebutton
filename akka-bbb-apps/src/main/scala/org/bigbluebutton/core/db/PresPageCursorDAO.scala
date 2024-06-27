@@ -30,7 +30,7 @@ class PresPageCursorDbTableDef(tag: Tag) extends Table[PresPageCursorDbModel](ta
 object PresPageCursorDAO {
 
   def insertOrUpdate(pageId: String, meetingId: String, userId: String, xPercent: Double, yPercent: Double) = {
-    DatabaseConnection.db.run(
+    DatabaseConnection.enqueue(
       TableQuery[PresPageCursorDbTableDef].insertOrUpdate(
         PresPageCursorDbModel(
           pageId = pageId,
@@ -38,13 +38,10 @@ object PresPageCursorDAO {
           userId = userId,
           xPercent = xPercent,
           yPercent = yPercent,
-          lastUpdatedAt = new java.sql.Timestamp(System.currentTimeMillis(),
+          lastUpdatedAt = new java.sql.Timestamp(System.currentTimeMillis()),
         )
       )
-    )).onComplete {
-      case Success(rowsAffected) => // DatabaseConnection.logger.debug(s"$rowsAffected row(s) inserted on pres_page_cursor table!")
-      case Failure(e) => DatabaseConnection.logger.error(s"Error inserting pres_page_cursor: $e")
-    }
+    )
   }
 
   def clearUnusedCursors(meetingId: String, pageId: String, enabledUsers: Array[String]): Unit = {
@@ -56,10 +53,7 @@ object PresPageCursorDAO {
       deleteQuery.filterNot(_.userId inSet enabledUsers)
     }
 
-    DatabaseConnection.db.run(deleteQuery.delete).onComplete {
-      case Success(rowsAffected) => DatabaseConnection.logger.debug(s"Users deleted from pres_page_cursor ${pageId}")
-      case Failure(e) => DatabaseConnection.logger.error(s"Error deleting users from pres_page_cursor: $e")
-    }
+    DatabaseConnection.enqueue(deleteQuery.delete)
   }
 
 }

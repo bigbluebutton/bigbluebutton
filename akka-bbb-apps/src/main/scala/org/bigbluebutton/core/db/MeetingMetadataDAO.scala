@@ -27,7 +27,7 @@ class MeetingMetadataDbTableDef(tag: Tag) extends Table[MeetingMetadataDbModel](
 object MeetingMetadataDAO {
   def insert(meetingId: String, metadataProp: MetadataProp) = {
 
-    DatabaseConnection.db.run(DBIO.sequence(
+    DatabaseConnection.enqueue(DBIO.sequence(
       for {
         metadata <- metadataProp.metadata
       } yield {
@@ -40,9 +40,5 @@ object MeetingMetadataDAO {
         )
       }
     ).transactionally)
-      .onComplete {
-        case Success(rowsAffected) => DatabaseConnection.logger.debug(s"$rowsAffected row(s) inserted on MeetingMetadata table!")
-        case Failure(e)            => DatabaseConnection.logger.debug(s"Error inserting MeetingMetadata: $e")
-      }
   }
 }
