@@ -1,11 +1,6 @@
-import { useEffect, useState } from 'react';
 import logger from '/imports/startup/client/logger';
 import VOICE_ACTIVITY, { VoiceActivityResponse } from '/imports/ui/core/graphql/queries/whoIsTalking';
 import useDeduplicatedSubscription from './useDeduplicatedSubscription';
-
-type VoiceItem = VoiceActivityResponse['user_voice_activity_stream'][number] & {
-  showTalkingIndicator: boolean | undefined;
-};
 
 const useVoiceActivity = () => {
   const {
@@ -13,7 +8,6 @@ const useVoiceActivity = () => {
     loading,
     error,
   } = useDeduplicatedSubscription<VoiceActivityResponse>(VOICE_ACTIVITY);
-  const [record, setRecord] = useState<Record<string, VoiceItem>>({});
 
   if (error) {
     logger.error({
@@ -25,32 +19,10 @@ const useVoiceActivity = () => {
     }, 'useVoiceActivity hook failed.');
   }
 
-  useEffect(() => {
-    const voiceActivity: Record<string, VoiceItem> = { ...record };
-
-    if (data) {
-      data.user_voice_activity_stream.forEach((voice) => {
-        const { userId, muted } = voice;
-
-        if (muted) {
-          delete voiceActivity[userId];
-          return;
-        }
-
-        voiceActivity[userId] = Object.assign(
-          voiceActivity[userId] || {},
-          voice,
-        );
-      });
-    }
-
-    setRecord(voiceActivity);
-  }, [data]);
-
   return {
     error,
     loading,
-    data: record,
+    data: data?.user_voice_activity_stream,
   };
 };
 

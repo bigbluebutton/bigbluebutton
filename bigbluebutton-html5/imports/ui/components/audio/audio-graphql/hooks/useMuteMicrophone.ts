@@ -11,7 +11,7 @@ const useMuteMicrophone = () => {
   }));
   const toggleVoice = useToggleVoice();
   const { data: unmutedUsers } = useWhoIsUnmuted();
-  const muted = currentUser?.userId && !unmutedUsers.has(currentUser?.userId);
+  const muted = currentUser?.userId && !unmutedUsers[currentUser?.userId];
   const userId = currentUser?.userId ?? '';
 
   return useCallback(() => {

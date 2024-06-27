@@ -107,7 +107,7 @@ const UserListItem: React.FC<UserListItemProps> = ({ user, lockSettings }) => {
   const voiceUser = {
     ...user.voice,
     talking: talkingUsers[user.userId],
-    muted: !unmutedUsers.has(user.userId),
+    muted: !unmutedUsers[user.userId],
   };
   const subs = [];
 

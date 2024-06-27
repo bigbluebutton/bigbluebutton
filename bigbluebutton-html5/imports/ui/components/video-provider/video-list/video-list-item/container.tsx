@@ -67,7 +67,7 @@ const VideoListItemContainer: React.FC<VideoListItemContainerProps> = (props) =>
   const voiceData = useMemo(() => ({
     ...voiceUser,
     talking: talkingUsers[userId],
-    muted: !unmutedUsers.has(userId),
+    muted: !unmutedUsers[userId],
   }), [voiceUser, talkingUsers, unmutedUsers, userId]);
 
   return (

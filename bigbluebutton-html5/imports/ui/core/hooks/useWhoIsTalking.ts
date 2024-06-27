@@ -6,20 +6,27 @@ const useWhoIsTalking = () => {
     data: voiceActivity,
     loading,
   } = useVoiceActivity();
-  const [record, setRecord] = useState<Record<string, boolean>>({});
+  const [talkingUsers, setTalkingUsers] = useState<Record<string, boolean>>({});
 
   useEffect(() => {
-    const talkingUsers: Record<string, boolean> = {};
+    if (!voiceActivity) return;
 
-    Object.keys(voiceActivity).forEach((userId) => {
-      talkingUsers[userId] = voiceActivity[userId]?.talking;
+    const newTalkingUsers: Record<string, boolean> = { ...talkingUsers };
+
+    voiceActivity.forEach(({ userId, muted, talking }) => {
+      if (muted) {
+        delete newTalkingUsers[userId];
+        return;
+      }
+
+      newTalkingUsers[userId] = talking;
     });
 
-    setRecord(talkingUsers);
+    setTalkingUsers(newTalkingUsers);
   }, [voiceActivity]);
 
   return {
-    data: record,
+    data: talkingUsers,
     loading,
   };
 };

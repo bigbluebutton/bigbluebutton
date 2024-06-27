@@ -16,54 +16,85 @@ const useTalkingUsers = () => {
     error,
   } = useVoiceActivity();
   const [record, setRecord] = useState<Record<string, VoiceItem>>({});
-  const timeoutRegistry = useRef<Record<string, NodeJS.Timeout>>({});
+  const mutedTimeoutRegistry = useRef<Record<string, NodeJS.Timeout | null>>({});
+  const spokeTimeoutRegistry = useRef<Record<string, NodeJS.Timeout | null>>({});
 
   useEffect(() => {
-    const talkingUsers: Record<string, VoiceItem> = {};
-    const [deleted] = partition(
-      Object.values(record),
-      (v: VoiceItem) => !voiceActivity[v.userId],
+    if (!voiceActivity) return;
+
+    const [muted, unmuted] = partition(
+      voiceActivity,
+      (v: VoiceItem) => v.muted,
     ) as [VoiceItem[], VoiceItem[]];
 
-    Object.values(voiceActivity).forEach((voice) => {
-      const { endTime, userId } = voice;
+    unmuted.forEach((voice) => {
+      const { endTime, startTime, userId } = voice;
+      const currentSpokeTimeout = spokeTimeoutRegistry.current[userId];
+      const currentMutedTimeout = mutedTimeoutRegistry.current[userId];
 
-      talkingUsers[userId] = Object.assign(
-        talkingUsers[userId] || {},
-        voice,
-      );
+      // User has never talked
+      if (!(endTime || startTime)) return;
 
-      if (timeoutRegistry.current[userId]) {
-        clearTimeout(timeoutRegistry.current[userId]);
+      // Cancel any deletion
+      if (currentSpokeTimeout) {
+        clearTimeout(currentSpokeTimeout);
+        spokeTimeoutRegistry.current[userId] = null;
+      }
+      if (currentMutedTimeout) {
+        clearTimeout(currentMutedTimeout);
+        mutedTimeoutRegistry.current[userId] = null;
       }
 
-      if (endTime) {
-        timeoutRegistry.current[userId] = setTimeout(() => {
-          setRecord((prevRecord) => {
-            const newRecord = { ...prevRecord };
+      setRecord((previousRecord) => {
+        // User has stopped talking
+        if (endTime) {
+          spokeTimeoutRegistry.current[userId] = setTimeout(() => {
+            setRecord((previousRecord) => {
+              const newRecord = { ...previousRecord };
+              delete newRecord[userId];
+              return newRecord;
+            });
+          }, TALKING_INDICATOR_TIMEOUT);
+        }
+
+        return {
+          ...previousRecord,
+          [userId]: Object.assign(
+            previousRecord[userId] || {},
+            voice,
+          ),
+        };
+      });
+    });
+
+    muted.forEach((voice) => {
+      const { userId, endTime, startTime } = voice;
+      const currentTimeout = mutedTimeoutRegistry.current[userId];
+
+      if (currentTimeout) return;
+
+      // User has never talked
+      if (!(endTime || startTime)) return;
+
+      setRecord((previousRecord) => {
+        mutedTimeoutRegistry.current[userId] = setTimeout(() => {
+          setRecord((previousRecord) => {
+            const newRecord = { ...previousRecord };
             delete newRecord[userId];
             return newRecord;
           });
+          mutedTimeoutRegistry.current[userId] = null;
         }, TALKING_INDICATOR_TIMEOUT);
-      }
-    });
 
-    deleted.forEach((voice) => {
-      const { userId } = voice;
-      const patchedVoice = voice;
-      patchedVoice.muted = true;
-      patchedVoice.talking = false;
-      timeoutRegistry.current[userId] = setTimeout(() => {
-        setRecord((prevRecord) => {
-          const newRecord = { ...prevRecord };
-          delete newRecord[userId];
-          return newRecord;
-        });
-      }, TALKING_INDICATOR_TIMEOUT);
-      talkingUsers[userId] = patchedVoice;
+        return {
+          ...previousRecord,
+          [userId]: Object.assign(
+            previousRecord[userId] || {},
+            voice,
+          ),
+        };
+      });
     });
-
-    setRecord(talkingUsers);
   }, [voiceActivity]);
 
   return {
