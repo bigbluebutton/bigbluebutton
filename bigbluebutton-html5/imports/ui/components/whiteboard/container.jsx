@@ -24,7 +24,7 @@ import {
   toggleToolsAnimations,
   formatAnnotations,
 } from './service';
-import SettingsService from '/imports/ui/services/settings';
+import { SettingsService, getSettingsSingletonInstance } from '/imports/ui/services/settings';
 import Auth from '/imports/ui/services/auth';
 import {
   layoutSelect,
@@ -259,7 +259,8 @@ const WhiteboardContainer = (props) => {
     },
   }];
 
-  const isRTL = layoutSelect((i) => i.isRTL);
+  const Settings = getSettingsSingletonInstance();
+  const { isRTL } = Settings.application;
   const width = layoutSelect((i) => i?.output?.presentation?.width);
   const height = layoutSelect((i) => i?.output?.presentation?.height);
   const sidebarNavigationWidth = layoutSelect(

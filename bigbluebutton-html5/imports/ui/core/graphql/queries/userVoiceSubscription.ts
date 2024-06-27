@@ -9,7 +9,6 @@ const TALKING_INDICATOR_SUBSCRIPTION = gql`
     ) {
       callerName
       spoke
-      talking
       floor
       startTime
       muted

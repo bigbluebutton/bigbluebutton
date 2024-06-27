@@ -2,7 +2,6 @@
 
 import fs from 'fs';
 import path from 'path';
-import { Meteor } from 'meteor/meteor';
 import Logger from './logger';
 
 class Metrics {
@@ -95,7 +94,7 @@ class Metrics {
   }
 
   startDumpFile() {
-    Meteor.setInterval(() => {
+    setInterval(() => {
       try {
         const fileDate = new Date();
         const fullYear = fileDate.getFullYear();

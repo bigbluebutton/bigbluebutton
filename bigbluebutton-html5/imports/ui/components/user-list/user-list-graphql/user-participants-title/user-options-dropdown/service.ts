@@ -37,7 +37,11 @@ export const onSaveUserNames = (intl: IntlShape, meetingName: string, users: [Us
     intl.formatMessage(intlMessages.sortedFirstNameHeading),
     intl.formatMessage(intlMessages.sortedLastNameHeading),
     users,
+    meetingName,
   ).dispatchEvent(new MouseEvent('click', { bubbles: true, cancelable: true, view: window }));
 };
 
-export const openLearningDashboardUrl = (lang: string) => LearningDashboardService.openLearningDashboardUrl(lang);
+export const openLearningDashboardUrl = (
+  lang: string,
+  token?: string,
+) => LearningDashboardService.openLearningDashboardUrl(lang, token);

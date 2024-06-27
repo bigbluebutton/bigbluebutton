@@ -45,11 +45,14 @@ func main() {
 		log.Infof("Json Patch Disabled!")
 	}
 
-	if rawDataCacheStorageMode := os.Getenv("BBB_GRAPHQL_MIDDLEWARE_RAW_DATA_CACHE_STORAGE_MODE"); rawDataCacheStorageMode == "memory" {
-		msgpatch.RawDataCacheStorageMode = "memory"
-	} else {
-		msgpatch.RawDataCacheStorageMode = "file"
-	}
+	//if rawDataCacheStorageMode := os.Getenv("BBB_GRAPHQL_MIDDLEWARE_RAW_DATA_CACHE_STORAGE_MODE"); rawDataCacheStorageMode == "file" {
+	//	msgpatch.RawDataCacheStorageMode = "file"
+	//} else {
+	//	msgpatch.RawDataCacheStorageMode = "memory"
+	//}
+	//Force memory cache for now
+	msgpatch.RawDataCacheStorageMode = "memory"
+
 	log.Infof("Raw Data Cache Storage Mode: %s", msgpatch.RawDataCacheStorageMode)
 
 	// Websocket listener

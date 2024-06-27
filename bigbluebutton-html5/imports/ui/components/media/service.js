@@ -1,22 +1,8 @@
-import { isScreenBroadcasting, isCameraAsContentBroadcasting } from '/imports/ui/components/screenshare/service';
 import getFromUserSettings from '/imports/ui/services/users-settings';
-import {
-  isScreenSharingEnabled, isCameraAsContentEnabled, isPresentationEnabled,
-} from '/imports/ui/services/features';
 import { ACTIONS } from '../layout/enums';
-import UserService from '/imports/ui/components/user-list/service';
 
 function shouldShowWhiteboard() {
   return true;
-}
-
-function shouldShowScreenshare(viewScreenshare, active, sharingContentType) {
-  return (isScreenSharingEnabled() || isCameraAsContentEnabled())
-    && (viewScreenshare || UserService.isUserPresenter())
-    && (
-      isScreenBroadcasting(active, sharingContentType)
-      || isCameraAsContentBroadcasting(active, sharingContentType)
-    );
 }
 
 function shouldShowOverlay() {
@@ -36,25 +22,23 @@ const buildLayoutWhenPresentationAreaIsDisabled = (
   isSharingVideo,
   isSharedNotesPinned,
   isThereWebcam,
+  isScreenSharingEnabled,
+  isPresentationEnabled,
 ) => {
-  const hasScreenshare = isScreenSharingEnabled();
-  const isGeneralMediaOff = !hasScreenshare && !isSharedNotesPinned && !isSharingVideo
+  const hasScreenshare = isScreenSharingEnabled;
+  const isGeneralMediaOff = !hasScreenshare && !isSharedNotesPinned && !isSharingVideo;
   const webcamIsOnlyContent = isThereWebcam && isGeneralMediaOff;
   const isThereNoMedia = !isThereWebcam && isGeneralMediaOff;
-  const isPresentationDisabled = !isPresentationEnabled();
+  const isPresentationDisabled = !isPresentationEnabled;
 
   if (isPresentationDisabled && (webcamIsOnlyContent || isThereNoMedia)) {
     setPresentationIsOpen(layoutContextDispatch, false);
   }
-
-}
+};
 
 export default {
   buildLayoutWhenPresentationAreaIsDisabled,
   shouldShowWhiteboard,
-  shouldShowScreenshare,
   shouldShowOverlay,
-  isScreenBroadcasting,
-  isCameraAsContentBroadcasting,
   setPresentationIsOpen,
 };

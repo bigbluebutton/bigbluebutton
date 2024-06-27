@@ -14,7 +14,7 @@ import { ChatFormUiDataPayloads } from 'bigbluebutton-html-plugin-sdk/dist/cjs/u
 import * as PluginSdk from 'bigbluebutton-html-plugin-sdk';
 import { layoutSelect } from '/imports/ui/components/layout/context';
 import { defineMessages, useIntl } from 'react-intl';
-import { isChatEnabled } from '/imports/ui/services/features';
+import { useIsChatEnabled } from '/imports/ui/services/features';
 import ClickOutside from '/imports/ui/components/click-outside/component';
 import { checkText } from 'smile2emoji';
 import Styled from './styles';
@@ -125,7 +125,8 @@ const ChatMessageForm: React.FC<ChatMessageFormProps> = ({
   locked,
   isRTL,
 }) => {
-  if (!isChatEnabled()) return null;
+  const isChatEnabled = useIsChatEnabled();
+  if (!isChatEnabled) return null;
   const intl = useIntl();
   const [hasErrors, setHasErrors] = React.useState(false);
   const [error, setError] = React.useState<string | null>(null);

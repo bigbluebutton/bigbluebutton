@@ -38,6 +38,7 @@ const PresentationToolbarWrapper = styled.div`
     }
     border: 0;
     background-color: ${colorOffWhite};
+    color: ${toolbarButtonColor};
     cursor: pointer;
     margin: 0 ${whiteboardToolbarMargin} 0 0;
     padding: ${whiteboardToolbarPadding};

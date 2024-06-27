@@ -1,6 +1,6 @@
 import { unique } from 'radash';
 import { setAudioCaptionEnable } from '/imports/ui/core/local-states/useAudioCaptionEnable';
-import { isLiveTranscriptionEnabled } from '/imports/ui/services/features';
+import { useIsLiveTranscriptionEnabled } from '/imports/ui/services/features';
 import getFromUserSettings from '/imports/ui/services/users-settings';
 import { Caption } from './live/queries';
 import Session from '/imports/ui/services/storage/in-memory';
@@ -38,7 +38,7 @@ export const splitTranscript = (obj: Caption) => {
   return transcripts.map((t) => { return { ...obj, captionText: t }; });
 };
 
-export const isAudioTranscriptionEnabled = () => isLiveTranscriptionEnabled();
+export const useIsAudioTranscriptionEnabled = () => useIsLiveTranscriptionEnabled();
 
 const getSpeechProvider = () => {
   const PROVIDER = window.meetingClientSettings.public.app.audioCaptions.provider;
@@ -79,12 +79,12 @@ export const setUserLocaleProperty = (value: string, setUserLocaleCallback: (a: 
 
 export const useFixedLocale = () => {
   const FORCE_LOCALE = window.meetingClientSettings.public.app.audioCaptions.language.forceLocale;
-  return isAudioTranscriptionEnabled() && FORCE_LOCALE;
+  return useIsAudioTranscriptionEnabled() && FORCE_LOCALE;
 };
 
 export default {
   getSpeechVoices,
-  isAudioTranscriptionEnabled,
+  useIsAudioTranscriptionEnabled,
   setUserLocaleProperty,
   setSpeechLocale,
   setAudioCaptions,

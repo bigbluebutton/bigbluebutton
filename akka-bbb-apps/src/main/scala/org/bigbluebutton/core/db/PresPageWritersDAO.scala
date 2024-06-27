@@ -39,6 +39,8 @@ object PresPageWritersDAO {
       case Failure(e) => DatabaseConnection.logger.error(s"Error deleting users from pres_page_writers: $e")
     }
 
+    PresPageCursorDAO.clearUnusedCursors(meetingId, whiteboard.id, whiteboard.multiUser)
+
     for {
       userId <- whiteboard.multiUser
     } yield {

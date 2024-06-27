@@ -1,6 +1,5 @@
 import React, { useContext } from 'react';
 import { defineMessages, useIntl } from 'react-intl';
-import { Meteor } from 'meteor/meteor';
 import Auth from '/imports/ui/services/auth';
 import getFromUserSettings from '/imports/ui/services/users-settings';
 import NavBar from './component';
@@ -114,13 +113,14 @@ const NavBarContainer = ({ children, ...props }) => {
         currentUserId: Auth.userID,
         pluginNavBarItems,
         shortcuts: toggleUserList,
-        meetingId: meeting.meetingId,
+        meetingId: meeting?.meetingId,
         presentationTitle: meetingTitle,
         breakoutNum,
         breakoutName,
         meetingName,
         isDirectLeaveButtonEnabled: IS_DIRECT_LEAVE_BUTTON_ENABLED,
-        isMeteorConnected: Meteor.status().connected,
+        // TODO: Remove/Replace
+        isMeteorConnected: true,
         ...props,
       }}
       style={{ ...navBar }}

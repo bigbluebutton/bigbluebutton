@@ -156,6 +156,7 @@ class UsersApp(
   extends ValidateAuthTokenReqMsgHdlr
   with GetUsersMeetingReqMsgHdlr
   with RegisterUserReqMsgHdlr
+  with GetUserApiMsgHdlr
   with ChangeUserRoleCmdMsgHdlr
   with SetUserSpeechLocaleMsgHdlr
   with SetUserCaptionLocaleMsgHdlr

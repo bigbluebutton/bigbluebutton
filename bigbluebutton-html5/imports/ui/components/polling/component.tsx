@@ -16,6 +16,7 @@ import {
 import Service from './service';
 import Styled from './styles';
 import useDeduplicatedSubscription from '../../core/hooks/useDeduplicatedSubscription';
+import { useIsPollingEnabled } from '../../services/features';
 
 const intlMessages = defineMessages({
   pollingTitleLabel: {
@@ -341,12 +342,13 @@ const PollingGraphqlContainer: React.FC = () => {
   );
   const [pollSubmitUserTypedVote] = useMutation(POLL_SUBMIT_TYPED_VOTE);
   const [pollSubmitUserVote] = useMutation(POLL_SUBMIT_VOTE);
+  const isPollingEnabled = useIsPollingEnabled();
 
   const meetingData = hasPendingPollData && hasPendingPollData.meeting[0];
   const pollData = meetingData && meetingData.polls[0];
   const userData = pollData && pollData.users[0];
   const pollExists = !!userData;
-  const showPolling = pollExists && !currentUserData?.presenter && Service.isPollingEnabled();
+  const showPolling = pollExists && !currentUserData?.presenter && isPollingEnabled;
   const stackOptions = useMemo(
     () => !!pollData && Service.shouldStackOptions(pollData.options.map((o) => o.optionDesc)),
     [pollData],

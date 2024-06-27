@@ -1,9 +1,8 @@
-import Meetings from '/imports/api/meetings';
 import logger from '/imports/startup/client/logger';
 import { fetchWebRTCMappedStunTurnServers, getMappedFallbackStun } from '/imports/utils/fetchStunTurnServers';
 import loadAndPlayMediaStream from '/imports/ui/services/bbb-webrtc-sfu/load-play';
 import { SCREENSHARING_ERRORS } from './errors';
-import getFromMeetingSettings from '/imports/ui/services/meeting-settings';
+import getFromMeetingSettings, { getVoiceConf } from '/imports/ui/services/meeting-settings';
 
 const {
   constraints: GDM_CONSTRAINTS,
@@ -22,7 +21,7 @@ const {
 const HAS_DISPLAY_MEDIA = (typeof navigator.getDisplayMedia === 'function'
   || (navigator.mediaDevices && typeof navigator.mediaDevices.getDisplayMedia === 'function'));
 
-const getConferenceBridge = () => Meetings.findOne().voiceSettings.voiceConf;
+const getConferenceBridge = () => getVoiceConf();
 
 const normalizeGetDisplayMediaError = (error) => {
   return SCREENSHARING_ERRORS[error.name] || SCREENSHARING_ERRORS.GetDisplayMediaGenericError;

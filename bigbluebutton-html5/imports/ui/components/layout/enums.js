@@ -107,8 +107,8 @@ export const ACTIONS = {
   SET_EXTERNAL_VIDEO_SIZE: 'setExternalVideoSize',
   SET_EXTERNAL_VIDEO_OUTPUT: 'setExternalVideoOutput',
 
-  SET_HAS_GENERIC_COMPONENT: 'setHasGenericComponent',
-  SET_GENERIC_COMPONENT_OUTPUT: 'setGenericComponentOutput',
+  SET_HAS_GENERIC_CONTENT: 'setHasGenericContent',
+  SET_GENERIC_CONTENT_OUTPUT: 'setGenericContentOutput',
 
   SET_SHARED_NOTES_OUTPUT: 'setSharedNotesOutput',
   SET_NOTES_IS_PINNED: 'setNotesIsPinned',
@@ -117,7 +117,7 @@ export const ACTIONS = {
 };
 
 export const PRESENTATION_AREA = {
-  GENERIC_COMPONENT: 'genericComponent',
+  GENERIC_CONTENT: 'genericContent',
   PINNED_NOTES: 'pinnedNotes',
   EXTERNAL_VIDEO: 'externalVideo',
   SCREEN_SHARE: 'screenShare',
@@ -133,5 +133,6 @@ export const PANELS = {
   SHARED_NOTES: 'shared-notes',
   TIMER: 'timer',
   WAITING_USERS: 'waiting-users',
+  GENERIC_CONTENT_SIDEKICK: 'generic-content-sidekick',
   NONE: 'none',
 };

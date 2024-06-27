@@ -58,7 +58,7 @@ class GrahqlSubscriptionStore {
     const sub = apolloClient.subscribe({
       query: subscription,
       variables,
-      fetchPolicy,
+      fetchPolicy: fetchPolicy || 'no-cache',
     }).subscribe({
       next: (data) => {
         const values = newSubStructure();

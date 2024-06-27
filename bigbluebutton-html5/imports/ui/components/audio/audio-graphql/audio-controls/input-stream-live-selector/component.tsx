@@ -18,6 +18,8 @@ import MutedAlert from '/imports/ui/components/muted-alert/component';
 import MuteToggle from './buttons/muteToggle';
 import ListenOnly from './buttons/listenOnly';
 import LiveSelection from './buttons/LiveSelection';
+import useWhoIsTalking from '/imports/ui/core/hooks/useWhoIsTalking';
+import useWhoIsUnmuted from '/imports/ui/core/hooks/useWhoIsUnmuted';
 
 const AUDIO_INPUT = 'audioinput';
 const AUDIO_OUTPUT = 'audiooutput';
@@ -230,12 +232,15 @@ const InputStreamLiveSelectorContainer: React.FC = () => {
       locked: u?.locked ?? false,
       away: u?.away,
       voice: {
-        muted: u?.voice?.muted ?? false,
         listenOnly: u?.voice?.listenOnly ?? false,
-        talking: u?.voice?.talking ?? false,
       },
     };
   });
+
+  const { data: talkingUsers } = useWhoIsTalking();
+  const { data: unmutedUsers } = useWhoIsUnmuted();
+  const talking = Boolean(currentUser?.userId && talkingUsers[currentUser.userId]);
+  const muted = Boolean(currentUser?.userId && !unmutedUsers.has(currentUser.userId));
 
   const { data: currentMeeting } = useMeeting((m: Partial<Meeting>) => {
     return {
@@ -264,8 +269,8 @@ const InputStreamLiveSelectorContainer: React.FC = () => {
       isAudioLocked={(!currentUser?.isModerator && currentUser?.locked
         && currentMeeting?.lockSettings?.disableMic) ?? false}
       listenOnly={currentUser?.voice?.listenOnly ?? false}
-      muted={currentUser?.voice?.muted ?? false}
-      talking={currentUser?.voice?.talking ?? false}
+      muted={muted}
+      talking={talking}
       inAudio={!!currentUser?.voice ?? false}
       showMute={(!!currentUser?.voice && !currentMeeting?.lockSettings?.disableMic) ?? false}
       isConnected={isConnected}

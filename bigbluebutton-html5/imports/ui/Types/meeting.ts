@@ -48,6 +48,7 @@ export interface UsersPolicies {
   allowModsToEjectCameras: boolean;
   allowModsToUnmuteUsers: boolean;
   authenticatedGuest: boolean;
+  allowPromoteGuestToModerator: boolean;
   guestPolicy: string;
   maxUserConcurrentAccesses: number;
   maxUsers: number;
@@ -103,6 +104,7 @@ export interface ComponentsFlags {
   hasScreenshare: boolean;
   hasTimer: boolean;
   showRemainingTime: boolean;
+  hasCameraAsContent: boolean;
 }
 
 export interface Metadata {

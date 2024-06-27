@@ -4,10 +4,10 @@ import { useMutation } from '@apollo/client';
 
 import {
   getSpeechVoices,
-  isAudioTranscriptionEnabled,
   setUserLocaleProperty,
   useFixedLocale,
   isGladia,
+  useIsAudioTranscriptionEnabled,
 } from '../service';
 import useCurrentUser from '/imports/ui/core/hooks/useCurrentUser';
 import { SET_SPEECH_LOCALE } from '/imports/ui/core/graphql/mutations/userMutations';
@@ -87,12 +87,14 @@ const AudioCaptionsSelect: React.FC<AudioCaptionsSelectProps> = ({
   const [setSpeechLocaleMutation] = useMutation(SET_SPEECH_LOCALE);
 
   const setUserSpeechLocale = (speechLocale: string, provider: string) => {
-    setSpeechLocaleMutation({
-      variables: {
-        locale: speechLocale,
-        provider,
-      },
-    });
+    if (speechLocale !== '') {
+      setSpeechLocaleMutation({
+        variables: {
+          locale: speechLocale,
+          provider,
+        },
+      });
+    }
   };
 
   if (!isTranscriptionEnabled || useLocaleHook) return null;
@@ -175,7 +177,7 @@ const AudioCaptionsSelectContainer: React.FC = () => {
       voice: user.voice,
     }),
   );
-  const isEnabled = isAudioTranscriptionEnabled();
+  const isEnabled = useIsAudioTranscriptionEnabled();
   if (!currentUser || !isEnabled || !voices) return null;
 
   return (

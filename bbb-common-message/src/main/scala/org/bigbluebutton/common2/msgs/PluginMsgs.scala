@@ -16,20 +16,30 @@ case class PluginDataChannelPushEntryMsgBody(
                                               toUserIds: List[String],
                                             )
 
+object PluginDataChannelReplaceEntryMsg { val NAME = "PluginDataChannelReplaceEntryMsg" }
+case class PluginDataChannelReplaceEntryMsg(header: BbbClientMsgHeader, body: PluginDataChannelReplaceEntryMsgBody) extends StandardMsg
+case class PluginDataChannelReplaceEntryMsgBody(
+                                              pluginName: String,
+                                              channelName: String,
+                                              subChannelName: String,
+                                              payloadJson: Map[String, Any],
+                                              entryId: String,
+                                            )
+
 object PluginDataChannelDeleteEntryMsg { val NAME = "PluginDataChannelDeleteEntryMsg" }
 case class PluginDataChannelDeleteEntryMsg(header: BbbClientMsgHeader, body: PluginDataChannelDeleteEntryMsgBody) extends StandardMsg
 case class PluginDataChannelDeleteEntryMsgBody(
-                                                    pluginName: String,
-                                                    subChannelName: String,
-                                                    channelName: String,
-                                                    entryId: String
-                                                  )
+                                                pluginName: String,
+                                                subChannelName: String,
+                                                channelName: String,
+                                                entryId: String
+                                              )
 
 
 object PluginDataChannelResetMsg { val NAME = "PluginDataChannelResetMsg" }
 case class PluginDataChannelResetMsg(header: BbbClientMsgHeader, body: PluginDataChannelResetMsgBody) extends StandardMsg
 case class PluginDataChannelResetMsgBody(
-                                                    pluginName: String,
-                                                    subChannelName: String,
-                                                    channelName: String
-                                                  )
+                                          pluginName: String,
+                                          subChannelName: String,
+                                          channelName: String
+                                        )

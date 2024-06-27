@@ -3,7 +3,12 @@ import { useMutation } from '@apollo/client';
 import ActionsDropdown from './component';
 import { layoutSelectInput, layoutDispatch, layoutSelect } from '../../layout/context';
 import { SMALL_VIEWPORT_BREAKPOINT, ACTIONS, PANELS } from '../../layout/enums';
-import { isCameraAsContentEnabled, isTimerFeatureEnabled } from '/imports/ui/services/features';
+import {
+  useIsCameraAsContentEnabled,
+  useIsLayoutsEnabled,
+  useIsPresentationEnabled,
+  useIsTimerFeatureEnabled,
+} from '/imports/ui/services/features';
 import { PluginsContext } from '/imports/ui/components/components-data/plugin-context/context';
 import { useShortcut } from '/imports/ui/core/hooks/useShortcut';
 import {
@@ -71,6 +76,10 @@ const ActionsDropdownContainer = (props) => {
   };
 
   const isDropdownOpen = useStorageKey('dropdownOpen');
+  const isLayoutsEnabled = useIsLayoutsEnabled();
+  const isPresentationEnabled = useIsPresentationEnabled();
+  const isTimerFeatureEnabled = useIsTimerFeatureEnabled();
+  const isCameraAsContentEnabled = useIsCameraAsContentEnabled();
 
   return (
     <ActionsDropdown
@@ -82,14 +91,16 @@ const ActionsDropdownContainer = (props) => {
         isRTL,
         actionButtonDropdownItems,
         presentations,
-        isTimerFeatureEnabled: isTimerFeatureEnabled(),
+        isTimerFeatureEnabled,
         isDropdownOpen,
         setPresentation,
-        isCameraAsContentEnabled: isCameraAsContentEnabled(),
+        isCameraAsContentEnabled,
         handleTakePresenter,
         activateTimer,
         deactivateTimer: timerDeactivate,
         shortcuts: openActions,
+        isLayoutsEnabled,
+        isPresentationEnabled,
         ...props,
       }}
     />

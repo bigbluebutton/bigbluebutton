@@ -29,7 +29,8 @@ const intlMessages = defineMessages({
 });
 
 interface NotesDropdownContainerGraphqlProps {
-  handlePinSharedNotes: (pinned: boolean) => void
+  handlePinSharedNotes: (pinned: boolean) => void;
+  presentationEnabled: boolean;
 }
 
 interface NotesDropdownGraphqlProps extends NotesDropdownContainerGraphqlProps {
@@ -42,7 +43,7 @@ interface NotesDropdownGraphqlProps extends NotesDropdownContainerGraphqlProps {
 
 const NotesDropdownGraphql: React.FC<NotesDropdownGraphqlProps> = (props) => {
   const {
-    amIPresenter, presentations, handlePinSharedNotes, isRTL, padId,
+    amIPresenter, presentations, handlePinSharedNotes, isRTL, padId, presentationEnabled,
   } = props;
   const [converterButtonDisabled, setConverterButtonDisabled] = useState(false);
   const intl = useIntl();
@@ -65,7 +66,7 @@ const NotesDropdownGraphql: React.FC<NotesDropdownGraphqlProps> = (props) => {
           onClick: () => {
             setConverterButtonDisabled(true);
             setTimeout(() => setConverterButtonDisabled(false), DEBOUNCE_TIMEOUT);
-            return Service.convertAndUpload(presentations, padId);
+            return Service.convertAndUpload(presentations, padId, presentationEnabled);
           },
         },
       );
@@ -121,7 +122,7 @@ const NotesDropdownGraphql: React.FC<NotesDropdownGraphqlProps> = (props) => {
 };
 
 const NotesDropdownContainerGraphql: React.FC<NotesDropdownContainerGraphqlProps> = (props) => {
-  const { handlePinSharedNotes } = props;
+  const { handlePinSharedNotes, presentationEnabled } = props;
   const { data: currentUserData } = useCurrentUser((user) => ({
     presenter: user.presenter,
   }));
@@ -148,6 +149,7 @@ const NotesDropdownContainerGraphql: React.FC<NotesDropdownContainerGraphqlProps
       isRTL={isRTL}
       presentations={presentations}
       handlePinSharedNotes={handlePinSharedNotes}
+      presentationEnabled={presentationEnabled}
       padId={padId}
     />
   );

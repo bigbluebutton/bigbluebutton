@@ -1,12 +1,8 @@
 import React from 'react';
 import { defineMessages, useIntl } from 'react-intl';
-import { Meteor } from 'meteor/meteor';
 import DraggableTextArea from './DragAndDrop';
 import { pollTypes } from '../service';
 import Styled from '../styles';
-
-const POLL_SETTINGS = Meteor.settings.public.poll;
-const MAX_INPUT_CHARS = POLL_SETTINGS.maxTypedAnswerLength;
 
 const QUESTION_MAX_INPUT_CHARS = 1200;
 
@@ -52,6 +48,8 @@ const PollQuestionArea: React.FC<PollQuestionAreaProps> = ({
   textareaRef,
   question,
 }) => {
+  const POLL_SETTINGS = window.meetingClientSettings.public.poll;
+  const MAX_INPUT_CHARS = POLL_SETTINGS.maxTypedAnswerLength;
   const intl = useIntl();
   const hasOptionError = (customInput && optList.length === 0 && error);
   const hasWarning = (customInput && warning);

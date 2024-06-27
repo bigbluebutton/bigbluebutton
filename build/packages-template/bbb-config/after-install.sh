@@ -114,7 +114,7 @@ if [ -d /var/mediasoup/screenshare ]; then
   chmod 0700 /var/mediasoup/screenshare
 fi
 
-sed -i 's/worker_connections 768/worker_connections 4000/g' /etc/nginx/nginx.conf
+sed -i 's/worker_connections 768/worker_connections 10000/g' /etc/nginx/nginx.conf
 
 if grep -q "worker_rlimit_nofile" /etc/nginx/nginx.conf; then
   num=$(grep worker_rlimit_nofile /etc/nginx/nginx.conf | grep -o '[0-9]*')

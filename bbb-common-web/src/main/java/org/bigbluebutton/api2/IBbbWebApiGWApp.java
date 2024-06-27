@@ -16,14 +16,9 @@ import org.bigbluebutton.presentation.messages.IDocConversionMsg;
 
 public interface IBbbWebApiGWApp {
   void send(String channel, String message);
-  void createMeeting(String meetingID,
-                     String externalMeetingID,
-                     String parentMeetingID,
-                     String meetingName,
-                     Boolean recorded,
-                     String voiceBridge,
-                     Integer duration,
-                     Boolean autoStartRecording,
+  void createMeeting(String meetingID, String externalMeetingID,
+                     String parentMeetingID, String meetingName, Boolean recorded,
+                     String voiceBridge, Integer duration, Boolean autoStartRecording,
                      Boolean allowStartStopRecording,
                      Boolean recordFullDurationMedia,
                      Boolean webcamsOnlyForModerator,
@@ -41,6 +36,7 @@ public interface IBbbWebApiGWApp {
                      Map<String, String> metadata,
                      String guestPolicy,
                      Boolean authenticatedGuest,
+                     Boolean allowPromoteGuestToModerator,
                      Long waitingGuestUsersTimeout,
                      String meetingLayout,
                      String welcomeMsgTemplate,

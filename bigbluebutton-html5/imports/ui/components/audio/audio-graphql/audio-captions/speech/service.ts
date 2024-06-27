@@ -1,7 +1,7 @@
 import Auth from '/imports/ui/services/auth';
 import deviceInfo from '/imports/utils/deviceInfo';
 import { unique } from 'radash';
-import { isAudioTranscriptionEnabled } from '../service';
+import { useIsAudioTranscriptionEnabled } from '../service';
 import Session from '/imports/ui/services/storage/in-memory';
 
 // Reason: SpeechRecognition is not in window type definition
@@ -29,7 +29,7 @@ export const setSpeechVoices = () => {
 
 export const useFixedLocale = () => {
   const FORCE_LOCALE = window.meetingClientSettings.public.app.audioCaptions.language.forceLocale;
-  return isAudioTranscriptionEnabled() && FORCE_LOCALE;
+  return useIsAudioTranscriptionEnabled() && FORCE_LOCALE;
 };
 
 export const localeAsDefaultSelected = () => {

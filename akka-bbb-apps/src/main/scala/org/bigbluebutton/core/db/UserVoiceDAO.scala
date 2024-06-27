@@ -119,19 +119,6 @@ object UserVoiceDAO {
     }
   }
 
-  def delete(meetingId: String, userId: String) = {
-    DatabaseConnection.db.run(
-      TableQuery[UserDbTableDef]
-        .filter(_.meetingId === meetingId)
-        .filter(_.userId === userId)
-        .map(u => (u.loggedOut))
-        .update((true))
-    ).onComplete {
-      case Success(rowsAffected) => DatabaseConnection.logger.debug(s"$rowsAffected row(s) updated loggedOut=true on user table!")
-      case Failure(e) => DatabaseConnection.logger.error(s"Error updating loggedOut=true user: $e")
-    }
-  }
-
   def deleteUserVoice(meetingId: String,userId: String) = {
     //Meteor sets this props instead of removing
     //    muted: false
@@ -145,7 +132,7 @@ object UserVoiceDAO {
         .filter(_.meetingId === meetingId)
         .filter(_.userId === userId)
         .map(u => (u.muted, u.talking, u.listenOnly, u.joined, u.spoke, u.startTime, u.endTime))
-        .update((false, false, false, false, false, None, None))
+        .update((true, false, false, false, false, None, None))
     ).onComplete {
       case Success(rowsAffected) => DatabaseConnection.logger.debug(s"Voice of user ${userId} deleted (joined=false)")
       case Failure(e) => DatabaseConnection.logger.error(s"Error deleting voice user: $e")

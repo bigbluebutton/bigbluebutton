@@ -17,8 +17,8 @@ var graphqlActionsUrl = os.Getenv("BBB_GRAPHQL_MIDDLEWARE_GRAPHQL_ACTIONS_URL")
 
 func GraphqlActionsClient(
 	browserConnection *common.BrowserConnection,
-	fromBrowserToGqlActionsChannel *common.SafeChannel,
-	fromHasuraToBrowserChannel *common.SafeChannel) error {
+	fromBrowserToGqlActionsChannel *common.SafeChannelByte,
+	fromHasuraToBrowserChannel *common.SafeChannelByte) error {
 
 	log := log.WithField("_routine", "GraphqlActionsClient").WithField("browserConnectionId", browserConnection.Id)
 	log.Debug("Starting GraphqlActionsClient")
@@ -38,19 +38,19 @@ RangeLoop:
 					continue
 				}
 
-				var fromBrowserMessageAsMap = fromBrowserMessage.(map[string]interface{})
+				var browserMessage common.BrowserSubscribeMessage
+				err := json.Unmarshal(fromBrowserMessage, &browserMessage)
+				if err != nil {
+					log.Errorf("failed to unmarshal message: %v", err)
+					continue
+				}
 
-				if fromBrowserMessageAsMap["type"] == "subscribe" {
-					queryId := fromBrowserMessageAsMap["id"].(string)
-					payload := fromBrowserMessageAsMap["payload"].(map[string]interface{})
-
+				if browserMessage.Type == "subscribe" {
 					var errorMessage string
 					var mutationFuncName string
 
-					query, okQuery := payload["query"].(string)
-					variables, okVariables := payload["variables"].(map[string]interface{})
-					if okQuery && okVariables && strings.HasPrefix(query, "mutation") {
-						if funcName, inputs, err := parseGraphQLMutation(query, variables); err == nil {
+					if strings.HasPrefix(browserMessage.Payload.Query, "mutation") {
+						if funcName, inputs, err := parseGraphQLMutation(browserMessage.Payload.Query, browserMessage.Payload.Variables); err == nil {
 							mutationFuncName = funcName
 							if err = SendGqlActionsRequest(funcName, inputs, browserConnection.BBBWebSessionVariables); err == nil {
 							} else {
@@ -66,7 +66,7 @@ RangeLoop:
 					if errorMessage != "" {
 						//Error on sending action, return error msg to client
 						browserResponseData := map[string]interface{}{
-							"id":   queryId,
+							"id":   browserMessage.ID,
 							"type": "error",
 							"payload": []interface{}{
 								map[string]interface{}{
@@ -74,12 +74,12 @@ RangeLoop:
 								},
 							},
 						}
-
-						fromHasuraToBrowserChannel.Send(browserResponseData)
+						jsonData, _ := json.Marshal(browserResponseData)
+						fromHasuraToBrowserChannel.Send(jsonData)
 					} else {
 						//Action sent successfully, return data msg to client
 						browserResponseData := map[string]interface{}{
-							"id":   queryId,
+							"id":   browserMessage.ID,
 							"type": "next",
 							"payload": map[string]interface{}{
 								"data": map[string]interface{}{
@@ -87,15 +87,17 @@ RangeLoop:
 								},
 							},
 						}
-						fromHasuraToBrowserChannel.Send(browserResponseData)
+						jsonData, _ := json.Marshal(browserResponseData)
+						fromHasuraToBrowserChannel.Send(jsonData)
 					}
 
 					//Return complete msg to client
 					browserResponseComplete := map[string]interface{}{
-						"id":   queryId,
+						"id":   browserMessage.ID,
 						"type": "complete",
 					}
-					fromHasuraToBrowserChannel.Send(browserResponseComplete)
+					jsonData, _ := json.Marshal(browserResponseComplete)
+					fromHasuraToBrowserChannel.Send(jsonData)
 				}
 
 				//Fallback to Hasura was disabled (keeping the code temporarily)

@@ -4,8 +4,10 @@ import org.apache.pekko.http.scaladsl.model._
 import org.apache.pekko.http.scaladsl.marshallers.sprayjson.SprayJsonSupport
 import org.apache.pekko.http.scaladsl.server.Directives._
 import org.bigbluebutton.common2.msgs._
-import org.bigbluebutton.service.{ HealthzService, MeetingInfoService, PubSubReceiveStatus, PubSubSendStatus, RecordingDBSendStatus }
+import org.bigbluebutton.core.api.{ApiResponseFailure, ApiResponseSuccess, UserInfosApiMsg}
+import org.bigbluebutton.service.{HealthzService, MeetingInfoService, PubSubReceiveStatus, PubSubSendStatus, RecordingDBSendStatus, UserInfoService}
 import spray.json._
+
 import scala.concurrent._
 import ExecutionContext.Implicits.global
 
@@ -63,7 +65,7 @@ trait JsonSupportProtocolMeetingInfoResponse extends SprayJsonSupport with Defau
   implicit val meetingInfoResponseJsonFormat = jsonFormat1(MeetingInfoResponse)
 }
 
-class ApiService(healthz: HealthzService, meetingInfoz: MeetingInfoService)
+class ApiService(healthz: HealthzService, meetingInfoz: MeetingInfoService, userInfoService: UserInfoService)
   extends JsonSupportProtocolHealthResponse
   with JsonSupportProtocolMeetingInfoResponse {
 
@@ -123,6 +125,25 @@ class ApiService(healthz: HealthzService, meetingInfoz: MeetingInfoService)
               }
             }
             complete(entityFuture)
+          }
+      } ~
+      path("userInfo") {
+        parameter(
+          "meetingId".as[String],
+          "userId".as[String],
+        ) { (meetingId, userId) =>
+            get {
+              val entityFuture = userInfoService.getUserInfo(meetingId, userId).map {
+                case ApiResponseSuccess(msg, userInfos: UserInfosApiMsg) =>
+                  val responseMap = userInfoService.generateResponseMap(userInfos)
+                  userInfoService.createHttpResponse(StatusCodes.OK, responseMap)
+
+                case ApiResponseFailure(msg, arg) =>
+                  userInfoService.createHttpResponse(StatusCodes.OK, Map("response" -> "unauthorized", "message" -> msg))
+              }
+
+              complete(entityFuture)
+            }
           }
       }
 }

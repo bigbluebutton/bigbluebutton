@@ -26,7 +26,7 @@ import {
   isVoiceOnlyUser,
 } from './service';
 
-import { isChatEnabled } from '/imports/ui/services/features';
+import { useIsChatEnabled } from '/imports/ui/services/features';
 import { layoutDispatch } from '/imports/ui/components/layout/context';
 import { PANELS, ACTIONS } from '/imports/ui/components/layout/enums';
 import { EMOJI_STATUSES } from '/imports/utils/statuses';
@@ -213,8 +213,15 @@ const UserActions: React.FC<UserActionsProps> = ({
   const layoutContextDispatch = layoutDispatch();
 
   const [presentationSetWriters] = useMutation(PRESENTATION_SET_WRITERS);
-  const [getWriters] = useLazyQuery(CURRENT_PAGE_WRITERS_QUERY, { fetchPolicy: 'no-cache' });
+  const [getWriters] = useLazyQuery(
+    CURRENT_PAGE_WRITERS_QUERY,
+    {
+      variables: { pageId },
+      fetchPolicy: 'no-cache',
+    },
+  );
   const voiceToggle = useToggleVoice();
+  const isChatEnabled = useIsChatEnabled();
 
   const handleWhiteboardAccessChange = async () => {
     try {
@@ -258,7 +265,6 @@ const UserActions: React.FC<UserActionsProps> = ({
     isBreakout,
   );
   const {
-    allowedToChangeStatus,
     allowedToChatPrivately,
     allowedToResetStatus,
     allowedToMuteAudio,
@@ -324,15 +330,6 @@ const UserActions: React.FC<UserActionsProps> = ({
       (item: PluginSdk.UserListDropdownInterface) => (item?.type === UserListDropdownItemType.INFORMATION),
     )),
     {
-      allowed: allowedToChangeStatus,
-      key: 'setstatus',
-      label: intl.formatMessage(messages.statusTriggerLabel),
-      onClick: () => setShowNestedOptions(true),
-      icon: 'user',
-      iconRight: 'right_arrow',
-      dataTest: 'setStatus',
-    },
-    {
       allowed: user.cameras.length > 0
         && isVideoPinEnabledForCurrentUser(currentUser, isBreakout),
       key: 'pinVideo',
@@ -351,7 +348,7 @@ const UserActions: React.FC<UserActionsProps> = ({
       icon: user.pinned ? 'pin-video_off' : 'pin-video_on',
     },
     {
-      allowed: isChatEnabled()
+      allowed: isChatEnabled
         && (
           currentUser.isModerator ? allowedToChatPrivately
             : allowedToChatPrivately && (
@@ -542,13 +539,6 @@ const UserActions: React.FC<UserActionsProps> = ({
   ];
 
   const nestedOptions = [
-    {
-      allowed: allowedToChangeStatus,
-      key: 'back',
-      label: intl.formatMessage(messages.backTriggerLabel),
-      onClick: () => setShowNestedOptions(false),
-      icon: 'left_arrow',
-    },
     {
       allowed: showNestedOptions,
       key: 'separator-01',

@@ -1,7 +1,7 @@
 import { ACTIONS, PANELS } from '/imports/ui/components/layout/enums';
-import { isSharedNotesEnabled } from '/imports/ui/services/features';
+import { useIsSharedNotesEnabled } from '/imports/ui/services/features';
 
-const isEnabled = () => isSharedNotesEnabled();
+const useIsEnabled = () => useIsSharedNotesEnabled();
 
 // @ts-ignore Until everything in Typescript
 const toggleNotesPanel = (sidebarContentPanel, layoutContextDispatch) => {
@@ -20,5 +20,5 @@ const toggleNotesPanel = (sidebarContentPanel, layoutContextDispatch) => {
 
 export default {
   toggleNotesPanel,
-  isEnabled,
+  useIsEnabled,
 };

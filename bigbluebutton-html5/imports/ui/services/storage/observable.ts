@@ -1,5 +1,4 @@
 import { isString, isEqual } from 'radash';
-import logger from '/imports/startup/client/logger';
 
 export type StorageData = string | object | boolean | number | null;
 
@@ -54,7 +53,7 @@ export default class ObservableStorage {
       try {
         value = JSON.parse(value);
       } catch (e) {
-        logger.warn(`StorageTracker: parsing ${key} threw an error`, e);
+        // Do nothing, keep the value as-is
       }
     }
 

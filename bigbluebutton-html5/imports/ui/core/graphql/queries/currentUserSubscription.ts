@@ -68,10 +68,8 @@ subscription userCurrentSubscription {
     }
     voice {
       joined
-      muted
       spoke
       listenOnly
-      talking
     }
   }
 }

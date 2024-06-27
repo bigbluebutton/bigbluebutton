@@ -11,6 +11,7 @@ import GuestUsersManagementPanel from '/imports/ui/components/waiting-users/wait
 import Styled from './styles';
 import ErrorBoundary from '/imports/ui/components/common/error-boundary/component';
 import FallbackView from '/imports/ui/components/common/fallback-errors/fallback-view/component';
+import GenericContentSidekickContainer from '/imports/ui/components/generic-content/generic-sidekick-content/container';
 
 const propTypes = {
   top: PropTypes.number.isRequired,
@@ -151,6 +152,11 @@ const SidebarContent = (props) => {
             currentSlideId={currentSlideId}
           />
         </Styled.Poll>
+      )}
+      {sidebarContentPanel.includes(PANELS.GENERIC_CONTENT_SIDEKICK) && (
+        <GenericContentSidekickContainer
+          genericSidekickContentId={sidebarContentPanel}
+        />
       )}
     </Resizable>
   );

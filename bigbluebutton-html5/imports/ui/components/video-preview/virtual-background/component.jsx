@@ -17,7 +17,6 @@ import withFileReader from '/imports/ui/components/common/file-reader/component'
 import Skeleton, { SkeletonTheme } from 'react-loading-skeleton';
 import 'react-loading-skeleton/dist/skeleton.css';
 import { getSettingsSingletonInstance } from '/imports/ui/services/settings';
-import { isCustomVirtualBackgroundsEnabled } from '/imports/ui/services/features';
 
 const { MIME_TYPES_ALLOWED, MAX_FILE_SIZE } = VirtualBgService;
 
@@ -36,10 +35,10 @@ const propTypes = {
 
 const SKELETON_COUNT = 5;
 
-const shouldEnableBackgroundUpload = () => {
+const shouldEnableBackgroundUpload = (isCustomVirtualBackgroundsEnabled) => {
   const VIRTUAL_BACKGROUNDS_CONFIG = window.meetingClientSettings.public.virtualBackgrounds;
   const ENABLE_UPLOAD = VIRTUAL_BACKGROUNDS_CONFIG.enableVirtualBackgroundUpload;
-  return ENABLE_UPLOAD && isCustomVirtualBackgroundsEnabled();
+  return ENABLE_UPLOAD && isCustomVirtualBackgroundsEnabled;
 };
 
 const defaultInitialVirtualBgState = {
@@ -52,8 +51,8 @@ const VirtualBgSelector = ({
   locked,
   showThumbnails = false,
   initialVirtualBgState = defaultInitialVirtualBgState,
-  isVisualEffects,
   readFile,
+  isCustomVirtualBackgroundsEnabled,
 }) => {
   const IMAGE_NAMES = getImageNames();
 
@@ -129,7 +128,7 @@ const VirtualBgSelector = ({
   const { MIME_TYPES_ALLOWED } = VirtualBgService;
 
   useEffect(() => {
-    if (shouldEnableBackgroundUpload()) {
+    if (shouldEnableBackgroundUpload(isCustomVirtualBackgroundsEnabled)) {
       if (!defaultSetUp) {
         const defaultBackgrounds = ['Blur', ...IMAGE_NAMES].map((imageName) => ({
           uniqueId: imageName,
@@ -143,7 +142,7 @@ const VirtualBgSelector = ({
       }
       if (!loaded) loadFromDB();
     }
-  }, []);
+  }, [isCustomVirtualBackgroundsEnabled]);
 
   const _virtualBgSelected = (type, name, index, customParams) =>
     handleVirtualBgSelected(type, name, customParams)
@@ -159,7 +158,7 @@ const VirtualBgSelector = ({
 
         if (!index || index < 0) return;
 
-        if (!shouldEnableBackgroundUpload()) {
+        if (!shouldEnableBackgroundUpload(isCustomVirtualBackgroundsEnabled)) {
           findDOMNode(inputElementsRef.current[index]).focus();
         } else {
           if (customParams) {
@@ -269,7 +268,6 @@ const VirtualBgSelector = ({
       return (
         <Styled.ThumbnailButtonWrapper
           key={`blur-${index}`}
-          isVisualEffects={isVisualEffects}
         >
           <Styled.ThumbnailButton
             background={getVirtualBackgroundThumbnail(BLUR_FILENAME)}
@@ -282,7 +280,6 @@ const VirtualBgSelector = ({
             disabled={disabled}
             ref={ref => { inputElementsRef.current[index] = ref; }}
             onClick={() => _virtualBgSelected(EFFECT_TYPES.BLUR_TYPE, 'Blur', index)}
-            isVisualEffects={isVisualEffects}
           />
           <div aria-hidden className="sr-only" id={`vr-cam-btn-blur`}>
             {intl.formatMessage(intlMessages.camBgAriaDesc, { 0: EFFECT_TYPES.BLUR_TYPE })}
@@ -300,7 +297,6 @@ const VirtualBgSelector = ({
       return (
         <Styled.ThumbnailButtonWrapper
           key={`${imageName}-${index + 1}`}
-          isVisualEffects={isVisualEffects}
         >
           <Styled.ThumbnailButton
             id={`${imageName}-${index + 1}`}
@@ -314,7 +310,6 @@ const VirtualBgSelector = ({
             ref={ref => inputElementsRef.current[index] = ref}
             onClick={() => _virtualBgSelected(EFFECT_TYPES.IMAGE_TYPE, imageName, index)}
             disabled={disabled}
-            isVisualEffects={isVisualEffects}
             background={getVirtualBackgroundThumbnail(imageName)}
             data-test="selectDefaultBackground"
           />
@@ -334,7 +329,6 @@ const VirtualBgSelector = ({
       return (
         <Styled.ThumbnailButtonWrapper
           key={`${filename}-${index + 1}`}
-          isVisualEffects={isVisualEffects}
         >
           <Styled.ThumbnailButton
             id={`${filename}-${index + 1}`}
@@ -353,7 +347,6 @@ const VirtualBgSelector = ({
               { file: data, uniqueId },
             )}
             disabled={disabled}
-            isVisualEffects={isVisualEffects}
             background={data}
             data-test="selectCustomBackground"
           />
@@ -399,7 +392,6 @@ const VirtualBgSelector = ({
               customBgSelectorRef.current.click();
             }
           }}
-          isVisualEffects={isVisualEffects}
           data-test="inputBackgroundButton"
         />
         <input
@@ -427,7 +419,6 @@ const VirtualBgSelector = ({
           tabIndex={disabled ? -1 : 0}
           disabled={disabled}
           onClick={() => _virtualBgSelected(EFFECT_TYPES.NONE_TYPE)}
-          isVisualEffects={isVisualEffects}
           data-test="noneBackgroundButton"
         />
         <div aria-hidden className="sr-only" id={`vr-cam-btn-none`}>
@@ -454,11 +445,10 @@ const VirtualBgSelector = ({
         <Styled.BgWrapper
           role="group"
           aria-label={intl.formatMessage(intlMessages.virtualBackgroundSettingsLabel)}
-          isVisualEffects={isVisualEffects}
           brightnessEnabled={ENABLE_CAMERA_BRIGHTNESS}
           data-test="virtualBackground"
         >
-          {shouldEnableBackgroundUpload() && (
+          {shouldEnableBackgroundUpload(isCustomVirtualBackgroundsEnabled) && (
             <>
               {!ready && renderSkeleton()}
 
@@ -483,7 +473,7 @@ const VirtualBgSelector = ({
             </>
           )}
 
-          {!shouldEnableBackgroundUpload() && (
+          {!shouldEnableBackgroundUpload(isCustomVirtualBackgroundsEnabled) && (
             <>
               {renderNoneButton()}
 
@@ -507,13 +497,13 @@ const VirtualBgSelector = ({
 
   return (
     <>
-      {!isVisualEffects && (
-        <Styled.Label>
-          {!isVirtualBackgroundSupported()
-            ? intl.formatMessage(intlMessages.virtualBackgroundSettingsDisabledLabel)
-            : intl.formatMessage(intlMessages.virtualBackgroundSettingsLabel)}
-        </Styled.Label>
-      )}
+      <Styled.Label>
+        {intl.formatMessage(
+          isVirtualBackgroundSupported()
+            ? intlMessages.virtualBackgroundSettingsLabel
+            : intlMessages.virtualBackgroundSettingsDisabledLabel,
+        )}
+      </Styled.Label>
 
       {renderSelector()}
     </>

@@ -111,7 +111,7 @@ Updated in 2.7:
 
 Updated in 3.0:
 
-- **create** - **Added parameters:** `allowOverrideClientSettingsOnCreateCall`, `loginURL`. Parameter `meetingLayout` supports a few new options: CAMERAS_ONLY, PARTICIPANTS_CHAT_ONLY, PRESENTATION_ONLY; **Added POST module:** `clientSettingsOverride`.
+- **create** - **Added parameters:** `allowOverrideClientSettingsOnCreateCall`, `allowPromoteGuestToModerator`, `loginURL`. Parameter `meetingLayout` supports a few new options: CAMERAS_ONLY, PARTICIPANTS_CHAT_ONLY, PRESENTATION_ONLY; **Added POST module:** `clientSettingsOverride`.
 - **join** - **Added:** `enforceLayout`, `userdata-bbb_default_layout`. **Removed:** `defaultLayout` (replaced by `userdata-bbb_default_layout`) and removed support for all HTTP request methods except GET.
 - **sendChatMessage** endpoint was first introduced.
 
@@ -1225,7 +1225,7 @@ http&#58;//yourserver.com/bigbluebutton/api/sendChatMessage?[parameters]&checksu
 **Parameters:**
 
 ```mdx-code-block
-<APITableComponent data={sendChatMessage}/>
+<APITableComponent data={sendChatMessageEndpointTableData}/>
 ```
 
 **Example Requests:**

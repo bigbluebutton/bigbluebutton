@@ -6,6 +6,7 @@ import org.bigbluebutton.common2.msgs.PluginDataChannelDeleteEntryMsgBody
 
 class PluginHdlrs(implicit val context: ActorContext)
   extends PluginDataChannelPushEntryMsgHdlr
+  with PluginDataChannelReplaceEntryMsgHdlr
   with PluginDataChannelDeleteEntryMsgHdlr
   with PluginDataChannelResetMsgHdlr {
 

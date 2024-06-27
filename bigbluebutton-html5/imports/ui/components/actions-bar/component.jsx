@@ -6,10 +6,9 @@ import AudioCaptionsButtonContainer from '/imports/ui/components/audio/audio-gra
 import ScreenshareButtonContainer from '/imports/ui/components/actions-bar/screenshare/container';
 import ReactionsButtonContainer from './reactions-button/container';
 import AudioControlsContainer from '../audio/audio-graphql/audio-controls/component';
-import JoinVideoOptionsContainer from '../video-provider/video-provider-graphql/video-button/container';
+import JoinVideoOptionsContainer from '../video-provider/video-button/container';
 import PresentationOptionsContainer from './presentation-options/component';
 import RaiseHandDropdownContainer from './raise-hand/container';
-import { isPresentationEnabled } from '/imports/ui/services/features';
 import Button from '/imports/ui/components/common/button/component';
 import { getSettingsSingletonInstance } from '/imports/ui/services/settings';
 import { LAYOUT_TYPE } from '../layout/enums';
@@ -110,7 +109,7 @@ class ActionsBar extends PureComponent {
       showPushLayout,
       setPushLayout,
       setPresentationFitToWidth,
-
+      isPresentationEnabled,
     } = this.props;
 
     const Settings = getSettingsSingletonInstance();
@@ -120,7 +119,7 @@ class ActionsBar extends PureComponent {
     const shouldShowVideoButton = selectedLayout !== LAYOUT_TYPE.PRESENTATION_ONLY
       && selectedLayout !== LAYOUT_TYPE.PARTICIPANTS_AND_CHAT_ONLY;
 
-    const shouldShowOptionsButton = (isPresentationEnabled() && isThereCurrentPresentation)
+    const shouldShowOptionsButton = (isPresentationEnabled && isThereCurrentPresentation)
       || isSharingVideo || hasScreenshare || isSharedNotesPinned;
 
     return (

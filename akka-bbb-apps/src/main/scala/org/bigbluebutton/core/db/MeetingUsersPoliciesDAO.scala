@@ -19,7 +19,8 @@ case class MeetingUsersPoliciesDbModel(
                                 meetingLayout: String,
                                 allowModsToUnmuteUsers: Boolean,
                                 allowModsToEjectCameras: Boolean,
-                                authenticatedGuest: Boolean
+                                authenticatedGuest: Boolean,
+                                allowPromoteGuestToModerator: Boolean
                               )
 
 class MeetingUsersPoliciesDbTableDef(tag: Tag) extends Table[MeetingUsersPoliciesDbModel](tag, "meeting_usersPolicies") {
@@ -34,10 +35,11 @@ class MeetingUsersPoliciesDbTableDef(tag: Tag) extends Table[MeetingUsersPolicie
   val allowModsToUnmuteUsers = column[Boolean]("allowModsToUnmuteUsers")
   val allowModsToEjectCameras = column[Boolean]("allowModsToEjectCameras")
   val authenticatedGuest = column[Boolean]("authenticatedGuest")
+  val allowPromoteGuestToModerator = column[Boolean]("allowPromoteGuestToModerator")
 
 //  val fk_meetingId: ForeignKeyQuery[MeetingDbTableDef, MeetingDbModel] = foreignKey("fk_meetingId", meetingId, TableQuery[MeetingDbTableDef])(_.meetingId)
 
-  override val * : ProvenShape[MeetingUsersPoliciesDbModel] = (meetingId, maxUsers, maxUserConcurrentAccesses, webcamsOnlyForModerator, userCameraCap, guestPolicy, guestLobbyMessage, meetingLayout, allowModsToUnmuteUsers, allowModsToEjectCameras, authenticatedGuest) <> (MeetingUsersPoliciesDbModel.tupled, MeetingUsersPoliciesDbModel.unapply)
+  override val * : ProvenShape[MeetingUsersPoliciesDbModel] = (meetingId, maxUsers, maxUserConcurrentAccesses, webcamsOnlyForModerator, userCameraCap, guestPolicy, guestLobbyMessage, meetingLayout, allowModsToUnmuteUsers, allowModsToEjectCameras, authenticatedGuest, allowPromoteGuestToModerator) <> (MeetingUsersPoliciesDbModel.tupled, MeetingUsersPoliciesDbModel.unapply)
 }
 
 object MeetingUsersPoliciesDAO {
@@ -56,6 +58,7 @@ object MeetingUsersPoliciesDAO {
           allowModsToUnmuteUsers = usersProp.allowModsToUnmuteUsers,
           allowModsToEjectCameras = usersProp.allowModsToEjectCameras,
           authenticatedGuest = usersProp.authenticatedGuest,
+          allowPromoteGuestToModerator = usersProp.allowPromoteGuestToModerator,
         )
       )
     ).onComplete {

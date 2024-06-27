@@ -63,6 +63,7 @@ class Webcam extends Page {
 
   async applyBackground() {
     await this.waitAndClick(e.joinVideo);
+    await this.waitAndClick(e.backgroundSettingsTitle);
     await this.waitForSelector(e.noneBackgroundButton);
     await this.waitAndClick(`${e.selectDefaultBackground}[aria-label="Home"]`);
     await sleep(1000);
@@ -75,11 +76,14 @@ class Webcam extends Page {
   async webcamFullscreen() {
     await this.shareWebcam();
     // get default viewport sizes
-    const { windowWidth, windowHeight } = await this.page.evaluate(() => { return {
-      windowWidth: window.innerWidth,
-      windowHeight: window.innerHeight,
-    }});
-    await this.waitAndClick(e.webcamFullscreenButton);
+    const { windowWidth, windowHeight } = await this.page.evaluate(() => {
+      return {
+        windowWidth: window.innerWidth,
+        windowHeight: window.innerHeight,
+      }
+    });
+    await this.waitAndClick(e.dropdownWebcamButton);
+    await this.waitAndClick(e.webcamsFullscreenButton);
     // get fullscreen webcam size
     const { width, height } = await this.getLocator('video').boundingBox();
     await expect(width + 1).toBe(windowWidth);  // not sure why there is a difference of 1 pixel
@@ -88,6 +92,7 @@ class Webcam extends Page {
 
   async disableSelfView() {
     await this.waitAndClick(e.joinVideo);
+    await this.waitAndClick(e.backgroundSettingsTitle);
     await this.waitForSelector(e.noneBackgroundButton);
 
     await uploadBackgroundVideoImage(this);
@@ -105,6 +110,7 @@ class Webcam extends Page {
 
   async managingNewBackground() {
     await this.waitAndClick(e.joinVideo);
+    await this.waitAndClick(e.backgroundSettingsTitle);
     await this.waitForSelector(e.noneBackgroundButton);
 
     // Upload
@@ -121,12 +127,14 @@ class Webcam extends Page {
     // Remove
     await this.waitAndClick(e.videoDropdownMenu);
     await this.waitAndClick(e.advancedVideoSettingsBtn);
+    await this.waitAndClick(e.backgroundSettingsTitle);
     await this.waitAndClick(e.removeCustomBackground);
     await this.wasRemoved(e.selectCustomBackground);
   }
 
   async keepBackgroundWhenRejoin(context) {
     await this.waitAndClick(e.joinVideo);
+    await this.waitAndClick(e.backgroundSettingsTitle);
     await this.waitForSelector(e.noneBackgroundButton);
     await uploadBackgroundVideoImage(this);
     // Create a new page before closing the previous to not close the current context
@@ -135,6 +143,7 @@ class Webcam extends Page {
     const openedPage = await this.getLastTargetPage(context);
     await openedPage.init(true, true, { meetingId: this.meetingId });
     await openedPage.waitAndClick(e.joinVideo);
+    await openedPage.waitAndClick(e.backgroundSettingsTitle);
     await openedPage.hasElement(e.selectCustomBackground);
   }
 

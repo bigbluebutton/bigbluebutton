@@ -98,6 +98,7 @@ select_permissions:
         - raiseHand
         - raiseHandTime
         - reactionEmoji
+        - registeredAt
         - registeredOn
         - role
         - speechLocale

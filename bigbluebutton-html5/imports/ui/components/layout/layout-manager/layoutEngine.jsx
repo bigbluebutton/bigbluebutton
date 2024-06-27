@@ -11,13 +11,14 @@ import VideoFocusLayout from '/imports/ui/components/layout/layout-manager/video
 import CamerasOnlyLayout from '/imports/ui/components/layout/layout-manager/camerasOnly';
 import PresentationOnlyLayout from '/imports/ui/components/layout/layout-manager/presentationOnlyLayout';
 import ParticipantsAndChatOnlyLayout from '/imports/ui/components/layout/layout-manager/participantsAndChatOnlyLayout';
-import { isPresentationEnabled } from '/imports/ui/services/features';
+import { getSettingsSingletonInstance } from '/imports/ui/services/settings';
 
 const propTypes = {
   layoutType: PropTypes.string.isRequired,
+  isPresentationEnabled: PropTypes.bool.isRequired,
 };
 
-const LayoutEngine = ({ layoutType }) => {
+const LayoutEngine = ({ layoutType, isPresentationEnabled }) => {
   const bannerBarInput = layoutSelectInput((i) => i.bannerBar);
   const notificationsBarInput = layoutSelectInput((i) => i.notificationsBar);
   const cameraDockInput = layoutSelectInput((i) => i.cameraDock);
@@ -27,12 +28,13 @@ const LayoutEngine = ({ layoutType }) => {
   const sidebarNavigationInput = layoutSelectInput((i) => i.sidebarNavigation);
   const sidebarContentInput = layoutSelectInput((i) => i.sidebarContent);
   const externalVideoInput = layoutSelectInput((i) => i.externalVideo);
-  const genericComponentInput = layoutSelectInput((i) => i.genericComponent);
+  const genericMainContentInput = layoutSelectInput((i) => i.genericMainContent);
   const screenShareInput = layoutSelectInput((i) => i.screenShare);
   const sharedNotesInput = layoutSelectInput((i) => i.sharedNotes);
 
   const fullscreen = layoutSelect((i) => i.fullscreen);
-  const isRTL = layoutSelect((i) => i.isRTL);
+  const Settings = getSettingsSingletonInstance();
+  const { isRTL } = Settings.application;
   const fontSize = layoutSelect((i) => i.fontSize);
   const deviceType = layoutSelect((i) => i.deviceType);
 
@@ -55,7 +57,7 @@ const LayoutEngine = ({ layoutType }) => {
   const baseCameraDockBounds = (mediaAreaBounds, sidebarSize) => {
     const { isOpen, slidesLength } = presentationInput;
     const { hasExternalVideo } = externalVideoInput;
-    const { genericComponentId } = genericComponentInput;
+    const { genericContentId } = genericMainContentInput;
     const { hasScreenShare } = screenShareInput;
     const { isPinned: isSharedNotesPinned } = sharedNotesInput;
 
@@ -69,10 +71,10 @@ const LayoutEngine = ({ layoutType }) => {
     }
 
     const navBarHeight = calculatesNavbarHeight();
-    const hasPresentation = isPresentationEnabled() && slidesLength !== 0;
+    const hasPresentation = isPresentationEnabled && slidesLength !== 0;
     const isGeneralMediaOff = !hasPresentation
       && !hasExternalVideo && !hasScreenShare
-      && !isSharedNotesPinned && !genericComponentId;
+      && !isSharedNotesPinned && !genericContentId;
 
     if (!isOpen || isGeneralMediaOff) {
       cameraDockBounds.width = mediaAreaBounds.width;
@@ -335,16 +337,16 @@ const LayoutEngine = ({ layoutType }) => {
   switch (layoutType) {
     case LAYOUT_TYPE.CUSTOM_LAYOUT:
       layout?.setAttribute('data-layout', LAYOUT_TYPE.CUSTOM_LAYOUT);
-      return <CustomLayout {...common} />;
+      return <CustomLayout {...common} isPresentationEnabled={isPresentationEnabled} />;
     case LAYOUT_TYPE.SMART_LAYOUT:
       layout?.setAttribute('data-layout', LAYOUT_TYPE.SMART_LAYOUT);
-      return <SmartLayout {...common} />;
+      return <SmartLayout {...common} isPresentationEnabled={isPresentationEnabled} />;
     case LAYOUT_TYPE.PRESENTATION_FOCUS:
       layout?.setAttribute('data-layout', LAYOUT_TYPE.PRESENTATION_FOCUS);
-      return <PresentationFocusLayout {...common} />;
+      return <PresentationFocusLayout {...common} isPresentationEnabled={isPresentationEnabled} />;
     case LAYOUT_TYPE.VIDEO_FOCUS:
       layout?.setAttribute('data-layout', LAYOUT_TYPE.VIDEO_FOCUS);
-      return <VideoFocusLayout {...common} />;
+      return <VideoFocusLayout {...common} isPresentationEnabled={isPresentationEnabled} />;
     case LAYOUT_TYPE.CAMERAS_ONLY:
       layout?.setAttribute('data-layout', LAYOUT_TYPE.CAMERAS_ONLY);
       return <CamerasOnlyLayout {...common} />;
@@ -356,7 +358,7 @@ const LayoutEngine = ({ layoutType }) => {
       return <ParticipantsAndChatOnlyLayout {...common} />;
     default:
       layout?.setAttribute('data-layout', LAYOUT_TYPE.CUSTOM_LAYOUT);
-      return <CustomLayout {...common} />;
+      return <CustomLayout {...common} isPresentationEnabled={isPresentationEnabled} />;
   }
 };
 

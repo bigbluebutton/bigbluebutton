@@ -1,6 +1,5 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { defineMessages, useIntl } from 'react-intl';
-import { Meteor } from 'meteor/meteor';
 import useCurrentUser from '/imports/ui/core/hooks/useCurrentUser';
 import Header from '/imports/ui/components/common/control-header/component';
 import { useMutation } from '@apollo/client';
@@ -21,10 +20,6 @@ import PollQuestionArea from './components/PollQuestionArea';
 import LiveResultContainer from './components/LiveResult';
 import Session from '/imports/ui/services/storage/in-memory';
 import useDeduplicatedSubscription from '../../core/hooks/useDeduplicatedSubscription';
-
-const POLL_SETTINGS = Meteor.settings.public.poll;
-const ALLOW_CUSTOM_INPUT = POLL_SETTINGS.allowCustomResponseInput;
-const MAX_CUSTOM_FIELDS = POLL_SETTINGS.maxCustom;
 
 const intlMessages = defineMessages({
   pollPaneTitle: {
@@ -243,6 +238,9 @@ const PollCreationPanel: React.FC<PollCreationPanelProps> = ({
   hasPoll,
   hasCurrentPresentation,
 }) => {
+  const POLL_SETTINGS = window.meetingClientSettings.public.poll;
+  const ALLOW_CUSTOM_INPUT = POLL_SETTINGS.allowCustomResponseInput;
+  const MAX_CUSTOM_FIELDS = POLL_SETTINGS.maxCustom;
   const [stopPoll] = useMutation(POLL_CANCEL);
 
   const intl = useIntl();

@@ -33,6 +33,7 @@ public class ApiParams {
     public static final String FREE_JOIN = "freeJoin";
     public static final String FULL_NAME = "fullName";
     public static final String GUEST_POLICY = "guestPolicy";
+    public static final String ALLOW_PROMOTE_GUEST_TO_MODERATOR = "allowPromoteGuestToModerator";
     public static final String MEETING_LAYOUT = "meetingLayout";
     public static final String IS_BREAKOUT = "isBreakout";
     public static final String LOGO = "logo";
