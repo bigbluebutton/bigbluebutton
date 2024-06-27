@@ -209,7 +209,8 @@ object PresPresentationDAO {
                   viewBoxHeight = 1,
                   maxImageWidth = 1440,
                   maxImageHeight = 1080,
-                  uploadCompleted = page._2.converted
+                  uploadCompleted = page._2.converted,
+                  infiniteCanvas = page._2.infiniteCanvas,
                 )
               )
             }
