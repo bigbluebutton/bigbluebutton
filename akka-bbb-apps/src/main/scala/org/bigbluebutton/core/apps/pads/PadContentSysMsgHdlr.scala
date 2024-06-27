@@ -29,7 +29,8 @@ trait PadContentSysMsgHdlr {
           msg.body.rev.toInt,
           msg.body.start,
           msg.body.end,
-          msg.body.text
+          msg.body.text,
+          msg.body.html
         )
         broadcastEvent(group.externalId, msg.body.padId, msg.body.rev, msg.body.start, msg.body.end, msg.body.text)
       }
