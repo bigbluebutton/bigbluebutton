@@ -24,7 +24,7 @@ class UserCustomParameterDbTableDef(tag: Tag) extends Table[UserCustomParameterD
 
 object UserCustomParameterDAO {
   def insert(meetingId: String, userId: String, customParameters: Map[String, String]) = {
-    DatabaseConnection.db.run(DBIO.sequence(
+    DatabaseConnection.enqueue(DBIO.sequence(
       for {
         parameter <- customParameters
       } yield {
@@ -38,9 +38,5 @@ object UserCustomParameterDAO {
         )
       }
     ).transactionally)
-      .onComplete {
-        case Success(rowsAffected) => DatabaseConnection.logger.debug(s"$rowsAffected row(s) inserted on UserCustomParameter table!")
-        case Failure(e)            => DatabaseConnection.logger.debug(s"Error inserting UserCustomParameter: $e")
-      }
   }
 }

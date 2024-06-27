@@ -20,7 +20,7 @@ class SharedNotesSessionDbTableDef(tag: Tag) extends Table[SharedNotesSessionDbM
 
 object SharedNotesSessionDAO {
   def insert(meetingId: String, sharedNotesExtId: String, userId: String, sessionId: String) = {
-    DatabaseConnection.db.run(
+    DatabaseConnection.enqueue(
       TableQuery[SharedNotesSessionDbTableDef].insertOrUpdate(
         SharedNotesSessionDbModel(
           meetingId = meetingId,
@@ -29,22 +29,16 @@ object SharedNotesSessionDAO {
           sessionId = sessionId
         )
       )
-    ).onComplete {
-        case Success(rowsAffected) => DatabaseConnection.logger.debug(s"$rowsAffected row(s) inserted on SharedNotesSession table!")
-        case Failure(e)            => DatabaseConnection.logger.debug(s"Error inserting SharedNotesSession: $e")
-      }
+    )
   }
 
   def delete(meetingId: String, userId: String, sessionId: String) = {
-    DatabaseConnection.db.run(
+    DatabaseConnection.enqueue(
       TableQuery[SharedNotesSessionDbTableDef]
         .filter(_.meetingId === meetingId)
         .filter(_.userId === userId)
         .filter(_.sessionId === sessionId)
         .delete
-    ).onComplete {
-        case Success(rowsAffected) => DatabaseConnection.logger.debug(s"SharedNotesSession ${sessionId} deleted")
-        case Failure(e)            => DatabaseConnection.logger.error(s"Error deleting SharedNotesSession ${sessionId}: $e")
-      }
+    )
   }
 }

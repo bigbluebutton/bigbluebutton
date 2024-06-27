@@ -24,7 +24,7 @@ class ChatDbTableDef(tag: Tag) extends Table[ChatDbModel](tag, None, "chat") {
 
 object ChatDAO {
   def insert(meetingId: String, groupChat: GroupChat) = {
-    DatabaseConnection.db.run(
+    DatabaseConnection.enqueue(
       TableQuery[ChatDbTableDef].insertOrUpdate(
         ChatDbModel(
           chatId = groupChat.id,
@@ -33,18 +33,12 @@ object ChatDAO {
           createdBy = groupChat.createdBy.id,
         )
       )
-    ).onComplete {
-        case Success(rowsAffected) => {
-          DatabaseConnection.logger.debug(s"$rowsAffected row(s) inserted on Chat table!")
+    )
 
-          for {
-            user <- groupChat.users
-          } yield {
-            ChatUserDAO.insert(meetingId, groupChat.id, user, visible = groupChat.createdBy.id == user.id)
-          }
-
-        }
-        case Failure(e)            => DatabaseConnection.logger.debug(s"Error inserting Chat: $e")
-      }
+    for {
+      user <- groupChat.users
+    } yield {
+      ChatUserDAO.insert(meetingId, groupChat.id, user, visible = groupChat.createdBy.id == user.id)
+    }
   }
 }

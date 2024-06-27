@@ -34,17 +34,14 @@ object PresPageWritersDAO {
       deleteQuery.filterNot(_.userId inSet whiteboard.multiUser)
     }
 
-    DatabaseConnection.db.run(deleteQuery.delete).onComplete {
-      case Success(rowsAffected) => DatabaseConnection.logger.debug(s"Users deleted from pres_page_writers ${whiteboard.id}")
-      case Failure(e) => DatabaseConnection.logger.error(s"Error deleting users from pres_page_writers: $e")
-    }
+    DatabaseConnection.enqueue(deleteQuery.delete)
 
     PresPageCursorDAO.clearUnusedCursors(meetingId, whiteboard.id, whiteboard.multiUser)
 
     for {
       userId <- whiteboard.multiUser
     } yield {
-      DatabaseConnection.db.run(
+      DatabaseConnection.enqueue(
         TableQuery[PresPageWritersDbTableDef].insertOrUpdate(
           PresPageWritersDbModel(
             pageId = whiteboard.id,
@@ -53,12 +50,7 @@ object PresPageWritersDAO {
             changedModeOn = whiteboard.changedModeOn
           )
         )
-      ).onComplete {
-        case Success(rowsAffected) => {
-          DatabaseConnection.logger.debug(s"$rowsAffected row(s) inserted on pres_page_writers table!")
-        }
-        case Failure(e) => DatabaseConnection.logger.error(s"Error inserting pres_page_writers: $e")
-      }
+      )
     }
   }
 

@@ -29,7 +29,7 @@ class UserVoiceConfStateDbTableDef(tag: Tag) extends Table[UserVoiceConfStateDbM
 
 object UserVoiceConfStateDAO {
   def insertOrUpdate(meetingId: String, userId: String, voiceConf: String, voiceConfCallSession: String, clientSession: String, callState: String) = {
-    DatabaseConnection.db.run(
+    DatabaseConnection.enqueue(
       TableQuery[UserVoiceConfStateDbTableDef].insertOrUpdate(
         UserVoiceConfStateDbModel(
           meetingId = meetingId,
@@ -40,10 +40,7 @@ object UserVoiceConfStateDAO {
           voiceConfCallState = callState,
         )
       )
-    ).onComplete {
-        case Success(rowsAffected) => DatabaseConnection.logger.debug(s"$rowsAffected row(s) inserted on user_voice table!")
-        case Failure(e)            => DatabaseConnection.logger.debug(s"Error inserting voice: $e")
-      }
+    )
   }
 
 

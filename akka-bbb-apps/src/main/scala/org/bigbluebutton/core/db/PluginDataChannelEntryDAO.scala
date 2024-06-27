@@ -46,7 +46,7 @@ class PluginDataChannelEntryDbTableDef(tag: Tag) extends Table[PluginDataChannel
 object PluginDataChannelEntryDAO {
   def insert(meetingId: String, pluginName: String, channelName: String, subChannelName: String, createdBy: String,
              payloadJson: Map[String, Any], toRoles: List[String], toUserIds: List[String]) = {
-    DatabaseConnection.db.run(
+    DatabaseConnection.enqueue(
       TableQuery[PluginDataChannelEntryDbTableDef].forceInsert(
         PluginDataChannelEntryDbModel(
           entryId = Some(RandomStringGenerator.randomAlphanumericString(50)),
@@ -65,15 +65,12 @@ object PluginDataChannelEntryDAO {
           deletedAt = None
         )
       )
-    ).onComplete {
-        case Success(rowsAffected) => DatabaseConnection.logger.debug(s"$rowsAffected row(s) inserted on PluginDataChannelEntry table!")
-        case Failure(e)            => DatabaseConnection.logger.debug(s"Error inserting PluginDataChannelEntry: $e")
-      }
+    )
   }
 
   def reset(meetingId: String, pluginName: String,
             channelName: String, subChannelName: String) = {
-    DatabaseConnection.db.run(
+    DatabaseConnection.enqueue(
       TableQuery[PluginDataChannelEntryDbTableDef]
         .filter(_.meetingId === meetingId)
         .filter(_.pluginName === pluginName)
@@ -82,10 +79,7 @@ object PluginDataChannelEntryDAO {
         .filter(_.deletedAt.isEmpty)
         .map(u => (u.deletedAt))
         .update(Some(new java.sql.Timestamp(System.currentTimeMillis())))
-    ).onComplete {
-      case Success(rowsAffected) => DatabaseConnection.logger.debug(s"$rowsAffected row(s) updated deleted=now() on pluginDataChannelEntry table!")
-      case Failure(e) => DatabaseConnection.logger.error(s"Error updating deleted=now() pluginDataChannelEntry: $e")
-    }
+    )
   }
 
   def getEntryCreator(meetingId: String, pluginName: String, channelName: String,
@@ -110,7 +104,7 @@ object PluginDataChannelEntryDAO {
 
   def delete(meetingId: String, pluginName: String,
              channelName: String, subChannelName: String,  entryId: String) = {
-    DatabaseConnection.db.run(
+    DatabaseConnection.enqueue(
       sqlu"""UPDATE "pluginDataChannelEntry" SET
                 "deletedAt" = current_timestamp
                 WHERE "deletedAt" is null
@@ -119,16 +113,13 @@ object PluginDataChannelEntryDAO {
                 AND "channelName" = ${channelName}
                 AND "subChannelName" = ${subChannelName}
                 AND "entryId" = ${entryId}"""
-    ).onComplete {
-      case Success(rowsAffected) => DatabaseConnection.logger.debug(s"$rowsAffected row(s) updated deleted=now() on pluginDataChannelEntry table!")
-      case Failure(e)            => DatabaseConnection.logger.debug(s"Error updating deleted=now() pluginDataChannelEntry: $e")
-    }
+    )
   }
 
   def replace(meetingId: String, pluginName: String, channelName: String,
              subChannelName: String,  entryId: String, payloadJson: JsValue) = {
 
-    DatabaseConnection.db.run(
+    DatabaseConnection.enqueue(
       TableQuery[PluginDataChannelEntryDbTableDef]
         .filter(_.meetingId === meetingId)
         .filter(_.pluginName === pluginName)
@@ -138,10 +129,7 @@ object PluginDataChannelEntryDAO {
         .filter(_.deletedAt.isEmpty)
         .map(_.payloadJson)
         .update(payloadJson)
-    ).onComplete {
-      case Success(rowsAffected) => DatabaseConnection.logger.debug(s"$rowsAffected row(s) updated with new payloadJson on pluginDataChannelEntry table!")
-      case Failure(e)            => DatabaseConnection.logger.debug(s"Error updating with new payloadJson for table pluginDataChannelEntry: $e")
-    }
+    )
   }
 
 }

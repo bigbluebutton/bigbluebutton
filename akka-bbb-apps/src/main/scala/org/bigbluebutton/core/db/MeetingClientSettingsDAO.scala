@@ -20,19 +20,14 @@ class MeetingClientSettingsDbTableDef(tag: Tag) extends Table[MeetingClientSetti
 
 object MeetingClientSettingsDAO {
   def insert(meetingId: String, clientSettingsJson: JsValue) = {
-    DatabaseConnection.db.run(
+    DatabaseConnection.enqueue(
       TableQuery[MeetingClientSettingsDbTableDef].forceInsert(
         MeetingClientSettingsDbModel(
           meetingId = meetingId,
           clientSettingsJson = clientSettingsJson
         )
       )
-    ).onComplete {
-        case Success(rowsAffected) => {
-          DatabaseConnection.logger.debug(s"$rowsAffected row(s) inserted in MeetingClientSettings table!")
-        }
-        case Failure(e) => DatabaseConnection.logger.error(s"Error inserting MeetingClientSettings: $e")
-      }
+    )
   }
 
 }

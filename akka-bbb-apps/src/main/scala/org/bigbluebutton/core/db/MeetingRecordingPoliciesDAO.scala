@@ -28,7 +28,7 @@ class MeetingRecordingPoliciesDbTableDef(tag: Tag) extends Table[MeetingRecordin
 
 object MeetingRecordingPoliciesDAO {
   def insert(meetingId: String, recordProp: RecordProp) = {
-    DatabaseConnection.db.run(
+    DatabaseConnection.enqueue(
       TableQuery[MeetingRecordingPoliciesDbTableDef].forceInsert(
         MeetingRecordingPoliciesDbModel(
           meetingId = meetingId,
@@ -38,12 +38,7 @@ object MeetingRecordingPoliciesDAO {
           keepEvents = recordProp.keepEvents
         )
       )
-    ).onComplete {
-        case Success(rowsAffected) => {
-          DatabaseConnection.logger.debug(s"$rowsAffected row(s) inserted in MeetingRecordingPolicies table!")
-        }
-        case Failure(e) => DatabaseConnection.logger.error(s"Error inserting MeetingRecordingPolicies: $e")
-      }
+    )
   }
 
 }

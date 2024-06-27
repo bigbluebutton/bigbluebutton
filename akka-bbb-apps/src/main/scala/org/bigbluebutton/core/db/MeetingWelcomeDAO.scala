@@ -25,7 +25,7 @@ class MeetingWelcomeDbTableDef(tag: Tag) extends Table[MeetingWelcomeDbModel](ta
 
 object MeetingWelcomeDAO {
   def insert(meetingId: String, welcomeProp: WelcomeProp) = {
-    DatabaseConnection.db.run(
+    DatabaseConnection.enqueue(
       TableQuery[MeetingWelcomeDbTableDef].forceInsert(
         MeetingWelcomeDbModel(
           meetingId = meetingId,
@@ -39,11 +39,6 @@ object MeetingWelcomeDAO {
           }
         )
       )
-    ).onComplete {
-        case Success(rowsAffected) => {
-          DatabaseConnection.logger.debug(s"$rowsAffected row(s) inserted in MeetingWelcome table!")
-        }
-        case Failure(e) => DatabaseConnection.logger.error(s"Error inserting MeetingWelcome: $e")
-      }
+    )
   }
 }

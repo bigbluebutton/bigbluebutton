@@ -27,7 +27,7 @@ class MeetingGroupDbTableDef(tag: Tag) extends Table[MeetingGroupDbModel](tag, N
 
 object MeetingGroupDAO {
   def insert(meetingId: String, groups: Vector[GroupProps]) = {
-    DatabaseConnection.db.run(DBIO.sequence(
+    DatabaseConnection.enqueue(DBIO.sequence(
       for {
         group <- groups
       } yield {
@@ -41,9 +41,5 @@ object MeetingGroupDAO {
         )
       }
     ).transactionally)
-      .onComplete {
-        case Success(rowsAffected) => DatabaseConnection.logger.debug(s"$rowsAffected row(s) inserted on MeetingGroup table!")
-        case Failure(e)            => DatabaseConnection.logger.debug(s"Error inserting MeetingGroup: $e")
-      }
   }
 }

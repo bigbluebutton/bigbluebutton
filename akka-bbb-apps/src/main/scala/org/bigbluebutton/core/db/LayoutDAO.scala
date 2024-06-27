@@ -41,7 +41,7 @@ object LayoutDAO {
   }
 
   def insertOrUpdate(meetingId: String, layout: Layouts) = {
-    DatabaseConnection.db.run(
+    DatabaseConnection.enqueue(
       TableQuery[LayoutDbTableDef].insertOrUpdate(
         LayoutDbModel(
           meetingId = meetingId,
@@ -55,9 +55,6 @@ object LayoutDAO {
           updatedAt = new java.sql.Timestamp(System.currentTimeMillis())
         )
       )
-    ).onComplete {
-        case Success(rowsAffected) => DatabaseConnection.logger.debug(s"$rowsAffected row(s) inserted/updated on Layout table!")
-        case Failure(e)            => DatabaseConnection.logger.debug(s"Error inserting/updating Layout: $e")
-      }
+    )
   }
 }
