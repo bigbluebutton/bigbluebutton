@@ -68,10 +68,13 @@ const useTalkingUsers = () => {
     });
 
     muted.forEach((voice) => {
-      const { userId } = voice;
+      const { userId, endTime, startTime } = voice;
       const currentTimeout = mutedTimeoutRegistry.current[userId];
 
       if (currentTimeout) return;
+
+      // User has never talked
+      if (!(endTime || startTime)) return;
 
       setRecord((previousRecord) => {
         mutedTimeoutRegistry.current[userId] = setTimeout(() => {

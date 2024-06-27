@@ -8,6 +8,7 @@ const useVoiceActivity = () => {
     loading,
     error,
   } = useDeduplicatedSubscription<VoiceActivityResponse>(VOICE_ACTIVITY);
+  console.log(data);
 
   if (error) {
     logger.error({
