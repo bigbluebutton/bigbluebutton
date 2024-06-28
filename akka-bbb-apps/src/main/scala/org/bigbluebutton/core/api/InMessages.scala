@@ -148,3 +148,4 @@ case class GetMeetingInfo() extends InMessage
 case class GetNextVoiceBridge() extends InMessage
 case class CreateMeeting(props: DefaultProps) extends InMessage
 case class HasUserJoined() extends InMessage
+case class IsVoiceBridgeInUse(voiceBridge: String) extends InMessage

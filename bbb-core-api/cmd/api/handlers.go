@@ -9,6 +9,7 @@ import (
 
 	bbbcore "github.com/bigbluebutton/bigbluebutton/bbb-core-api/gen/bbb-core"
 	"github.com/bigbluebutton/bigbluebutton/bbb-core-api/internal/model"
+	"github.com/bigbluebutton/bigbluebutton/bbb-core-api/internal/util"
 	"github.com/bigbluebutton/bigbluebutton/bbb-core-api/internal/validation"
 )
 
@@ -20,20 +21,14 @@ func (app *Config) isMeetingRunning(w http.ResponseWriter, r *http.Request) {
 
 	ok, key, msg := app.isChecksumValid(r, "isMeetingRunning")
 	if !ok {
-		payload.ReturnCode = model.ReturnCodeFailure
-		payload.MessageKey = key
-		payload.Message = msg
-		app.writeXML(w, http.StatusAccepted, payload)
+		app.respondWithError(w, model.ReturnCodeFailure, key, msg)
 		return
 	}
 
 	meetingId := params.Get("meetingID")
 	ok, key, msg = validation.IsMeetingIdValid(meetingId)
 	if !ok {
-		payload.ReturnCode = model.ReturnCodeFailure
-		payload.MessageKey = key
-		payload.Message = msg
-		app.writeXML(w, http.StatusAccepted, payload)
+		app.respondWithError(w, model.ReturnCodeFailure, key, msg)
 		return
 	}
 
@@ -45,7 +40,7 @@ func (app *Config) isMeetingRunning(w http.ResponseWriter, r *http.Request) {
 	})
 	if err != nil {
 		log.Println(err)
-		app.writeXML(w, http.StatusAccepted, model.GrpcErrorToErrorResp(err))
+		app.respondWithError(w, model.ReturnCodeFailure, model.UnknownErrorKey, model.UnknownErrorMsg)
 		return
 	}
 
@@ -206,33 +201,32 @@ func (app *Config) createMeeting(w http.ResponseWriter, r *http.Request) {
 	log.Println("Handling createMeeting request")
 
 	params := r.URL.Query()
-	var payload model.Response
-	log.Println(payload)
+	var errorPayload model.Response
 
 	ok, key, msg := app.isChecksumValid(r, "getMeetings")
 	if !ok {
-		payload.ReturnCode = model.ReturnCodeFailure
-		payload.MessageKey = key
-		payload.Message = msg
-		app.writeXML(w, http.StatusAccepted, payload)
+		errorPayload.ReturnCode = model.ReturnCodeFailure
+		errorPayload.MessageKey = key
+		errorPayload.Message = msg
+		app.writeXML(w, http.StatusAccepted, errorPayload)
 		return
 	}
 
 	ok, key, msg = validation.IsMeetingIdValid(params.Get("meetingID"))
 	if !ok {
-		payload.ReturnCode = model.ReturnCodeFailure
-		payload.MessageKey = key
-		payload.Message = msg
-		app.writeXML(w, http.StatusAccepted, payload)
+		errorPayload.ReturnCode = model.ReturnCodeFailure
+		errorPayload.MessageKey = key
+		errorPayload.Message = msg
+		app.writeXML(w, http.StatusAccepted, errorPayload)
 		return
 	}
 
 	ok, key, msg = validation.IsMeetingNameValid(params.Get("name"))
 	if !ok {
-		payload.ReturnCode = model.ReturnCodeFailure
-		payload.MessageKey = key
-		payload.Message = msg
-		app.writeXML(w, http.StatusAccepted, payload)
+		errorPayload.ReturnCode = model.ReturnCodeFailure
+		errorPayload.MessageKey = key
+		errorPayload.Message = msg
+		app.writeXML(w, http.StatusAccepted, errorPayload)
 		return
 	}
 
@@ -243,31 +237,30 @@ func (app *Config) createMeeting(w http.ResponseWriter, r *http.Request) {
 	if voiceBridge != "" {
 		ok = validation.IsValidInteger(voiceBridge)
 		if !ok {
-			payload.ReturnCode = model.ReturnCodeFailure
-			payload.MessageKey = model.VoiceBridgeFormatErrorKey
-			payload.Message = model.VoiceBridgeFormatErrorMsg
-			app.writeXML(w, http.StatusAccepted, payload)
+			errorPayload.ReturnCode = model.ReturnCodeFailure
+			errorPayload.MessageKey = model.VoiceBridgeFormatErrorKey
+			errorPayload.Message = model.VoiceBridgeFormatErrorMsg
+			app.writeXML(w, http.StatusAccepted, errorPayload)
 			return
 		}
 
-		// TODO: check if provided voice bridge is in use
 		res, err := app.BbbCore.IsVoiceBridgeInUse(ctx, &bbbcore.VoiceBridgeInUseRequest{
 			VoiceBridge: voiceBridge,
 		})
 		if err != nil {
 			log.Println(err)
-			payload.ReturnCode = model.ReturnCodeFailure
-			payload.MessageKey = model.CreateMeetingErrorKey
-			payload.Message = model.CreateMeetingErrorMsg
-			app.writeXML(w, http.StatusAccepted, payload)
+			errorPayload.ReturnCode = model.ReturnCodeFailure
+			errorPayload.MessageKey = model.CreateMeetingErrorKey
+			errorPayload.Message = model.CreateMeetingErrorMsg
+			app.writeXML(w, http.StatusAccepted, errorPayload)
 			return
 		}
 
 		if res.InUse {
-			payload.ReturnCode = model.ReturnCodeFailure
-			payload.MessageKey = model.VoiceBridgeInUserErrorKey
-			payload.Message = model.VoiceBridgeInUserErrorMsg
-			app.writeXML(w, http.StatusAccepted, payload)
+			errorPayload.ReturnCode = model.ReturnCodeFailure
+			errorPayload.MessageKey = model.VoiceBridgeInUserErrorKey
+			errorPayload.Message = model.VoiceBridgeInUserErrorMsg
+			app.writeXML(w, http.StatusAccepted, errorPayload)
 			return
 		}
 	}
@@ -276,10 +269,10 @@ func (app *Config) createMeeting(w http.ResponseWriter, r *http.Request) {
 	if attendeePw != "" {
 		ok = validation.IsValidLength(attendeePw, 2, 64)
 		if !ok {
-			payload.ReturnCode = model.ReturnCodeFailure
-			payload.MessageKey = model.PasswordLengthErrorKey
-			payload.Message = model.PasswordLengthErrorMsg
-			app.writeXML(w, http.StatusAccepted, payload)
+			errorPayload.ReturnCode = model.ReturnCodeFailure
+			errorPayload.MessageKey = model.PasswordLengthErrorKey
+			errorPayload.Message = model.PasswordLengthErrorMsg
+			app.writeXML(w, http.StatusAccepted, errorPayload)
 			return
 		}
 	}
@@ -288,10 +281,10 @@ func (app *Config) createMeeting(w http.ResponseWriter, r *http.Request) {
 	if moderatorPw != "" {
 		ok = validation.IsValidLength(moderatorPw, 2, 64)
 		if !ok {
-			payload.ReturnCode = model.ReturnCodeFailure
-			payload.MessageKey = model.PasswordLengthErrorKey
-			payload.Message = model.PasswordLengthErrorMsg
-			app.writeXML(w, http.StatusAccepted, payload)
+			errorPayload.ReturnCode = model.ReturnCodeFailure
+			errorPayload.MessageKey = model.PasswordLengthErrorKey
+			errorPayload.Message = model.PasswordLengthErrorMsg
+			app.writeXML(w, http.StatusAccepted, errorPayload)
 			return
 		}
 	}
@@ -300,11 +293,42 @@ func (app *Config) createMeeting(w http.ResponseWriter, r *http.Request) {
 	if isBreakoutRoom != "" {
 		ok = validation.IsValidBoolean(isBreakoutRoom)
 		if !ok {
-			payload.ReturnCode = model.ReturnCodeFailure
-			payload.MessageKey = model.IsBreakoutRoomFormatErrorKey
-			payload.Message = model.IsBreakoutRoomFormatErrorMsg
-			app.writeXML(w, http.StatusAccepted, payload)
+			errorPayload.ReturnCode = model.ReturnCodeFailure
+			errorPayload.MessageKey = model.IsBreakoutRoomFormatErrorKey
+			errorPayload.Message = model.IsBreakoutRoomFormatErrorMsg
+			app.writeXML(w, http.StatusAccepted, errorPayload)
 			return
+		}
+
+		if util.GetBoolOrDefaultValue(isBreakoutRoom, false) {
+			parentMeetingId := params.Get("parentMeetingID")
+			if parentMeetingId == "" {
+				errorPayload.ReturnCode = model.ReturnCodeFailure
+				errorPayload.MessageKey = model.ParentMeetingIdMissingErrorKey
+				errorPayload.Message = model.ParentMeetingIdMissingErrorMsg
+				app.writeXML(w, http.StatusAccepted, errorPayload)
+				return
+			}
+
+			res, err := app.BbbCore.IsMeetingRunning(ctx, &bbbcore.MeetingRunningRequest{
+				MeetingId: parentMeetingId,
+			})
+			if err != nil {
+				log.Println(err)
+				errorPayload.ReturnCode = model.ReturnCodeFailure
+				errorPayload.MessageKey = model.CreateMeetingErrorKey
+				errorPayload.Message = model.CreateMeetingErrorMsg
+				app.writeXML(w, http.StatusAccepted, errorPayload)
+				return
+			}
+
+			if !res.IsRunning {
+				errorPayload.ReturnCode = model.ReturnCodeFailure
+				errorPayload.MessageKey = model.ParentMeetingDoesNotExistErrorKey
+				errorPayload.Message = model.ParentMeetingDoesNotExistErrorMsg
+				app.writeXML(w, http.StatusAccepted, errorPayload)
+				return
+			}
 		}
 	}
 
@@ -312,10 +336,10 @@ func (app *Config) createMeeting(w http.ResponseWriter, r *http.Request) {
 	if record != "" {
 		ok = validation.IsValidBoolean(record)
 		if !ok {
-			payload.ReturnCode = model.ReturnCodeFailure
-			payload.MessageKey = model.RecordFormatErrorKey
-			payload.Message = model.RecordFormatErrorMsg
-			app.writeXML(w, http.StatusAccepted, payload)
+			errorPayload.ReturnCode = model.ReturnCodeFailure
+			errorPayload.MessageKey = model.RecordFormatErrorKey
+			errorPayload.Message = model.RecordFormatErrorMsg
+			app.writeXML(w, http.StatusAccepted, errorPayload)
 			return
 		}
 	}
@@ -323,10 +347,10 @@ func (app *Config) createMeeting(w http.ResponseWriter, r *http.Request) {
 	settings, err := app.processCreateQueryParams(&params)
 	if err != nil {
 		log.Println(err)
-		payload.ReturnCode = model.ReturnCodeFailure
-		payload.MessageKey = model.CreateMeetingErrorKey
-		payload.Message = model.CreateMeetingErrorMsg
-		app.writeXML(w, http.StatusAccepted, payload)
+		errorPayload.ReturnCode = model.ReturnCodeFailure
+		errorPayload.MessageKey = model.CreateMeetingErrorKey
+		errorPayload.Message = model.CreateMeetingErrorMsg
+		app.writeXML(w, http.StatusAccepted, errorPayload)
 		return
 	}
 
@@ -335,14 +359,43 @@ func (app *Config) createMeeting(w http.ResponseWriter, r *http.Request) {
 	})
 	if err != nil {
 		log.Println(err)
-		payload.ReturnCode = model.ReturnCodeFailure
-		payload.MessageKey = model.CreateMeetingErrorKey
-		payload.Message = model.CreateMeetingErrorMsg
-		app.writeXML(w, http.StatusAccepted, payload)
+		errorPayload.ReturnCode = model.ReturnCodeFailure
+		errorPayload.MessageKey = model.CreateMeetingErrorKey
+		errorPayload.Message = model.CreateMeetingErrorMsg
+		app.writeXML(w, http.StatusAccepted, errorPayload)
 		return
 	}
 
-	log.Println(res)
+	if !res.IsValid {
+		errorPayload.ReturnCode = model.ReturnCodeFailure
+		errorPayload.MessageKey = model.MeetingIdNotUniqueErrorKey
+		errorPayload.Message = model.MeetingIdNotUniqueErrorMsg
+		app.writeXML(w, http.StatusAccepted, errorPayload)
+		return
+	}
+
+	payload := model.CreateMeetingResponse{
+		ReturnCode:           model.ReturnCodeSuccess,
+		MeetingId:            res.MeetingExtId,
+		InternalMeetingId:    res.MeetingIntId,
+		ParentMeetingId:      res.ParentMeetingId,
+		AttendeePW:           res.AttendeePw,
+		ModeratorPW:          res.ModeratorPw,
+		CreateTime:           res.CreateTime,
+		VoiceBridge:          res.VoiceBridge,
+		DialNumber:           res.DialNumber,
+		CreateDate:           res.CreateDate,
+		HasUserJoined:        res.HasUserJoined,
+		Duration:             res.Duration,
+		HasBeenForciblyEnded: res.HasBeenForciblyEnded,
+	}
+
+	if res.IsDuplicate {
+		payload.MessageKey = model.CreateMeetingDuplicateKey
+		payload.Message = model.CreateMeetingDuplicateMsg
+	}
+
+	app.writeXML(w, http.StatusAccepted, payload)
 }
 
 func (app *Config) createMeetingPost(w http.ResponseWriter, r *http.Request) {

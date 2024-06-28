@@ -75,6 +75,7 @@ class BigBlueButtonActor(
     case msg: GetMeetings               => handleGetMeetings(sender(), msg)
     case msg: GetNextVoiceBridge        => handleGetNextVoiceBridge(sender(), msg)
     case msg: CreateMeeting             => handleCreateMeeting(sender(), msg)
+    case msg: IsVoiceBridgeInUse        => handleIsVoiceBridgeInUse(sender(), msg)
 
     // 2x messages
     case msg: BbbCommonEnvCoreMsg       => handleBbbCommonEnvCoreMsg(msg)
@@ -256,10 +257,20 @@ class BigBlueButtonActor(
 
         RunningMeetings.add(meetings, m)
 
-        sender ! (m, false)
+        sender ! (m, false, true)
       case Some(m) =>
         log.info("Meeting already created. meetingID={}", msg.props.meetingProp.intId)
-        sender ! (m, true)
+
+        if ((m.props.password.viewerPass.equals(msg.props.password.viewerPass) && m.props.password.moderatorPass.equals(msg.props.password.moderatorPass)) ||
+          (msg.props.password.viewerPass.isEmpty() && msg.props.password.moderatorPass.isEmpty())) {
+          sender ! (m, true, true)
+        } else {
+          sender ! (m, true, false)
+        }
     }
+  }
+
+  private def handleIsVoiceBridgeInUse(sender: ActorRef, msg: IsVoiceBridgeInUse): Unit = {
+    sender ! RunningMeetings.isVoiceBridgeInUse(meetings, msg.voiceBridge)
   }
 }

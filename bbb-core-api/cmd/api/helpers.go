@@ -59,6 +59,15 @@ func (app *Config) writeXML(w http.ResponseWriter, status int, data any, headers
 	return nil
 }
 
+func (app *Config) respondWithError(w http.ResponseWriter, code string, key string, msg string) {
+	payload := model.Response{
+		ReturnCode: code,
+		MessageKey: key,
+		Message:    msg,
+	}
+	app.writeXML(w, http.StatusAccepted, payload)
+}
+
 func (app *Config) isChecksumValid(r *http.Request, apiCall string) (bool, string, string) {
 	params := r.URL.Query()
 

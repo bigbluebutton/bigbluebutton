@@ -13,6 +13,9 @@ const (
 	ReturnCodeSuccess string = "SUCCESS"
 	ReturnCodeFailure string = "FAILED"
 
+	UnknownErrorKey string = "unknownError"
+	UnknownErrorMsg string = "An unknown error occurred"
+
 	ChecksumErrorKey string = "checksumError"
 	ChecksumErrorMsg string = "Checksums do not match."
 
@@ -24,6 +27,9 @@ const (
 
 	MeetingIdFormatErrorKey string = ValidationErrorKey
 	MeetingIdFormatErrorMsg string = "Meeting ID cannot contain ','."
+
+	MeetingIdNotUniqueErrorKey string = "idNotUnique"
+	MeetingIdNotUniqueErrorMsg string = "A meeting already exists with that meeting ID.  Please use a different meeting ID."
 
 	MeetingNameMissingErrorKey string = ValidationErrorKey
 	MeetingNameMissingErrorMsg string = "You must provide a meeting name."
@@ -46,8 +52,17 @@ const (
 	RecordFormatErrorKey string = ValidationErrorKey
 	RecordFormatErrorMsg string = "Record must be a boolean value (true or false)"
 
+	ParentMeetingIdMissingErrorKey string = "parentMeetingIDMissing"
+	ParentMeetingIdMissingErrorMsg string = "No parent meeting ID was provided for the breakout room"
+
+	ParentMeetingDoesNotExistErrorKey string = "parentMeetingDoesNotExist"
+	ParentMeetingDoesNotExistErrorMsg string = "No parent meeting exists for the breakout room"
+
 	CreateMeetingErrorKey string = "createFailed"
 	CreateMeetingErrorMsg string = "Failed to create meeting"
+
+	CreateMeetingDuplicateKey string = "duplicateWarning"
+	CreateMeetingDuplicateMsg string = "This conference was already in existence and may currently be in progress."
 )
 
 type Response struct {

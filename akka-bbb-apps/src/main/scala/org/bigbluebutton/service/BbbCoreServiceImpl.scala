@@ -8,7 +8,7 @@ import org.apache.pekko.pattern.ask
 import org.apache.pekko.stream.Materializer
 import org.apache.pekko.stream.scaladsl.Source
 import org.apache.pekko.util.Timeout
-import org.bigbluebutton.core.api.{ GetMeeting, GetMeetingInfo, GetMeetings, IsMeetingRunning }
+import org.bigbluebutton.core.api.{ GetMeeting, GetMeetingInfo, GetMeetings, IsMeetingRunning, IsVoiceBridgeInUse }
 import org.bigbluebutton.core.running.RunningMeeting
 import org.bigbluebutton.protos._
 
@@ -247,10 +247,9 @@ class BbbCoreServiceImpl(implicit materializer: Materializer, bbbActor: ActorRef
 
     in.createMeetingSettings match {
       case Some(settings) =>
-        // if (!allSettingsPresent(settings)) Future.failed(GrpcServiceException(Code.INVALID_ARGUMENT, "missingSettings", Seq(new ErrorResponse("missingSettings", "Some meeting settings were not provided."))))
         val defaultProps = settingsToProps(settings)
-        (bbbActor ? CreateMeeting(defaultProps)).mapTo[(RunningMeeting, Boolean)].flatMap {
-          case (meeting, isDuplicate) => {
+        (bbbActor ? CreateMeeting(defaultProps)).mapTo[(RunningMeeting, Boolean, Boolean)].flatMap {
+          case (meeting, isDuplicate, isValid) => {
             (meeting.actorRef ? HasUserJoined()).mapTo[Boolean].map(hasUserJoined => {
               CreateMeetingResponse(
                 meetingExtId = meeting.props.meetingProp.extId,
@@ -265,7 +264,8 @@ class BbbCoreServiceImpl(implicit materializer: Materializer, bbbActor: ActorRef
                 hasUserJoined = hasUserJoined,
                 duration = meeting.props.durationProps.duration,
                 hasBeenForciblyEnded = false,
-                isDuplicate = isDuplicate
+                isDuplicate = isDuplicate,
+                isValid = isValid
               )
             })
           }
@@ -291,5 +291,9 @@ class BbbCoreServiceImpl(implicit materializer: Materializer, bbbActor: ActorRef
     }
   }
 
-  override def isVoiceBridgeInUse(in: VoiceBridgeInUseRequest): Future[VoiceBridgeInUseResponse] = ???
+  override def isVoiceBridgeInUse(in: VoiceBridgeInUseRequest): Future[VoiceBridgeInUseResponse] = {
+    implicit val timeout: Timeout = 3.seconds
+
+    (bbbActor ? IsVoiceBridgeInUse(in.voiceBridge)).mapTo[Boolean].map(msg => VoiceBridgeInUseResponse(msg))
+  }
 }

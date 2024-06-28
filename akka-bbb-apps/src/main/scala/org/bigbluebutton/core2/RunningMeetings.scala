@@ -42,6 +42,10 @@ object RunningMeetings {
   def getVoiceBridge(meetings: RunningMeetings): Int = {
     meetings.getVoiceBridge()
   }
+
+  def isVoiceBridgeInUse(meetings: RunningMeetings, voiceBridge: String): Boolean = {
+    meetings.isVoiceBridgeInUse(voiceBridge)
+  }
 }
 
 class RunningMeetings {
@@ -70,6 +74,14 @@ class RunningMeetings {
     availableVoiceBridges.size match {
       case 0      => -1
       case _: Int => availableVoiceBridges.head
+    }
+  }
+
+  private def isVoiceBridgeInUse(voiceBridge: String): Boolean = {
+    val opt = voiceBridge.toIntOption
+    opt match {
+      case Some(v) => !availableVoiceBridges.contains(v)
+      case None    => false
     }
   }
 }

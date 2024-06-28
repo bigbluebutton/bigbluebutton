@@ -79,6 +79,7 @@ message CreateMeetingResponse {
   int32 duration = 11;
   bool has_been_forcibly_ended = 12;
   bool is_duplicate = 13;
+  bool is_valid = 14;
 }
 
 message GenerateVoiceBridgeRequest {
