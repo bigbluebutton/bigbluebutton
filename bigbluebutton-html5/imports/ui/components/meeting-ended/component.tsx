@@ -8,7 +8,6 @@ import React, {
 import { defineMessages, useIntl } from 'react-intl';
 import { isEmpty } from 'radash';
 import { ApolloLink, useQuery } from '@apollo/client';
-import { Meteor } from 'meteor/meteor';
 import {
   JoinErrorCodeTable,
   MeetingEndedTable,
@@ -385,7 +384,6 @@ const MeetingEnded: React.FC<MeetingEndedProps> = ({
         apolloClient.setLink(ApolloLink.empty());
         // closes the connection
         ws.terminate();
-        Meteor.disconnect();
       }, 5000);
     }
   }, []);
