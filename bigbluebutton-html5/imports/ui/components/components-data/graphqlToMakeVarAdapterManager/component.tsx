@@ -7,22 +7,20 @@ import React, {
 
 import VideoStreamAdapter from '/imports/ui/components/video-provider/adapter';
 
-interface GraphqlToMiniMongoAdapterManagerProps {
+interface GraphqlToMakeVarAdapterManagerProps {
   children: React.ReactNode;
 }
 
-export interface AdapterProps extends GraphqlToMiniMongoAdapterManagerProps {
+export interface AdapterProps extends GraphqlToMakeVarAdapterManagerProps {
   onReady: (key:string) => void;
 }
 
-const GraphqlToMiniMongoAdapterManager: React.FC<GraphqlToMiniMongoAdapterManagerProps> = ({ children }) => {
+const GraphqlToMakeVarAdapterManager: React.FC<GraphqlToMakeVarAdapterManagerProps> = ({ children }) => {
   const [adapterLoaded, setAdapterLoaded] = useState(false);
   const loadedComponents = useRef<{
     [key: string]: number;
   }>({});
   const adapterComponents = useRef([
-    // UserGrapQlMiniMongoAdapter,
-    // MeetingGrapQlMiniMongoAdapter,
     VideoStreamAdapter,
   ]);
 
@@ -42,12 +40,10 @@ const GraphqlToMiniMongoAdapterManager: React.FC<GraphqlToMiniMongoAdapterManage
   }, []);
   return (
     <>
-      {/* screenshare loads conditionally  so can't be used on lock loading */}
-      {/* <ScreenShareGraphQlMiniMongoAdapterContainer /> */}
       {nestAdapters}
       {adapterLoaded ? children : null}
     </>
   );
 };
 
-export default GraphqlToMiniMongoAdapterManager;
+export default GraphqlToMakeVarAdapterManager;

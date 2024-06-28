@@ -6,7 +6,7 @@ import {
   VideoStreamsResponse,
 } from './queries';
 import { setStreams } from './state';
-import { AdapterProps } from '../components-data/graphqlToMiniMongoAdapterManager/component';
+import { AdapterProps } from '../components-data/graphqlToMakeVarAdapterManager/component';
 import createUseSubscription from '/imports/ui/core/hooks/createUseSubscription';
 
 const throttledSetStreams = throttle({ interval: 500 }, setStreams);
