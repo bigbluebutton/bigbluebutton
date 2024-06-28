@@ -7,7 +7,7 @@ import scala.concurrent.duration._
 import java.util.concurrent.ConcurrentLinkedQueue
 import scala.concurrent.ExecutionContext.Implicits.global
 import java.util.concurrent.atomic.AtomicBoolean
-import scala.util.control.Breaks.break
+import scala.util.control.Breaks._
 
 object DatabaseConnection {
   val db = Database.forConfig("postgres")
@@ -45,14 +45,15 @@ object DatabaseConnection {
 
   private def processBatch(): Unit = {
     val batch = collection.mutable.ListBuffer[DBIO[_]]()
-    var action = queue.poll()
-    while (action != null) {
-      batch += action
-      if (batch.size >= batchSizeLimit) {
-        break()
+    breakable {
+      var action = queue.poll()
+      while (action != null) {
+        batch += action
+        if (batch.size >= batchSizeLimit) {
+          break()
+        }
+        action = queue.poll()
       }
-
-      action = queue.poll()
     }
 
     if (batch.nonEmpty) {
