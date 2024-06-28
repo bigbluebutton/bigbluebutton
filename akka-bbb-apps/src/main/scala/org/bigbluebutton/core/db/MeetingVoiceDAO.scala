@@ -4,9 +4,6 @@ import org.bigbluebutton.common2.domain.{ VoiceProp }
 import slick.jdbc.PostgresProfile.api._
 import slick.lifted.{ ProvenShape }
 
-import scala.concurrent.ExecutionContext.Implicits.global
-import scala.util.{ Failure, Success }
-
 case class MeetingVoiceDbModel(
     meetingId:   String,
     telVoice:    String,

@@ -4,9 +4,6 @@ import org.bigbluebutton.common2.domain.SimplePollResultOutVO
 import org.bigbluebutton.core.models.Poll
 import slick.jdbc.PostgresProfile.api._
 
-import scala.concurrent.ExecutionContext.Implicits.global
-import scala.util.{ Failure, Success }
-
 case class PollDbModel(
     pollId:            String,
     meetingId:         String,

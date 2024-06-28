@@ -5,7 +5,6 @@ import org.bigbluebutton.core.models.PresentationInPod
 
 import scala.concurrent.ExecutionContext.Implicits.global
 import spray.json._
-import scala.concurrent.Future
 
 case class PresPresentationDbModel(
     presentationId:         String,

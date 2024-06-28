@@ -3,8 +3,6 @@ package org.bigbluebutton.core.db
 import PostgresProfile.api._
 import slick.lifted.ProvenShape
 import spray.json.JsValue
-import scala.concurrent.ExecutionContext.Implicits.global
-import scala.util.{Failure, Success}
 
 case class MeetingClientSettingsDbModel(
     meetingId:              String,

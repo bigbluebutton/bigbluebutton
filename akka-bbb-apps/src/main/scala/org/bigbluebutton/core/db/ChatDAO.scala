@@ -3,9 +3,6 @@ package org.bigbluebutton.core.db
 import slick.jdbc.PostgresProfile.api._
 import org.bigbluebutton.core.models.GroupChat
 
-import scala.concurrent.ExecutionContext.Implicits.global
-import scala.util.{ Failure, Success }
-
 case class ChatDbModel(
     chatId:       String,
     meetingId:    String,
