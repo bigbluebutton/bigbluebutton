@@ -4,9 +4,6 @@ import org.bigbluebutton.common2.domain.{ RecordProp }
 import slick.jdbc.PostgresProfile.api._
 import slick.lifted.{ ProvenShape }
 
-import scala.concurrent.ExecutionContext.Implicits.global
-import scala.util.{ Failure, Success }
-
 case class MeetingRecordingPoliciesDbModel(
     meetingId:               String,
     record:                  Boolean,

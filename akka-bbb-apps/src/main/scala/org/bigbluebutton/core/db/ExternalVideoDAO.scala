@@ -4,9 +4,6 @@ import org.bigbluebutton.core.util.RandomStringGenerator
 import slick.jdbc.PostgresProfile.api._
 import slick.lifted.ProvenShape
 
-import scala.concurrent.ExecutionContext.Implicits.global
-import scala.util.{ Failure, Success }
-
 case class ExternalVideoDbModel(
     externalVideoId:    String,
     meetingId:          String,

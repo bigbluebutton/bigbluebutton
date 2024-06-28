@@ -5,9 +5,6 @@ import PostgresProfile.api._
 import spray.json.JsValue
 import spray.json._
 
-import scala.concurrent.ExecutionContext.Implicits.global
-import scala.util.{ Failure, Success }
-
 case class PresPageDbModel(
     pageId:          String,
     presentationId:  String,

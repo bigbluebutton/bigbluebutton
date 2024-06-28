@@ -1,10 +1,6 @@
 package org.bigbluebutton.core.db
 
-import org.bigbluebutton.core.apps.whiteboard.Whiteboard
 import slick.jdbc.PostgresProfile.api._
-
-import scala.concurrent.ExecutionContext.Implicits.global
-import scala.util.{ Failure, Success }
 
 case class PresPageCursorDbModel(
     pageId:        String,

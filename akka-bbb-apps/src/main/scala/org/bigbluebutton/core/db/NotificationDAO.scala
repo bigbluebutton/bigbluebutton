@@ -3,9 +3,6 @@ import org.bigbluebutton.common2.msgs.{BbbCommonEnvCoreMsg, NotifyAllInMeetingEv
 import PostgresProfile.api._
 import spray.json.JsValue
 
-import scala.util.{Failure, Success}
-import scala.concurrent.ExecutionContext.Implicits.global
-
 case class NotificationDbModel(
 //    notificationId:        String,
     meetingId:          String,

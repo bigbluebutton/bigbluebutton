@@ -3,10 +3,6 @@ package org.bigbluebutton.core.db
 import slick.jdbc.PostgresProfile.api._
 import org.bigbluebutton.core.models.Poll
 
-import scala.collection.immutable.Seq
-import scala.concurrent.ExecutionContext.Implicits.global
-import scala.util.{ Failure, Success }
-
 case class PollResponseDbModel(
     pollId:    String,
     optionId:  Option[Int],

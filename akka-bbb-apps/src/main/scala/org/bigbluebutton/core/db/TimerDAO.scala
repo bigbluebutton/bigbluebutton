@@ -4,9 +4,6 @@ import org.bigbluebutton.core.apps.TimerModel
 import org.bigbluebutton.core.apps.TimerModel.{getAccumulated, getIsActive, isRunning, getStartedAt, isStopwatch, getTime, getTrack}
 import slick.jdbc.PostgresProfile.api._
 
-import scala.util.{Failure, Success}
-import scala.concurrent.ExecutionContext.Implicits.global
-
 case class TimerDbModel(
     meetingId:        String,
     stopwatch:        Boolean,

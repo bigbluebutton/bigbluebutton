@@ -5,9 +5,6 @@ import org.bigbluebutton.core.models.GuestPolicy
 import slick.jdbc.PostgresProfile.api._
 import slick.lifted.ProvenShape
 
-import scala.concurrent.ExecutionContext.Implicits.global
-import scala.util.{Failure, Success}
-
 case class MeetingUsersPoliciesDbModel(
                                 meetingId: String,
                                 maxUsers: Int,

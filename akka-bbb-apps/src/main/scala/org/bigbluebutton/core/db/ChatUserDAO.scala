@@ -2,10 +2,6 @@ package org.bigbluebutton.core.db
 
 import slick.jdbc.PostgresProfile.api._
 import org.bigbluebutton.common2.msgs.GroupChatUser
-import org.bigbluebutton.core.models.VoiceUserState
-
-import scala.concurrent.ExecutionContext.Implicits.global
-import scala.util.{ Failure, Success }
 
 case class ChatUserDbModel(
     chatId:          String,

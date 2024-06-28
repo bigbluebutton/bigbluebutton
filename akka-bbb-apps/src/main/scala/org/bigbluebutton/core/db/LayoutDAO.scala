@@ -4,9 +4,6 @@ import org.bigbluebutton.core.models.Layouts
 import org.bigbluebutton.core.models.Layouts.{getCameraDockIsResizing, getCameraPosition, getCurrentLayout, getFocusedCamera, getPresentationIsOpen, getPresentationVideoRate, getPushLayout, setCurrentLayout}
 import slick.jdbc.PostgresProfile.api._
 
-import scala.util.{Failure, Success}
-import scala.concurrent.ExecutionContext.Implicits.global
-
 case class LayoutDbModel(
     meetingId:        String,
     currentLayoutType:        String,
