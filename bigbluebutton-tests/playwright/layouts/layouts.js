@@ -8,7 +8,7 @@ class Layouts extends MultiUsers {
     await this.modPage.waitAndClick(e.manageLayoutBtn);
     await this.modPage.waitAndClick(e.focusOnPresentation);
     await this.modPage.waitAndClick(e.updateLayoutBtn);
-    await this.modPage.waitAndClick(e.toastContainer);
+    await this.modPage.closeAllToastNotifications();
     await this.modPage.wasRemoved(e.toastContainer);
 
     await checkScreenshots(this, e.webcamContainer, 'focus-on-presentation');
@@ -19,7 +19,7 @@ class Layouts extends MultiUsers {
     await this.modPage.waitAndClick(e.manageLayoutBtn);
     await this.modPage.waitAndClick(e.focusOnVideo);
     await this.modPage.waitAndClick(e.updateLayoutBtn);
-    await this.modPage.waitAndClick(e.toastContainer);
+    await this.modPage.closeAllToastNotifications();
     await this.modPage.wasRemoved(e.toastContainer);
 
     await checkScreenshots(this, e.webcamContainer, 'grid-layout');
@@ -30,7 +30,7 @@ class Layouts extends MultiUsers {
     await this.modPage.waitAndClick(e.manageLayoutBtn);
     await this.modPage.waitAndClick(e.smartLayout);
     await this.modPage.waitAndClick(e.updateLayoutBtn);
-    await this.modPage.waitAndClick(e.toastContainer);
+    await this.modPage.closeAllToastNotifications();
     await this.modPage.wasRemoved(e.toastContainer);
 
     await checkScreenshots(this, e.webcamContainer, 'smart-layout', 1);
@@ -47,7 +47,7 @@ class Layouts extends MultiUsers {
     await this.modPage.waitAndClick(e.manageLayoutBtn);
     await this.modPage.waitAndClick(e.customLayout);
     await this.modPage.waitAndClick(e.updateLayoutBtn);
-    await this.modPage.waitAndClick(e.toastContainer);
+    await this.modPage.closeAllToastNotifications();
     await this.modPage.wasRemoved(e.toastContainer);
 
     await checkScreenshots(this, 'video', 'custom-layout', 1);
@@ -84,7 +84,7 @@ class Layouts extends MultiUsers {
     await this.modPage.waitAndClick(e.manageLayoutBtn);
     await this.modPage.waitAndClick(e.customLayout);
     await this.modPage.waitAndClick(e.updateEveryoneLayoutBtn);
-    await this.modPage.waitAndClick(e.toastContainer);
+    await this.modPage.closeAllToastNotifications();
     await this.modPage.wasRemoved(e.toastContainer);
 
     // Presenter minimizes presentation

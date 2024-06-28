@@ -42,7 +42,7 @@ class MeetingLockSettingsDbTableDef(tag: Tag) extends Table[MeetingLockSettingsD
 
 object MeetingLockSettingsDAO {
   def insert(meetingId: String, lockSettingsProps: LockSettingsProps) = {
-    DatabaseConnection.db.run(
+    DatabaseConnection.enqueue(
       TableQuery[MeetingLockSettingsDbTableDef].forceInsert(
         MeetingLockSettingsDbModel(
           meetingId = meetingId,
@@ -58,16 +58,11 @@ object MeetingLockSettingsDAO {
           hideViewersAnnotation = lockSettingsProps.hideViewersAnnotation,
         )
       )
-    ).onComplete {
-        case Success(rowsAffected) => {
-          DatabaseConnection.logger.debug(s"$rowsAffected row(s) inserted in MeetingLockSettings table!")
-        }
-        case Failure(e) => DatabaseConnection.logger.error(s"Error inserting MeetingLockSettings: $e")
-      }
+    )
   }
 
   def update(meetingId: String, permissions: Permissions) = {
-    DatabaseConnection.db.run(
+    DatabaseConnection.enqueue(
       TableQuery[MeetingLockSettingsDbTableDef].insertOrUpdate(
         MeetingLockSettingsDbModel(
           meetingId = meetingId,
@@ -83,12 +78,7 @@ object MeetingLockSettingsDAO {
           hideViewersAnnotation = permissions.hideViewersAnnotation,
         ),
       )
-    ).onComplete {
-        case Success(rowsAffected) => {
-          DatabaseConnection.logger.debug(s"$rowsAffected row(s) updated in MeetingLockSettings table!")
-        }
-        case Failure(e) => DatabaseConnection.logger.error(s"Error updating MeetingLockSettings: $e")
-      }
+    )
   }
 
 }

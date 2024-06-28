@@ -27,7 +27,7 @@ class UserTranscriptionErrorDbTableDef(tag: Tag) extends Table[UserTranscription
 
 object UserTranscriptionErrorDAO {
   def insert(userId: String, meetingId: String, errorCode: String, errorMessage: String) = {
-    DatabaseConnection.db.run(
+    DatabaseConnection.enqueue(
       TableQuery[UserTranscriptionErrorDbTableDef].insertOrUpdate(
         UserTranscriptionErrorDbModel(
           meetingId = meetingId,
@@ -37,10 +37,7 @@ object UserTranscriptionErrorDAO {
           lastUpdatedAt = new java.sql.Timestamp(System.currentTimeMillis()),
         )
       )
-    ).onComplete {
-        case Success(rowsAffected) => DatabaseConnection.logger.debug(s"$rowsAffected row(s) inserted on user_transcriptionError table!")
-        case Failure(e) => DatabaseConnection.logger.debug(s"Error inserting user_transcriptionError: $e")
-      }
+    )
   }
 
 }

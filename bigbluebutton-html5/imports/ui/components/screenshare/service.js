@@ -1,15 +1,14 @@
-import Screenshare from '/imports/api/screenshare';
+import { makeVar, useReactiveVar } from '@apollo/client';
 import KurentoBridge from '/imports/api/screenshare/client/bridge';
 import BridgeService from '/imports/api/screenshare/client/bridge/service';
-import Settings from '/imports/ui/services/settings';
 import logger from '/imports/startup/client/logger';
-import Auth from '/imports/ui/services/auth';
 import AudioService from '/imports/ui/components/audio/service';
 import MediaStreamUtils from '/imports/utils/media-stream-utils';
 import ConnectionStatusService from '/imports/ui/components/connection-status/service';
 import browserInfo from '/imports/utils/browserInfo';
+import createUseSubscription from '/imports/ui/core/hooks/createUseSubscription';
+import { SCREENSHARE_SUBSCRIPTION } from './queries';
 
-const VOLUME_CONTROL_ENABLED = window.meetingClientSettings.public.kurento.screenshare.enableVolumeControl;
 const SCREENSHARE_MEDIA_ELEMENT_NAME = 'screenshareVideo';
 
 const DEFAULT_SCREENSHARE_STATS_TYPES = [
@@ -17,58 +16,40 @@ const DEFAULT_SCREENSHARE_STATS_TYPES = [
   'inbound-rtp',
 ];
 
-const CONTENT_TYPE_CAMERA = "camera";
-const CONTENT_TYPE_SCREENSHARE = "screenshare";
+const CONTENT_TYPE_CAMERA = 'camera';
+const CONTENT_TYPE_SCREENSHARE = 'screenshare';
 
-let _isSharingScreen = false;
-const _isSharingDep = {
-  value: false,
-  tracker: new Tracker.Dependency(),
-};
+const isSharingVar = makeVar(false);
+const sharingContentTypeVar = makeVar(false);
+const cameraAsContentDeviceIdTypeVar = makeVar('');
 
-const _sharingContentTypeDep = {
-  value: false,
-  tracker: new Tracker.Dependency(),
-};
+const useScreenshare = createUseSubscription(SCREENSHARE_SUBSCRIPTION, {}, true);
 
-const _cameraAsContentDeviceIdTypeDep = {
-  value: '',
-  tracker: new Tracker.Dependency(),
-};
+const useIsSharing = () => useReactiveVar(isSharingVar);
+const useSharingContentType = () => useReactiveVar(sharingContentTypeVar);
+const useCameraAsContentDeviceIdType = () => useReactiveVar(cameraAsContentDeviceIdTypeVar);
 
-const isSharing = () => {
-  _isSharingDep.tracker.depend();
-  return _isSharingDep.value;
-};
+const isSharing = () => isSharingVar();
 
-const setIsSharing = (isSharing) => {
-  if (_isSharingDep.value !== isSharing) {
-    _isSharingDep.value = isSharing;
-    _isSharingDep.tracker.changed();
+const setIsSharing = (sharing) => {
+  if (isSharing() !== sharing) {
+    isSharingVar(sharing);
   }
 };
+
+const getSharingContentType = () => sharingContentTypeVar();
 
 const setSharingContentType = (contentType) => {
-  if (_sharingContentTypeDep.value !== contentType) {
-    _sharingContentTypeDep.value = contentType;
-    _sharingContentTypeDep.tracker.changed();
+  if (getSharingContentType() !== contentType) {
+    sharingContentTypeVar(contentType);
   }
-}
-
-const getSharingContentType = () => {
-  _sharingContentTypeDep.tracker.depend();
-  return _sharingContentTypeDep.value;
 };
 
-const getCameraAsContentDeviceId = () => {
-  _cameraAsContentDeviceIdTypeDep.tracker.depend();
-  return _cameraAsContentDeviceIdTypeDep.value;
-};
+const getCameraAsContentDeviceId = () => cameraAsContentDeviceIdTypeVar();
 
 const setCameraAsContentDeviceId = (deviceId) => {
-  if (_cameraAsContentDeviceIdTypeDep.value !== deviceId) {
-    _cameraAsContentDeviceIdTypeDep.value = deviceId;
-    _cameraAsContentDeviceIdTypeDep.tracker.changed();
+  if (getCameraAsContentDeviceId() !== deviceId) {
+    cameraAsContentDeviceIdTypeVar(deviceId);
   }
 };
 
@@ -110,93 +91,68 @@ const _trackStreamTermination = (stream, handler) => {
 };
 
 const _isStreamActive = (stream) => {
-  const tracksAreActive = !stream.getTracks().some(track => track.readyState === 'ended');
+  const tracksAreActive = !stream.getTracks().some((track) => track.readyState === 'ended');
 
   return tracksAreActive && stream.active;
-}
+};
 
 const _handleStreamTermination = () => {
   screenshareHasEnded();
 };
 
-// A simplified, trackable version of isScreenBroadcasting that DOES NOT
-// account for the presenter's local sharing state.
-// It reflects the GLOBAL screen sharing state (akka-apps)
-const isScreenGloballyBroadcasting = () => {
-  const screenshareEntry = Screenshare.findOne({ meetingId: Auth.meetingID, "screenshare.contentType": CONTENT_TYPE_SCREENSHARE },
-    { fields: { 'screenshare.stream': 1 } });
+const useIsScreenGloballyBroadcasting = () => {
+  const { data } = useScreenshare();
+  return Boolean(
+    data
+    && data[0]
+    && data[0].contentType === CONTENT_TYPE_SCREENSHARE
+    && data[0].stream,
+  );
+};
 
-  return (!screenshareEntry ? false : !!screenshareEntry.screenshare.stream);
-}
+const useIsCameraAsContentGloballyBroadcasting = () => {
+  const { data } = useScreenshare();
 
-// A simplified, trackable version of isCameraContentBroadcasting that DOES NOT
-// account for the presenter's local sharing state.
-// It reflects the GLOBAL camera as content sharing state (akka-apps)
-const isCameraAsContentGloballyBroadcasting = () => {
-  const cameraAsContentEntry = Screenshare.findOne({ meetingId: Auth.meetingID, "screenshare.contentType": CONTENT_TYPE_CAMERA },
-    { fields: { 'screenshare.stream': 1 } });
+  return Boolean(data && data[0] && data[0].contentType === CONTENT_TYPE_CAMERA && data[0].stream);
+};
 
-  return (!cameraAsContentEntry ? false : !!cameraAsContentEntry.screenshare.stream);
-}
-
-// when the meeting information has been updated check to see if it was
-// screensharing. If it has changed either trigger a call to receive video
-// and display it, or end the call and hide the video
-const isScreenBroadcasting = () => {
-  const sharing = isSharing() && getSharingContentType() == CONTENT_TYPE_SCREENSHARE;
-  const screenshareEntry = Screenshare.findOne({ meetingId: Auth.meetingID, "screenshare.contentType": CONTENT_TYPE_SCREENSHARE },
-    { fields: { 'screenshare.stream': 1 } });
-  const screenIsShared = !screenshareEntry ? false : !!screenshareEntry.screenshare.stream;
-
-  if (screenIsShared && isSharing) {
-    setIsSharing(false);
-  }
+const useIsScreenBroadcasting = () => {
+  const active = useIsSharing();
+  const sharingContentType = useSharingContentType();
+  const screenIsShared = useIsScreenGloballyBroadcasting();
+  const sharing = active && sharingContentType === CONTENT_TYPE_SCREENSHARE;
 
   return sharing || screenIsShared;
 };
 
-// when the meeting information has been updated check to see if it was
-// sharing camera as content. If it has changed either trigger a call to receive video
-// and display it, or end the call and hide the video
-const isCameraAsContentBroadcasting = () => {
-  const sharing = isSharing() && getSharingContentType() === CONTENT_TYPE_CAMERA;
-  const screenshareEntry = Screenshare.findOne({ meetingId: Auth.meetingID, "screenshare.contentType": CONTENT_TYPE_CAMERA },
-    { fields: { 'screenshare.stream': 1 } });
-  const cameraAsContentIsShared = !screenshareEntry ? false : !!screenshareEntry.screenshare.stream;
-
-  if (cameraAsContentIsShared && isSharing) {
-    setIsSharing(false);
-  }
+const useIsCameraAsContentBroadcasting = () => {
+  const active = useIsSharing();
+  const sharingContentType = useSharingContentType();
+  const sharing = active && sharingContentType === CONTENT_TYPE_CAMERA;
+  const cameraAsContentIsShared = useIsCameraAsContentGloballyBroadcasting();
 
   return sharing || cameraAsContentIsShared;
 };
 
+const useScreenshareHasAudio = () => {
+  const { data } = useScreenshare();
 
-const screenshareHasAudio = () => {
-  const screenshareEntry = Screenshare.findOne({ meetingId: Auth.meetingID },
-    { fields: { 'screenshare.hasAudio': 1 } });
+  return Boolean(data && data[0] && data[0].hasAudio);
+};
 
-  if (!screenshareEntry) {
-    return false;
-  }
+const useBroadcastContentType = () => {
+  const { data } = useScreenshare();
 
-  return !!screenshareEntry.screenshare.hasAudio;
-}
-
-const getBroadcastContentType = () => {
-  const screenshareEntry = Screenshare.findOne({meetindId: Auth.meedingID},
-    { fields: { 'screenshare.contentType': 1} });
-
-  if (!screenshareEntry) {
+  if (!data || !data[0]) {
     // defaults to contentType: "camera"
     return CONTENT_TYPE_CAMERA;
   }
 
-  return screenshareEntry.screenshare.contentType;
-}
+  return data[0].contentType;
+};
 
 const screenshareHasEnded = () => {
-  if (isSharing()) {
+  if (isSharingVar()) {
     setIsSharing(false);
   }
   if (getSharingContentType() === CONTENT_TYPE_CAMERA) {
@@ -206,9 +162,7 @@ const screenshareHasEnded = () => {
   KurentoBridge.stop();
 };
 
-const getMediaElement = () => {
-  return document.getElementById(SCREENSHARE_MEDIA_ELEMENT_NAME);
-}
+const getMediaElement = () => document.getElementById(SCREENSHARE_MEDIA_ELEMENT_NAME);
 
 const getMediaElementDimensions = () => {
   const element = getMediaElement();
@@ -224,10 +178,16 @@ const setVolume = (volume) => {
 
 const getVolume = () => KurentoBridge.getVolume();
 
-const shouldEnableVolumeControl = () => VOLUME_CONTROL_ENABLED && screenshareHasAudio();
+const useShouldEnableVolumeControl = () => {
+  const SCREENSHARE_CONFIG = window.meetingClientSettings.public.kurento.screenshare;
+  const VOLUME_CONTROL_ENABLED = SCREENSHARE_CONFIG.enableVolumeControl;
+  const hasAudio = useScreenshareHasAudio();
+
+  return VOLUME_CONTROL_ENABLED && hasAudio;
+};
 
 const attachLocalPreviewStream = (mediaElement) => {
-  const {isTabletApp} = browserInfo;
+  const { isTabletApp } = browserInfo;
   if (isTabletApp) {
     // We don't show preview for mobile app, as the stream is only available in native code
     return;
@@ -270,15 +230,21 @@ const setOutputDeviceId = (outputDeviceId) => {
   }
 };
 
-const screenshareHasStarted = (isPresenter, options = {}) => {
+const screenshareHasStarted = (hasAudio, isPresenter, options = {}) => {
   // Presenter's screen preview is local, so skip
   if (!isPresenter) {
-    viewScreenshare({ outputDeviceId: options.outputDeviceId });
+    viewScreenshare({ outputDeviceId: options.outputDeviceId }, hasAudio);
   }
 };
 
-const shareScreen = async (stopWatching, isPresenter, onFail, options = {}) => {
-  if (isCameraAsContentBroadcasting()) {
+const shareScreen = async (
+  isCameraAsContentBroadcasting,
+  stopWatching,
+  isPresenter,
+  onFail,
+  options = {},
+) => {
+  if (isCameraAsContentBroadcasting) {
     screenshareHasEnded();
   }
 
@@ -317,8 +283,7 @@ const shareScreen = async (stopWatching, isPresenter, onFail, options = {}) => {
   }
 };
 
-const viewScreenshare = (options = {}) => {
-  const hasAudio = screenshareHasAudio();
+const viewScreenshare = (options = {}, hasAudio) => {
   KurentoBridge.view({ hasAudio, outputDeviceId: options.outputDeviceId })
     .catch((error) => {
       logger.error({
@@ -336,8 +301,6 @@ const screenShareEndAlert = () => AudioService
     + window.meetingClientSettings.public.app.basename
     + window.meetingClientSettings.public.app.instanceId}`
     + '/resources/sounds/ScreenshareOff.mp3');
-
-const dataSavingSetting = () => Settings.dataSaving.viewScreenshare;
 
 /**
    * Get stats about all active screenshare peers.
@@ -389,15 +352,10 @@ const isMediaFlowing = (previousStats, currentStats) => {
 export {
   SCREENSHARE_MEDIA_ELEMENT_NAME,
   isMediaFlowing,
-  isScreenBroadcasting,
-  isCameraAsContentBroadcasting,
   screenshareHasEnded,
   screenshareHasStarted,
-  screenshareHasAudio,
-  getBroadcastContentType,
   shareScreen,
   screenShareEndAlert,
-  dataSavingSetting,
   isSharing,
   setIsSharing,
   setSharingContentType,
@@ -405,13 +363,20 @@ export {
   getMediaElement,
   getMediaElementDimensions,
   attachLocalPreviewStream,
-  isScreenGloballyBroadcasting,
-  isCameraAsContentGloballyBroadcasting,
   getStats,
   setVolume,
   getVolume,
-  shouldEnableVolumeControl,
   setCameraAsContentDeviceId,
   getCameraAsContentDeviceId,
   setOutputDeviceId,
+  useCameraAsContentDeviceIdType,
+  useIsSharing,
+  useSharingContentType,
+  useIsScreenGloballyBroadcasting,
+  useIsCameraAsContentGloballyBroadcasting,
+  useShouldEnableVolumeControl,
+  useIsScreenBroadcasting,
+  useIsCameraAsContentBroadcasting,
+  useScreenshareHasAudio,
+  useBroadcastContentType,
 };

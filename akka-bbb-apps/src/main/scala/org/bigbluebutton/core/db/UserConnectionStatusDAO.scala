@@ -28,7 +28,7 @@ class UserConnectionStatusDbTableDef(tag: Tag) extends Table[UserConnectionStatu
 object UserConnectionStatusDAO {
 
   def insert(meetingId: String, userId: String) = {
-    DatabaseConnection.db.run(
+    DatabaseConnection.enqueue(
       TableQuery[UserConnectionStatusDbTableDef].insertOrUpdate(
         UserConnectionStatusDbModel(
           userId = userId,
@@ -39,14 +39,11 @@ object UserConnectionStatusDAO {
           statusUpdatedAt = None
         )
       )
-    ).onComplete {
-        case Success(rowsAffected) => DatabaseConnection.logger.debug(s"$rowsAffected row(s) inserted on UserConnectionStatus table!")
-        case Failure(e)            => DatabaseConnection.logger.debug(s"Error inserting UserConnectionStatus: $e")
-      }
+    )
   }
 
   def updateUserAlive(meetingId: String, userId: String, rtt: Option[Double], status: String) = {
-    DatabaseConnection.db.run(
+    DatabaseConnection.enqueue(
       TableQuery[UserConnectionStatusDbTableDef]
         .filter(_.meetingId === meetingId)
         .filter(_.userId === userId)
@@ -59,10 +56,7 @@ object UserConnectionStatusDAO {
             Some(new java.sql.Timestamp(System.currentTimeMillis())),
           )
         )
-    ).onComplete {
-        case Success(rowsAffected) => DatabaseConnection.logger.debug(s"$rowsAffected row(s) updated connectionAliveAt on UserConnectionStatus table!")
-        case Failure(e)            => DatabaseConnection.logger.debug(s"Error updating connectionAliveAt on UserConnectionStatus: $e")
-      }
+    )
   }
 
 }

@@ -9,6 +9,8 @@ import {
   CAMERADOCK_POSITION,
 } from '/imports/ui/components/layout/enums';
 import { defaultsDeep } from '/imports/utils/array-utils';
+import Session from '/imports/ui/services/storage/in-memory';
+import { getSettingsSingletonInstance } from '/imports/ui/services/settings';
 
 const windowWidth = () => window.document.documentElement.clientWidth;
 const windowHeight = () => window.document.documentElement.clientHeight;
@@ -26,7 +28,8 @@ const ParticipantsAndChatOnlyLayout = (props) => {
 
   const input = layoutSelect((i) => i.input);
   const deviceType = layoutSelect((i) => i.deviceType);
-  const isRTL = layoutSelect((i) => i.isRTL);
+  const Settings = getSettingsSingletonInstance();
+  const { isRTL } = Settings.application;
   const fullscreen = layoutSelect((i) => i.fullscreen);
   const fontSize = layoutSelect((i) => i.fontSize);
   const currentPanelType = layoutSelect((i) => i.currentPanelType);
@@ -111,7 +114,7 @@ const ParticipantsAndChatOnlyLayout = (props) => {
       fullscreenElement === 'Presentation'
       || fullscreenElement === 'Screenshare'
       || fullscreenElement === 'ExternalVideo'
-      || fullscreenElement === 'GenericComponent'
+      || fullscreenElement === 'GenericContent'
     ) {
       mediaBounds.width = windowWidth();
       mediaBounds.height = windowHeight();
@@ -336,7 +339,7 @@ const ParticipantsAndChatOnlyLayout = (props) => {
     });
 
     layoutContextDispatch({
-      type: ACTIONS.SET_GENERIC_COMPONENT_OUTPUT,
+      type: ACTIONS.SET_GENERIC_CONTENT_OUTPUT,
       value: {
         display: false,
         width: 0,
@@ -409,8 +412,8 @@ const ParticipantsAndChatOnlyLayout = (props) => {
             width: 0,
             height: 0,
           },
-          genericComponent: {
-            genericComponentId: undefined,
+          genericMainContent: {
+            genericContentId: undefined,
             width: 0,
             height: 0,
           },
@@ -423,7 +426,7 @@ const ParticipantsAndChatOnlyLayout = (props) => {
         INITIAL_INPUT_STATE,
       ),
     });
-    Session.set('layoutReady', true);
+    Session.setItem('layoutReady', true);
     throttledCalculatesLayout();
   };
 

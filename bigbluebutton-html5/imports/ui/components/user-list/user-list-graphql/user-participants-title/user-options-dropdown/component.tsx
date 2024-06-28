@@ -20,7 +20,7 @@ import {
 } from './service';
 import { User } from '/imports/ui/Types/user';
 import useCurrentUser from '/imports/ui/core/hooks/useCurrentUser';
-import { isBreakoutRoomsEnabled, isLearningDashboardEnabled } from '/imports/ui/services/features';
+import { useIsBreakoutRoomsEnabled, useIsLearningDashboardEnabled } from '/imports/ui/services/features';
 import { useMutation, useLazyQuery } from '@apollo/client';
 import { CLEAR_ALL_EMOJI } from '/imports/ui/core/graphql/mutations/userMutations';
 import { SET_MUTED } from './mutations';
@@ -111,10 +111,6 @@ const intlMessages = defineMessages({
   },
 });
 
-// eslint-disable-next-line @typescript-eslint/ban-ts-comment
-// @ts-ignore - temporary, while meteor exists in the project
-const { dynamicGuestPolicy } = window.meetingClientSettings.public.app;
-
 interface RenderModalProps {
   setIsOpen: React.Dispatch<React.SetStateAction<boolean>>;
   isOpen: boolean;
@@ -150,6 +146,7 @@ interface UserTitleOptionsProps {
   isModerator: boolean;
   hasBreakoutRooms: boolean | undefined;
   meetingName: string | undefined;
+  learningDashboardToken: string | undefined;
 }
 
 const UserTitleOptions: React.FC<UserTitleOptionsProps> = ({
@@ -159,6 +156,7 @@ const UserTitleOptions: React.FC<UserTitleOptionsProps> = ({
   isModerator,
   hasBreakoutRooms,
   meetingName,
+  learningDashboardToken,
 }) => {
   const intl = useIntl();
   const { locale } = intl;
@@ -181,6 +179,8 @@ const UserTitleOptions: React.FC<UserTitleOptionsProps> = ({
   const [setMuted] = useMutation(SET_MUTED);
   const [getUsers, { data: usersData, error: usersError }] = useLazyQuery(GET_USER_NAMES, { fetchPolicy: 'no-cache' });
   const users = usersData?.user || [];
+  const isLearningDashboardEnabled = useIsLearningDashboardEnabled();
+  const isBreakoutRoomsEnabled = useIsBreakoutRoomsEnabled();
 
   if (usersError) {
     logger.error({
@@ -230,11 +230,13 @@ const UserTitleOptions: React.FC<UserTitleOptionsProps> = ({
     );
   };
 
+  const { dynamicGuestPolicy } = window.meetingClientSettings.public.app;
+
   const actions = useMemo(() => {
     const canCreateBreakout = isModerator
       && !isBreakout
       && !hasBreakoutRooms
-      && isBreakoutRoomsEnabled();
+      && isBreakoutRoomsEnabled;
     return [
       {
         allow: !isBreakout,
@@ -305,22 +307,22 @@ const UserTitleOptions: React.FC<UserTitleOptionsProps> = ({
       {
         key: 'separator-02',
         isSeparator: true,
-        allow: true,
+        allow: canCreateBreakout,
       },
       {
-        allow: isLearningDashboardEnabled(),
+        allow: isLearningDashboardEnabled,
         icon: 'multi_whiteboard',
         iconRight: 'popout_window',
         label: intl.formatMessage(intlMessages.learningDashboardLabel),
         description: `${intl.formatMessage(intlMessages.learningDashboardDesc)}
         ${intl.formatMessage(intlMessages.newTab)}`,
         key: uuids.current[8],
-        onClick: () => { openLearningDashboardUrl(locale); },
+        onClick: () => { openLearningDashboardUrl(locale, learningDashboardToken); },
         dividerTop: true,
         dataTest: 'learningDashboard',
       },
     ].filter(({ allow }) => allow);
-  }, [isModerator, hasBreakoutRooms, isMeetingMuted, locale, intl]);
+  }, [isModerator, hasBreakoutRooms, isMeetingMuted, locale, intl, isBreakoutRoomsEnabled, isLearningDashboardEnabled]);
 
   const newLocal = 'true';
   return (
@@ -383,8 +385,9 @@ const UserTitleOptionsContainer: React.FC = () => {
   const { data: meetingInfo } = useMeeting((meeting: Partial<Meeting>) => ({
     voiceSettings: meeting?.voiceSettings,
     isBreakout: meeting?.isBreakout,
-    breakoutPolicies: meeting?.breakoutPolicies,
+    componentsFlags: meeting?.componentsFlags,
     name: meeting?.name,
+    learningDashboardAccessToken: meeting.learningDashboardAccessToken,
   }));
 
   const { data: currentUser } = useCurrentUser((user: Partial<User>) => ({
@@ -394,15 +397,17 @@ const UserTitleOptionsContainer: React.FC = () => {
   // in case of current user isn't load yet
   if (!currentUser?.isModerator ?? true) return null;
 
+  const hasBreakoutRooms = meetingInfo?.componentsFlags?.hasBreakoutRoom ?? false;
+
   return (
     <UserTitleOptions
       isRTL={isRTL}
       isMeetingMuted={meetingInfo?.voiceSettings?.muteOnStart}
       isBreakout={meetingInfo?.isBreakout}
       isModerator={currentUser?.isModerator ?? false}
-      hasBreakoutRooms={meetingInfo?.breakoutPolicies?.breakoutRooms !== undefined
-        && meetingInfo.breakoutPolicies.breakoutRooms.length > 0}
+      hasBreakoutRooms={hasBreakoutRooms}
       meetingName={meetingInfo?.name}
+      learningDashboardToken={meetingInfo?.learningDashboardAccessToken}
     />
   );
 };

@@ -15,16 +15,16 @@ import NotificationsBarContainer from '../notifications-bar/container';
 import AudioContainer from '../audio/container';
 import BannerBarContainer from '/imports/ui/components/banner-bar/container';
 import RaiseHandNotifier from '/imports/ui/components/raisehand-notifier/container';
-import ManyWebcamsNotifier from '/imports/ui/components/video-provider/video-provider-graphql/many-users-notify/container';
+import ManyWebcamsNotifier from '/imports/ui/components/video-provider/many-users-notify/container';
 import AudioCaptionsSpeechContainer from '/imports/ui/components/audio/audio-graphql/audio-captions/speech/component';
 import UploaderContainer from '/imports/ui/components/presentation/presentation-uploader/container';
 import ScreenReaderAlertContainer from '../screenreader-alert/container';
 import ScreenReaderAlertAdapter from '../screenreader-alert/adapter';
-import WebcamContainer from '../webcam/container';
+import WebcamContainer from '../webcam/component';
 import PresentationContainer from '../presentation/container';
 import ScreenshareContainer from '../screenshare/container';
 import ExternalVideoPlayerContainer from '../external-video-player/external-video-player-graphql/component';
-import GenericComponentContainer from '../generic-component-content/container';
+import GenericContentMainAreaContainer from '../generic-content/generic-main-content/container';
 import EmojiRainContainer from '../emoji-rain/container';
 import Styled from './styles';
 import { DEVICE_TYPE, ACTIONS, SMALL_VIEWPORT_BREAKPOINT, PANELS } from '../layout/enums';
@@ -36,28 +36,22 @@ import NavBarContainer from '../nav-bar/container';
 import SidebarNavigationContainer from '../sidebar-navigation/container';
 import SidebarContentContainer from '../sidebar-content/container';
 import PluginsEngineManager from '../plugins-engine/manager';
-import Settings from '/imports/ui/services/settings';
-import { registerTitleView } from '/imports/utils/dom-utils';
+import { getSettingsSingletonInstance } from '/imports/ui/services/settings';
 import Notifications from '../notifications/component';
 import GlobalStyles from '/imports/ui/stylesheets/styled-components/globalStyles';
 import ActionsBarContainer from '../actions-bar/container';
 import PushLayoutEngine from '../layout/push-layout/pushLayoutEngine';
 import AudioService from '/imports/ui/components/audio/service';
 import NotesContainer from '/imports/ui/components/notes/component';
-import DEFAULT_VALUES from '../layout/defaultValues';
 import AppService from '/imports/ui/components/app/service';
 import TimeSync from './app-graphql/time-sync/component';
 import PresentationUploaderToastContainer from '/imports/ui/components/presentation/presentation-toast/presentation-uploader-toast/container';
 import BreakoutJoinConfirmationContainerGraphQL from '../breakout-join-confirmation/breakout-join-confirmation-graphql/component';
 import FloatingWindowContainer from '/imports/ui/components/floating-window/container';
 import ChatAlertContainerGraphql from '../chat/chat-graphql/alert/component';
+import { notify } from '/imports/ui/services/notification';
 
 const MOBILE_MEDIA = 'only screen and (max-width: 40em)';
-const APP_CONFIG = window.meetingClientSettings.public.app;
-const DESKTOP_FONT_SIZE = APP_CONFIG.desktopFontSize;
-const MOBILE_FONT_SIZE = APP_CONFIG.mobileFontSize;
-const LAYOUT_CONFIG = window.meetingClientSettings.public.layout;
-const CONFIRMATION_ON_LEAVE = window.meetingClientSettings.public.app.askForConfirmationOnLeave;
 
 const intlMessages = defineMessages({
   userListLabel: {
@@ -130,10 +124,6 @@ const propTypes = {
   darkTheme: PropTypes.bool.isRequired,
 };
 
-const defaultProps = {
-  actionsbar: null,
-};
-
 const isLayeredView = window.matchMedia(`(max-width: ${SMALL_VIEWPORT_BREAKPOINT}px)`);
 
 class App extends Component {
@@ -164,13 +154,12 @@ class App extends Component {
       intl,
       layoutContextDispatch,
       isRTL,
-      setMobileUser,
-      toggleVoice,
+      muteMicrophone,
+      transcriptionSettings,
+      setSpeechOptions,
     } = this.props;
     const { browserName } = browserInfo;
     const { osName } = deviceInfo;
-
-    registerTitleView(intl.formatMessage(intlMessages.defaultViewLabel));
 
     layoutContextDispatch({
       type: ACTIONS.SET_IS_RTL,
@@ -178,6 +167,12 @@ class App extends Component {
     });
 
     ReactModal.setAppElement('#app');
+
+    const APP_CONFIG = window.meetingClientSettings.public.app;
+    const DESKTOP_FONT_SIZE = APP_CONFIG.desktopFontSize;
+    const MOBILE_FONT_SIZE = APP_CONFIG.mobileFontSize;
+    const CONFIRMATION_ON_LEAVE = window.meetingClientSettings.public.app.askForConfirmationOnLeave;
+    const Settings = getSettingsSingletonInstance();
 
     const fontSize = isMobile() ? MOBILE_FONT_SIZE : DESKTOP_FONT_SIZE;
     document.getElementsByTagName('html')[0].style.fontSize = fontSize;
@@ -209,7 +204,9 @@ class App extends Component {
 
     if (CONFIRMATION_ON_LEAVE) {
       window.onbeforeunload = (event) => {
-        AudioService.muteMicrophone(toggleVoice);
+        if (AudioService.isUsingAudio() && !AudioService.isMuted()) {
+          muteMicrophone();
+        }
         event.stopImmediatePropagation();
         event.preventDefault();
         // eslint-disable-next-line no-param-reassign
@@ -217,14 +214,11 @@ class App extends Component {
       };
     }
 
-    if (deviceInfo.isMobile) setMobileUser(true);
-
     logger.info({ logCode: 'app_component_componentdidmount' }, 'Client loaded successfully');
   }
 
   componentDidUpdate(prevProps) {
     const {
-      notify,
       currentUserEmoji,
       currentUserAway,
       currentUserRaiseHand,
@@ -245,10 +239,9 @@ class App extends Component {
         && currentUserEmoji.status !== 'raiseHand'
         && currentUserEmoji.status !== 'away'
     ) {
-      const formattedEmojiStatus = intl.formatMessage({ id: `app.actionsBar.emojiMenu.${currentUserEmoji.status}Label` })
-        || currentUserEmoji.status;
+      const formattedEmojiStatus = currentUserEmoji.status;
 
-      if (currentUserEmoji.status === 'none') {
+      if (currentUserEmoji.status === null) {
         notify(
           intl.formatMessage(intlMessages.clearedEmoji),
           'info',
@@ -281,6 +274,9 @@ class App extends Component {
 
     if (deviceType === null || prevProps.deviceType !== deviceType) this.throttledDeviceType();
 
+    const CHAT_CONFIG = window.meetingClientSettings.public.chat;
+    const PUBLIC_CHAT_ID = CHAT_CONFIG.public_group_id;
+
     if (
       selectedLayout !== prevProps.selectedLayout
       && selectedLayout?.toLowerCase?.()?.includes?.('focus')
@@ -296,7 +292,7 @@ class App extends Component {
         });
         layoutContextDispatch({
           type: ACTIONS.SET_ID_CHAT_OPEN,
-          value: DEFAULT_VALUES.idChatOpen,
+          value: PUBLIC_CHAT_ID,
         });
         layoutContextDispatch({
           type: ACTIONS.SET_SIDEBAR_CONTENT_PANEL,
@@ -396,6 +392,8 @@ class App extends Component {
       presentationIsOpen,
       selectedLayout,
     } = this.props;
+
+    const LAYOUT_CONFIG = window.meetingClientSettings.public.layout;
 
     const { showPushLayoutButton } = LAYOUT_CONFIG;
 
@@ -520,7 +518,7 @@ class App extends Component {
     this.setState({isVideoPreviewModalOpen: value});
   }
 
-setRandomUserSelectModalIsOpen(value) {
+  setRandomUserSelectModalIsOpen(value) {
     const {setMountRandomUserModal} = this.props;
     this.setState({isRandomUserSelectModalOpen: value});
     setMountRandomUserModal(false);
@@ -540,8 +538,10 @@ setRandomUserSelectModalIsOpen(value) {
       presentationIsOpen,
       darkTheme,
       intl,
-      genericComponentId,
+      genericMainContentId,
       speechLocale,
+      connected,
+      isPresentationEnabled,
     } = this.props;
 
     const {
@@ -557,7 +557,10 @@ setRandomUserSelectModalIsOpen(value) {
         <TimeSync />
         <Notifications />
         {this.mountPushLayoutEngine()}
-        {selectedLayout ? <LayoutEngine layoutType={selectedLayout} /> : null}
+        <LayoutEngine
+          layoutType={selectedLayout}
+          isPresentationEnabled={isPresentationEnabled}
+        />
         <GlobalStyles />
         <Styled.Layout
           id="layout"
@@ -569,14 +572,14 @@ setRandomUserSelectModalIsOpen(value) {
           {this.renderActivityCheck()}
           <ScreenReaderAlertContainer />
           <BannerBarContainer />
-          <NotificationsBarContainer />
+          <NotificationsBarContainer connected={connected} />
           <SidebarNavigationContainer />
           <SidebarContentContainer isSharedNotesPinned={isSharedNotesPinned} />
           <NavBarContainer main="new" />
           <WebcamContainer isLayoutSwapped={!presentationIsOpen} layoutType={selectedLayout} />
           <ExternalVideoPlayerContainer />
-          <GenericComponentContainer
-            genericComponentId={genericComponentId}
+          <GenericContentMainAreaContainer
+            genericMainContentId={genericMainContentId}
           />
           {
           shouldShowPresentation
@@ -644,6 +647,5 @@ setRandomUserSelectModalIsOpen(value) {
 }
 
 App.propTypes = propTypes;
-App.defaultProps = defaultProps;
 
 export default injectIntl(App);

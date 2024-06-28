@@ -20,6 +20,7 @@ subscription MeetingPermissions {
       allowModsToEjectCameras
       allowModsToUnmuteUsers
       authenticatedGuest
+      allowPromoteGuestToModerator
       guestPolicy
       maxUserConcurrentAccesses
       maxUsers

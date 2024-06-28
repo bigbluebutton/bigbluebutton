@@ -4,9 +4,9 @@ import (
 	"bytes"
 	"encoding/json"
 	"fmt"
-	"github.com/iMDT/bbb-graphql-middleware/internal/bbb_web"
 	"github.com/iMDT/bbb-graphql-middleware/internal/common"
 	log "github.com/sirupsen/logrus"
+	"io/ioutil"
 	"net/http"
 	"os"
 	"regexp"
@@ -17,20 +17,12 @@ var graphqlActionsUrl = os.Getenv("BBB_GRAPHQL_MIDDLEWARE_GRAPHQL_ACTIONS_URL")
 
 func GraphqlActionsClient(
 	browserConnection *common.BrowserConnection,
-	cookies []*http.Cookie,
-	fromBrowserToGqlActionsChannel *common.SafeChannel,
-	fromBrowserToHasuraChannel *common.SafeChannel,
-	fromHasuraToBrowserChannel *common.SafeChannel) error {
+	fromBrowserToGqlActionsChannel *common.SafeChannelByte,
+	fromHasuraToBrowserChannel *common.SafeChannelByte) error {
 
 	log := log.WithField("_routine", "GraphqlActionsClient").WithField("browserConnectionId", browserConnection.Id)
 	log.Debug("Starting GraphqlActionsClient")
 	defer log.Debug("Finished GraphqlActionsClient")
-
-	sessionVariables, err := bbb_web.BBBWebClient(browserConnection, cookies)
-	if err != nil {
-		log.Error("It was not able to load session variables from AuthHook", err)
-		return nil
-	}
 
 RangeLoop:
 	for {
@@ -46,48 +38,70 @@ RangeLoop:
 					continue
 				}
 
-				var fromBrowserMessageAsMap = fromBrowserMessage.(map[string]interface{})
+				var browserMessage common.BrowserSubscribeMessage
+				err := json.Unmarshal(fromBrowserMessage, &browserMessage)
+				if err != nil {
+					log.Errorf("failed to unmarshal message: %v", err)
+					continue
+				}
 
-				if fromBrowserMessageAsMap["type"] == "start" {
-					queryId := fromBrowserMessageAsMap["id"].(string)
-					payload := fromBrowserMessageAsMap["payload"].(map[string]interface{})
+				if browserMessage.Type == "subscribe" {
+					var errorMessage string
+					var mutationFuncName string
 
-					query, okQuery := payload["query"].(string)
-					variables, okVariables := payload["variables"].(map[string]interface{})
-					if okQuery && okVariables && strings.HasPrefix(query, "mutation") {
-						if funcName, inputs, err := parseGraphQLMutation(query, variables); err == nil {
-							if err = SendGqlActionsRequest(funcName, inputs, sessionVariables); err == nil {
-								//Action sent successfully, return data msg to client
-								browserResponseData := map[string]interface{}{
-									"id":   queryId,
-									"type": "data",
-									"payload": map[string]interface{}{
-										"data": map[string]interface{}{
-											funcName: true,
-										},
-									},
-								}
-								fromHasuraToBrowserChannel.Send(browserResponseData)
-
-								//Return complete msg to client
-								browserResponseComplete := map[string]interface{}{
-									"id":   queryId,
-									"type": "complete",
-								}
-								fromHasuraToBrowserChannel.Send(browserResponseComplete)
-
-								continue
+					if strings.HasPrefix(browserMessage.Payload.Query, "mutation") {
+						if funcName, inputs, err := parseGraphQLMutation(browserMessage.Payload.Query, browserMessage.Payload.Variables); err == nil {
+							mutationFuncName = funcName
+							if err = SendGqlActionsRequest(funcName, inputs, browserConnection.BBBWebSessionVariables); err == nil {
 							} else {
+								errorMessage = err.Error()
 								log.Error("It was not able to send the request to Graphql Actions", err)
 							}
 						} else {
+							errorMessage = "It was not able to parse graphQL query"
 							log.Error("It was not able to parse graphQL query", err)
 						}
 					}
+
+					if errorMessage != "" {
+						//Error on sending action, return error msg to client
+						browserResponseData := map[string]interface{}{
+							"id":   browserMessage.ID,
+							"type": "error",
+							"payload": []interface{}{
+								map[string]interface{}{
+									"message": errorMessage,
+								},
+							},
+						}
+						jsonData, _ := json.Marshal(browserResponseData)
+						fromHasuraToBrowserChannel.Send(jsonData)
+					} else {
+						//Action sent successfully, return data msg to client
+						browserResponseData := map[string]interface{}{
+							"id":   browserMessage.ID,
+							"type": "next",
+							"payload": map[string]interface{}{
+								"data": map[string]interface{}{
+									mutationFuncName: true,
+								},
+							},
+						}
+						jsonData, _ := json.Marshal(browserResponseData)
+						fromHasuraToBrowserChannel.Send(jsonData)
+					}
+
+					//Return complete msg to client
+					browserResponseComplete := map[string]interface{}{
+						"id":   browserMessage.ID,
+						"type": "complete",
+					}
+					jsonData, _ := json.Marshal(browserResponseComplete)
+					fromHasuraToBrowserChannel.Send(jsonData)
 				}
-				//Something went wrong, forward message to Hasura (maybe it will be able to handle)
-				log.Error("It was not able to parse a Mutation, forwarding it to Hasura", fromBrowserMessage)
-				fromBrowserToHasuraChannel.Send(fromBrowserMessage)
+
+				//Fallback to Hasura was disabled (keeping the code temporarily)
+				//fromBrowserToHasuraChannel.Send(fromBrowserMessage)
 			}
 		}
 	}
@@ -120,6 +134,20 @@ func SendGqlActionsRequest(funcName string, inputs map[string]interface{}, sessi
 	defer response.Body.Close()
 
 	if response.StatusCode != 200 {
+		body, err := ioutil.ReadAll(response.Body)
+		if err != nil {
+			fmt.Println("Error reading response body:", err)
+		}
+
+		var result map[string]interface{}
+		err = json.Unmarshal(body, &result)
+		if err == nil {
+			if message, ok := result["message"].(string); ok {
+				fmt.Println(message, err)
+				return fmt.Errorf("graphql actions request failed: %s", message)
+			}
+		}
+
 		return fmt.Errorf("graphql actions request failed: %s", response.Status)
 	}
 

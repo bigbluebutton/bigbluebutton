@@ -29,7 +29,7 @@ We have made changes so that when you set yourself as being Away, your microphon
 
 ![set yourself away](/img/30/30-set-away.png)
 
- When you return and unmute youself this counts as disabling Away mode. The control for toggling away mode is now positioned in the Reactions bar.
+ When you return and unmute yourself this counts as disabling Away mode. The control for toggling away mode is now positioned in the Reactions bar.
 
 ![set yourself active](/img/30/30-set-active.png)
 
@@ -54,6 +54,9 @@ We have enhanced the view of the polling results that appear over the whiteboard
 ### Engagement
 
 <!-- ####  -->
+**Deprecation Notice:**
+
+The `userStatus` feature was removed due to deprecation. It has been replaced by `userReaction`.
 
 
 <!-- ### Analytics -->
@@ -66,10 +69,13 @@ We have enhanced the view of the polling results that appear over the whiteboard
 We have made significant changes to the architecture of BigBlueButton and have introduced support to plugins -- optional custom modules included in the client which allow expanding the capabilities of BigBlueButton. A data channel is provided to allow for data exchange between clients. See the [HTML5 Plugin SDK](https://github.com/bigbluebutton/bigbluebutton-html-plugin-sdk) for examples and more information.
 
 At the moment of writing these documentation, the official list of plugins includes: 
-- [Select Random User](https://github.com/bigbluebutton/plugins/tree/main/pick-random-user-plugin)
-- [Generic Link Share](https://github.com/bigbluebutton/plugins/tree/main/generic-link-share)
-- [Session Share](https://github.com/bigbluebutton/plugins/tree/main/session-share)
-- [Decrease external video's volume on speak](https://github.com/bigbluebutton/plugins/tree/main/decrease-volume-on-speak)
+- [Select Random User](https://github.com/bigbluebutton/plugin-pick-random-user)
+- [Share a link](https://github.com/bigbluebutton/plugin-generic-link-share)
+- [H5P plugin for BigBlueButton](https://github.com/bigbluebutton/plugin-h5p)
+- [Session share](https://github.com/bigbluebutton/plugin-session-share)
+- [Decrease the volume of external video when someone speaks](https://github.com/bigbluebutton/plugin-decrease-volume-on-speak)
+- [Typed captions](https://github.com/bigbluebutton/plugin-typed-captions)
+- [Source code highlight](https://github.com/bigbluebutton/plugin-code-highlight)
 
 #### Replaced Akka framework with Pekko
 
@@ -92,7 +98,7 @@ We upgraded tl;draw from version 1 to version 2.0.0-alpha.19 (the last version o
 
 #### Support for Collabora Online as Document Converter
 ￼
-￼Collabora Productivity contributed the support for an alternative conversion script where Collabora Online (deployed locally [as a docker container] or running remotely) can be used for document conversion.
+Collabora Productivity contributed the support for an alternative conversion script where Collabora Online (deployed locally [as a docker container] or running remotely) can be used for document conversion.
 ￼For more information check the [pull request](https://github.com/bigbluebutton/bigbluebutton/pull/18783)
 
 ### Experimental
@@ -111,6 +117,7 @@ For full details on what is new in BigBlueButton 3.0, see the release notes.
 
 Recent releases:
 
+- [3.0.0-alpha.6](https://github.com/bigbluebutton/bigbluebutton/releases/tag/v3.0.0-alpha.6)
 - [3.0.0-alpha.5](https://github.com/bigbluebutton/bigbluebutton/releases/tag/v3.0.0-alpha.5)
 - [3.0.0-alpha.4](https://github.com/bigbluebutton/bigbluebutton/releases/tag/v3.0.0-alpha.4)
 - [3.0.0-alpha.3](https://github.com/bigbluebutton/bigbluebutton/releases/tag/v3.0.0-alpha.3)
@@ -156,6 +163,11 @@ Retired events
 - `allowOverrideClientSettingsOnCreateCall=false` added
 - `sessionsCleanupDelayInMinutes=60` added
 - `graphqlWebsocketUrl=${bigbluebutton.web.serverURL}/graphql` added
+- `defaultAllowPromoteGuestToModerator=false` added
+
+#### Removed support for POST requests on `join` endpoint and Content-Type headers are now required
+
+In BigBlueButton 2.6.18/2.7.8 POST requests are no longer allowed for the `join` endpoint. To ensure they are validated properly, a `Content-Type` header must also be provided for POST requests that contain data in the request body. Endpoints now support a limited set of content types that includes `text/xml`, `application/xml`, `application/x-www-form-url-encoded`, and `multipart/form-data`. By default each endpoint only supports `application/x-www-form-urlencoded` and `multipart/form-data`, but individual endpoints can override this and define their own set of supported content types. The `create` endpoint supports all of the four previously listed content types while `insertDocument` supports only `text/xml` and `application/xml`. Any requests with a content type that differs from the set supported by the target endpoint will be rejected with a new `unsupportedContentType` error.  
 
 ### Development
 

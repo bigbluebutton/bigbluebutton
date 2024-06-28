@@ -1178,7 +1178,7 @@ bbb-conf --restart
 Start a new meeting on the server, switch to German localization in Settings, **clear the cache** if needed -- frequently locales are cached.
 
 Please use caution when replacing/editing locales. If you followed the steps above you should have a backup copy of `de.json` (with ".old" appended) in `/tmp` in case you need to revert.
-Note that the json files accross BigBlueButton versions are not always interchangeable. The workflow described above is only really meant for cases like
+Note that the json files across BigBlueButton versions are not always interchangeable. The workflow described above is only really meant for cases like
  - I would like to tweak a translation for my own use
  - I would like to adopt a change from upstream without having to wait for the official release in a few days
  - This is part of my customization setup and I know what I need to test. I also know how to recover if needed
@@ -1249,8 +1249,6 @@ Do the same in `/usr/share/bbb-web/WEB-INF/classes/bigbluebutton.properties` in 
 
 ```
 defaultHTML5ClientUrl=${bigbluebutton.web.serverURL}/html5client/join
-
-defaultGuestWaitURL=${bigbluebutton.web.serverURL}/html5client/guestWait
 ```
 
 In configuration file for the HTML5 client, located in `/usr/share/meteor/bundle/programs/server/assets/app/config/settings.yml`, change the entry for `public.app.basename`:
@@ -1287,6 +1285,31 @@ public:
 ```
 
 Restart BigBlueButton with `sudo bbb-conf --restart` and you should now see the options for live captions when joining audio.
+
+### Configuration of gladia.io
+
+To use gladia.io for automatic speech-to-text transcriptions, you first need to obtain an API key from [gladia.io](https://www.gladia.io).  You can sign up for free credentials to test the integration.
+
+Next, you must be using BigBlueButton 2.7.4+ (pass `-v focal-270`) or BigBlueButton 3.0.0-alpha.7+ (pass `-v jammy-300`) or later on a BigBlueButton server with a public IP and hostname.  
+
+Once you have BigBlueButton installed, run `sudo apt install bbb-transcription-controller` to install BigBlueButton's transcription service which supports gladia.io.
+
+Next, run `sudo bbb-conf --setip <hostname>` where \<hostname\> is the external hostname of the server (same as was passed to bbb-install.sh). This will update the bbb-transcription-controller configuration.
+
+Next, to enable gladia.io, run the following two commands
+
+```
+sudo yq e -i '.public.app.audioCaptions.enabled = true' /etc/bigbluebutton/bbb-html5.yml
+sudo yq e -i '.public.app.audioCaptions.provider = "gladia"' /etc/bigbluebutton/bbb-html5.yml
+```
+
+Next, set the gladia.io API key using the command below, replacing \<gladia_api_key\> with a glada.io API key obtained above.
+
+```
+sudo yq e -i '.gladia.startMessage = "{\"x_gladia_key\": \"<gladia-api-key>\", \"sample_rate\": 0, \"bit_depth\": 16, \"model_type\": \"fast\", \"endpointing\": 10 }"' /usr/local/bigbluebutton/bbb-transcription-controller/config/default.yml
+```
+
+Restart the BigBlueButton server with `bbb-conf --restart`.  You will now be able to select a speech-to-text option when joining audio (including auto translate).  When one or more users have selected the option, a CC button will appear at the bottom and a Transcript panel will also be available.
 
 
 ### Configuration of global settings
@@ -1373,7 +1396,7 @@ Useful tools for development:
 | `userdata-bbb_skip_check_audio=`               | If set to `true`, the user will not see the "echo test" prompt when sharing audio                                                                                                                                                                                                                                               | `false`       |
 | `userdata-bbb_skip_check_audio_on_first_join=` | (Introduced in BigBlueButton 2.3) If set to `true`, the user will not see the "echo test" when sharing audio for the first time in the session. If the user stops sharing, next time they try to share audio the echo test window will be displayed, allowing for configuration changes to be made prior to sharing audio again | `false`       |
 | `userdata-bbb_override_default_locale=`        | (Introduced in BigBlueButton 2.3) If set to `de`, the user's browser preference will be ignored - the client will be shown in 'de' (i.e. German) regardless of the otherwise preferred locale 'en' (or other)                                                                                                                   | `null`        |
-| `userdata-bbb_hide_presentation_on_join`        | (Introduced in BigBlueButton 2.6) If set to `true` it will make the user enter the meeting with presentation minimized (Only for non-presenters), not peremanent. 
+| `userdata-bbb_hide_presentation_on_join`        | (Introduced in BigBlueButton 2.6) If set to `true` it will make the user enter the meeting with presentation minimized (Only for non-presenters), not permanent. 
 
 | `userdata-bbb_direct_leave_button` | (Introduced in BigBlueButton 2.7) If set to `true` it will make a button to leave the meeting appear to the left of the Options menu. | `false` |                                                                                                                  | `false`        |
 
@@ -1381,7 +1404,7 @@ Useful tools for development:
 
 | Parameter                             | Description                                                                               | Default value |
 | ------------------------------------- | ----------------------------------------------------------------------------------------- | ------------- |
-| `userdata-bbb_display_branding_area=` | If set to `true`, the client will display the branding area in the upper left hand corner | `false`       |
+| `userdata-bbb_display_branding_area=` | If set to `true`, the client will display the branding area in the upper left hand corner | `true`       |
 
 #### Shortcut parameters
 
@@ -1415,10 +1438,13 @@ Useful tools for development:
 | Parameter                           | Description                                                                                                     | Default value |
 | ----------------------------------- | --------------------------------------------------------------------------------------------------------------- | ------------- |
 | `userdata-bbb_multi_user_pen_only=` | If set to `true`, only the pen tool will be available to non-participants when multi-user whiteboard is enabled | `false`       |
-| `userdata-bbb_presenter_tools=`     | Pass in an array of permitted tools from `settings.yml`                                                         | all enabled   |
-| `userdata-bbb_multi_user_tools=`    | Pass in an array of permitted tools for non-presenters from `settings.yml`                                      | all enabled   |
+| `userdata-bbb_presenter_tools=`     | Pass in an array of permitted tools from `settings.yml`. The options we support are: `select`, `hand`, `draw`, `eraser`, `arrow`, `text`, `note`, `rectangle` and *`more`. Example: `userdata-bbb_presenter_tools=['eraser', 'note']` will allow only the eraser and note tools.                                                     | all enabled   |
+| `userdata-bbb_multi_user_tools=`    | Pass in an array of permitted tools for non-presenters from `settings.yml`. The options we support are: `select`, `hand`, `draw`, `eraser`, `arrow`, `text`, `note`, `rectangle` and *`more`. Example: `userdata-bbb_multi_user_tools=['eraser', 'note']` will allow only the eraser and note tools.                                          | all enabled   |
+*more: More includes the rest of the extra shapes, those being: `rectangle`, `ellipse`, `diamond`, `triangle`, `trapezoid`, `rhombus`, `hexagon`, `cloud`, `star`, `oval`, `x-box`, `check-box`, `arrow-left`, `arrow-up`, `arrow-down`, `arrow-right`, `frame`, `line`, `laser`.
 
-#### Themeing & styling parameters
+The use of *more will include all shapes listed above.
+
+#### Theming & styling parameters
 
 | Parameter                        | Description                                                                                                          | Default value |
 | -------------------------------- | -------------------------------------------------------------------------------------------------------------------- | ------------- |

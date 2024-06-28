@@ -7,6 +7,7 @@ export interface LockSettings {
   hasActiveLockSetting: boolean;
   hideUserList: boolean;
   hideViewersCursor: boolean;
+  hideViewersAnnotation: false,
   meetingId: boolean;
   webcamsOnlyForModerator: boolean;
   lockOnJoin: boolean;
@@ -47,6 +48,7 @@ export interface UsersPolicies {
   allowModsToEjectCameras: boolean;
   allowModsToUnmuteUsers: boolean;
   authenticatedGuest: boolean;
+  allowPromoteGuestToModerator: boolean;
   guestPolicy: string;
   maxUserConcurrentAccesses: number;
   maxUsers: number;
@@ -102,6 +104,7 @@ export interface ComponentsFlags {
   hasScreenshare: boolean;
   hasTimer: boolean;
   showRemainingTime: boolean;
+  hasCameraAsContent: boolean;
 }
 
 export interface Metadata {

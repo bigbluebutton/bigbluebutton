@@ -1,11 +1,5 @@
 const e = require('../core/elements');
 
-async function setStatus(page, status) {
-  await page.waitAndClick(e.currentUser);
-  await page.waitAndClick(e.setStatus);
-  await page.waitAndClick(status);
-}
-
 async function openLockViewers(test) {
   await test.waitAndClick(e.manageUsers);
   await test.waitAndClick(e.lockViewersButton);
@@ -46,12 +40,11 @@ async function drawArrow(test) {
 
 async function timeInSeconds(locator) {
   const text = await locator.innerText();
-  const [hours, minutes, seconds] = text.split(':').map(Number);
-    const timeInSeconds = hours * 3600 + minutes * 60 + seconds;
-    return timeInSeconds;
+  const [minutes, seconds] = text.split(':').map(Number);
+  const timeInSeconds = minutes * 60 + seconds;
+  return timeInSeconds;
 }
 
-exports.setStatus = setStatus;
 exports.openLockViewers = openLockViewers;
 exports.setGuestPolicyOption = setGuestPolicyOption;
 exports.checkAvatarIcon = checkAvatarIcon;

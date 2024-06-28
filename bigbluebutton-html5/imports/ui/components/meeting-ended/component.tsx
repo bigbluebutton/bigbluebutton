@@ -8,6 +8,7 @@ import React, {
 import { defineMessages, useIntl } from 'react-intl';
 import { isEmpty } from 'radash';
 import { ApolloLink, useQuery } from '@apollo/client';
+import { Meteor } from 'meteor/meteor';
 import {
   JoinErrorCodeTable,
   MeetingEndedTable,
@@ -373,6 +374,8 @@ const MeetingEnded: React.FC<MeetingEndedProps> = ({
       apolloClient.stop();
     }
 
+    apolloContextHolder.setShouldRetry(false);
+
     const ws = apolloContextHolder.getLink();
     // stops client connection after 5 seconds, if made immediately some data is lost
     if (ws) {
@@ -381,7 +384,8 @@ const MeetingEnded: React.FC<MeetingEndedProps> = ({
         // if not new connection is made
         apolloClient.setLink(ApolloLink.empty());
         // closes the connection
-        ws.close();
+        ws.terminate();
+        Meteor.disconnect();
       }, 5000);
     }
   }, []);

@@ -48,6 +48,7 @@ import org.json.JSONArray
 
 
 import javax.servlet.ServletRequest
+import javax.servlet.http.HttpServletRequest
 
 class ApiController {
   private static final String CONTROLLER_NAME = 'ApiController'
@@ -96,6 +97,7 @@ class ApiController {
             apiVersion paramsProcessorUtil.getApiVersion()
             bbbVersion paramsProcessorUtil.getBbbVersion()
             graphqlWebsocketUrl paramsProcessorUtil.getGraphqlWebsocketUrl()
+            graphqlApiUrl paramsProcessorUtil.getGraphqlApiUrl()
           }
           render(contentType: "application/json", text: builder.toPrettyString())
         }
@@ -107,6 +109,7 @@ class ApiController {
                   paramsProcessorUtil.getApiVersion(),
                   paramsProcessorUtil.getBbbVersion(),
                   paramsProcessorUtil.getGraphqlWebsocketUrl(),
+                  paramsProcessorUtil.getGraphqlApiUrl(),
                   RESP_CODE_SUCCESS),
                   contentType: "text/xml")
         }
@@ -141,8 +144,7 @@ class ApiController {
 
     Map.Entry<String, String> validationResponse = validateRequest(
             ValidationService.ApiCall.CREATE,
-            request.getParameterMap(),
-            request.getQueryString()
+            request
     )
 
     if(!(validationResponse == null)) {
@@ -246,7 +248,6 @@ class ApiController {
     }
   }
 
-
   /**********************************************
    * JOIN API
    *********************************************/
@@ -258,8 +259,7 @@ class ApiController {
 
     Map.Entry<String, String> validationResponse = validateRequest(
             ValidationService.ApiCall.JOIN,
-            request.getParameterMap(),
-            request.getQueryString()
+            request
     )
 
     HashMap<String, String> roles = new HashMap<String, String>();
@@ -510,17 +510,7 @@ class ApiController {
     // Process if we send the user directly to the client or
     // have it wait for approval.
     String destUrl = clientURL + "?sessionToken=" + sessionToken
-    if (guestStatusVal.equals(GuestPolicy.WAIT)) {
-      String guestWaitUrl = paramsProcessorUtil.getDefaultGuestWaitURL();
-      destUrl = guestWaitUrl + "?sessionToken=" + sessionToken
-      // Check if the user has her/his default locale overridden by an userdata
-      String customLocale = userCustomData.get("bbb_override_default_locale")
-      if (customLocale != null) {
-        destUrl += "&locale=" + customLocale
-      }
-      msgKey = "guestWait"
-      msgValue = "Guest waiting for approval to join meeting."
-    } else if (guestStatusVal.equals(GuestPolicy.DENY)) {
+    if (guestStatusVal == GuestPolicy.DENY) {
       invalid("guestDeniedAccess", "You have been denied access to this meeting based on the meeting's guest policy", redirectClient, errorRedirectUrl)
       return
     }
@@ -564,8 +554,7 @@ class ApiController {
 
     Map.Entry<String, String> validationResponse = validateRequest(
             ValidationService.ApiCall.MEETING_RUNNING,
-            request.getParameterMap(),
-            request.getQueryString()
+            request
     )
 
     if(!(validationResponse == null)) {
@@ -595,8 +584,7 @@ class ApiController {
 
     Map.Entry<String, String> validationResponse = validateRequest(
             ValidationService.ApiCall.END,
-            request.getParameterMap(),
-            request.getQueryString()
+            request
     )
 
     if(!(validationResponse == null)) {
@@ -639,8 +627,7 @@ class ApiController {
 
     Map.Entry<String, String> validationResponse = validateRequest(
             ValidationService.ApiCall.GET_MEETING_INFO,
-            request.getParameterMap(),
-            request.getQueryString()
+            request
     )
 
     if(!(validationResponse == null)) {
@@ -648,7 +635,8 @@ class ApiController {
       return
     }
 
-    Meeting meeting = ServiceUtils.findMeetingFromMeetingID(params.meetingID);
+    String meetingId = params.list("meetingID")[0]
+    Meeting meeting = ServiceUtils.findMeetingFromMeetingID(meetingId);
 
     withFormat {
       xml {
@@ -666,8 +654,7 @@ class ApiController {
 
     Map.Entry<String, String> validationResponse = validateRequest(
             ValidationService.ApiCall.GET_MEETINGS,
-            request.getParameterMap(),
-            request.getQueryString()
+            request
     )
 
     if(!(validationResponse == null)) {
@@ -704,8 +691,7 @@ class ApiController {
 
     Map.Entry<String, String> validationResponse = validateRequest(
             ValidationService.ApiCall.GET_SESSIONS,
-            request.getParameterMap(),
-            request.getQueryString()
+            request
     )
 
     if(!(validationResponse == null)) {
@@ -750,116 +736,6 @@ class ApiController {
     return reqParams;
   }
 
-  /**********************************************
-   * GUEST WAIT API
-   *********************************************/
-  def guestWaitHandler = {
-    String API_CALL = 'guestWait'
-    log.debug CONTROLLER_NAME + "#${API_CALL}"
-
-    String msgKey = "defaultKey"
-    String msgValue = "defaultValue"
-    String destURL = paramsProcessorUtil.getDefaultLogoutUrl()
-
-    Map.Entry<String, String> validationResponse = validateRequest(
-            ValidationService.ApiCall.GUEST_WAIT,
-            request.getParameterMap(),
-            request.getQueryString()
-    )
-    if(!(validationResponse == null)) {
-      msgKey = validationResponse.getKey()
-      msgValue = validationResponse.getValue()
-      respondWithJSONError(msgKey, msgValue, destURL)
-      return
-    }
-
-    String sessionToken = sanitizeSessionToken(params.sessionToken)
-    UserSession us = getUserSession(sessionToken)
-    Meeting meeting = meetingService.getMeeting(us.meetingID)
-    String status = us.guestStatus
-    destURL = us.clientUrl
-    String posInWaitingQueue = meeting.getWaitingPositionsInWaitingQueue(us.internalUserId)
-    String lobbyMsg = meeting.getGuestLobbyMessage(us.internalUserId)
-
-    Boolean redirectClient = true
-    if (!StringUtils.isEmpty(params.redirect)) {
-      try {
-        redirectClient = Boolean.parseBoolean(params.redirect)
-      } catch (Exception e) {
-        redirectClient = true
-      }
-    }
-
-    String guestURL = paramsProcessorUtil.getDefaultGuestWaitURL() + "?sessionToken=" + sessionToken
-
-    switch (status) {
-      case GuestPolicy.WAIT:
-        meetingService.guestIsWaiting(us.meetingID, us.internalUserId)
-        destURL = guestURL
-        msgKey = "guestWait"
-        msgValue = "Please wait for a moderator to approve you joining the meeting."
-
-        // We force the response to not do a redirect. Otherwise,
-        // the client would just be redirecting into this endpoint.
-        redirectClient = false
-        break
-      case GuestPolicy.DENY:
-        destURL = meeting.getLogoutUrl()
-        msgKey = "guestDeny"
-        msgValue = "Guest denied of joining the meeting."
-        redirectClient = false
-        break
-      case GuestPolicy.ALLOW:
-        // IF the user was allowed to join but there is no room available in
-        // the meeting we must hold his approval
-        if (hasReachedMaxParticipants(meeting, us)) {
-          meetingService.guestIsWaiting(us.meetingID, us.internalUserId)
-          destURL = guestURL
-          msgKey = "seatWait"
-          msgValue = "Guest waiting for a seat in the meeting."
-          redirectClient = false
-          status = GuestPolicy.WAIT
-        }
-        break
-      default:
-        break
-    }
-
-    if(meeting.didGuestUserLeaveGuestLobby(us.internalUserId)){
-      destURL = meeting.getLogoutUrl()
-      msgKey = "guestInvalid"
-      msgValue = "Invalid user"
-      status = GuestPolicy.DENY
-      redirectClient = false
-    }
-
-    if (redirectClient) {
-      // User may join the meeting
-      redirect(url: destURL)
-    } else {
-      response.addHeader("Cache-Control", "no-cache")
-      withFormat {
-        json {
-          def builder = new JsonBuilder()
-          builder.response {
-            returncode RESP_CODE_SUCCESS
-            messageKey msgKey
-            message msgValue
-            meeting_id us.meetingID
-            user_id us.internalUserId
-            auth_token us.authToken
-            session_token session[sessionToken]
-            guestStatus status
-            lobbyMessage lobbyMsg
-            url destURL
-            positionInWaitingQueue posInWaitingQueue
-          }
-          render(contentType: "application/json", text: builder.toPrettyString())
-        }
-      }
-    }
-  }
-
   /***********************************************
    * ENTER API
    ***********************************************/
@@ -877,8 +753,7 @@ class ApiController {
 
     Map.Entry<String, String> validationResponse = validateRequest(
             ValidationService.ApiCall.ENTER,
-            request.getParameterMap(),
-            request.getQueryString(),
+            request
     )
     if(!(validationResponse == null)) {
       respMessage = validationResponse.getValue()
@@ -1026,8 +901,7 @@ class ApiController {
 
     Map.Entry<String, String> validationResponse = validateRequest(
             ValidationService.ApiCall.STUNS,
-            request.getParameterMap(),
-            request.getQueryString(),
+            request
     )
 
     if(!(validationResponse == null)) {
@@ -1103,8 +977,7 @@ class ApiController {
 
     Map.Entry<String, String> validationResponse = validateRequest(
             ValidationService.ApiCall.SIGN_OUT,
-            request.getParameterMap(),
-            request.getQueryString()
+            request
     )
 
     if(validationResponse == null) {
@@ -1148,8 +1021,7 @@ class ApiController {
 
     Map.Entry<String, String> validationResponse = validateRequest(
             ValidationService.ApiCall.INSERT_DOCUMENT,
-            request.getParameterMap(),
-            request.getQueryString()
+            request
     )
 
     def externalMeetingId = params.meetingID.toString()
@@ -1192,6 +1064,44 @@ class ApiController {
     }
   }
 
+  def sendChatMessage = {
+    String API_CALL = 'sendChatMessage'
+    log.debug CONTROLLER_NAME + "#${API_CALL}"
+
+    Map.Entry<String, String> validationResponse = validateRequest(
+            ValidationService.ApiCall.SEND_CHAT_MESSAGE,
+            request
+    )
+
+    if(!(validationResponse == null)) {
+      invalid(validationResponse.getKey(), validationResponse.getValue())
+      return
+    }
+
+    String userName = "System";
+    String chatMessage = params.message;
+
+    if (params.userName != null && params.userName != "") {
+      userName = params.userName;
+    }
+
+    Meeting meeting = ServiceUtils.findMeetingFromMeetingID(params.meetingID);
+    boolean isRunning = meeting != null && meeting.isRunning();
+
+    if(!isRunning) {
+      invalid("meetingNotFound", "Meeting not found")
+      return
+    }
+
+    meetingService.sendChatMessage(meeting.internalId, userName, chatMessage);
+    withFormat {
+      xml {
+        render(text: responseBuilder.buildSendChatMessageResponse("Message successfully sent", RESP_CODE_SUCCESS)
+                , contentType: "text/xml")
+      }
+    }
+  }
+
   def getJoinUrl = {
     String API_CALL = 'getJoinUrl'
     log.debug CONTROLLER_NAME + "#${API_CALL}"
@@ -1205,8 +1115,7 @@ class ApiController {
 
     Map.Entry<String, String> validationResponse = validateRequest(
             ValidationService.ApiCall.GET_JOIN_URL,
-            request.getParameterMap(),
-            request.getQueryString(),
+            request
     )
 
     //Validate Session
@@ -1324,8 +1233,7 @@ class ApiController {
 
     Map.Entry<String, String> validationResponse = validateRequest(
             ValidationService.ApiCall.LEARNING_DASHBOARD,
-            request.getParameterMap(),
-            request.getQueryString(),
+            request
     )
 
     //Validate Session
@@ -2019,8 +1927,8 @@ class ApiController {
     redirect(url: newUri)
   }
 
-  private Map.Entry<String, String> validateRequest(ValidationService.ApiCall apiCall, Map<String, String[]> params, String queryString) {
-    Map<String, String> violations = validationService.validate(apiCall, params, queryString)
+  private Map.Entry<String, String> validateRequest(ValidationService.ApiCall apiCall, HttpServletRequest request) {
+    Map<String, String> violations = validationService.validate(apiCall, request)
     Map.Entry<String, String> response = null
 
     if(!violations.isEmpty()) {

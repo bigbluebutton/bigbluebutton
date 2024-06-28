@@ -2,11 +2,11 @@ import React from 'react';
 import BreakoutRoomItem from './component';
 import { layoutSelectInput, layoutDispatch } from '../../../layout/context';
 import useMeeting from '/imports/ui/core/hooks/useMeeting';
-import { useSubscription } from '@apollo/client';
 import { userIsInvited } from './query';
 import useCurrentUser from '/imports/ui/core/hooks/useCurrentUser';
 import { ACTIONS, PANELS } from '../../../layout/enums';
 import logger from '/imports/startup/client/logger';
+import useDeduplicatedSubscription from '/imports/ui/core/hooks/useDeduplicatedSubscription';
 
 const BreakoutRoomContainer = ({ breakoutRoom }) => {
   const sidebarContent = layoutSelectInput((i) => i.sidebarContent);
@@ -17,7 +17,7 @@ const BreakoutRoomContainer = ({ breakoutRoom }) => {
     data: userIsInvitedData,
     error: userIsInvitedError,
     loading: userIsInvitedLoading,
-  } = useSubscription(userIsInvited);
+  } = useDeduplicatedSubscription(userIsInvited);
 
   const {
     data: currentMeeting,
@@ -28,7 +28,7 @@ const BreakoutRoomContainer = ({ breakoutRoom }) => {
   const {
     data: currentUser,
   } = useCurrentUser((u) => ({
-    isModerator: u.isModerator,
+    isModerator: u?.isModerator,
   }));
 
   if (userIsInvitedError) {
@@ -60,7 +60,7 @@ const BreakoutRoomContainer = ({ breakoutRoom }) => {
       layoutContextDispatch,
       sidebarContentPanel,
       hasBreakoutRoom: hasBreakoutRoom
-      && (userIsInvitedData.breakoutRoom.length > 0 || currentUser.isModerator),
+      && (userIsInvitedData.breakoutRoom.length > 0 || currentUser?.isModerator),
       breakoutRoom,
     }}
     />

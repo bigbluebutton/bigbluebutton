@@ -45,7 +45,6 @@ import org.bigbluebutton.api2.domain.UploadedTrack;
 import org.bigbluebutton.common2.redis.RedisStorageService;
 import org.bigbluebutton.presentation.PresentationUrlDownloadService;
 import org.bigbluebutton.presentation.imp.SlidesGenerationProgressNotifier;
-import org.bigbluebutton.web.services.WaitingGuestCleanupTimerTask;
 import org.bigbluebutton.web.services.UserCleanupTimerTask;
 import org.bigbluebutton.web.services.EnteredUserCleanupTimerTask;
 import org.bigbluebutton.web.services.callback.CallbackUrlService;
@@ -79,7 +78,6 @@ public class MeetingService implements MessageListener {
 
   private RecordingService recordingService;
   private LearningDashboardService learningDashboardService;
-  private WaitingGuestCleanupTimerTask waitingGuestCleaner;
   private UserCleanupTimerTask userCleaner;
   private EnteredUserCleanupTimerTask enteredUserCleaner;
   private StunTurnService stunTurnService;
@@ -259,30 +257,9 @@ public class MeetingService implements MessageListener {
     }
   }
 
-  /**
-   * Remove registered waiting guest users who left the waiting page.
-   */
-  public void purgeWaitingGuestUsers() {
-    for (AbstractMap.Entry<String, Meeting> entry : this.meetings.entrySet()) {
-      Long now = System.currentTimeMillis();
-      Meeting meeting = entry.getValue();
-      ConcurrentMap<String, User> users = meeting.getUsersMap();
-      for (AbstractMap.Entry<String, RegisteredUser> registeredUser : meeting.getRegisteredUsers().entrySet()) {
-        String registeredUserID = registeredUser.getKey();
-        RegisteredUser ru = registeredUser.getValue();
-
-        long elapsedTime = now - ru.getGuestWaitedOn();
-        if (elapsedTime >= waitingGuestUsersTimeout && ru.getGuestStatus() == GuestPolicy.WAIT) {
-          log.info("Purging user [{}]", registeredUserID);
-          if (meeting.userUnregistered(registeredUserID) != null) {
-            gw.guestWaitingLeft(meeting.getInternalId(), registeredUserID);
-            meeting.setLeftGuestLobby(registeredUserID, true);
-          };
-        }
-      }
-    }
+  public void sendChatMessage(String meetingId, String name, String message) {
+    gw.sendChatMessage(new ChatMessageFromApi(meetingId, name, message));
   }
-
 
   private void kickOffProcessingOfRecording(Meeting m) {
     if (m.isRecord() && m.getNumUsers() == 0) {
@@ -446,8 +423,8 @@ public class MeetingService implements MessageListener {
             m.getWebcamsOnlyForModerator(), m.getMeetingCameraCap(), m.getUserCameraCap(), m.getMaxPinnedCameras(), m.getModeratorPassword(), m.getViewerPassword(),
             m.getLearningDashboardAccessToken(), m.getCreateTime(),
             formatPrettyDate(m.getCreateTime()), m.isBreakout(), m.getSequence(), m.isFreeJoin(), m.getMetadata(),
-            m.getGuestPolicy(), m.getAuthenticatedGuest(), m.getMeetingLayout(), m.getWelcomeMessageTemplate(), m.getWelcomeMessage(), m.getWelcomeMsgForModerators(),
-            m.getDialNumber(), m.getMaxUsers(), m.getMaxUserConcurrentAccesses(),
+            m.getGuestPolicy(), m.getAuthenticatedGuest(), m.getAllowPromoteGuestToModerator(), m.getWaitingGuestUsersTimeout(), m.getMeetingLayout(), m.getWelcomeMessageTemplate(), m.getWelcomeMessage(),
+            m.getWelcomeMsgForModerators(), m.getDialNumber(), m.getMaxUsers(), m.getMaxUserConcurrentAccesses(),
             m.getMeetingExpireIfNoUserJoinedInMinutes(), m.getMeetingExpireWhenLastUserLeftInMinutes(),
             m.getUserInactivityInspectTimerInMinutes(), m.getUserInactivityThresholdInMinutes(),
             m.getUserActivitySignResponseDelayInMinutes(), m.getEndWhenNoModerator(), m.getEndWhenNoModeratorDelayInMinutes(),
@@ -1349,7 +1326,6 @@ public class MeetingService implements MessageListener {
 
   public void stop() {
     processMessage = false;
-    waitingGuestCleaner.stop();
     userCleaner.stop();
     enteredUserCleaner.stop();
   }
@@ -1372,12 +1348,6 @@ public class MeetingService implements MessageListener {
 
   public void setGw(IBbbWebApiGWApp gw) {
     this.gw = gw;
-  }
-
-  public void setWaitingGuestCleanupTimerTask(WaitingGuestCleanupTimerTask c) {
-    waitingGuestCleaner = c;
-    waitingGuestCleaner.setMeetingService(this);
-    waitingGuestCleaner.start();
   }
 
   public void setEnteredUserCleanupTimerTask(EnteredUserCleanupTimerTask c) {

@@ -29,6 +29,7 @@ object PresAnnotationHistoryDAO {
 
   def insert(meetingId: String, annotationDiff: AnnotationVO) = {
     DatabaseConnection.db.run(
+      //TODO not being used for now
       TableQuery[PresAnnotationHistoryDbTableDef].returning(
         TableQuery[PresAnnotationHistoryDbTableDef].map(_.sequence)
       ) += PresAnnotationHistoryDbModel(
@@ -44,6 +45,7 @@ object PresAnnotationHistoryDAO {
 
   def delete(wbId: String, meetingId: String, userId: String, annotationId: String) = {
     DatabaseConnection.db.run(
+      //TODO not being used for now
       TableQuery[PresAnnotationHistoryDbTableDef].returning(
         TableQuery[PresAnnotationHistoryDbTableDef].map(_.sequence)
       ) += PresAnnotationHistoryDbModel(

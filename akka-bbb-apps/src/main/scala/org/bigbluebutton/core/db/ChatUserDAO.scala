@@ -42,7 +42,7 @@ object ChatUserDAO {
   }
 
   def insertUser(meetingId: String, chatId: String, userId: String, visible: Boolean) = {
-    DatabaseConnection.db.run(
+    DatabaseConnection.enqueue(
       TableQuery[ChatUserDbTableDef].insertOrUpdate(
         ChatUserDbModel(
           userId = userId,
@@ -54,24 +54,18 @@ object ChatUserDAO {
           visible = visible
         )
       )
-    ).onComplete {
-        case Success(rowsAffected) => DatabaseConnection.logger.debug(s"$rowsAffected row(s) inserted on ChatUser table!")
-        case Failure(e)            => DatabaseConnection.logger.debug(s"Error inserting ChatUser: $e")
-      }
+    )
   }
 
   def updateUserTyping(meetingId: String, chatId: String, userId: String) = {
-    DatabaseConnection.db.run(
+    DatabaseConnection.enqueue(
       TableQuery[ChatUserDbTableDef]
         .filter(_.meetingId === meetingId)
         .filter(_.chatId === (if (chatId == "public") "MAIN-PUBLIC-GROUP-CHAT" else chatId))
         .filter(_.userId === userId)
         .map(u => (u.lastTypingAt))
         .update(Some(new java.sql.Timestamp(System.currentTimeMillis())))
-    ).onComplete {
-        case Success(rowsAffected) => DatabaseConnection.logger.debug(s"$rowsAffected row(s) updated lastTypingAt on chat_user table!")
-        case Failure(e)            => DatabaseConnection.logger.debug(s"Error updating lastTypingAt on chat_user table: $e")
-      }
+    )
   }
 
   def updateChatVisible(meetingId: String, chatId: String, userId: String = ""): Unit = {
@@ -85,10 +79,7 @@ object ChatUserDAO {
       } else {
         baseQuery.map(_.visible).update(true)
       }
-      DatabaseConnection.db.run(updateQuery).onComplete {
-        case Success(rowsAffected) => DatabaseConnection.logger.debug(s"$rowsAffected row(s) updated visible on chat_user table!")
-        case Failure(e)            => DatabaseConnection.logger.debug(s"Error updating visible on chat_user table: $e")
-      }
+      DatabaseConnection.enqueue(updateQuery)
     }
   }
 }

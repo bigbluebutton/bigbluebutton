@@ -18,14 +18,10 @@ const propTypes = {
   dark: PropTypes.bool,
 };
 
-const defaultProps = {
-  dark: false,
-};
-
 const DownloadPresentationButton = ({
   intl,
   handleDownloadPresentation,
-  dark,
+  dark = false,
 }) => (
   <Styled.ButtonWrapper theme={dark ? 'dark' : 'light'}>
     <Styled.DownloadButton
@@ -41,6 +37,5 @@ const DownloadPresentationButton = ({
 );
 
 DownloadPresentationButton.propTypes = propTypes;
-DownloadPresentationButton.defaultProps = defaultProps;
 
 export default injectIntl(DownloadPresentationButton);

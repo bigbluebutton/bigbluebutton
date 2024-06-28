@@ -56,6 +56,7 @@ class Timer extends PureComponent {
             <Styled.ListItem
               role="button"
               tabIndex={0}
+              active={sidebarContentPanel === PANELS.TIMER}
               onClick={() => {
                 layoutContextDispatch({
                   type: ACTIONS.SET_SIDEBAR_CONTENT_IS_OPEN,

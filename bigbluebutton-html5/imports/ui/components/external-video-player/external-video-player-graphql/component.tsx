@@ -148,6 +148,9 @@ const ExternalVideoPlayer: React.FC<ExternalVideoPlayerProps> = ({
           controls: isPresenter ? 1 : 0,
           cc_lang_pref: document.getElementsByTagName('html')[0].lang.substring(0, 2),
         },
+        embedOptions: {
+          host: 'https://www.youtube-nocookie.com',
+        },
       },
       peertube: {
         isPresenter,
@@ -284,6 +287,7 @@ const ExternalVideoPlayer: React.FC<ExternalVideoPlayerProps> = ({
     setReactPlayerState(true);
     if (isPresenter) {
       const rate = playerRef.current?.getInternalPlayer()?.getPlaybackRate() as number ?? 1;
+
       const currentTime = played * duration;
       sendMessage('play', {
         rate,
@@ -310,6 +314,19 @@ const ExternalVideoPlayer: React.FC<ExternalVideoPlayerProps> = ({
     }
   };
 
+  const handleOnReady = () => {
+    currentTime = -1;
+  };
+
+  const handleProgress = (state: OnProgressProps) => {
+    setPlayed(state.played);
+    setLoaded(state.loaded);
+
+    if (playing && isPresenter) {
+      currentTime = playerRef.current?.getCurrentTime() || 0;
+    }
+  };
+
   const isMinimized = width === 0 && height === 0;
 
   // @ts-ignore accessing lib private property
@@ -327,7 +344,7 @@ const ExternalVideoPlayer: React.FC<ExternalVideoPlayerProps> = ({
   }
 
   const shouldShowTools = () => {
-    if (isPresenter || (!isPresenter && isGridLayout && !isSidebarContentOpen)) {
+    if (isPresenter || (!isPresenter && isGridLayout && !isSidebarContentOpen) || !videoUrl) {
       return false;
     }
     return true;
@@ -372,12 +389,10 @@ const ExternalVideoPlayer: React.FC<ExternalVideoPlayerProps> = ({
           width="100%"
           ref={playerRef}
           volume={volume}
+          onReady={handleOnReady}
           onPlay={handleOnPlay}
           onDuration={handleDuration}
-          onProgress={(state: OnProgressProps) => {
-            setPlayed(state.played);
-            setLoaded(state.loaded);
-          }}
+          onProgress={handleProgress}
           onPause={handleOnStop}
           onEnded={handleOnStop}
           muted={mute || isEchoTest}
@@ -510,10 +525,10 @@ const ExternalVideoPlayerContainer: React.FC = () => {
   const playerPlaybackRate = currentMeeting.externalVideo?.playerPlaybackRate ?? 1;
   const playerUpdatedAt = currentMeeting.externalVideo?.updatedAt ?? Date.now();
   const playerUpdatedAtDate = new Date(playerUpdatedAt);
-  const currentDate = new Date(Date.now() + timeSync);
+  const currentDate = new Date(Date.now() + (timeSync ?? 0));
   const isPaused = !currentMeeting.externalVideo?.playerPlaying ?? false;
-  const currentTime = isPaused ? playerCurrentTime : (((currentDate.getTime() - playerUpdatedAtDate.getTime()) / 1000)
-    + playerCurrentTime) * playerPlaybackRate;
+  const currentTime = isPaused ? playerCurrentTime : ((currentDate.getTime() - playerUpdatedAtDate.getTime()) / 1000)
+   + (playerCurrentTime) * playerPlaybackRate;
   const isPresenter = currentUser.presenter ?? false;
   const isGridLayout = currentMeeting.layout?.currentLayoutType === 'VIDEO_FOCUS';
 

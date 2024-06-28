@@ -68,8 +68,6 @@ class ReceivedJsonMsgHandlerActor(
         route[RegisterUserReqMsg](meetingManagerChannel, envelope, jsonNode)
       case UserJoinMeetingReqMsg.NAME =>
         routeGenericMsg[UserJoinMeetingReqMsg](envelope, jsonNode)
-      case UserJoinMeetingAfterReconnectReqMsg.NAME =>
-        routeGenericMsg[UserJoinMeetingAfterReconnectReqMsg](envelope, jsonNode)
       case GetAllMeetingsReqMsg.NAME =>
         route[GetAllMeetingsReqMsg](meetingManagerChannel, envelope, jsonNode)
       case DestroyMeetingSysCmdMsg.NAME =>
@@ -84,8 +82,6 @@ class ReceivedJsonMsgHandlerActor(
         routeGenericMsg[GetGuestsWaitingApprovalReqMsg](envelope, jsonNode)
       case GuestsWaitingApprovedMsg.NAME =>
         routeGenericMsg[GuestsWaitingApprovedMsg](envelope, jsonNode)
-      case GuestWaitingLeftMsg.NAME =>
-        routeGenericMsg[GuestWaitingLeftMsg](envelope, jsonNode)
       case UpdatePositionInWaitingQueueReqMsg.NAME =>
         routeGenericMsg[UpdatePositionInWaitingQueueReqMsg](envelope, jsonNode)
       case SetGuestPolicyCmdMsg.NAME =>
@@ -110,12 +106,12 @@ class ReceivedJsonMsgHandlerActor(
         routeGenericMsg[UserActivitySignCmdMsg](envelope, jsonNode)
       case ChangeUserPinStateReqMsg.NAME =>
         routeGenericMsg[ChangeUserPinStateReqMsg](envelope, jsonNode)
-      case ChangeUserMobileFlagReqMsg.NAME =>
-        routeGenericMsg[ChangeUserMobileFlagReqMsg](envelope, jsonNode)
       case UserConnectionAliveReqMsg.NAME =>
         routeGenericMsg[UserConnectionAliveReqMsg](envelope, jsonNode)
       case SetUserSpeechLocaleReqMsg.NAME =>
         routeGenericMsg[SetUserSpeechLocaleReqMsg](envelope, jsonNode)
+      case SetUserCaptionLocaleReqMsg.NAME =>
+        routeGenericMsg[SetUserCaptionLocaleReqMsg](envelope, jsonNode)
       case SetUserSpeechOptionsReqMsg.NAME =>
         routeGenericMsg[SetUserSpeechOptionsReqMsg](envelope, jsonNode)
 
@@ -347,10 +343,12 @@ class ReceivedJsonMsgHandlerActor(
       // Caption
       case EditCaptionHistoryPubMsg.NAME =>
         routeGenericMsg[EditCaptionHistoryPubMsg](envelope, jsonNode)
-      case UpdateCaptionOwnerPubMsg.NAME =>
-        routeGenericMsg[UpdateCaptionOwnerPubMsg](envelope, jsonNode)
+      case AddCaptionLocalePubMsg.NAME =>
+        routeGenericMsg[AddCaptionLocalePubMsg](envelope, jsonNode)
       case SendCaptionHistoryReqMsg.NAME =>
         routeGenericMsg[SendCaptionHistoryReqMsg](envelope, jsonNode)
+      case CaptionSubmitTranscriptPubMsg.NAME =>
+        routeGenericMsg[CaptionSubmitTranscriptPubMsg](envelope, jsonNode)
 
       // Chat
       case GetChatHistoryReqMsg.NAME =>
@@ -409,6 +407,8 @@ class ReceivedJsonMsgHandlerActor(
         routeGenericMsg[GetGroupChatsReqMsg](envelope, jsonNode)
       case SendGroupChatMessageMsg.NAME =>
         routeGenericMsg[SendGroupChatMessageMsg](envelope, jsonNode)
+      case SendGroupChatMessageFromApiSysPubMsg.NAME =>
+        routeGenericMsg[SendGroupChatMessageFromApiSysPubMsg](envelope, jsonNode)
       case GetGroupChatMsgsReqMsg.NAME =>
         routeGenericMsg[GetGroupChatMsgsReqMsg](envelope, jsonNode)
       case CreateGroupChatReqMsg.NAME =>
@@ -417,6 +417,9 @@ class ReceivedJsonMsgHandlerActor(
       //Plugin
       case PluginDataChannelPushEntryMsg.NAME =>
         routeGenericMsg[PluginDataChannelPushEntryMsg](envelope, jsonNode)
+
+      case PluginDataChannelReplaceEntryMsg.NAME =>
+        routeGenericMsg[PluginDataChannelReplaceEntryMsg](envelope, jsonNode)
 
       case PluginDataChannelDeleteEntryMsg.NAME =>
         routeGenericMsg[PluginDataChannelDeleteEntryMsg](envelope, jsonNode)

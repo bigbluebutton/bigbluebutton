@@ -1,5 +1,4 @@
 import React from 'react';
-import { withTracker } from 'meteor/react-meteor-data';
 import { useMutation } from '@apollo/client';
 import { SmartMediaShare } from './component';
 import Panopto from '../../../external-video-player/custom-players/panopto';
@@ -25,19 +24,17 @@ const SmartMediaShareContainer = (props) => {
     startExternalVideo({ variables: { externalVideoUrl } });
   };
 
+  const isRTL = layoutSelect((i) => i.isRTL);
+
   return (
     <SmartMediaShare {...{
       startWatching,
+      isRTL,
+      isMobile: isMobile(),
       ...props,
     }}
     />
   );
 };
 
-export default withTracker(() => {
-  const isRTL = layoutSelect((i) => i.isRTL);
-  return {
-    isRTL,
-    isMobile: isMobile(),
-  };
-})(SmartMediaShareContainer);
+export default SmartMediaShareContainer;

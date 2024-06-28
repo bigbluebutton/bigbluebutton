@@ -4,18 +4,17 @@ import getFromUserSettings from '/imports/ui/services/users-settings';
 import Storage from '/imports/ui/services/storage/session';
 import logger from '/imports/startup/client/logger';
 import AudioManager from '/imports/ui/services/audio-manager';
-import VideoService from '/imports/ui/components/video-provider/video-provider-graphql/service';
+import VideoService from '/imports/ui/components/video-provider/service';
 import Auth from '/imports/ui/services/auth';
+import { debounce } from '/imports/utils/debounce';
+import { throttle } from '/imports/utils/throttle';
 
 const MUTED_KEY = 'muted';
-// @ts-ignore - temporary, while meteor exists in the project
-const APP_CONFIG = window.meetingClientSettings.public.app;
-// @ts-ignore - temporary, while meteor exists in the project
-const TOGGLE_MUTE_THROTTLE_TIME = window.meetingClientSettings.public.media.toggleMuteThrottleTime;
 const DEVICE_LABEL_MAX_LENGTH = 40;
 const CLIENT_DID_USER_SELECTED_MICROPHONE_KEY = 'clientUserSelectedMicrophone';
 const CLIENT_DID_USER_SELECTED_LISTEN_ONLY_KEY = 'clientUserSelectedListenOnly';
-const MEDIA_TAG = window.meetingClientSettings.public.media.mediaTag;
+const TOGGLE_MUTE_THROTTLE_TIME = 300;
+const TOGGLE_MUTE_DEBOUNCE_TIME = 500;
 
 export const handleLeaveAudio = (meetingIsBreakout: boolean) => {
   if (!meetingIsBreakout) {
@@ -25,7 +24,7 @@ export const handleLeaveAudio = (meetingIsBreakout: boolean) => {
 
   const skipOnFistJoin = getFromUserSettings(
     'bbb_skip_check_audio_on_first_join',
-    APP_CONFIG.skipCheckOnJoin,
+    window.meetingClientSettings.public.app.skipCheckOnJoin,
   );
   if (skipOnFistJoin && !Storage.getItem('getEchoTest')) {
     Storage.setItem('getEchoTest', true);
@@ -41,7 +40,7 @@ export const handleLeaveAudio = (meetingIsBreakout: boolean) => {
   );
 };
 
-export const toggleMuteMicrophone = (
+const toggleMuteMicrophoneThrottled = throttle((
   muted: boolean,
   toggleVoice: (userId: string, muted: boolean) => void,
 ) => {
@@ -55,7 +54,7 @@ export const toggleMuteMicrophone = (
       },
       'microphone unmuted by user',
     );
-    toggleVoice(Auth.userID!, false);
+    toggleVoice(Auth.userID as string, false);
   } else {
     logger.info(
       {
@@ -64,8 +63,15 @@ export const toggleMuteMicrophone = (
       },
       'microphone muted by user',
     );
-    toggleVoice(Auth.userID!, true);
+    toggleVoice(Auth.userID as string, true);
   }
+}, TOGGLE_MUTE_THROTTLE_TIME);
+
+const toggleMuteMicrophoneDebounced = debounce(toggleMuteMicrophoneThrottled, TOGGLE_MUTE_DEBOUNCE_TIME,
+  { leading: true, trailing: false });
+
+export const toggleMuteMicrophone = (muted: boolean, toggleVoice: (userId: string, muted: boolean) => void) => {
+  return toggleMuteMicrophoneDebounced(muted, toggleVoice);
 };
 
 export const truncateDeviceName = (deviceName: string) => {
@@ -85,11 +91,15 @@ export const liveChangeOutputDevice = (inputDeviceId: string, isLive: boolean) =
   .changeOutputDevice(inputDeviceId, isLive);
 
 export const getSpeakerLevel = () => {
+  const MEDIA_TAG = window.meetingClientSettings.public.media.mediaTag;
+
   const audioElement = document.querySelector(MEDIA_TAG) as HTMLMediaElement;
   return audioElement ? audioElement.volume : 0;
 };
 
 export const setSpeakerLevel = (level: number) => {
+  const MEDIA_TAG = window.meetingClientSettings.public.media.mediaTag;
+
   const audioElement = document.querySelector(MEDIA_TAG) as HTMLMediaElement;
   if (audioElement) {
     audioElement.volume = level;
@@ -106,10 +116,10 @@ export const muteAway = (
 
   // mute/unmute microphone
   if (muted === away && muted === Boolean(prevAwayMuted)) {
-    toggleMuteMicrophone(muted, voiceToggle);
+    toggleMuteMicrophoneThrottled(muted, voiceToggle);
     Storage.setItem('prevAwayMuted', !muted);
   } else if (!away && !muted && Boolean(prevAwayMuted)) {
-    toggleMuteMicrophone(muted, voiceToggle);
+    toggleMuteMicrophoneThrottled(muted, voiceToggle);
   }
 
   // mute/unmute speaker

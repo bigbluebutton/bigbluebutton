@@ -58,7 +58,7 @@ class UserDbTableDef(tag: Tag) extends Table[UserDbModel](tag, None, "user") {
 
 object UserDAO {
   def insert(meetingId: String, regUser: RegisteredUser) = {
-    DatabaseConnection.db.run(
+    DatabaseConnection.enqueue(
       TableQuery[UserDbTableDef].forceInsert(
         UserDbModel(
           userId = regUser.id,
@@ -86,88 +86,69 @@ object UserDAO {
           }
         )
       )
-    ).onComplete {
-        case Success(rowsAffected) => {
-          DatabaseConnection.logger.debug(s"$rowsAffected row(s) inserted in User table!")
-          UserConnectionStatusDAO.insert(meetingId, regUser.id)
-          UserCustomParameterDAO.insert(meetingId, regUser.id, regUser.customParameters)
-          UserClientSettingsDAO.insert(regUser.id, meetingId)
-          ChatUserDAO.insertUserPublicChat(meetingId, regUser.id)
-        }
-        case Failure(e)            => DatabaseConnection.logger.debug(s"Error inserting user: $e")
-      }
+    )
+
+    UserConnectionStatusDAO.insert(meetingId, regUser.id)
+    UserCustomParameterDAO.insert(meetingId, regUser.id, regUser.customParameters)
+    UserClientSettingsDAO.insert(regUser.id, meetingId)
+    ChatUserDAO.insertUserPublicChat(meetingId, regUser.id)
   }
 
   def update(regUser: RegisteredUser) = {
-    DatabaseConnection.db.run(
+    DatabaseConnection.enqueue(
       TableQuery[UserDbTableDef]
         .filter(_.meetingId === regUser.meetingId)
         .filter(_.userId === regUser.id)
         .map(u => (u.guest, u.guestStatus, u.role, u.authed, u.joined, u.banned, u.loggedOut))
         .update((regUser.guest, regUser.guestStatus, regUser.role, regUser.authed, regUser.joined, regUser.banned, regUser.loggedOut))
-    ).onComplete {
-        case Success(rowsAffected) => DatabaseConnection.logger.debug(s"$rowsAffected row(s) updated on user table!")
-        case Failure(e)            => DatabaseConnection.logger.debug(s"Error updating user: $e")
-      }
+    )
   }
 
   def updateVoiceUserJoined(voiceUserState: VoiceUserState) = {
-
-    DatabaseConnection.db.run(
+    DatabaseConnection.enqueue(
       TableQuery[UserDbTableDef]
         .filter(_.meetingId === voiceUserState.meetingId)
         .filter(_.userId === voiceUserState.intId)
         .map(u => (u.guest, u.guestStatus, u.authed, u.joined))
         .update((false, "ALLOW", true, true))
-    ).onComplete {
-      case Success(rowsAffected) => DatabaseConnection.logger.debug(s"$rowsAffected row(s) updated on user table!")
-      case Failure(e) => DatabaseConnection.logger.debug(s"Error updating user table: $e")
-    }
+    )
   }
 
   def updateJoinError(meetingId: String, userId: String, joinErrorCode: String, joinErrorMessage: String) = {
-    DatabaseConnection.db.run(
+    DatabaseConnection.enqueue(
       TableQuery[UserDbTableDef]
         .filter(_.meetingId === meetingId)
         .filter(_.userId === userId)
         .map(u => (u.joined, u.joinErrorCode, u.joinErrorMessage))
         .update((false, Some(joinErrorCode), Some(joinErrorMessage)))
-    ).onComplete {
-      case Success(rowsAffected) => DatabaseConnection.logger.debug(s"$rowsAffected row(s) updated on user (Joined) table!")
-      case Failure(e) => DatabaseConnection.logger.debug(s"Error updating user (Joined): $e")
-    }
+    )
   }
 
   def softDelete(meetingId: String, userId: String) = {
-    DatabaseConnection.db.run(
+    DatabaseConnection.enqueue(
       TableQuery[UserDbTableDef]
         .filter(_.meetingId === meetingId)
         .filter(_.userId === userId)
+        .filter(_.loggedOut =!= true)
         .map(u => (u.loggedOut))
         .update((true))
-    ).onComplete {
-      case Success(rowsAffected) => DatabaseConnection.logger.debug(s"$rowsAffected row(s) updated loggedOut=true on user table!")
-      case Failure(e) => DatabaseConnection.logger.error(s"Error updating loggedOut=true user: $e")
-    }
+    )
   }
 
   def softDeleteAllFromMeeting(meetingId: String) = {
-    DatabaseConnection.db.run(
+    DatabaseConnection.enqueue(
       TableQuery[UserDbTableDef]
         .filter(_.meetingId === meetingId)
         .map(u => (u.loggedOut))
         .update((true))
-    ).onComplete {
-      case Success(rowsAffected) => DatabaseConnection.logger.debug(s"$rowsAffected row(s) updated loggedOut=true on user table!")
-      case Failure(e) => DatabaseConnection.logger.error(s"Error updating loggedOut=true user: $e")
-    }
+    )
   }
 
   def transferUserToBreakoutRoomAsAudioOnly(userId: String, meetingIdFrom: String, meetingIdTo: String) = {
 
     //Create a copy of the user using the same userId, but with the meetingId of the breakoutRoom
     //The user will be flagged by `transferredFromParentMeeting=true`
-    DatabaseConnection.db.run(
+    DatabaseConnection.enqueue(
       sqlu"""
         WITH upsert AS (
             UPDATE "user"
@@ -200,34 +181,25 @@ object UserDAO {
               and "meetingId" = ${meetingIdFrom}
               and NOT EXISTS (SELECT * FROM upsert)
           """
-    ).onComplete {
-      case Success(rowsAffected) => DatabaseConnection.logger.debug(s"$rowsAffected row(s) inserted in user (transferredFromParentMeeting) table")
-      case Failure(e)            => DatabaseConnection.logger.error(s"Error inserting user (transferredFromParentMeeting): $e")
-    }
+    )
 
     //Set user as loggedOut in the old meeting (if it is from transferred origin)
-    DatabaseConnection.db.run(
+    DatabaseConnection.enqueue(
       sqlu"""update "user"
              set "loggedOut" = true
               where "userId" = ${userId}
               and "meetingId" = ${meetingIdFrom}
               and "transferredFromParentMeeting" is true
               """
-    ).onComplete {
-      case Success(rowsAffected) => DatabaseConnection.logger.debug(s"$rowsAffected row(s) updated in user (transferredFromParentMeeting) table")
-      case Failure(e)            => DatabaseConnection.logger.error(s"Error updating user (transferredFromParentMeeting): $e")
-    }
+    )
   }
 
   def permanentlyDeleteAllFromMeeting(meetingId: String) = {
-    DatabaseConnection.db.run(
+    DatabaseConnection.enqueue(
       TableQuery[UserDbTableDef]
         .filter(_.meetingId === meetingId)
         .delete
-    ).onComplete {
-      case Success(rowsAffected) => DatabaseConnection.logger.debug(s"User from meeting ${meetingId} deleted")
-      case Failure(e) => DatabaseConnection.logger.error(s"Error deleting user from meeting ${meetingId}: $e")
-    }
+    )
   }
 
 

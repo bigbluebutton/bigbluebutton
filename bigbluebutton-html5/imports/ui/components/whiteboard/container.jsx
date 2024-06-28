@@ -3,11 +3,12 @@ import React, {
   useRef,
   useState,
   useMemo,
+  useCallback,
 } from 'react';
-import { useSubscription, useMutation, useQuery } from '@apollo/client';
+import { useMutation, useQuery } from '@apollo/client';
 import {
   AssetRecordType,
-} from '@tldraw/tldraw';
+} from '@bigbluebutton/tldraw';
 import { throttle } from 'radash';
 import {
   CURRENT_PRESENTATION_PAGE_SUBSCRIPTION,
@@ -23,7 +24,7 @@ import {
   toggleToolsAnimations,
   formatAnnotations,
 } from './service';
-import SettingsService from '/imports/ui/services/settings';
+import { SettingsService, getSettingsSingletonInstance } from '/imports/ui/services/settings';
 import Auth from '/imports/ui/services/auth';
 import {
   layoutSelect,
@@ -43,8 +44,7 @@ import {
   PRESENTATION_PUBLISH_CURSOR,
 } from '../presentation/mutations';
 import { useMergedCursorData } from './hooks.ts';
-
-const WHITEBOARD_CONFIG = window.meetingClientSettings.public.whiteboard;
+import useDeduplicatedSubscription from '../../core/hooks/useDeduplicatedSubscription';
 
 const WhiteboardContainer = (props) => {
   const {
@@ -52,14 +52,25 @@ const WhiteboardContainer = (props) => {
     zoomChanger,
   } = props;
 
+  const WHITEBOARD_CONFIG = window.meetingClientSettings.public.whiteboard;
+
   const [annotations, setAnnotations] = useState([]);
   const [shapes, setShapes] = useState({});
 
   const meeting = useMeeting((m) => ({
     lockSettings: m?.lockSettings,
   }));
+  const { data: currentUser } = useCurrentUser((user) => ({
+    presenter: user.presenter,
+    isModerator: user.isModerator,
+    userId: user.userId,
+  }));
+  const isPresenter = currentUser?.presenter;
+  const isModerator = currentUser?.isModerator;
 
-  const { data: presentationPageData } = useSubscription(CURRENT_PRESENTATION_PAGE_SUBSCRIPTION);
+  const { data: presentationPageData } = useDeduplicatedSubscription(
+    CURRENT_PRESENTATION_PAGE_SUBSCRIPTION,
+  );
   const { pres_page_curr: presentationPageArray } = (presentationPageData || {});
   const currentPresentationPage = presentationPageArray && presentationPageArray[0];
   const curPageNum = currentPresentationPage?.num;
@@ -72,10 +83,14 @@ const WhiteboardContainer = (props) => {
 
   const presentationId = currentPresentationPage?.presentationId;
 
-  const { data: whiteboardWritersData } = useSubscription(CURRENT_PAGE_WRITERS_SUBSCRIPTION, {
-    variables: { pageId: curPageId },
-    skip: !curPageId,
-  });
+  const { data: whiteboardWritersData } = useDeduplicatedSubscription(
+    CURRENT_PAGE_WRITERS_SUBSCRIPTION,
+    {
+      variables: { pageId: curPageId },
+      skip: !curPageId,
+    },
+  );
+
   const whiteboardWriters = whiteboardWritersData?.pres_page_writers || [];
   const hasWBAccess = whiteboardWriters?.some((writer) => writer.userId === Auth.userID);
 
@@ -135,14 +150,14 @@ const WhiteboardContainer = (props) => {
     return isAnnotationSent?.data?.presAnnotationSubmit;
   };
 
-  const persistShapeWrapper = (shape, whiteboardId, isModerator) => {
-    persistShape(shape, whiteboardId, isModerator, submitAnnotations);
+  const persistShapeWrapper = (shape, whiteboardId, amIModerator) => {
+    persistShape(shape, whiteboardId, amIModerator, submitAnnotations);
   };
 
-  const publishCursorUpdate = (payload) => {
+  const publishCursorUpdate = useCallback((payload) => {
     const { whiteboardId, xPercent, yPercent } = payload;
 
-    if (!whiteboardId || !xPercent || !yPercent) return;
+    if (!whiteboardId || !xPercent || !yPercent || !(hasWBAccess || isPresenter)) return;
 
     presentationPublishCursor({
       variables: {
@@ -151,24 +166,18 @@ const WhiteboardContainer = (props) => {
         yPercent,
       },
     });
-  };
+  }, [hasWBAccess, isPresenter]);
 
   const throttledPublishCursorUpdate = useMemo(() => throttle(
     { interval: WHITEBOARD_CONFIG.cursorInterval },
     publishCursorUpdate,
-  ), []);
+  ), [publishCursorUpdate]);
 
   const isMultiUserActive = whiteboardWriters?.length > 0;
 
-  const { data: currentUser } = useCurrentUser((user) => ({
-    presenter: user.presenter,
-    isModerator: user.isModerator,
-    userId: user.userId,
-  }));
-
   const cursorArray = useMergedCursorData();
 
-  const { data: annotationStreamData } = useSubscription(
+  const { data: annotationStreamData } = useDeduplicatedSubscription(
     CURRENT_PAGE_ANNOTATIONS_STREAM,
     {
       variables: { lastUpdatedAt: new Date(0).toISOString() },
@@ -250,14 +259,13 @@ const WhiteboardContainer = (props) => {
     },
   }];
 
-  const isRTL = layoutSelect((i) => i.isRTL);
+  const Settings = getSettingsSingletonInstance();
+  const { isRTL } = Settings.application;
   const width = layoutSelect((i) => i?.output?.presentation?.width);
   const height = layoutSelect((i) => i?.output?.presentation?.height);
   const sidebarNavigationWidth = layoutSelect(
     (i) => i?.output?.sidebarNavigation?.width,
   );
-  const isPresenter = currentUser?.presenter;
-  const isModerator = currentUser?.isModerator;
   const { maxStickyNoteLength, maxNumberOfAnnotations } = WHITEBOARD_CONFIG;
   const fontFamily = WHITEBOARD_CONFIG.styles.text.family;
   const {

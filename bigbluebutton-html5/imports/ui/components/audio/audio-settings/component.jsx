@@ -14,6 +14,7 @@ import {
 } from '/imports/api/audio/client/bridge/service';
 import MediaStreamUtils from '/imports/utils/media-stream-utils';
 import audioManager from '/imports/ui/services/audio-manager';
+import Session from '/imports/ui/services/storage/in-memory';
 
 const propTypes = {
   intl: PropTypes.shape({
@@ -95,7 +96,7 @@ class AudioSettings extends React.Component {
   componentDidMount() {
     const { inputDeviceId, outputDeviceId } = this.state;
 
-    Session.set('inEchoTest', true);
+    Session.setItem('inEchoTest', true);
     this._isMounted = true;
     // Guarantee initial in/out devices are initialized on all ends
     this.setInputDevice(inputDeviceId);
@@ -106,7 +107,7 @@ class AudioSettings extends React.Component {
   componentWillUnmount() {
     const { stream } = this.state;
 
-    Session.set('inEchoTest', false);
+    Session.setItem('inEchoTest', false);
     this._mounted = false;
 
     if (stream) {
