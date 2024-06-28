@@ -12,7 +12,7 @@ import (
 // authHookUrl is the authentication hook URL obtained from an environment variable.
 var authHookUrl = os.Getenv("BBB_GRAPHQL_MIDDLEWARE_AUTH_HOOK_URL")
 
-func BBBWebClient(browserConnectionId string, sessionToken string, cookies []*http.Cookie) (string, string, error) {
+func BBBWebCheckAuthorization(browserConnectionId string, sessionToken string, cookies []*http.Cookie) (string, string, error) {
 	logger := log.WithField("_routine", "BBBWebClient").WithField("browserConnectionId", browserConnectionId)
 	logger.Debug("Starting BBBWebClient")
 	defer logger.Debug("Finished BBBWebClient")

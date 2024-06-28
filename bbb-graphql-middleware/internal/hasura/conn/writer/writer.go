@@ -176,8 +176,9 @@ RangeLoop:
 					common.ActivitiesOverviewStarted("_Sum-" + string(messageType))
 
 					//Dump of all subscriptions for analysis purpose
-					//saveItToFile(fmt.Sprintf("%02s-%s-%s", queryId, string(messageType), operationName), fromBrowserMessageAsMap)
-					//saveItToFile(fmt.Sprintf("%s-%s-%02s", string(messageType), operationName, queryId), fromBrowserMessageAsMap)
+					//queryCounter++
+					//saveItToFile(fmt.Sprintf("%02d-%s-%s", queryCounter, string(messageType), browserMessage.Payload.OperationName), fromBrowserMessage)
+					//saveItToFile(fmt.Sprintf("%s-%s-%02s", string(messageType), operationName, queryId), fromBrowserMessage)
 				}
 
 				if browserMessage.Type == "complete" {
@@ -218,9 +219,11 @@ RangeLoop:
 }
 
 //
-//func saveItToFile(filename string, contentInBytes interface{}) {
+//var queryCounter = 0
+//
+//func saveItToFile(filename string, contentInBytes []byte) {
 //	filePath := fmt.Sprintf("/tmp/%s.txt", filename)
-//	message, err := json.Marshal(contentInBytes)
+//	//message, err := json.Marshal(contentInBytes)
 //
 //	fmt.Printf("Saving %s\n", filePath)
 //
@@ -230,7 +233,7 @@ RangeLoop:
 //	}
 //	defer file.Close()
 //
-//	_, err = file.Write(message)
+//	_, err = file.Write(contentInBytes)
 //	if err != nil {
 //		panic(err)
 //	}

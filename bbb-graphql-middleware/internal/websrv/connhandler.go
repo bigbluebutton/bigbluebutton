@@ -280,12 +280,25 @@ func refreshUserSessionVariables(browserConnection *common.BrowserConnection) er
 	BrowserConnectionsMutex.RUnlock()
 
 	// Check authorization
-	sessionVariables, err := akka_apps.AkkaAppsClient(browserConnectionId, browserMeetingId, browserUserId)
+	sessionVariables, err := akka_apps.AkkaAppsGetSessionVariablesFrom(browserConnectionId, browserMeetingId, browserUserId)
 	if err != nil {
 		log.Error(err)
 		return fmt.Errorf("error on checking sessionToken authorization")
 	} else {
 		log.Trace("Session variables obtained successfully")
+	}
+
+	log.Info(sessionVariables)
+	if _, exists := sessionVariables["x-hasura-role"]; !exists {
+		return fmt.Errorf("error on checking sessionToken authorization, X-Hasura-Role is missing")
+	}
+
+	if _, exists := sessionVariables["x-hasura-userid"]; !exists {
+		return fmt.Errorf("error on checking sessionToken authorization, X-Hasura-UserId is missing")
+	}
+
+	if _, exists := sessionVariables["x-hasura-meetingid"]; !exists {
+		return fmt.Errorf("error on checking sessionToken authorization, X-Hasura-MeetingId is missing")
 	}
 
 	BrowserConnectionsMutex.Lock()
@@ -340,14 +353,37 @@ func connectionInitHandler(
 				return fmt.Errorf("X-ClientIsMobile header missing on init connection")
 			}
 
+			var meetingId, userId string
+			var errCheckAuthorization error
+
 			// Check authorization
-			meetingId, userId, err := bbb_web.BBBWebClient(browserConnectionId, sessionToken, browserConnectionCookies)
-			if err != nil {
-				log.Error(err)
-				return fmt.Errorf("error on checking sessionToken authorization")
-			} else {
-				log.Trace("Session variables obtained successfully")
+			var numOfAttempts = 0
+			for {
+				meetingId, userId, errCheckAuthorization = bbb_web.BBBWebCheckAuthorization(browserConnectionId, sessionToken, browserConnectionCookies)
+				if errCheckAuthorization != nil {
+					log.Error(errCheckAuthorization)
+				}
+
+				if (errCheckAuthorization == nil && meetingId != "" && userId != "") || numOfAttempts > 5 {
+					break
+				}
+				numOfAttempts++
+				time.Sleep(100 * time.Millisecond)
 			}
+
+			if errCheckAuthorization != nil {
+				return fmt.Errorf("error on trying to check authorization")
+			}
+
+			if meetingId == "" {
+				return fmt.Errorf("error to obtain user meetingId from BBBWebCheckAuthorization")
+			}
+
+			if userId == "" {
+				return fmt.Errorf("error to obtain user userId from BBBWebCheckAuthorization")
+			}
+
+			log.Trace("Success on check authorization")
 
 			log.Debugf("[ConnectionInitHandler] intercepted Session Token %v and Client Session UUID %v", sessionToken, clientSessionUUID)
 			BrowserConnectionsMutex.Lock()
@@ -358,7 +394,9 @@ func connectionInitHandler(
 			browserConnection.ConnectionInitMessage = fromBrowserMessage
 			BrowserConnectionsMutex.Unlock()
 
-			refreshUserSessionVariables(browserConnection)
+			if err := refreshUserSessionVariables(browserConnection); err != nil {
+				return fmt.Errorf("error on getting session variables")
+			}
 
 			go SendUserGraphqlConnectionEstablishedSysMsg(
 				sessionToken,
