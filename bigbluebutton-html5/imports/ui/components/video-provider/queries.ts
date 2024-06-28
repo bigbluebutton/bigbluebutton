@@ -1,28 +1,4 @@
 import { gql } from '@apollo/client';
-import type { User } from './types';
-
-interface Voice {
-  floor: boolean;
-  lastFloorTime: string;
-}
-
-export interface VideoStreamsResponse {
-  user_camera: {
-    streamId: string;
-    user: User;
-    voice?: Voice;
-  }[];
-}
-
-export interface GridUsersResponse {
-  user: User[];
-}
-
-export interface OwnVideoStreamsResponse {
-  user_camera: {
-    streamId: string;
-  }[];
-}
 
 export const VIDEO_STREAMS_SUBSCRIPTION = gql`
   subscription VideoStreams {
@@ -48,6 +24,9 @@ export const VIDEO_STREAMS_SUBSCRIPTION = gql`
       voice {
         floor
         lastFloorTime
+        joined
+        listenOnly
+        userId
       }
     }
   }
@@ -107,6 +86,11 @@ export const GRID_USERS_SUBSCRIPTION = gql`
       raiseHand
       isModerator
       reactionEmoji
+      voice {
+        joined
+        listenOnly
+        userId
+      }
     }
   }
 `;
