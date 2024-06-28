@@ -52,11 +52,3 @@ location /html5client/sockjs {
   try_files $uri @html5client;
   limit_conn ws_zone 3;
 }
-
-location /html5client/ping {
-    default_type text/plain;
-    add_header Cache-Control "no-store, no-cache, must-revalidate, proxy-revalidate, max-age=0";
-    add_header Pragma "no-cache";
-    add_header Expires "0";
-    return 200 "Ping successful";
-}
