@@ -66,7 +66,7 @@ func BrowserConnectionReader(
 		err = json.Unmarshal(message, &browserMessageType)
 		if err != nil {
 			log.Errorf("failed to unmarshal message: %v", err)
-			return
+			continue
 		}
 
 		if browserMessageType.Type == "subscribe" {

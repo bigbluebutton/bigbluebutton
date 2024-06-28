@@ -1,12 +1,12 @@
 package writer
 
 import (
+	"bytes"
 	"context"
 	"encoding/json"
 	"github.com/iMDT/bbb-graphql-middleware/internal/common"
 	log "github.com/sirupsen/logrus"
 	"nhooyr.io/websocket"
-	"strings"
 	"sync"
 )
 
@@ -45,7 +45,7 @@ RangeLoop:
 
 				// After the error is sent to client, close its connection
 				// Authentication hook unauthorized this request
-				if strings.Contains(string(toBrowserMessage), "connection_error") {
+				if bytes.Contains(toBrowserMessage, []byte("connection_error")) {
 					type HasuraMessage struct {
 						Type string `json:"type"`
 					}
