@@ -9,7 +9,7 @@ import { useStorageKey } from '/imports/ui/services/storage/hooks';
 import { useReactiveVar } from '@apollo/client';
 import connectionStatus from '/imports/ui/core/graphql/singletons/connectionStatus';
 
-const connectionStatusButtonContainer = (props) => {
+const ConnectionStatusButtonContainer = (props) => {
   const connected = useReactiveVar(connectionStatus.getConnectedStatusVar());
 
   const { data } = useDeduplicatedSubscription(USER_CURRENT_STATUS_SUBSCRIPTION, {
@@ -35,4 +35,4 @@ const connectionStatusButtonContainer = (props) => {
   );
 };
 
-export default connectionStatusButtonContainer;
+export default ConnectionStatusButtonContainer;

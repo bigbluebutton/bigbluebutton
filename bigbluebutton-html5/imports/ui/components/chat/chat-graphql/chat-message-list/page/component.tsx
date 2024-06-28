@@ -62,8 +62,8 @@ const ChatListPage: React.FC<ChatListPageProps> = ({
   return (
     // eslint-disable-next-line react/jsx-filename-extension
     <div key={`messagePage-${page}`} id={`${page}`}>
-      {messages.map((message, index, Array) => {
-        const previousMessage = Array[index - 1];
+      {messages.map((message, index, messagesArray) => {
+        const previousMessage = messagesArray[index - 1];
         return (
           <ChatMessage
             key={message.createdAt}

@@ -195,7 +195,7 @@ const AudioContainer = (props) => {
     // So, postpone the decision.
     if (meetingIsBreakout === undefined) return;
 
-    init(toggleVoice).then(() => {
+    init().then(() => {
       if (meetingIsBreakout && !Service.isUsingAudio()) {
         joinAudio();
       }
