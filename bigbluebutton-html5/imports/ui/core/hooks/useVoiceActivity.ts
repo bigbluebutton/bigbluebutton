@@ -2,12 +2,12 @@ import logger from '/imports/startup/client/logger';
 import VOICE_ACTIVITY, { VoiceActivityResponse } from '/imports/ui/core/graphql/queries/whoIsTalking';
 import useDeduplicatedSubscription from './useDeduplicatedSubscription';
 
-const useVoiceActivity = () => {
+const useVoiceActivity = (skip = false) => {
   const {
     data,
     loading,
     error,
-  } = useDeduplicatedSubscription<VoiceActivityResponse>(VOICE_ACTIVITY);
+  } = useDeduplicatedSubscription<VoiceActivityResponse>(VOICE_ACTIVITY, { skip });
 
   if (error) {
     logger.error({
