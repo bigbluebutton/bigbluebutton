@@ -1,10 +1,10 @@
 /* eslint-disable @typescript-eslint/ban-types */
 import React, { useCallback, useContext } from 'react';
-import deviceInfo from '/imports/utils/deviceInfo';
+import deviceInfo from 'imports/utils/deviceInfo';
 import { defineMessages, useIntl } from 'react-intl';
-import { useShortcut } from '/imports/ui/core/hooks/useShortcut';
-import BBBMenu from '/imports/ui/components/common/menu/component';
-import { MenuSeparatorItemType, MenuOptionItemType } from '/imports/ui/components/common/menu/menuTypes';
+import { useShortcut } from 'imports/ui/core/hooks/useShortcut';
+import BBBMenu from 'imports/ui/components/common/menu/component';
+import { MenuSeparatorItemType, MenuOptionItemType } from 'imports/ui/components/common/menu/menuTypes';
 import * as PluginSdk from 'bigbluebutton-html-plugin-sdk';
 import { AudioSettingsDropdownItemType } from 'bigbluebutton-html-plugin-sdk/dist/cjs/extensible-areas/audio-settings-dropdown-item/enums';
 import Styled from '../styles';
@@ -17,7 +17,7 @@ import {
 } from '../service';
 import MuteToggle from './muteToggle';
 import ListenOnly from './listenOnly';
-import { PluginsContext } from '/imports/ui/components/components-data/plugin-context/context';
+import { PluginsContext } from 'imports/ui/components/components-data/plugin-context/context';
 
 const AUDIO_INPUT = 'audioinput';
 const AUDIO_OUTPUT = 'audiooutput';

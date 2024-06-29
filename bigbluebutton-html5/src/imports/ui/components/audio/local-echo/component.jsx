@@ -2,8 +2,8 @@ import React, { useState, useEffect, useRef } from 'react';
 import PropTypes from 'prop-types';
 import { defineMessages, injectIntl } from 'react-intl';
 import Styled from './styles';
-import { getSettingsSingletonInstance } from '/imports/ui/services/settings';
-import Service from '/imports/ui/components/audio/local-echo/service';
+import { getSettingsSingletonInstance } from 'imports/ui/services/settings';
+import Service from 'imports/ui/components/audio/local-echo/service';
 
 const propTypes = {
   intl: PropTypes.shape({

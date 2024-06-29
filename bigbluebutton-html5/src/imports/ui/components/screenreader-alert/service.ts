@@ -1,4 +1,4 @@
-import { uniqueId } from '/imports/utils/string-utils';
+import { uniqueId } from 'imports/utils/string-utils';
 import Queue from './queue';
 
 export const addAlert = (text: string) => {

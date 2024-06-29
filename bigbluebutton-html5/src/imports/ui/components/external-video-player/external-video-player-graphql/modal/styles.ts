@@ -4,17 +4,17 @@ import {
   borderRadius,
   smPaddingY,
   mdPaddingX,
-} from '/imports/ui/stylesheets/styled-components/general';
+} from 'imports/ui/stylesheets/styled-components/general';
 import {
   colorText,
   colorGrayLighter,
   colorGray,
   colorBlueLight,
   colorPrimary,
-} from '/imports/ui/stylesheets/styled-components/palette';
-import { fontSizeSmall } from '/imports/ui/stylesheets/styled-components/typography';
-import ModalSimple from '/imports/ui/components/common/modal/simple/component';
-import Button from '/imports/ui/components/common/button/component';
+} from 'imports/ui/stylesheets/styled-components/palette';
+import { fontSizeSmall } from 'imports/ui/stylesheets/styled-components/typography';
+import ModalSimple from 'imports/ui/components/common/modal/simple/component';
+import Button from 'imports/ui/components/common/button/component';
 
 type urlProps = {
   animations: boolean;

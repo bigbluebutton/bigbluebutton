@@ -1,5 +1,5 @@
-import Storage from '/imports/ui/services/storage/session';
-import { indexOf } from '/imports/utils/array-utils';
+import Storage from 'imports/ui/services/storage/session';
+import { indexOf } from 'imports/utils/array-utils';
 
 // old code
 const CLOSED_CHAT_LIST_KEY = 'closedChatList';

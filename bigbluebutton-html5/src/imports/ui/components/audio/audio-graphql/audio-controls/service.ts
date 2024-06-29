@@ -1,4 +1,4 @@
-import AudioManager from '/imports/ui/services/audio-manager';
+import AudioManager from 'imports/ui/services/audio-manager';
 
 export const joinListenOnly = () => AudioManager.joinListenOnly();
 

@@ -1,14 +1,14 @@
 import styled from 'styled-components';
-import Button from '/imports/ui/components/common/button/component';
-import { TextElipsis, TitleElipsis } from '/imports/ui/stylesheets/styled-components/placeholders';
+import Button from 'imports/ui/components/common/button/component';
+import { TextElipsis, TitleElipsis } from 'imports/ui/stylesheets/styled-components/placeholders';
 import {
   colorWhite,
   colorGrayLighter,
   colorGrayLight,
-} from '/imports/ui/stylesheets/styled-components/palette';
-import { borderSize } from '/imports/ui/stylesheets/styled-components/general';
-import { lineHeightComputed } from '/imports/ui/stylesheets/styled-components/typography';
-import { smallOnly } from '/imports/ui/stylesheets/styled-components/breakpoints';
+} from 'imports/ui/stylesheets/styled-components/palette';
+import { borderSize } from 'imports/ui/stylesheets/styled-components/general';
+import { lineHeightComputed } from 'imports/ui/stylesheets/styled-components/typography';
+import { smallOnly } from 'imports/ui/stylesheets/styled-components/breakpoints';
 
 const SelectUserContainer = styled.div`
   margin: 1.5rem 1rem;

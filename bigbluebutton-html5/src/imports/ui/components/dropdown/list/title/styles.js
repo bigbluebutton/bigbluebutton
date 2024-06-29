@@ -1,5 +1,5 @@
 import styled from 'styled-components';
-import { colorGray } from '/imports/ui/stylesheets/styled-components/palette';
+import { colorGray } from 'imports/ui/stylesheets/styled-components/palette';
 
 const Title = styled.li`
   color: ${colorGray};

@@ -1,10 +1,10 @@
-import Breakouts from '/imports/api/breakouts';
-import Meetings from '/imports/api/meetings';
-import Auth from '/imports/ui/services/auth/index';
-import deviceInfo from '/imports/utils/deviceInfo';
+import Breakouts from 'imports/api/breakouts';
+import Meetings from 'imports/api/meetings';
+import Auth from 'imports/ui/services/auth/index';
+import deviceInfo from 'imports/utils/deviceInfo';
 import Styled from './styles';
 import DarkReader from 'darkreader';
-import logger from '/imports/startup/client/logger';
+import logger from 'imports/startup/client/logger';
 import useMeeting from '../../core/hooks/useMeeting';
 
 export const getBreakoutRooms = () => Breakouts.find().fetch();

@@ -1,11 +1,11 @@
 // @ts-nocheck
 /* eslint-disable */
 import styled from 'styled-components';
-import { colorOffWhite } from '/imports/ui/stylesheets/styled-components/palette';
-import { TextElipsis, DivElipsis } from '/imports/ui/stylesheets/styled-components/placeholders';
-import { landscape, mediumUp } from '/imports/ui/stylesheets/styled-components/breakpoints';
-import { fontSizeSmaller } from '/imports/ui/stylesheets/styled-components/typography';
-import Button from '/imports/ui/components/common/button/component';
+import { colorOffWhite } from 'imports/ui/stylesheets/styled-components/palette';
+import { TextElipsis, DivElipsis } from 'imports/ui/stylesheets/styled-components/placeholders';
+import { landscape, mediumUp } from 'imports/ui/stylesheets/styled-components/breakpoints';
+import { fontSizeSmaller } from 'imports/ui/stylesheets/styled-components/typography';
+import Button from 'imports/ui/components/common/button/component';
 
 const DropdownTrigger = styled(DivElipsis)<{
   $isRTL: boolean;

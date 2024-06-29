@@ -4,29 +4,29 @@ import React, {
   useState,
   useEffect,
 } from 'react';
-import LockViewersContainer from '/imports/ui/components/lock-viewers/container';
-import GuestPolicyContainer from '/imports/ui/components/waiting-users/guest-policy/container';
+import LockViewersContainer from 'imports/ui/components/lock-viewers/container';
+import GuestPolicyContainer from 'imports/ui/components/waiting-users/guest-policy/container';
 import CreateBreakoutRoomContainerGraphql from '../../../../breakout-room/create-breakout-room/component';
-import BBBMenu from '/imports/ui/components/common/menu/component';
+import BBBMenu from 'imports/ui/components/common/menu/component';
 import Styled from './styles';
 import { defineMessages, useIntl } from 'react-intl';
-import { layoutSelect } from '/imports/ui/components/layout/context';
-import { Layout } from '/imports/ui/components/layout/layoutTypes';
+import { layoutSelect } from 'imports/ui/components/layout/context';
+import { Layout } from 'imports/ui/components/layout/layoutTypes';
 import { uid } from 'radash';
-import useMeeting from '/imports/ui/core/hooks/useMeeting';
-import { Meeting } from '/imports/ui/Types/meeting';
+import useMeeting from 'imports/ui/core/hooks/useMeeting';
+import { Meeting } from 'imports/ui/Types/meeting';
 import {
   onSaveUserNames, openLearningDashboardUrl,
 } from './service';
-import { User } from '/imports/ui/Types/user';
-import useCurrentUser from '/imports/ui/core/hooks/useCurrentUser';
-import { useIsBreakoutRoomsEnabled, useIsLearningDashboardEnabled } from '/imports/ui/services/features';
+import { User } from 'imports/ui/Types/user';
+import useCurrentUser from 'imports/ui/core/hooks/useCurrentUser';
+import { useIsBreakoutRoomsEnabled, useIsLearningDashboardEnabled } from 'imports/ui/services/features';
 import { useMutation, useLazyQuery } from '@apollo/client';
-import { CLEAR_ALL_EMOJI } from '/imports/ui/core/graphql/mutations/userMutations';
+import { CLEAR_ALL_EMOJI } from 'imports/ui/core/graphql/mutations/userMutations';
 import { SET_MUTED } from './mutations';
-import { GET_USER_NAMES } from '/imports/ui/core/graphql/queries/users';
-import { notify } from '/imports/ui/services/notification';
-import logger from '/imports/startup/client/logger';
+import { GET_USER_NAMES } from 'imports/ui/core/graphql/queries/users';
+import { notify } from 'imports/ui/services/notification';
+import logger from 'imports/startup/client/logger';
 
 const intlMessages = defineMessages({
   optionsLabel: {

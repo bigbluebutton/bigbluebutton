@@ -1,4 +1,4 @@
-import createUseLocalState from '/imports/ui/core/local-states/createUseLocalState';
+import createUseLocalState from 'imports/ui/core/local-states/createUseLocalState';
 
 export interface ScreenReaderAlert {
   id: string;

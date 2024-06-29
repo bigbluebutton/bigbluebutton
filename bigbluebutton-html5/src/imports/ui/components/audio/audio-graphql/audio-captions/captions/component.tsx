@@ -9,8 +9,8 @@ import {
   isGladia,
   useIsAudioTranscriptionEnabled,
 } from '../service';
-import useCurrentUser from '/imports/ui/core/hooks/useCurrentUser';
-import { SET_SPEECH_LOCALE } from '/imports/ui/core/graphql/mutations/userMutations';
+import useCurrentUser from 'imports/ui/core/hooks/useCurrentUser';
+import { SET_SPEECH_LOCALE } from 'imports/ui/core/graphql/mutations/userMutations';
 
 const intlMessages = defineMessages({
   title: {

@@ -1,7 +1,7 @@
 import React from 'react';
-import { useShortcut } from '/imports/ui/core/hooks/useShortcut';
+import { useShortcut } from 'imports/ui/core/hooks/useShortcut';
 import { defineMessages, useIntl } from 'react-intl';
-import Button from '/imports/ui/components/common/button/component';
+import Button from 'imports/ui/components/common/button/component';
 
 const intlMessages = defineMessages({
   leaveAudio: {

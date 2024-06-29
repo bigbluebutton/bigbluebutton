@@ -1,5 +1,5 @@
 import styled from 'styled-components';
-import { colorWhite } from '/imports/ui/stylesheets/styled-components/palette';
+import { colorWhite } from 'imports/ui/stylesheets/styled-components/palette';
 
 const DropZoneArea = styled.div`
   position: absolute;

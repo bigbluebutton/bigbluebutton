@@ -1,6 +1,6 @@
-import browserInfo from '/imports/utils/browserInfo';
-import deviceInfo from '/imports/utils/deviceInfo';
-import { hasTurnServer } from '/imports/utils/fetchStunTurnServers';
+import browserInfo from 'imports/utils/browserInfo';
+import deviceInfo from 'imports/utils/deviceInfo';
+import { hasTurnServer } from 'imports/utils/fetchStunTurnServers';
 
 /*
  * Whether TURN/relay usage should be forced to work around Firefox's lack of

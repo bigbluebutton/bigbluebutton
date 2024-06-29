@@ -8,10 +8,10 @@ import {
   titlePositionLeft,
   mdPaddingX,
 } from '../../stylesheets/styled-components/general';
-import { fontSizeBase, fontSizeSmall } from '/imports/ui/stylesheets/styled-components/typography';
+import { fontSizeBase, fontSizeSmall } from 'imports/ui/stylesheets/styled-components/typography';
 import { colorGray, colorGrayLabel, colorGrayLighter } from '../../stylesheets/styled-components/palette';
-import ModalSimple from '/imports/ui/components/common/modal/simple/component';
-import Button from '/imports/ui/components/common/button/component';
+import ModalSimple from 'imports/ui/components/common/modal/simple/component';
+import Button from 'imports/ui/components/common/button/component';
 
 const ToggleLabel = styled.span`
   margin-right: ${smPaddingX};

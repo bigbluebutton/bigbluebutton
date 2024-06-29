@@ -1,5 +1,5 @@
 import React, { createContext, useState } from 'react';
-import { ExtensibleArea } from '/imports/ui/components/plugins-engine/extensible-areas/types';
+import { ExtensibleArea } from 'imports/ui/components/plugins-engine/extensible-areas/types';
 import { PluginsContextType } from './types';
 
 export const PluginsContext = createContext<PluginsContextType>({} as PluginsContextType);

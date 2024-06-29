@@ -1,5 +1,5 @@
 import styled from 'styled-components';
-import QuickPollDropdownContainer from '/imports/ui/components/actions-bar/quick-poll-dropdown/container';
+import QuickPollDropdownContainer from 'imports/ui/components/actions-bar/quick-poll-dropdown/container';
 import {
   colorOffWhite,
   colorBlueLightest,
@@ -7,7 +7,7 @@ import {
   colorDanger,
   colorWhite,
   colorGrayDark,
-} from '/imports/ui/stylesheets/styled-components/palette';
+} from 'imports/ui/stylesheets/styled-components/palette';
 import {
   whiteboardToolbarMargin,
   whiteboardToolbarPaddingSm,
@@ -16,8 +16,8 @@ import {
   smPaddingY,
   borderSizeLarge,
   smPaddingX,
-} from '/imports/ui/stylesheets/styled-components/general';
-import Button from '/imports/ui/components/common/button/component';
+} from 'imports/ui/stylesheets/styled-components/general';
+import Button from 'imports/ui/components/common/button/component';
 
 const PresentationToolbarWrapper = styled.div`
   position: absolute;

@@ -2,8 +2,8 @@ import styled from 'styled-components';
 import {
   lgPaddingX,
   smPaddingY,
-} from '/imports/ui/stylesheets/styled-components/general';
-import { colorGrayLightest } from '/imports/ui/stylesheets/styled-components/palette';
+} from 'imports/ui/stylesheets/styled-components/general';
+import { colorGrayLightest } from 'imports/ui/stylesheets/styled-components/palette';
 
 const Help = styled.span`
   display: flex;

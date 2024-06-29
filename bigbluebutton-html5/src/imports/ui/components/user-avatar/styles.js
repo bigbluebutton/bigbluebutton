@@ -3,7 +3,7 @@ import {
   userIndicatorsOffset,
   mdPaddingY,
   indicatorPadding,
-} from '/imports/ui/stylesheets/styled-components/general';
+} from 'imports/ui/stylesheets/styled-components/general';
 import {
   colorPrimary,
   colorWhite,
@@ -11,7 +11,7 @@ import {
   colorSuccess,
   colorDanger,
   colorOffWhite,
-} from '/imports/ui/stylesheets/styled-components/palette';
+} from 'imports/ui/stylesheets/styled-components/palette';
 
 const Content = styled.div`
   color: ${colorWhite};

@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import useCurrentPresentation from '/imports/ui/core/hooks/useCurrentPresentation';
+import useCurrentPresentation from 'imports/ui/core/hooks/useCurrentPresentation';
 import * as PluginSdk from 'bigbluebutton-html-plugin-sdk';
 import {
   HookEvents,
@@ -7,7 +7,7 @@ import {
 import { SubscribedEventDetails } from 'bigbluebutton-html-plugin-sdk/dist/cjs/core/types';
 import { DataConsumptionHooks } from 'bigbluebutton-html-plugin-sdk/dist/cjs/data-consumption/enums';
 
-import { CurrentPresentation } from '/imports/ui/Types/presentation';
+import { CurrentPresentation } from 'imports/ui/Types/presentation';
 import formatCurrentPresentation from './utils';
 
 const CurrentPresentationHookContainer = () => {

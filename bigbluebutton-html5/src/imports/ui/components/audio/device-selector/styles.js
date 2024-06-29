@@ -1,13 +1,13 @@
 import styled from 'styled-components';
 import {
   borderSize,
-} from '/imports/ui/stylesheets/styled-components/general';
+} from 'imports/ui/stylesheets/styled-components/general';
 import {
   colorGrayLabel,
   colorWhite,
   colorGrayLighter,
   colorPrimary,
-} from '/imports/ui/stylesheets/styled-components/palette';
+} from 'imports/ui/stylesheets/styled-components/palette';
 
 const Select = styled.select`
   background-color: ${colorWhite};

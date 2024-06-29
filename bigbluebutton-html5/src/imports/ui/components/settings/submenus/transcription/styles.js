@@ -1,5 +1,5 @@
 import styled from 'styled-components';
-import Styled from '/imports/ui/components/settings/submenus/styles';
+import Styled from 'imports/ui/components/settings/submenus/styles';
 
 const Title = styled(Styled.Title)``;
 

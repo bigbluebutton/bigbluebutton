@@ -4,10 +4,10 @@ import {
   colorGrayLighter,
   colorPrimary,
   userListBg,
-} from '/imports/ui/stylesheets/styled-components/palette';
+} from 'imports/ui/stylesheets/styled-components/palette';
 import {
   borderSize, smPaddingX, lgPaddingY, mdPaddingY,
-} from '/imports/ui/stylesheets/styled-components/general';
+} from 'imports/ui/stylesheets/styled-components/general';
 
 const Messages = styled.div`
   flex-grow: 0;

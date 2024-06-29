@@ -3,7 +3,7 @@ import {
   stopStream,
   stopTrack,
   silentConsole,
-} from '/imports/ui/services/webrtc-base/utils';
+} from 'imports/ui/services/webrtc-base/utils';
 
 export default class WebRtcPeer extends EventEmitter2 {
   constructor(mode, options = {}) {

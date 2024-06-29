@@ -1,11 +1,11 @@
 import React, { useEffect } from 'react';
-import Icon from '/imports/ui/components/common/icon/component';
-import Styled from '/imports/ui/components/presentation/presentation-uploader/styles';
+import Icon from 'imports/ui/components/common/icon/component';
+import Styled from 'imports/ui/components/presentation/presentation-uploader/styles';
 import { toast } from 'react-toastify';
 import { defineMessages } from 'react-intl';
-import usePreviousValue from '/imports/ui/hooks/usePreviousValue';
-import { notify } from '/imports/ui/services/notification';
-import Session from '/imports/ui/services/storage/in-memory';
+import usePreviousValue from 'imports/ui/hooks/usePreviousValue';
+import { notify } from 'imports/ui/services/notification';
+import Session from 'imports/ui/services/storage/in-memory';
 
 const TIMEOUT_CLOSE_TOAST = 1; // second
 

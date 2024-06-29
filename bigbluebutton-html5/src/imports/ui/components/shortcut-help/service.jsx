@@ -1,5 +1,5 @@
 import React from 'react';
-import getFromUserSettings from '/imports/ui/services/users-settings';
+import getFromUserSettings from 'imports/ui/services/users-settings';
 
 const withShortcutHelper = (WrappedComponent, param) => (props) => {
   const BASE_SHORTCUTS = window.meetingClientSettings.public.app.shortcuts;

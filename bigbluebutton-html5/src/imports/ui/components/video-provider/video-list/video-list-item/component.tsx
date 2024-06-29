@@ -1,22 +1,22 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { defineMessages, useIntl } from 'react-intl';
-import Session from '/imports/ui/services/storage/in-memory';
-import UserActions from '/imports/ui/components/video-provider/video-list/video-list-item/user-actions/component';
-import UserStatus from '/imports/ui/components/video-provider/video-list/video-list-item/user-status/component';
-import PinArea from '/imports/ui/components/video-provider/video-list/video-list-item/pin-area/component';
-import UserAvatarVideo from '/imports/ui/components/video-provider/video-list/video-list-item/user-avatar/component';
+import Session from 'imports/ui/services/storage/in-memory';
+import UserActions from 'imports/ui/components/video-provider/video-list/video-list-item/user-actions/component';
+import UserStatus from 'imports/ui/components/video-provider/video-list/video-list-item/user-status/component';
+import PinArea from 'imports/ui/components/video-provider/video-list/video-list-item/pin-area/component';
+import UserAvatarVideo from 'imports/ui/components/video-provider/video-list/video-list-item/user-avatar/component';
 import {
   isStreamStateUnhealthy,
   subscribeToStreamStateChange,
   unsubscribeFromStreamStateChange,
-} from '/imports/ui/services/bbb-webrtc-sfu/stream-state-service';
-import { getSettingsSingletonInstance } from '/imports/ui/services/settings';
-import VideoService from '/imports/ui/components/video-provider/service';
+} from 'imports/ui/services/bbb-webrtc-sfu/stream-state-service';
+import { getSettingsSingletonInstance } from 'imports/ui/services/settings';
+import VideoService from 'imports/ui/components/video-provider/service';
 import Styled from './styles';
 import withDragAndDrop from './drag-and-drop/component';
-import Auth from '/imports/ui/services/auth';
-import { VideoItem } from '/imports/ui/components/video-provider/types';
-import useCurrentUser from '/imports/ui/core/hooks/useCurrentUser';
+import Auth from 'imports/ui/services/auth';
+import { VideoItem } from 'imports/ui/components/video-provider/types';
+import useCurrentUser from 'imports/ui/core/hooks/useCurrentUser';
 
 const intlMessages = defineMessages({
   disableDesc: {

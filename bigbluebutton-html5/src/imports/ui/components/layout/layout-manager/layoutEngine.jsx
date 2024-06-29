@@ -1,17 +1,17 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { layoutSelect, layoutSelectInput } from '/imports/ui/components/layout/context';
-import DEFAULT_VALUES from '/imports/ui/components/layout/defaultValues';
-import { LAYOUT_TYPE, DEVICE_TYPE } from '/imports/ui/components/layout/enums';
+import { layoutSelect, layoutSelectInput } from 'imports/ui/components/layout/context';
+import DEFAULT_VALUES from 'imports/ui/components/layout/defaultValues';
+import { LAYOUT_TYPE, DEVICE_TYPE } from 'imports/ui/components/layout/enums';
 
-import CustomLayout from '/imports/ui/components/layout/layout-manager/customLayout';
-import SmartLayout from '/imports/ui/components/layout/layout-manager/smartLayout';
-import PresentationFocusLayout from '/imports/ui/components/layout/layout-manager/presentationFocusLayout';
-import VideoFocusLayout from '/imports/ui/components/layout/layout-manager/videoFocusLayout';
-import CamerasOnlyLayout from '/imports/ui/components/layout/layout-manager/camerasOnly';
-import PresentationOnlyLayout from '/imports/ui/components/layout/layout-manager/presentationOnlyLayout';
-import ParticipantsAndChatOnlyLayout from '/imports/ui/components/layout/layout-manager/participantsAndChatOnlyLayout';
-import { getSettingsSingletonInstance } from '/imports/ui/services/settings';
+import CustomLayout from 'imports/ui/components/layout/layout-manager/customLayout';
+import SmartLayout from 'imports/ui/components/layout/layout-manager/smartLayout';
+import PresentationFocusLayout from 'imports/ui/components/layout/layout-manager/presentationFocusLayout';
+import VideoFocusLayout from 'imports/ui/components/layout/layout-manager/videoFocusLayout';
+import CamerasOnlyLayout from 'imports/ui/components/layout/layout-manager/camerasOnly';
+import PresentationOnlyLayout from 'imports/ui/components/layout/layout-manager/presentationOnlyLayout';
+import ParticipantsAndChatOnlyLayout from 'imports/ui/components/layout/layout-manager/participantsAndChatOnlyLayout';
+import { getSettingsSingletonInstance } from 'imports/ui/services/settings';
 
 const propTypes = {
   layoutType: PropTypes.string.isRequired,

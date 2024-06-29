@@ -4,7 +4,7 @@ import {
   colorDanger,
   colorWarning,
   colorSuccess,
-} from '/imports/ui/stylesheets/styled-components/palette';
+} from 'imports/ui/stylesheets/styled-components/palette';
 
 const SignalBars = styled.div`
   align-items: flex-end;

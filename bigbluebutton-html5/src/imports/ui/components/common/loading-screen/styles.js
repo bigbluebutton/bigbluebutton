@@ -1,7 +1,7 @@
 import styled, { css, keyframes } from 'styled-components';
-import { mdPaddingX } from '/imports/ui/stylesheets/styled-components/general';
-import { loaderBg, loaderBullet, colorWhite } from '/imports/ui/stylesheets/styled-components/palette';
-import { fontSizeLarge } from '/imports/ui/stylesheets/styled-components/typography';
+import { mdPaddingX } from 'imports/ui/stylesheets/styled-components/general';
+import { loaderBg, loaderBullet, colorWhite } from 'imports/ui/stylesheets/styled-components/palette';
+import { fontSizeLarge } from 'imports/ui/stylesheets/styled-components/typography';
 
 const Background = styled.div`
   position: fixed;

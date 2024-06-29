@@ -1,8 +1,8 @@
 import styled from 'styled-components';
 
-import { colorGrayLighter } from '/imports/ui/stylesheets/styled-components/palette';
-import { lineHeightComputed } from '/imports/ui/stylesheets/styled-components/typography';
-import { smPaddingX } from '/imports/ui/stylesheets/styled-components/general';
+import { colorGrayLighter } from 'imports/ui/stylesheets/styled-components/palette';
+import { lineHeightComputed } from 'imports/ui/stylesheets/styled-components/typography';
+import { smPaddingX } from 'imports/ui/stylesheets/styled-components/general';
 
 const Separator = styled.div`
   height: 1px;

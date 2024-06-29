@@ -1,9 +1,9 @@
 import styled from 'styled-components';
-import Button from '/imports/ui/components/common/button/component';
-import { fontSizeLarge } from '/imports/ui/stylesheets/styled-components/typography';
-import { lineHeightComputed } from '/imports/ui/stylesheets/styled-components/typography';
-import { colorWhite } from '/imports/ui/stylesheets/styled-components/palette';
-import { smallOnly } from '/imports/ui/stylesheets/styled-components/breakpoints';
+import Button from 'imports/ui/components/common/button/component';
+import { fontSizeLarge } from 'imports/ui/stylesheets/styled-components/typography';
+import { lineHeightComputed } from 'imports/ui/stylesheets/styled-components/typography';
+import { colorWhite } from 'imports/ui/stylesheets/styled-components/palette';
+import { smallOnly } from 'imports/ui/stylesheets/styled-components/breakpoints';
 
 const Dropdown = styled.div`
   position: relative;

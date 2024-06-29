@@ -15,12 +15,12 @@ import {
   jumboPaddingX,
   pollColAmount,
   borderSize,
-} from '/imports/ui/stylesheets/styled-components/general';
+} from 'imports/ui/stylesheets/styled-components/general';
 import {
   fontSizeSmall,
   fontSizeBase,
   fontSizeLarge,
-} from '/imports/ui/stylesheets/styled-components/typography';
+} from 'imports/ui/stylesheets/styled-components/typography';
 import {
   colorText,
   colorBlueLight,
@@ -29,9 +29,9 @@ import {
   colorGrayDark,
   colorWhite,
   colorPrimary,
-} from '/imports/ui/stylesheets/styled-components/palette';
-import { hasPhoneDimentions } from '/imports/ui/stylesheets/styled-components/breakpoints';
-import Button from '/imports/ui/components/common/button/component';
+} from 'imports/ui/stylesheets/styled-components/palette';
+import { hasPhoneDimentions } from 'imports/ui/stylesheets/styled-components/breakpoints';
+import Button from 'imports/ui/components/common/button/component';
 
 const PollingTitle = styled.div`
   white-space: nowrap;

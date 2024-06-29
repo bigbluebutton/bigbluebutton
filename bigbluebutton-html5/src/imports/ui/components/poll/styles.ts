@@ -1,5 +1,5 @@
 import styled, { css, keyframes } from 'styled-components';
-import Button from '/imports/ui/components/common/button/component';
+import Button from 'imports/ui/components/common/button/component';
 import {
   jumboPaddingY,
   smPaddingX,
@@ -14,7 +14,7 @@ import {
   pollStatsElementWidth,
   pollResultWidth,
   borderSizeLarge,
-} from '/imports/ui/stylesheets/styled-components/general';
+} from 'imports/ui/stylesheets/styled-components/general';
 import {
   colorText,
   colorBlueLight,
@@ -30,8 +30,8 @@ import {
   colorWhite,
   pollBlue,
   pollStatsBorderColor,
-} from '/imports/ui/stylesheets/styled-components/palette';
-import { fontSizeBase, fontSizeSmall } from '/imports/ui/stylesheets/styled-components/typography';
+} from 'imports/ui/stylesheets/styled-components/palette';
+import { fontSizeBase, fontSizeSmall } from 'imports/ui/stylesheets/styled-components/typography';
 
 const ToggleLabel = styled.span`
   margin-right: ${smPaddingX};

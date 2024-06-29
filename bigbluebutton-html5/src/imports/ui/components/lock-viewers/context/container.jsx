@@ -1,8 +1,8 @@
 import React, { useMemo } from 'react';
 import { LockStruct } from './context';
 import { withLockContext } from './withContext';
-import useCurrentUser from '/imports/ui/core/hooks/useCurrentUser';
-import useMeeting from '/imports/ui/core/hooks/useMeeting';
+import useCurrentUser from 'imports/ui/core/hooks/useCurrentUser';
+import useMeeting from 'imports/ui/core/hooks/useMeeting';
 
 const lockContextContainer = (component) => (props) => {
   const lockSetting = new LockStruct();

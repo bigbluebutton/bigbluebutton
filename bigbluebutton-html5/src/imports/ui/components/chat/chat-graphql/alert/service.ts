@@ -1,4 +1,4 @@
-import AudioService from '/imports/ui/components/audio/service';
+import AudioService from 'imports/ui/components/audio/service';
 
 const playAlertSound = () => {
   AudioService.playAlertSound(`${window.meetingClientSettings.public.app.cdn

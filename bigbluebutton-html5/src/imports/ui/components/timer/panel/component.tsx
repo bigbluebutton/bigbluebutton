@@ -9,10 +9,10 @@ import { defineMessages, useIntl } from 'react-intl';
 import {
   useMutation,
 } from '@apollo/client';
-import Header from '/imports/ui/components/common/control-header/component';
+import Header from 'imports/ui/components/common/control-header/component';
 import Styled from './styles';
 import GET_TIMER, { GetTimerResponse, TimerData } from '../../../core/graphql/queries/timer';
-import logger from '/imports/startup/client/logger';
+import logger from 'imports/startup/client/logger';
 import { layoutDispatch } from '../../layout/context';
 import { ACTIONS, PANELS } from '../../layout/enums';
 import {
@@ -23,9 +23,9 @@ import {
   TIMER_STOP,
   TIMER_SWITCH_MODE,
 } from '../mutations';
-import useTimeSync from '/imports/ui/core/local-states/useTimeSync';
-import humanizeSeconds from '/imports/utils/humanizeSeconds';
-import useDeduplicatedSubscription from '/imports/ui/core/hooks/useDeduplicatedSubscription';
+import useTimeSync from 'imports/ui/core/local-states/useTimeSync';
+import humanizeSeconds from 'imports/utils/humanizeSeconds';
+import useDeduplicatedSubscription from 'imports/ui/core/hooks/useDeduplicatedSubscription';
 
 const MAX_HOURS = 23;
 const MILLI_IN_HOUR = 3600000;

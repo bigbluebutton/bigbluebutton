@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
-import { VoiceActivityResponse } from '/imports/ui/core/graphql/queries/whoIsTalking';
+import { VoiceActivityResponse } from 'imports/ui/core/graphql/queries/whoIsTalking';
 import useVoiceActivity from './useVoiceActivity';
-import { partition } from '/imports/utils/array-utils';
+import { partition } from 'imports/utils/array-utils';
 
 type VoiceItem = VoiceActivityResponse['user_voice_activity_stream'][number] & {
   showTalkingIndicator: boolean | undefined;

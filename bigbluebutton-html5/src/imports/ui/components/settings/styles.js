@@ -4,18 +4,18 @@ import {
   smPaddingY,
   mdPaddingY,
   mdPaddingX,
-} from '/imports/ui/stylesheets/styled-components/general';
-import { smallOnly } from '/imports/ui/stylesheets/styled-components/breakpoints';
+} from 'imports/ui/stylesheets/styled-components/general';
+import { smallOnly } from 'imports/ui/stylesheets/styled-components/breakpoints';
 import {
   colorGrayDark,
   colorPrimary,
   colorWhite,
-} from '/imports/ui/stylesheets/styled-components/palette';
-import { fontSizeLarge } from '/imports/ui/stylesheets/styled-components/typography';
+} from 'imports/ui/stylesheets/styled-components/palette';
+import { fontSizeLarge } from 'imports/ui/stylesheets/styled-components/typography';
 import {
   Tab, Tabs, TabList, TabPanel,
 } from 'react-tabs';
-import Icon from '/imports/ui/components/common/icon/component';
+import Icon from 'imports/ui/components/common/icon/component';
 
 const ToggleLabel = styled.span`
   margin-right: ${smPaddingX};

@@ -1,6 +1,6 @@
 import React from 'react';
-import { layoutSelectOutput } from '/imports/ui/components/layout/context';
-import { Output } from '/imports/ui/components/layout/layoutTypes';
+import { layoutSelectOutput } from 'imports/ui/components/layout/context';
+import { Output } from 'imports/ui/components/layout/layoutTypes';
 import DropArea from './component';
 
 const DropAreaContainer = () => {

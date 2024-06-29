@@ -1,10 +1,10 @@
 import React, { useMemo } from 'react';
-import ModalFullscreen from '/imports/ui/components/common/modal/fullscreen/component';
+import ModalFullscreen from 'imports/ui/components/common/modal/fullscreen/component';
 import { defineMessages, useIntl } from 'react-intl';
 import { range } from 'ramda';
-import { uniqueId } from '/imports/utils/string-utils';
-import { useIsImportPresentationWithAnnotationsFromBreakoutRoomsEnabled, useIsImportSharedNotesFromBreakoutRoomsEnabled } from '/imports/ui/services/features';
-import useMeeting from '/imports/ui/core/hooks/useMeeting';
+import { uniqueId } from 'imports/utils/string-utils';
+import { useIsImportPresentationWithAnnotationsFromBreakoutRoomsEnabled, useIsImportSharedNotesFromBreakoutRoomsEnabled } from 'imports/ui/services/features';
+import useMeeting from 'imports/ui/core/hooks/useMeeting';
 import { useLazyQuery, useQuery, useMutation } from '@apollo/client';
 import Styled from './styles';
 import {
@@ -13,9 +13,9 @@ import {
   getUser,
   getUserResponse,
 } from './queries';
-import logger from '/imports/startup/client/logger';
+import logger from 'imports/startup/client/logger';
 import BreakoutRoomUserAssignment from './breakout-room-user-assignment/component';
-import deviceInfo from '/imports/utils/deviceInfo';
+import deviceInfo from 'imports/utils/deviceInfo';
 import BreakoutRoomUserAssignmentMobile from './breakout-room-user-assignment-mobile/component';
 import RoomManagmentState from './room-managment-state/component';
 import {

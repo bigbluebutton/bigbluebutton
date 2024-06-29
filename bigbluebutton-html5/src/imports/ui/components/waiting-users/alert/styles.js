@@ -1,5 +1,5 @@
 import styled from 'styled-components';
-import { fontSizeBase } from '/imports/ui/stylesheets/styled-components/typography';
+import { fontSizeBase } from 'imports/ui/stylesheets/styled-components/typography';
 
 const TitleMessage = styled.div`
   font-weight: bold;

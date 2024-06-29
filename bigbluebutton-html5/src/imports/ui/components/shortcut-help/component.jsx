@@ -1,14 +1,14 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import { defineMessages, injectIntl } from 'react-intl';
-import browserInfo from '/imports/utils/browserInfo';
-import deviceInfo from '/imports/utils/deviceInfo';
-import ModalSimple from '/imports/ui/components/common/modal/simple/component';
+import browserInfo from 'imports/utils/browserInfo';
+import deviceInfo from 'imports/utils/deviceInfo';
+import ModalSimple from 'imports/ui/components/common/modal/simple/component';
 import Styled from './styles';
 import StyledSettings from '../settings/styles';
 import withShortcutHelper from './service';
-import { useIsChatEnabled } from '/imports/ui/services/features';
-import { uniqueId } from '/imports/utils/string-utils';
+import { useIsChatEnabled } from 'imports/ui/services/features';
+import { uniqueId } from 'imports/utils/string-utils';
 
 const intlMessages = defineMessages({
   title: {

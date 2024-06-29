@@ -1,6 +1,6 @@
 import styled from 'styled-components';
-import Button from '/imports/ui/components/common/button/component';
-import { fontSizeBase } from '/imports/ui/stylesheets/styled-components/typography';
+import Button from 'imports/ui/components/common/button/component';
+import { fontSizeBase } from 'imports/ui/stylesheets/styled-components/typography';
 
 const CloseButton = styled(Button)`
   span:first-of-type {

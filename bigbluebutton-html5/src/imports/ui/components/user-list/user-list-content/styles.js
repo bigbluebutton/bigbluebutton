@@ -1,14 +1,14 @@
 import styled from 'styled-components';
 
-import Styled from '/imports/ui/components/user-list/styles';
-import { FlexColumn } from '/imports/ui/stylesheets/styled-components/placeholders';
+import Styled from 'imports/ui/components/user-list/styles';
+import { FlexColumn } from 'imports/ui/stylesheets/styled-components/placeholders';
 import {
   smPaddingX,
   lgPaddingY,
   borderSize,
   mdPaddingY,
   mdPaddingX,
-} from '/imports/ui/stylesheets/styled-components/general';
+} from 'imports/ui/stylesheets/styled-components/general';
 import {
   colorPrimary,
   userListBg,
@@ -19,9 +19,9 @@ import {
   colorGrayLighter,
   unreadMessagesBg,
   colorGrayLightest,
-} from '/imports/ui/stylesheets/styled-components/palette';
-import { fontSizeSmall } from '/imports/ui/stylesheets/styled-components/typography';
-import { ScrollboxVertical } from '/imports/ui/stylesheets/styled-components/scrollable';
+} from 'imports/ui/stylesheets/styled-components/palette';
+import { fontSizeSmall } from 'imports/ui/stylesheets/styled-components/typography';
+import { ScrollboxVertical } from 'imports/ui/stylesheets/styled-components/scrollable';
 
 const Content = styled(FlexColumn)`
   flex-grow: 1;

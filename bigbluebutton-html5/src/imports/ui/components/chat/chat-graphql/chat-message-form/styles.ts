@@ -7,17 +7,17 @@ import {
   colorPrimary,
   colorDanger,
   colorGrayDark,
-} from '/imports/ui/stylesheets/styled-components/palette';
+} from 'imports/ui/stylesheets/styled-components/palette';
 import {
   smPaddingX,
   smPaddingY,
   borderRadius,
   borderSize,
-} from '/imports/ui/stylesheets/styled-components/general';
-import { fontSizeBase } from '/imports/ui/stylesheets/styled-components/typography';
+} from 'imports/ui/stylesheets/styled-components/general';
+import { fontSizeBase } from 'imports/ui/stylesheets/styled-components/typography';
 import TextareaAutosize from 'react-autosize-textarea';
-import EmojiPickerComponent from '/imports/ui/components/emoji-picker/component';
-import Button from '/imports/ui/components/common/button/component';
+import EmojiPickerComponent from 'imports/ui/components/emoji-picker/component';
+import Button from 'imports/ui/components/common/button/component';
 
 interface FormProps {
   isRTL: boolean;

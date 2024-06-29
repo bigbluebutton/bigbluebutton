@@ -1,28 +1,28 @@
 import React from 'react';
-import ErrorBoundary from '/imports/ui/components/common/error-boundary/component';
-import FallbackModal from '/imports/ui/components/common/fallback-errors/fallback-modal/component';
+import ErrorBoundary from 'imports/ui/components/common/error-boundary/component';
+import FallbackModal from 'imports/ui/components/common/fallback-errors/fallback-modal/component';
 import { useMutation } from '@apollo/client';
 import Service from './service';
-import PresUploaderToast from '/imports/ui/components/presentation/presentation-toast/presentation-uploader-toast/component';
+import PresUploaderToast from 'imports/ui/components/presentation/presentation-toast/presentation-uploader-toast/component';
 import PresentationUploader from './component';
 import {
   useIsPresentationEnabled,
   useIsDownloadPresentationOriginalFileEnabled,
   useIsDownloadPresentationConvertedToPdfEnabled,
   useIsDownloadPresentationWithAnnotationsEnabled,
-} from '/imports/ui/services/features';
+} from 'imports/ui/services/features';
 import {
   PRESENTATIONS_SUBSCRIPTION,
-} from '/imports/ui/components/whiteboard/queries';
-import useCurrentUser from '/imports/ui/core/hooks/useCurrentUser';
+} from 'imports/ui/components/whiteboard/queries';
+import useCurrentUser from 'imports/ui/core/hooks/useCurrentUser';
 import {
   PRESENTATION_SET_DOWNLOADABLE,
   PRESENTATION_EXPORT,
   PRESENTATION_SET_CURRENT,
   PRESENTATION_REMOVE,
 } from '../mutations';
-import { useStorageKey } from '/imports/ui/services/storage/hooks';
-import useDeduplicatedSubscription from '/imports/ui/core/hooks/useDeduplicatedSubscription';
+import { useStorageKey } from 'imports/ui/services/storage/hooks';
+import useDeduplicatedSubscription from 'imports/ui/core/hooks/useDeduplicatedSubscription';
 
 const PresentationUploaderContainer = (props) => {
   const { data: currentUserData } = useCurrentUser((user) => ({

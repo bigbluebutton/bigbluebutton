@@ -1,6 +1,6 @@
 import styled from 'styled-components';
-import { colorGrayLighter } from '/imports/ui/stylesheets/styled-components/palette';
-import { lineHeightComputed } from '/imports/ui/stylesheets/styled-components/typography';
+import { colorGrayLighter } from 'imports/ui/stylesheets/styled-components/palette';
+import { lineHeightComputed } from 'imports/ui/stylesheets/styled-components/typography';
 
 const Separator = styled.li`
   display: flex;

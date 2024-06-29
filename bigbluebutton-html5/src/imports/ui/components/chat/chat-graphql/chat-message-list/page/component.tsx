@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/ban-ts-comment */
 import React, { useContext, useEffect, useState } from 'react';
-import { PluginsContext } from '/imports/ui/components/components-data/plugin-context/context';
+import { PluginsContext } from 'imports/ui/components/components-data/plugin-context/context';
 import { UpdatedEventDetailsForChatMessageDomElements } from 'bigbluebutton-html-plugin-sdk/dist/cjs/dom-element-manipulation/chat/message/types';
 import { HookEvents } from 'bigbluebutton-html-plugin-sdk/dist/cjs/core/enum';
 import { UpdatedEventDetails } from 'bigbluebutton-html-plugin-sdk/dist/cjs/core/types';
@@ -9,11 +9,11 @@ import {
   CHAT_MESSAGE_PUBLIC_SUBSCRIPTION,
   CHAT_MESSAGE_PRIVATE_SUBSCRIPTION,
 } from './queries';
-import { Message } from '/imports/ui/Types/message';
+import { Message } from 'imports/ui/Types/message';
 import ChatMessage from './chat-message/component';
-import { GraphqlDataHookSubscriptionResponse } from '/imports/ui/Types/hook';
-import { useCreateUseSubscription } from '/imports/ui/core/hooks/createUseSubscription';
-import { setLoadedMessageGathering } from '/imports/ui/core/hooks/useLoadedChatMessages';
+import { GraphqlDataHookSubscriptionResponse } from 'imports/ui/Types/hook';
+import { useCreateUseSubscription } from 'imports/ui/core/hooks/createUseSubscription';
+import { setLoadedMessageGathering } from 'imports/ui/core/hooks/useLoadedChatMessages';
 import { ChatLoading } from '../../component';
 
 interface ChatListPageContainerProps {

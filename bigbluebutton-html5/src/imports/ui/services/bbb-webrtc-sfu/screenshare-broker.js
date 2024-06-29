@@ -1,6 +1,6 @@
-import logger from '/imports/startup/client/logger';
-import BaseBroker from '/imports/ui/services/bbb-webrtc-sfu/sfu-base-broker';
-import WebRtcPeer from '/imports/ui/services/webrtc-base/peer';
+import logger from 'imports/startup/client/logger';
+import BaseBroker from 'imports/ui/services/bbb-webrtc-sfu/sfu-base-broker';
+import WebRtcPeer from 'imports/ui/services/webrtc-base/peer';
 
 const ON_ICE_CANDIDATE_MSG = 'iceCandidate';
 const SUBSCRIBER_ANSWER = 'subscriberAnswer';

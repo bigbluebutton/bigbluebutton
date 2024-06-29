@@ -4,16 +4,16 @@ import { findDOMNode } from 'react-dom';
 import { UI_DATA_LISTENER_SUBSCRIBED } from 'bigbluebutton-html-plugin-sdk/dist/cjs/ui-data-hooks/consts';
 import { UserListUiDataPayloads } from 'bigbluebutton-html-plugin-sdk/dist/cjs/ui-data-hooks/user-list/types';
 import * as PluginSdk from 'bigbluebutton-html-plugin-sdk';
-import { User } from '/imports/ui/Types/user';
+import { User } from 'imports/ui/Types/user';
 import Styled from './styles';
 import {
   USER_AGGREGATE_COUNT_SUBSCRIPTION,
 } from './queries';
-import Service from '/imports/ui/components/user-list/service';
-import useDeduplicatedSubscription from '/imports/ui/core/hooks/useDeduplicatedSubscription';
+import Service from 'imports/ui/components/user-list/service';
+import useDeduplicatedSubscription from 'imports/ui/core/hooks/useDeduplicatedSubscription';
 import UserListParticipantsPageContainer from './page/component';
 import IntersectionWatcher from './intersection-watcher/intersectionWatcher';
-import { setLocalUserList } from '/imports/ui/core/hooks/useLoadedUserList';
+import { setLocalUserList } from 'imports/ui/core/hooks/useLoadedUserList';
 
 interface UserListParticipantsProps {
   count: number;

@@ -1,6 +1,6 @@
 import { useMutation, useQuery } from '@apollo/client';
 import React, { useContext, useEffect, useState } from 'react';
-import Session from '/imports/ui/services/storage/in-memory';
+import Session from 'imports/ui/services/storage/in-memory';
 import {
   getUserCurrent,
   GetUserCurrentResponse,
@@ -8,13 +8,13 @@ import {
   GetUserInfoResponse,
   userJoinMutation,
 } from './queries';
-import { setAuthData } from '/imports/ui/core/local-states/useAuthData';
+import { setAuthData } from 'imports/ui/core/local-states/useAuthData';
 import MeetingEndedContainer from '../../meeting-ended/component';
 import { setUserDataToSessionStorage } from './service';
 import { LoadingContext } from '../../common/loading-screen/loading-screen-HOC/component';
-import useDeduplicatedSubscription from '/imports/ui/core/hooks/useDeduplicatedSubscription';
-import logger from '/imports/startup/client/logger';
-import deviceInfo from '/imports/utils/deviceInfo';
+import useDeduplicatedSubscription from 'imports/ui/core/hooks/useDeduplicatedSubscription';
+import logger from 'imports/startup/client/logger';
+import deviceInfo from 'imports/utils/deviceInfo';
 import GuestWaitContainer, { GUEST_STATUSES } from '../guest-wait/component';
 
 const connectionTimeout = 60000;

@@ -1,5 +1,5 @@
 import styled from 'styled-components';
-import { colorText, colorPrimary } from '/imports/ui/stylesheets/styled-components/palette';
+import { colorText, colorPrimary } from 'imports/ui/stylesheets/styled-components/palette';
 
 export const ChatDowloadContainer = styled.div`
   display: flex;

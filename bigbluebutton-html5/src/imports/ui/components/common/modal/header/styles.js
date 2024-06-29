@@ -1,22 +1,22 @@
 import styled from 'styled-components';
-import Button from '/imports/ui/components/common/button/component';
-import { TitleElipsis } from '/imports/ui/stylesheets/styled-components/placeholders';
-import { smallOnly } from '/imports/ui/stylesheets/styled-components/breakpoints';
+import Button from 'imports/ui/components/common/button/component';
+import { TitleElipsis } from 'imports/ui/stylesheets/styled-components/placeholders';
+import { smallOnly } from 'imports/ui/stylesheets/styled-components/breakpoints';
 import {
   colorGrayDark,
   colorGrayLighter,
   colorText,
-} from '/imports/ui/stylesheets/styled-components/palette';
+} from 'imports/ui/stylesheets/styled-components/palette';
 import {
   mdPaddingX,
   borderSize,
-} from '/imports/ui/stylesheets/styled-components/general';
+} from 'imports/ui/stylesheets/styled-components/general';
 import {
   fontSizeBase,
   fontSizeLarge,
   headingsFontWeight,
   lineHeightComputed,
-} from '/imports/ui/stylesheets/styled-components/typography';
+} from 'imports/ui/stylesheets/styled-components/typography';
 
 const Header = styled.header`
   margin: 0;

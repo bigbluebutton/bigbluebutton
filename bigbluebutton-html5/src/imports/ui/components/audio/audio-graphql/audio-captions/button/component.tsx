@@ -1,23 +1,23 @@
 import React, { useEffect, useRef } from 'react';
-import { layoutSelect } from '/imports/ui/components/layout/context';
-import { Layout } from '/imports/ui/components/layout/layoutTypes';
-import useCurrentUser from '/imports/ui/core/hooks/useCurrentUser';
-import ButtonEmoji from '/imports/ui/components/common/button/button-emoji/ButtonEmoji';
-import BBBMenu from '/imports/ui/components/common/menu/component';
+import { layoutSelect } from 'imports/ui/components/layout/context';
+import { Layout } from 'imports/ui/components/layout/layoutTypes';
+import useCurrentUser from 'imports/ui/core/hooks/useCurrentUser';
+import ButtonEmoji from 'imports/ui/components/common/button/button-emoji/ButtonEmoji';
+import BBBMenu from 'imports/ui/components/common/menu/component';
 import { defineMessages, useIntl } from 'react-intl';
 import { useMutation } from '@apollo/client';
 import Styled from './styles';
 import {
   setAudioCaptions, setUserLocaleProperty,
 } from '../service';
-import { MenuSeparatorItemType, MenuOptionItemType } from '/imports/ui/components/common/menu/menuTypes';
-import useAudioCaptionEnable from '/imports/ui/core/local-states/useAudioCaptionEnable';
-import { User } from '/imports/ui/Types/user';
-import { SET_CAPTION_LOCALE } from '/imports/ui/core/graphql/mutations/userMutations';
-import useMeeting from '/imports/ui/core/hooks/useMeeting';
+import { MenuSeparatorItemType, MenuOptionItemType } from 'imports/ui/components/common/menu/menuTypes';
+import useAudioCaptionEnable from 'imports/ui/core/local-states/useAudioCaptionEnable';
+import { User } from 'imports/ui/Types/user';
+import { SET_CAPTION_LOCALE } from 'imports/ui/core/graphql/mutations/userMutations';
+import useMeeting from 'imports/ui/core/hooks/useMeeting';
 import { ActiveCaptionsResponse, getactiveCaptions } from './queries';
-import AudioCaptionsService from '/imports/ui/components/audio/audio-graphql/audio-captions/service';
-import useDeduplicatedSubscription from '/imports/ui/core/hooks/useDeduplicatedSubscription';
+import AudioCaptionsService from 'imports/ui/components/audio/audio-graphql/audio-captions/service';
+import useDeduplicatedSubscription from 'imports/ui/core/hooks/useDeduplicatedSubscription';
 
 const intlMessages = defineMessages({
   start: {

@@ -2,7 +2,7 @@ import React from 'react';
 import { defineMessages, injectIntl } from 'react-intl';
 import PropTypes from 'prop-types';
 import Styled from './styles';
-import { ACTIONS } from '/imports/ui/components/layout/enums';
+import { ACTIONS } from 'imports/ui/components/layout/enums';
 
 const intlMessages = defineMessages({
   fullscreenButton: {

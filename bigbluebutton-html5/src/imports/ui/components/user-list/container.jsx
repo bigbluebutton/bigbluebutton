@@ -1,5 +1,5 @@
 import React from 'react';
-import getFromUserSettings from '/imports/ui/services/users-settings';
+import getFromUserSettings from 'imports/ui/services/users-settings';
 import UserList from './component';
 import { useStorageKey } from '../../services/storage/hooks';
 

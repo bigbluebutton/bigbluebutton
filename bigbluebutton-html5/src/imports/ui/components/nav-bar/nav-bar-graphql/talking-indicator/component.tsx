@@ -4,17 +4,17 @@ import {
   IsBreakoutSubscriptionData,
   MEETING_ISBREAKOUT_SUBSCRIPTION,
 } from './queries';
-import { uniqueId } from '/imports/utils/string-utils';
+import { uniqueId } from 'imports/utils/string-utils';
 import Styled from './styles';
-import { User } from '/imports/ui/Types/user';
-import useCurrentUser from '/imports/ui/core/hooks/useCurrentUser';
+import { User } from 'imports/ui/Types/user';
+import useCurrentUser from 'imports/ui/core/hooks/useCurrentUser';
 import { muteUser } from './service';
 import useToggleVoice from '../../../audio/audio-graphql/hooks/useToggleVoice';
-import { setTalkingIndicatorList } from '/imports/ui/core/hooks/useTalkingIndicator';
-import useDeduplicatedSubscription from '/imports/ui/core/hooks/useDeduplicatedSubscription';
-import { VoiceActivityResponse } from '/imports/ui/core/graphql/queries/whoIsTalking';
-import useTalkingUsers from '/imports/ui/core/hooks/useTalkingUsers';
-import { partition } from '/imports/utils/array-utils';
+import { setTalkingIndicatorList } from 'imports/ui/core/hooks/useTalkingIndicator';
+import useDeduplicatedSubscription from 'imports/ui/core/hooks/useDeduplicatedSubscription';
+import { VoiceActivityResponse } from 'imports/ui/core/graphql/queries/whoIsTalking';
+import useTalkingUsers from 'imports/ui/core/hooks/useTalkingUsers';
+import { partition } from 'imports/utils/array-utils';
 
 const TALKING_INDICATORS_MAX = 8;
 

@@ -1,5 +1,5 @@
 import Service from '../service';
-import Storage from '/imports/ui/services/storage/session';
+import Storage from 'imports/ui/services/storage/session';
 
 const CLIENT_DID_USER_SELECTED_MICROPHONE_KEY = 'clientUserSelectedMicrophone';
 const CLIENT_DID_USER_SELECTED_LISTEN_ONLY_KEY = 'clientUserSelectedListenOnly';

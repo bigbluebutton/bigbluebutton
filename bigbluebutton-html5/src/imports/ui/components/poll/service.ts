@@ -1,5 +1,5 @@
 import { defineMessages } from 'react-intl';
-import { escapeHtml } from '/imports/utils/string-utils';
+import { escapeHtml } from 'imports/utils/string-utils';
 
 const POLL_AVATAR_COLOR = '#3B48A9';
 const MAX_POLL_RESULT_BARS = 10;

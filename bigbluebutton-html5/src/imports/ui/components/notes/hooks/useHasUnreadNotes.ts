@@ -1,4 +1,4 @@
-import useRev from '/imports/ui/components/pads/pads-graphql/hooks/useRev';
+import useRev from 'imports/ui/components/pads/pads-graphql/hooks/useRev';
 import useNotesLastRev from './useNotesLastRev';
 
 const useHasUnreadNotes = () => {

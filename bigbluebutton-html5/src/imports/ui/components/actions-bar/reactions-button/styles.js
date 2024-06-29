@@ -1,13 +1,13 @@
 import styled from 'styled-components';
-import { colorWhite } from '/imports/ui/stylesheets/styled-components/palette';
-import Button from '/imports/ui/components/common/button/component';
+import { colorWhite } from 'imports/ui/stylesheets/styled-components/palette';
+import Button from 'imports/ui/components/common/button/component';
 
 import {
   colorGrayDark,
   colorGrayLightest,
   btnPrimaryColor,
   btnPrimaryActiveBg,
-} from '/imports/ui/stylesheets/styled-components/palette';
+} from 'imports/ui/stylesheets/styled-components/palette';
 
 const RaiseHandButton = styled(Button)`
 ${({ ghost }) => ghost && `

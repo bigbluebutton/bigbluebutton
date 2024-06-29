@@ -1,10 +1,10 @@
 import React, { useCallback } from 'react';
 import { useReactiveVar } from '@apollo/client';
-import browserInfo from '/imports/utils/browserInfo';
-import getFromUserSettings from '/imports/ui/services/users-settings';
+import browserInfo from 'imports/utils/browserInfo';
+import getFromUserSettings from 'imports/ui/services/users-settings';
 import AudioModal from './component';
-import AudioError from '/imports/ui/services/audio-manager/error-codes';
-import AppService from '/imports/ui/components/app/service';
+import AudioError from 'imports/ui/services/audio-manager/error-codes';
+import AppService from 'imports/ui/components/app/service';
 import {
   joinMicrophone,
   closeModal,
@@ -12,12 +12,12 @@ import {
   leaveEchoTest,
 } from './service';
 import Service from '../service';
-import AudioModalService from '/imports/ui/components/audio/audio-modal/service';
-import useCurrentUser from '/imports/ui/core/hooks/useCurrentUser';
-import AudioManager from '/imports/ui/services/audio-manager';
-import { useStorageKey } from '/imports/ui/services/storage/hooks';
-import useMeeting from '/imports/ui/core/hooks/useMeeting';
-import useLockContext from '/imports/ui/components/lock-viewers/hooks/useLockContext';
+import AudioModalService from 'imports/ui/components/audio/audio-modal/service';
+import useCurrentUser from 'imports/ui/core/hooks/useCurrentUser';
+import AudioManager from 'imports/ui/services/audio-manager';
+import { useStorageKey } from 'imports/ui/services/storage/hooks';
+import useMeeting from 'imports/ui/core/hooks/useMeeting';
+import useLockContext from 'imports/ui/components/lock-viewers/hooks/useLockContext';
 
 const invalidDialNumbers = ['0', '613-555-1212', '613-555-1234', '0000'];
 

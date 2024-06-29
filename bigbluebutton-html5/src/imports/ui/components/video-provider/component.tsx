@@ -3,27 +3,27 @@
 import React, { Component } from 'react';
 import ReconnectingWebSocket from 'reconnecting-websocket';
 import { IntlShape, defineMessages, injectIntl } from 'react-intl';
-import { debounce } from '/imports/utils/debounce';
+import { debounce } from 'imports/utils/debounce';
 import VideoService from './service';
 import VideoListContainer from './video-list/container';
 import {
   fetchWebRTCMappedStunTurnServers,
   getMappedFallbackStun,
-} from '/imports/utils/fetchStunTurnServers';
-import logger from '/imports/startup/client/logger';
-import { notifyStreamStateChange } from '/imports/ui/services/bbb-webrtc-sfu/stream-state-service';
-import VideoPreviewService from '/imports/ui/components/video-preview/service';
-import MediaStreamUtils from '/imports/utils/media-stream-utils';
-import BBBVideoStream from '/imports/ui/services/webrtc-base/bbb-video-stream';
+} from 'imports/utils/fetchStunTurnServers';
+import logger from 'imports/startup/client/logger';
+import { notifyStreamStateChange } from 'imports/ui/services/bbb-webrtc-sfu/stream-state-service';
+import VideoPreviewService from 'imports/ui/components/video-preview/service';
+import MediaStreamUtils from 'imports/utils/media-stream-utils';
+import BBBVideoStream from 'imports/ui/services/webrtc-base/bbb-video-stream';
 import {
   EFFECT_TYPES,
   getSessionVirtualBackgroundInfo,
-} from '/imports/ui/services/virtual-background/service';
-import { notify } from '/imports/ui/services/notification';
-import { shouldForceRelay } from '/imports/ui/services/bbb-webrtc-sfu/utils';
-import WebRtcPeer from '/imports/ui/services/webrtc-base/peer';
+} from 'imports/ui/services/virtual-background/service';
+import { notify } from 'imports/ui/services/notification';
+import { shouldForceRelay } from 'imports/ui/services/bbb-webrtc-sfu/utils';
+import WebRtcPeer from 'imports/ui/services/webrtc-base/peer';
 import { StreamItem, VideoItem } from './types';
-import { Output } from '/imports/ui/components/layout/layoutTypes';
+import { Output } from 'imports/ui/components/layout/layoutTypes';
 
 const intlClientErrors = defineMessages({
   permissionError: {

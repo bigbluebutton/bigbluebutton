@@ -2,8 +2,8 @@ import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import { defineMessages } from 'react-intl';
 
-import Button from '/imports/ui/components/common/button/component';
-import ModalSimple from '/imports/ui/components/common/modal/simple/component';
+import Button from 'imports/ui/components/common/button/component';
+import ModalSimple from 'imports/ui/components/common/modal/simple/component';
 import Styled from './styles';
 
 const propTypes = {

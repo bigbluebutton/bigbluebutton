@@ -4,7 +4,7 @@ import {
   colorSuccess,
   colorWarning,
   colorDanger,
-} from '/imports/ui/stylesheets/styled-components/palette';
+} from 'imports/ui/stylesheets/styled-components/palette';
 
 const StatusIconWrapper = styled.div`
   border-radius: 50%;

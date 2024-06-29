@@ -4,7 +4,7 @@ import {
   borderSizeLarge,
   borderSizeSmall,
   smPaddingY,
-} from '/imports/ui/stylesheets/styled-components/general';
+} from 'imports/ui/stylesheets/styled-components/general';
 import {
   userThumbnailBorder,
   btnPrimaryBorder,
@@ -13,11 +13,11 @@ import {
   colorGrayLighter,
   colorPrimary,
   colorWhite,
-} from '/imports/ui/stylesheets/styled-components/palette';
-import { ScrollboxVertical } from '/imports/ui/stylesheets/styled-components/scrollable';
-import { fontSizeSmallest } from '/imports/ui/stylesheets/styled-components/typography';
-import { smallOnly, mediumOnly } from '/imports/ui/stylesheets/styled-components/breakpoints';
-import Button from '/imports/ui/components/common/button/component';
+} from 'imports/ui/stylesheets/styled-components/palette';
+import { ScrollboxVertical } from 'imports/ui/stylesheets/styled-components/scrollable';
+import { fontSizeSmallest } from 'imports/ui/stylesheets/styled-components/typography';
+import { smallOnly, mediumOnly } from 'imports/ui/stylesheets/styled-components/breakpoints';
+import Button from 'imports/ui/components/common/button/component';
 
 const VirtualBackgroundRowThumbnail = styled.div`
   margin: 0.4rem;

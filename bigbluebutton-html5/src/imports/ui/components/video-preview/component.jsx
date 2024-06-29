@@ -3,25 +3,25 @@ import React, { Component } from 'react';
 import {
   defineMessages, injectIntl, FormattedMessage,
 } from 'react-intl';
-import Button from '/imports/ui/components/common/button/component';
-import VirtualBgSelector from '/imports/ui/components/video-preview/virtual-background/component'
-import logger from '/imports/startup/client/logger';
-import browserInfo from '/imports/utils/browserInfo';
+import Button from 'imports/ui/components/common/button/component';
+import VirtualBgSelector from 'imports/ui/components/video-preview/virtual-background/component'
+import logger from 'imports/startup/client/logger';
+import browserInfo from 'imports/utils/browserInfo';
 import PreviewService from './service';
-import VideoService from '/imports/ui/components/video-provider/service';
+import VideoService from 'imports/ui/components/video-provider/service';
 import Styled from './styles';
-import deviceInfo from '/imports/utils/deviceInfo';
-import MediaStreamUtils from '/imports/utils/media-stream-utils';
-import { notify } from '/imports/ui/services/notification';
+import deviceInfo from 'imports/utils/deviceInfo';
+import MediaStreamUtils from 'imports/utils/media-stream-utils';
+import { notify } from 'imports/ui/services/notification';
 import {
   EFFECT_TYPES,
   setSessionVirtualBackgroundInfo,
   getSessionVirtualBackgroundInfo,
   isVirtualBackgroundSupported,
-} from '/imports/ui/services/virtual-background/service';
-import { getSettingsSingletonInstance } from '/imports/ui/services/settings';
-import Checkbox from '/imports/ui/components/common/checkbox/component'
-import AppService from '/imports/ui/components/app/service';
+} from 'imports/ui/services/virtual-background/service';
+import { getSettingsSingletonInstance } from 'imports/ui/services/settings';
+import Checkbox from 'imports/ui/components/common/checkbox/component'
+import AppService from 'imports/ui/components/app/service';
 
 const VIEW_STATES = {
   finding: 'finding',

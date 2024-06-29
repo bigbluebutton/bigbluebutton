@@ -1,6 +1,6 @@
 import styled from 'styled-components';
-import { colorWhite } from '/imports/ui/stylesheets/styled-components/palette';
-import { fontSizeLarge, fontSizeBase } from '/imports/ui/stylesheets/styled-components/typography';
+import { colorWhite } from 'imports/ui/stylesheets/styled-components/palette';
+import { fontSizeLarge, fontSizeBase } from 'imports/ui/stylesheets/styled-components/typography';
 
 const AutoplayOverlay = styled.div`
   display: flex;

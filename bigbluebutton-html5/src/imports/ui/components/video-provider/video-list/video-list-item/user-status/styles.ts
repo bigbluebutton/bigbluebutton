@@ -1,8 +1,8 @@
 // @ts-nocheck
 /* eslint-disable */
 import styled from 'styled-components';
-import Icon from '/imports/ui/components/common/icon/component';
-import { colorDanger, colorSuccess, colorWhite } from '/imports/ui/stylesheets/styled-components/palette';
+import Icon from 'imports/ui/components/common/icon/component';
+import { colorDanger, colorSuccess, colorWhite } from 'imports/ui/stylesheets/styled-components/palette';
 
 const Voice = styled(Icon)`
   height: 1.1rem;

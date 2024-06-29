@@ -1,8 +1,8 @@
 import React from 'react';
 import Timer from './component';
 import { layoutSelectInput, layoutDispatch } from '../../../layout/context';
-import useCurrentUser from '/imports/ui/core/hooks/useCurrentUser';
-import useTimer from '/imports/ui/core/hooks/useTImer';
+import useCurrentUser from 'imports/ui/core/hooks/useCurrentUser';
+import useTimer from 'imports/ui/core/hooks/useTImer';
 
 const TimerContainer = (props) => {
   const sidebarContent = layoutSelectInput((i) => i.sidebarContent);

@@ -2,9 +2,9 @@ import React from 'react';
 import { CONNECTION_STATUS_REPORT_SUBSCRIPTION } from '../queries';
 import Service from '../service';
 import Component from './component';
-import useCurrentUser from '/imports/ui/core/hooks/useCurrentUser';
+import useCurrentUser from 'imports/ui/core/hooks/useCurrentUser';
 import { useGetStats } from '../../video-provider/hooks';
-import useDeduplicatedSubscription from '/imports/ui/core/hooks/useDeduplicatedSubscription';
+import useDeduplicatedSubscription from 'imports/ui/core/hooks/useDeduplicatedSubscription';
 
 const ConnectionStatusContainer = (props) => {
   const { data } = useDeduplicatedSubscription(CONNECTION_STATUS_REPORT_SUBSCRIPTION);

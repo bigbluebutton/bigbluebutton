@@ -2,7 +2,7 @@ import React from 'react';
 import Skeleton, { SkeletonTheme } from 'react-loading-skeleton';
 import Styled from './styles';
 import listItemStyles from '../styles';
-import { getSettingsSingletonInstance } from '/imports/ui/services/settings';
+import { getSettingsSingletonInstance } from 'imports/ui/services/settings';
 
 interface SkeletonUserListItemProps {
   enableAnimation?: boolean;

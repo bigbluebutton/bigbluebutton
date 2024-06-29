@@ -1,5 +1,5 @@
 import styled from 'styled-components';
-import { colorWhite, colorGrayLighter } from '/imports/ui/stylesheets/styled-components/palette';
+import { colorWhite, colorGrayLighter } from 'imports/ui/stylesheets/styled-components/palette';
 
 const SelectParent = styled.div`
   display: flex;

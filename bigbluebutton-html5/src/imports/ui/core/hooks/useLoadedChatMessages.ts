@@ -1,6 +1,6 @@
 import { isEqual } from 'radash';
 import { makeVar, useReactiveVar } from '@apollo/client';
-import { Message } from '/imports/ui/Types/message';
+import { Message } from 'imports/ui/Types/message';
 
 interface LoadedChatMessages {
   [pageNumber: number]: Partial<Message>[];

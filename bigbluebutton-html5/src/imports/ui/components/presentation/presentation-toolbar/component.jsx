@@ -1,24 +1,24 @@
 import React, { PureComponent } from 'react';
 import PropTypes from 'prop-types';
 import { defineMessages, injectIntl } from 'react-intl';
-import deviceInfo from '/imports/utils/deviceInfo';
-import injectWbResizeEvent from '/imports/ui/components/presentation/resize-wrapper/component';
-import Button from '/imports/ui/components/common/button/component';
+import deviceInfo from 'imports/utils/deviceInfo';
+import injectWbResizeEvent from 'imports/ui/components/presentation/resize-wrapper/component';
+import Button from 'imports/ui/components/common/button/component';
 import {
   HUNDRED_PERCENT,
   MAX_PERCENT,
   STEP,
-} from '/imports/utils/slideCalcUtils';
+} from 'imports/utils/slideCalcUtils';
 import {
   PresentationToolbarItemType,
 } from 'bigbluebutton-html-plugin-sdk/dist/cjs/extensible-areas/presentation-toolbar-item/enums';
 import Styled from './styles';
 import ZoomTool from './zoom-tool/component';
 import SmartMediaShareContainer from './smart-video-share/container';
-import TooltipContainer from '/imports/ui/components/common/tooltip/container';
-import KEY_CODES from '/imports/utils/keyCodes';
-import Spinner from '/imports/ui/components/common/spinner/component';
-import Separator from '/imports/ui/components/common/separator/component';
+import TooltipContainer from 'imports/ui/components/common/tooltip/container';
+import KEY_CODES from 'imports/utils/keyCodes';
+import Spinner from 'imports/ui/components/common/spinner/component';
+import Separator from 'imports/ui/components/common/separator/component';
 
 const intlMessages = defineMessages({
   previousSlideLabel: {

@@ -1,11 +1,11 @@
 import styled from 'styled-components';
-import Icon from '/imports/ui/components/common/icon/component';
+import Icon from 'imports/ui/components/common/icon/component';
 import {
   btnDefaultColor,
   btnDefaultBg,
   colorBackground,
-} from '/imports/ui/stylesheets/styled-components/palette';
-import { btnSpacing } from '/imports/ui/stylesheets/styled-components/general';
+} from 'imports/ui/stylesheets/styled-components/palette';
+import { btnSpacing } from 'imports/ui/stylesheets/styled-components/general';
 
 const EmojiButtonIcon = styled(Icon)`
   position: absolute;

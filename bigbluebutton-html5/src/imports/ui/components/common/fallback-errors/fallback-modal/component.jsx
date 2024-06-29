@@ -1,5 +1,5 @@
 import React from 'react';
-import ModalSimple from '/imports/ui/components/common/modal/simple/component';
+import ModalSimple from 'imports/ui/components/common/modal/simple/component';
 import { defineMessages, injectIntl } from 'react-intl';
 import FallbackView from '../fallback-view/component';
 

@@ -1,7 +1,7 @@
 import React from 'react';
-import { throttle } from '/imports/utils/throttle';
-import { notify } from '/imports/ui/services/notification';
-import { getSettingsSingletonInstance } from '/imports/ui/services/settings';
+import { throttle } from 'imports/utils/throttle';
+import { notify } from 'imports/ui/services/notification';
+import { getSettingsSingletonInstance } from 'imports/ui/services/settings';
 import Styled from './styles';
 
 const GUEST_WAITING_BELL_THROTTLE_TIME = 10000;

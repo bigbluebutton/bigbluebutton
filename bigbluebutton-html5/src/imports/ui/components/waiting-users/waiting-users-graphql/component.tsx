@@ -6,8 +6,8 @@ import React, {
 } from 'react';
 import { useMutation } from '@apollo/client';
 import { defineMessages, useIntl } from 'react-intl';
-import { useMeeting } from '/imports/ui/core/hooks/useMeeting';
-import { notify } from '/imports/ui/services/notification';
+import { useMeeting } from 'imports/ui/core/hooks/useMeeting';
+import { notify } from 'imports/ui/services/notification';
 
 import {
   GET_GUEST_WAITING_USERS_SUBSCRIPTION,
@@ -20,19 +20,19 @@ import Styled from './styles';
 import {
   privateMessageVisible,
 } from './service';
-import browserInfo from '/imports/utils/browserInfo';
-import Header from '/imports/ui/components/common/control-header/component';
-import TextInput from '/imports/ui/components/text-input/component';
+import browserInfo from 'imports/utils/browserInfo';
+import Header from 'imports/ui/components/common/control-header/component';
+import TextInput from 'imports/ui/components/text-input/component';
 import renderNoUserWaitingItem from './guest-items/noPendingGuestUser';
 import renderPendingUsers from './guest-items/guestPendingUser';
-import logger from '/imports/startup/client/logger';
+import logger from 'imports/startup/client/logger';
 import {
   SET_POLICY,
   SUBMIT_APPROVAL_STATUS,
   SET_LOBBY_MESSAGE,
   SET_LOBBY_MESSAGE_PRIVATE,
 } from '../mutations';
-import useDeduplicatedSubscription from '/imports/ui/core/hooks/useDeduplicatedSubscription';
+import useDeduplicatedSubscription from 'imports/ui/core/hooks/useDeduplicatedSubscription';
 
 interface LayoutDispatchProps {
   type: string,

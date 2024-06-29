@@ -1,11 +1,11 @@
 import styled from 'styled-components';
 import {
   colorGray,
-} from '/imports/ui/stylesheets/styled-components/palette';
+} from 'imports/ui/stylesheets/styled-components/palette';
 import {
   fontSizeSmaller,
   fontSizeXL,
-} from '/imports/ui/stylesheets/styled-components/typography';
+} from 'imports/ui/stylesheets/styled-components/typography';
 
 const Text = styled.span`
   text-transform: uppercase;

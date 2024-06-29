@@ -1,11 +1,11 @@
 import React, { PureComponent } from 'react';
 import { defineMessages, injectIntl } from 'react-intl';
 import PropTypes from 'prop-types';
-import EndMeetingConfirmationContainer from '/imports/ui/components/end-meeting-confirmation/container';
-import BBBMenu from '/imports/ui/components/common/menu/component';
-import { colorDanger, colorWhite } from '/imports/ui/stylesheets/styled-components/palette';
+import EndMeetingConfirmationContainer from 'imports/ui/components/end-meeting-confirmation/container';
+import BBBMenu from 'imports/ui/components/common/menu/component';
+import { colorDanger, colorWhite } from 'imports/ui/stylesheets/styled-components/palette';
 import Styled from './styles';
-import Session from '/imports/ui/services/storage/in-memory';
+import Session from 'imports/ui/services/storage/in-memory';
 
 const intlMessages = defineMessages({
   leaveMeetingBtnLabel: {

@@ -1,6 +1,6 @@
 /* eslint-disable camelcase */
 import { gql } from '@apollo/client';
-import { MeetingRecording, MeetingRecordingPolicies } from '/imports/ui/Types/meeting';
+import { MeetingRecording, MeetingRecordingPolicies } from 'imports/ui/Types/meeting';
 
 export interface getMeetingRecordingPoliciesResponse {
   meeting_recordingPolicies: Array<MeetingRecordingPolicies>;

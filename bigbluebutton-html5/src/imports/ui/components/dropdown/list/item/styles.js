@@ -1,14 +1,14 @@
 import styled from 'styled-components';
-import Icon from '/imports/ui/components/common/icon/component';
-import { lineHeightComputed } from '/imports/ui/stylesheets/styled-components/typography';
+import Icon from 'imports/ui/components/common/icon/component';
+import { lineHeightComputed } from 'imports/ui/stylesheets/styled-components/typography';
 import {
   colorGrayDark,
   colorPrimary,
   colorWhite,
   colorText,
-} from '/imports/ui/stylesheets/styled-components/palette';
-import { borderSize } from '/imports/ui/stylesheets/styled-components/general';
-import { smallOnly } from '/imports/ui/stylesheets/styled-components/breakpoints';
+} from 'imports/ui/stylesheets/styled-components/palette';
+import { borderSize } from 'imports/ui/stylesheets/styled-components/general';
+import { smallOnly } from 'imports/ui/stylesheets/styled-components/breakpoints';
 
 const ItemIcon = styled(Icon)`
   margin: 0 calc(${lineHeightComputed} / 2) 0 0;

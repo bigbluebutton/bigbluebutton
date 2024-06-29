@@ -6,8 +6,8 @@ import {
 import { DataConsumptionHooks } from 'bigbluebutton-html-plugin-sdk/dist/cjs/data-consumption/enums';
 import { SubscribedEventDetails, UpdatedEventDetails } from 'bigbluebutton-html-plugin-sdk/dist/cjs/core/types';
 import formatTalkingIndicatorDataFromGraphql from './utils';
-import { UserVoice } from '/imports/ui/Types/userVoice';
-import { useTalkingIndicatorList } from '/imports/ui/core/hooks/useTalkingIndicator';
+import { UserVoice } from 'imports/ui/Types/userVoice';
+import { useTalkingIndicatorList } from 'imports/ui/core/hooks/useTalkingIndicator';
 
 const TalkingIndicatorHookContainer = () => {
   const [sendSignal, setSendSignal] = useState(false);

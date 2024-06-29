@@ -1,5 +1,5 @@
-import PollService from '/imports/ui/components/poll/service';
-import AudioService from '/imports/ui/components/audio/service';
+import PollService from 'imports/ui/components/poll/service';
+import AudioService from 'imports/ui/components/audio/service';
 
 const MAX_CHAR_LENGTH = 5;
 

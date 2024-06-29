@@ -1,9 +1,9 @@
 import React, { PureComponent } from 'react';
 import { defineMessages, injectIntl } from 'react-intl';
 import PropTypes from 'prop-types';
-import { isMobile } from '/imports/utils/deviceInfo';
-import logger from '/imports/startup/client/logger';
-import ClickOutside from '/imports/ui/components/click-outside/component';
+import { isMobile } from 'imports/utils/deviceInfo';
+import logger from 'imports/startup/client/logger';
+import ClickOutside from 'imports/ui/components/click-outside/component';
 import Styled from './styles';
 
 const propTypes = {

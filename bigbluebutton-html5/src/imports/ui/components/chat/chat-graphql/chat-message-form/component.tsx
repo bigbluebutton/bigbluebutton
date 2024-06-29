@@ -12,32 +12,32 @@ import { FillChatFormCommandArguments } from 'bigbluebutton-html-plugin-sdk/dist
 import { UI_DATA_LISTENER_SUBSCRIBED } from 'bigbluebutton-html-plugin-sdk/dist/cjs/ui-data-hooks/consts';
 import { ChatFormUiDataPayloads } from 'bigbluebutton-html-plugin-sdk/dist/cjs/ui-data-hooks/chat/form/types';
 import * as PluginSdk from 'bigbluebutton-html-plugin-sdk';
-import { layoutSelect } from '/imports/ui/components/layout/context';
+import { layoutSelect } from 'imports/ui/components/layout/context';
 import { defineMessages, useIntl } from 'react-intl';
-import { useIsChatEnabled } from '/imports/ui/services/features';
-import ClickOutside from '/imports/ui/components/click-outside/component';
+import { useIsChatEnabled } from 'imports/ui/services/features';
+import ClickOutside from 'imports/ui/components/click-outside/component';
 import { checkText } from 'smile2emoji';
 import Styled from './styles';
-import deviceInfo from '/imports/utils/deviceInfo';
-import usePreviousValue from '/imports/ui/hooks/usePreviousValue';
-import useChat from '/imports/ui/core/hooks/useChat';
-import useCurrentUser from '/imports/ui/core/hooks/useCurrentUser';
+import deviceInfo from 'imports/utils/deviceInfo';
+import usePreviousValue from 'imports/ui/hooks/usePreviousValue';
+import useChat from 'imports/ui/core/hooks/useChat';
+import useCurrentUser from 'imports/ui/core/hooks/useCurrentUser';
 import {
   textToMarkdown,
 } from './service';
-import { Chat } from '/imports/ui/Types/chat';
+import { Chat } from 'imports/ui/Types/chat';
 import { Layout } from '../../../layout/layoutTypes';
-import useMeeting from '/imports/ui/core/hooks/useMeeting';
+import useMeeting from 'imports/ui/core/hooks/useMeeting';
 
 import ChatOfflineIndicator from './chat-offline-indicator/component';
-import { ChatEvents } from '/imports/ui/core/enums/chat';
+import { ChatEvents } from 'imports/ui/core/enums/chat';
 import { useMutation } from '@apollo/client';
 import { CHAT_SEND_MESSAGE, CHAT_SET_TYPING } from './mutations';
-import Storage from '/imports/ui/services/storage/session';
-import { indexOf, without } from '/imports/utils/array-utils';
-import { GraphqlDataHookSubscriptionResponse } from '/imports/ui/Types/hook';
-import { throttle } from '/imports/utils/throttle';
-import logger from '/imports/startup/client/logger';
+import Storage from 'imports/ui/services/storage/session';
+import { indexOf, without } from 'imports/utils/array-utils';
+import { GraphqlDataHookSubscriptionResponse } from 'imports/ui/Types/hook';
+import { throttle } from 'imports/utils/throttle';
+import logger from 'imports/startup/client/logger';
 
 const CLOSED_CHAT_LIST_KEY = 'closedChatList';
 const START_TYPING_THROTTLE_INTERVAL = 1000;

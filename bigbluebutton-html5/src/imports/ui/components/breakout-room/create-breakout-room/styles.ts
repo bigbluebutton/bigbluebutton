@@ -1,9 +1,9 @@
 import styled from 'styled-components';
-import { smallOnly } from '/imports/ui/stylesheets/styled-components/breakpoints';
-import { ScrollboxVertical } from '/imports/ui/stylesheets/styled-components/scrollable';
-import HoldButton from '/imports/ui/components/presentation/presentation-toolbar/zoom-tool/holdButton/component';
-import Button from '/imports/ui/components/common/button/component';
-import { FlexRow, FlexColumn } from '/imports/ui/stylesheets/styled-components/placeholders';
+import { smallOnly } from 'imports/ui/stylesheets/styled-components/breakpoints';
+import { ScrollboxVertical } from 'imports/ui/stylesheets/styled-components/scrollable';
+import HoldButton from 'imports/ui/components/presentation/presentation-toolbar/zoom-tool/holdButton/component';
+import Button from 'imports/ui/components/common/button/component';
+import { FlexRow, FlexColumn } from 'imports/ui/stylesheets/styled-components/placeholders';
 import {
   colorDanger,
   colorGray,
@@ -13,14 +13,14 @@ import {
   colorPrimary,
   colorBlueLight,
   colorGrayLightest,
-} from '/imports/ui/stylesheets/styled-components/palette';
-import { fontSizeSmall, fontSizeBase, fontSizeSmaller } from '/imports/ui/stylesheets/styled-components/typography';
+} from 'imports/ui/stylesheets/styled-components/palette';
+import { fontSizeSmall, fontSizeBase, fontSizeSmaller } from 'imports/ui/stylesheets/styled-components/typography';
 import {
   borderRadius,
   borderSize,
   lgPaddingX,
   lgPaddingY,
-} from '/imports/ui/stylesheets/styled-components/general';
+} from 'imports/ui/stylesheets/styled-components/general';
 
 type withValidProp = {
   valid: boolean;

@@ -1,9 +1,9 @@
 import React, { useEffect, useState } from 'react';
 import { useIntl } from 'react-intl';
-import humanizeSeconds from '/imports/utils/humanizeSeconds';
+import humanizeSeconds from 'imports/utils/humanizeSeconds';
 import { Text, Time } from './styles';
-import { notify } from '/imports/ui/services/notification';
-import useTimeSync from '/imports/ui/core/local-states/useTimeSync';
+import { notify } from 'imports/ui/services/notification';
+import useTimeSync from 'imports/ui/core/local-states/useTimeSync';
 
 type intlMsg = {
   id: string;

@@ -1,15 +1,15 @@
 import React from 'react';
 import { injectIntl } from 'react-intl';
 import PropTypes from 'prop-types';
-import { debounce } from '/imports/utils/debounce';
-import FullscreenButtonContainer from '/imports/ui/components/common/fullscreen-button/container';
+import { debounce } from 'imports/utils/debounce';
+import FullscreenButtonContainer from 'imports/ui/components/common/fullscreen-button/container';
 import SwitchButtonContainer from './switch-button/container';
 import Styled from './styles';
 import VolumeSlider from '../external-video-player/volume-slider/component';
 import AutoplayOverlay from '../media/autoplay-overlay/component';
-import logger from '/imports/startup/client/logger';
-import playAndRetry from '/imports/utils/mediaElementPlayRetry';
-import { notify } from '/imports/ui/services/notification';
+import logger from 'imports/startup/client/logger';
+import playAndRetry from 'imports/utils/mediaElementPlayRetry';
+import { notify } from 'imports/ui/services/notification';
 import {
   SCREENSHARE_MEDIA_ELEMENT_NAME,
   isMediaFlowing,
@@ -22,17 +22,17 @@ import {
   setVolume,
   getVolume,
   getStats,
-} from '/imports/ui/components/screenshare/service';
+} from 'imports/ui/components/screenshare/service';
 import {
   isStreamStateHealthy,
   subscribeToStreamStateChange,
   unsubscribeFromStreamStateChange,
-} from '/imports/ui/services/bbb-webrtc-sfu/stream-state-service';
-import { ACTIONS, PRESENTATION_AREA } from '/imports/ui/components/layout/enums';
-import { getSettingsSingletonInstance } from '/imports/ui/services/settings';
-import deviceInfo from '/imports/utils/deviceInfo';
-import { uniqueId } from '/imports/utils/string-utils';
-import Session from '/imports/ui/services/storage/in-memory';
+} from 'imports/ui/services/bbb-webrtc-sfu/stream-state-service';
+import { ACTIONS, PRESENTATION_AREA } from 'imports/ui/components/layout/enums';
+import { getSettingsSingletonInstance } from 'imports/ui/services/settings';
+import deviceInfo from 'imports/utils/deviceInfo';
+import { uniqueId } from 'imports/utils/string-utils';
+import Session from 'imports/ui/services/storage/in-memory';
 
 const MOBILE_HOVER_TIMEOUT = 5000;
 const MEDIA_FLOW_PROBE_INTERVAL = 500;

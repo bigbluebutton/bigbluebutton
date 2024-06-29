@@ -1,4 +1,4 @@
-import { EMOJI_STATUSES } from '/imports/utils/statuses';
+import { EMOJI_STATUSES } from 'imports/utils/statuses';
 
 const normalizeEmojiName = (emoji: string) => {
   const statusAvailable = (Object.keys(EMOJI_STATUSES).includes(emoji));

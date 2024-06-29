@@ -1,9 +1,9 @@
 import React from 'react';
 import { useMutation } from '@apollo/client';
 import GuestPolicyComponent from './component';
-import useCurrentUser from '/imports/ui/core/hooks/useCurrentUser';
+import useCurrentUser from 'imports/ui/core/hooks/useCurrentUser';
 import { SET_POLICY } from '../mutations';
-import useMeeting from '/imports/ui/core/hooks/useMeeting';
+import useMeeting from 'imports/ui/core/hooks/useMeeting';
 
 const GuestPolicyContainer = (props) => {
   const { data: currentUserData } = useCurrentUser((user) => ({

@@ -1,5 +1,5 @@
 import styled from 'styled-components';
-import { colorText, colorGrayLighter } from '/imports/ui/stylesheets/styled-components/palette';
+import { colorText, colorGrayLighter } from 'imports/ui/stylesheets/styled-components/palette';
 
 export const ChatOfflineIndicator = styled.div`
   display: flex;

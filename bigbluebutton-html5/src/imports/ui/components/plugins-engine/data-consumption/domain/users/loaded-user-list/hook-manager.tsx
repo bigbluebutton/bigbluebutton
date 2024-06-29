@@ -1,13 +1,13 @@
 import { useEffect, useState } from 'react';
 import * as PluginSdk from 'bigbluebutton-html-plugin-sdk';
-import { User } from '/imports/ui/Types/user';
+import { User } from 'imports/ui/Types/user';
 import {
   HookEvents,
 } from 'bigbluebutton-html-plugin-sdk/dist/cjs/core/enum';
 import { DataConsumptionHooks } from 'bigbluebutton-html-plugin-sdk/dist/cjs/data-consumption/enums';
 import { SubscribedEventDetails, UpdatedEventDetails } from 'bigbluebutton-html-plugin-sdk/dist/cjs/core/types';
 import formatLoadedUserListDataFromGraphql from './utils';
-import { useLocalUserList } from '/imports/ui/core/hooks/useLoadedUserList';
+import { useLocalUserList } from 'imports/ui/core/hooks/useLoadedUserList';
 
 const LoadedUserListHookContainer = () => {
   const [sendSignal, setSendSignal] = useState(false);

@@ -2,7 +2,7 @@ import React, { Component } from 'react';
 import Draggable from 'react-draggable';
 import { defineMessages, injectIntl } from 'react-intl';
 import Styled from './styles';
-import ChatLogger from '/imports/ui/components/chat/chat-logger/ChatLogger';
+import ChatLogger from 'imports/ui/components/chat/chat-logger/ChatLogger';
 
 const intlMessages = defineMessages({
   modalClose: {

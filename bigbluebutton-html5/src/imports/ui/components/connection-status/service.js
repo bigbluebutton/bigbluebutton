@@ -1,10 +1,10 @@
 import { defineMessages } from 'react-intl';
 import { makeVar } from '@apollo/client';
-import Auth from '/imports/ui/services/auth';
-import Session from '/imports/ui/services/storage/in-memory';
-import { notify } from '/imports/ui/services/notification';
-import AudioService from '/imports/ui/components/audio/service';
-import ScreenshareService from '/imports/ui/components/screenshare/service';
+import Auth from 'imports/ui/services/auth';
+import Session from 'imports/ui/services/storage/in-memory';
+import { notify } from 'imports/ui/services/notification';
+import AudioService from 'imports/ui/components/audio/service';
+import ScreenshareService from 'imports/ui/components/screenshare/service';
 
 const intlMessages = defineMessages({
   saved: {

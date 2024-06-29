@@ -9,16 +9,16 @@ import {
   useIntl,
   IntlShape,
 } from 'react-intl';
-import { User } from '/imports/ui/Types/user';
+import { User } from 'imports/ui/Types/user';
 import Styled from './styles';
-import useCurrentUser from '/imports/ui/core/hooks/useCurrentUser';
+import useCurrentUser from 'imports/ui/core/hooks/useCurrentUser';
 import { layoutSelect } from '../../../layout/context';
 import { Layout } from '../../../layout/layoutTypes';
-import useChat from '/imports/ui/core/hooks/useChat';
-import useMeeting from '/imports/ui/core/hooks/useMeeting';
-import { Chat } from '/imports/ui/Types/chat';
-import { GraphqlDataHookSubscriptionResponse } from '/imports/ui/Types/hook';
-import useDeduplicatedSubscription from '/imports/ui/core/hooks/useDeduplicatedSubscription';
+import useChat from 'imports/ui/core/hooks/useChat';
+import useMeeting from 'imports/ui/core/hooks/useMeeting';
+import { Chat } from 'imports/ui/Types/chat';
+import { GraphqlDataHookSubscriptionResponse } from 'imports/ui/Types/hook';
+import useDeduplicatedSubscription from 'imports/ui/core/hooks/useDeduplicatedSubscription';
 
 const DEBUG_CONSOLE = false;
 

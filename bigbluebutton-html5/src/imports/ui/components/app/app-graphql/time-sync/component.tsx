@@ -1,7 +1,7 @@
 import { useLazyQuery } from '@apollo/client';
 import React, { useEffect } from 'react';
 import { GET_SERVER_TIME, GetServerTimeResponse } from './queries';
-import { setTimeSync } from '/imports/ui/core/local-states/useTimeSync';
+import { setTimeSync } from 'imports/ui/core/local-states/useTimeSync';
 
 const TimeSync: React.FC = () => {
   const [

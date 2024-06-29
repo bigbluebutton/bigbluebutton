@@ -1,14 +1,14 @@
-import Auth from '/imports/ui/services/auth';
-import logger from '/imports/startup/client/logger';
-import { partition } from '/imports/utils/array-utils';
+import Auth from 'imports/ui/services/auth';
+import logger from 'imports/startup/client/logger';
+import { partition } from 'imports/utils/array-utils';
 import update from 'immutability-helper';
 import { v4 as uuid } from 'uuid';
-import { uniqueId } from '/imports/utils/string-utils';
-import { notify } from '/imports/ui/services/notification';
-import apolloContextHolder from '/imports/ui/core/graphql/apolloContextHolder/apolloContextHolder';
+import { uniqueId } from 'imports/utils/string-utils';
+import { notify } from 'imports/ui/services/notification';
+import apolloContextHolder from 'imports/ui/core/graphql/apolloContextHolder/apolloContextHolder';
 import { getPresentationUploadToken } from './queries';
 import { requestPresentationUploadTokenMutation } from './mutation';
-import useMeeting from '/imports/ui/core/hooks/useMeeting';
+import useMeeting from 'imports/ui/core/hooks/useMeeting';
 
 const TOKEN_TIMEOUT = 5000;
 const POD_ID = 'DEFAULT_PRESENTATION_POD';

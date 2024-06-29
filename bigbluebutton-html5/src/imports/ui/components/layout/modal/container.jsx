@@ -1,10 +1,10 @@
 import React from 'react';
 import LayoutModalComponent from './component';
-import { updateSettings } from '/imports/ui/components/settings/service';
-import useUserChangedLocalSettings from '/imports/ui/services/settings/hooks/useUserChangedLocalSettings';
-import useSettings from '/imports/ui/services/settings/hooks/useSettings';
-import { SETTINGS } from '/imports/ui/services/settings/enums';
-import useCurrentUser from '/imports/ui/core/hooks/useCurrentUser';
+import { updateSettings } from 'imports/ui/components/settings/service';
+import useUserChangedLocalSettings from 'imports/ui/services/settings/hooks/useUserChangedLocalSettings';
+import useSettings from 'imports/ui/services/settings/hooks/useSettings';
+import { SETTINGS } from 'imports/ui/services/settings/enums';
+import useCurrentUser from 'imports/ui/core/hooks/useCurrentUser';
 
 const LayoutModalContainer = (props) => {
   const {

@@ -19,10 +19,10 @@ import CurrentPresentationHookContainer from './domain/presentations/current-pre
 import LoadedChatMessagesHookContainer from './domain/chat/loaded-chat-messages/hook-manager';
 import TalkingIndicatorHookContainer from './domain/user-voice/talking-indicator/hook-manager';
 import { GeneralHookManagerProps } from './types';
-import useCurrentUser from '/imports/ui/core/hooks/useCurrentUser';
-import { User } from '/imports/ui/Types/user';
-import useMeeting from '/imports/ui/core/hooks/useMeeting';
-import { Meeting } from '/imports/ui/Types/meeting';
+import useCurrentUser from 'imports/ui/core/hooks/useCurrentUser';
+import { User } from 'imports/ui/Types/user';
+import useMeeting from 'imports/ui/core/hooks/useMeeting';
+import { Meeting } from 'imports/ui/Types/meeting';
 import MeetingHookContainer from './domain/meeting/from-core/hook-manager';
 
 const hooksMap:{

@@ -1,7 +1,7 @@
 import styled from 'styled-components';
-import { colorWhite } from '/imports/ui/stylesheets/styled-components/palette';
-import { borderSize, navbarHeight, smPaddingX } from '/imports/ui/stylesheets/styled-components/general';
-import { smallOnly, mediumUp } from '/imports/ui/stylesheets/styled-components/breakpoints';
+import { colorWhite } from 'imports/ui/stylesheets/styled-components/palette';
+import { borderSize, navbarHeight, smPaddingX } from 'imports/ui/stylesheets/styled-components/general';
+import { smallOnly, mediumUp } from 'imports/ui/stylesheets/styled-components/breakpoints';
 
 const Poll = styled.div`
   position: absolute;

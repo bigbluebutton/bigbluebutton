@@ -1,8 +1,8 @@
 import styled from 'styled-components';
-import { colorWhite } from '/imports/ui/stylesheets/styled-components/palette';
-import { mediumUp } from '/imports/ui/stylesheets/styled-components/breakpoints';
-import { actionsBarHeight, navbarHeight, mdPaddingX } from '/imports/ui/stylesheets/styled-components/general';
-import Button from '/imports/ui/components/common/button/component';
+import { colorWhite } from 'imports/ui/stylesheets/styled-components/palette';
+import { mediumUp } from 'imports/ui/stylesheets/styled-components/breakpoints';
+import { actionsBarHeight, navbarHeight, mdPaddingX } from 'imports/ui/stylesheets/styled-components/general';
+import Button from 'imports/ui/components/common/button/component';
 
 // @ts-expect-error -> Untyped component.
 const NextPageButton = styled(Button)`

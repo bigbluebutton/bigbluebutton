@@ -8,7 +8,7 @@ import {
   userIndicatorsOffset,
   mdPaddingY,
   indicatorPadding,
-} from '/imports/ui/stylesheets/styled-components/general';
+} from 'imports/ui/stylesheets/styled-components/general';
 import {
   listItemBgHover,
   itemFocusBorder,
@@ -20,9 +20,9 @@ import {
   colorSuccess,
   colorDanger,
   colorOffWhite,
-} from '/imports/ui/stylesheets/styled-components/palette';
+} from 'imports/ui/stylesheets/styled-components/palette';
 
-import Icon from '/imports/ui/components/common/icon/icon-ts/component';
+import Icon from 'imports/ui/components/common/icon/icon-ts/component';
 
 interface AvatarProps {
     moderator?: boolean;

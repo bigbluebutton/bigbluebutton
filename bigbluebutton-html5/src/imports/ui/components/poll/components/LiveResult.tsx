@@ -1,7 +1,7 @@
 import { useMutation } from '@apollo/client';
 import React, { useCallback } from 'react';
 import { defineMessages, useIntl } from 'react-intl';
-import Session from '/imports/ui/services/storage/in-memory';
+import Session from 'imports/ui/services/storage/in-memory';
 import {
   Bar, BarChart, ResponsiveContainer, XAxis, YAxis,
 } from 'recharts';
@@ -12,12 +12,12 @@ import {
   getCurrentPollData,
   getCurrentPollDataResponse,
 } from '../queries';
-import logger from '/imports/startup/client/logger';
-import { getSettingsSingletonInstance } from '/imports/ui/services/settings';
+import logger from 'imports/startup/client/logger';
+import { getSettingsSingletonInstance } from 'imports/ui/services/settings';
 import { POLL_CANCEL, POLL_PUBLISH_RESULT } from '../mutations';
 import { layoutDispatch } from '../../layout/context';
 import { ACTIONS, PANELS } from '../../layout/enums';
-import useDeduplicatedSubscription from '/imports/ui/core/hooks/useDeduplicatedSubscription';
+import useDeduplicatedSubscription from 'imports/ui/core/hooks/useDeduplicatedSubscription';
 
 const intlMessages = defineMessages({
   usersTitle: {

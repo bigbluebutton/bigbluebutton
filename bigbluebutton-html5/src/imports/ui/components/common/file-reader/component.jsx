@@ -1,10 +1,10 @@
 import React, { useRef } from 'react';
 import { defineMessages } from 'react-intl';
 import { toast } from 'react-toastify';
-import { notify } from '/imports/ui/services/notification';
-import Icon from '/imports/ui/components/common/icon/component';
+import { notify } from 'imports/ui/services/notification';
+import Icon from 'imports/ui/components/common/icon/component';
 import Styled from './styles';
-import { uniqueId } from '/imports/utils/string-utils';
+import { uniqueId } from 'imports/utils/string-utils';
 
 const intlMessages = defineMessages({
   maximumSizeExceeded: {

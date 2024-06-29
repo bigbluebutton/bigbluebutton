@@ -1,9 +1,9 @@
 import { useCallback } from 'react';
-import useCurrentUser from '/imports/ui/core/hooks/useCurrentUser';
-import logger from '/imports/startup/client/logger';
-import AudioManager from '/imports/ui/services/audio-manager';
+import useCurrentUser from 'imports/ui/core/hooks/useCurrentUser';
+import logger from 'imports/startup/client/logger';
+import AudioManager from 'imports/ui/services/audio-manager';
 import useToggleVoice from './useToggleVoice';
-import useWhoIsUnmuted from '/imports/ui/core/hooks/useWhoIsUnmuted';
+import useWhoIsUnmuted from 'imports/ui/core/hooks/useWhoIsUnmuted';
 
 const useMuteMicrophone = () => {
   const { data: currentUser } = useCurrentUser((u) => ({

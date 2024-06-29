@@ -1,20 +1,20 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import { defineMessages, injectIntl } from 'react-intl';
-import Button from '/imports/ui/components/common/button/component';
-import AudioTestContainer from '/imports/ui/components/audio/audio-test/container';
+import Button from 'imports/ui/components/common/button/component';
+import AudioTestContainer from 'imports/ui/components/audio/audio-test/container';
 import Styled from './styles';
-import logger from '/imports/startup/client/logger';
-import AudioStreamVolume from '/imports/ui/components/audio/audio-stream-volume/component';
-import LocalEchoContainer from '/imports/ui/components/audio/local-echo/container';
-import DeviceSelector from '/imports/ui/components/audio/device-selector/component';
+import logger from 'imports/startup/client/logger';
+import AudioStreamVolume from 'imports/ui/components/audio/audio-stream-volume/component';
+import LocalEchoContainer from 'imports/ui/components/audio/local-echo/container';
+import DeviceSelector from 'imports/ui/components/audio/device-selector/component';
 import {
   getAudioConstraints,
   doGUM,
-} from '/imports/api/audio/client/bridge/service';
-import MediaStreamUtils from '/imports/utils/media-stream-utils';
-import audioManager from '/imports/ui/services/audio-manager';
-import Session from '/imports/ui/services/storage/in-memory';
+} from 'imports/api/audio/client/bridge/service';
+import MediaStreamUtils from 'imports/utils/media-stream-utils';
+import audioManager from 'imports/ui/services/audio-manager';
+import Session from 'imports/ui/services/storage/in-memory';
 
 const propTypes = {
   intl: PropTypes.shape({

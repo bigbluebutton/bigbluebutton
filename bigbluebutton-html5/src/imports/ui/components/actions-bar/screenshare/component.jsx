@@ -1,20 +1,20 @@
 import React, { memo, useState } from 'react';
 import PropTypes from 'prop-types';
 import { defineMessages, injectIntl } from 'react-intl';
-import deviceInfo from '/imports/utils/deviceInfo';
-import browserInfo from '/imports/utils/browserInfo';
-import logger from '/imports/startup/client/logger';
-import { notify } from '/imports/ui/services/notification';
+import deviceInfo from 'imports/utils/deviceInfo';
+import browserInfo from 'imports/utils/browserInfo';
+import logger from 'imports/startup/client/logger';
+import { notify } from 'imports/ui/services/notification';
 import { useMutation } from '@apollo/client';
 import Styled from './styles';
-import ScreenshareBridgeService from '/imports/api/screenshare/client/bridge/service';
+import ScreenshareBridgeService from 'imports/api/screenshare/client/bridge/service';
 import {
   shareScreen,
   screenshareHasEnded,
   useIsCameraAsContentBroadcasting,
-} from '/imports/ui/components/screenshare/service';
-import { SCREENSHARING_ERRORS } from '/imports/api/screenshare/client/bridge/errors';
-import Button from '/imports/ui/components/common/button/component';
+} from 'imports/ui/components/screenshare/service';
+import { SCREENSHARING_ERRORS } from 'imports/api/screenshare/client/bridge/errors';
+import Button from 'imports/ui/components/common/button/component';
 import { parsePayloads } from 'sdp-transform';
 import { EXTERNAL_VIDEO_STOP } from '../../external-video-player/mutations';
 

@@ -1,7 +1,7 @@
 import styled from 'styled-components';
-import { colorGrayDark } from '/imports/ui/stylesheets/styled-components/palette';
-import { borderRadius } from '/imports/ui/stylesheets/styled-components/general';
-import { fontSizeSmall } from '/imports/ui/stylesheets/styled-components/typography';
+import { colorGrayDark } from 'imports/ui/stylesheets/styled-components/palette';
+import { borderRadius } from 'imports/ui/stylesheets/styled-components/general';
+import { fontSizeSmall } from 'imports/ui/stylesheets/styled-components/typography';
 
 const PushMessageContent = styled.div`
   margin-top: 1.4rem;

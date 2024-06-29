@@ -1,5 +1,5 @@
 import React from 'react';
-import FullscreenService from '/imports/ui/components/common/fullscreen-button/service';
+import FullscreenService from 'imports/ui/components/common/fullscreen-button/service';
 import Tooltip from './component';
 
 const TooltipContainer = (props) => (

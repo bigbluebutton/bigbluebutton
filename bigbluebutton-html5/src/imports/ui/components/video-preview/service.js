@@ -1,10 +1,10 @@
-import Storage from '/imports/ui/services/storage/session';
-import { getStorageSingletonInstance } from '/imports/ui/services/storage';
-import getFromUserSettings from '/imports/ui/services/users-settings';
-import MediaStreamUtils from '/imports/utils/media-stream-utils';
-import VideoService from '/imports/ui/components/video-provider/service';
-import BBBVideoStream from '/imports/ui/services/webrtc-base/bbb-video-stream';
-import browserInfo from '/imports/utils/browserInfo';
+import Storage from 'imports/ui/services/storage/session';
+import { getStorageSingletonInstance } from 'imports/ui/services/storage';
+import getFromUserSettings from 'imports/ui/services/users-settings';
+import MediaStreamUtils from 'imports/utils/media-stream-utils';
+import VideoService from 'imports/ui/components/video-provider/service';
+import BBBVideoStream from 'imports/ui/services/webrtc-base/bbb-video-stream';
+import browserInfo from 'imports/utils/browserInfo';
 
 // GUM retry + delay params (Chrome only for now)
 const GUM_MAX_RETRIES = 5;

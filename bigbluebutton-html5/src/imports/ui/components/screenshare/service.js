@@ -1,12 +1,12 @@
 import { makeVar, useReactiveVar } from '@apollo/client';
-import KurentoBridge from '/imports/api/screenshare/client/bridge';
-import BridgeService from '/imports/api/screenshare/client/bridge/service';
-import logger from '/imports/startup/client/logger';
-import AudioService from '/imports/ui/components/audio/service';
-import MediaStreamUtils from '/imports/utils/media-stream-utils';
-import ConnectionStatusService from '/imports/ui/components/connection-status/service';
-import browserInfo from '/imports/utils/browserInfo';
-import createUseSubscription from '/imports/ui/core/hooks/createUseSubscription';
+import KurentoBridge from 'imports/api/screenshare/client/bridge';
+import BridgeService from 'imports/api/screenshare/client/bridge/service';
+import logger from 'imports/startup/client/logger';
+import AudioService from 'imports/ui/components/audio/service';
+import MediaStreamUtils from 'imports/utils/media-stream-utils';
+import ConnectionStatusService from 'imports/ui/components/connection-status/service';
+import browserInfo from 'imports/utils/browserInfo';
+import createUseSubscription from 'imports/ui/core/hooks/createUseSubscription';
 import { SCREENSHARE_SUBSCRIPTION } from './queries';
 
 const SCREENSHARE_MEDIA_ELEMENT_NAME = 'screenshareVideo';

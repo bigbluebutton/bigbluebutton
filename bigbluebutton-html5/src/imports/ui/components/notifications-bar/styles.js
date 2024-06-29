@@ -1,12 +1,12 @@
 import styled from 'styled-components';
-import { lineHeightComputed } from '/imports/ui/stylesheets/styled-components/typography';
+import { lineHeightComputed } from 'imports/ui/stylesheets/styled-components/typography';
 import {
   colorGray,
   colorWhite,
   colorPrimary,
   colorSuccess,
   colorDanger,
-} from '/imports/ui/stylesheets/styled-components/palette';
+} from 'imports/ui/stylesheets/styled-components/palette';
 
 const NotificationsBar = styled.div`
   padding: calc(${lineHeightComputed} / 2);

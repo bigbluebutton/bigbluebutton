@@ -1,13 +1,13 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 /* eslint-disable @typescript-eslint/ban-ts-comment */
-import getFromUserSettings from '/imports/ui/services/users-settings';
-import Storage from '/imports/ui/services/storage/session';
-import logger from '/imports/startup/client/logger';
-import AudioManager from '/imports/ui/services/audio-manager';
-import VideoService from '/imports/ui/components/video-provider/service';
-import Auth from '/imports/ui/services/auth';
-import { debounce } from '/imports/utils/debounce';
-import { throttle } from '/imports/utils/throttle';
+import getFromUserSettings from 'imports/ui/services/users-settings';
+import Storage from 'imports/ui/services/storage/session';
+import logger from 'imports/startup/client/logger';
+import AudioManager from 'imports/ui/services/audio-manager';
+import VideoService from 'imports/ui/components/video-provider/service';
+import Auth from 'imports/ui/services/auth';
+import { debounce } from 'imports/utils/debounce';
+import { throttle } from 'imports/utils/throttle';
 
 const MUTED_KEY = 'muted';
 const DEVICE_LABEL_MAX_LENGTH = 40;

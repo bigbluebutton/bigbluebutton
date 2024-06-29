@@ -2,7 +2,7 @@ import { useMutation } from '@apollo/client';
 import React, { useEffect, useMemo } from 'react';
 import { defineMessages, useIntl } from 'react-intl';
 import Styled from './styles';
-import ModalFullscreen from '/imports/ui/components/common/modal/fullscreen/component';
+import ModalFullscreen from 'imports/ui/components/common/modal/fullscreen/component';
 import {
   BreakoutRoom,
   getBreakoutCount,
@@ -11,14 +11,14 @@ import {
   GetBreakoutDataResponse,
   handleinviteDismissedAt,
 } from './queries';
-import useCurrentUser from '/imports/ui/core/hooks/useCurrentUser';
+import useCurrentUser from 'imports/ui/core/hooks/useCurrentUser';
 import { BREAKOUT_ROOM_REQUEST_JOIN_URL } from '../../breakout-room/mutations';
-import useDeduplicatedSubscription from '/imports/ui/core/hooks/useDeduplicatedSubscription';
-import AudioManager from '/imports/ui/services/audio-manager';
-import AudioService from '/imports/ui/components/audio/service';
-import VideoService from '/imports/ui/components/video-provider/service';
-import { useExitVideo, useStreams } from '/imports/ui/components/video-provider/hooks';
-import logger from '/imports/startup/client/logger';
+import useDeduplicatedSubscription from 'imports/ui/core/hooks/useDeduplicatedSubscription';
+import AudioManager from 'imports/ui/services/audio-manager';
+import AudioService from 'imports/ui/components/audio/service';
+import VideoService from 'imports/ui/components/video-provider/service';
+import { useExitVideo, useStreams } from 'imports/ui/components/video-provider/hooks';
+import logger from 'imports/startup/client/logger';
 import { rejoinAudio } from '../../breakout-room/breakout-room/service';
 import { useBreakoutExitObserver } from './hooks';
 

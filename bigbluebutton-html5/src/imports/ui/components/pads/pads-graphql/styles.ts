@@ -2,12 +2,12 @@ import styled from 'styled-components';
 import {
   smPaddingX,
   lgPaddingY,
-} from '/imports/ui/stylesheets/styled-components/general';
+} from 'imports/ui/stylesheets/styled-components/general';
 import {
   colorGray,
   colorGrayLightest,
-} from '/imports/ui/stylesheets/styled-components/palette';
-import { fontSizeSmall } from '/imports/ui/stylesheets/styled-components/typography';
+} from 'imports/ui/stylesheets/styled-components/palette';
+import { fontSizeSmall } from 'imports/ui/stylesheets/styled-components/typography';
 
 const Hint = styled.span`
   visibility: hidden;

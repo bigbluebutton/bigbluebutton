@@ -1,7 +1,7 @@
-import browserInfo from '/imports/utils/browserInfo';
-import logger from '/imports/startup/client/logger';
-import Auth from '/imports/ui/services/auth';
-import { fetchStunTurnServers } from '/imports/utils/fetchStunTurnServers';
+import browserInfo from 'imports/utils/browserInfo';
+import logger from 'imports/startup/client/logger';
+import Auth from 'imports/ui/services/auth';
+import { fetchStunTurnServers } from 'imports/utils/fetchStunTurnServers';
 
 (function (){
     // This function must be executed during the import time, that's why it's not exported to the caller component.

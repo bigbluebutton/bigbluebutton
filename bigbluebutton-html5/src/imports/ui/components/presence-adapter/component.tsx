@@ -1,7 +1,7 @@
 import React, { useEffect } from 'react';
-import useAuthData from '/imports/ui/core/local-states/useAuthData';
-import Auth from '/imports/ui/services/auth';
-import Session from '/imports/ui/services/storage/in-memory';
+import useAuthData from 'imports/ui/core/local-states/useAuthData';
+import Auth from 'imports/ui/services/auth';
+import Session from 'imports/ui/services/storage/in-memory';
 
 interface PresenceAdapterProps {
     children: React.ReactNode;

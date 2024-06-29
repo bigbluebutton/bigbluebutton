@@ -5,7 +5,7 @@ import React, {
   useState,
 } from 'react';
 
-import VideoStreamAdapter from '/imports/ui/components/video-provider/adapter';
+import VideoStreamAdapter from 'imports/ui/components/video-provider/adapter';
 
 interface GraphqlToMakeVarAdapterManagerProps {
   children: React.ReactNode;

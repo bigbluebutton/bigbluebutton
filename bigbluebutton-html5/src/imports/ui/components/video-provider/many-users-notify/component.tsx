@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import { IntlShape, defineMessages, injectIntl } from 'react-intl';
-import { notify } from '/imports/ui/services/notification';
+import { notify } from 'imports/ui/services/notification';
 import { toast } from 'react-toastify';
 import Styled from './styles';
 

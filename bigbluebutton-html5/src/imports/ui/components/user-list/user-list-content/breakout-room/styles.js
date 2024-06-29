@@ -1,9 +1,9 @@
 import styled from 'styled-components';
 
-import Styled from '/imports/ui/components/user-list/styles';
-import StyledContent from '/imports/ui/components/user-list/user-list-content/styles';
-import { colorGray } from '/imports/ui/stylesheets/styled-components/palette';
-import { fontSizeSmall } from '/imports/ui/stylesheets/styled-components/typography';
+import Styled from 'imports/ui/components/user-list/styles';
+import StyledContent from 'imports/ui/components/user-list/user-list-content/styles';
+import { colorGray } from 'imports/ui/stylesheets/styled-components/palette';
+import { fontSizeSmall } from 'imports/ui/stylesheets/styled-components/typography';
 
 const Messages = styled(Styled.Messages)``;
 

@@ -1,20 +1,20 @@
 import React from 'react';
 import Settings from './component';
 import { layoutDispatch } from '../layout/context';
-import { useIsChatEnabled, useIsScreenSharingEnabled } from '/imports/ui/services/features';
-import UserReactionService from '/imports/ui/components/user-reaction/service';
-import AudioCaptionsService from '/imports/ui/components/audio/audio-graphql/audio-captions/service';
+import { useIsChatEnabled, useIsScreenSharingEnabled } from 'imports/ui/services/features';
+import UserReactionService from 'imports/ui/components/user-reaction/service';
+import AudioCaptionsService from 'imports/ui/components/audio/audio-graphql/audio-captions/service';
 
 import {
   updateSettings,
   getAvailableLocales,
 } from './service';
 import useUserChangedLocalSettings from '../../services/settings/hooks/useUserChangedLocalSettings';
-import { useShouldRenderPaginationToggle } from '/imports/ui/components/video-provider/hooks';
-import useSettings from '/imports/ui/services/settings/hooks/useSettings';
-import { SETTINGS } from '/imports/ui/services/settings/enums';
-import useCurrentUser from '/imports/ui/core/hooks/useCurrentUser';
-import useMeeting from '/imports/ui/core/hooks/useMeeting';
+import { useShouldRenderPaginationToggle } from 'imports/ui/components/video-provider/hooks';
+import useSettings from 'imports/ui/services/settings/hooks/useSettings';
+import { SETTINGS } from 'imports/ui/services/settings/enums';
+import useCurrentUser from 'imports/ui/core/hooks/useCurrentUser';
+import useMeeting from 'imports/ui/core/hooks/useMeeting';
 
 const ASK_MODERATOR = 'ASK_MODERATOR';
 

@@ -1,6 +1,6 @@
 import styled from 'styled-components';
-import { colorText, colorSuccess } from '/imports/ui/stylesheets/styled-components/palette';
-import Icon from '/imports/ui/components/common/icon/component';
+import { colorText, colorSuccess } from 'imports/ui/stylesheets/styled-components/palette';
+import Icon from 'imports/ui/components/common/icon/component';
 import BaseRadio from '@mui/material/Radio';
 import FormControlLabel from '@mui/material/FormControlLabel';
 import { styled as muiStyled } from '@mui/system';

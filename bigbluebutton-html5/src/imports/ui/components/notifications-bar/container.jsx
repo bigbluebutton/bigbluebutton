@@ -1,7 +1,7 @@
 import React, { useEffect } from 'react';
 import { defineMessages, useIntl } from 'react-intl';
 import { isEmpty } from 'radash';
-import MeetingRemainingTime from '/imports/ui/components/common/remaining-time/meeting-duration/component';
+import MeetingRemainingTime from 'imports/ui/components/common/remaining-time/meeting-duration/component';
 import { useReactiveVar } from '@apollo/client';
 import { layoutSelectInput, layoutDispatch } from '../layout/context';
 import { ACTIONS } from '../layout/enums';

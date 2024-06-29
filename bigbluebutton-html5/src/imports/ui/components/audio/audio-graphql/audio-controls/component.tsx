@@ -1,16 +1,16 @@
 /* eslint-disable no-underscore-dangle */
 /* eslint-disable @typescript-eslint/ban-ts-comment */
 import React, { useCallback, useEffect, useMemo } from 'react';
-import { User } from '/imports/ui/Types/user';
-import useCurrentUser from '/imports/ui/core/hooks/useCurrentUser';
-import useMeeting from '/imports/ui/core/hooks/useMeeting';
-import { Meeting } from '/imports/ui/Types/meeting';
-import { useShortcut } from '/imports/ui/core/hooks/useShortcut';
+import { User } from 'imports/ui/Types/user';
+import useCurrentUser from 'imports/ui/core/hooks/useCurrentUser';
+import useMeeting from 'imports/ui/core/hooks/useMeeting';
+import { Meeting } from 'imports/ui/Types/meeting';
+import { useShortcut } from 'imports/ui/core/hooks/useShortcut';
 import { useMutation, useReactiveVar } from '@apollo/client';
 import { defineMessages, useIntl } from 'react-intl';
-import Button from '/imports/ui/components/common/button/component';
+import Button from 'imports/ui/components/common/button/component';
 import AudioModalContainer from '../../audio-modal/container';
-import AudioManager from '/imports/ui/services/audio-manager';
+import AudioManager from 'imports/ui/services/audio-manager';
 import { joinListenOnly } from './service';
 import Styled from './styles';
 import InputStreamLiveSelectorContainer from './input-stream-live-selector/component';

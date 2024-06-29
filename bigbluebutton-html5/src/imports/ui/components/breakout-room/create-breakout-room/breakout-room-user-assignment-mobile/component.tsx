@@ -1,7 +1,7 @@
 import React, { useMemo, useState } from 'react';
 import { defineMessages, useIntl } from 'react-intl';
-import Button from '/imports/ui/components/common/button/component';
-import { uniqueId } from '/imports/utils/string-utils';
+import Button from 'imports/ui/components/common/button/component';
+import { uniqueId } from 'imports/utils/string-utils';
 import Styled from '../styles';
 import RoomUserList from './room-user-list/component';
 import { ChildComponentProps } from '../room-managment-state/types';

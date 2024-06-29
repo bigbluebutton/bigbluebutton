@@ -1,9 +1,9 @@
 import React, { Component } from 'react';
-import Button from '/imports/ui/components/common/button/component';
+import Button from 'imports/ui/components/common/button/component';
 import PropTypes from 'prop-types';
 import cx from 'classnames';
 
-import KEY_CODES from '/imports/utils/keyCodes';
+import KEY_CODES from 'imports/utils/keyCodes';
 
 const propTypes = {
   children: PropTypes.element.isRequired,

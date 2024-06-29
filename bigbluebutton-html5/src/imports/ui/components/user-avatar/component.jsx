@@ -1,8 +1,8 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { getSettingsSingletonInstance } from '/imports/ui/services/settings';
+import { getSettingsSingletonInstance } from 'imports/ui/services/settings';
 import Styled from './styles';
-import browserInfo from '/imports/utils/browserInfo';
+import browserInfo from 'imports/utils/browserInfo';
 
 const propTypes = {
   children: PropTypes.node,

@@ -2,8 +2,8 @@ import React, { useContext } from 'react';
 import { GenericContentType } from 'bigbluebutton-html-plugin-sdk/dist/cjs/extensible-areas/generic-content-item/enums';
 import * as PluginSdk from 'bigbluebutton-html-plugin-sdk';
 import Styled from './styles';
-import { PANELS } from '/imports/ui/components/layout/enums';
-import { PluginsContext } from '/imports/ui/components/components-data/plugin-context/context';
+import { PANELS } from 'imports/ui/components/layout/enums';
+import { PluginsContext } from 'imports/ui/components/components-data/plugin-context/context';
 import GenericContentSidekickAreaMenuItem from './menu-item/component';
 
 interface GenericComponentSidekickMenuProps {

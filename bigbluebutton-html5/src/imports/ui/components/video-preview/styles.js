@@ -6,7 +6,7 @@ import {
   mdPaddingX,
   titlePositionLeft,
   lgPaddingY,
-} from '/imports/ui/stylesheets/styled-components/general';
+} from 'imports/ui/stylesheets/styled-components/general';
 import {
   colorGrayLabel,
   colorWhite,
@@ -15,18 +15,18 @@ import {
   colorGrayLightest,
   colorPrimary,
   colorText,
-} from '/imports/ui/stylesheets/styled-components/palette';
+} from 'imports/ui/stylesheets/styled-components/palette';
 import {
   fontSizeLarge,
   lineHeightComputed,
   headingsFontWeight,
   fontSizeLarger,
   fontSizeSmall,
-} from '/imports/ui/stylesheets/styled-components/typography';
-import { smallOnly, mediumOnly, landscape } from '/imports/ui/stylesheets/styled-components/breakpoints';
-import ModalSimple from '/imports/ui/components/common/modal/simple/component';
-import ModalStyles from '/imports/ui/components/common/modal/simple/styles';
-import Button from '/imports/ui/components/common/button/component';
+} from 'imports/ui/stylesheets/styled-components/typography';
+import { smallOnly, mediumOnly, landscape } from 'imports/ui/stylesheets/styled-components/breakpoints';
+import ModalSimple from 'imports/ui/components/common/modal/simple/component';
+import ModalStyles from 'imports/ui/components/common/modal/simple/styles';
+import Button from 'imports/ui/components/common/button/component';
 import {
   Tab, Tabs, TabList,
 } from 'react-tabs';

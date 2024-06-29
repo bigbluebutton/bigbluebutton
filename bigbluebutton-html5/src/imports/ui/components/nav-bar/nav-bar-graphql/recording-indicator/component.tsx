@@ -4,8 +4,8 @@ import React, {
   useMemo,
   useState,
 } from 'react';
-import useMeeting from '/imports/ui/core/hooks/useMeeting';
-import deviceInfo from '/imports/utils/deviceInfo';
+import useMeeting from 'imports/ui/core/hooks/useMeeting';
+import deviceInfo from 'imports/utils/deviceInfo';
 import {
   GET_MEETING_RECORDING_DATA,
   GET_MEETING_RECORDING_POLICIES,
@@ -14,17 +14,17 @@ import {
   meetingRecordingAssertion,
   meetingRecordingPoliciesAssertion,
 } from './queries';
-import useCurrentUser from '/imports/ui/core/hooks/useCurrentUser';
-import Tooltip from '/imports/ui/components/common/tooltip/component';
-import humanizeSeconds from '/imports/utils/humanizeSeconds';
-import { notify } from '/imports/ui/services/notification';
+import useCurrentUser from 'imports/ui/core/hooks/useCurrentUser';
+import Tooltip from 'imports/ui/components/common/tooltip/component';
+import humanizeSeconds from 'imports/utils/humanizeSeconds';
+import { notify } from 'imports/ui/services/notification';
 import Styled from './styles';
-import { User } from '/imports/ui/Types/user';
+import { User } from 'imports/ui/Types/user';
 import { defineMessages, useIntl } from 'react-intl';
-import useTimeSync from '/imports/ui/core/local-states/useTimeSync';
+import useTimeSync from 'imports/ui/core/local-states/useTimeSync';
 import RecordingNotify from './notify/component';
-import RecordingContainer from '/imports/ui/components/recording/container';
-import useDeduplicatedSubscription from '/imports/ui/core/hooks/useDeduplicatedSubscription';
+import RecordingContainer from 'imports/ui/components/recording/container';
+import useDeduplicatedSubscription from 'imports/ui/core/hooks/useDeduplicatedSubscription';
 
 const intlMessages = defineMessages({
   notificationRecordingStart: {

@@ -1,9 +1,9 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import { defineMessages } from 'react-intl';
-import { safeMatch } from '/imports/utils/string-utils';
-import { isUrlValid } from '/imports/ui/components/external-video-player/service';
-import BBBMenu from '/imports/ui/components/common/menu/component';
+import { safeMatch } from 'imports/utils/string-utils';
+import { isUrlValid } from 'imports/ui/components/external-video-player/service';
+import BBBMenu from 'imports/ui/components/common/menu/component';
 import Styled from './styles';
 
 const intlMessages = defineMessages({

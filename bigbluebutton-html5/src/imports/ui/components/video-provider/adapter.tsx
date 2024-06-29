@@ -1,11 +1,11 @@
 import { useEffect, useRef } from 'react';
 import { throttle } from 'radash';
-import logger from '/imports/startup/client/logger';
+import logger from 'imports/startup/client/logger';
 import { VIDEO_STREAMS_SUBSCRIPTION } from './queries';
 import { VideoStreamsResponse } from './types';
 import { setStreams } from './state';
 import { AdapterProps } from '../components-data/graphqlToMakeVarAdapterManager/component';
-import createUseSubscription from '/imports/ui/core/hooks/createUseSubscription';
+import createUseSubscription from 'imports/ui/core/hooks/createUseSubscription';
 
 const throttledSetStreams = throttle({ interval: 500 }, setStreams);
 

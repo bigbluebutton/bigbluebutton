@@ -1,6 +1,6 @@
 import React, { useCallback } from 'react';
 import { useReactiveVar } from '@apollo/client';
-import AudioManager from '/imports/ui/services/audio-manager';
+import AudioManager from 'imports/ui/services/audio-manager';
 import AudioTest from './component';
 
 const AudioTestContainer = (props) => {

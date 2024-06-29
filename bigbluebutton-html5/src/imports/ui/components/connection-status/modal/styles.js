@@ -1,5 +1,5 @@
 import styled from 'styled-components';
-import ModalSimple from '/imports/ui/components/common/modal/simple/component';
+import ModalSimple from 'imports/ui/components/common/modal/simple/component';
 import {
   colorOffWhite,
   colorGrayDark,
@@ -8,7 +8,7 @@ import {
   colorWhite,
   btnPrimaryActiveBg,
   colorDanger,
-} from '/imports/ui/stylesheets/styled-components/palette';
+} from 'imports/ui/stylesheets/styled-components/palette';
 import {
   smPaddingX,
   smPaddingY,
@@ -18,20 +18,20 @@ import {
   mdPaddingX,
   borderSizeLarge,
   jumboPaddingY,
-} from '/imports/ui/stylesheets/styled-components/general';
+} from 'imports/ui/stylesheets/styled-components/general';
 import {
   fontSizeSmall,
   fontSizeXL,
-} from '/imports/ui/stylesheets/styled-components/typography';
+} from 'imports/ui/stylesheets/styled-components/typography';
 import {
   hasPhoneDimentions,
   mediumDown,
   hasPhoneWidth,
   smallOnly,
-} from '/imports/ui/stylesheets/styled-components/breakpoints';
+} from 'imports/ui/stylesheets/styled-components/breakpoints';
 import {
   ScrollboxVertical,
-} from '/imports/ui/stylesheets/styled-components/scrollable';
+} from 'imports/ui/stylesheets/styled-components/scrollable';
 import {
   Tab, Tabs, TabList, TabPanel,
 } from 'react-tabs';

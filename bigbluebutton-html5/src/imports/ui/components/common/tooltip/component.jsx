@@ -1,15 +1,15 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import cx from 'classnames';
-import { ESCAPE } from '/imports/utils/keyCodes';
-import { getSettingsSingletonInstance } from '/imports/ui/services/settings';
+import { ESCAPE } from 'imports/utils/keyCodes';
+import { getSettingsSingletonInstance } from 'imports/ui/services/settings';
 import Tippy, { roundArrow } from 'tippy.js';
 import 'tippy.js/dist/svg-arrow.css';
 import 'tippy.js/animations/shift-away.css';
 import './bbbtip.css';
-import BaseButton from '/imports/ui/components/common/button/base/component';
-import ButtonEmoji from '/imports/ui/components/common/button/button-emoji/ButtonEmoji';
-import { uniqueId } from '/imports/utils/string-utils';
+import BaseButton from 'imports/ui/components/common/button/base/component';
+import ButtonEmoji from 'imports/ui/components/common/button/button-emoji/ButtonEmoji';
+import { uniqueId } from 'imports/utils/string-utils';
 
 const ANIMATION_DURATION = 350;
 const ANIMATION_DELAY = [150, 50];

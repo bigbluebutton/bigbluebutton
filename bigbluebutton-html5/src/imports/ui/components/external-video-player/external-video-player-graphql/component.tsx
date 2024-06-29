@@ -2,9 +2,9 @@
 import React, { useEffect, useMemo, useRef } from 'react';
 import ReactPlayer from 'react-player';
 import { defineMessages, useIntl } from 'react-intl';
-import audioManager from '/imports/ui/services/audio-manager';
+import audioManager from 'imports/ui/services/audio-manager';
 import { useReactiveVar, useMutation } from '@apollo/client';
-import useCurrentUser from '/imports/ui/core/hooks/useCurrentUser';
+import useCurrentUser from 'imports/ui/core/hooks/useCurrentUser';
 import { ExternalVideoVolumeCommandsEnum } from 'bigbluebutton-html-plugin-sdk/dist/cjs/ui-commands/external-video/volume/enums';
 import { SetExternalVideoVolumeCommandArguments } from 'bigbluebutton-html-plugin-sdk/dist/cjs/ui-commands/external-video/volume/types';
 import { OnProgressProps } from 'react-player/base';
@@ -13,7 +13,7 @@ import { UI_DATA_LISTENER_SUBSCRIBED } from 'bigbluebutton-html-plugin-sdk/dist/
 import { ExternalVideoVolumeUiDataNames } from 'bigbluebutton-html-plugin-sdk';
 import { ExternalVideoVolumeUiDataPayloads } from 'bigbluebutton-html-plugin-sdk/dist/cjs/ui-data-hooks/external-video/volume/types';
 
-import useMeeting from '/imports/ui/core/hooks/useMeeting';
+import useMeeting from 'imports/ui/core/hooks/useMeeting';
 import {
   layoutDispatch,
   layoutSelect,
@@ -27,10 +27,10 @@ import {
   Layout,
   Output,
 } from '../../layout/layoutTypes';
-import { uniqueId } from '/imports/utils/string-utils';
-import useTimeSync from '/imports/ui/core/local-states/useTimeSync';
+import { uniqueId } from 'imports/utils/string-utils';
+import useTimeSync from 'imports/ui/core/local-states/useTimeSync';
 import ExternalVideoPlayerToolbar from './toolbar/component';
-import deviceInfo from '/imports/utils/deviceInfo';
+import deviceInfo from 'imports/utils/deviceInfo';
 import { ACTIONS, PRESENTATION_AREA } from '../../layout/enums';
 import { EXTERNAL_VIDEO_UPDATE } from '../mutations';
 

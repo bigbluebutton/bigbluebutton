@@ -1,4 +1,4 @@
-import MediaStreamUtils from '/imports/utils/media-stream-utils';
+import MediaStreamUtils from 'imports/utils/media-stream-utils';
 
 export default class LocalPCLoopback {
   constructor(constraints) {

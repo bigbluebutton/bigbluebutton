@@ -5,17 +5,17 @@ import {
   layoutDispatch,
   layoutSelectInput,
   layoutSelectOutput,
-} from '/imports/ui/components/layout/context';
+} from 'imports/ui/components/layout/context';
 import {
   DispatcherFunction,
   GenericContentMainArea as GenericContentMainAreaFromLayout,
   Input,
   Output,
-} from '/imports/ui/components/layout/layoutTypes';
-import { PluginsContext } from '/imports/ui/components/components-data/plugin-context/context';
+} from 'imports/ui/components/layout/layoutTypes';
+import { PluginsContext } from 'imports/ui/components/components-data/plugin-context/context';
 import { GenericContentType } from 'bigbluebutton-html-plugin-sdk/dist/cjs/extensible-areas/generic-content-item/enums';
 import GenericMainContent from './component';
-import { ACTIONS, PRESENTATION_AREA } from '/imports/ui/components/layout/enums';
+import { ACTIONS, PRESENTATION_AREA } from 'imports/ui/components/layout/enums';
 import getDifferenceBetweenLists from '../utils';
 import { GenericContentMainAreaContainerProps } from '../types';
 

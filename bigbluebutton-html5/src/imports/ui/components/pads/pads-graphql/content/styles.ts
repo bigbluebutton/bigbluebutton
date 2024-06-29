@@ -2,7 +2,7 @@ import styled from 'styled-components';
 import {
   colorGray,
   colorGrayLightest,
-} from '/imports/ui/stylesheets/styled-components/palette';
+} from 'imports/ui/stylesheets/styled-components/palette';
 
 const Wrapper = styled.div`
   display: flex;

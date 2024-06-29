@@ -8,9 +8,9 @@ import { DataConsumptionHooks } from 'bigbluebutton-html-plugin-sdk/dist/cjs/dat
 
 import { equals } from 'ramda';
 import formatCurrentUserResponseFromGraphql from './utils';
-import { User } from '/imports/ui/Types/user';
+import { User } from 'imports/ui/Types/user';
 import { GeneralHookManagerProps } from '../../../types';
-import { GraphqlDataHookSubscriptionResponse } from '/imports/ui/Types/hook';
+import { GraphqlDataHookSubscriptionResponse } from 'imports/ui/Types/hook';
 
 const CurrentUserHookContainer: React.FunctionComponent<
   GeneralHookManagerProps<GraphqlDataHookSubscriptionResponse<Partial<User>>>

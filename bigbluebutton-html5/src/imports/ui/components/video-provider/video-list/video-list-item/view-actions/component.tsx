@@ -1,6 +1,6 @@
 import React, { MutableRefObject, useEffect } from 'react';
-import { ACTIONS } from '/imports/ui/components/layout/enums';
-import FullscreenButtonContainer from '/imports/ui/components/common/fullscreen-button/container';
+import { ACTIONS } from 'imports/ui/components/layout/enums';
+import FullscreenButtonContainer from 'imports/ui/components/common/fullscreen-button/container';
 import Styled from './styles';
 
 interface ViewActionsProps {

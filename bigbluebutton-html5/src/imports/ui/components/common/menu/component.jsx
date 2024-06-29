@@ -3,8 +3,8 @@ import PropTypes from "prop-types";
 import { defineMessages, injectIntl } from "react-intl";
 import { Divider } from "@mui/material";
 import Icon from "/imports/ui/components/common/icon/component";
-import { SMALL_VIEWPORT_BREAKPOINT } from '/imports/ui/components/layout/enums';
-import KEY_CODES from '/imports/utils/keyCodes';
+import { SMALL_VIEWPORT_BREAKPOINT } from 'imports/ui/components/layout/enums';
+import KEY_CODES from 'imports/utils/keyCodes';
 import MenuSkeleton from './skeleton';
 import Styled from './styles';
 

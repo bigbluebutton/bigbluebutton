@@ -1,6 +1,6 @@
 import React, { useEffect } from 'react';
-import injectNotify from '/imports/ui/components/common/toast/inject-notify/component';
-import { PANELS, ACTIONS } from '/imports/ui/components/layout/enums';
+import injectNotify from 'imports/ui/components/common/toast/inject-notify/component';
+import { PANELS, ACTIONS } from 'imports/ui/components/layout/enums';
 
 interface ChatPushAlertProps {
   notify: (...args: unknown[]) => void;

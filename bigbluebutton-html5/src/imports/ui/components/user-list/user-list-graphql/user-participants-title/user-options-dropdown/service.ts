@@ -1,9 +1,9 @@
 /* eslint-disable @typescript-eslint/ban-ts-comment */
-import { getUserNamesLink } from '/imports/ui/components/user-list/service';
-import { getSettingsSingletonInstance } from '/imports/ui/services/settings';
-import LearningDashboardService from '/imports/ui/components/learning-dashboard/service';
+import { getUserNamesLink } from 'imports/ui/components/user-list/service';
+import { getSettingsSingletonInstance } from 'imports/ui/services/settings';
+import LearningDashboardService from 'imports/ui/components/learning-dashboard/service';
 import { defineMessages, IntlShape } from 'react-intl';
-import { User } from '/imports/ui/Types/user';
+import { User } from 'imports/ui/Types/user';
 
 const intlMessages = defineMessages({
   savedNamesListTitle: {

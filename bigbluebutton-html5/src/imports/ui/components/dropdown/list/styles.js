@@ -1,8 +1,8 @@
 import styled from 'styled-components';
-import { fontSizeBase, fontSizeLarge, lineHeightComputed } from '/imports/ui/stylesheets/styled-components/typography';
-import { colorGrayDark } from '/imports/ui/stylesheets/styled-components/palette';
+import { fontSizeBase, fontSizeLarge, lineHeightComputed } from 'imports/ui/stylesheets/styled-components/typography';
+import { colorGrayDark } from 'imports/ui/stylesheets/styled-components/palette';
 
-import { smallOnly } from '/imports/ui/stylesheets/styled-components/breakpoints';
+import { smallOnly } from 'imports/ui/stylesheets/styled-components/breakpoints';
 
 const List = styled.ul`
   list-style: none;

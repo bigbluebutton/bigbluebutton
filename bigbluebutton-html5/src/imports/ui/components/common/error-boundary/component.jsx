@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
-import logger, { generateLoggerStreams } from '/imports/startup/client/logger';
-import apolloContextHolder from '/imports/ui/core/graphql/apolloContextHolder/apolloContextHolder';
+import logger, { generateLoggerStreams } from 'imports/startup/client/logger';
+import apolloContextHolder from 'imports/ui/core/graphql/apolloContextHolder/apolloContextHolder';
 import { ApolloLink } from '@apollo/client';
 
 const propTypes = {

@@ -1,9 +1,9 @@
 import React, { useEffect } from 'react';
 import { defineMessages, useIntl } from 'react-intl';
-import { range } from '/imports/utils/array-utils';
-import Icon from '/imports/ui/components/common/icon/icon-ts/component';
+import { range } from 'imports/utils/array-utils';
+import Icon from 'imports/ui/components/common/icon/icon-ts/component';
 import Styled from '../styles';
-import Auth from '/imports/ui/services/auth';
+import Auth from 'imports/ui/services/auth';
 import ManageRoomLabel from '../manage-room-label/component';
 import { ChildComponentProps } from '../room-managment-state/types';
 

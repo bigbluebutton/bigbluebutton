@@ -8,8 +8,8 @@ import {
 } from 'bigbluebutton-html-plugin-sdk/dist/cjs/core/enum';
 import { DataConsumptionHooks } from 'bigbluebutton-html-plugin-sdk/dist/cjs/data-consumption/enums';
 import { SubscribedEventDetails, UpdatedEventDetails } from 'bigbluebutton-html-plugin-sdk/dist/cjs/core/types';
-import useLoadedPageGathering from '/imports/ui/core/hooks/useLoadedChatMessages';
-import { Message } from '/imports/ui/Types/message';
+import useLoadedPageGathering from 'imports/ui/core/hooks/useLoadedChatMessages';
+import { Message } from 'imports/ui/Types/message';
 import formatLoadedChatMessagesDataFromGraphql from './utils';
 
 const LoadedChatMessagesHookContainer = () => {

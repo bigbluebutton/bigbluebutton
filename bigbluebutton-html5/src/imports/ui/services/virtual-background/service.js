@@ -1,7 +1,7 @@
-import deviceInfo from '/imports/utils/deviceInfo';
-import browserInfo from '/imports/utils/browserInfo';
-import { createVirtualBackgroundService } from '/imports/ui/services/virtual-background';
-import Session from '/imports/ui/services/storage/in-memory';
+import deviceInfo from 'imports/utils/deviceInfo';
+import browserInfo from 'imports/utils/browserInfo';
+import { createVirtualBackgroundService } from 'imports/ui/services/virtual-background';
+import Session from 'imports/ui/services/storage/in-memory';
 
 const BLUR_FILENAME = 'blur.jpg';
 const EFFECT_TYPES = {

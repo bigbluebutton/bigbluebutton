@@ -1,6 +1,6 @@
 import React, { PureComponent } from 'react';
 import PropTypes from 'prop-types';
-import injectWbResizeEvent from '/imports/ui/components/presentation/resize-wrapper/component';
+import injectWbResizeEvent from 'imports/ui/components/presentation/resize-wrapper/component';
 import Styled from './styles';
 import CustomLogo from './custom-logo/component';
 import UserContentContainer from './user-list-content/container';

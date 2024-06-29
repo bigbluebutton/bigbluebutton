@@ -1,5 +1,5 @@
 import Bowser from 'bowser';
-import logger from '/imports/startup/client/logger';
+import logger from 'imports/startup/client/logger';
 
 const userAgent = window.navigator.userAgent;
 const BOWSER_RESULTS = Bowser.parse(userAgent);

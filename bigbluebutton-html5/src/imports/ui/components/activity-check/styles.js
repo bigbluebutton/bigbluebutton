@@ -1,5 +1,5 @@
 import styled from 'styled-components';
-import { fontSizeLarge } from '/imports/ui/stylesheets/styled-components/typography';
+import { fontSizeLarge } from 'imports/ui/stylesheets/styled-components/typography';
 
 const ActivityModalContent = styled.div`
   flex-direction: column;

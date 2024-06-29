@@ -4,16 +4,16 @@ import {
   smPaddingY,
   borderRadius,
   borderSize,
-} from '/imports/ui/stylesheets/styled-components/general';
+} from 'imports/ui/stylesheets/styled-components/general';
 import {
   colorText,
   colorGrayLighter,
   colorBlueLight,
   colorPrimary,
-} from '/imports/ui/stylesheets/styled-components/palette';
-import { fontSizeBase } from '/imports/ui/stylesheets/styled-components/typography';
+} from 'imports/ui/stylesheets/styled-components/palette';
+import { fontSizeBase } from 'imports/ui/stylesheets/styled-components/typography';
 import TextareaAutosize from 'react-autosize-textarea';
-import Button from '/imports/ui/components/common/button/component';
+import Button from 'imports/ui/components/common/button/component';
 
 const Wrapper = styled.div`
   display: flex;

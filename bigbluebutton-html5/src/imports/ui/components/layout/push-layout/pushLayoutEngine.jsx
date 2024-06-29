@@ -1,12 +1,12 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import getFromUserSettings from '/imports/ui/services/users-settings';
-import { getSettingsSingletonInstance } from '/imports/ui/services/settings';
-import MediaService from '/imports/ui/components/media/service';
+import getFromUserSettings from 'imports/ui/services/users-settings';
+import { getSettingsSingletonInstance } from 'imports/ui/services/settings';
+import MediaService from 'imports/ui/components/media/service';
 import { LAYOUT_TYPE, ACTIONS } from '../enums';
 import { isMobile } from '../utils';
-import { updateSettings } from '/imports/ui/components/settings/service';
-import Session from '/imports/ui/services/storage/in-memory';
+import { updateSettings } from 'imports/ui/components/settings/service';
+import Session from 'imports/ui/services/storage/in-memory';
 
 const equalDouble = (n1, n2) => {
   const precision = 0.01;

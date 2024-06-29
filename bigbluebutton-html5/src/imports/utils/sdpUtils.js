@@ -1,6 +1,6 @@
 import Interop from '@jitsi/sdp-interop';
 import transform from 'sdp-transform';
-import logger from '/imports/startup/client/logger';
+import logger from 'imports/startup/client/logger';
 
 // sdp-interop library for unified-plan <-> plan-b translation
 const interop = new Interop.Interop();

@@ -1,15 +1,15 @@
 import React, { Component } from 'react';
-import ModalFullscreen from '/imports/ui/components/common/modal/fullscreen/component';
+import ModalFullscreen from 'imports/ui/components/common/modal/fullscreen/component';
 import { defineMessages, injectIntl } from 'react-intl';
-import DataSaving from '/imports/ui/components/settings/submenus/data-saving/component';
-import Application from '/imports/ui/components/settings/submenus/application/component';
-import Notification from '/imports/ui/components/settings/submenus/notification/component';
+import DataSaving from 'imports/ui/components/settings/submenus/data-saving/component';
+import Application from 'imports/ui/components/settings/submenus/application/component';
+import Notification from 'imports/ui/components/settings/submenus/notification/component';
 import { clone } from 'radash';
 import PropTypes from 'prop-types';
 import Styled from './styles';
-import { formatLocaleCode } from '/imports/utils/string-utils';
+import { formatLocaleCode } from 'imports/utils/string-utils';
 import { setUseCurrentLocale } from '../../core/local-states/useCurrentLocale';
-import Transcription from '/imports/ui/components/settings/submenus/transcription/component';
+import Transcription from 'imports/ui/components/settings/submenus/transcription/component';
 
 const intlMessages = defineMessages({
   appTabLabel: {

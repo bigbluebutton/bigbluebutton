@@ -1,8 +1,8 @@
 import React, { Dispatch, SetStateAction, useCallback } from 'react';
 import { defineMessages, useIntl } from 'react-intl';
-import { USER_LEAVE_MEETING } from '/imports/ui/core/graphql/mutations/userMutations';
+import { USER_LEAVE_MEETING } from 'imports/ui/core/graphql/mutations/userMutations';
 import { useMutation } from '@apollo/client';
-import Session from '/imports/ui/services/storage/in-memory';
+import Session from 'imports/ui/services/storage/in-memory';
 
 import Styled from './styles';
 

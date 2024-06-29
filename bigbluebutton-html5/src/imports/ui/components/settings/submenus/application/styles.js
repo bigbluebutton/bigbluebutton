@@ -4,10 +4,10 @@ import {
   colorPrimary,
   colorWhite,
   colorGrayLighter,
-} from '/imports/ui/stylesheets/styled-components/palette';
-import { borderSize, borderSizeLarge } from '/imports/ui/stylesheets/styled-components/general';
-import SpinnerStyles from '/imports/ui/components/common/loading-screen/styles';
-import Styled from '/imports/ui/components/settings/submenus/styles';
+} from 'imports/ui/stylesheets/styled-components/palette';
+import { borderSize, borderSizeLarge } from 'imports/ui/stylesheets/styled-components/general';
+import SpinnerStyles from 'imports/ui/components/common/loading-screen/styles';
+import Styled from 'imports/ui/components/settings/submenus/styles';
 
 const Row = styled(Styled.Row)``;
 

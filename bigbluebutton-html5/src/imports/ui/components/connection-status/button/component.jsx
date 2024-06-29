@@ -1,11 +1,11 @@
 import React, { PureComponent } from 'react';
 import { defineMessages, injectIntl } from 'react-intl';
-import Button from '/imports/ui/components/common/button/component';
-import ConnectionStatusModalComponent from '/imports/ui/components/connection-status/modal/container';
-import ConnectionStatusService from '/imports/ui/components/connection-status/service';
-import Icon from '/imports/ui/components/connection-status/icon/component';
+import Button from 'imports/ui/components/common/button/component';
+import ConnectionStatusModalComponent from 'imports/ui/components/connection-status/modal/container';
+import ConnectionStatusService from 'imports/ui/components/connection-status/service';
+import Icon from 'imports/ui/components/connection-status/icon/component';
 import Styled from './styles';
-import Auth from '/imports/ui/services/auth';
+import Auth from 'imports/ui/services/auth';
 
 const intlMessages = defineMessages({
   label: {

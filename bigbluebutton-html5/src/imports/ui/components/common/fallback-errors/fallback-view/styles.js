@@ -3,9 +3,9 @@ import {
   colorWhite,
   colorBackground,
   colorGrayLighter,
-} from '/imports/ui/stylesheets/styled-components/palette';
-import { fontSizeBase } from '/imports/ui/stylesheets/styled-components/typography';
-import Button from '/imports/ui/components/common/button/component';
+} from 'imports/ui/stylesheets/styled-components/palette';
+import { fontSizeBase } from 'imports/ui/stylesheets/styled-components/typography';
+import Button from 'imports/ui/components/common/button/component';
 
 const Background = styled.div`
   display: flex;

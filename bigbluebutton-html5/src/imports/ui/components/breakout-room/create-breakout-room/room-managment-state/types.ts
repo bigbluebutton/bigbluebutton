@@ -1,4 +1,4 @@
-import { User } from '/imports/ui/Types/user';
+import { User } from 'imports/ui/Types/user';
 
 export type BreakoutUser = Pick<User, 'userId' | 'name' | 'isModerator'>;
 

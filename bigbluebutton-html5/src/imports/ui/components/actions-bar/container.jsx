@@ -1,8 +1,8 @@
 import React, { useContext } from 'react';
 import { useIntl } from 'react-intl';
 import { useMutation, useReactiveVar } from '@apollo/client';
-import getFromUserSettings from '/imports/ui/services/users-settings';
-import Auth from '/imports/ui/services/auth';
+import getFromUserSettings from 'imports/ui/services/users-settings';
+import Auth from 'imports/ui/services/auth';
 import ActionsBar from './component';
 
 import {
@@ -10,22 +10,22 @@ import {
   isCameraAsContentBroadcasting,
   useIsSharing,
   useSharingContentType,
-} from '/imports/ui/components/screenshare/service';
+} from 'imports/ui/components/screenshare/service';
 import { layoutSelectOutput, layoutDispatch } from '../layout/context';
 import {
   useIsExternalVideoEnabled,
   useIsPollingEnabled,
   useIsPresentationEnabled,
   useIsTimerFeatureEnabled,
-} from '/imports/ui/services/features';
+} from 'imports/ui/services/features';
 
-import { PluginsContext } from '/imports/ui/components/components-data/plugin-context/context';
+import { PluginsContext } from 'imports/ui/components/components-data/plugin-context/context';
 import {
   CURRENT_PRESENTATION_PAGE_SUBSCRIPTION,
-} from '/imports/ui/components/whiteboard/queries';
+} from 'imports/ui/components/whiteboard/queries';
 import MediaService from '../media/service';
-import useMeeting from '/imports/ui/core/hooks/useMeeting';
-import useCurrentUser from '/imports/ui/core/hooks/useCurrentUser';
+import useMeeting from 'imports/ui/core/hooks/useMeeting';
+import useCurrentUser from 'imports/ui/core/hooks/useCurrentUser';
 import { EXTERNAL_VIDEO_STOP } from '../external-video-player/mutations';
 import { PINNED_PAD_SUBSCRIPTION } from '../notes/queries';
 import useDeduplicatedSubscription from '../../core/hooks/useDeduplicatedSubscription';

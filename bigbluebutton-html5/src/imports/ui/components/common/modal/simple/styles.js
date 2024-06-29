@@ -3,12 +3,12 @@ import Styled from '../base/component';
 import {
   borderSize,
   mdPaddingX,
-} from '/imports/ui/stylesheets/styled-components/general';
+} from 'imports/ui/stylesheets/styled-components/general';
 import {
   colorWhite,
   colorText,
-} from '/imports/ui/stylesheets/styled-components/palette';
-import ModalHeader from '/imports/ui/components/common/modal/header/component';
+} from 'imports/ui/stylesheets/styled-components/palette';
+import ModalHeader from 'imports/ui/components/common/modal/header/component';
 
 const SimpleModal = styled(Styled.BaseModal)`
   outline: transparent;

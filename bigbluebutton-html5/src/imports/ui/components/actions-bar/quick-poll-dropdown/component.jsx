@@ -1,12 +1,12 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import { defineMessages, useIntl } from 'react-intl';
-import Dropdown from '/imports/ui/components/dropdown/component';
+import Dropdown from 'imports/ui/components/dropdown/component';
 import Styled from './styles';
 import { PANELS, ACTIONS } from '../../layout/enums';
-import { uniqueId, safeMatch } from '/imports/utils/string-utils';
-import PollService from '/imports/ui/components/poll/service';
-import Session from '/imports/ui/services/storage/in-memory';
+import { uniqueId, safeMatch } from 'imports/utils/string-utils';
+import PollService from 'imports/ui/components/poll/service';
+import Session from 'imports/ui/services/storage/in-memory';
 
 const intlMessages = defineMessages({
   quickPollLabel: {

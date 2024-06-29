@@ -1,6 +1,6 @@
 import { PAD_SESSION_SUBSCRIPTION, PadSessionSubscriptionResponse } from './queries';
 import Service from './service';
-import useDeduplicatedSubscription from '/imports/ui/core/hooks/useDeduplicatedSubscription';
+import useDeduplicatedSubscription from 'imports/ui/core/hooks/useDeduplicatedSubscription';
 
 const PadSessionContainerGraphql = () => {
   const { data: padSessionData } = useDeduplicatedSubscription<PadSessionSubscriptionResponse>(
