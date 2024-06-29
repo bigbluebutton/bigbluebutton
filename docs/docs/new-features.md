@@ -54,10 +54,6 @@ We have enhanced the view of the polling results that appear over the whiteboard
 ### Engagement
 
 <!-- ####  -->
-**Deprecation Notice:**
-
-The `userStatus` feature was removed due to deprecation. It has been replaced by `userReaction`.
-
 
 <!-- ### Analytics -->
 
@@ -97,9 +93,9 @@ Note: The services `bbb-html5-backend` and `bbb-html5-frontend` have been remove
 We upgraded tl;draw from version 1 to version 2.0.0-alpha.19 (the last version on Apache 2.0 licence). That was quite a significant task but brought better performance, better looks, improved stylus support and many more. Note that we have forked tldraw's project as of their version 2.0.0-alpha.19 to ensure we remain on the Apache 2.0 license. We will be maintaining the fork so that BigBlueButton has a stable whiteboard in the future.
 
 #### Support for Collabora Online as Document Converter
-￼
+
 Collabora Productivity contributed the support for an alternative conversion script where Collabora Online (deployed locally [as a docker container] or running remotely) can be used for document conversion.
-￼For more information check the [pull request](https://github.com/bigbluebutton/bigbluebutton/pull/18783)
+For more information check the [pull request](https://github.com/bigbluebutton/bigbluebutton/pull/18783)
 
 ### Experimental
 
@@ -117,6 +113,7 @@ For full details on what is new in BigBlueButton 3.0, see the release notes.
 
 Recent releases:
 
+- [3.0.0-alpha.7](https://github.com/bigbluebutton/bigbluebutton/releases/tag/v3.0.0-alpha.7)
 - [3.0.0-alpha.6](https://github.com/bigbluebutton/bigbluebutton/releases/tag/v3.0.0-alpha.6)
 - [3.0.0-alpha.5](https://github.com/bigbluebutton/bigbluebutton/releases/tag/v3.0.0-alpha.5)
 - [3.0.0-alpha.4](https://github.com/bigbluebutton/bigbluebutton/releases/tag/v3.0.0-alpha.4)
@@ -158,6 +155,9 @@ Retired events
 - `DeskshareStopRtmpRecordEvent`
 - `TranscriptUpdatedRecordEvent`
 
+Modified/added events
+- `ParticipantJoinEvent` - will contain element `userdata` see https://github.com/bigbluebutton/bigbluebutton/pull/20566#pullrequestreview-2142238810
+
 #### bbb-web properties changes
 
 - `allowOverrideClientSettingsOnCreateCall=false` added
@@ -167,7 +167,11 @@ Retired events
 
 #### Removed support for POST requests on `join` endpoint and Content-Type headers are now required
 
-In BigBlueButton 2.6.18/2.7.8 POST requests are no longer allowed for the `join` endpoint. To ensure they are validated properly, a `Content-Type` header must also be provided for POST requests that contain data in the request body. Endpoints now support a limited set of content types that includes `text/xml`, `application/xml`, `application/x-www-form-url-encoded`, and `multipart/form-data`. By default each endpoint only supports `application/x-www-form-urlencoded` and `multipart/form-data`, but individual endpoints can override this and define their own set of supported content types. The `create` endpoint supports all of the four previously listed content types while `insertDocument` supports only `text/xml` and `application/xml`. Any requests with a content type that differs from the set supported by the target endpoint will be rejected with a new `unsupportedContentType` error.  
+In BigBlueButton 2.6.18/2.7.8 POST requests are no longer allowed for the `join` endpoint. To ensure they are validated properly, a `Content-Type` header must also be provided for POST requests that contain data in the request body. Endpoints now support a limited set of content types that includes `text/xml`, `application/xml`, `application/x-www-form-url-encoded`, and `multipart/form-data`. By default each endpoint only supports `application/x-www-form-urlencoded` and `multipart/form-data`, but individual endpoints can override this and define their own set of supported content types. The `create` endpoint supports all of the four previously listed content types while `insertDocument` supports only `text/xml` and `application/xml`. Any requests with a content type that differs from the set supported by the target endpoint will be rejected with a new `unsupportedContentType` error.
+
+### Deprecated userStatus
+
+The `userStatus` feature was replaced by `userReaction`. They were vastly overlapping, causing some confusion when using and maintaining.
 
 ### Development
 
