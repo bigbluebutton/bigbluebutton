@@ -11,6 +11,7 @@ import (
 	"os"
 	"regexp"
 	"strings"
+	"time"
 )
 
 var graphqlActionsUrl = os.Getenv("BBB_GRAPHQL_MIDDLEWARE_GRAPHQL_ACTIONS_URL")
@@ -52,7 +53,7 @@ RangeLoop:
 					if strings.HasPrefix(browserMessage.Payload.Query, "mutation") {
 						if funcName, inputs, err := parseGraphQLMutation(browserMessage.Payload.Query, browserMessage.Payload.Variables); err == nil {
 							mutationFuncName = funcName
-							if err = SendGqlActionsRequest(funcName, inputs, browserConnection.BBBWebSessionVariables); err == nil {
+							if err = SendGqlActionsRequest(funcName, inputs, browserConnection.BBBWebSessionVariables, log); err == nil {
 							} else {
 								errorMessage = err.Error()
 								log.Error("It was not able to send the request to Graphql Actions", err)
@@ -109,7 +110,9 @@ RangeLoop:
 	return nil
 }
 
-func SendGqlActionsRequest(funcName string, inputs map[string]interface{}, sessionVariables map[string]string) error {
+func SendGqlActionsRequest(funcName string, inputs map[string]interface{}, sessionVariables map[string]string, logger *log.Entry) error {
+	logger = logger.WithField("funcName", funcName).WithField("inputs", inputs)
+
 	data := GqlActionsRequestBody{
 		Action: GqlActionsAction{
 			Name: funcName,
@@ -127,11 +130,21 @@ func SendGqlActionsRequest(funcName string, inputs map[string]interface{}, sessi
 		return fmt.Errorf("No Graphql Actions Url (BBB_GRAPHQL_MIDDLEWARE_GRAPHQL_ACTIONS_URL) set, aborting")
 	}
 
+	startedAt := time.Now()
+
 	response, err := http.Post(graphqlActionsUrl, "application/json", bytes.NewBuffer(jsonData))
 	if err != nil {
 		return err
 	}
 	defer response.Body.Close()
+
+	totalDurationMillis := time.Since(startedAt).Milliseconds()
+	logger = logger.WithField("duration", fmt.Sprintf("%v ms", totalDurationMillis)).WithField("statusCode", response.StatusCode)
+
+	logger.Tracef("Executed!")
+	if totalDurationMillis > 100 {
+		logger.Infof("Took too long to execute!")
+	}
 
 	if response.StatusCode != 200 {
 		body, err := ioutil.ReadAll(response.Body)
@@ -143,7 +156,7 @@ func SendGqlActionsRequest(funcName string, inputs map[string]interface{}, sessi
 		err = json.Unmarshal(body, &result)
 		if err == nil {
 			if message, ok := result["message"].(string); ok {
-				fmt.Println(message, err)
+				logger.Errorf(string(jsonData), message, err)
 				return fmt.Errorf("graphql actions request failed: %s", message)
 			}
 		}
