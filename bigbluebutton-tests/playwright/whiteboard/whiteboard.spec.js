@@ -32,7 +32,7 @@ test.describe.parallel('Whiteboard @ci', () => {
   test('Give Additional Whiteboard Access', async ({ browser, context, page }) => {
     const multiusers = new MultiUsers(browser, context);
     await multiusers.initPages(page);
-    await multiusers.whiteboardAccess();
+    await multiusers.giveAndRemoveWhiteboardAccess();
   });
 });
 

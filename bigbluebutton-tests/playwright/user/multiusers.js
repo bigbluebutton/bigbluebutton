@@ -233,15 +233,14 @@ class MultiUsers {
     await this.modPage2.hasText(`:nth-match(${e.dropdownWebcamButton}, 2)`, this.modPage2.username);
   }
 
-  async whiteboardAccess() {
+  async giveAndRemoveWhiteboardAccess() {
     await this.modPage.waitForSelector(e.whiteboard);
     await this.modPage.waitAndClick(e.userListItem);
     await this.modPage.waitAndClick(e.changeWhiteboardAccess);
-    await this.modPage.waitForSelector(e.multiUsersWhiteboardOff);
-    const resp = await this.modPage.page.evaluate((multiUsersWbBtn) => {
-      return document.querySelector(multiUsersWbBtn).parentElement.children[1].innerText;
-    }, e.multiUsersWhiteboardOff);
-    await expect(resp).toBeTruthy();
+    await this.modPage.hasElement(e.multiUsersWhiteboardOff);
+    await this.modPage.waitAndClick(e.userListItem);
+    await this.modPage.waitAndClick(e.changeWhiteboardAccess);
+    await this.modPage.hasElement(e.multiUsersWhiteboardOn);
   }
 
   async muteAllUsers() {
@@ -266,16 +265,6 @@ class MultiUsers {
     await this.modPage.hasElement(e.isTalking);
     await checkMutedUsers(this.modPage2);
     await checkMutedUsers(this.userPage);
-  }
-
-  async giveAndRemoveWhiteboardAccess() {
-    await this.whiteboardAccess();
-
-    await this.modPage.waitForSelector(e.whiteboard);
-    await this.modPage.waitAndClick(e.userListItem);
-    await this.modPage.waitAndClick(e.changeWhiteboardAccess);
-
-    await this.modPage.hasElement(e.multiUsersWhiteboardOn);
   }
 
   async removeUser() {
