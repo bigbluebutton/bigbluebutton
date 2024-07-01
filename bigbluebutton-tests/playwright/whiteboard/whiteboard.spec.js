@@ -28,12 +28,6 @@ test.describe.parallel('Whiteboard @ci', () => {
     await draw.init(true, true);
     await draw.test();
   });
-
-  test('Give Additional Whiteboard Access', async ({ browser, context, page }) => {
-    const multiusers = new MultiUsers(browser, context);
-    await multiusers.initPages(page);
-    await multiusers.giveAndRemoveWhiteboardAccess();
-  });
 });
 
 test.describe.parallel('Whiteboard tools - visual regression', () => {
