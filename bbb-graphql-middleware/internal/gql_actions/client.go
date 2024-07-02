@@ -203,7 +203,7 @@ func parseGraphQLMutation(query string, variables map[string]interface{}) (strin
 			if len(paramParts) != 2 {
 				continue // Skip invalid params
 			}
-			paramName, paramValue := paramParts[0], paramParts[1]
+			paramName, paramValue := strings.Trim(paramParts[0], " \t"), paramParts[1]
 
 			// Handle variable substitution
 			if strings.HasPrefix(paramValue, "$") {
