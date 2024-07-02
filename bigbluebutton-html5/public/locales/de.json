@@ -248,7 +248,7 @@
     "app.meeting.endedByUserMessage": "Diese Konferenz wurde durch {0} beendet",
     "app.meeting.endedByNoModeratorMessageSingular": "Die Konferenz ist beendet, da seit einer Minute kein Moderator mehr anwesend ist",
     "app.meeting.endedByNoModeratorMessagePlural": "Die Konferenz ist beendet, da seit {0} Minuten kein Moderator mehr anwesend ist",
-    "app.meeting.endedMessage": "Sie werden zum Startbildschirm weitergeleitet",
+    "app.meeting.endedMessage": "Weiterleitung zum Startbildschirm",
     "app.meeting.alertMeetingEndsUnderMinutesSingular": "Konferenz endet in einer Minute.",
     "app.meeting.alertMeetingEndsUnderMinutesPlural": "Konferenz endet in {0} Minuten.",
     "app.meeting.alertBreakoutEndsUnderMinutesPlural": "Gruppensitzung endet in {0} Minuten.",
