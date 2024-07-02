@@ -480,7 +480,7 @@
     "app.leaveConfirmation.confirmLabel": "Verlassen",
     "app.leaveConfirmation.confirmDesc": "Hiermit wird die Konferenz verlassen",
     "app.endMeeting.title": "{0} beenden",
-    "app.endMeeting.description": "Mit dieser Aktion wird die Konferenz für {0} aktive(n) Teilnehmer beendet. Sind Sie sicher, dass Sie diese Konferenz beenden möchten?",
+    "app.endMeeting.description": "Mit dieser Aktion wird die Konferenz für {0} aktive(n) Teilnehmer beendet, wirklich fortfahren?",
     "app.endMeeting.noUserDescription": "Soll die Konferenz wirklich beenden werden?",
     "app.endMeeting.contentWarning": "Chatnachrichten, geteilte Notizen, Whiteboard-Inhalte und geteilte Dokumente dieser Konferenz sind nicht mehr direkt zugänglich",
     "app.endMeeting.yesLabel": "Sitzung für alle beenden",
