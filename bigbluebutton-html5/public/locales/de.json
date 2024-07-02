@@ -232,7 +232,7 @@
     "app.screenshare.screensharePermissionError": "Fehler {0}. Die Berechtigung zur Bildschirmfreigabe muss erteilt werden.",
     "app.cameraAsContent.presenterLoadingLabel": "Die Kamera lädt",
     "app.cameraAsContent.viewerLoadingLabel": "Die Präsentationskamera lädt",
-    "app.cameraAsContent.presenterSharingLabel": "Sie zeigen jetzt Ihre Kamera",
+    "app.cameraAsContent.presenterSharingLabel": "Die Kamera ist nun für alle anderen sichtbar",
     "app.meeting.ended": "Diese Konferenz wurde beendet",
     "app.meeting.endedFromAPI": "Die Konferenz wurde vom System beendet",
     "app.meeting.endedWhenNoUserJoined": "Die Konferenz wurde beendet, weil niemand beigetreten ist",
