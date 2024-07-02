@@ -531,7 +531,7 @@
     "app.submenu.application.languageOptionLabel": "Sprache auswählen",
     "app.submenu.application.noLocaleOptionLabel": "Keine Sprachschemata verfügbar",
     "app.submenu.application.paginationEnabledLabel": "Seitenweises Anzeigen von Webcams",
-    "app.submenu.application.wakeLockEnabledLabel": "Sperre aufheben",
+    "app.submenu.application.wakeLockEnabledLabel": "Sperre der Schlaffunktion aufheben",
     "app.submenu.application.layoutOptionLabel": "Layout-Modus",
     "app.submenu.application.pushLayoutLabel": "Layout verteilen",
     "app.submenu.application.localeDropdown.af": "Afrikaans",
