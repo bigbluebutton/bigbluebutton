@@ -1260,7 +1260,7 @@
     "app.createBreakoutRoom.setTimeHigherThanMeetingTimeError": "Die Dauer der Gruppenräume darf die verbleibende Zeit der Konferenz nicht überschreiten.",
     "app.createBreakoutRoom.roomNameInputDesc": "Gruppenraumname ändern",
     "app.createBreakoutRoom.movedUserLabel": "{0} in Raum {1} verschoben.",
-    "app.updateBreakoutRoom.modalDesc": "Um einen Teilnehmer zu aktualisieren oder einzuladen, ziehen Sie ihn einfach in den gewünschten Raum.",
+    "app.updateBreakoutRoom.modalDesc": "Um einen Teilnehmer zu aktualisieren oder einzuladen, diesen einfach in den gewünschten Raum ziehen.",
     "app.updateBreakoutRoom.cancelLabel": "Abbrechen",
     "app.updateBreakoutRoom.title": "Gruppenräume aktualisieren",
     "app.updateBreakoutRoom.confirm": "Anwenden",
