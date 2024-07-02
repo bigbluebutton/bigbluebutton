@@ -289,7 +289,7 @@ const ChatMessageForm: React.FC<ChatMessageFormProps> = ({
 
       const msg = textToMarkdown(message);
 
-      if (msg.length < minMessageLength) return;
+      if (msg.length < minMessageLength || chatSendMessageLoading) return;
 
       if (disabled
         || msg.length > maxMessageLength) {
@@ -297,13 +297,14 @@ const ChatMessageForm: React.FC<ChatMessageFormProps> = ({
         return;
       }
 
-      chatSendMessage({
-        variables: {
-          chatMessageInMarkdownFormat: msg,
-          chatId: chatId === PUBLIC_CHAT_ID ? PUBLIC_GROUP_CHAT_ID : chatId,
-        },
-      });
-
+      if (!chatSendMessageLoading) {
+        chatSendMessage({
+          variables: {
+            chatMessageInMarkdownFormat: msg,
+            chatId: chatId === PUBLIC_CHAT_ID ? PUBLIC_GROUP_CHAT_ID : chatId,
+          },
+        });
+      }
       const currentClosedChats = Storage.getItem(CLOSED_CHAT_LIST_KEY);
 
       // Remove the chat that user send messages from the session.
@@ -420,7 +421,7 @@ const ChatMessageForm: React.FC<ChatMessageFormProps> = ({
             autoCorrect="off"
             autoComplete="off"
             spellCheck="true"
-            disabled={disabled || partnerIsLoggedOut || chatSendMessageLoading}
+            disabled={disabled || partnerIsLoggedOut}
             value={message}
             onFocus={() => {
               window.dispatchEvent(new CustomEvent(PluginSdk.ChatFormUiDataNames.CHAT_INPUT_IS_FOCUSED, {

@@ -53,7 +53,7 @@ func BrowserConnectionReader(
 			return
 		}
 
-		log.Tracef("received from browser: %v", message)
+		log.Tracef("received from browser: %s", string(message))
 
 		if messageType != websocket.MessageText {
 			log.Warnf("received non-text message: %v", messageType)

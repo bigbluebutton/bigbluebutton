@@ -205,7 +205,7 @@ RangeLoop:
 					continue
 				}
 
-				log.Tracef("sending to hasura: %v", fromBrowserMessage)
+				log.Tracef("sending to hasura: %s", string(fromBrowserMessage))
 				errWrite := hc.Websocket.Write(hc.Context, websocket.MessageText, fromBrowserMessage)
 				if errWrite != nil {
 					if !errors.Is(errWrite, context.Canceled) {
