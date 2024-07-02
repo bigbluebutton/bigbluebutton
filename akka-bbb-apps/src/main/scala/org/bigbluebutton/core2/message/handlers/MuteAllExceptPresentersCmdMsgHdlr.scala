@@ -7,6 +7,7 @@ import org.bigbluebutton.core2.MeetingStatus2x
 import org.bigbluebutton.core.apps.{ PermissionCheck, RightsManagementTrait }
 import org.bigbluebutton.core.db.NotificationDAO
 import org.bigbluebutton.core2.message.senders.MsgBuilder
+import org.bigbluebutton.core.apps.voice.VoiceApp
 
 trait MuteAllExceptPresentersCmdMsgHdlr extends RightsManagementTrait {
   this: MeetingActor =>
@@ -60,8 +61,8 @@ trait MuteAllExceptPresentersCmdMsgHdlr extends RightsManagementTrait {
           VoiceUsers.findAll(liveMeeting.voiceUsers) foreach { vu =>
             if (!vu.listenOnly) {
               Users2x.findWithIntId(liveMeeting.users2x, vu.intId) match {
-                case Some(u) => if (!u.presenter) muteUserInVoiceConf(vu, muted)
-                case None    => muteUserInVoiceConf(vu, muted)
+                case Some(u) => if (!u.presenter) VoiceApp.muteUserInVoiceConf(liveMeeting, outGW, vu.intId, muted)
+                case None    => VoiceApp.muteUserInVoiceConf(liveMeeting, outGW, vu.intId, muted)
               }
             }
           }
@@ -83,19 +84,6 @@ trait MuteAllExceptPresentersCmdMsgHdlr extends RightsManagementTrait {
     val event = MeetingMutedEvtMsg(header, body)
 
     BbbCommonEnvCoreMsg(envelope, event)
-  }
-
-  def muteUserInVoiceConf(vu: VoiceUserState, mute: Boolean): Unit = {
-    val routing = Routing.addMsgToClientRouting(MessageTypes.BROADCAST_TO_MEETING, props.meetingProp.intId, vu.intId)
-    val envelope = BbbCoreEnvelope(MuteUserInVoiceConfSysMsg.NAME, routing)
-    val header = BbbCoreHeaderWithMeetingId(MuteUserInVoiceConfSysMsg.NAME, props.meetingProp.intId)
-
-    val body = MuteUserInVoiceConfSysMsgBody(props.voiceProp.voiceConf, vu.voiceUserId, mute)
-    val event = MuteUserInVoiceConfSysMsg(header, body)
-    val msgEvent = BbbCommonEnvCoreMsg(envelope, event)
-
-    outGW.send(msgEvent)
-
   }
 
 }
