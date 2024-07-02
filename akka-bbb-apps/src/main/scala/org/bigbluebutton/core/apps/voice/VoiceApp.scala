@@ -138,7 +138,7 @@ object VoiceApp extends SystemConfiguration {
 
       // If the user is muted or unmuted with an unheld channel, broadcast
       // the event right away.
-      // If the user is unmuted, but channel is held, we need to wait for the 
+      // If the user is unmuted, but channel is held, we need to wait for the
       // channel to be active again to broadcast the event. See
       // VoiceApp.handleChannelHoldChanged for this second case.
       if (muted || (!muted && !mutedUser.hold)) {
@@ -149,7 +149,6 @@ object VoiceApp extends SystemConfiguration {
           outGW
         )
       }
-
     }
   }
 
@@ -613,5 +612,49 @@ object VoiceApp extends SystemConfiguration {
         }
       case _ =>
     }
+  }
+
+  def muteUserInVoiceConf(
+    liveMeeting:  LiveMeeting,
+    outGW:        OutMsgRouter,
+    userId:       String,
+    muted:         Boolean
+  )(implicit context: akka.actor.ActorContext): Unit = {
+    for {
+      u <- VoiceUsers.findWithIntId(
+        liveMeeting.voiceUsers,
+        userId
+      )
+      } yield {
+        if (u.muted != muted) {
+          val muteEvent = MsgBuilder.buildMuteUserInVoiceConfSysMsg(
+            liveMeeting.props.meetingProp.intId,
+            liveMeeting.props.voiceProp.voiceConf,
+            u.voiceUserId,
+            muted
+          )
+
+          // If we're unmuting, trigger a channel unhold -> toggle listen only
+          // mode -> unmute
+          if (!muted) {
+            holdChannelInVoiceConf(
+              liveMeeting,
+              outGW,
+              u.uuid,
+              muted
+            )
+            toggleListenOnlyMode(
+              liveMeeting,
+              outGW,
+              u.intId,
+              u.callerNum,
+              muted,
+              0
+            )
+          }
+
+          outGW.send(muteEvent)
+        }
+      }
   }
 }
