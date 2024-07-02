@@ -910,7 +910,7 @@
     "app.toast.meetingMuteOn.label": "Alle Teilnehmer wurden stummgeschaltet",
     "app.toast.meetingMuteOnViewers.label": "Alle Teilnehmer wurden stummgeschaltet",
     "app.toast.meetingMuteOff.label": "Konferenz-Stummschaltung ausgeschaltet",
-    "app.toast.wakeLock.acquireSuccess": "Sperre aktiv! Sie können diese Funktion im Einstellungsmenü deaktivieren.",
+    "app.toast.wakeLock.acquireSuccess": "Sperre der Schlaffunktion aktiv! Im Einstellungsmenü kann diese Funktion deaktiviert werden.",
     "app.toast.wakeLock.acquireFailed": "Fehler beim Erfassen der Aufwach-Sperre",
     "app.toast.wakeLock.notSupported": "Dieser Browser kann das Einschlafen des Gerätes leider nicht verhindern",
     "app.toast.wakeLock.disclaimer": "{0}. Nach Ausschalten des Bildschirms wird die Verbindung beendet.",
