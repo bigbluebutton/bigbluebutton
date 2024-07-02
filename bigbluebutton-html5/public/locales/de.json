@@ -1415,7 +1415,7 @@
     "app.learningDashboard.errors.invalidToken": "Ungültiger Konferenz-Token",
     "app.learningDashboard.errors.dataUnavailable": "Die Daten sind nicht mehr verfügbar",
     "mobileApp.portals.list.empty.addFirstPortal.label": "Fügen Sie Ihr erstes Portal über die Schaltfläche oben hinzu,",
-    "mobileApp.portals.list.empty.orUseOurDemoServer.label": "oder nutzen Sie unseren Demo-Server.",
+    "mobileApp.portals.list.empty.orUseOurDemoServer.label": "oder unseren Demo-Server benutzen.",
     "mobileApp.portals.list.add.button.label": "Portal hinzufügen",
     "mobileApp.portals.fields.name.label": "Portalname",
     "mobileApp.portals.fields.name.placeholder": "BigBlueButton Demo",
