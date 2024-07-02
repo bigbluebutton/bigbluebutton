@@ -199,16 +199,6 @@ const ChatMessageForm: React.FC<ChatMessageFormProps> = ({
   }, []);
 
   useEffect(() => {
-    if (chatSendMessageLoading) {
-      setIsLoading(true);
-    } else {
-      setTimeout(() => {
-        setIsLoading(false);
-      }, 1500);
-    }
-  }, [chatSendMessageLoading]);
-
-  useEffect(() => {
     const storedData = localStorage.getItem('unsentMessages') || '{}';
     const unsentMessages = JSON.parse(storedData);
 
@@ -310,7 +300,7 @@ const ChatMessageForm: React.FC<ChatMessageFormProps> = ({
 
       const msg = textToMarkdown(message);
 
-      if (msg.length < minMessageLength) return;
+      if (msg.length < minMessageLength || chatSendMessageLoading) return;
 
       if (disabled
         || msg.length > maxMessageLength) {
