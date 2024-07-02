@@ -8,3 +8,7 @@
 import { isEmpty } from 'radash';
 
 global._ = { isEmpty };
+
+Meteor.settings.public.packages = {
+  'dynamic-import': { useLocationOrigin: true },
+};
