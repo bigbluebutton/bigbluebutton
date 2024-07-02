@@ -3,7 +3,7 @@ import React, {useEffect, useState, useRef } from "react";
 import {applyPatch} from "fast-json-patch";
 
 export default function UserConnectionStatus() {
-    const networkRttInMs = useRef(null); // Ref to store the current timeout
+    const networkRttInMs = useRef(0); // Ref to store the current timeout
     const lastStatusUpdatedAtReceived = useRef(null); // Ref to store the current timeout
 
     //example specifying where and time (new Date().toISOString())
@@ -24,28 +24,11 @@ export default function UserConnectionStatus() {
 
 
 
-    //where is not necessary once user can update only its own status
-    //Hasura accepts "now()" as value to timestamp fields
-    const [updateUserClientResponseAtToMeAsNow] = useMutation(gql`
-      mutation UpdateConnectionRtt($networkRttInMs: Float!) {
-        userSetConnectionRtt(
+    const [updateConnectionAliveAtToMeAsNow] = useMutation(gql`
+     mutation UpdateConnectionAliveAt($networkRttInMs: Float!) {
+        userSetConnectionAlive(
           networkRttInMs: $networkRttInMs
         )
-      }
-    `);
-
-    const handleUpdateUserClientResponseAt = () => {
-        updateUserClientResponseAtToMeAsNow({
-            variables: {
-                networkRttInMs: networkRttInMs.current
-            },
-        });
-    };
-
-
-    const [updateConnectionAliveAtToMeAsNow] = useMutation(gql`
-     mutation UpdateConnectionAliveAt {
-        userSetConnectionAlive
       }
     `);
 
@@ -53,7 +36,11 @@ export default function UserConnectionStatus() {
         const startTime = performance.now();
 
         try {
-            updateConnectionAliveAtToMeAsNow().then(result => {
+            updateConnectionAliveAtToMeAsNow({
+                variables: {
+                    networkRttInMs: networkRttInMs.current
+                },
+            }).then(result => {
                 const endTime = performance.now();
                 networkRttInMs.current = endTime - startTime;
 
@@ -120,7 +107,7 @@ export default function UserConnectionStatus() {
 
                 lastStatusUpdatedAtReceived.current = curr.statusUpdatedAt;
                 // setLastStatusUpdatedAtReceived(curr.statusUpdatedAt);
-                handleUpdateUserClientResponseAt();
+                // handleUpdateUserClientResponseAt();
             }
 
           return (
