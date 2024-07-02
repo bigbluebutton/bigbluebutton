@@ -22,7 +22,7 @@ class ChangeStyles extends MultiUsers {
     await this.modPage.page.mouse.move(wbBox.x + 0.7 * wbBox.width, wbBox.y + 0.7 * wbBox.height);
     await this.modPage.page.mouse.up();
 
-    
+    await this.modPage.waitAndClick(e.whiteboardStyles);
     await this.modPage.waitAndClick(e.wbColorRed);
     await this.modPage.setHeightWidthViewPortSize();
     await this.userPage.setHeightWidthViewPortSize();
@@ -47,6 +47,7 @@ class ChangeStyles extends MultiUsers {
     await this.modPage.page.mouse.move(wbBox.x + 0.7 * wbBox.width, wbBox.y + 0.7 * wbBox.height);
     await this.modPage.page.mouse.up();
 
+    await this.modPage.waitAndClick(e.whiteboardStyles);
     await this.modPage.waitAndClick(e.wbFillDrawing);
     await this.modPage.press('Escape');
 
@@ -73,6 +74,7 @@ class ChangeStyles extends MultiUsers {
     await this.modPage.page.mouse.move(wbBox.x + 0.7 * wbBox.width, wbBox.y + 0.7 * wbBox.height);
     await this.modPage.page.mouse.up();
 
+    await this.modPage.waitAndClick(e.whiteboardStyles);
     await this.modPage.waitAndClick(e.wbDashDotted);
 
     await this.modPage.setHeightWidthViewPortSize();
@@ -98,6 +100,7 @@ class ChangeStyles extends MultiUsers {
     await this.modPage.page.mouse.move(wbBox.x + 0.7 * wbBox.width, wbBox.y + 0.7 * wbBox.height);
     await this.modPage.page.mouse.up();
 
+    await this.modPage.waitAndClick(e.whiteboardStyles);
     await this.modPage.waitAndClick(e.wbSizeLarge);
 
     await this.modPage.setHeightWidthViewPortSize();

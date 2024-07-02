@@ -36,7 +36,7 @@ test.describe.parallel('Whiteboard @ci', () => {
   });
 });
 
-test.describe.parallel('Whiteboard tools - visual regression', () => {
+test.describe.parallel('Whiteboard tools - visual regression @ci', () => {
   test.beforeEach(({ browserName }) => {
     test.skip(browserName !== 'chromium',
       'Drawing visual regression tests are enabled for Chromium');
@@ -112,7 +112,7 @@ test.describe.parallel('Whiteboard tools - visual regression', () => {
     await drawArrow.test();
   });
 
-  test('Delete drawing', async ({ browser, context, page }) => {
+  test('Delete drawing @flaky', async ({ browser, context, page }) => {
     const deleteDrawing = new DeleteDrawing(browser, context);
     await deleteDrawing.initModPage(page, true, { customMeetingId: 'draw_line_meeting', joinParameter: hidePresentationToast });
     await deleteDrawing.initUserPage(true, context, { joinParameter: hidePresentationToast });
@@ -169,7 +169,7 @@ test.describe.parallel('Whiteboard tools - visual regression', () => {
   });
 
   test.describe.parallel('Shape Options', () => {
-    test('Duplicate', async ({ browser, context, page }) => {
+    test('Duplicate @flaky', async ({ browser, context, page }) => {
       const shapeOptions = new ShapeOptions(browser, context);
       await shapeOptions.initModPage(page, true);
       await shapeOptions.initUserPage(true, context);
