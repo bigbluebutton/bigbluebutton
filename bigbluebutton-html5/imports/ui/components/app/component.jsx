@@ -50,6 +50,7 @@ import BreakoutJoinConfirmationContainerGraphQL from '../breakout-join-confirmat
 import FloatingWindowContainer from '/imports/ui/components/floating-window/container';
 import ChatAlertContainerGraphql from '../chat/chat-graphql/alert/component';
 import { notify } from '/imports/ui/services/notification';
+import VoiceActivityAdapter from '../../core/adapters/voice-activity';
 
 const MOBILE_MEDIA = 'only screen and (max-width: 40em)';
 
@@ -638,6 +639,7 @@ class App extends Component {
           <WakeLockContainer />
           {this.renderActionsBar()}
           <EmojiRainContainer />
+          <VoiceActivityAdapter />
           {customStyleUrl ? <link rel="stylesheet" type="text/css" href={customStyleUrl} /> : null}
           {customStyle ? <link rel="stylesheet" type="text/css" href={`data:text/css;charset=UTF-8,${encodeURIComponent(customStyle)}`} /> : null}
         </Styled.Layout>
