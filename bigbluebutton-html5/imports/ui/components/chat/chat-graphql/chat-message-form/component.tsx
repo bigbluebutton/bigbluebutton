@@ -175,16 +175,6 @@ const ChatMessageForm: React.FC<ChatMessageFormProps> = ({
     },
   ), [chatId]);
 
-  window.addEventListener('keydown', (e) => {
-    if (e.key === 'U+000A' || e.key === 'Enter') {
-      setTimeout(() => {
-        e.preventDefault();
-        return false;
-      }, 300);
-    }
-    return true;
-  });
-
   useEffect(() => {
     setMessageHint();
     if (!isMobile) {
