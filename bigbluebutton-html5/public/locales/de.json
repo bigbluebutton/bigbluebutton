@@ -1129,7 +1129,7 @@
     "app.video.virtualBackground.uploaded": "Hochgeladen",
     "app.video.virtualBackground.uploading": "Lade hoch…",
     "app.video.virtualBackground.button.customDesc": "Fügt ein neues virtuelles Hintergrundbild hinzu.",
-    "app.video.camCapReached": "Sie können keine weiteren Kameras freigeben",
+    "app.video.camCapReached": "Es kann keine weitere Kameras freigegeben werden",
     "app.video.meetingCamCapReached": "Konferenz hat die maximale Anzahl gleichzeitiger Kameras erreicht",
     "app.video.dropZoneLabel": "Hier loslassen",
     "app.fullscreenButton.label": "{0} als Vollbild darstellen",
