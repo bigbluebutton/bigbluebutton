@@ -98,7 +98,9 @@ class MeetingActor(
   with SyncGetMeetingInfoRespMsgHdlr
   with ClientToServerLatencyTracerMsgHdlr
   with ValidateConnAuthTokenSysMsgHdlr
-  with UserActivitySignCmdMsgHdlr {
+  with UserActivitySignCmdMsgHdlr
+
+  with GetMeetingInfoMsgHdlr {
 
   object CheckVoiceRecordingInternalMsg
   object SyncVoiceUserStatusInternalMsg
@@ -176,6 +178,8 @@ class MeetingActor(
 
   // Send new 2x message
   val msgEvent = MsgBuilder.buildMeetingCreatedEvtMsg(liveMeeting.props.meetingProp.intId, liveMeeting.props)
+  val meetingStartTme = System.currentTimeMillis()
+  var meetingEndTime = 0L
   outGW.send(msgEvent)
 
   //Insert meeting into the database
@@ -255,17 +259,19 @@ class MeetingActor(
     //=============================
 
     // 2x messages
-    case msg: BbbCommonEnvCoreMsg                 => handleBbbCommonEnvCoreMsg(msg)
+    case msg: BbbCommonEnvCoreMsg        => handleBbbCommonEnvCoreMsg(msg)
 
     // Handling RegisterUserReqMsg as it is forwarded from BBBActor and
     // its type is not BbbCommonEnvCoreMsg
-    case m: RegisterUserReqMsg                    => usersApp.handleRegisterUserReqMsg(m)
-    case m: GetAllMeetingsReqMsg                  => handleGetAllMeetingsReqMsg(m)
-    case m: GetRunningMeetingStateReqMsg          => handleGetRunningMeetingStateReqMsg(m)
-    case m: ValidateConnAuthTokenSysMsg           => handleValidateConnAuthTokenSysMsg(m)
+    case m: RegisterUserReqMsg           => usersApp.handleRegisterUserReqMsg(m)
+    case m: GetAllMeetingsReqMsg         => handleGetAllMeetingsReqMsg(m)
+    case m: GetRunningMeetingStateReqMsg => handleGetRunningMeetingStateReqMsg(m)
+    case m: ValidateConnAuthTokenSysMsg  => handleValidateConnAuthTokenSysMsg(m)
 
     // Meeting
-    case m: DestroyMeetingSysCmdMsg               => handleDestroyMeetingSysCmdMsg(m)
+    case m: DestroyMeetingSysCmdMsg =>
+      meetingEndTime = System.currentTimeMillis()
+      handleDestroyMeetingSysCmdMsg(m)
 
     //======================================
 
@@ -279,6 +285,10 @@ class MeetingActor(
     case msg: UserEstablishedGraphqlConnectionInternalMsg =>
       state = handleUserEstablishedGraphqlConnectionInternalMsg(msg, state)
       updateModeratorsPresence()
+
+    // Internal gRPC messages
+    case msg: GetMeetingInfo        => sender() ! handleGetMeetingInfo()
+    case msg: HasUserJoined         => sender() ! hasAuthedUserJoined(liveMeeting.status)
 
     case msg: ExtendMeetingDuration => handleExtendMeetingDuration(msg)
     case msg: SendTimeRemainingAuditInternalMsg =>
@@ -398,7 +408,9 @@ class MeetingActor(
   private def handleMessageThatAffectsInactivity(msg: BbbCommonEnvCoreMsg): Unit = {
 
     msg.core match {
-      case m: EndMeetingSysCmdMsg     => handleEndMeeting(m, state)
+      case m: EndMeetingSysCmdMsg =>
+        meetingEndTime = System.currentTimeMillis()
+        handleEndMeeting(m, state)
 
       // Users
       case m: ValidateAuthTokenReqMsg => state = usersApp.handleValidateAuthTokenReqMsg(m, state)
@@ -973,6 +985,7 @@ class MeetingActor(
       Users2x.numUsers(liveMeeting.users2x) == 0
       && !state.expiryTracker.lastUserLeftOnInMs.isDefined) {
       log.info("Setting meeting no more users. meetingId=" + props.meetingProp.intId)
+      meetingEndTime = System.currentTimeMillis()
       val tracker = state.expiryTracker.setLastUserLeftOn(TimeUtil.timeNowInMs())
       state.update(tracker)
     } else {

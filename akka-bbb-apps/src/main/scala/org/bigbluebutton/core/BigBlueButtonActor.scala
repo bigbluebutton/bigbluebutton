@@ -70,6 +70,12 @@ class BigBlueButtonActor(
   def receive = {
     // Internal messages
     case msg: DestroyMeetingInternalMsg => handleDestroyMeeting(msg)
+    case msg: IsMeetingRunning          => handleIsMeetingRunning(sender(), msg)
+    case msg: GetMeeting                => handleGetMeeting(sender(), msg)
+    case msg: GetMeetings               => handleGetMeetings(sender(), msg)
+    case msg: GetNextVoiceBridge        => handleGetNextVoiceBridge(sender(), msg)
+    case msg: CreateMeeting             => handleCreateMeeting(sender(), msg)
+    case msg: IsVoiceBridgeInUse        => handleIsVoiceBridgeInUse(sender(), msg)
 
     // 2x messages
     case msg: BbbCommonEnvCoreMsg       => handleBbbCommonEnvCoreMsg(msg)
@@ -205,4 +211,66 @@ class BigBlueButtonActor(
     }
   }
 
+  private def handleIsMeetingRunning(sender: ActorRef, msg: IsMeetingRunning): Unit = {
+    RunningMeetings.findWithId(meetings, msg.meetingId) match {
+      case Some(_) => sender ! true
+      case None =>
+        RunningMeetings.findWithExtId(meetings, msg.meetingId) match {
+          case Some(_) => sender ! true
+          case None    => sender ! false
+        }
+    }
+  }
+
+  private def handleGetMeeting(sender: ActorRef, msg: GetMeeting): Unit = {
+    RunningMeetings.findWithId(meetings, msg.meetingId) match {
+      case Some(m) => sender ! Some(m)
+      case None =>
+        RunningMeetings.findWithExtId(meetings, msg.meetingId) match {
+          case Some(m) => sender ! Some(m)
+          case None    => sender ! None
+        }
+    }
+  }
+
+  private def handleGetMeetings(sender: ActorRef, msg: GetMeetings): Unit = {
+    sender ! RunningMeetings.meetingsMap(meetings)
+  }
+
+  private def handleGetNextVoiceBridge(sender: ActorRef, msg: GetNextVoiceBridge): Unit = {
+    sender ! RunningMeetings.getVoiceBridge(meetings)
+  }
+
+  private def handleCreateMeeting(sender: ActorRef, msg: CreateMeeting): Unit = {
+    RunningMeetings.findWithId(meetings, msg.props.meetingProp.intId) match {
+      case None =>
+        log.info("Creating meeting. meetingId={}", msg.props.meetingProp.intId)
+
+        val m = RunningMeeting(msg.props, outGW, eventBus)
+
+        // Subscribe to meeting and voice events.
+        eventBus.subscribe(m.actorRef, m.props.meetingProp.intId)
+        eventBus.subscribe(m.actorRef, m.props.voiceProp.voiceConf)
+
+        bbbMsgBus.subscribe(m.actorRef, m.props.meetingProp.intId)
+        bbbMsgBus.subscribe(m.actorRef, m.props.voiceProp.voiceConf)
+
+        RunningMeetings.add(meetings, m)
+
+        sender ! (m, false, true)
+      case Some(m) =>
+        log.info("Meeting already created. meetingID={}", msg.props.meetingProp.intId)
+
+        if ((m.props.password.viewerPass.equals(msg.props.password.viewerPass) && m.props.password.moderatorPass.equals(msg.props.password.moderatorPass)) ||
+          (msg.props.password.viewerPass.isEmpty() && msg.props.password.moderatorPass.isEmpty())) {
+          sender ! (m, true, true)
+        } else {
+          sender ! (m, true, false)
+        }
+    }
+  }
+
+  private def handleIsVoiceBridgeInUse(sender: ActorRef, msg: IsVoiceBridgeInUse): Unit = {
+    sender ! RunningMeetings.isVoiceBridgeInUse(meetings, msg.voiceBridge)
+  }
 }

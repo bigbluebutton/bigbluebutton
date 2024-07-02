@@ -92,4 +92,7 @@ trait SystemConfiguration {
   val httpHost = config.getString("http.interface")
   // Grab the "port" parameter from the http config
   val httpPort = config.getInt("http.port")
+
+  val grpcHost = config.getString("grpc.interface")
+  val grpcPort = config.getInt("grpc.port")
 }

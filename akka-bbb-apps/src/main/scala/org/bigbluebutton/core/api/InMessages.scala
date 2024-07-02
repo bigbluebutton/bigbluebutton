@@ -3,6 +3,7 @@ package org.bigbluebutton.core.api
 import org.bigbluebutton.core.apps.users.UserEstablishedGraphqlConnectionInternalMsgHdlr
 import org.bigbluebutton.core.domain.{ BreakoutUser, BreakoutVoiceUser }
 import spray.json.JsObject
+import org.bigbluebutton.common2.domain.DefaultProps
 case class InMessageHeader(name: String)
 case class InHeaderAndJsonPayload(header: InMessageHeader, payload: JsObject)
 case class MessageProcessException(message: String) extends Exception(message)
@@ -131,3 +132,20 @@ case class UserClosedAllGraphqlConnectionsInternalMsg(userId: String) extends In
  * @param userId
  */
 case class UserEstablishedGraphqlConnectionInternalMsg(userId: String) extends InMessage
+
+// DeskShare
+case class DeskShareStartedRequest(conferenceName: String, callerId: String, callerIdName: String) extends InMessage
+case class DeskShareStoppedRequest(conferenceName: String, callerId: String, callerIdName: String) extends InMessage
+case class DeskShareRTMPBroadcastStartedRequest(conferenceName: String, streamname: String, videoWidth: Int, videoHeight: Int, timestamp: String) extends InMessage
+case class DeskShareRTMPBroadcastStoppedRequest(conferenceName: String, streamname: String, videoWidth: Int, videoHeight: Int, timestamp: String) extends InMessage
+case class DeskShareGetDeskShareInfoRequest(conferenceName: String, requesterID: String, replyTo: String) extends InMessage
+
+// gRPC messages
+case class IsMeetingRunning(meetingId: String) extends InMessage
+case class GetMeeting(meetingId: String) extends InMessage
+case class GetMeetings() extends InMessage
+case class GetMeetingInfo() extends InMessage
+case class GetNextVoiceBridge() extends InMessage
+case class CreateMeeting(props: DefaultProps) extends InMessage
+case class HasUserJoined() extends InMessage
+case class IsVoiceBridgeInUse(voiceBridge: String) extends InMessage
