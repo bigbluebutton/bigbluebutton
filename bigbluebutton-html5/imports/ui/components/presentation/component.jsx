@@ -756,6 +756,7 @@ class Presentation extends PureComponent {
       isPanning,
       tldrawAPI,
       isToolbarVisible,
+      presentationWidth,
     } = this.state;
 
     let viewBoxDimensions;
@@ -856,6 +857,7 @@ class Presentation extends PureComponent {
                   {slideContent}
                 </Styled.VisuallyHidden>
                 {!tldrawIsMounting
+                  && presentationWidth > 0
                   && currentSlide
                   && this.renderPresentationMenu()}
                 <LocatedErrorBoundary Fallback={FallbackView} logMetadata={APP_CRASH_METADATA}>
@@ -891,7 +893,7 @@ class Presentation extends PureComponent {
                 </LocatedErrorBoundary>
                 {isFullscreen && <PollingContainer />}
               </div>
-              {!tldrawIsMounting && (
+              {!tldrawIsMounting && presentationWidth > 0 && (
                 <Styled.PresentationToolbar
                   ref={(ref) => {
                     this.refPresentationToolbar = ref;
