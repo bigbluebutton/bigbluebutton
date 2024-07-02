@@ -298,7 +298,7 @@
     "app.presentation.placeholder": "Es gibt derzeit keine aktive Präsentation",
     "app.presentationUploder.title": "Präsentation",
     "app.presentationUploder.message": "Als Präsentator kann man ein beliebiges Office-Dokument oder eine PDF-Datei hochladen. Wir empfehlen eine PDF-Datei für beste Ergebnisse. Bitte eine Präsentation über das kreisförmige Auswahlfeld auf der linken Seite auswählen.",
-    "app.presentationUploader.exportHint": "Wenn Sie \"An den Chat senden\" wählen, erhalten die Nutzer einen herunterladbaren Link mit Kommentaren im öffentlichen Chat.",
+    "app.presentationUploader.exportHint": "In den Exportoptionen gibt es die Möglichkeit, einen Download der ursprünglichen Präsentation zu ermöglichen oder einen herunterladbaren Link der Präsentation mit Anmerkungen an den öffentlichen Chat zu senden.",
     "app.presentationUploader.exportToastHeader": "Sende an Chat ({0} Element)",
     "app.presentationUploader.exportToastHeaderPlural": "Sende an Chat ({0} Elemente)",
     "app.presentationUploader.exporting": "Sende an Chat…",
