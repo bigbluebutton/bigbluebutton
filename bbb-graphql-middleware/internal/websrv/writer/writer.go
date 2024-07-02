@@ -36,7 +36,7 @@ RangeLoop:
 					continue
 				}
 
-				log.Tracef("sending to browser: %s", string(toBrowserMessage))
+				log.Tracef("sending to browser: %v", toBrowserMessage)
 				err := browserWsConn.Write(ctx, websocket.MessageText, toBrowserMessage)
 				if err != nil {
 					log.Debugf("Browser is disconnected, skipping writing of ws message: %v", err)
