@@ -60,7 +60,7 @@ interface NotesGraphqlProps extends NotesContainerGraphqlProps {
   isPresentationEnabled: boolean;
 }
 
-let timoutRef: NodeJS.Timeout | undefined;
+let timoutRef: number | undefined;
 const sidebarContentToIgnoreDelay = ['captions'];
 
 const NotesGraphql: React.FC<NotesGraphqlProps> = (props) => {

@@ -16,8 +16,8 @@ const useTalkingUsers = () => {
     error,
   } = useVoiceActivity();
   const [record, setRecord] = useState<Record<string, VoiceItem>>({});
-  const mutedTimeoutRegistry = useRef<Record<string, NodeJS.Timeout | null>>({});
-  const spokeTimeoutRegistry = useRef<Record<string, NodeJS.Timeout | null>>({});
+  const mutedTimeoutRegistry = useRef<Record<string, number | null>>({});
+  const spokeTimeoutRegistry = useRef<Record<string, number | null>>({});
 
   useEffect(() => {
     if (!voiceActivity) return;
