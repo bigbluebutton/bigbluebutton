@@ -4,6 +4,13 @@ import { useMutation, useReactiveVar } from '@apollo/client';
 import getFromUserSettings from '/imports/ui/services/users-settings';
 import Auth from '/imports/ui/services/auth';
 import ActionsBar from './component';
+
+import {
+  isScreenBroadcasting,
+  isCameraAsContentBroadcasting,
+  useIsSharing,
+  useSharingContentType,
+} from '/imports/ui/components/screenshare/service';
 import { layoutSelectOutput, layoutDispatch } from '../layout/context';
 import {
   useIsExternalVideoEnabled,
@@ -23,7 +30,6 @@ import { EXTERNAL_VIDEO_STOP } from '../external-video-player/mutations';
 import { PINNED_PAD_SUBSCRIPTION } from '../notes/queries';
 import useDeduplicatedSubscription from '../../core/hooks/useDeduplicatedSubscription';
 import connectionStatus from '../../core/graphql/singletons/connectionStatus';
-import { getSceenShareType } from './queries';
 
 const isReactionsButtonEnabled = () => {
   const USER_REACTIONS_ENABLED = window.meetingClientSettings.public.userReaction.enabled;
@@ -38,10 +44,6 @@ const ActionsBarContainer = (props) => {
     .public.app.raiseHandActionButton.enabled;
   const RAISE_HAND_BUTTON_CENTERED = window.meetingClientSettings
     .public.app.raiseHandActionButton.centered;
-
-  const {
-    data: sceenShareType,
-  } = useDeduplicatedSubscription(getSceenShareType);
 
   const actionsBarStyle = layoutSelectOutput((i) => i.actionBar);
   const layoutContextDispatch = layoutDispatch();
@@ -108,8 +110,7 @@ const ActionsBarContainer = (props) => {
         setPresentationIsOpen: MediaService.setPresentationIsOpen,
         hasScreenshare: currentMeeting?.componentsFlags?.hasScreenshare ?? false,
         isMeteorConnected: connected,
-        hasCameraAsContent: currentMeeting?.componentsFlags?.hasScreenshare
-        && sceenShareType?.screenshare[0]?.contentType,
+        hasCameraAsContent: currentMeeting?.componentsFlags?.hasCameraAsContent,
         intl,
         allowExternalVideo,
         isPollingEnabled,

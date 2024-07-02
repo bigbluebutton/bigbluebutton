@@ -8,7 +8,7 @@ import (
 	"io/ioutil"
 	"os"
 	"path/filepath"
-	"strings"
+	"strconv"
 )
 
 var cacheDir = os.TempDir() + "/graphql-middleware-cache/"
@@ -137,79 +137,78 @@ func fileExists(filename string) bool {
 	return !os.IsNotExist(err)
 }
 
-func PatchMessage(
-	receivedMessage *map[string]interface{},
+func GetPatchedMessage(
+	receivedMessage []byte,
 	subscriptionId string,
 	dataKey string,
-	lastDataAsJson []byte,
-	dataAsJson []byte,
+	lastHasuraMessage common.HasuraMessage,
+	hasuraMessage common.HasuraMessage,
 	browserConnectionId string,
 	browserSessionToken string,
-	cacheKey string,
+	cacheKey uint32,
 	lastDataChecksum uint32,
-	currDataChecksum uint32) {
+	currDataChecksum uint32) []byte {
 
 	if lastDataChecksum != 0 {
-		common.JsonPatchBenchmarkingStarted(cacheKey)
-		defer common.JsonPatchBenchmarkingCompleted(cacheKey)
+		common.JsonPatchBenchmarkingStarted(strconv.Itoa(int(cacheKey)))
+		defer common.JsonPatchBenchmarkingCompleted(strconv.Itoa(int(cacheKey)))
 	}
 
-	//Avoid other routines from processing the same JsonPatch
+	//Lock to avoid other routines from processing the same message
 	common.GlobalCacheLocks.Lock(cacheKey)
-	jsonDiffPatch, jsonDiffPatchExists := common.GetJsonPatchCache(cacheKey)
-	if jsonDiffPatchExists {
+	if patchedMessageCache, patchedMessageCacheExists := common.GetPatchedMessageCache(cacheKey); patchedMessageCacheExists {
 		//Unlock immediately once the cache was already created by other routine
 		common.GlobalCacheLocks.Unlock(cacheKey)
+		return patchedMessageCache
 	} else {
 		//It will create the cache and then Unlock (others will wait to benefit from this cache)
 		defer common.GlobalCacheLocks.Unlock(cacheKey)
 	}
 
-	var receivedMessageMap = *receivedMessage
+	var jsonDiffPatch []byte
 
-	if !jsonDiffPatchExists {
-		if currDataChecksum == lastDataChecksum {
-			//Content didn't change, set message as null to avoid sending it to the browser
-			//This case is usual when the middleware reconnects with Hasura and receives the data again
-			*receivedMessage = nil
-		} else {
-			//Content was changed, creating json patch
-			//If data is small (< minLengthToPatch) it's not worth creating the patch
-			if len(string(dataAsJson)) > minLengthToPatch {
-				if lastContent, lastContentErr := GetRawDataCache(browserConnectionId, browserSessionToken, subscriptionId, dataKey, lastDataAsJson); lastContentErr == nil && string(lastContent) != "" {
-					//Temporarily use CustomPatch only for UserList (testing feature)
-					if strings.HasPrefix(cacheKey, "subscription-Patched_UserListSubscription") &&
-						common.ValidateIfShouldUseCustomJsonPatch(lastContent, dataAsJson, "userId") {
-						jsonDiffPatch = common.CreateJsonPatch(lastContent, dataAsJson, "userId")
-						common.StoreJsonPatchCache(cacheKey, jsonDiffPatch)
-					} else if diffPatch, diffPatchErr := jsonpatch.CreatePatch(lastContent, dataAsJson); diffPatchErr == nil {
-						var err error
-						if jsonDiffPatch, err = json.Marshal(diffPatch); err == nil {
-							common.StoreJsonPatchCache(cacheKey, jsonDiffPatch)
-						} else {
-							log.Errorf("Error marshaling patch array: %v", err)
-						}
-					} else {
-						log.Errorf("Error creating JSON patch: %v\n%v", diffPatchErr, string(dataAsJson))
+	if currDataChecksum == lastDataChecksum {
+		//Content didn't change, set message as null to avoid sending it to the browser
+		//This case is usual when the middleware reconnects with Hasura and receives the data again
+		jsonData, _ := json.Marshal(nil)
+		common.StorePatchedMessageCache(cacheKey, jsonData)
+		return jsonData
+	} else {
+		//Content was changed, creating json patch
+		//If data is small (< minLengthToPatch) it's not worth creating the patch
+		if len(hasuraMessage.Payload.Data[dataKey]) > minLengthToPatch {
+			if lastContent, lastContentErr := GetRawDataCache(browserConnectionId, browserSessionToken, subscriptionId, dataKey, lastHasuraMessage.Payload.Data[dataKey]); lastContentErr == nil && string(lastContent) != "" {
+				var shouldUseCustomJsonPatch bool
+				if shouldUseCustomJsonPatch, jsonDiffPatch = common.ValidateIfShouldUseCustomJsonPatch(lastContent, hasuraMessage.Payload.Data[dataKey], "userId"); shouldUseCustomJsonPatch {
+					common.StorePatchedMessageCache(cacheKey, jsonDiffPatch)
+				} else if diffPatch, diffPatchErr := jsonpatch.CreatePatch(lastContent, hasuraMessage.Payload.Data[dataKey]); diffPatchErr == nil {
+					var err error
+					if jsonDiffPatch, err = json.Marshal(diffPatch); err != nil {
+						log.Errorf("Error marshaling patch array: %v", err)
 					}
+				} else {
+					log.Errorf("Error creating JSON patch: %v\n%v", diffPatchErr, string(hasuraMessage.Payload.Data[dataKey]))
 				}
 			}
 		}
 	}
 
 	//Use patch if the length is {minShrinkToUsePatch}% smaller than the original msg
-	if jsonDiffPatch != nil && float64(len(string(jsonDiffPatch)))/float64(len(string(dataAsJson))) < minShrinkToUsePatch {
+	if jsonDiffPatch != nil && float64(len(string(jsonDiffPatch)))/float64(len(string(hasuraMessage.Payload.Data[dataKey]))) < minShrinkToUsePatch {
 		//Modify receivedMessage to include the Patch and remove the previous data
 		//The key of the original message is kept to avoid errors (Apollo-client expects to receive this prop)
-		receivedMessageMap["payload"] = map[string]interface{}{
-			"data": map[string]interface{}{
-				"patch": json.RawMessage(jsonDiffPatch),
-				dataKey: json.RawMessage("[]"),
-			},
+
+		hasuraMessage.Payload.Data = map[string]json.RawMessage{
+			"patch": jsonDiffPatch,
+			dataKey: json.RawMessage("[]"),
 		}
-		*receivedMessage = receivedMessageMap
+		hasuraMessageJson, _ := json.Marshal(hasuraMessage)
+		receivedMessage = hasuraMessageJson
 	}
 
 	//Store current result to be used to create json patch in the future
-	StoreRawDataCache(browserConnectionId, browserSessionToken, subscriptionId, dataKey, dataAsJson)
+	StoreRawDataCache(browserConnectionId, browserSessionToken, subscriptionId, dataKey, hasuraMessage.Payload.Data[dataKey])
+
+	common.StorePatchedMessageCache(cacheKey, receivedMessage)
+	return receivedMessage
 }

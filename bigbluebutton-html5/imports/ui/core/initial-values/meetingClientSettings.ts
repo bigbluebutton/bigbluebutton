@@ -599,9 +599,6 @@ export const meetingClientSettingsInitialValues: MeetingClientSettings = {
         },
       ],
     },
-    userStatus: {
-      enabled: false,
-    },
     notes: {
       enabled: true,
       id: 'notes',

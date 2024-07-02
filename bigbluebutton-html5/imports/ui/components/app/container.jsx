@@ -255,7 +255,8 @@ const AppContainer = (props) => {
   };
 
   const shouldShowScreenshare = (viewScreenshare || isPresenter)
-    && currentMeeting?.componentsFlags?.hasScreenshare;
+    && (currentMeeting?.componentsFlags?.hasScreenshare
+      || currentMeeting?.componentsFlags?.hasCameraAsContent);
   const shouldShowPresentation = (!shouldShowScreenshare && !isSharedNotesPinned
     && !shouldShowExternalVideo && !shouldShowGenericMainContent
     && (presentationIsOpen || presentationRestoreOnUpdate)) && isPresentationEnabled;

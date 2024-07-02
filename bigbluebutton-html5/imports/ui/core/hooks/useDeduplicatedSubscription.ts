@@ -26,6 +26,15 @@ const useDeduplicatedSubscription = <T = any>(
   }, []);
 
   useEffect(() => {
+    if (options?.skip) {
+      subscriptionHashRef.current = '';
+      if (subscriptionRef.current && optionsRef.current) {
+        GrahqlSubscriptionStore.unsubscribe(subscriptionRef.current, optionsRef.current?.variables);
+        subscriptionRef.current = null;
+        optionsRef.current = undefined;
+      }
+      return;
+    }
     if (subscriptionHashRef.current !== subscriptionHash) {
       subscriptionHashRef.current = subscriptionHash;
       if (subscriptionRef.current && optionsRef.current) {
@@ -48,7 +57,7 @@ const useDeduplicatedSubscription = <T = any>(
       });
     }
     return GrahqlSubscriptionStore.makeSubscription<T>(subscription, options?.variables);
-  }, [subscriptionHash, options?.skip]);
+  }, [subscriptionHash]);
   return useReactiveVar(sub);
 };
 

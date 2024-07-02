@@ -1,5 +1,4 @@
 import React from 'react';
-import { Meteor } from 'meteor/meteor';
 import { render } from 'react-dom';
 import Legacy from '/imports/ui/components/legacy/component';
 
@@ -7,9 +6,7 @@ import Legacy from '/imports/ui/components/legacy/component';
 // What is included here needs to be minimal and carefully considered because some
 // things can't be polyfilled.
 
-Meteor.startup(() => {
-  render(
-    <Legacy />,
-    document.getElementById('app'),
-  );
-});
+render(
+  <Legacy />,
+  document.getElementById('app'),
+);

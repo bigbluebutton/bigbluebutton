@@ -15,11 +15,13 @@ interface AudioCaptionsLiveProps {
 const AudioCaptionsLive: React.FC<AudioCaptionsLiveProps> = ({
   captions,
 }) => {
+  const CAPTIONS_CONFIG = window.meetingClientSettings.public.captions;
+  const LINES_PER_MESSAGE = CAPTIONS_CONFIG.lines;
   return (
     <Styled.Wrapper>
       <>
         {
-          captions.length > 0 ? captions.map((caption) => {
+          captions.length > 0 && captions.length <= LINES_PER_MESSAGE ? captions.map((caption) => {
             const {
               user,
               captionText,
@@ -35,7 +37,7 @@ const AudioCaptionsLive: React.FC<AudioCaptionsLiveProps> = ({
                       color={user.color}
                       moderator={user.isModerator}
                     >
-                      {user.name.slice(0, 2)}
+                      {user.avatar ? '' : user.name.slice(0, 2)}
                     </Styled.UserAvatar>
                   </Styled.UserAvatarWrapper>
                 )}

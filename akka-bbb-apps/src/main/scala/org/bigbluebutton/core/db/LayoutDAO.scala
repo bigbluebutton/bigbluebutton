@@ -4,9 +4,6 @@ import org.bigbluebutton.core.models.Layouts
 import org.bigbluebutton.core.models.Layouts.{getCameraDockIsResizing, getCameraPosition, getCurrentLayout, getFocusedCamera, getPresentationIsOpen, getPresentationVideoRate, getPushLayout, setCurrentLayout}
 import slick.jdbc.PostgresProfile.api._
 
-import scala.util.{Failure, Success}
-import scala.concurrent.ExecutionContext.Implicits.global
-
 case class LayoutDbModel(
     meetingId:        String,
     currentLayoutType:        String,
@@ -41,7 +38,7 @@ object LayoutDAO {
   }
 
   def insertOrUpdate(meetingId: String, layout: Layouts) = {
-    DatabaseConnection.db.run(
+    DatabaseConnection.enqueue(
       TableQuery[LayoutDbTableDef].insertOrUpdate(
         LayoutDbModel(
           meetingId = meetingId,
@@ -55,9 +52,6 @@ object LayoutDAO {
           updatedAt = new java.sql.Timestamp(System.currentTimeMillis())
         )
       )
-    ).onComplete {
-        case Success(rowsAffected) => DatabaseConnection.logger.debug(s"$rowsAffected row(s) inserted/updated on Layout table!")
-        case Failure(e)            => DatabaseConnection.logger.debug(s"Error inserting/updating Layout: $e")
-      }
+    )
   }
 }

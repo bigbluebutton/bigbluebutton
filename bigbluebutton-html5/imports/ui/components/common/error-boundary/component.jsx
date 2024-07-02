@@ -6,7 +6,7 @@ import { ApolloLink } from '@apollo/client';
 
 const propTypes = {
   children: PropTypes.element.isRequired,
-  Fallback: PropTypes.element,
+  Fallback: PropTypes.func,
   errorMessage: PropTypes.string,
   logMetadata: PropTypes.shape({
     logCode: PropTypes.string,

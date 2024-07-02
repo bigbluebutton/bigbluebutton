@@ -30,12 +30,15 @@ import {
   OWN_VIDEO_STREAMS_QUERY,
   GRID_USERS_SUBSCRIPTION,
   VIEWERS_IN_WEBCAM_COUNT_SUBSCRIPTION,
-  GridUsersResponse,
-  OwnVideoStreamsResponse,
 } from '../queries';
 import videoService from '../service';
 import { CAMERA_BROADCAST_STOP } from '../mutations';
-import { GridItem, StreamItem } from '../types';
+import {
+  GridItem,
+  StreamItem,
+  GridUsersResponse,
+  OwnVideoStreamsResponse,
+} from '../types';
 import { DesktopPageSizes, MobilePageSizes } from '/imports/ui/Types/meetingClientSettings';
 import logger from '/imports/startup/client/logger';
 import useDeduplicatedSubscription from '/imports/ui/core/hooks/useDeduplicatedSubscription';
@@ -404,7 +407,8 @@ export const useVideoStreams = (
 
 export const useHasVideoStream = () => {
   const { streams } = useStreams();
-  return streams.some((s) => videoService.isLocalStream(s.stream));
+  const connectingStream = useConnectingStream();
+  return !!connectingStream || streams.some((s) => videoService.isLocalStream(s.stream));
 };
 
 const useOwnVideoStreamsQuery = () => useLazyQuery<OwnVideoStreamsResponse>(

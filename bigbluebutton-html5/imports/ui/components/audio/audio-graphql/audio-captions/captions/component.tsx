@@ -99,7 +99,7 @@ const AudioCaptionsSelect: React.FC<AudioCaptionsSelectProps> = ({
 
   if (!isTranscriptionEnabled || useLocaleHook) return null;
 
-  if (speechVoices.length === 0) {
+  if (speechVoices.length === 0 && !isGladia()) {
     return (
       <div
         data-test="speechRecognitionUnsupported"

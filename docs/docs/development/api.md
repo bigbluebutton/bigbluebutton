@@ -1225,7 +1225,7 @@ http&#58;//yourserver.com/bigbluebutton/api/sendChatMessage?[parameters]&checksu
 **Parameters:**
 
 ```mdx-code-block
-<APITableComponent data={sendChatMessage}/>
+<APITableComponent data={sendChatMessageEndpointTableData}/>
 ```
 
 **Example Requests:**

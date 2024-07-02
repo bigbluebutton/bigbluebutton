@@ -22,6 +22,7 @@ import {
 } from '/imports/ui/components/screenshare/service';
 import useDeduplicatedSubscription from '../../core/hooks/useDeduplicatedSubscription';
 import { useIsPresentationEnabled } from '../../services/features';
+import { useStorageKey } from '/imports/ui/services/storage/hooks';
 
 const intlMessages = defineMessages({
   hide: {
@@ -193,7 +194,11 @@ const NotesContainerGraphql: React.FC<NotesContainerGraphqlProps> = (props) => {
   const NOTES_CONFIG = window.meetingClientSettings.public.notes;
 
   const isRTL = document.documentElement.getAttribute('dir') === 'rtl';
-  const shouldShowSharedNotesOnPresentationArea = !!pinnedPadData
+  const { isOpen: isSidebarContentOpen } = sidebarContent;
+  const isGridLayout = useStorageKey('isGridEnabled');
+
+  const shouldShowSharedNotesOnPresentationArea = isGridLayout ? !!pinnedPadData
+    && pinnedPadData.sharedNotes[0]?.sharedNotesExtId === NOTES_CONFIG.id && isSidebarContentOpen : !!pinnedPadData
     && pinnedPadData.sharedNotes[0]?.sharedNotesExtId === NOTES_CONFIG.id;
 
   const [stopExternalVideoShare] = useMutation(EXTERNAL_VIDEO_STOP);

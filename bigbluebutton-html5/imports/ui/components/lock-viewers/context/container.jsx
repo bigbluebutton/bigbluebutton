@@ -21,13 +21,16 @@ const lockContextContainer = (component) => (props) => {
 
   lockSetting.isLocked = userIsLocked;
   lockSetting.lockSettings = lockSettings;
-  lockSetting.userLocks.userWebcam = userIsLocked && lockSettings?.disableCam;
-  lockSetting.userLocks.userMic = userIsLocked && lockSettings?.disableMic;
-  lockSetting.userLocks.userNotes = userIsLocked && lockSettings?.disableNotes;
-  lockSetting.userLocks.userPrivateChat = userIsLocked && lockSettings?.disablePrivateChat;
-  lockSetting.userLocks.userPublicChat = userIsLocked && lockSettings?.disablePublicChat;
-  lockSetting.userLocks.hideViewersCursor = userIsLocked && lockSettings?.hideViewersCursor;
-  lockSetting.userLocks.hideViewersAnnotation = userIsLocked && lockSettings?.hideViewersAnnotation;
+  lockSetting.userLocks.userWebcam = (userIsLocked && lockSettings?.disableCam) || false;
+  lockSetting.userLocks.userMic = (userIsLocked && lockSettings?.disableMic) || false;
+  lockSetting.userLocks.userNotes = (userIsLocked && lockSettings?.disableNotes) || false;
+  lockSetting.userLocks.userPrivateChat = (userIsLocked
+    && lockSettings?.disablePrivateChat) || false;
+  lockSetting.userLocks.userPublicChat = (userIsLocked && lockSettings?.disablePublicChat) || false;
+  lockSetting.userLocks.hideViewersCursor = (userIsLocked
+    && lockSettings?.hideViewersCursor) || false;
+  lockSetting.userLocks.hideViewersAnnotation = (userIsLocked
+    && lockSettings?.hideViewersAnnotation) || false;
 
   const ComponentWithContext = useMemo(() => withLockContext(component), []);
   // eslint-disable-next-line react/prop-types

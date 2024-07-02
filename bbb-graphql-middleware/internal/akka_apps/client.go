@@ -13,7 +13,7 @@ import (
 // sessionVarsHookUrl is the authentication hook URL obtained from an environment variable.
 var sessionVarsHookUrl = os.Getenv("BBB_GRAPHQL_MIDDLEWARE_SESSION_VARS_HOOK_URL")
 
-func AkkaAppsClient(browserConnectionId string, meetingId string, userId string) (map[string]string, error) {
+func AkkaAppsGetSessionVariablesFrom(browserConnectionId string, meetingId string, userId string) (map[string]string, error) {
 	logger := log.WithField("_routine", "BBBWebClient").WithField("browserConnectionId", browserConnectionId)
 	logger.Debug("Starting BBBWebClient")
 	defer logger.Debug("Finished BBBWebClient")
@@ -57,6 +57,7 @@ func AkkaAppsClient(browserConnectionId string, meetingId string, userId string)
 		return nil, fmt.Errorf("response key not found in the parsed object")
 	}
 	if response != "authorized" {
+		logger.Error(response)
 		return nil, fmt.Errorf("user not authorized")
 	}
 

@@ -484,9 +484,9 @@ const ChatMessageForm: React.FC<ChatMessageFormProps> = ({
         </Styled.Wrapper>
         {
           error && (
-            <Styled.Error data-test="errorTypingIndicator">
+            <Styled.ChatMessageError data-test="errorTypingIndicator">
               {error}
-            </Styled.Error>
+            </Styled.ChatMessageError>
           )
         }
 

@@ -5,9 +5,6 @@ import org.bigbluebutton.core.domain.BreakoutRoom2x
 import org.bigbluebutton.core.running.LiveMeeting
 import slick.jdbc.PostgresProfile.api._
 
-import scala.concurrent.ExecutionContext.Implicits.global
-import scala.util.{Failure, Success}
-
 case class BreakoutRoomUserDbModel(
       breakoutRoomId:     String,
       meetingId:          String,
@@ -61,7 +58,7 @@ object BreakoutRoomUserDAO {
 
   def updateRoomChanged(meetingId: String, userId: String, fromBreakoutRoomId: String,
                         toBreakoutRoomId: String, joinUrl: String, removePreviousRoom: Boolean) = {
-    DatabaseConnection.db.run(
+    DatabaseConnection.enqueue(
       if (removePreviousRoom) {
         DBIO.seq(
           BreakoutRoomUserDAO.prepareDelete(fromBreakoutRoomId, meetingId, userId, exceptBreakoutRooomId = toBreakoutRoomId),
@@ -71,36 +68,26 @@ object BreakoutRoomUserDAO {
         DBIO.seq(
           BreakoutRoomUserDAO.prepareInsert(toBreakoutRoomId, meetingId, userId, joinUrl, wasAssignedByMod = true)
         )
-      }.transactionally)
-      .onComplete {
-        case Success(rowsAffected) => DatabaseConnection.logger.debug(s"$rowsAffected row(s) changed on breakoutRoom_user table!")
-        case Failure(e) => DatabaseConnection.logger.debug(s"Error changing breakoutRoom_user: $e")
       }
+    )
   }
 
   def updateUserJoined(meetingId: String, usersInRoom: Vector[String], breakoutRoom: BreakoutRoom2x) = {
-    DatabaseConnection.db.run(
+    DatabaseConnection.enqueue(
       sqlu"""UPDATE "breakoutRoom_user" SET
                 "joinedAt" = current_timestamp
                 WHERE "meetingId" = ${meetingId}
                 AND "userId" in (${usersInRoom.mkString(",")})
                 AND "breakoutRoomId" = ${breakoutRoom.id}
                 AND "joinedAt" is null"""
-    ).onComplete {
-      case Success(rowsAffected) => DatabaseConnection.logger.debug(s"$rowsAffected row(s) updated joinedAt=now() on breakoutRoom_user table!")
-      case Failure(e) => DatabaseConnection.logger.error(s"Error updating joinedAt=now() on breakoutRoom_user: $e")
-    }
+    )
   }
 
   def insertBreakoutRoom(userId: String, room: BreakoutRoom2x, liveMeeting: LiveMeeting) = {
       for {
         (redirectToHtml5JoinURL, redirectJoinURL) <- BreakoutHdlrHelpers.getRedirectUrls(liveMeeting, userId, room.externalId, room.sequence.toString)
       } yield {
-        DatabaseConnection.db.run(BreakoutRoomUserDAO.prepareInsert(room.id, liveMeeting.props.meetingProp.intId, userId, redirectToHtml5JoinURL, wasAssignedByMod = false))
-          .onComplete {
-            case Success(rowsAffected) => DatabaseConnection.logger.debug(s"$rowsAffected row(s) inserted on breakoutRoom_user table!")
-            case Failure(e) => DatabaseConnection.logger.debug(s"Error inserting breakoutRoom_user: $e")
-          }
+        DatabaseConnection.enqueue(BreakoutRoomUserDAO.prepareInsert(room.id, liveMeeting.props.meetingProp.intId, userId, redirectToHtml5JoinURL, wasAssignedByMod = false))
       }
   }
 

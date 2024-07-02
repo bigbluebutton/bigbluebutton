@@ -22,8 +22,7 @@ import { makeVar } from '@apollo/client';
 import AudioErrors from '/imports/ui/services/audio-manager/error-codes';
 import Session from '/imports/ui/services/storage/in-memory';
 import GrahqlSubscriptionStore, { stringToHash } from '/imports/ui/core/singletons/subscriptionStore';
-import { makePatchedQuery } from '../../core/hooks/createUseSubscription';
-import { VOICE_USERS_SUBSCRIPTION } from '../../components/audio/audio-graphql/queries';
+import VOICE_ACTIVITY from '../../core/graphql/queries/whoIsTalking';
 
 const DEFAULT_AUDIO_BRIDGES_PATH = '/imports/api/audio/client/';
 const CALL_STATES = {
@@ -473,22 +472,16 @@ class AudioManager {
 
     // listen to the VoiceUsers changes and update the flag
     if (!this.muteHandle) {
-      const patchedSub = makePatchedQuery(VOICE_USERS_SUBSCRIPTION);
       const subHash = stringToHash(JSON.stringify({
-        subscription: patchedSub,
-        variables: {},
+        subscription: VOICE_ACTIVITY,
       }));
-      this.muteHandle = GrahqlSubscriptionStore.makeSubscription(
-        patchedSub,
-        {},
-        'no-cache',
-      );
+      this.muteHandle = GrahqlSubscriptionStore.makeSubscription(VOICE_ACTIVITY);
       window.addEventListener('graphqlSubscription', (e) => {
         const { subscriptionHash, response } = e.detail;
         if (subscriptionHash === subHash) {
           const { data } = response;
           if (data) {
-            const voiceUser = data.user_voice.find((v) => v.userId === Auth.userID);
+            const voiceUser = data.user_voice_activity_stream.find((v) => v.userId === Auth.userID);
             this.onVoiceUserChanges(voiceUser);
           }
         }

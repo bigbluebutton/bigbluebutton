@@ -15,6 +15,7 @@ import { ACTIONS } from '/imports/ui/components/layout/enums';
 import deviceInfo from '/imports/utils/deviceInfo';
 import browserInfo from '/imports/utils/browserInfo';
 import AppService from '/imports/ui/components/app/service';
+import { getSettingsSingletonInstance } from '/imports/ui/services/settings';
 
 const intlMessages = defineMessages({
   downloading: {
@@ -100,6 +101,7 @@ const propTypes = {
 };
 
 const PresentationMenu = (props) => {
+  const Settings = getSettingsSingletonInstance();
   const {
     intl,
     isFullscreen = false,
@@ -114,7 +116,7 @@ const PresentationMenu = (props) => {
     layoutContextDispatch,
     meetingName = '',
     isIphone = false,
-    isRTL = false,
+    isRTL = Settings.application.isRTL,
     isToolbarVisible,
     setIsToolbarVisible,
     allowSnapshotOfCurrentSlide = false,
@@ -494,7 +496,7 @@ const PresentationMenu = (props) => {
                     C9 5.89782 9.15804 6.27936 9.43934 6.56066
                     C9.72064 6.84196 10.1022 7 10.5 7
                   "
-                  stroke="#4E5A66"
+                  stroke="currentcolor"
                   strokeLinecap="round"
                   strokeLinejoin="round"
                 />
