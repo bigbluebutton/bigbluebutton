@@ -1264,7 +1264,7 @@
     "app.updateBreakoutRoom.cancelLabel": "Abbrechen",
     "app.updateBreakoutRoom.title": "Gruppenräume aktualisieren",
     "app.updateBreakoutRoom.confirm": "Anwenden",
-    "app.updateBreakoutRoom.userChangeRoomNotification": "Du wurdest in Raum {0} verschoben.",
+    "app.updateBreakoutRoom.userChangeRoomNotification": "Sie wurden in Raum {0} verschoben.",
     "app.smartMediaShare.externalVideo": "Externe Video(s)",
     "app.update.resetRoom": "Nutzerraum zurücksetzen",
     "app.externalVideo.start": "Neues Video teilen",
