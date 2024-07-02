@@ -10,10 +10,10 @@ import Styled from './styles';
 import { colorPrimary } from '/imports/ui/stylesheets/styled-components/palette';
 import { PANELS, ACTIONS, LAYOUT_TYPE } from '../../layout/enums';
 import { uniqueId } from '/imports/utils/string-utils';
-import { isPresentationEnabled, isLayoutsEnabled } from '/imports/ui/services/features';
 import VideoPreviewContainer from '/imports/ui/components/video-preview/container';
 import { screenshareHasEnded } from '/imports/ui/components/screenshare/service';
-import Settings from '/imports/ui/services/settings';
+import { getSettingsSingletonInstance } from '/imports/ui/services/settings';
+import Session from '/imports/ui/services/storage/in-memory';
 
 const propTypes = {
   amIPresenter: PropTypes.bool,
@@ -115,7 +115,7 @@ const intlMessages = defineMessages({
   },
 });
 
-const handlePresentationClick = () => Session.set('showUploadPresentationView', true);
+const handlePresentationClick = () => Session.setItem('showUploadPresentationView', true);
 
 class ActionsDropdown extends PureComponent {
   constructor(props) {
@@ -182,6 +182,8 @@ class ActionsDropdown extends PureComponent {
       isTimerFeatureEnabled,
       presentations,
       isDirectLeaveButtonEnabled,
+      isLayoutsEnabled,
+      isPresentationEnabled,
     } = this.props;
 
     const { pollBtnLabel, presentationLabel, takePresenter } = intlMessages;
@@ -190,7 +192,7 @@ class ActionsDropdown extends PureComponent {
 
     const actions = [];
 
-    if (amIPresenter && isPresentationEnabled()) {
+    if (amIPresenter && isPresentationEnabled) {
       if (presentations && presentations.length > 1) {
         actions.push({
           key: 'separator-01',
@@ -214,7 +216,7 @@ class ActionsDropdown extends PureComponent {
         key: this.pollId,
         onClick: () => {
           if (Session.equals('pollInitiated', true)) {
-            Session.set('resetPollPanel', true);
+            Session.setItem('resetPollPanel', true);
           }
           layoutContextDispatch({
             type: ACTIONS.SET_SIDEBAR_CONTENT_IS_OPEN,
@@ -224,7 +226,7 @@ class ActionsDropdown extends PureComponent {
             type: ACTIONS.SET_SIDEBAR_CONTENT_PANEL,
             value: PANELS.POLL,
           });
-          Session.set('forcePollOpen', true);
+          Session.setItem('forcePollOpen', true);
         },
       });
     }
@@ -262,12 +264,13 @@ class ActionsDropdown extends PureComponent {
       });
     }
 
+    const Settings = getSettingsSingletonInstance();
     const { selectedLayout } = Settings.application;
     const shouldShowManageLayoutButton = selectedLayout !== LAYOUT_TYPE.CAMERAS_ONLY
       && selectedLayout !== LAYOUT_TYPE.PRESENTATION_ONLY
       && selectedLayout !== LAYOUT_TYPE.PARTICIPANTS_AND_CHAT_ONLY;
 
-    if (shouldShowManageLayoutButton && isLayoutsEnabled()) {
+    if (shouldShowManageLayoutButton && isLayoutsEnabled) {
       actions.push({
         icon: 'manage_layout',
         label: intl.formatMessage(intlMessages.layoutModal),

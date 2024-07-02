@@ -26,7 +26,6 @@ cp bbb-html5.nginx staging/usr/share/bigbluebutton/nginx
 
 mkdir -p staging/etc/nginx/conf.d
 cp bbb-html5-conn-limit.conf staging/etc/nginx/conf.d
-cp bbb-html5-meteor-assets-cache.conf staging/etc/nginx/conf.d
 
 mkdir -p staging/etc/systemd/system
 cp mongod.service staging/etc/systemd/system
@@ -78,10 +77,10 @@ if [ ! -f staging/usr/share/meteor/bundle/programs/web.browser/app/locales/index
 fi
 
 cp workers-start.sh staging/usr/share/meteor/bundle
-chmod +x staging/usr/share/meteor/bundle/workers-start.sh
+chmod +rx staging/usr/share/meteor/bundle/workers-start.sh
 
 cp mongod_start_pre.sh staging/usr/share/meteor/bundle
-chmod +x staging/usr/share/meteor/bundle/mongod_start_pre.sh
+chmod +rx staging/usr/share/meteor/bundle/mongod_start_pre.sh
 
 cp mongo-ramdisk.conf staging/usr/share/meteor/bundle
 # cp mongo-ramdisk.conf staging/etc/mongod.conf

@@ -1,7 +1,4 @@
-import { Tracker } from 'meteor/tracker';
-
 import Auth from '/imports/ui/services/auth';
-import VoiceUsers from '/imports/api/voice-users';
 import SIPBridge from '/imports/api/audio/client/bridge/sip';
 import SFUAudioBridge from '/imports/api/audio/client/bridge/sfu-audio-bridge';
 import logger from '/imports/startup/client/logger';
@@ -23,13 +20,9 @@ import {
 import MediaStreamUtils from '/imports/utils/media-stream-utils';
 import { makeVar } from '@apollo/client';
 import AudioErrors from '/imports/ui/services/audio-manager/error-codes';
-
-const STATS = window.meetingClientSettings.public.stats;
-const MEDIA = window.meetingClientSettings.public.media;
-const MEDIA_TAG = MEDIA.mediaTag;
-const ECHO_TEST_NUMBER = MEDIA.echoTestNumber;
-const EXPERIMENTAL_USE_KMS_TRICKLE_ICE_FOR_MICROPHONE =
-  window.meetingClientSettings.public.app.experimentalUseKmsTrickleIceForMicrophone;
+import Session from '/imports/ui/services/storage/in-memory';
+import GrahqlSubscriptionStore, { stringToHash } from '/imports/ui/core/singletons/subscriptionStore';
+import VOICE_ACTIVITY from '../../core/graphql/queries/whoIsTalking';
 
 const DEFAULT_AUDIO_BRIDGES_PATH = '/imports/api/audio/client/';
 const CALL_STATES = {
@@ -59,29 +52,24 @@ const FILTER_AUDIO_STATS = [
 
 class AudioManager {
   constructor() {
-    this._inputDevice = {
-      value: DEFAULT_INPUT_DEVICE_ID,
-      tracker: new Tracker.Dependency(),
-    };
-
     this._breakoutAudioTransferStatus = {
       status: BREAKOUT_AUDIO_TRANSFER_STATES.DISCONNECTED,
       breakoutMeetingId: null,
     };
 
     this.defineProperties({
-      isMuted: false,
+      isMuted: makeVar(false),
       isConnected: makeVar(false),
       isConnecting: makeVar(false),
       isHangingUp: makeVar(false),
       isListenOnly: makeVar(false),
       isEchoTest: makeVar(false),
       isTalking: makeVar(false),
-      isWaitingPermissions: false,
-      error: null,
-      muteHandle: null,
-      autoplayBlocked: false,
-      isReconnecting: false,
+      isWaitingPermissions: makeVar(false),
+      error: makeVar(null),
+      muteHandle: makeVar(null),
+      autoplayBlocked: makeVar(false),
+      isReconnecting: makeVar(false),
     });
 
     this.failedMediaElements = [];
@@ -90,18 +78,14 @@ class AudioManager {
     this.isUsingAudio = this.isUsingAudio.bind(this);
 
     this._inputStream = makeVar(null);
-    this._inputStreamTracker = new Tracker.Dependency();
     this._inputDeviceId = {
-      value: makeVar(getStoredAudioInputDeviceId() || DEFAULT_INPUT_DEVICE_ID),
-      tracker: new Tracker.Dependency(),
+      value: makeVar(DEFAULT_INPUT_DEVICE_ID),
     };
     this._outputDeviceId = {
-      value: makeVar(getCurrentAudioSinkId()),
-      tracker: new Tracker.Dependency(),
+      value: makeVar(null),
     };
 
     this.BREAKOUT_AUDIO_TRANSFER_STATES = BREAKOUT_AUDIO_TRANSFER_STATES;
-    this._applyCachedOutputDeviceId();
 
     window.addEventListener('StopAudioTracks', () => this.forceExitAudio());
   }
@@ -132,7 +116,6 @@ class AudioManager {
   set inputDeviceId(value) {
     if (this._inputDeviceId.value() !== value) {
       this._inputDeviceId.value(value);
-      this._inputDeviceId.tracker.changed();
     }
 
     if (this.fullAudioBridge) {
@@ -141,14 +124,12 @@ class AudioManager {
   }
 
   get inputDeviceId() {
-    this._inputDeviceId.tracker.depend();
     return this._inputDeviceId.value();
   }
 
   set outputDeviceId(value) {
     if (this._outputDeviceId.value() !== value) {
       this._outputDeviceId.value(value);
-      this._outputDeviceId.tracker.changed();
     }
 
     if (this.fullAudioBridge) {
@@ -161,11 +142,15 @@ class AudioManager {
   }
 
   get outputDeviceId() {
-    this._outputDeviceId.tracker.depend();
     return this._outputDeviceId.value();
   }
 
   async init(userData, audioEventHandler) {
+    this.inputDeviceId = getStoredAudioInputDeviceId() || DEFAULT_INPUT_DEVICE_ID;
+    this.outputDeviceId = getCurrentAudioSinkId();
+
+    this._applyCachedOutputDeviceId();
+
     this.loadBridges(userData);
     this.userData = userData;
     this.initialized = true;
@@ -183,6 +168,8 @@ class AudioManager {
   async loadBridges(userData) {
     let FullAudioBridge = SIPBridge;
     let ListenOnlyBridge = SFUAudioBridge;
+
+    const MEDIA = window.meetingClientSettings.public.media;
 
     if (MEDIA.audio) {
       const { bridges, defaultFullAudioBridge, defaultListenOnlyBridge } = MEDIA.audio;
@@ -229,28 +216,14 @@ class AudioManager {
     Object.keys(obj).forEach((key) => {
       const privateKey = `_${key}`;
       this[privateKey] = {
-        value: typeof obj[key] === 'function' ? obj[key] : obj[key],
-        tracker: new Tracker.Dependency(),
+        value: obj[key],
       };
 
       Object.defineProperty(this, key, {
         set: (value) => {
-          if (typeof this[privateKey].value === 'function') {
-            this[privateKey].value(value);
-          } else {
-            this[privateKey].value = value;
-          }
-          this[privateKey].tracker.changed();
+          this[privateKey].value(value);
         },
-        get: () => {
-          if (typeof this[privateKey].value === 'function') {
-            this[privateKey].tracker.depend();
-            return this[privateKey].value();
-          }
-
-          this[privateKey].tracker.depend();
-          return this[privateKey].value;
-        },
+        get: () => this[privateKey].value(),
         [`getReferece${key}`]: () => this[privateKey],
       });
     });
@@ -323,6 +296,11 @@ class AudioManager {
     this.logAudioJoinTime = false;
     this.isListenOnly = false;
     this.isEchoTest = true;
+
+    const MEDIA = window.meetingClientSettings.public.media;
+    const ECHO_TEST_NUMBER = MEDIA.echoTestNumber;
+    const EXPERIMENTAL_USE_KMS_TRICKLE_ICE_FOR_MICROPHONE =
+    window.meetingClientSettings.public.app.experimentalUseKmsTrickleIceForMicrophone;
 
     return this.onAudioJoining
       .bind(this)()
@@ -455,7 +433,7 @@ class AudioManager {
 
     window.removeEventListener('audioPlayFailed', this.handlePlayElementFailed);
 
-    return this.bridge.exitAudio();
+    return this.bridge && this.bridge.exitAudio();
   }
 
   transferCall() {
@@ -463,7 +441,7 @@ class AudioManager {
     return this.bridge.transferCall(this.onAudioJoin.bind(this));
   }
 
-  onVoiceUserChanges(fields) {
+  onVoiceUserChanges(fields = {}) {
     if (fields.muted !== undefined && fields.muted !== this.isMuted) {
       let muteState;
       this.isMuted = fields.muted;
@@ -490,12 +468,23 @@ class AudioManager {
     this.isConnecting = false;
     this.isConnected = true;
 
+    const STATS = window.meetingClientSettings.public.stats;
+
     // listen to the VoiceUsers changes and update the flag
     if (!this.muteHandle) {
-      const query = VoiceUsers.find({ userId: Auth.userID }, { fields: { muted: 1, talking: 1 } });
-      this.muteHandle = query.observeChanges({
-        added: (id, fields) => this.onVoiceUserChanges(fields),
-        changed: (id, fields) => this.onVoiceUserChanges(fields),
+      const subHash = stringToHash(JSON.stringify({
+        subscription: VOICE_ACTIVITY,
+      }));
+      this.muteHandle = GrahqlSubscriptionStore.makeSubscription(VOICE_ACTIVITY);
+      window.addEventListener('graphqlSubscription', (e) => {
+        const { subscriptionHash, response } = e.detail;
+        if (subscriptionHash === subHash) {
+          const { data } = response;
+          if (data) {
+            const voiceUser = data.user_voice_activity_stream.find((v) => v.userId === Auth.userID);
+            this.onVoiceUserChanges(voiceUser);
+          }
+        }
       });
     }
     const secondsToActivateAudio = (new Date() - this.audioJoinStartTime) / 1000;
@@ -523,7 +512,7 @@ class AudioManager {
         isListenOnly: this.isListenOnly,
       });
     }
-    Session.set('audioModalIsOpen', false);
+    Session.setItem('audioModalIsOpen', false);
 
     // Enforce correct output device on audio join
     this.changeOutputDevice(this.outputDeviceId, true);
@@ -718,6 +707,9 @@ class AudioManager {
   async changeOutputDevice(deviceId, isLive) {
     const targetDeviceId = deviceId;
     const currentDeviceId = this.outputDeviceId ?? getCurrentAudioSinkId();
+
+    const MEDIA = window.meetingClientSettings.public.media;
+    const MEDIA_TAG = MEDIA.mediaTag;
     const audioElement = document.querySelector(MEDIA_TAG);
     const sinkIdSupported = audioElement && typeof audioElement.setSinkId === 'function';
 
@@ -775,7 +767,6 @@ class AudioManager {
   }
 
   get inputStream() {
-    this._inputStreamTracker.depend();
     return this._inputStream();
   }
 
@@ -787,9 +778,6 @@ class AudioManager {
     // We store reactive information about input stream
     // because mutedalert component needs to track when it changes
     // and then update hark with the new value for inputStream
-    if (this._inputStream() !== stream) {
-      this._inputStreamTracker.changed();
-    }
 
     this._inputStream(stream);
   }

@@ -27,13 +27,14 @@ const propTypes = {
   }),
 };
 
-const defaultProps = {
-  error: {
-    message: '',
-  },
+const defaultError = {
+  message: '',
 };
 
-const FallbackView = ({ error, intl }) => (
+const FallbackView = ({
+  error = defaultError,
+  intl,
+}) => (
   <Styled.Background>
     <Styled.CodeError>
       {intl.formatMessage(intlMessages.title)}
@@ -57,6 +58,5 @@ const FallbackView = ({ error, intl }) => (
 );
 
 FallbackView.propTypes = propTypes;
-FallbackView.defaultProps = defaultProps;
 
 export default injectIntl(FallbackView);

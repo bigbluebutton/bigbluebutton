@@ -4,9 +4,6 @@ import org.bigbluebutton.common2.domain.{ WelcomeProp }
 import slick.jdbc.PostgresProfile.api._
 import slick.lifted.{ ProvenShape }
 
-import scala.concurrent.ExecutionContext.Implicits.global
-import scala.util.{ Failure, Success }
-
 case class MeetingWelcomeDbModel(
     meetingId:               String,
     welcomeMsg:              Option[String],
@@ -25,7 +22,7 @@ class MeetingWelcomeDbTableDef(tag: Tag) extends Table[MeetingWelcomeDbModel](ta
 
 object MeetingWelcomeDAO {
   def insert(meetingId: String, welcomeProp: WelcomeProp) = {
-    DatabaseConnection.db.run(
+    DatabaseConnection.enqueue(
       TableQuery[MeetingWelcomeDbTableDef].forceInsert(
         MeetingWelcomeDbModel(
           meetingId = meetingId,
@@ -39,11 +36,6 @@ object MeetingWelcomeDAO {
           }
         )
       )
-    ).onComplete {
-        case Success(rowsAffected) => {
-          DatabaseConnection.logger.debug(s"$rowsAffected row(s) inserted in MeetingWelcome table!")
-        }
-        case Failure(e) => DatabaseConnection.logger.error(s"Error inserting MeetingWelcome: $e")
-      }
+    )
   }
 }

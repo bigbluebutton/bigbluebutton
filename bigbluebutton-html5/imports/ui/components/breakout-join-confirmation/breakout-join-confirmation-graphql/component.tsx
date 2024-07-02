@@ -1,4 +1,4 @@
-import { useMutation, useSubscription } from '@apollo/client';
+import { useMutation } from '@apollo/client';
 import React, { useEffect, useMemo } from 'react';
 import { defineMessages, useIntl } from 'react-intl';
 import Styled from './styles';
@@ -13,10 +13,11 @@ import {
 } from './queries';
 import useCurrentUser from '/imports/ui/core/hooks/useCurrentUser';
 import { BREAKOUT_ROOM_REQUEST_JOIN_URL } from '../../breakout-room/mutations';
+import useDeduplicatedSubscription from '/imports/ui/core/hooks/useDeduplicatedSubscription';
 import AudioManager from '/imports/ui/services/audio-manager';
 import AudioService from '/imports/ui/components/audio/service';
-import VideoService from '/imports/ui/components/video-provider/video-provider-graphql/service';
-import { useExitVideo, useStreams } from '/imports/ui/components/video-provider/video-provider-graphql/hooks';
+import VideoService from '/imports/ui/components/video-provider/service';
+import { useExitVideo, useStreams } from '/imports/ui/components/video-provider/hooks';
 import logger from '/imports/startup/client/logger';
 import { rejoinAudio } from '../../breakout-room/breakout-room/service';
 import { useBreakoutExitObserver } from './hooks';
@@ -84,7 +85,7 @@ const BreakoutJoinConfirmation: React.FC<BreakoutJoinConfirmationProps> = ({
   const [waiting, setWaiting] = React.useState(false);
   const [isOpen, setIsOpen] = React.useState(false);
 
-  const defaultSelectedBreakoutId = breakouts.find(({ showInvitation }) => showInvitation)?.breakoutRoomId
+  const defaultSelectedBreakoutId = breakouts.find(({ isLastAssignedRoom }) => isLastAssignedRoom)?.breakoutRoomId
     || firstBreakoutId;
 
   const [selectValue, setSelectValue] = React.useState(defaultSelectedBreakoutId);
@@ -216,7 +217,7 @@ const BreakoutJoinConfirmationContainer: React.FC = () => {
   });
   const {
     data: breakoutData,
-  } = useSubscription<GetBreakoutDataResponse>(getBreakoutData);
+  } = useDeduplicatedSubscription<GetBreakoutDataResponse>(getBreakoutData);
   const exitVideo = useExitVideo(true);
   const { streams: videoStreams } = useStreams();
   const storeVideoDevices = () => {
@@ -233,7 +234,7 @@ const BreakoutJoinConfirmationContainer: React.FC = () => {
   }, []);
   const {
     data: breakoutCountData,
-  } = useSubscription<GetBreakoutCountResponse>(getBreakoutCount);
+  } = useDeduplicatedSubscription<GetBreakoutCountResponse>(getBreakoutCount);
   if (!breakoutCountData || !breakoutCountData.breakoutRoom_aggregate.aggregate.count) return null;
   if (!breakoutData || breakoutData.breakoutRoom.length === 0) return null;
   const firstBreakout = breakoutData.breakoutRoom[0];
@@ -247,7 +248,7 @@ const BreakoutJoinConfirmationContainer: React.FC = () => {
     <BreakoutJoinConfirmation
       freeJoin={freeJoin}
       breakouts={breakoutData.breakoutRoom}
-      currentUserJoined={currentUser?.breakoutRooms?.currentRoomJoined ?? false}
+      currentUserJoined={currentUser?.breakoutRooms?.isUserCurrentlyInRoom ?? false}
       firstBreakoutId={breakoutRoomId}
       isUsingAudio={isUsingAudio}
       exitVideo={exitVideo}

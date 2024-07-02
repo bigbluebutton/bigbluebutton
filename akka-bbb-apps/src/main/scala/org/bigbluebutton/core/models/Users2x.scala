@@ -46,10 +46,10 @@ object Users2x {
     for {
       u <- findWithIntId(users, intId)
     } yield {
-      val newUser = u.copy(userLeftFlag = UserLeftFlag(false, 0))
+      val newUser = u.copy(userLeftFlag = UserLeftFlag(left = false, 0))
       users.save(newUser)
       UserStateDAO.update(newUser)
-      UserStateDAO.updateExpired(u.meetingId, u.intId, false)
+      UserStateDAO.updateExpired(u.meetingId, u.intId, expired = false)
       newUser
     }
   }
@@ -121,6 +121,13 @@ object Users2x {
     val newUserState = modify(u)(_.mobile).setTo(true)
     users.save(newUserState)
     UserStateDAO.update((newUserState))
+    newUserState
+  }
+
+  def setClientType(users: Users2x, u: UserState, clientType: String): UserState = {
+    val newUserState = modify(u)(_.clientType).setTo(clientType)
+    users.save(newUserState)
+    UserStateDAO.update(newUserState)
     newUserState
   }
 
@@ -250,6 +257,17 @@ object Users2x {
       u <- findWithIntId(users, intId)
     } yield {
       val newUser = u.modify(_.speechLocale).setTo(locale)
+      UserStateDAO.update(newUser)
+      users.save(newUser)
+      newUser
+    }
+  }
+
+  def setUserCaptionLocale(users: Users2x, intId: String, locale: String): Option[UserState] = {
+    for {
+      u <- findWithIntId(users, intId)
+    } yield {
+      val newUser = u.modify(_.captionLocale).setTo(locale)
       UserStateDAO.update(newUser)
       users.save(newUser)
       newUser
@@ -419,19 +437,22 @@ case class UserState(
     guestStatus:           String,
     emoji:                 String,
     reactionEmoji:         String,
-    reactionChangedOn:     Long         = 0,
+    reactionChangedOn:     Long                = 0,
     raiseHand:             Boolean,
     away:                  Boolean,
     locked:                Boolean,
     presenter:             Boolean,
     avatar:                String,
     color:                 String,
-    roleChangedOn:         Long         = System.currentTimeMillis(),
-    lastActivityTime:      Long         = System.currentTimeMillis(),
-    lastInactivityInspect: Long         = 0,
+    roleChangedOn:         Long                = System.currentTimeMillis(),
+    lastActivityTime:      Long                = System.currentTimeMillis(),
+    lastInactivityInspect: Long                = 0,
     clientType:            String,
     userLeftFlag:          UserLeftFlag,
-    speechLocale:          String       = ""
+    speechLocale:          String              = "",
+    captionLocale:         String              = "",
+    customParameters:      Map[String, String] = Map.empty
+
 )
 
 case class UserIdAndName(id: String, name: String)

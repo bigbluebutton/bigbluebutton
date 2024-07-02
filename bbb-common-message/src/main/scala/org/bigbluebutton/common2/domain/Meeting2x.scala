@@ -41,15 +41,17 @@ case class WelcomeProp(welcomeMsg: String, welcomeMsgForModerators: String)
 case class VoiceProp(telVoice: String, voiceConf: String, dialNumber: String, muteOnStart: Boolean)
 
 case class UsersProp(
-    maxUsers:                 Int,
-    maxUserConcurrentAccesses:Int,
-    webcamsOnlyForModerator:  Boolean,
-    userCameraCap:            Int,
-    guestPolicy:              String,
-    meetingLayout:            String,
-    allowModsToUnmuteUsers:   Boolean,
-    allowModsToEjectCameras:  Boolean,
-    authenticatedGuest:       Boolean
+    maxUsers:                     Int,
+    maxUserConcurrentAccesses:    Int,
+    webcamsOnlyForModerator:      Boolean,
+    userCameraCap:                Int,
+    guestPolicy:                  String,
+    meetingLayout:                String,
+    allowModsToUnmuteUsers:       Boolean,
+    allowModsToEjectCameras:      Boolean,
+    authenticatedGuest:           Boolean,
+    allowPromoteGuestToModerator: Boolean,
+    waitingGuestUsersTimeout: Long
 )
 
 case class MetadataProp(metadata: collection.immutable.Map[String, String])

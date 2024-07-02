@@ -148,6 +148,9 @@ const ExternalVideoPlayer: React.FC<ExternalVideoPlayerProps> = ({
           controls: isPresenter ? 1 : 0,
           cc_lang_pref: document.getElementsByTagName('html')[0].lang.substring(0, 2),
         },
+        embedOptions: {
+          host: 'https://www.youtube-nocookie.com',
+        },
       },
       peertube: {
         isPresenter,
@@ -284,6 +287,7 @@ const ExternalVideoPlayer: React.FC<ExternalVideoPlayerProps> = ({
     setReactPlayerState(true);
     if (isPresenter) {
       const rate = playerRef.current?.getInternalPlayer()?.getPlaybackRate() as number ?? 1;
+
       const currentTime = played * duration;
       sendMessage('play', {
         rate,
@@ -340,7 +344,7 @@ const ExternalVideoPlayer: React.FC<ExternalVideoPlayerProps> = ({
   }
 
   const shouldShowTools = () => {
-    if (isPresenter || (!isPresenter && isGridLayout && !isSidebarContentOpen)) {
+    if (isPresenter || (!isPresenter && isGridLayout && !isSidebarContentOpen) || !videoUrl) {
       return false;
     }
     return true;

@@ -90,23 +90,24 @@ case class UserJoinedMeetingEvtMsg(
     body:   UserJoinedMeetingEvtMsgBody
 ) extends BbbCoreMsg
 case class UserJoinedMeetingEvtMsgBody(
-    intId:         String,
-    extId:         String,
-    name:          String,
-    role:          String,
-    guest:         Boolean,
-    authed:        Boolean,
-    guestStatus:   String,
-    emoji:         String,
-    reactionEmoji: String,
-    raiseHand:     Boolean,
-    away:          Boolean,
-    pin:           Boolean,
-    presenter:     Boolean,
-    locked:        Boolean,
-    avatar:        String,
-    color:         String,
-    clientType:    String
+    intId:            String,
+    extId:            String,
+    name:             String,
+    role:             String,
+    guest:            Boolean,
+    authed:           Boolean,
+    guestStatus:      String,
+    emoji:            String,
+    reactionEmoji:    String,
+    raiseHand:        Boolean,
+    away:             Boolean,
+    pin:              Boolean,
+    presenter:        Boolean,
+    locked:           Boolean,
+    avatar:           String,
+    color:            String,
+    clientType:       String,
+    customParameters: Map[String, String]
 )
 
 /**
@@ -280,13 +281,6 @@ case class ClearedAllUsersReactionEvtMsg(header: BbbClientMsgHeader, body: Clear
 case class ClearedAllUsersReactionEvtMsgBody()
 
 /**
- * Sent from client about a user mobile flag.
- */
-object ChangeUserMobileFlagReqMsg { val NAME = "ChangeUserMobileFlagReqMsg" }
-case class ChangeUserMobileFlagReqMsg(header: BbbClientMsgHeader, body: ChangeUserMobileFlagReqMsgBody) extends StandardMsg
-case class ChangeUserMobileFlagReqMsgBody(userId: String, mobile: Boolean)
-
-/**
  * Sent from client to inform the connection is alive.
  */
 object UserConnectionAliveReqMsg { val NAME = "UserConnectionAliveReqMsg" }
@@ -403,14 +397,7 @@ case class LogoutAndEndMeetingCmdMsgBody(userId: String)
 
 object UserJoinMeetingReqMsg { val NAME = "UserJoinMeetingReqMsg" }
 case class UserJoinMeetingReqMsg(header: BbbClientMsgHeader, body: UserJoinMeetingReqMsgBody) extends StandardMsg
-case class UserJoinMeetingReqMsgBody(userId: String, authToken: String, clientType: String)
-
-/**
- * Sent from Flash client to rejoin meeting after reconnection
- */
-object UserJoinMeetingAfterReconnectReqMsg { val NAME = "UserJoinMeetingAfterReconnectReqMsg" }
-case class UserJoinMeetingAfterReconnectReqMsg(header: BbbClientMsgHeader, body: UserJoinMeetingAfterReconnectReqMsgBody) extends StandardMsg
-case class UserJoinMeetingAfterReconnectReqMsgBody(userId: String, authToken: String, clientType: String)
+case class UserJoinMeetingReqMsgBody(userId: String, authToken: String, clientType: String, clientIsMobile: Boolean)
 
 /**
  * Sent from client to bbb-akka to notify that a user is leaving
@@ -518,6 +505,14 @@ case class SetUserSpeechLocaleReqMsgBody(locale: String, provider: String)
 object UserSpeechLocaleChangedEvtMsg { val NAME = "UserSpeechLocaleChangedEvtMsg" }
 case class UserSpeechLocaleChangedEvtMsg(header: BbbClientMsgHeader, body: UserSpeechLocaleChangedEvtMsgBody) extends BbbCoreMsg
 case class UserSpeechLocaleChangedEvtMsgBody(locale: String, provider: String)
+
+object SetUserCaptionLocaleReqMsg { val NAME = "SetUserCaptionLocaleReqMsg" }
+case class SetUserCaptionLocaleReqMsg(header: BbbClientMsgHeader, body: SetUserCaptionLocaleReqMsgBody) extends StandardMsg
+case class SetUserCaptionLocaleReqMsgBody(locale: String, provider: String)
+
+object UserCaptionLocaleChangedEvtMsg { val NAME = "UserCaptionLocaleChangedEvtMsg" }
+case class UserCaptionLocaleChangedEvtMsg(header: BbbClientMsgHeader, body: UserCaptionLocaleChangedEvtMsgBody) extends BbbCoreMsg
+case class UserCaptionLocaleChangedEvtMsgBody(locale: String, provider: String)
 
 object SetUserSpeechOptionsReqMsg { val NAME = "SetUserSpeechOptionsReqMsg" }
 case class SetUserSpeechOptionsReqMsg(header: BbbClientMsgHeader, body: SetUserSpeechOptionsReqMsgBody) extends StandardMsg

@@ -7,6 +7,7 @@ public class UsersProp2 {
     public final String guestPolicy;
     public final String meetingLayout;
     public final boolean authenticatedGuest;
+    public final boolean allowPromoteGuestToModerator;
     public final boolean userHasJoined;
     public final boolean webcamsOnlyForModerator;
     public final int userCameraCap;
@@ -21,6 +22,7 @@ public class UsersProp2 {
                       String guestPolicy,
                       String meetingLayout,
                       boolean authenticatedGuest,
+                      boolean allowPromoteGuestToModerator,
                       boolean userHasJoined,
                       Map<String, String> userCustomData,
                       Map<String, User2> users,
@@ -31,6 +33,7 @@ public class UsersProp2 {
         this.guestPolicy = guestPolicy;
         this.meetingLayout = meetingLayout;
         this.authenticatedGuest = authenticatedGuest;
+        this.allowPromoteGuestToModerator = allowPromoteGuestToModerator;
         this.userHasJoined = userHasJoined;
         this.userCustomData = userCustomData;
         this.users = users;

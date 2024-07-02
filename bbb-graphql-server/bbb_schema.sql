@@ -5,6 +5,17 @@ CREATE OR REPLACE FUNCTION immutable_lower_unaccent(text)
 				SELECT lower(unaccent('unaccent', $1))
 				$$ LANGUAGE SQL IMMUTABLE;
 
+--remove_emojis will be used to create nameSortable
+CREATE OR REPLACE FUNCTION remove_emojis(text) RETURNS text AS $$
+DECLARE
+    input_string ALIAS FOR $1;
+    output_string text;
+BEGIN
+    output_string := regexp_replace(input_string, '[^\u0000-\uFFFF]', '', 'g');
+    RETURN output_string;
+END;
+$$ LANGUAGE plpgsql IMMUTABLE;
+
 -- ========== Meeting tables
 
 create table "meeting" (
@@ -127,16 +138,17 @@ create view "v_meeting_voiceSettings" as select * from meeting_voice;
 
 create table "meeting_usersPolicies" (
 	"meetingId" 		varchar(100) primary key references "meeting"("meetingId") ON DELETE CASCADE,
-    "maxUsers"                  integer,
-    "maxUserConcurrentAccesses" integer,
-    "webcamsOnlyForModerator"   boolean,
-    "userCameraCap"             integer,
-    "guestPolicy"               varchar(100),
-    "guestLobbyMessage"         text,
-    "meetingLayout"             varchar(100),
-    "allowModsToUnmuteUsers"    boolean,
-    "allowModsToEjectCameras"   boolean,
-    "authenticatedGuest"        boolean
+    "maxUsers"                     integer,
+    "maxUserConcurrentAccesses"    integer,
+    "webcamsOnlyForModerator"      boolean,
+    "userCameraCap"                integer,
+    "guestPolicy"                  varchar(100),
+    "guestLobbyMessage"            text,
+    "meetingLayout"                varchar(100),
+    "allowModsToUnmuteUsers"       boolean,
+    "allowModsToEjectCameras"      boolean,
+    "authenticatedGuest"           boolean,
+    "allowPromoteGuestToModerator" boolean
 );
 create index "idx_meeting_usersPolicies_meetingId" on "meeting_usersPolicies"("meetingId");
 
@@ -152,6 +164,7 @@ SELECT "meeting_usersPolicies"."meetingId",
     "meeting_usersPolicies"."allowModsToUnmuteUsers",
     "meeting_usersPolicies"."allowModsToEjectCameras",
     "meeting_usersPolicies"."authenticatedGuest",
+    "meeting_usersPolicies"."allowPromoteGuestToModerator",
     "meeting"."isBreakout" is false "moderatorsCanMuteAudio",
     "meeting"."isBreakout" is false and "meeting_usersPolicies"."allowModsToUnmuteUsers" is true "moderatorsCanUnmuteAudio"
    FROM "meeting_usersPolicies"
@@ -274,6 +287,8 @@ CREATE TABLE "user" (
     "awayTime" timestamp with time zone,
 	"emoji" varchar,
 	"emojiTime" timestamp with time zone,
+	"reactionEmoji" varchar(25),
+	"reactionEmojiTime" timestamp with time zone,
 	"guestStatusSetByModerator" varchar(50),
 	"guestLobbyMessage" text,
 	"mobile" bool,
@@ -289,6 +304,7 @@ CREATE TABLE "user" (
 	"pinned" bool,
 	"locked" bool,
 	"speechLocale" varchar(255),
+	"captionLocale" varchar(255),
 	"inactivityWarningDisplay" bool default FALSE,
 	"inactivityWarningTimeoutSecs" numeric,
 	"hasDrawPermissionOnCurrentPage" bool default FALSE,
@@ -306,7 +322,6 @@ COMMENT ON COLUMN "user"."disconnected" IS 'This column is set true when the use
 COMMENT ON COLUMN "user"."expired" IS 'This column is set true after 10 seconds with disconnected=true';
 COMMENT ON COLUMN "user"."loggedOut" IS 'This column is set to true when the user click the button to Leave meeting';
 
-
 --Virtual columns isDialIn, isModerator, isOnline, isWaiting, isAllowed, isDenied
 ALTER TABLE "user" ADD COLUMN "isDialIn" boolean GENERATED ALWAYS AS ("clientType" = 'dial-in-user') STORED;
 ALTER TABLE "user" ADD COLUMN "isWaiting" boolean GENERATED ALWAYS AS ("guestStatus" = 'WAIT') STORED;
@@ -316,12 +331,20 @@ ALTER TABLE "user" ADD COLUMN "isDenied" boolean GENERATED ALWAYS AS ("guestStat
 ALTER TABLE "user" ADD COLUMN "registeredAt" timestamp with time zone GENERATED ALWAYS AS (to_timestamp("registeredOn"::double precision / 1000)) STORED;
 
 --Used to sort the Userlist
-ALTER TABLE "user" ADD COLUMN "nameSortable" varchar(255) GENERATED ALWAYS AS (immutable_lower_unaccent("name")) STORED;
+ALTER TABLE "user" ADD COLUMN "nameSortable" varchar(255) GENERATED ALWAYS AS (trim(remove_emojis(immutable_lower_unaccent("name")))) STORED;
 
 CREATE INDEX "idx_user_waiting" ON "user"("meetingId") where "isWaiting" is true;
 
---ALTER TABLE "user" ADD COLUMN "isModerator" boolean GENERATED ALWAYS AS (CASE WHEN "role" = 'MODERATOR' THEN true ELSE false END) STORED;
---ALTER TABLE "user" ADD COLUMN "isOnline" boolean GENERATED ALWAYS AS (CASE WHEN "joined" IS true AND "loggedOut" IS false THEN true ELSE false END) STORED;
+ALTER TABLE "user" ADD COLUMN "isModerator" boolean GENERATED ALWAYS AS (CASE WHEN "role" = 'MODERATOR' THEN true ELSE false END) STORED;
+ALTER TABLE "user" ADD COLUMN "isOnline" boolean GENERATED ALWAYS AS (
+    CASE WHEN
+            "user"."joined" IS true
+            AND "user"."expired" IS false
+            AND "user"."loggedOut" IS false
+            AND "user"."ejected" IS NOT true
+        THEN true
+        ELSE false
+        END) STORED;
 
 -- user (on update emoji, raiseHand or away: set new time)
 CREATE OR REPLACE FUNCTION update_user_emoji_time_trigger_func()
@@ -370,6 +393,8 @@ AS SELECT "user"."userId",
     "user"."raiseHandTime",
     "user"."emoji",
     "user"."emojiTime",
+    "user"."reactionEmoji",
+    "user"."reactionEmojiTime",
     "user"."guest",
     "user"."guestStatus",
     "user"."mobile",
@@ -388,15 +413,13 @@ AS SELECT "user"."userId",
     "user"."pinned",
     CASE WHEN "user"."role" = 'MODERATOR' THEN false ELSE "user"."locked" END "locked",
     "user"."speechLocale",
+    "user"."captionLocale",
     CASE WHEN "user"."echoTestRunningAt" > current_timestamp - INTERVAL '3 seconds' THEN TRUE ELSE FALSE END "isRunningEchoTest",
     "user"."hasDrawPermissionOnCurrentPage",
     CASE WHEN "user"."role" = 'MODERATOR' THEN true ELSE false END "isModerator",
-    CASE WHEN "user"."joined" IS true AND "user"."expired" IS false AND "user"."loggedOut" IS false AND "user"."ejected" IS NOT TRUE THEN true ELSE false END "isOnline"
-   FROM "user"
-  WHERE "user"."loggedOut" IS FALSE
-  AND "user"."expired" IS FALSE
-  AND "user"."ejected" IS NOT TRUE
-  AND "user"."joined" IS TRUE;
+    "user"."isOnline"
+  FROM "user"
+  WHERE "user"."isOnline" is true;
 
 CREATE INDEX "idx_v_user_meetingId" ON "user"("meetingId") 
                 where "user"."loggedOut" IS FALSE
@@ -404,11 +427,19 @@ CREATE INDEX "idx_v_user_meetingId" ON "user"("meetingId")
                 AND "user"."ejected" IS NOT TRUE
                 and "user"."joined" IS TRUE;
 
-CREATE INDEX "idx_v_user_meetingId_orderByColumns" ON "user"("meetingId","role","raiseHandTime","awayTime","emojiTime","isDialIn","hasDrawPermissionOnCurrentPage","nameSortable","userId")
-                where "user"."loggedOut" IS FALSE
-                AND "user"."expired" IS FALSE
-                AND "user"."ejected" IS NOT TRUE
-                and "user"."joined" IS TRUE;
+CREATE INDEX "idx_v_user_meetingId_orderByColumns" ON "user"(
+                        "meetingId",
+                        "presenter",
+                        "role",
+                        "raiseHandTime",
+                        "emojiTime",
+                        "isDialIn",
+                        "hasDrawPermissionOnCurrentPage",
+                        "nameSortable",
+                        "registeredAt",
+                        "userId"
+                        )
+                where "user"."isOnline" is true;
 
 CREATE OR REPLACE VIEW "v_user_current"
 AS SELECT "user"."userId",
@@ -422,6 +453,7 @@ AS SELECT "user"."userId",
     "user"."away",
     "user"."raiseHand",
     "user"."emoji",
+    "user"."reactionEmoji",
     "user"."guest",
     "user"."guestStatus",
     "user"."mobile",
@@ -446,11 +478,12 @@ AS SELECT "user"."userId",
     "user"."pinned",
     CASE WHEN "user"."role" = 'MODERATOR' THEN false ELSE "user"."locked" END "locked",
     "user"."speechLocale",
+    "user"."captionLocale",
     "user"."hasDrawPermissionOnCurrentPage",
     "user"."echoTestRunningAt",
     CASE WHEN "user"."echoTestRunningAt" > current_timestamp - INTERVAL '3 seconds' THEN TRUE ELSE FALSE END "isRunningEchoTest",
     CASE WHEN "user"."role" = 'MODERATOR' THEN true ELSE false END "isModerator",
-    CASE WHEN "user"."joined" IS true AND "user"."expired" IS false AND "user"."loggedOut" IS false AND "user"."ejected" IS NOT TRUE THEN true ELSE false END "isOnline",
+    "user"."isOnline",
     "user"."inactivityWarningDisplay",
     "user"."inactivityWarningTimeoutSecs"
    FROM "user";
@@ -475,7 +508,8 @@ u."isDenied",
 COALESCE(NULLIF(u."guestLobbyMessage",''),NULLIF(mup."guestLobbyMessage",'')) AS "guestLobbyMessage"
 FROM "user" u
 JOIN "meeting_usersPolicies" mup using("meetingId")
-where u."guestStatus" = 'WAIT';
+where u."guestStatus" = 'WAIT'
+and u."loggedOut" is false;
 
 --v_user_ref will be used only as foreign key (not possible to fetch this table directly through graphql)
 --it is necessary because v_user has some conditions like "lockSettings-hideUserList"
@@ -492,6 +526,7 @@ AS SELECT
     "user"."away",
     "user"."raiseHand",
     "user"."emoji",
+    "user"."reactionEmoji",
     "user"."guest",
     "user"."guestStatus",
     "user"."mobile",
@@ -510,9 +545,10 @@ AS SELECT
     "user"."pinned",
     CASE WHEN "user"."role" = 'MODERATOR' THEN false ELSE "user"."locked" END "locked",
     "user"."speechLocale",
+    "user"."captionLocale",
     "user"."hasDrawPermissionOnCurrentPage",
     CASE WHEN "user"."role" = 'MODERATOR' THEN true ELSE false END "isModerator",
-    CASE WHEN "user"."joined" IS true AND "user"."expired" IS false AND "user"."loggedOut" IS false AND "user"."ejected" IS NOT TRUE THEN true ELSE false END "isOnline"
+    "user"."isOnline"
    FROM "user";
 
 create table "user_customParameter"(
@@ -559,6 +595,7 @@ CREATE TABLE "user_voice" (
 	"voiceConfCallState" varchar(30),
 	"endTime" bigint,
 	"startTime" bigint,
+	"voiceActivityAt" timestamp with time zone,
 	CONSTRAINT "user_voice_pkey" PRIMARY KEY ("meetingId","userId"),
     FOREIGN KEY ("meetingId", "userId") REFERENCES "user"("meetingId","userId") ON DELETE CASCADE
 );
@@ -578,6 +615,7 @@ GENERATED ALWAYS AS (to_timestamp("endTime"::double precision / 1000)) STORED;
 
 CREATE INDEX "idx_user_voice_userId_talking" ON "user_voice"("meetingId", "userId","talking");
 CREATE INDEX "idx_user_voice_userId_hideTalkingIndicatorAt" ON "user_voice"("meetingId", "userId","hideTalkingIndicatorAt");
+CREATE INDEX "idx_user_voice_userId_voiceActivityAt" ON "user_voice"("meetingId", "voiceActivityAt") WHERE "voiceActivityAt" is not null;
 
 CREATE OR REPLACE VIEW "v_user_voice" AS
 SELECT
@@ -598,6 +636,45 @@ LEFT JOIN "user_voice" user_talking ON (
                                        )
 WHERE "user_voice"."joined" is true;
 
+--Populate voiceActivityAt to provide users that are active in audio via stream subscription using the view v_user_voice_activity
+CREATE OR REPLACE FUNCTION "update_user_voice_voiceActivityAt_trigger_func"() RETURNS TRIGGER AS $$
+BEGIN
+    NEW."voiceActivityAt" := CASE WHEN
+    								NEW."muted" IS false
+    								or (OLD."muted" IS false and NEW."muted" is true)
+    								or NEW."talking" is true
+    								or (OLD."talking" IS true and NEW."talking" is false)
+    								or (NEW."startTime" != OLD."startTime")
+    								or (NEW."endTime" != OLD."endTime")
+    								THEN current_timestamp
+                                  ELSE OLD."voiceActivityAt"
+                             END;
+    RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+
+CREATE TRIGGER "update_user_voice_voiceActivityAt_trigger" BEFORE INSERT OR UPDATE ON "user_voice" FOR EACH ROW
+EXECUTE FUNCTION "update_user_voice_voiceActivityAt_trigger_func"();
+
+CREATE OR REPLACE VIEW "v_user_voice_activity" AS
+select
+	"user_voice"."meetingId",
+	"user_voice"."userId",
+	"user_voice"."muted",
+	"user_voice"."talking",
+    "user_voice"."startTime",
+    "user_voice"."endTime",
+	"user_voice"."voiceActivityAt"
+FROM "user_voice"
+WHERE "voiceActivityAt" is not null
+AND --filter recent activities to avoid receiving all history every time it starts the streming
+    ("voiceActivityAt" > current_timestamp - '10 seconds'::interval
+       OR "user_voice"."muted" is false
+        OR "user_voice"."talking" is true
+     )
+;
+
+----
 
 
 ---TEMPORARY MINIMONGO ADAPTER START
@@ -792,8 +869,12 @@ CREATE OR REPLACE VIEW "v_user_connectionStatusReport" AS
 SELECT u."meetingId", u."userId",
 max(cs."connectionAliveAt") AS "connectionAliveAt",
 max(cs."status") AS "currentStatus",
---COALESCE(max(cs."applicationRttInMs"),(EXTRACT(EPOCH FROM (current_timestamp - max(cs."connectionAliveAt"))) * 1000)) AS "applicationRttInMs",
-CASE WHEN max(cs."connectionAliveAt") < current_timestamp - INTERVAL '1 millisecond' * max(cs."connectionAliveAtMaxIntervalMs") THEN TRUE ELSE FALSE END AS "clientNotResponding",
+CASE WHEN
+    u."isOnline"
+    AND max(cs."connectionAliveAt") < current_timestamp - INTERVAL '1 millisecond' * max(cs."connectionAliveAtMaxIntervalMs")
+    THEN TRUE
+    ELSE FALSE
+END AS "clientNotResponding",
 (array_agg(csm."status" ORDER BY csm."lastOccurrenceAt" DESC))[1] as "lastUnstableStatus",
 max(csm."lastOccurrenceAt") AS "lastUnstableStatusAt"
 FROM "user" u
@@ -807,6 +888,9 @@ CREATE INDEX "idx_user_connectionStatusMetrics_UnstableReport" ON "user_connecti
 CREATE TABLE "user_graphqlConnection" (
 	"graphqlConnectionId" serial PRIMARY KEY,
 	"sessionToken" varchar(16),
+	"clientSessionUUID" varchar(36),
+	"clientType" varchar(50),
+	"clientIsMobile" bool,
 	"middlewareUID" varchar(36),
 	"middlewareConnectionId" varchar(12),
 	"establishedAt" timestamp with time zone,
@@ -858,9 +942,15 @@ CREATE TABLE "user_reaction" (
 );
 create index "idx_user_reaction_user_meeting" on "user_reaction" ("userId", "meetingId");
 
---Set expiresAt on isert or update user_reaction
+--Set expiresAt on insert or update user_reaction
+--Set user.reactionEmoji with the latest emoji inserted
 CREATE OR REPLACE FUNCTION "update_user_reaction_trigger_func"() RETURNS TRIGGER AS $$
 BEGIN
+    UPDATE "user"
+    SET "reactionEmoji" = nullif(lower(NEW."reactionEmoji"),'none'),
+        "reactionEmojiTime" = case when NULLIF(LOWER(NEW."reactionEmoji"),'none') is null then null else current_timestamp end
+    WHERE "userId" = NEW."userId" AND "meetingId" = NEW."meetingId";
+
     NEW."expiresAt" := NEW."createdAt" + '1 seconds'::INTERVAL * NEW."durationInSeconds";
     RETURN NEW;
 END;
@@ -880,12 +970,6 @@ CREATE VIEW v_user_reaction AS
 SELECT ur."meetingId", ur."userId", ur."reactionEmoji", ur."createdAt", ur."expiresAt"
 FROM "user_reaction" ur
 WHERE "expiresAt" >= current_timestamp;
-
-CREATE VIEW v_user_reaction_current AS
-SELECT ur."meetingId", ur."userId", (array_agg(ur."reactionEmoji" ORDER BY ur."expiresAt" DESC))[1] as "reactionEmoji"
-FROM "user_reaction" ur
-WHERE "expiresAt" >= current_timestamp
-GROUP BY ur."meetingId", ur."userId";
 
 CREATE TABLE "user_transcriptionError"(
 	"meetingId" varchar(100),
@@ -1610,52 +1694,141 @@ CREATE TABLE "breakoutRoom_user" (
 	"assignedAt" timestamp with time zone,
 	"joinedAt" timestamp with time zone,
 	"inviteDismissedAt" timestamp with time zone,
+	"userJoinedSomeRoomAt" timestamp with time zone,
+	"isLastAssignedRoom" boolean,
+	"isLastJoinedRoom" boolean,
+	"isUserCurrentlyInRoom" boolean,
 	CONSTRAINT "breakoutRoom_user_pkey" PRIMARY KEY ("breakoutRoomId", "meetingId", "userId"),
 	FOREIGN KEY ("meetingId", "userId") REFERENCES "user"("meetingId","userId") ON DELETE CASCADE
 );
 create index "idx_breakoutRoom_user_meeting_user" on "breakoutRoom_user" ("meetingId", "userId");
 create index "idx_breakoutRoom_user_user_meeting" on "breakoutRoom_user" ("userId", "meetingId");
 
+ALTER TABLE "breakoutRoom_user" ADD COLUMN "showInvitation" boolean GENERATED ALWAYS AS (
+    CASE WHEN
+            "isLastAssignedRoom" IS true
+            and "isUserCurrentlyInRoom" is null
+            AND ("joinedAt" is null or "assignedAt" > "joinedAt")
+            AND ("userJoinedSomeRoomAt" is null or "assignedAt" > "userJoinedSomeRoomAt")
+            AND ("inviteDismissedAt" is null or "assignedAt" > "inviteDismissedAt")
+        THEN true
+        ELSE false
+        END) STORED;
+       --AND ("isModerator" is false OR "sendInvitationToModerators")
+
+--Trigger to populate `isLastAssignedRoom` and `isLastJoinedRoom`
+CREATE OR REPLACE FUNCTION "ins_upd_del_breakoutRoom_user_trigger_func"() RETURNS TRIGGER AS $$
+BEGIN
+    IF TG_OP = 'DELETE' THEN
+        -- Determine the latest assigned room and latest joined room for the remaining rows
+        PERFORM
+            set_last_room(OLD."meetingId", OLD."userId");
+    ELSE
+        -- For INSERT or UPDATE
+        PERFORM
+            set_last_room(NEW."meetingId", NEW."userId");
+    END IF;
+
+    RETURN NULL;
+END;
+$$ LANGUAGE plpgsql;
+
+CREATE OR REPLACE FUNCTION set_last_room(meetingId varchar(100), userId varchar(50)) RETURNS VOID AS $$
+DECLARE
+    "latestAssignedRoomId" varchar(100);
+    "latestJoinedRoomId" varchar(100);
+    "latestJoinedAt" timestamp with time zone;
+BEGIN
+    SELECT "breakoutRoomId"
+    INTO "latestAssignedRoomId"
+    FROM "breakoutRoom_user"
+    WHERE "meetingId" = meetingId
+      AND "userId" = userId
+      AND "assignedAt" IS NOT NULL
+    ORDER BY "assignedAt" DESC NULLS LAST
+    LIMIT 1;
+
+    SELECT "breakoutRoomId"
+    INTO "latestJoinedRoomId"
+    FROM "breakoutRoom_user"
+    WHERE "meetingId" = meetingId
+      AND "userId" = userId
+      AND "joinedAt" IS NOT NULL
+    ORDER BY "joinedAt" DESC NULLS LAST
+    LIMIT 1;
+
+    UPDATE "breakoutRoom_user" bu
+    SET "isLastAssignedRoom" = CASE
+            WHEN "latestAssignedRoomId" IS NOT NULL AND bu."breakoutRoomId" = "latestAssignedRoomId" THEN TRUE
+            ELSE FALSE
+        END,
+        "isLastJoinedRoom" = CASE
+            WHEN "latestJoinedRoomId" IS NOT NULL AND bu."breakoutRoomId" = "latestJoinedRoomId" THEN TRUE
+            ELSE FALSE
+        END
+    WHERE bu."meetingId" = meetingId
+      AND bu."userId" = userId
+      AND (bu."isLastAssignedRoom" IS DISTINCT FROM (CASE WHEN "latestAssignedRoomId" IS NOT NULL AND bu."breakoutRoomId" = "latestAssignedRoomId" THEN TRUE ELSE FALSE END)
+       OR bu."isLastJoinedRoom" IS DISTINCT FROM (CASE WHEN "latestJoinedRoomId" IS NOT NULL AND bu."breakoutRoomId" = "latestJoinedRoomId" THEN TRUE ELSE FALSE END));
+
+       --userJoinedSomeRoomAt
+       SELECT max("joinedAt")
+           INTO "latestJoinedAt"
+           from "breakoutRoom_user" bru
+           where bru."meetingId" = meetingId
+           and bru."userId" = userId;
+
+       update "breakoutRoom_user" set "userJoinedSomeRoomAt" = "latestJoinedAt"
+          where "breakoutRoom_user"."meetingId" = meetingId
+          and "breakoutRoom_user"."userId" = userId
+          and "breakoutRoom_user"."userJoinedSomeRoomAt" != "latestJoinedAt";
+END;
+$$ LANGUAGE plpgsql;
+
+CREATE TRIGGER "ins_upd_del_breakoutRoom_user_trigger"
+AFTER INSERT OR UPDATE OR DELETE ON "breakoutRoom_user"
+FOR EACH ROW EXECUTE FUNCTION "ins_upd_del_breakoutRoom_user_trigger_func"();
+
+
+CREATE OR REPLACE FUNCTION "update_bkroom_isUserCurrentlyInRoom_trigger_func"()
+RETURNS TRIGGER AS $$
+BEGIN
+    IF NEW."isOnline" <> OLD."isOnline" THEN
+        update "breakoutRoom_user" set "isUserCurrentlyInRoom" = a."isOnline"
+	   from (
+		   select
+		   bru."breakoutRoomId", bru."userId", bkroom_user."isOnline"
+		   from "user" bkroom_user
+		   join meeting_breakout mb on mb."meetingId" = bkroom_user."meetingId"
+		   join "breakoutRoom" br on br."parentMeetingId" = mb."parentId" and mb."sequence" = br."sequence"
+		   join "user" u on u."meetingId" = br."parentMeetingId"  and bkroom_user."extId" = u."extId" || '-' || br."sequence"
+		   join "breakoutRoom_user" bru on bru."userId" = u."userId" and bru."breakoutRoomId" = br."breakoutRoomId"
+		   where bkroom_user."userId" = NEW."userId"
+	   ) a
+		where "breakoutRoom_user"."breakoutRoomId" = a."breakoutRoomId"
+		and "breakoutRoom_user"."userId" = a."userId";
+    END IF;
+    RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+
+CREATE TRIGGER "update_bkroom_isUserCurrentlyInRoom_trigger" AFTER UPDATE OF "isOnline" ON "user"
+    FOR EACH ROW EXECUTE FUNCTION "update_bkroom_isUserCurrentlyInRoom_trigger_func"();
 
 CREATE OR REPLACE VIEW "v_breakoutRoom" AS
-SELECT *,
-    --showInvitation flag
-    case WHEN 1=1
-    	--this is not the last room the user joined
-    	-- AND "lastRoomJoinedId" != "breakoutRoomId" --the next condition turn this one useless
-    	--user didn't joined some room after assigned
-    	AND ("lastRoomJoinedAt" IS NULL OR "lastRoomJoinedAt" < "assignedAt")
-    	--user didn't close the invitation already
-    	and ("inviteDismissedAt" is NULL OR "assignedAt" > "inviteDismissedAt")
-    	--user is not online in other room
-    	AND "lastRoomIsOnline" IS FALSE
-    	--this is this the last assignment?
-    	AND "currentRoomPriority" = 1
-    	--user is not moderator or sendInviteToMod flag is true
-    	AND ("isModerator" is false OR "sendInvitationToModerators")
-    	THEN TRUE ELSE FALSE END "showInvitation"
-from (
-    SELECT u."meetingId" as "userMeetingId", u."userId", b."parentMeetingId", b."breakoutRoomId", b."freeJoin", b."sequence", b."name", b."isDefaultName",
+SELECT u."meetingId" as "userMeetingId", u."userId", b."parentMeetingId", b."breakoutRoomId", b."freeJoin",
+            b."sequence", b."name", b."isDefaultName",
             b."shortName", b."startedAt", b."endedAt", b."durationInSeconds", b."sendInvitationToModerators",
-                bu."assignedAt", bu."joinURL", bu."inviteDismissedAt", u."role" = 'MODERATOR' as "isModerator",
-                --CASE WHEN b."durationInSeconds" = 0 THEN NULL ELSE b."startedAt" + b."durationInSeconds" * '1 second'::INTERVAL END AS "willEndAt",
-                ub."isOnline" AS "currentRoomIsOnline",
-                ub."registeredAt" AS "currentRoomRegisteredAt",
-                ub."joined" AS "currentRoomJoined",
-                rank() OVER (partition BY u."meetingId", u."userId" order by "assignedAt" desc nulls last) as "currentRoomPriority",
-                max(bu."joinedAt") OVER (partition BY u."meetingId", u."userId") AS "lastRoomJoinedAt",
-                max(bu."breakoutRoomId") OVER (partition BY u."meetingId", u."userId" ORDER BY bu."joinedAt") AS "lastRoomJoinedId",
-                sum(CASE WHEN ub."isOnline" THEN 1 ELSE 0 END) OVER (partition BY u."meetingId", u."userId") > 0 as "lastRoomIsOnline"
+            bu."assignedAt", bu."joinURL", bu."inviteDismissedAt", u."role" = 'MODERATOR' as "isModerator",
+            bu."isLastAssignedRoom", bu."isLastJoinedRoom", bu."isUserCurrentlyInRoom", bu."showInvitation",
+            bu."joinedAt" is not null as "hasJoined"
     FROM "user" u
     JOIN "breakoutRoom" b ON b."parentMeetingId" = u."meetingId"
     LEFT JOIN "breakoutRoom_user" bu ON bu."meetingId" = u."meetingId" AND bu."userId" = u."userId" AND bu."breakoutRoomId" = b."breakoutRoomId"
-    LEFT JOIN "meeting" mb ON mb."extId" = b."externalId"
-    LEFT JOIN "v_user" ub ON ub."meetingId" = mb."meetingId" and ub."extId" = u."extId" || '-' || b."sequence"
     WHERE (bu."assignedAt" IS NOT NULL
             OR b."freeJoin" IS TRUE
             OR u."role" = 'MODERATOR')
-    AND b."endedAt" IS NULL
-) a;
+    AND b."endedAt" IS NULL;
 
 CREATE OR REPLACE VIEW "v_breakoutRoom_assignedUser" AS
 SELECT "parentMeetingId", "breakoutRoomId", "userMeetingId", "userId"
@@ -1671,7 +1844,7 @@ SELECT DISTINCT
         "userId",
         false as "isAudioOnly"
 FROM "v_breakoutRoom"
-WHERE "currentRoomIsOnline" IS TRUE
+WHERE "isUserCurrentlyInRoom" IS TRUE
 union --include users that joined only with audio
 select parent_user."meetingId" as "parentMeetingId",
         bk_user."meetingId" as "breakoutRoomId",
@@ -1767,17 +1940,17 @@ SELECT
 	FLOOR(EXTRACT(EPOCH FROM current_timestamp) * 1000)::bigint AS "currentTimeMillis";
 
 ------------------------------------
-----audioCaption or typedCaption
+----caption
 
 CREATE TABLE "caption_locale" (
     "meetingId" varchar(100) NOT NULL REFERENCES "meeting"("meetingId") ON DELETE CASCADE,
     "locale" varchar(15) NOT NULL,
     "captionType" varchar(100) NOT NULL, --Audio Transcription or Typed Caption
-    "ownerUserId" varchar(50),
+    "createdBy" varchar(50),
     "createdAt" timestamp with time zone default current_timestamp,
     "updatedAt" timestamp with time zone,
     CONSTRAINT "caption_locale_pk" primary key ("meetingId","locale","captionType"),
-    FOREIGN KEY ("meetingId", "ownerUserId") REFERENCES "user"("meetingId","userId") ON DELETE CASCADE
+    FOREIGN KEY ("meetingId", "createdBy") REFERENCES "user"("meetingId","userId") ON DELETE CASCADE
 );
 create index "idx_caption_locale_pk_reverse" on "caption_locale"("locale","meetingId","captionType");
 create index "idx_caption_locale_pk_reverse_b" on "caption_locale"("captionType","meetingId","locale");
@@ -1798,11 +1971,11 @@ CREATE OR REPLACE FUNCTION "update_caption_locale_owner_func"() RETURNS TRIGGER 
 BEGIN
     WITH upsert AS (
         UPDATE "caption_locale" SET
-        "ownerUserId" = NEW."userId",
+        "createdBy" = NEW."userId",
         "updatedAt" = current_timestamp
         WHERE "meetingId"=NEW."meetingId" AND "locale"=NEW."locale" AND "captionType"= NEW."captionType"
     RETURNING *)
-    INSERT INTO "caption_locale"("meetingId","locale","captionType","ownerUserId")
+    INSERT INTO "caption_locale"("meetingId","locale","captionType","createdBy")
     SELECT NEW."meetingId", NEW."locale", NEW."captionType", NEW."userId"
     WHERE NOT EXISTS (SELECT * FROM upsert);
 
@@ -1822,7 +1995,7 @@ FROM "caption"
 WHERE "createdAt" > current_timestamp - INTERVAL '5 seconds';
 
 CREATE OR REPLACE VIEW "v_caption_activeLocales" AS
-select distinct "meetingId", "locale", "ownerUserId", "captionType"
+select distinct "meetingId", "locale", "createdBy", "captionType"
 from "caption_locale";
 
 create index "idx_caption_typed_activeLocales" on "caption"("meetingId","locale","userId") where "captionType" = 'TYPED';
@@ -1901,13 +2074,13 @@ CREATE TABLE "pluginDataChannelEntry" (
 	"entryId" varchar(50) DEFAULT uuid_generate_v4(),
     "subChannelName" varchar(255),
 	"payloadJson" jsonb,
-	"fromUserId" varchar(50),
+	"createdBy" varchar(50),
 	"toRoles" varchar[], --MODERATOR, VIEWER, PRESENTER
 	"toUserIds" varchar[],
 	"createdAt" timestamp with time zone DEFAULT current_timestamp,
 	"deletedAt" timestamp with time zone,
 	CONSTRAINT "pluginDataChannel_pkey" PRIMARY KEY ("meetingId","pluginName","channelName","entryId", "subChannelName"),
-	FOREIGN KEY ("meetingId", "fromUserId") REFERENCES "user"("meetingId","userId") ON DELETE CASCADE
+	FOREIGN KEY ("meetingId", "createdBy") REFERENCES "user"("meetingId","userId") ON DELETE CASCADE
 );
 create index "idx_pluginDataChannelEntry_pk_reverse" on "pluginDataChannelEntry"("pluginName", "meetingId", "channelName", "subChannelName");
 create index "idx_pluginDataChannelEntry_pk_reverse_b" on "pluginDataChannelEntry"("channelName", "pluginName", "meetingId", "subChannelName");
@@ -1916,7 +2089,7 @@ create index "idx_pluginDataChannelEntry_channelName" on "pluginDataChannelEntry
 create index "idx_pluginDataChannelEntry_roles" on "pluginDataChannelEntry"("meetingId", "toRoles", "toUserIds", "createdAt") where "deletedAt" is null;
 
 CREATE OR REPLACE VIEW "v_pluginDataChannelEntry" AS
-SELECT u."meetingId", u."userId", m."pluginName", m."channelName", m."subChannelName", m."entryId", m."payloadJson", m."fromUserId", m."toRoles", m."createdAt"
+SELECT u."meetingId", u."userId", m."pluginName", m."channelName", m."subChannelName", m."entryId", m."payloadJson", m."createdBy", m."toRoles", m."createdAt"
 FROM "user" u
 JOIN "pluginDataChannelEntry" m ON m."meetingId" = u."meetingId"
 			AND ((m."toRoles" IS NULL AND m."toUserIds" IS NULL)
@@ -1960,7 +2133,14 @@ select "meeting"."meetingId",
             select 1
             from "v_screenshare"
             where "v_screenshare"."meetingId" = "meeting"."meetingId"
+            and "contentType" = 'screenshare'
         ) as "hasScreenshare",
+        exists (
+            select 1
+            from "v_screenshare"
+            where "v_screenshare"."meetingId" = "meeting"."meetingId"
+            and "contentType" = 'camera'
+        ) as "hasCameraAsContent",
         exists (
             select 1
             from "v_externalVideo"
@@ -1968,13 +2148,7 @@ select "meeting"."meetingId",
         ) as "hasExternalVideo",
         exists (
             select 1
-            from "v_user"
-            where "v_user"."meetingId" = "meeting"."meetingId"
-            and NULLIF("speechLocale",'') is not null
-        ) or exists (
-            select 1
-            from "sharedNotes"
-            where "sharedNotes"."meetingId" = "meeting"."meetingId"
-            and "model" = 'captions'
+            from "v_caption_activeLocales"
+            where "v_caption_activeLocales"."meetingId" = "meeting"."meetingId"
         ) as "hasCaption"
 from "meeting";

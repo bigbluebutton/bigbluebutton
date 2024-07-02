@@ -5,7 +5,7 @@ import React, {
   useMemo,
   useCallback,
 } from 'react';
-import { useSubscription, useMutation, useQuery } from '@apollo/client';
+import { useMutation, useQuery } from '@apollo/client';
 import {
   AssetRecordType,
 } from '@bigbluebutton/tldraw';
@@ -24,7 +24,7 @@ import {
   toggleToolsAnimations,
   formatAnnotations,
 } from './service';
-import SettingsService from '/imports/ui/services/settings';
+import { SettingsService, getSettingsSingletonInstance } from '/imports/ui/services/settings';
 import Auth from '/imports/ui/services/auth';
 import {
   layoutSelect,
@@ -44,8 +44,7 @@ import {
   PRESENTATION_PUBLISH_CURSOR,
 } from '../presentation/mutations';
 import { useMergedCursorData } from './hooks.ts';
-
-const WHITEBOARD_CONFIG = window.meetingClientSettings.public.whiteboard;
+import useDeduplicatedSubscription from '../../core/hooks/useDeduplicatedSubscription';
 
 const WhiteboardContainer = (props) => {
   const {
@@ -53,8 +52,11 @@ const WhiteboardContainer = (props) => {
     zoomChanger,
   } = props;
 
+  const WHITEBOARD_CONFIG = window.meetingClientSettings.public.whiteboard;
+
   const [annotations, setAnnotations] = useState([]);
   const [shapes, setShapes] = useState({});
+  const [currentPresentationPage, setCurrentPresentationPage] = useState(null);
 
   const meeting = useMeeting((m) => ({
     lockSettings: m?.lockSettings,
@@ -67,9 +69,18 @@ const WhiteboardContainer = (props) => {
   const isPresenter = currentUser?.presenter;
   const isModerator = currentUser?.isModerator;
 
-  const { data: presentationPageData } = useSubscription(CURRENT_PRESENTATION_PAGE_SUBSCRIPTION);
+  const { data: presentationPageData } = useDeduplicatedSubscription(
+    CURRENT_PRESENTATION_PAGE_SUBSCRIPTION,
+  );
   const { pres_page_curr: presentationPageArray } = (presentationPageData || {});
-  const currentPresentationPage = presentationPageArray && presentationPageArray[0];
+  const newPresentationPage = presentationPageArray && presentationPageArray[0];
+
+  useEffect(() => {
+    if (newPresentationPage) {
+      setCurrentPresentationPage(newPresentationPage);
+    }
+  }, [newPresentationPage]);
+
   const curPageNum = currentPresentationPage?.num;
   const curPageId = currentPresentationPage?.pageId;
   const curPageIdRef = useRef();
@@ -80,10 +91,14 @@ const WhiteboardContainer = (props) => {
 
   const presentationId = currentPresentationPage?.presentationId;
 
-  const { data: whiteboardWritersData } = useSubscription(CURRENT_PAGE_WRITERS_SUBSCRIPTION, {
-    variables: { pageId: curPageId },
-    skip: !curPageId,
-  });
+  const { data: whiteboardWritersData } = useDeduplicatedSubscription(
+    CURRENT_PAGE_WRITERS_SUBSCRIPTION,
+    {
+      variables: { pageId: curPageId },
+      skip: !curPageId,
+    },
+  );
+
   const whiteboardWriters = whiteboardWritersData?.pres_page_writers || [];
   const hasWBAccess = whiteboardWriters?.some((writer) => writer.userId === Auth.userID);
 
@@ -170,7 +185,7 @@ const WhiteboardContainer = (props) => {
 
   const cursorArray = useMergedCursorData();
 
-  const { data: annotationStreamData } = useSubscription(
+  const { data: annotationStreamData } = useDeduplicatedSubscription(
     CURRENT_PAGE_ANNOTATIONS_STREAM,
     {
       variables: { lastUpdatedAt: new Date(0).toISOString() },
@@ -252,7 +267,8 @@ const WhiteboardContainer = (props) => {
     },
   }];
 
-  const isRTL = layoutSelect((i) => i.isRTL);
+  const Settings = getSettingsSingletonInstance();
+  const { isRTL } = Settings.application;
   const width = layoutSelect((i) => i?.output?.presentation?.width);
   const height = layoutSelect((i) => i?.output?.presentation?.height);
   const sidebarNavigationWidth = layoutSelect(
@@ -292,6 +308,7 @@ const WhiteboardContainer = (props) => {
 
   return (
     <Whiteboard
+      key={presentationId}
       {...{
         isPresenter,
         isModerator,
@@ -320,8 +337,7 @@ const WhiteboardContainer = (props) => {
         zoomSlide,
         notifyNotAllowedChange,
         notifyShapeNumberExceeded,
-        whiteboardToolbarAutoHide:
-      SettingsService?.application?.whiteboardToolbarAutoHide,
+        whiteboardToolbarAutoHide: SettingsService?.application?.whiteboardToolbarAutoHide,
         animations: SettingsService?.application?.animations,
         toggleToolsAnimations,
         isIphone,
@@ -344,5 +360,6 @@ const WhiteboardContainer = (props) => {
     />
   );
 };
+
 
 export default WhiteboardContainer;

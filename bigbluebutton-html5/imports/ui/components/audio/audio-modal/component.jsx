@@ -1,6 +1,5 @@
 import React, { useEffect, useState } from 'react';
 import PropTypes from 'prop-types';
-import { Session } from 'meteor/session';
 import {
   defineMessages, injectIntl, FormattedMessage,
 } from 'react-intl';
@@ -12,15 +11,16 @@ import EchoTest from '../echo-test/component';
 import Help from '../help/component';
 import AudioDial from '../audio-dial/component';
 import AudioAutoplayPrompt from '../autoplay/component';
-import Settings from '/imports/ui/services/settings';
+import { getSettingsSingletonInstance } from '/imports/ui/services/settings';
 import usePreviousValue from '/imports/ui/hooks/usePreviousValue';
 import { SET_AWAY } from '/imports/ui/components/user-list/user-list-content/user-participants/user-list-participants/user-actions/mutations';
-import VideoService from '/imports/ui/components/video-provider/video-provider-graphql/service';
+import VideoService from '/imports/ui/components/video-provider/service';
 import AudioCaptionsSelectContainer from '../audio-graphql/audio-captions/captions/component';
 import useToggleVoice from '/imports/ui/components/audio/audio-graphql/hooks/useToggleVoice';
 import {
   muteAway,
 } from '/imports/ui/components/audio/audio-graphql/audio-controls/input-stream-live-selector/service';
+import Session from '/imports/ui/services/storage/in-memory';
 
 const propTypes = {
   intl: PropTypes.shape({
@@ -67,14 +67,6 @@ const propTypes = {
   }).isRequired,
   getTroubleshootingLink: PropTypes.func.isRequired,
   away: PropTypes.bool,
-};
-
-const defaultProps = {
-  inputDeviceId: null,
-  outputDeviceId: null,
-  resolve: null,
-  joinFullAudioImmediately: false,
-  away: false,
 };
 
 const intlMessages = defineMessages({
@@ -144,7 +136,47 @@ const intlMessages = defineMessages({
   },
 });
 
-const AudioModal = (props) => {
+const AudioModal = ({
+  forceListenOnlyAttendee,
+  joinFullAudioImmediately = false,
+  listenOnlyMode,
+  audioLocked,
+  isUsingAudio,
+  isListenOnly,
+  autoplayBlocked,
+  closeModal,
+  isEchoTest,
+  exitAudio,
+  resolve = null,
+  leaveEchoTest,
+  AudioError,
+  joinEchoTest,
+  isConnecting,
+  localEchoEnabled,
+  joinListenOnly,
+  changeInputStream,
+  joinMicrophone,
+  intl,
+  isMobileNative,
+  formattedDialNum,
+  isRTL,
+  isConnected,
+  inputDeviceId = null,
+  outputDeviceId = null,
+  changeInputDevice,
+  changeOutputDevice,
+  showVolumeMeter,
+  notify,
+  formattedTelVoice,
+  handleAllowAutoplay,
+  showPermissionsOvelay,
+  isIE,
+  isOpen,
+  priority,
+  setIsOpen,
+  getTroubleshootingLink,
+  away = false,
+}) => {
   const [content, setContent] = useState(null);
   const [hasError, setHasError] = useState(false);
   const [disableActions, setDisableActions] = useState(false);
@@ -152,48 +184,6 @@ const AudioModal = (props) => {
   const [autoplayChecked, setAutoplayChecked] = useState(false);
   const [setAway] = useMutation(SET_AWAY);
   const voiceToggle = useToggleVoice();
-
-  const {
-    forceListenOnlyAttendee,
-    joinFullAudioImmediately,
-    listenOnlyMode,
-    audioLocked,
-    isUsingAudio,
-    isListenOnly,
-    autoplayBlocked,
-    closeModal,
-    isEchoTest,
-    exitAudio,
-    resolve,
-    leaveEchoTest,
-    AudioError,
-    joinEchoTest,
-    isConnecting,
-    localEchoEnabled,
-    joinListenOnly,
-    changeInputStream,
-    joinMicrophone,
-    intl,
-    isMobileNative,
-    formattedDialNum,
-    isRTL,
-    isConnected,
-    inputDeviceId,
-    outputDeviceId,
-    changeInputDevice,
-    changeOutputDevice,
-    showVolumeMeter,
-    notify,
-    formattedTelVoice,
-    handleAllowAutoplay,
-    showPermissionsOvelay,
-    isIE,
-    isOpen,
-    priority,
-    setIsOpen,
-    getTroubleshootingLink,
-    away,
-  } = props;
 
   const prevAutoplayBlocked = usePreviousValue(autoplayBlocked);
 
@@ -498,7 +488,7 @@ const AudioModal = (props) => {
   };
 
   const renderContent = () => {
-    const { animations } = Settings.application;
+    const { animations } = getSettingsSingletonInstance().application;
 
     if (skipAudioOptions()) {
       return (
@@ -529,7 +519,13 @@ const AudioModal = (props) => {
         handleGoToEchoTest();
       }
     }
-  }, []);
+  }, [
+    audioLocked,
+    isUsingAudio,
+    forceListenOnlyAttendee,
+    joinFullAudioImmediately,
+    listenOnlyMode,
+  ]);
 
   useEffect(() => {
     if (autoplayBlocked) {
@@ -544,7 +540,7 @@ const AudioModal = (props) => {
       exitAudio();
     }
     if (resolve) resolve();
-    Session.set('audioModalIsOpen', false);
+    Session.setItem('audioModalIsOpen', false);
   }, []);
 
   let title = content
@@ -588,6 +584,5 @@ const AudioModal = (props) => {
 };
 
 AudioModal.propTypes = propTypes;
-AudioModal.defaultProps = defaultProps;
 
 export default injectIntl(AudioModal);

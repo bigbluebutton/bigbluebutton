@@ -1,5 +1,4 @@
 import React from 'react';
-import { useSubscription } from '@apollo/client';
 import {
   IS_TYPING_PUBLIC_SUBSCRIPTION,
   IS_TYPING_PRIVATE_SUBSCRIPTION,
@@ -19,14 +18,9 @@ import useChat from '/imports/ui/core/hooks/useChat';
 import useMeeting from '/imports/ui/core/hooks/useMeeting';
 import { Chat } from '/imports/ui/Types/chat';
 import { GraphqlDataHookSubscriptionResponse } from '/imports/ui/Types/hook';
+import useDeduplicatedSubscription from '/imports/ui/core/hooks/useDeduplicatedSubscription';
 
 const DEBUG_CONSOLE = false;
-
-// eslint-disable-next-line @typescript-eslint/ban-ts-comment
-// @ts-ignore - temporary, while meteor exists in the project
-const CHAT_CONFIG = window.meetingClientSettings.public.chat;
-const PUBLIC_GROUP_CHAT_KEY = CHAT_CONFIG.public_group_id;
-const TYPING_INDICATOR_ENABLED = CHAT_CONFIG.typingIndicator.enabled;
 
 interface TypingIndicatorProps {
   typingUsers: Array<User>,
@@ -149,6 +143,10 @@ const TypingIndicatorContainer: React.FC = () => {
     }
   }
 
+  const CHAT_CONFIG = window.meetingClientSettings.public.chat;
+  const PUBLIC_GROUP_CHAT_KEY = CHAT_CONFIG.public_group_id;
+  const TYPING_INDICATOR_ENABLED = CHAT_CONFIG.typingIndicator.enabled;
+
   // eslint-disable-next-line no-unused-expressions, no-console
   DEBUG_CONSOLE && console.log('TypingIndicatorContainer:chat', chat);
   const typingQuery = idChatOpen === PUBLIC_GROUP_CHAT_KEY ? IS_TYPING_PUBLIC_SUBSCRIPTION
@@ -156,7 +154,7 @@ const TypingIndicatorContainer: React.FC = () => {
   const {
     data: typingUsersData,
     error: typingUsersError,
-  } = useSubscription(typingQuery, {
+  } = useDeduplicatedSubscription(typingQuery, {
     variables: {
       chatId: idChatOpen,
     },

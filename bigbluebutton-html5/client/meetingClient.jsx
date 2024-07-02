@@ -18,7 +18,6 @@
 /* eslint no-unused-vars: 0 */
 
 import React, { useContext, useEffect } from 'react';
-import { Meteor } from 'meteor/meteor';
 import logger from '/imports/startup/client/logger';
 import '/imports/ui/services/mobile-app';
 import Base from '/imports/startup/client/base';
@@ -33,22 +32,11 @@ import IntlAdapter from '/imports/startup/client/intlAdapter';
 import PresenceAdapter from '../imports/ui/components/presence-adapter/component';
 import CustomUsersSettings from '/imports/ui/components/join-handler/custom-users-settings/component';
 
-import('/imports/api/audio/client/bridge/bridge-whitelist').catch(() => {
-  // bridge loading
-});
-
 // eslint-disable-next-line import/prefer-default-export
 const Startup = () => {
   const loadingContextInfo = useContext(LoadingContext);
   useEffect(() => {
-    const { disableWebsocketFallback } = window.meetingClientSettings.public.app;
     loadingContextInfo.setLoading(false, '');
-    if (disableWebsocketFallback) {
-      Meteor.connection._stream._sockjsProtocolsWhitelist = function () { return ['websocket']; };
-
-      // Meteor.disconnect();
-      // Meteor.reconnect();
-    }
   }, []);
   // Logs all uncaught exceptions to the client logger
   window.addEventListener('error', (e) => {

@@ -1,19 +1,17 @@
 import React, { useState } from 'react';
 import { defineMessages, useIntl } from 'react-intl';
-import { useQuery, useSubscription } from '@apollo/client';
+import { useQuery } from '@apollo/client';
 import BBBMenu from '/imports/ui/components/common/menu/component';
 import Trigger from '/imports/ui/components/common/control-header/right/component';
 import useCurrentUser from '/imports/ui/core/hooks/useCurrentUser';
-import NotesService from '/imports/ui/components/notes/service';
 import { uniqueId } from '/imports/utils/string-utils';
 import { layoutSelect } from '/imports/ui/components/layout/context';
 import { PROCESSED_PRESENTATIONS_SUBSCRIPTION } from '/imports/ui/components/whiteboard/queries';
 import Service from './service';
 import { GET_PAD_ID, GetPadIdQueryResponse } from './queries';
+import useDeduplicatedSubscription from '/imports/ui/core/hooks/useDeduplicatedSubscription';
 
 const DEBOUNCE_TIMEOUT = 15000;
-const NOTES_CONFIG = window.meetingClientSettings.public.notes;
-const NOTES_IS_PINNABLE = NOTES_CONFIG.pinnable;
 
 const intlMessages = defineMessages({
   convertAndUploadLabel: {
@@ -31,7 +29,8 @@ const intlMessages = defineMessages({
 });
 
 interface NotesDropdownContainerGraphqlProps {
-  handlePinSharedNotes: (pinned: boolean) => void
+  handlePinSharedNotes: (pinned: boolean) => void;
+  presentationEnabled: boolean;
 }
 
 interface NotesDropdownGraphqlProps extends NotesDropdownContainerGraphqlProps {
@@ -44,10 +43,11 @@ interface NotesDropdownGraphqlProps extends NotesDropdownContainerGraphqlProps {
 
 const NotesDropdownGraphql: React.FC<NotesDropdownGraphqlProps> = (props) => {
   const {
-    amIPresenter, presentations, handlePinSharedNotes, isRTL, padId,
+    amIPresenter, presentations, handlePinSharedNotes, isRTL, padId, presentationEnabled,
   } = props;
   const [converterButtonDisabled, setConverterButtonDisabled] = useState(false);
   const intl = useIntl();
+  const NOTES_IS_PINNABLE = window.meetingClientSettings.public.notes.pinnable;
 
   const getAvailableActions = () => {
     const uploadIcon = 'upload';
@@ -66,7 +66,7 @@ const NotesDropdownGraphql: React.FC<NotesDropdownGraphqlProps> = (props) => {
           onClick: () => {
             setConverterButtonDisabled(true);
             setTimeout(() => setConverterButtonDisabled(false), DEBOUNCE_TIMEOUT);
-            return Service.convertAndUpload(presentations, padId);
+            return Service.convertAndUpload(presentations, padId, presentationEnabled);
           },
         },
       );
@@ -122,7 +122,7 @@ const NotesDropdownGraphql: React.FC<NotesDropdownGraphqlProps> = (props) => {
 };
 
 const NotesDropdownContainerGraphql: React.FC<NotesDropdownContainerGraphqlProps> = (props) => {
-  const { handlePinSharedNotes } = props;
+  const { handlePinSharedNotes, presentationEnabled } = props;
   const { data: currentUserData } = useCurrentUser((user) => ({
     presenter: user.presenter,
   }));
@@ -130,12 +130,14 @@ const NotesDropdownContainerGraphql: React.FC<NotesDropdownContainerGraphqlProps
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const isRTL = layoutSelect((i: any) => i.isRTL);
 
-  const { data: presentationData } = useSubscription(PROCESSED_PRESENTATIONS_SUBSCRIPTION);
+  const { data: presentationData } = useDeduplicatedSubscription(PROCESSED_PRESENTATIONS_SUBSCRIPTION);
   const presentations = presentationData?.pres_presentation || [];
+
+  const NOTES_CONFIG = window.meetingClientSettings.public.notes;
 
   const { data: padIdData } = useQuery<GetPadIdQueryResponse>(
     GET_PAD_ID,
-    { variables: { externalId: NotesService.ID } },
+    { variables: { externalId: NOTES_CONFIG.id } },
   );
   const padId = padIdData?.sharedNotes?.[0]?.padId;
 
@@ -147,6 +149,7 @@ const NotesDropdownContainerGraphql: React.FC<NotesDropdownContainerGraphqlProps
       isRTL={isRTL}
       presentations={presentations}
       handlePinSharedNotes={handlePinSharedNotes}
+      presentationEnabled={presentationEnabled}
       padId={padId}
     />
   );

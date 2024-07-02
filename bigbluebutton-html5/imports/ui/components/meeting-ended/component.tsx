@@ -373,6 +373,8 @@ const MeetingEnded: React.FC<MeetingEndedProps> = ({
       apolloClient.stop();
     }
 
+    apolloContextHolder.setShouldRetry(false);
+
     const ws = apolloContextHolder.getLink();
     // stops client connection after 5 seconds, if made immediately some data is lost
     if (ws) {

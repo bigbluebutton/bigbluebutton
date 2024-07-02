@@ -3,10 +3,13 @@ import {
 } from '@apollo/client';
 import { GraphQLWsLink } from '@apollo/client/link/subscriptions';
 import { createClient } from 'graphql-ws';
-import React, { useContext, useEffect } from 'react';
+import { onError } from '@apollo/client/link/error';
+import React, { useContext, useEffect, useRef } from 'react';
 import { LoadingContext } from '/imports/ui/components/common/loading-screen/loading-screen-HOC/component';
 import logger from '/imports/startup/client/logger';
 import apolloContextHolder from '../../core/graphql/apolloContextHolder/apolloContextHolder';
+import connectionStatus from '../../core/graphql/singletons/connectionStatus';
+import deviceInfo from '/imports/utils/deviceInfo';
 
 interface ConnectionManagerProps {
   children: React.ReactNode;
@@ -48,12 +51,34 @@ const payloadSizeCheckLink = new ApolloLink((operation, forward) => {
   return forward(operation);
 });
 
+const errorLink = onError(({ graphQLErrors, networkError }) => {
+  if (graphQLErrors) {
+    graphQLErrors.forEach(({ message }) => {
+      logger.error(`[GraphQL error]: Message: ${message}`);
+    });
+  }
+
+  if (networkError) {
+    logger.error(`[Network error]: ${networkError}`);
+  }
+});
+
 const ConnectionManager: React.FC<ConnectionManagerProps> = ({ children }): React.ReactNode => {
   const [graphqlUrlApolloClient, setApolloClient] = React.useState<ApolloClient<NormalizedCacheObject> | null>(null);
   const [graphqlUrl, setGraphqlUrl] = React.useState<string>('');
   const loadingContextInfo = useContext(LoadingContext);
+  const numberOfAttempts = useRef(20);
+  const [errorCounts, setErrorCounts] = React.useState(0);
+  const activeSocket = useRef<WebSocket>();
+  const timedOut = useRef<ReturnType<typeof setTimeout>>();
+  const [terminalError, setTerminalError] = React.useState<string>('');
   useEffect(() => {
-    fetch(`https://${window.location.hostname}/bigbluebutton/api`, {
+    const pathMatch = window.location.pathname.match('^(.*)/html5client/join$');
+    if (pathMatch == null) {
+      throw new Error('Failed to match BBB client URI');
+    }
+    const serverPathPrefix = pathMatch[1];
+    fetch(`https://${window.location.hostname}${serverPathPrefix}/bigbluebutton/api`, {
       headers: {
         'Content-Type': 'application/json',
       },
@@ -65,12 +90,24 @@ const ConnectionManager: React.FC<ConnectionManagerProps> = ({ children }): Reac
       throw new Error('Error fetching GraphQL URL: '.concat(error.message || ''));
     });
     logger.info('Fetching GraphQL URL');
-    loadingContextInfo.setLoading(true, '1/4');
+    loadingContextInfo.setLoading(true, '1/5');
   }, []);
 
   useEffect(() => {
+    if (errorCounts === numberOfAttempts.current) {
+      throw new Error('Error connecting to server, retrying attempts exceeded');
+    }
+  }, [errorCounts]);
+
+  useEffect(() => {
+    if (terminalError) {
+      throw new Error(terminalError);
+    }
+  }, [terminalError]);
+
+  useEffect(() => {
     logger.info('Connecting to GraphQL server');
-    loadingContextInfo.setLoading(true, '2/4');
+    loadingContextInfo.setLoading(true, '2/5');
     if (graphqlUrl) {
       const urlParams = new URLSearchParams(window.location.search);
       const sessionToken = urlParams.get('sessionToken');
@@ -80,27 +117,80 @@ const ConnectionManager: React.FC<ConnectionManagerProps> = ({ children }): Reac
       }
       sessionStorage.setItem('sessionToken', sessionToken);
 
+      const clientSessionUUID = sessionStorage.getItem('clientSessionUUID');
+      const { isMobile } = deviceInfo;
+
       let wsLink;
       try {
         const subscription = createClient({
           url: graphqlUrl,
+          retryAttempts: numberOfAttempts.current,
+          keepAlive: 10_000,
+          retryWait: async () => {
+            return new Promise((res) => {
+              setTimeout(() => {
+                res();
+              }, 10_000);
+            });
+          },
+          shouldRetry: (error) => {
+            // @ts-ignore - error is not a string
+            if (error.code === 4403) {
+              loadingContextInfo.setLoading(false, '');
+              setTerminalError('Session token is invalid');
+              return false;
+            }
+
+            if (!apolloContextHolder.getShouldRetry()) return false;
+            return true;
+          },
           connectionParams: {
             headers: {
               'X-Session-Token': sessionToken,
+              'X-ClientSessionUUID': clientSessionUUID,
+              'X-ClientType': 'HTML5',
+              'X-ClientIsMobile': isMobile ? 'true' : 'false',
             },
           },
           on: {
             error: (error) => {
               logger.error(`Error: on subscription to server: ${error}`);
               loadingContextInfo.setLoading(false, '');
-              throw new Error(`Error: on subscription to server: ${JSON.stringify(error)}`);
+              connectionStatus.setConnectedStatus(false);
+              setErrorCounts((prev: number) => prev + 1);
+            },
+            closed: () => {
+              connectionStatus.setConnectedStatus(false);
+            },
+            connected: (socket) => {
+              activeSocket.current = socket as WebSocket;
+              connectionStatus.setConnectedStatus(true);
+            },
+            connecting: () => {
+              connectionStatus.setConnectedStatus(false);
+            },
+            ping: (received) => {
+              if (!received) {
+                timedOut.current = setTimeout(() => {
+                  if (activeSocket?.current?.readyState === WebSocket.OPEN) {
+                    connectionStatus.setConnectedStatus(false);
+                    activeSocket?.current?.close(4408, 'Request Timeout');
+                  }
+                }, 5_000);
+              }
+            },
+            pong: () => {
+              clearTimeout(timedOut.current);
+              if (!connectionStatus.getConnectedStatus()) {
+                connectionStatus.setConnectedStatus(true);
+              }
             },
           },
         });
         const graphWsLink = new GraphQLWsLink(
           subscription,
         );
-        wsLink = ApolloLink.from([payloadSizeCheckLink, graphWsLink]);
+        wsLink = ApolloLink.from([payloadSizeCheckLink, errorLink, graphWsLink]);
         wsLink.setOnError((error) => {
           loadingContextInfo.setLoading(false, '');
           throw new Error('Error: on apollo connection'.concat(JSON.stringify(error) || ''));

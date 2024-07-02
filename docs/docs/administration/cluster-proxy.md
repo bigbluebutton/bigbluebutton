@@ -77,6 +77,12 @@ location /bbb-01/html5client/ {
   proxy_set_header Upgrade $http_upgrade;
   proxy_set_header Connection "Upgrade";
 }
+location /bbb-01/bigbluebutton/api {
+  proxy_pass https://bbb-01.example.com/bigbluebutton/api;
+  proxy_http_version 1.1;
+  proxy_set_header Upgrade $http_upgrade;
+  proxy_set_header Connection "Upgrade";
+}
 ```
 
 Repeat this `location` directive for every BigBlueButton server.
@@ -97,7 +103,6 @@ Add these options to `/etc/bigbluebutton/bbb-web.properties`:
 defaultHTML5ClientUrl=https://bbb-proxy.example.com/bbb-01/html5client/join
 presentationBaseURL=https://bbb-01.example.com/bigbluebutton/presentation
 accessControlAllowOrigin=https://bbb-proxy.example.com
-defaultGuestWaitURL=https://bbb-01.example.com/bbb-01/html5client/guestWait
 graphqlWebsocketUrl=wss://bbb-01.example.com/v1/graphql
 ```
 
@@ -124,9 +129,9 @@ public:
     url: 'https://bbb-01.example.com/pad'
 ```
 
-Create (or edit if it already exists) these unit file overrides:
+Create (or edit if it already exists) this unit override file:
 
-* `/usr/lib/systemd/system/bbb-html5.service`
+* `/etc/systemd/system/bbb-html5.service.d/cluster.conf`
 
 It should have the following content:
 
@@ -166,7 +171,7 @@ Create the file `/etc/bigbluebutton/etherpad.json` with the following content:
 ```json
 {
 	"cluster_proxies": [
-		"https://bbb-proxy.example.org"
+		"https://bbb-proxy.example.com"
 	]
 }
 ```
@@ -174,7 +179,7 @@ Create the file `/etc/bigbluebutton/etherpad.json` with the following content:
 Adjust the CORS settings in `/etc/default/bbb-web`:
 
 ```shell
-JDK_JAVA_OPTIONS="-Dgrails.cors.enabled=true -Dgrails.cors.allowCredentials=true -Dgrails.cors.allowedOrigins=https://bbb-proxy.example.org,https://https://bbb-01.example.com"
+JDK_JAVA_OPTIONS="-Dgrails.cors.enabled=true -Dgrails.cors.allowCredentials=true -Dgrails.cors.allowedOrigins=https://bbb-proxy.example.com,https://https://bbb-01.example.com"
 ```
 
 Adjust the CORS setting in `/etc/default/bbb-graphql-middleware`:
@@ -183,16 +188,24 @@ Adjust the CORS setting in `/etc/default/bbb-graphql-middleware`:
 BBB_GRAPHQL_MIDDLEWARE_LISTEN_PORT=8378
 # If you are running a cluster proxy setup, you need to configure the Origin of
 # the frontend. See https://docs.bigbluebutton.org/administration/cluster-proxy
-BBB_GRAPHQL_MIDDLEWARE_ORIGIN=bbb-proxy.example.org
+BBB_GRAPHQL_MIDDLEWARE_ORIGIN=bbb-proxy.example.com
 ```
 
 Pay attention that this one is without protocol, just the hostname.
 
-
-Restart BigBlueButton:
+Adjust the CORS setting in `/etc/default/bbb-graphql-server`:
 
 ```shell
-$ bbb-conf --restart
+HASURA_GRAPHQL_CORS_DOMAIN="https://bbb-proxy.example.com"
+```
+
+This one includes the protocol.
+
+Reload systemd and restart BigBlueButton:
+
+```shell
+# systemctl daemon-reload
+# bbb-conf --restart
 ```
 
 Now, opening a new session should show

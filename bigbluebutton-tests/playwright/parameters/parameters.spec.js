@@ -371,7 +371,7 @@ test.describe.parallel('Custom Parameters', () => {
     await customParam.askForFeedbackOnLogout();
   });
 
-  test('Display Branding Area', async ({ browser, context, page }) => {
+  test('Display Branding Area @ci', async ({ browser, context, page }) => {
     const customParam = new CustomParameters(browser, context);
     await customParam.initModPage(page, true, { createParameter: `${c.displayBrandingArea}&${encodeCustomParams(c.logo)}` });
     await customParam.displayBrandingArea();
@@ -512,12 +512,11 @@ test.describe.parallel('Custom Parameters', () => {
     });
   });
 
-  test.describe.parallel('Whiteboard', () => {
-    test.skip();
+  test.describe.parallel('Whiteboard @ci', () => {
     test('Multi Users Pen Only', async ({ browser, context, page }) => {
       const customParam = new CustomParameters(browser, context);
-      await customParam.initModPage(page, true, { joinParameter: c.multiUserPenOnly });
-      await customParam.initUserPage(true, context, { useModMeetingId: true, createParameter: c.multiUserPenOnly });
+      await customParam.initModPage(page, true);
+      await customParam.initUserPage(true, context, { useModMeetingId: true, joinParameter: c.multiUserPenOnly });
       await customParam.multiUserPenOnly();
     });
 

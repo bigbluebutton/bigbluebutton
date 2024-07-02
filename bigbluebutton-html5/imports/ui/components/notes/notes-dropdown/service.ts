@@ -4,10 +4,8 @@ import PadsService from '/imports/ui/components/pads/pads-graphql/service';
 import { UploadingPresentations } from '/imports/api/presentations';
 import { uniqueId } from '/imports/utils/string-utils';
 
-const PADS_CONFIG = window.meetingClientSettings.public.pads;
-
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
-async function convertAndUpload(presentations: any, padId: string) {
+async function convertAndUpload(presentations: any, padId: string, presentationEnabled = true) {
   let filename = 'Shared_Notes';
   const duplicates = presentations.filter(
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -32,6 +30,8 @@ async function convertAndUpload(presentations: any, padId: string) {
     uploadTimestamp: new Date(),
   });
 
+  const PADS_CONFIG = window.meetingClientSettings.public.pads;
+
   const exportUrl = Auth.authenticateURL(`${PADS_CONFIG.url}/p/${padId}/export/${extension}?${params}`);
   const sharedNotesAsFile = await fetch(exportUrl, { credentials: 'include' });
 
@@ -54,7 +54,7 @@ async function convertAndUpload(presentations: any, padId: string) {
     onUpload: () => { },
     onProgress: () => { },
     onDone: () => { },
-  });
+  }, undefined, undefined, undefined, presentationEnabled);
 }
 
 export default {

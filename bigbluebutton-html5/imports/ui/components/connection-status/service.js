@@ -1,13 +1,10 @@
 import { defineMessages } from 'react-intl';
+import { makeVar } from '@apollo/client';
 import Auth from '/imports/ui/services/auth';
-import { Session } from 'meteor/session';
+import Session from '/imports/ui/services/storage/in-memory';
 import { notify } from '/imports/ui/services/notification';
 import AudioService from '/imports/ui/components/audio/service';
-import VideoService from '/imports/ui/components/video-provider/video-provider-graphql/service';
 import ScreenshareService from '/imports/ui/components/screenshare/service';
-
-const STATS = window.meetingClientSettings.public.stats;
-const NOTIFICATION = STATS.notification;
 
 const intlMessages = defineMessages({
   saved: {
@@ -20,31 +17,33 @@ const intlMessages = defineMessages({
   },
 });
 
-let lastLevel = -1;
-const levelDep = new Tracker.Dependency();
+const lastLevel = makeVar();
 
 let statsTimeout = null;
 
 const URL_REGEX = new RegExp(/^(http|https):\/\/[^ "]+$/);
 const getHelp = () => {
+  const STATS = window.meetingClientSettings.public.stats;
+
   if (URL_REGEX.test(STATS.help)) return STATS.help;
 
   return null;
 };
 
 const getStats = () => {
-  levelDep.depend();
-  return STATS.level[lastLevel];
+  const STATS = window.meetingClientSettings.public.stats;
+  return STATS.level[lastLevel()];
 };
 
 const setStats = (level = -1, type = 'recovery', value = {}) => {
-  if (lastLevel !== level) {
-    lastLevel = level;
-    levelDep.changed();
+  if (lastLevel() !== level) {
+    lastLevel(level);
   }
 };
 
 const handleAudioStatsEvent = (event) => {
+  const STATS = window.meetingClientSettings.public.stats;
+
   const { detail } = event;
   if (detail) {
     const { loss, jitter } = detail;
@@ -63,6 +62,8 @@ const handleAudioStatsEvent = (event) => {
 };
 
 const startStatsTimeout = () => {
+  const STATS = window.meetingClientSettings.public.stats;
+
   if (statsTimeout !== null) clearTimeout(statsTimeout);
 
   statsTimeout = setTimeout(() => {
@@ -71,6 +72,8 @@ const startStatsTimeout = () => {
 };
 
 const sortLevel = (a, b) => {
+  const STATS = window.meetingClientSettings.public.stats;
+
   const indexOfA = STATS.level.indexOf(a.level);
   const indexOfB = STATS.level.indexOf(b.level);
 
@@ -85,20 +88,18 @@ const sortOnline = (a, b) => {
   if (a.user.isOnline && !b.user.isOnline) return -1;
 };
 
-const isEnabled = () => STATS.enabled;
-
-if (STATS.enabled) {
-  window.addEventListener('audiostats', handleAudioStatsEvent);
-}
+const isEnabled = () => window.meetingClientSettings.public.stats.enabled;
 
 const getNotified = () => {
-  const notified = Session.get('connectionStatusNotified');
+  const notified = Session.getItem('connectionStatusNotified');
 
   // Since notified can be undefined we need a boolean verification
   return notified === true;
 };
 
 const notification = (level, intl) => {
+  const NOTIFICATION = window.meetingClientSettings.public.stats.notification;
+
   if (!NOTIFICATION[level]) return null;
 
   // Avoid toast spamming
@@ -106,7 +107,7 @@ const notification = (level, intl) => {
   if (notified) {
     return null;
   }
-  Session.set('connectionStatusNotified', true);
+  Session.setItem('connectionStatusNotified', true);
 
   if (intl) notify(intl.formatMessage(intlMessages.notification), level, 'warning');
 };
@@ -384,4 +385,5 @@ export default {
   calculateBitsPerSecondFromMultipleData,
   getDataType,
   sortConnectionData,
+  handleAudioStatsEvent,
 };

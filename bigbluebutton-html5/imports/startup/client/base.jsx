@@ -1,39 +1,23 @@
 import React, { Component } from 'react';
-import { withTracker } from 'meteor/react-meteor-data';
-import PropTypes from 'prop-types';
 import Auth from '/imports/ui/services/auth';
 import AppContainer from '/imports/ui/components/app/container';
-import LoadingScreen from '/imports/ui/components/common/loading-screen/component';
-import Settings from '/imports/ui/services/settings';
-import logger from '/imports/startup/client/logger';
-import { Session } from 'meteor/session';
-import { Meteor } from 'meteor/meteor';
-import AppService from '/imports/ui/components/app/service';
+import { getSettingsSingletonInstance } from '/imports/ui/services/settings';
+import Session from '/imports/ui/services/storage/in-memory';
 import deviceInfo from '/imports/utils/deviceInfo';
 import getFromUserSettings from '/imports/ui/services/users-settings';
 import { layoutSelectInput, layoutDispatch } from '../../ui/components/layout/context';
-import { useVideoStreams } from '/imports/ui/components/video-provider/video-provider-graphql/hooks';
+import { useVideoStreams } from '/imports/ui/components/video-provider/hooks';
 import DebugWindow from '/imports/ui/components/debug-window/component';
 import { ACTIONS, PANELS } from '../../ui/components/layout/enums';
-import { isChatEnabled } from '/imports/ui/services/features';
+import { useIsChatEnabled } from '/imports/ui/services/features';
 import useUserChangedLocalSettings from '/imports/ui/services/settings/hooks/useUserChangedLocalSettings';
 import useSettings from '/imports/ui/services/settings/hooks/useSettings';
 import { SETTINGS } from '/imports/ui/services/settings/enums';
-
-const CHAT_CONFIG = window.meetingClientSettings.public.chat;
-const PUBLIC_CHAT_ID = CHAT_CONFIG.public_group_id;
+import { useStorageKey } from '/imports/ui/services/storage/hooks';
 
 const HTML = document.getElementsByTagName('html')[0];
 
 let checkedUserSettings = false;
-
-const propTypes = {
-  approved: PropTypes.bool,
-};
-
-const defaultProps = {
-  approved: false,
-};
 
 const fullscreenChangedEvents = [
   'fullscreenchange',
@@ -56,7 +40,7 @@ class Base extends Component {
       || document.webkitFullscreenElement
       || document.mozFullScreenElement
       || document.msFullscreenElement) {
-      Session.set('isFullscreen', true);
+      Session.setItem('isFullscreen', true);
     } else {
       layoutContextDispatch({
         type: ACTIONS.SET_FULLSCREEN_ELEMENT,
@@ -65,12 +49,13 @@ class Base extends Component {
           group: '',
         },
       });
-      Session.set('isFullscreen', false);
+      Session.setItem('isFullscreen', false);
     }
   }
 
   componentDidMount() {
     const { animations, usersVideo, layoutContextDispatch } = this.props;
+    const CAPTIONS_ALWAYS_VISIBLE = window.meetingClientSettings.public.app.audioCaptions.alwaysVisible;
 
     layoutContextDispatch({
       type: ACTIONS.SET_NUM_CAMERAS,
@@ -83,7 +68,8 @@ class Base extends Component {
     fullscreenChangedEvents.forEach((event) => {
       document.addEventListener(event, this.handleFullscreenChange);
     });
-    Session.set('isFullscreen', false);
+    Session.setItem('isFullscreen', false);
+    Session.setItem('audioCaptions', CAPTIONS_ALWAYS_VISIBLE);
   }
 
   componentDidUpdate(prevProps) {
@@ -93,6 +79,7 @@ class Base extends Component {
       sidebarContentPanel,
       usersVideo,
       setLocalSettings,
+      isChatEnabled,
     } = this.props;
 
     if (usersVideo !== prevProps.usersVideo) {
@@ -120,11 +107,14 @@ class Base extends Component {
           window.meetingClientSettings.public.app.defaultSettings.application.animations
         );
 
+        const Settings = getSettingsSingletonInstance();
         Settings.application.animations = showAnimationsDefault;
         Settings.save(setLocalSettings);
 
         if (getFromUserSettings('bbb_show_participants_on_login', window.meetingClientSettings.public.layout.showParticipantsOnLogin) && !deviceInfo.isPhone) {
-          if (isChatEnabled() && getFromUserSettings('bbb_show_public_chat_on_login', !window.meetingClientSettings.public.chat.startClosed)) {
+          if (isChatEnabled && getFromUserSettings('bbb_show_public_chat_on_login', !window.meetingClientSettings.public.chat.startClosed)) {
+            const PUBLIC_CHAT_ID = window.meetingClientSettings.public.chat.public_group_id;
+
             layoutContextDispatch({
               type: ACTIONS.SET_SIDEBAR_NAVIGATION_IS_OPEN,
               value: true,
@@ -183,22 +173,26 @@ class Base extends Component {
   }
 }
 
-Base.propTypes = propTypes;
-Base.defaultProps = defaultProps;
-
 const BaseContainer = (props) => {
-  const { isGridLayout } = props;
+  const codeError = useStorageKey('codeError');
+  const isGridLayout = useStorageKey('isGridEnabled');
   const sidebarContent = layoutSelectInput((i) => i.sidebarContent);
   const { sidebarContentPanel } = sidebarContent;
   const layoutContextDispatch = layoutDispatch();
   const setLocalSettings = useUserChangedLocalSettings();
-  const { paginationEnabled, animations } = useSettings(SETTINGS.APPLICATION);
+
+  const applicationSettings = useSettings(SETTINGS.APPLICATION);
+  const paginationEnabled = applicationSettings?.paginationEnabled;
+  const animations = applicationSettings?.animations;
+
   const { viewParticipantsWebcams, viewScreenshare } = useSettings(SETTINGS.DATA_SAVING);
   const { streams: usersVideo } = useVideoStreams(
     isGridLayout,
     paginationEnabled,
     viewParticipantsWebcams,
   );
+  const loggedIn = Auth.useLoggedIn();
+  const isChatEnabled = useIsChatEnabled();
 
   return (
     <Base
@@ -209,27 +203,13 @@ const BaseContainer = (props) => {
         usersVideo,
         animations,
         viewScreenshare,
+        codeError,
+        loggedIn,
+        isChatEnabled,
         ...props,
       }}
     />
   );
 };
 
-export default withTracker(() => {
-  const {
-    loggedIn,
-  } = Auth;
-
-  let userSubscriptionHandler;
-
-  const codeError = Session.get('codeError');
-  const isGridLayout = Session.get('isGridEnabled');
-  return {
-    userSubscriptionHandler,
-    isMeteorConnected: Meteor.status().connected,
-    meetingIsBreakout: AppService.meetingIsBreakout(),
-    loggedIn,
-    codeError,
-    isGridLayout,
-  };
-})(BaseContainer);
+export default BaseContainer;

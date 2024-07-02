@@ -10,13 +10,13 @@ import {
     timerWorkerScript
 } from './TimeWorker';
 import {
-  BASE_PATH,
+  getBasePath,
   MODELS,
   getVirtualBgImagePath,
 } from '/imports/ui/services/virtual-background/service'
 import logger from '/imports/startup/client/logger';
 
-import { simd } from 'wasm-feature-detect/dist/cjs/index';
+import { simd } from 'wasm-feature-detect';
 
 const blurValue = '25px';
 
@@ -369,6 +369,8 @@ export async function createVirtualBackgroundService(parameters = null) {
     let tflite;
     let modelResponse;
     const simdSupported = await simd();
+
+    const BASE_PATH = getBasePath();
 
     if (simdSupported) {
         tflite = await window.createTFLiteSIMDModule();

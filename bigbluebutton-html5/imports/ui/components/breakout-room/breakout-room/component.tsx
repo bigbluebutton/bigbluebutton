@@ -1,4 +1,4 @@
-import { useMutation, useSubscription } from '@apollo/client';
+import { useMutation } from '@apollo/client';
 import React, { useCallback, useEffect } from 'react';
 import { defineMessages, useIntl } from 'react-intl';
 import {
@@ -23,7 +23,8 @@ import {
   forceExitAudio,
   stopVideo,
 } from './service';
-import { useExitVideo, useStreams } from '../../video-provider/video-provider-graphql/hooks';
+import { useExitVideo, useStreams } from '/imports/ui/components/video-provider/hooks';
+import useDeduplicatedSubscription from '/imports/ui/core/hooks/useDeduplicatedSubscription';
 
 interface BreakoutRoomProps {
   breakouts: BreakoutRoom[];
@@ -227,7 +228,7 @@ const BreakoutRoom: React.FC<BreakoutRoomProps> = ({
                   ) : (
                     <Styled.BreakoutActions>
                       {
-                        breakout.currentRoomJoined
+                        breakout.isUserCurrentlyInRoom
                           ? (
                             <Styled.AlreadyConnected data-test="alreadyConnected">
                               {intl.formatMessage(intlMessages.alreadyConnected)}
@@ -324,7 +325,7 @@ const BreakoutRoomContainer: React.FC = () => {
     data: breakoutData,
     loading: breakoutLoading,
     error: breakoutError,
-  } = useSubscription<GetBreakoutDataResponse>(getBreakoutData);
+  } = useDeduplicatedSubscription<GetBreakoutDataResponse>(getBreakoutData);
 
   if (
     breakoutLoading

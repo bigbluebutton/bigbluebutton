@@ -16,10 +16,6 @@ import { useCreateUseSubscription } from '/imports/ui/core/hooks/createUseSubscr
 import { setLoadedMessageGathering } from '/imports/ui/core/hooks/useLoadedChatMessages';
 import { ChatLoading } from '../../component';
 
-// @ts-ignore - temporary, while meteor exists in the project
-const CHAT_CONFIG = window.meetingClientSettings.public.chat;
-const PUBLIC_GROUP_CHAT_KEY = CHAT_CONFIG.public_group_id;
-
 interface ChatListPageContainerProps {
   page: number;
   pageSize: number;
@@ -66,8 +62,8 @@ const ChatListPage: React.FC<ChatListPageProps> = ({
   return (
     // eslint-disable-next-line react/jsx-filename-extension
     <div key={`messagePage-${page}`} id={`${page}`}>
-      {messages.map((message, index, Array) => {
-        const previousMessage = Array[index - 1];
+      {messages.map((message, index, messagesArray) => {
+        const previousMessage = messagesArray[index - 1];
         return (
           <ChatMessage
             key={message.createdAt}
@@ -95,6 +91,10 @@ const ChatListPageContainer: React.FC<ChatListPageContainerProps> = ({
   markMessageAsSeen,
   scrollRef,
 }) => {
+  // @ts-ignore - temporary, while meteor exists in the project
+  const CHAT_CONFIG = window.meetingClientSettings.public.chat;
+  const PUBLIC_GROUP_CHAT_KEY = CHAT_CONFIG.public_group_id;
+
   const isPublicChat = chatId === PUBLIC_GROUP_CHAT_KEY;
   const chatQuery = isPublicChat
     ? CHAT_MESSAGE_PUBLIC_SUBSCRIPTION

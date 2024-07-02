@@ -76,7 +76,6 @@ class MeetingActor(
   with UsersApp2x
 
   with UserJoinMeetingReqMsgHdlr
-  with UserJoinMeetingAfterReconnectReqMsgHdlr
   with UserEstablishedGraphqlConnectionInternalMsgHdlr
   with UserConnectedToGlobalAudioMsgHdlr
   with UserDisconnectedFromGlobalAudioMsgHdlr
@@ -102,6 +101,7 @@ class MeetingActor(
 
   object CheckVoiceRecordingInternalMsg
   object SyncVoiceUserStatusInternalMsg
+  object MeetingTasksExecutor
   object MeetingInfoAnalyticsMsg
   object MeetingInfoAnalyticsLogMsg
 
@@ -244,6 +244,13 @@ class MeetingActor(
     MeetingInfoAnalyticsMsg
   )
 
+  context.system.scheduler.schedule(
+    5 seconds,
+    5 seconds,
+    self,
+    MeetingTasksExecutor
+  )
+
   def receive = {
     case SyncVoiceUserStatusInternalMsg =>
       checkVoiceConfUsersStatus()
@@ -253,6 +260,8 @@ class MeetingActor(
       handleMeetingInfoAnalyticsLogging()
     case MeetingInfoAnalyticsMsg =>
       handleMeetingInfoAnalyticsService()
+    case MeetingTasksExecutor =>
+      handleMeetingTasksExecutor()
     //=============================
 
     // 2x messages
@@ -265,6 +274,9 @@ class MeetingActor(
     case m: GetRunningMeetingStateReqMsg          => handleGetRunningMeetingStateReqMsg(m)
     case m: ValidateConnAuthTokenSysMsg           => handleValidateConnAuthTokenSysMsg(m)
 
+    //API Msgs
+    case m: GetUserApiMsg                         => usersApp.handleGetUsersMeetingReqMsg(m, sender)
+
     // Meeting
     case m: DestroyMeetingSysCmdMsg               => handleDestroyMeetingSysCmdMsg(m)
 
@@ -273,6 +285,7 @@ class MeetingActor(
     //=======================================
     // internal messages
     case msg: MonitorNumberOfUsersInternalMsg     => handleMonitorNumberOfUsers(msg)
+    case msg: MonitorGuestWaitPresenceInternalMsg => handleMonitorGuestWaitPresenceInternalMsg(msg)
     case msg: SetPresenterInDefaultPodInternalMsg => state = presentationPodsApp.handleSetPresenterInDefaultPodInternalMsg(msg, state, liveMeeting, msgBus)
     case msg: UserClosedAllGraphqlConnectionsInternalMsg =>
       state = handleUserClosedAllGraphqlConnectionsInternalMsg(msg, state)
@@ -421,9 +434,6 @@ class MeetingActor(
       case m: UserJoinMeetingReqMsg =>
         state = handleUserJoinMeetingReqMsg(m, state)
         updateModeratorsPresence()
-      case m: UserJoinMeetingAfterReconnectReqMsg =>
-        state = handleUserJoinMeetingAfterReconnectReqMsg(m, state)
-        updateModeratorsPresence()
       case m: UserLeaveReqMsg =>
         state = handleUserLeaveReqMsg(m, state)
         updateModeratorsPresence()
@@ -438,7 +448,6 @@ class MeetingActor(
       case m: RecordAndClearPreviousMarkersCmdMsg =>
         state = usersApp.handleRecordAndClearPreviousMarkersCmdMsg(m, state)
         updateUserLastActivity(m.body.setBy)
-      case m: GetRecordingStatusReqMsg => usersApp.handleGetRecordingStatusReqMsg(m)
       case m: ChangeUserEmojiCmdMsg =>
         handleChangeUserEmojiCmdMsg(m)
         updateUserLastActivity(m.header.userId)
@@ -460,10 +469,11 @@ class MeetingActor(
       case m: ChangeUserPinStateReqMsg =>
         usersApp.handleChangeUserPinStateReqMsg(m)
         updateUserLastActivity(m.body.changedBy)
-      case m: ChangeUserMobileFlagReqMsg => usersApp.handleChangeUserMobileFlagReqMsg(m)
       case m: UserConnectionAliveReqMsg  => usersApp.handleUserConnectionAliveReqMsg(m)
       case m: SetUserSpeechLocaleReqMsg  => usersApp.handleSetUserSpeechLocaleReqMsg(m)
       case m: SetUserSpeechOptionsReqMsg => usersApp.handleSetUserSpeechOptionsReqMsg(m)
+      case m: GetRecordingStatusReqMsg   => usersApp.handleGetRecordingStatusReqMsg(m)
+      case m: SetUserCaptionLocaleReqMsg => usersApp.handleSetUserCaptionLocaleReqMsg(m)
 
       // Client requested to eject user
       case m: EjectUserFromMeetingCmdMsg =>
@@ -642,8 +652,9 @@ class MeetingActor(
 
       // Caption
       case m: EditCaptionHistoryPubMsg                => captionApp2x.handle(m, liveMeeting, msgBus)
-      case m: UpdateCaptionOwnerPubMsg                => captionApp2x.handle(m, liveMeeting, msgBus)
+      case m: AddCaptionLocalePubMsg                  => captionApp2x.handle(m, liveMeeting, msgBus)
       case m: SendCaptionHistoryReqMsg                => captionApp2x.handle(m, liveMeeting, msgBus)
+      case m: CaptionSubmitTranscriptPubMsg           => captionApp2x.handle(m, liveMeeting, msgBus)
 
       // Guests
       case m: GetGuestsWaitingApprovalReqMsg          => handleGetGuestsWaitingApprovalReqMsg(m)
@@ -656,7 +667,6 @@ class MeetingActor(
       case m: GuestsWaitingApprovedMsg =>
         handleGuestsWaitingApprovedMsg(m)
         updateUserLastActivity(m.header.userId)
-      case m: GuestWaitingLeftMsg                => handleGuestWaitingLeftMsg(m)
       case m: GetGuestPolicyReqMsg               => handleGetGuestPolicyReqMsg(m)
       case m: UpdatePositionInWaitingQueueReqMsg => handleUpdatePositionInWaitingQueueReqMsg(m)
       case m: SetPrivateGuestLobbyMessageCmdMsg =>
@@ -700,11 +710,14 @@ class MeetingActor(
       case m: SendGroupChatMessageMsg =>
         state = groupChatApp.handle(m, state, liveMeeting, msgBus)
         updateUserLastActivity(m.body.msg.sender.id)
+      case m: SendGroupChatMessageFromApiSysPubMsg =>
+        state = groupChatApp.handle(m, state, liveMeeting, msgBus)
 
       // Plugin
-      case m: PluginDataChannelPushEntryMsg   => pluginHdlrs.handle(m, state, liveMeeting)
-      case m: PluginDataChannelDeleteEntryMsg => pluginHdlrs.handle(m, state, liveMeeting)
-      case m: PluginDataChannelResetMsg       => pluginHdlrs.handle(m, state, liveMeeting)
+      case m: PluginDataChannelPushEntryMsg    => pluginHdlrs.handle(m, state, liveMeeting)
+      case m: PluginDataChannelReplaceEntryMsg => pluginHdlrs.handle(m, state, liveMeeting)
+      case m: PluginDataChannelDeleteEntryMsg  => pluginHdlrs.handle(m, state, liveMeeting)
+      case m: PluginDataChannelResetMsg        => pluginHdlrs.handle(m, state, liveMeeting)
 
       // Webcams
       case m: UserBroadcastCamStartMsg =>
@@ -777,6 +790,25 @@ class MeetingActor(
     val meetingInfoAnalyticsLogMsg: MeetingInfoAnalytics = prepareMeetingInfo()
     val event2 = MsgBuilder.buildMeetingInfoAnalyticsServiceMsg(meetingInfoAnalyticsLogMsg)
     outGW.send(event2)
+  }
+
+  private def handleMeetingTasksExecutor(): Unit = {
+    clearExpiredReactionEmojis()
+  }
+
+  private def clearExpiredReactionEmojis(): Unit = {
+    val userReactionExpire = getConfigPropertyValueByPathAsIntOrElse(liveMeeting.clientSettings, "public.userReaction.expire", 30)
+    val now = System.currentTimeMillis()
+
+    for {
+      user <- Users2x.findAll(liveMeeting.users2x)
+    } yield {
+      if (user.reactionEmoji != null && user.reactionEmoji != "none") {
+        if (now - user.reactionChangedOn > userReactionExpire * 1000) {
+          Users2x.setReactionEmoji(liveMeeting.users2x, user.intId, "none", 0)
+        }
+      }
+    }
   }
 
   private def prepareMeetingInfo(): MeetingInfoAnalytics = {
@@ -918,6 +950,25 @@ class MeetingActor(
     checkIfNeedToEndMeetingWhenNoModerators(liveMeeting)
   }
 
+  def handleMonitorGuestWaitPresenceInternalMsg(msg: MonitorGuestWaitPresenceInternalMsg) {
+    if (liveMeeting.props.usersProp.waitingGuestUsersTimeout > 0) {
+      for {
+        regUser <- RegisteredUsers.findAll(liveMeeting.registeredUsers)
+      } yield {
+        if (!regUser.loggedOut
+          && regUser.guestStatus == GuestStatus.WAIT
+          && !regUser.graphqlConnected
+          && regUser.graphqlDisconnectedOn != 0) {
+          val diff = System.currentTimeMillis() - regUser.graphqlDisconnectedOn
+          if (diff > liveMeeting.props.usersProp.waitingGuestUsersTimeout) {
+            GuestsWaiting.remove(liveMeeting.guestsWaiting, regUser.id)
+            UsersApp.guestWaitingLeft(liveMeeting, regUser.id, outGW)
+          }
+        }
+      }
+    }
+  }
+
   def checkVoiceConfUsersStatus(): Unit = {
     val event = MsgBuilder.buildLastcheckVoiceConfUsersStatus(
       props.meetingProp.intId,
@@ -1031,8 +1082,6 @@ class MeetingActor(
         log.info("Removing user from meeting. meetingId=" + props.meetingProp.intId + " userId=" + u.intId + " user=" + u)
 
         RegisteredUsers.updateUserJoin(liveMeeting.registeredUsers, ru, joined = false)
-
-        captionApp2x.handleUserLeavingMsg(leftUser.intId, liveMeeting, msgBus)
 
         // send a user left event for the clients to update
         val userLeftMeetingEvent = MsgBuilder.buildUserLeftMeetingEvtMsg(liveMeeting.props.meetingProp.intId, u.intId)

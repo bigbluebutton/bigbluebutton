@@ -16,8 +16,6 @@ import {
 } from '/imports/ui/components/audio/audio-graphql/audio-controls/input-stream-live-selector/service';
 import Styled from './styles';
 
-const REACTIONS = window.meetingClientSettings.public.userReaction.reactions;
-
 const ReactionsButton = (props) => {
   const {
     intl,
@@ -31,6 +29,8 @@ const ReactionsButton = (props) => {
     currentUserReaction,
     autoCloseReactionsBar,
   } = props;
+
+  const REACTIONS = window.meetingClientSettings.public.userReaction.reactions;
 
   // initialize emoji-mart data, need for the new version
   init({ data });
@@ -227,17 +227,11 @@ const propTypes = {
     formatMessage: PropTypes.func.isRequired,
   }).isRequired,
   userId: PropTypes.string.isRequired,
-  emoji: PropTypes.string,
   sidebarContentPanel: PropTypes.string.isRequired,
   layoutContextDispatch: PropTypes.func.isRequired,
   muted: PropTypes.bool.isRequired,
 };
 
-const defaultProps = {
-  emoji: '',
-};
-
 ReactionsButton.propTypes = propTypes;
-ReactionsButton.defaultProps = defaultProps;
 
 export default withShortcutHelper(ReactionsButton, ['raiseHand']);

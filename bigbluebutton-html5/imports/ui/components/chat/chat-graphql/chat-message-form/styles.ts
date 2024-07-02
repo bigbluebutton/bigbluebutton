@@ -136,7 +136,7 @@ const EmojiPickerWrapper = styled.div`
   }
 `;
 
-const Error = styled.div`
+const ChatMessageError = styled.div`
   color: ${colorDanger};
   font-size: calc(${fontSizeBase} * .75);
   color: ${colorGrayDark};
@@ -159,5 +159,5 @@ export default {
   EmojiButtonWrapper,
   EmojiPicker,
   EmojiPickerWrapper,
-  Error,
+  ChatMessageError,
 };

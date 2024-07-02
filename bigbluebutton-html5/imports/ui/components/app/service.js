@@ -5,6 +5,7 @@ import deviceInfo from '/imports/utils/deviceInfo';
 import Styled from './styles';
 import DarkReader from 'darkreader';
 import logger from '/imports/startup/client/logger';
+import useMeeting from '../../core/hooks/useMeeting';
 
 export const getBreakoutRooms = () => Breakouts.find().fetch();
 
@@ -13,6 +14,14 @@ export function meetingIsBreakout() {
     { meetingId: Auth.meetingID },
     { fields: { isBreakout: 1 } },
   );
+  return meeting && meeting.isBreakout;
+}
+
+export function useMeetingIsBreakout() {
+  const { data: meeting } = useMeeting((m) => ({
+    isBreakout: m.isBreakout,
+  }));
+
   return meeting && meeting.isBreakout;
 }
 
@@ -54,4 +63,5 @@ export default {
   getBreakoutRooms,
   setDarkTheme,
   isDarkThemeEnabled,
+  useMeetingIsBreakout,
 };
