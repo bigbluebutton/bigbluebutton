@@ -742,7 +742,7 @@
     "app.audioModal.no": "Nein",
     "app.audioModal.yes.arialabel": "Echo ist hörbar",
     "app.audioModal.no.arialabel": "Echo ist nicht hörbar",
-    "app.audioModal.echoTestTitle": "Dies ist ein persönlicher Echotest. Sprechen Sie ein paar Worte. Hören Sie sich selbst?",
+    "app.audioModal.echoTestTitle": "Dies ist ein persönlicher Echotest. Bitte ein paar Worte sprechen, ist alles hörbar?",
     "app.audioModal.settingsTitle": "Audioeinstellungen ändern",
     "app.audioModal.helpTitle": "Es gab ein Problem mit den Mediengeräten (Mikrofon/Webcam)",
     "app.audioModal.helpSubtitleMic": "Wir konnten das Mikrofon nicht aktivieren",
