@@ -105,6 +105,14 @@ const IntlAdapter: React.FC<IntlAdapterProps> = ({
   const runOnCurrentLocaleUpdate = () => {
     setUp();
     sendUiDataToPlugins();
+    window.removeEventListener(
+      `${UI_DATA_LISTENER_SUBSCRIBED}-${PluginSdk.IntlLocaleUiDataNames.CURRENT_LOCALE}`,
+      sendUiDataToPlugins,
+    );
+    window.addEventListener(
+      `${UI_DATA_LISTENER_SUBSCRIBED}-${PluginSdk.IntlLocaleUiDataNames.CURRENT_LOCALE}`,
+      sendUiDataToPlugins,
+    );
   };
 
   useEffect(runOnMountAndUnmount, []);
