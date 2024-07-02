@@ -912,7 +912,7 @@
     "app.toast.meetingMuteOff.label": "Konferenz-Stummschaltung ausgeschaltet",
     "app.toast.wakeLock.acquireSuccess": "Sperre aktiv! Sie können diese Funktion im Einstellungsmenü deaktivieren.",
     "app.toast.wakeLock.acquireFailed": "Fehler beim Erfassen der Aufwach-Sperre",
-    "app.toast.wakeLock.notSupported": "Der Browser unterstützt Aufwach-Sperren nicht",
+    "app.toast.wakeLock.notSupported": "Dieser Browser kann das Einschlafen des Gerätes leider nicht verhindern",
     "app.toast.wakeLock.disclaimer": "{0}. Nach Ausschalten des Bildschirms wird die Verbindung beendet.",
     "app.toast.setEmoji.raiseHand": "Sie haben Ihre Hand gehoben",
     "app.toast.setEmoji.lowerHand": "Ihre Hand wurde gesenkt",
