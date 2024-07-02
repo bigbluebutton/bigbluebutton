@@ -917,7 +917,7 @@
     "app.toast.setEmoji.raiseHand": "Hand gehoben",
     "app.toast.setEmoji.lowerHand": "Ihre Hand wurde gesenkt",
     "app.toast.setEmoji.away": "Status auf abwesend gesetzt",
-    "app.toast.setEmoji.notAway": "Sie haben Ihren Abwesenheitsstatus entfernt",
+    "app.toast.setEmoji.notAway": "Abwesenheitsstatus entfernt",
     "app.toast.promotedLabel": "Sie sind zum Moderator ernannt worden",
     "app.toast.demotedLabel": "Sie sind nun wieder in der Rolle eines Teilnehmers",
     "app.notification.recordingStart": "Diese Konferenz wird jetzt aufgezeichnet",
