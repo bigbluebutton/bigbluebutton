@@ -202,7 +202,7 @@
     "app.userList.userOptions.enablePubChat": "Öffentlicher Chat ist erlaubt",
     "app.userList.userOptions.enableNotes": "Geteilte Notizen sind jetzt erlaubt",
     "app.userList.userOptions.showUserList": "Liste der Teilnehmenden ist jetzt für alle sichtbar",
-    "app.userList.userOptions.enableOnlyModeratorWebcam": "Sie können Ihre Webcam jetzt freigeben, jeder wird Sie sehen.",
+    "app.userList.userOptions.enableOnlyModeratorWebcam": "Die Webkamera kann jetzt freigeben werden und wird dann allen anderen gezeigt",
     "app.userList.userOptions.savedNames.title": "Liste der Personen in der Konferenz {0} vom {1}",
     "app.userList.userOptions.sortedFirstName.heading": "Sortiert nach Vorname:",
     "app.userList.userOptions.sortedLastName.heading": "Sortiert nach Nachname:",
