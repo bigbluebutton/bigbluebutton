@@ -368,7 +368,7 @@
     "app.presentationUploder.uploadViewTitle": "Präsentation hochladen",
     "app.poll.questionAndoptions.label": "Zu zeigender Fragetext.\nA. Umfrageoption *\nB. Umfrageoption (optional)\nC. Abfrageoption (optional)\nD. Abfrageoption (optional)\nE. Abfrageoption (optional)",
     "app.poll.customInput.label": "benutzerdefinierte Eingabe",
-    "app.poll.customInputInstructions.label": "Die benutzerdefinierte Eingabe ist aktiviert - schreiben Sie die Frage und die Option(en) der Umfrage im vorgegebenen Format oder wählen Sie eine Textdatei im gleichen Format per Drag & Drop aus. ",
+    "app.poll.customInputInstructions.label": "Die benutzerdefinierte Eingabe ist aktiviert – bitte Frage und Auswahloption(en) im vorgegebenen Format eingeben oder eine Textdatei im gleichen Format per Drag & Drop hochladen. ",
     "app.poll.maxOptionsWarning.label": "Nur die ersten fünf Optionen können genutzt werden!",
     "app.poll.pollPaneTitle": "Umfrage",
     "app.poll.enableMultipleResponseLabel": "Mehrere Antworten pro Befragten zulassen?",
