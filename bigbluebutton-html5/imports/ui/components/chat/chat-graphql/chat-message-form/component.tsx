@@ -128,7 +128,6 @@ const ChatMessageForm: React.FC<ChatMessageFormProps> = ({
   const isChatEnabled = useIsChatEnabled();
   if (!isChatEnabled) return null;
   const intl = useIntl();
-  const [isLoading, setIsLoading] = React.useState(false);
   const [hasErrors, setHasErrors] = React.useState(false);
   const [error, setError] = React.useState<string | null>(null);
   const [message, setMessage] = React.useState('');
@@ -222,14 +221,14 @@ const ChatMessageForm: React.FC<ChatMessageFormProps> = ({
 
   useEffect(() => {
     const shouldRestoreFocus = textAreaRef.current
-      && !isLoading
+      && !chatSendMessageLoading
       && isTextAreaFocused
       && document.activeElement !== textAreaRef.current.textarea;
 
     if (shouldRestoreFocus) {
       textAreaRef.current.textarea.focus();
     }
-  }, [isLoading, textAreaRef.current]);
+  }, [chatSendMessageLoading, textAreaRef.current]);
 
   const setMessageHint = () => {
     let chatDisabledHint = null;
@@ -308,7 +307,7 @@ const ChatMessageForm: React.FC<ChatMessageFormProps> = ({
         return;
       }
 
-      if (!isLoading) {
+      if (!chatSendMessageLoading) {
         chatSendMessage({
           variables: {
             chatMessageInMarkdownFormat: msg,
@@ -474,7 +473,7 @@ const ChatMessageForm: React.FC<ChatMessageFormProps> = ({
             circle
             aria-label={intl.formatMessage(messages.submitLabel)}
             type="submit"
-            disabled={disabled || partnerIsLoggedOut || isLoading}
+            disabled={disabled || partnerIsLoggedOut || chatSendMessageLoading}
             label={intl.formatMessage(messages.submitLabel)}
             color="primary"
             icon="send"
