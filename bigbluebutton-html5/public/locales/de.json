@@ -874,7 +874,7 @@
     "app.guest.guestDeny": "Der Moderator hat die Teilnahme an der Konferenz abgelehnt.",
     "app.guest.seatWait": "Gast wartet auf die Teilnahme an der Konferenz.",
     "app.guest.allow": "Gast zugelassen und zur Konferenz weitergeleitet.",
-    "app.guest.firstPositionInWaitingQueue": "Sie sind der Erste in der Warteschlange!",
+    "app.guest.firstPositionInWaitingQueue": "Erster in der Warteschlange!",
     "app.guest.positionInWaitingQueue": "Aktuelle Position in der Warteschlange: ",
     "app.guest.guestInvalid": "Gastteilnehmer ist ungültig",
     "app.guest.meetingForciblyEnded": "An einer Konferenz, die bereits beendet wurde, kann nicht teilgenommen werden",
