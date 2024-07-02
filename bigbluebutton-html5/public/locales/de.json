@@ -882,7 +882,7 @@
     "app.userList.guest.waitingUsers": "Wartende Teilnehmer",
     "app.userList.guest.waitingUsersTitle": "Teilnehmerverwaltung",
     "app.userList.guest.optionTitle": "Unbearbeitete Teilnehmer überprüfen",
-    "app.userList.guest.allowAllAuthenticated": "Alle Autorisierten erlauben",
+    "app.userList.guest.allowAllAuthenticated": "Alle Angemeldeten erlauben",
     "app.userList.guest.allowAllGuests": "Alle Gäste erlauben",
     "app.userList.guest.allowEveryone": "Alle erlauben",
     "app.userList.guest.denyEveryone": "Alle verweigern",
