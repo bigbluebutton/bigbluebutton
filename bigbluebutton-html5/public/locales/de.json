@@ -870,7 +870,7 @@
     "app.guest.missingSession": "Gast fehlt in der Konferenz.",
     "app.guest.missingMeeting": "Konferenz existiert nicht.",
     "app.guest.meetingEnded": "Konferenz beendet.",
-    "app.guest.guestWait": "Bitte warten Sie, bis ein Moderator Ihre Teilnahme an der Konferenz freigibt.",
+    "app.guest.guestWait": "Bitte warten, bis ein Moderator die Teilnahme an der Konferenz freigibt.",
     "app.guest.guestDeny": "Der Moderator hat die Teilnahme an der Konferenz abgelehnt.",
     "app.guest.seatWait": "Gast wartet auf die Teilnahme an der Konferenz.",
     "app.guest.allow": "Gast zugelassen und zur Konferenz weitergeleitet.",
