@@ -351,7 +351,7 @@ const MeetingEnded: React.FC<MeetingEndedProps> = ({
         ) : null}
       </>
     );
-  }, []);
+  }, [askForFeedbackOnLogout, dispatched, selectedStars]);
 
   useEffect(() => {
     // Sets Loading to falsed and removes loading splash screen

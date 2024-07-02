@@ -1,5 +1,4 @@
 import React from 'react';
-import Breakouts from '/imports/api/breakouts';
 import Auth from '/imports/ui/services/auth';
 import Storage from '/imports/ui/services/storage/session';
 import { EMOJI_STATUSES } from '/imports/utils/statuses';
@@ -131,9 +130,6 @@ const isPublicChat = (chat) => {
   const CHAT_CONFIG = window.meetingClientSettings.public.chat;
   return chat.userId === CHAT_CONFIG.public_id;
 };
-
-const hasBreakoutRoom = () => Breakouts.find({ parentMeetingId: Auth.meetingID },
-  { fields: {} }).count() > 0;
 
 const isMe = (userId) => userId === Auth.userID;
 
@@ -468,7 +464,6 @@ export default {
   isPublicChat,
   roving,
   getCustomLogoUrl,
-  hasBreakoutRoom,
   getEmojiList: () => EMOJI_STATUSES,
   focusFirstDropDownItem,
   sortUsersByCurrent,

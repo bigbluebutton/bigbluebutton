@@ -196,7 +196,7 @@ class ConnectionStatusComponent extends PureComponent {
   }
 
   componentWillUnmount() {
-    Meteor.clearInterval(this.rateInterval);
+    clearInterval(this.rateInterval);
   }
 
   handleSelectTab(tab) {
@@ -218,7 +218,7 @@ class ConnectionStatusComponent extends PureComponent {
   async startMonitoringNetwork() {
     const { getVideoStreamsStats } = this.props;
     let previousData = await Service.getNetworkData(getVideoStreamsStats);
-    this.rateInterval = Meteor.setInterval(async () => {
+    this.rateInterval = setInterval(async () => {
       const data = await Service.getNetworkData(getVideoStreamsStats);
 
       const {

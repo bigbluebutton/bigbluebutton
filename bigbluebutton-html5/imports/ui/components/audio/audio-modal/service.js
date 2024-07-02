@@ -79,7 +79,7 @@ export const closeModal = (callback) => {
 };
 
 const getTroubleshootingLink = (errorCode) => {
-  const TROUBLESHOOTING_LINKS = Meteor.settings.public.media.audioTroubleshootingLinks;
+  const TROUBLESHOOTING_LINKS = window.meetingClientSettings.public.media.audioTroubleshootingLinks;
 
   if (TROUBLESHOOTING_LINKS) return TROUBLESHOOTING_LINKS[errorCode] || TROUBLESHOOTING_LINKS[0];
   return null;
