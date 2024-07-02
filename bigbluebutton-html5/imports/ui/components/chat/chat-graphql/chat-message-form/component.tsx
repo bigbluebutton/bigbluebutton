@@ -128,6 +128,7 @@ const ChatMessageForm: React.FC<ChatMessageFormProps> = ({
   const isChatEnabled = useIsChatEnabled();
   if (!isChatEnabled) return null;
   const intl = useIntl();
+  const [isLoading, setIsLoading] = React.useState(false);
   const [hasErrors, setHasErrors] = React.useState(false);
   const [error, setError] = React.useState<string | null>(null);
   const [message, setMessage] = React.useState('');
@@ -198,6 +199,16 @@ const ChatMessageForm: React.FC<ChatMessageFormProps> = ({
   }, []);
 
   useEffect(() => {
+    if (chatSendMessageLoading) {
+      setIsLoading(true);
+    } else {
+      setTimeout(() => {
+        setIsLoading(false);
+      }, 1500);
+    }
+  }, [chatSendMessageLoading]);
+
+  useEffect(() => {
     const storedData = localStorage.getItem('unsentMessages') || '{}';
     const unsentMessages = JSON.parse(storedData);
 
@@ -221,14 +232,14 @@ const ChatMessageForm: React.FC<ChatMessageFormProps> = ({
 
   useEffect(() => {
     const shouldRestoreFocus = textAreaRef.current
-      && !chatSendMessageLoading
+      && !isLoading
       && isTextAreaFocused
       && document.activeElement !== textAreaRef.current.textarea;
 
     if (shouldRestoreFocus) {
       textAreaRef.current.textarea.focus();
     }
-  }, [chatSendMessageLoading, textAreaRef.current]);
+  }, [isLoading, textAreaRef.current]);
 
   const setMessageHint = () => {
     let chatDisabledHint = null;
@@ -307,13 +318,14 @@ const ChatMessageForm: React.FC<ChatMessageFormProps> = ({
         return;
       }
 
-      chatSendMessage({
-        variables: {
-          chatMessageInMarkdownFormat: msg,
-          chatId: chatId === PUBLIC_CHAT_ID ? PUBLIC_GROUP_CHAT_ID : chatId,
-        },
-      });
-
+      if (!isLoading) {
+        chatSendMessage({
+          variables: {
+            chatMessageInMarkdownFormat: msg,
+            chatId: chatId === PUBLIC_CHAT_ID ? PUBLIC_GROUP_CHAT_ID : chatId,
+          },
+        });
+      }
       const currentClosedChats = Storage.getItem(CLOSED_CHAT_LIST_KEY);
 
       // Remove the chat that user send messages from the session.
@@ -430,7 +442,7 @@ const ChatMessageForm: React.FC<ChatMessageFormProps> = ({
             autoCorrect="off"
             autoComplete="off"
             spellCheck="true"
-            disabled={disabled || partnerIsLoggedOut || chatSendMessageLoading}
+            disabled={disabled || partnerIsLoggedOut}
             value={message}
             onFocus={() => {
               window.dispatchEvent(new CustomEvent(PluginSdk.ChatFormUiDataNames.CHAT_INPUT_IS_FOCUSED, {
@@ -472,7 +484,7 @@ const ChatMessageForm: React.FC<ChatMessageFormProps> = ({
             circle
             aria-label={intl.formatMessage(messages.submitLabel)}
             type="submit"
-            disabled={disabled || partnerIsLoggedOut || chatSendMessageLoading}
+            disabled={disabled || partnerIsLoggedOut || isLoading}
             label={intl.formatMessage(messages.submitLabel)}
             color="primary"
             icon="send"
