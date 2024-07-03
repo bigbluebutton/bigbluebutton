@@ -30,7 +30,7 @@
     "app.chat.emptyLogLabel": "Chatprotokoll ist leer",
     "app.chat.away": "Abwesend",
     "app.chat.notAway": "Wieder anwesend",
-    "app.chat.clearPublicChatMessage": "Der öffentliche Chatverlauf wurde durch einen Moderator gelöscht",
+    "app.chat.clearPublicChatMessage": "Der gemeinsame Chatverlauf wurde durch einen Moderator gelöscht",
     "app.chat.multi.typing": "Mehrere Teilnehmer tippen",
     "app.chat.someone.typing": "Jemand schreibt gerade",
     "app.chat.one.typing": "{0} tippt",
