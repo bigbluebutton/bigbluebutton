@@ -1242,7 +1242,7 @@
     "app.createBreakoutRoom.minusRoomTime": "Gruppenraumzeit verringern auf",
     "app.createBreakoutRoom.addRoomTime": "Gruppenraumzeit erhöhen auf",
     "app.createBreakoutRoom.addParticipantLabel": "+ Teilnehmer hinzufügen",
-    "app.createBreakoutRoom.freeJoin": "Den Teilnehmern erlauben, sich selbst einen Gruppenraum auszusuchen.",
+    "app.createBreakoutRoom.freeJoin": "Den Teilnehmenden erlauben, sich selbst einen Gruppenraum auszusuchen.",
     "app.createBreakoutRoom.manageRoomsLabel": "Räume verwalten",
     "app.createBreakoutRoom.captureNotes": "Übertragen der gemeinsamen Notizen nach Beendigung der Arbeitsgruppenräume",
     "app.createBreakoutRoom.captureSlides": "Whiteboard aufnehmen, wenn Gruppenräume enden",
