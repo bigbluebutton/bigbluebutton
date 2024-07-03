@@ -12,6 +12,7 @@ import {
   ChatAvatar,
 } from './styles';
 import { ChatMessageType } from '/imports/ui/core/enums/chat';
+import { truncate } from 'fs/promises';
 
 interface ChatMessageProps {
   message: Message;
@@ -168,7 +169,7 @@ const ChatMesssage: React.FC<ChatMessageProps> = ({
           isSystemSender: true,
           component: (
             <ChatMessageTextContent
-              systemMsg
+              systemMsg={false}
               emphasizedMessage
               text={message.message}
             />
