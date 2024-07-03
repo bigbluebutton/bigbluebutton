@@ -30,19 +30,20 @@ case class Meeting(
 )
 
 case class User(
-  userKey:            String,
-  extId:              String,
-  intIds:             Map[String,UserId] = Map(),
-  name:               String,
-  isModerator:        Boolean,
-  isDialIn:           Boolean = false,
-  currentIntId:       String = null,
-  answers:            Map[String,Vector[String]] = Map(),
-  talk:               Talk = Talk(),
-  emojis:             Vector[Emoji] = Vector(),
-  reactions:          Vector[Emoji] = Vector(),
-  webcams:            Vector[Webcam] = Vector(),
-  totalOfMessages:    Long = 0,
+                 userKey:            String,
+                 extId:              String,
+                 intIds:             Map[String,UserId] = Map(),
+                 name:               String,
+                 isModerator:        Boolean,
+                 isDialIn:           Boolean = false,
+                 currentIntId:       String = null,
+                 answers:            Map[String,Vector[String]] = Map(),
+                 pluginEntries:            Vector[PluginEntry] = Vector(),
+                 talk:               Talk = Talk(),
+                 emojis:             Vector[Emoji] = Vector(),
+                 reactions:          Vector[Emoji] = Vector(),
+                 webcams:            Vector[Webcam] = Vector(),
+                 totalOfMessages:    Long = 0,
 )
 
 case class UserId(
@@ -61,6 +62,13 @@ case class Poll(
   options:    Vector[String] = Vector(),
   anonymousAnswers: Vector[String] = Vector(),
   createdOn:  Long = System.currentTimeMillis(),
+)
+
+case class PluginEntry(
+  pluginName: String,
+  channelName: String,
+  subChannelName: String,
+  payloadJson: Object,
 )
 
 case class Talk(
@@ -154,6 +162,9 @@ class LearningDashboardActor(
       case m: UserLeftVoiceConfToClientEvtMsg       => handleUserLeftVoiceConfToClientEvtMsg(m)
       case m: UserMutedVoiceEvtMsg                  => handleUserMutedVoiceEvtMsg(m)
       case m: UserTalkingVoiceEvtMsg                => handleUserTalkingVoiceEvtMsg(m)
+
+      // Plugin
+      case m: PluginDataChannelPushEntryMsg         => handlePluginDataChannelPushEntryMsg(m)
 
       // Screenshare
       case m: ScreenshareRtmpBroadcastStartedEvtMsg => handleScreenshareRtmpBroadcastStartedEvtMsg(m)
@@ -567,6 +578,21 @@ class LearningDashboardActor(
     } yield {
       val updatedMeeting = meeting.copy(screenshares = meeting.screenshares :+ Screenshare())
       meetings += (updatedMeeting.intId -> updatedMeeting)
+    }
+  }
+
+  private def handlePluginDataChannelPushEntryMsg(msg: PluginDataChannelPushEntryMsg) = {
+    if(msg.body.analytics) {
+      for {
+        meeting <- meetings.values.find(m => m.intId == msg.header.meetingId)
+        user <- findUserByIntId(meeting, msg.header.userId)
+      } yield {
+        // Store data if it has the analytics flag
+        val newPluginEntry = PluginEntry(msg.body.pluginName, msg.body.channelName, msg.body.subChannelName, msg.body.payloadJson)
+        val updatedUser = user.copy(pluginEntries = user.pluginEntries :+ newPluginEntry)
+        val updatedMeeting = meeting.copy(users = meeting.users + (updatedUser.userKey -> updatedUser))
+        meetings += (updatedMeeting.intId -> updatedMeeting)
+      }
     }
   }
 

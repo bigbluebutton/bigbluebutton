@@ -6,6 +6,7 @@ import {
   DataChannelArguments,
   PushEntryFunction, ObjectTo, ToRole, ToUserId,
   ReplaceEntryFunctionArguments,
+  PushEntryFunctionOptionArgument,
 } from 'bigbluebutton-html-plugin-sdk/dist/cjs/data-channel/types';
 import { DataChannelHooks } from 'bigbluebutton-html-plugin-sdk/dist/cjs/data-channel/enums';
 import { HookEvents } from 'bigbluebutton-html-plugin-sdk/dist/cjs/core/enum';
@@ -55,12 +56,23 @@ const DataChannelItemManagerWriter: React.ElementType<DataChannelItemManagerWrit
   const [resetFunctionPluginDataChannel] = useMutation(PLUGIN_DATA_CHANNEL_RESET_MUTATION);
   const [replaceEntryFunctionPluginDataChannel] = useMutation(PLUGIN_DATA_CHANNEL_REPLACE_MUTATION);
 
-  const useDataChannelHandlerFunction = ((msg: object, objectsTo?: ObjectTo[]) => {
+  const useDataChannelHandlerFunction = ((msg: object, options?: PushEntryFunctionOptionArgument) => {
+    const {
+      receivers: objectsTo,
+      record = false,
+      analytics = false,
+    } = options || {
+      receivers: undefined,
+      record: false,
+      analytics: false,
+    };
     const argumentsOfPushEntryFunction = {
       variables: {
         pluginName,
         channelName,
         subChannelName,
+        record,
+        analytics,
         payloadJson: msg,
         toRoles: [],
         toUserIds: [],

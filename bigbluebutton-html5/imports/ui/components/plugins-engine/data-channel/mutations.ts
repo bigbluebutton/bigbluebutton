@@ -1,13 +1,16 @@
 import { gql } from '@apollo/client';
 
 export const PLUGIN_DATA_CHANNEL_PUSH_MUTATION = gql`
-  mutation PluginDataChannelPushEntry($pluginName: String!, 
-    $subChannelName: String!, $channelName: String!, $payloadJson: json!,
+  mutation PluginDataChannelPushEntry($pluginName: String!,
+    $subChannelName: String!, $channelName: String!,
+    $record: Boolean!, $analytics: Boolean!, $payloadJson: json!,
     $toRoles: [String]!, $toUserIds: [String]!) {
       pluginDataChannelPushEntry(
         pluginName: $pluginName,
         channelName: $channelName,
         subChannelName: $subChannelName,
+        record: $record,
+        analytics: $analytics,
         payloadJson: $payloadJson,
         toRoles: $toRoles,
         toUserIds: $toUserIds,
