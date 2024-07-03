@@ -219,7 +219,7 @@
     "app.media.screenshare.autoplayAllowLabel": "Geteilten Bildschirm ansehen",
     "app.media.cameraAsContent.start": "Gegenwärtige Kamera ist gestartet",
     "app.media.cameraAsContent.end": "Gegenwärtige Kamera ist beendet",
-    "app.media.cameraAsContent.endDueToDataSaving": "Kamera wurde aufgrund von Dateneinsparungen eingestellt",
+    "app.media.cameraAsContent.endDueToDataSaving": "Kamera wurde aufgrund von Dateneinsparungen deaktiviert",
     "app.media.cameraAsContent.autoplayBlockedDesc": "Wir benötigen die Erlaubnis um Ihnen die Präsentationskamera zu zeigen.",
     "app.media.cameraAsContent.autoplayAllowLabel": "Verwendete Kamera anzeigen",
     "app.screenshare.presenterLoadingLabel": "Der Bildschirm wird freigegeben",
