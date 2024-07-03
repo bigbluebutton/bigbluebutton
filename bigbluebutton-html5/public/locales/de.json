@@ -1210,7 +1210,7 @@
     "app.videoDock.webcamUnpinLabel": "Lösen",
     "app.videoDock.webcamUnpinLabelDisabled": "Nur Moderatoren können Teilnehmer lösen",
     "app.videoDock.webcamUnpinDesc": "Ausgewählte Webcam lösen",
-    "app.videoDock.autoplayBlockedDesc": "Wir benötigen Ihre Zustimmung, um Ihnen die Webcams anderer Teilnehmer zu zeigen.",
+    "app.videoDock.autoplayBlockedDesc": "Wir benötigen eine Zustimmung, um die Webcams anderer Teilnehmer zu zeigen.",
     "app.videoDock.autoplayAllowLabel": "Webcams zeigen",
     "app.createBreakoutRoom.title": "Gruppenräume",
     "app.createBreakoutRoom.ariaTitle": "Gruppenräume verbergen",
