@@ -919,7 +919,7 @@
     "app.toast.setEmoji.away": "Status auf abwesend gesetzt",
     "app.toast.setEmoji.notAway": "Abwesenheitsstatus entfernt",
     "app.toast.promotedLabel": "Moderationsrolle erhalten",
-    "app.toast.demotedLabel": "Sie sind nun wieder in der Rolle eines Teilnehmers",
+    "app.toast.demotedLabel": "Sie sind nun wieder in der Rolle eines Teilnehmenden",
     "app.notification.recordingStart": "Diese Konferenz wird jetzt aufgezeichnet",
     "app.notification.recordingStop": "Diese Konferenz wird nicht aufgezeichnet",
     "app.notification.recordingPaused": "Diese Konferenz wird nicht mehr aufgezeichnet",
