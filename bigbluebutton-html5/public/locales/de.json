@@ -692,7 +692,7 @@
     "app.actionsBar.emojiMenu.thumbsUpLabel": "Daumen hoch",
     "app.actionsBar.emojiMenu.thumbsUpDesc": "Eigenen Status auf Daumen hoch setzen",
     "app.actionsBar.emojiMenu.thumbsDownLabel": "Daumen runter",
-    "app.actionsBar.emojiMenu.thumbsDownDesc": "Ihren Status auf Daumen runter setzen",
+    "app.actionsBar.emojiMenu.thumbsDownDesc": "Eigenen Status auf Daumen runter setzen",
     "app.actionsBar.currentStatusDesc": "Aktueller Status {0}",
     "app.actionsBar.captions.start": "Untertitel starten",
     "app.actionsBar.captions.stop": "Untertitel stoppen",
