@@ -712,7 +712,7 @@
     "app.audioNotification.mediaFailedMessage": "getUserMicMedia fehlgeschlagen, weil nur sichere Quellen erlaubt sind",
     "app.audioNotification.deviceChangeFailed": "Wechsel des Audiogeräts gescheitert. Bite prüfen, ob das gewählte Gerät korrekt eingerichtet und verfügbar ist.",
     "app.audioNotification.closeLabel": "Schließen",
-    "app.audioNotificaion.reconnectingAsListenOnly": "Mikrofone sind für Teilnehmer gesperrt, es ist nur Zuhören möglich",
+    "app.audioNotificaion.reconnectingAsListenOnly": "Mikrofone sind für Zuschauende gesperrt, es ist nur Zuhören möglich",
     "app.breakoutJoinConfirmation.title": "Gruppenraum beitreten",
     "app.breakoutJoinConfirmation.message": "Jetzt der Gruppe beitreten",
     "app.breakoutJoinConfirmation.confirmDesc": "Dem Gruppenraum beitreten",
