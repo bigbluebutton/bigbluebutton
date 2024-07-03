@@ -227,7 +227,16 @@ const MeetingEnded: React.FC<MeetingEndedProps> = ({
       comment,
       isModerator,
     };
-    const url = './feedback';
+
+    const pathMatch = window.location.pathname.match('^(.*)/html5client/join$');
+    if (pathMatch == null) {
+      throw new Error('Failed to match BBB client URI');
+    }
+    const serverPathPrefix = pathMatch[1];
+
+    const sessionToken = sessionStorage.getItem('sessionToken');
+
+    const url = `https://${window.location.hostname}${serverPathPrefix}/bigbluebutton/api/feedback?sessionToken=${sessionToken}`;
     const options = {
       method: 'POST',
       body: JSON.stringify(message),

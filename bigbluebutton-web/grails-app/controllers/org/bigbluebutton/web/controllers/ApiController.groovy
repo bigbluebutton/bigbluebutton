@@ -19,6 +19,7 @@
 package org.bigbluebutton.web.controllers
 
 import com.google.gson.Gson
+import com.google.gson.JsonObject
 import grails.web.context.ServletContextHolder
 import groovy.json.JsonBuilder
 import groovy.xml.MarkupBuilder
@@ -31,6 +32,7 @@ import org.bigbluebutton.api.*
 import org.bigbluebutton.api.domain.GuestPolicy
 import org.bigbluebutton.api.domain.Meeting
 import org.bigbluebutton.api.domain.UserSession
+import org.bigbluebutton.api.domain.UserSessionBasicData
 import org.bigbluebutton.api.service.ValidationService
 import org.bigbluebutton.api.service.ServiceUtils
 import org.bigbluebutton.api.util.ParamsUtil
@@ -1216,6 +1218,87 @@ class ApiController {
       }
     }
   }
+
+  def feedback = {
+    String API_CALL = 'feedback'
+    log.debug CONTROLLER_NAME + "#${API_CALL}"
+
+    if (!params.sessionToken) {
+      invalid("missingSession", "Invalid session token")
+      return
+    }
+
+    if (!session[params.sessionToken]) {
+      log.info("Session for token ${params.sessionToken} not found")
+      invalid("missingSession", "Invalid session token")
+      return
+    }
+
+    String requestBody = request.inputStream == null ? null : request.inputStream.text
+    Gson gson = new Gson()
+    JsonObject body = gson.fromJson(requestBody, JsonObject.class)
+
+    if (!body
+            || !body.has("userName")
+            || !body.has("authToken")
+            || !body.has("comment")
+            || !body.has("rating")) {
+      invalid("missingParameters", "One or more required parameters are missing")
+      return
+    }
+
+    String userName = "[unconfirmed] " + body.get("userName").getAsString()
+    String meetingId = ""
+    String userId = ""
+    String authToken = body.get("authToken").getAsString()
+    String comment = body.get("comment").getAsString()
+    int rating = body.get("rating").getAsInt()
+
+    String sessionToken = sanitizeSessionToken(params.sessionToken)
+    UserSession userSession = meetingService.getUserSessionWithSessionToken(sessionToken)
+
+    if(userSession) {
+      userName = userSession.fullname
+      userId = userSession.internalUserId
+      meetingId = userSession.meetingID
+    } else {
+      //Usually the session was already removed when the user send the feedback
+      UserSessionBasicData removedUserSession = meetingService.getRemovedUserSessionWithSessionToken(sessionToken)
+      if(removedUserSession) {
+        userId = removedUserSession.userId
+        meetingId = removedUserSession.meetingId
+      }
+    }
+
+    if(userId == "") {
+      invalid("invalidSession", "Invalid Session")
+      return
+    }
+
+    response.contentType = 'application/json'
+    response.setStatus(200)
+    withFormat {
+      json {
+        def builder = new JsonBuilder()
+        builder {
+          "status" "ok"
+        }
+        render(contentType: "application/json", text: builder.toPrettyString())
+      }
+    }
+
+    def feedback = [
+            meetingId: meetingId,
+            userId: userId,
+            authToken: authToken,
+            userName: userName,
+            comment: comment,
+            rating: rating
+    ]
+
+    log.info("FEEDBACK LOG: ${feedback}")
+  }
+
 
   /***********************************************
    * LEARNING DASHBOARD DATA
