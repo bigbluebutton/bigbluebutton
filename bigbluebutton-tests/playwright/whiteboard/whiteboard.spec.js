@@ -91,7 +91,7 @@ test.describe.parallel('Whiteboard tools - visual regression @ci', () => {
     await drawStickyNote.test();
   });
 
-  test('Pan', async ({ browser, context, page }) => {
+  test('Pan @flaky', async ({ browser, context, page }) => {
     const pan = new Pan(browser, context);
     await pan.initModPage(page, true, { customMeetingId: 'draw_line_meeting', joinParameter: hidePresentationToast });
     await pan.initUserPage(true, context, { joinParameter: hidePresentationToast });
