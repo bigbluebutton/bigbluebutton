@@ -1,6 +1,6 @@
 import * as React from "react";
 import PropTypes from "prop-types";
-import { useRef, useCallback } from "react";
+import { useEffect, useRef, useCallback } from "react";
 import { debounce, isEqual } from "radash";
 import {
   Tldraw,
@@ -67,6 +67,14 @@ const determineViewerFitToWidth = (currentPresentationPage) => {
   );
 };
 
+function usePrevious(value) {
+  const ref = useRef();
+  useEffect(() => {
+    ref.current = value;
+  }, [value]);
+  return ref.current;
+}
+
 const defaultUser = {
   userId: '',
 };
@@ -124,7 +132,6 @@ const Whiteboard = React.memo(function Whiteboard(props) {
 
   const [tlEditor, setTlEditor] = React.useState(null);
   const [isMounting, setIsMounting] = React.useState(true);
-  const [initialZoomSet, setInitialZoomSet] = React.useState(false);
   const [initialViewBoxWidth, setInitialViewBoxWidth] = React.useState(null);
   const [initialViewBoxHeight, setInitialViewBoxHeight] = React.useState(null);
 
@@ -164,6 +171,8 @@ const Whiteboard = React.memo(function Whiteboard(props) {
 
   const customShapeUtils = [PollShapeUtil];
   const customTools = [NoopTool];
+
+  const presenterChanged = usePrevious(isPresenter) !== isPresenter;
 
   let clipboardContent = null;
   let isPasting = false;
@@ -536,7 +545,7 @@ const Whiteboard = React.memo(function Whiteboard(props) {
         const { updated } = changes;
         const { "pointer:pointer": pointers } = updated;
 
-        if ((isPresenter || hasWBAccessRef.current) && pointers) {
+        if ((isPresenterRef.current || hasWBAccessRef.current) && pointers) {
           const [prevPointer, nextPointer] = pointers;
           updateCursorPosition(nextPointer?.x, nextPointer?.y);
         }
@@ -548,7 +557,7 @@ const Whiteboard = React.memo(function Whiteboard(props) {
           const [prevCam, nextCam] = cameras;
           const panned = prevCam.x !== nextCam.x || prevCam.y !== nextCam.y;
 
-          if (panned && isPresenter) {
+          if (panned && isPresenterRef.current) {
             let viewedRegionW = SlideCalcUtil.calcViewedRegionWidth(
               editor?.getViewportPageBounds()?.w,
               currentPresentationPage?.scaledWidth
@@ -620,7 +629,7 @@ const Whiteboard = React.memo(function Whiteboard(props) {
 
       editor.store.onBeforeChange = (prev, next, source) => {
         if (next?.typeName === "instance_page_state") {
-          if (isPresenter || isModeratorRef.current) return next;
+          if (isPresenterRef.current || isModeratorRef.current) return next;
 
           // Filter selectedShapeIds based on shape owner
           if (next.selectedShapeIds.length > 0 && !isEqual(prev.selectedShapeIds, next.selectedShapeIds)) {
@@ -1038,7 +1047,6 @@ const Whiteboard = React.memo(function Whiteboard(props) {
 
         const tldrawZoom = initialZoom;
         initialZoomRef.current = initialZoom;
-        setInitialZoomSet(true);
         prevZoomValueRef.current = zoomValue;
       }
     }, CAMERA_UPDATE_DELAY);
@@ -1290,6 +1298,10 @@ const Whiteboard = React.memo(function Whiteboard(props) {
   }, [curPageId]);
 
   const adjustCameraOnMount = (includeViewerLogic = true) => {
+    if (presenterChanged) {
+      localStorage.removeItem('initialViewBoxWidth');
+    }
+
     const storedWidth = localStorage.getItem('initialViewBoxWidth');
     if (storedWidth) {
       initialViewBoxWidthRef.current = parseFloat(storedWidth);

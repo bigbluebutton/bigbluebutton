@@ -597,7 +597,7 @@ class Presentation extends PureComponent {
       hasPoll,
       currentPresentationPage,
     } = this.props;
-    const { zoom, isPanning } = this.state;
+    const { zoom, isPanning, tldrawAPI } = this.state;
 
     if (!currentSlide) return null;
 
@@ -621,6 +621,7 @@ class Presentation extends PureComponent {
           presentationIsOpen,
           userIsPresenter,
           currentPresentationPage,
+          tldrawAPI,
         }}
         setIsPanning={this.setIsPanning}
         isPanning={isPanning}

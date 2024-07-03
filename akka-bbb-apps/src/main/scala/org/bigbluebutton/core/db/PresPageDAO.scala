@@ -1,9 +1,11 @@
 package org.bigbluebutton.core.db
 
-import org.bigbluebutton.core.models.{ PresentationInPod, PresentationPage }
+import org.bigbluebutton.core.models.{PresentationInPod, PresentationPage}
 import PostgresProfile.api._
 import spray.json.JsValue
 import spray.json._
+import scala.util.{Success, Failure}
+import scala.concurrent.ExecutionContext
 
 case class PresPageDbModel(
     pageId:          String,
@@ -24,7 +26,7 @@ case class PresPageDbModel(
     maxImageWidth:   Int,
     maxImageHeight:  Int,
     uploadCompleted: Boolean,
-    infiniteCanvas: Boolean,
+    infiniteCanvas:  Boolean,
 )
 
 class PresPageDbTableDef(tag: Tag) extends Table[PresPageDbModel](tag, None, "pres_page") {
@@ -47,16 +49,21 @@ class PresPageDbTableDef(tag: Tag) extends Table[PresPageDbModel](tag, None, "pr
   val maxImageHeight = column[Int]("maxImageHeight")
   val uploadCompleted = column[Boolean]("uploadCompleted")
   val infiniteCanvas = column[Boolean]("infiniteCanvas")
-  //  val presentation = foreignKey("presentation_fk", presentationId, Presentations)(_.presentationId, onDelete = ForeignKeyAction.Cascade)
-  def * = (pageId, presentationId, num, urlsJson, content, slideRevealed, current, xOffset, yOffset, widthRatio, heightRatio, width, height, viewBoxWidth, viewBoxHeight, maxImageWidth, maxImageHeight, uploadCompleted, infiniteCanvas) <> (PresPageDbModel.tupled, PresPageDbModel.unapply)
+
+  def * = (
+    pageId, presentationId, num, urlsJson, content, slideRevealed, current, xOffset, yOffset, widthRatio, heightRatio, width, height, viewBoxWidth, viewBoxHeight, maxImageWidth, maxImageHeight, uploadCompleted, infiniteCanvas
+  ) <> (PresPageDbModel.tupled, PresPageDbModel.unapply)
 }
 
 object PresPageDAO {
+  implicit val ec: ExecutionContext = scala.concurrent.ExecutionContext.global
+
   implicit val mapFormat: JsonWriter[Map[String, String]] = new JsonWriter[Map[String, String]] {
     def write(m: Map[String, String]): JsValue = {
       JsObject(m.map { case (k, v) => k -> JsString(v) })
     }
   }
+
   def insert(presentationId: String, page: PresentationPage) = {
     DatabaseConnection.enqueue(
       TableQuery[PresPageDbTableDef].insertOrUpdate(
@@ -79,7 +86,7 @@ object PresPageDAO {
           maxImageWidth = 1440,
           maxImageHeight = 1080,
           uploadCompleted = page.converted,
-          infiniteCanvas = page.infiniteCanvas
+          infiniteCanvas = page.infiniteCanvas,
         )
       )
     )
@@ -88,8 +95,8 @@ object PresPageDAO {
   def setCurrentPage(presentation: PresentationInPod, pageId: String) = {
     DatabaseConnection.enqueue(
       sqlu"""UPDATE pres_page SET
-                "current" = (case when "pageId" = ${pageId} then true else false end),
-                "slideRevealed" = (case when "pageId" = ${pageId} then true else "slideRevealed" end)
+                "current" = (case when "pageId" = $pageId then true else false end),
+                "slideRevealed" = (case when "pageId" = $pageId then true else "slideRevealed" end)
                 WHERE "presentationId" = ${presentation.id}"""
     )
   }

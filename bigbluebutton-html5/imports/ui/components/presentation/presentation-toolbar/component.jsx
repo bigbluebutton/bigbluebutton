@@ -356,6 +356,9 @@ class PresentationToolbar extends PureComponent {
       setPresentationPageInfiniteCanvas,
       allowInfiniteCanvas,
       infiniteCanvasIcon,
+      resetSlide,
+      zoomChanger,
+      tldrawAPI,
     } = this.props;
 
     const { isMobile } = deviceInfo;
@@ -462,7 +465,14 @@ class PresentationToolbar extends PureComponent {
             customIcon={infiniteCanvasIcon(isInfiniteCanvas)}
             size="md"
             circle
-            onClick={() => { setPresentationPageInfiniteCanvas(!isInfiniteCanvas); }}
+            onClick={() => {
+              if (isInfiniteCanvas) {
+                tldrawAPI.setCamera({ x: 0, y: 0 });
+                resetSlide();
+                zoomChanger(100);
+              }
+              setPresentationPageInfiniteCanvas(!isInfiniteCanvas);
+            }}
             label={
               isInfiniteCanvas
                 ? intl.formatMessage(intlMessages.infiniteCanvasOff)

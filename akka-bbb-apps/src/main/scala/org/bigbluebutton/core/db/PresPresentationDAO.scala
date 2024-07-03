@@ -153,54 +153,35 @@ object PresPresentationDAO {
         ))
     )
 
-  def updatePages(presentation: PresentationInPod) = {
-    DatabaseConnection.enqueue(
-      TableQuery[PresPresentationDbTableDef]
-        .filter(_.presentationId === presentation.id)
-        .map(p => (p.downloadFileExtension, p.uploadInProgress, p.uploadCompleted, p.totalPages))
-        .update((
-          presentation.downloadFileExtension match {
-            case "" => None
-            case downloadFileExtension => Some(downloadFileExtension)
-          },
-          !presentation.uploadCompleted,
-          presentation.uploadCompleted,
-          presentation.numPages
-        ))
-    )
-
-    DatabaseConnection.db.run(DBIO.sequence(
-      for {
-        page <- presentation.pages
-      } yield {
-        TableQuery[PresPageDbTableDef].insertOrUpdate(
-          PresPageDbModel(
-            pageId = page._2.id,
-            presentationId = presentation.id,
-            num = page._2.num,
-            urlsJson = page._2.urls.toJson,
-            content = page._2.content,
-            slideRevealed = page._2.current,
-            current = page._2.current,
-            xOffset = page._2.xOffset,
-            yOffset = page._2.yOffset,
-            widthRatio = page._2.widthRatio,
-            heightRatio = page._2.heightRatio,
-            width = page._2.width,
-            height = page._2.height,
-            viewBoxWidth = 1,
-            viewBoxHeight = 1,
-            maxImageWidth = 1440,
-            maxImageHeight = 1080,
-            uploadCompleted = page._2.converted,
-            infiniteCanvas = page._2.infiniteCanvas
+    DatabaseConnection.enqueue(DBIO.sequence(
+        for {
+          page <- presentation.pages
+        } yield {
+          TableQuery[PresPageDbTableDef].insertOrUpdate(
+            PresPageDbModel(
+              pageId = page._2.id,
+              presentationId = presentation.id,
+              num = page._2.num,
+              urlsJson = page._2.urls.toJson,
+              content = page._2.content,
+              slideRevealed = page._2.current,
+              current = page._2.current,
+              xOffset = page._2.xOffset,
+              yOffset = page._2.yOffset,
+              widthRatio = page._2.widthRatio,
+              heightRatio = page._2.heightRatio,
+              width = page._2.width,
+              height = page._2.height,
+              viewBoxWidth = 1,
+              viewBoxHeight = 1,
+              maxImageWidth = 1440,
+              maxImageHeight = 1080,
+              uploadCompleted = page._2.converted,
+              infiniteCanvas = page._2.infiniteCanvas,
+            )
           )
-        )
-      }
-    ).transactionally).onComplete {
-      case Success(rowsAffected) => DatabaseConnection.logger.debug(s"$rowsAffected row(s) updated on PresentationPage table!")
-      case Failure(e) => DatabaseConnection.logger.debug(s"Error updating PresentationPage: $e")
-    }
+        }
+      ).transactionally)
 
     //Set current
     if (presentation.current) {
