@@ -157,7 +157,7 @@
     "app.userList.menu.clearStatus.label": "Status zurücksetzen",
     "app.userList.menu.removeUser.label": "Teilnehmer entfernen",
     "app.userList.menu.removeConfirmation.label": "Teilnehmer entfernen ({0})",
-    "app.userlist.menu.removeConfirmation.desc": "Teilnehmer sperren, sodass eine erneute Teilnahme an dieser Konferenz nicht mehr möglich ist.",
+    "app.userlist.menu.removeConfirmation.desc": "Hindere diesen Teilnehmer daran, der Konferenz erneut beizutreten.",
     "app.userList.menu.muteUserAudio.label": "Teilnehmer stummschalten",
     "app.userList.menu.unmuteUserAudio.label": "Stummschaltung aufheben",
     "app.userList.menu.webcamPin.label": "Webcam der Teilnehmer anheften",
