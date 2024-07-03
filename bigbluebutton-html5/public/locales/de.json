@@ -686,7 +686,7 @@
     "app.actionsBar.emojiMenu.happyLabel": "Glücklich",
     "app.actionsBar.emojiMenu.happyDesc": "Eigenen Status auf glücklich setzen",
     "app.actionsBar.emojiMenu.noneLabel": "Status löschen",
-    "app.actionsBar.emojiMenu.noneDesc": "Ihren Status löschen",
+    "app.actionsBar.emojiMenu.noneDesc": "Eigenen Status löschen",
     "app.actionsBar.emojiMenu.applauseLabel": "Applaus",
     "app.actionsBar.emojiMenu.applauseDesc": "Ihren Status auf Applaus setzen",
     "app.actionsBar.emojiMenu.thumbsUpLabel": "Daumen hoch",
