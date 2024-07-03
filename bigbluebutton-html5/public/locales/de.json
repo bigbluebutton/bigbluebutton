@@ -190,7 +190,7 @@
     "app.userList.userOptions.disableCam": "Teilnehmerwebcams sind deaktiviert",
     "app.userList.userOptions.disableMic": "Teilnehmermikrofone sind deaktiviert",
     "app.userList.userOptions.disablePrivChat": "Privater Chat ist deaktiviert",
-    "app.userList.userOptions.disablePubChat": "Öffentlicher Chat ist deaktiviert",
+    "app.userList.userOptions.disablePubChat": "Der gemeinsame Chat ist deaktiviert",
     "app.userList.userOptions.disableNotes": "Geteilte Notizen sind jetzt gesperrt",
     "app.userList.userOptions.hideUserList": "Teilnehmerliste ist jetzt für die Teilnehmer ausgeblendet",
     "app.userList.userOptions.webcamsOnlyForModerator": "Nur Moderatoren können die Teilnehmerwebcams sehen (wegen eingeschränkter Rechteeinstellungen)",
