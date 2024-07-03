@@ -915,7 +915,7 @@
     "app.toast.wakeLock.notSupported": "Dieser Browser kann das Einschlafen des Gerätes leider nicht verhindern",
     "app.toast.wakeLock.disclaimer": "{0}. Nach Ausschalten des Bildschirms wird die Verbindung beendet.",
     "app.toast.setEmoji.raiseHand": "Hand gehoben",
-    "app.toast.setEmoji.lowerHand": "Ihre Hand wurde gesenkt",
+    "app.toast.setEmoji.lowerHand": "Hand wurde gesenkt",
     "app.toast.setEmoji.away": "Status auf abwesend gesetzt",
     "app.toast.setEmoji.notAway": "Abwesenheitsstatus entfernt",
     "app.toast.promotedLabel": "Sie sind zum Moderator ernannt worden",
