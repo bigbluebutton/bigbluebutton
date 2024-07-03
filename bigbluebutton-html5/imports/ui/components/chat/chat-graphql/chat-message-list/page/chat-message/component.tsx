@@ -12,7 +12,6 @@ import {
   ChatAvatar,
 } from './styles';
 import { ChatMessageType } from '/imports/ui/core/enums/chat';
-import { truncate } from 'fs/promises';
 
 interface ChatMessageProps {
   message: Message;
