@@ -32,10 +32,6 @@ object VoiceHdlrHelpers extends SystemConfiguration {
   ): Boolean = {
     Users2x.findWithIntId(liveMeeting.users2x, userId) match {
       case Some(user) => {
-        val microphoneSharingLocked = LockSettingsUtil.isMicrophoneSharingLocked(
-          user,
-          liveMeeting
-        )
         val isCallerBanned = VoiceUsers.isCallerBanned(
           callerIdNum,
           liveMeeting.voiceUsers
@@ -43,10 +39,22 @@ object VoiceHdlrHelpers extends SystemConfiguration {
 
         (applyPermissionCheck &&
           !isCallerBanned &&
-          !microphoneSharingLocked &&
           liveMeeting.props.meetingProp.intId == meetingId &&
           liveMeeting.props.voiceProp.voiceConf == voiceConf)
       }
+      case _ => false
+    }
+  }
+
+  def isMicrophoneSharingLocked(
+      liveMeeting: LiveMeeting,
+      userId:      String
+  ): Boolean = {
+    Users2x.findWithIntId(liveMeeting.users2x, userId) match {
+      case Some(user) => LockSettingsUtil.isMicrophoneSharingLocked(
+        user,
+        liveMeeting
+      ) && applyPermissionCheck
       case _ => false
     }
   }

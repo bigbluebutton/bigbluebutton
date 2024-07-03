@@ -44,6 +44,10 @@ trait GetMicrophonePermissionReqMsgHdlr {
       msg.body.voiceConf,
       msg.body.callerIdNum
     )
+    // Lock settings should only define whether the user starts muted or not.
+    // It must not prevent users from joining audio.
+    val locked = VoiceHdlrHelpers.isMicrophoneSharingLocked(liveMeeting, msg.body.userId)
+    val muteOnStart = MeetingStatus2x.isMeetingMuted(liveMeeting.status) || locked
 
     broadcastEvent(
       liveMeeting.props.meetingProp.intId,
@@ -51,7 +55,7 @@ trait GetMicrophonePermissionReqMsgHdlr {
       msg.body.userId,
       msg.body.sfuSessionId,
       allowed,
-      MeetingStatus2x.isMeetingMuted(liveMeeting.status)
+      muteOnStart
     )
   }
 }
