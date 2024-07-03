@@ -887,7 +887,7 @@
     "app.userList.guest.allowEveryone": "Alle erlauben",
     "app.userList.guest.denyEveryone": "Alle verweigern",
     "app.userList.guest.pendingUsers": "{0} unbearbeitete Teilnehmer",
-    "app.userList.guest.noPendingUsers": "Derzeit keine ausstehenden Teilnehmer...",
+    "app.userList.guest.noPendingUsers": "Derzeit keine weiteren Personen ...",
     "app.userList.guest.pendingGuestUsers": "{0} wartende Gäste",
     "app.userList.guest.pendingGuestAlert": "Ist der Konferenz beigetreten und wartet auf Ihre Teilnahmeerlaubnis",
     "app.userList.guest.rememberChoice": "Auswahl für die Zukunft speichern",
