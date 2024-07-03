@@ -1406,7 +1406,7 @@
     "app.learningDashboard.pollsTable.noPollsCreatedHeading": "Es wurden keine Umfragen erstellt",
     "app.learningDashboard.pollsTable.noPollsCreatedMessage": "Sobald eine Umfrage an die Teilnehmenden gesendet wurde, werden die Ergebnisse in dieser Liste angezeigt.",
     "app.learningDashboard.pollsTable.answerTotal": "Insgesamt",
-    "app.learningDashboard.pollsTable.userLabel": "Teilnehmer",
+    "app.learningDashboard.pollsTable.userLabel": "Teilnehmende",
     "app.learningDashboard.statusTimelineTable.title": "Zeitverlauf",
     "app.learningDashboard.statusTimelineTable.thumbnail": "Vorschaubild der Präsentation",
     "app.learningDashboard.statusTimelineTable.presentation": "Präsentation",
