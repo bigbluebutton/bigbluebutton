@@ -854,7 +854,7 @@
     "app.error.500": "Ups, irgendwas ist schiefgelaufen",
     "app.error.503": "Verbindung wurde getrennt",
     "app.error.disconnected.rejoin": "Bitte Seite neu laden um wieder beizutreten.",
-    "app.error.userLoggedOut": "Teilnehmer hat einen ungültigen Konferenz-Token, weil er sich ausgeloggt hat",
+    "app.error.userLoggedOut": "Teilnehmer hat einen ungültigen Konferenz-Token, weil ausgeloggt",
     "app.error.ejectedUser": "Teilnehmer hat einen ungültigen Konferenz-Token, weil er gesperrt wurde",
     "app.error.joinedAnotherWindow": "Diese Konferenz scheint in einem anderen Browserfenster geöffnet zu sein.",
     "app.error.userBanned": "Teilnehmer wurde gesperrt",
