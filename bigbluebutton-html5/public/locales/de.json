@@ -900,7 +900,7 @@
     "app.userList.guest.feedbackMessage": "Angewendet:",
     "app.user-info.title": "Verzeichnissuche",
     "app.toast.breakoutRoomEnded": "Gruppenraum wurde geschlossen. Bitte gegebenenfalls der Audiokonferenz erneut beitreten.",
-    "app.toast.chat.public": "Neue öffentliche Chatnachricht",
+    "app.toast.chat.public": "Neue Chatnachricht für alle",
     "app.toast.chat.private": "Neue private Chatnachricht",
     "app.toast.chat.system": "System",
     "app.toast.chat.poll": "Umfrageergebnisse",
