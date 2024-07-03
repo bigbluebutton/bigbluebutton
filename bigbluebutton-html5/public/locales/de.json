@@ -445,7 +445,7 @@
     "app.connectingMessage": "Verbinde...",
     "app.waitingMessage": "Verbindung unterbrochen. Versuche in {0} Sekunden erneut zu verbinden...",
     "app.reconnectingMessage": "Verbindung getrennt. Versuche neu zu verbinden.",
-    "app.muteWarning.label": "Auf {0} klicken, um Ihre Stummschaltung aufzuheben.",
+    "app.muteWarning.label": "Auf {0} klicken, um die Stummschaltung aufzuheben.",
     "app.muteWarning.disableMessage": "Hinweis auf Stummschaltung deaktiviert, bis die Stummschaltung aufgehoben wird",
     "app.muteWarning.tooltip": "Klicken, um den Hinweis bis zur nächsten Aufhebung der Stummschaltung zu schließen",
     "app.navBar.leaveMeetingBtnLabel": "Verlassen",
