@@ -1247,7 +1247,7 @@
     "app.createBreakoutRoom.captureNotes": "Übertragen der gemeinsamen Notizen nach Beendigung der Arbeitsgruppenräume",
     "app.createBreakoutRoom.captureSlides": "Whiteboard aufnehmen, wenn Gruppenräume enden",
     "app.createBreakoutRoom.sendInvitationToMods": "Einladung an zugewiesene Moderatoren senden",
-    "app.createBreakoutRoom.leastOneWarnBreakout": "Jedem Gruppenraum muss wenigstens ein Teilnehmer zugeordnet sein.",
+    "app.createBreakoutRoom.leastOneWarnBreakout": "Jedem Gruppenraum muss wenigstens eine Person zugeordnet sein.",
     "app.createBreakoutRoom.minimumDurationWarnBreakout": "Die Mindestdauer für einen Gruppenraum beträgt {0} Minuten.",
     "app.createBreakoutRoom.modalDesc": "Tipp: Teilnehmer können per Drag-and-Drop einem bestimmten Gruppenraum zugewiesen werden.",
     "app.createBreakoutRoom.roomTime": "{0} Minuten",
