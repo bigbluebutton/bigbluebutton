@@ -663,7 +663,7 @@
     "app.actionsBar.actionsDropdown.createBreakoutRoomDesc": "ermöglicht die aktuelle Konferenz in mehrere Gruppenräume aufzuteilen",
     "app.actionsBar.actionsDropdown.captionsLabel": "Untertitel schreiben",
     "app.actionsBar.actionsDropdown.captionsDesc": "Untertitelfenster umschalten",
-    "app.actionsBar.actionsDropdown.takePresenter": "Zum Präsentator werden",
+    "app.actionsBar.actionsDropdown.takePresenter": "Berechtigung zur Präsentation holen",
     "app.actionsBar.actionsDropdown.takePresenterDesc": "Sich selbst zum neuen Präsentator machen",
     "app.actionsBar.reactions.reactionsButtonLabel": "Reaktionenleiste",
     "app.actionsBar.reactions.raiseHand": "Hand heben",
