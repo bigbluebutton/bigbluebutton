@@ -180,7 +180,7 @@
     "app.userList.userOptions.clearAllReactionsLabel": "Alle Reaktionen löschen",
     "app.userList.userOptions.clearAllReactionsDesc": "Entfernt von jedem die Reaktions-Emojis",
     "app.userList.userOptions.muteAllExceptPresenterLabel": "Alle außer dem Präsentator stummschalten",
-    "app.userList.userOptions.muteAllExceptPresenterDesc": "Alle Teilnehmer der Konferenz außer dem Präsentator werden stumm geschaltet",
+    "app.userList.userOptions.muteAllExceptPresenterDesc": "Alle in der Konferenz außer dem Präsentator werden stumm geschaltet",
     "app.userList.userOptions.unmuteAllLabel": "Konferenz-Stummschaltung aufheben",
     "app.userList.userOptions.unmuteAllDesc": "Hebt die Konferenz-Stummschaltung auf",
     "app.userList.userOptions.lockViewersLabel": "Teilnehmerrechte einschränken",
