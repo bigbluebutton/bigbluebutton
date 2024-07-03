@@ -673,7 +673,7 @@
     "app.actionsBar.reactions.setActive": "Als aktiv anzeigen",
     "app.actionsBar.emojiMenu.statusTriggerLabel": "Status setzen",
     "app.actionsBar.emojiMenu.awayLabel": "Abwesend",
-    "app.actionsBar.emojiMenu.awayDesc": "Ihren Status auf abwesend setzen",
+    "app.actionsBar.emojiMenu.awayDesc": "Status auf abwesend setzen",
     "app.actionsBar.emojiMenu.raiseHandLabel": "Hand heben",
     "app.actionsBar.emojiMenu.lowerHandLabel": "Hand senken",
     "app.actionsBar.emojiMenu.raiseHandDesc": "Bitte die Hand heben, um eine Frage zu stellen",
