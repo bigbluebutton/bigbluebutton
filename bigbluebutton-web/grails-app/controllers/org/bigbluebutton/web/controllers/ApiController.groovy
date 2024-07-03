@@ -1225,6 +1225,13 @@ class ApiController {
 
     if (!params.sessionToken) {
       invalid("missingSession", "Invalid session token")
+      return
+    }
+
+    if (!session[params.sessionToken]) {
+      log.info("Session for token ${params.sessionToken} not found")
+      invalid("missingSession", "Invalid session token")
+      return
     }
 
     String requestBody = request.inputStream == null ? null : request.inputStream.text
@@ -1265,6 +1272,7 @@ class ApiController {
 
     if(userId == "") {
       invalid("invalidSession", "Invalid Session")
+      return
     }
 
     response.contentType = 'application/json'
