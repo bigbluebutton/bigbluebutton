@@ -1185,7 +1185,7 @@ const Whiteboard = React.memo(function Whiteboard(props) {
         .map(({ userId, user, xPercent, yPercent }) => {
           const { presenter, name } = user;
           const id = InstancePresenceRecordType.createId(userId);
-          const active = yPercent !== -1 && yPercent !== -1;
+          const active = xPercent !== -1 && yPercent !== -1;
           // if cursor is not active remove it from tldraw store
           if (
             !active ||
