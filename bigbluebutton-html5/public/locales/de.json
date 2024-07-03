@@ -865,7 +865,7 @@
     "app.guest.errorSeeConsole": "Fehler: weitere Details in der Konsole.",
     "app.guest.noModeratorResponse": "Keine Antwort vom Moderator.",
     "app.guest.noSessionToken": "Kein Konferenz-Token erhalten.",
-    "app.guest.windowTitle": "BigBlueButton - Wartebereich für Gäste",
+    "app.guest.windowTitle": "Wartebereich für Gäste",
     "app.guest.missingToken": "Gast fehlt Konferenz-Token.",
     "app.guest.missingSession": "Gast fehlt in der Konferenz.",
     "app.guest.missingMeeting": "Konferenz existiert nicht.",
