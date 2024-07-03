@@ -937,7 +937,7 @@
     "app.shortcut-help.openOptions": "Einstellungen öffnen",
     "app.shortcut-help.toggleUserList": "Teilnehmerliste öffnen/schließen",
     "app.shortcut-help.toggleMute": "Stummschalten/Freischalten",
-    "app.shortcut-help.togglePublicChat": "Öffentlichen Chat öffnen/schließen (Teilnehmerliste muss geöffnet sein)",
+    "app.shortcut-help.togglePublicChat": "Gemeinsamen Chat öffnen/schließen (Teilnehmerliste muss geöffnet sein)",
     "app.shortcut-help.hidePrivateChat": "Privaten Chat verbergen",
     "app.shortcut-help.closePrivateChat": "Privaten Chat schließen",
     "app.shortcut-help.openActions": "Aktionsmenü öffnen",
