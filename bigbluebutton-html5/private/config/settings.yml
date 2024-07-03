@@ -927,13 +927,9 @@ public:
       - 0.1
       - 0.2
     rtt:
-      - 500
-      - 1000
-      - 2000
-    level:
-      - warning
-      - danger
-      - critical
+      500: warning
+      1000: danger
+      2000: critical
     help: STATS_HELP_URL
   presentation:
     allowDownloadOriginal: true
