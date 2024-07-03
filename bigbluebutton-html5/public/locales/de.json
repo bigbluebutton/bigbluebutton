@@ -220,7 +220,7 @@
     "app.media.cameraAsContent.start": "Kamera wurde gestartet",
     "app.media.cameraAsContent.end": "Kamera wurde beendet",
     "app.media.cameraAsContent.endDueToDataSaving": "Kamera wurde aufgrund von Dateneinsparungen deaktiviert",
-    "app.media.cameraAsContent.autoplayBlockedDesc": "Wir benötigen die Erlaubnis um Ihnen die Präsentationskamera zu zeigen.",
+    "app.media.cameraAsContent.autoplayBlockedDesc": "Wir benötigen die Erlaubnis um die Präsentationskamera zu zeigen.",
     "app.media.cameraAsContent.autoplayAllowLabel": "Verwendete Kamera anzeigen",
     "app.screenshare.presenterLoadingLabel": "Der Bildschirm wird freigegeben",
     "app.screenshare.viewerLoadingLabel": "Der Bildschirm des Präsentators wird geladen",
