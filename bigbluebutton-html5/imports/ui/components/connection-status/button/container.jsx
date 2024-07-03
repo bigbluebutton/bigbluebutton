@@ -1,8 +1,5 @@
 import React from 'react';
 import ConnectionStatusButtonComponent from './component';
-import { USER_CURRENT_STATUS_SUBSCRIPTION } from '../queries';
-import Auth from '/imports/ui/services/auth';
-import useDeduplicatedSubscription from '/imports/ui/core/hooks/useDeduplicatedSubscription';
 import useSettings from '/imports/ui/services/settings/hooks/useSettings';
 import { SETTINGS } from '/imports/ui/services/settings/enums';
 import { useStorageKey } from '/imports/ui/services/storage/hooks';
@@ -12,12 +9,7 @@ import connectionStatus from '/imports/ui/core/graphql/singletons/connectionStat
 const ConnectionStatusButtonContainer = (props) => {
   const connected = useReactiveVar(connectionStatus.getConnectedStatusVar());
 
-  const { data } = useDeduplicatedSubscription(USER_CURRENT_STATUS_SUBSCRIPTION, {
-    variables: { userId: Auth.userID },
-  });
-  const myCurrentStatus = data && data.length > 0
-    ? data[0].currentStatus
-    : 'normal';
+  const myCurrentStatus = useReactiveVar(connectionStatus.getRttStatusVar());
 
   const { paginationEnabled } = useSettings(SETTINGS.APPLICATION);
   const { viewParticipantsWebcams } = useSettings(SETTINGS.DATA_SAVING);

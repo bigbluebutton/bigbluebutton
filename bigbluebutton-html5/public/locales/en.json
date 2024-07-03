@@ -441,6 +441,8 @@
     "app.polling.pollAnswerLabel": "Poll answer {0}",
     "app.polling.pollAnswerDesc": "Select this option to vote for {0}",
     "app.failedMessage": "Apologies, trouble connecting to the server.",
+    "app.serverIsNotResponding": "Server is not responding",
+    "app.serverIsSlow": "Data channel is busy, delays can happen",
     "app.downloadPresentationButton.label": "Download presentation",
     "app.connectingMessage": "Connecting ...",
     "app.waitingMessage": "Disconnected. Trying to reconnect in {0} seconds ...",

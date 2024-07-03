@@ -70,7 +70,8 @@ const ConnectionManager: React.FC<ConnectionManagerProps> = ({ children }): Reac
   const numberOfAttempts = useRef(20);
   const [errorCounts, setErrorCounts] = React.useState(0);
   const activeSocket = useRef<WebSocket>();
-  const timedOut = useRef<ReturnType<typeof setTimeout>>();
+  const tsLastMessageRef = useRef<number>(0);
+  const tsLastPingMessageRef = useRef<number>(0);
   const [terminalError, setTerminalError] = React.useState<string>('');
   useEffect(() => {
     const pathMatch = window.location.pathname.match('^(.*)/html5client/join$');
@@ -91,6 +92,27 @@ const ConnectionManager: React.FC<ConnectionManagerProps> = ({ children }): Reac
     });
     logger.info('Fetching GraphQL URL');
     loadingContextInfo.setLoading(true, '1/5');
+  }, []);
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      const tsNow = Date.now();
+
+      if (tsLastMessageRef.current !== 0 && tsLastPingMessageRef.current !== 0) {
+        if ((tsNow - tsLastMessageRef.current > 15_000) && connectionStatus.getServerIsResponding()) {
+          connectionStatus.setServerIsResponding(false);
+        } else if ((tsNow - tsLastPingMessageRef.current > 15_000) && connectionStatus.getPingIsComing()) {
+          connectionStatus.setPingIsComing(false);
+        }
+
+        if (tsNow - tsLastMessageRef.current < 15_000 && !connectionStatus.getServerIsResponding()) {
+          connectionStatus.setServerIsResponding(true);
+        } else if (tsNow - tsLastPingMessageRef.current < 15_000 && !connectionStatus.getPingIsComing()) {
+          connectionStatus.setPingIsComing(true);
+        }
+      }
+    }, 5_000);
+    return () => clearInterval(interval);
   }, []);
 
   useEffect(() => {
@@ -125,7 +147,7 @@ const ConnectionManager: React.FC<ConnectionManagerProps> = ({ children }): Reac
         const subscription = createClient({
           url: graphqlUrl,
           retryAttempts: numberOfAttempts.current,
-          keepAlive: 10_000,
+          keepAlive: 99999999999,
           retryWait: async () => {
             return new Promise((res) => {
               setTimeout(() => {
@@ -169,22 +191,13 @@ const ConnectionManager: React.FC<ConnectionManagerProps> = ({ children }): Reac
             connecting: () => {
               connectionStatus.setConnectedStatus(false);
             },
-            ping: (received) => {
-              if (!received) {
-                timedOut.current = setTimeout(() => {
-                  if (activeSocket?.current?.readyState === WebSocket.OPEN) {
-                    connectionStatus.setConnectedStatus(false);
-                    activeSocket?.current?.close(4408, 'Request Timeout');
-                  }
-                }, 5_000);
+            message: (message) => {
+              if (message.type === 'ping') {
+                tsLastPingMessageRef.current = Date.now();
               }
+              tsLastMessageRef.current = Date.now();
             },
-            pong: () => {
-              clearTimeout(timedOut.current);
-              if (!connectionStatus.getConnectedStatus()) {
-                connectionStatus.setConnectedStatus(true);
-              }
-            },
+
           },
         });
         const graphWsLink = new GraphQLWsLink(

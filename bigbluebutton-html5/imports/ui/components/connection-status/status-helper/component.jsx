@@ -3,7 +3,8 @@ import { defineMessages, injectIntl } from 'react-intl';
 import Styled from './styles';
 import Icon from '/imports/ui/components/connection-status/icon/component';
 import SettingsMenuContainer from '/imports/ui/components/settings/container';
-import Auth from '/imports/ui/services/auth';
+import { useReactiveVar } from '@apollo/client';
+import connectionStatus from '/imports/ui/core/graphql/singletons/connectionStatus';
 
 const intlMessages = defineMessages({
   label: {
@@ -24,9 +25,9 @@ class ConnectionStatusIcon extends PureComponent {
 
     this.setSettingsMenuModalIsOpen = this.setSettingsMenuModalIsOpen.bind(this);
   }
-
+  // eslint-disable-next-line
   renderIcon(level = 'normal') {
-    return(
+    return (
       <Styled.IconWrapper>
         <Icon
           level={level}
@@ -41,9 +42,9 @@ class ConnectionStatusIcon extends PureComponent {
   }
 
   setSettingsMenuModalIsOpen(value) {
-    const {closeModal} = this.props;
-    
-    this.setState({isSettingsMenuModalOpen: value})
+    const { closeModal } = this.props;
+
+    this.setState({ isSettingsMenuModalOpen: value });
     if (!value) {
       closeModal();
     }
@@ -52,14 +53,8 @@ class ConnectionStatusIcon extends PureComponent {
   render() {
     const {
       intl,
-      connectionData,
+      currentStatus,
     } = this.props;
-
-    const ownConnectionData = connectionData.filter((curr) => curr.user.userId === Auth.userID);
-
-    const currentStatus = ownConnectionData && ownConnectionData.length > 0
-      ? ownConnectionData[0].currentStatus
-      : 'normal';
 
     let color;
     switch (currentStatus) {
@@ -79,7 +74,7 @@ class ConnectionStatusIcon extends PureComponent {
     const { isSettingsMenuModalOpen } = this.state;
 
     return (
-      <Fragment>
+      <>
         <Styled.StatusIconWrapper color={color}>
           {this.renderIcon(currentStatus)}
         </Styled.StatusIconWrapper>
@@ -90,29 +85,43 @@ class ConnectionStatusIcon extends PureComponent {
           ? (
             <div>
               <Styled.Settings
+              // eslint-disable-next-line
                 onClick={this.openAdjustSettings.bind(this)}
                 role="button"
               >
                 {intl.formatMessage(intlMessages.settings)}
               </Styled.Settings>
-              {isSettingsMenuModalOpen ? <SettingsMenuContainer
-                selectedTab={2} 
-                {...{
-                  onRequestClose: () => this.setSettingsMenuModalIsOpen(false),
-                  priority: "medium",
-                  setIsOpen: this.setSettingsMenuModalIsOpen,
-                  isOpen: isSettingsMenuModalOpen,
-                }}
-              /> : null}
+              {isSettingsMenuModalOpen
+                ? (
+                  <SettingsMenuContainer
+                    selectedTab={2}
+                    {...{
+                      onRequestClose: () => this.setSettingsMenuModalIsOpen(false),
+                      priority: 'medium',
+                      setIsOpen: this.setSettingsMenuModalIsOpen,
+                      isOpen: isSettingsMenuModalOpen,
+                    }}
+                  />
+                ) : null}
             </div>
           )
           : (
             <div>&nbsp;</div>
           )
         }
-      </Fragment>
+      </>
     );
   }
 }
 
-export default injectIntl(ConnectionStatusIcon);
+const WrapConnectionStatus = (props) => {
+  const rttStatus = useReactiveVar(connectionStatus.getRttStatusVar());
+  return (
+    <ConnectionStatusIcon
+      {...props}
+      currentStatus={rttStatus}
+    />
+  );
+};
+
+export default injectIntl(WrapConnectionStatus);
