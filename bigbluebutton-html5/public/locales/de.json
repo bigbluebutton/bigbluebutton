@@ -161,7 +161,7 @@
     "app.userList.menu.muteUserAudio.label": "Teilnehmer stummschalten",
     "app.userList.menu.unmuteUserAudio.label": "Stummschaltung aufheben",
     "app.userList.menu.webcamPin.label": "Webkamera des Teilnehmers anheften",
-    "app.userList.menu.webcamUnpin.label": "Webcam der Teilnehmer lösen",
+    "app.userList.menu.webcamUnpin.label": "Webkamera des Teilnehmers lösen",
     "app.userList.menu.giveWhiteboardAccess.label": "Zugriff auf Whiteboard erlauben",
     "app.userList.menu.removeWhiteboardAccess.label": "Zugriff auf Whiteboard aufheben",
     "app.userList.menu.ejectUserCameras.label": "Kameras schließen",
