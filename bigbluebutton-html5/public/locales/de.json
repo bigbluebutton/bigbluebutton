@@ -217,7 +217,7 @@
     "app.media.screenshare.notSupported": "Bildschirmfreigabe wird in diesem Browser nicht unterstützt.",
     "app.media.screenshare.autoplayBlockedDesc": "Wir benötigen die Erlaubnis, um den Bildschirm des Präsentators zu zeigen.",
     "app.media.screenshare.autoplayAllowLabel": "Geteilten Bildschirm ansehen",
-    "app.media.cameraAsContent.start": "Gegenwärtige Kamera ist gestartet",
+    "app.media.cameraAsContent.start": "Kamera wurde gestartet",
     "app.media.cameraAsContent.end": "Kamera wurde beendet",
     "app.media.cameraAsContent.endDueToDataSaving": "Kamera wurde aufgrund von Dateneinsparungen deaktiviert",
     "app.media.cameraAsContent.autoplayBlockedDesc": "Wir benötigen die Erlaubnis um Ihnen die Präsentationskamera zu zeigen.",
