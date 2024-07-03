@@ -690,7 +690,7 @@
     "app.actionsBar.emojiMenu.applauseLabel": "Applaus",
     "app.actionsBar.emojiMenu.applauseDesc": "Eigenen Status auf Applaus setzen",
     "app.actionsBar.emojiMenu.thumbsUpLabel": "Daumen hoch",
-    "app.actionsBar.emojiMenu.thumbsUpDesc": "Ihren Status auf Daumen hoch setzen",
+    "app.actionsBar.emojiMenu.thumbsUpDesc": "Eigenen Status auf Daumen hoch setzen",
     "app.actionsBar.emojiMenu.thumbsDownLabel": "Daumen runter",
     "app.actionsBar.emojiMenu.thumbsDownDesc": "Ihren Status auf Daumen runter setzen",
     "app.actionsBar.currentStatusDesc": "Aktueller Status {0}",
