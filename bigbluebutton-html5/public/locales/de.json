@@ -178,7 +178,7 @@
     "app.userList.userOptions.clearAllLabel": "Alle Statusicons löschen",
     "app.userList.userOptions.clearAllDesc": "Alle Statusicons der Teilnehmer löschen",
     "app.userList.userOptions.clearAllReactionsLabel": "Alle Reaktionen löschen",
-    "app.userList.userOptions.clearAllReactionsDesc": "Löscht alle Reaktions-Emojis der Nutzenden",
+    "app.userList.userOptions.clearAllReactionsDesc": "Entfernt von jedem die Reaktions-Emojis",
     "app.userList.userOptions.muteAllExceptPresenterLabel": "Alle Teilnehmer außer den Präsentator stummschalten",
     "app.userList.userOptions.muteAllExceptPresenterDesc": "Alle Teilnehmer der Konferenz außer dem Präsentator werden stumm geschaltet",
     "app.userList.userOptions.unmuteAllLabel": "Konferenz-Stummschaltung aufheben",
