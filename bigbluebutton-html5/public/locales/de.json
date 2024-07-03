@@ -745,7 +745,7 @@
     "app.audioModal.echoTestTitle": "Dies ist ein persönlicher Echotest. Bitte ein paar Worte sprechen, ist alles hörbar?",
     "app.audioModal.settingsTitle": "Audioeinstellungen ändern",
     "app.audioModal.helpTitle": "Es gab ein Problem mit den Mediengeräten (Mikrofon/Webcam)",
-    "app.audioModal.helpSubtitleMic": "Wir konnten das Mikrofon nicht aktivieren",
+    "app.audioModal.helpSubtitleMic": "Das Mikrofon konnte nicht aktiviert werden",
     "app.audioModal.helpSubtitleGeneric": "Es gibt Probleme, die Audioverbindung herzustellen",
     "app.audioModal.helpPermissionStep1": "Bitte alle Anfragen akzeptieren, die den Zugriff auf das Mikrofon betreffen.",
     "app.audioModal.helpPermissionStep2": "Bitte Browser und Geräteeinstellungen überprüfen und sicherstellen, dass Mikrofonzugriff erlaubt ist.",
