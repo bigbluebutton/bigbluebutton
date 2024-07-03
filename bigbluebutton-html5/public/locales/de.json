@@ -1393,7 +1393,7 @@
     "app.learningDashboard.usersTable.colStatus": "Status",
     "app.learningDashboard.usersTable.userStatusOnline": "Online",
     "app.learningDashboard.usersTable.userStatusOffline": "Offline",
-    "app.learningDashboard.usersTable.noUsers": "Bisher keine Teilnehmer",
+    "app.learningDashboard.usersTable.noUsers": "Bisher niemand",
     "app.learningDashboard.usersTable.name": "Name",
     "app.learningDashboard.usersTable.moderator": "Moderator",
     "app.learningDashboard.usersTable.pollVotes": "Abstimmungen",
