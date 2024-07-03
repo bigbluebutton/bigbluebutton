@@ -680,7 +680,7 @@
     "app.actionsBar.emojiMenu.neutralLabel": "Unentschlossen",
     "app.actionsBar.emojiMenu.neutralDesc": "Eigenen Status auf unentschlossen setzen",
     "app.actionsBar.emojiMenu.confusedLabel": "Verwirrt",
-    "app.actionsBar.emojiMenu.confusedDesc": "Ihren Status auf verwirrt setzen",
+    "app.actionsBar.emojiMenu.confusedDesc": "Eigenen Status auf verwirrt setzen",
     "app.actionsBar.emojiMenu.sadLabel": "Traurig",
     "app.actionsBar.emojiMenu.sadDesc": "Ihren Status auf traurig setzen",
     "app.actionsBar.emojiMenu.happyLabel": "Glücklich",
