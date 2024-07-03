@@ -1230,7 +1230,7 @@
     "app.createBreakoutRoom.numberOfRooms": "Anzahl der Räume",
     "app.createBreakoutRoom.durationInMinutes": "Dauer (Minuten)",
     "app.createBreakoutRoom.randomlyAssign": "Zufällig zuordnen",
-    "app.createBreakoutRoom.randomlyAssignDesc": "Teilnehmer zufällig in Gruppenräume zuordnen",
+    "app.createBreakoutRoom.randomlyAssignDesc": "Personen zufällig in Gruppenräume zuordnen",
     "app.createBreakoutRoom.resetAssignments": "Zuordnungen zurücksetzen",
     "app.createBreakoutRoom.resetAssignmentsDesc": "Alle Raumzuordnungen der Teilnehmer zurücksetzen",
     "app.createBreakoutRoom.endAllBreakouts": "Alle Gruppenräume beenden",
