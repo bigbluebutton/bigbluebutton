@@ -26,10 +26,9 @@ class HoldDownButton extends PureComponent {
       minBound,
       maxBound,
       value,
-      isInfiniteCanvas
     } = this.props;
     const bounds = (value === maxBound) || (value === minBound);
-    if (bounds || isInfiniteCanvas) return;
+    if (bounds) return;
     exec();
   }
 
