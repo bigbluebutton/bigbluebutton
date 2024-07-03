@@ -222,7 +222,7 @@
     "app.media.cameraAsContent.endDueToDataSaving": "Kamera wurde aufgrund von Dateneinsparungen eingestellt",
     "app.media.cameraAsContent.autoplayBlockedDesc": "Wir benötigen Ihre Zustimmung um Ihnen die Präsentationskamera zu zeigen.",
     "app.media.cameraAsContent.autoplayAllowLabel": "Verwendete Kamera anzeigen",
-    "app.screenshare.presenterLoadingLabel": "Ihr Bildschirm wird freigegeben",
+    "app.screenshare.presenterLoadingLabel": "Der Bildschirm wird freigegeben",
     "app.screenshare.viewerLoadingLabel": "Der Bildschirm des Präsentators wird geladen",
     "app.screenshare.presenterSharingLabel": "Der Bildschirm wird nun geteilt.",
     "app.screenshare.screenshareFinalError": "Fehler {0}. Bildschirm konnte nicht geteilt werden.",
