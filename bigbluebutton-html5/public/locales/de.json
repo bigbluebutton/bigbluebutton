@@ -199,7 +199,7 @@
     "app.userList.userOptions.enableCam": "Alle dürfen ihre Webcams verwenden",
     "app.userList.userOptions.enableMic": "Alle dürfen ihre Mikrofone verwenden",
     "app.userList.userOptions.enablePrivChat": "Privater Chat ist erlaubt",
-    "app.userList.userOptions.enablePubChat": "Öffentlicher Chat ist erlaubt",
+    "app.userList.userOptions.enablePubChat": "Der gemeinsame Chat ist erlaubt",
     "app.userList.userOptions.enableNotes": "Geteilte Notizen sind jetzt erlaubt",
     "app.userList.userOptions.showUserList": "Liste der Teilnehmenden ist jetzt für alle sichtbar",
     "app.userList.userOptions.enableOnlyModeratorWebcam": "Die Webkamera kann jetzt freigeben werden und wird dann allen anderen gezeigt",
