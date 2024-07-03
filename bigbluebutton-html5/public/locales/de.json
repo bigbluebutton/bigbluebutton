@@ -1,5 +1,5 @@
 {
-    "app.home.greeting": "Ihre Präsentation beginnt in Kürze...",
+    "app.home.greeting": "Die Präsentation beginnt in Kürze...",
     "app.chat.submitLabel": "Nachricht senden",
     "app.chat.loading": "Chatnachrichten geladen: {0}%",
     "app.chat.errorMaxMessageLength": "Die Nachricht ist zu lang. Sie darf maximal {0} Zeichen haben.",
