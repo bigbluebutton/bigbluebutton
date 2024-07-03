@@ -110,7 +110,7 @@
     "app.captions.speech.start": "Spracherkennung gestartet",
     "app.captions.speech.stop": "Spracherkennung gestoppt",
     "app.captions.speech.error": "Spracherkennung wurde aufgrund der Inkompatibilität des Browsers oder einer längeren Zeit der Stille angehalten",
-    "app.confirmation.skipConfirm": "Nicht nochmal fragen",
+    "app.confirmation.skipConfirm": "Nicht noch einmal fragen",
     "app.confirmation.virtualBackground.title": "Neuen virtuellen Hintergrund starten",
     "app.confirmation.virtualBackground.description": "{0} wird als virtueller Hintergrund hinzufügt. Fortsetzen?",
     "app.confirmationModal.yesLabel": "Ja",
