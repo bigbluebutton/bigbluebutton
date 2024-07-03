@@ -808,7 +808,7 @@
     "app.audio.captions.button.autoDetect": "Automatisch erkennen",
     "app.audio.captions.speech.title": "automatische Transkription",
     "app.audio.captions.speech.disabled": "Deaktiviert",
-    "app.audio.captions.speech.unsupported": "Dieser Browser unterstützt keine Spracherkennung. Ihr Audio wird nicht untertitelt.",
+    "app.audio.captions.speech.unsupported": "Dieser Browser unterstützt keine Spracherkennung, es gibt keine Audiotranskription.",
     "app.audio.captions.speech.auto": "Automatisch erkennen",
     "app.audio.captions.select.de-DE": "Deutsch",
     "app.audio.captions.select.en-US": "Englisch",
