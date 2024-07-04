@@ -80,7 +80,7 @@ class ConnectionStatus {
 
   public setRttValue(value: number): void {
     if (value !== this.rttValue()) {
-      logger.info(`[network] : RTT value changed to ${value}`);
+      logger.info({ logCode: 'stats_rtt_value_state' }, `RTT value changed to ${value}`);
       this.rttValue(value);
     }
   }
@@ -95,7 +95,7 @@ class ConnectionStatus {
 
   public setLastRttRequestSuccess(value: boolean): void {
     if (value !== this.lastRttRequestSuccess()) {
-      logger.info({ logCode: 'stats_rtt_value_state' }, `Last RTT request changed to ${value}`);
+      logger.info({ logCode: 'stats_rtt_success_state' }, `Last RTT request changed to ${value}`);
       this.lastRttRequestSuccess(value);
     }
   }
