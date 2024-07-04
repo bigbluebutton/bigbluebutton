@@ -232,15 +232,17 @@ class App extends React.Component {
 
     // This line generates an array of all the plugin entries of all users,
     // this might have duplicate entries:
-    const pluginAnalyticsTitleWithDuplicates = Object.values(activitiesJson.users || {}).flatMap((
+    const pluginsColumnTitleWithDuplicates = Object.values(
+      activitiesJson.users || {},
+    ).flatMap((
       user,
-    ) => user.pluginAnalytics).filter((
-      pluginAnalytics,
-    ) => !!(pluginAnalytics?.dataAnalyticsObject?.learningAnalyticsDashboardColumnTitle)).map((
-      pluginAnalytics,
-    ) => pluginAnalytics.dataAnalyticsObject.learningAnalyticsDashboardColumnTitle);
+    ) => user.plugins).filter((
+      plugins,
+    ) => !!(plugins?.genericDataForLearningAnalyticsDashboard?.columnTitle)).map((
+      plugins,
+    ) => plugins.genericDataForLearningAnalyticsDashboard.columnTitle);
     // This line will eliminate duplicates.
-    const pluginAnalyticsTitle = [...new Set(pluginAnalyticsTitleWithDuplicates)];
+    const pluginsColumnTitle = [...new Set(pluginsColumnTitleWithDuplicates)];
 
     document.title = `${intl.formatMessage({ id: 'app.learningDashboard.bigbluebuttonTitle', defaultMessage: 'BigBlueButton' })} - ${intl.formatMessage({ id: 'app.learningDashboard.dashboardTitle', defaultMessage: 'Learning Analytics Dashboard' })} - ${activitiesJson.name}`;
 
@@ -517,8 +519,8 @@ class App extends React.Component {
               <Card>
                 <CardContent classes={{ root: '!p-0' }}>
                   <CardBody
-                    name={intl.formatMessage({ id: 'app.learningDashboard.indicators.plugins', defaultMessage: 'Plugin analytics' })}
-                    number={pluginAnalyticsTitle.length}
+                    name={intl.formatMessage({ id: 'app.learningDashboard.indicators.h5p', defaultMessage: 'H5P' })}
+                    number={pluginsColumnTitle.length}
                     cardClass={tab === TABS.POLLING ? 'border-red-500' : 'hover:border-red-500 border-white'}
                     iconClass="bg-red-100 text-red-500"
                   >
@@ -597,12 +599,12 @@ class App extends React.Component {
           </TabPanelUnstyled>
           <TabPanelUnstyled value={4}>
             <h2 className="block my-2 pr-2 text-xl font-semibold">
-              <FormattedMessage id="app.learningDashboard.pluginsTable.title" defaultMessage="Plugins" />
+              <FormattedMessage id="app.learningDashboard.pluginsTable.titleH5P" defaultMessage="H5P" />
             </h2>
             <div className="w-full overflow-hidden rounded-md shadow-xs border-2 border-gray-100">
               <div className="w-full overflow-x-auto">
                 <PluginsTable
-                  pluginAnalyticsTitle={pluginAnalyticsTitle}
+                  pluginsColumnTitle={pluginsColumnTitle}
                   allUsers={activitiesJson.users}
                 />
               </div>

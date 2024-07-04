@@ -38,7 +38,7 @@ case class User(
                  isDialIn:           Boolean = false,
                  currentIntId:       String = null,
                  answers:            Map[String,Vector[String]] = Map(),
-                 pluginAnalytics:            Vector[PluginAnalytics] = Vector(),
+                 plugins:            Vector[PluginDataForLearningAnalyticsDashboard] = Vector(),
                  talk:               Talk = Talk(),
                  emojis:             Vector[Emoji] = Vector(),
                  reactions:          Vector[Emoji] = Vector(),
@@ -64,9 +64,9 @@ case class Poll(
   createdOn:  Long = System.currentTimeMillis(),
 )
 
-case class PluginAnalytics(
+case class PluginDataForLearningAnalyticsDashboard(
   pluginName: String,
-  dataAnalyticsObject: Object,
+  genericDataForLearningAnalyticsDashboard: Object,
 )
 
 case class Talk(
@@ -162,7 +162,7 @@ class LearningDashboardActor(
       case m: UserTalkingVoiceEvtMsg                => handleUserTalkingVoiceEvtMsg(m)
 
       // Plugin
-      case m: PluginDataAnalyticsSendObjectMsg         => handlePluginDataAnalyticsSendObjectMsg(m)
+      case m: PluginLearningAnalyticsDashboardSendMsg         => handlePluginLearningAnalyticsDashboardSendMsg(m)
 
       // Screenshare
       case m: ScreenshareRtmpBroadcastStartedEvtMsg => handleScreenshareRtmpBroadcastStartedEvtMsg(m)
@@ -579,16 +579,17 @@ class LearningDashboardActor(
     }
   }
 
-  private def handlePluginDataAnalyticsSendObjectMsg(msg: PluginDataAnalyticsSendObjectMsg) = {
+  private def handlePluginLearningAnalyticsDashboardSendMsg(msg: PluginLearningAnalyticsDashboardSendMsg) = {
     for {
       meeting <- meetings.values.find(m => m.intId == msg.header.meetingId)
       user <- findUserByIntId(meeting, msg.header.userId)
     } yield {
-      val newPluginAnalytics = PluginAnalytics(msg.body.pluginName, msg.body.dataAnalyticsObject)
-      val updatedUser = user.copy(pluginAnalytics = user.pluginAnalytics :+ newPluginAnalytics)
+      val newPluginAnalytics = PluginDataForLearningAnalyticsDashboard(msg.body.pluginName, msg.body.genericDataForLearningAnalyticsDashboard)
+      val updatedUser = user.copy(plugins = user.plugins :+ newPluginAnalytics)
       val updatedMeeting = meeting.copy(users = meeting.users + (updatedUser.userKey -> updatedUser))
       meetings += (updatedMeeting.intId -> updatedMeeting)
-      log.info("New data analytics for plugin '{}': {}", msg.body.pluginName, msg.body.dataAnalyticsObject)
+      log.debug("New data analytics for plugin '{}': {}", msg.body.pluginName,
+        msg.body.genericDataForLearningAnalyticsDashboard)
     }
   }
 

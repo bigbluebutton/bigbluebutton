@@ -427,8 +427,8 @@ class ReceivedJsonMsgHandlerActor(
       case PluginDataChannelResetMsg.NAME =>
         routeGenericMsg[PluginDataChannelResetMsg](envelope, jsonNode)
 
-      case PluginDataAnalyticsSendObjectMsg.NAME =>
-        routeGenericMsg[PluginDataAnalyticsSendObjectMsg](envelope, jsonNode)
+      case PluginLearningAnalyticsDashboardSendMsg.NAME =>
+        routeGenericMsg[PluginLearningAnalyticsDashboardSendMsg](envelope, jsonNode)
 
       // ExternalVideo
       case StartExternalVideoPubMsg.NAME =>
