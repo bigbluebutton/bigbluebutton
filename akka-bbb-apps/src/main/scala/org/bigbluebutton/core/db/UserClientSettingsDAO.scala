@@ -19,13 +19,13 @@ class UserClientSettingsDbTableDef(tag: Tag) extends Table[UserClientSettingsDbM
 }
 
 object UserClientSettingsDAO {
-  def insert(userId: String, meetingId: String) = {
+  def insertOrUpdate(meetingId: String, userId: String, userClientSettingsJson: JsValue) = {
     DatabaseConnection.enqueue(
       TableQuery[UserClientSettingsDbTableDef].insertOrUpdate(
         UserClientSettingsDbModel(
           userId = userId,
           meetingId = meetingId,
-          userClientSettingsJson = JsonUtils.stringToJson("{}")
+          userClientSettingsJson = userClientSettingsJson
         )
       )
     )
