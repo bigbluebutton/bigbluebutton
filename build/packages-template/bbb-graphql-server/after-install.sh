@@ -43,7 +43,7 @@ case "$1" in
   HASURA_RANDOM_ADM_PASSWORD=$(openssl rand -base64 32 | sed 's/=//g' | sed 's/+//g' | sed 's/\///g')
   sed -i "s/HASURA_GRAPHQL_ADMIN_SECRET=bigbluebutton/HASURA_GRAPHQL_ADMIN_SECRET=$HASURA_RANDOM_ADM_PASSWORD/g" /etc/default/bbb-graphql-server
   HASURA_ADM_PASSWORD=$(grep '^HASURA_GRAPHQL_ADMIN_SECRET=' /etc/default/bbb-graphql-server | cut -d '=' -f 2)
-  sed -i "s/admin_secret: bigbluebutton/admin_secret: $HASURA_ADM_PASSWORD/g" /usr/share/bbb-graphql-server/config.yaml
+  sed -i "s/^admin_secret: .*/admin_secret: $HASURA_ADM_PASSWORD/g" /usr/share/bbb-graphql-server/config.yaml
 
   if [ ! -f /.dockerenv ]; then
     systemctl enable bbb-graphql-server.service
