@@ -23,7 +23,7 @@ export default function buildRedisMessage(sessionVariables: Record<string, unkno
     )
   }
 
-  const eventName = `PluginLearningAnalyticsDashboardSendMsg`;
+  const eventName = `PluginLearningAnalyticsDashboardSendDataMsg`;
 
   const routing = {
     meetingId: sessionVariables['x-hasura-meetingid'] as String,

@@ -44,9 +44,9 @@ case class PluginDataChannelResetMsgBody(
                                           channelName: String
                                         )
 
-object PluginLearningAnalyticsDashboardSendMsg { val NAME = "PluginLearningAnalyticsDashboardSendMsg" }
-case class PluginLearningAnalyticsDashboardSendMsg(header: BbbClientMsgHeader, body: PluginLearningAnalyticsDashboardSendMsgBody) extends StandardMsg
-case class PluginLearningAnalyticsDashboardSendMsgBody(
+object PluginLearningAnalyticsDashboardSendDataMsg { val NAME = "PluginLearningAnalyticsDashboardSendDataMsg" }
+case class PluginLearningAnalyticsDashboardSendDataMsg(header: BbbClientMsgHeader, body: PluginLearningAnalyticsDashboardSendDataMsgBody) extends StandardMsg
+case class PluginLearningAnalyticsDashboardSendDataMsgBody(
                                           pluginName: String,
                                           genericDataForLearningAnalyticsDashboard: Map[String, Any]
                                         )

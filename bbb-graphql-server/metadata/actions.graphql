@@ -253,7 +253,7 @@ type Mutation {
 }
 
 type Mutation {
-  pluginLearningAnalyticsDashboardSend(
+  pluginLearningAnalyticsDashboardSendData(
     genericDataForLearningAnalyticsDashboard: json!,
     pluginName: String!,
   ): Boolean

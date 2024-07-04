@@ -162,7 +162,7 @@ class LearningDashboardActor(
       case m: UserTalkingVoiceEvtMsg                => handleUserTalkingVoiceEvtMsg(m)
 
       // Plugin
-      case m: PluginLearningAnalyticsDashboardSendMsg         => handlePluginLearningAnalyticsDashboardSendMsg(m)
+      case m: PluginLearningAnalyticsDashboardSendDataMsg         => handlePluginLearningAnalyticsDashboardSendDataMsg(m)
 
       // Screenshare
       case m: ScreenshareRtmpBroadcastStartedEvtMsg => handleScreenshareRtmpBroadcastStartedEvtMsg(m)
@@ -579,7 +579,7 @@ class LearningDashboardActor(
     }
   }
 
-  private def handlePluginLearningAnalyticsDashboardSendMsg(msg: PluginLearningAnalyticsDashboardSendMsg) = {
+  private def handlePluginLearningAnalyticsDashboardSendDataMsg(msg: PluginLearningAnalyticsDashboardSendDataMsg) = {
     for {
       meeting <- meetings.values.find(m => m.intId == msg.header.meetingId)
       user <- findUserByIntId(meeting, msg.header.userId)

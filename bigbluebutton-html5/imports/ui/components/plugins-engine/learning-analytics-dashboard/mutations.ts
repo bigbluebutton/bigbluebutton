@@ -1,13 +1,13 @@
 import { gql } from '@apollo/client';
 
-const PLUGIN_LEARNING_ANALYTICS_DASHBOARD_SEND_MUTATION = gql`
-  mutation PluginLearningAnalyticsDashboardSend($pluginName: String!,
+const PLUGIN_LEARNING_ANALYTICS_DASHBOARD_SEND_DATA_MUTATION = gql`
+  mutation PluginLearningAnalyticsDashboardSendData($pluginName: String!,
     $genericDataForLearningAnalyticsDashboard: json!) {
-      pluginLearningAnalyticsDashboardSend(
+      pluginLearningAnalyticsDashboardSendData(
         genericDataForLearningAnalyticsDashboard: $genericDataForLearningAnalyticsDashboard,
         pluginName: $pluginName,
       )
     }
 `;
 
-export default PLUGIN_LEARNING_ANALYTICS_DASHBOARD_SEND_MUTATION;
+export default PLUGIN_LEARNING_ANALYTICS_DASHBOARD_SEND_DATA_MUTATION;
