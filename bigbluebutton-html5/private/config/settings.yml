@@ -919,21 +919,17 @@ public:
       warning: false
       error: true
     jitter:
-      - 10
-      - 20
-      - 30
+      warning: 10
+      danger: 20
+      critical: 30
     loss:
-      - 0.05
-      - 0.1
-      - 0.2
+      warning: 0.05
+      danger: 0.1
+      critical: 0.2
     rtt:
-      - 500
-      - 1000
-      - 2000
-    level:
-      - warning
-      - danger
-      - critical
+      warning: 500
+      danger: 1000
+      critical: 2000
     help: STATS_HELP_URL
   presentation:
     allowDownloadOriginal: true
