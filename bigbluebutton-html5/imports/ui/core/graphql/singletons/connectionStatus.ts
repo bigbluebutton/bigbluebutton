@@ -80,7 +80,7 @@ class ConnectionStatus {
 
   public setRttValue(value: number): void {
     if (value !== this.rttValue()) {
-      logger.info({ logCode: 'stats_rtt_value_state' }, `RTT value changed to ${value}`);
+      logger.debug({ logCode: 'stats_rtt_value_state' }, `RTT value changed to ${value}`);
       this.rttValue(value);
     }
   }
