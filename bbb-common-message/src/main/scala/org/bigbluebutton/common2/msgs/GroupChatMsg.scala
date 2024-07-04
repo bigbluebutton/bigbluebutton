@@ -109,6 +109,14 @@ object UserTypingPubMsg { val NAME = "UserTypingPubMsg" }
 case class UserTypingPubMsg(header: BbbClientMsgHeader, body: UserTypingPubMsgBody) extends StandardMsg
 case class UserTypingPubMsgBody(chatId: String)
 
+object SetGroupChatVisibleReqMsg { val NAME = "SetGroupChatVisibleReqMsg" }
+case class SetGroupChatVisibleReqMsg(header: BbbClientMsgHeader, body: SetGroupChatVisibleReqMsgBody) extends StandardMsg
+case class SetGroupChatVisibleReqMsgBody(chatId: String, visible: Boolean)
+
+object SetGroupChatLastSeenReqMsg { val NAME = "SetGroupChatLastSeenReqMsg" }
+case class SetGroupChatLastSeenReqMsg(header: BbbClientMsgHeader, body: SetGroupChatLastSeenReqMsgBody) extends StandardMsg
+case class SetGroupChatLastSeenReqMsgBody(chatId: String, lastSeenAt: String)
+
 // html5 client only
 object SyncGetGroupChatsRespMsg { val NAME = "SyncGetGroupChatsRespMsg" }
 case class SyncGetGroupChatsRespMsg(header: BbbClientMsgHeader, body: SyncGetGroupChatsRespMsgBody) extends BbbCoreMsg

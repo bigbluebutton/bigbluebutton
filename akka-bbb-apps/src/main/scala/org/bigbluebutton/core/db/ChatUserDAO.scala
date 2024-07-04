@@ -64,18 +64,30 @@ object ChatUserDAO {
     )
   }
 
-  def updateChatVisible(meetingId: String, chatId: String, userId: String = ""): Unit = {
+  def updateChatVisible(meetingId: String, chatId: String, userId: String = "", visible: Boolean): Unit = {
     if (chatId != "MAIN-PUBLIC-GROUP-CHAT" && chatId != "public") { //Public chat is always visible
       val baseQuery = TableQuery[ChatUserDbTableDef]
         .filter(_.meetingId === meetingId)
         .filter(_.chatId === chatId)
-        .filter(_.visible === false)
+        .filter(_.visible === !visible)
       val updateQuery = if (userId.nonEmpty) {
-        baseQuery.filter(_.userId === userId).map(_.visible).update(true)
+        baseQuery.filter(_.userId === userId).map(_.visible).update(visible)
       } else {
-        baseQuery.map(_.visible).update(true)
+        baseQuery.map(_.visible).update(visible)
       }
       DatabaseConnection.enqueue(updateQuery)
     }
   }
+
+  def updateChatLastSeen(meetingId: String, chatId: String, userId: String, lastSeenAt: java.sql.Timestamp) = {
+    DatabaseConnection.enqueue(
+      TableQuery[ChatUserDbTableDef]
+        .filter(_.meetingId === meetingId)
+        .filter(_.chatId === (if (chatId == "public") "MAIN-PUBLIC-GROUP-CHAT" else chatId))
+        .filter(_.userId === userId)
+        .map(u => (u.lastSeenAt))
+        .update(Some(lastSeenAt))
+    )
+  }
+
 }

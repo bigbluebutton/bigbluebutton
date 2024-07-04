@@ -59,7 +59,7 @@ object ChatMessageDAO {
     )
 
     //Set chat visible for all participant users
-    ChatUserDAO.updateChatVisible(meetingId, chatId)
+    ChatUserDAO.updateChatVisible(meetingId, chatId, visible = true)
   }
 
 //  def insert(meetingId: String, chatId: String, groupChatMessage: GroupChatMessage): Unit = {
@@ -103,7 +103,7 @@ object ChatMessageDAO {
     )
 
     //Set chat visible for all participant users
-    ChatUserDAO.updateChatVisible(meetingId, chatId)
+    ChatUserDAO.updateChatVisible(meetingId, chatId, visible = true)
   }
 
   def deleteAllFromChat(meetingId: String, chatId: String) = {

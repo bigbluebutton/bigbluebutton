@@ -32,22 +32,3 @@ select_permissions:
               _eq: X-Hasura-MeetingId
           - userId:
               _eq: X-Hasura-UserId
-update_permissions:
-  - role: bbb_client
-    permission:
-      columns:
-        - lastSeenAt
-        - lastTypingAt
-        - visible
-      filter:
-        _and:
-          - meetingId:
-              _eq: X-Hasura-MeetingId
-          - userId:
-              _eq: X-Hasura-UserId
-          - visible:
-              _eq: true
-      check: {}
-      set:
-        meetingId: x-hasura-MeetingId
-        userId: x-hasura-UserId
