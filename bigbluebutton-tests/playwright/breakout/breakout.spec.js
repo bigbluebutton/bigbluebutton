@@ -133,7 +133,8 @@ test.describe.parallel('Breakout @ci', () => {
       await join.exportBreakoutNotes();
     });
 
-    test('Export breakout room whiteboard annotations', async ({ browser, context, page }) => {
+    test('Export breakout room whiteboard annotations', async ({ browser, browserName, context, page }) => {
+      test.skip(browserName === 'firefox', 'No notifications to close.')
       const join = new Join(browser, context);
       await join.initPages(page);
       await join.create(false, true);
