@@ -8,7 +8,6 @@ import Styled from './styles';
 import ConnectionStatusHelper from '../status-helper/component';
 import Auth from '/imports/ui/services/auth';
 
-const NETWORK_MONITORING_INTERVAL_MS = 2000;
 const MIN_TIMEOUT = 3000;
 
 const intlMessages = defineMessages({
@@ -163,7 +162,7 @@ class ConnectionStatusComponent extends PureComponent {
     this.help = Service.getHelp();
     this.state = {
       selectedTab: 0,
-      hasNetworkData: false,
+      hasNetworkData: true,
       copyButtonText: intl.formatMessage(intlMessages.copy),
       networkData: {
         user: {
@@ -191,9 +190,9 @@ class ConnectionStatusComponent extends PureComponent {
     this.handleSelectTab = this.handleSelectTab.bind(this);
   }
 
-  async componentDidMount() {
-    this.startMonitoringNetwork();
-  }
+  // async componentDidMount() {
+  //   this.startMonitoringNetwork();
+  // }
 
   componentWillUnmount() {
     Meteor.clearInterval(this.rateInterval);
@@ -212,75 +211,14 @@ class ConnectionStatusComponent extends PureComponent {
   }
 
   /**
-   * Start monitoring the network data.
-   * @return {Promise} A Promise that resolves when process started.
-   */
-  async startMonitoringNetwork() {
-    const { getVideoStreamsStats } = this.props;
-    let previousData = await Service.getNetworkData(getVideoStreamsStats);
-    this.rateInterval = Meteor.setInterval(async () => {
-      const data = await Service.getNetworkData(getVideoStreamsStats);
-
-      const {
-        outbound: audioCurrentUploadRate,
-        inbound: audioCurrentDownloadRate,
-      } = Service.calculateBitsPerSecond(data.audio, previousData.audio);
-
-      const inboundRtp = Service.getDataType(data.audio, 'inbound-rtp')[0];
-
-      const jitter = inboundRtp
-        ? inboundRtp.jitterBufferAverage
-        : 0;
-
-      const packetsLost = inboundRtp
-        ? inboundRtp.packetsLost
-        : 0;
-
-      const audio = {
-        audioCurrentUploadRate,
-        audioCurrentDownloadRate,
-        jitter,
-        packetsLost,
-        transportStats: data.audio.transportStats,
-      };
-
-      const {
-        outbound: videoCurrentUploadRate,
-        inbound: videoCurrentDownloadRate,
-      } = Service.calculateBitsPerSecondFromMultipleData(data.video,
-        previousData.video);
-
-      const video = {
-        videoCurrentUploadRate,
-        videoCurrentDownloadRate,
-      };
-
-      const { user } = data;
-
-      const networkData = {
-        user,
-        audio,
-        video,
-      };
-
-      previousData = data;
-      this.setState({
-        networkData,
-        hasNetworkData: true,
-      });
-    }, NETWORK_MONITORING_INTERVAL_MS);
-  }
-
-  /**
    * Copy network data to clipboard
    * @return {Promise}   A Promise that is resolved after data is copied.
    *
    *
    */
   async copyNetworkData() {
-    const { intl } = this.props;
+    const { intl, networkData } = this.props;
     const {
-      networkData,
       hasNetworkData,
     } = this.state;
 
@@ -407,7 +345,7 @@ class ConnectionStatusComponent extends PureComponent {
 
     const { intl, setModalIsOpen, connectionData } = this.props;
 
-    const { networkData } = this.state;
+    const { networkData } = this.props;
 
     const {
       audioCurrentUploadRate,

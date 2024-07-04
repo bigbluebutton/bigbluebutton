@@ -72,6 +72,7 @@ const ConnectionManager: React.FC<ConnectionManagerProps> = ({ children }): Reac
   const activeSocket = useRef<WebSocket>();
   const tsLastMessageRef = useRef<number>(0);
   const tsLastPingMessageRef = useRef<number>(0);
+  const boundary = useRef(15_000);
   const [terminalError, setTerminalError] = React.useState<string>('');
   useEffect(() => {
     const pathMatch = window.location.pathname.match('^(.*)/html5client/join$');
@@ -99,15 +100,15 @@ const ConnectionManager: React.FC<ConnectionManagerProps> = ({ children }): Reac
       const tsNow = Date.now();
 
       if (tsLastMessageRef.current !== 0 && tsLastPingMessageRef.current !== 0) {
-        if ((tsNow - tsLastMessageRef.current > 15_000) && connectionStatus.getServerIsResponding()) {
+        if ((tsNow - tsLastMessageRef.current > boundary.current) && connectionStatus.getServerIsResponding()) {
           connectionStatus.setServerIsResponding(false);
-        } else if ((tsNow - tsLastPingMessageRef.current > 15_000) && connectionStatus.getPingIsComing()) {
+        } else if ((tsNow - tsLastPingMessageRef.current > boundary.current) && connectionStatus.getPingIsComing()) {
           connectionStatus.setPingIsComing(false);
         }
 
-        if (tsNow - tsLastMessageRef.current < 15_000 && !connectionStatus.getServerIsResponding()) {
+        if (tsNow - tsLastMessageRef.current < boundary.current && !connectionStatus.getServerIsResponding()) {
           connectionStatus.setServerIsResponding(true);
-        } else if (tsNow - tsLastPingMessageRef.current < 15_000 && !connectionStatus.getPingIsComing()) {
+        } else if (tsNow - tsLastPingMessageRef.current < boundary.current && !connectionStatus.getPingIsComing()) {
           connectionStatus.setPingIsComing(true);
         }
       }

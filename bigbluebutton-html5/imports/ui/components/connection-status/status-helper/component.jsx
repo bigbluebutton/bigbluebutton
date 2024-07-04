@@ -1,10 +1,11 @@
 import React, { Fragment, PureComponent } from 'react';
 import { defineMessages, injectIntl } from 'react-intl';
+import { useReactiveVar } from '@apollo/client';
 import Styled from './styles';
 import Icon from '/imports/ui/components/connection-status/icon/component';
 import SettingsMenuContainer from '/imports/ui/components/settings/container';
-import { useReactiveVar } from '@apollo/client';
 import connectionStatus from '/imports/ui/core/graphql/singletons/connectionStatus';
+import { getWorstStatus } from '../service';
 
 const intlMessages = defineMessages({
   label: {
@@ -107,8 +108,7 @@ class ConnectionStatusIcon extends PureComponent {
           )
           : (
             <div>&nbsp;</div>
-          )
-        }
+          )}
       </>
     );
   }
@@ -116,10 +116,13 @@ class ConnectionStatusIcon extends PureComponent {
 
 const WrapConnectionStatus = (props) => {
   const rttStatus = useReactiveVar(connectionStatus.getRttStatusVar());
+  const jitterStatus = useReactiveVar(connectionStatus.getJitterStatusVar());
+  const packetLossStatus = useReactiveVar(connectionStatus.getPacketLossStatusVar());
+  const status = getWorstStatus([rttStatus, jitterStatus, packetLossStatus]);
   return (
     <ConnectionStatusIcon
       {...props}
-      currentStatus={rttStatus}
+      currentStatus={status}
     />
   );
 };

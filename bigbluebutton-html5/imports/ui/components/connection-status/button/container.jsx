@@ -5,11 +5,15 @@ import { SETTINGS } from '/imports/ui/services/settings/enums';
 import { useStorageKey } from '/imports/ui/services/storage/hooks';
 import { useReactiveVar } from '@apollo/client';
 import connectionStatus from '/imports/ui/core/graphql/singletons/connectionStatus';
+import { getWorstStatus } from '../service';
 
 const ConnectionStatusButtonContainer = (props) => {
   const connected = useReactiveVar(connectionStatus.getConnectedStatusVar());
+  const rttStatus = useReactiveVar(connectionStatus.getRttStatusVar());
+  const jitterStatus = useReactiveVar(connectionStatus.getJitterStatusVar());
+  const packetLossStatus = useReactiveVar(connectionStatus.getPacketLossStatusVar());
 
-  const myCurrentStatus = useReactiveVar(connectionStatus.getRttStatusVar());
+  const myCurrentStatus = getWorstStatus([rttStatus, jitterStatus, packetLossStatus]);
 
   const { paginationEnabled } = useSettings(SETTINGS.APPLICATION);
   const { viewParticipantsWebcams } = useSettings(SETTINGS.DATA_SAVING);
