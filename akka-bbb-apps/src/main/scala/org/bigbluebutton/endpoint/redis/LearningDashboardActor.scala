@@ -38,7 +38,7 @@ case class User(
                  isDialIn:           Boolean = false,
                  currentIntId:       String = null,
                  answers:            Map[String,Vector[String]] = Map(),
-                 pluginEntries:            Vector[PluginEntry] = Vector(),
+                 pluginAnalytics:            Vector[PluginAnalytics] = Vector(),
                  talk:               Talk = Talk(),
                  emojis:             Vector[Emoji] = Vector(),
                  reactions:          Vector[Emoji] = Vector(),
@@ -64,11 +64,9 @@ case class Poll(
   createdOn:  Long = System.currentTimeMillis(),
 )
 
-case class PluginEntry(
+case class PluginAnalytics(
   pluginName: String,
-  channelName: String,
-  subChannelName: String,
-  payloadJson: Object,
+  dataAnalyticsObject: Object,
 )
 
 case class Talk(
@@ -164,7 +162,7 @@ class LearningDashboardActor(
       case m: UserTalkingVoiceEvtMsg                => handleUserTalkingVoiceEvtMsg(m)
 
       // Plugin
-      case m: PluginDataChannelPushEntryMsg         => handlePluginDataChannelPushEntryMsg(m)
+      case m: PluginDataAnalyticsSendObjectMsg         => handlePluginDataAnalyticsSendObjectMsg(m)
 
       // Screenshare
       case m: ScreenshareRtmpBroadcastStartedEvtMsg => handleScreenshareRtmpBroadcastStartedEvtMsg(m)
@@ -581,18 +579,16 @@ class LearningDashboardActor(
     }
   }
 
-  private def handlePluginDataChannelPushEntryMsg(msg: PluginDataChannelPushEntryMsg) = {
-    if(msg.body.analytics) {
-      for {
-        meeting <- meetings.values.find(m => m.intId == msg.header.meetingId)
-        user <- findUserByIntId(meeting, msg.header.userId)
-      } yield {
-        // Store data if it has the analytics flag
-        val newPluginEntry = PluginEntry(msg.body.pluginName, msg.body.channelName, msg.body.subChannelName, msg.body.payloadJson)
-        val updatedUser = user.copy(pluginEntries = user.pluginEntries :+ newPluginEntry)
-        val updatedMeeting = meeting.copy(users = meeting.users + (updatedUser.userKey -> updatedUser))
-        meetings += (updatedMeeting.intId -> updatedMeeting)
-      }
+  private def handlePluginDataAnalyticsSendObjectMsg(msg: PluginDataAnalyticsSendObjectMsg) = {
+    for {
+      meeting <- meetings.values.find(m => m.intId == msg.header.meetingId)
+      user <- findUserByIntId(meeting, msg.header.userId)
+    } yield {
+      val newPluginAnalytics = PluginAnalytics(msg.body.pluginName, msg.body.dataAnalyticsObject)
+      val updatedUser = user.copy(pluginAnalytics = user.pluginAnalytics :+ newPluginAnalytics)
+      val updatedMeeting = meeting.copy(users = meeting.users + (updatedUser.userKey -> updatedUser))
+      meetings += (updatedMeeting.intId -> updatedMeeting)
+      log.info("New data analytics for plugin '{}': {}", msg.body.pluginName, msg.body.dataAnalyticsObject)
     }
   }
 

@@ -253,6 +253,13 @@ type Mutation {
 }
 
 type Mutation {
+  pluginDataAnalyticsSendObject(
+    dataAnalyticsObject: String!,
+    pluginName: String!,
+  )
+}
+
+type Mutation {
   pollCancel: Boolean
 }
 

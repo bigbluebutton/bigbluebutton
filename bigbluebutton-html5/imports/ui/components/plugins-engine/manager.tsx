@@ -16,6 +16,7 @@ import PluginDataChannelManager from './data-channel/manager';
 import PluginUiCommandsHandler from './ui-commands/handler';
 import PluginDomElementManipulationManager from './dom-element-manipulation/manager';
 import PluginServerCommandsHandler from './server-commands/handler';
+import PluginDataAnalyticsManager from './data-analytics/manager';
 
 const PluginsEngineManager = () => {
   // eslint-disable-next-line @typescript-eslint/ban-ts-comment
@@ -71,6 +72,9 @@ const PluginsEngineManager = () => {
                   setLastLoadedPlugin,
                   pluginConfig: effectivePluginConfig,
                 }}
+              />
+              <PluginDataAnalyticsManager
+                pluginName={pluginName}
               />
               <PluginDataChannelManager
                 {...{

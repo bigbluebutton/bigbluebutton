@@ -11,8 +11,6 @@ case class PluginDataChannelPushEntryMsgBody(
                                               pluginName: String,
                                               channelName: String,
                                               subChannelName: String,
-                                              record: Boolean,
-                                              analytics: Boolean,
                                               payloadJson: Map[String, Any],
                                               toRoles: List[String],
                                               toUserIds: List[String],
@@ -44,4 +42,11 @@ case class PluginDataChannelResetMsgBody(
                                           pluginName: String,
                                           subChannelName: String,
                                           channelName: String
+                                        )
+
+object PluginDataAnalyticsSendObjectMsg { val NAME = "PluginDataAnalyticsSendObjectMsg" }
+case class PluginDataAnalyticsSendObjectMsg(header: BbbClientMsgHeader, body: PluginDataAnalyticsSendObjectMsgBody) extends StandardMsg
+case class PluginDataAnalyticsSendObjectMsgBody(
+                                          pluginName: String,
+                                          dataAnalyticsObject: Map[String, Any]
                                         )

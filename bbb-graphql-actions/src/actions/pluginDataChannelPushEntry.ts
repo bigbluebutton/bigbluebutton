@@ -8,8 +8,6 @@ export default function buildRedisMessage(sessionVariables: Record<string, unkno
             {name: 'pluginName', type: 'string', required: true},
             {name: 'subChannelName', type: 'string', required: true},
             {name: 'channelName', type: 'string', required: true},
-            {name: 'record', type: 'boolean', required: true},
-            {name: 'analytics', type: 'boolean', required: true},
             {name: 'payloadJson', type: 'json', required: true},
             {name: 'toRoles', type: 'stringArray', required: true},
             {name: 'toUserIds', type: 'stringArray', required: true},
@@ -33,8 +31,6 @@ export default function buildRedisMessage(sessionVariables: Record<string, unkno
     pluginName: input.pluginName,
     channelName: input.channelName,
     subChannelName: input.subChannelName,
-    record: input.record,
-    analytics: input.analytics,
     payloadJson: input.payloadJson,
     toRoles: input.toRoles,
     toUserIds: input.toUserIds

@@ -59,20 +59,14 @@ const DataChannelItemManagerWriter: React.ElementType<DataChannelItemManagerWrit
   const useDataChannelHandlerFunction = ((msg: object, options?: PushEntryFunctionOptionArgument) => {
     const {
       receivers: objectsTo,
-      record = false,
-      analytics = false,
     } = options || {
       receivers: undefined,
-      record: false,
-      analytics: false,
     };
     const argumentsOfPushEntryFunction = {
       variables: {
         pluginName,
         channelName,
         subChannelName,
-        record,
-        analytics,
         payloadJson: msg,
         toRoles: [],
         toUserIds: [],

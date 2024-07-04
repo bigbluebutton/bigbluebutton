@@ -2073,8 +2073,6 @@ CREATE TABLE "pluginDataChannelEntry" (
 	"channelName" varchar(255),
 	"entryId" varchar(50) DEFAULT uuid_generate_v4(),
     "subChannelName" varchar(255),
-    "record" boolean,
-    "analytics" boolean,
 	"payloadJson" jsonb,
 	"createdBy" varchar(50),
 	"toRoles" varchar[], --MODERATOR, VIEWER, PRESENTER

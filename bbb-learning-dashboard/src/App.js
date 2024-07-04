@@ -232,15 +232,15 @@ class App extends React.Component {
 
     // This line generates an array of all the plugin entries of all users,
     // this might have duplicate entries:
-    const pluginEntryTitleWithDuplicates = Object.values(activitiesJson.users || {}).flatMap((
+    const pluginAnalyticsTitleWithDuplicates = Object.values(activitiesJson.users || {}).flatMap((
       user,
-    ) => user.pluginEntries).filter((
-      pluginEntry,
-    ) => !!(pluginEntry?.payloadJson?.learningAnalyticsDashboardColumnTitle)).map((
-      pluginEntry,
-    ) => pluginEntry.payloadJson.learningAnalyticsDashboardColumnTitle);
+    ) => user.pluginAnalytics).filter((
+      pluginAnalytics,
+    ) => !!(pluginAnalytics?.dataAnalyticsObject?.learningAnalyticsDashboardColumnTitle)).map((
+      pluginAnalytics,
+    ) => pluginAnalytics.dataAnalyticsObject.learningAnalyticsDashboardColumnTitle);
     // This line will eliminate duplicates.
-    const pluginEntriesTitle = [...new Set(pluginEntryTitleWithDuplicates)];
+    const pluginAnalyticsTitle = [...new Set(pluginAnalyticsTitleWithDuplicates)];
 
     document.title = `${intl.formatMessage({ id: 'app.learningDashboard.bigbluebuttonTitle', defaultMessage: 'BigBlueButton' })} - ${intl.formatMessage({ id: 'app.learningDashboard.dashboardTitle', defaultMessage: 'Learning Analytics Dashboard' })} - ${activitiesJson.name}`;
 
@@ -517,8 +517,8 @@ class App extends React.Component {
               <Card>
                 <CardContent classes={{ root: '!p-0' }}>
                   <CardBody
-                    name={intl.formatMessage({ id: 'app.learningDashboard.indicators.polls', defaultMessage: 'Plugins' })}
-                    number={pluginEntriesTitle.length}
+                    name={intl.formatMessage({ id: 'app.learningDashboard.indicators.plugins', defaultMessage: 'Plugin analytics' })}
+                    number={pluginAnalyticsTitle.length}
                     cardClass={tab === TABS.POLLING ? 'border-red-500' : 'hover:border-red-500 border-white'}
                     iconClass="bg-red-100 text-red-500"
                   >
@@ -602,7 +602,7 @@ class App extends React.Component {
             <div className="w-full overflow-hidden rounded-md shadow-xs border-2 border-gray-100">
               <div className="w-full overflow-x-auto">
                 <PluginsTable
-                  pluginEntriesTitle={pluginEntriesTitle}
+                  pluginAnalyticsTitle={pluginAnalyticsTitle}
                   allUsers={activitiesJson.users}
                 />
               </div>

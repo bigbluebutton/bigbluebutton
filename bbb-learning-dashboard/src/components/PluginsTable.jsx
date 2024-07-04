@@ -3,17 +3,17 @@ import { FormattedMessage, injectIntl } from 'react-intl';
 import { DataGrid } from '@mui/x-data-grid';
 import UserAvatar from './UserAvatar';
 
-// Type of a pluginEntry.payloadJson should be of the form: {
+// Type of a pluginAnalytics.dataAnalyticsObject should be of the form: {
 //  learningAnalyticsDashboardColumnTitle: string;
 //  learningAnalyticsDashboardValue: string
 // }
 const PluginsTable = (props) => {
   const {
-    pluginEntriesTitle,
+    pluginAnalyticsTitle,
     allUsers, intl,
   } = props;
 
-  if (pluginEntriesTitle.length <= 0) {
+  if (pluginAnalyticsTitle.length <= 0) {
     return (
       <div className="flex flex-col items-center py-24 bg-white">
         <div className="mb-1 p-3 rounded-full bg-red-100 text-red-500">
@@ -79,39 +79,39 @@ const PluginsTable = (props) => {
 
   gridCols.push({
     ...commonCountProps,
-    valueGetter: (params) => Object.keys(params?.row?.User?.pluginEntries)?.length || 0,
+    valueGetter: (params) => Object.keys(params?.row?.User?.pluginAnalytics)?.length || 0,
     renderCell: (params) => params?.value,
   });
 
-  pluginEntriesTitle.map((pluginEntry) => {
+  pluginAnalyticsTitle.map((pluginAnalytics) => {
     const commonColProps = {
-      field: pluginEntry,
-      headerName: pluginEntry,
+      field: pluginAnalytics,
+      headerName: pluginAnalytics,
       flex: 1,
     };
     gridCols.push({
       ...commonColProps,
       valueGetter: (
         params,
-      ) => params?.row?.[pluginEntry],
+      ) => params?.row?.[pluginAnalytics],
       renderCell: (params) => params?.value,
     });
-    return pluginEntry;
+    return pluginAnalytics;
   });
 
   const gridRows = [];
   Object.values(allUsers).map((u, i) => {
-    if (u?.isModerator && Object.keys(u?.pluginEntries)?.length === 0) return u;
+    if (u?.isModerator && Object.keys(u?.pluginAnalytics)?.length === 0) return u;
     gridRows.push({
       id: i + 1,
       User: u,
       // This is going to be of the form:
       // [learningAnalyticsDashboardColumnTitle]: learningAnalyticsDashboardValue, for each entry
-      ...u.pluginEntries.reduce((acc, curr) => {
+      ...u.pluginAnalytics.reduce((acc, curr) => {
         const {
           learningAnalyticsDashboardColumnTitle,
           learningAnalyticsDashboardValue,
-        } = curr.payloadJson;
+        } = curr.dataAnalyticsObject;
         acc[learningAnalyticsDashboardColumnTitle] = learningAnalyticsDashboardValue;
         return acc;
       }, {}),
