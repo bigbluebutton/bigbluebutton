@@ -57,6 +57,7 @@ cp -r CHANGELOG.md CONTRIBUTING.md LICENSE README.md bin doc src tests var node_
 
 cp settings.json staging/usr/share/etherpad-lite
 git clone https://github.com/alangecker/bbb-etherpad-skin.git staging/usr/share/etherpad-lite/src/static/skins/bigbluebutton
+chmod -R a+rX staging/usr/share/etherpad-lite
 
 mkdir -p staging/usr/lib/systemd/system
 cp etherpad.service staging/usr/lib/systemd/system

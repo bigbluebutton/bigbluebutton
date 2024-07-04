@@ -4,9 +4,10 @@ import { useMutation } from '@apollo/client';
 
 import {
   getSpeechVoices,
-  isAudioTranscriptionEnabled,
   setUserLocaleProperty,
   useFixedLocale,
+  isGladia,
+  useIsAudioTranscriptionEnabled,
 } from '../service';
 import useCurrentUser from '/imports/ui/core/hooks/useCurrentUser';
 import { SET_SPEECH_LOCALE } from '/imports/ui/core/graphql/mutations/userMutations';
@@ -23,6 +24,10 @@ const intlMessages = defineMessages({
   unsupported: {
     id: 'app.audio.captions.speech.unsupported',
     description: 'Audio speech recognition unsupported',
+  },
+  auto: {
+    id: 'app.audio.captions.speech.auto',
+    description: 'Audio speech recognition auto',
   },
   'de-DE': {
     id: 'app.audio.captions.select.de-DE',
@@ -82,17 +87,19 @@ const AudioCaptionsSelect: React.FC<AudioCaptionsSelectProps> = ({
   const [setSpeechLocaleMutation] = useMutation(SET_SPEECH_LOCALE);
 
   const setUserSpeechLocale = (speechLocale: string, provider: string) => {
-    setSpeechLocaleMutation({
-      variables: {
-        locale: speechLocale,
-        provider,
-      },
-    });
+    if (speechLocale !== '') {
+      setSpeechLocaleMutation({
+        variables: {
+          locale: speechLocale,
+          provider,
+        },
+      });
+    }
   };
 
   if (!isTranscriptionEnabled || useLocaleHook) return null;
 
-  if (speechVoices.length === 0) {
+  if (speechVoices.length === 0 && !isGladia()) {
     return (
       <div
         data-test="speechRecognitionUnsupported"
@@ -130,6 +137,16 @@ const AudioCaptionsSelect: React.FC<AudioCaptionsSelectProps> = ({
         >
           {intl.formatMessage(intlMessages.disabled)}
         </option>
+        {isGladia()
+          ? (
+            <option
+              key="auto"
+              value="auto"
+            >
+              {intl.formatMessage(intlMessages.auto)}
+            </option>
+          )
+          : null}
         {speechVoices.map((v) => (
           <option
             key={v}
@@ -160,7 +177,7 @@ const AudioCaptionsSelectContainer: React.FC = () => {
       voice: user.voice,
     }),
   );
-  const isEnabled = isAudioTranscriptionEnabled();
+  const isEnabled = useIsAudioTranscriptionEnabled();
   if (!currentUser || !isEnabled || !voices) return null;
 
   return (

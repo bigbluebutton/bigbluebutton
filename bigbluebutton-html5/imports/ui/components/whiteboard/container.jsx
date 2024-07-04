@@ -24,7 +24,7 @@ import {
   toggleToolsAnimations,
   formatAnnotations,
 } from './service';
-import SettingsService from '/imports/ui/services/settings';
+import { SettingsService, getSettingsSingletonInstance } from '/imports/ui/services/settings';
 import Auth from '/imports/ui/services/auth';
 import {
   layoutSelect,
@@ -56,6 +56,7 @@ const WhiteboardContainer = (props) => {
 
   const [annotations, setAnnotations] = useState([]);
   const [shapes, setShapes] = useState({});
+  const [currentPresentationPage, setCurrentPresentationPage] = useState(null);
 
   const meeting = useMeeting((m) => ({
     lockSettings: m?.lockSettings,
@@ -72,7 +73,14 @@ const WhiteboardContainer = (props) => {
     CURRENT_PRESENTATION_PAGE_SUBSCRIPTION,
   );
   const { pres_page_curr: presentationPageArray } = (presentationPageData || {});
-  const currentPresentationPage = presentationPageArray && presentationPageArray[0];
+  const newPresentationPage = presentationPageArray && presentationPageArray[0];
+
+  useEffect(() => {
+    if (newPresentationPage) {
+      setCurrentPresentationPage(newPresentationPage);
+    }
+  }, [newPresentationPage]);
+
   const curPageNum = currentPresentationPage?.num;
   const curPageId = currentPresentationPage?.pageId;
   const curPageIdRef = useRef();
@@ -259,7 +267,8 @@ const WhiteboardContainer = (props) => {
     },
   }];
 
-  const isRTL = layoutSelect((i) => i.isRTL);
+  const Settings = getSettingsSingletonInstance();
+  const { isRTL } = Settings.application;
   const width = layoutSelect((i) => i?.output?.presentation?.width);
   const height = layoutSelect((i) => i?.output?.presentation?.height);
   const sidebarNavigationWidth = layoutSelect(
@@ -299,6 +308,7 @@ const WhiteboardContainer = (props) => {
 
   return (
     <Whiteboard
+      key={presentationId}
       {...{
         isPresenter,
         isModerator,
@@ -327,8 +337,7 @@ const WhiteboardContainer = (props) => {
         zoomSlide,
         notifyNotAllowedChange,
         notifyShapeNumberExceeded,
-        whiteboardToolbarAutoHide:
-      SettingsService?.application?.whiteboardToolbarAutoHide,
+        whiteboardToolbarAutoHide: SettingsService?.application?.whiteboardToolbarAutoHide,
         animations: SettingsService?.application?.animations,
         toggleToolsAnimations,
         isIphone,
@@ -351,5 +360,6 @@ const WhiteboardContainer = (props) => {
     />
   );
 };
+
 
 export default WhiteboardContainer;

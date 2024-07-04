@@ -82,8 +82,6 @@ class ReceivedJsonMsgHandlerActor(
         routeGenericMsg[GetGuestsWaitingApprovalReqMsg](envelope, jsonNode)
       case GuestsWaitingApprovedMsg.NAME =>
         routeGenericMsg[GuestsWaitingApprovedMsg](envelope, jsonNode)
-      case GuestWaitingLeftMsg.NAME =>
-        routeGenericMsg[GuestWaitingLeftMsg](envelope, jsonNode)
       case UpdatePositionInWaitingQueueReqMsg.NAME =>
         routeGenericMsg[UpdatePositionInWaitingQueueReqMsg](envelope, jsonNode)
       case SetGuestPolicyCmdMsg.NAME =>
@@ -349,6 +347,8 @@ class ReceivedJsonMsgHandlerActor(
         routeGenericMsg[AddCaptionLocalePubMsg](envelope, jsonNode)
       case SendCaptionHistoryReqMsg.NAME =>
         routeGenericMsg[SendCaptionHistoryReqMsg](envelope, jsonNode)
+      case CaptionSubmitTranscriptPubMsg.NAME =>
+        routeGenericMsg[CaptionSubmitTranscriptPubMsg](envelope, jsonNode)
 
       // Chat
       case GetChatHistoryReqMsg.NAME =>
@@ -407,6 +407,8 @@ class ReceivedJsonMsgHandlerActor(
         routeGenericMsg[GetGroupChatsReqMsg](envelope, jsonNode)
       case SendGroupChatMessageMsg.NAME =>
         routeGenericMsg[SendGroupChatMessageMsg](envelope, jsonNode)
+      case SendGroupChatMessageFromApiSysPubMsg.NAME =>
+        routeGenericMsg[SendGroupChatMessageFromApiSysPubMsg](envelope, jsonNode)
       case GetGroupChatMsgsReqMsg.NAME =>
         routeGenericMsg[GetGroupChatMsgsReqMsg](envelope, jsonNode)
       case CreateGroupChatReqMsg.NAME =>
@@ -415,6 +417,9 @@ class ReceivedJsonMsgHandlerActor(
       //Plugin
       case PluginDataChannelPushEntryMsg.NAME =>
         routeGenericMsg[PluginDataChannelPushEntryMsg](envelope, jsonNode)
+
+      case PluginDataChannelReplaceEntryMsg.NAME =>
+        routeGenericMsg[PluginDataChannelReplaceEntryMsg](envelope, jsonNode)
 
       case PluginDataChannelDeleteEntryMsg.NAME =>
         routeGenericMsg[PluginDataChannelDeleteEntryMsg](envelope, jsonNode)

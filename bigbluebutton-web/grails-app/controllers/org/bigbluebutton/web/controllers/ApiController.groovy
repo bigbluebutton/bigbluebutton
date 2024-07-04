@@ -19,6 +19,7 @@
 package org.bigbluebutton.web.controllers
 
 import com.google.gson.Gson
+import com.google.gson.JsonObject
 import grails.web.context.ServletContextHolder
 import groovy.json.JsonBuilder
 import groovy.xml.MarkupBuilder
@@ -31,6 +32,7 @@ import org.bigbluebutton.api.*
 import org.bigbluebutton.api.domain.GuestPolicy
 import org.bigbluebutton.api.domain.Meeting
 import org.bigbluebutton.api.domain.UserSession
+import org.bigbluebutton.api.domain.UserSessionBasicData
 import org.bigbluebutton.api.service.ValidationService
 import org.bigbluebutton.api.service.ServiceUtils
 import org.bigbluebutton.api.util.ParamsUtil
@@ -97,6 +99,7 @@ class ApiController {
             apiVersion paramsProcessorUtil.getApiVersion()
             bbbVersion paramsProcessorUtil.getBbbVersion()
             graphqlWebsocketUrl paramsProcessorUtil.getGraphqlWebsocketUrl()
+            graphqlApiUrl paramsProcessorUtil.getGraphqlApiUrl()
           }
           render(contentType: "application/json", text: builder.toPrettyString())
         }
@@ -108,6 +111,7 @@ class ApiController {
                   paramsProcessorUtil.getApiVersion(),
                   paramsProcessorUtil.getBbbVersion(),
                   paramsProcessorUtil.getGraphqlWebsocketUrl(),
+                  paramsProcessorUtil.getGraphqlApiUrl(),
                   RESP_CODE_SUCCESS),
                   contentType: "text/xml")
         }
@@ -508,17 +512,7 @@ class ApiController {
     // Process if we send the user directly to the client or
     // have it wait for approval.
     String destUrl = clientURL + "?sessionToken=" + sessionToken
-    if (guestStatusVal.equals(GuestPolicy.WAIT)) {
-      String guestWaitUrl = paramsProcessorUtil.getDefaultGuestWaitURL();
-      destUrl = guestWaitUrl + "?sessionToken=" + sessionToken
-      // Check if the user has her/his default locale overridden by an userdata
-      String customLocale = userCustomData.get("bbb_override_default_locale")
-      if (customLocale != null) {
-        destUrl += "&locale=" + customLocale
-      }
-      msgKey = "guestWait"
-      msgValue = "Guest waiting for approval to join meeting."
-    } else if (guestStatusVal.equals(GuestPolicy.DENY)) {
+    if (guestStatusVal == GuestPolicy.DENY) {
       invalid("guestDeniedAccess", "You have been denied access to this meeting based on the meeting's guest policy", redirectClient, errorRedirectUrl)
       return
     }
@@ -742,115 +736,6 @@ class ApiController {
     }
 
     return reqParams;
-  }
-
-  /**********************************************
-   * GUEST WAIT API
-   *********************************************/
-  def guestWaitHandler = {
-    String API_CALL = 'guestWait'
-    log.debug CONTROLLER_NAME + "#${API_CALL}"
-
-    String msgKey = "defaultKey"
-    String msgValue = "defaultValue"
-    String destURL = paramsProcessorUtil.getDefaultLogoutUrl()
-
-    Map.Entry<String, String> validationResponse = validateRequest(
-            ValidationService.ApiCall.GUEST_WAIT,
-            request
-    )
-    if(!(validationResponse == null)) {
-      msgKey = validationResponse.getKey()
-      msgValue = validationResponse.getValue()
-      respondWithJSONError(msgKey, msgValue, destURL)
-      return
-    }
-
-    String sessionToken = sanitizeSessionToken(params.sessionToken)
-    UserSession us = getUserSession(sessionToken)
-    Meeting meeting = meetingService.getMeeting(us.meetingID)
-    String status = us.guestStatus
-    destURL = us.clientUrl
-    String posInWaitingQueue = meeting.getWaitingPositionsInWaitingQueue(us.internalUserId)
-    String lobbyMsg = meeting.getGuestLobbyMessage(us.internalUserId)
-
-    Boolean redirectClient = true
-    if (!StringUtils.isEmpty(params.redirect)) {
-      try {
-        redirectClient = Boolean.parseBoolean(params.redirect)
-      } catch (Exception e) {
-        redirectClient = true
-      }
-    }
-
-    String guestURL = paramsProcessorUtil.getDefaultGuestWaitURL() + "?sessionToken=" + sessionToken
-
-    switch (status) {
-      case GuestPolicy.WAIT:
-        meetingService.guestIsWaiting(us.meetingID, us.internalUserId)
-        destURL = guestURL
-        msgKey = "guestWait"
-        msgValue = "Please wait for a moderator to approve you joining the meeting."
-
-        // We force the response to not do a redirect. Otherwise,
-        // the client would just be redirecting into this endpoint.
-        redirectClient = false
-        break
-      case GuestPolicy.DENY:
-        destURL = meeting.getLogoutUrl()
-        msgKey = "guestDeny"
-        msgValue = "Guest denied of joining the meeting."
-        redirectClient = false
-        break
-      case GuestPolicy.ALLOW:
-        // IF the user was allowed to join but there is no room available in
-        // the meeting we must hold his approval
-        if (hasReachedMaxParticipants(meeting, us)) {
-          meetingService.guestIsWaiting(us.meetingID, us.internalUserId)
-          destURL = guestURL
-          msgKey = "seatWait"
-          msgValue = "Guest waiting for a seat in the meeting."
-          redirectClient = false
-          status = GuestPolicy.WAIT
-        }
-        break
-      default:
-        break
-    }
-
-    if(meeting.didGuestUserLeaveGuestLobby(us.internalUserId)){
-      destURL = meeting.getLogoutUrl()
-      msgKey = "guestInvalid"
-      msgValue = "Invalid user"
-      status = GuestPolicy.DENY
-      redirectClient = false
-    }
-
-    if (redirectClient) {
-      // User may join the meeting
-      redirect(url: destURL)
-    } else {
-      response.addHeader("Cache-Control", "no-cache")
-      withFormat {
-        json {
-          def builder = new JsonBuilder()
-          builder.response {
-            returncode RESP_CODE_SUCCESS
-            messageKey msgKey
-            message msgValue
-            meeting_id us.meetingID
-            user_id us.internalUserId
-            auth_token us.authToken
-            session_token session[sessionToken]
-            guestStatus status
-            lobbyMessage lobbyMsg
-            url destURL
-            positionInWaitingQueue posInWaitingQueue
-          }
-          render(contentType: "application/json", text: builder.toPrettyString())
-        }
-      }
-    }
   }
 
   /***********************************************
@@ -1181,6 +1066,44 @@ class ApiController {
     }
   }
 
+  def sendChatMessage = {
+    String API_CALL = 'sendChatMessage'
+    log.debug CONTROLLER_NAME + "#${API_CALL}"
+
+    Map.Entry<String, String> validationResponse = validateRequest(
+            ValidationService.ApiCall.SEND_CHAT_MESSAGE,
+            request
+    )
+
+    if(!(validationResponse == null)) {
+      invalid(validationResponse.getKey(), validationResponse.getValue())
+      return
+    }
+
+    String userName = "System";
+    String chatMessage = params.message;
+
+    if (params.userName != null && params.userName != "") {
+      userName = params.userName;
+    }
+
+    Meeting meeting = ServiceUtils.findMeetingFromMeetingID(params.meetingID);
+    boolean isRunning = meeting != null && meeting.isRunning();
+
+    if(!isRunning) {
+      invalid("meetingNotFound", "Meeting not found")
+      return
+    }
+
+    meetingService.sendChatMessage(meeting.internalId, userName, chatMessage);
+    withFormat {
+      xml {
+        render(text: responseBuilder.buildSendChatMessageResponse("Message successfully sent", RESP_CODE_SUCCESS)
+                , contentType: "text/xml")
+      }
+    }
+  }
+
   def getJoinUrl = {
     String API_CALL = 'getJoinUrl'
     log.debug CONTROLLER_NAME + "#${API_CALL}"
@@ -1295,6 +1218,87 @@ class ApiController {
       }
     }
   }
+
+  def feedback = {
+    String API_CALL = 'feedback'
+    log.debug CONTROLLER_NAME + "#${API_CALL}"
+
+    if (!params.sessionToken) {
+      invalid("missingSession", "Invalid session token")
+      return
+    }
+
+    if (!session[params.sessionToken]) {
+      log.info("Session for token ${params.sessionToken} not found")
+      invalid("missingSession", "Invalid session token")
+      return
+    }
+
+    String requestBody = request.inputStream == null ? null : request.inputStream.text
+    Gson gson = new Gson()
+    JsonObject body = gson.fromJson(requestBody, JsonObject.class)
+
+    if (!body
+            || !body.has("userName")
+            || !body.has("authToken")
+            || !body.has("comment")
+            || !body.has("rating")) {
+      invalid("missingParameters", "One or more required parameters are missing")
+      return
+    }
+
+    String userName = "[unconfirmed] " + body.get("userName").getAsString()
+    String meetingId = ""
+    String userId = ""
+    String authToken = body.get("authToken").getAsString()
+    String comment = body.get("comment").getAsString()
+    int rating = body.get("rating").getAsInt()
+
+    String sessionToken = sanitizeSessionToken(params.sessionToken)
+    UserSession userSession = meetingService.getUserSessionWithSessionToken(sessionToken)
+
+    if(userSession) {
+      userName = userSession.fullname
+      userId = userSession.internalUserId
+      meetingId = userSession.meetingID
+    } else {
+      //Usually the session was already removed when the user send the feedback
+      UserSessionBasicData removedUserSession = meetingService.getRemovedUserSessionWithSessionToken(sessionToken)
+      if(removedUserSession) {
+        userId = removedUserSession.userId
+        meetingId = removedUserSession.meetingId
+      }
+    }
+
+    if(userId == "") {
+      invalid("invalidSession", "Invalid Session")
+      return
+    }
+
+    response.contentType = 'application/json'
+    response.setStatus(200)
+    withFormat {
+      json {
+        def builder = new JsonBuilder()
+        builder {
+          "status" "ok"
+        }
+        render(contentType: "application/json", text: builder.toPrettyString())
+      }
+    }
+
+    def feedback = [
+            meetingId: meetingId,
+            userId: userId,
+            authToken: authToken,
+            userName: userName,
+            comment: comment,
+            rating: rating
+    ]
+
+    log.info("FEEDBACK LOG: ${feedback}")
+  }
+
 
   /***********************************************
    * LEARNING DASHBOARD DATA

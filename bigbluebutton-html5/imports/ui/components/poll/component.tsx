@@ -1,7 +1,5 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { defineMessages, useIntl } from 'react-intl';
-import { Session } from 'meteor/session';
-import { Meteor } from 'meteor/meteor';
 import useCurrentUser from '/imports/ui/core/hooks/useCurrentUser';
 import Header from '/imports/ui/components/common/control-header/component';
 import { useMutation } from '@apollo/client';
@@ -20,11 +18,8 @@ import ResponseChoices from './components/ResponseChoices';
 import ResponseTypes from './components/ResponseTypes';
 import PollQuestionArea from './components/PollQuestionArea';
 import LiveResultContainer from './components/LiveResult';
+import Session from '/imports/ui/services/storage/in-memory';
 import useDeduplicatedSubscription from '../../core/hooks/useDeduplicatedSubscription';
-
-const POLL_SETTINGS = Meteor.settings.public.poll;
-const ALLOW_CUSTOM_INPUT = POLL_SETTINGS.allowCustomResponseInput;
-const MAX_CUSTOM_FIELDS = POLL_SETTINGS.maxCustom;
 
 const intlMessages = defineMessages({
   pollPaneTitle: {
@@ -243,6 +238,9 @@ const PollCreationPanel: React.FC<PollCreationPanelProps> = ({
   hasPoll,
   hasCurrentPresentation,
 }) => {
+  const POLL_SETTINGS = window.meetingClientSettings.public.poll;
+  const ALLOW_CUSTOM_INPUT = POLL_SETTINGS.allowCustomResponseInput;
+  const MAX_CUSTOM_FIELDS = POLL_SETTINGS.maxCustom;
   const [stopPoll] = useMutation(POLL_CANCEL);
 
   const intl = useIntl();
@@ -350,7 +348,7 @@ const PollCreationPanel: React.FC<PollCreationPanelProps> = ({
 
   const handleToggle = () => {
     const toggledValue = !secretPoll;
-    Session.set('secretPoll', toggledValue);
+    Session.setItem('secretPoll', toggledValue);
     setSecretPoll(toggledValue);
   };
 
@@ -373,7 +371,7 @@ const PollCreationPanel: React.FC<PollCreationPanelProps> = ({
 
   useEffect(() => {
     return () => {
-      Session.set('secretPoll', false);
+      Session.setItem('secretPoll', false);
     };
   }, []);
 
@@ -505,8 +503,8 @@ const PollCreationPanel: React.FC<PollCreationPanelProps> = ({
               type: ACTIONS.SET_SIDEBAR_CONTENT_PANEL,
               value: PANELS.NONE,
             });
-            Session.set('forcePollOpen', false);
-            Session.set('pollInitiated', false);
+            Session.setItem('forcePollOpen', false);
+            Session.setItem('pollInitiated', false);
           },
         }}
         customRightButton={null}

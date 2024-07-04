@@ -2,6 +2,7 @@ import React, { Dispatch, SetStateAction, useCallback } from 'react';
 import { defineMessages, useIntl } from 'react-intl';
 import { USER_LEAVE_MEETING } from '/imports/ui/core/graphql/mutations/userMutations';
 import { useMutation } from '@apollo/client';
+import Session from '/imports/ui/services/storage/in-memory';
 
 import Styled from './styles';
 
@@ -57,7 +58,7 @@ const RecordingNotifyModal: React.FC<RecordingNotifyModalProps> = ({
     userLeaveMeeting();
     // eslint-disable-next-line @typescript-eslint/ban-ts-comment
     // @ts-ignore Session is a global variable in Meteor
-    Session.set('codeError', LOGOUT_CODE);
+    Session.setItem('codeError', LOGOUT_CODE);
     toggleShouldNotify();
   }, []);
   return (

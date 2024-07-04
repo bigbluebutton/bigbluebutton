@@ -9,6 +9,8 @@ import DEFAULT_VALUES from '/imports/ui/components/layout/defaultValues';
 import { INITIAL_INPUT_STATE } from '/imports/ui/components/layout/initState';
 import { ACTIONS } from '/imports/ui/components/layout/enums';
 import { defaultsDeep } from '/imports/utils/array-utils';
+import Session from '/imports/ui/services/storage/in-memory';
+import { getSettingsSingletonInstance } from '/imports/ui/services/settings';
 
 const CamerasOnlyLayout = (props) => {
   const { bannerAreaHeight, isMobile, calculatesNavbarHeight } = props;
@@ -23,7 +25,8 @@ const CamerasOnlyLayout = (props) => {
 
   const input = layoutSelect((i) => i.input);
   const deviceType = layoutSelect((i) => i.deviceType);
-  const isRTL = layoutSelect((i) => i.isRTL);
+  const Settings = getSettingsSingletonInstance();
+  const { isRTL } = Settings.application;
   const fullscreen = layoutSelect((i) => i.fullscreen);
   const fontSize = layoutSelect((i) => i.fontSize);
   const currentPanelType = layoutSelect((i) => i.currentPanelType);
@@ -297,7 +300,7 @@ const CamerasOnlyLayout = (props) => {
     });
 
     layoutContextDispatch({
-      type: ACTIONS.SET_GENERIC_COMPONENT_OUTPUT,
+      type: ACTIONS.SET_GENERIC_CONTENT_OUTPUT,
       value: {
         display: false,
         width: mediaBounds.width,
@@ -365,8 +368,8 @@ const CamerasOnlyLayout = (props) => {
           externalVideo: {
             hasExternalVideo: false,
           },
-          genericComponent: {
-            genericComponentId: undefined,
+          genericMainContent: {
+            genericContentId: undefined,
           },
           screenShare: {
             hasScreenShare: false,
@@ -375,7 +378,7 @@ const CamerasOnlyLayout = (props) => {
         INITIAL_INPUT_STATE,
       ),
     });
-    Session.set('layoutReady', true);
+    Session.setItem('layoutReady', true);
     throttledCalculatesLayout();
   };
 

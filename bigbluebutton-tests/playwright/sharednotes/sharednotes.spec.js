@@ -40,7 +40,7 @@ test.describe('Shared Notes', () => {
     await sharedNotes.seeNotesWithoutEditPermission();
   });
 
-  test('Pin and unpin notes onto whiteboard', async () => {
+  test('Pin and unpin notes onto whiteboard @ci', async () => {
     await sharedNotes.pinAndUnpinNotesOntoWhiteboard();
   });
 });

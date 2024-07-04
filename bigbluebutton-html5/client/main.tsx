@@ -11,7 +11,7 @@ import IntlLoaderContainer from '/imports/startup/client/intlLoader';
 import LocatedErrorBoundary from '/imports/ui/components/common/error-boundary/located-error-boundary/component';
 import StartupDataFetch from '/imports/ui/components/connection-manager/startup-data-fetch/component';
 
-import GraphqlToMiniMongoAdapterManager from '/imports/ui/components/components-data/graphqlToMiniMongoAdapterManager/component';
+import GraphqlToMakeVarAdapterManager from '/imports/ui/components/components-data/graphqlToMakeVarAdapterManager/component';
 
 const STARTUP_CRASH_METADATA = { logCode: 'app_startup_crash', logMessage: 'Possible startup crash' };
 const APP_CRASH_METADATA = { logCode: 'app_crash', logMessage: 'Possible app crash' };
@@ -27,9 +27,9 @@ const Main: React.FC = () => {
             <LocatedErrorBoundary Fallback={ErrorScreen} logMetadata={APP_CRASH_METADATA}>
               <ConnectionManager>
                 <PresenceManager>
-                  <GraphqlToMiniMongoAdapterManager>
+                  <GraphqlToMakeVarAdapterManager>
                     <SettingsLoader />
-                  </GraphqlToMiniMongoAdapterManager>
+                  </GraphqlToMakeVarAdapterManager>
                 </PresenceManager>
               </ConnectionManager>
             </LocatedErrorBoundary>

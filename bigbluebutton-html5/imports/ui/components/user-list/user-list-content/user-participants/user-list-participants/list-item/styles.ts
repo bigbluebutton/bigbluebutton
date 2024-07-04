@@ -22,6 +22,8 @@ import {
   colorOffWhite,
 } from '/imports/ui/stylesheets/styled-components/palette';
 
+import Icon from '/imports/ui/components/common/icon/icon-ts/component';
+
 interface AvatarProps {
     moderator?: boolean;
     presenter?: boolean;
@@ -340,6 +342,10 @@ const Skeleton = styled.div`
  
 `;
 
+const UserAdditionalInformationIcon = styled(Icon)`
+  margin-right: ${smPaddingX};
+`;
+
 const pulse = (color: string) => keyframes`
     0% {
       box-shadow: 0 0 0 0 ${color}80;
@@ -413,6 +419,7 @@ export default {
   Skeleton,
   UserItemContents,
   UserNameContainer,
+  UserAdditionalInformationIcon,
   UserNameSub,
   UserName,
   IconRightContainer,

@@ -1,14 +1,24 @@
 import React, { useContext } from 'react';
-import { Meteor } from 'meteor/meteor';
-import { withTracker } from 'meteor/react-meteor-data';
-import { injectIntl } from 'react-intl';
-import { useMutation } from '@apollo/client';
+import { useIntl } from 'react-intl';
+import { useMutation, useReactiveVar } from '@apollo/client';
 import getFromUserSettings from '/imports/ui/services/users-settings';
 import Auth from '/imports/ui/services/auth';
 import ActionsBar from './component';
+
+import {
+  isScreenBroadcasting,
+  isCameraAsContentBroadcasting,
+  useIsSharing,
+  useSharingContentType,
+} from '/imports/ui/components/screenshare/service';
 import { layoutSelectOutput, layoutDispatch } from '../layout/context';
-import { isExternalVideoEnabled, isPollingEnabled, isPresentationEnabled, isTimerFeatureEnabled } from '/imports/ui/services/features';
-import { isScreenBroadcasting, isCameraAsContentBroadcasting, useIsSharing, useSharingContentType } from '/imports/ui/components/screenshare/service';
+import {
+  useIsExternalVideoEnabled,
+  useIsPollingEnabled,
+  useIsPresentationEnabled,
+  useIsTimerFeatureEnabled,
+} from '/imports/ui/services/features';
+
 import { PluginsContext } from '/imports/ui/components/components-data/plugin-context/context';
 import {
   CURRENT_PRESENTATION_PAGE_SUBSCRIPTION,
@@ -19,6 +29,14 @@ import useCurrentUser from '/imports/ui/core/hooks/useCurrentUser';
 import { EXTERNAL_VIDEO_STOP } from '../external-video-player/mutations';
 import { PINNED_PAD_SUBSCRIPTION } from '../notes/queries';
 import useDeduplicatedSubscription from '../../core/hooks/useDeduplicatedSubscription';
+import connectionStatus from '../../core/graphql/singletons/connectionStatus';
+
+const isReactionsButtonEnabled = () => {
+  const USER_REACTIONS_ENABLED = window.meetingClientSettings.public.userReaction.enabled;
+  const REACTIONS_BUTTON_ENABLED = window.meetingClientSettings.public.app.reactionsButton.enabled;
+
+  return USER_REACTIONS_ENABLED && REACTIONS_BUTTON_ENABLED;
+};
 
 const ActionsBarContainer = (props) => {
   const NOTES_CONFIG = window.meetingClientSettings.public.notes;
@@ -73,7 +91,12 @@ const ActionsBarContainer = (props) => {
     && pinnedPadData.sharedNotes[0]?.sharedNotesExtId === NOTES_CONFIG.id;
 
   const isSharedNotesPinned = isSharedNotesPinnedFromGraphql;
-
+  const allowExternalVideo = useIsExternalVideoEnabled();
+  const connected = useReactiveVar(connectionStatus.getConnectedStatusVar());
+  const intl = useIntl();
+  const isPresentationEnabled = useIsPresentationEnabled();
+  const isTimerFeatureEnabled = useIsTimerFeatureEnabled();
+  const isPollingEnabled = useIsPollingEnabled() && isPresentationEnabled;
   if (actionsBarStyle.display === false) return null;
   if (!currentMeeting) return null;
 
@@ -81,6 +104,17 @@ const ActionsBarContainer = (props) => {
     <ActionsBar {
       ...{
         ...props,
+        enableVideo: getFromUserSettings('bbb_enable_video', window.meetingClientSettings.public.kurento.enableVideo),
+        multiUserTools: getFromUserSettings('bbb_multi_user_tools', window.meetingClientSettings.public.whiteboard.toolbar.multiUserTools),
+        isReactionsButtonEnabled: isReactionsButtonEnabled(),
+        setPresentationIsOpen: MediaService.setPresentationIsOpen,
+        hasScreenshare: currentMeeting?.componentsFlags?.hasScreenshare ?? false,
+        isMeteorConnected: connected,
+        hasCameraAsContent: currentMeeting?.componentsFlags?.hasCameraAsContent,
+        intl,
+        allowExternalVideo,
+        isPollingEnabled,
+        isPresentationEnabled,
         currentUser,
         amIModerator,
         layoutContextDispatch,
@@ -92,7 +126,7 @@ const ActionsBarContainer = (props) => {
         stopExternalVideoShare,
         isSharedNotesPinned,
         isTimerActive: currentMeeting.componentsFlags.hasTimer,
-        isTimerEnabled: isTimerFeatureEnabled(),
+        isTimerEnabled: isTimerFeatureEnabled,
         isRaiseHandButtonEnabled: RAISE_HAND_BUTTON_ENABLED,
         isRaiseHandButtonCentered: RAISE_HAND_BUTTON_CENTERED,
       }
@@ -101,36 +135,4 @@ const ActionsBarContainer = (props) => {
   );
 };
 
-const isReactionsButtonEnabled = () => {
-  const USER_REACTIONS_ENABLED = window.meetingClientSettings.public.userReaction.enabled;
-  const REACTIONS_BUTTON_ENABLED = window.meetingClientSettings.public.app.reactionsButton.enabled;
-
-  return USER_REACTIONS_ENABLED && REACTIONS_BUTTON_ENABLED;
-};
-
-const ActionsBarTracker = withTracker(({ isSharing, sharingContentType }) => ({
-  enableVideo: getFromUserSettings('bbb_enable_video', window.meetingClientSettings.public.kurento.enableVideo),
-  setPresentationIsOpen: MediaService.setPresentationIsOpen,
-  hasScreenshare: isScreenBroadcasting(isSharing, sharingContentType),
-  hasCameraAsContent: isCameraAsContentBroadcasting(isSharing, sharingContentType),
-  isMeteorConnected: Meteor.status().connected,
-  isPollingEnabled: isPollingEnabled() && isPresentationEnabled(),
-  isReactionsButtonEnabled: isReactionsButtonEnabled(),
-  allowExternalVideo: isExternalVideoEnabled(),
-}))(injectIntl(ActionsBarContainer));
-
-// TODO: Remove this
-// Temporary component until we remove all trackers
-export default (props) => {
-  const isSharing = useIsSharing();
-  const sharingContentType = useSharingContentType();
-  return (
-    <ActionsBarTracker
-      {...{
-        ...props,
-        isSharing,
-        sharingContentType,
-      }}
-    />
-  );
-};
+export default ActionsBarContainer;

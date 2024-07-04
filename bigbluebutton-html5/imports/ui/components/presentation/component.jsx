@@ -5,7 +5,7 @@ import { HUNDRED_PERCENT, MAX_PERCENT } from '/imports/utils/slideCalcUtils';
 import { SPACE } from '/imports/utils/keyCodes';
 import { defineMessages, injectIntl } from 'react-intl';
 import { toast } from 'react-toastify';
-import { Session } from 'meteor/session';
+import Session from '/imports/ui/services/storage/in-memory';
 import PresentationToolbarContainer from './presentation-toolbar/container';
 import PresentationMenu from './presentation-menu/container';
 import DownloadPresentationButton from './download-presentation-button/component';
@@ -107,7 +107,7 @@ class Presentation extends PureComponent {
     this.renderCurrentPresentationToast = this.renderCurrentPresentationToast.bind(this);
     this.setPresentationRef = this.setPresentationRef.bind(this);
     this.setTldrawIsMounting = this.setTldrawIsMounting.bind(this);
-    Session.set('componentPresentationWillUnmount', false);
+    Session.setItem('componentPresentationWillUnmount', false);
   }
 
   static getDerivedStateFromProps(props, state) {
@@ -356,7 +356,7 @@ class Presentation extends PureComponent {
   }
 
   componentWillUnmount() {
-    Session.set('componentPresentationWillUnmount', true);
+    Session.setItem('componentPresentationWillUnmount', true);
     const { fullscreenContext, layoutContextDispatch } = this.props;
 
     window.removeEventListener('resize', this.onResize, false);
@@ -403,7 +403,7 @@ class Presentation extends PureComponent {
     const presentationSizes = this.getPresentationSizesAvailable();
     if (Object.keys(presentationSizes).length > 0) {
       // updating the size of the space available for the slide
-      if (!Session.get('componentPresentationWillUnmount')) {
+      if (!Session.getItem('componentPresentationWillUnmount')) {
         this.setState({
           presentationHeight: presentationSizes.presentationHeight,
           presentationWidth: presentationSizes.presentationWidth,
@@ -594,6 +594,7 @@ class Presentation extends PureComponent {
       fitToWidth,
       totalPages,
       userIsPresenter,
+      hasPoll,
     } = this.props;
     const { zoom, isPanning } = this.state;
 
@@ -634,6 +635,8 @@ class Presentation extends PureComponent {
         multiUser={multiUser}
         whiteboardId={currentSlide?.id}
         numberOfSlides={totalPages}
+        layoutSwapped={false}
+        hasPoll={hasPoll}
       />
     );
   }
@@ -753,6 +756,7 @@ class Presentation extends PureComponent {
       isPanning,
       tldrawAPI,
       isToolbarVisible,
+      presentationWidth,
     } = this.state;
 
     let viewBoxDimensions;
@@ -853,6 +857,7 @@ class Presentation extends PureComponent {
                   {slideContent}
                 </Styled.VisuallyHidden>
                 {!tldrawIsMounting
+                  && presentationWidth > 0
                   && currentSlide
                   && this.renderPresentationMenu()}
                 <LocatedErrorBoundary Fallback={FallbackView} logMetadata={APP_CRASH_METADATA}>
@@ -888,7 +893,7 @@ class Presentation extends PureComponent {
                 </LocatedErrorBoundary>
                 {isFullscreen && <PollingContainer />}
               </div>
-              {!tldrawIsMounting && (
+              {!tldrawIsMounting && presentationWidth > 0 && (
                 <Styled.PresentationToolbar
                   ref={(ref) => {
                     this.refPresentationToolbar = ref;

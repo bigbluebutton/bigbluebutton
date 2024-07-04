@@ -4,11 +4,10 @@ import { useMutation } from '@apollo/client';
 import FullscreenService from '/imports/ui/components/common/fullscreen-button/service';
 import { useIsPollingEnabled } from '/imports/ui/services/features';
 import { PluginsContext } from '/imports/ui/components/components-data/plugin-context/context';
-import POLL_SUBSCRIPTION from '/imports/ui/core/graphql/queries/pollSubscription';
 import { POLL_CANCEL, POLL_CREATE } from '/imports/ui/components/poll/mutations';
 import { PRESENTATION_SET_PAGE } from '../mutations';
 import PresentationToolbar from './component';
-import useDeduplicatedSubscription from '/imports/ui/core/hooks/useDeduplicatedSubscription';
+import Session from '/imports/ui/services/storage/in-memory';
 
 const PresentationToolbarContainer = (props) => {
   const pluginsContext = useContext(PluginsContext);
@@ -20,10 +19,8 @@ const PresentationToolbarContainer = (props) => {
     currentSlideNum,
     presentationId,
     numberOfSlides,
+    hasPoll,
   } = props;
-
-  const { data: pollData } = useDeduplicatedSubscription(POLL_SUBSCRIPTION);
-  const hasPoll = pollData?.poll?.length > 0;
 
   const handleToggleFullScreen = (ref) => FullscreenService.toggleFullScreen(ref);
 
@@ -66,8 +63,8 @@ const PresentationToolbarContainer = (props) => {
   };
 
   const startPoll = (pollType, pollId, answers = [], question, isMultipleResponse = false) => {
-    Session.set('openPanel', 'poll');
-    Session.set('forcePollOpen', true);
+    Session.setItem('openPanel', 'poll');
+    Session.setItem('forcePollOpen', true);
     window.dispatchEvent(new Event('panelChanged'));
 
     createPoll({
@@ -123,8 +120,4 @@ PresentationToolbarContainer.propTypes = {
 
   // Actions required for the presenter toolbar
   layoutSwapped: PropTypes.bool,
-};
-
-PresentationToolbarContainer.defaultProps = {
-  layoutSwapped: false,
 };

@@ -38,6 +38,9 @@ trait ChangeUserBreakoutReqMsgHdlr extends RightsManagementTrait {
           })
         }
 
+        val isSameRoom = msg.body.fromBreakoutId == msg.body.toBreakoutId
+        val removePreviousRoomFromDb = !breakoutModel.rooms.exists(r => r._2.freeJoin) && !isSameRoom
+
         //Get join URL for room To
         val redirectToHtml5JoinURL = (
             for {
@@ -45,7 +48,6 @@ trait ChangeUserBreakoutReqMsgHdlr extends RightsManagementTrait {
               (redirectToHtml5JoinURL, redirectJoinURL) <- getRedirectUrls(liveMeeting, msg.body.userId, roomTo.externalId, roomTo.sequence.toString())
             } yield redirectToHtml5JoinURL
           ).getOrElse("")
-
 
         BreakoutHdlrHelpers.sendChangeUserBreakoutMsg(
           outGW,
@@ -57,8 +59,13 @@ trait ChangeUserBreakoutReqMsgHdlr extends RightsManagementTrait {
         )
 
         //Update database
-        BreakoutRoomUserDAO.updateRoomChanged(meetingId, msg.body.userId, msg.body.fromBreakoutId, msg.body.toBreakoutId, redirectToHtml5JoinURL)
-
+        BreakoutRoomUserDAO.updateRoomChanged(
+          meetingId,
+          msg.body.userId,
+          msg.body.fromBreakoutId,
+          msg.body.toBreakoutId,
+          redirectToHtml5JoinURL,
+          removePreviousRoomFromDb)
 
         //Send notification to moved User
         for {

@@ -161,7 +161,6 @@ const formatAnnotations = (annotations, intl, curPageId, currentPresentationPage
     if (annotationInfo.questionType) {
       // poll result, convert it to text and create tldraw shape
       if (!annotationInfo.props) {
-        const { POLL_BAR_CHAR } = PollService;
         annotationInfo.answers = annotationInfo.answers.reduce(
           caseInsensitiveReducer, [],
         );
@@ -171,26 +170,18 @@ const formatAnnotations = (annotations, intl, curPageId, currentPresentationPage
         const lines = pollResult.split('\n');
         const longestLine = lines.reduce((a, b) => (a.length > b.length ? a : b), '').length;
 
-        // add empty spaces after last ∎ in each of the lines to make them all the same length
-        pollResult = lines.map((line) => {
-          if (!line.includes(POLL_BAR_CHAR) || line.length === longestLine) return line;
-
-          const splitLine = line.split(`${POLL_BAR_CHAR} `);
-          const spaces = ' '.repeat(longestLine - line.length);
-          return `${splitLine[0]} ${spaces} ${splitLine[1]}`;
-        }).join('\n');
-
         // Text measurement estimation
         const averageCharWidth = 14;
         const lineHeight = 32;
+        const padding = 2;
 
-        const annotationWidth = longestLine * averageCharWidth; // Estimate width
-        const annotationHeight = lines.length * lineHeight; // Estimate height
+        const annotationWidth = longestLine * averageCharWidth;
+        const annotationHeight = lines.length * lineHeight;
 
         const slideWidth = currentPresentationPage?.scaledWidth;
         const slideHeight = currentPresentationPage?.scaledHeight;
-        const xPosition = slideWidth - annotationWidth;
-        const yPosition = slideHeight - annotationHeight;
+        const xPosition = slideWidth - annotationWidth - padding;
+        const yPosition = slideHeight - annotationHeight - padding;
 
         annotationInfo = {
           x: xPosition,
@@ -203,22 +194,18 @@ const formatAnnotations = (annotations, intl, curPageId, currentPresentationPage
           index: 'a1',
           id: `${annotationInfo.id}`,
           meta: {},
-          type: 'geo',
+          type: 'poll',
           props: {
-            url: '',
-            text: `${pollResult}`,
             color: 'black',
-            font: 'mono',
             fill: 'semi',
-            dash: 'draw',
             w: annotationWidth,
             h: annotationHeight,
-            size: 'm',
-            growY: 0,
-            align: 'middle',
-            geo: 'rectangle',
-            verticalAlign: 'middle',
-            labelColor: 'black',
+            answers: annotationInfo.answers,
+            numRespondents: annotationInfo.numRespondents,
+            numResponders: annotationInfo.numResponders,
+            questionText: annotationInfo.questionText,
+            questionType: annotationInfo.questionType,
+            question: annotationInfo.question || "",
           },
         };
       } else {
@@ -233,22 +220,18 @@ const formatAnnotations = (annotations, intl, curPageId, currentPresentationPage
           index: annotationInfo.index,
           id: annotationInfo.id,
           meta: annotationInfo.meta,
-          type: 'geo',
+          type: 'poll',
           props: {
-            url: '',
-            text: annotationInfo.props.text,
-            color: annotationInfo.props.color,
-            font: annotationInfo.props.font,
-            fill: annotationInfo.props.fill,
-            dash: annotationInfo.props.dash,
+            color: 'black',
+            fill: 'semi',
             h: annotationInfo.props.h,
             w: annotationInfo.props.w,
-            size: annotationInfo.props.size,
-            growY: 0,
-            align: 'middle',
-            geo: annotationInfo.props.geo,
-            verticalAlign: 'middle',
-            labelColor: annotationInfo.props.labelColor,
+            answers: annotationInfo.answers,
+            numRespondents: annotationInfo.numRespondents,
+            numResponders: annotationInfo.numResponders,
+            questionText: annotationInfo.questionText,
+            questionType: annotationInfo.questionType,
+            question: annotationInfo.question || '',
           },
         };
       }

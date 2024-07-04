@@ -30,32 +30,21 @@ const propTypes = {
   fullScreenStyle: PropTypes.bool,
 };
 
-const defaultProps = {
-  dark: false,
-  bottom: false,
-  isIphone: false,
-  isFullscreen: false,
-  elementName: '',
-  color: 'default',
-  fullScreenStyle: true,
-  fullscreenRef: null,
-};
-
 const FullscreenButtonComponent = ({
   intl,
-  dark,
-  bottom,
-  elementName,
+  dark = false,
+  bottom = false,
+  elementName = '',
   elementId,
   elementGroup,
-  isIphone,
-  isFullscreen,
+  isIphone = false,
+  isFullscreen = false,
   layoutContextDispatch,
   currentElement,
   currentGroup,
-  color,
-  fullScreenStyle,
-  fullscreenRef,
+  color = 'default',
+  fullScreenStyle = true,
+  fullscreenRef = null,
   handleToggleFullScreen,
 }) => {
   if (isIphone) return null;
@@ -105,6 +94,5 @@ const FullscreenButtonComponent = ({
 };
 
 FullscreenButtonComponent.propTypes = propTypes;
-FullscreenButtonComponent.defaultProps = defaultProps;
 
 export default injectIntl(FullscreenButtonComponent);

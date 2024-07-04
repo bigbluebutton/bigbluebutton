@@ -3,7 +3,7 @@ import ModalFullscreen from '/imports/ui/components/common/modal/fullscreen/comp
 import { defineMessages, useIntl } from 'react-intl';
 import { range } from 'ramda';
 import { uniqueId } from '/imports/utils/string-utils';
-import { isImportPresentationWithAnnotationsFromBreakoutRoomsEnabled, isImportSharedNotesFromBreakoutRoomsEnabled } from '/imports/ui/services/features';
+import { useIsImportPresentationWithAnnotationsFromBreakoutRoomsEnabled, useIsImportSharedNotesFromBreakoutRoomsEnabled } from '/imports/ui/services/features';
 import useMeeting from '/imports/ui/core/hooks/useMeeting';
 import { useLazyQuery, useQuery, useMutation } from '@apollo/client';
 import Styled from './styles';
@@ -232,6 +232,8 @@ const CreateBreakoutRoom: React.FC<CreateBreakoutRoomProps> = ({
   const [inviteMods, setInviteMods] = React.useState(false);
   const [numberOfRooms, setNumberOfRooms] = React.useState(MIN_BREAKOUT_ROOMS);
   const [durationTime, setDurationTime] = React.useState(DEFAULT_BREAKOUT_TIME);
+  const isImportPresentationWithAnnotationsEnabled = useIsImportPresentationWithAnnotationsFromBreakoutRoomsEnabled();
+  const isImportSharedNotesEnabled = useIsImportSharedNotesFromBreakoutRoomsEnabled();
 
   const [createBreakoutRoom] = useMutation(BREAKOUT_ROOM_CREATE);
   const [moveUser] = useMutation(BREAKOUT_ROOM_MOVE_USER);
@@ -351,7 +353,7 @@ const CreateBreakoutRoom: React.FC<CreateBreakoutRoomProps> = ({
         label: intl.formatMessage(intlMessages.record),
       },
       {
-        allowed: isImportPresentationWithAnnotationsFromBreakoutRoomsEnabled(),
+        allowed: isImportPresentationWithAnnotationsEnabled,
         htmlFor: 'captureSlidesBreakoutCheckbox',
         key: 'capture-slides-breakouts',
         id: 'captureSlidesBreakoutCheckbox',
@@ -359,7 +361,7 @@ const CreateBreakoutRoom: React.FC<CreateBreakoutRoomProps> = ({
         label: intl.formatMessage(intlMessages.captureSlidesLabel),
       },
       {
-        allowed: isImportSharedNotesFromBreakoutRoomsEnabled(),
+        allowed: isImportSharedNotesEnabled,
         htmlFor: 'captureNotesBreakoutCheckbox',
         key: 'capture-notes-breakouts',
         id: 'captureNotesBreakoutCheckbox',
@@ -375,7 +377,7 @@ const CreateBreakoutRoom: React.FC<CreateBreakoutRoomProps> = ({
         label: intl.formatMessage(intlMessages.sendInvitationToMods),
       },
     ];
-  }, [isBreakoutRecordable]);
+  }, [isBreakoutRecordable, isImportPresentationWithAnnotationsEnabled, isImportSharedNotesEnabled]);
 
   const form = useMemo(() => {
     if (isUpdate) return null;
@@ -466,7 +468,10 @@ const CreateBreakoutRoom: React.FC<CreateBreakoutRoomProps> = ({
         <Styled.Separator />
       </React.Fragment>
     );
-  }, [durationTime, durationIsValid, numberOfRooms, numberOfRoomsIsValid]);
+  }, [
+    durationTime, durationIsValid, numberOfRooms, numberOfRoomsIsValid,
+    isImportPresentationWithAnnotationsEnabled, isImportSharedNotesEnabled,
+  ]);
 
   return (
     <ModalFullscreen
@@ -515,7 +520,7 @@ const CreateBreakoutRoomContainer: React.FC<CreateBreakoutRoomContainerProps> = 
   isOpen,
   setIsOpen,
   priority,
-  isUpdate,
+  isUpdate = false,
 }) => {
   const [fetchedBreakouts, setFetchedBreakouts] = React.useState(false);
   // isBreakoutRecordable - get from meeting breakout policies breakoutPolicies/record
@@ -548,12 +553,12 @@ const CreateBreakoutRoomContainer: React.FC<CreateBreakoutRoomContainerProps> = 
     return null;
   }
 
-  if (true && !fetchedBreakouts) {
+  if (!fetchedBreakouts) {
     loadBreakouts();
     setFetchedBreakouts(true);
   }
 
-  if (true && breakoutsLoading) return null;
+  if (breakoutsLoading) return null;
 
   if (usersError || breakoutsError) {
     logger.info('Error loading users', usersError);
@@ -575,14 +580,6 @@ const CreateBreakoutRoomContainer: React.FC<CreateBreakoutRoomContainerProps> = 
       runningRooms={breakoutsData?.breakoutRoom ?? []}
     />
   );
-};
-
-CreateBreakoutRoomContainer.defaultProps = {
-  isUpdate: false,
-};
-
-CreateBreakoutRoom.defaultProps = {
-  isUpdate: false,
 };
 
 export default CreateBreakoutRoomContainer;

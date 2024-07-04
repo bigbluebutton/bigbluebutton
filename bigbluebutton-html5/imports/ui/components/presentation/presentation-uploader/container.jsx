@@ -1,5 +1,4 @@
 import React from 'react';
-import { withTracker } from 'meteor/react-meteor-data';
 import ErrorBoundary from '/imports/ui/components/common/error-boundary/component';
 import FallbackModal from '/imports/ui/components/common/fallback-errors/fallback-modal/component';
 import { useMutation } from '@apollo/client';
@@ -7,10 +6,10 @@ import Service from './service';
 import PresUploaderToast from '/imports/ui/components/presentation/presentation-toast/presentation-uploader-toast/component';
 import PresentationUploader from './component';
 import {
-  isDownloadPresentationWithAnnotationsEnabled,
-  isDownloadPresentationOriginalFileEnabled,
-  isDownloadPresentationConvertedToPdfEnabled,
-  isPresentationEnabled,
+  useIsPresentationEnabled,
+  useIsDownloadPresentationOriginalFileEnabled,
+  useIsDownloadPresentationConvertedToPdfEnabled,
+  useIsDownloadPresentationWithAnnotationsEnabled,
 } from '/imports/ui/services/features';
 import {
   PRESENTATIONS_SUBSCRIPTION,
@@ -22,6 +21,7 @@ import {
   PRESENTATION_SET_CURRENT,
   PRESENTATION_REMOVE,
 } from '../mutations';
+import { useStorageKey } from '/imports/ui/services/storage/hooks';
 import useDeduplicatedSubscription from '/imports/ui/core/hooks/useDeduplicatedSubscription';
 
 const PresentationUploaderContainer = (props) => {
@@ -66,6 +66,15 @@ const PresentationUploaderContainer = (props) => {
     presentationRemove({ variables: { presentationId } });
   };
 
+  const presentationEnabled = useIsPresentationEnabled();
+  const allowDownloadOriginal = useIsDownloadPresentationOriginalFileEnabled();
+  const allowDownloadConverted = useIsDownloadPresentationConvertedToPdfEnabled();
+  const allowDownloadWithAnnotations = useIsDownloadPresentationWithAnnotationsEnabled();
+  const externalUploadData = Service.useExternalUploadData();
+  const PRESENTATION_CONFIG = window.meetingClientSettings.public.presentation;
+  const isOpen = (useStorageKey('showUploadPresentationView') || false) && presentationEnabled;
+  const selectedToBeNextCurrent = useStorageKey('selectedToBeNextCurrent') || null;
+
   return userIsPresenter && (
     <ErrorBoundary Fallback={FallbackModal}>
       <PresentationUploader
@@ -76,38 +85,28 @@ const PresentationUploaderContainer = (props) => {
         dispatchChangePresentationDownloadable={dispatchChangePresentationDownloadable}
         setPresentation={setPresentation}
         removePresentation={removePresentation}
+        isOpen={isOpen}
+        selectedToBeNextCurrent={selectedToBeNextCurrent}
+        fileUploadConstraintsHint={PRESENTATION_CONFIG.fileUploadConstraintsHint}
+        fileSizeMax={PRESENTATION_CONFIG.mirroredFromBBBCore.uploadSizeMax}
+        filePagesMax={PRESENTATION_CONFIG.mirroredFromBBBCore.uploadPagesMax}
+        fileValidMimeTypes={PRESENTATION_CONFIG.uploadValidMimeTypes}
+        allowDownloadOriginal={allowDownloadOriginal}
+        allowDownloadConverted={allowDownloadConverted}
+        allowDownloadWithAnnotations={allowDownloadWithAnnotations}
+        presentationEnabled={presentationEnabled}
+        externalUploadData={externalUploadData}
+        handleSave={Service.handleSavePresentation}
+        handleDismissToast={PresUploaderToast.handleDismissToast}
+        renderToastList={Service.renderToastList}
+        renderPresentationItemStatus={PresUploaderToast.renderPresentationItemStatus}
+        handleFiledrop={Service.handleFiledrop}
+        dispatchDisableDownloadable={Service.dispatchDisableDownloadable}
+        dispatchEnableDownloadable={Service.dispatchEnableDownloadable}
         {...props}
       />
     </ErrorBoundary>
   );
 };
 
-export default withTracker(() => {
-  const {
-    dispatchDisableDownloadable,
-    dispatchEnableDownloadable,
-  } = Service;
-  const isOpen = isPresentationEnabled() && (Session.get('showUploadPresentationView') || false);
-
-  const PRESENTATION_CONFIG = window.meetingClientSettings.public.presentation;
-
-  return {
-    fileUploadConstraintsHint: PRESENTATION_CONFIG.fileUploadConstraintsHint,
-    fileSizeMax: PRESENTATION_CONFIG.mirroredFromBBBCore.uploadSizeMax,
-    filePagesMax: PRESENTATION_CONFIG.mirroredFromBBBCore.uploadPagesMax,
-    fileValidMimeTypes: PRESENTATION_CONFIG.uploadValidMimeTypes,
-    allowDownloadOriginal: isDownloadPresentationOriginalFileEnabled(),
-    allowDownloadConverted: isDownloadPresentationConvertedToPdfEnabled(),
-    allowDownloadWithAnnotations: isDownloadPresentationWithAnnotationsEnabled(),
-    handleSave: Service.handleSavePresentation,
-    handleDismissToast: PresUploaderToast.handleDismissToast,
-    renderToastList: Service.renderToastList,
-    renderPresentationItemStatus: PresUploaderToast.renderPresentationItemStatus,
-    dispatchDisableDownloadable,
-    dispatchEnableDownloadable,
-    isOpen,
-    selectedToBeNextCurrent: Session.get('selectedToBeNextCurrent') || null,
-    externalUploadData: Service.getExternalUploadData(),
-    handleFiledrop: Service.handleFiledrop,
-  };
-})(PresentationUploaderContainer);
+export default PresentationUploaderContainer;

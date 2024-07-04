@@ -9,7 +9,7 @@ import { GraphqlDataHookSubscriptionResponse } from '../../Types/hook';
 import useDeepComparison from '../../hooks/useDeepComparison';
 import GrahqlSubscriptionStore, { stringToHash } from '../singletons/subscriptionStore';
 
-const makePatchedQuery = (query: DocumentNode | TypedQueryDocumentNode) => {
+export const makePatchedQuery = (query: DocumentNode | TypedQueryDocumentNode) => {
   if (!query) {
     throw new Error('Error: query is not defined');
   }
@@ -42,10 +42,25 @@ function createUseSubscription<T>(
   return function useGeneratedUseSubscription(
     projectionFunction: (element: Partial<T>) => Partial<T> = (element) => element,
   ): GraphqlDataHookSubscriptionResponse<Array<Partial<T>>> {
-    const subHash = useMemo(() => stringToHash(
+    const subscriptionHashRef = useRef<string>('');
+    const subscriptionRef = useRef <DocumentNode | TypedQueryDocumentNode | null>(null);
+    const optionsRef = useRef({});
+    const subHash = stringToHash(
       JSON.stringify({ subscription: newSubscriptionGQL, variables: queryVariables }),
-    ),
-    []);
+    );
+
+    useEffect(() => {
+      if (subscriptionHashRef.current !== subHash) {
+        subscriptionHashRef.current = subHash;
+        if (subscriptionRef.current && optionsRef.current) {
+          GrahqlSubscriptionStore.unsubscribe(subscriptionRef.current, queryVariables);
+        }
+
+        subscriptionRef.current = query;
+        optionsRef.current = queryVariables;
+      }
+    }, [subHash]);
+
     useEffect(() => {
       return () => {
         GrahqlSubscriptionStore.unsubscribe(newSubscriptionGQL, queryVariables);
@@ -198,6 +213,7 @@ export const useCreateUseSubscription = <T>(
 ) => {
   const queryString = JSON.stringify(query);
   const queryVariablesString = JSON.stringify(queryVariables);
+
   const createdSubscription = useMemo(() => {
     return createUseSubscription<T>(query, queryVariables, usePatchedSubscription);
   },

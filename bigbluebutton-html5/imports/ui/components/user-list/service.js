@@ -1,15 +1,12 @@
 import React from 'react';
-import Users from '/imports/api/users';
-import VoiceUsers from '/imports/api/voice-users';
 import Breakouts from '/imports/api/breakouts';
-import Meetings from '/imports/api/meetings';
 import Auth from '/imports/ui/services/auth';
 import Storage from '/imports/ui/services/storage/session';
 import { EMOJI_STATUSES } from '/imports/utils/statuses';
 import KEY_CODES from '/imports/utils/keyCodes';
 import AudioService from '/imports/ui/components/audio/service';
 import logger from '/imports/startup/client/logger';
-import { Session } from 'meteor/session';
+import Session from '/imports/ui/services/storage/in-memory';
 import { getSettingsSingletonInstance } from '/imports/ui/services/settings';
 import { notify } from '/imports/ui/services/notification';
 import { FormattedMessage } from 'react-intl';
@@ -135,8 +132,6 @@ const isPublicChat = (chat) => {
   return chat.userId === CHAT_CONFIG.public_id;
 };
 
-const getUserCount = () => Users.find({ meetingId: Auth.meetingID }).count();
-
 const hasBreakoutRoom = () => Breakouts.find({ parentMeetingId: Auth.meetingID },
   { fields: {} }).count() > 0;
 
@@ -191,7 +186,7 @@ const getActiveChats = ({ groupChatsMessages, groupChats, users }) => {
       const groupChatsParticipants = groupChats[chatId].participants;
       const otherParticipant = groupChatsParticipants.filter((user) => user.id !== Auth.userID)[0];
       const user = users[otherParticipant.id];
-      const startedChats = Session.get(STARTED_CHAT_LIST_KEY) || [];
+      const startedChats = Session.getItem(STARTED_CHAT_LIST_KEY) || [];
 
       const ROLE_MODERATOR = window.meetingClientSettings.public.user.role_moderator;
 
@@ -249,14 +244,10 @@ const getActiveChats = ({ groupChatsMessages, groupChats, users }) => {
 
 const isVoiceOnlyUser = (userId) => userId.toString().startsWith('v_');
 
-const isMeetingLocked = (id) => {
-  const meeting = Meetings.findOne({ meetingId: id },
-    { fields: { lockSettings: 1, usersPolicies: 1 } });
+const isMeetingLocked = (lockSettings, usersPolicies) => {
   let isLocked = false;
 
-  if (meeting.lockSettings !== undefined) {
-    const { lockSettings, usersPolicies } = meeting;
-
+  if (lockSettings !== undefined) {
     if (lockSettings.disableCam
       || lockSettings.disableMic
       || lockSettings.disablePrivateChat
@@ -273,120 +264,6 @@ const isMeetingLocked = (id) => {
   return isLocked;
 };
 
-const getUsersProp = () => {
-  const meeting = Meetings.findOne(
-    { meetingId: Auth.meetingID },
-    {
-      fields: {
-        'usersPolicies.allowModsToUnmuteUsers': 1,
-        'usersPolicies.allowModsToEjectCameras': 1,
-        'usersPolicies.authenticatedGuest': 1,
-      },
-    },
-  );
-
-  if (meeting.usersPolicies) return meeting.usersPolicies;
-
-  return {
-    allowModsToUnmuteUsers: false,
-    allowModsToEjectCameras: false,
-    authenticatedGuest: false,
-  };
-};
-
-const curatedVoiceUser = (userId) => {
-  const voiceUser = VoiceUsers.findOne({ userId });
-  return {
-    isVoiceUser: voiceUser ? voiceUser.joined : false,
-    isMuted: voiceUser ? voiceUser.muted && !voiceUser.listenOnly : false,
-    isTalking: voiceUser ? voiceUser.talking && !voiceUser.muted : false,
-    isListenOnly: voiceUser ? voiceUser.listenOnly : false,
-  };
-};
-
-const getAvailableActions = (
-  amIModerator, isBreakoutRoom, subjectUser, subjectVoiceUser, usersProp, amIPresenter,
-) => {
-  const ROLE_MODERATOR = window.meetingClientSettings.public.user.role_moderator;
-  const USER_STATUS_ENABLED = window.meetingClientSettings.public.userStatus.enabled;
-
-  const isDialInUser = isVoiceOnlyUser(subjectUser.userId) || subjectUser.phone_user;
-  const amISubjectUser = isMe(subjectUser.userId);
-  const isSubjectUserModerator = subjectUser.role === ROLE_MODERATOR;
-  const isSubjectUserGuest = subjectUser.guest;
-
-  const hasAuthority = amIModerator || amISubjectUser;
-  const allowedToChatPrivately = !amISubjectUser && !isDialInUser;
-  const allowedToMuteAudio = hasAuthority
-    && subjectVoiceUser.isVoiceUser
-    && !subjectVoiceUser.isMuted
-    && !subjectVoiceUser.isListenOnly;
-
-  const allowedToUnmuteAudio = hasAuthority
-    && subjectVoiceUser.isVoiceUser
-    && !subjectVoiceUser.isListenOnly
-    && subjectVoiceUser.isMuted
-    && (amISubjectUser || usersProp.allowModsToUnmuteUsers);
-
-  const allowedToResetStatus = hasAuthority
-    && subjectUser.emoji !== EMOJI_STATUSES.none
-    && !isDialInUser;
-
-  // if currentUser is a moderator, allow removing other users
-  const allowedToRemove = amIModerator
-    && !amISubjectUser
-    && !isBreakoutRoom;
-
-  const allowedToSetPresenter = amIModerator
-    && !subjectUser.presenter
-    && !isDialInUser;
-
-  const allowedToPromote = amIModerator
-    && !amISubjectUser
-    && !isSubjectUserModerator
-    && !isDialInUser
-    && !isBreakoutRoom
-    && !(isSubjectUserGuest && usersProp.authenticatedGuest);
-
-  const allowedToDemote = amIModerator
-    && !amISubjectUser
-    && isSubjectUserModerator
-    && !isDialInUser
-    && !isBreakoutRoom
-    && !(isSubjectUserGuest && usersProp.authenticatedGuest);
-
-  const allowedToChangeStatus = amISubjectUser && USER_STATUS_ENABLED;
-
-  const allowedToChangeUserLockStatus = amIModerator
-    && !isSubjectUserModerator
-    && isMeetingLocked(Auth.meetingID);
-
-  const allowedToChangeWhiteboardAccess = amIPresenter
-    && !amISubjectUser;
-
-  const allowedToEjectCameras = amIModerator
-    && !amISubjectUser
-    && usersProp.allowModsToEjectCameras;
-
-  const allowedToSetAway = amISubjectUser && !USER_STATUS_ENABLED;
-
-  return {
-    allowedToChatPrivately,
-    allowedToMuteAudio,
-    allowedToUnmuteAudio,
-    allowedToResetStatus,
-    allowedToRemove,
-    allowedToSetPresenter,
-    allowedToPromote,
-    allowedToDemote,
-    allowedToChangeStatus,
-    allowedToChangeUserLockStatus,
-    allowedToChangeWhiteboardAccess,
-    allowedToEjectCameras,
-    allowedToSetAway,
-  };
-};
-
 const normalizeEmojiName = (emoji) => (
   emoji in EMOJI_STATUSES ? EMOJI_STATUSES[emoji] : emoji
 );
@@ -401,17 +278,6 @@ const toggleVoice = (userId, voiceToggle) => {
       extraInfo: { logType: 'moderator_action', userId },
     }, 'moderator muted user microphone');
   }
-};
-
-const getEmoji = () => {
-  const currentUser = Users.findOne({ userId: Auth.userID },
-    { fields: { emoji: 1 } });
-
-  if (!currentUser) {
-    return false;
-  }
-
-  return currentUser.emoji;
 };
 
 const focusFirstDropDownItem = () => {
@@ -431,13 +297,13 @@ const roving = (...args) => {
 
   this.selectedElement = element;
   const numberOfChilds = elementsList.childElementCount;
-  const menuOpen = Session.get('dropdownOpen') || false;
+  const menuOpen = Session.getItem('dropdownOpen') || false;
 
   if (menuOpen) {
     const menuChildren = document.activeElement.getElementsByTagName('li');
 
     if ([KEY_CODES.ESCAPE, KEY_CODES.ARROW_LEFT].includes(event.keyCode)) {
-      Session.set('dropdownOpen', false);
+      Session.setItem('dropdownOpen', false);
       document.activeElement.click();
     }
 
@@ -458,7 +324,7 @@ const roving = (...args) => {
   }
 
   if ([KEY_CODES.ESCAPE, KEY_CODES.TAB].includes(event.keyCode)) {
-    Session.set('dropdownOpen', false);
+    Session.setItem('dropdownOpen', false);
     changeState(null);
   }
 
@@ -499,13 +365,7 @@ const sortUsersByLastName = (a, b) => {
   return sortUsersByName(aUser, bUser);
 };
 
-const isUserPresenter = (userId = Auth.userID) => {
-  const user = Users.findOne({ userId },
-    { fields: { presenter: 1 } });
-  return user ? user.presenter : false;
-};
-
-export const getUserNamesLink = (docTitle, fnSortedLabel, lnSortedLabel, users) => {
+export const getUserNamesLink = (docTitle, fnSortedLabel, lnSortedLabel, users, meetingName) => {
   const mimeType = 'text/plain';
   const userNamesObj = users
     .map((u) => {
@@ -532,9 +392,7 @@ export const getUserNamesLink = (docTitle, fnSortedLabel, lnSortedLabel, users) 
     \r\n\r\n${lnSortedLabel}\r\n${namesByLastName}`.replace(/ {2}/g, ' ');
 
   const link = document.createElement('a');
-  const meeting = Meetings.findOne({ meetingId: Auth.meetingID },
-    { fields: { name: 1 } });
-  link.setAttribute('download', `bbb-${meeting.name}[users-list]_${getDateString()}.txt`);
+  link.setAttribute('download', `bbb-${meetingName}[users-list]_${getDateString()}.txt`);
   link.setAttribute(
     'href',
     `data: ${mimeType};charset=utf-16,${encodeURIComponent(namesListsString)}`,
@@ -605,8 +463,6 @@ export default {
   sortUsers,
   toggleVoice,
   getActiveChats,
-  getAvailableActions,
-  curatedVoiceUser,
   normalizeEmojiName,
   isMeetingLocked,
   isPublicChat,
@@ -614,11 +470,7 @@ export default {
   getCustomLogoUrl,
   hasBreakoutRoom,
   getEmojiList: () => EMOJI_STATUSES,
-  getEmoji,
   focusFirstDropDownItem,
-  isUserPresenter,
-  getUsersProp,
-  getUserCount,
   sortUsersByCurrent,
   UserJoinedMeetingAlert,
   UserLeftMeetingAlert,

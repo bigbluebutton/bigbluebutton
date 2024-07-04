@@ -2,6 +2,7 @@ import React from 'react';
 import UserContent from './component';
 import useCurrentUser from '/imports/ui/core/hooks/useCurrentUser';
 import useMeeting from '/imports/ui/core/hooks/useMeeting';
+import { useIsChatEnabled } from '/imports/ui/services/features';
 
 const ASK_MODERATOR = 'ASK_MODERATOR';
 
@@ -22,6 +23,7 @@ const UserContentContainer = (props) => {
       guestPolicy: m.usersPolicies.guestPolicy,
     },
   }));
+  const isChatEnabled = useIsChatEnabled();
 
   const APP_SETTINGS = window.meetingClientSettings.public.app;
   const isWaitingRoomEnabled = currentMeeting?.usersPolicies?.guestPolicy === ASK_MODERATOR;
@@ -33,6 +35,7 @@ const UserContentContainer = (props) => {
         currentUser,
         isTimerActive: currentMeeting?.componentsFlags?.hasTimer && currentUser?.isModerator,
         isWaitingRoomEnabled,
+        isChatEnabled,
         ...props,
       }}
     />

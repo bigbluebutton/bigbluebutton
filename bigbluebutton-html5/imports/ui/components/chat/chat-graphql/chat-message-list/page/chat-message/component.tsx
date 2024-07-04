@@ -168,6 +168,20 @@ const ChatMesssage: React.FC<ChatMessageProps> = ({
           isSystemSender: true,
           component: (
             <ChatMessageTextContent
+              systemMsg={false}
+              emphasizedMessage
+              text={message.message}
+            />
+          ),
+        };
+      case ChatMessageType.API:
+        return {
+          name: message.senderName,
+          color: '#0F70D7',
+          isModerator: true,
+          isSystemSender: true,
+          component: (
+            <ChatMessageTextContent
               systemMsg
               emphasizedMessage
               text={message.message}
@@ -177,12 +191,13 @@ const ChatMesssage: React.FC<ChatMessageProps> = ({
       case ChatMessageType.USER_AWAY_STATUS_MSG: {
         const { away } = JSON.parse(message.messageMetadata);
         const awayMessage = (away)
-          ? `${msgTime} ${message.senderName} ${intl.formatMessage(intlMessages.userAway)}`
-          : `${msgTime} ${message.senderName} ${intl.formatMessage(intlMessages.userNotAway)}`;
+          ? `${intl.formatMessage(intlMessages.userAway)}`
+          : `${intl.formatMessage(intlMessages.userNotAway)}`;
         return {
           name: message.senderName,
-          color: '',
-          isModerator: false,
+          color: '#0F70D7',
+          isModerator: true,
+          isSystemSender: true,
           component: (
             <ChatMessageTextContent
               emphasizedMessage={false}
@@ -218,6 +233,7 @@ const ChatMesssage: React.FC<ChatMessageProps> = ({
     >
       {(!message?.user || !sameSender) && (
         message.messageType !== ChatMessageType.USER_AWAY_STATUS_MSG
+        && message.messageType !== ChatMessageType.API
         && message.messageType !== ChatMessageType.CHAT_CLEAR) && (
           <ChatAvatar
             avatar={message.user?.avatar}
@@ -236,14 +252,13 @@ const ChatMesssage: React.FC<ChatMessageProps> = ({
         sameSender={message?.user ? sameSender : false}
         data-chat-message-id={message?.messageId}
       >
-        {message.messageType !== ChatMessageType.USER_AWAY_STATUS_MSG
-          && message.messageType !== ChatMessageType.CHAT_CLEAR && (
-            <ChatMessageHeader
-              sameSender={message?.user ? sameSender : false}
-              name={messageContent.name}
-              isOnline={message.user?.isOnline ?? true}
-              dateTime={dateTime}
-            />
+        {message.messageType !== ChatMessageType.CHAT_CLEAR && (
+        <ChatMessageHeader
+          sameSender={message?.user ? sameSender : false}
+          name={messageContent.name}
+          isOnline={message.user?.isOnline ?? true}
+          dateTime={dateTime}
+        />
         )}
         {messageContent.component}
       </ChatContent>

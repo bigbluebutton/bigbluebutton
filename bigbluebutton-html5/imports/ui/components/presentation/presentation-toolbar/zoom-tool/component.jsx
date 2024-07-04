@@ -194,7 +194,7 @@ class ZoomTool extends PureComponent {
               aria-label={intl.formatMessage(intlMessages.resetZoomLabel)}
               aria-describedby="resetZoomDescription"
               disabled={(stateZoomValue === minBound) || !isMeteorConnected}
-              color="default"
+              color="light"
               customIcon={stateZoomPct}
               size="md"
               onClick={() => this.resetZoom()}

@@ -25,9 +25,9 @@ trait PluginDataChannelPushEntryMsgHdlr extends HandlerHelpers {
         println(s"Data channel '${msg.body.channelName}' not found in plugin '${msg.body.pluginName}'.")
       } else {
         val hasPermission = for {
-          writePermission <- pluginsConfig(msg.body.pluginName).dataChannels(msg.body.channelName).writePermission
+          pushPermission <- pluginsConfig(msg.body.pluginName).dataChannels(msg.body.channelName).pushPermission
         } yield {
-          writePermission.toLowerCase match {
+          pushPermission.toLowerCase match {
             case "all"       => true
             case "moderator" => user.role == Roles.MODERATOR_ROLE
             case "presenter" => user.presenter

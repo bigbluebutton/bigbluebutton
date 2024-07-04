@@ -47,26 +47,20 @@ const propTypes = {
   shortcuts: PropTypes.string,
 };
 
-const defaultProps = {
-  shortcuts: '',
-  tabIndex: -1,
-};
-
-const ChatListItem = (props) => {
-  const {
-    chat,
-    activeChatId,
-    idChatOpen,
-    compact,
-    intl,
-    tabIndex,
-    isPublicChat,
-    shortcuts: TOGGLE_CHAT_PUB_AK,
-    sidebarContentIsOpen,
-    sidebarContentPanel,
-    layoutContextDispatch,
-  } = props;
-
+const ChatListItem = ({
+  chat,
+  activeChatId,
+  idChatOpen,
+  compact,
+  intl,
+  tabIndex = -1,
+  isPublicChat,
+  shortcuts = '',
+  sidebarContentIsOpen,
+  sidebarContentPanel,
+  layoutContextDispatch,
+}) => {
+  const TOGGLE_CHAT_PUB_AK = shortcuts;
   const CHAT_CONFIG = window.meetingClientSettings.public.chat;
   const PUBLIC_CHAT_KEY = CHAT_CONFIG.public_id;
 
@@ -201,6 +195,5 @@ const ChatListItem = (props) => {
 };
 
 ChatListItem.propTypes = propTypes;
-ChatListItem.defaultProps = defaultProps;
 
 export default withShortcutHelper(injectIntl(ChatListItem), 'togglePublicChat');

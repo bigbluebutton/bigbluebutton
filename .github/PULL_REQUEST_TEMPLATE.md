@@ -16,8 +16,8 @@ HOW TO WRITE A GOOD PULL REQUEST?
 -->
 
 ### What does this PR do?
-
 <!-- A brief description of each change being made with this pull request. -->
+
 
 ### Closes Issue(s)
 <!-- List here all the issues closed by this pull request. Use keyword `closes` before each issue number
@@ -25,12 +25,18 @@ Closes #123456
 -->
 Closes #
 
-
 ### Motivation
-
 <!-- What inspired you to submit this pull request? -->
 
-### More
 
+### How to test
+<!-- List here everything that is necessary for the reviewer to be able to test it completely (docs link, step-by-step, bug cases)
+- Is there any specific setup needed, different than the default?
+- The linked issue contains all necessary content?
+- Have you found any different case that might be tested when you were fixing/implementing it?
+-->
+
+
+### More
 <!-- Anything else we should know when reviewing? -->
 - [ ] Added/updated documentation

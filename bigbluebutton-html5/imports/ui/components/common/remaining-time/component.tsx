@@ -20,11 +20,6 @@ interface RemainingTimeProps {
   alertLabel?: intlMsg;
 }
 
-const defaultProps = {
-  endingLabel: undefined,
-  alertLabel: undefined,
-};
-
 let lastAlertTime: number | null = null;
 
 const RemainingTime: React.FC<RemainingTimeProps> = (props) => {
@@ -32,8 +27,8 @@ const RemainingTime: React.FC<RemainingTimeProps> = (props) => {
     referenceStartedTime,
     durationInSeconds,
     durationLabel,
-    endingLabel,
-    alertLabel,
+    endingLabel = undefined,
+    alertLabel = undefined,
     isBreakout,
     boldText,
   } = props;
@@ -125,7 +120,5 @@ const RemainingTime: React.FC<RemainingTimeProps> = (props) => {
     </span>
   );
 };
-
-RemainingTime.defaultProps = defaultProps;
 
 export default RemainingTime;

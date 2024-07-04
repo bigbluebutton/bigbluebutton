@@ -1,8 +1,8 @@
 import Auth from '/imports/ui/services/auth';
 import deviceInfo from '/imports/utils/deviceInfo';
 import { unique } from 'radash';
-import { Session } from 'meteor/session';
-import { isAudioTranscriptionEnabled } from '../service';
+import { useIsAudioTranscriptionEnabled } from '../service';
+import Session from '/imports/ui/services/storage/in-memory';
 
 // Reason: SpeechRecognition is not in window type definition
 // Fix based on: https://stackoverflow.com/questions/41740683/speechrecognition-and-speechsynthesis-in-typescript
@@ -24,12 +24,12 @@ export const hasSpeechRecognitionSupport = () => {
 export const setSpeechVoices = () => {
   if (!hasSpeechRecognitionSupport()) return;
 
-  Session.set('speechVoices', unique(window.speechSynthesis.getVoices().map((v) => v.lang)));
+  Session.setItem('speechVoices', unique(window.speechSynthesis.getVoices().map((v) => v.lang)));
 };
 
 export const useFixedLocale = () => {
   const FORCE_LOCALE = window.meetingClientSettings.public.app.audioCaptions.language.forceLocale;
-  return isAudioTranscriptionEnabled() && FORCE_LOCALE;
+  return useIsAudioTranscriptionEnabled() && FORCE_LOCALE;
 };
 
 export const localeAsDefaultSelected = () => {

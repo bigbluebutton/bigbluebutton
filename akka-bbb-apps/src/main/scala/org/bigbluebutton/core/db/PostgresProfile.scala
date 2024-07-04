@@ -1,7 +1,6 @@
 package org.bigbluebutton.core.db
 
 import com.github.tminglei.slickpg._
-import org.apache.pekko.http.scaladsl.model.ParsingException
 import org.bigbluebutton.common2.domain.SimpleVoteOutVO
 import spray.json.DefaultJsonProtocol.{ StringJsonFormat, vectorFormat }
 import spray.json.{ JsArray, JsBoolean, JsNumber, JsObject, JsString, JsValue, JsonWriter, _ }

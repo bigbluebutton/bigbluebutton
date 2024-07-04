@@ -1,6 +1,5 @@
 import PollService from '/imports/ui/components/poll/service';
 import AudioService from '/imports/ui/components/audio/service';
-import { isPollingEnabled } from '/imports/ui/services/features';
 
 const MAX_CHAR_LENGTH = 5;
 
@@ -20,5 +19,4 @@ export default {
   pollTypes: PollService.pollTypes,
   isDefaultPoll: PollService.isDefaultPoll,
   playAlert,
-  isPollingEnabled,
 };

@@ -1,6 +1,4 @@
 import React from 'react';
-import { withTracker } from 'meteor/react-meteor-data';
-import { UploadingPresentations } from '/imports/api/presentations';
 import { PresentationUploaderToast } from './component';
 
 import {
@@ -9,20 +7,25 @@ import {
 import useDeduplicatedSubscription from '/imports/ui/core/hooks/useDeduplicatedSubscription';
 
 const PresentationUploaderToastContainer = (props) => {
-  const { data: presentationData } = useDeduplicatedSubscription(
+  const {
+    data: presentationData,
+    loading: presentationLoading,
+  } = useDeduplicatedSubscription(
     EXPORTING_PRESENTATIONS_SUBSCRIPTION,
   );
   const presentations = presentationData?.pres_presentation || [];
 
   const convertingPresentations = presentations.filter(
-    (p) => !p.uploadCompleted || !!p.uploadErrorMsgKey,
+    (p) => (!p.uploadCompleted || !!p.uploadErrorMsgKey),
   );
+  if (presentationLoading) return null;
+  if (!presentations.length) return null;
 
   return (
     <PresentationUploaderToast
       {
       ...{
-        presentations,
+        presentations: presentations.filter((p) => p),
         convertingPresentations,
         ...props,
       }
@@ -31,10 +34,4 @@ const PresentationUploaderToastContainer = (props) => {
   );
 };
 
-export default withTracker(() => {
-  const uploadingPresentations = UploadingPresentations.find({ $or: [{ 'upload.error': true }, { 'upload.done': false }] }).fetch();
-
-  return {
-    uploadingPresentations,
-  };
-})(PresentationUploaderToastContainer);
+export default PresentationUploaderToastContainer;

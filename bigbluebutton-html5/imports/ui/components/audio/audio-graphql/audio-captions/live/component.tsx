@@ -5,6 +5,7 @@ import logger from '/imports/startup/client/logger';
 import Styled from './styles';
 import useAudioCaptionEnable from '/imports/ui/core/local-states/useAudioCaptionEnable';
 import useCurrentUser from '/imports/ui/core/hooks/useCurrentUser';
+import { splitTranscript } from '../service';
 import useDeduplicatedSubscription from '/imports/ui/core/hooks/useDeduplicatedSubscription';
 
 interface AudioCaptionsLiveProps {
@@ -14,11 +15,13 @@ interface AudioCaptionsLiveProps {
 const AudioCaptionsLive: React.FC<AudioCaptionsLiveProps> = ({
   captions,
 }) => {
+  const CAPTIONS_CONFIG = window.meetingClientSettings.public.captions;
+  const LINES_PER_MESSAGE = CAPTIONS_CONFIG.lines;
   return (
     <Styled.Wrapper>
       <>
         {
-          captions.length > 0 ? captions.map((caption) => {
+          captions.length > 0 && captions.length <= LINES_PER_MESSAGE ? captions.map((caption) => {
             const {
               user,
               captionText,
@@ -34,7 +37,7 @@ const AudioCaptionsLive: React.FC<AudioCaptionsLiveProps> = ({
                       color={user.color}
                       moderator={user.isModerator}
                     >
-                      {user.name.slice(0, 2)}
+                      {user.avatar ? '' : user.name.slice(0, 2)}
                     </Styled.UserAvatar>
                   </Styled.UserAvatarWrapper>
                 )}
@@ -68,7 +71,7 @@ const AudioCaptionsLiveContainer: React.FC = () => {
     loading: AudioCaptionsLiveLoading,
     error: AudioCaptionsLiveError,
   } = useDeduplicatedSubscription<getCaptions>(GET_CAPTIONS, {
-    variables: { locale: currentUser?.speechLocale ?? 'en-US' },
+    variables: { locale: currentUser?.captionLocale ?? 'en-US' },
   });
 
   const [audioCaptionsEnable] = useAudioCaptionEnable();
@@ -92,7 +95,10 @@ const AudioCaptionsLiveContainer: React.FC = () => {
 
   return (
     <AudioCaptionsLive
-      captions={AudioCaptionsLiveData.caption}
+      captions={AudioCaptionsLiveData.caption.map((c) => {
+        const splits = splitTranscript(c);
+        return splits;
+      }).flat().filter((c) => c.captionText)}
     />
   );
 };

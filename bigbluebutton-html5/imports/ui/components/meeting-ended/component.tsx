@@ -227,7 +227,16 @@ const MeetingEnded: React.FC<MeetingEndedProps> = ({
       comment,
       isModerator,
     };
-    const url = './feedback';
+
+    const pathMatch = window.location.pathname.match('^(.*)/html5client/join$');
+    if (pathMatch == null) {
+      throw new Error('Failed to match BBB client URI');
+    }
+    const serverPathPrefix = pathMatch[1];
+
+    const sessionToken = sessionStorage.getItem('sessionToken');
+
+    const url = `https://${window.location.hostname}${serverPathPrefix}/bigbluebutton/api/feedback?sessionToken=${sessionToken}`;
     const options = {
       method: 'POST',
       body: JSON.stringify(message),
@@ -351,7 +360,7 @@ const MeetingEnded: React.FC<MeetingEndedProps> = ({
         ) : null}
       </>
     );
-  }, []);
+  }, [askForFeedbackOnLogout, dispatched, selectedStars]);
 
   useEffect(() => {
     // Sets Loading to falsed and removes loading splash screen
@@ -372,6 +381,8 @@ const MeetingEnded: React.FC<MeetingEndedProps> = ({
     if (apolloClient) {
       apolloClient.stop();
     }
+
+    apolloContextHolder.setShouldRetry(false);
 
     const ws = apolloContextHolder.getLink();
     // stops client connection after 5 seconds, if made immediately some data is lost

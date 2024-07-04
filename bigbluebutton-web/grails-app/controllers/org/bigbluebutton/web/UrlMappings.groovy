@@ -104,15 +104,24 @@ class UrlMappings {
     }
 
     "/bigbluebutton/api/insertDocument"(controller: "api") {
-      action = [GET: 'insertDocument', POST: 'insertDocument']
+      action = [POST: 'insertDocument']
     }
 
     "/bigbluebutton/api/getJoinUrl"(controller: "api") {
       action = [GET: 'getJoinUrl', POST: 'getJoinUrl']
     }
 
+    "/bigbluebutton/api/feedback"(controller: "api") {
+      action = [POST: 'feedback']
+    }
+
     "/bigbluebutton/api/learningDashboard"(controller: "api") {
       action = [GET: 'learningDashboard', POST: 'learningDashboard']
+    }
+
+
+    "/bigbluebutton/api/sendChatMessage"(controller: "api") {
+      action = [GET: 'sendChatMessage']
     }
 
     "/bigbluebutton/api/getRecordings"(controller: "recording") {
