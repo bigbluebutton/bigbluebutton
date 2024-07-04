@@ -220,6 +220,7 @@ trait MakePresentationDownloadReqMsgHdlr extends RightsManagementTrait {
       log.error(s"No presentation set in meeting ${meetingId}")
       pres = pres.copy(errorMsgKey = "204")
       bus.outGW.send(buildBroadcastPresentationConversionUpdateEvtMsg(parentMeetingId, "204", jobId, filename, presentationUploadToken))
+      PresPresentationDAO.updateConversionStarted(parentMeetingId, pres)
     } else {
       val allPages: Boolean = m.allPages
       val pageCount = currentPres.get.pages.size
