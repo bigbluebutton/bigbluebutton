@@ -38,8 +38,8 @@ const useUpdatePresentationAreaContentForPluginForPlugin = (layoutContextState: 
         currentElement,
         genericContentId,
       };
-    })
-  }
+    });
+  };
 
   // Define function to first inform ui data hooks that subscribe to this event
   const updateUiDataHookLayoutPresentatioAreaChangedForPlugin = () => {
@@ -67,9 +67,9 @@ const useUpdatePresentationAreaContentForPluginForPlugin = (layoutContextState: 
   }, []);
 
   useEffect(() => {
-    setPresentationAreaContent(generateNewContentInfo())
+    setPresentationAreaContent(generateNewContentInfo());
   }, [layoutContextState]);
-  
+
   useEffect(() => {
     updateUiDataHookLayoutPresentatioAreaChangedForPlugin();
   }, [presentationAreaContent]);
