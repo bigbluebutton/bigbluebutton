@@ -70,7 +70,7 @@ func BrowserConnectionReader(
 		}
 
 		if browserMessageType.Type == "subscribe" {
-			if bytes.Contains(message, []byte("\"query\":\"mutation")) && !bytes.Contains(message, []byte("update_")) {
+			if bytes.Contains(message, []byte("\"query\":\"mutation")) {
 				fromBrowserToGqlActionsChannel.Send(message)
 				continue
 			}
