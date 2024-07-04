@@ -256,7 +256,7 @@ type Mutation {
   pluginDataAnalyticsSendObject(
     dataAnalyticsObject: String!,
     pluginName: String!,
-  )
+  ): Boolean
 }
 
 type Mutation {
