@@ -55,7 +55,7 @@ const UserListParticipants: React.FC<UserListParticipantsProps> = ({
 
   // --- Plugin related code ---
   useEffect(() => {
-    const updateUiDataHookCurrentVolumeForPlugin = () => {
+    const updateUiDataHookUserListForPlugin = () => {
       window.dispatchEvent(new CustomEvent(PluginSdk.UserListUiDataNames.USER_LIST_IS_OPEN, {
         detail: {
           value: true,
@@ -69,13 +69,13 @@ const UserListParticipants: React.FC<UserListParticipantsProps> = ({
       } as UserListUiDataPayloads[PluginSdk.UserListUiDataNames.USER_LIST_IS_OPEN],
     }));
     window.addEventListener(
-      `${UI_DATA_LISTENER_SUBSCRIBED}-${PluginSdk.ExternalVideoVolumeUiDataNames.IS_VOLUME_MUTED}`,
-      updateUiDataHookCurrentVolumeForPlugin,
+      `${UI_DATA_LISTENER_SUBSCRIBED}-${PluginSdk.UserListUiDataNames.USER_LIST_IS_OPEN}`,
+      updateUiDataHookUserListForPlugin,
     );
     return () => {
       window.removeEventListener(
-        `${UI_DATA_LISTENER_SUBSCRIBED}-${PluginSdk.ExternalVideoVolumeUiDataNames.CURRENT_VOLUME_VALUE}`,
-        updateUiDataHookCurrentVolumeForPlugin,
+        `${UI_DATA_LISTENER_SUBSCRIBED}-${PluginSdk.UserListUiDataNames.USER_LIST_IS_OPEN}`,
+        updateUiDataHookUserListForPlugin,
       );
       window.dispatchEvent(new CustomEvent(PluginSdk.UserListUiDataNames.USER_LIST_IS_OPEN, {
         detail: {
