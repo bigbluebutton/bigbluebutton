@@ -230,21 +230,22 @@ class App extends React.Component {
     } = this.state;
     const { intl } = this.props;
 
-    const pluginCardTitle = activitiesJson?.pluginCardTitles?.[0];
+    const genericDataCardTitle = activitiesJson?.genericDataTitles?.[0];
     // This line generates an array of all the plugin entries of all users,
     // this might have duplicate entries:
-    const pluginsColumnTitleWithDuplicates = Object.values(
+    const genericDataColumnTitleWithDuplicates = Object.values(
       activitiesJson.users || {}, // Hardcoded for now, we will add cards relative to this key.
     ).flatMap((
       user,
-    ) => user.plugins?.[pluginCardTitle]).filter((
-      pluginsListForSpecificUser,
+    ) => user.genericData?.[genericDataCardTitle]).filter((
+      genericDataListForSpecificUser,
     ) => !!(
-      pluginsListForSpecificUser?.genericDataForLearningAnalyticsDashboard?.columnTitle)).map((
-      pluginsListForSpecificUser,
-    ) => pluginsListForSpecificUser?.genericDataForLearningAnalyticsDashboard.columnTitle);
+      genericDataListForSpecificUser?.columnTitle)).map((
+      genericDataListForSpecificUser,
+    ) => genericDataListForSpecificUser?.columnTitle);
     // This line will eliminate duplicates.
-    const pluginsColumnTitle = [...new Set(pluginsColumnTitleWithDuplicates)];
+    const genericDataColumnTitleList = [...new Set(genericDataColumnTitleWithDuplicates)];
+    console.log('teste aqui ----> ', activitiesJson, genericDataColumnTitleList);
 
     document.title = `${intl.formatMessage({ id: 'app.learningDashboard.bigbluebuttonTitle', defaultMessage: 'BigBlueButton' })} - ${intl.formatMessage({ id: 'app.learningDashboard.dashboardTitle', defaultMessage: 'Learning Analytics Dashboard' })} - ${activitiesJson.name}`;
 
@@ -517,13 +518,13 @@ class App extends React.Component {
                 </CardContent>
               </Card>
             </TabUnstyled>
-            {pluginsColumnTitle.length && (
+            {genericDataColumnTitleList.length && (
               <TabUnstyled className="rounded focus:outline-none focus:ring focus:ring-red-500 ring-offset-2" data-test="pluginsPanelDashboard">
                 <Card>
                   <CardContent classes={{ root: '!p-0' }}>
                     <CardBody
-                      name={pluginCardTitle}
-                      number={pluginsColumnTitle.length}
+                      name={genericDataCardTitle}
+                      number={genericDataColumnTitleList.length}
                       cardClass={tab === TABS.POLLING ? 'border-red-500' : 'hover:border-red-500 border-white'}
                       iconClass="bg-red-100 text-red-500"
                     >
@@ -603,13 +604,13 @@ class App extends React.Component {
           </TabPanelUnstyled>
           <TabPanelUnstyled value={4}>
             <h2 className="block my-2 pr-2 text-xl font-semibold">
-              {pluginCardTitle}
+              {genericDataCardTitle}
             </h2>
             <div className="w-full overflow-hidden rounded-md shadow-xs border-2 border-gray-100">
               <div className="w-full overflow-x-auto">
                 <PluginsTable
-                  pluginCardTitle={pluginCardTitle}
-                  pluginsColumnTitle={pluginsColumnTitle}
+                  genericDataCardTitle={genericDataCardTitle}
+                  genericDataColumnTitleList={genericDataColumnTitleList}
                   allUsers={activitiesJson.users}
                 />
               </div>
