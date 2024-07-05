@@ -1406,8 +1406,6 @@
     "app.learningDashboard.pollsTable.noPollsCreatedHeading": "No polls have been created",
     "app.learningDashboard.pollsTable.noPollsCreatedMessage": "Once a poll has been sent to users, their results will appear in this list.",
     "app.learningDashboard.pluginsTable.title": "Plugins",
-    "app.learningDashboard.pluginsTable.noPluginsCreatedHeading": "No plugin yet for this meeting",
-    "app.learningDashboard.pluginsTable.noPluginsCreatedMessage": "Once a plugin stores its data into learning-analytics-dashboard, it will appear in this list.",
     "app.learningDashboard.pollsTable.answerTotal": "Total",
     "app.learningDashboard.pollsTable.userLabel": "User",
     "app.learningDashboard.statusTimelineTable.title": "Timeline",
