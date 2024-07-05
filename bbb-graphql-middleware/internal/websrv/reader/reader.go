@@ -13,22 +13,15 @@ import (
 )
 
 func BrowserConnectionReader(
-	browserConnectionId string,
-	ctx context.Context,
-	ctxCancel context.CancelFunc,
-	browserWsConn *websocket.Conn,
-	fromBrowserToGqlActionsChannel *common.SafeChannelByte,
-	fromBrowserToHasuraChannel *common.SafeChannelByte,
-	fromBrowserToHasuraConnectionEstablishingChannel *common.SafeChannelByte,
+	browserConnection *common.BrowserConnection,
 	waitGroups []*sync.WaitGroup) {
-	log := log.WithField("_routine", "BrowserConnectionReader").WithField("browserConnectionId", browserConnectionId)
+	log := log.WithField("_routine", "BrowserConnectionReader").WithField("browserConnectionId", browserConnection.Id)
 	defer log.Debugf("finished")
 	log.Debugf("starting")
 
 	defer func() {
-		fromBrowserToHasuraChannel.Close()
-		fromBrowserToGqlActionsChannel.Close()
-		fromBrowserToHasuraConnectionEstablishingChannel.Close()
+		browserConnection.FromBrowserToHasuraChannel.Close()
+		browserConnection.FromBrowserToGqlActionsChannel.Close()
 	}()
 
 	defer func() {
@@ -40,10 +33,10 @@ func BrowserConnectionReader(
 		time.Sleep(100 * time.Millisecond)
 	}()
 
-	defer ctxCancel()
+	defer browserConnection.ContextCancelFunc()
 
 	for {
-		messageType, message, err := browserWsConn.Read(ctx)
+		messageType, message, err := browserConnection.Websocket.Read(browserConnection.Context)
 		if err != nil {
 			if errors.Is(err, context.Canceled) {
 				log.Debugf("Closing Browser ws connection as Context was cancelled!")
@@ -71,12 +64,11 @@ func BrowserConnectionReader(
 
 		if browserMessageType.Type == "subscribe" {
 			if bytes.Contains(message, []byte("\"query\":\"mutation")) {
-				fromBrowserToGqlActionsChannel.Send(message)
+				browserConnection.FromBrowserToGqlActionsChannel.Send(message)
 				continue
 			}
 		}
 
-		fromBrowserToHasuraChannel.Send(message)
-		fromBrowserToHasuraConnectionEstablishingChannel.Send(message)
+		browserConnection.FromBrowserToHasuraChannel.Send(message)
 	}
 }

@@ -34,24 +34,27 @@ type GraphQlSubscription struct {
 }
 
 type BrowserConnection struct {
-	Id                          string             // browser connection id
-	Websocket                   *websocket.Conn    // websocket of browser connection
-	SessionToken                string             // session token of this connection
-	MeetingId                   string             // auth info provided by bbb-web
-	UserId                      string             // auth info provided by bbb-web
-	BBBWebSessionVariables      map[string]string  // graphql session variables provided by akka-apps
-	ClientSessionUUID           string             // self-generated unique id for this client
-	Context                     context.Context    // browser connection context
-	ContextCancelFunc           context.CancelFunc // function to cancel the browser context (and so, the browser connection)
-	BrowserRequestCookies       []*http.Cookie
-	ActiveSubscriptions         map[string]GraphQlSubscription // active subscriptions of this connection (start, but no stop)
-	ActiveSubscriptionsMutex    sync.RWMutex                   // mutex to control the map usage
-	ConnectionInitMessage       []byte                         // init message received in this connection (to be used on hasura reconnect)
-	HasuraConnection            *HasuraConnection              // associated hasura connection
-	Disconnected                bool                           // indicate if the connection is gone
-	ConnAckSentToBrowser        bool                           // indicate if `connection_ack` msg was already sent to the browser
-	GraphqlActionsContext       context.Context                // graphql actions context
-	GraphqlActionsContextCancel context.CancelFunc             // function to cancel the graphql actions context
+	Id                             string             // browser connection id
+	Websocket                      *websocket.Conn    // websocket of browser connection
+	SessionToken                   string             // session token of this connection
+	MeetingId                      string             // auth info provided by bbb-web
+	UserId                         string             // auth info provided by bbb-web
+	BBBWebSessionVariables         map[string]string  // graphql session variables provided by akka-apps
+	ClientSessionUUID              string             // self-generated unique id for this client
+	Context                        context.Context    // browser connection context
+	ContextCancelFunc              context.CancelFunc // function to cancel the browser context (and so, the browser connection)
+	BrowserRequestCookies          []*http.Cookie
+	ActiveSubscriptions            map[string]GraphQlSubscription // active subscriptions of this connection (start, but no stop)
+	ActiveSubscriptionsMutex       sync.RWMutex                   // mutex to control the map usage
+	ConnectionInitMessage          []byte                         // init message received in this connection (to be used on hasura reconnect)
+	HasuraConnection               *HasuraConnection              // associated hasura connection
+	Disconnected                   bool                           // indicate if the connection is gone
+	ConnAckSentToBrowser           bool                           // indicate if `connection_ack` msg was already sent to the browser
+	GraphqlActionsContext          context.Context                // graphql actions context
+	GraphqlActionsContextCancel    context.CancelFunc             // function to cancel the graphql actions context
+	FromBrowserToHasuraChannel     *SafeChannelByte               // channel to transmit messages from Browser to Hasura
+	FromBrowserToGqlActionsChannel *SafeChannelByte               // channel to transmit messages from Browser to Graphq-Actions
+	FromHasuraToBrowserChannel     *SafeChannelByte               // channel to transmit messages from Hasura/GqlActions to Browser
 }
 
 type HasuraConnection struct {

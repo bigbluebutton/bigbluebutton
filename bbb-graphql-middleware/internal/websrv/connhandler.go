@@ -63,13 +63,16 @@ func ConnectionHandler(w http.ResponseWriter, r *http.Request) {
 	defer browserWsConn.Close(websocket.StatusInternalError, "the sky is falling")
 
 	var thisConnection = common.BrowserConnection{
-		Id:                    browserConnectionId,
-		Websocket:             browserWsConn,
-		BrowserRequestCookies: r.Cookies(),
-		ActiveSubscriptions:   make(map[string]common.GraphQlSubscription, 1),
-		Context:               browserConnectionContext,
-		ContextCancelFunc:     browserConnectionContextCancel,
-		ConnAckSentToBrowser:  false,
+		Id:                             browserConnectionId,
+		Websocket:                      browserWsConn,
+		BrowserRequestCookies:          r.Cookies(),
+		ActiveSubscriptions:            make(map[string]common.GraphQlSubscription, 1),
+		Context:                        browserConnectionContext,
+		ContextCancelFunc:              browserConnectionContextCancel,
+		ConnAckSentToBrowser:           false,
+		FromBrowserToHasuraChannel:     common.NewSafeChannelByte(bufferSize),
+		FromBrowserToGqlActionsChannel: common.NewSafeChannelByte(bufferSize),
+		FromHasuraToBrowserChannel:     common.NewSafeChannelByte(bufferSize),
 	}
 
 	BrowserConnectionsMutex.Lock()
@@ -96,12 +99,6 @@ func ConnectionHandler(w http.ResponseWriter, r *http.Request) {
 	// Log it
 	log.Infof("connection accepted")
 
-	// Create channels
-	fromBrowserToHasuraConnectionEstablishingChannel := common.NewSafeChannelByte(bufferSize)
-	fromBrowserToHasuraChannel := common.NewSafeChannelByte(bufferSize)
-	fromBrowserToGqlActionsChannel := common.NewSafeChannelByte(bufferSize)
-	fromHasuraToBrowserChannel := common.NewSafeChannelByte(bufferSize)
-
 	// Configure the wait group (to hold this routine execution until both are completed)
 	var wgAll sync.WaitGroup
 	wgAll.Add(2)
@@ -110,26 +107,18 @@ func ConnectionHandler(w http.ResponseWriter, r *http.Request) {
 	var wgReader sync.WaitGroup
 	wgReader.Add(1)
 
-	// Reads from browser connection, writes into fromBrowserToHasuraChannel and fromBrowserToHasuraConnectionEstablishingChannel
-	go reader.BrowserConnectionReader(
-		browserConnectionId,
-		browserConnectionContext,
-		browserConnectionContextCancel,
-		browserWsConn,
-		fromBrowserToGqlActionsChannel,
-		fromBrowserToHasuraChannel,
-		fromBrowserToHasuraConnectionEstablishingChannel,
-		[]*sync.WaitGroup{&wgAll, &wgReader})
+	// Reads from browser connection, writes into fromBrowserToHasuraChannel
+	go reader.BrowserConnectionReader(&thisConnection, []*sync.WaitGroup{&wgAll, &wgReader})
 
 	go func() {
 		wgReader.Wait()
 		log.Debug("BrowserConnectionReader finished, closing Write Channel")
-		fromHasuraToBrowserChannel.Close()
+		thisConnection.FromHasuraToBrowserChannel.Close()
 		thisConnection.Disconnected = true
 	}()
 
-	//Obtain user session variables from bbb-web
-	if errorOnInitConnection := connectionInitHandler(&thisConnection, fromBrowserToHasuraConnectionEstablishingChannel); errorOnInitConnection != nil {
+	//Check authorization and obtain user session variables from bbb-web
+	if errorOnInitConnection := connectionInitHandler(&thisConnection); errorOnInitConnection != nil {
 		//If the server wishes to reject the connection it is recommended to close the socket with `4403: Forbidden`.
 		//https://github.com/enisdenjo/graphql-ws/blob/63881c3372a3564bf42040e3f572dd74e41b2e49/PROTOCOL.md?plain=1#L36
 		wsError := &websocket.CloseError{
@@ -157,10 +146,7 @@ func ConnectionHandler(w http.ResponseWriter, r *http.Request) {
 					BrowserConnectionsMutex.RUnlock()
 					if thisBrowserConnection != nil {
 						log.Debugf("created hasura client")
-						hasura.HasuraClient(
-							thisBrowserConnection,
-							fromBrowserToHasuraChannel,
-							fromHasuraToBrowserChannel)
+						hasura.HasuraClient(thisBrowserConnection)
 					}
 					time.Sleep(100 * time.Millisecond)
 				}
@@ -190,10 +176,7 @@ func ConnectionHandler(w http.ResponseWriter, r *http.Request) {
 						thisBrowserConnection.GraphqlActionsContext, thisBrowserConnection.GraphqlActionsContextCancel = context.WithCancel(browserConnectionContext)
 						BrowserConnectionsMutex.Unlock()
 
-						gql_actions.GraphqlActionsClient(
-							thisBrowserConnection,
-							fromBrowserToGqlActionsChannel,
-							fromHasuraToBrowserChannel)
+						gql_actions.GraphqlActionsClient(thisBrowserConnection)
 					}
 					time.Sleep(1000 * time.Millisecond)
 				}
@@ -202,7 +185,7 @@ func ConnectionHandler(w http.ResponseWriter, r *http.Request) {
 	}()
 
 	// Reads from fromHasuraToBrowserChannel, writes to browser connection
-	go writer.BrowserConnectionWriter(browserConnectionId, browserConnectionContext, browserWsConn, fromHasuraToBrowserChannel, &wgAll)
+	go writer.BrowserConnectionWriter(&thisConnection, &wgAll)
 
 	// Wait until all routines are finished
 	wgAll.Wait()
@@ -237,8 +220,10 @@ func invalidateHasuraConnectionForSessionToken(bc *common.BrowserConnection, ses
 
 	hasuraConnectionId := bc.HasuraConnection.Id
 
-	// Send message to stop receiving new messages from the browser.
-	bc.HasuraConnection.FreezeMsgFromBrowserChan.Send(true)
+	// Stop receiving new messages from the browser.
+	log.Debug("freezing channel fromBrowserToHasuraChannel")
+	bc.FromBrowserToHasuraChannel.FreezeChannel()
+
 	bc.GraphqlActionsContextCancel()
 
 	// Wait until there are no active mutations.
@@ -288,7 +273,6 @@ func refreshUserSessionVariables(browserConnection *common.BrowserConnection) er
 		log.Trace("Session variables obtained successfully")
 	}
 
-	log.Info(sessionVariables)
 	if _, exists := sessionVariables["x-hasura-role"]; !exists {
 		return fmt.Errorf("error on checking sessionToken authorization, X-Hasura-Role is missing")
 	}
@@ -308,9 +292,7 @@ func refreshUserSessionVariables(browserConnection *common.BrowserConnection) er
 	return nil
 }
 
-func connectionInitHandler(
-	browserConnection *common.BrowserConnection,
-	fromBrowserToHasuraConnectionEstablishingChannel *common.SafeChannelByte) error {
+func connectionInitHandler(browserConnection *common.BrowserConnection) error {
 
 	BrowserConnectionsMutex.RLock()
 	browserConnectionId := browserConnection.Id
@@ -319,7 +301,7 @@ func connectionInitHandler(
 
 	// Intercept the fromBrowserMessage channel to get the sessionToken
 	for {
-		fromBrowserMessage, ok := fromBrowserToHasuraConnectionEstablishingChannel.Receive()
+		fromBrowserMessage, ok := browserConnection.FromBrowserToHasuraChannel.Receive()
 		if !ok {
 			//Received all messages. Channel is closed
 			return fmt.Errorf("error on receiving init connection")
@@ -405,7 +387,7 @@ func connectionInitHandler(
 				strings.ToLower(clientIsMobile) == "true",
 				browserConnectionId,
 			)
-			fromBrowserToHasuraConnectionEstablishingChannel.Close()
+
 			break
 		}
 	}
