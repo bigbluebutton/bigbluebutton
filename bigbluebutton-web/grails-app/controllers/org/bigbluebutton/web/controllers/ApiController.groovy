@@ -98,6 +98,7 @@ class ApiController {
             version paramsProcessorUtil.getApiVersion()
             apiVersion paramsProcessorUtil.getApiVersion()
             bbbVersion paramsProcessorUtil.getBbbVersion()
+            apiUrl paramsProcessorUtil.getApiUrl()
             graphqlWebsocketUrl paramsProcessorUtil.getGraphqlWebsocketUrl()
             graphqlApiUrl paramsProcessorUtil.getGraphqlApiUrl()
           }
@@ -110,6 +111,7 @@ class ApiController {
           render(text: responseBuilder.buildMeetingVersion(
                   paramsProcessorUtil.getApiVersion(),
                   paramsProcessorUtil.getBbbVersion(),
+                  paramsProcessorUtil.getApiUrl(),
                   paramsProcessorUtil.getGraphqlWebsocketUrl(),
                   paramsProcessorUtil.getGraphqlApiUrl(),
                   RESP_CODE_SUCCESS),

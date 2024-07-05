@@ -76,6 +76,7 @@ public class ParamsProcessorUtil {
     private int defaultNumDigitsForTelVoice;
     private String defaultHTML5ClientUrl;
 
+    private String apiUrl;
     private String graphqlWebsocketUrl;
     private String graphqlApiUrl;
     private Boolean allowRequestsWithoutSession = false;
@@ -891,6 +892,10 @@ public class ParamsProcessorUtil {
         return graphqlApiUrl;
     }
 
+    public String getApiUrl() {
+        return apiUrl;
+    }
+
 	public Boolean getUseDefaultLogo() {
 		return useDefaultLogo;
 	}
@@ -1256,6 +1261,10 @@ public class ParamsProcessorUtil {
 
     public void setGraphqlApiUrl(String graphqlApiUrl) {
         this.graphqlApiUrl = graphqlApiUrl;
+    }
+
+    public void setApiUrl(String apiUrl) {
+        this.apiUrl = apiUrl;
     }
 
 	public void setUseDefaultLogo(Boolean value) {
