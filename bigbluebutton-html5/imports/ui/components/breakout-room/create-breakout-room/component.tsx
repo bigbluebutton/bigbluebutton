@@ -553,12 +553,12 @@ const CreateBreakoutRoomContainer: React.FC<CreateBreakoutRoomContainerProps> = 
     return null;
   }
 
-  if (true && !fetchedBreakouts) {
+  if (!fetchedBreakouts) {
     loadBreakouts();
     setFetchedBreakouts(true);
   }
 
-  if (true && breakoutsLoading) return null;
+  if (breakoutsLoading) return null;
 
   if (usersError || breakoutsError) {
     logger.info('Error loading users', usersError);

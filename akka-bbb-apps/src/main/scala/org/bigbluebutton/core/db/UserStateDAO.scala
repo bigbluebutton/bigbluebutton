@@ -30,13 +30,14 @@ case class UserStateDbModel(
     captionLocale:                String,
     inactivityWarningDisplay:     Boolean = false,
     inactivityWarningTimeoutSecs: Option[Long],
+    echoTestRunningAt:            Option[java.sql.Timestamp],
 )
 
 class UserStateDbTableDef(tag: Tag) extends Table[UserStateDbModel](tag, None, "user") {
   override def * = (
     meetingId, userId,emoji,away,raiseHand,guestStatus,guestStatusSetByModerator,guestLobbyMessage,mobile,clientType,disconnected,
     expired,ejectColumns,presenter,pinned,locked,speechLocale, captionLocale,
-    inactivityWarningDisplay, inactivityWarningTimeoutSecs) <> (UserStateDbModel.tupled, UserStateDbModel.unapply)
+    inactivityWarningDisplay, inactivityWarningTimeoutSecs, echoTestRunningAt) <> (UserStateDbModel.tupled, UserStateDbModel.unapply)
   val meetingId = column[String]("meetingId", O.PrimaryKey)
   val userId = column[String]("userId", O.PrimaryKey)
   val emoji = column[String]("emoji")
@@ -61,6 +62,7 @@ class UserStateDbTableDef(tag: Tag) extends Table[UserStateDbModel](tag, None, "
   val captionLocale = column[String]("captionLocale")
   val inactivityWarningDisplay = column[Boolean]("inactivityWarningDisplay")
   val inactivityWarningTimeoutSecs = column[Option[Long]]("inactivityWarningTimeoutSecs")
+  val echoTestRunningAt = column[Option[java.sql.Timestamp]]("echoTestRunningAt")
 }
 
 object UserStateDAO {
@@ -144,6 +146,16 @@ object UserStateDAO {
             case timeout: Long => Some(timeout)
             case _ => None
         }))
+    )
+  }
+
+  def updateEchoTestRunningAt(meetingId: String, userId: String) = {
+    DatabaseConnection.enqueue(
+      TableQuery[UserStateDbTableDef]
+        .filter(_.meetingId === meetingId)
+        .filter(_.userId === userId)
+        .map(u => (u.echoTestRunningAt))
+        .update(Some(new java.sql.Timestamp(System.currentTimeMillis())))
     )
   }
 

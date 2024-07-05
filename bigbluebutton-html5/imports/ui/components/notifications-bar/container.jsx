@@ -40,6 +40,14 @@ const intlMessages = defineMessages({
     id: 'app.meeting.alertBreakoutEndsUnderMinutes',
     description: 'Alert that tells that the breakout ends under x minutes',
   },
+  serverIsNotResponding: {
+    id: 'app.serverIsNotResponding',
+    description: 'Alert that tells that server is not responding',
+  },
+  serverIsSlow: {
+    id: 'app.serverIsSlow',
+    description: 'Alert that tells that server is slow',
+  },
 });
 
 const NotificationsBarContainer = () => {
@@ -48,12 +56,23 @@ const NotificationsBarContainer = () => {
   data.color = 'primary';
   const intl = useIntl();
   const connected = useReactiveVar(connectionStatus.getConnectedStatusVar());
+  const serverIsResponding = useReactiveVar(connectionStatus.getServerIsRespondingVar());
+  const pingIsComing = useReactiveVar(connectionStatus.getPingIsComingVar());
+  const lastRttRequestSuccess = useReactiveVar(connectionStatus.getLastRttRequestSuccessVar());
   // if connection failed x attempts a error will be thrown
-  if (!connected) {
+  if (
+    !connected
+    || !serverIsResponding
+    || !pingIsComing
+  ) {
     data.color = 'primary';
     data.message = (
       <>
-        {intl.formatMessage(intlMessages.reconnectingMessage)}
+        {!connected && intl.formatMessage(intlMessages.reconnectingMessage)}
+        {(connected && !serverIsResponding && lastRttRequestSuccess)
+          && intl.formatMessage(intlMessages.serverIsNotResponding)}
+        {(connected && (!pingIsComing || !lastRttRequestSuccess))
+          && intl.formatMessage(intlMessages.serverIsSlow)}
       </>
     );
   }

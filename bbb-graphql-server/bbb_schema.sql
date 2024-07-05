@@ -787,11 +787,11 @@ create view "v_user_connectionStatus" as select * from "user_connectionStatus";
 
 
 --Populate connectionAliveAtMaxIntervalMs to calc clientNotResponding
---It will sum settings public.stats.interval + public.stats.rtt (critical)
+--It will sum settings public.stats.interval + public.stats.rtt.critical
 CREATE OR REPLACE FUNCTION "update_connectionAliveAtMaxIntervalMs"()
 RETURNS TRIGGER AS $$
 BEGIN
-    SELECT ("clientSettingsJson"->'public'->'stats'->'rtt'->>(jsonb_array_length("clientSettingsJson"->'public'->'stats'->'rtt') - 1))::int
+    SELECT ("clientSettingsJson"->'public'->'stats'->'rtt'->'critical')::int
             +
            ("clientSettingsJson"->'public'->'stats'->'interval')::int
          INTO NEW."connectionAliveAtMaxIntervalMs"

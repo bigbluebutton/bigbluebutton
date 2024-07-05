@@ -764,23 +764,13 @@ const Whiteboard = React.memo(function Whiteboard(props) {
 
   const calculateZoomValue = (localWidth, localHeight, isViewer = false) => {
     let calcedZoom;
-    if (isViewer) {
-      // Logic originally in calculateViewerZoom
-      calcedZoom = fitToWidth
-        ? presentationAreaWidth / localWidth
-        : Math.min(
-            presentationAreaWidth / localWidth,
-            presentationAreaHeight / localHeight
-          );
-    } else {
-      // Logic originally in calculateZoom
-      calcedZoom = fitToWidth
-        ? presentationAreaWidth / localWidth
-        : Math.min(
-            presentationAreaWidth / localWidth,
-            presentationAreaHeight / localHeight
-          );
-    }
+
+    calcedZoom = fitToWidth
+      ? presentationAreaWidth / localWidth
+      : Math.min(
+          presentationAreaWidth / localWidth,
+          presentationAreaHeight / localHeight
+        );
 
     return calcedZoom === 0 || calcedZoom === Infinity
       ? HUNDRED_PERCENT
@@ -1210,7 +1200,7 @@ const Whiteboard = React.memo(function Whiteboard(props) {
         .map(({ userId, user, xPercent, yPercent }) => {
           const { presenter, name } = user;
           const id = InstancePresenceRecordType.createId(userId);
-          const active = yPercent !== -1 && yPercent !== -1;
+          const active = xPercent !== -1 && yPercent !== -1;
           // if cursor is not active remove it from tldraw store
           if (
             !active ||

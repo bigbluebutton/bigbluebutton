@@ -42,6 +42,10 @@ type Mutation {
 }
 
 type Mutation {
+  breakoutRoomSetInviteDismissed: Boolean
+}
+
+type Mutation {
   breakoutRoomSetTime(
     timeInMinutes: Int!
   ): Boolean
@@ -109,9 +113,23 @@ type Mutation {
 }
 
 type Mutation {
+  chatSetLastSeen: Boolean
+}
+
+type Mutation {
   chatSetTyping(
     chatId: String
   ): Boolean
+}
+
+type Mutation {
+  chatSetVisible(
+    visible: Boolean!
+  ): Boolean
+}
+
+type Mutation {
+  echoTestRunningAt: Boolean
 }
 
 type Mutation {
@@ -490,6 +508,12 @@ type Mutation {
   userSetCaptionLocale(
     locale: String!
     provider: String!
+  ): Boolean
+}
+
+type Mutation {
+  userSetClientSettings(
+    userClientSettingsJson: json!
   ): Boolean
 }
 

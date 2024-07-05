@@ -75,7 +75,7 @@ const ChatHeader: React.FC<ChatHeaderProps> = ({
         icon: 'close',
         label: intl.formatMessage(intlMessages.closeChatLabel, { 0: title }),
         onClick: () => {
-          updateVisible({ variables: { chatId } });
+          updateVisible({ variables: { chatId, visible: false } });
           closePrivateChat(chatId);
           layoutContextDispatch({
             type: ACTIONS.SET_SIDEBAR_CONTENT_IS_OPEN,

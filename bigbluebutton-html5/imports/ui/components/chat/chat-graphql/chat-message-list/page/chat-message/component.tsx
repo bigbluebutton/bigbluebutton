@@ -168,7 +168,7 @@ const ChatMesssage: React.FC<ChatMessageProps> = ({
           isSystemSender: true,
           component: (
             <ChatMessageTextContent
-              systemMsg
+              systemMsg={false}
               emphasizedMessage
               text={message.message}
             />

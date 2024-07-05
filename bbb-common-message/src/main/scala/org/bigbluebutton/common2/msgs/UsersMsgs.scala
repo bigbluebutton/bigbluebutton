@@ -288,6 +288,20 @@ case class UserConnectionAliveReqMsg(header: BbbClientMsgHeader, body: UserConne
 case class UserConnectionAliveReqMsgBody(userId: String, networkRttInMs: Double)
 
 /**
+ * Sent from client to update clientSettings.
+ */
+object SetUserClientSettingsReqMsg { val NAME = "SetUserClientSettingsReqMsg" }
+case class SetUserClientSettingsReqMsg(header: BbbClientMsgHeader, body: SetUserClientSettingsReqMsgBody) extends StandardMsg
+case class SetUserClientSettingsReqMsgBody(userClientSettingsJson: Map[String, Any])
+
+/**
+ * Sent from client to inform the echo test is running.
+ */
+object SetUserEchoTestRunningReqMsg { val NAME = "SetUserEchoTestRunningReqMsg" }
+case class SetUserEchoTestRunningReqMsg(header: BbbClientMsgHeader, body: SetUserEchoTestRunningReqMsgBody) extends StandardMsg
+case class SetUserEchoTestRunningReqMsgBody()
+
+/**
  * Sent to all clients about a user mobile flag.
  */
 object UserMobileFlagChangedEvtMsg { val NAME = "UserMobileFlagChangedEvtMsg" }
