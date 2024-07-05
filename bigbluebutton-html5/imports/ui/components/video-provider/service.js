@@ -454,8 +454,16 @@ class VideoService {
     let users = [];
 
     if (isGridEnabled) {
+      const selector = {
+        meetingId: Auth.meetingID,
+      };
+
+      if (this.hideUserlist() && this.getMyRole() === ROLE_VIEWER) {
+        selector.role = { $ne: ROLE_VIEWER };
+      }
+
       users = Users.find(
-        { meetingId: Auth.meetingID },
+        selector,
         { fields: { loggedOut: 1, left: 1, ...neededDataTypes} },
       ).fetch();
     }
@@ -631,6 +639,12 @@ class VideoService {
       return meeting.usersProp.webcamsOnlyForModerator;
     }
     return false;
+  }
+
+  hideUserlist() {
+    const meeting = Meetings.findOne({ meetingId: Auth.meetingID },
+      { fields: { 'lockSettingsProps.hideUserList': 1 } });
+    return meeting.lockSettingsProps ? meeting.lockSettingsProps.hideUserList : false;
   }
 
   hasCapReached() {
