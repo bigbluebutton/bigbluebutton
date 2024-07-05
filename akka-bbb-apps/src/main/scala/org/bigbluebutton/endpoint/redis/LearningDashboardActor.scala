@@ -13,7 +13,6 @@ import java.security.MessageDigest
 import scala.concurrent.duration._
 import scala.concurrent._
 import ExecutionContext.Implicits.global
-import scala.:+
 
 case object SendPeriodicReport
 
@@ -23,7 +22,7 @@ case class Meeting(
   name:  String,
   downloadSessionDataEnabled: Boolean,
   users: Map[String, User] = Map(),
-  pluginCardTitles: Vector[String],
+  genericDataTitles: Vector[String],
   polls: Map[String, Poll] = Map(),
   screenshares: Vector[Screenshare] = Vector(),
   presentationSlides: Vector[PresentationSlide] = Vector(),
@@ -40,7 +39,7 @@ case class User(
                  isDialIn:           Boolean = false,
                  currentIntId:       String = null,
                  answers:            Map[String,Vector[String]] = Map(),
-                 plugins:            Map[String, Vector[PluginDataForLearningAnalyticsDashboard]] = Map(),
+                 genericData:        Map[String, Vector[GenericData]] = Map(),
                  talk:               Talk = Talk(),
                  emojis:             Vector[Emoji] = Vector(),
                  reactions:          Vector[Emoji] = Vector(),
@@ -66,9 +65,9 @@ case class Poll(
   createdOn:  Long = System.currentTimeMillis(),
 )
 
-case class PluginDataForLearningAnalyticsDashboard(
-  pluginName: String,
-  genericDataForLearningAnalyticsDashboard: Object,
+case class GenericData(
+  columnTitle: String,
+  value: String,
 )
 
 case class Talk(
@@ -587,18 +586,20 @@ class LearningDashboardActor(
       meeting <- meetings.values.find(m => m.intId == msg.header.meetingId)
       user <- findUserByIntId(meeting, msg.header.userId)
     } yield {
-      val newPluginAnalytics = PluginDataForLearningAnalyticsDashboard(msg.body.pluginName, msg.body.genericDataForLearningAnalyticsDashboard)
-      val updatedUser = user.copy(plugins = Map((msg.body.genericDataForLearningAnalyticsDashboard.cardTitle,
-        user.plugins.getOrElse(msg.body.genericDataForLearningAnalyticsDashboard.cardTitle, Vector()) :+ newPluginAnalytics)))
-      val updatedMeeting = meeting.copy(
-        users = meeting.users + (updatedUser.userKey -> updatedUser),
-        pluginCardTitles = if (!meeting.pluginCardTitles.contains(msg.body.genericDataForLearningAnalyticsDashboard.cardTitle))
-          meeting.pluginCardTitles :+ msg.body.genericDataForLearningAnalyticsDashboard.cardTitle
-        else meeting.pluginCardTitles
-      )
+      val currentUserGenericData = user.genericData.getOrElse(msg.body.genericDataForLearningAnalyticsDashboard.cardTitle,Vector())
+      val newGenericDataEntry = GenericData(msg.body.genericDataForLearningAnalyticsDashboard.columnTitle, msg.body.genericDataForLearningAnalyticsDashboard.value)
+      val updatedUser = user.copy(genericData = user.genericData + (msg.body.genericDataForLearningAnalyticsDashboard.cardTitle -> (currentUserGenericData :+ newGenericDataEntry)))
+
+      val updatedGenericDataTitles = if(!meeting.genericDataTitles.contains(msg.body.genericDataForLearningAnalyticsDashboard.cardTitle)) {
+        meeting.genericDataTitles :+ msg.body.genericDataForLearningAnalyticsDashboard.cardTitle
+      } else {
+        meeting.genericDataTitles
+      }
+
+      val updatedMeeting = meeting.copy(users = meeting.users + (updatedUser.userKey -> updatedUser), genericDataTitles = updatedGenericDataTitles)
+
       meetings += (updatedMeeting.intId -> updatedMeeting)
-      log.debug("New data analytics for plugin '{}': {}", msg.body.pluginName,
-        msg.body.genericDataForLearningAnalyticsDashboard)
+      log.debug("New generic data received from o plugin '{}': {}", msg.body.pluginName,msg.body.genericDataForLearningAnalyticsDashboard)
     }
   }
 
@@ -619,7 +620,7 @@ class LearningDashboardActor(
         msg.body.props.meetingProp.extId,
         msg.body.props.meetingProp.name,
         downloadSessionDataEnabled = !msg.body.props.meetingProp.disabledFeatures.contains("learningDashboardDownloadSessionData"),
-        pluginCardTitles = Vector()
+        genericDataTitles = Vector()
       )
 
       meetings += (newMeeting.intId -> newMeeting)
