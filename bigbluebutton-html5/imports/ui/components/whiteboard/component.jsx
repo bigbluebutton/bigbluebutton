@@ -1300,18 +1300,27 @@ const Whiteboard = React.memo(function Whiteboard(props) {
   const adjustCameraOnMount = (includeViewerLogic = true) => {
     if (presenterChanged) {
       localStorage.removeItem('initialViewBoxWidth');
+      localStorage.removeItem('initialViewBoxHeight');
     }
 
     const storedWidth = localStorage.getItem('initialViewBoxWidth');
-    if (storedWidth) {
+    const storedHeight = localStorage.getItem('initialViewBoxHeight');
+    if (storedWidth && storedHeight) {
       initialViewBoxWidthRef.current = parseFloat(storedWidth);
+      initialViewBoxHeightRef.current = parseFloat(storedHeight);
     } else {
       const currentZoomLevel = currentPresentationPageRef.current.scaledWidth / currentPresentationPageRef.current.scaledViewBoxWidth;
       const calculatedWidth = currentZoomLevel !== 1
         ? currentPresentationPageRef.current.scaledWidth / currentZoomLevel
         : currentPresentationPageRef.current.scaledWidth;
+      const calculatedHeight = currentZoomLevel !== 1
+        ? currentPresentationPageRef.current.scaledHeight / currentZoomLevel
+        : currentPresentationPageRef.current.scaledHeight;
+
       initialViewBoxWidthRef.current = calculatedWidth;
+      initialViewBoxHeightRef.current = calculatedHeight;
       localStorage.setItem('initialViewBoxWidth', calculatedWidth.toString());
+      localStorage.setItem('initialViewBoxHeight', calculatedHeight.toString());
     }
 
     setTimeout(() => {
@@ -1326,12 +1335,13 @@ const Whiteboard = React.memo(function Whiteboard(props) {
           ? presentationAreaHeight - 40
           : presentationAreaHeight;
 
-          let effectiveZoom = calculateEffectiveZoom(
-            initialViewBoxWidthRef.current,
-            currentPresentationPage.scaledViewBoxWidth,
-            initialViewBoxHeightRef.current,
-            currentPresentationPage.scaledViewBoxHeight
-          );
+        let effectiveZoom = calculateEffectiveZoom(
+          initialViewBoxWidthRef.current,
+          currentPresentationPageRef.current.scaledViewBoxWidth,
+          initialViewBoxHeightRef.current,
+          currentPresentationPageRef.current.scaledViewBoxHeight
+        );
+
         let baseZoom;
         if (isPresenter) {
           baseZoom = fitToWidth
@@ -1348,7 +1358,6 @@ const Whiteboard = React.memo(function Whiteboard(props) {
           const adjustedYPos = currentPresentationPageRef.current.yOffset;
 
           setCamera(baseZoom, adjustedXPos, adjustedYPos);
-
         } else if (includeViewerLogic) {
           baseZoom = Math.min(
             presentationAreaWidth / currentPresentationPageRef.current.scaledWidth,
@@ -1358,8 +1367,11 @@ const Whiteboard = React.memo(function Whiteboard(props) {
           const zoomAdjustmentFactor = currentPresentationPageRef.current.scaledWidth / currentPresentationPageRef.current.scaledViewBoxWidth;
           baseZoom *= zoomAdjustmentFactor;
 
-          const adjustedXPos = currentPresentationPageRef.current.xOffset * effectiveZoom;
-          const adjustedYPos = currentPresentationPageRef.current.yOffset * effectiveZoom;
+          const presenterXOffset = currentPresentationPageRef.current.xOffset;
+          const presenterYOffset = currentPresentationPageRef.current.yOffset;
+
+          const adjustedXPos = isInfiniteCanvas ? presenterXOffset : presenterXOffset * effectiveZoom;
+          const adjustedYPos = isInfiniteCanvas ? presenterYOffset : presenterYOffset * effectiveZoom;
 
           setCamera(baseZoom, adjustedXPos, adjustedYPos);
         }
@@ -1381,6 +1393,7 @@ const Whiteboard = React.memo(function Whiteboard(props) {
     locale,
     whiteboardToolbarAutoHide,
     darkTheme,
+    isInfiniteCanvas,
   ]);
 
   React.useEffect(() => {
@@ -1390,12 +1403,15 @@ const Whiteboard = React.memo(function Whiteboard(props) {
   }, [
     isMountedRef.current,
     selectedLayout,
+    isInfiniteCanvas,
   ]);
 
   React.useEffect(() => {
     setTldrawIsMounting(true);
     return () => {
       isMountedRef.current = false;
+      localStorage.removeItem('initialViewBoxWidth');
+      localStorage.removeItem('initialViewBoxHeight');
     };
   }, []);
 
