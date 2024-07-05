@@ -1,5 +1,7 @@
 package org.bigbluebutton.common2.msgs
 
+import org.bigbluebutton.common2.domain.PluginLearningAnalyticsDashboardGenericData
+
 // In messages
 
 /**
@@ -48,5 +50,5 @@ object PluginLearningAnalyticsDashboardSendGenericDataMsg { val NAME = "PluginLe
 case class PluginLearningAnalyticsDashboardSendGenericDataMsg(header: BbbClientMsgHeader, body: PluginLearningAnalyticsDashboardSendGenericDataMsgBody) extends StandardMsg
 case class PluginLearningAnalyticsDashboardSendGenericDataMsgBody(
                                                             pluginName: String,
-                                                            genericDataForLearningAnalyticsDashboard: Map[String, Any]
+                                                            genericDataForLearningAnalyticsDashboard: PluginLearningAnalyticsDashboardGenericData
                                         )

@@ -230,17 +230,19 @@ class App extends React.Component {
     } = this.state;
     const { intl } = this.props;
 
+    const pluginCardTitle = activitiesJson?.pluginCardTitles?.[0];
     // This line generates an array of all the plugin entries of all users,
     // this might have duplicate entries:
     const pluginsColumnTitleWithDuplicates = Object.values(
-      activitiesJson.users || {},
+      activitiesJson.users || {}, // Hardcoded for now, we will add cards relative to this key.
     ).flatMap((
       user,
-    ) => user.plugins).filter((
-      plugins,
-    ) => !!(plugins?.genericDataForLearningAnalyticsDashboard?.columnTitle)).map((
-      plugins,
-    ) => plugins.genericDataForLearningAnalyticsDashboard.columnTitle);
+    ) => user.plugins?.[pluginCardTitle]).filter((
+      pluginsListForSpecificUser,
+    ) => !!(
+      pluginsListForSpecificUser?.genericDataForLearningAnalyticsDashboard?.columnTitle)).map((
+      pluginsListForSpecificUser,
+    ) => pluginsListForSpecificUser?.genericDataForLearningAnalyticsDashboard.columnTitle);
     // This line will eliminate duplicates.
     const pluginsColumnTitle = [...new Set(pluginsColumnTitleWithDuplicates)];
 
@@ -520,7 +522,7 @@ class App extends React.Component {
                 <Card>
                   <CardContent classes={{ root: '!p-0' }}>
                     <CardBody
-                      name={intl.formatMessage({ id: 'app.learningDashboard.indicators.h5p', defaultMessage: 'H5P' })}
+                      name={intl.formatMessage({ id: 'app.learningDashboard.indicators', defaultMessage: pluginCardTitle })}
                       number={pluginsColumnTitle.length}
                       cardClass={tab === TABS.POLLING ? 'border-red-500' : 'hover:border-red-500 border-white'}
                       iconClass="bg-red-100 text-red-500"
@@ -601,11 +603,12 @@ class App extends React.Component {
           </TabPanelUnstyled>
           <TabPanelUnstyled value={4}>
             <h2 className="block my-2 pr-2 text-xl font-semibold">
-              <FormattedMessage id="app.learningDashboard.pluginsTable.titleH5P" defaultMessage="H5P" />
+              <FormattedMessage id="app.learningDashboard.pluginsTable" defaultMessage="H5P" />
             </h2>
             <div className="w-full overflow-hidden rounded-md shadow-xs border-2 border-gray-100">
               <div className="w-full overflow-x-auto">
                 <PluginsTable
+                  pluginCardTitle={pluginCardTitle}
                   pluginsColumnTitle={pluginsColumnTitle}
                   allUsers={activitiesJson.users}
                 />

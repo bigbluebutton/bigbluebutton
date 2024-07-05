@@ -13,6 +13,7 @@ import java.security.MessageDigest
 import scala.concurrent.duration._
 import scala.concurrent._
 import ExecutionContext.Implicits.global
+import scala.:+
 
 case object SendPeriodicReport
 
@@ -22,6 +23,7 @@ case class Meeting(
   name:  String,
   downloadSessionDataEnabled: Boolean,
   users: Map[String, User] = Map(),
+  pluginCardTitles: Vector[String],
   polls: Map[String, Poll] = Map(),
   screenshares: Vector[Screenshare] = Vector(),
   presentationSlides: Vector[PresentationSlide] = Vector(),
@@ -38,7 +40,7 @@ case class User(
                  isDialIn:           Boolean = false,
                  currentIntId:       String = null,
                  answers:            Map[String,Vector[String]] = Map(),
-                 plugins:            Vector[PluginDataForLearningAnalyticsDashboard] = Vector(),
+                 plugins:            Map[String, Vector[PluginDataForLearningAnalyticsDashboard]] = Map(),
                  talk:               Talk = Talk(),
                  emojis:             Vector[Emoji] = Vector(),
                  reactions:          Vector[Emoji] = Vector(),
@@ -586,8 +588,14 @@ class LearningDashboardActor(
       user <- findUserByIntId(meeting, msg.header.userId)
     } yield {
       val newPluginAnalytics = PluginDataForLearningAnalyticsDashboard(msg.body.pluginName, msg.body.genericDataForLearningAnalyticsDashboard)
-      val updatedUser = user.copy(plugins = user.plugins :+ newPluginAnalytics)
-      val updatedMeeting = meeting.copy(users = meeting.users + (updatedUser.userKey -> updatedUser))
+      val updatedUser = user.copy(plugins = Map((msg.body.genericDataForLearningAnalyticsDashboard.cardTitle,
+        user.plugins.getOrElse(msg.body.genericDataForLearningAnalyticsDashboard.cardTitle, Vector()) :+ newPluginAnalytics)))
+      val updatedMeeting = meeting.copy(
+        users = meeting.users + (updatedUser.userKey -> updatedUser),
+        pluginCardTitles = if (!meeting.pluginCardTitles.contains(msg.body.genericDataForLearningAnalyticsDashboard.cardTitle))
+          meeting.pluginCardTitles :+ msg.body.genericDataForLearningAnalyticsDashboard.cardTitle
+        else meeting.pluginCardTitles
+      )
       meetings += (updatedMeeting.intId -> updatedMeeting)
       log.debug("New data analytics for plugin '{}': {}", msg.body.pluginName,
         msg.body.genericDataForLearningAnalyticsDashboard)
@@ -611,6 +619,7 @@ class LearningDashboardActor(
         msg.body.props.meetingProp.extId,
         msg.body.props.meetingProp.name,
         downloadSessionDataEnabled = !msg.body.props.meetingProp.disabledFeatures.contains("learningDashboardDownloadSessionData"),
+        pluginCardTitles = Vector()
       )
 
       meetings += (newMeeting.intId -> newMeeting)

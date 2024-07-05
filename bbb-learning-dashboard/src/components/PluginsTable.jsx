@@ -10,7 +10,7 @@ import UserAvatar from './UserAvatar';
 const PluginsTable = (props) => {
   const {
     pluginsColumnTitle,
-    allUsers, intl,
+    allUsers, intl, pluginCardTitle,
   } = props;
 
   const commonUserProps = {
@@ -44,7 +44,9 @@ const PluginsTable = (props) => {
 
   gridCols.push({
     ...commonCountProps,
-    valueGetter: (params) => Object.keys(params?.row?.User?.plugins)?.length || 0,
+    valueGetter: (params) => Object.keys(
+      params?.row?.User?.plugins?.[pluginCardTitle],
+    )?.length || 0,
     renderCell: (params) => params?.value,
   });
 
@@ -66,13 +68,13 @@ const PluginsTable = (props) => {
 
   const gridRows = [];
   Object.values(allUsers).map((u, i) => {
-    if (u?.isModerator && Object.keys(u?.plugins)?.length === 0) return u;
+    if (Object.keys(u?.plugins)?.length === 0) return u;
     gridRows.push({
       id: i + 1,
       User: u,
       // This is going to be of the form:
       // [learningAnalyticsDashboardColumnTitle]: learningAnalyticsDashboardValue, for each entry
-      ...u.plugins.reduce((acc, curr) => {
+      ...u.plugins?.[pluginCardTitle].reduce((acc, curr) => {
         const {
           columnTitle,
           value,
