@@ -85,6 +85,10 @@ object RequestBreakoutJoinURLReqMsg { val NAME = "RequestBreakoutJoinURLReqMsg" 
 case class RequestBreakoutJoinURLReqMsg(header: BbbClientMsgHeader, body: RequestBreakoutJoinURLReqMsgBody) extends StandardMsg
 case class RequestBreakoutJoinURLReqMsgBody(meetingId: String, breakoutId: String, userId: String)
 
+object SetBreakoutRoomInviteDismissedReqMsg { val NAME = "SetBreakoutRoomInviteDismissedReqMsg" }
+case class SetBreakoutRoomInviteDismissedReqMsg(header: BbbClientMsgHeader, body: SetBreakoutRoomInviteDismissedReqMsgBody) extends StandardMsg
+case class SetBreakoutRoomInviteDismissedReqMsgBody()
+
 object TransferUserToMeetingEvtMsg { val NAME = "TransferUserToMeetingEvtMsg" }
 case class TransferUserToMeetingEvtMsg(header: BbbClientMsgHeader, body: TransferUserToMeetingEvtMsgBody) extends BbbCoreMsg
 case class TransferUserToMeetingEvtMsgBody(fromVoiceConf: String, toVoiceConf: String, userId: String)
