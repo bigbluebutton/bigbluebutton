@@ -147,24 +147,7 @@ const useMouseEvents = ({ whiteboardRef, tlEditorRef, isWheelZoomRef, initialZoo
             z: newCameraZoomFactor,
         };
 
-        // Apply the bounds restriction logic after the camera has been updated
-        const { maxX, maxY, minX, minY } = tlEditorRef.current.getViewportPageBounds();
-        const { scaledWidth, scaledHeight } = currentPresentationPage;
-
-        if (maxX > scaledWidth) {
-            nextCamera.x += maxX - scaledWidth;
-        }
-        if (maxY > scaledHeight) {
-            nextCamera.y += maxY - scaledHeight;
-        }
-        if (nextCamera.x > 0 || minX < 0) {
-            nextCamera.x = 0;
-        }
-        if (nextCamera.y > 0 || minY < 0) {
-            nextCamera.y = 0;
-        }
-
-        tlEditorRef.current.setCamera(nextCamera, { duration: 300 });
+        tlEditorRef.current.setCamera(nextCamera, { duration: 175 });
 
         if (isWheelZoomRef.currentTimeout) {
             clearTimeout(isWheelZoomRef.currentTimeout);

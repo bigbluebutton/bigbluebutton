@@ -1271,7 +1271,7 @@ const Whiteboard = React.memo(function Whiteboard(props) {
           name: `Slide ${curPageIdRef.current}`,
           index: `a1`,
           typeName: "page",
-        },
+        }
       ];
 
       tlEditorRef.current.store.mergeRemoteChanges(() => {
