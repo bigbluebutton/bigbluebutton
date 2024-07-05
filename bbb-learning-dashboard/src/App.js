@@ -522,7 +522,7 @@ class App extends React.Component {
                 <Card>
                   <CardContent classes={{ root: '!p-0' }}>
                     <CardBody
-                      name={intl.formatMessage({ id: 'app.learningDashboard.indicators', defaultMessage: pluginCardTitle })}
+                      name={pluginCardTitle}
                       number={pluginsColumnTitle.length}
                       cardClass={tab === TABS.POLLING ? 'border-red-500' : 'hover:border-red-500 border-white'}
                       iconClass="bg-red-100 text-red-500"
@@ -603,7 +603,7 @@ class App extends React.Component {
           </TabPanelUnstyled>
           <TabPanelUnstyled value={4}>
             <h2 className="block my-2 pr-2 text-xl font-semibold">
-              <FormattedMessage id="app.learningDashboard.pluginsTable" defaultMessage="H5P" />
+              {pluginCardTitle}
             </h2>
             <div className="w-full overflow-hidden rounded-md shadow-xs border-2 border-gray-100">
               <div className="w-full overflow-x-auto">
