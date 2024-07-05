@@ -22,7 +22,7 @@ const PluginsTable = (props) => {
 
   const commonCountProps = {
     field: 'count',
-    headerName: intl.formatMessage({ id: 'app.learningDashboard.pluginsTable.answerTotal', defaultMessage: 'Total' }),
+    headerName: intl.formatMessage({ id: 'app.learningDashboard.pluginsTable.totalLabel', defaultMessage: 'Total' }),
     flex: 1,
     sortable: true,
   };

@@ -1407,7 +1407,7 @@
     "app.learningDashboard.pollsTable.noPollsCreatedMessage": "Once a poll has been sent to users, their results will appear in this list.",
     "app.learningDashboard.pollsTable.answerTotal": "Total",
     "app.learningDashboard.pollsTable.userLabel": "User",
-    "app.learningDashboard.pluginsTable.answerTotal": "Total",
+    "app.learningDashboard.pluginsTable.totalLabel": "Total",
     "app.learningDashboard.pluginsTable.userLabel": "User",
     "app.learningDashboard.statusTimelineTable.title": "Timeline",
     "app.learningDashboard.statusTimelineTable.thumbnail": "Presentation thumbnail",
