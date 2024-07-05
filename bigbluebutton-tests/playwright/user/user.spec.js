@@ -77,8 +77,7 @@ test.describe.parallel('User', () => {
 
     test('Give and remove whiteboard access @ci', async ({ browser, context, page }) => {
       const multiusers = new MultiUsers(browser, context);
-      await multiusers.initModPage(page);
-      await multiusers.initModPage2();
+      await multiusers.initPages(page);
       await multiusers.giveAndRemoveWhiteboardAccess();
     });
 

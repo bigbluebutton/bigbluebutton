@@ -383,6 +383,13 @@ type Mutation {
 }
 
 type Mutation {
+  presentationSetPageInfiniteWhiteboard(
+    infiniteWhiteboard: Boolean!
+    pageId: String!
+  ): Boolean
+}
+
+type Mutation {
   presentationSetRenderedInToast(
     presentationId: String!
   ): Boolean
