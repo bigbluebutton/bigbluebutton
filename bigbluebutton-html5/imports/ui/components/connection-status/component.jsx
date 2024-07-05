@@ -26,9 +26,14 @@ const ConnectionStatus = () => {
   );
 
   const handleUpdateConnectionAliveAt = () => {
+    const pathMatch = window.location.pathname.match('^(.*)/html5client/join$');
+    if (pathMatch == null) {
+      throw new Error('Failed to match BBB client URI');
+    }
+    const serverPathPrefix = pathMatch[1];
     const startTime = performance.now();
     fetch(
-      `${window.location.host}/bigbluebutton/ping`,
+      `https://${window.location.hostname}${serverPathPrefix}/bigbluebutton/ping`,
       { signal: AbortSignal.timeout(STATS_INTERVAL) },
     )
       .then((res) => {
