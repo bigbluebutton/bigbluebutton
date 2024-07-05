@@ -560,11 +560,11 @@ const Whiteboard = React.memo(function Whiteboard(props) {
           if (panned && isPresenterRef.current) {
             let viewedRegionW = SlideCalcUtil.calcViewedRegionWidth(
               editor?.getViewportPageBounds()?.w,
-              currentPresentationPage?.scaledWidth
+              currentPresentationPageRef.current?.scaledWidth
             );
             let viewedRegionH = SlideCalcUtil.calcViewedRegionHeight(
               editor?.getViewportPageBounds()?.h,
-              currentPresentationPage?.scaledHeight
+              currentPresentationPageRef.current?.scaledHeight
             );
 
             zoomSlide(viewedRegionW, viewedRegionH, nextCam.x, nextCam.y);
@@ -1501,7 +1501,7 @@ const Whiteboard = React.memo(function Whiteboard(props) {
     >
       <Tldraw
         autoFocus={false}
-        key={`tldrawv2-${presentationId}-${animations}`}
+        key={`tldrawv2-${presentationId}-${animations}-${isInfiniteCanvas}`}
         forceMobile={true}
         hideUi={hasWBAccessRef.current || isPresenter ? false : true}
         onMount={handleTldrawMount}

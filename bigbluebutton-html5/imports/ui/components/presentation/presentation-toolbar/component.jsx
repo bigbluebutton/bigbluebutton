@@ -156,8 +156,12 @@ class PresentationToolbar extends PureComponent {
   }
 
   handleSkipToSlideChange(event) {
-    const { skipToSlide } = this.props;
+    const { skipToSlide, currentSlide, setPresentationPageInfiniteCanvas } = this.props;
     const requestedSlideNum = Number.parseInt(event.target.value, 10);
+
+    const isInfiniteCanvas = currentSlide?.infiniteCanvas;
+
+    if (isInfiniteCanvas) setPresentationPageInfiniteCanvas(false);
 
     this.handleFTWSlideChange();
     if (event) event.currentTarget.blur();
@@ -204,7 +208,10 @@ class PresentationToolbar extends PureComponent {
   }
 
   nextSlideHandler(event) {
-    const { nextSlide, endCurrentPoll } = this.props;
+    const { nextSlide, endCurrentPoll, currentSlide, setPresentationPageInfiniteCanvas } = this.props;
+    const isInfiniteCanvas = currentSlide?.infiniteCanvas;
+
+    if (isInfiniteCanvas) setPresentationPageInfiniteCanvas(false);
 
     this.handleFTWSlideChange();
     if (event) event.currentTarget.blur();
@@ -213,7 +220,11 @@ class PresentationToolbar extends PureComponent {
   }
 
   previousSlideHandler(event) {
-    const { previousSlide, endCurrentPoll } = this.props;
+    const { previousSlide, endCurrentPoll, currentSlide, setPresentationPageInfiniteCanvas } = this.props;
+
+    const isInfiniteCanvas = currentSlide?.infiniteCanvas;
+
+    if (isInfiniteCanvas) setPresentationPageInfiniteCanvas(false);
 
     this.handleFTWSlideChange();
     if (event) event.currentTarget.blur();
