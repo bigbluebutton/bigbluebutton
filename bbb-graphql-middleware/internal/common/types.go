@@ -58,13 +58,12 @@ type BrowserConnection struct {
 }
 
 type HasuraConnection struct {
-	Id                       string                // hasura connection id
-	BrowserConn              *BrowserConnection    // browser connection that originated this hasura connection
-	Websocket                *websocket.Conn       // websocket used to connect to Hasura
-	WebsocketCloseError      *websocket.CloseError // closeError received from Hasura
-	Context                  context.Context       // hasura connection context (child of browser connection context)
-	ContextCancelFunc        context.CancelFunc    // function to cancel the hasura context (and so, the hasura connection)
-	FreezeMsgFromBrowserChan *SafeChannel          // indicate that it's waiting for the return of mutations before closing connection
+	Id                  string                // hasura connection id
+	BrowserConn         *BrowserConnection    // browser connection that originated this hasura connection
+	Websocket           *websocket.Conn       // websocket used to connect to Hasura
+	WebsocketCloseError *websocket.CloseError // closeError received from Hasura
+	Context             context.Context       // hasura connection context (child of browser connection context)
+	ContextCancelFunc   context.CancelFunc    // function to cancel the hasura context (and so, the hasura connection)
 }
 
 type HasuraMessage struct {

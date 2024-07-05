@@ -73,11 +73,10 @@ func HasuraClient(
 	defer hasuraConnectionContextCancel()
 
 	var thisConnection = common.HasuraConnection{
-		Id:                       hasuraConnectionId,
-		BrowserConn:              browserConnection,
-		Context:                  hasuraConnectionContext,
-		ContextCancelFunc:        hasuraConnectionContextCancel,
-		FreezeMsgFromBrowserChan: common.NewSafeChannel(1),
+		Id:                hasuraConnectionId,
+		BrowserConn:       browserConnection,
+		Context:           hasuraConnectionContext,
+		ContextCancelFunc: hasuraConnectionContextCancel,
 	}
 
 	browserConnection.HasuraConnection = &thisConnection
