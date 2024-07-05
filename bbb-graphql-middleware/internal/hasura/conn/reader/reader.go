@@ -15,7 +15,7 @@ import (
 )
 
 // HasuraConnectionReader consumes messages from Hasura connection and add send to the browser channel
-func HasuraConnectionReader(hc *common.HasuraConnection, fromHasuraToBrowserChannel *common.SafeChannelByte, fromBrowserToHasuraChannel *common.SafeChannelByte, wg *sync.WaitGroup) {
+func HasuraConnectionReader(hc *common.HasuraConnection, wg *sync.WaitGroup) {
 	log := log.WithField("_routine", "HasuraConnectionReader").WithField("browserConnectionId", hc.BrowserConn.Id).WithField("hasuraConnectionId", hc.Id)
 	defer log.Debugf("finished")
 	log.Debugf("starting")
@@ -57,13 +57,13 @@ func HasuraConnectionReader(hc *common.HasuraConnection, fromHasuraToBrowserChan
 
 		log.Tracef("received from hasura: %s", string(message))
 
-		handleMessageReceivedFromHasura(hc, fromHasuraToBrowserChannel, fromBrowserToHasuraChannel, message)
+		handleMessageReceivedFromHasura(hc, message)
 	}
 }
 
 var QueryIdPlaceholderInBytes = []byte("--------------QUERY-ID--------------") //36 chars
 
-func handleMessageReceivedFromHasura(hc *common.HasuraConnection, fromHasuraToBrowserChannel *common.SafeChannelByte, fromBrowserToHasuraChannel *common.SafeChannelByte, message []byte) {
+func handleMessageReceivedFromHasura(hc *common.HasuraConnection, message []byte) {
 	type HasuraMessageInfo struct {
 		Type string `json:"type"`
 		ID   string `json:"id"`
@@ -126,14 +126,14 @@ func handleMessageReceivedFromHasura(hc *common.HasuraConnection, fromHasuraToBr
 	// Retransmit the subscription start commands when hasura confirms the connection
 	// this is useful in case of a connection invalidation
 	if hasuraMessageInfo.Type == "connection_ack" {
-		handleConnectionAckMessage(hc, message, fromHasuraToBrowserChannel, fromBrowserToHasuraChannel)
+		handleConnectionAckMessage(hc, message)
 	} else {
 		if queryIdReplacementApplied {
 			message = bytes.Replace(message, QueryIdPlaceholderInBytes, queryIdInBytes, 1)
 		}
 
 		// Forward the message to browser
-		fromHasuraToBrowserChannel.Send(message)
+		hc.BrowserConn.FromHasuraToBrowserChannel.Send(message)
 	}
 }
 
@@ -196,18 +196,18 @@ func handleCompleteMessage(hc *common.HasuraConnection, queryId string) {
 	log.Debugf("%s (%s) with Id %s finished by Hasura.", queryType, operationName, queryId)
 }
 
-func handleConnectionAckMessage(hc *common.HasuraConnection, message []byte, fromHasuraToBrowserChannel *common.SafeChannelByte, fromBrowserToHasuraChannel *common.SafeChannelByte) {
+func handleConnectionAckMessage(hc *common.HasuraConnection, message []byte) {
 	log.Debugf("Received connection_ack")
 	//Hasura connection was initialized, now it's able to send new messages to Hasura
-	fromBrowserToHasuraChannel.UnfreezeChannel()
+	hc.BrowserConn.FromBrowserToHasuraChannel.UnfreezeChannel()
 
 	//Avoid to send `connection_ack` to the browser when it's a reconnection
 	if hc.BrowserConn.ConnAckSentToBrowser == false {
-		fromHasuraToBrowserChannel.Send(message)
+		hc.BrowserConn.FromHasuraToBrowserChannel.Send(message)
 		hc.BrowserConn.ConnAckSentToBrowser = true
 	}
 
-	go retransmiter.RetransmitSubscriptionStartMessages(hc, fromBrowserToHasuraChannel)
+	go retransmiter.RetransmitSubscriptionStartMessages(hc)
 }
 
 func getHasuraMessage(message []byte) (uint32, string, common.HasuraMessage) {
