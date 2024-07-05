@@ -2,7 +2,7 @@ import { useEffect } from 'react';
 import { LearningAnalyticsDashboardEventDetails } from 'bigbluebutton-html-plugin-sdk/dist/cjs/learning-analytics-dashboard/types';
 import { LearningAnalyticsDashboardEvents } from 'bigbluebutton-html-plugin-sdk/dist/cjs/learning-analytics-dashboard/enums';
 import { useMutation } from '@apollo/client';
-import PLUGIN_LEARNING_ANALYTICS_DASHBOARD_SEND_DATA_MUTATION from './mutations';
+import PLUGIN_LEARNING_ANALYTICS_DASHBOARD_SEND_GENERIC_DATA_MUTATION from './mutations';
 import { PluginLearningAnalyticsDashboardManagerProps } from './types';
 
 const PluginLearningAnalyticsDashboardManager: React.ElementType<
@@ -12,7 +12,7 @@ const PluginLearningAnalyticsDashboardManager: React.ElementType<
     const { pluginName } = props;
 
     const [sendGenericDataToLearningAnalyticsDashboard] = useMutation(
-      PLUGIN_LEARNING_ANALYTICS_DASHBOARD_SEND_DATA_MUTATION,
+      PLUGIN_LEARNING_ANALYTICS_DASHBOARD_SEND_GENERIC_DATA_MUTATION,
     );
 
     const handleSendGenericDataForLearningAnalyticsDashboard: EventListener = (
