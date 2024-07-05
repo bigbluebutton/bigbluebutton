@@ -71,7 +71,7 @@ const NotificationsBarContainer = () => {
         {!connected && intl.formatMessage(intlMessages.reconnectingMessage)}
         {(connected && !serverIsResponding && lastRttRequestSuccess)
           && intl.formatMessage(intlMessages.serverIsNotResponding)}
-        {(connected && (!pingIsComing || !lastRttRequestSuccess))
+        {(connected && serverIsResponding && !pingIsComing && lastRttRequestSuccess)
           && intl.formatMessage(intlMessages.serverIsSlow)}
       </>
     );
