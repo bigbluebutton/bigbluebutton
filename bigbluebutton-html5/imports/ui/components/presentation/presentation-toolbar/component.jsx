@@ -256,7 +256,7 @@ class PresentationToolbar extends PureComponent {
           componentToReturn = (
             <Button
               key={ppbId}
-              style={{ marginLeft: '2px' }}
+              style={{ marginLeft: '2px', ...ppb.style }}
               label={ppb.label}
               onClick={ppb.onClick}
               tooltipLabel={ppb.tooltip}

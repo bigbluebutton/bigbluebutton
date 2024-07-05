@@ -271,6 +271,13 @@ type Mutation {
 }
 
 type Mutation {
+  pluginLearningAnalyticsDashboardSendGenericData(
+    genericDataForLearningAnalyticsDashboard: json!,
+    pluginName: String!,
+  ): Boolean
+}
+
+type Mutation {
   pollCancel: Boolean
 }
 
