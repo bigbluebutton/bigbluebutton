@@ -1185,7 +1185,6 @@ const Whiteboard = React.memo(function Whiteboard(props) {
   }, [currentPresentationPage]);
 
   React.useEffect(() => {
-    // Check if there are any changes to be made
     if (shapesToAdd.length || shapesToUpdate.length || shapesToRemove.length) {
       const tlStoreUpdateTimeoutId = setTimeout(() => {
         tlEditor?.store?.mergeRemoteChanges(() => {
@@ -1196,7 +1195,17 @@ const Whiteboard = React.memo(function Whiteboard(props) {
             tlEditor?.store?.put(shapesToAdd);
           }
           if (shapesToUpdate.length) {
-            tlEditor?.updateShapes(shapesToUpdate);
+            const updatedShapes = shapesToUpdate.map(shape => {
+              const currentShape = tlEditor?.getShape(shape.id);
+              if (currentShape) {
+                return { ...currentShape, ...shape };
+              }
+              return null;
+            }).filter(Boolean);
+
+            if (updatedShapes.length) {
+              tlEditor?.store?.put(updatedShapes);
+            }
           }
         });
       }, 150);
