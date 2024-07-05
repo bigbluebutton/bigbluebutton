@@ -64,7 +64,6 @@ const sendAnnotation = (annotation, submitAnnotations) => {
   // Prevent sending annotations while disconnected
   // TODO: Change this to add the annotation, but delay the send until we're
   // reconnected. With this it will miss things
-  if (!Meteor.status().connected) return;
 
   const index = annotationsQueue.findIndex((ann) => ann.id === annotation.id);
   if (index !== -1) {
