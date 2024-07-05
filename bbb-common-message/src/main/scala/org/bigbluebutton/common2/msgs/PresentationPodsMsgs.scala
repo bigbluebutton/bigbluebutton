@@ -23,9 +23,9 @@ object SetCurrentPagePubMsg { val NAME = "SetCurrentPagePubMsg" }
 case class SetCurrentPagePubMsg(header: BbbClientMsgHeader, body: SetCurrentPagePubMsgBody) extends StandardMsg
 case class SetCurrentPagePubMsgBody(podId: String, presentationId: String, pageId: String)
 
-object SetPageInfiniteCanvasPubMsg { val NAME = "SetPageInfiniteCanvasPubMsg" }
-case class SetPageInfiniteCanvasPubMsg(header: BbbClientMsgHeader, body: SetPageInfiniteCanvasPubMsgBody) extends StandardMsg
-case class SetPageInfiniteCanvasPubMsgBody(pageId: String, infiniteCanvas: Boolean)
+object SetPageInfiniteWhiteboardPubMsg { val NAME = "SetPageInfiniteWhiteboardPubMsg" }
+case class SetPageInfiniteWhiteboardPubMsg(header: BbbClientMsgHeader, body: SetPageInfiniteWhiteboardPubMsgBody) extends StandardMsg
+case class SetPageInfiniteWhiteboardPubMsgBody(pageId: String, infiniteWhiteboard: Boolean)
 
 object RemovePresentationPubMsg { val NAME = "RemovePresentationPubMsg" }
 case class RemovePresentationPubMsg(header: BbbClientMsgHeader, body: RemovePresentationPubMsgBody) extends StandardMsg
@@ -329,9 +329,9 @@ object SetCurrentPageEvtMsg { val NAME = "SetCurrentPageEvtMsg" }
 case class SetCurrentPageEvtMsg(header: BbbClientMsgHeader, body: SetCurrentPageEvtMsgBody) extends BbbCoreMsg
 case class SetCurrentPageEvtMsgBody(podId: String, presentationId: String, pageId: String)
 
-object SetPageInfiniteCanvasEvtMsg { val NAME = "SetPageInfiniteCanvasEvtMsg" }
-case class SetPageInfiniteCanvasEvtMsg(header: BbbClientMsgHeader, body: SetPageInfiniteCanvasEvtMsgBody) extends BbbCoreMsg
-case class SetPageInfiniteCanvasEvtMsgBody(pageId: String, infiniteCanvas: Boolean)
+object SetPageInfiniteWhiteboardEvtMsg { val NAME = "SetPageInfiniteWhiteboardEvtMsg" }
+case class SetPageInfiniteWhiteboardEvtMsg(header: BbbClientMsgHeader, body: SetPageInfiniteWhiteboardEvtMsgBody) extends BbbCoreMsg
+case class SetPageInfiniteWhiteboardEvtMsgBody(pageId: String, infiniteWhiteboard: Boolean)
 
 object SetPresenterInPodRespMsg { val NAME = "SetPresenterInPodRespMsg" }
 case class SetPresenterInPodRespMsg(header: BbbClientMsgHeader, body: SetPresenterInPodRespMsgBody) extends StandardMsg

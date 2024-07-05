@@ -100,11 +100,11 @@ export const PRESENTATION_PUBLISH_CURSOR = gql`
   }
 `;
 
-export const PRESENTATION_SET_PAGE_INFINITE_CANVAS = gql`
-  mutation PresentationSetPageInfiniteCanvas($pageId: String!, $infiniteCanvas: Boolean!) {
-    presentationSetPageInfiniteCanvas(
+export const PRESENTATION_SET_PAGE_INFINITE_WHITEBOARD = gql`
+  mutation PresentationSetPageInfiniteWhiteboard($pageId: String!, $infiniteWhiteboard: Boolean!) {
+    presentationSetPageInfiniteWhiteboard(
       pageId: $pageId,
-      infiniteCanvas: $infiniteCanvas
+      infiniteWhiteboard: $infiniteWhiteboard
     )
   }
 `;
@@ -120,5 +120,5 @@ export default {
   PRES_ANNOTATION_DELETE,
   PRES_ANNOTATION_SUBMIT,
   PRESENTATION_PUBLISH_CURSOR,
-  PRESENTATION_SET_PAGE_INFINITE_CANVAS,
+  PRESENTATION_SET_PAGE_INFINITE_WHITEBOARD,
 };

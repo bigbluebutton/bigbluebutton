@@ -5,12 +5,12 @@ import FullscreenService from '/imports/ui/components/common/fullscreen-button/s
 import { useIsPollingEnabled } from '/imports/ui/services/features';
 import { PluginsContext } from '/imports/ui/components/components-data/plugin-context/context';
 import { POLL_CANCEL, POLL_CREATE } from '/imports/ui/components/poll/mutations';
-import { PRESENTATION_SET_ZOOM, PRESENTATION_SET_PAGE, PRESENTATION_SET_PAGE_INFINITE_CANVAS } from '../mutations';
+import { PRESENTATION_SET_ZOOM, PRESENTATION_SET_PAGE, PRESENTATION_SET_PAGE_INFINITE_WHITEBOARD } from '../mutations';
 import PresentationToolbar from './component';
 import Session from '/imports/ui/services/storage/in-memory';
 
-const infiniteCanvasIcon = (isInfiniteCanvas) => {
-  if (isInfiniteCanvas) {
+const infiniteWhiteboardIcon = (isinfiniteWhiteboard) => {
+  if (isinfiniteWhiteboard) {
     return (
       <svg
         width="16"
@@ -101,7 +101,7 @@ const PresentationToolbarContainer = (props) => {
   const [createPoll] = useMutation(POLL_CREATE);
   const [presentationSetZoom] = useMutation(PRESENTATION_SET_ZOOM);
   const [presentationSetPage] = useMutation(PRESENTATION_SET_PAGE);
-  const [presentationSetPageInfiniteCanvas] = useMutation(PRESENTATION_SET_PAGE_INFINITE_CANVAS);
+  const [presentationSetPageInfiniteWhiteboard] = useMutation(PRESENTATION_SET_PAGE_INFINITE_WHITEBOARD);
 
   const resetSlide = () => {
     const { pageId, num } = currentPresentationPage;
@@ -131,12 +131,12 @@ const PresentationToolbarContainer = (props) => {
     });
   };
 
-  const setPresentationPageInfiniteCanvas = (infiniteCanvas) => {
+  const setPresentationPageInfiniteWhiteboard = (infiniteWhiteboard) => {
     const pageId = `${presentationId}/${currentSlideNum}`;
-    presentationSetPageInfiniteCanvas({
+    presentationSetPageInfiniteWhiteboard({
       variables: {
         pageId,
-        infiniteCanvas,
+        infiniteWhiteboard,
       },
     });
   };
@@ -193,7 +193,7 @@ const PresentationToolbarContainer = (props) => {
         amIPresenter={userIsPresenter}
         endCurrentPoll={endCurrentPoll}
         isPollingEnabled={isPollingEnabled}
-        allowInfiniteCanvas={WHITEBOARD_CONFIG?.allowInfiniteCanvas}
+        allowInfiniteWhiteboard={WHITEBOARD_CONFIG?.allowInfiniteWhiteboard}
         // TODO: Remove this
         isMeteorConnected
         {...{
@@ -203,10 +203,10 @@ const PresentationToolbarContainer = (props) => {
           previousSlide,
           nextSlide,
           skipToSlide,
-          setPresentationPageInfiniteCanvas,
+          setPresentationPageInfiniteWhiteboard,
           currentSlide,
           currentPresentationPage,
-          infiniteCanvasIcon,
+          infiniteWhiteboardIcon,
           resetSlide,
         }}
       />

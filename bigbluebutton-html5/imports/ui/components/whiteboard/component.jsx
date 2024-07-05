@@ -125,7 +125,7 @@ const Whiteboard = React.memo(function Whiteboard(props) {
     locale,
     darkTheme,
     selectedLayout,
-    isInfiniteCanvas,
+    isInfiniteWhiteboard,
   } = props;
 
   clearTldrawCache();
@@ -658,7 +658,7 @@ const Whiteboard = React.memo(function Whiteboard(props) {
 
         // Adjust camera position to ensure it stays within bounds
         const panned = next?.id?.includes("camera") && (prev.x !== next.x || prev.y !== next.y);
-        if (panned && !currentPresentationPageRef.current?.infiniteCanvas) {
+        if (panned && !currentPresentationPageRef.current?.infiniteWhiteboard) {
           // Horizontal bounds check
           if (next.x > 0) {
             next.x = 0;
@@ -1379,8 +1379,8 @@ const Whiteboard = React.memo(function Whiteboard(props) {
           const presenterXOffset = currentPresentationPageRef.current.xOffset;
           const presenterYOffset = currentPresentationPageRef.current.yOffset;
 
-          const adjustedXPos = isInfiniteCanvas ? presenterXOffset : presenterXOffset * effectiveZoom;
-          const adjustedYPos = isInfiniteCanvas ? presenterYOffset : presenterYOffset * effectiveZoom;
+          const adjustedXPos = isInfiniteWhiteboard ? presenterXOffset : presenterXOffset * effectiveZoom;
+          const adjustedYPos = isInfiniteWhiteboard ? presenterYOffset : presenterYOffset * effectiveZoom;
 
           setCamera(baseZoom, adjustedXPos, adjustedYPos);
         }
@@ -1402,7 +1402,7 @@ const Whiteboard = React.memo(function Whiteboard(props) {
     locale,
     whiteboardToolbarAutoHide,
     darkTheme,
-    isInfiniteCanvas,
+    isInfiniteWhiteboard,
   ]);
 
   React.useEffect(() => {
@@ -1412,7 +1412,7 @@ const Whiteboard = React.memo(function Whiteboard(props) {
   }, [
     isMountedRef.current,
     selectedLayout,
-    isInfiniteCanvas,
+    isInfiniteWhiteboard,
   ]);
 
   React.useEffect(() => {
@@ -1501,7 +1501,7 @@ const Whiteboard = React.memo(function Whiteboard(props) {
     >
       <Tldraw
         autoFocus={false}
-        key={`tldrawv2-${presentationId}-${animations}-${isInfiniteCanvas}`}
+        key={`tldrawv2-${presentationId}-${animations}-${isInfiniteWhiteboard}`}
         forceMobile={true}
         hideUi={hasWBAccessRef.current || isPresenter ? false : true}
         onMount={handleTldrawMount}

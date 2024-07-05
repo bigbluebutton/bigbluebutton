@@ -89,13 +89,13 @@ const intlMessages = defineMessages({
     id: 'app.whiteboard.toolbar.multiUserOff',
     description: 'Whiteboard toolbar turn multi-user off menu',
   },
-  infiniteCanvasOn: {
-    id: 'app.whiteboard.toolbar.infiniteCanvasOn',
-    description: 'Whiteboard toolbar turn infinite canvas on',
+  infiniteWhiteboardOn: {
+    id: 'app.whiteboard.toolbar.infiniteWhiteboardOn',
+    description: 'Whiteboard toolbar turn infinite wb on',
   },
-  infiniteCanvasOff: {
-    id: 'app.whiteboard.toolbar.infiniteCanvasOff',
-    description: 'Whiteboard toolbar turn infinite canvas off',
+  infiniteWhiteboardOff: {
+    id: 'app.whiteboard.toolbar.infiniteWhiteboardOff',
+    description: 'Whiteboard toolbar turn infinite wb off',
   },
   pan: {
     id: 'app.whiteboard.toolbar.tools.hand',
@@ -156,12 +156,12 @@ class PresentationToolbar extends PureComponent {
   }
 
   handleSkipToSlideChange(event) {
-    const { skipToSlide, currentSlide, setPresentationPageInfiniteCanvas } = this.props;
+    const { skipToSlide, currentSlide, setPresentationPageInfiniteWhiteboard } = this.props;
     const requestedSlideNum = Number.parseInt(event.target.value, 10);
 
-    const isInfiniteCanvas = currentSlide?.infiniteCanvas;
+    const isInfiniteWhiteboard = currentSlide?.infiniteWhiteboard;
 
-    if (isInfiniteCanvas) setPresentationPageInfiniteCanvas(false);
+    if (isInfiniteWhiteboard) setPresentationPageInfiniteWhiteboard(false);
 
     this.handleFTWSlideChange();
     if (event) event.currentTarget.blur();
@@ -208,10 +208,10 @@ class PresentationToolbar extends PureComponent {
   }
 
   nextSlideHandler(event) {
-    const { nextSlide, endCurrentPoll, currentSlide, setPresentationPageInfiniteCanvas } = this.props;
-    const isInfiniteCanvas = currentSlide?.infiniteCanvas;
+    const { nextSlide, endCurrentPoll, currentSlide, setPresentationPageInfiniteWhiteboard } = this.props;
+    const isInfiniteWhiteboard = currentSlide?.infiniteWhiteboard;
 
-    if (isInfiniteCanvas) setPresentationPageInfiniteCanvas(false);
+    if (isInfiniteWhiteboard) setPresentationPageInfiniteWhiteboard(false);
 
     this.handleFTWSlideChange();
     if (event) event.currentTarget.blur();
@@ -220,11 +220,11 @@ class PresentationToolbar extends PureComponent {
   }
 
   previousSlideHandler(event) {
-    const { previousSlide, endCurrentPoll, currentSlide, setPresentationPageInfiniteCanvas } = this.props;
+    const { previousSlide, endCurrentPoll, currentSlide, setPresentationPageInfiniteWhiteboard } = this.props;
 
-    const isInfiniteCanvas = currentSlide?.infiniteCanvas;
+    const isInfiniteWhiteboard = currentSlide?.infiniteWhiteboard;
 
-    if (isInfiniteCanvas) setPresentationPageInfiniteCanvas(false);
+    if (isInfiniteWhiteboard) setPresentationPageInfiniteWhiteboard(false);
 
     this.handleFTWSlideChange();
     if (event) event.currentTarget.blur();
@@ -364,9 +364,9 @@ class PresentationToolbar extends PureComponent {
       slidePosition,
       multiUserSize,
       multiUser,
-      setPresentationPageInfiniteCanvas,
-      allowInfiniteCanvas,
-      infiniteCanvasIcon,
+      setPresentationPageInfiniteWhiteboard,
+      allowInfiniteWhiteboard,
+      infiniteWhiteboardIcon,
       resetSlide,
       zoomChanger,
       tldrawAPI,
@@ -387,7 +387,7 @@ class PresentationToolbar extends PureComponent {
       : `${intl.formatMessage(intlMessages.nextSlideLabel)} (${currentSlideNum >= 1 ? currentSlideNum + 1 : ''
       })`;
 
-    const isInfiniteCanvas = currentSlide?.infiniteCanvas;
+    const isInfiniteWhiteboard = currentSlide?.infiniteWhiteboard;
 
     return (
       <Styled.PresentationToolbarWrapper
@@ -462,32 +462,32 @@ class PresentationToolbar extends PureComponent {
           />
         </Styled.PresentationSlideControls>
         <Styled.PresentationZoomControls>
-          {(allowInfiniteCanvas) && (
-          <Styled.InfiniteCanvasButton
-            data-test={isInfiniteCanvas ? 'turnInfiniteCanvasOff' : 'turnInfiniteCanvasOn'}
+          {(allowInfiniteWhiteboard) && (
+          <Styled.InfiniteWhiteboardButton
+            data-test={isInfiniteWhiteboard ? 'turnInfiniteWhiteboardOff' : 'turnInfiniteWhiteboardOn'}
             role="button"
             aria-label={
-              isInfiniteCanvas
-                ? intl.formatMessage(intlMessages.infiniteCanvasOff)
-                : intl.formatMessage(intlMessages.infiniteCanvasOn)
+              isInfiniteWhiteboard
+                ? intl.formatMessage(intlMessages.infiniteWhiteboardOff)
+                : intl.formatMessage(intlMessages.infiniteWhiteboardOn)
             }
             color="light"
             disabled={!isMeteorConnected}
-            customIcon={infiniteCanvasIcon(isInfiniteCanvas)}
+            customIcon={infiniteWhiteboardIcon(isInfiniteWhiteboard)}
             size="md"
             circle
             onClick={() => {
-              if (isInfiniteCanvas) {
+              if (isInfiniteWhiteboard) {
                 tldrawAPI.setCamera({ x: 0, y: 0 });
                 resetSlide();
                 zoomChanger(100);
               }
-              setPresentationPageInfiniteCanvas(!isInfiniteCanvas);
+              setPresentationPageInfiniteWhiteboard(!isInfiniteWhiteboard);
             }}
             label={
-              isInfiniteCanvas
-                ? intl.formatMessage(intlMessages.infiniteCanvasOff)
-                : intl.formatMessage(intlMessages.infiniteCanvasOn)
+              isInfiniteWhiteboard
+                ? intl.formatMessage(intlMessages.infiniteWhiteboardOff)
+                : intl.formatMessage(intlMessages.infiniteWhiteboardOn)
             }
             hideLabel
           />
@@ -533,7 +533,7 @@ class PresentationToolbar extends PureComponent {
                 minBound={HUNDRED_PERCENT}
                 maxBound={MAX_PERCENT}
                 step={STEP}
-                isInfiniteCanvas={isInfiniteCanvas}
+                isInfiniteWhiteboard={isInfiniteWhiteboard}
                 isMeteorConnected={isMeteorConnected}
               />
             </TooltipContainer>

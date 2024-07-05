@@ -125,7 +125,7 @@ const PresentationContainer = (props) => {
     num: currentPresentationPage?.num,
     presentationId: currentPresentationPage?.presentationId,
     svgUri: slideSvgUrl,
-    infiniteCanvas: currentPresentationPage.infiniteCanvas,
+    infiniteWhiteboard: currentPresentationPage.infiniteWhiteboard,
   } : null;
 
   let slidePosition;

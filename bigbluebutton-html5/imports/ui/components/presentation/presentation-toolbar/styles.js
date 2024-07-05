@@ -281,7 +281,7 @@ const WBAccessButton = styled(Button)`
   }
 `;
 
-const InfiniteCanvasButton = styled(Button)`
+const InfiniteWhiteboardButton = styled(Button)`
   border: none !important;
 
   svg {
@@ -322,5 +322,5 @@ export default {
   MultiUserTool,
   WBAccessButton,
   MUTPlaceholder,
-  InfiniteCanvasButton,
+  InfiniteWhiteboardButton,
 };

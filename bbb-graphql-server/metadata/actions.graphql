@@ -358,8 +358,8 @@ type Mutation {
 }
 
 type Mutation {
-  presentationSetPageInfiniteCanvas(
-    infiniteCanvas: Boolean!
+  presentationSetPageInfiniteWhiteboard(
+    infiniteWhiteboard: Boolean!
     pageId: String!
   ): Boolean
 }

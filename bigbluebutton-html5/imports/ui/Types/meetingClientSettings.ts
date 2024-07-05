@@ -694,7 +694,7 @@ export interface Whiteboard {
   maxStickyNoteLength: number
   maxNumberOfAnnotations: number
   annotations: Annotations
-  allowInfiniteCanvas: boolean
+  allowInfiniteWhiteboard: boolean
   styles: Styles
   toolbar: Toolbar
 }

@@ -26,7 +26,7 @@ case class PresPageDbModel(
     maxImageWidth:   Int,
     maxImageHeight:  Int,
     uploadCompleted: Boolean,
-    infiniteCanvas:  Boolean,
+    infiniteWhiteboard:  Boolean,
 )
 
 class PresPageDbTableDef(tag: Tag) extends Table[PresPageDbModel](tag, None, "pres_page") {
@@ -48,10 +48,10 @@ class PresPageDbTableDef(tag: Tag) extends Table[PresPageDbModel](tag, None, "pr
   val maxImageWidth = column[Int]("maxImageWidth")
   val maxImageHeight = column[Int]("maxImageHeight")
   val uploadCompleted = column[Boolean]("uploadCompleted")
-  val infiniteCanvas = column[Boolean]("infiniteCanvas")
+  val infiniteWhiteboard = column[Boolean]("infiniteWhiteboard")
 
   def * = (
-    pageId, presentationId, num, urlsJson, content, slideRevealed, current, xOffset, yOffset, widthRatio, heightRatio, width, height, viewBoxWidth, viewBoxHeight, maxImageWidth, maxImageHeight, uploadCompleted, infiniteCanvas
+    pageId, presentationId, num, urlsJson, content, slideRevealed, current, xOffset, yOffset, widthRatio, heightRatio, width, height, viewBoxWidth, viewBoxHeight, maxImageWidth, maxImageHeight, uploadCompleted, infiniteWhiteboard
   ) <> (PresPageDbModel.tupled, PresPageDbModel.unapply)
 }
 
@@ -86,7 +86,7 @@ object PresPageDAO {
           maxImageWidth = 1440,
           maxImageHeight = 1080,
           uploadCompleted = page.converted,
-          infiniteCanvas = page.infiniteCanvas,
+          infiniteWhiteboard = page.infiniteWhiteboard,
         )
       )
     )
@@ -120,15 +120,15 @@ object PresPageDAO {
     )
   }
 
-  def updateInfiniteCanvas(pageId: String, infiniteCanvas: Boolean) = {
+  def updateInfiniteWhiteboard(pageId: String, infiniteWhiteboard: Boolean) = {
     DatabaseConnection.db.run(
       TableQuery[PresPageDbTableDef]
         .filter(_.pageId === pageId)
-        .map(p => p.infiniteCanvas)
-        .update(infiniteCanvas)
+        .map(p => p.infiniteWhiteboard)
+        .update(infiniteWhiteboard)
     ).onComplete {
-      case Success(rowsAffected) => DatabaseConnection.logger.debug(s"$rowsAffected row(s) updated infiniteCanvas on PresPage table")
-      case Failure(e)            => DatabaseConnection.logger.debug(s"Error updating infiniteCanvas on PresPage: $e")
+      case Success(rowsAffected) => DatabaseConnection.logger.debug(s"$rowsAffected row(s) updated infiniteWhiteboard on PresPage table")
+      case Failure(e)            => DatabaseConnection.logger.debug(s"Error updating infiniteWhiteboard on PresPage: $e")
     }
   }
 }

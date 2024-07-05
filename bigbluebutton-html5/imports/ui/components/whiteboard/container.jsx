@@ -83,7 +83,7 @@ const WhiteboardContainer = (props) => {
 
   const curPageNum = currentPresentationPage?.num;
   const curPageId = currentPresentationPage?.pageId;
-  const isInfiniteCanvas = currentPresentationPage?.infiniteCanvas;
+  const isInfiniteWhiteboard = currentPresentationPage?.infiniteWhiteboard;
   const curPageIdRef = useRef();
 
   React.useEffect(() => {
@@ -352,7 +352,7 @@ const WhiteboardContainer = (props) => {
         locale: SettingsService?.application?.locale,
         darkTheme: SettingsService?.application?.darkTheme,
         selectedLayout: SettingsService?.application?.selectedLayout,
-        isInfiniteCanvas,
+        isInfiniteWhiteboard,
       }}
       {...props}
       meetingId={Auth.meetingID}

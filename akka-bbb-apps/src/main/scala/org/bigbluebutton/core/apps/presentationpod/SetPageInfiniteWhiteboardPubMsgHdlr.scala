@@ -7,24 +7,24 @@ import org.bigbluebutton.core.domain.MeetingState2x
 import org.bigbluebutton.core.running.LiveMeeting
 import org.bigbluebutton.core.db.PresPageDAO
 
-trait SetPageInfiniteCanvasPubMsgHdlr extends RightsManagementTrait {
+trait SetPageInfiniteWhiteboardPubMsgHdlr extends RightsManagementTrait {
   this: PresentationPodHdlrs =>
 
   def handle(
-      msg: SetPageInfiniteCanvasPubMsg, state: MeetingState2x,
+      msg: SetPageInfiniteWhiteboardPubMsg, state: MeetingState2x,
       liveMeeting: LiveMeeting, bus: MessageBus
   ): MeetingState2x = {
 
     if (permissionFailed(PermissionCheck.GUEST_LEVEL, PermissionCheck.PRESENTER_LEVEL, liveMeeting.users2x, msg.header.userId)) {
       val meetingId = liveMeeting.props.meetingProp.intId
-      val reason = "No permission to set infinite canvas."
+      val reason = "No permission to set infinite whiteboard."
       PermissionCheck.ejectUserForFailedPermission(meetingId, msg.header.userId, reason, bus.outGW, liveMeeting)
       state
     } else {
       val pageId = msg.body.pageId
-      val infiniteCanvas = msg.body.infiniteCanvas
+      val infiniteWhiteboard = msg.body.infiniteWhiteboard
 
-      PresPageDAO.updateInfiniteCanvas(pageId, infiniteCanvas)
+      PresPageDAO.updateInfiniteWhiteboard(pageId, infiniteWhiteboard)
 
       state
     }

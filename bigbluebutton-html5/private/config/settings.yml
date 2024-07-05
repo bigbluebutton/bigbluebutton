@@ -997,7 +997,7 @@ public:
   whiteboard:
     annotationsQueueProcessInterval: 60
     cursorInterval: 150
-    allowInfiniteCanvas: false
+    allowInfiniteWhiteboard: false
     pointerDiameter: 5
     maxStickyNoteLength: 1000
     # limit number of annotations per slide

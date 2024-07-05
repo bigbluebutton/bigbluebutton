@@ -177,7 +177,7 @@ object PresPresentationDAO {
               maxImageWidth = 1440,
               maxImageHeight = 1080,
               uploadCompleted = page._2.converted,
-              infiniteCanvas = page._2.infiniteCanvas,
+              infiniteWhiteboard = page._2.infiniteWhiteboard,
             )
           )
         }

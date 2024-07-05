@@ -5,12 +5,12 @@ export default function buildRedisMessage(sessionVariables: Record<string, unkno
   throwErrorIfNotPresenter(sessionVariables);
   throwErrorIfInvalidInput(input,
     [
-      {name: 'infiniteCanvas', type: 'boolean', required: true},
+      {name: 'infiniteWhiteboard', type: 'boolean', required: true},
       {name: 'pageId', type: 'string', required: true},
     ]
   )
 
-  const eventName = `SetPageInfiniteCanvasPubMsg`;
+  const eventName = `SetPageInfiniteWhiteboardPubMsg`;
 
   const routing = {
     meetingId: sessionVariables['x-hasura-meetingid'] as string,
@@ -25,7 +25,7 @@ export default function buildRedisMessage(sessionVariables: Record<string, unkno
 
   const body = {
     pageId: input.pageId,
-    infiniteCanvas: input.infiniteCanvas,
+    infiniteWhiteboard: input.infiniteWhiteboard,
   };
 
   return { eventName, routing, header, body };
