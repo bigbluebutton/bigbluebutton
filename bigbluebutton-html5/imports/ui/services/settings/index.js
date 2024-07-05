@@ -5,8 +5,7 @@ import SessionStorage from '/imports/ui/services/storage/session';
 import { CHANGED_SETTINGS, DEFAULT_SETTINGS, SETTINGS } from './enums';
 
 class Settings {
-  constructor(defaultValues = {}) {
-    const writableDefaultValues = JSON.parse(JSON.stringify(defaultValues));
+  constructor() {
     Object.values(SETTINGS).forEach((p) => {
       const privateProp = `_${p}`;
       this[privateProp] = {
@@ -27,18 +26,16 @@ class Settings {
       });
     });
     this.defaultSettings = {};
-    // Sets default locale to browser locale
-    writableDefaultValues.application.locale = navigator.languages ? navigator.languages[0] : false
-      || navigator.language
-      || writableDefaultValues.application.locale;
-
-    this.setDefault(writableDefaultValues);
-    this.loadChanged();
   }
 
   setDefault(defaultValues) {
+    if (this?.application?.locale) {
+      this.application.locale = navigator.languages ? navigator.languages[0] : false
+      || navigator.language;
+    }
+
     Object.keys(defaultValues).forEach((key) => {
-      this[key] = defaultValues[key];
+      this[`_${key}`].reactiveVar(defaultValues[key]);
       this.defaultSettings[`_${key}`] = defaultValues[key];
     });
 
@@ -103,12 +100,7 @@ class Settings {
   }
 }
 
-let SettingsSingleton = null;
-export const getSettingsSingletonInstance = () => {
-  if (!SettingsSingleton) {
-    SettingsSingleton = new Settings(window.meetingClientSettings.public.app.defaultSettings);
-  }
-  return SettingsSingleton;
-};
+const SettingsSingleton = new Settings();
+export const getSettingsSingletonInstance = () => SettingsSingleton;
 
-export default getSettingsSingletonInstance;
+export default SettingsSingleton;
