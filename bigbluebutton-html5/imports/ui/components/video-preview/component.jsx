@@ -968,7 +968,7 @@ class VideoPreview extends Component {
         {tabNumber === 0 && (
           <Styled.Col>
             {this.renderDeviceSelectors()}
-            {this.renderBrightnessInput()}
+            {isVirtualBackgroundSupported() && this.renderBrightnessInput()}
           </Styled.Col>
         )}
         {tabNumber === 1 && shouldShowVirtualBackgrounds && (
@@ -1182,6 +1182,7 @@ class VideoPreview extends Component {
     const shouldShowVirtualBackgroundsTab = isVirtualBackgroundsEnabled 
     && !cameraAsContent
     && !(webcamDeviceId === cameraAsContentDeviceId)
+    && isVirtualBackgroundSupported()
 
     return (
       <Styled.VideoPreviewModal
