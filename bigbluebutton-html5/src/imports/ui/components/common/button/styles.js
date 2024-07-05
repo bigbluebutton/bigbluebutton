@@ -1,5 +1,5 @@
 import styled from 'styled-components';
-import Icon from '/imports/ui/components/common/icon/component';
+import Icon from 'imports/ui/components/common/icon/component';
 import {
   btnSpacing,
   borderRadius,
@@ -14,13 +14,13 @@ import {
   lgPaddingX,
   jumboPaddingY,
   jumboPaddingX,
-} from '/imports/ui/stylesheets/styled-components/general';
+} from 'imports/ui/stylesheets/styled-components/general';
 import {
   fontSizeSmall,
   fontSizeBase,
   fontSizeLarge,
   btnFontWeight,
-} from '/imports/ui/stylesheets/styled-components/typography';
+} from 'imports/ui/stylesheets/styled-components/typography';
 import {
   btnDefaultColor,
   btnDefaultBg,
@@ -54,7 +54,7 @@ import {
   btnMutedBg,
   colorWhite,
   colorGray,
-} from '/imports/ui/stylesheets/styled-components/palette';
+} from 'imports/ui/stylesheets/styled-components/palette';
 import BaseButton from './base/component';
 
 const ButtonIcon = styled(Icon)`

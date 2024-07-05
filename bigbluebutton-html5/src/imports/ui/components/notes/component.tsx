@@ -1,28 +1,28 @@
 import React, { useEffect, useState } from 'react';
 import { defineMessages, useIntl } from 'react-intl';
 import { useMutation } from '@apollo/client';
-import injectWbResizeEvent from '/imports/ui/components/presentation/resize-wrapper/component';
-import PadContainer from '/imports/ui/components/pads/pads-graphql/component';
-import browserInfo from '/imports/utils/browserInfo';
-import Header from '/imports/ui/components/common/control-header/component';
-import NotesDropdown from './notes-dropdown/component';
+import injectWbResizeEvent from 'imports/ui/components/presentation/resize-wrapper/component';
+import PadContainer from 'imports/ui/components/pads/pads-graphql/component';
+import browserInfo from 'imports/utils/browserInfo';
+import Header from 'imports/ui/components/common/control-header/component';
 import {
   PANELS, ACTIONS,
-} from '/imports/ui/components/layout/enums';
-import { layoutSelectInput, layoutDispatch, layoutSelectOutput } from '/imports/ui/components/layout/context';
-import useCurrentUser from '/imports/ui/core/hooks/useCurrentUser';
+} from 'imports/ui/components/layout/enums';
+import { layoutSelectInput, layoutDispatch, layoutSelectOutput } from 'imports/ui/components/layout/context';
+import useCurrentUser from 'imports/ui/core/hooks/useCurrentUser';
+import { EXTERNAL_VIDEO_STOP } from 'imports/ui/components/external-video-player/mutations';
+import {
+  screenshareHasEnded,
+  useIsScreenBroadcasting,
+} from 'imports/ui/components/screenshare/service';
+import { useStorageKey } from 'imports/ui/services/storage/hooks';
+import NotesDropdown from './notes-dropdown/component';
 import useHasPermission from './hooks/useHasPermission';
 import Styled from './styles';
 import { PINNED_PAD_SUBSCRIPTION, PinnedPadSubscriptionResponse } from './queries';
 import { PIN_NOTES } from './mutations';
-import { EXTERNAL_VIDEO_STOP } from '/imports/ui/components/external-video-player/mutations';
-import {
-  screenshareHasEnded,
-  useIsScreenBroadcasting,
-} from '/imports/ui/components/screenshare/service';
 import useDeduplicatedSubscription from '../../core/hooks/useDeduplicatedSubscription';
 import { useIsPresentationEnabled } from '../../services/features';
-import { useStorageKey } from '/imports/ui/services/storage/hooks';
 
 const intlMessages = defineMessages({
   hide: {
@@ -60,9 +60,10 @@ interface NotesGraphqlProps extends NotesContainerGraphqlProps {
   isPresentationEnabled: boolean;
 }
 
-let timoutRef: number | undefined;
+let timoutRef: ReturnType<typeof setTimeout> | undefined;
 const sidebarContentToIgnoreDelay = ['captions'];
 
+// eslint-disable-next-line react/function-component-definition
 const NotesGraphql: React.FC<NotesGraphqlProps> = (props) => {
   const {
     hasPermission,
@@ -171,6 +172,7 @@ const NotesGraphql: React.FC<NotesGraphqlProps> = (props) => {
   );
 };
 
+// eslint-disable-next-line react/function-component-definition
 const NotesContainerGraphql: React.FC<NotesContainerGraphqlProps> = (props) => {
   const { area, isToSharedNotesBeShow } = props;
 

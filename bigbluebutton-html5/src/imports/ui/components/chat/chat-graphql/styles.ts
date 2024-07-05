@@ -1,7 +1,7 @@
 import styled from 'styled-components';
-import { colorWhite, colorPrimary } from '/imports/ui/stylesheets/styled-components/palette';
-import { smallOnly } from '/imports/ui/stylesheets/styled-components/breakpoints';
-import { smPaddingX } from '/imports/ui/stylesheets/styled-components/general';
+import { colorWhite, colorPrimary } from 'imports/ui/stylesheets/styled-components/palette';
+import { smallOnly } from 'imports/ui/stylesheets/styled-components/breakpoints';
+import { smPaddingX } from 'imports/ui/stylesheets/styled-components/general';
 
 interface ChatProps {
   isChrome: boolean;

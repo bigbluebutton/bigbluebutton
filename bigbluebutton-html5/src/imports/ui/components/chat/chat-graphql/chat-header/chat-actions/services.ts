@@ -1,8 +1,8 @@
-import { Message } from '/imports/ui/Types/message';
-import { stripTags, unescapeHtml } from '/imports/utils/string-utils';
+import { Message } from 'imports/ui/Types/message';
+import { stripTags, unescapeHtml } from 'imports/utils/string-utils';
 import { IntlShape, defineMessages } from 'react-intl';
-import { ChatMessageType } from '/imports/ui/core/enums/chat';
-import PollService from '/imports/ui/components/poll/service';
+import { ChatMessageType } from 'imports/ui/core/enums/chat';
+import PollService from 'imports/ui/components/poll/service';
 
 const intlMessages = defineMessages({
   chatClear: {

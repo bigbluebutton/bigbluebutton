@@ -5,11 +5,11 @@ import { GraphQLWsLink } from '@apollo/client/link/subscriptions';
 import { createClient } from 'graphql-ws';
 import { onError } from '@apollo/client/link/error';
 import React, { useContext, useEffect, useRef } from 'react';
-import { LoadingContext } from '/imports/ui/components/common/loading-screen/loading-screen-HOC/component';
-import logger from '/imports/startup/client/logger';
+import { LoadingContext } from 'imports/ui/components/common/loading-screen/loading-screen-HOC/component';
+import logger from 'imports/startup/client/logger';
 import apolloContextHolder from '../../core/graphql/apolloContextHolder/apolloContextHolder';
 import connectionStatus from '../../core/graphql/singletons/connectionStatus';
-import deviceInfo from '/imports/utils/deviceInfo';
+import deviceInfo from 'imports/utils/deviceInfo';
 
 interface ConnectionManagerProps {
   children: React.ReactNode;

@@ -24,18 +24,18 @@ import {
   toggleToolsAnimations,
   formatAnnotations,
 } from './service';
-import { SettingsService, getSettingsSingletonInstance } from '/imports/ui/services/settings';
-import Auth from '/imports/ui/services/auth';
+import { SettingsService, getSettingsSingletonInstance } from 'imports/ui/services/settings';
+import Auth from 'imports/ui/services/auth';
 import {
   layoutSelect,
   layoutDispatch,
-} from '/imports/ui/components/layout/context';
-import FullscreenService from '/imports/ui/components/common/fullscreen-button/service';
-import deviceInfo from '/imports/utils/deviceInfo';
+} from 'imports/ui/components/layout/context';
+import FullscreenService from 'imports/ui/components/common/fullscreen-button/service';
+import deviceInfo from 'imports/utils/deviceInfo';
 import Whiteboard from './component';
 
-import useCurrentUser from '/imports/ui/core/hooks/useCurrentUser';
-import useMeeting from '/imports/ui/core/hooks/useMeeting';
+import useCurrentUser from 'imports/ui/core/hooks/useCurrentUser';
+import useMeeting from 'imports/ui/core/hooks/useMeeting';
 import {
   PRESENTATION_SET_ZOOM,
   PRES_ANNOTATION_DELETE,

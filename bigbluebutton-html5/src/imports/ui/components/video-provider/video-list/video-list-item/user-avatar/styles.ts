@@ -1,11 +1,11 @@
-import UserAvatar from '/imports/ui/components/user-avatar/component';
+import UserAvatar from 'imports/ui/components/user-avatar/component';
 import {
   userIndicatorsOffset,
   mdPaddingY,
-} from '/imports/ui/stylesheets/styled-components/general';
+} from 'imports/ui/stylesheets/styled-components/general';
 import {
   colorPrimary,
-} from '/imports/ui/stylesheets/styled-components/palette';
+} from 'imports/ui/stylesheets/styled-components/palette';
 import styled from 'styled-components';
 
 const UserAvatarStyled = styled(UserAvatar)<{

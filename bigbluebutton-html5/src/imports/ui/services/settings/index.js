@@ -1,7 +1,7 @@
 import { makeVar } from '@apollo/client';
 import { isEmpty } from 'radash';
-import LocalStorage from '/imports/ui/services/storage/local';
-import SessionStorage from '/imports/ui/services/storage/session';
+import LocalStorage from 'imports/ui/services/storage/local';
+import SessionStorage from 'imports/ui/services/storage/session';
 import { CHANGED_SETTINGS, DEFAULT_SETTINGS, SETTINGS } from './enums';
 
 class Settings {
@@ -110,5 +110,8 @@ export const getSettingsSingletonInstance = () => {
   }
   return SettingsSingleton;
 };
+
+// TODO - fix error:
+// export 'SettingsService' (imported as 'SettingsService') was not found in 'imports/ui/services/settings' (possible exports: default, getSettingsSingletonInstance)
 
 export default getSettingsSingletonInstance;

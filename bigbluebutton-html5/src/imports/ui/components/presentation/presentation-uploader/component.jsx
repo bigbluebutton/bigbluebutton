@@ -1,19 +1,19 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import { defineMessages, injectIntl } from 'react-intl';
-import { TAB } from '/imports/utils/keyCodes';
-import deviceInfo from '/imports/utils/deviceInfo';
-import Button from '/imports/ui/components/common/button/component';
+import { TAB } from 'imports/utils/keyCodes';
+import deviceInfo from 'imports/utils/deviceInfo';
+import Button from 'imports/ui/components/common/button/component';
 import update from 'immutability-helper';
-import logger from '/imports/startup/client/logger';
+import logger from 'imports/startup/client/logger';
 import { toast } from 'react-toastify';
-import { registerTitleView, unregisterTitleView } from '/imports/utils/dom-utils';
+import { registerTitleView, unregisterTitleView } from 'imports/utils/dom-utils';
 import Styled from './styles';
 import PresentationDownloadDropdown from './presentation-download-dropdown/component';
-import { getSettingsSingletonInstance } from '/imports/ui/services/settings';
-import Radio from '/imports/ui/components/common/radio/component';
+import { getSettingsSingletonInstance } from 'imports/ui/services/settings';
+import Radio from 'imports/ui/components/common/radio/component';
 import { unique } from 'radash';
-import Session from '/imports/ui/services/storage/in-memory';
+import Session from 'imports/ui/services/storage/in-memory';
 
 const { isMobile } = deviceInfo;
 const propTypes = {

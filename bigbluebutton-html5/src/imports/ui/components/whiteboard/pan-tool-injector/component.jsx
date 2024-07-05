@@ -1,7 +1,7 @@
 import * as React from 'react';
 import { createRoot } from 'react-dom/client';
 import PropTypes from 'prop-types';
-import { HUNDRED_PERCENT } from '/imports/utils/slideCalcUtils';
+import { HUNDRED_PERCENT } from 'imports/utils/slideCalcUtils';
 import Styled from '../styles';
 
 const DEFAULT_TOOL_COUNT = 9;

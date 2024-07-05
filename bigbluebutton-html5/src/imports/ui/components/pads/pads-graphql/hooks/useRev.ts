@@ -1,6 +1,6 @@
 import { gql } from '@apollo/client';
 import { useEffect, useState } from 'react';
-import useDeduplicatedSubscription from '/imports/ui/core/hooks/useDeduplicatedSubscription';
+import useDeduplicatedSubscription from 'imports/ui/core/hooks/useDeduplicatedSubscription';
 
 interface GetPadLastRevResponse {
   sharedNotes: Array<{

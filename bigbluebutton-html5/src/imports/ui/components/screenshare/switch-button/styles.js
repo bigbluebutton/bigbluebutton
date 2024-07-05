@@ -3,8 +3,8 @@ import {
   colorWhite,
   colorTransparent,
   colorBlack,
-} from '/imports/ui/stylesheets/styled-components/palette';
-import Button from '/imports/ui/components/common/button/component';
+} from 'imports/ui/stylesheets/styled-components/palette';
+import Button from 'imports/ui/components/common/button/component';
 
 const SwitchButtonWrapper = styled.div`
   position: absolute;

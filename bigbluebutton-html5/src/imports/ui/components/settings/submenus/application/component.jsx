@@ -1,14 +1,14 @@
 import React from 'react';
-import Button from '/imports/ui/components/common/button/component';
-import Toggle from '/imports/ui/components/common/switch/component';
-import LocalesDropdown from '/imports/ui/components/common/locales-dropdown/component';
+import Button from 'imports/ui/components/common/button/component';
+import Toggle from 'imports/ui/components/common/switch/component';
+import LocalesDropdown from 'imports/ui/components/common/locales-dropdown/component';
 import { defineMessages, injectIntl } from 'react-intl';
 import BaseMenu from '../base/component';
 import Styled from './styles';
-import VideoService from '/imports/ui/components/video-provider/service';
-import WakeLockService from '/imports/ui/components/wake-lock/service';
-import { ACTIONS } from '/imports/ui/components/layout/enums';
-import { getSettingsSingletonInstance } from '/imports/ui/services/settings';
+import VideoService from 'imports/ui/components/video-provider/service';
+import WakeLockService from 'imports/ui/components/wake-lock/service';
+import { ACTIONS } from 'imports/ui/components/layout/enums';
+import { getSettingsSingletonInstance } from 'imports/ui/services/settings';
 
 const MIN_FONTSIZE = 0;
 

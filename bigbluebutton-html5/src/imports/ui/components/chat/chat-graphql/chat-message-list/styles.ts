@@ -3,10 +3,10 @@ import {
   mdPaddingX,
   smPaddingX,
   borderRadius,
-} from '/imports/ui/stylesheets/styled-components/general';
-import { ScrollboxVertical } from '/imports/ui/stylesheets/styled-components/scrollable';
-import { colorGrayDark } from '/imports/ui/stylesheets/styled-components/palette';
-import { ButtonElipsis } from '/imports/ui/stylesheets/styled-components/placeholders';
+} from 'imports/ui/stylesheets/styled-components/general';
+import { ScrollboxVertical } from 'imports/ui/stylesheets/styled-components/scrollable';
+import { colorGrayDark } from 'imports/ui/stylesheets/styled-components/palette';
+import { ButtonElipsis } from 'imports/ui/stylesheets/styled-components/placeholders';
 
 interface ChatMessagesProps {
   isRTL: boolean;

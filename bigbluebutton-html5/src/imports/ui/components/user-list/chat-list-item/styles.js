@@ -1,19 +1,19 @@
 import styled from 'styled-components';
 
-import Styled from '/imports/ui/components/user-list/styles';
-import ContentStyled from '/imports/ui/components/user-list/user-list-content/styles';
-import { fontSizeSmall } from '/imports/ui/stylesheets/styled-components/typography';
+import Styled from 'imports/ui/components/user-list/styles';
+import ContentStyled from 'imports/ui/components/user-list/user-list-content/styles';
+import { fontSizeSmall } from 'imports/ui/stylesheets/styled-components/typography';
 import {
   lgPaddingY,
   smPaddingY,
   borderSize,
-} from '/imports/ui/stylesheets/styled-components/general';
+} from 'imports/ui/stylesheets/styled-components/general';
 import {
   colorGrayDark,
   colorOffWhite,
   listItemBgHover,
   colorGrayLight,
-} from '/imports/ui/stylesheets/styled-components/palette';
+} from 'imports/ui/stylesheets/styled-components/palette';
 
 const ChatListItemLink = styled.div`
   display: flex;

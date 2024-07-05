@@ -1,5 +1,5 @@
 import styled from 'styled-components';
-import Button from '/imports/ui/components/common/button/component';
+import Button from 'imports/ui/components/common/button/component';
 
 const QuickVideoButton = styled(Button)`
   margin-left: .5rem;

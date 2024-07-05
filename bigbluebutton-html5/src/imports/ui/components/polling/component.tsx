@@ -3,12 +3,12 @@ import React, {
 } from 'react';
 import { useMutation } from '@apollo/client';
 import { defineMessages, useIntl } from 'react-intl';
-import Checkbox from '/imports/ui/components/common/checkbox/component';
-import useCurrentUser from '/imports/ui/core/hooks/useCurrentUser';
+import Checkbox from 'imports/ui/components/common/checkbox/component';
+import useCurrentUser from 'imports/ui/core/hooks/useCurrentUser';
 import {
   POLL_SUBMIT_TYPED_VOTE,
   POLL_SUBMIT_VOTE,
-} from '/imports/ui/components/poll/mutations';
+} from 'imports/ui/components/poll/mutations';
 import {
   hasPendingPoll,
   HasPendingPollResponse,

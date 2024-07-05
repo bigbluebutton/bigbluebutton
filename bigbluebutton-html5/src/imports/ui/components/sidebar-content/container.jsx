@@ -4,8 +4,8 @@ import { layoutSelectInput, layoutSelectOutput, layoutDispatch } from '../layout
 
 import {
   CURRENT_PRESENTATION_PAGE_SUBSCRIPTION,
-} from '/imports/ui/components/whiteboard/queries';
-import useCurrentUser from '/imports/ui/core/hooks/useCurrentUser';
+} from 'imports/ui/components/whiteboard/queries';
+import useCurrentUser from 'imports/ui/core/hooks/useCurrentUser';
 import useDeduplicatedSubscription from '../../core/hooks/useDeduplicatedSubscription';
 
 const SidebarContentContainer = () => {

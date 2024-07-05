@@ -6,7 +6,7 @@ import { useQuery } from '@apollo/client';
 import PopupContent from './popup-content/component';
 import { layoutSelect } from '../../../layout/context';
 import { Layout } from '../../../layout/layoutTypes';
-import { ChatCommands } from '/imports/ui/core/enums/chat';
+import { ChatCommands } from 'imports/ui/core/enums/chat';
 
 interface ChatPopupProps {
   welcomeMessage: string | null;

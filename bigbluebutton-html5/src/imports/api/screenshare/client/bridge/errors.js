@@ -1,6 +1,6 @@
 import {
   SFU_SERVER_SIDE_ERRORS
-} from '/imports/ui/services/bbb-webrtc-sfu/broker-base-errors';
+} from 'imports/ui/services/bbb-webrtc-sfu/broker-base-errors';
 
 // Mapped getDisplayMedia errors. These are bridge agnostic
 // See: https://developer.mozilla.org/en-US/docs/Web/API/MediaDevices/getDisplayMedia

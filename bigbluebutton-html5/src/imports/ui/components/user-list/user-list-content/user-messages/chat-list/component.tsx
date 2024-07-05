@@ -3,10 +3,10 @@ import { TransitionGroup, CSSTransition } from 'react-transition-group';
 import { defineMessages, useIntl } from 'react-intl';
 import Styled from './styles';
 import ChatListItem from './chat-list-item/component';
-import useChat from '/imports/ui/core/hooks/useChat';
-import { Chat } from '/imports/ui/Types/chat';
-import Service from '/imports/ui/components/user-list/service';
-import { GraphqlDataHookSubscriptionResponse } from '/imports/ui/Types/hook';
+import useChat from 'imports/ui/core/hooks/useChat';
+import { Chat } from 'imports/ui/Types/chat';
+import Service from 'imports/ui/components/user-list/service';
+import { GraphqlDataHookSubscriptionResponse } from 'imports/ui/Types/hook';
 
 const intlMessages = defineMessages({
   messagesTitle: {

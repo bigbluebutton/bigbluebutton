@@ -6,7 +6,7 @@ import {
 } from 'bigbluebutton-html-plugin-sdk/dist/cjs/core/types';
 import { DataChannelHooks, DataChannelTypes } from 'bigbluebutton-html-plugin-sdk/dist/cjs/data-channel/enums';
 
-import createUseSubscription from '/imports/ui/core/hooks/createUseSubscription';
+import createUseSubscription from 'imports/ui/core/hooks/createUseSubscription';
 import { HookEvents } from 'bigbluebutton-html-plugin-sdk/dist/cjs/core/enum';
 import { DataChannelArguments } from 'bigbluebutton-html-plugin-sdk/dist/cjs/data-channel/types';
 import { PLUGIN_DATA_CHANNEL_LATEST_ITEM, PLUGIN_DATA_CHANNEL_NEW_ITEMS, PLUGIN_DATA_CHANNEL_All_ITEMS } from '../subscriptions';

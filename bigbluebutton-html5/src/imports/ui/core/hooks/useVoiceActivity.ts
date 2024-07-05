@@ -1,5 +1,5 @@
-import logger from '/imports/startup/client/logger';
-import VOICE_ACTIVITY, { VoiceActivityResponse } from '/imports/ui/core/graphql/queries/whoIsTalking';
+import logger from 'imports/startup/client/logger';
+import VOICE_ACTIVITY, { VoiceActivityResponse } from 'imports/ui/core/graphql/queries/whoIsTalking';
 import useDeduplicatedSubscription from './useDeduplicatedSubscription';
 
 const useVoiceActivity = () => {

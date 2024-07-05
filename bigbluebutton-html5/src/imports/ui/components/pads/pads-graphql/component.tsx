@@ -7,7 +7,7 @@ import { CREATE_SESSION } from './mutations';
 import Service from './service';
 import Styled from './styles';
 import PadContent from './content/component';
-import useDeduplicatedSubscription from '/imports/ui/core/hooks/useDeduplicatedSubscription';
+import useDeduplicatedSubscription from 'imports/ui/core/hooks/useDeduplicatedSubscription';
 
 const intlMessages = defineMessages({
   hint: {

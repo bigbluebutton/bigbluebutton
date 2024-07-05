@@ -4,8 +4,8 @@ import {
   colorHeading,
   palettePlaceholderText,
   colorGrayLight,
-} from '/imports/ui/stylesheets/styled-components/palette';
-import { lineHeightComputed } from '/imports/ui/stylesheets/styled-components/typography';
+} from 'imports/ui/stylesheets/styled-components/palette';
+import { lineHeightComputed } from 'imports/ui/stylesheets/styled-components/typography';
 
 interface ChatUserNameProps {
   isOnline: boolean;

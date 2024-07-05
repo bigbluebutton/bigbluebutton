@@ -1,7 +1,7 @@
 import styled, { css, keyframes } from 'styled-components';
-import ModalSimple from '/imports/ui/components/common/modal/simple/component';
-import { colorBlack } from '/imports/ui/stylesheets/styled-components/palette';
-import { jumboPaddingX } from '/imports/ui/stylesheets/styled-components/general';
+import ModalSimple from 'imports/ui/components/common/modal/simple/component';
+import { colorBlack } from 'imports/ui/stylesheets/styled-components/palette';
+import { jumboPaddingX } from 'imports/ui/stylesheets/styled-components/general';
 
 const bounce = keyframes`
   0%,

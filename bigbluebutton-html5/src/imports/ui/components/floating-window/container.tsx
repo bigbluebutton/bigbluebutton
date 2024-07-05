@@ -2,7 +2,7 @@ import * as React from 'react';
 import { useContext } from 'react';
 import FloatingWindow from './component';
 import * as PluginSdk from 'bigbluebutton-html-plugin-sdk';
-import { PluginsContext } from '/imports/ui/components/components-data/plugin-context/context';
+import { PluginsContext } from 'imports/ui/components/components-data/plugin-context/context';
 
 const FloatingWindowContainer = () => {
   const {

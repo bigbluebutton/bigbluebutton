@@ -1,17 +1,17 @@
 import React, { useEffect, useRef } from 'react';
-import useDeduplicatedSubscription from '/imports/ui/core/hooks/useDeduplicatedSubscription';
+import useDeduplicatedSubscription from 'imports/ui/core/hooks/useDeduplicatedSubscription';
 import { MEETING_PERMISSIONS_SUBSCRIPTION } from '../queries';
-import { setLocalUserList, useLoadedUserList } from '/imports/ui/core/hooks/useLoadedUserList';
-import useCurrentUser from '/imports/ui/core/hooks/useCurrentUser';
-import { CURRENT_PRESENTATION_PAGE_SUBSCRIPTION } from '/imports/ui/components/whiteboard/queries';
-import { User } from '/imports/ui/Types/user';
-import { GraphqlDataHookSubscriptionResponse } from '/imports/ui/Types/hook';
-import { Meeting } from '/imports/ui/Types/meeting';
+import { setLocalUserList, useLoadedUserList } from 'imports/ui/core/hooks/useLoadedUserList';
+import useCurrentUser from 'imports/ui/core/hooks/useCurrentUser';
+import { CURRENT_PRESENTATION_PAGE_SUBSCRIPTION } from 'imports/ui/components/whiteboard/queries';
+import { User } from 'imports/ui/Types/user';
+import { GraphqlDataHookSubscriptionResponse } from 'imports/ui/Types/hook';
+import { Meeting } from 'imports/ui/Types/meeting';
 import Styled from '../styles';
 import UserActions from '../user-actions/component';
 import ListItem from '../list-item/component';
-import { layoutSelect } from '/imports/ui/components/layout/context';
-import { Layout } from '/imports/ui/components/layout/layoutTypes';
+import { layoutSelect } from 'imports/ui/components/layout/context';
+import { Layout } from 'imports/ui/components/layout/layoutTypes';
 import SkeletonUserListItem from '../list-item/skeleton/component';
 
 interface UserListParticipantsContainerProps {

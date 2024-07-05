@@ -1,6 +1,6 @@
 import * as PluginSdk from 'bigbluebutton-html-plugin-sdk';
-import { User } from '/imports/ui/Types/user';
-import { GraphqlDataHookSubscriptionResponse } from '/imports/ui/Types/hook';
+import { User } from 'imports/ui/Types/user';
+import { GraphqlDataHookSubscriptionResponse } from 'imports/ui/Types/hook';
 
 const formatCurrentUserResponseFromGraphql = (
   graphqlDataResult: GraphqlDataHookSubscriptionResponse<Partial<User>>,

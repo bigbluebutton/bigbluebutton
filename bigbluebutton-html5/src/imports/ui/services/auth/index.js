@@ -1,7 +1,7 @@
 /* eslint prefer-promise-reject-errors: 0 */
 import { makeVar, useReactiveVar } from '@apollo/client';
-import Storage from '/imports/ui/services/storage/session';
-import Session from '/imports/ui/services/storage/in-memory';
+import Storage from 'imports/ui/services/storage/session';
+import Session from 'imports/ui/services/storage/in-memory';
 
 class Auth {
   constructor() {
@@ -33,7 +33,7 @@ class Auth {
     Storage.setItem('meetingID', this._meetingID);
   }
 
-  set _connectionID(connectionId) {
+  set connectionID(connectionId) {
     this._connectionID = connectionId;
     Storage.setItem('sessionToken', this._connectionID);
   }
@@ -182,14 +182,14 @@ class Auth {
 
   logout() {
     if (!this.loggedIn) {
-      if (allowRedirectToLogoutURL()) {
+      if (this.allowRedirectToLogoutURL()) {
         return Promise.resolve(this._logoutURL);
       }
       return Promise.resolve();
     }
 
     return new Promise((resolve) => {
-      if (allowRedirectToLogoutURL()) {
+      if (this.allowRedirectToLogoutURL()) {
         resolve(this._logoutURL);
       }
 

@@ -2,8 +2,8 @@ import styled from 'styled-components';
 import {
   colorWhite,
   colorContentBackground,
-} from '/imports/ui/stylesheets/styled-components/palette';
-import SpinnerStyles from '/imports/ui/components/common/loading-screen/styles';
+} from 'imports/ui/stylesheets/styled-components/palette';
+import SpinnerStyles from 'imports/ui/components/common/loading-screen/styles';
 
 const ScreenshareContainerInside = styled.div`
   display: flex;

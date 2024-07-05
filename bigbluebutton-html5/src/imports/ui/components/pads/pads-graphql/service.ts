@@ -1,5 +1,5 @@
-import Auth from '/imports/ui/services/auth';
-import { getSettingsSingletonInstance } from '/imports/ui/services/settings';
+import Auth from 'imports/ui/services/auth';
+import { getSettingsSingletonInstance } from 'imports/ui/services/settings';
 
 const getLang = (): string => {
   const Settings = getSettingsSingletonInstance();

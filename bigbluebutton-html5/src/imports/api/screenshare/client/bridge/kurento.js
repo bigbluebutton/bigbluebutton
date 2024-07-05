@@ -1,12 +1,12 @@
-import Auth from '/imports/ui/services/auth';
-import logger from '/imports/startup/client/logger';
+import Auth from 'imports/ui/services/auth';
+import logger from 'imports/startup/client/logger';
 import BridgeService from './service';
-import ScreenshareBroker from '/imports/ui/services/bbb-webrtc-sfu/screenshare-broker';
-import { setIsSharing, screenShareEndAlert, setOutputDeviceId } from '/imports/ui/components/screenshare/service';
+import ScreenshareBroker from 'imports/ui/services/bbb-webrtc-sfu/screenshare-broker';
+import { setIsSharing, screenShareEndAlert, setOutputDeviceId } from 'imports/ui/components/screenshare/service';
 import { SCREENSHARING_ERRORS } from './errors';
-import { shouldForceRelay } from '/imports/ui/services/bbb-webrtc-sfu/utils';
-import MediaStreamUtils from '/imports/utils/media-stream-utils';
-import { notifyStreamStateChange } from '/imports/ui/services/bbb-webrtc-sfu/stream-state-service';
+import { shouldForceRelay } from 'imports/ui/services/bbb-webrtc-sfu/utils';
+import MediaStreamUtils from 'imports/utils/media-stream-utils';
+import { notifyStreamStateChange } from 'imports/ui/services/bbb-webrtc-sfu/stream-state-service';
 
 const BRIDGE_NAME = 'kurento'
 const SCREENSHARE_VIDEO_TAG = 'screenshareVideo';

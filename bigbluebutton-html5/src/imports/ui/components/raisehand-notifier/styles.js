@@ -7,22 +7,22 @@ import {
   toastIconSide,
   toastMargin,
   toastMarginMobile,
-} from '/imports/ui/stylesheets/styled-components/general';
+} from 'imports/ui/stylesheets/styled-components/general';
 import {
   colorWhite,
   colorGrayLighter,
   colorGrayLight,
   colorPrimary,
-} from '/imports/ui/stylesheets/styled-components/palette';
+} from 'imports/ui/stylesheets/styled-components/palette';
 import {
   fontSizeXL,
   fontSizeSmall,
-} from '/imports/ui/stylesheets/styled-components/typography';
+} from 'imports/ui/stylesheets/styled-components/typography';
 import {
   smallOnly,
-} from '/imports/ui/stylesheets/styled-components/breakpoints';
-import Button from '/imports/ui/components/common/button/component';
-import ToastStyled from '/imports/ui/components/common/toast/styles';
+} from 'imports/ui/stylesheets/styled-components/breakpoints';
+import Button from 'imports/ui/components/common/button/component';
+import ToastStyled from 'imports/ui/components/common/toast/styles';
 
 const Avatar = styled.div`
   cursor: pointer;

@@ -2,7 +2,7 @@ import React from 'react';
 import Styled from './styles';
 import { GenericSidekickContentProps } from '../types';
 import GenericContentItem from '../generic-content-item/component';
-import { PANELS, ACTIONS } from '/imports/ui/components/layout/enums';
+import { PANELS, ACTIONS } from 'imports/ui/components/layout/enums';
 
 const GenericSidekickContent: React.FC<GenericSidekickContentProps> = ({
   renderFunction,

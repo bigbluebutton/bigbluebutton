@@ -2,24 +2,24 @@
 /* eslint-disable @typescript-eslint/ban-ts-comment */
 import { useReactiveVar } from '@apollo/client';
 import React, { useCallback, useEffect } from 'react';
-import deviceInfo from '/imports/utils/deviceInfo';
-import AudioManager from '/imports/ui/services/audio-manager';
-import useCurrentUser from '/imports/ui/core/hooks/useCurrentUser';
-import { User } from '/imports/ui/Types/user';
+import deviceInfo from 'imports/utils/deviceInfo';
+import AudioManager from 'imports/ui/services/audio-manager';
+import useCurrentUser from 'imports/ui/core/hooks/useCurrentUser';
+import { User } from 'imports/ui/Types/user';
 import { defineMessages, useIntl } from 'react-intl';
 import {
   handleLeaveAudio, liveChangeInputDevice, liveChangeOutputDevice, notify, toggleMuteMicrophone,
 } from './service';
-import useMeeting from '/imports/ui/core/hooks/useMeeting';
-import { Meeting } from '/imports/ui/Types/meeting';
-import logger from '/imports/startup/client/logger';
-import Auth from '/imports/ui/services/auth';
-import MutedAlert from '/imports/ui/components/muted-alert/component';
+import useMeeting from 'imports/ui/core/hooks/useMeeting';
+import { Meeting } from 'imports/ui/Types/meeting';
+import logger from 'imports/startup/client/logger';
+import Auth from 'imports/ui/services/auth';
+import MutedAlert from 'imports/ui/components/muted-alert/component';
 import MuteToggle from './buttons/muteToggle';
 import ListenOnly from './buttons/listenOnly';
 import LiveSelection from './buttons/LiveSelection';
-import useWhoIsTalking from '/imports/ui/core/hooks/useWhoIsTalking';
-import useWhoIsUnmuted from '/imports/ui/core/hooks/useWhoIsUnmuted';
+import useWhoIsTalking from 'imports/ui/core/hooks/useWhoIsTalking';
+import useWhoIsUnmuted from 'imports/ui/core/hooks/useWhoIsUnmuted';
 
 const AUDIO_INPUT = 'audioinput';
 const AUDIO_OUTPUT = 'audiooutput';

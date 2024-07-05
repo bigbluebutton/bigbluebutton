@@ -1,21 +1,21 @@
 import React, { useEffect, useState } from 'react';
 import { defineMessages, useIntl } from 'react-intl';
-import Icon from '/imports/ui/components/common/icon/component';
-import NotesService from '/imports/ui/components/notes/service';
-import lockContextContainer from '/imports/ui/components/lock-viewers/context/container';
-import { PANELS } from '/imports/ui/components/layout/enums';
-import { notify } from '/imports/ui/services/notification';
-import { layoutSelectInput, layoutDispatch } from '/imports/ui/components/layout/context';
+import Icon from 'imports/ui/components/common/icon/component';
+import NotesService from 'imports/ui/components/notes/service';
+import lockContextContainer from 'imports/ui/components/lock-viewers/context/container';
+import { PANELS } from 'imports/ui/components/layout/enums';
+import { notify } from 'imports/ui/services/notification';
+import { layoutSelectInput, layoutDispatch } from 'imports/ui/components/layout/context';
 import {
   PINNED_PAD_SUBSCRIPTION,
   PinnedPadSubscriptionResponse,
-} from '/imports/ui/components/notes/queries';
+} from 'imports/ui/components/notes/queries';
 import Styled from './styles';
-import usePreviousValue from '/imports/ui/hooks/usePreviousValue';
-import useRev from '/imports/ui/components/pads/pads-graphql/hooks/useRev';
+import usePreviousValue from 'imports/ui/hooks/usePreviousValue';
+import useRev from 'imports/ui/components/pads/pads-graphql/hooks/useRev';
 import useNotesLastRev from '../../../../notes/hooks/useNotesLastRev';
 import useHasUnreadNotes from '../../../../notes/hooks/useHasUnreadNotes';
-import useDeduplicatedSubscription from '/imports/ui/core/hooks/useDeduplicatedSubscription';
+import useDeduplicatedSubscription from 'imports/ui/core/hooks/useDeduplicatedSubscription';
 
 const intlMessages = defineMessages({
   title: {

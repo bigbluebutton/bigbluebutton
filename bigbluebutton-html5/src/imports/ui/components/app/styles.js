@@ -1,7 +1,7 @@
 import styled from 'styled-components';
-import { barsPadding } from '/imports/ui/stylesheets/styled-components/general';
-import { FlexColumn } from '/imports/ui/stylesheets/styled-components/placeholders';
-import { colorBackground } from '/imports/ui/stylesheets/styled-components/palette';
+import { barsPadding } from 'imports/ui/stylesheets/styled-components/general';
+import { FlexColumn } from 'imports/ui/stylesheets/styled-components/placeholders';
+import { colorBackground } from 'imports/ui/stylesheets/styled-components/palette';
 
 const CaptionsWrapper = styled.div`
   height: auto;

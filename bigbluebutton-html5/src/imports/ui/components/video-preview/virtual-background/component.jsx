@@ -9,14 +9,14 @@ import {
   getImageNames,
   getVirtualBackgroundThumbnail,
   isVirtualBackgroundSupported,
-} from '/imports/ui/services/virtual-background/service';
+} from 'imports/ui/services/virtual-background/service';
 import { CustomVirtualBackgroundsContext } from './context';
-import VirtualBgService from '/imports/ui/components/video-preview/virtual-background/service';
-import logger from '/imports/startup/client/logger';
-import withFileReader from '/imports/ui/components/common/file-reader/component';
+import VirtualBgService from 'imports/ui/components/video-preview/virtual-background/service';
+import logger from 'imports/startup/client/logger';
+import withFileReader from 'imports/ui/components/common/file-reader/component';
 import Skeleton, { SkeletonTheme } from 'react-loading-skeleton';
 import 'react-loading-skeleton/dist/skeleton.css';
-import { getSettingsSingletonInstance } from '/imports/ui/services/settings';
+import { getSettingsSingletonInstance } from 'imports/ui/services/settings';
 
 const { MIME_TYPES_ALLOWED, MAX_FILE_SIZE } = VirtualBgService;
 

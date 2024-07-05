@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import Styled from './styles';
-import { uniqueId } from '/imports/utils/string-utils';
+import { uniqueId } from 'imports/utils/string-utils';
 
 export default class DropdownListTitle extends Component {
   constructor(props) {

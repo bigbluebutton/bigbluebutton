@@ -2,11 +2,11 @@ import styled from 'styled-components';
 import {
   colorPrimary,
   colorWhite,
-} from '/imports/ui/stylesheets/styled-components/palette';
-import { smallOnly } from '/imports/ui/stylesheets/styled-components/breakpoints';
-import Button from '/imports/ui/components/common/button/component';
-import ModalSimple from '/imports/ui/components/common/modal/simple/component';
-import ModalStyles from '/imports/ui/components/common/modal/simple/styles';
+} from 'imports/ui/stylesheets/styled-components/palette';
+import { smallOnly } from 'imports/ui/stylesheets/styled-components/breakpoints';
+import Button from 'imports/ui/components/common/button/component';
+import ModalSimple from 'imports/ui/components/common/modal/simple/component';
+import ModalStyles from 'imports/ui/components/common/modal/simple/styles';
 
 const Content = styled.div`
   align-items: center;

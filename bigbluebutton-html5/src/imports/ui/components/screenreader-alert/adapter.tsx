@@ -2,7 +2,7 @@ import { useEffect } from 'react';
 import { isEqual } from 'radash';
 import { defineMessages, useIntl } from 'react-intl';
 import { UNREAD_CHATS_SUBSCRIPTION, UnreadChatsSubscriptionResponse } from './queries';
-import usePreviousValue from '/imports/ui/hooks/usePreviousValue';
+import usePreviousValue from 'imports/ui/hooks/usePreviousValue';
 import { addAlert } from './service';
 import useDeduplicatedSubscription from '../../core/hooks/useDeduplicatedSubscription';
 

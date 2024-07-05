@@ -1,13 +1,13 @@
 import styled, { css, keyframes } from 'styled-components';
-import Button from '/imports/ui/components/common/button/component';
-import ModalSimple from '/imports/ui/components/common/modal/simple/component';
-import { smallOnly } from '/imports/ui/stylesheets/styled-components/breakpoints';
-import { colorPrimary } from '/imports/ui/stylesheets/styled-components/palette';
+import Button from 'imports/ui/components/common/button/component';
+import ModalSimple from 'imports/ui/components/common/modal/simple/component';
+import { smallOnly } from 'imports/ui/stylesheets/styled-components/breakpoints';
+import { colorPrimary } from 'imports/ui/stylesheets/styled-components/palette';
 import {
   mdPaddingY,
   btnSpacing,
-} from '/imports/ui/stylesheets/styled-components/general';
-import { lineHeightComputed } from '/imports/ui/stylesheets/styled-components/typography';
+} from 'imports/ui/stylesheets/styled-components/general';
+import { lineHeightComputed } from 'imports/ui/stylesheets/styled-components/typography';
 
 const AudioOptions = styled.span`
   margin-top: auto;

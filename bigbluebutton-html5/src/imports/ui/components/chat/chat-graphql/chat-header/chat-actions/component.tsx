@@ -3,24 +3,24 @@ import React, {
   useEffect, useMemo, useRef, useState,
 } from 'react';
 import { defineMessages, useIntl } from 'react-intl';
-import BBBMenu from '/imports/ui/components/common/menu/component';
-import { layoutSelect } from '/imports/ui/components/layout/context';
-import { Layout } from '/imports/ui/components/layout/layoutTypes';
+import BBBMenu from 'imports/ui/components/common/menu/component';
+import { layoutSelect } from 'imports/ui/components/layout/context';
+import { Layout } from 'imports/ui/components/layout/layoutTypes';
 import { useLazyQuery, useMutation, useQuery } from '@apollo/client';
 import { uid } from 'radash';
 import { isEmpty } from 'ramda';
 import {
   GET_CHAT_MESSAGE_HISTORY, getChatMessageHistory,
 } from './queries';
-import Trigger from '/imports/ui/components/common/control-header/right/component';
+import Trigger from 'imports/ui/components/common/control-header/right/component';
 import { generateExportedMessages } from './services';
-import { getDateString } from '/imports/utils/string-utils';
-import { ChatCommands } from '/imports/ui/core/enums/chat';
+import { getDateString } from 'imports/utils/string-utils';
+import { ChatCommands } from 'imports/ui/core/enums/chat';
 import { CHAT_PUBLIC_CLEAR_HISTORY } from './mutations';
-import useMeetingSettings from '/imports/ui/core/local-states/useMeetingSettings';
-import useCurrentUser from '/imports/ui/core/hooks/useCurrentUser';
-import useMeeting from '/imports/ui/core/hooks/useMeeting';
-import { GET_WELCOME_MESSAGE, WelcomeMsgsResponse } from '/imports/ui/components/chat/chat-graphql/chat-popup/queries';
+import useMeetingSettings from 'imports/ui/core/local-states/useMeetingSettings';
+import useCurrentUser from 'imports/ui/core/hooks/useCurrentUser';
+import useMeeting from 'imports/ui/core/hooks/useMeeting';
+import { GET_WELCOME_MESSAGE, WelcomeMsgsResponse } from 'imports/ui/components/chat/chat-graphql/chat-popup/queries';
 
 const intlMessages = defineMessages({
   clear: {

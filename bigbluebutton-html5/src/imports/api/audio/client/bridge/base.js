@@ -1,8 +1,8 @@
-import logger from '/imports/startup/client/logger';
+import logger from 'imports/startup/client/logger';
 import {
   getAudioConstraints,
   doGUM,
-} from '/imports/api/audio/client/bridge/service';
+} from 'imports/api/audio/client/bridge/service';
 
 const BASE_BRIDGE_NAME = 'base';
 

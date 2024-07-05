@@ -1,12 +1,12 @@
 import React, { useCallback, useEffect, useRef } from 'react';
 import { isEqual } from 'radash';
 import { defineMessages, useIntl } from 'react-intl';
-import { layoutSelect, layoutSelectInput, layoutDispatch } from '/imports/ui/components/layout/context';
-import { Input, Layout } from '/imports/ui/components/layout/layoutTypes';
-import { PANELS } from '/imports/ui/components/layout/enums';
-import usePreviousValue from '/imports/ui/hooks/usePreviousValue';
-import { stripTags, unescapeHtml } from '/imports/utils/string-utils';
-import { ChatMessageType } from '/imports/ui/core/enums/chat';
+import { layoutSelect, layoutSelectInput, layoutDispatch } from 'imports/ui/components/layout/context';
+import { Input, Layout } from 'imports/ui/components/layout/layoutTypes';
+import { PANELS } from 'imports/ui/components/layout/enums';
+import usePreviousValue from 'imports/ui/hooks/usePreviousValue';
+import { stripTags, unescapeHtml } from 'imports/utils/string-utils';
+import { ChatMessageType } from 'imports/ui/core/enums/chat';
 import {
   CHAT_MESSAGE_PRIVATE_STREAM,
   CHAT_MESSAGE_PUBLIC_STREAM,
@@ -17,7 +17,7 @@ import {
 import ChatPushAlert from './push-alert/component';
 import Styled from './styles';
 import Service from './service';
-import useDeduplicatedSubscription from '/imports/ui/core/hooks/useDeduplicatedSubscription';
+import useDeduplicatedSubscription from 'imports/ui/core/hooks/useDeduplicatedSubscription';
 
 const intlMessages = defineMessages({
   appToastChatPublic: {

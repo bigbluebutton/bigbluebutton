@@ -11,18 +11,18 @@ import {
   colorSuccess,
   colorDanger,
 
-} from '/imports/ui/stylesheets/styled-components/palette';
+} from 'imports/ui/stylesheets/styled-components/palette';
 import {
   borderSize,
   smPaddingX,
   mdPaddingY,
   userIndicatorsOffset,
   indicatorPadding,
-} from '/imports/ui/stylesheets/styled-components/general';
-import { fontSizeBase } from '/imports/ui/stylesheets/styled-components/typography';
-import { smallOnly } from '/imports/ui/stylesheets/styled-components/breakpoints';
-import Button from '/imports/ui/components/common/button/component';
-import { ScrollboxVertical } from '/imports/ui/stylesheets/styled-components/scrollable';
+} from 'imports/ui/stylesheets/styled-components/general';
+import { fontSizeBase } from 'imports/ui/stylesheets/styled-components/typography';
+import { smallOnly } from 'imports/ui/stylesheets/styled-components/breakpoints';
+import Button from 'imports/ui/components/common/button/component';
+import { ScrollboxVertical } from 'imports/ui/stylesheets/styled-components/scrollable';
 
 type ListItemProps = {
   animations: boolean;

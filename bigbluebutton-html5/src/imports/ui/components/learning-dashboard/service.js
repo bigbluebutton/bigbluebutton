@@ -1,4 +1,4 @@
-import Auth from '/imports/ui/services/auth';
+import Auth from 'imports/ui/services/auth';
 
 const setLearningDashboardCookie = (token) => {
   if (token !== null) {

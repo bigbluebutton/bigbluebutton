@@ -1,15 +1,15 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import useCurrentUser from '/imports/ui/core/hooks/useCurrentUser';
-import { layoutSelect, layoutDispatch } from '/imports/ui/components/layout/context';
+import useCurrentUser from 'imports/ui/core/hooks/useCurrentUser';
+import { layoutSelect, layoutDispatch } from 'imports/ui/components/layout/context';
 import VideoListItem from './component';
-import { VideoItem } from '/imports/ui/components/video-provider/types';
-import { Layout } from '/imports/ui/components/layout/layoutTypes';
-import useSettings from '/imports/ui/services/settings/hooks/useSettings';
-import { SETTINGS } from '/imports/ui/services/settings/enums';
-import { useStorageKey } from '/imports/ui/services/storage/hooks';
-import useWhoIsTalking from '/imports/ui/core/hooks/useWhoIsTalking';
-import useWhoIsUnmuted from '/imports/ui/core/hooks/useWhoIsUnmuted';
+import { VideoItem } from 'imports/ui/components/video-provider/types';
+import { Layout } from 'imports/ui/components/layout/layoutTypes';
+import useSettings from 'imports/ui/services/settings/hooks/useSettings';
+import { SETTINGS } from 'imports/ui/services/settings/enums';
+import { useStorageKey } from 'imports/ui/services/storage/hooks';
+import useWhoIsTalking from 'imports/ui/core/hooks/useWhoIsTalking';
+import useWhoIsUnmuted from 'imports/ui/core/hooks/useWhoIsUnmuted';
 
 interface VideoListItemContainerProps {
   numOfStreams: number;

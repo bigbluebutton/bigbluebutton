@@ -1,4 +1,4 @@
-import getFromUserSettings from '/imports/ui/services/users-settings';
+import getFromUserSettings from 'imports/ui/services/users-settings';
 import { useEffect, useState } from 'react';
 
 interface ShortcutObject {

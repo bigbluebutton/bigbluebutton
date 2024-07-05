@@ -1,11 +1,11 @@
 import styled from 'styled-components';
-import { smPaddingX } from '/imports/ui/stylesheets/styled-components/general';
-import { colorOffWhite, colorPrimary } from '/imports/ui/stylesheets/styled-components/palette';
+import { smPaddingX } from 'imports/ui/stylesheets/styled-components/general';
+import { colorOffWhite, colorPrimary } from 'imports/ui/stylesheets/styled-components/palette';
 import { Tabs } from 'react-tabs';
-import { ScrollboxVertical } from '/imports/ui/stylesheets/styled-components/scrollable';
+import { ScrollboxVertical } from 'imports/ui/stylesheets/styled-components/scrollable';
 import StyledSettings from '../settings/styles';
 
-import { smallOnly } from '/imports/ui/stylesheets/styled-components/breakpoints';
+import { smallOnly } from 'imports/ui/stylesheets/styled-components/breakpoints';
 
 const KeyCell = styled.td`
   text-align: center;

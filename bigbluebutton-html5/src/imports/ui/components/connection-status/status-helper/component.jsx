@@ -1,9 +1,9 @@
 import React, { Fragment, PureComponent } from 'react';
 import { defineMessages, injectIntl } from 'react-intl';
 import Styled from './styles';
-import Icon from '/imports/ui/components/connection-status/icon/component';
-import SettingsMenuContainer from '/imports/ui/components/settings/container';
-import Auth from '/imports/ui/services/auth';
+import Icon from 'imports/ui/components/connection-status/icon/component';
+import SettingsMenuContainer from 'imports/ui/components/settings/container';
+import Auth from 'imports/ui/services/auth';
 
 const intlMessages = defineMessages({
   label: {

@@ -1,14 +1,14 @@
 import styled from 'styled-components';
 import {
   borderRadius,
-} from '/imports/ui/stylesheets/styled-components/general';
-import { fontSizeBase, btnFontWeight } from '/imports/ui/stylesheets/styled-components/typography';
+} from 'imports/ui/stylesheets/styled-components/general';
+import { fontSizeBase, btnFontWeight } from 'imports/ui/stylesheets/styled-components/typography';
 import {
   systemMessageBackgroundColor,
   systemMessageBorderColor,
   systemMessageFontColor,
-} from '/imports/ui/stylesheets/styled-components/palette';
-import Button from '/imports/ui/components/common/button/component';
+} from 'imports/ui/stylesheets/styled-components/palette';
+import Button from 'imports/ui/components/common/button/component';
 
 export const PopupContentBox = styled.div`
   display: inherit;

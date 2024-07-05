@@ -11,16 +11,16 @@ import EchoTest from '../echo-test/component';
 import Help from '../help/component';
 import AudioDial from '../audio-dial/component';
 import AudioAutoplayPrompt from '../autoplay/component';
-import { getSettingsSingletonInstance } from '/imports/ui/services/settings';
-import usePreviousValue from '/imports/ui/hooks/usePreviousValue';
-import { SET_AWAY } from '/imports/ui/components/user-list/user-list-content/user-participants/user-list-participants/user-actions/mutations';
-import VideoService from '/imports/ui/components/video-provider/service';
+import { getSettingsSingletonInstance } from 'imports/ui/services/settings';
+import usePreviousValue from 'imports/ui/hooks/usePreviousValue';
+import { SET_AWAY } from 'imports/ui/components/user-list/user-list-content/user-participants/user-list-participants/user-actions/mutations';
+import VideoService from 'imports/ui/components/video-provider/service';
 import AudioCaptionsSelectContainer from '../audio-graphql/audio-captions/captions/component';
-import useToggleVoice from '/imports/ui/components/audio/audio-graphql/hooks/useToggleVoice';
+import useToggleVoice from 'imports/ui/components/audio/audio-graphql/hooks/useToggleVoice';
 import {
   muteAway,
-} from '/imports/ui/components/audio/audio-graphql/audio-controls/input-stream-live-selector/service';
-import Session from '/imports/ui/services/storage/in-memory';
+} from 'imports/ui/components/audio/audio-graphql/audio-controls/input-stream-live-selector/service';
+import Session from 'imports/ui/services/storage/in-memory';
 
 const propTypes = {
   intl: PropTypes.shape({

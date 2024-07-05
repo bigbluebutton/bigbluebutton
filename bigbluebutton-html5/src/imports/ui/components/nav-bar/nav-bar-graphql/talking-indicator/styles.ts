@@ -9,23 +9,23 @@ import {
   talkerMarginSm,
   spokeOpacity,
   talkerPaddingXl,
-} from '/imports/ui/stylesheets/styled-components/general';
+} from 'imports/ui/stylesheets/styled-components/general';
 import {
   colorWhite,
   colorSuccess,
   colorDanger,
   colorBackground,
-} from '/imports/ui/stylesheets/styled-components/palette';
+} from 'imports/ui/stylesheets/styled-components/palette';
 import {
   fontSizeBase,
   talkerFontWeight,
   fontSizeXS,
   fontSizeSmaller,
   fontSizeSmall,
-} from '/imports/ui/stylesheets/styled-components/typography';
-import { phoneLandscape } from '/imports/ui/stylesheets/styled-components/breakpoints';
-import Button from '/imports/ui/components/common/button/component';
-import Icon from '/imports/ui/components/common/icon/component';
+} from 'imports/ui/stylesheets/styled-components/typography';
+import { phoneLandscape } from 'imports/ui/stylesheets/styled-components/breakpoints';
+import Button from 'imports/ui/components/common/button/component';
+import Icon from 'imports/ui/components/common/icon/component';
 
 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
 // @ts-ignore - as button comes from JS, we can't provide its props

@@ -1,6 +1,6 @@
 import React from 'react';
 import Styled from './styles';
-import { getSettingsSingletonInstance } from '/imports/ui/services/settings';
+import { getSettingsSingletonInstance } from 'imports/ui/services/settings';
 
 class ToastContainer extends React.Component {
   // we never want this component to update since will break Toastify

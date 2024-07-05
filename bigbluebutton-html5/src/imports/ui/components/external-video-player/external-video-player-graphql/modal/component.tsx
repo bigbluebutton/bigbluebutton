@@ -2,7 +2,7 @@ import React from 'react';
 import { defineMessages, useIntl } from 'react-intl';
 import { useMutation } from '@apollo/client';
 import Styled from './styles';
-import { getSettingsSingletonInstance } from '/imports/ui/services/settings';
+import { getSettingsSingletonInstance } from 'imports/ui/services/settings';
 import { isUrlValid } from './service';
 import { EXTERNAL_VIDEO_START } from '../../mutations';
 

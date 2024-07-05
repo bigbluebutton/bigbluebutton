@@ -3,7 +3,7 @@ import {
   colorWhite,
   colorGrayDark,
   colorGrayLighter,
-} from '/imports/ui/stylesheets/styled-components/palette';
+} from 'imports/ui/stylesheets/styled-components/palette';
 
 const Background = styled.div`
   position: fixed;

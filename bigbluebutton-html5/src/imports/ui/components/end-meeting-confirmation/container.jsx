@@ -1,9 +1,9 @@
 import React from 'react';
 import { useMutation } from '@apollo/client';
 import EndMeetingComponent from './component';
-import logger from '/imports/startup/client/logger';
+import logger from 'imports/startup/client/logger';
 import { MEETING_END } from './mutations';
-import { USER_AGGREGATE_COUNT_SUBSCRIPTION } from '/imports/ui/core/graphql/queries/users';
+import { USER_AGGREGATE_COUNT_SUBSCRIPTION } from 'imports/ui/core/graphql/queries/users';
 import useDeduplicatedSubscription from '../../core/hooks/useDeduplicatedSubscription';
 import useMeeting from '../../core/hooks/useMeeting';
 

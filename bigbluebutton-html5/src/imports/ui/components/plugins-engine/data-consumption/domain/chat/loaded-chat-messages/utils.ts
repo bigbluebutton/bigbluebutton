@@ -1,4 +1,4 @@
-import { Message } from '/imports/ui/Types/message';
+import { Message } from 'imports/ui/Types/message';
 import * as PluginSdk from 'bigbluebutton-html-plugin-sdk';
 
 const formatLoadedChatMessagesDataFromGraphql = (

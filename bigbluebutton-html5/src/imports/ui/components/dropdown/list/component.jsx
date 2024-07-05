@@ -1,6 +1,6 @@
 import React, { Component, Children, cloneElement } from 'react';
 import PropTypes from 'prop-types';
-import KEY_CODES from '/imports/utils/keyCodes';
+import KEY_CODES from 'imports/utils/keyCodes';
 import Styled from './styles';
 import ListItem from './item/component';
 import ListSeparator from './separator/component';

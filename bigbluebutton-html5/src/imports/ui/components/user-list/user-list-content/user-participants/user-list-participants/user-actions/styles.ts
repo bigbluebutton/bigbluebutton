@@ -3,11 +3,11 @@ import styled from 'styled-components';
 import {
   smPaddingY,
   borderSize,
-} from '/imports/ui/stylesheets/styled-components/general';
+} from 'imports/ui/stylesheets/styled-components/general';
 import {
   listItemBgHover,
   itemFocusBorder,
-} from '/imports/ui/stylesheets/styled-components/palette';
+} from 'imports/ui/stylesheets/styled-components/palette';
 
 interface UserActionsTriggerProps {
   selected: boolean;

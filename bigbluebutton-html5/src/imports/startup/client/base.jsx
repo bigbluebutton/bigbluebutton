@@ -1,19 +1,19 @@
 import React, { Component } from 'react';
-import Auth from '/imports/ui/services/auth';
-import AppContainer from '/imports/ui/components/app/container';
-import { getSettingsSingletonInstance } from '/imports/ui/services/settings';
-import Session from '/imports/ui/services/storage/in-memory';
-import deviceInfo from '/imports/utils/deviceInfo';
-import getFromUserSettings from '/imports/ui/services/users-settings';
+import Auth from 'imports/ui/services/auth';
+import AppContainer from 'imports/ui/components/app/container';
+import { getSettingsSingletonInstance } from 'imports/ui/services/settings';
+import Session from 'imports/ui/services/storage/in-memory';
+import deviceInfo from 'imports/utils/deviceInfo';
+import getFromUserSettings from 'imports/ui/services/users-settings';
 import { layoutSelectInput, layoutDispatch } from '../../ui/components/layout/context';
-import { useVideoStreams } from '/imports/ui/components/video-provider/hooks';
-import DebugWindow from '/imports/ui/components/debug-window/component';
+import { useVideoStreams } from 'imports/ui/components/video-provider/hooks';
+import DebugWindow from 'imports/ui/components/debug-window/component';
 import { ACTIONS, PANELS } from '../../ui/components/layout/enums';
-import { useIsChatEnabled } from '/imports/ui/services/features';
-import useUserChangedLocalSettings from '/imports/ui/services/settings/hooks/useUserChangedLocalSettings';
-import useSettings from '/imports/ui/services/settings/hooks/useSettings';
-import { SETTINGS } from '/imports/ui/services/settings/enums';
-import { useStorageKey } from '/imports/ui/services/storage/hooks';
+import { useIsChatEnabled } from 'imports/ui/services/features';
+import useUserChangedLocalSettings from 'imports/ui/services/settings/hooks/useUserChangedLocalSettings';
+import useSettings from 'imports/ui/services/settings/hooks/useSettings';
+import { SETTINGS } from 'imports/ui/services/settings/enums';
+import { useStorageKey } from 'imports/ui/services/storage/hooks';
 
 const HTML = document.getElementsByTagName('html')[0];
 

@@ -1,4 +1,4 @@
-import { UserVoice } from '/imports/ui/Types/userVoice';
+import { UserVoice } from 'imports/ui/Types/userVoice';
 import { makeVar, useReactiveVar } from '@apollo/client';
 import { isEqual } from 'radash';
 

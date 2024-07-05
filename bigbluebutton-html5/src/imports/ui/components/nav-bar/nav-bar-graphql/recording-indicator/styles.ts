@@ -1,17 +1,17 @@
 import styled from 'styled-components';
-import { fontSizeLarge, fontSizeBase } from '/imports/ui/stylesheets/styled-components/typography';
+import { fontSizeLarge, fontSizeBase } from 'imports/ui/stylesheets/styled-components/typography';
 import {
   smPaddingX,
   borderSize,
   borderSizeLarge,
   borderSizeSmall,
-} from '/imports/ui/stylesheets/styled-components/general';
+} from 'imports/ui/stylesheets/styled-components/general';
 import {
   colorWhite,
   colorPrimary,
   colorDangerDark,
   colorGray,
-} from '/imports/ui/stylesheets/styled-components/palette';
+} from 'imports/ui/stylesheets/styled-components/palette';
 
 interface RecordingIndicatorIconProps {
   titleMargin: boolean;

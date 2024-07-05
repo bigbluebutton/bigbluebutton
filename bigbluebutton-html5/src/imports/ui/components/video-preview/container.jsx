@@ -2,16 +2,16 @@ import React from 'react';
 import { useMutation } from '@apollo/client';
 import Service from './service';
 import VideoPreview from './component';
-import VideoService from '/imports/ui/components/video-provider/service';
-import * as ScreenShareService from '/imports/ui/components/screenshare/service';
-import logger from '/imports/startup/client/logger';
-import { SCREENSHARING_ERRORS } from '/imports/api/screenshare/client/bridge/errors';
+import VideoService from 'imports/ui/components/video-provider/service';
+import * as ScreenShareService from 'imports/ui/components/screenshare/service';
+import logger from 'imports/startup/client/logger';
+import { SCREENSHARING_ERRORS } from 'imports/api/screenshare/client/bridge/errors';
 import { EXTERNAL_VIDEO_STOP } from '../external-video-player/mutations';
 import {
   useSharedDevices, useHasVideoStream, useHasCapReached, useIsUserLocked, useStreams,
   useExitVideo,
   useStopVideo,
-} from '/imports/ui/components/video-provider/hooks';
+} from 'imports/ui/components/video-provider/hooks';
 import { useStorageKey } from '../../services/storage/hooks';
 import { useIsCustomVirtualBackgroundsEnabled, useIsVirtualBackgroundsEnabled } from '../../services/features';
 

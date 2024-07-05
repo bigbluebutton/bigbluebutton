@@ -1,5 +1,5 @@
 import React, { useEffect } from 'react';
-import useIntersectionObserver from '/imports/ui/hooks/useIntersectionObserver';
+import useIntersectionObserver from 'imports/ui/hooks/useIntersectionObserver';
 import SkeletonUserListItem from '../list-item/skeleton/component';
 
 const MOUNT_DELAY = 1000;

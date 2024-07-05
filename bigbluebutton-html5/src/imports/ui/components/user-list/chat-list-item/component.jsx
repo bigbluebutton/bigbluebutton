@@ -1,12 +1,12 @@
 import React, { useEffect, useState } from 'react';
 import PropTypes from 'prop-types';
 import { defineMessages, injectIntl } from 'react-intl';
-import { debounce } from '/imports/utils/debounce';
-import withShortcutHelper from '/imports/ui/components/shortcut-help/service';
+import { debounce } from 'imports/utils/debounce';
+import withShortcutHelper from 'imports/ui/components/shortcut-help/service';
 import Styled from './styles';
-import UserAvatar from '/imports/ui/components/user-avatar/component';
+import UserAvatar from 'imports/ui/components/user-avatar/component';
 import { ACTIONS, PANELS } from '../../layout/enums';
-import Icon from '/imports/ui/components/common/icon/component';
+import Icon from 'imports/ui/components/common/icon/component';
 
 const DEBOUNCE_TIME = 1000;
 

@@ -3,17 +3,17 @@ import PropTypes from 'prop-types';
 import { findDOMNode } from 'react-dom';
 import TetherComponent from 'react-tether';
 import { defineMessages, injectIntl } from 'react-intl';
-import deviceInfo from '/imports/utils/deviceInfo';
+import deviceInfo from 'imports/utils/deviceInfo';
 import screenreaderTrap from 'makeup-screenreader-trap';
-import Session from '/imports/ui/services/storage/in-memory';
+import Session from 'imports/ui/services/storage/in-memory';
 import Styled from './styles';
 
-import DropdownTrigger from '/imports/ui/components/dropdown/trigger/component';
-import DropdownContent from '/imports/ui/components/dropdown/content/component';
-import DropdownList from '/imports/ui/components/dropdown/list/component';
-import DropdownListSeparator from '/imports/ui/components/dropdown/list/separator/component';
-import DropdownListItem from '/imports/ui/components/dropdown/list/item/component';
-import DropdownListTitle from '/imports/ui/components/dropdown/list/title/component';
+import DropdownTrigger from 'imports/ui/components/dropdown/trigger/component';
+import DropdownContent from 'imports/ui/components/dropdown/content/component';
+import DropdownList from 'imports/ui/components/dropdown/list/component';
+import DropdownListSeparator from 'imports/ui/components/dropdown/list/separator/component';
+import DropdownListItem from 'imports/ui/components/dropdown/list/item/component';
+import DropdownListTitle from 'imports/ui/components/dropdown/list/title/component';
 
 const intlMessages = defineMessages({
   close: {

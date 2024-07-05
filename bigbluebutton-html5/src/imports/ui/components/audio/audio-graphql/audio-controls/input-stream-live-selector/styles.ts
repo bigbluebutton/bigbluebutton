@@ -1,14 +1,14 @@
 /* eslint-disable @typescript-eslint/ban-ts-comment */
 import styled, { css, keyframes } from 'styled-components';
-import ButtonEmoji from '/imports/ui/components/common/button/button-emoji/ButtonEmoji';
-import Button from '/imports/ui/components/common/button/component';
+import ButtonEmoji from 'imports/ui/components/common/button/button-emoji/ButtonEmoji';
+import Button from 'imports/ui/components/common/button/component';
 import {
   colorPrimary,
   colorDanger,
   colorGrayDark,
   colorOffWhite,
   colorWhite,
-} from '/imports/ui/stylesheets/styled-components/palette';
+} from 'imports/ui/stylesheets/styled-components/palette';
 
 const pulse = keyframes`
   0% {

@@ -1,15 +1,15 @@
 import React from 'react';
-import Auth from '/imports/ui/services/auth';
-import Storage from '/imports/ui/services/storage/session';
-import { EMOJI_STATUSES } from '/imports/utils/statuses';
-import KEY_CODES from '/imports/utils/keyCodes';
-import AudioService from '/imports/ui/components/audio/service';
-import logger from '/imports/startup/client/logger';
-import Session from '/imports/ui/services/storage/in-memory';
-import { getSettingsSingletonInstance } from '/imports/ui/services/settings';
-import { notify } from '/imports/ui/services/notification';
+import Auth from 'imports/ui/services/auth';
+import Storage from 'imports/ui/services/storage/session';
+import { EMOJI_STATUSES } from 'imports/utils/statuses';
+import KEY_CODES from 'imports/utils/keyCodes';
+import AudioService from 'imports/ui/components/audio/service';
+import logger from 'imports/startup/client/logger';
+import Session from 'imports/ui/services/storage/in-memory';
+import { getSettingsSingletonInstance } from 'imports/ui/services/settings';
+import { notify } from 'imports/ui/services/notification';
 import { FormattedMessage } from 'react-intl';
-import { getDateString } from '/imports/utils/string-utils';
+import { getDateString } from 'imports/utils/string-utils';
 import { isEmpty } from 'radash';
 
 const DIAL_IN_CLIENT_TYPE = 'dial-in-user';

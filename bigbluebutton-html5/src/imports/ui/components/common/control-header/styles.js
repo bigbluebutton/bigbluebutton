@@ -1,5 +1,5 @@
 import styled from 'styled-components';
-import { jumboPaddingY } from '/imports/ui/stylesheets/styled-components/general';
+import { jumboPaddingY } from 'imports/ui/stylesheets/styled-components/general';
 
 const Header = styled.header`
   display: flex;

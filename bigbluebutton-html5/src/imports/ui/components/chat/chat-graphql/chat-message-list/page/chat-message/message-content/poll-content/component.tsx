@@ -2,7 +2,7 @@ import React from 'react';
 import {
   Bar, BarChart, ResponsiveContainer, XAxis, YAxis,
 } from 'recharts';
-import caseInsensitiveReducer from '/imports/utils/caseInsensitiveReducer';
+import caseInsensitiveReducer from 'imports/utils/caseInsensitiveReducer';
 import { defineMessages, useIntl } from 'react-intl';
 import Styled from './styles';
 

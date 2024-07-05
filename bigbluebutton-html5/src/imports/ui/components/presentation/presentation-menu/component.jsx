@@ -3,19 +3,19 @@ import PropTypes from 'prop-types';
 import { defineMessages, injectIntl } from 'react-intl';
 import { toPng } from 'html-to-image';
 import { toast } from 'react-toastify';
-import logger from '/imports/startup/client/logger';
+import logger from 'imports/startup/client/logger';
 import {
   PresentationDropdownItemType,
 } from 'bigbluebutton-html-plugin-sdk/dist/cjs/extensible-areas/presentation-dropdown-item/enums';
 
 import Styled from './styles';
-import BBBMenu from '/imports/ui/components/common/menu/component';
-import TooltipContainer from '/imports/ui/components/common/tooltip/container';
-import { ACTIONS } from '/imports/ui/components/layout/enums';
-import deviceInfo from '/imports/utils/deviceInfo';
-import browserInfo from '/imports/utils/browserInfo';
-import AppService from '/imports/ui/components/app/service';
-import { getSettingsSingletonInstance } from '/imports/ui/services/settings';
+import BBBMenu from 'imports/ui/components/common/menu/component';
+import TooltipContainer from 'imports/ui/components/common/tooltip/container';
+import { ACTIONS } from 'imports/ui/components/layout/enums';
+import deviceInfo from 'imports/utils/deviceInfo';
+import browserInfo from 'imports/utils/browserInfo';
+import AppService from 'imports/ui/components/app/service';
+import { getSettingsSingletonInstance } from 'imports/ui/services/settings';
 
 const intlMessages = defineMessages({
   downloading: {

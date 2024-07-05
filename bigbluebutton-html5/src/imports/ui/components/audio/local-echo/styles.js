@@ -1,9 +1,9 @@
 import styled from 'styled-components';
-import Button from '/imports/ui/components/common/button/component';
+import Button from 'imports/ui/components/common/button/component';
 import {
   colorPrimary,
   colorWhite,
-} from '/imports/ui/stylesheets/styled-components/palette';
+} from 'imports/ui/stylesheets/styled-components/palette';
 
 const LocalEchoTestButton = styled(Button)`
   margin: 0 !important;

@@ -1,7 +1,7 @@
 import { makeVar } from '@apollo/client';
 import { Notification } from './queries';
-import { getSettingsSingletonInstance } from '/imports/ui/services/settings';
-import { throttle } from '/imports/utils/throttle';
+import { getSettingsSingletonInstance } from 'imports/ui/services/settings';
+import { throttle } from 'imports/utils/throttle';
 
 const GUEST_WAITING_BELL_THROTTLE_TIME = 10000;
 

@@ -1,8 +1,8 @@
 import styled from 'styled-components';
 
-import { smPaddingX, lgPaddingY } from '/imports/ui/stylesheets/styled-components/general';
+import { smPaddingX, lgPaddingY } from 'imports/ui/stylesheets/styled-components/general';
 
-import { colorGray } from '/imports/ui/stylesheets/styled-components/palette';
+import { colorGray } from 'imports/ui/stylesheets/styled-components/palette';
 
 export const Container = styled.div`
   display: flex;

@@ -1,19 +1,19 @@
 import React, { PureComponent } from 'react';
 import { defineMessages, injectIntl } from 'react-intl';
 import PropTypes from 'prop-types';
-import EndMeetingConfirmationContainer from '/imports/ui/components/end-meeting-confirmation/container';
-import AboutContainer from '/imports/ui/components/about/container';
-import MobileAppModal from '/imports/ui/components/mobile-app-modal/mobile-app-modal-graphql/component';
-import OptionsMenuContainer from '/imports/ui/components/settings/container';
-import BBBMenu from '/imports/ui/components/common/menu/component';
-import ShortcutHelpComponent from '/imports/ui/components/shortcut-help/component';
-import FullscreenService from '/imports/ui/components/common/fullscreen-button/service';
-import { colorDanger, colorWhite } from '/imports/ui/stylesheets/styled-components/palette';
+import EndMeetingConfirmationContainer from 'imports/ui/components/end-meeting-confirmation/container';
+import AboutContainer from 'imports/ui/components/about/container';
+import MobileAppModal from 'imports/ui/components/mobile-app-modal/mobile-app-modal-graphql/component';
+import OptionsMenuContainer from 'imports/ui/components/settings/container';
+import BBBMenu from 'imports/ui/components/common/menu/component';
+import ShortcutHelpComponent from 'imports/ui/components/shortcut-help/component';
+import FullscreenService from 'imports/ui/components/common/fullscreen-button/service';
+import { colorDanger, colorWhite } from 'imports/ui/stylesheets/styled-components/palette';
 import { OptionsDropdownItemType } from 'bigbluebutton-html-plugin-sdk/dist/cjs/extensible-areas/options-dropdown-item/enums';
 import Styled from './styles';
-import browserInfo from '/imports/utils/browserInfo';
-import deviceInfo from '/imports/utils/deviceInfo';
-import Session from '/imports/ui/services/storage/in-memory';
+import browserInfo from 'imports/utils/browserInfo';
+import deviceInfo from 'imports/utils/deviceInfo';
+import Session from 'imports/ui/services/storage/in-memory';
 
 const intlMessages = defineMessages({
   optionsLabel: {

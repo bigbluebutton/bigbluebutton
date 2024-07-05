@@ -1,7 +1,7 @@
 import { useQuery } from '@apollo/client';
 import React, { useEffect } from 'react';
 import { UserCustomParameterResponse, getCustomParameter } from './queries';
-import { setUserSettings } from '/imports/ui/core/local-states/useUserSettings';
+import { setUserSettings } from 'imports/ui/core/local-states/useUserSettings';
 
 interface CustomUsersSettingsProps {
   children: React.ReactNode;

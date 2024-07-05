@@ -1,19 +1,19 @@
 import React, { useState } from 'react';
 import { defineMessages } from 'react-intl';
 import PropTypes from 'prop-types';
-import BBBMenu from '/imports/ui/components/common/menu/component';
-import { convertRemToPixels } from '/imports/utils/dom-utils';
+import BBBMenu from 'imports/ui/components/common/menu/component';
+import { convertRemToPixels } from 'imports/utils/dom-utils';
 import data from '@emoji-mart/data';
-import withShortcutHelper from '/imports/ui/components/shortcut-help/service';
+import withShortcutHelper from 'imports/ui/components/shortcut-help/service';
 import { init } from 'emoji-mart';
-import { SET_RAISE_HAND, SET_REACTION_EMOJI } from '/imports/ui/core/graphql/mutations/userMutations';
-import { SET_AWAY } from '/imports/ui/components/user-list/user-list-content/user-participants/user-list-participants/user-actions/mutations';
+import { SET_RAISE_HAND, SET_REACTION_EMOJI } from 'imports/ui/core/graphql/mutations/userMutations';
+import { SET_AWAY } from 'imports/ui/components/user-list/user-list-content/user-participants/user-list-participants/user-actions/mutations';
 import { useMutation } from '@apollo/client';
-import Toggle from '/imports/ui/components/common/switch/component';
-import useToggleVoice from '/imports/ui/components/audio/audio-graphql/hooks/useToggleVoice';
+import Toggle from 'imports/ui/components/common/switch/component';
+import useToggleVoice from 'imports/ui/components/audio/audio-graphql/hooks/useToggleVoice';
 import {
   muteAway,
-} from '/imports/ui/components/audio/audio-graphql/audio-controls/input-stream-live-selector/service';
+} from 'imports/ui/components/audio/audio-graphql/audio-controls/input-stream-live-selector/service';
 import Styled from './styles';
 
 const ReactionsButton = (props) => {

@@ -10,7 +10,7 @@ import {
 import { pollShapeMigrations } from './poll-shape-migrations';
 import { pollShapeProps } from './poll-shape-props';
 import { IPollShape } from './poll-shape-types';
-import ChatPollContent from '/imports/ui/components/chat/chat-graphql/chat-message-list/page/chat-message/message-content/poll-content/component';
+import ChatPollContent from 'imports/ui/components/chat/chat-graphql/chat-message-list/page/chat-message/message-content/poll-content/component';
 
 export class PollShapeUtil extends ShapeUtil<IPollShape> {
   static override type = 'poll' as const;

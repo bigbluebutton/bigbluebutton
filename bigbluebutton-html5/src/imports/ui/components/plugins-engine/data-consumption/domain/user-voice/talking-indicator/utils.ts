@@ -1,4 +1,4 @@
-import { UserVoice } from '/imports/ui/Types/userVoice';
+import { UserVoice } from 'imports/ui/Types/userVoice';
 import * as PluginSdk from 'bigbluebutton-html-plugin-sdk';
 
 const formatTalkingIndicatorDataFromGraphql = (

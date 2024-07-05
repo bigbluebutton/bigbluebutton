@@ -1,7 +1,7 @@
 import React, { useRef, useState, useEffect } from 'react';
-import { getSettingsSingletonInstance } from '/imports/ui/services/settings';
+import { getSettingsSingletonInstance } from 'imports/ui/services/settings';
 import Service from './service';
-import logger from '/imports/startup/client/logger';
+import logger from 'imports/startup/client/logger';
 
 const EmojiRain = ({ reactions }) => {
   const Settings = getSettingsSingletonInstance();

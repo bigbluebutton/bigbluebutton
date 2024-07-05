@@ -1,11 +1,11 @@
 import styled from 'styled-components';
-import { fontSizeSmall } from '/imports/ui/stylesheets/styled-components/typography';
+import { fontSizeSmall } from 'imports/ui/stylesheets/styled-components/typography';
 import {
   lgPaddingY,
   smPaddingY,
   borderSize,
   userIndicatorsOffset,
-} from '/imports/ui/stylesheets/styled-components/general';
+} from 'imports/ui/stylesheets/styled-components/general';
 import {
   colorGrayDark,
   colorOffWhite,
@@ -17,7 +17,7 @@ import {
   itemFocusBorder,
   unreadMessagesBg,
   colorGrayLightest,
-} from '/imports/ui/stylesheets/styled-components/palette';
+} from 'imports/ui/stylesheets/styled-components/palette';
 
 interface UserAvatarProps {
   color: string;

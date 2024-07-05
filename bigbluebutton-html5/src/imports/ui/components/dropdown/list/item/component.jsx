@@ -2,7 +2,7 @@ import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import { defineMessages, injectIntl } from 'react-intl';
 import Styled from './styles';
-import { uniqueId } from '/imports/utils/string-utils';
+import { uniqueId } from 'imports/utils/string-utils';
 
 const propTypes = {
   icon: PropTypes.string,

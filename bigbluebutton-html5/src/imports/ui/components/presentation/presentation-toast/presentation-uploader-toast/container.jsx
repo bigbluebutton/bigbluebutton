@@ -3,8 +3,8 @@ import { PresentationUploaderToast } from './component';
 
 import {
   EXPORTING_PRESENTATIONS_SUBSCRIPTION,
-} from '/imports/ui/components/whiteboard/queries';
-import useDeduplicatedSubscription from '/imports/ui/core/hooks/useDeduplicatedSubscription';
+} from 'imports/ui/components/whiteboard/queries';
+import useDeduplicatedSubscription from 'imports/ui/core/hooks/useDeduplicatedSubscription';
 
 const PresentationUploaderToastContainer = (props) => {
   const {

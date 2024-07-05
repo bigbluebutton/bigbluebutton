@@ -1,13 +1,13 @@
 import styled from 'styled-components';
-import Button from '/imports/ui/components/common/button/component';
-import { smallOnly } from '/imports/ui/stylesheets/styled-components/breakpoints';
-import { jumboPaddingY, smPaddingY } from '/imports/ui/stylesheets/styled-components/general';
+import Button from 'imports/ui/components/common/button/component';
+import { smallOnly } from 'imports/ui/stylesheets/styled-components/breakpoints';
+import { jumboPaddingY, smPaddingY } from 'imports/ui/stylesheets/styled-components/general';
 import {
   fontSizeSmaller,
-} from '/imports/ui/stylesheets/styled-components/typography';
+} from 'imports/ui/stylesheets/styled-components/typography';
 import {
   colorLink,
-} from '/imports/ui/stylesheets/styled-components/palette';
+} from 'imports/ui/stylesheets/styled-components/palette';
 
 const Help = styled.span`
   display: flex;

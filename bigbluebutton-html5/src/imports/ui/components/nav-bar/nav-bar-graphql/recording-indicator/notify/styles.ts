@@ -1,6 +1,6 @@
 import styled from 'styled-components';
-import ModalSimple from '/imports/ui/components/common/modal/simple/component';
-import ConfirmationModalStyles from '/imports/ui/components/common/modal/confirmation/styles';
+import ModalSimple from 'imports/ui/components/common/modal/simple/component';
+import ConfirmationModalStyles from 'imports/ui/components/common/modal/confirmation/styles';
 
 const RecordingNotifyModal = styled(ModalSimple)``;
 

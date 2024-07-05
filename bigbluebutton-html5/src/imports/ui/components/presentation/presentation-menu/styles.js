@@ -1,6 +1,6 @@
 import styled, { css, keyframes } from 'styled-components';
-import Icon from '/imports/ui/components/common/icon/component';
-import { headingsFontWeight } from '/imports/ui/stylesheets/styled-components/typography';
+import Icon from 'imports/ui/components/common/icon/component';
+import { headingsFontWeight } from 'imports/ui/stylesheets/styled-components/typography';
 import {
   colorDanger,
   colorGray,
@@ -8,14 +8,14 @@ import {
   colorSuccess,
   colorGrayLightest,
   colorOffWhite,
-} from '/imports/ui/stylesheets/styled-components/palette';
+} from 'imports/ui/stylesheets/styled-components/palette';
 import {
   borderSizeLarge,
   lgPaddingX,
   statusIconSize,
   borderSize,
   statusInfoHeight,
-} from '/imports/ui/stylesheets/styled-components/general';
+} from 'imports/ui/stylesheets/styled-components/general';
 
 const DropdownButton = styled.button`
   background-color: ${colorOffWhite};

@@ -1,6 +1,6 @@
 import styled from 'styled-components';
-import Button from '/imports/ui/components/common/button/component';
-import { colorPrimary } from '/imports/ui/stylesheets/styled-components/palette';
+import Button from 'imports/ui/components/common/button/component';
+import { colorPrimary } from 'imports/ui/stylesheets/styled-components/palette';
 
 const TestAudioButton = styled(Button)`
   margin: 0 !important;

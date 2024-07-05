@@ -2,12 +2,12 @@ import styled from 'styled-components';
 
 import {
   userIndicatorsOffset,
-} from '/imports/ui/stylesheets/styled-components/general';
+} from 'imports/ui/stylesheets/styled-components/general';
 import {
   colorWhite,
   userListBg,
   colorSuccess,
-} from '/imports/ui/stylesheets/styled-components/palette';
+} from 'imports/ui/stylesheets/styled-components/palette';
 
 type CaptionsProps = {
   hasContent: boolean;

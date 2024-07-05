@@ -2,16 +2,16 @@ import React, { useState, useEffect } from 'react';
 import PropTypes from 'prop-types';
 import Resizable from 're-resizable';
 import { ACTIONS, PANELS } from '../layout/enums';
-import ChatContainer from '/imports/ui/components/chat/chat-graphql/component';
-import NotesContainer from '/imports/ui/components/notes/component';
-import PollContainer from '/imports/ui/components/poll/container';
+import ChatContainer from 'imports/ui/components/chat/chat-graphql/component';
+import NotesContainer from 'imports/ui/components/notes/component';
+import PollContainer from 'imports/ui/components/poll/container';
 import BreakoutRoomContainer from '../breakout-room/breakout-room/component';
-import TimerContainer from '/imports/ui/components/timer/panel/component';
-import GuestUsersManagementPanel from '/imports/ui/components/waiting-users/waiting-users-graphql/component';
+import TimerContainer from 'imports/ui/components/timer/panel/component';
+import GuestUsersManagementPanel from 'imports/ui/components/waiting-users/waiting-users-graphql/component';
 import Styled from './styles';
-import ErrorBoundary from '/imports/ui/components/common/error-boundary/component';
-import FallbackView from '/imports/ui/components/common/fallback-errors/fallback-view/component';
-import GenericContentSidekickContainer from '/imports/ui/components/generic-content/generic-sidekick-content/container';
+import ErrorBoundary from 'imports/ui/components/common/error-boundary/component';
+import FallbackView from 'imports/ui/components/common/fallback-errors/fallback-view/component';
+import GenericContentSidekickContainer from 'imports/ui/components/generic-content/generic-sidekick-content/container';
 
 const propTypes = {
   top: PropTypes.number.isRequired,

@@ -1,11 +1,11 @@
 import styled from 'styled-components';
-import { phoneLandscape, smallOnly } from '/imports/ui/stylesheets/styled-components/breakpoints';
-import { borderRadius } from '/imports/ui/stylesheets/styled-components/general';
+import { phoneLandscape, smallOnly } from 'imports/ui/stylesheets/styled-components/breakpoints';
+import { borderRadius } from 'imports/ui/stylesheets/styled-components/general';
 import {
   colorSuccess,
   colorDanger,
-} from '/imports/ui/stylesheets/styled-components/palette';
-import { fontSizeBase, fontSizeXS } from '/imports/ui/stylesheets/styled-components/typography';
+} from 'imports/ui/stylesheets/styled-components/palette';
+import { fontSizeBase, fontSizeXS } from 'imports/ui/stylesheets/styled-components/typography';
 
 interface TimerButtonProps {
   running: boolean;

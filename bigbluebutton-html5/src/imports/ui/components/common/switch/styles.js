@@ -1,6 +1,6 @@
 import styled, { css } from 'styled-components';
-import { borderSize } from '/imports/ui/stylesheets/styled-components/general';
-import { colorDanger, colorSuccess } from '/imports/ui/stylesheets/styled-components/palette';
+import { borderSize } from 'imports/ui/stylesheets/styled-components/general';
+import { colorDanger, colorSuccess } from 'imports/ui/stylesheets/styled-components/palette';
 
 const Switch = styled.div`
   &:hover,

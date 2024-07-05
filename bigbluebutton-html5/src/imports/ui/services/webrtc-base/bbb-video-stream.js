@@ -2,8 +2,8 @@ import {
   EFFECT_TYPES,
   BLUR_FILENAME,
   createVirtualBackgroundStream,
-} from '/imports/ui/services/virtual-background/service';
-import MediaStreamUtils from '/imports/utils/media-stream-utils';
+} from 'imports/ui/services/virtual-background/service';
+import MediaStreamUtils from 'imports/utils/media-stream-utils';
 import { EventEmitter2 } from 'eventemitter2';
 
 export default class BBBVideoStream extends EventEmitter2 {

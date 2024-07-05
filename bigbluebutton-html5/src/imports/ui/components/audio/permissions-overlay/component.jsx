@@ -2,8 +2,8 @@ import React from 'react';
 import { injectIntl, defineMessages } from 'react-intl';
 import PropTypes from 'prop-types';
 import Styled from './styles';
-import browserInfo from '/imports/utils/browserInfo';
-import { getSettingsSingletonInstance } from '/imports/ui/services/settings';
+import browserInfo from 'imports/utils/browserInfo';
+import { getSettingsSingletonInstance } from 'imports/ui/services/settings';
 
 const propTypes = {
   intl: PropTypes.object.isRequired,

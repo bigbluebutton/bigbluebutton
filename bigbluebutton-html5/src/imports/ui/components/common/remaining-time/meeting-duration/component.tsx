@@ -1,6 +1,6 @@
 import React from 'react';
-import RemainingTime from '/imports/ui/components/common/remaining-time/component';
-import useMeeting from '/imports/ui/core/hooks/useMeeting';
+import RemainingTime from 'imports/ui/components/common/remaining-time/component';
+import useMeeting from 'imports/ui/core/hooks/useMeeting';
 import { defineMessages, useIntl } from 'react-intl';
 
 const intlMessages = defineMessages({

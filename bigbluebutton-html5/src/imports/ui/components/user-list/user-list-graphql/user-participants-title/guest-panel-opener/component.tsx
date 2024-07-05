@@ -1,14 +1,14 @@
 import React, { useCallback } from 'react';
 import { defineMessages, useIntl } from 'react-intl';
-import { useMeeting } from '/imports/ui/core/hooks/useMeeting';
+import { useMeeting } from 'imports/ui/core/hooks/useMeeting';
 import { GET_GUESTS_COUNT, GuestUsersCountResponse } from './queries';
-import { layoutDispatch, layoutSelectInput } from '/imports/ui/components/layout/context';
-import { Input } from '/imports/ui/components/layout/layoutTypes';
-import { ACTIONS, PANELS } from '/imports/ui/components/layout/enums';
-import Icon from '/imports/ui/components/common/icon/icon-ts/component';
+import { layoutDispatch, layoutSelectInput } from 'imports/ui/components/layout/context';
+import { Input } from 'imports/ui/components/layout/layoutTypes';
+import { ACTIONS, PANELS } from 'imports/ui/components/layout/enums';
+import Icon from 'imports/ui/components/common/icon/icon-ts/component';
 import Styled from './styles';
-import logger from '/imports/startup/client/logger';
-import useDeduplicatedSubscription from '/imports/ui/core/hooks/useDeduplicatedSubscription';
+import logger from 'imports/startup/client/logger';
+import useDeduplicatedSubscription from 'imports/ui/core/hooks/useDeduplicatedSubscription';
 
 interface GuestPanelOpenerProps {
   count: number;

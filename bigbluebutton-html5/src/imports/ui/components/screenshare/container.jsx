@@ -13,11 +13,11 @@ import {
 } from './service';
 import ScreenshareComponent from './component';
 import { layoutSelect, layoutSelectOutput, layoutDispatch } from '../layout/context';
-import getFromUserSettings from '/imports/ui/services/users-settings';
+import getFromUserSettings from 'imports/ui/services/users-settings';
 import { EXTERNAL_VIDEO_STOP } from '../external-video-player/mutations';
 import { PINNED_PAD_SUBSCRIPTION } from '../notes/queries';
 import useDeduplicatedSubscription from '../../core/hooks/useDeduplicatedSubscription';
-import AudioManager from '/imports/ui/services/audio-manager';
+import AudioManager from 'imports/ui/services/audio-manager';
 
 const screenshareIntlMessages = defineMessages({
   // SCREENSHARE

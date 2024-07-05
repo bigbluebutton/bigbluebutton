@@ -1,12 +1,12 @@
-import { User } from '/imports/ui/Types/user';
+import { User } from 'imports/ui/Types/user';
 import {
   LockSettings,
   UsersPolicies,
-} from '/imports/ui/Types/meeting';
-import Auth from '/imports/ui/services/auth';
-import { EMOJI_STATUSES } from '/imports/utils/statuses';
-import logger from '/imports/startup/client/logger';
-import { toggleMuteMicrophone } from '/imports/ui/components/audio/audio-graphql/audio-controls/input-stream-live-selector/service';
+} from 'imports/ui/Types/meeting';
+import Auth from 'imports/ui/services/auth';
+import { EMOJI_STATUSES } from 'imports/utils/statuses';
+import logger from 'imports/startup/client/logger';
+import { toggleMuteMicrophone } from 'imports/ui/components/audio/audio-graphql/audio-controls/input-stream-live-selector/service';
 
 export const isVoiceOnlyUser = (userId: string) => userId.toString().startsWith('v_');
 

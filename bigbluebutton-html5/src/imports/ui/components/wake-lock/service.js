@@ -1,5 +1,5 @@
-import logger from '/imports/startup/client/logger';
-import deviceInfo from '/imports/utils/deviceInfo';
+import logger from 'imports/startup/client/logger';
+import deviceInfo from 'imports/utils/deviceInfo';
 
 const WAKELOCK_ERRORS = {
   NOT_SUPPORTED: {

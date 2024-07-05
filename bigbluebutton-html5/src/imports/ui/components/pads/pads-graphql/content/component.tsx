@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { patch } from '@mconf/bbb-diff';
 import Styled from './styles';
 import { GET_PAD_CONTENT_DIFF_STREAM, GetPadContentDiffStreamResponse } from './queries';
-import useDeduplicatedSubscription from '/imports/ui/core/hooks/useDeduplicatedSubscription';
+import useDeduplicatedSubscription from 'imports/ui/core/hooks/useDeduplicatedSubscription';
 
 interface PadContentProps {
   content: string;

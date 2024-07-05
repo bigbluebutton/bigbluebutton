@@ -11,7 +11,7 @@ import {
   userLeavePushAlert,
 } from './service';
 import useDeduplicatedSubscription from '../../core/hooks/useDeduplicatedSubscription';
-import { getSettingsSingletonInstance } from '/imports/ui/services/settings';
+import { getSettingsSingletonInstance } from 'imports/ui/services/settings';
 
 const Notifications: React.FC = () => {
   const [registeredAt, setRegisteredAt] = React.useState<string>(new Date().toISOString());

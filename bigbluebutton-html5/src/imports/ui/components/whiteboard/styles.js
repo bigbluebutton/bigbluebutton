@@ -1,5 +1,5 @@
 import styled, { createGlobalStyle } from 'styled-components';
-import { colorOffWhite } from '/imports/ui/stylesheets/styled-components/palette';
+import { colorOffWhite } from 'imports/ui/stylesheets/styled-components/palette';
 
 const TldrawV2GlobalStyle = createGlobalStyle`
   ${({ isPresenter, hasWBAccess }) => (!isPresenter && hasWBAccess) && `

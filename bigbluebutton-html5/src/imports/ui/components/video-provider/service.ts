@@ -1,23 +1,23 @@
-import { getSettingsSingletonInstance } from '/imports/ui/services/settings';
-import Auth from '/imports/ui/services/auth';
-import { notify } from '/imports/ui/services/notification';
-import deviceInfo from '/imports/utils/deviceInfo';
-import browserInfo from '/imports/utils/browserInfo';
-import getFromUserSettings from '/imports/ui/services/users-settings';
-import VideoPreviewService from '/imports/ui/components/video-preview/service';
-import Storage from '/imports/ui/services/storage/session';
-import { getStorageSingletonInstance } from '/imports/ui/services/storage';
-import logger from '/imports/startup/client/logger';
-import getFromMeetingSettings from '/imports/ui/services/meeting-settings';
+import { getSettingsSingletonInstance } from 'imports/ui/services/settings';
+import Auth from 'imports/ui/services/auth';
+import { notify } from 'imports/ui/services/notification';
+import deviceInfo from 'imports/utils/deviceInfo';
+import browserInfo from 'imports/utils/browserInfo';
+import getFromUserSettings from 'imports/ui/services/users-settings';
+import VideoPreviewService from 'imports/ui/components/video-preview/service';
+import Storage from 'imports/ui/services/storage/session';
+import { getStorageSingletonInstance } from 'imports/ui/services/storage';
+import logger from 'imports/startup/client/logger';
+import getFromMeetingSettings from 'imports/ui/services/meeting-settings';
 import {
   setVideoState,
   setConnectingStream,
   getVideoState,
 } from './state';
-import WebRtcPeer from '/imports/ui/services/webrtc-base/peer';
-import { Constraints2 } from '/imports/ui/Types/meetingClientSettings';
-import MediaStreamUtils from '/imports/utils/media-stream-utils';
-import Session from '/imports/ui/services/storage/in-memory';
+import WebRtcPeer from 'imports/ui/services/webrtc-base/peer';
+import { Constraints2 } from 'imports/ui/Types/meetingClientSettings';
+import MediaStreamUtils from 'imports/utils/media-stream-utils';
+import Session from 'imports/ui/services/storage/in-memory';
 import type { Stream } from './types';
 
 const TOKEN = '_';

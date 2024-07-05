@@ -15,13 +15,13 @@ import {
 } from "@bigbluebutton/tldraw";
 import "@bigbluebutton/tldraw/tldraw.css";
 import { compressToBase64, decompressFromBase64 } from 'lz-string';
-import SlideCalcUtil from "/imports/utils/slideCalcUtils";
-import { HUNDRED_PERCENT } from "/imports/utils/slideCalcUtils";
+import SlideCalcUtil from "imports/utils/slideCalcUtils";
+import { HUNDRED_PERCENT } from "imports/utils/slideCalcUtils";
 // eslint-disable-next-line import/no-extraneous-dependencies
-import Settings from '/imports/ui/services/settings';
-import meetingClientSettingsInitialValues from '/imports/ui/core/initial-values/meetingClientSettings';
-import getFromUserSettings from '/imports/ui/services/users-settings';
-import KEY_CODES from "/imports/utils/keyCodes";
+import Settings from 'imports/ui/services/settings';
+import meetingClientSettingsInitialValues from 'imports/ui/core/initial-values/meetingClientSettings';
+import getFromUserSettings from 'imports/ui/services/users-settings';
+import KEY_CODES from "imports/utils/keyCodes";
 import Styled from "./styles";
 import {
   mapLanguage,

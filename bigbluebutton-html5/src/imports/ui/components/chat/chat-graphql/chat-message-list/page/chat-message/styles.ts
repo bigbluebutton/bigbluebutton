@@ -4,19 +4,19 @@ import {
   borderSize,
   userIndicatorsOffset,
   smPaddingX,
-} from '/imports/ui/stylesheets/styled-components/general';
+} from 'imports/ui/stylesheets/styled-components/general';
 import {
   lineHeightComputed,
   fontSizeBase,
-} from '/imports/ui/stylesheets/styled-components/typography';
+} from 'imports/ui/stylesheets/styled-components/typography';
 
 import {
   colorWhite,
   userListBg,
   colorSuccess,
-} from '/imports/ui/stylesheets/styled-components/palette';
+} from 'imports/ui/stylesheets/styled-components/palette';
 
-import Header from '/imports/ui/components/common/control-header/component';
+import Header from 'imports/ui/components/common/control-header/component';
 
 interface ChatWrapperProps {
   sameSender: boolean;

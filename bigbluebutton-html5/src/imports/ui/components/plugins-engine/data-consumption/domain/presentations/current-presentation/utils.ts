@@ -1,6 +1,6 @@
 import * as PluginSdk from 'bigbluebutton-html-plugin-sdk';
-import { CurrentPresentation } from '/imports/ui/Types/presentation';
-import { GraphqlDataHookSubscriptionResponse } from '/imports/ui/Types/hook';
+import { CurrentPresentation } from 'imports/ui/Types/presentation';
+import { GraphqlDataHookSubscriptionResponse } from 'imports/ui/Types/hook';
 
 const formatCurrentPresentation = (
   graphqlDataResult: GraphqlDataHookSubscriptionResponse<Partial<CurrentPresentation>>,

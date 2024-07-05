@@ -3,11 +3,11 @@ import styled from 'styled-components';
 import {
   smPaddingX,
   lgPaddingY,
-} from '/imports/ui/stylesheets/styled-components/general';
+} from 'imports/ui/stylesheets/styled-components/general';
 
 import {
   colorGray,
-} from '/imports/ui/stylesheets/styled-components/palette';
+} from 'imports/ui/stylesheets/styled-components/palette';
 
 const Container = styled.div`
   display: flex;

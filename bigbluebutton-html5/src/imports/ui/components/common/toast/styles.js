@@ -1,12 +1,12 @@
 import styled from 'styled-components';
 import { ToastContainer as Toastify } from 'react-toastify';
-import Icon from '/imports/ui/components/common/icon/component';
+import Icon from 'imports/ui/components/common/icon/component';
 import {
   fontSizeSmallest,
   fontSizeSmaller,
   fontSizeSmall,
   lineHeightComputed,
-} from '/imports/ui/stylesheets/styled-components/typography';
+} from 'imports/ui/stylesheets/styled-components/typography';
 import {
   colorGrayDark,
   toastDefaultColor,
@@ -20,7 +20,7 @@ import {
   toastWarningColor,
   toastWarningBg,
   colorGrayLighter,
-} from '/imports/ui/stylesheets/styled-components/palette';
+} from 'imports/ui/stylesheets/styled-components/palette';
 import {
   toastOffsetSm,
   smPaddingX,
@@ -28,8 +28,8 @@ import {
   toastIconMd,
   toastIconSm,
   jumboPaddingY,
-} from '/imports/ui/stylesheets/styled-components/general';
-import { smallOnly } from '/imports/ui/stylesheets/styled-components/breakpoints';
+} from 'imports/ui/stylesheets/styled-components/general';
+import { smallOnly } from 'imports/ui/stylesheets/styled-components/breakpoints';
 
 const CloseIcon = styled(Icon)`
   background: transparent;

@@ -1,7 +1,7 @@
 import { useEffect, useRef } from 'react';
 import { useMutation } from '@apollo/client';
 import { UPDATE_CONNECTION_ALIVE_AT } from './mutations';
-import { handleAudioStatsEvent } from '/imports/ui/components/connection-status/service';
+import { handleAudioStatsEvent } from 'imports/ui/components/connection-status/service';
 
 const ConnectionStatus = () => {
   const networkRttInMs = useRef(0); // Ref to store the last rtt

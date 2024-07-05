@@ -1,9 +1,9 @@
 import React from 'react';
-import RemainingTime from '/imports/ui/components/common/remaining-time/component';
+import RemainingTime from 'imports/ui/components/common/remaining-time/component';
 import { defineMessages, useIntl } from 'react-intl';
 import { FIRST_BREAKOUT_DURATION_DATA_SUBSCRIPTION, breakoutDataResponse } from './queries';
-import logger from '/imports/startup/client/logger';
-import useDeduplicatedSubscription from '/imports/ui/core/hooks/useDeduplicatedSubscription';
+import logger from 'imports/startup/client/logger';
+import useDeduplicatedSubscription from 'imports/ui/core/hooks/useDeduplicatedSubscription';
 
 const intlMessages = defineMessages({
   calculatingBreakoutTimeRemaining: {

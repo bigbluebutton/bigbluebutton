@@ -1,4 +1,4 @@
-import Storage from '/imports/ui/services/storage/session';
+import Storage from 'imports/ui/services/storage/session';
 
 export const JoinErrorCodeTable = {
   NOT_EJECT: 'not_eject_reason',

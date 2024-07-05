@@ -1,6 +1,6 @@
 import React from 'react';
 import { defineMessages, useIntl } from 'react-intl';
-import Session from '/imports/ui/services/storage/in-memory';
+import Session from 'imports/ui/services/storage/in-memory';
 import Styled from '../styles';
 
 const intlMessages = defineMessages({

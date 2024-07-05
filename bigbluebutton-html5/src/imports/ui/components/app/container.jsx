@@ -1,12 +1,12 @@
 import React, { useEffect, useRef } from 'react';
-import AudioCaptionsLiveContainer from '/imports/ui/components/audio/audio-graphql/audio-captions/live/component';
-import getFromUserSettings from '/imports/ui/services/users-settings';
-import deviceInfo from '/imports/utils/deviceInfo';
-import MediaService from '/imports/ui/components/media/service';
-import { useIsPresentationEnabled, useIsScreenSharingEnabled, useIsExternalVideoEnabled } from '/imports/ui/services/features';
-import useCurrentUser from '/imports/ui/core/hooks/useCurrentUser';
-import useMeeting from '/imports/ui/core/hooks/useMeeting';
-import { ACTIONS, LAYOUT_TYPE, PRESENTATION_AREA } from '/imports/ui/components/layout/enums';
+import AudioCaptionsLiveContainer from 'imports/ui/components/audio/audio-graphql/audio-captions/live/component';
+import getFromUserSettings from 'imports/ui/services/users-settings';
+import deviceInfo from 'imports/utils/deviceInfo';
+import MediaService from 'imports/ui/components/media/service';
+import { useIsPresentationEnabled, useIsScreenSharingEnabled, useIsExternalVideoEnabled } from 'imports/ui/services/features';
+import useCurrentUser from 'imports/ui/core/hooks/useCurrentUser';
+import useMeeting from 'imports/ui/core/hooks/useMeeting';
+import { ACTIONS, LAYOUT_TYPE, PRESENTATION_AREA } from 'imports/ui/components/layout/enums';
 import { useMutation, useReactiveVar } from '@apollo/client';
 import {
   layoutSelect,

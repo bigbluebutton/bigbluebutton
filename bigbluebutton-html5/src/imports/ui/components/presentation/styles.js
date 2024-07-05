@@ -4,16 +4,16 @@ import {
   toastIconSide,
   smPaddingX,
   smPaddingY,
-} from '/imports/ui/stylesheets/styled-components/general';
+} from 'imports/ui/stylesheets/styled-components/general';
 import {
   colorPrimary,
   colorWhite,
-} from '/imports/ui/stylesheets/styled-components/palette';
+} from 'imports/ui/stylesheets/styled-components/palette';
 import {
   fontSizeLarger,
-} from '/imports/ui/stylesheets/styled-components/typography';
-import FullscreenButtonContainer from '/imports/ui/components/common/fullscreen-button/container';
-import ToastStyled from '/imports/ui/components/common/toast/styles';
+} from 'imports/ui/stylesheets/styled-components/typography';
+import FullscreenButtonContainer from 'imports/ui/components/common/fullscreen-button/container';
+import ToastStyled from 'imports/ui/components/common/toast/styles';
 
 const VisuallyHidden = styled.span`
   position: absolute;

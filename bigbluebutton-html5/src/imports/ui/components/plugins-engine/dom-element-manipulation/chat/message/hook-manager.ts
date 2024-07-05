@@ -5,7 +5,7 @@ import { DomElementManipulationHooks } from 'bigbluebutton-html-plugin-sdk/dist/
 import {
   ChatMessageDomElementsArguments,
 } from 'bigbluebutton-html-plugin-sdk/dist/cjs/dom-element-manipulation/chat/message/types';
-import { PluginsContext } from '/imports/ui/components/components-data/plugin-context/context';
+import { PluginsContext } from 'imports/ui/components/components-data/plugin-context/context';
 
 const ChatMessageDomElementManipulationHookManager = () => {
   const {

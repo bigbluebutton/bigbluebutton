@@ -6,7 +6,7 @@ import React, {
 // @ts-ignore - it has no types
 import { diff } from '@mconf/bbb-diff';
 import { useReactiveVar, useMutation } from '@apollo/client';
-import { debounce } from '/imports/utils/debounce';
+import { debounce } from 'imports/utils/debounce';
 import {
   SpeechRecognitionAPI,
   generateId,
@@ -17,16 +17,16 @@ import {
   setSpeechVoices,
   useFixedLocale,
 } from './service';
-import logger from '/imports/startup/client/logger';
-import AudioManager from '/imports/ui/services/audio-manager';
-import useCurrentUser from '/imports/ui/core/hooks/useCurrentUser';
+import logger from 'imports/startup/client/logger';
+import AudioManager from 'imports/ui/services/audio-manager';
+import useCurrentUser from 'imports/ui/core/hooks/useCurrentUser';
 import {
   isWebSpeechApi,
   setUserLocaleProperty,
   setSpeechLocale,
   useIsAudioTranscriptionEnabled,
 } from '../service';
-import { SET_SPEECH_LOCALE } from '/imports/ui/core/graphql/mutations/userMutations';
+import { SET_SPEECH_LOCALE } from 'imports/ui/core/graphql/mutations/userMutations';
 import { SUBMIT_TEXT } from './mutations';
 
 const THROTTLE_TIMEOUT = 200;

@@ -1,6 +1,6 @@
 import { PluginLoaderManagerProps } from './types';
 import { useEffect } from 'react';
-import logger from '/imports/startup/client/logger';
+import logger from 'imports/startup/client/logger';
 
 const PluginLoaderManager = (props: PluginLoaderManagerProps) => {
   const {

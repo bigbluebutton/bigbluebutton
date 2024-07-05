@@ -1,8 +1,8 @@
 import { useEffect, useState } from 'react';
-import { Layout } from '/imports/ui/components/layout/layoutTypes';
+import { Layout } from 'imports/ui/components/layout/layoutTypes';
 import { LayoutPresentatioAreaUiDataNames, UiLayouts } from 'bigbluebutton-html-plugin-sdk';
 import { LayoutPresentationAreaUiDataPayloads } from 'bigbluebutton-html-plugin-sdk/dist/cjs/ui-data-hooks/layout/presentation-area/types';
-import { PRESENTATION_AREA } from '/imports/ui/components/layout/enums';
+import { PRESENTATION_AREA } from 'imports/ui/components/layout/enums';
 
 const useUpdatePresentationAreaContentForPluginForPlugin = (layoutContextState: Layout) => {
   const [presentationAreaContent, setPresentationAreaContent] = useState<LayoutPresentationAreaUiDataPayloads[

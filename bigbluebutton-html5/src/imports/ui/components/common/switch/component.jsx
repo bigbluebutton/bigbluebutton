@@ -1,7 +1,7 @@
 import React from 'react';
 import Toggle from 'react-toggle';
 import { defineMessages, injectIntl } from 'react-intl';
-import { getSettingsSingletonInstance } from '/imports/ui/services/settings';
+import { getSettingsSingletonInstance } from 'imports/ui/services/settings';
 import Styled from './styles';
 
 const intlMessages = defineMessages({

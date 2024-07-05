@@ -2,7 +2,7 @@ import React, { useEffect, useState, useRef } from 'react';
 import PropTypes from 'prop-types';
 import WakeLock from './component';
 import Service from './service';
-import getFromUserSettings from '/imports/ui/services/users-settings';
+import getFromUserSettings from 'imports/ui/services/users-settings';
 import useUserChangedLocalSettings from '../../services/settings/hooks/useUserChangedLocalSettings';
 import useSettings from '../../services/settings/hooks/useSettings';
 import { SETTINGS } from '../../services/settings/enums';

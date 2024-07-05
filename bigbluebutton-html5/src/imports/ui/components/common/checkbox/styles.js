@@ -1,4 +1,4 @@
-import { colorText, colorSuccess } from '/imports/ui/stylesheets/styled-components/palette';
+import { colorText, colorSuccess } from 'imports/ui/stylesheets/styled-components/palette';
 import BaseCheckbox from '@mui/material/Checkbox';
 import FormControlLabel from '@mui/material/FormControlLabel';
 import { styled } from '@mui/system';

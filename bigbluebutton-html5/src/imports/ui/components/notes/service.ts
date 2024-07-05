@@ -1,5 +1,5 @@
-import { ACTIONS, PANELS } from '/imports/ui/components/layout/enums';
-import { useIsSharedNotesEnabled } from '/imports/ui/services/features';
+import { ACTIONS, PANELS } from 'imports/ui/components/layout/enums';
+import { useIsSharedNotesEnabled } from 'imports/ui/services/features';
 
 const useIsEnabled = () => useIsSharedNotesEnabled();
 

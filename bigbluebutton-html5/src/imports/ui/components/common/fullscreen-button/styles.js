@@ -1,10 +1,10 @@
 import styled from 'styled-components';
-import Button from '/imports/ui/components/common/button/component';
+import Button from 'imports/ui/components/common/button/component';
 import {
   colorTransparent,
   colorWhite,
   colorBlack,
-} from '/imports/ui/stylesheets/styled-components/palette';
+} from 'imports/ui/stylesheets/styled-components/palette';
 
 const FullscreenButtonWrapper = styled.div`
   position: absolute;

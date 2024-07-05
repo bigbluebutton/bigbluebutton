@@ -7,15 +7,15 @@ import React, {
 } from 'react';
 import { makeVar, useMutation } from '@apollo/client';
 import { defineMessages, useIntl } from 'react-intl';
-import ChatPopupContainer from '/imports/ui/components/chat/chat-graphql/chat-popup/component';
-import useChat from '/imports/ui/core/hooks/useChat';
-import useIntersectionObserver from '/imports/ui/hooks/useIntersectionObserver';
-import { Chat } from '/imports/ui/Types/chat';
-import { ChatEvents } from '/imports/ui/core/enums/chat';
-import { GraphqlDataHookSubscriptionResponse } from '/imports/ui/Types/hook';
-import { layoutSelect } from '/imports/ui/components/layout/context';
-import { Layout } from '/imports/ui/components/layout/layoutTypes';
-import { Message } from '/imports/ui/Types/message';
+import ChatPopupContainer from 'imports/ui/components/chat/chat-graphql/chat-popup/component';
+import useChat from 'imports/ui/core/hooks/useChat';
+import useIntersectionObserver from 'imports/ui/hooks/useIntersectionObserver';
+import { Chat } from 'imports/ui/Types/chat';
+import { ChatEvents } from 'imports/ui/core/enums/chat';
+import { GraphqlDataHookSubscriptionResponse } from 'imports/ui/Types/hook';
+import { layoutSelect } from 'imports/ui/components/layout/context';
+import { Layout } from 'imports/ui/components/layout/layoutTypes';
+import { Message } from 'imports/ui/Types/message';
 import ChatListPage from './page/component';
 import LAST_SEEN_MUTATION from './queries';
 import {
@@ -25,8 +25,8 @@ import {
   UnreadButton,
   ChatMessages,
 } from './styles';
-import useReactiveRef from '/imports/ui/hooks/useReactiveRef';
-import useStickyScroll from '/imports/ui/hooks/useStickyScroll';
+import useReactiveRef from 'imports/ui/hooks/useReactiveRef';
+import useStickyScroll from 'imports/ui/hooks/useStickyScroll';
 
 const PAGE_SIZE = 50;
 

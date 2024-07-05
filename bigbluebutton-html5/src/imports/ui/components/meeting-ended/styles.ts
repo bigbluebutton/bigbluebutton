@@ -1,22 +1,22 @@
-import { smallOnly } from '/imports/ui/stylesheets/styled-components/breakpoints';
+import { smallOnly } from 'imports/ui/stylesheets/styled-components/breakpoints';
 import styled from 'styled-components';
 
 import {
   borderRadius,
   lgPaddingX,
-} from '/imports/ui/stylesheets/styled-components/general';
+} from 'imports/ui/stylesheets/styled-components/general';
 import {
   fontSizeSmall,
   fontSizeBase,
   fontSizeLarge,
   headingsFontWeight,
   lineHeightComputed,
-} from '/imports/ui/stylesheets/styled-components/typography';
+} from 'imports/ui/stylesheets/styled-components/typography';
 import {
   colorWhite,
   colorText,
   colorBackground,
-} from '/imports/ui/stylesheets/styled-components/palette';
+} from 'imports/ui/stylesheets/styled-components/palette';
 
 const Parent = styled.div`
   height: 100%;

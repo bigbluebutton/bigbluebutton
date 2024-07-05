@@ -1,27 +1,27 @@
 import React, { PureComponent } from 'react';
 import PropTypes from 'prop-types';
-import WhiteboardContainer from '/imports/ui/components/whiteboard/container';
-import { HUNDRED_PERCENT, MAX_PERCENT } from '/imports/utils/slideCalcUtils';
-import { SPACE } from '/imports/utils/keyCodes';
+import WhiteboardContainer from 'imports/ui/components/whiteboard/container';
+import { HUNDRED_PERCENT, MAX_PERCENT } from 'imports/utils/slideCalcUtils';
+import { SPACE } from 'imports/utils/keyCodes';
 import { defineMessages, injectIntl } from 'react-intl';
 import { toast } from 'react-toastify';
-import Session from '/imports/ui/services/storage/in-memory';
+import Session from 'imports/ui/services/storage/in-memory';
 import PresentationToolbarContainer from './presentation-toolbar/container';
 import PresentationMenu from './presentation-menu/container';
 import DownloadPresentationButton from './download-presentation-button/component';
 import Styled from './styles';
-import FullscreenService from '/imports/ui/components/common/fullscreen-button/service';
-import Icon from '/imports/ui/components/common/icon/component';
-import PollingContainer from '/imports/ui/components/polling/container';
+import FullscreenService from 'imports/ui/components/common/fullscreen-button/service';
+import Icon from 'imports/ui/components/common/icon/component';
+import PollingContainer from 'imports/ui/components/polling/container';
 import { ACTIONS, LAYOUT_TYPE } from '../layout/enums';
 import DEFAULT_VALUES from '../layout/defaultValues';
-import { colorContentBackground } from '/imports/ui/stylesheets/styled-components/palette';
-import browserInfo from '/imports/utils/browserInfo';
+import { colorContentBackground } from 'imports/ui/stylesheets/styled-components/palette';
+import browserInfo from 'imports/utils/browserInfo';
 import { addAlert } from '../screenreader-alert/service';
-import { debounce } from '/imports/utils/debounce';
-import { throttle } from '/imports/utils/throttle';
-import LocatedErrorBoundary from '/imports/ui/components/common/error-boundary/located-error-boundary/component';
-import FallbackView from '/imports/ui/components/common/fallback-errors/fallback-view/component';
+import { debounce } from 'imports/utils/debounce';
+import { throttle } from 'imports/utils/throttle';
+import LocatedErrorBoundary from 'imports/ui/components/common/error-boundary/located-error-boundary/component';
+import FallbackView from 'imports/ui/components/common/fallback-errors/fallback-view/component';
 
 const intlMessages = defineMessages({
   presentationLabel: {

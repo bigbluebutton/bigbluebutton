@@ -1,9 +1,9 @@
 import React, { useState, useContext } from 'react';
-import { User } from '/imports/ui/Types/user';
-import { LockSettings, UsersPolicies } from '/imports/ui/Types/meeting';
+import { User } from 'imports/ui/Types/user';
+import { LockSettings, UsersPolicies } from 'imports/ui/Types/meeting';
 import { useIntl, defineMessages } from 'react-intl';
 import * as PluginSdk from 'bigbluebutton-html-plugin-sdk';
-import logger from '/imports/startup/client/logger';
+import logger from 'imports/startup/client/logger';
 import { UserListDropdownItemType } from 'bigbluebutton-html-plugin-sdk/dist/cjs/extensible-areas/user-list-dropdown-item/enums';
 import {
   SET_ROLE,
@@ -17,7 +17,7 @@ import {
   SET_PRESENTER,
   SET_EMOJI_STATUS,
   SET_LOCKED,
-} from '/imports/ui/core/graphql/mutations/userMutations';
+} from 'imports/ui/core/graphql/mutations/userMutations';
 import {
   isVideoPinEnabledForCurrentUser,
   toggleVoice,
@@ -26,21 +26,21 @@ import {
   isVoiceOnlyUser,
 } from './service';
 
-import { useIsChatEnabled } from '/imports/ui/services/features';
-import { layoutDispatch } from '/imports/ui/components/layout/context';
-import { PANELS, ACTIONS } from '/imports/ui/components/layout/enums';
-import { EMOJI_STATUSES } from '/imports/utils/statuses';
+import { useIsChatEnabled } from 'imports/ui/services/features';
+import { layoutDispatch } from 'imports/ui/components/layout/context';
+import { PANELS, ACTIONS } from 'imports/ui/components/layout/enums';
+import { EMOJI_STATUSES } from 'imports/utils/statuses';
 
-import ConfirmationModal from '/imports/ui/components/common/modal/confirmation/component';
+import ConfirmationModal from 'imports/ui/components/common/modal/confirmation/component';
 
-import BBBMenu from '/imports/ui/components/common/menu/component';
-import { setPendingChat } from '/imports/ui/core/local-states/usePendingChat';
-import { PluginsContext } from '/imports/ui/components/components-data/plugin-context/context';
+import BBBMenu from 'imports/ui/components/common/menu/component';
+import { setPendingChat } from 'imports/ui/core/local-states/usePendingChat';
+import { PluginsContext } from 'imports/ui/components/components-data/plugin-context/context';
 import Styled from './styles';
 import { useMutation, useLazyQuery } from '@apollo/client';
-import { CURRENT_PAGE_WRITERS_QUERY } from '/imports/ui/components/whiteboard/queries';
-import { PRESENTATION_SET_WRITERS } from '/imports/ui/components/presentation/mutations';
-import useToggleVoice from '/imports/ui/components/audio/audio-graphql/hooks/useToggleVoice';
+import { CURRENT_PAGE_WRITERS_QUERY } from 'imports/ui/components/whiteboard/queries';
+import { PRESENTATION_SET_WRITERS } from 'imports/ui/components/presentation/mutations';
+import useToggleVoice from 'imports/ui/components/audio/audio-graphql/hooks/useToggleVoice';
 
 interface UserActionsProps {
   user: User;

@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
-import { VoiceActivityResponse } from '/imports/ui/core/graphql/queries/whoIsTalking';
+import { VoiceActivityResponse } from 'imports/ui/core/graphql/queries/whoIsTalking';
+import { partition } from 'imports/utils/array-utils';
 import useVoiceActivity from './useVoiceActivity';
-import { partition } from '/imports/utils/array-utils';
 
 type VoiceItem = VoiceActivityResponse['user_voice_activity_stream'][number] & {
   showTalkingIndicator: boolean | undefined;
@@ -16,8 +16,8 @@ const useTalkingUsers = () => {
     error,
   } = useVoiceActivity();
   const [record, setRecord] = useState<Record<string, VoiceItem>>({});
-  const mutedTimeoutRegistry = useRef<Record<string, number | null>>({});
-  const spokeTimeoutRegistry = useRef<Record<string, number | null>>({});
+  const mutedTimeoutRegistry = useRef<Record<string, ReturnType<typeof setTimeout> | null>>({});
+  const spokeTimeoutRegistry = useRef<Record<string, ReturnType<typeof setTimeout> | null>>({});
 
   useEffect(() => {
     if (!voiceActivity) return;

@@ -1,7 +1,7 @@
 import styled from 'styled-components';
-import Button from '/imports/ui/components/common/button/component';
-import { borderSizeLarge } from '/imports/ui/stylesheets/styled-components/general';
-import { headingsFontWeight } from '/imports/ui/stylesheets/styled-components/typography';
+import Button from 'imports/ui/components/common/button/component';
+import { borderSizeLarge } from 'imports/ui/stylesheets/styled-components/general';
+import { headingsFontWeight } from 'imports/ui/stylesheets/styled-components/typography';
 
 const QuickPollButton = styled(Button)`
   margin-left: .5rem;

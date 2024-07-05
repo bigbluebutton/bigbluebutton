@@ -1,5 +1,5 @@
 import { makeVar, useReactiveVar } from '@apollo/client';
-import createUseLocalState from '/imports/ui/core/local-states/createUseLocalState';
+import createUseLocalState from 'imports/ui/core/local-states/createUseLocalState';
 import type { ConnectingStream, Stream } from './types';
 
 const [useVideoState, setVideoState, videoState] = createUseLocalState({

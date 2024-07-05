@@ -1,7 +1,7 @@
 import React from 'react';
 import { defineMessages, useIntl } from 'react-intl';
-import Checkbox from '/imports/ui/components/common/checkbox/component';
-import Toggle from '/imports/ui/components/common/switch/component';
+import Checkbox from 'imports/ui/components/common/checkbox/component';
+import Toggle from 'imports/ui/components/common/switch/component';
 import Styled from '../styles';
 import { pollTypes, isDefaultPoll } from '../service';
 import StartPollButton from './StartPollButton';

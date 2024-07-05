@@ -1,10 +1,10 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import { defineMessages, injectIntl } from 'react-intl';
-import Icon from '/imports/ui/components/common/icon/component';
+import Icon from 'imports/ui/components/common/icon/component';
 import Styled from './styles';
 import { ACTIONS, PANELS } from '../../../layout/enums';
-import BreakoutRemainingTime from '/imports/ui/components/common/remaining-time/breakout-duration/component';
+import BreakoutRemainingTime from 'imports/ui/components/common/remaining-time/breakout-duration/component';
 
 const intlMessages = defineMessages({
   breakoutTitle: {

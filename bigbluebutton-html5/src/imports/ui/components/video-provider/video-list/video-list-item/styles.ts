@@ -8,8 +8,8 @@ import {
   webcamBackgroundColor,
   colorDanger,
   webcamPlaceholderBorder,
-} from '/imports/ui/stylesheets/styled-components/palette';
-import { TextElipsis } from '/imports/ui/stylesheets/styled-components/placeholders';
+} from 'imports/ui/stylesheets/styled-components/palette';
+import { TextElipsis } from 'imports/ui/stylesheets/styled-components/placeholders';
 
 const rotate360 = keyframes`
   from {

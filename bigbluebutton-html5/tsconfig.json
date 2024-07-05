@@ -1,17 +1,22 @@
 {
   "compilerOptions": {
     /* Basic Options */
-    "target": "es2018",
-    "module": "esNext",
-    "lib": ["esnext", "dom"],
+    "target": "ES2018",
+    "module": "esnext",
+    "lib": [
+      "dom",
+      "dom.iterable",
+      "esnext"
+    ],
     "allowJs": true,
     "checkJs": false,
     "jsx": "react",
-    "incremental": true,
     "noEmit": true,
-    "resolveJsonModule":true,
+    "resolveJsonModule": true,
     "skipLibCheck": true,
     "types": [],
+
+    "allowSyntheticDefaultImports": true,
 
     /* Strict Type-Checking Options */
     "strict": true,
@@ -25,21 +30,15 @@
     "noFallthroughCasesInSwitch": false,
 
     /* Module Resolution Options */
-    "baseUrl": ".",
-    "paths": {
-      /* Support absolute /imports/* with a leading '/' */
-      "/*": ["*"]
-    },
+    "baseUrl": "src/",
     "moduleResolution": "node",
     "esModuleInterop": true,
     "preserveSymlinks": true
+
+    // "forceConsistentCasingInFileNames": true, (this was included in "create react app")
+    // "isolatedModules": true, (this was included in "create react app")
   },
-  "exclude": [
-    "./.meteor/**",
-    "./packages/**",
-    "node_modules",
-    "./node_modules",
-    "./node_modules/*",
-    "./node_modules/@types/node/index.d.ts",
+  "include": [
+    "src"
   ]
 }

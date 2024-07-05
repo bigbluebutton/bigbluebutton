@@ -13,8 +13,8 @@ import {
   getBasePath,
   MODELS,
   getVirtualBgImagePath,
-} from '/imports/ui/services/virtual-background/service'
-import logger from '/imports/startup/client/logger';
+} from 'imports/ui/services/virtual-background/service'
+import logger from 'imports/startup/client/logger';
 
 import { simd } from 'wasm-feature-detect';
 

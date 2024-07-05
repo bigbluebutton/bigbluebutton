@@ -3,7 +3,7 @@ import {
   userIndicatorsOffset,
   mdPaddingY,
   indicatorPadding,
-} from '/imports/ui/stylesheets/styled-components/general';
+} from 'imports/ui/stylesheets/styled-components/general';
 import {
   colorPrimary,
   colorWhite,
@@ -11,11 +11,11 @@ import {
   colorSuccess,
   colorDanger,
   colorOffWhite,
-} from '/imports/ui/stylesheets/styled-components/palette';
+} from 'imports/ui/stylesheets/styled-components/palette';
 
 import {
   ScrollboxVertical,
-} from '/imports/ui/stylesheets/styled-components/scrollable';
+} from 'imports/ui/stylesheets/styled-components/scrollable';
 
 interface AvatarProps {
   color: string;

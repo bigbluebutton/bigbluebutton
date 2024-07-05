@@ -1,9 +1,9 @@
 import BaseAudioBridge from './base';
-import logger from '/imports/startup/client/logger';
+import logger from 'imports/startup/client/logger';
 import {
   fetchWebRTCMappedStunTurnServers,
   getMappedFallbackStun,
-} from '/imports/utils/fetchStunTurnServers';
+} from 'imports/utils/fetchStunTurnServers';
 import {
   isUnifiedPlan,
   toUnifiedPlan,
@@ -13,15 +13,15 @@ import {
   analyzeSdp,
   logSelectedCandidate,
   forceDisableStereo,
-} from '/imports/utils/sdpUtils';
-import browserInfo from '/imports/utils/browserInfo';
+} from 'imports/utils/sdpUtils';
+import browserInfo from 'imports/utils/browserInfo';
 import {
   getAudioSessionNumber,
   getAudioConstraints,
   filterSupportedConstraints,
   doGUM,
   stereoUnsupported,
-} from '/imports/api/audio/client/bridge/service';
+} from 'imports/api/audio/client/bridge/service';
 
 const CALL_CONNECT_TIMEOUT = 20000;
 const ICE_NEGOTIATION_TIMEOUT = 20000;

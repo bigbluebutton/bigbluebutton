@@ -1,11 +1,11 @@
 import React, { useContext } from 'react';
 import * as PluginSdk from 'bigbluebutton-html-plugin-sdk';
 import { GenericContentType } from 'bigbluebutton-html-plugin-sdk/dist/cjs/extensible-areas/generic-content-item/enums';
-import { PluginsContext } from '/imports/ui/components/components-data/plugin-context/context';
-import { PANELS, ACTIONS } from '/imports/ui/components/layout/enums';
+import { PluginsContext } from 'imports/ui/components/components-data/plugin-context/context';
+import { PANELS, ACTIONS } from 'imports/ui/components/layout/enums';
 import GenericSidekickContent from './component';
 import { GenericContentSidekickContainerProps } from '../types';
-import logger from '/imports/startup/client/logger';
+import logger from 'imports/startup/client/logger';
 import { layoutDispatch } from '../../layout/context';
 
 const GenericContentSidekickContainer: React.FC<GenericContentSidekickContainerProps> = (

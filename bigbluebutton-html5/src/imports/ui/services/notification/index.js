@@ -3,7 +3,7 @@ import React from 'react';
 import { toast } from 'react-toastify';
 import { isEqual } from 'radash';
 
-import Toast from '/imports/ui/components/common/toast/component';
+import Toast from 'imports/ui/components/common/toast/component';
 
 let lastToast = {
   id: null,

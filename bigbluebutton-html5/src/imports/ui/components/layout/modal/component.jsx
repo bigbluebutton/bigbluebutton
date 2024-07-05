@@ -1,10 +1,10 @@
 import React, { useState } from 'react';
 import PropTypes from 'prop-types';
 import { defineMessages, injectIntl } from 'react-intl';
-import { LAYOUT_TYPE, CAMERADOCK_POSITION, HIDDEN_LAYOUTS } from '/imports/ui/components/layout/enums';
-import SettingsService from '/imports/ui/components/settings/service';
-import deviceInfo from '/imports/utils/deviceInfo';
-import Button from '/imports/ui/components/common/button/component';
+import { LAYOUT_TYPE, CAMERADOCK_POSITION, HIDDEN_LAYOUTS } from 'imports/ui/components/layout/enums';
+import {isKeepPushingLayoutEnabled} from 'imports/ui/components/settings/service';
+import deviceInfo from 'imports/utils/deviceInfo';
+import Button from 'imports/ui/components/common/button/component';
 import Styled from './styles';
 
 const LayoutModalComponent = ({
@@ -24,7 +24,7 @@ const LayoutModalComponent = ({
   const BASE_NAME = window.meetingClientSettings.public.app.cdn + window.meetingClientSettings.public.app.basename;
 
   const LAYOUTS_PATH = `${BASE_NAME}/resources/images/layouts/`;
-  const isKeepPushingLayoutEnabled = SettingsService.isKeepPushingLayoutEnabled();
+  const isKeepPushingLayoutEnabled = isKeepPushingLayoutEnabled();
 
   const intlMessages = defineMessages({
     title: {

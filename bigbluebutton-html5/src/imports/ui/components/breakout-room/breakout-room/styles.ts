@@ -7,7 +7,7 @@ import {
   jumboPaddingY,
   smPaddingX,
   smPaddingY,
-} from '/imports/ui/stylesheets/styled-components/general';
+} from 'imports/ui/stylesheets/styled-components/general';
 import {
   colorPrimary,
   colorGray,
@@ -19,14 +19,14 @@ import {
   colorBlueLight,
   listItemBgHover,
   colorText,
-} from '/imports/ui/stylesheets/styled-components/palette';
+} from 'imports/ui/stylesheets/styled-components/palette';
 import {
   headingsFontWeight,
   fontSizeSmall,
   fontSizeBase,
-} from '/imports/ui/stylesheets/styled-components/typography';
-import { ScrollboxVertical } from '/imports/ui/stylesheets/styled-components/scrollable';
-import Button from '/imports/ui/components/common/button/component';
+} from 'imports/ui/stylesheets/styled-components/typography';
+import { ScrollboxVertical } from 'imports/ui/stylesheets/styled-components/scrollable';
+import Button from 'imports/ui/components/common/button/component';
 import TextareaAutosize from 'react-autosize-textarea';
 
 const BreakoutActions = styled.div`

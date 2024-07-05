@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import { IntlProvider, FormattedMessage } from 'react-intl';
-import browserInfo from '/imports/utils/browserInfo';
-import deviceInfo from '/imports/utils/deviceInfo';
+import browserInfo from 'imports/utils/browserInfo';
+import deviceInfo from 'imports/utils/deviceInfo';
 import './styles.css';
 
 

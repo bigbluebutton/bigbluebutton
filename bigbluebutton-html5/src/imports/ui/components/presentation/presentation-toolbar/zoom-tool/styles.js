@@ -2,12 +2,12 @@ import styled from 'styled-components';
 import {
   colorOffWhite,
   toolbarButtonColor,
-} from '/imports/ui/stylesheets/styled-components/palette';
+} from 'imports/ui/stylesheets/styled-components/palette';
 import {
   whiteboardToolbarMargin,
   borderSize,
-} from '/imports/ui/stylesheets/styled-components/general';
-import Button from '/imports/ui/components/common/button/component';
+} from 'imports/ui/stylesheets/styled-components/general';
+import Button from 'imports/ui/components/common/button/component';
 
 const DecreaseZoomButton = styled(Button)``;
 

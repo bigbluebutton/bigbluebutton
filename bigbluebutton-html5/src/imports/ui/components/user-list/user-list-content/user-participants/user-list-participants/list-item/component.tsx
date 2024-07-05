@@ -5,20 +5,20 @@ import {
   UserListItemAdditionalInformationType,
 } from 'bigbluebutton-html-plugin-sdk/dist/cjs/extensible-areas/user-list-item-additional-information/enums';
 import Styled from './styles';
-import browserInfo from '/imports/utils/browserInfo';
+import browserInfo from 'imports/utils/browserInfo';
 import { defineMessages, useIntl } from 'react-intl';
-import Icon from '/imports/ui/components/common/icon/icon-ts/component';
-import { User } from '/imports/ui/Types/user';
-import TooltipContainer from '/imports/ui/components/common/tooltip/container';
-import Auth from '/imports/ui/services/auth';
-import { LockSettings } from '/imports/ui/Types/meeting';
-import { uniqueId } from '/imports/utils/string-utils';
+import Icon from 'imports/ui/components/common/icon/icon-ts/component';
+import { User } from 'imports/ui/Types/user';
+import TooltipContainer from 'imports/ui/components/common/tooltip/container';
+import Auth from 'imports/ui/services/auth';
+import { LockSettings } from 'imports/ui/Types/meeting';
+import { uniqueId } from 'imports/utils/string-utils';
 import normalizeEmojiName from './service';
-import { convertRemToPixels } from '/imports/utils/dom-utils';
-import { PluginsContext } from '/imports/ui/components/components-data/plugin-context/context';
-import { useIsReactionsEnabled } from '/imports/ui/services/features';
-import useWhoIsTalking from '/imports/ui/core/hooks/useWhoIsTalking';
-import useWhoIsUnmuted from '/imports/ui/core/hooks/useWhoIsUnmuted';
+import { convertRemToPixels } from 'imports/utils/dom-utils';
+import { PluginsContext } from 'imports/ui/components/components-data/plugin-context/context';
+import { useIsReactionsEnabled } from 'imports/ui/services/features';
+import useWhoIsTalking from 'imports/ui/core/hooks/useWhoIsTalking';
+import useWhoIsUnmuted from 'imports/ui/core/hooks/useWhoIsUnmuted';
 
 const messages = defineMessages({
   moderator: {

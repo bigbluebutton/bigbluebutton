@@ -1,5 +1,5 @@
 import React, { useEffect } from 'react';
-import Session from '/imports/ui/services/storage/in-memory';
+import Session from 'imports/ui/services/storage/in-memory';
 import { v4 as uuid } from 'uuid';
 import { ErrorScreen } from '../../error-screen/component';
 import LoadingScreen from '../../common/loading-screen/component';

@@ -1,10 +1,10 @@
 import React, { useEffect, useState } from 'react';
 import { useReactiveVar } from '@apollo/client';
 import { defineMessages, useIntl } from 'react-intl';
-import useMeeting from '/imports/ui/core/hooks/useMeeting';
-import Auth from '/imports/ui/services/auth';
-import ModalSimple from '/imports/ui/components/common/modal/simple/component';
-import Button from '/imports/ui/components/common/button/component';
+import useMeeting from 'imports/ui/core/hooks/useMeeting';
+import Auth from 'imports/ui/services/auth';
+import ModalSimple from 'imports/ui/components/common/modal/simple/component';
+import Button from 'imports/ui/components/common/button/component';
 import Styled from './styles';
 
 const intlMessages = defineMessages({

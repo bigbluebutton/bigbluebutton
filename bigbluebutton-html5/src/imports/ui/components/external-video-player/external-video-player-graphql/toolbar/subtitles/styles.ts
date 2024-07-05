@@ -1,7 +1,7 @@
 import styled from 'styled-components';
-import Button from '/imports/ui/components/common/button/component';
+import Button from 'imports/ui/components/common/button/component';
 
-import { colorTransparent } from '/imports/ui/stylesheets/styled-components/palette';
+import { colorTransparent } from 'imports/ui/stylesheets/styled-components/palette';
 
 const SubtitlesWrapper = styled.div`
   background-color: ${colorTransparent};

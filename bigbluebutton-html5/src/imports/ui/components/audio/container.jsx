@@ -1,25 +1,25 @@
 import React, { useEffect } from 'react';
 import { useSubscription } from '@apollo/client';
 import PropTypes from 'prop-types';
-import Session from '/imports/ui/services/storage/in-memory';
+import Session from 'imports/ui/services/storage/in-memory';
 import { injectIntl, defineMessages } from 'react-intl';
-import { range } from '/imports/utils/array-utils';
-import { useMeetingIsBreakout } from '/imports/ui/components/app/service';
-import { notify } from '/imports/ui/services/notification';
-import getFromUserSettings from '/imports/ui/services/users-settings';
-import VideoPreviewContainer from '/imports/ui/components/video-preview/container';
-import lockContextContainer from '/imports/ui/components/lock-viewers/context/container';
+import { range } from 'imports/utils/array-utils';
+import { useMeetingIsBreakout } from 'imports/ui/components/app/service';
+import { notify } from 'imports/ui/services/notification';
+import getFromUserSettings from 'imports/ui/services/users-settings';
+import VideoPreviewContainer from 'imports/ui/components/video-preview/container';
+import lockContextContainer from 'imports/ui/components/lock-viewers/context/container';
 import {
   joinMicrophone,
   joinListenOnly,
-} from '/imports/ui/components/audio/audio-modal/service';
+} from 'imports/ui/components/audio/audio-modal/service';
 
 import Service from './service';
 import AudioModalContainer from './audio-modal/container';
 import useToggleVoice from './audio-graphql/hooks/useToggleVoice';
-import usePreviousValue from '/imports/ui/hooks/usePreviousValue';
-import useCurrentUser from '/imports/ui/core/hooks/useCurrentUser';
-import { toggleMuteMicrophone } from '/imports/ui/components/audio/audio-graphql/audio-controls/input-stream-live-selector/service';
+import usePreviousValue from 'imports/ui/hooks/usePreviousValue';
+import useCurrentUser from 'imports/ui/core/hooks/useCurrentUser';
+import { toggleMuteMicrophone } from 'imports/ui/components/audio/audio-graphql/audio-controls/input-stream-live-selector/service';
 import useSettings from '../../services/settings/hooks/useSettings';
 import { SETTINGS } from '../../services/settings/enums';
 import { useStorageKey } from '../../services/storage/hooks';

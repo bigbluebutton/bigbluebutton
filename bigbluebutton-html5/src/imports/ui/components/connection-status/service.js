@@ -1,10 +1,10 @@
 import { defineMessages } from 'react-intl';
 import { makeVar } from '@apollo/client';
-import Auth from '/imports/ui/services/auth';
-import Session from '/imports/ui/services/storage/in-memory';
-import { notify } from '/imports/ui/services/notification';
-import AudioService from '/imports/ui/components/audio/service';
-import ScreenshareService from '/imports/ui/components/screenshare/service';
+import Auth from 'imports/ui/services/auth';
+import Session from 'imports/ui/services/storage/in-memory';
+import { notify } from 'imports/ui/services/notification';
+import AudioService from 'imports/ui/components/audio/service';
+import { getStats as screenShareGetStats } from 'imports/ui/components/screenshare/service';
 
 const intlMessages = defineMessages({
   saved: {
@@ -41,7 +41,7 @@ const setStats = (level = -1, type = 'recovery', value = {}) => {
   }
 };
 
-const handleAudioStatsEvent = (event) => {
+export const handleAudioStatsEvent = (event) => {
   const STATS = window.meetingClientSettings.public.stats;
 
   const { detail } = event;
@@ -208,7 +208,7 @@ const getAudioData = async () => {
 const getVideoData = async (getVideoStreamsStats) => {
   const camerasData = await getVideoStreamsStats() || {};
 
-  const screenshareData = await ScreenshareService.getStats() || {};
+  const screenshareData = await screenShareGetStats() || {};
 
   return {
     ...camerasData,

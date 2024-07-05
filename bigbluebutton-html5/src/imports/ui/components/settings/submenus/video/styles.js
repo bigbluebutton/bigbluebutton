@@ -1,6 +1,6 @@
 import styled from 'styled-components';
-import Styled from '/imports/ui/components/settings/submenus/styles';
-import { colorLink } from '/imports/ui/stylesheets/styled-components/palette';
+import Styled from 'imports/ui/components/settings/submenus/styles';
+import { colorLink } from 'imports/ui/stylesheets/styled-components/palette';
 
 const Title = styled(Styled.Title)``;
 

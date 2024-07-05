@@ -5,8 +5,8 @@ import {
   colorPrimary,
   colorWhite,
   colorGrayLighter,
-} from '/imports/ui/stylesheets/styled-components/palette';
-import { borderSize, borderSizeLarge } from '/imports/ui/stylesheets/styled-components/general';
+} from 'imports/ui/stylesheets/styled-components/palette';
+import { borderSize, borderSizeLarge } from 'imports/ui/stylesheets/styled-components/general';
 
 const Title = styled.h3`
   color: ${colorGrayDark};

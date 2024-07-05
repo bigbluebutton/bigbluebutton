@@ -1,8 +1,8 @@
-import Auth from '/imports/ui/services/auth';
-import PollService from '/imports/ui/components/poll/service';
+import Auth from 'imports/ui/services/auth';
+import PollService from 'imports/ui/components/poll/service';
 import { defineMessages } from 'react-intl';
-import { notify } from '/imports/ui/services/notification';
-import caseInsensitiveReducer from '/imports/utils/caseInsensitiveReducer';
+import { notify } from 'imports/ui/services/notification';
+import caseInsensitiveReducer from 'imports/utils/caseInsensitiveReducer';
 
 const intlMessages = defineMessages({
   notifyNotAllowedChange: {

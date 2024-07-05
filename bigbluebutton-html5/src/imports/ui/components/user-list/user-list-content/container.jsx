@@ -1,8 +1,8 @@
 import React from 'react';
 import UserContent from './component';
-import useCurrentUser from '/imports/ui/core/hooks/useCurrentUser';
-import useMeeting from '/imports/ui/core/hooks/useMeeting';
-import { useIsChatEnabled } from '/imports/ui/services/features';
+import useCurrentUser from 'imports/ui/core/hooks/useCurrentUser';
+import useMeeting from 'imports/ui/core/hooks/useMeeting';
+import { useIsChatEnabled } from 'imports/ui/services/features';
 
 const ASK_MODERATOR = 'ASK_MODERATOR';
 

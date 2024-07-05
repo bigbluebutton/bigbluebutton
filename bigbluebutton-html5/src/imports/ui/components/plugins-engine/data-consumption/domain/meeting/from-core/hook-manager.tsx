@@ -9,8 +9,8 @@ import { DataConsumptionHooks } from 'bigbluebutton-html-plugin-sdk/dist/cjs/dat
 import { equals } from 'ramda';
 import formatMeetingResponseFromGraphql from './utils';
 import { GeneralHookManagerProps } from '../../../types';
-import { GraphqlDataHookSubscriptionResponse } from '/imports/ui/Types/hook';
-import { Meeting } from '/imports/ui/Types/meeting';
+import { GraphqlDataHookSubscriptionResponse } from 'imports/ui/Types/hook';
+import { Meeting } from 'imports/ui/Types/meeting';
 
 const MeetingHookContainer: React.FunctionComponent<
   GeneralHookManagerProps<GraphqlDataHookSubscriptionResponse<Partial<Meeting>>>

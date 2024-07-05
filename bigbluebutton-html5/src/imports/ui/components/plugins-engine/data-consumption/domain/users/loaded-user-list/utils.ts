@@ -1,5 +1,5 @@
 import * as PluginSdk from 'bigbluebutton-html-plugin-sdk';
-import { User } from '/imports/ui/Types/user';
+import { User } from 'imports/ui/Types/user';
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
 const formatLoadedUserListDataFromGraphql = (

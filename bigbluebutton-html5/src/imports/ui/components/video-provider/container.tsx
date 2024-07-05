@@ -1,7 +1,7 @@
 import React from 'react';
 import { useMutation } from '@apollo/client';
-import useMeeting from '/imports/ui/core/hooks/useMeeting';
-import useCurrentUser from '/imports/ui/core/hooks/useCurrentUser';
+import useMeeting from 'imports/ui/core/hooks/useMeeting';
+import useCurrentUser from 'imports/ui/core/hooks/useCurrentUser';
 import {
   useCurrentVideoPageIndex,
   useExitVideo,
@@ -15,12 +15,12 @@ import {
 import { CAMERA_BROADCAST_START } from './mutations';
 import VideoProvider from './component';
 import VideoService from './service';
-import { Output } from '/imports/ui/components/layout/layoutTypes';
+import { Output } from 'imports/ui/components/layout/layoutTypes';
 import { VideoItem } from './types';
-import { debounce } from '/imports/utils/debounce';
-import WebRtcPeer from '/imports/ui/services/webrtc-base/peer';
-import useSettings from '/imports/ui/services/settings/hooks/useSettings';
-import { SETTINGS } from '/imports/ui/services/settings/enums';
+import { debounce } from 'imports/utils/debounce';
+import WebRtcPeer from 'imports/ui/services/webrtc-base/peer';
+import useSettings from 'imports/ui/services/settings/hooks/useSettings';
+import { SETTINGS } from 'imports/ui/services/settings/enums';
 
 interface VideoProviderContainerProps {
   focusedId: string;

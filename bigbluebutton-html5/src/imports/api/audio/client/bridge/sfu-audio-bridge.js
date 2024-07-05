@@ -1,22 +1,22 @@
 import BaseAudioBridge from './base';
-import Auth from '/imports/ui/services/auth';
-import logger from '/imports/startup/client/logger';
-import AudioBroker from '/imports/ui/services/bbb-webrtc-sfu/audio-broker';
-import loadAndPlayMediaStream from '/imports/ui/services/bbb-webrtc-sfu/load-play';
+import Auth from 'imports/ui/services/auth';
+import logger from 'imports/startup/client/logger';
+import AudioBroker from 'imports/ui/services/bbb-webrtc-sfu/audio-broker';
+import loadAndPlayMediaStream from 'imports/ui/services/bbb-webrtc-sfu/load-play';
 import {
   fetchWebRTCMappedStunTurnServers,
   getMappedFallbackStun,
-} from '/imports/utils/fetchStunTurnServers';
-import getFromMeetingSettings from '/imports/ui/services/meeting-settings';
-import getFromUserSettings from '/imports/ui/services/users-settings';
-import browserInfo from '/imports/utils/browserInfo';
+} from 'imports/utils/fetchStunTurnServers';
+import getFromMeetingSettings from 'imports/ui/services/meeting-settings';
+import getFromUserSettings from 'imports/ui/services/users-settings';
+import browserInfo from 'imports/utils/browserInfo';
 import {
   getAudioSessionNumber,
   getAudioConstraints,
   filterSupportedConstraints,
   doGUM,
-} from '/imports/api/audio/client/bridge/service';
-import { shouldForceRelay } from '/imports/ui/services/bbb-webrtc-sfu/utils';
+} from 'imports/api/audio/client/bridge/service';
+import { shouldForceRelay } from 'imports/ui/services/bbb-webrtc-sfu/utils';
 
 const SENDRECV_ROLE = 'sendrecv';
 const RECV_ROLE = 'recv';

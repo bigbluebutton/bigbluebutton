@@ -1,4 +1,4 @@
-import logger from '/imports/startup/client/logger';
+import logger from 'imports/startup/client/logger';
 
 // Probes done in an interval
 const PROBES = 5;

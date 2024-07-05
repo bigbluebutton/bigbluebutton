@@ -1,8 +1,8 @@
-import logger from '/imports/startup/client/logger';
-import { fetchWebRTCMappedStunTurnServers, getMappedFallbackStun } from '/imports/utils/fetchStunTurnServers';
-import loadAndPlayMediaStream from '/imports/ui/services/bbb-webrtc-sfu/load-play';
+import logger from 'imports/startup/client/logger';
+import { fetchWebRTCMappedStunTurnServers, getMappedFallbackStun } from 'imports/utils/fetchStunTurnServers';
+import loadAndPlayMediaStream from 'imports/ui/services/bbb-webrtc-sfu/load-play';
 import { SCREENSHARING_ERRORS } from './errors';
-import getFromMeetingSettings, { getVoiceConf } from '/imports/ui/services/meeting-settings';
+import getFromMeetingSettings, { getVoiceConf } from 'imports/ui/services/meeting-settings';
 
 const HAS_DISPLAY_MEDIA = (typeof navigator.getDisplayMedia === 'function'
   || (navigator.mediaDevices && typeof navigator.mediaDevices.getDisplayMedia === 'function'));

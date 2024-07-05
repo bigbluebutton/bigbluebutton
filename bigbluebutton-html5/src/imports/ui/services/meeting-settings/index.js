@@ -1,7 +1,7 @@
 import { makeVar } from '@apollo/client';
-import { stringToHash } from '/imports/ui/core/singletons/subscriptionStore';
-import { makePatchedQuery } from '/imports/ui/core/hooks/createUseSubscription';
-import MEETING_SUBSCRIPTION from '/imports/ui/core/graphql/queries/meetingSubscription';
+import { stringToHash } from 'imports/ui/core/singletons/subscriptionStore';
+import { makePatchedQuery } from 'imports/ui/core/hooks/createUseSubscription';
+import MEETING_SUBSCRIPTION from 'imports/ui/core/graphql/queries/meetingSubscription';
 
 const settings = makeVar([]);
 const voiceConf = makeVar();

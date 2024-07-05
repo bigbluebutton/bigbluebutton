@@ -1,9 +1,9 @@
 import { unique } from 'radash';
-import { setAudioCaptionEnable } from '/imports/ui/core/local-states/useAudioCaptionEnable';
-import { useIsLiveTranscriptionEnabled } from '/imports/ui/services/features';
-import getFromUserSettings from '/imports/ui/services/users-settings';
+import { setAudioCaptionEnable } from 'imports/ui/core/local-states/useAudioCaptionEnable';
+import { useIsLiveTranscriptionEnabled } from 'imports/ui/services/features';
+import getFromUserSettings from 'imports/ui/services/users-settings';
 import { Caption } from './live/queries';
-import Session from '/imports/ui/services/storage/in-memory';
+import Session from 'imports/ui/services/storage/in-memory';
 
 export const splitTranscript = (obj: Caption) => {
   const CAPTIONS_CONFIG = window.meetingClientSettings.public.captions;

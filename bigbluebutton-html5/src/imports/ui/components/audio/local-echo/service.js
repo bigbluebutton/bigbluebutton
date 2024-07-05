@@ -1,5 +1,5 @@
-import LocalPCLoopback from '/imports/ui/services/webrtc-base/local-pc-loopback';
-import browserInfo from '/imports/utils/browserInfo';
+import LocalPCLoopback from 'imports/ui/services/webrtc-base/local-pc-loopback';
+import browserInfo from 'imports/utils/browserInfo';
 
 let audioContext = null;
 let sourceContext = null;

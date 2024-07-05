@@ -1,13 +1,13 @@
-import Auth from '/imports/ui/services/auth';
-import SIPBridge from '/imports/api/audio/client/bridge/sip';
-import SFUAudioBridge from '/imports/api/audio/client/bridge/sfu-audio-bridge';
-import logger from '/imports/startup/client/logger';
-import { notify } from '/imports/ui/services/notification';
-import playAndRetry from '/imports/utils/mediaElementPlayRetry';
-import { monitorAudioConnection } from '/imports/utils/stats';
-import browserInfo from '/imports/utils/browserInfo';
-import getFromMeetingSettings from '/imports/ui/services/meeting-settings';
-import getFromUserSettings from '/imports/ui/services/users-settings';
+import Auth from 'imports/ui/services/auth';
+import SIPBridge from 'imports/api/audio/client/bridge/sip';
+import SFUAudioBridge from 'imports/api/audio/client/bridge/sfu-audio-bridge';
+import logger from 'imports/startup/client/logger';
+import { notify } from 'imports/ui/services/notification';
+import playAndRetry from 'imports/utils/mediaElementPlayRetry';
+import { monitorAudioConnection } from 'imports/utils/stats';
+import browserInfo from 'imports/utils/browserInfo';
+import getFromMeetingSettings from 'imports/ui/services/meeting-settings';
+import getFromUserSettings from 'imports/ui/services/users-settings';
 import {
   DEFAULT_INPUT_DEVICE_ID,
   reloadAudioElement,
@@ -16,15 +16,15 @@ import {
   storeAudioInputDeviceId,
   getStoredAudioOutputDeviceId,
   storeAudioOutputDeviceId,
-} from '/imports/api/audio/client/bridge/service';
-import MediaStreamUtils from '/imports/utils/media-stream-utils';
+} from 'imports/api/audio/client/bridge/service';
+import MediaStreamUtils from 'imports/utils/media-stream-utils';
 import { makeVar } from '@apollo/client';
-import AudioErrors from '/imports/ui/services/audio-manager/error-codes';
-import Session from '/imports/ui/services/storage/in-memory';
-import GrahqlSubscriptionStore, { stringToHash } from '/imports/ui/core/singletons/subscriptionStore';
+import AudioErrors from 'imports/ui/services/audio-manager/error-codes';
+import Session from 'imports/ui/services/storage/in-memory';
+import GrahqlSubscriptionStore, { stringToHash } from 'imports/ui/core/singletons/subscriptionStore';
 import VOICE_ACTIVITY from '../../core/graphql/queries/whoIsTalking';
 
-const DEFAULT_AUDIO_BRIDGES_PATH = '/imports/api/audio/client/';
+const DEFAULT_AUDIO_BRIDGES_PATH = 'imports/api/audio/client/';
 const CALL_STATES = {
   STARTED: 'started',
   ENDED: 'ended',

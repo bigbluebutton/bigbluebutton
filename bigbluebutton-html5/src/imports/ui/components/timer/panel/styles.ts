@@ -16,7 +16,7 @@ import {
   colorPrimary,
 } from '../../../stylesheets/styled-components/palette';
 import { TextElipsis } from '../../../stylesheets/styled-components/placeholders';
-import Button from '/imports/ui/components/common/button/component';
+import Button from 'imports/ui/components/common/button/component';
 
 const TimerSidebarContent = styled.div`
   background-color: ${colorWhite};

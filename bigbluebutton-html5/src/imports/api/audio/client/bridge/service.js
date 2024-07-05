@@ -1,6 +1,6 @@
-import { getSettingsSingletonInstance } from '/imports/ui/services/settings';
-import logger from '/imports/startup/client/logger';
-import { getStorageSingletonInstance } from '/imports/ui/services/storage';
+import { getSettingsSingletonInstance } from 'imports/ui/services/settings';
+import logger from 'imports/startup/client/logger';
+import { getStorageSingletonInstance } from 'imports/ui/services/storage';
 
 const AUDIO_SESSION_NUM_KEY = 'AudioSessionNumber';
 const DEFAULT_INPUT_DEVICE_ID = '';

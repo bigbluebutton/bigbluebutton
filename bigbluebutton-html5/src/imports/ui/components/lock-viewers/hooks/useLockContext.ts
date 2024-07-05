@@ -1,5 +1,5 @@
-import useCurrentUser from '/imports/ui/core/hooks/useCurrentUser';
-import useMeeting from '/imports/ui/core/hooks/useMeeting';
+import useCurrentUser from 'imports/ui/core/hooks/useCurrentUser';
+import useMeeting from 'imports/ui/core/hooks/useMeeting';
 import { LockStruct } from '../context/context';
 
 const useLockContext = () => {

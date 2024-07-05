@@ -1,6 +1,6 @@
 import React, { useCallback, useEffect, useMemo } from 'react';
 import { UpdatedEventDetailsForChatMessageDomElements } from 'bigbluebutton-html-plugin-sdk/dist/cjs/dom-element-manipulation/chat/message/types';
-import { Message } from '/imports/ui/Types/message';
+import { Message } from 'imports/ui/Types/message';
 import ChatMessageHeader from './message-header/component';
 import ChatMessageTextContent from './message-content/text-content/component';
 import ChatPollContent from './message-content/poll-content/component';
@@ -11,7 +11,7 @@ import {
   ChatContent,
   ChatAvatar,
 } from './styles';
-import { ChatMessageType } from '/imports/ui/core/enums/chat';
+import { ChatMessageType } from 'imports/ui/core/enums/chat';
 
 interface ChatMessageProps {
   message: Message;

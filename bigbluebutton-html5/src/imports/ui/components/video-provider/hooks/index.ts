@@ -9,15 +9,15 @@ import {
   useLazyQuery,
   useMutation,
 } from '@apollo/client';
-import Auth from '/imports/ui/services/auth';
-import useCurrentUser from '/imports/ui/core/hooks/useCurrentUser';
-import useMeeting from '/imports/ui/core/hooks/useMeeting';
-import { partition } from '/imports/utils/array-utils';
-import { USER_AGGREGATE_COUNT_SUBSCRIPTION } from '/imports/ui/core/graphql/queries/users';
+import Auth from 'imports/ui/services/auth';
+import useCurrentUser from 'imports/ui/core/hooks/useCurrentUser';
+import useMeeting from 'imports/ui/core/hooks/useMeeting';
+import { partition } from 'imports/utils/array-utils';
+import { USER_AGGREGATE_COUNT_SUBSCRIPTION } from 'imports/ui/core/graphql/queries/users';
 import {
   getSortingMethod,
   sortVideoStreams,
-} from '/imports/ui/components/video-provider/stream-sorting';
+} from 'imports/ui/components/video-provider/stream-sorting';
 import {
   useVideoState,
   getConnectingStream,
@@ -39,10 +39,10 @@ import {
   GridUsersResponse,
   OwnVideoStreamsResponse,
 } from '../types';
-import { DesktopPageSizes, MobilePageSizes } from '/imports/ui/Types/meetingClientSettings';
-import logger from '/imports/startup/client/logger';
-import useDeduplicatedSubscription from '/imports/ui/core/hooks/useDeduplicatedSubscription';
-import { useMeetingIsBreakout } from '/imports/ui/components/app/service';
+import { DesktopPageSizes, MobilePageSizes } from 'imports/ui/Types/meetingClientSettings';
+import logger from 'imports/startup/client/logger';
+import useDeduplicatedSubscription from 'imports/ui/core/hooks/useDeduplicatedSubscription';
+import { useMeetingIsBreakout } from 'imports/ui/components/app/service';
 
 const FILTER_VIDEO_STATS = [
   'outbound-rtp',

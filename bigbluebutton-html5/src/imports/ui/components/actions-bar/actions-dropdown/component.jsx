@@ -1,19 +1,19 @@
 import React, { PureComponent } from 'react';
 import PropTypes from 'prop-types';
 import { defineMessages } from 'react-intl';
-import withShortcutHelper from '/imports/ui/components/shortcut-help/service';
-import ExternalVideoModal from '/imports/ui/components/external-video-player/external-video-player-graphql/modal/component';
-import LayoutModalContainer from '/imports/ui/components/layout/modal/container';
-import BBBMenu from '/imports/ui/components/common/menu/component';
+import withShortcutHelper from 'imports/ui/components/shortcut-help/service';
+import ExternalVideoModal from 'imports/ui/components/external-video-player/external-video-player-graphql/modal/component';
+import LayoutModalContainer from 'imports/ui/components/layout/modal/container';
+import BBBMenu from 'imports/ui/components/common/menu/component';
 import { ActionButtonDropdownItemType } from 'bigbluebutton-html-plugin-sdk/dist/cjs/extensible-areas/action-button-dropdown-item/enums';
 import Styled from './styles';
-import { colorPrimary } from '/imports/ui/stylesheets/styled-components/palette';
+import { colorPrimary } from 'imports/ui/stylesheets/styled-components/palette';
 import { PANELS, ACTIONS, LAYOUT_TYPE } from '../../layout/enums';
-import { uniqueId } from '/imports/utils/string-utils';
-import VideoPreviewContainer from '/imports/ui/components/video-preview/container';
-import { screenshareHasEnded } from '/imports/ui/components/screenshare/service';
-import { getSettingsSingletonInstance } from '/imports/ui/services/settings';
-import Session from '/imports/ui/services/storage/in-memory';
+import { uniqueId } from 'imports/utils/string-utils';
+import VideoPreviewContainer from 'imports/ui/components/video-preview/container';
+import { screenshareHasEnded } from 'imports/ui/components/screenshare/service';
+import { getSettingsSingletonInstance } from 'imports/ui/services/settings';
+import Session from 'imports/ui/services/storage/in-memory';
 
 const propTypes = {
   amIPresenter: PropTypes.bool,

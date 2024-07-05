@@ -1,14 +1,14 @@
 import { useMutation } from '@apollo/client';
 import React, { useEffect, useRef, useState } from 'react';
 import Styled from './styles';
-import Icon from '/imports/ui/components/common/icon/icon-ts/component';
-import humanizeSeconds from '/imports/utils/humanizeSeconds';
-import useTimeSync from '/imports/ui/core/local-states/useTimeSync';
-import useCurrentUser from '/imports/ui/core/hooks/useCurrentUser';
+import Icon from 'imports/ui/components/common/icon/icon-ts/component';
+import humanizeSeconds from 'imports/utils/humanizeSeconds';
+import useTimeSync from 'imports/ui/core/local-states/useTimeSync';
+import useCurrentUser from 'imports/ui/core/hooks/useCurrentUser';
 import { layoutSelectInput } from '../../layout/context';
 import { Input } from '../../layout/layoutTypes';
 import { TIMER_START, TIMER_STOP } from '../mutations';
-import useTimer from '/imports/ui/core/hooks/useTImer';
+import useTimer from 'imports/ui/core/hooks/useTImer';
 
 interface TimerIndicatorProps {
   passedTime: number;

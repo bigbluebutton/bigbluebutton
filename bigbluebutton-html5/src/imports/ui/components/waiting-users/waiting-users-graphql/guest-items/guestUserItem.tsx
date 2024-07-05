@@ -1,9 +1,9 @@
 import React from 'react';
 import { defineMessages, useIntl } from 'react-intl';
-import { getSettingsSingletonInstance } from '/imports/ui/services/settings';
+import { getSettingsSingletonInstance } from 'imports/ui/services/settings';
 import Styled from '../styles';
 import { getNameInitials } from '../service';
-import TextInput from '/imports/ui/components/text-input/component';
+import TextInput from 'imports/ui/components/text-input/component';
 
 const intlMessages = defineMessages({
   accept: {

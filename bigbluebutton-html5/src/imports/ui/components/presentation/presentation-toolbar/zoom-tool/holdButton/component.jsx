@@ -1,6 +1,6 @@
 import React, { PureComponent } from 'react';
 import PropTypes from 'prop-types';
-import { uniqueId } from '/imports/utils/string-utils';
+import { uniqueId } from 'imports/utils/string-utils';
 
 const DELAY_MILLISECONDS = 300;
 const STEP_TIME = 100;

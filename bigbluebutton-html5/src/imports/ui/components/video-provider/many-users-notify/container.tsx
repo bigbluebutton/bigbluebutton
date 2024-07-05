@@ -1,10 +1,10 @@
 import React from 'react';
 import { useMutation } from '@apollo/client';
 import ManyUsersComponent from './component';
-import useCurrentUser from '/imports/ui/core/hooks/useCurrentUser';
-import { SET_WEBCAM_ONLY_FOR_MODERATOR } from '/imports/ui/components/lock-viewers/mutations';
+import useCurrentUser from 'imports/ui/core/hooks/useCurrentUser';
+import { SET_WEBCAM_ONLY_FOR_MODERATOR } from 'imports/ui/components/lock-viewers/mutations';
 import { useViewersInWebcamCount } from '../hooks';
-import useMeeting from '/imports/ui/core/hooks/useMeeting';
+import useMeeting from 'imports/ui/core/hooks/useMeeting';
 
 const ManyUsersContainer: React.FC = () => {
   const { data: currentUserData } = useCurrentUser((user) => ({

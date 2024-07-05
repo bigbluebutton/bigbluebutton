@@ -1,12 +1,12 @@
 import styled from 'styled-components';
-import { mdPaddingX, borderRadius } from '/imports/ui/stylesheets/styled-components/general';
+import { mdPaddingX, borderRadius } from 'imports/ui/stylesheets/styled-components/general';
 import {
   fontSizeXL,
   fontSizeMD,
   fontSizeSmall,
-} from '/imports/ui/stylesheets/styled-components/typography';
-import { colorWhite, colorTipBg } from '/imports/ui/stylesheets/styled-components/palette';
-import { smallOnly, mediumOnly } from '/imports/ui/stylesheets/styled-components/breakpoints';
+} from 'imports/ui/stylesheets/styled-components/typography';
+import { colorWhite, colorTipBg } from 'imports/ui/stylesheets/styled-components/palette';
+import { smallOnly, mediumOnly } from 'imports/ui/stylesheets/styled-components/breakpoints';
 
 const MuteWarning = styled.div`
   position: absolute !important;

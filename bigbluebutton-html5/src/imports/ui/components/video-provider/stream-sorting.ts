@@ -1,6 +1,6 @@
 import { StreamItem } from './types';
-import UserListService from '/imports/ui/components/user-list/service';
-import Auth from '/imports/ui/services/auth';
+import UserListService from 'imports/ui/components/user-list/service';
+import Auth from 'imports/ui/services/auth';
 import VideoService from './service';
 
 const DEFAULT_SORTING_MODE = 'LOCAL_ALPHABETICAL';

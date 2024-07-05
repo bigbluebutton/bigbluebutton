@@ -9,9 +9,11 @@ interface Handlers {
 
 const useStickyScroll = (el: HTMLElement | null) => {
   const elHeight = useRef(0);
-  const timeout = useRef<number>();
+  const timeout = useRef<ReturnType<typeof setTimeout>>();
   const handlers = useRef<Handlers>({
+    // eslint-disable-next-line @typescript-eslint/no-empty-function
     startObserving: () => {},
+    // eslint-disable-next-line @typescript-eslint/no-empty-function
     stopObserving: () => {},
   });
 

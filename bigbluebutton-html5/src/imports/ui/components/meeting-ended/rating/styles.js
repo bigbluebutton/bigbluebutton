@@ -1,6 +1,6 @@
 import styled from 'styled-components';
-import { colorPrimary } from '/imports/ui/stylesheets/styled-components/palette';
-import { smallOnly } from '/imports/ui/stylesheets/styled-components/breakpoints';
+import { colorPrimary } from 'imports/ui/stylesheets/styled-components/palette';
+import { smallOnly } from 'imports/ui/stylesheets/styled-components/breakpoints';
 
 const StarRating = styled.div`
   font-family: 'bbb-icons' !important;

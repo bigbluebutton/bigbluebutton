@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useRef } from 'react';
-import GrahqlSubscriptionStore, { stringToHash, SubscriptionStructure } from '/imports/ui/core/singletons/subscriptionStore';
+import GrahqlSubscriptionStore, { stringToHash, SubscriptionStructure } from 'imports/ui/core/singletons/subscriptionStore';
 import { DocumentNode, TypedQueryDocumentNode } from 'graphql';
 import {
   OperationVariables, SubscriptionHookOptions, makeVar, useReactiveVar,

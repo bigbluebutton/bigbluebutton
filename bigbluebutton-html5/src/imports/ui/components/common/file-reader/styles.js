@@ -1,20 +1,20 @@
 import styled, { css, keyframes } from 'styled-components';
-import Icon from '/imports/ui/components/common/icon/component';
+import Icon from 'imports/ui/components/common/icon/component';
 import {
   colorDanger,
   colorGray,
   colorGrayLightest,
   colorSuccess,
-} from '/imports/ui/stylesheets/styled-components/palette';
+} from 'imports/ui/stylesheets/styled-components/palette';
 import {
   fileLineWidth,
   iconPaddingMd,
   mdPaddingY,
   statusIconSize,
-} from '/imports/ui/stylesheets/styled-components/general';
+} from 'imports/ui/stylesheets/styled-components/general';
 import {
   headingsFontWeight,
-} from '/imports/ui/stylesheets/styled-components/typography';
+} from 'imports/ui/stylesheets/styled-components/typography';
 
 const rotate = keyframes`
   0% { transform: rotate(0); }

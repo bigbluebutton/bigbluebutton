@@ -1,9 +1,9 @@
 import React, { useEffect } from 'react';
 import PropTypes from 'prop-types';
-import { notify } from '/imports/ui/services/notification';
-import Presentation from '/imports/ui/components/presentation/component';
-import Auth from '/imports/ui/services/auth';
-import getFromUserSettings from '/imports/ui/services/users-settings';
+import { notify } from 'imports/ui/services/notification';
+import Presentation from 'imports/ui/components/presentation/component';
+import Auth from 'imports/ui/services/auth';
+import getFromUserSettings from 'imports/ui/services/users-settings';
 import { useMutation, useLazyQuery } from '@apollo/client';
 import {
   layoutSelect,
@@ -16,12 +16,12 @@ import MediaService from '../media/service';
 import {
   CURRENT_PRESENTATION_PAGE_SUBSCRIPTION,
   CURRENT_PAGE_WRITERS_SUBSCRIPTION,
-} from '/imports/ui/components/whiteboard/queries';
-import POLL_SUBSCRIPTION from '/imports/ui/core/graphql/queries/pollSubscription';
-import useMeeting from '/imports/ui/core/hooks/useMeeting';
-import useCurrentUser from '/imports/ui/core/hooks/useCurrentUser';
+} from 'imports/ui/components/whiteboard/queries';
+import POLL_SUBSCRIPTION from 'imports/ui/core/graphql/queries/pollSubscription';
+import useMeeting from 'imports/ui/core/hooks/useMeeting';
+import useCurrentUser from 'imports/ui/core/hooks/useCurrentUser';
 import { PRESENTATION_SET_ZOOM, PRESENTATION_SET_WRITERS } from './mutations';
-import { GET_USER_IDS } from '/imports/ui/core/graphql/queries/users';
+import { GET_USER_IDS } from 'imports/ui/core/graphql/queries/users';
 import useDeduplicatedSubscription from '../../core/hooks/useDeduplicatedSubscription';
 
 const fetchedpresentation = {};

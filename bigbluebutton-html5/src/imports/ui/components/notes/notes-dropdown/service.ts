@@ -1,6 +1,6 @@
-import Auth from '/imports/ui/services/auth';
-import PresentationUploaderService from '/imports/ui/components/presentation/presentation-uploader/service';
-import PadsService from '/imports/ui/components/pads/pads-graphql/service';
+import Auth from 'imports/ui/services/auth';
+import PresentationUploaderService from 'imports/ui/components/presentation/presentation-uploader/service';
+import PadsService from 'imports/ui/components/pads/pads-graphql/service';
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 async function convertAndUpload(presentations: any, padId: string, presentationEnabled = true) {

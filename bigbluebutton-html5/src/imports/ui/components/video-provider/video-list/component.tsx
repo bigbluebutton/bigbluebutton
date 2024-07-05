@@ -1,16 +1,16 @@
 import React, { Component } from 'react';
 import { IntlShape, defineMessages, injectIntl } from 'react-intl';
-import { throttle } from '/imports/utils/throttle';
-import { range } from '/imports/utils/array-utils';
+import { throttle } from 'imports/utils/throttle';
+import { range } from 'imports/utils/array-utils';
 import Styled from './styles';
 import VideoListItemContainer from './video-list-item/container';
-import AutoplayOverlay from '/imports/ui/components/media/autoplay-overlay/component';
-import logger from '/imports/startup/client/logger';
-import playAndRetry from '/imports/utils/mediaElementPlayRetry';
-import VideoService from '/imports/ui/components/video-provider/service';
-import { ACTIONS } from '/imports/ui/components/layout/enums';
-import { Output } from '/imports/ui/components/layout/layoutTypes';
-import { VideoItem } from '/imports/ui/components/video-provider/types';
+import AutoplayOverlay from 'imports/ui/components/media/autoplay-overlay/component';
+import logger from 'imports/startup/client/logger';
+import playAndRetry from 'imports/utils/mediaElementPlayRetry';
+import VideoService from 'imports/ui/components/video-provider/service';
+import { ACTIONS } from 'imports/ui/components/layout/enums';
+import { Output } from 'imports/ui/components/layout/layoutTypes';
+import { VideoItem } from 'imports/ui/components/video-provider/types';
 
 const intlMessages = defineMessages({
   autoplayBlockedDesc: {

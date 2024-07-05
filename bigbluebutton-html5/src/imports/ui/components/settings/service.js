@@ -1,5 +1,5 @@
-import { getSettingsSingletonInstance } from '/imports/ui/services/settings';
-import { notify } from '/imports/ui/services/notification';
+import { getSettingsSingletonInstance } from 'imports/ui/services/settings';
+import { notify } from 'imports/ui/services/notification';
 import intlHolder from '../../core/singletons/intlHolder';
 
 const isKeepPushingLayoutEnabled = () => window.meetingClientSettings.public.layout.showPushLayoutToggle;

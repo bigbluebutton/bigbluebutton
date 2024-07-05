@@ -1,9 +1,9 @@
 /* eslint-disable @typescript-eslint/ban-ts-comment */
 import styled, { css, keyframes } from 'styled-components';
-import Button from '/imports/ui/components/common/button/component';
-import { smallOnly } from '/imports/ui/stylesheets/styled-components/breakpoints';
-import { colorWhite } from '/imports/ui/stylesheets/styled-components/palette';
-import { smPaddingX, smPaddingY } from '/imports/ui/stylesheets/styled-components/general';
+import Button from 'imports/ui/components/common/button/component';
+import { smallOnly } from 'imports/ui/stylesheets/styled-components/breakpoints';
+import { colorWhite } from 'imports/ui/stylesheets/styled-components/palette';
+import { smPaddingX, smPaddingY } from 'imports/ui/stylesheets/styled-components/general';
 
 const pulse = keyframes`
   0% {

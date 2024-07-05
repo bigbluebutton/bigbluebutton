@@ -1,13 +1,13 @@
 import { useEffect, useRef } from 'react';
-import { throttle } from '/imports/utils/throttle';
-import { layoutSelect, layoutSelectInput, layoutDispatch } from '/imports/ui/components/layout/context';
-import DEFAULT_VALUES from '/imports/ui/components/layout/defaultValues';
-import { INITIAL_INPUT_STATE } from '/imports/ui/components/layout/initState';
+import { throttle } from 'imports/utils/throttle';
+import { layoutSelect, layoutSelectInput, layoutDispatch } from 'imports/ui/components/layout/context';
+import DEFAULT_VALUES from 'imports/ui/components/layout/defaultValues';
+import { INITIAL_INPUT_STATE } from 'imports/ui/components/layout/initState';
 import { ACTIONS, CAMERADOCK_POSITION, PANELS } from '../enums';
-import Storage from '/imports/ui/services/storage/session';
-import { defaultsDeep } from '/imports/utils/array-utils';
-import Session from '/imports/ui/services/storage/in-memory';
-import { getSettingsSingletonInstance } from '/imports/ui/services/settings';
+import Storage from 'imports/ui/services/storage/session';
+import { defaultsDeep } from 'imports/utils/array-utils';
+import Session from 'imports/ui/services/storage/in-memory';
+import { getSettingsSingletonInstance } from 'imports/ui/services/settings';
 
 const windowWidth = () => window.document.documentElement.clientWidth;
 const windowHeight = () => window.document.documentElement.clientHeight;

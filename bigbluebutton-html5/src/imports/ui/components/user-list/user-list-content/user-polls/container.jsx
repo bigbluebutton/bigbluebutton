@@ -1,7 +1,7 @@
 import React from 'react';
 import UserPolls from './component';
 import { layoutSelectInput, layoutDispatch } from '../../../layout/context';
-import { useStorageKey } from '/imports/ui/services/storage/hooks';
+import { useStorageKey } from 'imports/ui/services/storage/hooks';
 
 const UserPollsContainer = (props) => {
   const sidebarContent = layoutSelectInput((i) => i.sidebarContent);

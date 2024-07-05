@@ -8,18 +8,18 @@ import {
   useIsLayoutsEnabled,
   useIsPresentationEnabled,
   useIsTimerFeatureEnabled,
-} from '/imports/ui/services/features';
-import { PluginsContext } from '/imports/ui/components/components-data/plugin-context/context';
-import { useShortcut } from '/imports/ui/core/hooks/useShortcut';
+} from 'imports/ui/services/features';
+import { PluginsContext } from 'imports/ui/components/components-data/plugin-context/context';
+import { useShortcut } from 'imports/ui/core/hooks/useShortcut';
 import {
   PROCESSED_PRESENTATIONS_SUBSCRIPTION,
-} from '/imports/ui/components/whiteboard/queries';
-import useDeduplicatedSubscription from '/imports/ui/core/hooks/useDeduplicatedSubscription';
-import { SET_PRESENTER } from '/imports/ui/core/graphql/mutations/userMutations';
+} from 'imports/ui/components/whiteboard/queries';
+import useDeduplicatedSubscription from 'imports/ui/core/hooks/useDeduplicatedSubscription';
+import { SET_PRESENTER } from 'imports/ui/core/graphql/mutations/userMutations';
 import { TIMER_ACTIVATE, TIMER_DEACTIVATE } from '../../timer/mutations';
-import Auth from '/imports/ui/services/auth';
+import Auth from 'imports/ui/services/auth';
 import { PRESENTATION_SET_CURRENT } from '../../presentation/mutations';
-import { useStorageKey } from '/imports/ui/services/storage/hooks';
+import { useStorageKey } from 'imports/ui/services/storage/hooks';
 
 const ActionsDropdownContainer = (props) => {
   const sidebarContent = layoutSelectInput((i) => i.sidebarContent);

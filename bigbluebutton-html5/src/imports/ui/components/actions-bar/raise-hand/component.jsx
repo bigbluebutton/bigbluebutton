@@ -1,11 +1,11 @@
 import React, { PureComponent } from 'react';
 import PropTypes from 'prop-types';
 import { defineMessages } from 'react-intl';
-import withShortcutHelper from '/imports/ui/components/shortcut-help/service';
-import BBBMenu from '/imports/ui/components/common/menu/component';
-import Button from '/imports/ui/components/common/button/component';
+import withShortcutHelper from 'imports/ui/components/shortcut-help/service';
+import BBBMenu from 'imports/ui/components/common/menu/component';
+import Button from 'imports/ui/components/common/button/component';
 import Styled from './styles';
-import { EMOJI_STATUSES } from '/imports/utils/statuses';
+import { EMOJI_STATUSES } from 'imports/utils/statuses';
 
 const propTypes = {
   intl: PropTypes.shape({

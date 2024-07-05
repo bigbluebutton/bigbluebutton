@@ -1,12 +1,12 @@
 import React from 'react';
 import { Caption, GET_CAPTIONS, getCaptions } from './queries';
-import logger from '/imports/startup/client/logger';
+import logger from 'imports/startup/client/logger';
 
 import Styled from './styles';
-import useAudioCaptionEnable from '/imports/ui/core/local-states/useAudioCaptionEnable';
-import useCurrentUser from '/imports/ui/core/hooks/useCurrentUser';
+import useAudioCaptionEnable from 'imports/ui/core/local-states/useAudioCaptionEnable';
+import useCurrentUser from 'imports/ui/core/hooks/useCurrentUser';
 import { splitTranscript } from '../service';
-import useDeduplicatedSubscription from '/imports/ui/core/hooks/useDeduplicatedSubscription';
+import useDeduplicatedSubscription from 'imports/ui/core/hooks/useDeduplicatedSubscription';
 
 interface AudioCaptionsLiveProps {
   captions: Caption[];

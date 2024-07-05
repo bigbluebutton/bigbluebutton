@@ -15,13 +15,13 @@ import {
   setLearningDashboardCookie,
 } from './service';
 import { MeetingEndDataResponse, getMeetingEndData } from './queries';
-import useAuthData from '/imports/ui/core/local-states/useAuthData';
-import Icon from '/imports/ui/components/common/icon/icon-ts/component';
+import useAuthData from 'imports/ui/core/local-states/useAuthData';
+import Icon from 'imports/ui/components/common/icon/icon-ts/component';
 import Styled from './styles';
 import Rating from './rating/component';
 import { LoadingContext } from '../common/loading-screen/loading-screen-HOC/component';
-import logger from '/imports/startup/client/logger';
-import apolloContextHolder from '/imports/ui/core/graphql/apolloContextHolder/apolloContextHolder';
+import logger from 'imports/startup/client/logger';
+import apolloContextHolder from 'imports/ui/core/graphql/apolloContextHolder/apolloContextHolder';
 
 const intlMessage = defineMessages({
   410: {

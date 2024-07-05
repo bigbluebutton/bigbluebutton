@@ -1,7 +1,7 @@
 import React, {
   useEffect, useRef, useState, useMemo,
 } from 'react';
-import logger from '/imports/startup/client/logger';
+import logger from 'imports/startup/client/logger';
 import {
   BbbPluginSdk,
 } from 'bigbluebutton-html-plugin-sdk';

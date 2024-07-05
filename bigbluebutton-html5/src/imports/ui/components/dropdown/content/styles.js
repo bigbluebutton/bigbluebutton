@@ -1,13 +1,13 @@
 import styled from 'styled-components';
-import { smallOnly } from '/imports/ui/stylesheets/styled-components/breakpoints';
+import { smallOnly } from 'imports/ui/stylesheets/styled-components/breakpoints';
 import {
   borderSize,
   borderRadius,
   dropdownCaretHeight,
   dropdownCaretWidth,
-} from '/imports/ui/stylesheets/styled-components/general';
-import { colorWhite, colorGray } from '/imports/ui/stylesheets/styled-components/palette';
-import { lineHeightComputed } from '/imports/ui/stylesheets/styled-components/typography';
+} from 'imports/ui/stylesheets/styled-components/general';
+import { colorWhite, colorGray } from 'imports/ui/stylesheets/styled-components/palette';
+import { lineHeightComputed } from 'imports/ui/stylesheets/styled-components/typography';
 
 const Content = styled.div`
   outline: transparent;

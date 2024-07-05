@@ -1,7 +1,7 @@
 import React from 'react';
 import { useMutation } from '@apollo/client';
 import LockViewersComponent from './component';
-import useCurrentUser from '/imports/ui/core/hooks/useCurrentUser';
+import useCurrentUser from 'imports/ui/core/hooks/useCurrentUser';
 import { SET_LOCK_SETTINGS_PROPS, SET_WEBCAM_ONLY_FOR_MODERATOR } from './mutations';
 import useMeeting from '../../core/hooks/useMeeting';
 import { useIsChatEnabled, useIsSharedNotesEnabled } from '../../services/features';

@@ -1,9 +1,9 @@
 import React, { PureComponent } from 'react';
 import { defineMessages, injectIntl } from 'react-intl';
 import PropTypes from 'prop-types';
-import BBBMenu from '/imports/ui/components/common/menu/component';
-import { uniqueId } from '/imports/utils/string-utils';
-import Trigger from '/imports/ui/components/common/control-header/right/component';
+import BBBMenu from 'imports/ui/components/common/menu/component';
+import { uniqueId } from 'imports/utils/string-utils';
+import Trigger from 'imports/ui/components/common/control-header/right/component';
 import PresentationDownloadDropdownWrapper from './presentation-download-dropdown-wrapper/component';
 
 const intlMessages = defineMessages({

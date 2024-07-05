@@ -1,7 +1,7 @@
 import React from 'react';
 import ChatListItem from './component';
 import { layoutSelect, layoutSelectInput, layoutDispatch } from '../../layout/context';
-import Service from '/imports/ui/components/user-list/service';
+import Service from 'imports/ui/components/user-list/service';
 
 const ChatListItemContainer = (props) => {
   const sidebarContent = layoutSelectInput((i) => i.sidebarContent);

@@ -3,8 +3,8 @@ import {
   systemMessageBackgroundColor,
   systemMessageBorderColor,
   colorText,
-} from '/imports/ui/stylesheets/styled-components/palette';
-import { fontSizeBase, btnFontWeight } from '/imports/ui/stylesheets/styled-components/typography';
+} from 'imports/ui/stylesheets/styled-components/palette';
+import { fontSizeBase, btnFontWeight } from 'imports/ui/stylesheets/styled-components/typography';
 
 interface ChatMessageProps {
   emphasizedMessage: boolean;

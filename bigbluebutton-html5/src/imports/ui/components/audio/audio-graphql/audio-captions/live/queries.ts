@@ -1,5 +1,5 @@
 import { gql } from '@apollo/client';
-import { User } from '/imports/ui/Types/user';
+import { User } from 'imports/ui/Types/user';
 
 export interface Caption {
   user: Pick<User, 'avatar' | 'color' | 'isModerator' | 'name'>;

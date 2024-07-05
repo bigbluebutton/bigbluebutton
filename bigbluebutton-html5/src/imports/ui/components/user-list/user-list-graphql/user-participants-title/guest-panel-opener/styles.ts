@@ -6,7 +6,7 @@ import {
   borderSize,
   mdPaddingY,
   mdPaddingX,
-} from '/imports/ui/stylesheets/styled-components/general';
+} from 'imports/ui/stylesheets/styled-components/general';
 import {
   colorPrimary,
   userListBg,
@@ -18,9 +18,9 @@ import {
   colorGrayDark,
   colorOffWhite,
   colorGrayLight,
-} from '/imports/ui/stylesheets/styled-components/palette';
-import { ScrollboxVertical } from '/imports/ui/stylesheets/styled-components/scrollable';
-import { fontSizeSmall } from '/imports/ui/stylesheets/styled-components/typography';
+} from 'imports/ui/stylesheets/styled-components/palette';
+import { ScrollboxVertical } from 'imports/ui/stylesheets/styled-components/scrollable';
+import { fontSizeSmall } from 'imports/ui/stylesheets/styled-components/typography';
 
 const Messages = styled.div`
   flex-grow: 0;

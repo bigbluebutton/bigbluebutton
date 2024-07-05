@@ -1,7 +1,7 @@
 /* eslint-disable camelcase */
 import { gql } from '@apollo/client';
-import { Meeting } from '/imports/ui/Types/meeting';
-import { Message } from '/imports/ui/Types/message';
+import { Meeting } from 'imports/ui/Types/meeting';
+import { Message } from 'imports/ui/Types/message';
 
 export type getChatMessageHistory = {
   chat_message_public: Array<Message>

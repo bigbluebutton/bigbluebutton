@@ -1,7 +1,7 @@
 import styled, { css, keyframes } from 'styled-components';
-import Icon from '/imports/ui/components/common/icon/component';
+import Icon from 'imports/ui/components/common/icon/component';
 import Dropzone from 'react-dropzone';
-import Button from '/imports/ui/components/common/button/component';
+import Button from 'imports/ui/components/common/button/component';
 import {
   fileLineWidth,
   iconPaddingMd,
@@ -22,12 +22,12 @@ import {
   uploadIconSize,
   iconLineHeight,
   mdPaddingX,
-} from '/imports/ui/stylesheets/styled-components/general';
+} from 'imports/ui/stylesheets/styled-components/general';
 import {
   headingsFontWeight,
   fontSizeLarge,
   fontSizeLarger,
-} from '/imports/ui/stylesheets/styled-components/typography';
+} from 'imports/ui/stylesheets/styled-components/typography';
 import {
   colorGrayLight,
   colorGrayDark,
@@ -42,9 +42,9 @@ import {
   colorText,
   colorBlueLight,
   colorOffWhite,
-} from '/imports/ui/stylesheets/styled-components/palette';
-import { smallOnly } from '/imports/ui/stylesheets/styled-components/breakpoints';
-import { ScrollboxVertical } from '/imports/ui/stylesheets/styled-components/scrollable';
+} from 'imports/ui/stylesheets/styled-components/palette';
+import { smallOnly } from 'imports/ui/stylesheets/styled-components/breakpoints';
+import { ScrollboxVertical } from 'imports/ui/stylesheets/styled-components/scrollable';
 
 const barStripes = keyframes`
   from { background-position: 1rem 0; }

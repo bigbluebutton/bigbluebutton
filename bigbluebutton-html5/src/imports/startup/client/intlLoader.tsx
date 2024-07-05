@@ -1,7 +1,7 @@
 import React, { useCallback, useContext, useEffect } from 'react';
 import { IntlProvider } from 'react-intl';
-import { LoadingContext } from '/imports/ui/components/common/loading-screen/loading-screen-HOC/component';
-import useCurrentLocale from '/imports/ui/core/local-states/useCurrentLocale';
+import { LoadingContext } from 'imports/ui/components/common/loading-screen/loading-screen-HOC/component';
+import useCurrentLocale from 'imports/ui/core/local-states/useCurrentLocale';
 import logger from './logger';
 
 interface LocaleJson {

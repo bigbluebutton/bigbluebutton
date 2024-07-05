@@ -1,9 +1,9 @@
 import React from 'react';
-import Toggle from '/imports/ui/components/common/switch/component';
+import Toggle from 'imports/ui/components/common/switch/component';
 import { defineMessages, injectIntl } from 'react-intl';
 import BaseMenu from '../base/component';
 import Styled from './styles';
-import { SETTINGS } from '/imports/ui/services/settings/enums';
+import { SETTINGS } from 'imports/ui/services/settings/enums';
 
 const intlMessages = defineMessages({
   transcriptionLabel: {
