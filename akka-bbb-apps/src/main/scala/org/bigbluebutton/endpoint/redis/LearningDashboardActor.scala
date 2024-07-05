@@ -599,7 +599,7 @@ class LearningDashboardActor(
       val updatedMeeting = meeting.copy(users = meeting.users + (updatedUser.userKey -> updatedUser), genericDataTitles = updatedGenericDataTitles)
 
       meetings += (updatedMeeting.intId -> updatedMeeting)
-      log.debug("New generic data received from o plugin '{}': {}", msg.body.pluginName,msg.body.genericDataForLearningAnalyticsDashboard)
+      log.debug("New generic data received from a plugin '{}': {}", msg.body.pluginName,msg.body.genericDataForLearningAnalyticsDashboard)
     }
   }
 
