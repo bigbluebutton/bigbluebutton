@@ -695,6 +695,7 @@ export interface Whiteboard {
   maxNumberOfAnnotations: number
   annotations: Annotations
   allowInfiniteWhiteboard: boolean
+  allowInfiniteWhiteboardInBreakouts: boolean
   styles: Styles
   toolbar: Toolbar
 }
