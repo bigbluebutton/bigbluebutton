@@ -8,6 +8,8 @@ import { SETTINGS } from '../../services/settings/enums';
 import { useStorageKey } from '../../services/storage/hooks';
 import { useGetStats } from '../video-provider/hooks';
 
+import getBaseUrl from '/imports/ui/core/utils/getBaseUrl';
+
 const ConnectionStatus = () => {
   const STATS_INTERVAL = window.meetingClientSettings.public.stats.interval;
   const networkRttInMs = useRef(0); // Ref to store the last rtt
@@ -28,7 +30,7 @@ const ConnectionStatus = () => {
   const handleUpdateConnectionAliveAt = () => {
     const startTime = performance.now();
     fetch(
-      `${window.location.host}/bigbluebutton/ping`,
+      `${getBaseUrl()}/ping`,
       { signal: AbortSignal.timeout(STATS_INTERVAL) },
     )
       .then((res) => {
