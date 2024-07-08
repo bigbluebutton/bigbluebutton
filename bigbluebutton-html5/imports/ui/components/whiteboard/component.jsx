@@ -686,7 +686,6 @@ const Whiteboard = React.memo(function Whiteboard(props) {
   };
 
   const { shapesToAdd, shapesToUpdate, shapesToRemove } = React.useMemo(() => {
-    const selectedShapeIds = tlEditorRef.current?.getSelectedShapeIds() || [];
     const localShapes = tlEditorRef.current?.getCurrentPageShapes();
     const filteredShapes =
       localShapes?.filter((item) => item?.index !== "a0") || [];
@@ -698,12 +697,6 @@ const Whiteboard = React.memo(function Whiteboard(props) {
     const toUpdate = [];
     const toRemove = [];
 
-    filteredShapes.forEach((localShape) => {
-      if (!remoteShapeIds.includes(localShape.id)) {
-        toRemove.push(localShape.id);
-      }
-    });
-
     Object.values(prevShapesRef.current).forEach((remoteShape) => {
       if (!remoteShape.id) return;
       const localShape = localLookup.get(remoteShape.id);
@@ -713,7 +706,7 @@ const Whiteboard = React.memo(function Whiteboard(props) {
         delete remoteShape.isModerator;
         delete remoteShape.questionType;
         toAdd.push(remoteShape);
-      } else if (!isEqual(localShape, remoteShape) && prevShape) {
+      } else {
         const remoteShapeMeta = remoteShape?.meta;
         const isCreatedByCurrentUser = remoteShapeMeta?.createdBy === currentUser?.userId;
         const isUpdatedByCurrentUser = remoteShapeMeta?.updatedBy === currentUser?.userId;
@@ -729,33 +722,16 @@ const Whiteboard = React.memo(function Whiteboard(props) {
           return;
         }
 
-        const diff = {
-          id: remoteShape.id,
-          type: remoteShape.type,
-          typeName: remoteShape.typeName,
-        };
-
-        Object.keys(remoteShape).forEach((key) => {
-          if (
-            key !== "isModerator" &&
-            !isEqual(remoteShape[key], localShape[key])
-          ) {
-            diff[key] = remoteShape[key];
-          }
-        });
-
-        if (remoteShape.props) {
-          Object.keys(remoteShape.props).forEach((key) => {
-            if (!isEqual(remoteShape.props[key], localShape.props[key])) {
-              diff.props = diff.props || {};
-              diff.props[key] = remoteShape.props[key];
-            }
-          });
-        }
-
+        const diff = remoteShape;
         delete diff.isModerator;
         delete diff.questionType;
         toUpdate.push(diff);
+      }
+    });
+
+    filteredShapes.forEach((localShape) => {
+      if (!remoteShapeIds.includes(localShape.id)) {
+        toRemove.push(localShape.id);
       }
     });
 
@@ -890,7 +866,7 @@ const Whiteboard = React.memo(function Whiteboard(props) {
           undoRedoIntervalId = setInterval(() => {
             handleUndoRedoOnCondition(isUndo, undo);
             handleUndoRedoOnCondition(isRedo, redo);
-          }, 150);
+          }, 300);
         }
       }
 
@@ -1198,7 +1174,7 @@ const Whiteboard = React.memo(function Whiteboard(props) {
             }
           }
         });
-      }, 150);
+      }, 300);
 
       return () => clearTimeout(tlStoreUpdateTimeoutId);
     }
