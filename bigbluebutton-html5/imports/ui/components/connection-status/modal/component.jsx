@@ -195,7 +195,7 @@ class ConnectionStatusComponent extends PureComponent {
   // }
 
   componentWillUnmount() {
-    Meteor.clearInterval(this.rateInterval);
+    clearInterval(this.rateInterval);
   }
 
   handleSelectTab(tab) {

@@ -22,10 +22,42 @@ const updateSettings = (obj, msgDescriptor, mutation) => {
   }
 };
 
-const getAvailableLocales = () => fetch('./locale-list').then(locales => locales.json());
+const getAvailableLocales = () => fetch('./locales/').then(locales => locales.json());
+
+const FALLBACK_LOCALES = {
+  dv: {
+    englishName: 'Dhivehi',
+    nativeName: 'ދިވެހި',
+  },
+  hy: {
+    englishName: 'Armenian',
+    nativeName: 'Հայերեն',
+  },
+  ka: {
+    englishName: 'Georgian',
+    nativeName: 'ქართული',
+  },
+  kk: {
+    englishName: 'Kazakh',
+    nativeName: 'қазақ',
+  },
+  'lo-LA': {
+    englishName: 'Lao',
+    nativeName: 'ລາວ',
+  },
+  oc: {
+    englishName: 'Occitan',
+    nativeName: 'Occitan',
+  },
+  'uz@Cyrl': {
+    englishName: 'Uzbek (Cyrillic)',
+    nativeName: 'ўзбек тили',
+  },
+};
 
 export {
   updateSettings,
   isKeepPushingLayoutEnabled,
   getAvailableLocales,
+  FALLBACK_LOCALES,
 };

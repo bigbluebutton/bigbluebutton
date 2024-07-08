@@ -1,4 +1,3 @@
-import { Meteor } from 'meteor/meteor';
 import { createLogger, stdSerializers } from 'browser-bunyan';
 import { ConsoleFormattedStream } from '@browser-bunyan/console-formatted-stream';
 import { ConsoleRawStream } from '@browser-bunyan/console-raw-stream';
@@ -20,7 +19,6 @@ const LOG_CONFIG = (JSON.parse(sessionStorage.getItem('clientStartupSettings') |
 export function createStreamForTarget(target, options) {
   const TARGET_EXTERNAL = 'external';
   const TARGET_CONSOLE = 'console';
-  const TARGET_SERVER = 'server';
 
   let Stream = ConsoleRawStream;
   switch (target) {
@@ -29,9 +27,6 @@ export function createStreamForTarget(target, options) {
       break;
     case TARGET_CONSOLE:
       Stream = ConsoleFormattedStream;
-      break;
-    case TARGET_SERVER:
-      Stream = MeteorStream;
       break;
     default:
       Stream = ConsoleFormattedStream;
@@ -110,45 +105,10 @@ class ServerLoggerStream extends ServerStream {
       this.rec.userInfo = fullInfo;
     }
     this.rec.clientBuild = window.meetingClientSettings?.public?.app?.html5ClientBuild;
-    this.rec.connectionId = Meteor?.connection?._lastSessionId;
     if (this.logTagString) {
       this.rec.logTag = this.logTagString;
     }
     return super.write(this.rec);
-  }
-}
-
-// Custom stream to log to the meteor server
-class MeteorStream {
-  write(rec) {
-    const { fullInfo } = this.getUserData();
-    const clientURL = window.location.href;
-
-    this.rec = rec;
-    if (fullInfo.meetingId != null) {
-      if (!this.rec.extraInfo) {
-        this.rec.extraInfo = {};
-      }
-
-      this.rec.extraInfo.clientURL = clientURL;
-
-      Meteor.call(
-        'logClient',
-        nameFromLevel[this.rec.level],
-        this.rec.msg,
-        this.rec.logCode,
-        this.rec.extraInfo,
-        fullInfo,
-      );
-    } else {
-      Meteor.call(
-        'logClient',
-        nameFromLevel[this.rec.level],
-        this.rec.msg,
-        this.rec.logCode,
-        { ...rec.extraInfo, clientURL },
-      );
-    }
   }
 }
 
