@@ -100,8 +100,15 @@ const createUseTalkingUsers = () => {
         const currentSpokeTimeout = spokeTimeoutRegistry.current[userId];
         const currentMutedTimeout = mutedTimeoutRegistry.current[userId];
 
-        // User has never talked
-        if (!(endTime || startTime)) return;
+        // User has never talked or exited audio
+        if (!(endTime || startTime)) {
+          setRecord((previousRecord) => {
+            const newRecord = { ...previousRecord };
+            delete newRecord[userId];
+            return newRecord;
+          });
+          return;
+        }
 
         setRecord((previousRecord) => {
           const previousIndicator = previousRecord[userId];
