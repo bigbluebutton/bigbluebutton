@@ -147,7 +147,7 @@ const RecordingIndicator: React.FC<RecordingIndicatorProps> = ({
 
   const recordingIndicatorIcon = useMemo(() => (
     <Styled.RecordingIndicatorIcon
-      titleMargin={!isPhone}
+      titleMargin={!isPhone || recording}
       data-test="mainWhiteboard"
     >
       <svg
