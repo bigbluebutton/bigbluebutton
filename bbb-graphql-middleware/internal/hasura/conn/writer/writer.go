@@ -114,6 +114,9 @@ RangeLoop:
 							browserConnection.ActiveSubscriptionsMutex.RUnlock()
 							if queryIdExists {
 								lastReceivedDataChecksum = existingSubscriptionData.LastReceivedDataChecksum
+								streamCursorField = existingSubscriptionData.StreamCursorField
+								streamCursorVariableName = existingSubscriptionData.StreamCursorVariableName
+								streamCursorInitialValue = existingSubscriptionData.StreamCursorCurrValue
 							}
 
 							if strings.Contains(query, "_stream(") && strings.Contains(query, "cursor: {") {
