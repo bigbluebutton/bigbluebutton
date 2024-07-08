@@ -344,12 +344,12 @@ const Whiteboard = React.memo(function Whiteboard(props) {
       tlEditorRef.current?.undo();
     });
 
-    if (event.key === 'Escape') {
+    if (event.key === 'Escape' || event.keyCode === 27) {
       tlEditorRef.current?.deselect(...tlEditorRef.current?.getSelectedShapes());
       return;
     }
 
-    if (event.key === 'Delete') {
+    if (event.key === 'Delete' || event.key === 'Backspace') {
       handleCut(false);
       return;
     }
@@ -380,7 +380,7 @@ const Whiteboard = React.memo(function Whiteboard(props) {
       'n': () => tlEditorRef.current?.setCurrentTool("note"),
     };
 
-    if (event.ctrlKey) {
+    if (event.ctrlKey || event.metaKey) {
       const ctrlKeyMap = {
         'a': () => {
           tlEditorRef.current?.selectAll();
@@ -874,13 +874,13 @@ const Whiteboard = React.memo(function Whiteboard(props) {
     };
 
     const handleKeyDown = (event) => {
-      const undoCondition =
-        event.ctrlKey && event.key === "z" && !event.shiftKey;
-      const redoCondition =
-        event.ctrlKey && event.shiftKey && event.key === "Z";
+      const isUndo =
+        (event.ctrlKey || event.metaKey) && event.key === "z" && !event.shiftKey;
+      const isRedo =
+        (event.ctrlKey || event.metaKey) && event.shiftKey && event.key === "Z";
 
       if (
-        (undoCondition || redoCondition) &&
+        (isUndo || isRedo) &&
         (isPresenterRef.current || hasWBAccessRef.current)
       ) {
         event.preventDefault();
@@ -888,8 +888,8 @@ const Whiteboard = React.memo(function Whiteboard(props) {
 
         if (!undoRedoIntervalId) {
           undoRedoIntervalId = setInterval(() => {
-            handleUndoRedoOnCondition(undoCondition, undo);
-            handleUndoRedoOnCondition(redoCondition, redo);
+            handleUndoRedoOnCondition(isUndo, undo);
+            handleUndoRedoOnCondition(isRedo, redo);
           }, 150);
         }
       }
