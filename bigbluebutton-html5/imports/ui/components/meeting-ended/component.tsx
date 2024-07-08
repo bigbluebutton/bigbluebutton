@@ -22,6 +22,7 @@ import Rating from './rating/component';
 import { LoadingContext } from '../common/loading-screen/loading-screen-HOC/component';
 import logger from '/imports/startup/client/logger';
 import apolloContextHolder from '/imports/ui/core/graphql/apolloContextHolder/apolloContextHolder';
+import getBaseUrl from '/imports/ui/core/utils/getBaseUrl';
 
 const intlMessage = defineMessages({
   410: {
@@ -228,15 +229,9 @@ const MeetingEnded: React.FC<MeetingEndedProps> = ({
       isModerator,
     };
 
-    const pathMatch = window.location.pathname.match('^(.*)/html5client/join$');
-    if (pathMatch == null) {
-      throw new Error('Failed to match BBB client URI');
-    }
-    const serverPathPrefix = pathMatch[1];
-
     const sessionToken = sessionStorage.getItem('sessionToken');
 
-    const url = `https://${window.location.hostname}${serverPathPrefix}/bigbluebutton/api/feedback?sessionToken=${sessionToken}`;
+    const url = `${getBaseUrl(true)}/api/feedback?sessionToken=${sessionToken}`;
     const options = {
       method: 'POST',
       body: JSON.stringify(message),
