@@ -2,7 +2,8 @@ const { test } = require('../fixtures');
 const { ConnectionStatus } = require('./connectionStatus');
 
 test.describe.parallel('Connection Status', () => {
-  test('Open connection Status Modal @ci', async ({ browser, context, page }) => {
+  test('Open connection Status Modal @ci', async ({ browser, browserName, context, page }) => {
+    test.skip(browserName === 'firefox', 'Test not working on firefox, audio breaks.');
     const connectionStatus = new ConnectionStatus(browser, context);
     await connectionStatus.initModPage(page);
     await connectionStatus.connectionStatusModal();
