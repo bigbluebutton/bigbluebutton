@@ -5,6 +5,7 @@ import MeetingClient from 'client/meetingClient';
 import { LoadingContext } from '../common/loading-screen/loading-screen-HOC/component';
 import CustomUsersSettings from '../join-handler/custom-users-settings/component';
 import logger from 'imports/startup/client/logger';
+import Settings from 'imports/ui/services/settings';
 
 interface Response {
   meeting_clientSettings: Array<{
@@ -48,6 +49,7 @@ const SettingsLoader: React.FC = () => {
             const settings = data?.meeting_clientSettings[0].clientSettingsJson;
 
             window.meetingClientSettings = JSON.parse(JSON.stringify(settings as unknown as MeetingClientSettings));
+            Settings.setDefault(window.meetingClientSettings.public.app.defaultSettings);
             const Meteor = { settings: {} };
             Meteor.settings = window.meetingClientSettings;
             setMeetingSettings(settings as unknown as MeetingClientSettings);
