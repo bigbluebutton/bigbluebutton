@@ -113,7 +113,6 @@ const CamerasOnlyLayout = (props) => {
       sidebarNavWidth.width,
       sidebarContentWidth.width,
     );
-    console.log({ mediaAreaBounds });
     const navbarBounds = calculatesNavbarBounds(mediaAreaBounds);
     const actionbarBounds = calculatesActionbarBounds(mediaAreaBounds);
     const sidebarSize = sidebarContentWidth.width + sidebarNavWidth.width;
