@@ -182,9 +182,9 @@ class Presentation extends MultiUsers {
 
     const modSlides1 = await getSlideOuterHtml(this.modPage);
     const userSlides1 = await getSlideOuterHtml(this.userPage);
-    await expect(modSlides1).toEqual(userSlides1);
-    await expect(modSlides0).not.toEqual(modSlides1);
-    await expect(userSlides0).not.toEqual(userSlides1);
+    await expect(modSlides1, 'moderator slide 1 should be equal to the user slide 1').toEqual(userSlides1);
+    await expect(modSlides0, 'moderator slide 0 should not be equal to moderator slide 1').not.toEqual(modSlides1);
+    await expect(userSlides0, 'user slide 0 should not be equal to the user slide 1').not.toEqual(userSlides1);
   }
 
   async fitToWidthTest() {
