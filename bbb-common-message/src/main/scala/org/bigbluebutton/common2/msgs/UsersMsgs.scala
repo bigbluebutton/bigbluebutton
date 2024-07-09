@@ -6,7 +6,7 @@ case class RegisterUserReqMsg(
     body:   RegisterUserReqMsgBody
 ) extends BbbCoreMsg
 case class RegisterUserReqMsgBody(meetingId: String, intUserId: String, name: String, role: String,
-                                  extUserId: String, authToken: String, avatarURL: String,
+                                  extUserId: String, authToken: String, avatarURL: String, webcamBackgroundURL: String,
                                   guest: Boolean, authed: Boolean, guestStatus: String, excludeFromDashboard: Boolean,
                                   userCustomData: Map[String, AnyRef])
 
@@ -90,24 +90,25 @@ case class UserJoinedMeetingEvtMsg(
     body:   UserJoinedMeetingEvtMsgBody
 ) extends BbbCoreMsg
 case class UserJoinedMeetingEvtMsgBody(
-    intId:          String,
-    extId:          String,
-    name:           String,
-    role:           String,
-    guest:          Boolean,
-    authed:         Boolean,
-    guestStatus:    String,
-    emoji:          String,
-    reactionEmoji:  String,
-    raiseHand:      Boolean,
-    away:           Boolean,
-    pin:            Boolean,
-    presenter:      Boolean,
-    locked:         Boolean,
-    avatar:         String,
-    color:          String,
-    clientType:     String,
-    userCustomData: Map[String, String]
+    intId:            String,
+    extId:            String,
+    name:             String,
+    role:             String,
+    guest:            Boolean,
+    authed:           Boolean,
+    guestStatus:      String,
+    emoji:            String,
+    reactionEmoji:    String,
+    raiseHand:        Boolean,
+    away:             Boolean,
+    pin:              Boolean,
+    presenter:        Boolean,
+    locked:           Boolean,
+    avatar:           String,
+    webcamBackground: String,
+    color:            String,
+    clientType:       String,
+    userCustomData:   Map[String, String]
 )
 
 /**
