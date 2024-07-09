@@ -52,10 +52,12 @@ object FakeUserGenerator {
     val authToken = RandomStringGenerator.randomAlphanumericString(16)
     val avatarURL = "https://www." + RandomStringGenerator.randomAlphanumericString(32) + ".com/" +
       RandomStringGenerator.randomAlphanumericString(10) + ".png"
+    val webcamBackgroundURL = "https://www." + RandomStringGenerator.randomAlphanumericString(32) + ".com/" +
+      RandomStringGenerator.randomAlphanumericString(10) + ".jpg"
     val color = "#ff6242"
 
     val ru = RegisteredUsers.create(userId = id, extId, name, role,
-      authToken, avatarURL, color, guest, authed, guestStatus = GuestStatus.ALLOW, false, false)
+      authToken, avatarURL, webcamBackgroundURL, color, guest, authed, guestStatus = GuestStatus.ALLOW, false, false)
     RegisteredUsers.add(users, ru)
     ru
   }

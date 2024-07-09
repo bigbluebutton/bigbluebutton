@@ -59,7 +59,7 @@ const joinEndpointTableData = [
     "name": "webcamBackgroundURL",
     "required": false,
     "type": "String",
-    "description": (<>The link for the user’s webcam background to be displayed (default can be enabled/disabled and set with “useDefaultAvatar“ and “defaultAvatarURL“ in bigbluebutton.properties).</>)
+    "description": (<>The link for the user’s webcam background to be displayed (default can be enabled/disabled and set with “useDefaultWebcamBackground“ and “defaultWebcamBackgroundURL“ in bigbluebutton.properties).</>)
   },
   {
     "name": "redirect",

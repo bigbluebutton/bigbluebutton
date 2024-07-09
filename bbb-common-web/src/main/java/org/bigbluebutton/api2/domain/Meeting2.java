@@ -17,6 +17,7 @@ public class Meeting2 {
     public final boolean forciblyEnded;
     public final String logoutUrl;
     public final String defaultAvatarURL;
+    public final String defaultWebcamBackgroundURL;
     public final Map<String, String> metadata;
     public final List<String> breakoutRooms;
 
@@ -30,6 +31,7 @@ public class Meeting2 {
             boolean forciblyEnded,
             String logoutUrl,
             String defaultAvatarURL,
+            String defaultWebcamBackgroundURL,
             Map<String, String> metadata,
             List<String> breakoutRooms) {
         this.props = props;
@@ -42,6 +44,7 @@ public class Meeting2 {
         this.forciblyEnded = forciblyEnded;
         this.logoutUrl = logoutUrl;
         this.defaultAvatarURL = defaultAvatarURL;
+        this.defaultWebcamBackgroundURL = defaultWebcamBackgroundURL;
         this.metadata = metadata;
         this.breakoutRooms = breakoutRooms;
     }

@@ -12,9 +12,11 @@ object TestDataGen {
     val authToken = RandomStringGenerator.randomAlphanumericString(16)
     val avatarURL = "https://www." + RandomStringGenerator.randomAlphanumericString(32) + ".com/" +
       RandomStringGenerator.randomAlphanumericString(10) + ".png"
+    val webcamBackgroundURL = "https://www." + RandomStringGenerator.randomAlphanumericString(32) + ".com/" +
+      RandomStringGenerator.randomAlphanumericString(10) + ".jpg"
 
     val ru = RegisteredUsers.create(userId = id, extId, name, role,
-      authToken, avatarURL, guest, authed, GuestStatus.ALLOW, false)
+      authToken, avatarURL, webcamBackgroundURL, guest, authed, GuestStatus.ALLOW, false)
 
     RegisteredUsers.add(users, ru)
     ru
@@ -48,7 +50,7 @@ object TestDataGen {
     val u = UserState(intId = regUser.id, extId = regUser.externId, name = regUser.name, role = regUser.role,
       guest = regUser.guest, authed = regUser.authed, guestStatus = regUser.guestStatus,
       emoji = "none", reactionEmoji = "none", raiseHand = false, away = false, pin = false, mobile = false,
-      locked = false, presenter = false, avatar = regUser.avatarURL, color = "#ff6242",
+      locked = false, presenter = false, avatar = regUser.avatarURL, regUser.webcamBackgroundURL, color = "#ff6242",
       clientType = "unknown", pickExempted = false, userLeftFlag = UserLeftFlag(false, 0))
     Users2x.add(liveMeeting.users2x, u)
     u
