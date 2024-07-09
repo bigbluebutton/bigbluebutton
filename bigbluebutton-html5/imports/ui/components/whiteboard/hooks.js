@@ -112,8 +112,8 @@ const useMouseEvents = ({ whiteboardRef, tlEditorRef, isWheelZoomRef, initialZoo
 
         const MAX_ZOOM_FACTOR = 4; // Represents 400%
         const MIN_ZOOM_FACTOR = 1; // Represents 100%
-        const ZOOM_IN_FACTOR = 0.1;
-        const ZOOM_OUT_FACTOR = 0.1;
+        const ZOOM_IN_FACTOR = 0.25;
+        const ZOOM_OUT_FACTOR = 0.25;
 
         // Get the current mouse position
         const mouseX = event.clientX;
