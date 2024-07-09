@@ -9,27 +9,28 @@ import (
 
 	bbbcore "github.com/bigbluebutton/bigbluebutton/bbb-core-api/gen/bbb-core"
 	"github.com/bigbluebutton/bigbluebutton/bbb-core-api/internal/model"
-	"github.com/bigbluebutton/bigbluebutton/bbb-core-api/internal/util"
 	"github.com/bigbluebutton/bigbluebutton/bbb-core-api/internal/validation"
+	"github.com/bigbluebutton/bigbluebutton/bbb-core-api/util"
 )
 
 func (app *Config) isMeetingRunning(w http.ResponseWriter, r *http.Request) {
-	log.Println("Handling isMeetingRunning request")
+	const endpoint = "isMeetingRunning"
+	log.Printf("Handling %s request\n", endpoint)
 
 	params := r.URL.Query()
 	var payload model.Response
 
-	ok, key, msg := app.isChecksumValid(r, "isMeetingRunning")
-	if !ok {
-		app.respondWithError(w, model.ReturnCodeFailure, key, msg)
-		return
+	meetingId := util.StripCtrlChars(params.Get("meetingID"))
+	req := &model.IsMeetingRunningRequest{
+		MeetingId: params.Get("meetingID"),
 	}
 
-	meetingId := params.Get("meetingID")
-	ok, key, msg = validation.IsMeetingIdValid(meetingId)
+	v := validation.IsMeetingRunningValidator{
+		Request: req,
+	}
+	ok, key, msg := v.Validate()
 	if !ok {
-		app.respondWithError(w, model.ReturnCodeFailure, key, msg)
-		return
+		app.respondWithErrorXML(w, model.ReturnCodeFailure, key, msg)
 	}
 
 	ctx, cancel := context.WithTimeout(context.Background(), time.Second)
@@ -40,7 +41,7 @@ func (app *Config) isMeetingRunning(w http.ResponseWriter, r *http.Request) {
 	})
 	if err != nil {
 		log.Println(err)
-		app.respondWithError(w, model.ReturnCodeFailure, model.UnknownErrorKey, model.UnknownErrorMsg)
+		app.respondWithErrorXML(w, model.ReturnCodeFailure, model.UnknownErrorKey, model.UnknownErrorMsg)
 		return
 	}
 
@@ -58,17 +59,8 @@ func (app *Config) getMeetingInfo(w http.ResponseWriter, r *http.Request) {
 	params := r.URL.Query()
 	var errorPayload model.Response
 
-	ok, key, msg := app.isChecksumValid(r, "getMeetingInfo")
-	if !ok {
-		errorPayload.ReturnCode = model.ReturnCodeFailure
-		errorPayload.MessageKey = key
-		errorPayload.Message = msg
-		app.writeXML(w, http.StatusAccepted, errorPayload)
-		return
-	}
-
 	meetingId := params.Get("meetingID")
-	ok, key, msg = validation.IsMeetingIdValid(meetingId)
+	ok, key, msg := validation.IsMeetingIdValid(meetingId)
 	if !ok {
 		errorPayload.ReturnCode = model.ReturnCodeFailure
 		errorPayload.MessageKey = key
@@ -136,18 +128,9 @@ func (app *Config) getMeetings(w http.ResponseWriter, r *http.Request) {
 	params := r.URL.Query()
 	var payload model.Response
 
-	ok, key, msg := app.isChecksumValid(r, "getMeetings")
-	if !ok {
-		payload.ReturnCode = model.ReturnCodeFailure
-		payload.MessageKey = key
-		payload.Message = msg
-		app.writeXML(w, http.StatusAccepted, payload)
-		return
-	}
-
 	meetingId := params.Get("meetingID")
 	if meetingId != "" {
-		ok, key, msg = validation.IsMeetingIdValid(meetingId)
+		ok, key, msg := validation.IsMeetingIdValid(meetingId)
 		if !ok {
 			payload.ReturnCode = model.ReturnCodeFailure
 			payload.MessageKey = key
@@ -203,16 +186,7 @@ func (app *Config) createMeeting(w http.ResponseWriter, r *http.Request) {
 	params := r.URL.Query()
 	var errorPayload model.Response
 
-	ok, key, msg := app.isChecksumValid(r, "getMeetings")
-	if !ok {
-		errorPayload.ReturnCode = model.ReturnCodeFailure
-		errorPayload.MessageKey = key
-		errorPayload.Message = msg
-		app.writeXML(w, http.StatusAccepted, errorPayload)
-		return
-	}
-
-	ok, key, msg = validation.IsMeetingIdValid(params.Get("meetingID"))
+	ok, key, msg := validation.IsMeetingIdValid(params.Get("meetingID"))
 	if !ok {
 		errorPayload.ReturnCode = model.ReturnCodeFailure
 		errorPayload.MessageKey = key

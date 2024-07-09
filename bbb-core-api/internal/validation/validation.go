@@ -8,12 +8,6 @@ import (
 	"github.com/bigbluebutton/bigbluebutton/bbb-core-api/internal/model"
 )
 
-func StripCtrlChars(input string) string {
-	r, _ := regexp.Compile("\\p{Cc}")
-	output := r.ReplaceAllString(input, "")
-	return strings.TrimSpace(output)
-}
-
 func IsMeetingIdValid(meetingId string) (bool, string, string) {
 	id := strings.TrimSpace(meetingId)
 	if id == "" {

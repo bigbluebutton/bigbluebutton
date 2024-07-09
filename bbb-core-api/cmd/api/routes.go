@@ -6,6 +6,8 @@ import (
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/chi/v5/middleware"
 	"github.com/go-chi/cors"
+
+	mw "github.com/bigbluebutton/bigbluebutton/bbb-core-api/cmd/middleware"
 )
 
 func (app *Config) routes() http.Handler {
@@ -21,6 +23,8 @@ func (app *Config) routes() http.Handler {
 	}))
 
 	mux.Use(middleware.Heartbeat("/ping"))
+
+	mux.Use(mw.ValidateChecksum(app.ServerConfig, app.ChecksumAlgorithms, app.writeXML))
 
 	mux.Get("/isMeetingRunning", app.isMeetingRunning)
 
