@@ -580,6 +580,7 @@ class VideoPlayer extends Component {
       width,
       fullscreenContext,
       isResizing,
+      zIndex,
     } = this.props;
 
     const {
@@ -614,6 +615,8 @@ class VideoPlayer extends Component {
           pointerEvents: isResizing ? 'none' : 'inherit',
           display: isMinimized && 'none',
           background: 'var(--color-black)',
+          overflow: 'hidden',
+          zIndex,
         }}
       >
         <Styled.VideoPlayerWrapper
