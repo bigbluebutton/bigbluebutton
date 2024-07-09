@@ -34,6 +34,8 @@ import NoopTool from './custom-tools/noop-tool/component';
 
 import { PollShapeUtil } from './custom-shapes/poll/component';
 
+const CAMERA_TYPE = "camera";
+
 // Helper functions
 const deleteLocalStorageItemsWithPrefix = (prefix) => {
   const keysToRemove = Object.keys(localStorage).filter((key) =>
@@ -66,6 +68,15 @@ const determineViewerFitToWidth = (currentPresentationPage) => {
       currentPresentationPage?.scaledHeight
   );
 };
+
+const createCamera = (pageId, zoomLevel) => ({
+  id: `camera:page:${pageId}`,
+  meta: {},
+  typeName: CAMERA_TYPE,
+  x: 0,
+  y: 0,
+  z: zoomLevel,
+});
 
 function usePrevious(value) {
   const ref = useRef();
@@ -163,7 +174,7 @@ const Whiteboard = React.memo(function Whiteboard(props) {
   const previousTool = React.useRef(null);
 
   const THRESHOLD = 0.1;
-  const CAMERA_UPDATE_DELAY = 650;
+  const CAMERA_UPDATE_DELAY = 500;
   const lastKnownHeight = React.useRef(presentationAreaHeight);
   const lastKnownWidth = React.useRef(presentationAreaWidth);
 
@@ -588,10 +599,9 @@ const Whiteboard = React.memo(function Whiteboard(props) {
       editor.store.mergeRemoteChanges(() => {
         editor.batch(() => {
           editor.store.put(pages);
-          // editor.deletePage(editor.currentPageId);
-          editor.setCurrentPage(`page:${curPageIdRef.current}`);
           editor.store.put(assets);
-          editor.createShapes(bgShape);
+          editor.setCurrentPage(`page:${curPageIdRef.current}`);
+          editor.store.put(bgShape);
           editor.history.clear();
         });
       });
@@ -1019,7 +1029,8 @@ const Whiteboard = React.memo(function Whiteboard(props) {
 
     return () => clearTimeout(timeoutId);
   }, [
-    currentPresentationPage,
+    currentPresentationPage.scaledHeight,
+    currentPresentationPage.scaledWidth,
     presentationAreaWidth,
     presentationAreaHeight,
     isPresenter,
@@ -1095,6 +1106,13 @@ const Whiteboard = React.memo(function Whiteboard(props) {
                 ? adjustedZoom
                 : baseZoom * (currentZoom / HUNDRED_PERCENT);
 
+            const formattedPageId = Number(curPageIdRef?.current);
+            const cameras = [
+              createCamera(formattedPageId - 1, zoomToApply),
+              createCamera(formattedPageId, zoomToApply),
+              createCamera(formattedPageId + 1, zoomToApply),
+            ];
+            tlEditorRef.current.store.put(cameras);
             setCamera(zoomToApply, camera.x, camera.y);
           } else {
             // Viewer logic
@@ -1107,6 +1125,13 @@ const Whiteboard = React.memo(function Whiteboard(props) {
             adjustedZoom = baseZoom * (effectiveZoom / HUNDRED_PERCENT);
 
             const camera = tlEditorRef.current.getCamera();
+            const formattedPageId = Number(curPageIdRef?.current);
+            const cameras = [
+              createCamera(formattedPageId - 1, adjustedZoom),
+              createCamera(formattedPageId, adjustedZoom),
+              createCamera(formattedPageId + 1, adjustedZoom),
+            ];
+            tlEditorRef.current.store.put(cameras);
             setCamera(adjustedZoom, camera.x, camera.y);
           }
         }
@@ -1252,10 +1277,17 @@ const Whiteboard = React.memo(function Whiteboard(props) {
       tlEditorRef.current.store.mergeRemoteChanges(() => {
         tlEditorRef.current.batch(() => {
           tlEditorRef.current.store.put(pages);
-          // tlEditorRef.current.deletePage(tlEditorRef.current.currentPageId);
+          const tlZ = tlEditorRef.current.getCamera()?.z;
+          const formattedPageId = Number(curPageIdRef?.current);
+          const cameras = [
+            createCamera(formattedPageId - 1, tlZ),
+            createCamera(formattedPageId, tlZ),
+            createCamera(formattedPageId + 1, tlZ),
+          ];
+          tlEditorRef.current.store.put(cameras);
           tlEditorRef.current.setCurrentPage(`page:${curPageIdRef.current}`);
           tlEditorRef.current.store.put(assets);
-          tlEditorRef.current.createShapes(bgShape);
+          tlEditorRef.current.store.put(bgShape);
           tlEditorRef.current.history.clear();
         });
       });
