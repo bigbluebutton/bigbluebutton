@@ -15,6 +15,7 @@ import { colorDanger, colorWhite } from '/imports/ui/stylesheets/styled-componen
 import Styled from './styles';
 import browserInfo from '/imports/utils/browserInfo';
 import deviceInfo from '/imports/utils/deviceInfo';
+import { isLayoutsEnabled } from '/imports/ui/services/features';
 
 const intlMessages = defineMessages({
   optionsLabel: {
@@ -322,6 +323,8 @@ class SettingsDropdown extends PureComponent {
       );
     }
 
+    const enableLayoutButton = isLayoutsEnabled();
+
     this.menuItems.push(
       {
         key: 'list-item-shortcuts',
@@ -329,18 +332,21 @@ class SettingsDropdown extends PureComponent {
         label: intl.formatMessage(intlMessages.hotkeysLabel),
         description: intl.formatMessage(intlMessages.hotkeysDesc),
         onClick: () => this.setShortcutHelpModalIsOpen(true),
+        divider: !isDirectLeaveButtonEnabled && !enableLayoutButton,
       },
     );
 
-    this.menuItems.push(
-      {
-        key: 'list-item-layout-modal',
-        icon: 'manage_layout',
-        label: intl.formatMessage(intlMessages.layoutModal),
-        onClick: () => this.setLayoutModalIsOpen(true),
-        divider: isDirectLeaveButtonEnabled ? false : true,
-      },
-    );
+    if (enableLayoutButton) {
+      this.menuItems.push(
+        {
+          key: 'list-item-layout-modal',
+          icon: 'manage_layout',
+          label: intl.formatMessage(intlMessages.layoutModal),
+          onClick: () => this.setLayoutModalIsOpen(true),
+          divider: !isDirectLeaveButtonEnabled,
+        },
+      );
+    }
 
     if (allowLogoutSetting && isMeteorConnected && !isDirectLeaveButtonEnabled) {
       this.menuItems.push(
