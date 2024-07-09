@@ -30,6 +30,7 @@ export default async function addUser(meetingId, userData) {
     presenter: Boolean,
     locked: Boolean,
     avatar: String,
+    webcamBackground: String,
     color: String,
     pin: Boolean,
     clientType: String,

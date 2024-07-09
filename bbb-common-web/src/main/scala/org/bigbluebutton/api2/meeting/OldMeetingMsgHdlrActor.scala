@@ -125,7 +125,6 @@ class OldMeetingMsgHdlrActor(val olgMsgGW: OldMessageReceivedGW)
       msg.body.extId, msg.body.name, msg.body.role, msg.body.avatar, msg.body.webcamBackground, msg.body.guest,
       msg.body.guestStatus,
       msg.body.clientType))
-
   }
 
   def handlePresenterUnassignedEvtMsg(msg: PresenterUnassignedEvtMsg): Unit = {
