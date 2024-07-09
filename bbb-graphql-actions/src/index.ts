@@ -65,7 +65,9 @@ app.post('/', async (req: Request, res: Response) => {
 
   } catch (error) {
     if (error instanceof ValidationError) {
-      res.status(error.status).send({message: error.message});
+      const actionName = req.body?.action?.name || 'Unidentified Action';
+
+      res.status(error.status).send({message: `${actionName}: ${error.message}`});
     } else {
       console.error(error);
       res.status(400).send({message: 'Internal Server Error'});
