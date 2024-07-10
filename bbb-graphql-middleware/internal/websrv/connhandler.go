@@ -241,8 +241,6 @@ func invalidateHasuraConnectionForSessionToken(bc *common.BrowserConnection, ses
 func refreshUserSessionVariables(browserConnection *common.BrowserConnection) error {
 	BrowserConnectionsMutex.RLock()
 	sessionToken := browserConnection.SessionToken
-	//browserUserId := browserConnection.UserId
-	//browserMeetingId := browserConnection.MeetingId
 	browserConnectionId := browserConnection.Id
 	BrowserConnectionsMutex.RUnlock()
 

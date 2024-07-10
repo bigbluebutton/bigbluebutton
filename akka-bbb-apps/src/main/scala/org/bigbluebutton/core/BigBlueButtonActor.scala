@@ -155,7 +155,7 @@ class BigBlueButtonActor(
     } yield {
       log.debug("FORWARDING Register user message")
 
-      //Store which meeting this session token is part
+      //Store sessionTokens and associate them with their respective meetingId + userId owners
       sessionTokens += (msg.body.sessionToken -> (msg.body.meetingId, msg.body.intUserId))
 
       m.actorRef forward (msg)
