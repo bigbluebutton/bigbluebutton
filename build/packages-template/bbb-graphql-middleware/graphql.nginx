@@ -25,20 +25,9 @@ location /api/rest {
 
 #Set cache system for client settings
 location ~ ^/api/rest/(clientStartupSettings|clientSettings)/ {
-    #Store URL sessionToken once it will be injected as a header X-Session-Token
-    set $session_token "";
-    if ($args ~* "(?:^|&)sessionToken=([^&]+)") {
-        set $session_token $1;
-    }
-    auth_request /bigbluebutton/connection/checkAuthorization;
+    auth_request /bigbluebutton/connection/checkGraphqlAuthorization;
     auth_request_set $meeting_id $sent_http_meeting_id;
 
-    #Remove sessionToken from URL once Hasura doesn't expect to receive it
-    if ($args ~* "^(.*&)?sessionToken=[^&]*(.*)$") {
-        set $args $1$2;
-    }
-
-    proxy_set_header x-session-token $session_token;
     proxy_cache client_settings_cache;
     proxy_cache_key "$uri|$meeting_id";
     proxy_cache_use_stale updating;
