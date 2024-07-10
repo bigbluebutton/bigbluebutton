@@ -243,7 +243,7 @@ class BigBlueButtonActor(
       }
 
       //Delay removal of session tokens and Graphql data once users might request some info after the meeting is ended
-      context.system.scheduler.scheduleOnce(Duration.create(30, TimeUnit.SECONDS)) {
+      context.system.scheduler.scheduleOnce(Duration.create(60, TimeUnit.MINUTES)) {
         log.debug("Removing Graphql data and session tokens. meetingID={}", msg.meetingId)
 
         sessionTokens = sessionTokens.filter(sessionTokenInfo => sessionTokenInfo._2._1 != msg.meetingId)
