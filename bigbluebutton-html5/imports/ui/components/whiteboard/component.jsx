@@ -360,13 +360,13 @@ const Whiteboard = React.memo(function Whiteboard(props) {
       return;
     }
 
-    if (event.key === 'Delete' || event.key === 'Backspace') {
-      handleCut(false);
+    const editingShape = tlEditorRef.current?.getEditingShape();
+    if (editingShape && (isPresenterRef.current || hasWBAccessRef.current)) {
       return;
     }
 
-    const editingShape = tlEditorRef.current?.getEditingShape();
-    if (editingShape && (isPresenterRef.current || hasWBAccessRef.current)) {
+    if (event.key === 'Delete') {
+      handleCut(false);
       return;
     }
 
