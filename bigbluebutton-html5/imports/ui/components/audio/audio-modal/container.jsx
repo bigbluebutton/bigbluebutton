@@ -40,6 +40,7 @@ const AudioModalContainer = (props) => {
   const listenOnlyMode = getFromUserSettings('bbb_listen_only_mode', APP_CONFIG.listenOnlyMode);
   const skipCheck = getFromUserSettings('bbb_skip_check_audio', APP_CONFIG.skipCheck);
   const skipCheckOnJoin = getFromUserSettings('bbb_skip_check_audio_on_first_join', APP_CONFIG.skipCheckOnJoin);
+  const skipCheckIfPreviousDevice = getFromUserSettings('bbb_skip_check_if_previous_device', APP_CONFIG.skipCheckIfPreviousDevice);
   const autoJoin = getFromUserSettings('bbb_auto_join_audio', APP_CONFIG.autoJoin);
 
   let formattedDialNum = '';
@@ -90,6 +91,7 @@ const AudioModalContainer = (props) => {
     || (
       skipCheck
       || (skipCheckOnJoin && !getEchoTest)
+      || (skipCheckIfPreviousDevice && (inputDeviceId || outputDeviceId))
     );
 
   return (

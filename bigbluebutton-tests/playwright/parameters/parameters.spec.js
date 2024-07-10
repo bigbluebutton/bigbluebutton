@@ -108,31 +108,31 @@ test.describe.parallel('Create Parameters', () => {
 
   test.describe.parallel('Disabled Features @ci', () => {
     test.describe.serial(() => {
-      test('Breakout rooms', async ({ browser, context, page}) => {
+      test('Breakout rooms', async ({ browser, context, page }) => {
         const disabledFeatures = new DisabledFeatures(browser, context);
         await disabledFeatures.initModPage(page, true, { createParameter: c.breakoutRoomsDisabled });
         await disabledFeatures.breakoutRooms();
       });
-      test('Breakout rooms (exclude)', async ({ browser, context, page}) => {
+      test('Breakout rooms (exclude)', async ({ browser, context, page }) => {
         const disabledFeatures = new DisabledFeatures(browser, context);
         await disabledFeatures.initModPage(page, true, { createParameter: c.breakoutRoomsExclude });
         await disabledFeatures.breakoutRoomsExclude();
       });
     });
-  
+
     test.describe.serial(() => {
-      test('Speech Recognition', async ({ browser, context, page}) => {
+      test('Speech Recognition', async ({ browser, context, page }) => {
         const disabledFeatures = new DisabledFeatures(browser, context);
         await disabledFeatures.initModPage(page, false, { createParameter: c.speechRecognitionDisabled });
         await disabledFeatures.speechRecognition();
       });
-      test('Speech Recognition (exclude)', async ({ browser, context, page}) => {
+      test('Speech Recognition (exclude)', async ({ browser, context, page }) => {
         const disabledFeatures = new DisabledFeatures(browser, context);
         await disabledFeatures.initModPage(page, false, { createParameter: c.speechRecognitionExclude });
         await disabledFeatures.speechRecognitionExclude();
       });
     });
-  
+
     test.describe.serial(() => {
       // current testing code is checking the old (write) captions
       // this parameter should works the same way with the automatic captions
@@ -148,7 +148,7 @@ test.describe.parallel('Create Parameters', () => {
         await disabledFeatures.captionsExclude();
       });
     });
-  
+
     test.describe.serial(() => {
       test('Chat', async ({ browser, context, page }) => {
         const disabledFeatures = new DisabledFeatures(browser, context);
@@ -161,7 +161,7 @@ test.describe.parallel('Create Parameters', () => {
         await disabledFeatures.chatExclude();
       });
     });
-  
+
     test.describe.serial(() => {
       test('External Videos', async ({ browser, context, page }) => {
         const disabledFeatures = new DisabledFeatures(browser, context);
@@ -174,7 +174,7 @@ test.describe.parallel('Create Parameters', () => {
         await disabledFeatures.externalVideosExclude();
       });
     });
-  
+
     test.describe.serial(() => {
       test('Layouts', async ({ browser, context, page }) => {
         const disabledFeatures = new DisabledFeatures(browser, context);
@@ -187,7 +187,7 @@ test.describe.parallel('Create Parameters', () => {
         await disabledFeatures.layoutsExclude();
       });
     });
-  
+
     test.describe.serial(() => {
       test('Learning Dashboard', async ({ browser, context, page }) => {
         const disabledFeatures = new DisabledFeatures(browser, context);
@@ -200,7 +200,7 @@ test.describe.parallel('Create Parameters', () => {
         await disabledFeatures.learningDashboardExclude();
       });
     });
-  
+
     test.describe.serial(() => {
       test('Polls', async ({ browser, context, page }) => {
         const disabledFeatures = new DisabledFeatures(browser, context);
@@ -213,7 +213,7 @@ test.describe.parallel('Create Parameters', () => {
         await disabledFeatures.pollsExclude();
       });
     });
-  
+
     test.describe.serial(() => {
       test('Screenshare', async ({ browser, context, page }) => {
         const disabledFeatures = new DisabledFeatures(browser, context);
@@ -226,7 +226,7 @@ test.describe.parallel('Create Parameters', () => {
         await disabledFeatures.screenshareExclude();
       });
     });
-  
+
     test.describe.serial(() => {
       test('Shared Notes', async ({ browser, context, page }) => {
         const disabledFeatures = new DisabledFeatures(browser, context);
@@ -239,7 +239,7 @@ test.describe.parallel('Create Parameters', () => {
         await disabledFeatures.sharedNotesExclude();
       });
     });
-  
+
     test.describe.serial(() => {
       test('Virtual Background', async ({ browser, context, page }) => {
         const disabledFeatures = new DisabledFeatures(browser, context);
@@ -252,7 +252,7 @@ test.describe.parallel('Create Parameters', () => {
         await disabledFeatures.virtualBackgroundsExclude();
       });
     });
-  
+
     test.describe.serial(() => {
       test('Download Presentation With Annotations', async ({ browser, context, page }) => {
         const disabledFeatures = new DisabledFeatures(browser, context);
@@ -278,7 +278,7 @@ test.describe.parallel('Create Parameters', () => {
         await disabledFeatures.importPresentationWithAnnotationsFromBreakoutRoomsExclude();
       });
     });
-  
+
     test.describe.serial(() => {
       test('Import Shared Notes From Breakout Rooms', async ({ browser, context, page }) => {
         const disabledFeatures = new DisabledFeatures(browser, context);
@@ -291,7 +291,7 @@ test.describe.parallel('Create Parameters', () => {
         await disabledFeatures.importSharedNotesFromBreakoutRoomsExclude();
       });
     });
-  
+
     test.describe.serial(() => {
       test('Presentation', async ({ browser, context, page }) => {
         const disabledFeatures = new DisabledFeatures(browser, context);
@@ -304,7 +304,7 @@ test.describe.parallel('Create Parameters', () => {
         await disabledFeatures.presentationExclude();
       });
     });
-  
+
     test.describe.serial(() => {
       test('Custom Virtual Background', async ({ browser, context, page }) => {
         const disabledFeatures = new DisabledFeatures(browser, context);
@@ -317,7 +317,7 @@ test.describe.parallel('Create Parameters', () => {
         await disabledFeatures.customVirtualBackgroundExclude();
       });
     });
-    
+
     test.describe.serial(() => {
       test('Slide Snapshot', async ({ browser, context, page }) => {
         const disabledFeatures = new DisabledFeatures(browser, context);
@@ -459,6 +459,12 @@ test.describe.parallel('Custom Parameters', () => {
       const customParam = new CustomParameters(browser, context);
       await customParam.initModPage(page, false, { joinParameter: `${c.skipCheckOnFirstJoin}&${hidePresentationToast}` });
       await customParam.skipCheckOnFirstJoin();
+    });
+
+    test('Skip audio check if previous device', async ({ browser, context, page }) => {
+      const customParam = new CustomParameters(browser, context);
+      await customParam.initModPage(page, false, { joinParameter: c.skipCheckIfPreviousDevice });
+      await customParam.skipCheckIfPreviousDevice();
     });
   });
 
