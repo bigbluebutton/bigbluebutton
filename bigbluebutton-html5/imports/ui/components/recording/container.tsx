@@ -23,6 +23,7 @@ const RecordingContainer: React.FC<RecordingContainerProps> = (props) => {
   const {
     data: recordingData,
     loading: recordingLoading,
+    error: recordingError,
   } = useDeduplicatedSubscription<GetRecordingResponse>(GET_RECORDINGS);
 
   const recording = recordingData?.meeting_recording[0]?.isRecording ?? false;
@@ -43,6 +44,7 @@ const RecordingContainer: React.FC<RecordingContainerProps> = (props) => {
         amIModerator,
         connected,
         isOpen,
+        recordingError,
         recordingLoading,
         onRequestClose,
         priority,
