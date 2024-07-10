@@ -240,13 +240,14 @@ func invalidateHasuraConnectionForSessionToken(bc *common.BrowserConnection, ses
 
 func refreshUserSessionVariables(browserConnection *common.BrowserConnection) error {
 	BrowserConnectionsMutex.RLock()
-	browserUserId := browserConnection.UserId
-	browserMeetingId := browserConnection.MeetingId
+	sessionToken := browserConnection.SessionToken
+	//browserUserId := browserConnection.UserId
+	//browserMeetingId := browserConnection.MeetingId
 	browserConnectionId := browserConnection.Id
 	BrowserConnectionsMutex.RUnlock()
 
 	// Check authorization
-	sessionVariables, err := akka_apps.AkkaAppsGetSessionVariablesFrom(browserConnectionId, browserMeetingId, browserUserId)
+	sessionVariables, err := akka_apps.AkkaAppsGetSessionVariablesFrom(browserConnectionId, sessionToken)
 	if err != nil {
 		log.Error(err)
 		return fmt.Errorf("error on checking sessionToken authorization")

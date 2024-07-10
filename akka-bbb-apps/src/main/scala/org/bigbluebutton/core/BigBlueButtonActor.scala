@@ -15,6 +15,7 @@ import java.util.concurrent.TimeUnit
 import org.bigbluebutton.common2.msgs._
 import org.bigbluebutton.core.db.{ DatabaseConnection, MeetingDAO }
 import org.bigbluebutton.core.domain.MeetingEndReason
+import org.bigbluebutton.core.models.Roles
 import org.bigbluebutton.core.running.RunningMeeting
 import org.bigbluebutton.core.util.ColorPicker
 import org.bigbluebutton.core2.RunningMeetings
@@ -44,6 +45,8 @@ class BigBlueButtonActor(
   implicit val timeout = Timeout(5 seconds)
 
   private val meetings = new RunningMeetings
+
+  private var sessionTokens = new collection.immutable.HashMap[String, (String, String)] //sessionToken -> (meetingId, userId)
 
   override val supervisorStrategy = OneForOneStrategy(maxNrOfRetries = 10, withinTimeRange = 1 minute) {
     case e: Exception => {
@@ -79,13 +82,39 @@ class BigBlueButtonActor(
     case _                              => // do nothing
   }
 
-  def handleGetUserApiMsg(msg: GetUserApiMsg, actorRef: ActorRef): Unit = {
+  private def handleGetUserApiMsg(msg: GetUserApiMsg, actorRef: ActorRef): Unit = {
     log.debug("RECEIVED GetUserApiMsg msg {}", msg)
 
-    RunningMeetings.findWithId(meetings, msg.meetingId) match {
-      case Some(m) =>
-        m.actorRef forward (msg)
+    sessionTokens.get(msg.sessionToken) match {
+      case Some(sessionTokenInfo) =>
+        RunningMeetings.findWithId(meetings, sessionTokenInfo._1) match {
+          case Some(m) =>
+            m.actorRef forward (msg)
 
+          case None =>
+            //The meeting is ended, it will return some data just to confirm the session was valid
+            //The client can request data after the meeting is ended
+            val userInfos = Map(
+              "returncode" -> "SUCCESS",
+              "sessionToken" -> msg.sessionToken,
+              "meetingID" -> sessionTokenInfo._1,
+              "internalUserID" -> sessionTokenInfo._2,
+              "externMeetingID" -> "",
+              "externUserID" -> "",
+              "online" -> false,
+              "authToken" -> "",
+              "role" -> Roles.VIEWER_ROLE,
+              "guest" -> "false",
+              "guestStatus" -> "ALLOWED",
+              "moderator" -> false,
+              "presenter" -> false,
+              "hideViewersCursor" -> false,
+              "hideViewersAnnotation" -> false,
+              "hideUserList" -> false,
+              "webcamsOnlyForModerator" -> false
+            )
+            actorRef ! ApiResponseSuccess("Meeting is ended!", UserInfosApiMsg(userInfos))
+        }
       case None =>
         actorRef ! ApiResponseFailure("Meeting not found!")
     }
@@ -125,6 +154,10 @@ class BigBlueButtonActor(
       m <- RunningMeetings.findWithId(meetings, msg.header.meetingId)
     } yield {
       log.debug("FORWARDING Register user message")
+
+      //Store which meeting this session token is part
+      sessionTokens += (msg.body.sessionToken -> (msg.body.meetingId, msg.body.intUserId))
+
       m.actorRef forward (msg)
     }
   }
@@ -209,11 +242,15 @@ class BigBlueButtonActor(
         context.stop(m.actorRef)
       }
 
-      //      MeetingDAO.delete(msg.meetingId)
-      //      MeetingDAO.setMeetingEnded(msg.meetingId)
-      //      Removing the meeting is enough, all other tables has "ON DELETE CASCADE"
-      //      UserDAO.softDeleteAllFromMeeting(msg.meetingId)
-      //      MeetingRecordingDAO.updateStopped(msg.meetingId, "")
+      //Delay removal of session tokens and Graphql data once users might request some info after the meeting is ended
+      context.system.scheduler.scheduleOnce(Duration.create(30, TimeUnit.SECONDS)) {
+        log.debug("Removing Graphql data and session tokens. meetingID={}", msg.meetingId)
+
+        sessionTokens = sessionTokens.filter(sessionTokenInfo => sessionTokenInfo._2._1 != msg.meetingId)
+
+        //In Db, Removing the meeting is enough, all other tables has "ON DELETE CASCADE"
+        MeetingDAO.delete(msg.meetingId)
+      }
 
       //Remove ColorPicker idx of the meeting
       ColorPicker.reset(m.props.meetingProp.intId)
