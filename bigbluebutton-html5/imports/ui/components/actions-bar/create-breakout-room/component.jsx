@@ -265,6 +265,7 @@ class BreakoutRoom extends PureComponent {
       captureSlides: false,
       durationIsValid: true,
       breakoutJoinedUsers: null,
+      enableUnassingUsers: null,
     };
 
     this.btnLevelId = uniqueId('btn-set-level-');
@@ -470,7 +471,7 @@ class BreakoutRoom extends PureComponent {
     }
 
     if (users.length === this.getUserByRoom(0).length && !freeJoin) {
-      this.setState({ leastOneUserIsValid: false });
+      this.setState({ leastOneUserIsValid: false, enableUnassingUsers: false });
       return;
     }
 
@@ -514,6 +515,10 @@ class BreakoutRoom extends PureComponent {
     const breakouts = getBreakouts();
     if (users.length === this.getUserByRoom(0).length && !freeJoin) {
       this.setState({ leastOneUserIsValid: false });
+      return;
+    }
+    if (users.length === this.getUserByRoom(0).length) {
+      this.setState({ enableUnassingUsers: false });
       return;
     }
 
@@ -637,7 +642,10 @@ class BreakoutRoom extends PureComponent {
   }
 
   setFreeJoin(e) {
-    this.setState({ freeJoin: e.target.checked, leastOneUserIsValid: true });
+    this.setState({
+      freeJoin: e.target.checked,
+      leastOneUserIsValid: true,
+    });
   }
 
   setRecord(e) {
@@ -725,6 +733,7 @@ class BreakoutRoom extends PureComponent {
     this.setState({
       users: usersCopy,
       leastOneUserIsValid: (this.getUserByRoom(0).length !== users.length || freeJoin),
+      enableUnassingUsers: (this.getUserByRoom(0).length !== users.length),
     }, () => {
       addNewAlert(intl.formatMessage(intlMessages.movedUserLabel, { 0: userName, 1: room }))
     });
@@ -1146,7 +1155,7 @@ class BreakoutRoom extends PureComponent {
     if (isUpdate) return null;
     const {
       numberOfRoomsIsValid,
-      leastOneUserIsValid,
+      enableUnassingUsers,
     } = this.state;
 
     return (
@@ -1154,7 +1163,7 @@ class BreakoutRoom extends PureComponent {
         <Styled.LabelText bold aria-hidden>
           {intl.formatMessage(intlMessages.manageRooms)}
         </Styled.LabelText>
-        {leastOneUserIsValid ? (
+        {enableUnassingUsers ? (
           <Styled.AssignBtns
             data-test="resetAssignments"
             label={intl.formatMessage(intlMessages.resetAssignments)}
