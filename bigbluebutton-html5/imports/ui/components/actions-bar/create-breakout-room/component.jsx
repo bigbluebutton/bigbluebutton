@@ -469,7 +469,7 @@ class BreakoutRoom extends PureComponent {
       return;
     }
 
-    if (users.length === this.getUserByRoom(0).length) {
+    if (users.length === this.getUserByRoom(0).length && !freeJoin) {
       this.setState({ leastOneUserIsValid: false });
       return;
     }
@@ -510,9 +510,9 @@ class BreakoutRoom extends PureComponent {
 
   onInviteBreakout() {
     const { getBreakouts, sendInvitation } = this.props;
-    const { users } = this.state;
+    const { users, freeJoin } = this.state;
     const breakouts = getBreakouts();
-    if (users.length === this.getUserByRoom(0).length) {
+    if (users.length === this.getUserByRoom(0).length && !freeJoin) {
       this.setState({ leastOneUserIsValid: false });
       return;
     }
@@ -637,7 +637,7 @@ class BreakoutRoom extends PureComponent {
   }
 
   setFreeJoin(e) {
-    this.setState({ freeJoin: e.target.checked });
+    this.setState({ freeJoin: e.target.checked, leastOneUserIsValid: true });
   }
 
   setRecord(e) {
@@ -724,7 +724,7 @@ class BreakoutRoom extends PureComponent {
 
     this.setState({
       users: usersCopy,
-      leastOneUserIsValid: (this.getUserByRoom(0).length !== users.length),
+      leastOneUserIsValid: (this.getUserByRoom(0).length !== users.length || freeJoin),
     }, () => {
       addNewAlert(intl.formatMessage(intlMessages.movedUserLabel, { 0: userName, 1: room }))
     });
@@ -1148,8 +1148,6 @@ class BreakoutRoom extends PureComponent {
       numberOfRoomsIsValid,
       leastOneUserIsValid,
     } = this.state;
-
-    console.log('leastOneUserIsValid', leastOneUserIsValid);
 
     return (
       <Styled.AssignBtnsContainer>
