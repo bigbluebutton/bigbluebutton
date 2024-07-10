@@ -567,7 +567,7 @@ const Whiteboard = React.memo(function Whiteboard(props) {
               currentPresentationPageRef.current?.scaledHeight
             );
 
-            zoomSlide(viewedRegionW, viewedRegionH, nextCam.x, nextCam.y);
+            zoomSlide(viewedRegionW, viewedRegionH, nextCam.x, nextCam.y, currentPresentationPageRef.current);
           }
         }
       },
