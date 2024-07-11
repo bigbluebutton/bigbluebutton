@@ -134,7 +134,7 @@ const intlMessages = defineMessages({
     id: 'app.modal.newTab',
     description: 'label used in aria description',
   },
-  invitationItem: {
+  invitationLabel: {
     id: 'app.userList.userOptions.breakoutRoomInvitationLabel',
     description: 'Invitation item',
   },
@@ -330,17 +330,10 @@ class UserOptions extends PureComponent {
         this.menuItems.push({
           key: this.createBreakoutId,
           icon: 'rooms',
-          label: intl.formatMessage(intlMessages.invitationItem),
+          label: intl.formatMessage(intlMessages.invitationLabel),
           onClick: this.onInvitationUsers,
           dataTest: 'inviteBreakoutRooms',
         })
-        // <Dropdown.DropdownListItem
-        //   data-test="inviteBreakoutRooms"
-        //   icon="rooms"
-        //   label={intl.formatMessage(intlMessages.invitationItem)}
-        //   key={this.createBreakoutId}
-        //   onClick={this.onInvitationUsers}
-        // />
 }
       if (amIModerator && CaptionsService.isCaptionsEnabled()) {
         this.menuItems.push({
