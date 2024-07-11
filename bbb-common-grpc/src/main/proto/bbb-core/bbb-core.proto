@@ -82,14 +82,6 @@ message CreateMeetingResponse {
   bool is_valid = 14;
 }
 
-message GenerateVoiceBridgeRequest {
-  int32 length = 1;
-}
-
-message GenerateVoiceBridgeResponse {
-  string voice_bridge = 1;
-}
-
 service BbbCoreService {
   rpc isMeetingRunning(MeetingRunningRequest) returns (MeetingRunningResponse);
   rpc getMeetingInfo(MeetingInfoRequest) returns (MeetingInfoResponse);
@@ -97,5 +89,4 @@ service BbbCoreService {
   rpc getMeetingsStream(GetMeetingsStreamRequest) returns (stream MeetingInfoResponse);
   rpc isVoiceBridgeInUse(VoiceBridgeInUseRequest) returns (VoiceBridgeInUseResponse);
   rpc createMeeting(CreateMeetingRequest) returns (CreateMeetingResponse);
-  rpc generateVoiceBridge(GenerateVoiceBridgeRequest) returns (GenerateVoiceBridgeResponse);
 }

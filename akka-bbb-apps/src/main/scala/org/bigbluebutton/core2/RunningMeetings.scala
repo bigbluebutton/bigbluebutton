@@ -4,6 +4,7 @@ import org.bigbluebutton.core.db.MeetingDAO
 import org.bigbluebutton.core.running.RunningMeeting
 
 import scala.collection.immutable.VectorMap
+import scala.collection.immutable.SortedSet
 
 object RunningMeetings {
   def findWithId(meetings: RunningMeetings, id: String): Option[RunningMeeting] = {
@@ -39,8 +40,20 @@ object RunningMeetings {
     meetings.toVector.find(m => { m.props.voiceProp.voiceConf == voiceConfId })
   }
 
-  def getVoiceBridge(meetings: RunningMeetings): Int = {
-    meetings.getVoiceBridge()
+  def getVoiceBridge(meetings: RunningMeetings, length: Int): Option[String] = {
+    def prependZeros(number: Int, length: Int): String = {
+      String.format(s"%0${length}d", number.asInstanceOf[Object])
+    }
+
+    val voiceBridge = meetings.getVoiceBridge()
+    if (voiceBridge == -1) {
+      None
+    } else if (voiceBridge >= Math.pow(10, length)) {
+      meetings.addVoiceBridge(voiceBridge)
+      None
+    } else {
+      Some(prependZeros(voiceBridge, length))
+    }
   }
 
   def isVoiceBridgeInUse(meetings: RunningMeetings, voiceBridge: String): Boolean = {
@@ -51,7 +64,7 @@ object RunningMeetings {
 class RunningMeetings {
   private var meetings: VectorMap[String, RunningMeeting] = VectorMap.empty
 
-  private var availableVoiceBridges: Set[Int] = (0 to 99999).toSet
+  private var availableVoiceBridges: SortedSet[Int] = SortedSet((1 to 99999): _*)
 
   private def toVector: Vector[RunningMeeting] = meetings.values.toVector
 
@@ -59,7 +72,6 @@ class RunningMeetings {
 
   private def save(meeting: RunningMeeting): RunningMeeting = {
     meetings += meeting.props.meetingProp.intId -> meeting
-    availableVoiceBridges -= meeting.props.voiceProp.voiceConf.toInt
     meeting
   }
 
@@ -72,9 +84,16 @@ class RunningMeetings {
 
   private def getVoiceBridge(): Int = {
     availableVoiceBridges.size match {
-      case 0      => -1
-      case _: Int => availableVoiceBridges.head
+      case 0 => -1
+      case _: Int =>
+        val voiceBridge = availableVoiceBridges.head
+        availableVoiceBridges -= voiceBridge
+        voiceBridge
     }
+  }
+
+  private def addVoiceBridge(voiceBridge: Int): Unit = {
+    availableVoiceBridges += voiceBridge
   }
 
   private def isVoiceBridgeInUse(voiceBridge: String): Boolean = {

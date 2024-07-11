@@ -238,7 +238,7 @@ class BigBlueButtonActor(
   }
 
   private def handleGetNextVoiceBridge(sender: ActorRef, msg: GetNextVoiceBridge): Unit = {
-    sender ! RunningMeetings.getVoiceBridge(meetings)
+    sender ! RunningMeetings.getVoiceBridge(meetings, msg.length)
   }
 
   // Attempt to create a new meeting. Asynchronously returns three pieces of information to the calling actor:

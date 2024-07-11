@@ -106,7 +106,7 @@ class BbbCoreServiceImpl(implicit materializer: Materializer, bbbActor: ActorRef
   override def createMeeting(in: CreateMeetingRequest): Future[CreateMeetingResponse] = {
     implicit val timeout: Timeout = 3.seconds
 
-    def settingsToProps(settings: CreateMeetingSettings): DefaultProps = {
+    def settingsToProps(settings: CreateMeetingSettings, voiceBridge: String): DefaultProps = {
       val meetingSettings = settings.meetingSettings.get
       val meetingProp = MeetingProp(
         name = meetingSettings.name,
@@ -174,8 +174,8 @@ class BbbCoreServiceImpl(implicit materializer: Materializer, bbbActor: ActorRef
 
       val voiceSettings = settings.voiceSettings.get
       val voiceProp = VoiceProp(
-        telVoice = voiceSettings.voiceBridge,
-        voiceConf = voiceSettings.voiceConf,
+        telVoice = voiceBridge,
+        voiceConf = voiceBridge,
         dialNumber = voiceSettings.dialNumber,
         muteOnStart = voiceSettings.muteOnStart
       )
@@ -245,10 +245,9 @@ class BbbCoreServiceImpl(implicit materializer: Materializer, bbbActor: ActorRef
       )
     }
 
-    in.createMeetingSettings match {
-      case Some(settings) =>
-        val defaultProps = settingsToProps(settings)
-        (bbbActor ? CreateMeeting(defaultProps)).mapTo[(RunningMeeting, Boolean, Boolean)].flatMap {
+    def createMeeting(settings: CreateMeetingSettings, voiceBridge: String): Future[CreateMeetingResponse] = {
+      val defaultProps = settingsToProps(settings, voiceBridge)
+      (bbbActor ? CreateMeeting(defaultProps)).mapTo[(RunningMeeting, Boolean, Boolean)].flatMap {
           case (meeting, isDuplicate, isValid) => {
             (meeting.actorRef ? HasUserJoined()).mapTo[Boolean].map(hasUserJoined => {
               CreateMeetingResponse(
@@ -269,25 +268,34 @@ class BbbCoreServiceImpl(implicit materializer: Materializer, bbbActor: ActorRef
               )
             })
           }
-          case _ => Future.failed(GrpcServiceException(Code.INTERNAL, "createError", Seq(new ErrorResponse("createError", "An unknown error occurred while attempting to create meeting."))))
+          case _ => Future.failed(GrpcServiceException(
+            Code.INTERNAL, 
+            "createError", 
+            Seq(new ErrorResponse("createError", "An unknown error occurred while attempting to create meeting."))
+          ))
+        }
+    }
+
+    in.createMeetingSettings match {
+      case Some(settings) =>
+        settings.voiceSettings.get.voiceBridge match {
+          case "" => {
+            val voiceBridgeLength = settings.voiceSettings.get.voiceBridgeLength
+            if (voiceBridgeLength < 1) {
+              Future.failed(GrpcServiceException(Code.INVALID_ARGUMENT, "invalidVoiceBridgeLength", Seq(new ErrorResponse("invalidVoiceBridgeLength", "Provided voice bridge length must be greater than 1."))))
+            }
+            (bbbActor ? GetNextVoiceBridge(voiceBridgeLength)).mapTo[Option[String]].flatMap {
+              case Some(v) => createMeeting(settings, v)
+              case None => Future.failed(GrpcServiceException(
+                Code.RESOURCE_EXHAUSTED, 
+                "voiceBridgeError", 
+                Seq(new ErrorResponse("voiceBridgeError", "A voice bridge could not be generated. There are either no more voice bridges available or no more that meet your length criteria."))
+              )) 
+            }
+          }
+          case _: String => createMeeting(settings, settings.voiceSettings.get.voiceBridge)
         }
       case None => Future.failed(GrpcServiceException(Code.INVALID_ARGUMENT, "missingSettings", Seq(new ErrorResponse("missingSettings", "No meeting settings were provided."))))
-    }
-  }
-
-  override def generateVoiceBridge(in: GenerateVoiceBridgeRequest): Future[GenerateVoiceBridgeResponse] = {
-    implicit val timeout: Timeout = 3.seconds
-
-    def prependZeros(number: Int, length: Int): String = {
-      String.format(s"%0${length}d", number.asInstanceOf[Object])
-    }
-
-    (bbbActor ? GetNextVoiceBridge()).mapTo[Int].flatMap {
-      case -1 => Future.failed(GrpcServiceException(Code.RESOURCE_EXHAUSTED, "noVoiceBridge", Seq(new ErrorResponse("noVoiceBridge", "There are no more voice bridges available."))))
-      case v: Int =>
-        if (v >= Math.pow(10, in.length)) Future.failed(GrpcServiceException(Code.OUT_OF_RANGE, "voiceBridgeOutOfRange", Seq(new ErrorResponse("voiceBridgeOutOfRange", "Voice bridge out of valid range."))))
-        val voiceBridge = prependZeros(v, in.length)
-        Future.successful(GenerateVoiceBridgeResponse(voiceBridge))
     }
   }
 
