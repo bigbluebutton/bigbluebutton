@@ -93,7 +93,7 @@ const EmojiRain = ({ reactions }) => {
   }, [EMOJI_RAIN_ENABLED, animations, isAnimating]);
 
   useEffect(() => {
-    if (isAnimating) {
+    if (isAnimating && animations !== false) {
       reactions.forEach((reaction) => {
         const currentTime = new Date().getTime();
         const secondsSinceCreated = (currentTime - reaction.creationDate.getTime()) / 1000;
