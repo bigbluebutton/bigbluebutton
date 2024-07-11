@@ -6,47 +6,6 @@
 	},
 	"item": [
 		{
-			"name": "enter",
-			"event": [
-				{
-					"listen": "test",
-					"script": {
-						"exec": [
-							"var jsonResponse = pm.response.json();",
-							"",
-							"console.log(jsonResponse)",
-							"",
-							"pm.test(\"Return code is SUCCESS\", function () {",
-							"    pm.expect(jsonResponse.response.returncode).to.eql(\"FAILED\");",
-							"});"
-						],
-						"type": "text/javascript"
-					}
-				}
-			],
-			"request": {
-				"method": "GET",
-				"header": [],
-				"url": {
-					"raw": "{{base_url}}/{{path}}/enter?{{param_session_token}}=",
-					"host": [
-						"{{base_url}}"
-					],
-					"path": [
-						"{{path}}",
-						"enter"
-					],
-					"query": [
-						{
-							"key": "{{param_session_token}}",
-							"value": ""
-						}
-					]
-				}
-			},
-			"response": []
-		},
-		{
 			"name": "guestWait",
 			"event": [
 				{
