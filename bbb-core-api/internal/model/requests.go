@@ -1,13 +1,14 @@
 package model
 
 type CreateRequest struct {
-	Name           string
-	MeetingId      string
-	VoiceBridge    string
-	AttendeePw     string
-	ModeratorPw    string
-	IsBreakoutRoom string
-	Record         string
+	Name            string
+	MeetingId       string
+	VoiceBridge     string
+	AttendeePw      string
+	ModeratorPw     string
+	IsBreakoutRoom  string
+	ParentMeetingId string
+	Record          string
 }
 
 type IsMeetingRunningRequest struct {
@@ -15,5 +16,9 @@ type IsMeetingRunningRequest struct {
 }
 
 type GetMeetingInfoRequest struct {
+	MeetingId string
+}
+
+type GetMeetingsRequest struct {
 	MeetingId string
 }

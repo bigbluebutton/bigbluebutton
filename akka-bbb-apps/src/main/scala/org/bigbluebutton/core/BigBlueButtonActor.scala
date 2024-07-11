@@ -241,6 +241,10 @@ class BigBlueButtonActor(
     sender ! RunningMeetings.getVoiceBridge(meetings)
   }
 
+  // Attempt to create a new meeting. Asynchronously returns three pieces of information to the calling actor:
+  // - RunningMeeting: the newly created meeting or an already existing meeting if the meetingID is already in use
+  // - Duplicate: indicates whether the meeting that was attempted to be created is a duplicate or not
+  // - Valid: indicates whether the request is valid (only returns true if a new meeting was created or an attempt was made to re-create the same meeting)
   private def handleCreateMeeting(sender: ActorRef, msg: CreateMeeting): Unit = {
     RunningMeetings.findWithId(meetings, msg.props.meetingProp.intId) match {
       case None =>

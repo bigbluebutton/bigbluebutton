@@ -18,6 +18,8 @@ import (
 	"github.com/bigbluebutton/bigbluebutton/bbb-core-api/internal/model"
 	"github.com/bigbluebutton/bigbluebutton/bbb-core-api/util"
 	"github.com/thanhpk/randstr"
+	"google.golang.org/grpc/codes"
+	"google.golang.org/grpc/status"
 )
 
 const (
@@ -61,6 +63,37 @@ func (app *Config) respondWithErrorXML(w http.ResponseWriter, code string, key s
 		Message:    msg,
 	}
 	app.writeXML(w, http.StatusAccepted, payload)
+}
+
+func (app *Config) getGrpcErrorCode(err error) codes.Code {
+	st, ok := status.FromError(err)
+	if ok {
+		return st.Code()
+	} else {
+		return 0
+	}
+}
+
+func (app *Config) grpcErrorToErrorResp(err error) *model.Response {
+	st, ok := status.FromError(err)
+	if ok {
+		for _, detail := range st.Details() {
+			switch t := detail.(type) {
+			case *common.ErrorResponse:
+				return &model.Response{
+					ReturnCode: model.ReturnCodeFailure,
+					MessageKey: t.Key,
+					Message:    t.Message,
+				}
+			}
+		}
+	}
+
+	return &model.Response{
+		ReturnCode: model.ReturnCodeFailure,
+		MessageKey: model.UnknownErrorKey,
+		Message:    model.UnknownErrorMsg,
+	}
 }
 
 func (app *Config) processCreateQueryParams(params *url.Values) (*common.CreateMeetingSettings, error) {

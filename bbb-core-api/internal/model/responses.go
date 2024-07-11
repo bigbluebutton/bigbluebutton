@@ -4,7 +4,6 @@ import (
 	"encoding/xml"
 
 	common "github.com/bigbluebutton/bigbluebutton/bbb-core-api/gen/common"
-	"google.golang.org/grpc/status"
 )
 
 const (
@@ -271,26 +270,4 @@ func MeetingInfoToMeeting(m *common.MeetingInfo) Meeting {
 	}
 
 	return meeting
-}
-
-func GrpcErrorToErrorResp(err error) Response {
-	st, ok := status.FromError(err)
-	if ok {
-		for _, detail := range st.Details() {
-			switch t := detail.(type) {
-			case *common.ErrorResponse:
-				return Response{
-					ReturnCode: ReturnCodeFailure,
-					MessageKey: t.Key,
-					Message:    t.Message,
-				}
-			}
-		}
-	}
-
-	return Response{
-		ReturnCode: ReturnCodeFailure,
-		MessageKey: "error",
-		Message:    "A unknown error occurred",
-	}
 }
