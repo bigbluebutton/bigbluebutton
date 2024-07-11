@@ -53,7 +53,7 @@ case "$1" in
   if [ ! -f /.dockerenv ]; then
     systemctl enable bbb-graphql-server.service
     systemctl daemon-reload
-    startService bbb-graphql-server || echo "bbb-graphql-server service could not be registered or started"
+    restartService bbb-graphql-server || echo "bbb-graphql-server service could not be registered or started"
 
     #Check if Hasura is ready before applying metadata
     HASURA_PORT=8085
