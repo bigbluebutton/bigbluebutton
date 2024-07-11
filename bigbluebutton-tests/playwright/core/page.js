@@ -290,9 +290,10 @@ class Page {
 
   async comparingSelectorsBackgroundColor(selector1, selector2) {
     const getBackgroundColorComputed = (locator) => locator.evaluate((elem) => getComputedStyle(elem).backgroundColor);
-    const avatarInToastElementColor = this.page.locator(selector1);
-    const avatarInUserListColor = this.page.locator(selector2);
-    await expect(getBackgroundColorComputed(avatarInToastElementColor)).toStrictEqual(getBackgroundColorComputed(avatarInUserListColor));
+    const avatarInToastElementColor = this.getLocator(selector1);
+    const avatarInUserListColor = this.getLocator(selector2);
+    await expect(await getBackgroundColorComputed(avatarInToastElementColor))
+      .toStrictEqual(await getBackgroundColorComputed(avatarInUserListColor));
   }
 
   async reloadPage() {
