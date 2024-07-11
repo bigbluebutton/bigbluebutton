@@ -334,13 +334,6 @@ class UserOptions extends PureComponent {
           onClick: this.onInvitationUsers,
           dataTest: 'inviteBreakoutRooms',
         })
-        // <Dropdown.DropdownListItem
-        //   data-test="inviteBreakoutRooms"
-        //   icon="rooms"
-        //   label={intl.formatMessage(intlMessages.invitationItem)}
-        //   key={this.createBreakoutId}
-        //   onClick={this.onInvitationUsers}
-        // />
 }
       if (amIModerator && CaptionsService.isCaptionsEnabled()) {
         this.menuItems.push({
