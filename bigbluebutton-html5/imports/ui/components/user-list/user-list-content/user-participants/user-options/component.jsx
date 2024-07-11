@@ -133,7 +133,11 @@ const intlMessages = defineMessages({
   newTab: {
     id: 'app.modal.newTab',
     description: 'label used in aria description',
-  }
+  },
+  invitationItem: {
+    id: 'app.userList.userOptions.invitationItem',
+    description: 'Invitation item',
+  },
 });
 
 const USER_STATUS_ENABLED = Meteor.settings.public.userStatus.enabled;
@@ -225,6 +229,10 @@ class UserOptions extends PureComponent {
       && !meetingIsBreakout
       && !hasBreakoutRoom
       && isBreakoutRoomsEnabled();
+
+      const canInviteUsers = amIModerator
+      && !meetingIsBreakout
+      && hasBreakoutRoom
 
     const { locale } = intl;
 
@@ -318,6 +326,22 @@ class UserOptions extends PureComponent {
         });
       }
 
+      if (canInviteUsers && isMeteorConnected) {
+        this.menuItems.push({
+          key: this.createBreakoutId,
+          icon: 'rooms',
+          label: intl.formatMessage(intlMessages.invitationItem),
+          onClick: this.onInvitationUsers,
+          dataTest: 'inviteBreakoutRooms',
+        })
+        // <Dropdown.DropdownListItem
+        //   data-test="inviteBreakoutRooms"
+        //   icon="rooms"
+        //   label={intl.formatMessage(intlMessages.invitationItem)}
+        //   key={this.createBreakoutId}
+        //   onClick={this.onInvitationUsers}
+        // />
+}
       if (amIModerator && CaptionsService.isCaptionsEnabled()) {
         this.menuItems.push({
           icon: 'closed_caption',
