@@ -39,7 +39,7 @@ const SettingsLoader: React.FC = () => {
     }).then((resp) => resp.json())
       .then((data) => {
         const urlParams = new URLSearchParams(window.location.search);
-        const sessionToken = urlParams.get('sessionToken');
+        const sessionToken = urlParams.get('sessionToken') || '';
         const url = new URL(`${data.response.graphqlApiUrl}/clientSettings`);
         fetch(url, {
           method: 'get',
