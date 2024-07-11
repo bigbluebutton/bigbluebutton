@@ -124,11 +124,11 @@ public class MeetingService implements MessageListener {
                            String fullname, String role, String externUserID,
                            String authToken, String sessionToken, String avatarURL, Boolean guest,
                            Boolean authed, String guestStatus, Boolean excludeFromDashboard, Boolean leftGuestLobby,
-                           String enforceLayout, Map<String, String> customParameters) {
+                           String enforceLayout, Map<String, String> userMetadata) {
     handle(
             new RegisterUser(meetingID, internalUserId, fullname, role,
                             externUserID, authToken, sessionToken, avatarURL, guest, authed, guestStatus,
-                            excludeFromDashboard, leftGuestLobby, enforceLayout, customParameters
+                            excludeFromDashboard, leftGuestLobby, enforceLayout, userMetadata
             )
     );
 
@@ -447,7 +447,7 @@ public class MeetingService implements MessageListener {
     gw.registerUser(message.meetingID,
       message.internalUserId, message.fullname, message.role,
       message.externUserID, message.authToken, message.sessionToken, message.avatarURL, message.guest,
-      message.authed, message.guestStatus, message.excludeFromDashboard, message.enforceLayout, message.customParameters);
+      message.authed, message.guestStatus, message.excludeFromDashboard, message.enforceLayout, message.userMetadata);
   }
 
     public Meeting getMeeting(String meetingId) {

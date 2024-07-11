@@ -16,14 +16,14 @@ object_relationships:
         remote_table:
           name: v_user_connectionStatus
           schema: public
-  - name: customParameters
+  - name: userMetadata
     using:
       manual_configuration:
         column_mapping:
           userId: userId
         insertion_order: null
         remote_table:
-          name: v_user_customParameter
+          name: v_user_metadata
           schema: public
   - name: guestStatusDetails
     using:

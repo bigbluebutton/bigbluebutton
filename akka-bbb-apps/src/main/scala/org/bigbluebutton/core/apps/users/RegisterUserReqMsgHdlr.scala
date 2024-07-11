@@ -63,7 +63,7 @@ trait RegisterUserReqMsgHdlr {
     val regUser = RegisteredUsers.create(liveMeeting.props.meetingProp.intId, msg.body.intUserId, msg.body.extUserId,
       msg.body.name, msg.body.role, msg.body.authToken, msg.body.sessionToken,
       msg.body.avatarURL, ColorPicker.nextColor(liveMeeting.props.meetingProp.intId), msg.body.guest, msg.body.authed,
-      guestStatus, msg.body.excludeFromDashboard, msg.body.enforceLayout, msg.body.customParameters, false)
+      guestStatus, msg.body.excludeFromDashboard, msg.body.enforceLayout, msg.body.userMetadata, false)
 
     checkUserConcurrentAccesses(regUser)
     RegisteredUsers.add(liveMeeting.registeredUsers, regUser, liveMeeting.props.meetingProp.intId)

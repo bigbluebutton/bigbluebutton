@@ -246,7 +246,7 @@ interface Input {
     bannerBar: BannerBar;
     browser: Browser;
     cameraDock: CameraDock
-    customParameters: NonNullable<unknown>;
+    userMetadata: NonNullable<unknown>;
     externalVideo: ExternalVideo;
     genericMainContent: GenericContentMainArea;
     navBar: NavBar;

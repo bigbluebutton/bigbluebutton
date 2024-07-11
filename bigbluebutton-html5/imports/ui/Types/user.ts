@@ -40,7 +40,7 @@ export interface Voice {
   startTime: number;
 }
 
-export interface CustomParameter {
+export interface UserMetadata {
   parameter: string;
   value: string;
 }

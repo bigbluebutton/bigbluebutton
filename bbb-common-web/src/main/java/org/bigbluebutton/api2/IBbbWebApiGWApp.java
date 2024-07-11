@@ -73,7 +73,7 @@ public interface IBbbWebApiGWApp {
   void registerUser(String meetingID, String internalUserId, String fullname, String role,
                     String externUserID, String authToken, String sessionToken, String avatarURL,
                     Boolean guest, Boolean authed, String guestStatus, Boolean excludeFromDashboard,
-                    String enforceLayout, Map<String, String> customParameters);
+                    String enforceLayout, Map<String, String> userMetadata);
 
   void destroyMeeting(DestroyMeetingMessage msg);
   void endMeeting(EndMeetingMessage msg);
