@@ -1,5 +1,5 @@
 require('dotenv').config();
-const { expect, default: test } = require('@playwright/test');
+const { expect, test } = require('@playwright/test');
 const { readFileSync } = require('fs');
 const parameters = require('./parameters');
 const helpers = require('./helpers');
