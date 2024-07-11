@@ -135,7 +135,7 @@ const intlMessages = defineMessages({
     description: 'label used in aria description',
   },
   invitationItem: {
-    id: 'app.userList.userOptions.invitationItem',
+    id: 'app.userList.userOptions.breakoutRoomInvitationLabel',
     description: 'Invitation item',
   },
 });
