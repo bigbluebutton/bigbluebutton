@@ -37,8 +37,7 @@ const buildFetchLocale = (locale: string) => {
 
 const fetchLocaleOptions = (locale: string, init: boolean, localesList: string[] = []) => {
   const clientSettings = window.meetingClientSettings.public;
-  const fallback = clientSettings.app.defaultSettings.application.fallbackLocale;
-  const override = clientSettings.app.defaultSettings.application.overrideLocale;
+  const { fallbackLocale: fallback, overrideLocale: override } = clientSettings.app.defaultSettings.application;
   const browserLocale = override && init ? override.split(/[-_]/g) : locale.split(/[-_]/g);
   const defaultLanguage = fallback;
   const fallbackOnEmptyString = clientSettings.app.fallbackOnEmptyLocaleString;
