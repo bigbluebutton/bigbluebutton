@@ -19,7 +19,7 @@ import withFileReader from '/imports/ui/components/common/file-reader/component'
 import Skeleton, { SkeletonTheme } from 'react-loading-skeleton';
 import 'react-loading-skeleton/dist/skeleton.css';
 import { getSettingsSingletonInstance } from '/imports/ui/services/settings';
-import BBBStorage from '/imports/ui/services/storage';
+import { getStorageSingletonInstance } from '/imports/ui/services/storage';
 
 const { MIME_TYPES_ALLOWED, MAX_FILE_SIZE } = VirtualBgService;
 
@@ -155,6 +155,7 @@ const VirtualBgSelector = ({
 
     const virtualBgArray = [virtualBgData];
 
+    const BBBStorage = getStorageSingletonInstance();
     BBBStorage.setItem('WebcamBackground', virtualBgArray);
   }, [currentVirtualBg]);
 

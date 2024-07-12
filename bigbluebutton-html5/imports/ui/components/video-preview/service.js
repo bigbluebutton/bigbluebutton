@@ -96,6 +96,7 @@ const promiseTimeout = (ms, promise) => {
 
 const getSkipVideoPreview = () => {
   const KURENTO_CONFIG = window.meetingClientSettings.public.kurento;
+  const BBBStorage = getStorageSingletonInstance();
 
   const skipVideoPreviewOnFirstJoin = getFromUserSettings(
     'bbb_skip_video_preview_on_first_join',
@@ -113,7 +114,7 @@ const getSkipVideoPreview = () => {
 
   return (
     (Storage.getItem('isFirstJoin') !== false && skipVideoPreviewOnFirstJoin)
-    || (Storage.getItem('WebcamDeviceId') && skipVideoPreviewIfPreviousDevice)
+    || (BBBStorage.getItem('WebcamDeviceId') && skipVideoPreviewIfPreviousDevice)
     || skipVideoPreview
   );
 };

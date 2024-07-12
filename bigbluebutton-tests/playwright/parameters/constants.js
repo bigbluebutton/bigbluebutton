@@ -49,6 +49,7 @@ exports.forceRestorePresentationOnNewEvents = 'userdata-bbb_force_restore_presen
 exports.recordMeeting = 'record=true';
 exports.skipVideoPreview = 'userdata-bbb_skip_video_preview=true';
 exports.skipVideoPreviewOnFirstJoin = 'userdata-bbb_skip_video_preview_on_first_join=true';
+exports.skipVideoPreviewIfPreviousDevice = 'userdata-bbb_skip_video_preview_if_previous_device=true';
 exports.mirrorOwnWebcam = 'userdata-bbb_mirror_own_webcam=true';
 exports.showParticipantsOnLogin = 'userdata-bbb_show_participants_on_login=false';
 exports.hideActionsBar = 'userdata-bbb_hide_actions_bar=true';
