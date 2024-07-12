@@ -18,9 +18,7 @@ import { partition } from '/imports/utils/array-utils';
 
 const TALKING_INDICATORS_MAX = 8;
 
-type VoiceItem = VoiceActivityResponse['user_voice_activity_stream'][number] & {
-  showTalkingIndicator: boolean | undefined;
-};
+type VoiceItem = VoiceActivityResponse['user_voice_activity_stream'][number];
 
 const intlMessages = defineMessages({
   wasTalking: {
