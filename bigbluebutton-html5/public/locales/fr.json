@@ -164,7 +164,7 @@
     "app.userList.menu.ejectUserCameras.label": "Eteindre les caméras",
     "app.userList.userAriaLabel": "{0} {1} {2} Statut {3}",
     "app.userList.menu.promoteUser.label": "Promouvoir comme modérateur",
-    "app.userList.menu.demoteUser.label": "Rétrograder comme spectateur",
+    "app.userList.menu.demoteUser.label": "Rétrograder comme simple participant",
     "app.userList.menu.unlockUser.label": "Déverrouiller {0}",
     "app.userList.menu.lockUser.label": "Verrouiller {0}",
     "app.userList.menu.directoryLookup.label": "Recherche dans l'annuaire",
