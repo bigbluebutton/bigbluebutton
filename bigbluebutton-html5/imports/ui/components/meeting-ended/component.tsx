@@ -368,7 +368,7 @@ const MeetingEnded: React.FC<MeetingEndedProps> = ({
     // Stops all media tracks
     window.dispatchEvent(new Event('StopAudioTracks'));
     // get the media tag from the session storage
-    const data = JSON.parse((sessionStorage.getItem('clientStartupSettings')) || '{}');
+    const data = window.meetingClientSettings.public.media;
     // get media element and stops it and removes the audio source
     const mediaElement = document.querySelector<HTMLMediaElement>(data.mediaTag);
     if (mediaElement) {

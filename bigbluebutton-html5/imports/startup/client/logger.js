@@ -1,4 +1,4 @@
-import { createLogger, stdSerializers } from 'browser-bunyan';
+import { createLogger, Logger, stdSerializers } from 'browser-bunyan';
 import { ConsoleFormattedStream } from '@browser-bunyan/console-formatted-stream';
 import { ConsoleRawStream } from '@browser-bunyan/console-raw-stream';
 import { ServerStream } from '@browser-bunyan/server-stream';
@@ -14,7 +14,7 @@ import { nameFromLevel } from '@browser-bunyan/levels';
 // externalURL is the end-point that logs will be sent to
 // Call the logger by doing a function call with the level name, I.e, logger.warn('Hi on warn')
 const fallback = { console: { enabled: true, level: 'info' } };
-const LOG_CONFIG = (JSON.parse(sessionStorage.getItem('clientStartupSettings') || '{}')?.clientLog) || fallback;
+const LOG_CONFIG = window.meetingClientSettings?.public?.clientLog || fallback;
 
 export function createStreamForTarget(target, options) {
   const TARGET_EXTERNAL = 'external';

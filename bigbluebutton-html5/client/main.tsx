@@ -9,7 +9,8 @@ import PresenceManager from '/imports/ui/components/join-handler/presenceManager
 import LoadingScreenHOC from '/imports/ui/components/common/loading-screen/loading-screen-HOC/component';
 import IntlLoaderContainer from '/imports/startup/client/intlLoader';
 import LocatedErrorBoundary from '/imports/ui/components/common/error-boundary/located-error-boundary/component';
-import StartupDataFetch from '/imports/ui/components/connection-manager/startup-data-fetch/component';
+import CustomUsersSettings from '/imports/ui/components/join-handler/custom-users-settings/component';
+import MeetingClient from '/client/meetingClient';
 
 import GraphqlToMakeVarAdapterManager from '/imports/ui/components/components-data/graphqlToMakeVarAdapterManager/component';
 
@@ -17,9 +18,8 @@ const STARTUP_CRASH_METADATA = { logCode: 'app_startup_crash', logMessage: 'Poss
 const APP_CRASH_METADATA = { logCode: 'app_crash', logMessage: 'Possible app crash' };
 
 const Main: React.FC = () => {
-  // Meteor.disconnect();
   return (
-    <StartupDataFetch>
+    <SettingsLoader>
       <ErrorBoundary Fallback={ErrorScreen} logMetadata={STARTUP_CRASH_METADATA}>
         <LoadingScreenHOC>
           <IntlLoaderContainer>
@@ -28,7 +28,9 @@ const Main: React.FC = () => {
               <ConnectionManager>
                 <PresenceManager>
                   <GraphqlToMakeVarAdapterManager>
-                    <SettingsLoader />
+                    <CustomUsersSettings>
+                      <MeetingClient />
+                    </CustomUsersSettings>
                   </GraphqlToMakeVarAdapterManager>
                 </PresenceManager>
               </ConnectionManager>
@@ -36,7 +38,7 @@ const Main: React.FC = () => {
           </IntlLoaderContainer>
         </LoadingScreenHOC>
       </ErrorBoundary>
-    </StartupDataFetch>
+    </SettingsLoader>
   );
 };
 
