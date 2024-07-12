@@ -260,22 +260,12 @@ func (app *Config) processRecordSettings(params *url.Values) *common.RecordSetti
 
 func (app *Config) processVoiceSettings(params *url.Values) (*common.VoiceSettings, error) {
 	voiceBridge := util.GetStringOrDefaultValue(util.StripCtrlChars(params.Get("voiceBridge")), "")
-	if voiceBridge == "" {
-		ctx, cancel := context.WithTimeout(context.Background(), time.Second)
-		defer cancel()
-		res, err := app.BbbCore.GenerateVoiceBridge(ctx, &bbbcore.GenerateVoiceBridgeRequest{Length: app.ServerConfig.Meeting.Voice.VoiceBridgeLength})
-		if err != nil {
-			log.Println(err)
-			return nil, err
-		}
-		voiceBridge = res.VoiceBridge
-	}
-
 	return &common.VoiceSettings{
-		VoiceBridge: voiceBridge,
-		VoiceConf:   voiceBridge,
-		DialNumber:  util.GetStringOrDefaultValue(util.StripCtrlChars(params.Get("dialNumber")), app.ServerConfig.Meeting.Voice.DialAccessNumber),
-		MuteOnStart: util.GetBoolOrDefaultValue(params.Get("muteOnStart"), app.ServerConfig.Meeting.Voice.MuteOnStart),
+		VoiceBridge:       voiceBridge,
+		VoiceConf:         voiceBridge,
+		DialNumber:        util.GetStringOrDefaultValue(util.StripCtrlChars(params.Get("dialNumber")), app.ServerConfig.Meeting.Voice.DialAccessNumber),
+		MuteOnStart:       util.GetBoolOrDefaultValue(params.Get("muteOnStart"), app.ServerConfig.Meeting.Voice.MuteOnStart),
+		VoiceBridgeLength: app.ServerConfig.Meeting.Voice.VoiceBridgeLength,
 	}, nil
 }
 
