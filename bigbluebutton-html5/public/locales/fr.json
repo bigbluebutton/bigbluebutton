@@ -896,7 +896,7 @@
     "app.toast.clearedEmoji.label": "Emoticône de statut effacé",
     "app.toast.setEmoji.label": "Emoticône de statut défini sur {0}",
     "app.toast.meetingMuteOn.label": "Tous les utilisateurs ont été rendus silencieux",
-    "app.toast.meetingMuteOnViewers.label": "Les spectateurs sont en mode silencieux",
+    "app.toast.meetingMuteOnViewers.label": "Les participants sont en mode silencieux",
     "app.toast.meetingMuteOff.label": "Mode silencieux désactivé",
     "app.toast.wakeLock.acquireSuccess": "Maintien de l'affichage verrouillé ! Vous pouvez le désactiver dans le menu des paramètres.",
     "app.toast.wakeLock.acquireFailed": "Erreur dans le maintien de l'affichage actif",
