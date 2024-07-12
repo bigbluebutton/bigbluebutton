@@ -8,6 +8,7 @@ const EFFECT_TYPES = {
   IMAGE_TYPE: 'image',
   NONE_TYPE: 'none',
 }
+const FALLBACK_IMAGE = 'green_screen.jpg';
 
 // TODO I'm sure this is centralized somewhere; fetch it from "there" if possible
 const BASE_PATH = Meteor.settings.public.app.cdn
@@ -33,7 +34,7 @@ const MODELS = {
 
 const {
   thumbnailsPath: THUMBNAILS_PATH = '/resources/images/virtual-backgrounds/thumbnails/',
-  fileNames: IMAGE_NAMES = ['home.jpg', 'coffeeshop.jpg', 'board.jpg'],
+  fileNames: IMAGE_NAMES = ['home.jpg', 'coffeeshop.jpg', 'board.jpg', 'green_screen.jpg'],
   storedOnBBB: IS_STORED_ON_BBB = true,
   imagesPath: IMAGES_PATH = '/resources/images/virtual-backgrounds/',
   showThumbnails: SHOW_THUMBNAILS = true,
@@ -101,6 +102,7 @@ export {
   IMAGES_PATH,
   BLUR_FILENAME,
   EFFECT_TYPES,
+  FALLBACK_IMAGE,
   setSessionVirtualBackgroundInfo,
   getSessionVirtualBackgroundInfo,
   getSessionVirtualBackgroundInfoWithDefault,
