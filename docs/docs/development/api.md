@@ -550,7 +550,7 @@ There is a XML response for this call only when the `redirect` parameter is set 
 </response>
 ```
 
-See [Passing user metadata to the client on join](/administration/customize/#passing-custom-parameters-to-the-client-on-join) for additional `join` parameters that can override default settings for the user.
+See [Passing user metadata to the client on join](/administration/customize/#passing-user-metadata-to-the-client-on-join) for additional `join` parameters that can override default settings for the user.
 
 ### `POST` insertDocument
 
