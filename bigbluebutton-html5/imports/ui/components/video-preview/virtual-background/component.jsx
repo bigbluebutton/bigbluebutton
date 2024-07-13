@@ -217,11 +217,7 @@ const VirtualBgSelector = ({
   }
 
   const handleCustomBgChange = (event) => {
-    const file = event.target.files[0];
-
-    console.log("handle custom bg change banana")
-    console.log(file);
-
+    const file = event.target.files[0]
     const onSuccess = (background) => {
       dispatch({
         type: 'new',
