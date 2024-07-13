@@ -217,7 +217,8 @@ const VirtualBgSelector = ({
   }
 
   const handleCustomBgChange = (event) => {
-    const file = event.target.files[0]
+    const file = event.target.files[0];
+
     const onSuccess = (background) => {
       dispatch({
         type: 'new',
