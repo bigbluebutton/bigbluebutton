@@ -23,7 +23,6 @@ public interface IVoiceConferenceService {
                            Boolean muted,
                            Boolean speaking,
                            String avatarURL,
-                           String webcamBackgroundURL,
                            Boolean hold,
                            String uuid);
 
