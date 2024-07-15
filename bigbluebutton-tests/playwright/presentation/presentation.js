@@ -104,7 +104,6 @@ class Presentation extends MultiUsers {
     await this.modPage.wasRemoved(e.smallToastMsg, ELEMENT_WAIT_EXTRA_LONG_TIME);
     await uploadSinglePresentation(this.modPage, e.pdfFileName, UPLOAD_PDF_WAIT_TIME);
 
-    // wait until the notifications disappear
     await this.modPage.closeAllToastNotifications();
     await this.userPage.closeAllToastNotifications();
     const modWhiteboardLocator = this.modPage.getLocator(e.whiteboard);
