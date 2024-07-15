@@ -136,7 +136,8 @@ const RecordingIndicator: React.FC<RecordingIndicatorProps> = ({
   }, [shouldNotify, recordingNotificationEnabled, recording]);
 
   const recordTitle = useMemo(() => {
-    if (!isPhone && !recording) {
+    if (isPhone) return '';
+    if (!recording) {
       return time > 0
         ? intl.formatMessage(intlMessages.resumeTitle)
         : intl.formatMessage(intlMessages.startTitle);

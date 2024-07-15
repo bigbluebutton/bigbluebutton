@@ -3,9 +3,6 @@ package org.bigbluebutton.core.db
 import slick.jdbc.PostgresProfile.api._
 import org.bigbluebutton.core.models.{GroupChatFactory, GroupChatMessage}
 
-import scala.concurrent.ExecutionContext.Implicits.global
-import scala.util.{Failure, Success}
-
 case class ChatMessageDbModel(
     messageId:          String,
     chatId:             String,
@@ -61,12 +58,8 @@ object ChatMessageDAO {
       )
     )
 
-//        if(groupChatMessage.message.contains("MYMSG")) {
-//          DatabaseConnection.logger.info("INSERTED MSG: " + groupChatMessage.message)
-//        }
-
-        //Set chat visible for all participant users
-        ChatUserDAO.updateChatVisible(meetingId, chatId)
+    //Set chat visible for all participant users
+    ChatUserDAO.updateChatVisible(meetingId, chatId, visible = true)
   }
 
 //  def insert(meetingId: String, chatId: String, groupChatMessage: GroupChatMessage): Unit = {
@@ -110,7 +103,7 @@ object ChatMessageDAO {
     )
 
     //Set chat visible for all participant users
-    ChatUserDAO.updateChatVisible(meetingId, chatId)
+    ChatUserDAO.updateChatVisible(meetingId, chatId, visible = true)
   }
 
   def deleteAllFromChat(meetingId: String, chatId: String) = {

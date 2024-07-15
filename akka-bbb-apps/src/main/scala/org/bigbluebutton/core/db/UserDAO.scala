@@ -2,9 +2,6 @@ package org.bigbluebutton.core.db
 import org.bigbluebutton.core.models.{RegisteredUser, VoiceUserState}
 import slick.jdbc.PostgresProfile.api._
 
-import scala.concurrent.ExecutionContext.Implicits.global
-import scala.util.{Failure, Success}
-
 case class UserDbModel(
     meetingId:              String,
     userId:                 String,
@@ -90,7 +87,7 @@ object UserDAO {
 
     UserConnectionStatusDAO.insert(meetingId, regUser.id)
     UserCustomParameterDAO.insert(meetingId, regUser.id, regUser.customParameters)
-    UserClientSettingsDAO.insert(regUser.id, meetingId)
+    UserClientSettingsDAO.insertOrUpdate(meetingId, regUser.id, JsonUtils.stringToJson("{}"))
     ChatUserDAO.insertUserPublicChat(meetingId, regUser.id)
   }
 

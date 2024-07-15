@@ -5,15 +5,13 @@ import org.bigbluebutton.core.domain.BreakoutRoom2x
 import org.bigbluebutton.core.running.LiveMeeting
 import slick.jdbc.PostgresProfile.api._
 
-import scala.concurrent.ExecutionContext.Implicits.global
-import scala.util.{Failure, Success}
-
 case class BreakoutRoomUserDbModel(
       breakoutRoomId:     String,
       meetingId:          String,
       userId:             String,
       joinURL:            String,
       assignedAt:         Option[java.sql.Timestamp],
+      inviteDismissedAt: Option[java.sql.Timestamp],
 )
 
 class BreakoutRoomUserDbTableDef(tag: Tag) extends Table[BreakoutRoomUserDbModel](tag, None, "breakoutRoom_user") {
@@ -22,7 +20,8 @@ class BreakoutRoomUserDbTableDef(tag: Tag) extends Table[BreakoutRoomUserDbModel
   val userId = column[String]("userId", O.PrimaryKey)
   val joinURL = column[String]("joinURL")
   val assignedAt = column[Option[java.sql.Timestamp]]("assignedAt")
-  override def * = (breakoutRoomId, meetingId, userId, joinURL, assignedAt) <> (BreakoutRoomUserDbModel.tupled, BreakoutRoomUserDbModel.unapply)
+  val inviteDismissedAt = column[Option[java.sql.Timestamp]]("inviteDismissedAt")
+  override def * = (breakoutRoomId, meetingId, userId, joinURL, assignedAt, inviteDismissedAt) <> (BreakoutRoomUserDbModel.tupled, BreakoutRoomUserDbModel.unapply)
 }
 
 object BreakoutRoomUserDAO {
@@ -38,6 +37,7 @@ object BreakoutRoomUserDAO {
           case true => Some(new java.sql.Timestamp(System.currentTimeMillis()))
           case false => None
         },
+        inviteDismissedAt = None,
       )
     )
   }
@@ -92,6 +92,17 @@ object BreakoutRoomUserDAO {
       } yield {
         DatabaseConnection.enqueue(BreakoutRoomUserDAO.prepareInsert(room.id, liveMeeting.props.meetingProp.intId, userId, redirectToHtml5JoinURL, wasAssignedByMod = false))
       }
+  }
+
+
+  def updateInviteDismissedAt(meetingId: String, userId: String) = {
+    DatabaseConnection.enqueue(
+      TableQuery[BreakoutRoomUserDbTableDef]
+        .filter(_.meetingId === meetingId)
+        .filter(_.userId === userId)
+        .map(u => (u.inviteDismissedAt))
+        .update(Some(new java.sql.Timestamp(System.currentTimeMillis())))
+    )
   }
 
 //  def updateUserJoined(meetingId: String, userId: String, breakoutRoomId: String) = {

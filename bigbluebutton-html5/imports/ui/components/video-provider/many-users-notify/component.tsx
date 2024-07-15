@@ -37,7 +37,7 @@ interface LockViewersNotifyComponentProps {
 }
 
 class LockViewersNotifyComponent extends Component<LockViewersNotifyComponentProps, object> {
-  private interval: NodeJS.Timeout | null;
+  private interval: number | null;
 
   constructor(props: LockViewersNotifyComponentProps) {
     super(props);

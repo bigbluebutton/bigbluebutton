@@ -40,9 +40,14 @@ const SettingsLoader: React.FC = () => {
       .then((data) => {
         const urlParams = new URLSearchParams(window.location.search);
         const sessionToken = urlParams.get('sessionToken');
-        const clientStartupSettings = `/clientSettings/?sessionToken=${sessionToken}`;
-        const url = new URL(`${data.response.graphqlApiUrl}${clientStartupSettings}`);
-        fetch(url, { method: 'get', credentials: 'include' })
+        const url = new URL(`${data.response.graphqlApiUrl}/clientSettings`);
+        fetch(url, {
+          method: 'get',
+          credentials: 'include',
+          headers: {
+            'x-session-token': sessionToken,
+          },
+        })
           .then((resp) => resp.json())
           .then((data: Response) => {
             const settings = data?.meeting_clientSettings[0].clientSettingsJson;

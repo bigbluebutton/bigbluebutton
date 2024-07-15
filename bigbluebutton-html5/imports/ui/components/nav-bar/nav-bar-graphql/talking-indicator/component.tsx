@@ -18,9 +18,7 @@ import { partition } from '/imports/utils/array-utils';
 
 const TALKING_INDICATORS_MAX = 8;
 
-type VoiceItem = VoiceActivityResponse['user_voice_activity_stream'][number] & {
-  showTalkingIndicator: boolean | undefined;
-};
+type VoiceItem = VoiceActivityResponse['user_voice_activity_stream'][number];
 
 const intlMessages = defineMessages({
   wasTalking: {
@@ -193,7 +191,7 @@ const TalkingIndicatorContainer: React.FC = (() => {
     } = useDeduplicatedSubscription<IsBreakoutSubscriptionData>(MEETING_ISBREAKOUT_SUBSCRIPTION);
 
     const toggleVoice = useToggleVoice();
-    const { data: talkingUsersData, loading: talkingUsersLoading, error: talkingUsersError } = useTalkingUsers();
+    const { data: talkingUsersData, loading: talkingUsersLoading } = useTalkingUsers();
     const talkingUsers = useMemo(() => {
       const [muted, unmuted] = partition(
         Object.values(talkingUsersData),
@@ -227,11 +225,11 @@ const TalkingIndicatorContainer: React.FC = (() => {
 
     if (talkingUsersLoading || isBreakoutLoading) return null;
 
-    if (talkingUsersError || isBreakoutError) {
+    if (isBreakoutError) {
       return (
         <div>
           error:
-          { JSON.stringify(talkingUsersError || isBreakoutError) }
+          { JSON.stringify(isBreakoutError) }
         </div>
       );
     }

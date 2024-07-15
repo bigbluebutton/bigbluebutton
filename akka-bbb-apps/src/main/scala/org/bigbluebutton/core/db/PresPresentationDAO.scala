@@ -5,7 +5,6 @@ import org.bigbluebutton.core.models.PresentationInPod
 
 import scala.concurrent.ExecutionContext.Implicits.global
 import spray.json._
-import scala.concurrent.Future
 
 case class PresPresentationDbModel(
     presentationId:         String,
@@ -177,7 +176,8 @@ object PresPresentationDAO {
               viewBoxHeight = 1,
               maxImageWidth = 1440,
               maxImageHeight = 1080,
-              uploadCompleted = page._2.converted
+              uploadCompleted = page._2.converted,
+              infiniteWhiteboard = page._2.infiniteWhiteboard,
             )
           )
         }

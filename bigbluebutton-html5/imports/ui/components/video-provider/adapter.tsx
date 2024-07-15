@@ -1,12 +1,10 @@
 import { useEffect, useRef } from 'react';
 import { throttle } from 'radash';
 import logger from '/imports/startup/client/logger';
-import {
-  VIDEO_STREAMS_SUBSCRIPTION,
-  VideoStreamsResponse,
-} from './queries';
+import { VIDEO_STREAMS_SUBSCRIPTION } from './queries';
+import { VideoStreamsResponse } from './types';
 import { setStreams } from './state';
-import { AdapterProps } from '../components-data/graphqlToMiniMongoAdapterManager/component';
+import { AdapterProps } from '../components-data/graphqlToMakeVarAdapterManager/component';
 import createUseSubscription from '/imports/ui/core/hooks/createUseSubscription';
 
 const throttledSetStreams = throttle({ interval: 500 }, setStreams);
@@ -55,6 +53,7 @@ const VideoStreamAdapter: React.FC<AdapterProps> = ({
       user,
       floor: voice?.floor ?? false,
       lastFloorTime: voice?.lastFloorTime ?? '0',
+      voice,
       type: 'stream' as const,
     }));
 

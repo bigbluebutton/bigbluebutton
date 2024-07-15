@@ -4,9 +4,6 @@ import org.bigbluebutton.common2.domain.DefaultProps
 import PostgresProfile.api._
 import org.bigbluebutton.core.apps.groupchats.GroupChatApp
 
-import scala.concurrent.ExecutionContext.Implicits.global
-import scala.util.{ Failure, Success }
-
 case class MeetingSystemColumnsDbModel(
       loginUrl:                              Option[String],
       logoutUrl:                             Option[String],

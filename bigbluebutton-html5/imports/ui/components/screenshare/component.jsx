@@ -181,7 +181,7 @@ class ScreenshareComponent extends React.Component {
 
   clearMediaFlowingMonitor() {
     if (this.mediaFlowMonitor) {
-      Meteor.clearInterval(this.mediaFlowMonitor);
+      clearInterval(this.mediaFlowMonitor);
       this.mediaFlowMonitor = null;
     }
   }
@@ -229,7 +229,7 @@ class ScreenshareComponent extends React.Component {
 
   async monitorMediaFlow() {
     let previousStats = await getStats();
-    this.mediaFlowMonitor = Meteor.setInterval(async () => {
+    this.mediaFlowMonitor = setInterval(async () => {
       const { mediaFlowing: prevMediaFlowing } = this.state;
       let mediaFlowing;
 

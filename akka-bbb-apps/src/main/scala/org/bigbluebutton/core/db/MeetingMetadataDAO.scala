@@ -4,9 +4,6 @@ import org.bigbluebutton.common2.domain.{ MetadataProp }
 import slick.jdbc.PostgresProfile.api._
 import slick.lifted.{ ProvenShape }
 
-import scala.concurrent.ExecutionContext.Implicits.global
-import scala.util.{ Failure, Success }
-
 case class MeetingMetadataDbModel(
     meetingId: String,
     name:      String,

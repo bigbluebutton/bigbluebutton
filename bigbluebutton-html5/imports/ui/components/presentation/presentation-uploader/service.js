@@ -1,4 +1,3 @@
-import { UploadingPresentations } from '/imports/api/presentations';
 import Auth from '/imports/ui/services/auth';
 import logger from '/imports/startup/client/logger';
 import { partition } from '/imports/utils/array-utils';
@@ -110,52 +109,10 @@ const uploadAndConvertPresentation = (
     body: data,
   };
 
-  // If the presentation is from sharedNotes I don't want to
-  // insert another one, I just need to update it.
-  UploadingPresentations.upsert({
-    filename: file.name,
-    lastModifiedUploader: false,
-  }, {
-    $set: {
-      temporaryPresentationId,
-      progress: 0,
-      filename: file.name,
-      lastModifiedUploader: true,
-      upload: {
-        done: false,
-        error: false,
-      },
-      uploadTimestamp: new Date(),
-    },
-  });
-
   return requestPresentationUploadToken(temporaryPresentationId, meetingId, file.name)
-    .then((token) => {
-      UploadingPresentations.upsert({
-        temporaryPresentationId,
-      }, {
-        $set: {
-          id: token,
-        },
-      });
-      return futch(endpoint.replace('upload', `${token}/upload`), opts, (e) => {
-        onProgress(e);
-        const pr = (e.loaded / e.total) * 100;
-        if (pr !== 100) {
-          UploadingPresentations.upsert({ temporaryPresentationId }, { $set: { progress: pr } });
-        } else {
-          UploadingPresentations.upsert({ temporaryPresentationId }, {
-            $set: {
-              progress: pr,
-              upload: {
-                done: true,
-                error: false,
-              },
-            },
-          });
-        }
-      });
-    })
+    .then((token) => (
+      futch(endpoint.replace('upload', `${token}/upload`), opts, onProgress)
+    ))
     // Trap the error so we can have parallel upload
     .catch((error) => {
       logger.debug({

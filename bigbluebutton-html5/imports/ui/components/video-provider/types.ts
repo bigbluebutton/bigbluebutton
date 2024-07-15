@@ -16,6 +16,39 @@ export type User = {
   reactionEmoji: string;
 }
 
+interface GridVoice {
+  joined: boolean;
+  listenOnly: boolean;
+  userId: string;
+}
+
+interface Voice extends GridVoice {
+  floor: boolean;
+  lastFloorTime: string;
+}
+
+export interface VideoStreamsResponse {
+  user_camera: {
+    streamId: string;
+    user: User;
+    voice?: Voice;
+  }[];
+}
+
+export interface GridUser extends User {
+  voice: GridVoice
+}
+
+export interface GridUsersResponse {
+  user: GridUser[];
+}
+
+export interface OwnVideoStreamsResponse {
+  user_camera: {
+    streamId: string;
+  }[];
+}
+
 export type ConnectingStream = {
   userId: string;
   stream: string;
@@ -33,10 +66,10 @@ export type Stream = {
   user: User;
   floor: boolean;
   lastFloorTime: string;
+  voice: Voice | undefined;
   type: 'stream';
 }
 
-export type GridUser = User;
 export type StreamItem = Stream | ConnectingStream;
 export type GridItem = GridUser & { type: 'grid' };
 export type VideoItem = StreamItem | GridItem;

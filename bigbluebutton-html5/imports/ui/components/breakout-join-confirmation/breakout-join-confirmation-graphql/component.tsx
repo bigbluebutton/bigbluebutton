@@ -9,7 +9,7 @@ import {
   GetBreakoutCountResponse,
   getBreakoutData,
   GetBreakoutDataResponse,
-  handleinviteDismissedAt,
+  handleInviteDismissedAt,
 } from './queries';
 import useCurrentUser from '/imports/ui/core/hooks/useCurrentUser';
 import { BREAKOUT_ROOM_REQUEST_JOIN_URL } from '../../breakout-room/mutations';
@@ -79,7 +79,7 @@ const BreakoutJoinConfirmation: React.FC<BreakoutJoinConfirmationProps> = ({
   storeVideoDevices,
 }) => {
   const [breakoutRoomRequestJoinURL] = useMutation(BREAKOUT_ROOM_REQUEST_JOIN_URL);
-  const [callHandleinviteDismissedAt] = useMutation(handleinviteDismissedAt);
+  const [callHandleInviteDismissedAt] = useMutation(handleInviteDismissedAt);
 
   const intl = useIntl();
   const [waiting, setWaiting] = React.useState(false);
@@ -192,7 +192,7 @@ const BreakoutJoinConfirmation: React.FC<BreakoutJoinConfirmationProps> = ({
       dismiss={{
         callback: () => {
           setIsOpen(false);
-          callHandleinviteDismissedAt();
+          callHandleInviteDismissedAt();
         },
         label: intl.formatMessage(intlMessages.dismissLabel),
         description: intl.formatMessage(intlMessages.dismissDesc),

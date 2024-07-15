@@ -30,6 +30,7 @@ trait RegisterUserReqMsgHdlr {
       if (liveMeeting.props.usersProp.maxUserConcurrentAccesses > 0) {
         val userConcurrentAccesses = RegisteredUsers.findAllWithExternUserId(regUser.externId, liveMeeting.registeredUsers)
           .filter(u => !u.loggedOut)
+          .filter(u => !u.ejected)
           .sortWith((u1, u2) => u1.registeredOn > u2.registeredOn) //Remove older first
 
         val userAvailableSlots = liveMeeting.props.usersProp.maxUserConcurrentAccesses - userConcurrentAccesses.length

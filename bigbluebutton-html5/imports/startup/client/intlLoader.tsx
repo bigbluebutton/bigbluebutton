@@ -20,7 +20,7 @@ interface IntlLoaderProps extends IntlLoaderContainerProps {
 const buildFetchLocale = (locale: string) => {
   const localesPath = 'locales';
   return new Promise((resolve) => {
-    fetch(`${localesPath}/${locale}.json`)
+    fetch(`${localesPath}/${locale !== 'index' ? `${locale}.json` : ''}`)
       .then((response) => {
         if (!response.ok) {
           return resolve(false);
@@ -102,7 +102,11 @@ const IntlLoader: React.FC<IntlLoaderProps> = ({
     setFetching(true);
     buildFetchLocale('index')
       .then((resp) => {
-        const data = fetchLocaleOptions(locale, init, resp as string[]);
+        const data = fetchLocaleOptions(
+          locale,
+          init,
+          (resp as { name: string }[]).map((l) => l.name),
+        );
 
         const {
           defaultLocale,

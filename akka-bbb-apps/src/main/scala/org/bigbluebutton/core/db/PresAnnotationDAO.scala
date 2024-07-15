@@ -1,9 +1,7 @@
 package org.bigbluebutton.core.db
 
 import org.bigbluebutton.common2.msgs.AnnotationVO
-import scala.util.{ Failure, Success }
 import slick.jdbc.PostgresProfile.api._
-import scala.concurrent.ExecutionContext.Implicits.global
 
 case class PresAnnotationDbModel(
     annotationId:        String,

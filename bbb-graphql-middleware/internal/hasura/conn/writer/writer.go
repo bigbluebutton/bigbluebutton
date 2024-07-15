@@ -15,7 +15,7 @@ import (
 
 // HasuraConnectionWriter
 // process messages (middleware to hasura)
-func HasuraConnectionWriter(hc *common.HasuraConnection, fromBrowserToHasuraChannel *common.SafeChannelByte, wg *sync.WaitGroup, initMessage []byte) {
+func HasuraConnectionWriter(hc *common.HasuraConnection, wg *sync.WaitGroup, initMessage []byte) {
 	log := log.WithField("_routine", "HasuraConnectionWriter")
 
 	browserConnection := hc.BrowserConn
@@ -45,13 +45,7 @@ RangeLoop:
 		select {
 		case <-hc.Context.Done():
 			break RangeLoop
-		case <-hc.FreezeMsgFromBrowserChan.ReceiveChannel():
-			if !fromBrowserToHasuraChannel.Frozen() {
-				log.Debug("freezing channel fromBrowserToHasuraChannel")
-				//Freeze channel once it's about to close Hasura connection
-				fromBrowserToHasuraChannel.FreezeChannel()
-			}
-		case fromBrowserMessage := <-fromBrowserToHasuraChannel.ReceiveChannel():
+		case fromBrowserMessage := <-hc.BrowserConn.FromBrowserToHasuraChannel.ReceiveChannel():
 			{
 				if fromBrowserMessage == nil {
 					continue
@@ -120,6 +114,9 @@ RangeLoop:
 							browserConnection.ActiveSubscriptionsMutex.RUnlock()
 							if queryIdExists {
 								lastReceivedDataChecksum = existingSubscriptionData.LastReceivedDataChecksum
+								streamCursorField = existingSubscriptionData.StreamCursorField
+								streamCursorVariableName = existingSubscriptionData.StreamCursorVariableName
+								streamCursorInitialValue = existingSubscriptionData.StreamCursorCurrValue
 							}
 
 							if strings.Contains(query, "_stream(") && strings.Contains(query, "cursor: {") {
@@ -176,8 +173,9 @@ RangeLoop:
 					common.ActivitiesOverviewStarted("_Sum-" + string(messageType))
 
 					//Dump of all subscriptions for analysis purpose
-					//saveItToFile(fmt.Sprintf("%02s-%s-%s", queryId, string(messageType), operationName), fromBrowserMessageAsMap)
-					//saveItToFile(fmt.Sprintf("%s-%s-%02s", string(messageType), operationName, queryId), fromBrowserMessageAsMap)
+					//queryCounter++
+					//saveItToFile(fmt.Sprintf("%02d-%s-%s", queryCounter, string(messageType), browserMessage.Payload.OperationName), fromBrowserMessage)
+					//saveItToFile(fmt.Sprintf("%s-%s-%02s", string(messageType), operationName, queryId), fromBrowserMessage)
 				}
 
 				if browserMessage.Type == "complete" {
@@ -204,7 +202,7 @@ RangeLoop:
 					continue
 				}
 
-				log.Tracef("sending to hasura: %v", fromBrowserMessage)
+				log.Tracef("sending to hasura: %s", string(fromBrowserMessage))
 				errWrite := hc.Websocket.Write(hc.Context, websocket.MessageText, fromBrowserMessage)
 				if errWrite != nil {
 					if !errors.Is(errWrite, context.Canceled) {
@@ -218,9 +216,11 @@ RangeLoop:
 }
 
 //
-//func saveItToFile(filename string, contentInBytes interface{}) {
+//var queryCounter = 0
+//
+//func saveItToFile(filename string, contentInBytes []byte) {
 //	filePath := fmt.Sprintf("/tmp/%s.txt", filename)
-//	message, err := json.Marshal(contentInBytes)
+//	//message, err := json.Marshal(contentInBytes)
 //
 //	fmt.Printf("Saving %s\n", filePath)
 //
@@ -230,7 +230,7 @@ RangeLoop:
 //	}
 //	defer file.Close()
 //
-//	_, err = file.Write(message)
+//	_, err = file.Write(contentInBytes)
 //	if err != nil {
 //		panic(err)
 //	}

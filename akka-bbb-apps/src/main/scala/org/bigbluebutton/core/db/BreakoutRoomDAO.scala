@@ -8,9 +8,6 @@ import org.bigbluebutton.core.running.LiveMeeting
 import slick.jdbc.PostgresProfile.api._
 
 import scala.util.Random
-import scala.util.{Failure, Success}
-import scala.concurrent.ExecutionContext.Implicits.global
-
 
 case class BreakoutRoomDbModel(
           breakoutRoomId:               String,

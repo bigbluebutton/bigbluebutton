@@ -27,6 +27,7 @@ trait ValidateAuthTokenReqMsgHdlr extends HandlerHelpers {
       val validationResult = for {
         _ <- checkIfUserGuestStatusIsAllowed(user)
         _ <- checkIfUserIsBanned(user)
+        _ <- checkIfUserEjected(user)
         _ <- checkIfUserLoggedOut(user)
         _ <- validateMaxParticipants(user)
       } yield user
@@ -61,6 +62,14 @@ trait ValidateAuthTokenReqMsgHdlr extends HandlerHelpers {
   private def checkIfUserIsBanned(user: RegisteredUser): Either[(String, String), Unit] = {
     if (user.banned) {
       Left(("Banned user rejoining", EjectReasonCode.BANNED_USER_REJOINING))
+    } else {
+      Right(())
+    }
+  }
+
+  private def checkIfUserEjected(user: RegisteredUser): Either[(String, String), Unit] = {
+    if (user.ejected) {
+      Left(("User had ejected", EjectReasonCode.EJECT_USER))
     } else {
       Right(())
     }
