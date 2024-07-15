@@ -15,7 +15,7 @@ class Status extends Page {
 
     if(!userStatusEnabled) {
       await this.waitAndClick(e.currentUser);
-      return this.wasRemoved(e.setStatus);
+      return this.wasRemoved(e.setStatus, 'should not display set status for');
     }
     await setStatus(this, e.applaud);
     await this.waitForSelector(e.smallToastMsg);
@@ -30,7 +30,7 @@ class Status extends Page {
   async mobileTagName() {
     await this.waitAndClick(e.userListToggleBtn);
     await this.waitForSelector(e.currentUser);
-    await this.hasElement(e.mobileUser);
+    await this.hasElement(e.mobileUser, 'should display the mobile user');
   }
 }
 

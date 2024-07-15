@@ -214,9 +214,9 @@ class Page {
     await expect(locator, description).toBeVisible({ timeout });
   }
 
-  async hasNElements(selector, count, timeout = ELEMENT_WAIT_TIME) {
+  async hasNElements(selector, count, description, timeout = ELEMENT_WAIT_TIME) {
     const locator = this.getLocator(':nth-match(' + selector + ',' + count + ')');
-    await expect(locator).toBeVisible({ timeout });
+    await expect(locator, description).toBeVisible({ timeout });
   }
 
   async hasElementDisabled(selector, description, timeout = ELEMENT_WAIT_TIME) {
