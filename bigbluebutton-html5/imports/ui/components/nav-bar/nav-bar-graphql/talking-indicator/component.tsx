@@ -18,9 +18,7 @@ import { partition } from '/imports/utils/array-utils';
 
 const TALKING_INDICATORS_MAX = 8;
 
-type VoiceItem = VoiceActivityResponse['user_voice_activity_stream'][number] & {
-  showTalkingIndicator: boolean | undefined;
-};
+type VoiceItem = VoiceActivityResponse['user_voice_activity_stream'][number];
 
 const intlMessages = defineMessages({
   wasTalking: {
@@ -71,7 +69,8 @@ const TalkingIndicator: React.FC<TalkingIndicatorProps> = ({
       setTalkingIndicatorList([]);
     };
   }, []);
-  const talkingElements = useMemo(() => talkingUsers.map((talkingUser) => {
+
+  const filteredTalkingUsers = talkingUsers.map((talkingUser) => {
     const {
       talking,
       muted,
@@ -80,6 +79,26 @@ const TalkingIndicator: React.FC<TalkingIndicatorProps> = ({
         speechLocale,
         name,
       },
+      userId,
+    } = talkingUser;
+    return {
+      talking,
+      muted,
+      color,
+      speechLocale,
+      name,
+      userId,
+    };
+  });
+
+  const talkingElements = useMemo(() => filteredTalkingUsers.map((talkingUser) => {
+    const {
+      talking,
+      muted,
+      color,
+      speechLocale,
+      name,
+      userId,
     } = talkingUser;
 
     const ariaLabel = intl.formatMessage(talking
@@ -90,7 +109,7 @@ const TalkingIndicator: React.FC<TalkingIndicatorProps> = ({
     icon = muted ? 'mute' : icon;
     return (
       <Styled.TalkingIndicatorWrapper
-        key={uniqueId(`${name}-`)}
+        key={userId}
         talking={talking}
         muted={muted}
       >
@@ -105,11 +124,11 @@ const TalkingIndicator: React.FC<TalkingIndicatorProps> = ({
           $spoke={!talking || undefined}
           $muted={muted || undefined}
           $isViewer={!isModerator || undefined}
-          key={uniqueId(`${name}-`)}
+          key={userId}
           onClick={() => {
             // eslint-disable-next-line @typescript-eslint/ban-ts-comment
             // @ts-ignore - call signature is misse due the function being wrapped
-            muteUser(talkingUser.userId, muted, isBreakout, isModerator, toggleVoice);
+            muteUser(userId, muted, isBreakout, isModerator, toggleVoice);
           }}
           label={name}
           tooltipLabel={!muted && isModerator
@@ -134,18 +153,18 @@ const TalkingIndicator: React.FC<TalkingIndicatorProps> = ({
         </Styled.TalkingIndicatorButton>
       </Styled.TalkingIndicatorWrapper>
     );
-  }), [talkingUsers]);
+  }), [filteredTalkingUsers]);
 
   const maxIndicator = () => {
     if (!moreThanMaxIndicators) return null;
 
-    const nobodyTalking = talkingUsers.every((user) => !user.talking);
+    const nobodyTalking = filteredTalkingUsers.every((user) => !user.talking);
 
     const { moreThanMaxIndicatorsTalking, moreThanMaxIndicatorsWereTalking } = intlMessages;
 
     const ariaLabel = intl.formatMessage(nobodyTalking
       ? moreThanMaxIndicatorsWereTalking : moreThanMaxIndicatorsTalking, {
-      0: talkingUsers.length,
+      0: filteredTalkingUsers.length,
     });
 
     return (

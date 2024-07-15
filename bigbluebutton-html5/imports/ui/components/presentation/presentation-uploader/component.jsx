@@ -477,7 +477,6 @@ class PresentationUploader extends Component {
     const id = Session.getItem('presentationUploaderToastId');
     if (id) {
       toast.dismiss(id);
-      Session.setItem('presentationUploaderToastId', null);
     }
     Session.setItem('showUploadPresentationView', false);
   }

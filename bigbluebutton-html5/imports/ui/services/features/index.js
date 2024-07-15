@@ -96,3 +96,10 @@ export function useIsCameraAsContentEnabled() {
     && window.meetingClientSettings.public.app.enableCameraAsContent
   );
 }
+
+export function useIsInfiniteWhiteboardEnabled() {
+  return (
+    useDisabledFeatures().indexOf('infiniteWhiteboard') === -1
+    && window.meetingClientSettings.public.whiteboard.allowInfiniteWhiteboard
+  );
+}

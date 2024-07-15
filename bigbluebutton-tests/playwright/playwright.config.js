@@ -12,6 +12,7 @@ const config = {
     ? [['blob'], ['github']]
     : [['list'], ['html', { open: 'never' }],
   ],
+  reportSlowTests: null,
   forbidOnly: CI,
   fullyParallel: CI || isParallel,
   use: {

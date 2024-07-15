@@ -358,6 +358,7 @@ const ExternalVideoPlayer: React.FC<ExternalVideoPlayerProps> = ({
         top,
         left,
         right,
+        zIndex: externalVideo.zIndex,
       }}
       isResizing={isResizing}
       isMinimized={isMinimized}

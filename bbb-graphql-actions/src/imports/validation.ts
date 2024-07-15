@@ -2,13 +2,13 @@ import {ValidationError} from "../types/ValidationError";
 
 export const throwErrorIfNotModerator = (sessionVariables: Record<string, unknown>) => {
     if(sessionVariables['x-hasura-moderatorinmeeting'] == "") {
-        throw new ValidationError('Permission Denied.', 403);
+        throw new ValidationError('Permission Denied (not moderator).', 403);
     }
 };
 
 export const throwErrorIfNotPresenter = (sessionVariables: Record<string, unknown>) => {
     if(sessionVariables['x-hasura-presenterinmeeting'] == "") {
-        throw new ValidationError('Permission Denied.', 403);
+        throw new ValidationError('Permission Denied (not presenter).', 403);
     }
 };
 

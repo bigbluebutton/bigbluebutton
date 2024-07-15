@@ -635,7 +635,7 @@ class MeetingActor(
       case m: SetCurrentPagePubMsg =>
         state = presentationPodsApp.handle(m, state, liveMeeting, msgBus)
         updateUserLastActivity(m.header.userId)
-      case m: SetPageInfiniteWhiteboardPubMsg                    => state = presentationPodsApp.handle(m, state, liveMeeting, msgBus)
+      case m: SetPageInfiniteWhiteboardPubMsg                => state = presentationPodsApp.handle(m, state, liveMeeting, msgBus)
       case m: RemovePresentationPubMsg                       => state = presentationPodsApp.handle(m, state, liveMeeting, msgBus)
       case m: SetPresentationDownloadablePubMsg              => state = presentationPodsApp.handle(m, state, liveMeeting, msgBus)
       case m: PresentationConversionUpdateSysPubMsg          => state = presentationPodsApp.handle(m, state, liveMeeting, msgBus)
@@ -961,6 +961,7 @@ class MeetingActor(
         regUser <- RegisteredUsers.findAll(liveMeeting.registeredUsers)
       } yield {
         if (!regUser.loggedOut
+          && !regUser.ejected
           && regUser.guestStatus == GuestStatus.WAIT
           && !regUser.graphqlConnected
           && regUser.graphqlDisconnectedOn != 0) {

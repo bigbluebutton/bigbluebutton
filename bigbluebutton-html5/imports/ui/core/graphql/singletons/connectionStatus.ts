@@ -30,7 +30,10 @@ class ConnectionStatus {
   private rttValue = makeVar(0);
 
   // @ts-ignore
-  private networkData: ReactiveVar<NetworkData> = makeVar({});
+  private networkData: ReactiveVar<NetworkData> = makeVar({
+    audio: {},
+    video: {},
+  });
 
   private jitterStatus = makeVar('normal');
 

@@ -76,8 +76,14 @@ const StartupDataFetch: React.FC<StartupDataFetchProps> = ({
       },
     }).then((resp) => resp.json())
       .then((data) => {
-        const url = `${data.response.graphqlApiUrl}/clientStartupSettings/?sessionToken=${sessionToken}`;
-        fetch(url, { method: 'get', credentials: 'include' })
+        const url = `${data.response.graphqlApiUrl}/clientStartupSettings`;
+        fetch(url, {
+          method: 'get',
+          credentials: 'include',
+          headers: {
+            'x-session-token': sessionToken,
+          },
+        })
           .then((resp) => resp.json())
           .then((data: Response) => {
             const settings = data.meeting_clientSettings[0];
