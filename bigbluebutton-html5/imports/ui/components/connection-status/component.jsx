@@ -84,6 +84,10 @@ const ConnectionStatus = () => {
       if (STATS_ENABLED) {
         window.removeEventListener('audiostats', handleAudioStatsEvent);
       }
+
+      if (timeoutRef.current) {
+        clearTimeout(timeoutRef.current);
+      }
     };
   }, []);
 
