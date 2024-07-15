@@ -208,7 +208,9 @@ class PresentationToolbar extends PureComponent {
   }
 
   nextSlideHandler(event) {
-    const { nextSlide, endCurrentPoll, currentSlide, setPresentationPageInfiniteWhiteboard } = this.props;
+    const {
+      nextSlide, endCurrentPoll, currentSlide, setPresentationPageInfiniteWhiteboard,
+    } = this.props;
     const isInfiniteWhiteboard = currentSlide?.infiniteWhiteboard;
 
     if (isInfiniteWhiteboard) setPresentationPageInfiniteWhiteboard(false);
@@ -220,7 +222,9 @@ class PresentationToolbar extends PureComponent {
   }
 
   previousSlideHandler(event) {
-    const { previousSlide, endCurrentPoll, currentSlide, setPresentationPageInfiniteWhiteboard } = this.props;
+    const {
+      previousSlide, endCurrentPoll, currentSlide, setPresentationPageInfiniteWhiteboard,
+    } = this.props;
 
     const isInfiniteWhiteboard = currentSlide?.infiniteWhiteboard;
 
@@ -362,10 +366,12 @@ class PresentationToolbar extends PureComponent {
       startPoll,
       currentSlide,
       slidePosition,
+      meetingIsBreakout,
       multiUserSize,
       multiUser,
       setPresentationPageInfiniteWhiteboard,
       allowInfiniteWhiteboard,
+      allowInfiniteWhiteboardInBreakouts,
       infiniteWhiteboardIcon,
       resetSlide,
       zoomChanger,
@@ -388,6 +394,9 @@ class PresentationToolbar extends PureComponent {
       })`;
 
     const isInfiniteWhiteboard = currentSlide?.infiniteWhiteboard;
+
+    const showIWB = (allowInfiniteWhiteboard && !meetingIsBreakout)
+      || (meetingIsBreakout && allowInfiniteWhiteboardInBreakouts);
 
     return (
       <Styled.PresentationToolbarWrapper
@@ -462,7 +471,7 @@ class PresentationToolbar extends PureComponent {
           />
         </Styled.PresentationSlideControls>
         <Styled.PresentationZoomControls>
-          {(allowInfiniteWhiteboard) && (
+          {(showIWB) && (
           <Styled.InfiniteWhiteboardButton
             data-test={isInfiniteWhiteboard ? 'turnInfiniteWhiteboardOff' : 'turnInfiniteWhiteboardOn'}
             role="button"
