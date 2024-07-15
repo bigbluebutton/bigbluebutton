@@ -45,7 +45,7 @@ const SettingsLoader: React.FC = () => {
           method: 'get',
           credentials: 'include',
           headers: {
-            'x-session-token': sessionToken,
+            'x-session-token': sessionToken ?? '',
           },
         })
           .then((resp) => resp.json())

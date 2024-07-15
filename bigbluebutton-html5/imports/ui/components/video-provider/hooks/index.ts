@@ -1,7 +1,6 @@
 import {
   useCallback,
   useEffect,
-  useMemo,
   useState,
 } from 'react';
 import {
@@ -243,7 +242,8 @@ export const useStreamUsers = (isGridEnabled: boolean) => {
   const { streams } = useStreams();
   const gridSize = useGridSize();
   const [gridUsers, setGridUsers] = useState<GridItem[]>([]);
-  const userIds = useMemo(() => streams.map((s) => s.user.userId), [streams]);
+  const userIds = streams.map((s) => s.user.userId);
+
   const streamCount = streams.length;
   const {
     data: gridData,
