@@ -3,9 +3,6 @@ package org.bigbluebutton.core.db
 import slick.jdbc.PostgresProfile.api._
 import org.bigbluebutton.core.models.{GroupChatFactory, GroupChatMessage}
 
-import scala.concurrent.ExecutionContext.Implicits.global
-import scala.util.{Failure, Success}
-
 case class ChatMessageDbModel(
     messageId:          String,
     chatId:             String,
@@ -42,7 +39,7 @@ class ChatMessageDbTableDef(tag: Tag) extends Table[ChatMessageDbModel](tag, Non
 
 object ChatMessageDAO {
   def insert(meetingId: String, chatId: String, groupChatMessage: GroupChatMessage) = {
-    DatabaseConnection.db.run(
+    DatabaseConnection.enqueue(
       TableQuery[ChatMessageDbTableDef].insertOrUpdate(
         ChatMessageDbModel(
           messageId = groupChatMessage.id,
@@ -59,19 +56,34 @@ object ChatMessageDAO {
           senderRole = Some(groupChatMessage.sender.role),
         )
       )
-    ).onComplete {
-        case Success(rowsAffected) => {
-          DatabaseConnection.logger.debug(s"$rowsAffected row(s) inserted on ChatMessage table!")
+    )
 
-          //Set chat visible for all participant users
-          ChatUserDAO.updateChatVisible(meetingId, chatId)
-        }
-        case Failure(e)            => DatabaseConnection.logger.debug(s"Error inserting ChatMessage: $e")
-      }
+    //Set chat visible for all participant users
+    ChatUserDAO.updateChatVisible(meetingId, chatId, visible = true)
   }
 
+//  def insert(meetingId: String, chatId: String, groupChatMessage: GroupChatMessage): Unit = {
+//    val chatMessage = ChatMessageDbModel(
+//      messageId = groupChatMessage.id,
+//      chatId = chatId,
+//      meetingId = meetingId,
+//      correlationId = groupChatMessage.correlationId,
+//      createdAt = new java.sql.Timestamp(System.currentTimeMillis()),
+//      chatEmphasizedText = groupChatMessage.chatEmphasizedText,
+//      message = groupChatMessage.message,
+//      messageType = "default",
+//      messageMetadata = None,
+//      senderId = Some(groupChatMessage.sender.id),
+//      senderName = groupChatMessage.sender.name,
+//      senderRole = Some(groupChatMessage.sender.role),
+//    )
+//
+//    val insertAction = TableQuery[ChatMessageDbTableDef].insertOrUpdate(chatMessage)
+//    DatabaseConnection.enqueue(insertAction)
+//  }
+
   def insertSystemMsg(meetingId: String, chatId: String, message: String, messageType: String, messageMetadata: Map[String,Any], senderName: String) = {
-    DatabaseConnection.db.run(
+    DatabaseConnection.enqueue(
       TableQuery[ChatMessageDbTableDef].insertOrUpdate(
         ChatMessageDbModel(
           messageId = GroupChatFactory.genId(),
@@ -88,27 +100,19 @@ object ChatMessageDAO {
           senderRole = None
         )
       )
-    ).onComplete {
-      case Success(rowsAffected) => {
-        DatabaseConnection.logger.debug(s"$rowsAffected row(s) inserted on ChatMessage(system) table!")
+    )
 
-        //Set chat visible for all participant users
-        ChatUserDAO.updateChatVisible(meetingId, chatId)
-      }
-      case Failure(e) => DatabaseConnection.logger.debug(s"Error inserting ChatMessage(system): $e")
-    }
+    //Set chat visible for all participant users
+    ChatUserDAO.updateChatVisible(meetingId, chatId, visible = true)
   }
 
   def deleteAllFromChat(meetingId: String, chatId: String) = {
-    DatabaseConnection.db.run(
+    DatabaseConnection.enqueue(
       TableQuery[ChatMessageDbTableDef]
         .filter(_.meetingId === meetingId)
         .filter(_.chatId === chatId)
         .delete
-    ).onComplete {
-      case Success(rowsAffected) => DatabaseConnection.logger.debug(s"$rowsAffected row(s) deleted from ChatMessage meetingId=${meetingId} chatId=${chatId}")
-      case Failure(e) => DatabaseConnection.logger.error(s"Error deleting from ChatMessage meetingId=${meetingId} chatId=${chatId}: $e")
-    }
+    )
   }
 
 }

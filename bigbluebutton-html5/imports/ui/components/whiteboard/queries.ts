@@ -53,6 +53,7 @@ export const CURRENT_PRESENTATION_PAGE_SUBSCRIPTION = gql`subscription CurrentPr
     downloadable
     presentationName
     isDefaultPresentation
+    infiniteWhiteboard
   }  
 }`;
 
@@ -148,11 +149,11 @@ export const CURRENT_PAGE_WRITERS_QUERY = gql`
 
 export const cursorUserSubscription = gql`
   subscription CursorSubscription {
-    pres_page_cursor(where: {isCurrentPage: {_eq: true}}) {
+    pres_page_cursor(
+      where: {isCurrentPage: {_eq: true}}
+      order_by: { userId: asc }
+    ) {
       userId
-      isCurrentPage
-      pageId
-      presentationId
       user {
         name
         presenter

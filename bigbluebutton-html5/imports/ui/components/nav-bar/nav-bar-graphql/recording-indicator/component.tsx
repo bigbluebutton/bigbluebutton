@@ -136,7 +136,8 @@ const RecordingIndicator: React.FC<RecordingIndicatorProps> = ({
   }, [shouldNotify, recordingNotificationEnabled, recording]);
 
   const recordTitle = useMemo(() => {
-    if (!isPhone && !recording) {
+    if (isPhone) return '';
+    if (!recording) {
       return time > 0
         ? intl.formatMessage(intlMessages.resumeTitle)
         : intl.formatMessage(intlMessages.startTitle);
@@ -181,7 +182,7 @@ const RecordingIndicator: React.FC<RecordingIndicatorProps> = ({
       : intlMessages.recordingIndicatorOff,
   ), [recording]);
 
-  const recordMeetingButton = useMemo(() => (
+  const recordMeetingButton = (
     <Styled.RecordingControl
       aria-label={recordTitle}
       aria-describedby="recording-description"
@@ -208,13 +209,13 @@ const RecordingIndicator: React.FC<RecordingIndicatorProps> = ({
         )}
       </Styled.PresentationTitle>
     </Styled.RecordingControl>
-  ), [recording, micUser, time]);
+  );
 
-  const recordMeetingButtonWithTooltip = useMemo(() => (
+  const recordMeetingButtonWithTooltip = (
     <Tooltip title={intl.formatMessage(intlMessages.stopTitle)}>
       {recordMeetingButton}
     </Tooltip>
-  ), [recording, micUser, time]);
+  );
 
   const recordingButton = recording ? recordMeetingButtonWithTooltip : recordMeetingButton;
   const showButton = isModerator && allowStartStopRecording;

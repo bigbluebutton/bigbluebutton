@@ -112,6 +112,10 @@ class ReceivedJsonMsgHandlerActor(
         routeGenericMsg[SetUserSpeechLocaleReqMsg](envelope, jsonNode)
       case SetUserCaptionLocaleReqMsg.NAME =>
         routeGenericMsg[SetUserCaptionLocaleReqMsg](envelope, jsonNode)
+      case SetUserClientSettingsReqMsg.NAME =>
+        routeGenericMsg[SetUserClientSettingsReqMsg](envelope, jsonNode)
+      case SetUserEchoTestRunningReqMsg.NAME =>
+        routeGenericMsg[SetUserEchoTestRunningReqMsg](envelope, jsonNode)
       case SetUserSpeechOptionsReqMsg.NAME =>
         routeGenericMsg[SetUserSpeechOptionsReqMsg](envelope, jsonNode)
 
@@ -230,6 +234,8 @@ class ReceivedJsonMsgHandlerActor(
         routeGenericMsg[CreateBreakoutRoomsCmdMsg](envelope, jsonNode)
       case RequestBreakoutJoinURLReqMsg.NAME =>
         routeGenericMsg[RequestBreakoutJoinURLReqMsg](envelope, jsonNode)
+      case SetBreakoutRoomInviteDismissedReqMsg.NAME =>
+        routeGenericMsg[SetBreakoutRoomInviteDismissedReqMsg](envelope, jsonNode)
       case EndAllBreakoutRoomsMsg.NAME =>
         routeGenericMsg[EndAllBreakoutRoomsMsg](envelope, jsonNode)
       case TransferUserToMeetingRequestMsg.NAME =>
@@ -287,6 +293,8 @@ class ReceivedJsonMsgHandlerActor(
         routeGenericMsg[SetCurrentPresentationPubMsg](envelope, jsonNode)
       case SetCurrentPagePubMsg.NAME =>
         routeGenericMsg[SetCurrentPagePubMsg](envelope, jsonNode)
+      case SetPageInfiniteWhiteboardPubMsg.NAME =>
+        routeGenericMsg[SetPageInfiniteWhiteboardPubMsg](envelope, jsonNode)
       case ResizeAndMovePagePubMsg.NAME =>
         routeGenericMsg[ResizeAndMovePagePubMsg](envelope, jsonNode)
       case SlideResizedPubMsg.NAME =>
@@ -413,6 +421,10 @@ class ReceivedJsonMsgHandlerActor(
         routeGenericMsg[GetGroupChatMsgsReqMsg](envelope, jsonNode)
       case CreateGroupChatReqMsg.NAME =>
         routeGenericMsg[CreateGroupChatReqMsg](envelope, jsonNode)
+      case SetGroupChatLastSeenReqMsg.NAME =>
+        routeGenericMsg[SetGroupChatLastSeenReqMsg](envelope, jsonNode)
+      case SetGroupChatVisibleReqMsg.NAME =>
+        routeGenericMsg[SetGroupChatVisibleReqMsg](envelope, jsonNode)
 
       //Plugin
       case PluginDataChannelPushEntryMsg.NAME =>
@@ -426,6 +438,9 @@ class ReceivedJsonMsgHandlerActor(
 
       case PluginDataChannelResetMsg.NAME =>
         routeGenericMsg[PluginDataChannelResetMsg](envelope, jsonNode)
+
+      case PluginLearningAnalyticsDashboardSendGenericDataMsg.NAME =>
+        routeGenericMsg[PluginLearningAnalyticsDashboardSendGenericDataMsg](envelope, jsonNode)
 
       // ExternalVideo
       case StartExternalVideoPubMsg.NAME =>

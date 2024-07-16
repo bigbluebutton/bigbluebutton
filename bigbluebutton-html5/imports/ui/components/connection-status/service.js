@@ -5,6 +5,7 @@ import Session from '/imports/ui/services/storage/in-memory';
 import { notify } from '/imports/ui/services/notification';
 import AudioService from '/imports/ui/components/audio/service';
 import ScreenshareService from '/imports/ui/components/screenshare/service';
+import connectionStatus from '../../core/graphql/singletons/connectionStatus';
 
 const intlMessages = defineMessages({
   saved: {
@@ -16,6 +17,8 @@ const intlMessages = defineMessages({
     description: 'Label shown in toast when connection loss is detected',
   },
 });
+
+const NETWORK_MONITORING_INTERVAL_MS = 2000;
 
 const lastLevel = makeVar();
 
@@ -72,14 +75,16 @@ const startStatsTimeout = () => {
 };
 
 const sortLevel = (a, b) => {
-  const STATS = window.meetingClientSettings.public.stats;
+  const RTT = window.meetingClientSettings.public.stats.rtt;
 
-  const indexOfA = STATS.level.indexOf(a.level);
-  const indexOfB = STATS.level.indexOf(b.level);
+  if (!a.lastUnstableStatus && !b.lastUnstableStatus) return 0;
+  if (!a.lastUnstableStatus) return 1;
+  if (!b.lastUnstableStatus) return -1;
 
-  if (indexOfA < indexOfB) return 1;
-  if (indexOfA === indexOfB) return 0;
-  if (indexOfA > indexOfB) return -1;
+  const rttOfA = RTT[a.lastUnstableStatus];
+  const rttOfB = RTT[b.lastUnstableStatus];
+
+  return rttOfB - rttOfA;
 };
 
 const sortOnline = (a, b) => {
@@ -375,6 +380,105 @@ const calculateBitsPerSecondFromMultipleData = (currentData, previousData) => {
 
 const sortConnectionData = (connectionData) => connectionData.sort(sortLevel).sort(sortOnline);
 
+export function getStatus(levels, value) {
+  const sortedLevels = Object.keys(levels)
+    .map(Number)
+    .sort((a, b) => a - b);
+  // eslint-disable-next-line no-plusplus
+  for (let i = 0; i < sortedLevels.length; i++) {
+    if (value < sortedLevels[i]) {
+      return i === 0 ? 'normal' : levels[sortedLevels[i - 1]];
+    }
+    if (i === sortedLevels.length - 1) {
+      return levels[sortedLevels[i]];
+    }
+  }
+
+  return levels[sortedLevels[sortedLevels.length - 1]];
+}
+
+/**
+   * Start monitoring the network data.
+   * @return {Promise} A Promise that resolves when process started.
+   */
+export async function startMonitoringNetwork(getVideoStreamsStats) {
+  let previousData = await getNetworkData(getVideoStreamsStats);
+
+  setInterval(async () => {
+    const data = await getNetworkData(getVideoStreamsStats);
+
+    const {
+      outbound: audioCurrentUploadRate,
+      inbound: audioCurrentDownloadRate,
+    } = calculateBitsPerSecond(data.audio, previousData.audio);
+
+    const inboundRtp = getDataType(data.audio, 'inbound-rtp')[0];
+
+    const jitter = inboundRtp
+      ? inboundRtp.jitterBufferAverage
+      : 0;
+
+    const packetsLost = inboundRtp
+      ? inboundRtp.packetsLost
+      : 0;
+
+    const audio = {
+      audioCurrentUploadRate,
+      audioCurrentDownloadRate,
+      jitter,
+      packetsLost,
+      transportStats: data.audio.transportStats,
+    };
+
+    const {
+      outbound: videoCurrentUploadRate,
+      inbound: videoCurrentDownloadRate,
+    } = calculateBitsPerSecondFromMultipleData(data.video,
+      previousData.video);
+
+    const video = {
+      videoCurrentUploadRate,
+      videoCurrentDownloadRate,
+    };
+
+    const { user } = data;
+
+    const networkData = {
+      user,
+      audio,
+      video,
+    };
+
+    previousData = data;
+
+    connectionStatus.setNetworkData(networkData);
+    connectionStatus
+      .setJitterStatus(getStatus(window.meetingClientSettings.public.stats.jitter, jitter));
+
+    connectionStatus
+      .setPacketLossStatus(getStatus(window.meetingClientSettings.public.stats.loss, packetsLost));
+  }, NETWORK_MONITORING_INTERVAL_MS);
+}
+
+export function getWorstStatus(statuses) {
+  const statusOrder = {
+    normal: 0,
+    warning: 1,
+    danger: 2,
+    critical: 3,
+  };
+
+  let worstStatus = 'normal';
+  // eslint-disable-next-line
+  for (let status of statuses) {
+    if (statusOrder[status] > statusOrder[worstStatus]) {
+      worstStatus = status;
+    }
+  }
+
+  return worstStatus;
+}
+
 export default {
   getStats,
   getHelp,
@@ -386,4 +490,7 @@ export default {
   getDataType,
   sortConnectionData,
   handleAudioStatsEvent,
+  startMonitoringNetwork,
+  getStatus,
+  getWorstStatus,
 };

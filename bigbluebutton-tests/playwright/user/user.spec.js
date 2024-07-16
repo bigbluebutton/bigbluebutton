@@ -1,6 +1,5 @@
 const { devices } = require('@playwright/test');
 const { test } = require('../fixtures');
-const { Status } = require('./status');
 const { MultiUsers } = require('./multiusers');
 const { GuestPolicy } = require('./guestPolicy');
 const { LockViewers } = require('./lockViewers');
@@ -14,7 +13,7 @@ const iPhone11 = devices['iPhone 11'];
 const hidePresentationToast = encodeCustomParams(PARAMETER_HIDE_PRESENTATION_TOAST);
 
 test.describe.parallel('User', () => {
-  test.describe.parallel('Actions @ci', () => {
+  test.describe.parallel('Actions', { tag: '@ci' }, () => {
     // https://docs.bigbluebutton.org/2.6/release-tests.html#set-status--raise-hand-automated
     test('Raise and lower Hand', async ({ browser, context, page }) => {
       const multiusers = new MultiUsers(browser, context);
@@ -34,7 +33,7 @@ test.describe.parallel('User', () => {
       await multiusers.toggleUserList();
     });
 
-    test('Timer @flaky', async ({ browser, context, page })=> {
+    test('Timer', { tag: '@flaky' }, async ({ browser, context, page })=> {
       const timer = new Timer(browser, context);
       await timer.initModPage(page, true);
       await timer.timerTest();
@@ -42,13 +41,6 @@ test.describe.parallel('User', () => {
   });
 
   test.describe.parallel('List', () => {
-    // https://docs.bigbluebutton.org/2.6/release-tests.html#set-status--raise-hand-automated
-    test('Change user status @ci', async ({ browser, page }) => {
-      const status = new Status(browser, page);
-      await status.init(true, true, { joinParameter: hidePresentationToast });
-      await status.changeUserStatus();
-    });
-
     test('User presence check (multiple users)', async ({ browser, context, page }) => {
       const multiusers = new MultiUsers(browser, context);
       await multiusers.initPages(page);
@@ -56,41 +48,40 @@ test.describe.parallel('User', () => {
     });
 
     // https://docs.bigbluebutton.org/2.6/release-tests.html#make-viewer-a-presenter-automated
-    test('Make presenter @ci', async ({ browser, context, page }) => {
+    test('Make presenter', { tag: '@ci' }, async ({ browser, context, page }) => {
       const multiusers = new MultiUsers(browser, context);
       await multiusers.initPages(page);
       await multiusers.makePresenter();
     });
 
     // https://docs.bigbluebutton.org/2.6/release-tests.html#taking-presenter-status-back-automated
-    test('Take presenter @ci', async ({ browser, context, page }) => {
+    test('Take presenter', { tag: '@ci' }, async ({ browser, context, page }) => {
       const multiusers = new MultiUsers(browser, context);
       await multiusers.initModPage(page);
       await multiusers.initModPage2();
       await multiusers.takePresenter();
     });
 
-    test('Promote to moderator @ci', async ({ browser, context, page }) => {
+    test('Promote to moderator', { tag: '@ci' }, async ({ browser, context, page }) => {
       const multiusers = new MultiUsers(browser, context);
       await multiusers.initPages(page);
       await multiusers.promoteToModerator();
     });
 
-    test('Demote to viewer @ci', async ({ browser, context, page }) => {
+    test('Demote to viewer', { tag: '@ci' }, async ({ browser, context, page }) => {
       const multiusers = new MultiUsers(browser, context);
       await multiusers.initModPage(page);
       await multiusers.initModPage2();
       await multiusers.demoteToViewer();
     });
 
-    test('Give and remove whiteboard access @ci', async ({ browser, context, page }) => {
+    test('Give and remove whiteboard access', { tag: '@ci' }, async ({ browser, context, page }) => {
       const multiusers = new MultiUsers(browser, context);
-      await multiusers.initModPage(page);
-      await multiusers.initModPage2();
+      await multiusers.initPages(page);
       await multiusers.giveAndRemoveWhiteboardAccess();
     });
 
-    test('Remove user @ci', async ({ browser, context, page }) => {
+    test('Remove user', { tag: '@ci' }, async ({ browser, context, page }) => {
       const multiusers = new MultiUsers(browser, context);
       await multiusers.initModPage(page, true);
       await multiusers.initModPage2(true);
@@ -98,7 +89,7 @@ test.describe.parallel('User', () => {
     });
 
     // User is currently getting stuck when trying to rejoin - no error message is shown
-    test('Remove user and prevent rejoining @flaky', async ({ browser, context, page }) => {
+    test('Remove user and prevent rejoining', { tag: '@flaky' }, async ({ browser, context, page }) => {
       const multiusers = new MultiUsers(browser, context);
       await multiusers.initModPage(page, true);
       await multiusers.initModPage2(true, context, { joinParameter: 'userID=Moderator2' });
@@ -107,7 +98,7 @@ test.describe.parallel('User', () => {
   });
 
   test.describe.parallel('Manage', () => {
-    test.describe.parallel('Guest policy @ci', () => {
+    test.describe.parallel('Guest policy', { tag: '@ci' }, () => {
       test.describe.parallel('ASK_MODERATOR', () => {
         // https://docs.bigbluebutton.org/2.6/release-tests.html#ask-moderator
         test('Message to guest lobby', async ({ browser, context, page }) => {
@@ -132,7 +123,7 @@ test.describe.parallel('User', () => {
           await guestPolicy.rememberChoice();
         });
 
-        test.describe.parallel('Actions to specific pending user @ci', () => {
+        test.describe.parallel('Actions to specific pending user', { tag: '@ci' }, () => {
           test('Message', async ({ browser, context, page }) => {
             const guestPolicy = new GuestPolicy(browser, context);
             await guestPolicy.initModPage(page);
@@ -166,7 +157,7 @@ test.describe.parallel('User', () => {
       });
     });
 
-    test.describe.parallel('Lock viewers @ci', () => {
+    test.describe.parallel('Lock viewers', { tag: '@ci' }, () => {
       // https://docs.bigbluebutton.org/2.6/release-tests.html#webcam
       test('Lock Share webcam', async ({ browser, context, page }) => {
         const lockViewers = new LockViewers(browser, context);
@@ -216,14 +207,14 @@ test.describe.parallel('User', () => {
         await lockViewers.lockSeeOtherViewersUserList();
       });
 
-      test('Lock see other viewers annotations @flaky', async ({ browser, context, page }) => {
+      test('Lock see other viewers annotations', { tag: '@flaky' }, async ({ browser, context, page }) => {
         const lockViewers = new LockViewers(browser, context);
         await lockViewers.initModPage(page, true, { joinParameter: hidePresentationToast });
         await lockViewers.initUserPage(true, context, { joinParameter: hidePresentationToast });
         await lockViewers.lockSeeOtherViewersAnnotations();
       });
 
-      test('Lock see other viewers cursor @flaky', async ({ browser, context, page }) => {
+      test('Lock see other viewers cursor', { tag: '@flaky' }, async ({ browser, context, page }) => {
         const lockViewers = new LockViewers(browser, context);
         await lockViewers.initPages(page);
         await lockViewers.lockSeeOtherViewersCursor();
@@ -231,7 +222,7 @@ test.describe.parallel('User', () => {
     });
 
     // https://docs.bigbluebutton.org/2.6/release-tests.html#saving-usernames
-    test('Save user names @ci', async ({ browser, context, page }, testInfo) => {
+    test('Save user names', { tag: '@ci' }, async ({ browser, context, page }, testInfo) => {
       const multiusers = new MultiUsers(browser, context);
       await multiusers.initPages(page);
       await multiusers.saveUserNames(testInfo);
@@ -259,7 +250,7 @@ test.describe.parallel('User', () => {
       test.skip(browserName === 'firefox', 'Mobile tests are not able in Firefox browser');
     });
 
-    test('Mobile Tag Name For Mobile User @ci', async ({ browser }) => {
+    test('Mobile Tag Name For Mobile User', { tag: '@ci' }, async ({ browser }) => {
       const context = await browser.newContext({ ...iPhone11 });
       const mobilePage = await context.newPage();
       const mobileDevices = new MobileDevices(browser, context);

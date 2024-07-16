@@ -1,7 +1,6 @@
 import {
   useCallback,
   useEffect,
-  useMemo,
   useState,
 } from 'react';
 import {
@@ -30,12 +29,15 @@ import {
   OWN_VIDEO_STREAMS_QUERY,
   GRID_USERS_SUBSCRIPTION,
   VIEWERS_IN_WEBCAM_COUNT_SUBSCRIPTION,
-  GridUsersResponse,
-  OwnVideoStreamsResponse,
 } from '../queries';
 import videoService from '../service';
 import { CAMERA_BROADCAST_STOP } from '../mutations';
-import { GridItem, StreamItem } from '../types';
+import {
+  GridItem,
+  StreamItem,
+  GridUsersResponse,
+  OwnVideoStreamsResponse,
+} from '../types';
 import { DesktopPageSizes, MobilePageSizes } from '/imports/ui/Types/meetingClientSettings';
 import logger from '/imports/startup/client/logger';
 import useDeduplicatedSubscription from '/imports/ui/core/hooks/useDeduplicatedSubscription';
@@ -240,7 +242,8 @@ export const useStreamUsers = (isGridEnabled: boolean) => {
   const { streams } = useStreams();
   const gridSize = useGridSize();
   const [gridUsers, setGridUsers] = useState<GridItem[]>([]);
-  const userIds = useMemo(() => streams.map((s) => s.user.userId), [streams]);
+  const userIds = streams.map((s) => s.user.userId);
+
   const streamCount = streams.length;
   const {
     data: gridData,

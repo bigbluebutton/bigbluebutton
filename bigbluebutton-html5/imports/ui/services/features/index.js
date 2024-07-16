@@ -82,9 +82,8 @@ export function useIsImportSharedNotesFromBreakoutRoomsEnabled() {
 
 export function useIsReactionsEnabled() {
   const USER_REACTIONS_ENABLED = window.meetingClientSettings.public.userReaction.enabled;
-  const REACTIONS_BUTTON_ENABLED = window.meetingClientSettings.public.app.reactionsButton.enabled;
 
-  return useDisabledFeatures().indexOf('reactions') === -1 && USER_REACTIONS_ENABLED && REACTIONS_BUTTON_ENABLED;
+  return useDisabledFeatures().indexOf('reactions') === -1 && USER_REACTIONS_ENABLED;
 }
 
 export function useIsTimerFeatureEnabled() {
@@ -95,5 +94,12 @@ export function useIsCameraAsContentEnabled() {
   return (
     useDisabledFeatures().indexOf('cameraAsContent') === -1
     && window.meetingClientSettings.public.app.enableCameraAsContent
+  );
+}
+
+export function useIsInfiniteWhiteboardEnabled() {
+  return (
+    useDisabledFeatures().indexOf('infiniteWhiteboard') === -1
+    && window.meetingClientSettings.public.whiteboard.allowInfiniteWhiteboard
   );
 }

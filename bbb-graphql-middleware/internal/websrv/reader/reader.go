@@ -1,34 +1,27 @@
 package reader
 
 import (
+	"bytes"
 	"context"
+	"encoding/json"
 	"errors"
 	"github.com/iMDT/bbb-graphql-middleware/internal/common"
 	log "github.com/sirupsen/logrus"
 	"nhooyr.io/websocket"
-	"nhooyr.io/websocket/wsjson"
-	"strings"
 	"sync"
 	"time"
 )
 
 func BrowserConnectionReader(
-	browserConnectionId string,
-	ctx context.Context,
-	ctxCancel context.CancelFunc,
-	browserWsConn *websocket.Conn,
-	fromBrowserToGqlActionsChannel *common.SafeChannel,
-	fromBrowserToHasuraChannel *common.SafeChannel,
-	fromBrowserToHasuraConnectionEstablishingChannel *common.SafeChannel,
+	browserConnection *common.BrowserConnection,
 	waitGroups []*sync.WaitGroup) {
-	log := log.WithField("_routine", "BrowserConnectionReader").WithField("browserConnectionId", browserConnectionId)
+	log := log.WithField("_routine", "BrowserConnectionReader").WithField("browserConnectionId", browserConnection.Id)
 	defer log.Debugf("finished")
 	log.Debugf("starting")
 
 	defer func() {
-		fromBrowserToHasuraChannel.Close()
-		fromBrowserToGqlActionsChannel.Close()
-		fromBrowserToHasuraConnectionEstablishingChannel.Close()
+		browserConnection.FromBrowserToHasuraChannel.Close()
+		browserConnection.FromBrowserToGqlActionsChannel.Close()
 	}()
 
 	defer func() {
@@ -40,11 +33,10 @@ func BrowserConnectionReader(
 		time.Sleep(100 * time.Millisecond)
 	}()
 
-	defer ctxCancel()
+	defer browserConnection.ContextCancelFunc()
 
 	for {
-		var v interface{}
-		err := wsjson.Read(ctx, browserWsConn, &v)
+		messageType, message, err := browserConnection.Websocket.Read(browserConnection.Context)
 		if err != nil {
 			if errors.Is(err, context.Canceled) {
 				log.Debugf("Closing Browser ws connection as Context was cancelled!")
@@ -54,26 +46,29 @@ func BrowserConnectionReader(
 			return
 		}
 
-		log.Tracef("received from browser: %v", v)
+		log.Tracef("received from browser: %s", string(message))
 
-		if v == nil {
+		if messageType != websocket.MessageText {
+			log.Warnf("received non-text message: %v", messageType)
 			continue
 		}
 
-		var fromBrowserMessageAsMap = v.(map[string]interface{})
+		var browserMessageType struct {
+			Type string `json:"type"`
+		}
+		err = json.Unmarshal(message, &browserMessageType)
+		if err != nil {
+			log.Errorf("failed to unmarshal message: %v", err)
+			continue
+		}
 
-		if payload, ok := fromBrowserMessageAsMap["payload"].(map[string]interface{}); ok {
-			if query, okQuery := payload["query"].(string); okQuery {
-				//Forward Mutations directly to GraphqlActions
-				//Update mutations must be handled by Hasura
-				if strings.HasPrefix(query, "mutation") && !strings.Contains(query, "update_") {
-					fromBrowserToGqlActionsChannel.Send(v)
-					continue
-				}
+		if browserMessageType.Type == "subscribe" {
+			if bytes.Contains(message, []byte("\"query\":\"mutation")) {
+				browserConnection.FromBrowserToGqlActionsChannel.Send(message)
+				continue
 			}
 		}
 
-		fromBrowserToHasuraChannel.Send(v)
-		fromBrowserToHasuraConnectionEstablishingChannel.Send(v)
+		browserConnection.FromBrowserToHasuraChannel.Send(message)
 	}
 }

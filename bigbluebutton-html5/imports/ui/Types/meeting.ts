@@ -104,6 +104,7 @@ export interface ComponentsFlags {
   hasScreenshare: boolean;
   hasTimer: boolean;
   showRemainingTime: boolean;
+  hasCameraAsContent: boolean;
 }
 
 export interface Metadata {

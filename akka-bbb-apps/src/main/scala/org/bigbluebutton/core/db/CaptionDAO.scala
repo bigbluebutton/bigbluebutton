@@ -1,8 +1,6 @@
 package org.bigbluebutton.core.db
 
 import slick.jdbc.PostgresProfile.api._
-import scala.concurrent.ExecutionContext.Implicits.global
-import scala.util.{ Failure, Success }
 
 case class CaptionDbModel(
     captionId:   String,
@@ -34,7 +32,7 @@ object CaptionDAO {
 
   def insertOrUpdateCaption(captionId: String, meetingId: String, userId: String, transcript: String,
                             locale: String, captionType: String = CaptionTypes.AUDIO_TRANSCRIPTION) = {
-    DatabaseConnection.db.run(
+    DatabaseConnection.enqueue(
       TableQuery[CaptionTableDef].insertOrUpdate(
         CaptionDbModel(
           captionId = captionId,
@@ -46,10 +44,7 @@ object CaptionDAO {
           createdAt = new java.sql.Timestamp(System.currentTimeMillis())
         )
       )
-    ).onComplete {
-        case Success(_) => DatabaseConnection.logger.debug(s"Upserted caption with ID $captionId on Caption table")
-        case Failure(e) => DatabaseConnection.logger.debug(s"Error upserting caption on Caption: $e")
-      }
+    )
   }
 
   def insertOrUpdatePadCaption(meetingId: String, locale: String, userId: String, text: String) = {
@@ -94,12 +89,6 @@ object CaptionDAO {
                   )"""
     }
 
-    DatabaseConnection.db.run(DBIO.sequence(actions).transactionally).onComplete {
-      case Success(rowsAffected) =>
-        val total = rowsAffected.sum
-        DatabaseConnection.logger.debug(s"$total row(s) affected in caption table!")
-      case Failure(e) =>
-        DatabaseConnection.logger.error(s"Error executing action: ", e)
-    }
+    DatabaseConnection.enqueue(DBIO.sequence(actions).transactionally)
   }
 }

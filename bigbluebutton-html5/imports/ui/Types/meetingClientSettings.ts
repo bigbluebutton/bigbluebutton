@@ -13,7 +13,6 @@ export interface Public {
   timer: Timer
   chat: Chat
   userReaction: UserReaction
-  userStatus: UserStatus
   notes: Notes
   layout: Layout
   pads: Pads
@@ -554,10 +553,6 @@ export interface Reaction {
   native: string
 }
 
-export interface UserStatus {
-  enabled: boolean
-}
-
 export interface Notes {
   enabled: boolean
   id: string
@@ -699,6 +694,8 @@ export interface Whiteboard {
   maxStickyNoteLength: number
   maxNumberOfAnnotations: number
   annotations: Annotations
+  allowInfiniteWhiteboard: boolean
+  allowInfiniteWhiteboardInBreakouts: boolean
   styles: Styles
   toolbar: Toolbar
 }

@@ -1,21 +1,7 @@
-import Breakouts from '/imports/api/breakouts';
-import Meetings from '/imports/api/meetings';
-import Auth from '/imports/ui/services/auth/index';
-import deviceInfo from '/imports/utils/deviceInfo';
-import Styled from './styles';
 import DarkReader from 'darkreader';
+import Styled from './styles';
 import logger from '/imports/startup/client/logger';
 import useMeeting from '../../core/hooks/useMeeting';
-
-export const getBreakoutRooms = () => Breakouts.find().fetch();
-
-export function meetingIsBreakout() {
-  const meeting = Meetings.findOne(
-    { meetingId: Auth.meetingID },
-    { fields: { isBreakout: 1 } },
-  );
-  return meeting && meeting.isBreakout;
-}
 
 export function useMeetingIsBreakout() {
   const { data: meeting } = useMeeting((m) => ({
@@ -33,13 +19,13 @@ export const setDarkTheme = (value) => {
         invert: [Styled.DtfInvert],
         ignoreInlineStyle: [Styled.DtfCss],
         ignoreImageAnalysis: [Styled.DtfImages],
-      }
+      },
     );
     logger.info(
       {
         logCode: 'dark_mode',
       },
-      'Dark mode is on.'
+      'Dark mode is on.',
     );
   }
 
@@ -49,18 +35,14 @@ export const setDarkTheme = (value) => {
       {
         logCode: 'dark_mode',
       },
-      'Dark mode is off.'
+      'Dark mode is off.',
     );
   }
 };
 
-export const isDarkThemeEnabled = () => {
-  return DarkReader.isEnabled();
-};
+export const isDarkThemeEnabled = () => DarkReader.isEnabled();
 
 export default {
-  meetingIsBreakout,
-  getBreakoutRooms,
   setDarkTheme,
   isDarkThemeEnabled,
   useMeetingIsBreakout,

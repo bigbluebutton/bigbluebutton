@@ -599,9 +599,6 @@ export const meetingClientSettingsInitialValues: MeetingClientSettings = {
         },
       ],
     },
-    userStatus: {
-      enabled: false,
-    },
     notes: {
       enabled: true,
       id: 'notes',
@@ -813,6 +810,8 @@ export const meetingClientSettingsInitialValues: MeetingClientSettings = {
       pointerDiameter: 5,
       maxStickyNoteLength: 1000,
       maxNumberOfAnnotations: 300,
+      allowInfiniteWhiteboard: false,
+      allowInfiniteWhiteboardInBreakouts: false,
       annotations: {
         status: {
           start: 'DRAW_START',

@@ -53,7 +53,7 @@ trait CreateGroupChatReqMsgHdlr extends SystemConfiguration {
     } else {
       GroupChatApp.getGroupChatOfUsers(msg.header.userId, msg.body.users, state) match {
         case Some(groupChat) =>
-          ChatUserDAO.updateChatVisible(msg.header.meetingId, groupChat.id, msg.header.userId)
+          ChatUserDAO.updateChatVisible(msg.header.meetingId, groupChat.id, msg.header.userId, visible = true)
           state
         case None =>
           val newState = for {

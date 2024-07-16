@@ -8,6 +8,7 @@ import AudioCaptionsService from '/imports/ui/components/audio/audio-graphql/aud
 import {
   updateSettings,
   getAvailableLocales,
+  FALLBACK_LOCALES,
 } from './service';
 import useUserChangedLocalSettings from '../../services/settings/hooks/useUserChangedLocalSettings';
 import { useShouldRenderPaginationToggle } from '/imports/ui/components/video-provider/hooks';
@@ -67,6 +68,7 @@ const SettingsContainer = (props) => {
       layoutContextDispatch={layoutContextDispatch}
       setLocalSettings={setLocalSettings}
       paginationToggleEnabled={paginationToggleEnabled}
+      fallbackLocales={FALLBACK_LOCALES}
     />
   );
 };

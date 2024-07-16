@@ -121,6 +121,7 @@ const MEETING_SUBSCRIPTION = gql`
           hasScreenshare
           hasTimer
           showRemainingTime
+          hasCameraAsContent
         }
       }
   }

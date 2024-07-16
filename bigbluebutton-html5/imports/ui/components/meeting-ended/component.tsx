@@ -8,7 +8,6 @@ import React, {
 import { defineMessages, useIntl } from 'react-intl';
 import { isEmpty } from 'radash';
 import { ApolloLink, useQuery } from '@apollo/client';
-import { Meteor } from 'meteor/meteor';
 import {
   JoinErrorCodeTable,
   MeetingEndedTable,
@@ -228,7 +227,16 @@ const MeetingEnded: React.FC<MeetingEndedProps> = ({
       comment,
       isModerator,
     };
-    const url = './feedback';
+
+    const pathMatch = window.location.pathname.match('^(.*)/html5client/join$');
+    if (pathMatch == null) {
+      throw new Error('Failed to match BBB client URI');
+    }
+    const serverPathPrefix = pathMatch[1];
+
+    const sessionToken = sessionStorage.getItem('sessionToken');
+
+    const url = `https://${window.location.hostname}${serverPathPrefix}/bigbluebutton/api/feedback?sessionToken=${sessionToken}`;
     const options = {
       method: 'POST',
       body: JSON.stringify(message),
@@ -352,7 +360,7 @@ const MeetingEnded: React.FC<MeetingEndedProps> = ({
         ) : null}
       </>
     );
-  }, []);
+  }, [askForFeedbackOnLogout, dispatched, selectedStars]);
 
   useEffect(() => {
     // Sets Loading to falsed and removes loading splash screen
@@ -360,7 +368,7 @@ const MeetingEnded: React.FC<MeetingEndedProps> = ({
     // Stops all media tracks
     window.dispatchEvent(new Event('StopAudioTracks'));
     // get the media tag from the session storage
-    const data = JSON.parse((sessionStorage.getItem('clientStartupSettings')) || '{}');
+    const data = window.meetingClientSettings.public.media;
     // get media element and stops it and removes the audio source
     const mediaElement = document.querySelector<HTMLMediaElement>(data.mediaTag);
     if (mediaElement) {
@@ -385,7 +393,6 @@ const MeetingEnded: React.FC<MeetingEndedProps> = ({
         apolloClient.setLink(ApolloLink.empty());
         // closes the connection
         ws.terminate();
-        Meteor.disconnect();
       }, 5000);
     }
   }, []);

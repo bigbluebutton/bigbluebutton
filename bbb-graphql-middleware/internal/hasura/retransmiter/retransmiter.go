@@ -5,7 +5,7 @@ import (
 	log "github.com/sirupsen/logrus"
 )
 
-func RetransmitSubscriptionStartMessages(hc *common.HasuraConnection, fromBrowserToHasuraChannel *common.SafeChannel) {
+func RetransmitSubscriptionStartMessages(hc *common.HasuraConnection) {
 	log := log.WithField("_routine", "RetransmitSubscriptionStartMessages").WithField("browserConnectionId", hc.BrowserConn.Id).WithField("hasuraConnectionId", hc.Id)
 
 	hc.BrowserConn.ActiveSubscriptionsMutex.RLock()
@@ -18,12 +18,12 @@ func RetransmitSubscriptionStartMessages(hc *common.HasuraConnection, fromBrowse
 
 		if subscription.LastSeenOnHasuraConnection != hc.Id {
 
-			log.Tracef("retransmiting subscription start: %v", subscription.Message)
+			log.Tracef("retransmiting subscription start: %v", string(subscription.Message))
 
 			if subscription.Type == common.Streaming && subscription.StreamCursorCurrValue != nil {
-				fromBrowserToHasuraChannel.Send(common.PatchQuerySettingLastCursorValue(subscription))
+				hc.BrowserConn.FromBrowserToHasuraChannel.Send(common.PatchQuerySettingLastCursorValue(subscription))
 			} else {
-				fromBrowserToHasuraChannel.Send(subscription.Message)
+				hc.BrowserConn.FromBrowserToHasuraChannel.Send(subscription.Message)
 			}
 		}
 	}

@@ -18,7 +18,6 @@
 /* eslint no-unused-vars: 0 */
 
 import React, { useContext, useEffect } from 'react';
-import { Meteor } from 'meteor/meteor';
 import logger from '/imports/startup/client/logger';
 import '/imports/ui/services/mobile-app';
 import Base from '/imports/startup/client/base';
@@ -37,14 +36,7 @@ import CustomUsersSettings from '/imports/ui/components/join-handler/custom-user
 const Startup = () => {
   const loadingContextInfo = useContext(LoadingContext);
   useEffect(() => {
-    const { disableWebsocketFallback } = window.meetingClientSettings.public.app;
     loadingContextInfo.setLoading(false, '');
-    if (disableWebsocketFallback) {
-      Meteor.connection._stream._sockjsProtocolsWhitelist = function () { return ['websocket']; };
-
-      // Meteor.disconnect();
-      // Meteor.reconnect();
-    }
   }, []);
   // Logs all uncaught exceptions to the client logger
   window.addEventListener('error', (e) => {

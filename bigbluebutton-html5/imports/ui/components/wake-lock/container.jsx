@@ -1,6 +1,5 @@
 import React, { useEffect, useState, useRef } from 'react';
 import PropTypes from 'prop-types';
-import { withTracker } from 'meteor/react-meteor-data';
 import WakeLock from './component';
 import Service from './service';
 import getFromUserSettings from '/imports/ui/services/users-settings';

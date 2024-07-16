@@ -174,7 +174,7 @@ class MultiUsers {
     await this.userPage.waitAndClick(e.reactionsButton);
     await this.userPage.hasElement(e.lowerHandBtn, 'should display the lower hand button for the attendee');
     await this.userPage.press('Escape');
-    await this.modPage.comparingSelectorsBackgroundColor(e.avatarsWrapperAvatar, `${e.userListItem}`);
+    await this.modPage.comparingSelectorsBackgroundColor(e.avatarsWrapperAvatar, `${e.userListItem} div:first-child`);
     await this.modPage.waitAndClick(e.raiseHandRejection);
     await this.userPage.waitAndClick(e.reactionsButton);
     await this.userPage.hasElement(e.raiseHandBtn, 'should display the raise hand button for the attendee');
@@ -233,7 +233,7 @@ class MultiUsers {
     await this.modPage2.hasText(`:nth-match(${e.dropdownWebcamButton}, 2)`, this.modPage2.username, 'should the second webcam display the second moderator username for the second moderator');
   }
 
-  async whiteboardAccess() {
+  async giveAndRemoveWhiteboardAccess() {
     await this.modPage.waitForSelector(e.whiteboard);
     await this.modPage.waitAndClick(e.userListItem);
     await this.modPage.waitAndClick(e.changeWhiteboardAccess);

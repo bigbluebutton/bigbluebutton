@@ -23,9 +23,7 @@ var hasuraEndpoint = os.Getenv("BBB_GRAPHQL_MIDDLEWARE_HASURA_WS")
 
 // Hasura client connection
 func HasuraClient(
-	browserConnection *common.BrowserConnection,
-	fromBrowserToHasuraChannel *common.SafeChannel,
-	fromHasuraToBrowserChannel *common.SafeChannel) error {
+	browserConnection *common.BrowserConnection) error {
 	log := log.WithField("_routine", "HasuraClient").WithField("browserConnectionId", browserConnection.Id)
 	common.ActivitiesOverviewStarted("__HasuraConnection")
 	defer common.ActivitiesOverviewCompleted("__HasuraConnection")
@@ -75,11 +73,10 @@ func HasuraClient(
 	defer hasuraConnectionContextCancel()
 
 	var thisConnection = common.HasuraConnection{
-		Id:                       hasuraConnectionId,
-		BrowserConn:              browserConnection,
-		Context:                  hasuraConnectionContext,
-		ContextCancelFunc:        hasuraConnectionContextCancel,
-		FreezeMsgFromBrowserChan: common.NewSafeChannel(1),
+		Id:                hasuraConnectionId,
+		BrowserConn:       browserConnection,
+		Context:           hasuraConnectionContext,
+		ContextCancelFunc: hasuraConnectionContextCancel,
 	}
 
 	browserConnection.HasuraConnection = &thisConnection
@@ -94,7 +91,7 @@ func HasuraClient(
 
 		//It's necessary to freeze the channel to avoid client trying to start subscriptions before Hasura connection is initialised
 		//It will unfreeze after `connection_ack` is sent by Hasura
-		fromBrowserToHasuraChannel.FreezeChannel()
+		browserConnection.FromBrowserToHasuraChannel.FreezeChannel()
 	}()
 
 	// Make the connection
@@ -118,10 +115,10 @@ func HasuraClient(
 	// Start routines
 
 	// reads from browser, writes to hasura
-	go writer.HasuraConnectionWriter(&thisConnection, fromBrowserToHasuraChannel, &wg, browserConnection.ConnectionInitMessage)
+	go writer.HasuraConnectionWriter(&thisConnection, &wg, browserConnection.ConnectionInitMessage)
 
 	// reads from hasura, writes to browser
-	go reader.HasuraConnectionReader(&thisConnection, fromHasuraToBrowserChannel, fromBrowserToHasuraChannel, &wg)
+	go reader.HasuraConnectionReader(&thisConnection, &wg)
 
 	// Wait
 	wg.Wait()

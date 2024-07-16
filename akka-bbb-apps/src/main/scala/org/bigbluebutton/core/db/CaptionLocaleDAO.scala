@@ -1,8 +1,6 @@
 package org.bigbluebutton.core.db
 
 import slick.jdbc.PostgresProfile.api._
-import scala.concurrent.ExecutionContext.Implicits.global
-import scala.util.{ Failure, Success }
 
 case class CaptionLocaleDbModel(
     meetingId:   String,
@@ -23,7 +21,7 @@ class CaptionLocaleTableDef(tag: Tag) extends Table[CaptionLocaleDbModel](tag, N
 
 object CaptionLocaleDAO {
   def insertOrUpdateCaptionLocale(meetingId: String, locale: String, captionType: String, userId: String) = {
-    DatabaseConnection.db.run(
+    DatabaseConnection.enqueue(
       TableQuery[CaptionLocaleTableDef].insertOrUpdate(
         CaptionLocaleDbModel(
           meetingId = meetingId,
@@ -33,9 +31,6 @@ object CaptionLocaleDAO {
           updatedAt = new java.sql.Timestamp(System.currentTimeMillis())
         )
       )
-    ).onComplete {
-        case Success(_) => DatabaseConnection.logger.debug(s"Upserted caption with ID $meetingId-$locale on CaptionLocale table")
-        case Failure(e) => DatabaseConnection.logger.debug(s"Error upserting caption on CaptionLocale: $e")
-      }
+    )
   }
 }

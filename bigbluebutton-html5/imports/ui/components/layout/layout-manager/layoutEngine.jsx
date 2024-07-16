@@ -11,6 +11,7 @@ import VideoFocusLayout from '/imports/ui/components/layout/layout-manager/video
 import CamerasOnlyLayout from '/imports/ui/components/layout/layout-manager/camerasOnly';
 import PresentationOnlyLayout from '/imports/ui/components/layout/layout-manager/presentationOnlyLayout';
 import ParticipantsAndChatOnlyLayout from '/imports/ui/components/layout/layout-manager/participantsAndChatOnlyLayout';
+import { getSettingsSingletonInstance } from '/imports/ui/services/settings';
 
 const propTypes = {
   layoutType: PropTypes.string.isRequired,
@@ -32,7 +33,8 @@ const LayoutEngine = ({ layoutType, isPresentationEnabled }) => {
   const sharedNotesInput = layoutSelectInput((i) => i.sharedNotes);
 
   const fullscreen = layoutSelect((i) => i.fullscreen);
-  const isRTL = layoutSelect((i) => i.isRTL);
+  const Settings = getSettingsSingletonInstance();
+  const { isRTL } = Settings.application;
   const fontSize = layoutSelect((i) => i.fontSize);
   const deviceType = layoutSelect((i) => i.deviceType);
 

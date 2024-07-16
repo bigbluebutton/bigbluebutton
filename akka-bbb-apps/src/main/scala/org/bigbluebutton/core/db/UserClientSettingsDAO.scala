@@ -3,8 +3,6 @@ package org.bigbluebutton.core.db
 import PostgresProfile.api._
 import slick.lifted.ProvenShape
 import spray.json.JsValue
-import scala.concurrent.ExecutionContext.Implicits.global
-import scala.util.{ Failure, Success }
 
 case class UserClientSettingsDbModel(
     userId:                 String,
@@ -21,18 +19,15 @@ class UserClientSettingsDbTableDef(tag: Tag) extends Table[UserClientSettingsDbM
 }
 
 object UserClientSettingsDAO {
-  def insert(userId: String, meetingId: String) = {
-    DatabaseConnection.db.run(
+  def insertOrUpdate(meetingId: String, userId: String, userClientSettingsJson: JsValue) = {
+    DatabaseConnection.enqueue(
       TableQuery[UserClientSettingsDbTableDef].insertOrUpdate(
         UserClientSettingsDbModel(
           userId = userId,
           meetingId = meetingId,
-          userClientSettingsJson = JsonUtils.stringToJson("{}")
+          userClientSettingsJson = userClientSettingsJson
         )
       )
-    ).onComplete {
-        case Success(rowsAffected) => DatabaseConnection.logger.debug(s"$rowsAffected row(s) inserted on UserClientSettings table!")
-        case Failure(e)            => DatabaseConnection.logger.debug(s"Error inserting UserClientSettings: $e")
-      }
+    )
   }
 }

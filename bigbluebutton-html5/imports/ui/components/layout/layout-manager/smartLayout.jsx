@@ -6,6 +6,7 @@ import { INITIAL_INPUT_STATE } from '/imports/ui/components/layout/initState';
 import { ACTIONS, PANELS, CAMERADOCK_POSITION } from '/imports/ui/components/layout/enums';
 import { defaultsDeep } from '/imports/utils/array-utils';
 import Session from '/imports/ui/services/storage/in-memory';
+import { getSettingsSingletonInstance } from '/imports/ui/services/settings';
 
 const windowWidth = () => window.document.documentElement.clientWidth;
 const windowHeight = () => window.document.documentElement.clientHeight;
@@ -23,7 +24,8 @@ const SmartLayout = (props) => {
 
   const input = layoutSelect((i) => i.input);
   const deviceType = layoutSelect((i) => i.deviceType);
-  const isRTL = layoutSelect((i) => i.isRTL);
+  const Settings = getSettingsSingletonInstance();
+  const { isRTL } = Settings.application;
   const fullscreen = layoutSelect((i) => i.fullscreen);
   const fontSize = layoutSelect((i) => i.fontSize);
   const currentPanelType = layoutSelect((i) => i.currentPanelType);
@@ -75,95 +77,49 @@ const SmartLayout = (props) => {
   const init = () => {
     const { sidebarContentPanel } = sidebarContentInput;
 
-    if (isMobile) {
-      layoutContextDispatch({
-        type: ACTIONS.SET_LAYOUT_INPUT,
-        value: defaultsDeep(
-          {
-            sidebarNavigation: {
-              isOpen:
-                input.sidebarNavigation.isOpen || sidebarContentPanel !== PANELS.NONE || false,
-            },
-            sidebarContent: {
-              isOpen: sidebarContentPanel !== PANELS.NONE,
-              sidebarContentPanel,
-            },
-            SidebarContentHorizontalResizer: {
-              isOpen: false,
-            },
-            presentation: {
-              isOpen: presentationInput.isOpen,
-              slidesLength: presentationInput.slidesLength,
-              currentSlide: {
-                ...presentationInput.currentSlide,
-              },
-            },
-            cameraDock: {
-              numCameras: cameraDockInput.numCameras,
-            },
-            externalVideo: {
-              hasExternalVideo: externalVideoInput.hasExternalVideo,
-            },
-            genericMainContent: {
-              genericContentId: genericMainContentInput.genericContentId,
-            },
-            screenShare: {
-              hasScreenShare: screenShareInput.hasScreenShare,
-              width: screenShareInput.width,
-              height: screenShareInput.height,
-            },
-            sharedNotes: {
-              isPinned: sharedNotesInput.isPinned,
+    layoutContextDispatch({
+      type: ACTIONS.SET_LAYOUT_INPUT,
+      value: defaultsDeep(
+        {
+          sidebarNavigation: {
+            isOpen:
+              input.sidebarNavigation.isOpen || sidebarContentPanel !== PANELS.NONE || false,
+          },
+          sidebarContent: {
+            isOpen: sidebarContentPanel !== PANELS.NONE,
+            sidebarContentPanel,
+          },
+          SidebarContentHorizontalResizer: {
+            isOpen: false,
+          },
+          presentation: {
+            isOpen: presentationInput.isOpen,
+            slidesLength: presentationInput.slidesLength,
+            currentSlide: {
+              ...presentationInput.currentSlide,
             },
           },
-          INITIAL_INPUT_STATE
-        ),
-      });
-    } else {
-      layoutContextDispatch({
-        type: ACTIONS.SET_LAYOUT_INPUT,
-        value: defaultsDeep(
-          {
-            sidebarNavigation: {
-              isOpen:
-                input.sidebarNavigation.isOpen || sidebarContentPanel !== PANELS.NONE || false,
-            },
-            sidebarContent: {
-              isOpen: sidebarContentPanel !== PANELS.NONE,
-              sidebarContentPanel,
-            },
-            SidebarContentHorizontalResizer: {
-              isOpen: false,
-            },
-            presentation: {
-              isOpen: presentationInput.isOpen,
-              slidesLength: presentationInput.slidesLength,
-              currentSlide: {
-                ...presentationInput.currentSlide,
-              },
-            },
-            cameraDock: {
-              numCameras: cameraDockInput.numCameras,
-            },
-            externalVideo: {
-              hasExternalVideo: externalVideoInput.hasExternalVideo,
-            },
-            genericMainContent: {
-              genericContentId: genericMainContentInput.genericContentId,
-            },
-            screenShare: {
-              hasScreenShare: screenShareInput.hasScreenShare,
-              width: screenShareInput.width,
-              height: screenShareInput.height,
-            },
-            sharedNotes: {
-              isPinned: sharedNotesInput.isPinned,
-            },
+          cameraDock: {
+            numCameras: cameraDockInput.numCameras,
           },
-          INITIAL_INPUT_STATE
-        ),
-      });
-    }
+          externalVideo: {
+            hasExternalVideo: externalVideoInput.hasExternalVideo,
+          },
+          genericMainContent: {
+            genericContentId: genericMainContentInput.genericContentId,
+          },
+          screenShare: {
+            hasScreenShare: screenShareInput.hasScreenShare,
+            width: screenShareInput.width,
+            height: screenShareInput.height,
+          },
+          sharedNotes: {
+            isPinned: sharedNotesInput.isPinned,
+          },
+        },
+        INITIAL_INPUT_STATE,
+      ),
+    });
     Session.setItem('layoutReady', true);
     throttledCalculatesLayout();
   };

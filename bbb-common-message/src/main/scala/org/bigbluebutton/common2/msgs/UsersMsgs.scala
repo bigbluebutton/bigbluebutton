@@ -90,23 +90,24 @@ case class UserJoinedMeetingEvtMsg(
     body:   UserJoinedMeetingEvtMsgBody
 ) extends BbbCoreMsg
 case class UserJoinedMeetingEvtMsgBody(
-    intId:         String,
-    extId:         String,
-    name:          String,
-    role:          String,
-    guest:         Boolean,
-    authed:        Boolean,
-    guestStatus:   String,
-    emoji:         String,
-    reactionEmoji: String,
-    raiseHand:     Boolean,
-    away:          Boolean,
-    pin:           Boolean,
-    presenter:     Boolean,
-    locked:        Boolean,
-    avatar:        String,
-    color:         String,
-    clientType:    String
+    intId:            String,
+    extId:            String,
+    name:             String,
+    role:             String,
+    guest:            Boolean,
+    authed:           Boolean,
+    guestStatus:      String,
+    emoji:            String,
+    reactionEmoji:    String,
+    raiseHand:        Boolean,
+    away:             Boolean,
+    pin:              Boolean,
+    presenter:        Boolean,
+    locked:           Boolean,
+    avatar:           String,
+    color:            String,
+    clientType:       String,
+    customParameters: Map[String, String]
 )
 
 /**
@@ -285,6 +286,20 @@ case class ClearedAllUsersReactionEvtMsgBody()
 object UserConnectionAliveReqMsg { val NAME = "UserConnectionAliveReqMsg" }
 case class UserConnectionAliveReqMsg(header: BbbClientMsgHeader, body: UserConnectionAliveReqMsgBody) extends StandardMsg
 case class UserConnectionAliveReqMsgBody(userId: String, networkRttInMs: Double)
+
+/**
+ * Sent from client to update clientSettings.
+ */
+object SetUserClientSettingsReqMsg { val NAME = "SetUserClientSettingsReqMsg" }
+case class SetUserClientSettingsReqMsg(header: BbbClientMsgHeader, body: SetUserClientSettingsReqMsgBody) extends StandardMsg
+case class SetUserClientSettingsReqMsgBody(userClientSettingsJson: Map[String, Any])
+
+/**
+ * Sent from client to inform the echo test is running.
+ */
+object SetUserEchoTestRunningReqMsg { val NAME = "SetUserEchoTestRunningReqMsg" }
+case class SetUserEchoTestRunningReqMsg(header: BbbClientMsgHeader, body: SetUserEchoTestRunningReqMsgBody) extends StandardMsg
+case class SetUserEchoTestRunningReqMsgBody()
 
 /**
  * Sent to all clients about a user mobile flag.

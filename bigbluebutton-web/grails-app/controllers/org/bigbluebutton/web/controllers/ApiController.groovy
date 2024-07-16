@@ -19,6 +19,7 @@
 package org.bigbluebutton.web.controllers
 
 import com.google.gson.Gson
+import com.google.gson.JsonObject
 import grails.web.context.ServletContextHolder
 import groovy.json.JsonBuilder
 import groovy.xml.MarkupBuilder
@@ -31,6 +32,7 @@ import org.bigbluebutton.api.*
 import org.bigbluebutton.api.domain.GuestPolicy
 import org.bigbluebutton.api.domain.Meeting
 import org.bigbluebutton.api.domain.UserSession
+import org.bigbluebutton.api.domain.UserSessionBasicData
 import org.bigbluebutton.api.service.ValidationService
 import org.bigbluebutton.api.service.ServiceUtils
 import org.bigbluebutton.api.util.ParamsUtil
@@ -737,156 +739,6 @@ class ApiController {
   }
 
   /***********************************************
-   * ENTER API
-   ***********************************************/
-  def enter = {
-    String API_CALL = 'enter'
-    log.debug CONTROLLER_NAME + "#${API_CALL}"
-
-    String respMessage = "Session not found."
-    String respMessageKey = "missingSession"
-    boolean reject = false;
-
-    String sessionToken
-    UserSession us
-    Meeting meeting
-
-    Map.Entry<String, String> validationResponse = validateRequest(
-            ValidationService.ApiCall.ENTER,
-            request
-    )
-    if(!(validationResponse == null)) {
-      respMessage = validationResponse.getValue()
-      respMessageKey = validationResponse.getKey()
-      reject = true
-    } else {
-      sessionToken = sanitizeSessionToken(params.sessionToken)
-      us = getUserSession(sessionToken)
-      meeting = meetingService.getMeeting(us.meetingID)
-
-      if (!hasValidSession(sessionToken)) {
-        reject = true;
-      } else {
-        if(hasReachedMaxParticipants(meeting, us)) {
-          reject = true
-          respMessage = "The maximum number of participants allowed for this meeting has been reached."
-          respMessageKey = "maxParticipantsReached"
-        } else {
-          log.info("User ${us.internalUserId} has entered")
-          meeting.userEntered(us.internalUserId)
-        }
-      }
-    }
-
-    if (reject) {
-      // Determine the logout url so we can send the user there.
-      String logoutUrl = paramsProcessorUtil.getDefaultLogoutUrl()
-
-      if(us != null) {
-        logoutUrl = us.logoutUrl
-      }
-
-      log.info("Session token: ${sessionToken}")
-
-      response.addHeader("Cache-Control", "no-cache")
-      withFormat {
-        json {
-          def builder = new JsonBuilder()
-          builder.response {
-            returncode RESP_CODE_FAILED
-            message respMessage
-            messageKey respMessageKey
-            sessionToken
-            logoutURL logoutUrl
-          }
-          render(contentType: "application/json", text: builder.toPrettyString())
-        }
-      }
-    } else {
-      Map<String, Object> logData = new HashMap<String, Object>();
-      logData.put("meetingid", us.meetingID);
-      logData.put("extMeetingid", us.externMeetingID);
-      logData.put("name", us.fullname);
-      logData.put("userid", us.internalUserId);
-      logData.put("sessionToken", sessionToken);
-      logData.put("logCode", "handle_enter_api");
-      logData.put("description", "Handling ENTER API.");
-
-      Gson gson = new Gson();
-      String logStr = gson.toJson(logData);
-
-      log.info(" --analytics-- data=" + logStr);
-
-      response.addHeader("Cache-Control", "no-cache")
-      withFormat {
-        json {
-          def builder = new JsonBuilder()
-          builder.response {
-            returncode RESP_CODE_SUCCESS
-            fullname us.fullname
-            confname us.conferencename
-            meetingID us.meetingID
-            externMeetingID us.externMeetingID
-            externUserID us.externUserID
-            internalUserID us.internalUserId
-            authToken us.authToken
-            role us.role
-            guest us.guest
-            guestStatus us.guestStatus
-            conference us.conference
-            room us.room
-            voicebridge us.voicebridge
-            dialnumber meeting.getDialNumber()
-            webvoiceconf us.webvoiceconf
-            mode us.mode
-            record us.record
-            isBreakout meeting.isBreakout()
-            logoutTimer meeting.getLogoutTimer()
-            allowStartStopRecording meeting.getAllowStartStopRecording()
-            recordFullDurationMedia meeting.getRecordFullDurationMedia()
-            welcome us.welcome
-            if (!StringUtils.isEmpty(meeting.moderatorOnlyMessage) && us.role.equals(ROLE_MODERATOR)) {
-              modOnlyMessage meeting.moderatorOnlyMessage
-            }
-            if (!StringUtils.isEmpty(meeting.bannerText)) {
-              bannerText meeting.getBannerText()
-              bannerColor meeting.getBannerColor()
-            }
-            customLogoURL meeting.getCustomLogoURL()
-            customCopyright meeting.getCustomCopyright()
-            muteOnStart meeting.getMuteOnStart()
-            allowModsToUnmuteUsers meeting.getAllowModsToUnmuteUsers()
-            logoutUrl us.logoutUrl
-            defaultLayout us.defaultLayout
-            avatarURL us.avatarURL
-            if (meeting.breakoutRoomsParams != null) {
-              breakoutRooms {
-                record meeting.breakoutRoomsParams.record
-                privateChatEnabled meeting.breakoutRoomsParams.privateChatEnabled
-                captureNotes meeting.breakoutRoomsParams.captureNotes
-                captureSlides meeting.breakoutRoomsParams.captureSlides
-                captureNotesFilename meeting.breakoutRoomsParams.captureNotesFilename
-                captureSlidesFilename meeting.breakoutRoomsParams.captureSlidesFilename
-              }
-            }
-            customdata (
-              meeting.getUserCustomData(us.externUserID).collect { k, v ->
-                ["$k": v]
-              }
-            )
-            metadata (
-              meeting.getMetadata().collect { k, v ->
-                ["$k": v]
-              }
-            )
-          }
-          render(contentType: "application/json", text: builder.toPrettyString())
-        }
-      }
-    }
-  }
-
-  /***********************************************
    * STUN/TURN API
    ***********************************************/
   def stuns = {
@@ -1216,6 +1068,87 @@ class ApiController {
       }
     }
   }
+
+  def feedback = {
+    String API_CALL = 'feedback'
+    log.debug CONTROLLER_NAME + "#${API_CALL}"
+
+    if (!params.sessionToken) {
+      invalid("missingSession", "Invalid session token")
+      return
+    }
+
+    if (!session[params.sessionToken]) {
+      log.info("Session for token ${params.sessionToken} not found")
+      invalid("missingSession", "Invalid session token")
+      return
+    }
+
+    String requestBody = request.inputStream == null ? null : request.inputStream.text
+    Gson gson = new Gson()
+    JsonObject body = gson.fromJson(requestBody, JsonObject.class)
+
+    if (!body
+            || !body.has("userName")
+            || !body.has("authToken")
+            || !body.has("comment")
+            || !body.has("rating")) {
+      invalid("missingParameters", "One or more required parameters are missing")
+      return
+    }
+
+    String userName = "[unconfirmed] " + body.get("userName").getAsString()
+    String meetingId = ""
+    String userId = ""
+    String authToken = body.get("authToken").getAsString()
+    String comment = body.get("comment").getAsString()
+    int rating = body.get("rating").getAsInt()
+
+    String sessionToken = sanitizeSessionToken(params.sessionToken)
+    UserSession userSession = meetingService.getUserSessionWithSessionToken(sessionToken)
+
+    if(userSession) {
+      userName = userSession.fullname
+      userId = userSession.internalUserId
+      meetingId = userSession.meetingID
+    } else {
+      //Usually the session was already removed when the user send the feedback
+      UserSessionBasicData removedUserSession = meetingService.getRemovedUserSessionWithSessionToken(sessionToken)
+      if(removedUserSession) {
+        userId = removedUserSession.userId
+        meetingId = removedUserSession.meetingId
+      }
+    }
+
+    if(userId == "") {
+      invalid("invalidSession", "Invalid Session")
+      return
+    }
+
+    response.contentType = 'application/json'
+    response.setStatus(200)
+    withFormat {
+      json {
+        def builder = new JsonBuilder()
+        builder {
+          "status" "ok"
+        }
+        render(contentType: "application/json", text: builder.toPrettyString())
+      }
+    }
+
+    def feedback = [
+            meetingId: meetingId,
+            userId: userId,
+            authToken: authToken,
+            userName: userName,
+            comment: comment,
+            rating: rating
+    ]
+
+    log.info("FEEDBACK LOG: ${feedback}")
+  }
+
 
   /***********************************************
    * LEARNING DASHBOARD DATA
