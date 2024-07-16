@@ -62,7 +62,7 @@ jobs:
           issue-number: ${{ needs.get-pr-data.outputs.pr-number }}
           body: |
             <h1>Automated tests Summary</h1>
-            <h3><strong>:construction:</strong> Tests are running...</h3>
+            <h3><strong>:hourglass_flowing_sand:</strong> Tests are running...</h3>
       - name: Passing tests comment
         if: ${{ github.event.workflow_run.conclusion == 'success' }}
         uses: peter-evans/create-or-update-comment@v4
