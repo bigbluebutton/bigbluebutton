@@ -1,16 +1,10 @@
-import React, { useContext } from 'react';
+import React, { useContext, useEffect, useState } from 'react';
 import { useIntl } from 'react-intl';
 import { useMutation, useReactiveVar } from '@apollo/client';
 import getFromUserSettings from '/imports/ui/services/users-settings';
 import Auth from '/imports/ui/services/auth';
 import ActionsBar from './component';
 
-import {
-  isScreenBroadcasting,
-  isCameraAsContentBroadcasting,
-  useIsSharing,
-  useSharingContentType,
-} from '/imports/ui/components/screenshare/service';
 import { layoutSelectOutput, layoutDispatch } from '../layout/context';
 import {
   useIsExternalVideoEnabled,
@@ -85,10 +79,22 @@ const ActionsBarContainer = (props) => {
   };
   const amIPresenter = currentUserData?.presenter;
   const amIModerator = currentUserData?.isModerator;
+  // eslint-disable-next-line max-len
+  const [pinnedPadDataState, setPinnedPadDataState] = useState(null);
 
-  const { data: pinnedPadData } = useDeduplicatedSubscription(PINNED_PAD_SUBSCRIPTION);
-  const isSharedNotesPinnedFromGraphql = !!pinnedPadData
-    && pinnedPadData.sharedNotes[0]?.sharedNotesExtId === NOTES_CONFIG.id;
+  useEffect(() => {
+    const fetchData = async () => {
+      const { data: pinnedPadData } = await useDeduplicatedSubscription(
+        PINNED_PAD_SUBSCRIPTION,
+      );
+      setPinnedPadDataState(pinnedPadData || []);
+    };
+
+    fetchData();
+  }, []);
+
+  const isSharedNotesPinnedFromGraphql = !!pinnedPadDataState
+    && pinnedPadDataState.sharedNotes[0]?.sharedNotesExtId === NOTES_CONFIG.id;
 
   const isSharedNotesPinned = isSharedNotesPinnedFromGraphql;
   const allowExternalVideo = useIsExternalVideoEnabled();

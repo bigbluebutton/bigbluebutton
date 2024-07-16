@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { defineMessages, useIntl } from 'react-intl';
 import { USER_AGGREGATE_COUNT_SUBSCRIPTION } from '/imports/ui/core/graphql/queries/users';
 import UserTitleOptionsContainer from './user-options-dropdown/component';
@@ -40,13 +40,30 @@ const UserTitle: React.FC<UserTitleProps> = ({
 };
 
 const UserTitleContainer: React.FC = () => {
-  const {
-    data: countData,
-  } = useDeduplicatedSubscription(USER_AGGREGATE_COUNT_SUBSCRIPTION);
+  type CountData = {
+    user_aggregate: {
+      aggregate: {
+        count: number;
+      };
+    };
+  };
+  const [countDataState, setCountDataState] = useState<CountData | null>(null);
+
+  useEffect(() => {
+    const fetchData = async () => {
+      const { data: countData } = await useDeduplicatedSubscription(
+        USER_AGGREGATE_COUNT_SUBSCRIPTION,
+      );
+      setCountDataState(countData || []);
+    };
+
+    fetchData();
+  }, []);
+
   const {
     data: audioUsersCountData,
   } = useDeduplicatedSubscription(USER_WITH_AUDIO_AGGREGATE_COUNT_SUBSCRIPTION);
-  const count = countData?.user_aggregate?.aggregate?.count || 0;
+  const count = countDataState?.user_aggregate?.aggregate?.count || 0;
   const countWithAudio = audioUsersCountData?.user_aggregate?.aggregate?.count || 0;
 
   return (

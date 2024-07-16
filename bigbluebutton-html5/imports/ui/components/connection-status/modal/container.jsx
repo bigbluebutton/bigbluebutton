@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { CONNECTION_STATUS_REPORT_SUBSCRIPTION } from '../queries';
 import Service from '../service';
 import Component from './component';
@@ -17,11 +17,25 @@ const ConnectionStatusContainer = (props) => {
 
   const newtworkData = useReactiveVar(connectionStatus.getNetworkDataVar());
 
-  const getVideoStreamsStats = useGetStats(
-    isGridLayout,
-    paginationsEnabled,
-    viewParticipantsWebcams,
-  );
+  // const getVideoStreamsStats = useGetStats(
+  //   isGridLayout,
+  //   paginationsEnabled,
+  //   viewParticipantsWebcams,
+  // );
+
+  const [getVideoStreamsStats, setGetVideoStreamsStats] = React.useState([]);
+
+  useEffect(() => {
+    const fetchData = async () => {
+      setGetVideoStreamsStats(await useGetStats(
+        isGridLayout,
+        paginationsEnabled,
+        viewParticipantsWebcams,
+      ));
+    };
+
+    fetchData();
+  }, [isGridLayout, paginationsEnabled, viewParticipantsWebcams]);
 
   return (
     <Component

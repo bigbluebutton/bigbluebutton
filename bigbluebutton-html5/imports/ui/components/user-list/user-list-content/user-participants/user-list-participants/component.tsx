@@ -103,9 +103,11 @@ const UserListParticipants: React.FC<UserListParticipantsProps> = ({
           Array.from({ length: amountOfPages }).map((_, i) => {
             const isLastItem = amountOfPages === (i + 1);
             const restOfUsers = count % 50;
+            const uniqueKey = `user-page-${i}`;
             return i === 0
               ? (
                 <UserListParticipantsPageContainer
+                  key={uniqueKey}
                   index={i}
                   isLastItem={isLastItem}
                   restOfUsers={isLastItem ? restOfUsers : 50}
@@ -121,6 +123,7 @@ const UserListParticipants: React.FC<UserListParticipantsProps> = ({
                   restOfUsers={isLastItem ? restOfUsers : 50}
                 >
                   <UserListParticipantsPageContainer
+                    key={uniqueKey}
                     index={i}
                     isLastItem={isLastItem}
                     restOfUsers={isLastItem ? restOfUsers : 50}
@@ -136,10 +139,30 @@ const UserListParticipants: React.FC<UserListParticipantsProps> = ({
 };
 
 const UserListParticipantsContainer: React.FC = () => {
-  const {
-    data: countData,
-  } = useDeduplicatedSubscription(USER_AGGREGATE_COUNT_SUBSCRIPTION);
-  const count = countData?.user_aggregate?.aggregate?.count || 0;
+  // const {
+  //   data: countData,
+  // } = useDeduplicatedSubscription(USER_AGGREGATE_COUNT_SUBSCRIPTION);
+  type CountData = {
+    user_aggregate: {
+      aggregate: {
+        count: number;
+      };
+    };
+  };
+  const [countDataState, setCountDataState] = React.useState<CountData | null>(null);
+
+  useEffect(() => {
+    const fetchData = async () => {
+      const { data: countData } = await useDeduplicatedSubscription(
+        USER_AGGREGATE_COUNT_SUBSCRIPTION,
+      );
+      setCountDataState(countData || {});
+    };
+
+    fetchData();
+  }, []);
+
+  const count = countDataState?.user_aggregate?.aggregate?.count || 0;
 
   return (
     <>

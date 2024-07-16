@@ -1,4 +1,4 @@
-import React, { useEffect, useRef } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import AudioCaptionsLiveContainer from '/imports/ui/components/audio/audio-graphql/audio-captions/live/component';
 import getFromUserSettings from '/imports/ui/services/users-settings';
 import deviceInfo from '/imports/utils/deviceInfo';
@@ -122,17 +122,30 @@ const AppContainer = (props) => {
 
   const [setSyncWithPresenterLayout] = useMutation(SET_SYNC_WITH_PRESENTER_LAYOUT);
   const [setMeetingLayoutProps] = useMutation(SET_LAYOUT_PROPS);
+  const [pinnedPadDataState, setPinnedPadDataState] = useState(null);
   const setLocalSettings = useUserChangedLocalSettings();
   const setSpeechOptions = useSetSpeechOptions();
-  const { data: pinnedPadData } = useDeduplicatedSubscription(PINNED_PAD_SUBSCRIPTION);
-  const isSharedNotesPinnedFromGraphql = !!pinnedPadData
-    && pinnedPadData.sharedNotes[0]?.sharedNotesExtId === NOTES_CONFIG.id;
+  // const { data: pinnedPadData } = useDeduplicatedSubscription(PINNED_PAD_SUBSCRIPTION);
+
+  useEffect(() => {
+    const fetchData = async () => {
+      const { data: pinnedPadData } = await useDeduplicatedSubscription(
+        PINNED_PAD_SUBSCRIPTION,
+      );
+      setPinnedPadDataState(pinnedPadData || []);
+    };
+    fetchData();
+  }, [sharedNotesInput]);
+
+  const isSharedNotesPinnedFromGraphql = !!pinnedPadDataState
+    && pinnedPadDataState.sharedNotes[0]?.sharedNotesExtId === NOTES_CONFIG.id;
   const isSharedNotesPinned = sharedNotesInput?.isPinned && isSharedNotesPinnedFromGraphql;
   const isThereWebcam = VideoStreamsState.getStreams().length > 0;
   const muteMicrophone = useMuteMicrophone();
   const isScreenSharingEnabled = useIsScreenSharingEnabled();
   const isExternalVideoEnabled = useIsExternalVideoEnabled();
   const isPresentationEnabled = useIsPresentationEnabled();
+  const [presentationVideoRate, setPresentationVideoRate] = useState(0);
 
   const { data: currentUserData } = useCurrentUser((user) => ({
     enforceLayout: user.enforceLayout,
@@ -176,15 +189,18 @@ const AppContainer = (props) => {
     });
   }, [selectedLayout]);
 
-  const horizontalPosition = cameraDock.position === 'contentLeft' || cameraDock.position === 'contentRight';
-  // this is not exactly right yet
-  let presentationVideoRate;
-  if (horizontalPosition) {
-    presentationVideoRate = cameraDock.width / window.innerWidth;
-  } else {
-    presentationVideoRate = cameraDock.height / window.innerHeight;
-  }
-  presentationVideoRate = parseFloat(presentationVideoRate.toFixed(2));
+  let horizontalPosition;
+
+  useEffect(() => {
+    horizontalPosition = cameraDock.position === 'contentLeft' || cameraDock.position === 'contentRight';
+    let newPresentationVideoRate;
+    if (horizontalPosition) {
+      newPresentationVideoRate = cameraDock.width / window.innerWidth;
+    } else {
+      newPresentationVideoRate = cameraDock.height / window.innerHeight;
+    }
+    setPresentationVideoRate(parseFloat(newPresentationVideoRate.toFixed(2)));
+  }, [cameraDock]);
 
   const setPushLayout = () => {
     setSyncWithPresenterLayout({
