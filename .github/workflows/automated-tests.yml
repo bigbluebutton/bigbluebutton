@@ -403,16 +403,3 @@ jobs:
             artifacts_*
             all-blob-reports
           failOnError: false
-      - name: Write PR data for auto-comment
-        if: github.event_name == 'pull_request'
-        working-directory: ./
-        run: |
-          mkdir -p ./pr-comment-data
-          echo ${{ github.event.number }} > ./pr-comment-data/pr_number
-          echo ${{ github.run_id }} > ./pr-comment-data/workflow_id
-      - name: Upload PR data for auto-comment
-        if: github.event_name == 'pull_request'
-        uses: actions/upload-artifact@v4
-        with:
-          name: pr-comment-data
-          path: pr-comment-data
