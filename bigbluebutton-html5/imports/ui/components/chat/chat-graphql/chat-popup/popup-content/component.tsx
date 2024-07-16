@@ -4,7 +4,7 @@ import {
 } from 'react-intl';
 import ReactMarkdown from 'react-markdown';
 import {
-  PopupContentBox, PopupContentHeader, PopupContentBody, CloseButton,
+  PopupContentBox, PopupContentHeader, CloseButton,
 } from './styles';
 
 interface PopupContentProps {
@@ -43,7 +43,6 @@ const PopupContent: React.FC<PopupContentProps> = ({ message, closePopup }) => {
       >
         {message}
       </ReactMarkdown>
-      {/* <PopupContentBody dangerouslySetInnerHTML={{ __html: message }} /> */}
     </PopupContentBox>
   );
 };
