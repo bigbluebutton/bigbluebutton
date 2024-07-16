@@ -396,6 +396,13 @@ jobs:
           path: |
             bigbluebutton-tests/playwright/playwright-report
             bigbluebutton-tests/playwright/test-results
+      - name: Remove unnecessary artifacts
+        uses: geekyeggo/delete-artifact@v5
+        with:
+          name: |
+            artifacts_*
+            all-blob-reports
+          failOnError: false
       - name: Write PR data for auto-comment
         if: github.event_name == 'pull_request'
         working-directory: ./
