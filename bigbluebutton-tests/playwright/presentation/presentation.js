@@ -107,6 +107,7 @@ class Presentation extends MultiUsers {
     await this.modPage.closeAllToastNotifications();
     await this.userPage.closeAllToastNotifications();
     const modWhiteboardLocator = this.modPage.getLocator(e.whiteboard);
+    await this.modPage.setHeightWidthViewPortSize();
     await expect(modWhiteboardLocator).toHaveScreenshot('moderator-new-presentation-screenshot.png', {
       maxDiffPixels: 1000,
     });
@@ -115,6 +116,7 @@ class Presentation extends MultiUsers {
     await this.userPage.closeAudioModal();
     await this.userPage.closeAllToastNotifications();
     const userWhiteboardLocator = this.userPage.getLocator(e.whiteboard);
+    await this.userPage.setHeightWidthViewPortSize();
     await expect(userWhiteboardLocator).toHaveScreenshot('viewer-new-presentation-screenshot.png', {
       maxDiffPixels: 1000,
     });
@@ -128,6 +130,9 @@ class Presentation extends MultiUsers {
     const modWhiteboardLocator = this.modPage.getLocator(e.whiteboard);
     const userWhiteboardLocator = this.userPage.getLocator(e.whiteboard);
 
+    await this.modPage.setHeightWidthViewPortSize();
+    await this.userPage.setHeightWidthViewPortSize();
+
     await expect(modWhiteboardLocator).toHaveScreenshot('moderator-png-presentation-screenshot.png', {
       maxDiffPixels: 1000,
     });
@@ -139,6 +144,9 @@ class Presentation extends MultiUsers {
     await this.modPage.closeAllToastNotifications();
     await this.userPage.closeAllToastNotifications();
 
+    await this.modPage.setHeightWidthViewPortSize();
+    await this.userPage.setHeightWidthViewPortSize();
+
     await expect(modWhiteboardLocator).toHaveScreenshot('moderator-pptx-presentation-screenshot.png', {
       maxDiffPixels: 1000,
     });
@@ -149,6 +157,9 @@ class Presentation extends MultiUsers {
     await uploadSinglePresentation(this.modPage, e.presentationTXT, UPLOAD_PDF_WAIT_TIME);
     await this.modPage.closeAllToastNotifications();
     await this.userPage.closeAllToastNotifications();
+
+    await this.modPage.setHeightWidthViewPortSize();
+    await this.userPage.setHeightWidthViewPortSize();
 
     await expect(modWhiteboardLocator).toHaveScreenshot('moderator-txt-presentation-screenshot.png', {
       maxDiffPixels: 1000,
