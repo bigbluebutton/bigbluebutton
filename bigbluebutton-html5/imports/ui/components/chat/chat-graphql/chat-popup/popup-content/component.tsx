@@ -43,7 +43,6 @@ const PopupContent: React.FC<PopupContentProps> = ({ message, closePopup }) => {
       >
         {message}
       </ReactMarkdown>
-      {/* <PopupContentBody dangerouslySetInnerHTML={{ __html: message }} /> */}
     </PopupContentBox>
   );
 };
