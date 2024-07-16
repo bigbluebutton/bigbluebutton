@@ -31,7 +31,7 @@ npm install
 npm run-script build
 grep \"version\"\: package.json | sed -e 's|.*\ \"||g' -e 's|\".*||g' > bbb-playback-version
 mkdir -p $BBB_PLAYBACK
-cp -r ./build bbb-playback-version $BBB_PLAYBACK
+cp -r ./build/* bbb-playback-version $BBB_PLAYBACK
 
 
 mkdir -p staging/usr/share/bigbluebutton/nginx
