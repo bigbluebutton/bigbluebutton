@@ -60,5 +60,4 @@
 - "!include public_v_user_typing_public.yaml"
 - "!include public_v_user_voice.yaml"
 - "!include public_v_user_voice_activity.yaml"
-- "!include public_v_user_voice_mongodb_adapter.yaml"
 - "!include public_v_user_welcomeMsgs.yaml"

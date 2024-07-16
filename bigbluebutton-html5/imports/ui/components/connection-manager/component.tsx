@@ -92,7 +92,7 @@ const ConnectionManager: React.FC<ConnectionManagerProps> = ({ children }): Reac
       throw new Error('Error fetching GraphQL URL: '.concat(error.message || ''));
     });
     logger.info('Fetching GraphQL URL');
-    loadingContextInfo.setLoading(true, '1/5');
+    loadingContextInfo.setLoading(true, '1/2');
   }, []);
 
   useEffect(() => {
@@ -130,7 +130,7 @@ const ConnectionManager: React.FC<ConnectionManagerProps> = ({ children }): Reac
 
   useEffect(() => {
     logger.info('Connecting to GraphQL server');
-    loadingContextInfo.setLoading(true, '2/5');
+    loadingContextInfo.setLoading(true, '2/2');
     if (graphqlUrl) {
       const urlParams = new URLSearchParams(window.location.search);
       const sessionToken = urlParams.get('sessionToken');

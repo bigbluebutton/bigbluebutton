@@ -6,25 +6,25 @@ const { RecordingNotifications } = require('./recordingNotifications');
 const c = require('../parameters/constants');
 
 test.describe.parallel('Notifications', () => {
-  test('Save settings notification @ci', async ({ browser, context, page }) => {
+  test('Save settings notification', { tag: '@ci' }, async ({ browser, context, page }) => {
     const notifications = new Notifications(browser, context);
     await notifications.initModPage(page);
     await notifications.saveSettingsNotification();
   });
 
-  test('Audio notifications @ci', async ({ browser, context, page }) => {
+  test('Audio notifications', { tag: '@ci' }, async ({ browser, context, page }) => {
     const notifications = new Notifications(browser, context);
     await notifications.initModPage(page);
     await notifications.audioNotification();
   });
 
-  test('User join notification @ci', async ({ browser, context, page }) => {
+  test('User join notification', { tag: '@ci' }, async ({ browser, context, page }) => {
     const notifications = new Notifications(browser, context);
     await notifications.initModPage(page);
     await notifications.getUserJoinPopupResponse();
   });
 
-  test('Raise and lower hand notification @ci', async ({ browser, context, page }) => {
+  test('Raise and lower hand notification', { tag: '@ci' }, async ({ browser, context, page }) => {
     const notifications = new Notifications(browser, context);
     await notifications.initModPage(page);
     await notifications.raiseAndLowerHandNotification();
@@ -32,13 +32,13 @@ test.describe.parallel('Notifications', () => {
 
   test.describe.parallel('Chat', () => {
     // both tests are flaky due to missing refactor to get data from GraphQL
-    test('Public Chat notification @ci @flaky', async ({ browser, context, page }) => {
+    test('Public Chat notification', { tag: ['@ci', '@flaky'] }, async ({ browser, context, page }) => {
       const chatNotifications = new ChatNotifications(browser, context);
       await chatNotifications.initPages(page, true);
       await chatNotifications.publicChatNotification();
     });
 
-    test('Private Chat notification @flaky', async ({ browser, context, page }) => {
+    test('Private Chat notification', { tag: '@flaky' }, async ({ browser, context, page }) => {
       const chatNotifications = new ChatNotifications(browser, context);
       await chatNotifications.initPages(page, true);
       await chatNotifications.privateChatNotification();
@@ -61,21 +61,21 @@ test.describe.parallel('Notifications', () => {
       await recordingNotifications.init(true, true, { createParameter: c.recordMeeting });
       await recordingNotifications.noNotificationInAudio();
     });
-    test('Modal appearing when user wants to start recording @ci', async ({ browser, page }) => {
+    test('Modal appearing when user wants to start recording', { tag: '@ci' }, async ({ browser, page }) => {
       const recordingNotifications = new RecordingNotifications(browser, page);
       await recordingNotifications.init(true, true, { createParameter: c.recordMeeting });
       await recordingNotifications.modalStartRecording();
     });
   });
 
-  test.describe.parallel('Presenter @ci', () => {
+  test.describe.parallel('Presenter', { tag: '@ci' }, () => {
     test('Poll results notification', async ({ browser, context, page }) => {
       const presenterNotifications = new PresenterNotifications(browser, context);
       await presenterNotifications.initPages(page, true);
       await presenterNotifications.publishPollResults();
     });
 
-    test('Presentation upload notification @flaky', async ({ browser, context, page }) => {
+    test('Presentation upload notification', { tag: '@flaky' }, async ({ browser, context, page }) => {
       const presenterNotifications = new PresenterNotifications(browser, context);
       await presenterNotifications.initPages(page, true);
       await presenterNotifications.fileUploaderNotification();

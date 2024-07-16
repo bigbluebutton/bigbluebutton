@@ -34,7 +34,6 @@ export interface Voice {
   endTime: number;
   floor: boolean;
   lastFloorTime: string
-  lastSpeakChangedAt: number;
   meetingId: string;
   spoke: boolean;
   startTime: number;

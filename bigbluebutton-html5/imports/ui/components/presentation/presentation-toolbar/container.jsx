@@ -2,12 +2,13 @@ import React, { useContext } from 'react';
 import PropTypes from 'prop-types';
 import { useMutation } from '@apollo/client';
 import FullscreenService from '/imports/ui/components/common/fullscreen-button/service';
-import { useIsPollingEnabled } from '/imports/ui/services/features';
+import { useIsInfiniteWhiteboardEnabled, useIsPollingEnabled } from '/imports/ui/services/features';
 import { PluginsContext } from '/imports/ui/components/components-data/plugin-context/context';
 import { POLL_CANCEL, POLL_CREATE } from '/imports/ui/components/poll/mutations';
 import { PRESENTATION_SET_ZOOM, PRESENTATION_SET_PAGE, PRESENTATION_SET_PAGE_INFINITE_WHITEBOARD } from '../mutations';
 import PresentationToolbar from './component';
 import Session from '/imports/ui/services/storage/in-memory';
+import { useMeetingIsBreakout } from '/imports/ui/components/app/service';
 
 const infiniteWhiteboardIcon = (isinfiniteWhiteboard) => {
   if (isinfiniteWhiteboard) {
@@ -180,6 +181,8 @@ const PresentationToolbarContainer = (props) => {
   };
 
   const isPollingEnabled = useIsPollingEnabled();
+  const meetingIsBreakout = useMeetingIsBreakout();
+  const allowInfiniteWhiteboard = useIsInfiniteWhiteboardEnabled();
 
   if (userIsPresenter && !layoutSwapped) {
     // Only show controls if user is presenter and layout isn't swapped
@@ -193,7 +196,8 @@ const PresentationToolbarContainer = (props) => {
         amIPresenter={userIsPresenter}
         endCurrentPoll={endCurrentPoll}
         isPollingEnabled={isPollingEnabled}
-        allowInfiniteWhiteboard={WHITEBOARD_CONFIG?.allowInfiniteWhiteboard}
+        allowInfiniteWhiteboardInBreakouts={WHITEBOARD_CONFIG?.allowInfiniteWhiteboardInBreakouts}
+        allowInfiniteWhiteboard={allowInfiniteWhiteboard}
         // TODO: Remove this
         isMeteorConnected
         {...{
@@ -208,6 +212,7 @@ const PresentationToolbarContainer = (props) => {
           currentPresentationPage,
           infiniteWhiteboardIcon,
           resetSlide,
+          meetingIsBreakout,
         }}
       />
     );

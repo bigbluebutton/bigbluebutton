@@ -75,14 +75,16 @@ const startStatsTimeout = () => {
 };
 
 const sortLevel = (a, b) => {
-  const STATS = window.meetingClientSettings.public.stats;
+  const RTT = window.meetingClientSettings.public.stats.rtt;
 
-  const indexOfA = STATS.level.indexOf(a.level);
-  const indexOfB = STATS.level.indexOf(b.level);
+  if (!a.lastUnstableStatus && !b.lastUnstableStatus) return 0;
+  if (!a.lastUnstableStatus) return 1;
+  if (!b.lastUnstableStatus) return -1;
 
-  if (indexOfA < indexOfB) return 1;
-  if (indexOfA === indexOfB) return 0;
-  if (indexOfA > indexOfB) return -1;
+  const rttOfA = RTT[a.lastUnstableStatus];
+  const rttOfB = RTT[b.lastUnstableStatus];
+
+  return rttOfB - rttOfA;
 };
 
 const sortOnline = (a, b) => {
