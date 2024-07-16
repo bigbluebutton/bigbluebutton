@@ -12,7 +12,7 @@ test.describe('Chat', () => {
   });
 
   // https://docs.bigbluebutton.org/2.6/release-tests.html#public-message-automated
-  test.only('Send public message @ci', async () => {
+  test('Send public message', { tag: '@ci' }, async () => {
     await chat.sendPublicMessage();
   });
 

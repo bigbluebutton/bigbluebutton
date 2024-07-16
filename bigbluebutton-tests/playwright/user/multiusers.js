@@ -150,8 +150,8 @@ class MultiUsers {
     await this.userPage.waitAndClick(e.reactionsButton);
     await this.userPage.waitAndClick(e.raiseHandBtn);
     await this.userPage.waitAndClick(e.reactionsButton);
-    await this.userPage.hasElement(e.lowerHandBtn, 'should display the lower hand button for the attendee');
-    await this.modPage.comparingSelectorsBackgroundColor(e.avatarsWrapperAvatar, `${e.userListItem}`);
+    await this.userPage.hasElement(e.lowerHandBtn);
+    await this.modPage.comparingSelectorsBackgroundColor(e.avatarsWrapperAvatar, `${e.userListItem} div:first-child`);
     await sleep(1000);
     await this.userPage.waitAndClick(e.lowerHandBtn);
     await this.userPage.waitAndClick(e.reactionsButton);
@@ -237,11 +237,10 @@ class MultiUsers {
     await this.modPage.waitForSelector(e.whiteboard);
     await this.modPage.waitAndClick(e.userListItem);
     await this.modPage.waitAndClick(e.changeWhiteboardAccess);
-    await this.modPage.waitForSelector(e.multiUsersWhiteboardOff);
-    const resp = await this.modPage.page.evaluate((multiUsersWbBtn) => {
-      return document.querySelector(multiUsersWbBtn).parentElement.children[1].innerText;
-    }, e.multiUsersWhiteboardOff);
-    await expect(resp, 'should display the multi users whiteboard off').toBeTruthy();
+    await this.modPage.hasElement(e.multiUsersWhiteboardOff);
+    await this.modPage.waitAndClick(e.userListItem);
+    await this.modPage.waitAndClick(e.changeWhiteboardAccess);
+    await this.modPage.hasElement(e.multiUsersWhiteboardOn);
   }
 
   async muteAllUsers() {
@@ -266,16 +265,6 @@ class MultiUsers {
     await this.modPage.hasElement(e.isTalking, 'should display the is talking element for the moderator');
     await checkMutedUsers(this.modPage2);
     await checkMutedUsers(this.userPage);
-  }
-
-  async giveAndRemoveWhiteboardAccess() {
-    await this.whiteboardAccess();
-
-    await this.modPage.waitForSelector(e.whiteboard);
-    await this.modPage.waitAndClick(e.userListItem);
-    await this.modPage.waitAndClick(e.changeWhiteboardAccess);
-
-    await this.modPage.hasElement(e.multiUsersWhiteboardOn, 'should display the multi users whiteboard ON');
   }
 
   async removeUser() {
