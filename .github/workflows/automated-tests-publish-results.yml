@@ -39,7 +39,7 @@ jobs:
     needs: get-pr-data
     steps:
       - name: Find Comment
-        uses: peter-evans/find-comment@v2
+        uses: peter-evans/find-comment@v3
         id: fc
         with:
           issue-number: ${{ needs.get-pr-data.outputs.pr-number }}
@@ -47,7 +47,7 @@ jobs:
           body-includes: Automated tests Summary
       - name: Remove previous comment
         if: steps.fc.outputs.comment-id != ''
-        uses: actions/github-script@v6
+        uses: actions/github-script@v7
         with:
           script: |
             github.rest.issues.deleteComment({
@@ -65,7 +65,7 @@ jobs:
             <h3><strong>:construction:</strong> Tests are running...</h3>
       - name: Passing tests comment
         if: ${{ github.event.workflow_run.conclusion == 'success' }}
-        uses: peter-evans/create-or-update-comment@v2
+        uses: peter-evans/create-or-update-comment@v4
         with:
           issue-number: ${{ needs.get-pr-data.outputs.pr-number }}
           body: |
@@ -73,7 +73,7 @@ jobs:
             <h3><strong>:white_check_mark:</strong> All the CI tests have passed!</h3>
       - name: Failing tests comment
         if: ${{ github.event.workflow_run.conclusion != 'success' && fromJson(env.isCompleted) }}
-        uses: peter-evans/create-or-update-comment@v2
+        uses: peter-evans/create-or-update-comment@v4
         with:
           issue-number: ${{ needs.get-pr-data.outputs.pr-number }}
           body: |
