@@ -68,7 +68,7 @@ const SettingsLoader: React.FC<SettingsLoaderProps> = (props) => {
           method: 'get',
           credentials: 'include',
           headers: {
-            'x-session-token': sessionToken,
+            'x-session-token': sessionToken ?? '',
           },
           signal: controller.signal,
         })
@@ -77,7 +77,6 @@ const SettingsLoader: React.FC<SettingsLoaderProps> = (props) => {
             clearTimeout(timeoutRef.current);
             const settings = data?.meeting_clientSettings[0].clientSettingsJson;
             window.meetingClientSettings = JSON.parse(JSON.stringify(settings));
-            console.log(window.meetingClientSettings);
             setMeetingSettings(settings);
             setLoading(false);
             setSettingsFetched(true);

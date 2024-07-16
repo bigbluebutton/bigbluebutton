@@ -7,6 +7,7 @@ export interface PluginsEngineComponentProps {
 export interface PluginConfig {
     name: string;
     url: string;
+    checksum?: string;
 }
 
 export interface EffectivePluginConfig extends PluginConfig {

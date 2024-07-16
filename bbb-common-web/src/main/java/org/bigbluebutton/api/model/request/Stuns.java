@@ -43,8 +43,8 @@ public class Stuns extends RequestWithSession<Stuns.Params> {
 
     @Override
     public void populateFromParamsMap(Map<String, String[]> params) {
-        if(params.containsKey(Enter.Params.SESSION_TOKEN.getValue())) {
-            setSessionToken(params.get(Enter.Params.SESSION_TOKEN.getValue())[0]);
+        if(params.containsKey(Stuns.Params.SESSION_TOKEN.getValue())) {
+            setSessionToken(params.get(Stuns.Params.SESSION_TOKEN.getValue())[0]);
             sessionService.setSessionToken(sessionToken);
             meetingID = sessionService.getMeetingID();
         }

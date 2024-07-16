@@ -3,11 +3,9 @@ import { makeVar, useReactiveVar } from '@apollo/client';
 import { VoiceActivityResponse } from '/imports/ui/core/graphql/queries/whoIsTalking';
 import { partition } from '/imports/utils/array-utils';
 
-type VoiceItem = VoiceActivityResponse['user_voice_activity_stream'][number] & {
-  showTalkingIndicator: boolean | undefined;
-};
+type VoiceItem = VoiceActivityResponse['user_voice_activity_stream'][number];
 
-const TALKING_INDICATOR_TIMEOUT = 5000;
+const TALKING_INDICATOR_TIMEOUT = 6000;
 
 const createUseTalkingUsers = () => {
   const countVar = makeVar(0);

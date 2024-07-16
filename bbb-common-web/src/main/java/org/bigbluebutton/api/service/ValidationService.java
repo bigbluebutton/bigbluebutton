@@ -39,7 +39,6 @@ public class ValidationService {
         GET_MEETINGS("getMeetings", RequestType.GET),
         GET_SESSIONS("getSessions", RequestType.GET),
         GUEST_WAIT("guestWait", RequestType.GET),
-        ENTER("enter", RequestType.GET),
         STUNS("stuns", RequestType.GET),
         SIGN_OUT("signOut", RequestType.GET),
         LEARNING_DASHBOARD("learningDashboard", RequestType.GET),
@@ -126,7 +125,6 @@ public class ValidationService {
                 case INSERT_DOCUMENT -> new InsertDocument(checksum, servletRequest);
                 case SEND_CHAT_MESSAGE -> new SendChatMessage(checksum, servletRequest);
                 case GUEST_WAIT -> new GuestWait(servletRequest);
-                case ENTER -> new Enter(servletRequest);
                 case STUNS -> new Stuns(servletRequest);
                 case SIGN_OUT -> new SignOut(servletRequest);
                 case LEARNING_DASHBOARD -> new LearningDashboard(servletRequest);
