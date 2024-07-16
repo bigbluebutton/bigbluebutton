@@ -2,7 +2,7 @@ import DEFAULT_VALUES from '/imports/ui/components/layout/defaultValues';
 
 export const INITIAL_INPUT_STATE = {
   autoarrAngeLayout: true,
-  customParameters: {
+  userMetadata: {
 
   },
   browser: {

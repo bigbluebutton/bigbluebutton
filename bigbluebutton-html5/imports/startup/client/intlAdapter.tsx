@@ -81,7 +81,7 @@ const IntlAdapter: React.FC<IntlAdapterProps> = ({
     );
     // @ts-ignore - JS code
     const { locale } = Settings.application;
-    const clientSettings = JSON.parse(sessionStorage.getItem('clientStartupSettings') || '{}');
+    const clientSettings = window.meetingClientSettings.public.app.defaultSettings.application;
     const { overrideLocale } = clientSettings;
     const { bbb_override_default_locale } = localUserSettings();
     if (typeof bbb_override_default_locale === 'string') {
