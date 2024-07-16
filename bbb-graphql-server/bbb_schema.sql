@@ -551,19 +551,19 @@ AS SELECT
     "user"."isOnline"
    FROM "user";
 
-create table "user_customParameter"(
+create table "user_metadata"(
     "meetingId" varchar(100),
     "userId" varchar(50),
 	"parameter" varchar(255),
 	"value" varchar(255),
-	CONSTRAINT "user_customParameter_pkey" PRIMARY KEY ("meetingId", "userId","parameter"),
+	CONSTRAINT "user_metadata_pkey" PRIMARY KEY ("meetingId", "userId","parameter"),
 	FOREIGN KEY ("meetingId", "userId") REFERENCES "user"("meetingId","userId") ON DELETE CASCADE
 );
-create index "idx_user_customParameter_pk_reverse" on "user_customParameter" ("userId", "meetingId");
+create index "idx_user_metadata_pk_reverse" on "user_metadata" ("userId", "meetingId");
 
-CREATE VIEW "v_user_customParameter" AS
+CREATE VIEW "v_user_metadata" AS
 SELECT *
-FROM "user_customParameter";
+FROM "user_metadata";
 
 CREATE VIEW "v_user_welcomeMsgs" AS
 SELECT

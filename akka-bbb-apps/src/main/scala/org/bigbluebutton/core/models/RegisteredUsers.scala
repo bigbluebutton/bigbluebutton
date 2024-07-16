@@ -8,7 +8,7 @@ object RegisteredUsers {
   def create(meetingId: String, userId: String, extId: String, name: String, roles: String,
              authToken: String, sessionToken: String, avatar: String, color: String, guest: Boolean, authenticated: Boolean,
              guestStatus: String, excludeFromDashboard: Boolean, enforceLayout: String,
-             customParameters: Map[String, String], loggedOut: Boolean): RegisteredUser = {
+             userMetadata: Map[String, String], loggedOut: Boolean): RegisteredUser = {
     new RegisteredUser(
       userId,
       extId,
@@ -31,7 +31,7 @@ object RegisteredUsers {
       ejected = false,
       banned = false,
       enforceLayout,
-      customParameters,
+      userMetadata,
       loggedOut,
     )
   }
@@ -252,7 +252,7 @@ case class RegisteredUser(
     ejected:                  Boolean,
     banned:                   Boolean,
     enforceLayout:            String,
-    customParameters:         Map[String,String],
+    userMetadata:         Map[String,String],
     loggedOut:                Boolean,
     lastBreakoutRoom:         BreakoutRoom2x = null,
 )

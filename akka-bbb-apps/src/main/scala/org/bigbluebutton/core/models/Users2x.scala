@@ -451,7 +451,7 @@ case class UserState(
     userLeftFlag:          UserLeftFlag,
     speechLocale:          String              = "",
     captionLocale:         String              = "",
-    customParameters:      Map[String, String] = Map.empty
+    userMetadata:          Map[String, String] = Map.empty
 
 )
 
