@@ -5,44 +5,33 @@ on:
       - Automated tests
     types:
       - completed
-
+      - requested
+env:
+  isCompleted: ${{ github.event.workflow_run.status == 'completed' }}
 jobs:
   get-pr-data:
     runs-on: ubuntu-latest
     if: ${{ github.event.workflow_run.event == 'pull_request' }}
     outputs:
-      pr-number: ${{ steps.set-env.outputs.pr-number }}
-      workflow-id: ${{ steps.set-env.outputs.workflow-id }}
+      pr-number: ${{ steps.pr.outputs.result }}
+      workflow-id: ${{ github.event.workflow_run.id }}
     steps:
-      # https://docs.github.com/en/actions/using-workflows/events-that-trigger-workflows#using-data-from-the-triggering-workflow
-      - name: Download artifact
-        uses: actions/github-script@v6
+      - name: Find associated pull request
+        id: pr
+        uses: actions/github-script@v7
         with:
           script: |
-            let allArtifacts = await github.rest.actions.listWorkflowRunArtifacts({
-               owner: context.repo.owner,
-               repo: context.repo.repo,
-               run_id: context.payload.workflow_run.id,
-            });
-
-            let matchArtifact = allArtifacts.data.artifacts.filter((artifact) => {
-              return artifact.name == "pr-comment-data"
-            })[0];
-            let download = await github.rest.actions.downloadArtifact({
-               owner: context.repo.owner,
-               repo: context.repo.repo,
-               artifact_id: matchArtifact.id,
-               archive_format: 'zip',
-            });
-            let fs = require('fs');
-            fs.writeFileSync(`${process.env.GITHUB_WORKSPACE}/pr-comment-data.zip`, Buffer.from(download.data));
-      - name: Unzip artifact
-        run: unzip pr-comment-data.zip
-      - name: Set env variables
-        id: set-env
-        run: |
-          echo "pr-number=$(cat ./pr_number)" >> $GITHUB_OUTPUT
-          echo "workflow-id=$(cat ./workflow_id)" >> $GITHUB_OUTPUT
+            const response = await github.rest.search.issuesAndPullRequests({
+              q: 'repo:${{ github.repository }} is:pr sha:${{ github.event.workflow_run.head_sha }}',
+              per_page: 1,
+            })
+            const items = response.data.items
+            if (items.length < 1) {
+              console.error('No PRs found')
+              return
+            }
+            const pullRequestNumber = items[0].number
+            return pullRequestNumber
   comment-pr:
     runs-on: ubuntu-latest
     permissions:
@@ -66,6 +55,14 @@ jobs:
               repo: context.repo.repo,
               comment_id: ${{ steps.fc.outputs.comment-id }}
             })
+      - name: In progress tests comment
+        if: ${{ !fromJson(env.isCompleted) }}
+        uses: peter-evans/create-or-update-comment@v4
+        with:
+          issue-number: ${{ needs.get-pr-data.outputs.pr-number }}
+          body: |
+            <h1>Automated tests Summary</h1>
+            <h3><strong>:construction:</strong> Tests are running...</h3>
       - name: Passing tests comment
         if: ${{ github.event.workflow_run.conclusion == 'success' }}
         uses: peter-evans/create-or-update-comment@v2
@@ -75,7 +72,7 @@ jobs:
             <h1>Automated tests Summary</h1>
             <h3><strong>:white_check_mark:</strong> All the CI tests have passed!</h3>
       - name: Failing tests comment
-        if: ${{ github.event.workflow_run.conclusion == 'failure' }}
+        if: ${{ github.event.workflow_run.conclusion != 'success' && fromJson(env.isCompleted) }}
         uses: peter-evans/create-or-update-comment@v2
         with:
           issue-number: ${{ needs.get-pr-data.outputs.pr-number }}
