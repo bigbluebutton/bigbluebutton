@@ -1079,6 +1079,15 @@ FROM chat_message cm
 JOIN chat_user cu ON cu."meetingId" = cm."meetingId" AND cu."chatId" = cm."chatId"
 WHERE cm."chatId" != 'MAIN-PUBLIC-GROUP-CHAT';
 
+CREATE OR REPLACE VIEW "v_chat_private_read_feedback" AS
+SELECT chat_user."meetingId", chat_user."chatId", chat_user."userId" AS "queryUserId", chat_with."userId" AS "recipientUserId", chat_with."lastSeenAt" AS "recipientLastSeenAt"
+FROM chat_user
+LEFT JOIN "chat_user" chat_with ON chat_user."meetingId" = chat_with."meetingId"
+                                    AND chat_user."chatId" = chat_with."chatId"
+                                    AND chat_user."userId" != chat_with."userId"
+WHERE chat_user."chatId" != 'MAIN-PUBLIC-GROUP-CHAT'
+AND chat_user."visible" is true;
+
 --============ Presentation / Annotation
 
 
