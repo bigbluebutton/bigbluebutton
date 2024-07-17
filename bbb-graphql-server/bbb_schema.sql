@@ -285,8 +285,6 @@ CREATE TABLE "user" (
     "raiseHandTime" timestamp with time zone,
     "away" bool default false,
     "awayTime" timestamp with time zone,
-	"emoji" varchar,
-	"emojiTime" timestamp with time zone,
 	"reactionEmoji" varchar(25),
 	"reactionEmojiTime" timestamp with time zone,
 	"guestStatusSetByModerator" varchar(50),
@@ -346,39 +344,6 @@ ALTER TABLE "user" ADD COLUMN "isOnline" boolean GENERATED ALWAYS AS (
         ELSE false
         END) STORED;
 
--- user (on update emoji, raiseHand or away: set new time)
-CREATE OR REPLACE FUNCTION update_user_emoji_time_trigger_func()
-RETURNS TRIGGER AS $$
-BEGIN
-    IF NEW."emoji" <> OLD."emoji" THEN
-        IF NEW."emoji" = 'none' or  NEW."emoji" = '' THEN
-            NEW."emojiTime" := NULL;
-        ELSE
-            NEW."emojiTime" := NOW();
-        END IF;
-    END IF;
-    IF NEW."raiseHand" IS DISTINCT FROM OLD."raiseHand" THEN
-        IF NEW."raiseHand" is false THEN
-            NEW."raiseHandTime" := NULL;
-        ELSE
-            NEW."raiseHandTime" := NOW();
-        END IF;
-    END IF;
-    IF NEW."away" IS DISTINCT FROM OLD."away" THEN
-        IF NEW."away" is false THEN
-            NEW."awayTime" := NULL;
-        ELSE
-            NEW."awayTime" := NOW();
-        END IF;
-    END IF;
-    RETURN NEW;
-END;
-$$ LANGUAGE plpgsql;
-
-CREATE TRIGGER update_user_emoji_time_trigger BEFORE UPDATE OF "emoji" ON "user"
-    FOR EACH ROW EXECUTE FUNCTION update_user_emoji_time_trigger_func();
-
-
 CREATE OR REPLACE VIEW "v_user"
 AS SELECT "user"."userId",
     "user"."extId",
@@ -391,8 +356,6 @@ AS SELECT "user"."userId",
     "user"."awayTime",
     "user"."raiseHand",
     "user"."raiseHandTime",
-    "user"."emoji",
-    "user"."emojiTime",
     "user"."reactionEmoji",
     "user"."reactionEmojiTime",
     "user"."guest",
@@ -432,7 +395,6 @@ CREATE INDEX "idx_v_user_meetingId_orderByColumns" ON "user"(
                         "presenter",
                         "role",
                         "raiseHandTime",
-                        "emojiTime",
                         "isDialIn",
                         "hasDrawPermissionOnCurrentPage",
                         "nameSortable",
@@ -452,7 +414,6 @@ AS SELECT "user"."userId",
     "user"."color",
     "user"."away",
     "user"."raiseHand",
-    "user"."emoji",
     "user"."reactionEmoji",
     "user"."guest",
     "user"."guestStatus",
@@ -525,7 +486,6 @@ AS SELECT
     "user"."color",
     "user"."away",
     "user"."raiseHand",
-    "user"."emoji",
     "user"."reactionEmoji",
     "user"."guest",
     "user"."guestStatus",

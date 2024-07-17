@@ -96,7 +96,6 @@ const VideoListItem: React.FC<VideoListItemProps> = (props) => {
     name: u.name,
     away: u.away,
     disconnected: u.disconnected,
-    emoji: u.emoji,
     role: u.role,
     avatar: u.avatar,
     color: u.color,

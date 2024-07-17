@@ -152,7 +152,6 @@ select_permissions:
         - ejectReason
         - ejectReasonCode
         - ejected
-        - emoji
         - enforceLayout
         - expired
         - extId

@@ -611,15 +611,6 @@ object MsgBuilder {
     BbbCommonEnvCoreMsg(envelope, event)
   }
 
-  def buildUserEmojiChangedEvtMsg(meetingId: String, userId: String, emoji: String) = {
-    val routing = Routing.addMsgToClientRouting(MessageTypes.BROADCAST_TO_MEETING, meetingId, userId)
-    val envelope = BbbCoreEnvelope(UserEmojiChangedEvtMsg.NAME, routing)
-    val header = BbbClientMsgHeader(UserEmojiChangedEvtMsg.NAME, meetingId, userId)
-    val body = UserEmojiChangedEvtMsgBody(userId, emoji)
-    val event = UserEmojiChangedEvtMsg(header, body)
-    BbbCommonEnvCoreMsg(envelope, event)
-  }
-
   def buildUserAwayChangedEvtMsg(meetingId: String, userId: String, away: Boolean) = {
     val routing = Routing.addMsgToClientRouting(MessageTypes.BROADCAST_TO_MEETING, meetingId, userId)
     val envelope = BbbCoreEnvelope(UserAwayChangedEvtMsg.NAME, routing)

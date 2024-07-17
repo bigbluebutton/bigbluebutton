@@ -1,7 +1,6 @@
 import React from 'react';
 import Auth from '/imports/ui/services/auth';
 import Storage from '/imports/ui/services/storage/session';
-import { EMOJI_STATUSES } from '/imports/utils/statuses';
 import KEY_CODES from '/imports/utils/keyCodes';
 import AudioService from '/imports/ui/components/audio/service';
 import logger from '/imports/startup/client/logger';
@@ -131,8 +130,6 @@ const isPublicChat = (chat) => {
   return chat.userId === CHAT_CONFIG.public_id;
 };
 
-const isMe = (userId) => userId === Auth.userID;
-
 const getActiveChats = ({ groupChatsMessages, groupChats, users }) => {
   const PUBLIC_GROUP_CHAT_ID = window.meetingClientSettings.public.chat.public_group_id;
   const PUBLIC_CHAT_ID = window.meetingClientSettings.public.chat.public_id;
@@ -211,8 +208,10 @@ const getActiveChats = ({ groupChatsMessages, groupChats, users }) => {
   });
 
   const currentClosedChats = Storage.getItem(CLOSED_CHAT_LIST_KEY) || [];
-  const removeClosedChats = chatInfo.filter((chat) => !currentClosedChats.find(closedChat => closedChat.chatId === chat.chatId)
-    && chat.shouldDisplayInChatList);
+  const removeClosedChats = chatInfo.filter((chat) => {
+    return !currentClosedChats.some((closedChat) => closedChat.chatId === chat.chatId)
+      && chat.shouldDisplayInChatList;
+  });
 
   const sortByChatIdAndUnread = removeClosedChats.sort((a, b) => {
     if (a.chatId === PUBLIC_GROUP_CHAT_ID) {
@@ -238,8 +237,6 @@ const getActiveChats = ({ groupChatsMessages, groupChats, users }) => {
   return sortByChatIdAndUnread;
 };
 
-const isVoiceOnlyUser = (userId) => userId.toString().startsWith('v_');
-
 const isMeetingLocked = (lockSettings, usersPolicies) => {
   let isLocked = false;
 
@@ -259,10 +256,6 @@ const isMeetingLocked = (lockSettings, usersPolicies) => {
 
   return isLocked;
 };
-
-const normalizeEmojiName = (emoji) => (
-  emoji in EMOJI_STATUSES ? EMOJI_STATUSES[emoji] : emoji
-);
 
 const toggleVoice = (userId, voiceToggle) => {
   if (userId === Auth.userID) {
@@ -414,6 +407,7 @@ const UserJoinedMeetingAlert = (obj) => {
 
   if (userJoinPushAlerts) {
     notify(
+      // eslint-disable-next-line react/jsx-filename-extension
       <FormattedMessage
         id={obj.messageId}
         values={obj.messageValues}
@@ -423,7 +417,7 @@ const UserJoinedMeetingAlert = (obj) => {
       obj.icon,
     );
   }
-}
+};
 
 const UserLeftMeetingAlert = (obj) => {
   const Settings = getSettingsSingletonInstance();
@@ -459,12 +453,10 @@ export default {
   sortUsers,
   toggleVoice,
   getActiveChats,
-  normalizeEmojiName,
   isMeetingLocked,
   isPublicChat,
   roving,
   getCustomLogoUrl,
-  getEmojiList: () => EMOJI_STATUSES,
   focusFirstDropDownItem,
   sortUsersByCurrent,
   UserJoinedMeetingAlert,
