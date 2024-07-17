@@ -937,7 +937,7 @@ public class ParamsProcessorUtil {
             welcomeMessage = defaultWelcomeMessage;
         }
         if (!StringUtils.isEmpty(defaultWelcomeMessageFooter) && !isBreakout)
-            welcomeMessage + defaultWelcomeMessageFooter;
+            welcomeMessage += "\n" + defaultWelcomeMessageFooter;
         return welcomeMessage;
     }
 
