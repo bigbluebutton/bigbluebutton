@@ -351,7 +351,7 @@ class RedisRecorderActor(
     ev.setExternalUserId(msg.body.extId)
     ev.setName(msg.body.name)
     ev.setRole(msg.body.role)
-    ev.setUserdata(msg.body.customParameters)
+    ev.setUserdata(msg.body.userMetadata)
 
     record(msg.header.meetingId, ev.toMap.asJava)
   }
