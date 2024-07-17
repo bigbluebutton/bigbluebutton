@@ -430,7 +430,7 @@ class UserOptions extends PureComponent {
           }}
         />
         {this.renderModal(isCreateBreakoutRoomModalOpen, this.setCreateBreakoutRoomModalIsOpen, "medium",
-          CreateBreakoutRoomContainer, {isBreakoutRecordable, isInvitation})}
+          CreateBreakoutRoomContainer, {isBreakoutRecordable, isInvitation, isUpdate: isInvitation})}
         {this.renderModal(isGuestPolicyModalOpen, this.setGuestPolicyModalIsOpen, "low",
           GuestPolicyContainer)}
         {this.renderModal(isWriterMenuModalOpen, this.setWriterMenuModalIsOpen, "low",
