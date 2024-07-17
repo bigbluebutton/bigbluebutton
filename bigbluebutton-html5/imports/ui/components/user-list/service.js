@@ -68,7 +68,6 @@ const sortByPropTime = (propName, propTimeName, nullValue, a, b) => {
   return 0;
 };
 
-const sortUsersByEmoji = (a, b) => sortByPropTime('emoji', 'emojiTime', 'none', a, b);
 const sortUsersByAway = (a, b) => sortByPropTime('away', 'awayTime', false, a, b);
 const sortUsersByRaiseHand = (a, b) => sortByPropTime('raiseHand', 'raiseHandTime', false, a, b);
 const sortUsersByReaction = (a, b) => sortByPropTime('reaction', 'reactionTime', 'none', a, b);
@@ -116,7 +115,6 @@ const sortUsers = (a, b) => {
   if (sort === 0) sort = sortUsersByRaiseHand(a, b);
   if (sort === 0) sort = sortUsersByAway(a, b);
   if (sort === 0) sort = sortUsersByReaction(a, b);
-  if (sort === 0) sort = sortUsersByEmoji(a, b);
   if (sort === 0) sort = sortUsersByPhoneUser(a, b);
   if (sort === 0) sort = sortByWhiteboardAccess(a, b);
   if (sort === 0) sort = sortUsersByName(a, b);
