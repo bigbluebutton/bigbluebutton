@@ -18,6 +18,12 @@ const (
 	ChecksumErrorKey string = "checksumError"
 	ChecksumErrorMsg string = "Checksums do not match."
 
+	ContentTypeErrorKey string = "unsupportedContentType"
+	ContentTypeErrorMsg string = "POST request Content-Type is missing or unsupported"
+
+	InvalidRequestBodyKey string = "invalidRequestBody"
+	InvalidRequestBodyMsg string = "Invalid request body"
+
 	MeetingIdMissingErrorKey string = "missingParamMeetingID"
 	MeetingIdMissingErrorMsg string = "You must provide a meeting ID."
 

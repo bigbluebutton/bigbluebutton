@@ -17,7 +17,7 @@ import (
 func (app *Config) isMeetingRunning(w http.ResponseWriter, r *http.Request) {
 	log.Println("Handling isMeetingRunning request")
 
-	params := r.URL.Query()
+	params := r.Context().Value(ParamsKey).(Params)
 	var payload model.Response
 
 	meetingId := util.StripCtrlChars(params.Get("meetingID"))
@@ -57,7 +57,7 @@ func (app *Config) isMeetingRunning(w http.ResponseWriter, r *http.Request) {
 func (app *Config) getMeetingInfo(w http.ResponseWriter, r *http.Request) {
 	log.Println("Handling getMeetingInfo request")
 
-	params := r.URL.Query()
+	params := r.Context().Value(ParamsKey).(Params)
 
 	meetingId := util.StripCtrlChars(params.Get("meetingID"))
 	req := &model.GetMeetingInfoRequest{
@@ -135,7 +135,7 @@ func (app *Config) getMeetingInfo(w http.ResponseWriter, r *http.Request) {
 func (app *Config) getMeetings(w http.ResponseWriter, r *http.Request) {
 	log.Println("Handling getMeetings request")
 
-	params := r.URL.Query()
+	params := r.Context().Value(ParamsKey).(Params)
 	var payload model.Response
 
 	meetingId := util.StripCtrlChars(params.Get("meetingID"))
@@ -200,7 +200,7 @@ func (app *Config) getMeetings(w http.ResponseWriter, r *http.Request) {
 func (app *Config) createMeeting(w http.ResponseWriter, r *http.Request) {
 	log.Println("Handling createMeeting request")
 
-	params := r.URL.Query()
+	params := r.Context().Value(ParamsKey).(Params)
 
 	req := &model.CreateRequest{
 		Name:            util.StripCtrlChars(params.Get("name")),
@@ -270,8 +270,4 @@ func (app *Config) createMeeting(w http.ResponseWriter, r *http.Request) {
 	}
 
 	app.writeXML(w, http.StatusAccepted, payload)
-}
-
-func (app *Config) createMeetingPost(w http.ResponseWriter, r *http.Request) {
-
 }

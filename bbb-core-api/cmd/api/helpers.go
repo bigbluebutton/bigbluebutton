@@ -7,7 +7,6 @@ import (
 	"encoding/xml"
 	"log"
 	"net/http"
-	"net/url"
 	"regexp"
 	"strconv"
 	"strings"
@@ -96,7 +95,7 @@ func (app *Config) grpcErrorToErrorResp(err error) *model.Response {
 	}
 }
 
-func (app *Config) processCreateQueryParams(params *url.Values) (*common.CreateMeetingSettings, error) {
+func (app *Config) processCreateQueryParams(params *Params) (*common.CreateMeetingSettings, error) {
 	var settings common.CreateMeetingSettings
 
 	createTime := time.Now().UnixMilli()
@@ -141,7 +140,7 @@ func (app *Config) processCreateQueryParams(params *url.Values) (*common.CreateM
 	return &settings, nil
 }
 
-func (app *Config) processMeetingSettings(params *url.Values, createTime int64, isBreakout bool, parentMeetingInfo *common.MeetingInfo) (*common.MeetingSettings, bool) {
+func (app *Config) processMeetingSettings(params *Params, createTime int64, isBreakout bool, parentMeetingInfo *common.MeetingInfo) (*common.MeetingSettings, bool) {
 	var meetingIntId string
 	var meetingExtId string
 
@@ -193,7 +192,7 @@ func (app *Config) processMeetingSettings(params *url.Values, createTime int64, 
 	}, learningDashboardEnabled
 }
 
-func (app *Config) processBreakoutSettings(params *url.Values, parentMeetingInfo *common.MeetingInfo) *common.BreakoutSettings {
+func (app *Config) processBreakoutSettings(params *Params, parentMeetingInfo *common.MeetingInfo) *common.BreakoutSettings {
 	var parentMeetingId string
 	if parentMeetingInfo == nil {
 		parentMeetingId = ""
@@ -214,7 +213,7 @@ func (app *Config) processBreakoutSettings(params *url.Values, parentMeetingInfo
 	}
 }
 
-func (app *Config) processDurationSettings(params *url.Values, createTime int64) *common.DurationSettings {
+func (app *Config) processDurationSettings(params *Params, createTime int64) *common.DurationSettings {
 	return &common.DurationSettings{
 		Duration:                           int32(util.GetInt32OrDefaultValue(params.Get("duration"), app.ServerConfig.Meeting.Duration)),
 		CreateTime:                         createTime,
@@ -230,7 +229,7 @@ func (app *Config) processDurationSettings(params *url.Values, createTime int64)
 	}
 }
 
-func (app *Config) processPasswordSettings(params *url.Values, learningDashboardEnabled bool) *common.PasswordSettings {
+func (app *Config) processPasswordSettings(params *Params, learningDashboardEnabled bool) *common.PasswordSettings {
 	learningDashboardAccessToken := ""
 	if learningDashboardEnabled {
 		learningDashboardAccessToken = randstr.String(12)
@@ -243,7 +242,7 @@ func (app *Config) processPasswordSettings(params *url.Values, learningDashboard
 	}
 }
 
-func (app *Config) processRecordSettings(params *url.Values) *common.RecordSettings {
+func (app *Config) processRecordSettings(params *Params) *common.RecordSettings {
 	record := false
 	if !app.ServerConfig.Recording.Disabled {
 		record = util.GetBoolOrDefaultValue(params.Get("record"), false)
@@ -258,7 +257,7 @@ func (app *Config) processRecordSettings(params *url.Values) *common.RecordSetti
 	}
 }
 
-func (app *Config) processVoiceSettings(params *url.Values) (*common.VoiceSettings, error) {
+func (app *Config) processVoiceSettings(params *Params) (*common.VoiceSettings, error) {
 	voiceBridge := util.GetStringOrDefaultValue(util.StripCtrlChars(params.Get("voiceBridge")), "")
 	return &common.VoiceSettings{
 		VoiceBridge:       voiceBridge,
@@ -269,7 +268,7 @@ func (app *Config) processVoiceSettings(params *url.Values) (*common.VoiceSettin
 	}, nil
 }
 
-func (app *Config) processWelcomeSettings(params *url.Values, isBreakout bool, dialNumber string, voiceBridge string, meetingName string) *common.WelcomeSettings {
+func (app *Config) processWelcomeSettings(params *Params, isBreakout bool, dialNumber string, voiceBridge string, meetingName string) *common.WelcomeSettings {
 	welcomeMessageTemplate := util.GetStringOrDefaultValue(util.StripCtrlChars(params.Get("welcome")), app.ServerConfig.Meeting.Welcome.Message.Template)
 	if app.ServerConfig.Meeting.Welcome.Message.Footer != "" && isBreakout {
 		welcomeMessageTemplate += "<br><br>" + app.ServerConfig.Meeting.Welcome.Message.Footer
@@ -289,7 +288,7 @@ func (app *Config) processWelcomeSettings(params *url.Values, isBreakout bool, d
 	}
 }
 
-func (app *Config) processUsersSettings(params *url.Values) *common.UserSettings {
+func (app *Config) processUsersSettings(params *Params) *common.UserSettings {
 	maxUserConcurentAccess := app.ServerConfig.Meeting.Users.MaxConcurrentAccess
 	if !app.ServerConfig.Meeting.Users.AllowDuplicateExtUserId {
 		maxUserConcurentAccess = 1
@@ -308,7 +307,7 @@ func (app *Config) processUsersSettings(params *url.Values) *common.UserSettings
 	}
 }
 
-func (app *Config) processMetadataSettings(params *url.Values) *common.MetadataSettings {
+func (app *Config) processMetadataSettings(params *Params) *common.MetadataSettings {
 	r, _ := regexp.Compile("meta_[a-zA-Z][a-zA-Z0-9-]*$")
 	metadata := make(map[string]string)
 	for k, v := range *params {
@@ -321,7 +320,7 @@ func (app *Config) processMetadataSettings(params *url.Values) *common.MetadataS
 	}
 }
 
-func (app *Config) processLockSettings(params *url.Values) *common.LockSettings {
+func (app *Config) processLockSettings(params *Params) *common.LockSettings {
 	disableNotes := util.GetBoolOrDefaultValue(params.Get("lockSettingsDisableNotes"), app.ServerConfig.Meeting.Lock.Disable.Notes)
 	disableNotes = util.GetBoolOrDefaultValue(params.Get("lockSettingsDisableNote"), disableNotes)
 
@@ -339,7 +338,7 @@ func (app *Config) processLockSettings(params *url.Values) *common.LockSettings 
 	}
 }
 
-func (app *Config) processSystemSettings(params *url.Values) *common.SystemSettings {
+func (app *Config) processSystemSettings(params *Params) *common.SystemSettings {
 	logoutUrl := util.GetStringOrDefaultValue(util.StripCtrlChars(params.Get("logoutURL")), "")
 	defaultLogoutUrl := app.ServerConfig.Server.BigBlueButton.LogoutUrl
 	if logoutUrl == "" {
@@ -364,7 +363,7 @@ func (app *Config) processSystemSettings(params *url.Values) *common.SystemSetti
 	}
 }
 
-func (app *Config) processGroupSettings(params *url.Values) []*common.GroupSettings {
+func (app *Config) processGroupSettings(params *Params) []*common.GroupSettings {
 	type Group struct {
 		Id     string   `json:"id"`
 		Name   string   `json:"name"`

@@ -7,7 +7,7 @@ import (
 	"github.com/go-chi/chi/v5/middleware"
 	"github.com/go-chi/cors"
 
-	mw "github.com/bigbluebutton/bigbluebutton/bbb-core-api/cmd/middleware"
+	"github.com/bigbluebutton/bigbluebutton/bbb-core-api/util"
 )
 
 func (app *Config) routes() http.Handler {
@@ -24,17 +24,20 @@ func (app *Config) routes() http.Handler {
 
 	mux.Use(middleware.Heartbeat("/ping"))
 
-	mux.Use(mw.ValidateChecksum(app.ServerConfig, app.ChecksumAlgorithms, app.writeXML))
+	mux.Use(app.validateChecksum)
+	mux.Use(app.collectParams)
 
 	mux.Get("/isMeetingRunning", app.isMeetingRunning)
+	mux.With(app.validateContentType([]string{util.ApplicationFormURLEncoded, util.MultipartFormData})).Post("/isMeetingRunning", app.isMeetingRunning)
 
 	mux.Get("/getMeetingInfo", app.getMeetingInfo)
+	mux.With(app.validateContentType([]string{util.ApplicationFormURLEncoded, util.MultipartFormData})).Post("/getMeetingInfo", app.getMeetingInfo)
 
 	mux.Get("/getMeetings", app.getMeetings)
+	mux.With(app.validateContentType([]string{util.ApplicationFormURLEncoded, util.MultipartFormData})).Post("/getMeetings", app.getMeetings)
 
 	mux.Get("/create", app.createMeeting)
-
-	mux.Post("/create", app.createMeetingPost)
+	mux.With(app.validateContentType([]string{util.ApplicationFormURLEncoded, util.MultipartFormData, util.ApplicationXML, util.TextXML})).Post("/create", app.createMeeting)
 
 	return mux
 }
