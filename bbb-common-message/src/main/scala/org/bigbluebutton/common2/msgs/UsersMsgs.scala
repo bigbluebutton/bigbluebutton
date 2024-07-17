@@ -348,6 +348,20 @@ case class UserLockedInMeetingEvtMsg(header: BbbClientMsgHeader, body: UserLocke
 case class UserLockedInMeetingEvtMsgBody(userId: String, locked: Boolean, lockedBy: String)
 
 /**
+ * Sent from client to lock user in meeting.
+ */
+object LockUserChatInMeetingCmdMsg { val NAME = "LockUserChatInMeetingCmdMsg" }
+case class LockUserChatInMeetingCmdMsg(header: BbbClientMsgHeader, body: LockUserChatInMeetingCmdMsgBody) extends StandardMsg
+case class LockUserChatInMeetingCmdMsgBody(userId: String, isLocked: Boolean, lockedBy: String)
+
+/**
+ * Send to client that user has been locked.
+ */
+object LockUserChatInMeetingEvtMsg { val NAME = "LockUserChatInMeetingEvtMsg" }
+case class LockUserChatInMeetingEvtMsg(header: BbbClientMsgHeader, body: LockUserChatInMeetingEvtMsgBody) extends BbbCoreMsg
+case class LockUserChatInMeetingEvtMsgBody(userId: String, isLocked: Boolean)
+
+/**
  * Sent by client to lock users.
  */
 object LockUsersInMeetingCmdMsg { val NAME = "LockUsersInMeetingCmdMsg" }
