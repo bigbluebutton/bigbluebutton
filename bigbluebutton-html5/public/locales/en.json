@@ -177,6 +177,7 @@
     "app.userList.userOptions.clearAllLabel": "Clear all status icons",
     "app.userList.userOptions.clearAllDesc": "Clears all status icons from users",
     "app.userList.userOptions.clearAllReactionsLabel": "Clear all reactions",
+    "app.userList.userOptions.breakoutRoomInvitationLabel": "Breakout room invitation",
     "app.userList.userOptions.clearAllReactionsDesc": "Clears all reaction emojis from users",
     "app.userList.userOptions.muteAllExceptPresenterLabel": "Mute all users except presenter",
     "app.userList.userOptions.muteAllExceptPresenterDesc": "Mutes all users in the meeting except the presenter",

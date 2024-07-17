@@ -133,7 +133,11 @@ const intlMessages = defineMessages({
   newTab: {
     id: 'app.modal.newTab',
     description: 'label used in aria description',
-  }
+  },
+  invitationLabel: {
+    id: 'app.userList.userOptions.breakoutRoomInvitationLabel',
+    description: 'Invitation item',
+  },
 });
 
 const USER_STATUS_ENABLED = Meteor.settings.public.userStatus.enabled;
@@ -225,6 +229,10 @@ class UserOptions extends PureComponent {
       && !meetingIsBreakout
       && !hasBreakoutRoom
       && isBreakoutRoomsEnabled();
+
+      const canInviteUsers = amIModerator
+      && !meetingIsBreakout
+      && hasBreakoutRoom
 
     const { locale } = intl;
 
@@ -318,6 +326,15 @@ class UserOptions extends PureComponent {
         });
       }
 
+      if (canInviteUsers && isMeteorConnected) {
+        this.menuItems.push({
+          key: this.createBreakoutId,
+          icon: 'rooms',
+          label: intl.formatMessage(intlMessages.invitationLabel),
+          onClick: this.onInvitationUsers,
+          dataTest: 'inviteBreakoutRooms',
+        })
+}
       if (amIModerator && CaptionsService.isCaptionsEnabled()) {
         this.menuItems.push({
           icon: 'closed_caption',
@@ -413,7 +430,7 @@ class UserOptions extends PureComponent {
           }}
         />
         {this.renderModal(isCreateBreakoutRoomModalOpen, this.setCreateBreakoutRoomModalIsOpen, "medium",
-          CreateBreakoutRoomContainer, {isBreakoutRecordable, isInvitation})}
+          CreateBreakoutRoomContainer, {isBreakoutRecordable, isInvitation, isUpdate: isInvitation})}
         {this.renderModal(isGuestPolicyModalOpen, this.setGuestPolicyModalIsOpen, "low",
           GuestPolicyContainer)}
         {this.renderModal(isWriterMenuModalOpen, this.setWriterMenuModalIsOpen, "low",
