@@ -415,7 +415,7 @@ export async function createVirtualBackgroundService(parameters = null) {
                 if (fetchedWebcamBackground) {
                     parameters.virtualSource = URL.createObjectURL(fetchedWebcamBackground);
                 } else {
-                    logger.error('Failed to fetch image. Using fallback image.');
+                    logger.error('Failed to fetch custom webcam background image. Using fallback image.');
                 }
             }
         }
