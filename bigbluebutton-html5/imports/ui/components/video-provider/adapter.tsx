@@ -6,6 +6,7 @@ import { VideoStreamsResponse } from './types';
 import { setStreams } from './state';
 import { AdapterProps } from '../components-data/graphqlToMakeVarAdapterManager/component';
 import createUseSubscription from '/imports/ui/core/hooks/createUseSubscription';
+import { VIDEO_TYPES } from './enums';
 
 const throttledSetStreams = throttle({ interval: 500 }, setStreams);
 
@@ -54,7 +55,7 @@ const VideoStreamAdapter: React.FC<AdapterProps> = ({
       floor: voice?.floor ?? false,
       lastFloorTime: voice?.lastFloorTime ?? '0',
       voice,
-      type: 'stream' as const,
+      type: VIDEO_TYPES.STREAM,
     }));
 
     throttledSetStreams(streams);

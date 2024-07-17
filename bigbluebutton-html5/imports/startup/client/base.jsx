@@ -175,22 +175,16 @@ class Base extends Component {
 
 const BaseContainer = (props) => {
   const codeError = useStorageKey('codeError');
-  const isGridLayout = useStorageKey('isGridEnabled');
   const sidebarContent = layoutSelectInput((i) => i.sidebarContent);
   const { sidebarContentPanel } = sidebarContent;
   const layoutContextDispatch = layoutDispatch();
   const setLocalSettings = useUserChangedLocalSettings();
 
   const applicationSettings = useSettings(SETTINGS.APPLICATION);
-  const paginationEnabled = applicationSettings?.paginationEnabled;
   const animations = applicationSettings?.animations;
 
-  const { viewParticipantsWebcams, viewScreenshare } = useSettings(SETTINGS.DATA_SAVING);
-  const { streams: usersVideo } = useVideoStreams(
-    isGridLayout,
-    paginationEnabled,
-    viewParticipantsWebcams,
-  );
+  const { viewScreenshare } = useSettings(SETTINGS.DATA_SAVING);
+  const { streams: usersVideo } = useVideoStreams();
   const loggedIn = Auth.useLoggedIn();
   const isChatEnabled = useIsChatEnabled();
 
