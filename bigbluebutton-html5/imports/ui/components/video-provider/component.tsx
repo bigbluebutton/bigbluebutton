@@ -1124,23 +1124,6 @@ class VideoProvider extends Component<VideoProviderProps, VideoProviderState> {
       // hidden/shown when the stream is attached.
       notifyStreamStateChange(stream, pc.connectionState);
       VideoProvider.attach(peer, videoElement);
-
-      if (isLocal) {
-        if (peer.bbbVideoStream == null) {
-          this.handleVirtualBgError(new TypeError('Undefined media stream'));
-          return;
-        }
-
-        const deviceId = MediaStreamUtils.extractDeviceIdFromStream(
-          peer.bbbVideoStream.mediaStream,
-          'video',
-        );
-        const { type, name } = getSessionVirtualBackgroundInfo(deviceId);
-
-        VideoProvider.restoreVirtualBackground(peer.bbbVideoStream, type, name).catch((error) => {
-          this.handleVirtualBgError(error, type, name);
-        });
-      }
     }
   }
 
@@ -1170,34 +1153,6 @@ class VideoProvider extends Component<VideoProviderProps, VideoProviderState> {
         virtualBgName: name,
       },
     }, `Failed to start virtual background by dropping image: ${error.message}`);
-  }
-
-  static restoreVirtualBackground(stream: BBBVideoStream, type: string, name: string) {
-    return new Promise((resolve, reject) => {
-      if (type !== EFFECT_TYPES.NONE_TYPE) {
-        stream.startVirtualBackground(type, name).then(() => {
-          resolve(null);
-        }).catch((error: Error) => {
-          reject(error);
-        });
-      }
-      resolve(null);
-    });
-  }
-
-  handleVirtualBgError(error: Error, type?: string, name?: string) {
-    const { intl } = this.props;
-    logger.error({
-      logCode: 'video_provider_virtualbg_error',
-      extraInfo: {
-        errorName: error.name,
-        errorMessage: error.message,
-        virtualBgType: type,
-        virtualBgName: name,
-      },
-    }, `Failed to restore virtual background after reentering the room: ${error.message}`);
-
-    notify(intl.formatMessage(intlClientErrors.virtualBgGenericError), 'error', 'video');
   }
 
   createVideoTag(stream: string, video: HTMLVideoElement) {

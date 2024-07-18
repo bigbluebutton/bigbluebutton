@@ -505,6 +505,12 @@ test.describe.parallel('Custom Parameters', () => {
       await customParam.skipVideoPreviewOnFirstJoin();
     });
 
+    test('Skip Video Preview if Previous Device', async ({ browser, context, page }) => {
+      const customParam = new CustomParameters(browser, context);
+      await customParam.initModPage(page, true, { joinParameter: c.skipVideoPreviewIfPreviousDevice });
+      await customParam.skipVideoPreviewIfPreviousDevice();
+    });
+
     test('Mirror Own Webcam', async ({ browser, context, page }) => {
       const customParam = new CustomParameters(browser, context);
       await customParam.initModPage(page, true, { joinParameter: c.mirrorOwnWebcam });

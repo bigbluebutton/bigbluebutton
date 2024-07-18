@@ -171,6 +171,14 @@ class CustomParameters extends MultiUsers {
     await this.modPage.shareWebcam(true, videoPreviewTimeout);
   }
 
+  async skipVideoPreviewIfPreviousDevice() {
+    await this.modPage.waitForSelector(e.joinVideo);
+    const { videoPreviewTimeout } = this.modPage.settings;
+    await this.modPage.shareWebcam(true, videoPreviewTimeout);
+    await this.modPage.waitAndClick(e.leaveVideo, VIDEO_LOADING_WAIT_TIME);
+    await this.modPage.shareWebcam(false);
+  }
+
   async mirrorOwnWebcam() {
     await this.modPage.waitAndClick(e.joinVideo);
     await this.modPage.waitForSelector(e.webcamMirroredVideoPreview);

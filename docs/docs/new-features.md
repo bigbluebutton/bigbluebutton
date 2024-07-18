@@ -147,6 +147,11 @@ In BigBlueButton 3.0.0-alpha.5 we replaced the JOIN parameter `defaultLayout` wi
 
 In BigBlueButton 2.7.5/3.0.0-alpha.5 we stopped propagating the events.xml event TranscriptUpdatedRecordEvent due to some issues with providing too much and too repetitive data.
 
+#### Added new setting and userdata to allow skipping video preview if session has valid input devices stored
+
+- Client settings.yml: `skipVideoPreviewIfPreviousDevice`. Defaults to `false`
+- Can be overrided on join Custom Parameter with: `userdata-bbb_skip_video_preview_if_previous_device=`
+
 ### Changes to events.xml
 
 Retired events
