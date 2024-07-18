@@ -8,6 +8,7 @@ on:
     paths-ignore:
       - "docs/**"
       - "**/*.md"
+      - "bigbluebutton-html5/public/locales/*.json"
   pull_request:
     types: [opened, synchronize, reopened]
     paths-ignore:
@@ -115,6 +116,7 @@ jobs:
         shard: [1, 2, 3, 4, 5, 6, 7, 8]
     env:
       shard: ${{ matrix.shard }}/8
+      MATRIX_SHARD_UNDERSCORED: ${{ matrix.shard }}_8
     steps:
       - uses: actions/checkout@v4
       - name: Merge branches
@@ -344,17 +346,16 @@ jobs:
           chmod a+r -R /home/runner/work/bigbluebutton/bigbluebutton/configs
           bbb-conf --zip
           ls -t /root/*.tar.gz | head -1 | xargs -I '{}' cp '{}' /home/runner/work/bigbluebutton/bigbluebutton/bbb-logs.tar.gz
-          echo "MATRIX_SHARD=${{ matrix.shard }}_8" >> $GITHUB_ENV
           EOF
       - if: failure()
         uses: actions/upload-artifact@v4
         with:
-          name: bbb-configs-${{ env.MATRIX_SHARD }}
+          name: bbb-configs-${{ env.MATRIX_SHARD_UNDERSCORED }}
           path: configs
       - if: failure()
         uses: actions/upload-artifact@v4
         with:
-          name: bbb-logs-${{ env.MATRIX_SHARD }}
+          name: bbb-logs-${{ env.MATRIX_SHARD_UNDERSCORED }}
           path: ./bbb-logs.tar.gz
   upload-report:
     if: always() && !contains(github.event.head_commit.message, 'Merge pull request')
@@ -372,6 +373,7 @@ jobs:
         working-directory: ./bigbluebutton-tests/playwright
         run: npm ci
       - name: Merge artifacts
+        if: ${{ env.hasReportData }}
         uses: actions/upload-artifact/merge@v4
         with:
           name: all-blob-reports
@@ -396,16 +398,10 @@ jobs:
           path: |
             bigbluebutton-tests/playwright/playwright-report
             bigbluebutton-tests/playwright/test-results
-      - name: Write PR data for auto-comment
-        if: github.event_name == 'pull_request'
-        working-directory: ./
-        run: |
-          mkdir -p ./pr-comment-data
-          echo ${{ github.event.number }} > ./pr-comment-data/pr_number
-          echo ${{ github.run_id }} > ./pr-comment-data/workflow_id
-      - name: Upload PR data for auto-comment
-        if: github.event_name == 'pull_request'
-        uses: actions/upload-artifact@v4
+      - name: Remove unnecessary artifacts
+        uses: geekyeggo/delete-artifact@v5
         with:
-          name: pr-comment-data
-          path: pr-comment-data
+          name: |
+            artifacts_*
+            all-blob-reports
+          failOnError: false
