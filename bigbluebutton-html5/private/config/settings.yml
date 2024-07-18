@@ -970,10 +970,6 @@ public:
         mime: application/vnd.oasis.opendocument.presentation
       - extension: .odg
         mime: application/vnd.oasis.opendocument.graphics
-      - extension: .odc
-        mime: application/vnd.oasis.opendocument.chart
-      - extension: .odi
-        mime: application/vnd.oasis.opendocument.image
       - extension: .jpg
         mime: image/jpeg
       - extension: .jpeg
@@ -982,6 +978,8 @@ public:
         mime: image/png
       - extension: .webp
         mime: image/webp
+      - extension: .svg
+        mime: image/svg+xml
   user:
     role_moderator: MODERATOR
     role_viewer: VIEWER
