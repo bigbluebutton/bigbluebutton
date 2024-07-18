@@ -367,8 +367,6 @@ One other think to pay attention is to not include any of the parameters in both
 </response>
 ```
 
-#### 
-
 #### Pre-upload Slides
 
 You can upload slides within the create call. If you do this, the BigBlueButton server will immediately download and process the slides.
@@ -1292,4 +1290,4 @@ For example, the application may be able to register a URL that BigBlueButton wo
 
 ### Presentation Formats
 
-See valid formats for uploading a presentation in the filter list of [back-end](https://github.com/bigbluebutton/bigbluebutton/blob/6333cc42ffbe9bae0840db68a20404bc3e7b78df/bbb-common-web/src/main/java/org/bigbluebutton/presentation/MimeTypeUtils.java#L28) and of [front-end](https://github.com/bigbluebutton/bigbluebutton/blob/6333cc42ffbe9bae0840db68a20404bc3e7b78df/bigbluebutton-html5/private/config/settings.yml#L939).
+See valid formats for uploading a presentation in the filter list of [back-end](https://github.com/bigbluebutton/bigbluebutton/blob/v2.7.9/bbb-common-web/src/main/java/org/bigbluebutton/presentation/MimeTypeUtils.java#L28-L47) and of [front-end](https://github.com/bigbluebutton/bigbluebutton/blob/v2.7.9/bigbluebutton-html5/private/config/settings.yml#L824-L862).
