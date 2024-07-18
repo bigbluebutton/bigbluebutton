@@ -25,7 +25,6 @@ trait SyncGetUsersMeetingRespMsgHdlr {
         guest = u.guest,
         authed = u.authed,
         guestStatus = u.guestStatus,
-        emoji = u.emoji,
         locked = u.locked,
         presenter = u.presenter,
         avatar = u.avatar,

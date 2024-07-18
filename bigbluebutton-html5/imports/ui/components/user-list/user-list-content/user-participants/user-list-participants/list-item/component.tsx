@@ -13,7 +13,6 @@ import TooltipContainer from '/imports/ui/components/common/tooltip/container';
 import Auth from '/imports/ui/services/auth';
 import { LockSettings } from '/imports/ui/Types/meeting';
 import { uniqueId } from '/imports/utils/string-utils';
-import normalizeEmojiName from './service';
 import { convertRemToPixels } from '/imports/utils/dom-utils';
 import { PluginsContext } from '/imports/ui/components/components-data/plugin-context/context';
 import { useIsReactionsEnabled } from '/imports/ui/services/features';
@@ -190,15 +189,12 @@ const UserListItem: React.FC<UserListItemProps> = ({ user, lockSettings }) => {
     if (user.raiseHand === true) {
       return reactionsEnabled
         ? <Emoji key={emojiIcons[0].id} emoji={emojiIcons[0]} native={emojiIcons[0].native} size={emojiSize} />
-        : <Icon iconName={normalizeEmojiName('raiseHand')} />;
+        : <Icon iconName="hand" />;
     }
     if (user.away === true) {
       return reactionsEnabled
         ? <Emoji key="away" emoji={emojiIcons[1]} native={emojiIcons[1].native} size={emojiSize} />
-        : <Icon iconName={normalizeEmojiName('away')} />;
-    }
-    if (user.emoji !== 'none' && user.emoji !== 'notAway') {
-      return <Icon iconName={normalizeEmojiName(user.emoji)} />;
+        : <Icon iconName="time" />;
     }
     if (user.reactionEmoji && user.reactionEmoji !== 'none') {
       return user.reactionEmoji;
@@ -243,7 +239,6 @@ const UserListItem: React.FC<UserListItemProps> = ({ user, lockSettings }) => {
         color={user.color}
         whiteboardAccess={hasWhiteboardAccess}
         animations
-        emoji={user.emoji !== 'none'}
         avatar={userAvatarFiltered}
         isChrome={isChrome}
         isFirefox={isFirefox}

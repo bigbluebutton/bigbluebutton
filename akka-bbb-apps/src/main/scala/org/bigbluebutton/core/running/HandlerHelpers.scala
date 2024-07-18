@@ -63,7 +63,6 @@ trait HandlerHelpers extends SystemConfiguration {
         guest = regUser.guest,
         authed = regUser.authed,
         guestStatus = regUser.guestStatus,
-        emoji = "none",
         reactionEmoji = "none",
         raiseHand = false,
         away = false,

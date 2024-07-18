@@ -51,17 +51,6 @@ trait ChangeUserRaiseHandReqMsgHdlr extends RightsManagementTrait {
         user <- Users2x.findWithIntId(liveMeeting.users2x, msg.body.userId)
         newUserState <- Users2x.setUserRaiseHand(liveMeeting.users2x, user.intId, msg.body.raiseHand)
       } yield {
-
-        if (msg.body.raiseHand && user.emoji == "") {
-          Users2x.setEmojiStatus(liveMeeting.users2x, msg.body.userId, "raiseHand")
-          outGW.send(MsgBuilder.buildUserEmojiChangedEvtMsg(liveMeeting.props.meetingProp.intId, msg.body.userId, "raiseHand"))
-        }
-
-        if (msg.body.raiseHand == false && user.emoji == "raiseHand") {
-          Users2x.setEmojiStatus(liveMeeting.users2x, msg.body.userId, "none")
-          outGW.send(MsgBuilder.buildUserEmojiChangedEvtMsg(liveMeeting.props.meetingProp.intId, msg.body.userId, "none"))
-        }
-
         broadcast(newUserState, msg.body.raiseHand)
       }
     } else {

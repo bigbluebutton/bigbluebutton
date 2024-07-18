@@ -81,7 +81,6 @@ export interface User {
   role: string;
   color: string;
   avatar: string;
-  emoji: string;
   reactionEmoji: string;
   presenter?: boolean;
   pinned?: boolean;

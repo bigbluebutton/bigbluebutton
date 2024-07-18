@@ -5,7 +5,6 @@ export type User = {
   name: string;
   away: boolean;
   disconnected: boolean;
-  emoji: string;
   role: string;
   avatar: string;
   color: string;

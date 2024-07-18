@@ -97,10 +97,6 @@ export const meetingClientSettingsInitialValues: MeetingClientSettings = {
       customHeartbeat: false,
       showAllAvailableLocales: true,
       showAudioFilters: true,
-      raiseHandActionButton: {
-        enabled: false,
-        centered: true,
-      },
       reactionsButton: {
         enabled: true,
       },

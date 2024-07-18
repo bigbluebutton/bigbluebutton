@@ -11,7 +11,6 @@ subscription userCurrentSubscription {
     ejectReason
     ejectReasonCode
     ejected
-    emoji
     reactionEmoji
     enforceLayout
     extId

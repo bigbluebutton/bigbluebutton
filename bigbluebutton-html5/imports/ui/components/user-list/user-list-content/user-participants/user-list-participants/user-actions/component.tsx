@@ -15,7 +15,6 @@ import {
   EJECT_FROM_MEETING,
   EJECT_FROM_VOICE,
   SET_PRESENTER,
-  SET_EMOJI_STATUS,
   SET_LOCKED,
 } from '/imports/ui/core/graphql/mutations/userMutations';
 import {
@@ -29,7 +28,6 @@ import {
 import { useIsChatEnabled } from '/imports/ui/services/features';
 import { layoutDispatch } from '/imports/ui/components/layout/context';
 import { PANELS, ACTIONS } from '/imports/ui/components/layout/enums';
-import { EMOJI_STATUSES } from '/imports/utils/statuses';
 
 import ConfirmationModal from '/imports/ui/components/common/modal/confirmation/component';
 
@@ -72,10 +70,6 @@ interface Writer {
 }
 
 const messages = defineMessages({
-  statusTriggerLabel: {
-    id: 'app.actionsBar.emojiMenu.statusTriggerLabel',
-    description: 'label for option to show emoji menu',
-  },
   UnpinUserWebcam: {
     id: 'app.userList.menu.webcamUnpin.label',
     description: 'label for pin user webcam',
@@ -87,10 +81,6 @@ const messages = defineMessages({
   StartPrivateChat: {
     id: 'app.userList.menu.chat.label',
     description: 'label for option to start a new private chat',
-  },
-  ClearStatusLabel: {
-    id: 'app.userList.menu.clearStatus.label',
-    description: 'Clear the emoji status of this user',
   },
   MuteUserAudioLabel: {
     id: 'app.userList.menu.muteUserAudio.label',
@@ -143,10 +133,6 @@ const messages = defineMessages({
   ejectUserCamerasLabel: {
     id: 'app.userList.menu.ejectUserCameras.label',
     description: 'label to eject user cameras',
-  },
-  backTriggerLabel: {
-    id: 'app.audio.backLabel',
-    description: 'label for option to hide emoji menu',
   },
 });
 const makeDropdownPluginItem: (
@@ -208,7 +194,6 @@ const UserActions: React.FC<UserActionsProps> = ({
   setOpenUserAction,
 }) => {
   const intl = useIntl();
-  const [showNestedOptions, setShowNestedOptions] = useState(false);
   const [isConfirmationModalOpen, setIsConfirmationModalOpen] = useState(false);
   const layoutContextDispatch = layoutDispatch();
 
@@ -266,7 +251,6 @@ const UserActions: React.FC<UserActionsProps> = ({
   );
   const {
     allowedToChatPrivately,
-    allowedToResetStatus,
     allowedToMuteAudio,
     allowedToUnmuteAudio,
     allowedToChangeWhiteboardAccess,
@@ -303,7 +287,6 @@ const UserActions: React.FC<UserActionsProps> = ({
   const [ejectFromMeeting] = useMutation(EJECT_FROM_MEETING);
   const [ejectFromVoice] = useMutation(EJECT_FROM_VOICE);
   const [setPresenter] = useMutation(SET_PRESENTER);
-  const [setEmojiStatus] = useMutation(SET_EMOJI_STATUS);
   const [setLocked] = useMutation(SET_LOCKED);
   const [userEjectCameras] = useMutation(USER_EJECT_CAMERAS);
 
@@ -384,21 +367,6 @@ const UserActions: React.FC<UserActionsProps> = ({
       },
       icon: 'chat',
       dataTest: 'startPrivateChat',
-    },
-    {
-      allowed: allowedToResetStatus
-        && user.emoji !== 'none',
-      key: 'clearStatus',
-      label: intl.formatMessage(messages.ClearStatusLabel),
-      onClick: () => {
-        setEmojiStatus({
-          variables: {
-            emoji: 'none',
-          },
-        });
-        setOpenUserAction(null);
-      },
-      icon: 'clear_status',
     },
     {
       allowed: allowedToMuteAudio
@@ -538,33 +506,7 @@ const UserActions: React.FC<UserActionsProps> = ({
     )),
   ];
 
-  const nestedOptions = [
-    {
-      allowed: showNestedOptions,
-      key: 'separator-01',
-      isSeparator: true,
-    },
-    ...Object.keys(EMOJI_STATUSES).map((key) => ({
-      allowed: showNestedOptions,
-      key,
-      label: intl.formatMessage({ id: `app.actionsBar.emojiMenu.${key}Label` }),
-      onClick: () => {
-        setEmojiStatus({
-          variables: {
-            emoji: key,
-          },
-        });
-        setOpenUserAction(null);
-        setShowNestedOptions(false);
-      },
-      icon: (EMOJI_STATUSES as Record<string, string>)[key],
-      dataTest: key,
-    })),
-  ];
-
-  const actions = showNestedOptions
-    ? nestedOptions.filter((key) => key.allowed)
-    : dropdownOptions.filter((key) => key.allowed);
+  const actions = dropdownOptions.filter((key) => key.allowed);
   if (!actions.length) {
     return (
       <span>
@@ -595,10 +537,8 @@ const UserActions: React.FC<UserActionsProps> = ({
           )
         }
         actions={actions}
-        selectedEmoji={user.emoji}
         onCloseCallback={() => {
           setOpenUserAction(null);
-          setShowNestedOptions(false);
         }}
         open={open}
       />

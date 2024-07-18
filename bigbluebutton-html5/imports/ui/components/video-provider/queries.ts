@@ -11,7 +11,6 @@ export const VIDEO_STREAMS_SUBSCRIPTION = gql`
         pinned
         away
         disconnected
-        emoji
         role
         avatar
         color
@@ -77,7 +76,6 @@ export const GRID_USERS_SUBSCRIPTION = gql`
       pinned
       away
       disconnected
-      emoji
       role
       avatar
       color
