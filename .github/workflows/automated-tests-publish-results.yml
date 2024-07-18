@@ -11,6 +11,9 @@ env:
 jobs:
   get-pr-data:
     runs-on: ubuntu-latest
+    concurrency:
+      group: github-api-request
+      cancel-in-progress: false
     if: ${{ github.event.workflow_run.event == 'pull_request' }}
     outputs:
       pr-number: ${{ steps.pr.outputs.result }}

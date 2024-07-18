@@ -316,7 +316,7 @@ jobs:
           find $HOME/.cache/ms-playwright -name libnssckbi.so -exec rm {} \; -exec ln -s /usr/lib/x86_64-linux-gnu/pkcs11/p11-kit-trust.so {} \;
           npm run test-firefox-ci -- --shard ${{ env.shard }}
           '
-      - if: always() && github.event_name == 'pull_request'
+      - if: always()
         name: Upload blob report to GitHub Actions Artifacts
         uses: actions/upload-artifact@v4
         with:
