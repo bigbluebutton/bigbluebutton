@@ -120,8 +120,8 @@ const ChatListPageContainer: React.FC<ChatListPageContainerProps> = ({
   if (isPrivateReadFeedbackEnabled) {
     const { data: privateMessageReadData } = useDeduplicatedSubscription(CHAT_PRIVATE_READ_FEEDBACK, {
       variables: {
-        chatId: chatId,
-      }
+        chatId,
+      },
     });
     recipientLastSeenAt = privateMessageReadData?.chat_private_read_feedback[0]?.recipientLastSeenAt;
   }

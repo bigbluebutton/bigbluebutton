@@ -1,11 +1,11 @@
 import React, { useCallback, useEffect, useMemo } from 'react';
 import { UpdatedEventDetailsForChatMessageDomElements } from 'bigbluebutton-html-plugin-sdk/dist/cjs/dom-element-manipulation/chat/message/types';
 import { Message } from '/imports/ui/Types/message';
+import { defineMessages, useIntl } from 'react-intl';
 import ChatMessageHeader from './message-header/component';
 import ChatMessageTextContent from './message-content/text-content/component';
 import ChatPollContent from './message-content/poll-content/component';
 import ChatMessagePresentationContent from './message-content/presentation-content/component';
-import { defineMessages, useIntl } from 'react-intl';
 import {
   ChatWrapper,
   ChatContent,
@@ -260,10 +260,10 @@ const ChatMesssage: React.FC<ChatMessageProps> = ({
       >
         {message.messageType !== ChatMessageType.CHAT_CLEAR && (
           <ChatMessageHeader
-          sameSender={message?.user ? sameSender : false}
-          name={messageContent.name}
-          isOnline={message.user?.isOnline ?? true}
-          dateTime={dateTime}
+            sameSender={message?.user ? sameSender : false}
+            name={messageContent.name}
+            isOnline={message.user?.isOnline ?? true}
+            dateTime={dateTime}
           />
         )}
         <MessageItemWrapper>

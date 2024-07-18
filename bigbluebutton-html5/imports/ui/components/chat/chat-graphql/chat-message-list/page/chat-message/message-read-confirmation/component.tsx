@@ -9,7 +9,7 @@ const intlMessages = defineMessages({
   messageReadLabel: {
     id: 'app.chat.messageRead',
     description: 'Label for the message read indicatior',
-  }
+  },
 });
 
 interface MessageReadConfirmationProps {
@@ -26,7 +26,7 @@ const MessageReadConfirmation: React.FC<MessageReadConfirmationProps> = ({
   const intl = useIntl();
   const isRead = new Date(recipientLastSeenAt).getTime() >= new Date(message?.createdAt).getTime();
   const isFromMe = Auth.userID === message?.user?.userId;
-  
+
   if (!isFromMe || !isRead) return null;
 
   return (

@@ -174,4 +174,4 @@ export const ChatAvatar = styled.div<ChatAvatarProps>`
 export const MessageItemWrapper = styled.div`
   display: flex;
   flex-direction: row;
-`
+`;
