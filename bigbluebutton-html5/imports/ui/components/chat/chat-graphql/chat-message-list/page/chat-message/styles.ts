@@ -74,7 +74,7 @@ export const ChatContent = styled.div<ChatContentProps>`
   display: flex;
   flex-flow: column;
   width: 100%;
-
+  
   ${({ sameSender }) => sameSender && `
     margin-left: 2.6rem;
   `}
@@ -170,3 +170,8 @@ export const ChatAvatar = styled.div<ChatAvatarProps>`
     width: 2.25rem;
   }
 `;
+
+export const MessageItemWrapper = styled.div`
+  display: flex;
+  flex-direction: row;
+`

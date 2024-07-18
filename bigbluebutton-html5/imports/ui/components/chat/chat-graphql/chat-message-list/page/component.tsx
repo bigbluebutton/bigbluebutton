@@ -8,6 +8,7 @@ import { DomElementManipulationHooks } from 'bigbluebutton-html-plugin-sdk/dist/
 import {
   CHAT_MESSAGE_PUBLIC_SUBSCRIPTION,
   CHAT_MESSAGE_PRIVATE_SUBSCRIPTION,
+  CHAT_PRIVATE_READ_FEEDBACK,
 } from './queries';
 import { Message } from '/imports/ui/Types/message';
 import ChatMessage from './chat-message/component';
@@ -15,6 +16,7 @@ import { GraphqlDataHookSubscriptionResponse } from '/imports/ui/Types/hook';
 import { useCreateUseSubscription } from '/imports/ui/core/hooks/createUseSubscription';
 import { setLoadedMessageGathering } from '/imports/ui/core/hooks/useLoadedChatMessages';
 import { ChatLoading } from '../../component';
+import useDeduplicatedSubscription from '/imports/ui/core/hooks/useDeduplicatedSubscription';
 
 interface ChatListPageContainerProps {
   page: number;
@@ -28,6 +30,8 @@ interface ChatListPageContainerProps {
 
 interface ChatListPageProps {
   messages: Array<Message>;
+  messageReadFeedbackEnabled: boolean;
+  recipientLastSeenAt: string;
   lastSenderPreviousPage: string | undefined;
   page: number;
   markMessageAsSeen: (message: Message)=> void;
@@ -36,6 +40,8 @@ interface ChatListPageProps {
 
 const ChatListPage: React.FC<ChatListPageProps> = ({
   messages,
+  messageReadFeedbackEnabled,
+  recipientLastSeenAt,
   lastSenderPreviousPage,
   page,
   markMessageAsSeen,
@@ -73,6 +79,8 @@ const ChatListPage: React.FC<ChatListPageProps> = ({
             }
             scrollRef={scrollRef}
             markMessageAsSeen={markMessageAsSeen}
+            messageReadFeedbackEnabled={messageReadFeedbackEnabled}
+            recipientLastSeenAt={recipientLastSeenAt}
           />
         );
       })}
@@ -92,6 +100,7 @@ const ChatListPageContainer: React.FC<ChatListPageContainerProps> = ({
   // @ts-ignore - temporary, while meteor exists in the project
   const CHAT_CONFIG = window.meetingClientSettings.public.chat;
   const PUBLIC_GROUP_CHAT_KEY = CHAT_CONFIG.public_group_id;
+  const PRIVATE_MESSAGE_READ_FEEDBACK_ENABLED = CHAT_CONFIG.privateMessageReadFeedback.enabled;
 
   const isPublicChat = chatId === PUBLIC_GROUP_CHAT_KEY;
   const chatQuery = isPublicChat
@@ -100,11 +109,22 @@ const ChatListPageContainer: React.FC<ChatListPageContainerProps> = ({
   const defaultVariables = { offset: (page) * pageSize, limit: pageSize };
   const variables = isPublicChat
     ? defaultVariables : { ...defaultVariables, requestedChatId: chatId };
+  const isPrivateReadFeedbackEnabled = !isPublicChat && PRIVATE_MESSAGE_READ_FEEDBACK_ENABLED;
 
   const useChatMessageSubscription = useCreateUseSubscription<Message>(chatQuery, variables, true);
   const {
     data: chatMessageData,
   } = useChatMessageSubscription((msg) => msg) as GraphqlDataHookSubscriptionResponse<Message[]>;
+
+  let recipientLastSeenAt = '';
+  if (isPrivateReadFeedbackEnabled) {
+    const { data: privateMessageReadData } = useDeduplicatedSubscription(CHAT_PRIVATE_READ_FEEDBACK, {
+      variables: {
+        chatId: chatId,
+      }
+    });
+    recipientLastSeenAt = privateMessageReadData?.chat_private_read_feedback[0]?.recipientLastSeenAt;
+  }
 
   useEffect(() => {
     // component will unmount
@@ -123,6 +143,8 @@ const ChatListPageContainer: React.FC<ChatListPageContainerProps> = ({
     <ChatListPage
       messages={chatMessageData}
       lastSenderPreviousPage={lastSenderPreviousPage}
+      messageReadFeedbackEnabled={isPrivateReadFeedbackEnabled}
+      recipientLastSeenAt={recipientLastSeenAt}
       page={page}
       markMessageAsSeen={markMessageAsSeen}
       scrollRef={scrollRef}

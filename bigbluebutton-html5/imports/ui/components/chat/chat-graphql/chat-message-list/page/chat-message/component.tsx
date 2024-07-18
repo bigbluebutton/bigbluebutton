@@ -10,8 +10,10 @@ import {
   ChatWrapper,
   ChatContent,
   ChatAvatar,
+  MessageItemWrapper,
 } from './styles';
 import { ChatMessageType } from '/imports/ui/core/enums/chat';
+import MessageReadConfirmation from './message-read-confirmation/component';
 
 interface ChatMessageProps {
   message: Message;
@@ -20,6 +22,8 @@ interface ChatMessageProps {
   setMessagesRequestedFromPlugin: React.Dispatch<React.SetStateAction<UpdatedEventDetailsForChatMessageDomElements[]>>
   scrollRef: React.RefObject<HTMLDivElement>;
   markMessageAsSeen: (message: Message) => void;
+  messageReadFeedbackEnabled: boolean;
+  recipientLastSeenAt: string;
 }
 
 const intlMessages = defineMessages({
@@ -62,6 +66,8 @@ const ChatMesssage: React.FC<ChatMessageProps> = ({
   message,
   setMessagesRequestedFromPlugin,
   markMessageAsSeen,
+  messageReadFeedbackEnabled,
+  recipientLastSeenAt,
 }) => {
   const intl = useIntl();
   const markMessageAsSeenOnScrollEnd = useCallback(() => {
@@ -253,14 +259,22 @@ const ChatMesssage: React.FC<ChatMessageProps> = ({
         data-chat-message-id={message?.messageId}
       >
         {message.messageType !== ChatMessageType.CHAT_CLEAR && (
-        <ChatMessageHeader
+          <ChatMessageHeader
           sameSender={message?.user ? sameSender : false}
           name={messageContent.name}
           isOnline={message.user?.isOnline ?? true}
           dateTime={dateTime}
-        />
+          />
         )}
-        {messageContent.component}
+        <MessageItemWrapper>
+          {messageContent.component}
+          {messageReadFeedbackEnabled && (
+            <MessageReadConfirmation
+              recipientLastSeenAt={recipientLastSeenAt}
+              message={message}
+            />
+          )}
+        </MessageItemWrapper>
       </ChatContent>
     </ChatWrapper>
   );

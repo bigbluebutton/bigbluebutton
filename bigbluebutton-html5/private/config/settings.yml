@@ -743,6 +743,8 @@ public:
       enabled: true
       showNames: true
     moderatorChatEmphasized: true
+    privateMessageReadFeedback:
+      enable: false
     autoConvertEmoji: true
     emojiPicker:
       enable: false

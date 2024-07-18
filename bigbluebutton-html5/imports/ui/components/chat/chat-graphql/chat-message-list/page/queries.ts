@@ -51,3 +51,20 @@ export const CHAT_MESSAGE_PRIVATE_SUBSCRIPTION = gql`
     }
   }
 `;
+
+
+export const CHAT_PRIVATE_READ_FEEDBACK = gql`subscription PrivateMessageReadFeedback($chatId: String!) {
+  chat_private_read_feedback(
+      where: {
+        chatId: {_eq: $chatId}
+      }
+    ) {
+    chatId
+    recipientUserId
+    recipientLastSeenAt
+    user {
+      name
+    }
+  }
+}`;
+
