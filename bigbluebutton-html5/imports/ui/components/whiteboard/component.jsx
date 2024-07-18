@@ -137,6 +137,7 @@ const Whiteboard = React.memo(function Whiteboard(props) {
     darkTheme,
     selectedLayout,
     isInfiniteWhiteboard,
+    whiteboardWriters,
   } = props;
 
   clearTldrawCache();
@@ -154,7 +155,6 @@ const Whiteboard = React.memo(function Whiteboard(props) {
   const whiteboardRef = React.useRef(null);
   const zoomValueRef = React.useRef(null);
   const prevShapesRef = React.useRef(shapes);
-  const prevOtherCursorsRef = useRef(otherCursors);
   const tlEditorRef = React.useRef(tlEditor);
   const slideChanged = React.useRef(false);
   const slideNext = React.useRef(null);
@@ -243,12 +243,6 @@ const Whiteboard = React.memo(function Whiteboard(props) {
       setShapesVersion((v) => v + 1);
     }
   }, [shapes]);
-
-  React.useEffect(() => {
-    if (!isEqual(prevOtherCursorsRef.current, otherCursors)) {
-      prevOtherCursorsRef.current = otherCursors;
-    }
-  }, [otherCursors]);
 
   React.useEffect(() => {
     if (whiteboardRef.current) {
@@ -1215,7 +1209,23 @@ const Whiteboard = React.memo(function Whiteboard(props) {
         useElement.setAttribute("href", "#cursor");
       }
 
-      const updatedPresences = prevOtherCursorsRef.current
+      const idsToRemove = [];
+
+      // Get all presence records from the store
+      const allRecords = tlEditorRef.current.store.allRecords();
+      const presenceRecords = allRecords.filter(record => record.id.startsWith('instance_presence:'));
+
+      // Check if any presence records correspond to users not in whiteboardWriters
+      presenceRecords.forEach(record => {
+        const userId = record.userId.split('instance_presence:')[1];
+        const hasAccessToWhiteboard = whiteboardWriters.some(writer => writer.userId === userId);
+
+        if (!hasAccessToWhiteboard) {
+          idsToRemove.push(record.id);
+        }
+      });
+
+      const updatedPresences = otherCursors
         .map(({ userId, user, xPercent, yPercent }) => {
           const { presenter, name } = user;
           const id = InstancePresenceRecordType.createId(userId);
@@ -1228,7 +1238,7 @@ const Whiteboard = React.memo(function Whiteboard(props) {
               !currentUser?.presenter) ||
             (!presenter && !isMultiUserActive)
           ) {
-            tlEditorRef.current?.store.remove([id]);
+            idsToRemove.push(id);
             return null;
           }
 
@@ -1250,16 +1260,21 @@ const Whiteboard = React.memo(function Whiteboard(props) {
             }),
             lastActivityTimestamp: Date.now(),
           };
+
           return c;
         })
         .filter((cursor) => cursor && cursor.userId !== currentUser?.userId);
+
+      if (idsToRemove.length) {
+        tlEditorRef.current?.store.remove(idsToRemove);
+      }
 
       // If there are any updated presences, put them all in the store
       if (updatedPresences.length) {
         tlEditorRef.current?.store.put(updatedPresences);
       }
     }
-  }, [prevOtherCursorsRef.current]);
+  }, [otherCursors, whiteboardWriters]);
 
   // set current tldraw page when presentation id updates
   React.useEffect(() => {
