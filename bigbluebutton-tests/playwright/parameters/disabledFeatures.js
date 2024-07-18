@@ -89,7 +89,7 @@ class DisabledFeatures extends MultiUsers {
   async presentation() {
     await this.modPage.wasRemoved(e.whiteboard, 'should not display the whiteboard');
     await this.modPage.wasRemoved(e.minimizePresentation, 'should not display the minimize presentation button');
-    await this.modPage.wasRemoved(e.restorePresentationm, 'should not display the restore presentation button');
+    await this.modPage.wasRemoved(e.restorePresentation, 'should not display the restore presentation button');
   }
 
   async customVirtualBackground() {
