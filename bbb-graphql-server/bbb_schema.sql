@@ -1074,19 +1074,14 @@ SELECT  cu."meetingId",
         cm."senderId",
         cm."senderName",
         cm."senderRole",
-        cm."createdAt"
+        cm."createdAt",
+        CASE WHEN chat_with."lastSeenAt" >= cm."createdAt" THEN true ELSE false end "recipientHasSeen"
 FROM chat_message cm
 JOIN chat_user cu ON cu."meetingId" = cm."meetingId" AND cu."chatId" = cm."chatId"
+LEFT JOIN "chat_user" chat_with ON chat_with."meetingId" = cm."meetingId"
+                                AND chat_with."chatId" = cm."chatId"
+                                AND chat_with."userId" != cu."userId"
 WHERE cm."chatId" != 'MAIN-PUBLIC-GROUP-CHAT';
-
-CREATE OR REPLACE VIEW "v_chat_private_read_feedback" AS
-SELECT chat_user."meetingId", chat_user."chatId", chat_user."userId" AS "queryUserId", chat_with."userId" AS "recipientUserId", chat_with."lastSeenAt" AS "recipientLastSeenAt"
-FROM chat_user
-LEFT JOIN "chat_user" chat_with ON chat_user."meetingId" = chat_with."meetingId"
-                                    AND chat_user."chatId" = chat_with."chatId"
-                                    AND chat_user."userId" != chat_with."userId"
-WHERE chat_user."chatId" != 'MAIN-PUBLIC-GROUP-CHAT'
-AND chat_user."visible" is true;
 
 --============ Presentation / Annotation
 

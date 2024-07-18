@@ -14,20 +14,17 @@ const intlMessages = defineMessages({
 
 interface MessageReadConfirmationProps {
   message: Message;
-  recipientLastSeenAt: string;
 }
 
 const CONFIRMATION_READ_ICON = 'check';
 
 const MessageReadConfirmation: React.FC<MessageReadConfirmationProps> = ({
   message,
-  recipientLastSeenAt,
 }) => {
   const intl = useIntl();
-  const isRead = new Date(recipientLastSeenAt).getTime() >= new Date(message?.createdAt).getTime();
   const isFromMe = Auth.userID === message?.user?.userId;
 
-  if (!isFromMe || !isRead) return null;
+  if (!isFromMe || !message.recipientHasSeen) return null;
 
   return (
     <Tooltip title={intl.formatMessage(intlMessages.messageReadLabel)}>

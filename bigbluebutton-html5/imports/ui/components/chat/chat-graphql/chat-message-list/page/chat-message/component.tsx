@@ -23,7 +23,6 @@ interface ChatMessageProps {
   scrollRef: React.RefObject<HTMLDivElement>;
   markMessageAsSeen: (message: Message) => void;
   messageReadFeedbackEnabled: boolean;
-  recipientLastSeenAt: string;
 }
 
 const intlMessages = defineMessages({
@@ -67,7 +66,6 @@ const ChatMesssage: React.FC<ChatMessageProps> = ({
   setMessagesRequestedFromPlugin,
   markMessageAsSeen,
   messageReadFeedbackEnabled,
-  recipientLastSeenAt,
 }) => {
   const intl = useIntl();
   const markMessageAsSeenOnScrollEnd = useCallback(() => {
@@ -270,7 +268,6 @@ const ChatMesssage: React.FC<ChatMessageProps> = ({
           {messageContent.component}
           {messageReadFeedbackEnabled && (
             <MessageReadConfirmation
-              recipientLastSeenAt={recipientLastSeenAt}
               message={message}
             />
           )}
