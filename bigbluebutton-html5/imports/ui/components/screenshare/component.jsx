@@ -4,6 +4,7 @@ import PropTypes from 'prop-types';
 import { debounce } from '/imports/utils/debounce';
 import FullscreenButtonContainer from '/imports/ui/components/common/fullscreen-button/container';
 import SwitchButtonContainer from './switch-button/container';
+import PopoutButtonContainer from '/imports/ui/components/media/popout-button/container';
 import Styled from './styles';
 import VolumeSlider from '../external-video-player/volume-slider/component';
 import AutoplayOverlay from '../media/autoplay-overlay/component';
@@ -347,6 +348,21 @@ class ScreenshareComponent extends React.Component {
     );
   }
 
+  renderPopoutButton() {
+    const { intl } = this.props;
+
+    const ALLOW_FULLSCREEN = window.meetingClientSettings.public.app.allowFullscreen;
+
+    return (
+      <PopoutButtonContainer
+        popoutRef={this.screenshareContainer}
+        elementName={intl.formatMessage(this.locales.label)}
+        dark
+        fullScreenEnabled={ALLOW_FULLSCREEN}
+      />
+    );
+  }
+
   renderAutoplayOverlay() {
     const { intl } = this.props;
 
@@ -375,7 +391,7 @@ class ScreenshareComponent extends React.Component {
     );
   }
 
-  renderMobileVolumeControlOverlay () {
+  renderMobileVolumeControlOverlay() {
     return (
       <Styled.MobileControlsOverlay
         key="mobile-overlay-screenshare"
@@ -410,7 +426,8 @@ class ScreenshareComponent extends React.Component {
     return [(
       <Styled.HoverToolbar
         toolbarStyle={toolbarStyle}
-        key='hover-toolbar-screenshare'>
+        key="hover-toolbar-screenshare"
+      >
         <VolumeSlider
           volume={getVolume()}
           muted={getVolume() === 0}
@@ -418,8 +435,8 @@ class ScreenshareComponent extends React.Component {
           onMuted={this.handleOnMuted}
         />
       </Styled.HoverToolbar>
-      ),
-      (deviceInfo.isMobile) && this.renderMobileVolumeControlOverlay(),
+    ),
+    (deviceInfo.isMobile) && this.renderMobileVolumeControlOverlay(),
     ];
   }
 
@@ -491,6 +508,7 @@ class ScreenshareComponent extends React.Component {
         id="screenshareContainer"
       >
         {loaded && this.renderFullscreenButton()}
+        {loaded && this.renderPopoutButton()}
         {this.renderVideo(true)}
         {loaded && enableVolumeControl && this.renderVolumeSlider() }
 
@@ -508,7 +526,7 @@ class ScreenshareComponent extends React.Component {
   }
 
   render() {
-    const { loaded, autoplayBlocked, mediaFlowing} = this.state;
+    const { loaded, autoplayBlocked, mediaFlowing } = this.state;
     const {
       isPresenter,
       isGloballyBroadcasting,

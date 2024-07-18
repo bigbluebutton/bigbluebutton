@@ -17,6 +17,7 @@ import withDragAndDrop from './drag-and-drop/component';
 import Auth from '/imports/ui/services/auth';
 import { VideoItem } from '/imports/ui/components/video-provider/types';
 import useCurrentUser from '/imports/ui/core/hooks/useCurrentUser';
+import PopoutButtonContainer from '/imports/ui/components/media/popout-button/container';
 
 const intlMessages = defineMessages({
   disableDesc: {
@@ -303,6 +304,14 @@ const VideoListItem: React.FC<VideoListItemProps> = (props) => {
     </>
   );
 
+  const renderPopoutButton = () => (
+    <PopoutButtonContainer
+      popoutRef={videoContainer.current}
+      elementName={name}
+      dark
+    />
+  );
+
   const {
     onDragLeave,
     onDragOver,
@@ -352,8 +361,12 @@ const VideoListItem: React.FC<VideoListItemProps> = (props) => {
 
       {/* eslint-disable-next-line no-nested-ternary */}
 
-      {(videoIsReady || (isSelfViewDisabled || disabledCams.includes(cameraId))) && (
-        isVideoSqueezed ? renderSqueezedButton() : renderDefaultButtons()
+      {(videoIsReady || (isSelfViewDisabled || disabledCams.includes(cameraId)))
+      && (
+        <>
+          {isVideoSqueezed ? renderSqueezedButton() : renderDefaultButtons()}
+          {renderPopoutButton()}
+        </>
       )}
       {!videoIsReady && (!isSelfViewDisabled || !isStream) && (
         isVideoSqueezed ? renderWebcamConnectingSqueezed() : renderWebcamConnecting()

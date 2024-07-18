@@ -74,6 +74,7 @@ export interface App {
   ipv4FallbackDomain: string
   allowLogout: boolean
   allowFullscreen: boolean
+  allowPopout: boolean
   preloadNextSlides: number
   warnAboutUnsavedContentOnMeetingEnd: boolean
   audioCaptions: AudioCaptions

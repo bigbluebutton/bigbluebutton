@@ -1134,6 +1134,7 @@
     "app.video.camCapReached": "You cannot share more cameras",
     "app.video.meetingCamCapReached": "Meeting reached it's simultaneous cameras limit",
     "app.video.dropZoneLabel": "Drop here",
+    "app.popoutButton.label": "Popout {0} video",
     "app.fullscreenButton.label": "Make {0} fullscreen",
     "app.fullscreenUndoButton.label": "Undo {0} fullscreen",
     "app.switchButton.expandLabel": "Expand screenshare video",

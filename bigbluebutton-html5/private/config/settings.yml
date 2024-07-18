@@ -81,6 +81,7 @@ public:
     ipv4FallbackDomain: ''
     allowLogout: true
     allowFullscreen: true
+    allowPopout: false
     preloadNextSlides: 2
     warnAboutUnsavedContentOnMeetingEnd: false
     # Allows users to enable automatic transcription when joining a meeting.

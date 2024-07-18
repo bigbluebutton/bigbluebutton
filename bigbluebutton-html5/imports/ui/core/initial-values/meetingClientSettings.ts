@@ -56,6 +56,7 @@ export const meetingClientSettingsInitialValues: MeetingClientSettings = {
       ipv4FallbackDomain: '',
       allowLogout: true,
       allowFullscreen: true,
+      allowPopout: false,
       preloadNextSlides: 2,
       warnAboutUnsavedContentOnMeetingEnd: false,
       audioCaptions: {
