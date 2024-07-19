@@ -110,7 +110,7 @@ class CustomParameters extends MultiUsers {
     await this.modPage.hasElement(e.audioSettingsModal);
   }
 
-  async skipCheckIfPreviousDevice() {
+  async skipEchoTestIfPreviousDevice() {
     await this.modPage.joinMicrophone();
     await this.modPage.leaveAudio();
     await this.modPage.waitAndClick(e.joinAudio);

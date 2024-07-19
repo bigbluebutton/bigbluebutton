@@ -461,10 +461,10 @@ test.describe.parallel('Custom Parameters', () => {
       await customParam.skipCheckOnFirstJoin();
     });
 
-    test('Skip audio check if previous device', async ({ browser, context, page }) => {
+    test('Skip echo test if previous device', async ({ browser, context, page }) => {
       const customParam = new CustomParameters(browser, context);
-      await customParam.initModPage(page, false, { joinParameter: c.skipCheckIfPreviousDevice });
-      await customParam.skipCheckIfPreviousDevice();
+      await customParam.initModPage(page, false, { joinParameter: c.skipEchoTestIfPreviousDevice });
+      await customParam.skipEchoTestIfPreviousDevice();
     });
   });
 

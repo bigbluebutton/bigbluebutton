@@ -141,7 +141,7 @@ class CustomParameters {
     }
   }
 
-  async skipCheckIfPreviousDevice(testName, customParameter) {
+  async skipEchoTestIfPreviousDevice(testName, customParameter) {
     try {
       await this.page1.init(true, false, testName, 'Moderator', undefined, customParameter);
       await this.page1.startRecording(testName);

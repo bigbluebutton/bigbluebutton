@@ -145,8 +145,8 @@ In BigBlueButton 3.0.0-alpha.5 we replaced the JOIN parameter `defaultLayout` wi
 
 #### Added new setting and userdata to allow skipping echo test if session has valid input/output devices stored
 
-- Client settings.yml: `skipCheckIfPreviousDevice`. Defaults to `false`
-- Can be overrided on join Custom Parameter with: `userdata-bbb_skip_check_if_previous_device=`
+- Client settings.yml: `skipEchoTestIfPreviousDevice`. Defaults to `false`
+- Can be overrided on join Custom Parameter with: `userdata-bbb_skip_echotest_if_previous_device=`
 
 #### Recording event TranscriptUpdatedRecordEvent blocked
 

@@ -45,9 +45,9 @@ const AudioModalContainer = (props) => {
   // according to feedbacks. The potential absence of echo test after having set
   // an initial device in the first join cycle might complicate things even further
   // if they got it wrong. Hence, we ignore the flag for mobile users.
-  const skipCheckIfPreviousDevice = getFromUserSettings(
-    'bbb_skip_check_if_previous_device',
-    APP_CONFIG.skipCheckIfPreviousDevice,
+  const skipEchoTestIfPreviousDevice = getFromUserSettings(
+    'bbb_skip_echotest_if_previous_device',
+    APP_CONFIG.skipEchoTestIfPreviousDevice,
   ) && !deviceInfo.isMobile;
   const autoJoin = getFromUserSettings('bbb_auto_join_audio', APP_CONFIG.autoJoin);
 
@@ -99,7 +99,7 @@ const AudioModalContainer = (props) => {
     || (
       skipCheck
       || (skipCheckOnJoin && !getEchoTest)
-      || (skipCheckIfPreviousDevice && (inputDeviceId || outputDeviceId))
+      || (skipEchoTestIfPreviousDevice && (inputDeviceId || outputDeviceId))
     );
 
   return (

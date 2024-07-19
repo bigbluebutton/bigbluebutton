@@ -130,15 +130,15 @@ const customParametersTest = () => {
 
   // This test spec sets the userdata-bbb_skip_check_if_previous_device parameter to true
   // and checks that the users automatically skip audio check when clicking on Microphone
-  test('Skip audio check if previouse device', async () => {
+  test('Skip echo test if previouse device', async () => {
     const test = new CustomParameters();
     const page = new Page();
     let response;
     let screenshot;
     try {
-      const testName = 'skipCheckIfPreviousDevice';
+      const testName = 'skipEchoTestIfPreviousDevice';
       await page.logger('before ', testName);
-      response = await test.skipCheckIfPreviousDevice(testName, c.skipCheckIfPreviousDevice);
+      response = await test.skipEchoTestIfPreviousDevice(testName, c.skipEchoTestIfPreviousDevice);
       await test.page1.stopRecording();
       screenshot = await test.page1.page.screenshot();
       await page.logger('after ', testName);
