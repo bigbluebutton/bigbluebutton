@@ -19,6 +19,7 @@ import { Constraints2 } from '/imports/ui/Types/meetingClientSettings';
 import MediaStreamUtils from '/imports/utils/media-stream-utils';
 import Session from '/imports/ui/services/storage/in-memory';
 import type { Stream } from './types';
+import { VIDEO_TYPES } from './enums';
 
 const TOKEN = '_';
 
@@ -93,22 +94,18 @@ class VideoService {
         userId: Auth.userID as string,
         name: Auth.fullname as string,
         nameSortable: Auth.fullname as string,
-        type: 'connecting' as const,
+        type: VIDEO_TYPES.CONNECTING,
       };
       setConnectingStream(stream);
-      setVideoState((curr) => ({
-        ...curr,
-        isConnecting: true,
-      }));
+      setVideoState({ isConnecting: true });
     }
   }
 
   static joinedVideo() {
-    setVideoState((curr) => ({
-      ...curr,
+    setVideoState({
       isConnected: true,
       isConnecting: false,
-    }));
+    });
   }
 
   storeDeviceIds(streams: Stream[]) {
@@ -123,11 +120,10 @@ class VideoService {
 
   exitedVideo() {
     this.stopConnectingStream();
-    setVideoState((curr) => ({
-      ...curr,
-      isConnecting: false,
+    setVideoState({
       isConnected: false,
-    }));
+      isConnecting: false,
+    });
   }
 
   static getAuthenticatedURL() {
@@ -147,10 +143,7 @@ class VideoService {
   static setCurrentVideoPageIndex(newVideoPageIndex: number) {
     const { currentVideoPageIndex } = getVideoState();
     if (currentVideoPageIndex !== newVideoPageIndex) {
-      setVideoState((curr) => ({
-        ...curr,
-        currentVideoPageIndex: newVideoPageIndex,
-      }));
+      setVideoState({ currentVideoPageIndex: newVideoPageIndex });
     }
   }
 

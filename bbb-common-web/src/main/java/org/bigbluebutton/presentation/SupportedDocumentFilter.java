@@ -40,7 +40,7 @@ public class SupportedDocumentFilter {
 
     /* Get file extension - Perhaps try to rely on a more accurate method than an extension type ? */
     String extension = FilenameUtils.getExtension(presentationFile.getName());
-    boolean supported = SupportedFileTypes.isFileSupported(extension);
+    boolean supported = SupportedFileTypes.isPresentationMimeTypeValid(presentationFile, extension);
     notifyProgressListener(supported, pres);
     if (supported) {
       log.info("Received supported file {}", pres.getUploadedFile().getAbsolutePath());

@@ -554,7 +554,7 @@ See [Passing user metadata to the client on join](/administration/customize/#pas
 
 ### `POST` insertDocument
 
-This endpoint insert one or more documents into a running meeting via API call
+This endpoint insert one or more documents into a running meeting via API call.
 
 **Resource URL:**
 
@@ -1285,3 +1285,9 @@ For example, the application may be able to register a URL that BigBlueButton wo
 - http&#58;//third-party-app/bbb-integ.php?event=meetingEnded&meetingID=abcd
 - http&#58;//third-party-app/bbb-integ.php?event=userLeft&userID=1234
 - http&#58;//third-party-app/bbb-integ.php?event=meetingEnded&meetingID=abcd
+
+## Other Topics
+
+### Presentation Formats
+
+See valid formats for uploading a presentation in the filter list of [back-end](https://github.com/bigbluebutton/bigbluebutton/blob/v2.7.10/bbb-common-web/src/main/java/org/bigbluebutton/presentation/MimeTypeUtils.java#L28-L47) and of [front-end](https://github.com/bigbluebutton/bigbluebutton/blob/v2.7.10/bigbluebutton-html5/private/config/settings.yml#L824-L862).
