@@ -96,6 +96,7 @@ export default {
   isConnecting: () => AudioManager.isConnecting,
   isListenOnly: () => AudioManager.isListenOnly,
   isEchoTest: () => AudioManager.isEchoTest,
+  isMuted: () => AudioManager.isMuted,
   autoplayBlocked: () => AudioManager.autoplayBlocked,
   handleAllowAutoplay: () => AudioManager.handleAllowAutoplay(),
   playAlertSound: (url) => AudioManager.playAlertSound(url),

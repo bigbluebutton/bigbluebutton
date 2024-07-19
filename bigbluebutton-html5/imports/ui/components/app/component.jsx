@@ -137,8 +137,8 @@ class App extends Component {
     this.handleWindowResize = throttle(this.handleWindowResize).bind(this);
     this.shouldAriaHide = this.shouldAriaHide.bind(this);
     this.setAudioModalIsOpen = this.setAudioModalIsOpen.bind(this);
-
     this.setVideoPreviewModalIsOpen = this.setVideoPreviewModalIsOpen.bind(this);
+    this.createBeforeUnloadWindowEvent = this.createBeforeUnloadWindowEvent.bind(this);
 
     this.throttledDeviceType = throttle(() => this.setDeviceType(),
       50, { trailing: true, leading: true }).bind(this);
@@ -148,7 +148,6 @@ class App extends Component {
     const {
       layoutContextDispatch,
       isRTL,
-      muteMicrophone,
     } = this.props;
     const { browserName } = browserInfo;
     const { osName } = deviceInfo;
@@ -163,7 +162,6 @@ class App extends Component {
     const APP_CONFIG = window.meetingClientSettings.public.app;
     const DESKTOP_FONT_SIZE = APP_CONFIG.desktopFontSize;
     const MOBILE_FONT_SIZE = APP_CONFIG.mobileFontSize;
-    const CONFIRMATION_ON_LEAVE = window.meetingClientSettings.public.app.askForConfirmationOnLeave;
     const Settings = getSettingsSingletonInstance();
 
     const fontSize = isMobile() ? MOBILE_FONT_SIZE : DESKTOP_FONT_SIZE;
@@ -194,17 +192,7 @@ class App extends Component {
     window.ondragover = (e) => { e.preventDefault(); };
     window.ondrop = (e) => { e.preventDefault(); };
 
-    if (CONFIRMATION_ON_LEAVE) {
-      window.onbeforeunload = (event) => {
-        if (AudioService.isUsingAudio() && !AudioService.isMuted()) {
-          muteMicrophone();
-        }
-        event.stopImmediatePropagation();
-        event.preventDefault();
-        // eslint-disable-next-line no-param-reassign
-        event.returnValue = '';
-      };
-    }
+    this.createBeforeUnloadWindowEvent();
 
     logger.info({ logCode: 'app_component_componentdidmount' }, 'Client loaded successfully');
   }
@@ -222,9 +210,14 @@ class App extends Component {
       presentationIsOpen,
       hideActionsBar,
       hideNavBar,
+      muteMicrophone,
     } = this.props;
 
     this.renderDarkMode();
+
+    if (prevProps.muteMicrophone !== muteMicrophone) {
+      this.createBeforeUnloadWindowEvent();
+    }
 
     if (prevProps.currentUserAway !== currentUserAway) {
       if (currentUserAway === true) {
@@ -326,6 +319,25 @@ class App extends Component {
 
   setVideoPreviewModalIsOpen(value) {
     this.setState({ isVideoPreviewModalOpen: value });
+  }
+
+  createBeforeUnloadWindowEvent() {
+    const {
+      muteMicrophone,
+    } = this.props;
+
+    const CONFIRMATION_ON_LEAVE = window.meetingClientSettings.public.app.askForConfirmationOnLeave;
+    if (CONFIRMATION_ON_LEAVE) {
+      window.onbeforeunload = (event) => {
+        if (AudioService.isUsingAudio() && !AudioService.isMuted()) {
+          muteMicrophone();
+        }
+        event.stopImmediatePropagation();
+        event.preventDefault();
+        // eslint-disable-next-line no-param-reassign
+        event.returnValue = '';
+      };
+    }
   }
 
   shouldAriaHide() {
