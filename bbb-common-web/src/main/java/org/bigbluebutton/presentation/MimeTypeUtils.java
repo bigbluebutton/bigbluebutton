@@ -27,6 +27,9 @@ public class MimeTypeUtils {
     private  static final String SVG = "image/svg+xml";
     private  static final String WEBP = "image/webp";
 
+    // If the following mime-types are changed, please, make sure to also change:
+    // bigbluebutton-html5/private/config/settings.yml: L827
+    // docs/docs/development/api.md: L1222
     private static final HashMap<String, List<String>> EXTENSIONS_MIME = new HashMap<String, List<String>>(16) {
         {
             put(FileTypeConstants.DOC, Arrays.asList(DOC, DOCX, TIKA_MSOFFICE, TIKA_MSOFFICE_X));
