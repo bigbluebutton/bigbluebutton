@@ -7,7 +7,7 @@ const { ELEMENT_WAIT_LONGER_TIME, ELEMENT_WAIT_EXTRA_LONG_TIME, UPLOAD_PDF_WAIT_
 const { sleep } = require('../core/helpers');
 const { getSettings } = require('../core/settings');
 const { waitAndClearNotification } = require('../notifications/util.js');
-const CI = process.env.CI === 'false';
+const CI = process.env.CI === 'true';
 
 const defaultZoomLevel = '100%';
 
