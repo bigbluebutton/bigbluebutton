@@ -1219,7 +1219,7 @@ For example, the application may be able to register a URL that BigBlueButton wo
 
 ### Presentation Formats
 
-Valid formats of presentation is as described in the list ahead:
+Valid presentation formats are listed down below:
 
 - Adobe Acrobat documents:
   - extension: .pdf
