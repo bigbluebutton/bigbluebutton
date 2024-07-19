@@ -24,6 +24,7 @@ import { shouldForceRelay } from '/imports/ui/services/bbb-webrtc-sfu/utils';
 import WebRtcPeer from '/imports/ui/services/webrtc-base/peer';
 import { StreamItem, VideoItem } from './types';
 import { Output } from '/imports/ui/components/layout/layoutTypes';
+import { VIDEO_TYPES } from './enums';
 
 const intlClientErrors = defineMessages({
   permissionError: {
@@ -100,7 +101,7 @@ interface VideoProviderProps {
   focusedId: string;
   handleVideoFocus: (id: string) => void;
   isGridEnabled: boolean;
-  isMeteorConnected: boolean;
+  isClientConnected: boolean;
   swapLayout: boolean;
   currentUserId: string;
   paginationEnabled: boolean;
@@ -230,7 +231,7 @@ class VideoProvider extends Component<VideoProviderProps, VideoProviderState> {
       isUserLocked,
       streams,
       currentVideoPageIndex,
-      isMeteorConnected,
+      isClientConnected,
       lockUser,
     } = this.props;
     const { socketOpen } = this.state;
@@ -239,7 +240,7 @@ class VideoProvider extends Component<VideoProviderProps, VideoProviderState> {
     const shouldDebounce = VideoService.isPaginationEnabled()
       && prevProps.currentVideoPageIndex !== currentVideoPageIndex;
 
-    if (isMeteorConnected && socketOpen) this.updateStreams(streams, shouldDebounce);
+    if (isClientConnected && socketOpen) this.updateStreams(streams, shouldDebounce);
     if (!prevProps.isUserLocked && isUserLocked) {
       lockUser();
     }
@@ -247,7 +248,7 @@ class VideoProvider extends Component<VideoProviderProps, VideoProviderState> {
     // Signaling socket expired its retries and meteor is connected - create
     // a new signaling socket instance from scratch
     if (!socketOpen
-      && isMeteorConnected
+      && isClientConnected
       && this.ws == null) {
       this.ws = this.openWs();
     }
@@ -441,7 +442,7 @@ class VideoProvider extends Component<VideoProviderProps, VideoProviderState> {
   findAllPrivilegedStreams() {
     const { streams } = this.props;
     // Privileged streams are: floor holders, pinned users
-    return streams.filter((stream) => stream.type === 'stream' && (stream.floor || stream.pinned));
+    return streams.filter((stream) => stream.type === VIDEO_TYPES.STREAM && (stream.floor || stream.pinned));
   }
 
   updateQualityThresholds(numberOfPublishers: number) {
@@ -469,7 +470,7 @@ class VideoProvider extends Component<VideoProviderProps, VideoProviderState> {
   }
 
   getStreamsToConnectAndDisconnect(streams: VideoItem[]) {
-    const streamsCameraIds = streams.filter((s) => s?.type !== 'grid').map((s) => (s as StreamItem).stream);
+    const streamsCameraIds = streams.filter((s) => s?.type !== VIDEO_TYPES.GRID).map((s) => (s as StreamItem).stream);
     const streamsConnected = Object.keys(this.webRtcPeers);
 
     const streamsToConnect = streamsCameraIds.filter((stream) => {
@@ -963,7 +964,7 @@ class VideoProvider extends Component<VideoProviderProps, VideoProviderState> {
       // If it's a viewer, set the reconnection timeout. There's a good chance
       // no local candidate was generated and it wasn't set.
       const peer = this.webRtcPeers[stream];
-      const stillExists = streams.some((item) => item.type === 'stream' && item.stream === stream);
+      const stillExists = streams.some((item) => item.type === VIDEO_TYPES.STREAM && item.stream === stream);
 
       if (stillExists) {
         const isEstablishedConnection = peer && peer.started;
@@ -1248,7 +1249,7 @@ class VideoProvider extends Component<VideoProviderProps, VideoProviderState> {
       stopVideo(streamId);
     } else {
       const peer = this.webRtcPeers[streamId];
-      const stillExists = streams.some((item) => item.type === 'stream' && streamId === item.stream);
+      const stillExists = streams.some((item) => item.type === VIDEO_TYPES.STREAM && streamId === item.stream);
 
       if (stillExists) {
         const isEstablishedConnection = peer && peer.started;
