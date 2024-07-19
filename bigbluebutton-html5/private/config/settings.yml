@@ -821,6 +821,9 @@ public:
     mirroredFromBBBCore:
       uploadSizeMax: 30000000
       uploadPagesMax: 200
+    # If the following mime-types list is changed, please, make sure to also change:
+    # bbb-common-web/src/main/java/org/bigbluebutton/presentation/MimeTypeUtils.java: L34 (and related files.)
+    # docs/docs/development/api.md: L1222
     uploadValidMimeTypes:
       - extension: .pdf
         mime: application/pdf
@@ -848,10 +851,6 @@ public:
         mime: application/vnd.oasis.opendocument.presentation
       - extension: .odg
         mime: application/vnd.oasis.opendocument.graphics
-      - extension: .odc
-        mime: application/vnd.oasis.opendocument.chart
-      - extension: .odi
-        mime: application/vnd.oasis.opendocument.image
       - extension: .jpg
         mime: image/jpeg
       - extension: .jpeg
@@ -860,6 +859,8 @@ public:
         mime: image/png
       - extension: .webp
         mime: image/webp
+      - extension: .svg
+        mime: image/svg+xm
   selectRandomUser:
     enabled: true
     countdown: false

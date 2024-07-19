@@ -31,6 +31,7 @@ public final class FileTypeConstants {
     public static final String RTF = "rtf";
     public static final String TXT = "txt";
     public static final String ODS = "ods";
+    public static final String ODG = "odg";
     public static final String ODP = "odp";
     public static final String AVI = "avi";
     public static final String MPG = "mpg";
@@ -38,6 +39,7 @@ public final class FileTypeConstants {
     public static final String PDF = "pdf";
     public static final String JPG = "jpg";
     public static final String JPEG = "jpeg";
+    public static final String WEBP = "webp";
     public static final String PNG = "png";
     public static final String SVG = "svg";
     private FileTypeConstants() {} // Prevent instantiation

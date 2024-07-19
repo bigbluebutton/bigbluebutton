@@ -509,7 +509,7 @@ See [Passing custom parameters to the client on join](/administration/customize/
 
 ### `POST` insertDocument
 
-This endpoint insert one or more documents into a running meeting via API call
+This endpoint insert one or more documents into a running meeting via API call.
 
 **Resource URL:**
 
@@ -1214,3 +1214,34 @@ For example, the application may be able to register a URL that BigBlueButton wo
 - http&#58;//third-party-app/bbb-integ.php?event=meetingEnded&meetingID=abcd
 - http&#58;//third-party-app/bbb-integ.php?event=userLeft&userID=1234
 - http&#58;//third-party-app/bbb-integ.php?event=meetingEnded&meetingID=abcd
+
+## Other Topics
+
+### Presentation Formats
+
+Valid formats of presentation is as described in the list ahead:
+
+- Adobe Acrobat documents:
+  - extension: .pdf
+- Office documents:
+  - extension: .doc
+  - extension: .docx
+  - extension: .xls
+  - extension: .xlsx
+  - extension: .ppt
+  - extension: .pptx
+  - extension: .odt
+  - extension: .ods
+  - extension: .odp
+  - extension: .odg
+- Image:
+  - extension: .jpg
+  - extension: .jpeg
+  - extension: .png
+  - extension: .webp
+  - extension: .svg
+- Pure text:
+  - extension: .rtf
+  - extension: .txt
+
+All these valid formats are also present in a list in the [back-end](https://github.com/bigbluebutton/bigbluebutton/blob/v2.7.10/bbb-common-web/src/main/java/org/bigbluebutton/presentation/MimeTypeUtils.java#L28-L47) and in the [front-end](https://github.com/bigbluebutton/bigbluebutton/blob/v2.7.10/bigbluebutton-html5/private/config/settings.yml#L824-L862) if more details are needed.
