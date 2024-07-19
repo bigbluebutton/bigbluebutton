@@ -1217,31 +1217,44 @@ For example, the application may be able to register a URL that BigBlueButton wo
 
 ## Other Topics
 
-### Presentation Formats
+### Supported Document Types
 
-Valid presentation formats are listed down below:
+#### PDF Documents
 
-- Adobe Acrobat documents:
-  - extension: .pdf
-- Office documents:
-  - extension: .doc
-  - extension: .docx
-  - extension: .xls
-  - extension: .xlsx
-  - extension: .ppt
-  - extension: .pptx
-  - extension: .odt
-  - extension: .ods
-  - extension: .odp
-  - extension: .odg
-- Image:
-  - extension: .jpg
-  - extension: .jpeg
-  - extension: .png
-  - extension: .webp
-  - extension: .svg
-- Pure text:
-  - extension: .rtf
-  - extension: .txt
+- PDF:
+  - .pdf
+
+#### Office Documents
+
+- Microsoft Word:
+  - .doc
+  - .docx
+- Microsoft Excel:
+  - .xls
+  - .xlsx
+- Microsoft PowerPoint:
+  - .ppt
+  - .pptx
+- OpenDocument Formats:
+  - .odt (Text Document)
+  - .ods (Spreadsheet)
+  - .odp (Presentation)
+  - .odg (Graphics)
+
+#### Image Files
+
+- Common Image Formats:
+  - .jpg
+  - .jpeg
+  - .png
+  - .webp
+  - .svg
+
+#### Text Files
+
+- Rich Text Format:
+  - .rtf
+- Plain Text:
+  - .txt
 
 All these valid formats are also present in a list in the [back-end](https://github.com/bigbluebutton/bigbluebutton/blob/v2.7.10/bbb-common-web/src/main/java/org/bigbluebutton/presentation/MimeTypeUtils.java#L28-L47) and in the [front-end](https://github.com/bigbluebutton/bigbluebutton/blob/v2.7.10/bigbluebutton-html5/private/config/settings.yml#L824-L862) if more details are needed.
