@@ -1122,13 +1122,6 @@ public:
       - coffeeshop.jpg
       - board.jpg
 private:
-  postgresql:
-    host: localhost
-    port: 5432
-    database: bbb_graphql
-    user: bbb_frontend
-    password: bbb_frontend
-    timeout: 30000
   analytics:
     includeChat: true
   app:
