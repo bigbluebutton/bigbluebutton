@@ -449,13 +449,6 @@ AS SELECT "user"."userId",
     "user"."inactivityWarningTimeoutSecs"
    FROM "user";
 
---This view will be used by Meteor to validate if the provided authToken is valid
---It is temporary while Meteor is not removed
-create view "v_user_connection_auth" as
-select "meetingId", "userId", "authToken"
-from "v_user_current"
-where "isOnline" is true;
-
 CREATE OR REPLACE VIEW "v_user_guest" AS
 SELECT u."meetingId", u."userId",
 u."guestStatus",
