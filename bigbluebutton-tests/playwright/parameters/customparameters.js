@@ -110,6 +110,16 @@ class CustomParameters extends MultiUsers {
     await this.modPage.hasElement(e.audioSettingsModal);
   }
 
+  async skipEchoTestIfPreviousDevice() {
+    await this.modPage.joinMicrophone();
+    await this.modPage.leaveAudio();
+    await this.modPage.waitAndClick(e.joinAudio);
+    await this.modPage.waitAndClick(e.microphoneButton);
+    await this.modPage.waitForSelector(e.establishingAudioLabel);
+    await this.modPage.wasRemoved(e.establishingAudioLabel, ELEMENT_WAIT_LONGER_TIME);
+    await this.modPage.hasElement(e.isTalking);
+  }
+
   async bannerText() {
     await this.modPage.waitForSelector(e.actions);
     await this.modPage.hasElement(e.notificationBannerBar);
@@ -148,7 +158,7 @@ class CustomParameters extends MultiUsers {
 
   async forceRestorePresentationOnNewPollResult(joinParameter) {
     await this.initUserPage(true, this.context, { useModMeetingId: true, joinParameter })
-    const { presentationHidden,pollEnabled } = getSettings();
+    const { presentationHidden, pollEnabled } = getSettings();
     if (!presentationHidden) await this.userPage.waitAndClick(e.minimizePresentation);
     if (pollEnabled) await util.poll(this.modPage, this.userPage);
     await this.userPage.waitForSelector(e.smallToastMsg);

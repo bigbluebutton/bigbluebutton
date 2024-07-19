@@ -18,6 +18,7 @@ async function generateSettingsData(page) {
       forceListenOnly: settingsData.app.forceListenOnly,
       skipEchoTest: settingsData.app.skipCheck,
       skipEchoTestOnJoin: settingsData.app.skipCheckOnJoin,
+      skipEchoTestIfPreviousDevice: settingsData.app.skipEchoTestIfPreviousDevice,
       speechRecognitionEnabled: settingsData.app.audioCaptions.enabled,
       // Chat
       chatEnabled: settingsData.chat.enabled,
