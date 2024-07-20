@@ -157,6 +157,10 @@ In BigBlueButton 2.7.5/3.0.0-alpha.5 we stopped propagating the events.xml event
 - Client settings.yml: `skipVideoPreviewIfPreviousDevice`. Defaults to `false`
 - Can be overrided on join Custom Parameter with: `userdata-bbb_skip_video_preview_if_previous_device=`
 
+### Replaced all user facing instances of "meeting" with the word "session"
+
+The word "session" is more generic and encompasses both educational and work contexts. Up until BigBlueButton 3.0 we were using the two keywords interchangeably. Moving forward we are preferring to use "session".
+
 ### Changes to events.xml
 
 Retired events
