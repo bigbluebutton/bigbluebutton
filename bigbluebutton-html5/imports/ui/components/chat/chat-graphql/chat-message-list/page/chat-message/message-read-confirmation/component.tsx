@@ -8,7 +8,7 @@ import { ReadIcon, IconWrapper } from './styles';
 const intlMessages = defineMessages({
   messageReadLabel: {
     id: 'app.chat.messageRead',
-    description: 'Label for the message read indicatior',
+    description: 'Label for the message read indicator',
   },
 });
 
