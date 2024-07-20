@@ -12,7 +12,6 @@ public:
     forceListenOnly: false
     # Skips the echo test when connecting with microphone.
     skipCheck: false
-    instanceId: ''
     # Skips the echo test when connecting with microphone right after user
     # joins the room the first time. Subsequent joins to microphone won't
     # have echo test skipped, for example if user leaves and joins the mic
