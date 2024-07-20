@@ -10,5 +10,5 @@ export const ReadIcon = styled(Icon)`
 
 export const IconWrapper = styled.span`
   display: flex;
-  align-items: flex-end;
+  align-items: center;
 `;
