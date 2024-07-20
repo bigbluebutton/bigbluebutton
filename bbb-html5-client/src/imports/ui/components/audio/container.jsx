@@ -1,0 +1,261 @@
+import React, { useEffect } from 'react';
+import { useSubscription } from '@apollo/client';
+import PropTypes from 'prop-types';
+import Session from '/imports/ui/services/storage/in-memory';
+import { injectIntl, defineMessages } from 'react-intl';
+import { range } from '/imports/utils/array-utils';
+import { useMeetingIsBreakout } from '/imports/ui/components/app/service';
+import { notify } from '/imports/ui/services/notification';
+import getFromUserSettings from '/imports/ui/services/users-settings';
+import VideoPreviewContainer from '/imports/ui/components/video-preview/container';
+import lockContextContainer from '/imports/ui/components/lock-viewers/context/container';
+import {
+  joinMicrophone,
+  joinListenOnly,
+} from '/imports/ui/components/audio/audio-modal/service';
+
+import Service from './service';
+import AudioModalContainer from './audio-modal/container';
+import useToggleVoice from './audio-graphql/hooks/useToggleVoice';
+import usePreviousValue from '/imports/ui/hooks/usePreviousValue';
+import useCurrentUser from '/imports/ui/core/hooks/useCurrentUser';
+import { toggleMuteMicrophone } from '/imports/ui/components/audio/audio-graphql/audio-controls/input-stream-live-selector/service';
+import useSettings from '../../services/settings/hooks/useSettings';
+import { SETTINGS } from '../../services/settings/enums';
+import { useStorageKey } from '../../services/storage/hooks';
+import { BREAKOUT_COUNT } from './queries';
+import useMeeting from '../../core/hooks/useMeeting';
+import useWhoIsUnmuted from '../../core/hooks/useWhoIsUnmuted';
+
+const intlMessages = defineMessages({
+  joinedAudio: {
+    id: 'app.audioManager.joinedAudio',
+    description: 'Joined audio toast message',
+  },
+  joinedEcho: {
+    id: 'app.audioManager.joinedEcho',
+    description: 'Joined echo test toast message',
+  },
+  leftAudio: {
+    id: 'app.audioManager.leftAudio',
+    description: 'Left audio toast message',
+  },
+  reconnectingAudio: {
+    id: 'app.audioManager.reconnectingAudio',
+    description: 'Reconnecting audio toast message',
+  },
+  genericError: {
+    id: 'app.audioManager.genericError',
+    description: 'Generic error message',
+  },
+  connectionError: {
+    id: 'app.audioManager.connectionError',
+    description: 'Connection error message',
+  },
+  requestTimeout: {
+    id: 'app.audioManager.requestTimeout',
+    description: 'Request timeout error message',
+  },
+  invalidTarget: {
+    id: 'app.audioManager.invalidTarget',
+    description: 'Invalid target error message',
+  },
+  mediaError: {
+    id: 'app.audioManager.mediaError',
+    description: 'Media error message',
+  },
+  BrowserNotSupported: {
+    id: 'app.audioNotification.audioFailedError1003',
+    description: 'browser not supported error message',
+  },
+  reconectingAsListener: {
+    id: 'app.audioNotificaion.reconnectingAsListenOnly',
+    description: 'ice negotiation error message',
+  },
+});
+
+let didMountAutoJoin = false;
+
+const webRtcError = range(1001, 1011)
+  .reduce((acc, value) => ({
+    ...acc,
+    [value]: { id: `app.audioNotification.audioFailedError${value}` },
+  }), {});
+
+const messages = {
+  info: {
+    JOINED_AUDIO: intlMessages.joinedAudio,
+    JOINED_ECHO: intlMessages.joinedEcho,
+    LEFT_AUDIO: intlMessages.leftAudio,
+    RECONNECTING_AUDIO: intlMessages.reconnectingAudio,
+  },
+  error: {
+    GENERIC_ERROR: intlMessages.genericError,
+    CONNECTION_ERROR: intlMessages.connectionError,
+    REQUEST_TIMEOUT: intlMessages.requestTimeout,
+    INVALID_TARGET: intlMessages.invalidTarget,
+    MEDIA_ERROR: intlMessages.mediaError,
+    WEBRTC_NOT_SUPPORTED: intlMessages.BrowserNotSupported,
+    ...webRtcError,
+  },
+};
+
+const AudioContainer = (props) => {
+  const {
+    isAudioModalOpen,
+    setAudioModalIsOpen,
+    setVideoPreviewModalIsOpen,
+    isVideoPreviewModalOpen,
+    intl,
+    userLocks,
+    speechLocale,
+  } = props;
+
+  const APP_CONFIG = window.meetingClientSettings.public.app;
+  const KURENTO_CONFIG = window.meetingClientSettings.public.kurento;
+
+  const autoJoin = getFromUserSettings('bbb_auto_join_audio', APP_CONFIG.autoJoin);
+  const enableVideo = getFromUserSettings('bbb_enable_video', KURENTO_CONFIG.enableVideo);
+  const autoShareWebcam = getFromUserSettings('bbb_auto_share_webcam', KURENTO_CONFIG.autoShareWebcam);
+  const { userWebcam } = userLocks;
+
+  const prevProps = usePreviousValue(props);
+  const toggleVoice = useToggleVoice();
+  const userSelectedMicrophone = !!useStorageKey('clientUserSelectedMicrophone', 'session');
+  const userSelectedListenOnly = !!useStorageKey('clientUserSelectedListenOnly', 'session');
+  const { microphoneConstraints } = useSettings(SETTINGS.APPLICATION);
+  const { data: breakoutCountData } = useSubscription(BREAKOUT_COUNT);
+  const hasBreakoutRooms = (breakoutCountData?.breakoutRoom_aggregate?.aggregate?.count ?? 0) > 0;
+  const meetingIsBreakout = useMeetingIsBreakout();
+  const { data: meeting } = useMeeting((m) => ({
+    voiceSettings: {
+      voiceConf: m?.voiceSettings?.voiceConf,
+    },
+  }));
+  const { data: currentUserName } = useCurrentUser((u) => u.name);
+
+  const openAudioModal = () => setAudioModalIsOpen(true);
+
+  const openVideoPreviewModal = () => {
+    if (userWebcam) return;
+    setVideoPreviewModalIsOpen(true);
+  };
+
+  const init = async () => {
+    await Service.init(
+      messages,
+      intl,
+      toggleVoice,
+      speechLocale,
+      meeting?.voiceSettings?.voiceConf,
+      currentUserName,
+    );
+    if ((!autoJoin || didMountAutoJoin)) {
+      if (enableVideo && autoShareWebcam) {
+        openVideoPreviewModal();
+      }
+      return Promise.resolve(false);
+    }
+    Session.setItem('audioModalIsOpen', true);
+    if (enableVideo && autoShareWebcam) {
+      openAudioModal();
+      openVideoPreviewModal();
+      didMountAutoJoin = true;
+    } else if (!(
+      userSelectedMicrophone
+      && userSelectedListenOnly
+      && meetingIsBreakout)) {
+      openAudioModal();
+      didMountAutoJoin = true;
+    }
+    return Promise.resolve(true);
+  };
+
+  const { hasBreakoutRooms: hadBreakoutRooms } = prevProps || {};
+  const userIsReturningFromBreakoutRoom = hadBreakoutRooms && !hasBreakoutRooms;
+
+  const { data: currentUser } = useCurrentUser((u) => ({ userId: u.userId }));
+  const { data: unmutedUsers } = useWhoIsUnmuted();
+  const currentUserMuted = currentUser?.userId && !unmutedUsers[currentUser.userId];
+
+  const joinAudio = () => {
+    if (Service.isConnected()) return;
+
+    if (userSelectedMicrophone) {
+      joinMicrophone(true);
+      return;
+    }
+
+    if (userSelectedListenOnly) joinListenOnly();
+  };
+
+  useEffect(() => {
+    // Data is not loaded yet.
+    // We don't know whether the meeting is a breakout or not.
+    // So, postpone the decision.
+    if (meetingIsBreakout === undefined) return;
+
+    init().then(() => {
+      if (meetingIsBreakout && !Service.isUsingAudio()) {
+        joinAudio();
+      }
+    });
+  }, [meetingIsBreakout]);
+
+  useEffect(() => {
+    if (userIsReturningFromBreakoutRoom) {
+      joinAudio();
+    }
+  }, [userIsReturningFromBreakoutRoom]);
+
+  if (Service.isConnected() && !Service.isListenOnly()) {
+    Service.updateAudioConstraints(microphoneConstraints);
+
+    if (userLocks.userMic && !currentUserMuted) {
+      toggleMuteMicrophone(!currentUserMuted, toggleVoice);
+      notify(intl.formatMessage(intlMessages.reconectingAsListener), 'info', 'volume_level_2');
+    }
+  }
+
+  return (
+    <>
+      {isAudioModalOpen ? (
+        <AudioModalContainer
+          {...{
+            priority: 'low',
+            setIsOpen: setAudioModalIsOpen,
+            isOpen: isAudioModalOpen,
+          }}
+        />
+      ) : null}
+      {isVideoPreviewModalOpen ? (
+        <VideoPreviewContainer
+          {...{
+            callbackToClose: () => {
+              setVideoPreviewModalIsOpen(false);
+            },
+            priority: 'low',
+            setIsOpen: setVideoPreviewModalIsOpen,
+            isOpen: isVideoPreviewModalOpen,
+          }}
+        />
+      ) : null}
+    </>
+  );
+};
+
+export default lockContextContainer(injectIntl(AudioContainer));
+
+AudioContainer.propTypes = {
+  isAudioModalOpen: PropTypes.bool.isRequired,
+  setAudioModalIsOpen: PropTypes.func.isRequired,
+  setVideoPreviewModalIsOpen: PropTypes.func.isRequired,
+  isVideoPreviewModalOpen: PropTypes.bool.isRequired,
+  intl: PropTypes.shape({
+    formatMessage: PropTypes.func.isRequired,
+  }).isRequired,
+  userLocks: PropTypes.shape({
+    userMic: PropTypes.bool.isRequired,
+  }).isRequired,
+  speechLocale: PropTypes.string.isRequired,
+};

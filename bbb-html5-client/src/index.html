@@ -1,0 +1,175 @@
+<!--
+BigBlueButton open source conferencing system - http://www.bigbluebutton.org/
+
+Copyright (c) 2019 BigBlueButton Inc. and by respective authors (see below).
+
+This program is free software; you can redistribute it and/or modify it under the
+terms of the GNU Lesser General Public License as published by the Free Software
+Foundation; either version 3.0 of the License, or (at your option) any later
+version.
+
+BigBlueButton is distributed in the hope that it will be useful, but WITHOUT ANY
+WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A
+PARTICULAR PURPOSE. See the GNU Lesser General Public License for more details.
+
+You should have received a copy of the GNU Lesser General Public License along
+with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
+-->
+
+<head>
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
+  <style>
+    html {
+      box-sizing: border-box;
+    }
+
+    *, *:before, *:after {
+      box-sizing: inherit;
+    }
+
+    body {
+      position: fixed;
+      height: 100%;
+      font-family: 'Source Sans Pro', Arial, sans-serif;
+      font-size: 1rem; /* 16px */
+      background-color: #06172A;
+    }
+
+    /* language-specific font */
+    body.lang-fa {
+      font-family: Tahoma, 'Source Sans Pro', Arial, sans-serif;
+    }
+
+    :-webkit-full-screen {
+      background-color: inherit;
+    }
+
+    a {
+      color: inherit;
+    }
+
+    #app {
+      height: 100%;
+      width: 100vw;
+      overflow: hidden;
+    }
+
+    .sr-only {
+      position: absolute;
+      width: 1px;
+      height: 1px;
+      padding: 0;
+      margin: -1px;
+      overflow: hidden;
+      clip: rect(0,0,0,0);
+      border: 0;
+    }
+
+    .set-z-index {
+      z-index: 15;
+      width: 100% !important;
+      height: 100% !important;
+    }
+
+    .remove-z-index {
+      z-index: 0;
+    }
+    /* .full-screen {
+      height: 100% !important;
+      width: 100% !important;
+      transform: translateX(0) translateY(0) translateZ(0) !important;
+    } */
+
+    [hidden]:not([hidden="false"]) {
+      display: none !important;
+    }
+
+    ::-webkit-input-placeholder {
+      color: var(--palette-placeholder-text);
+      opacity: 1;
+    }
+
+    :-moz-placeholder, /* Firefox 4 to 18 */
+    ::-moz-placeholder { /* Firefox 19+ */
+      color: var(--palette-placeholder-text);
+      opacity: 1;
+    }
+
+    main {
+      display: initial;
+    }
+
+    .overrideSelect {
+      background-color: #FFF !important;
+      color: #000 !important;
+    }
+
+    .select {
+      background-color: rgba(66, 133, 244, 1) !important;
+      color: #FFF !important;
+    }
+
+    .fade-in {
+      opacity: 1 !important;
+    }
+
+    .fade-out {
+      opacity: 0 !important;
+    }
+  </style>
+  <script>
+    document.addEventListener('gesturestart', function (e) {
+      e.preventDefault();
+    });
+  </script>
+  <script src="compatibility/sip.js" language="javascript"></script>
+  <script src="compatibility/tflite-simd.js" language="javascript"></script>
+  <script src="compatibility/tflite.js" language="javascript"></script>
+  <!-- fonts -->
+  <link rel="preload" href="fonts/BbbIcons/bbb-icons.woff2" as="font" type="font/woff2" crossorigin="anonymous"/>
+  <link rel="preload" href="fonts/SourceSansPro/SourceSansPro-Light.woff" as="font" crossorigin="anonymous"/>
+  <link rel="preload" href="fonts/SourceSansPro/SourceSansPro-Regular.woff" as="font" crossorigin="anonymous"/>
+  <link rel="preload" href="fonts/SourceSansPro/SourceSansPro-Semibold.woff" as="font" crossorigin="anonymous"/>
+  <link rel="preload" href="fonts/SourceSansPro/SourceSansPro-Bold.woff" as="font" crossorigin="anonymous"/>
+  <link rel="preload" href="fonts/SourceSansPro/SourceSansPro-LightItalic.woff" as="font" crossorigin="anonymous"/>
+  <link rel="preload" href="fonts/SourceSansPro/SourceSansPro-Italic.woff" as="font" crossorigin="anonymous"/>
+  <link rel="preload" href="fonts/SourceSansPro/SourceSansPro-SemiboldItalic.woff" as="font" crossorigin="anonymous"/>
+  <link rel="preload" href="fonts/SourceSansPro/SourceSansPro-BoldItalic.woff" as="font" crossorigin="anonymous"/>
+
+  <link rel="stylesheet" href="stylesheets/bbb-icons.css" as="font" crossorigin="anonymous"/>
+  <link rel="stylesheet" href="stylesheets/fonts.css" as="font" crossorigin="anonymous"/>
+  <link rel="stylesheet" href="stylesheets/fontSizing.css" as="font" crossorigin="anonymous"/>
+  <link rel="stylesheet" href="stylesheets/modals.css" as="font" crossorigin="anonymous"/>
+  <link rel="stylesheet" href="stylesheets/normalize.css" as="font" crossorigin="anonymous"/>
+  <link rel="stylesheet" href="stylesheets/toastify.css" as="font" crossorigin="anonymous"/>
+  <link rel="stylesheet" href="stylesheets/toggleSwitch.css" as="font" crossorigin="anonymous"/>
+
+  <style>
+    @font-face {
+      font-family: 'bbb-icons';
+      src: url('fonts/BbbIcons/bbb-icons.woff2') format('woff2'),
+        url('fonts/BbbIcons/bbb-icons.woff') format('woff');
+      font-weight: normal;
+      font-style: normal;
+    }
+  </style>
+  <!-- fonts -->
+</head>
+<body style="background-color: #06172A">
+  <div id="aria-polite-alert" aria-live="polite" aria-atomic="false" class="sr-only"></div>
+  <svg style="display: none; width: 1px; height: 1px;">
+    <defs>
+      <symbol id="redPointer" viewBox="0 0 10 10">
+        <circle cx="5" cy="5" r="4" fill="red" />
+      </symbol>
+    </defs>
+  </svg>
+  <main>
+    <div id="app" role="document">
+  </main>
+  </div>
+  <span id="destination"></span>
+  <audio id="remote-media" autoplay>
+  </audio>
+  <div id="modals-container"></div>
+</body>

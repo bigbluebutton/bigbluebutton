@@ -1,0 +1,76 @@
+.ReactModal__Overlay {
+  -webkit-perspective: 600;
+  perspective: 600;
+  opacity: 0;
+  overflow-x: hidden;
+  overflow-y: auto;
+  background-color: rgba(0, 0, 0, 0.5);
+}
+
+.ReactModal__Overlay--after-open {
+  opacity: 1;
+  transition: opacity calc(var(--enableAnimation) * 150ms) ease-out;
+}
+
+.ReactModal__Content {
+  -webkit-transform: scale(0.5) rotateX(-30deg);
+  transform: scale(0.5) rotateX(-30deg);
+  width: 600px;
+}
+
+.ReactModal__Content--after-open {
+  -webkit-transform: scale(1) rotateX(0deg);
+  transform: scale(1) rotateX(0deg);
+  transition: all calc(var(--enableAnimation) * 150ms) ease-in;
+}
+
+.ReactModal__Overlay--before-close {
+  opacity: 0;
+}
+
+.ReactModal__Content--before-close {
+  -webkit-transform: scale(0.5) rotateX(30deg);
+  transform: scale(0.5) rotateX(30deg);
+  transition: all calc(var(--enableAnimation) * 150ms) ease-in;
+}
+
+.ReactModal__Content.modal-dialog {
+  border: none;
+  background-color: transparent;
+}
+
+/* Prevents that an element within app shows over a modal */
+#app {
+  position: inherit;
+  z-index: 1000 !important;
+}
+
+.modal-low {
+  z-index: 1001;
+}
+
+.modal-medium {
+  z-index: 1002;
+}
+
+.modal-high {
+  z-index: 1003;
+}
+
+/* Within a same priority, hide all but first (FIFO) */
+.modal-low ~ .modal-low, 
+.modal-medium ~ .modal-medium, 
+.modal-high ~ .modal-high {
+  display: none;
+}
+
+/* Hide all low priority modals when a medium or high priority modals are displayed */
+#modals-container:has(.modal-medium) .modal-low, 
+#modals-container:has(.modal-high) .modal-low {
+  display: none;
+}
+
+/* Hide all medium priority modals when a high priority modal is displayed */
+#modals-container:has(.modal-high) .modal-medium {
+  display: none;
+}

@@ -28,6 +28,19 @@
       "eslint --fix"
     ]
   },
+  "overrides": {
+    "react-autosize-textarea": {
+      "react": "^18.0.0",
+      "react-dom": "^18.0.0"
+    },
+    "react-tether": {
+      "react": "^18.0.0",
+      "react-dom": "^18.0.0"
+    },
+    "react-scripts": {
+      "typescript": "^5.0.0"
+    }
+  },
   "dependencies": {
     "@apollo/client": "^3.10.4",
     "@babel/runtime": "^7.17.9",

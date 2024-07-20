@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="64px" height="40px" viewBox="0 0 64 40" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+    <!-- Generator: Sketch 48.2 (47327) - http://www.bohemiancoding.com/sketch -->
+    <title>icon-webcam-off</title>
+    <desc>Created with Sketch.</desc>
+    <defs></defs>
+    <g id="Video-Exploration" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
+        <g id="icon-webcam-off">
+            <rect id="Rectangle-14-Copy-15" fill="#DFE7F0" x="0" y="0" width="64" height="40" rx="2"></rect>
+            <rect id="Rectangle-14-Copy-16" fill="#8BA2BB" x="7" y="0" width="50" height="32"></rect>
+            <path d="M23.2059929,21.8093305 L33.7940071,21.8093305 L33.7940071,13.1906695 L23.2059929,13.1906695 L23.2059929,21.8093305 Z M34.3970036,23 L22.6029964,23 C22.2695394,23 22,22.7338854 22,22.4046653 L22,12.5953347 C22,12.26671 22.2695394,12 22.6029964,12 L34.3970036,12 C34.7298576,12 35,12.26671 35,12.5953347 L35,22.4046653 C35,22.7338854 34.7298576,23 34.3970036,23 Z" id="Fill-1" fill="#FFFFFF"></path>
+            <path d="M40.602925,21.0265445 L37.2408478,19.5331841 L37.2408478,17.0682399 L40.602925,15.5748796 L40.602925,21.0265445 Z M41.56148,14.1001319 C41.3852796,13.9859739 41.1625474,13.9679816 40.9714568,14.0536001 L36.3685318,16.0978969 C36.1439383,16.1971648 36,16.4192765 36,16.6649644 L36,19.9364597 C36,20.1821476 36.1439383,20.4042593 36.3685318,20.5035271 L40.9714568,22.5478239 C41.0521119,22.5838085 41.1377304,22.6011804 41.2233489,22.6011804 C41.3412295,22.6011804 41.45911,22.5670571 41.56148,22.5012921 C41.7376803,22.3865137 41.8437728,22.1910802 41.8437728,21.9807565 L41.8437728,14.6206676 C41.8437728,14.4103439 41.7376803,14.2149104 41.56148,14.1001319 Z" id="Fill-1" fill="#FFFFFF"></path>
+            <g id="Group-Copy" transform="translate(24.000000, 34.000000)" fill="#8BA2BB">
+                <circle id="Oval" cx="2" cy="2" r="2"></circle>
+                <circle id="Oval-Copy" cx="8" cy="2" r="2"></circle>
+                <circle id="Oval-Copy-2" cx="14" cy="2" r="2"></circle>
+            </g>
+        </g>
+    </g>
+</svg>

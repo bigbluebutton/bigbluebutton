@@ -1,0 +1,593 @@
+import React, { useEffect, useState } from 'react';
+import PropTypes from 'prop-types';
+import {
+  defineMessages, injectIntl, FormattedMessage,
+} from 'react-intl';
+import { useMutation } from '@apollo/client';
+import Styled from './styles';
+import PermissionsOverlay from '../permissions-overlay/component';
+import AudioSettings from '../audio-settings/component';
+import EchoTest from '../echo-test/component';
+import Help from '../help/component';
+import AudioDial from '../audio-dial/component';
+import AudioAutoplayPrompt from '../autoplay/component';
+import { getSettingsSingletonInstance } from '/imports/ui/services/settings';
+import usePreviousValue from '/imports/ui/hooks/usePreviousValue';
+import { SET_AWAY } from '/imports/ui/components/user-list/user-list-content/user-participants/user-list-participants/user-actions/mutations';
+import VideoService from '/imports/ui/components/video-provider/service';
+import AudioCaptionsSelectContainer from '../audio-graphql/audio-captions/captions/component';
+import useToggleVoice from '/imports/ui/components/audio/audio-graphql/hooks/useToggleVoice';
+import {
+  muteAway,
+} from '/imports/ui/components/audio/audio-graphql/audio-controls/input-stream-live-selector/service';
+import Session from '/imports/ui/services/storage/in-memory';
+
+const propTypes = {
+  intl: PropTypes.shape({
+    formatMessage: PropTypes.func.isRequired,
+  }).isRequired,
+  closeModal: PropTypes.func.isRequired,
+  joinMicrophone: PropTypes.func.isRequired,
+  joinListenOnly: PropTypes.func.isRequired,
+  joinEchoTest: PropTypes.func.isRequired,
+  exitAudio: PropTypes.func.isRequired,
+  leaveEchoTest: PropTypes.func.isRequired,
+  changeInputDevice: PropTypes.func.isRequired,
+  changeOutputDevice: PropTypes.func.isRequired,
+  isEchoTest: PropTypes.bool.isRequired,
+  isConnecting: PropTypes.bool.isRequired,
+  isConnected: PropTypes.bool.isRequired,
+  isUsingAudio: PropTypes.bool.isRequired,
+  isListenOnly: PropTypes.bool.isRequired,
+  inputDeviceId: PropTypes.string,
+  outputDeviceId: PropTypes.string,
+  formattedDialNum: PropTypes.string.isRequired,
+  showPermissionsOvelay: PropTypes.bool.isRequired,
+  listenOnlyMode: PropTypes.bool.isRequired,
+  joinFullAudioImmediately: PropTypes.bool,
+  forceListenOnlyAttendee: PropTypes.bool.isRequired,
+  audioLocked: PropTypes.bool.isRequired,
+  resolve: PropTypes.func,
+  isMobileNative: PropTypes.bool.isRequired,
+  isIE: PropTypes.bool.isRequired,
+  formattedTelVoice: PropTypes.string.isRequired,
+  autoplayBlocked: PropTypes.bool.isRequired,
+  handleAllowAutoplay: PropTypes.func.isRequired,
+  changeInputStream: PropTypes.func.isRequired,
+  localEchoEnabled: PropTypes.bool.isRequired,
+  showVolumeMeter: PropTypes.bool.isRequired,
+  notify: PropTypes.func.isRequired,
+  isRTL: PropTypes.bool.isRequired,
+  priority: PropTypes.string.isRequired,
+  isOpen: PropTypes.bool.isRequired,
+  setIsOpen: PropTypes.func.isRequired,
+  AudioError: PropTypes.shape({
+    MIC_ERROR: PropTypes.shape({
+      UNKNOWN: PropTypes.number,
+      NO_SSL: PropTypes.number,
+      MAC_OS_BLOCK: PropTypes.number,
+      NO_PERMISSION: PropTypes.number,
+      DEVICE_NOT_FOUND: PropTypes.number,
+    }),
+  }).isRequired,
+  getTroubleshootingLink: PropTypes.func.isRequired,
+  away: PropTypes.bool,
+};
+
+const intlMessages = defineMessages({
+  microphoneLabel: {
+    id: 'app.audioModal.microphoneLabel',
+    description: 'Join mic audio button label',
+  },
+  listenOnlyLabel: {
+    id: 'app.audioModal.listenOnlyLabel',
+    description: 'Join listen only audio button label',
+  },
+  listenOnlyDesc: {
+    id: 'app.audioModal.listenOnlyDesc',
+    description: 'Join listen only audio button description',
+  },
+  microphoneDesc: {
+    id: 'app.audioModal.microphoneDesc',
+    description: 'Join mic audio button description',
+  },
+  closeLabel: {
+    id: 'app.audioModal.closeLabel',
+    description: 'close audio modal button label',
+  },
+  audioChoiceLabel: {
+    id: 'app.audioModal.audioChoiceLabel',
+    description: 'Join audio modal title',
+  },
+  iOSError: {
+    id: 'app.audioModal.iOSBrowser',
+    description: 'Audio/Video Not supported warning',
+  },
+  iOSErrorDescription: {
+    id: 'app.audioModal.iOSErrorDescription',
+    description: 'Audio/Video not supported description',
+  },
+  iOSErrorRecommendation: {
+    id: 'app.audioModal.iOSErrorRecommendation',
+    description: 'Audio/Video recommended action',
+  },
+  echoTestTitle: {
+    id: 'app.audioModal.echoTestTitle',
+    description: 'Title for the echo test',
+  },
+  settingsTitle: {
+    id: 'app.audioModal.settingsTitle',
+    description: 'Title for the audio modal',
+  },
+  helpTitle: {
+    id: 'app.audioModal.helpTitle',
+    description: 'Title for the audio help',
+  },
+  audioDialTitle: {
+    id: 'app.audioModal.audioDialTitle',
+    description: 'Title for the audio dial',
+  },
+  connecting: {
+    id: 'app.audioModal.connecting',
+    description: 'Message for audio connecting',
+  },
+  ariaModalTitle: {
+    id: 'app.audioModal.ariaTitle',
+    description: 'aria label for modal title',
+  },
+  autoplayPromptTitle: {
+    id: 'app.audioModal.autoplayBlockedDesc',
+    description: 'Message for autoplay audio block',
+  },
+});
+
+const AudioModal = ({
+  forceListenOnlyAttendee,
+  joinFullAudioImmediately = false,
+  listenOnlyMode,
+  audioLocked,
+  isUsingAudio,
+  isListenOnly,
+  autoplayBlocked,
+  closeModal,
+  isEchoTest,
+  exitAudio,
+  resolve = null,
+  leaveEchoTest,
+  AudioError,
+  joinEchoTest,
+  isConnecting,
+  localEchoEnabled,
+  joinListenOnly,
+  changeInputStream,
+  joinMicrophone,
+  intl,
+  isMobileNative,
+  formattedDialNum,
+  isRTL,
+  isConnected,
+  inputDeviceId = null,
+  outputDeviceId = null,
+  changeInputDevice,
+  changeOutputDevice,
+  showVolumeMeter,
+  notify,
+  formattedTelVoice,
+  handleAllowAutoplay,
+  showPermissionsOvelay,
+  isIE,
+  isOpen,
+  priority,
+  setIsOpen,
+  getTroubleshootingLink,
+  away = false,
+}) => {
+  const [content, setContent] = useState(null);
+  const [hasError, setHasError] = useState(false);
+  const [disableActions, setDisableActions] = useState(false);
+  const [errorInfo, setErrorInfo] = useState(null);
+  const [autoplayChecked, setAutoplayChecked] = useState(false);
+  const [setAway] = useMutation(SET_AWAY);
+  const voiceToggle = useToggleVoice();
+
+  const prevAutoplayBlocked = usePreviousValue(autoplayBlocked);
+
+  useEffect(() => {
+    if (prevAutoplayBlocked && !autoplayBlocked) {
+      setAutoplayChecked(true);
+    }
+  }, [autoplayBlocked]);
+
+  const handleJoinAudioError = (err) => {
+    const { type, errCode, errMessage } = err;
+
+    switch (type) {
+      case 'MEDIA_ERROR':
+        setContent('help');
+        setErrorInfo({
+          errCode,
+          errMessage,
+        });
+        setDisableActions(false);
+        break;
+      case 'CONNECTION_ERROR':
+      default:
+        setErrorInfo({
+          errCode,
+          errMessage: type,
+        });
+        setDisableActions(false);
+        break;
+    }
+  };
+
+  const handleGoToLocalEcho = () => {
+    // Simplified echo test: this will return the AudioSettings with:
+    //   - withEcho: true
+    // Echo test will be local and done in the AudioSettings view instead of the
+    // old E2E -> yes/no -> join view
+    setContent('settings');
+  };
+
+  const handleGoToEchoTest = () => {
+    const { MIC_ERROR } = AudioError;
+    const noSSL = !window.location.protocol.includes('https');
+
+    if (noSSL) {
+      setContent('help');
+      setErrorInfo({
+        errCode: MIC_ERROR.NO_SSL,
+        errMessage: 'NoSSL',
+      });
+      return null;
+    }
+
+    if (disableActions && isConnecting) return null;
+
+    if (localEchoEnabled) return handleGoToLocalEcho();
+
+    setHasError(false);
+    setDisableActions(true);
+
+    return joinEchoTest().then(() => {
+      setContent('echoTest');
+      setDisableActions(true);
+    }).catch((err) => {
+      handleJoinAudioError(err);
+    });
+  };
+
+  const handleGoToAudioOptions = () => {
+    setContent(null);
+    setHasError(true);
+    setDisableActions(false);
+  };
+
+  const handleGoToAudioSettings = () => {
+    leaveEchoTest().then(() => {
+      setContent('settings');
+    });
+  };
+
+  const handleRetryGoToEchoTest = () => {
+    setHasError(false);
+    setContent(null);
+    setErrorInfo(null);
+
+    return handleGoToEchoTest();
+  };
+
+  const disableAwayMode = () => {
+    if (!away) return;
+
+    muteAway(false, true, voiceToggle);
+    setAway({
+      variables: {
+        away: false,
+      },
+    });
+    VideoService.setTrackEnabled(true);
+  };
+
+  const handleJoinListenOnly = () => {
+    if (disableActions && isConnecting) return null;
+
+    setDisableActions(true);
+    setHasError(false);
+    setErrorInfo(null);
+
+    return joinListenOnly().then(() => {
+      setDisableActions(false);
+      disableAwayMode();
+    }).catch((err) => {
+      handleJoinAudioError(err);
+    });
+  };
+
+  const handleJoinMicrophone = () => {
+    if (disableActions && isConnecting) return;
+
+    setHasError(false);
+    setDisableActions(true);
+    setErrorInfo(null);
+
+    joinMicrophone().then(() => {
+      setDisableActions(false);
+    }).catch((err) => {
+      handleJoinAudioError(err);
+    });
+  };
+
+  const handleJoinLocalEcho = (inputStream) => {
+    // Reset the modal to a connecting state - this kind of sucks?
+    // prlanzarin Apr 04 2022
+    setContent(null);
+    if (inputStream) changeInputStream(inputStream);
+    handleJoinMicrophone();
+    disableAwayMode();
+  };
+
+  const skipAudioOptions = () => (isConnecting || (forceListenOnlyAttendee && !autoplayChecked))
+    && !content
+    && !hasError;
+
+  const renderAudioOptions = () => {
+    const hideMicrophone = forceListenOnlyAttendee || audioLocked;
+
+    const arrow = isRTL ? '←' : '→';
+    const dialAudioLabel = `${intl.formatMessage(intlMessages.audioDialTitle)} ${arrow}`;
+
+    return (
+      <div>
+        <Styled.AudioOptions data-test="audioModalOptions">
+          {!hideMicrophone && !isMobileNative && (
+            <>
+              <Styled.AudioModalButton
+                label={intl.formatMessage(intlMessages.microphoneLabel)}
+                data-test="microphoneBtn"
+                aria-describedby="mic-description"
+                icon="unmute"
+                circle
+                size="jumbo"
+                disabled={audioLocked}
+                onClick={
+                  joinFullAudioImmediately
+                    ? handleJoinMicrophone
+                    : handleGoToEchoTest
+                }
+              />
+              <span className="sr-only" id="mic-description">
+                {intl.formatMessage(intlMessages.microphoneDesc)}
+              </span>
+            </>
+          )}
+          {listenOnlyMode && (
+            <>
+              <Styled.AudioModalButton
+                label={intl.formatMessage(intlMessages.listenOnlyLabel)}
+                data-test="listenOnlyBtn"
+                aria-describedby="listenOnly-description"
+                icon="listen"
+                circle
+                size="jumbo"
+                onClick={handleJoinListenOnly}
+              />
+              <span className="sr-only" id="listenOnly-description">
+                {intl.formatMessage(intlMessages.listenOnlyDesc)}
+              </span>
+            </>
+          )}
+        </Styled.AudioOptions>
+        {formattedDialNum ? (
+          <Styled.AudioDial
+            label={dialAudioLabel}
+            size="md"
+            color="secondary"
+            onClick={() => {
+              setContent('audioDial');
+            }}
+          />
+        ) : null}
+        <AudioCaptionsSelectContainer />
+      </div>
+    );
+  };
+
+  const renderEchoTest = () => (
+    <EchoTest
+      handleNo={handleGoToAudioSettings}
+      handleYes={handleJoinMicrophone}
+    />
+  );
+
+  const renderAudioSettings = () => {
+    const confirmationCallback = !localEchoEnabled
+      ? handleRetryGoToEchoTest
+      : handleJoinLocalEcho;
+
+    const handleGUMFailure = (error) => {
+      const code = error?.name === 'NotAllowedError'
+        ? AudioError.MIC_ERROR.NO_PERMISSION
+        : 0;
+      setContent('help');
+      setErrorInfo({
+        errCode: code,
+        errMessage: error?.name || 'NotAllowedError',
+      });
+      setDisableActions(false);
+    };
+
+    return (
+      <AudioSettings
+        handleBack={handleGoToAudioOptions}
+        handleConfirmation={confirmationCallback}
+        handleGUMFailure={handleGUMFailure}
+        joinEchoTest={joinEchoTest}
+        changeInputDevice={changeInputDevice}
+        changeOutputDevice={changeOutputDevice}
+        isConnecting={isConnecting}
+        isConnected={isConnected}
+        isEchoTest={isEchoTest}
+        inputDeviceId={inputDeviceId}
+        outputDeviceId={outputDeviceId}
+        withVolumeMeter={showVolumeMeter}
+        withEcho={localEchoEnabled}
+        produceStreams={localEchoEnabled || showVolumeMeter}
+        notify={notify}
+      />
+    );
+  };
+
+  const renderHelp = () => {
+    const audioErr = {
+      ...AudioError,
+      code: errorInfo?.errCode,
+      message: errorInfo?.errMessage,
+    };
+
+    return (
+      <Help
+        handleBack={handleGoToAudioOptions}
+        audioErr={audioErr}
+        isListenOnly={isListenOnly}
+        troubleshootingLink={getTroubleshootingLink(errorInfo?.errCode)}
+      />
+    );
+  };
+
+  const renderAudioDial = () => (
+    <AudioDial
+      formattedDialNum={formattedDialNum}
+      telVoice={formattedTelVoice}
+      handleBack={handleGoToAudioOptions}
+    />
+  );
+
+  const renderAutoplayOverlay = () => (
+    <AudioAutoplayPrompt
+      handleAllowAutoplay={handleAllowAutoplay}
+    />
+  );
+
+  const contents = {
+    echoTest: {
+      title: intlMessages.echoTestTitle,
+      component: renderEchoTest,
+    },
+    settings: {
+      title: intlMessages.settingsTitle,
+      component: renderAudioSettings,
+    },
+    help: {
+      title: intlMessages.helpTitle,
+      component: renderHelp,
+    },
+    audioDial: {
+      title: intlMessages.audioDialTitle,
+      component: renderAudioDial,
+    },
+    autoplayBlocked: {
+      title: intlMessages.autoplayPromptTitle,
+      component: renderAutoplayOverlay,
+    },
+  };
+
+  const renderContent = () => {
+    const { animations } = getSettingsSingletonInstance().application;
+
+    if (skipAudioOptions()) {
+      return (
+        <Styled.Connecting role="alert">
+          <span data-test={!isEchoTest ? 'establishingAudioLabel' : 'connectingToEchoTest'}>
+            {intl.formatMessage(intlMessages.connecting)}
+          </span>
+          <Styled.ConnectingAnimation animations={animations} />
+        </Styled.Connecting>
+      );
+    }
+    return content ? contents[content].component() : renderAudioOptions();
+  };
+
+  useEffect(() => {
+    if (!isUsingAudio) {
+      if (forceListenOnlyAttendee || audioLocked) {
+        handleJoinListenOnly();
+        return;
+      }
+
+      if (joinFullAudioImmediately && !listenOnlyMode) {
+        handleJoinMicrophone();
+        return;
+      }
+
+      if (!listenOnlyMode) {
+        handleGoToEchoTest();
+      }
+    }
+  }, [
+    audioLocked,
+    isUsingAudio,
+    forceListenOnlyAttendee,
+    joinFullAudioImmediately,
+    listenOnlyMode,
+  ]);
+
+  useEffect(() => {
+    if (autoplayBlocked) {
+      setContent('autoplayBlocked');
+    } else if (prevAutoplayBlocked) {
+      closeModal();
+    }
+  }, [autoplayBlocked]);
+
+  useEffect(() => () => {
+    if (isEchoTest) {
+      exitAudio();
+    }
+    if (resolve) resolve();
+    Session.setItem('audioModalIsOpen', false);
+  }, []);
+
+  let title = content
+    ? intl.formatMessage(contents[content].title)
+    : intl.formatMessage(intlMessages.audioChoiceLabel);
+  title = !skipAudioOptions() ? title : null;
+
+  return (
+    <>
+      {showPermissionsOvelay ? <PermissionsOverlay closeModal={closeModal} /> : null}
+      <Styled.AudioModal
+        modalName="AUDIO"
+        onRequestClose={closeModal}
+        data-test="audioModal"
+        contentLabel={intl.formatMessage(intlMessages.ariaModalTitle)}
+        title={title}
+        {...{
+          setIsOpen,
+          isOpen,
+          priority,
+        }}
+      >
+        {isIE ? (
+          <Styled.BrowserWarning>
+            <FormattedMessage
+              id="app.audioModal.unsupportedBrowserLabel"
+              description="Warning when someone joins with a browser that isn't supported"
+              values={{
+                0: <a href="https://www.google.com/chrome/">Chrome</a>,
+                1: <a href="https://getfirefox.com">Firefox</a>,
+              }}
+            />
+          </Styled.BrowserWarning>
+        ) : null}
+        <Styled.Content>
+          {renderContent()}
+        </Styled.Content>
+      </Styled.AudioModal>
+    </>
+  );
+};
+
+AudioModal.propTypes = propTypes;
+
+export default injectIntl(AudioModal);
