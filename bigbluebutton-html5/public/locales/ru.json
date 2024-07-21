@@ -28,7 +28,7 @@
     "app.chat.breakoutDurationUpdated": "Время работы по группам: {0} минут",
     "app.chat.breakoutDurationUpdatedModerator": "Время для групповой работы - {0} минут, уведомление отправлено.",
     "app.chat.emptyLogLabel": "Журнал чата пуст",
-    "app.chat.away": "is away",
+    "app.chat.away": "отсутствую",
     "app.chat.notAway": "вернулся",
     "app.chat.clearPublicChatMessage": "Журнал общего чата был очищен модератором",
     "app.chat.multi.typing": "Несколько пользователей печатают",
