@@ -151,7 +151,7 @@
     "app.userList.menuTitleContext": "Доступные опции",
     "app.userList.chatListItem.unreadSingular": "Одно новое сообщение",
     "app.userList.chatListItem.unreadPlural": "{0} новых сообщений",
-    "app.userList.menu.away": "Set yourself as away",
+    "app.userList.menu.away": "Поставьте себя как можно дальше",
     "app.userList.menu.notAway": "Set yourself as active",
     "app.userList.menu.chat.label": "Начать приватный чат",
     "app.userList.menu.clearStatus.label": "Очистить статус",
