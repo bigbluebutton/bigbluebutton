@@ -86,7 +86,6 @@ export interface App {
   customHeartbeat: boolean
   showAllAvailableLocales: boolean
   showAudioFilters: boolean
-  raiseHandActionButton: RaiseHandActionButton
   reactionsButton: ReactionsButton
   emojiRain: EmojiRain
   enableNetworkStats: boolean
@@ -696,6 +695,7 @@ export interface Whiteboard {
   maxNumberOfAnnotations: number
   annotations: Annotations
   allowInfiniteWhiteboard: boolean
+  allowInfiniteWhiteboardInBreakouts: boolean
   styles: Styles
   toolbar: Toolbar
 }

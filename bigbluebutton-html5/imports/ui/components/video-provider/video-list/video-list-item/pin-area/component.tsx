@@ -5,6 +5,7 @@ import Styled from './styles';
 import { SET_CAMERA_PINNED } from '/imports/ui/core/graphql/mutations/userMutations';
 import { VideoItem } from '/imports/ui/components/video-provider/types';
 import { useIsVideoPinEnabledForCurrentUser } from '/imports/ui/components/video-provider/hooks';
+import { VIDEO_TYPES } from '/imports/ui/components/video-provider/enums';
 
 const intlMessages = defineMessages({
   unpinLabel: {
@@ -25,7 +26,7 @@ const PinArea: React.FC<PinAreaProps> = (props) => {
 
   const { stream, amIModerator } = props;
   const { userId, type } = stream;
-  const pinned = type === 'stream' && stream.user.pinned;
+  const pinned = type === VIDEO_TYPES.STREAM && stream.user.pinned;
   const videoPinActionAvailable = useIsVideoPinEnabledForCurrentUser(amIModerator);
 
   const [setCameraPinned] = useMutation(SET_CAMERA_PINNED);

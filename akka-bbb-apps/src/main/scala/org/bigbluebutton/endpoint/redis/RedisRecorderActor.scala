@@ -84,7 +84,6 @@ class RedisRecorderActor(
       case m: UserJoinedMeetingEvtMsg               => handleUserJoinedMeetingEvtMsg(m)
       case m: UserLeftMeetingEvtMsg                 => handleUserLeftMeetingEvtMsg(m)
       case m: PresenterAssignedEvtMsg               => handlePresenterAssignedEvtMsg(m)
-      case m: UserEmojiChangedEvtMsg                => handleUserEmojiChangedEvtMsg(m)
       case m: UserAwayChangedEvtMsg                 => handleUserAwayChangedEvtMsg(m)
       case m: UserRaiseHandChangedEvtMsg            => handleUserRaiseHandChangedEvtMsg(m)
       case m: UserReactionEmojiChangedEvtMsg        => handleUserReactionEmojiChangedEvtMsg(m)
@@ -352,7 +351,7 @@ class RedisRecorderActor(
     ev.setExternalUserId(msg.body.extId)
     ev.setName(msg.body.name)
     ev.setRole(msg.body.role)
-    ev.setUserdata(msg.body.customParameters)
+    ev.setUserdata(msg.body.userMetadata)
 
     record(msg.header.meetingId, ev.toMap.asJava)
   }
@@ -373,9 +372,6 @@ class RedisRecorderActor(
     ev.setAssignedBy(msg.body.assignedBy)
 
     record(msg.header.meetingId, ev.toMap.asJava)
-  }
-  private def handleUserEmojiChangedEvtMsg(msg: UserEmojiChangedEvtMsg) {
-    handleUserStatusChange(msg.header.meetingId, msg.body.userId, "emojiStatus", msg.body.emoji)
   }
 
   private def handleUserAwayChangedEvtMsg(msg: UserAwayChangedEvtMsg) {

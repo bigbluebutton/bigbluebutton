@@ -1375,14 +1375,14 @@ These configs can be set in `/etc/bigbluebutton/bbb-web.properties`
 - _`overwritable`_: Config will be overwritten if the param is present in the API `/create` request
 
 
-### Passing custom parameters to the client on join
+### Passing user metadata to the client on join
 
 The HTML5 client supports a list of parameters that can be added to the `join` API call which modify the look and default behaviour of the client. This list is accurate as of BigBlueButton version 2.2.17 (build 937). These parameters override the global defaults set in `settings.yml`. As the parameters are passed on call to join, it allows for some powerful customization that can vary depending on which user is joining the session.
 
 Useful tools for development:
 
 - A tool like (https://meyerweb.com/eric/tools/dencoder/) is useful in the encoding-decoding process for the fields expecting encoded value passed (see below).
-- The [API mate](https://mconf.github.io/api-mate/) allows you to directly experiment with these custom parameters. To use the API mate, run the following command on your BigBlueButton machine: `sudo bbb-conf --secret`. This creates a link for you with your secret as a parameter so you can get started experimenting right away.
+- The [API mate](https://mconf.github.io/api-mate/) allows you to directly experiment with these user metadata. To use the API mate, run the following command on your BigBlueButton machine: `sudo bbb-conf --secret`. This creates a link for you with your secret as a parameter so you can get started experimenting right away.
 
 #### Application parameters
 
@@ -1395,6 +1395,7 @@ Useful tools for development:
 | `userdata-bbb_listen_only_mode=`               | If set to `false`, the user will not be able to join the audio part of the meeting without a microphone (disables listen-only mode)                                                                                                                                                                                             | `true`        |
 | `userdata-bbb_skip_check_audio=`               | If set to `true`, the user will not see the "echo test" prompt when sharing audio                                                                                                                                                                                                                                               | `false`       |
 | `userdata-bbb_skip_check_audio_on_first_join=` | (Introduced in BigBlueButton 2.3) If set to `true`, the user will not see the "echo test" when sharing audio for the first time in the session. If the user stops sharing, next time they try to share audio the echo test window will be displayed, allowing for configuration changes to be made prior to sharing audio again | `false`       |
+| `userdata-bbb_skip_echotest_if_previous_device=` | (Introduced in BigBlueButton 3.0) If set to `true`, the user will not see the "echo test" if session has valid input/output devices stored previously | `false`       |
 | `userdata-bbb_override_default_locale=`        | (Introduced in BigBlueButton 2.3) If set to `de`, the user's browser preference will be ignored - the client will be shown in 'de' (i.e. German) regardless of the otherwise preferred locale 'en' (or other)                                                                                                                   | `null`        |
 | `userdata-bbb_hide_presentation_on_join`        | (Introduced in BigBlueButton 2.6) If set to `true` it will make the user enter the meeting with presentation minimized (Only for non-presenters), not permanent. 
 
@@ -1422,6 +1423,7 @@ Useful tools for development:
 | `userdata-bbb_record_video=`                     | If set to `false`, the user won't have her/his video stream recorded                                                                                                                                                                                                                                                                    | `true`        |
 | `userdata-bbb_skip_video_preview=`               | If set to `true`, the user will not see a preview of their webcam before sharing it                                                                                                                                                                                                                                                     | `false`       |
 | `userdata-bbb_skip_video_preview_on_first_join=` | (Introduced in BigBlueButton 2.3) If set to `true`, the user will not see a preview of their webcam before sharing it when sharing for the first time in the session. If the user stops sharing, next time they try to share webcam the video preview will be displayed, allowing for configuration changes to be made prior to sharing | `false`       |
+| `userdata-bbb_skip_video_preview_if_previous_device=` | (Introduced in BigBlueButton 3.0) If set to `true`, the user will not see a preview of their webcam before sharing it if session has a valid input device stored previously | `false`       |
 | `userdata-bbb_mirror_own_webcam=`                | If set to `true`, the client will see a mirrored version of their webcam. Doesn't affect the incoming video stream for other users.                                                                                                                                                                                                     | `false`       |
 | `userdata-bbb_fullaudio_bridge=`                 | Specifies the audio bridge to be used in the client. Supported values: `sipjs`, `fullaudio`.                                                                                       | `fullaudio`   |
 | `userdata-bbb_transparent_listen_only=`          | If set to `true`, the experimental "transparent listen only" audio mode will be used                                                                                                                                                                                                                                                    | `false`       |

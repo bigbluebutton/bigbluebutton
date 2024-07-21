@@ -128,6 +128,29 @@ const customParametersTest = () => {
     Page.checkRegression(53.18, screenshot);
   });
 
+  // This test spec sets the userdata-bbb_skip_check_if_previous_device parameter to true
+  // and checks that the users automatically skip audio check when clicking on Microphone
+  test('Skip echo test if previouse device', async () => {
+    const test = new CustomParameters();
+    const page = new Page();
+    let response;
+    let screenshot;
+    try {
+      const testName = 'skipEchoTestIfPreviousDevice';
+      await page.logger('before ', testName);
+      response = await test.skipEchoTestIfPreviousDevice(testName, c.skipEchoTestIfPreviousDevice);
+      await test.page1.stopRecording();
+      screenshot = await test.page1.page.screenshot();
+      await page.logger('after ', testName);
+    } catch (err) {
+      await page.logger(err);
+    } finally {
+      await test.page1.close();
+    }
+    expect(response).toBe(true);
+    Page.checkRegression(53.18, screenshot);
+  });
+
   // This test spec sets the userdata-clientTitle parameter to some value
   // and checks that the meeting window name starts with that value
   test('Client title', async () => {

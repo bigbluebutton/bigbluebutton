@@ -3,6 +3,7 @@ exports.listenOnlyMode = 'userdata-bbb_listen_only_mode=false';
 exports.forceListenOnly = 'userdata-bbb_force_listen_only=true';
 exports.skipCheck = 'userdata-bbb_skip_check_audio=true';
 exports.skipCheckOnFirstJoin = 'userdata-bbb_skip_check_audio_on_first_join=true';
+exports.skipEchoTestIfPreviousDevice = 'userdata-bbb_skip_echotest_if_previous_device=true';
 exports.docTitle = 'puppeteer';
 exports.clientTitle = `userdata-bbb_client_title=${this.docTitle}`;
 exports.askForFeedbackOnLogout = 'userdata-bbb_ask_for_feedback_on_logout=true';

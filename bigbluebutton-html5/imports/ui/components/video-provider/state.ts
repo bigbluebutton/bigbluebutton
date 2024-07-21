@@ -1,8 +1,16 @@
 import { makeVar, useReactiveVar } from '@apollo/client';
-import createUseLocalState from '/imports/ui/core/local-states/createUseLocalState';
 import type { ConnectingStream, Stream } from './types';
 
-const [useVideoState, setVideoState, videoState] = createUseLocalState({
+interface State {
+  isConnecting: boolean;
+  isConnected: boolean;
+  currentVideoPageIndex: number;
+  numberOfPages: number;
+  pageSize: number;
+  userId: string | null;
+}
+
+const videoState = makeVar<State>({
   isConnecting: false,
   isConnected: false,
   currentVideoPageIndex: 0,
@@ -10,6 +18,15 @@ const [useVideoState, setVideoState, videoState] = createUseLocalState({
   pageSize: 0,
   userId: null,
 });
+
+const useVideoState = () => useReactiveVar(videoState);
+
+const setVideoState = (state: Partial<State>) => {
+  videoState({
+    ...videoState(),
+    ...state,
+  });
+};
 
 const getVideoState = () => videoState();
 

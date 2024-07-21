@@ -7,12 +7,3 @@
     - GET
   name: clientSettings
   url: clientSettings
-- comment: ""
-  definition:
-    query:
-      collection_name: allowed-queries
-      query_name: clientStartupSettings
-  methods:
-    - GET
-  name: clientStartupSettings
-  url: clientStartupSettings

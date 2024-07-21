@@ -105,7 +105,7 @@ trait ValidateAuthTokenReqMsgHdlr extends HandlerHelpers {
     val users = Users2x.findAll(liveMeeting.users2x)
     val webUsers = users.map { u =>
       WebUser(intId = u.intId, extId = u.extId, name = u.name, role = u.role,
-        guest = u.guest, authed = u.authed, guestStatus = u.guestStatus, emoji = u.emoji,
+        guest = u.guest, authed = u.authed, guestStatus = u.guestStatus,
         locked = u.locked, presenter = u.presenter, avatar = u.avatar, clientType = u.clientType)
     }
 

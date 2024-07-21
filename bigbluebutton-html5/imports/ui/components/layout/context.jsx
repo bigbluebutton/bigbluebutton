@@ -1304,21 +1304,28 @@ const reducer = (state, action) => {
       if (action.value.open) {
         presentationAreaContentActions.push(action);
       } else {
-        const indexOfOpenedContent = presentationAreaContentActions.findIndex((p) => {
+        let indexesOfOpenedContent = presentationAreaContentActions.reduce((indexes, p, index) => {
           if (action.value.content === PRESENTATION_AREA.GENERIC_CONTENT) {
-            return (
+            if (
               p.value.content === action.value.content
-                && p.value.open
-                && p.value.genericContentId === action.value.genericContentId
-            );
+              && p.value.open
+              && p.value.genericContentId === action.value.genericContentId
+            ) {
+              indexes.push(index);
+            }
+          } else if (p.value.content === action.value.content && p.value.open) {
+            indexes.push(index);
           }
-          return (
-            p.value.content === action.value.content && p.value.open
-          );
-        });
+          return indexes;
+        }, []);
+        indexesOfOpenedContent = indexesOfOpenedContent.length > 0 ? indexesOfOpenedContent : -1;
         if (
-          indexOfOpenedContent !== -1
-        ) presentationAreaContentActions.splice(indexOfOpenedContent, 1);
+          indexesOfOpenedContent !== -1
+        ) {
+          indexesOfOpenedContent.reverse().forEach((index) => {
+            presentationAreaContentActions.splice(index, 1);
+          });
+        }
       }
       return {
         ...state,

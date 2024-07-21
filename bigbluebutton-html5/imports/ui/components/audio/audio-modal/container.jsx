@@ -18,6 +18,7 @@ import AudioManager from '/imports/ui/services/audio-manager';
 import { useStorageKey } from '/imports/ui/services/storage/hooks';
 import useMeeting from '/imports/ui/core/hooks/useMeeting';
 import useLockContext from '/imports/ui/components/lock-viewers/hooks/useLockContext';
+import deviceInfo from '/imports/utils/deviceInfo';
 
 const invalidDialNumbers = ['0', '613-555-1212', '613-555-1234', '0000'];
 
@@ -40,6 +41,14 @@ const AudioModalContainer = (props) => {
   const listenOnlyMode = getFromUserSettings('bbb_listen_only_mode', APP_CONFIG.listenOnlyMode);
   const skipCheck = getFromUserSettings('bbb_skip_check_audio', APP_CONFIG.skipCheck);
   const skipCheckOnJoin = getFromUserSettings('bbb_skip_check_audio_on_first_join', APP_CONFIG.skipCheckOnJoin);
+  // Mobile users have significant trouble figuring out correct audio I/O devices
+  // according to feedbacks. The potential absence of echo test after having set
+  // an initial device in the first join cycle might complicate things even further
+  // if they got it wrong. Hence, we ignore the flag for mobile users.
+  const skipEchoTestIfPreviousDevice = getFromUserSettings(
+    'bbb_skip_echotest_if_previous_device',
+    APP_CONFIG.skipEchoTestIfPreviousDevice,
+  ) && !deviceInfo.isMobile;
   const autoJoin = getFromUserSettings('bbb_auto_join_audio', APP_CONFIG.autoJoin);
 
   let formattedDialNum = '';
@@ -90,6 +99,7 @@ const AudioModalContainer = (props) => {
     || (
       skipCheck
       || (skipCheckOnJoin && !getEchoTest)
+      || (skipEchoTestIfPreviousDevice && (inputDeviceId || outputDeviceId))
     );
 
   return (

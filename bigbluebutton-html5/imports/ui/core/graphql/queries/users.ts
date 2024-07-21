@@ -7,7 +7,6 @@ subscription UserListSubscription($offset: Int!, $limit: Int!) {
                   {presenter: desc},
                   {role: asc},
                   {raiseHandTime: asc_nulls_last},
-                  {emojiTime: asc_nulls_last},
                   {isDialIn: desc},
                   {hasDrawPermissionOnCurrentPage: desc},
                   {nameSortable: asc},
@@ -24,7 +23,6 @@ subscription UserListSubscription($offset: Int!, $limit: Int!) {
     avatar
     away
     raiseHand
-    emoji
     reactionEmoji
     avatar
     presenter
