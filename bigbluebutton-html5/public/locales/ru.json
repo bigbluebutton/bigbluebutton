@@ -175,7 +175,7 @@
     "app.userList.userOptions.manageUsersLabel": "Управление пользователями",
     "app.userList.userOptions.muteAllLabel": "Выключить микрофон всем",
     "app.userList.userOptions.muteAllDesc": "Выключить микрофоны у всех",
-    "app.userList.userOptions.clearAllReactionsLabel": "Clear all reactions",
+    "app.userList.userOptions.clearAllReactionsLabel": "Очистите все реакции",
     "app.userList.userOptions.clearAllReactionsDesc": "Clears all reaction emojis from users",
     "app.userList.userOptions.muteAllExceptPresenterLabel": "Выключить микрофоны всем, кроме ведущего",
     "app.userList.userOptions.muteAllExceptPresenterDesc": "Выключить микрофоны всем, кроме ведущего",
