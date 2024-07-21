@@ -44,7 +44,7 @@
     "app.timer.toolTipStopwatchRunning": "Секундомер работает.",
     "app.timer.toolTipTimerStoppedMod": "Нажмите, чтобы возобновить таймер.",
     "app.timer.toolTipTimerRunningMod": "Нажмите, чтобы приостановить таймер.",
-    "app.timer.toolTipStopwatchStoppedMod": "Press to resume stopwatch.",
+    "app.timer.toolTipStopwatchStoppedMod": "Нажмите, чтобы возобновить работу секундомера.",
     "app.timer.toolTipStopwatchRunningMod": "Press to pause stopwatch.",
     "app.emojiPicker.search": "Поиск",
     "app.emojiPicker.notFound": "Смайлики не найдены",
