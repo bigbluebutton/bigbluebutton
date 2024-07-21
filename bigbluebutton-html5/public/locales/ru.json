@@ -40,7 +40,7 @@
     "app.chat.closePopup": "Закрыть",
     "app.timer.toolTipTimerStopped": "Таймер остановился.",
     "app.timer.toolTipTimerRunning": "Таймер включен.",
-    "app.timer.toolTipStopwatchStopped": "The stopwatch has stopped.",
+    "app.timer.toolTipStopwatchStopped": "Секундомер остановился.",
     "app.timer.toolTipStopwatchRunning": "The stopwatch is running.",
     "app.timer.toolTipTimerStoppedMod": "Press to resume timer.",
     "app.timer.toolTipTimerRunningMod": "Press to pause timer.",
