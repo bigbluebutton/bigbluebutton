@@ -1,7 +1,5 @@
 import React from 'react';
 import Styled from './styles';
-import Icon from '/imports/ui/components/common/icon/component';
-import UserListService from '/imports/ui/components/user-list/service';
 import { User, VideoItem } from '/imports/ui/components/video-provider/types';
 
 interface UserAvatarVideoProps {
@@ -21,7 +19,7 @@ const UserAvatarVideo: React.FC<UserAvatarVideoProps> = (props) => {
   } = props;
   const data = { ...user, ...stream };
   const {
-    name = '', color = '', avatar = '', emoji = '', isModerator,
+    name = '', color = '', avatar = '', isModerator,
   } = data;
   let {
     presenter = false, clientType,
@@ -30,9 +28,6 @@ const UserAvatarVideo: React.FC<UserAvatarVideoProps> = (props) => {
   const { talking = false } = voiceUser;
 
   const handleUserIcon = () => {
-    if (emoji !== 'none') {
-      return <Icon iconName={UserListService.normalizeEmojiName(emoji)} />;
-    }
     return <>{name.toLowerCase().slice(0, 2)}</>;
   };
 
@@ -48,7 +43,7 @@ const UserAvatarVideo: React.FC<UserAvatarVideoProps> = (props) => {
       presenter={presenter}
       dialIn={clientType === 'dial-in-user'}
       color={color}
-      emoji={emoji !== 'none'}
+      emoji={false}
       avatar={avatar}
       unhealthyStream={unhealthyStream}
       talking={talking}

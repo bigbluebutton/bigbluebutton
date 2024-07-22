@@ -38,6 +38,6 @@ gem 'rake', '>= 12.3', '<14'
 gem 'tzinfo', '>= 1.2.10'
 
 group :test, optional: true do
-  gem 'rubocop', '~> 1.32.0'
+  gem 'rubocop', '~> 1.33.0'
   gem 'minitest', '~> 5.14.1'
 end

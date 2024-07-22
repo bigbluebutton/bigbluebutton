@@ -1,6 +1,6 @@
 import { useQuery } from '@apollo/client';
 import React, { useEffect } from 'react';
-import { UserCustomParameterResponse, getCustomParameter } from './queries';
+import { UserMetadataResponse, getUserMetadata } from './queries';
 import { setUserSettings } from '/imports/ui/core/local-states/useUserSettings';
 
 interface CustomUsersSettingsProps {
@@ -11,14 +11,14 @@ const CustomUsersSettings: React.FC<CustomUsersSettingsProps> = ({
   children,
 }) => {
   const {
-    data: customParameterData,
-    loading: customParameterLoading,
-    error: customParameterError,
-  } = useQuery<UserCustomParameterResponse>(getCustomParameter);
+    data: userMetadataData,
+    loading: userMetadataLoading,
+    error: userMetadataError,
+  } = useQuery<UserMetadataResponse>(getUserMetadata);
   const [allowToRender, setAllowToRender] = React.useState(false);
   useEffect(() => {
-    if (customParameterData && !customParameterLoading) {
-      const filteredData = customParameterData.user_customParameter.map((uc) => {
+    if (userMetadataData && !userMetadataLoading) {
+      const filteredData = userMetadataData.user_metadata.map((uc) => {
         const { parameter, value } = uc;
         let parsedValue: string | boolean | string[] = '';
         try {
@@ -32,15 +32,15 @@ const CustomUsersSettings: React.FC<CustomUsersSettingsProps> = ({
       setAllowToRender(true);
     }
   }, [
-    customParameterData,
-    customParameterLoading,
+    userMetadataData,
+    userMetadataLoading,
   ]);
 
   useEffect(() => {
-    if (customParameterError) {
-      throw new Error(`Error on requesting custom parameter data: ${customParameterError}`);
+    if (userMetadataError) {
+      throw new Error(`Error on requesting custom parameter data: ${userMetadataError}`);
     }
-  }, [customParameterError]);
+  }, [userMetadataError]);
 
   return allowToRender ? <>{children}</> : null;
 };

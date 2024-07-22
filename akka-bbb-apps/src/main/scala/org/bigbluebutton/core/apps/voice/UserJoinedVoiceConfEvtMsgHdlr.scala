@@ -48,7 +48,6 @@ trait UserJoinedVoiceConfEvtMsgHdlr extends SystemConfiguration {
         guest = true,
         authed = true,
         guestStatus = GuestStatus.WAIT,
-        emoji = "none",
         reactionEmoji = "none",
         raiseHand = false,
         away = false,

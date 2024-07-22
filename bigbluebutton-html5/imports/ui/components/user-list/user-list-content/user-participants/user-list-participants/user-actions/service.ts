@@ -4,7 +4,6 @@ import {
   UsersPolicies,
 } from '/imports/ui/Types/meeting';
 import Auth from '/imports/ui/services/auth';
-import { EMOJI_STATUSES } from '/imports/utils/statuses';
 import logger from '/imports/startup/client/logger';
 import { toggleMuteMicrophone } from '/imports/ui/components/audio/audio-graphql/audio-controls/input-stream-live-selector/service';
 
@@ -38,10 +37,6 @@ export const generateActionsPermissions = (
     && !subjectUserVoice.listenOnly
     && subjectUserVoice.muted
     && (amISubjectUser || usersPolicies?.allowModsToUnmuteUsers);
-
-  const allowedToResetStatus = hasAuthority
-    && subjectUser.emoji !== EMOJI_STATUSES.none
-    && !isDialInUser;
 
   // if currentUser is a moderator, allow removing other users
   const allowedToRemove = amIModerator
@@ -81,7 +76,6 @@ export const generateActionsPermissions = (
     allowedToChatPrivately,
     allowedToMuteAudio,
     allowedToUnmuteAudio,
-    allowedToResetStatus,
     allowedToRemove,
     allowedToSetPresenter,
     allowedToPromote,

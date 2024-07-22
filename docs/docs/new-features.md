@@ -143,9 +143,23 @@ In BigBlueButton 2.6.17/2.7.5/3.0.0-alpha.5 we added a new configuration propert
 
 In BigBlueButton 3.0.0-alpha.5 we replaced the JOIN parameter `defaultLayout` with the JOIN parameter `userdata-bbb_default_layout`. If none provided the `meetingLayout` (passed on CREATE) will be used. If none passed, and if none passed there, the `defaultMeetingLayout` from bbb-web will be used.
 
+#### Added new setting and userdata to allow skipping echo test if session has valid input/output devices stored
+
+- Client settings.yml: `skipEchoTestIfPreviousDevice`. Defaults to `false`
+- Can be overrided on join Custom Parameter with: `userdata-bbb_skip_echotest_if_previous_device=`
+
 #### Recording event TranscriptUpdatedRecordEvent blocked
 
 In BigBlueButton 2.7.5/3.0.0-alpha.5 we stopped propagating the events.xml event TranscriptUpdatedRecordEvent due to some issues with providing too much and too repetitive data.
+
+#### Added new setting and userdata to allow skipping video preview if session has valid input devices stored
+
+- Client settings.yml: `skipVideoPreviewIfPreviousDevice`. Defaults to `false`
+- Can be overrided on join Custom Parameter with: `userdata-bbb_skip_video_preview_if_previous_device=`
+
+### Replaced all user facing instances of "meeting" with the word "session"
+
+The word "session" is more generic and encompasses both educational and work contexts. Up until BigBlueButton 3.0 we were using the two keywords interchangeably. Moving forward we are preferring to use "session".
 
 ### Changes to events.xml
 
@@ -169,7 +183,7 @@ Modified/added events
 
 In BigBlueButton 2.6.18/2.7.8 POST requests are no longer allowed for the `join` endpoint. To ensure they are validated properly, a `Content-Type` header must also be provided for POST requests that contain data in the request body. Endpoints now support a limited set of content types that includes `text/xml`, `application/xml`, `application/x-www-form-url-encoded`, and `multipart/form-data`. By default each endpoint only supports `application/x-www-form-urlencoded` and `multipart/form-data`, but individual endpoints can override this and define their own set of supported content types. The `create` endpoint supports all of the four previously listed content types while `insertDocument` supports only `text/xml` and `application/xml`. Any requests with a content type that differs from the set supported by the target endpoint will be rejected with a new `unsupportedContentType` error.
 
-### Deprecated userStatus
+### Removed userStatus
 
 The `userStatus` feature was replaced by `userReaction`. They were vastly overlapping, causing some confusion when using and maintaining.
 

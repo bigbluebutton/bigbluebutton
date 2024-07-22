@@ -148,7 +148,6 @@ class LearningDashboardActor(
       case m: UserJoinMeetingReqMsg                 => handleUserJoinMeetingReqMsg(m)
       case m: UserLeaveReqMsg                       => handleUserLeaveReqMsg(m)
       case m: UserLeftMeetingEvtMsg                 => handleUserLeftMeetingEvtMsg(m)
-      case m: UserEmojiChangedEvtMsg                => handleUserEmojiChangedEvtMsg(m)
       case m: UserAwayChangedEvtMsg                 => handleUserAwayChangedEvtMsg(m)
       case m: UserRaiseHandChangedEvtMsg            => handleUserRaiseHandChangedEvtMsg(m)
       case m: UserReactionEmojiChangedEvtMsg        => handleUserReactionEmojiChangedEvtMsg(m)
@@ -358,20 +357,6 @@ class LearningDashboardActor(
       val updatedMeeting = meeting.copy(users = meeting.users + (updatedUser.userKey -> updatedUser))
 
       meetings += (updatedMeeting.intId -> updatedMeeting)
-    }
-  }
-
-  private def handleUserEmojiChangedEvtMsg(msg: UserEmojiChangedEvtMsg): Unit = {
-    for {
-      meeting <- meetings.values.find(m => m.intId == msg.header.meetingId)
-      user <- findUserByIntId(meeting, msg.body.userId)
-    } yield {
-      if (msg.body.emoji != "none" && msg.body.emoji != "raiseHand" && msg.body.emoji != "away") {
-        val updatedUser = user.copy(emojis = user.emojis :+ Emoji(msg.body.emoji))
-        val updatedMeeting = meeting.copy(users = meeting.users + (updatedUser.userKey -> updatedUser))
-
-        meetings += (updatedMeeting.intId -> updatedMeeting)
-      }
     }
   }
 

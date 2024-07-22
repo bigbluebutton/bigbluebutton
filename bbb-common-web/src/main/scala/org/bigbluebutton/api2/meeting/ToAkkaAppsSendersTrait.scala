@@ -30,7 +30,7 @@ trait ToAkkaAppsSendersTrait extends SystemConfiguration {
       name = msg.name, role = msg.role, extUserId = msg.extUserId, authToken = msg.authToken,
       sessionToken = msg.sessionToken, avatarURL = msg.avatarURL, guest = msg.guest, authed = msg.authed,
       guestStatus = msg.guestStatus, excludeFromDashboard = msg.excludeFromDashboard,
-      enforceLayout = msg.enforceLayout, customParameters = msg.customParameters)
+      enforceLayout = msg.enforceLayout, userMetadata = msg.userMetadata)
     val req = RegisterUserReqMsg(header, body)
     val message = BbbCommonEnvCoreMsg(envelope, req)
     sendToBus(message)

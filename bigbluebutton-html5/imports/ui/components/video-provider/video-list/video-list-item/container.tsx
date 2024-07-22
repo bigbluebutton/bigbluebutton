@@ -10,6 +10,7 @@ import { SETTINGS } from '/imports/ui/services/settings/enums';
 import { useStorageKey } from '/imports/ui/services/storage/hooks';
 import useWhoIsTalking from '/imports/ui/core/hooks/useWhoIsTalking';
 import useWhoIsUnmuted from '/imports/ui/core/hooks/useWhoIsUnmuted';
+import { VIDEO_TYPES } from '/imports/ui/components/video-provider/enums';
 
 interface VideoListItemContainerProps {
   numOfStreams: number;
@@ -57,7 +58,7 @@ const VideoListItemContainer: React.FC<VideoListItemContainerProps> = (props) =>
   const disabledCams = useStorageKey('disabledCams') || [];
   const { data: talkingUsers } = useWhoIsTalking();
   const { data: unmutedUsers } = useWhoIsUnmuted();
-  const voiceUser = stream.type !== 'connecting' && stream.voice ? {
+  const voiceUser = stream.type !== VIDEO_TYPES.CONNECTING && stream.voice ? {
     ...stream.voice,
     talking: talkingUsers[userId],
     muted: !unmutedUsers[userId],

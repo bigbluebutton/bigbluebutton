@@ -31,7 +31,7 @@ import useMuteMicrophone from '../audio/audio-graphql/hooks/useMuteMicrophone';
 const currentUserEmoji = (currentUser) => (currentUser
   ? {
     status: currentUser.reactionEmoji,
-    changedAt: currentUser.emojiTime,
+    changedAt: currentUser.reactionEmojiTime,
   }
   : {
     status: 'none',

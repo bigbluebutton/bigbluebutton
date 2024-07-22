@@ -18,12 +18,14 @@ const propTypes = {
   confirmButtonColor: PropTypes.string,
   disableConfirmButton: PropTypes.bool,
   description: PropTypes.string,
+  hideConfirmButton: PropTypes.bool,
 };
 
 const defaultProps = {
   confirmButtonColor: 'primary',
   disableConfirmButton: false,
   description: '',
+  hideConfirmButton: false,
 };
 
 class ConfirmationModal extends Component {
@@ -46,6 +48,8 @@ class ConfirmationModal extends Component {
       checkboxMessageId,
       confirmButtonColor,
       confirmButtonLabel,
+      cancelButtonLabel,
+      hideConfirmButton,
       confirmButtonDataTest,
       confirmParam,
       disableConfirmButton,
@@ -92,18 +96,20 @@ class ConfirmationModal extends Component {
           </Styled.Description>
 
           <Styled.Footer>
-            <Styled.ConfirmationButton
-              color={confirmButtonColor}
-              label={confirmButtonLabel ? confirmButtonLabel : intl.formatMessage(messages.yesLabel)}
-              disabled={disableConfirmButton}
-              data-test={confirmButtonDataTest}
-              onClick={() => {
-                onConfirm(confirmParam, checked);
-                setIsOpen(false);
-              }}
-            />
+            {!hideConfirmButton && (
+              <Styled.ConfirmationButton
+                color={confirmButtonColor}
+                label={confirmButtonLabel || intl.formatMessage(messages.yesLabel)}
+                disabled={disableConfirmButton}
+                data-test={confirmButtonDataTest}
+                onClick={() => {
+                  onConfirm(confirmParam, checked);
+                  setIsOpen(false);
+                }}
+              />
+            )}
             <Styled.CancelButton
-              label={intl.formatMessage(messages.noLabel)}
+              label={cancelButtonLabel || intl.formatMessage(messages.noLabel)}
               onClick={() => setIsOpen(false)}
             />
           </Styled.Footer>

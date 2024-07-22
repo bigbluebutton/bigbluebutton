@@ -75,7 +75,7 @@ object TestDataGen {
   def createUserFor(liveMeeting: LiveMeeting, regUser: RegisteredUser, presenter: Boolean): UserState = {
     val u = UserState(intId = regUser.id, extId = regUser.externId, meetingId = regUser.meetingId, name = regUser.name,
       role = regUser.role, guest = regUser.guest, authed = regUser.authed, guestStatus = regUser.guestStatus,
-      emoji = "none", reactionEmoji = "none", raiseHand = false, away = false, pin = false, mobile = false,
+      reactionEmoji = "none", raiseHand = false, away = false, pin = false, mobile = false,
       locked = false, presenter = false, avatar = regUser.avatarURL, color = "#ff6242",
       clientType = "unknown", userLeftFlag = UserLeftFlag(false, 0))
     Users2x.add(liveMeeting.users2x, u)

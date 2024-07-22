@@ -3,9 +3,6 @@ import { useMutation } from '@apollo/client';
 import { UPDATE_CONNECTION_ALIVE_AT } from './mutations';
 import { getStatus, handleAudioStatsEvent, startMonitoringNetwork } from '/imports/ui/components/connection-status/service';
 import connectionStatus from '../../core/graphql/singletons/connectionStatus';
-import useSettings from '../../services/settings/hooks/useSettings';
-import { SETTINGS } from '../../services/settings/enums';
-import { useStorageKey } from '../../services/storage/hooks';
 import { useGetStats } from '../video-provider/hooks';
 
 import getBaseUrl from '/imports/ui/core/utils/getBaseUrl';
@@ -17,15 +14,7 @@ const ConnectionStatus = () => {
 
   const [updateConnectionAliveAtM] = useMutation(UPDATE_CONNECTION_ALIVE_AT);
 
-  const { paginationEnabled } = useSettings(SETTINGS.APPLICATION);
-  const { viewParticipantsWebcams } = useSettings(SETTINGS.DATA_SAVING);
-  const isGridLayout = useStorageKey('isGridEnabled');
-
-  const getVideoStreamsStats = useGetStats(
-    isGridLayout,
-    paginationEnabled,
-    viewParticipantsWebcams,
-  );
+  const getVideoStreamsStats = useGetStats();
 
   const handleUpdateConnectionAliveAt = () => {
     const startTime = performance.now();
@@ -83,6 +72,10 @@ const ConnectionStatus = () => {
     return () => {
       if (STATS_ENABLED) {
         window.removeEventListener('audiostats', handleAudioStatsEvent);
+      }
+
+      if (timeoutRef.current) {
+        clearTimeout(timeoutRef.current);
       }
     };
   }, []);
