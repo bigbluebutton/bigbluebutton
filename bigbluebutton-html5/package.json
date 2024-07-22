@@ -31,7 +31,7 @@
   "dependencies": {
     "@apollo/client": "^3.10.4",
     "@babel/runtime": "^7.17.9",
-    "@bigbluebutton/tldraw": "^2.0.0-alpha.20",
+    "@bigbluebutton/tldraw": "^2.0.0-alpha.23",
     "@browser-bunyan/console-formatted-stream": "^1.8.0",
     "@browser-bunyan/console-raw-stream": "^1.8.0",
     "@browser-bunyan/server-stream": "^1.8.0",
