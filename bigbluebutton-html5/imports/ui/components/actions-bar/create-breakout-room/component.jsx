@@ -181,12 +181,17 @@ const intlMessages = defineMessages({
     id: 'app.createBreakoutRoom.sendInvitationToMods',
     description: 'label for checkbox send invitation to moderators',
   },
+  currentSlide: {
+    id: 'app.createBreakoutRoom.currentSlideLabel',
+    description: 'label for current slide',
+  },
 });
 
 const BREAKOUT_LIM = Meteor.settings.public.app.breakouts.breakoutRoomLimit;
 const MIN_BREAKOUT_ROOMS = 2;
 const MAX_BREAKOUT_ROOMS = BREAKOUT_LIM > MIN_BREAKOUT_ROOMS ? BREAKOUT_LIM : MIN_BREAKOUT_ROOMS;
 const MIN_BREAKOUT_TIME = 5;
+const CURRENT_SLIDE_PREFIX = 'current-';
 
 const propTypes = {
   intl: PropTypes.shape({
@@ -244,6 +249,7 @@ class BreakoutRoom extends PureComponent {
     this.removeRoomUsers = this.removeRoomUsers.bind(this);
     this.renderErrorMessages = this.renderErrorMessages.bind(this);
     this.onUpdateBreakouts = this.onUpdateBreakouts.bind(this);
+    this.getRoomPresentation = this.getRoomPresentation.bind(this);
 
     this.state = {
       numberOfRooms: MIN_BREAKOUT_ROOMS,
@@ -266,6 +272,7 @@ class BreakoutRoom extends PureComponent {
       durationIsValid: true,
       breakoutJoinedUsers: null,
       enableUnassingUsers: null,
+      roomPresentations: [],
     };
 
     this.btnLevelId = uniqueId('btn-set-level-');
@@ -503,6 +510,8 @@ class BreakoutRoom extends PureComponent {
       isDefaultName: !this.hasNameChanged(seq),
       freeJoin,
       sequence: seq,
+      allPages: !this.getRoomPresentation(seq).startsWith(CURRENT_SLIDE_PREFIX),
+      presId: this.getRoomPresentation(seq).replace(CURRENT_SLIDE_PREFIX, ''),
     }));
 
     createBreakoutRoom(rooms, durationTime, record, captureNotes, captureSlides, inviteMods);
@@ -686,6 +695,15 @@ class BreakoutRoom extends PureComponent {
     return intl.formatMessage(intlMessages.breakoutRoom, {
       0: padWithZeroes ? `${position}`.padStart(2, '0') : position
     });
+  }
+
+  getRoomPresentation(position) {
+    const { roomPresentations } = this.state;
+    const { presentations } = this.props;
+
+    const currentPresentation = presentations.find((presentation) => presentation.current);
+
+    return roomPresentations[position] || `${CURRENT_SLIDE_PREFIX}${currentPresentation?.id}`;
   }
 
   getFullName(position) {
@@ -909,11 +927,12 @@ class BreakoutRoom extends PureComponent {
   }
 
   renderRoomsGrid() {
-    const { intl, isUpdate } = this.props;
+    const { intl, isUpdate, presentations } = this.props;
     const {
       leastOneUserIsValid,
       numberOfRooms,
       roomNamesChanged,
+      roomPresentations,
     } = this.state;
 
     const rooms = (numberOfRooms > MAX_BREAKOUT_ROOMS
@@ -941,6 +960,17 @@ class BreakoutRoom extends PureComponent {
       });
     };
 
+    const changeRoomPresentation = (position) => (ev) => {
+      const newRoomsPresentations = [...roomPresentations];
+      newRoomsPresentations[position] = ev.target.value;
+
+      this.setState({
+        roomPresentations: newRoomsPresentations,
+      });
+    };
+
+    const currentPresentation = presentations.find((presentation) => presentation.current);
+
     return (
       <Styled.BoxContainer key="rooms-grid-" ref={(r) => { this.listOfUsers = r; }} data-test="roomGrid">
         {
@@ -963,6 +993,31 @@ class BreakoutRoom extends PureComponent {
                   {intl.formatMessage(intlMessages.roomNameInputDesc)}
                 </div>
               </Styled.FreeJoinLabel>
+              { presentations.length > 0 ? (
+                <Styled.BreakoutSlideLabel>
+                  <Styled.InputRooms
+                    value={this.getRoomPresentation(value)}
+                    onChange={changeRoomPresentation(value)}
+                    valid
+                  >
+                    { currentPresentation?.id ? (
+                      <option key="current-slide" value={`${CURRENT_SLIDE_PREFIX}${currentPresentation.id}`}>
+                        {intl.formatMessage(intlMessages.currentSlide)}
+                      </option>
+                    ) : null }
+                    {
+                      presentations.map((presentation) => (
+                        <option
+                          key={presentation.id}
+                          value={presentation.id}
+                        >
+                          {presentation.name}
+                        </option>
+                      ))
+                    }
+                  </Styled.InputRooms>
+                </Styled.BreakoutSlideLabel>
+              ) : null }
               <Styled.BreakoutBox id={`breakoutBox-${value}`} onDrop={drop(value)} onDragOver={allowDrop} tabIndex={0}>
                 {this.renderUserItemByRoom(value)}
               </Styled.BreakoutBox>

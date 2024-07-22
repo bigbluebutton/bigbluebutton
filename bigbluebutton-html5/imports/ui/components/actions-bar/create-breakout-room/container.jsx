@@ -3,6 +3,7 @@ import { withTracker } from 'meteor/react-meteor-data';
 import ActionsBarService from '/imports/ui/components/actions-bar/service';
 import BreakoutRoomService from '/imports/ui/components/breakout-room/service';
 import CreateBreakoutRoomModal from './component';
+import Presentations from '/imports/api/presentations';
 import { isImportSharedNotesFromBreakoutRoomsEnabled, isImportPresentationWithAnnotationsFromBreakoutRoomsEnabled } from '/imports/ui/services/features';
 
 const METEOR_SETTINGS_APP = Meteor.settings.public.app;
@@ -46,4 +47,5 @@ export default withTracker(() => ({
   meetingName: ActionsBarService.meetingName(),
   amIModerator: ActionsBarService.amIModerator(),
   moveUser: ActionsBarService.moveUser,
+  presentations: Presentations.find({ 'conversion.done': true }).fetch(),
 }))(CreateBreakoutRoomContainer);
