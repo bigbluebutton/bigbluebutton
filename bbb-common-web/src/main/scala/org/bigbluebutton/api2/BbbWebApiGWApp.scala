@@ -253,27 +253,23 @@ class BbbWebApiGWApp(
       groupsAsVector
     )
 
-    //meetingManagerActorRef ! new CreateMeetingMsg(defaultProps)
-
     val event = MsgBuilder.buildCreateMeetingRequestToAkkaApps(defaultProps)
     msgToAkkaAppsEventBus.publish(MsgToAkkaApps(toAkkaAppsChannel, event))
 
   }
 
   def registerUser(meetingId: String, intUserId: String, name: String,
-                   role: String, extUserId: String, authToken: String, avatarURL: String,
+                   role: String, extUserId: String, authToken: String, avatarURL: String, 
+                   webcamBackgroundURL: String, 
                    guest: java.lang.Boolean, authed: java.lang.Boolean,
                    guestStatus: String, excludeFromDashboard: java.lang.Boolean, userCustomData: java.util.Map[String, AnyRef]): Unit = {
-
-    //    meetingManagerActorRef ! new RegisterUser(meetingId = meetingId, intUserId = intUserId, name = name,
-    //      role = role, extUserId = extUserId, authToken = authToken, avatarURL = avatarURL,
-    //     guest = guest, authed = authed)
 
     val ucd = userCustomData.asScala.toMap
 
     val regUser = new RegisterUser(meetingId = meetingId, intUserId = intUserId, name = name,
       role = role, extUserId = extUserId, authToken = authToken, avatarURL = avatarURL,
-      guest = guest.booleanValue(), authed = authed.booleanValue(), guestStatus = guestStatus,
+      webcamBackgroundURL = webcamBackgroundURL, guest = guest.booleanValue(),
+      authed = authed.booleanValue(), guestStatus = guestStatus,
       excludeFromDashboard = excludeFromDashboard, ucd)
 
     val event = MsgBuilder.buildRegisterUserRequestToAkkaApps(regUser)

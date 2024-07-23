@@ -34,7 +34,7 @@ trait UserJoinedVoiceConfEvtMsgHdlr extends SystemConfiguration {
 
     def registerUserInRegisteredUsers() = {
       val regUser = RegisteredUsers.create(msg.body.intId, msg.body.voiceUserId,
-        msg.body.callerIdName, Roles.VIEWER_ROLE, msg.body.intId, "",
+        msg.body.callerIdName, Roles.VIEWER_ROLE, msg.body.intId, "", "",
         userColor, true, true, GuestStatus.WAIT, true, false)
       RegisteredUsers.add(liveMeeting.registeredUsers, regUser)
     }
@@ -57,6 +57,7 @@ trait UserJoinedVoiceConfEvtMsgHdlr extends SystemConfiguration {
         presenter = false,
         locked = MeetingStatus2x.getPermissions(liveMeeting.status).lockOnJoin,
         avatar = "",
+        webcamBackground = "",
         color = userColor,
         clientType = "",
         pickExempted = false,
@@ -67,7 +68,7 @@ trait UserJoinedVoiceConfEvtMsgHdlr extends SystemConfiguration {
 
     def registerUserAsGuest() = {
       if (GuestsWaiting.findWithIntId(liveMeeting.guestsWaiting, msg.body.intId) == None) {
-        val guest = GuestWaiting(msg.body.intId, msg.body.callerIdName, Roles.VIEWER_ROLE, true, "", userColor, true, System.currentTimeMillis())
+        val guest = GuestWaiting(msg.body.intId, msg.body.callerIdName, Roles.VIEWER_ROLE, true, "", "", userColor, true, System.currentTimeMillis())
         GuestsWaiting.add(liveMeeting.guestsWaiting, guest)
         notifyModeratorsOfGuestWaiting(guest, liveMeeting.users2x, liveMeeting.props.meetingProp.intId)
 

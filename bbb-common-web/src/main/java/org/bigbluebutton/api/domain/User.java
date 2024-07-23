@@ -31,6 +31,7 @@ public class User {
 	private String fullname;
 	private String role;
 	private String avatarURL;
+	private String webcamBackgroundURL;
 	private Map<String,String> status;
 	private Boolean guest;
 	private String  guestStatus;
@@ -45,6 +46,7 @@ public class User {
 							String fullname,
 							String role,
 							String avatarURL,
+							String webcamBackgroundURL,
 							Boolean guest,
 							String  guestStatus,
 							String clientType) {
@@ -53,6 +55,7 @@ public class User {
 		this.fullname = fullname;
 		this.role = role;
 		this.avatarURL = avatarURL;
+		this.webcamBackgroundURL = webcamBackgroundURL;
 		this.guest = guest;
 		this.guestStatus = guestStatus;
 		this.status = new ConcurrentHashMap<>();
@@ -126,6 +129,14 @@ public class User {
 
 	public void setAvatarUrl(String avatarURL) {
 		this.avatarURL = avatarURL;
+	}
+
+	public String getWebcamBackgroundUrl() {
+		return webcamBackgroundURL;
+	}
+
+	public void setWebcamBackgroundUrl(String webcamBackgroundURL) {
+		this.webcamBackgroundURL = webcamBackgroundURL;
 	}
 
 	public boolean isModerator() {

@@ -15,7 +15,6 @@ import {
   getVirtualBgImagePath,
 } from '/imports/ui/services/virtual-background/service'
 import logger from '/imports/startup/client/logger';
-
 import { simd } from 'wasm-feature-detect/dist/cjs/index';
 
 const blurValue = '25px';
@@ -387,10 +386,44 @@ export async function createVirtualBackgroundService(parameters = null) {
         parameters.backgroundType = 'blur';
         parameters.isVirtualBackground = false;
     } else {
+        parameters.virtualSource = virtualBackgroundImagePath + parameters.backgroundFilename;
+
         if (parameters.customParams) {
-            parameters.virtualSource = parameters.customParams.file;
-        } else {
-            parameters.virtualSource = virtualBackgroundImagePath + parameters.backgroundFilename;
+            if (parameters.customParams.file) {
+                parameters.virtualSource = parameters.customParams.file;
+            } else {
+                const imageUrl = parameters.customParams.url;
+
+                // Function to convert image URL to a File object
+                async function getFileFromUrl(url) {
+                    try {
+                        const response = await fetch(url, {
+                            credentials: 'omit',
+                            mode: 'cors',
+                            headers: {
+                                'Accept': 'image/*',
+                            }
+                        });                
+                        if (!response.ok) {
+                            throw new Error(`HTTP error! status: ${response.status}`);
+                        }
+                        const blob = await response.blob();
+                        const file = new File([blob], 'fetchedWebcamBackground', { type: blob.type });
+                        return file;
+                    } catch (error) {
+                        logger.error('Fetch error:', error);
+                        return null;
+                    }
+                }
+
+                let fetchedWebcamBackground = await getFileFromUrl(imageUrl);
+
+                if (fetchedWebcamBackground) {
+                    parameters.virtualSource = URL.createObjectURL(fetchedWebcamBackground);
+                } else {
+                    logger.error('Failed to fetch custom webcam background image. Using fallback image.');
+                }
+            }
         }
     }
 

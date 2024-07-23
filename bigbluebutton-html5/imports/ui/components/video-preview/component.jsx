@@ -1,3 +1,5 @@
+import Auth from '/imports/ui/services/auth';
+import Users from '/imports/api/users';
 import PropTypes from 'prop-types';
 import React, { Component } from 'react';
 import {
@@ -325,6 +327,21 @@ class VideoPreview extends Component {
                 viewState: VIEW_STATES.found,
               });
               this.displayPreview();
+
+              // Set the custom or default virtual background
+              const webcamBackground = Users.findOne({
+                meetingId: Auth.meetingID,
+                userId: Auth.userID,
+              }, {
+                fields: {
+                  webcamBackground: 1,
+                },
+              });
+              
+              const webcamBackgroundURL = webcamBackground?.webcamBackground;
+              if (webcamBackgroundURL !== '') {
+                this.handleVirtualBgSelected(EFFECT_TYPES.IMAGE_TYPE, '', { url: webcamBackgroundURL });
+              }
             });
         } else {
           // There were no webcams coming from enumerateDevices. Throw an error.
@@ -428,7 +445,6 @@ class VideoPreview extends Component {
 
   // Resolves into true if the background switch is successful, false otherwise
   handleVirtualBgSelected(type, name, customParams) {
-    const { sharedDevices } = this.props;
     const { webcamDeviceId } = this.state;
     const shared = this.isAlreadyShared(webcamDeviceId);
 
