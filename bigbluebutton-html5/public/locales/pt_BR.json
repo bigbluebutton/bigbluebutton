@@ -885,7 +885,7 @@
     "app.toast.meetingMuteOn.label": "Todos os participantes foram silenciados",
     "app.toast.meetingMuteOnViewers.label": "Todos os participantes foram silenciados",
     "app.toast.meetingMuteOff.label": "Sessão não está mais em mudo",
-    "app.toast.wakeLock.acquireSuccess": "Manter a tela ligada ativada! Você pode desativar esta opção nas configurações.",
+    "app.toast.wakeLock.acquireSuccess": "Modo \"Manter a tela ligada\" ativado! Você pode desativar esta opção nas configurações.",
     "app.toast.wakeLock.acquireFailed": "Não foi possível ativar o modo \"Manter a tela ligada\"",
     "app.toast.wakeLock.notSupported": "Seu navegador não suporta o modo \"Manter tela ligada\"",
     "app.toast.wakeLock.disclaimer": "{0}. Você será desconectado da sessão quando a tela desligar.",
