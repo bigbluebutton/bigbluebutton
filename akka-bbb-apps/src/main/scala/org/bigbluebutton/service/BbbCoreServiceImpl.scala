@@ -293,7 +293,14 @@ class BbbCoreServiceImpl(implicit materializer: Materializer, bbbActor: ActorRef
               )) 
             }
           }
-          case _: String => createMeeting(settings, settings.voiceSettings.get.voiceBridge)
+          case vb: String => 
+            (bbbActor ? IsVoiceBridgeInUse(vb)).mapTo[Boolean].flatMap(inUse => {
+              if (inUse) {
+                Future.failed(GrpcServiceException(Code.ALREADY_EXISTS, "nonUniqueVoiceBridge", Seq(new ErrorResponse("nonUniqueVoiceBridge", "The selected voice bridge is already in use."))))
+              } else {
+                createMeeting(settings, settings.voiceSettings.get.voiceBridge)
+              }
+            })
         }
       case None => Future.failed(GrpcServiceException(Code.INVALID_ARGUMENT, "missingSettings", Seq(new ErrorResponse("missingSettings", "No meeting settings were provided."))))
     }

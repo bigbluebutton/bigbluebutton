@@ -2,8 +2,10 @@ package main
 
 import (
 	"context"
+	"encoding/xml"
 	"io"
 	"log"
+	"mime"
 	"net/http"
 	"time"
 
@@ -222,10 +224,30 @@ func (app *Config) createMeeting(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// TODO: check if voice bridge is in use and if parent meeting exists (ideally during create call on akka apps side)
-
 	ctx, cancel := context.WithTimeout(context.Background(), time.Second)
 	defer cancel()
+
+	if util.GetBoolOrDefaultValue(util.StripCtrlChars(params.Get("isBreakoutRoom")), false) {
+		parentMeetingId := util.StripCtrlChars(params.Get("parentMeetingId"))
+		if parentMeetingId == "" {
+			app.respondWithErrorXML(w, model.ReturnCodeFailure, model.ParentMeetingIdMissingErrorKey, model.ParentMeetingIdMissingErrorMsg)
+			return
+		}
+
+		res, err := app.BbbCore.IsMeetingRunning(ctx, &bbbcore.MeetingRunningRequest{
+			MeetingId: parentMeetingId,
+		})
+		if err != nil {
+			log.Println(err)
+			app.respondWithErrorXML(w, model.ReturnCodeFailure, model.UnknownErrorKey, model.UnknownErrorMsg)
+			return
+		}
+
+		if !res.IsRunning {
+			app.respondWithErrorXML(w, model.ReturnCodeFailure, model.ParentMeetingDoesNotExistErrorKey, model.ParentMeetingDoesNotExistErrorMsg)
+			return
+		}
+	}
 
 	settings, err := app.processCreateQueryParams(&params)
 	if err != nil {
@@ -234,13 +256,35 @@ func (app *Config) createMeeting(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	contentType, _, _ := mime.ParseMediaType(r.Header.Get("Content-Type"))
+	if contentType == util.ApplicationXML || contentType == util.TextXML {
+		var body map[string]string
+		decoder := xml.NewDecoder(r.Body)
+		err = decoder.Decode(&body)
+		if err != nil {
+			app.respondWithErrorXML(w, model.ReturnCodeFailure, model.InvalidRequestBodyKey, model.InvalidRequestBodyMsg)
+			return
+		}
+
+		if cso, ok := body["clientSettingsOverride"]; ok && app.ServerConfig.Override.ClientSettings {
+			settings.OverrideClientSettings = cso
+		}
+	}
+
 	res, err := app.BbbCore.CreateMeeting(ctx, &bbbcore.CreateMeetingRequest{
 		CreateMeetingSettings: settings,
 	})
 	if err != nil {
 		log.Println(err)
-		app.respondWithErrorXML(w, model.ReturnCodeFailure, model.CreateMeetingErrorKey, model.CreateMeetingErrorMsg)
-		return
+		code := app.getGrpcErrorCode(err)
+		switch code {
+		case codes.InvalidArgument, codes.ResourceExhausted, codes.AlreadyExists:
+			app.writeXML(w, http.StatusAccepted, app.grpcErrorToErrorResp(err))
+			return
+		default:
+			app.respondWithErrorXML(w, model.ReturnCodeFailure, model.CreateMeetingErrorKey, model.CreateMeetingErrorMsg)
+			return
+		}
 	}
 
 	if !res.IsValid {

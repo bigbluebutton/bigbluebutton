@@ -117,8 +117,12 @@ type ServerConfig struct {
 		PrivateChatEnabled bool `yaml:"private_chat_enabled"`
 	} `yaml:"breakout_rooms"`
 	LearningDashboard struct {
-		CleanupDelay int32 `yam:"cleanup_delay"`
+		CleanupDelay int32 `yaml:"cleanup_delay"`
 	} `yaml:"learning_dashboard"`
+	Override struct {
+		ClientSettings      bool `yaml:"client_settings"`
+		DefaultPresentation bool `yaml:"default_presentation"`
+	} `yaml:"override"`
 }
 
 func (config *ServerConfig) ParseConfig(path string) error {

@@ -130,3 +130,7 @@ breakout_rooms:
 # Default learning dashboard settings
 learning_dashbaord:
   cleanup_delay: 2 # Number of minutes that the Learning Dashboard will be available after the meeting ends (0 means the dashboard will be available permanently)
+
+override:
+  client_settings: false
+  default_presentation: true
