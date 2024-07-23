@@ -4,12 +4,12 @@ import org.apache.pekko.actor.ActorContext
 import org.apache.pekko.event.Logging
 import org.bigbluebutton.Boot.eventBus
 import org.bigbluebutton.common2.msgs._
-import org.bigbluebutton.core.api.{SetPresenterInDefaultPodInternalMsg}
+import org.bigbluebutton.core.api.SetPresenterInDefaultPodInternalMsg
 import org.bigbluebutton.core.apps.ExternalVideoModel
 import org.bigbluebutton.core.bus.{BigBlueButtonEvent, InternalEventBus}
 import org.bigbluebutton.core.models._
 import org.bigbluebutton.core.running.{LiveMeeting, OutMsgRouter}
-import org.bigbluebutton.core2.message.senders.{MsgBuilder}
+import org.bigbluebutton.core2.message.senders.{MsgBuilder, Sender}
 import org.bigbluebutton.core.apps.screenshare.ScreenshareApp2x
 import org.bigbluebutton.core.db.UserStateDAO
 
@@ -71,6 +71,13 @@ object UsersApp {
     } yield {
       sendPresenterAssigned(outGW, meetingId, newPresenter.intId, newPresenter.name, newPresenter.intId)
       sendPresenterInPodReq(meetingId, newPresenter.intId)
+
+      // Force reconnection with graphql to refresh permissions
+      for {
+        regUser <- RegisteredUsers.findWithUserId(newPresenter.intId, liveMeeting.registeredUsers)
+      } yield {
+        Sender.sendForceUserGraphqlReconnectionSysMsg(liveMeeting.props.meetingProp.intId, regUser.id, regUser.sessionToken, "role_changed", outGW)
+      }
     }
   }
 
