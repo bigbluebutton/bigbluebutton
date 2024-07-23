@@ -5,6 +5,7 @@ import (
 	"crypto/sha1"
 	"encoding/json"
 	"encoding/xml"
+	"io"
 	"log"
 	"net/http"
 	"regexp"
@@ -95,7 +96,7 @@ func (app *Config) grpcErrorToErrorResp(err error) *model.Response {
 	}
 }
 
-func (app *Config) processCreateQueryParams(params *Params) (*common.CreateMeetingSettings, error) {
+func (app *Config) processCreateParams(params *Params) (*common.CreateMeetingSettings, error) {
 	var settings common.CreateMeetingSettings
 
 	createTime := time.Now().UnixMilli()
@@ -387,6 +388,149 @@ func (app *Config) processGroupSettings(params *Params) []*common.GroupSettings 
 		}
 	}
 	return groupProps
+}
+
+type Modules struct {
+	XMLName xml.Name `xml:"modules"`
+	Modules []Module `xml:"module"`
+}
+
+type Module struct {
+	XMLName xml.Name `xml:"module"`
+	Name    string   `xml:"name,attr"`
+	Content string   `xml:",innerxml"`
+}
+
+type RequestModules map[string][]Module
+
+func (r RequestModules) Get(key string) *Module {
+	vs := r[key]
+	if len(vs) == 0 {
+		return nil
+	}
+	return &vs[0]
+}
+
+func (r RequestModules) GetAll(key string) []Module {
+	vs := r[key]
+	if len(vs) == 0 {
+		return nil
+	}
+	return vs
+}
+
+func (r RequestModules) Set(key string, value Module) {
+	r[key] = []Module{value}
+}
+
+func (r RequestModules) Add(key string, value Module) {
+	r[key] = append(r[key], value)
+}
+
+func (r RequestModules) Del(key string) {
+	delete(r, key)
+}
+
+func (r RequestModules) Has(key string) bool {
+	_, ok := r[key]
+	return ok
+}
+
+type Document struct {
+	name          string `xml:"name,attr"`
+	current       bool   `xml:"current,attr"`
+	removable     bool   `xml:"removable,attr"`
+	downloadable  bool   `xml:"downloadable,attr"`
+	url           string `xml:"url,attr"`
+	fileName      string `xml:"filename,attr"`
+	presFromParam bool   `xml:"isPreUploadedPresentationFromParameter,attr"`
+	content       string `xml:",chardata"`
+}
+
+func (app *Config) procesXMLModules(body io.ReadCloser) (RequestModules, error) {
+	var modules Modules
+	decoder := xml.NewDecoder(body)
+	err := decoder.Decode(&modules)
+	if err != nil {
+		return nil, err
+	}
+
+	reqModules := make(RequestModules)
+	for _, module := range modules.Modules {
+		reqModules.Add(module.Name, module)
+	}
+
+	return reqModules, nil
+}
+
+func (app *Config) uploadDocuments(modules map[string]string, params *Params, isFromInsertAPI bool) {
+	// for _, df := range app.ServerConfig.Meeting.Features.Disabled {
+	// 	if df == "presentation" {
+	// 		slog.Warn("Presentation feature is disabled.")
+	// 		return
+	// 	}
+	// }
+
+	// overrideDefaultPresentation := true
+	// if !isFromInsertAPI {
+	// 	if po := params.Get("preUploadedPresentationOverrideDefault"); po == "" {
+	// 		overrideDefaultPresentation = app.ServerConfig.Override.DefaultPresentation
+	// 	} else {
+	// 		overrideDefaultPresentation = util.GetBoolOrDefaultValue(po, overrideDefaultPresentation)
+	// 	}
+	// }
+
+	// isDefaultPresUsed := false
+	// isDefaultPresCurrent := false
+	// var presentations []Presentation
+	// presentationsHasCurrent := false
+	// presURLInParameter := false
+
+	// pres := params.Get("preUploadedPresentation")
+	// presName := params.Get("preUploadedPresentationName")
+
+	// if pres != "" {
+	// 	presURLInParameter = true
+	// 	if presName == "" {
+	// 		// Set presName using file name from URL
+	// 	}
+
+	// 	p := Presentation{
+	// 		removable:     true,
+	// 		downloadable:  false,
+	// 		url:           pres,
+	// 		fileName:      presName,
+	// 		presFromParam: true,
+	// 	}
+	// 	presentations = append(presentations, p)
+	// }
+
+	// if _, ok := modules["presentation"]; !ok {
+	// 	if isFromInsertAPI {
+	// 		slog.Warn("Insert document API called without a payload - ignoring")
+	// 		return
+	// 	}
+
+	// 	if presURLInParameter {
+	// 		if !overrideDefaultPresentation {
+	// 			presentations = append(presentations, Presentation{
+	// 				name:    "default",
+	// 				current: true,
+	// 			})
+	// 		}
+	// 	} else {
+	// 		presentations = append(presentations, Presentation{
+	// 			name:    "default",
+	// 			current: true,
+	// 		})
+	// 	}
+	// } else {
+	// 	hasCurrent := presURLInParameter
+	// 	hasPresModule := false
+	// 	if presModule, ok := modules["presentation"]; ok {
+	// 		hasPresModule = true
+	// 	}
+	// }
 }
 
 func replaceKeywords(message string, dialNumber string, voiceBridge string, meetingName string, url string) string {

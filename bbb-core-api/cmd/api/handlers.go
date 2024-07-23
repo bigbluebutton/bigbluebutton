@@ -2,7 +2,6 @@ package main
 
 import (
 	"context"
-	"encoding/xml"
 	"io"
 	"log"
 	"mime"
@@ -249,7 +248,7 @@ func (app *Config) createMeeting(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 
-	settings, err := app.processCreateQueryParams(&params)
+	settings, err := app.processCreateParams(&params)
 	if err != nil {
 		log.Println(err)
 		app.respondWithErrorXML(w, model.ReturnCodeFailure, model.CreateMeetingErrorKey, model.CreateMeetingDuplicateMsg)
@@ -258,16 +257,14 @@ func (app *Config) createMeeting(w http.ResponseWriter, r *http.Request) {
 
 	contentType, _, _ := mime.ParseMediaType(r.Header.Get("Content-Type"))
 	if contentType == util.ApplicationXML || contentType == util.TextXML {
-		var body map[string]string
-		decoder := xml.NewDecoder(r.Body)
-		err = decoder.Decode(&body)
+		modules, err := app.procesXMLModules(r.Body)
 		if err != nil {
 			app.respondWithErrorXML(w, model.ReturnCodeFailure, model.InvalidRequestBodyKey, model.InvalidRequestBodyMsg)
 			return
 		}
 
-		if cso, ok := body["clientSettingsOverride"]; ok && app.ServerConfig.Override.ClientSettings {
-			settings.OverrideClientSettings = cso
+		if cso := modules.Get("clientSettingsOverride"); cso != nil && app.ServerConfig.Override.ClientSettings {
+			settings.OverrideClientSettings = cso.Content
 		}
 	}
 
