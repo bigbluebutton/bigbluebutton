@@ -285,8 +285,6 @@ CREATE TABLE "user" (
     "raiseHandTime" timestamp with time zone,
     "away" bool default false,
     "awayTime" timestamp with time zone,
-	"emoji" varchar,
-	"emojiTime" timestamp with time zone,
 	"reactionEmoji" varchar(25),
 	"reactionEmojiTime" timestamp with time zone,
 	"guestStatusSetByModerator" varchar(50),
@@ -346,39 +344,6 @@ ALTER TABLE "user" ADD COLUMN "isOnline" boolean GENERATED ALWAYS AS (
         ELSE false
         END) STORED;
 
--- user (on update emoji, raiseHand or away: set new time)
-CREATE OR REPLACE FUNCTION update_user_emoji_time_trigger_func()
-RETURNS TRIGGER AS $$
-BEGIN
-    IF NEW."emoji" <> OLD."emoji" THEN
-        IF NEW."emoji" = 'none' or  NEW."emoji" = '' THEN
-            NEW."emojiTime" := NULL;
-        ELSE
-            NEW."emojiTime" := NOW();
-        END IF;
-    END IF;
-    IF NEW."raiseHand" IS DISTINCT FROM OLD."raiseHand" THEN
-        IF NEW."raiseHand" is false THEN
-            NEW."raiseHandTime" := NULL;
-        ELSE
-            NEW."raiseHandTime" := NOW();
-        END IF;
-    END IF;
-    IF NEW."away" IS DISTINCT FROM OLD."away" THEN
-        IF NEW."away" is false THEN
-            NEW."awayTime" := NULL;
-        ELSE
-            NEW."awayTime" := NOW();
-        END IF;
-    END IF;
-    RETURN NEW;
-END;
-$$ LANGUAGE plpgsql;
-
-CREATE TRIGGER update_user_emoji_time_trigger BEFORE UPDATE OF "emoji" ON "user"
-    FOR EACH ROW EXECUTE FUNCTION update_user_emoji_time_trigger_func();
-
-
 CREATE OR REPLACE VIEW "v_user"
 AS SELECT "user"."userId",
     "user"."extId",
@@ -391,8 +356,6 @@ AS SELECT "user"."userId",
     "user"."awayTime",
     "user"."raiseHand",
     "user"."raiseHandTime",
-    "user"."emoji",
-    "user"."emojiTime",
     "user"."reactionEmoji",
     "user"."reactionEmojiTime",
     "user"."guest",
@@ -432,7 +395,6 @@ CREATE INDEX "idx_v_user_meetingId_orderByColumns" ON "user"(
                         "presenter",
                         "role",
                         "raiseHandTime",
-                        "emojiTime",
                         "isDialIn",
                         "hasDrawPermissionOnCurrentPage",
                         "nameSortable",
@@ -452,7 +414,6 @@ AS SELECT "user"."userId",
     "user"."color",
     "user"."away",
     "user"."raiseHand",
-    "user"."emoji",
     "user"."reactionEmoji",
     "user"."guest",
     "user"."guestStatus",
@@ -488,13 +449,6 @@ AS SELECT "user"."userId",
     "user"."inactivityWarningTimeoutSecs"
    FROM "user";
 
---This view will be used by Meteor to validate if the provided authToken is valid
---It is temporary while Meteor is not removed
-create view "v_user_connection_auth" as
-select "meetingId", "userId", "authToken"
-from "v_user_current"
-where "isOnline" is true;
-
 CREATE OR REPLACE VIEW "v_user_guest" AS
 SELECT u."meetingId", u."userId",
 u."guestStatus",
@@ -525,7 +479,6 @@ AS SELECT
     "user"."color",
     "user"."away",
     "user"."raiseHand",
-    "user"."emoji",
     "user"."reactionEmoji",
     "user"."guest",
     "user"."guestStatus",
@@ -551,19 +504,19 @@ AS SELECT
     "user"."isOnline"
    FROM "user";
 
-create table "user_customParameter"(
+create table "user_metadata"(
     "meetingId" varchar(100),
     "userId" varchar(50),
 	"parameter" varchar(255),
 	"value" varchar(255),
-	CONSTRAINT "user_customParameter_pkey" PRIMARY KEY ("meetingId", "userId","parameter"),
+	CONSTRAINT "user_metadata_pkey" PRIMARY KEY ("meetingId", "userId","parameter"),
 	FOREIGN KEY ("meetingId", "userId") REFERENCES "user"("meetingId","userId") ON DELETE CASCADE
 );
-create index "idx_user_customParameter_pk_reverse" on "user_customParameter" ("userId", "meetingId");
+create index "idx_user_metadata_pk_reverse" on "user_metadata" ("userId", "meetingId");
 
-CREATE VIEW "v_user_customParameter" AS
+CREATE VIEW "v_user_metadata" AS
 SELECT *
-FROM "user_customParameter";
+FROM "user_metadata";
 
 CREATE VIEW "v_user_welcomeMsgs" AS
 SELECT
@@ -604,8 +557,8 @@ create index "idx_user_voice_pk_reverse" on "user_voice" ("userId", "meetingId")
 
 --CREATE INDEX "idx_user_voice_userId" ON "user_voice"("userId");
 -- + 6000 means it will hide after 6 seconds
-ALTER TABLE "user_voice" ADD COLUMN "hideTalkingIndicatorAt" timestamp with time zone
-GENERATED ALWAYS AS (to_timestamp((COALESCE("endTime","startTime") + 6000) / 1000)) STORED;
+--ALTER TABLE "user_voice" ADD COLUMN "hideTalkingIndicatorAt" timestamp with time zone
+--GENERATED ALWAYS AS (to_timestamp((COALESCE("endTime","startTime") + 6000) / 1000)) STORED;
 
 ALTER TABLE "user_voice" ADD COLUMN "startedAt" timestamp with time zone
 GENERATED ALWAYS AS (to_timestamp("startTime"::double precision / 1000)) STORED;
@@ -614,26 +567,12 @@ ALTER TABLE "user_voice" ADD COLUMN "endedAt" timestamp with time zone
 GENERATED ALWAYS AS (to_timestamp("endTime"::double precision / 1000)) STORED;
 
 CREATE INDEX "idx_user_voice_userId_talking" ON "user_voice"("meetingId", "userId","talking");
-CREATE INDEX "idx_user_voice_userId_hideTalkingIndicatorAt" ON "user_voice"("meetingId", "userId","hideTalkingIndicatorAt");
+--CREATE INDEX "idx_user_voice_userId_hideTalkingIndicatorAt" ON "user_voice"("meetingId", "userId","hideTalkingIndicatorAt");
 CREATE INDEX "idx_user_voice_userId_voiceActivityAt" ON "user_voice"("meetingId", "voiceActivityAt") WHERE "voiceActivityAt" is not null;
 
 CREATE OR REPLACE VIEW "v_user_voice" AS
-SELECT
-	"user_voice" .*,
-	greatest(coalesce(user_voice."startTime", 0), coalesce(user_voice."endTime", 0)) AS "lastSpeakChangedAt",
-	user_talking."userId" IS NOT NULL "showTalkingIndicator"
+SELECT "user_voice".*
 FROM "user_voice"
-LEFT JOIN "user_voice" user_talking ON (
-                                        user_talking."meetingId" = user_voice."meetingId" and
-                                        user_talking."userId" = user_voice."userId" and
-                                        user_talking."talking" IS TRUE
-                                        )
-                                       OR
-                                       (
-                                       user_talking."meetingId" = user_voice."meetingId" and
-                                       user_talking."userId" = user_voice."userId" and
-                                       user_talking."hideTalkingIndicatorAt" > now()
-                                       )
 WHERE "user_voice"."joined" is true;
 
 --Populate voiceActivityAt to provide users that are active in audio via stream subscription using the view v_user_voice_activity
@@ -675,71 +614,6 @@ AND --filter recent activities to avoid receiving all history every time it star
 ;
 
 ----
-
-
----TEMPORARY MINIMONGO ADAPTER START
-alter table "user" add "voiceUpdatedAt" timestamp with time zone;
-
-CREATE OR REPLACE FUNCTION "update_user_voiceUpdatedAt_func"() RETURNS TRIGGER AS $$
-BEGIN
-  UPDATE "user"
-  SET "voiceUpdatedAt" = current_timestamp
-  WHERE "meetingId" = NEW."meetingId" AND "userId" = NEW."userId";
-  RETURN NEW;
-END;
-$$ LANGUAGE plpgsql;
-
-CREATE TRIGGER "update_user_voice_trigger" BEFORE UPDATE ON "user_voice" FOR EACH ROW
-EXECUTE FUNCTION "update_user_voiceUpdatedAt_func"();
-
-CREATE TRIGGER "insert_user_voice_trigger" BEFORE INSERT ON "user_voice" FOR EACH ROW
-EXECUTE FUNCTION "update_user_voiceUpdatedAt_func"();
-
-CREATE TRIGGER "delete_user_voice_trigger" AFTER DELETE ON "user_voice" FOR EACH ROW
-EXECUTE FUNCTION "update_user_voiceUpdatedAt_func"();
-
-CREATE OR REPLACE VIEW "v_user_voice_mongodb_adapter" AS
-SELECT
-	u."meetingId",
-	u."userId",
-	u."voiceUpdatedAt",
-	"user_voice"."voiceUserId",
-	"user_voice"."callerName",
-	"user_voice"."callerNum",
-	"user_voice"."callingWith",
-	"user_voice"."joined",
-	"user_voice"."listenOnly",
-	"user_voice"."muted",
-	"user_voice"."spoke",
-	"user_voice"."talking",
-	"user_voice"."floor",
-	"user_voice"."lastFloorTime",
-	"user_voice"."voiceConf",
-	"user_voice"."voiceConfCallSession",
-	"user_voice"."voiceConfClientSession",
-	"user_voice"."voiceConfCallState",
-	"user_voice"."endTime",
-	"user_voice"."startTime",
-	"user_voice"."hideTalkingIndicatorAt",
-	"user_voice"."startedAt",
-	"user_voice"."endedAt",
-	greatest(coalesce(user_voice."startTime", 0), coalesce(user_voice."endTime", 0)) AS "lastSpeakChangedAt",
-	user_talking."userId" IS NOT NULL "showTalkingIndicator"
-FROM "user" u
-LEFT JOIN "user_voice" ON "user_voice"."meetingId" = u."meetingId" AND "user_voice"."userId" = u."userId"
-LEFT JOIN "user_voice" user_talking ON (
-                                        user_talking."meetingId" = u."meetingId" and
-                                        user_talking."userId" = u."userId" and
-                                        user_talking."talking" IS TRUE
-                                        )
-                                       OR (
-                                            user_talking."meetingId" = u."meetingId" and
-                                            user_talking."userId" = u."userId" and
-                                            user_talking."hideTalkingIndicatorAt" > now()
-                                            );
----TEMPORARY MINIMONGO ADAPTER END
-
-
 
 CREATE TABLE "user_camera" (
 	"streamId" varchar(150) PRIMARY KEY,
@@ -787,11 +661,11 @@ create view "v_user_connectionStatus" as select * from "user_connectionStatus";
 
 
 --Populate connectionAliveAtMaxIntervalMs to calc clientNotResponding
---It will sum settings public.stats.interval + public.stats.rtt (critical)
+--It will sum settings public.stats.interval + public.stats.rtt.critical
 CREATE OR REPLACE FUNCTION "update_connectionAliveAtMaxIntervalMs"()
 RETURNS TRIGGER AS $$
 BEGIN
-    SELECT ("clientSettingsJson"->'public'->'stats'->'rtt'->>(jsonb_array_length("clientSettingsJson"->'public'->'stats'->'rtt') - 1))::int
+    SELECT ("clientSettingsJson"->'public'->'stats'->'rtt'->'critical')::int
             +
            ("clientSettingsJson"->'public'->'stats'->'interval')::int
          INTO NEW."connectionAliveAtMaxIntervalMs"
@@ -1153,9 +1027,13 @@ SELECT  cu."meetingId",
         cm."senderId",
         cm."senderName",
         cm."senderRole",
-        cm."createdAt"
+        cm."createdAt",
+        CASE WHEN chat_with."lastSeenAt" >= cm."createdAt" THEN true ELSE false end "recipientHasSeen"
 FROM chat_message cm
 JOIN chat_user cu ON cu."meetingId" = cm."meetingId" AND cu."chatId" = cm."chatId"
+LEFT JOIN "chat_user" chat_with ON chat_with."meetingId" = cm."meetingId"
+                                AND chat_with."chatId" = cm."chatId"
+                                AND chat_with."userId" != cu."userId"
 WHERE cm."chatId" != 'MAIN-PUBLIC-GROUP-CHAT';
 
 --============ Presentation / Annotation
@@ -1207,7 +1085,8 @@ CREATE TABLE "pres_page" (
     "viewBoxHeight" NUMERIC,
     "maxImageWidth" integer,
     "maxImageHeight" integer,
-    "uploadCompleted" boolean
+    "uploadCompleted" boolean,
+    "infiniteWhiteboard" boolean
 );
 CREATE INDEX "idx_pres_page_presentationId" ON "pres_page"("presentationId");
 CREATE INDEX "idx_pres_page_presentationId_curr" ON "pres_page"("presentationId") where "current" is true;
@@ -1265,7 +1144,8 @@ SELECT pres_presentation."meetingId",
     (pres_page."height" * LEAST(pres_page."maxImageWidth" / pres_page."width", pres_page."maxImageHeight" / pres_page."height")) AS "scaledHeight",
     (pres_page."width" * pres_page."widthRatio" / 100 * LEAST(pres_page."maxImageWidth" / pres_page."width", pres_page."maxImageHeight" / pres_page."height")) AS "scaledViewBoxWidth",
     (pres_page."height" * pres_page."heightRatio" / 100 * LEAST(pres_page."maxImageWidth" / pres_page."width", pres_page."maxImageHeight" / pres_page."height")) AS "scaledViewBoxHeight",
-    pres_page."uploadCompleted"
+    pres_page."uploadCompleted",
+    pres_page."infiniteWhiteboard"
 FROM pres_page
 JOIN pres_presentation ON pres_presentation."presentationId" = pres_page."presentationId";
 
@@ -1297,7 +1177,8 @@ SELECT pres_presentation."meetingId",
     (pres_page."width" * LEAST(pres_page."maxImageWidth" / pres_page."width", pres_page."maxImageHeight" / pres_page."height")) AS "scaledWidth",
     (pres_page."height" * LEAST(pres_page."maxImageWidth" / pres_page."width", pres_page."maxImageHeight" / pres_page."height")) AS "scaledHeight",
     (pres_page."width" * pres_page."widthRatio" / 100 * LEAST(pres_page."maxImageWidth" / pres_page."width", pres_page."maxImageHeight" / pres_page."height")) AS "scaledViewBoxWidth",
-    (pres_page."height" * pres_page."heightRatio" / 100 * LEAST(pres_page."maxImageWidth" / pres_page."width", pres_page."maxImageHeight" / pres_page."height")) AS "scaledViewBoxHeight"
+    (pres_page."height" * pres_page."heightRatio" / 100 * LEAST(pres_page."maxImageWidth" / pres_page."width", pres_page."maxImageHeight" / pres_page."height")) AS "scaledViewBoxHeight",
+    pres_page."infiniteWhiteboard"
 FROM pres_presentation
 JOIN pres_page ON pres_presentation."presentationId" = pres_page."presentationId" AND pres_page."current" IS TRUE
 and pres_presentation."current" IS TRUE;

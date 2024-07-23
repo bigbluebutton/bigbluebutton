@@ -11,6 +11,7 @@ import VideoService from '/imports/ui/components/video-provider/service';
 import { ACTIONS } from '/imports/ui/components/layout/enums';
 import { Output } from '/imports/ui/components/layout/layoutTypes';
 import { VideoItem } from '/imports/ui/components/video-provider/types';
+import { VIDEO_TYPES } from '/imports/ui/components/video-provider/enums';
 
 const intlMessages = defineMessages({
   autoplayBlockedDesc: {
@@ -235,7 +236,9 @@ class VideoList extends Component<VideoListProps, VideoListState> {
     const gridGutter = parseInt(window.getComputedStyle(this.grid)
       .getPropertyValue('grid-row-gap'), 10);
 
-    const hasFocusedItem = streams.filter((s) => s.type !== 'grid' && s.stream === focusedId).length && numItems > 2;
+    const hasFocusedItem = streams.filter(
+      (s) => s.type !== VIDEO_TYPES.GRID && s.stream === focusedId,
+    ).length && numItems > 2;
 
     // Has a focused item so we need +3 cells
     if (hasFocusedItem) {
@@ -348,7 +351,7 @@ class VideoList extends Component<VideoListProps, VideoListState> {
 
     return streams.map((item) => {
       const { userId, name } = item;
-      const isStream = item.type !== 'grid';
+      const isStream = item.type !== VIDEO_TYPES.GRID;
       const stream = isStream ? item.stream : null;
       const key = isStream ? stream : userId;
       const isFocused = isStream && focusedId === stream && numOfStreams > 2;

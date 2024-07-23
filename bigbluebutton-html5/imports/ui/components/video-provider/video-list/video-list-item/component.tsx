@@ -17,6 +17,7 @@ import withDragAndDrop from './drag-and-drop/component';
 import Auth from '/imports/ui/services/auth';
 import { VideoItem } from '/imports/ui/components/video-provider/types';
 import useCurrentUser from '/imports/ui/core/hooks/useCurrentUser';
+import { VIDEO_TYPES } from '/imports/ui/components/video-provider/enums';
 
 const intlMessages = defineMessages({
   disableDesc: {
@@ -87,8 +88,8 @@ const VideoListItem: React.FC<VideoListItemProps> = (props) => {
   const Settings = getSettingsSingletonInstance();
   const { animations, webcamBorderHighlightColor } = Settings.application;
   const talking = voiceUser?.talking;
-  const raiseHand = (stream.type === 'grid' && stream.raiseHand)
-    || (stream.type === 'stream' && stream.user.raiseHand);
+  const raiseHand = (stream.type === VIDEO_TYPES.GRID && stream.raiseHand)
+    || (stream.type === VIDEO_TYPES.STREAM && stream.user.raiseHand);
   const { data: currentUser } = useCurrentUser((u) => ({
     userId: u.userId,
     pinned: u.pinned,
@@ -96,7 +97,6 @@ const VideoListItem: React.FC<VideoListItemProps> = (props) => {
     name: u.name,
     away: u.away,
     disconnected: u.disconnected,
-    emoji: u.emoji,
     role: u.role,
     avatar: u.avatar,
     color: u.color,
@@ -109,15 +109,15 @@ const VideoListItem: React.FC<VideoListItemProps> = (props) => {
 
   let user;
   switch (stream.type) {
-    case 'stream': {
+    case VIDEO_TYPES.STREAM: {
       user = stream.user;
       break;
     }
-    case 'grid': {
+    case VIDEO_TYPES.GRID: {
       user = stream;
       break;
     }
-    case 'connecting':
+    case VIDEO_TYPES.CONNECTING:
     default: {
       user = currentUser ?? {};
       break;

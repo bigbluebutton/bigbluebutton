@@ -85,7 +85,6 @@ export interface App {
   customHeartbeat: boolean
   showAllAvailableLocales: boolean
   showAudioFilters: boolean
-  raiseHandActionButton: RaiseHandActionButton
   reactionsButton: ReactionsButton
   emojiRain: EmojiRain
   enableNetworkStats: boolean
@@ -520,6 +519,7 @@ export interface Chat {
   system_messages_keys: SystemMessagesKeys
   typingIndicator: TypingIndicator
   moderatorChatEmphasized: boolean
+  privateMessageReadFeedback: MessageReadFeedback
   autoConvertEmoji: boolean
   emojiPicker: EmojiPicker
   disableEmojis: string[]
@@ -536,6 +536,10 @@ export interface SystemMessagesKeys {
 export interface TypingIndicator {
   enabled: boolean
   showNames: boolean
+}
+
+export interface MessageReadFeedback {
+  enabled: boolean
 }
 
 export interface EmojiPicker {
@@ -694,6 +698,8 @@ export interface Whiteboard {
   maxStickyNoteLength: number
   maxNumberOfAnnotations: number
   annotations: Annotations
+  allowInfiniteWhiteboard: boolean
+  allowInfiniteWhiteboardInBreakouts: boolean
   styles: Styles
   toolbar: Toolbar
 }

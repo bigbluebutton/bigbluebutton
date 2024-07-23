@@ -17,6 +17,7 @@ import UserDetails from './components/UserDetails/component';
 import { UserDetailsContext } from './components/UserDetails/context';
 import StatusTable from './components/StatusTable';
 import PollsTable from './components/PollsTable';
+import PluginsTable from './components/PluginsTable';
 import ErrorMessage from './components/ErrorMessage';
 import { makeUserCSVData, tsToHHmmss } from './services/UserService';
 
@@ -228,6 +229,23 @@ class App extends React.Component {
       learningDashboardAccessToken, ldAccessTokenCopied,
     } = this.state;
     const { intl } = this.props;
+
+    const genericDataCardTitle = activitiesJson?.genericDataTitles?.[0];
+    // This line generates an array of all the plugin entries of all users,
+    // this might have duplicate entries:
+    const genericDataColumnTitleWithDuplicates = Object.values(
+      activitiesJson.users || {}, // Hardcoded for now, we will add cards relative to this key.
+    ).flatMap((
+      user,
+    ) => user.genericData?.[genericDataCardTitle]).filter((
+      genericDataListForSpecificUser,
+    ) => !!(
+      genericDataListForSpecificUser?.columnTitle)).map((
+      genericDataListForSpecificUser,
+    ) => genericDataListForSpecificUser?.columnTitle);
+    // This line will eliminate duplicates.
+    const genericDataColumnTitleList = [...new Set(genericDataColumnTitleWithDuplicates)];
+    console.log('teste aqui ----> ', activitiesJson, genericDataColumnTitleList);
 
     document.title = `${intl.formatMessage({ id: 'app.learningDashboard.bigbluebuttonTitle', defaultMessage: 'BigBlueButton' })} - ${intl.formatMessage({ id: 'app.learningDashboard.dashboardTitle', defaultMessage: 'Learning Analytics Dashboard' })} - ${activitiesJson.name}`;
 
@@ -500,6 +518,35 @@ class App extends React.Component {
                 </CardContent>
               </Card>
             </TabUnstyled>
+            {genericDataColumnTitleList.length && (
+              <TabUnstyled className="rounded focus:outline-none focus:ring focus:ring-red-500 ring-offset-2" data-test="pluginsPanelDashboard">
+                <Card>
+                  <CardContent classes={{ root: '!p-0' }}>
+                    <CardBody
+                      name={genericDataCardTitle}
+                      number={genericDataColumnTitleList.length}
+                      cardClass={tab === TABS.POLLING ? 'border-red-500' : 'hover:border-red-500 border-white'}
+                      iconClass="bg-red-100 text-red-500"
+                    >
+                      <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        className="h-6 w-6"
+                        fill="none"
+                        viewBox="0 0 24 24"
+                        stroke="currentColor"
+                      >
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          strokeWidth="2"
+                          d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01"
+                        />
+                      </svg>
+                    </CardBody>
+                  </CardContent>
+                </Card>
+              </TabUnstyled>
+            )}
           </TabsListUnstyled>
           <TabPanelUnstyled value={0}>
             <h2 className="block my-2 pr-2 text-xl font-semibold">
@@ -552,6 +599,20 @@ class App extends React.Component {
             <div className="w-full overflow-hidden rounded-md shadow-xs border-2 border-gray-100">
               <div className="w-full overflow-x-auto">
                 <PollsTable polls={activitiesJson.polls} allUsers={activitiesJson.users} />
+              </div>
+            </div>
+          </TabPanelUnstyled>
+          <TabPanelUnstyled value={4}>
+            <h2 className="block my-2 pr-2 text-xl font-semibold">
+              {genericDataCardTitle}
+            </h2>
+            <div className="w-full overflow-hidden rounded-md shadow-xs border-2 border-gray-100">
+              <div className="w-full overflow-x-auto">
+                <PluginsTable
+                  genericDataCardTitle={genericDataCardTitle}
+                  genericDataColumnTitleList={genericDataColumnTitleList}
+                  allUsers={activitiesJson.users}
+                />
               </div>
             </div>
           </TabPanelUnstyled>

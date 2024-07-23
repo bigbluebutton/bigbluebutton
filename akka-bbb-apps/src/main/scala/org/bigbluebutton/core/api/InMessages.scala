@@ -141,7 +141,7 @@ case class UserEstablishedGraphqlConnectionInternalMsg(userId: String, clientTyp
 /**
  * API endpoint /userInfo to provide User Session Variables messages
  */
-case class GetUserApiMsg(meetingId: String, userIntId: String)
+case class GetUserApiMsg(sessionToken: String)
 case class UserInfosApiMsg(infos: Map[String, Any])
 
 trait ApiResponse

@@ -86,8 +86,8 @@ object UserDAO {
     )
 
     UserConnectionStatusDAO.insert(meetingId, regUser.id)
-    UserCustomParameterDAO.insert(meetingId, regUser.id, regUser.customParameters)
-    UserClientSettingsDAO.insert(regUser.id, meetingId)
+    UserMetadataDAO.insert(meetingId, regUser.id, regUser.userMetadata)
+    UserClientSettingsDAO.insertOrUpdate(meetingId, regUser.id, JsonUtils.stringToJson("{}"))
     ChatUserDAO.insertUserPublicChat(meetingId, regUser.id)
   }
 

@@ -270,7 +270,7 @@ class ActionsDropdown extends PureComponent {
       && selectedLayout !== LAYOUT_TYPE.PRESENTATION_ONLY
       && selectedLayout !== LAYOUT_TYPE.PARTICIPANTS_AND_CHAT_ONLY;
 
-    if (shouldShowManageLayoutButton && isLayoutsEnabled) {
+    if (shouldShowManageLayoutButton && isLayoutsEnabled && (amIModerator || amIPresenter)) {
       actions.push({
         icon: 'manage_layout',
         label: intl.formatMessage(intlMessages.layoutModal),

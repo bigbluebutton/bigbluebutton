@@ -1,13 +1,15 @@
-import React from 'react';
-import { useMutation } from '@apollo/client';
+import React, { useEffect } from 'react';
+import { useMutation, useReactiveVar } from '@apollo/client';
 import useMeeting from '/imports/ui/core/hooks/useMeeting';
 import useCurrentUser from '/imports/ui/core/hooks/useCurrentUser';
 import {
   useCurrentVideoPageIndex,
   useExitVideo,
   useInfo,
+  useIsPaginationEnabled,
   useIsUserLocked,
   useLockUser,
+  useMyPageSize,
   useMyRole,
   useStopVideo,
   useVideoStreams,
@@ -21,11 +23,14 @@ import { debounce } from '/imports/utils/debounce';
 import WebRtcPeer from '/imports/ui/services/webrtc-base/peer';
 import useSettings from '/imports/ui/services/settings/hooks/useSettings';
 import { SETTINGS } from '/imports/ui/services/settings/enums';
+import { useStorageKey } from '/imports/ui/services/storage/hooks';
+import ConnectionStatus from '/imports/ui/core/graphql/singletons/connectionStatus';
+import { setVideoState, useVideoState } from './state';
+import { VIDEO_TYPES } from './enums';
 
 interface VideoProviderContainerProps {
   focusedId: string;
   swapLayout: boolean;
-  isGridEnabled: boolean;
   cameraDock: Output['cameraDock'];
   handleVideoFocus:(id: string) => void;
 }
@@ -35,7 +40,6 @@ const VideoProviderContainer: React.FC<VideoProviderContainerProps> = (props) =>
     cameraDock,
     focusedId,
     handleVideoFocus,
-    isGridEnabled,
     swapLayout,
   } = props;
   const [cameraBroadcastStart] = useMutation(CAMERA_BROADCAST_START);
@@ -76,18 +80,19 @@ const VideoProviderContainer: React.FC<VideoProviderContainerProps> = (props) =>
   const { paginationEnabled } = useSettings(SETTINGS.APPLICATION);
   // @ts-ignore Untyped object
   const { viewParticipantsWebcams } = useSettings(SETTINGS.DATA_SAVING);
-  // TODO: Remove/Replace this
-  const isMeteorConnected = true;
+
+  const isClientConnected = useReactiveVar(ConnectionStatus.getConnectedStatusVar());
 
   const {
     streams,
     gridUsers,
     totalNumberOfStreams,
-  } = useVideoStreams(isGridEnabled, paginationEnabled, viewParticipantsWebcams);
+    totalNumberOfOtherStreams,
+  } = useVideoStreams();
 
   let usersVideo: VideoItem[] = streams;
 
-  if (gridUsers.length > 0 && isGridEnabled) {
+  if (gridUsers.length > 0) {
     usersVideo = usersVideo.concat(gridUsers);
   }
 
@@ -98,8 +103,8 @@ const VideoProviderContainer: React.FC<VideoProviderContainerProps> = (props) =>
     usersVideo = usersVideo.filter(
       (uv) => (
         (
-          (uv.type === 'stream' && uv.user.isModerator)
-          || (uv.type === 'grid' && uv.isModerator)
+          (uv.type === VIDEO_TYPES.STREAM && uv.user.isModerator)
+          || (uv.type === VIDEO_TYPES.GRID && uv.isModerator)
         )
         || uv.userId === currentUserId
       ),
@@ -113,6 +118,32 @@ const VideoProviderContainer: React.FC<VideoProviderContainerProps> = (props) =>
   const stopVideo = useStopVideo();
   const info = useInfo();
   const myRole = useMyRole();
+  const myPageSize = useMyPageSize();
+  const { numberOfPages } = useVideoState();
+  const isPaginationEnabled = useIsPaginationEnabled();
+  const isGridEnabled = useStorageKey('isGridEnabled') as boolean;
+
+  useEffect(() => {
+    if (isPaginationEnabled) {
+      const total = totalNumberOfOtherStreams ?? 0;
+      const nOfPages = Math.ceil(total / myPageSize);
+
+      if (nOfPages !== numberOfPages) {
+        setVideoState({ numberOfPages: nOfPages });
+
+        if (nOfPages === 0) {
+          setVideoState({ currentVideoPageIndex: 0 });
+        } else if (currentVideoPageIndex + 1 > nOfPages) {
+          VideoService.getPreviousVideoPage();
+        }
+      }
+    } else {
+      setVideoState({
+        numberOfPages: 0,
+        currentVideoPageIndex: 0,
+      });
+    }
+  }, [myPageSize, numberOfPages, totalNumberOfOtherStreams, isPaginationEnabled]);
 
   if (!usersVideo.length && !isGridEnabled) return null;
 
@@ -122,7 +153,7 @@ const VideoProviderContainer: React.FC<VideoProviderContainerProps> = (props) =>
       focusedId={focusedId}
       handleVideoFocus={handleVideoFocus}
       isGridEnabled={isGridEnabled}
-      isMeteorConnected={isMeteorConnected}
+      isClientConnected={isClientConnected}
       swapLayout={swapLayout}
       currentUserId={currentUserId}
       paginationEnabled={paginationEnabled}

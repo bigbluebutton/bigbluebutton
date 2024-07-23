@@ -30,7 +30,7 @@ class ErrorBoundary extends Component {
   }
 
   componentDidMount() {
-    const data = JSON.parse((sessionStorage.getItem('clientStartupSettings')) || {});
+    const data = window.meetingClientSettings.public;
     const logConfig = data?.clientLog;
     if (logConfig) {
       generateLoggerStreams(logConfig).forEach((stream) => {
@@ -56,7 +56,7 @@ class ErrorBoundary extends Component {
 
   componentDidCatch(error, errorInfo) {
     window.dispatchEvent(new Event('StopAudioTracks'));
-    const data = JSON.parse((sessionStorage.getItem('clientStartupSettings')) || '{}');
+    const data = window.meetingClientSettings.public.media;
     const mediaElement = document.querySelector(data?.mediaTag || '#remote-media');
     if (mediaElement) {
       mediaElement.pause();

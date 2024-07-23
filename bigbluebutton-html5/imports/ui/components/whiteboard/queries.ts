@@ -53,6 +53,7 @@ export const CURRENT_PRESENTATION_PAGE_SUBSCRIPTION = gql`subscription CurrentPr
     downloadable
     presentationName
     isDefaultPresentation
+    infiniteWhiteboard
   }  
 }`;
 

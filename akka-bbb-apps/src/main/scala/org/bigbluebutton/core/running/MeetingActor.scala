@@ -36,7 +36,6 @@ import org.apache.pekko.actor.Props
 import org.apache.pekko.actor.OneForOneStrategy
 import org.bigbluebutton.ClientSettings.{ getConfigPropertyValueByPathAsBooleanOrElse, getConfigPropertyValueByPathAsIntOrElse, getConfigPropertyValueByPathAsStringOrElse }
 import org.bigbluebutton.common2.msgs
-
 import scala.concurrent.duration._
 import org.bigbluebutton.core.apps.layout.LayoutApp2x
 import org.bigbluebutton.core.apps.meeting.{ SyncGetMeetingInfoRespMsgHdlr, ValidateConnAuthTokenSysMsgHdlr }
@@ -448,9 +447,6 @@ class MeetingActor(
       case m: RecordAndClearPreviousMarkersCmdMsg =>
         state = usersApp.handleRecordAndClearPreviousMarkersCmdMsg(m, state)
         updateUserLastActivity(m.body.setBy)
-      case m: ChangeUserEmojiCmdMsg =>
-        handleChangeUserEmojiCmdMsg(m)
-        updateUserLastActivity(m.header.userId)
       case m: ChangeUserReactionEmojiReqMsg =>
         usersApp.handleChangeUserReactionEmojiReqMsg(m)
         updateUserLastActivity(m.header.userId)
@@ -460,20 +456,19 @@ class MeetingActor(
       case m: ChangeUserAwayReqMsg =>
         usersApp.handleChangeUserAwayReqMsg(m)
         updateUserLastActivity(m.header.userId)
-      case m: ClearAllUsersEmojiCmdMsg =>
-        handleClearAllUsersEmojiCmdMsg(m)
-        updateUserLastActivity(m.header.userId)
       case m: ClearAllUsersReactionCmdMsg =>
         handleClearAllUsersReactionCmdMsg(m)
         updateUserLastActivity(m.header.userId)
       case m: ChangeUserPinStateReqMsg =>
         usersApp.handleChangeUserPinStateReqMsg(m)
         updateUserLastActivity(m.body.changedBy)
-      case m: UserConnectionAliveReqMsg  => usersApp.handleUserConnectionAliveReqMsg(m)
-      case m: SetUserSpeechLocaleReqMsg  => usersApp.handleSetUserSpeechLocaleReqMsg(m)
-      case m: SetUserSpeechOptionsReqMsg => usersApp.handleSetUserSpeechOptionsReqMsg(m)
-      case m: GetRecordingStatusReqMsg   => usersApp.handleGetRecordingStatusReqMsg(m)
-      case m: SetUserCaptionLocaleReqMsg => usersApp.handleSetUserCaptionLocaleReqMsg(m)
+      case m: UserConnectionAliveReqMsg    => usersApp.handleUserConnectionAliveReqMsg(m)
+      case m: SetUserSpeechLocaleReqMsg    => usersApp.handleSetUserSpeechLocaleReqMsg(m)
+      case m: SetUserSpeechOptionsReqMsg   => usersApp.handleSetUserSpeechOptionsReqMsg(m)
+      case m: GetRecordingStatusReqMsg     => usersApp.handleGetRecordingStatusReqMsg(m)
+      case m: SetUserCaptionLocaleReqMsg   => usersApp.handleSetUserCaptionLocaleReqMsg(m)
+      case m: SetUserClientSettingsReqMsg  => usersApp.handleSetUserClientSettingsReqMsg(m)
+      case m: SetUserEchoTestRunningReqMsg => usersApp.handleSetUserEchoTestRunningReqMsg(m)
 
       // Client requested to eject user
       case m: EjectUserFromMeetingCmdMsg =>
@@ -528,18 +523,19 @@ class MeetingActor(
         updateUserLastActivity(m.body.requesterId)
 
       // Breakout
-      case m: BreakoutRoomsListMsg                => state = handleBreakoutRoomsListMsg(m, state)
-      case m: CreateBreakoutRoomsCmdMsg           => state = handleCreateBreakoutRoomsCmdMsg(m, state)
-      case m: EndAllBreakoutRoomsMsg              => state = handleEndAllBreakoutRoomsMsg(m, state)
-      case m: RequestBreakoutJoinURLReqMsg        => state = handleRequestBreakoutJoinURLReqMsg(m, state)
-      case m: TransferUserToMeetingRequestMsg     => state = handleTransferUserToMeetingRequestMsg(m, state)
-      case m: UpdateBreakoutRoomsTimeReqMsg       => state = handleUpdateBreakoutRoomsTimeMsg(m, state)
-      case m: SendMessageToAllBreakoutRoomsReqMsg => state = handleSendMessageToAllBreakoutRoomsMsg(m, state)
-      case m: ChangeUserBreakoutReqMsg            => state = handleChangeUserBreakoutReqMsg(m, state)
+      case m: BreakoutRoomsListMsg                 => state = handleBreakoutRoomsListMsg(m, state)
+      case m: CreateBreakoutRoomsCmdMsg            => state = handleCreateBreakoutRoomsCmdMsg(m, state)
+      case m: EndAllBreakoutRoomsMsg               => state = handleEndAllBreakoutRoomsMsg(m, state)
+      case m: RequestBreakoutJoinURLReqMsg         => state = handleRequestBreakoutJoinURLReqMsg(m, state)
+      case m: SetBreakoutRoomInviteDismissedReqMsg => handleSetBreakoutRoomInviteDismissedReqMsg(m)
+      case m: TransferUserToMeetingRequestMsg      => state = handleTransferUserToMeetingRequestMsg(m, state)
+      case m: UpdateBreakoutRoomsTimeReqMsg        => state = handleUpdateBreakoutRoomsTimeMsg(m, state)
+      case m: SendMessageToAllBreakoutRoomsReqMsg  => state = handleSendMessageToAllBreakoutRoomsMsg(m, state)
+      case m: ChangeUserBreakoutReqMsg             => state = handleChangeUserBreakoutReqMsg(m, state)
 
       // Voice
-      case m: UserLeftVoiceConfEvtMsg             => handleUserLeftVoiceConfEvtMsg(m)
-      case m: UserMutedInVoiceConfEvtMsg          => handleUserMutedInVoiceConfEvtMsg(m)
+      case m: UserLeftVoiceConfEvtMsg              => handleUserLeftVoiceConfEvtMsg(m)
+      case m: UserMutedInVoiceConfEvtMsg           => handleUserMutedInVoiceConfEvtMsg(m)
       case m: UserTalkingInVoiceConfEvtMsg =>
         updateVoiceUserLastActivity(m.body.voiceUserId)
         handleUserTalkingInVoiceConfEvtMsg(m)
@@ -633,6 +629,7 @@ class MeetingActor(
       case m: SetCurrentPagePubMsg =>
         state = presentationPodsApp.handle(m, state, liveMeeting, msgBus)
         updateUserLastActivity(m.header.userId)
+      case m: SetPageInfiniteWhiteboardPubMsg                => state = presentationPodsApp.handle(m, state, liveMeeting, msgBus)
       case m: RemovePresentationPubMsg                       => state = presentationPodsApp.handle(m, state, liveMeeting, msgBus)
       case m: SetPresentationDownloadablePubMsg              => state = presentationPodsApp.handle(m, state, liveMeeting, msgBus)
       case m: PresentationConversionUpdateSysPubMsg          => state = presentationPodsApp.handle(m, state, liveMeeting, msgBus)
@@ -705,8 +702,10 @@ class MeetingActor(
       case m: CreateGroupChatReqMsg =>
         state = groupChatApp.handle(m, state, liveMeeting, msgBus)
         updateUserLastActivity(m.header.userId)
-      case m: GetGroupChatMsgsReqMsg => state = groupChatApp.handle(m, state, liveMeeting, msgBus)
-      case m: GetGroupChatsReqMsg    => state = groupChatApp.handle(m, state, liveMeeting, msgBus)
+      case m: SetGroupChatLastSeenReqMsg => groupChatApp.handle(m, liveMeeting)
+      case m: SetGroupChatVisibleReqMsg  => groupChatApp.handle(m, liveMeeting)
+      case m: GetGroupChatMsgsReqMsg     => state = groupChatApp.handle(m, state, liveMeeting, msgBus)
+      case m: GetGroupChatsReqMsg        => state = groupChatApp.handle(m, state, liveMeeting, msgBus)
       case m: SendGroupChatMessageMsg =>
         state = groupChatApp.handle(m, state, liveMeeting, msgBus)
         updateUserLastActivity(m.body.msg.sender.id)
@@ -956,6 +955,7 @@ class MeetingActor(
         regUser <- RegisteredUsers.findAll(liveMeeting.registeredUsers)
       } yield {
         if (!regUser.loggedOut
+          && !regUser.ejected
           && regUser.guestStatus == GuestStatus.WAIT
           && !regUser.graphqlConnected
           && regUser.graphqlDisconnectedOn != 0) {

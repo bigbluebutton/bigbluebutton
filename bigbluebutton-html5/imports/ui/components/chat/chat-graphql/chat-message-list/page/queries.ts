@@ -48,6 +48,7 @@ export const CHAT_MESSAGE_PRIVATE_SUBSCRIPTION = gql`
       messageId
       createdAt
       messageMetadata
+      recipientHasSeen
     }
   }
 `;

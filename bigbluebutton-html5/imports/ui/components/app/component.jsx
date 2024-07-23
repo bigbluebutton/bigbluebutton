@@ -27,7 +27,9 @@ import ExternalVideoPlayerContainer from '../external-video-player/external-vide
 import GenericContentMainAreaContainer from '../generic-content/generic-main-content/container';
 import EmojiRainContainer from '../emoji-rain/container';
 import Styled from './styles';
-import { DEVICE_TYPE, ACTIONS, SMALL_VIEWPORT_BREAKPOINT, PANELS } from '../layout/enums';
+import {
+  DEVICE_TYPE, ACTIONS, SMALL_VIEWPORT_BREAKPOINT, PANELS,
+} from '../layout/enums';
 import {
   isMobile, isTablet, isTabletPortrait, isTabletLandscape, isDesktop,
 } from '../layout/utils';
@@ -50,6 +52,7 @@ import BreakoutJoinConfirmationContainerGraphQL from '../breakout-join-confirmat
 import FloatingWindowContainer from '/imports/ui/components/floating-window/container';
 import ChatAlertContainerGraphql from '../chat/chat-graphql/alert/component';
 import { notify } from '/imports/ui/services/notification';
+import VoiceActivityAdapter from '../../core/adapters/voice-activity';
 
 const MOBILE_MEDIA = 'only screen and (max-width: 40em)';
 
@@ -66,17 +69,9 @@ const intlMessages = defineMessages({
     id: 'app.actionsBar.label',
     description: 'Aria-label for ActionsBar Section',
   },
-  clearedEmoji: {
-    id: 'app.toast.clearedEmoji.label',
-    description: 'message for cleared emoji status',
-  },
   clearedReaction: {
     id: 'app.toast.clearedReactions.label',
     description: 'message for cleared reactions',
-  },
-  setEmoji: {
-    id: 'app.toast.setEmoji.label',
-    description: 'message when a user emoji has been set',
   },
   raisedHand: {
     id: 'app.toast.setEmoji.raiseHand',
@@ -151,12 +146,9 @@ class App extends Component {
 
   componentDidMount() {
     const {
-      intl,
       layoutContextDispatch,
       isRTL,
       muteMicrophone,
-      transcriptionSettings,
-      setSpeechOptions,
     } = this.props;
     const { browserName } = browserInfo;
     const { osName } = deviceInfo;
@@ -219,7 +211,6 @@ class App extends Component {
 
   componentDidUpdate(prevProps) {
     const {
-      currentUserEmoji,
       currentUserAway,
       currentUserRaiseHand,
       intl,
@@ -234,27 +225,6 @@ class App extends Component {
     } = this.props;
 
     this.renderDarkMode();
-
-    if (prevProps.currentUserEmoji.status !== currentUserEmoji.status
-        && currentUserEmoji.status !== 'raiseHand'
-        && currentUserEmoji.status !== 'away'
-    ) {
-      const formattedEmojiStatus = currentUserEmoji.status;
-
-      if (currentUserEmoji.status === null) {
-        notify(
-          intl.formatMessage(intlMessages.clearedEmoji),
-          'info',
-          'clear_status',
-        );
-      } else {
-        notify(
-          intl.formatMessage(intlMessages.setEmoji, ({ 0: formattedEmojiStatus })),
-          'info',
-          'user',
-        );
-      }
-    }
 
     if (prevProps.currentUserAway !== currentUserAway) {
       if (currentUserAway === true) {
@@ -320,10 +290,6 @@ class App extends Component {
     }
   }
 
-  setPresentationFitToWidth(presentationFitToWidth) {
-    this.setState({ presentationFitToWidth });
-  }
-
   handleWindowResize() {
     const { enableResize } = this.state;
     const shouldEnableResize = !window.matchMedia(MOBILE_MEDIA).matches;
@@ -331,6 +297,10 @@ class App extends Component {
 
     this.setState({ enableResize: shouldEnableResize });
     this.throttledDeviceType();
+  }
+
+  setPresentationFitToWidth(presentationFitToWidth) {
+    this.setState({ presentationFitToWidth });
   }
 
   setDeviceType() {
@@ -350,98 +320,19 @@ class App extends Component {
     }
   }
 
+  setAudioModalIsOpen(value) {
+    this.setState({ isAudioModalOpen: value });
+  }
+
+  setVideoPreviewModalIsOpen(value) {
+    this.setState({ isVideoPreviewModalOpen: value });
+  }
+
   shouldAriaHide() {
     const { sidebarNavigationIsOpen, sidebarContentIsOpen, isPhone } = this.props;
     return sidebarNavigationIsOpen
       && sidebarContentIsOpen
       && (isPhone || isLayeredView.matches);
-  }
-
-  renderAudioCaptions() {
-    const {
-      audioCaptions,
-      captionsStyle,
-    } = this.props;
-
-    if (!audioCaptions) return null;
-
-    return (
-      <Styled.CaptionsWrapper
-        role="region"
-        style={
-          {
-            position: 'absolute',
-            left: captionsStyle.left,
-            right: captionsStyle.right,
-            maxWidth: captionsStyle.maxWidth,
-          }
-        }
-      >
-        {audioCaptions}
-      </Styled.CaptionsWrapper>
-    );
-  }
-
-  renderActionsBar() {
-    const {
-      intl,
-      actionsBarStyle,
-      hideActionsBar,
-      setPushLayout,
-      setMeetingLayout,
-      presentationIsOpen,
-      selectedLayout,
-    } = this.props;
-
-    const LAYOUT_CONFIG = window.meetingClientSettings.public.layout;
-
-    const { showPushLayoutButton } = LAYOUT_CONFIG;
-
-    if (hideActionsBar) return null;
-
-    return (
-      <Styled.ActionsBar
-        id="ActionsBar"
-        role="region"
-        aria-label={intl.formatMessage(intlMessages.actionsBarLabel)}
-        aria-hidden={this.shouldAriaHide()}
-        style={
-          {
-            position: 'absolute',
-            top: actionsBarStyle.top,
-            left: actionsBarStyle.left,
-            height: actionsBarStyle.height,
-            width: actionsBarStyle.width,
-            padding: actionsBarStyle.padding,
-          }
-        }
-      >
-        <ActionsBarContainer
-          setPushLayout={setPushLayout}
-          setMeetingLayout={setMeetingLayout}
-          showPushLayout={showPushLayoutButton && selectedLayout === 'custom'}
-          presentationIsOpen={presentationIsOpen}
-          setPresentationFitToWidth={this.setPresentationFitToWidth}
-        />
-      </Styled.ActionsBar>
-    );
-  }
-
-  renderActivityCheck() {
-    const { inactivityWarningDisplay, inactivityWarningTimeoutSecs } = this.props;
-
-    return (inactivityWarningDisplay ? (
-      <ActivityCheckContainer
-        inactivityCheck={inactivityWarningDisplay}
-        responseDelay={inactivityWarningTimeoutSecs}
-      />
-    ) : null);
-  }
-
-  renderDarkMode() {
-    const { darkTheme } = this.props;
-
-    AppService.setDarkTheme(darkTheme);
   }
 
   mountPushLayoutEngine() {
@@ -510,18 +401,91 @@ class App extends Component {
     );
   }
 
-  setAudioModalIsOpen(value) {
-    this.setState({isAudioModalOpen: value});
+  renderDarkMode() {
+    const { darkTheme } = this.props;
+
+    AppService.setDarkTheme(darkTheme);
   }
 
-  setVideoPreviewModalIsOpen(value) {
-    this.setState({isVideoPreviewModalOpen: value});
+  renderActivityCheck() {
+    const { inactivityWarningDisplay, inactivityWarningTimeoutSecs } = this.props;
+
+    return (inactivityWarningDisplay ? (
+      <ActivityCheckContainer
+        inactivityCheck={inactivityWarningDisplay}
+        responseDelay={inactivityWarningTimeoutSecs}
+      />
+    ) : null);
   }
 
-  setRandomUserSelectModalIsOpen(value) {
-    const {setMountRandomUserModal} = this.props;
-    this.setState({isRandomUserSelectModalOpen: value});
-    setMountRandomUserModal(false);
+  renderActionsBar() {
+    const {
+      intl,
+      actionsBarStyle,
+      hideActionsBar,
+      setPushLayout,
+      setMeetingLayout,
+      presentationIsOpen,
+      selectedLayout,
+    } = this.props;
+
+    const LAYOUT_CONFIG = window.meetingClientSettings.public.layout;
+
+    const { showPushLayoutButton } = LAYOUT_CONFIG;
+
+    if (hideActionsBar) return null;
+
+    return (
+      <Styled.ActionsBar
+        id="ActionsBar"
+        role="region"
+        aria-label={intl.formatMessage(intlMessages.actionsBarLabel)}
+        aria-hidden={this.shouldAriaHide()}
+        style={
+          {
+            position: 'absolute',
+            top: actionsBarStyle.top,
+            left: actionsBarStyle.left,
+            height: actionsBarStyle.height,
+            width: actionsBarStyle.width,
+            padding: actionsBarStyle.padding,
+          }
+        }
+      >
+        <ActionsBarContainer
+          setPushLayout={setPushLayout}
+          setMeetingLayout={setMeetingLayout}
+          showPushLayout={showPushLayoutButton && selectedLayout === 'custom'}
+          presentationIsOpen={presentationIsOpen}
+          setPresentationFitToWidth={this.setPresentationFitToWidth}
+        />
+      </Styled.ActionsBar>
+    );
+  }
+
+  renderAudioCaptions() {
+    const {
+      audioCaptions,
+      captionsStyle,
+    } = this.props;
+
+    if (!audioCaptions) return null;
+
+    return (
+      <Styled.CaptionsWrapper
+        role="region"
+        style={
+          {
+            position: 'absolute',
+            left: captionsStyle.left,
+            right: captionsStyle.right,
+            maxWidth: captionsStyle.maxWidth,
+          }
+        }
+      >
+        {audioCaptions}
+      </Styled.CaptionsWrapper>
+    );
   }
 
   render() {
@@ -638,6 +602,7 @@ class App extends Component {
           <WakeLockContainer />
           {this.renderActionsBar()}
           <EmojiRainContainer />
+          <VoiceActivityAdapter />
           {customStyleUrl ? <link rel="stylesheet" type="text/css" href={customStyleUrl} /> : null}
           {customStyle ? <link rel="stylesheet" type="text/css" href={`data:text/css;charset=UTF-8,${encodeURIComponent(customStyle)}`} /> : null}
         </Styled.Layout>

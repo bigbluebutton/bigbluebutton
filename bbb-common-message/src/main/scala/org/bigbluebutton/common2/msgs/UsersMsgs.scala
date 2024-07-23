@@ -8,7 +8,7 @@ case class RegisterUserReqMsg(
 case class RegisterUserReqMsgBody(meetingId: String, intUserId: String, name: String, role: String,
                                   extUserId: String, authToken: String, sessionToken: String, avatarURL: String,
                                   guest: Boolean, authed: Boolean, guestStatus: String, excludeFromDashboard: Boolean,
-                                  enforceLayout: String, customParameters: Map[String, String])
+                                  enforceLayout: String, userMetadata: Map[String, String])
 
 object UserRegisteredRespMsg { val NAME = "UserRegisteredRespMsg" }
 case class UserRegisteredRespMsg(
@@ -97,7 +97,6 @@ case class UserJoinedMeetingEvtMsgBody(
     guest:            Boolean,
     authed:           Boolean,
     guestStatus:      String,
-    emoji:            String,
     reactionEmoji:    String,
     raiseHand:        Boolean,
     away:             Boolean,
@@ -107,7 +106,7 @@ case class UserJoinedMeetingEvtMsgBody(
     avatar:           String,
     color:            String,
     clientType:       String,
-    customParameters: Map[String, String]
+    userMetadata: Map[String, String]
 )
 
 /**
@@ -197,20 +196,6 @@ case class GetScreenshareStatusReqMsg(header: BbbClientMsgHeader, body: GetScree
 case class GetScreenshareStatusReqMsgBody(requestedBy: String)
 
 /**
- * Sent from client about a user changing emoji.
- */
-object ChangeUserEmojiCmdMsg { val NAME = "ChangeUserEmojiCmdMsg" }
-case class ChangeUserEmojiCmdMsg(header: BbbClientMsgHeader, body: ChangeUserEmojiCmdMsgBody) extends StandardMsg
-case class ChangeUserEmojiCmdMsgBody(userId: String, emoji: String)
-
-/**
- * Sent to all clients about a user changing emoji.
- */
-object UserEmojiChangedEvtMsg { val NAME = "UserEmojiChangedEvtMsg" }
-case class UserEmojiChangedEvtMsg(header: BbbClientMsgHeader, body: UserEmojiChangedEvtMsgBody) extends BbbCoreMsg
-case class UserEmojiChangedEvtMsgBody(userId: String, emoji: String)
-
-/**
  * Sent from client about a user changing RaiseHand.
  */
 object ChangeUserRaiseHandReqMsg { val NAME = "ChangeUserRaiseHandReqMsg" }
@@ -253,20 +238,6 @@ case class UserReactionEmojiChangedEvtMsg(header: BbbClientMsgHeader, body: User
 case class UserReactionEmojiChangedEvtMsgBody(userId: String, reactionEmoji: String)
 
 /**
- * Sent from client about a mod clearing all users' emoji.
- */
-object ClearAllUsersEmojiCmdMsg { val NAME = "ClearAllUsersEmojiCmdMsg" }
-case class ClearAllUsersEmojiCmdMsg(header: BbbClientMsgHeader, body: ClearAllUsersEmojiCmdMsgBody) extends StandardMsg
-case class ClearAllUsersEmojiCmdMsgBody(userId: String)
-
-/**
- * Sent to all clients about clearing all users' emoji.
- */
-object ClearedAllUsersEmojiEvtMsg { val NAME = "ClearedAllUsersEmojiEvtMsg" }
-case class ClearedAllUsersEmojiEvtMsg(header: BbbClientMsgHeader, body: ClearedAllUsersEmojiEvtMsgBody) extends StandardMsg
-case class ClearedAllUsersEmojiEvtMsgBody()
-
-/**
  * Sent from client about a mod clearing all users' Reaction.
  */
 object ClearAllUsersReactionCmdMsg { val NAME = "ClearAllUsersReactionCmdMsg" }
@@ -286,6 +257,20 @@ case class ClearedAllUsersReactionEvtMsgBody()
 object UserConnectionAliveReqMsg { val NAME = "UserConnectionAliveReqMsg" }
 case class UserConnectionAliveReqMsg(header: BbbClientMsgHeader, body: UserConnectionAliveReqMsgBody) extends StandardMsg
 case class UserConnectionAliveReqMsgBody(userId: String, networkRttInMs: Double)
+
+/**
+ * Sent from client to update clientSettings.
+ */
+object SetUserClientSettingsReqMsg { val NAME = "SetUserClientSettingsReqMsg" }
+case class SetUserClientSettingsReqMsg(header: BbbClientMsgHeader, body: SetUserClientSettingsReqMsgBody) extends StandardMsg
+case class SetUserClientSettingsReqMsgBody(userClientSettingsJson: Map[String, Any])
+
+/**
+ * Sent from client to inform the echo test is running.
+ */
+object SetUserEchoTestRunningReqMsg { val NAME = "SetUserEchoTestRunningReqMsg" }
+case class SetUserEchoTestRunningReqMsg(header: BbbClientMsgHeader, body: SetUserEchoTestRunningReqMsgBody) extends StandardMsg
+case class SetUserEchoTestRunningReqMsgBody()
 
 /**
  * Sent to all clients about a user mobile flag.
@@ -425,8 +410,7 @@ case class GetUsersMeetingRespMsg(header: BbbClientMsgHeader, body: GetUsersMeet
 case class GetUsersMeetingRespMsgBody(users: Vector[WebUser])
 case class WebUser(intId: String, extId: String, name: String, role: String,
                    guest: Boolean, authed: Boolean, guestStatus: String,
-                   emoji: String, locked: Boolean,
-                   presenter: Boolean, avatar: String, clientType: String)
+                   locked: Boolean, presenter: Boolean, avatar: String, clientType: String)
 
 object SyncGetUsersMeetingRespMsg { val NAME = "SyncGetUsersMeetingRespMsg" }
 case class SyncGetUsersMeetingRespMsg(header: BbbClientMsgHeader, body: SyncGetUsersMeetingRespMsgBody) extends BbbCoreMsg

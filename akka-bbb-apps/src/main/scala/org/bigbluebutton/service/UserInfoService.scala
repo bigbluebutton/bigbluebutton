@@ -1,16 +1,16 @@
 package org.bigbluebutton.service
 
-import org.apache.pekko.actor.{ ActorRef, ActorSystem }
+import org.apache.pekko.actor.{ActorRef, ActorSystem}
 import org.apache.pekko.http.scaladsl.model.headers.RawHeader
-import org.apache.pekko.http.scaladsl.model.{ ContentTypes, HttpEntity, HttpResponse, StatusCode }
+import org.apache.pekko.http.scaladsl.model.{ContentTypes, HttpEntity, HttpResponse, StatusCode}
 import org.apache.pekko.pattern.ask
 import org.apache.pekko.pattern.AskTimeoutException
 import org.apache.pekko.util.Timeout
 import org.bigbluebutton.common2.util.JsonUtil
-import org.bigbluebutton.core.api.{ ApiResponse, ApiResponseFailure, GetUserApiMsg, UserInfosApiMsg }
+import org.bigbluebutton.core.api.{ApiResponse, ApiResponseFailure, GetUserApiMsg, UserInfosApiMsg}
 
 import scala.concurrent.duration.DurationInt
-import scala.concurrent.{ ExecutionContextExecutor, Future }
+import scala.concurrent.{ExecutionContextExecutor, Future}
 
 
 object UserInfoService {
@@ -21,8 +21,8 @@ class UserInfoService(system: ActorSystem, bbbActor: ActorRef) {
   implicit def executionContext: ExecutionContextExecutor = system.dispatcher
   implicit val timeout: Timeout = 2 seconds
 
-  def getUserInfo(meetingId: String, userIntId: String): Future[ApiResponse] = {
-    val future = bbbActor.ask(GetUserApiMsg(meetingId, userIntId)).mapTo[ApiResponse]
+  def getUserInfo(sessionToken: String): Future[ApiResponse] = {
+    val future = bbbActor.ask(GetUserApiMsg(sessionToken)).mapTo[ApiResponse]
 
     future.recover {
       case e: AskTimeoutException => ApiResponseFailure("Request Timeout error")

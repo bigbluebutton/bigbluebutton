@@ -145,7 +145,7 @@ trait MakePresentationDownloadReqMsgHdlr extends RightsManagementTrait {
       && m.body.fileStateType == "Converted") {
       val reason = "Converted presentation download disabled for this meeting. (PDF format)"
       PermissionCheck.ejectUserForFailedPermission(meetingId, userId, reason, bus.outGW, liveMeeting)
-    } else if (permissionFailed(PermissionCheck.MOD_LEVEL, PermissionCheck.VIEWER_LEVEL, liveMeeting.users2x, userId)) {
+    } else if (permissionFailed(PermissionCheck.GUEST_LEVEL, PermissionCheck.PRESENTER_LEVEL, liveMeeting.users2x, userId)) {
       val reason = "No permission to download presentation."
       PermissionCheck.ejectUserForFailedPermission(meetingId, userId, reason, bus.outGW, liveMeeting)
     } else if (currentPres.isEmpty) {
@@ -220,6 +220,7 @@ trait MakePresentationDownloadReqMsgHdlr extends RightsManagementTrait {
       log.error(s"No presentation set in meeting ${meetingId}")
       pres = pres.copy(errorMsgKey = "204")
       bus.outGW.send(buildBroadcastPresentationConversionUpdateEvtMsg(parentMeetingId, "204", jobId, filename, presentationUploadToken))
+      PresPresentationDAO.updateConversionStarted(parentMeetingId, pres)
     } else {
       val allPages: Boolean = m.allPages
       val pageCount = currentPres.get.pages.size

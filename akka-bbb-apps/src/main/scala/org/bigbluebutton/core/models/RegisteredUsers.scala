@@ -8,7 +8,7 @@ object RegisteredUsers {
   def create(meetingId: String, userId: String, extId: String, name: String, roles: String,
              authToken: String, sessionToken: String, avatar: String, color: String, guest: Boolean, authenticated: Boolean,
              guestStatus: String, excludeFromDashboard: Boolean, enforceLayout: String,
-             customParameters: Map[String, String], loggedOut: Boolean): RegisteredUser = {
+             userMetadata: Map[String, String], loggedOut: Boolean): RegisteredUser = {
     new RegisteredUser(
       userId,
       extId,
@@ -24,19 +24,24 @@ object RegisteredUsers {
       guestStatus,
       excludeFromDashboard,
       System.currentTimeMillis(),
-      0,
-      false,
-      0,
-      false,
-      false,
+      lastAuthTokenValidatedOn = 0,
+      graphqlConnected = false,
+      graphqlDisconnectedOn = 0,
+      joined = false,
+      ejected = false,
+      banned = false,
       enforceLayout,
-      customParameters,
+      userMetadata,
       loggedOut,
     )
   }
 
   def findWithToken(token: String, users: RegisteredUsers): Option[RegisteredUser] = {
     users.toVector.find(u => u.authToken == token)
+  }
+
+  def findWithSessionToken(sessionToken: String, users: RegisteredUsers): Option[RegisteredUser] = {
+    users.toVector.find(u => u.sessionToken == sessionToken)
   }
 
   def findAll(users: RegisteredUsers): Vector[RegisteredUser] = {
@@ -128,9 +133,10 @@ object RegisteredUsers {
       UserDAO.update(u)
       u
     } else {
-      users.delete(ejectedUser.id)
-      UserDAO.softDelete(ejectedUser.meetingId, ejectedUser.id)
-      ejectedUser
+      val u = ejectedUser.modify(_.ejected).setTo(true)
+      users.save(u)
+
+      updateUserJoin(users, u, joined = false)
     }
   }
 
@@ -243,9 +249,10 @@ case class RegisteredUser(
     graphqlConnected:         Boolean,
     graphqlDisconnectedOn:    Long,
     joined:                   Boolean,
+    ejected:                  Boolean,
     banned:                   Boolean,
     enforceLayout:            String,
-    customParameters:         Map[String,String],
+    userMetadata:         Map[String,String],
     loggedOut:                Boolean,
     lastBreakoutRoom:         BreakoutRoom2x = null,
 )

@@ -27,6 +27,7 @@ trait ValidateAuthTokenReqMsgHdlr extends HandlerHelpers {
       val validationResult = for {
         _ <- checkIfUserGuestStatusIsAllowed(user)
         _ <- checkIfUserIsBanned(user)
+        _ <- checkIfUserEjected(user)
         _ <- checkIfUserLoggedOut(user)
         _ <- validateMaxParticipants(user)
       } yield user
@@ -66,6 +67,14 @@ trait ValidateAuthTokenReqMsgHdlr extends HandlerHelpers {
     }
   }
 
+  private def checkIfUserEjected(user: RegisteredUser): Either[(String, String), Unit] = {
+    if (user.ejected) {
+      Left(("User had ejected", EjectReasonCode.EJECT_USER))
+    } else {
+      Right(())
+    }
+  }
+
   private def checkIfUserLoggedOut(user: RegisteredUser): Either[(String, String), Unit] = {
     if (user.loggedOut) {
       Left(("User had logged out", EjectReasonCode.USER_LOGGED_OUT))
@@ -96,7 +105,7 @@ trait ValidateAuthTokenReqMsgHdlr extends HandlerHelpers {
     val users = Users2x.findAll(liveMeeting.users2x)
     val webUsers = users.map { u =>
       WebUser(intId = u.intId, extId = u.extId, name = u.name, role = u.role,
-        guest = u.guest, authed = u.authed, guestStatus = u.guestStatus, emoji = u.emoji,
+        guest = u.guest, authed = u.authed, guestStatus = u.guestStatus,
         locked = u.locked, presenter = u.presenter, avatar = u.avatar, clientType = u.clientType)
     }
 

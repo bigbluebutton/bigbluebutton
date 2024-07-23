@@ -34,13 +34,12 @@ export interface Voice {
   endTime: number;
   floor: boolean;
   lastFloorTime: string
-  lastSpeakChangedAt: number;
   meetingId: string;
   spoke: boolean;
   startTime: number;
 }
 
-export interface CustomParameter {
+export interface UserMetadata {
   parameter: string;
   value: string;
 }
@@ -82,7 +81,6 @@ export interface User {
   role: string;
   color: string;
   avatar: string;
-  emoji: string;
   reactionEmoji: string;
   presenter?: boolean;
   pinned?: boolean;

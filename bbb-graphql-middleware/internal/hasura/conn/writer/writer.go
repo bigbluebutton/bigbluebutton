@@ -15,7 +15,7 @@ import (
 
 // HasuraConnectionWriter
 // process messages (middleware to hasura)
-func HasuraConnectionWriter(hc *common.HasuraConnection, fromBrowserToHasuraChannel *common.SafeChannelByte, wg *sync.WaitGroup, initMessage []byte) {
+func HasuraConnectionWriter(hc *common.HasuraConnection, wg *sync.WaitGroup, initMessage []byte) {
 	log := log.WithField("_routine", "HasuraConnectionWriter")
 
 	browserConnection := hc.BrowserConn
@@ -45,13 +45,7 @@ RangeLoop:
 		select {
 		case <-hc.Context.Done():
 			break RangeLoop
-		case <-hc.FreezeMsgFromBrowserChan.ReceiveChannel():
-			if !fromBrowserToHasuraChannel.Frozen() {
-				log.Debug("freezing channel fromBrowserToHasuraChannel")
-				//Freeze channel once it's about to close Hasura connection
-				fromBrowserToHasuraChannel.FreezeChannel()
-			}
-		case fromBrowserMessage := <-fromBrowserToHasuraChannel.ReceiveChannel():
+		case fromBrowserMessage := <-hc.BrowserConn.FromBrowserToHasuraChannel.ReceiveChannel():
 			{
 				if fromBrowserMessage == nil {
 					continue
@@ -120,6 +114,9 @@ RangeLoop:
 							browserConnection.ActiveSubscriptionsMutex.RUnlock()
 							if queryIdExists {
 								lastReceivedDataChecksum = existingSubscriptionData.LastReceivedDataChecksum
+								streamCursorField = existingSubscriptionData.StreamCursorField
+								streamCursorVariableName = existingSubscriptionData.StreamCursorVariableName
+								streamCursorInitialValue = existingSubscriptionData.StreamCursorCurrValue
 							}
 
 							if strings.Contains(query, "_stream(") && strings.Contains(query, "cursor: {") {
@@ -205,7 +202,7 @@ RangeLoop:
 					continue
 				}
 
-				log.Tracef("sending to hasura: %v", fromBrowserMessage)
+				log.Tracef("sending to hasura: %s", string(fromBrowserMessage))
 				errWrite := hc.Websocket.Write(hc.Context, websocket.MessageText, fromBrowserMessage)
 				if errWrite != nil {
 					if !errors.Is(errWrite, context.Canceled) {

@@ -32,6 +32,7 @@ select_permissions:
         - senderId
         - senderName
         - senderRole
+        - recipientHasSeen
       filter:
         _and:
           - meetingId:

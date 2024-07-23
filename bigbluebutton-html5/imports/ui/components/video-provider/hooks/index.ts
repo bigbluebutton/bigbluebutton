@@ -1,13 +1,12 @@
 import {
   useCallback,
   useEffect,
-  useMemo,
-  useState,
 } from 'react';
 import {
   useReactiveVar,
   useLazyQuery,
   useMutation,
+  useSubscription,
 } from '@apollo/client';
 import Auth from '/imports/ui/services/auth';
 import useCurrentUser from '/imports/ui/core/hooks/useCurrentUser';
@@ -43,6 +42,11 @@ import { DesktopPageSizes, MobilePageSizes } from '/imports/ui/Types/meetingClie
 import logger from '/imports/startup/client/logger';
 import useDeduplicatedSubscription from '/imports/ui/core/hooks/useDeduplicatedSubscription';
 import { useMeetingIsBreakout } from '/imports/ui/components/app/service';
+import useSettings from '/imports/ui/services/settings/hooks/useSettings';
+import { SETTINGS } from '/imports/ui/services/settings/enums';
+import { useStorageKey } from '/imports/ui/services/storage/hooks';
+import ConnectionStatus from '/imports/ui/core/graphql/singletons/connectionStatus';
+import { VIDEO_TYPES } from '/imports/ui/components/video-provider/enums';
 
 const FILTER_VIDEO_STATS = [
   'outbound-rtp',
@@ -50,9 +54,9 @@ const FILTER_VIDEO_STATS = [
 ];
 
 export const useStatus = () => {
-  const [videoState] = useVideoState();
-  if (videoState.isConnecting) return 'videoConnecting';
-  if (videoState.isConnected) return 'connected';
+  const { isConnected, isConnecting } = useVideoState();
+  if (isConnecting) return 'videoConnecting';
+  if (isConnected) return 'connected';
   return 'disconnected';
 };
 
@@ -60,11 +64,11 @@ export const useDisableReason = () => {
   const videoLocked = useIsUserLocked();
   const hasCapReached = useHasCapReached();
   const hasVideoStream = useHasVideoStream();
+  const connected = useReactiveVar(ConnectionStatus.getConnectedStatusVar());
   const locks = {
     videoLocked,
     camCapReached: hasCapReached && !hasVideoStream,
-    // TODO: Remove
-    meteorDisconnected: false,
+    disconnected: !connected,
   };
   const locksKeys = Object.keys(locks);
   const disableReason = locksKeys
@@ -229,58 +233,62 @@ export const useMyPageSize = () => {
       size = pageSizes?.viewer;
   }
 
-  return size ?? 0;
+  const actualSize = size ?? 0;
+
+  useEffect(() => {
+    setVideoState({ pageSize: actualSize });
+  }, [actualSize]);
+
+  return actualSize;
 };
 
-export const useIsPaginationEnabled = (paginationEnabled: boolean) => useMyPageSize() > 0 && paginationEnabled;
+export const useIsPaginationEnabled = () => {
+  const myPageSize = useMyPageSize();
+  const { paginationEnabled } = useSettings(SETTINGS.APPLICATION) as { paginationEnabled?: boolean };
+  return myPageSize > 0 && paginationEnabled;
+};
 
 export const useStreams = () => {
   const videoStreams = useReactiveVar(streams);
   return { streams: videoStreams };
 };
 
-export const useStreamUsers = (isGridEnabled: boolean) => {
-  const { streams } = useStreams();
+export const useGridUsers = (exceptUserIds: string[], visibleStreamCount: number) => {
   const gridSize = useGridSize();
-  const [gridUsers, setGridUsers] = useState<GridItem[]>([]);
-  const userIds = useMemo(() => streams.map((s) => s.user.userId), [streams]);
-  const streamCount = streams.length;
+  const isGridEnabled = useStorageKey('isGridEnabled');
+
   const {
     data: gridData,
-    loading: gridLoading,
     error: gridError,
-  } = useDeduplicatedSubscription<GridUsersResponse>(
+  } = useSubscription<GridUsersResponse>(
     GRID_USERS_SUBSCRIPTION,
     {
-      variables: { exceptUserIds: userIds, limit: Math.max(gridSize - streamCount, 0) },
+      variables: { exceptUserIds, limit: Math.max(gridSize - visibleStreamCount, 0) },
       skip: !isGridEnabled,
     },
   );
 
-  useEffect(() => {
-    if (gridLoading) return;
+  if (gridError) {
+    logger.error({
+      logCode: 'grid_users_sub_error',
+      extraInfo: {
+        errorName: gridError.name,
+        errorMessage: gridError.message,
+      },
+    }, 'Grid users subscription failed.');
+  }
 
-    if (gridError) {
-      logger.error(`Grid users subscription failed. name=${gridError.name}`, gridError);
-    }
+  let gridUsers: GridItem[] = [];
 
-    if (gridData) {
-      const newGridUsers = gridData.user.map((user) => ({
-        ...user,
-        type: 'grid' as const,
-      }));
-      setGridUsers(newGridUsers);
-    } else {
-      setGridUsers([]);
-    }
-  }, [gridData]);
+  if (gridData) {
+    const newGridUsers = gridData.user.map((user) => ({
+      ...user,
+      type: VIDEO_TYPES.GRID,
+    }));
+    gridUsers = newGridUsers;
+  }
 
-  return {
-    streams,
-    gridUsers,
-    loading: gridLoading,
-    error: gridError,
-  };
+  return gridUsers;
 };
 
 export const useSharedDevices = () => {
@@ -293,13 +301,13 @@ export const useSharedDevices = () => {
 };
 
 export const useNumberOfPages = () => {
-  const state = useVideoState()[0];
-  return state.numberOfPages;
+  const { numberOfPages } = useVideoState();
+  return numberOfPages;
 };
 
 export const useCurrentVideoPageIndex = () => {
-  const state = useVideoState()[0];
-  return state.currentVideoPageIndex;
+  const { currentVideoPageIndex } = useVideoState();
+  return currentVideoPageIndex;
 };
 
 export const useGridSize = () => {
@@ -328,18 +336,15 @@ export const useGridSize = () => {
   return size;
 };
 
-export const useVideoStreams = (
-  isGridEnabled: boolean,
-  paginationEnabled: boolean,
-  viewParticipantsWebcams: boolean,
-) => {
-  const [state] = useVideoState();
-  const { currentVideoPageIndex, numberOfPages } = state;
-  const { gridUsers, streams: videoStreams } = useStreamUsers(isGridEnabled);
+export const useVideoStreams = () => {
+  const { viewParticipantsWebcams } = useSettings(SETTINGS.DATA_SAVING) as { viewParticipantsWebcams?: boolean };
+  const { currentVideoPageIndex, numberOfPages } = useVideoState();
+  const { streams: videoStreams } = useStreams();
   const connectingStream = useConnectingStream(videoStreams);
   const myPageSize = useMyPageSize();
-  const isPaginationEnabled = useIsPaginationEnabled(paginationEnabled);
+  const isPaginationEnabled = useIsPaginationEnabled();
   let streams: StreamItem[] = [...videoStreams];
+  let totalNumberOfOtherStreams: number | undefined;
 
   const {
     paginationSorting: PAGINATION_SORTING,
@@ -355,36 +360,15 @@ export const useVideoStreams = (
   if (isPaginationEnabled) {
     const [filtered, others] = partition(
       streams,
-      (vs: StreamItem) => videoService.isLocalStream(vs.stream) || (vs.type === 'stream' && vs.user.pinned),
+      (vs: StreamItem) => videoService.isLocalStream(vs.stream) || (vs.type === VIDEO_TYPES.STREAM && vs.user.pinned),
     );
     const [pin, mine] = partition(
       filtered,
-      (vs: StreamItem) => vs.type === 'stream' && vs.user.pinned,
+      (vs: StreamItem) => vs.type === VIDEO_TYPES.STREAM && vs.user.pinned,
     );
 
-    if (myPageSize !== 0) {
-      const total = others.length ?? 0;
-      const nOfPages = Math.ceil(total / myPageSize);
-
-      if (nOfPages !== numberOfPages) {
-        setVideoState((curr) => ({
-          ...curr,
-          numberOfPages: nOfPages,
-        }));
-
-        if (nOfPages === 0) {
-          setVideoState((curr) => ({
-            ...curr,
-            currentVideoPageIndex: 0,
-          }));
-        } else if (currentVideoPageIndex + 1 > nOfPages) {
-          videoService.getPreviousVideoPage();
-        }
-      }
-    }
-
+    totalNumberOfOtherStreams = others.length;
     const chunkIndex = currentVideoPageIndex * myPageSize;
-
     const sortingMethod = (numberOfPages > 1) ? PAGINATION_SORTING : DEFAULT_SORTING;
     const paginatedStreams = sortVideoStreams(others, sortingMethod)
       .slice(chunkIndex, (chunkIndex + myPageSize)) || [];
@@ -398,10 +382,16 @@ export const useVideoStreams = (
     streams = sortVideoStreams(streams, DEFAULT_SORTING);
   }
 
+  const gridUsers = useGridUsers(
+    videoStreams.map((s) => s.userId),
+    streams.length,
+  );
+
   return {
     streams,
     gridUsers,
     totalNumberOfStreams: streams.length,
+    totalNumberOfOtherStreams,
   };
 };
 
@@ -495,16 +485,8 @@ export const useStopVideo = () => {
   }, [cameraBroadcastStop]);
 };
 
-export const useActivePeers = (
-  isGridEnabled: boolean,
-  paginationEnabled: boolean,
-  viewParticipantsWebcams: boolean,
-) => {
-  const videoData = useVideoStreams(
-    isGridEnabled,
-    paginationEnabled,
-    viewParticipantsWebcams,
-  );
+export const useActivePeers = () => {
+  const videoData = useVideoStreams();
 
   if (!videoData) return null;
 
@@ -523,16 +505,8 @@ export const useActivePeers = (
   return activePeers;
 };
 
-export const useGetStats = (
-  isGridEnabled: boolean,
-  paginationEnabled: boolean,
-  viewParticipantsWebcams: boolean,
-) => {
-  const peers = useActivePeers(
-    isGridEnabled,
-    paginationEnabled,
-    viewParticipantsWebcams,
-  );
+export const useGetStats = () => {
+  const peers = useActivePeers();
 
   return useCallback(async () => {
     if (!peers) return null;

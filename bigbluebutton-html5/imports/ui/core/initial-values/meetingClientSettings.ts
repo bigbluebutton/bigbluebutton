@@ -97,10 +97,6 @@ export const meetingClientSettingsInitialValues: MeetingClientSettings = {
       customHeartbeat: false,
       showAllAvailableLocales: true,
       showAudioFilters: true,
-      raiseHandActionButton: {
-        enabled: false,
-        centered: true,
-      },
       reactionsButton: {
         enabled: true,
       },
@@ -547,6 +543,9 @@ export const meetingClientSettingsInitialValues: MeetingClientSettings = {
         showNames: true,
       },
       moderatorChatEmphasized: true,
+      privateMessageReadFeedback: {
+        enabled: false,
+      },
       autoConvertEmoji: true,
       emojiPicker: {
         enable: false,
@@ -810,6 +809,8 @@ export const meetingClientSettingsInitialValues: MeetingClientSettings = {
       pointerDiameter: 5,
       maxStickyNoteLength: 1000,
       maxNumberOfAnnotations: 300,
+      allowInfiniteWhiteboard: false,
+      allowInfiniteWhiteboardInBreakouts: false,
       annotations: {
         status: {
           start: 'DRAW_START',

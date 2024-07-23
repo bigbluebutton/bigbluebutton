@@ -71,7 +71,7 @@ trait FakeTestData {
     UserState(intId = regUser.id, extId = regUser.externId, meetingId = regUser.meetingId,
       name = regUser.name, role = regUser.role, pin = false,
       mobile = false, guest = regUser.guest, authed = regUser.authed, guestStatus = regUser.guestStatus,
-      emoji = "none", reactionEmoji = "none", raiseHand = false, away = false, locked = false, presenter = false,
+      reactionEmoji = "none", raiseHand = false, away = false, locked = false, presenter = false,
       avatar = regUser.avatarURL, color = "#ff6242", clientType = "unknown", userLeftFlag = UserLeftFlag(false, 0))
   }
 

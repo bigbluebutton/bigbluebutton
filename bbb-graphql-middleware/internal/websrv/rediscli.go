@@ -113,7 +113,7 @@ func sendBbbCoreMsgToRedis(name string, body map[string]interface{}) {
 		return
 	}
 
-	log.Tracef("JSON message sent to channel %s:\n%s\n", channelName, messageJSON)
+	log.Tracef("JSON message sent to channel %s:\n%s\n", channelName, string(messageJSON))
 }
 
 func SendUserGraphqlReconnectionForcedEvtMsg(sessionToken string) {

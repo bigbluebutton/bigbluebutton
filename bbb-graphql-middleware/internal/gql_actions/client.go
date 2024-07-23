@@ -17,9 +17,7 @@ import (
 var graphqlActionsUrl = os.Getenv("BBB_GRAPHQL_MIDDLEWARE_GRAPHQL_ACTIONS_URL")
 
 func GraphqlActionsClient(
-	browserConnection *common.BrowserConnection,
-	fromBrowserToGqlActionsChannel *common.SafeChannelByte,
-	fromHasuraToBrowserChannel *common.SafeChannelByte) error {
+	browserConnection *common.BrowserConnection) error {
 
 	log := log.WithField("_routine", "GraphqlActionsClient").WithField("browserConnectionId", browserConnection.Id)
 	log.Debug("Starting GraphqlActionsClient")
@@ -33,7 +31,7 @@ RangeLoop:
 		case <-browserConnection.GraphqlActionsContext.Done():
 			log.Debug("GraphqlActionsContext cancelled!")
 			break RangeLoop
-		case fromBrowserMessage := <-fromBrowserToGqlActionsChannel.ReceiveChannel():
+		case fromBrowserMessage := <-browserConnection.FromBrowserToGqlActionsChannel.ReceiveChannel():
 			{
 				if fromBrowserMessage == nil {
 					continue
@@ -76,7 +74,7 @@ RangeLoop:
 							},
 						}
 						jsonData, _ := json.Marshal(browserResponseData)
-						fromHasuraToBrowserChannel.Send(jsonData)
+						browserConnection.FromHasuraToBrowserChannel.Send(jsonData)
 					} else {
 						//Action sent successfully, return data msg to client
 						browserResponseData := map[string]interface{}{
@@ -89,7 +87,7 @@ RangeLoop:
 							},
 						}
 						jsonData, _ := json.Marshal(browserResponseData)
-						fromHasuraToBrowserChannel.Send(jsonData)
+						browserConnection.FromHasuraToBrowserChannel.Send(jsonData)
 					}
 
 					//Return complete msg to client
@@ -98,7 +96,7 @@ RangeLoop:
 						"type": "complete",
 					}
 					jsonData, _ := json.Marshal(browserResponseComplete)
-					fromHasuraToBrowserChannel.Send(jsonData)
+					browserConnection.FromHasuraToBrowserChannel.Send(jsonData)
 				}
 
 				//Fallback to Hasura was disabled (keeping the code temporarily)
@@ -203,7 +201,7 @@ func parseGraphQLMutation(query string, variables map[string]interface{}) (strin
 			if len(paramParts) != 2 {
 				continue // Skip invalid params
 			}
-			paramName, paramValue := paramParts[0], paramParts[1]
+			paramName, paramValue := strings.Trim(paramParts[0], " \t"), paramParts[1]
 
 			// Handle variable substitution
 			if strings.HasPrefix(paramValue, "$") {

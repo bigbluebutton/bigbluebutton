@@ -46,9 +46,9 @@ const intlMessages = defineMessages({
     id: 'app.video.meetingCamCapReached',
     description: 'meeting camera cap label',
   },
-  meteorDisconnected: {
+  disconnected: {
     id: 'app.video.clientDisconnected',
-    description: 'Meteor disconnected label',
+    description: 'Client disconnected label',
   },
 });
 

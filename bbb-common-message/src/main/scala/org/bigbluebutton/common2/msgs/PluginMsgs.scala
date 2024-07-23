@@ -1,5 +1,7 @@
 package org.bigbluebutton.common2.msgs
 
+import org.bigbluebutton.common2.domain.PluginLearningAnalyticsDashboardGenericData
+
 // In messages
 
 /**
@@ -42,4 +44,11 @@ case class PluginDataChannelResetMsgBody(
                                           pluginName: String,
                                           subChannelName: String,
                                           channelName: String
+                                        )
+
+object PluginLearningAnalyticsDashboardSendGenericDataMsg { val NAME = "PluginLearningAnalyticsDashboardSendGenericDataMsg" }
+case class PluginLearningAnalyticsDashboardSendGenericDataMsg(header: BbbClientMsgHeader, body: PluginLearningAnalyticsDashboardSendGenericDataMsgBody) extends StandardMsg
+case class PluginLearningAnalyticsDashboardSendGenericDataMsgBody(
+                                                            pluginName: String,
+                                                            genericDataForLearningAnalyticsDashboard: PluginLearningAnalyticsDashboardGenericData
                                         )

@@ -11,6 +11,8 @@ location @html5client {
 
 location /html5client/locales {
   alias /usr/share/meteor/bundle/programs/web.browser/app/locales;
+  autoindex on;
+  autoindex_format json;
 }
 
 location /html5client/compatibility {

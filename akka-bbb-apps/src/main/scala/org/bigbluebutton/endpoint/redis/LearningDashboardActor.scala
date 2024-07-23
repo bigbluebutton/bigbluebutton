@@ -22,6 +22,7 @@ case class Meeting(
   name:  String,
   downloadSessionDataEnabled: Boolean,
   users: Map[String, User] = Map(),
+  genericDataTitles: Vector[String],
   polls: Map[String, Poll] = Map(),
   screenshares: Vector[Screenshare] = Vector(),
   presentationSlides: Vector[PresentationSlide] = Vector(),
@@ -30,19 +31,20 @@ case class Meeting(
 )
 
 case class User(
-  userKey:            String,
-  extId:              String,
-  intIds:             Map[String,UserId] = Map(),
-  name:               String,
-  isModerator:        Boolean,
-  isDialIn:           Boolean = false,
-  currentIntId:       String = null,
-  answers:            Map[String,Vector[String]] = Map(),
-  talk:               Talk = Talk(),
-  emojis:             Vector[Emoji] = Vector(),
-  reactions:          Vector[Emoji] = Vector(),
-  webcams:            Vector[Webcam] = Vector(),
-  totalOfMessages:    Long = 0,
+                 userKey:            String,
+                 extId:              String,
+                 intIds:             Map[String,UserId] = Map(),
+                 name:               String,
+                 isModerator:        Boolean,
+                 isDialIn:           Boolean = false,
+                 currentIntId:       String = null,
+                 answers:            Map[String,Vector[String]] = Map(),
+                 genericData:        Map[String, Vector[GenericData]] = Map(),
+                 talk:               Talk = Talk(),
+                 emojis:             Vector[Emoji] = Vector(),
+                 reactions:          Vector[Emoji] = Vector(),
+                 webcams:            Vector[Webcam] = Vector(),
+                 totalOfMessages:    Long = 0,
 )
 
 case class UserId(
@@ -61,6 +63,11 @@ case class Poll(
   options:    Vector[String] = Vector(),
   anonymousAnswers: Vector[String] = Vector(),
   createdOn:  Long = System.currentTimeMillis(),
+)
+
+case class GenericData(
+  columnTitle: String,
+  value: String,
 )
 
 case class Talk(
@@ -141,7 +148,6 @@ class LearningDashboardActor(
       case m: UserJoinMeetingReqMsg                 => handleUserJoinMeetingReqMsg(m)
       case m: UserLeaveReqMsg                       => handleUserLeaveReqMsg(m)
       case m: UserLeftMeetingEvtMsg                 => handleUserLeftMeetingEvtMsg(m)
-      case m: UserEmojiChangedEvtMsg                => handleUserEmojiChangedEvtMsg(m)
       case m: UserAwayChangedEvtMsg                 => handleUserAwayChangedEvtMsg(m)
       case m: UserRaiseHandChangedEvtMsg            => handleUserRaiseHandChangedEvtMsg(m)
       case m: UserReactionEmojiChangedEvtMsg        => handleUserReactionEmojiChangedEvtMsg(m)
@@ -154,6 +160,10 @@ class LearningDashboardActor(
       case m: UserLeftVoiceConfToClientEvtMsg       => handleUserLeftVoiceConfToClientEvtMsg(m)
       case m: UserMutedVoiceEvtMsg                  => handleUserMutedVoiceEvtMsg(m)
       case m: UserTalkingVoiceEvtMsg                => handleUserTalkingVoiceEvtMsg(m)
+
+      // Plugin
+      case m: PluginLearningAnalyticsDashboardSendGenericDataMsg =>
+        handlePluginLearningAnalyticsDashboardSendGenericDataMsg(m)
 
       // Screenshare
       case m: ScreenshareRtmpBroadcastStartedEvtMsg => handleScreenshareRtmpBroadcastStartedEvtMsg(m)
@@ -347,20 +357,6 @@ class LearningDashboardActor(
       val updatedMeeting = meeting.copy(users = meeting.users + (updatedUser.userKey -> updatedUser))
 
       meetings += (updatedMeeting.intId -> updatedMeeting)
-    }
-  }
-
-  private def handleUserEmojiChangedEvtMsg(msg: UserEmojiChangedEvtMsg): Unit = {
-    for {
-      meeting <- meetings.values.find(m => m.intId == msg.header.meetingId)
-      user <- findUserByIntId(meeting, msg.body.userId)
-    } yield {
-      if (msg.body.emoji != "none" && msg.body.emoji != "raiseHand" && msg.body.emoji != "away") {
-        val updatedUser = user.copy(emojis = user.emojis :+ Emoji(msg.body.emoji))
-        val updatedMeeting = meeting.copy(users = meeting.users + (updatedUser.userKey -> updatedUser))
-
-        meetings += (updatedMeeting.intId -> updatedMeeting)
-      }
     }
   }
 
@@ -570,6 +566,28 @@ class LearningDashboardActor(
     }
   }
 
+  private def handlePluginLearningAnalyticsDashboardSendGenericDataMsg(msg: PluginLearningAnalyticsDashboardSendGenericDataMsg) = {
+    for {
+      meeting <- meetings.values.find(m => m.intId == msg.header.meetingId)
+      user <- findUserByIntId(meeting, msg.header.userId)
+    } yield {
+      val currentUserGenericData = user.genericData.getOrElse(msg.body.genericDataForLearningAnalyticsDashboard.cardTitle,Vector())
+      val newGenericDataEntry = GenericData(msg.body.genericDataForLearningAnalyticsDashboard.columnTitle, msg.body.genericDataForLearningAnalyticsDashboard.value)
+      val updatedUser = user.copy(genericData = user.genericData + (msg.body.genericDataForLearningAnalyticsDashboard.cardTitle -> (currentUserGenericData :+ newGenericDataEntry)))
+
+      val updatedGenericDataTitles = if(!meeting.genericDataTitles.contains(msg.body.genericDataForLearningAnalyticsDashboard.cardTitle)) {
+        meeting.genericDataTitles :+ msg.body.genericDataForLearningAnalyticsDashboard.cardTitle
+      } else {
+        meeting.genericDataTitles
+      }
+
+      val updatedMeeting = meeting.copy(users = meeting.users + (updatedUser.userKey -> updatedUser), genericDataTitles = updatedGenericDataTitles)
+
+      meetings += (updatedMeeting.intId -> updatedMeeting)
+      log.debug("New generic data received from a plugin '{}': {}", msg.body.pluginName,msg.body.genericDataForLearningAnalyticsDashboard)
+    }
+  }
+
   private def handleScreenshareRtmpBroadcastStoppedEvtMsg(msg: ScreenshareRtmpBroadcastStoppedEvtMsg) {
     for {
       meeting <- meetings.values.find(m => m.intId == msg.header.meetingId)
@@ -587,6 +605,7 @@ class LearningDashboardActor(
         msg.body.props.meetingProp.extId,
         msg.body.props.meetingProp.name,
         downloadSessionDataEnabled = !msg.body.props.meetingProp.disabledFeatures.contains("learningDashboardDownloadSessionData"),
+        genericDataTitles = Vector()
       )
 
       meetings += (newMeeting.intId -> newMeeting)

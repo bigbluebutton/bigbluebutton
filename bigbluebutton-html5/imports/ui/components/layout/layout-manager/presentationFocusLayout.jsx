@@ -81,89 +81,46 @@ const PresentationFocusLayout = (props) => {
 
   const init = () => {
     const { sidebarContentPanel } = sidebarContentInput;
-    if (isMobile) {
-      layoutContextDispatch({
-        type: ACTIONS.SET_LAYOUT_INPUT,
-        value: defaultsDeep(
-          {
-            sidebarNavigation: {
-              isOpen:
-                input.sidebarNavigation.isOpen || sidebarContentPanel !== PANELS.NONE || false,
-            },
-            sidebarContent: {
-              isOpen: sidebarContentPanel !== PANELS.NONE,
-              sidebarContentPanel,
-            },
-            SidebarContentHorizontalResizer: {
-              isOpen: false,
-            },
-            presentation: {
-              isOpen: presentationInput.isOpen,
-              slidesLength: presentationInput.slidesLength,
-              currentSlide: {
-                ...presentationInput.currentSlide,
-              },
-            },
-            cameraDock: {
-              numCameras: cameraDockInput.numCameras,
-            },
-            externalVideo: {
-              hasExternalVideo: input.externalVideo.hasExternalVideo,
-            },
-            genericMainContent: {
-              genericContentId: input.genericMainContent.genericContentId,
-            },
-            screenShare: {
-              hasScreenShare: input.screenShare.hasScreenShare,
-              width: input.screenShare.width,
-              height: input.screenShare.height,
+    layoutContextDispatch({
+      type: ACTIONS.SET_LAYOUT_INPUT,
+      value: defaultsDeep(
+        {
+          sidebarNavigation: {
+            isOpen:
+              input.sidebarNavigation.isOpen || sidebarContentPanel !== PANELS.NONE || false,
+          },
+          sidebarContent: {
+            isOpen: sidebarContentPanel !== PANELS.NONE,
+            sidebarContentPanel,
+          },
+          SidebarContentHorizontalResizer: {
+            isOpen: false,
+          },
+          presentation: {
+            isOpen: presentationInput.isOpen,
+            slidesLength: presentationInput.slidesLength,
+            currentSlide: {
+              ...presentationInput.currentSlide,
             },
           },
-          INITIAL_INPUT_STATE
-        ),
-      });
-    } else {
-      layoutContextDispatch({
-        type: ACTIONS.SET_LAYOUT_INPUT,
-        value: defaultsDeep(
-          {
-            sidebarNavigation: {
-              isOpen:
-                input.sidebarNavigation.isOpen || sidebarContentPanel !== PANELS.NONE || false,
-            },
-            sidebarContent: {
-              isOpen: sidebarContentPanel !== PANELS.NONE,
-              sidebarContentPanel,
-            },
-            SidebarContentHorizontalResizer: {
-              isOpen: false,
-            },
-            presentation: {
-              isOpen: presentationInput.isOpen,
-              slidesLength: presentationInput.slidesLength,
-              currentSlide: {
-                ...presentationInput.currentSlide,
-              },
-            },
-            cameraDock: {
-              numCameras: cameraDockInput.numCameras,
-            },
-            externalVideo: {
-              hasExternalVideo: input.externalVideo.hasExternalVideo,
-            },
-            genericMainContent: {
-              genericContentId: input.genericMainContent.genericContentId,
-            },
-            screenShare: {
-              hasScreenShare: input.screenShare.hasScreenShare,
-              width: input.screenShare.width,
-              height: input.screenShare.height,
-            },
+          cameraDock: {
+            numCameras: cameraDockInput.numCameras,
           },
-          INITIAL_INPUT_STATE
-        ),
-      });
-    }
+          externalVideo: {
+            hasExternalVideo: input.externalVideo.hasExternalVideo,
+          },
+          genericMainContent: {
+            genericContentId: input.genericMainContent.genericContentId,
+          },
+          screenShare: {
+            hasScreenShare: input.screenShare.hasScreenShare,
+            width: input.screenShare.width,
+            height: input.screenShare.height,
+          },
+        },
+        INITIAL_INPUT_STATE,
+      ),
+    });
     Session.setItem('layoutReady', true);
     throttledCalculatesLayout();
   };

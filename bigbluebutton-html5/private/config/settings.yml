@@ -27,6 +27,7 @@ public:
     # "media.setsinkid.enabled" to make it work properly
     enableDynamicAudioDeviceSelection: true
     #
+    skipEchoTestIfPreviousDevice: false
     clientTitle: BigBlueButton
     appName: BigBlueButton HTML5 Client
     bbbServerVersion: HTML5_FULL_BBB_VERSION
@@ -145,14 +146,7 @@ public:
     # For more info, see 'microphoneConstraints' option in this config.
     # If not set, default value is true.
     showAudioFilters: true
-    raiseHandActionButton:
-      # Enables the old raiseHand icon
-      enabled: false
-      # If true, positions the icon next to the screenshare button, if false positions it where BBB had raisedHand button up to BBB 2.6 (right-hand bottom corner in LRT)
-      centered: true
     reactionsButton:
-      # Enables the new raiseHand icon inside of the reaction menu (introduced in BBB 2.7)
-      # If both reactionsButton and raiseHandActionButton are enabled, reactionsButton takes precedence.
       enabled: true
     emojiRain:
       # If true, new reactions will be activated
@@ -454,6 +448,7 @@ public:
     autoShareWebcam: false
     skipVideoPreview: false
     skipVideoPreviewOnFirstJoin: false
+    skipVideoPreviewIfPreviousDevice: false
     # cameraSortingModes.paginationSorting: sorting mode to be applied when pagination is active
     # cameraSortingModes.defaultSorting: sorting mode when pagination is not active (full mesh)
     # Current implemented modes are:
@@ -743,6 +738,8 @@ public:
       enabled: true
       showNames: true
     moderatorChatEmphasized: true
+    privateMessageReadFeedback:
+      enabled: false
     autoConvertEmoji: true
     emojiPicker:
       enable: false
@@ -919,21 +916,17 @@ public:
       warning: false
       error: true
     jitter:
-      - 10
-      - 20
-      - 30
+      warning: 10
+      danger: 20
+      critical: 30
     loss:
-      - 0.05
-      - 0.1
-      - 0.2
+      warning: 0.05
+      danger: 0.1
+      critical: 0.2
     rtt:
-      - 500
-      - 1000
-      - 2000
-    level:
-      - warning
-      - danger
-      - critical
+      warning: 500
+      danger: 1000
+      critical: 2000
     help: STATS_HELP_URL
   presentation:
     allowDownloadOriginal: true
@@ -947,6 +940,9 @@ public:
     mirroredFromBBBCore:
       uploadSizeMax: 30000000
       uploadPagesMax: 200
+    # If the following mime-types list is changed, please, make sure to also change:
+    # bbb-common-web/src/main/java/org/bigbluebutton/presentation/MimeTypeUtils.java: L34 (and related files.)
+    # docs/docs/development/api.md: L1222
     uploadValidMimeTypes:
       - extension: .pdf
         mime: application/pdf
@@ -974,10 +970,6 @@ public:
         mime: application/vnd.oasis.opendocument.presentation
       - extension: .odg
         mime: application/vnd.oasis.opendocument.graphics
-      - extension: .odc
-        mime: application/vnd.oasis.opendocument.chart
-      - extension: .odi
-        mime: application/vnd.oasis.opendocument.image
       - extension: .jpg
         mime: image/jpeg
       - extension: .jpeg
@@ -986,6 +978,8 @@ public:
         mime: image/png
       - extension: .webp
         mime: image/webp
+      - extension: .svg
+        mime: image/svg+xml
   user:
     role_moderator: MODERATOR
     role_viewer: VIEWER
@@ -997,6 +991,8 @@ public:
   whiteboard:
     annotationsQueueProcessInterval: 60
     cursorInterval: 150
+    allowInfiniteWhiteboard: false
+    allowInfiniteWhiteboardInBreakouts: false
     pointerDiameter: 5
     maxStickyNoteLength: 1000
     # limit number of annotations per slide
@@ -1132,13 +1128,6 @@ public:
       - coffeeshop.jpg
       - board.jpg
 private:
-  postgresql:
-    host: localhost
-    port: 5432
-    database: bbb_graphql
-    user: bbb_frontend
-    password: bbb_frontend
-    timeout: 30000
   analytics:
     includeChat: true
   app:

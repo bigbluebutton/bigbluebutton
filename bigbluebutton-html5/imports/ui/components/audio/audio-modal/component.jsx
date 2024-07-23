@@ -62,8 +62,13 @@ const propTypes = {
   isOpen: PropTypes.bool.isRequired,
   setIsOpen: PropTypes.func.isRequired,
   AudioError: PropTypes.shape({
-    MIC_ERROR: PropTypes.number.isRequired,
-    NO_SSL: PropTypes.number.isRequired,
+    MIC_ERROR: PropTypes.shape({
+      UNKNOWN: PropTypes.number,
+      NO_SSL: PropTypes.number,
+      MAC_OS_BLOCK: PropTypes.number,
+      NO_PERMISSION: PropTypes.number,
+      DEVICE_NOT_FOUND: PropTypes.number,
+    }),
   }).isRequired,
   getTroubleshootingLink: PropTypes.func.isRequired,
   away: PropTypes.bool,
