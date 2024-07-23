@@ -17,7 +17,6 @@ import MediaStreamUtils from '/imports/utils/media-stream-utils';
 import { notify } from '/imports/ui/services/notification';
 import {
   EFFECT_TYPES,
-  FALLBACK_IMAGE,
   SHOW_THUMBNAILS,
   setSessionVirtualBackgroundInfo,
   getSessionVirtualBackgroundInfo,
@@ -341,7 +340,7 @@ class VideoPreview extends Component {
               
               const webcamBackgroundURL = webcamBackground?.webcamBackground;
               if (webcamBackgroundURL !== '') {
-                this.handleVirtualBgSelected(EFFECT_TYPES.IMAGE_TYPE, FALLBACK_IMAGE, { url: webcamBackgroundURL });
+                this.handleVirtualBgSelected(EFFECT_TYPES.IMAGE_TYPE, '', { url: webcamBackgroundURL });
               }
             });
         } else {

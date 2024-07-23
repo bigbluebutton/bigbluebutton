@@ -397,7 +397,13 @@ export async function createVirtualBackgroundService(parameters = null) {
                 // Function to convert image URL to a File object
                 async function getFileFromUrl(url) {
                     try {
-                        const response = await fetch(url);
+                        const response = await fetch(url, {
+                            credentials: 'omit',
+                            mode: 'cors',
+                            headers: {
+                                'Accept': 'image/*',
+                            }
+                        });                
                         if (!response.ok) {
                             throw new Error(`HTTP error! status: ${response.status}`);
                         }
