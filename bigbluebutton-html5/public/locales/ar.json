@@ -1249,6 +1249,7 @@
     "app.createBreakoutRoom.setTimeHigherThanMeetingTimeError": "لا يمكن أن تتجاوز مدة الغرف الجانبية الوقت المتبقي للاجتماع.",
     "app.createBreakoutRoom.roomNameInputDesc": "يحدّث اسم الغرفة الجانبية",
     "app.createBreakoutRoom.movedUserLabel": "نقل {0} إلى الغرفة {1}",
+    "app.createBreakoutRoom.currentSlideLabel": "الشريحة الحالية",
     "app.updateBreakoutRoom.modalDesc": "لتحديث أو دعوة مستخدم، قم بسحبهم ببساطة إلى الغرفة المطلوبة.",
     "app.updateBreakoutRoom.cancelLabel": "إلغاء",
     "app.updateBreakoutRoom.title": "تحديث غرف الانفصال",
