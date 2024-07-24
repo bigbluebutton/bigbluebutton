@@ -993,7 +993,7 @@ class BreakoutRoom extends PureComponent {
                   {intl.formatMessage(intlMessages.roomNameInputDesc)}
                 </div>
               </Styled.FreeJoinLabel>
-              { presentations.length > 0 ? (
+              { presentations.length > 0 && !isUpdate ? (
                 <Styled.BreakoutSlideLabel>
                   <Styled.InputRooms
                     value={this.getRoomPresentation(value)}
