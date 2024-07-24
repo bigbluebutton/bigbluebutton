@@ -33,9 +33,9 @@ const ActionsDropdownContainer = (props) => {
 
 export default withTracker(() => {
   const presentations = Presentations.find({ 'conversion.done': true }).fetch();
-  const { allowUploadNewDocsInBreakouts } = Meteor.settings.public.app.breakouts;
-  const isPresentationUploadDisabled = AppService.meetingIsBreakout()
-    && !allowUploadNewDocsInBreakouts;
+  const { allowDocsManagementInBreakouts } = Meteor.settings.public.app.breakouts;
+  const isPresentationManagementDisabled = AppService.meetingIsBreakout()
+    && !allowDocsManagementInBreakouts;
 
   return {
     presentations,
@@ -44,6 +44,6 @@ export default withTracker(() => {
     setPresentation: PresentationUploaderService.setPresentation,
     podIds: PresentationPodService.getPresentationPodIds(),
     isCameraAsContentEnabled: isCameraAsContentEnabled(),
-    isPresentationUploadDisabled,
+    isPresentationManagementDisabled,
   };
 })(ActionsDropdownContainer);
