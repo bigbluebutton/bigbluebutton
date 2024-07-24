@@ -7,7 +7,7 @@ const EFFECT_TYPES = {
   BLUR_TYPE: 'blur',
   IMAGE_TYPE: 'image',
   NONE_TYPE: 'none',
-}
+};
 
 // TODO I'm sure this is centralized somewhere; fetch it from "there" if possible
 const BASE_PATH = Meteor.settings.public.app.cdn
@@ -18,16 +18,16 @@ const MODELS = {
   model96: {
     path: '/resources/tfmodels/segm_lite_v681.tflite',
     segmentationDimensions: {
-        height: 96,
-        width: 160
-    }
+      height: 96,
+      width: 160,
+    },
   },
   model144: {
     path: '/resources/tfmodels/segm_full_v679.tflite',
     segmentationDimensions: {
-        height: 144,
-        width: 256
-    }
+      height: 144,
+      width: 256,
+    },
   },
 };
 
@@ -45,50 +45,60 @@ const createVirtualBackgroundStream = (type, name, isVirtualBackground, stream, 
     backgroundFilename: name,
     isVirtualBackground,
     customParams,
-  }
+  };
 
   return createVirtualBackgroundService(buildParams).then((service) => {
-    const effect = service.startEffect(stream)
+    const effect = service.startEffect(stream);
     return { service, effect };
   });
-}
+};
 
 const getVirtualBackgroundThumbnail = (name) => {
   if (name === BLUR_FILENAME) {
-    return BASE_PATH + '/resources/images/virtual-backgrounds/thumbnails/' + name;
+    return `${BASE_PATH}/resources/images/virtual-backgrounds/thumbnails/${name}`;
   }
 
   return (IS_STORED_ON_BBB ? BASE_PATH : '') + THUMBNAILS_PATH + name;
-}
+};
 
 // Stores the last chosen camera effect into the session storage in the following format:
 // {
 //   type: <EFFECT_TYPES>,
 //   name: effect filename, if any
 // }
-const setSessionVirtualBackgroundInfo = (type, name, deviceId) => {
-  return Session.set(`VirtualBackgroundInfo_${deviceId}`, { type, name });
-}
+const setSessionVirtualBackgroundInfo = (type, name, deviceId) => Session.set(`VirtualBackgroundInfo_${deviceId}`, { type, name });
 
-const getSessionVirtualBackgroundInfo = (deviceId) => {
-  return Session.get(`VirtualBackgroundInfo_${deviceId}`) || {
-    type: EFFECT_TYPES.NONE_TYPE,
-  };
-}
+const getSessionVirtualBackgroundInfo = (deviceId) => Session.get(`VirtualBackgroundInfo_${deviceId}`) || {
+  type: EFFECT_TYPES.NONE_TYPE,
+};
 
-const getSessionVirtualBackgroundInfoWithDefault = (deviceId) => {
-  return Session.get(`VirtualBackgroundInfo_${deviceId}`) || {
-    type: EFFECT_TYPES.BLUR_TYPE,
-    name: BLUR_FILENAME,
-  };
-}
+const getSessionVirtualBackgroundInfoWithDefault = (deviceId) => Session.get(`VirtualBackgroundInfo_${deviceId}`) || {
+  type: EFFECT_TYPES.BLUR_TYPE,
+  name: BLUR_FILENAME,
+};
 
-const isVirtualBackgroundSupported = () => {
-  return !(deviceInfo.isIos || browserInfo.isSafari);
-}
+const isVirtualBackgroundSupported = () => !(deviceInfo.isIos || browserInfo.isSafari);
 
-const getVirtualBgImagePath = () => {
-  return (IS_STORED_ON_BBB ? BASE_PATH : '') + IMAGES_PATH;
+const getVirtualBgImagePath = () => (IS_STORED_ON_BBB ? BASE_PATH : '') + IMAGES_PATH;
+
+// Function to convert image URL to a File object
+async function getFileFromUrl(url) {
+  try {
+    const response = await fetch(url, {
+      credentials: 'omit',
+      headers: {
+        Accept: 'image/*',
+      },
+    });
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
+    const blob = await response.blob();
+    const file = new File([blob], 'fetchedWebcamBackground', { type: blob.type });
+    return file;
+  } catch (error) {
+    return null;
+  }
 }
 
 export {
@@ -108,4 +118,5 @@ export {
   createVirtualBackgroundStream,
   getVirtualBackgroundThumbnail,
   getVirtualBgImagePath,
-}
+  getFileFromUrl,
+};

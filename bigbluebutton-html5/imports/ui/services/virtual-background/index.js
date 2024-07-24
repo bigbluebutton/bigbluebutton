@@ -13,6 +13,7 @@ import {
   BASE_PATH,
   MODELS,
   getVirtualBgImagePath,
+  getFileFromUrl,
 } from '/imports/ui/services/virtual-background/service'
 import logger from '/imports/startup/client/logger';
 import { simd } from 'wasm-feature-detect/dist/cjs/index';
@@ -273,16 +274,26 @@ class VirtualBackgroundService {
             type = parameters.type;
             isVirtualBackground = parameters.isVirtualBackground;
         }
+
         this._options.virtualBackground.virtualSource = virtualBackgroundImagePath + name;
         this._options.virtualBackground.backgroundType = type;
         this._options.virtualBackground.isVirtualBackground = isVirtualBackground;
+
         if (this._options.virtualBackground.backgroundType === 'image') {
             this._virtualImage = document.createElement('img');
             this._virtualImage.crossOrigin = 'anonymous';
             this._virtualImage.src = virtualBackgroundImagePath + name;
         }
         if (parameters.customParams) {
-            this._virtualImage.src = parameters.customParams.file;
+            if (parameters.customParams.file) {
+                this._virtualImage.src = parameters.customParams.file;
+            } else {
+                this._options.virtualBackground.backgroundType = 'image';
+                this._options.virtualBackground.isVirtualBackground = true;
+                this._virtualImage = document.createElement('img');
+                this._virtualImage.crossOrigin = 'anonymous';
+                this._virtualImage.src = parameters.customParams.url;
+            }
         }
     }
 
@@ -389,33 +400,8 @@ export async function createVirtualBackgroundService(parameters = null) {
         parameters.virtualSource = virtualBackgroundImagePath + parameters.backgroundFilename;
 
         if (parameters.customParams) {
-            if (parameters.customParams.file) {
-                parameters.virtualSource = parameters.customParams.file;
-            } else {
+            if (parameters.customParams.url) {
                 const imageUrl = parameters.customParams.url;
-
-                // Function to convert image URL to a File object
-                async function getFileFromUrl(url) {
-                    try {
-                        const response = await fetch(url, {
-                            credentials: 'omit',
-                            mode: 'cors',
-                            headers: {
-                                'Accept': 'image/*',
-                            }
-                        });                
-                        if (!response.ok) {
-                            throw new Error(`HTTP error! status: ${response.status}`);
-                        }
-                        const blob = await response.blob();
-                        const file = new File([blob], 'fetchedWebcamBackground', { type: blob.type });
-                        return file;
-                    } catch (error) {
-                        logger.error('Fetch error:', error);
-                        return null;
-                    }
-                }
-
                 let fetchedWebcamBackground = await getFileFromUrl(imageUrl);
 
                 if (fetchedWebcamBackground) {
@@ -423,6 +409,8 @@ export async function createVirtualBackgroundService(parameters = null) {
                 } else {
                     logger.error('Failed to fetch custom webcam background image. Using fallback image.');
                 }
+            } else {
+                parameters.virtualSource = parameters.customParams.file;
             }
         }
     }
