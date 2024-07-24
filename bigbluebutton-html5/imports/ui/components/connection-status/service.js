@@ -381,20 +381,20 @@ const calculateBitsPerSecondFromMultipleData = (currentData, previousData) => {
 const sortConnectionData = (connectionData) => connectionData.sort(sortLevel).sort(sortOnline);
 
 export function getStatus(levels, value) {
-  const sortedLevels = Object.keys(levels)
-    .map(Number)
-    .sort((a, b) => a - b);
-  // eslint-disable-next-line no-plusplus
-  for (let i = 0; i < sortedLevels.length; i++) {
-    if (value < sortedLevels[i]) {
-      return i === 0 ? 'normal' : levels[sortedLevels[i - 1]];
+  const sortedLevels = Object.entries(levels)
+    .map((entry) => [entry[0], Number(entry[1])])
+    .sort((a, b) => a[1] - b[1]);
+
+  for (let i = 0; i < sortedLevels.length; i += 1) {
+    if (value < sortedLevels[i][1]) {
+      return i === 0 ? 'normal' : sortedLevels[i - 1][0];
     }
     if (i === sortedLevels.length - 1) {
-      return levels[sortedLevels[i]];
+      return sortedLevels[i][0];
     }
   }
 
-  return levels[sortedLevels[sortedLevels.length - 1]];
+  return sortedLevels[sortedLevels.length - 1][0];
 }
 
 /**
