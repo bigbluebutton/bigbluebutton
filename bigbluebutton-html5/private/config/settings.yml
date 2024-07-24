@@ -138,7 +138,7 @@ public:
       captureSharedNotesByDefault: false
       sendInvitationToAssignedModeratorsByDefault: false
       breakoutRoomLimit: 16
-      allowDocsManagementInBreakouts: false
+      allowPresentationManagementInBreakouts: true
     # https://github.com/bigbluebutton/bigbluebutton/pull/10826
     customHeartbeat: false
     customHeartbeatUseDataFrames: true

@@ -33,9 +33,9 @@ const ActionsDropdownContainer = (props) => {
 
 export default withTracker(() => {
   const presentations = Presentations.find({ 'conversion.done': true }).fetch();
-  const { allowDocsManagementInBreakouts } = Meteor.settings.public.app.breakouts;
+  const { allowPresentationManagementInBreakouts } = Meteor.settings.public.app.breakouts;
   const isPresentationManagementDisabled = AppService.meetingIsBreakout()
-    && !allowDocsManagementInBreakouts;
+    && !allowPresentationManagementInBreakouts;
 
   return {
     presentations,
