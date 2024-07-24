@@ -478,7 +478,6 @@ class VideoPreview extends Component {
       this.displayPreview();
       return true;
     }).catch(error => {
-      console.log("PAPAYA")
       this.handleVirtualBgError(error, type, name);
       return false;
     }).finally(() => {
