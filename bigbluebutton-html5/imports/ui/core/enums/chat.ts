@@ -13,5 +13,6 @@ export const enum ChatMessageType {
   PRESENTATION = 'presentation',
   CHAT_CLEAR = 'publicChatHistoryCleared',
   BREAKOUT_ROOM = 'breakoutRoomModeratorMsg',
-  USER_AWAY_STATUS_MSG = 'userAwayStatusMsg'
+  USER_AWAY_STATUS_MSG = 'userAwayStatusMsg',
+  PLUGIN = 'plugin'
 }

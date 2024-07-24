@@ -109,6 +109,7 @@ const ChatMesssage: React.FC<ChatMessageProps> = ({
   const sameSender = (previousMessage?.user?.userId
     || lastSenderPreviousPage) === message?.user?.userId;
   const isSystemSender = message.messageType === ChatMessageType.BREAKOUT_ROOM;
+  const isPluginMessage = message.messageType === ChatMessageType.PLUGIN;
   const dateTime = new Date(message?.createdAt);
   const formattedTime = intl.formatTime(dateTime, {
     hour: 'numeric',
@@ -211,6 +212,17 @@ const ChatMesssage: React.FC<ChatMessageProps> = ({
           ),
         };
       }
+      case ChatMessageType.PLUGIN: {
+        // Messages of type `plugin` are intentionally not rendered because
+        // they are meant to be custom rendered by plugins using `useDomChatElements`.
+        return {
+          name: message.user?.name,
+          color: message.user?.color,
+          isModerator: message.user?.isModerator,
+          isSystemSender: false,
+          component: <></>,
+        };
+      }
       case ChatMessageType.TEXT:
       default:
         return {
@@ -234,11 +246,13 @@ const ChatMesssage: React.FC<ChatMessageProps> = ({
       sameSender={sameSender}
       ref={messageRef}
       isPresentationUpload={messageContent.isPresentationUpload}
+      isPluginMessage={isPluginMessage}
     >
       {(!message?.user || !sameSender) && (
         message.messageType !== ChatMessageType.USER_AWAY_STATUS_MSG
         && message.messageType !== ChatMessageType.API
-        && message.messageType !== ChatMessageType.CHAT_CLEAR) && (
+        && message.messageType !== ChatMessageType.CHAT_CLEAR
+        && message.messageType !== ChatMessageType.PLUGIN) && (
           <ChatAvatar
             avatar={message.user?.avatar}
             color={messageContent.color}
@@ -254,16 +268,19 @@ const ChatMesssage: React.FC<ChatMessageProps> = ({
       <ChatContent
         ref={messageContentRef}
         sameSender={message?.user ? sameSender : false}
+        isPluginMessage={isPluginMessage}
         data-chat-message-id={message?.messageId}
       >
-        {message.messageType !== ChatMessageType.CHAT_CLEAR && (
-          <ChatMessageHeader
-            sameSender={message?.user ? sameSender : false}
-            name={messageContent.name}
-            isOnline={message.user?.isOnline ?? true}
-            dateTime={dateTime}
-          />
-        )}
+        {message.messageType !== ChatMessageType.CHAT_CLEAR
+          && message.messageType !== ChatMessageType.PLUGIN
+          && (
+            <ChatMessageHeader
+              sameSender={message?.user ? sameSender : false}
+              name={messageContent.name}
+              isOnline={message.user?.isOnline ?? true}
+              dateTime={dateTime}
+            />
+          )}
         <MessageItemWrapper>
           {messageContent.component}
           {messageReadFeedbackEnabled && (
@@ -271,7 +288,7 @@ const ChatMesssage: React.FC<ChatMessageProps> = ({
               message={message}
             />
           )}
-        </MessageItemWrapper>
+        </MessageItemWrapper> 
       </ChatContent>
     </ChatWrapper>
   );
