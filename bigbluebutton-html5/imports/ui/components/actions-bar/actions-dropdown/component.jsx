@@ -186,6 +186,7 @@ class ActionsDropdown extends PureComponent {
       hasCameraAsContent,
       isCameraAsContentEnabled,
       isTimerFeatureEnabled,
+      isPresentationManagementDisabled,
     } = this.props;
 
     const { pollBtnLabel, presentationLabel, takePresenter } = intlMessages;
@@ -194,7 +195,7 @@ class ActionsDropdown extends PureComponent {
 
     const actions = [];
 
-    if (amIPresenter && isPresentationEnabled()) {
+    if (amIPresenter && !isPresentationManagementDisabled && isPresentationEnabled()) {
       actions.push({
         icon: 'upload',
         dataTest: 'managePresentations',
