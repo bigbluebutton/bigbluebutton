@@ -90,7 +90,7 @@ Animations were added to the Reactions Bar as part of BigBlueButton 2.7.2. By de
 You can disable any animations in the client, including Reactions Animations via a toggle in the client: Settings -> Application -> Animations on/off.
 
 
-##### Breakout rooms can use different presentations
+#### Breakout rooms can use different presentations
 
 ![Four breakouts each set for different presentation](/img/27-breakouts-various-presentations.png)
 
