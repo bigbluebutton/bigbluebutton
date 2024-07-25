@@ -69,15 +69,14 @@ const getVirtualBackgroundThumbnail = (name) => {
 const setSessionVirtualBackgroundInfo = (
   type,
   name,
-  deviceId,
   customParams,
+  deviceId,
 ) => Session.set(`VirtualBackgroundInfo_${deviceId}`, { type, name, customParams });
 
-const getSessionVirtualBackgroundInfo = (deviceId) => {
-  return Session.get(`VirtualBackgroundInfo_${deviceId}`) || {
-    type: EFFECT_TYPES.NONE_TYPE,
-  };
-}
+const getSessionVirtualBackgroundInfo = (deviceId) => Session.get(`VirtualBackgroundInfo_${deviceId}`) || {
+  type: EFFECT_TYPES.NONE_TYPE,
+  name: '',
+};
 
 const getSessionVirtualBackgroundInfoWithDefault = (deviceId) => {
   return Session.get(`VirtualBackgroundInfo_${deviceId}`) || {

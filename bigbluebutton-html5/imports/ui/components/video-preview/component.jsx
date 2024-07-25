@@ -368,30 +368,6 @@ class VideoPreview extends Component {
     this._isMounted = false;
   }
 
-  startCameraBrightness() {
-    if (CAMERA_BRIGHTNESS_AVAILABLE) {
-      const setBrightnessInfo = () => {
-        const stream = this.currentVideoStream || {};
-        const service = stream.virtualBgService || {};
-        const { brightness = 100, wholeImageBrightness = false } = service;
-        this.setState({ brightness, wholeImageBrightness });
-      };
-
-      if (!this.currentVideoStream.virtualBgService) {
-        this.startVirtualBackground(
-          this.currentVideoStream,
-          EFFECT_TYPES.NONE_TYPE,
-        ).then((switched) => {
-          if (switched) {
-            setBrightnessInfo();
-          }
-        });
-      } else {
-        setBrightnessInfo();
-      }
-    }
-  }
-
   handleSelectWebcam(event) {
     const webcamValue = event.target.value;
 
@@ -416,18 +392,6 @@ class VideoPreview extends Component {
     }
   }
 
-  updateVirtualBackgroundInfo(customParams) {
-    const { webcamDeviceId } = this.state;
-
-    // Update this session's virtual camera effect information if it's enabled
-    setSessionVirtualBackgroundInfo(
-      this.currentVideoStream.virtualBgType,
-      this.currentVideoStream.virtualBgName,
-      webcamDeviceId,
-      customParams,
-    );
-  }
-
   // Resolves into true if the background switch is successful, false otherwise
   handleVirtualBgSelected(type, name, customParams) {
     if (type !== EFFECT_TYPES.NONE_TYPE || CAMERA_BRIGHTNESS_AVAILABLE) {
@@ -437,12 +401,12 @@ class VideoPreview extends Component {
         name,
         customParams,
       ).then((switched) => {
-        if (switched) this.updateVirtualBackgroundInfo(customParams);
+        if (switched) this.updateVirtualBackgroundInfo();
         return switched;
       });
     }
     this.stopVirtualBackground(this.currentVideoStream);
-    this.updateVirtualBackgroundInfo(customParams);
+    this.updateVirtualBackgroundInfo();
     return Promise.resolve(true);
   }
 
@@ -461,7 +425,7 @@ class VideoPreview extends Component {
     return bbbVideoStream.startVirtualBackground(type, name, customParams).then(() => {
       this.displayPreview();
       return true;
-    }).catch(error => {
+    }).catch((error) => {
       this.handleVirtualBgError(error, type, name);
       return false;
     }).finally(() => {
@@ -475,8 +439,6 @@ class VideoPreview extends Component {
 
     const selectedProfile = PreviewService.getCameraProfile(profileValue);
     this.getCameraStream(webcamDeviceId, selectedProfile).then(() => {
-      const { type, name, customParams } = getSessionVirtualBackgroundInfo(webcamDeviceId);
-      this.handleVirtualBgSelected(type, name, customParams);
       this.displayPreview();
     });
   }
@@ -497,7 +459,7 @@ class VideoPreview extends Component {
     // Only streams that will be shared should be stored in the service.
     // If the store call returns false, we're duplicating stuff. So clean this one
     // up because it's an impostor.
-    if(!PreviewService.storeStream(webcamDeviceId, this.currentVideoStream)) {
+    if (!PreviewService.storeStream(webcamDeviceId, this.currentVideoStream)) {
       this.currentVideoStream.stop();
     }
 
@@ -649,7 +611,9 @@ class VideoPreview extends Component {
 
   getInitialCameraStream(deviceId) {
     const { cameraAsContent } = this.props;
-    const defaultProfile = !cameraAsContent ? PreviewService.getDefaultProfile() : PreviewService.getCameraAsContentProfile();
+    const defaultProfile = !cameraAsContent
+      ? PreviewService.getDefaultProfile()
+      : PreviewService.getCameraAsContentProfile();
 
     return this.getCameraStream(deviceId, defaultProfile).then(() => {
       this.updateDeviceId(deviceId);
@@ -674,9 +638,13 @@ class VideoPreview extends Component {
       if (!this._isMounted) return this.terminateCameraStream(bbbVideoStream, deviceId);
 
       this.currentVideoStream = bbbVideoStream;
-      this.startCameraBrightness();
-      this.setState({
-        isStartSharingDisabled: false,
+      this.startCameraBrightness().then(() => {
+        const { type, name, customParams } = getSessionVirtualBackgroundInfo(deviceId);
+        this.handleVirtualBgSelected(type, name, customParams).then(() => {
+          this.setState({
+            isStartSharingDisabled: false,
+          });
+        });
       });
     }).catch((error) => {
       // When video preview is set to skip, we need some way to bubble errors
@@ -1029,6 +997,44 @@ class VideoPreview extends Component {
     const { intl, cameraAsContent } = this.props;
     if (cameraAsContent) return intl.formatMessage(intlMessages.cameraAsContentSettingsTitle);
     return intl.formatMessage(intlMessages.webcamSettingsTitle);
+  }
+
+  startCameraBrightness() {
+    if (CAMERA_BRIGHTNESS_AVAILABLE) {
+      const setBrightnessInfo = () => {
+        const stream = this.currentVideoStream || {};
+        const service = stream.virtualBgService || {};
+        const { brightness = 100, wholeImageBrightness = false } = service;
+        this.setState({ brightness, wholeImageBrightness });
+      };
+
+      if (!this.currentVideoStream.virtualBgService) {
+        return this.startVirtualBackground(
+          this.currentVideoStream,
+          EFFECT_TYPES.NONE_TYPE,
+        ).then((switched) => {
+          if (switched) {
+            setBrightnessInfo();
+          }
+        });
+      }
+
+      setBrightnessInfo();
+    }
+
+    return Promise.resolve(true);
+  }
+
+  updateVirtualBackgroundInfo() {
+    const { webcamDeviceId } = this.state;
+
+    // Update this session's virtual camera effect information if it's enabled
+    setSessionVirtualBackgroundInfo(
+      this.currentVideoStream.virtualBgType,
+      this.currentVideoStream.virtualBgName,
+      this.currentVideoStream.customParams,
+      webcamDeviceId,
+    );
   }
 
   renderModalContent() {
