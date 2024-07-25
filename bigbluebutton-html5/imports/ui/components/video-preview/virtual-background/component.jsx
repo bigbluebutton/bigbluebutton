@@ -18,6 +18,8 @@ import Skeleton, { SkeletonTheme } from 'react-loading-skeleton';
 import 'react-loading-skeleton/dist/skeleton.css';
 import Settings from '/imports/ui/services/settings';
 import { isCustomVirtualBackgroundsEnabled } from '/imports/ui/services/features';
+import Auth from '/imports/ui/services/auth';
+import Users from '/imports/api/users';
 
 const { MIME_TYPES_ALLOWED, MAX_FILE_SIZE } = VirtualBgService;
 const ENABLE_CAMERA_BRIGHTNESS = Meteor.settings.public.app.enableCameraBrightness;
@@ -134,6 +136,42 @@ const VirtualBgSelector = ({
         });
       }
       if (!loaded) loadFromDB();
+    }
+
+    // Set the custom or default virtual background
+    const webcamBackground = Users.findOne({
+      meetingId: Auth.meetingID,
+      userId: Auth.userID,
+    }, {
+      fields: {
+        webcamBackground: 1,
+      },
+    });
+
+    const webcamBackgroundURL = webcamBackground?.webcamBackground;
+    if (webcamBackgroundURL !== '') {
+      dispatch({
+        type: 'update',
+        background: {
+          filename: webcamBackgroundURL,
+          uniqueId: 'webcamBackgroundURL',
+          data: webcamBackgroundURL,
+          lastActivityDate: Date.now(),
+          custom: true,
+        },
+      });
+      handleVirtualBgSelected(
+        EFFECT_TYPES.IMAGE_TYPE,
+        webcamBackgroundURL,
+        { url: webcamBackgroundURL },
+      ).then((switched) => {
+        if (!switched) {
+          setCurrentVirtualBg({ type: EFFECT_TYPES.NONE_TYPE });
+          return;
+        }
+
+        setCurrentVirtualBg({ type: EFFECT_TYPES.IMAGE_TYPE, name: '' });
+      });
     }
   }, []);
 
@@ -459,10 +497,11 @@ const VirtualBgSelector = ({
                     .map((background, index) => {
                       if (background.custom !== false) {
                         return renderCustomButton(background, index);
-                      } else {
-                        const isBlur = background.uniqueId.includes('Blur');
-                        return isBlur ? renderBlurButton(index) : renderDefaultButton(background.uniqueId, index);
                       }
+                      const isBlur = background.uniqueId.includes('Blur');
+                      return isBlur
+                        ? renderBlurButton(index)
+                        : renderDefaultButton(background.uniqueId, index);
                     })}
 
                   {renderInputButton()}
