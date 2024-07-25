@@ -149,7 +149,7 @@ const VirtualBgSelector = ({
     });
 
     const webcamBackgroundURL = webcamBackground?.webcamBackground;
-    if (webcamBackgroundURL !== '') {
+    if (webcamBackgroundURL !== '' && !backgrounds.webcamBackgroundURL) {
       dispatch({
         type: 'update',
         background: {
@@ -158,6 +158,7 @@ const VirtualBgSelector = ({
           data: webcamBackgroundURL,
           lastActivityDate: Date.now(),
           custom: true,
+          sessionOnly: true,
         },
       });
       handleVirtualBgSelected(
