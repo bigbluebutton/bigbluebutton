@@ -18,6 +18,8 @@ import Skeleton, { SkeletonTheme } from 'react-loading-skeleton';
 import 'react-loading-skeleton/dist/skeleton.css';
 import Settings from '/imports/ui/services/settings';
 import { isCustomVirtualBackgroundsEnabled } from '/imports/ui/services/features';
+import Auth from '/imports/ui/services/auth';
+import Users from '/imports/api/users';
 
 const { MIME_TYPES_ALLOWED, MAX_FILE_SIZE } = VirtualBgService;
 const ENABLE_CAMERA_BRIGHTNESS = Meteor.settings.public.app.enableCameraBrightness;
@@ -94,6 +96,28 @@ const VIRTUAL_BACKGROUNDS_CONFIG = Meteor.settings.public.virtualBackgrounds;
 const ENABLE_UPLOAD = VIRTUAL_BACKGROUNDS_CONFIG.enableVirtualBackgroundUpload;
 const shouldEnableBackgroundUpload = () => ENABLE_UPLOAD && isCustomVirtualBackgroundsEnabled();
 
+// Function to convert image URL to a File object
+async function getFileFromUrl(url) {
+  try {
+    const response = await fetch(url, {
+      credentials: 'omit',
+      mode: 'cors',
+      headers: {
+        Accept: 'image/*',
+      },
+    });
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
+    const blob = await response.blob();
+    const file = new File([blob], 'fetchedWebcamBackground', { type: blob.type });
+    return file;
+  } catch (error) {
+    logger.error('Fetch error:', error);
+    return null;
+  }
+}
+
 const VirtualBgSelector = ({
   intl,
   handleVirtualBgSelected,
@@ -135,6 +159,51 @@ const VirtualBgSelector = ({
       }
       if (!loaded) loadFromDB();
     }
+
+    // Set the custom or default virtual background
+    const webcamBackground = Users.findOne({
+      meetingId: Auth.meetingID,
+      userId: Auth.userID,
+    }, {
+      fields: {
+        webcamBackground: 1,
+      },
+    });
+
+    const webcamBackgroundURL = webcamBackground?.webcamBackground;
+    if (webcamBackgroundURL !== '' && !backgrounds.webcamBackgroundURL) {
+      getFileFromUrl(webcamBackgroundURL).then((fetchedWebcamBackground) => {
+        if (fetchedWebcamBackground) {
+          const data = URL.createObjectURL(fetchedWebcamBackground);
+          const uniqueId = 'webcamBackgroundURL';
+          const filename = webcamBackgroundURL;
+          dispatch({
+            type: 'update',
+            background: {
+              filename,
+              uniqueId,
+              data,
+              lastActivityDate: Date.now(),
+              custom: true,
+              sessionOnly: true,
+            },
+          });
+          handleVirtualBgSelected(
+            EFFECT_TYPES.IMAGE_TYPE,
+            webcamBackgroundURL,
+            { file: data, uniqueId },
+          ).then((switched) => {
+            if (!switched) {
+              setCurrentVirtualBg({ type: EFFECT_TYPES.NONE_TYPE });
+              return;
+            }
+            setCurrentVirtualBg({ type: EFFECT_TYPES.IMAGE_TYPE, name: filename });
+          });
+        } else {
+          logger.error('Failed to fetch custom webcam background image. Using fallback image.');
+        }
+      });
+    }
   }, []);
 
   const _virtualBgSelected = (type, name, index, customParams) =>
@@ -161,6 +230,7 @@ const VirtualBgSelector = ({
                 filename: name,
                 uniqueId: customParams.uniqueId,
                 data: customParams.file,
+                sessionOnly: customParams.sessionOnly,
                 custom: true,
                 lastActivityDate: Date.now(),
               },
@@ -315,7 +385,9 @@ const VirtualBgSelector = ({
     };
 
     const renderCustomButton = (background, index) => {
-      const { filename, data, uniqueId } = background;
+      const {
+        filename, data, uniqueId, sessionOnly,
+      } = background;
       const label = intl.formatMessage(intlMessages.backgroundWithIndex, {
         0: index + 1,
       });
@@ -339,7 +411,7 @@ const VirtualBgSelector = ({
               EFFECT_TYPES.IMAGE_TYPE,
               filename,
               index,
-              { file: data, uniqueId },
+              { file: data, uniqueId, sessionOnly },
             )}
             disabled={disabled}
             isVisualEffects={isVisualEffects}
@@ -459,10 +531,11 @@ const VirtualBgSelector = ({
                     .map((background, index) => {
                       if (background.custom !== false) {
                         return renderCustomButton(background, index);
-                      } else {
-                        const isBlur = background.uniqueId.includes('Blur');
-                        return isBlur ? renderBlurButton(index) : renderDefaultButton(background.uniqueId, index);
                       }
+                      const isBlur = background.uniqueId.includes('Blur');
+                      return isBlur
+                        ? renderBlurButton(index)
+                        : renderDefaultButton(background.uniqueId, index);
                     })}
 
                   {renderInputButton()}

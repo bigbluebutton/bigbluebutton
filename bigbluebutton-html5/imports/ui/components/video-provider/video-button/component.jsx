@@ -11,6 +11,7 @@ import { isVirtualBackgroundsEnabled } from '/imports/ui/services/features';
 import Button from '/imports/ui/components/common/button/component';
 import VideoPreviewContainer from '/imports/ui/components/video-preview/container';
 import Settings from '/imports/ui/services/settings';
+import PreviewService from '/imports/ui/components/video-preview/service';
 
 const ENABLE_WEBCAM_SELECTOR_BUTTON = Meteor.settings.public.app.enableWebcamSelectorButton;
 const ENABLE_CAMERA_BRIGHTNESS = Meteor.settings.public.app.enableCameraBrightness;
@@ -108,6 +109,7 @@ const JoinVideoButton = ({
       default:
         if (exitVideo()) {
           VideoService.exitVideo();
+          PreviewService.clearStreams();
         } else {
           setForceOpen(isMobileSharingCamera);
           setVideoPreviewModalIsOpen(true);

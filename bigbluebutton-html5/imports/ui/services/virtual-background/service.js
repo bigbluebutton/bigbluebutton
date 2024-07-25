@@ -66,15 +66,17 @@ const getVirtualBackgroundThumbnail = (name) => {
 //   type: <EFFECT_TYPES>,
 //   name: effect filename, if any
 // }
-const setSessionVirtualBackgroundInfo = (type, name, deviceId) => {
-  return Session.set(`VirtualBackgroundInfo_${deviceId}`, { type, name });
-}
+const setSessionVirtualBackgroundInfo = (
+  type,
+  name,
+  customParams,
+  deviceId,
+) => Session.set(`VirtualBackgroundInfo_${deviceId}`, { type, name, customParams });
 
-const getSessionVirtualBackgroundInfo = (deviceId) => {
-  return Session.get(`VirtualBackgroundInfo_${deviceId}`) || {
-    type: EFFECT_TYPES.NONE_TYPE,
-  };
-}
+const getSessionVirtualBackgroundInfo = (deviceId) => Session.get(`VirtualBackgroundInfo_${deviceId}`) || {
+  type: EFFECT_TYPES.NONE_TYPE,
+  name: '',
+};
 
 const getSessionVirtualBackgroundInfoWithDefault = (deviceId) => {
   return Session.get(`VirtualBackgroundInfo_${deviceId}`) || {
