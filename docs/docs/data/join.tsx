@@ -91,6 +91,12 @@ const joinEndpointTableData = [
     "required": false,
     "type": "String",
     "description": (<>If the parameter is passed on JOIN with value `true`, the user will be omitted from being displayed in the Learning Dashboard. The use case is for support agents who drop by to support the meeting / resolve tech difficulties. Added in BBB 2.4</>)
+  },
+  {
+    "name": "webcamBackgroundURL",
+    "required": false,
+    "type": "String",
+    "description": (<>If the parameter is passed on JOIN with a URL of a JPG or PNG image, that image will be automatically applied as a whiteboard background when the user shares webcam. We recommend linking to images stored on the server (for example `/var/www/bigbluebutton-default/assets/images/my-background.png`  could be used as "https://abc.bigbluebutton.org/images/my-background.png") or ones that are avoiding CORS issues via passing appropriate response headers. Added in BBB 2.7.10.</>)
   }
 ];
 

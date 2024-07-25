@@ -65,6 +65,11 @@ When using BigBlueButton on a mobile device you can now enable Wake lock (if you
 
 ![Enable Wake lock from the Settings modal](/img/27-enable-wake-lock.png)
 
+#### Prevent specific users from posting to the public chat
+
+In some cases one or two students can wreck havoc in the public chat by posting excessively or doing all they can to disrupt the flow of the session. We have introduced a new menu option to lock the ability to send public chat messages for a specific user. That user could later be allowed to post again by using the same menu.
+
+![Lock public chat for a distuptive user](/img/27-lock-chat-one-user.png)
 
 ### Engagement
 
@@ -83,6 +88,15 @@ Others see your reactions in the participants list.
 Animations were added to the Reactions Bar as part of BigBlueButton 2.7.2. By default they are disabled in the configurations. To enable them run the following: `yq w -i /etc/bigbluebutton/bbb-html5.yml public.app.emojiRain.enabled true`
 
 You can disable any animations in the client, including Reactions Animations via a toggle in the client: Settings -> Application -> Animations on/off.
+
+
+##### Breakout rooms can use different presentations
+
+![Four breakouts each set for different presentation](/img/27-breakouts-various-presentations.png)
+
+Starting with BigBlueButton 2.7.10 when creating breakout rooms you can specify what presentation to be used in each room. The default option remains to be a copy of the current slide from the current presentation. If annotations exporting is enabled in the breakouts, the export result will either be a single slide (if annotations were only made there) or the entire presentation (if annotations were made on more than one slide).
+
+
 
 <!-- ### Analytics -->
 
