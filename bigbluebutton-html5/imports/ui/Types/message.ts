@@ -13,5 +13,6 @@ export interface Message {
   senderName: string;
   senderRole: string;
   messageMetadata: string;
+  recipientHasSeen: string;
   user: User;
 }

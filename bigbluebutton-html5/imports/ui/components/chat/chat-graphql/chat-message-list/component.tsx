@@ -54,7 +54,6 @@ interface ChatListProps {
       },
     }
   ) => void;
-  lastSeenAt: string;
 }
 
 const isElement = (el: unknown): el is HTMLElement => {
@@ -110,7 +109,6 @@ const ChatMessageList: React.FC<ChatListProps> = ({
   totalPages,
   chatId,
   setMessageAsSeenMutation,
-  lastSeenAt,
   totalUnread,
   isRTL,
 }) => {
@@ -295,7 +293,6 @@ const ChatMessageList: React.FC<ChatListProps> = ({
                         chatId={chatId}
                         markMessageAsSeen={markMessageAsSeen}
                         scrollRef={messageListRef}
-                        lastSeenAt={lastSeenAt}
                       />
                     );
                   })
@@ -342,7 +339,6 @@ const ChatMessageListContainer: React.FC = () => {
   const totalPages = Math.ceil(totalMessages / PAGE_SIZE);
   return (
     <ChatMessageList
-      lastSeenAt={currentChat?.lastSeenAt || ''}
       totalPages={totalPages}
       chatId={chatId}
       setMessageAsSeenMutation={setMessageAsSeenMutation}

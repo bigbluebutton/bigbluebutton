@@ -543,6 +543,9 @@ export const meetingClientSettingsInitialValues: MeetingClientSettings = {
         showNames: true,
       },
       moderatorChatEmphasized: true,
+      privateMessageReadFeedback: {
+        enabled: false,
+      },
       autoConvertEmoji: true,
       emojiPicker: {
         enable: false,

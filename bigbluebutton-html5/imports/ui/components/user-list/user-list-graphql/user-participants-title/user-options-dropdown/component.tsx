@@ -99,6 +99,14 @@ const intlMessages = defineMessages({
     id: 'app.modal.newTab',
     description: 'label used in aria description',
   },
+  invitationLabel: {
+    id: 'app.actionsBar.actionsDropdown.breakoutRoomInvitationLabel',
+    description: 'Invitation item',
+  },
+  invitationDesc: {
+    id: 'app.actionsBar.actionsDropdown.breakoutRoomInvitationDesc',
+    description: 'Invitation item description',
+  },
 });
 
 interface RenderModalProps {
@@ -170,6 +178,10 @@ const UserTitleOptions: React.FC<UserTitleOptionsProps> = ({
   const users = usersData?.user || [];
   const isLearningDashboardEnabled = useIsLearningDashboardEnabled();
   const isBreakoutRoomsEnabled = useIsBreakoutRoomsEnabled();
+  const canInviteUsers = isModerator
+  && !isBreakout
+  && hasBreakoutRooms;
+  const isInvitation = hasBreakoutRooms && isModerator;
 
   if (usersError) {
     logger.error({
@@ -281,6 +293,15 @@ const UserTitleOptions: React.FC<UserTitleOptionsProps> = ({
         dataTest: 'createBreakoutRooms',
       },
       {
+        allow: canInviteUsers,
+        key: uuids.current[7],
+        icon: 'rooms',
+        label: intl.formatMessage(intlMessages.invitationLabel),
+        description: intl.formatMessage(intlMessages.invitationDesc),
+        onClick: () => setCreateBreakoutRoomModalIsOpen(true),
+        dataTest: 'inviteUsers',
+      },
+      {
         key: 'separator-02',
         isSeparator: true,
         allow: canCreateBreakout,
@@ -333,7 +354,9 @@ const UserTitleOptions: React.FC<UserTitleOptionsProps> = ({
         setIsOpen: setCreateBreakoutRoomModalIsOpen,
         priority: 'medium',
         Component: CreateBreakoutRoomContainerGraphql,
-        otherOptions: {},
+        otherOptions: {
+          isUpdate: isInvitation,
+        },
       })}
 
       {renderModal({

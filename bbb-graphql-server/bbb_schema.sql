@@ -1027,9 +1027,13 @@ SELECT  cu."meetingId",
         cm."senderId",
         cm."senderName",
         cm."senderRole",
-        cm."createdAt"
+        cm."createdAt",
+        CASE WHEN chat_with."lastSeenAt" >= cm."createdAt" THEN true ELSE false end "recipientHasSeen"
 FROM chat_message cm
 JOIN chat_user cu ON cu."meetingId" = cm."meetingId" AND cu."chatId" = cm."chatId"
+LEFT JOIN "chat_user" chat_with ON chat_with."meetingId" = cm."meetingId"
+                                AND chat_with."chatId" = cm."chatId"
+                                AND chat_with."userId" != cu."userId"
 WHERE cm."chatId" != 'MAIN-PUBLIC-GROUP-CHAT';
 
 --============ Presentation / Annotation

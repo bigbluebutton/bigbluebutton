@@ -96,7 +96,7 @@ const ChatPollContent: React.FC<ChatPollContentProps> = ({
 
   const useHeight = height || translatedAnswers.length * 50;
   return (
-    <div data-test="chatPollMessageText">
+    <Styled.PollWrapper data-test="chatPollMessageText">
       <Styled.PollText>
         {pollData.questionText}
       </Styled.PollText>
@@ -110,7 +110,7 @@ const ChatPollContent: React.FC<ChatPollContentProps> = ({
           <Bar dataKey="numVotes" fill="#0C57A7" />
         </BarChart>
       </ResponsiveContainer>
-    </div>
+    </Styled.PollWrapper>
   );
 };
 
