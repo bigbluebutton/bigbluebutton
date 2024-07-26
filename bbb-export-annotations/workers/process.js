@@ -704,6 +704,7 @@ function overlay_triangle(svg, annotation) {
 
 function overlay_text(svg, annotation) {
   if (annotation.size == null || annotation.size.length < 2) {
+    logger.warn("An annotation of type text had a missing or malformed property size and was excluded from the extraction. " + JSON.stringify(annotation));
     return
   }
   
