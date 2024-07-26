@@ -73,17 +73,14 @@ const setSessionVirtualBackgroundInfo = (
   deviceId,
 ) => Session.set(`VirtualBackgroundInfo_${deviceId}`, { type, name, customParams });
 
-const getSessionVirtualBackgroundInfo = (deviceId) => Session.get(`VirtualBackgroundInfo_${deviceId}`) || {
+const getSessionVirtualBackgroundInfo = (deviceId) => Session.get(`VirtualBackgroundInfo_${deviceId}`);
+
+const clearSessionVirtualBackgroundInfo = (deviceId) => Session.set(`VirtualBackgroundInfo_${deviceId}`, null);
+
+const getSessionVirtualBackgroundInfoWithDefault = (deviceId) => Session.get(`VirtualBackgroundInfo_${deviceId}`) || {
   type: EFFECT_TYPES.NONE_TYPE,
   name: '',
 };
-
-const getSessionVirtualBackgroundInfoWithDefault = (deviceId) => {
-  return Session.get(`VirtualBackgroundInfo_${deviceId}`) || {
-    type: EFFECT_TYPES.BLUR_TYPE,
-    name: BLUR_FILENAME,
-  };
-}
 
 const isVirtualBackgroundSupported = () => {
   return !(deviceInfo.isIos || browserInfo.isSafari);
@@ -110,4 +107,5 @@ export {
   createVirtualBackgroundStream,
   getVirtualBackgroundThumbnail,
   getVirtualBgImagePath,
-}
+  clearSessionVirtualBackgroundInfo,
+};

@@ -17,7 +17,7 @@ import MediaStreamUtils from '/imports/utils/media-stream-utils';
 import BBBVideoStream from '/imports/ui/services/webrtc-base/bbb-video-stream';
 import {
   EFFECT_TYPES,
-  getSessionVirtualBackgroundInfo,
+  getSessionVirtualBackgroundInfoWithDefault,
 } from '/imports/ui/services/virtual-background/service';
 import { notify } from '/imports/ui/services/notification';
 import { shouldForceRelay } from '/imports/ui/services/bbb-webrtc-sfu/utils';
@@ -1049,7 +1049,7 @@ class VideoProvider extends Component {
           peer.bbbVideoStream.mediaStream,
           'video',
         );
-        const { type, name } = getSessionVirtualBackgroundInfo(deviceId);
+        const { type, name } = getSessionVirtualBackgroundInfoWithDefault(deviceId);
 
         this.restoreVirtualBackground(peer.bbbVideoStream, type, name).catch((error) => {
           this.handleVirtualBgError(error, type, name);
