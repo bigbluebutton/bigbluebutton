@@ -90,23 +90,23 @@ case class UserJoinedMeetingEvtMsg(
     body:   UserJoinedMeetingEvtMsgBody
 ) extends BbbCoreMsg
 case class UserJoinedMeetingEvtMsgBody(
-    intId:            String,
-    extId:            String,
-    name:             String,
-    role:             String,
-    guest:            Boolean,
-    authed:           Boolean,
-    guestStatus:      String,
-    reactionEmoji:    String,
-    raiseHand:        Boolean,
-    away:             Boolean,
-    pin:              Boolean,
-    presenter:        Boolean,
-    locked:           Boolean,
-    avatar:           String,
-    color:            String,
-    clientType:       String,
-    userMetadata: Map[String, String]
+    intId:         String,
+    extId:         String,
+    name:          String,
+    role:          String,
+    guest:         Boolean,
+    authed:        Boolean,
+    guestStatus:   String,
+    reactionEmoji: String,
+    raiseHand:     Boolean,
+    away:          Boolean,
+    pin:           Boolean,
+    presenter:     Boolean,
+    locked:        Boolean,
+    avatar:        String,
+    color:         String,
+    clientType:    String,
+    userMetadata:  Map[String, String]
 )
 
 /**

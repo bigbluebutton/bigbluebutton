@@ -253,7 +253,7 @@ export const useStreams = () => {
   return { streams: videoStreams };
 };
 
-export const useGridUsers = (exceptUserIds: string[], visibleStreamCount: number) => {
+export const useGridUsers = (visibleStreamCount: number) => {
   const gridSize = useGridSize();
   const isGridEnabled = useStorageKey('isGridEnabled');
 
@@ -263,7 +263,7 @@ export const useGridUsers = (exceptUserIds: string[], visibleStreamCount: number
   } = useSubscription<GridUsersResponse>(
     GRID_USERS_SUBSCRIPTION,
     {
-      variables: { exceptUserIds, limit: Math.max(gridSize - visibleStreamCount, 0) },
+      variables: { limit: Math.max(gridSize - visibleStreamCount, 0) },
       skip: !isGridEnabled,
     },
   );
@@ -382,10 +382,7 @@ export const useVideoStreams = () => {
     streams = sortVideoStreams(streams, DEFAULT_SORTING);
   }
 
-  const gridUsers = useGridUsers(
-    videoStreams.map((s) => s.userId),
-    streams.length,
-  );
+  const gridUsers = useGridUsers(streams.length);
 
   return {
     streams,
