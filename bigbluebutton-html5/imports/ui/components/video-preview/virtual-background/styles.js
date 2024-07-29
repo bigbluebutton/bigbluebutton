@@ -89,7 +89,8 @@ const ThumbnailButton = styled(Button)`
 
   ${({ background }) => background && `
     background-image: url(${background});
-    background-size: 46px 46px;
+    background-size: cover;
+    background-position: center;
     background-origin: padding-box;
 
     &:active {
