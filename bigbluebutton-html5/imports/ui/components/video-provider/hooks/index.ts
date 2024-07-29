@@ -1,6 +1,7 @@
 import {
   useCallback,
   useEffect,
+  useRef,
 } from 'react';
 import {
   useReactiveVar,
@@ -256,10 +257,12 @@ export const useStreams = () => {
 export const useGridUsers = (visibleStreamCount: number) => {
   const gridSize = useGridSize();
   const isGridEnabled = useStorageKey('isGridEnabled');
+  const gridItems = useRef<GridItem[]>([]);
 
   const {
     data: gridData,
     error: gridError,
+    loading: gridLoading,
   } = useSubscription<GridUsersResponse>(
     GRID_USERS_SUBSCRIPTION,
     {
@@ -267,6 +270,8 @@ export const useGridUsers = (visibleStreamCount: number) => {
       skip: !isGridEnabled,
     },
   );
+
+  if (gridLoading) return gridItems.current;
 
   if (gridError) {
     logger.error({
@@ -278,17 +283,17 @@ export const useGridUsers = (visibleStreamCount: number) => {
     }, 'Grid users subscription failed.');
   }
 
-  let gridUsers: GridItem[] = [];
-
   if (gridData) {
     const newGridUsers = gridData.user.map((user) => ({
       ...user,
       type: VIDEO_TYPES.GRID,
     }));
-    gridUsers = newGridUsers;
+    gridItems.current = newGridUsers;
+  } else {
+    gridItems.current = [];
   }
 
-  return gridUsers;
+  return gridItems.current;
 };
 
 export const useSharedDevices = () => {
