@@ -1,6 +1,6 @@
 package org.bigbluebutton.core.apps.groupchats
 
-import org.bigbluebutton.common2.msgs.{ GroupChatAccess, GroupChatMessageType, GroupChatMsgFromUser, GroupChatMsgFromPlugin, GroupChatMsgToUser, GroupChatUser }
+import org.bigbluebutton.common2.msgs.{ GroupChatAccess, GroupChatMessageType, GroupChatMsgFromUser, GroupChatMsgToUser, GroupChatUser }
 import org.bigbluebutton.core.db.ChatMessageDAO
 import org.bigbluebutton.core.domain.MeetingState2x
 import org.bigbluebutton.core.models._
@@ -20,13 +20,7 @@ object GroupChatApp {
     GroupChatFactory.create(gcId, access, createBy, users, msgs)
   }
 
-  def toGroupChatMessage(sender: GroupChatUser, msg: GroupChatMsgFromUser, emphasizedText: Boolean): GroupChatMessage = {
-    val now = System.currentTimeMillis()
-    val id = GroupChatFactory.genId()
-    GroupChatMessage(id, now, msg.correlationId, now, now, sender, emphasizedText, msg.message)
-  }
-
-  def toGroupChatMessage(sender: GroupChatUser, msg: GroupChatMsgFromPlugin, emphasizedText: Boolean, metadata: Map[String, Any] = Map.empty): GroupChatMessage = {
+  def toGroupChatMessage(sender: GroupChatUser, msg: GroupChatMsgFromUser, emphasizedText: Boolean, metadata: Map[String, Any] = Map.empty): GroupChatMessage = {
     val now = System.currentTimeMillis()
     val id = GroupChatFactory.genId()
     GroupChatMessage(id, now, msg.correlationId, now, now, sender, emphasizedText, msg.message, metadata)

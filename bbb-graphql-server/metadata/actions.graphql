@@ -113,15 +113,6 @@ type Mutation {
 }
 
 type Mutation {
-  chatSendMessageFromPlugin(
-    chatId: String!
-    chatMessageInMarkdownFormat: String!
-    pluginName: String!
-    pluginMessageMetadata: String
-  ): Boolean
-}
-
-type Mutation {
   chatSetLastSeen: Boolean
 }
 

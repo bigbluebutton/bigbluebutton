@@ -9,7 +9,6 @@ class GroupChatHdlrs(implicit val context: ActorContext)
   with GetGroupChatMsgsReqMsgHdlr
   with GetGroupChatsReqMsgHdlr
   with SendGroupChatMessageMsgHdlr
-  with SendGroupChatMessageFromPluginMsgHdlr
   with SendGroupChatMessageFromApiSysPubMsgHdlr
   with SetGroupChatVisibleReqMsgHdlr
   with SetGroupChatLastSeenReqMsgHdlr

@@ -16,10 +16,8 @@ object GroupChatMessageType {
   val PLUGIN = "plugin"
 }
 
-case class PluginMessageMetadata(pluginName: String, pluginCustomMetadata: String = "")
 case class GroupChatUser(id: String, name: String = "", role: String = "VIEWER")
-case class GroupChatMsgFromUser(correlationId: String, sender: GroupChatUser, message: String)
-case class GroupChatMsgFromPlugin(correlationId: String, sender: GroupChatUser, message: String, metadata: PluginMessageMetadata)
+case class GroupChatMsgFromUser(correlationId: String, sender: GroupChatUser, message: String, metadata: Map[String, Any] = Map.empty)
 case class GroupChatMsgToUser(id: String, timestamp: Long, correlationId: String, sender: GroupChatUser, chatEmphasizedText: Boolean = false, message: String)
 case class GroupChatInfo(id: String, access: String, createdBy: GroupChatUser, users: Vector[GroupChatUser])
 
@@ -93,10 +91,6 @@ case class GroupChatUserRemovedEvtMsgBody(requesterId: String, chats: Vector[Str
 object SendGroupChatMessageMsg { val NAME = "SendGroupChatMessageMsg" }
 case class SendGroupChatMessageMsg(header: BbbClientMsgHeader, body: SendGroupChatMessageMsgBody) extends StandardMsg
 case class SendGroupChatMessageMsgBody(chatId: String, msg: GroupChatMsgFromUser)
-
-object SendGroupChatMessageFromPluginMsg { val NAME = "SendGroupChatMessageFromPluginMsg" }
-case class SendGroupChatMessageFromPluginMsg(header: BbbClientMsgHeader, body: SendGroupChatMessageFromPluginMsgBody) extends StandardMsg
-case class SendGroupChatMessageFromPluginMsgBody(chatId: String, msg: GroupChatMsgFromPlugin)
 
 object SendGroupChatMessageFromApiSysPubMsg { val NAME = "SendGroupChatMessageFromApiSysPubMsg" }
 case class SendGroupChatMessageFromApiSysPubMsg(
