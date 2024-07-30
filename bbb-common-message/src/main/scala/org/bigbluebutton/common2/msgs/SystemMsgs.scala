@@ -141,13 +141,6 @@ case class DisconnectAllClientsSysMsg(
 ) extends BbbCoreMsg
 case class DisconnectAllClientsSysMsgBody(meetingId: String, reason: String)
 
-object EndAndKickAllSysMsg { val NAME = "EndAndKickAllSysMsg" }
-case class EndAndKickAllSysMsg(
-    header: BbbCoreHeaderWithMeetingId,
-    body:   EndAndKickAllSysMsgBody
-) extends BbbCoreMsg
-case class EndAndKickAllSysMsgBody(meetingId: String)
-
 object RecordStatusResetSysMsg { val NAME = "RecordStatusResetSysMsg" }
 case class RecordStatusResetSysMsg(
     header: BbbCoreHeaderWithMeetingId,

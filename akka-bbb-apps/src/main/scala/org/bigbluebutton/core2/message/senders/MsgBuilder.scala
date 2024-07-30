@@ -216,16 +216,6 @@ object MsgBuilder {
     BbbCommonEnvCoreMsg(envelope, event)
   }
 
-  def buildEndAndKickAllSysMsg(meetingId: String, userId: String): BbbCommonEnvCoreMsg = {
-    val routing = Routing.addMsgToClientRouting(MessageTypes.SYSTEM, meetingId, userId)
-    val envelope = BbbCoreEnvelope(EndAndKickAllSysMsg.NAME, routing)
-    val body = EndAndKickAllSysMsgBody(meetingId)
-    val header = BbbCoreHeaderWithMeetingId(EndAndKickAllSysMsg.NAME, meetingId)
-    val event = EndAndKickAllSysMsg(header, body)
-
-    BbbCommonEnvCoreMsg(envelope, event)
-  }
-
   def buildRecordStatusResetSysMsg(meetingId: String, recording: Boolean, setBy: String): BbbCommonEnvCoreMsg = {
     val routing = Routing.addMsgToClientRouting(MessageTypes.SYSTEM, meetingId, setBy)
     val envelope = BbbCoreEnvelope(RecordStatusResetSysMsg.NAME, routing)
