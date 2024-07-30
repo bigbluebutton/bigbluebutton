@@ -52,11 +52,6 @@ import ConnectionStatus from '/imports/ui/core/graphql/singletons/connectionStat
 import { VIDEO_TYPES } from '/imports/ui/components/video-provider/enums';
 import createUseSubscription from '/imports/ui/core/hooks/createUseSubscription';
 
-const FILTER_VIDEO_STATS = [
-  'outbound-rtp',
-  'inbound-rtp',
-];
-
 const useVideoStreamsSubscription = createUseSubscription(
   VIDEO_STREAMS_SUBSCRIPTION,
   {},
@@ -530,53 +525,6 @@ export const useStopVideo = () => {
       videoService.stopConnectingStream();
     }
   }, [cameraBroadcastStop]);
-};
-
-export const useActivePeers = () => {
-  const videoData = useVideoStreams();
-
-  if (!videoData) return null;
-
-  const { streams: activeVideoStreams } = videoData;
-
-  if (!activeVideoStreams) return null;
-
-  const activePeers: Record<string, RTCPeerConnection> = {};
-
-  activeVideoStreams.forEach((stream) => {
-    if (videoService.getWebRtcPeersRef()[stream.stream]) {
-      activePeers[stream.stream] = videoService.getWebRtcPeersRef()[stream.stream].peerConnection;
-    }
-  });
-
-  return activePeers;
-};
-
-export const useGetStats = () => {
-  const peers = useActivePeers();
-
-  return useCallback(async () => {
-    if (!peers) return null;
-
-    const stats: Record<string, unknown> = {};
-
-    await Promise.all(
-      Object.keys(peers).map(async (peerId) => {
-        const peerStats = await peers[peerId].getStats();
-
-        const videoStats: Record<string, unknown> = {};
-
-        peerStats.forEach((stat) => {
-          if (FILTER_VIDEO_STATS.includes(stat.type)) {
-            videoStats[stat.type] = stat;
-          }
-        });
-        stats[peerId] = videoStats;
-      }),
-    );
-
-    return stats;
-  }, [peers]);
 };
 
 export const useShouldRenderPaginationToggle = () => {
