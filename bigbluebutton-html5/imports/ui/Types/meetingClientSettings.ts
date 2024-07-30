@@ -644,7 +644,6 @@ export interface Stats {
   timeout: number
   log: boolean
   notification: Notification
-  jitter: number[]
   loss: number[]
   rtt: number[]
   level: string[]
