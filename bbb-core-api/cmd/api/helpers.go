@@ -5,8 +5,10 @@ import (
 	"crypto/sha1"
 	"encoding/json"
 	"encoding/xml"
+	"fmt"
 	"io"
 	"log"
+	"log/slog"
 	"net/http"
 	"regexp"
 	"strconv"
@@ -436,15 +438,20 @@ func (r RequestModules) Has(key string) bool {
 	return ok
 }
 
+type Presentation struct {
+	Documents []Document `xml:"document"`
+}
+
 type Document struct {
-	name          string `xml:"name,attr"`
-	current       bool   `xml:"current,attr"`
-	removable     bool   `xml:"removable,attr"`
-	downloadable  bool   `xml:"downloadable,attr"`
-	url           string `xml:"url,attr"`
-	fileName      string `xml:"filename,attr"`
-	presFromParam bool   `xml:"isPreUploadedPresentationFromParameter,attr"`
-	content       string `xml:",chardata"`
+	XMLName       xml.Name `xml:"document"`
+	Name          string   `xml:"name,attr,omitempty"`
+	Current       bool     `xml:"current,attr,omitempty"`
+	Removable     bool     `xml:"removable,attr,omitempty"`
+	Downloadable  bool     `xml:"downloadable,attr,omitempty"`
+	URL           string   `xml:"url,attr,omitempty"`
+	Filename      string   `xml:"filename,attr,omitempty"`
+	PresFromParam bool     `xml:"isPreUploadedPresentationFromParameter,attr,omitempty"`
+	Content       string   `xml:",chardata"`
 }
 
 func (app *Config) procesXMLModules(body io.ReadCloser) (RequestModules, error) {
@@ -463,74 +470,139 @@ func (app *Config) procesXMLModules(body io.ReadCloser) (RequestModules, error) 
 	return reqModules, nil
 }
 
-func (app *Config) uploadDocuments(modules map[string]string, params *Params, isFromInsertAPI bool) {
-	// for _, df := range app.ServerConfig.Meeting.Features.Disabled {
-	// 	if df == "presentation" {
-	// 		slog.Warn("Presentation feature is disabled.")
-	// 		return
-	// 	}
-	// }
+func (app *Config) uploadDocuments(modules RequestModules, params *Params, isFromInsertAPI bool) {
+	for _, df := range app.ServerConfig.Meeting.Features.Disabled {
+		if df == "presentation" {
+			slog.Warn("Presentation feature is disabled.")
+			return
+		}
+	}
 
-	// overrideDefaultPresentation := true
-	// if !isFromInsertAPI {
-	// 	if po := params.Get("preUploadedPresentationOverrideDefault"); po == "" {
-	// 		overrideDefaultPresentation = app.ServerConfig.Override.DefaultPresentation
-	// 	} else {
-	// 		overrideDefaultPresentation = util.GetBoolOrDefaultValue(po, overrideDefaultPresentation)
-	// 	}
-	// }
+	overrideDefaultPresentation := true
+	if !isFromInsertAPI {
+		if po := params.Get("preUploadedPresentationOverrideDefault"); po == "" {
+			overrideDefaultPresentation = app.ServerConfig.Override.DefaultPresentation
+		} else {
+			overrideDefaultPresentation = util.GetBoolOrDefaultValue(po, overrideDefaultPresentation)
+		}
+	}
 
-	// isDefaultPresUsed := false
-	// isDefaultPresCurrent := false
-	// var presentations []Presentation
-	// presentationsHasCurrent := false
-	// presURLInParameter := false
+	isDefaultPresUsed := false
+	isDefaultPresCurrent := false
+	var presentations []Document
+	presentationsHasCurrent := false
+	presURLInParameter := false
 
-	// pres := params.Get("preUploadedPresentation")
-	// presName := params.Get("preUploadedPresentationName")
+	pres := params.Get("preUploadedPresentation")
+	presName := params.Get("preUploadedPresentationName")
 
-	// if pres != "" {
-	// 	presURLInParameter = true
-	// 	if presName == "" {
-	// 		// Set presName using file name from URL
-	// 	}
+	if pres != "" {
+		presURLInParameter = true
+		if presName == "" {
+			// TODO: set presName using file name from URL
+		}
 
-	// 	p := Presentation{
-	// 		removable:     true,
-	// 		downloadable:  false,
-	// 		url:           pres,
-	// 		fileName:      presName,
-	// 		presFromParam: true,
-	// 	}
-	// 	presentations = append(presentations, p)
-	// }
+		doc := Document{
+			Removable:     true,
+			Downloadable:  false,
+			URL:           pres,
+			Filename:      presName,
+			PresFromParam: true,
+		}
+		presentations = append(presentations, doc)
+	}
 
-	// if _, ok := modules["presentation"]; !ok {
-	// 	if isFromInsertAPI {
-	// 		slog.Warn("Insert document API called without a payload - ignoring")
-	// 		return
-	// 	}
+	if !modules.Has("presentation") {
+		if isFromInsertAPI {
+			slog.Warn("Insert document API called without a payload - ignoring")
+			return
+		}
 
-	// 	if presURLInParameter {
-	// 		if !overrideDefaultPresentation {
-	// 			presentations = append(presentations, Presentation{
-	// 				name:    "default",
-	// 				current: true,
-	// 			})
-	// 		}
-	// 	} else {
-	// 		presentations = append(presentations, Presentation{
-	// 			name:    "default",
-	// 			current: true,
-	// 		})
-	// 	}
-	// } else {
-	// 	hasCurrent := presURLInParameter
-	// 	hasPresModule := false
-	// 	if presModule, ok := modules["presentation"]; ok {
-	// 		hasPresModule = true
-	// 	}
-	// }
+		if presURLInParameter {
+			if !overrideDefaultPresentation {
+				presentations = append(presentations, Document{
+					Name:    "default",
+					Current: true,
+				})
+			}
+		} else {
+			presentations = append(presentations, Document{
+				Name:    "default",
+				Current: true,
+			})
+		}
+	} else {
+		hasCurrent := presURLInParameter
+		hasPresModule := false
+		if modules.Has("presentation") {
+			presModule := modules.Get("presentation")
+			presentation, err := parsePresentationModule(presModule.Content)
+			if err != nil {
+				slog.Error(fmt.Sprintf("Error parsing presentation content: %v\n", err))
+				return
+			}
+			hasPresModule = true
+			for _, doc := range presentation.Documents {
+				if doc.Current {
+					presentations = append([]Document{doc}, presentations...)
+					hasCurrent = true
+				} else {
+					presentations = append(presentations, doc)
+				}
+			}
+
+			uploadDefault := !overrideDefaultPresentation && !isDefaultPresUsed && !isFromInsertAPI
+			if uploadDefault {
+				isDefaultPresCurrent = !hasCurrent
+				hasCurrent = true
+				isDefaultPresUsed = true
+				if isDefaultPresCurrent {
+					presentations = append([]Document{Document{Name: "default", Current: true}}, presentations...)
+				} else {
+					presentations = append(presentations, Document{Name: "default", Current: false})
+				}
+			}
+		}
+		if !hasPresModule {
+			hasCurrent = true
+			presentations = append([]Document{Document{Name: "default", Current: true}}, presentations...)
+		}
+		presentationsHasCurrent = hasCurrent
+	}
+
+	for i, doc := range presentations {
+		isCurrent := false
+		isRemovable := true
+		isDownloadable := false
+		isDefaultPres := false
+		isPresFromParam := false
+
+		if doc.Name == "default" {
+			defaultPres := fmt.Sprintf("%s/%s", app.ServerConfig.Server.BigBlueButton.Url, app.ServerConfig.Presentation.Default)
+			if defaultPres != "" {
+				if doc.Current {
+					isDefaultPres = true
+				}
+
+				// TODO download and process document
+			} else {
+				slog.Error("No default presentation set.")
+			}
+		} else {
+			isPresFromParam = doc.PresFromParam
+			isRemovable = doc.Removable
+			isDownloadable = doc.Downloadable
+
+			if i == 0 && isFromInsertAPI {
+				if presentationsHasCurrent {
+					isCurrent = true
+				}
+			} else if i == 0 && !isFromInsertAPI {
+				isDefaultPres = true
+				isCurrent = true
+			}
+		}
+	}
 }
 
 func replaceKeywords(message string, dialNumber string, voiceBridge string, meetingName string, url string) string {
@@ -548,4 +620,13 @@ func replaceKeywords(message string, dialNumber string, voiceBridge string, meet
 		}
 	}
 	return message
+}
+
+func parsePresentationModule(content string) (*Presentation, error) {
+	var presentation Presentation
+	err := xml.Unmarshal([]byte(content), &presentation)
+	if err != nil {
+		return nil, err
+	}
+	return &presentation, nil
 }

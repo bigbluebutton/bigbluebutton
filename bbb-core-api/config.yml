@@ -121,6 +121,7 @@ presentation:
     external:
       description:
       url:
+  default: default.pdf
 
 # Default breakout room settings
 breakout_rooms:

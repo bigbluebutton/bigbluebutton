@@ -111,6 +111,7 @@ type ServerConfig struct {
 				Url         string `yaml:"url"`
 			} `yaml:"external"`
 		} `yaml:"upload"`
+		Default string `yaml:"default"`
 	} `yaml:"presentation"`
 	BreakoutRooms struct {
 		Record             bool `yaml:"record"`
