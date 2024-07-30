@@ -104,6 +104,7 @@ defaultHTML5ClientUrl=https://bbb-proxy.example.com/bbb-01/html5client/join
 presentationBaseURL=https://bbb-01.example.com/bigbluebutton/presentation
 accessControlAllowOrigin=https://bbb-proxy.example.com
 graphqlWebsocketUrl=wss://bbb-01.example.com/graphql
+graphqlApiUrl=https://bbb-01.example.com/api/rest
 ```
 
 Add the following options to `/etc/bigbluebutton/bbb-html5.yml`:
