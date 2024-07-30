@@ -4,10 +4,10 @@ import { useMutation } from '@apollo/client';
 import {
   ChatCommandsEnum,
 } from 'bigbluebutton-html-plugin-sdk/dist/cjs/server-commands/chat/enum';
-import SEND_MESSAGE from './mutations';
+import { CHAT_SEND_MESSAGE } from './mutations';
 
 const PluginSendMessageChatServerCommandsManager = () => {
-  const [sendMessage] = useMutation(SEND_MESSAGE);
+  const [sendMessage] = useMutation(CHAT_SEND_MESSAGE);
   const handleSendMessage = ((
     event: CustomEvent<ChatSendMessageEventArguments>,
   ) => {
@@ -15,8 +15,11 @@ const PluginSendMessageChatServerCommandsManager = () => {
       variables: {
         chatId: event.detail.chatId,
         chatMessageInMarkdownFormat: event.detail.textMessageInMarkdownFormat,
-        pluginName: event.detail.pluginName,
-        pluginCustomMetadata: event.detail?.pluginCustomMetadata,
+        metadata: {
+          custom: event.detail.custom,
+          pluginName: event.detail.pluginName,
+          pluginCustomMetadata: event.detail?.pluginCustomMetadata,
+        },
       },
     });
   }) as EventListener;

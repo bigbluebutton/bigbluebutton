@@ -22,12 +22,12 @@ interface ChatWrapperProps {
   sameSender: boolean;
   isSystemSender: boolean;
   isPresentationUpload?: boolean;
-  isPluginMessage: boolean;
+  isCustomPluginMessage: boolean;
 }
 
 interface ChatContentProps {
   sameSender: boolean;
-  isPluginMessage: boolean;
+  isCustomPluginMessage: boolean;
 }
 
 interface ChatAvatarProps {
@@ -70,7 +70,7 @@ export const ChatWrapper = styled.div<ChatWrapperProps>`
     border-radius: 0px 3px 3px 0px;
     padding: 8px 2px;
   `}
-  ${({ isPluginMessage }) => isPluginMessage && `
+  ${({ isCustomPluginMessage }) => isCustomPluginMessage && `
     margin: 0;
     padding: 0;
   `}
@@ -81,8 +81,8 @@ export const ChatContent = styled.div<ChatContentProps>`
   flex-flow: column;
   width: 100%;
 
-  ${({ sameSender, isPluginMessage }) => sameSender
-    && !isPluginMessage && `
+  ${({ sameSender, isCustomPluginMessage }) => sameSender
+    && !isCustomPluginMessage && `
     margin-left: 2.6rem;
   `}
 `;

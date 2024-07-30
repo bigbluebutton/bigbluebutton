@@ -1,19 +1,17 @@
 import { gql } from '@apollo/client';
 
-const SEND_MESSAGE = gql`
-  mutation ChatSendMessageFromPlugin(
+export const CHAT_SEND_MESSAGE = gql`
+  mutation ChatSendMessage(
     $chatId: String!,
     $chatMessageInMarkdownFormat: String!,
-    $pluginName: String!,
-    $pluginCustomMetadata: String
+    $metadata: json,
   ) {
-    chatSendMessageFromPlugin(
+    chatSendMessage(
       chatId: $chatId,
-      chatMessageInMarkdownFormat: $chatMessageInMarkdownFormat,
-      pluginName: $pluginName,
-      pluginCustomMetadata: $pluginCustomMetadata
+      chatMessageInMarkdownFormat: $chatMessageInMarkdownFormat
+      metadata: $metadata,
     )
   }
 `;
 
-export default SEND_MESSAGE;
+export default CHAT_SEND_MESSAGE;
