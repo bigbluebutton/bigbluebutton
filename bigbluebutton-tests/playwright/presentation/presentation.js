@@ -7,6 +7,7 @@ const { ELEMENT_WAIT_LONGER_TIME, ELEMENT_WAIT_EXTRA_LONG_TIME, UPLOAD_PDF_WAIT_
 const { sleep } = require('../core/helpers');
 const { getSettings } = require('../core/settings');
 const { waitAndClearNotification } = require('../notifications/util.js');
+const CI = process.env.CI === 'true';
 
 const defaultZoomLevel = '100%';
 
@@ -102,73 +103,138 @@ class Presentation extends MultiUsers {
     await this.modPage.waitForSelector(e.whiteboard, ELEMENT_WAIT_LONGER_TIME);
     await this.modPage.waitForSelector(e.skipSlide);
     await this.modPage.wasRemoved(e.smallToastMsg, ELEMENT_WAIT_EXTRA_LONG_TIME);
+
+    const imageURLFirstPresentation = await this.modPage.page.evaluate(() => {
+      const element = document.querySelector('div[id="whiteboard-element"] div[class="tl-image"]');
+      const style = element.getAttribute('style')
+      const urlMatch = style.match(/background-image: url\("([^"]+)"\)/);
+      return urlMatch ? urlMatch[1] : null;
+    });
+
     await uploadSinglePresentation(this.modPage, e.pdfFileName, UPLOAD_PDF_WAIT_TIME);
 
-    // wait until the notifications disappear
-    await this.modPage.waitAndClick(e.smallToastMsg);
-    await this.modPage.wasRemoved(e.smallToastMsg, ELEMENT_WAIT_LONGER_TIME);
-    await this.userPage.wasRemoved(e.presentationStatusInfo);
-    await this.userPage.wasRemoved(e.smallToastMsg);
-    
-    await this.modPage.reloadPage();
-    await this.modPage.closeAudioModal();
     await this.modPage.closeAllToastNotifications();
+    await this.userPage.closeAllToastNotifications();
     const modWhiteboardLocator = this.modPage.getLocator(e.whiteboard);
-    await expect(modWhiteboardLocator).toHaveScreenshot('moderator-new-presentation-screenshot.png', {
-      maxDiffPixels: 1000,
+    await this.modPage.setHeightWidthViewPortSize();
+
+    // Skip check for screenshot on ci, due to the ci and the local machine generating two different image sizes
+    if (!CI) {
+      await expect(modWhiteboardLocator).toHaveScreenshot('moderator-new-presentation-screenshot.png', {
+        maxDiffPixels: 1000,
+      });
+    }
+     const imageURLSecondPresentation = await this.modPage.page.evaluate(() => {
+      const element = document.querySelector('div[id="whiteboard-element"] div[class="tl-image"]');
+      const style = element.getAttribute('style')
+      const urlMatch = style.match(/background-image: url\("([^"]+)"\)/);
+      return urlMatch ? urlMatch[1] : null;
     });
     
     await this.userPage.reloadPage();
     await this.userPage.closeAudioModal();
     await this.userPage.closeAllToastNotifications();
     const userWhiteboardLocator = this.userPage.getLocator(e.whiteboard);
-    await expect(userWhiteboardLocator).toHaveScreenshot('viewer-new-presentation-screenshot.png', {
-      maxDiffPixels: 1000,
-    });
+    await this.userPage.setHeightWidthViewPortSize();
+
+    await expect(imageURLFirstPresentation).not.toBe(imageURLSecondPresentation);
+    
+    // Skip check for screenshot on ci, due to the ci and the local machine generating two different image sizes
+    if (!CI) {
+      await expect(userWhiteboardLocator).toHaveScreenshot('viewer-new-presentation-screenshot.png', {
+        maxDiffPixels: 1000,
+      });
+    }
   }
 
   async uploadOtherPresentationsFormat() {
+    await this.modPage.hasElement(e.whiteboard);
+    const imageURLFirstPresentation = await this.modPage.page.evaluate(() => {
+      const element = document.querySelector('div[id="whiteboard-element"] div[class="tl-image"]');
+      const style = element.getAttribute('style')
+      const urlMatch = style.match(/background-image: url\("([^"]+)"\)/);
+      return urlMatch ? urlMatch[1] : null;
+    });
+
     await uploadSinglePresentation(this.modPage, e.uploadPresentationFileName, UPLOAD_PDF_WAIT_TIME);
-    await this.modPage.waitAndClick(e.smallToastMsg);
-    await this.modPage.wasRemoved(e.smallToastMsg, ELEMENT_WAIT_LONGER_TIME);
-    await this.userPage.wasRemoved(e.presentationStatusInfo);
-    await this.userPage.wasRemoved(e.smallToastMsg);
+    await this.modPage.closeAllToastNotifications();
+    await this.userPage.closeAllToastNotifications();
 
     const modWhiteboardLocator = this.modPage.getLocator(e.whiteboard);
     const userWhiteboardLocator = this.userPage.getLocator(e.whiteboard);
 
-    await expect(modWhiteboardLocator).toHaveScreenshot('moderator-png-presentation-screenshot.png', {
-      maxDiffPixels: 1000,
+    await this.modPage.setHeightWidthViewPortSize();
+    await this.userPage.setHeightWidthViewPortSize();
+
+    const imageURLSecondPresentation = await this.modPage.page.evaluate(() => {
+      const element = document.querySelector('div[id="whiteboard-element"] div[class="tl-image"]');
+      const style = element.getAttribute('style')
+      const urlMatch = style.match(/background-image: url\("([^"]+)"\)/);
+      return urlMatch ? urlMatch[1] : null;
     });
-    await expect(userWhiteboardLocator).toHaveScreenshot('viewer-png-presentation-screenshot.png', {
-      maxDiffPixels: 1000,
-    });
+
+    await expect(imageURLFirstPresentation).not.toBe(imageURLSecondPresentation);
+
+    // Skip check for screenshot on ci, due to the ci and the local machine generating two different image sizes
+    if(!CI) {
+      await expect(modWhiteboardLocator).toHaveScreenshot('moderator-png-presentation-screenshot.png', {
+        maxDiffPixels: 1000,
+      });
+      await expect(userWhiteboardLocator).toHaveScreenshot('viewer-png-presentation-screenshot.png', {
+        maxDiffPixels: 1000,
+      });
+    }
 
     await uploadSinglePresentation(this.modPage, e.presentationPPTX, UPLOAD_PDF_WAIT_TIME);
-    await this.modPage.waitAndClick(e.smallToastMsg);
-    await this.modPage.wasRemoved(e.smallToastMsg, ELEMENT_WAIT_LONGER_TIME);
-    await this.userPage.wasRemoved(e.presentationStatusInfo);
-    await this.userPage.wasRemoved(e.smallToastMsg);
+    await this.modPage.closeAllToastNotifications();
+    await this.userPage.closeAllToastNotifications();
+    const imageURLThirdPresentation = await this.modPage.page.evaluate(() => {
+      const element = document.querySelector('div[id="whiteboard-element"] div[class="tl-image"]');
+      const style = element.getAttribute('style')
+      const urlMatch = style.match(/background-image: url\("([^"]+)"\)/);
+      return urlMatch ? urlMatch[1] : null;
+    });
 
-    await expect(modWhiteboardLocator).toHaveScreenshot('moderator-pptx-presentation-screenshot.png', {
-      maxDiffPixels: 1000,
-    });
-    await expect(userWhiteboardLocator).toHaveScreenshot('viewer-pptx-presentation-screenshot.png', {
-      maxDiffPixels: 1000,
-    });
+    await expect(imageURLSecondPresentation).not.toBe(imageURLThirdPresentation);
+
+    await this.modPage.setHeightWidthViewPortSize();
+    await this.userPage.setHeightWidthViewPortSize();
+
+    // Skip check for screenshot on ci, due to the ci and the local machine generating two different image sizes
+    if(!CI) {
+      await expect(modWhiteboardLocator).toHaveScreenshot('moderator-pptx-presentation-screenshot.png', {
+        maxDiffPixels: 1000,
+      });
+      await expect(userWhiteboardLocator).toHaveScreenshot('viewer-pptx-presentation-screenshot.png', {
+        maxDiffPixels: 1000,
+      });
+    }
 
     await uploadSinglePresentation(this.modPage, e.presentationTXT, UPLOAD_PDF_WAIT_TIME);
-    await this.modPage.waitAndClick(e.smallToastMsg);
-    await this.modPage.wasRemoved(e.smallToastMsg, ELEMENT_WAIT_LONGER_TIME);
-    await this.userPage.wasRemoved(e.presentationStatusInfo);
-    await this.userPage.wasRemoved(e.smallToastMsg);
+    await this.modPage.closeAllToastNotifications();
+    await this.userPage.closeAllToastNotifications();
 
-    await expect(modWhiteboardLocator).toHaveScreenshot('moderator-txt-presentation-screenshot.png', {
-      maxDiffPixels: 1000,
+    const imageURLForthPresentation = await this.modPage.page.evaluate(() => {
+      const element = document.querySelector('div[id="whiteboard-element"] div[class="tl-image"]');
+      const style = element.getAttribute('style')
+      const urlMatch = style.match(/background-image: url\("([^"]+)"\)/);
+      return urlMatch ? urlMatch[1] : null;
     });
-    await expect(userWhiteboardLocator).toHaveScreenshot('viewer-txt-presentation-screenshot.png', {
-      maxDiffPixels: 1000,
-    });
+
+    await expect(imageURLThirdPresentation).not.toBe(imageURLForthPresentation);
+
+    await this.modPage.setHeightWidthViewPortSize();
+    await this.userPage.setHeightWidthViewPortSize();
+
+    // Skip check for screenshot on ci, due to the ci and the local machine generating two different image sizes
+    if(!CI) {
+      await expect(modWhiteboardLocator).toHaveScreenshot('moderator-txt-presentation-screenshot.png', {
+        maxDiffPixels: 1000,
+      });
+      await expect(userWhiteboardLocator).toHaveScreenshot('viewer-txt-presentation-screenshot.png', {
+        maxDiffPixels: 1000,
+      });
+    }
   }
 
   async uploadMultiplePresentationsTest() {
