@@ -26,6 +26,7 @@ export default async function addDialInUser(meetingId, voiceUser) {
     presenter: false,
     locked: false, // TODO
     avatar: '',
+    webcamBackground: '',
     color,
     pin: false,
     clientType: 'dial-in-user',
