@@ -60,7 +60,7 @@ class Notifications extends MultiUsers {
     await sleep(1000);
     await this.modPage.waitAndClick(e.reactionsButton);
     await this.modPage.waitAndClick(e.lowerHandBtn);
-    await this.modPage.wasRemoved(e.raiseHandRejection);
+    await this.modPage.wasRemoved(e.raiseHandRejection, 'should the raise hand be rejected');
     await util.checkNotificationText(this.modPage, e.raisingHandToast);
     await this.modPage.hasText(`${e.smallToastMsg}>>nth=0`, e.raisingHandToast);
     await this.modPage.hasText(`${e.smallToastMsg}>>nth=1`, e.loweringHandToast);
