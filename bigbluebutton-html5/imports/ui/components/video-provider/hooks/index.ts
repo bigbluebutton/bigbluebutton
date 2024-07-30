@@ -23,22 +23,24 @@ import {
   getConnectingStream,
   setVideoState,
   useConnectingStream,
-  streams,
   getVideoState,
-} from '../state';
+} from '/imports/ui/components/video-provider/state';
 import {
   OWN_VIDEO_STREAMS_QUERY,
   GRID_USERS_SUBSCRIPTION,
   VIEWERS_IN_WEBCAM_COUNT_SUBSCRIPTION,
-} from '../queries';
-import videoService from '../service';
-import { CAMERA_BROADCAST_STOP } from '../mutations';
+  VIDEO_STREAMS_SUBSCRIPTION,
+} from '/imports/ui/components/video-provider/queries';
+import videoService from '/imports/ui/components/video-provider/service';
+import { CAMERA_BROADCAST_STOP } from '/imports/ui/components/video-provider/mutations';
 import {
   GridItem,
   StreamItem,
   GridUsersResponse,
   OwnVideoStreamsResponse,
-} from '../types';
+  StreamSubscriptionData,
+  Stream,
+} from '/imports/ui/components/video-provider/types';
 import { DesktopPageSizes, MobilePageSizes } from '/imports/ui/Types/meetingClientSettings';
 import logger from '/imports/startup/client/logger';
 import useDeduplicatedSubscription from '/imports/ui/core/hooks/useDeduplicatedSubscription';
@@ -48,11 +50,59 @@ import { SETTINGS } from '/imports/ui/services/settings/enums';
 import { useStorageKey } from '/imports/ui/services/storage/hooks';
 import ConnectionStatus from '/imports/ui/core/graphql/singletons/connectionStatus';
 import { VIDEO_TYPES } from '/imports/ui/components/video-provider/enums';
+import createUseSubscription from '/imports/ui/core/hooks/createUseSubscription';
 
 const FILTER_VIDEO_STATS = [
   'outbound-rtp',
   'inbound-rtp',
 ];
+
+const useVideoStreamsSubscription = createUseSubscription(
+  VIDEO_STREAMS_SUBSCRIPTION,
+  {},
+  true,
+);
+
+export const useStreams = () => {
+  const { data, loading, errors } = useVideoStreamsSubscription();
+  const streams = useRef<Stream[]>([]);
+
+  if (loading) return streams.current;
+
+  if (errors) {
+    errors.forEach((error) => {
+      logger.error({
+        logCode: 'video_stream_sub_error',
+        extraInfo: {
+          errorName: error.name,
+          errorMessage: error.message,
+        },
+      }, 'Video streams subscription failed.');
+    });
+  }
+
+  if (!data) {
+    streams.current = [];
+    return streams.current;
+  }
+
+  const mappedStreams = (data as StreamSubscriptionData[]).map(({ streamId, user, voice }) => ({
+    stream: streamId,
+    deviceId: streamId.split('_')[3],
+    name: user.name,
+    nameSortable: user.nameSortable,
+    userId: user.userId,
+    user,
+    floor: voice?.floor ?? false,
+    lastFloorTime: voice?.lastFloorTime ?? '0',
+    voice,
+    type: VIDEO_TYPES.STREAM,
+  }));
+
+  streams.current = mappedStreams;
+
+  return streams.current;
+};
 
 export const useStatus = () => {
   const { isConnected, isConnecting } = useVideoState();
@@ -88,13 +138,13 @@ export const useIsUserLocked = () => {
 };
 
 export const useVideoStreamsCount = () => {
-  const { streams } = useStreams();
+  const streams = useStreams();
 
   return streams.length;
 };
 
 export const useLocalVideoStreamsCount = () => {
-  const { streams } = useStreams();
+  const streams = useStreams();
   const localStreams = streams.filter((vs) => videoService.isLocalStream(vs.stream));
 
   return localStreams.length;
@@ -249,11 +299,6 @@ export const useIsPaginationEnabled = () => {
   return myPageSize > 0 && paginationEnabled;
 };
 
-export const useStreams = () => {
-  const videoStreams = useReactiveVar(streams);
-  return { streams: videoStreams };
-};
-
 export const useGridUsers = (visibleStreamCount: number) => {
   const gridSize = useGridSize();
   const isGridEnabled = useStorageKey('isGridEnabled');
@@ -297,7 +342,7 @@ export const useGridUsers = (visibleStreamCount: number) => {
 };
 
 export const useSharedDevices = () => {
-  const { streams } = useStreams();
+  const streams = useStreams();
   const devices = streams
     .filter((s) => videoService.isLocalStream(s.stream))
     .map((vs) => vs.deviceId);
@@ -344,7 +389,7 @@ export const useGridSize = () => {
 export const useVideoStreams = () => {
   const { viewParticipantsWebcams } = useSettings(SETTINGS.DATA_SAVING) as { viewParticipantsWebcams?: boolean };
   const { currentVideoPageIndex, numberOfPages } = useVideoState();
-  const { streams: videoStreams } = useStreams();
+  const videoStreams = useStreams();
   const connectingStream = useConnectingStream(videoStreams);
   const myPageSize = useMyPageSize();
   const isPaginationEnabled = useIsPaginationEnabled();
@@ -398,7 +443,7 @@ export const useVideoStreams = () => {
 };
 
 export const useHasVideoStream = () => {
-  const { streams } = useStreams();
+  const streams = useStreams();
   const connectingStream = useConnectingStream();
   return !!connectingStream || streams.some((s) => videoService.isLocalStream(s.stream));
 };
@@ -499,8 +544,8 @@ export const useActivePeers = () => {
   const activePeers: Record<string, RTCPeerConnection> = {};
 
   activeVideoStreams.forEach((stream) => {
-    if (videoService.webRtcPeersRef()[stream.stream]) {
-      activePeers[stream.stream] = videoService.webRtcPeersRef()[stream.stream].peerConnection;
+    if (videoService.getWebRtcPeersRef()[stream.stream]) {
+      activePeers[stream.stream] = videoService.getWebRtcPeersRef()[stream.stream].peerConnection;
     }
   });
 

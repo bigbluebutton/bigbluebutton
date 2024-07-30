@@ -507,7 +507,7 @@ export default {
   updatePeerDictionaryReference: (
     newRef: Record<string, WebRtcPeer>,
   ) => videoService.updatePeerDictionaryReference(newRef),
-  webRtcPeersRef: () => videoService.webRtcPeersRef,
+  getWebRtcPeersRef: () => videoService.webRtcPeersRef,
   isMobile: videoService.isMobile,
   notify: (message: string) => notify(message, 'error', 'video'),
   applyCameraProfile: VideoService.applyCameraProfile,
