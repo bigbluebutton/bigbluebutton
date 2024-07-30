@@ -1184,8 +1184,6 @@ class MeetingActor(
           ban = false
         )
 
-        Sender.sendDisconnectClientSysMsg(liveMeeting.props.meetingProp.intId, u.intId, SystemUser.ID, EjectReasonCode.USER_INACTIVITY, outGW)
-
         // Force reconnection with graphql to refresh permissions
         for {
           regUser <- RegisteredUsers.findWithUserId(u.intId, liveMeeting.registeredUsers)
