@@ -161,6 +161,8 @@ For full details on what is new in BigBlueButton 2.7, see the release notes.
 
 Recent releases:
 
+- [2.7.11](https://github.com/bigbluebutton/bigbluebutton/releases/tag/v2.7.11)
+- [2.7.10](https://github.com/bigbluebutton/bigbluebutton/releases/tag/v2.7.10)
 - [2.7.9](https://github.com/bigbluebutton/bigbluebutton/releases/tag/v2.7.9)
 - [2.7.8](https://github.com/bigbluebutton/bigbluebutton/releases/tag/v2.7.8)
 - [2.7.7](https://github.com/bigbluebutton/bigbluebutton/releases/tag/v2.7.7)
