@@ -261,12 +261,8 @@ class ReceivedJsonMsgHandlerActor(
         routeGenericMsg[ChangeUserRaiseHandReqMsg](envelope, jsonNode)
       case ChangeUserAwayReqMsg.NAME =>
         routeGenericMsg[ChangeUserAwayReqMsg](envelope, jsonNode)
-      case ChangeUserEmojiCmdMsg.NAME =>
-        routeGenericMsg[ChangeUserEmojiCmdMsg](envelope, jsonNode)
       case ChangeUserReactionEmojiReqMsg.NAME =>
         routeGenericMsg[ChangeUserReactionEmojiReqMsg](envelope, jsonNode)
-      case ClearAllUsersEmojiCmdMsg.NAME =>
-        routeGenericMsg[ClearAllUsersEmojiCmdMsg](envelope, jsonNode)
       case ClearAllUsersReactionCmdMsg.NAME =>
         routeGenericMsg[ClearAllUsersReactionCmdMsg](envelope, jsonNode)
       case ChangeUserRoleCmdMsg.NAME =>

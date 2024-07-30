@@ -18,7 +18,7 @@ case class AddUserSession(token: String, session: UserSession)
 case class RegisterUser(meetingId: String, intUserId: String, name: String, role: String,
                         extUserId: String, authToken: String, sessionToken: String, avatarURL: String,
                         guest: Boolean, authed: Boolean, guestStatus: String, excludeFromDashboard: Boolean,
-                        enforceLayout: String, customParameters: Map[String, String])
+                        enforceLayout: String, userMetadata: Map[String, String])
 
 case class CreateMeetingMsg(defaultProps: DefaultProps)
 

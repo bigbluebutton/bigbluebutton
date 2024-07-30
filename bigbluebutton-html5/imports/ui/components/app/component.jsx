@@ -27,7 +27,9 @@ import ExternalVideoPlayerContainer from '../external-video-player/external-vide
 import GenericContentMainAreaContainer from '../generic-content/generic-main-content/container';
 import EmojiRainContainer from '../emoji-rain/container';
 import Styled from './styles';
-import { DEVICE_TYPE, ACTIONS, SMALL_VIEWPORT_BREAKPOINT, PANELS } from '../layout/enums';
+import {
+  DEVICE_TYPE, ACTIONS, SMALL_VIEWPORT_BREAKPOINT, PANELS,
+} from '../layout/enums';
 import {
   isMobile, isTablet, isTabletPortrait, isTabletLandscape, isDesktop,
 } from '../layout/utils';
@@ -67,17 +69,9 @@ const intlMessages = defineMessages({
     id: 'app.actionsBar.label',
     description: 'Aria-label for ActionsBar Section',
   },
-  clearedEmoji: {
-    id: 'app.toast.clearedEmoji.label',
-    description: 'message for cleared emoji status',
-  },
   clearedReaction: {
     id: 'app.toast.clearedReactions.label',
     description: 'message for cleared reactions',
-  },
-  setEmoji: {
-    id: 'app.toast.setEmoji.label',
-    description: 'message when a user emoji has been set',
   },
   raisedHand: {
     id: 'app.toast.setEmoji.raiseHand',
@@ -143,8 +137,8 @@ class App extends Component {
     this.handleWindowResize = throttle(this.handleWindowResize).bind(this);
     this.shouldAriaHide = this.shouldAriaHide.bind(this);
     this.setAudioModalIsOpen = this.setAudioModalIsOpen.bind(this);
-
     this.setVideoPreviewModalIsOpen = this.setVideoPreviewModalIsOpen.bind(this);
+    this.createBeforeUnloadWindowEvent = this.createBeforeUnloadWindowEvent.bind(this);
 
     this.throttledDeviceType = throttle(() => this.setDeviceType(),
       50, { trailing: true, leading: true }).bind(this);
@@ -152,12 +146,8 @@ class App extends Component {
 
   componentDidMount() {
     const {
-      intl,
       layoutContextDispatch,
       isRTL,
-      muteMicrophone,
-      transcriptionSettings,
-      setSpeechOptions,
     } = this.props;
     const { browserName } = browserInfo;
     const { osName } = deviceInfo;
@@ -172,7 +162,6 @@ class App extends Component {
     const APP_CONFIG = window.meetingClientSettings.public.app;
     const DESKTOP_FONT_SIZE = APP_CONFIG.desktopFontSize;
     const MOBILE_FONT_SIZE = APP_CONFIG.mobileFontSize;
-    const CONFIRMATION_ON_LEAVE = window.meetingClientSettings.public.app.askForConfirmationOnLeave;
     const Settings = getSettingsSingletonInstance();
 
     const fontSize = isMobile() ? MOBILE_FONT_SIZE : DESKTOP_FONT_SIZE;
@@ -203,24 +192,13 @@ class App extends Component {
     window.ondragover = (e) => { e.preventDefault(); };
     window.ondrop = (e) => { e.preventDefault(); };
 
-    if (CONFIRMATION_ON_LEAVE) {
-      window.onbeforeunload = (event) => {
-        if (AudioService.isUsingAudio() && !AudioService.isMuted()) {
-          muteMicrophone();
-        }
-        event.stopImmediatePropagation();
-        event.preventDefault();
-        // eslint-disable-next-line no-param-reassign
-        event.returnValue = '';
-      };
-    }
+    this.createBeforeUnloadWindowEvent();
 
     logger.info({ logCode: 'app_component_componentdidmount' }, 'Client loaded successfully');
   }
 
   componentDidUpdate(prevProps) {
     const {
-      currentUserEmoji,
       currentUserAway,
       currentUserRaiseHand,
       intl,
@@ -232,29 +210,13 @@ class App extends Component {
       presentationIsOpen,
       hideActionsBar,
       hideNavBar,
+      muteMicrophone,
     } = this.props;
 
     this.renderDarkMode();
 
-    if (prevProps.currentUserEmoji.status !== currentUserEmoji.status
-        && currentUserEmoji.status !== 'raiseHand'
-        && currentUserEmoji.status !== 'away'
-    ) {
-      const formattedEmojiStatus = currentUserEmoji.status;
-
-      if (currentUserEmoji.status === null) {
-        notify(
-          intl.formatMessage(intlMessages.clearedEmoji),
-          'info',
-          'clear_status',
-        );
-      } else {
-        notify(
-          intl.formatMessage(intlMessages.setEmoji, ({ 0: formattedEmojiStatus })),
-          'info',
-          'user',
-        );
-      }
+    if (prevProps.muteMicrophone !== muteMicrophone) {
+      this.createBeforeUnloadWindowEvent();
     }
 
     if (prevProps.currentUserAway !== currentUserAway) {
@@ -321,10 +283,6 @@ class App extends Component {
     }
   }
 
-  setPresentationFitToWidth(presentationFitToWidth) {
-    this.setState({ presentationFitToWidth });
-  }
-
   handleWindowResize() {
     const { enableResize } = this.state;
     const shouldEnableResize = !window.matchMedia(MOBILE_MEDIA).matches;
@@ -332,6 +290,10 @@ class App extends Component {
 
     this.setState({ enableResize: shouldEnableResize });
     this.throttledDeviceType();
+  }
+
+  setPresentationFitToWidth(presentationFitToWidth) {
+    this.setState({ presentationFitToWidth });
   }
 
   setDeviceType() {
@@ -351,98 +313,38 @@ class App extends Component {
     }
   }
 
+  setAudioModalIsOpen(value) {
+    this.setState({ isAudioModalOpen: value });
+  }
+
+  setVideoPreviewModalIsOpen(value) {
+    this.setState({ isVideoPreviewModalOpen: value });
+  }
+
+  createBeforeUnloadWindowEvent() {
+    const {
+      muteMicrophone,
+    } = this.props;
+
+    const CONFIRMATION_ON_LEAVE = window.meetingClientSettings.public.app.askForConfirmationOnLeave;
+    if (CONFIRMATION_ON_LEAVE) {
+      window.onbeforeunload = (event) => {
+        if (AudioService.isUsingAudio() && !AudioService.isMuted()) {
+          muteMicrophone();
+        }
+        event.stopImmediatePropagation();
+        event.preventDefault();
+        // eslint-disable-next-line no-param-reassign
+        event.returnValue = '';
+      };
+    }
+  }
+
   shouldAriaHide() {
     const { sidebarNavigationIsOpen, sidebarContentIsOpen, isPhone } = this.props;
     return sidebarNavigationIsOpen
       && sidebarContentIsOpen
       && (isPhone || isLayeredView.matches);
-  }
-
-  renderAudioCaptions() {
-    const {
-      audioCaptions,
-      captionsStyle,
-    } = this.props;
-
-    if (!audioCaptions) return null;
-
-    return (
-      <Styled.CaptionsWrapper
-        role="region"
-        style={
-          {
-            position: 'absolute',
-            left: captionsStyle.left,
-            right: captionsStyle.right,
-            maxWidth: captionsStyle.maxWidth,
-          }
-        }
-      >
-        {audioCaptions}
-      </Styled.CaptionsWrapper>
-    );
-  }
-
-  renderActionsBar() {
-    const {
-      intl,
-      actionsBarStyle,
-      hideActionsBar,
-      setPushLayout,
-      setMeetingLayout,
-      presentationIsOpen,
-      selectedLayout,
-    } = this.props;
-
-    const LAYOUT_CONFIG = window.meetingClientSettings.public.layout;
-
-    const { showPushLayoutButton } = LAYOUT_CONFIG;
-
-    if (hideActionsBar) return null;
-
-    return (
-      <Styled.ActionsBar
-        id="ActionsBar"
-        role="region"
-        aria-label={intl.formatMessage(intlMessages.actionsBarLabel)}
-        aria-hidden={this.shouldAriaHide()}
-        style={
-          {
-            position: 'absolute',
-            top: actionsBarStyle.top,
-            left: actionsBarStyle.left,
-            height: actionsBarStyle.height,
-            width: actionsBarStyle.width,
-            padding: actionsBarStyle.padding,
-          }
-        }
-      >
-        <ActionsBarContainer
-          setPushLayout={setPushLayout}
-          setMeetingLayout={setMeetingLayout}
-          showPushLayout={showPushLayoutButton && selectedLayout === 'custom'}
-          presentationIsOpen={presentationIsOpen}
-          setPresentationFitToWidth={this.setPresentationFitToWidth}
-        />
-      </Styled.ActionsBar>
-    );
-  }
-
-  renderActivityCheck() {
-    const { inactivityWarningDisplay, inactivityWarningTimeoutSecs } = this.props;
-
-    return (inactivityWarningDisplay ? (
-      <ActivityCheckContainer
-        inactivityCheck={inactivityWarningDisplay}
-        responseDelay={inactivityWarningTimeoutSecs}
-      />
-    ) : null);
-  }
-
-  renderDarkMode() {
-    const { darkTheme } = this.props;
-
-    AppService.setDarkTheme(darkTheme);
   }
 
   mountPushLayoutEngine() {
@@ -511,18 +413,91 @@ class App extends Component {
     );
   }
 
-  setAudioModalIsOpen(value) {
-    this.setState({isAudioModalOpen: value});
+  renderDarkMode() {
+    const { darkTheme } = this.props;
+
+    AppService.setDarkTheme(darkTheme);
   }
 
-  setVideoPreviewModalIsOpen(value) {
-    this.setState({isVideoPreviewModalOpen: value});
+  renderActivityCheck() {
+    const { inactivityWarningDisplay, inactivityWarningTimeoutSecs } = this.props;
+
+    return (inactivityWarningDisplay ? (
+      <ActivityCheckContainer
+        inactivityCheck={inactivityWarningDisplay}
+        responseDelay={inactivityWarningTimeoutSecs}
+      />
+    ) : null);
   }
 
-  setRandomUserSelectModalIsOpen(value) {
-    const {setMountRandomUserModal} = this.props;
-    this.setState({isRandomUserSelectModalOpen: value});
-    setMountRandomUserModal(false);
+  renderActionsBar() {
+    const {
+      intl,
+      actionsBarStyle,
+      hideActionsBar,
+      setPushLayout,
+      setMeetingLayout,
+      presentationIsOpen,
+      selectedLayout,
+    } = this.props;
+
+    const LAYOUT_CONFIG = window.meetingClientSettings.public.layout;
+
+    const { showPushLayoutButton } = LAYOUT_CONFIG;
+
+    if (hideActionsBar) return null;
+
+    return (
+      <Styled.ActionsBar
+        id="ActionsBar"
+        role="region"
+        aria-label={intl.formatMessage(intlMessages.actionsBarLabel)}
+        aria-hidden={this.shouldAriaHide()}
+        style={
+          {
+            position: 'absolute',
+            top: actionsBarStyle.top,
+            left: actionsBarStyle.left,
+            height: actionsBarStyle.height,
+            width: actionsBarStyle.width,
+            padding: actionsBarStyle.padding,
+          }
+        }
+      >
+        <ActionsBarContainer
+          setPushLayout={setPushLayout}
+          setMeetingLayout={setMeetingLayout}
+          showPushLayout={showPushLayoutButton && selectedLayout === 'custom'}
+          presentationIsOpen={presentationIsOpen}
+          setPresentationFitToWidth={this.setPresentationFitToWidth}
+        />
+      </Styled.ActionsBar>
+    );
+  }
+
+  renderAudioCaptions() {
+    const {
+      audioCaptions,
+      captionsStyle,
+    } = this.props;
+
+    if (!audioCaptions) return null;
+
+    return (
+      <Styled.CaptionsWrapper
+        role="region"
+        style={
+          {
+            position: 'absolute',
+            left: captionsStyle.left,
+            right: captionsStyle.right,
+            maxWidth: captionsStyle.maxWidth,
+          }
+        }
+      >
+        {audioCaptions}
+      </Styled.CaptionsWrapper>
+    );
   }
 
   render() {

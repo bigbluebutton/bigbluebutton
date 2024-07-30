@@ -4,13 +4,6 @@ import { useMutation, useReactiveVar } from '@apollo/client';
 import getFromUserSettings from '/imports/ui/services/users-settings';
 import Auth from '/imports/ui/services/auth';
 import ActionsBar from './component';
-
-import {
-  isScreenBroadcasting,
-  isCameraAsContentBroadcasting,
-  useIsSharing,
-  useSharingContentType,
-} from '/imports/ui/components/screenshare/service';
 import { layoutSelectOutput, layoutDispatch } from '../layout/context';
 import {
   useIsExternalVideoEnabled,
@@ -40,11 +33,6 @@ const isReactionsButtonEnabled = () => {
 
 const ActionsBarContainer = (props) => {
   const NOTES_CONFIG = window.meetingClientSettings.public.notes;
-  const RAISE_HAND_BUTTON_ENABLED = window.meetingClientSettings
-    .public.app.raiseHandActionButton.enabled;
-  const RAISE_HAND_BUTTON_CENTERED = window.meetingClientSettings
-    .public.app.raiseHandActionButton.centered;
-
   const actionsBarStyle = layoutSelectOutput((i) => i.actionBar);
   const layoutContextDispatch = layoutDispatch();
 
@@ -73,7 +61,6 @@ const ActionsBarContainer = (props) => {
 
   const { data: currentUserData } = useCurrentUser((user) => ({
     presenter: user.presenter,
-    emoji: user.emoji,
     isModerator: user.isModerator,
   }));
 
@@ -81,7 +68,6 @@ const ActionsBarContainer = (props) => {
 
   const currentUser = {
     userId: Auth.userID,
-    emoji: currentUserData?.emoji,
   };
   const amIPresenter = currentUserData?.presenter;
   const amIModerator = currentUserData?.isModerator;
@@ -127,8 +113,6 @@ const ActionsBarContainer = (props) => {
         isSharedNotesPinned,
         isTimerActive: currentMeeting.componentsFlags.hasTimer,
         isTimerEnabled: isTimerFeatureEnabled,
-        isRaiseHandButtonEnabled: RAISE_HAND_BUTTON_ENABLED,
-        isRaiseHandButtonCentered: RAISE_HAND_BUTTON_CENTERED,
       }
     }
     />

@@ -1,17 +1,19 @@
 import React, { useCallback, useEffect, useMemo } from 'react';
 import { UpdatedEventDetailsForChatMessageDomElements } from 'bigbluebutton-html-plugin-sdk/dist/cjs/dom-element-manipulation/chat/message/types';
 import { Message } from '/imports/ui/Types/message';
+import { defineMessages, useIntl } from 'react-intl';
 import ChatMessageHeader from './message-header/component';
 import ChatMessageTextContent from './message-content/text-content/component';
 import ChatPollContent from './message-content/poll-content/component';
 import ChatMessagePresentationContent from './message-content/presentation-content/component';
-import { defineMessages, useIntl } from 'react-intl';
 import {
   ChatWrapper,
   ChatContent,
   ChatAvatar,
+  MessageItemWrapper,
 } from './styles';
 import { ChatMessageType } from '/imports/ui/core/enums/chat';
+import MessageReadConfirmation from './message-read-confirmation/component';
 
 interface ChatMessageProps {
   message: Message;
@@ -20,6 +22,7 @@ interface ChatMessageProps {
   setMessagesRequestedFromPlugin: React.Dispatch<React.SetStateAction<UpdatedEventDetailsForChatMessageDomElements[]>>
   scrollRef: React.RefObject<HTMLDivElement>;
   markMessageAsSeen: (message: Message) => void;
+  messageReadFeedbackEnabled: boolean;
 }
 
 const intlMessages = defineMessages({
@@ -62,6 +65,7 @@ const ChatMesssage: React.FC<ChatMessageProps> = ({
   message,
   setMessagesRequestedFromPlugin,
   markMessageAsSeen,
+  messageReadFeedbackEnabled,
 }) => {
   const intl = useIntl();
   const markMessageAsSeenOnScrollEnd = useCallback(() => {
@@ -253,14 +257,21 @@ const ChatMesssage: React.FC<ChatMessageProps> = ({
         data-chat-message-id={message?.messageId}
       >
         {message.messageType !== ChatMessageType.CHAT_CLEAR && (
-        <ChatMessageHeader
-          sameSender={message?.user ? sameSender : false}
-          name={messageContent.name}
-          isOnline={message.user?.isOnline ?? true}
-          dateTime={dateTime}
-        />
+          <ChatMessageHeader
+            sameSender={message?.user ? sameSender : false}
+            name={messageContent.name}
+            isOnline={message.user?.isOnline ?? true}
+            dateTime={dateTime}
+          />
         )}
-        {messageContent.component}
+        <MessageItemWrapper>
+          {messageContent.component}
+          {messageReadFeedbackEnabled && (
+            <MessageReadConfirmation
+              message={message}
+            />
+          )}
+        </MessageItemWrapper>
       </ChatContent>
     </ChatWrapper>
   );

@@ -39,7 +39,7 @@ export interface Voice {
   startTime: number;
 }
 
-export interface CustomParameter {
+export interface UserMetadata {
   parameter: string;
   value: string;
 }
@@ -81,7 +81,6 @@ export interface User {
   role: string;
   color: string;
   avatar: string;
-  emoji: string;
   reactionEmoji: string;
   presenter?: boolean;
   pinned?: boolean;

@@ -31,7 +31,7 @@
   "dependencies": {
     "@apollo/client": "^3.10.4",
     "@babel/runtime": "^7.17.9",
-    "@bigbluebutton/tldraw": "^2.0.0-alpha.20",
+    "@bigbluebutton/tldraw": "^2.0.0-alpha.23",
     "@browser-bunyan/console-formatted-stream": "^1.8.0",
     "@browser-bunyan/console-raw-stream": "^1.8.0",
     "@browser-bunyan/server-stream": "^1.8.0",
@@ -49,7 +49,7 @@
     "autoprefixer": "^10.4.4",
     "axios": "^1.6.4",
     "babel-runtime": "~6.26.0",
-    "bigbluebutton-html-plugin-sdk": "0.0.54",
+    "bigbluebutton-html-plugin-sdk": "0.0.55",
     "bowser": "^2.11.0",
     "browser-bunyan": "^1.8.0",
     "classnames": "^2.2.6",

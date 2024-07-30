@@ -286,7 +286,7 @@ class BbbWebApiGWApp(
                    role: String, extUserId: String, authToken: String, sessionToken: String,
                    avatarURL: String, guest: java.lang.Boolean, authed: java.lang.Boolean,
                    guestStatus: String, excludeFromDashboard: java.lang.Boolean,
-                   enforceLayout: String, customParameters: java.util.Map[String, String]): Unit = {
+                   enforceLayout: String, userMetadata: java.util.Map[String, String]): Unit = {
 
     //    meetingManagerActorRef ! new RegisterUser(meetingId = meetingId, intUserId = intUserId, name = name,
     //      role = role, extUserId = extUserId, authToken = authToken, avatarURL = avatarURL,
@@ -296,7 +296,7 @@ class BbbWebApiGWApp(
       role = role, extUserId = extUserId, authToken = authToken, sessionToken = sessionToken,
       avatarURL = avatarURL, guest = guest.booleanValue(), authed = authed.booleanValue(),
       guestStatus = guestStatus, excludeFromDashboard = excludeFromDashboard, enforceLayout = enforceLayout,
-      customParameters = (customParameters).asScala.toMap)
+      userMetadata = (userMetadata).asScala.toMap)
 
     val event = MsgBuilder.buildRegisterUserRequestToAkkaApps(regUser)
     msgToAkkaAppsEventBus.publish(MsgToAkkaApps(toAkkaAppsChannel, event))

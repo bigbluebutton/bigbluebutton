@@ -110,6 +110,16 @@ class CustomParameters extends MultiUsers {
     await this.modPage.hasElement(e.audioSettingsModal, 'should display the audio settings modal');
   }
 
+  async skipEchoTestIfPreviousDevice() {
+    await this.modPage.joinMicrophone();
+    await this.modPage.leaveAudio();
+    await this.modPage.waitAndClick(e.joinAudio);
+    await this.modPage.waitAndClick(e.microphoneButton);
+    await this.modPage.waitForSelector(e.establishingAudioLabel);
+    await this.modPage.wasRemoved(e.establishingAudioLabel, ELEMENT_WAIT_LONGER_TIME);
+    await this.modPage.hasElement(e.isTalking);
+  }
+
   async bannerText() {
     await this.modPage.hasElemnt(e.actions, 'should display the actions button');
     await this.modPage.hasElement(e.notificationBannerBar, 'should display the notification banner bar with a text');
@@ -148,7 +158,7 @@ class CustomParameters extends MultiUsers {
 
   async forceRestorePresentationOnNewPollResult(joinParameter) {
     await this.initUserPage(true, this.context, { useModMeetingId: true, joinParameter })
-    const { presentationHidden,pollEnabled } = getSettings();
+    const { presentationHidden, pollEnabled } = getSettings();
     if (!presentationHidden) await this.userPage.waitAndClick(e.minimizePresentation);
     if (pollEnabled) await util.poll(this.modPage, this.userPage);
     await this.userPage.hasElement(e.smallToastMsg, 'should display the small toast message');
@@ -169,6 +179,14 @@ class CustomParameters extends MultiUsers {
     await this.modPage.hasElement(e.joinVideo, 'should display the join video button');
     const { videoPreviewTimeout } = this.modPage.settings;
     await this.modPage.shareWebcam(true, videoPreviewTimeout);
+  }
+
+  async skipVideoPreviewIfPreviousDevice() {
+    await this.modPage.waitForSelector(e.joinVideo);
+    const { videoPreviewTimeout } = this.modPage.settings;
+    await this.modPage.shareWebcam(true, videoPreviewTimeout);
+    await this.modPage.waitAndClick(e.leaveVideo, VIDEO_LOADING_WAIT_TIME);
+    await this.modPage.shareWebcam(false);
   }
 
   async mirrorOwnWebcam() {

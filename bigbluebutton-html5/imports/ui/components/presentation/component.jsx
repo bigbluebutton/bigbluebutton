@@ -187,6 +187,11 @@ class Presentation extends PureComponent {
         type: ACTIONS.SET_PRESENTATION_SLIDES_LENGTH,
         value: totalPages,
       });
+    } else {
+      layoutContextDispatch({
+        type: ACTIONS.SET_PRESENTATION_SLIDES_LENGTH,
+        value: 0,
+      });
     }
   }
 

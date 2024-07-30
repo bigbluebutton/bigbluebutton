@@ -195,17 +195,6 @@ object Users2x {
     }
   }
 
-  def setEmojiStatus(users: Users2x, intId: String, emoji: String): Option[UserState] = {
-    for {
-      u <- findWithIntId(users, intId)
-    } yield {
-      val newUser = u.modify(_.emoji).setTo(emoji)
-
-      users.save(newUser)
-      UserStateDAO.update(newUser)
-      newUser
-    }
-  }
   def setReactionEmoji(users: Users2x, intId: String, reactionEmoji: String, durationInSeconds: Int): Option[UserState] = {
     for {
       u <- findWithIntId(users, intId)
@@ -435,7 +424,6 @@ case class UserState(
     mobile:                Boolean,
     authed:                Boolean,
     guestStatus:           String,
-    emoji:                 String,
     reactionEmoji:         String,
     reactionChangedOn:     Long                = 0,
     raiseHand:             Boolean,
@@ -451,7 +439,7 @@ case class UserState(
     userLeftFlag:          UserLeftFlag,
     speechLocale:          String              = "",
     captionLocale:         String              = "",
-    customParameters:      Map[String, String] = Map.empty
+    userMetadata:          Map[String, String] = Map.empty
 
 )
 

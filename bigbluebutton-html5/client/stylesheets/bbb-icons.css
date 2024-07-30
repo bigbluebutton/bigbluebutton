@@ -194,34 +194,12 @@
   content: "\e963";
 }
 
-
-/* Aliases for emoji status */
 .icon-bbb-time:before {
   content: "\e908";
 }
+
 .icon-bbb-hand:before {
   content: "\e90f";
-}
-.icon-bbb-undecided:before {
-  content: "\e907";
-}
-.icon-bbb-happy:before {
-  content: "\e90e";
-}
-.icon-bbb-sad:before {
-  content: "\e909";
-}
-.icon-bbb-confused:before {
-  content: "\e911";
-}
-.icon-bbb-applause:before {
-  content: "\e923";
-}
-.icon-bbb-thumbs_up:before {
-  content: "\e92d";
-}
-.icon-bbb-thumbs_down:before {
-  content: "\e92c";
 }
 .icon-bbb-send:before {
   content: "\e934";

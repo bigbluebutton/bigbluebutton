@@ -13,15 +13,10 @@ const ConnectionStatusContainer = (props) => {
   const connectionData = data ? Service.sortConnectionData(data.user_connectionStatusReport) : [];
   const { data: currentUser } = useCurrentUser((u) => ({ isModerator: u.isModerator }));
   const amIModerator = !!currentUser?.isModerator;
-  const { isGridLayout, paginationsEnabled, viewParticipantsWebcams } = props;
 
   const newtworkData = useReactiveVar(connectionStatus.getNetworkDataVar());
 
-  const getVideoStreamsStats = useGetStats(
-    isGridLayout,
-    paginationsEnabled,
-    viewParticipantsWebcams,
-  );
+  const getVideoStreamsStats = useGetStats();
 
   return (
     <Component

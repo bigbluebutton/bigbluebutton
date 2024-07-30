@@ -19,12 +19,12 @@ public class RegisterUser implements IMessage {
 	public final Boolean excludeFromDashboard;
 	public final Boolean leftGuestLobby;
 	public final String enforceLayout;
-	public final Map<String, String> customParameters;
+	public final Map<String, String> userMetadata;
 
 	public RegisterUser(String meetingID, String internalUserId, String fullname, String role, String externUserID,
 						String authToken, String sessionToken, String avatarURL, Boolean guest,
 						Boolean authed, String guestStatus, Boolean excludeFromDashboard, Boolean leftGuestLobby,
-						String enforceLayout, Map<String, String> customParameters) {
+						String enforceLayout, Map<String, String> userMetadata) {
 		this.meetingID = meetingID;
 		this.internalUserId = internalUserId;
 		this.fullname = fullname;
@@ -39,6 +39,6 @@ public class RegisterUser implements IMessage {
 		this.excludeFromDashboard = excludeFromDashboard;
 		this.leftGuestLobby = leftGuestLobby;
 		this.enforceLayout = enforceLayout;
-		this.customParameters = customParameters;
+		this.userMetadata = userMetadata;
 	}
 }

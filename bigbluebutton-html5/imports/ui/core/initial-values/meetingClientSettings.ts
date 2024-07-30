@@ -97,10 +97,6 @@ export const meetingClientSettingsInitialValues: MeetingClientSettings = {
       customHeartbeat: false,
       showAllAvailableLocales: true,
       showAudioFilters: true,
-      raiseHandActionButton: {
-        enabled: false,
-        centered: true,
-      },
       reactionsButton: {
         enabled: true,
       },
@@ -547,6 +543,9 @@ export const meetingClientSettingsInitialValues: MeetingClientSettings = {
         showNames: true,
       },
       moderatorChatEmphasized: true,
+      privateMessageReadFeedback: {
+        enabled: false,
+      },
       autoConvertEmoji: true,
       emojiPicker: {
         enable: false,

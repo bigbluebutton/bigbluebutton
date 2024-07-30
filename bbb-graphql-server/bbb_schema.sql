@@ -285,8 +285,6 @@ CREATE TABLE "user" (
     "raiseHandTime" timestamp with time zone,
     "away" bool default false,
     "awayTime" timestamp with time zone,
-	"emoji" varchar,
-	"emojiTime" timestamp with time zone,
 	"reactionEmoji" varchar(25),
 	"reactionEmojiTime" timestamp with time zone,
 	"guestStatusSetByModerator" varchar(50),
@@ -346,39 +344,6 @@ ALTER TABLE "user" ADD COLUMN "isOnline" boolean GENERATED ALWAYS AS (
         ELSE false
         END) STORED;
 
--- user (on update emoji, raiseHand or away: set new time)
-CREATE OR REPLACE FUNCTION update_user_emoji_time_trigger_func()
-RETURNS TRIGGER AS $$
-BEGIN
-    IF NEW."emoji" <> OLD."emoji" THEN
-        IF NEW."emoji" = 'none' or  NEW."emoji" = '' THEN
-            NEW."emojiTime" := NULL;
-        ELSE
-            NEW."emojiTime" := NOW();
-        END IF;
-    END IF;
-    IF NEW."raiseHand" IS DISTINCT FROM OLD."raiseHand" THEN
-        IF NEW."raiseHand" is false THEN
-            NEW."raiseHandTime" := NULL;
-        ELSE
-            NEW."raiseHandTime" := NOW();
-        END IF;
-    END IF;
-    IF NEW."away" IS DISTINCT FROM OLD."away" THEN
-        IF NEW."away" is false THEN
-            NEW."awayTime" := NULL;
-        ELSE
-            NEW."awayTime" := NOW();
-        END IF;
-    END IF;
-    RETURN NEW;
-END;
-$$ LANGUAGE plpgsql;
-
-CREATE TRIGGER update_user_emoji_time_trigger BEFORE UPDATE OF "emoji" ON "user"
-    FOR EACH ROW EXECUTE FUNCTION update_user_emoji_time_trigger_func();
-
-
 CREATE OR REPLACE VIEW "v_user"
 AS SELECT "user"."userId",
     "user"."extId",
@@ -391,8 +356,6 @@ AS SELECT "user"."userId",
     "user"."awayTime",
     "user"."raiseHand",
     "user"."raiseHandTime",
-    "user"."emoji",
-    "user"."emojiTime",
     "user"."reactionEmoji",
     "user"."reactionEmojiTime",
     "user"."guest",
@@ -432,7 +395,6 @@ CREATE INDEX "idx_v_user_meetingId_orderByColumns" ON "user"(
                         "presenter",
                         "role",
                         "raiseHandTime",
-                        "emojiTime",
                         "isDialIn",
                         "hasDrawPermissionOnCurrentPage",
                         "nameSortable",
@@ -452,7 +414,6 @@ AS SELECT "user"."userId",
     "user"."color",
     "user"."away",
     "user"."raiseHand",
-    "user"."emoji",
     "user"."reactionEmoji",
     "user"."guest",
     "user"."guestStatus",
@@ -488,13 +449,6 @@ AS SELECT "user"."userId",
     "user"."inactivityWarningTimeoutSecs"
    FROM "user";
 
---This view will be used by Meteor to validate if the provided authToken is valid
---It is temporary while Meteor is not removed
-create view "v_user_connection_auth" as
-select "meetingId", "userId", "authToken"
-from "v_user_current"
-where "isOnline" is true;
-
 CREATE OR REPLACE VIEW "v_user_guest" AS
 SELECT u."meetingId", u."userId",
 u."guestStatus",
@@ -525,7 +479,6 @@ AS SELECT
     "user"."color",
     "user"."away",
     "user"."raiseHand",
-    "user"."emoji",
     "user"."reactionEmoji",
     "user"."guest",
     "user"."guestStatus",
@@ -551,19 +504,19 @@ AS SELECT
     "user"."isOnline"
    FROM "user";
 
-create table "user_customParameter"(
+create table "user_metadata"(
     "meetingId" varchar(100),
     "userId" varchar(50),
 	"parameter" varchar(255),
 	"value" varchar(255),
-	CONSTRAINT "user_customParameter_pkey" PRIMARY KEY ("meetingId", "userId","parameter"),
+	CONSTRAINT "user_metadata_pkey" PRIMARY KEY ("meetingId", "userId","parameter"),
 	FOREIGN KEY ("meetingId", "userId") REFERENCES "user"("meetingId","userId") ON DELETE CASCADE
 );
-create index "idx_user_customParameter_pk_reverse" on "user_customParameter" ("userId", "meetingId");
+create index "idx_user_metadata_pk_reverse" on "user_metadata" ("userId", "meetingId");
 
-CREATE VIEW "v_user_customParameter" AS
+CREATE VIEW "v_user_metadata" AS
 SELECT *
-FROM "user_customParameter";
+FROM "user_metadata";
 
 CREATE VIEW "v_user_welcomeMsgs" AS
 SELECT
@@ -1074,9 +1027,13 @@ SELECT  cu."meetingId",
         cm."senderId",
         cm."senderName",
         cm."senderRole",
-        cm."createdAt"
+        cm."createdAt",
+        CASE WHEN chat_with."lastSeenAt" >= cm."createdAt" THEN true ELSE false end "recipientHasSeen"
 FROM chat_message cm
 JOIN chat_user cu ON cu."meetingId" = cm."meetingId" AND cu."chatId" = cm."chatId"
+LEFT JOIN "chat_user" chat_with ON chat_with."meetingId" = cm."meetingId"
+                                AND chat_with."chatId" = cm."chatId"
+                                AND chat_with."userId" != cu."userId"
 WHERE cm."chatId" != 'MAIN-PUBLIC-GROUP-CHAT';
 
 --============ Presentation / Annotation
