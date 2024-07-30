@@ -14,6 +14,7 @@ import AudioManager from '/imports/ui/services/audio-manager';
 import { joinListenOnly } from './service';
 import Styled from './styles';
 import InputStreamLiveSelectorContainer from './input-stream-live-selector/component';
+import { getSettingsSingletonInstance } from '/imports/ui/services/settings';
 import { UPDATE_ECHO_TEST_RUNNING } from './queries';
 
 const intlMessages = defineMessages({
@@ -44,8 +45,9 @@ interface AudioControlsProps {
   isConnected: boolean;
   disabled: boolean;
   isEchoTest: boolean;
-  updateEchoTestRunning: () => void,
+  updateEchoTestRunning: () => void;
   away: boolean;
+  isConnecting?: boolean;
 }
 
 const AudioControls: React.FC<AudioControlsProps> = ({
@@ -55,10 +57,13 @@ const AudioControls: React.FC<AudioControlsProps> = ({
   isEchoTest,
   updateEchoTestRunning,
   away,
+  isConnecting,
 }) => {
   const intl = useIntl();
   const joinAudioShortcut = useShortcut('joinAudio');
   const echoTestIntervalRef = React.useRef<ReturnType<typeof setTimeout>>();
+  const Settings = getSettingsSingletonInstance();
+  const animations = Settings?.application?.animations;
 
   const [isAudioModalOpen, setIsAudioModalOpen] = React.useState(false);
 
@@ -104,38 +109,39 @@ const AudioControls: React.FC<AudioControlsProps> = ({
 
   return (
     <Styled.Container>
-      {!inAudio ? joinButton : <InputStreamLiveSelectorContainer />}
-      {
-        isAudioModalOpen ? (
-          <AudioModalContainer
-            {...{
-              priority: 'low',
-              setIsOpen: () => setIsAudioModalOpen(false),
-              isOpen: isAudioModalOpen,
-            }}
-          />
-        ) : null
-      }
+      {isConnecting ? (
+        <Styled.SpinnerOverlay animations={animations}>
+          <Styled.Bounce1 animations={animations} />
+          <Styled.Bounce2 animations={animations} />
+        </Styled.SpinnerOverlay>
+      ) : (
+        <>
+          {!inAudio ? joinButton : <InputStreamLiveSelectorContainer />}
+          {isAudioModalOpen && (
+            <AudioModalContainer
+              priority="low"
+              setIsOpen={() => setIsAudioModalOpen(false)}
+              isOpen={isAudioModalOpen}
+            />
+          )}
+        </>
+      )}
     </Styled.Container>
   );
 };
 
 export const AudioControlsContainer: React.FC = () => {
-  const { data: currentUser } = useCurrentUser((u: Partial<User>) => {
-    return {
-      presenter: u.presenter,
-      isModerator: u.isModerator,
-      locked: u?.locked ?? false,
-      voice: u.voice,
-      away: u.away,
-    };
-  });
+  const { data: currentUser } = useCurrentUser((u: Partial<User>) => ({
+    presenter: u.presenter,
+    isModerator: u.isModerator,
+    locked: u?.locked ?? false,
+    voice: u.voice,
+    away: u.away,
+  }));
 
-  const { data: currentMeeting } = useMeeting((m: Partial<Meeting>) => {
-    return {
-      lockSettings: m.lockSettings,
-    };
-  });
+  const { data: currentMeeting } = useMeeting((m: Partial<Meeting>) => ({
+    lockSettings: m.lockSettings,
+  }));
   const [updateEchoTestRunning] = useMutation(UPDATE_ECHO_TEST_RUNNING);
 
   // I access the internal variable to get the makevar reference,
@@ -152,6 +158,7 @@ export const AudioControlsContainer: React.FC = () => {
   const isEchoTest = useReactiveVar(AudioManager._isEchoTest.value) as boolean;
 
   if (!currentUser || !currentMeeting) return null;
+
   return (
     <AudioControls
       inAudio={!!currentUser.voice ?? false}
@@ -160,6 +167,7 @@ export const AudioControlsContainer: React.FC = () => {
       isEchoTest={isEchoTest}
       updateEchoTestRunning={updateEchoTestRunning}
       away={currentUser.away || false}
+      isConnecting={isConnecting}
     />
   );
 };

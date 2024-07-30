@@ -68,6 +68,7 @@ interface JoinVideoButtonProps {
   exitVideo: () => void;
   stopVideo: (cameraId?: string | undefined) => void;
   intl: IntlShape;
+  videoConnecting: boolean; // Added videoConnecting prop
 }
 
 const JoinVideoButton: React.FC<JoinVideoButtonProps> = ({
@@ -80,6 +81,7 @@ const JoinVideoButton: React.FC<JoinVideoButtonProps> = ({
   setLocalSettings,
   exitVideo: exit,
   stopVideo,
+  videoConnecting, // Added videoConnecting prop
 }) => {
   const { isMobile } = deviceInfo;
   const isMobileSharingCamera = hasVideoStream && isMobile;
@@ -96,6 +98,8 @@ const JoinVideoButton: React.FC<JoinVideoButtonProps> = ({
   const [forceOpen, setForceOpen] = useState(false);
   const [isVideoPreviewModalOpen, setVideoPreviewModalIsOpen] = useState(false);
   const [wasSelfViewDisabled, setWasSelfViewDisabled] = useState(false);
+  const Settings = getSettingsSingletonInstance();
+  const animations = Settings?.application?.animations;
 
   useEffect(() => {
     const Settings = getSettingsSingletonInstance();
@@ -216,18 +220,25 @@ const JoinVideoButton: React.FC<JoinVideoButtonProps> = ({
   return (
     <>
       <Styled.OffsetBottom>
-        <Button
-          label={label}
-          data-test={hasVideoStream ? 'leaveVideo' : 'joinVideo'}
-          onClick={handleOnClick}
-          hideLabel
-          color={hasVideoStream ? 'primary' : 'default'}
-          icon={hasVideoStream ? 'video' : 'video_off'}
-          ghost={!hasVideoStream}
-          size="lg"
-          circle
-          disabled={!!disableReason}
-        />
+        {videoConnecting ? (
+          <Styled.SpinnerOverlay animations={animations}>
+            <Styled.Bounce1 animations={animations} />
+            <Styled.Bounce2 animations={animations} />
+          </Styled.SpinnerOverlay>
+        ) : (
+          <Button
+            label={label}
+            data-test={hasVideoStream ? 'leaveVideo' : 'joinVideo'}
+            onClick={handleOnClick}
+            hideLabel
+            color={hasVideoStream ? 'primary' : 'default'}
+            icon={hasVideoStream ? 'video' : 'video_off'}
+            ghost={!hasVideoStream}
+            size="lg"
+            circle
+            disabled={!!disableReason}
+          />
+        )}
         {renderUserActions()}
       </Styled.OffsetBottom>
       {isVideoPreviewModalOpen ? (
@@ -238,7 +249,6 @@ const JoinVideoButton: React.FC<JoinVideoButtonProps> = ({
                 setTimeout(() => {
                   const obj = {
                     application: {
-                      // @ts-expect-error -> Untyped object.
                       ...Settings.application,
                       selfViewDisable: true,
                     },

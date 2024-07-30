@@ -25,6 +25,7 @@ import useTimeSync from '/imports/ui/core/local-states/useTimeSync';
 import RecordingNotify from './notify/component';
 import RecordingContainer from '/imports/ui/components/recording/container';
 import useDeduplicatedSubscription from '/imports/ui/core/hooks/useDeduplicatedSubscription';
+import { getSettingsSingletonInstance } from '/imports/ui/services/settings';
 
 const intlMessages = defineMessages({
   notificationRecordingStart: {
@@ -312,8 +313,19 @@ const RecordingIndicatorContainer: React.FC = () => {
   }));
 
   const [timeSync] = useTimeSync();
+  const Settings = getSettingsSingletonInstance();
+  const animations = Settings?.application?.animations;
 
-  if (meetingRecordingPoliciesLoading || meetingRecordingLoading) return null;
+  if (meetingRecordingPoliciesLoading || meetingRecordingLoading) {
+    return (
+      <div>
+        <Styled.SpinnerOverlay animations={animations}>
+          <Styled.Bounce1 animations={animations} />
+          <Styled.Bounce2 animations={animations} />
+        </Styled.SpinnerOverlay>
+      </div>
+    );
+  }
   if (meetingRecordingPoliciesError || meetingRecordingError) {
     return (
       <div>

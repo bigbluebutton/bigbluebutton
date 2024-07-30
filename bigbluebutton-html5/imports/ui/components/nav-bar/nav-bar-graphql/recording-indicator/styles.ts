@@ -12,6 +12,7 @@ import {
   colorDangerDark,
   colorGray,
 } from '/imports/ui/stylesheets/styled-components/palette';
+import SpinnerStyles from '/imports/ui/components/common/loading-screen/styles';
 
 interface RecordingIndicatorIconProps {
   titleMargin: boolean;
@@ -23,6 +24,10 @@ interface RecordingIndicatorProps {
 
 interface RecordingStatusViewOnlyProps {
   recording: boolean;
+}
+
+interface SpinnerOverlayProps {
+  animations: boolean;
 }
 
 const RecordingIndicatorIcon = styled.span<RecordingIndicatorIconProps>`
@@ -157,6 +162,24 @@ const RecordingStatusViewOnly = styled.div<RecordingStatusViewOnlyProps>`
   `}
 `;
 
+const SpinnerOverlay = styled(SpinnerStyles.Spinner)<SpinnerOverlayProps>`
+  & > div {
+    background-color: white;
+    height: 0.5625rem;
+    width: 0.5625rem;
+  }
+`;
+
+const Bounce1 = styled(SpinnerStyles.Bounce1)<SpinnerOverlayProps>`
+  height: 0.5625rem;
+  width: 0.5625rem;
+`;
+
+const Bounce2 = styled(SpinnerStyles.Bounce2)<SpinnerOverlayProps>`
+  height: 0.5625rem;
+  width: 0.5625rem;
+`;
+
 export default {
   RecordingIndicatorIcon,
   RecordingControl,
@@ -165,4 +188,7 @@ export default {
   PresentationTitleSeparator,
   RecordingIndicator,
   RecordingStatusViewOnly,
+  SpinnerOverlay,
+  Bounce1,
+  Bounce2,
 };
