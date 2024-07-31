@@ -680,11 +680,6 @@ export const meetingClientSettingsInitialValues: MeetingClientSettings = {
         warning: false,
         error: true,
       },
-      jitter: [
-        10,
-        20,
-        30,
-      ],
       loss: [
         0.05,
         0.1,
