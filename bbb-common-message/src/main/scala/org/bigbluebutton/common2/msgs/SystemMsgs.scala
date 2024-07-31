@@ -30,34 +30,6 @@ case class EndMeetingSysCmdMsg(
 ) extends StandardMsg
 case class EndMeetingSysCmdMsgBody(meetingId: String)
 
-object GetAllMeetingsReqMsg { val NAME = "GetAllMeetingsReqMsg" }
-case class GetAllMeetingsReqMsg(
-    header: BbbCoreBaseHeader,
-    body:   GetAllMeetingsReqMsgBody
-) extends BbbCoreMsg
-case class GetAllMeetingsReqMsgBody(requesterId: String)
-
-object GetRunningMeetingsReqMsg { val NAME = "GetRunningMeetingsReqMsg" }
-case class GetRunningMeetingsReqMsg(
-    header: BbbCoreBaseHeader,
-    body:   GetRunningMeetingsReqMsgBody
-) extends BbbCoreMsg
-case class GetRunningMeetingsReqMsgBody(requesterId: String)
-
-object GetRunningMeetingsRespMsg { val NAME = "GetRunningMeetingsRespMsg" }
-case class GetRunningMeetingsRespMsg(
-    header: BbbCoreBaseHeader,
-    body:   GetRunningMeetingsRespMsgBody
-) extends BbbCoreMsg
-case class GetRunningMeetingsRespMsgBody(meetings: Vector[String])
-
-object GetRunningMeetingStateReqMsg { val NAME = "GetRunningMeetingStateReqMsg" }
-case class GetRunningMeetingStateReqMsg(
-    header: BbbCoreBaseHeader,
-    body:   GetRunningMeetingStateReqMsgBody
-) extends BbbCoreMsg
-case class GetRunningMeetingStateReqMsgBody(meetingId: String)
-
 object PubSubPingSysReqMsg { val NAME = "PubSubPingSysReqMsg" }
 case class PubSubPingSysReqMsg(
     header: BbbCoreBaseHeader,

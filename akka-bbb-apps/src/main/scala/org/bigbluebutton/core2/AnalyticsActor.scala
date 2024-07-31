@@ -35,10 +35,6 @@ class AnalyticsActor(val includeChat: Boolean) extends Actor with ActorLogging {
   def handleBbbCommonEnvCoreMsg(msg: BbbCommonEnvCoreMsg): Unit = {
 
     msg.core match {
-      case m: GetAllMeetingsReqMsg                           => logMessage(msg)
-      case m: GetRunningMeetingsRespMsg                      => logMessage(msg)
-      case m: GetRunningMeetingsReqMsg                       => logMessage(msg)
-
       case m: RegisterUserReqMsg                             => logMessage(msg)
       case m: UserRegisteredRespMsg                          => logMessage(msg)
       case m: DisconnectAllClientsSysMsg                     => logMessage(msg)
@@ -178,7 +174,6 @@ class AnalyticsActor(val includeChat: Boolean) extends Actor with ActorLogging {
 
       case m: GetLockSettingsRespMsg => logMessage(msg)
       case m: ChangeLockSettingsInMeetingCmdMsg => logMessage(msg)
-      case m: GetLockSettingsReqMsg => logMessage(msg)
       case m: LockSettingsNotInitializedRespMsg => logMessage(msg)
       case m: MeetingInfoAnalyticsMsg => logMessage(msg)
 

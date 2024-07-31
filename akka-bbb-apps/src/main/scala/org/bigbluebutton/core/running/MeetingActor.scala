@@ -265,8 +265,6 @@ class MeetingActor(
     // Handling RegisterUserReqMsg as it is forwarded from BBBActor and
     // its type is not BbbCommonEnvCoreMsg
     case m: RegisterUserReqMsg                    => usersApp.handleRegisterUserReqMsg(m)
-    case m: GetAllMeetingsReqMsg                  => handleGetAllMeetingsReqMsg(m)
-    case m: GetRunningMeetingStateReqMsg          => handleGetRunningMeetingStateReqMsg(m)
     case m: ValidateConnAuthTokenSysMsg           => handleValidateConnAuthTokenSysMsg(m)
 
     //API Msgs
@@ -600,7 +598,6 @@ class MeetingActor(
       case m: LockUsersInMeetingCmdMsg =>
         handleLockUsersInMeetingCmdMsg(m)
         updateUserLastActivity(m.body.lockedBy)
-      case m: GetLockSettingsReqMsg             => handleGetLockSettingsReqMsg(m)
 
       // Presentation
       case m: PreuploadedPresentationsSysPubMsg => presentationApp2x.handle(m, liveMeeting, msgBus)
@@ -881,38 +878,6 @@ class MeetingActor(
     val presentationId: String = presentationPods.flatMap(_.getCurrentPresentation.map(_.id)).mkString
     val presentationName: String = presentationPods.flatMap(_.getCurrentPresentation.map(_.name)).mkString
     PresentationInfo(presentationId, presentationName)
-  }
-
-  def handleGetRunningMeetingStateReqMsg(msg: GetRunningMeetingStateReqMsg): Unit = {
-    processGetRunningMeetingStateReqMsg()
-  }
-
-  def processGetRunningMeetingStateReqMsg(): Unit = {
-
-    // sync all users
-    usersApp.handleSyncGetUsersMeetingRespMsg()
-
-    // sync all presentations
-    presentationPodsApp.handleSyncGetPresentationPods(state, liveMeeting, msgBus)
-
-    // sync all group chats and group chat messages
-    groupChatApp.handleSyncGetGroupChatsInfo(state, liveMeeting, msgBus)
-
-    // sync all voice users
-    handleSyncGetVoiceUsersMsg(state, liveMeeting, msgBus)
-
-    // sync all lock settings
-    handleSyncGetLockSettingsMsg(state, liveMeeting, msgBus)
-
-    // send all screen sharing info
-    screenshareApp2x.handleSyncGetScreenshareInfoRespMsg(liveMeeting, msgBus)
-
-    // send all webcam info
-    webcamApp2x.handleSyncGetWebcamInfoRespMsg(liveMeeting, msgBus)
-  }
-
-  def handleGetAllMeetingsReqMsg(msg: GetAllMeetingsReqMsg): Unit = {
-    processGetRunningMeetingStateReqMsg()
   }
 
   def handlePresenterChange(msg: AssignPresenterReqMsg, state: MeetingState2x): MeetingState2x = {

@@ -125,8 +125,6 @@ class BigBlueButtonActor(
 
       case m: CreateMeetingReqMsg                    => handleCreateMeetingReqMsg(m)
       case m: RegisterUserReqMsg                     => handleRegisterUserReqMsg(m)
-      case m: GetAllMeetingsReqMsg                   => handleGetAllMeetingsReqMsg(m)
-      case m: GetRunningMeetingsReqMsg               => handleGetRunningMeetingsReqMsg(m)
       case m: CheckAlivePingSysMsg                   => handleCheckAlivePingSysMsg(m)
       case m: ValidateConnAuthTokenSysMsg            => handleValidateConnAuthTokenSysMsg(m)
       case _: UserGraphqlConnectionEstablishedSysMsg => //Ignore
@@ -185,26 +183,6 @@ class BigBlueButtonActor(
       // do nothing
 
     }
-  }
-
-  private def handleGetRunningMeetingsReqMsg(msg: GetRunningMeetingsReqMsg): Unit = {
-    val liveMeetings = RunningMeetings.meetings(meetings)
-    val meetingIds = liveMeetings.map(m => m.props.meetingProp.intId)
-
-    val routing = collection.immutable.HashMap("sender" -> "bbb-apps-akka")
-    val envelope = BbbCoreEnvelope(GetRunningMeetingsRespMsg.NAME, routing)
-    val header = BbbCoreBaseHeader(GetRunningMeetingsRespMsg.NAME)
-
-    val body = GetRunningMeetingsRespMsgBody(meetingIds)
-    val event = GetRunningMeetingsRespMsg(header, body)
-    val msgEvent = BbbCommonEnvCoreMsg(envelope, event)
-    outGW.send(msgEvent)
-  }
-
-  private def handleGetAllMeetingsReqMsg(msg: GetAllMeetingsReqMsg): Unit = {
-    RunningMeetings.meetings(meetings).foreach(m => {
-      m.actorRef ! msg
-    })
   }
 
   private def handleCheckAlivePingSysMsg(msg: CheckAlivePingSysMsg): Unit = {

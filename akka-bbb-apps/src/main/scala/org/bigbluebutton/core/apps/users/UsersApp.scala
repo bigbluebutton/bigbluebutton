@@ -170,7 +170,6 @@ class UsersApp(
   with SetUserClientSettingsReqMsgHdlr
   with SetUserEchoTestRunningReqMsgHdlr
   with SetUserSpeechOptionsMsgHdlr
-  with SyncGetUsersMeetingRespMsgHdlr
   with LogoutAndEndMeetingCmdMsgHdlr
   with SetRecordingStatusCmdMsgHdlr
   with RecordAndClearPreviousMarkersCmdMsgHdlr

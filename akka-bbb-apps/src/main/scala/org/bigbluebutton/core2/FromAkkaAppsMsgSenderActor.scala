@@ -23,13 +23,6 @@ class FromAkkaAppsMsgSenderActor(msgSender: MessageSender)
 
     msg.envelope.name match {
 
-      // HTML5 sync messages
-      case SyncGetPresentationPodsRespMsg.NAME => msgSender.send(toHTML5RedisChannel, json)
-      case SyncGetUsersMeetingRespMsg.NAME     => msgSender.send(toHTML5RedisChannel, json)
-      case SyncGetGroupChatsRespMsg.NAME       => msgSender.send(toHTML5RedisChannel, json)
-      case SyncGetGroupChatMsgsRespMsg.NAME    => msgSender.send(toHTML5RedisChannel, json)
-      case SyncGetVoiceUsersRespMsg.NAME       => msgSender.send(toHTML5RedisChannel, json)
-
       // Sent to FreeSWITCH
       case EjectAllFromVoiceConfMsg.NAME =>
         msgSender.send(toVoiceConfRedisChannel, json)
