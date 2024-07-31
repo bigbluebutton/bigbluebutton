@@ -33,7 +33,7 @@ test.describe.parallel('User', () => {
       await multiusers.toggleUserList();
     });
 
-    test('Timer', { tag: '@flaky' }, async ({ browser, context, page })=> {
+    test('Timer', async ({ browser, context, page })=> {
       const timer = new Timer(browser, context);
       await timer.initModPage(page, true);
       await timer.timerTest();
