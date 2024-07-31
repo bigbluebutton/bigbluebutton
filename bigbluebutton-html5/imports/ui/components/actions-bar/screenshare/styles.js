@@ -4,10 +4,12 @@ import { colorGrayDark } from '/imports/ui/stylesheets/styled-components/palette
 import {
   jumboPaddingY,
   minModalHeight,
-  headingsFontWeight,
   mdPaddingX,
 } from '/imports/ui/stylesheets/styled-components/general';
-import { fontSizeLarge } from '/imports/ui/stylesheets/styled-components/typography';
+import {
+  fontSizeLarge,
+  headingsFontWeight,
+} from '/imports/ui/stylesheets/styled-components/typography';
 
 const ScreenShareModal = styled(ModalSimple)`
   padding: ${jumboPaddingY};

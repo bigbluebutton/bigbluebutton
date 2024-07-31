@@ -2,9 +2,9 @@ import { getSettingsSingletonInstance } from '/imports/ui/services/settings';
 import { notify } from '/imports/ui/services/notification';
 import intlHolder from '../../core/singletons/intlHolder';
 
-const isKeepPushingLayoutEnabled = () => window.meetingClientSettings.public.layout.showPushLayoutToggle;
+export const isKeepPushingLayoutEnabled = () => window.meetingClientSettings.public.layout.showPushLayoutToggle;
 
-const updateSettings = (obj, msgDescriptor, mutation) => {
+export const updateSettings = (obj, msgDescriptor, mutation) => {
   const Settings = getSettingsSingletonInstance();
   Object.keys(obj).forEach(k => (Settings[k] = obj[k]));
   Settings.save(mutation);
@@ -22,9 +22,9 @@ const updateSettings = (obj, msgDescriptor, mutation) => {
   }
 };
 
-const getAvailableLocales = () => fetch('./locales/').then(locales => locales.json());
+export const getAvailableLocales = () => fetch('./locales/').then(locales => locales.json());
 
-const FALLBACK_LOCALES = {
+export const FALLBACK_LOCALES = {
   dv: {
     englishName: 'Dhivehi',
     nativeName: 'ދިވެހި',
@@ -55,7 +55,7 @@ const FALLBACK_LOCALES = {
   },
 };
 
-export {
+export default {
   updateSettings,
   isKeepPushingLayoutEnabled,
   getAvailableLocales,

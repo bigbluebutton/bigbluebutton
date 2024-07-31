@@ -1307,4 +1307,4 @@ export default class SIPBridge extends BaseAudioBridge {
   }
 }
 
-module.exports = SIPBridge;
+// module.exports = SIPBridge;
