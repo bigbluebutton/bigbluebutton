@@ -793,6 +793,7 @@ class MeetingActor(
 
   private def handleMeetingTasksExecutor(): Unit = {
     clearExpiredReactionEmojis()
+    stopFinishedTimer()
   }
 
   private def clearExpiredReactionEmojis(): Unit = {
@@ -807,6 +808,12 @@ class MeetingActor(
           Users2x.setReactionEmoji(liveMeeting.users2x, user.intId, "none", 0)
         }
       }
+    }
+  }
+
+  private def stopFinishedTimer(): Unit = {
+    if (TimerModel.resetTimerIfFinished(liveMeeting.timerModel)) {
+      TimerDAO.update(liveMeeting.props.meetingProp.intId, liveMeeting.timerModel)
     }
   }
 
