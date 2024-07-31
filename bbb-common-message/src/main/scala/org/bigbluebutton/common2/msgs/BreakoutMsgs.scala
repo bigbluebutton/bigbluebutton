@@ -98,10 +98,6 @@ object TransferUserToMeetingRequestMsg { val NAME = "TransferUserToMeetingReques
 case class TransferUserToMeetingRequestMsg(header: BbbClientMsgHeader, body: TransferUserToMeetingRequestMsgBody) extends StandardMsg
 case class TransferUserToMeetingRequestMsgBody(fromMeetingId: String, toMeetingId: String, userId: String)
 
-object UpdateBreakoutUsersEvtMsg { val NAME = "UpdateBreakoutUsersEvtMsg" }
-case class UpdateBreakoutUsersEvtMsg(header: BbbClientMsgHeader, body: UpdateBreakoutUsersEvtMsgBody) extends BbbCoreMsg
-case class UpdateBreakoutUsersEvtMsgBody(parentId: String, breakoutId: String, users: Vector[BreakoutUserVO])
-
 object UpdateBreakoutRoomsTimeReqMsg { val NAME = "UpdateBreakoutRoomsTimeReqMsg" }
 case class UpdateBreakoutRoomsTimeReqMsg(header: BbbClientMsgHeader, body: UpdateBreakoutRoomsTimeReqMsgBody) extends StandardMsg
 case class UpdateBreakoutRoomsTimeReqMsgBody(meetingId: String, timeInMinutes: Int)

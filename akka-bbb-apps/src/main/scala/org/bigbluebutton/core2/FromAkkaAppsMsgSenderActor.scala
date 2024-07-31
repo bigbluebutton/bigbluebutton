@@ -106,8 +106,6 @@ class FromAkkaAppsMsgSenderActor(msgSender: MessageSender)
         msgSender.send(fromAkkaAppsPresRedisChannel, json)
 
       // Breakout
-      case UpdateBreakoutUsersEvtMsg.NAME =>
-        msgSender.send(fromAkkaAppsPresRedisChannel, json)
       case BreakoutRoomsListEvtMsg.NAME =>
         msgSender.send(fromAkkaAppsPresRedisChannel, json)
       case BreakoutRoomsTimeRemainingUpdateEvtMsg.NAME =>
