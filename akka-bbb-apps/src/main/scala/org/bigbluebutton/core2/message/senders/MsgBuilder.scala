@@ -491,16 +491,6 @@ object MsgBuilder {
     BbbCommonEnvCoreMsg(envelope, event)
   }
 
-  def buildMeetingTimeRemainingUpdateEvtMsg(meetingId: String, timeLeftInSec: Long, timeUpdatedInMinutes: Int = 0): BbbCommonEnvCoreMsg = {
-    val routing = Routing.addMsgToClientRouting(MessageTypes.BROADCAST_TO_MEETING, meetingId, "not-used")
-    val envelope = BbbCoreEnvelope(MeetingTimeRemainingUpdateEvtMsg.NAME, routing)
-    val body = MeetingTimeRemainingUpdateEvtMsgBody(timeLeftInSec, timeUpdatedInMinutes)
-    val header = BbbClientMsgHeader(MeetingTimeRemainingUpdateEvtMsg.NAME, meetingId, "not-used")
-    val event = MeetingTimeRemainingUpdateEvtMsg(header, body)
-
-    BbbCommonEnvCoreMsg(envelope, event)
-  }
-
   def buildLearningDashboardEvtMsg(meetingId: String, learningDashboardAccessToken: String, activityJson: String): BbbCommonEnvCoreMsg = {
     val routing = collection.immutable.HashMap("sender" -> "bbb-apps-akka")
     val envelope = BbbCoreEnvelope(LearningDashboardEvtMsg.NAME, routing)

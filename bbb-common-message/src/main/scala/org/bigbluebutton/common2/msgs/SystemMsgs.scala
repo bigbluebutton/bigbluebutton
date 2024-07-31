@@ -162,13 +162,6 @@ case class PubSubPongSysRespMsg(
 ) extends BbbCoreMsg
 case class PubSubPongSysRespMsgBody(system: String, timestamp: Long)
 
-object MeetingTimeRemainingUpdateEvtMsg { val NAME = "MeetingTimeRemainingUpdateEvtMsg" }
-case class MeetingTimeRemainingUpdateEvtMsg(
-    header: BbbClientMsgHeader,
-    body:   MeetingTimeRemainingUpdateEvtMsgBody
-) extends BbbCoreMsg
-case class MeetingTimeRemainingUpdateEvtMsgBody(timeLeftInSec: Long, timeUpdatedInMinutes: Int)
-
 object CheckAlivePingSysMsg { val NAME = "CheckAlivePingSysMsg" }
 case class CheckAlivePingSysMsg(
     header: BbbCoreBaseHeader,

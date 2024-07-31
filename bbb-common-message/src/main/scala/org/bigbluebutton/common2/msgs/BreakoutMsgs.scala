@@ -26,13 +26,6 @@ object BreakoutRoomStartedEvtMsg { val NAME = "BreakoutRoomStartedEvtMsg" }
 case class BreakoutRoomStartedEvtMsg(header: BbbClientMsgHeader, body: BreakoutRoomStartedEvtMsgBody) extends BbbCoreMsg
 case class BreakoutRoomStartedEvtMsgBody(parentMeetingId: String, breakout: BreakoutRoomInfo)
 
-object BreakoutRoomsTimeRemainingUpdateEvtMsg { val NAME = "BreakoutRoomsTimeRemainingUpdateEvtMsg" }
-case class BreakoutRoomsTimeRemainingUpdateEvtMsg(
-    header: BbbClientMsgHeader,
-    body:   BreakoutRoomsTimeRemainingUpdateEvtMsgBody
-) extends BbbCoreMsg
-case class BreakoutRoomsTimeRemainingUpdateEvtMsgBody(timeRemaining: Long)
-
 /**
  * Sent to bbb-web to create breakout rooms.
  */

@@ -27,19 +27,6 @@ case class MonitorNumberOfUsersInternalMsg(meetingID: String) extends InMessage
  */
 case class MonitorGuestWaitPresenceInternalMsg(meetingId: String) extends InMessage
 
-/**
- * Audit message sent to meeting to trigger updating clients of meeting time remaining.
- * @param meetingId
- */
-case class SendTimeRemainingAuditInternalMsg(meetingId: String, timeUpdatedInMinutes: Int) extends InMessage
-
-/**
- * Parent message sent to breakout rooms to trigger updating clients of meeting time remaining.
- * @param meetingId
- * @param timeLeftInSec
- */
-case class SendBreakoutTimeRemainingInternalMsg(meetingId: String, timeLeftInSec: Long, timeUpdatedInMinutes: Int) extends InMessage
-
 case class ExtendMeetingDuration(meetingId: String, userId: String) extends InMessage
 case class DestroyMeetingInternalMsg(meetingId: String) extends InMessage
 

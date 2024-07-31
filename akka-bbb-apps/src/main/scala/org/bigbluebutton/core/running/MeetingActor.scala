@@ -89,9 +89,6 @@ class MeetingActor(
   with EjectUserFromVoiceCmdMsgHdlr
   with EndMeetingSysCmdMsgHdlr
   with DestroyMeetingSysCmdMsgHdlr
-  with SendTimeRemainingUpdateHdlr
-  with SendBreakoutTimeRemainingMsgHdlr
-  with SendBreakoutTimeRemainingInternalMsgHdlr
   with ChangeLockSettingsInMeetingCmdMsgHdlr
   with SyncGetMeetingInfoRespMsgHdlr
   with ClientToServerLatencyTracerMsgHdlr
@@ -293,15 +290,7 @@ class MeetingActor(
       state = handleUserEstablishedGraphqlConnectionInternalMsg(msg, state)
       updateModeratorsPresence()
 
-    case msg: ExtendMeetingDuration => handleExtendMeetingDuration(msg)
-    case msg: SendTimeRemainingAuditInternalMsg =>
-      if (!liveMeeting.props.meetingProp.isBreakout) {
-        // Update users of meeting remaining time.
-        state = handleSendTimeRemainingUpdate(msg, state)
-      }
-
-      // Update breakout rooms of remaining time
-      state = handleSendBreakoutTimeRemainingMsg(msg, state)
+    case msg: ExtendMeetingDuration                => handleExtendMeetingDuration(msg)
     case msg: BreakoutRoomCreatedInternalMsg       => state = handleBreakoutRoomCreatedInternalMsg(msg, state)
     case msg: SendBreakoutUsersAuditInternalMsg    => handleSendBreakoutUsersUpdateInternalMsg(msg)
     case msg: BreakoutRoomUsersUpdateInternalMsg   => state = handleBreakoutRoomUsersUpdateInternalMsg(msg, state)
@@ -310,11 +299,9 @@ class MeetingActor(
     case msg: EjectUserFromBreakoutInternalMsg     => handleEjectUserFromBreakoutInternalMsgHdlr(msg)
     case msg: BreakoutRoomEndedInternalMsg         => state = handleBreakoutRoomEndedInternalMsg(msg, state)
     case msg: SendMessageToBreakoutRoomInternalMsg => state = handleSendMessageToBreakoutRoomInternalMsg(msg, state, liveMeeting, msgBus)
-    case msg: SendBreakoutTimeRemainingInternalMsg =>
-      handleSendBreakoutTimeRemainingInternalMsg(msg)
-    case msg: CapturePresentationReqInternalMsg => presentationPodsApp.handle(msg, state, liveMeeting, msgBus)
+    case msg: CapturePresentationReqInternalMsg    => presentationPodsApp.handle(msg, state, liveMeeting, msgBus)
 
-    case _                                      => // do nothing
+    case _                                         => // do nothing
   }
 
   private def initLockSettings(liveMeeting: LiveMeeting, lockSettingsProp: LockSettingsProps): Unit = {
@@ -401,6 +388,20 @@ class MeetingActor(
         log.info("All moderators have left. Setting setLastModeratorLeftOn(). meetingId=" + props.meetingProp.intId)
         val tracker = state.expiryTracker.setLastModeratorLeftOn(TimeUtil.timeNowInMs())
         state = state.update(tracker)
+      }
+    }
+  }
+
+  private def endTimedOutBreakoutRooms(): Unit = {
+    for {
+      model <- state.breakout
+      startedOn <- model.startedOn
+    } yield {
+      val endMeetingTime = TimeUtil.millisToSeconds(startedOn) + model.durationInSeconds
+      val timeRemaining = endMeetingTime - TimeUtil.millisToSeconds(System.currentTimeMillis())
+
+      if (timeRemaining < 0) {
+        endAllBreakoutRooms(eventBus, liveMeeting, state, MeetingEndReason.BREAKOUT_ENDED_EXCEEDING_DURATION)
       }
     }
   }
@@ -791,6 +792,7 @@ class MeetingActor(
 
   private def handleMeetingTasksExecutor(): Unit = {
     clearExpiredReactionEmojis()
+    endTimedOutBreakoutRooms()
   }
 
   private def clearExpiredReactionEmojis(): Unit = {
