@@ -25,7 +25,7 @@ class Notifications extends MultiUsers {
     await this.modPage.joinMicrophone();
     await util.checkNotificationText(this.modPage, e.joinAudioToast);
     await util.checkNotificationIcon(this.modPage, e.unmuteIcon);
-    await util.waitAndClearNotification(this.modPage);
+    await this.modPage.closeAllToastNotifications();
     await this.modPage.waitAndClick(e.audioDropdownMenu);
     await this.modPage.waitAndClick(e.leaveAudio);
     await util.waitAndClearNotification(this.modPage);
@@ -60,7 +60,7 @@ class Notifications extends MultiUsers {
     await sleep(1000);
     await this.modPage.waitAndClick(e.reactionsButton);
     await this.modPage.waitAndClick(e.lowerHandBtn);
-    await this.modPage.wasRemoved(e.raiseHandRejection);
+    await this.modPage.wasRemoved(e.raiseHandRejection, 'should the raise hand be rejected');
     await util.checkNotificationText(this.modPage, e.raisingHandToast);
     await this.modPage.hasText(`${e.smallToastMsg}>>nth=0`, e.raisingHandToast);
     await this.modPage.hasText(`${e.smallToastMsg}>>nth=1`, e.loweringHandToast);

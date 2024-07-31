@@ -58,6 +58,14 @@ class BigBlueButtonActor(
     }
   }
 
+  object BBBTasksExecutor
+  context.system.scheduler.schedule(
+    1 minute,
+    1 minute,
+    self,
+    BBBTasksExecutor
+  )
+
   override def preStart() {
     bbbMsgBus.subscribe(self, meetingManagerChannel)
     DatabaseConnection.initialize()
@@ -72,6 +80,7 @@ class BigBlueButtonActor(
 
   def receive = {
     // Internal messages
+    case BBBTasksExecutor               => handleMeetingTasksExecutor()
     case msg: DestroyMeetingInternalMsg => handleDestroyMeeting(msg)
 
     //Api messages
@@ -189,6 +198,12 @@ class BigBlueButtonActor(
     val event = MsgBuilder.buildCheckAlivePingSysMsg(msg.body.system, msg.body.bbbWebTimestamp, System.currentTimeMillis())
     healthzService.sendPubSubStatusMessage(msg.body.akkaAppsTimestamp, System.currentTimeMillis())
     outGW.send(event)
+  }
+
+  private def handleMeetingTasksExecutor(): Unit = {
+    // Delays meeting data for 1 hour post-meeting in case users request info after it ends.
+    // This routine ensures proper purging if akka-apps restart and the handleDestroyMeeting scheduler does not run.
+    MeetingDAO.deleteOldMeetings()
   }
 
   private def handleDestroyMeeting(msg: DestroyMeetingInternalMsg): Unit = {

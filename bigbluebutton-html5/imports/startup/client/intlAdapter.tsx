@@ -34,7 +34,7 @@ const IntlAdapter: React.FC<IntlAdapterProps> = ({
 
   useEffect(() => {
     intlHolder.setIntl(intl);
-  }, []);
+  }, [currentLocale]);
 
   const sendUiDataToPlugins = () => {
     window.dispatchEvent(new CustomEvent(PluginSdk.IntlLocaleUiDataNames.CURRENT_LOCALE, {
