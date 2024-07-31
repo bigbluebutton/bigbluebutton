@@ -1,5 +1,6 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { defineMessages, useIntl } from 'react-intl';
+import { UpdatedEventDetailsForUserCameraDomElement } from 'bigbluebutton-html-plugin-sdk/dist/cjs/dom-element-manipulation/user-camera/types';
 import Session from '/imports/ui/services/storage/in-memory';
 import UserActions from '/imports/ui/components/video-provider/video-list/video-list-item/user-actions/component';
 import UserStatus from '/imports/ui/components/video-provider/video-list/video-list-item/user-status/component';
@@ -29,6 +30,7 @@ const VIDEO_CONTAINER_WIDTH_BOUND = 125;
 
 interface VideoListItemProps {
   isFullscreenContext: boolean;
+  setUserCamerasRequestedFromPlugin: React.Dispatch<React.SetStateAction<UpdatedEventDetailsForUserCameraDomElement[]>>;
   layoutContextDispatch: (...args: unknown[]) => void;
   isRTL: boolean;
   amIModerator: boolean;
@@ -63,7 +65,7 @@ const VideoListItem: React.FC<VideoListItemProps> = (props) => {
     name, voiceUser, isFullscreenContext, layoutContextDispatch, onHandleVideoFocus,
     cameraId, numOfStreams, focused, onVideoItemMount, onVideoItemUnmount,
     makeDragOperations, dragging, draggingOver, isRTL, isStream, settingsSelfViewDisable,
-    disabledCams, amIModerator, stream,
+    disabledCams, amIModerator, stream, setUserCamerasRequestedFromPlugin,
   } = props;
 
   const intl = useIntl();
@@ -83,6 +85,18 @@ const VideoListItem: React.FC<VideoListItemProps> = (props) => {
 
   const videoTag = useRef<HTMLVideoElement | null>(null);
   const videoContainer = useRef<HTMLDivElement | null>(null);
+
+  useEffect(() => {
+    setUserCamerasRequestedFromPlugin((userCamera) => {
+      if (videoContainer.current && !userCamera.some((uc) => uc.streamId === cameraId)) {
+        userCamera.push({
+          streamId: cameraId,
+          userCameraDomElement: videoContainer.current,
+        });
+      }
+      return userCamera;
+    });
+  }, [videoContainer]);
 
   const videoIsReady = isStreamHealthy && videoDataLoaded && !isSelfViewDisabled;
   const Settings = getSettingsSingletonInstance();

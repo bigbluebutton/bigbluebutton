@@ -21,4 +21,7 @@ export interface PluginsContextType {
     domElementManipulationMessageIds: string[];
     setDomElementManipulationMessageIds: React.Dispatch<
         React.SetStateAction<string[]>>;
+    domElementManipulationStreamIds: string[];
+    setDomElementManipulationStreamIds: React.Dispatch<
+    React.SetStateAction<string[]>>;
 }

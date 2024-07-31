@@ -6,11 +6,13 @@ import { HookEventWrapper } from 'bigbluebutton-html-plugin-sdk/dist/cjs/core/ty
 import { DomElementManipulationHooks } from 'bigbluebutton-html-plugin-sdk/dist/cjs/dom-element-manipulation/enums';
 
 import ChatMessageDomElementManipulationHookManager from './chat/message/hook-manager';
+import UserCameraDomElementManipulationHookManager from './user-camera/hook-manager';
 
 const hooksMap:{
   [key: string]: React.FunctionComponent
 } = {
   [DomElementManipulationHooks.CHAT_MESSAGE]: ChatMessageDomElementManipulationHookManager,
+  [DomElementManipulationHooks.USER_CAMERA]: UserCameraDomElementManipulationHookManager,
 };
 
 const PluginDomElementManipulationManager: React.FC = () => {
