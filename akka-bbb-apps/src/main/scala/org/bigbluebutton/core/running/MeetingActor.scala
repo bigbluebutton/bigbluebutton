@@ -38,7 +38,7 @@ import org.bigbluebutton.ClientSettings.{ getConfigPropertyValueByPathAsBooleanO
 import org.bigbluebutton.common2.msgs
 import scala.concurrent.duration._
 import org.bigbluebutton.core.apps.layout.LayoutApp2x
-import org.bigbluebutton.core.apps.meeting.{ SyncGetMeetingInfoRespMsgHdlr, ValidateConnAuthTokenSysMsgHdlr }
+import org.bigbluebutton.core.apps.meeting.ValidateConnAuthTokenSysMsgHdlr
 import org.bigbluebutton.core.apps.plugin.PluginHdlrs
 import org.bigbluebutton.core.apps.users.ChangeLockSettingsInMeetingCmdMsgHdlr
 import org.bigbluebutton.core.db.{ MeetingDAO, NotificationDAO, TimerDAO, UserStateDAO }
@@ -90,7 +90,6 @@ class MeetingActor(
   with EndMeetingSysCmdMsgHdlr
   with DestroyMeetingSysCmdMsgHdlr
   with ChangeLockSettingsInMeetingCmdMsgHdlr
-  with SyncGetMeetingInfoRespMsgHdlr
   with ClientToServerLatencyTracerMsgHdlr
   with ValidateConnAuthTokenSysMsgHdlr
   with UserActivitySignCmdMsgHdlr {
@@ -889,9 +888,6 @@ class MeetingActor(
   }
 
   def processGetRunningMeetingStateReqMsg(): Unit = {
-
-    // sync all meetings
-    handleSyncGetMeetingInfoRespMsg(liveMeeting.props)
 
     // sync all users
     usersApp.handleSyncGetUsersMeetingRespMsg()

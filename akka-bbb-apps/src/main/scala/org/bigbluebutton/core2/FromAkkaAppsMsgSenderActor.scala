@@ -25,7 +25,6 @@ class FromAkkaAppsMsgSenderActor(msgSender: MessageSender)
 
       // HTML5 sync messages
       case SyncGetPresentationPodsRespMsg.NAME => msgSender.send(toHTML5RedisChannel, json)
-      case SyncGetMeetingInfoRespMsg.NAME      => msgSender.send(toHTML5RedisChannel, json)
       case SyncGetUsersMeetingRespMsg.NAME     => msgSender.send(toHTML5RedisChannel, json)
       case SyncGetGroupChatsRespMsg.NAME       => msgSender.send(toHTML5RedisChannel, json)
       case SyncGetGroupChatMsgsRespMsg.NAME    => msgSender.send(toHTML5RedisChannel, json)

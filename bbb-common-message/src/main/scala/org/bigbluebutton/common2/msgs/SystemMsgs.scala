@@ -148,13 +148,6 @@ case class RecordStatusResetSysMsg(
 ) extends BbbCoreMsg
 case class RecordStatusResetSysMsgBody(recording: Boolean, setBy: String)
 
-object SyncGetMeetingInfoRespMsg { val NAME = "SyncGetMeetingInfoRespMsg" }
-case class SyncGetMeetingInfoRespMsg(
-    header: BbbCoreBaseHeader,
-    body:   SyncGetMeetingInfoRespMsgBody
-) extends BbbCoreMsg
-case class SyncGetMeetingInfoRespMsgBody(props: DefaultProps)
-
 object PubSubPongSysRespMsg { val NAME = "PubSubPongSysRespMsg" }
 case class PubSubPongSysRespMsg(
     header: BbbCoreBaseHeader,
