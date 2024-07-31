@@ -355,11 +355,6 @@ object SetCurrentPresentationEvtMsg { val NAME = "SetCurrentPresentationEvtMsg" 
 case class SetCurrentPresentationEvtMsg(header: BbbClientMsgHeader, body: SetCurrentPresentationEvtMsgBody) extends BbbCoreMsg
 case class SetCurrentPresentationEvtMsgBody(podId: String, presentationId: String)
 
-// html5 client only
-object SyncGetPresentationPodsRespMsg { val NAME = "SyncGetPresentationPodsRespMsg" }
-case class SyncGetPresentationPodsRespMsg(header: BbbClientMsgHeader, body: SyncGetPresentationPodsRespMsgBody) extends BbbCoreMsg
-case class SyncGetPresentationPodsRespMsgBody(pods: Vector[PresentationPodVO])
-
 // ------------ akka-apps to client ------------
 
 // ------------ akka-apps to bbb-common-web ------------

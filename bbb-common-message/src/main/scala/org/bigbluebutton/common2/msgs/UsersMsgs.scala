@@ -90,23 +90,23 @@ case class UserJoinedMeetingEvtMsg(
     body:   UserJoinedMeetingEvtMsgBody
 ) extends BbbCoreMsg
 case class UserJoinedMeetingEvtMsgBody(
-    intId:            String,
-    extId:            String,
-    name:             String,
-    role:             String,
-    guest:            Boolean,
-    authed:           Boolean,
-    guestStatus:      String,
-    reactionEmoji:    String,
-    raiseHand:        Boolean,
-    away:             Boolean,
-    pin:              Boolean,
-    presenter:        Boolean,
-    locked:           Boolean,
-    avatar:           String,
-    color:            String,
-    clientType:       String,
-    userMetadata: Map[String, String]
+    intId:         String,
+    extId:         String,
+    name:          String,
+    role:          String,
+    guest:         Boolean,
+    authed:        Boolean,
+    guestStatus:   String,
+    reactionEmoji: String,
+    raiseHand:     Boolean,
+    away:          Boolean,
+    pin:           Boolean,
+    presenter:     Boolean,
+    locked:        Boolean,
+    avatar:        String,
+    color:         String,
+    clientType:    String,
+    userMetadata:  Map[String, String]
 )
 
 /**
@@ -155,10 +155,6 @@ case class RecordAndClearPreviousMarkersCmdMsgBody(recording: Boolean, setBy: St
 object RecordingStatusChangedEvtMsg { val NAME = "RecordingStatusChangedEvtMsg" }
 case class RecordingStatusChangedEvtMsg(header: BbbClientMsgHeader, body: RecordingStatusChangedEvtMsgBody) extends BbbCoreMsg
 case class RecordingStatusChangedEvtMsgBody(recording: Boolean, setBy: String)
-
-object UpdateRecordingTimerEvtMsg { val NAME = "UpdateRecordingTimerEvtMsg" }
-case class UpdateRecordingTimerEvtMsg(header: BbbClientMsgHeader, body: UpdateRecordingTimerEvtMsgBody) extends BbbCoreMsg
-case class UpdateRecordingTimerEvtMsgBody(time: Long)
 
 /**
  * Sent by user to update webcamsOnlyForModerator meeting property.
@@ -354,13 +350,6 @@ case class LockSettingsInMeetingChangedEvtMsgBody(disableCam: Boolean, disableMi
                                                   lockOnJoinConfigurable: Boolean, hideViewersCursor: Boolean, hideViewersAnnotation: Boolean, setBy: String)
 
 /**
- * Sent by client to query the lock settings.
- */
-object GetLockSettingsReqMsg { val NAME = "GetLockSettingsReqMsg" }
-case class GetLockSettingsReqMsg(header: BbbClientMsgHeader, body: GetLockSettingsReqMsgBody) extends StandardMsg
-case class GetLockSettingsReqMsgBody(requesterId: String)
-
-/**
  * Response to the query for lock settings.
  */
 object GetLockSettingsRespMsg { val NAME = "GetLockSettingsRespMsg" }
@@ -411,10 +400,6 @@ case class GetUsersMeetingRespMsgBody(users: Vector[WebUser])
 case class WebUser(intId: String, extId: String, name: String, role: String,
                    guest: Boolean, authed: Boolean, guestStatus: String,
                    locked: Boolean, presenter: Boolean, avatar: String, clientType: String)
-
-object SyncGetUsersMeetingRespMsg { val NAME = "SyncGetUsersMeetingRespMsg" }
-case class SyncGetUsersMeetingRespMsg(header: BbbClientMsgHeader, body: SyncGetUsersMeetingRespMsgBody) extends BbbCoreMsg
-case class SyncGetUsersMeetingRespMsgBody(users: Vector[WebUser])
 
 object GetVoiceUsersMeetingRespMsg {
   val NAME = "GetVoiceUsersMeetingRespMsg"

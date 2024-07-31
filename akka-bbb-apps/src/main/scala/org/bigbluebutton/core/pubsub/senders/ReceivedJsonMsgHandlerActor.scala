@@ -55,9 +55,6 @@ class ReceivedJsonMsgHandlerActor(
       case CheckAlivePingSysMsg.NAME =>
         route[CheckAlivePingSysMsg](meetingManagerChannel, envelope, jsonNode)
 
-      case GetRunningMeetingsReqMsg.NAME =>
-        route[GetRunningMeetingsReqMsg](meetingManagerChannel, envelope, jsonNode)
-
       case CreateMeetingReqMsg.NAME =>
         route[CreateMeetingReqMsg](meetingManagerChannel, envelope, jsonNode)
       case ValidateAuthTokenReqMsg.NAME =>
@@ -68,8 +65,6 @@ class ReceivedJsonMsgHandlerActor(
         route[RegisterUserReqMsg](meetingManagerChannel, envelope, jsonNode)
       case UserJoinMeetingReqMsg.NAME =>
         routeGenericMsg[UserJoinMeetingReqMsg](envelope, jsonNode)
-      case GetAllMeetingsReqMsg.NAME =>
-        route[GetAllMeetingsReqMsg](meetingManagerChannel, envelope, jsonNode)
       case DestroyMeetingSysCmdMsg.NAME =>
         route[DestroyMeetingSysCmdMsg](meetingManagerChannel, envelope, jsonNode)
       case EjectUserFromMeetingSysMsg.NAME =>
@@ -387,8 +382,6 @@ class ReceivedJsonMsgHandlerActor(
         routeGenericMsg[ChangeLockSettingsInMeetingCmdMsg](envelope, jsonNode)
       case LockUsersInMeetingCmdMsg.NAME =>
         routeGenericMsg[LockUsersInMeetingCmdMsg](envelope, jsonNode)
-      case GetLockSettingsReqMsg.NAME =>
-        routeGenericMsg[GetLockSettingsReqMsg](envelope, jsonNode)
 
       // Screenshare
       case ScreenshareRtmpBroadcastStartedVoiceConfEvtMsg.NAME =>

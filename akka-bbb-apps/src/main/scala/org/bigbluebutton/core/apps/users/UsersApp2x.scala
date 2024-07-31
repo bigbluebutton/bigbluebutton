@@ -6,7 +6,6 @@ trait UsersApp2x
   extends UserLeaveReqMsgHdlr
   with LockUserInMeetingCmdMsgHdlr
   with LockUsersInMeetingCmdMsgHdlr
-  with GetLockSettingsReqMsgHdlr
   with ClearAllUsersReactionCmdMsgHdlr {
 
   this: MeetingActor =>

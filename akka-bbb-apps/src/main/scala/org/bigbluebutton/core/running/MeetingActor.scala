@@ -38,7 +38,7 @@ import org.bigbluebutton.ClientSettings.{ getConfigPropertyValueByPathAsBooleanO
 import org.bigbluebutton.common2.msgs
 import scala.concurrent.duration._
 import org.bigbluebutton.core.apps.layout.LayoutApp2x
-import org.bigbluebutton.core.apps.meeting.{ SyncGetMeetingInfoRespMsgHdlr, ValidateConnAuthTokenSysMsgHdlr }
+import org.bigbluebutton.core.apps.meeting.ValidateConnAuthTokenSysMsgHdlr
 import org.bigbluebutton.core.apps.plugin.PluginHdlrs
 import org.bigbluebutton.core.apps.users.ChangeLockSettingsInMeetingCmdMsgHdlr
 import org.bigbluebutton.core.db.{ MeetingDAO, NotificationDAO, TimerDAO, UserStateDAO }
@@ -89,11 +89,7 @@ class MeetingActor(
   with EjectUserFromVoiceCmdMsgHdlr
   with EndMeetingSysCmdMsgHdlr
   with DestroyMeetingSysCmdMsgHdlr
-  with SendTimeRemainingUpdateHdlr
-  with SendBreakoutTimeRemainingMsgHdlr
-  with SendBreakoutTimeRemainingInternalMsgHdlr
   with ChangeLockSettingsInMeetingCmdMsgHdlr
-  with SyncGetMeetingInfoRespMsgHdlr
   with ClientToServerLatencyTracerMsgHdlr
   with ValidateConnAuthTokenSysMsgHdlr
   with UserActivitySignCmdMsgHdlr {
@@ -160,7 +156,7 @@ class MeetingActor(
     endWhenNoModeratorDelayInMs = TimeUtil.minutesToMillis(props.durationProps.endWhenNoModeratorDelayInMinutes)
   )
 
-  val recordingTracker = new MeetingRecordingTracker(startedOnInMs = 0L, previousDurationInMs = 0L, currentDurationInMs = 0L)
+  val recordingTracker = new MeetingRecordingTracker(startedOnInMs = 0L, previousDurationInMs = 0L)
 
   var state = new MeetingState2x(
     new GroupChats(Map.empty),
@@ -269,8 +265,6 @@ class MeetingActor(
     // Handling RegisterUserReqMsg as it is forwarded from BBBActor and
     // its type is not BbbCommonEnvCoreMsg
     case m: RegisterUserReqMsg                    => usersApp.handleRegisterUserReqMsg(m)
-    case m: GetAllMeetingsReqMsg                  => handleGetAllMeetingsReqMsg(m)
-    case m: GetRunningMeetingStateReqMsg          => handleGetRunningMeetingStateReqMsg(m)
     case m: ValidateConnAuthTokenSysMsg           => handleValidateConnAuthTokenSysMsg(m)
 
     //API Msgs
@@ -293,15 +287,7 @@ class MeetingActor(
       state = handleUserEstablishedGraphqlConnectionInternalMsg(msg, state)
       updateModeratorsPresence()
 
-    case msg: ExtendMeetingDuration => handleExtendMeetingDuration(msg)
-    case msg: SendTimeRemainingAuditInternalMsg =>
-      if (!liveMeeting.props.meetingProp.isBreakout) {
-        // Update users of meeting remaining time.
-        state = handleSendTimeRemainingUpdate(msg, state)
-      }
-
-      // Update breakout rooms of remaining time
-      state = handleSendBreakoutTimeRemainingMsg(msg, state)
+    case msg: ExtendMeetingDuration                => handleExtendMeetingDuration(msg)
     case msg: BreakoutRoomCreatedInternalMsg       => state = handleBreakoutRoomCreatedInternalMsg(msg, state)
     case msg: SendBreakoutUsersAuditInternalMsg    => handleSendBreakoutUsersUpdateInternalMsg(msg)
     case msg: BreakoutRoomUsersUpdateInternalMsg   => state = handleBreakoutRoomUsersUpdateInternalMsg(msg, state)
@@ -310,13 +296,9 @@ class MeetingActor(
     case msg: EjectUserFromBreakoutInternalMsg     => handleEjectUserFromBreakoutInternalMsgHdlr(msg)
     case msg: BreakoutRoomEndedInternalMsg         => state = handleBreakoutRoomEndedInternalMsg(msg, state)
     case msg: SendMessageToBreakoutRoomInternalMsg => state = handleSendMessageToBreakoutRoomInternalMsg(msg, state, liveMeeting, msgBus)
-    case msg: SendBreakoutTimeRemainingInternalMsg =>
-      handleSendBreakoutTimeRemainingInternalMsg(msg)
-    case msg: CapturePresentationReqInternalMsg => presentationPodsApp.handle(msg, state, liveMeeting, msgBus)
-    case msg: SendRecordingTimerInternalMsg =>
-      state = usersApp.handleSendRecordingTimerInternalMsg(msg, state)
+    case msg: CapturePresentationReqInternalMsg    => presentationPodsApp.handle(msg, state, liveMeeting, msgBus)
 
-    case _ => // do nothing
+    case _                                         => // do nothing
   }
 
   private def initLockSettings(liveMeeting: LiveMeeting, lockSettingsProp: LockSettingsProps): Unit = {
@@ -403,6 +385,20 @@ class MeetingActor(
         log.info("All moderators have left. Setting setLastModeratorLeftOn(). meetingId=" + props.meetingProp.intId)
         val tracker = state.expiryTracker.setLastModeratorLeftOn(TimeUtil.timeNowInMs())
         state = state.update(tracker)
+      }
+    }
+  }
+
+  private def endTimedOutBreakoutRooms(): Unit = {
+    for {
+      model <- state.breakout
+      startedOn <- model.startedOn
+    } yield {
+      val endMeetingTime = TimeUtil.millisToSeconds(startedOn) + model.durationInSeconds
+      val timeRemaining = endMeetingTime - TimeUtil.millisToSeconds(System.currentTimeMillis())
+
+      if (timeRemaining < 0) {
+        endAllBreakoutRooms(eventBus, liveMeeting, state, MeetingEndReason.BREAKOUT_ENDED_EXCEEDING_DURATION)
       }
     }
   }
@@ -602,7 +598,6 @@ class MeetingActor(
       case m: LockUsersInMeetingCmdMsg =>
         handleLockUsersInMeetingCmdMsg(m)
         updateUserLastActivity(m.body.lockedBy)
-      case m: GetLockSettingsReqMsg             => handleGetLockSettingsReqMsg(m)
 
       // Presentation
       case m: PreuploadedPresentationsSysPubMsg => presentationApp2x.handle(m, liveMeeting, msgBus)
@@ -794,6 +789,7 @@ class MeetingActor(
   private def handleMeetingTasksExecutor(): Unit = {
     clearExpiredReactionEmojis()
     stopFinishedTimer()
+    endTimedOutBreakoutRooms()
   }
 
   private def clearExpiredReactionEmojis(): Unit = {
@@ -889,41 +885,6 @@ class MeetingActor(
     val presentationId: String = presentationPods.flatMap(_.getCurrentPresentation.map(_.id)).mkString
     val presentationName: String = presentationPods.flatMap(_.getCurrentPresentation.map(_.name)).mkString
     PresentationInfo(presentationId, presentationName)
-  }
-
-  def handleGetRunningMeetingStateReqMsg(msg: GetRunningMeetingStateReqMsg): Unit = {
-    processGetRunningMeetingStateReqMsg()
-  }
-
-  def processGetRunningMeetingStateReqMsg(): Unit = {
-
-    // sync all meetings
-    handleSyncGetMeetingInfoRespMsg(liveMeeting.props)
-
-    // sync all users
-    usersApp.handleSyncGetUsersMeetingRespMsg()
-
-    // sync all presentations
-    presentationPodsApp.handleSyncGetPresentationPods(state, liveMeeting, msgBus)
-
-    // sync all group chats and group chat messages
-    groupChatApp.handleSyncGetGroupChatsInfo(state, liveMeeting, msgBus)
-
-    // sync all voice users
-    handleSyncGetVoiceUsersMsg(state, liveMeeting, msgBus)
-
-    // sync all lock settings
-    handleSyncGetLockSettingsMsg(state, liveMeeting, msgBus)
-
-    // send all screen sharing info
-    screenshareApp2x.handleSyncGetScreenshareInfoRespMsg(liveMeeting, msgBus)
-
-    // send all webcam info
-    webcamApp2x.handleSyncGetWebcamInfoRespMsg(liveMeeting, msgBus)
-  }
-
-  def handleGetAllMeetingsReqMsg(msg: GetAllMeetingsReqMsg): Unit = {
-    processGetRunningMeetingStateReqMsg()
   }
 
   def handlePresenterChange(msg: AssignPresenterReqMsg, state: MeetingState2x): MeetingState2x = {
@@ -1190,8 +1151,6 @@ class MeetingActor(
           EjectReasonCode.USER_INACTIVITY,
           ban = false
         )
-
-        Sender.sendDisconnectClientSysMsg(liveMeeting.props.meetingProp.intId, u.intId, SystemUser.ID, EjectReasonCode.USER_INACTIVITY, outGW)
 
         // Force reconnection with graphql to refresh permissions
         for {
