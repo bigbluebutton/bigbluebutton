@@ -33,6 +33,7 @@ export const ChatMessages = styled.div<ChatMessagesProps>`
   `}
 
   padding-bottom: ${smPaddingX};
+  user-select: text;
 `;
 
 export const MessageList = styled(ScrollboxVertical)`
