@@ -16,7 +16,7 @@ import {
 import Styled from './styles';
 import PanToolInjector from './pan-tool-injector/component';
 import {
-  findRemoved, filterInvalidShapes, mapLanguage, sendShapeChanges, usePrevious,
+  findRemoved, filterInvalidShapes, mapLanguage, sendShapeChanges, usePrevious, TextUtil
 } from './utils';
 import { isEqual } from 'radash';
 
@@ -27,6 +27,14 @@ const SMALLEST_DOCK_WIDTH = 710;
 const TOOLBAR_SMALL = 28;
 const TOOLBAR_LARGE = 32;
 const MOUNTED_RESIZE_DELAY = 1500;
+
+const LETTER_SPACING = '-0.03em';
+const LINE_HEIGHT = 1.2;
+const fontSizeMap = {
+  small: 12,
+  medium: 16,
+  large: 20
+};
 
 export default function Whiteboard(props) {
   const {
@@ -747,6 +755,24 @@ export default function Whiteboard(props) {
   const onPatch = (e, t, reason) => {
     if (!e?.pageState || !reason) return;
 
+    function updateTextShapeSize(shape, textUtil, fsm) {
+      // Create a new object for estimated shape
+      const estimatedShape = {
+        ...shape,
+        style: {
+          ...shape.style,
+          fontFamily: shape.style.fontFamily || 'Comic Sans MS, cursive, sans-serif',
+          fontSize: fsm[shape.style.size] || 16,
+          letterSpacing: LETTER_SPACING,
+          lineHeight: LINE_HEIGHT,
+        },
+      };
+      // Calculate and set size
+      const measuredBounds = textUtil.getBoundsEstimate(estimatedShape);
+      // Assign size to a new object to avoid modifying the original shape parameter
+      return { ...shape, size: [measuredBounds.width, measuredBounds.height] };
+    }
+
     if (((isPanning || panSelected) && (reason === 'selected' || reason === 'set_hovered_id'))) {
       e.patchState(
         {
@@ -889,15 +915,16 @@ export default function Whiteboard(props) {
       }
 
       if (e?.session?.initialShape?.type === 'text' && !shapes[patchedShape.id]) {
-        // check for maxShapes
+        // Check for maxShapes
         const currentShapes = e?.document?.pages[e?.currentPageId]?.shapes;
         const shapeNumberExceeded = Object.keys(currentShapes).length - 1 > maxNumberOfAnnotations;
         if (shapeNumberExceeded) {
           notifyShapeNumberExceeded(intl, maxNumberOfAnnotations);
           e?.cancelSession?.();
         } else {
-          patchedShape.userId = currentUser?.userId;
-          persistShape(patchedShape, whiteboardId, isModerator);
+          const updatedShape = { ...patchedShape, userId: currentUser?.userId };
+          const newShapeWithSize = updateTextShapeSize(updatedShape, TextUtil, fontSizeMap);
+          persistShape(newShapeWithSize, whiteboardId, isModerator);
         }
       } else {
         const diff = {
@@ -905,6 +932,11 @@ export default function Whiteboard(props) {
           point: patchedShape.point,
           text: patchedShape.text,
         };
+
+        if (patchedShape.type === 'text') {
+          const updatedShape = updateTextShapeSize(patchedShape, TextUtil, fontSizeMap);
+          diff.size = updatedShape.size;
+        }
         persistShape(diff, whiteboardId, isModerator);
       }
     }
