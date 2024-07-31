@@ -275,6 +275,11 @@ const getTextSize = (text, style, padding) => {
   return [width + padding, height + padding];
 };
 
+
+// getBoundsEstimate here is a function inspired by implementations in tldraw-v1:
+// TextUtil: https://github.com/tldraw/tldraw-v1/blob/f786c38ac0fdce337c4405c11cbfa9223d2ee6dd/packages/tldraw/src/state/shapes/TextUtil/TextUtil.tsx#L24
+// getTextSize: https://github.com/tldraw/tldraw-v1/blob/f786c38ac0fdce337c4405c11cbfa9223d2ee6dd/packages/tldraw/src/state/shapes/shared/getTextSize.ts#L6
+// It calculates the estimated bounds of a text shape based on its content and style.
 const TextUtil = {
   getBoundsEstimate(shape) {
     const { text, style } = shape;

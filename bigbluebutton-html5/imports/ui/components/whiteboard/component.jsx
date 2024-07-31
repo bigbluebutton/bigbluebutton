@@ -16,7 +16,7 @@ import {
 import Styled from './styles';
 import PanToolInjector from './pan-tool-injector/component';
 import {
-  findRemoved, filterInvalidShapes, mapLanguage, sendShapeChanges, usePrevious, TextUtil
+  findRemoved, filterInvalidShapes, mapLanguage, sendShapeChanges, usePrevious, TextUtil,
 } from './utils';
 import { isEqual } from 'radash';
 
