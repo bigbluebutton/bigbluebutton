@@ -6,19 +6,21 @@ import {
 } from '/imports/ui/stylesheets/styled-components/palette';
 import Button from '/imports/ui/components/common/button/component';
 
-const SwitchButtonWrapper = styled.div`
-  position: relative;
-  right: 0;
-  left: auto;
+const PluginButtonWrapper = styled.div`
   background-color: ${colorTransparent};
   cursor: pointer;
   border: 0;
   z-index: 2;
   margin: 2px;
-
   [dir="rtl"] & {
     right: auto;
-    left: 1.75rem;
+    left: 0;
+    ${({ fullScreenEnabled }) => fullScreenEnabled && `
+      left: 1.75rem;
+    `}
+  }
+  [class*="presentationZoomControls"] & {
+    position: relative !important;
   }
 
   ${({ dark }) => dark && `
@@ -36,17 +38,9 @@ const SwitchButtonWrapper = styled.div`
       color: ${colorBlack};
     }
   `}
-
-  ${({ bottom }) => bottom && `
-    bottom: 0;
-  `}
-
-  ${({ bottom }) => !bottom && `
-    top: 0;
-  `}
 `;
 
-const SwitchButton = styled(Button)`
+const PluginButton = styled(Button)`
   padding: 5px;
 
   &,
@@ -65,6 +59,6 @@ const SwitchButton = styled(Button)`
 `;
 
 export default {
-  SwitchButtonWrapper,
-  SwitchButton,
+  PluginButtonWrapper,
+  PluginButton,
 };
