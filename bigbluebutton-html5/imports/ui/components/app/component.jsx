@@ -504,8 +504,8 @@ class App extends Component {
     const {
       customStyle,
       customStyleUrl,
-      audioAlertEnabled,
-      pushAlertEnabled,
+      chatPushAlerts,
+      chatAudioAlerts,
       shouldShowPresentation,
       shouldShowScreenshare,
       isSharedNotesPinned,
@@ -600,11 +600,11 @@ class App extends Component {
           }}
           />
           <ToastContainer rtl />
-          {(audioAlertEnabled || pushAlertEnabled)
+          {(chatAudioAlerts || chatPushAlerts)
             && (
               <ChatAlertContainerGraphql
-                audioAlertEnabled={audioAlertEnabled}
-                pushAlertEnabled={pushAlertEnabled}
+                audioAlertEnabled={chatAudioAlerts}
+                pushAlertEnabled={chatPushAlerts}
               />
             )}
           <RaiseHandNotifier />
