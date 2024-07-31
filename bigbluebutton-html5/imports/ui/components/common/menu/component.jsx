@@ -138,7 +138,7 @@ class BBBMenu extends React.Component {
             $roundButtons={roundButtons}
             $isToggle={isToggle}
             onClick={(event) => {
-              onClick();
+              onClick(event);
               const close = !keepOpen && !key?.includes('setstatus') && !key?.includes('back');
               // prevent menu close for sub menu actions
               if (close) this.handleClose(event);
