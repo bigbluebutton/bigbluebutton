@@ -174,7 +174,6 @@ class UsersApp(
   with LogoutAndEndMeetingCmdMsgHdlr
   with SetRecordingStatusCmdMsgHdlr
   with RecordAndClearPreviousMarkersCmdMsgHdlr
-  with SendRecordingTimerInternalMsgHdlr
   with GetRecordingStatusReqMsgHdlr
   with AssignPresenterReqMsgHdlr
   with ChangeUserPinStateReqMsgHdlr

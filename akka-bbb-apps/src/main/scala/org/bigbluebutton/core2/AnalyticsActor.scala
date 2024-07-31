@@ -84,7 +84,6 @@ class AnalyticsActor(val includeChat: Boolean) extends Actor with ActorLogging {
       case m: ScreenshareRtmpBroadcastStoppedEvtMsg          => logMessage(msg)
       case m: StartRecordingVoiceConfSysMsg                  => logMessage(msg)
       case m: StopRecordingVoiceConfSysMsg                   => logMessage(msg)
-      //case m: UpdateRecordingTimerEvtMsg => logMessage(msg)
       case m: RecordAndClearPreviousMarkersCmdMsg            => logMessage(msg)
       case m: TransferUserToVoiceConfSysMsg                  => logMessage(msg)
       case m: UserBroadcastCamStartMsg                       => logMessage(msg)

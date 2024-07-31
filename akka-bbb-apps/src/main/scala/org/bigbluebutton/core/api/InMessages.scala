@@ -40,8 +40,6 @@ case class SendTimeRemainingAuditInternalMsg(meetingId: String, timeUpdatedInMin
  */
 case class SendBreakoutTimeRemainingInternalMsg(meetingId: String, timeLeftInSec: Long, timeUpdatedInMinutes: Int) extends InMessage
 
-case class SendRecordingTimerInternalMsg(meetingId: String) extends InMessage
-
 case class ExtendMeetingDuration(meetingId: String, userId: String) extends InMessage
 case class DestroyMeetingInternalMsg(meetingId: String) extends InMessage
 

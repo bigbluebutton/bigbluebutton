@@ -90,23 +90,23 @@ case class UserJoinedMeetingEvtMsg(
     body:   UserJoinedMeetingEvtMsgBody
 ) extends BbbCoreMsg
 case class UserJoinedMeetingEvtMsgBody(
-    intId:            String,
-    extId:            String,
-    name:             String,
-    role:             String,
-    guest:            Boolean,
-    authed:           Boolean,
-    guestStatus:      String,
-    reactionEmoji:    String,
-    raiseHand:        Boolean,
-    away:             Boolean,
-    pin:              Boolean,
-    presenter:        Boolean,
-    locked:           Boolean,
-    avatar:           String,
-    color:            String,
-    clientType:       String,
-    userMetadata: Map[String, String]
+    intId:         String,
+    extId:         String,
+    name:          String,
+    role:          String,
+    guest:         Boolean,
+    authed:        Boolean,
+    guestStatus:   String,
+    reactionEmoji: String,
+    raiseHand:     Boolean,
+    away:          Boolean,
+    pin:           Boolean,
+    presenter:     Boolean,
+    locked:        Boolean,
+    avatar:        String,
+    color:         String,
+    clientType:    String,
+    userMetadata:  Map[String, String]
 )
 
 /**
@@ -155,10 +155,6 @@ case class RecordAndClearPreviousMarkersCmdMsgBody(recording: Boolean, setBy: St
 object RecordingStatusChangedEvtMsg { val NAME = "RecordingStatusChangedEvtMsg" }
 case class RecordingStatusChangedEvtMsg(header: BbbClientMsgHeader, body: RecordingStatusChangedEvtMsgBody) extends BbbCoreMsg
 case class RecordingStatusChangedEvtMsgBody(recording: Boolean, setBy: String)
-
-object UpdateRecordingTimerEvtMsg { val NAME = "UpdateRecordingTimerEvtMsg" }
-case class UpdateRecordingTimerEvtMsg(header: BbbClientMsgHeader, body: UpdateRecordingTimerEvtMsgBody) extends BbbCoreMsg
-case class UpdateRecordingTimerEvtMsgBody(time: Long)
 
 /**
  * Sent by user to update webcamsOnlyForModerator meeting property.

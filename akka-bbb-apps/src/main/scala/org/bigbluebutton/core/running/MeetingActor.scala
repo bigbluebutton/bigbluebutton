@@ -160,7 +160,7 @@ class MeetingActor(
     endWhenNoModeratorDelayInMs = TimeUtil.minutesToMillis(props.durationProps.endWhenNoModeratorDelayInMinutes)
   )
 
-  val recordingTracker = new MeetingRecordingTracker(startedOnInMs = 0L, previousDurationInMs = 0L, currentDurationInMs = 0L)
+  val recordingTracker = new MeetingRecordingTracker(startedOnInMs = 0L, previousDurationInMs = 0L)
 
   var state = new MeetingState2x(
     new GroupChats(Map.empty),
@@ -313,10 +313,8 @@ class MeetingActor(
     case msg: SendBreakoutTimeRemainingInternalMsg =>
       handleSendBreakoutTimeRemainingInternalMsg(msg)
     case msg: CapturePresentationReqInternalMsg => presentationPodsApp.handle(msg, state, liveMeeting, msgBus)
-    case msg: SendRecordingTimerInternalMsg =>
-      state = usersApp.handleSendRecordingTimerInternalMsg(msg, state)
 
-    case _ => // do nothing
+    case _                                      => // do nothing
   }
 
   private def initLockSettings(liveMeeting: LiveMeeting, lockSettingsProp: LockSettingsProps): Unit = {
