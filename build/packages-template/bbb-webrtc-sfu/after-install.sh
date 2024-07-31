@@ -12,6 +12,12 @@ case "$1" in
     # Set mediasoup IPs
     yq e -i ".mediasoup.webrtc.listenIps[0].announcedIp = \"$IP\"" $TARGET
     yq e -i ".mediasoup.plainRtp.listenIp.announcedIp = \"$IP\"" $TARGET
+    # mediasoup.workerBalancing: defines the strategy to distribute mediasoup
+    # elements (transports, producers, consumers) among workers.
+    yq e -i '.mediasoup.workerBalancing.strategy = "least-loaded"' $TARGET
+    # mediasoup.enableWorkerTransposing: whether to enable worker transposing
+    # (ie: the ability to move a media stream from one worker to another).
+    yq e -i '.mediasoup.enableWorkerTransposing = true' $TARGET
 
     FREESWITCH_IP=$(xmlstarlet sel -t -v '//X-PRE-PROCESS[@cmd="set" and starts-with(@data, "local_ip_v4=")]/@data' /opt/freeswitch/conf/vars.xml | sed 's/local_ip_v4=//g')
     if [ "$FREESWITCH_IP" != "" ]; then
