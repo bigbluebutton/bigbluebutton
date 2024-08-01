@@ -304,20 +304,14 @@ const PresentationMenu = (props) => {
             try {
               // filter shapes that are inside the slide
               const backgroundShape = tldrawAPI.getCurrentPageShapes().find((s) => s.id === `shape:BG-${slideNum}`);
-              const shapes = tldrawAPI.getCurrentPageShapes().filter(
-                (shape) => shape.x <= backgroundShape.props.w
-                  && shape.y <= backgroundShape.props.h
-                  && shape.x >= 0
-                  && shape.y >= 0,
-              );
+              const shapes = tldrawAPI.getCurrentPageShapes();
               const svgElem = await tldrawAPI.getSvg(shapes.map((shape) => shape.id));
+              svgElem.setAttribute('width', backgroundShape.props.w);
+              svgElem.setAttribute('height', backgroundShape.props.h);
+              svgElem.setAttribute('viewBox', `1 1 ${backgroundShape.props.w} ${backgroundShape.props.h}`);
 
               // workaround for ios
               if (isIos || isSafari) {
-                svgElem.setAttribute('width', backgroundShape.props.w);
-                svgElem.setAttribute('height', backgroundShape.props.h);
-                svgElem.setAttribute('viewBox', `1 1 ${backgroundShape.props.w} ${backgroundShape.props.h}`);
-
                 const svgString = new XMLSerializer().serializeToString(svgElem);
                 const blob = new Blob([svgString], { type: 'image/svg+xml' });
 
