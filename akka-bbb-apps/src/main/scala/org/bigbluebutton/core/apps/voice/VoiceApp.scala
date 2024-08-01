@@ -131,6 +131,7 @@ object VoiceApp extends SystemConfiguration {
         liveMeeting,
         outGW,
         mutedUser.intId,
+        mutedUser.callerNum,
         muted,
         toggleListenOnlyAfterMuteTimer
       )
@@ -476,6 +477,7 @@ object VoiceApp extends SystemConfiguration {
     liveMeeting:    LiveMeeting,
     outGW:          OutMsgRouter,
     userId:         String,
+    callerNum:      String,
     enabled:        Boolean,
     delay:          Int = 0
   )(implicit context: ActorContext): Unit = {
@@ -485,6 +487,7 @@ object VoiceApp extends SystemConfiguration {
         liveMeeting.props.meetingProp.intId,
         liveMeeting.props.voiceProp.voiceConf,
         userId,
+        callerNum,
         enabled
       )
       outGW.send(event)
@@ -543,13 +546,15 @@ object VoiceApp extends SystemConfiguration {
       hold
     ) match {
       case Some(vu) =>
-        // Mute vs hold state mismatch, enforce hold state again. 
-        // Mute state is the predominant one here.
-        if (vu.muted != hold) {
+        // Mute vs hold state mismatch. Enforce it if the user is unmuted,
+        // but hold is active, to avoid the user being unable to talk when
+        // the channel is active again.
+        if (!vu.muted && vu.hold) {
           toggleListenOnlyMode(
             liveMeeting,
             outGW,
             intId,
+            vu.callerNum,
             vu.muted
           )
         }

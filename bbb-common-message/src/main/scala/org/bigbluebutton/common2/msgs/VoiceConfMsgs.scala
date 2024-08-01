@@ -555,6 +555,7 @@ case class VoiceConfCallStateEvtMsgBody(
     callSession:      String,
     clientSession:    String,
     userId:           String,
+    voiceUserId:      String,
     callerName:       String,
     callState:        String,
     origCallerIdName: String,
@@ -685,6 +686,7 @@ case class ToggleListenOnlyModeSysMsg(
 case class ToggleListenOnlyModeSysMsgBody(
     voiceConf: String,
     userId:    String,
+    callerNum: String,
     enabled:   Boolean
 )
 
@@ -701,5 +703,6 @@ case class ListenOnlyModeToggledInSfuEvtMsgBody(
     meetingId: String,
     voiceConf: String,
     userId:    String,
+    callerNum: String,
     enabled:   Boolean
 )
