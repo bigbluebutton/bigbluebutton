@@ -29,14 +29,14 @@ mkdir -p staging/usr/share/bigbluebutton/html5-client
 cp bbb-html5.nginx staging/usr/share/bigbluebutton/nginx
 cp bbb-html5.nginx.dev staging/usr/share/bigbluebutton/nginx
 cp bbb-html5.nginx.static staging/usr/share/bigbluebutton/nginx
+cp sip.nginx staging/usr/share/bigbluebutton/nginx
 
 # New format
 if [ -f private/config/settings.yml ]; then
   sed -i "s/HTML5_CLIENT_VERSION/$(($BUILD))/g" private/config/settings.yml
 fi
 
-mkdir -p staging/usr/share/bigbluebutton/nginx
-cp sip.nginx staging/usr/share/bigbluebutton/nginx
+
 
 
 npm -v
