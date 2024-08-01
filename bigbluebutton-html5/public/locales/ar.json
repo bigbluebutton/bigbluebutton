@@ -2,7 +2,7 @@
     "app.home.greeting": "سيبدأ عرضك قريبا ...",
     "app.chat.submitLabel": "أرسل رسالة",
     "app.chat.loading": "رسائل دردشة محملة: {0}%",
-    "app.chat.errorMaxMessageLength": "الرسالة  {0} حرف (حروف) أطول",
+    "app.chat.errorMaxMessageLength": "الرسالة  {0}  من الحروف أطول",
     "app.chat.disconnected": "أنت غير متصل ، لا يمكن إرسال رسائل",
     "app.chat.locked": "تم قفل الدردشة ، لا يمكن إرسال رسائل",
     "app.chat.inputLabel": "إدخال رسالة للدردشة {0}",
