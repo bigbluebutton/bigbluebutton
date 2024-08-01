@@ -21,6 +21,24 @@ interface ChatProps {
 
 const Chat: React.FC<ChatProps> = ({ isRTL }) => {
   const { isChrome } = browserInfo;
+
+  React.useEffect(() => {
+    const handleMouseDown = () => {
+      if (window.getSelection) {
+        const selection = window.getSelection();
+        if (selection) {
+          selection.removeAllRanges();
+        }
+      }
+    };
+
+    document.addEventListener('mousedown', handleMouseDown);
+
+    return () => {
+      document.removeEventListener('mousedown', handleMouseDown);
+    };
+  }, []);
+
   return (
     <Styled.Chat isRTL={isRTL} isChrome={isChrome}>
       <ChatHeader />
@@ -30,7 +48,6 @@ const Chat: React.FC<ChatProps> = ({ isRTL }) => {
     </Styled.Chat>
   );
 };
-
 export const ChatLoading: React.FC<ChatProps> = ({ isRTL }) => {
   const { isChrome } = browserInfo;
   return (

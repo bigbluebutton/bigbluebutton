@@ -43,6 +43,7 @@ export const MessageList = styled(ScrollboxVertical)`
   padding-top: 0;
   outline-style: none;
   overflow-x: hidden;
+  user-select: none;
 
   [dir='rtl'] & {
     margin: 0 0 0 auto;
