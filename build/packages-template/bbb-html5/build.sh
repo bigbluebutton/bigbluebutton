@@ -41,7 +41,7 @@ npm -v
 echo "Node version:" 
 node -v
 
-CI=true npm ci --production
+CI=true npm ci
 DISABLE_ESLINT_PLUGIN=true npm run build
 
 cp -r dist/* staging/var/bigbluebutton/html5-client
