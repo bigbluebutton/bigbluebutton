@@ -107,7 +107,7 @@ Updated in 2.6:
 Updated in 2.7:
 
 - **create** - **Added:** `preUploadedPresentation`, `preUploadedPresentationName`, `disabledFeatures` options`cameraAsContent`, `snapshotOfCurrentSlide`, `downloadPresentationOriginalFile`, `downloadPresentationConvertedToPdf`, `timer`, `learningDashboardDownloadSessionData` (2.7.5).
-- **join** - **Added:** `redirectErrorUrl`, `userdata-bbb_fullaudio_bridge`
+- **join** - **Added:** `errorRedirectUrl`, `userdata-bbb_fullaudio_bridge`
 
 Updated in 3.0:
 
