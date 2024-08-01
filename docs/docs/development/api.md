@@ -106,7 +106,7 @@ Updated in 2.7:
 
 - **create** - **Added:** `preUploadedPresentation`, `preUploadedPresentationName`, `allowPromoteGuestToModerator`, `disabledFeatures` options`cameraAsContent`, `snapshotOfCurrentSlide`, `downloadPresentationOriginalFile`, `downloadPresentationConvertedToPdf`, `timer`, `learningDashboardDownloadSessionData` (2.7.5).
 
-- **join** - **Added:** `redirectErrorUrl`, `webcamBackgroundURL`, `userdata-bbb_fullaudio_bridge` and removed support for all HTTP request methods except GET
+- **join** - **Added:** `errorRedirectUrl`, `webcamBackgroundURL`, `userdata-bbb_fullaudio_bridge` and removed support for all HTTP request methods except GET
 
 ## API Data Types
 
