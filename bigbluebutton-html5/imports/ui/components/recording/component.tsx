@@ -49,8 +49,6 @@ interface RecordingComponentProps {
   amIModerator: boolean;
   connected: boolean;
   isOpen: boolean;
-  recordingError: Error | null,
-  recordingLoading: boolean;
   recordingStatus: boolean,
   priority: string;
   recordingTime: number,
@@ -64,8 +62,6 @@ const RecordingComponent: React.FC<RecordingComponentProps> = (props) => {
     amIModerator,
     connected,
     isOpen,
-    recordingError,
-    recordingLoading,
     recordingStatus,
     recordingTime,
     priority,
@@ -82,15 +78,7 @@ const RecordingComponent: React.FC<RecordingComponentProps> = (props) => {
 
   if (!amIModerator) return null;
 
-  if (recordingError) {
-    title = intl.formatMessage(intlMessages.errorTitle);
-    description = intl.formatMessage(intlMessages.errorDescription);
-    cancelButtonLabel = intl.formatMessage(intlMessages.cancelLabel);
-  } else if (recordingLoading) {
-    title = intl.formatMessage(intlMessages.loadingTitle);
-    description = intl.formatMessage(intlMessages.loadingDescription);
-    cancelButtonLabel = intl.formatMessage(intlMessages.cancelLabel);
-  } else if (recordingStatus) {
+  if (recordingStatus) {
     description = intl.formatMessage(intlMessages.stopDescription);
     title = intl.formatMessage(intlMessages.stopTitle);
   } else {
@@ -107,7 +95,6 @@ const RecordingComponent: React.FC<RecordingComponentProps> = (props) => {
       title={title}
       description={description}
       disableConfirmButton={!connected}
-      hideConfirmButton={recordingLoading || recordingError}
       cancelButtonLabel={cancelButtonLabel}
       {...{
         isOpen,

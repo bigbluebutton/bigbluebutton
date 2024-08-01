@@ -1,4 +1,4 @@
-import styled from 'styled-components';
+import styled, { css } from 'styled-components';
 import { fontSizeLarge, fontSizeBase } from '/imports/ui/stylesheets/styled-components/typography';
 import {
   smPaddingX,
@@ -20,6 +20,7 @@ interface RecordingIndicatorIconProps {
 
 interface RecordingIndicatorProps {
   recording: boolean;
+  disabled: boolean;
 }
 
 interface RecordingStatusViewOnlyProps {
@@ -43,10 +44,11 @@ const RecordingIndicatorIcon = styled.span<RecordingIndicatorIconProps>`
   `}
 `;
 
-const RecordingControl = styled.div<RecordingIndicatorProps>`
+const RecordingControl = styled.button<RecordingIndicatorProps>`
   display: flex;
   align-items: center;
   user-select: none;
+  background: none;
 
   span {
     border: none;
@@ -55,7 +57,7 @@ const RecordingControl = styled.div<RecordingIndicatorProps>`
     color: ${colorWhite} !important;
   }
 
-  &:hover {
+  &:hover:not(:disabled) {
     color: ${colorWhite} !important;
     cursor: pointer;
   }
@@ -87,6 +89,11 @@ const RecordingControl = styled.div<RecordingIndicatorProps>`
       border: ${borderSizeLarge} solid ${colorWhite};
       box-shadow: none;
     }
+  `}
+
+  ${({ disabled }) => disabled && css`
+    cursor: not-allowed;
+    opacity: .5;
   `}
 `;
 

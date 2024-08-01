@@ -52,6 +52,8 @@ export const getSpeechVoices = () => {
   const LANGUAGES = window.meetingClientSettings.public.app.audioCaptions.language.available;
   if (!isWebSpeechApi()) return LANGUAGES;
 
+  if (!window.speechSynthesis) return null;
+
   return unique(
     window
       .speechSynthesis

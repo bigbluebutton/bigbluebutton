@@ -194,8 +194,15 @@
   content: "\e963";
 }
 
+.icon-bbb-time:before {
+  content: "\e908";
+}
+
 .icon-bbb-hand:before {
   content: "\e90f";
+}
+.icon-bbb-happy:before {
+  content: "\e90e";
 }
 .icon-bbb-send:before {
   content: "\e934";

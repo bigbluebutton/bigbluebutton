@@ -147,18 +147,6 @@ const VirtualBgSelector = ({
     }
   }, [isCustomVirtualBackgroundsEnabled]);
 
-  useEffect(() => {
-    const virtualBgData = {
-      name: currentVirtualBg.name,
-      type: currentVirtualBg.type,
-    };
-
-    const virtualBgArray = [virtualBgData];
-
-    const BBBStorage = getStorageSingletonInstance();
-    BBBStorage.setItem('WebcamBackground', virtualBgArray);
-  }, [currentVirtualBg]);
-
   const _virtualBgSelected = (type, name, index, customParams) => handleVirtualBgSelected(type, name, customParams)
     .then((switched) => {
       // Reset to the base NONE_TYPE effect if it failed because the expected
