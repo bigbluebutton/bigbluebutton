@@ -23,7 +23,7 @@ done
 
 mkdir -p staging/var/bigbluebutton/learning-dashboard
 
-mkdir -p staging/usr/share/bigbluebutton/
+mkdir -p staging/usr/share/bigbluebutton/nginx
 cp learning-dashboard.nginx staging/usr/share/bigbluebutton/nginx
 
 

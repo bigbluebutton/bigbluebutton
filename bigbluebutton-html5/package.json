@@ -8,15 +8,12 @@
     "tscheck": "tsc",
     "lint": "eslint .",
     "lint:fix": "eslint . --fix",
+    "test": "export WITH_RECORD=false;export REGRESSION_TESTING=false;env $(cat ../bigbluebutton-tests/puppeteer/.env | xargs)  jest all.test.js --color --detectOpenHandles --forceExit",
+    "test:recording": "export WITH_RECORD=true;export REGRESSION_TESTING=false;env $(cat ../bigbluebutton-tests/puppeteer/.env | xargs)  jest all.test.js --color --detectOpenHandles --forceExit",
+    "test-visual-regression": "export REGRESSION_TESTING=true;env $(cat ../bigbluebutton-tests/puppeteer/.env | xargs)  jest all.test.js --color --detectOpenHandles --forceExit",
+    "test-visual-regression:recording": "export WITH_RECORD=true;export REGRESSION_TESTING=true;env $(cat ../bigbluebutton-tests/puppeteer/.env | xargs)  jest all.test.js --color --detectOpenHandles --forceExit",
     "preinstall": "npx npm-force-resolutions",
     "postinstall": "mkdir -p public/files"
-  },
-  "meteor": {
-    "mainModule": {
-      "web.browser": "client/main.tsx",
-      "legacy": "client/legacy.jsx",
-      "server": "server/main.js"
-    }
   },
   "lint-staged": {
     "*.{js,jsx}": [
@@ -78,7 +75,6 @@
     "immutability-helper": "~2.8.1",
     "langmap": "0.0.16",
     "makeup-screenreader-trap": "0.0.5",
-    "meteor-node-stubs": "^1.2.1",
     "mobx": "6.4.2",
     "pg": "^8.11.3",
     "postcss-nested": "^5.0.6",
@@ -129,7 +125,6 @@
     "@babel/preset-react": "7.24.7",
     "@babel/preset-typescript": "7.24.7",
     "@types/emoji-mart": "^3.0.9",
-    "@types/meteor": "^2.9.3",
     "@types/react": "18.3.3",
     "@types/react-dom": "^18.2.7",
     "@types/styled-components": "^5.1.26",

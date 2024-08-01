@@ -56,7 +56,6 @@ fpm -s dir -C ./staging -n $PACKAGE \
     --before-install before-install.sh \
     --after-install after-install.sh        \
     --after-remove  after-remove.sh        \
-    --depends unzip                        \
-    --description "BigBlueButton bbb-html5-client" \
+    --description "The HTML5 components for BigBlueButton" \
     $DIRECTORIES \
     $OPTS
