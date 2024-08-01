@@ -11,7 +11,6 @@ class WebcamApp2x(implicit val context: ActorContext)
   with GetCamBroadcastPermissionReqMsgHdlr
   with GetCamSubscribePermissionReqMsgHdlr
   with GetWebcamsOnlyForModeratorReqMsgHdlr
-  with SyncGetWebcamInfoRespMsgHdlr
   with UpdateWebcamsOnlyForModeratorCmdMsgHdlr
   with UserBroadcastCamStartMsgHdlr
   with UserBroadcastCamStopMsgHdlr {

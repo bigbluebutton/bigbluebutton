@@ -26,13 +26,6 @@ object BreakoutRoomStartedEvtMsg { val NAME = "BreakoutRoomStartedEvtMsg" }
 case class BreakoutRoomStartedEvtMsg(header: BbbClientMsgHeader, body: BreakoutRoomStartedEvtMsgBody) extends BbbCoreMsg
 case class BreakoutRoomStartedEvtMsgBody(parentMeetingId: String, breakout: BreakoutRoomInfo)
 
-object BreakoutRoomsTimeRemainingUpdateEvtMsg { val NAME = "BreakoutRoomsTimeRemainingUpdateEvtMsg" }
-case class BreakoutRoomsTimeRemainingUpdateEvtMsg(
-    header: BbbClientMsgHeader,
-    body:   BreakoutRoomsTimeRemainingUpdateEvtMsgBody
-) extends BbbCoreMsg
-case class BreakoutRoomsTimeRemainingUpdateEvtMsgBody(timeRemaining: Long)
-
 /**
  * Sent to bbb-web to create breakout rooms.
  */
@@ -97,10 +90,6 @@ case class TransferUserToMeetingEvtMsgBody(fromVoiceConf: String, toVoiceConf: S
 object TransferUserToMeetingRequestMsg { val NAME = "TransferUserToMeetingRequestMsg" }
 case class TransferUserToMeetingRequestMsg(header: BbbClientMsgHeader, body: TransferUserToMeetingRequestMsgBody) extends StandardMsg
 case class TransferUserToMeetingRequestMsgBody(fromMeetingId: String, toMeetingId: String, userId: String)
-
-object UpdateBreakoutUsersEvtMsg { val NAME = "UpdateBreakoutUsersEvtMsg" }
-case class UpdateBreakoutUsersEvtMsg(header: BbbClientMsgHeader, body: UpdateBreakoutUsersEvtMsgBody) extends BbbCoreMsg
-case class UpdateBreakoutUsersEvtMsgBody(parentId: String, breakoutId: String, users: Vector[BreakoutUserVO])
 
 object UpdateBreakoutRoomsTimeReqMsg { val NAME = "UpdateBreakoutRoomsTimeReqMsg" }
 case class UpdateBreakoutRoomsTimeReqMsg(header: BbbClientMsgHeader, body: UpdateBreakoutRoomsTimeReqMsgBody) extends StandardMsg

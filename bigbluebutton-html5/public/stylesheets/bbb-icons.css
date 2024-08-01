@@ -201,6 +201,9 @@
 .icon-bbb-hand:before {
   content: "\e90f";
 }
+.icon-bbb-happy:before {
+  content: "\e90e";
+}
 .icon-bbb-send:before {
   content: "\e934";
 }

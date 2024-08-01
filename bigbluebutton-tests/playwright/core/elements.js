@@ -84,7 +84,7 @@ exports.inputSetTimeSelector = 'input[id="inputSetTimeSelector"]';
 exports.sendButtonDurationTime = 'button[data-test="sendButtonDurationTime"]';
 exports.breakoutRemainingTime = 'span[data-test="breakoutRemainingTime"]';
 exports.roomNameInput = 'input[data-test="roomName-1"]';
-exports.roomName1Test = 'span[data-test="Room 1Test"]';
+exports.roomName1Test = 'span[data-test="TestRoom 1"]';
 exports.userNameBreakoutRoom = 'div[data-test="userNameBreakoutRoom-Room 1"]';
 exports.userNameBreakoutRoom2 = 'div[data-test="userNameBreakoutRoom-Room 2"]';
 exports.userNameBreakoutRoom7 = 'div[data-test="userNameBreakoutRoom-Room 7"]';

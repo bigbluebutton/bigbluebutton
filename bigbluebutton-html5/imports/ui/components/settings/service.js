@@ -22,7 +22,9 @@ export const updateSettings = (obj, msgDescriptor, mutation) => {
   }
 };
 
-export const getAvailableLocales = () => fetch('./locales/').then(locales => locales.json());
+const getAvailableLocales = () => fetch('./locales/')
+  .then((locales) => locales.json())
+  .then((locales) => locales.filter((locale) => locale.name !== 'index.json'));
 
 export const FALLBACK_LOCALES = {
   dv: {
