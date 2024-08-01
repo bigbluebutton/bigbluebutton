@@ -36,10 +36,15 @@ if [ -f private/config/settings.yml ]; then
   sed -i "s/HTML5_CLIENT_VERSION/$(($BUILD))/g" private/config/settings.yml
 fi
 
+echo "(DEBUG) Npm before nvm command:"
+npm --version
 
+echo "Installing new npm:"
+nvm install-latest-npm
 
-
+echo "Npm version:" 
 npm -v
+echo "Node version:" 
 node -v
 
 npm ci --production
