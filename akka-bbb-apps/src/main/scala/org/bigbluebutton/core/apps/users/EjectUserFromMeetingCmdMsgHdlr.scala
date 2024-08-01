@@ -70,9 +70,6 @@ trait EjectUserFromMeetingCmdMsgHdlr extends RightsManagementTrait {
 
             log.info("Eject user {} userId={} by {} and ban=" + banUser + " in meeting {}", registeredUser.name, userId, ejectedBy, meetingId)
 
-            // send a system message to force disconnection
-            Sender.sendDisconnectClientSysMsg(meetingId, ru.id, ejectedBy, EjectReasonCode.EJECT_USER, outGW)
-
             // Force reconnection with graphql to refresh permissions
             Sender.sendForceUserGraphqlReconnectionSysMsg(liveMeeting.props.meetingProp.intId, registeredUser.id, registeredUser.sessionToken, EjectReasonCode.EJECT_USER, outGW)
           }
@@ -89,8 +86,6 @@ trait EjectUserFromMeetingCmdMsgHdlr extends RightsManagementTrait {
             EjectReasonCode.EJECT_USER,
             ban = false
           )
-          // send a system message to force disconnection
-          Sender.sendDisconnectClientSysMsg(meetingId, userId, ejectedBy, EjectReasonCode.EJECT_USER, outGW)
 
           // Force reconnection with graphql to refresh permissions
           Sender.sendForceUserGraphqlReconnectionSysMsg(liveMeeting.props.meetingProp.intId, registeredUser.id, registeredUser.sessionToken, EjectReasonCode.EJECT_USER, outGW)
@@ -122,8 +117,6 @@ trait EjectUserFromMeetingSysMsgHdlr {
       EjectReasonCode.SYSTEM_EJECT_USER,
       ban = false
     )
-    // send a system message to force disconnection
-    Sender.sendDisconnectClientSysMsg(meetingId, userId, ejectedBy, EjectReasonCode.SYSTEM_EJECT_USER, outGW)
 
     // Force reconnection with graphql to refresh permissions
     for {

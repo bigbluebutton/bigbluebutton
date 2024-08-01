@@ -454,9 +454,6 @@ export async function startMonitoringNetwork() {
 
     connectionStatus.setNetworkData(networkData);
     connectionStatus
-      .setJitterStatus(getStatus(window.meetingClientSettings.public.stats.jitter, jitter));
-
-    connectionStatus
       .setPacketLossStatus(getStatus(window.meetingClientSettings.public.stats.loss, packetsLost));
   }, NETWORK_MONITORING_INTERVAL_MS);
 }

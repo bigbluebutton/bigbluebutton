@@ -58,6 +58,14 @@ class BigBlueButtonActor(
     }
   }
 
+  object BBBTasksExecutor
+  context.system.scheduler.schedule(
+    1 minute,
+    1 minute,
+    self,
+    BBBTasksExecutor
+  )
+
   override def preStart() {
     bbbMsgBus.subscribe(self, meetingManagerChannel)
     DatabaseConnection.initialize()
@@ -72,6 +80,7 @@ class BigBlueButtonActor(
 
   def receive = {
     // Internal messages
+    case BBBTasksExecutor               => handleMeetingTasksExecutor()
     case msg: DestroyMeetingInternalMsg => handleDestroyMeeting(msg)
 
     //Api messages
@@ -125,8 +134,6 @@ class BigBlueButtonActor(
 
       case m: CreateMeetingReqMsg                    => handleCreateMeetingReqMsg(m)
       case m: RegisterUserReqMsg                     => handleRegisterUserReqMsg(m)
-      case m: GetAllMeetingsReqMsg                   => handleGetAllMeetingsReqMsg(m)
-      case m: GetRunningMeetingsReqMsg               => handleGetRunningMeetingsReqMsg(m)
       case m: CheckAlivePingSysMsg                   => handleCheckAlivePingSysMsg(m)
       case m: ValidateConnAuthTokenSysMsg            => handleValidateConnAuthTokenSysMsg(m)
       case _: UserGraphqlConnectionEstablishedSysMsg => //Ignore
@@ -187,30 +194,16 @@ class BigBlueButtonActor(
     }
   }
 
-  private def handleGetRunningMeetingsReqMsg(msg: GetRunningMeetingsReqMsg): Unit = {
-    val liveMeetings = RunningMeetings.meetings(meetings)
-    val meetingIds = liveMeetings.map(m => m.props.meetingProp.intId)
-
-    val routing = collection.immutable.HashMap("sender" -> "bbb-apps-akka")
-    val envelope = BbbCoreEnvelope(GetRunningMeetingsRespMsg.NAME, routing)
-    val header = BbbCoreBaseHeader(GetRunningMeetingsRespMsg.NAME)
-
-    val body = GetRunningMeetingsRespMsgBody(meetingIds)
-    val event = GetRunningMeetingsRespMsg(header, body)
-    val msgEvent = BbbCommonEnvCoreMsg(envelope, event)
-    outGW.send(msgEvent)
-  }
-
-  private def handleGetAllMeetingsReqMsg(msg: GetAllMeetingsReqMsg): Unit = {
-    RunningMeetings.meetings(meetings).foreach(m => {
-      m.actorRef ! msg
-    })
-  }
-
   private def handleCheckAlivePingSysMsg(msg: CheckAlivePingSysMsg): Unit = {
     val event = MsgBuilder.buildCheckAlivePingSysMsg(msg.body.system, msg.body.bbbWebTimestamp, System.currentTimeMillis())
     healthzService.sendPubSubStatusMessage(msg.body.akkaAppsTimestamp, System.currentTimeMillis())
     outGW.send(event)
+  }
+
+  private def handleMeetingTasksExecutor(): Unit = {
+    // Delays meeting data for 1 hour post-meeting in case users request info after it ends.
+    // This routine ensures proper purging if akka-apps restart and the handleDestroyMeeting scheduler does not run.
+    MeetingDAO.deleteOldMeetings()
   }
 
   private def handleDestroyMeeting(msg: DestroyMeetingInternalMsg): Unit = {

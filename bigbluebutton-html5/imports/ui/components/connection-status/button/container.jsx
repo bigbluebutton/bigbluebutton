@@ -7,10 +7,9 @@ import { getWorstStatus } from '../service';
 const ConnectionStatusButtonContainer = (props) => {
   const connected = useReactiveVar(connectionStatus.getConnectedStatusVar());
   const rttStatus = useReactiveVar(connectionStatus.getRttStatusVar());
-  const jitterStatus = useReactiveVar(connectionStatus.getJitterStatusVar());
   const packetLossStatus = useReactiveVar(connectionStatus.getPacketLossStatusVar());
 
-  const myCurrentStatus = getWorstStatus([rttStatus, jitterStatus, packetLossStatus]);
+  const myCurrentStatus = getWorstStatus([rttStatus, packetLossStatus]);
 
   return (
     <ConnectionStatusButtonComponent

@@ -216,16 +216,6 @@ object MsgBuilder {
     BbbCommonEnvCoreMsg(envelope, event)
   }
 
-  def buildEndAndKickAllSysMsg(meetingId: String, userId: String): BbbCommonEnvCoreMsg = {
-    val routing = Routing.addMsgToClientRouting(MessageTypes.SYSTEM, meetingId, userId)
-    val envelope = BbbCoreEnvelope(EndAndKickAllSysMsg.NAME, routing)
-    val body = EndAndKickAllSysMsgBody(meetingId)
-    val header = BbbCoreHeaderWithMeetingId(EndAndKickAllSysMsg.NAME, meetingId)
-    val event = EndAndKickAllSysMsg(header, body)
-
-    BbbCommonEnvCoreMsg(envelope, event)
-  }
-
   def buildRecordStatusResetSysMsg(meetingId: String, recording: Boolean, setBy: String): BbbCommonEnvCoreMsg = {
     val routing = Routing.addMsgToClientRouting(MessageTypes.SYSTEM, meetingId, setBy)
     val envelope = BbbCoreEnvelope(RecordStatusResetSysMsg.NAME, routing)
@@ -272,16 +262,6 @@ object MsgBuilder {
     val body = EjectAllFromVoiceConfMsgBody(voiceConf)
     val header = BbbCoreHeaderWithMeetingId(EjectAllFromVoiceConfMsg.NAME, meetingId)
     val event = EjectAllFromVoiceConfMsg(header, body)
-
-    BbbCommonEnvCoreMsg(envelope, event)
-  }
-
-  def buildDisconnectClientSysMsg(meetingId: String, userId: String, ejectedBy: String, reason: String): BbbCommonEnvCoreMsg = {
-    val routing = Routing.addMsgToClientRouting(MessageTypes.SYSTEM, meetingId, userId)
-    val envelope = BbbCoreEnvelope(DisconnectClientSysMsg.NAME, routing)
-    val header = BbbCoreHeaderWithMeetingId(DisconnectClientSysMsg.NAME, meetingId)
-    val body = DisconnectClientSysMsgBody(meetingId, userId, ejectedBy, reason)
-    val event = DisconnectClientSysMsg(header, body)
 
     BbbCommonEnvCoreMsg(envelope, event)
   }
@@ -507,16 +487,6 @@ object MsgBuilder {
       allowed
     )
     val event = GetScreenBroadcastPermissionRespMsg(header, body)
-
-    BbbCommonEnvCoreMsg(envelope, event)
-  }
-
-  def buildMeetingTimeRemainingUpdateEvtMsg(meetingId: String, timeLeftInSec: Long, timeUpdatedInMinutes: Int = 0): BbbCommonEnvCoreMsg = {
-    val routing = Routing.addMsgToClientRouting(MessageTypes.BROADCAST_TO_MEETING, meetingId, "not-used")
-    val envelope = BbbCoreEnvelope(MeetingTimeRemainingUpdateEvtMsg.NAME, routing)
-    val body = MeetingTimeRemainingUpdateEvtMsgBody(timeLeftInSec, timeUpdatedInMinutes)
-    val header = BbbClientMsgHeader(MeetingTimeRemainingUpdateEvtMsg.NAME, meetingId, "not-used")
-    val event = MeetingTimeRemainingUpdateEvtMsg(header, body)
 
     BbbCommonEnvCoreMsg(envelope, event)
   }

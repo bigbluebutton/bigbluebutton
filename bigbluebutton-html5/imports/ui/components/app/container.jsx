@@ -99,8 +99,8 @@ const AppContainer = (props) => {
   const {
     selectedLayout,
     pushLayout,
-    audioAlertEnabled,
-    pushAlertEnabled,
+    chatAudioAlerts,
+    chatPushAlerts,
     darkTheme,
     fontSize = '16px',
   } = useSettings(SETTINGS.APPLICATION);
@@ -341,8 +341,8 @@ const AppContainer = (props) => {
           inactivityWarningDisplay,
           inactivityWarningTimeoutSecs,
           setSpeechOptions,
-          audioAlertEnabled,
-          pushAlertEnabled,
+          chatPushAlerts,
+          chatAudioAlerts,
           darkTheme,
           fontSize,
           isLargeFont,

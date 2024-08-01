@@ -1869,17 +1869,6 @@ class ApiController {
         log.error violation.getValue()
       }
 
-      if(apiCall == ValidationService.ApiCall.ENTER) {
-        //Check if error exist following an order (to avoid showing guestDeny when the meeting doesn't even exist)
-        String[] enterConstraintsKeys = new String[] {"missingSession","meetingForciblyEnded","notFound","guestDeny"}
-        for (String constraintKey : enterConstraintsKeys) {
-          if(violations.containsKey(constraintKey)) {
-            response = new AbstractMap.SimpleEntry<String, String>(constraintKey, violations.get(constraintKey))
-            break
-          }
-        }
-      }
-
       if(response == null) {
         for(Map.Entry<String, String> violation: violations.entrySet()) {
           response = new AbstractMap.SimpleEntry<String, String>(violation.getKey(), violation.getValue())

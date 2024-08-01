@@ -915,10 +915,6 @@ public:
     notification:
       warning: false
       error: true
-    jitter:
-      warning: 10
-      danger: 20
-      critical: 30
     loss:
       warning: 0.05
       danger: 0.1

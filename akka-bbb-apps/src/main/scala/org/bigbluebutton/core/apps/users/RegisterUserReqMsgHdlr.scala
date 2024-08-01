@@ -47,9 +47,6 @@ trait RegisterUserReqMsgHdlr {
                 val reason = "user ejected because of duplicate external userid"
                 UsersApp.ejectUserFromMeeting(outGW, liveMeeting, userToRemove.id, SystemUser.ID, reason, EjectReasonCode.DUPLICATE_USER, ban = false)
 
-                // send a system message to force disconnection
-                Sender.sendDisconnectClientSysMsg(meetingId, userToRemove.id, SystemUser.ID, EjectReasonCode.DUPLICATE_USER, outGW)
-
                 // Force reconnection with graphql to refresh permissions
                 Sender.sendForceUserGraphqlReconnectionSysMsg(liveMeeting.props.meetingProp.intId, userToRemove.id, userToRemove.sessionToken, EjectReasonCode.DUPLICATE_USER, outGW)
               }
