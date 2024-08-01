@@ -56,12 +56,6 @@ const joinEndpointTableData = [
     "description": (<>The link for the user’s avatar to be displayed (default can be enabled/disabled and set with “useDefaultAvatar“ and “defaultAvatarURL“ in bbb-web.properties).</>)
   },
   {
-    "name": "webcamBackgroundURL",
-    "required": false,
-    "type": "String",
-    "description": (<>The link for the user's webcam background to be displayed (default can be enabled/disabled and set with “useDefaultWebcamBackground“ and “defaultWebcamBackgroundURL“ in bigbluebutton.properties). Added in BigBlueButton 2.7.10.</>)
-  },
-  {
     "name": "redirect",
     "required": false,
     "type": "String",
@@ -96,7 +90,7 @@ const joinEndpointTableData = [
     "name": "webcamBackgroundURL",
     "required": false,
     "type": "String",
-    "description": (<>If the parameter is passed on JOIN with a URL of a JPG or PNG image, that image will be automatically applied as a whiteboard background when the user shares webcam. We recommend linking to images stored on the server (for example `/var/www/bigbluebutton-default/assets/images/my-background.png`  could be used as "https://abc.bigbluebutton.org/images/my-background.png") or ones that are avoiding CORS issues via passing appropriate response headers. Added in BBB 2.7.10.</>)
+    "description": (<>If the parameter is passed on JOIN with a URL of a JPG or PNG image, that image will be automatically applied as a whiteboard background when the user shares webcam. We recommend linking to images stored on the server (for example `/var/www/bigbluebutton-default/assets/images/my-background.png`  could be used as "https://abc.bigbluebutton.org/images/my-background.png") or ones that are avoiding CORS issues via passing appropriate response headers. Default can be enabled/disabled and set with “useDefaultWebcamBackground“ and “defaultWebcamBackgroundURL“ in bigbluebutton.properties. Added in BBB 2.7.10.</>)
   }
 ];
 
