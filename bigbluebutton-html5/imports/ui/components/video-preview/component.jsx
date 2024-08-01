@@ -735,7 +735,13 @@ class VideoPreview extends Component {
       this.currentVideoStream = bbbVideoStream;
       this.updateDeviceId(deviceId);
 
-      if (cameraAsContent) return Promise.resolve(true);
+      if (cameraAsContent) {
+        this.setState({
+          isStartSharingDisabled: false,
+        });
+
+        return Promise.resolve(true);
+      }
 
       return this.startEffects(deviceId)
         .catch((error) => {
