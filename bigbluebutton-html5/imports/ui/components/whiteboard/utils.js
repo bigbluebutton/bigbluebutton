@@ -275,11 +275,114 @@ const getTextSize = (text, style, padding) => {
   return [width + padding, height + padding];
 };
 
+
+// getBoundsEstimate here is a function inspired by implementations in tldraw-v1:
+// TextUtil: https://github.com/tldraw/tldraw-v1/blob/f786c38ac0fdce337c4405c11cbfa9223d2ee6dd/packages/tldraw/src/state/shapes/TextUtil/TextUtil.tsx#L24
+// getTextSize: https://github.com/tldraw/tldraw-v1/blob/f786c38ac0fdce337c4405c11cbfa9223d2ee6dd/packages/tldraw/src/state/shapes/shared/getTextSize.ts#L6
+// It calculates the estimated bounds of a text shape based on its content and style.
+const TextUtil = {
+  getBoundsEstimate(shape) {
+    const { text, style } = shape;
+    const div = document.createElement('div');
+    div.style.position = 'absolute';
+    div.style.visibility = 'hidden';
+    div.style.whiteSpace = 'pre';
+    div.style.fontSize = this.getFontSize(style.size);
+    div.style.fontFamily = this.getFontFamily(style.font);
+    div.style.letterSpacing = style.letterSpacing || 'normal';
+    div.style.lineHeight = style.lineHeight || 'normal';
+    div.textContent = text;
+    document.body.appendChild(div);
+
+    // Calculate the number of lines
+    const numberOfLines = text.split('\n').length;
+
+    // Get the bounding box dimensions
+    const { width } = div.getBoundingClientRect();
+    const lineHeight = parseFloat(getComputedStyle(div).lineHeight);
+    const height = lineHeight * numberOfLines;
+    document.body.removeChild(div);
+
+    // Dynamic padding adjustment based on font size
+    const paddingAdjustment = parseInt(div.style.fontSize, 10) * 0.3;
+    let finalWidth = width + paddingAdjustment;
+    let finalHeight = height + paddingAdjustment;
+
+    // Apply width and height multipliers based on font size and style
+    finalWidth *= this.getWidthMultiplier(style.size, style.font);
+    finalHeight *= this.getHeightMultiplier(style.size, style.font, numberOfLines);
+
+    return {
+      width: finalWidth,
+      height: finalHeight,
+    };
+  },
+
+  getFontSize(size) {
+    switch (size) {
+      case 'small': return '12px';
+      case 'medium': return '16px';
+      case 'large': return '20px';
+      default: return '16px';
+    }
+  },
+
+  getFontFamily(font) {
+    switch (font) {
+      case 'mono': return 'monospace';
+      case 'script': return 'Comic Sans MS, cursive, sans-serif';
+      case 'sans': return 'Arial, sans-serif';
+      case 'serif': return 'Times New Roman, serif';
+      default: return 'sans-serif';
+    }
+  },
+
+  getWidthMultiplier(size, font) {
+    const fontMultiplier = {
+      small: { mono: 3, default: 2 },
+      medium: { mono: 4, default: 3 },
+      large: { mono: 7, default: 4 },
+    };
+
+    if (font === 'mono') {
+      return fontMultiplier[size].mono;
+    } else if (['script', 'sans', 'serif'].includes(font)) {
+      return fontMultiplier[size].default;
+    }
+
+    return 1;
+  },
+
+  getHeightMultiplier(size, font, numberOfLines) {
+    const baseMultiplier = 1.5;
+
+    if (font === 'mono') {
+      return baseMultiplier + (numberOfLines > 1 ? 0.5 : 0);
+    } else if (['script', 'sans', 'serif'].includes(font)) {
+      return baseMultiplier + (numberOfLines > 1 ? 0.3 : 0);
+    }
+
+    return baseMultiplier;
+  }
+};
+
 const Utils = {
-  usePrevious, findRemoved, filterInvalidShapes, mapLanguage, sendShapeChanges, getTextSize,
+  usePrevious,
+  findRemoved,
+  filterInvalidShapes,
+  mapLanguage,
+  sendShapeChanges,
+  getTextSize,
+  TextUtil
 };
 
 export default Utils;
 export {
-  usePrevious, findRemoved, filterInvalidShapes, mapLanguage, sendShapeChanges, getTextSize,
+  usePrevious,
+  findRemoved,
+  filterInvalidShapes,
+  mapLanguage,
+  sendShapeChanges,
+  getTextSize,
+  TextUtil
 };
