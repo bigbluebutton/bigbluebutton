@@ -161,8 +161,6 @@ class AnalyticsActor(val includeChat: Boolean) extends Actor with ActorLogging {
       // System
       case m: ClientToServerLatencyTracerMsg => traceMessage(msg)
       case m: ServerToClientLatencyTracerMsg => traceMessage(msg)
-      case m: ValidateConnAuthTokenSysMsg => traceMessage(msg)
-      case m: ValidateConnAuthTokenSysRespMsg => traceMessage(msg)
 
       // Recording
       case m: RecordingChapterBreakSysMsg => logMessage(msg)

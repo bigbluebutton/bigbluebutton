@@ -38,7 +38,6 @@ import org.bigbluebutton.ClientSettings.{ getConfigPropertyValueByPathAsBooleanO
 import org.bigbluebutton.common2.msgs
 import scala.concurrent.duration._
 import org.bigbluebutton.core.apps.layout.LayoutApp2x
-import org.bigbluebutton.core.apps.meeting.ValidateConnAuthTokenSysMsgHdlr
 import org.bigbluebutton.core.apps.plugin.PluginHdlrs
 import org.bigbluebutton.core.apps.users.ChangeLockSettingsInMeetingCmdMsgHdlr
 import org.bigbluebutton.core.db.{ MeetingDAO, NotificationDAO, TimerDAO, UserStateDAO }
@@ -91,7 +90,6 @@ class MeetingActor(
   with DestroyMeetingSysCmdMsgHdlr
   with ChangeLockSettingsInMeetingCmdMsgHdlr
   with ClientToServerLatencyTracerMsgHdlr
-  with ValidateConnAuthTokenSysMsgHdlr
   with UserActivitySignCmdMsgHdlr {
 
   object CheckVoiceRecordingInternalMsg
@@ -265,7 +263,6 @@ class MeetingActor(
     // Handling RegisterUserReqMsg as it is forwarded from BBBActor and
     // its type is not BbbCommonEnvCoreMsg
     case m: RegisterUserReqMsg                    => usersApp.handleRegisterUserReqMsg(m)
-    case m: ValidateConnAuthTokenSysMsg           => handleValidateConnAuthTokenSysMsg(m)
 
     //API Msgs
     case m: GetUserApiMsg                         => usersApp.handleGetUserApiMsg(m, sender)
@@ -764,11 +761,9 @@ class MeetingActor(
         timerApp2x.handle(m, liveMeeting, msgBus)
         updateUserLastActivity(m.header.userId)
 
-      case m: ValidateConnAuthTokenSysMsg => handleValidateConnAuthTokenSysMsg(m)
+      case m: UserActivitySignCmdMsg => handleUserActivitySignCmdMsg(m)
 
-      case m: UserActivitySignCmdMsg      => handleUserActivitySignCmdMsg(m)
-
-      case _                              => log.warning("***** Cannot handle " + msg.envelope.name)
+      case _                         => log.warning("***** Cannot handle " + msg.envelope.name)
     }
   }
 
