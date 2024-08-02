@@ -1,0 +1,5 @@
+1 - Run ./setup-dev.env.sh
+2 - Run bbb-akka-apps using ./run-dev.sh (inside the Docker)
+3 - Run bbb-core-api using ./run-dev.sh (inside the Docker)
+4 - You can access the new API in your browser (replace the domain) https://YOUR-DOMAIN/core-api/getMeetings?checksum=123
+5 - Use API Mate to generate the checksum `bbb-conf -salt`
