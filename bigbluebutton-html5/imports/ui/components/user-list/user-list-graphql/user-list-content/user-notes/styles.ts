@@ -15,6 +15,10 @@ const UnreadMessagesText = styled(StyledContent.UnreadMessagesText)``;
 
 const ListItem = styled(StyledContent.ListItem)`
   i{ left: 4px; }
+
+  :disabled {
+    border: none;
+  }
 `;
 
 const NotesTitle = styled.div`
