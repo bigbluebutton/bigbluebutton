@@ -160,8 +160,7 @@ class UsersApp(
     val eventBus:    InternalEventBus
 )(implicit val context: ActorContext)
 
-  extends ValidateAuthTokenReqMsgHdlr
-  with GetUsersMeetingReqMsgHdlr
+  extends GetUsersMeetingReqMsgHdlr
   with RegisterUserReqMsgHdlr
   with GetUserApiMsgHdlr
   with ChangeUserRoleCmdMsgHdlr

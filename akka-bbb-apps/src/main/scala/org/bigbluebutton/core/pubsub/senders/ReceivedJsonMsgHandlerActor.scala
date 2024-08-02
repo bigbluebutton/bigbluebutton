@@ -57,8 +57,6 @@ class ReceivedJsonMsgHandlerActor(
 
       case CreateMeetingReqMsg.NAME =>
         route[CreateMeetingReqMsg](meetingManagerChannel, envelope, jsonNode)
-      case ValidateAuthTokenReqMsg.NAME =>
-        routeGenericMsg[ValidateAuthTokenReqMsg](envelope, jsonNode)
       case RegisterUserReqMsg.NAME =>
         // Route via meeting manager as there is a race condition if we send directly to meeting
         // because the meeting actor might not have been created yet.

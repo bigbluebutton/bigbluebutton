@@ -18,36 +18,9 @@ case class UserRegisteredRespMsg(
 case class UserRegisteredRespMsgBody(meetingId: String, userId: String, name: String,
                                      role: String, excludeFromDashboard: Boolean, registeredOn: Long)
 
-object ValidateAuthTokenReqMsg {
-  val NAME = "ValidateAuthTokenReqMsg"
-
-  def apply(meetingId: String, userId: String, authToken: String): ValidateAuthTokenReqMsg = {
-    val header = BbbClientMsgHeader(ValidateAuthTokenReqMsg.NAME, meetingId, userId)
-
-    val body = ValidateAuthTokenReqMsgBody(userId, authToken)
-    ValidateAuthTokenReqMsg(header, body)
-  }
-}
-
-case class ValidateAuthTokenReqMsg(
-    header: BbbClientMsgHeader,
-    body:   ValidateAuthTokenReqMsgBody
-) extends StandardMsg
-case class ValidateAuthTokenReqMsgBody(userId: String, authToken: String)
-
 /**
  * Out Messages
  */
-
-object ValidateAuthTokenRespMsg {
-  val NAME = "ValidateAuthTokenRespMsg"
-}
-case class ValidateAuthTokenRespMsg(
-    header: BbbClientMsgHeader,
-    body:   ValidateAuthTokenRespMsgBody
-) extends BbbCoreMsg
-case class ValidateAuthTokenRespMsgBody(userId: String, authToken: String, valid: Boolean, waitForApproval: Boolean,
-                                        registeredOn: Long, authTokenValidatedOn: Long, reasonCode: String, reason: String)
 
 object UserLeftMeetingEvtMsg {
   val NAME = "UserLeftMeetingEvtMsg"

@@ -268,7 +268,7 @@ class MeetingActor(
     case m: ValidateConnAuthTokenSysMsg           => handleValidateConnAuthTokenSysMsg(m)
 
     //API Msgs
-    case m: GetUserApiMsg                         => usersApp.handleGetUsersMeetingReqMsg(m, sender)
+    case m: GetUserApiMsg                         => usersApp.handleGetUserApiMsg(m, sender)
 
     // Meeting
     case m: DestroyMeetingSysCmdMsg               => handleDestroyMeetingSysCmdMsg(m)
@@ -422,10 +422,9 @@ class MeetingActor(
   private def handleMessageThatAffectsInactivity(msg: BbbCommonEnvCoreMsg): Unit = {
 
     msg.core match {
-      case m: EndMeetingSysCmdMsg     => handleEndMeeting(m, state)
+      case m: EndMeetingSysCmdMsg => handleEndMeeting(m, state)
 
       // Users
-      case m: ValidateAuthTokenReqMsg => state = usersApp.handleValidateAuthTokenReqMsg(m, state)
       case m: UserJoinMeetingReqMsg =>
         state = handleUserJoinMeetingReqMsg(m, state)
         updateModeratorsPresence()
