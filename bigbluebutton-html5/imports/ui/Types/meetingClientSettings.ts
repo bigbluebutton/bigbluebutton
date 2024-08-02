@@ -29,7 +29,6 @@ export interface Locales {
   name: string
 }
 export interface App {
-  instanceId: string
   mobileFontSize: string
   desktopFontSize: string
   audioChatNotification: boolean
