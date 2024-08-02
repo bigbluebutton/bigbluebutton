@@ -472,7 +472,6 @@ class MeetingActor(
 
       // Another part of system (e.g. bbb-apps) requested to eject user.
       case m: EjectUserFromMeetingSysMsg => usersApp.handleEjectUserFromMeetingSysMsg(m)
-      case m: GetUsersMeetingReqMsg      => usersApp.handleGetUsersMeetingReqMsg(m)
       case m: ChangeUserRoleCmdMsg =>
         usersApp.handleChangeUserRoleCmdMsg(m)
         updateUserLastActivity(m.body.changedBy)

@@ -353,43 +353,6 @@ object UserLeaveReqMsg { val NAME = "UserLeaveReqMsg" }
 case class UserLeaveReqMsg(header: BbbClientMsgHeader, body: UserLeaveReqMsgBody) extends StandardMsg
 case class UserLeaveReqMsgBody(userId: String, sessionId: String, loggedOut: Boolean)
 
-object GetUsersMeetingReqMsg { val NAME = "GetUsersMeetingReqMsg" }
-case class GetUsersMeetingReqMsg(header: BbbClientMsgHeader, body: GetUsersMeetingReqMsgBody) extends StandardMsg
-case class GetUsersMeetingReqMsgBody(userId: String)
-
-object GetUsersMeetingRespMsg {
-  val NAME = "GetUsersMeetingRespMsg"
-
-  def apply(meetingId: String, userId: String, users: Vector[WebUser]): GetUsersMeetingRespMsg = {
-    val header = BbbClientMsgHeader(GetUsersMeetingRespMsg.NAME, meetingId, userId)
-
-    val body = GetUsersMeetingRespMsgBody(users)
-    GetUsersMeetingRespMsg(header, body)
-  }
-
-}
-case class GetUsersMeetingRespMsg(header: BbbClientMsgHeader, body: GetUsersMeetingRespMsgBody) extends BbbCoreMsg
-case class GetUsersMeetingRespMsgBody(users: Vector[WebUser])
-case class WebUser(intId: String, extId: String, name: String, role: String,
-                   guest: Boolean, authed: Boolean, guestStatus: String,
-                   locked: Boolean, presenter: Boolean, avatar: String, clientType: String)
-
-object GetVoiceUsersMeetingRespMsg {
-  val NAME = "GetVoiceUsersMeetingRespMsg"
-
-  def apply(meetingId: String, userId: String, users: Vector[VoiceConfUser]): GetVoiceUsersMeetingRespMsg = {
-    val header = BbbClientMsgHeader(GetVoiceUsersMeetingRespMsg.NAME, meetingId, userId)
-
-    val body = GetVoiceUsersMeetingRespMsgBody(users)
-    GetVoiceUsersMeetingRespMsg(header, body)
-  }
-}
-
-case class GetVoiceUsersMeetingRespMsg(header: BbbClientMsgHeader, body: GetVoiceUsersMeetingRespMsgBody) extends BbbCoreMsg
-case class GetVoiceUsersMeetingRespMsgBody(users: Vector[VoiceConfUser])
-case class VoiceConfUser(intId: String, voiceUserId: String, callingWith: String, callerName: String,
-                         callerNum: String, color: String, muted: Boolean, talking: Boolean, listenOnly: Boolean)
-
 /**
  * Sent from client to add user to the presenter group of a meeting.
  */

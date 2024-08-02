@@ -160,8 +160,7 @@ class UsersApp(
     val eventBus:    InternalEventBus
 )(implicit val context: ActorContext)
 
-  extends GetUsersMeetingReqMsgHdlr
-  with RegisterUserReqMsgHdlr
+  extends RegisterUserReqMsgHdlr
   with GetUserApiMsgHdlr
   with ChangeUserRoleCmdMsgHdlr
   with SetUserSpeechLocaleMsgHdlr
