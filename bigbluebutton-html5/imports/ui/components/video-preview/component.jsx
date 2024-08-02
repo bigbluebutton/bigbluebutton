@@ -646,7 +646,7 @@ class VideoPreview extends Component {
 
     if (!actualDeviceId && this.currentVideoStream) {
       actualDeviceId = MediaStreamUtils.extractDeviceIdFromStream(
-        this.currentVideoStream.mediaStream,
+        this.currentVideoStream.originalStream,
         'video',
       );
     }
@@ -660,9 +660,7 @@ class VideoPreview extends Component {
       ? PreviewService.getDefaultProfile()
       : PreviewService.getCameraAsContentProfile();
 
-    return this.getCameraStream(deviceId, defaultProfile).then(() => {
-      this.updateDeviceId(deviceId);
-    });
+    return this.getCameraStream(deviceId, defaultProfile);
   }
 
   async startEffects(deviceId) {
