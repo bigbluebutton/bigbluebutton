@@ -8,6 +8,7 @@ import (
 	"log"
 	"mime"
 	"net/http"
+	"strings"
 
 	"github.com/bigbluebutton/bigbluebutton/bbb-core-api/internal/model"
 	"github.com/bigbluebutton/bigbluebutton/bbb-core-api/util"
@@ -47,7 +48,7 @@ func (p Params) Has(key string) bool {
 
 func (app *Config) validateChecksum(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		endpoint := getRoutePattern(r)
+		endpoint := strings.TrimPrefix(r.URL.Path, "/")
 		params := r.URL.Query()
 
 		var payload model.Response
