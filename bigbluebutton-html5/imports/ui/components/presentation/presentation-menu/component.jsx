@@ -86,6 +86,7 @@ const propTypes = {
   tldrawAPI: PropTypes.shape({
     copySvg: PropTypes.func.isRequired,
     getShapes: PropTypes.func.isRequired,
+    getShape: PropTypes.func.isRequired,
     currentPageId: PropTypes.string.isRequired,
   }),
 };
@@ -232,21 +233,25 @@ const PresentationMenu = (props) => {
             AppService.setDarkTheme(false);
 
             try {
-              const { copySvg, getShape, getShapes, currentPageId } = tldrawAPI;
+              const {
+                copySvg, getShape, getShapes, currentPageId,
+              } = tldrawAPI;
 
               // filter shapes that are inside the slide
               const backgroundShape = getShape('slide-background-shape');
-              const shapes = getShapes(currentPageId)
-                .filter((shape) =>
-                  shape.point[0] <= backgroundShape.size[0] &&
-                  shape.point[1] <= backgroundShape.size[1] &&
-                  shape.point[0] >= 0 &&
-                  shape.point[1] >= 0
-                );
+              const shapes = getShapes(currentPageId);
               const svgString = await copySvg(shapes.map((shape) => shape.id));
               const container = document.createElement('div');
               container.innerHTML = svgString;
               const svgElem = container.firstChild;
+              const imageElem = svgElem.getElementsByTagName('image')[0];
+              const transforms = Object.values(imageElem.transform.baseVal);
+              const translation = transforms.find(
+                (t) => t.type === SVGTransform.SVG_TRANSFORM_TRANSLATE,
+              );
+              svgElem.setAttribute('width', backgroundShape.size[0]);
+              svgElem.setAttribute('height', backgroundShape.size[1]);
+              svgElem.setAttribute('viewBox', `${translation.matrix.e} ${translation.matrix.f} ${backgroundShape.size[0]} ${backgroundShape.size[1]}`);
               const width = svgElem?.width?.baseVal?.value ?? window.screen.width;
               const height = svgElem?.height?.baseVal?.value ?? window.screen.height;
 
