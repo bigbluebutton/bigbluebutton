@@ -2,14 +2,17 @@ package main
 
 import (
 	"context"
-	"crypto/sha1"
+	"encoding/base64"
 	"encoding/json"
 	"encoding/xml"
+	"errors"
 	"fmt"
 	"io"
 	"log"
 	"log/slog"
 	"net/http"
+	"os"
+	"path/filepath"
 	"regexp"
 	"strconv"
 	"strings"
@@ -18,6 +21,8 @@ import (
 	bbbcore "github.com/bigbluebutton/bigbluebutton/bbb-core-api/gen/bbb-core"
 	"github.com/bigbluebutton/bigbluebutton/bbb-core-api/gen/common"
 	"github.com/bigbluebutton/bigbluebutton/bbb-core-api/internal/model"
+	"github.com/bigbluebutton/bigbluebutton/bbb-core-api/internal/presentation"
+	"github.com/bigbluebutton/bigbluebutton/bbb-core-api/internal/random"
 	"github.com/bigbluebutton/bigbluebutton/bbb-core-api/util"
 	"github.com/thanhpk/randstr"
 	"google.golang.org/grpc/codes"
@@ -152,10 +157,10 @@ func (app *Config) processMeetingSettings(params *Params, createTime int64, isBr
 		parentMeetingId := parentMeetingInfo.MeetingIntId
 		parentCreateTime := parentMeetingInfo.DurationInfo.CreateTime
 		data := parentMeetingId + "-" + strconv.Itoa(int(parentCreateTime)) + "-" + util.StripCtrlChars(params.Get("sequence"))
-		meetingExtId = util.GenerateHashString(data, sha1.New()) + strconv.Itoa(int(createTime))
+		meetingExtId = random.Sha1Hex(data) + strconv.Itoa(int(createTime))
 	} else {
 		meetingExtId = util.StripCtrlChars(params.Get("meetingID"))
-		meetingIntId = util.GenerateHashString(meetingExtId, sha1.New()) + "-" + strconv.Itoa(int(createTime))
+		meetingIntId = random.Sha1Hex(meetingExtId) + "-" + strconv.Itoa(int(createTime))
 	}
 
 	disabledFeaturesMap := make(map[string]struct{})
@@ -454,7 +459,7 @@ type Document struct {
 	Content       string   `xml:",chardata"`
 }
 
-func (app *Config) procesXMLModules(body io.ReadCloser) (RequestModules, error) {
+func (app *Config) processXMLModules(body io.ReadCloser) (RequestModules, error) {
 	var modules Modules
 	decoder := xml.NewDecoder(body)
 	err := decoder.Decode(&modules)
@@ -470,11 +475,11 @@ func (app *Config) procesXMLModules(body io.ReadCloser) (RequestModules, error) 
 	return reqModules, nil
 }
 
-func (app *Config) uploadDocuments(modules RequestModules, params *Params, isFromInsertAPI bool) {
+func (app *Config) uploadDocuments(modules RequestModules, params *Params, isFromInsertAPI bool) bool {
 	for _, df := range app.ServerConfig.Meeting.Features.Disabled {
 		if df == "presentation" {
 			slog.Warn("Presentation feature is disabled.")
-			return
+			return false
 		}
 	}
 
@@ -515,7 +520,7 @@ func (app *Config) uploadDocuments(modules RequestModules, params *Params, isFro
 	if !modules.Has("presentation") {
 		if isFromInsertAPI {
 			slog.Warn("Insert document API called without a payload - ignoring")
-			return
+			return false
 		}
 
 		if presURLInParameter {
@@ -539,7 +544,7 @@ func (app *Config) uploadDocuments(modules RequestModules, params *Params, isFro
 			presentation, err := parsePresentationModule(presModule.Content)
 			if err != nil {
 				slog.Error(fmt.Sprintf("Error parsing presentation content: %v\n", err))
-				return
+				return false
 			}
 			hasPresModule = true
 			for _, doc := range presentation.Documents {
@@ -601,8 +606,71 @@ func (app *Config) uploadDocuments(modules RequestModules, params *Params, isFro
 				isDefaultPres = true
 				isCurrent = true
 			}
+
+			// Verify whether the document is base64 encoded or a URL to download
+			if doc.URL != "" {
+				var fileName string
+				if doc.Filename != "" {
+					fileName = doc.Filename
+					slog.Info(fmt.Sprintf("user provided filename: %s", fileName))
+				}
+
+				// TODO download and process document
+			} else if doc.Name != "" {
+				decodedBytes, err := base64.StdEncoding.DecodeString(doc.Content)
+				if err != nil {
+					slog.Error(fmt.Sprintf("failed to decode document content: %s", doc.Content))
+					return false
+				}
+				err = app.processDocumentFromBytes(decodedBytes, doc.Name, params.Get("meetingID"), isCurrent, isDownloadable, isRemovable, isDefaultPres)
+				if err != nil {
+					return false
+				}
+			} else {
+				slog.Info("presentation module config found, but it did not contain URL or name attributes.")
+			}
 		}
 	}
+
+	return true
+}
+
+func (app *Config) processDocumentFromBytes(bytes []byte, name string, meetingID string, current bool, isDownloadable bool, isRemovable bool, isDefault bool) error {
+	fileName := filepath.Base(name)
+	fileExt := filepath.Ext(fileName)
+
+	if fileName == "" || fileExt == "" {
+		slog.Error(fmt.Sprintf("upload failed due to invalid faile name %s", name))
+		return errors.New("invalid_filename")
+	} else {
+		presDir := app.ServerConfig.Presentation.Upload.Directory
+		presID := presentation.GeneratePresentationID(name)
+
+		uploadDir, err := presentation.CreatePresentationDirectory(meetingID, presDir, presID)
+		if err != nil {
+			slog.Error("uploade failed: file empty")
+			return errors.New("failed_to_download_file")
+		} else {
+			newFileName := presentation.CreateNewFileName(presID, fileExt)
+			presPath := uploadDir + string(os.PathSeparator) + newFileName
+			pres, err := os.Create(presPath)
+			if err != nil {
+				slog.Error(fmt.Sprintf("upload failed: could not create file %s", presPath))
+				return errors.New("failed_to_create_file")
+			}
+			defer pres.Close()
+
+			_, err = pres.Write(bytes)
+			if err != nil {
+				slog.Error(fmt.Sprintf("upload failed: could not write content to %s", presPath))
+				return errors.New("failed_to_write_file")
+			}
+		}
+	}
+
+	// TODO hardcode pre-uploaded presentation to the default presentation window
+
+	return nil
 }
 
 func replaceKeywords(message string, dialNumber string, voiceBridge string, meetingName string, url string) string {

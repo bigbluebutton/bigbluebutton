@@ -65,3 +65,13 @@ func IsValidBoolean(s string) bool {
 	}
 	return true
 }
+
+func IsMeetingIDFormatValid(meetingID string) bool {
+	r, _ := regexp.Compile("^[a-z0-9-]+$")
+	return r.MatchString(meetingID)
+}
+
+func IsPresentationIDFormatValid(presID string) bool {
+	r, _ := regexp.Compile("^[a-z0-9-]+$")
+	return r.MatchString(presID)
+}

@@ -121,6 +121,7 @@ presentation:
     external:
       description:
       url:
+    directory: /var/bigbluebutton # Directory where BigBlueButton stores uploaded slides
   default: default.pdf
 
 # Default breakout room settings

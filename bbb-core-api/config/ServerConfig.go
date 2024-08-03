@@ -110,6 +110,7 @@ type ServerConfig struct {
 				Description string `yaml:"description"`
 				Url         string `yaml:"url"`
 			} `yaml:"external"`
+			Directory string `yaml:"directory"`
 		} `yaml:"upload"`
 		Default string `yaml:"default"`
 	} `yaml:"presentation"`

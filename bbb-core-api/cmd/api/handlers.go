@@ -257,7 +257,7 @@ func (app *Config) createMeeting(w http.ResponseWriter, r *http.Request) {
 
 	contentType, _, _ := mime.ParseMediaType(r.Header.Get("Content-Type"))
 	if contentType == util.ApplicationXML || contentType == util.TextXML {
-		modules, err := app.procesXMLModules(r.Body)
+		modules, err := app.processXMLModules(r.Body)
 		if err != nil {
 			app.respondWithErrorXML(w, model.ReturnCodeFailure, model.InvalidRequestBodyKey, model.InvalidRequestBodyMsg)
 			return

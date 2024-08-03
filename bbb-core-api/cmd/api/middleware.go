@@ -2,15 +2,13 @@ package main
 
 import (
 	"context"
-	"crypto/sha1"
-	"crypto/sha256"
-	"crypto/sha512"
 	"log"
 	"mime"
 	"net/http"
 	"strings"
 
 	"github.com/bigbluebutton/bigbluebutton/bbb-core-api/internal/model"
+	"github.com/bigbluebutton/bigbluebutton/bbb-core-api/internal/random"
 	"github.com/bigbluebutton/bigbluebutton/bbb-core-api/util"
 	"github.com/go-chi/chi/v5"
 )
@@ -79,25 +77,25 @@ func (app *Config) validateChecksum(next http.Handler) http.Handler {
 		case 40:
 			_, ok := app.ChecksumAlgorithms["sha-1"]
 			if ok {
-				createdChecksum = util.GenerateHashString(data, sha1.New())
+				createdChecksum = random.Sha1Hex(data)
 				log.Println("SHA-1", createdChecksum)
 			}
 		case 64:
 			_, ok := app.ChecksumAlgorithms["sha-256"]
 			if ok {
-				createdChecksum = util.GenerateHashString(data, sha256.New())
+				createdChecksum = random.Sha256Hex(data)
 				log.Println("SHA-256", createdChecksum)
 			}
 		case 96:
 			_, ok := app.ChecksumAlgorithms["sha-384"]
 			if ok {
-				createdChecksum = util.GenerateHashString(data, sha512.New384())
+				createdChecksum = random.Sha384Hex(data)
 				log.Println("SHA-384", createdChecksum)
 			}
 		case 128:
 			_, ok := app.ChecksumAlgorithms["sha-512"]
 			if ok {
-				createdChecksum = util.GenerateHashString(data, sha512.New())
+				createdChecksum = random.Sha512Hex(data)
 				log.Println("SHA-512", createdChecksum)
 			}
 		default:
