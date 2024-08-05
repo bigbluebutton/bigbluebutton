@@ -196,6 +196,7 @@ const BreakoutRoomUserAssignment: React.FC<ChildComponentProps> = ({
   setRoomPresentations,
   currentPresentation,
   roomPresentations,
+  isUpdate,
 }) => {
   const intl = useIntl();
 
@@ -337,7 +338,7 @@ const BreakoutRoomUserAssignment: React.FC<ChildComponentProps> = ({
                     {intl.formatMessage(intlMessages.roomNameInputDesc)}
                   </div>
                 </Styled.FreeJoinLabel>
-                { presentations.length > 0 ? (
+                { presentations.length > 0 && !isUpdate ? (
                   <Styled.BreakoutSlideLabel>
                     <Styled.InputRooms
                       value={getRoomPresentation(value)}

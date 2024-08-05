@@ -44,6 +44,7 @@ const RoomManagmentState: React.FC<RoomManagmentStateProps> = ({
   currentPresentation,
   currentSlidePrefix,
   getRoomPresentation,
+  isUpdate,
 }) => {
   const intl = useIntl();
   const [selectedId, setSelectedId] = useState<string>('');
@@ -238,6 +239,7 @@ const RoomManagmentState: React.FC<RoomManagmentStateProps> = ({
             setRoomPresentations={setRoomPresentations}
             getRoomPresentation={getRoomPresentation}
             currentPresentation={currentPresentation}
+            isUpdate={isUpdate}
           />
         ) : null
       }
