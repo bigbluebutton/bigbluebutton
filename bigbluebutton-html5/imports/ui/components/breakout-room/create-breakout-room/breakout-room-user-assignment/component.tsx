@@ -172,6 +172,10 @@ const intlMessages = defineMessages({
     id: 'app.createBreakoutRoom.sendInvitationToMods',
     description: 'label for checkbox send invitation to moderators',
   },
+  currentSlide: {
+    id: 'app.createBreakoutRoom.currentSlideLabel',
+    description: 'label for current slide',
+  },
 });
 
 const isMe = (intId: string) => intId === Auth.userID;
@@ -186,6 +190,12 @@ const BreakoutRoomUserAssignment: React.FC<ChildComponentProps> = ({
   randomlyAssign,
   resetRooms,
   users,
+  currentSlidePrefix,
+  presentations,
+  getRoomPresentation,
+  setRoomPresentations,
+  currentPresentation,
+  roomPresentations,
 }) => {
   const intl = useIntl();
 
@@ -217,6 +227,13 @@ const BreakoutRoomUserAssignment: React.FC<ChildComponentProps> = ({
   const hasNameDuplicated = (room: number) => {
     const roomName = rooms[room]?.name || '';
     return Object.values(rooms).filter((r) => r.name === roomName).length > 1;
+  };
+
+  const changeRoomPresentation = (position) => (ev) => {
+    const newRoomsPresentations = [...roomPresentations];
+    newRoomsPresentations[position] = ev.target.value;
+
+    setRoomPresentations(newRoomsPresentations);
   };
 
   useEffect(() => {
@@ -320,6 +337,31 @@ const BreakoutRoomUserAssignment: React.FC<ChildComponentProps> = ({
                     {intl.formatMessage(intlMessages.roomNameInputDesc)}
                   </div>
                 </Styled.FreeJoinLabel>
+                { presentations.length > 0 ? (
+                  <Styled.BreakoutSlideLabel>
+                    <Styled.InputRooms
+                      value={getRoomPresentation(value)}
+                      onChange={changeRoomPresentation(value)}
+                      valid
+                    >
+                      { currentPresentation ? (
+                        <option key="current-slide" value={`${currentSlidePrefix}${currentPresentation}`}>
+                          {intl.formatMessage(intlMessages.currentSlide)}
+                        </option>
+                      ) : null }
+                      {
+                        presentations.map((presentation) => (
+                          <option
+                            key={presentation.presentationId}
+                            value={presentation.presentationId}
+                          >
+                            {presentation.name}
+                          </option>
+                        ))
+                      }
+                    </Styled.InputRooms>
+                  </Styled.BreakoutSlideLabel>
+                ) : null }
                 <Styled.BreakoutBox
                   id={`breakoutBox-${value}`}
                   onDrop={drop(value)}

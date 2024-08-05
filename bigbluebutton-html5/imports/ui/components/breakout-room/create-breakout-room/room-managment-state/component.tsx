@@ -38,6 +38,12 @@ const RoomManagmentState: React.FC<RoomManagmentStateProps> = ({
   runningRooms,
   setRoomsRef,
   setMoveRegisterRef,
+  presentations,
+  roomPresentations,
+  setRoomPresentations,
+  currentPresentation,
+  currentSlidePrefix,
+  getRoomPresentation,
 }) => {
   const intl = useIntl();
   const [selectedId, setSelectedId] = useState<string>('');
@@ -226,6 +232,12 @@ const RoomManagmentState: React.FC<RoomManagmentStateProps> = ({
             randomlyAssign={randomlyAssign}
             resetRooms={resetRooms}
             users={users}
+            currentSlidePrefix={currentSlidePrefix}
+            presentations={presentations}
+            roomPresentations={roomPresentations}
+            setRoomPresentations={setRoomPresentations}
+            getRoomPresentation={getRoomPresentation}
+            currentPresentation={currentPresentation}
           />
         ) : null
       }

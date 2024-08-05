@@ -26,6 +26,8 @@ export type RoomToWithSettings = {
   freeJoin: boolean;
   sequence: number;
   shortName: string;
+  allPages: boolean;
+  presId: string;
 };
 
 export type Rooms = {
