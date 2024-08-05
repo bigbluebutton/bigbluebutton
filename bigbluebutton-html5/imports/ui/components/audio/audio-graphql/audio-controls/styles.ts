@@ -4,23 +4,6 @@ import Button from '/imports/ui/components/common/button/component';
 import { smallOnly } from '/imports/ui/stylesheets/styled-components/breakpoints';
 import { colorWhite } from '/imports/ui/stylesheets/styled-components/palette';
 import { smPaddingX, smPaddingY } from '/imports/ui/stylesheets/styled-components/general';
-import SpinnerStyles from '/imports/ui/components/common/loading-screen/styles';
-
-interface SpinnerOverlayProps {
-  animations: boolean;
-}
-
-const pulse = keyframes`
-  0% {
-    box-shadow: 0 0 0 0 white;
-  }
-  70% {
-    box-shadow: 0 0 0 0.5625rem transparent;
-  }
-  100% {
-    box-shadow: 0 0 0 0 transparent;
-  }
-`;
 
 // @ts-ignore - as button comes from JS, we can't provide its props
 const LeaveButtonWithoutLiveStreamSelector = styled(Button)`
@@ -85,7 +68,6 @@ const Container = styled.span`
   }
 
   & > :last-child {
-    margin-left: ${smPaddingX};
     margin-right: 0;
 
     @media ${smallOnly} {
@@ -103,29 +85,8 @@ const Container = styled.span`
   }
 `;
 
-const SpinnerOverlay = styled(SpinnerStyles.Spinner)<SpinnerOverlayProps>`
-  & > div {
-    background-color: white;
-    height: 0.5625rem;
-    width: 0.5625rem;
-  }
-`;
-
-const Bounce1 = styled(SpinnerStyles.Bounce1)<SpinnerOverlayProps>`
-  height: 0.5625rem;
-  width: 0.5625rem;
-`;
-
-const Bounce2 = styled(SpinnerStyles.Bounce2)<SpinnerOverlayProps>`
-  height: 0.5625rem;
-  width: 0.5625rem;
-`;
-
 export default {
   LeaveButtonWithoutLiveStreamSelector,
   MuteToggleButton,
   Container,
-  SpinnerOverlay,
-  Bounce1,
-  Bounce2,
 };

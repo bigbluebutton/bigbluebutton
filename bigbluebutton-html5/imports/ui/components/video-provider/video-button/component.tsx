@@ -220,25 +220,19 @@ const JoinVideoButton: React.FC<JoinVideoButtonProps> = ({
   return (
     <>
       <Styled.OffsetBottom>
-        {videoConnecting ? (
-          <Styled.SpinnerOverlay animations={animations}>
-            <Styled.Bounce1 animations={animations} />
-            <Styled.Bounce2 animations={animations} />
-          </Styled.SpinnerOverlay>
-        ) : (
-          <Button
-            label={label}
-            data-test={hasVideoStream ? 'leaveVideo' : 'joinVideo'}
-            onClick={handleOnClick}
-            hideLabel
-            color={hasVideoStream ? 'primary' : 'default'}
-            icon={hasVideoStream ? 'video' : 'video_off'}
-            ghost={!hasVideoStream}
-            size="lg"
-            circle
-            disabled={!!disableReason}
-          />
-        )}
+        <Button
+          label={label}
+          data-test={hasVideoStream ? 'leaveVideo' : 'joinVideo'}
+          onClick={handleOnClick}
+          hideLabel
+          color={hasVideoStream ? 'primary' : 'default'}
+          icon={hasVideoStream ? 'video' : 'video_off'}
+          ghost={!hasVideoStream}
+          size="lg"
+          circle
+          disabled={!!disableReason}
+          loading={videoConnecting}
+        />
         {renderUserActions()}
       </Styled.OffsetBottom>
       {isVideoPreviewModalOpen ? (

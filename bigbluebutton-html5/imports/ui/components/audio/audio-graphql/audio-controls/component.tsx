@@ -93,6 +93,7 @@ const AudioControls: React.FC<AudioControlsProps> = ({
         size="lg"
         circle
         accessKey={joinAudioShortcut}
+        loading={isConnecting}
       />
     );
   }, [isConnected, disabled, joinAudioShortcut, away]);
@@ -109,22 +110,13 @@ const AudioControls: React.FC<AudioControlsProps> = ({
 
   return (
     <Styled.Container>
-      {isConnecting ? (
-        <Styled.SpinnerOverlay animations={animations}>
-          <Styled.Bounce1 animations={animations} />
-          <Styled.Bounce2 animations={animations} />
-        </Styled.SpinnerOverlay>
-      ) : (
-        <>
-          {!inAudio ? joinButton : <InputStreamLiveSelectorContainer />}
-          {isAudioModalOpen && (
-            <AudioModalContainer
-              priority="low"
-              setIsOpen={() => setIsAudioModalOpen(false)}
-              isOpen={isAudioModalOpen}
-            />
-          )}
-        </>
+      {!inAudio ? joinButton : <InputStreamLiveSelectorContainer />}
+      {isAudioModalOpen && (
+        <AudioModalContainer
+          priority="low"
+          setIsOpen={() => setIsAudioModalOpen(false)}
+          isOpen={isAudioModalOpen}
+        />
       )}
     </Styled.Container>
   );

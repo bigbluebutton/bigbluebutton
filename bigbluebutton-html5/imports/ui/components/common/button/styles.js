@@ -289,6 +289,39 @@ const ButtonWrapper = styled(BaseButton)`
       background-color: transparent;
     }
   `}
+  ${({ loading }) => loading && `
+  &::before {
+    position: relative;
+    border: 5px solid transparent;
+    border-radius: 50%;
+    background-color: #3498db;
+    color: white;
+    font-size: 16px;
+    text-align: center;
+    line-height: 90px;
+    cursor: pointer;
+  }
+  &::after {
+    content: '';
+    position: absolute;
+    top: -5px;
+    left: -5px;
+    right: -5px;
+    bottom: -5px;
+    border-radius: 50%;
+    border: 5px solid white;
+    border-top-color: transparent;
+    animation: spin 1s linear infinite;
+  }
+  @keyframes spin {
+    0% {
+        transform: rotate(0deg);
+    }
+    100% {
+        transform: rotate(360deg);
+    }
+  }
+`}
 `;
 
 const ButtonSpan = styled.span`
