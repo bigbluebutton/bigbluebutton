@@ -28,13 +28,13 @@ module.exports = {
     new MiniCssExtractPlugin({
       filename: 'styles.css',
     }),
+    new CompressionPlugin(),
     new CopyPlugin({
       patterns: [
         { from: 'public', to: '.' },
         { from: 'private', to: 'private' },
       ],
     }),
-    new CompressionPlugin(),
   ],
   resolve: {
     modules: ['node_modules', 'src'],
