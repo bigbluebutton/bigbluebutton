@@ -24,6 +24,8 @@ import {
   RoomToWithSettings,
   BreakoutUser,
   moveUserRegistery,
+  Presentation,
+  RoomPresentations,
 } from './room-managment-state/types';
 import { BREAKOUT_ROOM_CREATE, BREAKOUT_ROOM_MOVE_USER } from '../mutations';
 import useDeduplicatedSubscription from '/imports/ui/core/hooks/useDeduplicatedSubscription';
@@ -44,6 +46,8 @@ interface CreateBreakoutRoomProps extends CreateBreakoutRoomContainerProps {
   isBreakoutRecordable: boolean,
   users: Array<BreakoutUser>,
   runningRooms: getBreakoutsResponse['breakoutRoom'],
+  presentations: Array<Presentation>,
+  currentPresentation: string,
 }
 
 const intlMessages = defineMessages({
@@ -239,7 +243,7 @@ const CreateBreakoutRoom: React.FC<CreateBreakoutRoomProps> = ({
   const [durationTime, setDurationTime] = React.useState(DEFAULT_BREAKOUT_TIME);
   const isImportPresentationWithAnnotationsEnabled = useIsImportPresentationWithAnnotationsFromBreakoutRoomsEnabled();
   const isImportSharedNotesEnabled = useIsImportSharedNotesFromBreakoutRoomsEnabled();
-  const [roomPresentations, setRoomPresentations] = React.useState([]);
+  const [roomPresentations, setRoomPresentations] = React.useState<RoomPresentations>([]);
 
   const [createBreakoutRoom] = useMutation(BREAKOUT_ROOM_CREATE);
   const [moveUser] = useMutation(BREAKOUT_ROOM_MOVE_USER);
@@ -261,7 +265,8 @@ const CreateBreakoutRoom: React.FC<CreateBreakoutRoomProps> = ({
   };
 
   const getRoomPresentation = (position: number) => {
-    return roomPresentations[position] || `${CURRENT_SLIDE_PREFIX}${currentPresentation}`;
+    if (roomPresentations[position]) return roomPresentations[position];
+    return `${CURRENT_SLIDE_PREFIX}${currentPresentation}`;
   };
 
   const createRoom = () => {
@@ -572,7 +577,7 @@ const CreateBreakoutRoomContainer: React.FC<CreateBreakoutRoomContainerProps> = 
 
   const { data: presentationData } = useDeduplicatedSubscription(PRESENTATIONS_SUBSCRIPTION);
   const presentations = presentationData?.pres_presentation || [];
-  const currentPresentation = presentations.find((p) => p.current)?.presentationId || '';
+  const currentPresentation = presentations.find((p: Presentation) => p.current)?.presentationId || '';
 
   if (usersLoading || breakoutsLoading || !currentMeeting) {
     return null;

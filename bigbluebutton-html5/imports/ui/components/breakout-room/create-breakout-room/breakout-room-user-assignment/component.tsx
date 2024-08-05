@@ -230,10 +230,10 @@ const BreakoutRoomUserAssignment: React.FC<ChildComponentProps> = ({
     return Object.values(rooms).filter((r) => r.name === roomName).length > 1;
   };
 
-  const changeRoomPresentation = (position) => (ev) => {
+  const changeRoomPresentation = (position: number) => (ev: React.ChangeEvent<HTMLSelectElement>) => {
+    // @ts-ignore-next-line
     const newRoomsPresentations = [...roomPresentations];
     newRoomsPresentations[position] = ev.target.value;
-
     setRoomPresentations(newRoomsPresentations);
   };
 

@@ -6,6 +6,8 @@ import {
   ChildComponentProps,
   Room,
   moveUserRegistery,
+  Presentation,
+  RoomPresentations,
 } from './types';
 import { breakoutRoom, getBreakoutsResponse } from '../queries';
 
@@ -28,6 +30,13 @@ interface RoomManagmentStateProps {
   setFormIsValid: (isValid: boolean) => void;
   setRoomsRef: (rooms: Rooms) => void;
   setMoveRegisterRef: (moveRegister: moveUserRegistery) => void;
+  presentations: Presentation[];
+  roomPresentations: RoomPresentations;
+  setRoomPresentations: React.Dispatch<React.SetStateAction<RoomPresentations>>;
+  currentPresentation: string;
+  currentSlidePrefix: string;
+  getRoomPresentation: (roomId: number) => string;
+  isUpdate: boolean;
 }
 
 const RoomManagmentState: React.FC<RoomManagmentStateProps> = ({

@@ -47,4 +47,21 @@ export type ChildComponentProps = {
   randomlyAssign: () => void;
   resetRooms: (cap: number) => void;
   users: BreakoutUser[];
+  currentSlidePrefix: string;
+  presentations: Presentation[];
+  getRoomPresentation: (roomId: number) => string;
+  setRoomPresentations: React.Dispatch<React.SetStateAction<RoomPresentations>>;
+  currentPresentation: string;
+  roomPresentations: RoomPresentations;
+  isUpdate: boolean;
+}
+
+export interface Presentation {
+  presentationId: string;
+  name: string;
+  current: boolean;
+}
+
+export interface RoomPresentations {
+  [roomId: number]: string;
 }
