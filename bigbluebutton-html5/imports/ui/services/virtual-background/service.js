@@ -29,8 +29,7 @@ const MODELS = {
 
 const getBasePath = () => {
   const BASE_PATH = window.meetingClientSettings.public.app.cdn
-    + window.meetingClientSettings.public.app.basename
-    + window.meetingClientSettings.public.app.instanceId;
+    + window.meetingClientSettings.public.app.basename;
 
   return BASE_PATH;
 };
