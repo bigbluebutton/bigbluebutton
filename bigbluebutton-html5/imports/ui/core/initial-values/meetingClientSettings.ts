@@ -92,6 +92,7 @@ export const meetingClientSettingsInitialValues: MeetingClientSettings = {
         captureSharedNotesByDefault: false,
         sendInvitationToAssignedModeratorsByDefault: false,
         breakoutRoomLimit: 16,
+        allowPresentationManagementInBreakouts: true,
       },
       customHeartbeat: false,
       showAllAvailableLocales: true,

@@ -39,6 +39,7 @@ const propTypes = {
       key: PropTypes.string,
     }),
   ).isRequired,
+  isPresentationManagementDisabled: PropTypes.bool.isRequired,
 };
 
 const defaultProps = {
@@ -184,6 +185,7 @@ class ActionsDropdown extends PureComponent {
       isDirectLeaveButtonEnabled,
       isLayoutsEnabled,
       isPresentationEnabled,
+      isPresentationManagementDisabled,
     } = this.props;
 
     const { pollBtnLabel, presentationLabel, takePresenter } = intlMessages;
@@ -192,7 +194,7 @@ class ActionsDropdown extends PureComponent {
 
     const actions = [];
 
-    if (amIPresenter && isPresentationEnabled) {
+    if (amIPresenter && !isPresentationManagementDisabled && isPresentationEnabled) {
       if (presentations && presentations.length > 1) {
         actions.push({
           key: 'separator-01',
