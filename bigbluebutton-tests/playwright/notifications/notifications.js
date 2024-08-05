@@ -1,4 +1,4 @@
-const { test } = require('@playwright/test');
+const { expect } = require('@playwright/test');
 const { MultiUsers } = require('../user/multiusers');
 const e = require('../core/elements');
 const util = require('./util');
@@ -25,13 +25,18 @@ class Notifications extends MultiUsers {
     await this.modPage.joinMicrophone();
     await util.checkNotificationText(this.modPage, e.joinAudioToast);
     await util.checkNotificationIcon(this.modPage, e.unmuteIcon);
-    await this.modPage.closeAllToastNotifications();
+    await expect(
+      this.modPage.getLocator(e.connectionStatusBtn),
+      'should not complain about loss in connection when joining audio'
+    ).not.toHaveAttribute('color', 'danger');
+    await this.modPage.checkElementCount(e.smallToastMsg, 1, 'should have only one notification displayed');
+    await util.waitAndClearNotification(this.modPage);
     await this.modPage.waitAndClick(e.audioDropdownMenu);
     await this.modPage.waitAndClick(e.leaveAudio);
     await util.waitAndClearNotification(this.modPage);
     await this.modPage.waitAndClick(e.joinAudio);
     await this.modPage.waitAndClick(e.listenOnlyButton);
-    await this.modPage.wasRemoved(e.establishingAudioLabel);
+    await this.modPage.wasRemoved(e.establishingAudioLabel, 'should remove establish audio element after joining successfully');
     await util.checkNotificationText(this.modPage, e.joinAudioToast);
     await util.checkNotificationIcon(this.modPage, e.listenOnlyIcon);
   }
