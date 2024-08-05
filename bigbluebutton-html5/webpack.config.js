@@ -2,7 +2,7 @@ const HtmlWebpackPlugin = require('html-webpack-plugin');
 const MiniCssExtractPlugin = require('mini-css-extract-plugin');
 const path = require('path');
 const CopyPlugin = require('copy-webpack-plugin');
-const BomPlugin = require('webpack-utf8-bom');
+const CompressionPlugin = require('compression-webpack-plugin');
 
 module.exports = {
   entry: './client/main.tsx',
@@ -18,7 +18,7 @@ module.exports = {
     hot: true,
     client: {
       overlay: false,
-      webSocketURL: 'html5client/ws',
+      // webSocketURL: 'html5client/ws',
     },
   },
   plugins: [
@@ -34,7 +34,7 @@ module.exports = {
         { from: 'private', to: 'private' },
       ],
     }),
-    new BomPlugin(true),
+    new CompressionPlugin(),
   ],
   resolve: {
     modules: ['node_modules', 'src'],
