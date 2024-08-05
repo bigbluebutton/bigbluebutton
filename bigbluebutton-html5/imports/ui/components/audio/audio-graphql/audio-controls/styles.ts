@@ -5,6 +5,18 @@ import { smallOnly } from '/imports/ui/stylesheets/styled-components/breakpoints
 import { colorWhite } from '/imports/ui/stylesheets/styled-components/palette';
 import { smPaddingX, smPaddingY } from '/imports/ui/stylesheets/styled-components/general';
 
+const pulse = keyframes`
+  0% {
+    box-shadow: 0 0 0 0 white;
+  }
+  70% {
+    box-shadow: 0 0 0 0.5625rem transparent;
+  }
+  100% {
+    box-shadow: 0 0 0 0 transparent;
+  }
+`;
+
 // @ts-ignore - as button comes from JS, we can't provide its props
 const LeaveButtonWithoutLiveStreamSelector = styled(Button)`
   ${({ ghost }) => ghost && `

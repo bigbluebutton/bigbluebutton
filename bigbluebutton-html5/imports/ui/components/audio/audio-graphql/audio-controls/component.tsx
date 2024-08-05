@@ -14,7 +14,6 @@ import AudioManager from '/imports/ui/services/audio-manager';
 import { joinListenOnly } from './service';
 import Styled from './styles';
 import InputStreamLiveSelectorContainer from './input-stream-live-selector/component';
-import { getSettingsSingletonInstance } from '/imports/ui/services/settings';
 import { UPDATE_ECHO_TEST_RUNNING } from './queries';
 
 const intlMessages = defineMessages({

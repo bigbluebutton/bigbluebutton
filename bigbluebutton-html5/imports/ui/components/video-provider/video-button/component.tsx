@@ -241,6 +241,7 @@ const JoinVideoButton: React.FC<JoinVideoButtonProps> = ({
                 setTimeout(() => {
                   const obj = {
                     application: {
+                      // @ts-expect-error -> Untyped object.
                       ...Settings.application,
                       selfViewDisable: true,
                     },
