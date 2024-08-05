@@ -62,8 +62,6 @@ const AudioControls: React.FC<AudioControlsProps> = ({
   const intl = useIntl();
   const joinAudioShortcut = useShortcut('joinAudio');
   const echoTestIntervalRef = React.useRef<ReturnType<typeof setTimeout>>();
-  const Settings = getSettingsSingletonInstance();
-  const animations = Settings?.application?.animations;
 
   const [isAudioModalOpen, setIsAudioModalOpen] = React.useState(false);
 

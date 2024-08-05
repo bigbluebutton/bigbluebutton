@@ -98,8 +98,6 @@ const JoinVideoButton: React.FC<JoinVideoButtonProps> = ({
   const [forceOpen, setForceOpen] = useState(false);
   const [isVideoPreviewModalOpen, setVideoPreviewModalIsOpen] = useState(false);
   const [wasSelfViewDisabled, setWasSelfViewDisabled] = useState(false);
-  const Settings = getSettingsSingletonInstance();
-  const animations = Settings?.application?.animations;
 
   useEffect(() => {
     const Settings = getSettingsSingletonInstance();
