@@ -142,6 +142,7 @@ export interface Breakouts {
   captureSharedNotesByDefault: boolean
   sendInvitationToAssignedModeratorsByDefault: boolean
   breakoutRoomLimit: number
+  allowPresentationManagementInBreakouts: boolean
 }
 
 export interface RaiseHandActionButton {
