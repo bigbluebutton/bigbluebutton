@@ -638,6 +638,8 @@ function overlay_shape_label(svg, annotation) {
       'height': labelHeight,
       'xlink:href': ref,
       }).up();
+    } else {
+      logger.warn(`Could not render status in overlay_shape_label for ${annotation}`);
     }
 }
 
@@ -675,9 +677,9 @@ function overlay_sticky(svg, annotation) {
           'height': textBoxHeight,
           'xlink:href': `file://${dropbox}/text${id}.png`,
         }).up();
+  } else {
+    logger.warn(`Could not render status in overlay_sticky for ${annotation}`);
   }
-} else {
-  logger.warn("Could not render status in overlay_sticky for JSON.stringify(annotation)");
 }
 
 function overlay_triangle(svg, annotation) {
@@ -742,9 +744,9 @@ function overlay_text(svg, annotation) {
       'height': textBoxHeight,
       'xlink:href': `file://${dropbox}/text${id}.png`,
     }).up();
+  } else {
+    logger.warn(`Could not render status in render_textbox for ${annotation}`);
   }
-} else {
-  logger.warn("Could not render status in render_textbox for JSON.stringify(annotation)");
 }
 
 function overlay_annotation(svg, currentAnnotation) {
