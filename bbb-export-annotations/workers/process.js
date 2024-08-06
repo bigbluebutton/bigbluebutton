@@ -676,6 +676,8 @@ function overlay_sticky(svg, annotation) {
           'xlink:href': `file://${dropbox}/text${id}.png`,
         }).up();
   }
+} else {
+  logger.warn("Could not render status in overlay_sticky for JSON.stringify(annotation)");
 }
 
 function overlay_triangle(svg, annotation) {
