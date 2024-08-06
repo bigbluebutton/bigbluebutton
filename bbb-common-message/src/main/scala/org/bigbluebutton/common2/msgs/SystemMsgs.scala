@@ -148,22 +148,6 @@ case class RecordingChapterBreakSysMsg(
 ) extends BbbCoreMsg
 case class RecordingChapterBreakSysMsgBody(meetingId: String, timestamp: Long)
 
-object ValidateConnAuthTokenSysMsg { val NAME = "ValidateConnAuthTokenSysMsg" }
-case class ValidateConnAuthTokenSysMsg(
-    header: BbbCoreBaseHeader,
-    body:   ValidateConnAuthTokenSysMsgBody
-) extends BbbCoreMsg
-case class ValidateConnAuthTokenSysMsgBody(meetingId: String, userId: String, authToken: String,
-                                           connId: String, app: String)
-
-object ValidateConnAuthTokenSysRespMsg { val NAME = "ValidateConnAuthTokenSysRespMsg" }
-case class ValidateConnAuthTokenSysRespMsg(
-    header: BbbCoreHeaderWithMeetingId,
-    body:   ValidateConnAuthTokenSysRespMsgBody
-) extends BbbCoreMsg
-case class ValidateConnAuthTokenSysRespMsgBody(meetingId: String, userId: String,
-                                               connId: String, authzed: Boolean, app: String)
-
 object PublishedRecordingSysMsg { val NAME = "PublishedRecordingSysMsg" }
 case class PublishedRecordingSysMsg(header: BbbCoreBaseHeader, body: PublishedRecordingSysMsgBody) extends BbbCoreMsg
 case class PublishedRecordingSysMsgBody(recordId: String)

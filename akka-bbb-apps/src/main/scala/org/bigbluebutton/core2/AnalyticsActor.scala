@@ -41,7 +41,6 @@ class AnalyticsActor(val includeChat: Boolean) extends Actor with ActorLogging {
       case m: MeetingEndingEvtMsg                            => logMessage(msg)
       case m: MeetingCreatedEvtMsg                           => logMessage(msg)
       case m: LogoutAndEndMeetingCmdMsg                      => logMessage(msg)
-      case m: ValidateAuthTokenRespMsg                       => logMessage(msg)
       case m: UserJoinedMeetingEvtMsg                        => logMessage(msg)
       case m: RecordingStatusChangedEvtMsg                   => logMessage(msg)
       case m: WebcamsOnlyForModeratorChangedEvtMsg           => logMessage(msg)
@@ -162,8 +161,6 @@ class AnalyticsActor(val includeChat: Boolean) extends Actor with ActorLogging {
       // System
       case m: ClientToServerLatencyTracerMsg => traceMessage(msg)
       case m: ServerToClientLatencyTracerMsg => traceMessage(msg)
-      case m: ValidateConnAuthTokenSysMsg => traceMessage(msg)
-      case m: ValidateConnAuthTokenSysRespMsg => traceMessage(msg)
 
       // Recording
       case m: RecordingChapterBreakSysMsg => logMessage(msg)
