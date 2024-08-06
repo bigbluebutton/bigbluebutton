@@ -166,12 +166,11 @@ After the `bbb-install.sh` script finishes, you can check the status of your ser
 ```bash
 $ sudo bbb-conf --check
 
-root@test27:~# bbb-conf --check
-BigBlueButton Server 3.0.0-alpha.1 (68)
-                    Kernel version: 5.15.0-67-generic
-                      Distribution: Ubuntu 22.04.3 LTS (64-bit)
-                            Memory: 8140 MB
-                         CPU cores: 4
+BigBlueButton Server 3.0.0-beta.1 (1313)
+                    Kernel version: 5.15.0-113-generic
+                      Distribution: Ubuntu 22.04.4 LTS (64-bit)
+                            Memory: 16372 MB
+                         CPU cores: 8
 
 /etc/bigbluebutton/bbb-web.properties (override for bbb-web)
 /usr/share/bbb-web/WEB-INF/classes/bigbluebutton.properties (bbb-web)
@@ -180,7 +179,7 @@ BigBlueButton Server 3.0.0-alpha.1 (68)
               defaultMeetingLayout: CUSTOM_LAYOUT
 
 /etc/nginx/sites-available/bigbluebutton (nginx)
-                       server_name: dev30.bigbluebutton.org
+                       server_name: test30.bigbluebutton.org
                               port: 80, [::]:80127.0.0.1:82 http2 proxy_protocol, [::1]:82 http2127.0.0.1:81 proxy_protocol, [::1]:81
 
 /opt/freeswitch/etc/freeswitch/vars.xml (FreeSWITCH)
@@ -201,41 +200,16 @@ UDP port ranges
                     bbb-webrtc-recorder: null-null
 
 /usr/local/bigbluebutton/core/scripts/bigbluebutton.yml (record and playback)
-                     playback_host: dev30.bigbluebutton.org
-                 playback_protocol: https
+                     playback_host: test30.bigbluebutton.org
+                 playback_protocol: http
                             ffmpeg: 4.4.2-0ubuntu0.22.04.1
 
 /usr/share/bigbluebutton/nginx/sip.nginx (sip.nginx)
                         proxy_pass: 143.198.37.212
                           protocol: http
 
-/usr/local/bigbluebutton/bbb-webrtc-sfu/config/default.yml (bbb-webrtc-sfu)
-/etc/bigbluebutton/bbb-webrtc-sfu/production.yml (bbb-webrtc-sfu - override)
-    mediasoup.webrtc.*.announcedIp: 143.198.37.212
-  mediasoup.plainRtp.*.announcedIp: 143.198.37.212
-                 freeswitch.sip_ip: 143.198.37.212
-                  recordingAdapter: Kurento
-               recordScreenSharing: true
-                     recordWebcams: true
-                  codec_video_main: VP8
-               codec_video_content: VP8
-
-/etc/bbb-webrtc-recorder/bbb-webrtc-recorder.yml (bbb-webrtc-recorder)
-/etc/bigbluebutton/bbb-webrtc-recorder.yml (bbb-webrtc-recorder - override)
-               debug: false
-               recorder.directory: /var/lib/bbb-webrtc-recorder
-
-/usr/share/meteor/bundle/programs/server/assets/app/config/settings.yml (HTML5 client)
-/etc/bigbluebutton/bbb-html5.yml (HTML5 client config override)
-                             build: 13
-                        kurentoUrl: wss://test30.bigbluebutton.org/bbb-webrtc-sfu
-            defaultFullAudioBridge: fullaudio
-           defaultListenOnlyBridge: fullaudio
-                    sipjsHackViaWs: true
-
 
 # Potential problems described below
-
 ```
 
 Any output that followed `Potential problems` **may** indicate configuration errors or installation errors. In many cases, the messages will give you recommendations on how to resolve the issue.
