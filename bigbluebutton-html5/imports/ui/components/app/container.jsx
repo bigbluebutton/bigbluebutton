@@ -223,27 +223,6 @@ const AppContainer = (props) => {
     );
   });
 
-  useEffect(() => {
-    if (isSharingVideo && !hasExternalVideoOnLayout) {
-      layoutContextDispatch({
-        type: ACTIONS.SET_PILE_CONTENT_FOR_PRESENTATION_AREA,
-        value: {
-          content: PRESENTATION_AREA.EXTERNAL_VIDEO,
-          open: true,
-        },
-      });
-      layoutContextDispatch({
-        type: ACTIONS.SET_HAS_EXTERNAL_VIDEO,
-        value: true,
-      });
-    } else if (hasExternalVideoOnLayout) {
-      layoutContextDispatch({
-        type: ACTIONS.SET_HAS_EXTERNAL_VIDEO,
-        value: false,
-      });
-    }
-  }, [isSharingVideo]);
-
   const shouldShowExternalVideo = isExternalVideoEnabled && isSharingVideo;
 
   const shouldShowGenericMainContent = !!genericMainContent.genericContentId;
