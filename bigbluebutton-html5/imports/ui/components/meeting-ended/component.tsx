@@ -289,7 +289,7 @@ const MeetingEnded: React.FC<MeetingEndedProps> = ({
                       authToken,
                       learningDashboardBase,
                       locale)}
-                    aria-description={intl.formatMessage(intlMessage.open_activity_report_btn)}
+                    aria-details={intl.formatMessage(intlMessage.open_activity_report_btn)}
                   >
                     <Icon
                       iconName="multi_whiteboard"
@@ -305,7 +305,8 @@ const MeetingEnded: React.FC<MeetingEndedProps> = ({
           <Styled.MeetingEndedButton
             color="primary"
             onClick={() => confirmRedirect(isBreakout, allowDefaultLogoutUrl)}
-            aria-description={intl.formatMessage(intlMessage.confirmDesc)}
+            /* @eslint-disable-next-line */
+            aria-details={intl.formatMessage(intlMessage.confirmDesc)}
           >
             {intl.formatMessage(intlMessage.buttonOkay)}
           </Styled.MeetingEndedButton>
@@ -345,7 +346,7 @@ const MeetingEnded: React.FC<MeetingEndedProps> = ({
           <Styled.MeetingEndedButton
             color="primary"
             onClick={() => setDispatched(true)}
-            aria-description={intl.formatMessage(intlMessage.confirmDesc)}
+            aria-details={intl.formatMessage(intlMessage.confirmDesc)}
           >
             {intl.formatMessage(intlMessage.buttonOkay)}
           </Styled.MeetingEndedButton>
@@ -353,7 +354,7 @@ const MeetingEnded: React.FC<MeetingEndedProps> = ({
         {!noRating ? (
           <Styled.MeetingEndedButton
             onClick={sendFeedback}
-            aria-description={intl.formatMessage(intlMessage.sendDesc)}
+            aria-details={intl.formatMessage(intlMessage.sendDesc)}
           >
             {intl.formatMessage(intlMessage.sendLabel)}
           </Styled.MeetingEndedButton>
@@ -368,6 +369,7 @@ const MeetingEnded: React.FC<MeetingEndedProps> = ({
     // Stops all media tracks
     window.dispatchEvent(new Event('StopAudioTracks'));
     // get the media tag from the session storage
+    // @ts-ignore
     const data = window.meetingClientSettings.public.media;
     // get media element and stops it and removes the audio source
     const mediaElement = document.querySelector<HTMLMediaElement>(data.mediaTag);
