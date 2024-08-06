@@ -147,24 +147,24 @@ RECORD_CONFIG=/usr/local/bigbluebutton/core/scripts/bigbluebutton.yml
 WEBRTC_RECORDER_DEFAULT_CONFIG=/etc/bbb-webrtc-recorder/bbb-webrtc-recorder.yml
 WEBRTC_RECORDER_ETC_CONFIG=/etc/bigbluebutton/bbb-webrtc-recorder.yml
 if [ -f $WEBRTC_RECORDER_ETC_CONFIG ]; then
-    WEBRTC_RECORDER_CONFIG=$(yq eval-all '. as $item ireduce ({}; . * $item )' $WEBRTC_RECORDER_DEFAULT_CONFIG $WEBRTC_RECORDER_ETC_CONFIG > /dev/null)
+    WEBRTC_RECORDER_CONFIG=$(yq eval-all '. as $item ireduce ({}; . * $item )' $WEBRTC_RECORDER_DEFAULT_CONFIG $WEBRTC_RECORDER_ETC_CONFIG 2> /dev/null)
 else
-    WEBRTC_RECORDER_CONFIG=$(yq e $WEBRTC_RECORDER_DEFAULT_CONFIG > /dev/null)
+    WEBRTC_RECORDER_CONFIG=$(yq e $WEBRTC_RECORDER_DEFAULT_CONFIG 2> /dev/null)
 fi
 
 HTML5_DEFAULT_CONFIG=/usr/share/meteor/bundle/programs/server/assets/app/config/settings.yml
 HTML5_ETC_CONFIG=/etc/bigbluebutton/bbb-html5.yml
 if [ -f $HTML5_ETC_CONFIG ]; then
-    HTML5_CONFIG=$(yq eval-all '. as $item ireduce ({}; . * $item )' $HTML5_DEFAULT_CONFIG $HTML5_ETC_CONFIG > /dev/null)
+    HTML5_CONFIG=$(yq eval-all '. as $item ireduce ({}; . * $item )' $HTML5_DEFAULT_CONFIG $HTML5_ETC_CONFIG 2> /dev/null)
 else
-    HTML5_CONFIG=$(yq e $HTML5_DEFAULT_CONFIG > /dev/null)
+    HTML5_CONFIG=$(yq e $HTML5_DEFAULT_CONFIG 2> /dev/null)
 fi
 
 mkdir -p /etc/bigbluebutton/bbb-webrtc-sfu
 WEBRTC_SFU_DEFAULT_CONFIG=/usr/local/bigbluebutton/bbb-webrtc-sfu/config/default.yml
 WEBRTC_SFU_ETC_CONFIG=/etc/bigbluebutton/bbb-webrtc-sfu/production.yml
 touch $WEBRTC_SFU_ETC_CONFIG # create it as it gets modified later in this script
-WEBRTC_SFU_CONFIG=$(yq eval-all '. as $item ireduce ({}; . * $item )' $WEBRTC_SFU_DEFAULT_CONFIG $WEBRTC_SFU_ETC_CONFIG > /dev/null)
+WEBRTC_SFU_CONFIG=$(yq eval-all '. as $item ireduce ({}; . * $item )' $WEBRTC_SFU_DEFAULT_CONFIG $WEBRTC_SFU_ETC_CONFIG 2> /dev/null)
 
 BBB_WEB_CONFIG="$SERVLET_DIR/WEB-INF/classes/bigbluebutton.properties"
 BBB_WEB_ETC_CONFIG="/etc/bigbluebutton/bbb-web.properties"
