@@ -60,6 +60,12 @@ func ConnectionHandler(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		log.Errorf("error: %v", err)
 	}
+
+	if common.HasReachedMaxGlobalConnections() {
+		browserWsConn.Close(websocket.StatusInternalError, "limit of server connections exceeded")
+		return
+	}
+
 	defer browserWsConn.Close(websocket.StatusInternalError, "the sky is falling")
 
 	var thisConnection = common.BrowserConnection{
@@ -128,6 +134,9 @@ func ConnectionHandler(w http.ResponseWriter, r *http.Request) {
 		browserWsConn.Close(wsError.Code, wsError.Reason)
 		browserConnectionContextCancel()
 	}
+
+	common.AddUserConnection(thisConnection.SessionToken)
+	defer common.RemoveUserConnection(thisConnection.SessionToken)
 
 	// Ensure a hasura client is running while the browser is connected
 	go func() {
@@ -297,6 +306,10 @@ func connectionInitHandler(browserConnection *common.BrowserConnection) error {
 			var sessionToken, existsSessionToken = headersAsMap["X-Session-Token"].(string)
 			if !existsSessionToken {
 				return fmt.Errorf("X-Session-Token header missing on init connection")
+			}
+
+			if common.HasReachedMaxUserConnections(sessionToken) {
+				return fmt.Errorf("too many connections")
 			}
 
 			var clientSessionUUID, existsClientSessionUUID = headersAsMap["X-ClientSessionUUID"].(string)
