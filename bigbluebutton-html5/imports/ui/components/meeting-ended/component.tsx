@@ -343,23 +343,22 @@ const MeetingEnded: React.FC<MeetingEndedProps> = ({
           </div>
         ) : null}
         <Styled.Wrapper>
-          {noRating ? (
+          {(noRating && !dispatched) || (!noRating && dispatched) ? (
             <Styled.MeetingEndedButton
               color="primary"
-              onClick={() => setDispatched(true)}
+              onClick={() => confirmRedirect(isBreakout, allowDefaultLogoutUrl)}
               aria-description={intl.formatMessage(intlMessage.confirmDesc)}
             >
               {intl.formatMessage(intlMessage.buttonOkay)}
             </Styled.MeetingEndedButton>
-          ) : null}
-          {!noRating ? (
+          ) : (
             <Styled.MeetingEndedButton
               onClick={sendFeedback}
               aria-description={intl.formatMessage(intlMessage.sendDesc)}
             >
               {intl.formatMessage(intlMessage.sendLabel)}
             </Styled.MeetingEndedButton>
-          ) : null}
+          )}
         </Styled.Wrapper>
       </>
     );
