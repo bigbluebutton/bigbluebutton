@@ -101,13 +101,17 @@ const _handleStreamTermination = () => {
 };
 
 const useIsScreenGloballyBroadcasting = () => {
-  const { data } = useScreenshare();
-  return Boolean(
-    data
+  const { data, loading } = useScreenshare();
+
+  return {
+    screenIsShared: Boolean(
+      data
     && data[0]
     && data[0].contentType === CONTENT_TYPE_SCREENSHARE
     && data[0].stream,
-  );
+    ),
+    loading,
+  };
 };
 
 const useIsCameraAsContentGloballyBroadcasting = () => {
@@ -119,7 +123,7 @@ const useIsCameraAsContentGloballyBroadcasting = () => {
 const useIsScreenBroadcasting = () => {
   const active = useIsSharing();
   const sharingContentType = useSharingContentType();
-  const screenIsShared = useIsScreenGloballyBroadcasting();
+  const { screenIsShared } = useIsScreenGloballyBroadcasting();
   const sharing = active && sharingContentType === CONTENT_TYPE_SCREENSHARE;
 
   return sharing || screenIsShared;
