@@ -353,20 +353,15 @@ const RecordingIndicatorContainer: React.FC = () => {
 
   if (meetingRecordingPoliciesLoading || meetingRecordingLoading) {
     return (
-      <div>
-        <Styled.SpinnerOverlay animations={animations}>
-          <Styled.Bounce1 animations={animations} />
-          <Styled.Bounce2 animations={animations} />
-        </Styled.SpinnerOverlay>
-      </div>
-    );
-  }
-  if (meetingRecordingPoliciesError || meetingRecordingError) {
-    return (
-      <div>
-        {JSON.stringify(meetingRecordingPoliciesError)
-        || JSON.stringify(meetingRecordingData)}
-      </div>
+      <>
+        <Styled.PresentationTitleSeparator aria-hidden="true">|</Styled.PresentationTitleSeparator>
+        <div>
+          <Styled.SpinnerOverlay animations={animations}>
+            <Styled.Bounce1 animations={animations} />
+            <Styled.Bounce2 animations={animations} />
+          </Styled.SpinnerOverlay>
+        </div>
+      </>
     );
   }
   if (meetingRecordingPoliciesError) {

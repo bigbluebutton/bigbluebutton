@@ -304,14 +304,14 @@ const ButtonWrapper = styled(BaseButton)`
   &::after {
     content: '';
     position: absolute;
-    top: -5px;
-    left: -5px;
-    right: -5px;
-    bottom: -5px;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
     border-radius: 50%;
-    border: 5px solid white;
+    border: 2px solid white;
     border-top-color: transparent;
-    animation: spin 1s linear infinite;
+    animation: spin 1.5s linear infinite;
   }
   @keyframes spin {
     0% {
