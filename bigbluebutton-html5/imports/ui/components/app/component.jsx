@@ -574,7 +574,6 @@ class App extends Component {
           shouldShowScreenshare
             ? (
               <ScreenshareContainer
-                isLayoutSwapped={!presentationIsOpen}
                 isPresenter={isPresenter}
               />
             )
