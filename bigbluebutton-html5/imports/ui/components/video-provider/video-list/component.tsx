@@ -1,5 +1,6 @@
 import React, { Component } from 'react';
 import { IntlShape, defineMessages, injectIntl } from 'react-intl';
+import { UpdatedEventDetailsForUserCameraDomElement } from 'bigbluebutton-html-plugin-sdk/dist/cjs/dom-element-manipulation/user-camera/types';
 import { throttle } from '/imports/utils/throttle';
 import { range } from '/imports/utils/array-utils';
 import Styled from './styles';
@@ -76,6 +77,7 @@ interface VideoListProps {
   isGridEnabled: boolean;
   streams: VideoItem[];
   intl: IntlShape;
+  setUserCamerasRequestedFromPlugin: React.Dispatch<React.SetStateAction<UpdatedEventDetailsForUserCameraDomElement[]>>;
   onVideoItemMount: (stream: string, video: HTMLVideoElement) => void;
   onVideoItemUnmount: (stream: string) => void;
   onVirtualBgDrop: (stream: string, type: string, name: string, data: string) => Promise<unknown>;
@@ -345,6 +347,7 @@ class VideoList extends Component<VideoListProps, VideoListState> {
       onVideoItemMount,
       onVideoItemUnmount,
       handleVideoFocus,
+      setUserCamerasRequestedFromPlugin,
       focusedId,
     } = this.props;
     const numOfStreams = streams.length;
@@ -369,6 +372,7 @@ class VideoList extends Component<VideoListProps, VideoListState> {
             name={name}
             focused={isFocused}
             isStream={isStream}
+            setUserCamerasRequestedFromPlugin={setUserCamerasRequestedFromPlugin}
             onHandleVideoFocus={isStream ? handleVideoFocus : null}
             onVideoItemMount={(videoRef) => {
               this.handleCanvasResize();
