@@ -303,7 +303,7 @@ class Presentation extends PureComponent {
           },
         });
       }
-      const presentationChanged = presentationId !== currentPresentationId;
+      const presentationChanged = presentationId && presentationId !== currentPresentationId;
 
       if (
         !presentationIsOpen
