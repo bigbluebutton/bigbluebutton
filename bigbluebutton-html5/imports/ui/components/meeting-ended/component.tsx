@@ -342,23 +342,25 @@ const MeetingEnded: React.FC<MeetingEndedProps> = ({
             ) : null}
           </div>
         ) : null}
-        {noRating ? (
-          <Styled.MeetingEndedButton
-            color="primary"
-            onClick={() => setDispatched(true)}
-            aria-description={intl.formatMessage(intlMessage.confirmDesc)}
-          >
-            {intl.formatMessage(intlMessage.buttonOkay)}
-          </Styled.MeetingEndedButton>
-        ) : null}
-        {!noRating ? (
-          <Styled.MeetingEndedButton
-            onClick={sendFeedback}
-            aria-description={intl.formatMessage(intlMessage.sendDesc)}
-          >
-            {intl.formatMessage(intlMessage.sendLabel)}
-          </Styled.MeetingEndedButton>
-        ) : null}
+        <Styled.Wrapper>
+          {noRating ? (
+            <Styled.MeetingEndedButton
+              color="primary"
+              onClick={() => setDispatched(true)}
+              aria-description={intl.formatMessage(intlMessage.confirmDesc)}
+            >
+              {intl.formatMessage(intlMessage.buttonOkay)}
+            </Styled.MeetingEndedButton>
+          ) : null}
+          {!noRating ? (
+            <Styled.MeetingEndedButton
+              onClick={sendFeedback}
+              aria-description={intl.formatMessage(intlMessage.sendDesc)}
+            >
+              {intl.formatMessage(intlMessage.sendLabel)}
+            </Styled.MeetingEndedButton>
+          ) : null}
+        </Styled.Wrapper>
       </>
     );
   }, [askForFeedbackOnLogout, dispatched, selectedStars]);
