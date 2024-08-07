@@ -62,7 +62,7 @@ const propTypes = {
 
   /**
    * Defines the button label should be visible
-   * @defaultValue true
+   * @defaultValue false
    */
   hideLabel: PropTypes.bool,
 
