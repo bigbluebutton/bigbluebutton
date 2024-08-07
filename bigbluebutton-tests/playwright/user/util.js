@@ -31,7 +31,6 @@ async function drawArrow(test) {
   const wbBox = await modWbLocator.boundingBox();
     
   await test.waitAndClick(e.wbArrowShape);
-
   await test.page.mouse.move(wbBox.x + 0.3 * wbBox.width, wbBox.y + 0.3 * wbBox.height);
   await test.page.mouse.down();
   await test.page.mouse.move(wbBox.x + 0.7 * wbBox.width, wbBox.y + 0.7 * wbBox.height);

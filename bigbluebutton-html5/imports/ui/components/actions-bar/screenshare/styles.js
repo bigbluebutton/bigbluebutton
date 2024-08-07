@@ -25,7 +25,21 @@ const Title = styled.h3`
   padding-bottom: ${mdPaddingX};
 `;
 
+const Container = styled.span`
+  display: flex;
+  flex-flow: row;
+  position: relative;
+
+  & > div {
+    position: relative;
+  }
+
+  & > :last-child {
+    margin-right: 0;
+  }
+`;
 export default {
   ScreenShareModal,
   Title,
+  Container,
 };

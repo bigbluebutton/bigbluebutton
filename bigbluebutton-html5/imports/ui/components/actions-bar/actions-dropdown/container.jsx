@@ -20,6 +20,7 @@ import { TIMER_ACTIVATE, TIMER_DEACTIVATE } from '../../timer/mutations';
 import Auth from '/imports/ui/services/auth';
 import { PRESENTATION_SET_CURRENT } from '../../presentation/mutations';
 import { useStorageKey } from '/imports/ui/services/storage/hooks';
+import { useMeetingIsBreakout } from '/imports/ui/components/app/service';
 
 const ActionsDropdownContainer = (props) => {
   const sidebarContent = layoutSelectInput((i) => i.sidebarContent);
@@ -29,6 +30,8 @@ const ActionsDropdownContainer = (props) => {
   const layoutContextDispatch = layoutDispatch();
   const isRTL = layoutSelect((i) => i.isRTL);
   const { pluginsExtensibleAreasAggregatedState } = useContext(PluginsContext);
+  const meetingIsBreakout = useMeetingIsBreakout();
+
   let actionButtonDropdownItems = [];
   if (pluginsExtensibleAreasAggregatedState.actionButtonDropdownItems) {
     actionButtonDropdownItems = [...pluginsExtensibleAreasAggregatedState.actionButtonDropdownItems];
@@ -40,6 +43,13 @@ const ActionsDropdownContainer = (props) => {
     PROCESSED_PRESENTATIONS_SUBSCRIPTION,
   );
   const presentations = presentationData?.pres_presentation || [];
+
+  const {
+    allowPresentationManagementInBreakouts,
+  } = window.meetingClientSettings.public.app.breakouts;
+
+  const isPresentationManagementDisabled = meetingIsBreakout
+    && !allowPresentationManagementInBreakouts;
 
   const [setPresenter] = useMutation(SET_PRESENTER);
   const [timerActivate] = useMutation(TIMER_ACTIVATE);
@@ -101,6 +111,7 @@ const ActionsDropdownContainer = (props) => {
         shortcuts: openActions,
         isLayoutsEnabled,
         isPresentationEnabled,
+        isPresentationManagementDisabled,
         ...props,
       }}
     />

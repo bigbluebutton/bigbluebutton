@@ -101,13 +101,17 @@ export const _handleStreamTermination = () => {
 };
 
 export const useIsScreenGloballyBroadcasting = () => {
-  const { data } = useScreenshare();
-  return Boolean(
-    data
+  const { data, loading } = useScreenshare();
+
+  return {
+    screenIsShared: Boolean(
+      data
     && data[0]
     && data[0].contentType === CONTENT_TYPE_SCREENSHARE
     && data[0].stream,
-  );
+    ),
+    loading,
+  };
 };
 
 export const useIsCameraAsContentGloballyBroadcasting = () => {
@@ -119,7 +123,7 @@ export const useIsCameraAsContentGloballyBroadcasting = () => {
 export const useIsScreenBroadcasting = () => {
   const active = useIsSharing();
   const sharingContentType = useSharingContentType();
-  const screenIsShared = useIsScreenGloballyBroadcasting();
+  const { screenIsShared } = useIsScreenGloballyBroadcasting();
   const sharing = active && sharingContentType === CONTENT_TYPE_SCREENSHARE;
 
   return sharing || screenIsShared;
@@ -298,8 +302,7 @@ export const viewScreenshare = (options = {}, hasAudio) => {
 
 export const screenShareEndAlert = () => AudioService
   .playAlertSound(`${window.meetingClientSettings.public.app.cdn
-    + window.meetingClientSettings.public.app.basename
-    + window.meetingClientSettings.public.app.instanceId}`
+    + window.meetingClientSettings.public.app.basename}`
     + '/resources/sounds/ScreenshareOff.mp3');
 
 /**

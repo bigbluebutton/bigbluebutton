@@ -75,7 +75,6 @@ const MeetingEndedButton = styled.button`
   cursor: pointer;
   user-select: none;
   height: 3rem;
-  width: 3rem;
   display: flex !important;
   align-items: center;
   box-align: center;

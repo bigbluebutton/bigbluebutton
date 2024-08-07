@@ -107,7 +107,7 @@ Updated in 2.6:
 Updated in 2.7:
 
 - **create** - **Added:** `preUploadedPresentation`, `preUploadedPresentationName`, `disabledFeatures` options`cameraAsContent`, `snapshotOfCurrentSlide`, `downloadPresentationOriginalFile`, `downloadPresentationConvertedToPdf`, `timer`, `learningDashboardDownloadSessionData` (2.7.5).
-- **join** - **Added:** `redirectErrorUrl`, `userdata-bbb_fullaudio_bridge`
+- **join** - **Added:** `errorRedirectUrl`, `userdata-bbb_fullaudio_bridge`
 
 Updated in 3.0:
 
@@ -1329,3 +1329,4 @@ For example, the application may be able to register a URL that BigBlueButton wo
   - .txt
 
 All these valid formats are also present in a list in the [back-end](https://github.com/bigbluebutton/bigbluebutton/blob/v2.7.10/bbb-common-web/src/main/java/org/bigbluebutton/presentation/MimeTypeUtils.java#L28-L47) and in the [front-end](https://github.com/bigbluebutton/bigbluebutton/blob/v2.7.10/bigbluebutton-html5/private/config/settings.yml#L824-L862) if more details are needed.
+

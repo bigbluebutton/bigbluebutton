@@ -349,6 +349,15 @@ const SubTitle = styled.p`
 
 const Content = styled(FlexColumn)``;
 
+const BreakoutSlideLabel = styled.label`
+  font-size: ${fontSizeSmall};
+  font-weight: bolder;
+  display: flex;
+  align-items: center;
+  font-size: ${fontSizeSmall};
+  margin-bottom: 0.2rem;
+`;
+
 export default {
   BoxContainer,
   Alert,
@@ -380,4 +389,5 @@ export default {
   SubTitle,
   Content,
   ContentContainer,
+  BreakoutSlideLabel,
 };
