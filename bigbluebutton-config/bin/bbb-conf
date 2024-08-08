@@ -152,7 +152,7 @@ else
     WEBRTC_RECORDER_CONFIG=$(yq e $WEBRTC_RECORDER_DEFAULT_CONFIG 2> /dev/null)
 fi
 
-HTML5_DEFAULT_CONFIG=/usr/share/meteor/bundle/programs/server/assets/app/config/settings.yml
+HTML5_DEFAULT_CONFIG=/var/bigbluebutton/html5-client/private/config/settings.yml
 HTML5_ETC_CONFIG=/etc/bigbluebutton/bbb-html5.yml
 if [ -f $HTML5_ETC_CONFIG ]; then
     HTML5_CONFIG=$(yq eval-all '. as $item ireduce ({}; . * $item )' $HTML5_DEFAULT_CONFIG $HTML5_ETC_CONFIG 2> /dev/null)
@@ -1310,7 +1310,7 @@ if [ $CHECK ]; then
 
     if [ -n "$HTML5_CONFIG" ]; then
     echo
-    echo "/usr/share/meteor/bundle/programs/server/assets/app/config/settings.yml (HTML5 client)"
+    echo "/var/bigbluebutton/html5-client/private/config/settings.yml (HTML5 client)"
     echo "/etc/bigbluebutton/bbb-html5.yml (HTML5 client config override)"
     echo "                             build: $(echo "$HTML5_CONFIG" | yq e '.public.app.html5ClientBuild' -)"
     echo "                        kurentoUrl: $(echo "$HTML5_CONFIG" | yq e '.public.kurento.wsUrl' -)"
