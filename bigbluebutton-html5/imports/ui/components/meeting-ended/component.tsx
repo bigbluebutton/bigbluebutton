@@ -353,6 +353,7 @@ const MeetingEnded: React.FC<MeetingEndedProps> = ({
             </Styled.MeetingEndedButton>
           ) : (
             <Styled.MeetingEndedButton
+              data-test="sendFeedbackButton"
               onClick={sendFeedback}
               aria-description={intl.formatMessage(intlMessage.sendDesc)}
             >
