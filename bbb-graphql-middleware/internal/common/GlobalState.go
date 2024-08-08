@@ -1,7 +1,10 @@
 package common
 
 import (
+	"fmt"
 	"github.com/google/uuid"
+	"os"
+	"strconv"
 	"sync"
 	"time"
 )
@@ -105,4 +108,90 @@ func RemoveStreamCursorValueCache(cacheKey uint32, delayInSecs time.Duration) {
 	StreamCursorValueCacheMutex.Lock()
 	defer StreamCursorValueCacheMutex.Unlock()
 	delete(StreamCursorValueCache, cacheKey)
+}
+
+var MaxConnPerUser = -1
+
+func GetMaxConnectionsPerUser() int {
+	if MaxConnPerUser == -1 {
+		maxConnPerUser := 3
+		if envMaxConnPerUser := os.Getenv("BBB_GRAPHQL_MIDDLEWARE_MAX_CONN_PER_USER"); envMaxConnPerUser != "" {
+			if envMaxConnPerUserAsInt, err := strconv.Atoi(envMaxConnPerUser); err == nil {
+				maxConnPerUser = envMaxConnPerUserAsInt
+			}
+		}
+
+		MaxConnPerUser = maxConnPerUser
+	}
+
+	return MaxConnPerUser
+}
+
+var MaxConnGlobal = -1
+
+func GetMaxConnectionsGlobal() int {
+	if MaxConnGlobal == -1 {
+		maxConnGlobal := 3
+		if envMaxConnGlobal := os.Getenv("BBB_GRAPHQL_MIDDLEWARE_MAX_CONN"); envMaxConnGlobal != "" {
+			if envMaxConnGlobalAsInt, err := strconv.Atoi(envMaxConnGlobal); err == nil {
+				maxConnGlobal = envMaxConnGlobalAsInt
+			}
+		}
+
+		MaxConnGlobal = maxConnGlobal
+	}
+
+	return MaxConnGlobal
+}
+
+var GlobalConnectionsCount int
+var UserConnectionsCount = make(map[string]int)
+var UserConnectionsCountMutex sync.RWMutex
+
+func HasReachedMaxGlobalConnections() bool {
+	if GetMaxConnectionsGlobal() == 0 {
+		return true
+	}
+
+	return GlobalConnectionsCount >= GetMaxConnectionsGlobal()
+}
+
+func GetUserConnectionCount(sessionToken string) (int, bool) {
+	UserConnectionsCountMutex.RLock()
+	defer UserConnectionsCountMutex.RUnlock()
+
+	numOfConn, userConnExists := UserConnectionsCount[sessionToken]
+	return numOfConn, userConnExists
+}
+
+func HasReachedMaxUserConnections(sessionToken string) bool {
+	if GetMaxConnectionsPerUser() == 0 {
+		return true
+	}
+
+	numOfConn, _ := GetUserConnectionCount(sessionToken)
+
+	return numOfConn >= GetMaxConnectionsPerUser()
+}
+
+func AddUserConnection(sessionToken string) {
+	UserConnectionsCountMutex.Lock()
+	defer UserConnectionsCountMutex.Unlock()
+
+	fmt.Println("Added conn " + sessionToken)
+
+	GlobalConnectionsCount++
+	UserConnectionsCount[sessionToken]++
+}
+
+func RemoveUserConnection(sessionToken string) {
+	UserConnectionsCountMutex.Lock()
+	defer UserConnectionsCountMutex.Unlock()
+
+	GlobalConnectionsCount--
+	UserConnectionsCount[sessionToken]--
+	if UserConnectionsCount[sessionToken] <= 0 {
+		fmt.Println("Removed conn " + sessionToken)
+		delete(UserConnectionsCount, sessionToken)
+	}
 }

@@ -17,14 +17,11 @@ rm -rf dist
 # package
 #
 # Create directory for fpm to process
-DIRS=""
+DIRS="/var/bigbluebutton/html5-client /usr/share/bigbluebutton/html5-client /usr/share/bigbluebutton/nginx"
 for dir in $DIRS; do
   mkdir -p staging$dir
   DIRECTORIES="$DIRECTORIES --directories $dir"
 done
-
-mkdir -p staging/var/bigbluebutton/html5-client
-mkdir -p staging/usr/share/bigbluebutton/html5-client
 
 cp bbb-html5.nginx staging/usr/share/bigbluebutton/nginx
 cp bbb-html5.nginx.dev staging/usr/share/bigbluebutton/nginx
@@ -45,6 +42,9 @@ CI=true npm ci
 DISABLE_ESLINT_PLUGIN=true npm run build
 
 cp -r dist/* staging/var/bigbluebutton/html5-client
+
+mkdir -p staging/etc/nginx/sites-available
+cp bigbluebutton.nginx staging/etc/nginx/sites-available/bigbluebutton
 
 ##
 

@@ -367,20 +367,10 @@ start_bigbluebutton () {
     echo "Starting BigBlueButton"
 
     systemctl restart bigbluebutton.target
-
-    if [ -f /usr/lib/systemd/system/bbb-html5.service ]; then
-        systemctl start mongod
-        sleep 3
-        systemctl start bbb-html5
-    fi
 }
 
 display_bigbluebutton_status () {
     units="nginx freeswitch $REDIS_SERVICE bbb-apps-akka bbb-fsesl-akka"
-
-    if [ -f /usr/lib/systemd/system/bbb-html5.service ]; then
-        units="$units mongod bbb-html5"
-    fi
 
     if [ -f /usr/lib/systemd/system/bbb-graphql-actions.service ]; then
         units="$units bbb-graphql-actions"
@@ -788,6 +778,8 @@ check_state() {
     echo
     print_header
     check_configuration
+
+    bbb-conf --status
 
     #
     # Check for potential problems in the BigBlueButton configuration
@@ -1361,7 +1353,6 @@ if [ $ZIP ]; then
     tar rf  $TMP_LOG_FILE /var/log/bbb-apps-akka   > /dev/null 2>&1
     tar rf  $TMP_LOG_FILE /var/log/bbb-fsesl-akka         > /dev/null 2>&1
     tar rf  $TMP_LOG_FILE /var/log/bbb-webrtc-sfu         > /dev/null 2>&1
-    tar rf  $TMP_LOG_FILE /var/log/mongodb              > /dev/null 2>&1
     tar rf  $TMP_LOG_FILE /var/log/redis                > /dev/null 2>&1
     tar rf  $TMP_LOG_FILE /var/log/nginx/error.log*     > /dev/null 2>&1
     tar rf  $TMP_LOG_FILE /var/log/nginx/bigbluebutton.access.log*    > /dev/null 2>&1
@@ -1530,7 +1521,6 @@ if [ -n "$HOST" ]; then
     if [ -f $HTML5_DEFAULT_CONFIG ]; then
         yq e -i ".public.kurento.wsUrl = \"wss://$HOST/bbb-webrtc-sfu\"" $HTML5_DEFAULT_CONFIG
         yq e -i ".public.pads.url = \"$PROTOCOL://$HOST/pad\"" $HTML5_DEFAULT_CONFIG
-        chown meteor:meteor $HTML5_DEFAULT_CONFIG
     fi
 
     #
