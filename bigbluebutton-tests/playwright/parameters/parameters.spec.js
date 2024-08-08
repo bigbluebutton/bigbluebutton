@@ -6,6 +6,7 @@ const { encodeCustomParams, getAllShortcutParams, hexToRgb } = require('./util')
 const { CreateParameters } = require('./createParameters');
 const { PARAMETER_HIDE_PRESENTATION_TOAST } = require('../core/constants');
 
+// it only works for snapshot comparisons. playwright assertions will complain about the element (still in the DOM)
 const hidePresentationToast = encodeCustomParams(PARAMETER_HIDE_PRESENTATION_TOAST);
 
 test.describe.parallel('Create Parameters', { tag: '@ci' }, () => {
@@ -479,16 +480,9 @@ test.describe.parallel('Custom Parameters', { tag: '@ci' }, () => {
 
     test('Force restore presentation on new events', { tag: '@flaky' }, async ({ browser, context, page }) => {
       const customParam = new CustomParameters(browser, context);
-      const joinParameter = c.forceRestorePresentationOnNewEvents;
-      await customParam.initModPage(page, true, { joinParameter });
-      await customParam.forceRestorePresentationOnNewEvents(joinParameter);
-    });
-
-    test('Force restore presentation on new poll result', { tag: '@flaky' }, async ({ browser, context, page }) => {
-      const customParam = new CustomParameters(browser, context);
-      const joinParameter = `${c.forceRestorePresentationOnNewEvents}&${hidePresentationToast}`;
-      await customParam.initModPage(page, true, { joinParameter });
-      await customParam.forceRestorePresentationOnNewPollResult(joinParameter);
+      await customParam.initModPage(page);
+      await customParam.initUserPage(true, context, { useModMeetingId: true, joinParameter: c.forceRestorePresentationOnNewEvents });
+      await customParam.forceRestorePresentationOnNewEvents();
     });
   });
 
