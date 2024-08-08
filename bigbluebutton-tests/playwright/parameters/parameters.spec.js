@@ -455,9 +455,9 @@ test.describe.parallel('Custom Parameters', { tag: '@ci' }, () => {
       await customParam.skipCheck();
     });
 
-    test('Skip audio check on first join', { tag: '@flaky' }, async ({ browser, context, page }) => {
+    test('Skip audio check on first join', async ({ browser, context, page }) => {
       const customParam = new CustomParameters(browser, context);
-      await customParam.initModPage(page, false, { joinParameter: `${c.skipCheckOnFirstJoin}&${hidePresentationToast}` });
+      await customParam.initModPage(page, false, { joinParameter: c.skipCheckOnFirstJoin });
       await customParam.skipCheckOnFirstJoin();
     });
 

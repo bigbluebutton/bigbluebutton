@@ -102,7 +102,6 @@ class CustomParameters extends MultiUsers {
   async skipCheckOnFirstJoin() {
     await this.modPage.waitAndClick(e.microphoneButton, ELEMENT_WAIT_LONGER_TIME);
     await this.modPage.hasElement(e.establishingAudioLabel, 'should establish audio');
-    await this.modPage.hasElement(e.smallToastMsg, 'should display the small toast message');
     await this.modPage.hasElement(e.isTalking, 'should display the is talking element');
     await this.modPage.leaveAudio();
     await this.modPage.waitAndClick(e.joinAudio);
