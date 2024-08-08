@@ -3,7 +3,6 @@ import { MeetingClientSettings } from '../../Types/meetingClientSettings';
 export const meetingClientSettingsInitialValues: MeetingClientSettings = {
   public: {
     app: {
-      instanceId: '',
       mobileFontSize: '16px',
       desktopFontSize: '14px',
       audioChatNotification: false,
@@ -93,6 +92,7 @@ export const meetingClientSettingsInitialValues: MeetingClientSettings = {
         captureSharedNotesByDefault: false,
         sendInvitationToAssignedModeratorsByDefault: false,
         breakoutRoomLimit: 16,
+        allowPresentationManagementInBreakouts: true,
       },
       customHeartbeat: false,
       showAllAvailableLocales: true,
@@ -680,11 +680,6 @@ export const meetingClientSettingsInitialValues: MeetingClientSettings = {
         warning: false,
         error: true,
       },
-      jitter: [
-        10,
-        20,
-        30,
-      ],
       loss: [
         0.05,
         0.1,

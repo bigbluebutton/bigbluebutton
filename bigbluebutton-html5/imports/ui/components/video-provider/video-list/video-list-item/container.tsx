@@ -1,5 +1,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
+import { UpdatedEventDetailsForUserCameraDomElement } from 'bigbluebutton-html-plugin-sdk/dist/cjs/dom-element-manipulation/user-camera/types';
+
 import useCurrentUser from '/imports/ui/core/hooks/useCurrentUser';
 import { layoutSelect, layoutDispatch } from '/imports/ui/components/layout/context';
 import VideoListItem from './component';
@@ -21,6 +23,7 @@ interface VideoListItemContainerProps {
   isStream: boolean;
   onHandleVideoFocus: ((id: string) => void) | null;
   stream: VideoItem;
+  setUserCamerasRequestedFromPlugin: React.Dispatch<React.SetStateAction<UpdatedEventDetailsForUserCameraDomElement[]>>;
   onVideoItemUnmount: (stream: string) => void;
   onVirtualBgDrop: (type: string, name: string, data: string) => void;
   onVideoItemMount: (ref: HTMLVideoElement) => void;
@@ -37,6 +40,7 @@ const VideoListItemContainer: React.FC<VideoListItemContainerProps> = (props) =>
     onVideoItemMount,
     onVideoItemUnmount,
     onVirtualBgDrop,
+    setUserCamerasRequestedFromPlugin,
     stream,
     userId,
   } = props;
@@ -72,6 +76,7 @@ const VideoListItemContainer: React.FC<VideoListItemContainerProps> = (props) =>
         isRTL,
         amIModerator,
       }}
+      setUserCamerasRequestedFromPlugin={setUserCamerasRequestedFromPlugin}
       cameraId={cameraId}
       disabledCams={disabledCams}
       focused={focused}

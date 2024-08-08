@@ -19,6 +19,7 @@ const LoadedChatMessagesHookContainer = () => {
     message: message.message,
     messageId: message.messageId,
     user: message.user,
+    messageMetadata: message.messageMetadata,
   }));
 
   const updateLoadedChatMessagesForPlugin = () => {

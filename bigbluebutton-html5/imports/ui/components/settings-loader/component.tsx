@@ -5,6 +5,7 @@ import MeetingClientSettings from '/imports/ui/Types/meetingClientSettings';
 import { ErrorScreen } from '/imports/ui/components/error-screen/component';
 import LoadingScreen from '/imports/ui/components/common/loading-screen/component';
 import Session from '/imports/ui/services/storage/in-memory';
+import BBBWeb from '/imports/api/bbb-web-api';
 
 const connectionTimeout = 60000;
 
@@ -53,17 +54,9 @@ const SettingsLoader: React.FC<SettingsLoaderProps> = (props) => {
       return;
     }
 
-    const pathMatch = window.location.pathname.match('^(.*)/html5client/join$');
-    const serverPathPrefix = pathMatch ? pathMatch[1] : '';
-
-    fetch(`https://${window.location.hostname}${serverPathPrefix}/bigbluebutton/api`, {
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      signal: controller.signal,
-    }).then((resp) => resp.json())
-      .then((data) => {
-        const url = new URL(`${data.response.graphqlApiUrl}/clientSettings`);
+    BBBWeb.index(controller.signal)
+      .then(({ data }) => {
+        const url = new URL(`${data.graphqlApiUrl}/clientSettings`);
         fetch(url, {
           method: 'get',
           credentials: 'include',

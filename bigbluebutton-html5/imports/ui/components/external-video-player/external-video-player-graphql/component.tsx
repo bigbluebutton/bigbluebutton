@@ -248,7 +248,8 @@ const ExternalVideoPlayer: React.FC<ExternalVideoPlayerProps> = ({
 
   useEffect(() => {
     if (playerRef.current) {
-      playerRef.current.seekTo(currentTime, 'seconds');
+      const truncatedTime = currentTime < 1 ? 0 : currentTime;
+      playerRef.current.seekTo(truncatedTime, 'seconds');
     }
   }, [playerRef.current, playing]);
 

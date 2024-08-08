@@ -398,8 +398,7 @@ const UserJoinedMeetingAlert = (obj) => {
 
   if (userJoinAudioAlerts) {
     AudioService.playAlertSound(`${window.meetingClientSettings.public.app.cdn
-      + window.meetingClientSettings.public.app.basename
-      + window.meetingClientSettings.public.app.instanceId}`
+      + window.meetingClientSettings.public.app.basename}`
       + '/resources/sounds/userJoin.mp3');
   }
 
@@ -428,8 +427,7 @@ const UserLeftMeetingAlert = (obj) => {
 
   if (userLeaveAudioAlerts) {
     AudioService.playAlertSound(`${window.meetingClientSettings.public.app.cdn
-      + window.meetingClientSettings.public.app.basename
-      + window.meetingClientSettings.public.app.instanceId}`
+      + window.meetingClientSettings.public.app.basename}`
       + '/resources/sounds/notify.mp3');
   }
 

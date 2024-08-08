@@ -88,9 +88,6 @@ object PermissionCheck extends SystemConfiguration {
 
       UsersApp.ejectUserFromMeeting(outGW, liveMeeting, userId, ejectedBy, reason, EjectReasonCode.PERMISSION_FAILED, ban = false)
 
-      // send a system message to force disconnection
-      Sender.sendDisconnectClientSysMsg(meetingId, userId, ejectedBy, reason, outGW)
-
       // Force reconnection with graphql to refresh permissions
       for {
         regUser <- RegisteredUsers.findWithUserId(userId, liveMeeting.registeredUsers)

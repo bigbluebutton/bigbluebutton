@@ -1,9 +1,14 @@
-import React from 'react';
+import React, { useContext, useEffect, useState } from 'react';
 import VideoList from '/imports/ui/components/video-provider/video-list/component';
 import { layoutSelect, layoutDispatch } from '/imports/ui/components/layout/context';
 import { useNumberOfPages } from '/imports/ui/components/video-provider/hooks';
 import { VideoItem } from '/imports/ui/components/video-provider/types';
 import { Layout, Output } from '/imports/ui/components/layout/layoutTypes';
+import { PluginsContext } from '/imports/ui/components/components-data/plugin-context/context';
+import { UpdatedEventDetailsForUserCameraDomElement } from 'bigbluebutton-html-plugin-sdk/dist/cjs/dom-element-manipulation/user-camera/types';
+import { HookEvents } from 'bigbluebutton-html-plugin-sdk/dist/cjs/core/enum';
+import { DomElementManipulationHooks } from 'bigbluebutton-html-plugin-sdk/dist/cjs/dom-element-manipulation/enums';
+import { UpdatedEventDetails } from 'bigbluebutton-html-plugin-sdk/dist/cjs/core/types';
 
 interface VideoListContainerProps {
   streams: VideoItem[];
@@ -33,12 +38,30 @@ const VideoListContainer: React.FC<VideoListContainerProps> = (props) => {
   } = props;
   const numberOfPages = useNumberOfPages();
 
+  const { domElementManipulationStreamIds } = useContext(PluginsContext);
+
+  const [userCamerasRequestedFromPlugin, setUserCamerasRequestedFromPlugin] = useState<
+    UpdatedEventDetailsForUserCameraDomElement[]>([]);
+  useEffect(() => {
+    const dataToSend = userCamerasRequestedFromPlugin.filter((
+      userCamera,
+    ) => domElementManipulationStreamIds.indexOf(userCamera.streamId) !== -1);
+    window.dispatchEvent(
+      new CustomEvent<UpdatedEventDetails<UpdatedEventDetailsForUserCameraDomElement[]>>(HookEvents.UPDATED, {
+        detail: {
+          hook: DomElementManipulationHooks.USER_CAMERA,
+          data: dataToSend,
+        },
+      }),
+    );
+  }, [domElementManipulationStreamIds]);
   return (
     !streams.length
       ? null
       : (
         <VideoList
           layoutType={layoutType}
+          setUserCamerasRequestedFromPlugin={setUserCamerasRequestedFromPlugin}
           layoutContextDispatch={layoutContextDispatch}
           numberOfPages={numberOfPages}
           currentVideoPageIndex={currentVideoPageIndex}

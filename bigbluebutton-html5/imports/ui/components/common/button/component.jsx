@@ -73,6 +73,12 @@ const propTypes = {
    * @defaultvalue undefined
    */
   customIcon: PropTypes.node,
+
+  /**
+   * Defines the buttom loading state
+   * @defaultValue false
+   */
+  loading: PropTypes.bool,
 };
 
 const defaultProps = {
@@ -85,6 +91,7 @@ const defaultProps = {
   iconRight: false,
   hideLabel: false,
   tooltipLabel: '',
+  loading: false,
 };
 
 export default class Button extends BaseButton {
@@ -154,6 +161,7 @@ export default class Button extends BaseButton {
       ghost,
       circle,
       block,
+      loading,
       ...otherProps
     } = this.props;
 
@@ -168,6 +176,7 @@ export default class Button extends BaseButton {
         block={block}
         className={className}
         iconRight={iconRight}
+        loading={loading}
         {...remainingProps}
       >
         {this.renderIcon()}
@@ -186,6 +195,7 @@ export default class Button extends BaseButton {
       ghost,
       circle,
       block,
+      loading,
       ...otherProps
     } = this.props;
 
@@ -199,6 +209,7 @@ export default class Button extends BaseButton {
         ghost={ghost}
         circle={circle}
         block={block}
+        loading={loading}
         {...remainingProps}
       >
         {this.renderButtonEmojiSibling()}

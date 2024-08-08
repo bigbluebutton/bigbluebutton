@@ -1,7 +1,7 @@
 import deviceInfo from '/imports/utils/deviceInfo';
 import browserInfo from '/imports/utils/browserInfo';
 import { createVirtualBackgroundService } from '/imports/ui/services/virtual-background';
-import Session from '/imports/ui/services/storage/in-memory';
+import { getStorageSingletonInstance } from '/imports/ui/services/storage';
 
 const BLUR_FILENAME = 'blur.jpg';
 const EFFECT_TYPES = {
@@ -29,8 +29,7 @@ const MODELS = {
 
 const getBasePath = () => {
   const BASE_PATH = window.meetingClientSettings.public.app.cdn
-    + window.meetingClientSettings.public.app.basename
-    + window.meetingClientSettings.public.app.instanceId;
+    + window.meetingClientSettings.public.app.basename;
 
   return BASE_PATH;
 };
@@ -87,21 +86,21 @@ const getVirtualBackgroundThumbnail = (name) => {
 //   name: effect filename, if any
 // }
 const setSessionVirtualBackgroundInfo = (deviceId, type, name, uniqueId = null) => {
-  Session.setItem(`VirtualBackgroundInfo_${deviceId}`, { type, name, uniqueId });
+  getStorageSingletonInstance().setItem(`VirtualBackgroundInfo_${deviceId}`, { type, name, uniqueId });
 };
 
-const getSessionVirtualBackgroundInfo = (deviceId) => Session
+const getSessionVirtualBackgroundInfo = (deviceId) => getStorageSingletonInstance()
   .getItem(`VirtualBackgroundInfo_${deviceId}`) || {
   type: EFFECT_TYPES.NONE_TYPE,
 };
 
-const getSessionVirtualBackgroundInfoWithDefault = (deviceId) => Session
+const getSessionVirtualBackgroundInfoWithDefault = (deviceId) => getStorageSingletonInstance()
   .getItem(`VirtualBackgroundInfo_${deviceId}`) || {
   type: EFFECT_TYPES.BLUR_TYPE,
   name: BLUR_FILENAME,
 };
 
-const removeSessionVirtualBackgroundInfo = (deviceId) => Session
+const removeSessionVirtualBackgroundInfo = (deviceId) => getStorageSingletonInstance()
   .removeItem(`VirtualBackgroundInfo_${deviceId}`);
 
 const isVirtualBackgroundSupported = () => !(deviceInfo.isIos || browserInfo.isSafari);

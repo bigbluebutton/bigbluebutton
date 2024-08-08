@@ -5,8 +5,6 @@ import org.bigbluebutton.core.domain.MeetingState2x
 import org.bigbluebutton.core.running.{ LiveMeeting, OutMsgRouter }
 import org.bigbluebutton.core2.MeetingStatus2x
 import org.bigbluebutton.core.util.TimeUtil
-import org.bigbluebutton.core.bus.BigBlueButtonEvent
-import org.bigbluebutton.core.api.SendRecordingTimerInternalMsg
 import org.bigbluebutton.core.apps.{ PermissionCheck, RightsManagementTrait }
 import org.bigbluebutton.core2.message.senders.MsgBuilder
 import org.bigbluebutton.core.apps.voice.VoiceApp
@@ -101,7 +99,7 @@ trait SetRecordingStatusCmdMsgHdlr extends RightsManagementTrait {
           val tracker = state.recordingTracker.pauseTimer(TimeUtil.timeNowInMs())
           newState = state.update(tracker)
         }
-        eventBus.publish(BigBlueButtonEvent(liveMeeting.props.meetingProp.intId, SendRecordingTimerInternalMsg(liveMeeting.props.meetingProp.intId)))
+
         newState
       } else {
         state

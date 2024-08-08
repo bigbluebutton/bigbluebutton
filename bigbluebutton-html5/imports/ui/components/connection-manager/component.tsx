@@ -10,19 +10,10 @@ import logger from '/imports/startup/client/logger';
 import apolloContextHolder from '../../core/graphql/apolloContextHolder/apolloContextHolder';
 import connectionStatus from '../../core/graphql/singletons/connectionStatus';
 import deviceInfo from '/imports/utils/deviceInfo';
+import BBBWeb from '/imports/api/bbb-web-api';
 
 interface ConnectionManagerProps {
   children: React.ReactNode;
-}
-
-interface Response {
-  response: {
-  returncode: string;
-  version: string;
-  apiVersion: string;
-  bbbVersion: string;
-  graphqlWebsocketUrl: string;
-  }
 }
 
 const DEFAULT_MAX_MUTATION_PAYLOAD_SIZE = 10485760; // 10MB
@@ -75,18 +66,8 @@ const ConnectionManager: React.FC<ConnectionManagerProps> = ({ children }): Reac
   const boundary = useRef(15_000);
   const [terminalError, setTerminalError] = React.useState<string>('');
   useEffect(() => {
-    const pathMatch = window.location.pathname.match('^(.*)/html5client/join$');
-    if (pathMatch == null) {
-      throw new Error('Failed to match BBB client URI');
-    }
-    const serverPathPrefix = pathMatch[1];
-    fetch(`https://${window.location.hostname}${serverPathPrefix}/bigbluebutton/api`, {
-      headers: {
-        'Content-Type': 'application/json',
-      },
-    }).then(async (response) => {
-      const responseJson: Response = await response.json();
-      setGraphqlUrl(responseJson.response.graphqlWebsocketUrl);
+    BBBWeb.index().then(({ data }) => {
+      setGraphqlUrl(data.graphqlWebsocketUrl);
     }).catch((error) => {
       loadingContextInfo.setLoading(false, '');
       throw new Error('Error fetching GraphQL URL: '.concat(error.message || ''));
@@ -157,10 +138,10 @@ const ConnectionManager: React.FC<ConnectionManagerProps> = ({ children }): Reac
             });
           },
           shouldRetry: (error) => {
-            // @ts-ignore - error is not a string
-            if (error.code === 4403) {
+            logger.error('Connection error:', error);
+            if (error && typeof error === 'object' && 'code' in error && error.code === 4403) {
               loadingContextInfo.setLoading(false, '');
-              setTerminalError('Session token is invalid');
+              setTerminalError('Server refused the connection');
               return false;
             }
 
@@ -177,12 +158,18 @@ const ConnectionManager: React.FC<ConnectionManagerProps> = ({ children }): Reac
           },
           on: {
             error: (error) => {
-              logger.error(`Error: on subscription to server: ${error}`);
+              logger.error('Error: on subscription to server', error);
               loadingContextInfo.setLoading(false, '');
               connectionStatus.setConnectedStatus(false);
               setErrorCounts((prev: number) => prev + 1);
             },
-            closed: () => {
+            closed: (e) => {
+              // Check if it's a CloseEvent (which includes HTTP errors during WebSocket handshake)
+              if (e instanceof CloseEvent) {
+                logger.error(`WebSocket closed with code ${e.code}: ${e.reason}`);
+                loadingContextInfo.setLoading(false, '');
+                setTerminalError('Server closed the connection');
+              }
               connectionStatus.setConnectedStatus(false);
             },
             connected: (socket) => {

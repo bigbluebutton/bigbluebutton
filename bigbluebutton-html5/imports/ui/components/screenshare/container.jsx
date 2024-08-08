@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useContext } from 'react';
 import { useMutation, useReactiveVar } from '@apollo/client';
 import { defineMessages } from 'react-intl';
 import {
@@ -11,6 +11,7 @@ import {
   useScreenshareHasAudio,
   useBroadcastContentType,
 } from './service';
+import { PluginsContext } from '/imports/ui/components/components-data/plugin-context/context';
 import ScreenshareComponent from './component';
 import { layoutSelect, layoutSelectOutput, layoutDispatch } from '../layout/context';
 import getFromUserSettings from '/imports/ui/services/users-settings';
@@ -93,6 +94,7 @@ const ScreenshareContainer = (props) => {
   const screenShare = layoutSelectOutput((i) => i.screenShare);
   const fullscreen = layoutSelect((i) => i.fullscreen);
   const layoutContextDispatch = layoutDispatch();
+  const { pluginsExtensibleAreasAggregatedState } = useContext(PluginsContext);
 
   const { element } = fullscreen;
   const fullscreenElementId = 'Screenshare';
@@ -137,11 +139,18 @@ const ScreenshareContainer = (props) => {
   const isCameraAsContentBroadcasting = useIsCameraAsContentBroadcasting();
   const hasAudio = useScreenshareHasAudio();
 
+  let pluginScreenshareHelperItems = [];
+  if (pluginsExtensibleAreasAggregatedState.screenshareHelperItems) {
+    pluginScreenshareHelperItems = [
+      ...pluginsExtensibleAreasAggregatedState.screenshareHelperItems,
+    ];
+  }
   if (isScreenBroadcasting || isCameraAsContentBroadcasting) {
     return (
       <ScreenshareComponent
         {
         ...{
+          pluginScreenshareHelperItems,
           layoutContextDispatch,
           ...props,
           ...screenShare,

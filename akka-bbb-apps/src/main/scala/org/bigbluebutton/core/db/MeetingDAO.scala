@@ -166,6 +166,17 @@ object MeetingDAO {
     )
   }
 
+  def deleteOldMeetings() = {
+    val oneHourAgo = java.sql.Timestamp.from(java.time.Instant.now().minusSeconds(3600))
+
+    DatabaseConnection.enqueue(
+      TableQuery[MeetingDbTableDef]
+        .filter(_.endedAt < oneHourAgo)
+        .delete
+    )
+  }
+
+
   def setMeetingEnded(meetingId: String, endedReasonCode: String, endedBy: String) = {
 
     UserDAO.softDeleteAllFromMeeting(meetingId)

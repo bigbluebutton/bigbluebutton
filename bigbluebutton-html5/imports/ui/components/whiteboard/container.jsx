@@ -24,7 +24,7 @@ import {
   toggleToolsAnimations,
   formatAnnotations,
 } from './service';
-import { SettingsService, getSettingsSingletonInstance } from '/imports/ui/services/settings';
+import { getSettingsSingletonInstance } from '/imports/ui/services/settings';
 import Auth from '/imports/ui/services/auth';
 import {
   layoutSelect,
@@ -338,8 +338,8 @@ const WhiteboardContainer = (props) => {
         zoomSlide,
         notifyNotAllowedChange,
         notifyShapeNumberExceeded,
-        whiteboardToolbarAutoHide: SettingsService?.application?.whiteboardToolbarAutoHide,
-        animations: SettingsService?.application?.animations,
+        whiteboardToolbarAutoHide: Settings?.application?.whiteboardToolbarAutoHide,
+        animations: Settings?.application?.animations,
         toggleToolsAnimations,
         isIphone,
         currentPresentationPage,
@@ -349,9 +349,9 @@ const WhiteboardContainer = (props) => {
         whiteboardWriters,
         zoomChanger,
         skipToSlide,
-        locale: SettingsService?.application?.locale,
-        darkTheme: SettingsService?.application?.darkTheme,
-        selectedLayout: SettingsService?.application?.selectedLayout,
+        locale: Settings?.application?.locale,
+        darkTheme: Settings?.application?.darkTheme,
+        selectedLayout: Settings?.application?.selectedLayout,
         isInfiniteWhiteboard,
       }}
       {...props}
@@ -362,6 +362,5 @@ const WhiteboardContainer = (props) => {
     />
   );
 };
-
 
 export default WhiteboardContainer;

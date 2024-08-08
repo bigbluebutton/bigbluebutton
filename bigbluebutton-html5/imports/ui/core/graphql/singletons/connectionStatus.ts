@@ -35,8 +35,6 @@ class ConnectionStatus {
     video: {},
   });
 
-  private jitterStatus = makeVar('normal');
-
   private packetLossStatus = makeVar('normal');
 
   public setPacketLossStatus(value: string): void {
@@ -52,21 +50,6 @@ class ConnectionStatus {
 
   public getPacketLossStatusVar() {
     return this.packetLossStatus;
-  }
-
-  public setJitterStatus(value: string): void {
-    if (value !== this.jitterStatus()) {
-      logger.info({ logCode: 'stats_jitter_status_state' }, `Jitter status changed to ${value} (jitter=${this.networkData()?.audio?.jitter})`);
-      this.jitterStatus(value);
-    }
-  }
-
-  public getJitterStatus() {
-    return this.jitterStatus();
-  }
-
-  public getJitterStatusVar() {
-    return this.jitterStatus;
   }
 
   public setNetworkData(data: NetworkData): void {

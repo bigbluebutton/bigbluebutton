@@ -35,18 +35,12 @@ class AnalyticsActor(val includeChat: Boolean) extends Actor with ActorLogging {
   def handleBbbCommonEnvCoreMsg(msg: BbbCommonEnvCoreMsg): Unit = {
 
     msg.core match {
-      case m: GetAllMeetingsReqMsg                           => logMessage(msg)
-      case m: GetRunningMeetingsRespMsg                      => logMessage(msg)
-      case m: GetRunningMeetingsReqMsg                       => logMessage(msg)
-
       case m: RegisterUserReqMsg                             => logMessage(msg)
       case m: UserRegisteredRespMsg                          => logMessage(msg)
       case m: DisconnectAllClientsSysMsg                     => logMessage(msg)
-      case m: DisconnectClientSysMsg                         => logMessage(msg)
       case m: MeetingEndingEvtMsg                            => logMessage(msg)
       case m: MeetingCreatedEvtMsg                           => logMessage(msg)
       case m: LogoutAndEndMeetingCmdMsg                      => logMessage(msg)
-      case m: ValidateAuthTokenRespMsg                       => logMessage(msg)
       case m: UserJoinedMeetingEvtMsg                        => logMessage(msg)
       case m: RecordingStatusChangedEvtMsg                   => logMessage(msg)
       case m: WebcamsOnlyForModeratorChangedEvtMsg           => logMessage(msg)
@@ -85,7 +79,6 @@ class AnalyticsActor(val includeChat: Boolean) extends Actor with ActorLogging {
       case m: ScreenshareRtmpBroadcastStoppedEvtMsg          => logMessage(msg)
       case m: StartRecordingVoiceConfSysMsg                  => logMessage(msg)
       case m: StopRecordingVoiceConfSysMsg                   => logMessage(msg)
-      //case m: UpdateRecordingTimerEvtMsg => logMessage(msg)
       case m: RecordAndClearPreviousMarkersCmdMsg            => logMessage(msg)
       case m: TransferUserToVoiceConfSysMsg                  => logMessage(msg)
       case m: UserBroadcastCamStartMsg                       => logMessage(msg)
@@ -168,8 +161,6 @@ class AnalyticsActor(val includeChat: Boolean) extends Actor with ActorLogging {
       // System
       case m: ClientToServerLatencyTracerMsg => traceMessage(msg)
       case m: ServerToClientLatencyTracerMsg => traceMessage(msg)
-      case m: ValidateConnAuthTokenSysMsg => traceMessage(msg)
-      case m: ValidateConnAuthTokenSysRespMsg => traceMessage(msg)
 
       // Recording
       case m: RecordingChapterBreakSysMsg => logMessage(msg)
@@ -180,7 +171,6 @@ class AnalyticsActor(val includeChat: Boolean) extends Actor with ActorLogging {
 
       case m: GetLockSettingsRespMsg => logMessage(msg)
       case m: ChangeLockSettingsInMeetingCmdMsg => logMessage(msg)
-      case m: GetLockSettingsReqMsg => logMessage(msg)
       case m: LockSettingsNotInitializedRespMsg => logMessage(msg)
       case m: MeetingInfoAnalyticsMsg => logMessage(msg)
 

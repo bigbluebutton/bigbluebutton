@@ -80,7 +80,6 @@ const Container = styled.span`
   }
 
   & > :last-child {
-    margin-left: ${smPaddingX};
     margin-right: 0;
 
     @media ${smallOnly} {

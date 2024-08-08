@@ -26,7 +26,7 @@ trait DestroyMeetingSysCmdMsgHdlr {
     }
 
     // Eject all users using the client.
-    outGW.send(MsgBuilder.buildEndAndKickAllSysMsg(liveMeeting.props.meetingProp.intId, "not-used"))
+    //TODO check if it should remove Graphql connections at this moment
 
     // Force stopping of voice recording if voice conf is being recorded.
     VoiceApp.stopRecordingVoiceConference(liveMeeting, outGW)
