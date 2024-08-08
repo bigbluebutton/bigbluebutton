@@ -16,7 +16,6 @@ import { Input } from '../../layout/layoutTypes';
 import { TIMER_START, TIMER_STOP } from '../mutations';
 import useTimer from '/imports/ui/core/hooks/useTImer';
 
-// Custom hook for timer logic
 const useTimerLogic = (initialTime: number, isRunning: boolean, isStopwatch: boolean) => {
   const [time, setTime] = useState(initialTime);
   const startTimeRef = useRef(Date.now());
