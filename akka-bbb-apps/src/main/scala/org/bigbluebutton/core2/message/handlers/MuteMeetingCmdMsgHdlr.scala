@@ -21,17 +21,6 @@ trait MuteMeetingCmdMsgHdlr extends RightsManagementTrait {
       val reason = "No permission to mute meeting."
       PermissionCheck.ejectUserForFailedPermission(meetingId, msg.header.userId, reason, outGW, liveMeeting)
     } else {
-      def build(meetingId: String, userId: String, muted: Boolean, mutedBy: String): BbbCommonEnvCoreMsg = {
-        val routing = Routing.addMsgToClientRouting(MessageTypes.BROADCAST_TO_MEETING, meetingId, userId)
-        val envelope = BbbCoreEnvelope(MeetingMutedEvtMsg.NAME, routing)
-        val header = BbbClientMsgHeader(MeetingMutedEvtMsg.NAME, meetingId, userId)
-
-        val body = MeetingMutedEvtMsgBody(muted, mutedBy)
-        val event = MeetingMutedEvtMsg(header, body)
-
-        BbbCommonEnvCoreMsg(envelope, event)
-      }
-
       if (msg.body.mute != MeetingStatus2x.isMeetingMuted(liveMeeting.status)) {
         if (msg.body.mute) {
           val notifyEvent = MsgBuilder.buildNotifyAllInMeetingEvtMsg(
@@ -62,7 +51,12 @@ trait MuteMeetingCmdMsgHdlr extends RightsManagementTrait {
         }
 
         val muted = MeetingStatus2x.isMeetingMuted(liveMeeting.status)
-        val meetingMutedEvent = build(props.meetingProp.intId, msg.body.mutedBy, muted, msg.body.mutedBy)
+        val meetingMutedEvent = MsgBuilder.buildMeetingMutedEvtMsg(
+          props.meetingProp.intId,
+          msg.body.mutedBy,
+          muted,
+          msg.body.mutedBy
+        )
 
         outGW.send(meetingMutedEvent)
 

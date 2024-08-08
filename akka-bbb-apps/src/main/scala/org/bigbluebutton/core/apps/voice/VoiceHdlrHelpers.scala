@@ -68,4 +68,13 @@ object VoiceHdlrHelpers extends SystemConfiguration {
 
     (threshold == 0) || (mutedDuplexChannels >= threshold)
   }
+
+  def muteOnStartThresholdReached(liveMeeting: LiveMeeting): Boolean = {
+    // Mute on start meeting-wide activation threshold.
+    // Threshold is the number of users in voice.
+    // muteOnStartThreshold = 0 means no threshold (disabled).
+    val usersInVoiceConf = VoiceUsers.usersInVoiceConf(liveMeeting.voiceUsers)
+
+    muteOnStartThreshold > 0 && usersInVoiceConf >= muteOnStartThreshold
+  }
 }

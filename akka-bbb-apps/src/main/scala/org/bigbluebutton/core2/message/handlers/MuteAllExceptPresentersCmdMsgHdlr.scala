@@ -50,7 +50,7 @@ trait MuteAllExceptPresentersCmdMsgHdlr extends RightsManagementTrait {
         }
 
         val muted = MeetingStatus2x.isMeetingMuted(liveMeeting.status)
-        val event = build(props.meetingProp.intId, msg.body.mutedBy, muted, msg.body.mutedBy)
+        val event = MsgBuilder.buildMeetingMutedEvtMsg(props.meetingProp.intId, msg.body.mutedBy, muted, msg.body.mutedBy)
 
         outGW.send(event)
 
@@ -73,17 +73,6 @@ trait MuteAllExceptPresentersCmdMsgHdlr extends RightsManagementTrait {
 
   def usersWhoAreNotPresenter(): Vector[UserState] = {
     Users2x.findNotPresenters(liveMeeting.users2x)
-  }
-
-  def build(meetingId: String, userId: String, muted: Boolean, mutedBy: String): BbbCommonEnvCoreMsg = {
-    val routing = Routing.addMsgToClientRouting(MessageTypes.BROADCAST_TO_MEETING, meetingId, userId)
-    val envelope = BbbCoreEnvelope(MeetingMutedEvtMsg.NAME, routing)
-    val header = BbbClientMsgHeader(MeetingMutedEvtMsg.NAME, meetingId, userId)
-
-    val body = MeetingMutedEvtMsgBody(muted, mutedBy)
-    val event = MeetingMutedEvtMsg(header, body)
-
-    BbbCommonEnvCoreMsg(envelope, event)
   }
 
 }

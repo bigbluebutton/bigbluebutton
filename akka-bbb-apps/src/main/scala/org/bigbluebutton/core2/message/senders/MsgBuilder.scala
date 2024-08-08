@@ -282,6 +282,17 @@ object MsgBuilder {
     BbbCommonEnvCoreMsg(envelope, event)
   }
 
+  def buildMeetingMutedEvtMsg(meetingId: String, userId: String, muted: Boolean, mutedBy: String): BbbCommonEnvCoreMsg = {
+    val routing = Routing.addMsgToClientRouting(MessageTypes.BROADCAST_TO_MEETING, meetingId, userId)
+    val envelope = BbbCoreEnvelope(MeetingMutedEvtMsg.NAME, routing)
+    val header = BbbClientMsgHeader(MeetingMutedEvtMsg.NAME, meetingId, userId)
+
+    val body = MeetingMutedEvtMsgBody(muted, mutedBy)
+    val event = MeetingMutedEvtMsg(header, body)
+
+    BbbCommonEnvCoreMsg(envelope, event)
+  }
+
   def buildMuteUserInVoiceConfSysMsg(meetingId: String, voiceConf: String, voiceUserId: String, mute: Boolean): BbbCommonEnvCoreMsg = {
     val routing = collection.immutable.HashMap("sender" -> "bbb-apps-akka")
     val envelope = BbbCoreEnvelope(MuteUserInVoiceConfSysMsg.NAME, routing)

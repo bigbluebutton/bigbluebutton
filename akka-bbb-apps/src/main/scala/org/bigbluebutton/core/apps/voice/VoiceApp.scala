@@ -357,16 +357,19 @@ object VoiceApp extends SystemConfiguration {
       )
     }
 
-    // if the meeting is muted tell freeswitch to mute the new person
-    if (!isListenOnly
-      && MeetingStatus2x.isMeetingMuted(liveMeeting.status)) {
-      val event = MsgBuilder.buildMuteUserInVoiceConfSysMsg(
-        liveMeeting.props.meetingProp.intId,
-        voiceConf,
-        voiceUserId,
-        true
-      )
-      outGW.send(event)
+    if (!isListenOnly) {
+      enforceMuteOnStartThreshold(liveMeeting, outGW)
+
+      // if the meeting is muted tell freeswitch to mute the new person
+      if (MeetingStatus2x.isMeetingMuted(liveMeeting.status)) {
+        val event = MsgBuilder.buildMuteUserInVoiceConfSysMsg(
+          liveMeeting.props.meetingProp.intId,
+          voiceConf,
+          voiceUserId,
+          true
+        )
+        outGW.send(event)
+      }
     }
 
     // Make sure lock settings are in effect. (ralam dec 6, 2019)
@@ -415,6 +418,10 @@ object VoiceApp extends SystemConfiguration {
     } yield {
       VoiceUsers.removeWithIntId(liveMeeting.voiceUsers, user.meetingId, user.intId)
       broadcastEvent(user)
+
+      if (!user.listenOnly) {
+        enforceMuteOnStartThreshold(liveMeeting, outGW)
+      }
     }
 
     if (liveMeeting.props.meetingProp.isBreakout) {
@@ -422,6 +429,43 @@ object VoiceApp extends SystemConfiguration {
         liveMeeting,
         eventBus
       )
+    }
+  }
+
+  // Once #muteOnStartThreshold number of voice users is hit, we force
+  // meetingMute on MeetingStatus2x and broadcast MeetingMutedEvtMsg to clients.
+  // Otherwise, we broadcast MeetingMutedEvtMsg with the original muteOnStart
+  // muteOnStartThreshold = 0 means no threshold (disabled).
+  def enforceMuteOnStartThreshold(
+    liveMeeting: LiveMeeting,
+    outGW:       OutMsgRouter
+  ): Unit = {
+    val originalMuteOnStart = liveMeeting.props.voiceProp.muteOnStart
+
+    if (muteOnStartThreshold == 0) {
+      return
+    }
+
+    if (VoiceHdlrHelpers.muteOnStartThresholdReached(liveMeeting)) {
+      if (!MeetingStatus2x.isMeetingMuted(liveMeeting.status)) {
+        MeetingStatus2x.muteMeeting(liveMeeting.status)
+        val event = MsgBuilder.buildMeetingMutedEvtMsg(
+          liveMeeting.props.meetingProp.intId,
+          SystemUser.ID,
+          true,
+          SystemUser.ID
+        )
+        outGW.send(event)
+      }
+    } else if (MeetingStatus2x.isMeetingMuted(liveMeeting.status) != originalMuteOnStart) {
+      MeetingStatus2x.setMeetingMuted(liveMeeting.status, originalMuteOnStart)
+      val event = MsgBuilder.buildMeetingMutedEvtMsg(
+        liveMeeting.props.meetingProp.intId,
+        SystemUser.ID,
+        originalMuteOnStart,
+        SystemUser.ID
+      )
+      outGW.send(event)
     }
   }
 

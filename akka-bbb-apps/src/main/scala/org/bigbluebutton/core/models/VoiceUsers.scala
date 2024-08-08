@@ -38,6 +38,8 @@ object VoiceUsers {
 
   def findAllBannedCallers(users: VoiceUsers): Vector[VoiceUserState] = users.bannedUsers.values.toVector
 
+  def usersInVoiceConf(users: VoiceUsers): Int = users.size
+
   def isCallerBanned(callerIdNum: String, users: VoiceUsers): Boolean = {
     users.bannedUsers.contains(callerIdNum)
   }
@@ -147,6 +149,8 @@ class VoiceUsers {
   private var usersCache: collection.immutable.HashMap[String, VoiceUserState] = new collection.immutable.HashMap[String, VoiceUserState]
 
   private def toVector: Vector[VoiceUserState] = users.values.toVector
+
+  private def size: Int = users.size
 
   private def ban(user: VoiceUserState): VoiceUserState = {
     bannedUsers += user.callerNum -> user
