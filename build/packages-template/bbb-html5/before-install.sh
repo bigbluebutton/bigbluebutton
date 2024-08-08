@@ -1,5 +1,4 @@
 #!/bin/bash -e
-
 addGroup meteor ""
 addUser meteor "" meteor /usr/share/meteor "meteor user-daemon" "/usr/sbin/nologin"
 

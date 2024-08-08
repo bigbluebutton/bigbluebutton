@@ -33,7 +33,6 @@ const VideoStreamAdapter: React.FC<AdapterProps> = ({
         logger.error({
           logCode: 'video_stream_sub_error',
           extraInfo: {
-            errorName: error.name,
             errorMessage: error.message,
           },
         }, 'Video streams subscription failed.');
