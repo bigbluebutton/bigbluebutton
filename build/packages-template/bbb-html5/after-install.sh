@@ -11,8 +11,6 @@ if [ ! -L /etc/nginx/sites-enabled/bigbluebutton ]; then
   ln -s /etc/nginx/sites-available/bigbluebutton /etc/nginx/sites-enabled/bigbluebutton
 fi
 
-TARGET=/usr/share/meteor/bundle/programs/server/assets/app/config/settings.yml
-
 TARGET=/var/bigbluebutton/html5-client/private/config/settings.yml
 
 WSURL=$(cat $SERVLET_DIR/WEB-INF/classes/bigbluebutton.properties | grep -v '#' | sed -n '/^bigbluebutton.web.serverURL/{s/.*=//;p}' | sed 's/https/wss/g' | sed s'/http/ws/g')
@@ -25,7 +23,6 @@ sed -i "s/proxy_pass .*/proxy_pass http:\/\/$IP:5066;/g" /usr/share/bigbluebutto
 sed -i "s/server_name  .*/server_name  $IP;/g" /etc/nginx/sites-available/bigbluebutton
 
 chmod 600 $TARGET
-chown meteor:meteor $TARGET
 
 if [ ! -f /.dockerenv ]; then
   systemctl enable disable-transparent-huge-pages.service
@@ -63,3 +60,4 @@ chmod go+r $TARGET
 # Restart nginx to take advantage of the updates to nginx configuration
 #
 reloadService nginx
+
