@@ -16,7 +16,9 @@ import { Input } from '../../layout/layoutTypes';
 import { TIMER_START, TIMER_STOP } from '../mutations';
 import useTimer from '/imports/ui/core/hooks/useTImer';
 
-const useTimerLogic = (initialTime: number, isRunning: boolean, isStopwatch: boolean) => {
+const useTimerLogic = (
+  initialTime: number, isRunning: boolean, isStopwatch: boolean, startedOn: number, passedTime: number,
+) => {
   const [time, setTime] = useState(initialTime);
   const startTimeRef = useRef(Date.now());
   const animationFrameRef = useRef<number>();
@@ -41,6 +43,10 @@ const useTimerLogic = (initialTime: number, isRunning: boolean, isStopwatch: boo
         cancelAnimationFrame(animationFrameRef.current);
       }
       setTime(initialTime);
+    }
+
+    if (startedOn === 0) {
+      setTime(passedTime);
     }
 
     return () => {
@@ -72,14 +78,12 @@ const TimerIndicator: React.FC<TimerIndicatorProps> = ({
   isModerator,
   sidebarNavigationIsOpen,
   sidebarContentIsOpen,
-  // It is used in the container
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   startedOn,
 }) => {
   const [startTimerMutation] = useMutation(TIMER_START);
   const [stopTimerMutation] = useMutation(TIMER_STOP);
 
-  const time = useTimerLogic(passedTime, running, stopwatch);
+  const time = useTimerLogic(passedTime, running, stopwatch, startedOn, passedTime);
 
   const CDN = window.meetingClientSettings.public.app.cdn;
   const BASENAME = window.meetingClientSettings.public.app.basename;
