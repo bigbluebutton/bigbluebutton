@@ -1,5 +1,3 @@
-/* eslint-disable react/prop-types */
-// Prop types disabled due to false-positive bug
 import React, {
   useCallback,
   useEffect,
@@ -109,6 +107,7 @@ interface TimerPanelProps extends TimerData {
 }
 
 const TimerPanel: React.FC<TimerPanelProps> = React.memo(({
+  // eslint-disable-next-line react/prop-types
   stopwatch, songTrack, time, running, timePassed, startedOn, active,
 }) => {
   const [timerReset] = useMutation(TIMER_RESET);
