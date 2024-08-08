@@ -81,6 +81,7 @@ const Dropdown = styled.div<{
 
 const MenuWrapper = styled.div`
   max-width: 60%;
+  padding-bottom: .5rem;
 `;
 
 const MenuWrapperSqueezed = styled.div`
