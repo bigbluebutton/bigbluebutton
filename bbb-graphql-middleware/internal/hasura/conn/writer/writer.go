@@ -6,12 +6,19 @@ import (
 	"errors"
 	"github.com/iMDT/bbb-graphql-middleware/internal/common"
 	"github.com/iMDT/bbb-graphql-middleware/internal/msgpatch"
+	"github.com/prometheus/client_golang/prometheus"
 	log "github.com/sirupsen/logrus"
 	"nhooyr.io/websocket"
 	"os"
 	"strings"
 	"sync"
 )
+
+var ()
+
+func init() {
+
+}
 
 // HasuraConnectionWriter
 // process messages (middleware to hasura)
@@ -171,6 +178,15 @@ RangeLoop:
 
 					common.ActivitiesOverviewStarted(string(messageType) + "-" + browserMessage.Payload.OperationName)
 					common.ActivitiesOverviewStarted("_Sum-" + string(messageType))
+
+					//Add Prometheus Metrics
+					if messageType == common.Subscription {
+						common.GqlSubscriptionCounter.With(prometheus.Labels{"operationName": browserMessage.Payload.OperationName}).Inc()
+					} else if messageType == common.Streaming {
+						common.GqlSubscriptionStreamingCounter.With(prometheus.Labels{"operationName": browserMessage.Payload.OperationName}).Inc()
+					} else if messageType == common.Query {
+						common.GqlQueriesCounter.With(prometheus.Labels{"operationName": browserMessage.Payload.OperationName}).Inc()
+					}
 
 					//Dump of all subscriptions for analysis purpose
 					//queryCounter++

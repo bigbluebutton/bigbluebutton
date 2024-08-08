@@ -1,7 +1,6 @@
 package common
 
 import (
-	"fmt"
 	"github.com/google/uuid"
 	"os"
 	"strconv"
@@ -178,8 +177,6 @@ func AddUserConnection(sessionToken string) {
 	UserConnectionsCountMutex.Lock()
 	defer UserConnectionsCountMutex.Unlock()
 
-	fmt.Println("Added conn " + sessionToken)
-
 	GlobalConnectionsCount++
 	UserConnectionsCount[sessionToken]++
 }
@@ -191,7 +188,6 @@ func RemoveUserConnection(sessionToken string) {
 	GlobalConnectionsCount--
 	UserConnectionsCount[sessionToken]--
 	if UserConnectionsCount[sessionToken] <= 0 {
-		fmt.Println("Removed conn " + sessionToken)
 		delete(UserConnectionsCount, sessionToken)
 	}
 }

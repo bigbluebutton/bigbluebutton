@@ -13,6 +13,7 @@ import (
 	"github.com/iMDT/bbb-graphql-middleware/internal/msgpatch"
 	"github.com/iMDT/bbb-graphql-middleware/internal/websrv/reader"
 	"github.com/iMDT/bbb-graphql-middleware/internal/websrv/writer"
+	"github.com/prometheus/client_golang/prometheus"
 	log "github.com/sirupsen/logrus"
 	"net/http"
 	"nhooyr.io/websocket"
@@ -62,6 +63,7 @@ func ConnectionHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if common.HasReachedMaxGlobalConnections() {
+		common.WsConnectionRejectedCounter.With(prometheus.Labels{"reason": "limit of server connections exceeded"}).Inc()
 		browserWsConn.Close(websocket.StatusInternalError, "limit of server connections exceeded")
 		return
 	}
@@ -125,6 +127,8 @@ func ConnectionHandler(w http.ResponseWriter, r *http.Request) {
 
 	//Check authorization and obtain user session variables from bbb-web
 	if errorOnInitConnection := connectionInitHandler(&thisConnection); errorOnInitConnection != nil {
+		common.WsConnectionRejectedCounter.With(prometheus.Labels{"reason": errorOnInitConnection.Error()}).Inc()
+
 		//If the server wishes to reject the connection it is recommended to close the socket with `4403: Forbidden`.
 		//https://github.com/enisdenjo/graphql-ws/blob/63881c3372a3564bf42040e3f572dd74e41b2e49/PROTOCOL.md?plain=1#L36
 		wsError := &websocket.CloseError{
@@ -134,6 +138,8 @@ func ConnectionHandler(w http.ResponseWriter, r *http.Request) {
 		browserWsConn.Close(wsError.Code, wsError.Reason)
 		browserConnectionContextCancel()
 	}
+
+	common.WsConnectionAcceptedCounter.Inc()
 
 	common.AddUserConnection(thisConnection.SessionToken)
 	defer common.RemoveUserConnection(thisConnection.SessionToken)
