@@ -24,10 +24,6 @@ sed -i "s/server_name  .*/server_name  $IP;/g" /etc/nginx/sites-available/bigblu
 
 chmod 600 $TARGET
 
-if [ ! -f /.dockerenv ]; then
-  systemctl enable disable-transparent-huge-pages.service
-  systemctl daemon-reload
-fi
 # set full BBB version in settings.yml so it can be displayed in the client
 BBB_RELEASE_FILE=/etc/bigbluebutton/bigbluebutton-release
 BBB_HTML5_SETTINGS_FILE=/var/bigbluebutton/html5-client/private/config/settings.yml
@@ -53,7 +49,6 @@ if [ -f /opt/freeswitch/etc/freeswitch/sip_profiles/external.xml ]; then
 fi
 
 chown root:root /usr/lib/systemd/system
-chown root:root /usr/lib/systemd/system/disable-transparent-huge-pages.service
 
 chmod go+r $TARGET
 #

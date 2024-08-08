@@ -43,6 +43,9 @@ DISABLE_ESLINT_PLUGIN=true npm run build
 
 cp -r dist/* staging/var/bigbluebutton/html5-client
 
+mkdir -p staging/etc/nginx/sites-available
+cp bigbluebutton.nginx staging/etc/nginx/sites-available/bigbluebutton
+
 ##
 
 . ./opts-$DISTRO.sh
