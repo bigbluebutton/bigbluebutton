@@ -1,5 +1,11 @@
 import { useMutation } from '@apollo/client';
-import React, { useEffect, useRef, useState } from 'react';
+import React, {
+  useEffect,
+  useRef,
+  useState,
+  useCallback,
+  useMemo,
+} from 'react';
 import Styled from './styles';
 import Icon from '/imports/ui/components/common/icon/icon-ts/component';
 import humanizeSeconds from '/imports/utils/humanizeSeconds';
@@ -9,6 +15,44 @@ import { layoutSelectInput } from '../../layout/context';
 import { Input } from '../../layout/layoutTypes';
 import { TIMER_START, TIMER_STOP } from '../mutations';
 import useTimer from '/imports/ui/core/hooks/useTImer';
+
+// Custom hook for timer logic
+const useTimerLogic = (initialTime: number, isRunning: boolean, isStopwatch: boolean) => {
+  const [time, setTime] = useState(initialTime);
+  const startTimeRef = useRef(Date.now());
+  const animationFrameRef = useRef<number>();
+
+  useEffect(() => {
+    if (isRunning) {
+      const updateTimer = () => {
+        const now = Date.now();
+        const elapsed = now - startTimeRef.current;
+        const newTime = isStopwatch
+          ? initialTime + elapsed
+          : Math.max(0, initialTime - elapsed);
+
+        setTime(newTime);
+        animationFrameRef.current = requestAnimationFrame(updateTimer);
+      };
+
+      startTimeRef.current = Date.now();
+      animationFrameRef.current = requestAnimationFrame(updateTimer);
+    } else {
+      if (animationFrameRef.current) {
+        cancelAnimationFrame(animationFrameRef.current);
+      }
+      setTime(initialTime);
+    }
+
+    return () => {
+      if (animationFrameRef.current) {
+        cancelAnimationFrame(animationFrameRef.current);
+      }
+    };
+  }, [initialTime, isRunning, isStopwatch]);
+
+  return time;
+};
 
 interface TimerIndicatorProps {
   passedTime: number;
@@ -29,130 +73,55 @@ const TimerIndicator: React.FC<TimerIndicatorProps> = ({
   isModerator,
   sidebarNavigationIsOpen,
   sidebarContentIsOpen,
+  // It is used in the container
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   startedOn,
 }) => {
-  const [time, setTime] = useState<number>(0);
-  const timeRef = useRef<HTMLSpanElement>(null);
-  const intervalRef = useRef<ReturnType<typeof setInterval>>();
-  const alarm = useRef<HTMLAudioElement>();
-  const music = useRef<HTMLAudioElement>();
-  const triggered = useRef<boolean>(true);
-  const alreadyNotified = useRef<boolean>(false);
   const [startTimerMutation] = useMutation(TIMER_START);
   const [stopTimerMutation] = useMutation(TIMER_STOP);
-  const [songTrackState, setSongTrackState] = useState<string>(songTrack);
+
+  const time = useTimerLogic(passedTime, running, stopwatch);
 
   const CDN = window.meetingClientSettings.public.app.cdn;
   const BASENAME = window.meetingClientSettings.public.app.basename;
-  const HOST = CDN + BASENAME;
+  const HOST = useMemo(() => CDN + BASENAME, [CDN, BASENAME]);
   const trackName = window.meetingClientSettings.public.timer.music;
 
-  type ObjectKey = keyof typeof trackName;
-
-  const startTimer = () => {
+  const startTimer = useCallback(() => {
     startTimerMutation();
-  };
+  }, [startTimerMutation]);
 
-  const stopTimer = () => {
+  const stopTimer = useCallback(() => {
     stopTimerMutation();
-  };
+  }, [stopTimerMutation]);
 
   useEffect(() => {
-    if (songTrackState !== songTrack) {
-      if (music.current) music.current.pause();
-    }
+    let audio: HTMLAudioElement | null = null;
     if (songTrack in trackName) {
-      music.current = new Audio(`${HOST}/resources/sounds/${trackName[songTrack as ObjectKey]}.mp3`);
-      setSongTrackState(songTrack);
-      music.current.addEventListener('timeupdate', () => {
-        const buffer = 0.19;
-        // Start playing the music before it ends to make the loop gapless
-        if (!music.current) return null;
-        if (music.current.currentTime > music.current.duration - buffer) {
-          music.current.currentTime = 0;
-          music.current.play();
-        }
-        return null;
-      });
+      audio = new Audio(`${HOST}/resources/sounds/${trackName[songTrack as keyof typeof trackName]}.mp3`);
+      if (running) {
+        audio.play().catch(() => { });
+      }
     }
-
     return () => {
-      if (music.current) music.current.pause();
+      if (audio) {
+        audio.pause();
+        audio = null;
+      }
     };
-  }, [songTrack]);
+  }, [songTrack, running, HOST]);
 
-  useEffect(() => {
-    setTime(passedTime);
-  }, []);
-
-  useEffect(() => {
-    alarm.current = new Audio(`${HOST}/resources/sounds/alarm.mp3`);
-  }, []);
-
-  useEffect(() => {
-    if (running) {
-      setTime(passedTime);
-      intervalRef.current = setInterval(() => {
-        setTime((prev) => {
-          if (stopwatch) return (Math.round(prev / 1000) * 1000) + 1000;
-          const t = (Math.floor(prev / 1000) * 1000) - 1000;
-          if (t <= 0) {
-            if (!alreadyNotified.current) {
-              triggered.current = false;
-              alreadyNotified.current = true;
-              if (alarm.current) alarm.current.play();
-            }
-          }
-          return t < 0 ? 0 : t;
-        });
-      }, 1000);
-    } else if (!running) {
-      clearInterval(intervalRef.current);
+  const onClick = useCallback(() => {
+    if (isModerator) {
+      if (running) {
+        stopTimer();
+      } else {
+        startTimer();
+      }
     }
+  }, [isModerator, running, stopTimer, startTimer]);
 
-    return () => {
-      if (intervalRef.current) clearInterval(intervalRef.current);
-    };
-  }, [running]);
-
-  useEffect(() => {
-    if (!running) return;
-
-    const timePassed = passedTime >= 0 ? passedTime : 0;
-
-    setTime((prev) => {
-      if (timePassed < prev) return timePassed;
-      if (timePassed > prev) return timePassed;
-      return prev;
-    });
-  }, [passedTime, stopwatch, startedOn]);
-
-  useEffect(() => {
-    if (!timeRef.current) {
-      if (intervalRef.current) clearInterval(intervalRef.current);
-      if (music.current) music.current.pause();
-      if (alarm.current) alarm.current.pause();
-    }
-  }, [time]);
-
-  useEffect(() => {
-    if (running && songTrack !== 'noTrack') {
-      if (music.current) music.current.play();
-    } else if (!running || songTrack === 'noTrack') {
-      if (music.current) music.current.pause();
-    }
-    if (running && alreadyNotified.current) {
-      alreadyNotified.current = false;
-    }
-  }, [running, songTrackState]);
-
-  useEffect(() => {
-    if (startedOn === 0) {
-      setTime(passedTime);
-    }
-  }, [startedOn]);
-
-  const onClick = running ? stopTimer : startTimer;
+  const displayTime = useMemo(() => humanizeSeconds(Math.floor(time / 1000)), [time]);
 
   return (
     <Styled.TimerWrapper>
@@ -163,18 +132,15 @@ const TimerIndicator: React.FC<TimerIndicatorProps> = ({
           hide={sidebarNavigationIsOpen && sidebarContentIsOpen}
           role="button"
           tabIndex={0}
-          onClick={isModerator ? onClick : () => {}}
+          onClick={onClick}
           data-test="timeIndicator"
         >
           <Styled.TimerContent>
             <Styled.TimerIcon>
               <Icon iconName="time" />
             </Styled.TimerIcon>
-            <Styled.TimerTime
-              aria-hidden
-              ref={timeRef}
-            >
-              {humanizeSeconds(Math.floor(time / 1000))}
+            <Styled.TimerTime aria-hidden>
+              {displayTime}
             </Styled.TimerTime>
           </Styled.TimerContent>
         </Styled.TimerButton>
@@ -188,9 +154,7 @@ const TimerIndicatorContainer: React.FC = () => {
     isModerator: u.isModerator,
   }));
 
-  const {
-    data: timerData,
-  } = useTimer();
+  const { data: timerData } = useTimer();
 
   const [timeSync] = useTimeSync();
 
@@ -218,7 +182,8 @@ const TimerIndicatorContainer: React.FC = () => {
   const timePassed = stopwatch ? (
     Math.floor(((running ? timeDifferenceMs : 0) + (accumulated ?? 0)))
   ) : (
-    Math.floor(((time ?? 0) - ((accumulated ?? 0) + (running ? timeDifferenceMs : 0)))));
+    Math.floor(((time ?? 0) - ((accumulated ?? 0) + (running ? timeDifferenceMs : 0))))
+  );
 
   return (
     <TimerIndicator

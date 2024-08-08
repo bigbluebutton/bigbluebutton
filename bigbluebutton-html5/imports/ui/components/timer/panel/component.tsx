@@ -106,7 +106,7 @@ interface TimerPanelProps extends TimerData {
   timePassed: number;
 }
 
-const TimerPanel: React.FC<TimerPanelProps> = ({
+const TimerPanel: React.FC<TimerPanelProps> = React.memo(({
   stopwatch,
   songTrack,
   time,
@@ -132,19 +132,19 @@ const TimerPanel: React.FC<TimerPanelProps> = ({
     return stopwatch ? intlMessages.stopwatch : intlMessages.timer;
   }, [stopwatch]);
 
-  const switchTimer = (stopwatch: boolean) => {
+  const switchTimer = useCallback((stopwatch: boolean) => {
     timerSwitchMode({ variables: { stopwatch } });
-  };
+  }, [timerSwitchMode]);
 
-  const setTrack = (track: string) => {
+  const setTrack = useCallback((track: string) => {
     timerSetSongTrack({ variables: { track } });
-  };
+  }, [timerSetSongTrack]);
 
-  const setTime = (time: number) => {
+  const setTime = useCallback((time: number) => {
     timerSetTime({ variables: { time } });
     timerStop();
     timerReset();
-  };
+  }, [timerSetTime, timerStop, timerReset]);
 
   const setHours = useCallback((hours: number, time: number) => {
     if (!Number.isNaN(hours) && hours >= 0 && hours <= MAX_HOURS) {
@@ -197,55 +197,41 @@ const TimerPanel: React.FC<TimerPanelProps> = ({
       type: ACTIONS.SET_SIDEBAR_CONTENT_PANEL,
       value: PANELS.NONE,
     });
-  }, []);
+  }, [layoutContextDispatch]);
 
   useEffect(() => {
     setRunningTime(timePassed);
-  }, []);
+  }, [timePassed]);
 
-  // if startedOn is 0, means the time was reset
   useEffect(() => {
     if (startedOn === 0) {
       setRunningTime(timePassed);
     }
-  }, [startedOn]);
+  }, [startedOn, timePassed]);
 
-  // updates the timer every second locally
   useEffect(() => {
     if (running) {
       setRunningTime(timePassed < 0 ? 0 : timePassed);
       intervalRef.current = setInterval(() => {
         setRunningTime((prev) => {
           const calcTime = (Math.round(prev / 1000) * 1000);
-          if (stopwatch) {
-            return (calcTime < 0 ? 0 : calcTime) + 1000;
-          }
-          const t = (calcTime) - 1000;
-          return t < 0 ? 0 : t;
+          return stopwatch ? (calcTime < 0 ? 0 : calcTime) + 1000 : (calcTime) - 1000;
         });
       }, 1000);
     } else if (!running) {
       clearInterval(intervalRef.current);
     }
-  }, [running]);
 
-  // sync local time with server time
-  useEffect(() => {
-    if (!running) return;
-
-    const time = timePassed >= 0 ? timePassed : 0;
-
-    setRunningTime((prev) => {
-      if (time) return timePassed;
-      return prev;
-    });
-  }, [timePassed, stopwatch, startedOn]);
+    return () => {
+      clearInterval(intervalRef.current);
+    };
+  }, [running, stopwatch, timePassed]);
 
   useEffect(() => {
     if (!active) {
       closePanel();
     }
-  }, [active]);
+  }, [active, closePanel]);
 
   const timerControls = useMemo(() => {
     const timeFormatedString = humanizeSeconds(Math.floor(time / 1000));
