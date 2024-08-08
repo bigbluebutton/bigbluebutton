@@ -411,7 +411,7 @@ const TimerPanel: React.FC<TimerPanelProps> = React.memo(({
       </Styled.TimerContent>
     </Styled.TimerSidebarContent>
   );
-};
+});
 
 const TimerPanelContaier: React.FC = () => {
   const [timeSync] = useTimeSync();
