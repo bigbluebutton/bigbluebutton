@@ -759,6 +759,7 @@
     "app.audio.changeAudioDevice": "Change audio device",
     "app.audio.enterSessionLabel": "Enter session",
     "app.audio.playSoundLabel": "Play sound",
+    "app.audio.startAudioFeedback": "Start audio feedback",
     "app.audio.stopAudioFeedback": "Stop audio feedback",
     "app.audio.backLabel": "Back",
     "app.audio.loading": "Loading",

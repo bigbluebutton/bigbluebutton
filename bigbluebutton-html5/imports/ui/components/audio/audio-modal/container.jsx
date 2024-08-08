@@ -19,6 +19,7 @@ import { useStorageKey } from '/imports/ui/services/storage/hooks';
 import useMeeting from '/imports/ui/core/hooks/useMeeting';
 import useLockContext from '/imports/ui/components/lock-viewers/hooks/useLockContext';
 import deviceInfo from '/imports/utils/deviceInfo';
+import { useIsAudioTranscriptionEnabled } from '/imports/ui/components/audio/audio-graphql/audio-captions/service';
 
 const invalidDialNumbers = ['0', '613-555-1212', '613-555-1234', '0000'];
 
@@ -64,8 +65,6 @@ const AudioModalContainer = (props) => {
   }
   const { isIe } = browserInfo;
 
-  const SHOW_VOLUME_METER = window.meetingClientSettings.public.media.showVolumeMeter;
-
   const {
     enabled: LOCAL_ECHO_TEST_ENABLED,
   } = window.meetingClientSettings.public.media.localEchoTest;
@@ -100,6 +99,7 @@ const AudioModalContainer = (props) => {
     }),
     [skipCheck, skipCheckOnJoin],
   );
+  const isTranscriptionEnabled = useIsAudioTranscriptionEnabled();
 
   return (
     <AudioModal
@@ -129,7 +129,6 @@ const AudioModalContainer = (props) => {
       changeOutputDevice={Service.changeOutputDevice}
       joinEchoTest={Service.joinEchoTest}
       exitAudio={Service.exitAudio}
-      showVolumeMeter={SHOW_VOLUME_METER}
       localEchoEnabled={LOCAL_ECHO_TEST_ENABLED}
       listenOnlyMode={listenOnlyMode}
       formattedDialNum={formattedDialNum}
@@ -154,6 +153,7 @@ const AudioModalContainer = (props) => {
       setIsOpen={setIsOpen}
       hasMicrophonePermission={Service.hasMicrophonePermission}
       permissionStatus={permissionStatus}
+      isTranscriptionEnabled={isTranscriptionEnabled}
       {...props}
     />
   );

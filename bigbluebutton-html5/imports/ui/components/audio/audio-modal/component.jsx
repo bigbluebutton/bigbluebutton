@@ -60,7 +60,6 @@ const propTypes = {
   handleAllowAutoplay: PropTypes.func.isRequired,
   changeInputStream: PropTypes.func.isRequired,
   localEchoEnabled: PropTypes.bool.isRequired,
-  showVolumeMeter: PropTypes.bool.isRequired,
   notify: PropTypes.func.isRequired,
   isRTL: PropTypes.bool.isRequired,
   priority: PropTypes.string.isRequired,
@@ -85,6 +84,7 @@ const propTypes = {
   unmuteOnExit: PropTypes.bool,
   supportsTransparentListenOnly: PropTypes.bool.isRequired,
   getAudioConstraints: PropTypes.func.isRequired,
+  isTranscriptionEnabled: PropTypes.bool.isRequired,
 };
 
 const intlMessages = defineMessages({
@@ -189,7 +189,6 @@ const AudioModal = ({
   outputDeviceId = null,
   changeInputDevice,
   changeOutputDevice,
-  showVolumeMeter,
   notify,
   formattedTelVoice,
   handleAllowAutoplay,
@@ -207,6 +206,7 @@ const AudioModal = ({
   supportsTransparentListenOnly,
   unmuteOnExit = false,
   permissionStatus = null,
+  isTranscriptionEnabled,
 }) => {
   const [content, setContent] = useState(initialContent);
   const [hasError, setHasError] = useState(false);
@@ -468,7 +468,7 @@ const AudioModal = ({
             }}
           />
         ) : null}
-        <AudioCaptionsSelectContainer />
+        {joinFullAudioImmediately && <AudioCaptionsSelectContainer />}
       </div>
     );
   };
@@ -510,9 +510,8 @@ const AudioModal = ({
         toggleMuteMicrophoneSystem={toggleMuteMicrophoneSystem}
         inputDeviceId={inputDeviceId}
         outputDeviceId={outputDeviceId}
-        withVolumeMeter={showVolumeMeter}
         withEcho={localEchoEnabled}
-        produceStreams={localEchoEnabled || showVolumeMeter}
+        produceStreams
         notify={notify}
         unmuteOnExit={unmuteOnExit}
         doGUM={doGUM}
@@ -520,6 +519,8 @@ const AudioModal = ({
         checkMicrophonePermission={checkMicrophonePermission}
         supportsTransparentListenOnly={supportsTransparentListenOnly}
         toggleVoice={voiceToggle}
+        permissionStatus={permissionStatus}
+        isTranscriptionEnabled={isTranscriptionEnabled}
       />
     );
   };

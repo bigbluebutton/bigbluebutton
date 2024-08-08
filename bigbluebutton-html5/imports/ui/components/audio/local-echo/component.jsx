@@ -24,9 +24,9 @@ const intlMessages = defineMessages({
     id: 'app.audio.stopAudioFeedback',
     description: 'Stop audio feedback button label',
   },
-  testSpeakerLabel: {
-    id: 'app.audio.audioSettings.testSpeakerLabel',
-    description: 'Label for the speaker test button',
+  startAudioFeedback: {
+    id: 'app.audio.startAudioFeedback',
+    description: 'Start audio feedback button label',
   },
 });
 
@@ -43,8 +43,8 @@ const LocalEcho = ({
   const [hearing, setHearing] = useState(initialHearingState);
   const Settings = getSettingsSingletonInstance();
   const { animations } = Settings.application;
-  const icon = hearing ? 'mute' : 'unmute';
-  const label = hearing ? intlMessages.stopAudioFeedbackLabel : intlMessages.testSpeakerLabel;
+  const icon = hearing ? 'no_audio' : 'listen';
+  const label = hearing ? intlMessages.stopAudioFeedbackLabel : intlMessages.startAudioFeedback;
 
   const applyHearingState = (_stream) => {
     if (hearing) {

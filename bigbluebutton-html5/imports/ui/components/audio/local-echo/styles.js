@@ -6,9 +6,10 @@ import {
 } from '/imports/ui/stylesheets/styled-components/palette';
 
 const LocalEchoTestButton = styled(Button)`
-  margin: 0 !important;
   font-weight: normal;
   border: none !important;
+  height: 2rem;
+  width: 100%;
 
   &:hover {
     color: #0c5cb2;

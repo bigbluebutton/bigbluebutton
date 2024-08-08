@@ -11,6 +11,7 @@ import {
 } from '../service';
 import useCurrentUser from '/imports/ui/core/hooks/useCurrentUser';
 import { SET_SPEECH_LOCALE } from '/imports/ui/core/graphql/mutations/userMutations';
+import Styled from './styles';
 
 const intlMessages = defineMessages({
   title: {
@@ -71,16 +72,22 @@ const intlMessages = defineMessages({
   },
 });
 
+interface AudioCaptionsContainerProps {
+  showTitleLabel?: boolean;
+}
+
 interface AudioCaptionsSelectProps {
   isTranscriptionEnabled: boolean;
   speechLocale: string;
   speechVoices: string[];
+  showTitleLabel?: boolean;
 }
 
 const AudioCaptionsSelect: React.FC<AudioCaptionsSelectProps> = ({
   isTranscriptionEnabled,
   speechLocale,
   speechVoices,
+  showTitleLabel = true,
 }) => {
   const useLocaleHook = useFixedLocale();
   const intl = useIntl();
@@ -118,49 +125,54 @@ const AudioCaptionsSelect: React.FC<AudioCaptionsSelectProps> = ({
     setUserLocaleProperty(value, setUserSpeechLocale);
   };
 
-  return (
-    <div style={{ padding: '1rem 0' }}>
-      <label
-        htmlFor="speechSelect"
-        style={{ padding: '0 .5rem' }}
+  const renderSelect = () => (
+    <Styled.Select
+      id="speechSelect"
+      onChange={onChange}
+      value={speechLocale}
+    >
+      <option
+        key="disabled"
+        value=""
       >
+        {intl.formatMessage(intlMessages.disabled)}
+      </option>
+      {isGladia()
+        ? (
+          <option
+            key="auto"
+            value="auto"
+          >
+            {intl.formatMessage(intlMessages.auto)}
+          </option>
+        )
+        : null}
+      {speechVoices.map((v) => (
+        <option
+          key={v}
+          value={v}
+        >
+          {intl.formatMessage(intlMessages[v as keyof typeof intlMessages])}
+        </option>
+      ))}
+    </Styled.Select>
+  );
+
+  return showTitleLabel ? (
+    <Styled.CaptionsSelector>
+      <label htmlFor="speechSelect" style={{ padding: '0 .5rem' }}>
         {intl.formatMessage(intlMessages.title)}
       </label>
-      <select
-        id="speechSelect"
-        onChange={onChange}
-        value={speechLocale}
-      >
-        <option
-          key="disabled"
-          value=""
-        >
-          {intl.formatMessage(intlMessages.disabled)}
-        </option>
-        {isGladia()
-          ? (
-            <option
-              key="auto"
-              value="auto"
-            >
-              {intl.formatMessage(intlMessages.auto)}
-            </option>
-          )
-          : null}
-        {speechVoices.map((v) => (
-          <option
-            key={v}
-            value={v}
-          >
-            {intl.formatMessage(intlMessages[v as keyof typeof intlMessages])}
-          </option>
-        ))}
-      </select>
-    </div>
+      {renderSelect()}
+    </Styled.CaptionsSelector>
+  ) : (
+    renderSelect()
   );
 };
 
-const AudioCaptionsSelectContainer: React.FC = () => {
+const AudioCaptionsSelectContainer: React.FC<AudioCaptionsContainerProps> = ({
+  showTitleLabel = true,
+}) => {
   const [voicesList, setVoicesList] = React.useState<string[]>([]);
   const voices = getSpeechVoices();
 
@@ -185,6 +197,7 @@ const AudioCaptionsSelectContainer: React.FC = () => {
       isTranscriptionEnabled={isEnabled}
       speechLocale={currentUser.speechLocale ?? ''}
       speechVoices={voices || voicesList}
+      showTitleLabel={showTitleLabel}
     />
   );
 };

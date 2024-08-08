@@ -11,6 +11,7 @@ import DeviceSelector from '/imports/ui/components/audio/device-selector/compone
 import MediaStreamUtils from '/imports/utils/media-stream-utils';
 import AudioManager from '/imports/ui/services/audio-manager';
 import Session from '/imports/ui/services/storage/in-memory';
+import AudioCaptionsSelectContainer from '../audio-graphql/audio-captions/captions/component';
 
 const propTypes = {
   intl: PropTypes.shape({
@@ -31,7 +32,6 @@ const propTypes = {
   outputDeviceId: PropTypes.string.isRequired,
   produceStreams: PropTypes.bool,
   withEcho: PropTypes.bool,
-  withVolumeMeter: PropTypes.bool,
   notify: PropTypes.func.isRequired,
   unmuteOnExit: PropTypes.bool,
   doGUM: PropTypes.func.isRequired,
@@ -40,18 +40,26 @@ const propTypes = {
   supportsTransparentListenOnly: PropTypes.bool.isRequired,
   toggleVoice: PropTypes.func.isRequired,
   permissionStatus: PropTypes.string,
+  isTranscriptionEnabled: PropTypes.bool.isRequired,
 };
 
 const defaultProps = {
   animations: true,
   produceStreams: false,
   withEcho: false,
-  withVolumeMeter: false,
   unmuteOnExit: false,
   permissionStatus: null,
 };
 
 const intlMessages = defineMessages({
+  testSpeakerLabel: {
+    id: 'app.audio.audioSettings.testSpeakerLabel',
+    description: 'Test speaker label',
+  },
+  captionsSelectorLabel: {
+    id: 'app.audio.captions.speech.title',
+    description: 'Audio speech recognition title',
+  },
   backLabel: {
     id: 'app.audio.backLabel',
     description: 'audio settings back button label',
@@ -98,6 +106,7 @@ class AudioSettings extends React.Component {
       inputDeviceId,
       outputDeviceId,
       unmuteOnExit,
+      permissionStatus,
     } = props;
 
     this.handleInputChange = this.handleInputChange.bind(this);
@@ -117,7 +126,7 @@ class AudioSettings extends React.Component {
       unmuteOnExit,
       audioInputDevices: [],
       audioOutputDevices: [],
-      findingDevices: true,
+      findingDevices: permissionStatus === 'prompt' || permissionStatus === 'denied',
     };
 
     this._isMounted = false;
@@ -302,8 +311,13 @@ class AudioSettings extends React.Component {
   }
 
   setOutputDevice(deviceId) {
-    const { changeOutputDevice, withEcho, intl, notify } = this.props;
     const { outputDeviceId: currentOutputDeviceId } = this.state;
+    const {
+      changeOutputDevice,
+      withEcho,
+      intl,
+      notify,
+    } = this.props;
 
     // withEcho usage (isLive arg): if local echo is enabled we need the device
     // change to be performed seamlessly (which is what the isLive parameter guarantees)
@@ -314,18 +328,15 @@ class AudioSettings extends React.Component {
         });
       })
       .catch((error) => {
-        logger.debug(
-          {
-            logCode: 'audiosettings_output_device_change_failure',
-            extraInfo: {
-              errorName: error.name,
-              errorMessage: error.message,
-              deviceId: currentOutputDeviceId,
-              newDeviceId: deviceId,
-            },
+        logger.debug({
+          logCode: 'audiosettings_output_device_change_failure',
+          extraInfo: {
+            errorName: error.name,
+            errorMessage: error.message,
+            deviceId: currentOutputDeviceId,
+            newDeviceId: deviceId,
           },
-          `Audio settings: error changing output device - {${error.name}: ${error.message}}`
-        );
+        }, `Audio settings: error changing output device - {${error.name}: ${error.message}}`);
         notify(intl.formatMessage(intlMessages.deviceChangeFailed), true);
       });
   }
@@ -372,37 +383,19 @@ class AudioSettings extends React.Component {
     return doGUM(constraints, true);
   }
 
-  renderOutputTest() {
-    const { withEcho, intl } = this.props;
-    const { stream } = this.state;
+  renderAudioCaptionsSelector() {
+    const { intl, isTranscriptionEnabled } = this.props;
+
+    if (!isTranscriptionEnabled) return null;
 
     return (
-      <Styled.Row>
-        <Styled.SpacedLeftCol>
-          <Styled.LabelSmall htmlFor="audioTest">
-            {!withEcho ? (
-              <AudioTestContainer id="audioTest" />
-            ) : (
-              <LocalEchoContainer intl={intl} stream={stream} />
-            )}
-          </Styled.LabelSmall>
-        </Styled.SpacedLeftCol>
-      </Styled.Row>
+      <Styled.FormElement>
+        <Styled.LabelSmall htmlFor="audioSettingsCaptionsSelector">
+          {intl.formatMessage(intlMessages.captionsSelectorLabel)}
+          <AudioCaptionsSelectContainer showTitleLabel={false} />
+        </Styled.LabelSmall>
+      </Styled.FormElement>
     );
-  }
-
-  renderVolumeMeter() {
-    const { withVolumeMeter, intl } = this.props;
-    const { stream } = this.state;
-
-    return withVolumeMeter ? (
-      <Styled.Row>
-        <Styled.LabelSmallFullWidth htmlFor="audioStreamVolume">
-          {intl.formatMessage(intlMessages.streamVolumeLabel)}
-          <AudioStreamVolume stream={stream} />
-        </Styled.LabelSmallFullWidth>
-      </Styled.Row>
-    ) : null;
   }
 
   renderDeviceSelectors() {
@@ -414,46 +407,61 @@ class AudioSettings extends React.Component {
       audioOutputDevices,
       findingDevices,
     } = this.state;
-    const { intl, isConnecting, supportsTransparentListenOnly } = this.props;
+    const {
+      intl,
+      isConnecting,
+      supportsTransparentListenOnly,
+      withEcho,
+    } = this.props;
+    const { stream } = this.state;
     const blocked = producingStreams || isConnecting || findingDevices;
 
     return (
-      <Styled.Row>
-        <Styled.Col>
-          <Styled.FormElement>
-            <Styled.LabelSmall htmlFor="inputDeviceSelector">
-              {intl.formatMessage(intlMessages.micSourceLabel)}
-              <DeviceSelector
-                id="inputDeviceSelector"
-                deviceId={inputDeviceId}
-                devices={audioInputDevices}
-                kind="audioinput"
-                blocked={blocked}
-                onChange={this.handleInputChange}
-                intl={intl}
-                supportsTransparentListenOnly={supportsTransparentListenOnly}
-              />
-            </Styled.LabelSmall>
-          </Styled.FormElement>
-        </Styled.Col>
-        <Styled.Col>
-          <Styled.FormElement>
-            <Styled.LabelSmall htmlFor="outputDeviceSelector">
-              {intl.formatMessage(intlMessages.speakerSourceLabel)}
-              <DeviceSelector
-                id="outputDeviceSelector"
-                deviceId={outputDeviceId}
-                devices={audioOutputDevices}
-                kind="audiooutput"
-                blocked={blocked}
-                onChange={this.handleOutputChange}
-                intl={intl}
-                supportsTransparentListenOnly={supportsTransparentListenOnly}
-              />
-            </Styled.LabelSmall>
-          </Styled.FormElement>
-        </Styled.Col>
-      </Styled.Row>
+      <>
+        <Styled.FormElement>
+          <Styled.LabelSmall htmlFor="inputDeviceSelector">
+            {intl.formatMessage(intlMessages.micSourceLabel)}
+            <DeviceSelector
+              id="inputDeviceSelector"
+              deviceId={inputDeviceId}
+              devices={audioInputDevices}
+              kind="audioinput"
+              blocked={blocked}
+              onChange={this.handleInputChange}
+              intl={intl}
+              supportsTransparentListenOnly={supportsTransparentListenOnly}
+            />
+          </Styled.LabelSmall>
+        </Styled.FormElement>
+        <Styled.LabelSmallFullWidth htmlFor="audioStreamVolume">
+          {intl.formatMessage(intlMessages.streamVolumeLabel)}
+          <AudioStreamVolume stream={stream} />
+        </Styled.LabelSmallFullWidth>
+        <Styled.FormElement>
+          <Styled.LabelSmall htmlFor="outputDeviceSelector">
+            {intl.formatMessage(intlMessages.speakerSourceLabel)}
+            <DeviceSelector
+              id="outputDeviceSelector"
+              deviceId={outputDeviceId}
+              devices={audioOutputDevices}
+              kind="audiooutput"
+              blocked={blocked}
+              onChange={this.handleOutputChange}
+              intl={intl}
+              supportsTransparentListenOnly={supportsTransparentListenOnly}
+            />
+          </Styled.LabelSmall>
+        </Styled.FormElement>
+        <Styled.LabelSmall htmlFor="audioTest">
+          {intl.formatMessage(intlMessages.testSpeakerLabel)}
+          {!withEcho ? (
+            <AudioTestContainer id="audioTest" />
+          ) : (
+            <LocalEchoContainer intl={intl} stream={stream} />
+          )}
+        </Styled.LabelSmall>
+        {this.renderAudioCaptionsSelector()}
+      </>
     );
   }
 
@@ -471,17 +479,16 @@ class AudioSettings extends React.Component {
 
     return (
       <Styled.FormWrapper data-test="audioSettingsModal">
-        <Styled.Form>
-          {this.renderDeviceSelectors()}
-          {this.renderOutputTest()}
-          {this.renderVolumeMeter()}
-        </Styled.Form>
         {findingDevices && (
           <Styled.AudioNote>
             <span>{intl.formatMessage(intlMessages.findingDevicesTitle)}</span>
             <Styled.FetchingAnimation animations={animations} />
           </Styled.AudioNote>
         )}
+        <Styled.Form>
+          {this.renderDeviceSelectors()}
+        </Styled.Form>
+        <Styled.BottomSeparator />
         <Styled.EnterAudio>
           <Styled.BackButton
             label={isConnected
