@@ -1,11 +1,11 @@
 package writer
 
 import (
+	"bbb-graphql-middleware/internal/common"
+	"bbb-graphql-middleware/internal/msgpatch"
 	"context"
 	"encoding/json"
 	"errors"
-	"github.com/iMDT/bbb-graphql-middleware/internal/common"
-	"github.com/iMDT/bbb-graphql-middleware/internal/msgpatch"
 	"github.com/prometheus/client_golang/prometheus"
 	log "github.com/sirupsen/logrus"
 	"nhooyr.io/websocket"
