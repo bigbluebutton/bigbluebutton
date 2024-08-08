@@ -462,7 +462,7 @@ exports.wbTypedStickyNote = 'div[data-shape-type="note"]';
 exports.wbDrawnShape = 'div[data-shape-type="geo"]';
 exports.wbDraw = 'div[data-shape-type="draw"]';
 exports.wbPollShape = 'div[data-shape-type="poll"]';
-exports.wbDrawnLine = 'div[data-shape="draw"]';
+exports.wbDrawnLine = 'div[data-shape-type="line"]';
 exports.multiUsersWhiteboardOn = 'button[data-test="turnMultiUsersWhiteboardOn"]';
 exports.multiUsersWhiteboardOff = 'button[data-test="turnMultiUsersWhiteboardOff"]';
 exports.whiteboardViewBox = 'svg g[clip-path="url(#viewBox)"]';
@@ -490,6 +490,8 @@ exports.wbMoveBackward = 'button[data-testid="menu-item.send-backward"]';
 exports.wbMoveForward = 'button[data-testid="menu-item.bring-forward"]';
 exports.wbMoveToFront = 'button[data-testid="menu-item.bring-to-front"]';
 exports.wbPaste = 'button[data-testid="menu-item.paste"]';
+exports.wbTextTrue = 'div[data-hastext="true"]';
+exports.wbDrawnArrow = 'div[data-shape-type="arrow"]';;
 
 // About modal
 exports.showAboutModalButton = 'li[data-test="aboutModal"]';

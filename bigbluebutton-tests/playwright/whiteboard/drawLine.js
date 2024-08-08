@@ -25,7 +25,7 @@ class DrawLine extends MultiUsers {
     await this.modPage.page.mouse.down();
     await this.modPage.page.mouse.move(wbBox.x + 0.7 * wbBox.width, wbBox.y + 0.7 * wbBox.height);
     await this.modPage.page.mouse.up();
-    await this.modPage.hasElement(e.wbDraw, 10000);
+    await this.modPage.hasElement(e.wbDrawnLine);
 
     if(CI) {
       await this.modPage.setHeightWidthViewPortSize();

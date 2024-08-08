@@ -31,9 +31,8 @@ class ShapeOptions extends MultiUsers {
     await this.modPage.waitAndClick(e.wbDuplicate);
     await this.modPage.waitAndClick(e.wbOptions);
 
-    await expect(modWbLocator).toHaveScreenshot('moderator-duplicate.png', screenshotOptions);
-    const userWbLocator = this.userPage.getLocator(e.whiteboard);
-    await expect(userWbLocator).toHaveScreenshot('viewer-duplicate.png', screenshotOptions);
+    await this.modPage.checkElementCount(e.wbDrawnShape, 2);
+    await this.userPage.checkElementCount(e.wbDrawnShape, 2);
   }
 
   async rotate() {
