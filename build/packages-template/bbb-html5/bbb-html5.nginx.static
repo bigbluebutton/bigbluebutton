@@ -4,3 +4,9 @@ location /html5client {
     index index.html;
     try_files $uri $uri/ =404;
 }
+
+location /html5client/locales {
+  alias /var/bigbluebutton/html5-client/locales;
+  autoindex on;
+  autoindex_format json;
+}
