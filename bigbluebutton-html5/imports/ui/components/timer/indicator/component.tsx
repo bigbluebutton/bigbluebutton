@@ -16,9 +16,23 @@ import { Input } from '../../layout/layoutTypes';
 import { TIMER_START, TIMER_STOP } from '../mutations';
 import useTimer from '/imports/ui/core/hooks/useTImer';
 
-const useTimerLogic = (
-  initialTime: number, isRunning: boolean, isStopwatch: boolean, startedOn: number, passedTime: number,
-) => {
+interface TimerLogicProps {
+  initialTime: number;
+  isRunning: boolean;
+  isStopwatch: boolean;
+  startedOn: number;
+  passedTime: number;
+  children: (time: number) => React.ReactNode;
+}
+
+const TimerLogic: React.FC<TimerLogicProps> = ({
+  initialTime,
+  isRunning,
+  isStopwatch,
+  startedOn,
+  passedTime,
+  children,
+}) => {
   const [time, setTime] = useState(initialTime);
   const startTimeRef = useRef(Date.now());
   const animationFrameRef = useRef<number>();
@@ -56,7 +70,7 @@ const useTimerLogic = (
     };
   }, [initialTime, isRunning, isStopwatch]);
 
-  return time;
+  return <>{children(time)}</>;
 };
 
 interface TimerIndicatorProps {
@@ -82,8 +96,6 @@ const TimerIndicator: React.FC<TimerIndicatorProps> = ({
 }) => {
   const [startTimerMutation] = useMutation(TIMER_START);
   const [stopTimerMutation] = useMutation(TIMER_STOP);
-
-  const time = useTimerLogic(passedTime, running, stopwatch, startedOn, passedTime);
 
   const CDN = window.meetingClientSettings.public.app.cdn;
   const BASENAME = window.meetingClientSettings.public.app.basename;
@@ -124,31 +136,39 @@ const TimerIndicator: React.FC<TimerIndicatorProps> = ({
     }
   }, [isModerator, running, stopTimer, startTimer]);
 
-  const displayTime = useMemo(() => humanizeSeconds(Math.floor(time / 1000)), [time]);
-
   return (
-    <Styled.TimerWrapper>
-      <Styled.Timer>
-        <Styled.TimerButton
-          running={running}
-          disabled={!isModerator}
-          hide={sidebarNavigationIsOpen && sidebarContentIsOpen}
-          role="button"
-          tabIndex={0}
-          onClick={onClick}
-          data-test="timeIndicator"
-        >
-          <Styled.TimerContent>
-            <Styled.TimerIcon>
-              <Icon iconName="time" />
-            </Styled.TimerIcon>
-            <Styled.TimerTime aria-hidden>
-              {displayTime}
-            </Styled.TimerTime>
-          </Styled.TimerContent>
-        </Styled.TimerButton>
-      </Styled.Timer>
-    </Styled.TimerWrapper>
+    <TimerLogic
+      initialTime={passedTime}
+      isRunning={running}
+      isStopwatch={stopwatch}
+      startedOn={startedOn}
+      passedTime={passedTime}
+    >
+      {(time) => (
+        <Styled.TimerWrapper>
+          <Styled.Timer>
+            <Styled.TimerButton
+              running={running}
+              disabled={!isModerator}
+              hide={sidebarNavigationIsOpen && sidebarContentIsOpen}
+              role="button"
+              tabIndex={0}
+              onClick={onClick}
+              data-test="timeIndicator"
+            >
+              <Styled.TimerContent>
+                <Styled.TimerIcon>
+                  <Icon iconName="time" />
+                </Styled.TimerIcon>
+                <Styled.TimerTime aria-hidden>
+                  {humanizeSeconds(Math.floor(time / 1000))}
+                </Styled.TimerTime>
+              </Styled.TimerContent>
+            </Styled.TimerButton>
+          </Styled.Timer>
+        </Styled.TimerWrapper>
+      )}
+    </TimerLogic>
   );
 };
 

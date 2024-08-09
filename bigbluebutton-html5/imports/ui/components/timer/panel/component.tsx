@@ -106,7 +106,7 @@ interface TimerPanelProps extends TimerData {
   timePassed: number;
 }
 
-const TimerPanel: React.FC<TimerPanelProps> = React.memo(({
+const TimerPanel: React.FC<TimerPanelProps> = ({
   // eslint-disable-next-line react/prop-types
   stopwatch, songTrack, time, running, timePassed, startedOn, active,
 }) => {
@@ -406,7 +406,7 @@ const TimerPanel: React.FC<TimerPanelProps> = React.memo(({
       </Styled.TimerContent>
     </Styled.TimerSidebarContent>
   );
-});
+};
 
 const TimerPanelContaier: React.FC = () => {
   const [timeSync] = useTimeSync();
