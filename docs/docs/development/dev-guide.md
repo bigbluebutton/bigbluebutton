@@ -279,24 +279,15 @@ $ cd bigbluebutton/bigbluebutton-html5/
 
 ### Background
 
-A bit of context is needed to fully explain what the HTML5 client is, why it has server component, what the architecture is, and only then how to make a change and re-deploy.
-
-The HTML5 client in BigBlueButton is build using the framework [Meteor](https://meteor.com). Meteor wraps around a NodeJS server component, MongoDB server database, React frontend user interface library and MiniMongo frontend instance of MongoDB storing a subset of MongoDB's data. When deployed, these same components are split into independently running pieces - NodeJS instance, MongoDB database and a browser optimized client files served by NGINX. There is no "Meteor" in a production deployment, but rather separate components.
-
+The HTML5 client has seen several major refactors. As of BigBlueButton 3.0 the client code is served directly by NginX, removing several component dependencies we used to have.
 Make sure to check the HTML5 portion of the [Architecture page](/development/architecture#html5-client).
-
-Install Meteor.js.
-
-```bash
-$ curl https://install.meteor.com/ | sh
-```
 
 There is one change required to settings.yml to get webcam and screenshare working in the client (assuming you're using HTTPS already). The first step is to find the value for `kurento.wsUrl` packaged settings.yml.
 
 <!-- TODO recommend /etc/bigbluebutton/bbb-html5.yml change instead -->
 
 ```bash
-grep "wsUrl" /usr/share/meteor/bundle/programs/server/assets/app/config/settings.yml
+grep "wsUrl" /var/bigbluebutton/html5-client/private/config/settings.yml
 ```
 
 Next, edit the development settings.yml and change `wsUrl` to match what was retrieved before.
@@ -314,7 +305,7 @@ $ sudo systemctl stop bbb-html5
 Install the npm dependencies.
 
 ```bash
-$ meteor npm install
+$ npm install
 ```
 
 Finally, run the HTML5 code.
@@ -331,9 +322,7 @@ You may see the error "Call timeout (Error 1006)" during the microphone echo tes
 
 ### `/private/config`
 
-All configurations are located in **/private/config/settings.yml**. If you make any changes to the YAML configuration you will need to restart the meteor process.
-
-During Meteor.startup() the configuration file is loaded and can be accessed through the Meteor.settings.public object.
+All configurations are located in **/private/config/settings.yml**. Starting with BigBlueButton 3.0 this file is actually picked by `bbb-apps-akka` and the settings are passed to the clients.
 Note that individual configuration settings are overridden with their values (if defined) from file `/etc/bigbluebutton/bbb-html5.yml` (if the file exists).
 
 ## Build bbb-common-message

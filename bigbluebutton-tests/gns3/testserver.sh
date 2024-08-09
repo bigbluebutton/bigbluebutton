@@ -23,7 +23,7 @@ EMAIL="root@$FQDN"
 sudo /bbb-install.sh -v $RELEASE -s $FQDN -e $EMAIL $INSTALL_OPTIONS
 
 sudo bbb-conf --salt bbbci
-echo "NODE_EXTRA_CA_CERTS=/usr/local/share/ca-certificates/bbb-dev/bbb-dev-ca.crt" | sudo tee -a /usr/share/meteor/bundle/bbb-html5-with-roles.conf
+echo "NODE_EXTRA_CA_CERTS=/usr/local/share/ca-certificates/bbb-dev/bbb-dev-ca.crt"
 
 # bbb-conf --salt doesn't set the shared secret on the web demo
 if [ -r /var/lib/tomcat9/webapps/demo/bbb_api_conf.jsp ]; then

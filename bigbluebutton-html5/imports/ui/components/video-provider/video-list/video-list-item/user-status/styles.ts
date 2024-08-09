@@ -27,6 +27,8 @@ const Muted = styled(Icon)`
 
   &::before {
     font-size: 80%;
+    position: relative;
+    top: .1rem;
   }
 
   background-color: ${colorDanger};

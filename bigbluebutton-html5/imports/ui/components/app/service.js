@@ -1,4 +1,4 @@
-import DarkReader from 'darkreader';
+import * as DarkReader from 'darkreader';
 import Styled from './styles';
 import logger from '/imports/startup/client/logger';
 import useMeeting from '../../core/hooks/useMeeting';

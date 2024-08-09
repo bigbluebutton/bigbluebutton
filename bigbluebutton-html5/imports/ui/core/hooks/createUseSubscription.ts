@@ -3,7 +3,7 @@ import {
   useRef, useState, useEffect, useMemo,
 } from 'react';
 import { FetchResult, gql, useApolloClient } from '@apollo/client';
-import R from 'ramda';
+import * as R from 'ramda';
 import { applyPatch, deepClone } from 'fast-json-patch';
 import { GraphqlDataHookSubscriptionResponse } from '../../Types/hook';
 import useDeepComparison from '../../hooks/useDeepComparison';

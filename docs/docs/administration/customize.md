@@ -440,7 +440,7 @@ The encoding options can be adjusted to speed up encoding or increase quality of
 
 #### Reduce bandwidth from webcams
 
-You can use a banwidth usage on your BigBlueButton server using a tool such as `bmon` (`sudo apt-get install bmon`). You can change the maximum bandwidth settings for each webcam options (low, medium, high, high definition) by editing `/usr/share/meteor/bundle/programs/server/assets/app/config/settings.yml` and modifying the entries for
+You can use a banwidth usage on your BigBlueButton server using a tool such as `bmon` (`sudo apt-get install bmon`). You can change the maximum bandwidth settings for each webcam options (low, medium, high, high definition) by editing `/var/bigbluebutton/html5-client/private/config/settings.yml` and modifying the entries for
 
 ```yaml
 cameraProfiles:
@@ -561,7 +561,7 @@ On a BigBlueButton 2.3 (or later) server, you can place the above in `/etc/bigbl
 
 If any of these thresholds are reached, then a user will receive a "Media resources not available (2002)" error when sharing webcams.
 
-BigBlueButton will dynamically reduce the number of webcams in a meeting as the meeting grows larger. These are set in `/usr/share/meteor/bundle/programs/server/assets/app/config/settings.yml`, but you can override them by placing them in `/etc/bigbluebutton/bbb-html5.yml`.
+BigBlueButton will dynamically reduce the number of webcams in a meeting as the meeting grows larger. These are set in `/var/bigbluebutton/html5-client/private/config/settings.yml`, but you can override them by placing them in `/etc/bigbluebutton/bbb-html5.yml`.
 
 For example, the following `/etc/bigbluebutton/bbb-html5.yml` file would ensure that no single meeting will have more than 300 streams. For example, in a meeting with 30 users, the moderator will see 25 webcams and the viewers 6 webcams. This gives 25 + 29 _ 6 = 196 webcam streams. If the meeting grows to 100 users, the moderator will see 8 webcams and viewers will see 2 webcams. This gives 8 + 99 _ 2 = 206 webcam streams.
 
@@ -622,15 +622,15 @@ HERE
 
 Starting from version 2.4 BigBlueButton offers virtual background for webcams.
 To use your own background images copy them into the directory
-`/usr/share/meteor/bundle/programs/web.browser/app/resources/images/virtual-backgrounds`.
+`/var/bigbluebutton/html5-client/resources/images/virtual-backgrounds`.
 For each image copy a thumbnail of the image of 50x50 pixels size into
-`/usr/share/meteor/bundle/programs/web.browser/app/resources/images/virtual-backgrounds/thumbnails`.
+`/var/bigbluebutton/html5-client/resources/images/virtual-backgrounds/thumbnails`.
 
 To generate thumbnails you can use the following shell snippet:
 
 ```bash
 #!/bin/bash
-FULL="/usr/share/meteor/bundle/programs/web.browser/app/resources/images/virtual-backgrounds"
+FULL="/var/bigbluebutton/html5-client/resources/images/virtual-backgrounds"
 THUMB="${FULL}/thumbnails"
 
 cd "$FULL"
@@ -939,7 +939,7 @@ Next change the restriction in bbb-web. Add an overwrite rule in `/etc/bigbluebu
 maxFileSizeUpload=30000000
 ```
 
-You will have to additionally increase the size for the HTML5 client, edit `/usr/share/meteor/bundle/programs/server/assets/app/config/settings.yml` and modify `uploadSizeMax`.
+You will have to additionally increase the size for the HTML5 client, edit `/var/bigbluebutton/html5-client/private/config/settings.yml` and modify `uploadSizeMax`.
 
 Restart BigBlueButton with `sudo bbb-conf --restart`. You should now be able to upload larger presentations within the new limit.
 
@@ -1166,10 +1166,10 @@ A common use case is to modify a particular string from the locales or to includ
 For example, if you would like to replace `de.json` with the version from a specific branch/tag of the repository, you could do the following:
 
 ```bash
-cd /usr/share/meteor/bundle/programs/web.browser/app/locales/
+cd /var/bigbluebutton/html5-client/locales/
 mv de.json /tmp/de.json.old
 wget https://raw.githubusercontent.com/bigbluebutton/bigbluebutton/v3.0.x-release/bigbluebutton-html5/public/locales/de.json
-cd /usr/share/meteor/bundle/programs/web.browser.legacy/app/locales/
+cd /var/bigbluebutton/html5-client/locales/
 rm de.json
 wget https://raw.githubusercontent.com/bigbluebutton/bigbluebutton/v3.0.x-release/bigbluebutton-html5/public/locales/de.json
 bbb-conf --restart
@@ -1205,7 +1205,7 @@ After a restart of nginx, your customized favicon.ico will be delivered. This ch
 
 #### Change title in the HTML5 client
 
-The configuration file for the HTML5 client is located in `/usr/share/meteor/bundle/programs/server/assets/app/config/settings.yml`. It contains all the settings for the HTML5 client.
+The configuration file for the HTML5 client is located in `/var/bigbluebutton/html5-client/private/config/settings.yml`. It contains all the settings for the HTML5 client.
 
 To change the title, edit `settings.yml` and change the entry for `public.app.clientTitle`
 
@@ -1219,9 +1219,8 @@ public:
 You'll need to update this entry each time the package `bbb-html5` updates. The following script can help automate the change
 
 ```bash
-$ TARGET=/usr/share/meteor/bundle/programs/server/assets/app/config/settings.yml
+$ TARGET=/var/bigbluebutton/html5-client/private/config/settings.yml
 $ yq e -i ".public.app.clientTitle = \"New Title\"" $TARGET
-$ chown meteor:meteor $TARGET
 ```
 
 #### Apply lock settings to restrict webcams
@@ -1248,10 +1247,10 @@ Edit nginx configuration file (`/usr/share/bigbluebutton/nginx/bbb-html5.nginx`)
 Do the same in `/usr/share/bbb-web/WEB-INF/classes/bigbluebutton.properties` in the following lines:
 
 ```
-defaultHTML5ClientUrl=${bigbluebutton.web.serverURL}/html5client/join
+defaultHTML5ClientUrl=${bigbluebutton.web.serverURL}/html5client
 ```
 
-In configuration file for the HTML5 client, located in `/usr/share/meteor/bundle/programs/server/assets/app/config/settings.yml`, change the entry for `public.app.basename`:
+In configuration file for the HTML5 client, located in `/var/bigbluebutton/html5-client/private/config/settings.yml`, change the entry for `public.app.basename`:
 
 ```
 public:
@@ -1259,8 +1258,6 @@ public:
     ...
     basename: '/html5client'
 ```
-
-Edit `systemd_start.sh` and `systemd_start_frontend.sh` files, located in `/usr/share/meteor/bundle`, replacing `/html5client` with the new path in both files;
 
 Finally, run the following command to reload configuration:
 
@@ -1314,7 +1311,7 @@ Restart the BigBlueButton server with `bbb-conf --restart`.  You will now be abl
 
 ### Configuration of global settings
 
-The configuration file for the HTML5 client is located in `/usr/share/meteor/bundle/programs/server/assets/app/config/settings.yml`. It contains all the settings for the HTML5 client.
+The configuration file for the HTML5 client is located in `/var/bigbluebutton/html5-client/private/config/settings.yml`. It contains all the settings for the HTML5 client.
 
 #### Modify the HTML5 client title
 
@@ -1516,7 +1513,7 @@ To enable the feedback and it's logging to your server, run the following script
 #!/bin/bash
 
 HOST=$(cat /etc/bigbluebutton/bbb-web.properties | grep -v '#' | sed -n '/^bigbluebutton.web.serverURL/{s/.*\///;p}')
-HTML5_CONFIG=/usr/share/meteor/bundle/programs/server/assets/app/config/settings.yml
+HTML5_CONFIG=/var/bigbluebutton/html5-client/private/config/settings.yml
 PROTOCOL=$(cat /etc/bigbluebutton/bbb-web.properties | grep -v '#' | grep '^bigbluebutton.web.serverURL' | sed 's/.*\(http[s]*\).*/\1/')
 
 apt-get install -y nginx-full
@@ -1524,7 +1521,6 @@ apt-get install -y nginx-full
 yq e -i '.public.clientLog.external.enabled = true' $HTML5_CONFIG
 yq e -i ".public.clientLog.external.url = \"$PROTOCOL://$HOST/html5log\"" $HTML5_CONFIG
 yq e -i '.public.app.askForFeedbackOnLogout = true' $HTML5_CONFIG
-chown meteor:meteor $HTML5_CONFIG
 
 mkdir -p /etc/bigbluebutton/nginx/
 

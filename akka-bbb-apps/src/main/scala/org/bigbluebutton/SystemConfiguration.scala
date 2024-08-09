@@ -82,7 +82,7 @@ trait SystemConfiguration {
   lazy val analyticsIncludeChat = Try(config.getBoolean("analytics.includeChat")).getOrElse(true)
 
   lazy val clientSettingsPath = Try(config.getString("client.clientSettingsFilePath")).getOrElse(
-    "/usr/share/meteor/bundle/programs/server/assets/app/config/settings.yml"
+    "/var/bigbluebutton/html5-client/private/config/settings.yml"
   )
   lazy val clientSettingsPathOverride = Try(config.getString("client.clientSettingsOverrideFilePath")).getOrElse(
     "/etc/bigbluebutton/bbb-html5.yml"

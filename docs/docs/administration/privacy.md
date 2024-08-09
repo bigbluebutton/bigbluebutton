@@ -198,7 +198,7 @@ BigBlueButton uses a TURN server for NAT traversal. By default, a STUN server fr
 
 #### sip.js
 
-There is a hardcoded google STUN server in `/usr/share/meteor/bundle/programs/web.browser/app/compatibility/sip.js`.
+There is a hardcoded google STUN server in `/var/bigbluebutton/html5-client/compatibility/sip.js`.
 However, this should not be a problem because the hardcoded STUN server will not be used: a failed `GET` of the TURN/STUN settings in BBB-web should return an empty array, overwriting this setting. Nonetheless, careful server administrators may want to replace this default.
 
 #### Hardcoded Google STUN server for kurento

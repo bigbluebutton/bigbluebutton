@@ -508,5 +508,3 @@ export default class SFUAudioBridge extends BaseAudioBridge {
     return Promise.resolve();
   }
 }
-
-module.exports = SFUAudioBridge;
