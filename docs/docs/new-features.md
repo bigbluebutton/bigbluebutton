@@ -87,6 +87,9 @@ For years we have discussed internally the topic of replacing Meteor.js with oth
 These new components are: `bbb-graphql-server`, `bbb-graphql-middleware`, `bbb-graphql-actions`, database Postgres, GraphQL server Hasura. As of BigBlueButton 3.0.0-beta.1 we are no longer using Meteor or MongoDB.
 
 Note: The services `bbb-html5-backend`, `bbb-html5-frontend`, `bbb-html5` and `mongod` have been removed. The client code is compacted and served by NginX. 
+The package `bbb-html5-nodejs` is no longer needed.
+
+**Important**: Please make sure you're no longer carrying around NodeJS v14 which we used to deploy in `bbb-html5-nodejs`. Your directory `/usr/lib/bbb-html5/node` should not exist.
 
 #### The whiteboard was improved
 
@@ -197,8 +200,7 @@ The build scripts for packaging 3.0 (using fpm) are located in the GitHub reposi
 
 We welcome contributors to BigBlueButton 3.0!  The best ways to contribute at the current time are:
 
-<!-- - Help localize BigBlueButton 3.0 on [Transifex project for BBB 3.0](https://www.transifex.com/bigbluebutton/bigbluebutton-v30-html5-client/dashboard/) -->
-
+- Help localize BigBlueButton 3.0 on [Transifex project for BBB 3.0](https://www.transifex.com/bigbluebutton/bigbluebutton-v30-html5-client/dashboard/)
 - Try out [installing BigBlueButton 3.0](/administration/install) and see if you spot any issues.
 - Help test a [3.0 pull request](https://github.com/bigbluebutton/bigbluebutton/pulls?q=is%3Aopen+is%3Apr+milestone%3A%22Release+3.0%22) in your development environment.
   <!-- TODO create a GitHub label for contributions-welcome and link here -->
