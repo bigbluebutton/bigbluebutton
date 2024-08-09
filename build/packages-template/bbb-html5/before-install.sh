@@ -24,5 +24,10 @@ case "$1" in
       echo "BigBlueButton 3.0+ does not support configurations in /etc/bigbluebutton/bbb-html5-with-roles.conf"
     fi
 
+    # remove old nodejs, used up to BBB 3.0.0-beta.1
+    if [ -d /usr/lib/bbb-html5/node ]; then
+      rm -r /usr/lib/bbb-html5/node
+    fi
+
   ;;
 esac
