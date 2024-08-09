@@ -5,6 +5,7 @@ import Session from '/imports/ui/services/storage/in-memory';
 import { notify } from '/imports/ui/services/notification';
 import AudioService from '/imports/ui/components/audio/service';
 import ScreenshareService from '/imports/ui/components/screenshare/service';
+import VideoService from '/imports/ui/components/video-provider/service';
 import connectionStatus from '../../core/graphql/singletons/connectionStatus';
 
 const intlMessages = defineMessages({
@@ -210,8 +211,8 @@ const getAudioData = async () => {
  * @returns An Object containing video data for all video peers and screenshare
  *          peer
  */
-const getVideoData = async (getVideoStreamsStats) => {
-  const camerasData = await getVideoStreamsStats() || {};
+const getVideoData = async () => {
+  const camerasData = await VideoService.getStats() || {};
 
   const screenshareData = await ScreenshareService.getStats() || {};
 
@@ -226,10 +227,10 @@ const getVideoData = async (getVideoStreamsStats) => {
  * For audio, this will get information about the mic/listen-only stream.
  * @returns An Object containing all this data.
  */
-const getNetworkData = async (getVideoStreamsStats) => {
+const getNetworkData = async () => {
   const audio = await getAudioData();
 
-  const video = await getVideoData(getVideoStreamsStats);
+  const video = await getVideoData();
 
   const user = {
     time: new Date(),
@@ -401,11 +402,11 @@ export function getStatus(levels, value) {
    * Start monitoring the network data.
    * @return {Promise} A Promise that resolves when process started.
    */
-export async function startMonitoringNetwork(getVideoStreamsStats) {
-  let previousData = await getNetworkData(getVideoStreamsStats);
+export async function startMonitoringNetwork() {
+  let previousData = await getNetworkData();
 
   setInterval(async () => {
-    const data = await getNetworkData(getVideoStreamsStats);
+    const data = await getNetworkData();
 
     const {
       outbound: audioCurrentUploadRate,

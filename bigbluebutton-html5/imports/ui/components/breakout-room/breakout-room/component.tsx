@@ -161,7 +161,7 @@ const BreakoutRoom: React.FC<BreakoutRoomProps> = ({
   }, [breakouts]);
 
   const exitVideo = useExitVideo();
-  const { streams } = useStreams();
+  const streams = useStreams();
 
   return (
     <Styled.Panel

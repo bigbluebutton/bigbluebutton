@@ -57,11 +57,13 @@ export const VIEWERS_IN_WEBCAM_COUNT_SUBSCRIPTION = gql`
 `;
 
 export const GRID_USERS_SUBSCRIPTION = gql`
-  subscription GridUsers($exceptUserIds: [String]!, $limit: Int!) {
+  subscription GridUsers($limit: Int!) {
     user(
       where: {
-        userId: {
-          _nin: $exceptUserIds,
+        cameras_aggregate: {
+          count: {
+            predicate: { _eq: 0 },
+          },
         },
       },
       limit: $limit,
