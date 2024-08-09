@@ -907,8 +907,8 @@ public:
     #audioTroubleshootingLinks:
     #  7: 'https://link.bigbluebutton.org/perm'
     #  0: 'https://link.bigbluebutton.org/unk'
-    # muteSpeakerIfAway: mute output audio if user is in away mode
-    muteSpeakerIfAway: false
+    # muteAudioOutputWhenAway: mute output audio if user is in away mode
+    muteAudioOutputWhenAway: false
   stats:
     enabled: true
     interval: 10000

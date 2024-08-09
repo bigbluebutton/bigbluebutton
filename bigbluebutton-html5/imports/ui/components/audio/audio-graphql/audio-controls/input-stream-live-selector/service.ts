@@ -123,7 +123,7 @@ export const muteAway = (
   }
 
   // mute/unmute speaker
-  const MUTE_SPEAKER = window.meetingClientSettings.public.media.muteSpeakerIfAway;
+  const MUTE_SPEAKER = window.meetingClientSettings.public.media.muteAudioOutputWhenAway;
 
   if (MUTE_SPEAKER) {
     if (away) {

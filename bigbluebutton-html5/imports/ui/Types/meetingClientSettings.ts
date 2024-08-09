@@ -611,7 +611,7 @@ export interface Media {
   sdpSemantics: string
   localEchoTest: LocalEchoTest
   showVolumeMeter: boolean
-  muteSpeakerIfAway: boolean
+  muteAudioOutputWhenAway: boolean
 }
 
 export interface Audio2 {
