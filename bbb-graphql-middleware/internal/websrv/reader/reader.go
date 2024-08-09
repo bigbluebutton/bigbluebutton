@@ -1,11 +1,11 @@
 package reader
 
 import (
+	"bbb-graphql-middleware/internal/common"
 	"bytes"
 	"context"
 	"encoding/json"
 	"errors"
-	"github.com/iMDT/bbb-graphql-middleware/internal/common"
 	log "github.com/sirupsen/logrus"
 	"nhooyr.io/websocket"
 	"sync"

@@ -38,7 +38,7 @@ class ChatMessageDbTableDef(tag: Tag) extends Table[ChatMessageDbModel](tag, Non
 }
 
 object ChatMessageDAO {
-  def insert(meetingId: String, chatId: String, groupChatMessage: GroupChatMessage) = {
+  def insert(meetingId: String, chatId: String, groupChatMessage: GroupChatMessage, messageType: String) = {
     DatabaseConnection.enqueue(
       TableQuery[ChatMessageDbTableDef].insertOrUpdate(
         ChatMessageDbModel(
@@ -49,8 +49,8 @@ object ChatMessageDAO {
           createdAt = new java.sql.Timestamp(System.currentTimeMillis()),
           chatEmphasizedText = groupChatMessage.chatEmphasizedText,
           message = groupChatMessage.message,
-          messageType = "default",
-          messageMetadata = None,
+          messageType = messageType,
+          messageMetadata = Some(JsonUtils.mapToJson(groupChatMessage.metadata).compactPrint),
           senderId = Some(groupChatMessage.sender.id),
           senderName = groupChatMessage.sender.name,
           senderRole = Some(groupChatMessage.sender.role),

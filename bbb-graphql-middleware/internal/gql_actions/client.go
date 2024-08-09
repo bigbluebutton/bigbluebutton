@@ -1,10 +1,11 @@
 package gql_actions
 
 import (
+	"bbb-graphql-middleware/internal/common"
 	"bytes"
 	"encoding/json"
 	"fmt"
-	"github.com/iMDT/bbb-graphql-middleware/internal/common"
+	"github.com/prometheus/client_golang/prometheus"
 	log "github.com/sirupsen/logrus"
 	"io/ioutil"
 	"net/http"
@@ -13,6 +14,11 @@ import (
 	"strings"
 	"time"
 )
+
+var ()
+
+func init() {
+}
 
 var graphqlActionsUrl = os.Getenv("BBB_GRAPHQL_MIDDLEWARE_GRAPHQL_ACTIONS_URL")
 
@@ -52,6 +58,8 @@ RangeLoop:
 						if funcName, inputs, err := parseGraphQLMutation(browserMessage.Payload.Query, browserMessage.Payload.Variables); err == nil {
 							mutationFuncName = funcName
 							if err = SendGqlActionsRequest(funcName, inputs, browserConnection.BBBWebSessionVariables, log); err == nil {
+								//Add Prometheus Metrics
+								common.GqlMutationsCounter.With(prometheus.Labels{"operationName": browserMessage.Payload.OperationName}).Inc()
 							} else {
 								errorMessage = err.Error()
 								log.Error("It was not able to send the request to Graphql Actions", err)

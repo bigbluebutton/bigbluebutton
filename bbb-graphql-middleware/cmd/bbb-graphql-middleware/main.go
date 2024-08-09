@@ -1,12 +1,13 @@
 package main
 
 import (
+	"bbb-graphql-middleware/internal/common"
+	"bbb-graphql-middleware/internal/msgpatch"
+	"bbb-graphql-middleware/internal/websrv"
 	"context"
 	"errors"
 	"fmt"
-	"github.com/iMDT/bbb-graphql-middleware/internal/common"
-	"github.com/iMDT/bbb-graphql-middleware/internal/msgpatch"
-	"github.com/iMDT/bbb-graphql-middleware/internal/websrv"
+	"github.com/prometheus/client_golang/prometheus/promhttp"
 	log "github.com/sirupsen/logrus"
 	"net/http"
 	"os"
@@ -80,12 +81,16 @@ func main() {
 	}
 	rateLimiter := common.NewCustomRateLimiter(maxConnPerSecond)
 
-	http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
+	http.HandleFunc("/graphql", func(w http.ResponseWriter, r *http.Request) {
 		ctx, cancel := context.WithTimeout(r.Context(), 120*time.Second)
 		defer cancel()
 
 		common.ActivitiesOverviewStarted("__WebsocketConnection")
 		defer common.ActivitiesOverviewCompleted("__WebsocketConnection")
+
+		common.HttpConnectionGauge.Inc()
+		common.HttpConnectionCounter.Inc()
+		defer common.HttpConnectionGauge.Dec()
 
 		if err := rateLimiter.Wait(ctx); err != nil {
 			if !errors.Is(err, context.Canceled) {
@@ -97,6 +102,9 @@ func main() {
 
 		websrv.ConnectionHandler(w, r)
 	})
+
+	// Add Prometheus metrics endpoint
+	http.Handle("/metrics", promhttp.Handler())
 
 	log.Infof("listening on %v:%v", listenIp, listenPort)
 	log.Fatal(http.ListenAndServe(fmt.Sprintf("%v:%v", listenIp, listenPort), nil))

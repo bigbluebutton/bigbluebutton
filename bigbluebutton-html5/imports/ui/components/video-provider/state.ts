@@ -52,14 +52,6 @@ const setConnectingStream = (stream: ConnectingStream | null) => {
 
 const getConnectingStream = () => connectingStream();
 
-const streams = makeVar<Stream[]>([]);
-
-const setStreams = (vs: Stream[]) => {
-  streams(vs);
-};
-
-const getStreams = () => streams();
-
 export {
   useVideoState,
   setVideoState,
@@ -67,9 +59,6 @@ export {
   useConnectingStream,
   getConnectingStream,
   setConnectingStream,
-  setStreams,
-  getStreams,
-  streams,
 };
 
 export default {
@@ -79,7 +68,4 @@ export default {
   useConnectingStream,
   getConnectingStream,
   setConnectingStream,
-  setStreams,
-  getStreams,
-  streams,
 };
