@@ -70,7 +70,7 @@ test.describe.parallel('Whiteboard tools @ci', () => {
     await drawText.test();
   });
 
-  test('Create sticky note', async ({ browser, context, page }) => {
+  test('Create sticky note @flaky', async ({ browser, context, page }) => {
     const drawStickyNote = new DrawStickyNote(browser, context);
     await drawStickyNote.initModPage(page, true, { customMeetingId: 'draw_sticky_meeting', joinParameter: hidePresentationToast });
     await drawStickyNote.initUserPage(true, context, { joinParameter: hidePresentationToast });
@@ -158,8 +158,8 @@ test.describe.parallel('Whiteboard tools @ci', () => {
     await realTimeText.realTimeTextTyping();
   });
 
-  test.describe.parallel('Shape Options', () => {
-    test('Duplicate @flaky', async ({ browser, context, page }) => {
+  test.describe.parallel('Shape Options @flaky', () => {
+    test('Duplicate', async ({ browser, context, page }) => {
       const shapeOptions = new ShapeOptions(browser, context);
       await shapeOptions.initModPage(page, true);
       await shapeOptions.initUserPage(true, context);

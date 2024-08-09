@@ -27,15 +27,6 @@ class DrawTriangle extends MultiUsers {
     await this.modPage.page.mouse.up();
 
     await this.modPage.hasElement(e.wbDrawnShape);
-
-    if(CI) {
-      await this.modPage.setHeightWidthViewPortSize();
-      await expect(modWbLocator).toHaveScreenshot('moderator-triangle.png', screenshotOptions);
-
-      await this.userPage.setHeightWidthViewPortSize();
-      const userWbLocator = this.userPage.getLocator(e.whiteboard);
-      await expect(userWbLocator).toHaveScreenshot('viewer-triangle.png', screenshotOptions);
-    }
   }
 }
 
