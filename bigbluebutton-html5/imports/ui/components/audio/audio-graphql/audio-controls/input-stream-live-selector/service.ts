@@ -123,11 +123,15 @@ export const muteAway = (
   }
 
   // mute/unmute speaker
-  if (away) {
-    setSpeakerLevel(Number(prevSpeakerLevelValue));
-  } else {
-    Storage.setItem('prevSpeakerLevel', getSpeakerLevel());
-    setSpeakerLevel(0);
+  const MUTE_SPEAKER = window.meetingClientSettings.public.media.muteSpeakerIfAway;
+
+  if (MUTE_SPEAKER) {
+    if (away) {
+      setSpeakerLevel(Number(prevSpeakerLevelValue));
+    } else {
+      Storage.setItem('prevSpeakerLevel', getSpeakerLevel());
+      setSpeakerLevel(0);
+    }
   }
 
   // enable/disable video

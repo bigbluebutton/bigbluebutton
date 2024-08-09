@@ -670,6 +670,7 @@ export const meetingClientSettingsInitialValues: MeetingClientSettings = {
         },
       },
       showVolumeMeter: true,
+      muteSpeakerIfAway: false,
     },
     stats: {
       enabled: true,
