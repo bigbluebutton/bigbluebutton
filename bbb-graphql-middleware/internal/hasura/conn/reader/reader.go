@@ -8,7 +8,6 @@ import (
 	"context"
 	"encoding/json"
 	"errors"
-	"fmt"
 	"github.com/prometheus/client_golang/prometheus"
 	log "github.com/sirupsen/logrus"
 	"hash/crc32"
@@ -245,7 +244,6 @@ func getHasuraMessage(message []byte, subscription common.GraphQlSubscription) (
 		if err == nil {
 			// Get the length of the array
 			dataLength := len(rawMessages)
-			fmt.Printf("%s-%s: size=%d, length=%d\n", string(subscription.Type), subscription.OperationName, dataSize, dataLength)
 
 			common.GqlReceivedDataPayloadLength.
 				With(prometheus.Labels{

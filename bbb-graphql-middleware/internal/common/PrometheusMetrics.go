@@ -74,9 +74,9 @@ var (
 			Name: "gql_received_data_payload_size",
 			Help: "Size (in bytes) of received data payload",
 			Buckets: []float64{
-				100,
-				500,
-				1000,
+				200,
+				600,
+				1200,
 				5000,
 				10000,
 				30000,
@@ -93,8 +93,9 @@ func init() {
 	prometheus.MustRegister(WsConnectionRejectedCounter)
 	prometheus.MustRegister(GqlSubscribeCounter)
 	prometheus.MustRegister(GqlReceivedDataCounter)
-	prometheus.MustRegister(GqlReceivedDataPayloadLength)
-	prometheus.MustRegister(GqlReceivedDataPayloadSize)
 	prometheus.MustRegister(GqlMutationsCounter)
-
+	prometheus.MustRegister(GqlReceivedDataPayloadSize)
+	if PrometheusAdvancedMetricsEnabled {
+		prometheus.MustRegister(GqlReceivedDataPayloadLength)
+	}
 }

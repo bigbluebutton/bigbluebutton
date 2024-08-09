@@ -13,6 +13,24 @@ import (
 	"sync"
 )
 
+var allowedSubscriptions []string
+var deniedSubscriptions []string
+var jsonPatchDisabled = false
+
+func init() {
+	if allowedSubscriptionsEnvVar := os.Getenv("BBB_GRAPHQL_MIDDLEWARE_ALLOWED_SUBSCRIPTIONS"); allowedSubscriptionsEnvVar != "" {
+		allowedSubscriptions = strings.Split(allowedSubscriptionsEnvVar, ",")
+	}
+
+	if deniedSubscriptionsEnvVar := os.Getenv("BBB_GRAPHQL_MIDDLEWARE_DENIED_SUBSCRIPTIONS"); deniedSubscriptionsEnvVar != "" {
+		deniedSubscriptions = strings.Split(deniedSubscriptionsEnvVar, ",")
+	}
+
+	if jsonPatchDisabledEnvVar := os.Getenv("BBB_GRAPHQL_MIDDLEWARE_JSON_PATCH_DISABLED"); jsonPatchDisabledEnvVar != "" {
+		jsonPatchDisabled = true
+	}
+}
+
 // HasuraConnectionWriter
 // process messages (middleware to hasura)
 func HasuraConnectionWriter(hc *common.HasuraConnection, wg *sync.WaitGroup, initMessage []byte) {
@@ -74,10 +92,9 @@ RangeLoop:
 					if query != "" {
 						if strings.HasPrefix(query, "subscription") {
 							//Validate if subscription is allowed
-							if allowedSubscriptions := os.Getenv("BBB_GRAPHQL_MIDDLEWARE_ALLOWED_SUBSCRIPTIONS"); allowedSubscriptions != "" {
-								allowedSubscriptionsSlice := strings.Split(allowedSubscriptions, ",")
+							if len(allowedSubscriptions) > 0 {
 								subscriptionAllowed := false
-								for _, s := range allowedSubscriptionsSlice {
+								for _, s := range allowedSubscriptions {
 									if s == browserMessage.Payload.OperationName {
 										subscriptionAllowed = true
 										break
@@ -91,10 +108,9 @@ RangeLoop:
 							}
 
 							//Validate if subscription is allowed
-							if deniedSubscriptions := os.Getenv("BBB_GRAPHQL_MIDDLEWARE_DENIED_SUBSCRIPTIONS"); deniedSubscriptions != "" {
-								deniedSubscriptionsSlice := strings.Split(deniedSubscriptions, ",")
+							if len(deniedSubscriptions) > 0 {
 								subscriptionAllowed := true
-								for _, s := range deniedSubscriptionsSlice {
+								for _, s := range deniedSubscriptions {
 									if s == browserMessage.Payload.OperationName {
 										subscriptionAllowed = false
 										break
@@ -146,11 +162,8 @@ RangeLoop:
 					//Identify if the client that requested this subscription expects to receive json-patch
 					//Client append `Patched_` to the query operationName to indicate that it supports
 					jsonPatchSupported := false
-					if strings.HasPrefix(browserMessage.Payload.OperationName, "Patched_") {
+					if !jsonPatchDisabled && strings.HasPrefix(browserMessage.Payload.OperationName, "Patched_") {
 						jsonPatchSupported = true
-					}
-					if jsonPatchDisabled := os.Getenv("BBB_GRAPHQL_MIDDLEWARE_JSON_PATCH_DISABLED"); jsonPatchDisabled != "" {
-						jsonPatchSupported = false
 					}
 
 					browserConnection.ActiveSubscriptionsMutex.Lock()
