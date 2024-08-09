@@ -22,26 +22,12 @@ var (
 		},
 		[]string{"reason"},
 	)
-	GqlSubscriptionCounter = prometheus.NewCounterVec(
+	GqlSubscribeCounter = prometheus.NewCounterVec(
 		prometheus.CounterOpts{
 			Name: "gql_subscription_total",
 			Help: "Total number of Graphql subscriptions",
 		},
-		[]string{"operationName"},
-	)
-	GqlSubscriptionStreamingCounter = prometheus.NewCounterVec(
-		prometheus.CounterOpts{
-			Name: "gql_subscription_streaming_total",
-			Help: "Total number of Graphql subscriptions streaming",
-		},
-		[]string{"operationName"},
-	)
-	GqlQueriesCounter = prometheus.NewCounterVec(
-		prometheus.CounterOpts{
-			Name: "gql_query_total",
-			Help: "Total number of Graphql queries",
-		},
-		[]string{"operationName"},
+		[]string{"type", "operationName"},
 	)
 	GqlMutationsCounter = prometheus.NewCounterVec(
 		prometheus.CounterOpts{
@@ -50,6 +36,20 @@ var (
 		},
 		[]string{"operationName"},
 	)
+	GqlReceivedDataCounter = prometheus.NewCounterVec(
+		prometheus.CounterOpts{
+			Name: "gql_received_data_total",
+			Help: "Frequency of updates of a given data",
+		},
+		[]string{"type", "operationName"},
+	)
+	GqlReceivedDataPayloadSize = prometheus.NewHistogramVec(
+		prometheus.HistogramOpts{
+			Name: "gql_received_data_payload_size",
+			Help: "Size of received data payload",
+		},
+		[]string{"type", "operationName"},
+	)
 )
 
 func init() {
@@ -57,9 +57,9 @@ func init() {
 	prometheus.MustRegister(HttpConnectionCounter)
 	prometheus.MustRegister(WsConnectionAcceptedCounter)
 	prometheus.MustRegister(WsConnectionRejectedCounter)
-	prometheus.MustRegister(GqlSubscriptionCounter)
-	prometheus.MustRegister(GqlSubscriptionStreamingCounter)
-	prometheus.MustRegister(GqlQueriesCounter)
+	prometheus.MustRegister(GqlSubscribeCounter)
+	prometheus.MustRegister(GqlReceivedDataCounter)
+	prometheus.MustRegister(GqlReceivedDataPayloadSize)
 	prometheus.MustRegister(GqlMutationsCounter)
 
 }

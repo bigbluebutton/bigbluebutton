@@ -14,12 +14,6 @@ import (
 	"sync"
 )
 
-var ()
-
-func init() {
-
-}
-
 // HasuraConnectionWriter
 // process messages (middleware to hasura)
 func HasuraConnectionWriter(hc *common.HasuraConnection, wg *sync.WaitGroup, initMessage []byte) {

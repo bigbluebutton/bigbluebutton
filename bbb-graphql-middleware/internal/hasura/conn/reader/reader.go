@@ -156,9 +156,7 @@ func handleSubscriptionMessage(hc *common.HasuraConnection, message *[]byte, sub
 	cacheKey := mergeUint32(subscription.LastReceivedDataChecksum, dataChecksum)
 
 	//Store LastReceivedData Checksum
-	if msgpatch.RawDataCacheStorageMode == "memory" {
-		subscription.LastReceivedData = messageData
-	}
+	subscription.LastReceivedData = messageData
 	subscription.LastReceivedDataChecksum = dataChecksum
 	hc.BrowserConn.ActiveSubscriptionsMutex.Lock()
 	hc.BrowserConn.ActiveSubscriptions[queryId] = subscription
@@ -166,7 +164,7 @@ func handleSubscriptionMessage(hc *common.HasuraConnection, message *[]byte, sub
 
 	//Apply msg patch when it supports it
 	if subscription.JsonPatchSupported {
-		*message = msgpatch.GetPatchedMessage(*message, queryId, messageDataKey, lastReceivedDataWas, messageData, hc.BrowserConn.Id, hc.BrowserConn.SessionToken, cacheKey, lastDataChecksumWas, dataChecksum)
+		*message = msgpatch.GetPatchedMessage(*message, messageDataKey, lastReceivedDataWas, messageData, cacheKey, lastDataChecksumWas, dataChecksum)
 	}
 
 	return true

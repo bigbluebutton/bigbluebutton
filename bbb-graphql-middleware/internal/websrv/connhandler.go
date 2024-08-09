@@ -6,7 +6,6 @@ import (
 	"bbb-graphql-middleware/internal/common"
 	"bbb-graphql-middleware/internal/gql_actions"
 	"bbb-graphql-middleware/internal/hasura"
-	"bbb-graphql-middleware/internal/msgpatch"
 	"bbb-graphql-middleware/internal/websrv/reader"
 	"bbb-graphql-middleware/internal/websrv/writer"
 	"bytes"
@@ -88,7 +87,6 @@ func ConnectionHandler(w http.ResponseWriter, r *http.Request) {
 	BrowserConnectionsMutex.Unlock()
 
 	defer func() {
-		msgpatch.RemoveConnCacheDir(browserConnectionId)
 		BrowserConnectionsMutex.Lock()
 		_, bcExists := BrowserConnections[browserConnectionId]
 		if bcExists {
