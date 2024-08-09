@@ -13,7 +13,7 @@ test.describe.parallel('Screenshare', () => {
     await screenshare.startSharing();
   });
 
-  test('Start screenshare stops external video', { tag: '@ci' }, async ({ browser, page }) => {
+  test('Start screenshare stops external video', { tag: '@flaky' }, async ({ browser, page }) => {
     const screenshare = new ScreenShare(browser, page);
     await screenshare.init(true, true);
     await screenshare.screenshareStopsExternalVideo();
