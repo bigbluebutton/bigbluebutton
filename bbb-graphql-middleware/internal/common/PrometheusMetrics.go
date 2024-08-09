@@ -1,6 +1,17 @@
 package common
 
-import "github.com/prometheus/client_golang/prometheus"
+import (
+	"github.com/prometheus/client_golang/prometheus"
+	"os"
+)
+
+var PrometheusAdvancedMetricsEnabled = false
+
+func init() {
+	if prometheusAdvancedMetricsEnabled := os.Getenv("BBB_GRAPHQL_MIDDLEWARE_PROMETHEUS_ADVANCED_METRICS_ENABLED"); prometheusAdvancedMetricsEnabled == "true" {
+		PrometheusAdvancedMetricsEnabled = true
+	}
+}
 
 var (
 	HttpConnectionGauge = prometheus.NewGauge(prometheus.GaugeOpts{
@@ -43,10 +54,33 @@ var (
 		},
 		[]string{"type", "operationName"},
 	)
+	GqlReceivedDataPayloadLength = prometheus.NewHistogramVec(
+		prometheus.HistogramOpts{
+			Name: "gql_received_data_payload_length",
+			Help: "Length (number of positions) of received data payload",
+			Buckets: []float64{
+				1,
+				10,
+				50,
+				100,
+				300,
+				600,
+			},
+		},
+		[]string{"type", "operationName"},
+	)
 	GqlReceivedDataPayloadSize = prometheus.NewHistogramVec(
 		prometheus.HistogramOpts{
 			Name: "gql_received_data_payload_size",
-			Help: "Size of received data payload",
+			Help: "Size (in bytes) of received data payload",
+			Buckets: []float64{
+				100,
+				500,
+				1000,
+				5000,
+				10000,
+				30000,
+			},
 		},
 		[]string{"type", "operationName"},
 	)
@@ -59,6 +93,7 @@ func init() {
 	prometheus.MustRegister(WsConnectionRejectedCounter)
 	prometheus.MustRegister(GqlSubscribeCounter)
 	prometheus.MustRegister(GqlReceivedDataCounter)
+	prometheus.MustRegister(GqlReceivedDataPayloadLength)
 	prometheus.MustRegister(GqlReceivedDataPayloadSize)
 	prometheus.MustRegister(GqlMutationsCounter)
 

@@ -2,7 +2,6 @@ package writer
 
 import (
 	"bbb-graphql-middleware/internal/common"
-	"bbb-graphql-middleware/internal/msgpatch"
 	"context"
 	"encoding/json"
 	"errors"
@@ -170,17 +169,12 @@ RangeLoop:
 					// log.Tracef("Current queries: %v", browserConnection.ActiveSubscriptions)
 					browserConnection.ActiveSubscriptionsMutex.Unlock()
 
-					common.ActivitiesOverviewStarted(string(messageType) + "-" + browserMessage.Payload.OperationName)
-					common.ActivitiesOverviewStarted("_Sum-" + string(messageType))
-
 					//Add Prometheus Metrics
-					if messageType == common.Subscription {
-						common.GqlSubscriptionCounter.With(prometheus.Labels{"operationName": browserMessage.Payload.OperationName}).Inc()
-					} else if messageType == common.Streaming {
-						common.GqlSubscriptionStreamingCounter.With(prometheus.Labels{"operationName": browserMessage.Payload.OperationName}).Inc()
-					} else if messageType == common.Query {
-						common.GqlQueriesCounter.With(prometheus.Labels{"operationName": browserMessage.Payload.OperationName}).Inc()
-					}
+					common.GqlSubscribeCounter.
+						With(prometheus.Labels{
+							"type":          string(messageType),
+							"operationName": browserMessage.Payload.OperationName}).
+						Inc()
 
 					//Dump of all subscriptions for analysis purpose
 					//queryCounter++
@@ -190,16 +184,9 @@ RangeLoop:
 
 				if browserMessage.Type == "complete" {
 					browserConnection.ActiveSubscriptionsMutex.RLock()
-					jsonPatchSupported := browserConnection.ActiveSubscriptions[browserMessage.ID].JsonPatchSupported
-
 					//Remove subscriptions from ActivitiesOverview here once Hasura-Reader will ignore "complete" msg for them
-					common.ActivitiesOverviewCompleted(string(browserConnection.ActiveSubscriptions[browserMessage.ID].Type) + "-" + browserConnection.ActiveSubscriptions[browserMessage.ID].OperationName)
-					common.ActivitiesOverviewCompleted("_Sum-" + string(browserConnection.ActiveSubscriptions[browserMessage.ID].Type))
 
 					browserConnection.ActiveSubscriptionsMutex.RUnlock()
-					if jsonPatchSupported {
-						msgpatch.RemoveConnSubscriptionCacheFile(browserConnection.Id, browserConnection.SessionToken, browserMessage.ID)
-					}
 					browserConnection.ActiveSubscriptionsMutex.Lock()
 					delete(browserConnection.ActiveSubscriptions, browserMessage.ID)
 					// log.Tracef("Current queries: %v", browserConnection.ActiveSubscriptions)

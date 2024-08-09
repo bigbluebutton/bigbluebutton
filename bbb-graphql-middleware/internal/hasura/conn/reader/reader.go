@@ -8,6 +8,8 @@ import (
 	"context"
 	"encoding/json"
 	"errors"
+	"fmt"
+	"github.com/prometheus/client_golang/prometheus"
 	log "github.com/sirupsen/logrus"
 	"hash/crc32"
 	"nhooyr.io/websocket"
@@ -91,12 +93,14 @@ func handleMessageReceivedFromHasura(hc *common.HasuraConnection, message []byte
 		//When Hasura send msg type "complete", this query is finished
 		if hasuraMessageInfo.Type == "complete" {
 			handleCompleteMessage(hc, hasuraMessageInfo.ID)
-			common.ActivitiesOverviewCompleted(string(subscription.Type) + "-" + subscription.OperationName)
-			common.ActivitiesOverviewCompleted("_Sum-" + string(subscription.Type))
 		}
 
 		if hasuraMessageInfo.Type == "next" {
-			common.ActivitiesOverviewDataReceived(string(subscription.Type) + "-" + subscription.OperationName)
+			common.GqlReceivedDataCounter.
+				With(prometheus.Labels{
+					"type":          string(subscription.Type),
+					"operationName": subscription.OperationName}).
+				Inc()
 		}
 
 		if hasuraMessageInfo.Type == "next" &&
@@ -138,12 +142,7 @@ func handleMessageReceivedFromHasura(hc *common.HasuraConnection, message []byte
 }
 
 func handleSubscriptionMessage(hc *common.HasuraConnection, message *[]byte, subscription common.GraphQlSubscription, queryId string) bool {
-	if common.ActivitiesOverviewEnabled {
-		dataSize := len(string(*message))
-		common.ActivitiesOverviewDataSize(string(subscription.Type)+"-"+subscription.OperationName, int64(dataSize), 0)
-	}
-
-	dataChecksum, messageDataKey, messageData := getHasuraMessage(*message)
+	dataChecksum, messageDataKey, messageData := getHasuraMessage(*message, subscription)
 
 	//Check whether ReceivedData is different from the LastReceivedData
 	//Otherwise stop forwarding this message
@@ -208,18 +207,15 @@ func handleConnectionAckMessage(hc *common.HasuraConnection, message []byte) {
 	go retransmiter.RetransmitSubscriptionStartMessages(hc)
 }
 
-func getHasuraMessage(message []byte) (uint32, string, common.HasuraMessage) {
+func getHasuraMessage(message []byte, subscription common.GraphQlSubscription) (uint32, string, common.HasuraMessage) {
 	dataChecksum := crc32.ChecksumIEEE(message)
 
 	common.GlobalCacheLocks.Lock(dataChecksum)
+	defer common.GlobalCacheLocks.Unlock(dataChecksum)
+
 	dataKey, hasuraMessage, dataMapExists := common.GetHasuraMessageCache(dataChecksum)
 	if dataMapExists {
-		//Unlock immediately once the cache was already created by other routine
-		common.GlobalCacheLocks.Unlock(dataChecksum)
 		return dataChecksum, dataKey, hasuraMessage
-	} else {
-		//It will create the cache and then Unlock (others will wait to benefit from this cache)
-		defer common.GlobalCacheLocks.Unlock(dataChecksum)
 	}
 
 	err := json.Unmarshal(message, &hasuraMessage)
@@ -233,6 +229,32 @@ func getHasuraMessage(message []byte) (uint32, string, common.HasuraMessage) {
 	}
 
 	common.StoreHasuraMessageCache(dataChecksum, dataKey, hasuraMessage)
+
+	//Add Prometheus metrics only once for each dataChecksum
+	dataSize := len(string(message))
+	common.GqlReceivedDataPayloadSize.
+		With(prometheus.Labels{
+			"type":          string(subscription.Type),
+			"operationName": subscription.OperationName}).
+		Observe(float64(dataSize))
+
+	if common.PrometheusAdvancedMetricsEnabled {
+		// Decode the JSON array into raw messages
+		var rawMessages []json.RawMessage
+		err := json.Unmarshal(hasuraMessage.Payload.Data[dataKey], &rawMessages)
+		if err == nil {
+			// Get the length of the array
+			dataLength := len(rawMessages)
+			fmt.Printf("%s-%s: size=%d, length=%d\n", string(subscription.Type), subscription.OperationName, dataSize, dataLength)
+
+			common.GqlReceivedDataPayloadLength.
+				With(prometheus.Labels{
+					"type":          string(subscription.Type),
+					"operationName": subscription.OperationName}).
+				Observe(float64(dataLength))
+
+		}
+	}
 
 	return dataChecksum, dataKey, hasuraMessage
 }

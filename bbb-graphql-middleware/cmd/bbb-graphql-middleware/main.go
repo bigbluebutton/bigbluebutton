@@ -25,11 +25,6 @@ func main() {
 	log.SetFormatter(&log.JSONFormatter{})
 	log := log.WithField("_routine", "main")
 
-	if activitiesOverviewEnabled := os.Getenv("BBB_GRAPHQL_MIDDLEWARE_ACTIVITIES_OVERVIEW_ENABLED"); activitiesOverviewEnabled == "true" {
-		go common.ActivitiesOverviewLogRoutine()
-		//go common.JsonPatchBenchmarkingLogRoutine()
-	}
-
 	common.InitUniqueID()
 	log = log.WithField("graphql-middleware-uid", common.GetUniqueID())
 
@@ -71,9 +66,6 @@ func main() {
 		ctx, cancel := context.WithTimeout(r.Context(), 120*time.Second)
 		defer cancel()
 
-		common.ActivitiesOverviewStarted("__WebsocketConnection")
-		defer common.ActivitiesOverviewCompleted("__WebsocketConnection")
-
 		common.HttpConnectionGauge.Inc()
 		common.HttpConnectionCounter.Inc()
 		defer common.HttpConnectionGauge.Dec()
@@ -94,5 +86,4 @@ func main() {
 
 	log.Infof("listening on %v:%v", listenIp, listenPort)
 	log.Fatal(http.ListenAndServe(fmt.Sprintf("%v:%v", listenIp, listenPort), nil))
-
 }

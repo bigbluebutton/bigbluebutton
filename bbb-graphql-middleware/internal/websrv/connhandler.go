@@ -35,8 +35,6 @@ var BrowserConnectionsMutex = &sync.RWMutex{}
 // This is the connection that comes from browser
 func ConnectionHandler(w http.ResponseWriter, r *http.Request) {
 	log := log.WithField("_routine", "ConnectionHandler")
-	common.ActivitiesOverviewStarted("__BrowserConnection")
-	defer common.ActivitiesOverviewCompleted("__BrowserConnection")
 
 	// Obtain id for this connection
 	lastBrowserConnectionId++
