@@ -7,7 +7,7 @@ const notificationsUtil = require('../notifications/util');
 const deepEqual = require('deep-equal');
 
 test.describe.parallel('Connection failure', () => {
-  // https://docs.bigbluebutton.org/2.6/release-tests.html#sharing-screen-in-full-screen-mode-automated
+  // https://docs.bigbluebutton.org/testing/release-testing/#sharing-screen-in-full-screen-mode-automated
   test('Screen sharer', async ({ browser, browserName, page }) => {
     await checkRootPermission(); // check sudo permission before starting test
     test.skip(browserName === 'firefox' && process.env.DISPLAY === undefined,
