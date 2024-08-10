@@ -730,10 +730,10 @@ check_configuration() {
         fi
     fi
 
-    SIP_PROTOCOL=$(cat /usr/share/bigbluebutton/nginx/sip.nginx | grep -v \# | sed -n '/proxy_pass/{s/.*proxy_pass [ ]*//;s/:.*//;p}' | head -n 1)
+    SIP_PROTOCOL=$(cat "$SIP_CONFIG" | grep -v \# | sed -n '/proxy_pass/{s/.*proxy_pass [ ]*//;s/:.*//;p}' | head -n 1)
     if [[ $SIP_PROTOCOL == "https" ]]; then
         if ! grep wss-binding $FREESWITCH_EXTERNAL > /dev/null; then
-            echo "# Warning: Websockets is using HTTPS in /usr/share/bigbluebutton/nginx/sip.nginx"
+            echo "# Warning: Websockets is using HTTPS in $SIP_CONFIG"
             echo "# but no definition for wss-binding found in "
             echo "#"
             echo "#    $FREESWITCH_EXTERNAL"
@@ -778,8 +778,6 @@ check_state() {
     echo
     print_header
     check_configuration
-
-    bbb-conf --status
 
     #
     # Check for potential problems in the BigBlueButton configuration
@@ -1023,7 +1021,7 @@ check_state() {
         if [ "$SIP_NGINX_IP" != "\$freeswitch_addr" ]; then
           echo "# Warning: The setting of $SIP_NGINX_IP for proxy_pass in"
           echo "#"
-          echo "#    /usr/share/bigbluebutton/nginx/sip.nginx"
+          echo "#    $SIP_CONFIG
           echo "#"
           echo "# does not match the local IP address ($IP)."
           echo "# (This is OK if you've manually changed the values)"
@@ -1280,7 +1278,7 @@ if [ $CHECK ]; then
         echo
         echo "$SIP_CONFIG (sip.nginx)"
         echo "                        proxy_pass: $SIP_NGINX_IP"
-        echo "                          protocol: $(cat /usr/share/bigbluebutton/nginx/sip.nginx | grep -v \# | sed -n '/proxy_pass/{s/.*proxy_pass [ ]*//;s/:.*//;p}' | head -n 1)"
+        echo "                          protocol: $(cat "$SIP_CONFIG" | grep -v \# | sed -n '/proxy_pass/{s/.*proxy_pass [ ]*//;s/:.*//;p}' | head -n 1)"
     fi
 
     if [ -n "$WEBRTC_SFU_CONFIG" ]; then
