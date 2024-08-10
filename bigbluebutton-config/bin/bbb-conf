@@ -1021,7 +1021,7 @@ check_state() {
         if [ "$SIP_NGINX_IP" != "\$freeswitch_addr" ]; then
           echo "# Warning: The setting of $SIP_NGINX_IP for proxy_pass in"
           echo "#"
-          echo "#    $SIP_CONFIG
+          echo "#    $SIP_CONFIG"
           echo "#"
           echo "# does not match the local IP address ($IP)."
           echo "# (This is OK if you've manually changed the values)"
