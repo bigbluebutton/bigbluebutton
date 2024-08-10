@@ -12,7 +12,7 @@ server:
     logout_url: default
     logo:
       use_default_logo: false
-      default_logo_url: http://bigbluebutton.example.com/images/logo.png
+      default_logo_path: images/logo.png
   grpc:
     host: localhost # akka-apps gRPC host
     port: 9000 # akka-apps gRPC port
@@ -123,6 +123,7 @@ presentation:
       url:
     directory: /var/bigbluebutton # Directory where BigBlueButton stores uploaded slides
   default: default.pdf
+  base_path: bigbluebutton/presentation
 
 # Default breakout room settings
 breakout_rooms:

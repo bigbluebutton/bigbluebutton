@@ -6,9 +6,22 @@ import (
 	"os"
 	"time"
 
+	"github.com/bigbluebutton/bigbluebutton/bbb-core-api/internal/mime"
 	"github.com/bigbluebutton/bigbluebutton/bbb-core-api/internal/random"
 	"github.com/bigbluebutton/bigbluebutton/bbb-core-api/internal/validation"
 )
+
+var validMimeTypes map[mime.MimeType]struct{}
+
+func init() {
+	validMimeTypes = map[mime.MimeType]struct{}{
+		mime.Xls: {}, mime.Xlsx: {}, mime.Doc: {}, mime.Docx: {},
+		mime.Ppt: {}, mime.Pptx: {}, mime.Odt: {}, mime.Rtf: {},
+		mime.Txt: {}, mime.Ods: {}, mime.Odp: {}, mime.Pdf: {},
+		mime.Jpeg: {}, mime.Png: {}, mime.Svg: {},
+		mime.Tika_MSOffice: {}, mime.Tika_MSOffice_x: {},
+	}
+}
 
 func GeneratePresentationID(name string) string {
 	now := time.Now().UnixMilli()
@@ -38,4 +51,8 @@ func CreateNewFileName(presID string, fileExt string) string {
 		return presID + "." + fileExt
 	}
 	return presID
+}
+
+func IsMimeTypeValid(bytes []byte, fileExt string) bool {
+	return mime.IsMimeTypeValid(bytes, fileExt, validMimeTypes)
 }

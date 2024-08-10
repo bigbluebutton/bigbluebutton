@@ -7,6 +7,7 @@ import (
 	"net/http"
 	"strings"
 
+	bbbmime "github.com/bigbluebutton/bigbluebutton/bbb-core-api/internal/mime"
 	"github.com/bigbluebutton/bigbluebutton/bbb-core-api/internal/model"
 	"github.com/bigbluebutton/bigbluebutton/bbb-core-api/internal/random"
 	"github.com/bigbluebutton/bigbluebutton/bbb-core-api/util"
@@ -112,13 +113,13 @@ func (app *Config) validateChecksum(next http.Handler) http.Handler {
 	})
 }
 
-func (app *Config) validateContentType(supportedContentTypes []string) func(next http.Handler) http.Handler {
+func (app *Config) validateContentType(supportedContentTypes []bbbmime.MimeType) func(next http.Handler) http.Handler {
 	return func(next http.Handler) http.Handler {
 		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 			contentType, _, err := mime.ParseMediaType(r.Header.Get("Content-Type"))
 			if err == nil {
 				for _, t := range supportedContentTypes {
-					if t == contentType {
+					if t.Matches(contentType) {
 						next.ServeHTTP(w, r)
 					}
 				}
@@ -147,7 +148,7 @@ func (app *Config) collectParams(next http.Handler) http.Handler {
 		contentType, _, _ := mime.ParseMediaType(r.Header.Get("Content-Type"))
 		if contentType != "" {
 			switch contentType {
-			case util.ApplicationFormURLEncoded:
+			case string(bbbmime.ApplicationFormURLEncoded):
 				err := r.ParseForm()
 				if err != nil {
 					log.Println(err)
@@ -163,7 +164,7 @@ func (app *Config) collectParams(next http.Handler) http.Handler {
 						params[k] = v
 					}
 				}
-			case util.MultipartFormData:
+			case string(bbbmime.MultipartFormData):
 				err := r.ParseMultipartForm(10 << 20)
 				if err != nil {
 					log.Println(err)

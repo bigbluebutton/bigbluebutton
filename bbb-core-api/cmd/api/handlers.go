@@ -9,6 +9,7 @@ import (
 	"time"
 
 	bbbcore "github.com/bigbluebutton/bigbluebutton/bbb-core-api/gen/bbb-core"
+	bbbmime "github.com/bigbluebutton/bigbluebutton/bbb-core-api/internal/mime"
 	"github.com/bigbluebutton/bigbluebutton/bbb-core-api/internal/model"
 	"github.com/bigbluebutton/bigbluebutton/bbb-core-api/internal/validation"
 	"github.com/bigbluebutton/bigbluebutton/bbb-core-api/util"
@@ -256,7 +257,7 @@ func (app *Config) createMeeting(w http.ResponseWriter, r *http.Request) {
 	}
 
 	contentType, _, _ := mime.ParseMediaType(r.Header.Get("Content-Type"))
-	if contentType == util.ApplicationXML || contentType == util.TextXML {
+	if bbbmime.ApplicationXML.Matches(contentType) || bbbmime.TextXML.Matches(contentType) {
 		modules, err := app.processXMLModules(r.Body)
 		if err != nil {
 			app.respondWithErrorXML(w, model.ReturnCodeFailure, model.InvalidRequestBodyKey, model.InvalidRequestBodyMsg)

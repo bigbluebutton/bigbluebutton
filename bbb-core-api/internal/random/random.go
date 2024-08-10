@@ -4,6 +4,8 @@ import (
 	"crypto/rand"
 	"fmt"
 	"io"
+	"math/big"
+	"strings"
 )
 
 const (
@@ -27,8 +29,15 @@ func NewUUID() (string, error) {
 }
 
 func String(n int, chars string) string {
-	// TODO implement random string generation
-	return ""
+	var sb strings.Builder
+	k := len(chars)
+
+	for i := 0; i < n; i++ {
+		r, _ := rand.Int(rand.Reader, big.NewInt(int64(k)))
+		c := chars[r.Int64()]
+		sb.WriteByte(c)
+	}
+	return sb.String()
 }
 
 func AlphaString(n int) string {

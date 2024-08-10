@@ -1,6 +1,7 @@
 package config
 
 import (
+	"fmt"
 	"os"
 
 	"gopkg.in/yaml.v3"
@@ -14,8 +15,8 @@ type ServerConfig struct {
 			Url       string `yaml:"url"`
 			LogoutUrl string `yaml:"logout_url"`
 			Logo      struct {
-				UseDefaultLogo bool   `yaml:"useDefaultLogo"`
-				DefaultLogoUrl string `yaml:"defaultLogoUrl"`
+				UseDefaultLogo  bool   `yaml:"use_default_logo"`
+				DefaultLogoPath string `yaml:"default_logo_path"`
 			} `yaml:"logo"`
 		} `yaml:"bigbluebutton"`
 		Grpc struct {
@@ -112,7 +113,8 @@ type ServerConfig struct {
 			} `yaml:"external"`
 			Directory string `yaml:"directory"`
 		} `yaml:"upload"`
-		Default string `yaml:"default"`
+		Default  string `yaml:"default"`
+		BasePath string `yaml:"base_path"`
 	} `yaml:"presentation"`
 	BreakoutRooms struct {
 		Record             bool `yaml:"record"`
@@ -141,4 +143,16 @@ func (config *ServerConfig) ParseConfig(path string) error {
 	}
 
 	return nil
+}
+
+func (config *ServerConfig) DefaultPresentation() string {
+	return fmt.Sprintf("%s/%s", config.Server.BigBlueButton.Url, config.Presentation.Default)
+}
+
+func (config *ServerConfig) DefaultPresentationBaseURL() string {
+	return fmt.Sprintf("%s/%s", config.Server.BigBlueButton.Url, config.Presentation.BasePath)
+}
+
+func (config *ServerConfig) DefaultLogoURL() string {
+	return fmt.Sprintf("%s/%s", config.Server.BigBlueButton.Url, config.Server.BigBlueButton.Logo.DefaultLogoPath)
 }

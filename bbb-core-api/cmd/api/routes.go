@@ -7,7 +7,7 @@ import (
 	"github.com/go-chi/chi/v5/middleware"
 	"github.com/go-chi/cors"
 
-	"github.com/bigbluebutton/bigbluebutton/bbb-core-api/util"
+	"github.com/bigbluebutton/bigbluebutton/bbb-core-api/internal/mime"
 )
 
 func (app *Config) routes() http.Handler {
@@ -28,16 +28,16 @@ func (app *Config) routes() http.Handler {
 	mux.Use(app.collectParams)
 
 	mux.Get("/isMeetingRunning", app.isMeetingRunning)
-	mux.With(app.validateContentType([]string{util.ApplicationFormURLEncoded, util.MultipartFormData})).Post("/isMeetingRunning", app.isMeetingRunning)
+	mux.With(app.validateContentType([]mime.MimeType{mime.ApplicationFormURLEncoded, mime.MultipartFormData})).Post("/isMeetingRunning", app.isMeetingRunning)
 
 	mux.Get("/getMeetingInfo", app.getMeetingInfo)
-	mux.With(app.validateContentType([]string{util.ApplicationFormURLEncoded, util.MultipartFormData})).Post("/getMeetingInfo", app.getMeetingInfo)
+	mux.With(app.validateContentType([]mime.MimeType{mime.ApplicationFormURLEncoded, mime.MultipartFormData})).Post("/getMeetingInfo", app.getMeetingInfo)
 
 	mux.Get("/getMeetings", app.getMeetings)
-	mux.With(app.validateContentType([]string{util.ApplicationFormURLEncoded, util.MultipartFormData})).Post("/getMeetings", app.getMeetings)
+	mux.With(app.validateContentType([]mime.MimeType{mime.ApplicationFormURLEncoded, mime.MultipartFormData})).Post("/getMeetings", app.getMeetings)
 
 	mux.Get("/create", app.createMeeting)
-	mux.With(app.validateContentType([]string{util.ApplicationFormURLEncoded, util.MultipartFormData, util.ApplicationXML, util.TextXML})).Post("/create", app.createMeeting)
+	mux.With(app.validateContentType([]mime.MimeType{mime.ApplicationFormURLEncoded, mime.MultipartFormData, mime.ApplicationXML, mime.TextXML})).Post("/create", app.createMeeting)
 
 	return mux
 }

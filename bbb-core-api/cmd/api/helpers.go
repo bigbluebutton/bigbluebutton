@@ -11,6 +11,7 @@ import (
 	"log"
 	"log/slog"
 	"net/http"
+	"net/url"
 	"os"
 	"path/filepath"
 	"regexp"
@@ -359,7 +360,7 @@ func (app *Config) processSystemSettings(params *Params) *common.SystemSettings 
 
 	customLogoUrl := util.GetStringOrDefaultValue(util.StripCtrlChars(params.Get("logo")), "")
 	if customLogoUrl == "" && app.ServerConfig.Server.BigBlueButton.Logo.UseDefaultLogo {
-		customLogoUrl = app.ServerConfig.Server.BigBlueButton.Logo.DefaultLogoUrl
+		customLogoUrl = app.ServerConfig.DefaultLogoURL()
 	}
 
 	return &common.SystemSettings{
@@ -475,7 +476,7 @@ func (app *Config) processXMLModules(body io.ReadCloser) (RequestModules, error)
 	return reqModules, nil
 }
 
-func (app *Config) uploadDocuments(modules RequestModules, params *Params, isFromInsertAPI bool) bool {
+func (app *Config) uploadDocuments(modules RequestModules, params *Params, meeingIntID string, isFromInsertAPI bool) bool {
 	for _, df := range app.ServerConfig.Meeting.Features.Disabled {
 		if df == "presentation" {
 			slog.Warn("Presentation feature is disabled.")
@@ -504,7 +505,10 @@ func (app *Config) uploadDocuments(modules RequestModules, params *Params, isFro
 	if pres != "" {
 		presURLInParameter = true
 		if presName == "" {
-			// TODO: set presName using file name from URL
+			fileName := filepath.Base(pres)
+			if fileName == "." {
+				fileName = "untitled"
+			}
 		}
 
 		doc := Document{
@@ -583,13 +587,13 @@ func (app *Config) uploadDocuments(modules RequestModules, params *Params, isFro
 		isPresFromParam := false
 
 		if doc.Name == "default" {
-			defaultPres := fmt.Sprintf("%s/%s", app.ServerConfig.Server.BigBlueButton.Url, app.ServerConfig.Presentation.Default)
+			defaultPres := app.ServerConfig.DefaultPresentation()
 			if defaultPres != "" {
 				if doc.Current {
 					isDefaultPres = true
 				}
 
-				// TODO download and process document
+				app.downloadAndProcessDocument(defaultPres, meeingIntID, "", doc.Current, false, true, isDefaultPres, isPresFromParam)
 			} else {
 				slog.Error("No default presentation set.")
 			}
@@ -612,14 +616,14 @@ func (app *Config) uploadDocuments(modules RequestModules, params *Params, isFro
 				var fileName string
 				if doc.Filename != "" {
 					fileName = doc.Filename
-					slog.Info(fmt.Sprintf("user provided filename: %s", fileName))
+					slog.Info(fmt.Sprintf("User provided filename: %s", fileName))
 				}
 
-				// TODO download and process document
+				app.downloadAndProcessDocument(doc.URL, meeingIntID, fileName, doc.Current, isDownloadable, isRemovable, isDefaultPres, isPresFromParam)
 			} else if doc.Name != "" {
 				decodedBytes, err := base64.StdEncoding.DecodeString(doc.Content)
 				if err != nil {
-					slog.Error(fmt.Sprintf("failed to decode document content: %s", doc.Content))
+					slog.Error(fmt.Sprintf("Failed to decode document content: %s", doc.Content))
 					return false
 				}
 				err = app.processDocumentFromBytes(decodedBytes, doc.Name, params.Get("meetingID"), isCurrent, isDownloadable, isRemovable, isDefaultPres)
@@ -627,7 +631,7 @@ func (app *Config) uploadDocuments(modules RequestModules, params *Params, isFro
 					return false
 				}
 			} else {
-				slog.Info("presentation module config found, but it did not contain URL or name attributes.")
+				slog.Info("Presentation module config found, but it did not contain URL or name attributes.")
 			}
 		}
 	}
@@ -635,21 +639,24 @@ func (app *Config) uploadDocuments(modules RequestModules, params *Params, isFro
 	return true
 }
 
-func (app *Config) processDocumentFromBytes(bytes []byte, name string, meetingID string, current bool, isDownloadable bool, isRemovable bool, isDefault bool) error {
+func (app *Config) processDocumentFromBytes(bytes []byte, name, meetingID string, current, isDownloadable, isRemovable, isDefault bool) error {
 	fileName := filepath.Base(name)
 	fileExt := filepath.Ext(fileName)
 
-	if fileName == "" || fileExt == "" {
+	if fileName == "." || fileExt == "" {
 		slog.Error(fmt.Sprintf("upload failed due to invalid faile name %s", name))
 		return errors.New("invalid_filename")
 	} else {
+		if !presentation.IsMimeTypeValid(bytes, fileExt) {
+			return errors.New("invalid_mime_type")
+		}
 		presDir := app.ServerConfig.Presentation.Upload.Directory
 		presID := presentation.GeneratePresentationID(name)
 
 		uploadDir, err := presentation.CreatePresentationDirectory(meetingID, presDir, presID)
 		if err != nil {
-			slog.Error("uploade failed: file empty")
-			return errors.New("failed_to_download_file")
+			slog.Error("Upload failed: %v", err)
+			return errors.New("null_presentation_dir")
 		} else {
 			newFileName := presentation.CreateNewFileName(presID, fileExt)
 			presPath := uploadDir + string(os.PathSeparator) + newFileName
@@ -662,13 +669,60 @@ func (app *Config) processDocumentFromBytes(bytes []byte, name string, meetingID
 
 			_, err = pres.Write(bytes)
 			if err != nil {
-				slog.Error(fmt.Sprintf("upload failed: could not write content to %s", presPath))
-				return errors.New("failed_to_write_file")
+				slog.Error(fmt.Sprintf("upload failed: %v", err))
+				return errors.New("failed_to_download_file")
 			}
+
+			// TODO process uploaded file
 		}
 	}
 
-	// TODO hardcode pre-uploaded presentation to the default presentation window
+	return nil
+}
+
+func (app *Config) downloadAndProcessDocument(address, meetingID, fileName string, current, isDownloadabled, isRemovable, isDefaultPres, isPresFromParam bool) error {
+	slog.Info(fmt.Sprintf("Download and process document (%s, %s, %s)", address, meetingID, fileName))
+
+	var presOrigFileName string
+	if fileName == "" {
+		parts := strings.Split(address, "/")
+		name := parts[len(parts)-1]
+		decodedFileName, err := url.QueryUnescape(name)
+		if err != nil {
+			slog.Error(fmt.Sprintf("Error decoding file name: %v", err))
+			return errors.New("failed_to_decode_file_name")
+		}
+		presOrigFileName = decodedFileName
+	} else {
+		presOrigFileName = fileName
+	}
+
+	presFileName := filepath.Base(presOrigFileName)
+	presFileExt := filepath.Ext(presOrigFileName)
+
+	if presFileName == "." || presFileExt == "" {
+		slog.Info("Presentation is null by default")
+		return errors.New("invalid_file_name")
+	} else {
+		if !presentation.IsMimeTypeValid(bytes, presFileExt) {
+			return errors.New("invalid_mime_type")
+		}
+
+		presDir := app.ServerConfig.Presentation.Upload.Directory
+		presID := presentation.GeneratePresentationID(presFileName)
+		uploadDir, err := presentation.CreatePresentationDirectory(meetingID, presDir, presID)
+		if err != nil {
+			slog.Error("Upload failed: %v", err)
+			return errors.New("null_presentation_dir")
+		} else {
+			newFileName := presentation.CreateNewFileName(presID, presFileExt)
+			presPath := uploadDir + string(os.PathSeparator) + newFileName
+
+			// TODO save presentation
+
+			// TODO process uploaded file
+		}
+	}
 
 	return nil
 }
