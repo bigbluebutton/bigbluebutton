@@ -4,7 +4,12 @@ const path = require('path');
 const CopyPlugin = require('copy-webpack-plugin');
 const TerserPlugin = require('terser-webpack-plugin');
 
-module.exports = {
+const env = process.env.NODE_ENV || 'development';
+
+const prodEnv = 'production';
+const devEnv = 'development';
+
+const config = {
   entry: './client/main.tsx',
   mode: 'development',
   output: {
@@ -12,20 +17,11 @@ module.exports = {
     path: path.resolve(__dirname, 'dist'),
     publicPath: '',
   },
-  optimization: {
-    minimize: true,
-    minimizer: [new TerserPlugin()],
+  cache: {
+    type: 'filesystem',
+    allowCollectingMemory: true,
   },
   devtool: 'source-map',
-  devServer: {
-    port: 3000,
-    hot: true,
-    allowedHosts: 'all',
-    client: {
-      overlay: false,
-      webSocketURL: 'auto://0.0.0.0:0/html5client/ws',
-    },
-  },
   plugins: [
     new HtmlWebpackPlugin({
       template: './client/main.html',
@@ -93,3 +89,27 @@ module.exports = {
     ],
   },
 };
+
+if (env === prodEnv) {
+  config.mode = prodEnv;
+  config.optimization = {
+    minimize: true,
+    minimizer: [new TerserPlugin()],
+  };
+  config.performance = {
+    hints: false,
+  };
+} else {
+  config.mode = devEnv;
+  config.devServer = {
+    port: 3000,
+    hot: true,
+    allowedHosts: 'all',
+    client: {
+      overlay: false,
+      webSocketURL: 'auto://0.0.0.0:0/html5client/ws',
+    },
+  };
+}
+
+module.exports = config;

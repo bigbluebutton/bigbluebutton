@@ -3,8 +3,8 @@
   "description": "BigBlueButton HTML5 Client",
   "license": "LGPL-3.0",
   "scripts": {
-    "start": "webpack serve --open",
-    "build": "webpack --config webpack.config.js --mode production",
+    "start": "NODE_ENV=development webpack serve --open --config webpack.config.js",
+    "build": "NODE_ENV=production webpack --config webpack.config.js --mode production",
     "tscheck": "tsc",
     "lint": "eslint .",
     "lint:fix": "eslint . --fix",
