@@ -35,21 +35,46 @@ all of these tests.
 
 5. Presentation should appear on All Clients in sync with updates, and All Clients should see the notification with the new presentation name
 
-### Sending presentation download link to the chat [(Automated)](https://github.com/bigbluebutton/bigbluebutton/blob/v3.0.x-release/bigbluebutton-tests/playwright/presentation/presentation.spec.js)
+### Sending presentation download link in the chat - containing the annotations [(Automated)](https://github.com/bigbluebutton/bigbluebutton/blob/v3.0.x-release/bigbluebutton-tests/playwright/presentation/presentation.spec.js)
 
-1. Join a meeting and draw some annotations on the slide.
+1. Join a meeting
 
-2. Select Moderator/Presenter Action menu
+2. Draw some annotations on the slide
 
-3. Choose "Manage presentations"
+3. Select Moderator/Presenter Action menu
 
-4. Click on "Send to chat" button.
+4. Click on "Upload/Manage presentations"
 
-5. Verify that the link was sent to the chat and the link works.
+5. Click on "Export options" button of the current presentation
 
-6. Draw some annotations on the whiteboard.
+6. Click on "Send out a download link for the presentation including whiteboard annotations" button
 
-7. Send the download link to the chat again. This time, the presentation downloaded through the link should include the annotation.
+    - You should see a notification with the upload progress displayed
+    - After the upload is done, every user should be able to see a public chat message with the name of the file + "(with whiteboard annotations)" and a downloadable link below
+    - This file should contain all presentation slides **including the annotations**
+
+### Enable/Disable presentation download [(Automated)](https://github.com/bigbluebutton/bigbluebutton/blob/v2.7.x-release/bigbluebutton-tests/playwright/presentation/presentation.spec.js)
+
+1. Join a meeting
+
+2. Wait for the presentation to be uploaded
+
+3. Select Moderator/Presenter Action menu
+
+4. Click on "Upload/Manage presentations"
+
+5. Click on "Export options" button of the current presentation
+
+6. Click on "Enable download of the presentation (pdf)" button
+
+    - A notification warning the presentation download is available should be displayed
+    - A download button should be displayed in the bottom left corner
+    - The downloaded file should be the original presentation, **not containing any annotations**
+    - This should be available to all users in the meeting, including the ones joining after its enabled
+
+7. Select the actions button -> click on "Upload/Manage presentations" -> "Export options" of the current presentation -> click on "Disable download of the original presentation (pdf)" button
+
+    - The presentation should not be available for download anymore
 
 ### Deleting Presentation [(Automated)](https://github.com/bigbluebutton/bigbluebutton/blob/v3.0.x-release/bigbluebutton-tests/playwright/presentation/presentation.spec.js)
 
@@ -344,6 +369,34 @@ The webcams should be resized as per the size we want.
 
 8. That particular webcam should unpin.
 
+### Disable self-view
+
+1. Join in a meeting with 2 users sharing webcams.
+
+2. Select the webcam dropdown menu. Click on "Disable self-view"
+
+    - You shouldn't see this option in other users' webcam menu
+    - You should stop seeing your webcam video, replaced by a placeholder with the "Self-view disabled" label.
+    - Other users should keep seeing you normally.
+
+3. Select again the webcam dropdown menu. Click on "Enable self-view"
+
+    - You should be able to see you again after enabling it
+
+### Share camera as content
+
+1. Join in a meeting with 2 users.
+
+2. As the presenter, click on "Share camera as content" in the actions dropdown.
+
+    - You should see the same webcam settings modal as normal sharing webcam.
+
+3. Select a camera device and click on "Start sharing"
+
+    - "Minimize presentation" button icon should change to a webcam. Clicking on it should minimize the webcam content.
+    - Once it's shared, it should use the presentation area and not be affected by changes on presentations (e.g. delete, upload, enable download).
+    - To start a normal webcam sharing, you need to first stop sharing and then click on "Share webcam" and "Start sharing".
+
 ## Screenshare
 
 ### Sharing screen in Full Screen mode [(Automated)](https://github.com/bigbluebutton/bigbluebutton/blob/v3.0.x-release/bigbluebutton-tests/playwright/screenshare/screenshare.spec.js)
@@ -506,6 +559,26 @@ The screen sharing stops, a sound effect of disconnection is heard and the prese
 2. Join a breakout room. Draw something on the whiteboard. End the breakout room.
 
 3. Breakout room's annotations should be converted to a pdf and that pdf should be available for uploading to the whiteboard.
+
+### Use different presentation in breakout rooms
+
+1. Join in a meeting with a moderator and an attendee
+
+2. As the moderator/presenter, click on the actions button, "Upload/Manage presentations" and upload a new presentation file
+
+3. Click on "Create breakout rooms" in the manage users dropdown
+
+    - In the "Manage rooms" section - where the assigned users are displayed - you should see a dropdown down below room's name
+
+4. Click on the presentation dropdown in any rooms
+    - you should see "current slide" option, which should set only the current slide as the breakouts' presentation
+    - you should see all the uploaded files options listed. the one selected should be set as the presentation, containing all slides provided
+
+5. Select different options for each room and click on "Create"
+
+6. Join each user in different rooms
+
+    - you should see the correct presentation selected displayed for each user/room
 
 ## Audio
 
@@ -1228,7 +1301,7 @@ Share notes should export and download in the chosen format.
 
 7. Locked user: should still see the features locked.
 
-## Chat (Public/Private)
+## Chat
 
 ### Public message [(Automated)](https://github.com/bigbluebutton/bigbluebutton/blob/v3.0.x-release/bigbluebutton-tests/playwright/chat/chat.spec.js)
 
@@ -1281,6 +1354,23 @@ Note :
 - As a Viewer(feature):
   "Save Chat/Copy Chat
   (if Private Chat) += Close Private Chat Tab"
+
+### Prevent specific user from sending public chat messages
+
+1. Join in a meeting with a mod and and attendee
+
+2. As the mod, click on the attendee's user list item
+
+3. Click on the "Lock public chat" button
+
+    - Attendee should not be able to send any new message in the public chat - textarea and send button should be disabled
+    - Other users should still be able to send messages
+
+4. Click on the locked attendee's user list item
+
+5. Click on the "Unlock public chat" button
+
+    - The user should get the permission back of sending messages in the public chat
 
 ## Polling
 
@@ -1388,23 +1478,15 @@ Note :
 
 ## User list settings
 
-### Set status / Raise hand [(Automated)](https://github.com/bigbluebutton/bigbluebutton/blob/v3.0.x-release/bigbluebutton-tests/playwright/user/user.spec.js)
+### Clear all reactions
 
-1. Viewer: select your user icon from user list
+1. Click on the reactions bar and react with some of the available options
 
-2. From menu options choose set status
+2. Select manage users icon (cog wheel icon in users list)
 
-3. Set a status/raise hand.
+3. Choose clear all status icons.
 
-4. Icon in the users list should update to display emoticon chosen by the user, when status is set by a user the moderator will see their user icon move to the top of the list.
-
-### Clear status
-
-1. Select manage users icon (cog wheel icon in users list)
-
-2. choose clear all status icons.
-
-3. All status icons in the users list should clear.
+    - All the current reactions should be cleared
 
 ### Mute users
 
@@ -1449,20 +1531,6 @@ Note :
 2. Moderator: Choose save user names.
 
 3. Users list names will download as a TXT based document to local device.
-
-### Shared Notes
-
-1. Moderator: Select manage users icon (cog wheel in users list).
-
-2. Moderator: Choose lock viewers.
-
-3. Moderator: Lock shared notes.
-
-4. Moderator: exit menu.
-
-5. Viewer: Open shared notes panel.
-
-6. Viewer: Attempt to contribute to shared notes to confirm if it's locked.
 
 ## Options menu
 
@@ -1681,6 +1749,46 @@ Note :
 
 - Click "Deny" for the specific user in the waiting users panel. That viewer should see the message "Guest denied of joining the meeting" and should soon be redirected to the home page.
 
+## Reactions bar
+
+### Use a reaction
+
+1. Join in a meeting with 2 users
+
+2. Click on the "Reactions bar" button below presentation
+
+    - You should be able to see a set of buttons with emojis and a "Raise your hand" button
+
+3. Click on any emoji
+
+    - The other user should see the emoji you reacted in your user avatar in the user list
+    - The reaction should keep displayed for a while
+    - The reaction should be removed once you click again in the emoji
+    - The reaction should be changed once you click in a different emoji
+    - if the `emojiRain` setting is enabled, all users should see an animated rain of emojis from their reactions button on every reaction 
+
+### Raise / Lower your hand
+
+1. Join in a meeting with 2 users
+
+2. Click on the "Reactions bar" button below presentation
+
+    - You should be able to see a set of buttons with emojis and a "Raise your hand" button
+
+3. Click on the "Raise your hand" button
+
+    - All users should see a notification saying that you raised your hand
+    - Your avatar should be changed for every users' user list
+    - The button label should be changed to "Lower your hand"
+
+4. Click on the reactions bar again and then click on "Lower your hand" button
+
+    - The avatar and notification should be removed
+    - The reaction bar button should return to its default icon
+    - Any moderator should be able to lower other users' hand
+
+
+
 ## Recording
 
 ### Start recording notification: not in audio [(Automated)](https://github.com/bigbluebutton/bigbluebutton/blob/v3.0.x-release/bigbluebutton-tests/playwright/notifications/notifications.spec.js)
@@ -1719,24 +1827,197 @@ Note :
 
 Client should apply user metadata according to the descriptions from [here](/administration/customize#application-parameters).
 
+### Override default presentation on CREATE meeting API call
+
+(for more information, see the documentation [here](/new-features/#override-default-presentation-on-create-via-url))
+
+1. When creating a meeting, use the following settings (required):
+```sh
+preUploadedPresentation=https://dagrs.berkeley.edu/sites/default/files/2020-01/sample.pdf
+preUploadedPresentationOverrideDefault=true
+preUploadedPresentationName=ScientificPaper.pdf
+```
+2. Create and join the meeting
+
+    - You should see the "ScientificPaper.pdf" file displayed as the default - or any other value you use in the `preUploadedPresentationName` parameter
+
+### Set a webcam background by passing a url
+
+1. When creating a meeting, use `webcamBackgroundURL=https://upload.wikimedia.org/wikipedia/commons/3/35/Spartan_apple.jpg` parameter (check [here](/development/api/#get-join) for more information)
+
+2. Join the meeting
+
+3. Click to "Share webcam"
+
+    - you should see the webcam settings dropdown displayed
+    - in the preview video, you should see the apples image (or any image you set in the parameter) automatically set as the default background
+    - you should be able to remove this background by clicking the "x" button in the background's top-right corner
+    - once you start sharing, all users should see correctly the background applied
+
+
 ## iFrame
+
+## Timer and stopwatch
+
+### Stopwatch
+
+1. Join in a meeting with 2 users (mod and attendee)
+
+2. As the mod/presenter, click on the actions button
+
+3. Click on "Activate timer/stopwatch"
+    - You should see a new sidebar content with a timer countdown stopped, "Stopwatch" and "Timer" buttons on below the timer and "Start" and "Reset" buttons below
+    - You should see a timer indicator in the top right corner of the meeting (below settings and connection status buttons) with the current time - initially zero
+    - A new user list item should be displayed to all moderator with the title "TIME" and a button with "Stopwatch" or "Timer" (the one selected) with a clock icon
+    - All moderators should be able to interact with this panel and indicator (starting, stopping, changing stopwatch <-> timer)
+
+4. Click on "Start" button
+
+    - The button should change its color to red and label to "Stop"
+    - The timer and timer indicator should start the countdown - it's expected 1-2 seconds of difference between them
+    - Timer indicator should change its color too
+
+5. Click on "Stop" button
+
+    - The timer should stop counting down - the indicator as well
+    - The button should change its color to blue and label to "Start"
+
+6. Click on "Start" button and then click on the timer indicator
+
+    - You should also be able to start and stop the counting by clicking on the timer indicator
+
+7. Click on the actions button and then click on "Deactivate timer/stopwatch"
+
+    - The user list item should not be displayed anymore
+    - Timer indicator should not be displayed anymore
+    - Any active stopwatch should stop immediately, not being displayed anymore
+
+
+### Timer
+
+1. Join in a meeting with 2 users (mod and attendee)
+
+2. As the mod/presenter, click on the actions button
+
+3. Click on "Activate timer/stopwatch"
+    - You should see a new sidebar content with a timer countdown stopped, "Stopwatch" and "Timer" buttons on below the timer and "Start" and "Reset" buttons below
+    - You should see a timer indicator in the top right corner of the meeting (below settings and connection status buttons) with the current time - initially zero
+    - A new user list item should be displayed to all moderator with the title "TIME" and a button with "Stopwatch" or "Timer" (the one selected) with a clock icon
+    - All moderators should be able to interact with this panel and indicator (starting, stopping, changing stopwatch <-> timer)
+
+4. Click on "Timer" button
+
+    - You should see 3 input fields for each hours, minutes and seconds
+    - The initial value should be "00:05:00"
+    - The timer indicator should be changed too
+
+5. Click on "Start" button
+
+    - The timer countdown should start
+    - The timer indicator should start too
+    - Both button background colors should be changed
+
+6. Click on "Stop" button
+
+    - Both button background colors should be changed
+    - The timer should stop and keep its counting
+
+7. Click on "Reset" button
+
+    - The timer should reset to its value set in the input fields
+    - If the timer is active, it should reset the values to the ones set in the input fields and it should **not** be stopped
+
+8. Click on "Start" button and then click on the timer indicator
+
+    - You should be able to start and stop the counting by clicking on the timer indicator
+
+7. Click on the actions button and then click on "Deactivate timer/stopwatch"
+
+    - The user list item should not be displayed anymore
+    - Timer indicator should not be displayed anymore
+    - Any active timer should stop immediately, not being displayed anymore
+
 
 ## Learning Dashboard
 
 ## Layout Manager
 
-### Choose a layout
+### Update everyone's layout [(Automated)](https://github.com/bigbluebutton/bigbluebutton/blob/v2.7.x-release/bigbluebutton-tests/playwright/layouts/layouts.spec.js)
 
 1. Join a meeting with a webcam and at least 2 users.
 
-2. Choose "Layout Settings Modal" in the actions dropdown.
+2. Click on "Manage layout" in the actions dropdown.
 
-3. Enable "Keep pushing to everyone". Select a new layout. Press "Confirm".
+3. Select a new layout. Click on "Update".
 
-4. Verify that the layout changes for both you and another user.
+    - The layout should change only for you, but stays the same for another user.
 
-5. Choose "Layout Settings Modal" in the actions dropdown.
+4. Click on "Manage layout" in the actions dropdown.
 
-6. Disable "Keep pushing to everyone". Select a new layout. Press "Confirm".
+5. Select a new layout. Click on "Update everyone".
 
-7. Verify that the layout only changes for you, but stays the same for another user.
+    - The layout should change for both you and another user.
+
+### Focus on presentation [(Automated)](https://github.com/bigbluebutton/bigbluebutton/blob/v2.7.x-release/bigbluebutton-tests/playwright/layouts/layouts.spec.js)
+
+1. Join in a meeting with one user sharing webcam.
+
+2. Click on "Manage layout" in the actions dropdown.
+
+3. Select the "Focus on presentation" layout. Click on "Update".
+
+    - you should see the cameras positioned down below the chat and the presentation fills all the main area.
+
+    - Once you hide the public chat (or any sidebar content displayed), it's expected to hide the cameras as well.
+
+### Grid layout [(Automated)](https://github.com/bigbluebutton/bigbluebutton/blob/v2.7.x-release/bigbluebutton-tests/playwright/layouts/layouts.spec.js)
+
+1. Join in a meeting with 3 users sharing webcams.
+
+2. Click on "Manage layout" in the actions dropdown.
+
+3. Select the "Grid layout". Click on "Update".
+
+    - The presentation should be positioned down below the chat (or any sidebar content displayed). The cameras should be displayed in the main area.
+
+4. Stop sharing webcam with a user.
+
+    - A placeholder should be displayed in its place containing the user avatar.
+
+### Smart layout [(Automated)](https://github.com/bigbluebutton/bigbluebutton/blob/v2.7.x-release/bigbluebutton-tests/playwright/layouts/layouts.spec.js)
+
+1. Join in a meeting with 2 users.
+
+2. Click on "Manage layout" in the actions dropdown.
+
+3. Select the "Smart layout". Click on "Update".
+    - The elements should be displayed the same as the "Custom layout" if no webcams are being shared.
+
+4. Start sharing webcam with a user.
+
+    - In the full landscape viewport (1920xx1080), you should see the camera positioned between chat and presentation
+    - In a portrait viewport, you should see the camera position above presentation
+    - You should not be able to change the cameras' position by dragging and dropping
+    - Changing the window width, you should the the elements automatically re-positioning themselves to the better fit of the viewport space
+
+### Custom layout [(Automated)](https://github.com/bigbluebutton/bigbluebutton/blob/v2.7.x-release/bigbluebutton-tests/playwright/layouts/layouts.spec.js)
+
+1. Join in a meeting sharing webcam.
+
+2. Click on "Manage layout" in the actions dropdown.
+
+3. Select the "Custom layout". Click on "Update".
+
+    - The webcam initially should be displayed above presentation
+
+4. Between camera and presentation, press and drag to resize the size proportion.
+
+    - You should see the size of presentation and webcams changing depending how much you set.
+
+5. Drag and drop webcams to a different position.
+
+    - You should be able to drop the cameras in the following positions:
+        - aside presentation;
+        - below presentation;
+        - above presentation;
+        - below chat (or any sidebar content displayed, e.g. shared notes, stopwatch, polling, etc)
