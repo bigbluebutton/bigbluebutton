@@ -11,7 +11,6 @@ const devEnv = 'development';
 
 const config = {
   entry: './client/main.tsx',
-  mode: 'development',
   output: {
     filename: 'bundle.[fullhash].js',
     path: path.resolve(__dirname, 'dist'),
@@ -97,7 +96,9 @@ if (env === prodEnv) {
     minimizer: [new TerserPlugin()],
   };
   config.performance = {
-    hints: false,
+    hints: 'warning',
+    maxAssetSize: 6000000,
+    maxEntrypointSize: 6000000,
   };
 } else {
   config.mode = devEnv;
