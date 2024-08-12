@@ -9,4 +9,6 @@ export const PopupContainer = styled.div`
   background-color: white;
 `;
 
-export const PopupContents = styled(ScrollboxVertical)``;
+export const PopupContents = styled(ScrollboxVertical)`
+  height: 100%;
+`;
