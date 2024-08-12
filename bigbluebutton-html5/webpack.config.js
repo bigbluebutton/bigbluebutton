@@ -20,9 +20,10 @@ module.exports = {
   devServer: {
     port: 3000,
     hot: true,
+    allowedHosts: 'all',
     client: {
       overlay: false,
-      // webSocketURL: 'html5client/ws',
+      webSocketURL: 'auto://0.0.0.0:0/html5client/ws',
     },
   },
   plugins: [

@@ -7,3 +7,9 @@ location /html5client/ {
   proxy_set_header Connection "Upgrade";
   proxy_set_header Host $host;
 }
+
+location /html5client/locales {
+  alias /var/bigbluebutton/html5-client/locales;
+  autoindex on;
+  autoindex_format json;
+}
