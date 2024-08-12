@@ -1193,6 +1193,16 @@ check_state() {
 			echo "#"
 		fi
 
+    # check for any maintainer configuration files being ignored
+    dpkg_dist_files=$(find /etc/default -type f -name "*.dpkg-dist")
+    if [ -n "$dpkg_dist_files" ]; then
+      echo "# Warning: found the following configuration files which were ignored when installing."
+      echo "# Please inspect those files and consider applying the differences to the similarly"
+      echo "# named configuration file in the same directory."
+      echo "# When done, please restart BigBlueButton."
+      echo "#"
+      echo "$dpkg_dist_files"
+    fi
 
     exit 0
 }
