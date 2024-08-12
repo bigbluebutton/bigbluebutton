@@ -153,7 +153,7 @@ const ChatMessageForm: React.FC<ChatMessageFormProps> = ({
   const PUBLIC_CHAT_ID = CHAT_CONFIG.public_id;
   const PUBLIC_GROUP_CHAT_ID = CHAT_CONFIG.public_group_id;
   const AUTO_CONVERT_EMOJI = window.meetingClientSettings.public.chat.autoConvertEmoji;
-  const ENABLE_EMOJI_PICKER = window.meetingClientSettings.public.chat.emojiPicker.enable;
+  const ENABLE_EMOJI_PICKER = true;
   const ENABLE_TYPING_INDICATOR = CHAT_CONFIG.typingIndicator.enabled;
 
   const handleUserTyping = (hasError?: boolean) => {
@@ -394,19 +394,18 @@ const ChatMessageForm: React.FC<ChatMessageFormProps> = ({
       }
     }, [chatSendMessageError]);
 
-
-  useEffect(() => {
-    const handleClickOutside = (event: MouseEvent) => {
-      if (emojiPickerRef.current && !emojiPickerRef.current.contains(event.target as Node)) {
-        setShowEmojiPicker(false);
-      }
-    };
+    useEffect(() => {
+      const handleClickOutside = (event: MouseEvent) => {
+        if (emojiPickerRef.current && !emojiPickerRef.current.contains(event.target as Node)) {
+          setShowEmojiPicker(false);
+        }
+      };
   
-    document.addEventListener('mousedown', handleClickOutside);
-    return () => {
-      document.removeEventListener('mousedown', handleClickOutside);
-    };
-  }, []);
+      document.addEventListener('mousedown', handleClickOutside);
+      return () => {
+        document.removeEventListener('mousedown', handleClickOutside);
+      };
+    }, []);
 
     return (
       <Styled.Form
