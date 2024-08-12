@@ -400,7 +400,7 @@ const ChatMessageForm: React.FC<ChatMessageFormProps> = ({
           setShowEmojiPicker(false);
         }
       };
-  
+
       document.addEventListener('mousedown', handleClickOutside);
       return () => {
         document.removeEventListener('mousedown', handleClickOutside);
@@ -414,7 +414,7 @@ const ChatMessageForm: React.FC<ChatMessageFormProps> = ({
         isRTL={isRTL}
       >
         {showEmojiPicker ? (
-          <Styled.EmojiPickerWrapper  ref={emojiPickerRef} >
+          <Styled.EmojiPickerWrapper ref={emojiPickerRef}>
             <Styled.EmojiPicker
               onEmojiSelect={(emojiObject: { native: string }) => handleEmojiSelect(emojiObject)}
               showPreview={false}
