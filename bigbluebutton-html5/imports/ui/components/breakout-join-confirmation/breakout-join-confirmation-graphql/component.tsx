@@ -219,7 +219,7 @@ const BreakoutJoinConfirmationContainer: React.FC = () => {
     data: breakoutData,
   } = useDeduplicatedSubscription<GetBreakoutDataResponse>(getBreakoutData);
   const exitVideo = useExitVideo(true);
-  const { streams: videoStreams } = useStreams();
+  const videoStreams = useStreams();
   const storeVideoDevices = () => {
     VideoService.storeDeviceIds(videoStreams);
   };
