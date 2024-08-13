@@ -77,6 +77,7 @@ public class Meeting {
 	private Integer maxPinnedCameras = 0;
 	private String dialNumber;
 	private String defaultAvatarURL;
+	private String defaultWebcamBackgroundURL;
 	private String guestPolicy = GuestPolicy.ASK_MODERATOR;
 	private String guestLobbyMessage = "";
 	private Map<String,String> usersWithGuestLobbyMessages;
@@ -148,6 +149,7 @@ public class Meeting {
         logoutUrl = builder.logoutUrl;
         logoutTimer = builder.logoutTimer;
         defaultAvatarURL = builder.defaultAvatarURL;
+		defaultWebcamBackgroundURL = builder.defaultWebcamBackgroundURL;
         record = builder.record;
         autoStartRecording = builder.autoStartRecording;
         allowStartStopRecording = builder.allowStartStopRecording;
@@ -456,6 +458,10 @@ public class Meeting {
 
 	public String getDefaultAvatarURL() {
 		return defaultAvatarURL;
+	}
+
+	public String getDefaultWebcamBackgroundURL() {
+		return defaultWebcamBackgroundURL;
 	}
 
 	public void setWaitingPositionsInWaitingQueue(HashMap<String, String> guestUsersWithPositionInWaitingLine) {
@@ -926,6 +932,7 @@ public class Meeting {
     	private Map<String, String> metadata;
     	private String dialNumber;
     	private String defaultAvatarURL;
+		private String defaultWebcamBackgroundURL;
     	private long createdTime;
     	private boolean isBreakout;
     	private String guestPolicy;
@@ -1070,6 +1077,11 @@ public class Meeting {
 
     	public Builder withDefaultAvatarURL(String w) {
     		defaultAvatarURL = w;
+    		return this;
+    	}
+
+		public Builder withDefaultWebcamBackgroundURL(String w) {
+    		defaultWebcamBackgroundURL = w;
     		return this;
     	}
 

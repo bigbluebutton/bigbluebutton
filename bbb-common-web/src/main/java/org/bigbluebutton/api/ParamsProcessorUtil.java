@@ -82,6 +82,8 @@ public class ParamsProcessorUtil {
     private Integer defaultHttpSessionTimeout = 14400;
     private Boolean useDefaultAvatar = false;
     private String defaultAvatarURL;
+    private Boolean useDefaultWebcamBackground = false;
+    private String defaultWebcamBackgroundURL;
     private String defaultGuestPolicy;
     private Boolean authenticatedGuest;
     private Boolean defaultAllowPromoteGuestToModerator;
@@ -742,6 +744,7 @@ public class ParamsProcessorUtil {
         }
 
         String avatarURL = useDefaultAvatar ? defaultAvatarURL : "";
+        String webcamBackgroundURL = useDefaultWebcamBackground ? defaultWebcamBackgroundURL : "";
 
         if(defaultAllowDuplicateExtUserid == false) {
             log.warn("[DEPRECATION] use `maxUserConcurrentAccesses=1` instead of `allowDuplicateExtUserid=false`");
@@ -761,6 +764,7 @@ public class ParamsProcessorUtil {
                 .withTelVoice(telVoice).withWebVoice(webVoice)
                 .withDialNumber(dialNumber)
                 .withDefaultAvatarURL(avatarURL)
+                .withDefaultWebcamBackgroundURL(webcamBackgroundURL)
                 .withAutoStartRecording(autoStartRec)
                 .withAllowStartStopRecording(allowStartStoptRec)
                 .withRecordFullDurationMedia(_recordFullDurationMedia)
@@ -1321,6 +1325,14 @@ public class ParamsProcessorUtil {
 	public void setDefaultAvatarURL(String url) {
 		this.defaultAvatarURL = url;
 	}
+
+    public void setUseDefaultWebcamBackground(Boolean value) {
+        this.useDefaultWebcamBackground = value;
+    }
+
+    public void setDefaultWebcamBackgroundURL(String uri) {
+        this.defaultWebcamBackgroundURL = uri;
+    }
 
 	public void setDefaultGuestPolicy(String guestPolicy) {
 		this.defaultGuestPolicy =  guestPolicy;

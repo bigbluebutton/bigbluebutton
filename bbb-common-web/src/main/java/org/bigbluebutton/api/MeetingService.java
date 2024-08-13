@@ -122,12 +122,12 @@ public class MeetingService implements MessageListener {
 
   public void registerUser(String meetingID, String internalUserId,
                            String fullname, String role, String externUserID,
-                           String authToken, String sessionToken, String avatarURL, Boolean guest,
+                           String authToken, String sessionToken, String avatarURL, String webcamBackgroundURL, Boolean guest, 
                            Boolean authed, String guestStatus, Boolean excludeFromDashboard, Boolean leftGuestLobby,
                            String enforceLayout, Map<String, String> userMetadata) {
     handle(
             new RegisterUser(meetingID, internalUserId, fullname, role,
-                            externUserID, authToken, sessionToken, avatarURL, guest, authed, guestStatus,
+                            externUserID, authToken, sessionToken, avatarURL, webcamBackgroundURL, guest, authed, guestStatus,
                             excludeFromDashboard, leftGuestLobby, enforceLayout, userMetadata
             )
     );
@@ -446,7 +446,7 @@ public class MeetingService implements MessageListener {
   private void processRegisterUser(RegisterUser message) {
     gw.registerUser(message.meetingID,
       message.internalUserId, message.fullname, message.role,
-      message.externUserID, message.authToken, message.sessionToken, message.avatarURL, message.guest,
+      message.externUserID, message.authToken, message.sessionToken, message.avatarURL, message.webcamBackgroundURL, message.guest,
       message.authed, message.guestStatus, message.excludeFromDashboard, message.enforceLayout, message.userMetadata);
   }
 
@@ -942,7 +942,7 @@ public class MeetingService implements MessageListener {
       }
 
       User user = new User(message.userId, message.externalUserId,
-        message.name, message.role, message.locked, message.avatarURL, message.guest, message.guestStatus,
+        message.name, message.role, message.locked, message.avatarURL, message.webcamBackgroundURL, message.guest, message.guestStatus,
               message.clientType);
 
       if(m.getMaxUsers() > 0 && m.countUniqueExtIds() >= m.getMaxUsers()) {
@@ -1062,7 +1062,7 @@ public class MeetingService implements MessageListener {
       } else {
         if (message.userId.startsWith("v_")) {
           // A dial-in user joined the meeting. Dial-in users by convention has userId that starts with "v_".
-                    User vuser = new User(message.userId, message.userId, message.name, "DIAL-IN-USER", true, "",
+                    User vuser = new User(message.userId, message.userId, message.name, "DIAL-IN-USER", true, "", "",
                             true, GuestPolicy.ALLOW, "DIAL-IN");
           vuser.setVoiceJoined(true);
           m.userJoined(vuser);

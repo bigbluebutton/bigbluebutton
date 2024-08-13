@@ -19,6 +19,7 @@ import {
   getSessionVirtualBackgroundInfo,
   removeSessionVirtualBackgroundInfo,
   isVirtualBackgroundSupported,
+  getSessionVirtualBackgroundInfoWithDefault,
 } from '/imports/ui/services/virtual-background/service';
 import { getSettingsSingletonInstance } from '/imports/ui/services/settings';
 import Checkbox from '/imports/ui/components/common/checkbox/component'
@@ -487,9 +488,7 @@ class VideoPreview extends Component {
 
     if (type !== EFFECT_TYPES.NONE_TYPE || CAMERA_BRIGHTNESS_AVAILABLE && brightness !== 100) {
       return this.startVirtualBackground(this.currentVideoStream, type, name, customParams).then((switched) => {
-        // If it's not shared we don't have to update here because
-        // it will be updated in the handleStartSharing method.
-        if (switched && shared) this.updateVirtualBackgroundInfo();
+        if (switched) this.updateVirtualBackgroundInfo();
         return switched;
       });
     } else {
@@ -743,12 +742,14 @@ class VideoPreview extends Component {
         // If uniqueId is defined, this is a custom background. Fetch the custom
         // params from the context and apply them
         if (uniqueId) {
-          if (!this.context.loaded) {
+          if (this.context.backgrounds[uniqueId]) {
+            applyCustomVirtualBg(this.context.backgrounds);
+          } else if (!this.context.loaded) {
             // Virtual BG context might not be loaded yet (in case this is
             // skipping the video preview). Load it manually.
             VBGSelectorService.load(handleFailure, applyCustomVirtualBg);
           } else {
-            applyCustomVirtualBg(this.context.backgrounds);
+            handleFailure(new Error('Missing virtual background'));
           }
 
           return;
@@ -756,6 +757,22 @@ class VideoPreview extends Component {
 
         // Built-in background, just apply it.
         this.handleVirtualBgSelected(type, name, customParams).then(resolve, handleFailure);
+      } else if (this.context.backgrounds.webcamBackgroundURL) {
+        // Apply custom background from JOIN URL parameter automatically
+        // only if there's not any session background yet.
+        const { filename, data, type, uniqueId } = this.context.backgrounds.webcamBackgroundURL;
+        const customParams = {
+          file: data,
+          uniqueId,
+        };
+
+        const handleFailure = (error) => {
+          this.handleVirtualBgError(error, type, filename);
+          removeSessionVirtualBackgroundInfo(webcamDeviceId);
+          reject(error);
+        };
+
+        this.handleVirtualBgSelected(type, filename, customParams).then(resolve, handleFailure);
       } else {
         resolve();
       }
@@ -1073,7 +1090,7 @@ class VideoPreview extends Component {
       type: this.currentVideoStream.virtualBgType,
       name: this.currentVideoStream.virtualBgName,
       uniqueId: this.currentVideoStream.virtualBgUniqueId,
-    } : getSessionVirtualBackgroundInfo(webcamDeviceId);
+    } : getSessionVirtualBackgroundInfoWithDefault(webcamDeviceId);
 
     const {
       showThumbnails: SHOW_THUMBNAILS = true,

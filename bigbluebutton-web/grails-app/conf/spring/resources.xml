@@ -160,6 +160,8 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
         <property name="defaultMaxPinnedCameras" value="${maxPinnedCameras}"/>
         <property name="useDefaultAvatar" value="${useDefaultAvatar}"/>
         <property name="defaultAvatarURL" value="${defaultAvatarURL}"/>
+        <property name="useDefaultWebcamBackground" value="${useDefaultWebcamBackground}"/>
+        <property name="defaultWebcamBackgroundURL" value="${defaultWebcamBackgroundURL}"/>
         <property name="defaultGuestPolicy" value="${defaultGuestPolicy}"/>
         <property name="authenticatedGuest" value="${authenticatedGuest}"/>
         <property name="defaultAllowPromoteGuestToModerator" value="${defaultAllowPromoteGuestToModerator}"/>

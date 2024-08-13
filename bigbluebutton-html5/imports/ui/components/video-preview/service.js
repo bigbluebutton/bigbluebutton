@@ -74,6 +74,8 @@ const deleteStream = (deviceId) => {
   return VIDEO_STREAM_STORAGE.delete(deviceId);
 };
 
+const clearStreams = () => VIDEO_STREAM_STORAGE.clear();
+
 const promiseTimeout = (ms, promise) => {
   const timeout = new Promise((resolve, reject) => {
     const id = setTimeout(() => {
@@ -250,6 +252,7 @@ export default {
   getStream,
   hasStream,
   deleteStream,
+  clearStreams,
   digestVideoDevices,
   getDefaultProfile,
   getCameraAsContentProfile,

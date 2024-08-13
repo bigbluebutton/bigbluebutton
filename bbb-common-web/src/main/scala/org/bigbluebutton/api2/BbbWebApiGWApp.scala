@@ -284,7 +284,7 @@ class BbbWebApiGWApp(
 
   def registerUser(meetingId: String, intUserId: String, name: String,
                    role: String, extUserId: String, authToken: String, sessionToken: String,
-                   avatarURL: String, guest: java.lang.Boolean, authed: java.lang.Boolean,
+                   avatarURL: String, webcamBackgroundURL: String, guest: java.lang.Boolean, authed: java.lang.Boolean,
                    guestStatus: String, excludeFromDashboard: java.lang.Boolean,
                    enforceLayout: String, userMetadata: java.util.Map[String, String]): Unit = {
 
@@ -294,7 +294,7 @@ class BbbWebApiGWApp(
 
     val regUser = new RegisterUser(meetingId = meetingId, intUserId = intUserId, name = name,
       role = role, extUserId = extUserId, authToken = authToken, sessionToken = sessionToken,
-      avatarURL = avatarURL, guest = guest.booleanValue(), authed = authed.booleanValue(),
+      avatarURL = avatarURL, webcamBackgroundURL = webcamBackgroundURL, guest = guest.booleanValue(), authed = authed.booleanValue(),
       guestStatus = guestStatus, excludeFromDashboard = excludeFromDashboard, enforceLayout = enforceLayout,
       userMetadata = (userMetadata).asScala.toMap)
 
