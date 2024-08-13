@@ -39,6 +39,7 @@ import { useMutation, useLazyQuery } from '@apollo/client';
 import { CURRENT_PAGE_WRITERS_QUERY } from '/imports/ui/components/whiteboard/queries';
 import { PRESENTATION_SET_WRITERS } from '/imports/ui/components/presentation/mutations';
 import useToggleVoice from '/imports/ui/components/audio/audio-graphql/hooks/useToggleVoice';
+import useWhoIsUnmuted from '/imports/ui/core/hooks/useWhoIsUnmuted';
 
 interface UserActionsProps {
   user: User;
@@ -242,12 +243,17 @@ const UserActions: React.FC<UserActionsProps> = ({
   };
 
   const { pluginsExtensibleAreasAggregatedState } = useContext(PluginsContext);
+
+  const { data: unmutedUsers } = useWhoIsUnmuted();
+  const isMuted = !unmutedUsers[user.userId];
+
   const actionsnPermitions = generateActionsPermissions(
     user,
     currentUser,
     lockSettings,
     usersPolicies,
     isBreakout,
+    isMuted,
   );
   const {
     allowedToChatPrivately,

@@ -38,7 +38,6 @@ subscription UserListSubscription($offset: Int!, $limit: Int!) {
       joined
       listenOnly
       voiceUserId
-      muted
     }
     cameras {
       streamId
