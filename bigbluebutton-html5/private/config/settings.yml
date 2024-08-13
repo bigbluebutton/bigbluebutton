@@ -97,7 +97,7 @@ public:
       language:
         # Available languages will depend on the transcription service
         # Google: https://cloud.google.com/speech-to-text/docs/speech-to-text-supported-languages
-        # Gladia: https://docs-v1.gladia.io/reference/supported-languages
+        # Gladia: https://docs.gladia.io/chapters/speech-to-text-api/pages/languages#supported-languages
         available:
         # - ca-ES
         # - de-DE
