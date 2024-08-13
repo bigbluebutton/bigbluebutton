@@ -1,12 +1,12 @@
 package main
 
 import (
+	"bbb-graphql-middleware/internal/common"
+	"bbb-graphql-middleware/internal/msgpatch"
+	"bbb-graphql-middleware/internal/websrv"
 	"context"
 	"errors"
 	"fmt"
-	"github.com/iMDT/bbb-graphql-middleware/internal/common"
-	"github.com/iMDT/bbb-graphql-middleware/internal/msgpatch"
-	"github.com/iMDT/bbb-graphql-middleware/internal/websrv"
 	"github.com/prometheus/client_golang/prometheus/promhttp"
 	log "github.com/sirupsen/logrus"
 	"net/http"

@@ -109,28 +109,28 @@ func RemoveStreamCursorValueCache(cacheKey uint32, delayInSecs time.Duration) {
 	delete(StreamCursorValueCache, cacheKey)
 }
 
-var MaxConnPerUser = -1
+var MaxConnPerSessionToken = -1
 
-func GetMaxConnectionsPerUser() int {
-	if MaxConnPerUser == -1 {
-		maxConnPerUser := 3
-		if envMaxConnPerUser := os.Getenv("BBB_GRAPHQL_MIDDLEWARE_MAX_CONN_PER_USER"); envMaxConnPerUser != "" {
-			if envMaxConnPerUserAsInt, err := strconv.Atoi(envMaxConnPerUser); err == nil {
-				maxConnPerUser = envMaxConnPerUserAsInt
+func GetMaxConnectionsPerSessionToken() int {
+	if MaxConnPerSessionToken == -1 {
+		maxConnPerSessionToken := 3
+		if envMaxConnPerSessionToken := os.Getenv("BBB_GRAPHQL_MIDDLEWARE_MAX_CONN_PER_SESSION_TOKEN"); envMaxConnPerSessionToken != "" {
+			if envMaxConnPerSessionTokenAsInt, err := strconv.Atoi(envMaxConnPerSessionToken); err == nil {
+				maxConnPerSessionToken = envMaxConnPerSessionTokenAsInt
 			}
 		}
 
-		MaxConnPerUser = maxConnPerUser
+		MaxConnPerSessionToken = maxConnPerSessionToken
 	}
 
-	return MaxConnPerUser
+	return MaxConnPerSessionToken
 }
 
 var MaxConnGlobal = -1
 
 func GetMaxConnectionsGlobal() int {
 	if MaxConnGlobal == -1 {
-		maxConnGlobal := 3
+		maxConnGlobal := 500
 		if envMaxConnGlobal := os.Getenv("BBB_GRAPHQL_MIDDLEWARE_MAX_CONN"); envMaxConnGlobal != "" {
 			if envMaxConnGlobalAsInt, err := strconv.Atoi(envMaxConnGlobal); err == nil {
 				maxConnGlobal = envMaxConnGlobalAsInt
@@ -164,13 +164,13 @@ func GetUserConnectionCount(sessionToken string) (int, bool) {
 }
 
 func HasReachedMaxUserConnections(sessionToken string) bool {
-	if GetMaxConnectionsPerUser() == 0 {
+	if GetMaxConnectionsPerSessionToken() == 0 {
 		return true
 	}
 
 	numOfConn, _ := GetUserConnectionCount(sessionToken)
 
-	return numOfConn >= GetMaxConnectionsPerUser()
+	return numOfConn >= GetMaxConnectionsPerSessionToken()
 }
 
 func AddUserConnection(sessionToken string) {

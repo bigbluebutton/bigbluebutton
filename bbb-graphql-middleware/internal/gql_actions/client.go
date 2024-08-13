@@ -1,10 +1,10 @@
 package gql_actions
 
 import (
+	"bbb-graphql-middleware/internal/common"
 	"bytes"
 	"encoding/json"
 	"fmt"
-	"github.com/iMDT/bbb-graphql-middleware/internal/common"
 	"github.com/prometheus/client_golang/prometheus"
 	log "github.com/sirupsen/logrus"
 	"io/ioutil"
