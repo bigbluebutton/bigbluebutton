@@ -95,6 +95,9 @@ public:
       # provider: [webspeech, vosk, gladia]
       provider: webspeech
       language:
+        # Available languages will depend on the transcription service
+        # Google: https://cloud.google.com/speech-to-text/docs/speech-to-text-supported-languages?hl=pt-br
+        # Gladia: https://docs.gladia.io/chapters/speech-to-text-api/pages/languages#supported-languages
         available:
         # - de-DE
           - en-US
