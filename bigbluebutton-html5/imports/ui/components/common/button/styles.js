@@ -289,7 +289,7 @@ const ButtonWrapper = styled(BaseButton)`
       background-color: transparent;
     }
   `}
-  ${({ loading }) => loading && `
+  ${({ loading, animations }) => loading && animations && `
   &::before {
     position: relative;
     border: 5px solid transparent;

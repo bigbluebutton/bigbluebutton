@@ -47,6 +47,7 @@ export const MuteToggle: React.FC<MuteToggleProps> = ({
   const toggleMuteShourtcut = useShortcut('toggleMute');
   const toggleVoice = useToggleVoice();
   const [setAway] = useMutation(SET_AWAY);
+  const [isLoading, setIsLoading] = React.useState(false);
 
   const unmuteAudioLabel = away ? intlMessages.umuteAudioAndSetActive : intlMessages.unmuteAudio;
   const label = muted ? intl.formatMessage(unmuteAudioLabel)
@@ -54,20 +55,26 @@ export const MuteToggle: React.FC<MuteToggleProps> = ({
   const Settings = getSettingsSingletonInstance();
   const animations = Settings?.application?.animations;
 
-  const onClickCallback = (e: React.MouseEvent<HTMLButtonElement>) => {
+  const onClickCallback = async (e: React.MouseEvent<HTMLButtonElement>) => {
     e.stopPropagation();
+    setIsLoading(true);
 
-    if (muted && away) {
-      muteAway(muted, true, toggleVoice);
-      VideoService.setTrackEnabled(true);
-      setAway({
-        variables: {
-          away: false,
-        },
-      });
+    try {
+      if (muted && away) {
+        await muteAway(muted, true, toggleVoice);
+        await VideoService.setTrackEnabled(true);
+        await setAway({
+          variables: {
+            away: false,
+          },
+        });
+      }
+      await toggleMuteMicrophone(muted, toggleVoice);
+    } finally {
+      setIsLoading(false);
     }
-    toggleMuteMicrophone(muted, toggleVoice);
   };
+
   return (
     // eslint-disable-next-line jsx-a11y/no-access-key
     <Styled.MuteToggleButton
@@ -84,6 +91,7 @@ export const MuteToggle: React.FC<MuteToggleProps> = ({
       accessKey={toggleMuteShourtcut}
       $talking={talking || undefined}
       animations={animations}
+      loading={isLoading}
       data-test={muted ? 'unmuteMicButton' : 'muteMicButton'}
     />
   );
