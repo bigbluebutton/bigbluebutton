@@ -137,7 +137,10 @@ export const CustomBackgroundsProvider = ({ children }) => {
                 },
               });
             } else {
-              logger.error('Failed to fetch custom webcam background image. Using fallback image.');
+              logger.error({
+                logCode: 'webcam_background_fetch_error',
+                extraInfo: null,
+              }, 'Failed to fetch custom webcam background image.');
             }
           });
       }

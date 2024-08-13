@@ -121,7 +121,10 @@ async function getFileFromUrl(url) {
     const file = new File([blob], 'fetchedWebcamBackground', { type: blob.type });
     return file;
   } catch (error) {
-    logger.error('Fetch error:', error);
+    logger.error({
+      logCode: 'image_fetch_error',
+      extraInfo: error,
+    }, `Fetching image from ${url} failed.`);
     return null;
   }
 }
