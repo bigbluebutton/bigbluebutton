@@ -95,6 +95,7 @@ public class Meeting {
 	private final List<String> breakoutRooms = new ArrayList<>();
 	private ArrayList<Group> groups = new ArrayList<Group>();
 	private String customLogoURL = "";
+	private String customDarkLogoURL = "";
 	private String customCopyright = "";
 	private Boolean muteOnStart = false;
 	private Boolean allowModsToUnmuteUsers = false;
@@ -643,8 +644,16 @@ public class Meeting {
 		return customLogoURL;
 	}
 
+	public String getCustomDarkLogoURL() {
+		return customDarkLogoURL;
+	}
+
 	public void setCustomLogoURL(String url) {
 		customLogoURL = url;
+	}
+
+	public void setCustomDarkLogoURL(String url) {
+		customDarkLogoURL = url;
 	}
 
 	public void setCustomCopyright(String copyright) {

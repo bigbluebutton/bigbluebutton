@@ -61,6 +61,7 @@ public interface IBbbWebApiGWApp {
                      String loginUrl,
                      String logoutUrl,
                      String customLogoURL,
+                     String customDarkLogoURL,
                      String bannerText,
                      String bannerColor,
                      ArrayList<Group> groups,
