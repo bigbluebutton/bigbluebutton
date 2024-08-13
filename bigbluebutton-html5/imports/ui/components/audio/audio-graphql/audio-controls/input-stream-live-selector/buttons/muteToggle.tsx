@@ -62,7 +62,7 @@ export const MuteToggle: React.FC<MuteToggleProps> = ({
     try {
       if (muted && away) {
         await muteAway(muted, true, toggleVoice);
-        await VideoService.setTrackEnabled(true);
+        VideoService.setTrackEnabled(true);
         await setAway({
           variables: {
             away: false,
