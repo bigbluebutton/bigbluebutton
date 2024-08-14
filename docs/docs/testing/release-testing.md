@@ -560,7 +560,8 @@ The screen sharing stops, a sound effect of disconnection is heard and the prese
 
 3. Breakout room's annotations should be converted to a pdf and that pdf should be available for uploading to the whiteboard.
 
-### Use different presentation in breakout rooms
+### Use a different presentation for each breakout room
+
 
 1. Join in a meeting with a moderator and an attendee
 
