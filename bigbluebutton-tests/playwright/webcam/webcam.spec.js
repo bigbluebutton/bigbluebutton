@@ -3,7 +3,7 @@ const { MultiUsers } = require('../user/multiusers');
 const { Webcam } = require('./webcam');
 
 test.describe.parallel('Webcam', () => {
-  // https://docs.bigbluebutton.org/2.6/release-tests.html#joining-webcam-automated
+  // https://docs.bigbluebutton.org/2.7/testing/release-testing/#joining-webcam-automated
   test('Shares webcam @ci', async ({ browser, page }) => {
     const webcam = new Webcam(browser, page);
     await webcam.init(true, true);

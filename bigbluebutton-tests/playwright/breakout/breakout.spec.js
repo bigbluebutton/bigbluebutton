@@ -42,7 +42,7 @@ test.describe.parallel('Breakout', () => {
   });
 
   test.describe.parallel('After creating', () => {
-    // https://docs.bigbluebutton.org/2.6/release-tests.html#moderators-creating-breakout-rooms-and-assiging-users-automated
+    // https://docs.bigbluebutton.org/2.7/testing/release-testing/#moderators-creating-breakout-rooms-and-assiging-users-automated
     test('Join Breakout room @ci', async ({ browser, context, page }) => {
       const join = new Join(browser, context);
       await join.initPages(page);
