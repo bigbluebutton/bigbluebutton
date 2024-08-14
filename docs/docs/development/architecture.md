@@ -8,7 +8,7 @@ keywords:
 - architecture
 ---
 
-BigBlueButton is built upon a solid foundation of underlying components, including NGINX, FreeSWITCH, Kurento, Redis, Node.js, React.js, and others.
+BigBlueButton is built upon a solid foundation of underlying components, including NGINX, FreeSWITCH, mediasoup, Redis, Node.js, React.js, and others.
 
 This page describes the overall architecture of BigBlueButton and how these components work together.
 

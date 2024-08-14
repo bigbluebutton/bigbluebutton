@@ -1078,7 +1078,7 @@ Starting BigBlueButton
 
 #### Change UDP ports
 
-By default, BigBlueButton uses the UDP ports 16384-32768 which are used by FreeSWITCH, mediasoup and Kurento to send real-time packets (RTP).
+By default, BigBlueButton uses the UDP ports 16384-32768 which are used by FreeSWITCH, mediasoup and bbb-webrtc-recorder to send real-time packets (RTP).
 
 **FreeSWITCH** uses the range 16384 - 24576, which is defined in `/opt/freeswitch/etc/freeswitch/autoload_configs/switch.conf.xml`
 
@@ -1088,11 +1088,14 @@ By default, BigBlueButton uses the UDP ports 16384-32768 which are used by FreeS
     <param name="rtp-end-port" value="24576"/>
 ```
 
-**Kurento** uses the range 24577 - 32768, which is defined in `/etc/kurento/modules/kurento/BaseRtpEndpoint.conf.ini`
+**bbb-webrtc-recorder** uses the range 24577 - 32768, which is defined in `/etc/bbb-webrtc-recorder/bbb-webrtc-recorder.yml` (default) or `/etc/bigbluebutton/bbb-webrtc-recorder.yml` (override)
 
-```ini
-    minPort=24577
-    maxPort=32768
+```yaml
+[...]
+webrtc:
+  rtcMinPort: 24577
+  rtcMaxPort: 32768
+[...]
 ```
 
 **mediasoup** also uses 24577 - 32768 by default (defined in `/usr/local/bigbluebutton/bbb-webrtc-sfu/config/default.yml`). If it needs to be changed, bbb-webrtc-sfu's [override configuration file](/administration/configuration-files) (located in `/etc/bigbluebutton/bbb-webrtc-sfu/production.yml`) should be used. For example, setting the range to 50000 - 51999 should be of the following format (YAML syntax, `/etc/bigbluebutton/bbb-webrtc-sfu/production.yml`):
