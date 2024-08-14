@@ -1,13 +1,13 @@
 package reader
 
 import (
+	"bbb-graphql-middleware/internal/common"
+	"bbb-graphql-middleware/internal/hasura/retransmiter"
+	"bbb-graphql-middleware/internal/msgpatch"
 	"bytes"
 	"context"
 	"encoding/json"
 	"errors"
-	"github.com/iMDT/bbb-graphql-middleware/internal/common"
-	"github.com/iMDT/bbb-graphql-middleware/internal/hasura/retransmiter"
-	"github.com/iMDT/bbb-graphql-middleware/internal/msgpatch"
 	log "github.com/sirupsen/logrus"
 	"hash/crc32"
 	"nhooyr.io/websocket"

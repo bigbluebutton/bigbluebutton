@@ -1245,6 +1245,7 @@
     "app.createBreakoutRoom.setTimeHigherThanMeetingTimeError": "小会議室の会議時間は、親会議の残り時間を超えて設定できません",
     "app.createBreakoutRoom.roomNameInputDesc": "小会議室の名前をアップデート",
     "app.createBreakoutRoom.movedUserLabel": "{0}が会議室{1}に移されました",
+    "app.createBreakoutRoom.currentSlideLabel": "現在のスライド",
     "app.updateBreakoutRoom.modalDesc": "顔ぶれを新しくしたり新たなユーザーを招待したりするには、単純に名前を希望の会議室にドラッグしてください。",
     "app.updateBreakoutRoom.cancelLabel": "キャンセル",
     "app.updateBreakoutRoom.title": "小会議室を更新",

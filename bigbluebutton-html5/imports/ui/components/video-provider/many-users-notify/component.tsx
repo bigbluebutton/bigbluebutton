@@ -37,7 +37,7 @@ interface LockViewersNotifyComponentProps {
 }
 
 class LockViewersNotifyComponent extends Component<LockViewersNotifyComponentProps, object> {
-  private interval: number | null;
+  private interval: ReturnType<typeof setInterval> | null;
 
   constructor(props: LockViewersNotifyComponentProps) {
     super(props);

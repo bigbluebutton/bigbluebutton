@@ -1,9 +1,9 @@
 package websrv
 
 import (
+	"bbb-graphql-middleware/internal/common"
 	"context"
 	"encoding/json"
-	"github.com/iMDT/bbb-graphql-middleware/internal/common"
 	"github.com/redis/go-redis/v9"
 	log "github.com/sirupsen/logrus"
 	"os"
