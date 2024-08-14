@@ -123,7 +123,11 @@ async function getFileFromUrl(url) {
   } catch (error) {
     logger.error({
       logCode: 'image_fetch_error',
-      extraInfo: error,
+      extraInfo: {
+        errorMessage: error?.message,
+        errorName: error?.name,
+        errorStack: error?.stack,
+      },
     }, `Fetching image from ${url} failed.`);
     return null;
   }
