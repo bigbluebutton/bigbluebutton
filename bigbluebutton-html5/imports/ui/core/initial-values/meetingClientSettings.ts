@@ -953,10 +953,6 @@ export const meetingClientSettingsInitialValues: MeetingClientSettings = {
       },
     },
     clientLog: {
-      server: {
-        enabled: false,
-        level: 'info',
-      },
       console: {
         enabled: true,
         level: 'debug',

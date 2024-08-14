@@ -1103,9 +1103,6 @@ public:
         - rectangle
         - more
   clientLog:
-    server:
-      enabled: false
-      level: info
     console:
       enabled: true
       level: debug
