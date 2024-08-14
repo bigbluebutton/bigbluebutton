@@ -38,7 +38,7 @@ const PluginDataChannelManager: React.ElementType<PluginDataChannelManagerProps>
         let newArrayTypes: DataChannelTypes[] = previousMap.get(uniqueId)?.types || [];
         if (deltaSubscribe < 0) {
           const index = newArrayTypes.indexOf(dataChannelType);
-          if (index > -1) {
+          if (index > 0) {
             newArrayTypes.splice(index, 1);
           }
         } else {
