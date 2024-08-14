@@ -30,7 +30,7 @@ A BigBlueButton server is built from a number of components that correspond to U
 - bbb-playback-presentation -- Record and playback script to create presentation layout
 - bbb-playback-video -- Record and playback script to create video layout
 - bbb-export-annotations -- Handles capture of breakout content and annotated presentation download
-- bbb-webrtc-sfu -- Server that bridges incoming requests from client to Kurento
+- bbb-webrtc-sfu -- Signaling server that bridges clients to FreeSWITCH and mediasoup
 - mediasoup -- WebRTC media server for sending/receiving/recording video (webcam and screenshare)
 - bbb-freeswitch-core -- WebRTC media server for sending/receiving/recording audio
 - bbb-graphql-server -- Handles GraphQL queries and subscriptions from clients, checks user permissions
