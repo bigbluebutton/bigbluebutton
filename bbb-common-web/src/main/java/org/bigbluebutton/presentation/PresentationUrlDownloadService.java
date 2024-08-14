@@ -82,7 +82,7 @@ public class PresentationUrlDownloadService {
 
     public void extractPresentationPage(final String sourceMeetingId, final String presentationId,
                                         final Integer presentationSlide, final String destinationMeetingId,
-                                        final String clientSideFilename)  {
+                                        final String sourcePresentationFilename)  {
         /**
          * We delay processing of the presentation to make sure that the meeting has already been created.
          * Otherwise, the meeting won't get the conversion events.
@@ -90,14 +90,14 @@ public class PresentationUrlDownloadService {
         ScheduledFuture scheduledFuture =
                 scheduledThreadPool.schedule(new Runnable() {
                     public void run() {
-                        extractPage(sourceMeetingId, presentationId, presentationSlide, destinationMeetingId, clientSideFilename) ;
+                        extractPage(sourceMeetingId, presentationId, presentationSlide, destinationMeetingId, sourcePresentationFilename) ;
                     }
                 }, 5, TimeUnit.SECONDS);
     }
 
     private void extractPage(final String sourceMeetingId, final String presentationId,
                              final Integer presentationSlide, final String destinationMeetingId,
-                             final String clientSideFilename) {
+                             final String sourcePresentationFilename) {
 
         Boolean uploadFailed = false;
         ArrayList<String> uploadFailedReasons = new ArrayList<String>();
@@ -169,7 +169,7 @@ public class PresentationUrlDownloadService {
         processUploadedFile("DEFAULT_PRESENTATION_POD",
           destinationMeetingId,
           presId,
-          clientSideFilename + presentationSlideInFilename + filenameExt,
+          sourcePresentationFilename + presentationSlideInFilename + "." + filenameExt,
           newPresentation,
           true,
           "breakout-authz-token",

@@ -57,6 +57,7 @@ case class BreakoutRoomDetail(
     viewerPassword:          String,
     sourcePresentationId:    String,
     sourcePresentationSlide: Int,
+    sourcePresentationFilename: String,
     record:                  Boolean,
     privateChatEnabled:      Boolean,
     captureNotes:            Boolean,

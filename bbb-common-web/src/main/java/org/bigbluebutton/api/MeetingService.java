@@ -673,7 +673,7 @@ public class MeetingService implements MessageListener {
         message.sourcePresentationId,
         message.sourcePresentationSlide,
         breakout.getInternalId(),
-        message.name);
+        message.sourcePresentationFilename);
     } else {
       Map<String, Object> logData = new HashMap<String, Object>();
       logData.put("meetingId", message.meetingId);
