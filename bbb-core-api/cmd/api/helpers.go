@@ -10,6 +10,7 @@ import (
 	"io"
 	"log"
 	"log/slog"
+	"net"
 	"net/http"
 	"net/url"
 	"os"
@@ -21,11 +22,11 @@ import (
 
 	bbbcore "github.com/bigbluebutton/bigbluebutton/bbb-core-api/gen/bbb-core"
 	"github.com/bigbluebutton/bigbluebutton/bbb-core-api/gen/common"
+	bbbmime "github.com/bigbluebutton/bigbluebutton/bbb-core-api/internal/mime"
 	"github.com/bigbluebutton/bigbluebutton/bbb-core-api/internal/model"
 	"github.com/bigbluebutton/bigbluebutton/bbb-core-api/internal/presentation"
 	"github.com/bigbluebutton/bigbluebutton/bbb-core-api/internal/random"
 	"github.com/bigbluebutton/bigbluebutton/bbb-core-api/util"
-	"github.com/thanhpk/randstr"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 )
@@ -39,6 +40,8 @@ const (
 	confNum                            = "%%CONFNUM%%"
 	confName                           = "%%CONFNAME%%"
 	serverUrl                          = "%%SERVERURL%%"
+
+	maxRedirects = 5
 )
 
 func (app *Config) writeXML(w http.ResponseWriter, status int, data any, headers ...http.Header) error {
@@ -241,7 +244,7 @@ func (app *Config) processDurationSettings(params *Params, createTime int64) *co
 func (app *Config) processPasswordSettings(params *Params, learningDashboardEnabled bool) *common.PasswordSettings {
 	learningDashboardAccessToken := ""
 	if learningDashboardEnabled {
-		learningDashboardAccessToken = randstr.String(12)
+		learningDashboardAccessToken = random.AlphaNumString(12)
 	}
 
 	return &common.PasswordSettings{
@@ -476,11 +479,10 @@ func (app *Config) processXMLModules(body io.ReadCloser) (RequestModules, error)
 	return reqModules, nil
 }
 
-func (app *Config) uploadDocuments(modules RequestModules, params *Params, meeingIntID string, isFromInsertAPI bool) bool {
+func (app *Config) parseDocuments(modules RequestModules, params *Params, isFromInsertAPI bool) ([]Document, bool, error) {
 	for _, df := range app.ServerConfig.Meeting.Features.Disabled {
 		if df == "presentation" {
-			slog.Warn("Presentation feature is disabled.")
-			return false
+			return nil, false, errors.New("presentation feature is disabled")
 		}
 	}
 
@@ -523,8 +525,7 @@ func (app *Config) uploadDocuments(modules RequestModules, params *Params, meein
 
 	if !modules.Has("presentation") {
 		if isFromInsertAPI {
-			slog.Warn("Insert document API called without a payload - ignoring")
-			return false
+			return nil, presentationsHasCurrent, errors.New("insertDocument API called without a payload")
 		}
 
 		if presURLInParameter {
@@ -547,8 +548,7 @@ func (app *Config) uploadDocuments(modules RequestModules, params *Params, meein
 			presModule := modules.Get("presentation")
 			presentation, err := parsePresentationModule(presModule.Content)
 			if err != nil {
-				slog.Error(fmt.Sprintf("Error parsing presentation content: %v\n", err))
-				return false
+				return nil, presentationsHasCurrent, err
 			}
 			hasPresModule = true
 			for _, doc := range presentation.Documents {
@@ -566,7 +566,7 @@ func (app *Config) uploadDocuments(modules RequestModules, params *Params, meein
 				hasCurrent = true
 				isDefaultPresUsed = true
 				if isDefaultPresCurrent {
-					presentations = append([]Document{Document{Name: "default", Current: true}}, presentations...)
+					presentations = append([]Document{{Name: "default", Current: true}}, presentations...)
 				} else {
 					presentations = append(presentations, Document{Name: "default", Current: false})
 				}
@@ -574,113 +574,116 @@ func (app *Config) uploadDocuments(modules RequestModules, params *Params, meein
 		}
 		if !hasPresModule {
 			hasCurrent = true
-			presentations = append([]Document{Document{Name: "default", Current: true}}, presentations...)
+			presentations = append([]Document{{Name: "default", Current: true}}, presentations...)
 		}
 		presentationsHasCurrent = hasCurrent
 	}
 
-	for i, doc := range presentations {
-		isCurrent := false
-		isRemovable := true
-		isDownloadable := false
-		isDefaultPres := false
-		isPresFromParam := false
-
-		if doc.Name == "default" {
-			defaultPres := app.ServerConfig.DefaultPresentation()
-			if defaultPres != "" {
-				if doc.Current {
-					isDefaultPres = true
-				}
-
-				app.downloadAndProcessDocument(defaultPres, meeingIntID, "", doc.Current, false, true, isDefaultPres, isPresFromParam)
-			} else {
-				slog.Error("No default presentation set.")
-			}
-		} else {
-			isPresFromParam = doc.PresFromParam
-			isRemovable = doc.Removable
-			isDownloadable = doc.Downloadable
-
-			if i == 0 && isFromInsertAPI {
-				if presentationsHasCurrent {
-					isCurrent = true
-				}
-			} else if i == 0 && !isFromInsertAPI {
-				isDefaultPres = true
-				isCurrent = true
-			}
-
-			// Verify whether the document is base64 encoded or a URL to download
-			if doc.URL != "" {
-				var fileName string
-				if doc.Filename != "" {
-					fileName = doc.Filename
-					slog.Info(fmt.Sprintf("User provided filename: %s", fileName))
-				}
-
-				app.downloadAndProcessDocument(doc.URL, meeingIntID, fileName, doc.Current, isDownloadable, isRemovable, isDefaultPres, isPresFromParam)
-			} else if doc.Name != "" {
-				decodedBytes, err := base64.StdEncoding.DecodeString(doc.Content)
-				if err != nil {
-					slog.Error(fmt.Sprintf("Failed to decode document content: %s", doc.Content))
-					return false
-				}
-				err = app.processDocumentFromBytes(decodedBytes, doc.Name, params.Get("meetingID"), isCurrent, isDownloadable, isRemovable, isDefaultPres)
-				if err != nil {
-					return false
-				}
-			} else {
-				slog.Info("Presentation module config found, but it did not contain URL or name attributes.")
-			}
-		}
-	}
-
-	return true
+	return presentations, presentationsHasCurrent, nil
 }
 
-func (app *Config) processDocumentFromBytes(bytes []byte, name, meetingID string, current, isDownloadable, isRemovable, isDefault bool) error {
-	fileName := filepath.Base(name)
+func (app *Config) processDocument(doc Document, meetingID string, isFirst, isFromInsertAPI, presentationsHasCurrent bool) (*presentation.UploadedPresentation, error) {
+	isCurrent := false
+	isRemovable := true
+	isDownloadable := false
+	isDefaultPres := false
+	isPresFromParam := false
+
+	if doc.Name == "default" {
+		defaultPres := app.ServerConfig.DefaultPresentation()
+		if defaultPres != "" {
+			if doc.Current {
+				isDefaultPres = true
+			}
+
+			return app.processDocumentFromDownload(defaultPres, meetingID, "", doc.Current, false, true, isDefaultPres, isPresFromParam)
+		} else {
+			return nil, errors.New("No default presentation set.")
+		}
+	} else {
+		isPresFromParam = doc.PresFromParam
+		isRemovable = doc.Removable
+		isDownloadable = doc.Downloadable
+
+		if isFirst && isFromInsertAPI {
+			if presentationsHasCurrent {
+				isCurrent = true
+			}
+		} else if isFirst && !isFromInsertAPI {
+			isDefaultPres = true
+			isCurrent = true
+		}
+
+		// Verify whether the document is base64 encoded or a URL to download
+		if doc.URL != "" {
+			var fileName string
+			if doc.Filename != "" {
+				fileName = doc.Filename
+				slog.Info(fmt.Sprintf("User provided filename: %s", fileName))
+			}
+
+			return app.processDocumentFromDownload(doc.URL, meetingID, fileName, doc.Current, isDownloadable, isRemovable, isDefaultPres, isPresFromParam)
+		} else if doc.Name != "" {
+			decodedBytes, err := base64.StdEncoding.DecodeString(doc.Content)
+			if err != nil {
+				return nil, fmt.Errorf("Failed to decode document content: %s", doc.Content)
+			}
+			return app.processDocumentFromBytes(decodedBytes, doc.Name, meetingID, isCurrent, isDownloadable, isRemovable, isDefaultPres)
+		} else {
+			return nil, fmt.Errorf("Presentation module config found, but it did not contain URL or name attributes.")
+		}
+	}
+}
+
+func (app *Config) processDocumentFromBytes(bytes []byte, presOrigName, meetingID string, current, isDownloadable, isRemovable, isDefault bool) (*presentation.UploadedPresentation, error) {
+	fileName := filepath.Base(presOrigName)
 	fileExt := filepath.Ext(fileName)
 
 	if fileName == "." || fileExt == "" {
-		slog.Error(fmt.Sprintf("upload failed due to invalid faile name %s", name))
-		return errors.New("invalid_filename")
-	} else {
-		if !presentation.IsMimeTypeValid(bytes, fileExt) {
-			return errors.New("invalid_mime_type")
-		}
-		presDir := app.ServerConfig.Presentation.Upload.Directory
-		presID := presentation.GeneratePresentationID(name)
-
-		uploadDir, err := presentation.CreatePresentationDirectory(meetingID, presDir, presID)
-		if err != nil {
-			slog.Error("Upload failed: %v", err)
-			return errors.New("null_presentation_dir")
-		} else {
-			newFileName := presentation.CreateNewFileName(presID, fileExt)
-			presPath := uploadDir + string(os.PathSeparator) + newFileName
-			pres, err := os.Create(presPath)
-			if err != nil {
-				slog.Error(fmt.Sprintf("upload failed: could not create file %s", presPath))
-				return errors.New("failed_to_create_file")
-			}
-			defer pres.Close()
-
-			_, err = pres.Write(bytes)
-			if err != nil {
-				slog.Error(fmt.Sprintf("upload failed: %v", err))
-				return errors.New("failed_to_download_file")
-			}
-
-			// TODO process uploaded file
-		}
+		return nil, fmt.Errorf("upload failed due to invalid faile name %s", presOrigName)
 	}
 
-	return nil
+	if !presentation.IsMimeTypeValid(bytes, fileExt) {
+		return nil, errors.New("invalid MIME type")
+	}
+
+	presDir := app.ServerConfig.Presentation.Upload.Directory
+	presID := presentation.GeneratePresentationID(presOrigName)
+
+	uploadDir, err := presentation.CreatePresentationDirectory(meetingID, presDir, presID)
+	if err != nil {
+		return nil, err
+	}
+
+	newFileName := presentation.CreateNewFileName(presID, fileExt)
+	presPath := uploadDir + string(os.PathSeparator) + newFileName
+
+	pres, err := os.Create(presPath)
+	if err != nil {
+		return nil, err
+	}
+	defer pres.Close()
+
+	_, err = pres.Write(bytes)
+	if err != nil {
+		return nil, err
+	}
+
+	return &presentation.UploadedPresentation{
+		PodID:          presentation.DefaultPodID,
+		MeetingID:      meetingID,
+		ID:             presID,
+		Name:           fileName,
+		File:           pres,
+		Current:        current,
+		AuthToken:      presentation.DefaultAuthToken,
+		IsDownloadable: isDownloadable,
+		IsRemovable:    isRemovable,
+		IsDefault:      isDefault,
+	}, nil
 }
 
-func (app *Config) downloadAndProcessDocument(address, meetingID, fileName string, current, isDownloadabled, isRemovable, isDefaultPres, isPresFromParam bool) error {
+func (app *Config) processDocumentFromDownload(address, meetingID, fileName string, current, isDownloadable, isRemovable, isDefault, isPresFromParam bool) (*presentation.UploadedPresentation, error) {
 	slog.Info(fmt.Sprintf("Download and process document (%s, %s, %s)", address, meetingID, fileName))
 
 	var presOrigFileName string
@@ -689,8 +692,7 @@ func (app *Config) downloadAndProcessDocument(address, meetingID, fileName strin
 		name := parts[len(parts)-1]
 		decodedFileName, err := url.QueryUnescape(name)
 		if err != nil {
-			slog.Error(fmt.Sprintf("Error decoding file name: %v", err))
-			return errors.New("failed_to_decode_file_name")
+			return nil, err
 		}
 		presOrigFileName = decodedFileName
 	} else {
@@ -702,29 +704,214 @@ func (app *Config) downloadAndProcessDocument(address, meetingID, fileName strin
 
 	if presFileName == "." || presFileExt == "" {
 		slog.Info("Presentation is null by default")
-		return errors.New("invalid_file_name")
-	} else {
-		if !presentation.IsMimeTypeValid(bytes, presFileExt) {
-			return errors.New("invalid_mime_type")
-		}
+		return nil, fmt.Errorf("invalid file name %s or extension %s", presFileName, presFileExt)
+	}
 
-		presDir := app.ServerConfig.Presentation.Upload.Directory
-		presID := presentation.GeneratePresentationID(presFileName)
-		uploadDir, err := presentation.CreatePresentationDirectory(meetingID, presDir, presID)
+	bytes, err := app.downloadPresentation(meetingID, address)
+	if err != nil {
+		return nil, err
+	}
+
+	if !presentation.IsMimeTypeValid(bytes, presFileExt) {
+		return nil, errors.New("invalid MIME type")
+	}
+
+	presDir := app.ServerConfig.Presentation.Upload.Directory
+	presID := presentation.GeneratePresentationID(presFileName)
+	uploadDir, err := presentation.CreatePresentationDirectory(meetingID, presDir, presID)
+	if err != nil {
+		return nil, err
+	}
+
+	if isPresFromParam && presFileExt == "" {
+		fileExt, err := bbbmime.GetExtForMimeType(bbbmime.DetectMimeType(bytes))
 		if err != nil {
-			slog.Error("Upload failed: %v", err)
-			return errors.New("null_presentation_dir")
+			return nil, err
+		}
+		presFileExt = fileExt.ToString()
+	}
+
+	newFileName := presentation.CreateNewFileName(presID, presFileExt)
+	presPath := uploadDir + string(os.PathSeparator) + newFileName
+
+	pres, err := os.Create(presPath)
+	if err != nil {
+		return nil, err
+	}
+	defer pres.Close()
+
+	_, err = pres.Write(bytes)
+	if err != nil {
+		return nil, err
+	}
+
+	return &presentation.UploadedPresentation{
+		PodID:          presentation.DefaultPodID,
+		MeetingID:      meetingID,
+		ID:             presID,
+		Name:           presFileName,
+		File:           pres,
+		Current:        current,
+		AuthToken:      presentation.DefaultAuthToken,
+		IsDownloadable: isDownloadable,
+		IsRemovable:    isRemovable,
+		IsDefault:      isDefault,
+	}, nil
+}
+
+func (app *Config) downloadPresentation(meetingID, URL string) ([]byte, error) {
+	finalURL, err := app.followRedirect(meetingID, URL, URL, 0)
+	if err != nil {
+		slog.Error(fmt.Sprintf("Failed to download presentation: %v", err))
+		return nil, err
+	}
+
+	if finalURL != URL {
+		slog.Info(fmt.Sprintf("Redirected to final URL: %s", finalURL))
+	}
+
+	req, err := http.NewRequest(http.MethodGet, finalURL, nil)
+	if err != nil {
+		slog.Error(fmt.Sprintf("Failed to create request to download presentation from %s for meeting %s: %v", finalURL, meetingID, err))
+		return nil, err
+	}
+	req.Header.Set("Accept-Language", "en-US,en;q=0.8")
+	req.Header.Set("User-Agent", "Mozilla")
+
+	resp, err := app.NoRedirectClient.Do(req)
+	if err != nil {
+		slog.Error(fmt.Sprintf("Failed to execute request to download presentation from %s for meeting %s: %v", finalURL, meetingID, err))
+		return nil, err
+	}
+	defer resp.Body.Close()
+
+	if resp.StatusCode != http.StatusOK {
+		slog.Error(fmt.Sprintf("Invalid HTTP response %d for request to download presentation from %s for meeting %s", resp.StatusCode, finalURL, meetingID))
+		return nil, err
+	}
+
+	body, err := io.ReadAll(resp.Body)
+	if err != nil {
+		slog.Error(fmt.Sprintf("Could not read response body for downloaded presentation: %v", err))
+		return nil, err
+	}
+
+	return body, nil
+}
+
+func (app *Config) followRedirect(meetingID, redirectURL, origURL string, redirectCount int32) (string, error) {
+	if redirectCount > maxRedirects {
+		return "", fmt.Errorf("max number of redirects reached for meeting: %s with URL: %s", meetingID, origURL)
+	}
+
+	if !app.isValidRedirectURL(redirectURL) {
+		return "", fmt.Errorf("invalid redirect URL %s", redirectURL)
+	}
+
+	parsedURL, err := url.Parse(redirectURL)
+	if err != nil {
+		return "", err
+	}
+
+	req, err := http.NewRequest(http.MethodGet, parsedURL.String(), nil)
+	if err != nil {
+		return "", err
+	}
+
+	req.Header.Set("Accept-Language", "en-US,en;q=0.8")
+	req.Header.Set("User-Agent", "Mozilla")
+
+	resp, err := app.NoRedirectClient.Do(req)
+	if err != nil {
+		return "", err
+	}
+	defer resp.Body.Close()
+
+	if resp.StatusCode >= 300 && resp.StatusCode < 400 {
+		newURL := resp.Header.Get("Location")
+		if newURL == "" {
+			return "", errors.New("empty location header")
+		}
+		return app.followRedirect(meetingID, newURL, origURL, redirectCount+1)
+	} else if resp.StatusCode == http.StatusOK {
+		return redirectURL, nil
+	} else {
+		return "", errors.New("invalid HTTP response")
+	}
+}
+
+func (app *Config) isValidRedirectURL(redirectURL string) bool {
+	slog.Info(fmt.Sprintf("Validating redirect URL: %s", redirectURL))
+
+	parsedURL, err := url.Parse(redirectURL)
+	if err != nil {
+		slog.Error(fmt.Sprintf("Malformed URL: %s", redirectURL))
+		return false
+	}
+
+	protocol := parsedURL.Scheme
+	host := parsedURL.Hostname()
+
+	if !app.protocolSupported(protocol) {
+		if len(app.ServerConfig.Presentation.Upload.Protocols) == 1 && strings.EqualFold(app.ServerConfig.Presentation.Upload.Protocols[0], "all") {
+			slog.Warn("All protocols are supported for presentation download. It is recommended to only allow HTTPS.")
 		} else {
-			newFileName := presentation.CreateNewFileName(presID, presFileExt)
-			presPath := uploadDir + string(os.PathSeparator) + newFileName
-
-			// TODO save presentation
-
-			// TODO process uploaded file
+			slog.Info(fmt.Sprintf("Invalid protocol: %s", protocol))
+			return false
 		}
 	}
 
-	return nil
+	if app.hostBlocked(host) {
+		slog.Error(fmt.Sprintf("Attempted to download from blocked host: %s", host))
+		return false
+	}
+
+	addresses, err := net.LookupIP(host)
+	if err != nil {
+		slog.Error(fmt.Sprintf("Unknown host: %s", host))
+		return false
+	}
+
+	localhostBlocked := app.hostBlocked("localhost")
+
+	for _, address := range addresses {
+		ip := address.String()
+		if !isValidIPAddress(ip) {
+			slog.Error(fmt.Sprintf("Invalid IP address: %s", ip))
+			return false
+		}
+
+		if localhostBlocked && !strings.EqualFold(redirectURL, app.ServerConfig.DefaultPresentation()) {
+			if address.IsLoopback() || address.IsUnspecified() {
+				slog.Error(fmt.Sprintf("Address %s is a local or loopback address", ip))
+				return false
+			}
+		}
+	}
+
+	return true
+}
+
+func (app *Config) protocolSupported(protocol string) bool {
+	for _, p := range app.ServerConfig.Presentation.Upload.Protocols {
+		if strings.EqualFold(p, protocol) {
+			return true
+		}
+	}
+	return false
+}
+
+func (app *Config) hostBlocked(host string) bool {
+	for _, h := range app.ServerConfig.Presentation.Upload.BlockedHosts {
+		if strings.EqualFold(h, host) {
+			return true
+		}
+	}
+	return false
+}
+
+func isValidIPAddress(ip string) bool {
+	return net.ParseIP(ip) != nil
 }
 
 func replaceKeywords(message string, dialNumber string, voiceBridge string, meetingName string, url string) string {

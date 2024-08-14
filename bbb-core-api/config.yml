@@ -122,6 +122,11 @@ presentation:
       description:
       url:
     directory: /var/bigbluebutton # Directory where BigBlueButton stores uploaded slides
+    protocols:
+      - https
+    blocked_hosts:
+      - localhost
+    
   default: default.pdf
   base_path: bigbluebutton/presentation
 

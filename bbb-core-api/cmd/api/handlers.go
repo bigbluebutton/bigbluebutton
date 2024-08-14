@@ -252,13 +252,14 @@ func (app *Config) createMeeting(w http.ResponseWriter, r *http.Request) {
 	settings, err := app.processCreateParams(&params)
 	if err != nil {
 		log.Println(err)
-		app.respondWithErrorXML(w, model.ReturnCodeFailure, model.CreateMeetingErrorKey, model.CreateMeetingDuplicateMsg)
+		app.respondWithErrorXML(w, model.ReturnCodeFailure, model.CreateMeetingErrorKey, model.CreateMeetingErrorMsg)
 		return
 	}
 
 	contentType, _, _ := mime.ParseMediaType(r.Header.Get("Content-Type"))
+	var modules RequestModules
 	if bbbmime.ApplicationXML.Matches(contentType) || bbbmime.TextXML.Matches(contentType) {
-		modules, err := app.processXMLModules(r.Body)
+		modules, err = app.processXMLModules(r.Body)
 		if err != nil {
 			app.respondWithErrorXML(w, model.ReturnCodeFailure, model.InvalidRequestBodyKey, model.InvalidRequestBodyMsg)
 			return
@@ -309,6 +310,11 @@ func (app *Config) createMeeting(w http.ResponseWriter, r *http.Request) {
 	if res.IsDuplicate {
 		payload.MessageKey = model.CreateMeetingDuplicateKey
 		payload.Message = model.CreateMeetingDuplicateMsg
+	}
+
+	docs, hasCurrent, err := app.parseDocuments(modules, &params, false)
+	if err != nil {
+		// TODO: modify CreateMeetingResponse to include section for document upload responses
 	}
 
 	app.writeXML(w, http.StatusAccepted, payload)

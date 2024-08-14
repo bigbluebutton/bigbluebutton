@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"log"
 	"net/http"
+	"time"
 
 	"github.com/bigbluebutton/bigbluebutton/bbb-core-api/config"
 	bbbcore "github.com/bigbluebutton/bigbluebutton/bbb-core-api/gen/bbb-core"
@@ -12,10 +13,11 @@ import (
 )
 
 type Config struct {
-	BbbCore            bbbcore.BbbCoreServiceClient `yaml:"-"`
-	ChecksumAlgorithms map[string]struct{}          `yaml:"-"`
-	DisabledFeatures   map[string]struct{}          `yaml:"-"`
+	BbbCore            bbbcore.BbbCoreServiceClient
+	ChecksumAlgorithms map[string]struct{}
+	DisabledFeatures   map[string]struct{}
 	ServerConfig       *config.ServerConfig
+	NoRedirectClient   *http.Client
 }
 
 const retryPolicy = `{
@@ -53,6 +55,13 @@ func main() {
 
 	client := bbbcore.NewBbbCoreServiceClient(conn)
 	app.BbbCore = client
+
+	app.NoRedirectClient = &http.Client{
+		Timeout: time.Minute,
+		CheckRedirect: func(req *http.Request, via []*http.Request) error {
+			return http.ErrUseLastResponse
+		},
+	}
 
 	address := fmt.Sprintf("%s:%s", app.ServerConfig.Server.Host, app.ServerConfig.Server.Port)
 	log.Printf("Starting bbb-core-api at %s\n", address)

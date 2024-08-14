@@ -111,7 +111,9 @@ type ServerConfig struct {
 				Description string `yaml:"description"`
 				Url         string `yaml:"url"`
 			} `yaml:"external"`
-			Directory string `yaml:"directory"`
+			Directory    string   `yaml:"directory"`
+			Protocols    []string `yaml:"protocols"`
+			BlockedHosts []string `yaml:"blocked_hosts"`
 		} `yaml:"upload"`
 		Default  string `yaml:"default"`
 		BasePath string `yaml:"base_path"`

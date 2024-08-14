@@ -11,6 +11,27 @@ import (
 	"github.com/bigbluebutton/bigbluebutton/bbb-core-api/internal/validation"
 )
 
+const (
+	DefaultPodID     = "DEFAULT_PRESENTATION_POD"
+	DefaultAuthToken = "preupload-raw-authz-token"
+)
+
+type UploadedPresentation struct {
+	ID             string
+	PodID          string
+	MeetingID      string
+	TempID         string
+	Name           string
+	File           *os.File
+	FileType       string
+	BaseURL        string
+	IsDownloadable bool
+	IsRemovable    bool
+	Current        bool
+	IsDefault      bool
+	AuthToken      string
+}
+
 var validMimeTypes map[mime.MimeType]struct{}
 
 func init() {

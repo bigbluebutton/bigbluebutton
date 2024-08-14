@@ -10,10 +10,12 @@ import (
 type MimeType string
 
 func (m MimeType) Matches(mimeType string) bool { return strings.EqualFold(string(m), mimeType) }
+func (m MimeType) ToString() string             { return string(m) }
 
 type FileExt string
 
 func (fileExt FileExt) Matches(ext string) bool { return strings.EqualFold(string(fileExt), ext) }
+func (fileExt FileExt) ToString() string        { return string(fileExt) }
 
 const (
 	TextXML                   MimeType = "text/xml"
@@ -109,4 +111,15 @@ func ExtMatchesMime(fileExt string, mimeType string) bool {
 		}
 	}
 	return false
+}
+
+func GetExtForMimeType(mimeType MimeType) (*FileExt, error) {
+	for ext, types := range extMimeTypes {
+		for _, t := range types {
+			if t == mimeType {
+				return &ext, nil
+			}
+		}
+	}
+	return nil, fmt.Errorf("no file extension matches MIME Type %s", mimeType)
 }
