@@ -1,7 +1,7 @@
 import { useEffect, useRef } from 'react';
 import { useMutation } from '@apollo/client';
 import { UPDATE_CONNECTION_ALIVE_AT } from './mutations';
-import { getStatus, handleAudioStatsEvent, startMonitoringNetwork } from '/imports/ui/components/connection-status/service';
+import { getStatus, startMonitoringNetwork } from '/imports/ui/components/connection-status/service';
 import connectionStatus from '../../core/graphql/singletons/connectionStatus';
 
 import getBaseUrl from '/imports/ui/core/utils/getBaseUrl';
@@ -23,7 +23,7 @@ const ConnectionStatus = () => {
         if (res.ok && res.status === 200) {
           const rttLevels = window.meetingClientSettings.public.stats.rtt;
           const endTime = performance.now();
-          const networkRtt = endTime - startTime;
+          const networkRtt = Math.round(endTime - startTime);
           networkRttInMs.current = networkRtt;
           updateConnectionAliveAtM({
             variables: {
@@ -31,7 +31,7 @@ const ConnectionStatus = () => {
             },
           });
           const rttStatus = getStatus(rttLevels, networkRtt);
-          connectionStatus.setRttValue(networkRtt.toFixed(2));
+          connectionStatus.setRttValue(networkRtt);
           connectionStatus.setRttStatus(rttStatus);
           connectionStatus.setLastRttRequestSuccess(true);
         }
