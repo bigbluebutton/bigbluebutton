@@ -139,7 +139,6 @@ export const CustomBackgroundsProvider = ({ children }) => {
             } else {
               logger.error({
                 logCode: 'webcam_background_fetch_error',
-                extraInfo: null,
               }, 'Failed to fetch custom webcam background image.');
             }
           });
