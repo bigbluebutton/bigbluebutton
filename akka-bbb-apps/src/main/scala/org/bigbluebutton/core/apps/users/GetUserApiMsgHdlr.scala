@@ -12,7 +12,7 @@ trait GetUserApiMsgHdlr extends HandlerHelpers {
   val liveMeeting: LiveMeeting
   val outGW: OutMsgRouter
 
-  def handleGetUsersMeetingReqMsg(msg: GetUserApiMsg, actorRef: ActorRef): Unit = {
+  def handleGetUserApiMsg(msg: GetUserApiMsg, actorRef: ActorRef): Unit = {
     RegisteredUsers.findWithSessionToken(msg.sessionToken, liveMeeting.registeredUsers) match {
       case Some(regUser) =>
         log.debug("replying GetUserApiMsg with success")

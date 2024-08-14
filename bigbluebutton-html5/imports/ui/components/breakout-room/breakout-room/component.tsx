@@ -2,7 +2,7 @@ import { useMutation } from '@apollo/client';
 import React, { useCallback, useEffect } from 'react';
 import { defineMessages, useIntl } from 'react-intl';
 import {
-  BreakoutRoom,
+  BreakoutRoom as BreakoutRoomType,
   GetBreakoutDataResponse,
   getBreakoutData,
 } from './queries';
@@ -27,7 +27,7 @@ import { useExitVideo, useStreams } from '/imports/ui/components/video-provider/
 import useDeduplicatedSubscription from '/imports/ui/core/hooks/useDeduplicatedSubscription';
 
 interface BreakoutRoomProps {
-  breakouts: BreakoutRoom[];
+  breakouts: BreakoutRoomType[];
   isModerator: boolean;
   presenter: boolean;
   durationInSeconds: number;
@@ -161,7 +161,7 @@ const BreakoutRoom: React.FC<BreakoutRoomProps> = ({
   }, [breakouts]);
 
   const exitVideo = useExitVideo();
-  const { streams } = useStreams();
+  const streams = useStreams();
 
   return (
     <Styled.Panel

@@ -29,7 +29,6 @@ export interface Locales {
   name: string
 }
 export interface App {
-  instanceId: string
   mobileFontSize: string
   desktopFontSize: string
   audioChatNotification: boolean
@@ -143,6 +142,7 @@ export interface Breakouts {
   captureSharedNotesByDefault: boolean
   sendInvitationToAssignedModeratorsByDefault: boolean
   breakoutRoomLimit: number
+  allowPresentationManagementInBreakouts: boolean
 }
 
 export interface RaiseHandActionButton {
@@ -611,6 +611,7 @@ export interface Media {
   sdpSemantics: string
   localEchoTest: LocalEchoTest
   showVolumeMeter: boolean
+  muteAudioOutputWhenAway: boolean
 }
 
 export interface Audio2 {
@@ -644,7 +645,6 @@ export interface Stats {
   timeout: number
   log: boolean
   notification: Notification
-  jitter: number[]
   loss: number[]
   rtt: number[]
   level: string[]

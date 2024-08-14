@@ -172,23 +172,17 @@ class AudioManager {
     const MEDIA = window.meetingClientSettings.public.media;
 
     if (MEDIA.audio) {
-      const { bridges, defaultFullAudioBridge, defaultListenOnlyBridge } = MEDIA.audio;
+      const { defaultFullAudioBridge, defaultListenOnlyBridge } = MEDIA.audio;
 
       const _fullAudioBridge = getFromUserSettings(
         'bbb_fullaudio_bridge',
-        getFromMeetingSettings('fullaudio-bridge', defaultFullAudioBridge)
+        getFromMeetingSettings('fullaudio-bridge', defaultFullAudioBridge),
       );
 
-      this.bridges = {};
-
-      await Promise.all(
-        Object.values(bridges).map(async (bridge) => {
-          // eslint-disable-next-line import/no-dynamic-require, global-require
-          this.bridges[bridge.name] = (
-            (await import(DEFAULT_AUDIO_BRIDGES_PATH + bridge.path)) || {}
-          ).default;
-        })
-      );
+      this.bridges = {
+        [_fullAudioBridge]: SIPBridge,
+        [defaultListenOnlyBridge]: SFUAudioBridge,
+      };
 
       if (_fullAudioBridge && this.bridges[_fullAudioBridge]) {
         FullAudioBridge = this.bridges[_fullAudioBridge];
@@ -832,8 +826,7 @@ class AudioManager {
     this.playAlertSound(
       `${
         window.meetingClientSettings.public.app.cdn +
-        window.meetingClientSettings.public.app.basename +
-        window.meetingClientSettings.public.app.instanceId
+        window.meetingClientSettings.public.app.basename
       }` + '/resources/sounds/LeftCall.mp3'
     );
   }

@@ -28,7 +28,9 @@
     "baseUrl": ".",
     "paths": {
       /* Support absolute /imports/* with a leading '/' */
-      "/*": ["*"]
+      "/*": ["*"],
+      "/imports/": ["./imports/*"],
+      "/client/": ["./client/*"]
     },
     "moduleResolution": "node",
     "esModuleInterop": true,

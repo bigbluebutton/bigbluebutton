@@ -19,6 +19,7 @@ import {
 } from './types';
 import FloatingWindowPluginStateContainer from './components/floating-window/manager';
 import GenericContentPluginStateContainer from './components/generic-content/manager';
+import ScreenshareHelperPluginStateContainer from './components/screenshare-helper/manager';
 
 const extensibleAreaMap: ExtensibleAreaMap = {};
 
@@ -36,6 +37,7 @@ const extensibleAreaComponentManagers: ExtensibleAreaComponentManager[] = [
   UserListItemAdditionalInformationPluginStateContainer,
   FloatingWindowPluginStateContainer,
   GenericContentPluginStateContainer,
+  ScreenshareHelperPluginStateContainer,
 ];
 
 function generateItemWithId<T extends PluginProvidedUiItemDescriptor>(

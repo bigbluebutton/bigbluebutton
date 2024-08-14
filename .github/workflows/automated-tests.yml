@@ -64,7 +64,7 @@ jobs:
           - package: bbb-fsesl-akka
             cache-files-list: akka-bbb-fsesl bbb-common-message
           - package: bbb-html5
-            build-list: bbb-html5-nodejs bbb-html5
+            build-list: bbb-html5
             cache-files-list: bigbluebutton-html5
           - package: bbb-freeswitch
             build-list: bbb-freeswitch-core bbb-freeswitch-sounds
@@ -267,7 +267,7 @@ jobs:
           command: |
             sudo -i <<EOF
             set -e
-            cd /root/ && wget -nv https://raw.githubusercontent.com/bigbluebutton/bbb-install/v3.0.x-release/bbb-install.sh -O bbb-install.sh
+            cd /root/ && wget -nv https://raw.githubusercontent.com/bigbluebutton/bbb-install/v3.0.x-release--no-mongo/bbb-install.sh -O bbb-install.sh
             cat bbb-install.sh | sed "s|> /etc/apt/sources.list.d/bigbluebutton.list||g" | bash -s -- -v jammy-30-dev -s bbb-ci.test -j -d /certs/
             bbb-conf --salt bbbci
             sed -i "s/\"minify\": true,/\"minify\": false,/" /usr/share/etherpad-lite/settings.json

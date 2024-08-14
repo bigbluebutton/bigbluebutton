@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import PropTypes from 'prop-types';
 import { injectIntl } from 'react-intl';
 import data from '@emoji-mart/data';
@@ -50,6 +50,13 @@ const EmojiPicker = (props) => {
   const emojisToExclude = [
     ...DISABLE_EMOJIS,
   ];
+
+  // HACK: the library sets the width after it renders
+  //       this code fixes that, but is kinda ugly and only works if
+  //       we never render more than one emoji-picker at the same time
+  useEffect(() => {
+    document.getElementsByTagName('em-emoji-picker')[0].style.width = 'auto';
+  });
 
   return (
     <Picker

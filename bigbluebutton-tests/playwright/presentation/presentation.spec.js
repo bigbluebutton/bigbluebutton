@@ -27,7 +27,7 @@ test.describe.parallel('Presentation', () => {
   });
 
   // https://docs.bigbluebutton.org/2.6/release-tests.html#start-youtube-video-sharing
-  test('Start external video', { tag: '@ci' }, async ({ browser, context, page }) => {
+  test('Start external video', { tag: '@flaky' }, async ({ browser, context, page }) => {
     const presentation = new Presentation(browser, context);
     await presentation.initPages(page);
     await presentation.startExternalVideo();
@@ -73,13 +73,13 @@ test.describe.parallel('Presentation', () => {
 
   test.describe.parallel('Manage', () => {
     // https://docs.bigbluebutton.org/2.6/release-tests.html#uploading-a-presentation-automated
-    test('Upload single presentation', { tag: ['@ci', '@flaky'] }, async ({ browser, context, page }) => {
+    test('Upload single presentation', { tag: ['@ci'] }, async ({ browser, context, page }) => {
       const presentation = new Presentation(browser, context);
       await presentation.initPages(page, true);
       await presentation.uploadSinglePresentationTest();
     });
 
-    test('Upload Other Presentations Format', { tag: ['@ci', '@flaky'] }, async ({ browser, context, page }) => {
+    test('Upload Other Presentations Format', { tag: ['@ci'] }, async ({ browser, context, page }) => {
       linkIssue(18971);
       const presentation = new Presentation(browser, context);
       await presentation.initPages(page, true);

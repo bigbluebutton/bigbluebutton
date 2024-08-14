@@ -18,6 +18,7 @@ export const Chat = styled.div<ChatProps>`
   justify-content: space-around;
   overflow: hidden;
   height: 100%;
+  user-select: none;
 
   ${({ isRTL }) => isRTL && `
     padding-left: 0.1rem;
@@ -70,6 +71,8 @@ const ChatContent = styled.div`
   display: contents;
 `;
 
-const ChatMessages = styled.div``;
+const ChatMessages = styled.div`
+  user-select: text;
+`;
 
 export default { Chat, ChatMessages, ChatContent };

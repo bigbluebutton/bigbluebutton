@@ -13,10 +13,11 @@ object GroupChatMessageType {
   val BREAKOUTROOM_MOD_MSG = "breakoutRoomModeratorMsg"
   val PUBLIC_CHAT_HIST_CLEARED = "publicChatHistoryCleared"
   val USER_AWAY_STATUS_MSG = "userAwayStatusMsg"
+  val PLUGIN = "plugin"
 }
 
 case class GroupChatUser(id: String, name: String = "", role: String = "VIEWER")
-case class GroupChatMsgFromUser(correlationId: String, sender: GroupChatUser, message: String)
+case class GroupChatMsgFromUser(correlationId: String, sender: GroupChatUser, message: String, metadata: Map[String, Any] = Map.empty)
 case class GroupChatMsgToUser(id: String, timestamp: Long, correlationId: String, sender: GroupChatUser, chatEmphasizedText: Boolean = false, message: String)
 case class GroupChatInfo(id: String, access: String, createdBy: GroupChatUser, users: Vector[GroupChatUser])
 
@@ -116,12 +117,3 @@ case class SetGroupChatVisibleReqMsgBody(chatId: String, visible: Boolean)
 object SetGroupChatLastSeenReqMsg { val NAME = "SetGroupChatLastSeenReqMsg" }
 case class SetGroupChatLastSeenReqMsg(header: BbbClientMsgHeader, body: SetGroupChatLastSeenReqMsgBody) extends StandardMsg
 case class SetGroupChatLastSeenReqMsgBody(chatId: String, lastSeenAt: String)
-
-// html5 client only
-object SyncGetGroupChatsRespMsg { val NAME = "SyncGetGroupChatsRespMsg" }
-case class SyncGetGroupChatsRespMsg(header: BbbClientMsgHeader, body: SyncGetGroupChatsRespMsgBody) extends BbbCoreMsg
-case class SyncGetGroupChatsRespMsgBody(chats: Vector[GroupChatInfo])
-
-object SyncGetGroupChatMsgsRespMsg { val NAME = "SyncGetGroupChatMsgsRespMsg" }
-case class SyncGetGroupChatMsgsRespMsg(header: BbbClientMsgHeader, body: SyncGetGroupChatMsgsRespMsgBody) extends BbbCoreMsg
-case class SyncGetGroupChatMsgsRespMsgBody(chatId: String, msgs: Vector[GroupChatMsgToUser])

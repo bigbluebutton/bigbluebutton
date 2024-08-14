@@ -138,10 +138,10 @@ const ConnectionManager: React.FC<ConnectionManagerProps> = ({ children }): Reac
             });
           },
           shouldRetry: (error) => {
-            // @ts-ignore - error is not a string
-            if (error.code === 4403) {
+            logger.error('Connection error:', error);
+            if (error && typeof error === 'object' && 'code' in error && error.code === 4403) {
               loadingContextInfo.setLoading(false, '');
-              setTerminalError('Session token is invalid');
+              setTerminalError('Server refused the connection');
               return false;
             }
 
@@ -158,12 +158,18 @@ const ConnectionManager: React.FC<ConnectionManagerProps> = ({ children }): Reac
           },
           on: {
             error: (error) => {
-              logger.error(`Error: on subscription to server: ${error}`);
+              logger.error('Error: on subscription to server', error);
               loadingContextInfo.setLoading(false, '');
               connectionStatus.setConnectedStatus(false);
               setErrorCounts((prev: number) => prev + 1);
             },
-            closed: () => {
+            closed: (e) => {
+              // Check if it's a CloseEvent (which includes HTTP errors during WebSocket handshake)
+              if (e instanceof CloseEvent) {
+                logger.error(`WebSocket closed with code ${e.code}: ${e.reason}`);
+                loadingContextInfo.setLoading(false, '');
+                setTerminalError('Server closed the connection');
+              }
               connectionStatus.setConnectedStatus(false);
             },
             connected: (socket) => {

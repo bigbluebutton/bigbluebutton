@@ -49,56 +49,6 @@ class JsonUtilTest extends UnitSpec2 with TestFixtures {
     println(group)
   }
 
-  "JsonUtil" should "unmarshall a ValidateAuthTokenReq" in {
-    val header: BbbClientMsgHeader = new BbbClientMsgHeader("foo", "mId", "uId")
-    val body: ValidateAuthTokenReqMsgBody = new ValidateAuthTokenReqMsgBody(userId = "uId", authToken = "myToken")
-    val msg: ValidateAuthTokenReqMsg = new ValidateAuthTokenReqMsg(header, body)
-    val json = JsonUtil.toJson(msg)
-    println(json)
-    val map = JsonUtil.toMap[Map[String, Any]](json)
-    println(map)
-    val finalMsg = JsonUtil.fromJson[ValidateAuthTokenReqMsg](json)
-    println(finalMsg)
-  }
-
-  "JsonUtil" should "throw exception on invalid message" in {
-    val jsonMsg =
-      """
-        |{
-        |    "header": {
-        |        "name": "foo",
-        |        "meetingId": "mId"
-        |    },
-        |    "body": {
-        |        "meetingId": "mId",
-        |        "userId": "uId",
-        |        "token": "myToken",
-        |        "replyTo": "replyHere",
-        |        "sessionId": "mySessionId"
-        |    }
-        |}
-      """.stripMargin
-
-    val finalMsg = JsonUtil.fromJson[FooNode](jsonMsg)
-
-    val json = JsonUtil.toJson(finalMsg)
-
-    val finalMsg2 = for {
-      result <- JsonUtil.fromJson[ValidateAuthTokenReqMsg](json)
-    } yield result
-
-    println(finalMsg2)
-    val map = JsonUtil.toMap[Map[String, Any]](jsonMsg)
-    map match {
-      case Success(m) =>
-        for {
-          header <- m.get("header")
-          meetingId <- header.get("meetingId")
-        } yield println(meetingId)
-      case Failure(ex) => fail("Failed to convert message.")
-    }
-
-  }
 }
 
 case class FooNode(header: BbbCoreHeaderWithMeetingId, body: JsonNode)

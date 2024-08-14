@@ -1,10 +1,10 @@
 package hasura
 
 import (
+	"bbb-graphql-middleware/internal/hasura/conn/reader"
+	"bbb-graphql-middleware/internal/hasura/conn/writer"
 	"context"
 	"fmt"
-	"github.com/iMDT/bbb-graphql-middleware/internal/hasura/conn/reader"
-	"github.com/iMDT/bbb-graphql-middleware/internal/hasura/conn/writer"
 	log "github.com/sirupsen/logrus"
 	"math"
 	"net/http"
@@ -13,7 +13,7 @@ import (
 	"os"
 	"sync"
 
-	"github.com/iMDT/bbb-graphql-middleware/internal/common"
+	"bbb-graphql-middleware/internal/common"
 	"golang.org/x/xerrors"
 	"nhooyr.io/websocket"
 )

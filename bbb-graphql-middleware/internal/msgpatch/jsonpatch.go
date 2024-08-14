@@ -1,8 +1,8 @@
 package msgpatch
 
 import (
+	"bbb-graphql-middleware/internal/common"
 	"encoding/json"
-	"github.com/iMDT/bbb-graphql-middleware/internal/common"
 	"github.com/mattbaird/jsonpatch"
 	log "github.com/sirupsen/logrus"
 	"io/ioutil"

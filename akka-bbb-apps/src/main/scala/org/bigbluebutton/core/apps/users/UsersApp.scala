@@ -160,9 +160,7 @@ class UsersApp(
     val eventBus:    InternalEventBus
 )(implicit val context: ActorContext)
 
-  extends ValidateAuthTokenReqMsgHdlr
-  with GetUsersMeetingReqMsgHdlr
-  with RegisterUserReqMsgHdlr
+  extends RegisterUserReqMsgHdlr
   with GetUserApiMsgHdlr
   with ChangeUserRoleCmdMsgHdlr
   with SetUserSpeechLocaleMsgHdlr
@@ -170,11 +168,9 @@ class UsersApp(
   with SetUserClientSettingsReqMsgHdlr
   with SetUserEchoTestRunningReqMsgHdlr
   with SetUserSpeechOptionsMsgHdlr
-  with SyncGetUsersMeetingRespMsgHdlr
   with LogoutAndEndMeetingCmdMsgHdlr
   with SetRecordingStatusCmdMsgHdlr
   with RecordAndClearPreviousMarkersCmdMsgHdlr
-  with SendRecordingTimerInternalMsgHdlr
   with GetRecordingStatusReqMsgHdlr
   with AssignPresenterReqMsgHdlr
   with ChangeUserPinStateReqMsgHdlr

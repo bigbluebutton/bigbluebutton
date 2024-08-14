@@ -33,26 +33,6 @@ case class ScreenshareRtmpBroadcastStartedEvtMsgBody(voiceConf: String, screensh
                                                      timestamp: String, hasAudio: Boolean, contentType: String)
 
 /**
- * Sync screenshare state with bbb-html5
- */
-object SyncGetScreenshareInfoRespMsg { val NAME = "SyncGetScreenshareInfoRespMsg" }
-case class SyncGetScreenshareInfoRespMsg(
-    header: BbbClientMsgHeader,
-    body:   SyncGetScreenshareInfoRespMsgBody
-) extends BbbCoreMsg
-case class SyncGetScreenshareInfoRespMsgBody(
-    isBroadcasting:  Boolean,
-    voiceConf:       String,
-    screenshareConf: String,
-    stream:          String,
-    vidWidth:        Int,
-    vidHeight:       Int,
-    timestamp:       String,
-    hasAudio:        Boolean,
-    contentType:     String
-)
-
-/**
  * Send by FS that RTMP stream has stopped.
  */
 object ScreenshareRtmpBroadcastStoppedVoiceConfEvtMsg { val NAME = "ScreenshareRtmpBroadcastStoppedVoiceConfEvtMsg" }
@@ -516,13 +496,6 @@ case class UserDisconnectedFromGlobalAudioMsg(
     body:   UserDisconnectedFromGlobalAudioMsgBody
 ) extends VoiceStandardMsg
 case class UserDisconnectedFromGlobalAudioMsgBody(userId: String, name: String)
-
-/**
- * Sync voice users with html5 client
- */
-object SyncGetVoiceUsersRespMsg { val NAME = "SyncGetVoiceUsersRespMsg" }
-case class SyncGetVoiceUsersRespMsg(header: BbbClientMsgHeader, body: SyncGetVoiceUsersRespMsgBody) extends BbbCoreMsg
-case class SyncGetVoiceUsersRespMsgBody(voiceUsers: Vector[VoiceConfUser])
 
 /**
  * Received from FS that a user has become a floor holder

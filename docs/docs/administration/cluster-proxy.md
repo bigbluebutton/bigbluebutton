@@ -100,10 +100,11 @@ For each BigBlueButton server in your cluster, repeat the following steps:
 Add these options to `/etc/bigbluebutton/bbb-web.properties`:
 
 ```ini
-defaultHTML5ClientUrl=https://bbb-proxy.example.com/bbb-01/html5client/join
+defaultHTML5ClientUrl=https://bbb-proxy.example.com/bbb-01/html5client
 presentationBaseURL=https://bbb-01.example.com/bigbluebutton/presentation
 accessControlAllowOrigin=https://bbb-proxy.example.com
-graphqlWebsocketUrl=wss://bbb-01.example.com/v1/graphql
+graphqlWebsocketUrl=wss://bbb-01.example.com/graphql
+graphqlApiUrl=https://bbb-01.example.com/api/rest
 ```
 
 Add the following options to `/etc/bigbluebutton/bbb-html5.yml`:

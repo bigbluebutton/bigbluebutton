@@ -10,6 +10,7 @@ export const PluginsContextProvider = ({ children, ...props }: any) => {
     {} as ExtensibleArea,
   );
   const [domElementManipulationMessageIds, setDomElementManipulationMessageIds] = useState<string[]>([]);
+  const [domElementManipulationStreamIds, setDomElementManipulationStreamIds] = useState<string[]>([]);
 
   return (
     <PluginsContext.Provider
@@ -19,6 +20,8 @@ export const PluginsContextProvider = ({ children, ...props }: any) => {
         pluginsExtensibleAreasAggregatedState,
         domElementManipulationMessageIds,
         setDomElementManipulationMessageIds,
+        domElementManipulationStreamIds,
+        setDomElementManipulationStreamIds,
       }}
     >
       {children}
