@@ -55,16 +55,9 @@ export const MuteToggle: React.FC<MuteToggleProps> = ({
   const Settings = getSettingsSingletonInstance();
   const animations = Settings?.application?.animations;
 
-  const toggleMuteMicrophoneAsync = () => {
-    return new Promise<void>((resolve, reject) => {
-      try {
-        toggleMuteMicrophone(muted, toggleVoice);
-        resolve();
-      } catch (error) {
-        reject(error);
-      }
-    });
-  };
+  React.useEffect(() => {
+    setIsLoading(false);
+  }, [muted]);
 
   const onClickCallback = (e: React.MouseEvent<HTMLButtonElement>) => {
     e.stopPropagation();
@@ -80,9 +73,7 @@ export const MuteToggle: React.FC<MuteToggleProps> = ({
       });
     }
 
-    toggleMuteMicrophoneAsync().then(() => {
-      setIsLoading(false);
-    });
+    toggleMuteMicrophone(muted, toggleVoice);
   };
 
   return (
