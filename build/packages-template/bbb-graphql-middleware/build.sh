@@ -14,7 +14,7 @@ rm -rf staging
 rm -rf ./build
 
 # Create directories for fpm to process
-DIRS="/usr/local/bin /lib/systemd/system /etc/default /usr/share/bigbluebutton/nginx"
+DIRS="/usr/local/bin /lib/systemd/system /usr/share/bigbluebutton/nginx /usr/share/bbb-graphql-middleware/bbb-graphql-middleware"
 for dir in $DIRS; do
   mkdir -p staging$dir
 done
@@ -32,7 +32,7 @@ mkdir -p staging/etc/nginx/conf.d
 cp bbb-graphql-client-settings-cache.conf staging/etc/nginx/conf.d
 
 # Create service bbb-graphql-middleware
-cp bbb-graphql-middleware-config.env staging/etc/default/bbb-graphql-middleware
+cp bbb-graphql-middleware-config.env staging/usr/share/bbb-graphql-middleware/bbb-graphql-middleware.env
 cp bbb-graphql-middleware.service staging/lib/systemd/system/bbb-graphql-middleware.service
 
 # Set nginx location
@@ -46,6 +46,7 @@ fpm -s dir -C ./staging -n $PACKAGE \
     --version $VERSION --epoch $EPOCH \
     --after-install after-install.sh \
     --after-remove after-remove.sh \
+    --before-install before-install.sh \
     --before-remove before-remove.sh \
     --description "GraphQL middleware component for BigBlueButton" \
     $DIRECTORIES \
