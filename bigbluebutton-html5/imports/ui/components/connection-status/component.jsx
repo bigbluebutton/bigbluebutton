@@ -62,15 +62,10 @@ const ConnectionStatus = () => {
     const STATS_ENABLED = window.meetingClientSettings.public.stats.enabled;
 
     if (STATS_ENABLED) {
-      window.addEventListener('audiostats', handleAudioStatsEvent);
       startMonitoringNetwork();
     }
 
     return () => {
-      if (STATS_ENABLED) {
-        window.removeEventListener('audiostats', handleAudioStatsEvent);
-      }
-
       if (timeoutRef.current) {
         clearTimeout(timeoutRef.current);
       }
