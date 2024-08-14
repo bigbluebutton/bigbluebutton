@@ -68,7 +68,7 @@ interface JoinVideoButtonProps {
   exitVideo: () => void;
   stopVideo: (cameraId?: string | undefined) => void;
   intl: IntlShape;
-  videoConnecting: boolean; // Added videoConnecting prop
+  videoConnecting: boolean;
 }
 
 const JoinVideoButton: React.FC<JoinVideoButtonProps> = ({
@@ -81,7 +81,7 @@ const JoinVideoButton: React.FC<JoinVideoButtonProps> = ({
   setLocalSettings,
   exitVideo: exit,
   stopVideo,
-  videoConnecting, // Added videoConnecting prop
+  videoConnecting,
 }) => {
   const { isMobile } = deviceInfo;
   const isMobileSharingCamera = hasVideoStream && isMobile;

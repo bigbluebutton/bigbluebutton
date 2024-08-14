@@ -55,24 +55,34 @@ export const MuteToggle: React.FC<MuteToggleProps> = ({
   const Settings = getSettingsSingletonInstance();
   const animations = Settings?.application?.animations;
 
-  const onClickCallback = async (e: React.MouseEvent<HTMLButtonElement>) => {
+  const toggleMuteMicrophoneAsync = () => {
+    return new Promise<void>((resolve, reject) => {
+      try {
+        toggleMuteMicrophone(muted, toggleVoice);
+        resolve();
+      } catch (error) {
+        reject(error);
+      }
+    });
+  };
+
+  const onClickCallback = (e: React.MouseEvent<HTMLButtonElement>) => {
     e.stopPropagation();
     setIsLoading(true);
 
-    try {
-      if (muted && away) {
-        await muteAway(muted, true, toggleVoice);
-        VideoService.setTrackEnabled(true);
-        await setAway({
-          variables: {
-            away: false,
-          },
-        });
-      }
-      await toggleMuteMicrophone(muted, toggleVoice);
-    } finally {
-      setIsLoading(false);
+    if (muted && away) {
+      muteAway(muted, true, toggleVoice);
+      VideoService.setTrackEnabled(true);
+      setAway({
+        variables: {
+          away: false,
+        },
+      });
     }
+
+    toggleMuteMicrophoneAsync().then(() => {
+      setIsLoading(false);
+    });
   };
 
   return (
