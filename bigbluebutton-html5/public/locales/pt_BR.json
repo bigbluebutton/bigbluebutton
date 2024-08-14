@@ -640,7 +640,7 @@
     "app.statusNotifier.raisedHandDesc": "{0} levantaram as mãos",
     "app.statusNotifier.raisedHandDescOneUser": "{0} levantou a mão",
     "app.statusNotifier.and": "e",
-    "app.switch.onLabel": "Ligar",
+    "app.switch.onLabel": "Ligado",
     "app.switch.offLabel": "Desligado",
     "app.talkingIndicator.ariaMuteDesc": "Selecione para silenciar o usuário",
     "app.talkingIndicator.isTalking": "{0} está falando",
