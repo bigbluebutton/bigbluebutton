@@ -668,7 +668,7 @@ The [following issue](https://github.com/bigbluebutton/bigbluebutton/issues/8792
 
 ### The browser is not supported
 
-When you attempt to join a BigBlueButton session, the client looks for supported browsers before fully loading. The client gets its list of supported browsers from `/usr/share/meteor/bundle/programs/server/assets/app/config/settings.yml`. You can see the list of supported browsers at the bottom. For example,
+When you attempt to join a BigBlueButton session, the client looks for supported browsers before fully loading. The client gets its list of supported browsers from `/var/bigbluebutton/html5-client/private/config/settings.yml`. You can see the list of supported browsers at the bottom. For example,
 
 ```yaml
 - browser: mobileSafari

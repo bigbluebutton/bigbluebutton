@@ -1,7 +1,7 @@
 package retransmiter
 
 import (
-	"github.com/iMDT/bbb-graphql-middleware/internal/common"
+	"bbb-graphql-middleware/internal/common"
 	log "github.com/sirupsen/logrus"
 )
 

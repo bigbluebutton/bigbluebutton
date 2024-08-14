@@ -3,7 +3,6 @@ import { useMutation } from '@apollo/client';
 import { UPDATE_CONNECTION_ALIVE_AT } from './mutations';
 import { getStatus, handleAudioStatsEvent, startMonitoringNetwork } from '/imports/ui/components/connection-status/service';
 import connectionStatus from '../../core/graphql/singletons/connectionStatus';
-import { useGetStats } from '../video-provider/hooks';
 
 import getBaseUrl from '/imports/ui/core/utils/getBaseUrl';
 
@@ -13,8 +12,6 @@ const ConnectionStatus = () => {
   const timeoutRef = useRef(null);
 
   const [updateConnectionAliveAtM] = useMutation(UPDATE_CONNECTION_ALIVE_AT);
-
-  const getVideoStreamsStats = useGetStats();
 
   const handleUpdateConnectionAliveAt = () => {
     const startTime = performance.now();
@@ -66,7 +63,7 @@ const ConnectionStatus = () => {
 
     if (STATS_ENABLED) {
       window.addEventListener('audiostats', handleAudioStatsEvent);
-      startMonitoringNetwork(getVideoStreamsStats);
+      startMonitoringNetwork();
     }
 
     return () => {
