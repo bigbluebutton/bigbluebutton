@@ -15,7 +15,6 @@ import * as PluginSdk from 'bigbluebutton-html-plugin-sdk';
 import { layoutSelect } from '/imports/ui/components/layout/context';
 import { defineMessages, useIntl } from 'react-intl';
 import { useIsChatEnabled } from '/imports/ui/services/features';
-import ClickOutside from '/imports/ui/components/click-outside/component';
 import { checkText } from 'smile2emoji';
 import Styled from './styles';
 import deviceInfo from '/imports/utils/deviceInfo';
@@ -55,7 +54,6 @@ interface ChatMessageFormProps {
   locked: boolean,
   partnerIsLoggedOut: boolean,
   title: string,
-  handleClickOutside: () => void,
 }
 
 const messages = defineMessages({
@@ -114,7 +112,6 @@ const messages = defineMessages({
 });
 
 const ChatMessageForm: React.FC<ChatMessageFormProps> = ({
-  handleClickOutside,
   title,
   disabled,
   partnerIsLoggedOut,
@@ -132,6 +129,7 @@ const ChatMessageForm: React.FC<ChatMessageFormProps> = ({
   const [error, setError] = React.useState<string | null>(null);
   const [message, setMessage] = React.useState('');
   const [showEmojiPicker, setShowEmojiPicker] = React.useState(false);
+  const emojiPickerRef = useRef<HTMLDivElement>(null);
   const [isTextAreaFocused, setIsTextAreaFocused] = React.useState(false);
   const textAreaRef: RefObject<TextareaAutosize> = useRef<TextareaAutosize>(null);
   const { isMobile } = deviceInfo;
@@ -396,6 +394,19 @@ const ChatMessageForm: React.FC<ChatMessageFormProps> = ({
       }
     }, [chatSendMessageError]);
 
+    useEffect(() => {
+      const handleClickOutside = (event: MouseEvent) => {
+        if (emojiPickerRef.current && !emojiPickerRef.current.contains(event.target as Node)) {
+          setShowEmojiPicker(false);
+        }
+      };
+
+      document.addEventListener('mousedown', handleClickOutside);
+      return () => {
+        document.removeEventListener('mousedown', handleClickOutside);
+      };
+    }, []);
+
     return (
       <Styled.Form
         ref={formRef}
@@ -403,7 +414,7 @@ const ChatMessageForm: React.FC<ChatMessageFormProps> = ({
         isRTL={isRTL}
       >
         {showEmojiPicker ? (
-          <Styled.EmojiPickerWrapper>
+          <Styled.EmojiPickerWrapper ref={emojiPickerRef}>
             <Styled.EmojiPicker
               onEmojiSelect={(emojiObject: { native: string }) => handleEmojiSelect(emojiObject)}
               showPreview={false}
@@ -483,13 +494,7 @@ const ChatMessageForm: React.FC<ChatMessageFormProps> = ({
     );
   };
 
-  return ENABLE_EMOJI_PICKER ? (
-    <ClickOutside
-      onClick={() => handleClickOutside()}
-    >
-      {renderForm()}
-    </ClickOutside>
-  ) : renderForm();
+  return renderForm();
 };
 
 // eslint-disable-next-line no-empty-pattern
@@ -497,7 +502,6 @@ const ChatMessageFormContainer: React.FC = ({
   // connected, move to network status
 }) => {
   const intl = useIntl();
-  const [showEmojiPicker, setShowEmojiPicker] = React.useState(false);
   const idChatOpen: string = layoutSelect((i: Layout) => i.idChatOpen);
   const isRTL = layoutSelect((i: Layout) => i.isRTL);
   const { data: chat } = useChat((c: Partial<Chat>) => ({
@@ -535,12 +539,6 @@ const ChatMessageFormContainer: React.FC = ({
     }
   }
 
-  const handleClickOutside = () => {
-    if (showEmojiPicker) {
-      setShowEmojiPicker(false);
-    }
-  };
-
   if (chat?.participant && !chat.participant.isOnline) {
     return <ChatOfflineIndicator participantName={chat.participant.name} />;
   }
@@ -553,7 +551,6 @@ const ChatMessageFormContainer: React.FC = ({
         minMessageLength: CHAT_CONFIG.min_message_length,
         maxMessageLength: CHAT_CONFIG.max_message_length,
         idChatOpen,
-        handleClickOutside,
         chatId: idChatOpen,
         connected: true, // TODO: monitoring network status
         disabled: locked ?? false,

@@ -1,19 +1,19 @@
 import Bowser from 'bowser';
 
-const userAgent = window.navigator.userAgent;
-const BOWSER_RESULTS = Bowser.parse(userAgent);
+export const userAgent = window.navigator.userAgent;
+export const BOWSER_RESULTS = Bowser.parse(userAgent);
 
 const isPhone = BOWSER_RESULTS.platform.type === 'mobile';
 // we need a 'hack' to correctly detect ipads with ios > 13
-const isTablet = BOWSER_RESULTS.platform.type === 'tablet' || (BOWSER_RESULTS.os.name === 'macOS' && window.navigator.maxTouchPoints > 0);
-const isMobile = isPhone || isTablet;
-const hasMediaDevices = !!navigator.mediaDevices;
-const osName = BOWSER_RESULTS.os.name;
-const isIos = osName === 'iOS' || (isTablet && osName=="macOS");
-const isMacos = osName === 'macOS';
-const isIphone = !!(userAgent.match(/iPhone/i));
+export const isTablet = BOWSER_RESULTS.platform.type === 'tablet' || (BOWSER_RESULTS.os.name === 'macOS' && window.navigator.maxTouchPoints > 0);
+export const isMobile = isPhone || isTablet;
+export const hasMediaDevices = !!navigator.mediaDevices;
+export const osName = BOWSER_RESULTS.os.name;
+export const isIos = osName === 'iOS' || (isTablet && osName=="macOS");
+export const isMacos = osName === 'macOS';
+export const isIphone = !!(userAgent.match(/iPhone/i));
 
-const isPortrait = () => window.innerHeight > window.innerWidth;
+export const isPortrait = () => window.innerHeight > window.innerWidth;
 
 const deviceInfo = {
   isTablet,

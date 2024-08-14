@@ -38,6 +38,7 @@ import PeerTube from '../custom-players/peertube';
 import { ArcPlayer } from '../custom-players/arc-player';
 
 const AUTO_PLAY_BLOCK_DETECTION_TIMEOUT_SECONDS = 5;
+const UPDATE_INTERVAL_THRESHOLD_MS = 500;
 
 const intlMessages = defineMessages({
   autoPlayWarning: {
@@ -74,6 +75,11 @@ interface ExternalVideoPlayerProps {
   key: string;
   isSidebarContentOpen: boolean;
   setKey: (key: string) => void;
+  sendMessage: (event: string, data: {
+    rate: number;
+    time: number;
+    state?: string;
+  }) => void;
 }
 
 // @ts-ignore - PeerTubePlayer is not typed
@@ -97,6 +103,7 @@ const ExternalVideoPlayer: React.FC<ExternalVideoPlayerProps> = ({
   isEchoTest,
   key,
   setKey,
+  sendMessage,
 }) => {
   const intl = useIntl();
 
@@ -180,48 +187,8 @@ const ExternalVideoPlayer: React.FC<ExternalVideoPlayerProps> = ({
   const [duration, setDuration] = React.useState(0);
   const [reactPlayerState, setReactPlayerState] = React.useState(false);
 
-  const [updateExternalVideo] = useMutation(EXTERNAL_VIDEO_UPDATE);
-
-  let lastMessage: {
-    event: string;
-    rate: number;
-    time: number;
-    state?: string;
-  } = { event: '', rate: 0, time: 0 };
-
   const handleDuration = (duration: number) => {
     setDuration(duration);
-  };
-
-  const sendMessage = (event: string, data: { rate: number; time: number; state?: string}) => {
-    // don't re-send repeated update messages
-    if (
-      lastMessage.event === event
-      && lastMessage.time === data.time
-    ) {
-      return;
-    }
-
-    // don't register to redis a viewer joined message
-    if (event === 'viewerJoined') {
-      return;
-    }
-
-    lastMessage = { ...data, event };
-
-    // Use an integer for playing state
-    // 0: stopped 1: playing
-    // We might use more states in the future
-    const state = data.state ? 1 : 0;
-
-    updateExternalVideo({
-      variables: {
-        status: event,
-        rate: data?.rate,
-        time: data?.time,
-        state,
-      },
-    });
   };
 
   useEffect(() => {
@@ -247,7 +214,7 @@ const ExternalVideoPlayer: React.FC<ExternalVideoPlayerProps> = ({
   }, []);
 
   useEffect(() => {
-    if (playerRef.current) {
+    if (playerRef.current && !isPresenter) {
       const truncatedTime = currentTime < 1 ? 0 : currentTime;
       playerRef.current.seekTo(truncatedTime, 'seconds');
     }
@@ -286,7 +253,7 @@ const ExternalVideoPlayer: React.FC<ExternalVideoPlayerProps> = ({
 
   const handleOnPlay = () => {
     setReactPlayerState(true);
-    if (isPresenter) {
+    if (isPresenter && !playing) {
       const rate = playerRef.current?.getInternalPlayer()?.getPlaybackRate() as number ?? 1;
 
       const currentTime = played * duration;
@@ -294,14 +261,16 @@ const ExternalVideoPlayer: React.FC<ExternalVideoPlayerProps> = ({
         rate,
         time: currentTime,
       });
-    } else if (!playing && !isPresenter) {
+    }
+
+    if (!playing && !isPresenter) {
       playerRef.current?.getInternalPlayer().pauseVideo();
     }
   };
 
   const handleOnStop = () => {
     setReactPlayerState(false);
-    if (isPresenter) {
+    if (isPresenter && playing) {
       const rate = playerRef.current?.getInternalPlayer()?.getPlaybackRate() as number ?? 1;
       const currentTime = playerRef.current?.getCurrentTime() ?? 0;
       sendMessage('stop', {
@@ -315,8 +284,9 @@ const ExternalVideoPlayer: React.FC<ExternalVideoPlayerProps> = ({
     }
   };
 
-  const handleOnReady = () => {
-    currentTime = -1;
+  const handleOnReady = (reactPlayer: ReactPlayer) => {
+    const truncatedTime = currentTime < 1 ? 0 : currentTime;
+    reactPlayer.seekTo(truncatedTime, 'seconds');
   };
 
   const handleProgress = (state: OnProgressProps) => {
@@ -430,17 +400,55 @@ const ExternalVideoPlayerContainer: React.FC = () => {
   /* eslint no-underscore-dangle: "off" */
   // @ts-ignore - temporary while hybrid (meteor+GraphQl)
   const isEchoTest = useReactiveVar(audioManager._isEchoTest.value) as boolean;
-  const theresNoExternalVideo = useRef(true);
   const { data: currentUser } = useCurrentUser((user) => ({
     presenter: user.presenter,
   }));
-  const currentVolume = React.useRef(0);
-  const isMuted = React.useRef(false);
-
   const { data: currentMeeting } = useMeeting((m) => ({
     externalVideo: m.externalVideo,
     layout: m.layout,
   }));
+  const currentVolume = React.useRef(0);
+  const isMuted = React.useRef(false);
+  const theresNoExternalVideo = useRef(true);
+  const lastMessageRef = useRef<{
+    event: string;
+    rate: number;
+    time: number;
+    state?: string;
+  }>({ event: '', rate: 0, time: 0 });
+
+  const [updateExternalVideo] = useMutation(EXTERNAL_VIDEO_UPDATE);
+
+  const sendMessage = (event: string, data: { rate: number; time: number; state?: string}) => {
+    // don't re-send repeated update messages
+    if (
+      lastMessageRef.current.event === event
+      && Math.abs(lastMessageRef.current.time - data.time) < UPDATE_INTERVAL_THRESHOLD_MS
+    ) {
+      return;
+    }
+
+    // don't register to redis a viewer joined message
+    if (event === 'viewerJoined') {
+      return;
+    }
+
+    lastMessageRef.current = { ...data, event };
+
+    // Use an integer for playing state
+    // 0: stopped 1: playing
+    // We might use more states in the future
+    const state = data.state ? 1 : 0;
+
+    updateExternalVideo({
+      variables: {
+        status: event,
+        rate: data?.rate,
+        time: data?.time,
+        state,
+      },
+    });
+  };
 
   useEffect(() => {
     if (!currentMeeting?.externalVideo?.externalVideoUrl && !theresNoExternalVideo.current) {
@@ -533,6 +541,8 @@ const ExternalVideoPlayerContainer: React.FC = () => {
    + (playerCurrentTime) * playerPlaybackRate;
   const isPresenter = currentUser.presenter ?? false;
   const isGridLayout = currentMeeting.layout?.currentLayoutType === 'VIDEO_FOCUS';
+  const playing = currentMeeting.externalVideo?.playerPlaying ?? false;
+  const videoUrl = currentMeeting.externalVideo?.externalVideoUrl ?? '';
 
   return (
     <ExternalVideoPlayer
@@ -542,15 +552,16 @@ const ExternalVideoPlayerContainer: React.FC = () => {
       isMuted={isMuted}
       isEchoTest={isEchoTest}
       isPresenter={isPresenter ?? false}
-      videoUrl={currentMeeting.externalVideo?.externalVideoUrl ?? ''}
-      playing={currentMeeting.externalVideo?.playerPlaying ?? false}
-      playerPlaybackRate={currentMeeting.externalVideo?.playerPlaybackRate ?? 1}
+      videoUrl={videoUrl}
+      playing={playing}
+      playerPlaybackRate={playerPlaybackRate}
       isResizing={isResizing}
       fullscreenContext={fullscreenContext}
       externalVideo={externalVideo}
       currentTime={currentTime}
       key={key}
       setKey={setKey}
+      sendMessage={sendMessage}
     />
   );
 };

@@ -81,12 +81,15 @@ Following the license change of Akka back in September 2022 we considered severa
 
 Administrators will appreciate that we now allow passing of custom client settings through the meeting create API call. You no longer need separate servers to accommodate for sessions requiring vastly different settings.yml configuration
 
-#### Major strides in replacing Meteor
+#### Removal of Meteor and MongoDB
 
-For years we have discussed internally the topic of replacing Meteor.js with other technologies in order to improve scalability, performance, etc. In the last year we have introduced several different new components to replace Meteor. The work is underway, it will span into BigBlueButton 3.0, 3.1, possibly 3.2 too.
-These new components are: `bbb-graphql-server`, `bbb-graphql-middleware`, `bbb-graphql-actions`, database Postgres, GraphQL server Hasura.
+For years we have discussed internally the topic of replacing Meteor.js with other technologies in order to improve scalability, performance, etc. In the last year we have introduced several different new components to replace Meteor.
+These new components are: `bbb-graphql-server`, `bbb-graphql-middleware`, `bbb-graphql-actions`, database Postgres, GraphQL server Hasura. As of BigBlueButton 3.0.0-beta.1 we are no longer using Meteor or MongoDB.
 
-Note: The services `bbb-html5-backend` and `bbb-html5-frontend` have been removed and `bbb-html5` modified heavily as a result of the change in architecture.
+Note: The services `bbb-html5-backend`, `bbb-html5-frontend`, `bbb-html5` and `mongod` have been removed. The client code is compacted and served by NginX. The service `disable-transparent-huge-pages.service` was also removed as it was used to improve performance of MongoDB and is now obsolete.
+The package `bbb-html5-nodejs` is no longer needed.
+
+**Important**: Please make sure you're no longer carrying around NodeJS v14 which we used to deploy in `bbb-html5-nodejs`. Your directory `/usr/lib/bbb-html5/node` should not exist.
 
 #### The whiteboard was improved
 
@@ -125,7 +128,7 @@ Recent releases:
 
 #### Removal of Kurento
 
-We have removed all use of Kurento Media Server. For the live media transmission we still rely on mediasoup. For the recording portion we make use of our own component `bbb-webrtc-recorder`. BigBlueButton 3.0 is the first release where we do not even install Kurento.
+We have removed all use of Kurento Media Server. For the live media transmission we rely on mediasoup. For the recording portion we make use of our own component `bbb-webrtc-recorder`. BigBlueButton 3.0 is the first release where we do not install Kurento.
 
 #### Select Random User feature removed and is now a plugin
 
@@ -197,8 +200,7 @@ The build scripts for packaging 3.0 (using fpm) are located in the GitHub reposi
 
 We welcome contributors to BigBlueButton 3.0!  The best ways to contribute at the current time are:
 
-<!-- - Help localize BigBlueButton 3.0 on [Transifex project for BBB 3.0](https://www.transifex.com/bigbluebutton/bigbluebutton-v30-html5-client/dashboard/) -->
-
+- Help localize BigBlueButton 3.0 on [Transifex project for BBB 3.0](https://www.transifex.com/bigbluebutton/bigbluebutton-v30-html5-client/dashboard/)
 - Try out [installing BigBlueButton 3.0](/administration/install) and see if you spot any issues.
 - Help test a [3.0 pull request](https://github.com/bigbluebutton/bigbluebutton/pulls?q=is%3Aopen+is%3Apr+milestone%3A%22Release+3.0%22) in your development environment.
   <!-- TODO create a GitHub label for contributions-welcome and link here -->
