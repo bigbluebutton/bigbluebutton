@@ -256,6 +256,9 @@
 .icon-bbb-thumbs_down_filled:before {
   content: "\e944";
 }
+.icon-bbb-thumbs_up:before {
+  content: "\e92d";
+}
 .icon-bbb-thumbs_up_filled:before {
   content: "\e945";
 }
