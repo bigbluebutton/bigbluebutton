@@ -12,7 +12,6 @@ import {
   shareScreen,
   screenshareHasEnded,
   useIsCameraAsContentBroadcasting,
-  useIsSharing,
 } from '/imports/ui/components/screenshare/service';
 import { SCREENSHARING_ERRORS } from '/imports/api/screenshare/client/bridge/errors';
 import Button from '/imports/ui/components/common/button/component';
@@ -26,6 +25,7 @@ const propTypes = {
   enabled: PropTypes.bool.isRequired,
   amIPresenter: PropTypes.bool,
   isScreenBroadcasting: PropTypes.bool.isRequired,
+  isScreenGloballyBroadcasting: PropTypes.bool.isRequired,
   isMeteorConnected: PropTypes.bool.isRequired,
 };
 
@@ -117,6 +117,7 @@ const ScreenshareButton = ({
   intl,
   enabled,
   isScreenBroadcasting,
+  isScreenGloballyBroadcasting,
   amIPresenter = false,
   isMeteorConnected,
 }) => {
@@ -172,8 +173,7 @@ const ScreenshareButton = ({
     && amIPresenter;
 
   const dataTest = isScreenBroadcasting ? 'stopScreenShare' : 'startScreenShare';
-  const isSharing = useIsSharing();
-  const loading = isSharing && !isScreenBroadcasting;
+  const loading = isScreenBroadcasting && !isScreenGloballyBroadcasting;
 
   return (
     <>
