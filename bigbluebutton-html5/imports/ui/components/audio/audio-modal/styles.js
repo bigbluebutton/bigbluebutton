@@ -63,6 +63,7 @@ const Connecting = styled.div`
   margin-top: auto;
   margin-bottom: auto;
   font-size: 2rem;
+  text-align: center;
 `;
 
 const ellipsis = keyframes`

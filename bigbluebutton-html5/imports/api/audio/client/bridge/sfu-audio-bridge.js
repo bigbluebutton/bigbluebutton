@@ -20,6 +20,7 @@ import { shouldForceRelay } from '/imports/ui/services/bbb-webrtc-sfu/utils';
 
 const SENDRECV_ROLE = 'sendrecv';
 const RECV_ROLE = 'recv';
+const PASSIVE_SENDRECV_ROLE = 'passive-sendrecv';
 const BRIDGE_NAME = 'fullaudio';
 const IS_CHROME = browserInfo.isChrome;
 
@@ -81,7 +82,7 @@ export default class SFUAudioBridge extends BaseAudioBridge {
     const MEDIA = SETTINGS.public.media;
     const LISTEN_ONLY_OFFERING = MEDIA.listenOnlyOffering;
     const FULLAUDIO_OFFERING = MEDIA.fullAudioOffering;
-    return isListenOnly
+    return isListenOnly && !isTransparentListenOnlyEnabled()
       ? LISTEN_ONLY_OFFERING
       : (!isTransparentListenOnlyEnabled() && FULLAUDIO_OFFERING);
   }
@@ -95,12 +96,17 @@ export default class SFUAudioBridge extends BaseAudioBridge {
     this.reconnecting = false;
     this.iceServers = [];
     this.bridgeName = BRIDGE_NAME;
+    this.isListenOnly = false;
+    this.bypassGUM = false;
+    this.supportsTransparentListenOnly = isTransparentListenOnlyEnabled;
 
     this.handleTermination = this.handleTermination.bind(this);
   }
 
   get inputStream() {
-    if (this.broker) {
+    // Only return the stream if the broker is active and the role isn't recvonly
+    // Input stream == actual input-capturing stream, not the one that's being played
+    if (this.broker && this.role !== RECV_ROLE) {
       return this.broker.getLocalStream();
     }
 
@@ -109,6 +115,18 @@ export default class SFUAudioBridge extends BaseAudioBridge {
 
   get role() {
     return this.broker?.role;
+  }
+
+  getBrokerRole({ hasInputStream }) {
+    if (this.isListenOnly) {
+      return isTransparentListenOnlyEnabled()
+        ? PASSIVE_SENDRECV_ROLE
+        : RECV_ROLE;
+    }
+
+    if (this.bypassGUM && !hasInputStream) return PASSIVE_SENDRECV_ROLE;
+
+    return SENDRECV_ROLE;
   }
 
   setInputStream(stream) {
@@ -326,6 +344,7 @@ export default class SFUAudioBridge extends BaseAudioBridge {
         extension,
         inputStream,
         forceRelay: _forceRelay = false,
+        bypassGUM = false,
       } = options;
 
       const SETTINGS = window.meetingClientSettings;
@@ -349,6 +368,10 @@ export default class SFUAudioBridge extends BaseAudioBridge {
       try {
         this.inEchoTest = !!extension;
         this.isListenOnly = isListenOnly;
+        this.bypassGUM = bypassGUM;
+        const role = this.getBrokerRole({
+          hasInputStream: !!inputStream,
+        });
 
         const brokerOptions = {
           clientSessionNumber: getAudioSessionNumber(),
@@ -365,11 +388,12 @@ export default class SFUAudioBridge extends BaseAudioBridge {
           mediaStreamFactory: this.mediaStreamFactory,
           gatheringTimeout: GATHERING_TIMEOUT,
           transparentListenOnly: isTransparentListenOnlyEnabled(),
+          bypassGUM,
         };
 
         this.broker = new AudioBroker(
           Auth.authenticateURL(SFU_URL),
-          isListenOnly ? RECV_ROLE : SENDRECV_ROLE,
+          role,
           brokerOptions,
         );
 

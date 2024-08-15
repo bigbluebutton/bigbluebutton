@@ -56,6 +56,10 @@ export const DisabledLabel = {
   opacity: 1,
 };
 
+export const AudioSettingsOption = {
+  paddingLeft: 12,
+};
+
 export const SelectedLabel = {
   color: colorPrimary,
   backgroundColor: colorOffWhite,
@@ -80,6 +84,7 @@ export default {
   MuteToggleButton,
   DisabledLabel,
   SelectedLabel,
+  AudioSettingsOption,
   DangerColor,
   AudioDropdown,
 };

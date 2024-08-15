@@ -3,13 +3,21 @@ import AudioManager from '/imports/ui/services/audio-manager';
 import logger from '/imports/startup/client/logger';
 import Storage from '../../services/storage/session';
 import { useReactiveVar } from '@apollo/client';
+import {
+  getAudioConstraints,
+  doGUM,
+} from '/imports/api/audio/client/bridge/service';
+import {
+  toggleMuteMicrophone,
+  toggleMuteMicrophoneSystem,
+} from '/imports/ui/components/audio/audio-graphql/audio-controls/input-stream-live-selector/service';
 
 const MUTED_KEY = 'muted';
 
 const recoverMicState = (toggleVoice) => {
   const muted = Storage.getItem(MUTED_KEY);
 
-  if ((muted === undefined) || (muted === null)) {
+  if ((muted === undefined) || (muted === null) || AudioManager.inputDeviceId === 'listen-only') {
     return;
   }
 
@@ -65,13 +73,73 @@ const useIsUsingAudio = () => {
   return Boolean(isConnected || isConnecting || isHangingUp || isEchoTest);
 };
 
+const hasMicrophonePermission = async ({
+  permissionStatus,
+  gumOnPrompt = false,
+}) => {
+  try {
+    let status = permissionStatus;
+
+    // If the browser doesn't support the Permissions API, we can't check
+    // microphone permissions - return null (unknown)
+    if (navigator?.permissions?.query == null) return null;
+
+    if (!status) {
+      ({ state: status } = await navigator.permissions.query({ name: 'microphone' }));
+    }
+
+    switch (status) {
+      case 'denied':
+        return false;
+      case 'prompt':
+        // Prompt without any subsequent action is considered unknown
+        if (!gumOnPrompt) {
+          return null;
+        }
+
+        return doGUM({ audio: getAudioConstraints() }).then((stream) => {
+          stream.getTracks().forEach((track) => {
+            track.stop();
+            stream.removeTrack(track);
+          });
+          return true;
+        }).catch((error) => {
+          if (error.name === 'NotAllowedError') {
+            return false;
+          }
+
+          // Give it the benefit of the doubt. It might be a device mismatch
+          // or something else that's not a permissions issue, so let's try
+          // to proceed. Rollbacks that happen downstream might fix the issue,
+          // otherwise we'll land on the Help screen anyways
+          return null;
+        });
+
+      case 'granted':
+      default:
+        return true;
+    }
+  } catch (error) {
+    logger.error({
+      logCode: 'audio_check_microphone_permission_error',
+      extraInfo: {
+        errorName: error.name,
+        errorMessage: error.message,
+      },
+    }, `Error checking microphone permission: ${error.message}`);
+
+    // Null = could not determine permission status
+    return null;
+  }
+};
+
 export default {
   init,
   exitAudio: () => AudioManager.exitAudio(),
   forceExitAudio: () => AudioManager.forceExitAudio(),
   transferCall: () => AudioManager.transferCall(),
   joinListenOnly: () => AudioManager.joinListenOnly(),
-  joinMicrophone: () => AudioManager.joinMicrophone(),
+  joinMicrophone: (options) => AudioManager.joinMicrophone(options),
   joinEchoTest: () => AudioManager.joinEchoTest(),
   changeInputDevice: (inputDeviceId) => AudioManager.changeInputDevice(inputDeviceId),
   changeInputStream: (newInputStream) => { AudioManager.inputStream = newInputStream; },
@@ -80,6 +148,8 @@ export default {
     outputDeviceId,
     isLive,
   ) => AudioManager.changeOutputDevice(outputDeviceId, isLive),
+  toggleMuteMicrophone,
+  toggleMuteMicrophoneSystem,
   isConnectedToBreakout: () => {
     const transferStatus = AudioManager.getBreakoutAudioTransferStatus();
     if (transferStatus.status
@@ -95,13 +165,14 @@ export default {
   isUsingAudio: () => AudioManager.isUsingAudio(),
   isConnecting: () => AudioManager.isConnecting,
   isListenOnly: () => AudioManager.isListenOnly,
+  inputDeviceId: () => AudioManager.inputDeviceId,
+  outputDeviceId: () => AudioManager.outputDeviceId,
   isEchoTest: () => AudioManager.isEchoTest,
   isMuted: () => AudioManager.isMuted,
   autoplayBlocked: () => AudioManager.autoplayBlocked,
   handleAllowAutoplay: () => AudioManager.handleAllowAutoplay(),
   playAlertSound: (url) => AudioManager.playAlertSound(url),
-  updateAudioConstraints:
-    (constraints) => AudioManager.updateAudioConstraints(constraints),
+  updateAudioConstraints: (constraints) => AudioManager.updateAudioConstraints(constraints),
   recoverMicState,
   isReconnecting: () => AudioManager.isReconnecting,
   setBreakoutAudioTransferStatus: (status) => AudioManager
@@ -109,6 +180,10 @@ export default {
   getBreakoutAudioTransferStatus: () => AudioManager
     .getBreakoutAudioTransferStatus(),
   getStats: () => AudioManager.getStats(),
+  getAudioConstraints,
+  doGUM,
+  supportsTransparentListenOnly: () => AudioManager.supportsTransparentListenOnly(),
+  hasMicrophonePermission,
   notify: (message, error, icon) => { AudioManager.notify(message, error, icon); },
   useIsUsingAudio,
 };
