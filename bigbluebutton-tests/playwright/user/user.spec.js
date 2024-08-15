@@ -29,13 +29,13 @@ test.describe.parallel('User', () => {
       await multiusers.toggleUserList();
     });
 
-    test('Stopwatch', async ({ browser, context, page })=> {
+    test('Stopwatch @ci', async ({ browser, context, page })=> {
       const timer = new Timer(browser, context);
       await timer.initModPage(page, true);
       await timer.stopwatchTest();
     });
 
-    test('Timer', async ({ browser, context, page })=> {
+    test('Timer @ci', async ({ browser, context, page })=> {
       const timer = new Timer(browser, context);
       await timer.initModPage(page, true);
       await timer.timerTest();
