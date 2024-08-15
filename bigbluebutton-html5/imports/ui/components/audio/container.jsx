@@ -26,6 +26,7 @@ import { useStorageKey } from '../../services/storage/hooks';
 import { BREAKOUT_COUNT } from './queries';
 import useMeeting from '../../core/hooks/useMeeting';
 import useWhoIsUnmuted from '../../core/hooks/useWhoIsUnmuted';
+import AudioService from '/imports/ui/components/audio/service';
 
 const intlMessages = defineMessages({
   joinedAudio: {
@@ -207,6 +208,21 @@ const AudioContainer = (props) => {
       joinAudio();
     }
   }, [userIsReturningFromBreakoutRoom]);
+
+  useEffect(() => {
+    const CONFIRMATION_ON_LEAVE = window.meetingClientSettings.public.app.askForConfirmationOnLeave;
+    if (CONFIRMATION_ON_LEAVE) {
+      window.onbeforeunload = (event) => {
+        if (AudioService.isUsingAudio() && !AudioService.isMuted()) {
+          toggleVoice(currentUser?.userId, true);
+        }
+        event.stopImmediatePropagation();
+        event.preventDefault();
+        // eslint-disable-next-line no-param-reassign
+        event.returnValue = '';
+      };
+    }
+  }, [currentUser?.userId, toggleVoice]);
 
   if (Service.isConnected() && !Service.isListenOnly()) {
     Service.updateAudioConstraints(microphoneConstraints);
