@@ -1,9 +1,6 @@
 name: Merge branches
-on:
-  workflow_call:
-
 runs:
-  using: "composite"
+  using: composite
   steps:
     - name: Checkout ${{ github.event.pull_request.base.ref || 'master' }}
       uses: actions/checkout@v4
