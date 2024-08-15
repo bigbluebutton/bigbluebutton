@@ -104,6 +104,9 @@ public class PresentationUrlDownloadService {
 
         // A negative presentationSlide indicates the entire presentation deck should be used.
         Boolean extractWholePresentation = presentationSlide < 0;
+        String filenameWithoutExtension = FilenameUtils.removeExtension(sourcePresentationFilename);
+
+        // Append the slide number to the filename if a single slide is being extracted
         String presentationSlideInFilename = extractWholePresentation ? "" : ("-" + presentationSlide.toString());
 
         // Build the source meeting path
@@ -169,7 +172,7 @@ public class PresentationUrlDownloadService {
         processUploadedFile("DEFAULT_PRESENTATION_POD",
           destinationMeetingId,
           presId,
-          sourcePresentationFilename + presentationSlideInFilename + "." + filenameExt,
+          filenameWithoutExtension + presentationSlideInFilename + "." + filenameExt,
           newPresentation,
           true,
           "breakout-authz-token",

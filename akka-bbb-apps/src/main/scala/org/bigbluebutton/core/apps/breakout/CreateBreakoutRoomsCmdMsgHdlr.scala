@@ -56,7 +56,7 @@ trait CreateBreakoutRoomsCmdMsgHdlr extends RightsManagementTrait {
       val breakout = BreakoutModel.create(parentId, internalId, externalId, room.name, room.sequence, room.shortName,
                                           room.isDefaultName, room.freeJoin, voiceConf, room.users, msg.body.captureNotes,
                                           msg.body.captureSlides, room.captureNotesFilename, room.captureSlidesFilename,
-                                          room.allPages, roomPresId, room.shortName)
+                                          room.allPages, roomPresId, room.sourcePresentationFilename)
 
       rooms = rooms + (breakout.id -> breakout)
     }
