@@ -229,7 +229,7 @@ const MeetingEnded: React.FC<MeetingEndedProps> = ({
       isModerator,
     };
 
-    const pathMatch = window.location.pathname.match('^(.*)/html5client/join$');
+    const pathMatch = window.location.pathname.match('^(.*)/html5client/$');
     if (pathMatch == null) {
       throw new Error('Failed to match BBB client URI');
     }
@@ -319,6 +319,23 @@ const MeetingEnded: React.FC<MeetingEndedProps> = ({
   const feedbackScreen = useMemo(() => {
     const shouldShowFeedback = askForFeedbackOnLogout && !dispatched;
     const noRating = selectedStars === 0;
+
+    let buttonAction = () => confirmRedirect(isBreakout, allowDefaultLogoutUrl);
+    let buttonDesc = intl.formatMessage(intlMessage.confirmDesc);
+    let buttonLabel = intl.formatMessage(intlMessage.buttonOkay);
+
+    if (!dispatched) {
+      if (noRating) {
+        buttonAction = () => setDispatched(true);
+        buttonDesc = intl.formatMessage(intlMessage.confirmDesc);
+        buttonLabel = intl.formatMessage(intlMessage.buttonOkay);
+      } else {
+        buttonAction = () => sendFeedback();
+        buttonDesc = intl.formatMessage(intlMessage.sendDesc);
+        buttonLabel = intl.formatMessage(intlMessage.sendLabel);
+      }
+    }
+
     return (
       <>
         <Styled.Text>
@@ -344,23 +361,13 @@ const MeetingEnded: React.FC<MeetingEndedProps> = ({
           </div>
         ) : null}
         <Styled.Wrapper>
-          {noRating ? (
-            <Styled.MeetingEndedButton
-              color="primary"
-              onClick={() => setDispatched(true)}
-              aria-details={intl.formatMessage(intlMessage.confirmDesc)}
-            >
-              {intl.formatMessage(intlMessage.buttonOkay)}
-            </Styled.MeetingEndedButton>
-          ) : null}
-          {!noRating ? (
-            <Styled.MeetingEndedButton
-              onClick={sendFeedback}
-              aria-details={intl.formatMessage(intlMessage.sendDesc)}
-            >
-              {intl.formatMessage(intlMessage.sendLabel)}
-            </Styled.MeetingEndedButton>
-          ) : null}
+          <Styled.MeetingEndedButton
+            color="primary"
+            onClick={buttonAction}
+            aria-details={buttonDesc}
+          >
+            {buttonLabel}
+          </Styled.MeetingEndedButton>
         </Styled.Wrapper>
       </>
     );
