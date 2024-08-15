@@ -44,6 +44,13 @@ async function drawArrow(test) {
   await test.page.mouse.up();
 }
 
+async function timeInSeconds(locator) {
+  const text = await locator.innerText();
+  const [hours, minutes, seconds] = text.split(':').map(Number);
+  const timeInSeconds = hours * 3600 + minutes * 60 + seconds;
+  return timeInSeconds;
+}
+
 exports.setStatus = setStatus;
 exports.openLockViewers = openLockViewers;
 exports.setGuestPolicyOption = setGuestPolicyOption;
@@ -51,3 +58,4 @@ exports.checkAvatarIcon = checkAvatarIcon;
 exports.checkIsPresenter = checkIsPresenter;
 exports.checkMutedUsers = checkMutedUsers;
 exports.drawArrow = drawArrow;
+exports.timeInSeconds = timeInSeconds;
