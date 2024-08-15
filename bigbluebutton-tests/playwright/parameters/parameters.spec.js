@@ -65,7 +65,7 @@ test.describe.parallel('Create Parameters', { tag: '@ci' }, () => {
     await createParam.muteOnStart();
   });
 
-  test('Allow Mods To Unmute Users', { tag: '@flaky' }, async ({ browser, context, page }) => {
+  test('Allow Mods To Unmute Users', { tag: '@fci' }, async ({ browser, context, page }) => {
     const createParam = new CreateParameters(browser, context);
     await createParam.initModPage(page, true, { createParameter: c.allowModsToUnmuteUsers });
     await createParam.allowModsToUnmuteUsers(context);
