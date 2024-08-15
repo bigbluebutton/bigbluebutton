@@ -41,7 +41,7 @@
     "@mui/system": "^5.12.3",
     "@tldraw/tldraw": "^1.27.0",
     "autoprefixer": "^10.4.4",
-    "axios": "^1.6.4",
+    "axios": "^1.7.4",
     "babel-runtime": "~6.26.0",
     "bowser": "^2.11.0",
     "browser-bunyan": "^1.8.0",
