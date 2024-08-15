@@ -32,10 +32,9 @@ const Form = styled.div`
 `;
 
 const AudioNote = styled.div`
-  display: flex;
-  flex-flow: column;
+  display: block;
+  margin: ${mdPaddingY} ${mdPaddingX} 0 ${mdPaddingX};
   text-align: center;
-  justify-content: center;
   @media ${smallOnly} {
     font-size: ${fontSizeSmall};
   }

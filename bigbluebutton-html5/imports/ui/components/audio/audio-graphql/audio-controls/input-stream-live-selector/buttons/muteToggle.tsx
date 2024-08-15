@@ -73,7 +73,7 @@ export const MuteToggle: React.FC<MuteToggleProps> = ({
       } else if (noInputDevice) {
         // User is in duplex audio, passive-sendrecv, but has no input device set
         // Open the audio settings modal to allow them to select an input device
-        openAudioSettings();
+        openAudioSettings({ unmuteOnExit: true });
       }
     }
 

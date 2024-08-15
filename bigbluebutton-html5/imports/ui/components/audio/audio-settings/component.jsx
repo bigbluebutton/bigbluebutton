@@ -96,6 +96,14 @@ const intlMessages = defineMessages({
     id: 'app.audio.audioSettings.findingDevicesTitle',
     description: 'Message for finding audio devices',
   },
+  noMicSelectedWarning: {
+    id: 'app.audio.audioSettings.noMicSelectedWarning',
+    description: 'Warning when no mic is selected',
+  },
+  baseSubtitle: {
+    id: 'app.audio.audioSettings.baseSubtitle',
+    description: 'Base subtitle for audio settings',
+  },
 });
 
 class AudioSettings extends React.Component {
@@ -208,7 +216,7 @@ class AudioSettings extends React.Component {
   }
 
   handleConfirmationClick() {
-    const { stream, inputDeviceId } = this.state;
+    const { stream, inputDeviceId: selectedInputDeviceId } = this.state;
     const {
       isConnected,
       produceStreams,
@@ -216,19 +224,37 @@ class AudioSettings extends React.Component {
       liveChangeInputDevice,
     } = this.props;
 
-    // If connected, we need to use the in-call device change method so that all
-    // components pick up the change and the peer is properly updated.
-    if (isConnected) liveChangeInputDevice(inputDeviceId);
+    const confirm = () => {
+      // Stream generation disabled or there isn't any stream: just run the provided callback
+      if (!produceStreams || !stream) return handleConfirmation();
 
-    // Stream generation disabled or there isn't any stream: just run the provided callback
-    if (!produceStreams || !stream) return handleConfirmation();
+      // Stream generation enabled and there is a valid input stream => call
+      // the confirmation callback with the input stream as arg so it can be used
+      // in upstream components. The rationale is no surplus gUM calls.
+      // We're cloning it because the original will be cleaned up on unmount here.
+      const clonedStream = stream.clone();
 
-    // Stream generation enabled and there is a valid input stream => call
-    // the confirmation callback with the input stream as arg so it can be used
-    // in upstream components. The rationale is no surplus gUM calls.
-    // We're cloning it because the original will be cleaned up on unmount here.
-    const clonedStream = stream.clone();
-    return handleConfirmation(clonedStream);
+      return handleConfirmation(clonedStream);
+    };
+
+    if (isConnected) {
+      // If connected, we need to use the in-call device change method so that all
+      // components pick up the change and the peer is properly updated.
+      liveChangeInputDevice(selectedInputDeviceId).catch((error) => {
+        logger.warn({
+          logCode: 'audiosettings_live_change_device_failed',
+          extraInfo: {
+            errorMessage: error?.message,
+            errorStack: error?.stack,
+            errorName: error?.name,
+          },
+        }, `Audio settings live change device failed: ${error.name}`);
+      }).finally(() => {
+        confirm();
+      });
+    } else {
+      confirm();
+    }
   }
 
   handleCancelClick() {
@@ -465,26 +491,41 @@ class AudioSettings extends React.Component {
     );
   }
 
+  renderAudioNote() {
+    const {
+      animations,
+      intl,
+    } = this.props;
+    const { findingDevices, inputDeviceId: selectedInputDeviceId } = this.state;
+    let subtitle = intl.formatMessage(intlMessages.baseSubtitle);
+
+    if (findingDevices) {
+      subtitle = intl.formatMessage(intlMessages.findingDevicesTitle);
+    } else if (selectedInputDeviceId === 'listen-only') {
+      subtitle = intl.formatMessage(intlMessages.noMicSelectedWarning);
+    }
+
+    return (
+      <Styled.AudioNote>
+        <span>{subtitle}</span>
+        {findingDevices && <Styled.FetchingAnimation animations={animations} />}
+      </Styled.AudioNote>
+    );
+  }
+
   render() {
     const {
-      findingDevices,
       producingStreams,
     } = this.state;
     const {
       isConnecting,
       isConnected,
       intl,
-      animations,
     } = this.props;
 
     return (
       <Styled.FormWrapper data-test="audioSettingsModal">
-        {findingDevices && (
-          <Styled.AudioNote>
-            <span>{intl.formatMessage(intlMessages.findingDevicesTitle)}</span>
-            <Styled.FetchingAnimation animations={animations} />
-          </Styled.AudioNote>
-        )}
+        {this.renderAudioNote()}
         <Styled.Form>
           {this.renderDeviceSelectors()}
         </Styled.Form>

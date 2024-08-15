@@ -667,7 +667,9 @@ const AudioModal = ({
   let title = content
     ? intl.formatMessage(contents[content].title)
     : intl.formatMessage(intlMessages.audioChoiceLabel);
-  title = !skipAudioOptions() && !findingDevices ? title : null;
+  title = !skipAudioOptions() && (!findingDevices || content)
+    ? title
+    : null;
 
   return (
     <Styled.AudioModal

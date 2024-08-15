@@ -157,6 +157,10 @@ class AudioManager {
     }
   }
 
+  // inputDeviceId is a string that represents a MediaDeviceInfo.deviceId OR a static
+  // 'listen-only' string that represents our "virtual" listen-only device.
+  // i.e.: the user has a bidirectional audio channel, but did not specify any
+  // input device to it.
   get inputDeviceId() {
     return this._inputDeviceId.value();
   }
