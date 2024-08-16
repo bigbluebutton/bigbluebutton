@@ -12,7 +12,7 @@ test.describe.parallel('Presentation', () => {
     await presentation.skipSlide();
   });
 
-  test('Share Camera As Content', { tag: '@ci' }, async ({ browser, context, page }) => {
+  test('Share Camera As Content @ci', async ({ browser, context, page }) => {
     const presentation = new Presentation(browser, context);
     await presentation.initPages(page);
     await presentation.shareCameraAsContent();
