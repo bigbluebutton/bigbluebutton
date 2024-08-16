@@ -497,8 +497,8 @@ class AudioManager {
   }
 
   onAudioJoin() {
-    this.isConnecting = false;
     this.isConnected = true;
+    this.isConnecting = false;
 
     const STATS = window.meetingClientSettings.public.stats;
 
