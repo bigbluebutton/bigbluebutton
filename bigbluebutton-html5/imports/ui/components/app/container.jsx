@@ -25,7 +25,6 @@ import useDeduplicatedSubscription from '../../core/hooks/useDeduplicatedSubscri
 import useSettings from '../../services/settings/hooks/useSettings';
 import { SETTINGS } from '../../services/settings/enums';
 import { useStorageKey } from '../../services/storage/hooks';
-import useMuteMicrophone from '../audio/audio-graphql/hooks/useMuteMicrophone';
 import { useVideoStreamsCount } from '../video-provider/hooks';
 
 const currentUserEmoji = (currentUser) => (currentUser
@@ -129,7 +128,6 @@ const AppContainer = (props) => {
     && pinnedPadData.sharedNotes[0]?.sharedNotesExtId === NOTES_CONFIG.id;
   const isSharedNotesPinned = sharedNotesInput?.isPinned && isSharedNotesPinnedFromGraphql;
   const isThereWebcam = useVideoStreamsCount() > 0;
-  const muteMicrophone = useMuteMicrophone();
   const isScreenSharingEnabled = useIsScreenSharingEnabled();
   const isExternalVideoEnabled = useIsExternalVideoEnabled();
   const isPresentationEnabled = useIsPresentationEnabled();
@@ -347,7 +345,6 @@ const AppContainer = (props) => {
           fontSize,
           isLargeFont,
           ignorePollNotifications,
-          muteMicrophone,
           isPresentationEnabled,
         }}
         {...otherProps}
