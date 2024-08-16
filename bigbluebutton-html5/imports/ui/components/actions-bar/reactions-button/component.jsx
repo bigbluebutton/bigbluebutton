@@ -74,7 +74,7 @@ const ReactionsButton = (props) => {
   };
 
   const handleReactionSelect = (reaction) => {
-    const newReaction = currentUserReaction === reaction ? 'none' : reaction;
+    const newReaction = currentUserReaction === reaction ? currentUserReaction : reaction;
     setReactionEmoji({ variables: { reactionEmoji: newReaction } });
   };
 
