@@ -866,7 +866,7 @@
     "app.guest.seatWait": "Vendég várakozik csatlakozáshoz",
     "app.guest.allow": "Vendég csatlakozása jóváhagyva",
     "app.guest.firstPositionInWaitingQueue": "Te vagy az első a sorban!",
-    "app.guest.positionInWaitingQueue": "Jelenlegi helyed a várakozási sorban:",
+    "app.guest.positionInWaitingQueue": "Jelenlegi helyed a várólistában:",
     "app.guest.guestInvalid": "A vendég felhasználó érvénytelen",
     "app.guest.meetingForciblyEnded": "Befejezett előadáshoz nem csatlakozhatsz",
     "app.userList.guest.waitingUsers": "Várakozók",
