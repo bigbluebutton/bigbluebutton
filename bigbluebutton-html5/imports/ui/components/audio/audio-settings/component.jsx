@@ -41,6 +41,7 @@ const propTypes = {
   toggleVoice: PropTypes.func.isRequired,
   permissionStatus: PropTypes.string,
   isTranscriptionEnabled: PropTypes.bool.isRequired,
+  skipAudioOptions: PropTypes.func.isRequired,
 };
 
 const defaultProps = {
@@ -520,6 +521,7 @@ class AudioSettings extends React.Component {
     const {
       isConnecting,
       isConnected,
+      skipAudioOptions,
       intl,
     } = this.props;
 
@@ -532,7 +534,7 @@ class AudioSettings extends React.Component {
         <Styled.BottomSeparator />
         <Styled.EnterAudio>
           <Styled.BackButton
-            label={isConnected
+            label={(isConnected || skipAudioOptions())
               ? intl.formatMessage(intlMessages.cancelLabel)
               : intl.formatMessage(intlMessages.backLabel)}
             color="secondary"
