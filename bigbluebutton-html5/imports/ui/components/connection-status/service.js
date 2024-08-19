@@ -34,35 +34,26 @@ export const getHelp = () => {
   return null;
 };
 
+export function getStatus(levels, value) {
+  const sortedLevels = Object.entries(levels)
+    .map((entry) => [entry[0], Number(entry[1])])
+    .sort((a, b) => a[1] - b[1]);
+
+  for (let i = 0; i < sortedLevels.length; i += 1) {
+    if (value < sortedLevels[i][1]) {
+      return i === 0 ? 'normal' : sortedLevels[i - 1][0];
+    }
+    if (i === sortedLevels.length - 1) {
+      return sortedLevels[i][0];
+    }
+  }
+
+  return sortedLevels[sortedLevels.length - 1][0];
+}
+
 export const getStats = () => {
   const STATS = window.meetingClientSettings.public.stats;
   return STATS.level[lastLevel()];
-};
-
-export const setStats = (level = -1, type = 'recovery', value = {}) => {
-  if (lastLevel() !== level) {
-    lastLevel(level);
-  }
-};
-
-export const handleAudioStatsEvent = (event) => {
-  const STATS = window.meetingClientSettings.public.stats;
-
-  const { detail } = event;
-  if (detail) {
-    const { loss, jitter } = detail;
-    let active = false;
-    // From higher to lower
-    for (let i = STATS.level.length - 1; i >= 0; i--) {
-      if (loss >= STATS.loss[i] || jitter >= STATS.jitter[i]) {
-        active = true;
-        setStats(i, 'audio', { loss, jitter });
-        break;
-      }
-    }
-
-    if (active) startStatsTimeout();
-  }
 };
 
 export const startStatsTimeout = () => {
@@ -381,23 +372,6 @@ export const calculateBitsPerSecondFromMultipleData = (currentData, previousData
 
 const sortConnectionData = (connectionData) => connectionData.sort(sortLevel).sort(sortOnline);
 
-export function getStatus(levels, value) {
-  const sortedLevels = Object.entries(levels)
-    .map((entry) => [entry[0], Number(entry[1])])
-    .sort((a, b) => a[1] - b[1]);
-
-  for (let i = 0; i < sortedLevels.length; i += 1) {
-    if (value < sortedLevels[i][1]) {
-      return i === 0 ? 'normal' : sortedLevels[i - 1][0];
-    }
-    if (i === sortedLevels.length - 1) {
-      return sortedLevels[i][0];
-    }
-  }
-
-  return sortedLevels[sortedLevels.length - 1][0];
-}
-
 /**
    * Start monitoring the network data.
    * @return {Promise} A Promise that resolves when process started.
@@ -487,7 +461,6 @@ export default {
   calculateBitsPerSecondFromMultipleData,
   getDataType,
   sortConnectionData,
-  handleAudioStatsEvent,
   startMonitoringNetwork,
   getStatus,
   getWorstStatus,
