@@ -2,7 +2,7 @@ const { expect, default: test } = require('@playwright/test');
 const { MultiUsers } = require('../user/multiusers');
 const e = require('../core/elements');
 const c = require('./constants');
-const { VIDEO_LOADING_WAIT_TIME, ELEMENT_WAIT_LONGER_TIME, ELEMENT_WAIT_EXTRA_LONG_TIME } = require('../core/constants');
+const { VIDEO_LOADING_WAIT_TIME, ELEMENT_WAIT_LONGER_TIME, ELEMENT_WAIT_EXTRA_LONG_TIME, ELEMENT_WAIT_TIME } = require('../core/constants');
 const util = require('./util');
 const { getSettings } = require('../core/settings');
 
@@ -30,9 +30,33 @@ class CustomParameters extends MultiUsers {
   }
 
   async askForFeedbackOnLogout() {
+    const rating = 4;
+    const feedbackMessage = 'This is a test comment';
     await this.modPage.logoutFromMeeting();
-    await this.modPage.hasElement(e.meetingEndedModal, 'should display the meeting ended modal, when the user leaves the meeting');
-    await this.modPage.hasElement(e.rating, 'should display the question for feedback after the user leaves');
+    await this.modPage.hasElement(e.meetingEndedModal, 'should display the meeting ended modal, when the user presses to leave the meeting');
+    await this.modPage.hasElement(e.rating, 'should display the question for feedback after the user presses to leave the meeting');
+    await this.modPage.wasRemoved(e.sendFeedbackButton, 'should not display the feedback button before the user rates the meeting');
+    await this.modPage.waitAndClick(`label[for="${rating}star"]`);
+    await this.modPage.hasElement(e.feedbackCommentInput, 'should display the feedback comment field after the user rates the meeting');
+    const feedbackField = await this.modPage.getLocator(e.feedbackCommentInput);
+    await feedbackField.fill(feedbackMessage);
+    await expect(feedbackField, 'feedback field should contain the typed message').toHaveValue(feedbackMessage);
+    const requestPromise = this.modPage.page.waitForRequest(async request => {
+      if (request.url().includes('feedback') && request.method() === 'POST') {
+        expect(
+          request.postDataJSON(),
+          'should send the feedback with the correct rating and message',
+        ).toMatchObject({
+          rating: rating,
+          comment: feedbackMessage,
+        });
+        return true;
+      }
+    }, ELEMENT_WAIT_TIME);
+    await this.modPage.waitAndClick(e.sendFeedbackButton);
+    await requestPromise;
+    await this.modPage.wasRemoved(e.feedbackCommentInput, 'should remove the feedback comment input after sending the feedback');
+    await this.modPage.wasRemoved(e.sendFeedbackButton, 'should remove the feedback button after sending the feedback');
   }
 
   async displayBrandingArea() {

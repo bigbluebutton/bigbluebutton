@@ -365,7 +365,7 @@ test.describe.parallel('Custom Parameters', () => {
     await customParam.clientTitle();
   });
 
-  test('Ask for feedback on logout', async ({ browser, context, page }) => {
+  test('Ask for feedback on logout', { tag: '@ci' }, async ({ browser, context, page }) => {
     const customParam = new CustomParameters(browser, context);
     await customParam.initModPage(page, true, { joinParameter: c.askForFeedbackOnLogout });
     await customParam.askForFeedbackOnLogout();

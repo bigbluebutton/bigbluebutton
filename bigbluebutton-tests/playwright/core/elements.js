@@ -20,6 +20,8 @@ exports.leaveMeetingDropdown = 'button[data-test="leaveMeetingDropdown"]';
 exports.directLogoutButton = 'li[data-test="directLogoutButton"]';
 exports.optionsLogoutButton = 'li[data-test="optionsLogoutButton"]';
 exports.rating = 'div[data-test="rating"]';
+exports.sendFeedbackButton = 'button[data-test="sendFeedbackButton"]';
+exports.feedbackCommentInput = 'textarea#feedbackComment';
 exports.errorScreenMessage = 'h1[data-test="errorScreenMessage"]';
 exports.errorMessageLabel = 'span[id="error-message"]';
 exports.shareCameraAsContent = 'li[data-test="shareCameraAsContent"]';
