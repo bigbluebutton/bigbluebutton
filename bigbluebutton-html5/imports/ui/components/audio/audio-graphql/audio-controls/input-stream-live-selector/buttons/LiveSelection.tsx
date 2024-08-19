@@ -169,16 +169,24 @@ export const LiveSelection: React.FC<LiveSelectionProps> = ({
     let deviceList: MenuOptionItemType[] = [];
 
     if (listLength > 0) {
-      deviceList = list.map((device, index) => (
-        {
+      deviceList = list.map((device, index) => {
+        // If the device is the first in the list and there's no
+        // currentDeviceId, the user hasn't explicitly selected a device and we
+        // couldn't infer it. In this case, consider the first device as the
+        // system default - as specified in "Media Capture and Streams API",
+        // Section 9.2, enumerateDevices algorithm.
+        const isCurrentDevice = (device.deviceId === currentDeviceId)
+          || (!currentDeviceId && index === 0);
+
+        return {
           key: `${device.deviceId}-${deviceKind}`,
           dataTest: `${deviceKind}-${index + 1}`,
           label: truncateDeviceName(device.label || getFallbackLabel(device, index + 1)),
-          customStyles: (device.deviceId === currentDeviceId) ? Styled.SelectedLabel : null,
-          iconRight: (device.deviceId === currentDeviceId) ? 'check' : null,
+          customStyles: isCurrentDevice ? Styled.SelectedLabel : null,
+          iconRight: isCurrentDevice ? 'check' : null,
           onClick: () => onDeviceListClick(device.deviceId, deviceKind, callback),
-        } as MenuOptionItemType
-      ));
+        } as MenuOptionItemType;
+      });
     } else if (deviceKind === AUDIO_OUTPUT && !SET_SINK_ID_SUPPORTED && listLength === 0) {
       // If the browser doesn't support setSinkId, show the chosen output device
       // as a placeholder Default - like it's done in audio/device-selector
