@@ -1009,6 +1009,7 @@
     "app.connection-status.usingTurn": "Using TURN",
     "app.connection-status.yes": "Yes",
     "app.connection-status.connectionStats": "Connection Stats",
+    "app.connection-status.connectionStatusNoEvent": "No event generated for this status.",
     "app.connection-status.myLogs": "My Logs",
     "app.connection-status.sessionLogs": "Session Logs",
     "app.connection-status.next": "Next page",

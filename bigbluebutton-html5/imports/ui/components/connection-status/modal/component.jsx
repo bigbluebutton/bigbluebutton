@@ -2,11 +2,14 @@ import React, { PureComponent } from 'react';
 import { FormattedTime, defineMessages, injectIntl } from 'react-intl';
 import PropTypes from 'prop-types';
 import UserAvatar from '/imports/ui/components/user-avatar/component';
+import CommonIcon from '/imports/ui/components/common/icon/component';
+import TooltipContainer from '/imports/ui/components/common/tooltip/container';
 import Icon from '/imports/ui/components/connection-status/icon/component';
 import Service from '../service';
 import Styled from './styles';
 import ConnectionStatusHelper from '../status-helper/component';
 import Auth from '/imports/ui/services/auth';
+import connectionStatus from '../../../core/graphql/singletons/connectionStatus';
 
 const MIN_TIMEOUT = 3000;
 
@@ -130,6 +133,10 @@ const intlMessages = defineMessages({
   clientNotResponding: {
     id: 'app.connection-status.clientNotRespondingWarning',
     description: 'Text for Client not responding warning',
+  },
+  noEvent: {
+    id: 'app.connection-status.connectionStatusNoEvent',
+    description: 'Text for inform on status without event ot time of occurrence',
   },
 });
 
@@ -259,11 +266,14 @@ class ConnectionStatusComponent extends PureComponent {
 
     const { selectedTab } = this.state;
 
-    if (isConnectionStatusEmpty(connectionData)) return this.renderEmpty();
+    if (isConnectionStatusEmpty(connectionData) && selectedTab !== 1) return this.renderEmpty();
 
     let connections = connectionData;
     if (selectedTab === 1) {
       connections = connections.filter((curr) => curr.user.userId === Auth.userID);
+      if (isConnectionStatusEmpty(connections)) {
+        connections = connectionStatus.getUserNetworkHistory();
+      }
       if (isConnectionStatusEmpty(connections)) return this.renderEmpty();
     }
 
@@ -296,11 +306,17 @@ class ConnectionStatusComponent extends PureComponent {
                 {!conn.user.isOnline ? ` (${intl.formatMessage(intlMessages.offline)})` : null}
               </Styled.Text>
             </Styled.Name>
-            <Styled.Status aria-label={`${intl.formatMessage(intlMessages.title)} ${conn.lastUnstableStatus}`}>
-              <Styled.Icon>
-                <Icon level={conn.lastUnstableStatus} />
-              </Styled.Icon>
-            </Styled.Status>
+            {
+              !conn.clientNotResponding ? (
+                <Styled.Status
+                  aria-label={`${intl.formatMessage(intlMessages.title)} ${conn.lastUnstableStatus}`}
+                >
+                  <Styled.Icon>
+                    <Icon level={conn.lastUnstableStatus} />
+                  </Styled.Icon>
+                </Styled.Status>
+              ) : null
+            }
             {conn.clientNotResponding && conn.user.isOnline
               ? (
                 <Styled.ClientNotRespondingText>
@@ -310,13 +326,22 @@ class ConnectionStatusComponent extends PureComponent {
           </Styled.Left>
           <Styled.Right>
             <Styled.Time>
-              {conn.lastUnstableStatusAt
-                ? (
-                  <time dateTime={dateTime}>
-                    <FormattedTime value={dateTime} />
-                  </time>
-                )
-                : null}
+              {
+                conn.lastUnstableStatusAt
+                  ? (
+                    <time dateTime={dateTime}>
+                      <FormattedTime value={dateTime} />
+                    </time>
+                  )
+                  : (
+                    <TooltipContainer
+                      placement="top"
+                      title={`this is a message`}
+                    >
+                      <CommonIcon iconName="close" rotate={false} />
+                    </TooltipContainer>
+                  )
+              }
             </Styled.Time>
           </Styled.Right>
         </Styled.Item>
