@@ -50,4 +50,14 @@ object VoiceHdlrHelpers extends SystemConfiguration {
       case _ => false
     }
   }
+
+  def transparentListenOnlyAllowed(liveMeeting: LiveMeeting): Boolean = {
+    // Transparent listen only meeting-wide activation threshold.
+    // Threshold is the number of muted duplex audio channels in a meeting.
+    // 0 means no threshold, all users are subject to it
+    val mutedDuplexChannels = VoiceUsers.findAllMutedVoiceUsers(liveMeeting.voiceUsers).length
+    val threshold = transparentListenOnlyThreshold
+
+    (threshold == 0) || (mutedDuplexChannels >= threshold)
+  }
 }
