@@ -633,10 +633,9 @@ const AudioModal = ({
               handleJoinMicrophone();
             });
         } else {
-          checkMicrophonePermission({ doGUM: false, permissionStatus }).then((hasPermission) => {
-            if (hasPermission === false) return;
-            handleGoToEchoTest();
-          });
+          // No need to check for permission here since the AudioSettings
+          // component will handle it
+          handleGoToEchoTest();
         }
       }
     }

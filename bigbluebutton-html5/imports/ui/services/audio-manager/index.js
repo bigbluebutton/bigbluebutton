@@ -673,7 +673,7 @@ class AudioManager {
   }
 
   isUsingAudio() {
-    return Boolean(this.isConnected || this.isConnecting || this.isHangingUp || this.isEchoTest);
+    return Boolean(this.isConnected || this.isConnecting || this.isHangingUp);
   }
 
   changeInputDevice(deviceId) {
