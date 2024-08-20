@@ -123,3 +123,5 @@ func GetExtForMimeType(mimeType MimeType) (*FileExt, error) {
 	}
 	return nil, fmt.Errorf("no file extension matches MIME Type %s", mimeType)
 }
+
+func ToFileExt(ext string) FileExt { return FileExt(strings.ToLower(ext)) }

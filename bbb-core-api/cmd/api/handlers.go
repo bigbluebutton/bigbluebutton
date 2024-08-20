@@ -6,11 +6,13 @@ import (
 	"log"
 	"mime"
 	"net/http"
+	"sync"
 	"time"
 
 	bbbcore "github.com/bigbluebutton/bigbluebutton/bbb-core-api/gen/bbb-core"
 	bbbmime "github.com/bigbluebutton/bigbluebutton/bbb-core-api/internal/mime"
 	"github.com/bigbluebutton/bigbluebutton/bbb-core-api/internal/model"
+	"github.com/bigbluebutton/bigbluebutton/bbb-core-api/internal/presentation"
 	"github.com/bigbluebutton/bigbluebutton/bbb-core-api/internal/validation"
 	"github.com/bigbluebutton/bigbluebutton/bbb-core-api/util"
 	"google.golang.org/grpc/codes"
@@ -314,8 +316,42 @@ func (app *Config) createMeeting(w http.ResponseWriter, r *http.Request) {
 
 	docs, hasCurrent, err := app.parseDocuments(modules, &params, false)
 	if err != nil {
-		// TODO: modify CreateMeetingResponse to include section for document upload responses
+		// TODO: modify CreateMeetingResponse to include section for document parsing errors
 	}
+
+	type UploadResult struct {
+		doc      *Document
+		pres     *presentation.UploadedPresentation
+		uploaded bool
+		err      error
+	}
+
+	resultChan := make(chan UploadResult)
+	var wg sync.WaitGroup
+
+	for i, doc := range docs {
+		wg.Add(1)
+		go func(doc Document, meetingID string, isFirst, isFromInsertAPI, hasCurrent bool) {
+			pres, err := app.processDocument(doc, res.MeetingIntId, i == 0, false, hasCurrent)
+			if err != nil {
+				resultChan <- UploadResult{
+					doc:      &doc,
+					pres:     nil,
+					uploaded: false,
+					err:      err,
+				}
+			}
+
+			// TODO: Document conversion and call to akka apps
+		}(doc, res.MeetingIntId, i == 0, false, hasCurrent)
+	}
+
+	go func() {
+		wg.Wait()
+		close(resultChan)
+	}()
+
+	// TODO: modify CreateMeetingResponse to include section for document upload result information
 
 	app.writeXML(w, http.StatusAccepted, payload)
 }

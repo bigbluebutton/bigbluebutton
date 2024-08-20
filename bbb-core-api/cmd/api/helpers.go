@@ -598,7 +598,7 @@ func (app *Config) processDocument(doc Document, meetingID string, isFirst, isFr
 
 			return app.processDocumentFromDownload(defaultPres, meetingID, "", doc.Current, false, true, isDefaultPres, isPresFromParam)
 		} else {
-			return nil, errors.New("No default presentation set.")
+			return nil, errors.New("no default presentation set.")
 		}
 	} else {
 		isPresFromParam = doc.PresFromParam
@@ -626,11 +626,11 @@ func (app *Config) processDocument(doc Document, meetingID string, isFirst, isFr
 		} else if doc.Name != "" {
 			decodedBytes, err := base64.StdEncoding.DecodeString(doc.Content)
 			if err != nil {
-				return nil, fmt.Errorf("Failed to decode document content: %s", doc.Content)
+				return nil, fmt.Errorf("failed to decode document content: %s", doc.Content)
 			}
 			return app.processDocumentFromBytes(decodedBytes, doc.Name, meetingID, isCurrent, isDownloadable, isRemovable, isDefaultPres)
 		} else {
-			return nil, fmt.Errorf("Presentation module config found, but it did not contain URL or name attributes.")
+			return nil, fmt.Errorf("presentation module config found, but it did not contain URL or name attributes.")
 		}
 	}
 }
@@ -645,6 +645,10 @@ func (app *Config) processDocumentFromBytes(bytes []byte, presOrigName, meetingI
 
 	if !presentation.IsMimeTypeValid(bytes, fileExt) {
 		return nil, errors.New("invalid MIME type")
+	}
+
+	if !presentation.IsFileTypeSupported(fileExt) {
+		return nil, errors.New("file type not supported")
 	}
 
 	presDir := app.ServerConfig.Presentation.Upload.Directory
@@ -674,7 +678,8 @@ func (app *Config) processDocumentFromBytes(bytes []byte, presOrigName, meetingI
 		MeetingID:      meetingID,
 		ID:             presID,
 		Name:           fileName,
-		File:           pres,
+		Path:           presPath,
+		FileType:       fileExt,
 		Current:        current,
 		AuthToken:      presentation.DefaultAuthToken,
 		IsDownloadable: isDownloadable,
@@ -716,6 +721,10 @@ func (app *Config) processDocumentFromDownload(address, meetingID, fileName stri
 		return nil, errors.New("invalid MIME type")
 	}
 
+	if !presentation.IsFileTypeSupported(presFileExt) {
+		return nil, errors.New("file type not supported")
+	}
+
 	presDir := app.ServerConfig.Presentation.Upload.Directory
 	presID := presentation.GeneratePresentationID(presFileName)
 	uploadDir, err := presentation.CreatePresentationDirectory(meetingID, presDir, presID)
@@ -750,7 +759,8 @@ func (app *Config) processDocumentFromDownload(address, meetingID, fileName stri
 		MeetingID:      meetingID,
 		ID:             presID,
 		Name:           presFileName,
-		File:           pres,
+		Path:           presPath,
+		FileType:       presFileExt,
 		Current:        current,
 		AuthToken:      presentation.DefaultAuthToken,
 		IsDownloadable: isDownloadable,
