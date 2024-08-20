@@ -73,10 +73,45 @@ const useIsUsingAudio = () => {
   return Boolean(isConnected || isConnecting || isHangingUp || isEchoTest);
 };
 
+/**
+ * Check if the user has granted permission to use the microphone.
+ *
+ * @param {Object} options - Options object.
+ * @param {string} options.permissionStatus - The current permission status.
+ * @param {boolean} options.gumOnPrompt - Whether to check microphone permission by attempting to
+ *  get a media stream.
+ * @returns {Promise<boolean|null>} - A promise that resolves to a boolean indicating whether the
+ *  user has granted permission to use the microphone. If the permission status is unknown, the
+ *  promise resolves to null.
+ */
 const hasMicrophonePermission = async ({
-  permissionStatus,
+  permissionStatus = null,
   gumOnPrompt = false,
 }) => {
+  const checkWithGUM = () => {
+    if (!gumOnPrompt) return Promise.resolve(null);
+
+    return doGUM({ audio: getAudioConstraints() })
+      .then((stream) => {
+        // Close the stream and remove all tracks - this is just a permission check
+        stream.getTracks().forEach((track) => {
+          track.stop();
+          stream.removeTrack(track);
+        });
+
+        return true;
+      })
+      .catch((error) => {
+        if (error.name === 'NotAllowedError') return false;
+
+        // Give it the benefit of the doubt. It might be a device mismatch
+        // or something else that's not a permissions issue, so let's try
+        // to proceed. Rollbacks that happen downstream might fix the issue,
+        // otherwise we'll land on the Help screen anyways
+        return null;
+      });
+  };
+
   try {
     let status = permissionStatus;
 
@@ -91,36 +126,19 @@ const hasMicrophonePermission = async ({
     switch (status) {
       case 'denied':
         return false;
-      case 'prompt':
-        // Prompt without any subsequent action is considered unknown
-        if (!gumOnPrompt) {
-          return null;
-        }
-
-        return doGUM({ audio: getAudioConstraints() }).then((stream) => {
-          stream.getTracks().forEach((track) => {
-            track.stop();
-            stream.removeTrack(track);
-          });
-          return true;
-        }).catch((error) => {
-          if (error.name === 'NotAllowedError') {
-            return false;
-          }
-
-          // Give it the benefit of the doubt. It might be a device mismatch
-          // or something else that's not a permissions issue, so let's try
-          // to proceed. Rollbacks that happen downstream might fix the issue,
-          // otherwise we'll land on the Help screen anyways
-          return null;
-        });
 
       case 'granted':
-      default:
         return true;
+
+      case null:
+      case 'prompt':
+        return checkWithGUM();
+
+      default:
+        return null;
     }
   } catch (error) {
-    logger.error({
+    logger.warn({
       logCode: 'audio_check_microphone_permission_error',
       extraInfo: {
         errorName: error.name,
@@ -128,8 +146,7 @@ const hasMicrophonePermission = async ({
       },
     }, `Error checking microphone permission: ${error.message}`);
 
-    // Null = could not determine permission status
-    return null;
+    return checkWithGUM();
   }
 };
 
