@@ -57,6 +57,16 @@ const config = {
         use: ['babel-loader'],
       },
       {
+        test: /\.(js|jsx|ts|tsx)$/,
+        include: /node_modules\/bigbluebutton-html-plugin-sdk/,
+        use: {
+          loader: 'babel-loader',
+          options: {
+            cacheDirectory: false, // Disable caching for this specific loader
+          },
+        },
+      },
+      {
         test: /\.css$/,
         use: [
           'style-loader',
@@ -102,6 +112,16 @@ if (env === prodEnv) {
   };
 } else {
   config.mode = devEnv;
+  config.module.rules.push({
+    test: /\.(js|jsx|ts|tsx)$/,
+    include: /node_modules\/bigbluebutton-html-plugin-sdk/,
+    use: {
+      loader: 'babel-loader',
+      options: {
+        cacheDirectory: false, // Disable caching for this specific loader
+      },
+    },
+  });
   config.devServer = {
     port: 3000,
     hot: true,

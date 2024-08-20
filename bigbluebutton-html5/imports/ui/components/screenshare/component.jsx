@@ -54,7 +54,7 @@ const renderPluginItems = (pluginItems, bottom, right) => {
                 right={right}
                 icon={pluginItem.icon}
                 label={pluginItem.label}
-                onClick={pluginItem.onClick}
+                onClick={(e) => pluginItem.onClick({ browserClickEvent: e })}
               />
             );
             return returnComponent;
