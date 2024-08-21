@@ -242,11 +242,13 @@ class Timer extends Component {
           color={color}
           label={intl.formatMessage(label)}
           onClick={() => this.handleControlClick()}
+          data-test="startStopTimer"
         />
         <Styled.TimerControlButton
           color="secondary"
           label={intl.formatMessage(intlMessages.reset)}
           onClick={() => Service.resetTimer()}
+          data-test="resetTimerStopWatch"
         />
       </Styled.TimerControls>
     );
@@ -342,6 +344,7 @@ class Timer extends Component {
               max="59"
               min="0"
               onChange={(event) => this.handleOnMinutesChange(event)}
+              data-test="minutesInput"
             />
             <Styled.StopwatchTimeInputLabel>
               {intl.formatMessage(intlMessages.minutes)}
@@ -357,6 +360,7 @@ class Timer extends Component {
               max="59"
               min="0"
               onChange={(event) => this.handleOnSecondsChange(event)}
+              data-test="secondsInput"
             />
             <Styled.StopwatchTimeInputLabel>
               {intl.formatMessage(intlMessages.seconds)}
@@ -386,6 +390,7 @@ class Timer extends Component {
         <Styled.TimerCurrent
           aria-hidden
           ref={this.timeRef}
+          data-test="timerCurrent"
         >
           {this.getTime()}
         </Styled.TimerCurrent>
@@ -394,11 +399,13 @@ class Timer extends Component {
             label={intl.formatMessage(intlMessages.stopwatch)}
             onClick={() => this.handleSwitchToStopwatch()}
             color={stopwatch ? 'primary' : 'secondary'}
+            data-test="stopwatchButton"
           />
           <Styled.TimerSwitchButton
             label={intl.formatMessage(intlMessages.timer)}
             onClick={() => this.handleSwitchToTimer()}
             color={!stopwatch ? 'primary' : 'secondary'}
+            data-test="timerButton"
           />
         </Styled.TimerType>
         {this.renderTimer()}
