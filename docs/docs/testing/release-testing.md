@@ -86,6 +86,9 @@ all of these tests.
 
 4. Choose confirm
 
+    - The presentation deleted should not be available to selection anymore
+    - If the deleted presentation was the current one, it should change to another already uploaded presentation or leave the space empty
+
 ### Uploading multiple presentations [(Automated)](https://github.com/bigbluebutton/bigbluebutton/blob/v3.0.x-release/bigbluebutton-tests/playwright/presentation/presentation.spec.js)
 
 1. Select Moderator/Presenter Action menu
@@ -98,11 +101,10 @@ all of these tests.
 
 5. Select upload
 
-6. You should see the notification displaying the upload progress
+    - You should see the notification displaying the upload progress
+    - Current selected file should appear for all clients
 
-7. Current selected file should appear for all clients
-
-### Deleting previously uploaded presentations
+### Deleting previously uploaded presentations [(Automated)](https://github.com/bigbluebutton/bigbluebutton/blob/v2.7.x-release/bigbluebutton-tests/playwright/presentation/presentation.spec.js)
 
 1. Presenter: open "Manage presentations" modal, upload two new presentations.
 
@@ -126,13 +128,13 @@ all of these tests.
 
 5. The selected slide should appear
 
-### Zoom
+### Zoom [(Automated)](https://github.com/bigbluebutton/bigbluebutton/blob/v2.7.x-release/bigbluebutton-tests/playwright/presentation/presentation.spec.js)
 
 1. Zoom in (+) and out (-) by clicking in the buttons or using the scroll
 
 2. Using the Pan tool, move document around while zoomed in.
 
-### Draw and Pan
+### Draw and Pan [(Automated)](https://github.com/bigbluebutton/bigbluebutton/blob/v2.7.x-release/bigbluebutton-tests/playwright/presentation/presentation.spec.js)
 
 1. Zoom in by (+)
 
@@ -149,51 +151,56 @@ all of these tests.
 
 2. Minimizing presentation.
 
-3. Presentation should be minimized, the button should change to "Restore presentation"
+    - Presentation should be minimized, the button should change to "Restore presentation"
+    - If there's any camera being shared, it should filled the entire space for presentation and webcams
 
-4. Selecting "Restore presentation"
+3. Click on "Restore presentation"
 
-5. Presentation should be restored.
+    - Presentation should be restored.
 
 (Note : Presentation area will auto expand when the presenter engages Screen Sharing or YouTube Link Share)
 
-### Full Screen option
+### Full Screen option [(Automated)](https://github.com/bigbluebutton/bigbluebutton/blob/v2.7.x-release/bigbluebutton-tests/playwright/presentation/presentation.spec.js)
 
-1. Click on full screen button ("Make presentation fullscreen")
+1. Click on the presentation options button and select "Fullscreen presentation"
 
-2. Application should go to full screen
+    - Application should go to full screen
 
-3. Draw on the whiteboard
+2. Draw on the whiteboard
 
 4. Select Escape key on local keyboard.
 
-5. Application should return to normal screen
+    - Application should return to normal screen
 
-6. Click on full screen button again
+5. Click on full screen button again
 
-7. Click on "Undo Presentation fullscreen" button
+    - Application should go to full screen again
 
-8. Application should return to normal screen
+6. Click on "Undo Presentation fullscreen" button
 
-### Snapshot of current presentation
+    - Application should return to normal screen again
+
+### Snapshot of current presentation [(Automated)](https://github.com/bigbluebutton/bigbluebutton/blob/v2.7.x-release/bigbluebutton-tests/playwright/presentation/presentation.spec.js)
 
 1. Join meeting.
 
 2. Apply some annotations to the whiteboard.
 
-2. Click "Options" (three dots icon on top-right of the presentation area), select "Snapshot of current presentation".
+3. Click "Options" (three dots icon on top-left of the presentation area), select "Snapshot of current presentation".
 
-3. You should get prompted to save the file. The file should contains the image of the current slide of the presentation, including the annotations applied.
+    - You should see the download starting
+    - The file should contains the image of the current slide of the presentation, including the annotations applied
 
-### Fit to width option
+### Fit to width option [(Automated)](https://github.com/bigbluebutton/bigbluebutton/blob/v2.7.x-release/bigbluebutton-tests/playwright/presentation/presentation.spec.js)
 
-1. Click on "Fit to width" button
+1. In the presentation toolbar (bottom), click on "Fit to width" button
 
-2. Presentation should be re-positioned to fit to width
+    - Presentation should be re-positioned to fit to width
+    - Hiding chat or any sidebar content should keep presentation with fit to width
 
-3. Click on "Fit to page" button
+2. Click on "Fit to page" button
 
-4. Presentation should return to normal view
+    - Presentation should return to normal view
 
 ### Make viewer a presenter [(Automated)](https://github.com/bigbluebutton/bigbluebutton/blob/v3.0.x-release/bigbluebutton-tests/playwright/user/user.spec.js)
 
@@ -201,23 +208,18 @@ all of these tests.
 
 2. Selecting make presenter for the user.
 
-3. Viewer selected should have all presenter capabilities and presenter Icon should appear over user icon in the users list.
+    - Viewer selected should have all presenter capabilities and presenter Icon should appear over user icon in the users list.
+    - Attendees are also able to be presenter
+    - All users should see the presenter icon in the user avatar
 
-### Taking presenter status back [(Automated)](https://github.com/bigbluebutton/bigbluebutton/blob/v3.0.x-release/bigbluebutton-tests/playwright/user/user.spec.js)
+### Take presenter status[(Automated)](https://github.com/bigbluebutton/bigbluebutton/blob/v3.0.x-release/bigbluebutton-tests/playwright/user/user.spec.js)
 
-1. In order to take back the presenter, can be done in following ways:
+1. After making other user presenter, click on this user icon form users list
 
-   1.1
+2. Click on "Take presenter"
 
-- Click on your user icon in users list.
-- choose "Take presenter"
-
-  1.2
-
-- Select Moderator/Presenter Actions menu (+)
-- choose "Take presenter"
-
-You should now have presenter capabilities and presenter icon should appear over your icon in the users list.
+    - All moderators should be able to take the presenter status from any user
+    - Attendees should not be able to take presenter status
 
 ## Webcams
 
@@ -225,39 +227,38 @@ You should now have presenter capabilities and presenter icon should appear over
 
 1. Click on "Share webcam" icon
 
-2. Allow browser permissions if prompted
+    - Webcam permission needs to be granted
 
-3. Select your webcam
+2. Select your webcam device in the "Camera" dropdown
 
-4. Choose the video quality from the available option
+3. Select the video quality in the available options in the "Quality" dropdown
 
-5. Select one of the default virtual backgrounds. You can also upload your own background image by clicking on the plus sign to the right of the default backgrounds and selecting a file. Change the brightness of the background by using the brightness control below the list of background images.
+4. Select one of the default virtual backgrounds.
+
+    - You should also be able to upload your own background image by clicking on the plus sign to the right of the default backgrounds and selecting a file.
+
+5. Change the brightness of the background by using the brightness control below the list of background images
+
+    - You should see a "Whole image" checkbox to apply the brightness in the entire webcam image
 
 6. Click "Start sharing"
 
-7. A small webcam video should show up and the camera share will start highlighting
+    - A small webcam video should show up and the camera share will start highlighting
+    - All users should see the webcam sharing video
+    - A flag should be display in the user avatar from the users list with "webcam" label
 
-8. Click "Stop sharing webcam"
+7. Click "Stop sharing webcam"
 
-9. The webcam video should disappear
+    - The webcam video should stop sharing for all users
 
-### Make webcam fullscreen
+### Make webcam fullscreen [(Automated)](https://github.com/bigbluebutton/bigbluebutton/blob/v2.7.x-release/bigbluebutton-tests/playwright/webcam/webcam.spec.js)
 
-1. Click the webcam's fullscreen button ("Make [user name] fullscreen").
+1. Click the webcam's fullscreen button ("Make [user name] fullscreen") in the top-right.
 
-2. The webcam should appear in fullscreen.
+    - The webcam should appear in fullscreen only for you
+    - Pressing the Esc key or top-right button should exit the fullscreen mode
 
-3. Press the Esc key.
-
-4. The webcam should exit the fullscreen and go back to normal size.
-
-5. Click the webcam's fullscreen button again.
-
-6. Click the undo fullscreen button ("Undo [user name] fullscreen").
-
-7. The webcam should exit the fullscreen and go back to normal size.
-
-### Focus/unfocus a webcam
+### Focus/Unfocus a webcam
 
 1. Join meeting with at least 3 webcams.
 
@@ -265,19 +266,13 @@ You should now have presenter capabilities and presenter icon should appear over
 
 3. Select dropdown and choose "Focus".
 
-4. The chosen webcam should expand (not fullscreen), while other webcams become smaller.
+    - The chosen webcam should expand (not fullscreen), while other webcams become smaller.
 
-5. Hover over the focused webcam's user name.
+4. Hover over the focused webcam's user name.
 
-6. Select dropdown and choose "Unfocus".
+5. Select dropdown and choose "Unfocus".
 
-7. The webcams should get back to normal sizes and positions.
-
-### Maximize/minimize webcam
-
-- With webcams shared, click on the Hide Presentation icon to minimize presentation area and maximize webcam.
-
-The presentation will be minimized, and a button will be highlighted to restore the presentation.
+6. The webcams should get back to normal sizes and positions.
 
 ### Mirror webcam
 
@@ -287,13 +282,13 @@ The presentation will be minimized, and a button will be highlighted to restore 
 
 3. Select dropdown and choose "Mirror".
 
-4. Webcam's stream should flip horizontally.
+    - Webcam's stream should flip horizontally.
 
-5. Hover over the webcam's user name.
+4. Hover over the webcam's user name.
 
-6. Select dropdown and choose "Mirror" again.
+5. Select dropdown and choose "Mirror" again.
 
-7. Webcam's stream should get back to normal.
+    - Webcam's stream should get back to normal.
 
 ### Drag webcams
 
@@ -305,53 +300,23 @@ The presentation will be minimized, and a button will be highlighted to restore 
 
 Webcams will be moved when mouse is released. (Note: When only one webcam is shared user can drag and drop webcam anywhere in the presentation area)
 
-### Switching to Default webcam
+### Resizing webcams area
 
-1. Click the share/stop sharing webcam icon twice (once to remove current webcam connection and again to re-prompt the webcam join modal)
+1. Share at least one webcam
+2. Drag the bottom of the webcam window
+3. Increase or Decrease the size of the webcam.
 
-2. Allow browser permissions if applicable
+    - The webcam will be resized as per the size we want.
 
-3. Choose webcam (switch from previous default device)
-
-4. choose the video quality
-
-5. click on Start Sharing
-
-### Resizing one or multiple Webcams
-
-A. Resizing one single webcam.
-
-- Share a webcam
-- Drag the bottom of the webcam window
-- Increase or Decrease the size of the webcam.
-
-The webcam will be resized as per the size we want.
-
-B. Case of more than one webcam.
-
-- Share at least 2 webcams
-- Drag the bottom of the webcams container
-- Increase or Decrease the size of the webcams.
-
-The webcams should be resized as per the size we want.
-
-### Stop Sharing webcam
+### Stop Sharing webcam [(Automated)](https://github.com/bigbluebutton/bigbluebutton/blob/v3.0.x-release/bigbluebutton-tests/playwright/webcam/webcam.spec.js)
 
 1. Start sharing webcam.
 
 2. Click "Stop sharing webcam".
 
-3. The webcam sharing should stop.
+    - The webcam sharing should stop and no other user should keep seeing your webcam sharing
 
-4. Start sharing webcam again.
-
-5. Click "Open advanced settings" icon near the "Stop sharing webcam" button.
-
-6. Click "Stop sharing".
-
-7. The webcam sharing should stop.
-
-### Pin webcams
+### Pin/Unpin webcams [(Automated)](https://github.com/bigbluebutton/bigbluebutton/blob/v2.7.x-release/bigbluebutton-tests/playwright/webcam/webcam.spec.js)
 
 1. Join meeting with at least 3 webcams.
 
@@ -359,17 +324,23 @@ The webcams should be resized as per the size we want.
 
 3. Select dropdown and choose "Pin".
 
-4. That particular webcam should move to the first place among the webcams and stay there.
+    - That particular webcam should move to the first place among the webcams and stay there
+    - The pinned webcam should be propagated to all users in the meeting
+    - An "unpin" button should be displayed at the top-left of that webcam
+    - Only moderators should be able to unpin other users' webcams
 
-5. Pin another webcam and verify that it sticks to the second place among the webcams.
+4. Pin another webcam 
 
-6. Hover over the webcam's user name.
+    - The last pinned webcam should stick to the second place among the webcams
 
-7. Select dropdown and choose "Unpin". Alternatively, you can choose to click the pin icon that is in the top-left corner of the webcam.
+5. Hover over the webcam's user name.
 
-8. That particular webcam should unpin.
+6. Select dropdown and choose "Unpin"
 
-### Disable self-view
+    - That particular webcam should unpin
+    - The same behavior should be done by clicking on the "Unpin" button at the top-left
+
+### Disable self-view [(Automated)](https://github.com/bigbluebutton/bigbluebutton/blob/v2.7.x-release/bigbluebutton-tests/playwright/webcam/webcam.spec.js)
 
 1. Join in a meeting with 2 users sharing webcams.
 
@@ -383,7 +354,7 @@ The webcams should be resized as per the size we want.
 
     - You should be able to see you again after enabling it
 
-### Share camera as content
+### Share camera as content [(Automated)](https://github.com/bigbluebutton/bigbluebutton/blob/v2.7.x-release/bigbluebutton-tests/playwright/presentation/presentation.spec.js)
 
 1. Join in a meeting with 2 users.
 
@@ -464,7 +435,7 @@ The screen sharing stops, a sound effect of disconnection is heard and the prese
 
 11. In the main room, click "Breakout Rooms". The breakout rooms panel should appear and it should contain the timer for the rooms (according to the duration that was set during the creation of the breakout rooms).
 
-### Message to all breakout rooms
+### Message to all breakout rooms [(Automated)](https://github.com/bigbluebutton/bigbluebutton/blob/v2.7.x-release/bigbluebutton-tests/playwright/breakout/breakout.spec.js)
 
 1. Click "Manage users" (cog wheel icon in the user list).
 
@@ -482,7 +453,7 @@ The screen sharing stops, a sound effect of disconnection is heard and the prese
 
 9. Notification "Message was sent to N breakout rooms" (N - number of rooms created) should appear in the main room for the user who sent the message.
 
-10. Public chats in all the breakout rooms should get the message highlighted by a special background color.
+    - Public chats in all the breakout rooms should get the message highlighted by a special background color.
 
 ### Viewers choosing the breakout rooms [(Automated)](https://github.com/bigbluebutton/bigbluebutton/blob/v3.0.x-release/bigbluebutton-tests/playwright/breakout/breakout.spec.js)
 
@@ -508,7 +479,7 @@ The screen sharing stops, a sound effect of disconnection is heard and the prese
 
 2. Click "Options" and then "Leave meeting".
 
-3. You should successfully leave the breakout room and shouldn't be redirected to the feedback screen.
+    - You should successfully leave the breakout room and shouldn't be redirected to the feedback screen.
 
 ### Switch between breakout rooms
 
@@ -516,17 +487,18 @@ The screen sharing stops, a sound effect of disconnection is heard and the prese
 
 2. As moderator, click on the breakout rooms control panel and choose "Ask to join" or "Join room" to join specific room.
 
-3. Moderator should successfully join the room you chose.
+    - Moderator should successfully join the room you chose.
 
-### Destroy breakout rooms
+### End breakout rooms [(Automated)](https://github.com/bigbluebutton/bigbluebutton/blob/v2.7.x-release/bigbluebutton-tests/playwright/breakout/breakout.spec.js)
 
 1. Join breakout room as moderator.
 
-2. Inside the breakout rooms control panel ("Breakout Rooms" button in the left-hand panel), select the "Breakout options" dropdown and choose "Destroy breakouts".
+2. Inside the breakout rooms control panel ("Breakout Rooms" button in the left-hand panel), select the "Breakout options" dropdown and choose "End breakout rooms".
 
-3. All of the breakout rooms should end and all users should get back to the main room. If users already got the audio on, they shouldn't get prompted for the audio modal.
+    - All of the breakout rooms should end and all users should get back to the main room
+    - If users already got the audio on, they shouldn't get prompted for the audio modal
 
-### Edit the duration of a breakout room
+### Edit the duration of a breakout room [(Automated)](https://github.com/bigbluebutton/bigbluebutton/blob/v2.7.x-release/bigbluebutton-tests/playwright/breakout/breakout.spec.js)
 
 1. Join breakout room as moderator.
 
@@ -534,7 +506,8 @@ The screen sharing stops, a sound effect of disconnection is heard and the prese
 
 3. Edit the duration and click "Apply".
 
-4. The duration of the breakout room should reset. Public chats in all of the breakout rooms should get the message saying "Breakout time is now N minutes" (N - new duration).
+    - The duration of the breakout room should reset
+    - Public chats in all of the breakout rooms should get the message saying "Breakout time is now N minutes" (N - new duration).
 
 ### Moving of users between breakout rooms
 
@@ -542,26 +515,26 @@ The screen sharing stops, a sound effect of disconnection is heard and the prese
 
 2. Draw and drop a user to a different breakout room. Click "Apply".
 
-3. The user should be notified about the removal and the prompt to confirm the joining of the new breakout room should appear.
+    - The user should be notified about the removal and the prompt to confirm the joining of the new breakout room should appear
+    - In case this user is already in a breakout, it should logout from that room and see the breakout invitation of the new one
 
-### Exporting the breakout room's shared notes to the main room
+### Exporting the breakout room's shared notes to the main room [(Automated)](https://github.com/bigbluebutton/bigbluebutton/blob/v2.7.x-release/bigbluebutton-tests/playwright/breakout/breakout.spec.js)
 
 1. Create a breakout room with enabling "Capture shared notes when breakout rooms end".
 
 2. Join a breakout room. Type something in the shared notes. End the breakout room.
 
-3. Breakout room's shared notes should be converted to a pdf and that pdf should be available for uploading to the whiteboard.
+    - Breakout room's shared notes should be converted to a pdf and that pdf should be available for uploading to the whiteboard
 
-### Exporting the breakout room's whiteboard annotations to the main room
+### Exporting the breakout room's whiteboard annotations to the main room [(Automated)](https://github.com/bigbluebutton/bigbluebutton/blob/v2.7.x-release/bigbluebutton-tests/playwright/breakout/breakout.spec.js)
 
 1. Create a breakout room with enabling "Capture whiteboard when breakout rooms end".
 
 2. Join a breakout room. Draw something on the whiteboard. End the breakout room.
 
-3. Breakout room's annotations should be converted to a pdf and that pdf should be available for uploading to the whiteboard.
+    - Breakout room's annotations should be converted to a pdf and that pdf should be available for uploading to the whiteboard.
 
 ### Use a different presentation for each breakout room
-
 
 1. Join in a meeting with a moderator and an attendee
 
@@ -589,45 +562,41 @@ The screen sharing stops, a sound effect of disconnection is heard and the prese
 
 2. Click microphone and allow for browser permissions (if applicable).
 
-3. Verify if you can hear yourself in the echo test. Audio stream volume bar should indicate the volume of your voice.
+    - Verify if you can hear yourself in the echo test. Audio stream volume bar should indicate the volume of your voice
 
-4. Change the microphone and speaker using the dropdowns (if applicable).
+3. Change the microphone and speaker using the dropdowns (if applicable).
 
-5. Press "Stop audio feedback button" and verify that you don't hear your audio anymore, while the audio stream volume bar is still functional. Clicking that button again should turn on the audio feedback again.
+4. Press "Stop audio feedback button" and verify that you don't hear your audio anymore, while the audio stream volume bar is still functional
 
-6. Click "Yes".
+    - Clicking that button again should turn on the audio feedback again
 
-7. You should be redirected to the meeting and your microphone button and avatar in the in the user list should indicate the you are unmuted.
+5. Click "Yes".
 
-### Mute/unmute
+    - You should be redirected to the meeting and your microphone button and avatar in the in the user list should indicate the you are unmuted.
+
+### Mute/unmute yourself [(Automated)](https://github.com/bigbluebutton/bigbluebutton/blob/v2.7.x-release/bigbluebutton-tests/playwright/audio/audio.spec.js)
 
 1. Join a meeting.
 
 2. Click microphone and allow for browser permissions (if applicable).
 
-3. Verify if you can hear yourself in the echo test.
+    - Verify if you can hear yourself in the echo test.
 
-4. Click "Yes".
+3. Click "Yes".
 
-5. The microphone button should indicate the unmuted state.
+    - The microphone button should indicate the unmuted state.
 
-6. Click the microphone button several times. You should change between unmuted and muted states and the button should indicate it.
+4. Click the microphone button repeatedly
+    - You should change between unmuted and muted states and the button should indicate it
 
-### Leave audio
+### Leave audio [(Automated)](https://github.com/bigbluebutton/bigbluebutton/blob/v2.7.x-release/bigbluebutton-tests/playwright/audio/audio.spec.js)
 
 1. Join meeting with audio.
 
 2. Click "Leave audio".
 
-3. You should hear the disconnect sound and leave audio. "You have left audio conference" notification should appear.
-
-### Join without audio
-
-1. Join a meeting.
-
-2. Click "x" in the audio modal.
-
-3. You should be redirected to the meeting and your microphone button should not be highlighted.
+    - You should hear the disconnect sound and leave audio
+    - "You have left audio conference" notification should appear
 
 ### Listen Only Mode [(Automated)](https://github.com/bigbluebutton/bigbluebutton/blob/v3.0.x-release/bigbluebutton-tests/playwright/audio/audio.spec.js)
 
@@ -635,22 +604,24 @@ The screen sharing stops, a sound effect of disconnection is heard and the prese
 
 2. Click "Listen only" in the audio modal.
 
-3. You should be redirected to the meeting and your microphone button and user list avatar should indicate that you are in listen only mode.
+    - You should be redirected to the meeting and your microphone button and user list avatar should indicate that you are in listen only mode.
 
-### Testing microphone
+### Testing microphone (echo test) [(Automated)](https://github.com/bigbluebutton/bigbluebutton/blob/v2.7.x-release/bigbluebutton-tests/playwright/audio/audio.spec.js)
 
-Click on microphone and go through echo test and then click No.
+1. Click on microphone and go through echo test
 
-- You should see Change your audio settings dialog
+    - You should see 2 inputs for each input and output audio device
+    - You should see a volume indicator down below "Your audio stream volume". Once you select correctly and speak, a green line indicating the volume should be displayed
 
-### Choosing different sources
+### Changing audio source after joining [(Automated)](https://github.com/bigbluebutton/bigbluebutton/blob/v2.7.x-release/bigbluebutton-tests/playwright/audio/audio.spec.js)
 
-1.  In the Change your audio settings, choose different microphones
-2.  choose different speakers
-3.  click Play test sound
-4.  click Retry and then click Yes.
+1. After joining the audio, click on the "Change audio settings" button aside the mute button
 
-- You should be able to use different microphones and speakers and hear yourself in the echo test with varying combinations of microphone/speakers. When you click 'Yes', your microphone should be highlighting.
+    - You should see all available devices listed in the dropdown
+2.  Choose different speakers and microphone
+
+    - The audio input and output should be changed once you click in a different one
+    - To see the echo test again, you need to leave audio and rejoin
 
 #### Joining with phone
 
@@ -666,183 +637,125 @@ Click on microphone and go through echo test and then click No.
 
 Enable Microphone : This will cause a user name to appear on left top corner of the Presentation Area whenever a User talks.
 
-#### Muting user from Talking Indicator
+#### Muting user from Talking Indicator [(Automated)](https://github.com/bigbluebutton/bigbluebutton/blob/v2.7.x-release/bigbluebutton-tests/playwright/audio/audio.spec.js)
 
 1.  As Moderator: Click on the name of User appearing in top left corner of the Presentation area.
 
-- The Talking User gets muted.
+    - The Talking User gets muted.
 
 2.  As Viewer: Click on the name of User appearing in top left corner of the Presentation area.
 
-- The Talking User should not get muted
+    - The Talking User should not get muted
 
-## Closed Captions
+## Closed Captions / Transcription
 
-### Launch closed captions menu (and toggle the menu)
-
-1. Join meeting as moderator.
-
-2. Click "Manage users" (cog wheel icon in user list) and select "Write close captions".
-
-3. Select the language. Click "Start".
-
-4. The closed captions button should appear in left-hand menu (above the shared notes) and it should indicate the chosen language.
-
-5. Type text into closed captions panel.
-
-6. Click on the language button in the closed captions menu.
-
-7. The closed captions menu should close.
-
-8. Click on the closed captions button above the shared notes in the left-hand menu.
-
-9. The closed captions menu should open.
-
-10. Click the same button again.
-
-11. The closed captions menu should close.
-
-### Closed captions formatting
+### Use transcriptions
 
 1. Join meeting as moderator.
 
-2. Click "Manage users" (cog wheel icon in user list) and select "Write close captions".
+2. Click to Join audio and select a language in "Automatic transcription" select button
 
-3. Select the language.
+3. Click on "Microphone" and then "Join audio"
 
-4. Type text into closed captions panel.
+4. Speak some words
 
-5. Test all of the available formatting tools that are available (Bold, Italic, ...). Whatever is typed as text should be shown exactly as intended.
+    - The transcription button should appear in left-hand menu (above the shared notes) and it should indicate the chosen language
+    - On the left side of the audio/mute button, a "CC" button should be displayed
+    - Your talking indicator should have a "CC" icon on the left
 
-### View/Hide closed captions
+5. Click on the "Transcription" button below public chat
 
-1. Join as viewer or moderator.
+    - You should see the transcription of the meeting, containing all spoken words tagged by the user name and the time
+    - Every time a user stop speaking, the last spoken words should be incremented
 
-2. Click "Start viewing closed captions" button.
+### Transcription formatting
 
-3. The closed captions button should be highlighted.
+1. With a selected transcription language and audio joined, click on "Transcription" to open the sidebar content
 
-4. Choose the language and other UI settings for closed captions. Click "Start".
-
-5. Join meeting as moderator.
-
-6. Moderator: click "Manage users" (cog wheel icon in user list) and select "Write close captions", then select the language.
-
-7. Moderator: Type text into closed captions panel.
-
-8. User: should see the closed captions on top of the whiteboard. The text should be the same as the one typed by moderator. The closed captions should appear according to the UI settings chosen by the user.
-
-9. User: click the closed captions button.
-
-10. User: closed captions button should not be highlighted anymore, the closed captions should disappear.
+    - Every time a user stop speaking, the last spoken words should be incremented
+    - You should be able to apply all formatting tools available in shared notes as well, such as bold, italic, underline, order list, etc
 
 ### Live Automatic Closed Captions
 
-1. Join a meeting with at least two viewers using Chrome, Edge or Safari. Automatic transcription language selector needs to be enabled in the settings file.
+1. With a selected transcription language and audio joined, click on "Transcription" to open the sidebar content
 
-2. In the audio modal, choose the language for the automatic transcription. Join the audio. Talking indicator should include the "CC" icon for the user who selected the language.
+2. Click on "CC" button next to Actions button when it appears (after speaking something)
 
-3. All other users should see the "CC" button in the whiteboard area. When you click the button, you should see the transcription.
+    - Clicking this button should enable the live transcription, similar to subtitle
+    - It should show the transcription of all users speaking in the meeting that had enabled it when joining audio
+
+3. In the "Transcription settings" dropdown, select another language
+    
+    - Changing this should change your captured language
+
+4. In the "Transcription settings" dropdown, click "OFF"
+
+    - Your voice should stop being captured and transcribed
+    - You should still be able to see other users' live transcription
+    - This button should change its label to "ON". Once clicked, it should re-enabled your transcription
 
 ## Whiteboard
 
-### Use pencil tool
+### Use pencil (draw) tool [(Automated)](https://github.com/bigbluebutton/bigbluebutton/blob/v2.7.x-release/bigbluebutton-tests/playwright/whiteboard/whiteboard.spec.js)
 
 1. Join meeting with two or more users.
 
-2. Presenter: Click "Tools" whiteboard button.
+2. Presenter: Click "Draw" button in the whiteboard toolbar
 
-3. Presenter: Select "Pencil".
+3. Presenter: Draw on the whiteboard area.
 
-4. Presenter: Draw on the whiteboard area.
+    - All clients should see the drawing.
 
-5. All clients should see the drawing.
-
-### Change pencil tool thickness
+### Change shape tool size [(Automated)](https://github.com/bigbluebutton/bigbluebutton/blob/v2.7.x-release/bigbluebutton-tests/playwright/whiteboard/whiteboard.spec.js)
 
 1. Join meeting with two or more users.
 
-2. Presenter: Click "Tools" whiteboard button.
+2. Presenter: Select a tool from the whiteboard toolbar
 
-3. Presenter: Select "Pencil".
+3. Presenter: Click on "Styles" button on the top-right bar.
 
-4. Presenter: Click "Drawing thickness" button.
+4. Presenter: Change the size
 
-5. Presenter: Select a new thickness.
+    - From now on, the drawn shapes should have the size you selected
+    - If you had selected a shape before opening styles menu and changing size, the selected shape should change its size
 
-6. Presenter: Draw on the whiteboard area.
-
-7. All clients should see the drawing and the drawing should appear according to the chosen thickness.
-
-### Changing pencil tool colour
+### Changing shape tool color [(Automated)](https://github.com/bigbluebutton/bigbluebutton/blob/v3.0.x-release/bigbluebutton-tests/playwright/whiteboard/whiteboard.spec.js)
 
 1. Join meeting with two or more users.
 
-2. Presenter: Click "Tools" whiteboard button.
+2. Presenter: Select a tool from the whiteboard toolbar
 
-3. Presenter: Select "Pencil".
+3. Presenter: Click on "Styles" button on the top-right bar.
 
-4. Presenter: Click "Colors" button.
+4. Presenter: Change the color
 
-5. Presenter: Select a new color.
+    - From now on, the drawn shapes should have the color you selected
+    - If you had selected a shape before opening styles menu and changing color, the selected shape should change its color
 
-6. Presenter: Draw on the whiteboard area.
-
-7. All clients should see the drawing and the drawing should be colored accordingly.
-
-### Use shape tools [(Automated)](https://github.com/bigbluebutton/bigbluebutton/blob/v3.0.x-release/bigbluebutton-tests/playwright/whiteboard/whiteboard.spec.js)
+### Use text tool [(Automated)](https://github.com/bigbluebutton/bigbluebutton/blob/v3.0.x-release/bigbluebutton-tests/playwright/whiteboard/whiteboard.spec.js)
 
 1. Join meeting with two or more users.
 
-2. Presenter: Click "Tools" whiteboard button.
+2. Presenter: Select "Text" tool
 
-3. Presenter: Select available shapes one by one and draw on the whiteboard area. All clients should see the shapes on the whiteboard.
+3. Presenter: Adjust the font size and color.
 
-### Change shape tool thickness and color
+4. Presenter: Create a text box on the whiteboard and type text inside. Click somewhere else on the whiteboard.
 
-1. Join meeting with two or more users.
+    - All clients should see the text inside a text box
+    - The text should appear according to the selected font size and color
+    - The text should be displayed by the time it is typed (live content)
 
-2. Presenter: Click "Tools" whiteboard button.
-
-3. Presenter: Select available shapes one by one and draw on the whiteboard area. Change their thickness and color. All clients should see the shapes on the whiteboard with the correct thickness and color.
-
-### Use text tool
+### Undo last annotation [(Automated)](https://github.com/bigbluebutton/bigbluebutton/blob/v2.7.x-release/bigbluebutton-tests/playwright/whiteboard/whiteboard.spec.js)
 
 1. Join meeting with two or more users.
 
-2. Presenter: Click "Tools" whiteboard button.
+2. Presenter: Draw any shape
 
-3. Presenter: Select "Text".
+3. Presenter: Click "Undo" button
 
-4. Presenter: Adjust the font size and color.
-
-5. Presenter: Create a text box on the whiteboard and type text inside. Click somewhere else on the whiteboard.
-
-6. All clients should see the text inside a text box. The text should appear according to the selected font size and color.
-
-### Undo last annotation
-
-1. Join meeting with two or more users.
-
-2. Presenter: Click "Tools" whiteboard button, choose annotation and put two such annotations on the whiteboard.
-
-3. All clients should see both annotations.
-
-4. Presenter: Click "Undo annotation".
-
-5. All clients should see only the first annotation now.
-
-### Clear all annotations
-
-1. Join meeting with two or more users.
-
-2. Presenter: Click "Tools" whiteboard button, choose annotation and put two such annotations on the whiteboard.
-
-3. All clients should see both annotations.
-
-4. Presenter: Click "Client all annotations".
-
-5. Both annotations should disappear for all clients.
+    - It should also be triggered by pressing CTRL+Z
+    - The last drawn shape should be removed to all users
 
 ### Multi-user whiteboard [(Automated)](https://github.com/bigbluebutton/bigbluebutton/blob/v3.0.x-release/bigbluebutton-tests/playwright/whiteboard/whiteboard.spec.js)
 
@@ -850,19 +763,20 @@ Enable Microphone : This will cause a user name to appear on left top corner of 
 
 2. Presenter: click "Turn multi-user whiteboard on", the button's icon should change and the counter of the current number of viewers should appear.
 
-3. All clients should be able to draw and see each other's changes on the whiteboard.
+    - All clients should be able to draw and see each other's changes on the whiteboard
 
 3. Join meeting with another viewer.
 
-4. The counter of multi-user whiteboard viewers shouldn't change. The recently joined viewer shouldn't be able to draw.
+    - The counter of multi-user whiteboard viewers shouldn't change
+    - The recently joined viewer shouldn't be able to draw.
 
-5. Presenter: click "Turn multi-user whiteboard off", button's icon should change back to normal. All clients shouldn't be able to draw anymore.
+4. Presenter: click "Turn multi-user whiteboard off", button's icon should change back to normal. All clients shouldn't be able to draw anymore.
 
-6. Presenter: click "Turn multi-user whiteboard on", the button's icon should change and the counter should include the recently joined viewer.
+5. Presenter: click "Turn multi-user whiteboard on", the button's icon should change and the counter should include the recently joined viewer.
 
-7. All clients should be able to draw and see each other's changes on the whiteboard (including the recently joined viewer).
+    - All clients should be able to draw and see each other's changes on the whiteboard (including the recently joined viewer).
 
-## YouTube Video sharing
+## YouTube Video sharing [(Automated)](https://github.com/bigbluebutton/bigbluebutton/blob/v2.7.x-release/bigbluebutton-tests/playwright/presentation/presentation.spec.js)
 
 ### Start YouTube video sharing
 
@@ -872,11 +786,14 @@ Enable Microphone : This will cause a user name to appear on left top corner of 
 
 3. Presenter: Select "Share an external video".
 
-4. Presenter: The popup modal should appear. Paste a YouTube link there.
+4. Presenter: The popup modal should appear. Paste a YouTube link there
+
+    - You shouldn't be able set a video link from an unsupported URL
 
 5. Presenter: Click "Share a new video".
 
-6. All clients will see the YouTube video playing in the presentation area.
+    - All clients will see the YouTube video playing in the presentation area
+    - The video should be synchronized to all users in the meeting
 
 ### Volume/Skipping/Pausing
 
@@ -890,9 +807,9 @@ Enable Microphone : This will cause a user name to appear on left top corner of 
 
 5. Presenter: Click "Share a new video".
 
-6. Presenter should be able to perform all the available actions on the YouTube video such as muting, increasing/decreasing the volume, pausing/resuming.
-
-7. The result of those actions should be visible for all clients.
+    - Presenter should be able to perform all the available actions on the YouTube video such as muting, increasing/decreasing the volume, pausing/resuming
+    - Volume change should not be propagated to other users
+    - Pausing and resuming should be propagated to other users
 
 ### Stopping Youtube Video Sharing
 
@@ -906,13 +823,13 @@ Enable Microphone : This will cause a user name to appear on left top corner of 
 
 5. Presenter: Click "Share a new video".
 
-6. All clients will see the YouTube video playing in the presentation area.
+    - All clients will see the YouTube video playing in the presentation area.
 
-7. Presenter: Click on the action ("+" icon) button.
+6. Presenter: Click on the action ("+" icon) button.
 
-8. Presenter: Select "Stop sharing external video".
+7. Presenter: Select "Stop sharing external video".
 
-9. All clients will see the video disappear and the presentation visible again.
+    - All clients will see the video disappear and the presentation visible again.
 
 ### Playing another Video
 
@@ -926,25 +843,25 @@ Enable Microphone : This will cause a user name to appear on left top corner of 
 
 5. Presenter: Click "Share a new video".
 
-6. All clients will see the YouTube video playing in the presentation area.
+    - All clients will see the YouTube video playing in the presentation area.
 
-7. Presenter: Click on the action ("+" icon) button.
+6. Presenter: Click on the action ("+" icon) button.
 
-8. Presenter: Select "Stop sharing external video".
+7. Presenter: Select "Stop sharing external video".
 
-9. Presenter: Click on the action ("+" icon) button.
+8. Presenter: Click on the action ("+" icon) button.
 
-10. Presenter: Select "Share an external video".
+9. Presenter: Select "Share an external video".
 
-11. Presenter: The popup modal should appear. Paste a new YouTube link there.
+10. Presenter: The popup modal should appear. Paste a new YouTube link there.
 
-12. Presenter: Click "Share a new video".
+11. Presenter: Click "Share a new video".
 
-13. All clients will see the new YouTube video playing in the presentation area.
+    - All clients will see the new YouTube video playing in the presentation area.
 
 ## Shared Notes
 
-### Using shared notes panel
+### Using shared notes panel [(Automated)](https://github.com/bigbluebutton/bigbluebutton/blob/v2.7.x-release/bigbluebutton-tests/playwright/sharednotes/sharednotes.spec.js)
 
 1. Join a meeting with two or more users.
 
@@ -952,11 +869,10 @@ Enable Microphone : This will cause a user name to appear on left top corner of 
 
 3. Start writing in the opened shared notes panel.
 
-4. Notification should appear on the "Shared Notes" button for those users whose shared notes panel is closed.
+    - Notification should appear on the "Shared Notes" button for those users whose shared notes panel is closed.
+    - After opening the shared notes panel, all clients should see the writing as well. The username will appear near the test that user is currently typing.
 
-4. After opening the shared notes panel, all clients should see the writing as well. The username will appear near the test that user is currently typing.
-
-### Exporting Shared notes
+### Exporting Shared notes [(Automated)](https://github.com/bigbluebutton/bigbluebutton/blob/v2.7.x-release/bigbluebutton-tests/playwright/presentation/presentation.spec.js)
 
 1. Selecting "export"
 
@@ -964,23 +880,31 @@ Enable Microphone : This will cause a user name to appear on left top corner of 
 
 3. Save as to local device
 
-Share notes should export and download in the chosen format.
+    - Share notes should export and download in the chosen format.
 
-### Pin notes onto whiteboard
+### Pin notes onto whiteboard [(Automated)](https://github.com/bigbluebutton/bigbluebutton/blob/v2.7.x-release/bigbluebutton-tests/playwright/presentation/presentation.spec.js)
 
 1. Open shared notes, write something. Click the three dots icon. Choose "Pin notes onto whiteboard".
 
-2. Shared notes should appear on top of the whiteboard. Shared Notes button should become disabled.
+    - Shared notes should appear on top of the whiteboard
+    - Shared Notes button should become disabled.
 
-3. Click "Unpin notes". Shared notes should disappear from the whiteboard. You should be able to open Shared Notes again.
+2. Click "Unpin notes"
+    
+    - Shared notes should disappear from the whiteboard
+    - You should be able to open Shared Notes again.
 
-### Convert notes to presentation
+### Convert notes to presentation [(Automated)](https://github.com/bigbluebutton/bigbluebutton/blob/v2.7.x-release/bigbluebutton-tests/playwright/presentation/presentation.spec.js)
 
-1. Open shared notes, write something. Click the three dots icon. Choose "Convert notes to presentation".
+1. Open shared notes, write something
 
-2. Shared notes should be converted to a presentation file and that file should be uploaded to the whiteboard
+2. Click the three dots icon
 
-### Using shared notes formatting tools
+3. Choose "Convert notes to presentation"
+
+    - Shared notes should be converted to a presentation file and that file should be uploaded to the whiteboard
+
+### Using shared notes formatting tools [(Automated)](https://github.com/bigbluebutton/bigbluebutton/blob/v2.7.x-release/bigbluebutton-tests/playwright/presentation/presentation.spec.js)
 
 1. Join a meeting with two or more users.
 
@@ -992,11 +916,11 @@ Share notes should export and download in the chosen format.
 
 5. Make a numbered list.
 
-6. After opening the shared notes panel, all clients should see the text according to the formatting.
+    - After opening the shared notes panel, all clients should see the text according to the formatting.
 
 ## Lock Settings
 
-### Webcam
+### Webcam [(Automated)](https://github.com/bigbluebutton/bigbluebutton/blob/v2.7.x-release/bigbluebutton-tests/playwright/user/user.spec.js)
 
 1. Join meeting with moderators and viewers.
 
@@ -1040,7 +964,7 @@ Share notes should export and download in the chosen format.
 
 21. New viewer: should be able to share a webcam.
 
-### See other viewers webcams
+### See other viewers webcams [(Automated)](https://github.com/bigbluebutton/bigbluebutton/blob/v2.7.x-release/bigbluebutton-tests/playwright/presentation/presentation.spec.js)
 
 1. Join meeting with moderators and viewers.
 
@@ -1092,7 +1016,7 @@ Share notes should export and download in the chosen format.
 
 25. Each user should see all webcams again.
 
-### Microphone
+### Microphone [(Automated)](https://github.com/bigbluebutton/bigbluebutton/blob/v2.7.x-release/bigbluebutton-tests/playwright/presentation/presentation.spec.js)
 
 1. Join meeting with moderators and viewers, all - with audio.
 
@@ -1132,7 +1056,7 @@ Share notes should export and download in the chosen format.
 
 19. All users should be able to join audio or mute/unmute now.
 
-### Public chat
+### Public chat [(Automated)](https://github.com/bigbluebutton/bigbluebutton/blob/v2.7.x-release/bigbluebutton-tests/playwright/presentation/presentation.spec.js)
 
 1. Join meeting with moderators and viewers.
 
@@ -1172,7 +1096,7 @@ Share notes should export and download in the chosen format.
 
 19. All users should be able to send public chat messages now.
 
-### Private chat
+### Private chat [(Automated)](https://github.com/bigbluebutton/bigbluebutton/blob/v2.7.x-release/bigbluebutton-tests/playwright/presentation/presentation.spec.js)
 
 1. Join meeting with moderators and viewers.
 
@@ -1206,7 +1130,7 @@ Share notes should export and download in the chosen format.
 
 16. All private chats should get back to normal.
 
-### Shared notes
+### Shared notes [(Automated)](https://github.com/bigbluebutton/bigbluebutton/blob/v2.7.x-release/bigbluebutton-tests/playwright/presentation/presentation.spec.js)
 
 1. Join meeting with moderators and viewers.
 
@@ -1246,7 +1170,7 @@ Share notes should export and download in the chosen format.
 
 19. All users should be able to use shared notes now.
 
-### See other viewers in the Users list
+### See other viewers in the Users list [(Automated)](https://github.com/bigbluebutton/bigbluebutton/blob/v2.7.x-release/bigbluebutton-tests/playwright/presentation/presentation.spec.js)
 
 1. Join meeting with moderators and viewers.
 
@@ -1286,7 +1210,7 @@ Share notes should export and download in the chosen format.
 
 19. All users should be able to use shared notes now.
 
-### Unlock a specific user
+### Unlock a specific user [(Automated)](https://github.com/bigbluebutton/bigbluebutton/blob/v2.7.x-release/bigbluebutton-tests/playwright/presentation/presentation.spec.js)
 
 1. Join meeting with viewers and moderators.
 
@@ -1314,7 +1238,7 @@ Share notes should export and download in the chosen format.
 
 4. Press Enter key or click "Send message" button.
 
-5. All users should see the message.
+    - All users should see the message.
 
 ### Private message [(Automated)](https://github.com/bigbluebutton/bigbluebutton/blob/v3.0.x-release/bigbluebutton-tests/playwright/chat/chat.spec.js)
 
@@ -1328,7 +1252,8 @@ Share notes should export and download in the chosen format.
 
 5. Press Enter key or click "Send message" button.
 
-6. Another user should see the private chat message tab and a message counter notification. After clicking on the tab, user should see the private message.
+    - The other user should see the private chat message tab and a message counter notification
+    - After clicking on the tab, user should see the private message.
 
 ### Chat Character Limit [(Automated)](https://github.com/bigbluebutton/bigbluebutton/blob/v3.0.x-release/bigbluebutton-tests/playwright/chat/chat.spec.js)
 
@@ -1336,7 +1261,7 @@ Share notes should export and download in the chosen format.
 
 2. Enter maximum number of characters in the public chat textbox (the limit is 5,000 characters per single message).
 
-3. Warning should appear to inform about the character limit and you shouldn't be able to send the message.
+    - Warning should appear to inform about the character limit and you shouldn't be able to send the message.
 
 ### Sending Empty chat message [(Automated)](https://github.com/bigbluebutton/bigbluebutton/blob/v3.0.x-release/bigbluebutton-tests/playwright/chat/chat.spec.js)
 
@@ -1385,15 +1310,18 @@ Note :
 
 4. Presenter: you can edit the responses (modify, add new one, delete).
 
-4. Poll popup should appear for all users except the presenter. Sound effect notification should play. Make the selection.
+    - Poll popup should appear for all users except the presenter
+    - Sound effect notification should play
+    
+5. Make the selection.
 
-5. Presenter: live poll results panel should show up, indicating the overall results and how each user responded.
+6. Presenter: live poll results panel should show up, indicating the overall results and how each user responded.
 
-5. Presenter: click "Publish poll".
+7. Presenter: click "Publish poll".
 
-6. Poll results will show up in public chat and presentation area for all users.
+    - Poll results will show up in public chat and presentation area for all users.
 
-### Start a multiple-choice poll
+### Start a multiple-choice poll [(Automated)](https://github.com/bigbluebutton/bigbluebutton/blob/v2.7.x-release/bigbluebutton-tests/playwright/polling/polling.spec.js)
 
 1. Join meeting
 
@@ -1405,13 +1333,15 @@ Note :
 
 5. Presenter: enable the "Allow multiple answers per" checkbox.
 
-6. Poll popup should appear for all users except the presenter. Sound effect notification should play. Each user should be able to make multiple selections.
+    - Poll popup should appear for all users except the presenter
+    - Sound effect notification should play
+    - Each user should be able to make multiple selections.
 
-7. Presenter: live poll results panel should show up, indicating the overall results and how each user responded (each of the user's multiple responses should be counted).
+6. Presenter: live poll results panel should show up, indicating the overall results and how each user responded (each of the user's multiple responses should be counted).
 
-8. Presenter: click "Publish poll".
+7. Presenter: click "Publish poll".
 
-9. Poll results will show up in public chat and presentation area for all users.
+    - Poll results will show up in public chat and presentation area for all users.
 
 ### Start an anonymous poll [(Automated)](https://github.com/bigbluebutton/bigbluebutton/blob/v3.0.x-release/bigbluebutton-tests/playwright/polling/polling.spec.js)
 
@@ -1425,13 +1355,16 @@ Note :
 
 5. Presenter: enable "Anonymous Poll".
 
-4. Poll popup should appear for all users except the presenter. Sound effect notification should play. Make the selection.
+    - Poll popup should appear for all users except the presenter
+    - Sound effect notification should play
+    
+6. Make the selection.
 
-5. Presenter: live poll results panel should show up, without the information on how each user responded.
+7. Presenter: live poll results panel should show up, without the information on how each user responded.
 
-5. Presenter: click "Publish poll".
+8. Presenter: click "Publish poll".
 
-6. Poll results will show up in public chat and presentation area for all users.
+    - Poll results will show up in public chat and presentation area for all users.
 
 
 ### Custom Poll [(Automated)](https://github.com/bigbluebutton/bigbluebutton/blob/v3.0.x-release/bigbluebutton-tests/playwright/polling/polling.spec.js)
@@ -1469,14 +1402,6 @@ Note :
 
 - The chosen Poll options shows in the bottom right corner of the screen for all the users except the Presenter.
 
-### Hiding Poll Results
-
-(Presenter feature :Hiding Poll Results from the screen.)
-
-1. Click on the Trash icon.
-
-- The Poll result will disappear from the screen.
-
 ## User list settings
 
 ### Clear all reactions
@@ -1489,49 +1414,30 @@ Note :
 
     - All the current reactions should be cleared
 
-### Mute users
+### Mute all users [(Automated)](https://github.com/bigbluebutton/bigbluebutton/blob/v2.7.x-release/bigbluebutton-tests/playwright/user/user.spec.js)
 
 1. Moderator: select manage users icon (cog wheel icon in users list)
 
-2. In lock viewers, select share microphone is locked.
+2. Click "Mute all users"
 
-3. Click apply.
+    - All users (moderator/presenter included) who are already joined in the client with a functioning mic will be muted (if unmuted)
 
-4. All users (moderator/presenter included) who are already joined in the client with a functioning mic will be muted (if unmuted) and unable to unmute their mics. All users (moderator/presenter included) who join after setting is applied will be automatically joined listen only with no mic options available.
-
-### Unmute users
-
-1. Moderator: select manage users icon (cog wheel in users list)
-
-2. In lock viewers, click share microphone to unlock in the status and click apply.
-
-3. All users will remain muted until they unmute themselves. All users who enter after the meeting mute is removed will have the option to join with a mic
-
-### Mute and unmute users except Presenter
-
-(Moderator: Mute all users except for presenter)
+### Mute all users except presenter [(Automated)](https://github.com/bigbluebutton/bigbluebutton/blob/v2.7.x-release/bigbluebutton-tests/playwright/user/user.spec.js)
 
 1. Select manage users icon (cog wheel in users list)
 
-2. Choose lock viewers and select shared microphone to locked, mute all users except for presenter.
+2. Click on "Mute all users expect presenter"
 
-- All users except the current presenter who are already joined in the cliend with a functioning mic will be muted (if unmuted) and unable to unmute their mics. All users who join after the setting is applied will be automatically joined listen only with no mic options available.
+    - All users except the current presenter who are already joined in the client with a functioning mic will be muted (if unmuted) and unable to unmute their mics
+    - All moderators should be able to see and use this feature
 
-(Moderator: Undo mute all users except for presenter)
-
-1. Select manage users icon (cog wheel in users list)
-
-2. Choose lock viewers and selecting shared microphone is unlocked and undo meeting mute.
-
-3. All users will remain muted until they unmute themselves. All users who enter after the meeting mute is removed will have the option to join with a mic
-
-### Saving Usernames
+### Saving Usernames [(Automated)](https://github.com/bigbluebutton/bigbluebutton/blob/v2.7.x-release/bigbluebutton-tests/playwright/user/user.spec.js)
 
 1. Moderator: Select manage users icon (cog wheel in users list)
 
-2. Moderator: Choose save user names.
+2. Moderator: Choose "Save user names"
 
-3. Users list names will download as a TXT based document to local device.
+    - Users list names will download as a TXT based document to local device.
 
 ## Options menu
 
@@ -1557,52 +1463,22 @@ Note :
 
 ### Application Settings
 
-#### A. Animations
-
-(Inside the Settings modal)
+#### Animations
 
 1. Click on the [On/Off] the switch button
 
 2.  Enable/Disable Animations
 3.  click Save to Validate your new Settings
 
-- The Animations is now Disabled/Enabled
+    - The Animations is now Disabled/Enabled
 
-#### B. Audio Alerts for Chat
+#### Audio filters for Microphone
 
-(Inside the Settings modal)
+1. Click on the [On/Off] the switch button
 
-1. Click on the [On/Off] the switch button to Enable/Disable Audio Alerts for Chat
+2. Enable/Disable audio filters for Microphone
 
-2. Click Save to Validate your new Settings.
-
-3. The beeps alerts for chat are now Disabled/Enabled
-
-#### C. Popup Alerts for Chat
-
-(Inside the Settings modal)
-
-1. Click on the [On/Off] the switch button to Enable/Disable Popup alerts for Chat
-
-2. Click Save to Validate your new Settings.
-
-3. The Popup Alerts for Chat are now Disabled/Enabled.
-
-#### D. Application Language [(Automated)](https://github.com/bigbluebutton/bigbluebutton/blob/v3.0.x-release/bigbluebutton-tests/playwright/options/options.spec.js)
-
-(Inside "Application" section of the Settings modal)
-
-1. Click on the Application Language Options List
-
-2. Choose a language from the dropdown list
-
-3. Click Save to Validate your new Settings
-
-4. The screen quickly reloads to apply the language change action
-
-#### D. Dark Mode [(Automated)](https://github.com/bigbluebutton/bigbluebutton/blob/v3.0.x-release/bigbluebutton-tests/playwright/options/options.spec.js)
-
-(Inside "Application" section of the Settings modal)
+#### Dark Mode [(Automated)](https://github.com/bigbluebutton/bigbluebutton/blob/v2.7.x-release/bigbluebutton-tests/playwright/options/options.spec.js)
 
 1. Click on the [On/Off] the switch button to Enable Dark Mode
 
@@ -1616,9 +1492,38 @@ Note :
 
 6. Verify that the color scheme of the client changed back to the default one.
 
-#### E. Font Size
+#### Auto hide whiteboard toolbar
 
-(Inside the Settings modal)
+1. Click on the [On/Off] the switch button
+
+    - when enabled, all the whiteboard toolbars (options, styles and tools toolbar) will be hidden after a while without hovering over the slide
+
+#### Disable self-view (all cameras)
+
+1. Click on the [On/Off] the switch button
+
+    - when enabled, all cameras you share will be disabled for self-view
+
+#### Auto close the reactions bar
+
+1. Click on the [On/Off] the switch button
+
+    - after using a reaction or raising your hand, the reactions bar should close
+
+#### Application Language [(Automated)](https://github.com/bigbluebutton/bigbluebutton/blob/v2.7.x-release/bigbluebutton-tests/playwright/options/options.spec.js)
+
+1. Click on the [On/Off] the switch button
+
+1. Click on the Application Language Options List
+
+2. Choose a language from the dropdown list
+
+3. Click Save to Validate your new Settings
+
+4. The screen quickly reloads to apply the language change action
+
+#### Font Size [(Automated)](https://github.com/bigbluebutton/bigbluebutton/blob/v2.7.x-release/bigbluebutton-tests/playwright/options/options.spec.js)
+
 
 1. Click on (+) or (-) buttons to increase or decrease the font size of Presentation.
 
@@ -1626,29 +1531,49 @@ Note :
 
 3. The font size increases/decreases according to the set percentage.
 
+### Notifications
+
+#### Audio Alerts
+
+1. There should be a switch button for each notification:
+    - Chat message
+    - User join
+    - User leave
+    - Raise hand (moderators only)
+
+2. Enabling them, you should hear an alert sound every time an event is triggered
+
+#### Popup Alerts
+
+1. There should be a switch button for each notification:
+    - Chat message [(Automated)](https://github.com/bigbluebutton/bigbluebutton/blob/v2.7.x-release/bigbluebutton-tests/playwright/notifications/notifications.spec.js)
+    - User join [(Automated)](https://github.com/bigbluebutton/bigbluebutton/blob/v2.7.x-release/bigbluebutton-tests/playwright/notifications/notifications.spec.js)
+    - User leave
+    - Raise hand (moderators only) [(Automated)](https://github.com/bigbluebutton/bigbluebutton/blob/v2.7.x-release/bigbluebutton-tests/playwright/notifications/notifications.spec.js)
+
+2. Enabling them, you should see a notification every time an event is triggered
+
 ### Data Savings Settings
 
-(Inside the Settings modal)
-
-#### A. Enable/Disable Webcams
+#### A. Enable/Disable other participants webcams
 
 1. Click on the [On/Off] the switch button to enable/disable Webcams.
 
 2. Click Save to Validate your new Settings.
 
-3. The Webcams should now be disabled/enabled.
+    - The Webcams should now be disabled/enabled.
 
-#### B. Enable/Disable Desktop Sharing
+#### B. Enable/Disable other participants desktop sharing
 
 1. Click on the [On/Off] the switch button to enable/disable desktop sharing.
 
 2. Click Save to Validate your new Settings.
 
-3. Desktop Sharing is disabled/enabled.
+    - Desktop Sharing is disabled/enabled.
 
 ### Shortcut keys
 
-#### Keyboard Shortcuts
+#### Keyboard Shortcuts [(Automated)](https://github.com/bigbluebutton/bigbluebutton/blob/v2.7.x-release/bigbluebutton-tests/playwright/parameters/parameters.spec.js)
 
 1. Click on the Keyboard Shortcuts in the options menu.
 
@@ -1678,21 +1603,22 @@ Note :
 
 3. Select "Leave meeting".
 
-4. You should be disconnected from the meeting and a feedback should prompt should be displayed.
+    - You should be disconnected from the meeting and a feedback should prompt should be displayed.
 
 ### End meeting
 
 1. Join meeting as moderator.
 
-2. Click "Options" button in top-right corner (three dots icon).
+2. Click "Options" button in top-right corner (three dots icon)
 
-3. Select "End meeting" and choose "Yes".
+3. Select "End meeting for all" and choose the red button
 
-4. All users should be kicked from meeting, meeting feedback form should appear and meeting should end.
+    - Only moderators should be able to end meetings
+    - All users should be kicked from meeting, meeting feedback form should appear and meeting should end
 
 ## Guest Policy
 
-### Always deny
+### Always deny [(Automated)](https://github.com/bigbluebutton/bigbluebutton/blob/v2.7.x-release/bigbluebutton-tests/playwright/user/user.spec.js)
 
 1. Join meeting as moderator.
 
@@ -1702,19 +1628,15 @@ Note :
 
 4. Moderator: choose "Always deny".
 
-5. Try to join the meeting as moderator. Moderators should be able to join.
+5. Try to join the meeting as moderator
 
-6. Try to join the meeting as viewer. Viewers should be denied and redirected to home page.
+    - Moderators should be able to join
 
-7. Moderator: click on the cog wheel icon in the user list, select "Guest policy".
+6. Try to join the meeting as viewer
 
-8. Moderator: "Guest policy" modal should appear.
+    - Viewers should be automatically denied and redirected to home page
 
-9. Moderator: choose "Always accept".
-
-10. Try to join the meeting with moderator and with viewer. All users should be able to join.
-
-### Ask moderator
+### Ask moderator [(Automated)](https://github.com/bigbluebutton/bigbluebutton/blob/v2.7.x-release/bigbluebutton-tests/playwright/user/user.spec.js)
 
 1. Join meeting as moderator.
 
@@ -1728,9 +1650,13 @@ Note :
 
 6. Moderator: click "Waiting Users" tab, the waiting users panel should open and include "Currently no pending users..." label.
 
-7. Try to join the meeting as moderator. Moderators should be able to join bypassing lobby.
+7. Try to join the meeting as moderator
 
-8. Try to join the meeting as viewer. You should get into a lobby screen indicating your position in the queue.
+    - Moderators should be able to join bypassing lobby
+
+8. Try to join the meeting as viewer
+
+    - You should get into a lobby screen indicating your position in the queue
 
 9. Moderator: the waiting users panel should be populated with the list of pending viewers and options of how to proceed (if the panel is closed, the pending users counter should appear on top of the "Waiting Users" tab).
 
@@ -1738,17 +1664,17 @@ Note :
 
 11. Moderator: click "Message" for a specific viewer in the list, type in the textbox, press Enter or click "Send" button. The message should appear only for that specific viewer.
 
-- Click "Deny everyone". All the waiting viewers should see the message "Guest denied of joining the meeting" and should soon be redirected to the home page. All new viewers should not be effected by this, but instead they should be placed in the waiting lobby.
+    - Click "Deny everyone". All the waiting viewers should see the message "Guest denied of joining the meeting" and should soon be redirected to the home page. All new viewers should not be effected by this, but instead they should be placed in the waiting lobby.
 
-- Select "Remember choice" and click "Deny everyone". All the waiting viewers should see the message "Guest denied of joining the meeting" and should soon be redirected to the home page. "Always deny" option should become current in the waiting users modal and all new viewers should be redirected to the home page.
+    - Select "Remember choice" and click "Deny everyone". All the waiting viewers should see the message "Guest denied of joining the meeting" and should soon be redirected to the home page. "Always deny" option should become current in the waiting users modal and all new viewers should be redirected to the home page.
 
-- Click "Allow everyone". All the waiting viewers should successfully join the meeting. All new viewers should not be effected by this, but instead they should be placed in the waiting lobby.
+    - Click "Allow everyone". All the waiting viewers should successfully join the meeting. All new viewers should not be effected by this, but instead they should be placed in the waiting lobby.
 
-- Select "Remember choice" and click "Allow everyone". All the waiting viewers should successfully join the meeting. "Always allow" option should become current in the waiting users modal and all new viewers should be able to join bypassing the waiting lobby.
+    - Select "Remember choice" and click "Allow everyone". All the waiting viewers should successfully join the meeting. "Always allow" option should become current in the waiting users modal and all new viewers should be able to join bypassing the waiting lobby.
 
-- Click "Accept" for the specific user in the waiting users panel. That viewer should be accepted into the meeting.
+    - Click "Accept" for the specific user in the waiting users panel. That viewer should be accepted into the meeting.
 
-- Click "Deny" for the specific user in the waiting users panel. That viewer should see the message "Guest denied of joining the meeting" and should soon be redirected to the home page.
+    - Click "Deny" for the specific user in teh waiting users panel. That viewer should see the message "Guest denied of joining the meeting" and should soon be redirected to the home page.
 
 ## Reactions bar
 
@@ -1768,7 +1694,7 @@ Note :
     - The reaction should be changed once you click in a different emoji
     - if the `emojiRain` setting is enabled, all users should see an animated rain of emojis from their reactions button on every reaction 
 
-### Raise / Lower your hand
+### Raise / Lower your hand  [(Automated)](https://github.com/bigbluebutton/bigbluebutton/blob/v2.7.x-release/bigbluebutton-tests/playwright/user/user.spec.js)
 
 1. Join in a meeting with 2 users
 
@@ -1856,11 +1782,9 @@ preUploadedPresentationName=ScientificPaper.pdf
     - once you start sharing, all users should see correctly the background applied
 
 
-## iFrame
-
 ## Timer and stopwatch
 
-### Stopwatch
+### Stopwatch [(Automated)](https://github.com/bigbluebutton/bigbluebutton/blob/v2.7.x-release/bigbluebutton-tests/playwright/user/user.spec.js)
 
 1. Join in a meeting with 2 users (mod and attendee)
 
@@ -1894,7 +1818,7 @@ preUploadedPresentationName=ScientificPaper.pdf
     - Any active stopwatch should stop immediately, not being displayed anymore
 
 
-### Timer
+### Timer [(Automated)](https://github.com/bigbluebutton/bigbluebutton/blob/v2.7.x-release/bigbluebutton-tests/playwright/user/user.spec.js)
 
 1. Join in a meeting with 2 users (mod and attendee)
 
