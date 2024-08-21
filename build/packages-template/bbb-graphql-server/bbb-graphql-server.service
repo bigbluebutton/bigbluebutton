@@ -12,7 +12,7 @@ Group=bigbluebutton
 WorkingDirectory=/usr/local/bin
 EnvironmentFile=/etc/default/bbb-graphql-server
 # Optional file (the service should not fail if the file does not exist)
-EnvironmentFile=-/etc/bigbluebutton/bbb-graphql-server.env
+# EnvironmentFile=-/etc/bigbluebutton/bbb-graphql-server.env
 # Load Hasura password and set it as an environment variable
 Environment="HASURA_GRAPHQL_ADMIN_SECRET=$(cat /usr/share/bbb-graphql-server/admin-secret.txt)"
 ExecStart=/usr/local/bin/hasura-graphql-engine serve

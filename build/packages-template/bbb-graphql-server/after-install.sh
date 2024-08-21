@@ -26,10 +26,8 @@ case "$1" in
 #Generate a random password to Hasura to improve security
 if [ ! -f /usr/share/bbb-graphql-server/admin-secret.txt ]; then
   mkdir -p /usr/share/bbb-graphql-server
-  chown bigbluebutton:bigbluebutton /usr/share/bbb-graphql-server
   openssl rand -base64 32 | sed 's/=//g' | sed 's/+//g' | sed 's/\///g' > /usr/share/bbb-graphql-server/admin-secret.txt
   ls -l /usr/share/bbb-graphql-server/
-  chown bigbluebutton:bigbluebutton /usr/share/bbb-graphql-server/admin-secret.txt
   chmod 644 /usr/share/bbb-graphql-server/admin-secret.txt
   ls -l /usr/share/bbb-graphql-server/
   echo "Set a random password to Hasura at /usr/share/bbb-graphql-server/admin-secret.txt"
@@ -51,14 +49,19 @@ sed -i "s/^admin_secret: .*/admin_secret: $HASURA_ADM_PASSWORD/g" /usr/share/bbb
         sleep 1
     done
 
-  journalctl -u bbb-graphql-server | tail -n 30
+
   cat /usr/share/bbb-graphql-server/admin-secret.txt
   cat /usr/share/bbb-graphql-server/config.yaml
   cat /lib/systemd/system/bbb-graphql-server.service
   cat /etc/default/bbb-graphql-server
+  sleep 5
+  sudo systemctl status bbb-graphql-server.service
+  journalctl -u bbb-graphql-server | tail -n 30
 
     # Apply BBB metadata in Hasura
     cd /usr/share/bbb-graphql-server
+    pwd
+    ls -l
     /usr/local/bin/hasura metadata apply --skip-update-check
     cd ..
     rm -rf /usr/share/bbb-graphql-server/metadata
