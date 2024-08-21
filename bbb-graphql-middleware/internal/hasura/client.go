@@ -1,6 +1,7 @@
 package hasura
 
 import (
+	"bbb-graphql-middleware/config"
 	"bbb-graphql-middleware/internal/hasura/conn/reader"
 	"bbb-graphql-middleware/internal/hasura/conn/writer"
 	"context"
@@ -10,7 +11,6 @@ import (
 	"net/http"
 	"net/http/cookiejar"
 	"net/url"
-	"os"
 	"sync"
 
 	"bbb-graphql-middleware/internal/common"
@@ -19,7 +19,7 @@ import (
 )
 
 var lastHasuraConnectionId int
-var hasuraEndpoint = os.Getenv("BBB_GRAPHQL_MIDDLEWARE_HASURA_WS")
+var hasuraEndpoint = config.GetConfig().Hasura.Url
 
 // Hasura client connection
 func HasuraClient(

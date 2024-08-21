@@ -1,18 +1,18 @@
 package bbb_web
 
 import (
+	"bbb-graphql-middleware/config"
 	"encoding/json"
 	"fmt"
 	log "github.com/sirupsen/logrus"
 	"io/ioutil"
 	"net/http"
 	"net/http/cookiejar"
-	"os"
 	"strings"
 )
 
 // authHookUrl is the authentication hook URL obtained from an environment variable.
-var authHookUrl = os.Getenv("BBB_GRAPHQL_MIDDLEWARE_AUTH_HOOK_URL")
+var authHookUrl = config.GetConfig().AuthHook.Url
 
 func BBBWebCheckAuthorization(browserConnectionId string, sessionToken string, cookies []*http.Cookie) (string, string, error) {
 	logger := log.WithField("_routine", "BBBWebClient").WithField("browserConnectionId", browserConnectionId)
