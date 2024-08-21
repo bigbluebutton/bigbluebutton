@@ -105,7 +105,9 @@ public class ParamsProcessorUtil {
     private boolean defaultNotifyRecordingIsOn = false;
     private boolean defaultKeepEvents = false;
     private Boolean useDefaultLogo;
+    private Boolean useDefaultDarkLogo;
     private String defaultLogoURL;
+    private String defaultDarkLogoURL;
     private String defaultPresentationUploadExternalDescription = "";
     private String defaultPresentationUploadExternalUrl = "";
 
@@ -830,6 +832,16 @@ public class ParamsProcessorUtil {
 			meeting.setCustomLogoURL(this.getDefaultLogoURL());
 		}
 
+        if (!StringUtils.isEmpty(params.get(ApiParams.DARK_LOGO))) {                
+            meeting.setCustomDarkLogoURL(params.get(ApiParams.DARK_LOGO));          
+        } else if  (!StringUtils.isEmpty(params.get(ApiParams.LOGO))) {             
+            meeting.setCustomDarkLogoURL(params.get(ApiParams.LOGO));               
+        } else if  (this.getUseDefaultDarkLogo()) {                                 
+            meeting.setCustomDarkLogoURL(this.getDefaultDarkLogoURL());             
+        } else if (!this.getUseDefaultDarkLogo() && this.getUseDefaultLogo()) {     
+            meeting.setCustomDarkLogoURL(this.getDefaultLogoURL());                 
+        }
+
 		if (!StringUtils.isEmpty(params.get(ApiParams.COPYRIGHT))) {
 			meeting.setCustomCopyright(params.get(ApiParams.COPYRIGHT));
 		}
@@ -895,8 +907,16 @@ public class ParamsProcessorUtil {
 		return useDefaultLogo;
 	}
 
+    public Boolean getUseDefaultDarkLogo() {
+		return useDefaultDarkLogo;
+	}
+
 	public String getDefaultLogoURL() {
 		return defaultLogoURL;
+	}
+
+    public String getDefaultDarkLogoURL() {
+		return defaultDarkLogoURL;
 	}
 
 	public Boolean getAllowRequestsWithoutSession() {
@@ -1262,8 +1282,17 @@ public class ParamsProcessorUtil {
 		this.useDefaultLogo = value;
 	}
 
+    public void setUseDefaultDarkLogo(Boolean value) {
+		this.useDefaultDarkLogo = value;
+	}
+
+
 	public void setDefaultLogoURL(String url) {
 		this.defaultLogoURL = url;
+	}
+
+    public void setDefaultDarkLogoURL(String url) {
+		this.defaultDarkLogoURL = url;
 	}
 
 	public void setAllowRequestsWithoutSession(Boolean allowRequestsWithoutSession) {
