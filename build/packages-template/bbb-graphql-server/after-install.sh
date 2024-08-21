@@ -55,7 +55,7 @@ sed -i "s/^admin_secret: .*/admin_secret: $HASURA_ADM_PASSWORD/g" /usr/share/bbb
   cat /lib/systemd/system/bbb-graphql-server.service
   cat /etc/default/bbb-graphql-server
   sleep 5
-  sudo systemctl status bbb-graphql-server.service
+  systemctl status bbb-graphql-server.service | tail -n 10
   journalctl -u bbb-graphql-server | tail -n 30
 
     # Apply BBB metadata in Hasura
