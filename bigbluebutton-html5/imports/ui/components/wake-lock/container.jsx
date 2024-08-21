@@ -10,7 +10,7 @@ import { useStorageKey } from '../../services/storage/hooks';
 
 const propTypes = {
   areAudioModalsOpen: PropTypes.bool,
-  autoJoin: PropTypes.bool.isRequired,
+  autoJoin: PropTypes.bool,
 };
 
 function usePrevious(value) {
