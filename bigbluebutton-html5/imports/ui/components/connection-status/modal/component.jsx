@@ -336,7 +336,7 @@ class ConnectionStatusComponent extends PureComponent {
                   : (
                     <TooltipContainer
                       placement="top"
-                      title={`this is a message`}
+                      title={intl.formatMessage(intlMessages.noEvent)}
                     >
                       <CommonIcon iconName="close" rotate={false} />
                     </TooltipContainer>
