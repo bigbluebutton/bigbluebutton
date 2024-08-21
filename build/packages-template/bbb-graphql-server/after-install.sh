@@ -27,6 +27,7 @@ case "$1" in
 if [ ! -f /usr/share/bbb-graphql-server/admin-secret.txt ]; then
   mkdir -p /usr/share/bbb-graphql-server
   openssl rand -base64 32 | sed 's/=//g' | sed 's/+//g' | sed 's/\///g' > /usr/share/bbb-graphql-server/admin-secret.txt
+  echo "Set a random password to Hasura at /usr/share/bbb-graphql-server/admin-secret.txt"
 fi
 
 #Set admin secret for Hasura CLI
