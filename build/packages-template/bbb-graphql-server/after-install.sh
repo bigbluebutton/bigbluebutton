@@ -32,7 +32,7 @@ fi
 
 #Set admin secret for Hasura CLI
 HASURA_ADM_PASSWORD=$(cat /usr/share/bbb-graphql-server/admin-secret.txt)
-sed -i "s/^admin_secret: .*/admin_secret: $HASURA_ADM_PASSWORD/g" /usr/share/bbb-graphql-server/config.yml
+sed -i "s/^admin_secret: .*/admin_secret: $HASURA_ADM_PASSWORD/g" /usr/share/bbb-graphql-server/config.yaml
 
   if [ ! -f /.dockerenv ]; then
     systemctl enable bbb-graphql-server.service
@@ -47,7 +47,7 @@ sed -i "s/^admin_secret: .*/admin_secret: $HASURA_ADM_PASSWORD/g" /usr/share/bbb
     done
 
   cat /usr/share/bbb-graphql-server/admin-secret.txt
-  cat /usr/share/bbb-graphql-server/config.yml
+  cat /usr/share/bbb-graphql-server/config.yaml
   cat /lib/systemd/system/bbb-graphql-server.service
   cat /etc/default/bbb-graphql-server
 
