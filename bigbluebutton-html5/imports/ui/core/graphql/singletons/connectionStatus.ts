@@ -35,6 +35,13 @@ class ConnectionStatus {
     video: {},
   });
 
+  private userNetworkHistory = makeVar<Array<{
+    user: Pick<User, 'userId' | 'avatar' | 'isModerator' | 'color' | 'isOnline' | 'name'>,
+    lastUnstableStatus: string,
+    lastUnstableStatusAt: Date | number,
+    clientNotResponding?: boolean,
+  }>>([]);
+
   private packetLossStatus = makeVar('normal');
 
   public setPacketLossStatus(value: string): void {
@@ -152,6 +159,32 @@ class ConnectionStatus {
 
   public getConnectedStatusVar() {
     return this.connected;
+  }
+
+  public addUserNetworkHistory(
+    user: User,
+    lastUnstableStatus: string,
+    lastUnstableStatusAt: Date | number,
+  ): void {
+    const userNetworkHistory = [...this.userNetworkHistory()];
+    userNetworkHistory.push({
+      user: {
+        userId: user.userId,
+        avatar: user.avatar,
+        isModerator: user.isModerator,
+        color: user.color,
+        isOnline: user.isOnline,
+        name: user.name,
+      },
+      lastUnstableStatus,
+      lastUnstableStatusAt,
+      clientNotResponding: false,
+    });
+    this.userNetworkHistory(userNetworkHistory);
+  }
+
+  public getUserNetworkHistory() {
+    return this.userNetworkHistory();
   }
 }
 
