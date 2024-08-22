@@ -164,7 +164,7 @@ export const ChatAvatar = styled.div<ChatAvatarProps>`
   // ================ image ================
 
   // ================ content ================
-  color: ${colorWhite};
+  color: ${colorWhite} !important;
   font-size: 110%;
   text-transform: capitalize;
   display: flex;
