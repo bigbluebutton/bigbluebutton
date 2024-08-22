@@ -1016,7 +1016,7 @@
     "app.connection-status.usingTurn": "Χρήση TURN",
     "app.connection-status.yes": "Ναι",
     "app.connection-status.connectionStats": "Στατιστικά σύνδεσης",
-    "app.connection-status.connectionStatusNoEvent": "Δε δημιουργήθηκε κανένα γεγονός γι αυτή την κατάσταση",
+    "app.connection-status.connectionStatusNoEvent": "Δε δημιουργήθηκε κανένα γεγονός γι αυτή την κατάσταση.",
     "app.connection-status.myLogs": "Τα αρχεία καταγραφών μου",
     "app.connection-status.sessionLogs": "Αρχεία καταγραφής συνεδρίας",
     "app.connection-status.next": "Επόμενη σελίδα",
