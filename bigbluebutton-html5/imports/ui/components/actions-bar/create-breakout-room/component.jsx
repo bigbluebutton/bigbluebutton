@@ -512,6 +512,9 @@ class BreakoutRoom extends PureComponent {
       sequence: seq,
       allPages: !this.getRoomPresentation(seq).startsWith(CURRENT_SLIDE_PREFIX),
       presId: this.getRoomPresentation(seq).replace(CURRENT_SLIDE_PREFIX, ''),
+      sourcePresentationFilename: PresentationUploaderService.getPresentations()
+        .filter((pres) => pres.id == this.getRoomPresentation(seq).replace(CURRENT_SLIDE_PREFIX, ''))[0]
+        .filename || this.getRoomName(seq),
     }));
 
     createBreakoutRoom(rooms, durationTime, record, captureNotes, captureSlides, inviteMods);

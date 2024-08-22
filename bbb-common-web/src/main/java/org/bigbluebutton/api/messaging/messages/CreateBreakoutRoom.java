@@ -17,6 +17,7 @@ public class CreateBreakoutRoom implements IMessage {
     public final Integer durationInMinutes; // The duration of the breakout room
     public final String sourcePresentationId;
     public final Integer sourcePresentationSlide;
+    public final String sourcePresentationFilename;
     public final Boolean record;
     public final Boolean privateChatEnabled;
     public final Boolean captureNotes; // Upload shared notes to main room after breakout room end
@@ -38,6 +39,7 @@ public class CreateBreakoutRoom implements IMessage {
 															Integer duration,
 															String sourcePresentationId,
 															Integer sourcePresentationSlide,
+                                                            String sourcePresentationFilename,
 															Boolean record,
 															Boolean privateChatEnabled,
                                                             Boolean captureNotes,
@@ -58,6 +60,7 @@ public class CreateBreakoutRoom implements IMessage {
         this.durationInMinutes = duration;
         this.sourcePresentationId = sourcePresentationId;
         this.sourcePresentationSlide = sourcePresentationSlide;
+        this.sourcePresentationFilename  = sourcePresentationFilename;
         this.record = record;
         this.privateChatEnabled = privateChatEnabled;
         this.captureNotes = captureNotes;
