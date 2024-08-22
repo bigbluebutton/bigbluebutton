@@ -32,6 +32,10 @@ const TRANSPARENT_LISTEN_ONLY = MEDIA.transparentListenOnly;
 const MEDIA_TAG = MEDIA.mediaTag.replace(/#/g, '');
 const CONNECTION_TIMEOUT_MS = MEDIA.listenOnlyCallTimeout || 15000;
 const { audio: NETWORK_PRIORITY } = MEDIA.networkPriorities || {};
+const {
+  enabled: RESTART_ICE = false,
+  retries: RESTART_ICE_RETRIES = 1,
+} = Meteor.settings.public.kurento?.restartIce?.audio || {};
 const SENDRECV_ROLE = 'sendrecv';
 const RECV_ROLE = 'recv';
 const BRIDGE_NAME = 'fullaudio';
@@ -346,6 +350,8 @@ export default class SFUAudioBridge extends BaseAudioBridge {
           mediaStreamFactory: this.mediaStreamFactory,
           gatheringTimeout: GATHERING_TIMEOUT,
           transparentListenOnly: isTransparentListenOnlyEnabled(),
+          restartIce: RESTART_ICE,
+          restartIceMaxRetries: RESTART_ICE_RETRIES,
         };
 
         this.broker = new AudioBroker(

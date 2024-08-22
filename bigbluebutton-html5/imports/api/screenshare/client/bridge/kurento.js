@@ -15,6 +15,10 @@ const SIGNAL_CANDIDATES = Meteor.settings.public.kurento.signalCandidates;
 const TRACE_LOGS = Meteor.settings.public.kurento.traceLogs;
 const { screenshare: NETWORK_PRIORITY } = Meteor.settings.public.media.networkPriorities || {};
 const GATHERING_TIMEOUT = Meteor.settings.public.kurento.gatheringTimeout;
+const {
+  enabled: RESTART_ICE = false,
+  retries: RESTART_ICE_RETRIES = 3,
+} = Meteor.settings.public.kurento?.restartIce?.screenshare || {};
 
 const BRIDGE_NAME = 'kurento'
 const SCREENSHARE_VIDEO_TAG = 'screenshareVideo';
@@ -269,6 +273,8 @@ export default class KurentoScreenshareBridge {
       forceRelay: shouldForceRelay(),
       traceLogs: TRACE_LOGS,
       gatheringTimeout: GATHERING_TIMEOUT,
+      restartIce: RESTART_ICE,
+      restartIceMaxRetries: RESTART_ICE_RETRIES,
     };
 
     this.broker = new ScreenshareBroker(
@@ -341,6 +347,7 @@ export default class KurentoScreenshareBridge {
         traceLogs: TRACE_LOGS,
         networkPriority: NETWORK_PRIORITY,
         gatheringTimeout: GATHERING_TIMEOUT,
+        restartIce: RESTART_ICE,
       };
 
       this.broker = new ScreenshareBroker(
