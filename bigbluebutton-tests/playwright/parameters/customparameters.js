@@ -230,6 +230,15 @@ class CustomParameters extends MultiUsers {
     expect(await this.modPage.getLocator(e.selectCameraQualityId).inputValue()).toBe('low');
     await this.modPage.waitAndClick(e.startSharingWebcam);
   }
+
+  async webcamBackgroundURL() {
+    await this.modPage.waitAndClick(e.joinVideo);
+    await this.modPage.waitForSelector(e.noneBackgroundButton);
+    await this.modPage.waitAndClick(e.startSharingWebcam);
+    await this.modPage.waitForSelector(e.webcamContainer);
+    const webcamBackgroundURL = this.modPage.getLocator(e.webcamContainer);
+    await expect(webcamBackgroundURL).toHaveScreenshot('webcam-background-passing-url.png');
+  }
 }
 
 exports.CustomParameters = CustomParameters;
