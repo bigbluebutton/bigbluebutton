@@ -13,6 +13,7 @@ import { ACTIONS } from '/imports/ui/components/layout/enums';
 import { Output } from '/imports/ui/components/layout/layoutTypes';
 import { VideoItem } from '/imports/ui/components/video-provider/types';
 import { VIDEO_TYPES } from '/imports/ui/components/video-provider/enums';
+import { UserCameraHelperAreas } from '../../plugins-engine/extensible-areas/components/user-camera-helper/types';
 
 const intlMessages = defineMessages({
   autoplayBlockedDesc: {
@@ -67,6 +68,7 @@ const ASPECT_RATIO = 4 / 3;
 // const ACTION_NAME_BACKGROUND = 'blurBackground';
 
 interface VideoListProps {
+  pluginUserCameraHelperPerPosition: UserCameraHelperAreas;
   layoutType: string;
   layoutContextDispatch: (...args: unknown[]) => void;
   numberOfPages: number;
@@ -349,6 +351,7 @@ class VideoList extends Component<VideoListProps, VideoListState> {
       handleVideoFocus,
       setUserCamerasRequestedFromPlugin,
       focusedId,
+      pluginUserCameraHelperPerPosition,
     } = this.props;
     const numOfStreams = streams.length;
 
@@ -366,6 +369,7 @@ class VideoList extends Component<VideoListProps, VideoListState> {
           data-test="webcamVideoItem"
         >
           <VideoListItemContainer
+            pluginUserCameraHelperPerPosition={pluginUserCameraHelperPerPosition}
             numOfStreams={numOfStreams}
             cameraId={stream}
             userId={userId}

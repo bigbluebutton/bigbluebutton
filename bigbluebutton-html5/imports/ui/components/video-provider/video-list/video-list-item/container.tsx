@@ -13,10 +13,12 @@ import { useStorageKey } from '/imports/ui/services/storage/hooks';
 import useWhoIsTalking from '/imports/ui/core/hooks/useWhoIsTalking';
 import useWhoIsUnmuted from '/imports/ui/core/hooks/useWhoIsUnmuted';
 import { VIDEO_TYPES } from '/imports/ui/components/video-provider/enums';
+import { UserCameraHelperAreas } from '../../../plugins-engine/extensible-areas/components/user-camera-helper/types';
 
 interface VideoListItemContainerProps {
   numOfStreams: number;
   cameraId: string | null;
+  pluginUserCameraHelperPerPosition: UserCameraHelperAreas;
   userId: string;
   name: string;
   focused: boolean;
@@ -43,6 +45,7 @@ const VideoListItemContainer: React.FC<VideoListItemContainerProps> = (props) =>
     setUserCamerasRequestedFromPlugin,
     stream,
     userId,
+    pluginUserCameraHelperPerPosition,
   } = props;
 
   const fullscreen = layoutSelect((i: Layout) => i.fullscreen);
@@ -76,6 +79,7 @@ const VideoListItemContainer: React.FC<VideoListItemContainerProps> = (props) =>
         isRTL,
         amIModerator,
       }}
+      pluginUserCameraHelperPerPosition={pluginUserCameraHelperPerPosition}
       setUserCamerasRequestedFromPlugin={setUserCamerasRequestedFromPlugin}
       cameraId={cameraId}
       disabledCams={disabledCams}

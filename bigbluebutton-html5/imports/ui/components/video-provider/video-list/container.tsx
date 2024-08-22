@@ -3,6 +3,7 @@ import React, {
   useEffect,
   useState,
 } from 'react';
+import { UserCameraHelperInterface, UserCameraHelperItemPosition } from 'bigbluebutton-html-plugin-sdk';
 import VideoList from '/imports/ui/components/video-provider/video-list/component';
 import { layoutSelect, layoutDispatch } from '/imports/ui/components/layout/context';
 import { useNumberOfPages } from '/imports/ui/components/video-provider/hooks';
@@ -13,6 +14,7 @@ import { UpdatedDataForUserCameraDomElement } from 'bigbluebutton-html-plugin-sd
 import { HookEvents } from 'bigbluebutton-html-plugin-sdk/dist/cjs/core/enum';
 import { DomElementManipulationHooks } from 'bigbluebutton-html-plugin-sdk/dist/cjs/dom-element-manipulation/enums';
 import { UpdatedEventDetails } from 'bigbluebutton-html-plugin-sdk/dist/cjs/core/types';
+import { UserCameraHelperAreas } from '../../plugins-engine/extensible-areas/components/user-camera-helper/types';
 
 interface VideoListContainerProps {
   streams: VideoItem[];
@@ -42,6 +44,8 @@ const VideoListContainer: React.FC<VideoListContainerProps> = (props) => {
   } = props;
   const numberOfPages = useNumberOfPages();
 
+  const { pluginsExtensibleAreasAggregatedState } = useContext(PluginsContext);
+
   const { domElementManipulationIdentifiers } = useContext(PluginsContext);
 
   const [userCamerasRequestedFromPlugin, setUserCamerasRequestedFromPlugin] = useState<
@@ -59,11 +63,44 @@ const VideoListContainer: React.FC<VideoListContainerProps> = (props) => {
       }),
     );
   }, [domElementManipulationIdentifiers, userCamerasRequestedFromPlugin]);
+
+  let pluginUserCameraHelperPerPosition: UserCameraHelperAreas = {} as UserCameraHelperAreas;
+  if (pluginsExtensibleAreasAggregatedState.userCameraHelperItems) {
+    pluginUserCameraHelperPerPosition = [
+      ...pluginsExtensibleAreasAggregatedState.userCameraHelperItems,
+    ].reduce((acc, current: UserCameraHelperInterface) => {
+      const state = { ...acc };
+      switch (current.position) {
+        case UserCameraHelperItemPosition.TOP_LEFT:
+          state.userCameraHelperTopLeft.push(current);
+          break;
+        case UserCameraHelperItemPosition.BOTTOM_LEFT:
+          state.userCameraHelperBottomLeft.push(current);
+          break;
+        case UserCameraHelperItemPosition.TOP_RIGHT:
+          state.userCameraHelperTopRight.push(current);
+          break;
+        case UserCameraHelperItemPosition.BOTTOM_RIGHT:
+          state.userCameraHelperBottomRight.push(current);
+          break;
+        default:
+          break;
+      }
+      return state;
+    }, {
+      userCameraHelperTopLeft: [] as UserCameraHelperInterface[],
+      userCameraHelperTopRight: [] as UserCameraHelperInterface[],
+      userCameraHelperBottomLeft: [] as UserCameraHelperInterface[],
+      userCameraHelperBottomRight: [] as UserCameraHelperInterface[],
+    });
+  }
+
   return (
     !streams.length
       ? null
       : (
         <VideoList
+          pluginUserCameraHelperPerPosition={pluginUserCameraHelperPerPosition}
           layoutType={layoutType}
           setUserCamerasRequestedFromPlugin={setUserCamerasRequestedFromPlugin}
           layoutContextDispatch={layoutContextDispatch}

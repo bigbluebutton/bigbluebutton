@@ -1,5 +1,6 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { defineMessages, useIntl } from 'react-intl';
+import { UserCameraHelperButton, UserCameraHelperInterface } from 'bigbluebutton-html-plugin-sdk';
 import { UpdatedDataForUserCameraDomElement } from 'bigbluebutton-html-plugin-sdk/dist/cjs/dom-element-manipulation/user-camera/types';
 import Session from '/imports/ui/services/storage/in-memory';
 import UserActions from '/imports/ui/components/video-provider/video-list/video-list-item/user-actions/component';
@@ -19,6 +20,8 @@ import Auth from '/imports/ui/services/auth';
 import { VideoItem } from '/imports/ui/components/video-provider/types';
 import useCurrentUser from '/imports/ui/core/hooks/useCurrentUser';
 import { VIDEO_TYPES } from '/imports/ui/components/video-provider/enums';
+import PluginButtonContainer from '../../../plugins/plugin-button/container';
+import { UserCameraHelperAreas } from '../../../plugins-engine/extensible-areas/components/user-camera-helper/types';
 
 const intlMessages = defineMessages({
   disableDesc: {
@@ -29,6 +32,7 @@ const intlMessages = defineMessages({
 const VIDEO_CONTAINER_WIDTH_BOUND = 125;
 
 interface VideoListItemProps {
+  pluginUserCameraHelperPerPosition: UserCameraHelperAreas;
   isFullscreenContext: boolean;
   setUserCamerasRequestedFromPlugin: React.Dispatch<React.SetStateAction<UpdatedDataForUserCameraDomElement[]>>;
   layoutContextDispatch: (...args: unknown[]) => void;
@@ -60,12 +64,40 @@ interface VideoListItemProps {
   };
 }
 
+const renderPluginItems = (pluginItems: UserCameraHelperInterface[], bottom: boolean, right: boolean) => {
+  if (pluginItems !== undefined) {
+    return (
+      <>
+        {
+          pluginItems.map((pluginItem) => {
+            const pluginButton = pluginItem as UserCameraHelperButton;
+            const returnComponent = (
+              <PluginButtonContainer
+                key={`${pluginButton.type}-${pluginButton.id}-${pluginButton.label}`}
+                dark
+                bottom={bottom}
+                right={right}
+                icon={pluginButton.icon}
+                label={pluginButton.label}
+                onClick={pluginButton.onClick}
+              />
+            );
+            return returnComponent;
+          })
+        }
+      </>
+    );
+  }
+  return (<></>);
+};
+
 const VideoListItem: React.FC<VideoListItemProps> = (props) => {
   const {
     name, voiceUser, isFullscreenContext, layoutContextDispatch, onHandleVideoFocus,
     cameraId, numOfStreams, focused, onVideoItemMount, onVideoItemUnmount,
     makeDragOperations, dragging, draggingOver, isRTL, isStream, settingsSelfViewDisable,
     disabledCams, amIModerator, stream, setUserCamerasRequestedFromPlugin,
+    pluginUserCameraHelperPerPosition,
   } = props;
 
   const intl = useIntl();
@@ -280,6 +312,43 @@ const VideoListItem: React.FC<VideoListItemProps> = (props) => {
     </Styled.WebcamConnecting>
   );
 
+  const renderScreenshareButtons = () => {
+    const {
+      userCameraHelperTopLeft: topLeftPluginItems,
+      userCameraHelperTopRight: topRightPluginItems,
+      userCameraHelperBottomLeft: bottomLeftPluginItems,
+      userCameraHelperBottomRight: bottomRightPluginItems,
+    } = pluginUserCameraHelperPerPosition;
+    return (
+      <>
+        <Styled.UserCameraButtonsContainterWrapper
+          positionYAxis="top"
+          positionXAxis="left"
+        >
+          {renderPluginItems(topLeftPluginItems, false, false)}
+        </Styled.UserCameraButtonsContainterWrapper>
+        <Styled.UserCameraButtonsContainterWrapper
+          positionYAxis="top"
+          positionXAxis="right"
+        >
+          {renderPluginItems(topRightPluginItems, false, true)}
+        </Styled.UserCameraButtonsContainterWrapper>
+        <Styled.UserCameraButtonsContainterWrapper
+          positionYAxis="bottom"
+          positionXAxis="left"
+        >
+          {renderPluginItems(bottomLeftPluginItems, true, false)}
+        </Styled.UserCameraButtonsContainterWrapper>
+        <Styled.UserCameraButtonsContainterWrapper
+          positionYAxis="bottom"
+          positionXAxis="right"
+        >
+          {renderPluginItems(bottomRightPluginItems, true, true)}
+        </Styled.UserCameraButtonsContainterWrapper>
+      </>
+    );
+  };
+
   const renderDefaultButtons = () => (
     <>
       <Styled.TopBar>
@@ -341,7 +410,7 @@ const VideoListItem: React.FC<VideoListItemProps> = (props) => {
         draggingOver,
       }}
     >
-
+      {renderScreenshareButtons()}
       <Styled.VideoContainer
         $selfViewDisabled={(isSelfViewDisabled && stream.userId === Auth.userID)
           || disabledCams.includes(cameraId)}

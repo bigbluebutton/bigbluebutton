@@ -61,11 +61,11 @@ const UserCameraDomElementManipulationHookManager = () => {
 
     window.addEventListener(HookEvents.PLUGIN_SUBSCRIBED_TO_BBB_CORE, subscribeHandler);
     window.addEventListener(HookEvents.PLUGIN_UNSUBSCRIBED_FROM_BBB_CORE, unsubscribeHandler);
-    window.addEventListener(HookEvents.PLUGIN_MODIFIED_SUBSCRIPTION_TO_BBB_CORE, updateSdkDependenciesHandler);
+    window.addEventListener(HookEvents.PLUGIN_SENT_CHANGES_TO_BBB_CORE, updateSdkDependenciesHandler);
     return () => {
       window.removeEventListener(HookEvents.PLUGIN_SUBSCRIBED_TO_BBB_CORE, subscribeHandler);
       window.removeEventListener(HookEvents.PLUGIN_UNSUBSCRIBED_FROM_BBB_CORE, unsubscribeHandler);
-      window.removeEventListener(HookEvents.PLUGIN_MODIFIED_SUBSCRIPTION_TO_BBB_CORE, updateSdkDependenciesHandler);
+      window.removeEventListener(HookEvents.PLUGIN_SENT_CHANGES_TO_BBB_CORE, updateSdkDependenciesHandler);
     };
   }, []);
 
