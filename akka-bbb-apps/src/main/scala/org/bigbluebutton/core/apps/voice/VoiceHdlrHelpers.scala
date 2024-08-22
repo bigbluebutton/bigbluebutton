@@ -32,10 +32,6 @@ object VoiceHdlrHelpers extends SystemConfiguration {
   ): Boolean = {
     Users2x.findWithIntId(liveMeeting.users2x, userId) match {
       case Some(user) => {
-        val microphoneSharingLocked = LockSettingsUtil.isMicrophoneSharingLocked(
-          user,
-          liveMeeting
-        )
         val isCallerBanned = VoiceUsers.isCallerBanned(
           callerIdNum,
           liveMeeting.voiceUsers
@@ -43,11 +39,42 @@ object VoiceHdlrHelpers extends SystemConfiguration {
 
         (applyPermissionCheck &&
           !isCallerBanned &&
-          !microphoneSharingLocked &&
           liveMeeting.props.meetingProp.intId == meetingId &&
           liveMeeting.props.voiceProp.voiceConf == voiceConf)
       }
       case _ => false
     }
+  }
+
+  def isMicrophoneSharingLocked(
+      liveMeeting: LiveMeeting,
+      userId:      String
+  ): Boolean = {
+    Users2x.findWithIntId(liveMeeting.users2x, userId) match {
+      case Some(user) => LockSettingsUtil.isMicrophoneSharingLocked(
+        user,
+        liveMeeting
+      ) && applyPermissionCheck
+      case _ => false
+    }
+  }
+
+  def transparentListenOnlyAllowed(liveMeeting: LiveMeeting): Boolean = {
+    // Transparent listen only meeting-wide activation threshold.
+    // Threshold is the number of muted duplex audio channels in a meeting.
+    // 0 means no threshold, all users are subject to it
+    val mutedDuplexChannels = VoiceUsers.findAllMutedVoiceUsers(liveMeeting.voiceUsers).length
+    val threshold = transparentListenOnlyThreshold
+
+    (threshold == 0) || (mutedDuplexChannels >= threshold)
+  }
+
+  def muteOnStartThresholdReached(liveMeeting: LiveMeeting): Boolean = {
+    // Mute on start meeting-wide activation threshold.
+    // Threshold is the number of users in voice.
+    // muteOnStartThreshold = 0 means no threshold (disabled).
+    val usersInVoiceConf = VoiceUsers.usersInVoiceConf(liveMeeting.voiceUsers)
+
+    muteOnStartThreshold > 0 && usersInVoiceConf >= muteOnStartThreshold
   }
 }

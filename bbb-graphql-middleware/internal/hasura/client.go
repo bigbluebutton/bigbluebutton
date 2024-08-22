@@ -25,18 +25,6 @@ var hasuraEndpoint = os.Getenv("BBB_GRAPHQL_MIDDLEWARE_HASURA_WS")
 func HasuraClient(
 	browserConnection *common.BrowserConnection) error {
 	log := log.WithField("_routine", "HasuraClient").WithField("browserConnectionId", browserConnection.Id)
-	common.ActivitiesOverviewStarted("__HasuraConnection")
-	defer common.ActivitiesOverviewCompleted("__HasuraConnection")
-
-	defer func() {
-		//Remove subscriptions from ActivitiesOverview here once Hasura-Reader will ignore "complete" msg for them
-		browserConnection.ActiveSubscriptionsMutex.RLock()
-		for _, subscription := range browserConnection.ActiveSubscriptions {
-			common.ActivitiesOverviewCompleted(string(subscription.Type) + "-" + subscription.OperationName)
-			common.ActivitiesOverviewCompleted("_Sum-" + string(subscription.Type))
-		}
-		browserConnection.ActiveSubscriptionsMutex.RUnlock()
-	}()
 
 	// Obtain id for this connection
 	lastHasuraConnectionId++

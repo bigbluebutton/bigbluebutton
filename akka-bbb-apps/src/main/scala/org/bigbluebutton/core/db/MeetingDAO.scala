@@ -8,6 +8,7 @@ case class MeetingSystemColumnsDbModel(
       loginUrl:                              Option[String],
       logoutUrl:                             Option[String],
       customLogoUrl:                         Option[String],
+      customDarkLogoUrl:                     Option[String],
       bannerText:                            Option[String],
       bannerColor:                           Option[String],
 )
@@ -70,9 +71,10 @@ class MeetingDbTableDef(tag: Tag) extends Table[MeetingDbModel](tag, None, "meet
   val loginUrl = column[Option[String]]("loginUrl")
   val logoutUrl = column[Option[String]]("logoutUrl")
   val customLogoUrl = column[Option[String]]("customLogoUrl")
+  val customDarkLogoUrl = column[Option[String]]("customDarkLogoUrl")
   val bannerText = column[Option[String]]("bannerText")
   val bannerColor = column[Option[String]]("bannerColor")
-  val systemColumns = (loginUrl, logoutUrl, customLogoUrl, bannerText, bannerColor) <> (MeetingSystemColumnsDbModel.tupled, MeetingSystemColumnsDbModel.unapply)
+  val systemColumns = (loginUrl, logoutUrl, customLogoUrl, customDarkLogoUrl, bannerText, bannerColor) <> (MeetingSystemColumnsDbModel.tupled, MeetingSystemColumnsDbModel.unapply)
   val createdTime = column[Long]("createdTime")
   val durationInSeconds = column[Int]("durationInSeconds")
   val endWhenNoModerator = column[Boolean]("endWhenNoModerator")
@@ -110,6 +112,10 @@ object MeetingDAO {
             customLogoUrl = meetingProps.systemProps.customLogoURL match {
               case "" => None
               case logoUrl => Some(logoUrl)
+            },
+            customDarkLogoUrl = meetingProps.systemProps.customDarkLogoURL match {
+              case "" => None
+              case darkLogoUrl => Some(darkLogoUrl)
             },
             bannerText = meetingProps.systemProps.bannerText match {
               case "" => None

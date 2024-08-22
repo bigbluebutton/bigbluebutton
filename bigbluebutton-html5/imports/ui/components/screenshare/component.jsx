@@ -147,12 +147,6 @@ class ScreenshareComponent extends React.Component {
       },
     });
 
-    if (isLayoutSwapped) {
-      layoutContextDispatch({
-        type: ACTIONS.SET_PRESENTATION_IS_OPEN,
-        value: true,
-      });
-    }
     Session.setItem('pinnedNotesLastState', isSharedNotesPinned);
   }
 

@@ -144,7 +144,9 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
         <property name="graphqlWebsocketUrl" value="${graphqlWebsocketUrl}"/>
         <property name="graphqlApiUrl" value="${graphqlApiUrl}"/>
         <property name="useDefaultLogo" value="${useDefaultLogo}"/>
+        <property name="useDefaultDarkLogo" value="${useDefaultDarkLogo}"/>
         <property name="defaultLogoURL" value="${defaultLogoURL}"/>
+        <property name="defaultDarkLogoURL" value="${defaultDarkLogoURL}"/>
         <property name="allowRequestsWithoutSession" value="${allowRequestsWithoutSession}"/>
         <property name="defaultHttpSessionTimeout" value="${defaultHttpSessionTimeout}"/>
         <property name="defaultMeetingDuration" value="${defaultMeetingDuration}"/>

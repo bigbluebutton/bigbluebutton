@@ -4,7 +4,12 @@ import { useMutation, useReactiveVar } from '@apollo/client';
 import getFromUserSettings from '/imports/ui/services/users-settings';
 import Auth from '/imports/ui/services/auth';
 import ActionsBar from './component';
-import { layoutSelectOutput, layoutDispatch } from '../layout/context';
+import {
+  layoutSelectOutput,
+  layoutSelectInput,
+  layoutDispatch,
+  layoutSelect,
+} from '../layout/context';
 import {
   useIsExternalVideoEnabled,
   useIsPollingEnabled,
@@ -41,6 +46,9 @@ const ActionsBarContainer = (props) => {
   );
   const presentationPage = presentationPageData?.pres_page_curr[0] || {};
   const isThereCurrentPresentation = !!presentationPage?.presentationId;
+
+  const genericMainContent = layoutSelectInput((i) => i.genericMainContent);
+  const isThereGenericMainContent = !!genericMainContent.genericContentId;
 
   const { data: currentMeeting } = useMeeting((m) => ({
     externalVideo: m.externalVideo,
@@ -113,6 +121,7 @@ const ActionsBarContainer = (props) => {
         isSharedNotesPinned,
         isTimerActive: currentMeeting.componentsFlags.hasTimer,
         isTimerEnabled: isTimerFeatureEnabled,
+        hasGenericContent: isThereGenericMainContent,
       }
     }
     />

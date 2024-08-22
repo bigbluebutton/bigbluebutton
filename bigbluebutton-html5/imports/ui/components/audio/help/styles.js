@@ -24,11 +24,11 @@ const Text = styled.div`
 
 const EnterAudio = styled.div`
   display: flex;
-  justify-content: flex-end;
+  justify-content: center;
   margin-top: ${jumboPaddingY};
 `;
 
-const RetryButton = styled(Button)`
+const HelpActionButton = styled(Button)`
   margin-right: 0.5rem;
   margin-left: inherit;
 
@@ -72,7 +72,7 @@ export default {
   Help,
   Text,
   EnterAudio,
-  RetryButton,
+  HelpActionButton,
   TroubleshootLink,
   UnknownError,
   PermissionHelpSteps,

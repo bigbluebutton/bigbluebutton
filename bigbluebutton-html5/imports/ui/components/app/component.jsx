@@ -43,7 +43,6 @@ import Notifications from '../notifications/component';
 import GlobalStyles from '/imports/ui/stylesheets/styled-components/globalStyles';
 import ActionsBarContainer from '../actions-bar/container';
 import PushLayoutEngine from '../layout/push-layout/pushLayoutEngine';
-import AudioService from '/imports/ui/components/audio/service';
 import NotesContainer from '/imports/ui/components/notes/component';
 import AppService from '/imports/ui/components/app/service';
 import TimeSync from './app-graphql/time-sync/component';
@@ -138,7 +137,6 @@ class App extends Component {
     this.shouldAriaHide = this.shouldAriaHide.bind(this);
     this.setAudioModalIsOpen = this.setAudioModalIsOpen.bind(this);
     this.setVideoPreviewModalIsOpen = this.setVideoPreviewModalIsOpen.bind(this);
-    this.createBeforeUnloadWindowEvent = this.createBeforeUnloadWindowEvent.bind(this);
 
     this.throttledDeviceType = throttle(() => this.setDeviceType(),
       50, { trailing: true, leading: true }).bind(this);
@@ -192,8 +190,6 @@ class App extends Component {
     window.ondragover = (e) => { e.preventDefault(); };
     window.ondrop = (e) => { e.preventDefault(); };
 
-    this.createBeforeUnloadWindowEvent();
-
     logger.info({ logCode: 'app_component_componentdidmount' }, 'Client loaded successfully');
   }
 
@@ -210,14 +206,9 @@ class App extends Component {
       presentationIsOpen,
       hideActionsBar,
       hideNavBar,
-      muteMicrophone,
     } = this.props;
 
     this.renderDarkMode();
-
-    if (prevProps.muteMicrophone !== muteMicrophone) {
-      this.createBeforeUnloadWindowEvent();
-    }
 
     if (prevProps.currentUserAway !== currentUserAway) {
       if (currentUserAway === true) {
@@ -319,25 +310,6 @@ class App extends Component {
 
   setVideoPreviewModalIsOpen(value) {
     this.setState({ isVideoPreviewModalOpen: value });
-  }
-
-  createBeforeUnloadWindowEvent() {
-    const {
-      muteMicrophone,
-    } = this.props;
-
-    const CONFIRMATION_ON_LEAVE = window.meetingClientSettings.public.app.askForConfirmationOnLeave;
-    if (CONFIRMATION_ON_LEAVE) {
-      window.onbeforeunload = (event) => {
-        if (AudioService.isUsingAudio() && !AudioService.isMuted()) {
-          muteMicrophone();
-        }
-        event.stopImmediatePropagation();
-        event.preventDefault();
-        // eslint-disable-next-line no-param-reassign
-        event.returnValue = '';
-      };
-    }
   }
 
   shouldAriaHide() {
@@ -574,7 +546,6 @@ class App extends Component {
           shouldShowScreenshare
             ? (
               <ScreenshareContainer
-                isLayoutSwapped={!presentationIsOpen}
                 isPresenter={isPresenter}
               />
             )

@@ -15,11 +15,6 @@ import (
 	"time"
 )
 
-var ()
-
-func init() {
-}
-
 var graphqlActionsUrl = os.Getenv("BBB_GRAPHQL_MIDDLEWARE_GRAPHQL_ACTIONS_URL")
 
 func GraphqlActionsClient(

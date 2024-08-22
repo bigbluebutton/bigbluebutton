@@ -33,6 +33,7 @@ create table "meeting" (
 	"loginUrl" varchar(500),
 	"logoutUrl" varchar(500),
 	"customLogoUrl" varchar(500),
+    "customDarkLogoUrl" varchar(500),
 	"bannerText" text,
 	"bannerColor" varchar(50),
 	"createdTime" bigint,

@@ -157,6 +157,7 @@ class BbbWebApiGWApp(
                     loginUrl:                               String,
                     logoutUrl:                              String,
                     customLogoURL:                          String,
+                    customDarkLogoURL:                      String,
                     bannerText:                             String,
                     bannerColor:                            String,
                     groups:                                 java.util.ArrayList[Group],
@@ -247,6 +248,7 @@ class BbbWebApiGWApp(
       },
       logoutUrl,
       customLogoURL,
+      customDarkLogoURL,
       bannerText match {
         case t: String => t
         case _ => ""

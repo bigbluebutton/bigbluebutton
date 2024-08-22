@@ -161,6 +161,7 @@ select_permissions:
         - createdAt
         - createdTime
         - customLogoUrl
+        - customDarkLogoUrl
         - disabledFeatures
         - durationInSeconds
         - endWhenNoModerator
@@ -190,6 +191,7 @@ select_permissions:
         - bannerColor
         - bannerText
         - customLogoUrl
+        - customDarkLogoUrl
         - ended
         - endedAt
         - endedBy

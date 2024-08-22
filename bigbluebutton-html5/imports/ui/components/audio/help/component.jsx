@@ -8,6 +8,7 @@ const propTypes = {
     formatMessage: PropTypes.func.isRequired,
   }).isRequired,
   isListenOnly: PropTypes.bool.isRequired,
+  isConnected: PropTypes.bool.isRequired,
   audioErr: PropTypes.shape({
     code: PropTypes.number,
     message: PropTypes.string,
@@ -18,6 +19,8 @@ const propTypes = {
     }),
   }).isRequired,
   handleBack: PropTypes.func.isRequired,
+  handleRetryMic: PropTypes.func.isRequired,
+  handleJoinListenOnly: PropTypes.func.isRequired,
   troubleshootingLink: PropTypes.string,
 };
 
@@ -29,6 +32,10 @@ const intlMessages = defineMessages({
   helpSubtitleMic: {
     id: 'app.audioModal.helpSubtitleMic',
     description: 'Text description for the audio help subtitle (microphones)',
+  },
+  helpSubtitlePermission: {
+    id: 'app.audioModal.helpSubtitlePermission',
+    description: 'Text description for the audio help subtitle (permission)',
   },
   helpSubtitleGeneric: {
     id: 'app.audioModal.helpSubtitleGeneric',
@@ -46,9 +53,17 @@ const intlMessages = defineMessages({
     id: 'app.audioModal.helpPermissionStep3',
     description: 'Text description for the audio permission help step 3',
   },
-  retryLabel: {
-    id: 'app.audio.audioSettings.retryLabel',
+  backLabel: {
+    id: 'app.audio.backLabel',
+    description: 'audio settings back button label',
+  },
+  retryMicLabel: {
+    id: 'app.audio.audioSettings.retryMicLabel',
     description: 'audio settings retry button label',
+  },
+  listenOnlyLabel: {
+    id: 'app.audioModal.listenOnlyLabel',
+    description: 'audio settings listen only button label',
   },
   noSSL: {
     id: 'app.audioModal.help.noSSL',
@@ -74,7 +89,12 @@ const intlMessages = defineMessages({
 
 class Help extends Component {
   getSubtitle() {
-    const { intl, isListenOnly } = this.props;
+    const { audioErr, intl, isListenOnly } = this.props;
+    const { MIC_ERROR } = audioErr;
+
+    if (audioErr.code === MIC_ERROR.NO_PERMISSION) {
+      return intl.formatMessage(intlMessages.helpSubtitlePermission);
+    }
 
     return !isListenOnly
       ? intl.formatMessage(intlMessages.helpSubtitleMic)
@@ -155,7 +175,10 @@ class Help extends Component {
   render() {
     const {
       intl,
+      isConnected,
       handleBack,
+      handleRetryMic,
+      handleJoinListenOnly,
       troubleshootingLink,
     } = this.props;
 
@@ -174,11 +197,31 @@ class Help extends Component {
           </Styled.Text>
         )}
         <Styled.EnterAudio>
-          <Styled.RetryButton
-            label={intl.formatMessage(intlMessages.retryLabel)}
+          {!isConnected ? (
+            <Styled.HelpActionButton
+              label={intl.formatMessage(intlMessages.listenOnlyLabel)}
+              data-test="helpListenOnlyBtn"
+              icon="listen"
+              size="md"
+              color="secondary"
+              onClick={handleJoinListenOnly}
+            />
+          ) : (
+            <Styled.HelpActionButton
+              label={intl.formatMessage(intlMessages.backLabel)}
+              data-test="helpBackBtn"
+              color="secondary"
+              size="md"
+              onClick={handleBack}
+            />
+          )}
+          <Styled.HelpActionButton
+            label={intl.formatMessage(intlMessages.retryMicLabel)}
+            data-test="helpRetryMicBtn"
+            icon="unmute"
             size="md"
             color="primary"
-            onClick={handleBack}
+            onClick={handleRetryMic}
           />
         </Styled.EnterAudio>
       </Styled.Help>

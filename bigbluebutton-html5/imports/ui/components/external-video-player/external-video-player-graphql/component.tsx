@@ -36,6 +36,7 @@ import { EXTERNAL_VIDEO_UPDATE } from '../mutations';
 
 import PeerTube from '../custom-players/peertube';
 import { ArcPlayer } from '../custom-players/arc-player';
+import getStorageSingletonInstance from '/imports/ui/services/storage';
 
 const AUTO_PLAY_BLOCK_DETECTION_TIMEOUT_SECONDS = 5;
 const UPDATE_INTERVAL_THRESHOLD_MS = 500;
@@ -106,7 +107,7 @@ const ExternalVideoPlayer: React.FC<ExternalVideoPlayerProps> = ({
   sendMessage,
 }) => {
   const intl = useIntl();
-
+  const storage = getStorageSingletonInstance();
   const {
     height,
     width,
@@ -187,9 +188,21 @@ const ExternalVideoPlayer: React.FC<ExternalVideoPlayerProps> = ({
   const [duration, setDuration] = React.useState(0);
   const [reactPlayerState, setReactPlayerState] = React.useState(false);
 
+  const changeVolume = (newVolume: number) => {
+    setVolume(newVolume);
+    storage.setItem('externalVideoVolume', newVolume);
+  };
+
   const handleDuration = (duration: number) => {
     setDuration(duration);
   };
+
+  useEffect(() => {
+    const storedVolume = storage.getItem('externalVideoVolume');
+    if (storedVolume) {
+      setVolume(storedVolume as number);
+    }
+  }, []);
 
   useEffect(() => {
     const unsynchedPlayer = reactPlayerState !== playing;
@@ -206,7 +219,7 @@ const ExternalVideoPlayer: React.FC<ExternalVideoPlayerProps> = ({
   useEffect(() => {
     const handleExternalVideoVolumeSet = ((
       event: CustomEvent<SetExternalVideoVolumeCommandArguments>,
-    ) => setVolume(event.detail.volume)) as EventListener;
+    ) => changeVolume(event.detail.volume)) as EventListener;
     window.addEventListener(ExternalVideoVolumeCommandsEnum.SET, handleExternalVideoVolumeSet);
     return () => {
       window.addEventListener(ExternalVideoVolumeCommandsEnum.SET, handleExternalVideoVolumeSet);
@@ -376,7 +389,7 @@ const ExternalVideoPlayer: React.FC<ExternalVideoPlayerProps> = ({
               handleReload={() => setKey(uniqueId('react-player'))}
               setShowHoverToolBar={setShowHoverToolBar}
               toolbarStyle={toolbarStyle}
-              handleVolumeChanged={setVolume}
+              handleVolumeChanged={changeVolume}
               volume={volume}
               muted={mute || isEchoTest}
               mutedByEchoTest={isEchoTest}

@@ -365,6 +365,7 @@ const MeetingEnded: React.FC<MeetingEndedProps> = ({
             color="primary"
             onClick={buttonAction}
             aria-details={buttonDesc}
+            data-test={(!noRating && !dispatched) ? 'sendFeedbackButton' : null}
           >
             {buttonLabel}
           </Styled.MeetingEndedButton>
