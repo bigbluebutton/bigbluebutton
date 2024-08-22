@@ -192,6 +192,7 @@ const Avatar = styled.div<AvatarProps>`
 
   ${({ moderator }) => moderator && `
     border-radius: 5px;
+    color: ${colorWhite} !important;
   `}
 
   ${({ presenter }) => presenter && `
@@ -324,7 +325,7 @@ const Avatar = styled.div<AvatarProps>`
   // ================ image ================
 
   // ================ content ================
-  color: ${colorWhite};
+  color: ${colorWhite} !important;
   font-size: 110%;
   text-transform: capitalize;
   display: flex;

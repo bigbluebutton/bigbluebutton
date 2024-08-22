@@ -1245,6 +1245,7 @@
     "app.createBreakoutRoom.setTimeHigherThanMeetingTimeError": "Eraldatud ruumide kestus ei või ületada sessiooni järelejäänud aega.",
     "app.createBreakoutRoom.roomNameInputDesc": "Uuendab eraldatud ruumi nime",
     "app.createBreakoutRoom.movedUserLabel": "{0} üle viidud ruumi {1}",
+    "app.createBreakoutRoom.currentSlideLabel": "Praegune slaid",
     "app.updateBreakoutRoom.modalDesc": "Kasutaja muutmiseks või kutsumiseks lohista ta lihtsalt soovitud ruumi.",
     "app.updateBreakoutRoom.cancelLabel": "Tühista",
     "app.updateBreakoutRoom.title": "Uuenda eraldatud ruume",

@@ -103,9 +103,11 @@ const UserListParticipants: React.FC<UserListParticipantsProps> = ({
           Array.from({ length: amountOfPages }).map((_, i) => {
             const isLastItem = amountOfPages === (i + 1);
             const restOfUsers = count % 50;
+            const key = i;
             return i === 0
               ? (
                 <UserListParticipantsPageContainer
+                  key={key}
                   index={i}
                   isLastItem={isLastItem}
                   restOfUsers={isLastItem ? restOfUsers : 50}
@@ -121,6 +123,7 @@ const UserListParticipants: React.FC<UserListParticipantsProps> = ({
                   restOfUsers={isLastItem ? restOfUsers : 50}
                 >
                   <UserListParticipantsPageContainer
+                    key={key}
                     index={i}
                     isLastItem={isLastItem}
                     restOfUsers={isLastItem ? restOfUsers : 50}

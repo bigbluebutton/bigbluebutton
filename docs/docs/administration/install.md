@@ -225,7 +225,7 @@ UDP port ranges
                debug: false
                recorder.directory: /var/lib/bbb-webrtc-recorder
 
-/usr/share/meteor/bundle/programs/server/assets/app/config/settings.yml (HTML5 client)
+/var/bigbluebutton/html5-client/private/config/settings.yml (HTML5 client)
 /etc/bigbluebutton/bbb-html5.yml (HTML5 client config override)
                              build: 13
                         kurentoUrl: wss://test30.bigbluebutton.org/bbb-webrtc-sfu

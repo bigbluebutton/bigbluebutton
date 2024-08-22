@@ -12,6 +12,7 @@ import useUpdatePresentationAreaContentForPlugin from '/imports/ui/components/pl
 import { useIsPresentationEnabled } from '/imports/ui/services/features';
 import useDeduplicatedSubscription from '../../core/hooks/useDeduplicatedSubscription';
 import { usePrevious } from '../whiteboard/utils';
+import Session from '/imports/ui/services/storage/in-memory';
 
 // variable to debug in console log
 const debug = false;
@@ -1361,6 +1362,7 @@ const updatePresentationAreaContent = (
     previousPresentationAreaContentActions.current = currentPresentationAreaContentActions.slice(0);
     const lastIndex = currentPresentationAreaContentActions.length - 1;
     const lastPresentationContentInPile = currentPresentationAreaContentActions[lastIndex];
+    let shouldOpenPresentation = true;
     switch (lastPresentationContentInPile.value.content) {
       case PRESENTATION_AREA.GENERIC_CONTENT: {
         layoutContextDispatch({
@@ -1457,6 +1459,7 @@ const updatePresentationAreaContent = (
           type: ACTIONS.PINNED_NOTES,
           value: !lastPresentationContentInPile.value.open,
         });
+        shouldOpenPresentation = Session.getItem('presentationLastState');
         break;
       }
       default:
@@ -1464,7 +1467,7 @@ const updatePresentationAreaContent = (
     }
     layoutContextDispatch({
       type: ACTIONS.SET_PRESENTATION_IS_OPEN,
-      value: true,
+      value: shouldOpenPresentation,
     });
   }
 };

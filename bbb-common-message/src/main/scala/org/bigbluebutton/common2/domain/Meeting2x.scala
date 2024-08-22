@@ -73,6 +73,7 @@ case class SystemProps(
     loginUrl: String,
     logoutUrl: String,
     customLogoURL: String,
+    customDarkLogoURL: String,
     bannerText: String,
     bannerColor: String,
 )

@@ -610,7 +610,7 @@ export interface Media {
   traceSip: boolean
   sdpSemantics: string
   localEchoTest: LocalEchoTest
-  showVolumeMeter: boolean
+  muteAudioOutputWhenAway: boolean
 }
 
 export interface Audio2 {
