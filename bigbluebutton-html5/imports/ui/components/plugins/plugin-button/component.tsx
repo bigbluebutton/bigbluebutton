@@ -29,7 +29,7 @@ const PluginHelperButtonComponent = ({
       color="default"
       icon={icon}
       size="sm"
-      onClick={onClick}
+      onClick={(e: React.MouseEvent<HTMLElement>) => onClick({ browserClickEvent: e })}
       hideLabel
       label={label}
       data-test="switchButton"
