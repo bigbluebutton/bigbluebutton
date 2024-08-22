@@ -3,8 +3,7 @@
 case "$1" in
   install|upgrade|1|2)
 
-    # the configuration file has moved from /etc/bigbluebutton/bbb-graphql-middleware
-    # to /usr/share/bbb-graphql-middleware/bbb-graphql-server.env
+    # the config is not longer env vars at /etc/bigbluebutton/bbb-graphql-middleware
     if [ -f /etc/bigbluebutton/bbb-graphql-middleware ]; then
       rm /etc/bigbluebutton/bbb-graphql-middleware
     fi

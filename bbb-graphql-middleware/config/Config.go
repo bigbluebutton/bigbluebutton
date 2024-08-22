@@ -15,7 +15,7 @@ var (
 	once     sync.Once
 )
 
-var DefaultConfigPath = "/usr/local/bigbluebutton/bbb-graphql-middleware/config.yml"
+var DefaultConfigPath = "/usr/share/bbb-graphql-middleware/config.yml"
 var OverrideConfigPath = "/etc/bigbluebutton/bbb-graphql-middleware.yml"
 
 type Config struct {

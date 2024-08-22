@@ -14,7 +14,7 @@ rm -rf staging
 rm -rf ./build
 
 # Create directories for fpm to process
-DIRS="/usr/local/bin /lib/systemd/system /usr/share/bigbluebutton/nginx /usr/local/bigbluebutton/bbb-graphql-middleware"
+DIRS="/usr/local/bin /lib/systemd/system /usr/share/bigbluebutton/nginx /usr/share/bbb-graphql-middleware/"
 for dir in $DIRS; do
   mkdir -p staging$dir
 done
@@ -32,7 +32,7 @@ mkdir -p staging/etc/nginx/conf.d
 cp bbb-graphql-client-settings-cache.conf staging/etc/nginx/conf.d
 
 # Create config file
-cp config/config.yml staging/usr/local/bigbluebutton/bbb-graphql-middleware/config.yml
+cp config/config.yml staging/usr/share/bbb-graphql-middleware/config.yml
 
 cp bbb-graphql-middleware.service staging/lib/systemd/system/bbb-graphql-middleware.service
 
