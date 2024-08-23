@@ -40,34 +40,20 @@ const UserTitle: React.FC<UserTitleProps> = ({
 };
 
 const UserTitleContainer: React.FC = () => {
-  type CountData = {
-    user_aggregate: {
-      aggregate: {
-        count: number;
-      };
-    };
+  const getCountData = () => {
+    const { data: countData } = useDeduplicatedSubscription(USER_AGGREGATE_COUNT_SUBSCRIPTION);
+    const count = countData?.user_aggregate?.aggregate?.count || 0;
+    return count;
   };
-  const [countDataState, setCountDataState] = useState<CountData | null>(null);
 
-  useEffect(() => {
-    const fetchData = async () => {
-      const { data: countData } = await useDeduplicatedSubscription(
-        USER_AGGREGATE_COUNT_SUBSCRIPTION,
-      );
-      setCountDataState(countData || []);
-    };
-
-    fetchData();
-  }, []);
   const {
     data: audioUsersCountData,
   } = useDeduplicatedSubscription(USER_WITH_AUDIO_AGGREGATE_COUNT_SUBSCRIPTION);
-  const count = countDataState?.user_aggregate?.aggregate?.count || 0;
-  const countWithAudio = audioUsersCountData?.user_aggregate?.aggregate?.count || 0;
 
+  const countWithAudio = audioUsersCountData?.user_aggregate?.aggregate?.count || 0;
   return (
     <UserTitle
-      count={count}
+      count={getCountData() as number}
       countWithAudio={countWithAudio}
     />
   );
