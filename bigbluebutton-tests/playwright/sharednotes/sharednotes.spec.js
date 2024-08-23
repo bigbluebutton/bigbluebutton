@@ -39,7 +39,7 @@ test.describe('Shared Notes', () => {
     await sharedNotes.seeNotesWithoutEditPermission();
   });
 
-  test('Pin and unpin notes onto whiteboard', { tag: '@flaky' }, async () => {
+  test('Pin and unpin notes onto whiteboard', { tag: [ '@ci', '@flaky' ] }, async () => {
     linkIssue('20892');
     await sharedNotes.pinAndUnpinNotesOntoWhiteboard();
   });
