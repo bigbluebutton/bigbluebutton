@@ -202,7 +202,7 @@ const getCountData = () => {
     USER_AGGREGATE_COUNT_SUBSCRIPTION,
   );
   return countData?.user_aggregate?.aggregate?.count || 0;
-}
+};
 
 export const usePageSizeDictionary = () => {
   const {
