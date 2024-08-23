@@ -331,22 +331,7 @@ const WebcamContainer: React.FC<WebcamContainerProps> = ({
 
   const isGridEnabled = layoutType === LAYOUT_TYPE.VIDEO_FOCUS;
 
-  const [videoUsers, setVideoUsers] = useState<VideoItem[]>([]);
-  const [gridUsers, setGridUsers] = useState<VideoItem[]>([]);
-
-  useEffect(() => {
-    const fetchData = async () => {
-      const {
-        streams: videoUsers,
-        gridUsers,
-      } = await useVideoStreams();
-
-      setVideoUsers(videoUsers);
-      setGridUsers(gridUsers);
-    };
-
-    fetchData();
-  }, []);
+  const { streams: videoUsers, gridUsers } = useVideoStreams();
 
   let usersVideo: VideoItem[];
   if (gridUsers.length > 0) {
