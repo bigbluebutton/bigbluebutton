@@ -773,6 +773,10 @@ const Whiteboard = React.memo(function Whiteboard(props) {
     isViewer = false,
     widthAdjustment = 0
   ) => {
+    let baseZoom = calculateZoomValue(
+      currentPresentationPageRef.current.scaledWidth,
+      currentPresentationPageRef.current.scaledHeight
+    );
     let presentationWidth = presentationAreaWidth - widthAdjustment;
     let calcedZoom = (baseZoom = fitToWidth
       ? presentationWidth / localWidth
@@ -1081,7 +1085,6 @@ const Whiteboard = React.memo(function Whiteboard(props) {
             const widthGap = Math.max(containerWidth - innerWrapperWidth, 0);
             const camera = tlEditorRef.current.getCamera();
 
-            let adjustedZoom;
             if (widthGap > 0) {
               adjustedZoom = calculateZoomWithGapValue(
                 currentPresentationPage.scaledWidth,
