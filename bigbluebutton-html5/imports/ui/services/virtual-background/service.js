@@ -89,10 +89,7 @@ const setSessionVirtualBackgroundInfo = (deviceId, type, name, uniqueId = null) 
   getStorageSingletonInstance().setItem(`VirtualBackgroundInfo_${deviceId}`, { type, name, uniqueId });
 };
 
-const getSessionVirtualBackgroundInfo = (deviceId) => getStorageSingletonInstance()
-  .getItem(`VirtualBackgroundInfo_${deviceId}`) || {
-  type: EFFECT_TYPES.NONE_TYPE,
-};
+const getSessionVirtualBackgroundInfo = (deviceId) => getStorageSingletonInstance().getItem(`VirtualBackgroundInfo_${deviceId}`);
 
 const getSessionVirtualBackgroundInfoWithDefault = (deviceId) => getStorageSingletonInstance()
   .getItem(`VirtualBackgroundInfo_${deviceId}`) || {

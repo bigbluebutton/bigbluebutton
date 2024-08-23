@@ -431,6 +431,7 @@ case class UserState(
     locked:                Boolean,
     presenter:             Boolean,
     avatar:                String,
+    webcamBackground:      String,
     color:                 String,
     roleChangedOn:         Long                = System.currentTimeMillis(),
     lastActivityTime:      Long                = System.currentTimeMillis(),
