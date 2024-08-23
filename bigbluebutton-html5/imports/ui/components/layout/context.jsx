@@ -84,7 +84,7 @@ const reducer = (state, action) => {
       if (state.input === action.value) return state;
       return {
         ...state,
-        input: action.value,
+        input: typeof action.value === 'function' ? action.value(state.input) : action.value,
       };
     }
 
