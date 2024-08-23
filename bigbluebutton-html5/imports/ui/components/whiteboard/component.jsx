@@ -748,7 +748,7 @@ const Whiteboard = React.memo(function Whiteboard(props) {
 
   const setCamera = (zoom, x = 0, y = 0) => {
     if (tlEditorRef.current) {
-      tlEditorRef.current.setCamera({ x, y, z: zoom }, false);
+      tlEditorRef.current.setCamera({ x, y, z: zoom }, { duration: 175 });
     }
   };
 
