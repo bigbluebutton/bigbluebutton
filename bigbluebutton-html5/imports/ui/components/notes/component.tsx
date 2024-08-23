@@ -100,10 +100,11 @@ const NotesGraphql: React.FC<NotesGraphqlProps> = (props) => {
 
   const DELAY_UNMOUNT_SHARED_NOTES = window.meetingClientSettings.public.app.delayForUnmountOfSharedNote;
 
+  let timoutRef: NodeJS.Timeout | undefined;
   useEffect(() => {
     if (isToSharedNotesBeShow) {
       setShouldRenderNotes(true);
-      clearTimeout(timoutRef);
+      clearTimeout(timoutRef!);
     } else {
       timoutRef = setTimeout(() => {
         setShouldRenderNotes(false);
@@ -111,7 +112,7 @@ const NotesGraphql: React.FC<NotesGraphqlProps> = (props) => {
         || shouldShowSharedNotesOnPresentationArea)
         ? 0 : DELAY_UNMOUNT_SHARED_NOTES);
     }
-    return () => clearTimeout(timoutRef);
+    return () => clearTimeout(timoutRef!);
   }, [isToSharedNotesBeShow, sidebarContent.sidebarContentPanel]);
 
   const renderHeaderOnMedia = () => {

@@ -8,7 +8,6 @@ import { notify } from '/imports/ui/services/notification';
 import { layoutSelectInput, layoutDispatch } from '/imports/ui/components/layout/context';
 import {
   PINNED_PAD_SUBSCRIPTION,
-  PinnedPadSubscriptionResponse,
 } from '/imports/ui/components/notes/queries';
 import Styled from './styles';
 import usePreviousValue from '/imports/ui/hooks/usePreviousValue';
