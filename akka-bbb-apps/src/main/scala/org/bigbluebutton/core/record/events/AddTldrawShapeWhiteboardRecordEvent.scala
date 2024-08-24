@@ -31,13 +31,14 @@ class AddTldrawShapeWhiteboardRecordEvent extends AbstractWhiteboardRecordEvent 
 
   implicit object AnyJsonFormat extends JsonFormat[Any] {
     def write(x: Any) = x match {
-      case n: Int                                       => JsNumber(n)
-      case s: String                                    => JsString(s)
-      case d: Double                                    => JsNumber(d)
+      case n: Int => JsNumber(n)
+      case s: String => JsString(s)
+      case d: Double => JsNumber(d)
       case m: scala.collection.immutable.Map[String, _] => mapFormat[String, Any].write(m)
-      case l: List[_]                                   => listFormat[Any].write(l)
-      case b: Boolean if b == true                      => JsTrue
-      case b: Boolean if b == false                     => JsFalse
+      case l: List[_] => listFormat[Any].write(l)
+      case b: Boolean if b == true => JsTrue
+      case b: Boolean if b == false => JsFalse
+      case _ => JsNull
     }
 
     def read(value: JsValue) = {}
