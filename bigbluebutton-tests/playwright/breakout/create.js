@@ -1,5 +1,6 @@
 const { MultiUsers } = require('../user/multiusers');
 const e = require('../core/elements');
+const { uploadMultiplePresentations } = require('../presentation/util.js');
 const { ELEMENT_WAIT_LONGER_TIME } = require('../core/constants');
 const { expect } = require('@playwright/test');
 
@@ -118,6 +119,16 @@ class Create extends MultiUsers {
 
     await this.modPage.waitAndClick(e.breakoutRoomsItem);
     await this.modPage.hasText(e.userNameBreakoutRoom, /Attendee/);
+  }
+
+  async breakoutWithDifferentPresentations() {
+    await this.modPage.waitForSelector(e.whiteboard);
+    await this.modPage.waitAndClick(e.actions);
+    await this.modPage.waitAndClick(e.managePresentations);
+    await uploadMultiplePresentations();
+    await this.modPage.waitAndClick(e.manageUsers);
+    await this.modPage.waitAndClick(e.createBreakoutRooms);
+    await this.modPage.
   }
 }
 
