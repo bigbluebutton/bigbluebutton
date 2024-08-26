@@ -60,7 +60,6 @@ export const MuteToggle: React.FC<MuteToggleProps> = ({
   const Settings = getSettingsSingletonInstance();
   const animations = Settings?.application?.animations;
 
-
   React.useEffect(() => {
     muteLoadingState(false);
   }, [muted]);
