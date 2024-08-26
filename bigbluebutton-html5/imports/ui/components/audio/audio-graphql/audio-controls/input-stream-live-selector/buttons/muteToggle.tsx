@@ -9,6 +9,7 @@ import { SET_AWAY } from '/imports/ui/components/user-list/user-list-content/use
 import VideoService from '/imports/ui/components/video-provider/service';
 import {
   muteAway,
+  muteLoadingState,
 } from '/imports/ui/components/audio/audio-graphql/audio-controls/input-stream-live-selector/service';
 
 const intlMessages = defineMessages({
@@ -47,7 +48,6 @@ export const MuteToggle: React.FC<MuteToggleProps> = ({
   const toggleMuteShourtcut = useShortcut('toggleMute');
   const toggleVoice = useToggleVoice();
   const [setAway] = useMutation(SET_AWAY);
-  const [isLoading, setIsLoading] = React.useState(false);
 
   const unmuteAudioLabel = away ? intlMessages.umuteAudioAndSetActive : intlMessages.unmuteAudio;
   const label = muted ? intl.formatMessage(unmuteAudioLabel)
@@ -56,12 +56,11 @@ export const MuteToggle: React.FC<MuteToggleProps> = ({
   const animations = Settings?.application?.animations;
 
   React.useEffect(() => {
-    setIsLoading(false);
+    muteLoadingState(false);
   }, [muted]);
 
   const onClickCallback = (e: React.MouseEvent<HTMLButtonElement>) => {
     e.stopPropagation();
-    setIsLoading(true);
 
     if (muted && away) {
       muteAway(muted, true, toggleVoice);
@@ -92,7 +91,7 @@ export const MuteToggle: React.FC<MuteToggleProps> = ({
       accessKey={toggleMuteShourtcut}
       $talking={talking || undefined}
       animations={animations}
-      loading={isLoading}
+      loading={muteLoadingState()}
       data-test={muted ? 'unmuteMicButton' : 'muteMicButton'}
     />
   );
