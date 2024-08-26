@@ -8,7 +8,7 @@ import VideoService from '/imports/ui/components/video-provider/service';
 import Auth from '/imports/ui/services/auth';
 import { debounce } from '/imports/utils/debounce';
 import { throttle } from '/imports/utils/throttle';
-import { ReactiveVar, makeVar } from '@apollo/client';
+import { ReactiveVar, makeVar, useReactiveVar } from '@apollo/client';
 
 const MUTED_KEY = 'muted';
 const DEVICE_LABEL_MAX_LENGTH = 40;
@@ -42,6 +42,8 @@ export const handleLeaveAudio = (meetingIsBreakout: boolean) => {
 };
 
 export const muteLoadingState: ReactiveVar<boolean> = makeVar(false);
+
+export const useIsMuteLoading = () => useReactiveVar(muteLoadingState);
 
 const toggleMuteMicrophoneThrottled = throttle((
   muted: boolean,

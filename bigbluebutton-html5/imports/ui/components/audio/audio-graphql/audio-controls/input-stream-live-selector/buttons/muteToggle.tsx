@@ -10,6 +10,7 @@ import VideoService from '/imports/ui/components/video-provider/service';
 import {
   muteAway,
   muteLoadingState,
+  useIsMuteLoading,
 } from '/imports/ui/components/audio/audio-graphql/audio-controls/input-stream-live-selector/service';
 
 const intlMessages = defineMessages({
@@ -55,9 +56,12 @@ export const MuteToggle: React.FC<MuteToggleProps> = ({
   const Settings = getSettingsSingletonInstance();
   const animations = Settings?.application?.animations;
 
+
   React.useEffect(() => {
     muteLoadingState(false);
   }, [muted]);
+
+  const isMuteLoading = useIsMuteLoading();
 
   const onClickCallback = (e: React.MouseEvent<HTMLButtonElement>) => {
     e.stopPropagation();
@@ -91,7 +95,7 @@ export const MuteToggle: React.FC<MuteToggleProps> = ({
       accessKey={toggleMuteShourtcut}
       $talking={talking || undefined}
       animations={animations}
-      loading={muteLoadingState()}
+      loading={isMuteLoading}
       data-test={muted ? 'unmuteMicButton' : 'muteMicButton'}
     />
   );
