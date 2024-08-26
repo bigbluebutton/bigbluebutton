@@ -10,7 +10,6 @@ import './bbb-icons.css';
 import {
   FormattedMessage, FormattedDate, injectIntl, FormattedTime,
 } from 'react-intl';
-import { emojiConfigs } from './services/EmojiService';
 import CardBody from './components/Card';
 import UsersTable from './components/UsersTable';
 import UserDetails from './components/UserDetails/component';
@@ -125,38 +124,31 @@ class App extends React.Component {
     });
   }
 
-  fetchMostUsedEmojis() {
+  fetchMostUsedReactions() {
     const { activitiesJson } = this.state;
     if (!activitiesJson) { return []; }
 
-    // Icon elements
-    const emojis = [...Object.keys(emojiConfigs)];
-    const icons = {};
-    emojis.forEach((emoji) => {
-      icons[emoji] = (<i className={`${emojiConfigs[emoji].icon} bbb-icon-card`} />);
-    });
-
-    // Count each emoji
-    const emojiCount = {};
-    emojis.forEach((emoji) => {
-      emojiCount[emoji] = 0;
-    });
-    const allEmojisUsed = Object
+    // Count each reaction
+    const reactionCount = {};
+    const allReactionsUsed = Object
       .values(activitiesJson.users || {})
-      .map((user) => user.emojis || [])
+      .map((user) => user.reactions || [])
       .flat(1);
-    allEmojisUsed.forEach((emoji) => {
-      emojiCount[emoji.name] += 1;
+    allReactionsUsed.forEach((reaction) => {
+      if (typeof reactionCount[reaction.name] === 'undefined') {
+        reactionCount[reaction.name] = 0;
+      }
+      reactionCount[reaction.name] += 1;
     });
 
     // Get the three most used
-    const mostUsedEmojis = Object
-      .entries(emojiCount)
+    const mostUsedReactions = Object
+      .entries(reactionCount)
       .filter(([, count]) => count)
       .sort(([, countA], [, countB]) => countA - countB)
       .reverse()
       .slice(0, 3);
-    return mostUsedEmojis.map(([emoji]) => icons[emoji]);
+    return mostUsedReactions.map(([reaction]) => reaction);
   }
 
   updateModalUser() {
@@ -245,14 +237,13 @@ class App extends React.Component {
     ) => genericDataListForSpecificUser?.columnTitle);
     // This line will eliminate duplicates.
     const genericDataColumnTitleList = [...new Set(genericDataColumnTitleWithDuplicates)];
-    console.log('teste aqui ----> ', activitiesJson, genericDataColumnTitleList);
 
     document.title = `${intl.formatMessage({ id: 'app.learningDashboard.bigbluebuttonTitle', defaultMessage: 'BigBlueButton' })} - ${intl.formatMessage({ id: 'app.learningDashboard.dashboardTitle', defaultMessage: 'Learning Analytics Dashboard' })} - ${activitiesJson.name}`;
 
-    function totalOfEmojis() {
+    function totalOfReactions() {
       if (activitiesJson && activitiesJson.users) {
         return Object.values(activitiesJson.users)
-          .reduce((prevVal, elem) => prevVal + elem.emojis.length, 0);
+          .reduce((prevVal, elem) => prevVal + elem.reactions.length, 0);
       }
       return 0;
     }
@@ -303,19 +294,19 @@ class App extends React.Component {
       }
 
       // Calculate points of Raise hand
-      const usersRaiseHand = allUsers.map((currUser) => currUser.emojis.filter((emoji) => emoji.name === 'raiseHand').length);
+      const usersRaiseHand = allUsers.map((currUser) => currUser.raiseHand.length);
       const maxRaiseHand = Math.max(...usersRaiseHand);
       const totalRaiseHand = usersRaiseHand.reduce((prev, val) => prev + val, 0);
       if (maxRaiseHand > 0) {
         meetingAveragePoints += ((totalRaiseHand / nrOfUsers) / maxRaiseHand) * 2;
       }
 
-      // Calculate points of Emojis
-      const usersEmojis = allUsers.map((currUser) => currUser.emojis.filter((emoji) => emoji.name !== 'raiseHand').length);
-      const maxEmojis = Math.max(...usersEmojis);
-      const totalEmojis = usersEmojis.reduce((prev, val) => prev + val, 0);
-      if (maxEmojis > 0) {
-        meetingAveragePoints += ((totalEmojis / nrOfUsers) / maxEmojis) * 2;
+      // Calculate points of Reactions
+      const usersReactions = allUsers.map((currUser) => currUser.reactions.length);
+      const maxReactions = Math.max(...usersReactions);
+      const totalReactions = usersReactions.reduce((prev, val) => prev + val, 0);
+      if (maxReactions > 0) {
+        meetingAveragePoints += ((totalReactions / nrOfUsers) / maxReactions) * 2;
       }
 
       // Calculate points of Polls
@@ -482,11 +473,11 @@ class App extends React.Component {
                 <CardContent classes={{ root: '!p-0' }}>
                   <CardBody
                     name={intl.formatMessage({ id: 'app.learningDashboard.indicators.timeline', defaultMessage: 'Timeline' })}
-                    number={totalOfEmojis()}
+                    number={totalOfReactions()}
                     cardClass={tab === TABS.TIMELINE ? 'border-purple-500' : 'hover:border-purple-500 border-white'}
                     iconClass="bg-purple-200 text-purple-500"
                   >
-                    {this.fetchMostUsedEmojis()}
+                    {this.fetchMostUsedReactions()}
                   </CardBody>
                 </CardContent>
               </Card>

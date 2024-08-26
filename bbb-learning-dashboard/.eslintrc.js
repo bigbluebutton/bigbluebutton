@@ -21,6 +21,8 @@ module.exports = {
     'import/no-absolute-path': 0,
     'import/no-unresolved': 0,
     'import/no-extraneous-dependencies': 1,
+    'import/no-named-as-default': 0,
+    'import/no-named-as-default-member': 0,
     'react/prop-types': 'off',
     'jsx-a11y/no-access-key': 0,
     'react/jsx-props-no-spreading': 'off',
