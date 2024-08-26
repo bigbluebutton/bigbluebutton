@@ -83,6 +83,11 @@ export const toggleMuteMicrophone = (muted: boolean, toggleVoice: (userId: strin
   return toggleMuteMicrophoneDebounced(muted, toggleVoice);
 };
 
+// Debounce is not needed here, as this function should only called by the system.
+export const toggleMuteMicrophoneSystem = (muted: boolean, toggleVoice: (userId: string, muted: boolean) => void) => {
+  return toggleMute(muted, toggleVoice, 'system_action');
+};
+
 export const truncateDeviceName = (deviceName: string) => {
   if (deviceName && deviceName.length <= DEVICE_LABEL_MAX_LENGTH) {
     return deviceName;
