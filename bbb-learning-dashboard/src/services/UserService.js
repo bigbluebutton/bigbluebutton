@@ -151,9 +151,9 @@ export function makeUserCSVData(users, polls, intl) {
       talk: user.talk.totalTime > 0 ? tsToHHmmss(user.talk.totalTime) : '-',
       webcam: webcam > 0 ? tsToHHmmss(webcam) : '-',
       messages: user.totalOfMessages,
-      raiseHand: user.raiseHand.length,
-      answers: Object.keys(user.answers).length,
       reactions: filterUserReactions(user).length,
+      answers: Object.keys(user.answers).length,
+      raiseHand: user.raiseHand.length,
       registeredOn: intl.formatDate(joinTime, {
         year: 'numeric',
         month: 'numeric',
