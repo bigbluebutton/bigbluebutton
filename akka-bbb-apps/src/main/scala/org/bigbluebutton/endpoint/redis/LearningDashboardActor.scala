@@ -386,10 +386,19 @@ class LearningDashboardActor(
       user <- findUserByIntId(meeting, msg.body.userId)
     } yield {
       val updatedUser = if (msg.body.away) {
-        user.copy(away = user.away :+ Away())
+        if (user.away.exists(a => a.stoppedOn == 0)) {
+          //do nothing if user is already away
+          user
+        } else {
+          user.copy(away = user.away :+ Away())
+        }
       } else {
-        val lastAway: Away = user.away.last.copy(stoppedOn = System.currentTimeMillis())
-        user.copy(away = user.away.dropRight(1) :+ lastAway)
+        if(user.away.last.stoppedOn == 0) {
+          user.copy(away = user.away.dropRight(1) :+ user.away.last.copy(stoppedOn = System.currentTimeMillis()))
+        } else {
+          //do nothing if user is not away
+          user
+        }
       }
 
       val updatedMeeting = meeting.copy(users = meeting.users + (updatedUser.userKey -> updatedUser))
