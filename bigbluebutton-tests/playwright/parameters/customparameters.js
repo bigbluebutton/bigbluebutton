@@ -233,7 +233,10 @@ class CustomParameters extends MultiUsers {
 
   async webcamBackgroundURL() {
     await this.modPage.waitAndClick(e.joinVideo);
+    await this.modPage.waitForSelector(e.webcamSettingsModal);
     await this.modPage.waitForSelector(e.noneBackgroundButton);
+    const appleBackground = await this.modPage.getLocator(e.selectCustomBackground).last();
+    await expect(appleBackground).toHaveText('Background 5');
     await this.modPage.waitAndClick(e.startSharingWebcam);
     await this.modPage.waitForSelector(e.webcamContainer);
     const webcamBackgroundURL = this.modPage.getLocator(e.webcamContainer);
