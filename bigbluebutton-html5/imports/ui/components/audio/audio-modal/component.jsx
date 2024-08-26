@@ -681,34 +681,36 @@ const AudioModal = ({
     : null;
 
   return (
-    <Styled.AudioModal
-      modalName="AUDIO"
-      onRequestClose={closeModal}
-      data-test="audioModal"
-      contentLabel={intl.formatMessage(intlMessages.ariaModalTitle)}
-      title={title}
-      {...{
-        setIsOpen,
-        isOpen,
-        priority,
-      }}
-    >
-      {isIE ? (
-        <Styled.BrowserWarning>
-          <FormattedMessage
-            id="app.audioModal.unsupportedBrowserLabel"
-            description="Warning when someone joins with a browser that isn't supported"
-            values={{
-              0: <a href="https://www.google.com/chrome/">Chrome</a>,
-              1: <a href="https://getfirefox.com">Firefox</a>,
-            }}
-          />
-        </Styled.BrowserWarning>
-      ) : null}
-      <Styled.Content>
-        {renderContent()}
-      </Styled.Content>
-    </Styled.AudioModal>
+    <Styled.Background isBlurred={Session.getItem('audioModalIsOpen')}>
+      <Styled.AudioModal
+        modalName="AUDIO"
+        onRequestClose={closeModal}
+        data-test="audioModal"
+        contentLabel={intl.formatMessage(intlMessages.ariaModalTitle)}
+        title={title}
+        {...{
+          setIsOpen,
+          isOpen,
+          priority,
+        }}
+      >
+        {isIE ? (
+          <Styled.BrowserWarning>
+            <FormattedMessage
+              id="app.audioModal.unsupportedBrowserLabel"
+              description="Warning when someone joins with a browser that isn't supported"
+              values={{
+                0: <a href="https://www.google.com/chrome/">Chrome</a>,
+                1: <a href="https://getfirefox.com">Firefox</a>,
+              }}
+            />
+          </Styled.BrowserWarning>
+        ) : null}
+        <Styled.Content>
+          {renderContent()}
+        </Styled.Content>
+      </Styled.AudioModal>
+    </Styled.Background>
   );
 };
 
