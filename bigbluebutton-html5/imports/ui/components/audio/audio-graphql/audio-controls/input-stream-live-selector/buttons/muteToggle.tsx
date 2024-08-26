@@ -35,6 +35,8 @@ interface MuteToggleProps {
   isAudioLocked: boolean;
   toggleMuteMicrophone: (muted: boolean, toggleVoice: (userId: string, muted: boolean) => void) => void;
   away: boolean;
+  noInputDevice?: boolean;
+  openAudioSettings: (props?: { unmuteOnExit?: boolean }) => void;
 }
 
 export const MuteToggle: React.FC<MuteToggleProps> = ({
@@ -44,6 +46,8 @@ export const MuteToggle: React.FC<MuteToggleProps> = ({
   isAudioLocked,
   toggleMuteMicrophone,
   away,
+  noInputDevice = false,
+  openAudioSettings,
 }) => {
   const intl = useIntl();
   const toggleMuteShourtcut = useShortcut('toggleMute');
@@ -66,14 +70,20 @@ export const MuteToggle: React.FC<MuteToggleProps> = ({
   const onClickCallback = (e: React.MouseEvent<HTMLButtonElement>) => {
     e.stopPropagation();
 
-    if (muted && away) {
-      muteAway(muted, true, toggleVoice);
-      VideoService.setTrackEnabled(true);
-      setAway({
-        variables: {
-          away: false,
-        },
-      });
+    if (muted) {
+      if (away) {
+        if (!noInputDevice) muteAway(muted, true, toggleVoice);
+        VideoService.setTrackEnabled(true);
+        setAway({
+          variables: {
+            away: false,
+          },
+        });
+      } else if (noInputDevice) {
+        // User is in duplex audio, passive-sendrecv, but has no input device set
+        // Open the audio settings modal to allow them to select an input device
+        openAudioSettings({ unmuteOnExit: true });
+      }
     }
 
     toggleMuteMicrophone(muted, toggleVoice);

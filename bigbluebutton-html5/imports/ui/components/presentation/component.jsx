@@ -303,7 +303,7 @@ class Presentation extends PureComponent {
           },
         });
       }
-      const presentationChanged = presentationId !== currentPresentationId;
+      const presentationChanged = presentationId && presentationId !== currentPresentationId;
 
       if (
         !presentationIsOpen
@@ -951,7 +951,7 @@ Presentation.propTypes = {
   presentationIsDownloadable: PropTypes.bool,
   presentationName: PropTypes.string,
   currentPresentationId: PropTypes.string,
-  presentationIsOpen: PropTypes.bool.isRequired,
+  presentationIsOpen: PropTypes.bool,
   totalPages: PropTypes.number.isRequired,
   publishedPoll: PropTypes.bool.isRequired,
   presentationBounds: PropTypes.shape({
@@ -993,4 +993,5 @@ Presentation.defaultProps = {
   presentationIsDownloadable: false,
   currentPresentationId: '',
   presentationName: '',
+  presentationIsOpen: true,
 };

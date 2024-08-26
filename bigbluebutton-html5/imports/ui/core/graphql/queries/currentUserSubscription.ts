@@ -5,6 +5,7 @@ subscription userCurrentSubscription {
   user_current {
     authToken
     avatar
+    webcamBackground
     away
     clientType
     color

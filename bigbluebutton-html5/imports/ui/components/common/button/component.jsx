@@ -56,6 +56,13 @@ const propTypes = {
   icon: PropTypes.string,
 
   /**
+   * Defines the button svg icon
+   * @defaultValue undefined
+   */
+
+  svgIcon: PropTypes.string,
+
+  /**
    * Defines the button icon is on the right side
    * @defaultValue false
    */
@@ -99,6 +106,7 @@ export default class Button extends BaseButton {
   _cleanProps(otherProps) {
     const remainingProps = Object.assign({}, otherProps);
     delete remainingProps.icon;
+    delete remainingProps.svgIcon;
     delete remainingProps.customIcon;
     delete remainingProps.size;
     delete remainingProps.color;
@@ -244,8 +252,13 @@ export default class Button extends BaseButton {
   renderIcon() {
     const {
       icon: iconName,
+      svgIcon,
       customIcon,
     } = this.props;
+
+    if (svgIcon) {
+      return (<Styled.ButtonSvgIcon iconName={svgIcon} />);
+    }
 
     if (iconName) {
       return (<Styled.ButtonIcon iconName={iconName} />);

@@ -1,5 +1,7 @@
 import styled from 'styled-components';
 import Icon from '/imports/ui/components/common/icon/component';
+import SvgIcon from '/imports/ui/components/common/icon-svg/component';
+
 import {
   btnSpacing,
   borderRadius,
@@ -61,6 +63,30 @@ const ButtonIcon = styled(Icon)`
   width: 1em;
   height: 1em;
   text-align: center;
+
+  &:before {
+    width: 1em;
+    height: 1em;
+  }
+
+  .buttonWrapper & {
+    font-size: 125%;
+  }
+
+  & + span {
+    margin: 0 0 0 ${btnSpacing};
+
+    [dir="rtl"] & {
+      margin: 0 ${btnSpacing} 0 0;
+    }
+  }
+`;
+
+const ButtonSvgIcon = styled(SvgIcon)`
+  width: 1em;
+  height: 1em;
+  text-align: center;
+  background: red;
 
   &:before {
     width: 1em;
@@ -1248,6 +1274,7 @@ const Button = styled(BaseButton)`
 
 export default {
   ButtonIcon,
+  ButtonSvgIcon,
   EmojiButtonSibling,
   ButtonLabel,
   ButtonWrapper,

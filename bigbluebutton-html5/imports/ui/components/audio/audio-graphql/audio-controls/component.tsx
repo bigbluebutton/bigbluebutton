@@ -63,6 +63,8 @@ const AudioControls: React.FC<AudioControlsProps> = ({
   const echoTestIntervalRef = React.useRef<ReturnType<typeof setTimeout>>();
 
   const [isAudioModalOpen, setIsAudioModalOpen] = React.useState(false);
+  const [audioModalContent, setAudioModalContent] = React.useState<string | null>(null);
+  const [audioModalProps, setAudioModalProps] = React.useState<{ unmuteOnExit?: boolean } | null>(null);
 
   const handleJoinAudio = useCallback((connected: boolean) => {
     if (connected) {
@@ -71,6 +73,12 @@ const AudioControls: React.FC<AudioControlsProps> = ({
       setIsAudioModalOpen(true);
     }
   }, []);
+
+  const openAudioSettings = (props: { unmuteOnExit?: boolean } = {}) => {
+    setAudioModalContent('settings');
+    setAudioModalProps(props);
+    setIsAudioModalOpen(true);
+  };
 
   const joinButton = useMemo(() => {
     const joinAudioLabel = away ? intlMessages.joinAudioAndSetActive : intlMessages.joinAudio;
@@ -107,12 +115,18 @@ const AudioControls: React.FC<AudioControlsProps> = ({
 
   return (
     <Styled.Container>
-      {!inAudio ? joinButton : <InputStreamLiveSelectorContainer />}
+      {!inAudio ? joinButton : <InputStreamLiveSelectorContainer openAudioSettings={openAudioSettings} />}
       {isAudioModalOpen && (
         <AudioModalContainer
           priority="low"
-          setIsOpen={() => setIsAudioModalOpen(false)}
+          setIsOpen={() => {
+            setIsAudioModalOpen(false);
+            setAudioModalContent(null);
+            setAudioModalProps(null);
+          }}
           isOpen={isAudioModalOpen}
+          content={audioModalContent}
+          unmuteOnExit={audioModalProps?.unmuteOnExit}
         />
       )}
     </Styled.Container>

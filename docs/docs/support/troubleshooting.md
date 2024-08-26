@@ -58,11 +58,15 @@ $ sudo bbb-record --rebuild 298b06603719217df51c5d030b6e9417cc036476-15593147452
 
 ## bbb-webrtc-sfu and mediasoup
 
-### Webcams/screen sharing aren't working
+### Audio/webcams/screen sharing aren't working
 
 Certify that appropriate external addresses have been set for mediasoup. When installed via packages, mediasoup IPs are normally misconfigured. If installed via bbb-install, then IPv4 is generally correct, but IPv6 might be absent.
 
 Nonetheless, we recommend double-checking the instructions in [Updating mediasoup](/administration/firewall-configuration#updating-mediasoup).
+
+If the aforementioned looks correct, this might be a network connectivity issue. The default installation of BigBlueButton should work in most network configurations; however, if your users are behind a restrictive network that blocks UDP connections, they may encounter issues.
+
+If you get reports of these errors, set up a TURN server to help their browsers traverse those restrictive networks. See [Configure TURN](/administration/turn-server).
 
 ### Configure mediasoup to use IPv6
 
@@ -105,10 +109,6 @@ It's not on by default because bigbluebutton does not come with a TURN server by
 The most direct and precise way to figure out whether mediasoup is being used is checking about:webrtc (Firefox) or chrome://webrtc-internals. For example: open one of those, share a camera. Look for the remote description (SDP); see if it contains mediasoup-client in the SDP header. If it does, you're using mediasoup.
 
 Regardless of that: mediasoup **is the default in 2.5** and should always be used unless default settings were explicitly changed.
-
-### mediasoup is the default in 2.5. Why is Kurento still around?
-
-Because Kurento is still used for stream recording. It should be removed as a dependency as soon as [this issue](https://github.com/bigbluebutton/bigbluebutton/issues/13999) is addressed.
 
 ### Is single-core performance still important with mediasoup?
 
@@ -182,51 +182,6 @@ Nice=-10
 ```
 
 Then do `systemctl daemon-reload` and restart BigBlueButton.
-
-## Kurento
-
-### WebRTC video not working with Kurento
-
-Check the value for `/proc/sys/net/ipv4/tcp_syncookies` that it contains the value `1`.
-
-```bash
-$ cat /proc/sys/net/ipv4/tcp_syncookies
-1
-```
-
-If not, edit `/etc/sysctl.conf` and set the value for `net.ipv4.tcp_syncookies` to `1`.
-
-```ini
-net.ipv4.tcp_syncookies = 1
-```
-
-Save the file and restart.
-
-### Unit kurento-media-server.service is masked
-
-If `sudo bbb-conf --check` returns the warning
-
-```bash
-Restarting BigBlueButton 2.0.0-RC9 (and cleaning out all log files) ...
-Stopping BigBlueButton
- ... cleaning log files
-Starting BigBlueButton
-Failed to start kurento-media-server.service: Unit kurento-media-server.service is masked.
-```
-
-You can unmask Kurento using the command
-
-```bash
-$ systemctl unmask kurento-media-server.service
-```
-
-### Unable to share webcam
-
-The default installation of BigBlueButton should work in most network configurations; however, if your users ae behind a restrictive network that blocks outgoing UDP connections, they may encounter 1020 errors (media unable to reach server).
-
-If you get reports of these errors, setup TURN server to help their browsers send WebRTC audio and video streams via TCP over port 443 to the TURN server. The TURN server will then relay the media to your BigBlueButton server.
-
-See [Configure TURN](/administration/turn-server).
 
 ## FreeSWITCH
 

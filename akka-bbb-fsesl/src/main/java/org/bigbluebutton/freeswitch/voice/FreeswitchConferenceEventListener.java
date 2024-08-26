@@ -109,6 +109,7 @@ public class FreeswitchConferenceEventListener implements ConferenceEventListene
                   evt.callSession,
                   evt.clientSession,
                   evt.userId,
+                  evt.getVoiceUserId(),
                   evt.callerName,
                   evt.callState,
                   evt.origCallerIdName,

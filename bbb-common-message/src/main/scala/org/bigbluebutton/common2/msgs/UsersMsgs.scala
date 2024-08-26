@@ -7,8 +7,8 @@ case class RegisterUserReqMsg(
 ) extends BbbCoreMsg
 case class RegisterUserReqMsgBody(meetingId: String, intUserId: String, name: String, role: String,
                                   extUserId: String, authToken: String, sessionToken: String, avatarURL: String,
-                                  guest: Boolean, authed: Boolean, guestStatus: String, excludeFromDashboard: Boolean,
-                                  enforceLayout: String, userMetadata: Map[String, String])
+                                  webcamBackgroundURL: String, guest: Boolean, authed: Boolean, guestStatus: String,
+                                  excludeFromDashboard: Boolean, enforceLayout: String, userMetadata: Map[String, String])
 
 object UserRegisteredRespMsg { val NAME = "UserRegisteredRespMsg" }
 case class UserRegisteredRespMsg(
@@ -63,23 +63,24 @@ case class UserJoinedMeetingEvtMsg(
     body:   UserJoinedMeetingEvtMsgBody
 ) extends BbbCoreMsg
 case class UserJoinedMeetingEvtMsgBody(
-    intId:         String,
-    extId:         String,
-    name:          String,
-    role:          String,
-    guest:         Boolean,
-    authed:        Boolean,
-    guestStatus:   String,
-    reactionEmoji: String,
-    raiseHand:     Boolean,
-    away:          Boolean,
-    pin:           Boolean,
-    presenter:     Boolean,
-    locked:        Boolean,
-    avatar:        String,
-    color:         String,
-    clientType:    String,
-    userMetadata:  Map[String, String]
+    intId:            String,
+    extId:            String,
+    name:             String,
+    role:             String,
+    guest:            Boolean,
+    authed:           Boolean,
+    guestStatus:      String,
+    reactionEmoji:    String,
+    raiseHand:        Boolean,
+    away:             Boolean,
+    pin:              Boolean,
+    presenter:        Boolean,
+    locked:           Boolean,
+    avatar:           String,
+    webcamBackground: String,
+    color:            String,
+    clientType:       String,
+    userMetadata:     Map[String, String]
 )
 
 /**

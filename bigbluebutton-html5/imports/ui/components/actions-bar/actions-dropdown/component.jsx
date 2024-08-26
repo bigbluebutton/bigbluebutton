@@ -39,12 +39,13 @@ const propTypes = {
       key: PropTypes.string,
     }),
   ).isRequired,
-  isPresentationManagementDisabled: PropTypes.bool.isRequired,
+  isPresentationManagementDisabled: PropTypes.bool,
 };
 
 const defaultProps = {
   shortcuts: '',
   settingsLayout: LAYOUT_TYPE.SMART_LAYOUT,
+  isPresentationManagementDisabled: false,
   amIPresenter: false,
   amIModerator: false,
 };

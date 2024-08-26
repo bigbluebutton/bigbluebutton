@@ -17,6 +17,7 @@ export const generateActionsPermissions = (
   lockSettings: LockSettings,
   usersPolicies: UsersPolicies,
   isBreakout: boolean,
+  isMuted: boolean,
 ) => {
   const subjectUserVoice = subjectUser.voice;
 
@@ -29,13 +30,13 @@ export const generateActionsPermissions = (
   const allowedToChatPrivately = !amISubjectUser && !isDialInUser;
   const allowedToMuteAudio = hasAuthority
     && subjectUserVoice?.joined
-    && !subjectUserVoice?.muted
+    && !isMuted
     && !subjectUserVoice?.listenOnly;
 
   const allowedToUnmuteAudio = hasAuthority
     && subjectUserVoice?.joined
     && !subjectUserVoice.listenOnly
-    && subjectUserVoice.muted
+    && isMuted
     && (amISubjectUser || usersPolicies?.allowModsToUnmuteUsers);
 
   // if currentUser is a moderator, allow removing other users

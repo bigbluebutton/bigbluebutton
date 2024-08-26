@@ -669,7 +669,6 @@ export const meetingClientSettingsInitialValues: MeetingClientSettings = {
           maxDelayTime: 2,
         },
       },
-      showVolumeMeter: true,
       muteAudioOutputWhenAway: false,
     },
     stats: {

@@ -128,7 +128,7 @@ Recent releases:
 
 #### Removal of Kurento
 
-We have removed all use of Kurento Media Server. For the live media transmission we still rely on mediasoup. For the recording portion we make use of our own component `bbb-webrtc-recorder`. BigBlueButton 3.0 is the first release where we do not even install Kurento.
+We have removed all use of Kurento Media Server. For the live media transmission we rely on mediasoup. For the recording portion we make use of our own component `bbb-webrtc-recorder`. BigBlueButton 3.0 is the first release where we do not install Kurento.
 
 #### Select Random User feature removed and is now a plugin
 

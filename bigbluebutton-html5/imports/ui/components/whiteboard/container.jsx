@@ -45,6 +45,10 @@ import {
 } from '../presentation/mutations';
 import { useMergedCursorData } from './hooks.ts';
 import useDeduplicatedSubscription from '../../core/hooks/useDeduplicatedSubscription';
+import MediaService from '/imports/ui/components/media/service';
+import getFromUserSettings from '/imports/ui/services/users-settings';
+
+const FORCE_RESTORE_PRESENTATION_ON_NEW_EVENTS = 'bbb_force_restore_presentation_on_new_events';
 
 const WhiteboardContainer = (props) => {
   const {
@@ -53,6 +57,7 @@ const WhiteboardContainer = (props) => {
   } = props;
 
   const WHITEBOARD_CONFIG = window.meetingClientSettings.public.whiteboard;
+  const layoutContextDispatch = layoutDispatch();
 
   const [annotations, setAnnotations] = useState([]);
   const [shapes, setShapes] = useState({});
@@ -132,8 +137,8 @@ const WhiteboardContainer = (props) => {
     });
   };
 
-  const zoomSlide = (widthRatio, heightRatio, xOffset, yOffset) => {
-    const { pageId, num } = currentPresentationPage;
+  const zoomSlide = (widthRatio, heightRatio, xOffset, yOffset, currPage = currentPresentationPage) => {
+    const { pageId, num } = currPage;
 
     presentationSetZoom({
       variables: {
@@ -223,6 +228,17 @@ const WhiteboardContainer = (props) => {
     );
 
     setAnnotations([...currentAnnotations, ...newAnnotations]);
+
+    if (newAnnotations.length) {
+      const restoreOnUpdate = getFromUserSettings(
+        FORCE_RESTORE_PRESENTATION_ON_NEW_EVENTS,
+        window.meetingClientSettings.public.presentation.restoreOnUpdate,
+      );
+
+      if (restoreOnUpdate) {
+        MediaService.setPresentationIsOpen(layoutContextDispatch, true);
+      }
+    }
   };
 
   React.useEffect(() => {
@@ -281,7 +297,6 @@ const WhiteboardContainer = (props) => {
     colorStyle, dashStyle, fillStyle, fontStyle, sizeStyle,
   } = WHITEBOARD_CONFIG.styles;
   const handleToggleFullScreen = (ref) => FullscreenService.toggleFullScreen(ref);
-  const layoutContextDispatch = layoutDispatch();
 
   bgShape.push({
     x: 1,

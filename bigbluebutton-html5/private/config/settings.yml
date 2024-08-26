@@ -95,6 +95,9 @@ public:
       # provider: [webspeech, vosk, gladia]
       provider: webspeech
       language:
+        # Available languages will depend on the transcription service
+        # Google: https://cloud.google.com/speech-to-text/docs/speech-to-text-supported-languages?hl=pt-br
+        # Gladia: https://docs.gladia.io/chapters/speech-to-text-api/pages/languages#supported-languages
         available:
         # - de-DE
           - en-US
@@ -889,8 +892,6 @@ public:
         enabled: true
         delayTime: 0.5
         maxDelayTime: 2
-    # showVolumeMeter: shows an energy bar for microphones in the AudioSettings view
-    showVolumeMeter: true
     # networkPriorities: DSCP markings for each media type. Chromium only, applies
     # to sender flows. See https://datatracker.ietf.org/doc/html/rfc8837#section-5
     # for further info.
