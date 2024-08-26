@@ -6,7 +6,6 @@ import TabsListUnstyled from '@mui/base/TabsListUnstyled';
 import TabPanelUnstyled from '@mui/base/TabPanelUnstyled';
 import TabsUnstyled from '@mui/base/TabsUnstyled';
 import './App.css';
-import './bbb-icons.css';
 import {
   FormattedMessage, FormattedDate, injectIntl, FormattedTime,
 } from 'react-intl';
