@@ -78,19 +78,6 @@ const Container = styled.span`
   & > div {
     position: relative;
   }
-
-  & > :last-child {
-    margin-right: 0;
-
-    [dir='rtl'] & {
-      margin-left: 0;
-      margin-right: ${smPaddingX};
-
-      @media ${smallOnly} {
-        margin-right: ${smPaddingY};
-      }
-    }
-  }
 `;
 
 export default {
