@@ -59,6 +59,19 @@ const AudioDial = styled(Button)`
   display: block;
 `;
 
+const Background = styled.span`
+  ${({ isBlurred }) => isBlurred
+    && css`
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    backdrop-filter: blur(10px);
+    z-index: 998;
+    `}
+`;
+
 const Connecting = styled.div`
   margin-top: auto;
   margin-bottom: auto;
@@ -143,6 +156,7 @@ export default {
   AudioOptions,
   AudioModalButton,
   AudioDial,
+  Background,
   Connecting,
   ConnectingAnimation,
   AudioModal,

@@ -26,6 +26,8 @@ import Checkbox from '/imports/ui/components/common/checkbox/component'
 import AppService from '/imports/ui/components/app/service';
 import { CustomVirtualBackgroundsContext } from '/imports/ui/components/video-preview/virtual-background/context';
 import VBGSelectorService from '/imports/ui/components/video-preview/virtual-background/service';
+import Storage from '/imports/ui/services/storage/session';
+import getFromUserSettings from '/imports/ui/services/users-settings';
 
 const VIEW_STATES = {
   finding: 'finding',
@@ -1311,6 +1313,8 @@ class VideoPreview extends Component {
     const WebcamBackgroundImg = `${BASE_NAME}/resources/images/webcam_background.svg`;
 
     const darkThemeState = AppService.isDarkThemeEnabled();
+    const isBlurred = Storage.getItem('isFirstJoin') !== false 
+    && getFromUserSettings('bbb_auto_share_webcam', window.meetingClientSettings.public.kurento.autoShareWebcam);
 
     if (isCamLocked === true) {
       this.handleProceed();
@@ -1336,58 +1340,60 @@ class VideoPreview extends Component {
     && isVirtualBackgroundSupported()
 
     return (
-      <Styled.VideoPreviewModal
-        onRequestClose={this.handleProceed}
-        contentLabel={intl.formatMessage(intlMessages.webcamSettingsTitle)}
-        shouldShowCloseButton={allowCloseModal}
-        shouldCloseOnOverlayClick={allowCloseModal}
-        isPhone={deviceInfo.isPhone}
-        data-test="webcamSettingsModal"
-        {...{
-          isOpen,
-          priority,
-        }}
-      >
-        <Styled.Container>
-          <Styled.Header>
-            <Styled.WebcamTabs
-            onSelect={this.handleSelectTab}
-            selectedIndex={selectedTab}
-            >
-              <Styled.WebcamTabList>
-                <Styled.WebcamTabSelector selectedClassName="is-selected">
-                  <Styled.IconSvg
-                    src={WebcamSettingsImg}
-                    darkThemeState={darkThemeState}
-                  />
-                  <span 
-                    id="webcam-settings-title">{this.getModalTitle()}
-                  </span>
-                </Styled.WebcamTabSelector>
-                {shouldShowVirtualBackgroundsTab && (
-                <>
-                  <Styled.HeaderSeparator />
+      <Styled.Background isBlurred={isBlurred}>
+        <Styled.VideoPreviewModal
+          onRequestClose={this.handleProceed}
+          contentLabel={intl.formatMessage(intlMessages.webcamSettingsTitle)}
+          shouldShowCloseButton={allowCloseModal}
+          shouldCloseOnOverlayClick={allowCloseModal}
+          isPhone={deviceInfo.isPhone}
+          data-test="webcamSettingsModal"
+          {...{
+            isOpen,
+            priority,
+          }}
+        >
+          <Styled.Container>
+            <Styled.Header>
+              <Styled.WebcamTabs
+              onSelect={this.handleSelectTab}
+              selectedIndex={selectedTab}
+              >
+                <Styled.WebcamTabList>
                   <Styled.WebcamTabSelector selectedClassName="is-selected">
                     <Styled.IconSvg
-                      src={WebcamBackgroundImg}
+                      src={WebcamSettingsImg}
                       darkThemeState={darkThemeState}
                     />
-                    <span id="backgrounds-title">{intl.formatMessage(intlMessages.webcamVirtualBackgroundTitle)}</span>
+                    <span 
+                      id="webcam-settings-title">{this.getModalTitle()}
+                    </span>
                   </Styled.WebcamTabSelector>
-                </>
-              )}
-              </Styled.WebcamTabList>
-              
-            </Styled.WebcamTabs>
-          </Styled.Header>
+                  {shouldShowVirtualBackgroundsTab && (
+                  <>
+                    <Styled.HeaderSeparator />
+                    <Styled.WebcamTabSelector selectedClassName="is-selected">
+                      <Styled.IconSvg
+                        src={WebcamBackgroundImg}
+                        darkThemeState={darkThemeState}
+                      />
+                      <span id="backgrounds-title">{intl.formatMessage(intlMessages.webcamVirtualBackgroundTitle)}</span>
+                    </Styled.WebcamTabSelector>
+                  </>
+                )}
+                </Styled.WebcamTabList>
+                
+              </Styled.WebcamTabs>
+            </Styled.Header>
 
-          {deviceInfo.hasMediaDevices
-              ? this.renderModalContent(selectedTab)
-              : this.supportWarning()
-            }
+            {deviceInfo.hasMediaDevices
+                ? this.renderModalContent(selectedTab)
+                : this.supportWarning()
+              }
 
-        </Styled.Container>
-      </Styled.VideoPreviewModal>
+          </Styled.Container>
+        </Styled.VideoPreviewModal>
+      </Styled.Background>
     );
   }
 }

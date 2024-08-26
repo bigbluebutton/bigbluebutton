@@ -249,6 +249,19 @@ const VideoPreviewModal = styled(ModalSimple)`
   }
 `;
 
+const Background = styled.span`
+  ${({ isBlurred }) => isBlurred
+    && css`
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    backdrop-filter: blur(10px);
+    z-index: 998;
+    `}
+`;
+
 const ellipsis = keyframes`
   to {
     width: 1.5em;
@@ -421,6 +434,7 @@ export default {
   Select,
   Content,
   BrowserWarning,
+  Background,
   Footer,
   FooterContainer,
   Actions,
