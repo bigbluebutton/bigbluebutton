@@ -167,9 +167,9 @@ Notice the `listenIps` key is an **array**. If you need mediasoup to work with *
 mediasoup:
   webrtc:
     listenIps:
+      - ip: 2001:db8::
       - ip: 0.0.0.0
         announcedIp: 192.0.2.0
-      - ip: 2001:db8::
 ```
 
 Restart BigBlueButton to apply the changes.
