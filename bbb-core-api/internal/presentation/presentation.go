@@ -3,9 +3,12 @@ package presentation
 import (
 	"errors"
 	"fmt"
+	"io/fs"
+	"log/slog"
 	"os"
 	"os/exec"
 	"path/filepath"
+	"strconv"
 	"strings"
 	"time"
 
@@ -19,7 +22,8 @@ const (
 	DefaultPodID     = "DEFAULT_PRESENTATION_POD"
 	DefaultAuthToken = "preupload-raw-authz-token"
 
-	MaxPages = 100
+	MaxPages       = 100
+	MaxPDFPageSize = 2000000
 )
 
 type UploadedPresentation struct {
@@ -40,7 +44,15 @@ type UploadedPresentation struct {
 	NumPages          int
 }
 
-func (pres *UploadedPresentation) ProcessUploadedPresentation() error {
+type PageToConvert struct {
+	pres              *UploadedPresentation
+	pageNum           int
+	pagePath          string
+	svgImagesRequired bool
+	generatePNGs      bool
+}
+
+func (pres *UploadedPresentation) ProcessUploadedPresentation(generatePNGs bool) error {
 	path := pres.Path
 	ext := filepath.Ext(path)
 	if IsOfficeFile(ext) {
@@ -48,12 +60,19 @@ func (pres *UploadedPresentation) ProcessUploadedPresentation() error {
 		if err != nil {
 			return err
 		}
+		pres.Path = path
 	}
 
-	// TODO: make presentation downloadable
+	if pres.IsDownloadable {
+		pres.makePresentationDownloadable()
+	}
 
 	if mime.ExtPdf.Matches(ext) {
 		pres.GenerateFileNameConverted(mime.ExtPdf.ToString())
+		pres.countNumPages()
+		pres.extractIntoPages(generatePNGs)
+	} else if IsImageFile(pres.FileType) {
+		pres.NumPages = 1
 	}
 
 	return nil
@@ -87,6 +106,110 @@ func (pres *UploadedPresentation) countNumPages() error {
 	pres.NumPages = numPages
 
 	return nil
+}
+
+func (pres *UploadedPresentation) makePresentationDownloadable() error {
+	if !pres.IsDownloadable {
+		return errors.New("presentation is not marked as downloadable")
+	}
+
+	parentDir := filepath.Dir(pres.Path)
+	var fileExt string
+
+	if pres.FileNameConverted != "" {
+		fileExt = filepath.Ext(pres.FileNameConverted)
+	} else {
+		fileExt = filepath.Ext(pres.Path)
+	}
+
+	if parentDir == "." {
+		return errors.New("parent directory does not exist")
+	}
+
+	err := filepath.Walk(parentDir, func(path string, info fs.FileInfo, err error) error {
+		if err != nil {
+			return err
+		}
+
+		if !info.IsDir() && filepath.Ext(path) == ".downloadable" {
+			err := os.Remove(path)
+			if err != nil {
+				slog.Error(fmt.Sprintf("Could not delete file %s: %v", path, err))
+			} else {
+				slog.Info(fmt.Sprintf("Deleted file: %s\n", path))
+			}
+		}
+
+		return nil
+	})
+
+	if err != nil {
+		return fmt.Errorf("could not delete previous error files: %w", err)
+	}
+
+	downloadMarker := fmt.Sprintf("%s.%s.downloadable", pres.ID, fileExt)
+	_, err = os.Create(fmt.Sprintf("%s/%s", parentDir, downloadMarker))
+	if err != nil {
+		return errors.New("failed to create download file")
+	}
+
+	return nil
+}
+
+func (pres *UploadedPresentation) extractIntoPages(generatePNGS bool) error {
+	pagesToConvert := make([]*PageToConvert, 0, pres.NumPages)
+
+	extractedPages, err := pres.extractPages()
+	if err != nil {
+		return fmt.Errorf("failed to extract pages from %s: %w", pres.Path, err)
+	}
+
+	for i, p := range extractedPages {
+		pagesToConvert = append(pagesToConvert, &PageToConvert{
+			pres:              pres,
+			pageNum:           i,
+			pagePath:          p,
+			svgImagesRequired: true,
+			generatePNGs:      generatePNGS,
+		})
+	}
+}
+
+func (pres *UploadedPresentation) extractPages() ([]string, error) {
+	outDir := filepath.Dir(pres.Path)
+
+	pagePaths := make([]string, 0, pres.NumPages)
+	for i := 1; i <= pres.NumPages; i++ {
+		pagePath := filepath.Join(outDir, fmt.Sprintf("page-%d.pdf", i))
+		err := api.ExtractPagesFile(pres.Path, pagePath, []string{strconv.Itoa(i)}, nil)
+		if err != nil {
+			slog.Error(fmt.Sprintf("Failed to extract page %d: %w", i, err))
+		}
+		size, err := FileSize(pagePath)
+		if err != nil {
+			slog.Error(fmt.Sprintf("could not determine size of %s: %v, skipping", pagePath, err))
+			continue
+		}
+		if size > MaxPDFPageSize {
+			err = CompressPDF(pagePath)
+			if err != nil {
+				slog.Error("could not compress %s: %v, skipping", pagePath, err)
+				continue
+			}
+		}
+		size, err = FileSize(pagePath)
+		if err != nil {
+			slog.Error("could not determine size of compressed PDF page %s, %v, skipping", pagePath, err)
+			continue
+		}
+		if size > MaxPDFPageSize {
+			slog.Error("compressed PDF page %s is still too large, skipping", pagePath)
+			continue
+		}
+		pagePaths = append(pagePaths, pagePath)
+	}
+
+	return pagePaths, nil
 }
 
 var validMimeTypes map[mime.MimeType]struct{}
@@ -200,4 +323,20 @@ func NewPdfFromFile(path string) (*os.File, error) {
 		return nil, fmt.Errorf("failed to create new file: %v", err)
 	}
 	return newFile, nil
+}
+
+func FileSize(path string) (int64, error) {
+	fileInfo, err := os.Stat(path)
+	if err != nil {
+		return 0, fmt.Errorf("could not determine size of file %s: %w", path, err)
+	}
+	return fileInfo.Size(), nil
+}
+
+func CompressPDF(path string) error {
+	err := api.OptimizeFile(path, path, api.LoadConfiguration())
+	if err != nil {
+		return fmt.Errorf("failed to compress %s: %w", path, err)
+	}
+	return nil
 }

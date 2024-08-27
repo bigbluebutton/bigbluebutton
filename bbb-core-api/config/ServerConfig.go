@@ -115,6 +115,9 @@ type ServerConfig struct {
 			Protocols    []string `yaml:"protocols"`
 			BlockedHosts []string `yaml:"blocked_hosts"`
 		} `yaml:"upload"`
+		Conversion struct {
+			GeneratePNGs bool `yaml:"generate_pngs"`
+		} `yaml:"conversion"`
 		Default  string `yaml:"default"`
 		BasePath string `yaml:"base_path"`
 	} `yaml:"presentation"`

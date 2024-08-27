@@ -126,6 +126,8 @@ presentation:
       - https
     blocked_hosts:
       - localhost
+  conversion:
+    generate_pngs: false
     
   default: default.pdf
   base_path: bigbluebutton/presentation
