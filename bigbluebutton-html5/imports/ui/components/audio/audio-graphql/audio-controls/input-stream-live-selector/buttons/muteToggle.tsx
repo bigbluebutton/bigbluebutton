@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect, useRef, useCallback } from 'react';
 import { defineMessages, useIntl } from 'react-intl';
 import { useMutation } from '@apollo/client';
 import Styled from '../styles';
@@ -7,6 +7,11 @@ import { getSettingsSingletonInstance } from '/imports/ui/services/settings';
 import useToggleVoice from '../../../hooks/useToggleVoice';
 import { SET_AWAY } from '/imports/ui/components/user-list/user-list-content/user-participants/user-list-participants/user-actions/mutations';
 import VideoService from '/imports/ui/components/video-provider/service';
+import {
+  startPushToTalk,
+  stopPushToTalk,
+  toggleMuteMicrophone
+} from '../service';
 import {
   muteAway,
 } from '/imports/ui/components/audio/audio-graphql/audio-controls/input-stream-live-selector/service';
@@ -57,6 +62,52 @@ export const MuteToggle: React.FC<MuteToggleProps> = ({
     : intl.formatMessage(intlMessages.muteAudio);
   const Settings = getSettingsSingletonInstance();
   const animations = Settings?.application?.animations;
+  const isKeyDown = useRef<Boolean>(false);
+  const cooldownActive = useRef<Boolean>(false)
+  const cooldownTimerRef = useRef<NodeJS.Timeout | null>(null);
+
+  const APPLICATION_CONFIG = window.meetingClientSettings.public?.app?.defaultSettings?.application;
+  const pushToTalkEnabled = APPLICATION_CONFIG?.pushToTalkEnabled;
+
+  const COOLDOWN_TIME = 1500;
+
+  const handlePushToTalk = useCallback((action: 'down' | 'up', event: KeyboardEvent) => {
+    const activeElement = document.activeElement;
+    const isInputField = activeElement instanceof HTMLInputElement ||
+                          activeElement instanceof HTMLTextAreaElement ||
+                          activeElement.isContentEditable;
+    if (cooldownActive.current || !pushToTalkEnabled || event.key !== 'm' || isInputField) {
+      return;
+    }
+
+    if (action === 'down' && !isKeyDown.current) {
+      isKeyDown.current = true;
+      startPushToTalk(toggleVoice);
+    } else if (action === 'up') {
+      isKeyDown.current = false;
+      stopPushToTalk(toggleVoice);
+      cooldownActive.current = true;
+      cooldownTimerRef.current = setTimeout(() => {
+        cooldownActive.current = false;
+      }, COOLDOWN_TIME);
+    }
+  }, []);
+
+  useEffect(() => {
+    const handleKeyDown = (event: KeyboardEvent) => handlePushToTalk('down', event);
+    const handleKeyUp = (event: KeyboardEvent) => handlePushToTalk('up', event);
+
+    document.addEventListener('keydown', handleKeyDown);
+    document.addEventListener('keyup', handleKeyUp);
+
+    return () => {
+      if (cooldownTimerRef.current) {
+        clearTimeout(cooldownTimerRef.current);
+      }
+      document.removeEventListener('keydown', handleKeyDown);
+      document.removeEventListener('keyup', handleKeyUp);
+    };
+  }, []);
 
   const onClickCallback = (e: React.MouseEvent<HTMLButtonElement>) => {
     e.stopPropagation();
@@ -79,6 +130,7 @@ export const MuteToggle: React.FC<MuteToggleProps> = ({
 
     toggleMuteMicrophone(muted, toggleVoice);
   };
+
   return (
     // eslint-disable-next-line jsx-a11y/no-access-key
     <Styled.MuteToggleButton

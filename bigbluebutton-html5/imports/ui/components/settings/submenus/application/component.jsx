@@ -123,6 +123,10 @@ const intlMessages = defineMessages({
   autoCloseReactionsBarLabel: {
     id: 'app.actionsBar.reactions.autoCloseReactionsBarLabel',
   },
+  pushToTalkLabel: {
+    id: 'app.submenu.application.pushToTalkLabel',
+    description: 'enable/disable audio push-to-talk',
+  },
 });
 
 class ApplicationMenu extends BaseMenu {
@@ -471,6 +475,28 @@ class ApplicationMenu extends BaseMenu {
           </Styled.Row>
 
           {this.renderAudioFilters()}
+          <Styled.Row>
+            <Styled.Col aria-hidden="true">
+              <Styled.FormElement>
+                {/* eslint-disable-next-line jsx-a11y/label-has-associated-control */}
+                <Styled.Label>
+                  {intl.formatMessage(intlMessages.pushToTalkLabel)}
+                </Styled.Label>
+              </Styled.FormElement>
+            </Styled.Col>
+            <Styled.Col>
+              <Styled.FormElementRight>
+                {displaySettingsStatus(settings.pushToTalkEnabled)}
+                <Toggle
+                  icons={false}
+                  defaultChecked={settings.pushToTalkEnabled}
+                  onChange={() => this.handleToggle('pushToTalkEnabled')}
+                  ariaLabel={`${intl.formatMessage(intlMessages.pushToTalkLabel)} - ${displaySettingsStatus(settings.pushToTalkEnabled, true)}`}
+                  showToggleLabel={showToggleLabel}
+                />
+              </Styled.FormElementRight>
+            </Styled.Col>
+          </Styled.Row>
           {this.renderPaginationToggle()}
           {this.renderDarkThemeToggle()}
           {this.renderWakeLockToggle()}
