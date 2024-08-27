@@ -61,18 +61,18 @@ export const MuteToggle: React.FC<MuteToggleProps> = ({
     : intl.formatMessage(intlMessages.muteAudio);
   const Settings = getSettingsSingletonInstance();
   const animations = Settings?.application?.animations;
-  const isKeyDown = useRef<Boolean>(false);
-  const cooldownActive = useRef<Boolean>(false)
+  const isKeyDown = useRef<boolean>(false);
+  const cooldownActive = useRef<boolean>(false);
   const cooldownTimerRef = useRef<NodeJS.Timeout | null>(null);
 
   const COOLDOWN_TIME = 1500;
 
   const handlePushToTalk = useCallback((action: 'down' | 'up', event: KeyboardEvent) => {
     const activeElement = document.activeElement as HTMLElement | null;
-    const isInputField = activeElement &&
-                          (activeElement instanceof HTMLInputElement ||
-                           activeElement instanceof HTMLTextAreaElement ||
-                           activeElement.isContentEditable);
+    const isInputField = activeElement
+      && (activeElement instanceof HTMLInputElement
+        || activeElement instanceof HTMLTextAreaElement
+        || activeElement.isContentEditable);
     const Settings = getSettingsSingletonInstance();
     const pushToTalkEnabled = Settings?.application?.pushToTalkEnabled;
     if ((cooldownActive.current || event.key !== 'm' || isInputField) || !pushToTalkEnabled) {
