@@ -12,6 +12,12 @@ test.describe.parallel('Presentation', () => {
     await presentation.skipSlide();
   });
 
+  test('Share Camera As Content @ci', async ({ browser, context, page }) => {
+    const presentation = new Presentation(browser, context);
+    await presentation.initPages(page);
+    await presentation.shareCameraAsContent();
+  });
+
   // https://docs.bigbluebutton.org/2.7/testing/release-testing/#minimizerestore-presentation-automated
   test('Hide/Restore presentation @ci', async ({ browser, context, page }) => {
     const presentation = new Presentation(browser, context);
@@ -20,7 +26,7 @@ test.describe.parallel('Presentation', () => {
   });
 
   // https://docs.bigbluebutton.org/2.7/testing/release-testing/#start-youtube-video-sharing
-  test('Start external video @ci', async ({ browser, context, page }) => {
+  test('Start external video @ci @flaky', async ({ browser, context, page }) => {
     const presentation = new Presentation(browser, context);
     await presentation.initPages(page);
     await presentation.startExternalVideo();

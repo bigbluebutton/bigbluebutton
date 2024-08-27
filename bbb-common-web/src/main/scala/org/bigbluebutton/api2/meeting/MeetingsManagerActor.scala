@@ -11,7 +11,7 @@ sealed trait ApiMsg
 case class CreateBreakoutRoomMsg(meetingId: String, parentMeetingId: String,
                                  name: String, sequence: Integer, freeJoin: Boolean, dialNumber: String,
                                  voiceConfId: String, viewerPassword: String, moderatorPassword: String, duration: Int,
-                                 sourcePresentationId: String, sourcePresentationSlide: Int,
+                                 sourcePresentationId: String, sourcePresentationSlide: Int, sourcePresentationFilename: String,
                                  record: Boolean, captureNotes: Boolean, captureSlides: Boolean, captureNotesFilename: String, captureSlidesFilename: String) extends ApiMsg
 
 case class AddUserSession(token: String, session: UserSession)
