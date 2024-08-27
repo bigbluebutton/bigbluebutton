@@ -26,7 +26,7 @@ class Draw extends Page {
 
     await this.hasElement(e.wbDrawnShape);
 
-    if(CI) {
+    if(!CI) {
       await this.setHeightWidthViewPortSize();
       await expect(modWbLocator).toHaveScreenshot('moderator-rect-ci.png', screenshotOptions);
     }
