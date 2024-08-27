@@ -73,9 +73,9 @@ export const MuteToggle: React.FC<MuteToggleProps> = ({
                           (activeElement instanceof HTMLInputElement ||
                            activeElement instanceof HTMLTextAreaElement ||
                            activeElement.isContentEditable);
-    const APPLICATION_CONFIG = window.meetingClientSettings.public?.app?.defaultSettings?.application;
-    const pushToTalkEnabled = APPLICATION_CONFIG?.pushToTalkEnabled;
-    if (cooldownActive.current || !pushToTalkEnabled || event.key !== 'm' || isInputField) {
+    const Settings = getSettingsSingletonInstance();
+    const pushToTalkEnabled = Settings?.application?.pushToTalkEnabled;
+    if ((cooldownActive.current || event.key !== 'm' || isInputField) || !pushToTalkEnabled) {
       return;
     }
 
