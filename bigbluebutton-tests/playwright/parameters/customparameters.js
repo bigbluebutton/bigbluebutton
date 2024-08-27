@@ -233,6 +233,7 @@ class CustomParameters extends MultiUsers {
   }
 
   async webcamBackgroundURL() {
+    await this.modPage.waitForSelector(e.whiteboard);
     await this.modPage.waitAndClick(e.joinVideo);
     await this.modPage.waitForSelector(e.webcamSettingsModal);
     await sleep(1000);
