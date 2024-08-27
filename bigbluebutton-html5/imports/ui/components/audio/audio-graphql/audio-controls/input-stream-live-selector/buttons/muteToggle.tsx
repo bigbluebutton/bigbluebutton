@@ -10,7 +10,6 @@ import VideoService from '/imports/ui/components/video-provider/service';
 import {
   startPushToTalk,
   stopPushToTalk,
-  toggleMuteMicrophone
 } from '../service';
 import {
   muteAway,
@@ -66,16 +65,16 @@ export const MuteToggle: React.FC<MuteToggleProps> = ({
   const cooldownActive = useRef<Boolean>(false)
   const cooldownTimerRef = useRef<NodeJS.Timeout | null>(null);
 
-  const APPLICATION_CONFIG = window.meetingClientSettings.public?.app?.defaultSettings?.application;
-  const pushToTalkEnabled = APPLICATION_CONFIG?.pushToTalkEnabled;
-
   const COOLDOWN_TIME = 1500;
 
   const handlePushToTalk = useCallback((action: 'down' | 'up', event: KeyboardEvent) => {
-    const activeElement = document.activeElement;
-    const isInputField = activeElement instanceof HTMLInputElement ||
-                          activeElement instanceof HTMLTextAreaElement ||
-                          activeElement.isContentEditable;
+    const activeElement = document.activeElement as HTMLElement | null;
+    const isInputField = activeElement &&
+                          (activeElement instanceof HTMLInputElement ||
+                           activeElement instanceof HTMLTextAreaElement ||
+                           activeElement.isContentEditable);
+    const APPLICATION_CONFIG = window.meetingClientSettings.public?.app?.defaultSettings?.application;
+    const pushToTalkEnabled = APPLICATION_CONFIG?.pushToTalkEnabled;
     if (cooldownActive.current || !pushToTalkEnabled || event.key !== 'm' || isInputField) {
       return;
     }
