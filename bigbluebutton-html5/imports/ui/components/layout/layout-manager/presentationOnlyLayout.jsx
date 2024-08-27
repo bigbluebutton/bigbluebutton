@@ -348,45 +348,50 @@ const PresentationOnlyLayout = (props) => {
   const init = () => {
     layoutContextDispatch({
       type: ACTIONS.SET_LAYOUT_INPUT,
-      value: defaultsDeep(
-        {
-          sidebarNavigation: {
-            isOpen: false,
-            width: 0,
-            height: 0,
-          },
-          sidebarContent: {
-            isOpen: false,
-            width: 0,
-            height: 0,
-          },
-          SidebarContentHorizontalResizer: {
-            isOpen: false,
-          },
-          presentation: {
-            isOpen: true,
-            slidesLength: presentationInput.slidesLength,
-            currentSlide: {
-              ...presentationInput.currentSlide,
+      value: (prevInput) => {
+        const {
+          presentation, externalVideo, genericMainContent, screenShare,
+        } = prevInput;
+        return defaultsDeep(
+          {
+            sidebarNavigation: {
+              isOpen: false,
+              width: 0,
+              height: 0,
+            },
+            sidebarContent: {
+              isOpen: false,
+              width: 0,
+              height: 0,
+            },
+            SidebarContentHorizontalResizer: {
+              isOpen: false,
+            },
+            presentation: {
+              isOpen: true,
+              slidesLength: presentation.slidesLength,
+              currentSlide: {
+                ...presentation.currentSlide,
+              },
+            },
+            cameraDock: {
+              numCameras: 0,
+            },
+            externalVideo: {
+              hasExternalVideo: externalVideo.hasExternalVideo,
+            },
+            genericMainContent: {
+              genericContentId: genericMainContent.genericContentId,
+            },
+            screenShare: {
+              hasScreenShare: screenShare.hasScreenShare,
+              width: screenShare.width,
+              height: screenShare.height,
             },
           },
-          cameraDock: {
-            numCameras: 0,
-          },
-          externalVideo: {
-            hasExternalVideo: input.externalVideo.hasExternalVideo,
-          },
-          genericMainContent: {
-            genericContentId: input.genericMainContent.genericContentId,
-          },
-          screenShare: {
-            hasScreenShare: input.screenShare.hasScreenShare,
-            width: input.screenShare.width,
-            height: input.screenShare.height,
-          },
-        },
-        INITIAL_INPUT_STATE,
-      ),
+          INITIAL_INPUT_STATE,
+        );
+      },
     });
     Session.setItem('layoutReady', true);
     throttledCalculatesLayout();

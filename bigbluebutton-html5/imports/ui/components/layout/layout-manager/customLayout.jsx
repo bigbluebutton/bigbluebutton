@@ -135,96 +135,108 @@ const CustomLayout = (props) => {
   };
 
   const init = () => {
-    const { sidebarContentPanel } = sidebarContentInput;
-
     if (isMobile) {
       layoutContextDispatch({
         type: ACTIONS.SET_LAYOUT_INPUT,
-        value: defaultsDeep(
-          {
-            sidebarNavigation: {
-              isOpen:
-                input.sidebarNavigation.isOpen || sidebarContentPanel !== PANELS.NONE || false,
-              sidebarNavPanel: sidebarNavigationInput.sidebarNavPanel,
-            },
-            sidebarContent: {
-              isOpen: sidebarContentPanel !== PANELS.NONE,
-              sidebarContentPanel: sidebarContentInput.sidebarContentPanel,
-            },
-            sidebarContentHorizontalResizer: {
-              isOpen: false,
-            },
-            presentation: {
-              isOpen: presentationInput.isOpen,
-              slidesLength: presentationInput.slidesLength,
-              currentSlide: {
-                ...presentationInput.currentSlide,
+        value: (prevInput) => {
+          const {
+            sidebarNavigation, sidebarContent, presentation, cameraDock,
+            externalVideo, genericMainContent, screenShare, sharedNotes,
+          } = prevInput;
+          const { sidebarContentPanel } = sidebarContent;
+          return defaultsDeep(
+            {
+              sidebarNavigation: {
+                isOpen:
+                  sidebarNavigation.isOpen || sidebarContentPanel !== PANELS.NONE || false,
+                sidebarNavPanel: sidebarNavigation.sidebarNavPanel,
+              },
+              sidebarContent: {
+                isOpen: sidebarContentPanel !== PANELS.NONE,
+                sidebarContentPanel: sidebarContent.sidebarContentPanel,
+              },
+              sidebarContentHorizontalResizer: {
+                isOpen: false,
+              },
+              presentation: {
+                isOpen: presentation.isOpen,
+                slidesLength: presentation.slidesLength,
+                currentSlide: {
+                  ...presentation.currentSlide,
+                },
+              },
+              cameraDock: {
+                numCameras: cameraDock.numCameras,
+              },
+              externalVideo: {
+                hasExternalVideo: externalVideo.hasExternalVideo,
+              },
+              genericMainContent: {
+                genericContentId: genericMainContent.genericContentId,
+              },
+              screenShare: {
+                hasScreenShare: screenShare.hasScreenShare,
+                width: screenShare.width,
+                height: screenShare.height,
+              },
+              sharedNotes: {
+                isPinned: sharedNotes.isPinned,
               },
             },
-            cameraDock: {
-              numCameras: cameraDockInput.numCameras,
-            },
-            externalVideo: {
-              hasExternalVideo: input.externalVideo.hasExternalVideo,
-            },
-            genericMainContent: {
-              genericContentId: input.genericMainContent.genericContentId,
-            },
-            screenShare: {
-              hasScreenShare: input.screenShare.hasScreenShare,
-              width: input.screenShare.width,
-              height: input.screenShare.height,
-            },
-            sharedNotes: {
-              isPinned: sharedNotesInput.isPinned,
-            },
-          },
-          INITIAL_INPUT_STATE
-        ),
+            INITIAL_INPUT_STATE,
+          );
+        },
       });
     } else {
       layoutContextDispatch({
         type: ACTIONS.SET_LAYOUT_INPUT,
-        value: defaultsDeep(
-          {
-            sidebarNavigation: {
-              isOpen:
-                input.sidebarNavigation.isOpen || sidebarContentPanel !== PANELS.NONE || false,
-            },
-            sidebarContent: {
-              isOpen: sidebarContentPanel !== PANELS.NONE,
-              sidebarContentPanel,
-            },
-            sidebarContentHorizontalResizer: {
-              isOpen: false,
-            },
-            presentation: {
-              isOpen: presentationInput.isOpen,
-              slidesLength: presentationInput.slidesLength,
-              currentSlide: {
-                ...presentationInput.currentSlide,
+        value: (prevInput) => {
+          const {
+            sidebarNavigation, sidebarContent, presentation, cameraDock,
+            externalVideo, genericMainContent, screenShare, sharedNotes,
+          } = prevInput;
+          const { sidebarContentPanel } = sidebarContent;
+          return defaultsDeep(
+            {
+              sidebarNavigation: {
+                isOpen:
+                  sidebarNavigation.isOpen || sidebarContentPanel !== PANELS.NONE || false,
+              },
+              sidebarContent: {
+                isOpen: sidebarContentPanel !== PANELS.NONE,
+                sidebarContentPanel,
+              },
+              sidebarContentHorizontalResizer: {
+                isOpen: false,
+              },
+              presentation: {
+                isOpen: presentation.isOpen,
+                slidesLength: presentation.slidesLength,
+                currentSlide: {
+                  ...presentation.currentSlide,
+                },
+              },
+              cameraDock: {
+                numCameras: cameraDock.numCameras,
+              },
+              externalVideo: {
+                hasExternalVideo: externalVideo.hasExternalVideo,
+              },
+              genericMainContent: {
+                genericContentId: genericMainContent.genericContentId,
+              },
+              screenShare: {
+                hasScreenShare: screenShare.hasScreenShare,
+                width: screenShare.width,
+                height: screenShare.height,
+              },
+              sharedNotes: {
+                isPinned: sharedNotes.isPinned,
               },
             },
-            cameraDock: {
-              numCameras: cameraDockInput.numCameras,
-            },
-            externalVideo: {
-              hasExternalVideo: input.externalVideo.hasExternalVideo,
-            },
-            genericMainContent: {
-              genericContentId: input.genericMainContent.genericContentId,
-            },
-            screenShare: {
-              hasScreenShare: input.screenShare.hasScreenShare,
-              width: input.screenShare.width,
-              height: input.screenShare.height,
-            },
-            sharedNotes: {
-              isPinned: sharedNotesInput.isPinned,
-            },
-          },
-          INITIAL_INPUT_STATE
-        ),
+            INITIAL_INPUT_STATE,
+          );
+        },
       });
     }
     Session.setItem('layoutReady', true);
