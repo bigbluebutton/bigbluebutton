@@ -56,14 +56,25 @@ export const getStats = () => {
   return STATS.level[lastLevel()];
 };
 
-export const startStatsTimeout = () => {
-  const STATS = window.meetingClientSettings.public.stats;
+export const handleAudioStatsEvent = (event) => {
+  const { detail } = event;
 
-  if (statsTimeout !== null) clearTimeout(statsTimeout);
+  if (detail) {
+    const { loss } = detail;
 
-  statsTimeout = setTimeout(() => {
-    // setStats(-1, 'recovery', {});
-  }, STATS.timeout);
+    // The stat provided by this event is the *INBOUND* packet loss fraction
+    // calculated manually by using the packetsLost and packetsReceived metrics.
+    // It uses a 5 probe wide window - so roughly a 10 seconds period with a 2
+    // seconds interval between captures.
+    //
+    // This metric is DIFFERENT from the one used in the connection status modal
+    // (see the network data object in this file). The network data one is an
+    // absolute counter of INBOUND packets lost - and it should be used to determine
+    // alert triggers
+    connectionStatus.setPacketLossStatus(
+      getStatus(window.meetingClientSettings.public.stats.loss, loss),
+    );
+  }
 };
 
 export const sortLevel = (a, b) => {
@@ -429,8 +440,6 @@ export async function startMonitoringNetwork() {
     previousData = data;
 
     connectionStatus.setNetworkData(networkData);
-    connectionStatus
-      .setPacketLossStatus(getStatus(window.meetingClientSettings.public.stats.loss, packetsLost));
   }, NETWORK_MONITORING_INTERVAL_MS);
 }
 
