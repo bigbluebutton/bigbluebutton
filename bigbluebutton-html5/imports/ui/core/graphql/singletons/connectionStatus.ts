@@ -36,7 +36,7 @@ class ConnectionStatus {
   });
 
   private userNetworkHistory = makeVar<Array<{
-    user: Pick<User, 'userId' | 'avatar' | 'isModerator' | 'color' | 'isOnline' | 'name'>,
+    user: Pick<User, 'userId' | 'avatar' | 'isModerator' | 'color' | 'currentlyInMeeting' | 'name'>,
     lastUnstableStatus: string,
     lastUnstableStatusAt: Date | number,
     clientNotResponding?: boolean,
@@ -173,7 +173,7 @@ class ConnectionStatus {
         avatar: user.avatar,
         isModerator: user.isModerator,
         color: user.color,
-        isOnline: user.isOnline,
+        currentlyInMeeting: user.currentlyInMeeting,
         name: user.name,
       },
       lastUnstableStatus,

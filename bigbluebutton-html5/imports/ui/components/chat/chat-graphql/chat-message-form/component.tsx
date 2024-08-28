@@ -539,7 +539,7 @@ const ChatMessageFormContainer: React.FC = ({
     }
   }
 
-  if (chat?.participant && !chat.participant.isOnline) {
+  if (chat?.participant && !chat.participant.currentlyInMeeting) {
     return <ChatOfflineIndicator participantName={chat.participant.name} />;
   }
 
@@ -557,7 +557,7 @@ const ChatMessageFormContainer: React.FC = ({
         title,
         isRTL,
         // if participant is not defined, it means that the chat is public
-        partnerIsLoggedOut: chat?.participant ? !chat?.participant?.isOnline : false,
+        partnerIsLoggedOut: chat?.participant ? !chat?.participant?.currentlyInMeeting : false,
         locked: locked ?? false,
       }}
     />

@@ -62,7 +62,7 @@ export const startStatsTimeout = () => {
   if (statsTimeout !== null) clearTimeout(statsTimeout);
 
   statsTimeout = setTimeout(() => {
-    setStats(-1, 'recovery', {});
+    // setStats(-1, 'recovery', {});
   }, STATS.timeout);
 };
 
@@ -80,9 +80,10 @@ export const sortLevel = (a, b) => {
 };
 
 export const sortOnline = (a, b) => {
-  if (!a.user.isOnline && b.user.isOnline) return 1;
-  if (a.user.isOnline === b.user.isOnline) return 0;
-  if (a.user.isOnline && !b.user.isOnline) return -1;
+  if (!a.user.currentlyInMeeting && b.user.currentlyInMeeting) return 1;
+  if (a.user.currentlyInMeeting === b.user.currentlyInMeeting) return 0;
+  if (a.user.currentlyInMeeting && !b.user.currentlyInMeeting) return -1;
+  return 0;
 };
 
 export const isEnabled = () => window.meetingClientSettings.public.stats.enabled;
@@ -107,6 +108,7 @@ export const notification = (level, intl) => {
   Session.setItem('connectionStatusNotified', true);
 
   if (intl) notify(intl.formatMessage(intlMessages.notification), level, 'warning');
+  return null;
 };
 
 /**
