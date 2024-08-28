@@ -117,6 +117,11 @@ const getErrorLocale = (errorCode) => {
   }
 };
 
+const getToastType = (errorCode) => {
+  if ([SCREENSHARING_ERRORS.NotAllowedError.errorCode].includes(errorCode)) return 'warning';
+  return 'error';
+}
+
 const ScreenshareButton = ({
   intl,
   enabled,
@@ -151,9 +156,10 @@ const ScreenshareButton = ({
 
     const localizedError = getErrorLocale(errorCode);
     const helpInfo =  getHelpInfoForError(errorCode);
+    const toastType = getToastType(errorCode);
 
     if (localizedError) {
-      notify(intl.formatMessage(localizedError, { 0: errorCode }), 'error', 'desktop', { ...helpInfo });
+      notify(intl.formatMessage(localizedError, { 0: errorCode }), toastType, 'desktop', { ...helpInfo });
       logger.error({
         logCode: 'screenshare_failed',
         extraInfo: { errorCode, errorMessage },
