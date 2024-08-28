@@ -778,7 +778,7 @@
     "app.audio.audioSettings.retryMicLabel": "Volver tentar",
     "app.audio.audioSettings.fallbackInputLabel": "Entrada de son {0}",
     "app.audio.audioSettings.fallbackOutputLabel": "Saída de son {0}",
-    "app.audio.audioSettings.fallbackNoPermission": "(non hai permisos do dispositivo)",
+    "app.audio.audioSettings.fallbackNoPermission": "(non hai permisos para o dispositivo)",
     "app.audio.audioSettings.defaultOutputDeviceLabel": "Predeterminado",
     "app.audio.audioSettings.findingDevicesLabel": "Atopar dispositivos de son…",
     "app.audio.audioSettings.confirmLabel": "Confirmar",
