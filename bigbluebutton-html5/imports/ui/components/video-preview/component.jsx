@@ -382,6 +382,12 @@ class VideoPreview extends Component {
   }
 
   componentDidUpdate() {
+    const { viewState } = this.state;
+
+    if (viewState === VIEW_STATES.found && !this.video.srcObject) {
+      this.displayPreview();
+    }
+
     if (this.brightnessMarker) {
       const markerStyle = window.getComputedStyle(this.brightnessMarker);
       const left = parseFloat(markerStyle.left);
