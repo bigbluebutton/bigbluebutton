@@ -21,7 +21,7 @@ const ConnectionStatus = () => {
     avatar: u.avatar,
     isModerator: u.isModerator,
     color: u.color,
-    isOnline: u.isOnline,
+    currentlyInMeeting: u.currentlyInMeeting,
   }));
 
   const handleUpdateConnectionAliveAt = () => {

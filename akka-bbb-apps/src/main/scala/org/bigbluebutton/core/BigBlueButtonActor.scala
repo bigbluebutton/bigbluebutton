@@ -110,7 +110,7 @@ class BigBlueButtonActor(
               "internalUserID" -> sessionTokenInfo._2,
               "externMeetingID" -> "",
               "externUserID" -> "",
-              "online" -> false,
+              "currentlyInMeeting" -> false,
               "authToken" -> "",
               "role" -> Roles.VIEWER_ROLE,
               "guest" -> "false",
