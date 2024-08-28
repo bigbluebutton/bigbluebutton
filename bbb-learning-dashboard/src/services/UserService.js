@@ -1,4 +1,4 @@
-import { emojiConfigs, filterUserEmojis } from './EmojiService';
+import { filterUserReactions } from './ReactionService';
 
 export function getActivityScore(user, allUsers, totalOfPolls) {
   if (user.isModerator) return 0;
@@ -21,19 +21,19 @@ export function getActivityScore(user, allUsers, totalOfPolls) {
   }
 
   // Calculate points of Raise hand
-  const usersRaiseHand = allUsersArr.map((currUser) => currUser.emojis.filter((emoji) => emoji.name === 'raiseHand').length);
+  const usersRaiseHand = allUsersArr.map((currUser) => currUser.raiseHand.length);
   const maxRaiseHand = Math.max(...usersRaiseHand);
-  const userRaiseHand = user.emojis.filter((emoji) => emoji.name === 'raiseHand').length;
+  const userRaiseHand = user.raiseHand.length;
   if (maxRaiseHand > 0) {
     userPoints += (userRaiseHand / maxRaiseHand) * 2;
   }
 
-  // Calculate points of Emojis
-  const usersEmojis = allUsersArr.map((currUser) => currUser.emojis.filter((emoji) => emoji.name !== 'raiseHand').length);
-  const maxEmojis = Math.max(...usersEmojis);
-  const userEmojis = user.emojis.filter((emoji) => emoji.name !== 'raiseHand').length;
-  if (maxEmojis > 0) {
-    userPoints += (userEmojis / maxEmojis) * 2;
+  // Calculate points of Reactions
+  const usersReactions = allUsersArr.map((currUser) => currUser.reactions.length);
+  const maxReactions = Math.max(...usersReactions);
+  const userReactions = user.reactions.length;
+  if (maxReactions > 0) {
+    userPoints += (userReactions / maxReactions) * 2;
   }
 
   // Calculate points of Polls
@@ -101,8 +101,8 @@ const tableHeaderFields = [
     defaultMessage: 'Messages',
   },
   {
-    id: 'colEmojis',
-    defaultMessage: 'Emojis',
+    id: 'colReactions',
+    defaultMessage: 'Reactions',
   },
   {
     id: 'pollVotes',
@@ -130,10 +130,6 @@ export function makeUserCSVData(users, polls, intl) {
   const userRecords = {};
   const userValues = Object.values(users || {});
   const pollValues = Object.values(polls || {});
-  const skipEmojis = Object
-    .keys(emojiConfigs)
-    .filter((emoji) => emoji !== 'raiseHand')
-    .join(',');
 
   for (let i = 0; i < userValues.length; i += 1) {
     const user = userValues[i];
@@ -155,9 +151,9 @@ export function makeUserCSVData(users, polls, intl) {
       talk: user.talk.totalTime > 0 ? tsToHHmmss(user.talk.totalTime) : '-',
       webcam: webcam > 0 ? tsToHHmmss(webcam) : '-',
       messages: user.totalOfMessages,
-      raiseHand: filterUserEmojis(user, 'raiseHand').length,
+      reactions: filterUserReactions(user).length,
       answers: Object.keys(user.answers).length,
-      emojis: filterUserEmojis(user, skipEmojis).length,
+      raiseHand: user.raiseHand.length,
       registeredOn: intl.formatDate(joinTime, {
         year: 'numeric',
         month: 'numeric',
