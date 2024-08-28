@@ -50,6 +50,7 @@ trait SystemConfiguration {
   lazy val toggleListenOnlyAfterMuteTimer = Try(config.getInt("voiceConf.toggleListenOnlyAfterMuteTimer")).getOrElse(4)
   lazy val transparentListenOnlyThreshold = Try(config.getInt("voiceConf.transparentListenOnlyThreshold")).getOrElse(0)
   lazy val muteOnStartThreshold = Try(config.getInt("voiceConf.muteOnStartThreshold")).getOrElse(0)
+  lazy val dialInEnforceGuestPolicy = Try(config.getBoolean("voiceConf.dialInEnforceGuestPolicy")).getOrElse(true)
 
   lazy val recordingChapterBreakLengthInMinutes = Try(config.getInt("recording.chapterBreakLengthInMinutes")).getOrElse(0)
 
