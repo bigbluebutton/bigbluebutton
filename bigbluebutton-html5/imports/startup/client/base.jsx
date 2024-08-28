@@ -33,29 +33,10 @@ class Base extends Component {
     this.handleFullscreenChange = this.handleFullscreenChange.bind(this);
   }
 
-  handleFullscreenChange() {
-    const { layoutContextDispatch } = this.props;
-
-    if (document.fullscreenElement
-      || document.webkitFullscreenElement
-      || document.mozFullScreenElement
-      || document.msFullscreenElement) {
-      Session.setItem('isFullscreen', true);
-    } else {
-      layoutContextDispatch({
-        type: ACTIONS.SET_FULLSCREEN_ELEMENT,
-        value: {
-          element: '',
-          group: '',
-        },
-      });
-      Session.setItem('isFullscreen', false);
-    }
-  }
-
   componentDidMount() {
     const { animations, usersVideo, layoutContextDispatch } = this.props;
-    const CAPTIONS_ALWAYS_VISIBLE = window.meetingClientSettings.public.app.audioCaptions.alwaysVisible;
+    const APP_CONFIG = window.meetingClientSettings.public.app;
+    const CAPTIONS_ALWAYS_VISIBLE = APP_CONFIG.audioCaptions.alwaysVisible;
 
     layoutContextDispatch({
       type: ACTIONS.SET_NUM_CAMERAS,
@@ -104,7 +85,7 @@ class Base extends Component {
       if (!checkedUserSettings) {
         const showAnimationsDefault = getFromUserSettings(
           'bbb_show_animations_default',
-          window.meetingClientSettings.public.app.defaultSettings.application.animations
+          window.meetingClientSettings.public.app.defaultSettings.application.animations,
         );
 
         const Settings = getSettingsSingletonInstance();
@@ -161,6 +142,26 @@ class Base extends Component {
     fullscreenChangedEvents.forEach((event) => {
       document.removeEventListener(event, this.handleFullscreenChange);
     });
+  }
+
+  handleFullscreenChange() {
+    const { layoutContextDispatch } = this.props;
+
+    if (document.fullscreenElement
+      || document.webkitFullscreenElement
+      || document.mozFullScreenElement
+      || document.msFullscreenElement) {
+      Session.setItem('isFullscreen', true);
+    } else {
+      layoutContextDispatch({
+        type: ACTIONS.SET_FULLSCREEN_ELEMENT,
+        value: {
+          element: '',
+          group: '',
+        },
+      });
+      Session.setItem('isFullscreen', false);
+    }
   }
 
   render() {

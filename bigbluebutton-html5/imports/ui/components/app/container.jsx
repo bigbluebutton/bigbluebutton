@@ -6,7 +6,7 @@ import MediaService from '/imports/ui/components/media/service';
 import { useIsPresentationEnabled, useIsScreenSharingEnabled, useIsExternalVideoEnabled } from '/imports/ui/services/features';
 import useCurrentUser from '/imports/ui/core/hooks/useCurrentUser';
 import useMeeting from '/imports/ui/core/hooks/useMeeting';
-import { ACTIONS, LAYOUT_TYPE, PRESENTATION_AREA } from '/imports/ui/components/layout/enums';
+import { ACTIONS, LAYOUT_TYPE } from '/imports/ui/components/layout/enums';
 import { useMutation, useReactiveVar } from '@apollo/client';
 import {
   layoutSelect,
@@ -116,7 +116,6 @@ const AppContainer = (props) => {
   const presentation = layoutSelectInput((i) => i.presentation);
   const sharedNotesInput = layoutSelectInput((i) => i.sharedNotes);
   const deviceType = layoutSelect((i) => i.deviceType);
-  const hasExternalVideoOnLayout = layoutSelectInput((i) => i.externalVideo.hasExternalVideo);
   const layoutContextDispatch = layoutDispatch();
 
   const [setSyncWithPresenterLayout] = useMutation(SET_SYNC_WITH_PRESENTER_LAYOUT);

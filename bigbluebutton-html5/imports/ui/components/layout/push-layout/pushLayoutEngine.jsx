@@ -45,10 +45,6 @@ const propTypes = {
 };
 
 class PushLayoutEngine extends React.Component {
-  constructor(props) {
-    super(props);
-  }
-
   componentDidMount() {
     const {
       cameraWidth,
@@ -109,7 +105,7 @@ class PushLayoutEngine extends React.Component {
         });
 
         if (!equalDouble(meetingLayoutVideoRate, 0)) {
-          let w, h;
+          let w; let h;
           if (horizontalPosition) {
             w = window.innerWidth * meetingLayoutVideoRate;
             h = cameraHeight;
@@ -125,7 +121,7 @@ class PushLayoutEngine extends React.Component {
               height: h,
               browserWidth: window.innerWidth,
               browserHeight: window.innerHeight,
-            }
+            },
           });
         }
       }, 0);
@@ -166,7 +162,8 @@ class PushLayoutEngine extends React.Component {
     const enforceLayoutDidChange = enforceLayout !== prevProps.enforceLayout;
     const shouldSwitchLayout = isPresenter
       ? meetingLayoutDidChange || enforceLayoutDidChange
-      : ((meetingLayoutDidChange || pushLayoutMeetingDidChange) && pushLayoutMeeting) || enforceLayoutDidChange;
+      : ((meetingLayoutDidChange || pushLayoutMeetingDidChange) && pushLayoutMeeting)
+        || enforceLayoutDidChange;
     const Settings = getSettingsSingletonInstance();
 
     if (shouldSwitchLayout) {
@@ -199,11 +196,9 @@ class PushLayoutEngine extends React.Component {
       }, null, setLocalSettings);
     }
 
-    if (meetingLayout === "custom" && selectedLayout === "custom" && !isPresenter) {
-
+    if (meetingLayout === 'custom' && selectedLayout === 'custom' && !isPresenter) {
       if (meetingLayoutFocusedCamera !== prevProps.meetingLayoutFocusedCamera
         || meetingLayoutUpdatedAt !== prevProps.meetingLayoutUpdatedAt) {
-
         layoutContextDispatch({
           type: ACTIONS.SET_FOCUSED_CAMERA_ID,
           value: meetingLayoutFocusedCamera,
@@ -212,7 +207,6 @@ class PushLayoutEngine extends React.Component {
 
       if (meetingLayoutCameraPosition !== prevProps.meetingLayoutCameraPosition
         || meetingLayoutUpdatedAt !== prevProps.meetingLayoutUpdatedAt) {
-
         layoutContextDispatch({
           type: ACTIONS.SET_CAMERA_DOCK_POSITION,
           value: meetingLayoutCameraPosition,
@@ -221,8 +215,7 @@ class PushLayoutEngine extends React.Component {
 
       if (!equalDouble(meetingLayoutVideoRate, prevProps.meetingLayoutVideoRate)
         || meetingLayoutUpdatedAt !== prevProps.meetingLayoutUpdatedAt) {
-
-        let w, h;
+        let w; let h;
         if (horizontalPosition) {
           w = window.innerWidth * meetingLayoutVideoRate;
           h = cameraHeight;
@@ -245,13 +238,12 @@ class PushLayoutEngine extends React.Component {
             height: h,
             browserWidth: window.innerWidth,
             browserHeight: window.innerHeight,
-          }
+          },
         });
       }
 
       if (meetingPresentationIsOpen !== prevProps.meetingPresentationIsOpen
         || meetingLayoutUpdatedAt !== prevProps.meetingLayoutUpdatedAt) {
-
         layoutContextDispatch({
           type: ACTIONS.SET_PRESENTATION_IS_OPEN,
           value: meetingPresentationIsOpen,
@@ -267,13 +259,16 @@ class PushLayoutEngine extends React.Component {
       || enforceLayout !== prevProps.enforceLayout
       || !equalDouble(presentationVideoRate, prevProps.presentationVideoRate);
 
-    if (pushLayout !== prevProps.pushLayout) { // push layout once after presenter toggles / special case where we set pushLayout to false in all viewers
+    // push layout once after presenter toggles
+    // special case where we set pushLayout to false in all viewers
+    if (pushLayout !== prevProps.pushLayout) {
       if (isModerator) {
         setPushLayout(pushLayout);
       }
     }
 
-    if (pushLayout && layoutChanged || pushLayout !== prevProps.pushLayout) { // change layout sizes / states
+    // change layout sizes / states
+    if ((pushLayout && layoutChanged) || pushLayout !== prevProps.pushLayout) {
       if (isPresenter) {
         setMeetingLayout();
       }
@@ -287,7 +282,7 @@ class PushLayoutEngine extends React.Component {
   render() {
     return null;
   }
-};
+}
 
 PushLayoutEngine.propTypes = propTypes;
 
