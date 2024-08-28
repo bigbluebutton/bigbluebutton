@@ -83,10 +83,10 @@ public:
 In BigBlueButton 3.0 we modified the architecture to shift the load away from the old frontend and backend bbb-html5 pools of services. Logs for the new services can be foud via:
 
 `journalctl -f -u bbb-html5.service`
-￼
-￼Akka-apps is responsible for most of the logic, so key info can be obtained via
-￼
-￼`journalctl -f -u bbb-apps-akka.service`
+
+Akka-apps is responsible for most of the logic, so key info can be obtained via
+
+`journalctl -f -u bbb-apps-akka.service`
 
 `SYSTEMD_LESS=FRXMK journalctl -u bbb-graphql-middleware.service -f` can also be useful.
 
