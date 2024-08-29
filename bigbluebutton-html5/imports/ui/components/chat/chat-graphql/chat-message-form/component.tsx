@@ -16,6 +16,8 @@ import { layoutSelect } from '/imports/ui/components/layout/context';
 import { defineMessages, useIntl } from 'react-intl';
 import { useIsChatEnabled } from '/imports/ui/services/features';
 import { checkText } from 'smile2emoji';
+import { findDOMNode } from 'react-dom';
+
 import Styled from './styles';
 import deviceInfo from '/imports/utils/deviceInfo';
 import usePreviousValue from '/imports/ui/hooks/usePreviousValue';
@@ -130,6 +132,7 @@ const ChatMessageForm: React.FC<ChatMessageFormProps> = ({
   const [message, setMessage] = React.useState('');
   const [showEmojiPicker, setShowEmojiPicker] = React.useState(false);
   const emojiPickerRef = useRef<HTMLDivElement>(null);
+  const emojiPickerButtonRef = useRef(null);
   const [isTextAreaFocused, setIsTextAreaFocused] = React.useState(false);
   const textAreaRef: RefObject<TextareaAutosize> = useRef<TextareaAutosize>(null);
   const { isMobile } = deviceInfo;
@@ -396,7 +399,12 @@ const ChatMessageForm: React.FC<ChatMessageFormProps> = ({
 
     useEffect(() => {
       const handleClickOutside = (event: MouseEvent) => {
-        if (emojiPickerRef.current && !emojiPickerRef.current.contains(event.target as Node)) {
+        // eslint-disable-next-line react/no-find-dom-node
+        const button = findDOMNode(emojiPickerButtonRef.current);
+        if (
+          (emojiPickerRef.current && !emojiPickerRef.current.contains(event.target as Node))
+          && (button && !button.contains(event.target as Node))
+        ) {
           setShowEmojiPicker(false);
         }
       };
@@ -458,6 +466,7 @@ const ChatMessageForm: React.FC<ChatMessageFormProps> = ({
           />
           {ENABLE_EMOJI_PICKER ? (
             <Styled.EmojiButton
+              ref={emojiPickerButtonRef}
               onClick={() => setShowEmojiPicker(!showEmojiPicker)}
               icon="happy"
               color="light"
