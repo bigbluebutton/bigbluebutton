@@ -218,10 +218,11 @@ const BreakoutRoomUserAssignment: React.FC<ChildComponentProps> = ({
 
   const updateSortedRooms = () => {
     const newSortedRooms = { ...rooms };
-    Object.keys(newSortedRooms).forEach((roomNumber: string) => {
-      newSortedRooms[roomNumber] = {
-        ...newSortedRooms[roomNumber],
-        users: sortUsers(newSortedRooms[roomNumber].users),
+    Object.keys(newSortedRooms).forEach((roomNumber) => {
+      const roomNumberInt = parseInt(roomNumber, 10);
+      newSortedRooms[roomNumberInt] = {
+        ...newSortedRooms[roomNumberInt],
+        users: sortUsers(newSortedRooms[roomNumberInt].users),
       };
     });
     setSortedRooms(newSortedRooms);
