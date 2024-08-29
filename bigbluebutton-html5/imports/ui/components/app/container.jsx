@@ -19,14 +19,6 @@ import { SETTINGS } from '../../services/settings/enums';
 
 const AppContainer = (props) => {
   const {
-    actionsbar,
-    currentUserId,
-    shouldShowScreenshare: propsShouldShowScreenshare,
-    isModalOpen,
-    ...otherProps
-  } = props;
-
-  const {
     viewScreenshare,
   } = useSettings(SETTINGS.DATA_SAVING);
 
@@ -142,7 +134,7 @@ const AppContainer = (props) => {
           darkTheme,
           isPresentationEnabled,
         }}
-        {...otherProps}
+        {...props}
       />
     )
     : null;

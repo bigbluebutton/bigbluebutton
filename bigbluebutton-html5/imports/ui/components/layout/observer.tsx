@@ -14,19 +14,26 @@ import useSettings from '/imports/ui/services/settings/hooks/useSettings';
 import getFromUserSettings from '/imports/ui/services/users-settings';
 import useMeeting from '/imports/ui/core/hooks/useMeeting';
 import MediaService from '/imports/ui/components/media/service';
-import { useVideoStreamsCount } from '/imports/ui/components/video-provider/hooks';
-import { useIsPresentationEnabled, useIsScreenSharingEnabled } from '/imports/ui/services/features';
+import { useVideoStreams, useVideoStreamsCount } from '/imports/ui/components/video-provider/hooks';
+import { useIsChatEnabled, useIsPresentationEnabled, useIsScreenSharingEnabled } from '/imports/ui/services/features';
+import useUserChangedLocalSettings from '/imports/ui/services/settings/hooks/useUserChangedLocalSettings';
+import Session from '/imports/ui/services/storage/in-memory';
+import deviceInfo from '/imports/utils/deviceInfo';
 
 const MOBILE_MEDIA = 'only screen and (max-width: 40em)';
 
 const LayoutObserver: React.FC = () => {
   const layoutType = useRef<string | null>(null);
+  const checkedUserSettings = useRef(false);
   const layoutContextDispatch = layoutDispatch();
   const deviceType = layoutSelect((i: Layout) => i.deviceType);
   const cameraDockInput = layoutSelectInput((i: Input) => i.cameraDock);
   const sidebarContentInput = layoutSelectInput((i: Input) => i.sidebarContent);
   const presentationInput = layoutSelectInput((i: Input) => i.presentation);
   const sharedNotesInput = layoutSelectInput((i: Input) => i.sharedNotes);
+  const sidebarContent = layoutSelectInput((i: Input) => i.sidebarContent);
+  const { sidebarContentPanel } = sidebarContent;
+
   const [, setEnableResize] = useState(!window.matchMedia(MOBILE_MEDIA).matches);
   const { selectedLayout } = useSettings(SETTINGS.APPLICATION) as { selectedLayout: string };
   const {
@@ -37,8 +44,12 @@ const LayoutObserver: React.FC = () => {
   }));
 
   const isThereWebcam = useVideoStreamsCount() > 0;
+  const { streams: videoStream } = useVideoStreams();
   const isScreenSharingEnabled = useIsScreenSharingEnabled();
   const isPresentationEnabled = useIsPresentationEnabled();
+  const isChatEnabled = useIsChatEnabled();
+
+  const setLocalSettings = useUserChangedLocalSettings();
 
   const { numCameras } = cameraDockInput;
   const { isOpen: sidebarContentIsOpen } = sidebarContentInput;
@@ -185,6 +196,71 @@ const LayoutObserver: React.FC = () => {
       isScreenSharingEnabled,
       isPresentationEnabled,
     );
+  });
+
+  useEffect(() => {
+    layoutContextDispatch({
+      type: ACTIONS.SET_NUM_CAMERAS,
+      value: videoStream.length,
+    });
+  }, [videoStream.length]);
+
+  useEffect(() => {
+    if (Session.equals('layoutReady', true) && (sidebarContentPanel === PANELS.NONE)) {
+      if (!checkedUserSettings.current) {
+        const showAnimationsDefault = getFromUserSettings(
+          'bbb_show_animations_default',
+          window.meetingClientSettings.public.app.defaultSettings.application.animations,
+        );
+
+        const Settings = getSettingsSingletonInstance();
+        Settings.application.animations = showAnimationsDefault;
+        Settings.save(setLocalSettings);
+
+        if (getFromUserSettings('bbb_show_participants_on_login', window.meetingClientSettings.public.layout.showParticipantsOnLogin) && !deviceInfo.isPhone) {
+          if (isChatEnabled && getFromUserSettings('bbb_show_public_chat_on_login', !window.meetingClientSettings.public.chat.startClosed)) {
+            const PUBLIC_CHAT_ID = window.meetingClientSettings.public.chat.public_group_id;
+
+            layoutContextDispatch({
+              type: ACTIONS.SET_SIDEBAR_NAVIGATION_IS_OPEN,
+              value: true,
+            });
+            layoutContextDispatch({
+              type: ACTIONS.SET_SIDEBAR_CONTENT_IS_OPEN,
+              value: true,
+            });
+            layoutContextDispatch({
+              type: ACTIONS.SET_SIDEBAR_CONTENT_PANEL,
+              value: PANELS.CHAT,
+            });
+            layoutContextDispatch({
+              type: ACTIONS.SET_ID_CHAT_OPEN,
+              value: PUBLIC_CHAT_ID,
+            });
+          } else {
+            layoutContextDispatch({
+              type: ACTIONS.SET_SIDEBAR_NAVIGATION_IS_OPEN,
+              value: true,
+            });
+            layoutContextDispatch({
+              type: ACTIONS.SET_SIDEBAR_CONTENT_IS_OPEN,
+              value: false,
+            });
+          }
+        } else {
+          layoutContextDispatch({
+            type: ACTIONS.SET_SIDEBAR_NAVIGATION_IS_OPEN,
+            value: false,
+          });
+          layoutContextDispatch({
+            type: ACTIONS.SET_SIDEBAR_CONTENT_IS_OPEN,
+            value: false,
+          });
+        }
+
+        checkedUserSettings.current = true;
+      }
+    }
   });
 
   return null;

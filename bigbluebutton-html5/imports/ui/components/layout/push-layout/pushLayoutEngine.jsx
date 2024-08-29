@@ -58,7 +58,7 @@ const propTypes = {
 };
 
 const PushLayoutEngine = (props) => {
-  const prevProps = usePreviousValue(props);
+  const prevProps = usePreviousValue(props) || {};
 
   const {
     cameraWidth,
@@ -320,7 +320,7 @@ const PushLayoutEngineContainer = (props) => {
     cameraDockPlacement: meetingLayoutCameraPosition,
     cameraDockAspectRatio: meetingLayoutVideoRate,
     cameraWithFocus: meetingLayoutFocusedCamera,
-    presentationMinimized: meetingPresentationIsOpen,
+    presentationMinimized: meetingPresentationMinimized,
   } = (currentMeeting?.layout || {});
 
   const { isOpen: presentationIsOpen } = presentationInput;
@@ -351,6 +351,7 @@ const PushLayoutEngineContainer = (props) => {
   };
 
   const enforceLayout = validateEnforceLayout(currentUserData);
+  const meetingPresentationIsOpen = !meetingPresentationMinimized;
 
   return (
     <PushLayoutEngine
