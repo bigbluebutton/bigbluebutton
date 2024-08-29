@@ -73,7 +73,7 @@ class ConnectionStatus {
 
   public setRttValue(value: number): void {
     if (value !== this.rttValue()) {
-      logger.debug({ logCode: 'stats_rtt_value_state' }, `RTT value changed to ${value}`);
+      logger.debug({ logCode: 'stats_rtt_value_state' }, `RTT value changed to ${value}ms`);
       this.rttValue(value);
     }
   }
@@ -103,7 +103,7 @@ class ConnectionStatus {
 
   public setRttStatus(value: string): void {
     if (value !== this.rttStatus()) {
-      logger.info({ logCode: 'stats_rtt_status_state' }, `Connection status changed to ${value} (rtt=${this.rttValue()})`);
+      logger.info({ logCode: 'stats_rtt_status_state' }, `Connection status changed to ${value} (rtt=${this.rttValue()}ms)`);
       this.rttStatus(value);
     }
   }
