@@ -180,6 +180,12 @@ const intlMessages = defineMessages({
 
 const isMe = (intId: string) => intId === Auth.userID;
 
+type User = {
+  userId: string;
+  name: string;
+  isModerator: boolean;
+};
+
 const BreakoutRoomUserAssignment: React.FC<ChildComponentProps> = ({
   moveUser,
   rooms,
@@ -201,8 +207,8 @@ const BreakoutRoomUserAssignment: React.FC<ChildComponentProps> = ({
   const intl = useIntl();
   const [sortedRooms, setSortedRooms] = useState(rooms);
 
-  const sortUsers = (user: Array<T>) => {
-    return [...user].sort((a, b) => {
+  const sortUsers = (users: User[]) => {
+    return [...users].sort((a, b) => {
       if (a.isModerator !== b.isModerator) {
         return a.isModerator ? -1 : 1;
       }
