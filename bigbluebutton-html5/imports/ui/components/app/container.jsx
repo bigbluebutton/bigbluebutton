@@ -7,39 +7,21 @@ import { useIsPresentationEnabled, useIsScreenSharingEnabled, useIsExternalVideo
 import useCurrentUser from '/imports/ui/core/hooks/useCurrentUser';
 import useMeeting from '/imports/ui/core/hooks/useMeeting';
 import { ACTIONS, LAYOUT_TYPE } from '/imports/ui/components/layout/enums';
-import { useMutation, useReactiveVar } from '@apollo/client';
 import {
-  layoutSelect,
   layoutSelectInput,
   layoutSelectOutput,
   layoutDispatch,
 } from '../layout/context';
-import { SET_SYNC_WITH_PRESENTER_LAYOUT, SET_LAYOUT_PROPS } from './mutations';
 import useSetSpeechOptions from '../audio/audio-graphql/hooks/useSetSpeechOptions';
 
 import App from './component';
-import useUserChangedLocalSettings from '../../services/settings/hooks/useUserChangedLocalSettings';
 import { PINNED_PAD_SUBSCRIPTION } from '../notes/queries';
-import connectionStatus from '../../core/graphql/singletons/connectionStatus';
 import useDeduplicatedSubscription from '../../core/hooks/useDeduplicatedSubscription';
 import useSettings from '../../services/settings/hooks/useSettings';
 import { SETTINGS } from '../../services/settings/enums';
-import { useStorageKey } from '../../services/storage/hooks';
 import { useVideoStreamsCount } from '../video-provider/hooks';
 
-const currentUserEmoji = (currentUser) => (currentUser
-  ? {
-    status: currentUser.reactionEmoji,
-    changedAt: currentUser.reactionEmojiTime,
-  }
-  : {
-    status: 'none',
-    changedAt: null,
-  }
-);
-
 const AppContainer = (props) => {
-  const LAYOUT_CONFIG = window.meetingClientSettings.public.layout;
   const layoutType = useRef(null);
 
   const {
@@ -75,33 +57,16 @@ const AppContainer = (props) => {
   }));
 
   const meetingLayout = LAYOUT_TYPE[currentMeeting?.layout.currentLayoutType];
-  const meetingLayoutUpdatedAt = new Date(currentMeeting?.layout.updatedAt).getTime();
-  const meetingPresentationIsOpen = !currentMeeting?.layout.presentationMinimized;
   const presentationRestoreOnUpdate = getFromUserSettings(
     'bbb_force_restore_presentation_on_new_events',
     window.meetingClientSettings.public.presentation.restoreOnUpdate,
   );
 
-  const {
-    propagateLayout: pushLayoutMeeting,
-    cameraDockIsResizing: isMeetingLayoutResizing,
-    cameraDockPlacement: meetingLayoutCameraPosition,
-    cameraDockAspectRatio: meetingLayoutVideoRate,
-    cameraWithFocus: meetingLayoutFocusedCamera,
-  } = (currentMeeting?.layout || {});
-
-  const isLargeFont = useStorageKey('isLargeFont');
-  const ignorePollNotifications = useStorageKey('ignorePollNotifications');
-
   const NOTES_CONFIG = window.meetingClientSettings.public.notes;
 
   const {
     selectedLayout,
-    pushLayout,
-    chatAudioAlerts,
-    chatPushAlerts,
     darkTheme,
-    fontSize = '16px',
   } = useSettings(SETTINGS.APPLICATION);
 
   const { partialUtterances, minUtteranceLength } = useSettings(SETTINGS.TRANSCRIPTION);
@@ -111,16 +76,10 @@ const AppContainer = (props) => {
   const sidebarNavigation = layoutSelectInput((i) => i.sidebarNavigation);
   const actionsBarStyle = layoutSelectOutput((i) => i.actionBar);
   const captionsStyle = layoutSelectOutput((i) => i.captions);
-  const cameraDock = layoutSelectOutput((i) => i.cameraDock);
-  const cameraDockInput = layoutSelectInput((i) => i.cameraDock);
   const presentation = layoutSelectInput((i) => i.presentation);
   const sharedNotesInput = layoutSelectInput((i) => i.sharedNotes);
-  const deviceType = layoutSelect((i) => i.deviceType);
   const layoutContextDispatch = layoutDispatch();
 
-  const [setSyncWithPresenterLayout] = useMutation(SET_SYNC_WITH_PRESENTER_LAYOUT);
-  const [setMeetingLayoutProps] = useMutation(SET_LAYOUT_PROPS);
-  const setLocalSettings = useUserChangedLocalSettings();
   const setSpeechOptions = useSetSpeechOptions();
   const { data: pinnedPadData } = useDeduplicatedSubscription(PINNED_PAD_SUBSCRIPTION);
   const isSharedNotesPinnedFromGraphql = !!pinnedPadData
@@ -140,19 +99,12 @@ const AppContainer = (props) => {
     inactivityWarningTimeoutSecs: user.inactivityWarningTimeoutSecs,
   }));
 
-  const isModerator = currentUserData?.isModerator;
   const isPresenter = currentUserData?.presenter;
-  const inactivityWarningDisplay = currentUserData?.inactivityWarningDisplay;
-  const inactivityWarningTimeoutSecs = currentUserData?.inactivityWarningTimeoutSecs;
 
-  const { sidebarContentPanel, isOpen: sidebarContentIsOpen } = sidebarContent;
-  const { sidebarNavPanel, isOpen: sidebarNavigationIsOpen } = sidebarNavigation;
+  const { isOpen: sidebarContentIsOpen } = sidebarContent;
+  const { isOpen: sidebarNavigationIsOpen } = sidebarNavigation;
   const { isOpen } = presentation;
   const presentationIsOpen = isOpen;
-
-  const { focusedId } = cameraDock;
-
-  const connected = useReactiveVar(connectionStatus.getConnectedStatusVar());
 
   useEffect(() => {
     if (
@@ -173,40 +125,6 @@ const AppContainer = (props) => {
     });
   }, [selectedLayout]);
 
-  const horizontalPosition = cameraDock.position === 'contentLeft' || cameraDock.position === 'contentRight';
-  // this is not exactly right yet
-  let presentationVideoRate;
-  if (horizontalPosition) {
-    presentationVideoRate = cameraDock.width / window.innerWidth;
-  } else {
-    presentationVideoRate = cameraDock.height / window.innerHeight;
-  }
-  presentationVideoRate = parseFloat(presentationVideoRate.toFixed(2));
-
-  const setPushLayout = () => {
-    setSyncWithPresenterLayout({
-      variables: {
-        syncWithPresenterLayout: pushLayout,
-      },
-    });
-  };
-
-  const setMeetingLayout = () => {
-    const { isResizing } = cameraDockInput;
-
-    setMeetingLayoutProps({
-      variables: {
-        layout: selectedLayout,
-        syncWithPresenterLayout: pushLayout,
-        presentationIsOpen,
-        isResizing,
-        cameraPosition: cameraDock.position || 'contentTop',
-        focusedCamera: focusedId,
-        presentationVideoRate,
-      },
-    });
-  };
-
   const isSharingVideo = currentMeeting?.componentsFlags.hasExternalVideo;
 
   useEffect(() => {
@@ -223,12 +141,6 @@ const AppContainer = (props) => {
   const shouldShowExternalVideo = isExternalVideoEnabled && isSharingVideo;
 
   const shouldShowGenericMainContent = !!genericMainContent.genericContentId;
-
-  const validateEnforceLayout = (currUser) => {
-    const layoutTypes = Object.keys(LAYOUT_TYPE);
-    const enforceLayout = currUser?.enforceLayout;
-    return enforceLayout && layoutTypes.includes(enforceLayout) ? enforceLayout : null;
-  };
 
   const shouldShowScreenshare = (viewScreenshare || isPresenter)
     && (currentMeeting?.componentsFlags?.hasScreenshare
@@ -260,69 +172,27 @@ const AppContainer = (props) => {
     ? (
       <App
         {...{
-          presentationRestoreOnUpdate,
-          hidePresentationOnJoin: getFromUserSettings('bbb_hide_presentation_on_join', LAYOUT_CONFIG.hidePresentationOnJoin),
           hideActionsBar: getFromUserSettings('bbb_hide_actions_bar', false),
-          hideNavBar: getFromUserSettings('bbb_hide_nav_bar', false),
           customStyle: getFromUserSettings('bbb_custom_style', false),
           isPhone: deviceInfo.isPhone,
-          isRTL: document.documentElement.getAttribute('dir') === 'rtl',
-          currentUserEmoji: currentUserEmoji(currentUser),
           currentUserAway: currentUser.away,
           currentUserRaiseHand: currentUser.raiseHand,
-          currentUserId: currentUser.userId,
-          User: currentUser,
           customStyleUrl,
-          connected,
           actionsBarStyle,
           captionsStyle,
-          setPushLayout,
-          setMeetingLayout,
-          meetingLayout,
           selectedLayout,
-          pushLayout,
-          pushLayoutMeeting,
-          meetingLayoutUpdatedAt,
           presentationIsOpen,
-          cameraPosition: cameraDock.position,
-          focusedCamera: focusedId,
-          presentationVideoRate,
-          cameraWidth: cameraDock.width,
-          cameraHeight: cameraDock.height,
-          cameraIsResizing: cameraDockInput.isResizing,
-          meetingPresentationIsOpen,
-          isMeetingLayoutResizing,
-          meetingLayoutCameraPosition,
-          meetingLayoutFocusedCamera,
-          meetingLayoutVideoRate,
-          horizontalPosition,
-          deviceType,
-          layoutContextDispatch,
-          sidebarNavPanel,
           sidebarNavigationIsOpen,
-          sidebarContentPanel,
           sidebarContentIsOpen,
           shouldShowExternalVideo,
           isPresenter,
-          numCameras: cameraDockInput.numCameras,
-          enforceLayout: validateEnforceLayout(currentUserData),
           speechLocale: currentUserData?.speechLocale,
-          isModerator,
           shouldShowScreenshare,
           isSharedNotesPinned,
           shouldShowPresentation,
-          setLocalSettings,
           genericMainContentId: genericMainContent.genericContentId,
           audioCaptions: <AudioCaptionsLiveContainer />,
-          inactivityWarningDisplay,
-          inactivityWarningTimeoutSecs,
-          setSpeechOptions,
-          chatPushAlerts,
-          chatAudioAlerts,
           darkTheme,
-          fontSize,
-          isLargeFont,
-          ignorePollNotifications,
           isPresentationEnabled,
         }}
         {...otherProps}

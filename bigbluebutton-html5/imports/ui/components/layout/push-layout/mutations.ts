@@ -9,7 +9,15 @@ export const SET_SYNC_WITH_PRESENTER_LAYOUT = gql`
 `;
 
 export const SET_LAYOUT_PROPS = gql`
-  mutation SetLayoutProps($layout: String!, $syncWithPresenterLayout: Boolean!, $presentationIsOpen: Boolean!, $isResizing: Boolean!, $cameraPosition: String!, $focusedCamera: String!, $presentationVideoRate: Float!) {
+  mutation SetLayoutProps(
+    $layout: String!,
+    $syncWithPresenterLayout: Boolean!,
+    $presentationIsOpen: Boolean!,
+    $isResizing: Boolean!,
+    $cameraPosition: String!,
+    $focusedCamera: String!,
+    $presentationVideoRate: Float!
+  ) {
     meetingLayoutSetProps(
       layout: $layout,
       syncWithPresenterLayout: $syncWithPresenterLayout,

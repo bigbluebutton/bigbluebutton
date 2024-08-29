@@ -202,72 +202,6 @@ class App extends Component {
       && (isPhone || isLayeredView.matches);
   }
 
-  mountPushLayoutEngine() {
-    const {
-      cameraWidth,
-      cameraHeight,
-      cameraIsResizing,
-      cameraPosition,
-      focusedCamera,
-      horizontalPosition,
-      isMeetingLayoutResizing,
-      isPresenter,
-      isModerator,
-      layoutContextDispatch,
-      meetingLayout,
-      meetingLayoutCameraPosition,
-      meetingLayoutFocusedCamera,
-      meetingLayoutVideoRate,
-      meetingPresentationIsOpen,
-      meetingLayoutUpdatedAt,
-      presentationIsOpen,
-      presentationVideoRate,
-      pushLayout,
-      pushLayoutMeeting,
-      selectedLayout,
-      setMeetingLayout,
-      setPushLayout,
-      shouldShowScreenshare,
-      shouldShowExternalVideo,
-      enforceLayout,
-      setLocalSettings,
-    } = this.props;
-
-    return (
-      <PushLayoutEngine
-        {...{
-          cameraWidth,
-          cameraHeight,
-          cameraIsResizing,
-          cameraPosition,
-          focusedCamera,
-          horizontalPosition,
-          isMeetingLayoutResizing,
-          isPresenter,
-          isModerator,
-          layoutContextDispatch,
-          meetingLayout,
-          meetingLayoutCameraPosition,
-          meetingLayoutFocusedCamera,
-          meetingLayoutVideoRate,
-          meetingPresentationIsOpen,
-          meetingLayoutUpdatedAt,
-          presentationIsOpen,
-          presentationVideoRate,
-          pushLayout,
-          pushLayoutMeeting,
-          selectedLayout,
-          setMeetingLayout,
-          setPushLayout,
-          shouldShowScreenshare,
-          shouldShowExternalVideo: !!shouldShowExternalVideo,
-          enforceLayout,
-          setLocalSettings,
-        }}
-      />
-    );
-  }
-
   renderDarkMode() {
     const { darkTheme } = this.props;
 
@@ -279,8 +213,6 @@ class App extends Component {
       intl,
       actionsBarStyle,
       hideActionsBar,
-      setPushLayout,
-      setMeetingLayout,
       presentationIsOpen,
       selectedLayout,
     } = this.props;
@@ -309,8 +241,6 @@ class App extends Component {
         }
       >
         <ActionsBarContainer
-          setPushLayout={setPushLayout}
-          setMeetingLayout={setMeetingLayout}
           showPushLayout={showPushLayoutButton && selectedLayout === 'custom'}
           presentationIsOpen={presentationIsOpen}
           setPresentationFitToWidth={this.setPresentationFitToWidth}
@@ -348,6 +278,7 @@ class App extends Component {
     const {
       customStyle,
       customStyleUrl,
+      shouldShowExternalVideo,
       shouldShowPresentation,
       shouldShowScreenshare,
       isSharedNotesPinned,
@@ -373,7 +304,10 @@ class App extends Component {
         <FloatingWindowContainer />
         <TimeSync />
         <Notifications />
-        {this.mountPushLayoutEngine()}
+        <PushLayoutEngine
+          shouldShowScreenshare={shouldShowScreenshare}
+          shouldShowExternalVideo={shouldShowExternalVideo}
+        />
         <LayoutEngine
           layoutType={selectedLayout}
           isPresentationEnabled={isPresentationEnabled}
