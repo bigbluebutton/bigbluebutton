@@ -105,10 +105,14 @@ const ChatMesssage: React.FC<ChatMessageProps> = ({
   }, [message, messageRef, markMessageAsSeenOnScrollEnd]);
 
   if (!message) return null;
-
-  const sameSender = (previousMessage?.user?.userId
-    || lastSenderPreviousPage) === message?.user?.userId;
+  const pluginMessageNotCustom = (previousMessage?.messageType !== ChatMessageType.PLUGIN
+    || !JSON.parse(previousMessage?.messageMetadata).custom);
+  const sameSender = ((previousMessage?.user?.userId
+    || lastSenderPreviousPage) === message?.user?.userId) && pluginMessageNotCustom;
   const isSystemSender = message.messageType === ChatMessageType.BREAKOUT_ROOM;
+  const currentPluginMessageMetadata = message.messageType === ChatMessageType.PLUGIN
+    && JSON.parse(message.messageMetadata);
+  const isCustomPluginMessage = currentPluginMessageMetadata.custom;
   const dateTime = new Date(message?.createdAt);
   const formattedTime = intl.formatTime(dateTime, {
     hour: 'numeric',
@@ -211,6 +215,23 @@ const ChatMesssage: React.FC<ChatMessageProps> = ({
           ),
         };
       }
+      case ChatMessageType.PLUGIN: {
+        return {
+          name: message.user?.name,
+          color: message.user?.color,
+          isModerator: message.user?.isModerator,
+          isSystemSender: false,
+          component: currentPluginMessageMetadata.custom
+            ? (<></>)
+            : (
+              <ChatMessageTextContent
+                emphasizedMessage={message.chatEmphasizedText}
+                text={message.message}
+                systemMsg={false}
+              />
+            ),
+        };
+      }
       case ChatMessageType.TEXT:
       default:
         return {
@@ -234,36 +255,42 @@ const ChatMesssage: React.FC<ChatMessageProps> = ({
       sameSender={sameSender}
       ref={messageRef}
       isPresentationUpload={messageContent.isPresentationUpload}
+      isCustomPluginMessage={isCustomPluginMessage}
     >
-      {(!message?.user || !sameSender) && (
+      {((!message?.user || !sameSender) && (
         message.messageType !== ChatMessageType.USER_AWAY_STATUS_MSG
         && message.messageType !== ChatMessageType.API
-        && message.messageType !== ChatMessageType.CHAT_CLEAR) && (
-          <ChatAvatar
-            avatar={message.user?.avatar}
-            color={messageContent.color}
-            moderator={messageContent.isModerator}
-          >
-            {!messageContent.avatarIcon ? (
-              !message.user || (message.user?.avatar.length === 0 ? messageContent.name.toLowerCase().slice(0, 2) : '')
-            ) : (
-              <i className={messageContent.avatarIcon} />
-            )}
-          </ChatAvatar>
+        && message.messageType !== ChatMessageType.CHAT_CLEAR
+        && !isCustomPluginMessage)
+      ) && (
+      <ChatAvatar
+        avatar={message.user?.avatar}
+        color={messageContent.color}
+        moderator={messageContent.isModerator}
+      >
+        {!messageContent.avatarIcon ? (
+          !message.user || (message.user?.avatar.length === 0 ? messageContent.name.toLowerCase().slice(0, 2) : '')
+        ) : (
+          <i className={messageContent.avatarIcon} />
+        )}
+      </ChatAvatar>
       )}
       <ChatContent
         ref={messageContentRef}
         sameSender={message?.user ? sameSender : false}
+        isCustomPluginMessage={isCustomPluginMessage}
         data-chat-message-id={message?.messageId}
       >
-        {message.messageType !== ChatMessageType.CHAT_CLEAR && (
-          <ChatMessageHeader
-            sameSender={message?.user ? sameSender : false}
-            name={messageContent.name}
-            isOnline={message.user?.isOnline ?? true}
-            dateTime={dateTime}
-          />
-        )}
+        {message.messageType !== ChatMessageType.CHAT_CLEAR
+          && !isCustomPluginMessage
+          && (
+            <ChatMessageHeader
+              sameSender={message?.user ? sameSender : false}
+              name={messageContent.name}
+              currentlyInMeeting={message.user?.currentlyInMeeting ?? true}
+              dateTime={dateTime}
+            />
+          )}
         <MessageItemWrapper>
           {messageContent.component}
           {messageReadFeedbackEnabled && (

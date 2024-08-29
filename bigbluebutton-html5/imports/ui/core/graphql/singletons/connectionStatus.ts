@@ -35,6 +35,13 @@ class ConnectionStatus {
     video: {},
   });
 
+  private userNetworkHistory = makeVar<Array<{
+    user: Pick<User, 'userId' | 'avatar' | 'isModerator' | 'color' | 'currentlyInMeeting' | 'name'>,
+    lastUnstableStatus: string,
+    lastUnstableStatusAt: Date | number,
+    clientNotResponding?: boolean,
+  }>>([]);
+
   private packetLossStatus = makeVar('normal');
 
   public setPacketLossStatus(value: string): void {
@@ -66,7 +73,7 @@ class ConnectionStatus {
 
   public setRttValue(value: number): void {
     if (value !== this.rttValue()) {
-      logger.debug({ logCode: 'stats_rtt_value_state' }, `RTT value changed to ${value}`);
+      logger.debug({ logCode: 'stats_rtt_value_state' }, `RTT value changed to ${value}ms`);
       this.rttValue(value);
     }
   }
@@ -96,7 +103,7 @@ class ConnectionStatus {
 
   public setRttStatus(value: string): void {
     if (value !== this.rttStatus()) {
-      logger.info({ logCode: 'stats_rtt_status_state' }, `Connection status changed to ${value} (rtt=${this.rttValue()})`);
+      logger.info({ logCode: 'stats_rtt_status_state' }, `Connection status changed to ${value} (rtt=${this.rttValue()}ms)`);
       this.rttStatus(value);
     }
   }
@@ -152,6 +159,32 @@ class ConnectionStatus {
 
   public getConnectedStatusVar() {
     return this.connected;
+  }
+
+  public addUserNetworkHistory(
+    user: User,
+    lastUnstableStatus: string,
+    lastUnstableStatusAt: Date | number,
+  ): void {
+    const userNetworkHistory = [...this.userNetworkHistory()];
+    userNetworkHistory.push({
+      user: {
+        userId: user.userId,
+        avatar: user.avatar,
+        isModerator: user.isModerator,
+        color: user.color,
+        currentlyInMeeting: user.currentlyInMeeting,
+        name: user.name,
+      },
+      lastUnstableStatus,
+      lastUnstableStatusAt,
+      clientNotResponding: false,
+    });
+    this.userNetworkHistory(userNetworkHistory);
+  }
+
+  public getUserNetworkHistory() {
+    return this.userNetworkHistory();
   }
 }
 

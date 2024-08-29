@@ -1,9 +1,9 @@
 package writer
 
 import (
+	"bbb-graphql-middleware/internal/common"
 	"bytes"
 	"encoding/json"
-	"github.com/iMDT/bbb-graphql-middleware/internal/common"
 	log "github.com/sirupsen/logrus"
 	"nhooyr.io/websocket"
 	"sync"

@@ -1,11 +1,15 @@
 import { useEffect, useRef } from 'react';
 import { useMutation } from '@apollo/client';
 import { UPDATE_CONNECTION_ALIVE_AT } from './mutations';
-import { getStatus, handleAudioStatsEvent, startMonitoringNetwork } from '/imports/ui/components/connection-status/service';
+import {
+  getStatus,
+  handleAudioStatsEvent,
+  startMonitoringNetwork,
+} from '/imports/ui/components/connection-status/service';
 import connectionStatus from '../../core/graphql/singletons/connectionStatus';
-import { useGetStats } from '../video-provider/hooks';
 
 import getBaseUrl from '/imports/ui/core/utils/getBaseUrl';
+import useCurrentUser from '../../core/hooks/useCurrentUser';
 
 const ConnectionStatus = () => {
   const STATS_INTERVAL = window.meetingClientSettings.public.stats.interval;
@@ -14,7 +18,15 @@ const ConnectionStatus = () => {
 
   const [updateConnectionAliveAtM] = useMutation(UPDATE_CONNECTION_ALIVE_AT);
 
-  const getVideoStreamsStats = useGetStats();
+  const {
+    data,
+  } = useCurrentUser((u) => ({
+    userId: u.userId,
+    avatar: u.avatar,
+    isModerator: u.isModerator,
+    color: u.color,
+    currentlyInMeeting: u.currentlyInMeeting,
+  }));
 
   const handleUpdateConnectionAliveAt = () => {
     const startTime = performance.now();
@@ -26,7 +38,7 @@ const ConnectionStatus = () => {
         if (res.ok && res.status === 200) {
           const rttLevels = window.meetingClientSettings.public.stats.rtt;
           const endTime = performance.now();
-          const networkRtt = endTime - startTime;
+          const networkRtt = Math.round(endTime - startTime);
           networkRttInMs.current = networkRtt;
           updateConnectionAliveAtM({
             variables: {
@@ -37,6 +49,14 @@ const ConnectionStatus = () => {
           connectionStatus.setRttValue(networkRtt);
           connectionStatus.setRttStatus(rttStatus);
           connectionStatus.setLastRttRequestSuccess(true);
+
+          if (Object.keys(rttLevels).includes(rttStatus)) {
+            connectionStatus.addUserNetworkHistory(
+              data,
+              rttStatus,
+              Date.now(),
+            );
+          }
         }
       })
       .catch(() => {
@@ -66,13 +86,11 @@ const ConnectionStatus = () => {
 
     if (STATS_ENABLED) {
       window.addEventListener('audiostats', handleAudioStatsEvent);
-      startMonitoringNetwork(getVideoStreamsStats);
+      startMonitoringNetwork();
     }
 
     return () => {
-      if (STATS_ENABLED) {
-        window.removeEventListener('audiostats', handleAudioStatsEvent);
-      }
+      window.removeEventListener('audiostats', handleAudioStatsEvent);
 
       if (timeoutRef.current) {
         clearTimeout(timeoutRef.current);

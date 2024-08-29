@@ -2,11 +2,14 @@ import React, { PureComponent } from 'react';
 import { FormattedTime, defineMessages, injectIntl } from 'react-intl';
 import PropTypes from 'prop-types';
 import UserAvatar from '/imports/ui/components/user-avatar/component';
+import CommonIcon from '/imports/ui/components/common/icon/component';
+import TooltipContainer from '/imports/ui/components/common/tooltip/container';
 import Icon from '/imports/ui/components/connection-status/icon/component';
-import Service from '../service';
+import { getHelp } from '../service';
 import Styled from './styles';
 import ConnectionStatusHelper from '../status-helper/component';
 import Auth from '/imports/ui/services/auth';
+import connectionStatus from '../../../core/graphql/singletons/connectionStatus';
 
 const MIN_TIMEOUT = 3000;
 
@@ -131,6 +134,10 @@ const intlMessages = defineMessages({
     id: 'app.connection-status.clientNotRespondingWarning',
     description: 'Text for Client not responding warning',
   },
+  noEvent: {
+    id: 'app.connection-status.connectionStatusNoEvent',
+    description: 'Text for inform on status without event ot time of occurrence',
+  },
 });
 
 const propTypes = {
@@ -140,15 +147,15 @@ const propTypes = {
   }).isRequired,
 };
 
-const isConnectionStatusEmpty = (connectionStatus) => {
+const isConnectionStatusEmpty = (connectionStatusParam) => {
   // Check if it's defined
-  if (!connectionStatus) return true;
+  if (!connectionStatusParam) return true;
 
   // Check if it's an array
-  if (!Array.isArray(connectionStatus)) return true;
+  if (!Array.isArray(connectionStatusParam)) return true;
 
   // Check if is empty
-  if (connectionStatus.length === 0) return true;
+  if (connectionStatusParam.length === 0) return true;
 
   return false;
 };
@@ -159,27 +166,11 @@ class ConnectionStatusComponent extends PureComponent {
 
     const { intl } = this.props;
 
-    this.help = Service.getHelp();
+    this.help = getHelp();
     this.state = {
       selectedTab: 0,
       hasNetworkData: true,
       copyButtonText: intl.formatMessage(intlMessages.copy),
-      networkData: {
-        user: {
-
-        },
-        audio: {
-          audioCurrentUploadRate: 0,
-          audioCurrentDownloadRate: 0,
-          jitter: 0,
-          packetsLost: 0,
-          transportStats: {},
-        },
-        video: {
-          videoCurrentUploadRate: 0,
-          videoCurrentDownloadRate: 0,
-        },
-      },
     };
     this.setButtonMessage = this.setButtonMessage.bind(this);
     this.rateInterval = null;
@@ -259,11 +250,14 @@ class ConnectionStatusComponent extends PureComponent {
 
     const { selectedTab } = this.state;
 
-    if (isConnectionStatusEmpty(connectionData)) return this.renderEmpty();
+    if (isConnectionStatusEmpty(connectionData) && selectedTab !== 1) return this.renderEmpty();
 
     let connections = connectionData;
     if (selectedTab === 1) {
       connections = connections.filter((curr) => curr.user.userId === Auth.userID);
+      if (isConnectionStatusEmpty(connections)) {
+        connections = connectionStatus.getUserNetworkHistory();
+      }
       if (isConnectionStatusEmpty(connections)) return this.renderEmpty();
     }
 
@@ -289,19 +283,25 @@ class ConnectionStatusComponent extends PureComponent {
 
             <Styled.Name>
               <Styled.Text
-                offline={!conn.user.isOnline}
-                data-test={!conn.user.isOnline ? "offlineUser" : null}
+                offline={!conn.user.currentlyInMeeting}
+                data-test={!conn.user.currentlyInMeeting ? 'offlineUser' : null}
               >
                 {conn.user.name}
-                {!conn.user.isOnline ? ` (${intl.formatMessage(intlMessages.offline)})` : null}
+                {!conn.user.currentlyInMeeting ? ` (${intl.formatMessage(intlMessages.offline)})` : null}
               </Styled.Text>
             </Styled.Name>
-            <Styled.Status aria-label={`${intl.formatMessage(intlMessages.title)} ${conn.lastUnstableStatus}`}>
-              <Styled.Icon>
-                <Icon level={conn.lastUnstableStatus} />
-              </Styled.Icon>
-            </Styled.Status>
-            {conn.clientNotResponding && conn.user.isOnline
+            {
+              !conn.clientNotResponding ? (
+                <Styled.Status
+                  aria-label={`${intl.formatMessage(intlMessages.title)} ${conn.lastUnstableStatus}`}
+                >
+                  <Styled.Icon>
+                    <Icon level={conn.lastUnstableStatus} />
+                  </Styled.Icon>
+                </Styled.Status>
+              ) : null
+            }
+            {conn.clientNotResponding && conn.user.currentlyInMeeting
               ? (
                 <Styled.ClientNotRespondingText>
                   {intl.formatMessage(intlMessages.clientNotResponding)}
@@ -310,13 +310,22 @@ class ConnectionStatusComponent extends PureComponent {
           </Styled.Left>
           <Styled.Right>
             <Styled.Time>
-              {conn.lastUnstableStatusAt
-                ? (
-                  <time dateTime={dateTime}>
-                    <FormattedTime value={dateTime} />
-                  </time>
-                )
-                : null}
+              {
+                conn.lastUnstableStatusAt
+                  ? (
+                    <time dateTime={dateTime}>
+                      <FormattedTime value={dateTime} />
+                    </time>
+                  )
+                  : (
+                    <TooltipContainer
+                      placement="top"
+                      title={intl.formatMessage(intlMessages.noEvent)}
+                    >
+                      <CommonIcon iconName="close" rotate={false} />
+                    </TooltipContainer>
+                  )
+              }
             </Styled.Time>
           </Styled.Right>
         </Styled.Item>
@@ -449,7 +458,9 @@ class ConnectionStatusComponent extends PureComponent {
           disabled={!hasNetworkData}
           role="button"
           data-test="copyStats"
+          // eslint-disable-next-line react/jsx-no-bind
           onClick={this.copyNetworkData.bind(this)}
+          // eslint-disable-next-line react/jsx-no-bind
           onKeyPress={this.copyNetworkData.bind(this)}
           tabIndex={0}
         >
@@ -502,8 +513,7 @@ class ConnectionStatusComponent extends PureComponent {
                   <Styled.ConnectionTabSelector selectedClassName="is-selected">
                     <span id="session-logs-tab">{intl.formatMessage(intlMessages.sessionLogs)}</span>
                   </Styled.ConnectionTabSelector>
-                )
-              }
+                )}
             </Styled.ConnectionTabList>
             <Styled.ConnectionTabPanel selectedClassName="is-selected">
               <div>
@@ -519,8 +529,7 @@ class ConnectionStatusComponent extends PureComponent {
                 <Styled.ConnectionTabPanel selectedClassName="is-selected">
                   <ul>{this.renderConnections()}</ul>
                 </Styled.ConnectionTabPanel>
-              )
-            }
+              )}
           </Styled.ConnectionTabs>
         </Styled.Container>
       </Styled.ConnectionStatusModal>

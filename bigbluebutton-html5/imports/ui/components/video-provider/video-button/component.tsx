@@ -7,6 +7,7 @@ import { debounce } from '/imports/utils/debounce';
 import BBBMenu from '/imports/ui/components/common/menu/component';
 import Button from '/imports/ui/components/common/button/component';
 import VideoPreviewContainer from '/imports/ui/components/video-preview/container';
+import PreviewService from '/imports/ui/components/video-preview/service';
 import { CameraSettingsDropdownItemType } from 'bigbluebutton-html-plugin-sdk/dist/cjs/extensible-areas/camera-settings-dropdown-item/enums';
 import { getSettingsSingletonInstance } from '/imports/ui/services/settings';
 import { CameraSettingsDropdownInterface } from 'bigbluebutton-html-plugin-sdk';
@@ -68,6 +69,7 @@ interface JoinVideoButtonProps {
   exitVideo: () => void;
   stopVideo: (cameraId?: string | undefined) => void;
   intl: IntlShape;
+  videoConnecting: boolean; // Added videoConnecting prop
 }
 
 const JoinVideoButton: React.FC<JoinVideoButtonProps> = ({
@@ -80,6 +82,7 @@ const JoinVideoButton: React.FC<JoinVideoButtonProps> = ({
   setLocalSettings,
   exitVideo: exit,
   stopVideo,
+  videoConnecting, // Added videoConnecting prop
 }) => {
   const { isMobile } = deviceInfo;
   const isMobileSharingCamera = hasVideoStream && isMobile;
@@ -119,6 +122,7 @@ const JoinVideoButton: React.FC<JoinVideoButtonProps> = ({
       case 'connected':
       default:
         if (exitVideo()) {
+          PreviewService.clearStreams();
           exit();
         } else {
           setForceOpen(isMobileSharingCamera);
@@ -227,6 +231,7 @@ const JoinVideoButton: React.FC<JoinVideoButtonProps> = ({
           size="lg"
           circle
           disabled={!!disableReason}
+          loading={videoConnecting}
         />
         {renderUserActions()}
       </Styled.OffsetBottom>

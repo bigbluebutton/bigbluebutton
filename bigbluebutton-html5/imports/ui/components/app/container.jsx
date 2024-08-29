@@ -22,11 +22,10 @@ import useUserChangedLocalSettings from '../../services/settings/hooks/useUserCh
 import { PINNED_PAD_SUBSCRIPTION } from '../notes/queries';
 import connectionStatus from '../../core/graphql/singletons/connectionStatus';
 import useDeduplicatedSubscription from '../../core/hooks/useDeduplicatedSubscription';
-import VideoStreamsState from '../video-provider/state';
 import useSettings from '../../services/settings/hooks/useSettings';
 import { SETTINGS } from '../../services/settings/enums';
 import { useStorageKey } from '../../services/storage/hooks';
-import useMuteMicrophone from '../audio/audio-graphql/hooks/useMuteMicrophone';
+import { useVideoStreamsCount } from '../video-provider/hooks';
 
 const currentUserEmoji = (currentUser) => (currentUser
   ? {
@@ -128,8 +127,7 @@ const AppContainer = (props) => {
   const isSharedNotesPinnedFromGraphql = !!pinnedPadData
     && pinnedPadData.sharedNotes[0]?.sharedNotesExtId === NOTES_CONFIG.id;
   const isSharedNotesPinned = sharedNotesInput?.isPinned && isSharedNotesPinnedFromGraphql;
-  const isThereWebcam = VideoStreamsState.getStreams().length > 0;
-  const muteMicrophone = useMuteMicrophone();
+  const isThereWebcam = useVideoStreamsCount() > 0;
   const isScreenSharingEnabled = useIsScreenSharingEnabled();
   const isExternalVideoEnabled = useIsExternalVideoEnabled();
   const isPresentationEnabled = useIsPresentationEnabled();
@@ -222,27 +220,6 @@ const AppContainer = (props) => {
       isPresentationEnabled,
     );
   });
-
-  useEffect(() => {
-    if (isSharingVideo && !hasExternalVideoOnLayout) {
-      layoutContextDispatch({
-        type: ACTIONS.SET_PILE_CONTENT_FOR_PRESENTATION_AREA,
-        value: {
-          content: PRESENTATION_AREA.EXTERNAL_VIDEO,
-          open: true,
-        },
-      });
-      layoutContextDispatch({
-        type: ACTIONS.SET_HAS_EXTERNAL_VIDEO,
-        value: true,
-      });
-    } else if (hasExternalVideoOnLayout) {
-      layoutContextDispatch({
-        type: ACTIONS.SET_HAS_EXTERNAL_VIDEO,
-        value: false,
-      });
-    }
-  }, [isSharingVideo]);
 
   const shouldShowExternalVideo = isExternalVideoEnabled && isSharingVideo;
 
@@ -347,7 +324,6 @@ const AppContainer = (props) => {
           fontSize,
           isLargeFont,
           ignorePollNotifications,
-          muteMicrophone,
           isPresentationEnabled,
         }}
         {...otherProps}

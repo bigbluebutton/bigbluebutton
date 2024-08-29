@@ -49,17 +49,6 @@ const GlobalStyle = createGlobalStyle`
     }
   }
 
-  .permissionsOverlay {
-    position: fixed;
-    z-index: 1002;
-    top: 0;
-    bottom: 0;
-    left: 0;
-    right: 0;
-    background-color: rgba(0, 0, 0, .85);
-    animation: fade-in .5s ease-in;
-  }
-
   .modalOverlay {
     z-index: 1000;
     display: flex;

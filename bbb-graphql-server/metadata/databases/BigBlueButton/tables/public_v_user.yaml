@@ -83,7 +83,7 @@ select_permissions:
         - hasDrawPermissionOnCurrentPage
         - isDialIn
         - isModerator
-        - isOnline
+        - currentlyInMeeting
         - isRunningEchoTest
         - joined
         - locked

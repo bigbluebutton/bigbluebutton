@@ -111,10 +111,6 @@ class FromAkkaAppsMsgSenderActor(msgSender: MessageSender)
       case UserRespondedToPollRecordMsg.NAME =>
       //==================================================================
 
-      case ValidateAuthTokenRespMsg.NAME =>
-        msgSender.send(fromAkkaAppsRedisChannel, json) // needed for cases when single nodejs process is running (like in development)
-        msgSender.send("from-akka-apps-frontend-redis-channel", json)
-
       // Message duplicated for frontend and backend processes
       case MeetingCreatedEvtMsg.NAME =>
         msgSender.send(fromAkkaAppsRedisChannel, json)

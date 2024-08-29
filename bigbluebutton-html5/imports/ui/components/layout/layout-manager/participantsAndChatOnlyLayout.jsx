@@ -379,52 +379,55 @@ const ParticipantsAndChatOnlyLayout = (props) => {
   }, []);
 
   const init = () => {
-    const { sidebarContentPanel } = sidebarContentInput;
     layoutContextDispatch({
       type: ACTIONS.SET_LAYOUT_INPUT,
-      value: defaultsDeep(
-        {
-          sidebarNavigation: {
-            isOpen:
-              input.sidebarNavigation.isOpen || sidebarContentPanel !== PANELS.NONE || false,
-          },
-          sidebarContent: {
-            isOpen: sidebarContentPanel !== PANELS.NONE,
-            sidebarContentPanel,
-          },
-          SidebarContentHorizontalResizer: {
-            isOpen: false,
-          },
-          presentation: {
-            isOpen: false,
-            slidesLength: presentationInput.slidesLength,
-            currentSlide: {
-              ...presentationInput.currentSlide,
+      value: (prevInput) => {
+        const { sidebarNavigation, sidebarContent, presentation } = prevInput;
+        const { sidebarContentPanel } = sidebarContent;
+        return defaultsDeep(
+          {
+            sidebarNavigation: {
+              isOpen:
+                sidebarNavigation.isOpen || sidebarContentPanel !== PANELS.NONE || false,
             },
-            width: 0,
-            height: 0,
+            sidebarContent: {
+              isOpen: sidebarContentPanel !== PANELS.NONE,
+              sidebarContentPanel,
+            },
+            SidebarContentHorizontalResizer: {
+              isOpen: false,
+            },
+            presentation: {
+              isOpen: false,
+              slidesLength: presentation.slidesLength,
+              currentSlide: {
+                ...presentation.currentSlide,
+              },
+              width: 0,
+              height: 0,
+            },
+            cameraDock: {
+              numCameras: 0,
+            },
+            externalVideo: {
+              hasExternalVideo: false,
+              width: 0,
+              height: 0,
+            },
+            genericMainContent: {
+              genericContentId: undefined,
+              width: 0,
+              height: 0,
+            },
+            screenShare: {
+              hasScreenShare: false,
+              width: 0,
+              height: 0,
+            },
           },
-          cameraDock: {
-            numCameras: 0,
-          },
-          externalVideo: {
-            hasExternalVideo: false,
-            width: 0,
-            height: 0,
-          },
-          genericMainContent: {
-            genericContentId: undefined,
-            width: 0,
-            height: 0,
-          },
-          screenShare: {
-            hasScreenShare: false,
-            width: 0,
-            height: 0,
-          },
-        },
-        INITIAL_INPUT_STATE,
-      ),
+          INITIAL_INPUT_STATE,
+        );
+      },
     });
     Session.setItem('layoutReady', true);
     throttledCalculatesLayout();

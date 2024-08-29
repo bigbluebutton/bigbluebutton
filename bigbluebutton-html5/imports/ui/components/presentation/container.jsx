@@ -247,5 +247,8 @@ const PresentationContainer = (props) => {
 export default PresentationContainer;
 
 PresentationContainer.propTypes = {
-  presentationIsOpen: PropTypes.bool.isRequired,
+  presentationIsOpen: PropTypes.bool,
+};
+PresentationContainer.defaultProps = {
+  presentationIsOpen: true,
 };

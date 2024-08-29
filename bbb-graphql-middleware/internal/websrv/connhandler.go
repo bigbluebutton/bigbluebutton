@@ -1,18 +1,18 @@
 package websrv
 
 import (
+	"bbb-graphql-middleware/internal/akka_apps"
+	"bbb-graphql-middleware/internal/bbb_web"
+	"bbb-graphql-middleware/internal/common"
+	"bbb-graphql-middleware/internal/gql_actions"
+	"bbb-graphql-middleware/internal/hasura"
+	"bbb-graphql-middleware/internal/websrv/reader"
+	"bbb-graphql-middleware/internal/websrv/writer"
 	"bytes"
 	"context"
 	"encoding/json"
 	"fmt"
-	"github.com/iMDT/bbb-graphql-middleware/internal/akka_apps"
-	"github.com/iMDT/bbb-graphql-middleware/internal/bbb_web"
-	"github.com/iMDT/bbb-graphql-middleware/internal/common"
-	"github.com/iMDT/bbb-graphql-middleware/internal/gql_actions"
-	"github.com/iMDT/bbb-graphql-middleware/internal/hasura"
-	"github.com/iMDT/bbb-graphql-middleware/internal/msgpatch"
-	"github.com/iMDT/bbb-graphql-middleware/internal/websrv/reader"
-	"github.com/iMDT/bbb-graphql-middleware/internal/websrv/writer"
+	"github.com/prometheus/client_golang/prometheus"
 	log "github.com/sirupsen/logrus"
 	"net/http"
 	"nhooyr.io/websocket"
@@ -35,8 +35,6 @@ var BrowserConnectionsMutex = &sync.RWMutex{}
 // This is the connection that comes from browser
 func ConnectionHandler(w http.ResponseWriter, r *http.Request) {
 	log := log.WithField("_routine", "ConnectionHandler")
-	common.ActivitiesOverviewStarted("__BrowserConnection")
-	defer common.ActivitiesOverviewCompleted("__BrowserConnection")
 
 	// Obtain id for this connection
 	lastBrowserConnectionId++
@@ -60,6 +58,13 @@ func ConnectionHandler(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		log.Errorf("error: %v", err)
 	}
+
+	if common.HasReachedMaxGlobalConnections() {
+		common.WsConnectionRejectedCounter.With(prometheus.Labels{"reason": "limit of server connections exceeded"}).Inc()
+		browserWsConn.Close(websocket.StatusInternalError, "limit of server connections exceeded")
+		return
+	}
+
 	defer browserWsConn.Close(websocket.StatusInternalError, "the sky is falling")
 
 	var thisConnection = common.BrowserConnection{
@@ -80,7 +85,6 @@ func ConnectionHandler(w http.ResponseWriter, r *http.Request) {
 	BrowserConnectionsMutex.Unlock()
 
 	defer func() {
-		msgpatch.RemoveConnCacheDir(browserConnectionId)
 		BrowserConnectionsMutex.Lock()
 		_, bcExists := BrowserConnections[browserConnectionId]
 		if bcExists {
@@ -119,6 +123,8 @@ func ConnectionHandler(w http.ResponseWriter, r *http.Request) {
 
 	//Check authorization and obtain user session variables from bbb-web
 	if errorOnInitConnection := connectionInitHandler(&thisConnection); errorOnInitConnection != nil {
+		common.WsConnectionRejectedCounter.With(prometheus.Labels{"reason": errorOnInitConnection.Error()}).Inc()
+
 		//If the server wishes to reject the connection it is recommended to close the socket with `4403: Forbidden`.
 		//https://github.com/enisdenjo/graphql-ws/blob/63881c3372a3564bf42040e3f572dd74e41b2e49/PROTOCOL.md?plain=1#L36
 		wsError := &websocket.CloseError{
@@ -128,6 +134,11 @@ func ConnectionHandler(w http.ResponseWriter, r *http.Request) {
 		browserWsConn.Close(wsError.Code, wsError.Reason)
 		browserConnectionContextCancel()
 	}
+
+	common.WsConnectionAcceptedCounter.Inc()
+
+	common.AddUserConnection(thisConnection.SessionToken)
+	defer common.RemoveUserConnection(thisConnection.SessionToken)
 
 	// Ensure a hasura client is running while the browser is connected
 	go func() {
@@ -297,6 +308,10 @@ func connectionInitHandler(browserConnection *common.BrowserConnection) error {
 			var sessionToken, existsSessionToken = headersAsMap["X-Session-Token"].(string)
 			if !existsSessionToken {
 				return fmt.Errorf("X-Session-Token header missing on init connection")
+			}
+
+			if common.HasReachedMaxUserConnections(sessionToken) {
+				return fmt.Errorf("too many connections")
 			}
 
 			var clientSessionUUID, existsClientSessionUUID = headersAsMap["X-ClientSessionUUID"].(string)

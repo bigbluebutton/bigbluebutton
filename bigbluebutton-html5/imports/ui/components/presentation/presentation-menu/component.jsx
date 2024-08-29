@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import PropTypes from 'prop-types';
 import { defineMessages, injectIntl } from 'react-intl';
-import { toPng } from 'html-to-image';
+import { toPng, toSvg } from 'html-to-image';
 import { toast } from 'react-toastify';
 import logger from '/imports/startup/client/logger';
 import {
@@ -304,20 +304,30 @@ const PresentationMenu = (props) => {
             try {
               // filter shapes that are inside the slide
               const backgroundShape = tldrawAPI.getCurrentPageShapes().find((s) => s.id === `shape:BG-${slideNum}`);
-              const shapes = tldrawAPI.getCurrentPageShapes().filter(
-                (shape) => shape.x <= backgroundShape.props.w
-                  && shape.y <= backgroundShape.props.h
-                  && shape.x >= 0
-                  && shape.y >= 0,
+              const shapes = tldrawAPI.getCurrentPageShapes();
+              const pollShape = shapes.find((shape) => shape.type === 'poll');
+              const svgElem = await tldrawAPI.getSvg(
+                shapes
+                  .filter((shape) => shape.type !== 'poll')
+                  .map((shape) => shape.id),
               );
-              const svgElem = await tldrawAPI.getSvg(shapes.map((shape) => shape.id));
+              svgElem.setAttribute('width', backgroundShape.props.w);
+              svgElem.setAttribute('height', backgroundShape.props.h);
+              svgElem.setAttribute('viewBox', `1 1 ${backgroundShape.props.w} ${backgroundShape.props.h}`);
+              if (pollShape) {
+                const pollShapeElement = document.getElementById(pollShape.id);
+                const pollShapeSvg = await toSvg(pollShapeElement);
+                const pollShapeImage = document.createElementNS('http://www.w3.org/2000/svg', 'image');
+                pollShapeImage.setAttribute('href', pollShapeSvg);
+                pollShapeImage.setAttribute('width', pollShape.props.w);
+                pollShapeImage.setAttribute('height', pollShape.props.h);
+                pollShapeImage.setAttribute('x', pollShape.x);
+                pollShapeImage.setAttribute('y', pollShape.y);
+                svgElem.appendChild(pollShapeImage);
+              }
 
               // workaround for ios
               if (isIos || isSafari) {
-                svgElem.setAttribute('width', backgroundShape.props.w);
-                svgElem.setAttribute('height', backgroundShape.props.h);
-                svgElem.setAttribute('viewBox', `1 1 ${backgroundShape.props.w} ${backgroundShape.props.h}`);
-
                 const svgString = new XMLSerializer().serializeToString(svgElem);
                 const blob = new Blob([svgString], { type: 'image/svg+xml' });
 

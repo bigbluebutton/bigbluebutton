@@ -174,7 +174,7 @@ const Whiteboard = React.memo(function Whiteboard(props) {
   const previousTool = React.useRef(null);
 
   const THRESHOLD = 0.1;
-  const CAMERA_UPDATE_DELAY = 500;
+  const CAMERA_UPDATE_DELAY = 650;
   const lastKnownHeight = React.useRef(presentationAreaHeight);
   const lastKnownWidth = React.useRef(presentationAreaWidth);
 
@@ -572,7 +572,7 @@ const Whiteboard = React.memo(function Whiteboard(props) {
               currentPresentationPageRef.current?.scaledHeight
             );
 
-            zoomSlide(viewedRegionW, viewedRegionH, nextCam.x, nextCam.y);
+            zoomSlide(viewedRegionW, viewedRegionH, nextCam.x, nextCam.y, currentPresentationPageRef.current);
           }
         }
       },

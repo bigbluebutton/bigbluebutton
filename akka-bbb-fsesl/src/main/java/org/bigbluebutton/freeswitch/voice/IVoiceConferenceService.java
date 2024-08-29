@@ -59,6 +59,7 @@ public interface IVoiceConferenceService {
                            String callSession,
                            String clientSession,
                            String userId,
+                           String voiceUserId,
                            String callerName,
                            String callState,
                            String origCallerIdName,

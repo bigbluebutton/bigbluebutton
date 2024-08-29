@@ -12,8 +12,6 @@ import LocatedErrorBoundary from '/imports/ui/components/common/error-boundary/l
 import CustomUsersSettings from '/imports/ui/components/join-handler/custom-users-settings/component';
 import MeetingClient from '/client/meetingClient';
 
-import GraphqlToMakeVarAdapterManager from '/imports/ui/components/components-data/graphqlToMakeVarAdapterManager/component';
-
 const STARTUP_CRASH_METADATA = { logCode: 'app_startup_crash', logMessage: 'Possible startup crash' };
 const APP_CRASH_METADATA = { logCode: 'app_crash', logMessage: 'Possible app crash' };
 
@@ -27,11 +25,9 @@ const Main: React.FC = () => {
             <LocatedErrorBoundary Fallback={ErrorScreen} logMetadata={APP_CRASH_METADATA}>
               <ConnectionManager>
                 <PresenceManager>
-                  <GraphqlToMakeVarAdapterManager>
-                    <CustomUsersSettings>
-                      <MeetingClient />
-                    </CustomUsersSettings>
-                  </GraphqlToMakeVarAdapterManager>
+                  <CustomUsersSettings>
+                    <MeetingClient />
+                  </CustomUsersSettings>
                 </PresenceManager>
               </ConnectionManager>
             </LocatedErrorBoundary>

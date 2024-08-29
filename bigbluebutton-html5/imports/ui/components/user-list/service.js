@@ -20,11 +20,17 @@ const STARTED_CHAT_LIST_KEY = 'startedChatList';
 
 const CUSTOM_LOGO_URL_KEY = 'CustomLogoUrl';
 
+const CUSTOM_DARK_LOGO_URL_KEY = 'CustomDarkLogoUrl';
+
 export const setCustomLogoUrl = (path) => Storage.setItem(CUSTOM_LOGO_URL_KEY, path);
+
+export const setCustomDarkLogoUrl = (path) => Storage.setItem(CUSTOM_DARK_LOGO_URL_KEY, path);
 
 export const setModeratorOnlyMessage = (msg) => Storage.setItem('ModeratorOnlyMessage', msg);
 
 const getCustomLogoUrl = () => Storage.getItem(CUSTOM_LOGO_URL_KEY);
+
+const getCustomDarkLogoUrl = () => Storage.getItem(CUSTOM_DARK_LOGO_URL_KEY);
 
 const sortByWhiteboardAccess = (a, b) => {
   const _a = a.whiteboardAccess;
@@ -398,8 +404,7 @@ const UserJoinedMeetingAlert = (obj) => {
 
   if (userJoinAudioAlerts) {
     AudioService.playAlertSound(`${window.meetingClientSettings.public.app.cdn
-      + window.meetingClientSettings.public.app.basename
-      + window.meetingClientSettings.public.app.instanceId}`
+      + window.meetingClientSettings.public.app.basename}`
       + '/resources/sounds/userJoin.mp3');
   }
 
@@ -428,8 +433,7 @@ const UserLeftMeetingAlert = (obj) => {
 
   if (userLeaveAudioAlerts) {
     AudioService.playAlertSound(`${window.meetingClientSettings.public.app.cdn
-      + window.meetingClientSettings.public.app.basename
-      + window.meetingClientSettings.public.app.instanceId}`
+      + window.meetingClientSettings.public.app.basename}`
       + '/resources/sounds/notify.mp3');
   }
 
@@ -455,6 +459,7 @@ export default {
   isPublicChat,
   roving,
   getCustomLogoUrl,
+  getCustomDarkLogoUrl,
   focusFirstDropDownItem,
   sortUsersByCurrent,
   UserJoinedMeetingAlert,

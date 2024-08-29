@@ -271,9 +271,9 @@ class Page {
     await expect(locator, description).toHaveCount(count, { timeout: ELEMENT_WAIT_LONGER_TIME });
   }
 
-  async hasValue(selector, value) {
+  async hasValue(selector, value, description) {
     const locator = await this.page.locator(selector);
-    await expect(locator).toHaveValue(value);
+    await expect(locator, description).toHaveValue(value);
   }
 
   async backgroundColorTest(selector, color) {
