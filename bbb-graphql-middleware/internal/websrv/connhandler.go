@@ -1,6 +1,7 @@
 package websrv
 
 import (
+	"bbb-graphql-middleware/config"
 	"bbb-graphql-middleware/internal/akka_apps"
 	"bbb-graphql-middleware/internal/bbb_web"
 	"bbb-graphql-middleware/internal/common"
@@ -16,7 +17,6 @@ import (
 	log "github.com/sirupsen/logrus"
 	"net/http"
 	"nhooyr.io/websocket"
-	"os"
 	"strings"
 	"sync"
 	"time"
@@ -48,9 +48,10 @@ func ConnectionHandler(w http.ResponseWriter, r *http.Request) {
 	// Add sub-protocol
 	var acceptOptions websocket.AcceptOptions
 	acceptOptions.Subprotocols = append(acceptOptions.Subprotocols, "graphql-transport-ws")
-	bbbOrigin := os.Getenv("BBB_GRAPHQL_MIDDLEWARE_ORIGIN")
-	if bbbOrigin != "" {
-		acceptOptions.OriginPatterns = append(acceptOptions.OriginPatterns, bbbOrigin)
+
+	//Add Authorized Cross Origin Url
+	if config.GetConfig().Server.AuthorizedCrossOrigin != "" {
+		acceptOptions.OriginPatterns = append(acceptOptions.OriginPatterns, config.GetConfig().Server.AuthorizedCrossOrigin)
 	}
 
 	browserWsConn, err := websocket.Accept(w, r, &acceptOptions)

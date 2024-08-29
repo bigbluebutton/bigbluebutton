@@ -10,7 +10,6 @@ Type=simple
 User=bigbluebutton
 Group=bigbluebutton
 WorkingDirectory=/usr/local/bin
-EnvironmentFile=/etc/default/bbb-graphql-middleware
 ExecStart=/usr/local/bin/bbb-graphql-middleware
 ExecReload=/bin/kill -HUP $MAINPID
 Restart=always

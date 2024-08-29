@@ -1,6 +1,7 @@
 package writer
 
 import (
+	"bbb-graphql-middleware/config"
 	"bbb-graphql-middleware/internal/common"
 	"context"
 	"encoding/json"
@@ -8,26 +9,21 @@ import (
 	"github.com/prometheus/client_golang/prometheus"
 	log "github.com/sirupsen/logrus"
 	"nhooyr.io/websocket"
-	"os"
 	"strings"
 	"sync"
 )
 
 var allowedSubscriptions []string
 var deniedSubscriptions []string
-var jsonPatchDisabled = false
+var jsonPatchDisabled = config.GetConfig().Server.JsonPatchDisabled
 
 func init() {
-	if allowedSubscriptionsEnvVar := os.Getenv("BBB_GRAPHQL_MIDDLEWARE_ALLOWED_SUBSCRIPTIONS"); allowedSubscriptionsEnvVar != "" {
-		allowedSubscriptions = strings.Split(allowedSubscriptionsEnvVar, ",")
+	if config.GetConfig().Server.SubscriptionAllowedList != "" {
+		allowedSubscriptions = strings.Split(config.GetConfig().Server.SubscriptionAllowedList, ",")
 	}
 
-	if deniedSubscriptionsEnvVar := os.Getenv("BBB_GRAPHQL_MIDDLEWARE_DENIED_SUBSCRIPTIONS"); deniedSubscriptionsEnvVar != "" {
-		deniedSubscriptions = strings.Split(deniedSubscriptionsEnvVar, ",")
-	}
-
-	if jsonPatchDisabledEnvVar := os.Getenv("BBB_GRAPHQL_MIDDLEWARE_JSON_PATCH_DISABLED"); jsonPatchDisabledEnvVar != "" {
-		jsonPatchDisabled = true
+	if config.GetConfig().Server.SubscriptionsDeniedList != "" {
+		deniedSubscriptions = strings.Split(config.GetConfig().Server.SubscriptionsDeniedList, ",")
 	}
 }
 
