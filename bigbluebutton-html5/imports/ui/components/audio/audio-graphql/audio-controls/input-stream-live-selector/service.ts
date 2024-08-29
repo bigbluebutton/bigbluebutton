@@ -40,38 +40,54 @@ export const handleLeaveAudio = (meetingIsBreakout: boolean) => {
   );
 };
 
-const toggleMuteMicrophoneThrottled = throttle((
+const toggleMute = (
   muted: boolean,
   toggleVoice: (userId: string, muted: boolean) => void,
+  actionType = 'user_action',
 ) => {
-  Storage.setItem(MUTED_KEY, !muted);
-
   if (muted) {
-    logger.info(
-      {
-        logCode: 'audiomanager_unmute_audio',
-        extraInfo: { logType: 'user_action' },
-      },
-      'microphone unmuted by user',
-    );
+    if (AudioManager.inputDeviceId === 'listen-only') {
+      // User is in duplex audio, passive-sendrecv, but has no input device set
+      // Unmuting should not be allowed at all
+      return;
+    }
+
+    logger.info({
+      logCode: 'audiomanager_unmute_audio',
+      extraInfo: { logType: actionType },
+    }, 'microphone unmuted');
+    Storage.setItem(MUTED_KEY, false);
     toggleVoice(Auth.userID as string, false);
   } else {
-    logger.info(
-      {
-        logCode: 'audiomanager_mute_audio',
-        extraInfo: { logType: 'user_action' },
-      },
-      'microphone muted by user',
-    );
+    logger.info({
+      logCode: 'audiomanager_mute_audio',
+      extraInfo: { logType: actionType },
+    }, 'microphone muted');
+    Storage.setItem(MUTED_KEY, true);
     toggleVoice(Auth.userID as string, true);
   }
-}, TOGGLE_MUTE_THROTTLE_TIME);
+};
+
+const toggleMuteMicrophoneThrottled = throttle(toggleMute, TOGGLE_MUTE_THROTTLE_TIME);
 
 const toggleMuteMicrophoneDebounced = debounce(toggleMuteMicrophoneThrottled, TOGGLE_MUTE_DEBOUNCE_TIME,
   { leading: true, trailing: false });
 
 export const toggleMuteMicrophone = (muted: boolean, toggleVoice: (userId: string, muted: boolean) => void) => {
   return toggleMuteMicrophoneDebounced(muted, toggleVoice);
+};
+
+// Debounce is not needed here, as this function should only called by the system.
+export const toggleMuteMicrophoneSystem = (muted: boolean, toggleVoice: (userId: string, muted: boolean) => void) => {
+  return toggleMute(muted, toggleVoice, 'system_action');
+};
+
+export const startPushToTalk = (toggleVoice: (userId: string, muted: boolean) => void) => {
+  toggleMute(true, toggleVoice);
+};
+
+export const stopPushToTalk = (toggleVoice: (userId: string, muted: boolean) => void) => {
+  toggleMute(false, toggleVoice);
 };
 
 export const truncateDeviceName = (deviceName: string) => {
@@ -123,11 +139,15 @@ export const muteAway = (
   }
 
   // mute/unmute speaker
-  if (away) {
-    setSpeakerLevel(Number(prevSpeakerLevelValue));
-  } else {
-    Storage.setItem('prevSpeakerLevel', getSpeakerLevel());
-    setSpeakerLevel(0);
+  const MUTE_SPEAKER = window.meetingClientSettings.public.media.muteAudioOutputWhenAway;
+
+  if (MUTE_SPEAKER) {
+    if (away) {
+      setSpeakerLevel(Number(prevSpeakerLevelValue));
+    } else {
+      Storage.setItem('prevSpeakerLevel', getSpeakerLevel());
+      setSpeakerLevel(0);
+    }
   }
 
   // enable/disable video
@@ -137,9 +157,12 @@ export const muteAway = (
 export default {
   handleLeaveAudio,
   toggleMuteMicrophone,
+  toggleMuteMicrophoneSystem,
   truncateDeviceName,
   notify,
   liveChangeInputDevice,
   getSpeakerLevel,
   setSpeakerLevel,
+  startPushToTalk,
+  stopPushToTalk,
 };

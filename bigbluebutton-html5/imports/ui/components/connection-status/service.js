@@ -5,6 +5,7 @@ import Session from '/imports/ui/services/storage/in-memory';
 import { notify } from '/imports/ui/services/notification';
 import AudioService from '/imports/ui/components/audio/service';
 import ScreenshareService from '/imports/ui/components/screenshare/service';
+import VideoService from '/imports/ui/components/video-provider/service';
 import connectionStatus from '../../core/graphql/singletons/connectionStatus';
 
 const intlMessages = defineMessages({
@@ -18,14 +19,14 @@ const intlMessages = defineMessages({
   },
 });
 
-const NETWORK_MONITORING_INTERVAL_MS = 2000;
+export const NETWORK_MONITORING_INTERVAL_MS = 2000;
 
-const lastLevel = makeVar();
+export const lastLevel = makeVar();
 
 let statsTimeout = null;
 
-const URL_REGEX = new RegExp(/^(http|https):\/\/[^ "]+$/);
-const getHelp = () => {
+export const URL_REGEX = new RegExp(/^(http|https):\/\/[^ "]+$/);
+export const getHelp = () => {
   const STATS = window.meetingClientSettings.public.stats;
 
   if (URL_REGEX.test(STATS.help)) return STATS.help;
@@ -33,48 +34,50 @@ const getHelp = () => {
   return null;
 };
 
-const getStats = () => {
+export function getStatus(levels, value) {
+  const sortedLevels = Object.entries(levels)
+    .map((entry) => [entry[0], Number(entry[1])])
+    .sort((a, b) => a[1] - b[1]);
+
+  for (let i = 0; i < sortedLevels.length; i += 1) {
+    if (value < sortedLevels[i][1]) {
+      return i === 0 ? 'normal' : sortedLevels[i - 1][0];
+    }
+    if (i === sortedLevels.length - 1) {
+      return sortedLevels[i][0];
+    }
+  }
+
+  return sortedLevels[sortedLevels.length - 1][0];
+}
+
+export const getStats = () => {
   const STATS = window.meetingClientSettings.public.stats;
   return STATS.level[lastLevel()];
 };
 
-const setStats = (level = -1, type = 'recovery', value = {}) => {
-  if (lastLevel() !== level) {
-    lastLevel(level);
-  }
-};
-
-const handleAudioStatsEvent = (event) => {
-  const STATS = window.meetingClientSettings.public.stats;
-
+export const handleAudioStatsEvent = (event) => {
   const { detail } = event;
-  if (detail) {
-    const { loss, jitter } = detail;
-    let active = false;
-    // From higher to lower
-    for (let i = STATS.level.length - 1; i >= 0; i--) {
-      if (loss >= STATS.loss[i] || jitter >= STATS.jitter[i]) {
-        active = true;
-        setStats(i, 'audio', { loss, jitter });
-        break;
-      }
-    }
 
-    if (active) startStatsTimeout();
+  if (detail) {
+    const { loss } = detail;
+
+    // The stat provided by this event is the *INBOUND* packet loss fraction
+    // calculated manually by using the packetsLost and packetsReceived metrics.
+    // It uses a 5 probe wide window - so roughly a 10 seconds period with a 2
+    // seconds interval between captures.
+    //
+    // This metric is DIFFERENT from the one used in the connection status modal
+    // (see the network data object in this file). The network data one is an
+    // absolute counter of INBOUND packets lost - and it *SHOULD NOT* be used to 
+    // determine alert triggers
+    connectionStatus.setPacketLossStatus(
+      getStatus(window.meetingClientSettings.public.stats.loss, loss),
+    );
   }
 };
 
-const startStatsTimeout = () => {
-  const STATS = window.meetingClientSettings.public.stats;
-
-  if (statsTimeout !== null) clearTimeout(statsTimeout);
-
-  statsTimeout = setTimeout(() => {
-    setStats(-1, 'recovery', {});
-  }, STATS.timeout);
-};
-
-const sortLevel = (a, b) => {
+export const sortLevel = (a, b) => {
   const RTT = window.meetingClientSettings.public.stats.rtt;
 
   if (!a.lastUnstableStatus && !b.lastUnstableStatus) return 0;
@@ -87,22 +90,23 @@ const sortLevel = (a, b) => {
   return rttOfB - rttOfA;
 };
 
-const sortOnline = (a, b) => {
-  if (!a.user.isOnline && b.user.isOnline) return 1;
-  if (a.user.isOnline === b.user.isOnline) return 0;
-  if (a.user.isOnline && !b.user.isOnline) return -1;
+export const sortOnline = (a, b) => {
+  if (!a.user.currentlyInMeeting && b.user.currentlyInMeeting) return 1;
+  if (a.user.currentlyInMeeting === b.user.currentlyInMeeting) return 0;
+  if (a.user.currentlyInMeeting && !b.user.currentlyInMeeting) return -1;
+  return 0;
 };
 
-const isEnabled = () => window.meetingClientSettings.public.stats.enabled;
+export const isEnabled = () => window.meetingClientSettings.public.stats.enabled;
 
-const getNotified = () => {
+export const getNotified = () => {
   const notified = Session.getItem('connectionStatusNotified');
 
   // Since notified can be undefined we need a boolean verification
   return notified === true;
 };
 
-const notification = (level, intl) => {
+export const notification = (level, intl) => {
   const NOTIFICATION = window.meetingClientSettings.public.stats.notification;
 
   if (!NOTIFICATION[level]) return null;
@@ -115,6 +119,7 @@ const notification = (level, intl) => {
   Session.setItem('connectionStatusNotified', true);
 
   if (intl) notify(intl.formatMessage(intlMessages.notification), level, 'warning');
+  return null;
 };
 
 /**
@@ -125,7 +130,7 @@ const notification = (level, intl) => {
  *                                in getStats() call.
  * @returns The jitter buffer average in ms
  */
-const calculateJitterBufferAverage = (inboundRtpData) => {
+export const calculateJitterBufferAverage = (inboundRtpData) => {
   if (!inboundRtpData) return 0;
 
   const {
@@ -164,7 +169,7 @@ const getDataType = (data, type) => {
  * @returns {Object} the currentData object with the extra inbound network
  *                    added to it.
  */
-const addExtraInboundNetworkParameters = (data) => {
+export const addExtraInboundNetworkParameters = (data) => {
   if (!data) return data;
 
   const inboundRtpData = getDataType(data, 'inbound-rtp')[0];
@@ -192,7 +197,7 @@ const addExtraInboundNetworkParameters = (data) => {
  * and
  * https://www.w3.org/TR/webrtc-stats/#dom-rtcoutboundrtpstreamstats
  */
-const getAudioData = async () => {
+export const getAudioData = async () => {
   const data = await AudioService.getStats();
 
   if (!data) return {};
@@ -210,8 +215,8 @@ const getAudioData = async () => {
  * @returns An Object containing video data for all video peers and screenshare
  *          peer
  */
-const getVideoData = async (getVideoStreamsStats) => {
-  const camerasData = await getVideoStreamsStats() || {};
+export const getVideoData = async () => {
+  const camerasData = await VideoService.getStats() || {};
 
   const screenshareData = await ScreenshareService.getStats() || {};
 
@@ -226,10 +231,10 @@ const getVideoData = async (getVideoStreamsStats) => {
  * For audio, this will get information about the mic/listen-only stream.
  * @returns An Object containing all this data.
  */
-const getNetworkData = async (getVideoStreamsStats) => {
+export const getNetworkData = async () => {
   const audio = await getAudioData();
 
-  const video = await getVideoData(getVideoStreamsStats);
+  const video = await getVideoData();
 
   const user = {
     time: new Date(),
@@ -267,7 +272,7 @@ const getNetworkData = async (getVideoStreamsStats) => {
  * @returns An object of numbers, containing both outbound (upload) and inbound
  *          (download) rates (kbps).
  */
-const calculateBitsPerSecond = (currentData, previousData) => {
+export const calculateBitsPerSecond = (currentData, previousData) => {
   const result = {
     outbound: 0,
     inbound: 0,
@@ -355,7 +360,7 @@ const calculateBitsPerSecond = (currentData, previousData) => {
  *                                representing a data collected in past
  *                                (previous call of service's getNetworkData())
  */
-const calculateBitsPerSecondFromMultipleData = (currentData, previousData) => {
+export const calculateBitsPerSecondFromMultipleData = (currentData, previousData) => {
   const result = {
     outbound: 0,
     inbound: 0,
@@ -380,32 +385,15 @@ const calculateBitsPerSecondFromMultipleData = (currentData, previousData) => {
 
 const sortConnectionData = (connectionData) => connectionData.sort(sortLevel).sort(sortOnline);
 
-export function getStatus(levels, value) {
-  const sortedLevels = Object.entries(levels)
-    .map((entry) => [entry[0], Number(entry[1])])
-    .sort((a, b) => a[1] - b[1]);
-
-  for (let i = 0; i < sortedLevels.length; i += 1) {
-    if (value < sortedLevels[i][1]) {
-      return i === 0 ? 'normal' : sortedLevels[i - 1][0];
-    }
-    if (i === sortedLevels.length - 1) {
-      return sortedLevels[i][0];
-    }
-  }
-
-  return sortedLevels[sortedLevels.length - 1][0];
-}
-
 /**
    * Start monitoring the network data.
    * @return {Promise} A Promise that resolves when process started.
    */
-export async function startMonitoringNetwork(getVideoStreamsStats) {
-  let previousData = await getNetworkData(getVideoStreamsStats);
+export async function startMonitoringNetwork() {
+  let previousData = await getNetworkData();
 
   setInterval(async () => {
-    const data = await getNetworkData(getVideoStreamsStats);
+    const data = await getNetworkData();
 
     const {
       outbound: audioCurrentUploadRate,
@@ -452,8 +440,6 @@ export async function startMonitoringNetwork(getVideoStreamsStats) {
     previousData = data;
 
     connectionStatus.setNetworkData(networkData);
-    connectionStatus
-      .setPacketLossStatus(getStatus(window.meetingClientSettings.public.stats.loss, packetsLost));
   }, NETWORK_MONITORING_INTERVAL_MS);
 }
 
@@ -486,7 +472,6 @@ export default {
   calculateBitsPerSecondFromMultipleData,
   getDataType,
   sortConnectionData,
-  handleAudioStatsEvent,
   startMonitoringNetwork,
   getStatus,
   getWorstStatus,

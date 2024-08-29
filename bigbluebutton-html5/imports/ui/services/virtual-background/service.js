@@ -29,8 +29,7 @@ const MODELS = {
 
 const getBasePath = () => {
   const BASE_PATH = window.meetingClientSettings.public.app.cdn
-    + window.meetingClientSettings.public.app.basename
-    + window.meetingClientSettings.public.app.instanceId;
+    + window.meetingClientSettings.public.app.basename;
 
   return BASE_PATH;
 };
@@ -90,10 +89,7 @@ const setSessionVirtualBackgroundInfo = (deviceId, type, name, uniqueId = null) 
   getStorageSingletonInstance().setItem(`VirtualBackgroundInfo_${deviceId}`, { type, name, uniqueId });
 };
 
-const getSessionVirtualBackgroundInfo = (deviceId) => getStorageSingletonInstance()
-  .getItem(`VirtualBackgroundInfo_${deviceId}`) || {
-  type: EFFECT_TYPES.NONE_TYPE,
-};
+const getSessionVirtualBackgroundInfo = (deviceId) => getStorageSingletonInstance().getItem(`VirtualBackgroundInfo_${deviceId}`);
 
 const getSessionVirtualBackgroundInfoWithDefault = (deviceId) => getStorageSingletonInstance()
   .getItem(`VirtualBackgroundInfo_${deviceId}`) || {

@@ -21,8 +21,8 @@ const createUseTalkingUsers = () => {
   const useTalkingUsers = () => {
     const voiceActivity = useReactiveVar(stateVar);
     const loading = useReactiveVar(loadingVar);
-    const mutedTimeoutRegistry = useRef<Record<string, number | null>>({});
-    const spokeTimeoutRegistry = useRef<Record<string, number | null>>({});
+    const mutedTimeoutRegistry = useRef<Record<string, ReturnType<typeof setTimeout> | null>>({});
+    const spokeTimeoutRegistry = useRef<Record<string, ReturnType<typeof setTimeout> | null>>({});
     const [record, setRecord] = useState<Record<string, VoiceItem>>({});
 
     useEffect(() => {

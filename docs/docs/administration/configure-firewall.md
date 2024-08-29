@@ -167,55 +167,12 @@ Notice the `listenIps` key is an **array**. If you need mediasoup to work with *
 mediasoup:
   webrtc:
     listenIps:
+      - ip: 2001:db8::
       - ip: 0.0.0.0
         announcedIp: 192.0.2.0
-      - ip: 2001:db8::
 ```
 
 Restart BigBlueButton to apply the changes.
-
-### Updating Kurento
-
-#### Extra steps when server is behind NAT
-
-In BigBlueButton 2.4 or lower, the HTML5 client uses Kurento Media Server to send/receive WebRTC video streams. If you are installing on a BigBlueButton server behind a firewall that uses network address translation (NAT), you need to make sure Kurento has its external address properly configured.
-
-Keep in mind the following steps should already be done by bbb-install.
-
-To configure an appropriate external address in Kurento, you need to edit `/etc/kurento/modules/kurento/WebRtcEndpoint.conf.ini` and uncomment and assign values for `externalIPv4`. Here's the relevant section in the default configuration.
-
-```ini
-# cat /etc/kurento/modules/kurento/WebRtcEndpoint.conf.ini
-[...]
-;; External IPv4 and IPv6 addresses of the media server.
-;;
-;; Forces all local IPv4 and/or IPv6 ICE candidates to have the given address.
-;; This is really nothing more than a hack, but it's very effective to force a
-;; public IP address when one is known in advance for the media server. In doing
-;; so, KMS will not need a STUN or TURN server, but remote peers will still be
-;; able to contact it.
-;;
-;; You can try using these settings if KMS is deployed on a publicly accessible
-;; server, without NAT, and with a static public IP address. But if it doesn't
-;; work for you, just go back to configuring a STUN or TURN server for ICE.
-;;
-;; Only set this parameter if you know what you're doing, and you understand
-;; 100% WHY you need it. For the majority of cases, you should just prefer to
-;; configure a STUN or TURN server.
-;;
-;; <externalIPv4> is a single IPv4 address.
-;; <externalIPv6> is a single IPv6 address.
-;;
-;externalIPv4=198.51.100.1
-;externalIPv6=2001:0db8:85a3:0000:0000:8a2e:0370:7334
-[...]
-```
-
-For example, in a BigBlueButton server with a public IPv4 address of 192.0.2.0, edit the line with `externalIPv4` as follows:
-
-```ini
-externalIPv4=192.0.2.0
-```
 
 ### Update FreeSWITCH
 
@@ -301,8 +258,6 @@ freeswitch:
 
 If your running 2.2.29 or later, the value of `sip_ip` depends on whether you have `sipjsHackViaWs`
 set to true or false in `/etc/bigbluebutton/bbb-html5.yml`.
-
-You also need to [setup Kurento to use a STUN server](#extra-steps-when-server-is-behind-nat).
 
 After making the above changes, restart BigBlueButton.
 

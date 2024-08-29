@@ -1,7 +1,5 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
-import logger from '/imports/startup/client/logger';
-import browserInfo from '/imports/utils/browserInfo';
 import {
   defineMessages,
 } from 'react-intl';
@@ -16,12 +14,18 @@ const propTypes = {
   onChange: PropTypes.func.isRequired,
   blocked: PropTypes.bool,
   deviceId: PropTypes.string,
+  devices: PropTypes.arrayOf(PropTypes.shape({
+    deviceId: PropTypes.string,
+    label: PropTypes.string,
+  })),
+  supportsTransparentListenOnly: PropTypes.bool.isRequired,
 };
 
 const defaultProps = {
   kind: 'audioinput',
   blocked: false,
   deviceId: '',
+  devices: [],
 };
 
 const intlMessages = defineMessages({
@@ -45,6 +49,10 @@ const intlMessages = defineMessages({
     id: 'app.audio.noDeviceFound',
     description: 'No audio device found',
   },
+  noMicListenOnlyLabel: {
+    id: 'app.audio.audioSettings.noMicListenOnly',
+    description: 'No microphone, listen only mode label',
+  },
 });
 
 class DeviceSelector extends Component {
@@ -52,52 +60,16 @@ class DeviceSelector extends Component {
     super(props);
 
     this.handleSelectChange = this.handleSelectChange.bind(this);
-
-    this.state = {
-      devices: [],
-      options: [],
-    };
-  }
-
-  componentDidMount() {
-    const { blocked } = this.props;
-
-    if (!blocked) this.enumerate();
-  }
-
-  componentDidUpdate(prevProps) {
-    const { blocked } = this.props;
-
-    if (prevProps.blocked === true && blocked === false) this.enumerate();
-  }
-
-  handleEnumerateDevicesSuccess(deviceInfos) {
-    const { kind } = this.props;
-
-    const devices = deviceInfos.filter((d) => d.kind === kind);
-    logger.info({
-      logCode: 'audiodeviceselector_component_enumeratedevices_success',
-      extraInfo: {
-        deviceKind: kind,
-        devices,
-      },
-    }, 'Success on enumerateDevices() for audio');
-    this.setState({
-      devices,
-      options: devices.map((d, i) => ({
-        label: d.label || this.getFallbackLabel(i),
-        value: d.deviceId,
-        key: uniqueId('device-option-'),
-      })),
-    });
   }
 
   handleSelectChange(event) {
     const { value } = event.target;
-    const { onChange } = this.props;
-    const { devices } = this.state;
-    const selectedDevice = devices.find((d) => d.deviceId === value);
-    onChange(selectedDevice.deviceId, selectedDevice, event);
+    const { devices, onChange } = this.props;
+    const selectedDeviceId = (value === 'listen-only')
+      ? value
+      : devices.find((d) => d.deviceId === value)?.deviceId;
+
+    onChange(selectedDeviceId);
   }
 
   getFallbackLabel(index) {
@@ -107,28 +79,29 @@ class DeviceSelector extends Component {
     return intl.formatMessage(label, { 0: index });
   }
 
-  enumerate() {
-    const { kind } = this.props;
-
-    navigator.mediaDevices
-      .enumerateDevices()
-      .then(this.handleEnumerateDevicesSuccess.bind(this))
-      .catch(() => {
-        logger.error({
-          logCode: 'audiodeviceselector_component_enumeratedevices_error',
-          extraInfo: {
-            deviceKind: kind,
-          },
-        }, 'Error on enumerateDevices(): ');
-      });
-  }
-
   render() {
     const {
-      intl, kind, blocked, deviceId,
+      intl,
+      kind,
+      blocked,
+      deviceId,
+      devices,
+      supportsTransparentListenOnly,
     } = this.props;
 
-    const { options } = this.state;
+    const options = devices.map((d, i) => ({
+      label: d.label || this.getFallbackLabel(i),
+      value: d.deviceId,
+      key: uniqueId('device-option-'),
+    }));
+
+    if (kind === 'audioinput' && supportsTransparentListenOnly && !blocked) {
+      options.push({
+        label: intl.formatMessage(intlMessages.noMicListenOnlyLabel),
+        value: 'listen-only',
+        key: uniqueId('device-option-'),
+      });
+    }
 
     let notFoundOption;
 

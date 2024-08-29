@@ -168,7 +168,7 @@ class Chat extends MultiUsers {
 
     const message = this.modPage.getLocator(e.chatUserMessageText);
     await expect(message, 'should not display any messages on the public chat').toHaveCount(0);
- no
+
     await this.modPage.waitAndClick(e.emojiPickerButton);
     await this.modPage.waitAndClick(e.emojiSent);
     await this.modPage.waitAndClick(e.sendButton);

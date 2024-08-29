@@ -57,8 +57,6 @@ class ReceivedJsonMsgHandlerActor(
 
       case CreateMeetingReqMsg.NAME =>
         route[CreateMeetingReqMsg](meetingManagerChannel, envelope, jsonNode)
-      case ValidateAuthTokenReqMsg.NAME =>
-        routeGenericMsg[ValidateAuthTokenReqMsg](envelope, jsonNode)
       case RegisterUserReqMsg.NAME =>
         // Route via meeting manager as there is a race condition if we send directly to meeting
         // because the meeting actor might not have been created yet.
@@ -69,8 +67,6 @@ class ReceivedJsonMsgHandlerActor(
         route[DestroyMeetingSysCmdMsg](meetingManagerChannel, envelope, jsonNode)
       case EjectUserFromMeetingSysMsg.NAME =>
         routeGenericMsg[EjectUserFromMeetingSysMsg](envelope, jsonNode)
-      case ValidateConnAuthTokenSysMsg.NAME =>
-        route[ValidateConnAuthTokenSysMsg](meetingManagerChannel, envelope, jsonNode)
 
       // Guests
       case GetGuestsWaitingApprovalReqMsg.NAME =>
@@ -89,8 +85,6 @@ class ReceivedJsonMsgHandlerActor(
         routeGenericMsg[SetPrivateGuestLobbyMessageCmdMsg](envelope, jsonNode)
 
       // Users
-      case GetUsersMeetingReqMsg.NAME =>
-        routeGenericMsg[GetUsersMeetingReqMsg](envelope, jsonNode)
       case AddUserToPresenterGroupCmdMsg.NAME =>
         routeGenericMsg[AddUserToPresenterGroupCmdMsg](envelope, jsonNode)
       case RemoveUserFromPresenterGroupCmdMsg.NAME =>

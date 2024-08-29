@@ -3,7 +3,6 @@ import { MeetingClientSettings } from '../../Types/meetingClientSettings';
 export const meetingClientSettingsInitialValues: MeetingClientSettings = {
   public: {
     app: {
-      instanceId: '',
       mobileFontSize: '16px',
       desktopFontSize: '14px',
       audioChatNotification: false,
@@ -93,6 +92,7 @@ export const meetingClientSettingsInitialValues: MeetingClientSettings = {
         captureSharedNotesByDefault: false,
         sendInvitationToAssignedModeratorsByDefault: false,
         breakoutRoomLimit: 16,
+        allowPresentationManagementInBreakouts: true,
       },
       customHeartbeat: false,
       showAllAvailableLocales: true,
@@ -126,6 +126,7 @@ export const meetingClientSettingsInitialValues: MeetingClientSettings = {
           wakeLock: true,
           paginationEnabled: true,
           whiteboardToolbarAutoHide: false,
+          pushToTalkEnabled: false,
           autoCloseReactionsBar: true,
           darkTheme: false,
           fallbackLocale: 'en',
@@ -669,7 +670,7 @@ export const meetingClientSettingsInitialValues: MeetingClientSettings = {
           maxDelayTime: 2,
         },
       },
-      showVolumeMeter: true,
+      muteAudioOutputWhenAway: false,
     },
     stats: {
       enabled: true,
@@ -952,10 +953,6 @@ export const meetingClientSettingsInitialValues: MeetingClientSettings = {
       },
     },
     clientLog: {
-      server: {
-        enabled: false,
-        level: 'info',
-      },
       console: {
         enabled: true,
         level: 'debug',
@@ -993,15 +990,6 @@ export const meetingClientSettingsInitialValues: MeetingClientSettings = {
       localesUrl: '/locale-list',
       pencilChunkLength: 100,
       loadSlidesFromHttpAlways: false,
-    },
-    serverLog: {
-      level: 'info',
-      streamerLog: false,
-      includeServerInfo: true,
-      healthChecker: {
-        enable: true,
-        intervalMs: 30000,
-      },
     },
     minBrowserVersions: [
       {

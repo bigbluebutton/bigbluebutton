@@ -13,10 +13,11 @@ object GroupChatMessageType {
   val BREAKOUTROOM_MOD_MSG = "breakoutRoomModeratorMsg"
   val PUBLIC_CHAT_HIST_CLEARED = "publicChatHistoryCleared"
   val USER_AWAY_STATUS_MSG = "userAwayStatusMsg"
+  val PLUGIN = "plugin"
 }
 
 case class GroupChatUser(id: String, name: String = "", role: String = "VIEWER")
-case class GroupChatMsgFromUser(correlationId: String, sender: GroupChatUser, message: String)
+case class GroupChatMsgFromUser(correlationId: String, sender: GroupChatUser, message: String, metadata: Map[String, Any] = Map.empty)
 case class GroupChatMsgToUser(id: String, timestamp: Long, correlationId: String, sender: GroupChatUser, chatEmphasizedText: Boolean = false, message: String)
 case class GroupChatInfo(id: String, access: String, createdBy: GroupChatUser, users: Vector[GroupChatUser])
 

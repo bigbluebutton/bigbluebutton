@@ -12,14 +12,13 @@ import {
   getVirtualBackgroundThumbnail,
   isVirtualBackgroundSupported,
 } from '/imports/ui/services/virtual-background/service';
-import { CustomVirtualBackgroundsContext } from './context';
+import { ACTIONS, CustomVirtualBackgroundsContext } from './context';
 import VirtualBgService from '/imports/ui/components/video-preview/virtual-background/service';
 import logger from '/imports/startup/client/logger';
 import withFileReader from '/imports/ui/components/common/file-reader/component';
 import Skeleton, { SkeletonTheme } from 'react-loading-skeleton';
 import 'react-loading-skeleton/dist/skeleton.css';
 import { getSettingsSingletonInstance } from '/imports/ui/services/settings';
-import { getStorageSingletonInstance } from '/imports/ui/services/storage';
 
 const { MIME_TYPES_ALLOWED, MAX_FILE_SIZE } = VirtualBgService;
 
@@ -128,8 +127,6 @@ const VirtualBgSelector = ({
     loadFromDB,
   } = useContext(CustomVirtualBackgroundsContext);
 
-  const { MIME_TYPES_ALLOWED } = VirtualBgService;
-
   useEffect(() => {
     if (shouldEnableBackgroundUpload(isCustomVirtualBackgroundsEnabled)) {
       if (!defaultSetUp) {
@@ -139,7 +136,7 @@ const VirtualBgSelector = ({
           lastActivityDate: Date.now(),
         }));
         dispatch({
-          type: 'setDefault',
+          type: ACTIONS.SET_DEFAULT,
           backgrounds: defaultBackgrounds,
         });
       }
@@ -147,7 +144,12 @@ const VirtualBgSelector = ({
     }
   }, [isCustomVirtualBackgroundsEnabled]);
 
-  const _virtualBgSelected = (type, name, index, customParams) => handleVirtualBgSelected(type, name, customParams)
+  const _virtualBgSelected = (
+    type,
+    name,
+    index,
+    customParams,
+  ) => handleVirtualBgSelected(type, name, customParams)
     .then((switched) => {
       // Reset to the base NONE_TYPE effect if it failed because the expected
       // behaviour from upstream's method is to actually stop/reset the effect
@@ -158,39 +160,38 @@ const VirtualBgSelector = ({
 
       setCurrentVirtualBg({ type, name, uniqueId: customParams?.uniqueId });
 
-      if (!index || index < 0) return;
+      if (!index || index < 0) return null;
 
       if (!shouldEnableBackgroundUpload(isCustomVirtualBackgroundsEnabled)) {
+        // eslint-disable-next-line react/no-find-dom-node
         findDOMNode(inputElementsRef.current[index]).focus();
       } else {
         if (customParams) {
           dispatch({
-            type: 'update',
+            type: ACTIONS.UPDATE,
             background: {
-              filename: name,
               uniqueId: customParams.uniqueId,
-              data: customParams.file,
-              custom: true,
               lastActivityDate: Date.now(),
             },
           });
         } else {
           dispatch({
-            type: 'update',
+            type: ACTIONS.UPDATE,
             background: {
               uniqueId: name,
-              custom: false,
               lastActivityDate: Date.now(),
             },
           });
         }
+        // eslint-disable-next-line react/no-find-dom-node
         findDOMNode(inputElementsRef.current[0]).focus();
       }
+
+      return null;
     });
 
   const renderDropdownSelector = () => {
     const disabled = locked || !isVirtualBackgroundSupported();
-    const IMAGE_NAMES = getImageNames();
 
     return (
       <div>
@@ -234,7 +235,7 @@ const VirtualBgSelector = ({
 
     const onSuccess = (background) => {
       dispatch({
-        type: 'new',
+        type: ACTIONS.NEW,
         background: {
           ...background,
           custom: true,
@@ -267,7 +268,6 @@ const VirtualBgSelector = ({
     const disabled = locked || !isVirtualBackgroundSupported();
     const Settings = getSettingsSingletonInstance();
     const { isRTL } = Settings.application;
-    const IMAGE_NAMES = getImageNames();
 
     const renderBlurButton = (index) => (
       <Styled.ThumbnailButtonWrapper
@@ -310,7 +310,7 @@ const VirtualBgSelector = ({
             aria-describedby={`vr-cam-btn-${index + 1}`}
             aria-pressed={currentVirtualBg?.name?.includes(imageName.split('.').shift())}
             hideLabel
-            ref={(ref) => inputElementsRef.current[index] = ref}
+            ref={(ref) => { inputElementsRef.current[index] = ref; }}
             onClick={() => _virtualBgSelected(EFFECT_TYPES.IMAGE_TYPE, imageName, index)}
             disabled={disabled}
             background={getVirtualBackgroundThumbnail(imageName)}
@@ -342,7 +342,7 @@ const VirtualBgSelector = ({
             aria-describedby={`vr-cam-btn-${index + 1}`}
             aria-pressed={currentVirtualBg?.name?.includes(filename)}
             hideLabel
-            ref={(ref) => inputElementsRef.current[index] = ref}
+            ref={(ref) => { inputElementsRef.current[index] = ref; }}
             onClick={() => _virtualBgSelected(
               EFFECT_TYPES.IMAGE_TYPE,
               filename,
@@ -367,7 +367,7 @@ const VirtualBgSelector = ({
               hideLabel
               onClick={() => {
                 dispatch({
-                  type: 'delete',
+                  type: ACTIONS.DELETE,
                   uniqueId,
                 });
                 _virtualBgSelected(EFFECT_TYPES.NONE_TYPE);
@@ -433,6 +433,7 @@ const VirtualBgSelector = ({
     const renderSkeleton = () => (
       <SkeletonTheme baseColor="#DCE4EC" direction={isRTL ? 'rtl' : 'ltr'}>
         {new Array(SKELETON_COUNT).fill(null).map((_, index) => (
+          // eslint-disable-next-line react/no-array-index-key
           <Styled.SkeletonWrapper key={`skeleton-${index}`}>
             <Skeleton />
           </Styled.SkeletonWrapper>
@@ -466,7 +467,9 @@ const VirtualBgSelector = ({
                         return renderCustomButton(background, index);
                       }
                       const isBlur = background.uniqueId.includes('Blur');
-                      return isBlur ? renderBlurButton(index) : renderDefaultButton(background.uniqueId, index);
+                      return isBlur
+                        ? renderBlurButton(index)
+                        : renderDefaultButton(background.uniqueId, index);
                     })}
 
                   {renderInputButton()}

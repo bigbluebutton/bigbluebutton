@@ -55,6 +55,10 @@ const PresentationOptionsContainer = ({
   const isThereCurrentPresentation = hasExternalVideo || hasScreenshare
   || hasPresentation || hasPinnedSharedNotes
   || hasGenericContent || hasCameraAsContent;
+  const onlyPresentation = hasPresentation
+  && !hasExternalVideo && !hasScreenshare
+  && !hasPinnedSharedNotes && !hasGenericContent
+  && !hasCameraAsContent;
   return (
     <Button
       icon={`${buttonType}${!presentationIsOpen ? '_off' : ''}`}
@@ -68,7 +72,7 @@ const PresentationOptionsContainer = ({
       size="lg"
       onClick={() => {
         setPresentationIsOpen(layoutContextDispatch, !presentationIsOpen);
-        if (!hasExternalVideo && !hasScreenshare && !hasPinnedSharedNotes) {
+        if (onlyPresentation) {
           Session.setItem('presentationLastState', !presentationIsOpen);
         }
       }}

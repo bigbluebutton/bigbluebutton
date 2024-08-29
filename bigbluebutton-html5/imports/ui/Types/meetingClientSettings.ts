@@ -29,7 +29,6 @@ export interface Locales {
   name: string
 }
 export interface App {
-  instanceId: string
   mobileFontSize: string
   desktopFontSize: string
   audioChatNotification: boolean
@@ -143,6 +142,7 @@ export interface Breakouts {
   captureSharedNotesByDefault: boolean
   sendInvitationToAssignedModeratorsByDefault: boolean
   breakoutRoomLimit: number
+  allowPresentationManagementInBreakouts: boolean
 }
 
 export interface RaiseHandActionButton {
@@ -189,6 +189,7 @@ export interface Application {
   wakeLock: boolean
   paginationEnabled: boolean
   whiteboardToolbarAutoHide: boolean
+  pushToTalkEnabled: boolean
   autoCloseReactionsBar: boolean
   darkTheme: boolean
   fallbackLocale: string
@@ -610,7 +611,7 @@ export interface Media {
   traceSip: boolean
   sdpSemantics: string
   localEchoTest: LocalEchoTest
-  showVolumeMeter: boolean
+  muteAudioOutputWhenAway: boolean
 }
 
 export interface Audio2 {
@@ -750,14 +751,8 @@ export interface Tool {
 }
 
 export interface ClientLog {
-  server: Server
   console: Console
   external: External
-}
-
-export interface Server {
-  enabled: boolean
-  level: string
 }
 
 export interface Console {
@@ -788,7 +783,6 @@ export interface VirtualBackgrounds {
 export interface Private {
   analytics: Analytics
   app: App2
-  serverLog: ServerLog
   minBrowserVersions: MinBrowserVersion[]
   prometheus: Prometheus
 }
@@ -814,18 +808,6 @@ export interface Metrics {
 export interface Channels {
   toAkkaApps: string
   toThirdParty: string
-}
-
-export interface ServerLog {
-  level: string
-  streamerLog: boolean
-  includeServerInfo: boolean
-  healthChecker: HealthChecker
-}
-
-export interface HealthChecker {
-  enable: boolean
-  intervalMs: number
 }
 
 export interface MinBrowserVersion {

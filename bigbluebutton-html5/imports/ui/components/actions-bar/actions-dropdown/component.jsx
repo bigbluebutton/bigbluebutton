@@ -39,11 +39,13 @@ const propTypes = {
       key: PropTypes.string,
     }),
   ).isRequired,
+  isPresentationManagementDisabled: PropTypes.bool,
 };
 
 const defaultProps = {
   shortcuts: '',
   settingsLayout: LAYOUT_TYPE.SMART_LAYOUT,
+  isPresentationManagementDisabled: false,
   amIPresenter: false,
   amIModerator: false,
 };
@@ -184,6 +186,7 @@ class ActionsDropdown extends PureComponent {
       isDirectLeaveButtonEnabled,
       isLayoutsEnabled,
       isPresentationEnabled,
+      isPresentationManagementDisabled,
     } = this.props;
 
     const { pollBtnLabel, presentationLabel, takePresenter } = intlMessages;
@@ -192,7 +195,7 @@ class ActionsDropdown extends PureComponent {
 
     const actions = [];
 
-    if (amIPresenter && isPresentationEnabled) {
+    if (amIPresenter && !isPresentationManagementDisabled && isPresentationEnabled) {
       if (presentations && presentations.length > 1) {
         actions.push({
           key: 'separator-01',
