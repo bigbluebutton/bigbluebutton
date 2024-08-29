@@ -138,8 +138,7 @@ class App extends Component {
     const body = document.getElementsByTagName('body')[0];
 
     if (browserName) {
-      body.classList.add(`browser-${browserName.split(' ').pop()
-        .toLowerCase()}`);
+      body.classList.add(`browser-${browserName.split(' ').pop().toLowerCase()}`);
     }
 
     body.classList.add(`os-${osName.split(' ').shift().toLowerCase()}`);
@@ -275,17 +274,6 @@ class App extends Component {
     AppService.setDarkTheme(darkTheme);
   }
 
-  renderActivityCheck() {
-    const { inactivityWarningDisplay, inactivityWarningTimeoutSecs } = this.props;
-
-    return (inactivityWarningDisplay ? (
-      <ActivityCheckContainer
-        inactivityCheck={inactivityWarningDisplay}
-        responseDelay={inactivityWarningTimeoutSecs}
-      />
-    ) : null);
-  }
-
   renderActionsBar() {
     const {
       intl,
@@ -360,8 +348,6 @@ class App extends Component {
     const {
       customStyle,
       customStyleUrl,
-      chatPushAlerts,
-      chatAudioAlerts,
       shouldShowPresentation,
       shouldShowScreenshare,
       isSharedNotesPinned,
@@ -372,7 +358,6 @@ class App extends Component {
       intl,
       genericMainContentId,
       speechLocale,
-      connected,
       isPresentationEnabled,
     } = this.props;
 
@@ -402,14 +387,14 @@ class App extends Component {
             height: '100%',
           }}
         >
-          {this.renderActivityCheck()}
+          <ActivityCheckContainer />
           <ScreenReaderAlertContainer />
           <BannerBarContainer />
-          <NotificationsBarContainer connected={connected} />
+          <NotificationsBarContainer />
           <SidebarNavigationContainer />
           <SidebarContentContainer isSharedNotesPinned={isSharedNotesPinned} />
           <NavBarContainer main="new" />
-          <WebcamContainer isLayoutSwapped={!presentationIsOpen} layoutType={selectedLayout} />
+          <WebcamContainer />
           <ExternalVideoPlayerContainer />
           <GenericContentMainAreaContainer
             genericMainContentId={genericMainContentId}
@@ -456,13 +441,7 @@ class App extends Component {
           }}
           />
           <ToastContainer rtl />
-          {(chatAudioAlerts || chatPushAlerts)
-            && (
-              <ChatAlertContainerGraphql
-                audioAlertEnabled={chatAudioAlerts}
-                pushAlertEnabled={chatPushAlerts}
-              />
-            )}
+          <ChatAlertContainerGraphql />
           <RaiseHandNotifier />
           <ManyWebcamsNotifier />
           <PollingContainer />
