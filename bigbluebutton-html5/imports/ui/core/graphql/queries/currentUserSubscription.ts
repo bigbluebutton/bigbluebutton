@@ -22,7 +22,7 @@ subscription userCurrentSubscription {
     inactivityWarningTimeoutSecs
     isDialIn
     isModerator
-    isOnline
+    currentlyInMeeting
     joinErrorCode
     joinErrorMessage
     joined

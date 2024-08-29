@@ -206,7 +206,7 @@ const ConnectionManager: React.FC<ConnectionManagerProps> = ({ children }): Reac
         client = new ApolloClient({
           link: wsLink,
           cache: new InMemoryCache(),
-          connectToDevTools: true,
+          connectToDevTools: process.env.NODE_ENV === 'development',
         });
         setApolloClient(client);
         apolloContextHolder.setClient(client);

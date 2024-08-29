@@ -1,7 +1,11 @@
 import { useEffect, useRef } from 'react';
 import { useMutation } from '@apollo/client';
 import { UPDATE_CONNECTION_ALIVE_AT } from './mutations';
-import { getStatus, startMonitoringNetwork } from '/imports/ui/components/connection-status/service';
+import {
+  getStatus,
+  handleAudioStatsEvent,
+  startMonitoringNetwork,
+} from '/imports/ui/components/connection-status/service';
 import connectionStatus from '../../core/graphql/singletons/connectionStatus';
 
 import getBaseUrl from '/imports/ui/core/utils/getBaseUrl';
@@ -21,7 +25,7 @@ const ConnectionStatus = () => {
     avatar: u.avatar,
     isModerator: u.isModerator,
     color: u.color,
-    isOnline: u.isOnline,
+    currentlyInMeeting: u.currentlyInMeeting,
   }));
 
   const handleUpdateConnectionAliveAt = () => {
@@ -81,10 +85,13 @@ const ConnectionStatus = () => {
     const STATS_ENABLED = window.meetingClientSettings.public.stats.enabled;
 
     if (STATS_ENABLED) {
+      window.addEventListener('audiostats', handleAudioStatsEvent);
       startMonitoringNetwork();
     }
 
     return () => {
+      window.removeEventListener('audiostats', handleAudioStatsEvent);
+
       if (timeoutRef.current) {
         clearTimeout(timeoutRef.current);
       }

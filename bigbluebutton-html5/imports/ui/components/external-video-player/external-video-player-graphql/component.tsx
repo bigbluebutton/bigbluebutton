@@ -433,7 +433,7 @@ const ExternalVideoPlayerContainer: React.FC = () => {
   }));
   const currentVolume = React.useRef(0);
   const isMuted = React.useRef(false);
-  const theresNoExternalVideo = useRef(true);
+  const hasExternalVideo = useRef(false);
   const lastMessageRef = useRef<{
     event: string;
     rate: number;
@@ -475,7 +475,7 @@ const ExternalVideoPlayerContainer: React.FC = () => {
   };
 
   useEffect(() => {
-    if (!currentMeeting?.externalVideo?.externalVideoUrl && !theresNoExternalVideo.current) {
+    if (!currentMeeting?.externalVideo?.externalVideoUrl && hasExternalVideo.current) {
       layoutContextDispatch({
         type: ACTIONS.SET_PILE_CONTENT_FOR_PRESENTATION_AREA,
         value: {
@@ -483,8 +483,8 @@ const ExternalVideoPlayerContainer: React.FC = () => {
           open: false,
         },
       });
-      theresNoExternalVideo.current = true;
-    } else if (currentMeeting?.externalVideo?.externalVideoUrl && theresNoExternalVideo.current) {
+      hasExternalVideo.current = false;
+    } else if (currentMeeting?.externalVideo?.externalVideoUrl && !hasExternalVideo.current) {
       layoutContextDispatch({
         type: ACTIONS.SET_PILE_CONTENT_FOR_PRESENTATION_AREA,
         value: {
@@ -492,9 +492,9 @@ const ExternalVideoPlayerContainer: React.FC = () => {
           open: true,
         },
       });
-      theresNoExternalVideo.current = false;
+      hasExternalVideo.current = true;
     }
-  }, [currentMeeting]);
+  }, [currentMeeting?.externalVideo?.externalVideoUrl]);
 
   // --- Plugin related code ---
   useEffect(() => {

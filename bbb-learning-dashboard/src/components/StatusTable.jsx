@@ -1,6 +1,6 @@
 import React from 'react';
 import { FormattedMessage, injectIntl, defineMessages } from 'react-intl';
-import { emojiConfigs, filterUserEmojis } from '../services/EmojiService';
+import { filterUserReactions } from '../services/ReactionService';
 import UserAvatar from './UserAvatar';
 
 const intlMessages = defineMessages({
@@ -24,31 +24,31 @@ const intlMessages = defineMessages({
 
 class StatusTable extends React.Component {
   componentDidMount() {
-    // This code is needed to prevent emojis from overflowing.
-    const emojis = document.getElementsByClassName('timeline-emoji');
-    for (let i = 0; i < emojis.length; i += 1) {
-      const emojiStyle = window.getComputedStyle(emojis[i]);
-      const offsetLeft = Number(emojiStyle
+    // This code is needed to prevent reactions from overflowing.
+    const reactions = document.getElementsByClassName('timeline-reaction');
+    for (let i = 0; i < reactions.length; i += 1) {
+      const reactionStyle = window.getComputedStyle(reactions[i]);
+      const offsetLeft = Number(reactionStyle
         .left
         .replace(/px/g, '')
         .trim());
       if (offsetLeft < 0) {
-        emojis[i].style.left = '0';
+        reactions[i].style.left = '0';
       }
     }
   }
 
   componentDidUpdate() {
-    // This code is needed to prevent emojis from overflowing.
-    const emojis = document.getElementsByClassName('timeline-emoji');
-    for (let i = 0; i < emojis.length; i += 1) {
-      const emojiStyle = window.getComputedStyle(emojis[i]);
-      const offsetLeft = Number(emojiStyle
+    // This code is needed to prevent reactions from overflowing.
+    const reactions = document.getElementsByClassName('timeline-reaction');
+    for (let i = 0; i < reactions.length; i += 1) {
+      const reactionStyle = window.getComputedStyle(reactions[i]);
+      const offsetLeft = Number(reactionStyle
         .left
         .replace(/px/g, '')
         .trim());
       if (offsetLeft < 0) {
-        emojis[i].style.left = '0';
+        reactions[i].style.left = '0';
       }
     }
   }
@@ -287,8 +287,7 @@ class StatusTable extends React.Component {
                         { usersPeriods[user.userKey].length > 0 ? (
                           usersPeriods[user.userKey].map((userPeriod) => {
                             const { registeredOn, leftOn } = userPeriod;
-                            const userEmojisInPeriod = filterUserEmojis(user,
-                              null,
+                            const userReactionsInPeriod = filterUserReactions(user,
                               registeredOn >= boundaryLeft && registeredOn <= boundaryRight
                                 ? registeredOn : boundaryLeft,
                               leftOn >= boundaryLeft && leftOn <= boundaryRight
@@ -301,34 +300,21 @@ class StatusTable extends React.Component {
                                   || (boundaryLeft >= registeredOn && leftOn === 0)
                                   ? makeLineThrough(userPeriod, period)
                                   : null }
-                                { userEmojisInPeriod.map((emoji) => {
-                                  const offset = ((emoji.sentOn - period.start) * 100)
+                                { userReactionsInPeriod.map((reaction) => {
+                                  const offset = ((reaction.sentOn - period.start) * 100)
                                     / (interval);
                                   const origin = isRTL ? 'right' : 'left';
                                   const redress = '(0.875rem / 2 + 0.25rem + 2px)';
                                   return (
                                     <div
-                                      className="flex absolute p-1 border-white border-2 rounded-full text-sm z-20 bg-purple-500 text-purple-200 timeline-emoji"
+                                      className="flex absolute p-1 border-white border-2 rounded-full text-sm z-20 bg-purple-500 text-purple-200 timeline-reaction select-none"
                                       role="generic"
-                                      aria-label={intl.formatMessage({
-                                        id: emojiConfigs[emoji.name].intlId,
-                                        defaultMessage: emojiConfigs[emoji.name].defaultMessage,
-                                      })}
                                       style={{
                                         top: `calc(50% - ${redress})`,
                                         [origin]: `calc(${offset}% - ${redress})`,
                                       }}
-                                      title={intl.formatMessage({
-                                        id: emojiConfigs[emoji.name].intlId,
-                                        defaultMessage: emojiConfigs[emoji.name].defaultMessage,
-                                      })}
                                     >
-                                      <i
-                                        className={
-                                          'text-sm bbb-icon-timeline'
-                                          + ` ${emojiConfigs[emoji.name].icon}`
-                                        }
-                                      />
+                                      {reaction.name}
                                     </div>
                                   );
                                 }) }

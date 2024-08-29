@@ -69,8 +69,8 @@ const useIsUsingAudio = () => {
   const isConnected = useReactiveVar(AudioManager._isConnected.value);
   const isConnecting = useReactiveVar(AudioManager._isConnecting.value);
   const isHangingUp = useReactiveVar(AudioManager._isHangingUp.value);
-  const isEchoTest = useReactiveVar(AudioManager._isEchoTest.value);
-  return Boolean(isConnected || isConnecting || isHangingUp || isEchoTest);
+
+  return Boolean(isConnected || isConnecting || isHangingUp);
 };
 
 /**

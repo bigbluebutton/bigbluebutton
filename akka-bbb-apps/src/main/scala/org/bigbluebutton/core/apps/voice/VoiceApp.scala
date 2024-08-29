@@ -22,6 +22,7 @@ import scala.concurrent.duration._
 object VoiceApp extends SystemConfiguration {
   // Key is userId
   var toggleListenOnlyTasks: Map[String, Cancellable] = Map()
+  var recordingFileSplitters: Map[String, RecordingFileSplitter] = Map()
 
   def genRecordPath(
       recordDir:       String,
@@ -45,6 +46,13 @@ object VoiceApp extends SystemConfiguration {
   }
 
   def stopRecordingVoiceConference(liveMeeting: LiveMeeting, outGW: OutMsgRouter): Unit = {
+    // stop file splitter
+    val voiceconf = liveMeeting.props.voiceProp.voiceConf
+    if (recordingFileSplitters.contains(voiceconf)) {
+      recordingFileSplitters(voiceconf).stop();
+      recordingFileSplitters = recordingFileSplitters - (voiceconf)
+    }
+
     val recStreams = MeetingStatus2x.getVoiceRecordingStreams(liveMeeting.status)
 
     recStreams foreach { rs =>
@@ -68,13 +76,24 @@ object VoiceApp extends SystemConfiguration {
       now,
       voiceConfRecordCodec
     )
-    MeetingStatus2x.voiceRecordingStart(liveMeeting.status, recordFile)
-    val event = MsgBuilder.buildStartRecordingVoiceConfSysMsg(
-      liveMeeting.props.meetingProp.intId,
-      liveMeeting.props.voiceProp.voiceConf,
-      recordFile
-    )
-    outGW.send(event)
+    if (voiceConfRecordEnableFileSplitter) {
+      val voiceconf = liveMeeting.props.voiceProp.voiceConf
+      if (recordingFileSplitters.contains(voiceconf)) {
+        recordingFileSplitters(voiceconf).stop();
+        recordingFileSplitters = recordingFileSplitters - (voiceconf)
+      }
+      val fileSplitter = new RecordingFileSplitter(liveMeeting, outGW, recordFile)
+      recordingFileSplitters = recordingFileSplitters + (voiceconf -> fileSplitter)
+      fileSplitter.start()
+    } else {
+      MeetingStatus2x.voiceRecordingStart(liveMeeting.status, recordFile)
+      val event = MsgBuilder.buildStartRecordingVoiceConfSysMsg(
+        liveMeeting.props.meetingProp.intId,
+        liveMeeting.props.voiceProp.voiceConf,
+        recordFile
+      )
+      outGW.send(event)
+    }
   }
 
   def broadcastUserMutedVoiceEvtMsg(
