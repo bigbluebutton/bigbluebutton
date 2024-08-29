@@ -201,8 +201,8 @@ const BreakoutRoomUserAssignment: React.FC<ChildComponentProps> = ({
   const intl = useIntl();
   const [sortedRooms, setSortedRooms] = useState(rooms);
 
-  const sortUsers = (users) => {
-    return [...users].sort((a, b) => {
+  const sortUsers = (user) => {
+    return [...user].sort((a, b) => {
       if (a.isModerator !== b.isModerator) {
         return a.isModerator ? -1 : 1;
       }
@@ -212,15 +212,11 @@ const BreakoutRoomUserAssignment: React.FC<ChildComponentProps> = ({
 
   const updateSortedRooms = () => {
     const newSortedRooms = { ...rooms };
-    Object.keys(newSortedRooms).forEach((roomNumber) => {
-      if (newSortedRooms[roomNumber] && Array.isArray(newSortedRooms[roomNumber].users)) {
-        newSortedRooms[roomNumber] = {
-          ...newSortedRooms[roomNumber],
-          users: sortUsers(newSortedRooms[roomNumber].users),
-        };
-      } else {
-        newSortedRooms[roomNumber] = { users: [] };
-      }
+    Object.keys(newSortedRooms).forEach((roomNumber: string) => {
+      newSortedRooms[roomNumber] = {
+        ...newSortedRooms[roomNumber],
+        users: sortUsers(newSortedRooms[roomNumber].users),
+      };
     });
     setSortedRooms(newSortedRooms);
   };
