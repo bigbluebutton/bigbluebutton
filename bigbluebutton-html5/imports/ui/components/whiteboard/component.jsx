@@ -1291,6 +1291,16 @@ const Whiteboard = React.memo(function Whiteboard(props) {
 
       tlEditorRef.current.store.mergeRemoteChanges(() => {
         tlEditorRef.current.batch(() => {
+          const currentPageId = `page:${curPageIdRef.current}`;
+          const allRecords = tlEditorRef.current.store.allRecords();
+          // Collect IDs of shapes that do not belong to the current page
+          const shapeIdsToRemove = allRecords
+            .filter(record => (record.typeName === 'shape') && record.parentId !== currentPageId)
+            .map(shape => shape.id);
+          // Delete the filtered shapes from the store
+          if (shapeIdsToRemove.length > 0) {
+            tlEditorRef.current.deleteShapes(shapeIdsToRemove);
+          }
           tlEditorRef.current.store.put(pages);
           const tlZ = tlEditorRef.current.getCamera()?.z;
           const formattedPageId = Number(curPageIdRef?.current);
