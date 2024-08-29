@@ -69,8 +69,8 @@ export const handleAudioStatsEvent = (event) => {
     //
     // This metric is DIFFERENT from the one used in the connection status modal
     // (see the network data object in this file). The network data one is an
-    // absolute counter of INBOUND packets lost - and it should be used to determine
-    // alert triggers
+    // absolute counter of INBOUND packets lost - and it *SHOULD NOT* be used to 
+    // determine alert triggers
     connectionStatus.setPacketLossStatus(
       getStatus(window.meetingClientSettings.public.stats.loss, loss),
     );
