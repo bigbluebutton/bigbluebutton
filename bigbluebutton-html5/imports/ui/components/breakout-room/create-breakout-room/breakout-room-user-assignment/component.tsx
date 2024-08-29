@@ -186,15 +186,6 @@ type User = {
   isModerator: boolean;
 };
 
-type Room = {
-  [key: string]: {
-    users: User[];
-  id: string;
-  name: string;
-  size: number;
-  }
-};
-
 const BreakoutRoomUserAssignment: React.FC<ChildComponentProps> = ({
   moveUser,
   rooms,
@@ -226,7 +217,7 @@ const BreakoutRoomUserAssignment: React.FC<ChildComponentProps> = ({
   };
 
   const updateSortedRooms = () => {
-    const newSortedRooms: Room = { ...rooms };
+    const newSortedRooms = { ...rooms };
     Object.keys(newSortedRooms).forEach((roomNumber: string) => {
       newSortedRooms[roomNumber] = {
         ...newSortedRooms[roomNumber],
