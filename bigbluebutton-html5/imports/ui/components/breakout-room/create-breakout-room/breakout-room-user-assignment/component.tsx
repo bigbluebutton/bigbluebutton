@@ -201,7 +201,7 @@ const BreakoutRoomUserAssignment: React.FC<ChildComponentProps> = ({
   const intl = useIntl();
   const [sortedRooms, setSortedRooms] = useState(rooms);
 
-  const sortUsers = (user) => {
+  const sortUsers = (user: Array<T>) => {
     return [...user].sort((a, b) => {
       if (a.isModerator !== b.isModerator) {
         return a.isModerator ? -1 : 1;
