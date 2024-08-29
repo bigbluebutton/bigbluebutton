@@ -1,6 +1,8 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { layoutDispatch, layoutSelect, layoutSelectInput } from './context';
-import { ACTIONS, DEVICE_TYPE, PANELS } from './enums';
+import {
+  ACTIONS, DEVICE_TYPE, LAYOUT_TYPE, PANELS,
+} from './enums';
 import {
   isMobile, isTablet, isTabletPortrait, isTabletLandscape, isDesktop,
 } from './utils';
@@ -10,21 +12,41 @@ import { throttle } from '/imports/utils/throttle';
 import { SETTINGS } from '/imports/ui/services/settings/enums';
 import useSettings from '/imports/ui/services/settings/hooks/useSettings';
 import getFromUserSettings from '/imports/ui/services/users-settings';
+import useMeeting from '/imports/ui/core/hooks/useMeeting';
+import MediaService from '/imports/ui/components/media/service';
+import { useVideoStreamsCount } from '/imports/ui/components/video-provider/hooks';
+import { useIsPresentationEnabled, useIsScreenSharingEnabled } from '/imports/ui/services/features';
 
 const MOBILE_MEDIA = 'only screen and (max-width: 40em)';
 
 const LayoutObserver: React.FC = () => {
+  const layoutType = useRef<string | null>(null);
   const layoutContextDispatch = layoutDispatch();
   const deviceType = layoutSelect((i: Layout) => i.deviceType);
   const cameraDockInput = layoutSelectInput((i: Input) => i.cameraDock);
   const sidebarContentInput = layoutSelectInput((i: Input) => i.sidebarContent);
   const presentationInput = layoutSelectInput((i: Input) => i.presentation);
+  const sharedNotesInput = layoutSelectInput((i: Input) => i.sharedNotes);
   const [, setEnableResize] = useState(!window.matchMedia(MOBILE_MEDIA).matches);
   const { selectedLayout } = useSettings(SETTINGS.APPLICATION) as { selectedLayout: string };
+  const {
+    data: currentMeeting,
+  } = useMeeting((m) => ({
+    layout: m.layout,
+    componentsFlags: m.componentsFlags,
+  }));
+
+  const isThereWebcam = useVideoStreamsCount() > 0;
+  const isScreenSharingEnabled = useIsScreenSharingEnabled();
+  const isPresentationEnabled = useIsPresentationEnabled();
 
   const { numCameras } = cameraDockInput;
   const { isOpen: sidebarContentIsOpen } = sidebarContentInput;
   const { isOpen: presentationIsOpen } = presentationInput;
+
+  const { currentLayoutType } = currentMeeting?.layout || {};
+  const meetingLayout = currentLayoutType && LAYOUT_TYPE[currentLayoutType as keyof typeof LAYOUT_TYPE];
+  const isSharingVideo = currentMeeting?.componentsFlags?.hasExternalVideo;
 
   const setDeviceType = () => {
     let newDeviceType = null;
@@ -131,6 +153,39 @@ const LayoutObserver: React.FC = () => {
   useEffect(() => {
     throttledDeviceType();
   }, [deviceType]);
+
+  useEffect(() => {
+    if (
+      layoutContextDispatch
+      && (typeof meetingLayout !== 'undefined')
+      && (layoutType.current !== meetingLayout)
+      && sharedNotesInput?.isPinned
+    ) {
+      layoutType.current = meetingLayout;
+      layoutContextDispatch({
+        type: ACTIONS.SET_PRESENTATION_IS_OPEN,
+        value: true,
+      });
+    }
+  }, [meetingLayout, layoutContextDispatch, layoutType]);
+
+  useEffect(() => {
+    layoutContextDispatch({
+      type: ACTIONS.SET_LAYOUT_TYPE,
+      value: selectedLayout,
+    });
+  }, [selectedLayout]);
+
+  useEffect(() => {
+    MediaService.buildLayoutWhenPresentationAreaIsDisabled(
+      layoutContextDispatch,
+      isSharingVideo,
+      sharedNotesInput?.isPinned,
+      isThereWebcam,
+      isScreenSharingEnabled,
+      isPresentationEnabled,
+    );
+  });
 
   return null;
 };
