@@ -75,9 +75,14 @@ export const MuteToggle: React.FC<MuteToggleProps> = ({
         || activeElement.isContentEditable);
     const Settings = getSettingsSingletonInstance();
     const pushToTalkEnabled = Settings?.application?.pushToTalkEnabled;
-    if ((cooldownActive.current || event.key !== 'm' || isInputField) || !pushToTalkEnabled) {
-      return;
-    }
+    if (
+      !pushToTalkEnabled
+        || cooldownActive.current
+        || event.key !== 'm'
+        || event.altKey
+        || event.ctrlKey
+        || isInputField
+    ) return;
 
     if (action === 'down' && !isKeyDown.current) {
       isKeyDown.current = true;
