@@ -23,16 +23,20 @@ case "$1" in
 
   echo "Postgresql configured"
 
-  #Generate a random password to Hasura to improve security
-  HASURA_ADM_PASSWORD=$(grep '^HASURA_GRAPHQL_ADMIN_SECRET=' /etc/default/bbb-graphql-server | cut -d '=' -f 2)
-  if [ "$HASURA_ADM_PASSWORD" = "bigbluebutton" ]; then
-    echo "Set a random password to Hasura replacing the default 'bigbluebutton'"
-    HASURA_RANDOM_ADM_PASSWORD=$(openssl rand -base64 32 | sed 's/=//g' | sed 's/+//g' | sed 's/\///g')
-    sed -i "s/HASURA_GRAPHQL_ADMIN_SECRET=bigbluebutton/HASURA_GRAPHQL_ADMIN_SECRET=$HASURA_RANDOM_ADM_PASSWORD/g" /etc/default/bbb-graphql-server
-    HASURA_ADM_PASSWORD="$HASURA_RANDOM_ADM_PASSWORD"
-  fi
+#Generate a random password to Hasura to improve security
+if [ ! -f /usr/share/bbb-graphql-server/admin-secret ]; then
+  mkdir -p /usr/share/bbb-graphql-server
+  chmod 700  /usr/share/bbb-graphql-server/
+  HASURA_RANDOM_ADM_PASSWORD=$(openssl rand -base64 32 | sed 's/=//g' | sed 's/+//g' | sed 's/\///g')
+  echo "HASURA_GRAPHQL_ADMIN_SECRET=$HASURA_RANDOM_ADM_PASSWORD" > /usr/share/bbb-graphql-server/admin-secret
+  chown bigbluebutton:bigbluebutton /usr/share/bbb-graphql-server/admin-secret
+  chmod 600 /usr/share/bbb-graphql-server/admin-secret
+  echo "Set a random password to Hasura at /usr/share/bbb-graphql-server/admin-secret"
+fi
 
-  sed -i "s/^admin_secret: .*/admin_secret: $HASURA_ADM_PASSWORD/g" /usr/share/bbb-graphql-server/config.yaml
+#Set admin secret for Hasura CLI
+HASURA_ADM_PASSWORD=$(grep '^HASURA_GRAPHQL_ADMIN_SECRET=' /usr/share/bbb-graphql-server/admin-secret | cut -d '=' -f 2)
+sed -i "s/^admin_secret: .*/admin_secret: $HASURA_ADM_PASSWORD/g" /usr/share/bbb-graphql-server/config.yaml
 
   if [ ! -f /.dockerenv ]; then
     systemctl enable bbb-graphql-server.service
