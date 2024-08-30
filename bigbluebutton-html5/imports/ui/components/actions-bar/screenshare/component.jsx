@@ -12,6 +12,7 @@ import {
   shareScreen,
   screenshareHasEnded,
   useIsCameraAsContentBroadcasting,
+  useShowButtonForNonPresenters,
 } from '/imports/ui/components/screenshare/service';
 import { SCREENSHARING_ERRORS } from '/imports/api/screenshare/client/bridge/errors';
 import Button from '/imports/ui/components/common/button/component';
@@ -45,6 +46,18 @@ const intlMessages = defineMessages({
   stopDesktopShareDesc: {
     id: 'app.actionsBar.actionsDropdown.stopDesktopShareDesc',
     description: 'adds context to stop desktop share option',
+  },
+  lockedDesktopShareDesc: {
+    id: 'app.actionsBar.actionsDropdown.lockedDesktopShareDesc',
+    description: 'Desktop locked Share option desc',
+  },
+  notPresenterDesktopShareLabel: {
+    id: 'app.actionsBar.actionsDropdown.notPresenterDesktopShareLabel',
+    description: 'You are not the presenter label',
+  },
+  notPresenterDesktopShareDesc: {
+    id: 'app.actionsBar.actionsDropdown.notPresenterDesktopShareDesc',
+    description: 'You are not the presenter desc',
   },
   screenShareNotSupported: {
     id: 'app.media.screenshare.notSupported',
@@ -120,6 +133,7 @@ const ScreenshareButton = ({
   isScreenGloballyBroadcasting,
   amIPresenter = false,
   isMeteorConnected,
+  screenshareDataSavingSetting,
 }) => {
   const [stopExternalVideoShare] = useMutation(EXTERNAL_VIDEO_STOP);
   const isCameraAsContentBroadcasting = useIsCameraAsContentBroadcasting();
@@ -160,17 +174,23 @@ const ScreenshareButton = ({
     </Styled.ScreenShareModal>
   );
 
-  const screenshareLabel = intlMessages.desktopShareLabel;
-  const vLabel = isScreenBroadcasting
-    ? intlMessages.stopDesktopShareLabel : screenshareLabel;
-
-  const vDescr = isScreenBroadcasting
-    ? intlMessages.stopDesktopShareDesc : intlMessages.desktopShareDesc;
   const amIBroadcasting = isScreenBroadcasting && amIPresenter;
+
+  // this part handles the label/desc intl for the screenshare button
+  // basically: if you are not a presenter, the label/desc will be 'the screen cannot be shared'.
+  // if you are: the label/desc intl will be 'stop/start screenshare'.
+  let info = screenshareDataSavingSetting ? 'desktopShare' : 'lockedDesktopShare';
+  if (!amIPresenter) {
+    info = 'notPresenterDesktopShare';
+  } else if (isScreenBroadcasting) {
+    info = 'stopDesktopShare';
+  }
+
+  const showButtonForNonPresenters = useShowButtonForNonPresenters();
 
   const shouldAllowScreensharing = enabled
     && (!isMobile || isTabletApp)
-    && amIPresenter;
+    && (amIPresenter || showButtonForNonPresenters);
 
   const dataTest = isScreenBroadcasting ? 'stopScreenShare' : 'startScreenShare';
   const loading = isScreenBroadcasting && !isScreenGloballyBroadcasting;
@@ -182,11 +202,11 @@ const ScreenshareButton = ({
           ? (
             <Styled.Container>
               <Button
-                disabled={(!isMeteorConnected && !isScreenBroadcasting)}
+                disabled={(!isMeteorConnected && !isScreenBroadcasting) || !screenshareDataSavingSetting || !amIPresenter}
                 icon={amIBroadcasting ? 'desktop' : 'desktop_off'}
                 data-test={dataTest}
-                label={intl.formatMessage(vLabel)}
-                description={intl.formatMessage(vDescr)}
+                label={intl.formatMessage(intlMessages[`${info}Label`])}
+                description={intl.formatMessage(intlMessages[`${info}Desc`])}
                 color={amIBroadcasting ? 'primary' : 'default'}
                 ghost={!amIBroadcasting}
                 hideLabel

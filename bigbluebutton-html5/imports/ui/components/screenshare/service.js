@@ -190,6 +190,12 @@ export const useShouldEnableVolumeControl = () => {
   return VOLUME_CONTROL_ENABLED && hasAudio;
 };
 
+export const useShowButtonForNonPresenters = () => {
+  const MEDIA_CONFIG = window.meetingClientSettings.public.media;
+
+  return MEDIA_CONFIG.screenshare.showButtonForNonPresenters;
+}
+
 export const attachLocalPreviewStream = (mediaElement) => {
   const { isTabletApp } = browserInfo;
   if (isTabletApp) {
@@ -378,6 +384,7 @@ export default {
   useIsScreenGloballyBroadcasting,
   useIsCameraAsContentGloballyBroadcasting,
   useShouldEnableVolumeControl,
+  useShowButtonForNonPresenters,
   useIsScreenBroadcasting,
   useIsCameraAsContentBroadcasting,
   useScreenshareHasAudio,

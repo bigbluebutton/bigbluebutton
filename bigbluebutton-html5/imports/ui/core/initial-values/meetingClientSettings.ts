@@ -671,6 +671,9 @@ export const meetingClientSettingsInitialValues: MeetingClientSettings = {
         },
       },
       muteAudioOutputWhenAway: false,
+      screenshare: {
+        showButtonForNonPresenters: false,
+      },
     },
     stats: {
       enabled: true,
