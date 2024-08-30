@@ -26,7 +26,6 @@ case "$1" in
 #Generate a random password to Hasura to improve security
 if [ ! -f /usr/share/bbb-graphql-server/admin-secret ]; then
   mkdir -p /usr/share/bbb-graphql-server
-  chmod 700  /usr/share/bbb-graphql-server/
   HASURA_RANDOM_ADM_PASSWORD=$(openssl rand -base64 32 | sed 's/=//g' | sed 's/+//g' | sed 's/\///g')
   echo "HASURA_GRAPHQL_ADMIN_SECRET=$HASURA_RANDOM_ADM_PASSWORD" > /usr/share/bbb-graphql-server/admin-secret
   chown bigbluebutton:bigbluebutton /usr/share/bbb-graphql-server/admin-secret
