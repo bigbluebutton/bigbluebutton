@@ -1,6 +1,7 @@
 package gql_actions
 
 import (
+	"bbb-graphql-middleware/config"
 	"bbb-graphql-middleware/internal/common"
 	"bytes"
 	"encoding/json"
@@ -9,13 +10,12 @@ import (
 	log "github.com/sirupsen/logrus"
 	"io/ioutil"
 	"net/http"
-	"os"
 	"regexp"
 	"strings"
 	"time"
 )
 
-var graphqlActionsUrl = os.Getenv("BBB_GRAPHQL_MIDDLEWARE_GRAPHQL_ACTIONS_URL")
+var graphqlActionsUrl = config.GetConfig().GraphqlActions.Url
 
 func GraphqlActionsClient(
 	browserConnection *common.BrowserConnection) error {

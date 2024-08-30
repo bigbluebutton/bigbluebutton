@@ -46,7 +46,7 @@ test.describe.parallel('User', () => {
     });
   });
 
-  test.describe.parallel('List', () => {
+  test.describe.parallel('List', { tag: '@ci' } , () => {
     test('User presence check (multiple users)', async ({ browser, context, page }) => {
       const multiusers = new MultiUsers(browser, context);
       await multiusers.initPages(page);
@@ -54,40 +54,40 @@ test.describe.parallel('User', () => {
     });
 
     // https://docs.bigbluebutton.org/2.6/release-tests.html#make-viewer-a-presenter-automated
-    test('Make presenter', { tag: '@ci' }, async ({ browser, context, page }) => {
+    test('Make presenter', async ({ browser, context, page }) => {
       const multiusers = new MultiUsers(browser, context);
       await multiusers.initPages(page);
       await multiusers.makePresenter();
     });
 
     // https://docs.bigbluebutton.org/2.6/release-tests.html#taking-presenter-status-back-automated
-    test('Take presenter', { tag: '@ci' }, async ({ browser, context, page }) => {
+    test('Take presenter', async ({ browser, context, page }) => {
       const multiusers = new MultiUsers(browser, context);
       await multiusers.initModPage(page);
       await multiusers.initModPage2();
       await multiusers.takePresenter();
     });
 
-    test('Promote to moderator', { tag: '@ci' }, async ({ browser, context, page }) => {
+    test('Promote to moderator', async ({ browser, context, page }) => {
       const multiusers = new MultiUsers(browser, context);
       await multiusers.initPages(page);
       await multiusers.promoteToModerator();
     });
 
-    test('Demote to viewer', { tag: '@ci' }, async ({ browser, context, page }) => {
+    test('Demote to viewer', async ({ browser, context, page }) => {
       const multiusers = new MultiUsers(browser, context);
       await multiusers.initModPage(page);
       await multiusers.initModPage2();
       await multiusers.demoteToViewer();
     });
 
-    test('Give and remove whiteboard access', { tag: '@ci' }, async ({ browser, context, page }) => {
+    test('Give and remove whiteboard access', async ({ browser, context, page }) => {
       const multiusers = new MultiUsers(browser, context);
       await multiusers.initPages(page);
       await multiusers.giveAndRemoveWhiteboardAccess();
     });
 
-    test('Remove user', { tag: '@ci' }, async ({ browser, context, page }) => {
+    test('Remove user', async ({ browser, context, page }) => {
       const multiusers = new MultiUsers(browser, context);
       await multiusers.initModPage(page, true);
       await multiusers.initModPage2(true);

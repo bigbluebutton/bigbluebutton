@@ -287,7 +287,7 @@ const ChatMesssage: React.FC<ChatMessageProps> = ({
             <ChatMessageHeader
               sameSender={message?.user ? sameSender : false}
               name={messageContent.name}
-              isOnline={message.user?.isOnline ?? true}
+              currentlyInMeeting={message.user?.currentlyInMeeting ?? true}
               dateTime={dateTime}
             />
           )}

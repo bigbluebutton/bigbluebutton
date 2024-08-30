@@ -114,6 +114,25 @@ if (env === prodEnv) {
       overlay: false,
       webSocketURL: 'auto://0.0.0.0:0/html5client/ws',
     },
+    setupMiddlewares: (middlewares, devServer) => {
+      if (!devServer) {
+        throw new Error('webpack-dev-server is not defined');
+      }
+
+      devServer.app.use((req, res, next) => {
+        // the server crashes when it receives HEAD requests, so we need to prevent it
+        if (req.method === 'HEAD') {
+          // console.log(`Request received: ${req.method} ${req.url}`);
+          res.setHeader('Content-Type', 'text/html');
+          res.setHeader('Content-Length', '0');
+          res.end();
+        } else {
+          next();
+        }
+      });
+
+      return middlewares;
+    },
   };
 }
 

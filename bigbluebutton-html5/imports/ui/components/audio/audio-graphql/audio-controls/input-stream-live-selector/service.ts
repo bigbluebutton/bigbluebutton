@@ -82,6 +82,14 @@ export const toggleMuteMicrophoneSystem = (muted: boolean, toggleVoice: (userId:
   return toggleMute(muted, toggleVoice, 'system_action');
 };
 
+export const startPushToTalk = (toggleVoice: (userId: string, muted: boolean) => void) => {
+  toggleMute(true, toggleVoice);
+};
+
+export const stopPushToTalk = (toggleVoice: (userId: string, muted: boolean) => void) => {
+  toggleMute(false, toggleVoice);
+};
+
 export const truncateDeviceName = (deviceName: string) => {
   if (deviceName && deviceName.length <= DEVICE_LABEL_MAX_LENGTH) {
     return deviceName;
@@ -155,4 +163,6 @@ export default {
   liveChangeInputDevice,
   getSpeakerLevel,
   setSpeakerLevel,
+  startPushToTalk,
+  stopPushToTalk,
 };

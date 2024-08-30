@@ -463,7 +463,7 @@ exports.wbTypedText = 'div[data-shape="text"]';
 exports.wbTypedStickyNote = 'div[data-shape-type="note"]';
 exports.wbDrawnRectangle = 'div[data-shape-type="geo"]';
 exports.wbPollShape = 'div[data-shape-type="poll"]';
-exports.wbDrawnLine = 'div[data-shape="draw"]';
+exports.wbDrawnLine = 'div[data-shape-type="draw"]';
 exports.multiUsersWhiteboardOn = 'button[data-test="turnMultiUsersWhiteboardOn"]';
 exports.multiUsersWhiteboardOff = 'button[data-test="turnMultiUsersWhiteboardOff"]';
 exports.whiteboardViewBox = 'svg g[clip-path="url(#viewBox)"]';

@@ -113,7 +113,6 @@
     "uuid": "^9.0.0",
     "wasm-feature-detect": "^1.5.1",
     "webrtc-adapter": "^8.1.1",
-    "winston": "^3.7.2",
     "yaml": "^2.2.2"
   },
   "devDependencies": {
@@ -156,7 +155,7 @@
     "style-loader": "4.0.0",
     "terser-webpack-plugin": "^5.3.10",
     "typescript": "5.5.3",
-    "webpack": "5.93.0",
+    "webpack": "5.94.0",
     "webpack-cli": "^5.1.4",
     "webpack-dev-server": "5.0.4"
   },

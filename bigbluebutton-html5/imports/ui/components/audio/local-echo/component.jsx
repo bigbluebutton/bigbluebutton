@@ -73,7 +73,6 @@ const LocalEcho = ({
   return (
     <Styled.LocalEchoTestButton
       data-test={hearing ? 'stopHearingButton' : 'testSpeakerButton'}
-      $hearing={hearing}
       label={intl.formatMessage(label)}
       icon={icon}
       size="md"

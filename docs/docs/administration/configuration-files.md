@@ -83,10 +83,10 @@ public:
 In BigBlueButton 3.0 we modified the architecture to shift the load away from the old frontend and backend bbb-html5 pools of services. Logs for the new services can be foud via:
 
 `journalctl -f -u bbb-html5.service`
-￼
-￼Akka-apps is responsible for most of the logic, so key info can be obtained via
-￼
-￼`journalctl -f -u bbb-apps-akka.service`
+
+Akka-apps is responsible for most of the logic, so key info can be obtained via
+
+`journalctl -f -u bbb-apps-akka.service`
 
 `SYSTEMD_LESS=FRXMK journalctl -u bbb-graphql-middleware.service -f` can also be useful.
 
@@ -94,11 +94,11 @@ In BigBlueButton 3.0 we modified the architecture to shift the load away from th
 
 To assist with monitoring and debugging, the HTML5 client can send its logs to the BigBlueButton server via the `logger` function. Here's an example of its use:
 
-The client logger accepts three targets for the logs: `console`, `server` and `external`.
+The client logger accepts two targets for the logs: `console` and `external`.
 
 | Name   | Default Value | Accepted Values                  | Description                                                                                             |
 | ------ | ------------- | -------------------------------- | ------------------------------------------------------------------------------------------------------- |
-| target | "console"     | "console", "external", "server"  | Where the logs will be sent to.                                                                         |
+| target | "console"     | "console", "external",           | Where the logs will be sent to.                                                                         |
 | level  | "info"        | "debug", "info", "warn", "error" | The lowest log level that will be sent. Any log level higher than this will also be sent to the target. |
 | url    | -             | -                                | The end point where logs will be sent to when the target is set to "external".                          |
 | method | -             | "POST", "PUT"                    | HTTP method being used when using the target "external".                                                |
@@ -107,7 +107,6 @@ The default values are:
 
 ```yaml
 clientLog:
-  server: { enabled: true, level: info }
   console: { enabled: true, level: debug }
   external:
     {

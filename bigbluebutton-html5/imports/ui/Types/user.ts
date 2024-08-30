@@ -73,7 +73,7 @@ export interface User {
   isModerator: boolean;
   clientType: string;
   disconnected: boolean;
-  isOnline: boolean;
+  currentlyInMeeting: boolean;
   ejectReason: string;
   ejectReasonCode: string;
   ejected: boolean;
@@ -81,6 +81,7 @@ export interface User {
   role: string;
   color: string;
   avatar: string;
+  webcamBackground: string;
   reactionEmoji: string;
   presenter?: boolean;
   pinned?: boolean;

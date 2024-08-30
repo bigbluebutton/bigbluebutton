@@ -73,6 +73,7 @@ case class SystemProps(
     loginUrl: String,
     logoutUrl: String,
     customLogoURL: String,
+    customDarkLogoURL: String,
     bannerText: String,
     bannerColor: String,
 )
@@ -121,8 +122,8 @@ case class UserVO(id: String, externalId: String, name: String, role: String,
                   guest: Boolean, authed: Boolean, guestStatus: String, emojiStatus: String,
                   presenter: Boolean, hasStream: Boolean, locked: Boolean, webcamStreams: Set[String],
                   phoneUser: Boolean, voiceUser: VoiceUserVO, listenOnly: Boolean, avatarURL: String,
-                  joinedWeb: Boolean)
+                  webcamBackgroundURL: String, joinedWeb: Boolean)
 
 case class VoiceUserVO(userId: String, webUserId: String, callerName: String,
                        callerNum: String, joined: Boolean, locked: Boolean, muted: Boolean,
-                       talking: Boolean, avatarURL: String, listenOnly: Boolean)
+                       talking: Boolean, avatarURL: String, webcamBackgroundURL: String, listenOnly: Boolean)

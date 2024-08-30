@@ -126,6 +126,7 @@ export const meetingClientSettingsInitialValues: MeetingClientSettings = {
           wakeLock: true,
           paginationEnabled: true,
           whiteboardToolbarAutoHide: false,
+          pushToTalkEnabled: false,
           autoCloseReactionsBar: true,
           darkTheme: false,
           fallbackLocale: 'en',
@@ -952,10 +953,6 @@ export const meetingClientSettingsInitialValues: MeetingClientSettings = {
       },
     },
     clientLog: {
-      server: {
-        enabled: false,
-        level: 'info',
-      },
       console: {
         enabled: true,
         level: 'debug',
@@ -993,15 +990,6 @@ export const meetingClientSettingsInitialValues: MeetingClientSettings = {
       localesUrl: '/locale-list',
       pencilChunkLength: 100,
       loadSlidesFromHttpAlways: false,
-    },
-    serverLog: {
-      level: 'info',
-      streamerLog: false,
-      includeServerInfo: true,
-      healthChecker: {
-        enable: true,
-        intervalMs: 30000,
-      },
     },
     minBrowserVersions: [
       {
