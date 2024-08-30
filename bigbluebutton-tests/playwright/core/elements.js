@@ -60,6 +60,7 @@ exports.resetAssignments = 'button[data-test="resetAssignments"]'
 exports.breakoutRoomsItem = 'div[data-test="breakoutRoomsItem"]';
 exports.alreadyConnected = 'span[data-test="alreadyConnected"]';
 exports.askJoinRoom1 = 'button[data-test="askToJoinRoom1"]';
+exports.askJoinRoom2 = 'button[data-test="askToJoinRoom2"]';
 exports.joinRoom1 = 'button[data-test="joinRoom1"]';
 exports.allowChoiceRoom = 'input[id="freeJoinCheckbox"]';
 exports.labelGeneratingURL = 'span[data-test="labelGeneratingURL"]';
@@ -91,6 +92,9 @@ exports.timeRemaining = 'span[data-test="timeRemaining"]';
 exports.captureBreakoutSharedNotes = 'input[id="captureNotesBreakoutCheckbox"]';
 exports.captureBreakoutWhiteboard = 'input[id="captureSlidesBreakoutCheckbox"]';
 exports.roomOption = 'option[data-test="roomOption"]';
+exports.changeSlideBreakoutRoom1 = 'select[data-test="changeSlideBreakoutRoom"]:nth-child(1)';
+exports.slide1BreakoutRoom = 'select[data-test="changeSlideBreakoutRoom"]'
+exports.slideBreakoutRoomOption = 'option[data-test="slideBreakoutRoomOption"]';
 
 // Chat
 exports.chatBox = 'textarea[id="message-input"]';

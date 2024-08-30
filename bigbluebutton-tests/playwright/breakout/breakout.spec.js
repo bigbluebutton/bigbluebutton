@@ -39,12 +39,6 @@ test.describe.parallel('Breakout', () => {
       await create.initPages(page);
       await create.dragDropUserInRoom();
     });
-    
-    test('Breakout rooms can use different presentations', async ({ browser, context, page }) => {
-      const create = new Create(browser, context);
-      await create.initPages(page);
-      await create.breakoutWithDifferentPresentations();
-    });
   });
 
   test.describe.parallel('After creating', () => {
@@ -145,6 +139,12 @@ test.describe.parallel('Breakout', () => {
       await join.initPages(page);
       await join.createToAllowChooseOwnRoom();
       await join.userCanChooseRoom();
+    });
+    
+    test('Breakout rooms can use different presentations', async ({ browser, context, page }) => {
+      const join = new Join(browser, context);
+      await join.initPages(page);
+      await join.breakoutWithDifferentPresentations();
     });
   });
 });
