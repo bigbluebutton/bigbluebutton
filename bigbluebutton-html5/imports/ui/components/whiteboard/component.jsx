@@ -1276,56 +1276,79 @@ const Whiteboard = React.memo(function Whiteboard(props) {
     }
   }, [otherCursors, whiteboardWriters]);
 
-  // set current tldraw page when presentation id updates
+  const createPage = (currentPageId) => {
+    return [
+      {
+        meta: {},
+        id: currentPageId,
+        name: `Slide ${curPageIdRef.current}`,
+        index: 'a1',
+        typeName: 'page',
+      },
+    ];
+  }
+
+  const createCameras = (pageId, tlZ) => {
+    return [
+      createCamera(pageId - 1, tlZ),
+      createCamera(pageId, tlZ),
+      createCamera(pageId + 1, tlZ),
+    ];
+  }
+
+  const cleanupStore = (currentPageId) => {
+    const allRecords = tlEditorRef.current.store.allRecords();
+    const shapeIdsToRemove = allRecords
+      .filter(record => record.typeName === 'shape' && record.parentId !== currentPageId)
+      .map(shape => shape.id);
+
+    if (shapeIdsToRemove.length > 0) {
+      tlEditorRef.current.deleteShapes(shapeIdsToRemove);
+    }
+  }
+
+  const updateStore = (pages, cameras) => {
+    tlEditorRef.current.store.put(pages);
+    tlEditorRef.current.store.put(cameras);
+    tlEditorRef.current.store.put(assets);
+    tlEditorRef.current.store.put(bgShape);
+  }
+
+  const finalizeStore = () => {
+    tlEditorRef.current.history.clear();
+  }
+
+  const toggleToolbarIfNeeded = () => {
+    if (whiteboardToolbarAutoHide && toggleToolsAnimations) {
+      toggleToolsAnimations("fade-in", "fade-out", "0s", hasWBAccessRef.current || isPresenterRef.current);
+    }
+  }
+
+  const resetSlideState = () => {
+    slideChanged.current = false;
+    slideNext.current = null;
+  }
+
   React.useEffect(() => {
     if (tlEditorRef.current && curPageIdRef.current !== "0") {
-      const pages = [
-        {
-          meta: {},
-          id: `page:${curPageIdRef.current}`,
-          name: `Slide ${curPageIdRef.current}`,
-          index: `a1`,
-          typeName: "page",
-        }
-      ];
+      const currentPageId = `page:${curPageIdRef.current}`;
+      const tlZ = tlEditorRef.current.getCamera()?.z;
+      const formattedPageId = Number(curPageIdRef?.current);
+
+      const pages = createPage(currentPageId);
+      const cameras = createCameras(formattedPageId, tlZ);
 
       tlEditorRef.current.store.mergeRemoteChanges(() => {
         tlEditorRef.current.batch(() => {
-          const currentPageId = `page:${curPageIdRef.current}`;
-          const allRecords = tlEditorRef.current.store.allRecords();
-          // Collect IDs of shapes that do not belong to the current page
-          const shapeIdsToRemove = allRecords
-            .filter(record => (record.typeName === 'shape') && record.parentId !== currentPageId)
-            .map(shape => shape.id);
-          // Delete the filtered shapes from the store
-          if (shapeIdsToRemove.length > 0) {
-            tlEditorRef.current.deleteShapes(shapeIdsToRemove);
-          }
-          tlEditorRef.current.store.put(pages);
-          const tlZ = tlEditorRef.current.getCamera()?.z;
-          const formattedPageId = Number(curPageIdRef?.current);
-          const cameras = [
-            createCamera(formattedPageId - 1, tlZ),
-            createCamera(formattedPageId, tlZ),
-            createCamera(formattedPageId + 1, tlZ),
-          ];
-          tlEditorRef.current.store.put(cameras);
-          tlEditorRef.current.setCurrentPage(`page:${curPageIdRef.current}`);
-          tlEditorRef.current.store.put(assets);
-          tlEditorRef.current.store.put(bgShape);
-          tlEditorRef.current.history.clear();
+          cleanupStore(currentPageId);
+          updateStore(pages, cameras);
+          tlEditorRef.current.setCurrentPage(currentPageId);
+          finalizeStore();
         });
       });
 
-      whiteboardToolbarAutoHide &&
-        toggleToolsAnimations(
-          "fade-in",
-          "fade-out",
-          "0s",
-          hasWBAccessRef.current || isPresenter
-        );
-      slideChanged.current = false;
-      slideNext.current = null;
+      toggleToolbarIfNeeded();
+      resetSlideState();
     }
   }, [curPageId]);
 
