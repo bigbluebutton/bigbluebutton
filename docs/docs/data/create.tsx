@@ -370,7 +370,7 @@ const createEndpointTableData = [
     "required": false,
     "type": "Boolean",
     "default": "false",
-    "description": (<>If it is true, a modal will be displayed to collect recording consent from users when meeting recording starts (only if <code className="language-plaintext highlighter-rouge">remindRecordingIsOn=true</code>). By default it is false. (added 2.6)</>)
+    "description": (<>If it is true, a modal will be displayed to collect recording consent from users when meeting recording starts (only if <code className="language-plaintext highlighter-rouge">notifyRecordingIsOn=true</code>). By default it is false. (added 2.6)</>)
   },
   {
     "name": "presentationUploadExternalUrl",
