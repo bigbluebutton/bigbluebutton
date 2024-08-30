@@ -141,7 +141,7 @@ test.describe.parallel('Breakout', () => {
       await join.userCanChooseRoom();
     });
     
-    test('Breakout rooms can use different presentations', async ({ browser, context, page }) => {
+    test('Breakout rooms can use different presentations @ci', async ({ browser, context, page }) => {
       const join = new Join(browser, context);
       await join.initPages(page);
       await join.breakoutWithDifferentPresentations();
