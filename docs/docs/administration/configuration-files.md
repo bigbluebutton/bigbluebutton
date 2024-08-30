@@ -25,6 +25,9 @@ Starting with BigBlueButton 2.3 many of the configuration files have local overr
 | /usr/share/bbb-apps-akka/conf/application.conf                          | /etc/bigbluebutton/bbb-apps-akka.conf            |                                                                                  |
 | /usr/share/bbb-fsesl-akka/conf/application.conf                         | /etc/bigbluebutton/bbb-fsesl-akka.conf           |                                                                                  |
 | /var/bigbluebutton/html5-client/private/config/settings.yml             | /etc/bigbluebutton/bbb-html5.yml                 | Arrays are merged by replacement (as of 2.4-rc-5)                                |
+| /etc/default/bbb-graphql-server                                         | /etc/bigbluebutton/bbb-graphql-server.env        | It can replace any Hasura config but HASURA_GRAPHQL_ADMIN_SECRET                 |
+| /usr/share/bbb-graphql-server/admin-secret                              |                                                  | Stores Hasura admin password (HASURA_GRAPHQL_ADMIN_SECRET), it can be edited     |
+| /usr/share/bbb-graphql-middleware/config.yml                            | /etc/bigbluebutton/bbb-graphql-middleware.yml    |                                                                                  |
 | /usr/share/bbb-web/WEB-INF/classes/spring/turn-stun-servers.xml         | /etc/bigbluebutton/turn-stun-servers.xml         | Replaces the original file                                                       |
 | /usr/local/bigbluebutton/bbb-webrtc-sfu/config/default.yml              | /etc/bigbluebutton/bbb-webrtc-sfu/production.yml | Arrays are merged by replacement                                                 |
 | /usr/local/bigbluebutton/bbb-pads/config/settings.json                  | /etc/bigbluebutton/bbb-pads.json                 | Arrays are merged by replacement                                                 |
