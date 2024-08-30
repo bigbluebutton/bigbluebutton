@@ -16,6 +16,22 @@ interface ConnectionManagerProps {
   children: React.ReactNode;
 }
 
+interface WsError {
+  name: string;
+  message: string;
+  reason: string;
+  code: number;
+}
+
+const isDetailedErrorObject = (error: unknown): error is WsError => {
+  const requiredKeys = ['name', 'message', 'reason', 'code'];
+  return (
+    error !== null
+    && typeof error === 'object'
+    && requiredKeys.every((key) => Object.hasOwn(error, key))
+  );
+};
+
 const DEFAULT_MAX_MUTATION_PAYLOAD_SIZE = 10485760; // 10MB
 const getMaxMutationPayloadSize = () => window.meetingClientSettings?.public?.app?.maxMutationPayloadSize
   ?? DEFAULT_MAX_MUTATION_PAYLOAD_SIZE;
@@ -138,15 +154,37 @@ const ConnectionManager: React.FC<ConnectionManagerProps> = ({ children }): Reac
             });
           },
           shouldRetry: (error) => {
-            logger.error('Connection error:', error);
+            const isDetailedError = isDetailedErrorObject(error);
+            const terminated = isDetailedError && error.code === 4499;
+
+            if (terminated) {
+              logger.info(
+                { logCode: 'connection_terminated' },
+                'Connection terminated (4499)',
+              );
+            } else if (isDetailedError) {
+              logger.error({
+                logCode: 'connection_error',
+                extraInfo: {
+                  errorName: error.name,
+                  errorMessage: error.message,
+                  errorReason: error.reason,
+                },
+              }, `Connection error (${error.code})`);
+            } else {
+              logger.error(
+                { logCode: 'connection_error' },
+                `Connection error: ${JSON.stringify(error)}`,
+              );
+            }
+
             if (error && typeof error === 'object' && 'code' in error && error.code === 4403) {
               loadingContextInfo.setLoading(false, '');
               setTerminalError('Server refused the connection');
               return false;
             }
 
-            if (!apolloContextHolder.getShouldRetry()) return false;
-            return true;
+            return apolloContextHolder.getShouldRetry();
           },
           connectionParams: {
             headers: {
