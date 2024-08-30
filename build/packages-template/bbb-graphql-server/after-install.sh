@@ -5,6 +5,9 @@ case "$1" in
 
   fc-cache -f
 
+  # make sure postgres can read this directory
+  chmod 755 /usr/share/bbb-graphql-server/ -R
+
   runuser -u postgres -- psql -c "alter user postgres password 'bbb_graphql'"
   runuser -u postgres -- psql -c "drop database if exists bbb_graphql with (force)"
   runuser -u postgres -- psql -c "create database bbb_graphql WITH TEMPLATE template0 LC_COLLATE 'C.UTF-8'"
@@ -22,9 +25,6 @@ case "$1" in
   fi
 
   echo "Postgresql configured"
-
-mkdir -p /usr/share/bbb-graphql-server
-chmod 755 /usr/share/bbb-graphql-server/ -R
 
 #Generate a random password to Hasura to improve security
 if [ ! -f /usr/share/bbb-graphql-server/admin-secret ]; then
