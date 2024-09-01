@@ -689,7 +689,7 @@
     "app.audio.changeAudioDevice": "Změnit zvukové zařízení",
     "app.audio.enterSessionLabel": "Zúčastnit se setkání",
     "app.audio.playSoundLabel": "Přehrát zvuk",
-    "app.audio.stopAudioFeedback": "Zastavit zpětnosu vazbu zvuku",
+    "app.audio.stopAudioFeedback": "Zastavit zpětnou vazbu zvuku",
     "app.audio.backLabel": "Zpět",
     "app.audio.loading": "Nahrávání",
     "app.audio.microphones": "Mikrofony",
