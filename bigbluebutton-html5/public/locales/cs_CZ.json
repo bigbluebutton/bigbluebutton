@@ -1152,7 +1152,7 @@
     "app.updateBreakoutRoom.modalDesc": "Pro aktualizaci nebo pozvání uživatele, jej jednoduše přesuň myší do požadované místnosti.",
     "app.updateBreakoutRoom.cancelLabel": "Zrušit",
     "app.updateBreakoutRoom.title": "Aktualizovat vedlejší místnosti",
-    "app.updateBreakoutRoom.confirm": "Aplikuj",
+    "app.updateBreakoutRoom.confirm": "Použij",
     "app.updateBreakoutRoom.userChangeRoomNotification": "Byl jste přesunut do místnosti {0}.",
     "app.smartMediaShare.externalVideo": "Externí videa",
     "app.update.resetRoom": "Reset uživatelské místnosti",
