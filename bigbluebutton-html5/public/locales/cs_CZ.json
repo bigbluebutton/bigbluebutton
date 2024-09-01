@@ -77,7 +77,7 @@
     "app.captions.speech.stop": "Rozpoznání řeči ukončeno",
     "app.captions.speech.error": "Rozpoznání řeči bylo pozastaveno kvůli nekompatibilitě prohlížeče nebo kvůli příliš dlouhému tichu",
     "app.confirmation.skipConfirm": "Už se neptej",
-    "app.confirmation.virtualBackground.title": "Použijj nové virtuální pozadí",
+    "app.confirmation.virtualBackground.title": "Použij nové virtuální pozadí",
     "app.confirmation.virtualBackground.description": "{0} bude přidáno jako virtuální pozadí. Pokračovat?",
     "app.confirmationModal.yesLabel": "Ano",
     "app.textInput.sendLabel": "Odeslat",
