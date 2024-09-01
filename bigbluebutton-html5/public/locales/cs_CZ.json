@@ -948,7 +948,7 @@
     "app.recording.notify.continue": "Pokračovat",
     "app.recording.notify.leave": "Opustit místnost",
     "app.recording.notify.continueLabel" : "Schválit nahrávání a pokračovat",
-    "app.recording.notify.leaveLabel" : "Odmítnout záznam a opustit místnost",
+    "app.recording.notify.leaveLabel" : "Odmítnout nahrávání a opustit místnost",
     "app.videoPreview.cameraLabel": "Kamera",
     "app.videoPreview.profileLabel": "Kvalita videa",
     "app.videoPreview.quality.low": "Nízká",
