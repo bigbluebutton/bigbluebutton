@@ -897,7 +897,7 @@
     "app.toast.chat.pollClick": "Výsledky hlasování zveřejněny. Kliknutím sem si je prohlédnete.",
     "app.toast.chat.exportedPresentation": "Soubor s prezentací",
     "app.toast.clearedEmoji.label": "Emotikon stav vymazán",
-    "app.toast.setEmoji.label": "Emoji status nastaven na {0}",
+    "app.toast.setEmoji.label": "Emotikon stav nastaven na {0}",
     "app.toast.meetingMuteOn.label": "Všichni uzivatelé byli ztlumeni",
     "app.toast.meetingMuteOnViewers.label": "Všichni uživatelé byli ztlumeni",
     "app.toast.meetingMuteOff.label": "Ztlumení zvuku schůzky vypnuto",
