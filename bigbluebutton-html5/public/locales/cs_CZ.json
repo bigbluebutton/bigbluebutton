@@ -815,7 +815,7 @@
     "app.toast.chat.exportedPresentation": "Soubor s prezentací",
     "app.toast.clearedEmoji.label": "Emoji status vymazán",
     "app.toast.setEmoji.label": "Emoji status nastaven na {0}",
-    "app.toast.meetingMuteOn.label": "Všichni uzivatelé byli ztlumeni",
+    "app.toast.meetingMuteOn.label": "Všichni uživatelé byli ztlumeni",
     "app.toast.meetingMuteOnViewers.label": "Všichni diváci byli ztlumeni",
     "app.toast.meetingMuteOff.label": "Ztlumení zvuku schůzky vypnuto",
     "app.toast.setEmoji.raiseHand": "Zvedl(a) jste ruku",
