@@ -6,7 +6,7 @@
     "app.chat.disconnected": "Zpráva nemůže být odeslána, protože jste odpojen.",
     "app.chat.locked": "Chat je uzamčen, nelze odeslat zprávu.",
     "app.chat.inputLabel": "Zadat zprávu pro chat {0}",
-    "app.chat.emojiButtonLabel": "Výběr emoji",
+    "app.chat.emojiButtonLabel": "Výběr emotikonů",
     "app.chat.loadMoreButtonLabel": "Nahrát další",
     "app.chat.inputPlaceholder": "Zpráva {0}",
     "app.chat.titlePublic": "Veřejný chat",
