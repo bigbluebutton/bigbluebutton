@@ -252,7 +252,7 @@
     "app.presentationUploader.export": "Poslat do chatu",
     "app.presentationUploader.export.linkAvailable": "Odkaz ke stažení {0} je dostupný na veřejném chatu.",
     "app.presentationUploader.export.notAccessibleWarning": "nemusí splňovat požadavky na přístupnost",
-    "app.presentationUploader.currentPresentationLabel": "Aktuální prezentace",
+    "app.presentationUploader.currentPresentationLabel": "Stávající prezentace",
     "app.presentationUploder.extraHint": "Důležité: žádný soubor nesmí překročit {0} MB a {1} stran.",
     "app.presentationUploder.uploadLabel": "Nahrát",
     "app.presentationUploder.confirmLabel": "Potvrdit",
