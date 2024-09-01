@@ -247,7 +247,7 @@
     "app.presentationUploader.sending": "Odesílání...",
     "app.presentationUploader.collecting": "Získávání snímku {0} z {1}...",
     "app.presentationUploader.processing": "Anotování snímku {0} z {1}...",
-    "app.presentationUploader.sent": "Oesláno",
+    "app.presentationUploader.sent": "Odesláno",
     "app.presentationUploader.exportingTimeout": "Export trvá příliš dlouho...",
     "app.presentationUploader.export": "Poslat do chatu",
     "app.presentationUploader.export.linkAvailable": "Odkaz ke stažení {0} je dostupný na veřejném chatu.",
