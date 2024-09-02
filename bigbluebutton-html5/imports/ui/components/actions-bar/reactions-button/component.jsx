@@ -149,7 +149,6 @@ const ReactionsButton = (props) => {
     label: <Styled.ToggleButtonWrapper><Toggle icons={false} defaultChecked={away} onChange={() => { handleToggleAFK(); }} ariaLabel={ToggleAFKLabel()} showToggleLabel={false} />{ToggleAFKLabel()}</Styled.ToggleButtonWrapper>,
     key: 'none',
     isToggle: true,
-    onClick: () => handleToggleAFK(),
     customStyles: {...actionCustomStyles, width: 'auto'},
   });
 
