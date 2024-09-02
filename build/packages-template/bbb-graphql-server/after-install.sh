@@ -52,7 +52,7 @@ sed -i "s/^admin_secret: .*/admin_secret: $HASURA_ADM_PASSWORD/g" /usr/share/bbb
 
     # Apply BBB metadata in Hasura
     cd /usr/share/bbb-graphql-server
-    /usr/local/bin/hasura metadata apply --skip-update-check
+    timeout 15s /usr/local/bin/hasura metadata apply --skip-update-check
     cd ..
     rm -rf /usr/share/bbb-graphql-server/metadata
   fi
