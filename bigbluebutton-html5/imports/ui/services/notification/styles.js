@@ -1,17 +1,19 @@
 import styled from 'styled-components';
+import Button from '/imports/ui/components/common/button/component';
+import { 
+  toastMargin,
+} from '/imports/ui/stylesheets/styled-components/general';
+import {
+  colorPrimary,
+} from '/imports/ui/stylesheets/styled-components/palette';
 
-const Button = styled.div`
+const HelpLinkButton = styled(Button)`
   position: relative;
-  background: none!important;
-  border: none;
-  padding: 0!important;
-  font-weight: bold;
-  color: #069;
-  text-decoration: underline;
-  cursor: pointer;
-  left: 15.7%;
-  font-size: 12px;
-  top: 2px;
+  width: 100%;
+  margin-top: ${toastMargin};
+  color: ${colorPrimary};
+  background-color: transparent;
+  
 `;
 
-export default { Button };
+export default { HelpLinkButton };

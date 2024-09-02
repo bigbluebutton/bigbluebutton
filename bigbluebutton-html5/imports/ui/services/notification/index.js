@@ -32,9 +32,13 @@ export function notify(message, type = 'default', icon, options, content, small)
       const id = toast(
         <div role="alert">
           <Toast {...toastProps} />
-          <Styled.Button onClick={() => { window.open(options.helpLink); }}>
-            {options.helpLabel}
-          </Styled.Button>
+          <Styled.HelpLinkButton
+            label={options.helpLabel}
+            color="default"
+            size="sm"
+            onClick={() => { window.open(options.helpLink); }}
+            data-test="helpLinkToastButton"
+          />
         </div>, settings,
       );
 
