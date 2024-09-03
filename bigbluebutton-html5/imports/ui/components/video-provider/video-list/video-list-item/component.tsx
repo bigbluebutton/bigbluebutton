@@ -64,7 +64,11 @@ interface VideoListItemProps {
   };
 }
 
-const renderPluginItems = (pluginItems: UserCameraHelperInterface[], bottom: boolean, right: boolean) => {
+const renderPluginItems = (
+  streamId: string, userId: string,
+  pluginItems: UserCameraHelperInterface[],
+  bottom: boolean, right: boolean,
+) => {
   if (pluginItems !== undefined) {
     return (
       <>
@@ -79,7 +83,7 @@ const renderPluginItems = (pluginItems: UserCameraHelperInterface[], bottom: boo
                 right={right}
                 icon={pluginButton.icon}
                 label={pluginButton.label}
-                onClick={pluginButton.onClick}
+                onClick={({ browserClickEvent }) => pluginButton.onClick({ browserClickEvent, streamId, userId })}
               />
             );
             return returnComponent;
@@ -319,31 +323,32 @@ const VideoListItem: React.FC<VideoListItemProps> = (props) => {
       userCameraHelperBottomLeft: bottomLeftPluginItems,
       userCameraHelperBottomRight: bottomRightPluginItems,
     } = pluginUserCameraHelperPerPosition;
+    const { userId } = stream;
     return (
       <>
         <Styled.UserCameraButtonsContainterWrapper
           positionYAxis="top"
           positionXAxis="left"
         >
-          {renderPluginItems(topLeftPluginItems, false, false)}
+          {renderPluginItems(cameraId, userId, topLeftPluginItems, false, false)}
         </Styled.UserCameraButtonsContainterWrapper>
         <Styled.UserCameraButtonsContainterWrapper
           positionYAxis="top"
           positionXAxis="right"
         >
-          {renderPluginItems(topRightPluginItems, false, true)}
+          {renderPluginItems(cameraId, userId, topRightPluginItems, false, true)}
         </Styled.UserCameraButtonsContainterWrapper>
         <Styled.UserCameraButtonsContainterWrapper
           positionYAxis="bottom"
           positionXAxis="left"
         >
-          {renderPluginItems(bottomLeftPluginItems, true, false)}
+          {renderPluginItems(cameraId, userId, bottomLeftPluginItems, true, false)}
         </Styled.UserCameraButtonsContainterWrapper>
         <Styled.UserCameraButtonsContainterWrapper
           positionYAxis="bottom"
           positionXAxis="right"
         >
-          {renderPluginItems(bottomRightPluginItems, true, true)}
+          {renderPluginItems(cameraId, userId, bottomRightPluginItems, true, true)}
         </Styled.UserCameraButtonsContainterWrapper>
       </>
     );
