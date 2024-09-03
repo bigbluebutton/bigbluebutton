@@ -253,13 +253,23 @@ object Polls {
 
   private def pollResultToWhiteboardShape(result: SimplePollResultOutVO): scala.collection.immutable.Map[String, Object] = {
     val shape = new scala.collection.mutable.HashMap[String, Object]()
-    shape += "numRespondents" -> Integer.valueOf(result.numRespondents)
-    shape += "numResponders" -> Integer.valueOf(result.numResponders)
-    shape += "questionType" -> result.questionType
-    shape += "questionText" -> result.questionText.getOrElse("")
+    val props = new scala.collection.mutable.HashMap[String, Object]()
+    val meta = new scala.collection.mutable.HashMap[String, Object]()
+
+    props += "answers" -> result.answers
+    props += "numRespondents" -> Integer.valueOf(result.numRespondents)
+    props += "numResponders" -> Integer.valueOf(result.numResponders)
+    props += "questionText" -> result.questionText.getOrElse("")
+    props += "questionType" -> result.questionType
+
+    shape += "typeName" -> "shape"
+    shape += "opacity" -> Integer.valueOf(1)
     shape += "id" -> s"shape:poll-result-${result.id}"
-    shape += "answers" -> result.answers
-    shape += "type" -> "geo"
+    shape += "meta" -> meta.toMap
+    shape += "type" -> "poll"
+
+    shape += "props" -> props.toMap
+
     shape.toMap
   }
 

@@ -38,7 +38,10 @@ class AddTldrawShapeWhiteboardRecordEvent extends AbstractWhiteboardRecordEvent 
       case l: List[_] => listFormat[Any].write(l)
       case b: Boolean if b == true => JsTrue
       case b: Boolean if b == false => JsFalse
-      case _ => JsNull
+      case v: SimpleVoteOutVO => JsObject("id" -> JsNumber(v.id), "key" -> JsString(v.key), "numVotes" -> JsNumber(v.numVotes))
+      case arr: Array[_] => JsArray(arr.map(write).toVector)
+      case null => JsNull
+      case _ => throw new IllegalArgumentException(s"Unsupported type: ${x.getClass.getName}")
     }
 
     def read(value: JsValue) = {}
