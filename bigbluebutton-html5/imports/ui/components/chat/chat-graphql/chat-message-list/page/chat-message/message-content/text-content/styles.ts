@@ -21,6 +21,7 @@ export const ChatMessage = styled.div<ChatMessageProps>`
   ${({ systemMsg }) => systemMsg && `
   background: ${systemMessageBackgroundColor};
   border: 1px solid ${systemMessageBorderColor};
+  border-radius: 0.2rem;
   font-weight: ${btnFontWeight};
   padding: ${fontSizeBase};
   text-color: #1f252b;
