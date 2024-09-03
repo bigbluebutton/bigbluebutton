@@ -83,6 +83,8 @@ public:
     allowFullscreen: true
     preloadNextSlides: 2
     warnAboutUnsavedContentOnMeetingEnd: false
+    # Flag used to enable apollo dev tools in production
+    enableApolloDevTools: false
     # Allows users to enable automatic transcription when joining a meeting.
     # Automatic transcription requires the browser to support the web
     # speech API, which involves sending voice data to third-party servers!
