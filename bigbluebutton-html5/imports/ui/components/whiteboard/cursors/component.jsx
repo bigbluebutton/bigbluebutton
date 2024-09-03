@@ -124,7 +124,6 @@ const Cursors = (props) => {
     // If the presentation container is the full screen element we don't need any offsets
     const { webkitFullscreenElement, fullscreenElement } = document;
     const fsEl = webkitFullscreenElement || fullscreenElement;
-
     if (fsEl?.getAttribute('data-test') === 'presentationContainer') {
       calcPresOffset();
     } else {
