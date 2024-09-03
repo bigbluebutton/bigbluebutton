@@ -1092,7 +1092,6 @@ const Whiteboard = React.memo(function Whiteboard(props) {
                 false,
                 widthGap
               );
-
               adjustedZoom *= currentZoom / HUNDRED_PERCENT;
             } else {
               adjustedZoom = baseZoom * (currentZoom / HUNDRED_PERCENT);
