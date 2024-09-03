@@ -22,7 +22,7 @@ const { ShapeOptions } = require('./shapeOptions');
 
 const hidePresentationToast = encodeCustomParams(PARAMETER_HIDE_PRESENTATION_TOAST);
 
-test.describe.parallel('Whiteboard tools @ci', () => {
+test.describe.parallel('Whiteboard tools', { tag: '@ci' }, () => {
   test.beforeEach(({ browserName }) => {
     test.skip(browserName !== 'chromium',
       'Drawing visual regression tests are enabled only for Chromium');
