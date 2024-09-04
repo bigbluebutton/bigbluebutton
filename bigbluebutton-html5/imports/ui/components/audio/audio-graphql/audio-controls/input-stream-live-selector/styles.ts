@@ -9,6 +9,8 @@ import {
   colorOffWhite,
   colorWhite,
 } from '/imports/ui/stylesheets/styled-components/palette';
+import { smPaddingX, smPaddingY } from '/imports/ui/stylesheets/styled-components/general';
+import { smallOnly } from '/imports/ui/stylesheets/styled-components/breakpoints';
 
 const pulse = keyframes`
   0% {
@@ -48,6 +50,20 @@ export const MuteToggleButton = styled(Button)`
         box-shadow: 0 0 0 4px rgba(255, 255, 255, 0.5);
       }
     `}
+  
+      @media ${smallOnly} {
+        margin-right: ${smPaddingY};
+      }
+  
+      [dir='rtl'] & {
+        margin-right: 0;
+        margin-left: ${smPaddingX};
+  
+        @media ${smallOnly} {
+          margin-left: ${smPaddingY};
+        }
+      }
+    }
 `;
 
 export const DisabledLabel = {

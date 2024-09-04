@@ -268,7 +268,11 @@ const MeetingEnded: React.FC<MeetingEndedProps> = ({
   const confirmRedirect = (isBreakout: boolean, allowRedirect: boolean) => {
     if (isBreakout) window.close();
     if (allowRedirect) {
-      window.location.href = logoutUrl;
+      let redirectTo = logoutUrl;
+      redirectTo = redirectTo.replaceAll('%%USERID%%', userId);
+      redirectTo = redirectTo.replaceAll('%%USERNAME%%', userName);
+      redirectTo = redirectTo.replaceAll('%%MEETINGID%%', meetingId);
+      window.location.href = redirectTo;
     }
   };
 
@@ -365,6 +369,7 @@ const MeetingEnded: React.FC<MeetingEndedProps> = ({
             color="primary"
             onClick={buttonAction}
             aria-details={buttonDesc}
+            data-test={(!noRating && !dispatched) ? 'sendFeedbackButton' : null}
           >
             {buttonLabel}
           </Styled.MeetingEndedButton>

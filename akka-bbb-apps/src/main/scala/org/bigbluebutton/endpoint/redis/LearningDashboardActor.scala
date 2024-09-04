@@ -41,8 +41,9 @@ case class User(
                  answers:            Map[String,Vector[String]] = Map(),
                  genericData:        Map[String, Vector[GenericData]] = Map(),
                  talk:               Talk = Talk(),
-                 emojis:             Vector[Emoji] = Vector(),
-                 reactions:          Vector[Emoji] = Vector(),
+                 reactions:          Vector[Reaction] = Vector(),
+                 raiseHand:          Vector[Long] = Vector(),
+                 away:               Vector[Away] = Vector(),
                  webcams:            Vector[Webcam] = Vector(),
                  totalOfMessages:    Long = 0,
 )
@@ -75,9 +76,14 @@ case class Talk(
   lastTalkStartedOn: Long = 0,
 )
 
-case class Emoji(
+case class Reaction(
   name: String,
   sentOn: Long = System.currentTimeMillis(),
+)
+
+case class Away(
+  startedOn: Long = System.currentTimeMillis(),
+  stoppedOn: Long = 0,
 )
 
 case class Webcam(
@@ -366,7 +372,7 @@ class LearningDashboardActor(
       user <- findUserByIntId(meeting, msg.body.userId)
     } yield {
       if (msg.body.raiseHand) {
-        val updatedUser = user.copy(emojis = user.emojis :+ Emoji("raiseHand"))
+        val updatedUser = user.copy(raiseHand = user.raiseHand :+ System.currentTimeMillis())
         val updatedMeeting = meeting.copy(users = meeting.users + (updatedUser.userKey -> updatedUser))
 
         meetings += (updatedMeeting.intId -> updatedMeeting)
@@ -379,12 +385,24 @@ class LearningDashboardActor(
       meeting <- meetings.values.find(m => m.intId == msg.header.meetingId)
       user <- findUserByIntId(meeting, msg.body.userId)
     } yield {
-      if (msg.body.away) {
-        val updatedUser = user.copy(emojis = user.emojis :+ Emoji("away"))
-        val updatedMeeting = meeting.copy(users = meeting.users + (updatedUser.userKey -> updatedUser))
-
-        meetings += (updatedMeeting.intId -> updatedMeeting)
+      val updatedUser = if (msg.body.away) {
+        if (user.away.exists(a => a.stoppedOn == 0)) {
+          //do nothing if user is already away
+          user
+        } else {
+          user.copy(away = user.away :+ Away())
+        }
+      } else {
+        if(user.away.last.stoppedOn == 0) {
+          user.copy(away = user.away.dropRight(1) :+ user.away.last.copy(stoppedOn = System.currentTimeMillis()))
+        } else {
+          //do nothing if user is not away
+          user
+        }
       }
+
+      val updatedMeeting = meeting.copy(users = meeting.users + (updatedUser.userKey -> updatedUser))
+      meetings += (updatedMeeting.intId -> updatedMeeting)
     }
   }
 
@@ -400,26 +418,9 @@ class LearningDashboardActor(
         }).length > 0
 
         if(!hasSameReactionInLast30Seconds) {
-          val updatedUser = user.copy(reactions = user.reactions :+ Emoji(msg.body.reactionEmoji))
+          val updatedUser = user.copy(reactions = user.reactions :+ Reaction(msg.body.reactionEmoji))
           val updatedMeeting = meeting.copy(users = meeting.users + (updatedUser.userKey -> updatedUser))
           meetings += (updatedMeeting.intId -> updatedMeeting)
-
-          //Convert Reactions to legacy Emoji (while LearningDashboard doesn't support Reactions)
-          val emoji = msg.body.reactionEmoji.codePointAt(0) match {
-            case 128515 => "happy"
-            case 128528 => "neutral"
-            case 128577 => "sad"
-            case 128077 => "thumbsUp"
-            case 128078 => "thumbsDown"
-            case 128079 => "applause"
-            case _ => "none"
-          }
-
-          if (emoji != "none") {
-            val updatedUserWithEmoji = updatedUser.copy(emojis = user.emojis :+ Emoji(emoji))
-            val updatedMeetingWithEmoji = meeting.copy(users = meeting.users + (updatedUserWithEmoji.userKey -> updatedUserWithEmoji))
-            meetings += (updatedMeeting.intId -> updatedMeetingWithEmoji)
-          }
         }
       }
     }

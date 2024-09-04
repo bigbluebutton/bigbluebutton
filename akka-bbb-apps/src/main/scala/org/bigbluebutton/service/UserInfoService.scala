@@ -41,7 +41,7 @@ class UserInfoService(system: ActorSystem, bbbActor: ActorRef) {
       }
     }
 
-    if (conditionalValue("online", "true", "false") == "true") {
+    if (conditionalValue("currentlyInMeeting", "true", "false") == "true") {
       Map(
         "response" -> "authorized",
         "X-Hasura-Role" -> "bbb_client",
@@ -60,7 +60,7 @@ class UserInfoService(system: ActorSystem, bbbActor: ActorRef) {
     } else {
       Map(
         "response" -> "authorized",
-        "X-Hasura-Role" -> "not_joined_bbb_client",
+        "X-Hasura-Role" -> "bbb_client_not_in_meeting",
         "X-Hasura-ModeratorInMeeting" -> conditionalValue("moderator", meetingID, ""),
         "X-Hasura-PresenterInMeeting" -> conditionalValue("presenter", meetingID, ""),
         "X-Hasura-UserId" -> userId,

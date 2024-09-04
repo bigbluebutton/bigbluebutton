@@ -2,6 +2,15 @@ import * as DarkReader from 'darkreader';
 import Styled from './styles';
 import logger from '/imports/startup/client/logger';
 import useMeeting from '../../core/hooks/useMeeting';
+import Storage from '/imports/ui/services/storage/session';
+
+const CUSTOM_LOGO_URL_KEY = 'CustomLogoUrl';
+
+const CUSTOM_DARK_LOGO_URL_KEY = 'CustomDarkLogoUrl';
+
+const equalURLs = () => (
+  Storage.getItem(CUSTOM_LOGO_URL_KEY) === Storage.getItem(CUSTOM_DARK_LOGO_URL_KEY)
+);
 
 export function useMeetingIsBreakout() {
   const { data: meeting } = useMeeting((m) => ({
@@ -12,11 +21,17 @@ export function useMeetingIsBreakout() {
 }
 
 export const setDarkTheme = (value) => {
+  let invert = [Styled.DtfInvert];
+
+  if(equalURLs()) {
+    invert = [Styled.DtfBrandingInvert];
+  }
+
   if (value && !DarkReader.isEnabled()) {
     DarkReader.enable(
       { brightness: 100, contrast: 90 },
       {
-        invert: [Styled.DtfInvert],
+        invert,
         ignoreInlineStyle: [Styled.DtfCss],
         ignoreImageAnalysis: [Styled.DtfImages],
       },

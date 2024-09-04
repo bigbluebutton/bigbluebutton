@@ -42,6 +42,7 @@ interface PresenceManagerProps extends PresenceManagerContainerProps {
     bannerColor: string;
     bannerText: string;
     customLogoUrl: string;
+    customDarkLogoUrl: string;
     loggedOut: boolean;
     guestStatus: string;
     guestLobbyMessage: string | null;
@@ -67,6 +68,7 @@ const PresenceManager: React.FC<PresenceManagerProps> = ({
   bannerColor,
   bannerText,
   customLogoUrl,
+  customDarkLogoUrl,
   loggedOut,
   guestLobbyMessage,
   guestStatus,
@@ -112,6 +114,7 @@ const PresenceManager: React.FC<PresenceManagerProps> = ({
       extId,
       meetingName,
       customLogoUrl,
+      customDarkLogoUrl,
     });
   }, []);
 
@@ -227,6 +230,7 @@ const PresenceManagerContainer: React.FC<PresenceManagerContainerProps> = ({ chi
     bannerColor,
     bannerText,
     customLogoUrl,
+    customDarkLogoUrl,
   } = userInfoData.meeting[0];
   const { extId, name: userName, userId } = userInfoData.user_current[0];
 
@@ -250,6 +254,7 @@ const PresenceManagerContainer: React.FC<PresenceManagerContainerProps> = ({ chi
       bannerText={bannerText}
       loggedOut={loggedOut}
       customLogoUrl={customLogoUrl}
+      customDarkLogoUrl={customDarkLogoUrl}
       guestLobbyMessage={guestStatusDetails?.guestLobbyMessage ?? null}
       positionInWaitingQueue={guestStatusDetails?.positionInWaitingQueue ?? null}
       guestStatus={guestStatus}

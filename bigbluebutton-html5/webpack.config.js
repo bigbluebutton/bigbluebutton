@@ -1,6 +1,7 @@
 const HtmlWebpackPlugin = require('html-webpack-plugin');
 const MiniCssExtractPlugin = require('mini-css-extract-plugin');
 const path = require('path');
+const webpack = require('webpack');
 const CopyPlugin = require('copy-webpack-plugin');
 const TerserPlugin = require('terser-webpack-plugin');
 
@@ -33,6 +34,9 @@ const config = {
         { from: 'public', to: '.' },
         { from: 'private', to: 'private' },
       ],
+    }),
+    new webpack.DefinePlugin({
+      'process.env.NODE_ENV': JSON.stringify(env),
     }),
   ],
   resolve: {
@@ -109,6 +113,25 @@ if (env === prodEnv) {
     client: {
       overlay: false,
       webSocketURL: 'auto://0.0.0.0:0/html5client/ws',
+    },
+    setupMiddlewares: (middlewares, devServer) => {
+      if (!devServer) {
+        throw new Error('webpack-dev-server is not defined');
+      }
+
+      devServer.app.use((req, res, next) => {
+        // the server crashes when it receives HEAD requests, so we need to prevent it
+        if (req.method === 'HEAD') {
+          // console.log(`Request received: ${req.method} ${req.url}`);
+          res.setHeader('Content-Type', 'text/html');
+          res.setHeader('Content-Length', '0');
+          res.end();
+        } else {
+          next();
+        }
+      });
+
+      return middlewares;
     },
   };
 }

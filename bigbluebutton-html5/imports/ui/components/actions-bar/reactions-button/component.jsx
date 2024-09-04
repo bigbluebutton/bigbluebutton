@@ -74,8 +74,7 @@ const ReactionsButton = (props) => {
   };
 
   const handleReactionSelect = (reaction) => {
-    const newReaction = currentUserReaction === reaction ? 'none' : reaction;
-    setReactionEmoji({ variables: { reactionEmoji: newReaction } });
+    setReactionEmoji({ variables: { reactionEmoji: reaction } });
   };
 
   const handleRaiseHandButtonClick = () => {
@@ -161,7 +160,7 @@ const ReactionsButton = (props) => {
     customStyles: {...actionCustomStyles, width: 'auto'},
   });
 
-  const icon = !raiseHand && !away && currentUserReaction === 'none' ? 'hand' : null;
+  const svgIcon = !raiseHand && !away && currentUserReaction === 'none' ? 'reactions' : null;
   const currentUserReactionEmoji = REACTIONS.find(({ native }) => native === currentUserReaction);
 
   let customIcon = null;
@@ -169,7 +168,7 @@ const ReactionsButton = (props) => {
   if (raiseHand) {
     customIcon = <em-emoji key={handReaction.id} native={handReaction.native} emoji={handReaction} {...emojiProps} />;
   } else {
-    if (!icon) {
+    if (!svgIcon) {
       customIcon = <em-emoji key={currentUserReactionEmoji?.id} native={currentUserReactionEmoji?.native} emoji={{ id: currentUserReactionEmoji?.id }} {...emojiProps} />;
     }
   }
@@ -184,7 +183,7 @@ const ReactionsButton = (props) => {
         <Styled.ReactionsDropdown id="interactionsButton">
           <Styled.RaiseHandButton
             data-test="reactionsButton"
-            icon={icon}
+            svgIcon={svgIcon}
             customIcon={customIcon}
             label={intl.formatMessage(intlMessages.reactionsLabel)}
             description="Reactions"

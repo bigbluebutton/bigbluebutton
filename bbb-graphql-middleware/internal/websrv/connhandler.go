@@ -1,12 +1,12 @@
 package websrv
 
 import (
+	"bbb-graphql-middleware/config"
 	"bbb-graphql-middleware/internal/akka_apps"
 	"bbb-graphql-middleware/internal/bbb_web"
 	"bbb-graphql-middleware/internal/common"
 	"bbb-graphql-middleware/internal/gql_actions"
 	"bbb-graphql-middleware/internal/hasura"
-	"bbb-graphql-middleware/internal/msgpatch"
 	"bbb-graphql-middleware/internal/websrv/reader"
 	"bbb-graphql-middleware/internal/websrv/writer"
 	"bytes"
@@ -17,7 +17,6 @@ import (
 	log "github.com/sirupsen/logrus"
 	"net/http"
 	"nhooyr.io/websocket"
-	"os"
 	"strings"
 	"sync"
 	"time"
@@ -36,8 +35,6 @@ var BrowserConnectionsMutex = &sync.RWMutex{}
 // This is the connection that comes from browser
 func ConnectionHandler(w http.ResponseWriter, r *http.Request) {
 	log := log.WithField("_routine", "ConnectionHandler")
-	common.ActivitiesOverviewStarted("__BrowserConnection")
-	defer common.ActivitiesOverviewCompleted("__BrowserConnection")
 
 	// Obtain id for this connection
 	lastBrowserConnectionId++
@@ -51,9 +48,10 @@ func ConnectionHandler(w http.ResponseWriter, r *http.Request) {
 	// Add sub-protocol
 	var acceptOptions websocket.AcceptOptions
 	acceptOptions.Subprotocols = append(acceptOptions.Subprotocols, "graphql-transport-ws")
-	bbbOrigin := os.Getenv("BBB_GRAPHQL_MIDDLEWARE_ORIGIN")
-	if bbbOrigin != "" {
-		acceptOptions.OriginPatterns = append(acceptOptions.OriginPatterns, bbbOrigin)
+
+	//Add Authorized Cross Origin Url
+	if config.GetConfig().Server.AuthorizedCrossOrigin != "" {
+		acceptOptions.OriginPatterns = append(acceptOptions.OriginPatterns, config.GetConfig().Server.AuthorizedCrossOrigin)
 	}
 
 	browserWsConn, err := websocket.Accept(w, r, &acceptOptions)
@@ -88,7 +86,6 @@ func ConnectionHandler(w http.ResponseWriter, r *http.Request) {
 	BrowserConnectionsMutex.Unlock()
 
 	defer func() {
-		msgpatch.RemoveConnCacheDir(browserConnectionId)
 		BrowserConnectionsMutex.Lock()
 		_, bcExists := BrowserConnections[browserConnectionId]
 		if bcExists {

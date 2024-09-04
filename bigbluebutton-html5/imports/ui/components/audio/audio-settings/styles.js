@@ -6,6 +6,7 @@ import {
   mdPaddingX,
   mdPaddingY,
   jumboPaddingX,
+  jumboPaddingY,
 } from '/imports/ui/stylesheets/styled-components/general';
 import {
   colorGrayLightest,
@@ -33,7 +34,7 @@ const Form = styled.div`
 
 const AudioNote = styled.div`
   display: block;
-  margin: ${mdPaddingY} ${mdPaddingX} 0 ${mdPaddingX};
+  margin: 0 ${mdPaddingX} ${jumboPaddingY} ${mdPaddingX};
   text-align: center;
   @media ${smallOnly} {
     font-size: ${fontSizeSmall};

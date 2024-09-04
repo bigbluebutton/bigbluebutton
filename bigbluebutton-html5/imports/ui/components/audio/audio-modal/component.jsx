@@ -335,7 +335,6 @@ const AudioModal = ({
 
   const handleGoToAudioOptions = () => {
     setContent(null);
-    setHasError(true);
     setDisableActions(false);
   };
 
@@ -408,9 +407,11 @@ const AudioModal = ({
     }
   }, [changeInputStream, isConnected]);
 
-  const skipAudioOptions = () => (isConnecting || (forceListenOnlyAttendee && !autoplayChecked))
-    && !content
-    && !hasError;
+  const skipAudioOptions = useCallback(
+    // eslint-disable-next-line max-len
+    () => !hasError && (isConnecting || (forceListenOnlyAttendee && !autoplayChecked) || !listenOnlyMode),
+    [hasError, isConnecting, forceListenOnlyAttendee, autoplayChecked, listenOnlyMode],
+  );
 
   const renderAudioOptions = () => {
     const hideMicrophone = forceListenOnlyAttendee || audioLocked;
@@ -481,12 +482,17 @@ const AudioModal = ({
   );
 
   const handleBack = useCallback(() => {
-    if (isConnecting || isConnected || skipAudioOptions()) {
+    // If audio is active, audio options are flagged to be skipped (see skipAudioOptions)
+    // or listen only mode is deactivated (which means there are no actual options
+    // in the base modal), clicking back on any of the sub-modals should close the base modal
+    if (isConnecting
+      || isConnected
+      || skipAudioOptions()) {
       closeModal();
     } else {
       handleGoToAudioOptions();
     }
-  }, [isConnecting, isConnected, skipAudioOptions]);
+  }, [isConnecting, isConnected, skipAudioOptions, listenOnlyMode]);
 
   const renderAudioSettings = () => {
     const { animations } = getSettingsSingletonInstance().application;
@@ -521,6 +527,7 @@ const AudioModal = ({
         toggleVoice={voiceToggle}
         permissionStatus={permissionStatus}
         isTranscriptionEnabled={isTranscriptionEnabled}
+        skipAudioOptions={skipAudioOptions}
       />
     );
   };
@@ -592,26 +599,28 @@ const AudioModal = ({
   const renderContent = () => {
     const { animations } = getSettingsSingletonInstance().application;
 
-    if (findingDevices && content === null) {
-      return (
-        <Styled.Connecting role="alert">
-          <span data-test="findingDevicesLabel">
-            {intl.formatMessage(intlMessages.findingDevicesTitle)}
-          </span>
-          <Styled.ConnectingAnimation animations={animations} />
-        </Styled.Connecting>
-      );
-    }
+    if (content == null) {
+      if (findingDevices) {
+        return (
+          <Styled.Connecting role="alert">
+            <span data-test="findingDevicesLabel">
+              {intl.formatMessage(intlMessages.findingDevicesTitle)}
+            </span>
+            <Styled.ConnectingAnimation animations={animations} />
+          </Styled.Connecting>
+        );
+      }
 
-    if (skipAudioOptions()) {
-      return (
-        <Styled.Connecting role="alert">
-          <span data-test={!isEchoTest ? 'establishingAudioLabel' : 'connectingToEchoTest'}>
-            {intl.formatMessage(intlMessages.connecting)}
-          </span>
-          <Styled.ConnectingAnimation animations={animations} />
-        </Styled.Connecting>
-      );
+      if (skipAudioOptions()) {
+        return (
+          <Styled.Connecting role="alert">
+            <span data-test={!isEchoTest ? 'establishingAudioLabel' : 'connectingToEchoTest'}>
+              {intl.formatMessage(intlMessages.connecting)}
+            </span>
+            <Styled.ConnectingAnimation animations={animations} />
+          </Styled.Connecting>
+        );
+      }
     }
 
     return content ? contents[content].component() : renderAudioOptions();
@@ -633,10 +642,9 @@ const AudioModal = ({
               handleJoinMicrophone();
             });
         } else {
-          checkMicrophonePermission({ doGUM: false, permissionStatus }).then((hasPermission) => {
-            if (hasPermission === false) return;
-            handleGoToEchoTest();
-          });
+          // No need to check for permission here since the AudioSettings
+          // component will handle it
+          handleGoToEchoTest();
         }
       }
     }
@@ -667,39 +675,41 @@ const AudioModal = ({
   let title = content
     ? intl.formatMessage(contents[content].title)
     : intl.formatMessage(intlMessages.audioChoiceLabel);
-  title = !skipAudioOptions() && (!findingDevices || content)
+  title = (!skipAudioOptions() && !findingDevices) || content
     ? title
     : null;
 
   return (
-    <Styled.AudioModal
-      modalName="AUDIO"
-      onRequestClose={closeModal}
-      data-test="audioModal"
-      contentLabel={intl.formatMessage(intlMessages.ariaModalTitle)}
-      title={title}
-      {...{
-        setIsOpen,
-        isOpen,
-        priority,
-      }}
-    >
-      {isIE ? (
-        <Styled.BrowserWarning>
-          <FormattedMessage
-            id="app.audioModal.unsupportedBrowserLabel"
-            description="Warning when someone joins with a browser that isn't supported"
-            values={{
-              0: <a href="https://www.google.com/chrome/">Chrome</a>,
-              1: <a href="https://getfirefox.com">Firefox</a>,
-            }}
-          />
-        </Styled.BrowserWarning>
-      ) : null}
-      <Styled.Content>
-        {renderContent()}
-      </Styled.Content>
-    </Styled.AudioModal>
+    <Styled.Background isBlurred={Session.getItem('audioModalIsOpen')}>
+      <Styled.AudioModal
+        modalName="AUDIO"
+        onRequestClose={closeModal}
+        data-test="audioModal"
+        contentLabel={intl.formatMessage(intlMessages.ariaModalTitle)}
+        title={title}
+        {...{
+          setIsOpen,
+          isOpen,
+          priority,
+        }}
+      >
+        {isIE ? (
+          <Styled.BrowserWarning>
+            <FormattedMessage
+              id="app.audioModal.unsupportedBrowserLabel"
+              description="Warning when someone joins with a browser that isn't supported"
+              values={{
+                0: <a href="https://www.google.com/chrome/">Chrome</a>,
+                1: <a href="https://getfirefox.com">Firefox</a>,
+              }}
+            />
+          </Styled.BrowserWarning>
+        ) : null}
+        <Styled.Content>
+          {renderContent()}
+        </Styled.Content>
+      </Styled.AudioModal>
+    </Styled.Background>
   );
 };
 

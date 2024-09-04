@@ -271,6 +271,7 @@ jobs:
             cat bbb-install.sh | sed "s|> /etc/apt/sources.list.d/bigbluebutton.list||g" | bash -s -- -v jammy-30-dev -s bbb-ci.test -j -d /certs/
             bbb-conf --salt bbbci
             sed -i "s/\"minify\": true,/\"minify\": false,/" /usr/share/etherpad-lite/settings.json
+            sudo yq e -i '.log_level = "TRACE"' /usr/share/bbb-graphql-middleware/config.yml
             bbb-conf --restart
             EOF
       - name: List systemctl services

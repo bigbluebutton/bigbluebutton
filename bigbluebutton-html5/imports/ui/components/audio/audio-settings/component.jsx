@@ -41,6 +41,7 @@ const propTypes = {
   toggleVoice: PropTypes.func.isRequired,
   permissionStatus: PropTypes.string,
   isTranscriptionEnabled: PropTypes.bool.isRequired,
+  skipAudioOptions: PropTypes.func.isRequired,
 };
 
 const defaultProps = {
@@ -279,6 +280,9 @@ class AudioSettings extends React.Component {
       // Only generate input streams if they're going to be used with something
       // In this case, the volume meter or local echo test.
       if (produceStreams) {
+        this.setState({
+          producingStreams: true,
+        });
         this.generateInputStream(deviceId).then((stream) => {
           // Extract the deviceId again from the stream to guarantee consistency
           // between stream DID vs chosen DID. That's necessary in scenarios where,
@@ -301,8 +305,13 @@ class AudioSettings extends React.Component {
           this.setState({
             inputDeviceId: extractedDeviceId,
             stream,
-            producingStreams: false,
           });
+
+          // Update the device list after the stream has been generated.
+          // This is necessary to guarantee the device list is up-to-date, mainly
+          // in Firefox as it omit labels if no active stream is present (even if
+          // gUM permission is flagged as granted).
+          this.updateDeviceList();
         }).catch((error) => {
           logger.warn({
             logCode: 'audiosettings_gum_failed',
@@ -313,6 +322,13 @@ class AudioSettings extends React.Component {
             },
           }, `Audio settings gUM failed: ${error.name}`);
           handleGUMFailure(error);
+        }).finally(() => {
+          // Component unmounted after gUM resolution -> skip echo rendering
+          if (!this._isMounted) return;
+
+          this.setState({
+            producingStreams: false,
+          });
         });
       } else {
         this.setState({
@@ -377,6 +393,15 @@ class AudioSettings extends React.Component {
           audioInputDevices,
           audioOutputDevices,
         });
+      })
+      .catch((error) => {
+        logger.warn({
+          logCode: 'audiosettings_enumerate_devices_error',
+          extraInfo: {
+            errorName: error.name,
+            errorMessage: error.message,
+          },
+        }, `Audio settings: error enumerating devices - {${error.name}: ${error.message}}`);
       });
   }
 
@@ -520,6 +545,7 @@ class AudioSettings extends React.Component {
     const {
       isConnecting,
       isConnected,
+      skipAudioOptions,
       intl,
     } = this.props;
 
@@ -532,7 +558,7 @@ class AudioSettings extends React.Component {
         <Styled.BottomSeparator />
         <Styled.EnterAudio>
           <Styled.BackButton
-            label={isConnected
+            label={(isConnected || skipAudioOptions())
               ? intl.formatMessage(intlMessages.cancelLabel)
               : intl.formatMessage(intlMessages.backLabel)}
             color="secondary"

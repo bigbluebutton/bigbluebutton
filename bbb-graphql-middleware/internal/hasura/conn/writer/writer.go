@@ -1,23 +1,30 @@
 package writer
 
 import (
+	"bbb-graphql-middleware/config"
 	"bbb-graphql-middleware/internal/common"
-	"bbb-graphql-middleware/internal/msgpatch"
 	"context"
 	"encoding/json"
 	"errors"
 	"github.com/prometheus/client_golang/prometheus"
 	log "github.com/sirupsen/logrus"
 	"nhooyr.io/websocket"
-	"os"
 	"strings"
 	"sync"
 )
 
-var ()
+var allowedSubscriptions []string
+var deniedSubscriptions []string
+var jsonPatchDisabled = config.GetConfig().Server.JsonPatchDisabled
 
 func init() {
+	if config.GetConfig().Server.SubscriptionAllowedList != "" {
+		allowedSubscriptions = strings.Split(config.GetConfig().Server.SubscriptionAllowedList, ",")
+	}
 
+	if config.GetConfig().Server.SubscriptionsDeniedList != "" {
+		deniedSubscriptions = strings.Split(config.GetConfig().Server.SubscriptionsDeniedList, ",")
+	}
 }
 
 // HasuraConnectionWriter
@@ -81,10 +88,9 @@ RangeLoop:
 					if query != "" {
 						if strings.HasPrefix(query, "subscription") {
 							//Validate if subscription is allowed
-							if allowedSubscriptions := os.Getenv("BBB_GRAPHQL_MIDDLEWARE_ALLOWED_SUBSCRIPTIONS"); allowedSubscriptions != "" {
-								allowedSubscriptionsSlice := strings.Split(allowedSubscriptions, ",")
+							if len(allowedSubscriptions) > 0 {
 								subscriptionAllowed := false
-								for _, s := range allowedSubscriptionsSlice {
+								for _, s := range allowedSubscriptions {
 									if s == browserMessage.Payload.OperationName {
 										subscriptionAllowed = true
 										break
@@ -98,10 +104,9 @@ RangeLoop:
 							}
 
 							//Validate if subscription is allowed
-							if deniedSubscriptions := os.Getenv("BBB_GRAPHQL_MIDDLEWARE_DENIED_SUBSCRIPTIONS"); deniedSubscriptions != "" {
-								deniedSubscriptionsSlice := strings.Split(deniedSubscriptions, ",")
+							if len(deniedSubscriptions) > 0 {
 								subscriptionAllowed := true
-								for _, s := range deniedSubscriptionsSlice {
+								for _, s := range deniedSubscriptions {
 									if s == browserMessage.Payload.OperationName {
 										subscriptionAllowed = false
 										break
@@ -153,11 +158,8 @@ RangeLoop:
 					//Identify if the client that requested this subscription expects to receive json-patch
 					//Client append `Patched_` to the query operationName to indicate that it supports
 					jsonPatchSupported := false
-					if strings.HasPrefix(browserMessage.Payload.OperationName, "Patched_") {
+					if !jsonPatchDisabled && strings.HasPrefix(browserMessage.Payload.OperationName, "Patched_") {
 						jsonPatchSupported = true
-					}
-					if jsonPatchDisabled := os.Getenv("BBB_GRAPHQL_MIDDLEWARE_JSON_PATCH_DISABLED"); jsonPatchDisabled != "" {
-						jsonPatchSupported = false
 					}
 
 					browserConnection.ActiveSubscriptionsMutex.Lock()
@@ -176,17 +178,12 @@ RangeLoop:
 					// log.Tracef("Current queries: %v", browserConnection.ActiveSubscriptions)
 					browserConnection.ActiveSubscriptionsMutex.Unlock()
 
-					common.ActivitiesOverviewStarted(string(messageType) + "-" + browserMessage.Payload.OperationName)
-					common.ActivitiesOverviewStarted("_Sum-" + string(messageType))
-
 					//Add Prometheus Metrics
-					if messageType == common.Subscription {
-						common.GqlSubscriptionCounter.With(prometheus.Labels{"operationName": browserMessage.Payload.OperationName}).Inc()
-					} else if messageType == common.Streaming {
-						common.GqlSubscriptionStreamingCounter.With(prometheus.Labels{"operationName": browserMessage.Payload.OperationName}).Inc()
-					} else if messageType == common.Query {
-						common.GqlQueriesCounter.With(prometheus.Labels{"operationName": browserMessage.Payload.OperationName}).Inc()
-					}
+					common.GqlSubscribeCounter.
+						With(prometheus.Labels{
+							"type":          string(messageType),
+							"operationName": browserMessage.Payload.OperationName}).
+						Inc()
 
 					//Dump of all subscriptions for analysis purpose
 					//queryCounter++
@@ -196,16 +193,9 @@ RangeLoop:
 
 				if browserMessage.Type == "complete" {
 					browserConnection.ActiveSubscriptionsMutex.RLock()
-					jsonPatchSupported := browserConnection.ActiveSubscriptions[browserMessage.ID].JsonPatchSupported
-
 					//Remove subscriptions from ActivitiesOverview here once Hasura-Reader will ignore "complete" msg for them
-					common.ActivitiesOverviewCompleted(string(browserConnection.ActiveSubscriptions[browserMessage.ID].Type) + "-" + browserConnection.ActiveSubscriptions[browserMessage.ID].OperationName)
-					common.ActivitiesOverviewCompleted("_Sum-" + string(browserConnection.ActiveSubscriptions[browserMessage.ID].Type))
 
 					browserConnection.ActiveSubscriptionsMutex.RUnlock()
-					if jsonPatchSupported {
-						msgpatch.RemoveConnSubscriptionCacheFile(browserConnection.Id, browserConnection.SessionToken, browserMessage.ID)
-					}
 					browserConnection.ActiveSubscriptionsMutex.Lock()
 					delete(browserConnection.ActiveSubscriptions, browserMessage.ID)
 					// log.Tracef("Current queries: %v", browserConnection.ActiveSubscriptions)
