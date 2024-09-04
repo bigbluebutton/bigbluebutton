@@ -1834,13 +1834,22 @@ class ApiController {
     }
   }
 
+  private String subLogoutParams(params, logoutURL) {
+    String newURL = logoutURL;
+    newURL = newURL.replace('%%MEETINGID%%', params.meetingID != null ? params.meetingID : "");
+    newURL = newURL.replace('%%USERID%%', params.userID != null ? params.userID : "");
+    newURL = newURL.replace('%%USERNAME%%', params.fullName != null ? params.fullName : "");
+
+    return newURL;
+  }
+
   private void respondWithRedirect(errorsJSONArray, redirectUrl = "") {
-    String logoutUrl = paramsProcessorUtil.getDefaultLogoutUrl()
+    String logoutUrl = subLogoutParams(params, paramsProcessorUtil.getDefaultLogoutUrl())
     URI oldUri = URI.create(logoutUrl)
 
     if (!StringUtils.isEmpty(params.logoutURL)) {
       try {
-        oldUri = URI.create(params.logoutURL)
+        oldUri = URI.create(subLogoutParams(params, params.logoutURL))
       } catch (Exception e) {
         // Do nothing, the variable oldUri was already initialized
       }
