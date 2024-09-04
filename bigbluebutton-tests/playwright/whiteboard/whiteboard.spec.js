@@ -28,99 +28,99 @@ test.describe.parallel('Whiteboard tools', { tag: '@ci' }, () => {
       'Drawing visual regression tests are enabled only for Chromium');
   });
 
-  test('Draw rectangle', { tag: '@ci'}, async ({ browser, context, page }) => {
+  test('Draw rectangle', async ({ browser, context, page }) => {
     const drawRectangle = new DrawRectangle(browser, context);
     await drawRectangle.initModPage(page, true, { customMeetingId: 'draw_rectangle_meeting', joinParameter: hidePresentationToast });
     await drawRectangle.initUserPage(true, context, { joinParameter: hidePresentationToast });
     await drawRectangle.test();
   });
 
-  test('Draw ellipse', { tag: '@ci'}, async ({ browser, context, page }) => {
+  test('Draw ellipse', async ({ browser, context, page }) => {
     const drawEllipse = new DrawEllipse(browser, context);
     await drawEllipse.initModPage(page, true, { customMeetingId: 'draw_ellipse_meeting', joinParameter: hidePresentationToast });
     await drawEllipse.initUserPage(true, context, { joinParameter: hidePresentationToast });
     await drawEllipse.test();
   });
 
-  test('Draw triangle', { tag: '@ci'}, async ({ browser, context, page }) => {
+  test('Draw triangle', async ({ browser, context, page }) => {
     const drawTriangle = new DrawTriangle(browser, context);
     await drawTriangle.initModPage(page, true, { customMeetingId: 'draw_triangle_meeting', joinParameter: hidePresentationToast });
     await drawTriangle.initUserPage(true, context, { joinParameter: hidePresentationToast });
     await drawTriangle.test();
   });
 
-  test('Draw line', { tag: '@ci'}, async ({ browser, context, page }) => {
+  test('Draw line', async ({ browser, context, page }) => {
     const drawLine = new DrawLine(browser, context);
     await drawLine.initModPage(page, true, { customMeetingId: 'draw_line_meeting', joinParameter: hidePresentationToast });
     await drawLine.initUserPage(true, context, { joinParameter: hidePresentationToast });
     await drawLine.test();
   });
 
-  test('Draw with pencil', { tag: '@ci'}, async ({ browser, context, page }) => {
+  test('Draw with pencil', async ({ browser, context, page }) => {
     const drawPencil = new DrawPencil(browser, context);
     await drawPencil.initModPage(page, true, { customMeetingId: 'draw_pencil_meeting', joinParameter: hidePresentationToast });
     await drawPencil.initUserPage(true, context, { joinParameter: hidePresentationToast });
     await drawPencil.test();
   });
 
-  test('Type text', { tag: '@ci'}, async ({ browser, context, page }) => {
+  test('Type text', async ({ browser, context, page }) => {
     const drawText = new DrawText(browser, context);
     await drawText.initModPage(page, true, { customMeetingId: 'draw_text_meeting', joinParameter: hidePresentationToast });
     await drawText.initUserPage(true, context, { joinParameter: hidePresentationToast });
     await drawText.test();
   });
 
-  test('Create sticky note', { tag: ['@ci', '@flaky']}, async ({ browser, context, page }) => {
+  test('Create sticky note', { tag: '@flaky'}, async ({ browser, context, page }) => {
     const drawStickyNote = new DrawStickyNote(browser, context);
     await drawStickyNote.initModPage(page, true, { customMeetingId: 'draw_sticky_meeting', joinParameter: hidePresentationToast });
     await drawStickyNote.initUserPage(true, context, { joinParameter: hidePresentationToast });
     await drawStickyNote.test();
   });
 
-  test('Pan', { tag: ['@ci', '@flaky']}, async ({ browser, context, page }) => {
+  test('Pan', { tag: '@flaky'}, async ({ browser, context, page }) => {
     const pan = new Pan(browser, context);
     await pan.initModPage(page, true, { customMeetingId: 'draw_line_meeting', joinParameter: hidePresentationToast });
     await pan.initUserPage(true, context, { joinParameter: hidePresentationToast });
     await pan.test();
   });
 
-  test('Eraser', { tag: '@ci'}, async ({ browser, context, page }) => {
+  test('Eraser', async ({ browser, context, page }) => {
     const eraser = new Eraser(browser, context);
     await eraser.initModPage(page, true, { customMeetingId: 'draw_line_meeting', joinParameter: hidePresentationToast });
     await eraser.initUserPage(true, context, { joinParameter: hidePresentationToast });
     await eraser.test();
   });
 
-  test('Draw arrow', { tag: '@ci'}, async ({ browser, context, page }) => {
+  test('Draw arrow', async ({ browser, context, page }) => {
     const drawArrow = new DrawArrow(browser, context);
     await drawArrow.initModPage(page, true, { customMeetingId: 'draw_line_meeting', joinParameter: hidePresentationToast });
     await drawArrow.initUserPage(true, context, { joinParameter: hidePresentationToast });
     await drawArrow.test();
   });
 
-  test.describe.parallel('Change Shapes Styles', async () => {
-    test('Change color', { tag: '@ci'}, async ({ browser, context, page }) => {
+  test.describe.parallel('Change Shapes Styles', { tag: '@ci'}, async () => {
+    test('Change color', async ({ browser, context, page }) => {
       const changeColor = new ChangeStyles(browser, context);
       await changeColor.initModPage(page, true, { customMeetingId: 'draw_line_meeting', joinParameter: hidePresentationToast });
       await changeColor.initUserPage(true, context, { joinParameter: hidePresentationToast });
       await changeColor.changingColor();
     });
   
-    test('Fill drawing', { tag: '@ci'}, async ({ browser, context, page }) => {
+    test('Fill drawing', async ({ browser, context, page }) => {
       const fillDrawing = new ChangeStyles(browser, context);
       await fillDrawing.initModPage(page, true, { customMeetingId: 'draw_line_meeting', joinParameter: hidePresentationToast });
       await fillDrawing.initUserPage(true, context, { joinParameter: hidePresentationToast });
       await fillDrawing.fillDrawing();
     });
   
-    test('Dash drawing', { tag: '@ci'}, async ({ browser, context, page }) => {
+    test('Dash drawing', async ({ browser, context, page }) => {
       const dashDrawing = new ChangeStyles(browser, context);
       await dashDrawing.initModPage(page, true, { customMeetingId: 'draw_line_meeting', joinParameter: hidePresentationToast });
       await dashDrawing.initUserPage(true, context, { joinParameter: hidePresentationToast });
       await dashDrawing.dashDrawing();
     });
   
-    test('Size drawing', { tag: '@ci'}, async ({ browser, context, page }) => {
+    test('Size drawing', async ({ browser, context, page }) => {
       const sizeDrawing = new ChangeStyles(browser, context);
       await sizeDrawing.initModPage(page, true, { customMeetingId: 'draw_line_meeting', joinParameter: hidePresentationToast });
       await sizeDrawing.initUserPage(true, context, { joinParameter: hidePresentationToast });
@@ -128,7 +128,7 @@ test.describe.parallel('Whiteboard tools', { tag: '@ci' }, () => {
     });
   });
 
-  test('Delete drawing', { tag: ['@ci', '@flaky']}, async ({ browser, context, page }) => {
+  test('Delete drawing', { tag: '@flaky'}, async ({ browser, context, page }) => {
     const deleteDrawing = new DeleteDrawing(browser, context);
     await deleteDrawing.initModPage(page, true, { customMeetingId: 'draw_line_meeting', joinParameter: hidePresentationToast });
     await deleteDrawing.initUserPage(true, context, { joinParameter: hidePresentationToast });
