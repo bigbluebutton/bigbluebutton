@@ -7,6 +7,7 @@ import AudioService from '/imports/ui/components/audio/service';
 import ScreenshareService from '/imports/ui/components/screenshare/service';
 import VideoService from '/imports/ui/components/video-provider/service';
 import connectionStatus from '../../core/graphql/singletons/connectionStatus';
+import { getStatus } from '/imports/ui/core/utils/getStatus';
 
 const intlMessages = defineMessages({
   saved: {
@@ -23,8 +24,6 @@ export const NETWORK_MONITORING_INTERVAL_MS = 2000;
 
 export const lastLevel = makeVar();
 
-let statsTimeout = null;
-
 export const URL_REGEX = new RegExp(/^(http|https):\/\/[^ "]+$/);
 export const getHelp = () => {
   const STATS = window.meetingClientSettings.public.stats;
@@ -33,23 +32,6 @@ export const getHelp = () => {
 
   return null;
 };
-
-export function getStatus(levels, value) {
-  const sortedLevels = Object.entries(levels)
-    .map((entry) => [entry[0], Number(entry[1])])
-    .sort((a, b) => a[1] - b[1]);
-
-  for (let i = 0; i < sortedLevels.length; i += 1) {
-    if (value < sortedLevels[i][1]) {
-      return i === 0 ? 'normal' : sortedLevels[i - 1][0];
-    }
-    if (i === sortedLevels.length - 1) {
-      return sortedLevels[i][0];
-    }
-  }
-
-  return sortedLevels[sortedLevels.length - 1][0];
-}
 
 export const getStats = () => {
   const STATS = window.meetingClientSettings.public.stats;
@@ -69,7 +51,7 @@ export const handleAudioStatsEvent = (event) => {
     //
     // This metric is DIFFERENT from the one used in the connection status modal
     // (see the network data object in this file). The network data one is an
-    // absolute counter of INBOUND packets lost - and it *SHOULD NOT* be used to 
+    // absolute counter of INBOUND packets lost - and it *SHOULD NOT* be used to
     // determine alert triggers
     connectionStatus.setPacketLossStatus(
       getStatus(window.meetingClientSettings.public.stats.loss, loss),
