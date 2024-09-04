@@ -116,7 +116,9 @@ type ServerConfig struct {
 			BlockedHosts []string `yaml:"blocked_hosts"`
 		} `yaml:"upload"`
 		Conversion struct {
-			GeneratePNGs bool `yaml:"generate_pngs"`
+			GeneratePNGs        bool `yaml:"generate_pngs"`
+			PlacementsThreshold int  `yaml:"placements_threshold"`
+			ImageTagThreshold   int  `yaml:"image_tag_threshold"`
 		} `yaml:"conversion"`
 		Default  string `yaml:"default"`
 		BasePath string `yaml:"base_path"`

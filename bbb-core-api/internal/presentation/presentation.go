@@ -44,15 +44,7 @@ type UploadedPresentation struct {
 	NumPages          int
 }
 
-type PageToConvert struct {
-	pres              *UploadedPresentation
-	pageNum           int
-	pagePath          string
-	svgImagesRequired bool
-	generatePNGs      bool
-}
-
-func (pres *UploadedPresentation) ProcessUploadedPresentation(generatePNGs bool) error {
+func (pres *UploadedPresentation) ProcessUploadedPresentation(generatePNGs bool, maxSVGTags, maxSVGImageTags int) error {
 	path := pres.Path
 	ext := filepath.Ext(path)
 	if IsOfficeFile(ext) {
@@ -70,7 +62,7 @@ func (pres *UploadedPresentation) ProcessUploadedPresentation(generatePNGs bool)
 	if mime.ExtPdf.Matches(ext) {
 		pres.GenerateFileNameConverted(mime.ExtPdf.ToString())
 		pres.countNumPages()
-		pres.extractIntoPages(generatePNGs)
+		pres.extractIntoPages(generatePNGs, maxSVGTags, maxSVGImageTags)
 	} else if IsImageFile(pres.FileType) {
 		pres.NumPages = 1
 	}
@@ -156,8 +148,8 @@ func (pres *UploadedPresentation) makePresentationDownloadable() error {
 	return nil
 }
 
-func (pres *UploadedPresentation) extractIntoPages(generatePNGS bool) error {
-	pagesToConvert := make([]*PageToConvert, 0, pres.NumPages)
+func (pres *UploadedPresentation) extractIntoPages(generatePNGS bool, maxSVGTags, maxSVGImageTags int) error {
+	pages := make([]*Page, 0, pres.NumPages)
 
 	extractedPages, err := pres.extractPages()
 	if err != nil {
@@ -165,12 +157,14 @@ func (pres *UploadedPresentation) extractIntoPages(generatePNGS bool) error {
 	}
 
 	for i, p := range extractedPages {
-		pagesToConvert = append(pagesToConvert, &PageToConvert{
+		pages = append(pages, &Page{
 			pres:              pres,
-			pageNum:           i,
-			pagePath:          p,
+			num:               i,
+			path:              p,
 			svgImagesRequired: true,
 			generatePNGs:      generatePNGS,
+			maxSVGTags:        maxSVGTags,
+			maxSVGImageTags:   maxSVGImageTags,
 		})
 	}
 }
