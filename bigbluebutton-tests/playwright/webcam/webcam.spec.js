@@ -36,7 +36,7 @@ test.describe.parallel('Webcam', () => {
     await webcam.changeVideoQuality();
   });
 
-  test('Webcam fullscreen', async ({ browser, page }) => {
+  test('Webcam fullscreen', { tag: '@ci' }, async ({ browser, page }) => {
     const webcam = new Webcam(browser, page);
     await webcam.init(true, true);
     await webcam.webcamFullscreen();
