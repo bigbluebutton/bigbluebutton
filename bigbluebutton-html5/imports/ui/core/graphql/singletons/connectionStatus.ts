@@ -76,7 +76,7 @@ class ConnectionStatus {
     if (value !== this.rttValue()) {
       const rttLevels = window.meetingClientSettings.public.stats.rtt;
       const status = getStatus(rttLevels, value);
-      const isWarning = status === 'critical' || (this.rttStatus() === 'critical' && status === 'normal');
+      const isWarning = status === 'critical' || (this.rttStatus() === 'critical' && status !== 'critical');
       if (isWarning) {
         logger.warn({ logCode: 'stats_rtt_value_state', extraInfo: { rtt: value } }, `RTT value changed to ${value}ms`);
       } else {
@@ -111,7 +111,7 @@ class ConnectionStatus {
 
   public setRttStatus(value: string): void {
     if (value !== this.rttStatus()) {
-      if (value === 'critical' || (value === 'normal' && this.rttStatus() === 'critical')) {
+      if (value === 'critical' || (value !== 'critical' && this.rttStatus() === 'critical')) {
         logger.warn({ logCode: 'stats_rtt_status_state' }, `Connection status changed to ${value} (rtt=${this.rttValue()}ms)`);
       } else {
         logger.info({ logCode: 'stats_rtt_status_state' }, `Connection status changed to ${value} (rtt=${this.rttValue()}ms)`);
