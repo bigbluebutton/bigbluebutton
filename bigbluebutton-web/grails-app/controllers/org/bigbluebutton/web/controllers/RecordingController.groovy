@@ -554,65 +554,25 @@ class RecordingController {
 
   }
 
-  private void invalid(key, msg, redirectResponse = false) {
+  private void invalid(key, msg) {
     // Note: This xml scheme will be DEPRECATED.
     log.debug CONTROLLER_NAME + "#invalid " + msg
-    if (redirectResponse) {
-      ArrayList<Object> errors = new ArrayList<Object>()
-      Map<String, String> errorMap = new LinkedHashMap<String, String>()
-      errorMap.put("key", key)
-      errorMap.put("message", msg)
-      errors.add(errorMap)
-
-      JSONArray errorsJSONArray = new JSONArray(errors)
-      log.debug "JSON Errors {}", errorsJSONArray.toString()
-
-      respondWithRedirect(errorsJSONArray)
-    } else {
-      response.addHeader("Cache-Control", "no-cache")
-      withFormat {
-        xml {
-          render(text: responseBuilder.buildError(key, msg, RESP_CODE_FAILED), contentType: "text/xml")
+    response.addHeader("Cache-Control", "no-cache")
+    withFormat {
+      xml {
+        render(text: responseBuilder.buildError(key, msg, RESP_CODE_FAILED), contentType: "text/xml")
+      }
+      json {
+        log.debug "Rendering as json"
+        def builder = new JsonBuilder()
+        builder.response {
+          returncode RESP_CODE_FAILED
+          messageKey key
+          message msg
         }
-        json {
-          log.debug "Rendering as json"
-          def builder = new JsonBuilder()
-          builder.response {
-            returncode RESP_CODE_FAILED
-            messageKey key
-            message msg
-          }
-          render(contentType: "application/json", text: builder.toPrettyString())
-        }
+        render(contentType: "application/json", text: builder.toPrettyString())
       }
     }
-  }
-
-  private void respondWithRedirect(errorsJSONArray) {
-    String logoutUrl = paramsProcessorUtil.getDefaultLogoutUrl()
-    URI oldUri = URI.create(logoutUrl)
-
-    if (!StringUtils.isEmpty(params.logoutURL)) {
-      try {
-        oldUri = URI.create(params.logoutURL)
-      } catch (Exception e) {
-        // Do nothing, the variable oldUri was already initialized
-      }
-    }
-
-    String newQuery = oldUri.getQuery()
-
-    if (newQuery == null) {
-      newQuery = "errors="
-    } else {
-      newQuery += "&" + "errors="
-    }
-    newQuery += errorsJSONArray
-
-    URI newUri = new URI(oldUri.getScheme(), oldUri.getAuthority(), oldUri.getPath(), newQuery, oldUri.getFragment())
-
-    log.debug "Constructed logout URL {}", newUri.toString()
-    redirect(url: newUri)
   }
 
   private def sanitizeInput (input) {
@@ -625,37 +585,22 @@ class RecordingController {
     StringUtils.strip(input.replaceAll("\\p{Cntrl}", ""));
   }
 
-  private void respondWithErrors(errorList, redirectResponse = false) {
+  private void respondWithErrors(errorList) {
     log.debug CONTROLLER_NAME + "#invalid"
-    if (redirectResponse) {
-      ArrayList<Object> errors = new ArrayList<Object>();
-      errorList.getErrors().each { error ->
-        Map<String, String> errorMap = new LinkedHashMap<String, String>()
-        errorMap.put("key", error[0])
-        errorMap.put("message", error[1])
-        errors.add(errorMap)
+    response.addHeader("Cache-Control", "no-cache")
+    withFormat {
+      xml {
+        render(text: responseBuilder.buildErrors(errorList.getErrors(), RESP_CODE_FAILED), contentType: "text/xml")
       }
-
-      JSONArray errorsJSONArray = new JSONArray(errors);
-      log.debug errorsJSONArray
-
-      respondWithRedirect(errorsJSONArray)
-    } else {
-      response.addHeader("Cache-Control", "no-cache")
-      withFormat {
-        xml {
-          render(text: responseBuilder.buildErrors(errorList.getErrors(), RESP_CODE_FAILED), contentType: "text/xml")
+      json {
+        log.debug "Rendering as json"
+        def builder = new JsonBuilder()
+        builder.response {
+          returncode RESP_CODE_FAILED
+          messageKey key
+          message msg
         }
-        json {
-          log.debug "Rendering as json"
-          def builder = new JsonBuilder()
-          builder.response {
-            returncode RESP_CODE_FAILED
-            messageKey key
-            message msg
-          }
-          render(contentType: "application/json", text: builder.toPrettyString())
-        }
+        render(contentType: "application/json", text: builder.toPrettyString())
       }
     }
   }
