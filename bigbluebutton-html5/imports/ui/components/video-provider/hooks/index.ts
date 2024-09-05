@@ -291,8 +291,7 @@ export const useMyPageSize = () => {
 };
 
 export const useIsPaginationEnabled = () => {
-  // const myPageSize = useMyPageSize();
-  const myPageSize = 1;
+  const myPageSize = useMyPageSize();
   const { paginationEnabled } = useSettings(SETTINGS.APPLICATION) as { paginationEnabled?: boolean };
   return myPageSize > 0 && paginationEnabled;
 };
