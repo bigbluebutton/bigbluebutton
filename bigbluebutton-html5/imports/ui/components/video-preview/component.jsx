@@ -26,7 +26,7 @@ import Checkbox from '/imports/ui/components/common/checkbox/component'
 import AppService from '/imports/ui/components/app/service';
 import { CustomVirtualBackgroundsContext } from '/imports/ui/components/video-preview/virtual-background/context';
 import VBGSelectorService from '/imports/ui/components/video-preview/virtual-background/service';
-import Storage from '/imports/ui/services/storage/session';
+import Session from '/imports/ui/services/storage/in-memory';
 import getFromUserSettings from '/imports/ui/services/users-settings';
 
 const VIEW_STATES = {
@@ -243,6 +243,7 @@ class VideoPreview extends Component {
     this.handleSelectTab = this.handleSelectTab.bind(this);
 
     this._isMounted = false;
+    const isFirstTimeOpen = sessionStorage.setItem('isFirstTimeOpen', true);
 
     this.state = {
       webcamDeviceId,
@@ -289,6 +290,8 @@ class VideoPreview extends Component {
     } = this.props;
 
     this._isMounted = true;
+
+    sessionStorage.setItem('isFirstTimeOpen', false);
 
     if (deviceInfo.hasMediaDevices) {
       navigator.mediaDevices.enumerateDevices().then(async (devices) => {
@@ -1313,7 +1316,7 @@ class VideoPreview extends Component {
     const WebcamBackgroundImg = `${BASE_NAME}/resources/images/webcam_background.svg`;
 
     const darkThemeState = AppService.isDarkThemeEnabled();
-    const isBlurred = Storage.getItem('isFirstJoin') !== false 
+    const isBlurred = Session.getItem('audioModalIsOpen') 
     && getFromUserSettings('bbb_auto_share_webcam', window.meetingClientSettings.public.kurento.autoShareWebcam);
 
     if (isCamLocked === true) {
