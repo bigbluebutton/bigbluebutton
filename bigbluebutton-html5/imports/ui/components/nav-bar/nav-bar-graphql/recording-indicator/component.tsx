@@ -27,6 +27,7 @@ import RecordingContainer from '/imports/ui/components/recording/container';
 import useDeduplicatedSubscription from '/imports/ui/core/hooks/useDeduplicatedSubscription';
 import { getSettingsSingletonInstance } from '/imports/ui/services/settings';
 import logger from '/imports/startup/client/logger';
+import SvgIcon from '/imports/ui/components/common/icon-svg/component';
 
 const intlMessages = defineMessages({
   notificationRecordingStart: {
@@ -170,29 +171,7 @@ const RecordingIndicator: React.FC<RecordingIndicatorProps> = ({
       titleMargin={!isPhone || recording}
       data-test="mainWhiteboard"
     >
-      <svg
-        xmlns="http://www.w3.org/2000/svg"
-        height="100%"
-        version="1"
-        viewBox="0 0 20 20"
-      >
-        <g stroke="#FFF" fill="#FFF" strokeLinecap="square">
-          <circle
-            fill="none"
-            strokeWidth="1"
-            r="9"
-            cx="10"
-            cy="10"
-          />
-          <circle
-            stroke="#FFF"
-            fill="#FFF"
-            r={recording ? '5' : '4'}
-            cx="10"
-            cy="10"
-          />
-        </g>
-      </svg>
+      <SvgIcon iconName="recording" />
     </Styled.RecordingIndicatorIcon>
   ), [isPhone, recording]);
 
