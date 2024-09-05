@@ -21,9 +21,10 @@ We have done significant work to adopt the newly released version 2 of tl;draw. 
 
 #### Improved UX for joining audio for transparentListenOnly
 
-If `transparentListenOnly` is enabled on the server, when you try to join audio in a session you will no longer be asked to choose between joining with a microphone or in ListenOnly mode.
+When transparentListenOnly is enabled on the server, users can now switch seamlessly between Listen Only and Microphone modes without needing to rejoin audio.
 
-Instead, you are presented directly with the echo test and audio options.
+To further improve the user experience, you can disable listenOnlyMode (`public.app.listenOnlyMode` in `/etc/bigbluebutton/bbb-html5.yml` or `userdata-bbb_listen_only_mode`). 
+This removes the need to choose between Microphone or Listen Only mode when joining audio in a session. Instead, you are taken directly to the audio configuration screen.
 
 ![audio controls when joining audio](/img/30/30-ui-join-audio.png)
 
