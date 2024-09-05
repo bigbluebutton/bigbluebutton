@@ -44,6 +44,7 @@ trait ChangeUserAwayReqMsgHdlr extends RightsManagementTrait {
       )
 
       if (!(user.role == Roles.VIEWER_ROLE && user.locked && permissions.disablePubChat)
+        && !user.userLockSettings.disablePublicChat
         && ((user.away && !msg.body.away) || (!user.away && msg.body.away))) {
         ChatMessageDAO.insertSystemMsg(liveMeeting.props.meetingProp.intId, GroupChatApp.MAIN_PUBLIC_CHAT, "", GroupChatMessageType.USER_AWAY_STATUS_MSG, msgMeta, user.name)
       }

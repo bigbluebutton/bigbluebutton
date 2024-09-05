@@ -530,6 +530,18 @@ CASE WHEN u."role" = 'MODERATOR' THEN w."welcomeMsgForModerators" ELSE NULL END 
 FROM "user" u
 join meeting_welcome w USING("meetingId");
 
+create table "user_lockSettings" (
+    "meetingId"             varchar(100),
+    "userId"                varchar(50),
+    "disablePublicChat"     boolean,
+    CONSTRAINT "user_lockSettings_pkey" PRIMARY KEY ("meetingId", "userId"),
+    FOREIGN KEY ("meetingId", "userId") REFERENCES "user"("meetingId","userId") ON DELETE CASCADE
+);
+create index "idx_user_lockSettings_pk_reverse" on "user_lockSettings"("userId", "meetingId");
+
+CREATE VIEW "v_user_lockSettings" AS
+SELECT *
+FROM "user_lockSettings";
 
 CREATE TABLE "user_voice" (
     "meetingId" varchar(100),
