@@ -51,6 +51,14 @@ We have enhanced the view of the polling results that appear over the whiteboard
 
 ![better polling results](/img/30/30-poll-annotation.png)
 
+
+#### Private chat messages have a "seen" indicator
+
+We have added an indicator showing when your private chat recipient has seen the message.
+
+![checkmark beside the message indicating it was seen](/img/30/30-seen-message.png)
+
+
 ### Engagement
 
 <!-- ####  -->
@@ -91,7 +99,7 @@ The package `bbb-html5-nodejs` is no longer needed.
 
 **Important**: Please make sure you're no longer carrying around NodeJS v14 which we used to deploy in `bbb-html5-nodejs`. Your directory `/usr/lib/bbb-html5/node` should not exist.
 
-#### The whiteboard was improved
+#### We have forked the tldraw project and use our fork
 
 We upgraded tl;draw from version 1 to version 2.0.0-alpha.19 (the last version on Apache 2.0 licence). That was quite a significant task but brought better performance, better looks, improved stylus support and many more. Note that we have forked tldraw's project as of their version 2.0.0-alpha.19 to ensure we remain on the Apache 2.0 license. We will be maintaining the fork so that BigBlueButton has a stable whiteboard in the future.
 
@@ -104,7 +112,18 @@ For more information check the [pull request](https://github.com/bigbluebutton/b
 
 <!-- #### LiveKit support -->
 
-<!-- Infinite whiteboard -->
+#### Infinite Whiteboard (experimental)
+
+We have added initial support for inifinite whiteboard in the live session. Only the presenter can trigger it. It allows for annotations to be created in the margins, or to write content without being limited by space.
+
+![the trigger for infinite whiteboard is in the middle of the presenter toolbar](/img/30/30-trigger-for-infinite-wb.png)
+
+Everyone sees the margins and follows the presenter's point of view. If multi-user whiteboard is also enabled, viewers can roam around the canvas independently.
+
+![with inifinite whiteboard enabled annotations can be made on the margins and more](/img/30/30-infinite-wb-in-action.png)
+
+Recording is not yet implemented, meaning that if you enable this experimental feature on your server and use it in a recorded session, the recording will most likely have broken whiteboard at best. The recording (and playback) work is planned for after BigBlueButton 3.0.
+
 
 ### Upgraded components
 
