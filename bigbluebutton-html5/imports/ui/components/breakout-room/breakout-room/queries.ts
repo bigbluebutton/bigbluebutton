@@ -60,7 +60,7 @@ export const getBreakoutData = gql`
 
 export const getIfUserJoinedBreakoutRoom = gql`
   subscription getIdUserJoinedABreakout {
-    breakoutRoom_aggregate(where: {hasJoined: {_eq: true}}) {
+    breakoutRoom_aggregate(where: {isUserCurrentlyInRoom: {_eq: true}}) {
       aggregate {
         count
       }
