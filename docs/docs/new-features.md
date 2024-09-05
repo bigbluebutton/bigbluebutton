@@ -19,11 +19,23 @@ Here's a breakdown of what's new in 3.0.
 
 We have done significant work to adopt the newly released version 2 of tl;draw. It comes with even more tools and capabilities and has allowed us to embark on more ambitious whiteboard projects, for example a prototype of an Infinite Canvas.
 
+#### Improved UX for joining audio for transparentListenOnly
+
+If `transparentListenOnly` is enabled on the server, when you try to join audio in a session you will no longer be asked to choose between joining with a microphone or in ListenOnly mode.
+
+Instead, you are presented directly with the echo test and audio options.
+
+![audio controls when joining audio](/img/30/30-ui-join-audio.png)
+
+Once you are joined in audio you can dynamicly change your audio device configuration from a dropdown located on the mute-yourself button.
+
+![mute yourself has a dropdown menu allowing device changes](/img/30/30-ui-audio-devices-options.png)
+
 #### New layouts for specific integration scenarios
 
 Several new layouts have been added ("Cameras Only", "Presentation Only", and "Participants and Chat Only") to address various use cases of hybrid education - for example splitting views of the BigBlueButton session to be visible on different physical screens.
 
-#### Improved Away Mode
+#### Improved Away mode
 
 We have made changes so that when you set yourself as being Away, your microphone is now automatically muted, your webcam is also muted (blank).
 
@@ -37,7 +49,7 @@ Away mode also is recorded in the public chat area.
 
 ![away public chat](/img/30/30-away-public-chat.png)
 
-#### Leave Meeting Button
+#### Leave meeting button
 
 A contribution from community member Jan Kessler, the direct Leave Meeting button was first introduced in BigBlueButton 2.7.5. Starting with BigBlueButton 3.0 we are making it enabled by default.
 
@@ -57,6 +69,10 @@ We have enhanced the view of the polling results that appear over the whiteboard
 We have added an indicator showing when your private chat recipient has seen the message.
 
 ![checkmark beside the message indicating it was seen](/img/30/30-seen-message.png)
+
+#### Push to talk was added
+
+You can now use the "M" shortcut while in a conference to control how long your microphone is open. If the option for push to talk is enabled in settings.yml holding "M" will keep your microphone unmuted for as long you hold the key down. Releasing it will mute you again.
 
 
 ### Engagement
@@ -103,7 +119,7 @@ The package `bbb-html5-nodejs` is no longer needed.
 
 We upgraded tl;draw from version 1 to version 2.0.0-alpha.19 (the last version on Apache 2.0 licence). That was quite a significant task but brought better performance, better looks, improved stylus support and many more. Note that we have forked tldraw's project as of their version 2.0.0-alpha.19 to ensure we remain on the Apache 2.0 license. We will be maintaining the fork so that BigBlueButton has a stable whiteboard in the future.
 
-#### Support for Collabora Online as Document Converter
+#### Support for Collabora Online as document converter
 
 Collabora Productivity contributed the support for an alternative conversion script where Collabora Online (deployed locally [as a docker container] or running remotely) can be used for document conversion.
 For more information check the [pull request](https://github.com/bigbluebutton/bigbluebutton/pull/18783)
@@ -151,7 +167,16 @@ We have removed all use of Kurento Media Server. For the live media transmission
 
 #### Select Random User feature removed and is now a plugin
 
-The functionality Select Random User which used to be part of the BigBlueButton core was removed. A plugin with the same functionality was developed and [made public](https://github.com/bigbluebutton/plugins/tree/main/pick-random-user-plugin).
+The functionality Select Random User which used to be part of the BigBlueButton core was removed. A plugin with the same functionality was developed and [made public](https://github.com/bigbluebutton/plugin-pick-random-user).
+
+#### Typed captions feature removed and is now a plugin
+
+We removed the built-in typed captions support given that we support several options for automatic captions which seem to be much more popular.
+We implemented a plugin for typed captions - [Typed captions plugin](https://github.com/bigbluebutton/plugin-typed-captions) which you could use instead.
+
+#### Removed userStatus
+
+The `userStatus` feature was replaced by `userReaction`. They were vastly overlapping, causing some confusion when using and maintaining.
 
 #### Upgrade of config editing tool yq
 
@@ -205,15 +230,6 @@ Modified/added events
 #### Removed support for POST requests on `join` endpoint and Content-Type headers are now required
 
 In BigBlueButton 2.6.18/2.7.8 POST requests are no longer allowed for the `join` endpoint. To ensure they are validated properly, a `Content-Type` header must also be provided for POST requests that contain data in the request body. Endpoints now support a limited set of content types that includes `text/xml`, `application/xml`, `application/x-www-form-url-encoded`, and `multipart/form-data`. By default each endpoint only supports `application/x-www-form-urlencoded` and `multipart/form-data`, but individual endpoints can override this and define their own set of supported content types. The `create` endpoint supports all of the four previously listed content types while `insertDocument` supports only `text/xml` and `application/xml`. Any requests with a content type that differs from the set supported by the target endpoint will be rejected with a new `unsupportedContentType` error.
-
-#### Removed userStatus
-
-The `userStatus` feature was replaced by `userReaction`. They were vastly overlapping, causing some confusion when using and maintaining.
-
-#### Removed built-in support for typed captions
-
-We removed the built-in typed captions support given that we support several options for automatic captions which seem to be much more popular.
-We implemented a plugin for typed captions - [Typed captions plugin](https://github.com/bigbluebutton/plugin-typed-captions) which you could use instead.
 
 #### Changes in document formats we support
 
