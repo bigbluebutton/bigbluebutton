@@ -12,7 +12,6 @@ public:
     forceListenOnly: false
     # Skips the echo test when connecting with microphone.
     skipCheck: false
-    instanceId: ''
     # Skips the echo test when connecting with microphone right after user
     # joins the room the first time. Subsequent joins to microphone won't
     # have echo test skipped, for example if user leaves and joins the mic
@@ -27,6 +26,7 @@ public:
     # "media.setsinkid.enabled" to make it work properly
     enableDynamicAudioDeviceSelection: true
     #
+    skipEchoTestIfPreviousDevice: false
     clientTitle: BigBlueButton
     appName: BigBlueButton HTML5 Client
     bbbServerVersion: HTML5_FULL_BBB_VERSION
@@ -89,11 +89,15 @@ public:
     # https://developer.mozilla.org/en-US/docs/Web/API/Web_Speech_API/Using_the_Web_Speech_API#speech_recognition
     audioCaptions:
       enabled: false
+      alwaysVisible: false
       # mobile: <Boolean> - controls speech transcription availability on mobile
       mobile: false
-      # provider: [webspeech, vosk, whisper, deepspeech]
+      # provider: [webspeech, vosk, gladia]
       provider: webspeech
       language:
+        # Available languages will depend on the transcription service
+        # Google: https://cloud.google.com/speech-to-text/docs/speech-to-text-supported-languages?hl=pt-br
+        # Gladia: https://docs.gladia.io/chapters/speech-to-text-api/pages/languages#supported-languages
         available:
         # - de-DE
           - en-US
@@ -133,6 +137,7 @@ public:
       captureSharedNotesByDefault: false
       sendInvitationToAssignedModeratorsByDefault: false
       breakoutRoomLimit: 16
+      allowPresentationManagementInBreakouts: true
     # https://github.com/bigbluebutton/bigbluebutton/pull/10826
     customHeartbeat: false
     customHeartbeatUseDataFrames: true
@@ -144,14 +149,7 @@ public:
     # For more info, see 'microphoneConstraints' option in this config.
     # If not set, default value is true.
     showAudioFilters: true
-    raiseHandActionButton:
-      # Enables the old raiseHand icon
-      enabled: false
-      # If true, positions the icon next to the screenshare button, if false positions it where BBB had raisedHand button up to BBB 2.6 (right-hand bottom corner in LRT)
-      centered: true
     reactionsButton:
-      # Enables the new raiseHand icon inside of the reaction menu (introduced in BBB 2.7)
-      # If both reactionsButton and raiseHandActionButton are enabled, reactionsButton takes precedence.
       enabled: true
     emojiRain:
       # If true, new reactions will be activated
@@ -200,6 +198,7 @@ public:
         wakeLock: true
         paginationEnabled: true
         whiteboardToolbarAutoHide: false
+        pushToTalkEnabled: false
         autoCloseReactionsBar: true
         directLeaveButton: true
         darkTheme: false
@@ -241,6 +240,12 @@ public:
       dataSaving:
         viewParticipantsWebcams: true
         viewScreenshare: true
+      # Options that are sent to the transcription backed (only Gladia is supported for now)
+      transcription:
+        # Indicates if the transcription backend should include partial results
+        partialUtterances: true
+        # The minumum length (in seconds) an utterance has to have for we to use it
+        minUtteranceLength: 1
     shortcuts:
       openOptions:
         accesskey: O
@@ -447,6 +452,7 @@ public:
     autoShareWebcam: false
     skipVideoPreview: false
     skipVideoPreviewOnFirstJoin: false
+    skipVideoPreviewIfPreviousDevice: false
     # cameraSortingModes.paginationSorting: sorting mode to be applied when pagination is active
     # cameraSortingModes.defaultSorting: sorting mode when pagination is not active (full mesh)
     # Current implemented modes are:
@@ -487,7 +493,7 @@ public:
       # user to enable/disable it
       paginationToggleEnabled: true
       # how long (in ms) the negotiation will be debounced after a page change.
-      pageChangeDebounceTime: 2500
+      pageChangeDebounceTime: 1000
       # video page sizes for DESKTOP endpoints. It stands for the number of SUBSCRIBER streams.
       # PUBLISHERS aren't accounted for .
       # A page size of 0 (zero) means that the page size is unlimited (disabled).
@@ -559,8 +565,17 @@ public:
       color: '#ffffff'
       family: Calibri
       size: 24px
+    # maximum number of simultaneous captions on screen
+    captionLimit: 3
+    # maximum size of a caption line in characters
+    lineLimit: 60
+    # maximum number of lines a caption can have on screen
     lines: 2
+    # time the captions will hang on screen after last updated
     time: 5000
+    # Default pad which will store automatically generated captions
+    defaultPad: en
+    showButton: false
     locales:
       - locale: "af"
         name: "Afrikaans"
@@ -727,6 +742,8 @@ public:
       enabled: true
       showNames: true
     moderatorChatEmphasized: true
+    privateMessageReadFeedback:
+      enabled: false
     autoConvertEmoji: true
     emojiPicker:
       enable: false
@@ -749,8 +766,6 @@ public:
         native: '👎'
       - id: 'clap'
         native: '👏'
-  userStatus:
-    enabled: false
   notes:
     enabled: true
     id: notes
@@ -878,8 +893,6 @@ public:
         enabled: true
         delayTime: 0.5
         maxDelayTime: 2
-    # showVolumeMeter: shows an energy bar for microphones in the AudioSettings view
-    showVolumeMeter: true
     # networkPriorities: DSCP markings for each media type. Chromium only, applies
     # to sender flows. See https://datatracker.ietf.org/doc/html/rfc8837#section-5
     # for further info.
@@ -896,6 +909,8 @@ public:
     #audioTroubleshootingLinks:
     #  7: 'https://link.bigbluebutton.org/perm'
     #  0: 'https://link.bigbluebutton.org/unk'
+    # muteAudioOutputWhenAway: mute output audio if user is in away mode
+    muteAudioOutputWhenAway: false
   stats:
     enabled: true
     interval: 10000
@@ -904,22 +919,14 @@ public:
     notification:
       warning: false
       error: true
-    jitter:
-      - 10
-      - 20
-      - 30
     loss:
-      - 0.05
-      - 0.1
-      - 0.2
+      warning: 0.05
+      danger: 0.1
+      critical: 0.2
     rtt:
-      - 500
-      - 1000
-      - 2000
-    level:
-      - warning
-      - danger
-      - critical
+      warning: 500
+      danger: 1000
+      critical: 2000
     help: STATS_HELP_URL
   presentation:
     allowDownloadOriginal: true
@@ -933,6 +940,9 @@ public:
     mirroredFromBBBCore:
       uploadSizeMax: 30000000
       uploadPagesMax: 200
+    # If the following mime-types list is changed, please, make sure to also change:
+    # bbb-common-web/src/main/java/org/bigbluebutton/presentation/MimeTypeUtils.java: L34 (and related files.)
+    # docs/docs/development/api.md: L1222
     uploadValidMimeTypes:
       - extension: .pdf
         mime: application/pdf
@@ -960,10 +970,6 @@ public:
         mime: application/vnd.oasis.opendocument.presentation
       - extension: .odg
         mime: application/vnd.oasis.opendocument.graphics
-      - extension: .odc
-        mime: application/vnd.oasis.opendocument.chart
-      - extension: .odi
-        mime: application/vnd.oasis.opendocument.image
       - extension: .jpg
         mime: image/jpeg
       - extension: .jpeg
@@ -972,6 +978,8 @@ public:
         mime: image/png
       - extension: .webp
         mime: image/webp
+      - extension: .svg
+        mime: image/svg+xml
   user:
     role_moderator: MODERATOR
     role_viewer: VIEWER
@@ -983,6 +991,8 @@ public:
   whiteboard:
     annotationsQueueProcessInterval: 60
     cursorInterval: 150
+    allowInfiniteWhiteboard: false
+    allowInfiniteWhiteboardInBreakouts: false
     pointerDiameter: 5
     maxStickyNoteLength: 1000
     # limit number of annotations per slide
@@ -1053,39 +1063,45 @@ public:
         - value: 20
         - value: 16
       tools:
+        - icon: select_tool
+          value: select
+        - icon: hand_tool
+          value: hand
+        - icon: draw_tool
+          value: draw
+        - icon: eraser_tool
+          value: eraser
+        - icon: arrow_tool
+          value: arrow
         - icon: text_tool
           value: text
-        - icon: line_tool
-          value: line
-        - icon: circle_tool
-          value: ellipse
-        - icon: triangle_tool
-          value: triangle
+        - icon: note_tool
+          value: note
         - icon: rectangle_tool
           value: rectangle
-        - icon: pen_tool
-          value: pencil
-        - icon: hand
-          value: hand
+        - icon: more_tool
+          value: more
       presenterTools:
-        - text
-        - line
-        - ellipse
-        - triangle
-        - rectangle
-        - pencil
+        - select
         - hand
-      multiUserTools:
+        - draw
+        - eraser
+        - arrow
         - text
-        - line
-        - ellipse
-        - triangle
+        - note
         - rectangle
-        - pencil
+        - more
+      multiUserTools:
+        - select
+        - hand
+        - draw
+        - eraser
+        - arrow
+        - text
+        - note
+        - rectangle
+        - more
   clientLog:
-    server:
-      enabled: false
-      level: info
     console:
       enabled: true
       level: debug
@@ -1109,13 +1125,6 @@ public:
       - coffeeshop.jpg
       - board.jpg
 private:
-  postgresql:
-    host: localhost
-    port: 5432
-    database: bbb_graphql
-    user: bbb_frontend
-    password: bbb_frontend
-    timeout: 30000
   analytics:
     includeChat: true
   app:
@@ -1123,13 +1132,6 @@ private:
     localesUrl: /locale-list
     pencilChunkLength: 100
     loadSlidesFromHttpAlways: false
-  serverLog:
-    level: info
-    streamerLog: false
-    includeServerInfo: true
-    healthChecker:
-      enable: true
-      intervalMs: 30000
   minBrowserVersions:
     - browser: chrome
       version: 72

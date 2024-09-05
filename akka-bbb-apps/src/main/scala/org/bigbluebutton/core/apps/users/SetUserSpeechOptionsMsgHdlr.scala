@@ -32,8 +32,6 @@ trait SetUserSpeechOptionsMsgHdlr extends RightsManagementTrait {
     for {
       user <- Users2x.findWithIntId(liveMeeting.users2x, msg.header.userId)
     } yield {
-      var changeLocale: Option[UserState] = None;
-      //changeLocale = Users2x.setUserSpeechLocale(liveMeeting.users2x, msg.header.userId, msg.body.locale)
       broadcastUserSpeechOptionsChanged(user, msg.body.partialUtterances, msg.body.minUtteranceLength)
     }
 

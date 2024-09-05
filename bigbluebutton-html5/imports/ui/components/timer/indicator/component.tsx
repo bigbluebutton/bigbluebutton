@@ -10,11 +10,6 @@ import { Input } from '../../layout/layoutTypes';
 import { TIMER_START, TIMER_STOP } from '../mutations';
 import useTimer from '/imports/ui/core/hooks/useTImer';
 
-const CDN = window.meetingClientSettings.public.app.cdn;
-const BASENAME = window.meetingClientSettings.public.app.basename;
-const HOST = CDN + BASENAME;
-const trackName = window.meetingClientSettings.public.timer.music;
-
 interface TimerIndicatorProps {
   passedTime: number;
   stopwatch: boolean;
@@ -25,8 +20,6 @@ interface TimerIndicatorProps {
   sidebarContentIsOpen: boolean;
   startedOn: number;
 }
-
-type ObjectKey = keyof typeof trackName;
 
 const TimerIndicator: React.FC<TimerIndicatorProps> = ({
   passedTime,
@@ -48,6 +41,13 @@ const TimerIndicator: React.FC<TimerIndicatorProps> = ({
   const [startTimerMutation] = useMutation(TIMER_START);
   const [stopTimerMutation] = useMutation(TIMER_STOP);
   const [songTrackState, setSongTrackState] = useState<string>(songTrack);
+
+  const CDN = window.meetingClientSettings.public.app.cdn;
+  const BASENAME = window.meetingClientSettings.public.app.basename;
+  const HOST = CDN + BASENAME;
+  const trackName = window.meetingClientSettings.public.timer.music;
+
+  type ObjectKey = keyof typeof trackName;
 
   const startTimer = () => {
     startTimerMutation();
@@ -77,7 +77,6 @@ const TimerIndicator: React.FC<TimerIndicatorProps> = ({
     }
 
     return () => {
-      if (intervalRef.current) clearInterval(intervalRef.current);
       if (music.current) music.current.pause();
     };
   }, [songTrack]);
@@ -110,6 +109,10 @@ const TimerIndicator: React.FC<TimerIndicatorProps> = ({
     } else if (!running) {
       clearInterval(intervalRef.current);
     }
+
+    return () => {
+      if (intervalRef.current) clearInterval(intervalRef.current);
+    };
   }, [running]);
 
   useEffect(() => {

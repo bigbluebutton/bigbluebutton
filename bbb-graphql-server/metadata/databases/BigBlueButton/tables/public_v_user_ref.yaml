@@ -14,10 +14,10 @@ select_permissions:
         - avatar
         - away
         - banned
+        - captionLocale
         - clientType
         - color
         - disconnected
-        - emoji
         - expired
         - extId
         - guest
@@ -25,7 +25,7 @@ select_permissions:
         - hasDrawPermissionOnCurrentPage
         - isDialIn
         - isModerator
-        - isOnline
+        - currentlyInMeeting
         - joined
         - locked
         - loggedOut
@@ -35,6 +35,7 @@ select_permissions:
         - pinned
         - presenter
         - raiseHand
+        - reactionEmoji
         - registeredOn
         - role
         - speechLocale

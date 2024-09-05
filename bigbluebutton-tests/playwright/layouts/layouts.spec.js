@@ -7,7 +7,7 @@ const { initializePages } = require('../core/helpers');
 
 const hidePresentationToast = encodeCustomParams(PARAMETER_HIDE_PRESENTATION_TOAST);
 
-test.describe("Layout management", () => {
+test.describe('Layout', { tag: '@ci' }, () => {
   const layouts = new Layouts();
 
   test.describe.configure({ mode: fullyParallel ? 'parallel' : 'serial' });
@@ -17,19 +17,19 @@ test.describe("Layout management", () => {
     await layouts.userPage.shareWebcam();
   });
 
-  test("Focus on presentation", async () => {
+  test('Focus on presentation', async () => {
     await layouts.focusOnPresentation();
   });
 
-  test("Grid Layout", async () => {
+  test('Grid Layout', async () => {
     await layouts.gridLayout();
   });
 
-  test("Smart layout", async () => {
+  test('Smart layout', async () => {
     await layouts.smartLayout();
   });
 
-  test("Custom layout", async () => {
+  test('Custom layout', async () => {
     await layouts.customLayout();
   });
 

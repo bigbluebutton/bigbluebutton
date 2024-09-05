@@ -40,7 +40,7 @@ trait HandlerHelpers extends SystemConfiguration {
     }
   }
 
-  def userJoinMeeting(outGW: OutMsgRouter, authToken: String, clientType: String,
+  def userJoinMeeting(outGW: OutMsgRouter, authToken: String, clientType: String, mobile: Boolean,
                       liveMeeting: LiveMeeting, state: MeetingState2x): MeetingState2x = {
 
     val nu = for {
@@ -63,18 +63,19 @@ trait HandlerHelpers extends SystemConfiguration {
         guest = regUser.guest,
         authed = regUser.authed,
         guestStatus = regUser.guestStatus,
-        emoji = "none",
         reactionEmoji = "none",
         raiseHand = false,
         away = false,
         pin = false,
-        mobile = false,
+        mobile = mobile,
         presenter = false,
         locked = MeetingStatus2x.getPermissions(liveMeeting.status).lockOnJoin,
         avatar = regUser.avatarURL,
+        webcamBackground = regUser.webcamBackgroundURL,
         color = regUser.color,
         clientType = clientType,
-        userLeftFlag = UserLeftFlag(false, 0)
+        userLeftFlag = UserLeftFlag(false, 0),
+        userMetadata = regUser.userMetadata
       )
     }
 

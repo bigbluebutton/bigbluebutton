@@ -16,15 +16,6 @@ object_relationships:
         remote_table:
           name: v_user_connectionStatus
           schema: public
-  - name: customParameters
-    using:
-      manual_configuration:
-        column_mapping:
-          userId: userId
-        insertion_order: null
-        remote_table:
-          name: v_user_customParameter
-          schema: public
   - name: guestStatusDetails
     using:
       manual_configuration:
@@ -51,15 +42,6 @@ object_relationships:
         insertion_order: null
         remote_table:
           name: v_meeting
-          schema: public
-  - name: reaction
-    using:
-      manual_configuration:
-        column_mapping:
-          userId: userId
-        insertion_order: null
-        remote_table:
-          name: v_user_reaction_current
           schema: public
   - name: sharedNotesSession
     using:
@@ -88,6 +70,15 @@ object_relationships:
         remote_table:
           name: v_user_clientSettings
           schema: public
+  - name: userMetadata
+    using:
+      manual_configuration:
+        column_mapping:
+          userId: userId
+        insertion_order: null
+        remote_table:
+          name: v_user_metadata
+          schema: public
   - name: voice
     using:
       manual_configuration:
@@ -96,6 +87,15 @@ object_relationships:
         insertion_order: null
         remote_table:
           name: v_user_voice
+          schema: public
+  - name: welcomeMsgs
+    using:
+      manual_configuration:
+        column_mapping:
+          userId: userId
+        insertion_order: null
+        remote_table:
+          name: v_user_welcomeMsgs
           schema: public
 array_relationships:
   - name: breakoutRooms
@@ -142,25 +142,28 @@ select_permissions:
         - authToken
         - authed
         - avatar
+        - webcamBackground
         - away
         - banned
+        - captionLocale
         - clientType
-        - enforceLayout
         - color
         - disconnected
         - echoTestRunningAt
         - ejectReason
         - ejectReasonCode
         - ejected
-        - emoji
+        - enforceLayout
         - expired
         - extId
         - guest
         - guestStatus
         - hasDrawPermissionOnCurrentPage
+        - inactivityWarningDisplay
+        - inactivityWarningTimeoutSecs
         - isDialIn
         - isModerator
-        - isOnline
+        - currentlyInMeeting
         - isRunningEchoTest
         - joinErrorCode
         - joinErrorMessage
@@ -173,12 +176,11 @@ select_permissions:
         - pinned
         - presenter
         - raiseHand
+        - reactionEmoji
         - registeredAt
         - registeredOn
         - role
         - speechLocale
-        - inactivityWarningDisplay
-        - inactivityWarningTimeoutSecs
         - userId
       filter:
         _and:
@@ -186,7 +188,7 @@ select_permissions:
               _eq: X-Hasura-MeetingId
           - userId:
               _eq: X-Hasura-UserId
-  - role: not_joined_bbb_client
+  - role: bbb_client_not_in_meeting
     permission:
       columns:
         - authToken
@@ -198,7 +200,7 @@ select_permissions:
         - ejectReasonCode
         - ejected
         - expired
-        - isOnline
+        - currentlyInMeeting
         - isModerator
         - extId
         - guest
@@ -218,15 +220,3 @@ select_permissions:
           - userId:
               _eq: X-Hasura-UserId
     comment: ""
-update_permissions:
-  - role: bbb_client
-    permission:
-      columns:
-        - echoTestRunningAt
-      filter:
-        _and:
-          - meetingId:
-              _eq: X-Hasura-MeetingId
-          - userId:
-              _eq: X-Hasura-UserId
-      check: null

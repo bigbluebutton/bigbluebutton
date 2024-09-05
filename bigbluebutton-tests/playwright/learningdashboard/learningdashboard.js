@@ -169,7 +169,7 @@ class LearningDashboard extends MultiUsers {
       'Talk time',
       'Webcam Time',
       'Messages',
-      'Emojis',
+      'Reactions',
       'Poll Votes',
       'Raise Hands',
       'Left',

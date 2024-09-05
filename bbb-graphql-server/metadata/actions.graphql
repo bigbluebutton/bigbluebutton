@@ -42,6 +42,10 @@ type Mutation {
 }
 
 type Mutation {
+  breakoutRoomSetInviteDismissed: Boolean
+}
+
+type Mutation {
   breakoutRoomSetTime(
     timeInMinutes: Int!
   ): Boolean
@@ -60,9 +64,8 @@ type Mutation {
 }
 
 type Mutation {
-  captionSetOwner(
+  captionAddLocale(
     locale: String!
-    ownerUserId: String!
   ): Boolean
 }
 
@@ -75,6 +78,14 @@ type Mutation {
     transcript: String!
     locale: String!
     isFinal: Boolean!
+  ): Boolean
+}
+
+type Mutation {
+  captionSubmitTranscript(
+    transcriptId: String!
+    transcript: String!
+    locale: String!
   ): Boolean
 }
 
@@ -98,13 +109,28 @@ type Mutation {
   chatSendMessage(
     chatId: String!
     chatMessageInMarkdownFormat: String!
+    metadata: json
   ): Boolean
+}
+
+type Mutation {
+  chatSetLastSeen: Boolean
 }
 
 type Mutation {
   chatSetTyping(
     chatId: String
   ): Boolean
+}
+
+type Mutation {
+  chatSetVisible(
+    visible: Boolean!
+  ): Boolean
+}
+
+type Mutation {
+  echoTestRunningAt: Boolean
 }
 
 type Mutation {
@@ -228,10 +254,27 @@ type Mutation {
 }
 
 type Mutation {
+  pluginDataChannelReplaceEntry(
+    pluginName: String!
+    subChannelName: String!
+    channelName: String!
+    entryId: String!
+    payloadJson: String!
+  ): Boolean
+}
+
+type Mutation {
   pluginDataChannelReset(
     pluginName: String!
     channelName: String!
     subChannelName: String!
+  ): Boolean
+}
+
+type Mutation {
+  pluginLearningAnalyticsDashboardSendGenericData(
+    genericDataForLearningAnalyticsDashboard: json!
+    pluginName: String!
   ): Boolean
 }
 
@@ -336,6 +379,13 @@ type Mutation {
 type Mutation {
   presentationSetPage(
     presentationId: String!
+    pageId: String!
+  ): Boolean
+}
+
+type Mutation {
+  presentationSetPageInfiniteWhiteboard(
+    infiniteWhiteboard: Boolean!
     pageId: String!
   ): Boolean
 }
@@ -470,6 +520,19 @@ type Mutation {
 }
 
 type Mutation {
+  userSetCaptionLocale(
+    locale: String!
+    provider: String!
+  ): Boolean
+}
+
+type Mutation {
+  userSetClientSettings(
+    userClientSettingsJson: json!
+  ): Boolean
+}
+
+type Mutation {
   userSetConnectionAlive(
     networkRttInMs: Float!
   ): Boolean
@@ -491,12 +554,6 @@ type Mutation {
   userSetLocked(
     userId: String!
     locked: Boolean!
-  ): Boolean
-}
-
-type Mutation {
-  userSetMobileFlag(
-    mobile: Boolean!
   ): Boolean
 }
 
@@ -537,6 +594,13 @@ type Mutation {
   userSetSpeechLocale(
     locale: String!
     provider: String!
+  ): Boolean
+}
+
+type Mutation {
+  userSetSpeechOptions(
+    partialUtterances: Boolean!
+    minUtteranceLength: Float!
   ): Boolean
 }
 

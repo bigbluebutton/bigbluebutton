@@ -42,7 +42,7 @@ class RaiseHandNotifier extends Component {
 
     this.statusNotifierId = null;
 
-    this.audio = new Audio(`${window.meetingClientSettings.public.app.cdn + window.meetingClientSettings.public.app.basename + window.meetingClientSettings.public.app.instanceId}/resources/sounds/bbb-handRaise.mp3`);
+    this.audio = new Audio(`${window.meetingClientSettings.public.app.cdn + window.meetingClientSettings.public.app.basename}/resources/sounds/bbb-handRaise.mp3`);
 
     this.renderRaisedHands = this.renderRaisedHands.bind(this);
     this.getRaisedHandNames = this.getRaisedHandNames.bind(this);

@@ -3,7 +3,6 @@ import { MeetingClientSettings } from '../../Types/meetingClientSettings';
 export const meetingClientSettingsInitialValues: MeetingClientSettings = {
   public: {
     app: {
-      instanceId: '',
       mobileFontSize: '16px',
       desktopFontSize: '14px',
       audioChatNotification: false,
@@ -59,6 +58,7 @@ export const meetingClientSettingsInitialValues: MeetingClientSettings = {
       preloadNextSlides: 2,
       warnAboutUnsavedContentOnMeetingEnd: false,
       audioCaptions: {
+        alwaysVisible: false,
         enabled: false,
         mobile: false,
         provider: 'webspeech',
@@ -92,14 +92,11 @@ export const meetingClientSettingsInitialValues: MeetingClientSettings = {
         captureSharedNotesByDefault: false,
         sendInvitationToAssignedModeratorsByDefault: false,
         breakoutRoomLimit: 16,
+        allowPresentationManagementInBreakouts: true,
       },
       customHeartbeat: false,
       showAllAvailableLocales: true,
       showAudioFilters: true,
-      raiseHandActionButton: {
-        enabled: false,
-        centered: true,
-      },
       reactionsButton: {
         enabled: true,
       },
@@ -129,6 +126,7 @@ export const meetingClientSettingsInitialValues: MeetingClientSettings = {
           wakeLock: true,
           paginationEnabled: true,
           whiteboardToolbarAutoHide: false,
+          pushToTalkEnabled: false,
           autoCloseReactionsBar: true,
           darkTheme: false,
           fallbackLocale: 'en',
@@ -141,6 +139,10 @@ export const meetingClientSettingsInitialValues: MeetingClientSettings = {
         dataSaving: {
           viewParticipantsWebcams: true,
           viewScreenshare: true,
+        },
+        transcription: {
+          partialUtterances: true,
+          minUtteranceLength: 1,
         },
       },
       shortcuts: {
@@ -489,6 +491,10 @@ export const meetingClientSettingsInitialValues: MeetingClientSettings = {
       ],
       lines: 2,
       time: 5000,
+      showButton: false,
+      defaultPad: 'en',
+      captionLimit: 3,
+      lineLimit: 60,
     },
     timer: {
       enabled: true,
@@ -538,6 +544,9 @@ export const meetingClientSettingsInitialValues: MeetingClientSettings = {
         showNames: true,
       },
       moderatorChatEmphasized: true,
+      privateMessageReadFeedback: {
+        enabled: false,
+      },
       autoConvertEmoji: true,
       emojiPicker: {
         enable: false,
@@ -589,9 +598,6 @@ export const meetingClientSettingsInitialValues: MeetingClientSettings = {
           native: '👏',
         },
       ],
-    },
-    userStatus: {
-      enabled: false,
     },
     notes: {
       enabled: true,
@@ -664,7 +670,7 @@ export const meetingClientSettingsInitialValues: MeetingClientSettings = {
           maxDelayTime: 2,
         },
       },
-      showVolumeMeter: true,
+      muteAudioOutputWhenAway: false,
     },
     stats: {
       enabled: true,
@@ -675,11 +681,6 @@ export const meetingClientSettingsInitialValues: MeetingClientSettings = {
         warning: false,
         error: true,
       },
-      jitter: [
-        10,
-        20,
-        30,
-      ],
       loss: [
         0.05,
         0.1,
@@ -804,6 +805,8 @@ export const meetingClientSettingsInitialValues: MeetingClientSettings = {
       pointerDiameter: 5,
       maxStickyNoteLength: 1000,
       maxNumberOfAnnotations: 300,
+      allowInfiniteWhiteboard: false,
+      allowInfiniteWhiteboardInBreakouts: false,
       annotations: {
         status: {
           start: 'DRAW_START',
@@ -915,59 +918,41 @@ export const meetingClientSettingsInitialValues: MeetingClientSettings = {
           },
         ],
         tools: [
-          {
-            icon: 'text_tool',
-            value: 'text',
-          },
-          {
-            icon: 'line_tool',
-            value: 'line',
-          },
-          {
-            icon: 'circle_tool',
-            value: 'ellipse',
-          },
-          {
-            icon: 'triangle_tool',
-            value: 'triangle',
-          },
-          {
-            icon: 'rectangle_tool',
-            value: 'rectangle',
-          },
-          {
-            icon: 'pen_tool',
-            value: 'pencil',
-          },
-          {
-            icon: 'hand',
-            value: 'hand',
-          },
+          { icon: 'select_tool', value: 'select' },
+          { icon: 'hand_tool', value: 'hand' },
+          { icon: 'draw_tool', value: 'draw' },
+          { icon: 'eraser_tool', value: 'eraser' },
+          { icon: 'arrow_tool', value: 'arrow' },
+          { icon: 'text_tool', value: 'text' },
+          { icon: 'note_tool', value: 'note' },
+          { icon: 'rectangle_tool', value: 'rectangle' },
+          { icon: 'more_tool', value: 'more' },
         ],
         presenterTools: [
-          'text',
-          'line',
-          'ellipse',
-          'triangle',
-          'rectangle',
-          'pencil',
+          'select',
           'hand',
+          'draw',
+          'eraser',
+          'arrow',
+          'text',
+          'note',
+          'rectangle',
+          'more',
         ],
         multiUserTools: [
+          'select',
+          'hand',
+          'draw',
+          'eraser',
+          'arrow',
           'text',
-          'line',
-          'ellipse',
-          'triangle',
+          'note',
           'rectangle',
-          'pencil',
+          'more',
         ],
       },
     },
     clientLog: {
-      server: {
-        enabled: false,
-        level: 'info',
-      },
       console: {
         enabled: true,
         level: 'debug',
@@ -1005,15 +990,6 @@ export const meetingClientSettingsInitialValues: MeetingClientSettings = {
       localesUrl: '/locale-list',
       pencilChunkLength: 100,
       loadSlidesFromHttpAlways: false,
-    },
-    serverLog: {
-      level: 'info',
-      streamerLog: false,
-      includeServerInfo: true,
-      healthChecker: {
-        enable: true,
-        intervalMs: 30000,
-      },
     },
     minBrowserVersions: [
       {

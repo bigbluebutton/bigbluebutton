@@ -61,7 +61,11 @@ export default class BaseAudioBridge {
 
   get inputDeviceId () {
     return this._inputDeviceId;
+  }
 
+  /* eslint-disable class-methods-use-this */
+  supportsTransparentListenOnly() {
+    return false;
   }
 
   /**
@@ -78,6 +82,20 @@ export default class BaseAudioBridge {
     let backupStream;
 
     try {
+      // Remove all input audio tracks from the stream
+      // This will effectively mute the microphone
+      // and keep the audio output working
+      if (deviceId === 'listen-only') {
+        const stream = this.inputStream;
+        if (stream) {
+          stream.getAudioTracks().forEach((track) => {
+            track.stop();
+            stream.removeTrack(track);
+          });
+        }
+        return stream;
+      }
+
       const constraints = {
         audio: getAudioConstraints({ deviceId }),
       };

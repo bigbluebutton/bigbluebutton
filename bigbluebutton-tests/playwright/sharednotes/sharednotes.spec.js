@@ -1,6 +1,6 @@
 const { test } = require('../fixtures');
 const { SharedNotes } = require('./sharednotes');
-const { initializePages } = require('../core/helpers');
+const { linkIssue, initializePages } = require('../core/helpers');
 const { fullyParallel } = require('../playwright.config');
 
 test.describe('Shared Notes', () => {
@@ -11,23 +11,23 @@ test.describe('Shared Notes', () => {
     await initializePages(sharedNotes, browser, { isMultiUser: true });
   });
 
-  test('Open shared notes @ci', async () => {
+  test('Open shared notes', { tag: '@ci' }, async () => {
     await sharedNotes.openSharedNotes();
   });
 
-  test('Type in shared notes', async () => {
+  test('Type in shared notes', { tag: '@ci' }, async () => {
     await sharedNotes.typeInSharedNotes();
   });
 
-  test('Formate text in shared notes', async () => {
+  test('Formate text in shared notes', { tag: '@ci' }, async () => {
     await sharedNotes.formatTextInSharedNotes();
   });
 
-  test('Export shared notes @ci', async ({}, testInfo) => {
+  test('Export shared notes', { tag: '@ci' }, async ({}, testInfo) => {
     await sharedNotes.exportSharedNotes(testInfo);
   });
 
-  test('Convert notes to whiteboard', async () => {
+  test('Convert notes to presentation', { tag: '@ci' }, async () => {
     await sharedNotes.convertNotesToWhiteboard();
   });
 
@@ -39,7 +39,8 @@ test.describe('Shared Notes', () => {
     await sharedNotes.seeNotesWithoutEditPermission();
   });
 
-  test('Pin and unpin notes onto whiteboard', async () => {
+  test('Pin and unpin notes onto whiteboard', { tag: [ '@ci', '@flaky' ] }, async () => {
+    linkIssue('20892');
     await sharedNotes.pinAndUnpinNotesOntoWhiteboard();
   });
 });

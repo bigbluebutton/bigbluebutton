@@ -15,7 +15,6 @@ import {
   EJECT_FROM_MEETING,
   EJECT_FROM_VOICE,
   SET_PRESENTER,
-  SET_EMOJI_STATUS,
   SET_LOCKED,
 } from '/imports/ui/core/graphql/mutations/userMutations';
 import {
@@ -26,10 +25,9 @@ import {
   isVoiceOnlyUser,
 } from './service';
 
-import { isChatEnabled } from '/imports/ui/services/features';
+import { useIsChatEnabled } from '/imports/ui/services/features';
 import { layoutDispatch } from '/imports/ui/components/layout/context';
 import { PANELS, ACTIONS } from '/imports/ui/components/layout/enums';
-import { EMOJI_STATUSES } from '/imports/utils/statuses';
 
 import ConfirmationModal from '/imports/ui/components/common/modal/confirmation/component';
 
@@ -41,6 +39,7 @@ import { useMutation, useLazyQuery } from '@apollo/client';
 import { CURRENT_PAGE_WRITERS_QUERY } from '/imports/ui/components/whiteboard/queries';
 import { PRESENTATION_SET_WRITERS } from '/imports/ui/components/presentation/mutations';
 import useToggleVoice from '/imports/ui/components/audio/audio-graphql/hooks/useToggleVoice';
+import useWhoIsUnmuted from '/imports/ui/core/hooks/useWhoIsUnmuted';
 
 interface UserActionsProps {
   user: User;
@@ -72,10 +71,6 @@ interface Writer {
 }
 
 const messages = defineMessages({
-  statusTriggerLabel: {
-    id: 'app.actionsBar.emojiMenu.statusTriggerLabel',
-    description: 'label for option to show emoji menu',
-  },
   UnpinUserWebcam: {
     id: 'app.userList.menu.webcamUnpin.label',
     description: 'label for pin user webcam',
@@ -87,10 +82,6 @@ const messages = defineMessages({
   StartPrivateChat: {
     id: 'app.userList.menu.chat.label',
     description: 'label for option to start a new private chat',
-  },
-  ClearStatusLabel: {
-    id: 'app.userList.menu.clearStatus.label',
-    description: 'Clear the emoji status of this user',
   },
   MuteUserAudioLabel: {
     id: 'app.userList.menu.muteUserAudio.label',
@@ -143,10 +134,6 @@ const messages = defineMessages({
   ejectUserCamerasLabel: {
     id: 'app.userList.menu.ejectUserCameras.label',
     description: 'label to eject user cameras',
-  },
-  backTriggerLabel: {
-    id: 'app.audio.backLabel',
-    description: 'label for option to hide emoji menu',
   },
 });
 const makeDropdownPluginItem: (
@@ -208,13 +195,19 @@ const UserActions: React.FC<UserActionsProps> = ({
   setOpenUserAction,
 }) => {
   const intl = useIntl();
-  const [showNestedOptions, setShowNestedOptions] = useState(false);
   const [isConfirmationModalOpen, setIsConfirmationModalOpen] = useState(false);
   const layoutContextDispatch = layoutDispatch();
 
   const [presentationSetWriters] = useMutation(PRESENTATION_SET_WRITERS);
-  const [getWriters] = useLazyQuery(CURRENT_PAGE_WRITERS_QUERY, { fetchPolicy: 'no-cache' });
+  const [getWriters] = useLazyQuery(
+    CURRENT_PAGE_WRITERS_QUERY,
+    {
+      variables: { pageId },
+      fetchPolicy: 'no-cache',
+    },
+  );
   const voiceToggle = useToggleVoice();
+  const isChatEnabled = useIsChatEnabled();
 
   const handleWhiteboardAccessChange = async () => {
     try {
@@ -250,17 +243,20 @@ const UserActions: React.FC<UserActionsProps> = ({
   };
 
   const { pluginsExtensibleAreasAggregatedState } = useContext(PluginsContext);
+
+  const { data: unmutedUsers } = useWhoIsUnmuted();
+  const isMuted = !unmutedUsers[user.userId];
+
   const actionsnPermitions = generateActionsPermissions(
     user,
     currentUser,
     lockSettings,
     usersPolicies,
     isBreakout,
+    isMuted,
   );
   const {
-    allowedToChangeStatus,
     allowedToChatPrivately,
-    allowedToResetStatus,
     allowedToMuteAudio,
     allowedToUnmuteAudio,
     allowedToChangeWhiteboardAccess,
@@ -297,7 +293,6 @@ const UserActions: React.FC<UserActionsProps> = ({
   const [ejectFromMeeting] = useMutation(EJECT_FROM_MEETING);
   const [ejectFromVoice] = useMutation(EJECT_FROM_VOICE);
   const [setPresenter] = useMutation(SET_PRESENTER);
-  const [setEmojiStatus] = useMutation(SET_EMOJI_STATUS);
   const [setLocked] = useMutation(SET_LOCKED);
   const [userEjectCameras] = useMutation(USER_EJECT_CAMERAS);
 
@@ -324,15 +319,6 @@ const UserActions: React.FC<UserActionsProps> = ({
       (item: PluginSdk.UserListDropdownInterface) => (item?.type === UserListDropdownItemType.INFORMATION),
     )),
     {
-      allowed: allowedToChangeStatus,
-      key: 'setstatus',
-      label: intl.formatMessage(messages.statusTriggerLabel),
-      onClick: () => setShowNestedOptions(true),
-      icon: 'user',
-      iconRight: 'right_arrow',
-      dataTest: 'setStatus',
-    },
-    {
       allowed: user.cameras.length > 0
         && isVideoPinEnabledForCurrentUser(currentUser, isBreakout),
       key: 'pinVideo',
@@ -351,7 +337,7 @@ const UserActions: React.FC<UserActionsProps> = ({
       icon: user.pinned ? 'pin-video_off' : 'pin-video_on',
     },
     {
-      allowed: isChatEnabled()
+      allowed: isChatEnabled
         && (
           currentUser.isModerator ? allowedToChatPrivately
             : allowedToChatPrivately && (
@@ -389,27 +375,12 @@ const UserActions: React.FC<UserActionsProps> = ({
       dataTest: 'startPrivateChat',
     },
     {
-      allowed: allowedToResetStatus
-        && user.emoji !== 'none',
-      key: 'clearStatus',
-      label: intl.formatMessage(messages.ClearStatusLabel),
-      onClick: () => {
-        setEmojiStatus({
-          variables: {
-            emoji: 'none',
-          },
-        });
-        setOpenUserAction(null);
-      },
-      icon: 'clear_status',
-    },
-    {
       allowed: allowedToMuteAudio
         && !isBreakout,
       key: 'mute',
       label: intl.formatMessage(messages.MuteUserAudioLabel),
       onClick: () => {
-        toggleVoice(user.userId, voiceToggle);
+        toggleVoice(user.userId, true, voiceToggle);
         setOpenUserAction(null);
       },
       icon: 'mute',
@@ -421,7 +392,7 @@ const UserActions: React.FC<UserActionsProps> = ({
       key: 'unmute',
       label: intl.formatMessage(messages.UnmuteUserAudioLabel),
       onClick: () => {
-        toggleVoice(user.userId, voiceToggle);
+        toggleVoice(user.userId, false, voiceToggle);
         setOpenUserAction(null);
       },
       icon: 'unmute',
@@ -541,40 +512,7 @@ const UserActions: React.FC<UserActionsProps> = ({
     )),
   ];
 
-  const nestedOptions = [
-    {
-      allowed: allowedToChangeStatus,
-      key: 'back',
-      label: intl.formatMessage(messages.backTriggerLabel),
-      onClick: () => setShowNestedOptions(false),
-      icon: 'left_arrow',
-    },
-    {
-      allowed: showNestedOptions,
-      key: 'separator-01',
-      isSeparator: true,
-    },
-    ...Object.keys(EMOJI_STATUSES).map((key) => ({
-      allowed: showNestedOptions,
-      key,
-      label: intl.formatMessage({ id: `app.actionsBar.emojiMenu.${key}Label` }),
-      onClick: () => {
-        setEmojiStatus({
-          variables: {
-            emoji: key,
-          },
-        });
-        setOpenUserAction(null);
-        setShowNestedOptions(false);
-      },
-      icon: (EMOJI_STATUSES as Record<string, string>)[key],
-      dataTest: key,
-    })),
-  ];
-
-  const actions = showNestedOptions
-    ? nestedOptions.filter((key) => key.allowed)
-    : dropdownOptions.filter((key) => key.allowed);
+  const actions = dropdownOptions.filter((key) => key.allowed);
   if (!actions.length) {
     return (
       <span>
@@ -605,10 +543,8 @@ const UserActions: React.FC<UserActionsProps> = ({
           )
         }
         actions={actions}
-        selectedEmoji={user.emoji}
         onCloseCallback={() => {
           setOpenUserAction(null);
-          setShowNestedOptions(false);
         }}
         open={open}
       />

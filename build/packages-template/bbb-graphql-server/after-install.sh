@@ -5,6 +5,9 @@ case "$1" in
 
   fc-cache -f
 
+  # make sure postgres can read this directory
+  chmod 755 /usr/share/bbb-graphql-server/ -R
+
   runuser -u postgres -- psql -c "alter user postgres password 'bbb_graphql'"
   runuser -u postgres -- psql -c "drop database if exists bbb_graphql with (force)"
   runuser -u postgres -- psql -c "create database bbb_graphql WITH TEMPLATE template0 LC_COLLATE 'C.UTF-8'"
@@ -21,34 +24,24 @@ case "$1" in
       echo "Database $DATABASE_NAME created"
   fi
 
-  # Create a readonly user that will be used by Meteor to check authToken (while Meteor not removed from the project)
-  DATABASE_FRONTEND_USER="bbb_frontend"
-  FRONT_USER_EXISTS=$(sudo -u postgres psql -U postgres -tAc "SELECT 1 FROM pg_roles WHERE rolname = '$DATABASE_FRONTEND_USER'")
-  if [ "$FRONT_USER_EXISTS" = '1' ]
-  then
-      echo "User $DATABASE_FRONTEND_USER already exists"
-  else
-      sudo -u postgres psql -q -c "CREATE USER $DATABASE_FRONTEND_USER WITH PASSWORD '$DATABASE_FRONTEND_USER'"
-      sudo -u postgres psql -q -c "GRANT CONNECT ON DATABASE bbb_graphql TO $DATABASE_FRONTEND_USER"
-      sudo -u postgres psql -q -d bbb_graphql -c "REVOKE ALL ON ALL TABLES IN SCHEMA public FROM $DATABASE_FRONTEND_USER"
-      sudo -u postgres psql -q -d bbb_graphql -c "GRANT USAGE ON SCHEMA public TO $DATABASE_FRONTEND_USER"
-      echo "User $DATABASE_FRONTEND_USER created on database bbb_graphql"
-  fi
-
-  sudo -u postgres psql -q -d bbb_graphql -c "GRANT SELECT ON v_user_connection_auth TO $DATABASE_FRONTEND_USER"
-
   echo "Postgresql configured"
 
-  echo "Set a random password to Hasura in case its using the default 'bigbluebutton'"
+#Generate a random password to Hasura to improve security
+if [ ! -f /usr/share/bbb-graphql-server/admin-secret ]; then
   HASURA_RANDOM_ADM_PASSWORD=$(openssl rand -base64 32 | sed 's/=//g' | sed 's/+//g' | sed 's/\///g')
-  sed -i "s/HASURA_GRAPHQL_ADMIN_SECRET=bigbluebutton/HASURA_GRAPHQL_ADMIN_SECRET=$HASURA_RANDOM_ADM_PASSWORD/g" /etc/default/bbb-graphql-server
-  HASURA_ADM_PASSWORD=$(grep '^HASURA_GRAPHQL_ADMIN_SECRET=' /etc/default/bbb-graphql-server | cut -d '=' -f 2)
-  sed -i "s/admin_secret: bigbluebutton/admin_secret: $HASURA_ADM_PASSWORD/g" /usr/share/bbb-graphql-server/config.yaml
+  echo "HASURA_GRAPHQL_ADMIN_SECRET=$HASURA_RANDOM_ADM_PASSWORD" > /usr/share/bbb-graphql-server/admin-secret
+  chmod 755 /usr/share/bbb-graphql-server/admin-secret
+  echo "Set a random password to Hasura at /usr/share/bbb-graphql-server/admin-secret"
+fi
+
+#Set admin secret for Hasura CLI
+HASURA_ADM_PASSWORD=$(grep '^HASURA_GRAPHQL_ADMIN_SECRET=' /usr/share/bbb-graphql-server/admin-secret | cut -d '=' -f 2)
+sed -i "s/^admin_secret: .*/admin_secret: $HASURA_ADM_PASSWORD/g" /usr/share/bbb-graphql-server/config.yaml
 
   if [ ! -f /.dockerenv ]; then
     systemctl enable bbb-graphql-server.service
     systemctl daemon-reload
-    startService bbb-graphql-server || echo "bbb-graphql-server service could not be registered or started"
+    restartService bbb-graphql-server || echo "bbb-graphql-server service could not be registered or started"
 
     #Check if Hasura is ready before applying metadata
     HASURA_PORT=8085

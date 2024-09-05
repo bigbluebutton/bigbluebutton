@@ -1,14 +1,17 @@
 package org.bigbluebutton.api.model.request;
 
+import org.bigbluebutton.api.model.constraint.ContentTypeConstraint;
 import org.bigbluebutton.api.model.constraint.MeetingEndedConstraint;
 import org.bigbluebutton.api.model.constraint.MeetingExistsConstraint;
 import org.bigbluebutton.api.model.constraint.UserSessionConstraint;
 import org.bigbluebutton.api.service.SessionService;
 
+import javax.servlet.http.HttpServletRequest;
 import javax.validation.constraints.NotNull;
 import java.util.Map;
 
-public class GuestWait implements Request<GuestWait.Params> {
+@ContentTypeConstraint
+public class GuestWait extends RequestWithSession<GuestWait.Params>{
 
     public enum Params implements RequestParameters {
         SESSION_TOKEN("sessionToken");
@@ -29,7 +32,8 @@ public class GuestWait implements Request<GuestWait.Params> {
 
     private SessionService sessionService;
 
-    public GuestWait() {
+    public GuestWait(HttpServletRequest servletRequest) {
+        super(servletRequest);
         sessionService = new SessionService();
     }
 

@@ -2,7 +2,7 @@ import React from 'react';
 import {
   FormattedMessage, FormattedDate, FormattedNumber, injectIntl,
 } from 'react-intl';
-import { getUserEmojisSummary, emojiConfigs } from '../services/EmojiService';
+import { getUserReactionsSummary } from '../services/ReactionService';
 import { getActivityScore, getSumOfTime, tsToHHmmss } from '../services/UserService';
 import UserAvatar from './UserAvatar';
 import { UserDetailsContext } from './UserDetails/context';
@@ -73,9 +73,9 @@ class UsersTable extends React.Component {
       talkTimeOrder, webcamTimeOrder, lastFieldClicked,
     } = this.state;
 
-    const usersEmojisSummary = {};
+    const usersReactionsSummary = {};
     Object.values(allUsers || {}).forEach((user) => {
-      usersEmojisSummary[user.userKey] = getUserEmojisSummary(user, 'raiseHand');
+      usersReactionsSummary[user.userKey] = getUserReactionsSummary(user);
     });
 
     function getOnlinePercentage(registeredOn, leftOn) {
@@ -206,7 +206,7 @@ class UsersTable extends React.Component {
               <FormattedMessage id="app.learningDashboard.usersTable.colMessages" defaultMessage="Messages" />
             </th>
             <th className="px-3.5 2xl:px-4 py-3 col-text-left">
-              <FormattedMessage id="app.learningDashboard.usersTable.colEmojis" defaultMessage="Emojis" />
+              <FormattedMessage id="app.learningDashboard.usersTable.colReactions" defaultMessage="Reactions" />
             </th>
             <th className="px-3.5 2xl:px-4 py-3 text-center">
               <FormattedMessage id="app.learningDashboard.usersTable.colRaiseHands" defaultMessage="Raise Hand" />
@@ -350,7 +350,7 @@ class UsersTable extends React.Component {
                               title={`${percentage.toString()}%`}
                             >
                               <div
-                                aria-label=" "
+                                aria-label="Online time"
                                 className="bg-gradient-to-br from-green-100 to-green-600 transition-colors duration-900 h-1.5"
                                 style={{ width: `${percentage.toString()}%` }}
                                 role="progressbar"
@@ -429,42 +429,25 @@ class UsersTable extends React.Component {
                           </span>
                         ) : null }
                     </td>
-                    <td className={`px-4 py-3 text-sm col-text-left ${opacity}`} data-test="userTotalEmojisDashboard">
+                    <td className={`px-4 py-3 text-sm col-text-left ${opacity}`} data-test="userTotalReactionsDashboard">
                       {
-                        Object.keys(usersEmojisSummary[user.userKey] || {}).map((emoji) => (
+                        Object.keys(usersReactionsSummary[user.userKey] || {}).map((reaction) => (
                           <div className="text-xs whitespace-nowrap">
-                            <i className={`${emojiConfigs[emoji].icon} text-sm`} />
+                            {reaction}
                             &nbsp;
-                            { usersEmojisSummary[user.userKey][emoji] }
+                            { usersReactionsSummary[user.userKey][reaction] }
                             &nbsp;
-                            <FormattedMessage
-                              id={emojiConfigs[emoji].intlId}
-                              defaultMessage={emojiConfigs[emoji].defaultMessage}
-                            />
                           </div>
                         ))
                       }
                     </td>
                     <td className={`px-4 py-3 text-sm text-center ${opacity}`} data-test="userRaiseHandDashboard">
-                      { user.emojis.filter((emoji) => emoji.name === 'raiseHand').length > 0
+                      { user.raiseHand.length > 0
                         ? (
                           <span>
-                            <svg
-                              xmlns="http://www.w3.org/2000/svg"
-                              className="h-4 w-4 inline"
-                              fill="none"
-                              viewBox="0 0 24 24"
-                              stroke="currentColor"
-                            >
-                              <path
-                                strokeLinecap="round"
-                                strokeLinejoin="round"
-                                strokeWidth="2"
-                                d="M7 11.5V14m0-2.5v-6a1.5 1.5 0 113 0m-3 6a1.5 1.5 0 00-3 0v2a7.5 7.5 0 0015 0v-5a1.5 1.5 0 00-3 0m-6-3V11m0-5.5v-1a1.5 1.5 0 013 0v1m0 0V11m0-5.5a1.5 1.5 0 013 0v3m0 0V11"
-                              />
-                            </svg>
+                            ✋
                             &nbsp;
-                            {user.emojis.filter((emoji) => emoji.name === 'raiseHand').length}
+                            {user.raiseHand.length}
                           </span>
                         ) : null }
                     </td>

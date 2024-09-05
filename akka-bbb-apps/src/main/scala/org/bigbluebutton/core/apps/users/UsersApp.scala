@@ -4,12 +4,12 @@ import org.apache.pekko.actor.ActorContext
 import org.apache.pekko.event.Logging
 import org.bigbluebutton.Boot.eventBus
 import org.bigbluebutton.common2.msgs._
-import org.bigbluebutton.core.api.{SetPresenterInDefaultPodInternalMsg}
+import org.bigbluebutton.core.api.SetPresenterInDefaultPodInternalMsg
 import org.bigbluebutton.core.apps.ExternalVideoModel
 import org.bigbluebutton.core.bus.{BigBlueButtonEvent, InternalEventBus}
 import org.bigbluebutton.core.models._
 import org.bigbluebutton.core.running.{LiveMeeting, OutMsgRouter}
-import org.bigbluebutton.core2.message.senders.{MsgBuilder}
+import org.bigbluebutton.core2.message.senders.{MsgBuilder, Sender}
 import org.bigbluebutton.core.apps.screenshare.ScreenshareApp2x
 import org.bigbluebutton.core.db.UserStateDAO
 
@@ -31,7 +31,7 @@ object UsersApp {
       u <- RegisteredUsers.findWithUserId(userId, liveMeeting.registeredUsers)
     } yield {
 
-      RegisteredUsers.eject(u.id, liveMeeting.registeredUsers, false)
+      RegisteredUsers.eject(u.id, liveMeeting.registeredUsers, ban = false)
 
       val event = MsgBuilder.buildGuestWaitingLeftEvtMsg(liveMeeting.props.meetingProp.intId, u.id)
       outGW.send(event)
@@ -71,6 +71,13 @@ object UsersApp {
     } yield {
       sendPresenterAssigned(outGW, meetingId, newPresenter.intId, newPresenter.name, newPresenter.intId)
       sendPresenterInPodReq(meetingId, newPresenter.intId)
+
+      // Force reconnection with graphql to refresh permissions
+      for {
+        regUser <- RegisteredUsers.findWithUserId(newPresenter.intId, liveMeeting.registeredUsers)
+      } yield {
+        Sender.sendForceUserGraphqlReconnectionSysMsg(liveMeeting.props.meetingProp.intId, regUser.id, regUser.sessionToken, "role_changed", outGW)
+      }
     }
   }
 
@@ -153,21 +160,20 @@ class UsersApp(
     val eventBus:    InternalEventBus
 )(implicit val context: ActorContext)
 
-  extends ValidateAuthTokenReqMsgHdlr
-  with GetUsersMeetingReqMsgHdlr
-  with RegisterUserReqMsgHdlr
+  extends RegisterUserReqMsgHdlr
+  with GetUserApiMsgHdlr
   with ChangeUserRoleCmdMsgHdlr
   with SetUserSpeechLocaleMsgHdlr
+  with SetUserCaptionLocaleMsgHdlr
+  with SetUserClientSettingsReqMsgHdlr
+  with SetUserEchoTestRunningReqMsgHdlr
   with SetUserSpeechOptionsMsgHdlr
-  with SyncGetUsersMeetingRespMsgHdlr
   with LogoutAndEndMeetingCmdMsgHdlr
   with SetRecordingStatusCmdMsgHdlr
   with RecordAndClearPreviousMarkersCmdMsgHdlr
-  with SendRecordingTimerInternalMsgHdlr
   with GetRecordingStatusReqMsgHdlr
   with AssignPresenterReqMsgHdlr
   with ChangeUserPinStateReqMsgHdlr
-  with ChangeUserMobileFlagReqMsgHdlr
   with UserConnectionAliveReqMsgHdlr
   with ChangeUserReactionEmojiReqMsgHdlr
   with ChangeUserRaiseHandReqMsgHdlr

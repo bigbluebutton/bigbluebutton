@@ -23,6 +23,10 @@ object SetCurrentPagePubMsg { val NAME = "SetCurrentPagePubMsg" }
 case class SetCurrentPagePubMsg(header: BbbClientMsgHeader, body: SetCurrentPagePubMsgBody) extends StandardMsg
 case class SetCurrentPagePubMsgBody(podId: String, presentationId: String, pageId: String)
 
+object SetPageInfiniteWhiteboardPubMsg { val NAME = "SetPageInfiniteWhiteboardPubMsg" }
+case class SetPageInfiniteWhiteboardPubMsg(header: BbbClientMsgHeader, body: SetPageInfiniteWhiteboardPubMsgBody) extends StandardMsg
+case class SetPageInfiniteWhiteboardPubMsgBody(pageId: String, infiniteWhiteboard: Boolean)
+
 object RemovePresentationPubMsg { val NAME = "RemovePresentationPubMsg" }
 case class RemovePresentationPubMsg(header: BbbClientMsgHeader, body: RemovePresentationPubMsgBody) extends StandardMsg
 case class RemovePresentationPubMsgBody(podId: String, presentationId: String)
@@ -325,6 +329,10 @@ object SetCurrentPageEvtMsg { val NAME = "SetCurrentPageEvtMsg" }
 case class SetCurrentPageEvtMsg(header: BbbClientMsgHeader, body: SetCurrentPageEvtMsgBody) extends BbbCoreMsg
 case class SetCurrentPageEvtMsgBody(podId: String, presentationId: String, pageId: String)
 
+object SetPageInfiniteWhiteboardEvtMsg { val NAME = "SetPageInfiniteWhiteboardEvtMsg" }
+case class SetPageInfiniteWhiteboardEvtMsg(header: BbbClientMsgHeader, body: SetPageInfiniteWhiteboardEvtMsgBody) extends BbbCoreMsg
+case class SetPageInfiniteWhiteboardEvtMsgBody(pageId: String, infiniteWhiteboard: Boolean)
+
 object SetPresenterInPodRespMsg { val NAME = "SetPresenterInPodRespMsg" }
 case class SetPresenterInPodRespMsg(header: BbbClientMsgHeader, body: SetPresenterInPodRespMsgBody) extends StandardMsg
 case class SetPresenterInPodRespMsgBody(podId: String, nextPresenterId: String)
@@ -346,11 +354,6 @@ case class ResizeAndMovePageEvtMsgBody(podId: String, presentationId: String, pa
 object SetCurrentPresentationEvtMsg { val NAME = "SetCurrentPresentationEvtMsg" }
 case class SetCurrentPresentationEvtMsg(header: BbbClientMsgHeader, body: SetCurrentPresentationEvtMsgBody) extends BbbCoreMsg
 case class SetCurrentPresentationEvtMsgBody(podId: String, presentationId: String)
-
-// html5 client only
-object SyncGetPresentationPodsRespMsg { val NAME = "SyncGetPresentationPodsRespMsg" }
-case class SyncGetPresentationPodsRespMsg(header: BbbClientMsgHeader, body: SyncGetPresentationPodsRespMsgBody) extends BbbCoreMsg
-case class SyncGetPresentationPodsRespMsgBody(pods: Vector[PresentationPodVO])
 
 // ------------ akka-apps to client ------------
 

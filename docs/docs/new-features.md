@@ -19,11 +19,23 @@ Here's a breakdown of what's new in 3.0.
 
 We have done significant work to adopt the newly released version 2 of tl;draw. It comes with even more tools and capabilities and has allowed us to embark on more ambitious whiteboard projects, for example a prototype of an Infinite Canvas.
 
+#### Improved UX for joining audio for transparentListenOnly
+
+If `transparentListenOnly` is enabled on the server, when you try to join audio in a session you will no longer be asked to choose between joining with a microphone or in ListenOnly mode.
+
+Instead, you are presented directly with the echo test and audio options.
+
+![audio controls when joining audio](/img/30/30-ui-join-audio.png)
+
+Once you are joined in audio you can dynamicly change your audio device configuration from a dropdown located on the mute-yourself button.
+
+![mute yourself has a dropdown menu allowing device changes](/img/30/30-ui-audio-devices-options.png)
+
 #### New layouts for specific integration scenarios
 
 Several new layouts have been added ("Cameras Only", "Presentation Only", and "Participants and Chat Only") to address various use cases of hybrid education - for example splitting views of the BigBlueButton session to be visible on different physical screens.
 
-#### Improved Away Mode
+#### Improved Away mode
 
 We have made changes so that when you set yourself as being Away, your microphone is now automatically muted, your webcam is also muted (blank).
 
@@ -37,7 +49,7 @@ Away mode also is recorded in the public chat area.
 
 ![away public chat](/img/30/30-away-public-chat.png)
 
-#### Leave Meeting Button
+#### Leave meeting button
 
 A contribution from community member Jan Kessler, the direct Leave Meeting button was first introduced in BigBlueButton 2.7.5. Starting with BigBlueButton 3.0 we are making it enabled by default.
 
@@ -51,10 +63,21 @@ We have enhanced the view of the polling results that appear over the whiteboard
 
 ![better polling results](/img/30/30-poll-annotation.png)
 
+
+#### Private chat messages have a "seen" indicator
+
+We have added an indicator showing when your private chat recipient has seen the message.
+
+![checkmark beside the message indicating it was seen](/img/30/30-seen-message.png)
+
+#### Push to talk was added
+
+You can now use the "M" shortcut while in a conference to control how long your microphone is open. If the option for push to talk is enabled in settings.yml holding "M" will keep your microphone unmuted for as long you hold the key down. Releasing it will mute you again.
+
+
 ### Engagement
 
 <!-- ####  -->
-
 
 <!-- ### Analytics -->
 
@@ -66,10 +89,13 @@ We have enhanced the view of the polling results that appear over the whiteboard
 We have made significant changes to the architecture of BigBlueButton and have introduced support to plugins -- optional custom modules included in the client which allow expanding the capabilities of BigBlueButton. A data channel is provided to allow for data exchange between clients. See the [HTML5 Plugin SDK](https://github.com/bigbluebutton/bigbluebutton-html-plugin-sdk) for examples and more information.
 
 At the moment of writing these documentation, the official list of plugins includes: 
-- [Select Random User](https://github.com/bigbluebutton/plugins/tree/main/pick-random-user-plugin)
-- [Generic Link Share](https://github.com/bigbluebutton/plugins/tree/main/generic-link-share)
-- [Session Share](https://github.com/bigbluebutton/plugins/tree/main/session-share)
-- [Decrease external video's volume on speak](https://github.com/bigbluebutton/plugins/tree/main/decrease-volume-on-speak)
+- [Select Random User](https://github.com/bigbluebutton/plugin-pick-random-user)
+- [Share a link](https://github.com/bigbluebutton/plugin-generic-link-share)
+- [H5P plugin for BigBlueButton](https://github.com/bigbluebutton/plugin-h5p)
+- [Session share](https://github.com/bigbluebutton/plugin-session-share)
+- [Decrease the volume of external video when someone speaks](https://github.com/bigbluebutton/plugin-decrease-volume-on-speak)
+- [Typed captions](https://github.com/bigbluebutton/plugin-typed-captions)
+- [Source code highlight](https://github.com/bigbluebutton/plugin-code-highlight)
 
 #### Replaced Akka framework with Pekko
 
@@ -79,27 +105,41 @@ Following the license change of Akka back in September 2022 we considered severa
 
 Administrators will appreciate that we now allow passing of custom client settings through the meeting create API call. You no longer need separate servers to accommodate for sessions requiring vastly different settings.yml configuration
 
-#### Major strides in replacing Meteor
+#### Removal of Meteor and MongoDB
 
-For years we have discussed internally the topic of replacing Meteor.js with other technologies in order to improve scalability, performance, etc. In the last year we have introduced several different new components to replace Meteor. The work is underway, it will span into BigBlueButton 3.0, 3.1, possibly 3.2 too.
-These new components are: `bbb-graphql-server`, `bbb-graphql-middleware`, `bbb-graphql-actions`, database Postgres, GraphQL server Hasura.
+For years we have discussed internally the topic of replacing Meteor.js with other technologies in order to improve scalability, performance, etc. In the last year we have introduced several different new components to replace Meteor.
+These new components are: `bbb-graphql-server`, `bbb-graphql-middleware`, `bbb-graphql-actions`, database Postgres, GraphQL server Hasura. As of BigBlueButton 3.0.0-beta.1 we are no longer using Meteor or MongoDB.
 
-Note: The services `bbb-html5-backend` and `bbb-html5-frontend` have been removed and `bbb-html5` modified heavily as a result of the change in architecture.
+Note: The services `bbb-html5-backend`, `bbb-html5-frontend`, `bbb-html5` and `mongod` have been removed. The client code is compacted and served by NginX. The service `disable-transparent-huge-pages.service` was also removed as it was used to improve performance of MongoDB and is now obsolete.
+The package `bbb-html5-nodejs` is no longer needed.
 
-#### The whiteboard was improved
+**Important**: Please make sure you're no longer carrying around NodeJS v14 which we used to deploy in `bbb-html5-nodejs`. Your directory `/usr/lib/bbb-html5/node` should not exist.
+
+#### We have forked the tldraw project and use our fork
 
 We upgraded tl;draw from version 1 to version 2.0.0-alpha.19 (the last version on Apache 2.0 licence). That was quite a significant task but brought better performance, better looks, improved stylus support and many more. Note that we have forked tldraw's project as of their version 2.0.0-alpha.19 to ensure we remain on the Apache 2.0 license. We will be maintaining the fork so that BigBlueButton has a stable whiteboard in the future.
 
-#### Support for Collabora Online as Document Converter
-￼
-￼Collabora Productivity contributed the support for an alternative conversion script where Collabora Online (deployed locally [as a docker container] or running remotely) can be used for document conversion.
-￼For more information check the [pull request](https://github.com/bigbluebutton/bigbluebutton/pull/18783)
+#### Support for Collabora Online as document converter
+
+Collabora Productivity contributed the support for an alternative conversion script where Collabora Online (deployed locally [as a docker container] or running remotely) can be used for document conversion.
+For more information check the [pull request](https://github.com/bigbluebutton/bigbluebutton/pull/18783)
 
 ### Experimental
 
 <!-- #### LiveKit support -->
 
-<!-- Infinite whiteboard -->
+#### Infinite Whiteboard (experimental)
+
+We have added initial support for inifinite whiteboard in the live session. Only the presenter can trigger it. It allows for annotations to be created in the margins, or to write content without being limited by space.
+
+![the trigger for infinite whiteboard is in the middle of the presenter toolbar](/img/30/30-trigger-for-infinite-wb.png)
+
+Everyone sees the margins and follows the presenter's point of view. If multi-user whiteboard is also enabled, viewers can roam around the canvas independently.
+
+![with inifinite whiteboard enabled annotations can be made on the margins and more](/img/30/30-infinite-wb-in-action.png)
+
+Recording is not yet implemented, meaning that if you enable this experimental feature on your server and use it in a recorded session, the recording will most likely have broken whiteboard at best. The recording (and playback) work is planned for after BigBlueButton 3.0.
+
 
 ### Upgraded components
 
@@ -111,6 +151,8 @@ For full details on what is new in BigBlueButton 3.0, see the release notes.
 
 Recent releases:
 
+- [3.0.0-alpha.7](https://github.com/bigbluebutton/bigbluebutton/releases/tag/v3.0.0-alpha.7)
+- [3.0.0-alpha.6](https://github.com/bigbluebutton/bigbluebutton/releases/tag/v3.0.0-alpha.6)
 - [3.0.0-alpha.5](https://github.com/bigbluebutton/bigbluebutton/releases/tag/v3.0.0-alpha.5)
 - [3.0.0-alpha.4](https://github.com/bigbluebutton/bigbluebutton/releases/tag/v3.0.0-alpha.4)
 - [3.0.0-alpha.3](https://github.com/bigbluebutton/bigbluebutton/releases/tag/v3.0.0-alpha.3)
@@ -121,11 +163,24 @@ Recent releases:
 
 #### Removal of Kurento
 
-We have removed all use of Kurento Media Server. For the live media transmission we still rely on mediasoup. For the recording portion we make use of our own component `bbb-webrtc-recorder`. BigBlueButton 3.0 is the first release where we do not even install Kurento.
+We have removed all use of Kurento Media Server. For the live media transmission we rely on mediasoup. For the recording portion we make use of our own component `bbb-webrtc-recorder`. BigBlueButton 3.0 is the first release where we do not install Kurento.
 
 #### Select Random User feature removed and is now a plugin
 
-The functionality Select Random User which used to be part of the BigBlueButton core was removed. A plugin with the same functionality was developed and [made public](https://github.com/bigbluebutton/plugins/tree/main/pick-random-user-plugin).
+The functionality Select Random User which used to be part of the BigBlueButton core was removed. A plugin with the same functionality was developed and [made public](https://github.com/bigbluebutton/plugin-pick-random-user).
+
+#### Typed captions feature removed and is now a plugin
+
+We removed the built-in typed captions support given that we support several options for automatic captions which seem to be much more popular.
+We implemented a plugin for typed captions - [Typed captions plugin](https://github.com/bigbluebutton/plugin-typed-captions) which you could use instead.
+
+#### Removed userStatus
+
+The `userStatus` feature was replaced by `userReaction`. They were vastly overlapping, causing some confusion when using and maintaining.
+
+#### Upgrade of config editing tool yq
+
+We have upgraded `yq` from version 3.4.1 (which was no longer maintained) to 4.16.2. This is a major jump and the syntax used is quite different as well. We went through all internal uses of `yq` - packaging, bbb-install.sh, bbb-conf and others and updated the syntax. However, if you have custom scripts, you may have to rework the syntax too. Here is a [guide](https://mikefarah.gitbook.io/yq/upgrading-from-v3).
 
 #### Improved support for various SHA algorithms for checksum calculation
 
@@ -135,9 +190,23 @@ In BigBlueButton 2.6.17/2.7.5/3.0.0-alpha.5 we added a new configuration propert
 
 In BigBlueButton 3.0.0-alpha.5 we replaced the JOIN parameter `defaultLayout` with the JOIN parameter `userdata-bbb_default_layout`. If none provided the `meetingLayout` (passed on CREATE) will be used. If none passed, and if none passed there, the `defaultMeetingLayout` from bbb-web will be used.
 
+#### Added new setting and userdata to allow skipping echo test if session has valid input/output devices stored
+
+- Client settings.yml: `skipEchoTestIfPreviousDevice`. Defaults to `false`
+- Can be overrided on JOIN with Custom Parameter: `userdata-bbb_skip_echotest_if_previous_device=`
+
 #### Recording event TranscriptUpdatedRecordEvent blocked
 
 In BigBlueButton 2.7.5/3.0.0-alpha.5 we stopped propagating the events.xml event TranscriptUpdatedRecordEvent due to some issues with providing too much and too repetitive data.
+
+#### Added new setting and userdata to allow skipping video preview if session has valid input devices stored
+
+- Client settings.yml: `skipVideoPreviewIfPreviousDevice`. Defaults to `false`
+- Can be overrided on JOIN with Custom Parameter: `userdata-bbb_skip_video_preview_if_previous_device=`
+
+### Replaced all user facing instances of "meeting" with the word "session"
+
+The word "session" is more generic and encompasses both educational and work contexts. Up until BigBlueButton 3.0 we were using the two keywords interchangeably. Moving forward we are preferring to use "session".
 
 ### Changes to events.xml
 
@@ -147,11 +216,24 @@ Retired events
 - `DeskshareStopRtmpRecordEvent`
 - `TranscriptUpdatedRecordEvent`
 
+Modified/added events
+- `ParticipantJoinEvent` - will contain element `userdata` see https://github.com/bigbluebutton/bigbluebutton/pull/20566#pullrequestreview-2142238810
+- the old user status emojis were retired. `emojiStatus` will not be filled anymore. For more information see https://github.com/bigbluebutton/bigbluebutton/pull/20717
+
 #### bbb-web properties changes
 
 - `allowOverrideClientSettingsOnCreateCall=false` added
 - `sessionsCleanupDelayInMinutes=60` added
 - `graphqlWebsocketUrl=${bigbluebutton.web.serverURL}/graphql` added
+- `defaultAllowPromoteGuestToModerator=false` added
+
+#### Removed support for POST requests on `join` endpoint and Content-Type headers are now required
+
+In BigBlueButton 2.6.18/2.7.8 POST requests are no longer allowed for the `join` endpoint. To ensure they are validated properly, a `Content-Type` header must also be provided for POST requests that contain data in the request body. Endpoints now support a limited set of content types that includes `text/xml`, `application/xml`, `application/x-www-form-url-encoded`, and `multipart/form-data`. By default each endpoint only supports `application/x-www-form-urlencoded` and `multipart/form-data`, but individual endpoints can override this and define their own set of supported content types. The `create` endpoint supports all of the four previously listed content types while `insertDocument` supports only `text/xml` and `application/xml`. Any requests with a content type that differs from the set supported by the target endpoint will be rejected with a new `unsupportedContentType` error.
+
+#### Changes in document formats we support
+
+We improved the documentation for which types of files we support when uploading presentations. Support for `.odi` and `.odc` was dropped. Support for `.svg`, `.odg` and `.webp` was officially added even though animated webp's are no longer animated after the image processing. 
 
 ### Development
 
@@ -163,8 +245,7 @@ The build scripts for packaging 3.0 (using fpm) are located in the GitHub reposi
 
 We welcome contributors to BigBlueButton 3.0!  The best ways to contribute at the current time are:
 
-<!-- - Help localize BigBlueButton 3.0 on [Transifex project for BBB 3.0](https://www.transifex.com/bigbluebutton/bigbluebutton-v30-html5-client/dashboard/) -->
-
+- Help localize BigBlueButton 3.0 on [Transifex project for BBB 3.0](https://www.transifex.com/bigbluebutton/bigbluebutton-v30-html5-client/dashboard/)
 - Try out [installing BigBlueButton 3.0](/administration/install) and see if you spot any issues.
 - Help test a [3.0 pull request](https://github.com/bigbluebutton/bigbluebutton/pulls?q=is%3Aopen+is%3Apr+milestone%3A%22Release+3.0%22) in your development environment.
   <!-- TODO create a GitHub label for contributions-welcome and link here -->

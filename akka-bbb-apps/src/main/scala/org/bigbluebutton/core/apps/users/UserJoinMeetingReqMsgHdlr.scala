@@ -34,6 +34,7 @@ trait UserJoinMeetingReqMsgHdlr extends HandlerHelpers {
       val validationResult = for {
         _ <- checkIfUserGuestStatusIsAllowed(user)
         _ <- checkIfUserIsBanned(user)
+        _ <- checkIfUserEjected(user)
         _ <- checkIfUserLoggedOut(user)
         _ <- validateMaxParticipants(user)
       } yield user
@@ -46,7 +47,7 @@ trait UserJoinMeetingReqMsgHdlr extends HandlerHelpers {
   }
 
   private def handleSuccessfulUserJoin(msg: UserJoinMeetingReqMsg, regUser: RegisteredUser) = {
-    val newState = userJoinMeeting(outGW, msg.body.authToken, msg.body.clientType, liveMeeting, state)
+    val newState = userJoinMeeting(outGW, msg.body.authToken, msg.body.clientType, msg.body.clientIsMobile, liveMeeting, state)
     updateParentMeetingWithNewListOfUsers()
     notifyPreviousUsersWithSameExtId(regUser)
     clearCachedVoiceUser(regUser)
@@ -99,6 +100,14 @@ trait UserJoinMeetingReqMsgHdlr extends HandlerHelpers {
   private def checkIfUserIsBanned(user: RegisteredUser): Either[(String, String), Unit] = {
     if (user.banned) {
       Left(("Banned user rejoining", EjectReasonCode.BANNED_USER_REJOINING))
+    } else {
+      Right(())
+    }
+  }
+
+  private def checkIfUserEjected(user: RegisteredUser): Either[(String, String), Unit] = {
+    if (user.ejected) {
+      Left(("User had ejected", EjectReasonCode.EJECT_USER))
     } else {
       Right(())
     }

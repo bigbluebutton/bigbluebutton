@@ -8,6 +8,7 @@ on:
     paths-ignore:
       - "docs/**"
       - "**/*.md"
+      - "bigbluebutton-html5/public/locales/*.json"
   pull_request:
     types: [opened, synchronize, reopened]
     paths-ignore:
@@ -63,7 +64,7 @@ jobs:
           - package: bbb-fsesl-akka
             cache-files-list: akka-bbb-fsesl bbb-common-message
           - package: bbb-html5
-            build-list: bbb-html5-nodejs bbb-html5
+            build-list: bbb-html5
             cache-files-list: bigbluebutton-html5
           - package: bbb-freeswitch
             build-list: bbb-freeswitch-core bbb-freeswitch-sounds
@@ -115,6 +116,7 @@ jobs:
         shard: [1, 2, 3, 4, 5, 6, 7, 8]
     env:
       shard: ${{ matrix.shard }}/8
+      MATRIX_SHARD_UNDERSCORED: ${{ matrix.shard }}_8
     steps:
       - uses: actions/checkout@v4
       - name: Merge branches
@@ -265,10 +267,11 @@ jobs:
           command: |
             sudo -i <<EOF
             set -e
-            cd /root/ && wget -nv https://raw.githubusercontent.com/bigbluebutton/bbb-install/v3.0.x-release/bbb-install.sh -O bbb-install.sh
+            cd /root/ && wget -nv https://raw.githubusercontent.com/bigbluebutton/bbb-install/v3.0.x-release--no-mongo/bbb-install.sh -O bbb-install.sh
             cat bbb-install.sh | sed "s|> /etc/apt/sources.list.d/bigbluebutton.list||g" | bash -s -- -v jammy-30-dev -s bbb-ci.test -j -d /certs/
             bbb-conf --salt bbbci
             sed -i "s/\"minify\": true,/\"minify\": false,/" /usr/share/etherpad-lite/settings.json
+            sudo yq e -i '.log_level = "TRACE"' /usr/share/bbb-graphql-middleware/config.yml
             bbb-conf --restart
             EOF
       - name: List systemctl services
@@ -314,7 +317,7 @@ jobs:
           find $HOME/.cache/ms-playwright -name libnssckbi.so -exec rm {} \; -exec ln -s /usr/lib/x86_64-linux-gnu/pkcs11/p11-kit-trust.so {} \;
           npm run test-firefox-ci -- --shard ${{ env.shard }}
           '
-      - if: always() && github.event_name == 'pull_request'
+      - if: always()
         name: Upload blob report to GitHub Actions Artifacts
         uses: actions/upload-artifact@v4
         with:
@@ -344,17 +347,16 @@ jobs:
           chmod a+r -R /home/runner/work/bigbluebutton/bigbluebutton/configs
           bbb-conf --zip
           ls -t /root/*.tar.gz | head -1 | xargs -I '{}' cp '{}' /home/runner/work/bigbluebutton/bigbluebutton/bbb-logs.tar.gz
-          echo "MATRIX_SHARD=${{ matrix.shard }}_8" >> $GITHUB_ENV
           EOF
       - if: failure()
         uses: actions/upload-artifact@v4
         with:
-          name: bbb-configs-${{ env.MATRIX_SHARD }}
+          name: bbb-configs-${{ env.MATRIX_SHARD_UNDERSCORED }}
           path: configs
       - if: failure()
         uses: actions/upload-artifact@v4
         with:
-          name: bbb-logs-${{ env.MATRIX_SHARD }}
+          name: bbb-logs-${{ env.MATRIX_SHARD_UNDERSCORED }}
           path: ./bbb-logs.tar.gz
   upload-report:
     if: always() && !contains(github.event.head_commit.message, 'Merge pull request')
@@ -364,39 +366,14 @@ jobs:
       hasReportData: ${{ needs.install-and-run-tests.result == 'success' || needs.install-and-run-tests.result == 'failure' }}
     steps:
       - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
-        with:
-          node-version: 18
-      - name: Install dependencies
+      - name: Upload blob report
         if: ${{ env.hasReportData }}
-        working-directory: ./bigbluebutton-tests/playwright
-        run: npm ci
-      - name: Merge artifacts
-        uses: actions/upload-artifact/merge@v4
+        uses: ./.github/actions/upload-blob-report
+      - name: Remove unnecessary artifact
+        uses: geekyeggo/delete-artifact@v5
         with:
           name: all-blob-reports
-          pattern: blob-report-*
-          delete-merged: true
-      - name: Download all blob reports from GitHub Actions Artifacts
-        if: ${{ env.hasReportData }}
-        uses: actions/download-artifact@v4
-        with:
-          pattern: all-blob-reports-*
-          path: bigbluebutton-tests/playwright/all-blob-reports
-          merge-multiple: true
-      - name: Merge into HTML Report
-        if: ${{ env.hasReportData }}
-        working-directory: ./bigbluebutton-tests/playwright
-        run: npx playwright merge-reports --reporter html ./all-blob-reports
-      - name: Upload HTML tests report
-        if: ${{ env.hasReportData }}
-        uses: actions/upload-artifact@v4
-        with:
-          name: tests-report
-          overwrite: true
-          path: |
-            bigbluebutton-tests/playwright/playwright-report
-            bigbluebutton-tests/playwright/test-results
+          failOnError: false
       - name: Write PR data for auto-comment
         if: github.event_name == 'pull_request'
         working-directory: ./

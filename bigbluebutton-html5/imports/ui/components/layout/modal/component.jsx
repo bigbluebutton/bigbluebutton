@@ -7,19 +7,17 @@ import deviceInfo from '/imports/utils/deviceInfo';
 import Button from '/imports/ui/components/common/button/component';
 import Styled from './styles';
 
-const LayoutModalComponent = (props) => {
-  const {
-    intl,
-    setIsOpen,
-    isModerator,
-    isPresenter,
-    application,
-    updateSettings,
-    onRequestClose,
-    isOpen,
-    setLocalSettings,
-  } = props;
-
+const LayoutModalComponent = ({
+  intl,
+  setIsOpen,
+  isModerator = false,
+  isPresenter,
+  application,
+  updateSettings,
+  onRequestClose,
+  isOpen,
+  setLocalSettings,
+}) => {
   const [selectedLayout, setSelectedLayout] = useState(application.selectedLayout);
   const [updateAllUsed, setUpdateAllUsed] = useState(false);
 
@@ -199,11 +197,6 @@ const propTypes = {
   setLocalSettings: PropTypes.func.isRequired,
 };
 
-const defaultProps = {
-  isModerator: false,
-};
-
 LayoutModalComponent.propTypes = propTypes;
-LayoutModalComponent.defaultProps = defaultProps;
 
 export default injectIntl(LayoutModalComponent);

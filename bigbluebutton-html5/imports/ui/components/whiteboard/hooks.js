@@ -39,10 +39,6 @@ const useMouseEvents = ({ whiteboardRef, tlEditorRef, isWheelZoomRef, initialZoo
     const timeoutIdRef = React.useRef();
 
     const handleMouseUp = () => {
-        if (!isPresenter && !hasWBAccess) {
-            tlEditorRef?.current?.updateInstanceState({ isReadonly: false });
-        }
-
         if (timeoutIdRef.current) {
             clearTimeout(timeoutIdRef.current);
         }
@@ -51,12 +47,12 @@ const useMouseEvents = ({ whiteboardRef, tlEditorRef, isWheelZoomRef, initialZoo
             setIsMouseDown(false);
         }, 1000);
 
-        tlEditorRef?.current?.updateInstanceState({ canMoveCamera: true });
+        tlEditorRef?.current?.updateInstanceState({ canMoveCamera: true, isReadonly: false });
     };
 
-    const handleMouseDown = (event) => {
+    const handleMouseDownWhiteboard = (event) => {
         if (!isPresenter && !hasWBAccess) {
-            const updateProps = { isReadonly: true };
+            let updateProps = { isReadonly: false };
 
             if (event.button === 1) {
                 updateProps.canMoveCamera = false;
@@ -66,6 +62,17 @@ const useMouseEvents = ({ whiteboardRef, tlEditorRef, isWheelZoomRef, initialZoo
         }
 
         setIsMouseDown(true);
+    };
+
+    const handleMouseDownWindow = (event) => {
+        const presentationInnerWrapper = document.getElementById('presentationInnerWrapper');
+        if (!(presentationInnerWrapper && presentationInnerWrapper.contains(event.target))) {
+          const editingShape = tlEditorRef.current?.getEditingShape();
+          if (editingShape) {
+            return tlEditorRef.current?.setEditingShape(null);
+          }
+        }
+        return undefined;
     };
 
     const handleMouseEnter = () => {
@@ -105,12 +112,17 @@ const useMouseEvents = ({ whiteboardRef, tlEditorRef, isWheelZoomRef, initialZoo
 
         const MAX_ZOOM_FACTOR = 4; // Represents 400%
         const MIN_ZOOM_FACTOR = 1; // Represents 100%
-        const ZOOM_IN_FACTOR = 0.1;
-        const ZOOM_OUT_FACTOR = 0.1;
+        const ZOOM_IN_FACTOR = 0.25;
+        const ZOOM_OUT_FACTOR = 0.25;
 
+        // Get the current mouse position
+        const mouseX = event.clientX;
+        const mouseY = event.clientY;
+
+        // Get the current camera position and zoom level
         const { x: cx, y: cy, z: cz } = tlEditorRef.current.getCamera();
 
-        let currentZoomLevel = tlEditorRef.current.getCamera().z / initialZoomRef.current;
+        let currentZoomLevel = cz / initialZoomRef.current;
         if (event.deltaY < 0) {
             currentZoomLevel = Math.min(currentZoomLevel + ZOOM_IN_FACTOR, MAX_ZOOM_FACTOR);
         } else {
@@ -124,40 +136,19 @@ const useMouseEvents = ({ whiteboardRef, tlEditorRef, isWheelZoomRef, initialZoo
         // Calculate the new camera zoom factor
         const newCameraZoomFactor = currentZoomLevel * initialZoomRef.current;
 
-        // Break down the calculations for deltaX
-        const scaleAdjustmentX = cursorPosition.x / newCameraZoomFactor - cursorPosition.x;
-        const zoomAdjustmentX = cursorPosition.x / cz - cursorPosition.x;
-        const deltaX = scaleAdjustmentX - zoomAdjustmentX;
+        // Calculate the mouse position in canvas space using whiteboardRef
+        const rect = whiteboardRef.current.getBoundingClientRect();
+        const canvasMouseX = (mouseX - rect.left) / cz + cx;
+        const canvasMouseY = (mouseY - rect.top) / cz + cy;
 
-        // Break down the calculations for deltaY
-        const scaleAdjustmentY = cursorPosition.y / newCameraZoomFactor - cursorPosition.y;
-        const zoomAdjustmentY = cursorPosition.y / cz - cursorPosition.y;
-        const deltaY = scaleAdjustmentY - zoomAdjustmentY;
-
+        // Calculate the new camera position to keep the mouse position under the cursor
         const nextCamera = {
-            x: cx + deltaX,
-            y: cy + deltaY,
+            x: canvasMouseX - (canvasMouseX - cx) * (newCameraZoomFactor / cz),
+            y: canvasMouseY - (canvasMouseY - cy) * (newCameraZoomFactor / cz),
             z: newCameraZoomFactor,
         };
 
-        // Apply the bounds restriction logic after the camera has been updated
-        const { maxX, maxY, minX, minY } = tlEditorRef.current.getViewportPageBounds();
-        const { scaledWidth, scaledHeight } = currentPresentationPage;
-
-        if (maxX > scaledWidth) {
-            nextCamera.x += maxX - scaledWidth;
-        }
-        if (maxY > scaledHeight) {
-            nextCamera.y += maxY - scaledHeight;
-        }
-        if (nextCamera.x > 0 || minX < 0) {
-            nextCamera.x = 0;
-        }
-        if (nextCamera.y > 0 || minY < 0) {
-            nextCamera.y = 0;
-        }
-
-        tlEditorRef.current.setCamera(nextCamera, { duration: 300 });
+        tlEditorRef.current.setCamera(nextCamera, { duration: 175 });
 
         if (isWheelZoomRef.currentTimeout) {
             clearTimeout(isWheelZoomRef.currentTimeout);
@@ -187,8 +178,10 @@ const useMouseEvents = ({ whiteboardRef, tlEditorRef, isWheelZoomRef, initialZoo
     React.useEffect(() => {
         const whiteboardElement = whiteboardRef.current;
 
+        window.addEventListener('mousedown', handleMouseDownWindow);
+
         if (whiteboardElement) {
-            whiteboardElement.addEventListener("mousedown", handleMouseDown);
+            whiteboardElement.addEventListener("mousedown", handleMouseDownWhiteboard);
             whiteboardElement.addEventListener("mouseup", handleMouseUp);
             whiteboardElement.addEventListener("mouseenter", handleMouseEnter);
             whiteboardElement.addEventListener("mouseleave", handleMouseLeave);
@@ -197,21 +190,23 @@ const useMouseEvents = ({ whiteboardRef, tlEditorRef, isWheelZoomRef, initialZoo
 
         return () => {
             if (whiteboardElement) {
-                whiteboardElement.removeEventListener("mousedown", handleMouseDown);
+                whiteboardElement.removeEventListener("mousedown", handleMouseDownWhiteboard);
                 whiteboardElement.removeEventListener("mouseup", handleMouseUp);
                 whiteboardElement.removeEventListener("mouseenter", handleMouseEnter);
                 whiteboardElement.removeEventListener("mouseleave", handleMouseLeave);
                 whiteboardElement.removeEventListener("wheel", handleMouseWheel);
             }
+
+            window.removeEventListener('mousedown', handleMouseDownWindow);
         };
     }, [
         whiteboardRef,
-        tlEditorRef, 
-        handleMouseDown,
-        handleMouseUp, 
+        tlEditorRef,
+        handleMouseDownWhiteboard,
+        handleMouseUp,
         handleMouseEnter,
-        handleMouseLeave, 
-        handleMouseWheel
+        handleMouseLeave,
+        handleMouseWheel,
     ]);
 };
 

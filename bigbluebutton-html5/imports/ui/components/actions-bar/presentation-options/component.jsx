@@ -2,7 +2,7 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import { defineMessages, injectIntl } from 'react-intl';
 import Button from '/imports/ui/components/common/button/component';
-
+import Session from '/imports/ui/services/storage/in-memory';
 
 const propTypes = {
   intl: PropTypes.shape({
@@ -55,6 +55,10 @@ const PresentationOptionsContainer = ({
   const isThereCurrentPresentation = hasExternalVideo || hasScreenshare
   || hasPresentation || hasPinnedSharedNotes
   || hasGenericContent || hasCameraAsContent;
+  const onlyPresentation = hasPresentation
+  && !hasExternalVideo && !hasScreenshare
+  && !hasPinnedSharedNotes && !hasGenericContent
+  && !hasCameraAsContent;
   return (
     <Button
       icon={`${buttonType}${!presentationIsOpen ? '_off' : ''}`}
@@ -68,8 +72,8 @@ const PresentationOptionsContainer = ({
       size="lg"
       onClick={() => {
         setPresentationIsOpen(layoutContextDispatch, !presentationIsOpen);
-        if (!hasExternalVideo && !hasScreenshare && !hasPinnedSharedNotes) {
-          Session.set('presentationLastState', !presentationIsOpen);
+        if (onlyPresentation) {
+          Session.setItem('presentationLastState', !presentationIsOpen);
         }
       }}
       id="restore-presentation"

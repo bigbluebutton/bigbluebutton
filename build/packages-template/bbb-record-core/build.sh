@@ -34,6 +34,9 @@ pushd staging/usr/local/bigbluebutton/core
   bundle clean
   rm -r vendor/bundle/ruby/*/cache
   find vendor/bundle -name '*.o' -delete
+  chmod -R a+rX .
+  find vendor/bundle/ruby/*/gems/resque-*/lib/resque/server/public -type f -name "*.png" -execdir chmod 0644 {} \;
+  find vendor/bundle/ruby/*/gems/resque-*/bin -type f -execdir chmod 0755 {} \;
 popd
 
 cp Rakefile  staging/usr/local/bigbluebutton/core

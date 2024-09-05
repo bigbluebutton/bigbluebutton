@@ -9,7 +9,7 @@ interface Handlers {
 
 const useStickyScroll = (el: HTMLElement | null) => {
   const elHeight = useRef(0);
-  const timeout = useRef<NodeJS.Timeout>();
+  const timeout = useRef<ReturnType<typeof setTimeout>>();
   const handlers = useRef<Handlers>({
     startObserving: () => {},
     stopObserving: () => {},

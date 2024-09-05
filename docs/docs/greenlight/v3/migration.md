@@ -147,7 +147,9 @@ Important notes:
 
 - Only the Rooms of the active users will be migrated
 - The migrated rooms will be assigned to their respective migrated users on v3
-- The presentations will not be migrated - the presentations will need to be re-uploaded to v3 by the room owner or shared access user.
+- With the most recent patch releases of Greenlight 2, the presentations will be migrated if present on the source system. However:
+  1. If presentations are referenced in the database but *do not* exist on disc they will be ignored.
+  2. If this step fails with a `413 Entity too large` error, you need to increase the `client_max_body_size` setting in the nginx reverse proxy of your *Greenlight 3* instance and retry. If you use another reverse proxy, consult your manual about increasing the maximum body size for HTTP requests.
 
 **To migrate the rooms, run the following command:**
 

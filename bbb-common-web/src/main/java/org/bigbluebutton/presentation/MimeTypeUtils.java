@@ -19,12 +19,17 @@ public class MimeTypeUtils {
     private  static final String RTF = "application/rtf";
     private  static final String TXT = "text/plain";
     private  static final String ODS = "application/vnd.oasis.opendocument.spreadsheet";
+    private  static final String ODG = "application/vnd.oasis.opendocument.graphics";
     private  static final String ODP = "application/vnd.oasis.opendocument.presentation";
     private  static final String PDF = "application/pdf";
     private  static final String JPEG = "image/jpeg";
     private  static final String PNG = "image/png";
     private  static final String SVG = "image/svg+xml";
+    private  static final String WEBP = "image/webp";
 
+    // If the following mime-types are changed, please, make sure to also change:
+    // bigbluebutton-html5/private/config/settings.yml: L827
+    // docs/docs/development/api.md: L1222
     private static final HashMap<String, List<String>> EXTENSIONS_MIME = new HashMap<String, List<String>>(16) {
         {
             put(FileTypeConstants.DOC, Arrays.asList(DOC, DOCX, TIKA_MSOFFICE, TIKA_MSOFFICE_X));
@@ -34,6 +39,7 @@ public class MimeTypeUtils {
             put(FileTypeConstants.PPTX, Arrays.asList(PPT, PPTX, TIKA_MSOFFICE, TIKA_MSOFFICE_X));
             put(FileTypeConstants.XLSX, Arrays.asList(XLS, XLSX, TIKA_MSOFFICE, TIKA_MSOFFICE_X));
             put(FileTypeConstants.ODT, Arrays.asList(ODT));
+            put(FileTypeConstants.ODG, Arrays.asList(ODG));
             put(FileTypeConstants.RTF, Arrays.asList(RTF));
             put(FileTypeConstants.TXT, Arrays.asList(TXT));
             put(FileTypeConstants.ODS, Arrays.asList(ODS));
@@ -43,6 +49,7 @@ public class MimeTypeUtils {
             put(FileTypeConstants.JPEG, Arrays.asList(JPEG));
             put(FileTypeConstants.PNG, Arrays.asList(PNG));
             put(FileTypeConstants.SVG, Arrays.asList(SVG));
+            put(FileTypeConstants.WEBP, Arrays.asList(WEBP));
         }
     };
 
@@ -71,8 +78,9 @@ public class MimeTypeUtils {
 
     public List<String> getValidMimeTypes() {
         List<String> validMimeTypes = Arrays.asList(XLS, XLSX,
-                DOC, DOCX, PPT, PPTX, ODT, RTF, TXT, ODS, ODP,
-                PDF, JPEG, PNG, SVG, TIKA_MSOFFICE, TIKA_MSOFFICE_X
+                DOC, DOCX, PPT, PPTX, ODT, RTF, TXT, ODS, ODP, ODG,
+                PDF, JPEG, PNG, SVG, TIKA_MSOFFICE, TIKA_MSOFFICE_X,
+                WEBP
         );
         return validMimeTypes;
     }

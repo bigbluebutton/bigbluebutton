@@ -1,16 +1,23 @@
-import React from 'react';
-import { withTracker } from 'meteor/react-meteor-data';
-import Service from '/imports/ui/components/audio/service';
+import React, { useCallback } from 'react';
+import { useReactiveVar } from '@apollo/client';
+import AudioManager from '/imports/ui/services/audio-manager';
 import AudioTest from './component';
 
-const AudioTestContainer = (props) => <AudioTest {...props} />;
-
-export default withTracker(() => ({
-  outputDeviceId: Service.outputDeviceId(),
-  handlePlayAudioSample: (deviceId) => {
-    const sound = new Audio(`${window.meetingClientSettings.public.app.cdn + window.meetingClientSettings.public.app.basename + window.meetingClientSettings.public.app.instanceId}/resources/sounds/audioSample.mp3`);
+const AudioTestContainer = (props) => {
+  const outputDeviceId = useReactiveVar(AudioManager._outputDeviceId.value);
+  const handlePlayAudioSample = useCallback((deviceId) => {
+    const sound = new Audio(`${window.meetingClientSettings.public.app.cdn + window.meetingClientSettings.public.app.basename}/resources/sounds/audioSample.mp3`);
     sound.addEventListener('ended', () => { sound.src = null; });
     if (deviceId && sound.setSinkId) sound.setSinkId(deviceId);
     sound.play();
-  },
-}))(AudioTestContainer);
+  }, []);
+  return (
+    <AudioTest
+      outputDeviceId={outputDeviceId}
+      handlePlayAudioSample={handlePlayAudioSample}
+      {...props}
+    />
+  );
+};
+
+export default AudioTestContainer;

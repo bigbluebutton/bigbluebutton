@@ -5,17 +5,12 @@ import LocalesDropdown from '/imports/ui/components/common/locales-dropdown/comp
 import { defineMessages, injectIntl } from 'react-intl';
 import BaseMenu from '../base/component';
 import Styled from './styles';
-import VideoService from '/imports/ui/components/video-provider/video-provider-graphql/service';
+import VideoService from '/imports/ui/components/video-provider/service';
 import WakeLockService from '/imports/ui/components/wake-lock/service';
 import { ACTIONS } from '/imports/ui/components/layout/enums';
-import Settings from '/imports/ui/services/settings';
+import { getSettingsSingletonInstance } from '/imports/ui/services/settings';
 
 const MIN_FONTSIZE = 0;
-const SHOW_AUDIO_FILTERS = (window.meetingClientSettings.public.app
-  .showAudioFilters === undefined)
-  ? true
-  : window.meetingClientSettings.public.app.showAudioFilters;
-const { animations } = Settings.application;
 
 const intlMessages = defineMessages({
   applicationSectionTitle: {
@@ -127,6 +122,10 @@ const intlMessages = defineMessages({
   },
   autoCloseReactionsBarLabel: {
     id: 'app.actionsBar.reactions.autoCloseReactionsBarLabel',
+  },
+  pushToTalkLabel: {
+    id: 'app.submenu.application.pushToTalkLabel',
+    description: 'enable/disable audio push-to-talk',
   },
 });
 
@@ -276,6 +275,11 @@ class ApplicationMenu extends BaseMenu {
   renderAudioFilters() {
     let audioFilterOption = null;
 
+    const SHOW_AUDIO_FILTERS = (window.meetingClientSettings.public.app
+      .showAudioFilters === undefined)
+      ? true
+      : window.meetingClientSettings.public.app.showAudioFilters;
+
     if (SHOW_AUDIO_FILTERS) {
       const { intl, showToggleLabel, displaySettingsStatus } = this.props;
       const { settings } = this.state;
@@ -311,8 +315,9 @@ class ApplicationMenu extends BaseMenu {
   }
 
   renderPaginationToggle() {
-    // See VideoService's method for an explanation
-    if (!VideoService.shouldRenderPaginationToggle()) return false;
+    const { paginationToggleEnabled } = this.props;
+
+    if (!paginationToggleEnabled) return false;
 
     const { intl, showToggleLabel, displaySettingsStatus } = this.props;
     const { settings } = this.state;
@@ -435,6 +440,8 @@ class ApplicationMenu extends BaseMenu {
     const ariaValueLabel = intl.formatMessage(intlMessages.currentValue, { 0: `${pixelPercentage[settings.fontSize]}` });
 
     const showSelect = allLocales && allLocales.length > 0;
+    const Settings = getSettingsSingletonInstance();
+    const animations = Settings?.application?.animations;
 
     return (
       <div>
@@ -468,6 +475,28 @@ class ApplicationMenu extends BaseMenu {
           </Styled.Row>
 
           {this.renderAudioFilters()}
+          <Styled.Row>
+            <Styled.Col aria-hidden="true">
+              <Styled.FormElement>
+                {/* eslint-disable-next-line jsx-a11y/label-has-associated-control */}
+                <Styled.Label>
+                  {intl.formatMessage(intlMessages.pushToTalkLabel)}
+                </Styled.Label>
+              </Styled.FormElement>
+            </Styled.Col>
+            <Styled.Col>
+              <Styled.FormElementRight>
+                {displaySettingsStatus(settings.pushToTalkEnabled)}
+                <Toggle
+                  icons={false}
+                  defaultChecked={settings.pushToTalkEnabled}
+                  onChange={() => this.handleToggle('pushToTalkEnabled')}
+                  ariaLabel={`${intl.formatMessage(intlMessages.pushToTalkLabel)} - ${displaySettingsStatus(settings.pushToTalkEnabled, true)}`}
+                  showToggleLabel={showToggleLabel}
+                />
+              </Styled.FormElementRight>
+            </Styled.Col>
+          </Styled.Row>
           {this.renderPaginationToggle()}
           {this.renderDarkThemeToggle()}
           {this.renderWakeLockToggle()}

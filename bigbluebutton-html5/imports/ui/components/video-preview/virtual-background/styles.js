@@ -16,28 +16,27 @@ import {
 } from '/imports/ui/stylesheets/styled-components/palette';
 import { ScrollboxVertical } from '/imports/ui/stylesheets/styled-components/scrollable';
 import { fontSizeSmallest } from '/imports/ui/stylesheets/styled-components/typography';
+import { smallOnly, mediumOnly } from '/imports/ui/stylesheets/styled-components/breakpoints';
 import Button from '/imports/ui/components/common/button/component';
 
 const VirtualBackgroundRowThumbnail = styled.div`
-  margin-top: 0.4rem;
+  margin: 0.4rem;
 `;
 
 const BgWrapper = styled(ScrollboxVertical)`
   display: flex;
   justify-content: flex-start;
-  overflow-x: auto;
+  max-width: 272px;
+  max-height: 216px;
+  flex-wrap: wrap;
+  overflow-y: auto;
   margin: ${borderSizeLarge};
   padding: ${borderSizeLarge};
 
-  ${({ isVisualEffects }) => isVisualEffects && `
-    height: 15rem;
-    flex-wrap: wrap;
-    align-content: flex-start;
-  `}
-
-  ${({ brightnessEnabled, isVisualEffects }) => brightnessEnabled && isVisualEffects && `
-    height: 10rem;
-  `}
+  @media ${smallOnly}, ${mediumOnly} {
+    justify-content: center;
+    max-height: 22vh;
+  }
 `;
 
 const BgNoneButton = styled(Button)`
@@ -45,12 +44,8 @@ const BgNoneButton = styled(Button)`
   height: 48px;
   width: 48px;
   border: ${borderSizeSmall} solid ${userThumbnailBorder};
-  margin: 0 0.15rem;
+  margin: 0.5rem 0.5rem;
   flex-shrink: 0;
-
-  ${({ isVisualEffects }) => isVisualEffects && `
-    margin: 0.15rem;
-  `}
 `;
 
 const ThumbnailButton = styled(Button)`
@@ -89,8 +84,9 @@ const ThumbnailButton = styled(Button)`
 
   ${({ background }) => background && `
     background-image: url(${background});
-    background-size: 46px 46px;
     background-origin: padding-box;
+    background-size: cover;
+    background-position: center;
 
     &:active {
       background-image: url(${background});
@@ -131,11 +127,7 @@ const Label = styled.label`
 
 const ThumbnailButtonWrapper = styled.div`
   position: relative;
-  margin: 0 0.15rem;
-
-  ${({ isVisualEffects }) => isVisualEffects && `
-    margin: 0.15rem;
-  `}
+  margin: 0.5rem 0.5rem;
 `;
 
 const ButtonWrapper = styled.div`

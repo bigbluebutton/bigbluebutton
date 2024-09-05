@@ -100,6 +100,15 @@ export const PRESENTATION_PUBLISH_CURSOR = gql`
   }
 `;
 
+export const PRESENTATION_SET_PAGE_INFINITE_WHITEBOARD = gql`
+  mutation PresentationSetPageInfiniteWhiteboard($pageId: String!, $infiniteWhiteboard: Boolean!) {
+    presentationSetPageInfiniteWhiteboard(
+      pageId: $pageId,
+      infiniteWhiteboard: $infiniteWhiteboard
+    )
+  }
+`;
+
 export default {
   PRESENTATION_SET_ZOOM,
   PRESENTATION_SET_WRITERS,
@@ -111,4 +120,5 @@ export default {
   PRES_ANNOTATION_DELETE,
   PRES_ANNOTATION_SUBMIT,
   PRESENTATION_PUBLISH_CURSOR,
+  PRESENTATION_SET_PAGE_INFINITE_WHITEBOARD,
 };

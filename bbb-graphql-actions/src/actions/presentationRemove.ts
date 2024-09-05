@@ -1,8 +1,14 @@
 import { RedisMessage } from '../types';
 import { ValidationError } from '../types/ValidationError';
-import {throwErrorIfNotPresenter} from "../imports/validation";
+import {throwErrorIfInvalidInput, throwErrorIfNotPresenter} from "../imports/validation";
 
 export default function buildRedisMessage(sessionVariables: Record<string, unknown>, input: Record<string, unknown>): RedisMessage {
+  throwErrorIfInvalidInput(input,
+      [
+        {name: 'presentationId', type: 'string', required: true},
+      ]
+  )
+
   throwErrorIfNotPresenter(sessionVariables);
   const eventName = `RemovePresentationPubMsg`;
 
