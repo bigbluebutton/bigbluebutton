@@ -19,7 +19,7 @@ trait GetUserApiMsgHdlr extends HandlerHelpers {
         actorRef ! ApiResponseSuccess("User found!", UserInfosApiMsg(getUserInfoResponse(regUser)))
       case None =>
         log.debug("User not found, sending failure message")
-        actorRef ! ApiResponseFailure("User not found", Map())
+        actorRef ! ApiResponseFailure("User not found", "user_not_found", Map())
     }
   }
 

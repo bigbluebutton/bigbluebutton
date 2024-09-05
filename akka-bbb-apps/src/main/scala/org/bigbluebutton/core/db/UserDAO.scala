@@ -11,7 +11,6 @@ case class UserDbModel(
     avatar:                 String = "",
     webcamBackground:       String = "",
     color:                  String = "",
-    sessionToken:           String = "",
     authToken:              String = "",
     authed:                 Boolean = false,
     joined:                 Boolean = false,
@@ -30,7 +29,7 @@ case class UserDbModel(
 
 class UserDbTableDef(tag: Tag) extends Table[UserDbModel](tag, None, "user") {
   override def * = (
-    meetingId,userId,extId,name,role,avatar,webcamBackground,color, sessionToken, authToken, authed,joined,joinErrorCode,
+    meetingId,userId,extId,name,role,avatar,webcamBackground,color, authToken, authed,joined,joinErrorCode,
     joinErrorMessage, banned,loggedOut,guest,guestStatus,registeredOn,excludeFromDashboard, enforceLayout) <> (UserDbModel.tupled, UserDbModel.unapply)
   val meetingId = column[String]("meetingId", O.PrimaryKey)
   val userId = column[String]("userId", O.PrimaryKey)
@@ -40,7 +39,6 @@ class UserDbTableDef(tag: Tag) extends Table[UserDbModel](tag, None, "user") {
   val avatar = column[String]("avatar")
   val webcamBackground = column[String]("webcamBackground")
   val color = column[String]("color")
-  val sessionToken = column[String]("sessionToken")
   val authToken = column[String]("authToken")
   val authed = column[Boolean]("authed")
   val joined = column[Boolean]("joined")
@@ -69,7 +67,6 @@ object UserDAO {
           avatar = regUser.avatarURL,
           webcamBackground = regUser.webcamBackgroundURL,
           color = regUser.color,
-          sessionToken = regUser.sessionToken,
           authed = regUser.authed,
           joined = regUser.joined,
           joinErrorCode = None,
@@ -92,6 +89,7 @@ object UserDAO {
     UserMetadataDAO.insert(meetingId, regUser.id, regUser.userMetadata)
     UserClientSettingsDAO.insertOrUpdate(meetingId, regUser.id, JsonUtils.stringToJson("{}"))
     ChatUserDAO.insertUserPublicChat(meetingId, regUser.id)
+    UserSessionTokenDAO.insert(regUser.meetingId, regUser.id, regUser.sessionToken.head)
   }
 
   def update(regUser: RegisteredUser) = {

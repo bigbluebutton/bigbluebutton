@@ -75,6 +75,7 @@ public interface IBbbWebApiGWApp {
                     String externUserID, String authToken, String sessionToken, String avatarURL, String webcamBackgroundURL,
                     Boolean guest, Boolean authed, String guestStatus, Boolean excludeFromDashboard,
                     String enforceLayout, Map<String, String> userMetadata);
+  void registerUserSessionToken(String meetingID, String internalUserId, String sessionToken, String revokeSessionToken);
 
   void destroyMeeting(DestroyMeetingMessage msg);
   void endMeeting(EndMeetingMessage msg);

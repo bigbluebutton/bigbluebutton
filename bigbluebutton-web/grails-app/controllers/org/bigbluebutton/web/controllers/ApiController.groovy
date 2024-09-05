@@ -264,24 +264,30 @@ class ApiController {
             request
     )
 
+    boolean redirectClient = REDIRECT_RESPONSE
+    if(!(validationResponse == null)) {
+      invalid(validationResponse.getKey(), validationResponse.getValue(), redirectClient)
+      return
+    }
+
+    String existingUserID = params.existingUserID
+    if (!StringUtils.isEmpty(existingUserID)) {
+      handleJoinExistingUser(existingUserID)
+      return
+    }
+
     HashMap<String, String> roles = new HashMap<String, String>();
 
     roles.put("moderator", ROLE_MODERATOR)
     roles.put("viewer", ROLE_ATTENDEE)
 
     //check if exists the param redirect
-    boolean redirectClient = REDIRECT_RESPONSE
     String clientURL = paramsProcessorUtil.getDefaultHTML5ClientUrl();
 
     if (!StringUtils.isEmpty(params.redirect)) {
       try {
         redirectClient = Boolean.parseBoolean(params.redirect);
       } catch (Exception ignored) {}
-    }
-
-    if(!(validationResponse == null)) {
-      invalid(validationResponse.getKey(), validationResponse.getValue(), redirectClient)
-      return
     }
 
     Boolean authenticated = false;
@@ -523,6 +529,121 @@ class ApiController {
       invalid("guestDeniedAccess", "You have been denied access to this meeting based on the meeting's guest policy", redirectClient, errorRedirectUrl)
       return
     }
+
+    Map<String, Object> logData = new HashMap<String, Object>();
+    logData.put("meetingid", us.meetingID);
+    logData.put("extMeetingid", us.externMeetingID);
+    logData.put("name", us.fullname);
+    logData.put("userid", us.internalUserId);
+    logData.put("sessionToken", sessionToken);
+    logData.put("logCode", "join_api");
+    logData.put("description", "Handle JOIN API.");
+
+    Gson gson = new Gson();
+    String logStr = gson.toJson(logData);
+
+    log.info(" --analytics-- data=" + logStr);
+
+    if (redirectClient) {
+      log.info("Redirecting to ${destUrl}");
+      redirect(url: destUrl);
+    } else {
+      log.info("Successfully joined. Sending XML response.");
+      response.addHeader("Cache-Control", "no-cache")
+      withFormat {
+        xml {
+          render(text: responseBuilder.buildJoinMeeting(us, session[sessionToken], guestStatusVal, destUrl, msgKey, msgValue, RESP_CODE_SUCCESS), contentType: "text/xml")
+        }
+      }
+    }
+  }
+
+  def handleJoinExistingUser(String existingUserID) {
+    Meeting meeting = ServiceUtils.findMeetingFromMeetingID(params.meetingID);
+    UserSession existingUserSession = meetingService.getUserSessionWithUserId(existingUserID)
+
+    //check if exists the param redirect
+    boolean redirectClient = REDIRECT_RESPONSE
+    String clientURL = paramsProcessorUtil.getDefaultHTML5ClientUrl();
+
+    if (!StringUtils.isEmpty(params.redirect)) {
+      try {
+        redirectClient = Boolean.parseBoolean(params.redirect);
+      } catch (Exception ignored) {}
+    }
+
+    String sessionToken = RandomStringUtils.randomAlphanumeric(16).toLowerCase()
+    log.debug "Session token: " + sessionToken
+
+    UserSession us = new UserSession();
+    us.authToken = existingUserSession.authToken;
+    us.internalUserId = existingUserSession.internalUserId
+    us.conferencename = meeting.getName()
+    us.meetingID = meeting.getInternalId()
+    us.externMeetingID = meeting.getExternalId()
+    us.externUserID = existingUserSession.externUserID
+    us.fullname = existingUserSession.fullname
+    us.role = existingUserSession.role
+    us.conference = meeting.getInternalId()
+    us.room = meeting.getInternalId()
+    us.voicebridge = meeting.getTelVoice()
+    us.webvoiceconf = meeting.getWebVoice()
+    us.mode = "LIVE"
+    us.record = meeting.isRecord()
+    us.welcome = meeting.getWelcomeMessage()
+    us.guest = existingUserSession.guest
+    us.authed = existingUserSession.authed
+    us.guestStatus = existingUserSession.guestStatus
+    us.logoutUrl = meeting.getLogoutUrl()
+    us.defaultLayout = meeting.getMeetingLayout()
+    us.leftGuestLobby = false
+    us.avatarURL = existingUserSession.avatarURL
+    us.excludeFromDashboard = existingUserSession.excludeFromDashboard
+
+    if (!StringUtils.isEmpty(params.defaultLayout)) {
+      us.defaultLayout = params.defaultLayout;
+    }
+
+    if (!StringUtils.isEmpty(params.enforceLayout)) {
+      us.enforceLayout = params.enforceLayout;
+    }
+
+    //used to drop the previous session of the user
+    String revokeSessionToken = ""
+    if (!StringUtils.isEmpty(params.revokeSessionToken)) {
+      revokeSessionToken = params.revokeSessionToken;
+    }
+
+    // Register a new session token to the user
+    meetingService.registerUserSession(
+            us.meetingID,
+            us.internalUserId,
+            sessionToken,
+            revokeSessionToken
+    )
+
+    session.setMaxInactiveInterval(paramsProcessorUtil.getDefaultHttpSessionTimeout())
+
+    String msgKey = "successfullyJoined"
+    String msgValue = "You have joined successfully."
+
+    // Keep track of the client url in case this needs to wait for
+    // approval as guest. We need to be able to send the user to the
+    // client after being approved by moderator.
+    us.clientUrl = clientURL + "?sessionToken=" + sessionToken
+
+    session[sessionToken] = sessionToken
+    meetingService.addUserSession(sessionToken, us)
+
+    //Identify which of these to logs should be used. sessionToken or user-token
+    log.info("Session sessionToken for " + us.fullname + " [" + session[sessionToken] + "]")
+    log.info("Session user-token for " + us.fullname + " [" + session['user-token'] + "]")
+
+    log.info("Session token: ${sessionToken}")
+
+    // Process if we send the user directly to the client or
+    // have it wait for approval.
+    String destUrl = clientURL + "?sessionToken=" + sessionToken
 
     Map<String, Object> logData = new HashMap<String, Object>();
     logData.put("meetingid", us.meetingID);
@@ -1043,7 +1164,12 @@ class ApiController {
         queryParameters.put("meetingID", externalMeetingId);
         queryParameters.put("role", us.role.equals(ROLE_MODERATOR) ? ROLE_MODERATOR : ROLE_ATTENDEE);
         queryParameters.put("redirect", "true");
-        queryParameters.put("userID", us.getExternUserID());
+        queryParameters.put("existingUserID", us.getInternalUserId());
+
+        // revokePreviousSession: If this link is intended to replace the previous session of the user
+        if (!StringUtils.isEmpty(params.revokePreviousSession) && Boolean.parseBoolean(params.revokePreviousSession)) {
+          queryParameters.put("revokeSessionToken", sessionToken);
+        }
 
         // If the user calling getJoinUrl is a moderator (except in breakout rooms), allow to specify additional parameters
         if (us.role.equals(ROLE_MODERATOR) && !meeting.isBreakout()) {

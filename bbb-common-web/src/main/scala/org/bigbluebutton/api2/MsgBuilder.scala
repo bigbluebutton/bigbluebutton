@@ -1,7 +1,7 @@
 package org.bigbluebutton.api2
 
 import org.bigbluebutton.api.messaging.converters.messages._
-import org.bigbluebutton.api.messaging.messages.ChatMessageFromApi
+import org.bigbluebutton.api.messaging.messages.{ ChatMessageFromApi, RegisterUserSessionToken }
 import org.bigbluebutton.api2.meeting.RegisterUser
 import org.bigbluebutton.common2.domain.{ DefaultProps, PageVO, PresentationPageConvertedVO, PresentationVO }
 import org.bigbluebutton.common2.msgs._
@@ -53,6 +53,20 @@ object MsgBuilder {
       avatarURL = msg.avatarURL, webcamBackgroundURL = msg.webcamBackgroundURL, guest = msg.guest, authed = msg.authed, guestStatus = msg.guestStatus,
       excludeFromDashboard = msg.excludeFromDashboard, enforceLayout = msg.enforceLayout, userMetadata = msg.userMetadata)
     val req = RegisterUserReqMsg(header, body)
+    BbbCommonEnvCoreMsg(envelope, req)
+  }
+
+  def buildRegisterUserSessionTokenRequestToAkkaApps(msg: RegisterUserSessionToken): BbbCommonEnvCoreMsg = {
+    val routing = collection.immutable.HashMap("sender" -> "bbb-web")
+    val envelope = BbbCoreEnvelope(RegisterUserSessionTokenReqMsg.NAME, routing)
+    val header = BbbCoreHeaderWithMeetingId(RegisterUserSessionTokenReqMsg.NAME, msg.meetingID)
+    val body = RegisterUserSessionTokenReqMsgBody(
+      meetingId = msg.meetingID,
+      userId = msg.internalUserId,
+      sessionToken = msg.sessionToken,
+      revokeSessionToken = msg.revokeSessionToken
+    )
+    val req = RegisterUserSessionTokenReqMsg(header, body)
     BbbCommonEnvCoreMsg(envelope, req)
   }
 

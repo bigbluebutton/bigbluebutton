@@ -161,6 +161,7 @@ class UsersApp(
 )(implicit val context: ActorContext)
 
   extends RegisterUserReqMsgHdlr
+  with RegisterUserSessionTokenReqMsgHdlr
   with GetUserApiMsgHdlr
   with ChangeUserRoleCmdMsgHdlr
   with SetUserSpeechLocaleMsgHdlr
