@@ -178,6 +178,7 @@ const PresentationContainer = (props) => {
   const presentation = layoutSelectOutput((i) => i.presentation);
   const fullscreen = layoutSelect((i) => i.fullscreen);
   const deviceType = layoutSelect((i) => i.deviceType);
+  const layoutType = layoutSelect((i) => i.layoutType);
   const layoutContextDispatch = layoutDispatch();
 
   const { numCameras } = cameraDock;
@@ -198,6 +199,8 @@ const PresentationContainer = (props) => {
     presentationAreaWidth: presentation?.width,
     presentationAreaHeight: presentation?.height,
   };
+
+  if (layoutType === 'videoFocus' && presentation?.width === 0) return null;
 
   return (
     <Presentation
