@@ -55,26 +55,30 @@ trait CreateBreakoutRoomsCmdMsgHdlr extends RightsManagementTrait {
   }
 
   def processRequest(msg: CreateBreakoutRoomsCmdMsg, state: MeetingState2x): MeetingState2x = {
-
-    val presId = getPresentationId(state)
-    val presSlide = getPresentationSlide(state)
+    val presId = getPresentationId(state) // The current presentation
+    val presSlide = getPresentationSlide(state) // The current slide
     val parentId = liveMeeting.props.meetingProp.intId
     var rooms = new collection.immutable.HashMap[String, BreakoutRoom2x]
 
     var i = 0
     for (room <- msg.body.rooms) {
+      val roomPresId = if (room.presId.isEmpty) presId else room.presId;
+
       i += 1
       val (internalId, externalId) = BreakoutRoomsUtil.createMeetingIds(liveMeeting.props.meetingProp.intId, i)
       val voiceConf = BreakoutRoomsUtil.createVoiceConfId(liveMeeting.props.voiceProp.voiceConf, i)
 
       val breakout = BreakoutModel.create(parentId, internalId, externalId, room.name, room.sequence, room.shortName,
         room.isDefaultName, room.freeJoin, voiceConf, room.users, msg.body.captureNotes,
-        msg.body.captureSlides, room.captureNotesFilename, room.captureSlidesFilename)
+        msg.body.captureSlides, room.captureNotesFilename, room.captureSlidesFilename,
+        room.allPages, roomPresId)
 
       rooms = rooms + (breakout.id -> breakout)
     }
 
     for (breakout <- rooms.values.toVector) {
+      val roomSlides = if (breakout.allPages) -1 else presSlide;
+
       val roomDetail = new BreakoutRoomDetail(
         breakout.id, breakout.name,
         liveMeeting.props.meetingProp.intId,
@@ -87,7 +91,9 @@ trait CreateBreakoutRoomsCmdMsgHdlr extends RightsManagementTrait {
         msg.body.durationInMinutes,
         liveMeeting.props.password.moderatorPass,
         liveMeeting.props.password.viewerPass,
-        presId, presSlide, msg.body.record,
+        breakout.presId,
+        roomSlides,
+        msg.body.record,
         liveMeeting.props.breakoutProps.privateChatEnabled,
         breakout.captureNotes,
         breakout.captureSlides,

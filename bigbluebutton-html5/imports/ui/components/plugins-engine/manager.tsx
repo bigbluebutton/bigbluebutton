@@ -15,12 +15,14 @@ import ExtensibleAreaStateManager from './extensible-areas/manager';
 import PluginDataChannelManager from './data-channel/manager';
 import PluginUiCommandsHandler from './ui-commands/handler';
 import PluginDomElementManipulationManager from './dom-element-manipulation/manager';
-
-// eslint-disable-next-line @typescript-eslint/ban-ts-comment
-// @ts-ignore - temporary, while meteor exists in the project
-const PLUGINS_CONFIG = window.meetingClientSettings.public.plugins;
+import PluginServerCommandsHandler from './server-commands/handler';
+import PluginLearningAnalyticsDashboardManager from './learning-analytics-dashboard/manager';
 
 const PluginsEngineManager = () => {
+  // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+  // @ts-ignore - temporary, while meteor exists in the project
+  const PLUGINS_CONFIG = window.meetingClientSettings.public.plugins;
+
   // If there is no plugin to load, the engine simply returns null
   if (!PLUGINS_CONFIG) return null;
 
@@ -53,6 +55,7 @@ const PluginsEngineManager = () => {
         }}
       />
       <PluginDataConsumptionManager />
+      <PluginServerCommandsHandler />
       <PluginUiCommandsHandler />
       <PluginDomElementManipulationManager />
       {
@@ -69,6 +72,9 @@ const PluginsEngineManager = () => {
                   setLastLoadedPlugin,
                   pluginConfig: effectivePluginConfig,
                 }}
+              />
+              <PluginLearningAnalyticsDashboardManager
+                pluginName={pluginName}
               />
               <PluginDataChannelManager
                 {...{

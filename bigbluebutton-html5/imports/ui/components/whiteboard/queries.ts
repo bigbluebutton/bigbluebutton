@@ -53,6 +53,7 @@ export const CURRENT_PRESENTATION_PAGE_SUBSCRIPTION = gql`subscription CurrentPr
     downloadable
     presentationName
     isDefaultPresentation
+    infiniteWhiteboard
   }  
 }`;
 
@@ -137,30 +138,36 @@ export const CURRENT_PAGE_WRITERS_SUBSCRIPTION = gql`
   }
 `;
 
-export const CURRENT_PAGE_WRITERS_QUERY = gql`query currentPageWritersQuery {
-  pres_page_writers {
-    userId
-    pageId
-  }
-}`;
-
-export const cursorUserSubscription = gql`subscription CursorSubscription {
-  pres_page_cursor {
-    userId
-    isCurrentPage
-    pageId
-    presentationId
-    user {
-      name
-      presenter
-      role
+export const CURRENT_PAGE_WRITERS_QUERY = gql`
+  query currentPageWritersQuery($pageId: String!) {
+    pres_page_writers(where: { pageId: { _eq: $pageId } }) {
+      userId
+      pageId
     }
-  }  
-}`;
+  }
+`;
 
-export const getcursorsCoordinatesStream = gql`
+export const cursorUserSubscription = gql`
+  subscription CursorSubscription {
+    pres_page_cursor(
+      where: {isCurrentPage: {_eq: true}}
+      order_by: { userId: asc }
+    ) {
+      userId
+      user {
+        name
+        presenter
+        role
+      }
+    }  
+  }
+`;
+
+export const getCursorsCoordinatesStream = gql`
   subscription getCursorCoordinatesStream {
-    pres_page_cursor_stream(cursor: {initial_value: {lastUpdatedAt: "2020-01-01"}}, batch_size: 100) {
+    pres_page_cursor_stream(cursor: {initial_value: {lastUpdatedAt: "2020-01-01"}}, 
+                            where: {isCurrentPage: {_eq: true}}, 
+                            batch_size: 100) {
       xPercent
       yPercent
       lastUpdatedAt

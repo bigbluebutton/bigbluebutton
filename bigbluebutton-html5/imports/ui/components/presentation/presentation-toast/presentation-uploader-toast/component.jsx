@@ -5,8 +5,7 @@ import { toast } from 'react-toastify';
 import { defineMessages } from 'react-intl';
 import usePreviousValue from '/imports/ui/hooks/usePreviousValue';
 import { notify } from '/imports/ui/services/notification';
-
-const TIMEOUT_CLOSE_TOAST = 1; // second
+import Session from '/imports/ui/services/storage/in-memory';
 
 const EXPORT_STATUSES = {
   RUNNING: 'RUNNING',
@@ -176,7 +175,7 @@ function renderPresentationItemStatus(item, intl) {
     return intl.formatMessage(errorMessage, constraint);
   }
 
-  if (('uploadErrorMsgKey' in item) && (item.uploadInProgress && item.uploadErrorMsgKey)) {
+  if (('uploadErrorMsgKey' in item) && item.uploadErrorMsgKey) {
     const errorMessage = intlMessages[item.uploadErrorMsgKey]
       || intlMessages.genericConversionStatus;
 
@@ -239,7 +238,7 @@ function renderToastItem(item, intl) {
     <Styled.UploadRow
       key={item.presentationId || item.temporaryPresentationId}
       onClick={() => {
-        if (hasError || isProcessing) Session.set('showUploadPresentationView', true);
+        if (hasError || isProcessing) Session.setItem('showUploadPresentationView', true);
       }}
     >
       <Styled.FileLine>
@@ -431,23 +430,26 @@ function renderExportToast(presToShow, intl) {
   );
 }
 
-export const PresentationUploaderToast = ({intl, convertingPresentations, uploadingPresentations, presentations }) => {
-  const presentationsToConvert = convertingPresentations.concat(uploadingPresentations);
+export const PresentationUploaderToast = ({
+  intl,
+  convertingPresentations,
+  presentations,
+}) => {
   const prevPresentations = usePreviousValue(presentations);
 
   useEffect(() => {
     presentations.forEach((p) => {
-      const prevPropPres = prevPresentations.find((pres) => pres.presentationId === p.presentationId);
-  
+      const prevPropPres = (prevPresentations || [])
+        .find((pres) => pres.presentationId === p.presentationId);
       // display notification when presentation is exported
-      let exportToastId = Session.get('presentationUploaderExportToastId');
+      let exportToastId = Session.getItem('presentationUploaderExportToastId');
 
       if (prevPropPres?.exportToChatStatus
         && p?.exportToChatStatus === EXPORT_STATUSES.EXPORTED
         && prevPropPres?.exportToChatStatus !== p?.exportToChatStatus
       ) {
         notify(intl.formatMessage(intlMessages.linkAvailable, { 0: p.name }), 'success');
-        Session.set('presentationUploaderExportToastId', null);
+        Session.setItem('presentationUploaderExportToastId', null);
         handleDismissToast(exportToastId);
       }
 
@@ -468,33 +470,35 @@ export const PresentationUploaderToast = ({intl, convertingPresentations, upload
             newestOnTop: true,
             closeOnClick: true,
             onClose: () => {
-              Session.set('presentationUploaderExportToastId', null);
+              Session.setItem('presentationUploaderExportToastId', null);
             },
           });
-          Session.set('presentationUploaderExportToastId', exportToastId);
+          Session.setItem('presentationUploaderExportToastId', exportToastId);
         }
       }
     });
   }, [presentations]);
 
-  let activeToast = Session.get('presentationUploaderToastId');
-  const showToast = presentationsToConvert.length > 0;
+  let activeToast = Session.getItem('presentationUploaderToastId');
+  const showToast = convertingPresentations.length > 0;
 
   if (showToast && !activeToast) {
-    activeToast = toast.info(() => renderToastList(presentationsToConvert, intl), {
+    activeToast = toast.info(() => renderToastList(convertingPresentations, intl), {
       hideProgressBar: true,
       autoClose: false,
       newestOnTop: true,
       closeOnClick: true,
       className: 'presentationUploaderToast toastClass',
+      onClose: () => {
+        Session.setItem('presentationUploaderToastId', null);
+      },
     });
-    Session.set('presentationUploaderToastId', activeToast);
+    Session.setItem('presentationUploaderToastId', activeToast);
   } else if (!showToast && activeToast) {
     handleDismissToast(activeToast);
-    Session.set('presentationUploaderToastId', null);
   } else {
     toast.update(activeToast, {
-      render: renderToastList(presentationsToConvert, intl),
+      render: renderToastList(convertingPresentations, intl),
     });
   }
   return null;

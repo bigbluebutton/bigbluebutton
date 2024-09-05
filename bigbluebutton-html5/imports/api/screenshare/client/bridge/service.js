@@ -1,28 +1,13 @@
-import Meetings from '/imports/api/meetings';
 import logger from '/imports/startup/client/logger';
 import { fetchWebRTCMappedStunTurnServers, getMappedFallbackStun } from '/imports/utils/fetchStunTurnServers';
 import loadAndPlayMediaStream from '/imports/ui/services/bbb-webrtc-sfu/load-play';
 import { SCREENSHARING_ERRORS } from './errors';
-import getFromMeetingSettings from '/imports/ui/services/meeting-settings';
-
-const {
-  constraints: GDM_CONSTRAINTS,
-  mediaTimeouts: MEDIA_TIMEOUTS,
-  bitrate: BASE_BITRATE,
-  mediaServer: DEFAULT_SCREENSHARE_MEDIA_SERVER,
-} = Meteor.settings.public.kurento.screenshare;
-const {
-  baseTimeout: BASE_MEDIA_TIMEOUT,
-  maxTimeout: MAX_MEDIA_TIMEOUT,
-  maxConnectionAttempts: MAX_CONN_ATTEMPTS,
-  timeoutIncreaseFactor: TIMEOUT_INCREASE_FACTOR,
-  baseReconnectionTimeout: BASE_RECONNECTION_TIMEOUT,
-} = MEDIA_TIMEOUTS;
+import getFromMeetingSettings, { getVoiceConf } from '/imports/ui/services/meeting-settings';
 
 const HAS_DISPLAY_MEDIA = (typeof navigator.getDisplayMedia === 'function'
   || (navigator.mediaDevices && typeof navigator.mediaDevices.getDisplayMedia === 'function'));
 
-const getConferenceBridge = () => Meetings.findOne().voiceSettings.voiceConf;
+const getConferenceBridge = () => getVoiceConf();
 
 const normalizeGetDisplayMediaError = (error) => {
   return SCREENSHARING_ERRORS[error.name] || SCREENSHARING_ERRORS.GetDisplayMediaGenericError;
@@ -37,6 +22,10 @@ const getBoundGDM = () => {
 }
 
 const getScreenStream = async () => {
+  const {
+    constraints: GDM_CONSTRAINTS,
+  } = window.meetingClientSettings.public.kurento.screenshare;
+
   const gDMCallback = (stream) => {
     // Some older Chromium variants choke on gDM when audio: true by NOT generating
     // a promise rejection AND not generating a valid input screen stream, need to
@@ -107,10 +96,21 @@ const getIceServers = (sessionToken) => {
 }
 
 const getMediaServerAdapter = () => {
+  const {
+    mediaServer: DEFAULT_SCREENSHARE_MEDIA_SERVER,
+  } = window.meetingClientSettings.public.kurento.screenshare;
   return getFromMeetingSettings('media-server-screenshare', DEFAULT_SCREENSHARE_MEDIA_SERVER);
 }
 
 const getNextReconnectionInterval = (oldInterval) => {
+  const {
+    mediaTimeouts: MEDIA_TIMEOUTS,
+  } = window.meetingClientSettings.public.kurento.screenshare;
+  const {
+    maxTimeout: MAX_MEDIA_TIMEOUT,
+    timeoutIncreaseFactor: TIMEOUT_INCREASE_FACTOR,
+    baseReconnectionTimeout: BASE_RECONNECTION_TIMEOUT,
+  } = MEDIA_TIMEOUTS;
   return Math.min(
     (TIMEOUT_INCREASE_FACTOR * Math.max(oldInterval, BASE_RECONNECTION_TIMEOUT)),
     MAX_MEDIA_TIMEOUT,
@@ -148,6 +148,45 @@ const screenshareLoadAndPlayMediaStream = (stream, mediaElement, muted) => {
   });
 }
 
+class EXPORTED_CONFIGS {
+  static BASE_MEDIA_TIMEOUT() {
+    const {
+      mediaTimeouts: MEDIA_TIMEOUTS,
+    } = window.meetingClientSettings.public.kurento.screenshare;
+    const {
+      baseTimeout: BASE_MEDIA_TIMEOUT,
+    } = MEDIA_TIMEOUTS;
+    return BASE_MEDIA_TIMEOUT;
+  }
+
+  static BASE_RECONNECTION_TIMEOUT() {
+    const {
+      mediaTimeouts: MEDIA_TIMEOUTS,
+    } = window.meetingClientSettings.public.kurento.screenshare;
+    const {
+      baseReconnectionTimeout: BASE_RECONNECTION_TIMEOUT,
+    } = MEDIA_TIMEOUTS;
+    return BASE_RECONNECTION_TIMEOUT;
+  }
+
+  static MAX_CONN_ATTEMPTS() {
+    const {
+      mediaTimeouts: MEDIA_TIMEOUTS,
+    } = window.meetingClientSettings.public.kurento.screenshare;
+    const {
+      maxConnectionAttempts: MAX_CONN_ATTEMPTS,
+    } = MEDIA_TIMEOUTS;
+    return MAX_CONN_ATTEMPTS;
+  }
+
+  static BASE_BITRATE() {
+    const {
+      bitrate: BASE_BITRATE,
+    } = window.meetingClientSettings.public.kurento.screenshare;
+    return BASE_BITRATE;
+  }
+}
+
 export default {
   HAS_DISPLAY_MEDIA,
   getConferenceBridge,
@@ -157,8 +196,8 @@ export default {
   streamHasAudioTrack,
   screenshareLoadAndPlayMediaStream,
   getMediaServerAdapter,
-  BASE_MEDIA_TIMEOUT,
-  BASE_RECONNECTION_TIMEOUT,
-  MAX_CONN_ATTEMPTS,
-  BASE_BITRATE,
+  BASE_MEDIA_TIMEOUT: EXPORTED_CONFIGS.BASE_MEDIA_TIMEOUT,
+  BASE_RECONNECTION_TIMEOUT: EXPORTED_CONFIGS.BASE_RECONNECTION_TIMEOUT,
+  MAX_CONN_ATTEMPTS: EXPORTED_CONFIGS.MAX_CONN_ATTEMPTS,
+  BASE_BITRATE: EXPORTED_CONFIGS.BASE_BITRATE,
 };

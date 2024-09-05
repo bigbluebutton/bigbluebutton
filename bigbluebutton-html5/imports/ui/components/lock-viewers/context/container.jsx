@@ -1,32 +1,48 @@
-import { withTracker } from 'meteor/react-meteor-data';
-import Meetings from '/imports/api/meetings';
-import Auth from '/imports/ui/services/auth';
+import React, { useMemo } from 'react';
 import { LockStruct } from './context';
-import Users from '/imports/api/users';
 import { withLockContext } from './withContext';
+import useCurrentUser from '/imports/ui/core/hooks/useCurrentUser';
+import useMeeting from '/imports/ui/core/hooks/useMeeting';
 
-const ROLE_MODERATOR = window.meetingClientSettings.public.user.role_moderator;
-
-const lockContextContainer = (component) => withTracker(() => {
+const lockContextContainer = (component) => (props) => {
   const lockSetting = new LockStruct();
-  const Meeting = Meetings.findOne({ meetingId: Auth.meetingID },
-    { fields: { lockSettings: 1 } });
-  const User = Users.findOne({ userId: Auth.userID },
-    { fields: { role: 1, locked: 1 } });
-  const userIsLocked = User ? User.locked && User.role !== ROLE_MODERATOR : true;
-  const lockSettings = Meeting.lockSettings;
+
+  const { data: meeting } = useMeeting((m) => ({
+    lockSettings: m.lockSettings,
+  }));
+  const { data: user } = useCurrentUser((u) => ({
+    role: u.role,
+    locked: u.locked,
+  }));
+
+  const ROLE_MODERATOR = window.meetingClientSettings.public.user.role_moderator;
+  const userIsLocked = user ? user.locked && user.role !== ROLE_MODERATOR : true;
+  const { lockSettings } = meeting || {};
 
   lockSetting.isLocked = userIsLocked;
   lockSetting.lockSettings = lockSettings;
-  lockSetting.userLocks.userWebcam = userIsLocked && lockSettings.disableCam;
-  lockSetting.userLocks.userMic = userIsLocked && lockSettings.disableMic;
-  lockSetting.userLocks.userNotes = userIsLocked && lockSettings.disableNotes;
-  lockSetting.userLocks.userPrivateChat = userIsLocked && lockSettings.disablePrivateChat;
-  lockSetting.userLocks.userPublicChat = userIsLocked && lockSettings.disablePublicChat;
-  lockSetting.userLocks.hideViewersCursor = userIsLocked && lockSettings.hideViewersCursor;
-  lockSetting.userLocks.hideViewersAnnotation = userIsLocked && lockSettings.hideViewersAnnotation;
+  lockSetting.userLocks.userWebcam = (userIsLocked && lockSettings?.disableCam) || false;
+  lockSetting.userLocks.userMic = (userIsLocked && lockSettings?.disableMic) || false;
+  lockSetting.userLocks.userNotes = (userIsLocked && lockSettings?.disableNotes) || false;
+  lockSetting.userLocks.userPrivateChat = (userIsLocked
+    && lockSettings?.disablePrivateChat) || false;
+  lockSetting.userLocks.userPublicChat = (userIsLocked && lockSettings?.disablePublicChat) || false;
+  lockSetting.userLocks.hideViewersCursor = (userIsLocked
+    && lockSettings?.hideViewersCursor) || false;
+  lockSetting.userLocks.hideViewersAnnotation = (userIsLocked
+    && lockSettings?.hideViewersAnnotation) || false;
 
-  return lockSetting;
-})(withLockContext(component));
+  const ComponentWithContext = useMemo(() => withLockContext(component), []);
+  // eslint-disable-next-line react/prop-types
+  const { children } = props;
+  return (
+    <ComponentWithContext
+      {...props}
+      {...lockSetting}
+    >
+      {children}
+    </ComponentWithContext>
+  );
+};
 
 export default lockContextContainer;

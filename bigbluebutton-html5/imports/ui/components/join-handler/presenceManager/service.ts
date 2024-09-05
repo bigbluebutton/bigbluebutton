@@ -1,3 +1,5 @@
+import Storage from '/imports/ui/services/storage/session';
+
 export const JoinErrorCodeTable = {
   NOT_EJECT: 'not_eject_reason',
   DUPLICATE_USER: 'duplicate_user_in_meeting_eject_reason',
@@ -21,6 +23,7 @@ export const setUserDataToSessionStorage = (userData: {
   extId: string,
   meetingName: string,
   customLogoUrl: string,
+  customDarkLogoUrl: string,
 }) => {
   sessionStorage.setItem('meetingId', userData.meetingId);
   sessionStorage.setItem('userId', userData.userId);
@@ -29,7 +32,8 @@ export const setUserDataToSessionStorage = (userData: {
   sessionStorage.setItem('userName', userData.userName);
   sessionStorage.setItem('extId', userData.extId);
   sessionStorage.setItem('meetingName', userData.meetingName);
-  sessionStorage.setItem('CustomLogoUrl', userData.customLogoUrl);
+  Storage.setItem('CustomLogoUrl', userData.customLogoUrl);
+  Storage.setItem('CustomDarkLogoUrl', userData.customDarkLogoUrl);
 };
 
 export default {

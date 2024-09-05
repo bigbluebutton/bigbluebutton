@@ -54,6 +54,41 @@ const DtfInvert = `
   }
   [id="TD-StylesMenu"],
   [id="TD-Styles-Color-Container"],
+  #connectionBars > div
+`;
+
+const DtfBrandingInvert = `
+  body {
+    background-color: var(--darkreader-neutral-background) !important;
+  }
+  header[id="Navbar"] {
+    background-color: var(--darkreader-neutral-background) !important;
+  }
+  section[id="ActionsBar"] {
+    background-color: var(--darkreader-neutral-background) !important;
+  }
+  select {
+    border: 0.1rem solid #FFFFFF !important;
+  }
+  select[data-test="skipSlide"] {
+    border: unset !important;
+  }
+  div[data-test="presentationContainer"] {
+    background-color: var(--darkreader-neutral-background) !important;
+  }
+  select {
+    border-top: unset !important;
+    border-right: unset !important;
+    border-left: unset !important;
+  }
+  .tl-container {
+    background-color: var(--tl-background) !important;
+  }
+  #TD-Tools button, #TD-TopPanel-Undo, #TD-TopPanel-Redo, #TD-Styles {
+    border-color: transparent !important;
+  }
+  [id="TD-StylesMenu"],
+  [id="TD-Styles-Color-Container"],
   div[data-test="brandingArea"],
   #connectionBars > div
 `;
@@ -73,6 +108,7 @@ export default {
   ActionsBar,
   Layout,
   DtfInvert,
+  DtfBrandingInvert,
   DtfCss,
   DtfImages,
 };

@@ -3,17 +3,18 @@ import React, {
   useRef,
   useState,
   useMemo,
+  useCallback,
 } from 'react';
-import { useSubscription, useMutation } from '@apollo/client';
+import { useMutation, useQuery } from '@apollo/client';
 import {
   AssetRecordType,
-} from '@tldraw/tldraw';
+} from '@bigbluebutton/tldraw';
 import { throttle } from 'radash';
 import {
   CURRENT_PRESENTATION_PAGE_SUBSCRIPTION,
   CURRENT_PAGE_ANNOTATIONS_STREAM,
+  CURRENT_PAGE_ANNOTATIONS_QUERY,
   CURRENT_PAGE_WRITERS_SUBSCRIPTION,
-  CURSOR_SUBSCRIPTION,
 } from './queries';
 import {
   initDefaultPages,
@@ -23,7 +24,7 @@ import {
   toggleToolsAnimations,
   formatAnnotations,
 } from './service';
-import SettingsService from '/imports/ui/services/settings';
+import { getSettingsSingletonInstance } from '/imports/ui/services/settings';
 import Auth from '/imports/ui/services/auth';
 import {
   layoutSelect,
@@ -43,8 +44,11 @@ import {
   PRESENTATION_PUBLISH_CURSOR,
 } from '../presentation/mutations';
 import { useMergedCursorData } from './hooks.ts';
+import useDeduplicatedSubscription from '../../core/hooks/useDeduplicatedSubscription';
+import MediaService from '/imports/ui/components/media/service';
+import getFromUserSettings from '/imports/ui/services/users-settings';
 
-const WHITEBOARD_CONFIG = window.meetingClientSettings.public.whiteboard;
+const FORCE_RESTORE_PRESENTATION_ON_NEW_EVENTS = 'bbb_force_restore_presentation_on_new_events';
 
 const WhiteboardContainer = (props) => {
   const {
@@ -52,18 +56,39 @@ const WhiteboardContainer = (props) => {
     zoomChanger,
   } = props;
 
+  const WHITEBOARD_CONFIG = window.meetingClientSettings.public.whiteboard;
+  const layoutContextDispatch = layoutDispatch();
+
   const [annotations, setAnnotations] = useState([]);
   const [shapes, setShapes] = useState({});
+  const [currentPresentationPage, setCurrentPresentationPage] = useState(null);
 
   const meeting = useMeeting((m) => ({
     lockSettings: m?.lockSettings,
   }));
+  const { data: currentUser } = useCurrentUser((user) => ({
+    presenter: user.presenter,
+    isModerator: user.isModerator,
+    userId: user.userId,
+  }));
+  const isPresenter = currentUser?.presenter;
+  const isModerator = currentUser?.isModerator;
 
-  const { data: presentationPageData } = useSubscription(CURRENT_PRESENTATION_PAGE_SUBSCRIPTION);
+  const { data: presentationPageData } = useDeduplicatedSubscription(
+    CURRENT_PRESENTATION_PAGE_SUBSCRIPTION,
+  );
   const { pres_page_curr: presentationPageArray } = (presentationPageData || {});
-  const currentPresentationPage = presentationPageArray && presentationPageArray[0];
+  const newPresentationPage = presentationPageArray && presentationPageArray[0];
+
+  useEffect(() => {
+    if (newPresentationPage) {
+      setCurrentPresentationPage(newPresentationPage);
+    }
+  }, [newPresentationPage]);
+
   const curPageNum = currentPresentationPage?.num;
   const curPageId = currentPresentationPage?.pageId;
+  const isInfiniteWhiteboard = currentPresentationPage?.infiniteWhiteboard;
   const curPageIdRef = useRef();
 
   React.useEffect(() => {
@@ -72,10 +97,14 @@ const WhiteboardContainer = (props) => {
 
   const presentationId = currentPresentationPage?.presentationId;
 
-  const { data: whiteboardWritersData } = useSubscription(CURRENT_PAGE_WRITERS_SUBSCRIPTION, {
-    variables: { pageId: curPageId },
-    skip: !curPageId,
-  });
+  const { data: whiteboardWritersData } = useDeduplicatedSubscription(
+    CURRENT_PAGE_WRITERS_SUBSCRIPTION,
+    {
+      variables: { pageId: curPageId },
+      skip: !curPageId,
+    },
+  );
+
   const whiteboardWriters = whiteboardWritersData?.pres_page_writers || [];
   const hasWBAccess = whiteboardWriters?.some((writer) => writer.userId === Auth.userID);
 
@@ -108,8 +137,8 @@ const WhiteboardContainer = (props) => {
     });
   };
 
-  const zoomSlide = (widthRatio, heightRatio, xOffset, yOffset) => {
-    const { pageId, num } = currentPresentationPage;
+  const zoomSlide = (widthRatio, heightRatio, xOffset, yOffset, currPage = currentPresentationPage) => {
+    const { pageId, num } = currPage;
 
     presentationSetZoom({
       variables: {
@@ -135,14 +164,14 @@ const WhiteboardContainer = (props) => {
     return isAnnotationSent?.data?.presAnnotationSubmit;
   };
 
-  const persistShapeWrapper = (shape, whiteboardId, isModerator) => {
-    persistShape(shape, whiteboardId, isModerator, submitAnnotations);
+  const persistShapeWrapper = (shape, whiteboardId, amIModerator) => {
+    persistShape(shape, whiteboardId, amIModerator, submitAnnotations);
   };
 
-  const publishCursorUpdate = (payload) => {
+  const publishCursorUpdate = useCallback((payload) => {
     const { whiteboardId, xPercent, yPercent } = payload;
 
-    if (!whiteboardId || !xPercent || !yPercent) return;
+    if (!whiteboardId || !xPercent || !yPercent || !(hasWBAccess || isPresenter)) return;
 
     presentationPublishCursor({
       variables: {
@@ -151,47 +180,77 @@ const WhiteboardContainer = (props) => {
         yPercent,
       },
     });
-  };
+  }, [hasWBAccess, isPresenter]);
 
   const throttledPublishCursorUpdate = useMemo(() => throttle(
     { interval: WHITEBOARD_CONFIG.cursorInterval },
     publishCursorUpdate,
-  ), []);
+  ), [publishCursorUpdate]);
 
   const isMultiUserActive = whiteboardWriters?.length > 0;
 
-  const { data: currentUser } = useCurrentUser((user) => ({
-    presenter: user.presenter,
-    isModerator: user.isModerator,
-    userId: user.userId,
-  }));
-
   const cursorArray = useMergedCursorData();
 
-  const { data: annotationStreamData } = useSubscription(
+  const { data: annotationStreamData } = useDeduplicatedSubscription(
     CURRENT_PAGE_ANNOTATIONS_STREAM,
     {
       variables: { lastUpdatedAt: new Date(0).toISOString() },
     },
   );
 
+  const { data: initialPageAnnotations, refetch: refetchInitialPageAnnotations } = useQuery(
+    CURRENT_PAGE_ANNOTATIONS_QUERY,
+    {
+      skip: !curPageId,
+    },
+  );
+
+  React.useEffect(() => {
+    if (curPageIdRef.current) {
+      refetchInitialPageAnnotations();
+    }
+  }, [curPageIdRef.current]);
+
+  const processAnnotations = (data) => {
+    const newAnnotations = [];
+    const annotationsToBeRemoved = [];
+
+    data.forEach((item) => {
+      if (item.annotationInfo === '') {
+        annotationsToBeRemoved.push(item.annotationId);
+      } else {
+        newAnnotations.push(item);
+      }
+    });
+
+    const currentAnnotations = annotations.filter(
+      (annotation) => !annotationsToBeRemoved.includes(annotation.annotationId),
+    );
+
+    setAnnotations([...currentAnnotations, ...newAnnotations]);
+
+    if (newAnnotations.length) {
+      const restoreOnUpdate = getFromUserSettings(
+        FORCE_RESTORE_PRESENTATION_ON_NEW_EVENTS,
+        window.meetingClientSettings.public.presentation.restoreOnUpdate,
+      );
+
+      if (restoreOnUpdate) {
+        MediaService.setPresentationIsOpen(layoutContextDispatch, true);
+      }
+    }
+  };
+
+  React.useEffect(() => {
+    if (initialPageAnnotations && initialPageAnnotations.pres_annotation_curr) {
+      processAnnotations(initialPageAnnotations.pres_annotation_curr);
+    }
+  }, [initialPageAnnotations]);
+
   useEffect(() => {
     const { pres_annotation_curr_stream: annotationStream } = annotationStreamData || {};
-
     if (annotationStream) {
-      const newAnnotations = [];
-      const annotationsToBeRemoved = [];
-      annotationStream.forEach((item) => {
-        if (item.annotationInfo === '') {
-          annotationsToBeRemoved.push(item.annotationId);
-        } else {
-          newAnnotations.push(item);
-        }
-      });
-      const currentAnnotations = annotations.filter(
-        (annotation) => !annotationsToBeRemoved.includes(annotation.annotationId),
-      );
-      setAnnotations([...currentAnnotations, ...newAnnotations]);
+      processAnnotations(annotationStream);
     }
   }, [annotationStreamData]);
 
@@ -225,21 +284,19 @@ const WhiteboardContainer = (props) => {
     },
   }];
 
-  const isRTL = layoutSelect((i) => i.isRTL);
+  const Settings = getSettingsSingletonInstance();
+  const { isRTL } = Settings.application;
   const width = layoutSelect((i) => i?.output?.presentation?.width);
   const height = layoutSelect((i) => i?.output?.presentation?.height);
   const sidebarNavigationWidth = layoutSelect(
     (i) => i?.output?.sidebarNavigation?.width,
   );
-  const isPresenter = currentUser?.presenter;
-  const isModerator = currentUser?.isModerator;
   const { maxStickyNoteLength, maxNumberOfAnnotations } = WHITEBOARD_CONFIG;
   const fontFamily = WHITEBOARD_CONFIG.styles.text.family;
   const {
     colorStyle, dashStyle, fillStyle, fontStyle, sizeStyle,
   } = WHITEBOARD_CONFIG.styles;
   const handleToggleFullScreen = (ref) => FullscreenService.toggleFullScreen(ref);
-  const layoutContextDispatch = layoutDispatch();
 
   bgShape.push({
     x: 1,
@@ -263,10 +320,11 @@ const WhiteboardContainer = (props) => {
     typeName: 'shape',
   });
 
-  if (!currentPresentationPage) return;
+  if (!currentPresentationPage) return null;
 
   return (
     <Whiteboard
+      key={presentationId}
       {...{
         isPresenter,
         isModerator,
@@ -295,9 +353,8 @@ const WhiteboardContainer = (props) => {
         zoomSlide,
         notifyNotAllowedChange,
         notifyShapeNumberExceeded,
-        whiteboardToolbarAutoHide:
-      SettingsService?.application?.whiteboardToolbarAutoHide,
-        animations: SettingsService?.application?.animations,
+        whiteboardToolbarAutoHide: Settings?.application?.whiteboardToolbarAutoHide,
+        animations: Settings?.application?.animations,
         toggleToolsAnimations,
         isIphone,
         currentPresentationPage,
@@ -307,6 +364,10 @@ const WhiteboardContainer = (props) => {
         whiteboardWriters,
         zoomChanger,
         skipToSlide,
+        locale: Settings?.application?.locale,
+        darkTheme: Settings?.application?.darkTheme,
+        selectedLayout: Settings?.application?.selectedLayout,
+        isInfiniteWhiteboard,
       }}
       {...props}
       meetingId={Auth.meetingID}

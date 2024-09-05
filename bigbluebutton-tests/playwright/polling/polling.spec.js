@@ -7,7 +7,7 @@ const { PARAMETER_HIDE_PRESENTATION_TOAST } = require('../core/constants');
 
 const hidePresentationToast = encodeCustomParams(PARAMETER_HIDE_PRESENTATION_TOAST);
 
-test.describe('Polling', async () => {
+test.describe('Polling', { tag: '@ci' }, async () => {
   const polling = new Polling();
 
   test.describe.configure({ mode: fullyParallel ? 'parallel' : 'serial' });
@@ -16,23 +16,23 @@ test.describe('Polling', async () => {
   });
 
   // Manage
-  test('Create poll @ci', async () => {
+  test('Create poll', async () => {
     await polling.createPoll();
   });
 
-  test('Create anonymous poll @ci', async () => {
+  test('Create anonymous poll', async () => {
     await polling.pollAnonymous();
   });
 
-  test('Create quick poll - from the slide @ci', async () => {
+  test('Create quick poll - from the slide', async () => {
     await polling.quickPoll();
   });
 
-  test('Create poll with user response @ci', async () => {
+  test('Create poll with user response', async () => {
     await polling.pollUserResponse();
   });
 
-  test('Stop a poll manually @ci', async () => {
+  test('Stop a poll manually', async () => {
     await polling.stopPoll();
   });
 
@@ -44,11 +44,11 @@ test.describe('Polling', async () => {
     await polling.notAbleStartNewPollWithoutPresentation();
   });
 
-  test('Custom input @ci', async () => {
+  test('Custom input', async () => {
     await polling.customInput();
   });
 
-  test('Allow multiple choices @ci', async () => {
+  test('Allow multiple choices', async () => {
     await polling.allowMultipleChoices();
   });
 
@@ -57,11 +57,11 @@ test.describe('Polling', async () => {
   });
 
   // Results
-  test('Poll results in chat message @ci', async () => {
+  test('Poll results in chat message', async () => {
     await polling.pollResultsOnChat();
   });
 
-  test('Poll results on whiteboard @ci', async () => {
+  test('Poll results on whiteboard', { tag: '@flaky' } , async () => {
     await polling.pollResultsOnWhiteboard();
   });
 

@@ -20,18 +20,29 @@ const PluginLoaderManager = (props: PluginLoaderManagerProps) => {
     div.id = uuid;
     containerRef.current?.appendChild(div);
 
-    const script = document.createElement('script');
+    const script: HTMLScriptElement = document.createElement('script');
     script.onload = () => {
       loadedPlugins.current += 1;
       setLastLoadedPlugin(script);
-      logger.info(`Loaded plugin ${plugin.name}`);
+      logger.info({
+        logCode: 'plugin_loaded',
+      }, `Loaded plugin ${plugin.name}`);
     };
-    script.onerror = (err) => {
-      logger.error(`Error when loading plugin ${plugin.name}, error: `, err);
+    script.onerror = () => {
+      logger.error({
+        logCode: 'plugin_load_error',
+        extraInfo: {
+          pluginName: plugin.name,
+          pluginUrl: plugin.url,
+        },
+      }, `Error when loading plugin ${plugin.name}`);
     };
     script.src = plugin.url;
     script.setAttribute('uuid', div.id);
     script.setAttribute('pluginName', plugin.name);
+    if (plugin.checksum) {
+      script.setAttribute('integrity', plugin.checksum);
+    }
     document.head.appendChild(script);
   }, [plugin, containerRef]);
   return null;

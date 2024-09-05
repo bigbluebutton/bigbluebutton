@@ -4,16 +4,8 @@ import {
   UsersPolicies,
 } from '/imports/ui/Types/meeting';
 import Auth from '/imports/ui/services/auth';
-import { EMOJI_STATUSES } from '/imports/utils/statuses';
-import AudioService from '/imports/ui/components/audio/service';
 import logger from '/imports/startup/client/logger';
-
-// eslint-disable-next-line @typescript-eslint/ban-ts-comment
-// @ts-ignore - temporary, while meteor exists in the project
-const PIN_WEBCAM = window.meetingClientSettings.public.kurento.enableVideoPin;
-// eslint-disable-next-line @typescript-eslint/ban-ts-comment
-// @ts-ignore - temporary, while meteor exists in the project
-const USER_STATUS_ENABLED = window.meetingClientSettings.public.userStatus.enabled;
+import { toggleMuteMicrophone } from '/imports/ui/components/audio/audio-graphql/audio-controls/input-stream-live-selector/service';
 
 export const isVoiceOnlyUser = (userId: string) => userId.toString().startsWith('v_');
 
@@ -25,6 +17,7 @@ export const generateActionsPermissions = (
   lockSettings: LockSettings,
   usersPolicies: UsersPolicies,
   isBreakout: boolean,
+  isMuted: boolean,
 ) => {
   const subjectUserVoice = subjectUser.voice;
 
@@ -37,18 +30,14 @@ export const generateActionsPermissions = (
   const allowedToChatPrivately = !amISubjectUser && !isDialInUser;
   const allowedToMuteAudio = hasAuthority
     && subjectUserVoice?.joined
-    && !subjectUserVoice?.muted
+    && !isMuted
     && !subjectUserVoice?.listenOnly;
 
   const allowedToUnmuteAudio = hasAuthority
     && subjectUserVoice?.joined
     && !subjectUserVoice.listenOnly
-    && subjectUserVoice.muted
+    && isMuted
     && (amISubjectUser || usersPolicies?.allowModsToUnmuteUsers);
-
-  const allowedToResetStatus = hasAuthority
-    && subjectUser.emoji !== EMOJI_STATUSES.none
-    && !isDialInUser;
 
   // if currentUser is a moderator, allow removing other users
   const allowedToRemove = amIModerator
@@ -69,8 +58,6 @@ export const generateActionsPermissions = (
     && !isBreakout
     && !(isSubjectUserGuest && usersPolicies?.authenticatedGuest && !usersPolicies?.allowPromoteGuestToModerator);
 
-  const allowedToChangeStatus = amISubjectUser && USER_STATUS_ENABLED;
-
   const allowedToChangeUserLockStatus = amIModerator
     && !isSubjectUserModerator
     && lockSettings?.hasActiveLockSetting;
@@ -85,24 +72,18 @@ export const generateActionsPermissions = (
   const allowedToSetPresenter = amIModerator
     && !subjectUser.presenter
     && !isDialInUser;
-  // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-  // @ts-ignore - temporary, while meteor exists in the project
-  const allowedToSetAway = amISubjectUser && !USER_STATUS_ENABLED;
 
   return {
     allowedToChatPrivately,
     allowedToMuteAudio,
     allowedToUnmuteAudio,
-    allowedToResetStatus,
     allowedToRemove,
     allowedToSetPresenter,
     allowedToPromote,
     allowedToDemote,
-    allowedToChangeStatus,
     allowedToChangeUserLockStatus,
     allowedToChangeWhiteboardAccess,
     allowedToEjectCameras,
-    allowedToSetAway,
   };
 };
 
@@ -111,6 +92,8 @@ export const isVideoPinEnabledForCurrentUser = (
   isBreakout: boolean,
 ) => {
   const { isModerator } = currentUser;
+
+  const PIN_WEBCAM = window.meetingClientSettings.public.kurento.enableVideoPin;
   const isPinEnabled = PIN_WEBCAM;
 
   return !!(isModerator
@@ -124,11 +107,11 @@ export const isVideoPinEnabledForCurrentUser = (
 // so this code is duplicated from the old userlist service
 // session for chats the current user started
 
-export const toggleVoice = (userId: string, voiceToggle: (userId?: string | null, muted?: boolean | null) => void) => {
+export const toggleVoice = (userId: string, muted: boolean, voiceToggle: (userId: string, muted: boolean) => void) => {
   if (userId === Auth.userID) {
-    AudioService.toggleMuteMicrophone(voiceToggle);
+    toggleMuteMicrophone(!muted, voiceToggle);
   } else {
-    voiceToggle(userId);
+    voiceToggle(userId, muted);
     logger.info({
       logCode: 'usermenu_option_mute_toggle_audio',
       extraInfo: { logType: 'moderator_action', userId },

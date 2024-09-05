@@ -3,12 +3,11 @@ package org.bigbluebutton.core.db
 import org.bigbluebutton.core.apps.BreakoutModel
 import org.bigbluebutton.core.apps.breakout.BreakoutHdlrHelpers
 import org.bigbluebutton.core.domain.BreakoutRoom2x
+import org.bigbluebutton.core.models.{Roles, Users2x}
 import org.bigbluebutton.core.running.LiveMeeting
 import slick.jdbc.PostgresProfile.api._
 
-import scala.util.{Failure, Success}
-import scala.concurrent.ExecutionContext.Implicits.global
-
+import scala.util.Random
 
 case class BreakoutRoomDbModel(
           breakoutRoomId:               String,
@@ -47,45 +46,60 @@ class BreakoutRoomDbTableDef(tag: Tag) extends Table[BreakoutRoomDbModel](tag, N
 }
 
 object BreakoutRoomDAO {
-
   def insert(breakout: BreakoutModel, liveMeeting: LiveMeeting) = {
-    DatabaseConnection.db.run(DBIO.sequence(
+    DatabaseConnection.enqueue(DBIO.sequence(
       for {
         (_, room) <- breakout.rooms
       } yield {
         prepareInsertOrUpdate(room, breakout.durationInSeconds, breakout.sendInviteToModerators)
       }
     ).transactionally)
-      .onComplete {
-        case Success(rowsAffected) => {
-          DatabaseConnection.logger.debug(s"$rowsAffected row(s) inserted on BreakoutRoom table!")
 
-          //Insert users
-          DatabaseConnection.db.run(DBIO.sequence(
-            for {
-              (_, room) <- breakout.rooms
-              userId <- room.assignedUsers
-              (redirectToHtml5JoinURL, redirectJoinURL) <- BreakoutHdlrHelpers.getRedirectUrls(liveMeeting, userId, room.externalId, room.sequence.toString())
-            } yield {
-              BreakoutRoomUserDAO.prepareInsert(room.id, liveMeeting.props.meetingProp.intId, userId, redirectToHtml5JoinURL)
-            }
-          ).transactionally)
-            .onComplete {
-              case Success(rowsAffected) => DatabaseConnection.logger.debug(s"$rowsAffected row(s) inserted on breakoutRoom_user table!")
-              case Failure(e) => DatabaseConnection.logger.debug(s"Error inserting breakoutRoom_user: $e")
-            }
-        }
-        case Failure(e) => DatabaseConnection.logger.debug(s"Error inserting BreakoutRoom: $e")
+    //Insert assigned users
+    DatabaseConnection.enqueue(DBIO.sequence(
+      for {
+        (_, room) <- breakout.rooms
+        userId <- room.assignedUsers
+        (redirectToHtml5JoinURL, redirectJoinURL) <- BreakoutHdlrHelpers.getRedirectUrls(liveMeeting, userId, room.externalId, room.sequence.toString())
+      } yield {
+        BreakoutRoomUserDAO.prepareInsert(room.id, liveMeeting.props.meetingProp.intId, userId, redirectToHtml5JoinURL, wasAssignedByMod = true)
+      }
+    ).transactionally)
+
+    //Assign left users to a random room in case it is freeJoin
+    val freeJoin = breakout.rooms.exists(r => r._2.freeJoin)
+    if(freeJoin) {
+      val assignedUsers = (for {
+        (_, room) <- breakout.rooms
+        userId <- room.assignedUsers
+      } yield {
+        userId
+      }).toVector
+
+      val nonAssignedUsers = Users2x.findAll(liveMeeting.users2x)
+        .filterNot(user => assignedUsers.contains(user.intId))
+        .filterNot(user => user.role == Roles.MODERATOR_ROLE)
+        .map(_.intId)
+
+      val roomsSeq = breakout.rooms.values.toSeq
+
+      DatabaseConnection.enqueue(DBIO.sequence(
+          for {
+            userId <- nonAssignedUsers
+            randomIndex = Random.nextInt(roomsSeq.length)
+            room <- Some(roomsSeq(randomIndex))
+            (redirectToHtml5JoinURL, redirectJoinURL) <- BreakoutHdlrHelpers.getRedirectUrls(liveMeeting, userId, room.externalId, room.sequence.toString())
+          } yield {
+            BreakoutRoomUserDAO.prepareInsert(room.id, liveMeeting.props.meetingProp.intId, userId, redirectToHtml5JoinURL, wasAssignedByMod = true)
+          }
+        ).transactionally)
       }
   }
 
 //  def update(room: BreakoutRoom2x) = {
-//    DatabaseConnection.db.run(
+//    DatabaseConnection.enqueue(
 //      prepareInsertOrUpdate(room)
-//    ).onComplete {
-//      case Success(rowsAffected) => DatabaseConnection.logger.debug(s"$rowsAffected row(s) updated on BreakoutRoom table!")
-//      case Failure(e) => DatabaseConnection.logger.error(s"Error updating BreakoutRoom: $e")
-//    }
+//    )
 //  }
 
   def prepareInsertOrUpdate(room: BreakoutRoom2x, durationInSeconds: Int, sendInvitationToModerators: Boolean) = {
@@ -140,52 +154,40 @@ object BreakoutRoomDAO {
 //  }
 
   def deletePermanently(meetingId: String) = {
-    DatabaseConnection.db.run(
+    DatabaseConnection.enqueue(
       TableQuery[BreakoutRoomDbTableDef]
         .filter(_.parentMeetingId === meetingId)
         .delete
-    ).onComplete {
-      case Success(rowsAffected) => DatabaseConnection.logger.debug(s"$rowsAffected row(s) delete of meeting ${meetingId} on BreakoutRooms table!")
-      case Failure(e) => DatabaseConnection.logger.debug(s"Error deleting BreakoutRoom of meeting ${meetingId}: $e")
-    }
+    )
   }
 
   def updateRoomsStarted(meetingId: String) = {
-    DatabaseConnection.db.run(
+    DatabaseConnection.enqueue(
       TableQuery[BreakoutRoomDbTableDef]
         .filter(_.parentMeetingId === meetingId)
 //        .filter(_.breakoutRoomId === breakoutRoomId)
         .map(u => u.startedAt)
         .update(Some(new java.sql.Timestamp(System.currentTimeMillis())))
-    ).onComplete {
-      case Success(rowsAffected) => DatabaseConnection.logger.debug(s"$rowsAffected row(s) updated startedAt on BreakoutRoom table!")
-      case Failure(e) => DatabaseConnection.logger.error(s"Error updating startedAt BreakoutRoom: $e")
-    }
+    )
   }
 
   def updateRoomsEnded(meetingId: String) = {
-    DatabaseConnection.db.run(
+    DatabaseConnection.enqueue(
       TableQuery[BreakoutRoomDbTableDef]
         .filter(_.parentMeetingId === meetingId)
         .map(u => u.endedAt)
         .update(Some(new java.sql.Timestamp(System.currentTimeMillis())))
-    ).onComplete {
-      case Success(rowsAffected) => DatabaseConnection.logger.debug(s"$rowsAffected row(s) updated endedAt on BreakoutRoom table!")
-      case Failure(e) => DatabaseConnection.logger.error(s"Error updating endedAt BreakoutRoom: $e")
-    }
+    )
   }
 
   def updateRoomsDuration(parentMeetingId: String, newDurationInSeconds: Int) = {
-    DatabaseConnection.db.run(
+    DatabaseConnection.enqueue(
       TableQuery[BreakoutRoomDbTableDef]
         .filter(_.parentMeetingId === parentMeetingId)
         .filter(_.endedAt.isEmpty)
         .map(u => u.durationInSeconds)
         .update(newDurationInSeconds)
-    ).onComplete {
-      case Success(rowsAffected) => DatabaseConnection.logger.debug(s"$rowsAffected row(s) updated endedAt on BreakoutRoom table!")
-      case Failure(e) => DatabaseConnection.logger.error(s"Error updating endedAt BreakoutRoom: $e")
-    }
+    )
   }
 
 //  def update(meetingId: String, breakoutRoomModel: BreakoutRoomModel) = {
@@ -193,7 +195,7 @@ object BreakoutRoomDAO {
 //      TableQuery[BreakoutRoomDbTableDef]
 //        .filter(_.meetingId === meetingId)
 //        .map(t => (t.stopwatch, t.running, t.active, t.time, t.accumulated, t.startedAt, t.endedAt, t.songTrack))
-//        .update((getStopwatch(breakoutRoomModel), getRunning(breakoutRoomModel), getIsACtive(breakoutRoomModel), getTime(breakoutRoomModel), getAccumulated(breakoutRoomModel), getStartedAt(breakoutRoomModel), getEndedAt(breakoutRoomModel), getTrack(breakoutRoomModel))
+//        .update((isStopwatch(breakoutRoomModel), getRunning(breakoutRoomModel), getIsACtive(breakoutRoomModel), getTime(breakoutRoomModel), getAccumulated(breakoutRoomModel), getStartedAt(breakoutRoomModel), getEndedAt(breakoutRoomModel), getTrack(breakoutRoomModel))
 //        )
 //    ).onComplete {
 //      case Success(rowsAffected) => DatabaseConnection.logger.debug(s"$rowsAffected row(s) updated on BreakoutRoom table!")

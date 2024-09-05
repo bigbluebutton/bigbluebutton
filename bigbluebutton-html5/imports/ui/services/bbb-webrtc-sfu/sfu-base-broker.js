@@ -8,6 +8,20 @@ const WS_HEARTBEAT_OPTS = {
 };
 
 class BaseBroker {
+  static getPeerRole(role) {
+    switch (role) {
+      case 'send':
+      case 'sendrecv':
+      case 'sendonly':
+      case 'recvonly':
+      case 'recv':
+      case 'passive-sendrecv':
+        return role;
+      default:
+        throw new Error(`Invalid role: ${role}`);
+    }
+  }
+
   static assembleError(code, reason) {
     const message = reason || SFU_BROKER_ERRORS[code];
     const error = new Error(message);

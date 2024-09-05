@@ -1,31 +1,44 @@
 package retransmiter
 
 import (
-	"github.com/iMDT/bbb-graphql-middleware/internal/common"
+	"bbb-graphql-middleware/internal/common"
 	log "github.com/sirupsen/logrus"
 )
 
-func RetransmitSubscriptionStartMessages(hc *common.HasuraConnection, fromBrowserToHasuraChannel *common.SafeChannel) {
+func RetransmitSubscriptionStartMessages(hc *common.HasuraConnection) {
 	log := log.WithField("_routine", "RetransmitSubscriptionStartMessages").WithField("browserConnectionId", hc.BrowserConn.Id).WithField("hasuraConnectionId", hc.Id)
 
 	hc.BrowserConn.ActiveSubscriptionsMutex.RLock()
-	for _, subscription := range hc.BrowserConn.ActiveSubscriptions {
+	defer hc.BrowserConn.ActiveSubscriptionsMutex.RUnlock()
 
+	userCurrentlyInMeeting := false
+	if hasuraRole, exists := hc.BrowserConn.BBBWebSessionVariables["x-hasura-role"]; exists {
+		userCurrentlyInMeeting = hasuraRole == "bbb_client"
+	}
+
+	for _, subscription := range hc.BrowserConn.ActiveSubscriptions {
 		//Not retransmitting Mutations
 		if subscription.Type == common.Mutation {
 			continue
 		}
 
-		if subscription.LastSeenOnHasuraConnection != hc.Id {
+		//When user left the meeting, Retransmit only Presence Manager subscriptions
+		if !userCurrentlyInMeeting &&
+			subscription.OperationName != "getUserInfo" &&
+			subscription.OperationName != "getUserCurrent" {
+			log.Debugf("Skipping retransmit %s because the user is offline", subscription.OperationName)
+			continue
+		}
 
-			log.Tracef("retransmiting subscription start: %v", subscription.Message)
+		if subscription.LastSeenOnHasuraConnection != hc.Id {
+			log.Tracef("retransmiting subscription start: %v", string(subscription.Message))
 
 			if subscription.Type == common.Streaming && subscription.StreamCursorCurrValue != nil {
-				fromBrowserToHasuraChannel.Send(common.PatchQuerySettingLastCursorValue(subscription))
+				hc.BrowserConn.FromBrowserToHasuraChannel.Send(common.PatchQuerySettingLastCursorValue(subscription))
 			} else {
-				fromBrowserToHasuraChannel.Send(subscription.Message)
+				hc.BrowserConn.FromBrowserToHasuraChannel.Send(subscription.Message)
 			}
 		}
 	}
-	hc.BrowserConn.ActiveSubscriptionsMutex.RUnlock()
+
 }

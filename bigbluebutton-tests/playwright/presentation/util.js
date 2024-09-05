@@ -30,13 +30,13 @@ async function uploadSinglePresentation(test, fileName, uploadTimeout = UPLOAD_P
   [e.currentSlideImg]);
   await test.waitAndClick(e.actions);
   await test.waitAndClick(e.managePresentations);
-  await test.waitForSelector(e.presentationFileUpload);
+  await test.hasElement(e.presentationFileUpload, 'should display the presentation space for uploading a new file, when the manage presentations is opened');
 
   await test.page.setInputFiles(e.presentationFileUpload, path.join(__dirname, `../core/media/${fileName}`));
-  await test.hasText('body', e.statingUploadPresentationToast);
+  await test.hasText('body', e.statingUploadPresentationToast, 'should display the toast message uploading the presentation');
 
   await test.waitAndClick(e.confirmManagePresentation);
-  await test.hasElement(e.presentationUploadProgressToast, ELEMENT_WAIT_EXTRA_LONG_TIME);
+  await test.hasElement(e.presentationUploadProgressToast, 'should display the toast presentation upload progress after confiming the presentation to be uploaded', ELEMENT_WAIT_EXTRA_LONG_TIME);
   await test.page.waitForFunction(([selector, firstSlideSrc]) => {
     const currentSrc = document.querySelector(selector)
     ?.style?.backgroundImage?.split('"')[1];
@@ -49,14 +49,14 @@ async function uploadSinglePresentation(test, fileName, uploadTimeout = UPLOAD_P
 async function uploadMultiplePresentations(test, fileNames, uploadTimeout = ELEMENT_WAIT_EXTRA_LONG_TIME) {
   await test.waitAndClick(e.actions);
   await test.waitAndClick(e.managePresentations);
-  await test.waitForSelector(e.presentationFileUpload);
+  await test.hasElement(e.presentationFileUpload, 'should display the modal for uploading a new presentation after opening the manage presentations');
 
   await test.page.setInputFiles(e.presentationFileUpload, fileNames.map((fileName) => path.join(__dirname, `../core/media/${fileName}`)));
-  await test.hasText('body', e.statingUploadPresentationToast);
+  await test.hasText('body', e.statingUploadPresentationToast, 'should display the toast of a presentation to be uploaded after selecting the files to upload');
 
   await test.waitAndClick(e.confirmManagePresentation);
-  await test.hasText(e.presentationStatusInfo, [e.convertingPresentationFileToast], uploadTimeout);
-  await test.hasText(e.smallToastMsg, e.presentationUploadedToast, uploadTimeout);
+  await test.hasText(e.presentationStatusInfo, [e.convertingPresentationFileToast], 'should display the presentation status info after confimation to upload the new file', uploadTimeout);
+  await test.hasText(e.smallToastMsg, e.presentationUploadedToast, 'should display the toast notification saying that the presentation is uploaded', uploadTimeout);
 }
 
 async function skipSlide(page) {

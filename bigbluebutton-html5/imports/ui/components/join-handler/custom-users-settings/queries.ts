@@ -1,17 +1,17 @@
 import { gql } from '@apollo/client';
 
-interface CustomParameter {
+interface UserMetadata {
   parameter: string;
   value: string;
 }
 
-export interface UserCustomParameterResponse {
-  user_customParameter: CustomParameter[];
+export interface UserMetadataResponse {
+  user_metadata: UserMetadata[];
 }
 
-export const getCustomParameter = gql`
-  query getCustomParameter {
-    user_customParameter {
+export const getUserMetadata = gql`
+  query getUserMetadata {
+    user_metadata {
       parameter
       value
     }
@@ -19,5 +19,5 @@ export const getCustomParameter = gql`
 `;
 
 export default {
-  getCustomParameter,
+  getUserMetadata,
 };

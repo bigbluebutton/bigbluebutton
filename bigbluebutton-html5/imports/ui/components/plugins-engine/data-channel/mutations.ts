@@ -1,8 +1,9 @@
 import { gql } from '@apollo/client';
 
 export const PLUGIN_DATA_CHANNEL_PUSH_MUTATION = gql`
-  mutation PluginDataChannelPushEntry($pluginName: String!, 
-    $subChannelName: String!, $channelName: String!, $payloadJson: String!,
+  mutation PluginDataChannelPushEntry($pluginName: String!,
+    $subChannelName: String!, $channelName: String!,
+    $payloadJson: json!,
     $toRoles: [String]!, $toUserIds: [String]!) {
       pluginDataChannelPushEntry(
         pluginName: $pluginName,
@@ -35,4 +36,18 @@ export const PLUGIN_DATA_CHANNEL_DELETE_MUTATION = gql`
       subChannelName: $subChannelName
     )
   }
+`;
+
+export const PLUGIN_DATA_CHANNEL_REPLACE_MUTATION = gql`
+  mutation PluginDataChannelReplaceEntry($pluginName: String!, 
+    $subChannelName: String!, $channelName: String!, 
+    $payloadJson: json!, $entryId: String!) {
+      pluginDataChannelReplaceEntry(
+        entryId: $entryId,
+        pluginName: $pluginName,
+        channelName: $channelName,
+        subChannelName: $subChannelName,
+        payloadJson: $payloadJson
+      )
+    }
 `;

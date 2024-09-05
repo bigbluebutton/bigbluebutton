@@ -22,6 +22,7 @@ find -maxdepth 1 ! -path . ! -name staging $(printf "! -name %s " $(cat .build-f
 pushd .
 cd staging/usr/local/bigbluebutton/bbb-export-annotations/
 npm install --production
+chmod -R a+rX .
 popd
 
 mkdir -p staging/usr/lib/systemd/system
@@ -30,6 +31,7 @@ cp bbb-export-annotations.service staging/usr/lib/systemd/system
 #
 # Install fonts
 cp fonts/* staging/usr/local/share/fonts/
+chmod -R a+rX staging/usr/local/share/fonts/
 
 ##
 
@@ -44,5 +46,5 @@ fpm -s dir -C ./staging -n $PACKAGE \
     --description "BigBlueButton Export Annotations" \
     $DIRECTORIES \
     $OPTS \
-    -d 'nodejs (>= 18)' -d 'nodejs (<< 20)'
+    -d 'nodejs (>= 18)' -d 'nodejs (<< 23)'
 

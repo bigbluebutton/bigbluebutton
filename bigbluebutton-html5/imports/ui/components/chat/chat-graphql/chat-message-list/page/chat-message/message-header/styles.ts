@@ -8,7 +8,7 @@ import {
 import { lineHeightComputed } from '/imports/ui/stylesheets/styled-components/typography';
 
 interface ChatUserNameProps {
-  isOnline: boolean;
+  currentlyInMeeting: boolean;
 }
 
 export const HeaderContent = styled.div`
@@ -31,11 +31,11 @@ export const ChatUserName = styled.div<ChatUserNameProps>`
   overflow: hidden;
   text-overflow: ellipsis;
 
-  ${({ isOnline }) => isOnline && `
+  ${({ currentlyInMeeting }) => currentlyInMeeting && `
     color: ${colorHeading};
   `}
 
-  ${({ isOnline }) => !isOnline && `
+  ${({ currentlyInMeeting }) => !currentlyInMeeting && `
     text-transform: capitalize;
     font-style: italic;
 

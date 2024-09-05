@@ -94,6 +94,7 @@ public class PresentationUrlDownloadService {
                 }, 5, TimeUnit.SECONDS);
     }
 
+    // A negative presentationSlide indicates the entire presentation deck should be used.
     private void extractPage(final String sourceMeetingId, final String presentationId,
                              final Integer presentationSlide, final String destinationMeetingId) {
 
@@ -146,7 +147,7 @@ public class PresentationUrlDownloadService {
                 + newFilename;
         File newPresentation = new File(newFilePath);
 
-        if (sourcePresentationFile.getName().toLowerCase().endsWith("pdf")) {
+        if (sourcePresentationFile.getName().toLowerCase().endsWith("pdf") && presentationSlide >= 0) {
             pageExtractor.extractPage(sourcePresentationFile, new File(
                     newFilePath), presentationSlide);
         } else {

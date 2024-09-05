@@ -22,6 +22,8 @@ import {
   colorOffWhite,
 } from '/imports/ui/stylesheets/styled-components/palette';
 
+import Icon from '/imports/ui/components/common/icon/icon-ts/component';
+
 interface AvatarProps {
     moderator?: boolean;
     presenter?: boolean;
@@ -190,6 +192,7 @@ const Avatar = styled.div<AvatarProps>`
 
   ${({ moderator }) => moderator && `
     border-radius: 5px;
+    color: ${colorWhite} !important;
   `}
 
   ${({ presenter }) => presenter && `
@@ -322,7 +325,7 @@ const Avatar = styled.div<AvatarProps>`
   // ================ image ================
 
   // ================ content ================
-  color: ${colorWhite};
+  color: ${colorWhite} !important;
   font-size: 110%;
   text-transform: capitalize;
   display: flex;
@@ -338,6 +341,10 @@ const Avatar = styled.div<AvatarProps>`
 
 const Skeleton = styled.div`
  
+`;
+
+const UserAdditionalInformationIcon = styled(Icon)`
+  margin-right: ${smPaddingX};
 `;
 
 const pulse = (color: string) => keyframes`
@@ -413,6 +420,7 @@ export default {
   Skeleton,
   UserItemContents,
   UserNameContainer,
+  UserAdditionalInformationIcon,
   UserNameSub,
   UserName,
   IconRightContainer,

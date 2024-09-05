@@ -16,17 +16,11 @@ import { useCreateUseSubscription } from '/imports/ui/core/hooks/createUseSubscr
 import { setLoadedMessageGathering } from '/imports/ui/core/hooks/useLoadedChatMessages';
 import { ChatLoading } from '../../component';
 
-// @ts-ignore - temporary, while meteor exists in the project
-const CHAT_CONFIG = window.meetingClientSettings.public.chat;
-const PUBLIC_GROUP_CHAT_KEY = CHAT_CONFIG.public_group_id;
-
 interface ChatListPageContainerProps {
   page: number;
   pageSize: number;
   setLastSender: (page: number, message: string) => void;
   lastSenderPreviousPage: string | undefined;
-  // eslint-disable-next-line react/no-unused-prop-types
-  lastSeenAt: string,
   chatId: string;
   markMessageAsSeen: (message: Message) => void;
   scrollRef: React.RefObject<HTMLDivElement>;
@@ -34,6 +28,7 @@ interface ChatListPageContainerProps {
 
 interface ChatListPageProps {
   messages: Array<Message>;
+  messageReadFeedbackEnabled: boolean;
   lastSenderPreviousPage: string | undefined;
   page: number;
   markMessageAsSeen: (message: Message)=> void;
@@ -42,6 +37,7 @@ interface ChatListPageProps {
 
 const ChatListPage: React.FC<ChatListPageProps> = ({
   messages,
+  messageReadFeedbackEnabled,
   lastSenderPreviousPage,
   page,
   markMessageAsSeen,
@@ -66,8 +62,8 @@ const ChatListPage: React.FC<ChatListPageProps> = ({
   return (
     // eslint-disable-next-line react/jsx-filename-extension
     <div key={`messagePage-${page}`} id={`${page}`}>
-      {messages.map((message, index, Array) => {
-        const previousMessage = Array[index - 1];
+      {messages.map((message, index, messagesArray) => {
+        const previousMessage = messagesArray[index - 1];
         return (
           <ChatMessage
             key={message.createdAt}
@@ -79,6 +75,7 @@ const ChatListPage: React.FC<ChatListPageProps> = ({
             }
             scrollRef={scrollRef}
             markMessageAsSeen={markMessageAsSeen}
+            messageReadFeedbackEnabled={messageReadFeedbackEnabled}
           />
         );
       })}
@@ -95,6 +92,11 @@ const ChatListPageContainer: React.FC<ChatListPageContainerProps> = ({
   markMessageAsSeen,
   scrollRef,
 }) => {
+  // @ts-ignore - temporary, while meteor exists in the project
+  const CHAT_CONFIG = window.meetingClientSettings.public.chat;
+  const PUBLIC_GROUP_CHAT_KEY = CHAT_CONFIG.public_group_id;
+  const PRIVATE_MESSAGE_READ_FEEDBACK_ENABLED = CHAT_CONFIG.privateMessageReadFeedback.enabled;
+
   const isPublicChat = chatId === PUBLIC_GROUP_CHAT_KEY;
   const chatQuery = isPublicChat
     ? CHAT_MESSAGE_PUBLIC_SUBSCRIPTION
@@ -102,6 +104,7 @@ const ChatListPageContainer: React.FC<ChatListPageContainerProps> = ({
   const defaultVariables = { offset: (page) * pageSize, limit: pageSize };
   const variables = isPublicChat
     ? defaultVariables : { ...defaultVariables, requestedChatId: chatId };
+  const isPrivateReadFeedbackEnabled = !isPublicChat && PRIVATE_MESSAGE_READ_FEEDBACK_ENABLED;
 
   const useChatMessageSubscription = useCreateUseSubscription<Message>(chatQuery, variables, true);
   const {
@@ -125,6 +128,7 @@ const ChatListPageContainer: React.FC<ChatListPageContainerProps> = ({
     <ChatListPage
       messages={chatMessageData}
       lastSenderPreviousPage={lastSenderPreviousPage}
+      messageReadFeedbackEnabled={isPrivateReadFeedbackEnabled}
       page={page}
       markMessageAsSeen={markMessageAsSeen}
       scrollRef={scrollRef}

@@ -1,13 +1,13 @@
 import { useState, useEffect } from 'react';
-import { useSubscription } from '@apollo/client';
 import {
   CursorCoordinates,
   CursorCoordinatesResponse,
   CursorSubscriptionResponse,
   cursorUserSubscription,
-  getcursorsCoordinatesStream,
+  getCursorsCoordinatesStream,
   userCursorResponse,
 } from './queries';
+import useDeduplicatedSubscription from '../../core/hooks/useDeduplicatedSubscription';
 
 interface mergedData extends CursorCoordinates, userCursorResponse {}
 
@@ -28,10 +28,14 @@ export const useMergedCursorData = () => {
     setUserCursorMerged,
   ] = useState<mergedData[]>([]);
   // Fetch cursor coordinates
-  const { data: cursorSubscriptionData } = useSubscription<CursorSubscriptionResponse>(cursorUserSubscription);
+  const { data: cursorSubscriptionData } = useDeduplicatedSubscription<CursorSubscriptionResponse>(
+    cursorUserSubscription,
+  );
   const cursorSubscriptionDataString = JSON.stringify(cursorSubscriptionData);
 
-  const { data: cursorCoordinatesData } = useSubscription<CursorCoordinatesResponse>(getcursorsCoordinatesStream);
+  const { data: cursorCoordinatesData } = useDeduplicatedSubscription<CursorCoordinatesResponse>(
+    getCursorsCoordinatesStream,
+  );
   const cursorCoordinatesDataString = JSON.stringify(cursorCoordinatesData);
 
   useEffect(() => {

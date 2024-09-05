@@ -21,12 +21,12 @@ const propTypes = {
 };
 
 const AudioStreamVolume = ({
-  volumeFloor,
-  volumeRange,
-  low,
-  optimum,
-  high,
-  stream,
+  volumeFloor = VOL_FLOOR,
+  volumeRange = VOL_CEIL,
+  low = VOL_FLOOR,
+  optimum = Math.round(0.3 * VOL_CEIL),
+  high = Math.round(0.4 * VOL_CEIL),
+  stream = null,
 }) => {
   const harkObserver = useRef(null);
   const volumeRef = useRef(0);
@@ -86,13 +86,5 @@ const AudioStreamVolume = ({
 };
 
 AudioStreamVolume.propTypes = propTypes;
-AudioStreamVolume.defaultProps = {
-  volumeFloor: VOL_FLOOR,
-  volumeRange: VOL_CEIL,
-  low: VOL_FLOOR,
-  optimum: Math.round(0.3 * VOL_CEIL),
-  high: Math.round(0.4 * VOL_CEIL),
-  stream: null,
-};
 
 export default React.memo(AudioStreamVolume);

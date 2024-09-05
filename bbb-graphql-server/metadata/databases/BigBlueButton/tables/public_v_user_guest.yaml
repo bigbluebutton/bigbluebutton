@@ -37,11 +37,12 @@ select_permissions:
           - meetingId:
               _eq: X-Hasura-ModeratorInMeeting
       allow_aggregations: true
-  - role: not_joined_bbb_client
+  - role: bbb_client_not_in_meeting
     permission:
       columns:
         - guestLobbyMessage
         - guestStatus
+        - isAllowed
         - positionInWaitingQueue
       filter:
         _and:

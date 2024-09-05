@@ -5,9 +5,12 @@ import DEFAULT_VALUES from '/imports/ui/components/layout/defaultValues';
 import { INITIAL_INPUT_STATE } from '/imports/ui/components/layout/initState';
 import {
   ACTIONS,
+  PANELS,
   CAMERADOCK_POSITION,
 } from '/imports/ui/components/layout/enums';
 import { defaultsDeep } from '/imports/utils/array-utils';
+import Session from '/imports/ui/services/storage/in-memory';
+import { getSettingsSingletonInstance } from '/imports/ui/services/settings';
 
 const windowWidth = () => window.document.documentElement.clientWidth;
 const windowHeight = () => window.document.documentElement.clientHeight;
@@ -25,7 +28,8 @@ const PresentationOnlyLayout = (props) => {
 
   const input = layoutSelect((i) => i.input);
   const deviceType = layoutSelect((i) => i.deviceType);
-  const isRTL = layoutSelect((i) => i.isRTL);
+  const Settings = getSettingsSingletonInstance();
+  const { isRTL } = Settings.application;
   const fullscreen = layoutSelect((i) => i.fullscreen);
   const fontSize = layoutSelect((i) => i.fontSize);
   const currentPanelType = layoutSelect((i) => i.currentPanelType);
@@ -47,7 +51,7 @@ const PresentationOnlyLayout = (props) => {
       fullscreenElement === 'Presentation'
       || fullscreenElement === 'Screenshare'
       || fullscreenElement === 'ExternalVideo'
-      || fullscreenElement === 'GenericComponent'
+      || fullscreenElement === 'GenericContent'
     ) {
       mediaBounds.width = windowWidth();
       mediaBounds.height = windowHeight();
@@ -289,7 +293,7 @@ const PresentationOnlyLayout = (props) => {
     });
 
     layoutContextDispatch({
-      type: ACTIONS.SET_GENERIC_COMPONENT_OUTPUT,
+      type: ACTIONS.SET_GENERIC_CONTENT_OUTPUT,
       value: {
         width: isOpen ? mediaBounds.width : 0,
         height: isOpen ? mediaBounds.height : 0,
@@ -308,6 +312,21 @@ const PresentationOnlyLayout = (props) => {
         left: mediaBounds.left,
         right: mediaBounds.right,
       },
+    });
+
+    layoutContextDispatch({
+      type: ACTIONS.SET_SIDEBAR_NAVIGATION_IS_OPEN,
+      value: false,
+    });
+
+    layoutContextDispatch({
+      type: ACTIONS.SET_SIDEBAR_CONTENT_IS_OPEN,
+      value: false,
+    });
+
+    layoutContextDispatch({
+      type: ACTIONS.SET_SIDEBAR_CONTENT_PANEL,
+      value: PANELS.NONE,
     });
   };
 
@@ -329,47 +348,52 @@ const PresentationOnlyLayout = (props) => {
   const init = () => {
     layoutContextDispatch({
       type: ACTIONS.SET_LAYOUT_INPUT,
-      value: defaultsDeep(
-        {
-          sidebarNavigation: {
-            isOpen: false,
-            width: 0,
-            height: 0,
-          },
-          sidebarContent: {
-            isOpen: false,
-            width: 0,
-            height: 0,
-          },
-          SidebarContentHorizontalResizer: {
-            isOpen: false,
-          },
-          presentation: {
-            isOpen: true,
-            slidesLength: presentationInput.slidesLength,
-            currentSlide: {
-              ...presentationInput.currentSlide,
+      value: (prevInput) => {
+        const {
+          presentation, externalVideo, genericMainContent, screenShare,
+        } = prevInput;
+        return defaultsDeep(
+          {
+            sidebarNavigation: {
+              isOpen: false,
+              width: 0,
+              height: 0,
+            },
+            sidebarContent: {
+              isOpen: false,
+              width: 0,
+              height: 0,
+            },
+            SidebarContentHorizontalResizer: {
+              isOpen: false,
+            },
+            presentation: {
+              isOpen: true,
+              slidesLength: presentation.slidesLength,
+              currentSlide: {
+                ...presentation.currentSlide,
+              },
+            },
+            cameraDock: {
+              numCameras: 0,
+            },
+            externalVideo: {
+              hasExternalVideo: externalVideo.hasExternalVideo,
+            },
+            genericMainContent: {
+              genericContentId: genericMainContent.genericContentId,
+            },
+            screenShare: {
+              hasScreenShare: screenShare.hasScreenShare,
+              width: screenShare.width,
+              height: screenShare.height,
             },
           },
-          cameraDock: {
-            numCameras: 0,
-          },
-          externalVideo: {
-            hasExternalVideo: input.externalVideo.hasExternalVideo,
-          },
-          genericComponent: {
-            genericComponentId: input.genericComponent.genericComponentId,
-          },
-          screenShare: {
-            hasScreenShare: input.screenShare.hasScreenShare,
-            width: input.screenShare.width,
-            height: input.screenShare.height,
-          },
-        },
-        INITIAL_INPUT_STATE,
-      ),
+          INITIAL_INPUT_STATE,
+        );
+      },
     });
-    Session.set('layoutReady', true);
+    Session.setItem('layoutReady', true);
     throttledCalculatesLayout();
   };
 

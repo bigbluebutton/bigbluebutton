@@ -22,10 +22,12 @@ interface ChatWrapperProps {
   sameSender: boolean;
   isSystemSender: boolean;
   isPresentationUpload?: boolean;
+  isCustomPluginMessage: boolean;
 }
 
 interface ChatContentProps {
   sameSender: boolean;
+  isCustomPluginMessage: boolean;
 }
 
 interface ChatAvatarProps {
@@ -68,6 +70,10 @@ export const ChatWrapper = styled.div<ChatWrapperProps>`
     border-radius: 0px 3px 3px 0px;
     padding: 8px 2px;
   `}
+  ${({ isCustomPluginMessage }) => isCustomPluginMessage && `
+    margin: 0;
+    padding: 0;
+  `}
 `;
 
 export const ChatContent = styled.div<ChatContentProps>`
@@ -75,7 +81,8 @@ export const ChatContent = styled.div<ChatContentProps>`
   flex-flow: column;
   width: 100%;
 
-  ${({ sameSender }) => sameSender && `
+  ${({ sameSender, isCustomPluginMessage }) => sameSender
+    && !isCustomPluginMessage && `
     margin-left: 2.6rem;
   `}
 `;
@@ -157,7 +164,7 @@ export const ChatAvatar = styled.div<ChatAvatarProps>`
   // ================ image ================
 
   // ================ content ================
-  color: ${colorWhite};
+  color: ${colorWhite} !important;
   font-size: 110%;
   text-transform: capitalize;
   display: flex;
@@ -169,4 +176,9 @@ export const ChatAvatar = styled.div<ChatAvatarProps>`
     height: 2.25rem;
     width: 2.25rem;
   }
+`;
+
+export const MessageItemWrapper = styled.div`
+  display: flex;
+  flex-direction: row;
 `;

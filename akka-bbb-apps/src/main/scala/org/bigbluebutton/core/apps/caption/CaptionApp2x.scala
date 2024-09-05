@@ -6,7 +6,7 @@ import org.bigbluebutton.common2.msgs._
 import org.bigbluebutton.core.bus.MessageBus
 import org.bigbluebutton.core.running.LiveMeeting
 import org.bigbluebutton.core.apps.{ PermissionCheck, RightsManagementTrait }
-import org.bigbluebutton.core.db.{ CaptionLocaleDAO, CaptionTypes }
+import org.bigbluebutton.core.db.{ CaptionDAO, CaptionLocaleDAO, CaptionTypes }
 
 class CaptionApp2x(implicit val context: ActorContext) extends RightsManagementTrait {
   val log = Logging(context.system, getClass)
@@ -15,16 +15,8 @@ class CaptionApp2x(implicit val context: ActorContext) extends RightsManagementT
     liveMeeting.captionModel.getHistory()
   }
 
-  def updateCaptionOwner(liveMeeting: LiveMeeting, name: String, locale: String, userId: String): Map[String, TranscriptVO] = {
-    liveMeeting.captionModel.updateTranscriptOwner(name, locale, userId)
-  }
-
   def editCaptionHistory(liveMeeting: LiveMeeting, userId: String, startIndex: Integer, endIndex: Integer, name: String, text: String): Boolean = {
     liveMeeting.captionModel.editHistory(userId, startIndex, endIndex, name, text)
-  }
-
-  def checkCaptionOwnerLogOut(liveMeeting: LiveMeeting, userId: String): Option[(String, TranscriptVO)] = {
-    liveMeeting.captionModel.checkCaptionOwnerLogOut(userId)
   }
 
   def isUserCaptionOwner(liveMeeting: LiveMeeting, userId: String, name: String): Boolean = {
@@ -59,7 +51,23 @@ class CaptionApp2x(implicit val context: ActorContext) extends RightsManagementT
       }
     }
   }
+  def handle(msg: CaptionSubmitTranscriptPubMsg, liveMeeting: LiveMeeting, bus: MessageBus): Unit = {
+    val meetingId = liveMeeting.props.meetingProp.intId
+    def broadcastSuccessEvent(transcriptId: String, transcript: String, locale: String): Unit = {
+      val routing = Routing.addMsgToClientRouting(MessageTypes.BROADCAST_TO_MEETING, liveMeeting.props.meetingProp.intId, msg.header.userId)
+      val envelope = BbbCoreEnvelope(CaptionSubmitTranscriptEvtMsg.NAME, routing)
+      val header = BbbClientMsgHeader(CaptionSubmitTranscriptEvtMsg.NAME, liveMeeting.props.meetingProp.intId, msg.header.userId)
 
+      val body = CaptionSubmitTranscriptEvtMsgBody(transcriptId, transcript, locale, msg.body.captionType)
+      val event = CaptionSubmitTranscriptEvtMsg(header, body)
+      val msgEvent = BbbCommonEnvCoreMsg(envelope, event)
+      bus.outGW.send(msgEvent)
+    }
+    CaptionDAO.insertOrUpdateCaption(msg.body.transcriptId, meetingId, msg.header.userId,
+      msg.body.transcript, msg.body.locale, msg.body.captionType)
+
+    broadcastSuccessEvent(msg.body.transcriptId, msg.body.transcript, msg.body.locale)
+  }
   def handle(msg: SendCaptionHistoryReqMsg, liveMeeting: LiveMeeting, bus: MessageBus): Unit = {
     def broadcastEvent(msg: SendCaptionHistoryReqMsg, history: Map[String, TranscriptVO]): Unit = {
       val routing = Routing.addMsgToClientRouting(MessageTypes.DIRECT, liveMeeting.props.meetingProp.intId, msg.header.userId)
@@ -75,46 +83,25 @@ class CaptionApp2x(implicit val context: ActorContext) extends RightsManagementT
     broadcastEvent(msg, getCaptionHistory(liveMeeting))
   }
 
-  def handle(msg: UpdateCaptionOwnerPubMsg, liveMeeting: LiveMeeting, bus: MessageBus): Unit = {
-    def broadcastUpdateCaptionOwnerEvent(name: String, locale: String, newOwnerId: String): Unit = {
-      val routing = Routing.addMsgToClientRouting(MessageTypes.BROADCAST_TO_MEETING, liveMeeting.props.meetingProp.intId, newOwnerId)
-      val envelope = BbbCoreEnvelope(UpdateCaptionOwnerEvtMsg.NAME, routing)
-      val header = BbbClientMsgHeader(UpdateCaptionOwnerEvtMsg.NAME, liveMeeting.props.meetingProp.intId, newOwnerId)
+  def handle(msg: AddCaptionLocalePubMsg, liveMeeting: LiveMeeting, bus: MessageBus): Unit = {
+    def broadcastAddCaptionLocaleEvent(locale: String, userId: String): Unit = {
+      val routing = Routing.addMsgToClientRouting(MessageTypes.BROADCAST_TO_MEETING, liveMeeting.props.meetingProp.intId, userId)
+      val envelope = BbbCoreEnvelope(AddCaptionLocaleEvtMsg.NAME, routing)
+      val header = BbbClientMsgHeader(AddCaptionLocaleEvtMsg.NAME, liveMeeting.props.meetingProp.intId, userId)
 
-      val body = UpdateCaptionOwnerEvtMsgBody(name, locale, newOwnerId)
-      val event = UpdateCaptionOwnerEvtMsg(header, body)
+      val body = AddCaptionLocaleEvtMsgBody(locale)
+      val event = AddCaptionLocaleEvtMsg(header, body)
       val msgEvent = BbbCommonEnvCoreMsg(envelope, event)
       bus.outGW.send(msgEvent)
-      CaptionLocaleDAO.insertOrUpdateCaptionLocale(liveMeeting.props.meetingProp.intId, locale, CaptionTypes.TYPED, newOwnerId)
+      CaptionLocaleDAO.insertOrUpdateCaptionLocale(liveMeeting.props.meetingProp.intId, locale, CaptionTypes.TYPED, userId)
     }
 
     if (permissionFailed(PermissionCheck.MOD_LEVEL, PermissionCheck.VIEWER_LEVEL, liveMeeting.users2x, msg.header.userId)) {
       val meetingId = liveMeeting.props.meetingProp.intId
-      val reason = "No permission to change caption owners."
+      val reason = "No permission to add caption locale."
       PermissionCheck.ejectUserForFailedPermission(meetingId, msg.header.userId, reason, bus.outGW, liveMeeting)
     } else {
-      updateCaptionOwner(liveMeeting, msg.body.name, msg.body.locale, msg.body.ownerId).foreach(f => {
-        broadcastUpdateCaptionOwnerEvent(f._1, f._2.locale, f._2.ownerId)
-      })
-    }
-  }
-
-  def handleUserLeavingMsg(userId: String, liveMeeting: LiveMeeting, bus: MessageBus): Unit = {
-    def broadcastUpdateCaptionOwnerEvent(name: String, locale: String, newOwnerId: String): Unit = {
-      val routing = Routing.addMsgToClientRouting(MessageTypes.BROADCAST_TO_MEETING, liveMeeting.props.meetingProp.intId, newOwnerId)
-      val envelope = BbbCoreEnvelope(UpdateCaptionOwnerEvtMsg.NAME, routing)
-      val header = BbbClientMsgHeader(UpdateCaptionOwnerEvtMsg.NAME, liveMeeting.props.meetingProp.intId, newOwnerId)
-
-      val body = UpdateCaptionOwnerEvtMsgBody(name, locale, newOwnerId)
-      val event = UpdateCaptionOwnerEvtMsg(header, body)
-      val msgEvent = BbbCommonEnvCoreMsg(envelope, event)
-      bus.outGW.send(msgEvent)
-    }
-
-    for {
-      transcriptInfo <- checkCaptionOwnerLogOut(liveMeeting, userId)
-    } yield {
-      broadcastUpdateCaptionOwnerEvent(transcriptInfo._1, transcriptInfo._2.locale, transcriptInfo._2.ownerId)
+      broadcastAddCaptionLocaleEvent(msg.body.locale, msg.header.userId)
     }
   }
 }

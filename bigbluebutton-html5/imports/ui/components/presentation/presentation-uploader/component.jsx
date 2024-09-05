@@ -10,10 +10,10 @@ import { toast } from 'react-toastify';
 import { registerTitleView, unregisterTitleView } from '/imports/utils/dom-utils';
 import Styled from './styles';
 import PresentationDownloadDropdown from './presentation-download-dropdown/component';
-import Settings from '/imports/ui/services/settings';
+import { getSettingsSingletonInstance } from '/imports/ui/services/settings';
 import Radio from '/imports/ui/components/common/radio/component';
 import { unique } from 'radash';
-import { isPresentationEnabled } from '/imports/ui/services/features';
+import Session from '/imports/ui/services/storage/in-memory';
 
 const { isMobile } = deviceInfo;
 const propTypes = {
@@ -40,7 +40,7 @@ const propTypes = {
   selectedToBeNextCurrent: PropTypes.string,
   renderPresentationItemStatus: PropTypes.func.isRequired,
   externalUploadData: PropTypes.shape({
-    presentationUploadExternalDescription: PropTypes.string.isRequired,
+    presentationUploadExternalDescription: PropTypes.string,
     presentationUploadExternalUrl: PropTypes.string.isRequired,
   }).isRequired,
   isPresenter: PropTypes.bool.isRequired,
@@ -459,7 +459,7 @@ class PresentationUploader extends Component {
 
     if (presentations.length > 0) {
       const selected = propPresentations.filter((p) => p.current);
-      if (selected.length > 0) Session.set('selectedToBeNextCurrent', selected[0].presentationId);
+      if (selected.length > 0) Session.setItem('selectedToBeNextCurrent', selected[0].presentationId);
     }
 
     if (this.exportToastId) {
@@ -474,12 +474,11 @@ class PresentationUploader extends Component {
   }
 
   componentWillUnmount() {
-    const id = Session.get('presentationUploaderToastId');
+    const id = Session.getItem('presentationUploaderToastId');
     if (id) {
       toast.dismiss(id);
-      Session.set('presentationUploaderToastId', null);
     }
-    Session.set('showUploadPresentationView', false);
+    Session.setItem('showUploadPresentationView', false);
   }
 
   handleRemove(item, withErr = false) {
@@ -586,14 +585,15 @@ class PresentationUploader extends Component {
       dispatchChangePresentationDownloadable,
       setPresentation,
       removePresentation,
+      presentationEnabled,
     } = this.props;
     const { disableActions, presentations } = this.state;
     const presentationsToSave = presentations;
 
-    if (!isPresentationEnabled()) {
+    if (!presentationEnabled) {
       this.setState(
         { presentations: [] },
-        Session.set('showUploadPresentationView', false),
+        Session.setItem('showUploadPresentationView', false),
       );
       return null;
     }
@@ -612,7 +612,7 @@ class PresentationUploader extends Component {
     });
 
     if (!disableActions) {
-      Session.set('showUploadPresentationView', false);
+      Session.setItem('showUploadPresentationView', false);
       return handleSave(
         presentationsToSave,
         true,
@@ -620,6 +620,7 @@ class PresentationUploader extends Component {
         propPresentations,
         setPresentation,
         removePresentation,
+        presentationEnabled,
       )
         .then(() => {
           const hasError = presentations.some((p) => !!p.uploadErrorMsgKey);
@@ -649,7 +650,7 @@ class PresentationUploader extends Component {
         });
     }
 
-    Session.set('showUploadPresentationView', false);
+    Session.setItem('showUploadPresentationView', false);
     return null;
   }
 
@@ -679,7 +680,7 @@ class PresentationUploader extends Component {
     ];
     this.setState(
       { presentations: merged },
-      Session.set('showUploadPresentationView', false),
+      Session.setItem('showUploadPresentationView', false),
     );
   }
 
@@ -835,6 +836,7 @@ class PresentationUploader extends Component {
       this.hasError = true;
     }
 
+    const Settings = getSettingsSingletonInstance();
     const { animations } = Settings.application;
 
     const { removable, downloadable } = item;
@@ -904,7 +906,7 @@ class PresentationUploader extends Component {
                 allowDownloadWithAnnotations={allowDownloadWithAnnotations}
                 handleDownloadableChange={this.handleDownloadableChange}
                 item={item}
-                closeModal={() => Session.set('showUploadPresentationView', false)}
+                closeModal={() => Session.setItem('showUploadPresentationView', false)}
                 handleDownloadingOfPresentation={(fileStateType) => this
                   .handleDownloadingOfPresentation(item, fileStateType)}
               />

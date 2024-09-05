@@ -39,7 +39,7 @@ object ClientSettings extends SystemConfiguration {
         }
       )
 
-    //Remove `:private` once it's used only by Meteor internal configs
+    //Remove `:private` once it's used only by HTML5 client's internal configs
     clientSettingsFromFile -= "private"
   }
 
@@ -140,26 +140,26 @@ object ClientSettings extends SystemConfiguration {
                   } yield {
                     if (dataChannel.contains("name")) {
                       val channelName = dataChannel("name").toString
-                      val writePermission = {
-                        if (dataChannel.contains("writePermission")) {
-                          dataChannel("writePermission") match {
+                      val pushPermission = {
+                        if (dataChannel.contains("pushPermission")) {
+                          dataChannel("pushPermission") match {
                             case wPerm: List[String] => wPerm
                             case _ => {
-                              logger.warn(s"Invalid writePermission for channel $channelName in plugin $pluginName")
+                              logger.warn(s"Invalid pushPermission for channel $channelName in plugin $pluginName")
                               List()
                             }
                           }
                         } else {
-                          logger.warn(s"Missing config writePermission for channel $channelName in plugin $pluginName")
+                          logger.warn(s"Missing config pushPermission for channel $channelName in plugin $pluginName")
                           List()
                         }
                       }
-                      val deletePermission = {
-                        if (dataChannel.contains("deletePermission")) {
-                          dataChannel("deletePermission") match {
+                      val replaceOrDeletePermission = {
+                        if (dataChannel.contains("replaceOrDeletePermission")) {
+                          dataChannel("replaceOrDeletePermission") match {
                             case dPerm: List[String] => dPerm
                             case _ => {
-                              logger.warn(s"Invalid deletePermission for channel $channelName in plugin $pluginName")
+                              logger.warn(s"Invalid replaceOrDeletePermission for channel $channelName in plugin $pluginName")
                               List()
                             }
                           }
@@ -168,7 +168,7 @@ object ClientSettings extends SystemConfiguration {
                         }
                       }
 
-                      pluginDataChannels += (channelName -> DataChannel(channelName, writePermission, deletePermission))
+                      pluginDataChannels += (channelName -> DataChannel(channelName, pushPermission, replaceOrDeletePermission))
                     }
                   }
                 case _ => logger.warn(s"Plugin $pluginName has an invalid dataChannels format")
@@ -184,7 +184,7 @@ object ClientSettings extends SystemConfiguration {
     pluginsFromConfig
   }
 
-  case class DataChannel(name: String, writePermission: List[String], deletePermission: List[String])
+  case class DataChannel(name: String, pushPermission: List[String], replaceOrDeletePermission: List[String])
   case class Plugin(name: String, url: String, dataChannels: Map[String, DataChannel])
 
 }

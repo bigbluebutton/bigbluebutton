@@ -6,7 +6,6 @@ import React, {
 } from 'react';
 import useMeeting from '/imports/ui/core/hooks/useMeeting';
 import deviceInfo from '/imports/utils/deviceInfo';
-import { useSubscription } from '@apollo/client';
 import {
   GET_MEETING_RECORDING_DATA,
   GET_MEETING_RECORDING_POLICIES,
@@ -25,6 +24,9 @@ import { defineMessages, useIntl } from 'react-intl';
 import useTimeSync from '/imports/ui/core/local-states/useTimeSync';
 import RecordingNotify from './notify/component';
 import RecordingContainer from '/imports/ui/components/recording/container';
+import useDeduplicatedSubscription from '/imports/ui/core/hooks/useDeduplicatedSubscription';
+import { getSettingsSingletonInstance } from '/imports/ui/services/settings';
+import logger from '/imports/startup/client/logger';
 
 const intlMessages = defineMessages({
   notificationRecordingStart: {
@@ -63,6 +65,18 @@ const intlMessages = defineMessages({
     id: 'app.navBar.emptyAudioBrdige',
     description: 'message for notification when recording starts with no users in audio bridge',
   },
+  errorDescription: {
+    id: 'app.recording.errorDescription',
+    description: 'recording data error',
+  },
+  loadingDescription: {
+    id: 'app.recording.loadingDescription',
+    description: 'recording data is loading',
+  },
+  unavailableTitle: {
+    id: 'app.navBar.recording.unavailable',
+    description: 'recording data is either loading or failed to load',
+  },
 });
 
 interface RecordingIndicatorProps {
@@ -76,6 +90,8 @@ interface RecordingIndicatorProps {
   recordingNotificationEnabled: boolean;
   serverTime: number;
   isModerator: boolean;
+  hasError: boolean;
+  isLoading: boolean;
 }
 
 const RecordingIndicator: React.FC<RecordingIndicatorProps> = ({
@@ -87,6 +103,8 @@ const RecordingIndicator: React.FC<RecordingIndicatorProps> = ({
   isModerator,
   record,
   recordingNotificationEnabled,
+  hasError,
+  isLoading,
 }) => {
   const intl = useIntl();
   const [isRecordingModalOpen, setIsRecordingModalOpen] = useState(false);
@@ -94,6 +112,7 @@ const RecordingIndicator: React.FC<RecordingIndicatorProps> = ({
   const [shouldNotify, setShouldNotify] = useState(true);
   const [time, setTime] = useState(0);
   const setIntervalRef = React.useRef<ReturnType<typeof setTimeout>>();
+  const disabled = hasError || isLoading;
 
   const recordingToggle = useCallback((hasMicUser: boolean, isRecording: boolean) => {
     if (!hasMicUser && !isRecording) {
@@ -124,7 +143,7 @@ const RecordingIndicator: React.FC<RecordingIndicatorProps> = ({
     if (recordingNotificationEnabled && recording) {
       setShouldNotify(true);
     }
-  }, []);
+  }, [recordingNotificationEnabled, recording]);
 
   useEffect(() => {
     if (recordingNotificationEnabled) {
@@ -136,13 +155,15 @@ const RecordingIndicator: React.FC<RecordingIndicatorProps> = ({
   }, [shouldNotify, recordingNotificationEnabled, recording]);
 
   const recordTitle = useMemo(() => {
-    if (!isPhone && !recording) {
+    if (isPhone) return '';
+    if (disabled) return intl.formatMessage(intlMessages.unavailableTitle);
+    if (!recording) {
       return time > 0
         ? intl.formatMessage(intlMessages.resumeTitle)
         : intl.formatMessage(intlMessages.startTitle);
     }
     return intl.formatMessage(intlMessages.stopTitle);
-  }, [recording, isPhone]);
+  }, [recording, isPhone, disabled]);
 
   const recordingIndicatorIcon = useMemo(() => (
     <Styled.RecordingIndicatorIcon
@@ -181,18 +202,18 @@ const RecordingIndicator: React.FC<RecordingIndicatorProps> = ({
       : intlMessages.recordingIndicatorOff,
   ), [recording]);
 
-  const recordMeetingButton = useMemo(() => (
+  let recordMeetingButton = (
     <Styled.RecordingControl
       aria-label={recordTitle}
       aria-describedby="recording-description"
       recording={recording} // Removed the recording prop here
-      role="button"
+      disabled={disabled}
       tabIndex={0}
       key="recording-toggle"
       onClick={() => {
         recordingToggle(micUser, recording);
       }}
-      onKeyPress={() => {
+      onKeyDown={() => {
         recordingToggle(micUser, recording);
       }}
     >
@@ -208,13 +229,29 @@ const RecordingIndicator: React.FC<RecordingIndicatorProps> = ({
         )}
       </Styled.PresentationTitle>
     </Styled.RecordingControl>
-  ), [recording, micUser, time]);
+  );
 
-  const recordMeetingButtonWithTooltip = useMemo(() => (
+  const recordMeetingButtonWithTooltip = (
     <Tooltip title={intl.formatMessage(intlMessages.stopTitle)}>
       {recordMeetingButton}
     </Tooltip>
-  ), [recording, micUser, time]);
+  );
+
+  if (disabled) {
+    recordMeetingButton = (
+      <Tooltip
+        title={
+          isLoading
+            ? intl.formatMessage(intlMessages.loadingDescription)
+            : intl.formatMessage(intlMessages.errorDescription)
+        }
+      >
+        <span>
+          {recordMeetingButton}
+        </span>
+      </Tooltip>
+    );
+  }
 
   const recordingButton = recording ? recordMeetingButtonWithTooltip : recordMeetingButton;
   const showButton = isModerator && allowStartStopRecording;
@@ -286,13 +323,13 @@ const RecordingIndicatorContainer: React.FC = () => {
     data: meetingRecordingPoliciesData,
     loading: meetingRecordingPoliciesLoading,
     error: meetingRecordingPoliciesError,
-  } = useSubscription<getMeetingRecordingPoliciesResponse>(GET_MEETING_RECORDING_POLICIES);
+  } = useDeduplicatedSubscription<getMeetingRecordingPoliciesResponse>(GET_MEETING_RECORDING_POLICIES);
 
   const {
     data: meetingRecordingData,
     loading: meetingRecordingLoading,
     error: meetingRecordingError,
-  } = useSubscription<getMeetingRecordingData>(GET_MEETING_RECORDING_DATA);
+  } = useDeduplicatedSubscription<getMeetingRecordingData>(GET_MEETING_RECORDING_DATA);
 
   const { data: currentUser } = useCurrentUser((user: Partial<User>) => ({
     userId: user.userId,
@@ -311,18 +348,52 @@ const RecordingIndicatorContainer: React.FC = () => {
   }));
 
   const [timeSync] = useTimeSync();
+  const Settings = getSettingsSingletonInstance();
+  const animations = Settings?.application?.animations;
 
-  if (meetingRecordingPoliciesLoading || meetingRecordingLoading) return null;
-  if (meetingRecordingPoliciesError || meetingRecordingError) {
+  if (meetingRecordingPoliciesLoading || meetingRecordingLoading) {
     return (
-      <div>
-        {JSON.stringify(meetingRecordingPoliciesError)
-        || JSON.stringify(meetingRecordingData)}
-      </div>
+      <>
+        <Styled.PresentationTitleSeparator aria-hidden="true">|</Styled.PresentationTitleSeparator>
+        <div>
+          <Styled.SpinnerOverlay animations={animations}>
+            <Styled.Bounce1 animations={animations} />
+            <Styled.Bounce2 animations={animations} />
+          </Styled.SpinnerOverlay>
+        </div>
+      </>
     );
   }
+  if (meetingRecordingPoliciesError) {
+    logger.error({
+      logCode: 'meeting_recordingPolicies_sub_error',
+      extraInfo: {
+        errorName: meetingRecordingPoliciesError.name,
+        errorMessage: meetingRecordingPoliciesError.message,
+      },
+    }, 'Meeting recording policies subscription failed.');
+  }
 
-  const meetingRecordingPolicies = meetingRecordingPoliciesData?.meeting_recordingPolicies[0];
+  if (meetingRecordingError) {
+    logger.error({
+      logCode: 'meeting_recording_sub_error',
+      extraInfo: {
+        errorName: meetingRecordingError.name,
+        errorMessage: meetingRecordingError.message,
+      },
+    }, 'Meeting recording subscription failed.');
+  }
+
+  const meetingRecordingPolicies = meetingRecordingPoliciesData?.meeting_recordingPolicies[0] || {
+    allowStartStopRecording: false,
+    autoStartRecording: false,
+    record: false,
+    keepEvents: false,
+    startedAt: null,
+    startedBy: null,
+    stoppedAt: null,
+    stoppedBy: null,
+  };
   meetingRecordingPoliciesAssertion(meetingRecordingPolicies);
 
   const meetingRecording = meetingRecordingData?.meeting_recording[0] || {
@@ -355,6 +426,8 @@ const RecordingIndicatorContainer: React.FC = () => {
       }
       serverTime={passedTime > 0 ? passedTime : 0}
       isModerator={currentUser?.isModerator ?? false}
+      hasError={Boolean(meetingRecordingPoliciesError || meetingRecordingError)}
+      isLoading={meetingRecordingPoliciesLoading || meetingRecordingLoading}
     />
   );
 };

@@ -59,7 +59,7 @@ public class Meeting {
 	private Boolean notifyRecordingIsOn;
 	private String welcomeMsgTemplate;
 	private String welcomeMsg;
-	private String modOnlyMessage = "";
+	private String welcomeMsgForModerators = "";
 	private String loginUrl;
 	private String logoutUrl;
 	private int logoutTimer = 0;
@@ -77,11 +77,13 @@ public class Meeting {
 	private Integer maxPinnedCameras = 0;
 	private String dialNumber;
 	private String defaultAvatarURL;
+	private String defaultWebcamBackgroundURL;
 	private String guestPolicy = GuestPolicy.ASK_MODERATOR;
 	private String guestLobbyMessage = "";
 	private Map<String,String> usersWithGuestLobbyMessages;
 	private Boolean authenticatedGuest = false;
 	private Boolean allowPromoteGuestToModerator = false;
+	private long waitingGuestUsersTimeout = 30000;
 	private String meetingLayout = MeetingLayout.SMART_LAYOUT;
 	private boolean userHasJoined = false;
 	private Map<String, String> guestUsersWithPositionInWaitingLine;
@@ -94,6 +96,7 @@ public class Meeting {
 	private final List<String> breakoutRooms = new ArrayList<>();
 	private ArrayList<Group> groups = new ArrayList<Group>();
 	private String customLogoURL = "";
+	private String customDarkLogoURL = "";
 	private String customCopyright = "";
 	private Boolean muteOnStart = false;
 	private Boolean allowModsToUnmuteUsers = false;
@@ -147,6 +150,7 @@ public class Meeting {
         logoutUrl = builder.logoutUrl;
         logoutTimer = builder.logoutTimer;
         defaultAvatarURL = builder.defaultAvatarURL;
+		defaultWebcamBackgroundURL = builder.defaultWebcamBackgroundURL;
         record = builder.record;
         autoStartRecording = builder.autoStartRecording;
         allowStartStopRecording = builder.allowStartStopRecording;
@@ -166,8 +170,9 @@ public class Meeting {
         isBreakout = builder.isBreakout;
         guestPolicy = builder.guestPolicy;
         authenticatedGuest = builder.authenticatedGuest;
-	      allowPromoteGuestToModerator = builder.allowPromoteGuestToModerator;
-		meetingLayout = builder.meetingLayout;
+        allowPromoteGuestToModerator = builder.allowPromoteGuestToModerator;
+        waitingGuestUsersTimeout = builder.waitingGuestUsersTimeout;
+        meetingLayout = builder.meetingLayout;
         allowRequestsWithoutSession = builder.allowRequestsWithoutSession;
         breakoutRoomsParams = builder.breakoutRoomsParams;
         lockSettingsParams = builder.lockSettingsParams;
@@ -349,12 +354,12 @@ public class Meeting {
 		return endTime;
 	}
 
-	public void setModeratorOnlyMessage(String msg) {
-		modOnlyMessage = msg;
+	public void setWelcomeMsgForModerators(String msg) {
+		welcomeMsgForModerators = msg;
 	}
 
-	public String getModeratorOnlyMessage() {
-		return modOnlyMessage;
+	public String getWelcomeMsgForModerators() {
+		return welcomeMsgForModerators;
 	}
 
 	public void setEndTime(long t) {
@@ -456,6 +461,10 @@ public class Meeting {
 		return defaultAvatarURL;
 	}
 
+	public String getDefaultWebcamBackgroundURL() {
+		return defaultWebcamBackgroundURL;
+	}
+
 	public void setWaitingPositionsInWaitingQueue(HashMap<String, String> guestUsersWithPositionInWaitingLine) {
 		this.guestUsersWithPositionInWaitingLine = guestUsersWithPositionInWaitingLine;
 	}
@@ -510,6 +519,14 @@ public class Meeting {
 	public Boolean getAllowPromoteGuestToModerator() {
 		return allowPromoteGuestToModerator;
 	}
+
+    public void setWaitingGuestUsersTimeout(long waitingGuestUsersTimeout) {
+        waitingGuestUsersTimeout = waitingGuestUsersTimeout;
+    }
+
+    public long getWaitingGuestUsersTimeout() {
+        return waitingGuestUsersTimeout;
+    }
 
 	public void setMeetingLayout(String layout) {
 		meetingLayout = layout;
@@ -633,8 +650,16 @@ public class Meeting {
 		return customLogoURL;
 	}
 
+	public String getCustomDarkLogoURL() {
+		return customDarkLogoURL;
+	}
+
 	public void setCustomLogoURL(String url) {
 		customLogoURL = url;
+	}
+
+	public void setCustomDarkLogoURL(String url) {
+		customDarkLogoURL = url;
 	}
 
 	public void setCustomCopyright(String copyright) {
@@ -916,11 +941,13 @@ public class Meeting {
     	private Map<String, String> metadata;
     	private String dialNumber;
     	private String defaultAvatarURL;
+		private String defaultWebcamBackgroundURL;
     	private long createdTime;
     	private boolean isBreakout;
     	private String guestPolicy;
     	private Boolean authenticatedGuest;
     	private Boolean allowPromoteGuestToModerator;
+        private long waitingGuestUsersTimeout;
     	private Boolean allowRequestsWithoutSession;
 		private String meetingLayout;
     	private BreakoutRoomsParams breakoutRoomsParams;
@@ -1062,7 +1089,12 @@ public class Meeting {
     		return this;
     	}
 
-    	public Builder isBreakout(Boolean b) {
+		public Builder withDefaultWebcamBackgroundURL(String w) {
+    		defaultWebcamBackgroundURL = w;
+    		return this;
+    	}
+
+    	public Builder withIsBreakout(Boolean b) {
     	  isBreakout = b;
     	  return this;
     	}
@@ -1111,6 +1143,11 @@ public class Meeting {
 		    allowPromoteGuestToModerator = value;
     		return this;
     	}
+
+		public Builder withWaitingGuestUsersTimeout(long value) {
+			waitingGuestUsersTimeout = value;
+			return this;
+		}
 
     	public Builder withAllowRequestsWithoutSession(Boolean value) {
     		allowRequestsWithoutSession = value;

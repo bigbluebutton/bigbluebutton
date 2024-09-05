@@ -25,11 +25,12 @@ function getElementLength(element) {
 }
 
 // Text
-async function checkTextContent(baseContent, checkData) {
+async function checkTextContent(baseContent, checkData, description) {
   if (typeof checkData === 'string') checkData = new Array(checkData);
 
-  const check = checkData.every(word => baseContent.includes(word));
-  await expect(check).toBeTruthy();
+  checkData.forEach(word => {
+    expect(baseContent, description ?? `should contain the value "${word}"`).toContain(word);
+  });
 }
 
 function constructClipObj(wbBox) {

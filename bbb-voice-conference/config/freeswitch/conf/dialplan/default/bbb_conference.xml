@@ -8,7 +8,15 @@
          <action application="set" data="rtp_jitter_buffer_during_bridge=true" />
          <action application="set" data="suppress_cng=true" />
          <action application="answer" />
-         <action application="conference" data="$1@cdquality" />
+         <!-- Special condition for BBB's "transparent listen only" mechanism - HOLD on creation -->
+         <condition field="${sip_user_agent}" expression="^bbb-webrtc-sfu-mhos$" break="never">
+            <action application="log" data="INFO Channel is going to be HELD and MUTED on creation ${uuid}" />
+            <action application="set" data="api_result=${uuid_hold(${uuid})}" />
+         </condition>
+         <!-- Duplicate condition to guarantee line-order (not nested-order) execution of this extension -->
+         <condition field="destination_number" expression="^(\d{5,11})$" require-nested="false">
+            <action application="conference" data="$1@cdquality" />
+         </condition>
       </condition>
    </extension>
    <extension name="bbb_conferences">

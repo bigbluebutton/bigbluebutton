@@ -28,10 +28,6 @@ import {
 import useReactiveRef from '/imports/ui/hooks/useReactiveRef';
 import useStickyScroll from '/imports/ui/hooks/useStickyScroll';
 
-const CHAT_CONFIG = window.meetingClientSettings.public.chat;
-const PUBLIC_CHAT_KEY = CHAT_CONFIG.public_id;
-const PUBLIC_GROUP_CHAT_KEY = CHAT_CONFIG.public_group_id;
-
 const PAGE_SIZE = 50;
 
 const intlMessages = defineMessages({
@@ -58,7 +54,6 @@ interface ChatListProps {
       },
     }
   ) => void;
-  lastSeenAt: string;
 }
 
 const isElement = (el: unknown): el is HTMLElement => {
@@ -114,7 +109,6 @@ const ChatMessageList: React.FC<ChatListProps> = ({
   totalPages,
   chatId,
   setMessageAsSeenMutation,
-  lastSeenAt,
   totalUnread,
   isRTL,
 }) => {
@@ -299,7 +293,6 @@ const ChatMessageList: React.FC<ChatListProps> = ({
                         chatId={chatId}
                         markMessageAsSeen={markMessageAsSeen}
                         scrollRef={messageListRef}
-                        lastSeenAt={lastSeenAt}
                       />
                     );
                   })
@@ -324,6 +317,11 @@ const ChatMessageList: React.FC<ChatListProps> = ({
 const ChatMessageListContainer: React.FC = () => {
   const idChatOpen = layoutSelect((i: Layout) => i.idChatOpen);
   const isRTL = layoutSelect((i: Layout) => i.isRTL);
+
+  const CHAT_CONFIG = window.meetingClientSettings.public.chat;
+  const PUBLIC_CHAT_KEY = CHAT_CONFIG.public_id;
+  const PUBLIC_GROUP_CHAT_KEY = CHAT_CONFIG.public_group_id;
+
   const isPublicChat = idChatOpen === PUBLIC_CHAT_KEY;
   const chatId = !isPublicChat ? idChatOpen : PUBLIC_GROUP_CHAT_KEY;
   const { data: currentChat } = useChat((chat) => {
@@ -341,7 +339,6 @@ const ChatMessageListContainer: React.FC = () => {
   const totalPages = Math.ceil(totalMessages / PAGE_SIZE);
   return (
     <ChatMessageList
-      lastSeenAt={currentChat?.lastSeenAt || ''}
       totalPages={totalPages}
       chatId={chatId}
       setMessageAsSeenMutation={setMessageAsSeenMutation}

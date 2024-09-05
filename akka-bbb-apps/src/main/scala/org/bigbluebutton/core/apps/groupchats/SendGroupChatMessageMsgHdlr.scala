@@ -16,6 +16,14 @@ trait SendGroupChatMessageMsgHdlr extends HandlerHelpers {
   def handle(msg: SendGroupChatMessageMsg, state: MeetingState2x,
              liveMeeting: LiveMeeting, bus: MessageBus): MeetingState2x = {
 
+    def determineMessageType(metadata: Map[String, Any]): String = {
+      if (metadata.contains("pluginName")) {
+        GroupChatMessageType.PLUGIN
+      } else {
+        GroupChatMessageType.DEFAULT
+      }
+    }
+
     val chatDisabled: Boolean = liveMeeting.props.meetingProp.disabledFeatures.contains("chat")
     var chatLocked: Boolean = false
 
@@ -59,8 +67,10 @@ trait SendGroupChatMessageMsgHdlr extends HandlerHelpers {
             !chatIsPrivate &&
             sender.role == Roles.MODERATOR_ROLE
 
-          val gcm = GroupChatApp.toGroupChatMessage(sender, msg.body.msg, emphasizedText)
-          val gcs = GroupChatApp.addGroupChatMessage(liveMeeting.props.meetingProp.intId, chat, state.groupChats, gcm)
+          val messageType = determineMessageType(msg.body.msg.metadata)
+
+          val gcm = GroupChatApp.toGroupChatMessage(sender, msg.body.msg, emphasizedText, msg.body.msg.metadata)
+          val gcs = GroupChatApp.addGroupChatMessage(liveMeeting.props.meetingProp.intId, chat, state.groupChats, gcm, messageType)
 
           val event = buildGroupChatMessageBroadcastEvtMsg(
             liveMeeting.props.meetingProp.intId,

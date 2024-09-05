@@ -4,13 +4,11 @@ import org.bigbluebutton.common2.domain.DefaultProps
 import PostgresProfile.api._
 import org.bigbluebutton.core.apps.groupchats.GroupChatApp
 
-import scala.concurrent.ExecutionContext.Implicits.global
-import scala.util.{ Failure, Success }
-
 case class MeetingSystemColumnsDbModel(
       loginUrl:                              Option[String],
       logoutUrl:                             Option[String],
       customLogoUrl:                         Option[String],
+      customDarkLogoUrl:                     Option[String],
       bannerText:                            Option[String],
       bannerColor:                           Option[String],
 )
@@ -73,9 +71,10 @@ class MeetingDbTableDef(tag: Tag) extends Table[MeetingDbModel](tag, None, "meet
   val loginUrl = column[Option[String]]("loginUrl")
   val logoutUrl = column[Option[String]]("logoutUrl")
   val customLogoUrl = column[Option[String]]("customLogoUrl")
+  val customDarkLogoUrl = column[Option[String]]("customDarkLogoUrl")
   val bannerText = column[Option[String]]("bannerText")
   val bannerColor = column[Option[String]]("bannerColor")
-  val systemColumns = (loginUrl, logoutUrl, customLogoUrl, bannerText, bannerColor) <> (MeetingSystemColumnsDbModel.tupled, MeetingSystemColumnsDbModel.unapply)
+  val systemColumns = (loginUrl, logoutUrl, customLogoUrl, customDarkLogoUrl, bannerText, bannerColor) <> (MeetingSystemColumnsDbModel.tupled, MeetingSystemColumnsDbModel.unapply)
   val createdTime = column[Long]("createdTime")
   val durationInSeconds = column[Int]("durationInSeconds")
   val endWhenNoModerator = column[Boolean]("endWhenNoModerator")
@@ -87,7 +86,7 @@ class MeetingDbTableDef(tag: Tag) extends Table[MeetingDbModel](tag, None, "meet
 
 object MeetingDAO {
   def insert(meetingProps: DefaultProps, clientSettings: Map[String, Object]) = {
-    DatabaseConnection.db.run(
+    DatabaseConnection.enqueue(
       TableQuery[MeetingDbTableDef].forceInsert(
         MeetingDbModel(
           meetingId = meetingProps.meetingProp.intId,
@@ -114,6 +113,10 @@ object MeetingDAO {
               case "" => None
               case logoUrl => Some(logoUrl)
             },
+            customDarkLogoUrl = meetingProps.systemProps.customDarkLogoURL match {
+              case "" => None
+              case darkLogoUrl => Some(darkLogoUrl)
+            },
             bannerText = meetingProps.systemProps.bannerText match {
               case "" => None
               case bannerText => Some(bannerText)
@@ -132,24 +135,19 @@ object MeetingDAO {
           endedBy = None
         )
       )
-    ).onComplete {
-      case Success(rowsAffected) => {
-        DatabaseConnection.logger.debug(s"$rowsAffected row(s) inserted in Meeting table!")
-        ChatDAO.insert(meetingProps.meetingProp.intId, GroupChatApp.createDefaultPublicGroupChat())
-        MeetingUsersPoliciesDAO.insert(meetingProps.meetingProp.intId, meetingProps.usersProp)
-        MeetingLockSettingsDAO.insert(meetingProps.meetingProp.intId, meetingProps.lockSettingsProps)
-        MeetingMetadataDAO.insert(meetingProps.meetingProp.intId, meetingProps.metadataProp)
-        MeetingRecordingPoliciesDAO.insert(meetingProps.meetingProp.intId, meetingProps.recordProp)
-        MeetingVoiceDAO.insert(meetingProps.meetingProp.intId, meetingProps.voiceProp)
-        MeetingWelcomeDAO.insert(meetingProps.meetingProp.intId, meetingProps.welcomeProp)
-        MeetingGroupDAO.insert(meetingProps.meetingProp.intId, meetingProps.groups)
-        MeetingBreakoutDAO.insert(meetingProps.meetingProp.intId, meetingProps.breakoutProps)
-        TimerDAO.insert(meetingProps.meetingProp.intId, clientSettings)
-        LayoutDAO.insert(meetingProps.meetingProp.intId, meetingProps.usersProp.meetingLayout)
-        MeetingClientSettingsDAO.insert(meetingProps.meetingProp.intId, JsonUtils.mapToJson(clientSettings))
-      }
-      case Failure(e) => DatabaseConnection.logger.error(s"Error inserting Meeting: $e")
-    }
+    )
+
+    ChatDAO.insert(meetingProps.meetingProp.intId, GroupChatApp.createDefaultPublicGroupChat())
+    MeetingUsersPoliciesDAO.insert(meetingProps.meetingProp.intId, meetingProps.usersProp)
+    MeetingLockSettingsDAO.insert(meetingProps.meetingProp.intId, meetingProps.lockSettingsProps)
+    MeetingMetadataDAO.insert(meetingProps.meetingProp.intId, meetingProps.metadataProp)
+    MeetingRecordingPoliciesDAO.insert(meetingProps.meetingProp.intId, meetingProps.recordProp)
+    MeetingVoiceDAO.insert(meetingProps.meetingProp.intId, meetingProps.voiceProp)
+    MeetingWelcomeDAO.insert(meetingProps.meetingProp.intId, meetingProps.welcomeProp)
+    MeetingGroupDAO.insert(meetingProps.meetingProp.intId, meetingProps.groups)
+    MeetingBreakoutDAO.insert(meetingProps.meetingProp.intId, meetingProps.breakoutProps)
+    LayoutDAO.insert(meetingProps.meetingProp.intId, meetingProps.usersProp.meetingLayout)
+    MeetingClientSettingsDAO.insert(meetingProps.meetingProp.intId, JsonUtils.mapToJson(clientSettings))
   }
 
   def updateMeetingDurationByParentMeeting(parentMeetingId: String, newDurationInSeconds: Int) = {
@@ -158,33 +156,38 @@ object MeetingDAO {
       .filter(_.endedAt.isEmpty)
       .map(_.externalId)
 
-    DatabaseConnection.db.run(
+    DatabaseConnection.enqueue(
       TableQuery[MeetingDbTableDef]
         .filter(_.extId in subqueryBreakoutRooms)
         .map(u => u.durationInSeconds)
         .update(newDurationInSeconds)
-    ).onComplete {
-      case Success(rowsAffected) => DatabaseConnection.logger.debug(s"$rowsAffected row(s) updated durationInSeconds on Meeting table")
-      case Failure(e) => DatabaseConnection.logger.debug(s"Error updating durationInSeconds on Meeting: $e")
-    }
+    )
   }
 
   def delete(meetingId: String) = {
-    DatabaseConnection.db.run(
+    DatabaseConnection.enqueue(
       TableQuery[MeetingDbTableDef]
         .filter(_.meetingId === meetingId)
         .delete
-    ).onComplete {
-      case Success(rowsAffected) => DatabaseConnection.logger.debug(s"Meeting ${meetingId} deleted")
-      case Failure(e) => DatabaseConnection.logger.debug(s"Error deleting meeting ${meetingId}: $e")
-    }
+    )
   }
+
+  def deleteOldMeetings() = {
+    val oneHourAgo = java.sql.Timestamp.from(java.time.Instant.now().minusSeconds(3600))
+
+    DatabaseConnection.enqueue(
+      TableQuery[MeetingDbTableDef]
+        .filter(_.endedAt < oneHourAgo)
+        .delete
+    )
+  }
+
 
   def setMeetingEnded(meetingId: String, endedReasonCode: String, endedBy: String) = {
 
     UserDAO.softDeleteAllFromMeeting(meetingId)
 
-    DatabaseConnection.db.run(
+    DatabaseConnection.enqueue(
       TableQuery[MeetingDbTableDef]
         .filter(_.meetingId === meetingId)
         .map(a => (a.endedAt, a.endedReasonCode, a.endedBy))
@@ -198,14 +201,11 @@ object MeetingDAO {
                 }
               )
         )
-    ).onComplete {
-      case Success(rowsAffected) => DatabaseConnection.logger.debug(s"$rowsAffected row(s) updated endedAt=now() on Meeting table!")
-      case Failure(e) => DatabaseConnection.logger.debug(s"Error updating endedAt=now() Meeting: $e")
-    }
+    )
   }
 
   def setAllMeetingsEnded(endedReasonCode: String, endedBy: String) = {
-    DatabaseConnection.db.run(
+    DatabaseConnection.enqueue(
       TableQuery[MeetingDbTableDef]
         .filter(_.endedAt.isEmpty)
         .map(a => (a.endedAt, a.endedReasonCode, a.endedBy))
@@ -219,10 +219,7 @@ object MeetingDAO {
             }
           )
         )
-    ).onComplete {
-      case Success(rowsAffected) => DatabaseConnection.logger.debug(s"$rowsAffected row(s) updated all-meetings endedAt=now() on Meeting table!")
-      case Failure(e) => DatabaseConnection.logger.debug(s"Error updating all-meetings endedAt=now() on Meeting table: $e")
-    }
+    )
   }
 
 

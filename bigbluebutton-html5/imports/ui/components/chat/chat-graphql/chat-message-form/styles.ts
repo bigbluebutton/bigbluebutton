@@ -119,6 +119,15 @@ const EmojiButton = styled(Button)`
 `;
 
 const EmojiPickerWrapper = styled.div`
+position: absolute;
+bottom: calc(100% + 0.5rem);
+left: 0;
+right: 0;
+border: 1px solid ${colorGrayLighter};
+border-radius: ${borderRadius};
+box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+z-index: 1000;
+
   .emoji-mart {
     max-width: 100% !important;
   }
@@ -136,7 +145,7 @@ const EmojiPickerWrapper = styled.div`
   }
 `;
 
-const Error = styled.div`
+const ChatMessageError = styled.div`
   color: ${colorDanger};
   font-size: calc(${fontSizeBase} * .75);
   color: ${colorGrayDark};
@@ -148,7 +157,9 @@ const Error = styled.div`
   margin-left: 0.05rem;
 `;
 
-const EmojiPicker = styled(EmojiPickerComponent)``;
+const EmojiPicker = styled(EmojiPickerComponent)`
+  position: relative;
+`;
 
 export default {
   Form,
@@ -159,5 +170,5 @@ export default {
   EmojiButtonWrapper,
   EmojiPicker,
   EmojiPickerWrapper,
-  Error,
+  ChatMessageError,
 };

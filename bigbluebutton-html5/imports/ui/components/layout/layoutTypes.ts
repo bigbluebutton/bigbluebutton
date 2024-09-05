@@ -16,7 +16,7 @@ interface PresentationAreaContentActions {
     value: {
         content: string,
         open: boolean,
-        genericComponentId?: string;
+        genericContentId?: string;
     },
 }
 
@@ -82,8 +82,8 @@ export interface ExternalVideo {
     right?: number;
 }
 
-export interface GenericComponent {
-    genericComponentId?: string;
+export interface GenericContentMainArea {
+    genericContentId?: string;
     browserHeight?: number;
     browserWidth?: number;
     height: number;
@@ -246,9 +246,9 @@ interface Input {
     bannerBar: BannerBar;
     browser: Browser;
     cameraDock: CameraDock
-    customParameters: NonNullable<unknown>;
+    userMetadata: NonNullable<unknown>;
     externalVideo: ExternalVideo;
-    genericComponent: GenericComponent;
+    genericMainContent: GenericContentMainArea;
     navBar: NavBar;
     notificationsBar: NotificationsBar;
     presentation: Presentation;
@@ -265,7 +265,7 @@ interface Output {
     captions: Captions;
     dropZoneAreas: DropzoneAreas;
     externalVideo: ExternalVideo;
-    genericComponent: GenericComponent;
+    genericMainContent: GenericContentMainArea;
     mediaArea: Size;
     navBar: NavBar;
     presentation: Presentation;

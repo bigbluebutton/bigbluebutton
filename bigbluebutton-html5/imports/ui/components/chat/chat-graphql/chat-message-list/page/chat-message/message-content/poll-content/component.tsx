@@ -8,6 +8,7 @@ import Styled from './styles';
 
 interface ChatPollContentProps {
   metadata: string;
+  height?: number;
 }
 
 interface Metadata {
@@ -75,6 +76,7 @@ function assertAsMetadata(metadata: unknown): asserts metadata is Metadata {
 
 const ChatPollContent: React.FC<ChatPollContentProps> = ({
   metadata: string,
+  height = undefined,
 }) => {
   const intl = useIntl();
 
@@ -92,13 +94,13 @@ const ChatPollContent: React.FC<ChatPollContentProps> = ({
     };
   });
 
-  const height = translatedAnswers.length * 50;
+  const useHeight = height || translatedAnswers.length * 50;
   return (
-    <div data-test="chatPollMessageText">
+    <Styled.PollWrapper data-test="chatPollMessageText">
       <Styled.PollText>
         {pollData.questionText}
       </Styled.PollText>
-      <ResponsiveContainer width="90%" height={height}>
+      <ResponsiveContainer width="90%" height={useHeight}>
         <BarChart
           data={translatedAnswers}
           layout="vertical"
@@ -108,7 +110,7 @@ const ChatPollContent: React.FC<ChatPollContentProps> = ({
           <Bar dataKey="numVotes" fill="#0C57A7" />
         </BarChart>
       </ResponsiveContainer>
-    </div>
+    </Styled.PollWrapper>
   );
 };
 

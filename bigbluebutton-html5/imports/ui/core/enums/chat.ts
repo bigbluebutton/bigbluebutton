@@ -8,9 +8,11 @@ export const enum ChatCommands {
 
 export const enum ChatMessageType {
   TEXT = 'default',
+  API = 'api',
   POLL = 'poll',
   PRESENTATION = 'presentation',
   CHAT_CLEAR = 'publicChatHistoryCleared',
   BREAKOUT_ROOM = 'breakoutRoomModeratorMsg',
-  USER_AWAY_STATUS_MSG = 'userAwayStatusMsg'
+  USER_AWAY_STATUS_MSG = 'userAwayStatusMsg',
+  PLUGIN = 'plugin'
 }
