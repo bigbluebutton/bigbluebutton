@@ -149,7 +149,7 @@ In BigBlueButton 3.0.0-alpha.5 we replaced the JOIN parameter `defaultLayout` wi
 #### Added new setting and userdata to allow skipping echo test if session has valid input/output devices stored
 
 - Client settings.yml: `skipEchoTestIfPreviousDevice`. Defaults to `false`
-- Can be overrided on join Custom Parameter with: `userdata-bbb_skip_echotest_if_previous_device=`
+- Can be overrided on JOIN with Custom Parameter: `userdata-bbb_skip_echotest_if_previous_device=`
 
 #### Recording event TranscriptUpdatedRecordEvent blocked
 
@@ -158,7 +158,7 @@ In BigBlueButton 2.7.5/3.0.0-alpha.5 we stopped propagating the events.xml event
 #### Added new setting and userdata to allow skipping video preview if session has valid input devices stored
 
 - Client settings.yml: `skipVideoPreviewIfPreviousDevice`. Defaults to `false`
-- Can be overrided on join Custom Parameter with: `userdata-bbb_skip_video_preview_if_previous_device=`
+- Can be overrided on JOIN with Custom Parameter: `userdata-bbb_skip_video_preview_if_previous_device=`
 
 ### Replaced all user facing instances of "meeting" with the word "session"
 
@@ -174,6 +174,7 @@ Retired events
 
 Modified/added events
 - `ParticipantJoinEvent` - will contain element `userdata` see https://github.com/bigbluebutton/bigbluebutton/pull/20566#pullrequestreview-2142238810
+- the old user status emojis were retired. `emojiStatus` will not be filled anymore. For more information see https://github.com/bigbluebutton/bigbluebutton/pull/20717
 
 #### bbb-web properties changes
 
@@ -186,9 +187,18 @@ Modified/added events
 
 In BigBlueButton 2.6.18/2.7.8 POST requests are no longer allowed for the `join` endpoint. To ensure they are validated properly, a `Content-Type` header must also be provided for POST requests that contain data in the request body. Endpoints now support a limited set of content types that includes `text/xml`, `application/xml`, `application/x-www-form-url-encoded`, and `multipart/form-data`. By default each endpoint only supports `application/x-www-form-urlencoded` and `multipart/form-data`, but individual endpoints can override this and define their own set of supported content types. The `create` endpoint supports all of the four previously listed content types while `insertDocument` supports only `text/xml` and `application/xml`. Any requests with a content type that differs from the set supported by the target endpoint will be rejected with a new `unsupportedContentType` error.
 
-### Removed userStatus
+#### Removed userStatus
 
 The `userStatus` feature was replaced by `userReaction`. They were vastly overlapping, causing some confusion when using and maintaining.
+
+#### Removed built-in support for typed captions
+
+We removed the built-in typed captions support given that we support several options for automatic captions which seem to be much more popular.
+We implemented a plugin for typed captions - [Typed captions plugin](https://github.com/bigbluebutton/plugin-typed-captions) which you could use instead.
+
+#### Changes in document formats we support
+
+We improved the documentation for which types of files we support when uploading presentations. Support for `.odi` and `.odc` was dropped. Support for `.svg`, `.odg` and `.webp` was officially added even though animated webp's are no longer animated after the image processing. 
 
 ### Development
 
