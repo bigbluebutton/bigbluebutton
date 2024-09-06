@@ -32,8 +32,6 @@ import { notifyShapeNumberExceeded, getCustomEditorAssetUrls, getCustomAssetUrls
 
 import NoopTool from './custom-tools/noop-tool/component';
 
-import { PollShapeUtil } from './custom-shapes/poll/component';
-
 const CAMERA_TYPE = "camera";
 
 // Helper functions
@@ -179,8 +177,6 @@ const Whiteboard = React.memo(function Whiteboard(props) {
   const lastKnownWidth = React.useRef(presentationAreaWidth);
 
   const [shapesVersion, setShapesVersion] = React.useState(0);
-
-  const customShapeUtils = [PollShapeUtil];
   const customTools = [NoopTool];
 
   const presenterChanged = usePrevious(isPresenter) !== isPresenter;
@@ -1518,7 +1514,6 @@ const Whiteboard = React.memo(function Whiteboard(props) {
         forceMobile={true}
         hideUi={hasWBAccessRef.current || isPresenter ? false : true}
         onMount={handleTldrawMount}
-        shapeUtils={customShapeUtils}
         tools={customTools}
       />
       <Styled.TldrawV2GlobalStyle
