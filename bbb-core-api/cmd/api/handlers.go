@@ -332,6 +332,7 @@ func (app *Config) createMeeting(w http.ResponseWriter, r *http.Request) {
 	for i, doc := range docs {
 		wg.Add(1)
 		go func(doc Document, meetingID string, isFirst, isFromInsertAPI, hasCurrent bool) {
+			defer wg.Done()
 			pres, err := app.processDocument(doc, res.MeetingIntId, i == 0, false, hasCurrent)
 			if err != nil {
 				resultChan <- UploadResult{

@@ -130,6 +130,13 @@ presentation:
     generate_pngs: false
     placements_threshold: 800
     image_tag_threshold: 800
+    # These will be copied in cases where the conversion process
+    # fails to generate a slide from the uploaded presentation
+    blank:
+      presentation: /usr/share/bigbluebutton/blank/blank-presentation.pdf
+      thumbnail: /usr/share/bigbluebutton/blank/blank-thumb.png
+      png: /usr/share/bigbluebutton/blank/blank-png.png
+      svg: /usr/share/bigbluebutton/blank/blank-svg.svg
     
   default: default.pdf
   base_path: bigbluebutton/presentation

@@ -10,6 +10,7 @@ import (
 	"path/filepath"
 	"strconv"
 	"strings"
+	"sync"
 	"time"
 
 	"github.com/bigbluebutton/bigbluebutton/bbb-core-api/internal/mime"
@@ -25,6 +26,13 @@ const (
 	MaxPages       = 100
 	MaxPDFPageSize = 2000000
 )
+
+type Blank struct {
+	Presentation string
+	Thumbnail    string
+	PNG          string
+	SVG          string
+}
 
 type UploadedPresentation struct {
 	ID                string
@@ -42,6 +50,7 @@ type UploadedPresentation struct {
 	AuthToken         string
 	FileNameConverted string
 	NumPages          int
+	Blank             *Blank
 }
 
 func (pres *UploadedPresentation) ProcessUploadedPresentation(generatePNGs bool, maxSVGTags, maxSVGImageTags int) error {
@@ -167,6 +176,39 @@ func (pres *UploadedPresentation) extractIntoPages(generatePNGS bool, maxSVGTags
 			maxSVGImageTags:   maxSVGImageTags,
 		})
 	}
+
+	type ConversionResult struct {
+		page      *Page
+		converted bool
+		err       error
+	}
+
+	resultChan := make(chan ConversionResult)
+	var wg sync.WaitGroup
+
+	for _, page := range pages {
+		wg.Add(1)
+		go func(page *Page) {
+			defer wg.Done()
+			converted := true
+			err := page.convert()
+			if err != nil {
+				converted = false
+			}
+			resultChan <- ConversionResult{
+				page,
+				converted,
+				err,
+			}
+		}(page)
+	}
+
+	go func() {
+		wg.Wait()
+		close(resultChan)
+	}()
+
+	return nil
 }
 
 func (pres *UploadedPresentation) extractPages() ([]string, error) {
@@ -177,7 +219,7 @@ func (pres *UploadedPresentation) extractPages() ([]string, error) {
 		pagePath := filepath.Join(outDir, fmt.Sprintf("page-%d.pdf", i))
 		err := api.ExtractPagesFile(pres.Path, pagePath, []string{strconv.Itoa(i)}, nil)
 		if err != nil {
-			slog.Error(fmt.Sprintf("Failed to extract page %d: %w", i, err))
+			slog.Error(fmt.Sprintf("Failed to extract page %d: %v", i, err))
 		}
 		size, err := FileSize(pagePath)
 		if err != nil {
@@ -197,7 +239,7 @@ func (pres *UploadedPresentation) extractPages() ([]string, error) {
 			continue
 		}
 		if size > MaxPDFPageSize {
-			slog.Error("compressed PDF page %s is still too large, skipping", pagePath)
+			slog.Error(fmt.Sprintf("compressed PDF page %s is still too large, skipping", pagePath))
 			continue
 		}
 		pagePaths = append(pagePaths, pagePath)

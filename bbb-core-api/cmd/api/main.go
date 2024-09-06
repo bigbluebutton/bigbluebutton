@@ -6,8 +6,8 @@ import (
 	"net/http"
 	"time"
 
-	"github.com/bigbluebutton/bigbluebutton/bbb-core-api/config"
 	bbbcore "github.com/bigbluebutton/bigbluebutton/bbb-core-api/gen/bbb-core"
+	"github.com/bigbluebutton/bigbluebutton/bbb-core-api/internal/config"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials/insecure"
 )
@@ -80,13 +80,12 @@ func parseConfiguration() (*Config, error) {
 	log.Println("Parsing server configuration")
 
 	var app Config
-	var serverConfig config.ServerConfig
 
-	err := serverConfig.ParseConfig(configFilePath)
+	serverConfig, err := config.ParseConfig(configFilePath)
 	if err != nil {
 		return nil, err
 	}
-	app.ServerConfig = &serverConfig
+	app.ServerConfig = serverConfig
 
 	checksumAlgorithms := make(map[string]struct{})
 	for _, algorithm := range app.ServerConfig.Security.Checksum.Algorithms {

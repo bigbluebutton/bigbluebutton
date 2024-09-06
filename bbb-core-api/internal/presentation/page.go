@@ -6,11 +6,13 @@ import (
 	"fmt"
 	"image"
 	"image/png"
+	"io"
 	"io/fs"
 	"log/slog"
 	"os"
 	"os/exec"
 	"path/filepath"
+	"regexp"
 	"strconv"
 	"time"
 
@@ -26,6 +28,8 @@ const (
 	pdfFontsTimeout          = 3
 	svgResoltionPPI          = 300
 	pngWidthRasterizedSlides = 2048
+	convTimeout              = 7
+	slideWidth               = 800
 )
 
 type Page struct {
@@ -41,31 +45,51 @@ type Page struct {
 func (page *Page) convert() error {
 	err := page.createThumbnail()
 	if err != nil {
-		return fmt.Errorf("failed to create thumbnail for page: %w", err)
+		slog.Error(fmt.Sprintf("Could not create thumbnail for page: %v", err))
+		thumbDir := filepath.Join(filepath.Dir(page.pres.Path), "thumbnails")
+		thumbPath := filepath.Join(thumbDir, fmt.Sprintf("thumb-%d.png", page.num))
+		err = createBlank(thumbPath, page.pres.Blank.Thumbnail)
+		if err != nil {
+			return fmt.Errorf("could not create thumbnail for page: %w", err)
+		}
 	}
 
 	err = page.createTextFile()
 	if err != nil {
-		return fmt.Errorf("failed to create text file for page: %w", err)
+		return fmt.Errorf("could not create text file for page: %w", err)
 	}
 
 	if page.svgImagesRequired {
 		err = page.createSvg()
 		if err != nil {
-			return fmt.Errorf("failed to create svg for page: %w", err)
+			slog.Error(fmt.Sprintf("Could not create SVG for page: %v", err))
+			svgDir := filepath.Join(filepath.Dir(page.pres.Path), "svgs")
+			svgPath := filepath.Join(svgDir, fmt.Sprintf("slide-%d.svg", page.num))
+			err = createBlank(svgPath, page.pres.Blank.SVG)
+			if err != nil {
+				return fmt.Errorf("could not create SVG for page: %w", err)
+			}
 		}
 	}
 
-	// if necessary create pngs
 	if page.generatePNGs {
-
+		err = page.createPng()
+		if err != nil {
+			slog.Error(fmt.Sprintf("Could not create PNG for page: %v", err))
+			pngDir := filepath.Join(filepath.Dir(page.pres.Path), "pngs")
+			pngPath := filepath.Join(pngDir, fmt.Sprintf("slide-%d.png", page.num))
+			err = createBlank(pngPath, page.pres.Blank.PNG)
+			if err != nil {
+				return fmt.Errorf("could not create PNG for page: %w", err)
+			}
+		}
 	}
 
 	return nil
 }
 
 func (page *Page) createThumbnail() error {
-	thumbDir := fmt.Sprintf("%s/thumbnails", filepath.Dir(page.pres.Path))
+	thumbDir := filepath.Join(filepath.Dir(page.pres.Path), "thumbnails")
 	err := createDir(thumbDir)
 	if err != nil {
 		return fmt.Errorf("failed to create thumbnail directory: %w", err)
@@ -108,7 +132,7 @@ func (page *Page) createThumbnail() error {
 }
 
 func (page *Page) createTextFile() error {
-	textDir := fmt.Sprintf("%s/textfiles", filepath.Dir(page.pres.Path))
+	textDir := filepath.Join(filepath.Dir(page.pres.Path), "textfiles")
 	err := createDir(textDir)
 	if err != nil {
 		return fmt.Errorf("failed to create text file directory: %w", err)
@@ -137,7 +161,7 @@ func (page *Page) createTextFile() error {
 }
 
 func (page *Page) createSvg() error {
-	svgDir := fmt.Sprintf("%s/svgs", filepath.Dir(page.pres.Path))
+	svgDir := filepath.Join(filepath.Dir(page.pres.Path), "svgs")
 	err := createDir(svgDir)
 	if err != nil {
 		return fmt.Errorf("failed to create svg directory: %w", err)
@@ -273,7 +297,7 @@ func (page *Page) hasFontType3() (bool, error) {
 	output, err := cmd.Output()
 	if err != nil {
 		if exitError, ok := err.(*exec.ExitError); ok && exitError.ExitCode() == 124 {
-			return false, fmt.Errorf("failed to determine if PDF has font type 3: command execution exceeded the %d secs timeout.\n", pdfFontsTimeout)
+			return false, fmt.Errorf("failed to determine if PDF has font type 3: command execution exceeded the %d secs timeout", pdfFontsTimeout)
 		} else {
 			return false, fmt.Errorf("failed to detmine if PDF has font type 3: %w", err)
 		}
@@ -286,10 +310,61 @@ func (page *Page) hasFontType3() (bool, error) {
 }
 
 func (page *Page) createPng() error {
-	pngDir := fmt.Sprintf("%s/pngs", filepath.Dir(page.pres.Path))
+	pngDir := filepath.Join(filepath.Dir(page.pres.Path), "pngs")
 	err := createDir(pngDir)
 	if err != nil {
 		return fmt.Errorf("failed to create svg directory: %w", err)
+	}
+
+	source := page.pres.Path
+	var dest string
+
+	if IsImageFile(page.pres.FileType) {
+		dest = filepath.Join(pngDir, "slide-1.pdf")
+		cmd := exec.Command("timeout", strconv.Itoa(convTimeout)+"s", "convert", source, "-auto-orient", dest)
+
+		err := cmd.Run()
+		if err != nil {
+			return fmt.Errorf("failed create PNG for page %d of presentation %s: %w", page.num, page.pres.Name, err)
+		}
+
+		source = dest
+	}
+
+	dest = filepath.Join(pngDir, fmt.Sprintf("temp-png-%d", page.num))
+	command := fmt.Sprintf("pdftocairo -png -scale-to %d %s %s", slideWidth, source, dest)
+
+	err = execCommandWithTimeout(command, 10000*time.Millisecond)
+	if err != nil {
+		return fmt.Errorf("failed to create PNG for page %d of presentation %s: %w", page.num, page.pres.Name, err)
+	}
+
+	err = renamePNG(pngDir, page.num)
+	if err != nil {
+		return fmt.Errorf("failed to rename PNG for page %d of presentation %s: %w", page.num, page.pres.Path, err)
+	}
+
+	return nil
+}
+
+func createBlank(path string, blank string) error {
+	if _, err := os.Stat(path); os.IsNotExist(err) {
+		src, err := os.Open(blank)
+		if err != nil {
+			return fmt.Errorf("failed to open source blank: %w", err)
+		}
+		defer src.Close()
+
+		dest, err := os.Create(path)
+		if err != nil {
+			return fmt.Errorf("failed to create destination file: %w", err)
+		}
+		defer dest.Close()
+
+		_, err = io.Copy(dest, src)
+		if err != nil {
+			return fmt.Errorf("failed to copy blank to destination file: %w", err)
+		}
 	}
 
 	return nil
@@ -354,4 +429,64 @@ func countTags(svg string) (totalTags int, imageTags int, err error) {
 	}
 
 	return totalTags, imageTags, nil
+}
+
+func execCommandWithTimeout(command string, timeout time.Duration) error {
+	cmd := exec.Command("/bin/sh", "-c", command)
+
+	done := make(chan error, 1)
+	go func() {
+		done <- cmd.Run()
+	}()
+
+	select {
+	case err := <-done:
+		return err
+	case <-time.After(timeout):
+		if err := cmd.Process.Kill(); err != nil {
+			return fmt.Errorf("failed to execute %s: %w", command, err)
+		}
+		return fmt.Errorf("failed to execute %s", command)
+	}
+}
+
+func renamePNG(dir string, page int) error {
+	files, err := os.ReadDir(dir)
+	if err != nil {
+		return fmt.Errorf("failed to list directory: %w", err)
+	}
+
+	if len(files) > 1 {
+		for _, file := range files {
+			if !file.IsDir() {
+				pattern := regexp.MustCompile(`(.+-png)-([0-9]+)-([0-9]+)(.png)`)
+				matcher := pattern.FindStringSubmatch(file.Name())
+				if len(matcher) == 4 {
+					pageNum, err := strconv.Atoi(matcher[2])
+					if err != nil {
+						return fmt.Errorf("failed to parse page number: %w", err)
+					}
+
+					if pageNum == page {
+						newFileName := fmt.Sprintf("slide-%d.png", page)
+						oldPath := filepath.Join(dir, file.Name())
+						newPath := filepath.Join(dir, newFileName)
+						err := os.Rename(oldPath, newPath)
+						if err != nil {
+							return fmt.Errorf("failed to rename file: %w", err)
+						}
+					}
+				}
+			}
+		}
+	} else if len(files) == 1 {
+		oldPath := filepath.Join(dir, files[0].Name())
+		newPath := filepath.Join(dir, "slide-1.png")
+		err := os.Rename(oldPath, newPath)
+		if err != nil {
+			return fmt.Errorf("failed to rename file: %w", err)
+		}
+	}
+
+	return nil
 }

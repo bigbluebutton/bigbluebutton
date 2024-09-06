@@ -685,6 +685,7 @@ func (app *Config) processDocumentFromBytes(bytes []byte, presOrigName, meetingI
 		IsDownloadable: isDownloadable,
 		IsRemovable:    isRemovable,
 		IsDefault:      isDefault,
+		Blank:          app.createBlank(),
 	}, nil
 }
 
@@ -766,6 +767,7 @@ func (app *Config) processDocumentFromDownload(address, meetingID, fileName stri
 		IsDownloadable: isDownloadable,
 		IsRemovable:    isRemovable,
 		IsDefault:      isDefault,
+		Blank:          app.createBlank(),
 	}, nil
 }
 
@@ -948,4 +950,13 @@ func parsePresentationModule(content string) (*Presentation, error) {
 		return nil, err
 	}
 	return &presentation, nil
+}
+
+func (app *Config) createBlank() *presentation.Blank {
+	return &presentation.Blank{
+		Presentation: app.ServerConfig.Presentation.Conversion.Blank.Presentation,
+		Thumbnail:    app.ServerConfig.Presentation.Conversion.Blank.Thumbnail,
+		PNG:          app.ServerConfig.Presentation.Conversion.Blank.PNG,
+		SVG:          app.ServerConfig.Presentation.Conversion.Blank.SVG,
+	}
 }

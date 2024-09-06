@@ -119,6 +119,12 @@ type ServerConfig struct {
 			GeneratePNGs        bool `yaml:"generate_pngs"`
 			PlacementsThreshold int  `yaml:"placements_threshold"`
 			ImageTagThreshold   int  `yaml:"image_tag_threshold"`
+			Blank               struct {
+				Presentation string `yaml:"presentation"`
+				Thumbnail    string `yaml:"thumbnail"`
+				PNG          string `yaml:"png"`
+				SVG          string `yaml:"svg"`
+			} `yaml:"blank"`
 		} `yaml:"conversion"`
 		Default  string `yaml:"default"`
 		BasePath string `yaml:"base_path"`
@@ -136,20 +142,21 @@ type ServerConfig struct {
 	} `yaml:"override"`
 }
 
-func (config *ServerConfig) ParseConfig(path string) error {
+func ParseConfig(path string) (*ServerConfig, error) {
 	f, err := os.Open(path)
 	if err != nil {
-		return err
+		return nil, err
 	}
 	defer f.Close()
 
 	decoder := yaml.NewDecoder(f)
+	var config ServerConfig
 	err = decoder.Decode(&config)
 	if err != nil {
-		return err
+		return nil, err
 	}
 
-	return nil
+	return &config, nil
 }
 
 func (config *ServerConfig) DefaultPresentation() string {
