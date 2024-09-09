@@ -32,7 +32,7 @@ trait SendGroupChatMessageMsgHdlr extends HandlerHelpers {
       user <- Users2x.findWithIntId(liveMeeting.users2x, msg.header.userId)
       groupChat <- state.groupChats.find(msg.body.chatId)
     } yield {
-      if (groupChat.access == GroupChatAccess.PUBLIC && user.userLockSettings.disablePublicChat) {
+      if (groupChat.access == GroupChatAccess.PUBLIC && user.userLockSettings.disablePublicChat && user.role != Roles.MODERATOR_ROLE) {
         chatLockedForUser = true
       }
 
