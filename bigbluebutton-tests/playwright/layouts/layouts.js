@@ -83,7 +83,8 @@ class Layouts extends MultiUsers {
     await this.modPage.waitAndClick(e.actions);
     await this.modPage.waitAndClick(e.manageLayoutBtn);
     await this.modPage.waitAndClick(e.customLayout);
-    await this.modPage.waitAndClick(e.updateEveryoneLayoutBtn);
+    await this.modPage.waitAndClickElement(e.updateEveryoneLayoutToggle);
+    await this.modPage.waitAndClick(e.updateLayoutBtn);
     await this.modPage.closeAllToastNotifications();
     await this.modPage.wasRemoved(e.toastContainer);
 

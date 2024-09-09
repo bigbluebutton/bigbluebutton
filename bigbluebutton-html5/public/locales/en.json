@@ -1295,7 +1295,7 @@
     "app.layout.modal.title": "Layouts",
     "app.layoutUpdate.label": "Layout updates applied to everyone",
     "app.layout.modal.update": "Update",
-    "app.layout.modal.updateAll": "Update everyone",
+    "app.layout.modal.updateAll": "Update to everyone",
     "app.layout.modal.layoutLabel": "Select your layout",
     "app.layout.modal.pushLayoutLabel": "Push to everyone",
     "app.layout.modal.layoutToastLabel": "Layout settings changed",

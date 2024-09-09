@@ -515,7 +515,7 @@ exports.focusOnVideo = 'button[data-test="videoFocusLayout"]';
 exports.smartLayout = 'button[data-test="smartLayout"]';
 exports.customLayout = 'button[data-test="customLayout"]';
 exports.updateLayoutBtn = 'button[data-test="updateLayoutBtn"]';
-exports.updateEveryoneLayoutBtn = 'button[data-test="updateEveryoneLayoutBtn"]';
+exports.updateEveryoneLayoutToggle = 'input[data-test="updateEveryoneLayoutToggle"]';
 exports.cameraDock = 'div#cameraDock';
 
 // Font size
