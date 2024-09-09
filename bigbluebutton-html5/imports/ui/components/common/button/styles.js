@@ -337,10 +337,14 @@ const ButtonWrapper = styled(BaseButton)`
     border-radius: 50%;
     border: 2px solid white;
     border-top-color: transparent;
-    animation: spin 1.5s ease-in infinite;
+    animation: spin 1.5s ease infinite;
   }
   @keyframes spin {
     0% {
+        opacity: 0;
+    }
+    33% {
+        opacity: 1;
         transform: rotate(0deg);
     }
     100% {
