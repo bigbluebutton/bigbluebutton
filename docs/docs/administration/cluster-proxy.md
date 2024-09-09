@@ -183,7 +183,6 @@ Create the file `/etc/bigbluebutton/bbb-graphql-middleware.yml` with the followi
 ```shell
 # If you are running a cluster proxy setup, you need to allow the url of the Frontend
 # Add an Authorized Cross Origin. See https://docs.bigbluebutton.org/administration/cluster-proxy
-```yaml
 server:
   authorized_cross_origin: bbb-proxy.example.com
 ```
