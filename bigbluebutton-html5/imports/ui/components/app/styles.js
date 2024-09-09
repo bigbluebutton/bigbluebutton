@@ -50,7 +50,9 @@ const DtfInvert = `
     border-left: unset !important;
   }
   .tl-container {
-    background-color: var(--tl-background) !important;
+    .tl-image {
+      background-color: white !important;
+    }
   }
   .tlui-slider__thumb {
     background-color: var(--darkreader-text--color-text-1) !important;
