@@ -5,6 +5,7 @@ import TooltipContainer from '/imports/ui/components/common/tooltip/container';
 import Styled from './styles';
 import BaseButton from './base/component';
 import ButtonEmoji from './button-emoji/ButtonEmoji';
+import { getSettingsSingletonInstance } from '/imports/ui/services/settings';
 
 const SIZES = [
   'jumbo', 'lg', 'md', 'sm',
@@ -208,6 +209,8 @@ export default class Button extends BaseButton {
     } = this.props;
 
     const remainingProps = this._cleanProps(otherProps);
+    const Settings = getSettingsSingletonInstance();
+    const animations = Settings?.application?.animations;
 
     return (
       <Styled.ButtonWrapper
@@ -218,6 +221,7 @@ export default class Button extends BaseButton {
         circle={circle}
         block={block}
         loading={loading}
+        animations={animations}
         {...remainingProps}
       >
         {this.renderButtonEmojiSibling()}
