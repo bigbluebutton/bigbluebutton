@@ -67,7 +67,7 @@ export const MuteToggle: React.FC<MuteToggleProps> = ({
   const cooldownActive = useRef<boolean>(false);
   const cooldownTimerRef = useRef<NodeJS.Timeout | null>(null);
 
-  const COOLDOWN_TIME = 1500;
+  const COOLDOWN_TIME = 800;
 
   const handlePushToTalk = useCallback((action: 'down' | 'up', event: KeyboardEvent) => {
     const activeElement = document.activeElement as HTMLElement | null;
