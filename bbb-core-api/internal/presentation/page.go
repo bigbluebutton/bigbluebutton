@@ -5,6 +5,7 @@ import (
 	"errors"
 	"fmt"
 	"image"
+	"image/jpeg"
 	"image/png"
 	"io"
 	"io/fs"
@@ -17,6 +18,7 @@ import (
 	"time"
 
 	"github.com/bigbluebutton/bigbluebutton/bbb-core-api/internal/random"
+	"github.com/nfnt/resize"
 	"golang.org/x/image/draw"
 )
 
@@ -30,6 +32,8 @@ const (
 	pngWidthRasterizedSlides = 2048
 	convTimeout              = 7
 	slideWidth               = 800
+	maxImageWidth            = 2048
+	maxImageHeight           = 1536
 )
 
 type Page struct {
@@ -61,6 +65,52 @@ func (page *Page) convert() error {
 
 	if page.svgImagesRequired {
 		err = page.createSvg()
+		if err != nil {
+			slog.Error(fmt.Sprintf("Could not create SVG for page: %v", err))
+			svgDir := filepath.Join(filepath.Dir(page.pres.Path), "svgs")
+			svgPath := filepath.Join(svgDir, fmt.Sprintf("slide-%d.svg", page.num))
+			err = createBlank(svgPath, page.pres.Blank.SVG)
+			if err != nil {
+				return fmt.Errorf("could not create SVG for page: %w", err)
+			}
+		}
+	}
+
+	if page.generatePNGs {
+		err = page.createPng()
+		if err != nil {
+			slog.Error(fmt.Sprintf("Could not create PNG for page: %v", err))
+			pngDir := filepath.Join(filepath.Dir(page.pres.Path), "pngs")
+			pngPath := filepath.Join(pngDir, fmt.Sprintf("slide-%d.png", page.num))
+			err = createBlank(pngPath, page.pres.Blank.PNG)
+			if err != nil {
+				return fmt.Errorf("could not create PNG for page: %w", err)
+			}
+		}
+	}
+
+	return nil
+}
+
+func (page *Page) generateSlide() error {
+	err := page.createThumbnail()
+	if err != nil {
+		slog.Error(fmt.Sprintf("Could not create thumbnail for page: %v", err))
+		thumbDir := filepath.Join(filepath.Dir(page.pres.Path), "thumbnails")
+		thumbPath := filepath.Join(thumbDir, fmt.Sprintf("thumb-%d.png", page.num))
+		err = createBlank(thumbPath, page.pres.Blank.Thumbnail)
+		if err != nil {
+			return fmt.Errorf("could not create thumbnail for page: %w", err)
+		}
+	}
+
+	err = page.createTextFile()
+	if err != nil {
+		return fmt.Errorf("could not create text file for page: %w", err)
+	}
+
+	if page.svgImagesRequired {
+		err = page.resizeAndCreateSVG()
 		if err != nil {
 			slog.Error(fmt.Sprintf("Could not create SVG for page: %v", err))
 			svgDir := filepath.Join(filepath.Dir(page.pres.Path), "svgs")
@@ -158,6 +208,29 @@ func (page *Page) createTextFile() error {
 	}
 
 	return nil
+}
+
+func (page *Page) resizeAndCreateSVG() error {
+	file, err := os.Open(page.path)
+	if err != nil {
+		return fmt.Errorf("failed to open uploaded file: %w", err)
+	}
+	defer file.Close()
+
+	img, _, err := image.Decode(file)
+	if err != nil {
+		return fmt.Errorf("failed to decode image: %w", err)
+	}
+
+	if img.Bounds().Dx() > maxImageWidth || img.Bounds().Dy() > maxImageHeight {
+		slog.Info("uploaded image exceeds max dimensions allowed, resizing")
+		err := page.resizeImage(maxImageWidth, maxImageHeight)
+		if err != nil {
+			return fmt.Errorf("failed to resize image: %w", err)
+		}
+	}
+
+	return page.createSvg()
 }
 
 func (page *Page) createSvg() error {
@@ -342,6 +415,34 @@ func (page *Page) createPng() error {
 	err = renamePNG(pngDir, page.num)
 	if err != nil {
 		return fmt.Errorf("failed to rename PNG for page %d of presentation %s: %w", page.num, page.pres.Path, err)
+	}
+
+	return nil
+}
+
+func (page *Page) resizeImage(maxWidth, maxHeight int) error {
+	file, err := os.Open(page.path)
+	if err != nil {
+		return fmt.Errorf("failed to open file: %w", err)
+	}
+	defer file.Close()
+
+	img, _, err := image.Decode(file)
+	if err != nil {
+		return fmt.Errorf("failed to decode image: %w", err)
+	}
+
+	resizedImg := resize.Thumbnail(uint(maxWidth), uint(maxHeight), img, resize.Lanczos3)
+
+	out, err := os.Create(page.path)
+	if err != nil {
+		return fmt.Errorf("failed to create output file: %w", err)
+	}
+	defer out.Close()
+
+	err = jpeg.Encode(out, resizedImg, nil)
+	if err != nil {
+		return fmt.Errorf("failed to encode resized image: %w", err)
 	}
 
 	return nil

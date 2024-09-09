@@ -74,6 +74,16 @@ func (pres *UploadedPresentation) ProcessUploadedPresentation(generatePNGs bool,
 		pres.extractIntoPages(generatePNGs, maxSVGTags, maxSVGImageTags)
 	} else if IsImageFile(pres.FileType) {
 		pres.NumPages = 1
+		page := &Page{
+			pres:              pres,
+			num:               1,
+			path:              pres.Path,
+			svgImagesRequired: true,
+			generatePNGs:      generatePNGs,
+			maxSVGTags:        maxSVGTags,
+			maxSVGImageTags:   maxSVGImageTags,
+		}
+		page.generateSlide()
 	}
 
 	return nil
@@ -157,7 +167,7 @@ func (pres *UploadedPresentation) makePresentationDownloadable() error {
 	return nil
 }
 
-func (pres *UploadedPresentation) extractIntoPages(generatePNGS bool, maxSVGTags, maxSVGImageTags int) error {
+func (pres *UploadedPresentation) extractIntoPages(generatePNGs bool, maxSVGTags, maxSVGImageTags int) error {
 	pages := make([]*Page, 0, pres.NumPages)
 
 	extractedPages, err := pres.extractPages()
@@ -171,7 +181,7 @@ func (pres *UploadedPresentation) extractIntoPages(generatePNGS bool, maxSVGTags
 			num:               i,
 			path:              p,
 			svgImagesRequired: true,
-			generatePNGs:      generatePNGS,
+			generatePNGs:      generatePNGs,
 			maxSVGTags:        maxSVGTags,
 			maxSVGImageTags:   maxSVGImageTags,
 		})
