@@ -4,7 +4,7 @@ import {
   systemMessageBorderColor,
   colorText,
 } from '/imports/ui/stylesheets/styled-components/palette';
-import { borderRadius } from 'imports/ui/stylesheets/styled-components/general';
+import { borderRadius } from '/imports/ui/stylesheets/styled-components/general';
 import { fontSizeBase, btnFontWeight } from '/imports/ui/stylesheets/styled-components/typography';
 
 interface ChatMessageProps {
