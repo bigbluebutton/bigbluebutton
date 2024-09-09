@@ -74,6 +74,10 @@ const intlMessages = defineMessages({
     id: 'app.screenshare.screensharePermissionError',
     description: 'Screen sharing failure due to lack of permission',
   },
+  toastHelpLabel: {
+    id: 'app.screenshare.screenshareToastHelpLabel',
+    description: 'Label of the help button in toast notifications that opens external link',
+  }
 });
 
 const getErrorLocale = (errorCode) => {
@@ -113,6 +117,11 @@ const getErrorLocale = (errorCode) => {
   }
 };
 
+const getToastType = (errorCode) => {
+  if ([SCREENSHARING_ERRORS.NotAllowedError.errorCode].includes(errorCode)) return 'warning';
+  return 'error';
+}
+
 const ScreenshareButton = ({
   intl,
   enabled,
@@ -121,10 +130,21 @@ const ScreenshareButton = ({
   amIPresenter = false,
   isMeteorConnected,
 }) => {
+  const TROUBLESHOOTING_URLS = window.meetingClientSettings.public.media.screenshareTroubleshootingLinks;
   const [stopExternalVideoShare] = useMutation(EXTERNAL_VIDEO_STOP);
   const isCameraAsContentBroadcasting = useIsCameraAsContentBroadcasting();
 
   const [isScreenshareUnavailableModalOpen, setScreenshareUnavailableModalIsOpen] = useState(false);
+
+  const getHelpInfoForError = (errorCode) => {
+    if (TROUBLESHOOTING_URLS && Object.keys(TROUBLESHOOTING_URLS).includes(errorCode)) {
+      return {
+        helpLink: TROUBLESHOOTING_URLS[errorCode],
+        helpLabel: intl.formatMessage(intlMessages.toastHelpLabel),
+      };
+    }
+    return {};
+  }
 
   // This is the failure callback that will be passed to the /api/screenshare/kurento.js
   // script on the presenter's call
@@ -135,9 +155,11 @@ const ScreenshareButton = ({
     } = error;
 
     const localizedError = getErrorLocale(errorCode);
+    const helpInfo =  getHelpInfoForError(errorCode);
+    const toastType = getToastType(errorCode);
 
     if (localizedError) {
-      notify(intl.formatMessage(localizedError, { 0: errorCode }), 'error', 'desktop');
+      notify(intl.formatMessage(localizedError, { 0: errorCode }), toastType, 'desktop', { ...helpInfo });
       logger.error({
         logCode: 'screenshare_failed',
         extraInfo: { errorCode, errorMessage },
