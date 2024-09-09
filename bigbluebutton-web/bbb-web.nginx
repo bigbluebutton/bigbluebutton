@@ -92,6 +92,16 @@
 			proxy_set_header         X-Original-URI $request_uri;
 		}
 
+		location = /bigbluebutton/connection/checkGraphqlAuthorization {
+			internal;
+			proxy_pass               http://127.0.0.1:8090;
+			proxy_pass_request_body  off;
+			proxy_set_header         Content-Length "";
+			proxy_set_header         X-Original-URI $request_uri;
+			# this is required for CORS preflight checks in cluster setup
+			proxy_set_header        X-Original-Method $request_method;
+		}
+
 		location = /bigbluebutton/connection/legacyCheckAuthorization {
 			internal;
 			proxy_pass               http://127.0.0.1:8090;
