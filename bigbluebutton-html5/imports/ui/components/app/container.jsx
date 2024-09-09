@@ -26,6 +26,7 @@ import useSettings from '../../services/settings/hooks/useSettings';
 import { SETTINGS } from '../../services/settings/enums';
 import { useStorageKey } from '../../services/storage/hooks';
 import { useVideoStreamsCount } from '../video-provider/hooks';
+import { useIsRTCContentBridgeBroadcasting } from '/imports/ui/components/screenshare/service';
 
 const currentUserEmoji = (currentUser) => (currentUser
   ? {
@@ -131,6 +132,7 @@ const AppContainer = (props) => {
   const isScreenSharingEnabled = useIsScreenSharingEnabled();
   const isExternalVideoEnabled = useIsExternalVideoEnabled();
   const isPresentationEnabled = useIsPresentationEnabled();
+  const isRTCContentBridgeBroadcasting = useIsRTCContentBridgeBroadcasting();
 
   const { data: currentUserData } = useCurrentUser((user) => ({
     enforceLayout: user.enforceLayout,
@@ -231,9 +233,10 @@ const AppContainer = (props) => {
     return enforceLayout && layoutTypes.includes(enforceLayout) ? enforceLayout : null;
   };
 
+  // This is a trigger for showing both screenshare and "camera as content" since
+  // the later uses the screenshare bridge to broadcast cameras (with CONTENT_TYPE_CAMERA)
   const shouldShowScreenshare = (viewScreenshare || isPresenter)
-    && (currentMeeting?.componentsFlags?.hasScreenshare
-      || currentMeeting?.componentsFlags?.hasCameraAsContent);
+    && isRTCContentBridgeBroadcasting;
   const shouldShowPresentation = (!shouldShowScreenshare && !isSharedNotesPinned
     && !shouldShowExternalVideo && !shouldShowGenericMainContent
     && (presentationIsOpen || presentationRestoreOnUpdate)) && isPresentationEnabled;
