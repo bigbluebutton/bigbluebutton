@@ -337,7 +337,7 @@ const ButtonWrapper = styled(BaseButton)`
     border-radius: 50%;
     border: 2px solid white;
     border-top-color: transparent;
-    animation: spin 1.5s linear infinite;
+    animation: spin 1.5s ease-in infinite;
   }
   @keyframes spin {
     0% {
