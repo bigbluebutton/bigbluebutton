@@ -265,7 +265,7 @@ class Join extends Create {
     await this.modPage.waitForSelector(e.randomlyAssign);
     await this.modPage.dragDropSelector(e.userTest, e.breakoutBox1);
     const changeSlideBreakoutLocator = await this.modPage.getLocator(e.changeSlideBreakoutRoom1).first();
-    await changeSlideBreakoutLocator.selectOption({ index: 3 });
+    await changeSlideBreakoutLocator.selectOption({ label: 'mockPollSlide.pdf' });
     await this.modPage.waitAndClick(e.modalConfirmButton);
     await this.userPage.waitAndClick(e.modalDismissButton);
     const breakoutUserPage = await this.joinRoom();
