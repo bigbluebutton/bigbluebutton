@@ -130,28 +130,23 @@ public:
     url: 'https://bbb-01.example.com/pad'
 ```
 
-Create (or edit if it already exists) this unit override file:
-
-* `/etc/systemd/system/bbb-html5.service.d/cluster.conf`
-
-It should have the following content:
+Copy `/usr/share/bigbluebutton/nginx/bbb-html5.nginx.static` to
+`/usr/share/bigbluebutton/nginx/bbb-html5-cluster.nginx` and prepend the mount
+point of bbb-html5 in all location sections:
 
 ```
-[Service]
-Environment=ROOT_URL=https://127.0.0.1/bbb-01/html5client
-Environment=DDP_DEFAULT_CONNECTION_URL=https://bbb-01.example.com/bbb-01/html5client
-```
-
-Prepend the mount point of bbb-html5 in all location sections except for the
-`location @html5client` section in `/usr/share/bigbluebutton/nginx/bbb-html5.nginx`:
-
-```
-location @html5client {
-  ...
+# running in production (static assets)
+location /bbb-01/html5client {
+    gzip_static on;
+    alias /var/bigbluebutton/html5-client/;
+    index index.html;
+    try_files $uri $uri/ =404;
 }
 
 location /bbb-01/html5client/locales {
-  ...
+  alias /var/bigbluebutton/html5-client/locales;
+  autoindex on;
+  autoindex_format json;
 }
 ```
 
