@@ -539,9 +539,13 @@ create table "user_lockSettings" (
 );
 create index "idx_user_lockSettings_pk_reverse" on "user_lockSettings"("userId", "meetingId");
 
-CREATE VIEW "v_user_lockSettings" AS
-SELECT *
-FROM "user_lockSettings";
+CREATE VIEW "v_user_lockSettings" as
+SELECT
+l."meetingId",
+l."userId",
+case when "user"."isModerator" then false else l."disablePublicChat" end "disablePublicChat"
+FROM "user_lockSettings" l
+join "user" on "user"."meetingId" = l."meetingId" and "user"."userId" = l."userId";
 
 CREATE TABLE "user_voice" (
     "meetingId" varchar(100),

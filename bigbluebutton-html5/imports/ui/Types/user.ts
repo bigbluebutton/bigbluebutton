@@ -64,6 +64,10 @@ export interface BreakoutRooms {
   startedAt: string;
 }
 
+export interface userLockSettings {
+  disablePublicChat: boolean;
+}
+
 export interface User {
   authToken: string;
   userId: string;
@@ -109,4 +113,5 @@ export interface User {
   away: boolean;
   raiseHand: boolean;
   breakoutRooms: BreakoutRooms;
+  userLockSettings: userLockSettings;
 }
