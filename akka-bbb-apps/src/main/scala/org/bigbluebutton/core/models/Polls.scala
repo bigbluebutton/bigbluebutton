@@ -111,6 +111,9 @@ object Polls {
 
     for {
       result <- getSimplePollResult(pollId, lm.polls)
+      pod <- state.presentationPodManager.getDefaultPod()
+      pres <- pod.getCurrentPresentation()
+      page <- PresentationInPod.getCurrentPage(pres)
       shape = pollResultToWhiteboardShape(result)
       annot <- send(result, shape)
     } yield {
@@ -252,6 +255,9 @@ object Polls {
   }
 
   private def pollResultToWhiteboardShape(result: SimplePollResultOutVO): scala.collection.immutable.Map[String, Object] = {
+    val poll_width = 300
+    val poll_height = 200
+
     val shape = new scala.collection.mutable.HashMap[String, Object]()
     val props = new scala.collection.mutable.HashMap[String, Object]()
     val meta = new scala.collection.mutable.HashMap[String, Object]()
@@ -261,14 +267,14 @@ object Polls {
     props += "numResponders" -> Integer.valueOf(result.numResponders)
     props += "questionText" -> result.questionText.getOrElse("")
     props += "questionType" -> result.questionType
-    props += "w" -> Integer.valueOf(300)
-    props += "h" -> Integer.valueOf(200)
+    props += "w" -> Integer.valueOf(poll_width)
+    props += "h" -> Integer.valueOf(poll_height)
     props += "fill" -> "black"
     props += "color" -> "black"
-    props += "question" -> "lorem ipsum"
+    props += "question" -> result.questionText.getOrElse("")
 
-    shape += "x" -> Integer.valueOf(0)
-    shape += "y" -> Integer.valueOf(0)
+    shape += "x" -> java.lang.Double.valueOf(0.0)
+    shape += "y" -> java.lang.Double.valueOf(0.0)
     shape += "isLocked" -> java.lang.Boolean.valueOf(false)
     shape += "index" -> "a1"
     shape += "rotation" -> Integer.valueOf(0)
@@ -296,22 +302,6 @@ object Polls {
     } yield poll.toPollVO()
 
   }
-  //
-  //  def numPolls(polls: Polls): Int = {
-  //    polls.size
-  //  }
-  //
-  //  def addPoll(poll: Poll, model: PollModel) {
-  //    model.polls += poll.id -> poll
-  //  }
-  //
-  //  def hasCurrentPoll(model: PollModel): Boolean = {
-  //    model.currentPoll != None
-  //  }
-  //
-  //  def getCurrentPoll(model: PollModel): Option[PollVO] = {
-  //    model.currentPoll
-  //  }
 
   def getPolls(polls: Polls): Array[PollVO] = {
     val poll = new ArrayBuffer[PollVO]
@@ -322,19 +312,6 @@ object Polls {
     poll.toArray
   }
 
-  //  def clearPoll(pollID: String, model: PollModel): Boolean = {
-  //    var success = false
-  //    model.polls.get(pollID) match {
-  //      case Some(p) => {
-  //        p.clear
-  //        success = true
-  //      }
-  //      case None => success = false
-  //    }
-  //
-  //    success
-  //  }
-  //
   def startPoll(pollId: String, polls: Polls) {
     polls.get(pollId) foreach {
       p =>
@@ -342,29 +319,12 @@ object Polls {
         polls.currentPoll = Some(p)
     }
   }
-  //
-  //  def removePoll(pollID: String, model: PollModel): Boolean = {
-  //    var success = false
-  //    model.polls.get(pollID) match {
-  //      case Some(p) => {
-  //        model.polls -= p.id
-  //        success = true
-  //      }
-  //      case None => success = false
-  //    }
-  //
-  //    success
-  //  }
-  //
+
   def stopPoll(pollId: String, polls: Polls) {
     polls.get(pollId) foreach (p => p.stop())
     PollDAO.updateEnded(pollId)
   }
 
-  //  def hasPoll(pollId: String, model: PollModel): Boolean = {
-  //    model.polls.get(pollId) != None
-  //  }
-  //
   def getSimplePoll(pollId: String, polls: Polls): Option[SimplePollOutVO] = {
     var pvo: Option[SimplePollOutVO] = None
     polls.get(pollId) foreach (p => pvo = Some(p.toSimplePollOutVO()))
@@ -782,14 +742,6 @@ class Polls {
     polls += poll.id -> poll
     poll
   }
-
-  /*
-  private def remove(id: String): Option[Poll] = {
-    val poll = polls.get(id)
-    poll foreach (p => polls -= id)
-    poll
-  }
-  */
 
   private def get(id: String): Option[Poll] = {
     polls.get(id)
