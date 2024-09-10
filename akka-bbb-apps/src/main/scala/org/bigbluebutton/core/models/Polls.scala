@@ -261,7 +261,18 @@ object Polls {
     props += "numResponders" -> Integer.valueOf(result.numResponders)
     props += "questionText" -> result.questionText.getOrElse("")
     props += "questionType" -> result.questionType
+    props += "w" -> Integer.valueOf(300)
+    props += "h" -> Integer.valueOf(200)
+    props += "fill" -> "black"
+    props += "color" -> "black"
+    props += "question" -> "lorem ipsum"
 
+    shape += "x" -> Integer.valueOf(0)
+    shape += "y" -> Integer.valueOf(0)
+    shape += "isLocked" -> java.lang.Boolean.valueOf(false)
+    shape += "index" -> "a1"
+    shape += "rotation" -> Integer.valueOf(0)
+    shape += "parentId" -> "page:1"
     shape += "typeName" -> "shape"
     shape += "opacity" -> Integer.valueOf(1)
     shape += "id" -> s"shape:poll-result-${result.id}"
