@@ -1,8 +1,8 @@
-import { UserCameraHelperInterface } from 'bigbluebutton-html-plugin-sdk/dist/cjs/extensible-areas/user-camera-helper-item/types';
+import { UserCameraHelperButton } from 'bigbluebutton-html-plugin-sdk';
 
 export interface UserCameraHelperAreas {
-  userCameraHelperTopLeft: UserCameraHelperInterface[];
-  userCameraHelperTopRight: UserCameraHelperInterface[];
-  userCameraHelperBottomLeft: UserCameraHelperInterface[];
-  userCameraHelperBottomRight: UserCameraHelperInterface[];
+  userCameraHelperTopLeft: UserCameraHelperButton[];
+  userCameraHelperTopRight: UserCameraHelperButton[];
+  userCameraHelperBottomLeft: UserCameraHelperButton[];
+  userCameraHelperBottomRight: UserCameraHelperButton[];
 }

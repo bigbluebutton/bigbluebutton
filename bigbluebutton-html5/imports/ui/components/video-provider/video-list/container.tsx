@@ -3,7 +3,7 @@ import React, {
   useEffect,
   useState,
 } from 'react';
-import { UserCameraHelperInterface, UserCameraHelperItemPosition } from 'bigbluebutton-html-plugin-sdk';
+import { UserCameraHelperButton, UserCameraHelperInterface, UserCameraHelperItemPosition } from 'bigbluebutton-html-plugin-sdk';
 import VideoList from '/imports/ui/components/video-provider/video-list/component';
 import { layoutSelect, layoutDispatch } from '/imports/ui/components/layout/context';
 import { useNumberOfPages } from '/imports/ui/components/video-provider/hooks';
@@ -70,28 +70,29 @@ const VideoListContainer: React.FC<VideoListContainerProps> = (props) => {
       ...pluginsExtensibleAreasAggregatedState.userCameraHelperItems,
     ].reduce((acc, current: UserCameraHelperInterface) => {
       const state = { ...acc };
+      const currentButton = current as UserCameraHelperButton;
       switch (current.position) {
         case UserCameraHelperItemPosition.TOP_LEFT:
-          state.userCameraHelperTopLeft.push(current);
+          state.userCameraHelperTopLeft.push(currentButton);
           break;
         case UserCameraHelperItemPosition.BOTTOM_LEFT:
-          state.userCameraHelperBottomLeft.push(current);
+          state.userCameraHelperBottomLeft.push(currentButton);
           break;
         case UserCameraHelperItemPosition.TOP_RIGHT:
-          state.userCameraHelperTopRight.push(current);
+          state.userCameraHelperTopRight.push(currentButton);
           break;
         case UserCameraHelperItemPosition.BOTTOM_RIGHT:
-          state.userCameraHelperBottomRight.push(current);
+          state.userCameraHelperBottomRight.push(currentButton);
           break;
         default:
           break;
       }
       return state;
     }, {
-      userCameraHelperTopLeft: [] as UserCameraHelperInterface[],
-      userCameraHelperTopRight: [] as UserCameraHelperInterface[],
-      userCameraHelperBottomLeft: [] as UserCameraHelperInterface[],
-      userCameraHelperBottomRight: [] as UserCameraHelperInterface[],
+      userCameraHelperTopLeft: [] as UserCameraHelperButton[],
+      userCameraHelperTopRight: [] as UserCameraHelperButton[],
+      userCameraHelperBottomLeft: [] as UserCameraHelperButton[],
+      userCameraHelperBottomRight: [] as UserCameraHelperButton[],
     });
   }
 

@@ -1,6 +1,6 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { defineMessages, useIntl } from 'react-intl';
-import { UserCameraHelperButton, UserCameraHelperInterface } from 'bigbluebutton-html-plugin-sdk';
+import { UserCameraHelperButton } from 'bigbluebutton-html-plugin-sdk';
 import { UpdatedDataForUserCameraDomElement } from 'bigbluebutton-html-plugin-sdk/dist/cjs/dom-element-manipulation/user-camera/types';
 import Session from '/imports/ui/services/storage/in-memory';
 import UserActions from '/imports/ui/components/video-provider/video-list/video-list-item/user-actions/component';
@@ -66,15 +66,17 @@ interface VideoListItemProps {
 
 const renderPluginItems = (
   streamId: string, userId: string,
-  pluginItems: UserCameraHelperInterface[],
+  pluginItems: UserCameraHelperButton[],
   bottom: boolean, right: boolean,
 ) => {
   if (pluginItems !== undefined) {
     return (
       <>
         {
-          pluginItems.map((pluginItem) => {
-            const pluginButton = pluginItem as UserCameraHelperButton;
+          pluginItems.filter(
+            (pluginItem) => (pluginItem.displayFunction?.({ userId, streamId }) ?? true),
+          ).map((pluginItem) => {
+            const pluginButton = pluginItem;
             const returnComponent = (
               <PluginButtonContainer
                 key={`${pluginButton.type}-${pluginButton.id}-${pluginButton.label}`}
