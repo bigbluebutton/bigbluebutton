@@ -53,6 +53,9 @@ subscription UserListSubscription($offset: Int!, $limit: Int!) {
       shortName
       currentlyInRoom
     }
+    userLockSettings {
+      disablePublicChat
+    }
   }
 }`;
 
