@@ -39,11 +39,19 @@ if (
 const Main: React.FC = () => {
   return (
     <SettingsLoader>
-      <ErrorBoundary Fallback={ErrorScreen} logMetadata={STARTUP_CRASH_METADATA}>
+      <ErrorBoundary
+        Fallback={ErrorScreen}
+        logMetadata={STARTUP_CRASH_METADATA}
+        isCritical
+      >
         <LoadingScreenHOC>
           <IntlLoaderContainer>
             {/* from there the error messages are located */}
-            <LocatedErrorBoundary Fallback={ErrorScreen} logMetadata={APP_CRASH_METADATA}>
+            <LocatedErrorBoundary
+              Fallback={ErrorScreen}
+              logMetadata={APP_CRASH_METADATA}
+              isCritical
+            >
               <ConnectionManager>
                 <PresenceManager>
                   <CustomUsersSettings>
