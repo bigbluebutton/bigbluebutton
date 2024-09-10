@@ -353,6 +353,10 @@ const PushLayoutEngineContainer = (props) => {
   const enforceLayout = validateEnforceLayout(currentUserData);
   const meetingPresentationIsOpen = !meetingPresentationMinimized;
 
+  if (!meetingLayout) {
+    return null;
+  }
+
   return (
     <PushLayoutEngine
       {...{
