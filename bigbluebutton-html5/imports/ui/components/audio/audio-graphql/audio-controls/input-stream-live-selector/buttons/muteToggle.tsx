@@ -13,6 +13,8 @@ import {
 } from '../service';
 import {
   muteAway,
+  muteLoadingState,
+  useIsMuteLoading,
 } from '/imports/ui/components/audio/audio-graphql/audio-controls/input-stream-live-selector/service';
 
 const intlMessages = defineMessages({
@@ -65,7 +67,7 @@ export const MuteToggle: React.FC<MuteToggleProps> = ({
   const cooldownActive = useRef<boolean>(false);
   const cooldownTimerRef = useRef<NodeJS.Timeout | null>(null);
 
-  const COOLDOWN_TIME = 1500;
+  const COOLDOWN_TIME = 800;
 
   const handlePushToTalk = useCallback((action: 'down' | 'up', event: KeyboardEvent) => {
     const activeElement = document.activeElement as HTMLElement | null;
@@ -113,6 +115,12 @@ export const MuteToggle: React.FC<MuteToggleProps> = ({
     };
   }, []);
 
+  React.useEffect(() => {
+    muteLoadingState(false);
+  }, [muted]);
+
+  const isMuteLoading = useIsMuteLoading();
+
   const onClickCallback = (e: React.MouseEvent<HTMLButtonElement>) => {
     e.stopPropagation();
 
@@ -151,6 +159,7 @@ export const MuteToggle: React.FC<MuteToggleProps> = ({
       accessKey={toggleMuteShourtcut}
       $talking={talking || undefined}
       animations={animations}
+      loading={isMuteLoading}
       data-test={muted ? 'unmuteMicButton' : 'muteMicButton'}
     />
   );

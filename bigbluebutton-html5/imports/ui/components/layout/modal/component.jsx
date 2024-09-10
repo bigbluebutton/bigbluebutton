@@ -5,6 +5,7 @@ import { LAYOUT_TYPE, CAMERADOCK_POSITION, HIDDEN_LAYOUTS } from '/imports/ui/co
 import SettingsService from '/imports/ui/components/settings/service';
 import deviceInfo from '/imports/utils/deviceInfo';
 import Button from '/imports/ui/components/common/button/component';
+import Toggle from '/imports/ui/components/common/switch/component';
 import Styled from './styles';
 
 const LayoutModalComponent = ({
@@ -19,7 +20,7 @@ const LayoutModalComponent = ({
   setLocalSettings,
 }) => {
   const [selectedLayout, setSelectedLayout] = useState(application.selectedLayout);
-  const [updateAllUsed, setUpdateAllUsed] = useState(false);
+  const [keepPushingLayout, setKeepPushingLayout] = useState(application.pushLayout);
 
   const BASE_NAME = window.meetingClientSettings.public.app.cdn + window.meetingClientSettings.public.app.basename;
 
@@ -79,29 +80,61 @@ const LayoutModalComponent = ({
       id: 'app.layout.modal.layoutBtnDesc',
       description: 'label for singular layout',
     },
+    on: {
+      id: 'app.switch.onLabel',
+      description: 'label for toggle switch on state',
+    },
+    off: {
+      id: 'app.switch.offLabel',
+      description: 'label for toggle switch off state',
+    },
   });
 
   const handleSwitchLayout = (e) => {
     setSelectedLayout(e);
   };
 
-  const handleUpdateLayout = (updateAll) => {
+  const handleUpdateLayout = () => {
     const obj = {
       application:
-        { ...application, selectedLayout, pushLayout: updateAll },
+        { ...application, selectedLayout, pushLayout: keepPushingLayout },
     };
-    if ((isModerator || isPresenter) && updateAll) {
+    if ((isModerator || isPresenter) && keepPushingLayout) {
       updateSettings(obj, intlMessages.layoutToastLabelAuto);
-      setUpdateAllUsed(true);
-    } else if ((isModerator || isPresenter) && !updateAll && !updateAllUsed) {
+    } else if ((isModerator || isPresenter) && !keepPushingLayout) {
       updateSettings(obj, intlMessages.layoutToastLabelAutoOff);
-      setUpdateAllUsed(false);
     } else {
       updateSettings(obj, intlMessages.layoutToastLabel);
     }
     updateSettings(obj, intlMessages.layoutToastLabel, setLocalSettings);
     setIsOpen(false);
   };
+
+  const toggleKeepPushingLayout = () => {
+    setKeepPushingLayout((current) => !current);
+  };
+
+  const displayToggleStatus = (toggleValue) => (
+    <Styled.ToggleLabel>
+      {toggleValue ? intl.formatMessage(intlMessages.on)
+        : intl.formatMessage(intlMessages.off)}
+    </Styled.ToggleLabel>
+  );
+
+  const renderToggle = () => (
+    <Styled.ToggleStatusWrapper>
+      {displayToggleStatus(keepPushingLayout)}
+      <Toggle
+        id="TogglePush"
+        icons={false}
+        defaultChecked={keepPushingLayout}
+        onChange={toggleKeepPushingLayout}
+        ariaLabel="push"
+        data-test="updateEveryoneLayoutToggle"
+        showToggleLabel={false}
+      />
+    </Styled.ToggleStatusWrapper>
+  );
 
   const renderPushLayoutsOptions = () => {
     if (!isModerator && !isPresenter) {
@@ -110,12 +143,12 @@ const LayoutModalComponent = ({
 
     if (isKeepPushingLayoutEnabled) {
       return (
-        <Styled.BottomButton
-          label={intl.formatMessage(intlMessages.updateAll)}
-          onClick={() => handleUpdateLayout(true)}
-          color="secondary"
-          data-test="updateEveryoneLayoutBtn"
-        />
+        <Styled.PushContainer>
+          <Styled.LabelPushLayout>
+            {intl.formatMessage(intlMessages.updateAll)}
+          </Styled.LabelPushLayout>
+          {renderToggle()}
+        </Styled.PushContainer>
       );
     }
     return null;
@@ -175,7 +208,7 @@ const LayoutModalComponent = ({
         <Button
           color="primary"
           label={intl.formatMessage(intlMessages.update)}
-          onClick={() => handleUpdateLayout(false)}
+          onClick={() => handleUpdateLayout()}
           data-test="updateLayoutBtn"
         />
       </Styled.ButtonBottomContainer>

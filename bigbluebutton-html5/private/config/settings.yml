@@ -911,6 +911,10 @@ public:
     #  0: 'https://link.bigbluebutton.org/unk'
     # muteAudioOutputWhenAway: mute output audio if user is in away mode
     muteAudioOutputWhenAway: false
+    # Index is the error code:
+    #   - 1136: permission denied
+    screenshareTroubleshootingLinks:
+      1136: 'https://support.bigbluebutton.org/hc/en-us/articles/1500005316582-Share-my-screen#:~:text=Error%201136%3A%20Permission%20to%20capture,able%20to%20screen%20share%20again'
   stats:
     enabled: true
     interval: 10000
