@@ -1,6 +1,7 @@
 package main
 
 import (
+	"bbb-graphql-middleware/config"
 	"bbb-graphql-middleware/internal/common"
 	"bbb-graphql-middleware/internal/websrv"
 	"context"
@@ -9,15 +10,15 @@ import (
 	"github.com/prometheus/client_golang/prometheus/promhttp"
 	log "github.com/sirupsen/logrus"
 	"net/http"
-	"os"
-	"strconv"
 	"time"
 )
 
 func main() {
+	cfg := config.GetConfig()
+
 	// Configure logger
-	if logLevelFromEnvVar, err := log.ParseLevel(os.Getenv("BBB_GRAPHQL_MIDDLEWARE_LOG_LEVEL")); err == nil {
-		log.SetLevel(logLevelFromEnvVar)
+	if logLevelFromConfig, err := log.ParseLevel(cfg.LogLevel); err == nil {
+		log.SetLevel(logLevelFromConfig)
 	} else {
 		log.SetLevel(log.InfoLevel)
 	}
@@ -33,35 +34,13 @@ func main() {
 	// Listen msgs from akka (for example to invalidate connection)
 	go websrv.StartRedisListener()
 
-	if jsonPatchDisabled := os.Getenv("BBB_GRAPHQL_MIDDLEWARE_JSON_PATCH_DISABLED"); jsonPatchDisabled != "" {
+	if cfg.Server.JsonPatchDisabled {
 		log.Infof("Json Patch Disabled!")
 	}
 
 	// Websocket listener
 
-	//Define IP to listen
-	listenIp := "127.0.0.1"
-	if envListenIp := os.Getenv("BBB_GRAPHQL_MIDDLEWARE_LISTEN_IP"); envListenIp != "" {
-		listenIp = envListenIp
-	}
-
-	// Define port to listen on
-	listenPort := 8378
-	if envListenPort := os.Getenv("BBB_GRAPHQL_MIDDLEWARE_LISTEN_PORT"); envListenPort != "" {
-		if envListenPortAsInt, err := strconv.Atoi(envListenPort); err == nil {
-			listenPort = envListenPortAsInt
-		}
-	}
-
-	//Define new Connections Rate Limit
-	maxConnPerSecond := 10
-	if envMaxConnPerSecond := os.Getenv("BBB_GRAPHQL_MIDDLEWARE_MAX_CONN_PER_SECOND"); envMaxConnPerSecond != "" {
-		if envMaxConnPerSecondAsInt, err := strconv.Atoi(envMaxConnPerSecond); err == nil {
-			maxConnPerSecond = envMaxConnPerSecondAsInt
-		}
-	}
-	rateLimiter := common.NewCustomRateLimiter(maxConnPerSecond)
-
+	rateLimiter := common.NewCustomRateLimiter(cfg.Server.MaxConnectionsPerSecond)
 	http.HandleFunc("/graphql", func(w http.ResponseWriter, r *http.Request) {
 		ctx, cancel := context.WithTimeout(r.Context(), 120*time.Second)
 		defer cancel()
@@ -84,6 +63,6 @@ func main() {
 	// Add Prometheus metrics endpoint
 	http.Handle("/metrics", promhttp.Handler())
 
-	log.Infof("listening on %v:%v", listenIp, listenPort)
-	log.Fatal(http.ListenAndServe(fmt.Sprintf("%v:%v", listenIp, listenPort), nil))
+	log.Infof("listening on %v:%v", cfg.Server.Host, cfg.Server.Port)
+	log.Fatal(http.ListenAndServe(fmt.Sprintf("%v:%v", cfg.Server.Host, cfg.Server.Port), nil))
 }

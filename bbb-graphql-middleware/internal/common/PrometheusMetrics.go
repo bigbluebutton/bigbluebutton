@@ -1,17 +1,11 @@
 package common
 
 import (
+	"bbb-graphql-middleware/config"
 	"github.com/prometheus/client_golang/prometheus"
-	"os"
 )
 
-var PrometheusAdvancedMetricsEnabled = false
-
-func init() {
-	if prometheusAdvancedMetricsEnabled := os.Getenv("BBB_GRAPHQL_MIDDLEWARE_PROMETHEUS_ADVANCED_METRICS_ENABLED"); prometheusAdvancedMetricsEnabled == "true" {
-		PrometheusAdvancedMetricsEnabled = true
-	}
-}
+var PrometheusAdvancedMetricsEnabled = config.GetConfig().PrometheusAdvancedMetricsEnabled
 
 var (
 	HttpConnectionGauge = prometheus.NewGauge(prometheus.GaugeOpts{

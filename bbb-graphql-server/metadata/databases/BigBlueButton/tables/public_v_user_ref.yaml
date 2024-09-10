@@ -25,7 +25,7 @@ select_permissions:
         - hasDrawPermissionOnCurrentPage
         - isDialIn
         - isModerator
-        - isOnline
+        - currentlyInMeeting
         - joined
         - locked
         - loggedOut

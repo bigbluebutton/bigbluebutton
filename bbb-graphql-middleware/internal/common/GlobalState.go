@@ -1,9 +1,8 @@
 package common
 
 import (
+	"bbb-graphql-middleware/config"
 	"github.com/google/uuid"
-	"os"
-	"strconv"
 	"sync"
 	"time"
 )
@@ -109,22 +108,8 @@ func RemoveStreamCursorValueCache(cacheKey uint32, delayInSecs time.Duration) {
 	delete(StreamCursorValueCache, cacheKey)
 }
 
-var MaxConnPerSessionToken = 3
-var MaxConnGlobal = 500
-
-func init() {
-	if envMaxConnPerSessionToken := os.Getenv("BBB_GRAPHQL_MIDDLEWARE_MAX_CONN_PER_SESSION_TOKEN"); envMaxConnPerSessionToken != "" {
-		if envMaxConnPerSessionTokenAsInt, err := strconv.Atoi(envMaxConnPerSessionToken); err == nil {
-			MaxConnPerSessionToken = envMaxConnPerSessionTokenAsInt
-		}
-	}
-
-	if envMaxConnGlobal := os.Getenv("BBB_GRAPHQL_MIDDLEWARE_MAX_CONN"); envMaxConnGlobal != "" {
-		if envMaxConnGlobalAsInt, err := strconv.Atoi(envMaxConnGlobal); err == nil {
-			MaxConnGlobal = envMaxConnGlobalAsInt
-		}
-	}
-}
+var MaxConnPerSessionToken = config.GetConfig().Server.MaxConnectionsPerSessionToken
+var MaxConnGlobal = config.GetConfig().Server.MaxConnections
 
 func GetMaxConnectionsPerSessionToken() int {
 	return MaxConnPerSessionToken

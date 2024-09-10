@@ -57,12 +57,12 @@ const UserDatailsComponent = (props) => {
   const leftTimes = Object.values(user.intIds).map((intId) => intId.leftOn);
   const joinTime = Math.min(...registeredTimes);
   const leftTime = Math.max(...leftTimes);
-  const isOnline = Object.values(user.intIds).some((intId) => intId.leftOn === 0);
+  const currentlyInMeeting = Object.values(user.intIds).some((intId) => intId.leftOn === 0);
 
   // Used in the calculation of the online loader.
   const sessionDuration = (endedOn || currTime()) - createdOn;
   const userStartOffsetTime = ((joinTime - createdOn) * 100) / sessionDuration;
-  const userEndOffsetTime = isOnline
+  const userEndOffsetTime = currentlyInMeeting
     ? 0
     : (((endedOn || currTime()) - leftTime) * 100) / sessionDuration;
 
@@ -400,7 +400,7 @@ const UserDatailsComponent = (props) => {
             </div>
             <div>
               <div className="font-medium">
-                { isOnline ? (
+                { currentlyInMeeting ? (
                   <span className="px-2 py-1 font-semibold leading-tight text-green-700 bg-green-100 rounded-full">
                     <FormattedMessage id="app.learningDashboard.indicators.userStatusOnline" defaultMessage="Online" />
                   </span>

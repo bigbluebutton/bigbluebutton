@@ -112,14 +112,18 @@ trait UserJoinedVoiceConfEvtMsgHdlr extends SystemConfiguration {
       if (isDialInUser) {
         registerUserInRegisteredUsers()
         registerUserInUsers2x()
-        guestPolicy match {
-          case GuestPolicy(policy, setBy) => {
-            policy match {
-              case GuestPolicyType.ALWAYS_ACCEPT => letUserEnter()
-              case GuestPolicyType.ALWAYS_DENY   => VoiceApp.removeUserFromVoiceConf(liveMeeting, outGW, msg.body.voiceUserId)
-              case GuestPolicyType.ASK_MODERATOR => registerUserAsGuest()
+        if (dialInEnforceGuestPolicy) {
+          guestPolicy match {
+            case GuestPolicy(policy, setBy) => {
+              policy match {
+                case GuestPolicyType.ALWAYS_ACCEPT => letUserEnter()
+                case GuestPolicyType.ALWAYS_DENY   => VoiceApp.removeUserFromVoiceConf(liveMeeting, outGW, msg.body.voiceUserId)
+                case GuestPolicyType.ASK_MODERATOR => registerUserAsGuest()
+              }
             }
           }
+        } else {
+          letUserEnter()
         }
       } else {
         // Regular users reach this point after beeing

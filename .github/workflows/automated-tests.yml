@@ -262,8 +262,9 @@ jobs:
           NODE_EXTRA_CA_CERTS: /usr/local/share/ca-certificates/bbb-dev/bbb-dev-ca.crt
           ACTIONS_RUNNER_DEBUG: true
         with:
-          timeout_minutes: 25
+          timeout_minutes: 15
           max_attempts: 2
+          retry_on: any
           command: |
             sudo -i <<EOF
             set -e
@@ -271,6 +272,7 @@ jobs:
             cat bbb-install.sh | sed "s|> /etc/apt/sources.list.d/bigbluebutton.list||g" | bash -s -- -v jammy-30-dev -s bbb-ci.test -j -d /certs/
             bbb-conf --salt bbbci
             sed -i "s/\"minify\": true,/\"minify\": false,/" /usr/share/etherpad-lite/settings.json
+            sudo yq e -i '.log_level = "TRACE"' /usr/share/bbb-graphql-middleware/config.yml
             bbb-conf --restart
             EOF
       - name: List systemctl services

@@ -183,13 +183,14 @@ Adjust the CORS settings in `/etc/default/bbb-web`:
 JDK_JAVA_OPTIONS="-Dgrails.cors.enabled=true -Dgrails.cors.allowCredentials=true -Dgrails.cors.allowedOrigins=https://bbb-proxy.example.com,https://https://bbb-01.example.com"
 ```
 
-Adjust the CORS setting in `/etc/default/bbb-graphql-middleware`:
+Create the file `/etc/bigbluebutton/bbb-graphql-middleware.yml` with the following content:
 
 ```shell
-BBB_GRAPHQL_MIDDLEWARE_LISTEN_PORT=8378
-# If you are running a cluster proxy setup, you need to configure the Origin of
-# the frontend. See https://docs.bigbluebutton.org/administration/cluster-proxy
-BBB_GRAPHQL_MIDDLEWARE_ORIGIN=bbb-proxy.example.com
+# If you are running a cluster proxy setup, you need to allow the url of the Frontend
+# Add an Authorized Cross Origin. See https://docs.bigbluebutton.org/administration/cluster-proxy
+```yaml
+server:
+  authorized_cross_origin: bbb-proxy.example.com
 ```
 
 Pay attention that this one is without protocol, just the hostname.
