@@ -19,6 +19,7 @@ export interface ExtensibleArea {
   optionsDropdownItems: PluginSdk.OptionsDropdownInterface[];
   cameraSettingsDropdownItems: PluginSdk.CameraSettingsDropdownInterface[];
   userCameraDropdownItems: PluginSdk.UserCameraDropdownInterface[];
+  userCameraHelperItems: PluginSdk.UserCameraHelperInterface[];
   userListItemAdditionalInformation: PluginSdk.UserListItemAdditionalInformationInterface[];
   floatingWindows: PluginSdk.FloatingWindowInterface[]
   genericContentItems: PluginSdk.GenericContentInterface[]
