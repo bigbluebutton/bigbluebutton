@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { throttle } from 'radash';
 
 const useCursor = (publishCursorUpdate, whiteboardId) => {
     const [cursorPosition, setCursorPosition] = useState({ x: '', y: '' });
@@ -101,7 +102,7 @@ const useMouseEvents = ({ whiteboardRef, tlEditorRef, isWheelZoomRef, initialZoo
         }, 150);
     };
 
-    const handleMouseWheel = (event) => {
+    const handleMouseWheel = throttle({ interval: 175 }, (event) => {
         event.preventDefault();
         event.stopPropagation();
         if (!tlEditorRef.current || !isPresenter || !currentPresentationPage) {
@@ -155,7 +156,7 @@ const useMouseEvents = ({ whiteboardRef, tlEditorRef, isWheelZoomRef, initialZoo
         }
 
         setWheelZoomTimeout();
-    };
+    });
 
     React.useEffect(() => {
         if (whiteboardToolbarAutoHide) {

@@ -8,7 +8,6 @@ import { notify } from '/imports/ui/services/notification';
 import { layoutSelectInput, layoutDispatch } from '/imports/ui/components/layout/context';
 import {
   PINNED_PAD_SUBSCRIPTION,
-  PinnedPadSubscriptionResponse,
 } from '/imports/ui/components/notes/queries';
 import Styled from './styles';
 import usePreviousValue from '/imports/ui/hooks/usePreviousValue';
@@ -192,13 +191,29 @@ const UserNotesGraphql: React.FC<UserNotesGraphqlProps> = (props) => {
 };
 
 const UserNotesContainerGraphql: React.FC<UserNotesContainerGraphqlProps> = (props) => {
+  type PinnedPadData = {
+    sharedNotes: Array<{
+      sharedNotesExtId: string;
+    }>;
+  };
   const { userLocks } = props;
   const disableNotes = userLocks.userNotes;
-  const { data: pinnedPadData } = useDeduplicatedSubscription<PinnedPadSubscriptionResponse>(PINNED_PAD_SUBSCRIPTION);
+  const [pinnedPadDataState, setPinnedPadDataState] = useState<PinnedPadData | null>(null);
+
+  useEffect(() => {
+    const fetchData = async () => {
+      const { data: pinnedPadData } = await useDeduplicatedSubscription(
+        PINNED_PAD_SUBSCRIPTION,
+      );
+      setPinnedPadDataState(pinnedPadData || []);
+    };
+
+    fetchData();
+  }, []);
 
   const NOTES_CONFIG = window.meetingClientSettings.public.notes;
 
-  const isPinned = !!pinnedPadData && pinnedPadData.sharedNotes[0]?.sharedNotesExtId === NOTES_CONFIG.id;
+  const isPinned = !!pinnedPadDataState && pinnedPadDataState.sharedNotes[0]?.sharedNotesExtId === NOTES_CONFIG.id;
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const sidebarContent = layoutSelectInput((i: any) => i.sidebarContent);
