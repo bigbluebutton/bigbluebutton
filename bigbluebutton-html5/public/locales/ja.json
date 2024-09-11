@@ -676,7 +676,7 @@
     "app.actionsBar.reactions.lowHand": "手をおろす",
     "app.actionsBar.reactions.autoCloseReactionsBarLabel": "リアクションバーを自動で隠す",
     "app.actionsBar.reactions.setAway": "不在にする",
-    "app.actionsBar.reactions.setActive": "アクティブにする",
+    "app.actionsBar.reactions.setActive": "在室にする",
     "app.actionsBar.currentStatusDesc": "現在のステータス {0}",
     "app.actionsBar.captions.start": "字幕を表示",
     "app.actionsBar.captions.stop": "字幕を非表示",
