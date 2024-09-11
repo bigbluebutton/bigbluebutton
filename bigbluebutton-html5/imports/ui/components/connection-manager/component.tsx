@@ -158,10 +158,14 @@ const ConnectionManager: React.FC<ConnectionManagerProps> = ({ children }): Reac
             const terminated = isDetailedError && error.code === 4499;
 
             if (terminated) {
-              logger.info(
-                { logCode: 'connection_terminated' },
-                'Connection terminated (4499)',
-              );
+              logger.info({
+                logCode: 'connection_terminated',
+                extraInfo: {
+                  errorName: error.name,
+                  errorMessage: error.message,
+                  errorReason: error.reason,
+                },
+              }, 'Connection terminated (4499)');
             } else if (isDetailedError) {
               logger.error({
                 logCode: 'connection_error',
@@ -172,10 +176,14 @@ const ConnectionManager: React.FC<ConnectionManagerProps> = ({ children }): Reac
                 },
               }, `Connection error (${error.code})`);
             } else {
-              logger.error(
-                { logCode: 'connection_error' },
-                `Connection error: ${JSON.stringify(error)}`,
-              );
+              logger.error({
+                logCode: 'connection_error',
+                extraInfo: {
+                  errorName: 'Error',
+                  errorMessage: JSON.stringify(error),
+                  errorReason: 'Unknown',
+                },
+              }, `Connection error: ${JSON.stringify(error)}`);
             }
 
             if (error && typeof error === 'object' && 'code' in error && error.code === 4403) {
