@@ -705,6 +705,7 @@ class VideoPreview extends Component {
     }
 
     this.setState({ webcamDeviceId: actualDeviceId, });
+    return actualDeviceId;
   }
 
   getInitialCameraStream(deviceId) {
@@ -802,9 +803,14 @@ class VideoPreview extends Component {
 
     try {
       // The return of doGUM is an instance of BBBVideoStream (a thin wrapper over a MediaStream)
-      const bbbVideoStream = await PreviewService.doGUM(deviceId, profile);
+      let bbbVideoStream = await PreviewService.doGUM(deviceId, profile);
       this.currentVideoStream = bbbVideoStream;
-      this.updateDeviceId(deviceId);
+      const updatedDevice = this.updateDeviceId(deviceId);
+
+      if (updatedDevice !== deviceId) {
+        bbbVideoStream = await PreviewService.doGUM(updatedDevice, profile);
+        this.currentVideoStream = bbbVideoStream;
+      }
     } catch(error) {
       // When video preview is set to skip, we need some way to bubble errors
       // up to users; so re-throw the error
