@@ -262,7 +262,7 @@ jobs:
           NODE_EXTRA_CA_CERTS: /usr/local/share/ca-certificates/bbb-dev/bbb-dev-ca.crt
           ACTIONS_RUNNER_DEBUG: true
         with:
-          timeout_minutes: 15
+          timeout_minutes: 25
           max_attempts: 2
           retry_on: any
           command: |
