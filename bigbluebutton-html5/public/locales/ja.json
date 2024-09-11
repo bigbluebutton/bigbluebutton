@@ -1105,7 +1105,7 @@
     "app.video.cancel": "キャンセル",
     "app.video.swapCam": "反転",
     "app.video.swapCamDesc": "ウェブカメラの向きを反転する",
-    "app.video.videoLocked": "ウェブカメラ共有がロックされています",
+    "app.video.videoLocked": "ウェブカメラ共有が無効になっています",
     "app.video.videoButtonDesc": "ウェブカメラを共有",
     "app.video.videoMenu": "ビデオメニュー",
     "app.video.videoMenuDisabled": "ビデオメニューの設定でウェブカメラが無効です",
