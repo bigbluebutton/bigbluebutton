@@ -1099,7 +1099,7 @@
     "app.video.inactiveError": "ウェブカメラが予期せず停止しました。ブラウザのカメラ使用許可を調べてください。",
     "app.video.mediaTimedOutError": "ウェブカメラのストリームが中断しました。もう一度共有しなおしてください",
     "app.video.mediaFlowTimeout1020": "映像がサーバに届いていません (error 1020)",
-    "app.video.suggestWebcamLock": "視聴者のカメラをロックしますか？",
+    "app.video.suggestWebcamLock": "視聴者のカメラを無効にしますか？",
     "app.video.suggestWebcamLockReason": "（会議の安定性が向上します）",
     "app.video.enable": "起動する",
     "app.video.cancel": "キャンセル",
