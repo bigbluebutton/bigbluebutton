@@ -812,6 +812,7 @@
     "app.toast.chat.system": "Sistema",
     "app.toast.chat.poll": "Inkestaren emaitzak",
     "app.toast.chat.pollClick": "Inkestaren emaitzak argitaratu dira. Egin klik hemen ikusteko.",
+    "app.toast.chat.exportedPresentation": "Aurkezpen fitxategia",
     "app.toast.clearedEmoji.label": "Garbitu da emojiaren egoera",
     "app.toast.setEmoji.label": "Emojiaren egoera {0}-an ezarri da",
     "app.toast.meetingMuteOn.label": "Erabiltzaile guztiak isilarazi dira",
