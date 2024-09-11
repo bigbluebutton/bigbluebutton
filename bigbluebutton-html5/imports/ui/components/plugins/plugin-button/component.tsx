@@ -1,23 +1,23 @@
 import React from 'react';
 import Styled from './styles';
 
-interface PluginButtonComponentProps {
+interface PluginHelperButtonComponentProps {
   dark: boolean;
   bottom: boolean;
   right: boolean;
   icon: string;
   label: string;
-  onClick: () => void;
+  onClick: (args: { browserClickEvent: React.MouseEvent<HTMLElement> }) => void;
 }
 
-const PluginButtonComponent = ({
+const PluginHelperButtonComponent = ({
   dark = false,
   bottom = false,
-  onClick = () => {},
+  onClick,
   right,
   icon,
   label,
-}: PluginButtonComponentProps) => (
+}: PluginHelperButtonComponentProps) => (
   <Styled.PluginButtonWrapper
     {...{
       dark,
@@ -29,7 +29,7 @@ const PluginButtonComponent = ({
       color="default"
       icon={icon}
       size="sm"
-      onClick={onClick}
+      onClick={(e: React.MouseEvent<HTMLElement>) => onClick({ browserClickEvent: e })}
       hideLabel
       label={label}
       data-test="switchButton"
@@ -37,4 +37,4 @@ const PluginButtonComponent = ({
   </Styled.PluginButtonWrapper>
 );
 
-export default PluginButtonComponent;
+export default PluginHelperButtonComponent;

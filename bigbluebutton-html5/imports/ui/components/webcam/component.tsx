@@ -19,6 +19,8 @@ import { Input, Layout, Output } from '/imports/ui/components/layout/layoutTypes
 import { VideoItem } from '/imports/ui/components/video-provider/types';
 import useDeduplicatedSubscription from '/imports/ui/core/hooks/useDeduplicatedSubscription';
 import { useStorageKey } from '/imports/ui/services/storage/hooks';
+import useSettings from '../../services/settings/hooks/useSettings';
+import { SETTINGS } from '../../services/settings/enums';
 
 interface WebcamComponentProps {
   cameraDock: Output['cameraDock'];
@@ -293,24 +295,19 @@ const WebcamComponent: React.FC<WebcamComponentProps> = ({
   );
 };
 
-interface WebcamContainerProps {
-  isLayoutSwapped: boolean;
-  layoutType: string;
-}
-
-const WebcamContainer: React.FC<WebcamContainerProps> = ({
-  isLayoutSwapped,
-  layoutType,
-}) => {
+const WebcamContainer: React.FC = () => {
   const fullscreen = layoutSelect((i: Layout) => i.fullscreen);
   const isRTL = layoutSelect((i: Layout) => i.isRTL);
   const cameraDockInput = layoutSelectInput((i: Input) => i.cameraDock);
+  const presentationInput = layoutSelectInput((i: Input) => i.presentation);
   const presentation = layoutSelectOutput((i: Output) => i.presentation);
   const cameraDock = layoutSelectOutput((i: Output) => i.cameraDock);
   const layoutContextDispatch = layoutDispatch();
   const { data: presentationPageData } = useDeduplicatedSubscription(CURRENT_PRESENTATION_PAGE_SUBSCRIPTION);
   const presentationPage = presentationPageData?.pres_page_curr[0] || {};
   const hasPresentation = !!presentationPage?.presentationId;
+  const { isOpen: presentationIsOpen } = presentationInput;
+  const isLayoutSwapped = !presentationIsOpen;
 
   const swapLayout = !hasPresentation || isLayoutSwapped;
 
@@ -328,8 +325,9 @@ const WebcamContainer: React.FC<WebcamContainerProps> = ({
   const { data: currentUserData } = useCurrentUser((user) => ({
     presenter: user.presenter,
   }));
+  const { selectedLayout } = useSettings(SETTINGS.APPLICATION) as { selectedLayout: string };
 
-  const isGridEnabled = layoutType === LAYOUT_TYPE.VIDEO_FOCUS;
+  const isGridEnabled = selectedLayout === LAYOUT_TYPE.VIDEO_FOCUS;
 
   const { streams: videoUsers, gridUsers } = useVideoStreams();
 

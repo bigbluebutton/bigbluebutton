@@ -10,6 +10,7 @@ import { debounce } from '/imports/utils/debounce';
 import { throttle } from '/imports/utils/throttle';
 import apolloContextHolder from '/imports/ui/core/graphql/apolloContextHolder/apolloContextHolder';
 import { MEETING_IS_BREAKOUT } from '/imports/ui/components/audio/audio-graphql/audio-controls/queries';
+import { ReactiveVar, makeVar, useReactiveVar } from '@apollo/client';
 
 const MUTED_KEY = 'muted';
 const DEVICE_LABEL_MAX_LENGTH = 40;
@@ -41,6 +42,10 @@ export const handleLeaveAudio = (meetingIsBreakout: boolean) => {
     'audio connection closed by user',
   );
 };
+
+export const muteLoadingState: ReactiveVar<boolean> = makeVar(false);
+
+export const useIsMuteLoading = () => useReactiveVar(muteLoadingState);
 
 const toggleMute = (
   muted: boolean,
@@ -74,19 +79,24 @@ const toggleMute = (
   apolloContextHolder.getClient().query({
     query: MEETING_IS_BREAKOUT,
     fetchPolicy: 'cache-first',
-  }).then((result) => {
-    const meeting = result?.data?.meeting?.[0];
-    const meetingId = meeting?.isBreakout && meeting?.breakoutPolicies?.parentId
-      ? meeting.breakoutPolicies.parentId
-      : Auth.meetingID;
-    const storageKey = `${MUTED_KEY}_${meetingId}`;
+  })
+    .then((result) => {
+      const meeting = result?.data?.meeting?.[0];
+      const meetingId = meeting?.isBreakout && meeting?.breakoutPolicies?.parentId
+        ? meeting.breakoutPolicies.parentId
+        : Auth.meetingID;
+      const storageKey = `${MUTED_KEY}_${meetingId}`;
 
-    toggle(storageKey);
-  }).catch(() => {
-    // Fallback
-    const storageKey = `${MUTED_KEY}_${Auth.meetingID}`;
-    toggle(storageKey);
-  });
+      toggle(storageKey);
+    })
+    .catch(() => {
+      // Fallback
+      const storageKey = `${MUTED_KEY}_${Auth.meetingID}`;
+      toggle(storageKey);
+    })
+    .finally(() => {
+      muteLoadingState(true);
+    });
 };
 
 const toggleMuteMicrophoneThrottled = throttle(toggleMute, TOGGLE_MUTE_THROTTLE_TIME);
@@ -178,7 +188,6 @@ export const muteAway = (
 export default {
   handleLeaveAudio,
   toggleMuteMicrophone,
-  toggleMuteMicrophoneSystem,
   truncateDeviceName,
   notify,
   liveChangeInputDevice,

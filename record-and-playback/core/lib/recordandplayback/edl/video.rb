@@ -216,7 +216,7 @@ module BigBlueButton
         videoinfo = {}
 
         corrupt_videos = Set.new
-        remux_flv_videos = Set.new
+        try_remux_videos = Set.new
 
         BigBlueButton.logger.info "Pre-processing EDL"
         enforce_cut_lengths(edl, layout[:framerate])
@@ -240,36 +240,58 @@ module BigBlueButton
           if !info[:video]
             BigBlueButton.logger.warn "    This video file is corrupt! It will be removed from the output."
             corrupt_videos << videofile
-          else
-            BigBlueButton.logger.debug "    width: #{info[:width]}, height: #{info[:height]}, duration: #{info[:duration]}, start_time: #{info[:start_time]}"
-            if info[:video][:deskshare_timestamp_bug]
-              BigBlueButton.logger.debug("    has early 1.1 deskshare timestamp bug")
-            elsif info[:format][:format_name] == 'flv' and info[:start_time] > 1
-              BigBlueButton.logger.debug("    has large start time, needs remuxing")
-              remux_flv_videos << videofile
-            end
+            next
           end
 
           videoinfo[videofile] = info
+
+          BigBlueButton.logger.debug "    width: #{info[:width]}, height: #{info[:height]}, duration: #{info[:duration]}, start_time: #{info[:start_time]}"
+          if info[:video][:deskshare_timestamp_bug]
+            BigBlueButton.logger.debug("    has early 1.1 deskshare timestamp bug")
+          elsif info[:format][:format_name] == 'flv' and info[:start_time] > 1
+            BigBlueButton.logger.debug("    has large start time, needs remuxing")
+            try_remux_videos << videofile
+          end
+
+          # Try decoding a frame to detect some types of problems
+          ffmpeg_cmd = [
+            *FFMPEG,
+            '-max_error_rate', '0',
+            '-noaccurate_seek', '-ss', '0', '-i', videofile,
+            '-map', '0:v:0', '-frames:v', '1', '-f', 'null', '-',
+          ]
+          exitstatus = BigBlueButton.execute(ffmpeg_cmd, false)
+          unless exitstatus.success?
+            BigBlueButton.logger.warn("    Failed to run test decode; will attempt to remux")
+            try_remux_videos << videofile
+          end
         end
 
-        if remux_flv_videos.length > 0
-          BigBlueButton.logger.info("Remuxing flv files with large start time")
-          remux_flv_videos.each do |videofile|
+        if try_remux_videos.length > 0
+          BigBlueButton.logger.info("Attempting remux of videos with problems")
+          remuxdir = File.join(File.dirname(output_basename), "remux")
+          FileUtils.mkdir_p(remuxdir)
+          try_remux_videos.each do |videofile|
             BigBlueButton.logger.info("  #{File.basename(videofile)}")
-            newvideofile = File.join(File.dirname(output_basename), File.basename(videofile))
+            newvideofile = File.join(remuxdir, "#{File.basename(videofile, '.*')}.nut")
 
-            if !File.exist?(newvideofile)
+            unless File.exist?(newvideofile)
               ffmpeg_cmd = [*FFMPEG, '-i', videofile, '-c', 'copy', newvideofile]
-              exitstatus = BigBlueButton.exec_ret(*ffmpeg_cmd)
-              raise "ffmpeg failed, exit code #{exitstatus}" if exitstatus != 0
+              exitstatus = BigBlueButton.execute(ffmpeg_cmd, false)
+              unless exitstatus.success?
+                BigBlueButton.logger.warn("    Remux command failed, input file is unusable")
+                corrupt_videos << videofile
+                next
+              end
             end
 
             info = video_info(newvideofile)
             if !info[:video]
               BigBlueButton.logger.warn("    Result of remux is corrupt, not using it.")
+              corrupt_videos << videofile
               next
             end
+
             BigBlueButton.logger.debug "    width: #{info[:width]}, height: #{info[:height]}, duration: #{info[:duration]}, start_time: #{info[:start_time]}"
             videoinfo[newvideofile] = info
 

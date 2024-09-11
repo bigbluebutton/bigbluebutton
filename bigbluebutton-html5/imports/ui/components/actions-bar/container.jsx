@@ -1,4 +1,4 @@
-import React, { useContext } from 'react';
+import React, { useContext, useEffect, useState } from 'react';
 import { useIntl } from 'react-intl';
 import { useMutation, useReactiveVar } from '@apollo/client';
 import getFromUserSettings from '/imports/ui/services/users-settings';
@@ -8,7 +8,6 @@ import {
   layoutSelectOutput,
   layoutSelectInput,
   layoutDispatch,
-  layoutSelect,
 } from '../layout/context';
 import {
   useIsExternalVideoEnabled,
@@ -28,6 +27,9 @@ import { EXTERNAL_VIDEO_STOP } from '../external-video-player/mutations';
 import { PINNED_PAD_SUBSCRIPTION } from '../notes/queries';
 import useDeduplicatedSubscription from '../../core/hooks/useDeduplicatedSubscription';
 import connectionStatus from '../../core/graphql/singletons/connectionStatus';
+import { useMeetingLayoutUpdater, usePushLayoutUpdater } from '../layout/push-layout/hooks';
+import useSettings from '/imports/ui/services/settings/hooks/useSettings';
+import { SETTINGS } from '/imports/ui/services/settings/enums';
 
 const isReactionsButtonEnabled = () => {
   const USER_REACTIONS_ENABLED = window.meetingClientSettings.public.userReaction.enabled;
@@ -40,6 +42,9 @@ const ActionsBarContainer = (props) => {
   const NOTES_CONFIG = window.meetingClientSettings.public.notes;
   const actionsBarStyle = layoutSelectOutput((i) => i.actionBar);
   const layoutContextDispatch = layoutDispatch();
+  const cameraDockOutput = layoutSelectOutput((i) => i.cameraDock);
+  const cameraDockInput = layoutSelectInput((i) => i.cameraDock);
+  const presentationInput = layoutSelectInput((i) => i.presentation);
 
   const { data: presentationPageData } = useDeduplicatedSubscription(
     CURRENT_PRESENTATION_PAGE_SUBSCRIPTION,
@@ -79,10 +84,21 @@ const ActionsBarContainer = (props) => {
   };
   const amIPresenter = currentUserData?.presenter;
   const amIModerator = currentUserData?.isModerator;
+  const [pinnedPadDataState, setPinnedPadDataState] = useState(null);
 
-  const { data: pinnedPadData } = useDeduplicatedSubscription(PINNED_PAD_SUBSCRIPTION);
-  const isSharedNotesPinnedFromGraphql = !!pinnedPadData
-    && pinnedPadData.sharedNotes[0]?.sharedNotesExtId === NOTES_CONFIG.id;
+  useEffect(() => {
+    const fetchData = async () => {
+      const { data: pinnedPadData } = await useDeduplicatedSubscription(
+        PINNED_PAD_SUBSCRIPTION,
+      );
+      setPinnedPadDataState(pinnedPadData || []);
+    };
+
+    fetchData();
+  }, []);
+
+  const isSharedNotesPinnedFromGraphql = !!pinnedPadDataState
+    && pinnedPadDataState.sharedNotes[0]?.sharedNotesExtId === NOTES_CONFIG.id;
 
   const isSharedNotesPinned = isSharedNotesPinnedFromGraphql;
   const allowExternalVideo = useIsExternalVideoEnabled();
@@ -91,6 +107,15 @@ const ActionsBarContainer = (props) => {
   const isPresentationEnabled = useIsPresentationEnabled();
   const isTimerFeatureEnabled = useIsTimerFeatureEnabled();
   const isPollingEnabled = useIsPollingEnabled() && isPresentationEnabled;
+  const applicationSettings = useSettings(SETTINGS.APPLICATION);
+  const { pushLayout } = applicationSettings;
+  const setPushLayout = usePushLayoutUpdater(pushLayout);
+  const setMeetingLayout = useMeetingLayoutUpdater(
+    cameraDockOutput,
+    cameraDockInput,
+    presentationInput,
+    applicationSettings,
+  );
   if (actionsBarStyle.display === false) return null;
   if (!currentMeeting) return null;
 
@@ -122,6 +147,8 @@ const ActionsBarContainer = (props) => {
         isTimerActive: currentMeeting.componentsFlags.hasTimer,
         isTimerEnabled: isTimerFeatureEnabled,
         hasGenericContent: isThereGenericMainContent,
+        setPushLayout,
+        setMeetingLayout,
       }
     }
     />

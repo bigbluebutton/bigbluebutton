@@ -748,7 +748,7 @@ const Whiteboard = React.memo(function Whiteboard(props) {
 
   const setCamera = (zoom, x = 0, y = 0) => {
     if (tlEditorRef.current) {
-      tlEditorRef.current.setCamera({ x, y, z: zoom }, false);
+      tlEditorRef.current.setCamera({ x, y, z: zoom }, { duration: 175 });
     }
   };
 
@@ -941,17 +941,15 @@ const Whiteboard = React.memo(function Whiteboard(props) {
         x:
           zoomValue === HUNDRED_PERCENT
             ? 0
-            : camera.x +
-              ((camera.x + tlEditorRef.current.getViewportPageBounds().w / 2) /
-                zoomCamera -
-                camera.x),
+            : (camera.x +
+              (tlEditorRef.current.getViewportPageBounds().w / 2 / zoomCamera -
+              tlEditorRef.current.getViewportPageBounds().w / 2 / camera.z)),
         y:
           zoomValue === HUNDRED_PERCENT
             ? 0
-            : camera.y +
-              ((camera.y + tlEditorRef.current.getViewportPageBounds().h / 2) /
-                zoomCamera -
-                camera.y),
+            : (camera.y +
+              (tlEditorRef.current.getViewportPageBounds().h / 2 / zoomCamera -
+              tlEditorRef.current.getViewportPageBounds().h / 2 / camera.z)),
         z: zoomCamera,
       };
 
@@ -959,7 +957,7 @@ const Whiteboard = React.memo(function Whiteboard(props) {
         zoomValue !== prevZoomValueRef.current ||
         zoomValue === HUNDRED_PERCENT
       ) {
-        tlEditor.setCamera(nextCamera, false);
+        tlEditor.setCamera(nextCamera, { duration: 175 });
 
         timeoutId = setTimeout(() => {
           if (zoomValue === HUNDRED_PERCENT) {

@@ -1,5 +1,5 @@
 import React from 'react';
-import PluginButtonComponent from './component';
+import PluginHelperButtonComponent from './component';
 
 interface PluginButtonContainerProps {
   dark: boolean;
@@ -7,7 +7,7 @@ interface PluginButtonContainerProps {
   right: boolean;
   icon: string;
   label: string;
-  onClick: () => void;
+  onClick: (args:{ browserClickEvent: React.MouseEvent<HTMLElement> }) => void;
 }
 
 const PluginButtonContainer = (props: PluginButtonContainerProps) => {
@@ -20,7 +20,7 @@ const PluginButtonContainer = (props: PluginButtonContainerProps) => {
     onClick,
   } = props;
   return (
-    <PluginButtonComponent
+    <PluginHelperButtonComponent
       dark={dark}
       bottom={bottom}
       right={right}

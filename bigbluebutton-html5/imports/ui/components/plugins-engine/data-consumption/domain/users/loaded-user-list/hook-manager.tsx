@@ -20,7 +20,7 @@ const LoadedUserListHookContainer = () => {
   const updateLoadedUserListForPlugin = () => {
     window.dispatchEvent(new CustomEvent<
       UpdatedEventDetails<PluginSdk.GraphqlResponseWrapper<PluginSdk.LoadedUserListData>>
-    >(HookEvents.UPDATED, {
+    >(HookEvents.BBB_CORE_SENT_NEW_DATA, {
       detail: {
         data: formatLoadedUserListDataFromGraphql(usersData),
         hook: DataConsumptionHooks.LOADED_USER_LIST,
@@ -37,11 +37,11 @@ const LoadedUserListHookContainer = () => {
       if (event.detail.hook === DataConsumptionHooks.LOADED_USER_LIST) setSendSignal((signal) => !signal);
     }) as EventListener;
     window.addEventListener(
-      HookEvents.SUBSCRIBED, updateHookUseLoadedUserList,
+      HookEvents.PLUGIN_SUBSCRIBED_TO_BBB_CORE, updateHookUseLoadedUserList,
     );
     return () => {
       window.removeEventListener(
-        HookEvents.SUBSCRIBED, updateHookUseLoadedUserList,
+        HookEvents.PLUGIN_SUBSCRIBED_TO_BBB_CORE, updateHookUseLoadedUserList,
       );
     };
   }, []);

@@ -7,7 +7,7 @@ import SwitchButtonContainer from './switch-button/container';
 import Styled from './styles';
 import * as PluginSdk from 'bigbluebutton-html-plugin-sdk';
 import VolumeSlider from '../external-video-player/volume-slider/component';
-import PluginButtonContainer from './plugin-button/container';
+import PluginButtonContainer from '../plugins/plugin-button/container';
 import AutoplayOverlay from '../media/autoplay-overlay/component';
 import logger from '/imports/startup/client/logger';
 import playAndRetry from '/imports/utils/mediaElementPlayRetry';
