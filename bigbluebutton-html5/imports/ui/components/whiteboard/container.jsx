@@ -368,6 +368,7 @@ const WhiteboardContainer = (props) => {
         darkTheme: Settings?.application?.darkTheme,
         selectedLayout: Settings?.application?.selectedLayout,
         isInfiniteWhiteboard,
+        curPageNum,
       }}
       {...props}
       meetingId={Auth.meetingID}
