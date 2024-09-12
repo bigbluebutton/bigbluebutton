@@ -88,13 +88,6 @@ const AppContainer = (props) => {
     && !shouldShowExternalVideo && !shouldShowGenericMainContent
     && (presentationIsOpen || presentationRestoreOnUpdate)) && isPresentationEnabled;
 
-  useEffect(() => {
-    setSpeechOptions(
-      partialUtterances,
-      minUtteranceLength,
-    );
-  }, [partialUtterances, minUtteranceLength]);
-
   // Update after editing app savings
   useEffect(() => {
     setSpeechOptions(
