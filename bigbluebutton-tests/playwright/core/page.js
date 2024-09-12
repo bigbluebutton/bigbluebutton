@@ -44,7 +44,7 @@ class Page {
     const hasErrorLabel = await this.checkElement(e.errorMessageLabel);
     await expect(hasErrorLabel, 'should pass the authentication and the layout element should be displayed').toBeFalsy();
     if (shouldCheckAllInitialSteps != undefined ? shouldCheckAllInitialSteps : true) {
-      await this.waitForSelector('div#layout', 25000);
+      await this.waitForSelector('div#layout', ELEMENT_WAIT_EXTRA_LONG_TIME);
       this.settings = await generateSettingsData(this.page);
       const { autoJoinAudioModal } = this.settings;
       if (isRecording && !isModerator) await this.closeRecordingModal();
