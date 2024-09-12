@@ -1,7 +1,6 @@
 import React from 'react';
 import ConnectionManager from '/imports/ui/components/connection-manager/component';
-// eslint-disable-next-line react/no-deprecated
-import { render } from 'react-dom';
+import { createRoot } from 'react-dom/client';
 import SettingsLoader from '/imports/ui/components/settings-loader/component';
 import ErrorBoundary from '/imports/ui/components/common/error-boundary/component';
 import { ErrorScreen } from '/imports/ui/components/error-screen/component';
@@ -59,7 +58,6 @@ const Main: React.FC = () => {
   );
 };
 
-render(
-  <Main />,
-  document.getElementById('app'),
-);
+const container = document.getElementById('app');
+const root = createRoot(container!);
+root.render(<Main />);
