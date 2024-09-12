@@ -20,6 +20,7 @@
 package org.bigbluebutton.presentation;
 
 import java.io.File;
+import java.nio.file.Path;
 import java.util.HashMap;
 import java.util.Map;
 import org.bigbluebutton.api2.IBbbWebApiGWApp;
@@ -29,6 +30,8 @@ import org.bigbluebutton.presentation.messages.DocInvalidMimeType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import com.google.gson.Gson;
+import xyz.capybara.clamav.ClamavClient;
+import xyz.capybara.clamav.commands.scan.result.ScanResult;
 
 import static org.bigbluebutton.presentation.Util.deleteDirectoryFromFileHandlingErrors;
 
@@ -48,6 +51,19 @@ public class DocumentConversionServiceImp implements DocumentConversionService {
       log.error("Presentation upload failed for meetingId={} presId={}", pres.getMeetingId(), pres.getId());
       log.error("Presentation upload fail reasons {}", pres.getUploadFailReason());
       return;
+    }
+
+    try {
+      ClamavClient client = new ClamavClient("localhost");
+      ScanResult result = client.scan(Path.of(pres.getUploadedFile().getAbsolutePath()));
+
+      if (result instanceof ScanResult.VirusFound) {
+        log.error("Presentation upload failed for meetingId={} presId={}", pres.getMeetingId(), pres.getId());
+        log.error("Presentation upload failed because a virus was detected in the uploaded file");
+        return;
+      }
+    } catch (Exception e) {
+      log.warn("Failed to scan uploaded file for meetingId={} presID={}: {}", pres.getMeetingId(), pres.getId(), e.getMessage());
     }
 
     sendDocConversionRequestReceived(pres);
