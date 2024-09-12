@@ -6,7 +6,10 @@ import React, {
   memo,
 } from 'react';
 import { PluginsContext } from '/imports/ui/components/components-data/plugin-context/context';
-import { UpdatedEventDetailsForChatMessageDomElements } from 'bigbluebutton-html-plugin-sdk/dist/cjs/dom-element-manipulation/chat/message/types';
+import {
+  UpdatedEventDetailsForChatMessageDomElements,
+  MessageDetails,
+} from 'bigbluebutton-html-plugin-sdk/dist/cjs/dom-element-manipulation/chat/message/types';
 import { HookEvents } from 'bigbluebutton-html-plugin-sdk/dist/cjs/core/enum';
 import { UpdatedEventDetails } from 'bigbluebutton-html-plugin-sdk/dist/cjs/core/types';
 import { DomElementManipulationHooks } from 'bigbluebutton-html-plugin-sdk/dist/cjs/dom-element-manipulation/enums';
@@ -64,22 +67,45 @@ const ChatListPage: React.FC<ChatListPageProps> = ({
 }) => {
   const { domElementManipulationIdentifiers } = useContext(PluginsContext);
 
-  const [messagesRequestedFromPlugin, setMessagesRequestedFromPlugin] = useState<
-    UpdatedEventDetailsForChatMessageDomElements[]>([]);
+  const [renderedChatMessages, setRenderedChatMessages] = useState<MessageDetails[]>([]);
   useEffect(() => {
-    const dataToSend = messagesRequestedFromPlugin.filter((
+    const requestedMessages = renderedChatMessages.filter((
       chatMessageRequested,
     ) => domElementManipulationIdentifiers.CHAT_MESSAGE?.includes(chatMessageRequested.messageId));
-    window.dispatchEvent(
-      new CustomEvent<UpdatedEventDetails<
-        UpdatedEventDetailsForChatMessageDomElements[]>>(HookEvents.BBB_CORE_SENT_NEW_DATA, {
-          detail: {
-            hook: DomElementManipulationHooks.CHAT_MESSAGE,
-            data: dataToSend,
-          },
-        }),
-    );
-  }, [domElementManipulationIdentifiers, messagesRequestedFromPlugin]);
+
+    if (renderedChatMessages.length === messages.length) {
+      // Only dispatch event when all messages from the page have been rendered
+      // and dom elements registered in the components state
+      window.dispatchEvent(
+        new CustomEvent<UpdatedEventDetails<
+          UpdatedEventDetailsForChatMessageDomElements>>(HookEvents.BBB_CORE_SENT_NEW_DATA, {
+            detail: {
+              hook: DomElementManipulationHooks.CHAT_MESSAGE,
+              data: {
+                page,
+                messages: requestedMessages,
+              },
+            },
+          }),
+      );
+    }
+
+    return () => {
+      // The page has unmounted, send an event to indicate this to the plugins sdk
+      window.dispatchEvent(
+        new CustomEvent<UpdatedEventDetails<
+          UpdatedEventDetailsForChatMessageDomElements>>(HookEvents.BBB_CORE_SENT_NEW_DATA, {
+            detail: {
+              hook: DomElementManipulationHooks.CHAT_MESSAGE,
+              data: {
+                page,
+                messages: [],
+              },
+            },
+          }),
+      );
+    };
+  }, [domElementManipulationIdentifiers, renderedChatMessages]);
 
   return (
     // eslint-disable-next-line react/jsx-filename-extension
@@ -91,7 +117,7 @@ const ChatListPage: React.FC<ChatListPageProps> = ({
             key={message.createdAt}
             message={message}
             previousMessage={previousMessage}
-            setMessagesRequestedFromPlugin={setMessagesRequestedFromPlugin}
+            setRenderedChatMessages={setRenderedChatMessages}
             lastSenderPreviousPage={
               !previousMessage ? lastSenderPreviousPage : null
             }
