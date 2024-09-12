@@ -305,10 +305,9 @@ class Page {
   }
 
   async closeAllToastNotifications() {
-    await this.page.waitForSelector(e.whiteboard);
       const closeToastBtnLocator = this.page.locator(e.closeToastBtn);
       while (await closeToastBtnLocator.count() > 0) {
-        await this.page.click(e.closeToastBtn);
+        await this.page.click(e.closeToastBtn, { timeout: ELEMENT_WAIT_TIME });
         await helpers.sleep(1000);  // expected time to toast notification disappear
       }
   }
