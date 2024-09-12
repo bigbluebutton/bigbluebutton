@@ -37,6 +37,7 @@ const config = {
     }),
     new webpack.DefinePlugin({
       'process.env.NODE_ENV': JSON.stringify(env),
+      'process.env.DETAILED_LOGS': false,
     }),
   ],
   resolve: {
