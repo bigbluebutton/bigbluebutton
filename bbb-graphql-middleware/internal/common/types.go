@@ -3,6 +3,7 @@ package common
 import (
 	"context"
 	"encoding/json"
+	"github.com/sirupsen/logrus"
 	"net/http"
 	"sync"
 
@@ -55,6 +56,7 @@ type BrowserConnection struct {
 	FromBrowserToHasuraChannel     *SafeChannelByte               // channel to transmit messages from Browser to Hasura
 	FromBrowserToGqlActionsChannel *SafeChannelByte               // channel to transmit messages from Browser to Graphq-Actions
 	FromHasuraToBrowserChannel     *SafeChannelByte               // channel to transmit messages from Hasura/GqlActions to Browser
+	Logger                         *logrus.Entry                  // connection logger populated with connection info
 }
 
 type HasuraConnection struct {
