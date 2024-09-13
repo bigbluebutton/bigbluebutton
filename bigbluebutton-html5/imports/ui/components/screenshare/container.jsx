@@ -111,10 +111,11 @@ const ScreenshareContainer = (props) => {
     && pinnedPadData.sharedNotes[0]?.sharedNotesExtId === NOTES_CONFIG.id;
 
   const {
-    data: { presenter: isPresenter },
+    data: currentUserData
   } = useCurrentUser((u) => ({
     presenter: u.presenter,
   }));
+  const isPresenter = currentUserData?.presenter;
 
   const info = {
     screenshare: {
