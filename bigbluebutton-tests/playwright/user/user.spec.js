@@ -1,5 +1,6 @@
 const { test, devices } = require('@playwright/test');
 const { encodeCustomParams } = require('../parameters/util');
+const { PARAMETER_HIDE_PRESENTATION_TOASTS } = require('../core/constants');
 const { Status } = require('./status');
 const { MultiUsers } = require('./multiusers');
 const { GuestPolicy } = require('./guestPolicy');
@@ -9,7 +10,7 @@ const { Timer } = require('./timer');
 const motoG4 = devices['Moto G4'];
 const iPhone11 = devices['iPhone 11'];
 
-const customStyleAvoidNotificationToasts = encodeCustomParams(`userdata-bbb_custom_style=.presentationUploaderToast,.currentPresentationToast{display: none;}`);
+const customStyleAvoidNotificationToasts = encodeCustomParams(PARAMETER_HIDE_PRESENTATION_TOASTS);
 
 test.describe.parallel('User', () => {
   test.describe.parallel('Actions', () => {
