@@ -2,6 +2,7 @@ import React from 'react';
 import { defineMessages, injectIntl } from 'react-intl';
 import { makeCall } from '/imports/ui/services/api';
 import Styled from './styles';
+import logger from '/imports/startup/client/logger';
 
 const intlMessages = defineMessages({
   title: {
@@ -37,9 +38,21 @@ const RecordingNotifyModal = (props) => {
   const { intl, toggleShouldNotify, closeModal, isOpen, priority, } = props;
 
   function skipButtonHandle() {
+    logger.info({
+      logCode: 'recording_started_notify_user_hit_leave',
+      extraInfo: {},
+    }, 'The user is reminded that recording commences. The user pressed Leave.');
     makeCall('userLeftMeeting');
     Session.set('codeError', LOGOUT_CODE);
     toggleShouldNotify();
+  }
+
+  function handleContinueInRecordedSession() {
+    logger.info({
+      logCode: 'recording_started_notify_user_hit_continue',
+      extraInfo: {},
+    }, 'The user is reminded that recording commences. The user pressed Continue.');
+    closeModal();
   }
 
   return (
@@ -60,7 +73,7 @@ const RecordingNotifyModal = (props) => {
           <Styled.NotifyButton
             color="primary"
             label={intl.formatMessage(intlMessages.continue)}
-            onClick={closeModal}
+            onClick={handleContinueInRecordedSession}
             aria-label={intl.formatMessage(intlMessages.continueAriaLabel)}
           />
           <Styled.NotifyButton
