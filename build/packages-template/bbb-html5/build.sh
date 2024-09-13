@@ -48,7 +48,7 @@ cat .meteor/release
 # Install the npm dependencies needed for the HTML5 client.
 # Argument 'c' means package-lock.json will be respected
 # --production means we won't be installing devDependencies
-meteor npm ci --production
+npm ci --production
 
 # deleting links as they were repeatedly broken (node_modules/acorn/bin mostly)
 # I have not seen this on npm 8+ but meteor npm is still at 6.x right now
