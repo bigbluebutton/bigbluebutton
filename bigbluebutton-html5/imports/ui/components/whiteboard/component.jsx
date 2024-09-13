@@ -447,13 +447,6 @@ const Whiteboard = React.memo(function Whiteboard(props) {
 
     editor?.user?.updateUserPreferences({ locale: language });
     
-    if (darkTheme) {
-      // force darkReader to reload to fix some cases
-      // where tldraw dark theme isn't applied
-      AppService.setDarkTheme(false);
-      AppService.setDarkTheme(true);
-    }
-
     const debouncePersistShape = debounce({ delay: 0 }, persistShapeWrapper);
 
     const colorStyles = [
