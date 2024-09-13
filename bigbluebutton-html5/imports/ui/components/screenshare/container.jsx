@@ -19,6 +19,7 @@ import { EXTERNAL_VIDEO_STOP } from '../external-video-player/mutations';
 import { PINNED_PAD_SUBSCRIPTION } from '../notes/queries';
 import useDeduplicatedSubscription from '../../core/hooks/useDeduplicatedSubscription';
 import AudioManager from '/imports/ui/services/audio-manager';
+import useCurrentUser from '/imports/ui/core/hooks/useCurrentUser';
 
 const screenshareIntlMessages = defineMessages({
   // SCREENSHARE
@@ -109,7 +110,11 @@ const ScreenshareContainer = (props) => {
   const isSharedNotesPinned = !!pinnedPadData
     && pinnedPadData.sharedNotes[0]?.sharedNotesExtId === NOTES_CONFIG.id;
 
-  const { isPresenter } = props;
+  const {
+    data: { presenter: isPresenter },
+  } = useCurrentUser((u) => ({
+    presenter: u.presenter,
+  }));
 
   const info = {
     screenshare: {

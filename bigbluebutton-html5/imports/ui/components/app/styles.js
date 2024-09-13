@@ -1,7 +1,5 @@
 import styled from 'styled-components';
-import { barsPadding } from '/imports/ui/stylesheets/styled-components/general';
 import { FlexColumn } from '/imports/ui/stylesheets/styled-components/placeholders';
-import { colorBackground } from '/imports/ui/stylesheets/styled-components/palette';
 
 const CaptionsWrapper = styled.div`
   height: auto;
@@ -10,14 +8,6 @@ const CaptionsWrapper = styled.div`
   z-index: 5;
   pointer-events: none;
   user-select:none;
-`;
-
-const ActionsBar = styled.section`
-  flex: 1;
-  padding: ${barsPadding};
-  background-color: ${colorBackground};
-  position: relative;
-  order: 3;
 `;
 
 const Layout = styled(FlexColumn)``;
@@ -105,7 +95,6 @@ const DtfImages = `
 
 export default {
   CaptionsWrapper,
-  ActionsBar,
   Layout,
   DtfInvert,
   DtfBrandingInvert,

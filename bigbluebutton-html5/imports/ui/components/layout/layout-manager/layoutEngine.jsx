@@ -1,5 +1,4 @@
 import React from 'react';
-import PropTypes from 'prop-types';
 import { layoutSelect, layoutSelectInput } from '/imports/ui/components/layout/context';
 import DEFAULT_VALUES from '/imports/ui/components/layout/defaultValues';
 import { LAYOUT_TYPE, DEVICE_TYPE } from '/imports/ui/components/layout/enums';
@@ -12,13 +11,11 @@ import CamerasOnlyLayout from '/imports/ui/components/layout/layout-manager/came
 import PresentationOnlyLayout from '/imports/ui/components/layout/layout-manager/presentationOnlyLayout';
 import ParticipantsAndChatOnlyLayout from '/imports/ui/components/layout/layout-manager/participantsAndChatOnlyLayout';
 import { getSettingsSingletonInstance } from '/imports/ui/services/settings';
+import useSettings from '/imports/ui/services/settings/hooks/useSettings';
+import { SETTINGS } from '/imports/ui/services/settings/enums';
+import { useIsPresentationEnabled } from '/imports/ui/services/features';
 
-const propTypes = {
-  layoutType: PropTypes.string.isRequired,
-  isPresentationEnabled: PropTypes.bool.isRequired,
-};
-
-const LayoutEngine = ({ layoutType, isPresentationEnabled }) => {
+const LayoutEngine = () => {
   const bannerBarInput = layoutSelectInput((i) => i.bannerBar);
   const notificationsBarInput = layoutSelectInput((i) => i.notificationsBar);
   const cameraDockInput = layoutSelectInput((i) => i.cameraDock);
@@ -37,6 +34,8 @@ const LayoutEngine = ({ layoutType, isPresentationEnabled }) => {
   const { isRTL } = Settings.application;
   const fontSize = layoutSelect((i) => i.fontSize);
   const deviceType = layoutSelect((i) => i.deviceType);
+  const { selectedLayout } = useSettings(SETTINGS.APPLICATION);
+  const isPresentationEnabled = useIsPresentationEnabled();
 
   const isMobile = deviceType === DEVICE_TYPE.MOBILE;
   const isTablet = deviceType === DEVICE_TYPE.TABLET;
@@ -63,7 +62,7 @@ const LayoutEngine = ({ layoutType, isPresentationEnabled }) => {
 
     const cameraDockBounds = {};
 
-    if (cameraDockInput.numCameras === 0 && layoutType !== LAYOUT_TYPE.VIDEO_FOCUS) {
+    if (cameraDockInput.numCameras === 0 && selectedLayout !== LAYOUT_TYPE.VIDEO_FOCUS) {
       cameraDockBounds.width = 0;
       cameraDockBounds.height = 0;
 
@@ -334,7 +333,7 @@ const LayoutEngine = ({ layoutType, isPresentationEnabled }) => {
 
   const layout = document.getElementById('layout');
 
-  switch (layoutType) {
+  switch (selectedLayout) {
     case LAYOUT_TYPE.CUSTOM_LAYOUT:
       layout?.setAttribute('data-layout', LAYOUT_TYPE.CUSTOM_LAYOUT);
       return <CustomLayout {...common} isPresentationEnabled={isPresentationEnabled} />;
@@ -361,7 +360,5 @@ const LayoutEngine = ({ layoutType, isPresentationEnabled }) => {
       return <CustomLayout {...common} isPresentationEnabled={isPresentationEnabled} />;
   }
 };
-
-LayoutEngine.propTypes = propTypes;
 
 export default LayoutEngine;
