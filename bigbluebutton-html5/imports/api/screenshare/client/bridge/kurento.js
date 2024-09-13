@@ -367,7 +367,9 @@ export default class KurentoScreenshareBridge {
       forceRelay: shouldForceRelay(),
       traceLogs: TRACE_LOGS,
       gatheringTimeout: GATHERING_TIMEOUT,
-      restartIce: RESTART_ICE,
+      // ICE restart only works for publishers right now - recvonly full
+      // reconnection works ok without it.
+      restartIce: false,
       restartIceMaxRetries: RESTART_ICE_RETRIES,
     };
 

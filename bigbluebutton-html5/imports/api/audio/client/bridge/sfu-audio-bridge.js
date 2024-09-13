@@ -383,7 +383,9 @@ export default class SFUAudioBridge extends BaseAudioBridge {
           mediaStreamFactory: this.mediaStreamFactory,
           gatheringTimeout: GATHERING_TIMEOUT,
           transparentListenOnly: isTransparentListenOnlyEnabled(),
-          restartIce: RESTART_ICE,
+          // ICE restart only works for publishers right now - recvonly full
+          // reconnection works ok without it.
+          restartIce: RESTART_ICE && !isListenOnly,
           restartIceMaxRetries: RESTART_ICE_RETRIES,
         };
 
