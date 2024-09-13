@@ -1078,7 +1078,9 @@ class VideoProvider extends Component {
           break;
 
         case 'failed':
-          if (!RESTART_ICE) {
+          // ICE restart only works for publishers right now - recvonly full
+          // reconnection works ok without it.
+          if (!RESTART_ICE || !peer?.isPublisher) {
             handleFatalFailure();
           } else {
             try {
