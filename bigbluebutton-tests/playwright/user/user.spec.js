@@ -1,4 +1,5 @@
 const { test, devices } = require('@playwright/test');
+const { encodeCustomParams } = require('../parameters/util');
 const { Status } = require('./status');
 const { MultiUsers } = require('./multiusers');
 const { GuestPolicy } = require('./guestPolicy');
@@ -7,6 +8,8 @@ const { MobileDevices } = require('./mobileDevices');
 const { Timer } = require('./timer');
 const motoG4 = devices['Moto G4'];
 const iPhone11 = devices['iPhone 11'];
+
+const customStyleAvoidNotificationToasts = encodeCustomParams(`userdata-bbb_custom_style=.presentationUploaderToast,.currentPresentationToast{display: none;}`);
 
 test.describe.parallel('User', () => {
   test.describe.parallel('Actions', () => {
@@ -31,13 +34,13 @@ test.describe.parallel('User', () => {
 
     test('Stopwatch @ci', async ({ browser, context, page })=> {
       const timer = new Timer(browser, context);
-      await timer.initModPage(page, true);
+      await timer.initModPage(page, true, { joinParameter: customStyleAvoidNotificationToasts });
       await timer.stopwatchTest();
     });
 
     test('Timer @ci', async ({ browser, context, page })=> {
       const timer = new Timer(browser, context);
-      await timer.initModPage(page, true);
+      await timer.initModPage(page, true, { joinParameter: customStyleAvoidNotificationToasts });
       await timer.timerTest();
     });
   });
