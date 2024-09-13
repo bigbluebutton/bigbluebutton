@@ -48,6 +48,10 @@ const {
 const SIGNAL_CANDIDATES = Meteor.settings.public.kurento.signalCandidates;
 const TRACE_LOGS = Meteor.settings.public.kurento.traceLogs;
 const GATHERING_TIMEOUT = Meteor.settings.public.kurento.gatheringTimeout;
+const {
+  enabled: RESTART_ICE = false,
+  retries: RESTART_ICE_RETRIES = 3,
+} = Meteor.settings.public.kurento?.restartIce?.video || {};
 
 const intlClientErrors = defineMessages({
   permissionError: {
@@ -324,6 +328,10 @@ class VideoProvider extends Component {
         this.handleIceCandidate(parsedMessage);
         break;
 
+      case 'restartIceResponse':
+        this.handleRestartIceResponse(parsedMessage);
+        break;
+
       case 'pong':
         break;
 
@@ -500,6 +508,36 @@ class VideoProvider extends Component {
     this.sendMessage(message);
   }
 
+  requestRestartIce(peer, stream) {
+    if (peer == null) {
+      throw new Error('No peer to restart ICE');
+    }
+
+    if (peer.vpRestartIceRetries >= RESTART_ICE_RETRIES) {
+      throw new Error('Max ICE restart retries reached');
+    }
+
+    const role = VideoService.getRole(peer.isPublisher);
+    const message = {
+      id: 'restartIce',
+      type: 'video',
+      cameraId: stream,
+      role,
+    };
+
+    // eslint-disable-next-line no-param-reassign
+    peer.vpRestartIceRetries += 1;
+    logger.warn({
+      logCode: 'video_provider_restart_ice',
+      extraInfo: {
+        cameraId: stream,
+        role,
+        restartIceRetries: peer.vpRestartIceRetries,
+      },
+    }, `Requesting ICE restart (${peer.vpRestartIceRetries}/${RESTART_ICE_RETRIES})`);
+    this.sendMessage(message);
+  }
+
   startResponse(message) {
     const { cameraId: stream, role } = message;
     const peer = this.webRtcPeers[stream];
@@ -562,6 +600,36 @@ class VideoProvider extends Component {
         logCode: 'video_provider_addicecandidate_no_peer',
         extraInfo: { cameraId: stream },
       }, 'Trailing camera ICE candidate, discarded');
+    }
+  }
+
+  handleRestartIceResponse(message) {
+    const { cameraId: stream, sdp } = message;
+    const peer = this.webRtcPeers[stream];
+
+    if (peer) {
+      peer?.restartIce(sdp, peer?.isPublisher)
+        .catch((error) => {
+          const { peerConnection } = peer;
+
+          if (peerConnection) peerConnection.onconnectionstatechange = null;
+
+          logger.error({
+            logCode: 'video_provider_restart_ice_error',
+            extraInfo: {
+              errorMessage: error?.message,
+              errorCode: error?.code,
+              errorName: error?.name,
+              cameraId: stream,
+              role: VideoService.getRole(peer?.isPublisher),
+            },
+          }, `ICE restart failed for camera ${stream}`);
+          this._onWebRTCError(
+            new Error('iceConnectionStateError'),
+            stream,
+            VideoService.isLocalStream(stream),
+          );
+        });
     }
   }
 
@@ -667,6 +735,7 @@ class VideoProvider extends Component {
         peer.isPublisher = true;
         peer.originalProfileId = profileId;
         peer.currentProfileId = profileId;
+        peer.vpRestartIceRetries = 0;
         peer.start();
         peer.generateOffer().then((offer) => {
           // Store the media stream if necessary. The scenario here is one where
@@ -978,16 +1047,13 @@ class VideoProvider extends Component {
   }
 
   _handleIceConnectionStateChange(stream, isLocal) {
-    const { intl } = this.props;
     const peer = this.webRtcPeers[stream];
     const role = VideoService.getRole(isLocal);
 
     if (peer && peer.peerConnection) {
       const pc = peer.peerConnection;
-      const connectionState = pc.connectionState;
-      notifyStreamStateChange(stream, connectionState);
-
-      if (connectionState === 'failed' || connectionState === 'closed') {
+      const { connectionState } = pc;
+      const handleFatalFailure = () => {
         const error = new Error('iceConnectionStateError');
         // prevent the same error from being detected multiple times
         pc.onconnectionstatechange = null;
@@ -1002,6 +1068,45 @@ class VideoProvider extends Component {
         }, `Camera ICE connection state changed: ${connectionState}. Role: ${role}.`);
 
         this._onWebRTCError(error, stream, isLocal);
+      };
+
+      notifyStreamStateChange(stream, connectionState);
+
+      switch (connectionState) {
+        case 'closed':
+          handleFatalFailure();
+          break;
+
+        case 'failed':
+          if (!RESTART_ICE) {
+            handleFatalFailure();
+          } else {
+            try {
+              this.requestRestartIce(peer, stream);
+            } catch (error) {
+              handleFatalFailure();
+            }
+          }
+
+          break;
+
+        case 'connected':
+          if (peer && peer?.vpRestartIceRetries > 0) {
+            logger.info({
+              logCode: 'video_provider_ice_restarted',
+              extraInfo: {
+                cameraId: stream,
+                role: VideoService.getRole(peer?.isPublisher),
+                restartIceRetries: peer?.vpRestartIceRetries,
+              },
+            }, 'ICE restart successful');
+            peer.vpRestartIceRetries = 0;
+          }
+
+          break;
+
+        default:
+          break;
       }
     } else {
       logger.error({
