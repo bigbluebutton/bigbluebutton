@@ -56,6 +56,7 @@ const Adapter = () => {
         });
       },
       changed: (obj) => {
+        ChatLogger.debug('usersAdapter::observe::changed', obj);
         dispatch({
           type: ACTIONS.CHANGED,
           value: {
