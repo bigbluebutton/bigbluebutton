@@ -29,7 +29,6 @@ import {
 } from "./utils";
 import { useMouseEvents, useCursor } from "./hooks";
 import { notifyShapeNumberExceeded, getCustomEditorAssetUrls, getCustomAssetUrls } from "./service";
-import AppService from '/imports/ui/components/app/service';
 
 import NoopTool from './custom-tools/noop-tool/component';
 
@@ -446,7 +445,7 @@ const Whiteboard = React.memo(function Whiteboard(props) {
     setTldrawAPI(editor);
 
     editor?.user?.updateUserPreferences({ locale: language });
-    
+
     const debouncePersistShape = debounce({ delay: 0 }, persistShapeWrapper);
 
     const colorStyles = [
