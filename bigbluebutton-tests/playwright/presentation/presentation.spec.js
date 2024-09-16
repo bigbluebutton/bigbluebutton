@@ -2,7 +2,7 @@ const { test } = require('@playwright/test');
 const { encodeCustomParams } = require('../parameters/util');
 const { Presentation } = require('./presentation');
 
-const customStyleAvoidUploadingNotifications = encodeCustomParams(`userdata-bbb_custom_style=.presentationUploaderToast{display: none;}`);
+const customStyleAvoidNotificationToasts = encodeCustomParams(`userdata-bbb_custom_style=.presentationUploaderToast,.currentPresentationToast{display: none;}`);
 
 test.describe.parallel('Presentation', () => {
   // https://docs.bigbluebutton.org/2.7/testing/release-testing/#navigation-automated
@@ -35,7 +35,7 @@ test.describe.parallel('Presentation', () => {
   // https://docs.bigbluebutton.org/2.7/testing/release-testing/#fit-to-width-option
   test('Presentation fit to width @ci', async ({ browser, context, page }) => {
     const presentation = new Presentation(browser, context);
-    await presentation.initModPage(page, true, { createParameter: customStyleAvoidUploadingNotifications });
+    await presentation.initModPage(page, true, { joinParameter: customStyleAvoidNotificationToasts });
     await presentation.initUserPage(true, context);
     await presentation.fitToWidthTest();
   });
@@ -118,7 +118,7 @@ test.describe.parallel('Presentation', () => {
 
     test('Remove previous presentation from previous presenter', async ({ browser, context, page }) => {
       const presentation = new Presentation(browser, context);
-      await presentation.initModPage(page, true, { createParameter: customStyleAvoidUploadingNotifications });
+      await presentation.initModPage(page, true, { joinParameter: customStyleAvoidNotificationToasts });
       await presentation.initUserPage(true, context);
       await presentation.removePreviousPresentationFromPreviousPresenter();
     });
