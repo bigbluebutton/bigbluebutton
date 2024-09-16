@@ -97,6 +97,9 @@ export const MuteToggle: React.FC<MuteToggleProps> = ({
         cooldownActive.current = false;
       }, COOLDOWN_TIME);
     }
+    setTimeout(() => {
+      muteLoadingState(false);
+    }, 1000);
   }, []);
 
   useEffect(() => {
@@ -115,7 +118,7 @@ export const MuteToggle: React.FC<MuteToggleProps> = ({
     };
   }, []);
 
-  React.useEffect(() => {
+  useEffect(() => {
     muteLoadingState(false);
   }, [muted]);
 
