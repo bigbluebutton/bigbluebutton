@@ -78,7 +78,7 @@ const WhiteboardContainer = (props) => {
         shape.isLocked = false;
       }
     });
-  }, [shapes]);
+  }, [shapes, isPresenter, isModerator]);
 
   return (
     <Whiteboard
