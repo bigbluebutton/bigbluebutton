@@ -151,6 +151,9 @@ class AudioBroker extends BaseBroker {
         this.onstart(parsedMessage.success);
         this.started = true;
         break;
+      case 'restartIceResponse':
+        this.handleRestartIceResponse(parsedMessage);
+        break;
       case 'webRTCAudioError':
       case 'error':
         this.handleSFUError(parsedMessage);

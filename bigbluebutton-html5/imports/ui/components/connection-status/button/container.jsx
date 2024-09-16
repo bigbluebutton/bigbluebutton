@@ -12,5 +12,6 @@ export default withTracker(() => {
   return {
     connected,
     stats: ConnectionStatusService.getStats(),
+    logMediaStats: ConnectionStatusService.LOG_MEDIA_STATS,
   };
 })(connectionStatusButtonContainer);
