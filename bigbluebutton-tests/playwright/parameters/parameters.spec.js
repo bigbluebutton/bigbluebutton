@@ -101,7 +101,7 @@ test.describe.parallel('Create Parameters', () => {
     await createParam.allowModsToEjectCameras();
   });
 
-  test('Override default presentation on CREATE meeting API call', async ({ browser, context, page }) => {
+  test('Override default presentation on CREATE meeting API call @ci', async ({ browser, context, page }) => {
     const createParam = new CreateParameters(browser, context);
     await createParam.initModPage(page, true, { createParameter: `${c.preUploadedPresentation}&${c.preUploadedPresentationOverrideDefault}&${c.preUploadedPresentationName}` });
     await createParam.initUserPage(true, context);
