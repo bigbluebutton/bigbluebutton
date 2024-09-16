@@ -49,6 +49,7 @@ const WhiteboardContainer = (props) => {
   const layoutContextDispatch = layoutDispatch();
 
   const { shapes } = props;
+  
   const hasShapeAccess = (id) => {
     const shape = shapes[id];
     const owner = shape?.userId;
