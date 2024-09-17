@@ -57,7 +57,7 @@ object FakeUserGenerator {
     val color = "#ff6242"
 
     val ru = RegisteredUsers.create(userId = id, extId, name, role,
-      authToken, avatarURL, webcamBackgroundURL, color, guest, authed, guestStatus = GuestStatus.ALLOW, false, false)
+      authToken, avatarURL, webcamBackgroundURL, color, guest, authed, guestStatus = GuestStatus.ALLOW, false, false, Map.empty)
     RegisteredUsers.add(users, ru)
     ru
   }

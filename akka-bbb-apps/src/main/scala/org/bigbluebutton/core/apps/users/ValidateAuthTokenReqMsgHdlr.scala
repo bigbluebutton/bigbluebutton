@@ -21,6 +21,7 @@ trait ValidateAuthTokenReqMsgHdlr extends HandlerHelpers {
     var failReasonCode = EjectReasonCode.VALIDATE_TOKEN
 
     log.info("Number of registered users [{}]", RegisteredUsers.numRegisteredUsers(liveMeeting.registeredUsers))
+
     val regUser = RegisteredUsers.getRegisteredUserWithToken(msg.body.authToken, msg.body.userId,
       liveMeeting.registeredUsers)
     regUser match {
