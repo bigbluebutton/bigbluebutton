@@ -161,6 +161,7 @@ const Whiteboard = React.memo(function Whiteboard(props) {
   const prevZoomValueRef = React.useRef(null);
   const initialZoomRef = useRef(null);
   const isMouseDownRef = useRef(false);
+  const shapeBatchRef = useRef({});
   const isMountedRef = useRef(false);
   const isWheelZoomRef = useRef(false);
   const isPresenterRef = useRef(isPresenter);
@@ -501,6 +502,7 @@ const Whiteboard = React.memo(function Whiteboard(props) {
           }
           editor.history.undo({ persist: false });
         } else {
+          // Add new shapes to the batch
           Object.values(added).forEach((record) => {
             const updatedRecord = {
               ...record,
@@ -510,14 +512,11 @@ const Whiteboard = React.memo(function Whiteboard(props) {
               },
             };
 
-            persistShapeWrapper(
-              updatedRecord,
-              whiteboardIdRef.current,
-              isModeratorRef.current
-            );
+            shapeBatchRef.current[updatedRecord.id] = updatedRecord;
           });
         }
 
+        // Update existing shapes and add them to the batch
         Object.values(updated).forEach(([_, record]) => {
           const createdBy =
             prevShapesRef.current[record?.id]?.meta?.createdBy ||
@@ -530,13 +529,10 @@ const Whiteboard = React.memo(function Whiteboard(props) {
             },
           };
 
-          persistShapeWrapper(
-            updatedRecord,
-            whiteboardIdRef.current,
-            isModeratorRef.current
-          );
+          shapeBatchRef.current[updatedRecord.id] = updatedRecord;
         });
 
+        // Handle removed shapes immediately (not batched)
         Object.values(removed).forEach((record) => {
           removeShapes([record?.id]);
         });
@@ -549,6 +545,8 @@ const Whiteboard = React.memo(function Whiteboard(props) {
         const { changes, source } = entry;
         const { updated } = changes;
         const { "pointer:pointer": pointers } = updated;
+
+        const path = editor.getPath();
 
         if ((isPresenterRef.current || hasWBAccessRef.current) && pointers) {
           const [prevPointer, nextPointer] = pointers;
@@ -573,6 +571,23 @@ const Whiteboard = React.memo(function Whiteboard(props) {
             );
 
             zoomSlide(viewedRegionW, viewedRegionH, nextCam.x, nextCam.y, currentPresentationPageRef.current);
+          }
+        }
+
+        // Check for idle states and persist the batch if there are shapes
+        if (path === 'select.idle' || path === 'draw.idle' || path === 'select.editing_shape' || path === 'highlight.idle') {
+
+          if (Object.keys(shapeBatchRef.current).length > 0) {
+            const shapesToPersist = Object.values(shapeBatchRef.current);
+            shapesToPersist.forEach((shape) => {
+              persistShapeWrapper(
+                shape,
+                whiteboardIdRef.current,
+                isModeratorRef.current
+              );
+            });
+
+            shapeBatchRef.current = {};
           }
         }
       },
@@ -689,20 +704,29 @@ const Whiteboard = React.memo(function Whiteboard(props) {
     isMountedRef.current = true;
   };
 
-  const { shapesToAdd, shapesToUpdate, shapesToRemove } = React.useMemo(() => {
+  const shapesToRemove = React.useMemo(() => {
+    if (isMouseDownRef.current) return [];
+    const remoteShapeIds = Object.keys(prevShapesRef.current);
     const localShapes = tlEditorRef.current?.getCurrentPageShapes();
-    const filteredShapes =
-      localShapes?.filter((item) => item?.index !== "a0") || [];
-    const localLookup = new Map(
-      filteredShapes.map((shape) => [shape.id, shape])
-    );
+    const filteredShapes = localShapes?.filter((item) => item?.index !== "a0") || [];
+    return filteredShapes
+      .filter((localShape) => !remoteShapeIds.includes(localShape.id))
+      .map((localShape) => localShape.id);
+  }, [prevShapesRef.current, curPageId]);
+
+  const { shapesToAdd, shapesToUpdate } = React.useMemo(() => {
     const remoteShapeIds = Object.keys(prevShapesRef.current);
     const toAdd = [];
     const toUpdate = [];
-    const toRemove = [];
 
     Object.values(prevShapesRef.current).forEach((remoteShape) => {
       if (!remoteShape.id) return;
+      const localShapes = tlEditorRef.current?.getCurrentPageShapes();
+      const filteredShapes =
+        localShapes?.filter((item) => item?.index !== "a0") || [];
+      const localLookup = new Map(
+        filteredShapes.map((shape) => [shape.id, shape])
+      );
       const localShape = localLookup.get(remoteShape.id);
       const prevShape = prevShapesRef.current[remoteShape.id];
 
@@ -733,16 +757,9 @@ const Whiteboard = React.memo(function Whiteboard(props) {
       }
     });
 
-    filteredShapes.forEach((localShape) => {
-      if (!remoteShapeIds.includes(localShape.id)) {
-        toRemove.push(localShape.id);
-      }
-    });
-
     return {
       shapesToAdd: toAdd,
       shapesToUpdate: toUpdate,
-      shapesToRemove: toRemove,
     };
   }, [prevShapesRef.current, curPageId]);
 
