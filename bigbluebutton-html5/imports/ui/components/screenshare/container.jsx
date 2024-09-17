@@ -111,7 +111,7 @@ const ScreenshareContainer = (props) => {
     && pinnedPadData.sharedNotes[0]?.sharedNotesExtId === NOTES_CONFIG.id;
 
   const {
-    data: currentUserData
+    data: currentUserData,
   } = useCurrentUser((u) => ({
     presenter: u.presenter,
   }));
@@ -151,7 +151,7 @@ const ScreenshareContainer = (props) => {
       ...pluginsExtensibleAreasAggregatedState.screenshareHelperItems,
     ];
   }
-  if (isScreenBroadcasting || isCameraAsContentBroadcasting) {
+  if ((isScreenBroadcasting || isCameraAsContentBroadcasting) && currentUserData) {
     return (
       <ScreenshareComponent
         {
