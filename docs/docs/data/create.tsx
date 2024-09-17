@@ -59,7 +59,7 @@ const createEndpointTableData = [
     "name": "logoutURL",
     "required": false,
     "type": "String",
-    "description": (<>The URL that the BigBlueButton client will go to after users click the OK button on the ‘You have been logged out message’.  This overrides the value for <code className="language-plaintext highlighter-rouge">bigbluebutton.web.logoutURL</code> in <a href="https://github.com/bigbluebutton/bigbluebutton/blob/master/bigbluebutton-web/grails-app/conf/bigbluebutton.properties">bigbluebutton.properties</a>.</>)
+    "description": (<>The URL that the BigBlueButton client will go to after users click the OK button on the ‘You have been logged out message’.  This overrides the value for <code className="language-plaintext highlighter-rouge">bigbluebutton.web.logoutURL</code> in <a href="https://github.com/bigbluebutton/bigbluebutton/blob/master/bigbluebutton-web/grails-app/conf/bigbluebutton.properties">bigbluebutton.properties</a>. You can use the following placeholders: %%MEETINGID%%, %%USERID%%, %%USERNAME%%, which would be replaced with the Meeting ID, User ID and Username respectively </>)
   },
   {
     "name": "record",
