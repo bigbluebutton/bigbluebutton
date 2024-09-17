@@ -288,7 +288,7 @@ class BbbWebApiGWApp(
                    role: String, extUserId: String, authToken: String, sessionToken: String,
                    avatarURL: String, webcamBackgroundURL: String, guest: java.lang.Boolean, authed: java.lang.Boolean,
                    guestStatus: String, excludeFromDashboard: java.lang.Boolean,
-                   enforceLayout: String, userMetadata: java.util.Map[String, String]): Unit = {
+                   enforceLayout: String, logoutUrl: String, userMetadata: java.util.Map[String, String]): Unit = {
 
     //    meetingManagerActorRef ! new RegisterUser(meetingId = meetingId, intUserId = intUserId, name = name,
     //      role = role, extUserId = extUserId, authToken = authToken, avatarURL = avatarURL,
@@ -297,7 +297,7 @@ class BbbWebApiGWApp(
     val regUser = new RegisterUser(meetingId = meetingId, intUserId = intUserId, name = name,
       role = role, extUserId = extUserId, authToken = authToken, sessionToken = sessionToken,
       avatarURL = avatarURL, webcamBackgroundURL = webcamBackgroundURL, guest = guest.booleanValue(), authed = authed.booleanValue(),
-      guestStatus = guestStatus, excludeFromDashboard = excludeFromDashboard, enforceLayout = enforceLayout,
+      guestStatus = guestStatus, excludeFromDashboard = excludeFromDashboard, enforceLayout = enforceLayout, logoutUrl = logoutUrl,
       userMetadata = (userMetadata).asScala.toMap)
 
     val event = MsgBuilder.buildRegisterUserRequestToAkkaApps(regUser)

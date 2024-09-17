@@ -23,6 +23,7 @@ case class UserDbModel(
     registeredOn:           Long,
     excludeFromDashboard:   Boolean,
     enforceLayout:          Option[String],
+    logoutUrl:              String = "",
 )
 
 
@@ -30,7 +31,7 @@ case class UserDbModel(
 class UserDbTableDef(tag: Tag) extends Table[UserDbModel](tag, None, "user") {
   override def * = (
     meetingId,userId,extId,name,role,avatar,webcamBackground,color, authToken, authed,joined,joinErrorCode,
-    joinErrorMessage, banned,loggedOut,guest,guestStatus,registeredOn,excludeFromDashboard, enforceLayout) <> (UserDbModel.tupled, UserDbModel.unapply)
+    joinErrorMessage, banned,loggedOut,guest,guestStatus,registeredOn,excludeFromDashboard, enforceLayout, logoutUrl) <> (UserDbModel.tupled, UserDbModel.unapply)
   val meetingId = column[String]("meetingId", O.PrimaryKey)
   val userId = column[String]("userId", O.PrimaryKey)
   val extId = column[String]("extId")
@@ -51,6 +52,7 @@ class UserDbTableDef(tag: Tag) extends Table[UserDbModel](tag, None, "user") {
   val registeredOn = column[Long]("registeredOn")
   val excludeFromDashboard = column[Boolean]("excludeFromDashboard")
   val enforceLayout = column[Option[String]]("enforceLayout")
+  val logoutUrl = column[String]("logoutUrl")
 }
 
 object UserDAO {
@@ -80,7 +82,8 @@ object UserDAO {
           enforceLayout = regUser.enforceLayout match {
             case "" => None
             case enforceLayout: String => Some(enforceLayout)
-          }
+          },
+          logoutUrl = regUser.logoutUrl
         )
       )
     )

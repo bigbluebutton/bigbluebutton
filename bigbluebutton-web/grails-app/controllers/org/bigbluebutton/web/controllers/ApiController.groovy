@@ -411,6 +411,12 @@ class ApiController {
       externUserID = internalUserID
     }
 
+    String logoutUrl = meeting.getLogoutUrl()
+    if(!StringUtils.isEmpty(params.get(ApiParams.LOGOUT_URL))) {
+      logoutUrl = params.get(ApiParams.LOGOUT_URL)
+    }
+    log.debug "The following logout URL is present: " + logoutUrl
+
     //Return a Map with the user custom data
     Map<String, String> userCustomData = meetingService.getUserCustomData(meeting, externUserID, params);
 
@@ -438,7 +444,7 @@ class ApiController {
     us.guest = guest
     us.authed = authenticated
     us.guestStatus = guestStatusVal
-    us.logoutUrl = meeting.getLogoutUrl()
+    us.logoutUrl = logoutUrl
     us.defaultLayout = meeting.getMeetingLayout()
     us.leftGuestLobby = false
 
@@ -500,6 +506,7 @@ class ApiController {
         us.excludeFromDashboard,
         us.leftGuestLobby,
         us.enforceLayout,
+        us.logoutUrl,
         meeting.getUserCustomData(us.externUserID)
     )
 

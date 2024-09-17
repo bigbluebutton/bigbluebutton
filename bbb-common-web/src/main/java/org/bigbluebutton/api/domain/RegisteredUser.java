@@ -10,15 +10,17 @@ public class RegisteredUser {
     private Long guestWaitedOn;
     private Boolean leftGuestLobby;
     private String enforceLayout;
+    private String logoutUrl;
 
     public RegisteredUser(String authToken, String userId, String guestStatus, Boolean excludeFromDashboard,
-                          Boolean leftGuestLobby, String enforceLayout) {
+                          Boolean leftGuestLobby, String enforceLayout, String logoutUrl) {
         this.authToken = authToken;
         this.userId = userId;
         this.guestStatus = guestStatus;
         this.excludeFromDashboard = excludeFromDashboard;
         this.leftGuestLobby = leftGuestLobby;
         this.enforceLayout = enforceLayout;
+        this.logoutUrl = logoutUrl;
 
         Long currentTimeMillis = System.currentTimeMillis();
         this.registeredOn = currentTimeMillis;
@@ -51,6 +53,14 @@ public class RegisteredUser {
 
     public void setEnforceLayout(String enforceLayout) {
         this.enforceLayout = enforceLayout;
+    }
+
+    public String getLogoutUrl() {
+        return logoutUrl;
+    }
+
+    public void setLogoutUrl(String logoutUrl) {
+        this.logoutUrl = logoutUrl;
     }
 
     public Boolean getExcludeFromDashboard() {
