@@ -174,6 +174,7 @@ const ScreenshareContainer = (props) => {
             LAYOUT_CONFIG.hidePresentationOnJoin,
           ),
           ...selectedInfo,
+          isPresenter,
         }
         }
       />
