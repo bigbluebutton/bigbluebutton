@@ -1,4 +1,5 @@
 import React, { useEffect, useRef } from 'react';
+import * as ReactDOM from 'react-dom/client';
 import { GenericContentItemProps } from './types';
 
 const GenericContentItem: React.FC<GenericContentItemProps> = (props) => {
@@ -9,9 +10,17 @@ const GenericContentItem: React.FC<GenericContentItemProps> = (props) => {
   const elementRef = useRef(null);
 
   useEffect(() => {
+    let rootRef: ReactDOM.Root | null;
     if (elementRef.current && renderFunction) {
-      renderFunction(elementRef.current);
+      rootRef = renderFunction(elementRef.current);
     }
+
+    return () => {
+      // extensible area injected by content functions have to
+      // be explicitly unmounted, because plugins use a different
+      // instance of ReactDOM
+      if (rootRef) rootRef.unmount();
+    };
   }, [elementRef]);
 
   const style: React.CSSProperties = {
