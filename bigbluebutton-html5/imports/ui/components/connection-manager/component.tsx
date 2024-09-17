@@ -11,6 +11,7 @@ import apolloContextHolder from '../../core/graphql/apolloContextHolder/apolloCo
 import connectionStatus from '../../core/graphql/singletons/connectionStatus';
 import deviceInfo from '/imports/utils/deviceInfo';
 import BBBWeb from '/imports/api/bbb-web-api';
+import useMeetingSettings from '/imports/ui/core/local-states/useMeetingSettings';
 
 interface ConnectionManagerProps {
   children: React.ReactNode;
@@ -65,6 +66,9 @@ const ConnectionManager: React.FC<ConnectionManagerProps> = ({ children }): Reac
   const tsLastPingMessageRef = useRef<number>(0);
   const boundary = useRef(15_000);
   const [terminalError, setTerminalError] = React.useState<string>('');
+  const [MeetingSettings] = useMeetingSettings();
+  const enableDevTools = MeetingSettings.public.app.enableApolloDevTools;
+
   useEffect(() => {
     BBBWeb.index().then(({ data }) => {
       setGraphqlUrl(data.graphqlWebsocketUrl);
@@ -206,7 +210,7 @@ const ConnectionManager: React.FC<ConnectionManagerProps> = ({ children }): Reac
         client = new ApolloClient({
           link: wsLink,
           cache: new InMemoryCache(),
-          connectToDevTools: process.env.NODE_ENV === 'development',
+          connectToDevTools: (process.env.NODE_ENV === 'development') || enableDevTools,
         });
         setApolloClient(client);
         apolloContextHolder.setClient(client);

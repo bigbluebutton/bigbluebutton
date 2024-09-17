@@ -508,7 +508,11 @@ class AudioSettings extends React.Component {
           {!withEcho ? (
             <AudioTestContainer id="audioTest" />
           ) : (
-            <LocalEchoContainer intl={intl} stream={stream} />
+            <LocalEchoContainer
+              intl={intl}
+              outputDeviceId={outputDeviceId}
+              stream={stream}
+            />
           )}
         </Styled.LabelSmall>
         {this.renderAudioCaptionsSelector()}

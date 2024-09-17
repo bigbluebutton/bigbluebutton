@@ -1,7 +1,6 @@
 import React from 'react';
 import ConnectionManager from '/imports/ui/components/connection-manager/component';
-// eslint-disable-next-line react/no-deprecated
-import { render } from 'react-dom';
+import { createRoot } from 'react-dom/client';
 import SettingsLoader from '/imports/ui/components/settings-loader/component';
 import ErrorBoundary from '/imports/ui/components/common/error-boundary/component';
 import { ErrorScreen } from '/imports/ui/components/error-screen/component';
@@ -39,11 +38,19 @@ if (
 const Main: React.FC = () => {
   return (
     <SettingsLoader>
-      <ErrorBoundary Fallback={ErrorScreen} logMetadata={STARTUP_CRASH_METADATA}>
+      <ErrorBoundary
+        Fallback={ErrorScreen}
+        logMetadata={STARTUP_CRASH_METADATA}
+        isCritical
+      >
         <LoadingScreenHOC>
           <IntlLoaderContainer>
             {/* from there the error messages are located */}
-            <LocatedErrorBoundary Fallback={ErrorScreen} logMetadata={APP_CRASH_METADATA}>
+            <LocatedErrorBoundary
+              Fallback={ErrorScreen}
+              logMetadata={APP_CRASH_METADATA}
+              isCritical
+            >
               <ConnectionManager>
                 <PresenceManager>
                   <CustomUsersSettings>
@@ -59,7 +66,6 @@ const Main: React.FC = () => {
   );
 };
 
-render(
-  <Main />,
-  document.getElementById('app'),
-);
+const container = document.getElementById('app');
+const root = createRoot(container!);
+root.render(<Main />);

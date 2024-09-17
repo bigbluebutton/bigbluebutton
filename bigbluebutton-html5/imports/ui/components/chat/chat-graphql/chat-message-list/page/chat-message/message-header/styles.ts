@@ -56,9 +56,10 @@ export const ChatUserOffline = styled.span`
   font-weight: 100;
   text-transform: lowercase;
   font-style: italic;
-  font-size: 90%;
+  font-size: 85%;
   line-height: 1;
   user-select: none;
+  margin-right: calc(${lineHeightComputed} / 2);
 `;
 
 export const ChatTime = styled.time`
