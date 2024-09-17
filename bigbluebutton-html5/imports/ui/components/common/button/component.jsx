@@ -257,7 +257,7 @@ export default class Button extends BaseButton {
     } = this.props;
 
     if (svgIcon) {
-      return (<Styled.ButtonSvgIcon iconName={svgIcon} />);
+      return (<Styled.ButtonSvgIcon iconName={svgIcon} wrapped />);
     }
 
     if (iconName) {
