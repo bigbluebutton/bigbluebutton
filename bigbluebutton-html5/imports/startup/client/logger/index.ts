@@ -1,3 +1,5 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
+// eslint-disable-next-line max-classes-per-file
 import { createLogger, Logger, stdSerializers } from 'browser-bunyan';
 import { ConsoleFormattedStream } from '@browser-bunyan/console-formatted-stream';
 import { ConsoleRawStream } from '@browser-bunyan/console-raw-stream';
@@ -88,4 +90,45 @@ class BBBClientLogger {
   }
 }
 
-export default BBBClientLogger.logger;
+export default class LoggerFactory {
+  private static instance: Logger | null = null;
+
+  public static getLogger() {
+    if (!LoggerFactory.instance) {
+      LoggerFactory.instance = BBBClientLogger.logger;
+    }
+    return LoggerFactory.instance;
+  }
+
+  public static error(...args: any[]) {
+    LoggerFactory.getLogger().error(...args);
+  }
+
+  public static warn(...args: any[]) {
+    LoggerFactory.getLogger().warn(...args);
+  }
+
+  public static info(...args: any[]) {
+    LoggerFactory.getLogger().info(...args);
+  }
+
+  public static debug(...args: any[]) {
+    LoggerFactory.getLogger().debug(...args);
+  }
+
+  public static trace(...args: any[]) {
+    LoggerFactory.getLogger().trace(...args);
+  }
+
+  public static log(...args: any[]) {
+    LoggerFactory.getLogger().log(...args);
+  }
+
+  public static addStream(stream: ConsoleRawStream | ServerLoggerStream) {
+    LoggerFactory.getLogger().addStream(stream);
+  }
+
+  public static getStreams() {
+    return LoggerFactory.getLogger().streams;
+  }
+}
