@@ -1,5 +1,5 @@
 package org.bigbluebutton.core.db
-import org.bigbluebutton.core.models.{RegisteredUser, VoiceUserState}
+import org.bigbluebutton.core.models.{RegisteredUser, UserLockSettings, VoiceUserState}
 import slick.jdbc.PostgresProfile.api._
 
 case class UserDbModel(
@@ -87,6 +87,7 @@ object UserDAO {
 
     UserConnectionStatusDAO.insert(meetingId, regUser.id)
     UserMetadataDAO.insert(meetingId, regUser.id, regUser.userMetadata)
+    UserLockSettingsDAO.insertOrUpdate(meetingId, regUser.id, UserLockSettings())
     UserClientSettingsDAO.insertOrUpdate(meetingId, regUser.id, JsonUtils.stringToJson("{}"))
     ChatUserDAO.insertUserPublicChat(meetingId, regUser.id)
     UserSessionTokenDAO.insert(regUser.meetingId, regUser.id, regUser.sessionToken.head)

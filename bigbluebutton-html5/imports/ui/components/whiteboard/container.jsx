@@ -298,9 +298,10 @@ const WhiteboardContainer = (props) => {
   } = WHITEBOARD_CONFIG.styles;
   const handleToggleFullScreen = (ref) => FullscreenService.toggleFullScreen(ref);
 
+  // use -0.5 offset to avoid white borders rounding erros
   bgShape.push({
-    x: 1,
-    y: 1,
+    x: -0.5,
+    y: -0.5,
     rotation: 0,
     isLocked: true,
     opacity: 1,
@@ -308,8 +309,8 @@ const WhiteboardContainer = (props) => {
     id: `shape:BG-${curPageNum}`,
     type: 'image',
     props: {
-      w: currentPresentationPage?.scaledWidth || 1,
-      h: currentPresentationPage?.scaledHeight || 1,
+      w: currentPresentationPage?.scaledWidth + 1.5 || 1,
+      h: currentPresentationPage?.scaledHeight + 1.5 || 1,
       assetId,
       playing: true,
       url: '',
@@ -368,6 +369,7 @@ const WhiteboardContainer = (props) => {
         darkTheme: Settings?.application?.darkTheme,
         selectedLayout: Settings?.application?.selectedLayout,
         isInfiniteWhiteboard,
+        curPageNum,
       }}
       {...props}
       meetingId={Auth.meetingID}

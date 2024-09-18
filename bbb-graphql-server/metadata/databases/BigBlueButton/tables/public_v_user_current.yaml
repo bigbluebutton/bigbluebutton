@@ -70,6 +70,16 @@ object_relationships:
         remote_table:
           name: v_user_clientSettings
           schema: public
+  - name: userLockSettings
+    using:
+      manual_configuration:
+        column_mapping:
+          meetingId: meetingId
+          userId: userId
+        insertion_order: null
+        remote_table:
+          name: v_user_lockSettings
+          schema: public
   - name: userMetadata
     using:
       manual_configuration:

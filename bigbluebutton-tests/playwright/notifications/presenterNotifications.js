@@ -30,7 +30,7 @@ class PresenterNotifications extends MultiUsers {
     await util.waitAndClearDefaultPresentationNotification(this.modPage);
     await utilScreenShare.startScreenshare(this.modPage);
     await util.checkNotificationText(this.modPage, e.startScreenshareToast);
-    await util.waitAndClearNotification(this.modPage);
+    await this.modPage.closeAllToastNotifications();
     await this.modPage.waitAndClick(e.stopScreenSharing);
     await util.checkNotificationText(this.modPage, e.endScreenshareToast);
   }

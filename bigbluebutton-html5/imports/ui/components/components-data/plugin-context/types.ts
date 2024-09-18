@@ -1,5 +1,5 @@
+import { DomElementManipulationIdentifiers } from '../../plugins-engine/dom-element-manipulation/types';
 import { ExtensibleArea } from '/imports/ui/components/plugins-engine/extensible-areas/types';
-import React from 'react';
 
 export interface UserListGraphqlVariables {
     offset: number;
@@ -18,10 +18,6 @@ export type ChatMessagesVariables = {
 export interface PluginsContextType {
     pluginsExtensibleAreasAggregatedState: ExtensibleArea;
     setPluginsExtensibleAreasAggregatedState: React.Dispatch<React.SetStateAction<ExtensibleArea>>;
-    domElementManipulationMessageIds: string[];
-    setDomElementManipulationMessageIds: React.Dispatch<
-        React.SetStateAction<string[]>>;
-    domElementManipulationStreamIds: string[];
-    setDomElementManipulationStreamIds: React.Dispatch<
-    React.SetStateAction<string[]>>;
+    domElementManipulationIdentifiers: DomElementManipulationIdentifiers;
+    setDomElementManipulationIdentifiers: React.Dispatch<React.SetStateAction<DomElementManipulationIdentifiers>>;
 }

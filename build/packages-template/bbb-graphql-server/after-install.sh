@@ -5,6 +5,9 @@ case "$1" in
 
   fc-cache -f
 
+  # make sure postgres can read this directory
+  chmod 755 /usr/share/bbb-graphql-server/ -R
+
   runuser -u postgres -- psql -c "alter user postgres password 'bbb_graphql'"
   runuser -u postgres -- psql -c "drop database if exists bbb_graphql with (force)"
   runuser -u postgres -- psql -c "create database bbb_graphql WITH TEMPLATE template0 LC_COLLATE 'C.UTF-8'"
@@ -23,20 +26,21 @@ case "$1" in
 
   echo "Postgresql configured"
 
-#Generate a random password to Hasura to improve security
-if [ ! -f /usr/share/bbb-graphql-server/admin-secret ]; then
-  mkdir -p /usr/share/bbb-graphql-server
-  chmod 700  /usr/share/bbb-graphql-server/
-  HASURA_RANDOM_ADM_PASSWORD=$(openssl rand -base64 32 | sed 's/=//g' | sed 's/+//g' | sed 's/\///g')
-  echo "HASURA_GRAPHQL_ADMIN_SECRET=$HASURA_RANDOM_ADM_PASSWORD" > /usr/share/bbb-graphql-server/admin-secret
-  chown bigbluebutton:bigbluebutton /usr/share/bbb-graphql-server/admin-secret
-  chmod 600 /usr/share/bbb-graphql-server/admin-secret
-  echo "Set a random password to Hasura at /usr/share/bbb-graphql-server/admin-secret"
-fi
+  #Generate a random password to Hasura to improve security
+  if [ ! -f /etc/default/bbb-graphql-server-admin-pass ]; then
+    HASURA_RANDOM_ADM_PASSWORD=$(openssl rand -base64 32 | sed 's/=//g' | sed 's/+//g' | sed 's/\///g')
+    echo "# This password is randomly generated during the installation of BigBlueButton." > /etc/default/bbb-graphql-server-admin-pass
+    echo "# It serves as the admin password for the bbb-graphql-server (Hasura)." >> /etc/default/bbb-graphql-server-admin-pass
+    echo "# The admin can change this password at any time. Only a restart of BigBlueButton is required." >> /etc/default/bbb-graphql-server-admin-pass
+    echo "HASURA_GRAPHQL_ADMIN_SECRET=$HASURA_RANDOM_ADM_PASSWORD" >> /etc/default/bbb-graphql-server-admin-pass
+    chown root:root /etc/default/bbb-graphql-server-admin-pass
+    chmod 600 /etc/default/bbb-graphql-server-admin-pass
+    echo "Set a random password to Hasura at /etc/default/bbb-graphql-server-admin-pass"
+  fi
 
-#Set admin secret for Hasura CLI
-HASURA_ADM_PASSWORD=$(grep '^HASURA_GRAPHQL_ADMIN_SECRET=' /usr/share/bbb-graphql-server/admin-secret | cut -d '=' -f 2)
-sed -i "s/^admin_secret: .*/admin_secret: $HASURA_ADM_PASSWORD/g" /usr/share/bbb-graphql-server/config.yaml
+  #Set admin secret for Hasura CLI
+  HASURA_ADM_PASSWORD=$(grep '^HASURA_GRAPHQL_ADMIN_SECRET=' /etc/default/bbb-graphql-server-admin-pass | cut -d '=' -f 2)
+  sed -i "s/^admin_secret: .*/admin_secret: $HASURA_ADM_PASSWORD/g" /usr/share/bbb-graphql-server/config.yaml
 
   if [ ! -f /.dockerenv ]; then
     systemctl enable bbb-graphql-server.service
@@ -45,17 +49,19 @@ sed -i "s/^admin_secret: .*/admin_secret: $HASURA_ADM_PASSWORD/g" /usr/share/bbb
 
     #Check if Hasura is ready before applying metadata
     HASURA_PORT=8085
-    while ! netstat -tuln | grep ":$HASURA_PORT " > /dev/null; do
+    while ! ss -tuln | grep ":$HASURA_PORT " > /dev/null; do
         echo "Waiting for Hasura's port ($HASURA_PORT) to be ready..."
         sleep 1
     done
 
     # Apply BBB metadata in Hasura
     cd /usr/share/bbb-graphql-server
-    /usr/local/bin/hasura metadata apply --skip-update-check
+    timeout 15s /usr/local/bin/hasura metadata apply --skip-update-check
     cd ..
     rm -rf /usr/share/bbb-graphql-server/metadata
   fi
+
+  echo "Graphql-server after-install finished"
 
   ;;
 
