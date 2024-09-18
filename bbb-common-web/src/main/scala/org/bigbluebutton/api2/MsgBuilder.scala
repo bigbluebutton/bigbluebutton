@@ -378,4 +378,17 @@ object MsgBuilder {
     BbbCommonEnvCoreMsg(envelope, req)
   }
 
+  def buildPresentationUploadedFileVirusErrorSysPubMsg(msg: UploadFileVirusMessage): BbbCommonEnvCoreMsg = {
+    val routing = collection.immutable.HashMap("sender" -> "bbb-web")
+    val envelope = BbbCoreEnvelope(PresentationUploadedFileTimeoutErrorSysPubMsg.NAME, routing)
+    val header = BbbClientMsgHeader(PresentationUploadedFileTimeoutErrorSysPubMsg.NAME, msg.meetingId, "not-used")
+
+    val body = PresentationUploadedFileVirusErrorSysPubMsgBody(podId = msg.podId, presentationName = msg.filename,
+      meetingId = msg.meetingId, messageKey = msg.messageKey, temporaryPresentationId = msg.temporaryPresentationId,
+      presentationId = msg.presentationId)
+
+    val req = PresentationUploadedFileVirusErrorSysPubMsg(header, body)
+    BbbCommonEnvCoreMsg(envelope, req)
+  }
+
 }

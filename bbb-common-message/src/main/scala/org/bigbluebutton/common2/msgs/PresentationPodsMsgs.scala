@@ -206,6 +206,20 @@ case class PresentationUploadedFileTimeoutErrorSysPubMsgBody(
     maxNumberOfAttempts:     Int,
 )
 
+object PresentationUploadedFileVirusErrorSysPubMsg { val NAME = "PresentationUploadedFileVirusErrorSysPubMsg" }
+case class PresentationUploadedFileVirusErrorSysPubMsg(
+  header: BbbClientMsgHeader,
+  body: PresentationUploadedFileVirusErrorSysPubMsgBody
+) extends StandardMsg
+case class PresentationUploadedFileVirusErrorSysPubMsgBody(
+  podId: String,
+  meetingId: String,
+  presentationName: String,
+  messageKey: String,
+  temporaryPresentationId: String,
+  presentationId: String,
+)
+
 // ------------ bbb-common-web to akka-apps ------------
 
 // ------------ akka-apps to client ------------
@@ -274,6 +288,11 @@ case class PresentationUploadedFileTimeoutErrorEvtMsgBody(podId: String, meeting
                                                           page: Int, messageKey: String,
                                                           temporaryPresentationId: String, presentationId: String,
                                                           maxNumberOfAttempts: Int)
+
+object PresentationUploadedFileVirusErrorEvtMsg { val NAME = "PresentationUploadedFileVirusErrorEvtMsg" }
+case class PresentationUploadedFileVirusErrorEvtMsg(header: BbbClientMsgHeader, body: PresentationUploadedFileVirusErrorEvtMsgBody) extends BbbCoreMsg
+case class PresentationUploadedFileVirusErrorEvtMsgBody(podId: String, meetingId: String, presentationName: String,
+                                                        messageKey: String, temporaryPresentationId: String, presentationId: String)
 
 object PresentationConversionRequestReceivedEventMsg { val NAME = "PresentationConversionRequestReceivedEventMsg" }
 case class PresentationConversionRequestReceivedEventMsg(

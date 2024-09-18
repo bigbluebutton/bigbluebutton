@@ -380,6 +380,9 @@ class BbbWebApiGWApp(
     } else if (msg.isInstanceOf[DocInvalidMimeType]) {
       val event = MsgBuilder.buildPresentationHasInvalidMimeType(msg.asInstanceOf[DocInvalidMimeType])
       msgToAkkaAppsEventBus.publish(MsgToAkkaApps(toAkkaAppsChannel, event))
+    } else if (msg.isInstanceOf[UploadFileVirusMessage]) {
+      val event = MsgBuilder.buildPresentationUploadedFileVirusErrorSysPubMsg(msg.asInstanceOf[UploadFileVirusMessage])
+      msgToAkkaAppsEventBus.publish(MsgToAkkaApps(toAkkaAppsChannel, event))
     }
   }
 

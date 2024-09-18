@@ -75,6 +75,18 @@ public class SlidesGenerationProgressNotifier {
     messagingService.sendDocConversionMsg(errorMessage);
   }
 
+  public void sendUploadFileVirus(UploadedPresentation pres) {
+    UploadFileVirusMessage message = new UploadFileVirusMessage(
+            pres.getPodId(),
+            pres.getMeetingId(),
+            pres.getName(),
+            ConversionMessageConstants.FILE_VIRUS_KEY,
+            pres.getTemporaryPresentationId(),
+            pres.getId()
+    );
+    messagingService.sendDocConversionMsg(message);
+  }
+
   public void sendConversionUpdateMessage(int slidesCompleted, UploadedPresentation pres, int pageGenerated) {
     DocPageGeneratedProgress progress = new DocPageGeneratedProgress(pres.getPodId(),
             pres.getMeetingId(),
