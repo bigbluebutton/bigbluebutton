@@ -20,7 +20,7 @@ trait PresentationUploadedFileVirusErrorPubMsgHdlr {
         MessageTypes.BROADCAST_TO_MEETING,
         liveMeeting.props.meetingProp.intId, msg.header.userId
       )
-      val envelope = BbbCoreEnvelope(PresentationUploadedFileVirusErrorSysPubMsg.NAME, routing)
+      val envelope = BbbCoreEnvelope(PresentationUploadedFileVirusErrorEvtMsg.NAME, routing)
       val header = BbbClientMsgHeader(
         PresentationUploadedFileVirusErrorEvtMsg.NAME,
         liveMeeting.props.meetingProp.intId, msg.header.userId

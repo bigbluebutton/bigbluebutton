@@ -143,6 +143,10 @@ const intlMessages = defineMessages({
     id: 'app.presentationUploder.upload.401',
     description: 'error for failed upload token request.',
   },
+  FILE_VIRUS: {
+    id: 'app.presentationUploder.upload.fileVirus',
+    description: 'error that the file could not be uploaded due to security concerns',
+  },
   conversionProcessingSlides: {
     id: 'app.presentationUploder.conversion.conversionProcessingSlides',
     description: 'indicates how many slides were converted',
