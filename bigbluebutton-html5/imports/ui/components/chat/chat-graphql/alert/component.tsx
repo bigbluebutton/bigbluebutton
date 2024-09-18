@@ -54,6 +54,14 @@ const intlMessages = defineMessages({
     id: 'app.toast.chat.pollClick',
     description: 'chat toast click message for polls',
   },
+  userAway: {
+    id: 'app.chat.away',
+    description: 'message when user is away',
+  },
+  userNotAway: {
+    id: 'app.chat.notAway',
+    description: 'message when user is no longer away',
+  },
 });
 
 const ALERT_DURATION = 4000; // 4 seconds
@@ -124,6 +132,14 @@ const ChatAlertGraphql: React.FC<ChatAlertGraphqlProps> = (props) => {
   }
 
   const mapTextContent = (msg: Message) => {
+    if (msg.messageType === ChatMessageType.USER_AWAY_STATUS_MSG) {
+      const { away } = JSON.parse(msg.messageMetadata as string);
+
+      return away
+        ? intl.formatMessage(intlMessages.userAway)
+        : intl.formatMessage(intlMessages.userNotAway);
+    }
+
     if (msg.messageType === ChatMessageType.CHAT_CLEAR) {
       return intl.formatMessage(intlMessages.publicChatClear);
     }
