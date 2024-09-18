@@ -6,7 +6,7 @@ import org.bigbluebutton.core.domain.BreakoutRoom2x
 object RegisteredUsers {
   def create(userId: String, extId: String, name: String, roles: String,
              token: String, avatar: String, webcamBackground: String, color: String, guest: Boolean, authenticated: Boolean,
-             guestStatus: String, excludeFromDashboard: Boolean, loggedOut: Boolean): RegisteredUser = {
+             guestStatus: String, excludeFromDashboard: Boolean, loggedOut: Boolean, userCustomData: Map[String, String]): RegisteredUser = {
     new RegisteredUser(
       userId,
       extId,
@@ -25,6 +25,7 @@ object RegisteredUsers {
       false,
       false,
       loggedOut,
+      userCustomData = userCustomData
     )
   }
 
@@ -79,7 +80,6 @@ object RegisteredUsers {
   }
 
   def add(users: RegisteredUsers, user: RegisteredUser): Vector[RegisteredUser] = {
-
     findWithExternUserId(user.externId, users) match {
       case Some(u) =>
         if (u.banned) {
@@ -165,12 +165,6 @@ object RegisteredUsers {
     u
   }
 
-  def updateUserCustomData(users: RegisteredUsers, user: RegisteredUser, userCustomData: Map[String, String]): RegisteredUser = {
-    val u = user.modify(_.userCustomData).setTo(userCustomData)
-    users.save(u)
-    u
-  }
-
 }
 
 class RegisteredUsers {
@@ -210,7 +204,7 @@ case class RegisteredUser(
     joined:                   Boolean,
     banned:                   Boolean,
     loggedOut:                Boolean,
-    lastBreakoutRoom:         BreakoutRoom2x = null,
+    lastBreakoutRoom:         BreakoutRoom2x      = null,
     userCustomData:           Map[String, String] = Map.empty
 )
 
