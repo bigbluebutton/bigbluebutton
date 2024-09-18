@@ -78,9 +78,10 @@ module BigBlueButton
     end
 
     # Get the timestamp of the first event.
-    def self.first_event_timestamp(events)
+    def self.first_event_timestamp(events, isUtcType = false)
       first_event = events.at_xpath('/recording/event[position() = 1]')
-      first_event['timestamp'].to_i if first_event && first_event.key?('timestamp')
+      return first_event['timestamp'].to_i if first_event && first_event.key?('timestamp') && !isUtcType
+      return first_event.at_xpath('./timestampUTC')&.content.to_i if first_event && !first_event.at_xpath('timestampUTC').nil? && isUtcType
     end
 
     # Get the timestamp of the last event.
