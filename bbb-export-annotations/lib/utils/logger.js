@@ -36,9 +36,7 @@ module.exports = class Logger {
   }
 
   warn(...messages) {
-    if (debug) {
-      console.log(date(), 'WARN\t', `[${this.context}]`, ...parse(messages));
-    }
+    console.log(date(), 'WARN\t', `[${this.context}]`, ...parse(messages));
   }
 
   error(...messages) {

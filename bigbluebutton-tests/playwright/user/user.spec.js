@@ -1,15 +1,20 @@
 const { test, devices } = require('@playwright/test');
+const { encodeCustomParams } = require('../parameters/util');
+const { PARAMETER_HIDE_PRESENTATION_TOASTS } = require('../core/constants');
 const { Status } = require('./status');
 const { MultiUsers } = require('./multiusers');
 const { GuestPolicy } = require('./guestPolicy');
 const { LockViewers } = require('./lockViewers');
 const { MobileDevices } = require('./mobileDevices');
+const { Timer } = require('./timer');
 const motoG4 = devices['Moto G4'];
 const iPhone11 = devices['iPhone 11'];
 
+const customStyleAvoidNotificationToasts = encodeCustomParams(PARAMETER_HIDE_PRESENTATION_TOASTS);
+
 test.describe.parallel('User', () => {
   test.describe.parallel('Actions', () => {
-    // https://docs.bigbluebutton.org/2.6/release-tests.html#set-status--raise-hand-automated
+    // https://docs.bigbluebutton.org/2.7/testing/release-testing/#set-status--raise-hand-automated
     test('Raise and lower Hand', async ({ browser, context, page }) => {
       const multiusers = new MultiUsers(browser, context);
       await multiusers.initModPage(page, true);
@@ -27,10 +32,22 @@ test.describe.parallel('User', () => {
       await multiusers.initModPage(page);
       await multiusers.toggleUserList();
     });
+
+    test('Stopwatch @ci', async ({ browser, context, page })=> {
+      const timer = new Timer(browser, context);
+      await timer.initModPage(page, true, { joinParameter: customStyleAvoidNotificationToasts });
+      await timer.stopwatchTest();
+    });
+
+    test('Timer @ci', async ({ browser, context, page })=> {
+      const timer = new Timer(browser, context);
+      await timer.initModPage(page, true, { joinParameter: customStyleAvoidNotificationToasts });
+      await timer.timerTest();
+    });
   });
 
   test.describe.parallel('List', () => {
-    // https://docs.bigbluebutton.org/2.6/release-tests.html#set-status--raise-hand-automated
+    // https://docs.bigbluebutton.org/2.7/testing/release-testing/#set-status--raise-hand-automated
     test('Change user status @ci', async ({ browser, page }) => {
       const status = new Status(browser, page);
       await status.init(true, true);
@@ -43,14 +60,14 @@ test.describe.parallel('User', () => {
       await multiusers.userPresence();
     });
 
-    // https://docs.bigbluebutton.org/2.6/release-tests.html#make-viewer-a-presenter-automated
+    // https://docs.bigbluebutton.org/2.7/testing/release-testing/#make-viewer-a-presenter-automated
     test('Make presenter @ci', async ({ browser, context, page }) => {
       const multiusers = new MultiUsers(browser, context);
       await multiusers.initPages(page);
       await multiusers.makePresenter();
     });
 
-    // https://docs.bigbluebutton.org/2.6/release-tests.html#taking-presenter-status-back-automated
+    // https://docs.bigbluebutton.org/2.7/testing/release-testing/#taking-presenter-status-back-automated
     test('Take presenter @ci', async ({ browser, context, page }) => {
       const multiusers = new MultiUsers(browser, context);
       await multiusers.initModPage(page);
@@ -96,7 +113,7 @@ test.describe.parallel('User', () => {
   test.describe.parallel('Manage', () => {
     test.describe.parallel('Guest policy', () => {
       test.describe.parallel('ASK_MODERATOR @ci', () => {
-        // https://docs.bigbluebutton.org/2.6/release-tests.html#ask-moderator
+        // https://docs.bigbluebutton.org/2.7/testing/release-testing/#ask-moderator
         test('Message to guest lobby', async ({ browser, context, page }) => {
           const guestPolicy = new GuestPolicy(browser, context);
           await guestPolicy.initModPage(page);
@@ -145,7 +162,7 @@ test.describe.parallel('User', () => {
         await guestPolicy.initModPage(page);
         await guestPolicy.alwaysAccept();
       });
-      // https://docs.bigbluebutton.org/2.6/release-tests.html#always-deny
+      // https://docs.bigbluebutton.org/2.7/testing/release-testing/#always-deny
       test('ALWAYS_DENY @ci', async ({ browser, context, page }) => {
         const guestPolicy = new GuestPolicy(browser, context);
         await guestPolicy.initModPage(page);
@@ -154,49 +171,49 @@ test.describe.parallel('User', () => {
     });
 
     test.describe.parallel('Lock viewers @ci', () => {
-      // https://docs.bigbluebutton.org/2.6/release-tests.html#webcam
+      // https://docs.bigbluebutton.org/2.7/testing/release-testing/#webcam
       test('Lock Share webcam', async ({ browser, context, page }) => {
         const lockViewers = new LockViewers(browser, context);
         await lockViewers.initPages(page);
         await lockViewers.lockShareWebcam();
       });
 
-      // https://docs.bigbluebutton.org/2.6/release-tests.html#see-other-viewers-webcams
+      // https://docs.bigbluebutton.org/2.7/testing/release-testing/#see-other-viewers-webcams
       test('Lock See other viewers webcams', async ({ browser, context, page }) => {
         const lockViewers = new LockViewers(browser, context);
         await lockViewers.initPages(page);
         await lockViewers.lockSeeOtherViewersWebcams();
       });
 
-      // https://docs.bigbluebutton.org/2.6/release-tests.html#microphone
+      // https://docs.bigbluebutton.org/2.7/testing/release-testing/#microphone
       test('Lock Share microphone', async ({ browser, context, page }) => {
         const lockViewers = new LockViewers(browser, context);
         await lockViewers.initPages(page);
         await lockViewers.lockShareMicrophone();
       });
 
-      // https://docs.bigbluebutton.org/2.6/release-tests.html#public-chat
+      // https://docs.bigbluebutton.org/2.7/testing/release-testing/#public-chat
       test('Lock Send public chat messages', async ({ browser, context, page }) => {
         const lockViewers = new LockViewers(browser, context);
         await lockViewers.initPages(page);
         await lockViewers.lockSendPublicChatMessages();
       });
 
-      // https://docs.bigbluebutton.org/2.6/release-tests.html#private-chat
+      // https://docs.bigbluebutton.org/2.7/testing/release-testing/#private-chat
       test('Lock Send private chat messages', async ({ browser, context, page }) => {
         const lockViewers = new LockViewers(browser, context);
         await lockViewers.initPages(page);
         await lockViewers.lockSendPrivateChatMessages();
       });
 
-      // https://docs.bigbluebutton.org/2.6/release-tests.html#shared-notes-1
+      // https://docs.bigbluebutton.org/2.7/testing/release-testing/#shared-notes-1
       test('Lock Edit Shared Notes', async ({ browser, context, page }) => {
         const lockViewers = new LockViewers(browser, context);
         await lockViewers.initPages(page);
         await lockViewers.lockEditSharedNotes();
       });
 
-      // https://docs.bigbluebutton.org/2.6/release-tests.html#see-other-viewers-in-the-users-list
+      // https://docs.bigbluebutton.org/2.7/testing/release-testing/#see-other-viewers-in-the-users-list
       test('Lock See other viewers in the Users list', async ({ browser, context, page }) => {
         const lockViewers = new LockViewers(browser, context);
         await lockViewers.initPages(page);
@@ -216,7 +233,7 @@ test.describe.parallel('User', () => {
       });
     });
 
-    // https://docs.bigbluebutton.org/2.6/release-tests.html#saving-usernames
+    // https://docs.bigbluebutton.org/2.7/testing/release-testing/#saving-usernames
     test('Save user names', async ({ browser, context, page }, testInfo) => {
       const multiusers = new MultiUsers(browser, context);
       await multiusers.initPages(page);

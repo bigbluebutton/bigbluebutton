@@ -39,7 +39,7 @@ const reducer = (state, action) => {
       };
     }
     case 'update': {
-      if (action.background.custom) update(action.background);
+      if (action.background.custom && !action.background.sessionOnly) update(action.background);
       return {
         ...state,
         backgrounds: {

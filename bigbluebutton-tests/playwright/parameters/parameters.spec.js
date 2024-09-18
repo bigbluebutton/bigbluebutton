@@ -420,6 +420,12 @@ test.describe.parallel('Custom Parameters', () => {
     await customParam.preferredCameraProfileTest();
   });
 
+  test('Set webcam background by passing URL @ci', async ({ browser, context, page }) => {
+    const customParam = new CustomParameters(browser, context);
+    await customParam.initModPage(page, true, { joinParameter: c.webcamBackgroundPassingURL });
+    await customParam.webcamBackgroundURL();
+  });  
+
   test.describe.parallel('Audio', () => {
     test('Auto join @ci', async ({ browser, context, page }) => {
       const customParam = new CustomParameters(browser, context);

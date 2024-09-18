@@ -104,6 +104,28 @@ const update = (background) => {
   });
 };
 
+// Function to convert image URL to a File object
+async function getFileFromUrl(url) {
+  try {
+    const response = await fetch(url, {
+      credentials: 'omit',
+      mode: 'cors',
+      headers: {
+        Accept: 'image/*',
+      },
+    });
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
+    const blob = await response.blob();
+    const file = new File([blob], 'fetchedWebcamBackground', { type: blob.type });
+    return file;
+  } catch (error) {
+    logger.error('Fetch error:', error);
+    return null;
+  }
+}
+
 export default {
   load,
   save,
@@ -111,4 +133,5 @@ export default {
   update,
   MIME_TYPES_ALLOWED,
   MAX_FILE_SIZE,
+  getFileFromUrl,
 };

@@ -15,12 +15,12 @@ test.describe('Chat', () => {
     await chat.initUserPage(true, context);
   });
 
-  // https://docs.bigbluebutton.org/2.6/release-tests.html#public-message-automated
+  // https://docs.bigbluebutton.org/2.7/testing/release-testing/#public-message-automated
   test('Send public message @ci', async () => {
     await chat.sendPublicMessage();
   });
 
-  // https://docs.bigbluebutton.org/2.6/release-tests.html#private-message-automated
+  // https://docs.bigbluebutton.org/2.7/testing/release-testing/#private-message-automated
   test('Send private message @ci', async () => {
     await chat.sendPrivateMessage();
   });
@@ -41,7 +41,7 @@ test.describe('Chat', () => {
     await chat.characterLimit();
   });
 
-  // https://docs.bigbluebutton.org/2.6/release-tests.html#sending-empty-chat-message-automated
+  // https://docs.bigbluebutton.org/2.7/testing/release-testing/#sending-empty-chat-message-automated
   test('Not able to send an empty message @ci', async () => {
     await chat.emptyMessage();
   });

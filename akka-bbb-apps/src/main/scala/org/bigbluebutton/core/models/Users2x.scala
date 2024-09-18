@@ -407,20 +407,22 @@ case class UserState(
     guestStatus:           String,
     emoji:                 String,
     reactionEmoji:         String,
-    reactionChangedOn:     Long         = 0,
+    reactionChangedOn:     Long                = 0,
     raiseHand:             Boolean,
     away:                  Boolean,
     locked:                Boolean,
     presenter:             Boolean,
     avatar:                String,
+    webcamBackground:      String,
     color:                 String,
-    roleChangedOn:         Long         = System.currentTimeMillis(),
-    lastActivityTime:      Long         = System.currentTimeMillis(),
-    lastInactivityInspect: Long         = 0,
+    roleChangedOn:         Long                = System.currentTimeMillis(),
+    lastActivityTime:      Long                = System.currentTimeMillis(),
+    lastInactivityInspect: Long                = 0,
     clientType:            String,
     pickExempted:          Boolean,
     userLeftFlag:          UserLeftFlag,
-    speechLocale:          String       = ""
+    speechLocale:          String              = "",
+    userCustomData:        Map[String, String] = Map.empty
 )
 
 case class UserIdAndName(id: String, name: String)

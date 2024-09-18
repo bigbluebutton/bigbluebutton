@@ -47,6 +47,14 @@ const messages = defineMessages({
     id: 'app.audio.backLabel',
     description: 'label for option to hide emoji menu',
   },
+  lockPublicChat: {
+    id: 'app.userList.menu.lockPublicChat.label',
+    description: 'label for option to lock user\'s public chat',
+  },
+  unlockPublicChat: {
+    id: 'app.userList.menu.unlockPublicChat.label',
+    description: 'label for option to lock user\'s public chat',
+  },
   StartPrivateChat: {
     id: 'app.userList.menu.chat.label',
     description: 'label for option to start a new private chat',
@@ -175,6 +183,7 @@ const propTypes = {
   normalizeEmojiName: PropTypes.func.isRequired,
   getScrollContainerRef: PropTypes.func.isRequired,
   toggleUserLock: PropTypes.func.isRequired,
+  toggleUserChatLock: PropTypes.func.isRequired,
   isMeteorConnected: PropTypes.bool.isRequired,
   isMe: PropTypes.func.isRequired,
 };
@@ -286,6 +295,7 @@ class UserListItem extends PureComponent {
       voiceUser,
       getAvailableActions,
       getGroupChatPrivate,
+      toggleUserChatLock,
       getEmojiList,
       setEmojiStatus,
       setUserAway,
@@ -345,6 +355,7 @@ class UserListItem extends PureComponent {
 
     const { allowUserLookup } = Meteor.settings.public.app;
     const userLocked = user.locked && user.role !== ROLE_MODERATOR;
+    const userChatLocked = user.chatLocked;
 
     const availableActions = [
       {
@@ -405,6 +416,29 @@ class UserListItem extends PureComponent {
         },
         icon: 'chat',
         dataTest: 'startPrivateChat',
+      },
+      {
+        allowed: isChatEnabled()
+          && user.role !== ROLE_MODERATOR
+          && currentUser.role === ROLE_MODERATOR
+          && !isDialInUser
+          && isMeteorConnected,
+        key: 'lockChat',
+        label: userChatLocked ? intl.formatMessage(messages.unlockPublicChat) : intl.formatMessage(messages.lockPublicChat),
+        onClick: () => {
+          this.handleClose();
+          toggleUserChatLock(user.userId, !userChatLocked);
+          layoutContextDispatch({
+            type: ACTIONS.SET_SIDEBAR_CONTENT_IS_OPEN,
+            value: true,
+          });
+          layoutContextDispatch({
+            type: ACTIONS.SET_SIDEBAR_CONTENT_PANEL,
+            value: PANELS.CHAT,
+          });
+        },
+        icon: userChatLocked ? 'unlock' : 'lock',
+        dataTest: 'togglePublicChat',
       },
       {
         allowed: allowedToResetStatus
@@ -786,7 +820,7 @@ class UserListItem extends PureComponent {
       );
     }
 
-    if (isThisMeetingLocked && user.locked && user.role !== ROLE_MODERATOR) {
+    if (((isThisMeetingLocked && user.locked) || user.chatLocked) && user.role !== ROLE_MODERATOR) {
       userNameSub.push(
         <span key={uniqueId('lock-')}>
           <Icon iconName="lock" />

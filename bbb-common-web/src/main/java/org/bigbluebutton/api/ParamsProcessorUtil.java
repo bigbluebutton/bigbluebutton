@@ -84,6 +84,8 @@ public class ParamsProcessorUtil {
     private Integer defaultHttpSessionTimeout = 14400;
     private Boolean useDefaultAvatar = false;
     private String defaultAvatarURL;
+    private Boolean useDefaultWebcamBackground = false;
+    private String defaultWebcamBackgroundURL;
     private String defaultGuestPolicy;
     private Boolean authenticatedGuest;
     private Boolean defaultAllowPromoteGuestToModerator;
@@ -741,6 +743,7 @@ public class ParamsProcessorUtil {
         }
 
         String avatarURL = useDefaultAvatar ? defaultAvatarURL : "";
+        String webcamBackgroundURL = useDefaultWebcamBackground ? defaultWebcamBackgroundURL : "";
 
         int html5InstanceId = processHtml5InstanceId(params.get(ApiParams.HTML5_INSTANCE_ID));
 
@@ -760,6 +763,7 @@ public class ParamsProcessorUtil {
                 .withTelVoice(telVoice).withWebVoice(webVoice)
                 .withDialNumber(dialNumber)
                 .withDefaultAvatarURL(avatarURL)
+                .withDefaultWebcamBackgroundURL(webcamBackgroundURL)
                 .withAutoStartRecording(autoStartRec)
                 .withAllowStartStopRecording(allowStartStoptRec)
                 .withRecordFullDurationMedia(_recordFullDurationMedia)
@@ -1295,6 +1299,14 @@ public class ParamsProcessorUtil {
 	public void setdefaultAvatarURL(String url) {
 		this.defaultAvatarURL = url;
 	}
+
+    public void setUseDefaultWebcamBackground(Boolean value) {
+        this.useDefaultWebcamBackground = value;
+    }
+
+    public void setDefaultWebcamBackgroundURL(String uri) {
+        this.defaultWebcamBackgroundURL = uri;
+    }
 
 	public void setDefaultGuestPolicy(String guestPolicy) {
 		this.defaultGuestPolicy =  guestPolicy;

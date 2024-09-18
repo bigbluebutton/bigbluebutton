@@ -131,13 +131,14 @@ object VoiceApp extends SystemConfiguration {
         liveMeeting,
         outGW,
         mutedUser.intId,
+        mutedUser.callerNum,
         muted,
         toggleListenOnlyAfterMuteTimer
       )
 
       // If the user is muted or unmuted with an unheld channel, broadcast
       // the event right away.
-      // If the user is unmuted, but channel is held, we need to wait for the 
+      // If the user is unmuted, but channel is held, we need to wait for the
       // channel to be active again to broadcast the event. See
       // VoiceApp.handleChannelHoldChanged for this second case.
       if (muted || (!muted && !mutedUser.hold)) {
@@ -148,7 +149,6 @@ object VoiceApp extends SystemConfiguration {
           outGW
         )
       }
-
     }
   }
 
@@ -259,7 +259,7 @@ object VoiceApp extends SystemConfiguration {
       callingInto:  String,
       hold:         Boolean,
       uuid:         String  = "unused"
-  ): Unit = {
+  )(implicit context: akka.actor.ActorContext): Unit = {
 
     def broadcastEvent(voiceUserState: VoiceUserState): Unit = {
       val routing = Routing.addMsgToClientRouting(
@@ -322,7 +322,27 @@ object VoiceApp extends SystemConfiguration {
       hold,
       uuid
     )
+
+    val prevTransparentLOStatus = VoiceHdlrHelpers.transparentListenOnlyAllowed(
+      liveMeeting
+    )
+
     VoiceUsers.add(liveMeeting.voiceUsers, voiceUserState)
+
+    val newTransparentLOStatus = VoiceHdlrHelpers.transparentListenOnlyAllowed(
+      liveMeeting
+    )
+
+    if (prevTransparentLOStatus != newTransparentLOStatus) {
+      // If the transparent listen only mode was activated or deactivated
+      // we need to update the listen only mode for all users in the meeting
+      // that are not muted.
+      handleTransparentLOModeChange(
+        liveMeeting,
+        outGW,
+        newTransparentLOStatus
+      )
+    }
 
     broadcastEvent(voiceUserState)
 
@@ -472,26 +492,51 @@ object VoiceApp extends SystemConfiguration {
     }
   }
 
+  def handleTransparentLOModeChange(
+    liveMeeting: LiveMeeting,
+    outGW:       OutMsgRouter,
+    allowed:     Boolean,
+  )(implicit context: akka.actor.ActorContext): Unit = {
+    VoiceUsers.findAllMutedVoiceUsers(liveMeeting.voiceUsers) foreach { vu =>
+      toggleListenOnlyMode(
+        liveMeeting,
+        outGW,
+        vu.intId,
+        vu.callerNum,
+        allowed
+      )
+    }
+  }
+
   def toggleListenOnlyMode(
     liveMeeting:    LiveMeeting,
     outGW:          OutMsgRouter,
     userId:         String,
+    callerNum:      String,
     enabled:        Boolean,
     delay:          Int = 0
   )(implicit context: ActorContext): Unit = {
     implicit def executionContext = context.system.dispatcher
+    val allowed = VoiceHdlrHelpers.transparentListenOnlyAllowed(liveMeeting)
+    // Guarantee there are no other tasks for this channel
+    removeToggleListenOnlyTask(userId)
+
+    // If the meeting has not yet hit the minium amount of duplex channels
+    // for transparent listen only to be enabled, we don't need to do anything
+    if (!allowed && enabled) {
+      return
+    }
+
     def broacastEvent(): Unit = {
       val event = MsgBuilder.buildToggleListenOnlyModeSysMsg(
         liveMeeting.props.meetingProp.intId,
         liveMeeting.props.voiceProp.voiceConf,
         userId,
+        callerNum,
         enabled
       )
       outGW.send(event)
     }
-
-    // Guarantee there are no other tasks for this channel
-    removeToggleListenOnlyTask(userId)
 
     if (enabled && delay > 0) {
       // If we are enabling listen only mode, we wait a bit before actually
@@ -543,13 +588,15 @@ object VoiceApp extends SystemConfiguration {
       hold
     ) match {
       case Some(vu) =>
-        // Mute vs hold state mismatch, enforce hold state again. 
-        // Mute state is the predominant one here.
-        if (vu.muted != hold) {
+        // Mute vs hold state mismatch. Enforce it if the user is unmuted,
+        // but hold is active, to avoid the user being unable to talk when
+        // the channel is active again.
+        if (!vu.muted && vu.hold) {
           toggleListenOnlyMode(
             liveMeeting,
             outGW,
             intId,
+            vu.callerNum,
             vu.muted
           )
         }
@@ -565,5 +612,49 @@ object VoiceApp extends SystemConfiguration {
         }
       case _ =>
     }
+  }
+
+  def muteUserInVoiceConf(
+    liveMeeting:  LiveMeeting,
+    outGW:        OutMsgRouter,
+    userId:       String,
+    muted:         Boolean
+  )(implicit context: akka.actor.ActorContext): Unit = {
+    for {
+      u <- VoiceUsers.findWithIntId(
+        liveMeeting.voiceUsers,
+        userId
+      )
+      } yield {
+        if (u.muted != muted) {
+          val muteEvent = MsgBuilder.buildMuteUserInVoiceConfSysMsg(
+            liveMeeting.props.meetingProp.intId,
+            liveMeeting.props.voiceProp.voiceConf,
+            u.voiceUserId,
+            muted
+          )
+
+          // If we're unmuting, trigger a channel unhold -> toggle listen only
+          // mode -> unmute
+          if (!muted) {
+            holdChannelInVoiceConf(
+              liveMeeting,
+              outGW,
+              u.uuid,
+              muted
+            )
+            toggleListenOnlyMode(
+              liveMeeting,
+              outGW,
+              u.intId,
+              u.callerNum,
+              muted,
+              0
+            )
+          }
+
+          outGW.send(muteEvent)
+        }
+      }
   }
 }

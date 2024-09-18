@@ -50,8 +50,8 @@ public interface IBbbWebApiGWApp {
                      String presentationUploadExternalUrl);
 
   void registerUser(String meetingID, String internalUserId, String fullname, String role,
-                    String externUserID, String authToken, String avatarURL,
-                    Boolean guest, Boolean authed, String guestStatus, Boolean excludeFromDashboard);
+                    String externUserID, String authToken, String avatarURL, String webcamBackgroundURL,
+                    Boolean guest, Boolean authed, String guestStatus, Boolean excludeFromDashboard, Map<String, Object> userCustomData);
   void guestWaitingLeft(String meetingID, String internalUserId);
 
   void destroyMeeting(DestroyMeetingMessage msg);

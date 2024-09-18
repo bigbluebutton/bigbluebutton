@@ -27,6 +27,7 @@ const reducer = (state, action) => {
     case ACTIONS.ADDED:
     case ACTIONS.CHANGED: {
       ChatLogger.debug('UsersContextProvider::reducer::added', { ...action });
+
       const { user } = action.value;
 
       const newState = { ...state };
@@ -53,23 +54,22 @@ const reducer = (state, action) => {
 
         return newState;
       }
-      return state;    
+      return state;
     }
 
     // USER PERSISTENT DATA
     case ACTIONS.ADDED_USER_PERSISTENT_DATA: {
+      ChatLogger.debug('UsersContextProvider::reducer::added_user_persistent_data', { ...action });
+
       const { user } = action.value;
       if (state[user.meetingId] && state[user.meetingId][user.userId]) {
-        if (state[user.meetingId][user.userId].loggedOut) {
-          const newState = { ...state };
-          newState[user.meetingId][user.userId] = {
-            ...state[user.meetingId][user.userId],
-            loggedOut: false,
-          };
-  
-          return newState;  
-        }
-        return state;
+        const newState = { ...state };
+        newState[user.meetingId][user.userId] = {
+          ...state[user.meetingId][user.userId],
+          ...user,
+        };
+
+        return newState;
       }
 
       const newState = { ...state };
@@ -83,6 +83,8 @@ const reducer = (state, action) => {
       return newState;
     }
     case ACTIONS.CHANGED_USER_PERSISTENT_DATA: {
+      ChatLogger.debug('UsersContextProvider::reducer::changed_user_persistent_data', { ...action });
+
       const { user } = action.value;
       const stateUser = state[user.meetingId][user.userId];
       if (stateUser) {

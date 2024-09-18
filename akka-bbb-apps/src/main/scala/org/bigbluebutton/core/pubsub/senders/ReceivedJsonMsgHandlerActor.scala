@@ -386,6 +386,8 @@ class ReceivedJsonMsgHandlerActor(
       // Lock settings
       case LockUserInMeetingCmdMsg.NAME =>
         routeGenericMsg[LockUserInMeetingCmdMsg](envelope, jsonNode)
+      case LockUserChatInMeetingCmdMsg.NAME =>
+        routeGenericMsg[LockUserChatInMeetingCmdMsg](envelope, jsonNode)
       case ChangeLockSettingsInMeetingCmdMsg.NAME =>
         routeGenericMsg[ChangeLockSettingsInMeetingCmdMsg](envelope, jsonNode)
       case LockUsersInMeetingCmdMsg.NAME =>

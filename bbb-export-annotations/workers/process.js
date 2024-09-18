@@ -130,6 +130,7 @@ function escapeText(string) {
       .replace(/</g, '\\&lt;');
 }
 
+// Rasterizes text into an image. Returns true if successful, false otherwise.
 function render_textbox(textColor, font, fontSize, textAlign, text, id, textBoxWidth = null) {
   fontSize = to_pt(fontSize) * config.process.textScaleFactor;
   text = escapeText(text);
@@ -155,12 +156,15 @@ function render_textbox(textColor, font, fontSize, textAlign, text, id, textBoxW
         path.join(dropbox, `text${id}.png`),
       ]);
 
-  try {
-    cp.spawnSync(config.shared.imagemagick, commands, {shell: false});
-  } catch (error) {
+  const result = cp.spawnSync(config.shared.imagemagick, commands, {shell: false});
+
+  if (result.error || result.status !== 0) {
     logger.error(`ImageMagick failed to render textbox in job ${jobId}: ${error.message}`);
     statusUpdate.setError();
+    return false;
   }
+
+  return true;
 }
 
 function get_gap(dash, size) {
@@ -607,10 +611,10 @@ function overlay_shape_label(svg, annotation) {
   const label_center_x = shape_x + shape_width * x_offset;
   const label_center_y = shape_y + shape_height * y_offset;
 
-  render_textbox(fontColor, font, fontSize, textAlign, text, id);
+  const renderStatus = render_textbox(fontColor, font, fontSize, textAlign, text, id);
   const shape_label = path.join(dropbox, `text${id}.png`);
 
-  if (fs.existsSync(shape_label)) {
+  if (fs.existsSync(shape_label) && renderStatus) {
     // Poll results must fit inside shape, unlike other rectangle labels.
     // Linewrapping handled by client.
     const ref = `file://${dropbox}/text${id}.png`;
@@ -634,6 +638,8 @@ function overlay_shape_label(svg, annotation) {
       'height': labelHeight,
       'xlink:href': ref,
       }).up();
+    } else {
+      logger.warn(`Could not render status in overlay_shape_label for ${annotation}`);
     }
 }
 
@@ -651,25 +657,29 @@ function overlay_sticky(svg, annotation) {
   const text = annotation.text;
   const id = sanitize(annotation.id);
 
-  render_textbox(textColor, font, fontSize, textAlign, text, id, textBoxWidth);
+  const renderStatus = render_textbox(textColor, font, fontSize, textAlign, text, id, textBoxWidth);
 
   // Overlay transparent text image over empty sticky note
-  svg.ele('g', {
-    transform: `rotate(${rotation}, ${textBox_x + (textBoxWidth / 2)}, ${textBox_y + (textBoxHeight / 2)})`,
-  }).ele('rect', {
-    x: textBox_x,
-    y: textBox_y,
-    width: textBoxWidth,
-    height: textBoxHeight,
-    fill: backgroundColor,
-  }).up()
-      .ele('image', {
-        'x': textBox_x,
-        'y': textBox_y,
-        'width': textBoxWidth,
-        'height': textBoxHeight,
-        'xlink:href': `file://${dropbox}/text${id}.png`,
-      }).up();
+  if (renderStatus) {
+    svg.ele('g', {
+      transform: `rotate(${rotation}, ${textBox_x + (textBoxWidth / 2)}, ${textBox_y + (textBoxHeight / 2)})`,
+    }).ele('rect', {
+      x: textBox_x,
+      y: textBox_y,
+      width: textBoxWidth,
+      height: textBoxHeight,
+      fill: backgroundColor,
+    }).up()
+        .ele('image', {
+          'x': textBox_x,
+          'y': textBox_y,
+          'width': textBoxWidth,
+          'height': textBoxHeight,
+          'xlink:href': `file://${dropbox}/text${id}.png`,
+        }).up();
+  } else {
+    logger.warn(`Could not render status in overlay_sticky for ${annotation}`);
+  }
 }
 
 function overlay_triangle(svg, annotation) {
@@ -704,6 +714,7 @@ function overlay_triangle(svg, annotation) {
 
 function overlay_text(svg, annotation) {
   if (annotation.size == null || annotation.size.length < 2) {
+    logger.warn("An annotation of type text had a missing or malformed property size and was excluded from the extraction. " + JSON.stringify(annotation));
     return
   }
   
@@ -718,20 +729,24 @@ function overlay_text(svg, annotation) {
   const rotation = rad_to_degree(annotation.rotation);
   const [textBox_x, textBox_y] = annotation.point;
 
-  render_textbox(fontColor, font, fontSize, textAlign, text, id);
+  const renderStatus = render_textbox(fontColor, font, fontSize, textAlign, text, id);
 
-  const rotation_x = textBox_x + (textBoxWidth / 2);
-  const rotation_y = textBox_y + (textBoxHeight / 2);
+  if (renderStatus) {
+    const rotation_x = textBox_x + (textBoxWidth / 2);
+    const rotation_y = textBox_y + (textBoxHeight / 2);
 
-  svg.ele('g', {
-    transform: `rotate(${rotation} ${rotation_x} ${rotation_y})`,
-  }).ele('image', {
-    'x': textBox_x,
-    'y': textBox_y,
-    'width': textBoxWidth,
-    'height': textBoxHeight,
-    'xlink:href': `file://${dropbox}/text${id}.png`,
-  }).up();
+    svg.ele('g', {
+      transform: `rotate(${rotation} ${rotation_x} ${rotation_y})`,
+    }).ele('image', {
+      'x': textBox_x,
+      'y': textBox_y,
+      'width': textBoxWidth,
+      'height': textBoxHeight,
+      'xlink:href': `file://${dropbox}/text${id}.png`,
+    }).up();
+  } else {
+    logger.warn(`Could not render status in render_textbox for ${annotation}`);
+  }
 }
 
 function overlay_annotation(svg, currentAnnotation) {

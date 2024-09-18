@@ -10,6 +10,7 @@ public class RegisterUser implements IMessage {
 	public final String externUserID;
 	public final String authToken;
 	public final String avatarURL;
+	public final String webcamBackgroundURL;
 	public final Boolean guest;
 	public final Boolean authed;
 	public final String guestStatus;
@@ -17,7 +18,7 @@ public class RegisterUser implements IMessage {
 	public final Boolean leftGuestLobby;
 
 	public RegisterUser(String meetingID, String internalUserId, String fullname, String role, String externUserID,
-						String authToken, String avatarURL, Boolean guest,
+						String authToken, String avatarURL, String webcamBackgroundURL, Boolean guest,
 						Boolean authed, String guestStatus, Boolean excludeFromDashboard, Boolean leftGuestLobby) {
 		this.meetingID = meetingID;
 		this.internalUserId = internalUserId;
@@ -25,7 +26,8 @@ public class RegisterUser implements IMessage {
 		this.role = role;
 		this.externUserID = externUserID;
 		this.authToken = authToken;		
-		this.avatarURL = avatarURL;		
+		this.avatarURL = avatarURL;
+		this.webcamBackgroundURL = webcamBackgroundURL;
 		this.guest = guest;
 		this.authed = authed;
 		this.guestStatus = guestStatus;

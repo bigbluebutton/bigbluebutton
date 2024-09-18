@@ -55,6 +55,7 @@ exports.hideActionsBar = 'userdata-bbb_hide_actions_bar=true';
 exports.overrideDefaultLocale = 'userdata-bbb_override_default_locale=pt-br';
 exports.hideNavBar = 'userdata-bbb_hide_nav_bar=true';
 exports.preferredCameraProfile = 'userdata-bbb_preferred_camera_profile=low';
+exports.webcamBackgroundPassingURL = 'webcamBackgroundURL=https://upload.wikimedia.org/wikipedia/commons/3/35/Spartan_apple.jpg'
 
 // Disabled Features
 exports.breakoutRoomsDisabled = 'disabledFeatures=breakoutRooms';

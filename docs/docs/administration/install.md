@@ -301,7 +301,7 @@ ii  bbb-webrtc-sfu                       1:2.7-9       amd64        BigBlueButto
 
 ```
 
-With Greenlight installed (that was the `-g` option), you can open `https://<hostname>/b` in a browser (where `<hostname>` is the hostname you specified in the `bbb-install.sh` command), create a local account, create a room and join it.
+With Greenlight installed (that was the `-g` option), you can open `https://<hostname>` in a browser (where `<hostname>` is the hostname you specified in the `bbb-install.sh` command), create a local account, create a room and join it.
 
 ![BigBlueButton's Greenlight Interface](/img/greenlight_welcome.png)
 

@@ -4,7 +4,8 @@ case class CallerId(name: String, number: String)
 case class VoiceUser(id: String, callerId: CallerId, status: String, vid: String, wid: String, callingWith: String)
 
 case class User2(intId: String, extId: String, name: String, role: String, avatarURL: String,
-                 guest: Boolean, waitingForAcceptance: Boolean, status: Vector[String],
+                 webcamBackgroundURL: String,
+                 guest:               Boolean, waitingForAcceptance: Boolean, status: Vector[String],
                  streams: Set[String], customData: UserCustomData, voiceUser: VoiceUser, webcamStreams: Vector[String])
 
 object Users {
@@ -40,7 +41,8 @@ class Users {
 
 case class RegisteredUser2(meetingId: String, intId: String, name: String, role: String,
                            extId: String, authToken: String, avatarURL: String,
-                           guest: Boolean, authed: Boolean)
+                           webcamBackgroundURL: String,
+                           guest:               Boolean, authed: Boolean)
 
 object RegisteredUsers {
   def findWithId(users: RegisteredUsers, id: String): Option[RegisteredUser2] = {

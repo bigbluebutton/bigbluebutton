@@ -15,7 +15,6 @@ import {
   getVirtualBgImagePath,
 } from '/imports/ui/services/virtual-background/service'
 import logger from '/imports/startup/client/logger';
-
 import { simd } from 'wasm-feature-detect/dist/cjs/index';
 
 const blurValue = '25px';
@@ -387,10 +386,10 @@ export async function createVirtualBackgroundService(parameters = null) {
         parameters.backgroundType = 'blur';
         parameters.isVirtualBackground = false;
     } else {
-        if (parameters.customParams) {
+        parameters.virtualSource = virtualBackgroundImagePath + parameters.backgroundFilename;
+
+        if (parameters?.customParams?.file) {
             parameters.virtualSource = parameters.customParams.file;
-        } else {
-            parameters.virtualSource = virtualBackgroundImagePath + parameters.backgroundFilename;
         }
     }
 

@@ -169,6 +169,10 @@ const isChatLocked = (receiverID) => {
     }
   }
 
+  if (user.chatLocked === true && user.role !== ROLE_MODERATOR) {
+    return true;
+  }
+
   return false;
 };
 

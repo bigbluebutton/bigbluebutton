@@ -101,6 +101,7 @@ class OldMeetingMsgHdlrActor(val olgMsgGW: OldMessageReceivedGW)
       msg.body.room.durationInMinutes,
       msg.body.room.sourcePresentationId,
       msg.body.room.sourcePresentationSlide,
+      msg.body.room.sourcePresentationFilename,
       msg.body.room.record,
       msg.body.room.privateChatEnabled,
       msg.body.room.captureNotes,
@@ -122,10 +123,9 @@ class OldMeetingMsgHdlrActor(val olgMsgGW: OldMessageReceivedGW)
 
   def handleUserJoinedMeetingEvtMsg(msg: UserJoinedMeetingEvtMsg): Unit = {
     olgMsgGW.handle(new UserJoined(msg.header.meetingId, msg.body.intId,
-      msg.body.extId, msg.body.name, msg.body.role, msg.body.avatar, msg.body.guest,
+      msg.body.extId, msg.body.name, msg.body.role, msg.body.avatar, msg.body.webcamBackground, msg.body.guest,
       msg.body.guestStatus,
       msg.body.clientType))
-
   }
 
   def handlePresenterUnassignedEvtMsg(msg: PresenterUnassignedEvtMsg): Unit = {

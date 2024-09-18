@@ -159,6 +159,20 @@ exports.selectCameraQualityId = 'select[id="setQuality"]';
 exports.virtualBackgrounds = 'div[data-test="virtualBackground"]';
 exports.learningDashboard = 'li[data-test="learningDashboard"]';
 
+// Timer
+exports.timerContainer = 'div[data-test="timerContainer"]';
+exports.stopwatchContainer = 'div[data-test="stopwatchContainer"]';
+exports.timerStopwatchFeature = 'li[data-test="timerStopWatchFeature"]';
+exports.timerCurrent = 'span[data-test="timerCurrent"]';
+exports.startStopTimer = 'button[data-test="startStopTimer"]';
+exports.resetTimerStopwatch = 'button[data-test="resetTimerStopWatch"]';
+exports.timerButton = 'button[data-test="timerButton"]';
+exports.timerIndicator = 'div[data-test="timeIndicator"]';
+exports.stopwatch = 'button[data-test="stopwatchButton"]';
+exports.hoursInput = 'input[data-test="hoursInput"]';
+exports.minutesInput = 'input[data-test="minutesInput"]';
+exports.secondsInput = 'input[data-test="secondsInput"]';
+
 // Notes
 exports.sharedNotes = 'div[data-test="sharedNotes"]';
 exports.hideNotesLabel = 'button[data-test="hideNotesLabel"]';
@@ -433,6 +447,7 @@ exports.dropAreaLeft = 'div[data-test="dropArea-contentLeft"]';
 exports.dropAreaRight = 'div[data-test="dropArea-contentRight"]';
 exports.dropAreaTop = 'div[data-test="dropArea-contentTop"]';
 exports.dropAreaSidebarBottom = 'div[data-test="dropArea-sidebarContentBottom"]';
+exports.selfViewDisableBtn = 'li[data-test="selfViewDisableBtn"]';
 
 exports.videoQualitySelector = 'select[id="setQuality"]';
 exports.webcamItemTalkingUser = 'div[data-test="webcamItemTalkingUser"]';

@@ -5,8 +5,8 @@ import org.bigbluebutton.core.domain.BreakoutRoom2x
 
 object RegisteredUsers {
   def create(userId: String, extId: String, name: String, roles: String,
-             token: String, avatar: String, color: String, guest: Boolean, authenticated: Boolean,
-             guestStatus: String, excludeFromDashboard: Boolean, loggedOut: Boolean): RegisteredUser = {
+             token: String, avatar: String, webcamBackground: String, color: String, guest: Boolean, authenticated: Boolean,
+             guestStatus: String, excludeFromDashboard: Boolean, loggedOut: Boolean, userCustomData: Map[String, String]): RegisteredUser = {
     new RegisteredUser(
       userId,
       extId,
@@ -14,6 +14,7 @@ object RegisteredUsers {
       roles,
       token,
       avatar,
+      webcamBackground,
       color,
       guest,
       authenticated,
@@ -24,6 +25,7 @@ object RegisteredUsers {
       false,
       false,
       loggedOut,
+      userCustomData = userCustomData
     )
   }
 
@@ -78,7 +80,6 @@ object RegisteredUsers {
   }
 
   def add(users: RegisteredUsers, user: RegisteredUser): Vector[RegisteredUser] = {
-
     findWithExternUserId(user.externId, users) match {
       case Some(u) =>
         if (u.banned) {
@@ -192,6 +193,7 @@ case class RegisteredUser(
     role:                     String,
     authToken:                String,
     avatarURL:                String,
+    webcamBackgroundURL:      String,
     color:                    String,
     guest:                    Boolean,
     authed:                   Boolean,
@@ -202,6 +204,7 @@ case class RegisteredUser(
     joined:                   Boolean,
     banned:                   Boolean,
     loggedOut:                Boolean,
-    lastBreakoutRoom:         BreakoutRoom2x = null
+    lastBreakoutRoom:         BreakoutRoom2x      = null,
+    userCustomData:           Map[String, String] = Map.empty
 )
 

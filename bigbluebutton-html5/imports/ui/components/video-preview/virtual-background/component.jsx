@@ -161,6 +161,7 @@ const VirtualBgSelector = ({
                 filename: name,
                 uniqueId: customParams.uniqueId,
                 data: customParams.file,
+                sessionOnly: customParams.sessionOnly,
                 custom: true,
                 lastActivityDate: Date.now(),
               },
@@ -315,7 +316,9 @@ const VirtualBgSelector = ({
     };
 
     const renderCustomButton = (background, index) => {
-      const { filename, data, uniqueId } = background;
+      const {
+        filename, data, uniqueId, sessionOnly,
+      } = background;
       const label = intl.formatMessage(intlMessages.backgroundWithIndex, {
         0: index + 1,
       });
@@ -339,7 +342,7 @@ const VirtualBgSelector = ({
               EFFECT_TYPES.IMAGE_TYPE,
               filename,
               index,
-              { file: data, uniqueId },
+              { file: data, uniqueId, sessionOnly },
             )}
             disabled={disabled}
             isVisualEffects={isVisualEffects}
@@ -459,10 +462,11 @@ const VirtualBgSelector = ({
                     .map((background, index) => {
                       if (background.custom !== false) {
                         return renderCustomButton(background, index);
-                      } else {
-                        const isBlur = background.uniqueId.includes('Blur');
-                        return isBlur ? renderBlurButton(index) : renderDefaultButton(background.uniqueId, index);
                       }
+                      const isBlur = background.uniqueId.includes('Blur');
+                      return isBlur
+                        ? renderBlurButton(index)
+                        : renderDefaultButton(background.uniqueId, index);
                     })}
 
                   {renderInputButton()}

@@ -90,6 +90,7 @@ export default class BBBVideoStream extends EventEmitter2 {
       });
       this.virtualBgType = type;
       this.virtualBgName = name;
+      this.customParams = customParams;
       return Promise.resolve();
     } catch (error) {
       return Promise.reject(error);
@@ -109,6 +110,7 @@ export default class BBBVideoStream extends EventEmitter2 {
       this.virtualBgService = service;
       this.virtualBgType = type;
       this.virtualBgName = name;
+      this.customParams = customParams;
       this.originalStream = this.mediaStream;
       this.mediaStream = effect;
       this.isVirtualBackgroundEnabled = true;

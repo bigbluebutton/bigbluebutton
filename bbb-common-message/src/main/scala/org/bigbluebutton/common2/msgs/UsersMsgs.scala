@@ -6,8 +6,9 @@ case class RegisterUserReqMsg(
     body:   RegisterUserReqMsgBody
 ) extends BbbCoreMsg
 case class RegisterUserReqMsgBody(meetingId: String, intUserId: String, name: String, role: String,
-                                  extUserId: String, authToken: String, avatarURL: String,
-                                  guest: Boolean, authed: Boolean, guestStatus: String, excludeFromDashboard: Boolean)
+                                  extUserId: String, authToken: String, avatarURL: String, webcamBackgroundURL: String,
+                                  guest: Boolean, authed: Boolean, guestStatus: String, excludeFromDashboard: Boolean,
+                                  userCustomData: Map[String, AnyRef])
 
 object UserRegisteredRespMsg { val NAME = "UserRegisteredRespMsg" }
 case class UserRegisteredRespMsg(
@@ -89,23 +90,25 @@ case class UserJoinedMeetingEvtMsg(
     body:   UserJoinedMeetingEvtMsgBody
 ) extends BbbCoreMsg
 case class UserJoinedMeetingEvtMsgBody(
-    intId:         String,
-    extId:         String,
-    name:          String,
-    role:          String,
-    guest:         Boolean,
-    authed:        Boolean,
-    guestStatus:   String,
-    emoji:         String,
-    reactionEmoji: String,
-    raiseHand:     Boolean,
-    away:          Boolean,
-    pin:           Boolean,
-    presenter:     Boolean,
-    locked:        Boolean,
-    avatar:        String,
-    color:         String,
-    clientType:    String
+    intId:            String,
+    extId:            String,
+    name:             String,
+    role:             String,
+    guest:            Boolean,
+    authed:           Boolean,
+    guestStatus:      String,
+    emoji:            String,
+    reactionEmoji:    String,
+    raiseHand:        Boolean,
+    away:             Boolean,
+    pin:              Boolean,
+    presenter:        Boolean,
+    locked:           Boolean,
+    avatar:           String,
+    webcamBackground: String,
+    color:            String,
+    clientType:       String,
+    userCustomData:   Map[String, String]
 )
 
 /**
@@ -344,6 +347,20 @@ case class LockUserInMeetingCmdMsgBody(userId: String, lock: Boolean, lockedBy: 
 object UserLockedInMeetingEvtMsg { val NAME = "UserLockedInMeetingEvtMsg" }
 case class UserLockedInMeetingEvtMsg(header: BbbClientMsgHeader, body: UserLockedInMeetingEvtMsgBody) extends BbbCoreMsg
 case class UserLockedInMeetingEvtMsgBody(userId: String, locked: Boolean, lockedBy: String)
+
+/**
+ * Sent from client to lock user in meeting.
+ */
+object LockUserChatInMeetingCmdMsg { val NAME = "LockUserChatInMeetingCmdMsg" }
+case class LockUserChatInMeetingCmdMsg(header: BbbClientMsgHeader, body: LockUserChatInMeetingCmdMsgBody) extends StandardMsg
+case class LockUserChatInMeetingCmdMsgBody(userId: String, isLocked: Boolean, lockedBy: String)
+
+/**
+ * Send to client that user has been locked.
+ */
+object LockUserChatInMeetingEvtMsg { val NAME = "LockUserChatInMeetingEvtMsg" }
+case class LockUserChatInMeetingEvtMsg(header: BbbClientMsgHeader, body: LockUserChatInMeetingEvtMsgBody) extends BbbCoreMsg
+case class LockUserChatInMeetingEvtMsgBody(userId: String, isLocked: Boolean)
 
 /**
  * Sent by client to lock users.

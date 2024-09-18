@@ -11,13 +11,13 @@ sealed trait ApiMsg
 case class CreateBreakoutRoomMsg(meetingId: String, parentMeetingId: String,
                                  name: String, sequence: Integer, freeJoin: Boolean, dialNumber: String,
                                  voiceConfId: String, viewerPassword: String, moderatorPassword: String, duration: Int,
-                                 sourcePresentationId: String, sourcePresentationSlide: Int,
+                                 sourcePresentationId: String, sourcePresentationSlide: Int, sourcePresentationFilename: String,
                                  record: Boolean, captureNotes: Boolean, captureSlides: Boolean, captureNotesFilename: String, captureSlidesFilename: String) extends ApiMsg
 
 case class AddUserSession(token: String, session: UserSession)
 case class RegisterUser(meetingId: String, intUserId: String, name: String, role: String,
-                        extUserId: String, authToken: String, avatarURL: String,
-                        guest: Boolean, authed: Boolean, guestStatus: String, excludeFromDashboard: Boolean)
+                        extUserId: String, authToken: String, avatarURL: String, webcamBackgroundURL: String,
+                        guest: Boolean, authed: Boolean, guestStatus: String, excludeFromDashboard: Boolean, userCustomData: Map[String, AnyRef])
 
 case class CreateMeetingMsg(defaultProps: DefaultProps)
 
