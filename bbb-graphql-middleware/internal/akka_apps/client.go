@@ -14,7 +14,10 @@ import (
 var sessionVarsHookUrl = config.GetConfig().SessionVarsHook.Url
 
 func AkkaAppsGetSessionVariablesFrom(browserConnectionId string, sessionToken string) (map[string]string, error) {
-	logger := log.WithField("_routine", "AkkaAppsClient").WithField("browserConnectionId", browserConnectionId)
+	logger := log.WithField("_routine", "AkkaAppsClient").
+		WithField("browserConnectionId", browserConnectionId).
+		WithField("sessionToken", sessionToken)
+
 	logger.Debug("Starting AkkaAppsClient")
 	defer logger.Debug("Finished AkkaAppsClient")
 

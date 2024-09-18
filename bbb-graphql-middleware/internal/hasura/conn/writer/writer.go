@@ -7,7 +7,6 @@ import (
 	"encoding/json"
 	"errors"
 	"github.com/prometheus/client_golang/prometheus"
-	log "github.com/sirupsen/logrus"
 	"nhooyr.io/websocket"
 	"strings"
 	"sync"
@@ -30,27 +29,23 @@ func init() {
 // HasuraConnectionWriter
 // process messages (middleware to hasura)
 func HasuraConnectionWriter(hc *common.HasuraConnection, wg *sync.WaitGroup, initMessage []byte) {
-	log := log.WithField("_routine", "HasuraConnectionWriter")
-
 	browserConnection := hc.BrowserConn
-
-	log = log.WithField("browserConnectionId", browserConnection.Id).WithField("hasuraConnectionId", hc.Id)
 
 	defer wg.Done()
 	defer hc.ContextCancelFunc()
-	defer log.Debugf("finished")
+	defer hc.BrowserConn.Logger.Debugf("finished")
 
 	//Send authentication (init) message at first
 	//It will not use the channel (fromBrowserToHasuraChannel) because this msg must bypass ChannelFreeze
 	if initMessage == nil {
-		log.Errorf("it can't start Hasura Connection because initMessage is null")
+		hc.BrowserConn.Logger.Errorf("it can't start Hasura Connection because initMessage is null")
 		return
 	}
 
 	//Send init connection message to Hasura to start
 	err := hc.Websocket.Write(hc.Context, websocket.MessageText, initMessage)
 	if err != nil {
-		log.Errorf("error on write authentication (init) message (we're disconnected from hasura): %v", err)
+		hc.BrowserConn.Logger.Errorf("error on write authentication (init) message (we're disconnected from hasura): %v", err)
 		return
 	}
 
@@ -70,7 +65,7 @@ RangeLoop:
 				var browserMessage common.BrowserSubscribeMessage
 				err := json.Unmarshal(fromBrowserMessage, &browserMessage)
 				if err != nil {
-					log.Errorf("failed to unmarshal message: %v", err)
+					hc.BrowserConn.Logger.Errorf("failed to unmarshal message: %v", err)
 					return
 				}
 
@@ -98,7 +93,7 @@ RangeLoop:
 								}
 
 								if !subscriptionAllowed {
-									log.Infof("Subscription %s not allowed!", browserMessage.Payload.OperationName)
+									hc.BrowserConn.Logger.Infof("Subscription %s not allowed!", browserMessage.Payload.OperationName)
 									continue
 								}
 							}
@@ -114,7 +109,7 @@ RangeLoop:
 								}
 
 								if !subscriptionAllowed {
-									log.Infof("Subscription %s not allowed!", browserMessage.Payload.OperationName)
+									hc.BrowserConn.Logger.Infof("Subscription %s not allowed!", browserMessage.Payload.OperationName)
 									continue
 								}
 							}
@@ -175,7 +170,7 @@ RangeLoop:
 						Type:                       messageType,
 						LastReceivedDataChecksum:   lastReceivedDataChecksum,
 					}
-					// log.Tracef("Current queries: %v", browserConnection.ActiveSubscriptions)
+					// hc.BrowserConn.Logger.Tracef("Current queries: %v", browserConnection.ActiveSubscriptions)
 					browserConnection.ActiveSubscriptionsMutex.Unlock()
 
 					//Add Prometheus Metrics
@@ -198,7 +193,7 @@ RangeLoop:
 					browserConnection.ActiveSubscriptionsMutex.RUnlock()
 					browserConnection.ActiveSubscriptionsMutex.Lock()
 					delete(browserConnection.ActiveSubscriptions, browserMessage.ID)
-					// log.Tracef("Current queries: %v", browserConnection.ActiveSubscriptions)
+					// hc.BrowserConn.Logger.Tracef("Current queries: %v", browserConnection.ActiveSubscriptions)
 					browserConnection.ActiveSubscriptionsMutex.Unlock()
 				}
 
@@ -208,11 +203,11 @@ RangeLoop:
 					continue
 				}
 
-				log.Tracef("sending to hasura: %s", string(fromBrowserMessage))
+				hc.BrowserConn.Logger.Tracef("sending to hasura: %s", string(fromBrowserMessage))
 				errWrite := hc.Websocket.Write(hc.Context, websocket.MessageText, fromBrowserMessage)
 				if errWrite != nil {
 					if !errors.Is(errWrite, context.Canceled) {
-						log.Errorf("error on write (we're disconnected from hasura): %v", errWrite)
+						hc.BrowserConn.Logger.Errorf("error on write (we're disconnected from hasura): %v", errWrite)
 					}
 					return
 				}
