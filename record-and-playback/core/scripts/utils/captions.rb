@@ -83,7 +83,7 @@ if not FileTest.directory?(target_dir)
   begin
     BigBlueButton.logger.info("Generating closed captions")
     FileUtils.mkdir_p captions_meeting_dir
-    ret = BigBlueButton.exec_ret('utils/gen_webvtt', '-i', raw_archive_dir, '-o', captions_meeting_dir)
+    ret = BigBlueButton.exec_ret('utils/gen_webvtt.rb', '-i', raw_archive_dir, '-o', captions_meeting_dir)
     if ret != 0
       raise "Generating closed caption files failed"
     end

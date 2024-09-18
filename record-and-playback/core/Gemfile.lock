@@ -16,6 +16,8 @@ GEM
     crass (1.0.6)
     fastimage (2.2.6)
     ffi (1.15.5)
+    ffi-icu (0.5.0)
+      ffi (~> 1.0, >= 1.0.9)
     i18n (1.14.1)
       concurrent-ruby (~> 1.0)
     java_properties (0.0.4)
@@ -96,6 +98,7 @@ DEPENDENCIES
   bbbevents (~> 2.0, >= 2.0.0)
   builder (~> 3.2)
   fastimage (~> 2.1)
+  ffi-icu
   java_properties
   journald-logger (~> 3.0)
   jwt (~> 2.2)
