@@ -468,11 +468,13 @@ const Whiteboard = React.memo((props) => {
         const { added, updated, removed } = changes;
 
         const addedCount = Object.keys(added).length;
-        const shapeNumberExceeded = Object.keys(prevShapesRef.current)
-          .length + addedCount > maxNumberOfAnnotations;
+        const localShapes = editor.getCurrentPageShapes();
+        const filteredShapes = localShapes?.filter((item) => item?.index !== 'a0') || [];
+        const shapeNumberExceeded = filteredShapes
+          .length + addedCount - 1 > maxNumberOfAnnotations;
         const invalidShapeType = Object.keys(added).find((id) => !isValidShapeType(added[id]));
 
-        if (shapeNumberExceeded || invalidShapeType) {
+        if (addedCount > 0 && (shapeNumberExceeded || invalidShapeType)) {
           // notify and undo last command without persisting
           // to not generate the onUndo/onRedo callback
           if (shapeNumberExceeded) {
@@ -480,7 +482,13 @@ const Whiteboard = React.memo((props) => {
           } else {
             notifyNotAllowedChange(intl);
           }
-          editor.history.undo({ persist: false });
+          // use remote to not trigger unwanted updates
+          editor.store.mergeRemoteChanges(() => {
+            editor.history.undo({ persist: false });
+            const tool = editor.getCurrentToolId();
+            editor.setCurrentTool('noop');
+            editor.setCurrentTool(tool);
+          });
         } else {
           // Add new shapes to the batch
           Object.values(added).forEach((record) => {
@@ -520,9 +528,10 @@ const Whiteboard = React.memo((props) => {
         });
 
         // Handle removed shapes immediately (not batched)
-        Object.values(removed).forEach((record) => {
-          removeShapes([record?.id]);
-        });
+        const idsToRemove = Object.keys(removed);
+        if (idsToRemove.length > 0) {
+          removeShapes(idsToRemove);
+        }
       },
       { source: 'user', scope: 'document' },
     );
@@ -1559,7 +1568,7 @@ Whiteboard.propTypes = {
   }),
   whiteboardId: PropTypes.string,
   zoomSlide: PropTypes.func.isRequired,
-  curPageNum: PropTypes.string.isRequired,
+  curPageNum: PropTypes.number.isRequired,
   presentationHeight: PropTypes.number.isRequired,
   zoomChanger: PropTypes.func.isRequired,
   isRTL: PropTypes.bool.isRequired,
@@ -1588,7 +1597,7 @@ Whiteboard.propTypes = {
   isModerator: PropTypes.bool,
   currentPresentationPage: PropTypes.shape(),
   hasWBAccess: PropTypes.bool,
-  bgShape: PropTypes.shape(),
+  bgShape: PropTypes.arrayOf(PropTypes.shape).isRequired,
   publishCursorUpdate: PropTypes.func.isRequired,
   otherCursors: PropTypes.arrayOf(PropTypes.shape).isRequired,
   hideViewersCursor: PropTypes.bool,
