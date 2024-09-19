@@ -101,34 +101,30 @@ export default class LoggerFactory {
   }
 
   public static error(...args: any[]) {
-    LoggerFactory.getLogger().error(...args);
+    LoggerFactory.getLogger().error(...args as [any, ...any[]]);
   }
 
   public static warn(...args: any[]) {
-    LoggerFactory.getLogger().warn(...args);
+    LoggerFactory.getLogger().warn(...args as [any, ...any[]]);
   }
 
   public static info(...args: any[]) {
-    LoggerFactory.getLogger().info(...args);
+    LoggerFactory.getLogger().info(...args as [any, ...any[]]);
   }
 
   public static debug(...args: any[]) {
-    LoggerFactory.getLogger().debug(...args);
+    LoggerFactory.getLogger().debug(...args as [any, ...any[]]);
   }
 
   public static trace(...args: any[]) {
-    LoggerFactory.getLogger().trace(...args);
+    LoggerFactory.getLogger().trace(...args as [any, ...any[]]);
   }
 
-  public static log(...args: any[]) {
-    LoggerFactory.getLogger().log(...args);
-  }
-
-  public static addStream(stream: ConsoleRawStream | ServerLoggerStream) {
+  public static addStream(stream: any) {
     LoggerFactory.getLogger().addStream(stream);
   }
 
   public static getStreams() {
-    return LoggerFactory.getLogger().streams;
+    return (LoggerFactory.getLogger() as any).streams;
   }
 }
