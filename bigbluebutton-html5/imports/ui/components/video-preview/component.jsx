@@ -384,7 +384,7 @@ class VideoPreview extends Component {
   componentDidUpdate() {
     const { viewState } = this.state;
 
-    if (viewState === VIEW_STATES.found && !this.video.srcObject) {
+    if (viewState === VIEW_STATES.found && !this.video?.srcObject) {
       this.displayPreview();
     }
 
