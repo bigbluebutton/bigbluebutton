@@ -25,6 +25,7 @@ import {
   mapLanguage,
   isValidShapeType,
   usePrevious,
+  getDifferences,
 } from './utils';
 import { useMouseEvents, useCursor } from './hooks';
 import { notifyShapeNumberExceeded, getCustomEditorAssetUrls, getCustomAssetUrls } from './service';
@@ -507,7 +508,15 @@ const Whiteboard = React.memo((props) => {
             },
           };
 
-          shapeBatchRef.current[updatedRecord.id] = updatedRecord;
+          const diff = getDifferences(prevShapesRef.current[record?.id], updatedRecord);
+
+          if (diff) {
+            diff.id = record.id;
+
+            shapeBatchRef.current[updatedRecord.id] = diff;
+          } else {
+            shapeBatchRef.current[updatedRecord.id] = updatedRecord;
+          }
         });
 
         // Handle removed shapes immediately (not batched)

@@ -30,11 +30,40 @@ const mapLanguage = (language) => {
   }
 };
 
+const getDifferences = (prev, next) => {
+  // Check if the two values are the same
+  if (prev === next) return undefined;
+
+  // If both are arrays, find the differences
+  if (Array.isArray(prev) && Array.isArray(next)) {
+    const differences = next.filter((item, index) => prev[index] !== item);
+    return differences.length > 0 ? differences : [];
+  }
+
+  // If both are objects, recursively check their properties
+  if (typeof prev === 'object' && typeof next === 'object' && prev !== null && next !== null) {
+    const differences = {};
+
+    Object.keys(next).forEach((key) => {
+      if (Object.prototype.hasOwnProperty.call(next, key)) {
+        const diff = getDifferences(prev[key], next[key]);
+        if (diff !== undefined) {
+          differences[key] = diff;
+        }
+      }
+    });
+    return Object.keys(differences).length > 0 ? differences : undefined;
+  }
+
+  // For other types, return the next value if different
+  return next;
+};
+
 const Utils = {
-  usePrevious, mapLanguage, isValidShapeType,
+  usePrevious, mapLanguage, isValidShapeType, getDifferences,
 };
 
 export default Utils;
 export {
-  usePrevious, mapLanguage, isValidShapeType,
+  usePrevious, mapLanguage, isValidShapeType, getDifferences,
 };
