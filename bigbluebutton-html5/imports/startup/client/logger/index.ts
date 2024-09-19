@@ -69,6 +69,7 @@ class BBBClientLogger {
 
   public static get logger() {
     if (BBBClientLogger.default) return BBBClientLogger.default;
+
     const LOG_CONFIG = window.meetingClientSettings?.public?.clientLog;
     if (LOG_CONFIG && !BBBClientLogger.default) {
       BBBClientLogger.default = createLogger({
@@ -78,6 +79,7 @@ class BBBClientLogger {
         src: true,
       });
     }
+
     if (!BBBClientLogger.fallback) {
       BBBClientLogger.fallback = createLogger({
         name: 'clientLogger',
@@ -86,18 +88,14 @@ class BBBClientLogger {
         src: true,
       });
     }
-    return BBBClientLogger.fallback;
+
+    return BBBClientLogger.default || BBBClientLogger.fallback;
   }
 }
 
 export default class LoggerFactory {
-  private static instance: Logger | null = null;
-
   public static getLogger() {
-    if (!LoggerFactory.instance) {
-      LoggerFactory.instance = BBBClientLogger.logger;
-    }
-    return LoggerFactory.instance;
+    return BBBClientLogger.logger;
   }
 
   public static error(...args: any[]) {
