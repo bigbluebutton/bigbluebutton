@@ -20,6 +20,7 @@ export const meetingClientSettingsInitialValues: MeetingClientSettings = {
       html5ClientBuild: 'HTML5_CLIENT_VERSION',
       helpLink: 'https://bigbluebutton.org/html5/',
       delayForUnmountOfSharedNote: 120000,
+      enableApolloDevTools: false,
       bbbTabletApp: {
         enabled: true,
         iosAppStoreUrl: 'https://apps.apple.com/us/app/bigbluebutton-tablet/id1641156756',
@@ -126,6 +127,7 @@ export const meetingClientSettingsInitialValues: MeetingClientSettings = {
           wakeLock: true,
           paginationEnabled: true,
           whiteboardToolbarAutoHide: false,
+          pushToTalkEnabled: false,
           autoCloseReactionsBar: true,
           darkTheme: false,
           fallbackLocale: 'en',
@@ -952,10 +954,6 @@ export const meetingClientSettingsInitialValues: MeetingClientSettings = {
       },
     },
     clientLog: {
-      server: {
-        enabled: false,
-        level: 'info',
-      },
       console: {
         enabled: true,
         level: 'debug',
@@ -993,15 +991,6 @@ export const meetingClientSettingsInitialValues: MeetingClientSettings = {
       localesUrl: '/locale-list',
       pencilChunkLength: 100,
       loadSlidesFromHttpAlways: false,
-    },
-    serverLog: {
-      level: 'info',
-      streamerLog: false,
-      includeServerInfo: true,
-      healthChecker: {
-        enable: true,
-        intervalMs: 30000,
-      },
     },
     minBrowserVersions: [
       {

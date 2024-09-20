@@ -32,6 +32,9 @@ const DtfInvert = `
   section[id="ActionsBar"] {
     background-color: var(--darkreader-neutral-background) !important;
   }
+  div[id="app"] {
+    background-color: var(--darkreader-neutral-background) !important;
+  }
   select {
     border: 0.1rem solid #FFFFFF !important;
   }
@@ -47,21 +50,59 @@ const DtfInvert = `
     border-left: unset !important;
   }
   .tl-container {
-    background-color: var(--tl-background) !important;
+    .tl-image {
+      background-color: white !important;
+    }
   }
-  #TD-Tools button, #TD-TopPanel-Undo, #TD-TopPanel-Redo, #TD-Styles {
-    border-color: transparent !important;
+  .tlui-slider__thumb {
+    background-color: var(--darkreader-text--color-text-1) !important;
   }
-  [id="TD-StylesMenu"],
-  [id="TD-Styles-Color-Container"],
-  div[data-test="brandingArea"],
-  #connectionBars > div
+  .tlui-button[data-state="hinted"]::after {
+    background-color: var(--darkreader-selection-background) !important;
+  }
+  div.tlui-toolbar__inner > div.tlui-toolbar__tools.fade-in {
+    background: var(--darkreader-border--color-selected) !important;
+  }
+  div[id="cameraDock"] {
+    background-color: var(--darkreader-neutral-background) !important;
+  }
+  .bnjzQC > div span div:hover {
+    background-color: var(--darkreader-selection-background) !important;
+  }
+  #connectionBars > div,
+  .tl-note__scrim,.tl-arrow-label[data-isediting="true"] > .tl-arrow-label__inner {
+    background-color: unset !important;
+  }
+  textarea {
+    caret-color: black !important;
+  }
+`;
+
+const DtfBrandingInvert = `
+  ${DtfInvert},
+  div[data-test="brandingArea"]
 `;
 
 const DtfCss = `
   [id="colorPicker"],
   path,
-  svg
+  svg,
+  g,
+  line,
+  textarea,
+  rect,
+  circle,
+  .tlui-buttons__grid > button,
+  .tlui-popover > button,
+  .tl-html-container > div.tl-text-shape__wrapper.tl-text-shadow,
+  .tl-text,
+  .tl-text-input,
+  .tl-text-content,
+  .tl-text-label__inner,
+  .tl-note__container,
+  .tl-text.tl-text-content,
+  .tl-arrow-label,
+  .tl-arrow-label__inner
 `;
 
 const DtfImages = `
@@ -73,6 +114,7 @@ export default {
   ActionsBar,
   Layout,
   DtfInvert,
+  DtfBrandingInvert,
   DtfCss,
   DtfImages,
 };

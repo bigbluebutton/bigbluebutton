@@ -98,6 +98,7 @@ export interface App {
   fallbackOnEmptyLocaleString: boolean
   disableWebsocketFallback: boolean
   maxMutationPayloadSize: number
+  enableApolloDevTools: boolean
 }
 
 export interface BbbTabletApp {
@@ -189,6 +190,7 @@ export interface Application {
   wakeLock: boolean
   paginationEnabled: boolean
   whiteboardToolbarAutoHide: boolean
+  pushToTalkEnabled: boolean
   autoCloseReactionsBar: boolean
   darkTheme: boolean
   fallbackLocale: string
@@ -750,14 +752,8 @@ export interface Tool {
 }
 
 export interface ClientLog {
-  server: Server
   console: Console
   external: External
-}
-
-export interface Server {
-  enabled: boolean
-  level: string
 }
 
 export interface Console {
@@ -788,7 +784,6 @@ export interface VirtualBackgrounds {
 export interface Private {
   analytics: Analytics
   app: App2
-  serverLog: ServerLog
   minBrowserVersions: MinBrowserVersion[]
   prometheus: Prometheus
 }
@@ -814,18 +809,6 @@ export interface Metrics {
 export interface Channels {
   toAkkaApps: string
   toThirdParty: string
-}
-
-export interface ServerLog {
-  level: string
-  streamerLog: boolean
-  includeServerInfo: boolean
-  healthChecker: HealthChecker
-}
-
-export interface HealthChecker {
-  enable: boolean
-  intervalMs: number
 }
 
 export interface MinBrowserVersion {

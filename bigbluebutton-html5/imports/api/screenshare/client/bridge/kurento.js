@@ -276,6 +276,9 @@ export default class KurentoScreenshareBridge {
       forceRelay: shouldForceRelay(),
       traceLogs: TRACE_LOGS,
       gatheringTimeout: GATHERING_TIMEOUT,
+      // ICE restart only works for publishers right now - recvonly full
+      // reconnection works ok without it.
+      restartIce: false,
     };
 
     this.broker = new ScreenshareBroker(
@@ -318,6 +321,10 @@ export default class KurentoScreenshareBridge {
       const TRACE_LOGS = SFU_CONFIG.traceLogs;
       const { screenshare: NETWORK_PRIORITY } = SETTINGS.public.media.networkPriorities || {};
       const GATHERING_TIMEOUT = SFU_CONFIG.gatheringTimeout;
+      const {
+        enabled: RESTART_ICE = false,
+        retries: RESTART_ICE_RETRIES = 3,
+      } = SFU_CONFIG.restartIce?.screenshare || {};
       this.onerror = onFailure;
       this.connectionAttempts += 1;
       this.role = SEND_ROLE;
@@ -355,6 +362,8 @@ export default class KurentoScreenshareBridge {
         traceLogs: TRACE_LOGS,
         networkPriority: NETWORK_PRIORITY,
         gatheringTimeout: GATHERING_TIMEOUT,
+        restartIce: RESTART_ICE,
+        restartIceMaxRetries: RESTART_ICE_RETRIES,
       };
 
       this.broker = new ScreenshareBroker(

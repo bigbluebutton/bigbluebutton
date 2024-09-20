@@ -20,11 +20,17 @@ const STARTED_CHAT_LIST_KEY = 'startedChatList';
 
 const CUSTOM_LOGO_URL_KEY = 'CustomLogoUrl';
 
+const CUSTOM_DARK_LOGO_URL_KEY = 'CustomDarkLogoUrl';
+
 export const setCustomLogoUrl = (path) => Storage.setItem(CUSTOM_LOGO_URL_KEY, path);
+
+export const setCustomDarkLogoUrl = (path) => Storage.setItem(CUSTOM_DARK_LOGO_URL_KEY, path);
 
 export const setModeratorOnlyMessage = (msg) => Storage.setItem('ModeratorOnlyMessage', msg);
 
 const getCustomLogoUrl = () => Storage.getItem(CUSTOM_LOGO_URL_KEY);
+
+const getCustomDarkLogoUrl = () => Storage.getItem(CUSTOM_DARK_LOGO_URL_KEY);
 
 const sortByWhiteboardAccess = (a, b) => {
   const _a = a.whiteboardAccess;
@@ -453,6 +459,7 @@ export default {
   isPublicChat,
   roving,
   getCustomLogoUrl,
+  getCustomDarkLogoUrl,
   focusFirstDropDownItem,
   sortUsersByCurrent,
   UserJoinedMeetingAlert,

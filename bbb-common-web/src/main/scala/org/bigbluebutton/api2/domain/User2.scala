@@ -3,7 +3,7 @@ package org.bigbluebutton.api2.domain
 case class CallerId(name: String, number: String)
 case class VoiceUser(id: String, callerId: CallerId, status: String, vid: String, wid: String, callingWith: String)
 
-case class User2(intId: String, extId: String, name: String, role: String, avatarURL: String,
+case class User2(intId: String, extId: String, name: String, role: String, avatarURL: String, webcamBackgroundURL: String,
                  guest: Boolean, waitingForAcceptance: Boolean, status: Vector[String],
                  streams: Set[String], customData: UserCustomData, voiceUser: VoiceUser, webcamStreams: Vector[String])
 
@@ -39,7 +39,7 @@ class Users {
 }
 
 case class RegisteredUser2(meetingId: String, intId: String, name: String, role: String,
-                           extId: String, authToken: String, avatarURL: String,
+                           extId: String, authToken: String, avatarURL: String, webcamBackgroundURL: String,
                            guest: Boolean, authed: Boolean)
 
 object RegisteredUsers {

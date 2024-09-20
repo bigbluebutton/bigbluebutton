@@ -255,6 +255,19 @@ const ellipsis = keyframes`
   }
 `;
 
+const Background = styled.span`
+  ${({ isBlurred }) => isBlurred
+    && css`
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    backdrop-filter: blur(10px);
+    z-index: 998;
+    `}
+`;
+
 const FetchingAnimation = styled.span`
   margin: auto;
   display: inline-block;
@@ -413,6 +426,7 @@ export default {
   BottomSeparator,
   VideoCol,
   BackgroundCol,
+  Background,
   IconSvg,
   SharingButton,
   CancelButton,

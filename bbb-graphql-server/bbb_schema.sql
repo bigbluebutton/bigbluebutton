@@ -33,6 +33,7 @@ create table "meeting" (
 	"loginUrl" varchar(500),
 	"logoutUrl" varchar(500),
 	"customLogoUrl" varchar(500),
+    "customDarkLogoUrl" varchar(500),
 	"bannerText" text,
 	"bannerColor" varchar(50),
 	"createdTime" bigint,
@@ -266,6 +267,7 @@ CREATE TABLE "user" (
 	"name" varchar(255),
 	"role" varchar(20),
 	"avatar" varchar(500),
+    "webcamBackground" varchar(500),
 	"color" varchar(7),
     "sessionToken" varchar(16),
     "authToken" varchar(16),
@@ -320,7 +322,7 @@ COMMENT ON COLUMN "user"."disconnected" IS 'This column is set true when the use
 COMMENT ON COLUMN "user"."expired" IS 'This column is set true after 10 seconds with disconnected=true';
 COMMENT ON COLUMN "user"."loggedOut" IS 'This column is set to true when the user click the button to Leave meeting';
 
---Virtual columns isDialIn, isModerator, isOnline, isWaiting, isAllowed, isDenied
+--Virtual columns isDialIn, isModerator, currentlyInMeeting, isWaiting, isAllowed, isDenied
 ALTER TABLE "user" ADD COLUMN "isDialIn" boolean GENERATED ALWAYS AS ("clientType" = 'dial-in-user') STORED;
 ALTER TABLE "user" ADD COLUMN "isWaiting" boolean GENERATED ALWAYS AS ("guestStatus" = 'WAIT') STORED;
 ALTER TABLE "user" ADD COLUMN "isAllowed" boolean GENERATED ALWAYS AS ("guestStatus" = 'ALLOW') STORED;
@@ -334,7 +336,7 @@ ALTER TABLE "user" ADD COLUMN "nameSortable" varchar(255) GENERATED ALWAYS AS (t
 CREATE INDEX "idx_user_waiting" ON "user"("meetingId") where "isWaiting" is true;
 
 ALTER TABLE "user" ADD COLUMN "isModerator" boolean GENERATED ALWAYS AS (CASE WHEN "role" = 'MODERATOR' THEN true ELSE false END) STORED;
-ALTER TABLE "user" ADD COLUMN "isOnline" boolean GENERATED ALWAYS AS (
+ALTER TABLE "user" ADD COLUMN "currentlyInMeeting" boolean GENERATED ALWAYS AS (
     CASE WHEN
             "user"."joined" IS true
             AND "user"."expired" IS false
@@ -380,9 +382,9 @@ AS SELECT "user"."userId",
     CASE WHEN "user"."echoTestRunningAt" > current_timestamp - INTERVAL '3 seconds' THEN TRUE ELSE FALSE END "isRunningEchoTest",
     "user"."hasDrawPermissionOnCurrentPage",
     CASE WHEN "user"."role" = 'MODERATOR' THEN true ELSE false END "isModerator",
-    "user"."isOnline"
+    "user"."currentlyInMeeting"
   FROM "user"
-  WHERE "user"."isOnline" is true;
+  WHERE "user"."currentlyInMeeting" is true;
 
 CREATE INDEX "idx_v_user_meetingId" ON "user"("meetingId") 
                 where "user"."loggedOut" IS FALSE
@@ -401,7 +403,7 @@ CREATE INDEX "idx_v_user_meetingId_orderByColumns" ON "user"(
                         "registeredAt",
                         "userId"
                         )
-                where "user"."isOnline" is true;
+                where "user"."currentlyInMeeting" is true;
 
 CREATE OR REPLACE VIEW "v_user_current"
 AS SELECT "user"."userId",
@@ -411,6 +413,7 @@ AS SELECT "user"."userId",
     "user"."name",
     "user"."nameSortable",
     "user"."avatar",
+    "user"."webcamBackground",
     "user"."color",
     "user"."away",
     "user"."raiseHand",
@@ -444,7 +447,7 @@ AS SELECT "user"."userId",
     "user"."echoTestRunningAt",
     CASE WHEN "user"."echoTestRunningAt" > current_timestamp - INTERVAL '3 seconds' THEN TRUE ELSE FALSE END "isRunningEchoTest",
     CASE WHEN "user"."role" = 'MODERATOR' THEN true ELSE false END "isModerator",
-    "user"."isOnline",
+    "user"."currentlyInMeeting",
     "user"."inactivityWarningDisplay",
     "user"."inactivityWarningTimeoutSecs"
    FROM "user";
@@ -501,7 +504,7 @@ AS SELECT
     "user"."captionLocale",
     "user"."hasDrawPermissionOnCurrentPage",
     CASE WHEN "user"."role" = 'MODERATOR' THEN true ELSE false END "isModerator",
-    "user"."isOnline"
+    "user"."currentlyInMeeting"
    FROM "user";
 
 create table "user_metadata"(
@@ -527,6 +530,22 @@ CASE WHEN u."role" = 'MODERATOR' THEN w."welcomeMsgForModerators" ELSE NULL END 
 FROM "user" u
 join meeting_welcome w USING("meetingId");
 
+create table "user_lockSettings" (
+    "meetingId"             varchar(100),
+    "userId"                varchar(50),
+    "disablePublicChat"     boolean,
+    CONSTRAINT "user_lockSettings_pkey" PRIMARY KEY ("meetingId", "userId"),
+    FOREIGN KEY ("meetingId", "userId") REFERENCES "user"("meetingId","userId") ON DELETE CASCADE
+);
+create index "idx_user_lockSettings_pk_reverse" on "user_lockSettings"("userId", "meetingId");
+
+CREATE VIEW "v_user_lockSettings" as
+SELECT
+l."meetingId",
+l."userId",
+case when "user"."isModerator" then false else l."disablePublicChat" end "disablePublicChat"
+FROM "user_lockSettings" l
+join "user" on "user"."meetingId" = l."meetingId" and "user"."userId" = l."userId";
 
 CREATE TABLE "user_voice" (
     "meetingId" varchar(100),
@@ -744,7 +763,7 @@ SELECT u."meetingId", u."userId",
 max(cs."connectionAliveAt") AS "connectionAliveAt",
 max(cs."status") AS "currentStatus",
 CASE WHEN
-    u."isOnline"
+    u."currentlyInMeeting"
     AND max(cs."connectionAliveAt") < current_timestamp - INTERVAL '1 millisecond' * max(cs."connectionAliveAtMaxIntervalMs")
     THEN TRUE
     ELSE FALSE
@@ -1674,11 +1693,11 @@ FOR EACH ROW EXECUTE FUNCTION "ins_upd_del_breakoutRoom_user_trigger_func"();
 CREATE OR REPLACE FUNCTION "update_bkroom_isUserCurrentlyInRoom_trigger_func"()
 RETURNS TRIGGER AS $$
 BEGIN
-    IF NEW."isOnline" <> OLD."isOnline" THEN
-        update "breakoutRoom_user" set "isUserCurrentlyInRoom" = a."isOnline"
+    IF NEW."currentlyInMeeting" <> OLD."currentlyInMeeting" THEN
+        update "breakoutRoom_user" set "isUserCurrentlyInRoom" = a."currentlyInMeeting"
 	   from (
 		   select
-		   bru."breakoutRoomId", bru."userId", bkroom_user."isOnline"
+		   bru."breakoutRoomId", bru."userId", bkroom_user."currentlyInMeeting"
 		   from "user" bkroom_user
 		   join meeting_breakout mb on mb."meetingId" = bkroom_user."meetingId"
 		   join "breakoutRoom" br on br."parentMeetingId" = mb."parentId" and mb."sequence" = br."sequence"
@@ -1693,7 +1712,7 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql;
 
-CREATE TRIGGER "update_bkroom_isUserCurrentlyInRoom_trigger" AFTER UPDATE OF "isOnline" ON "user"
+CREATE TRIGGER "update_bkroom_isUserCurrentlyInRoom_trigger" AFTER UPDATE OF "currentlyInMeeting" ON "user"
     FOR EACH ROW EXECUTE FUNCTION "update_bkroom_isUserCurrentlyInRoom_trigger_func"();
 
 CREATE OR REPLACE VIEW "v_breakoutRoom" AS

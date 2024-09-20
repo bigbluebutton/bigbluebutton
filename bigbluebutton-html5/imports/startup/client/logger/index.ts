@@ -1,3 +1,5 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
+// eslint-disable-next-line max-classes-per-file
 import { createLogger, Logger, stdSerializers } from 'browser-bunyan';
 import { ConsoleFormattedStream } from '@browser-bunyan/console-formatted-stream';
 import { ConsoleRawStream } from '@browser-bunyan/console-raw-stream';
@@ -67,6 +69,7 @@ class BBBClientLogger {
 
   public static get logger() {
     if (BBBClientLogger.default) return BBBClientLogger.default;
+
     const LOG_CONFIG = window.meetingClientSettings?.public?.clientLog;
     if (LOG_CONFIG && !BBBClientLogger.default) {
       BBBClientLogger.default = createLogger({
@@ -76,6 +79,7 @@ class BBBClientLogger {
         src: true,
       });
     }
+
     if (!BBBClientLogger.fallback) {
       BBBClientLogger.fallback = createLogger({
         name: 'clientLogger',
@@ -84,8 +88,41 @@ class BBBClientLogger {
         src: true,
       });
     }
-    return BBBClientLogger.fallback;
+
+    return BBBClientLogger.default || BBBClientLogger.fallback;
   }
 }
 
-export default BBBClientLogger.logger;
+export default class LoggerFactory {
+  public static getLogger() {
+    return BBBClientLogger.logger;
+  }
+
+  public static error(...args: any[]) {
+    LoggerFactory.getLogger().error(...args as [any, ...any[]]);
+  }
+
+  public static warn(...args: any[]) {
+    LoggerFactory.getLogger().warn(...args as [any, ...any[]]);
+  }
+
+  public static info(...args: any[]) {
+    LoggerFactory.getLogger().info(...args as [any, ...any[]]);
+  }
+
+  public static debug(...args: any[]) {
+    LoggerFactory.getLogger().debug(...args as [any, ...any[]]);
+  }
+
+  public static trace(...args: any[]) {
+    LoggerFactory.getLogger().trace(...args as [any, ...any[]]);
+  }
+
+  public static addStream(stream: any) {
+    LoggerFactory.getLogger().addStream(stream);
+  }
+
+  public static getStreams() {
+    return (LoggerFactory.getLogger() as any).streams;
+  }
+}

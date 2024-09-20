@@ -25,6 +25,9 @@ Starting with BigBlueButton 2.3 many of the configuration files have local overr
 | /usr/share/bbb-apps-akka/conf/application.conf                          | /etc/bigbluebutton/bbb-apps-akka.conf            |                                                                                  |
 | /usr/share/bbb-fsesl-akka/conf/application.conf                         | /etc/bigbluebutton/bbb-fsesl-akka.conf           |                                                                                  |
 | /var/bigbluebutton/html5-client/private/config/settings.yml             | /etc/bigbluebutton/bbb-html5.yml                 | Arrays are merged by replacement (as of 2.4-rc-5)                                |
+| /etc/default/bbb-graphql-server                                         | /etc/bigbluebutton/bbb-graphql-server.env        | It can replace any Hasura config but HASURA_GRAPHQL_ADMIN_SECRET                 |
+| /usr/share/bbb-graphql-server/admin-secret                              |                                                  | Stores Hasura admin password (HASURA_GRAPHQL_ADMIN_SECRET), it can be edited     |
+| /usr/share/bbb-graphql-middleware/config.yml                            | /etc/bigbluebutton/bbb-graphql-middleware.yml    |                                                                                  |
 | /usr/share/bbb-web/WEB-INF/classes/spring/turn-stun-servers.xml         | /etc/bigbluebutton/turn-stun-servers.xml         | Replaces the original file                                                       |
 | /usr/local/bigbluebutton/bbb-webrtc-sfu/config/default.yml              | /etc/bigbluebutton/bbb-webrtc-sfu/production.yml | Arrays are merged by replacement                                                 |
 | /usr/local/bigbluebutton/bbb-pads/config/settings.json                  | /etc/bigbluebutton/bbb-pads.json                 | Arrays are merged by replacement                                                 |
@@ -83,10 +86,10 @@ public:
 In BigBlueButton 3.0 we modified the architecture to shift the load away from the old frontend and backend bbb-html5 pools of services. Logs for the new services can be foud via:
 
 `journalctl -f -u bbb-html5.service`
-￼
-￼Akka-apps is responsible for most of the logic, so key info can be obtained via
-￼
-￼`journalctl -f -u bbb-apps-akka.service`
+
+Akka-apps is responsible for most of the logic, so key info can be obtained via
+
+`journalctl -f -u bbb-apps-akka.service`
 
 `SYSTEMD_LESS=FRXMK journalctl -u bbb-graphql-middleware.service -f` can also be useful.
 
@@ -94,11 +97,11 @@ In BigBlueButton 3.0 we modified the architecture to shift the load away from th
 
 To assist with monitoring and debugging, the HTML5 client can send its logs to the BigBlueButton server via the `logger` function. Here's an example of its use:
 
-The client logger accepts three targets for the logs: `console`, `server` and `external`.
+The client logger accepts two targets for the logs: `console` and `external`.
 
 | Name   | Default Value | Accepted Values                  | Description                                                                                             |
 | ------ | ------------- | -------------------------------- | ------------------------------------------------------------------------------------------------------- |
-| target | "console"     | "console", "external", "server"  | Where the logs will be sent to.                                                                         |
+| target | "console"     | "console", "external",           | Where the logs will be sent to.                                                                         |
 | level  | "info"        | "debug", "info", "warn", "error" | The lowest log level that will be sent. Any log level higher than this will also be sent to the target. |
 | url    | -             | -                                | The end point where logs will be sent to when the target is set to "external".                          |
 | method | -             | "POST", "PUT"                    | HTTP method being used when using the target "external".                                                |
@@ -107,7 +110,6 @@ The default values are:
 
 ```yaml
 clientLog:
-  server: { enabled: true, level: info }
   console: { enabled: true, level: debug }
   external:
     {

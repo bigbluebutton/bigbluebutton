@@ -1,7 +1,6 @@
 import React from 'react';
 import ConnectionManager from '/imports/ui/components/connection-manager/component';
-// eslint-disable-next-line react/no-deprecated
-import { render } from 'react-dom';
+import { createRoot } from 'react-dom/client';
 import SettingsLoader from '/imports/ui/components/settings-loader/component';
 import ErrorBoundary from '/imports/ui/components/common/error-boundary/component';
 import { ErrorScreen } from '/imports/ui/components/error-screen/component';
@@ -14,15 +13,44 @@ import MeetingClient from '/client/meetingClient';
 
 const STARTUP_CRASH_METADATA = { logCode: 'app_startup_crash', logMessage: 'Possible startup crash' };
 const APP_CRASH_METADATA = { logCode: 'app_crash', logMessage: 'Possible app crash' };
+/* eslint-disable */
+if (
+  process.env.NODE_ENV === 'production'
+  //  @ts-ignore
+  && window.__REACT_DEVTOOLS_GLOBAL_HOOK__
+) {
+  //  @ts-ignore
+  for (const prop in window.__REACT_DEVTOOLS_GLOBAL_HOOK__) {
+    if (prop === 'renderers') {
+      //  @ts-ignore
+      // prevents console error when dev tools try to iterate of renderers
+      window.__REACT_DEVTOOLS_GLOBAL_HOOK__[prop] = new Map();
+      continue;
+    }
+    //  @ts-ignore
+    window.__REACT_DEVTOOLS_GLOBAL_HOOK__[prop] = typeof window.__REACT_DEVTOOLS_GLOBAL_HOOK__[prop] === 'function'
+      ? Function.prototype
+      : null;
+  }
+}
+/* eslint-enable */
 
 const Main: React.FC = () => {
   return (
     <SettingsLoader>
-      <ErrorBoundary Fallback={ErrorScreen} logMetadata={STARTUP_CRASH_METADATA}>
+      <ErrorBoundary
+        Fallback={ErrorScreen}
+        logMetadata={STARTUP_CRASH_METADATA}
+        isCritical
+      >
         <LoadingScreenHOC>
           <IntlLoaderContainer>
             {/* from there the error messages are located */}
-            <LocatedErrorBoundary Fallback={ErrorScreen} logMetadata={APP_CRASH_METADATA}>
+            <LocatedErrorBoundary
+              Fallback={ErrorScreen}
+              logMetadata={APP_CRASH_METADATA}
+              isCritical
+            >
               <ConnectionManager>
                 <PresenceManager>
                   <CustomUsersSettings>
@@ -38,7 +66,6 @@ const Main: React.FC = () => {
   );
 };
 
-render(
-  <Main />,
-  document.getElementById('app'),
-);
+const container = document.getElementById('app');
+const root = createRoot(container!);
+root.render(<Main />);

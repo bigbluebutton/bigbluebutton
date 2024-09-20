@@ -102,11 +102,11 @@ const PluginDataConsumptionManager: React.FC = () => {
         updateHookUsage(event.detail.hook, -1, hookArguments);
       }) as EventListener;
 
-    window.addEventListener(HookEvents.SUBSCRIBED, subscribeHandler);
-    window.addEventListener(HookEvents.UNSUBSCRIBED, unsubscribeHandler);
+    window.addEventListener(HookEvents.PLUGIN_SUBSCRIBED_TO_BBB_CORE, subscribeHandler);
+    window.addEventListener(HookEvents.PLUGIN_UNSUBSCRIBED_FROM_BBB_CORE, unsubscribeHandler);
     return () => {
-      window.removeEventListener(HookEvents.SUBSCRIBED, subscribeHandler);
-      window.removeEventListener(HookEvents.UNSUBSCRIBED, unsubscribeHandler);
+      window.removeEventListener(HookEvents.PLUGIN_SUBSCRIBED_TO_BBB_CORE, subscribeHandler);
+      window.removeEventListener(HookEvents.PLUGIN_UNSUBSCRIBED_FROM_BBB_CORE, unsubscribeHandler);
     };
   }, []);
 

@@ -1,10 +1,14 @@
 import { useEffect, useRef } from 'react';
 import { useMutation } from '@apollo/client';
 import { UPDATE_CONNECTION_ALIVE_AT } from './mutations';
-import { getStatus, startMonitoringNetwork } from '/imports/ui/components/connection-status/service';
+import {
+  getStatus,
+  handleAudioStatsEvent,
+} from '/imports/ui/components/connection-status/service';
 import connectionStatus from '../../core/graphql/singletons/connectionStatus';
 
 import getBaseUrl from '/imports/ui/core/utils/getBaseUrl';
+import useCurrentUser from '../../core/hooks/useCurrentUser';
 
 const ConnectionStatus = () => {
   const STATS_INTERVAL = window.meetingClientSettings.public.stats.interval;
@@ -12,6 +16,16 @@ const ConnectionStatus = () => {
   const timeoutRef = useRef(null);
 
   const [updateConnectionAliveAtM] = useMutation(UPDATE_CONNECTION_ALIVE_AT);
+
+  const {
+    data,
+  } = useCurrentUser((u) => ({
+    userId: u.userId,
+    avatar: u.avatar,
+    isModerator: u.isModerator,
+    color: u.color,
+    currentlyInMeeting: u.currentlyInMeeting,
+  }));
 
   const handleUpdateConnectionAliveAt = () => {
     const startTime = performance.now();
@@ -34,6 +48,14 @@ const ConnectionStatus = () => {
           connectionStatus.setRttValue(networkRtt);
           connectionStatus.setRttStatus(rttStatus);
           connectionStatus.setLastRttRequestSuccess(true);
+
+          if (Object.keys(rttLevels).includes(rttStatus)) {
+            connectionStatus.addUserNetworkHistory(
+              data,
+              rttStatus,
+              Date.now(),
+            );
+          }
         }
       })
       .catch(() => {
@@ -62,10 +84,14 @@ const ConnectionStatus = () => {
     const STATS_ENABLED = window.meetingClientSettings.public.stats.enabled;
 
     if (STATS_ENABLED) {
-      startMonitoringNetwork();
+      // This will generate metrics usage to determine alert statuses based
+      // on WebRTC stats
+      window.addEventListener('audiostats', handleAudioStatsEvent);
     }
 
     return () => {
+      window.removeEventListener('audiostats', handleAudioStatsEvent);
+
       if (timeoutRef.current) {
         clearTimeout(timeoutRef.current);
       }

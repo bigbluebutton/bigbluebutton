@@ -16,7 +16,7 @@ case class CreateBreakoutRoomMsg(meetingId: String, parentMeetingId: String,
 
 case class AddUserSession(token: String, session: UserSession)
 case class RegisterUser(meetingId: String, intUserId: String, name: String, role: String,
-                        extUserId: String, authToken: String, sessionToken: String, avatarURL: String,
+                        extUserId: String, authToken: String, sessionToken: String, avatarURL: String, webcamBackgroundURL: String,
                         guest: Boolean, authed: Boolean, guestStatus: String, excludeFromDashboard: Boolean,
                         enforceLayout: String, userMetadata: Map[String, String])
 

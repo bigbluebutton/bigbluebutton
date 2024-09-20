@@ -23,7 +23,7 @@ export const NETWORK_MONITORING_INTERVAL_MS = 2000;
 
 export const lastLevel = makeVar();
 
-let statsTimeout = null;
+let monitoringInterval = null;
 
 export const URL_REGEX = new RegExp(/^(http|https):\/\/[^ "]+$/);
 export const getHelp = () => {
@@ -56,14 +56,26 @@ export const getStats = () => {
   return STATS.level[lastLevel()];
 };
 
-export const startStatsTimeout = () => {
-  const STATS = window.meetingClientSettings.public.stats;
+export const handleAudioStatsEvent = (event) => {
+  const { detail } = event;
 
-  if (statsTimeout !== null) clearTimeout(statsTimeout);
+  if (detail) {
+    const { loss } = detail;
 
-  statsTimeout = setTimeout(() => {
-    setStats(-1, 'recovery', {});
-  }, STATS.timeout);
+    // The stat provided by this event is the *INBOUND* packet loss fraction
+    // calculated manually by using the packetsLost and packetsReceived metrics.
+    // It uses a 5 probe wide window - so roughly a 10 seconds period with a 2
+    // seconds interval between captures.
+    //
+    // This metric is DIFFERENT from the one used in the connection status modal
+    // (see the network data object in this file). The network data one is an
+    // absolute counter of INBOUND packets lost - and it *SHOULD NOT* be used to 
+    // determine alert triggers
+    connectionStatus.setPacketLossFraction(loss);
+    connectionStatus.setPacketLossStatus(
+      getStatus(window.meetingClientSettings.public.stats.loss, loss),
+    );
+  }
 };
 
 export const sortLevel = (a, b) => {
@@ -80,9 +92,10 @@ export const sortLevel = (a, b) => {
 };
 
 export const sortOnline = (a, b) => {
-  if (!a.user.isOnline && b.user.isOnline) return 1;
-  if (a.user.isOnline === b.user.isOnline) return 0;
-  if (a.user.isOnline && !b.user.isOnline) return -1;
+  if (!a.user.currentlyInMeeting && b.user.currentlyInMeeting) return 1;
+  if (a.user.currentlyInMeeting === b.user.currentlyInMeeting) return 0;
+  if (a.user.currentlyInMeeting && !b.user.currentlyInMeeting) return -1;
+  return 0;
 };
 
 export const isEnabled = () => window.meetingClientSettings.public.stats.enabled;
@@ -107,6 +120,7 @@ export const notification = (level, intl) => {
   Session.setItem('connectionStatusNotified', true);
 
   if (intl) notify(intl.formatMessage(intlMessages.notification), level, 'warning');
+  return null;
 };
 
 /**
@@ -370,16 +384,42 @@ export const calculateBitsPerSecondFromMultipleData = (currentData, previousData
   return result;
 };
 
-const sortConnectionData = (connectionData) => connectionData.sort(sortLevel).sort(sortOnline);
+export const sortConnectionData = (connectionData) => connectionData
+  .sort(sortLevel)
+  .sort(sortOnline);
+
+export const stopMonitoringNetwork = () => {
+  clearInterval(monitoringInterval);
+  monitoringInterval = null;
+  // Reset the network data so that we don't show old data by accident if the
+  // monitoring is started again later.
+  connectionStatus.setNetworkData({
+    ready: false,
+    audio: {
+      audioCurrentUploadRate: 0,
+      audioCurrentDownloadRate: 0,
+      jitter: 0,
+      packetsLost: 0,
+      transportStats: {},
+    },
+    video: {
+      videoCurrentUploadRate: 0,
+      videoCurrentDownloadRate: 0,
+    },
+  });
+};
 
 /**
    * Start monitoring the network data.
    * @return {Promise} A Promise that resolves when process started.
    */
 export async function startMonitoringNetwork() {
+  // Reset the monitoring interval if it's already running
+  if (monitoringInterval) stopMonitoringNetwork();
+
   let previousData = await getNetworkData();
 
-  setInterval(async () => {
+  monitoringInterval = setInterval(async () => {
     const data = await getNetworkData();
 
     const {
@@ -419,6 +459,7 @@ export async function startMonitoringNetwork() {
     const { user } = data;
 
     const networkData = {
+      ready: true,
       user,
       audio,
       video,
@@ -427,8 +468,6 @@ export async function startMonitoringNetwork() {
     previousData = data;
 
     connectionStatus.setNetworkData(networkData);
-    connectionStatus
-      .setPacketLossStatus(getStatus(window.meetingClientSettings.public.stats.loss, packetsLost));
   }, NETWORK_MONITORING_INTERVAL_MS);
 }
 
@@ -462,6 +501,7 @@ export default {
   getDataType,
   sortConnectionData,
   startMonitoringNetwork,
+  stopMonitoringNetwork,
   getStatus,
   getWorstStatus,
 };

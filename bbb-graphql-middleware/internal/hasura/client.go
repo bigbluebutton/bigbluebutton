@@ -1,16 +1,15 @@
 package hasura
 
 import (
+	"bbb-graphql-middleware/config"
 	"bbb-graphql-middleware/internal/hasura/conn/reader"
 	"bbb-graphql-middleware/internal/hasura/conn/writer"
 	"context"
 	"fmt"
-	log "github.com/sirupsen/logrus"
 	"math"
 	"net/http"
 	"net/http/cookiejar"
 	"net/url"
-	"os"
 	"sync"
 
 	"bbb-graphql-middleware/internal/common"
@@ -19,19 +18,19 @@ import (
 )
 
 var lastHasuraConnectionId int
-var hasuraEndpoint = os.Getenv("BBB_GRAPHQL_MIDDLEWARE_HASURA_WS")
+var hasuraEndpoint = config.GetConfig().Hasura.Url
 
 // Hasura client connection
 func HasuraClient(
 	browserConnection *common.BrowserConnection) error {
-	log := log.WithField("_routine", "HasuraClient").WithField("browserConnectionId", browserConnection.Id)
 
 	// Obtain id for this connection
 	lastHasuraConnectionId++
 	hasuraConnectionId := "HC" + fmt.Sprintf("%010d", lastHasuraConnectionId)
-	log = log.WithField("hasuraConnectionId", hasuraConnectionId)
 
-	defer log.Debugf("finished")
+	browserConnection.Logger = browserConnection.Logger.WithField("hasuraConnectionId", hasuraConnectionId)
+
+	defer browserConnection.Logger.Debugf("finished")
 
 	// Add sub-protocol
 	var dialOptions websocket.DialOptions
@@ -94,7 +93,7 @@ func HasuraClient(
 	thisConnection.Websocket = hasuraWsConn
 
 	// Log the connection success
-	log.Debugf("connected with Hasura")
+	browserConnection.Logger.Info("connected with Hasura")
 
 	// Configure the wait group
 	var wg sync.WaitGroup

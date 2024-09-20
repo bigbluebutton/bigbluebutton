@@ -43,6 +43,7 @@ public class UserSession {
   public String defaultLayout = "NOLAYOUT";
   public String enforceLayout = "";
   public String avatarURL;
+  public String webcamBackgroundURL;
   public String guestStatus = GuestPolicy.ALLOW;
   public String clientUrl = null;
   public Boolean excludeFromDashboard = false;
@@ -137,6 +138,10 @@ public class UserSession {
 
   public String getAvatarURL() {
     return avatarURL;
+  }
+
+  public String getWebcamBackgroundURL() {
+    return webcamBackgroundURL;
   }
 
   public String getGuestStatus() {

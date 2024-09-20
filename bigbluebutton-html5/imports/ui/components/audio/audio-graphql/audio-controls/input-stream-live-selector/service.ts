@@ -8,6 +8,7 @@ import VideoService from '/imports/ui/components/video-provider/service';
 import Auth from '/imports/ui/services/auth';
 import { debounce } from '/imports/utils/debounce';
 import { throttle } from '/imports/utils/throttle';
+import { ReactiveVar, makeVar, useReactiveVar } from '@apollo/client';
 
 const MUTED_KEY = 'muted';
 const DEVICE_LABEL_MAX_LENGTH = 40;
@@ -40,6 +41,10 @@ export const handleLeaveAudio = (meetingIsBreakout: boolean) => {
   );
 };
 
+export const muteLoadingState: ReactiveVar<boolean> = makeVar(false);
+
+export const useIsMuteLoading = () => useReactiveVar(muteLoadingState);
+
 const toggleMute = (
   muted: boolean,
   toggleVoice: (userId: string, muted: boolean) => void,
@@ -66,6 +71,7 @@ const toggleMute = (
     Storage.setItem(MUTED_KEY, true);
     toggleVoice(Auth.userID as string, true);
   }
+  muteLoadingState(true);
 };
 
 const toggleMuteMicrophoneThrottled = throttle(toggleMute, TOGGLE_MUTE_THROTTLE_TIME);
@@ -80,6 +86,14 @@ export const toggleMuteMicrophone = (muted: boolean, toggleVoice: (userId: strin
 // Debounce is not needed here, as this function should only called by the system.
 export const toggleMuteMicrophoneSystem = (muted: boolean, toggleVoice: (userId: string, muted: boolean) => void) => {
   return toggleMute(muted, toggleVoice, 'system_action');
+};
+
+export const startPushToTalk = (toggleVoice: (userId: string, muted: boolean) => void) => {
+  toggleMute(true, toggleVoice);
+};
+
+export const stopPushToTalk = (toggleVoice: (userId: string, muted: boolean) => void) => {
+  toggleMute(false, toggleVoice);
 };
 
 export const truncateDeviceName = (deviceName: string) => {
@@ -149,10 +163,11 @@ export const muteAway = (
 export default {
   handleLeaveAudio,
   toggleMuteMicrophone,
-  toggleMuteMicrophoneSystem,
   truncateDeviceName,
   notify,
   liveChangeInputDevice,
   getSpeakerLevel,
   setSpeakerLevel,
+  startPushToTalk,
+  stopPushToTalk,
 };

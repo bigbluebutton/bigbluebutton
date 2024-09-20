@@ -605,6 +605,13 @@ type Mutation {
 }
 
 type Mutation {
+  userSetUserLockSettings(
+    userId: String!
+    disablePubChat: Boolean!
+  ): Boolean
+}
+
+type Mutation {
   userThirdPartyInfoResquest(
     externalUserId: String!
   ): Boolean

@@ -82,6 +82,8 @@ public class ParamsProcessorUtil {
     private Integer defaultHttpSessionTimeout = 14400;
     private Boolean useDefaultAvatar = false;
     private String defaultAvatarURL;
+    private Boolean useDefaultWebcamBackground = false;
+    private String defaultWebcamBackgroundURL;
     private String defaultGuestPolicy;
     private Boolean authenticatedGuest;
     private Boolean defaultAllowPromoteGuestToModerator;
@@ -105,7 +107,9 @@ public class ParamsProcessorUtil {
     private boolean defaultNotifyRecordingIsOn = false;
     private boolean defaultKeepEvents = false;
     private Boolean useDefaultLogo;
+    private Boolean useDefaultDarkLogo;
     private String defaultLogoURL;
+    private String defaultDarkLogoURL;
     private String defaultPresentationUploadExternalDescription = "";
     private String defaultPresentationUploadExternalUrl = "";
 
@@ -742,6 +746,7 @@ public class ParamsProcessorUtil {
         }
 
         String avatarURL = useDefaultAvatar ? defaultAvatarURL : "";
+        String webcamBackgroundURL = useDefaultWebcamBackground ? defaultWebcamBackgroundURL : "";
 
         if(defaultAllowDuplicateExtUserid == false) {
             log.warn("[DEPRECATION] use `maxUserConcurrentAccesses=1` instead of `allowDuplicateExtUserid=false`");
@@ -761,6 +766,7 @@ public class ParamsProcessorUtil {
                 .withTelVoice(telVoice).withWebVoice(webVoice)
                 .withDialNumber(dialNumber)
                 .withDefaultAvatarURL(avatarURL)
+                .withDefaultWebcamBackgroundURL(webcamBackgroundURL)
                 .withAutoStartRecording(autoStartRec)
                 .withAllowStartStopRecording(allowStartStoptRec)
                 .withRecordFullDurationMedia(_recordFullDurationMedia)
@@ -830,6 +836,16 @@ public class ParamsProcessorUtil {
 			meeting.setCustomLogoURL(this.getDefaultLogoURL());
 		}
 
+        if (!StringUtils.isEmpty(params.get(ApiParams.DARK_LOGO))) {                
+            meeting.setCustomDarkLogoURL(params.get(ApiParams.DARK_LOGO));          
+        } else if  (!StringUtils.isEmpty(params.get(ApiParams.LOGO))) {             
+            meeting.setCustomDarkLogoURL(params.get(ApiParams.LOGO));               
+        } else if  (this.getUseDefaultDarkLogo()) {                                 
+            meeting.setCustomDarkLogoURL(this.getDefaultDarkLogoURL());             
+        } else if (!this.getUseDefaultDarkLogo() && this.getUseDefaultLogo()) {     
+            meeting.setCustomDarkLogoURL(this.getDefaultLogoURL());                 
+        }
+
 		if (!StringUtils.isEmpty(params.get(ApiParams.COPYRIGHT))) {
 			meeting.setCustomCopyright(params.get(ApiParams.COPYRIGHT));
 		}
@@ -895,8 +911,16 @@ public class ParamsProcessorUtil {
 		return useDefaultLogo;
 	}
 
+    public Boolean getUseDefaultDarkLogo() {
+		return useDefaultDarkLogo;
+	}
+
 	public String getDefaultLogoURL() {
 		return defaultLogoURL;
+	}
+
+    public String getDefaultDarkLogoURL() {
+		return defaultDarkLogoURL;
 	}
 
 	public Boolean getAllowRequestsWithoutSession() {
@@ -1262,8 +1286,17 @@ public class ParamsProcessorUtil {
 		this.useDefaultLogo = value;
 	}
 
+    public void setUseDefaultDarkLogo(Boolean value) {
+		this.useDefaultDarkLogo = value;
+	}
+
+
 	public void setDefaultLogoURL(String url) {
 		this.defaultLogoURL = url;
+	}
+
+    public void setDefaultDarkLogoURL(String url) {
+		this.defaultDarkLogoURL = url;
 	}
 
 	public void setAllowRequestsWithoutSession(Boolean allowRequestsWithoutSession) {
@@ -1321,6 +1354,14 @@ public class ParamsProcessorUtil {
 	public void setDefaultAvatarURL(String url) {
 		this.defaultAvatarURL = url;
 	}
+
+    public void setUseDefaultWebcamBackground(Boolean value) {
+        this.useDefaultWebcamBackground = value;
+    }
+
+    public void setDefaultWebcamBackgroundURL(String uri) {
+        this.defaultWebcamBackgroundURL = uri;
+    }
 
 	public void setDefaultGuestPolicy(String guestPolicy) {
 		this.defaultGuestPolicy =  guestPolicy;
