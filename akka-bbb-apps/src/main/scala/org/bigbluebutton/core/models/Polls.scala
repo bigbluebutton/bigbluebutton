@@ -8,6 +8,7 @@ import org.bigbluebutton.core.domain.MeetingState2x
 import scala.collection.mutable.ArrayBuffer
 import scala.collection.mutable.HashMap
 import org.bigbluebutton.core.running.LiveMeeting
+import org.bigbluebutton.core.models.PresentationPage
 
 object Polls {
 
@@ -114,7 +115,7 @@ object Polls {
       pod <- state.presentationPodManager.getDefaultPod()
       pres <- pod.getCurrentPresentation()
       page <- PresentationInPod.getCurrentPage(pres)
-      shape = pollResultToWhiteboardShape(result)
+      shape = pollResultToWhiteboardShape(result, page)
       annot <- send(result, shape)
     } yield {
       lm.wbModel.addAnnotations(annot.wbId, lm.props.meetingProp.intId, requesterId, Array[AnnotationVO](annot), isPresenter = false, isModerator = false)
@@ -254,9 +255,18 @@ object Polls {
     }
   }
 
-  private def pollResultToWhiteboardShape(result: SimplePollResultOutVO): scala.collection.immutable.Map[String, Object] = {
+  private def pollResultToWhiteboardShape(result: SimplePollResultOutVO, page: PresentationPage): scala.collection.immutable.Map[String, Object] = {
+    val maxImageWidth = 1440
+    val maxImageHeight = 1080
     val poll_width = 300
     val poll_height = 200
+
+    val whiteboardRatio = Math.min(maxImageWidth / page.width, maxImageHeight / page.height);
+    val scaledWidth = page.width * whiteboardRatio
+    val scaledHeight = page.height * whiteboardRatio
+
+    val x: Double = scaledWidth - poll_width
+    val y: Double = scaledHeight - poll_height
 
     val shape = new scala.collection.mutable.HashMap[String, Object]()
     val props = new scala.collection.mutable.HashMap[String, Object]()
@@ -273,8 +283,8 @@ object Polls {
     props += "color" -> "black"
     props += "question" -> result.questionText.getOrElse("")
 
-    shape += "x" -> java.lang.Double.valueOf(0.0)
-    shape += "y" -> java.lang.Double.valueOf(0.0)
+    shape += "x" -> java.lang.Double.valueOf(x)
+    shape += "y" -> java.lang.Double.valueOf(y)
     shape += "isLocked" -> java.lang.Boolean.valueOf(false)
     shape += "index" -> "a1"
     shape += "rotation" -> Integer.valueOf(0)
