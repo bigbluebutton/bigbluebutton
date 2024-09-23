@@ -121,6 +121,7 @@ class ConfirmationModal extends Component {
             )}
             <div ref={this.cancelButtonRef}>
               <Styled.CancelButton
+                color="secondary"
                 label={cancelButtonLabel || intl.formatMessage(messages.noLabel)}
                 onClick={() => setIsOpen(false)}
               />
