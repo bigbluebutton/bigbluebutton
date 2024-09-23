@@ -5,6 +5,7 @@ import React, {
   useMemo,
   useCallback,
 } from 'react';
+import PropTypes from 'prop-types';
 import { useMutation, useQuery } from '@apollo/client';
 import {
   AssetRecordType,
@@ -137,7 +138,9 @@ const WhiteboardContainer = (props) => {
     });
   };
 
-  const zoomSlide = (widthRatio, heightRatio, xOffset, yOffset, currPage = currentPresentationPage) => {
+  const zoomSlide = (
+    widthRatio, heightRatio, xOffset, yOffset, currPage = currentPresentationPage,
+  ) => {
     const { pageId, num } = currPage;
 
     presentationSetZoom({
@@ -378,6 +381,13 @@ const WhiteboardContainer = (props) => {
       hideViewersCursor={meeting?.data?.lockSettings?.hideViewersCursor}
     />
   );
+};
+
+WhiteboardContainer.propTypes = {
+  intl: PropTypes.shape({
+    formatMessage: PropTypes.func.isRequired,
+  }).isRequired,
+  zoomChanger: PropTypes.func.isRequired,
 };
 
 export default WhiteboardContainer;
