@@ -4,6 +4,7 @@ import Styled from './styles';
 interface IconProps {
   iconName: string;
   rotate?: boolean;
+  wrapped?: boolean;
 }
 
 const iconsMap: { [key: string]: JSX.Element } = {
@@ -68,9 +69,14 @@ const iconsMap: { [key: string]: JSX.Element } = {
 const Icon: React.FC<IconProps> = ({
   iconName = '',
   rotate = false,
+  wrapped = false,
 }) => {
   if (!iconsMap[iconName]) {
     return null;
+  }
+
+  if (!wrapped) {
+    return iconsMap[iconName];
   }
 
   return (
