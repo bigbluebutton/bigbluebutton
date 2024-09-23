@@ -159,6 +159,9 @@ const Whiteboard = React.memo((props) => {
   const lastKnownHeight = React.useRef(presentationAreaHeight);
   const lastKnownWidth = React.useRef(presentationAreaWidth);
 
+  // eslint-disable-next-line no-unused-vars
+  const [shapesVersion, setShapesVersion] = React.useState(0);
+
   const customShapeUtils = [PollShapeUtil];
   const customTools = [NoopTool];
 
@@ -219,6 +222,7 @@ const Whiteboard = React.memo((props) => {
   React.useEffect(() => {
     if (!isEqual(prevShapesRef.current, shapes)) {
       prevShapesRef.current = shapes;
+      setShapesVersion((v) => v + 1);
     }
   }, [shapes]);
 
@@ -1486,7 +1490,9 @@ const Whiteboard = React.memo((props) => {
         }
       });
     }
-  }, []);
+  // TODO: we should add the dependency  list in [] parameter here
+  // so this is not run on every render
+  });
 
   React.useEffect(() => {
     const bbbPresenterTools = getFromUserSettings(
@@ -1505,7 +1511,9 @@ const Whiteboard = React.memo((props) => {
         }
       });
     }
-  }, []);
+  // TODO: we should add the dependency  list in [] parameter here
+  // so this is not run on every render
+  });
 
   React.useEffect(() => {
     const bbbMultiUserPenOnly = getFromUserSettings(
@@ -1523,7 +1531,9 @@ const Whiteboard = React.memo((props) => {
         element.style.display = displayStyle;
       });
     }
-  }, []);
+  // TODO: we should add the dependency  list in [] parameter here
+  // so this is not run on every render
+  });
 
   return (
     <div
