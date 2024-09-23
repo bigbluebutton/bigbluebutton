@@ -28,34 +28,6 @@ This will check your setup to ensure the correct processes are running, the BigB
 
 If you see text after the line `** Potential problems described below **`, then it may be warnings (which you can ignore if you've change settings) or errors with the setup.
 
-## Recording
-
-### Recording not processing after upgrading
-
-If after updating from BigBlueButton 2.0 to BigBlueButton 2.2 your recordings are not processing, and if you are seeing `Permission denied` errors in `/var/log/bigbluebutton/bbb-rap-worker.log`
-
-```log
-I, [2019-06-07T14:26:09.034878 #14808]  INFO -- : /usr/lib/ruby/2.5.0/logger.rb:754:in `initialize': Permission denied @ rb_sysopen - /var/log/bigbluebutton/presentation/process-02feca80700b3e95b877af85db972904397857a1-1559909318977.log (Errno::EACCES)
-```
-
-You can resolve the errors with the following command
-
-```bash
-$ sudo chown -hR bigbluebutton:bigbluebutton /var/log/bigbluebutton/presentation /var/log/bigbluebutton/screenshare
-```
-
-and then rebuild the recordings that had not yet processed. You can see the list of recordings with
-
-```bash
-$ bbb-record --list
-```
-
-and then to rebuild a recording, use `sudo bbb-record --rebuild <internal_meeting_id>`, as in
-
-```bash
-$ sudo bbb-record --rebuild 298b06603719217df51c5d030b6e9417cc036476-1559314745219
-```
-
 ## bbb-webrtc-sfu and mediasoup
 
 ### Audio/webcams/screen sharing aren't working
@@ -478,33 +450,6 @@ xmlstarlet edit --inplace --update '//X-PRE-PROCESS[@cmd="set" and starts-with(@
 
 Note: If your server has an internal/external IP address, such as on AWS EC2 server, be sure to set it to the external IP address configure a dummy network interface card (see [Update FreeSWITCH](/administration/firewall-configuration#update-freeswitch)).
 
-## HTML5 Server
-
-### bbb-html5 fails to start with a SETSCHEDULER error
-
-As of 2.2.31, the systemd unit file for `bbb-html5.service` now contains the following lines
-
-```ini
-CPUSchedulingPolicy=fifo
-Nice=19
-```
-
-You can override this with creating the following directory
-
-```
-mkdir /etc/systemd/system/bbb-html5.service.d
-```
-
-and creating `/etc/systemd/system/bbb-html5.service.d/override.conf` with the following contents
-
-```
-[Service]
-CPUSchedulingPolicy=other
-Nice=-10
-```
-
-Then do `systemctl daemon-reload` and restart BigBlueButton.
-
 ## Installation and packages
 
 ### The following packages have unmet dependencies
@@ -530,59 +475,6 @@ To solve this, add a symbolic link to nginx for the BigBlueButton site:
 $ sudo ln -s /etc/nginx/sites-available/bigbluebutton /etc/nginx/sites-enabled/bigbluebutton
 $ sudo /etc/init.d/nginx restart
 ```
-
-### Package install fails with sed error
-
-Some of the BigBlueButton packages use `sed` scripts to extract contents from configuration files. If the file does not exist at the time of the script's execution, or the sed script matches multiple entries in a file (such as when a configuration line is commented out), you can see an error such as
-
-```bash
-Setting up bbb-client (1:2.0.0-374) ...
-sed: -e expression #1, char 42: unterminated `s' command
-dpkg: error processing package bbb-client (--configure):
- subprocess installed post-installation script returned error exit status 1
-dpkg: dependency problems prevent configuration of bbb-config:
- bbb-config depends on bbb-client; however:
-  Package bbb-client is not configured yet.
-
-dpkg: error processing package bbb-config (--configure):
- dependency problems - leaving unconfigured
-Errors were encountered while processing:
- bbb-client
- bbb-config
-E: Sub-process /usr/bin/dpkg returned an error code (1)
-```
-
-In the above example, the `/var/lib/dpkg/info/bbb-client.postinst` failed to finish. To debug, edit this file and change the first line to read
-
-```
-#!/bin/bash -ex
-```
-
-and run
-
-```bash
-$ sudo apt-get install -f
-```
-
-You should now see each command in `bbb-conf.postinst` as it executes upto the line in which the error occurs. Post this output to `https://groups.google.com/forum/#!forum/bigbluebutton-setup` for help in resolving the issue.
-
-### Errors with packages
-
-Some hosting providers do not provide a complete `/etc/apt/source.list`. If you are finding your are unable to install a package, try replacing your `/etc/apt/sources.list` with the following
-
-```bash
-deb https://archive.ubuntu.com/ubuntu xenial main restricted universe multiverse
-deb https://archive.ubuntu.com/ubuntu xenial-updates main restricted universe multiverse
-deb https://security.ubuntu.com/ubuntu xenial-security main restricted universe multiverse
-```
-
-then do
-
-```bash
-$ sudo apt-get update
-```
-
-and try installing BigBlueButton again from the beginning.
 
 ## WebRTC errors (1001, 1002,...)
 
@@ -651,32 +543,6 @@ Next, to add this as a supported browser, append to `settings.yml`
 
 save the updated `settings.yml` file, and then restart your BigBlueButton server with `sudo bbb-conf --restart`. Note any browser you add must support WebRTC libraries (not all do), so be sure to check it first with [https://test.webrtc.org/](https://test.webrtc.org/).
 
-### Tomcat shows "Cannot assign requested address on startup"
-
-If your server has multiple IP addresses, Tomcat might not pick the right address to bind. This could throw an error on installation when tomcat is attempting to install.
-
-Check `/var/log/tomcat7/catalina.out` for the following error
-
-```log
-Jan 30, 2018 9:17:37 AM org.apache.catalina.core.StandardServer await
-SEVERE: StandardServer.await: create[localhost:8005]:
-java.net.BindException: Cannot assign requested address (Bind failed)
- at java.net.PlainSocketImpl.socketBind(Native Method)
-```
-
-If you see this, first ensure that there isn't another copy of tomcat running by doing `ps -aef | grep tomcat7`. If you do see another copy running, try killing it and then restarting tomcat.
-
-If you still see the same error in `catalina.out`, then `/etc/tomcat7/server.xml` and change
-
-```xml
-<Server port="8005" shutdown="SHUTDOWN">
-```
-
-```xml
-<Server address="0.0.0.0" port="8005" shutdown="SHUTDOWN">
-```
-
-Restart tomcat7 again and it should start normally.
 
 ### nginx not running
 
@@ -766,28 +632,6 @@ $ sudo apt-get install haveged
 
 For more information see [How to Setup Additional Entropy for Cloud Servers Using Haveged](https://www.digitalocean.com/community/tutorials/how-to-setup-additional-entropy-for-cloud-servers-using-haveged).
 
-### Error installing bbb-web
-
-If you get the following error during upgrade to BigBlueButton
-
-````bash
-Unpacking bbb-web (1:2.2.0-67) over (1:2.2.0-66) ...
-dpkg: error processing archive /var/cache/apt/archives/bbb-web_1%3a2.2.0-67_amd64.deb (--unpack):
- trying to overwrite '/etc/bigbluebutton/nginx/web', which is also in package bbb-client 1:2.2.0-28
-dpkg-deb: error: subprocess paste was killed by signal (Broken pipe)
-Errors were encountered while processing:
- /var/cache/apt/archives/bbb-web_1%3a2.2.0-67_amd64.deb
-E: Sub-process /usr/bin/dpkg returned an error code (1)```
-````
-
-Then first uninstall `bbb-client`
-
-```bash
-$ sudo apt-get purge bbb-client
-```
-
-and try installing BigBlueButton again.
-
 ## Other errors
 
 ### Root partition too small
@@ -854,73 +698,8 @@ To get them working within an LXD container, follow the steps outlined in the fo
 
 You can now run BigBlueButton within a LXD container.
 
-### Unable to connect to redis
-
-The packages `bbb-apps-akka`, `bbb-fsesl-akka`, and `bbb-transcode-akka` are packaged by sbt, but they need to have redis-server running before they startup. If `sudo bbb-conf --debug` shows redis connection errors
-
-```
-Sep 22 15:32:12 sv21 bbb-apps-akka[7804]: Exception in thread "main" io.lettuce.core.RedisConnectionException: Unable to connect to 127.0.0.1:6379
-Sep 22 15:32:12 sv21 bbb-apps-akka[7804]: #011at io.lettuce.core.RedisConnectionException.create(RedisConnectionException.java:78)
-Sep 22 15:32:12 sv21 bbb-apps-akka[7804]: #011at io.lettuce.core.RedisConnectionException.create(RedisConnectionException.java:56)
-Sep 22 15:32:12 sv21 bbb-apps-akka[7804]: Caused by: io.netty.channel.AbstractChannel$AnnotatedConnectException: Connection refused: /127.0.0.1:6379
-Sep 22 15:32:12 sv21 bbb-apps-akka[7804]: Caused by: java.net.ConnectException: Connection refused
-Sep 22 15:32:12 sv21 bbb-fsesl-akka[7893]: Exception in thread "main" io.lettuce.core.RedisConnectionException: Unable to connect to 127.0.0.1:6379
-Sep 22 15:32:12 sv21 bbb-fsesl-akka[7893]: #011at io.lettuce.core.RedisConnectionException.create(RedisConnectionException.java:78)
-Sep 22 15:32:12 sv21 bbb-fsesl-akka[7893]: #011at io.lettuce.core.RedisConnectionException.create(RedisConnectionException.java:56)
-Sep 22 15:32:12 sv21 bbb-fsesl-akka[7893]: Caused by: io.netty.channel.AbstractChannel$AnnotatedConnectException: Connection refused: /127.0.0.1:6379
-Sep 22 15:32:12 sv21 bbb-fsesl-akka[7893]: Caused by: java.net.ConnectException: Connection refused
-Sep 22 15:32:13 sv21 bbb-transcode-akka[8001]: Exception in thread "main" io.lettuce.core.RedisConnectionException: Unable to connect to 127.0.0.1:6379
-Sep 22 15:32:13 sv21 bbb-transcode-akka[8001]: #011at io.lettuce.core.RedisConnectionException.create(RedisConnectionException.java:78)
-Sep 22 15:32:13 sv21 bbb-transcode-akka[8001]: #011at io.lettuce.core.RedisConnectionException.create(RedisConnectionException.java:56)
-Sep 22 15:32:13 sv21 bbb-transcode-akka[8001]: Caused by: io.netty.channel.AbstractChannel$AnnotatedConnectException: Connection refused: /127.0.0.1:6379
-Sep 22 15:32:13 sv21 bbb-transcode-akka[8001]: Caused by: java.net.ConnectException: Connection refused
-```
-
-you can add overrides for these three packages to ensure they start after redis.server. Run the following script.
-
-```
-#!/bin/bash
-
-mkdir -p /etc/systemd/system/bbb-apps-akka.service.d
-cat > /etc/systemd/system/bbb-apps-akka.service.d/override.conf <<HERE
-[Unit]
-Requires=redis-server.service
-After=redis-server.service
-HERE
-
-mkdir -p /etc/systemd/system/bbb-fsesl-akka.service.d
-cat > /etc/systemd/system/bbb-fsesl-akka.service.d/override.conf <<HERE
-[Unit]
-Requires=redis-server.service
-After=redis-server.service
-HERE
-
-
-mkdir -p /etc/systemd/system/bbb-transcode-akka.service.d
-cat > /etc/systemd/system/bbb-transcode-akka.service.d/override.conf <<HERE
-[Unit]
-Requires=redis-server.service
-After=redis-server.service
-HERE
-```
-
-The script `bbb-install` now creates these overrides by default.
-
 ### 500 Internal Server Error
 
 It is most likely an error on GreenLight. Check the log file according to [Troubleshooting Greenlight](/greenlight/v3/install).
 
 If this error occurs on just a small number of PCs accessing a BigBlueButton server within a LAN through a proxy server and you find the description "Error::Unsafe Host Error (x.x.x.x is not a safe host)" (where x.x.x.x is an IP address) in the log file, check if the "Don't use the proxy server for local (intranet) addresses" (in the Windows proxy setting) is ticked.
-
-## Legacy errors
-
-### Conference not found errors
-
-The command `sudo bbb-conf --debug` searches through the red5, tomcat7, and nginx logs looking for errors and exceptions. However, the messages such as
-
-```log
-    -- ERRORS found in /usr/share/red5/log/* --
-/usr/share/red5/log/bigbluebutton.log:2015-05-02 13:50:37,681-04:00 [pool-17-thread-1] ERROR o.b.w.v.f.a.PopulateRoomCommand - Not XML: [Conference 78505 not found]
-```
-
-are innocuous and can be ignored.

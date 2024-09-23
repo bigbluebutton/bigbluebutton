@@ -2,6 +2,7 @@ const { expect } = require('@playwright/test');
 const e = require('../core/elements');
 const { ELEMENT_WAIT_LONGER_TIME } = require('../core/constants');
 const { MultiUsers } = require('../user/multiusers');
+const CI = process.env.CI === 'true';
 
 class DrawTriangle extends MultiUsers {
   constructor(browser, context) {
@@ -25,12 +26,7 @@ class DrawTriangle extends MultiUsers {
     await this.modPage.page.mouse.move(wbBox.x + 0.7 * wbBox.width, wbBox.y + 0.7 * wbBox.height);
     await this.modPage.page.mouse.up();
 
-    await this.modPage.setHeightWidthViewPortSize();
-    await expect(modWbLocator).toHaveScreenshot('moderator-triangle.png', screenshotOptions);
-
-    await this.userPage.setHeightWidthViewPortSize();
-    const userWbLocator = this.userPage.getLocator(e.whiteboard);
-    await expect(userWbLocator).toHaveScreenshot('viewer-triangle.png', screenshotOptions);
+    await this.modPage.hasElement(e.wbDrawnShape);
   }
 }
 

@@ -43,22 +43,25 @@ const ChatListPage: React.FC<ChatListPageProps> = ({
   markMessageAsSeen,
   scrollRef,
 }) => {
-  const { domElementManipulationMessageIds } = useContext(PluginsContext);
+  const { domElementManipulationIdentifiers } = useContext(PluginsContext);
+
   const [messagesRequestedFromPlugin, setMessagesRequestedFromPlugin] = useState<
-  UpdatedEventDetailsForChatMessageDomElements[]>([]);
+    UpdatedEventDetailsForChatMessageDomElements[]>([]);
   useEffect(() => {
     const dataToSend = messagesRequestedFromPlugin.filter((
-      message,
-    ) => domElementManipulationMessageIds.indexOf(message.messageId) !== -1);
+      chatMessageRequested,
+    ) => domElementManipulationIdentifiers.CHAT_MESSAGE?.includes(chatMessageRequested.messageId));
     window.dispatchEvent(
-      new CustomEvent<UpdatedEventDetails<UpdatedEventDetailsForChatMessageDomElements[]>>(HookEvents.UPDATED, {
-        detail: {
-          hook: DomElementManipulationHooks.CHAT_MESSAGE,
-          data: dataToSend,
-        },
-      }),
+      new CustomEvent<UpdatedEventDetails<
+        UpdatedEventDetailsForChatMessageDomElements[]>>(HookEvents.BBB_CORE_SENT_NEW_DATA, {
+          detail: {
+            hook: DomElementManipulationHooks.CHAT_MESSAGE,
+            data: dataToSend,
+          },
+        }),
     );
-  }, [domElementManipulationMessageIds]);
+  }, [domElementManipulationIdentifiers, messagesRequestedFromPlugin]);
+
   return (
     // eslint-disable-next-line react/jsx-filename-extension
     <div key={`messagePage-${page}`} id={`${page}`}>

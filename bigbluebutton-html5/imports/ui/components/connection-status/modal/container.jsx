@@ -1,6 +1,10 @@
 import React from 'react';
 import { CONNECTION_STATUS_REPORT_SUBSCRIPTION } from '../queries';
-import Service from '../service';
+import {
+  sortConnectionData,
+  startMonitoringNetwork,
+  stopMonitoringNetwork,
+} from '../service';
 import Component from './component';
 import useCurrentUser from '/imports/ui/core/hooks/useCurrentUser';
 import useDeduplicatedSubscription from '/imports/ui/core/hooks/useDeduplicatedSubscription';
@@ -9,18 +13,20 @@ import connectionStatus from '/imports/ui/core/graphql/singletons/connectionStat
 
 const ConnectionStatusContainer = (props) => {
   const { data } = useDeduplicatedSubscription(CONNECTION_STATUS_REPORT_SUBSCRIPTION);
-  const connectionData = data ? Service.sortConnectionData(data.user_connectionStatusReport) : [];
+  const connectionData = data ? sortConnectionData(data.user_connectionStatusReport) : [];
   const { data: currentUser } = useCurrentUser((u) => ({ isModerator: u.isModerator }));
   const amIModerator = !!currentUser?.isModerator;
 
-  const newtworkData = useReactiveVar(connectionStatus.getNetworkDataVar());
+  const networkData = useReactiveVar(connectionStatus.getNetworkDataVar());
 
   return (
     <Component
       {...props}
       connectionData={connectionData}
       amIModerator={amIModerator}
-      networkData={newtworkData}
+      networkData={networkData}
+      startMonitoringNetwork={startMonitoringNetwork}
+      stopMonitoringNetwork={stopMonitoringNetwork}
     />
   );
 };

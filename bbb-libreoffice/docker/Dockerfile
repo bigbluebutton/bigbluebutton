@@ -1,1 +1,1 @@
-FROM bigbluebutton/bbb-libreoffice:7.6.2-20231020-161900
+FROM bigbluebutton/bbb-libreoffice:24.08.0-20240909-132800
