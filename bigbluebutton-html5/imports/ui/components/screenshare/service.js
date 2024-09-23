@@ -191,7 +191,7 @@ export const useShouldEnableVolumeControl = () => {
 };
 
 export const useShowButtonForNonPresenters = () => {
-  const MEDIA_CONFIG = window.meetingClientSettings.public.media;
+  const MEDIA_CONFIG = window.meetingClientSettings.public.kurento;
 
   return MEDIA_CONFIG.screenshare.showButtonForNonPresenters;
 }
