@@ -1,4 +1,4 @@
-import React, { Dispatch, SetStateAction, useCallback } from 'react';
+import React, { useCallback } from 'react';
 import { defineMessages, useIntl } from 'react-intl';
 import { USER_LEAVE_MEETING } from '/imports/ui/core/graphql/mutations/userMutations';
 import { useMutation } from '@apollo/client';
@@ -40,8 +40,6 @@ const LOGOUT_CODE = '680';
 interface RecordingNotifyModalProps {
   toggleShouldNotify: () => void;
   closeModal: () => void;
-  // eslint-disable-next-line react/no-unused-prop-types
-  setIsOpen: Dispatch<SetStateAction<boolean>>;
   isOpen: boolean;
   priority: string;
 }
