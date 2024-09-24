@@ -1,7 +1,6 @@
 import React from 'react';
 import Auth from '/imports/ui/services/auth';
 import Storage from '/imports/ui/services/storage/session';
-import KEY_CODES from '/imports/utils/keyCodes';
 import AudioService from '/imports/ui/components/audio/service';
 import logger from '/imports/startup/client/logger';
 import Session from '/imports/ui/services/storage/in-memory';
@@ -280,70 +279,6 @@ const focusFirstDropDownItem = () => {
   list[0].focus();
 };
 
-const roving = (...args) => {
-  const [
-    event,
-    changeState,
-    elementsList,
-    element,
-  ] = args;
-
-  this.selectedElement = element;
-  const numberOfChilds = elementsList.childElementCount;
-  const menuOpen = Session.getItem('dropdownOpen') || false;
-
-  if (menuOpen) {
-    const menuChildren = document.activeElement.getElementsByTagName('li');
-
-    if ([KEY_CODES.ESCAPE, KEY_CODES.ARROW_LEFT].includes(event.keyCode)) {
-      Session.setItem('dropdownOpen', false);
-      document.activeElement.click();
-    }
-
-    if ([KEY_CODES.ARROW_UP].includes(event.keyCode)) {
-      menuChildren[menuChildren.length - 1].focus();
-    }
-
-    if ([KEY_CODES.ARROW_DOWN].includes(event.keyCode)) {
-      for (let i = 0; i < menuChildren.length; i += 1) {
-        if (menuChildren[i].hasAttribute('tabIndex')) {
-          menuChildren[i].focus();
-          break;
-        }
-      }
-    }
-
-    return;
-  }
-
-  if ([KEY_CODES.ESCAPE, KEY_CODES.TAB].includes(event.keyCode)) {
-    Session.setItem('dropdownOpen', false);
-    changeState(null);
-  }
-
-  if (event.keyCode === KEY_CODES.ARROW_DOWN) {
-    const firstElement = elementsList.firstChild;
-    let elRef = element && numberOfChilds > 1 ? element.nextSibling : firstElement;
-
-    elRef = elRef || firstElement;
-    changeState(elRef);
-  }
-
-  if (event.keyCode === KEY_CODES.ARROW_UP) {
-    const lastElement = elementsList.lastChild;
-    let elRef = element ? element.previousSibling : lastElement;
-    elRef = elRef || lastElement;
-    changeState(elRef);
-  }
-
-  if ([KEY_CODES.ARROW_RIGHT, KEY_CODES.SPACE, KEY_CODES.ENTER].includes(event.keyCode)) {
-    const tether = document.activeElement.firstChild;
-    const dropdownTrigger = tether.firstChild;
-    dropdownTrigger?.click();
-    focusFirstDropDownItem();
-  }
-};
-
 const sortUsersByFirstName = (a, b) => {
   const aUser = { sortName: a.firstName ? a.firstName : '' };
   const bUser = { sortName: b.firstName ? b.firstName : '' };
@@ -457,7 +392,6 @@ export default {
   getActiveChats,
   isMeetingLocked,
   isPublicChat,
-  roving,
   getCustomLogoUrl,
   getCustomDarkLogoUrl,
   focusFirstDropDownItem,

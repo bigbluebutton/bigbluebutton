@@ -84,7 +84,7 @@ const UserItemContents = styled.div<UserItemContentsProps>`
     &:first-child {
       margin-top: 0;
     }
-
+    &:focus,
     &:hover {
       outline: transparent;
       outline-style: dotted;
@@ -92,8 +92,7 @@ const UserItemContents = styled.div<UserItemContentsProps>`
       background-color: ${listItemBgHover};
     }
 
-    &:active,
-    &:focus {
+    &:active{
       outline: transparent;
       outline-width: ${borderSize};
       outline-style: solid;

@@ -26,6 +26,7 @@ interface UsersListParticipantsPage {
   meeting: Meeting;
   currentUser: Partial<User>;
   pageId: string;
+  offset: number;
 }
 
 const UsersListParticipantsPage: React.FC<UsersListParticipantsPage> = ({
@@ -33,13 +34,14 @@ const UsersListParticipantsPage: React.FC<UsersListParticipantsPage> = ({
   currentUser,
   meeting,
   pageId,
+  offset,
 }) => {
   const [openUserAction, setOpenUserAction] = React.useState<string | null>(null);
   const isRTL = layoutSelect((i: Layout) => i.isRTL);
   return (
     <>
       {
-        users.map((user) => {
+        users.map((user, idx) => {
           return (
             <Styled.UserListItem key={user.userId} style={{ direction: isRTL }}>
               <UserActions
@@ -52,7 +54,7 @@ const UsersListParticipantsPage: React.FC<UsersListParticipantsPage> = ({
                 open={user.userId === openUserAction}
                 setOpenUserAction={setOpenUserAction}
               >
-                <ListItem user={user} lockSettings={meeting.lockSettings} />
+                <ListItem index={offset + idx} user={user} lockSettings={meeting.lockSettings} />
               </UserActions>
             </Styled.UserListItem>
           );
@@ -134,6 +136,7 @@ const UserListParticipantsPageContainer: React.FC<UserListParticipantsContainerP
       meeting={meeting ?? {}}
       currentUser={currentUser ?? {}}
       pageId={pageId}
+      offset={offset}
     />
   );
 };
