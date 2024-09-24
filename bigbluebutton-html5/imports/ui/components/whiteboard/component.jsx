@@ -1295,7 +1295,7 @@ const Whiteboard = React.memo((props) => {
       {
         meta: {},
         id: currentPageId,
-        name: `Slide ${curPageIdRef.current}`,
+        name: `Slide ${currentPageId?.split(':')[1]}`,
         index: 'a1',
         typeName: 'page',
       },
@@ -1303,17 +1303,27 @@ const Whiteboard = React.memo((props) => {
   }
 
   const createCameras = (pageId, tlZ) => {
-    return [
-      createCamera(pageId - 1, tlZ),
-      createCamera(pageId, tlZ),
-      createCamera(pageId + 1, tlZ),
-    ];
+    const cameras = [];
+    const MIN_PAGE_ID = 1;
+    const totalPages = currentPresentationPageRef.current?.totalPages || 1;
+
+    if (pageId > MIN_PAGE_ID) {
+      cameras.push(createCamera(pageId - 1, tlZ));
+    }
+
+    cameras.push(createCamera(pageId, tlZ));
+
+    if (pageId < totalPages) {
+      cameras.push(createCamera(pageId + 1, tlZ));
+    }
+
+    return cameras;
   }
 
   const cleanupStore = (currentPageId) => {
     const allRecords = tlEditorRef.current.store.allRecords();
     const shapeIdsToRemove = allRecords
-      .filter(record => record.typeName === 'shape' && record.parentId !== currentPageId)
+      .filter(record => record.typeName === 'shape' && record.parentId && record.parentId !== currentPageId)
       .map(shape => shape.id);
 
     if (shapeIdsToRemove.length > 0) {
@@ -1344,10 +1354,10 @@ const Whiteboard = React.memo((props) => {
   }
 
   React.useEffect(() => {
-    if (tlEditorRef.current && curPageIdRef.current !== "0") {
-      const currentPageId = `page:${curPageIdRef.current}`;
+    const formattedPageId = parseInt(curPageIdRef.current, 10);
+    if (tlEditorRef.current && formattedPageId !== 0) {
+      const currentPageId = `page:${formattedPageId}`;
       const tlZ = tlEditorRef.current.getCamera()?.z;
-      const formattedPageId = Number(curPageIdRef?.current);
 
       const pages = createPage(currentPageId);
       const cameras = createCameras(formattedPageId, tlZ);
