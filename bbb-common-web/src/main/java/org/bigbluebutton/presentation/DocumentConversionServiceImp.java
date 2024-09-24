@@ -61,6 +61,7 @@ public class DocumentConversionServiceImp implements DocumentConversionService {
         log.error("Presentation upload failed for meetingId={} presId={}", pres.getMeetingId(), pres.getId());
         log.error("Presentation upload failed because a virus was detected in the uploaded file");
         notifier.sendUploadFileVirus(pres);
+        Util.deleteDirectoryFromFileHandlingErrors(pres.getUploadedFile());
         return;
       }
     } catch (Exception e) {
