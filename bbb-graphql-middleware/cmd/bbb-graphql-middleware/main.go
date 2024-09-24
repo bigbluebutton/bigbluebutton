@@ -19,10 +19,12 @@ func main() {
 	// Configure logger
 	if logLevelFromConfig, err := log.ParseLevel(cfg.LogLevel); err == nil {
 		log.SetLevel(logLevelFromConfig)
+		if logLevelFromConfig > log.InfoLevel {
+			log.SetReportCaller(true)
+		}
 	} else {
 		log.SetLevel(log.InfoLevel)
 	}
-
 	log.SetFormatter(&log.JSONFormatter{})
 	log := log.WithField("_routine", "main")
 

@@ -339,6 +339,23 @@ const ButtonWrapper = styled(BaseButton)`
     border-top-color: transparent;
     animation: spin 1.5s ease infinite;
   }
+
+  @media screen and (max-width: 480px) {
+
+    &::after {
+      height: 50px;
+      border-radius: 50%;
+      position: absolute;
+      line-height: 90px;
+      text-align: center;
+      bottom: 0;
+      top: 0;
+      left: -0.5px;
+      right: 0;
+      width: 49px;
+    }
+  }
+
   @keyframes spin {
     0% {
         opacity: 0;

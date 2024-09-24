@@ -152,6 +152,7 @@ For full details on what is new in BigBlueButton 3.0, see the release notes.
 
 Recent releases:
 
+- [3.0.0-beta.1](https://github.com/bigbluebutton/bigbluebutton/releases/tag/v3.0.0-beta.1)
 - [3.0.0-alpha.7](https://github.com/bigbluebutton/bigbluebutton/releases/tag/v3.0.0-alpha.7)
 - [3.0.0-alpha.6](https://github.com/bigbluebutton/bigbluebutton/releases/tag/v3.0.0-alpha.6)
 - [3.0.0-alpha.5](https://github.com/bigbluebutton/bigbluebutton/releases/tag/v3.0.0-alpha.5)
@@ -226,7 +227,6 @@ Modified/added events
 - `allowOverrideClientSettingsOnCreateCall=false` added
 - `sessionsCleanupDelayInMinutes=60` added
 - `graphqlWebsocketUrl=${bigbluebutton.web.serverURL}/graphql` added
-- `defaultAllowPromoteGuestToModerator=false` added
 
 #### Removed support for POST requests on `join` endpoint and Content-Type headers are now required
 

@@ -277,9 +277,12 @@ class VideoPreview extends Component {
 
   shouldSkipVideoPreview() {
     const { skipPreviewFailed } = this.state;
-    const { forceOpen } = this.props;
+    const { cameraAsContent, forceOpen, webcamDeviceId } = this.props;
 
-    return PreviewService.getSkipVideoPreview() && !forceOpen && !skipPreviewFailed;
+    // If the initial stream is already shared give the user the chance to choose the device
+    const shared = this.isAlreadyShared(webcamDeviceId);
+
+    return PreviewService.getSkipVideoPreview() && !forceOpen && !skipPreviewFailed && !shared;
   }
 
   componentDidMount() {
@@ -384,7 +387,7 @@ class VideoPreview extends Component {
   componentDidUpdate() {
     const { viewState } = this.state;
 
-    if (viewState === VIEW_STATES.found && !this.video.srcObject) {
+    if (viewState === VIEW_STATES.found && !this.video?.srcObject) {
       this.displayPreview();
     }
 

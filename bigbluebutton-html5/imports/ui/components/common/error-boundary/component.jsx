@@ -37,7 +37,7 @@ class ErrorBoundary extends Component {
   componentDidMount() {
     const data = window.meetingClientSettings.public;
     const logConfig = data?.clientLog;
-    if (logConfig && logger?.streams.length === 0) {
+    if (logConfig && logger?.getStreams().length === 0) {
       generateLoggerStreams(logConfig).forEach((stream) => {
         logger.addStream(stream);
       });
