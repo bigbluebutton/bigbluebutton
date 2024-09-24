@@ -274,7 +274,6 @@ const RecordingIndicator: React.FC<RecordingIndicatorProps> = ({
             setShouldNotify((prev) => !prev);
           }}
           priority="high"
-          setIsOpen={setIsRecordingNotifyModalOpen}
           isOpen={isRecordingNotifyModalOpen}
           closeModal={() => {
             setIsRecordingNotifyModalOpen(false);

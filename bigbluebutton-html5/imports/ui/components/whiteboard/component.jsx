@@ -1094,7 +1094,6 @@ const Whiteboard = React.memo((props) => {
               adjustedZoom = calculateZoomWithGapValue(
                 currentPresentationPageRef.current.scaledWidth,
                 currentPresentationPageRef.current.scaledHeight,
-                false,
                 widthGap,
               );
 
