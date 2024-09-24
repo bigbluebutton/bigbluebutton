@@ -43,7 +43,7 @@ const CustomLayout = (props) => {
   const navbarInput = layoutSelectInput((i) => i.navBar);
   const layoutContextDispatch = layoutDispatch();
 
-  const { isResizing } = cameraDockInput;
+  const { isResizing, position } = cameraDockInput;
 
   const prevDeviceType = usePrevious(deviceType);
   const prevIsResizing = usePrevious(isResizing);
@@ -62,6 +62,12 @@ const CustomLayout = (props) => {
       });
     });
   }, []);
+
+  useEffect(() => {
+    if (position) {
+      document.getElementById('layout')?.setAttribute('data-cam-position', position);
+    }
+  }, [position]);
 
   useEffect(() => {
     if (deviceType === null) return () => null;
