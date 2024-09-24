@@ -19,6 +19,7 @@ import { EXTERNAL_VIDEO_STOP } from '../external-video-player/mutations';
 import { PINNED_PAD_SUBSCRIPTION } from '../notes/queries';
 import useDeduplicatedSubscription from '../../core/hooks/useDeduplicatedSubscription';
 import AudioManager from '/imports/ui/services/audio-manager';
+import useCurrentUser from '/imports/ui/core/hooks/useCurrentUser';
 
 const screenshareIntlMessages = defineMessages({
   // SCREENSHARE
@@ -109,7 +110,12 @@ const ScreenshareContainer = (props) => {
   const isSharedNotesPinned = !!pinnedPadData
     && pinnedPadData.sharedNotes[0]?.sharedNotesExtId === NOTES_CONFIG.id;
 
-  const { isPresenter } = props;
+  const {
+    data: currentUserData,
+  } = useCurrentUser((u) => ({
+    presenter: u.presenter,
+  }));
+  const isPresenter = currentUserData?.presenter;
 
   const info = {
     screenshare: {
@@ -145,7 +151,7 @@ const ScreenshareContainer = (props) => {
       ...pluginsExtensibleAreasAggregatedState.screenshareHelperItems,
     ];
   }
-  if (isScreenBroadcasting || isCameraAsContentBroadcasting) {
+  if ((isScreenBroadcasting || isCameraAsContentBroadcasting) && currentUserData) {
     return (
       <ScreenshareComponent
         {
@@ -168,6 +174,7 @@ const ScreenshareContainer = (props) => {
             LAYOUT_CONFIG.hidePresentationOnJoin,
           ),
           ...selectedInfo,
+          isPresenter,
         }
         }
       />

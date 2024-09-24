@@ -109,7 +109,6 @@ const AudioContainer = (props) => {
     isVideoPreviewModalOpen,
     intl,
     userLocks,
-    speechLocale,
   } = props;
 
   const APP_CONFIG = window.meetingClientSettings.public.app;
@@ -134,6 +133,7 @@ const AudioContainer = (props) => {
     },
   }));
   const { data: currentUserName } = useCurrentUser((u) => u.name);
+  const { data: speechLocale } = useCurrentUser((u) => u.speechLocale);
 
   const openAudioModal = () => setAudioModalIsOpen(true);
 
@@ -273,5 +273,4 @@ AudioContainer.propTypes = {
   userLocks: PropTypes.shape({
     userMic: PropTypes.bool.isRequired,
   }).isRequired,
-  speechLocale: PropTypes.string.isRequired,
 };

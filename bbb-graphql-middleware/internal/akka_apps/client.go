@@ -1,20 +1,23 @@
 package akka_apps
 
 import (
+	"bbb-graphql-middleware/config"
 	"encoding/json"
 	"fmt"
 	log "github.com/sirupsen/logrus"
 	"io/ioutil"
 	"net/http"
-	"os"
 	"strings"
 )
 
 // sessionVarsHookUrl is the authentication hook URL obtained from an environment variable.
-var sessionVarsHookUrl = os.Getenv("BBB_GRAPHQL_MIDDLEWARE_SESSION_VARS_HOOK_URL")
+var sessionVarsHookUrl = config.GetConfig().SessionVarsHook.Url
 
 func AkkaAppsGetSessionVariablesFrom(browserConnectionId string, sessionToken string) (map[string]string, error) {
-	logger := log.WithField("_routine", "AkkaAppsClient").WithField("browserConnectionId", browserConnectionId)
+	logger := log.WithField("_routine", "AkkaAppsClient").
+		WithField("browserConnectionId", browserConnectionId).
+		WithField("sessionToken", sessionToken)
+
 	logger.Debug("Starting AkkaAppsClient")
 	defer logger.Debug("Finished AkkaAppsClient")
 

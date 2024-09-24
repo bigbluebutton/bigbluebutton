@@ -98,6 +98,7 @@ export interface App {
   fallbackOnEmptyLocaleString: boolean
   disableWebsocketFallback: boolean
   maxMutationPayloadSize: number
+  enableApolloDevTools: boolean
 }
 
 export interface BbbTabletApp {
@@ -584,6 +585,7 @@ export interface Cookie {
 
 export interface Media {
   audio: Audio2
+  screenshare: Screenshare2,
   stunTurnServersFetchAddress: string
   cacheStunTurnServers: boolean
   fallbackStunServer: string
@@ -619,6 +621,10 @@ export interface Audio2 {
   defaultListenOnlyBridge: string
   bridges: Bridge[]
   retryThroughRelay: boolean
+}
+
+export interface Screenshare2 {
+  showButtonForNonPresenters: boolean
 }
 
 export interface Bridge {

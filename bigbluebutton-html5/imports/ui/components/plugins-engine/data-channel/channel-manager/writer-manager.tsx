@@ -143,11 +143,11 @@ const DataChannelItemManagerWriter: React.ElementType<DataChannelItemManagerWrit
     }) as EventListener;
 
   useEffect(() => {
-    window.addEventListener(HookEvents.UPDATED, deleteOrResetHandler);
-    window.addEventListener(HookEvents.UPDATED, replaceEntryHandler);
+    window.addEventListener(HookEvents.PLUGIN_SENT_CHANGES_TO_BBB_CORE, deleteOrResetHandler);
+    window.addEventListener(HookEvents.PLUGIN_SENT_CHANGES_TO_BBB_CORE, replaceEntryHandler);
     return () => {
-      window.removeEventListener(HookEvents.UPDATED, deleteOrResetHandler);
-      window.removeEventListener(HookEvents.UPDATED, replaceEntryHandler);
+      window.removeEventListener(HookEvents.PLUGIN_SENT_CHANGES_TO_BBB_CORE, deleteOrResetHandler);
+      window.removeEventListener(HookEvents.PLUGIN_SENT_CHANGES_TO_BBB_CORE, replaceEntryHandler);
     };
   }, []);
   return null;

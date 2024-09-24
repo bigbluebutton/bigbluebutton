@@ -506,10 +506,7 @@ const ChatMessageForm: React.FC<ChatMessageFormProps> = ({
   return renderForm();
 };
 
-// eslint-disable-next-line no-empty-pattern
-const ChatMessageFormContainer: React.FC = ({
-  // connected, move to network status
-}) => {
+const ChatMessageFormContainer: React.FC = () => {
   const intl = useIntl();
   const idChatOpen: string = layoutSelect((i: Layout) => i.idChatOpen);
   const isRTL = layoutSelect((i: Layout) => i.isRTL);
@@ -521,6 +518,7 @@ const ChatMessageFormContainer: React.FC = ({
 
   const { data: currentUser } = useCurrentUser((c) => ({
     isModerator: c?.isModerator,
+    userLockSettings: c?.userLockSettings,
     locked: c?.locked,
   }));
 
@@ -534,8 +532,9 @@ const ChatMessageFormContainer: React.FC = ({
 
   const isModerator = currentUser?.isModerator;
   const isPublicChat = chat?.public;
-  const isLocked = currentUser?.locked;
-  const disablePublicChat = meeting?.lockSettings?.disablePublicChat;
+  const isLocked = currentUser?.locked || currentUser?.userLockSettings?.disablePublicChat;
+  const disablePublicChat = meeting?.lockSettings?.disablePublicChat
+    || currentUser?.userLockSettings?.disablePublicChat;
   const disablePrivateChat = meeting?.lockSettings?.disablePrivateChat;
 
   let locked = false;

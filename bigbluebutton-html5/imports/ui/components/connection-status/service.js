@@ -23,7 +23,7 @@ export const NETWORK_MONITORING_INTERVAL_MS = 2000;
 
 export const lastLevel = makeVar();
 
-let statsTimeout = null;
+let monitoringInterval = null;
 
 export const URL_REGEX = new RegExp(/^(http|https):\/\/[^ "]+$/);
 export const getHelp = () => {
@@ -71,6 +71,7 @@ export const handleAudioStatsEvent = (event) => {
     // (see the network data object in this file). The network data one is an
     // absolute counter of INBOUND packets lost - and it *SHOULD NOT* be used to 
     // determine alert triggers
+    connectionStatus.setPacketLossFraction(loss);
     connectionStatus.setPacketLossStatus(
       getStatus(window.meetingClientSettings.public.stats.loss, loss),
     );
@@ -383,16 +384,42 @@ export const calculateBitsPerSecondFromMultipleData = (currentData, previousData
   return result;
 };
 
-const sortConnectionData = (connectionData) => connectionData.sort(sortLevel).sort(sortOnline);
+export const sortConnectionData = (connectionData) => connectionData
+  .sort(sortLevel)
+  .sort(sortOnline);
+
+export const stopMonitoringNetwork = () => {
+  clearInterval(monitoringInterval);
+  monitoringInterval = null;
+  // Reset the network data so that we don't show old data by accident if the
+  // monitoring is started again later.
+  connectionStatus.setNetworkData({
+    ready: false,
+    audio: {
+      audioCurrentUploadRate: 0,
+      audioCurrentDownloadRate: 0,
+      jitter: 0,
+      packetsLost: 0,
+      transportStats: {},
+    },
+    video: {
+      videoCurrentUploadRate: 0,
+      videoCurrentDownloadRate: 0,
+    },
+  });
+};
 
 /**
    * Start monitoring the network data.
    * @return {Promise} A Promise that resolves when process started.
    */
 export async function startMonitoringNetwork() {
+  // Reset the monitoring interval if it's already running
+  if (monitoringInterval) stopMonitoringNetwork();
+
   let previousData = await getNetworkData();
 
-  setInterval(async () => {
+  monitoringInterval = setInterval(async () => {
     const data = await getNetworkData();
 
     const {
@@ -432,6 +459,7 @@ export async function startMonitoringNetwork() {
     const { user } = data;
 
     const networkData = {
+      ready: true,
       user,
       audio,
       video,
@@ -473,6 +501,7 @@ export default {
   getDataType,
   sortConnectionData,
   startMonitoringNetwork,
+  stopMonitoringNetwork,
   getStatus,
   getWorstStatus,
 };
