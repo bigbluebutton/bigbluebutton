@@ -40,8 +40,6 @@ const LOGOUT_CODE = '680';
 interface RecordingNotifyModalProps {
   toggleShouldNotify: () => void;
   closeModal: () => void;
-  // eslint-disable-next-line react/no-unused-prop-types
-  setIsOpen: Dispatch<SetStateAction<boolean>>;
   isOpen: boolean;
   priority: string;
 }
