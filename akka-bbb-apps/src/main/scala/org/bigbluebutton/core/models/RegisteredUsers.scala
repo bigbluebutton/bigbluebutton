@@ -210,17 +210,17 @@ object RegisteredUsers {
     u
   }
 
-  def addUserSessionToken(users: RegisteredUsers, user: RegisteredUser, newSessionToken: String): RegisteredUser = {
+  def addUserSessionToken(users: RegisteredUsers, user: RegisteredUser, newSessionToken: String, enforceLayout: String): RegisteredUser = {
     val u = user.copy(sessionToken = user.sessionToken :+ newSessionToken)
     users.save(u)
-    UserSessionTokenDAO.insert(u.meetingId, u.id, newSessionToken)
+    UserSessionTokenDAO.insert(u.meetingId, u.id, newSessionToken, enforceLayout)
     u
   }
 
-  def removeUserSessionToken(users: RegisteredUsers, user: RegisteredUser, revokeSessionToken: String): RegisteredUser = {
-    val u = user.copy(sessionToken = user.sessionToken.filterNot(_ == revokeSessionToken))
+  def removeUserSessionToken(users: RegisteredUsers, user: RegisteredUser, replaceSessionToken: String): RegisteredUser = {
+    val u = user.copy(sessionToken = user.sessionToken.filterNot(_ == replaceSessionToken))
     users.save(u)
-    UserSessionTokenDAO.softDelete(u.meetingId, u.id, revokeSessionToken)
+    UserSessionTokenDAO.softDelete(u.meetingId, u.id, replaceSessionToken)
     u
   }
 

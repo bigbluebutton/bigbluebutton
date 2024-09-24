@@ -780,6 +780,7 @@ CREATE TABLE "user_sessionToken" (
 	"meetingId" varchar(100),
 	"userId" varchar(50),
 	"sessionToken" varchar(16),
+	"enforceLayout" varchar(50),
 	"createdAt" timestamp with time zone not null default current_timestamp,
 	"removedAt" timestamp with time zone,
 	CONSTRAINT "user_sessionToken_pk" PRIMARY KEY ("meetingId", "userId","sessionToken"),
@@ -802,8 +803,6 @@ CREATE TABLE "user_graphqlConnection" (
 );
 
 CREATE INDEX "idx_user_graphqlConnectionSessionToken" ON "user_graphqlConnection"("sessionToken");
-
-
 
 --ALTER TABLE "user_connectionStatus" ADD COLUMN "applicationRttInMs" NUMERIC GENERATED ALWAYS AS
 --(CASE WHEN  "connectionAliveAt" IS NULL OR "userClientResponseAt" IS NULL THEN NULL

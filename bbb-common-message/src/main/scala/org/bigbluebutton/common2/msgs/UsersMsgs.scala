@@ -23,7 +23,14 @@ case class RegisterUserSessionTokenReqMsg(
     header: BbbCoreHeaderWithMeetingId,
     body:   RegisterUserSessionTokenReqMsgBody
 ) extends BbbCoreMsg
-case class RegisterUserSessionTokenReqMsgBody(meetingId: String, userId: String, sessionToken: String, revokeSessionToken: String)
+case class RegisterUserSessionTokenReqMsgBody(
+    meetingId:           String,
+    userId:              String,
+    sessionToken:        String,
+    replaceSessionToken: String,
+    enforceLayout:       String,
+    userSessionMetadata: Map[String, String]
+)
 
 object UserSessionTokenRegisteredRespMsg { val NAME = "UserSessionTokenRegisteredRespMsg" }
 case class UserSessionTokenRegisteredRespMsg(

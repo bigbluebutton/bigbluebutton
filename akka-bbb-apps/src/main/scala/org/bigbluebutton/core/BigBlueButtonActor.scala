@@ -49,7 +49,7 @@ class BigBlueButtonActor(
   private case class SessionTokenInfo(
       meetingId: String,
       userId:    String,
-      revoked:   Boolean = false
+      replaced:  Boolean = false
   )
   private var sessionTokens = new collection.immutable.HashMap[String, SessionTokenInfo] //sessionToken -> SessionTokenInfo
 
@@ -101,9 +101,9 @@ class BigBlueButtonActor(
 
     sessionTokens.get(msg.sessionToken) match {
       case Some(sessionTokenInfo) =>
-        if (sessionTokenInfo.revoked) {
-          log.debug("handleGetUserApiMsg ({}): Session token revoked.", msg.sessionToken)
-          actorRef ! ApiResponseFailure("Session token revoked.", "session_token_revoked")
+        if (sessionTokenInfo.replaced) {
+          log.debug("handleGetUserApiMsg ({}): Session token replaced.", msg.sessionToken)
+          actorRef ! ApiResponseFailure("Session token replaced.", "session_token_replaced")
         } else {
           RunningMeetings.findWithId(meetings, sessionTokenInfo.meetingId) match {
             case Some(m) =>
@@ -182,11 +182,11 @@ class BigBlueButtonActor(
       //Store sessionTokens and associate them with their respective meetingId + userId owners
       sessionTokens += (msg.body.sessionToken -> SessionTokenInfo(msg.body.meetingId, msg.body.userId))
 
-      if (msg.body.revokeSessionToken.nonEmpty) {
+      if (msg.body.replaceSessionToken.nonEmpty) {
         for {
-          sessionTokenInfo <- sessionTokens.get(msg.body.revokeSessionToken)
+          sessionTokenInfo <- sessionTokens.get(msg.body.replaceSessionToken)
         } yield {
-          sessionTokens += (msg.body.revokeSessionToken -> sessionTokenInfo.copy(revoked = true))
+          sessionTokens += (msg.body.replaceSessionToken -> sessionTokenInfo.copy(replaced = true))
         }
       }
 
