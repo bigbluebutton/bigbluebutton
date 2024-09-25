@@ -19,7 +19,6 @@ const ActivityCheckContainer = () => {
   return (
     <ActivityCheck
       userActivitySign={userActivitySign}
-      inactivityCheck={inactivityWarningDisplay}
       responseDelay={inactivityWarningTimeoutSecs}
     />
   );
