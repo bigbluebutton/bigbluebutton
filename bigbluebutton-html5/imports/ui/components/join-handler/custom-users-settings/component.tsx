@@ -42,7 +42,7 @@ const CustomUsersSettings: React.FC<CustomUsersSettingsProps> = ({
     if (!sessionToken) {
       setLoading(false);
       setError('Missing session token');
-      return;
+      return undefined;
     }
 
     BBBWeb.index(controller.signal)
@@ -81,6 +81,11 @@ const CustomUsersSettings: React.FC<CustomUsersSettingsProps> = ({
         setLoading(false);
         setError('Error fetching GraphQL URL: '.concat(error?.message || ''));
       });
+
+    return () => {
+      clearTimeout(timeoutRef.current);
+      controller.abort();
+    };
   }, []);
 
   return (
