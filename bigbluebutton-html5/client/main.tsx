@@ -10,6 +10,7 @@ import IntlLoaderContainer from '/imports/startup/client/intlLoader';
 import LocatedErrorBoundary from '/imports/ui/components/common/error-boundary/located-error-boundary/component';
 import CustomUsersSettings from '/imports/ui/components/join-handler/custom-users-settings/component';
 import MeetingClient from '/client/meetingClient';
+import CustomStyles from '/imports/ui/components/custom-styles/component';
 
 const STARTUP_CRASH_METADATA = { logCode: 'app_startup_crash', logMessage: 'Possible startup crash' };
 const APP_CRASH_METADATA = { logCode: 'app_crash', logMessage: 'Possible app crash' };
@@ -38,30 +39,32 @@ if (
 const Main: React.FC = () => {
   return (
     <SettingsLoader>
-      <ErrorBoundary
-        Fallback={ErrorScreen}
-        logMetadata={STARTUP_CRASH_METADATA}
-        isCritical
-      >
-        <LoadingScreenHOC>
-          <IntlLoaderContainer>
-            {/* from there the error messages are located */}
-            <LocatedErrorBoundary
-              Fallback={ErrorScreen}
-              logMetadata={APP_CRASH_METADATA}
-              isCritical
-            >
-              <ConnectionManager>
-                <PresenceManager>
-                  <CustomUsersSettings>
-                    <MeetingClient />
-                  </CustomUsersSettings>
-                </PresenceManager>
-              </ConnectionManager>
-            </LocatedErrorBoundary>
-          </IntlLoaderContainer>
-        </LoadingScreenHOC>
-      </ErrorBoundary>
+      <CustomUsersSettings>
+        <CustomStyles>
+          <ErrorBoundary
+            Fallback={ErrorScreen}
+            logMetadata={STARTUP_CRASH_METADATA}
+            isCritical
+          >
+            <LoadingScreenHOC>
+              <IntlLoaderContainer>
+                {/* from there the error messages are located */}
+                <LocatedErrorBoundary
+                  Fallback={ErrorScreen}
+                  logMetadata={APP_CRASH_METADATA}
+                  isCritical
+                >
+                  <ConnectionManager>
+                    <PresenceManager>
+                      <MeetingClient />
+                    </PresenceManager>
+                  </ConnectionManager>
+                </LocatedErrorBoundary>
+              </IntlLoaderContainer>
+            </LoadingScreenHOC>
+          </ErrorBoundary>
+        </CustomStyles>
+      </CustomUsersSettings>
     </SettingsLoader>
   );
 };
