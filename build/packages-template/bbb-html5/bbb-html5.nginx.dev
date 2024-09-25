@@ -9,7 +9,7 @@ location /html5client/ {
 }
 
 location /html5client/locales {
-  alias /var/bigbluebutton/html5-client/locales;
+  alias /usr/share/bigbluebutton/html5-client/locales;
   autoindex on;
   autoindex_format json;
 }
