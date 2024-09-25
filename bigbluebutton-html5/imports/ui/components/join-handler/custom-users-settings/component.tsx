@@ -70,6 +70,9 @@ const CustomUsersSettings: React.FC<CustomUsersSettingsProps> = ({
             });
             setUserSettings(filteredData.reduce((acc, item) => Object.assign(acc, item), {}));
             setFetched(true);
+            if (timeoutRef.current) {
+              clearTimeout(timeoutRef.current);
+            }
           }).catch(() => {
             setError('Error fetching user custom settings');
             Session.setItem('errorMessageDescription', 'meeting_ended');
