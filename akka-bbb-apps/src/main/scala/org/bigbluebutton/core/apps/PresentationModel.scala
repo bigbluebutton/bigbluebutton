@@ -18,7 +18,7 @@ class PresentationModel {
     presentations.values.toVector
   }
 
-  def getCurrentPresentation(): Option[Presentation] = { // todo remove
+  def getCurrentPresentation(): Option[Presentation] = {
     presentations.values find (p => p.current)
   }
 
