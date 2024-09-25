@@ -1297,47 +1297,89 @@ const Whiteboard = React.memo((props) => {
     }
   }, [otherCursors, whiteboardWriters]);
 
-  // set current tldraw page when presentation id updates
+  const createPage = (currentPageId) => {
+    return [
+      {
+        meta: {},
+        id: currentPageId,
+        name: `Slide ${currentPageId?.split(':')[1]}`,
+        index: 'a1',
+        typeName: 'page',
+      },
+    ];
+  }
+
+  const createCameras = (pageId, tlZ) => {
+    const cameras = [];
+    const MIN_PAGE_ID = 1;
+    const totalPages = currentPresentationPageRef.current?.totalPages || 1;
+
+    if (pageId > MIN_PAGE_ID) {
+      cameras.push(createCamera(pageId - 1, tlZ));
+    }
+
+    cameras.push(createCamera(pageId, tlZ));
+
+    if (pageId < totalPages) {
+      cameras.push(createCamera(pageId + 1, tlZ));
+    }
+
+    return cameras;
+  }
+
+  const cleanupStore = (currentPageId) => {
+    const allRecords = tlEditorRef.current.store.allRecords();
+    const shapeIdsToRemove = allRecords
+      .filter(record => record.typeName === 'shape' && record.parentId && record.parentId !== currentPageId)
+      .map(shape => shape.id);
+
+    if (shapeIdsToRemove.length > 0) {
+      tlEditorRef.current.deleteShapes(shapeIdsToRemove);
+    }
+  }
+
+  const updateStore = (pages, cameras) => {
+    tlEditorRef.current.store.put(pages);
+    tlEditorRef.current.store.put(cameras);
+    tlEditorRef.current.store.put(assets);
+    tlEditorRef.current.store.put(bgShape);
+  }
+
+  const finalizeStore = () => {
+    tlEditorRef.current.history.clear();
+  }
+
+  const toggleToolbarIfNeeded = () => {
+    if (whiteboardToolbarAutoHide && toggleToolsAnimations) {
+      toggleToolsAnimations("fade-in", "fade-out", "0s", hasWBAccessRef.current || isPresenterRef.current);
+    }
+  }
+
+  const resetSlideState = () => {
+    slideChanged.current = false;
+    slideNext.current = null;
+  }
+
   React.useEffect(() => {
-    if (tlEditorRef.current && curPageIdRef.current !== '0') {
-      const pages = [
-        {
-          meta: {},
-          id: `page:${curPageIdRef.current}`,
-          name: `Slide ${curPageIdRef.current}`,
-          index: 'a1',
-          typeName: 'page',
-        },
-      ];
+    const formattedPageId = parseInt(curPageIdRef.current, 10);
+    if (tlEditorRef.current && formattedPageId !== 0) {
+      const currentPageId = `page:${formattedPageId}`;
+      const tlZ = tlEditorRef.current.getCamera()?.z;
+
+      const pages = createPage(currentPageId);
+      const cameras = createCameras(formattedPageId, tlZ);
 
       tlEditorRef.current.store.mergeRemoteChanges(() => {
         tlEditorRef.current.batch(() => {
-          tlEditorRef.current.store.put(pages);
-          const tlZ = tlEditorRef.current.getCamera()?.z;
-          const formattedPageId = Number(curPageIdRef?.current);
-          const cameras = [
-            createCamera(formattedPageId - 1, tlZ),
-            createCamera(formattedPageId, tlZ),
-            createCamera(formattedPageId + 1, tlZ),
-          ];
-          tlEditorRef.current.store.put(cameras);
-          tlEditorRef.current.setCurrentPage(`page:${curPageIdRef.current}`);
-          tlEditorRef.current.store.put(assets);
-          tlEditorRef.current.store.put(bgShape);
-          tlEditorRef.current.history.clear();
+          cleanupStore(currentPageId);
+          updateStore(pages, cameras);
+          tlEditorRef.current.setCurrentPage(currentPageId);
+          finalizeStore();
         });
       });
 
-      if (whiteboardToolbarAutoHide) {
-        toggleToolsAnimations(
-          'fade-in',
-          'fade-out',
-          '0s',
-          hasWBAccessRef.current || isPresenter,
-        );
-        slideChanged.current = false;
-        slideNext.current = null;
-      }
+      toggleToolbarIfNeeded();
+      resetSlideState();
     }
   }, [curPageId]);
 
