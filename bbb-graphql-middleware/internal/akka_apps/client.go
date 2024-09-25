@@ -62,7 +62,9 @@ func AkkaAppsGetSessionVariablesFrom(browserConnectionId string, sessionToken st
 		return nil, fmt.Errorf("response key not found in the parsed object")
 	}
 	if response != "authorized" {
-		logger.Error(response)
+		message, _ := respBodyAsMap["message"]
+		logger.Errorf("not authorized: Response: %s, Message: %s", response, message)
+
 		return nil, fmt.Errorf("user not authorized")
 	}
 
