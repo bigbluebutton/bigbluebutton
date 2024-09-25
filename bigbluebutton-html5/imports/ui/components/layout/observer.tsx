@@ -213,8 +213,14 @@ const LayoutObserver: React.FC = () => {
           window.meetingClientSettings.public.app.defaultSettings.application.animations,
         );
 
+        const showDarkThemeDefault = getFromUserSettings(
+          'bbb_prefer_dark_theme',
+          window.meetingClientSettings.public.app.defaultSettings.application.darkTheme,
+        );
+
         const Settings = getSettingsSingletonInstance();
         Settings.application.animations = showAnimationsDefault;
+        Settings.application.darkTheme = showDarkThemeDefault;
         Settings.save(setLocalSettings);
 
         if (getFromUserSettings('bbb_show_participants_on_login', window.meetingClientSettings.public.layout.showParticipantsOnLogin) && !deviceInfo.isPhone) {
