@@ -16,9 +16,9 @@ const CustomStyles: React.FC<CustomStylesProps> = (props) => {
 
   return (
     <>
-      {children}
       {customStyleUrl && typeof customStyleUrl === 'string' ? <link rel="stylesheet" type="text/css" href={customStyleUrl} /> : null}
       {customStyle && typeof customStyle === 'string' ? <link rel="stylesheet" type="text/css" href={`data:text/css;charset=UTF-8,${encodeURIComponent(customStyle)}`} /> : null}
+      {children}
     </>
   );
 };
