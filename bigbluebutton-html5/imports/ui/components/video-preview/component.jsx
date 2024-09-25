@@ -243,7 +243,6 @@ class VideoPreview extends Component {
     this.handleSelectTab = this.handleSelectTab.bind(this);
 
     this._isMounted = false;
-    const isFirstTimeOpen = sessionStorage.setItem('isFirstTimeOpen', true);
 
     this.state = {
       webcamDeviceId,
@@ -290,8 +289,6 @@ class VideoPreview extends Component {
     } = this.props;
 
     this._isMounted = true;
-
-    sessionStorage.setItem('isFirstTimeOpen', false);
 
     if (deviceInfo.hasMediaDevices) {
       navigator.mediaDevices.enumerateDevices().then(async (devices) => {
@@ -405,6 +402,7 @@ class VideoPreview extends Component {
     this.terminateCameraStream(this.currentVideoStream, webcamDeviceId);
     this.cleanupStreamAndVideo();
     this._isMounted = false;
+    Session.setItem('videoPreviewFirstOpen', false);
   }
 
   async startCameraBrightness() {
@@ -1316,8 +1314,10 @@ class VideoPreview extends Component {
     const WebcamBackgroundImg = `${BASE_NAME}/resources/images/webcam_background.svg`;
 
     const darkThemeState = AppService.isDarkThemeEnabled();
-    const isBlurred = Session.getItem('audioModalIsOpen') 
-    && getFromUserSettings('bbb_auto_share_webcam', window.meetingClientSettings.public.kurento.autoShareWebcam);
+    const isBlurred = Session.getItem('videoPreviewFirstOpen') && getFromUserSettings('bbb_auto_share_webcam', window.meetingClientSettings.public.kurento.autoShareWebcam);
+    console.log('isBlurred', isBlurred);
+    console.log('isFirstimOPEN', Session.getItem('videoPreviewFirstOpen'));
+    console.log();
 
     if (isCamLocked === true) {
       this.handleProceed();
