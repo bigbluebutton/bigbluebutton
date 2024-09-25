@@ -391,6 +391,7 @@ exports.userBannedMessage2 = 'div[id="app"] >> div >> div:nth-child(2)';
 exports.meetingEndedModalTitle = 'h1[data-test="meetingEndedModalTitle"]';
 exports.unmuteUser = 'li[data-test="unmuteUser"]';
 exports.ejectCamera = 'li[data-test="ejectCamera"]';
+exports.togglePublicChat = 'li[data-test="togglePublicChat"]';
 
 // Lock Viewers
 exports.lockViewersButton = 'li[data-test="lockViewersButton"]';

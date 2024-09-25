@@ -13,6 +13,7 @@ test.describe('Chat', () => {
     const page = await context.newPage();
     await chat.initModPage(page, true);
     await chat.initUserPage(true, context);
+    await chat.initUserPage2(true, context)
   });
 
   // https://docs.bigbluebutton.org/2.7/testing/release-testing/#public-message-automated
@@ -90,5 +91,9 @@ test.describe('Chat', () => {
 
   test('Private chat disabled when user leaves meeting @ci', async () => {
     await chat.chatDisabledUserLeaves();
+  });
+
+  test('Prevent specific user from sending public chat messages @ci', async () => {
+    await chat.preventUserFromUsingPublicChat();
   });
 });
