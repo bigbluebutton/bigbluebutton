@@ -274,7 +274,7 @@ class Presentation extends PureComponent {
                 this.currentPresentationToastId = null;
               },
               autoClose: shouldCloseToast,
-              className: 'toastClass actionToast',
+              className: 'toastClass actionToast currentPresentationToast',
               bodyClassName: 'toastBodyClass',
               progressClassName: 'toastProgressClass',
             },
