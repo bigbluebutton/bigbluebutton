@@ -68,7 +68,7 @@ const CustomUsersSettings: React.FC<CustomUsersSettingsProps> = ({
               }
               return { [parameter]: parsedValue };
             });
-            setUserSettings(filteredData.reduce((acc, item) => ({ ...acc, ...item }), {}));
+            setUserSettings(filteredData.reduce((acc, item) => Object.assign(acc, item), {}));
             setFetched(true);
           }).catch(() => {
             setError('Error fetching user custom settings');
