@@ -1068,8 +1068,8 @@ const Whiteboard = React.memo((props) => {
         ) {
           const currentZoom = zoomValueRef.current || HUNDRED_PERCENT;
           const baseZoom = calculateZoomValue(
-            currentPresentationPage.scaledWidth,
-            currentPresentationPage.scaledHeight,
+            currentPresentationPageRef.current.scaledWidth,
+            currentPresentationPageRef.current.scaledHeight
           );
           let adjustedZoom = baseZoom * (currentZoom / HUNDRED_PERCENT);
           if (isPresenter) {
@@ -1088,8 +1088,8 @@ const Whiteboard = React.memo((props) => {
 
             if (widthGap > 0) {
               adjustedZoom = calculateZoomWithGapValue(
-                currentPresentationPage.scaledWidth,
-                currentPresentationPage.scaledHeight,
+                currentPresentationPageRef.current.scaledWidth,
+                currentPresentationPageRef.current.scaledHeight,
                 widthGap,
               );
 
@@ -1103,32 +1103,43 @@ const Whiteboard = React.memo((props) => {
               : baseZoom * (currentZoom / HUNDRED_PERCENT);
 
             const formattedPageId = Number(curPageIdRef?.current);
-            const cameras = [
+
+            let updatedCurrentCam = {
+              ...camera,
+              z: adjustedZoom
+            };
+
+            let cameras = [
               createCamera(formattedPageId - 1, zoomToApply),
-              createCamera(formattedPageId, zoomToApply),
+              updatedCurrentCam,
               createCamera(formattedPageId + 1, zoomToApply),
             ];
+            cameras = cameras.filter(camera => camera.id !== 'camera:page:0');
             tlEditorRef.current.store.put(cameras);
-            setCamera(zoomToApply, camera.x, camera.y);
           } else {
             // Viewer logic
             const effectiveZoom = calculateEffectiveZoom(
               initialViewBoxWidthRef.current,
-              currentPresentationPage.scaledViewBoxWidth,
+              currentPresentationPageRef.current.scaledViewBoxWidth,
               initialViewBoxHeightRef.current,
-              currentPresentationPage.scaledViewBoxHeight,
+              currentPresentationPageRef.current.scaledViewBoxHeight
             );
             adjustedZoom = baseZoom * (effectiveZoom / HUNDRED_PERCENT);
 
             const camera = tlEditorRef.current.getCamera();
             const formattedPageId = Number(curPageIdRef?.current);
-            const cameras = [
+            let updatedCurrentCam = {
+              ...camera,
+              z: adjustedZoom
+            };
+
+            let cameras = [
               createCamera(formattedPageId - 1, adjustedZoom),
-              createCamera(formattedPageId, adjustedZoom),
+              updatedCurrentCam,
               createCamera(formattedPageId + 1, adjustedZoom),
             ];
+            cameras = cameras.filter(camera => camera.id !== 'camera:page:0');
             tlEditorRef.current.store.put(cameras);
-            setCamera(adjustedZoom, camera.x, camera.y);
           }
         }
       }
