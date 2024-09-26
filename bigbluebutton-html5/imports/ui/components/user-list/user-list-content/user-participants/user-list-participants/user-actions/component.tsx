@@ -1,4 +1,4 @@
-import React, { useState, useContext } from 'react';
+import React, { useState } from 'react';
 import { User } from '/imports/ui/Types/user';
 import { LockSettings, UsersPolicies } from '/imports/ui/Types/meeting';
 import { useIntl, defineMessages } from 'react-intl';
@@ -34,7 +34,6 @@ import ConfirmationModal from '/imports/ui/components/common/modal/confirmation/
 
 import BBBMenu from '/imports/ui/components/common/menu/component';
 import { setPendingChat } from '/imports/ui/core/local-states/usePendingChat';
-import { PluginsContext } from '/imports/ui/components/components-data/plugin-context/context';
 import Styled from './styles';
 import { useMutation, useLazyQuery } from '@apollo/client';
 import { CURRENT_PAGE_WRITERS_QUERY } from '/imports/ui/components/whiteboard/queries';
@@ -43,6 +42,7 @@ import useToggleVoice from '/imports/ui/components/audio/audio-graphql/hooks/use
 import useWhoIsUnmuted from '/imports/ui/core/hooks/useWhoIsUnmuted';
 
 interface UserActionsProps {
+  userListDropdownItems: PluginSdk.UserListDropdownInterface[];
   user: User;
   currentUser: User;
   lockSettings: LockSettings;
@@ -200,6 +200,7 @@ const UserActions: React.FC<UserActionsProps> = ({
   isBreakout,
   children,
   pageId,
+  userListDropdownItems,
   open,
   setOpenUserAction,
 }) => {
@@ -251,8 +252,6 @@ const UserActions: React.FC<UserActionsProps> = ({
     }
   };
 
-  const { pluginsExtensibleAreasAggregatedState } = useContext(PluginsContext);
-
   const { data: unmutedUsers } = useWhoIsUnmuted();
   const isMuted = !unmutedUsers[user.userId];
 
@@ -282,13 +281,6 @@ const UserActions: React.FC<UserActionsProps> = ({
     && !user.isModerator;
 
   const userChatLocked = user.userLockSettings?.disablePublicChat;
-
-  let userListDropdownItems = [] as PluginSdk.UserListDropdownInterface[];
-  if (pluginsExtensibleAreasAggregatedState.userListDropdownItems) {
-    userListDropdownItems = [
-      ...pluginsExtensibleAreasAggregatedState.userListDropdownItems,
-    ];
-  }
 
   const userDropdownItems = userListDropdownItems.filter(
     (item: PluginSdk.UserListDropdownInterface) => (user?.userId === item?.userId),
@@ -325,8 +317,18 @@ const UserActions: React.FC<UserActionsProps> = ({
       });
     }
   };
-
+  const t = userDropdownItems.filter(
+    (item: PluginSdk.UserListDropdownInterface) => (
+      item?.type === UserListDropdownItemType.TITLE_ACTION),
+  );
   const dropdownOptions = [
+    {
+      allowed: true,
+      key: 'userName',
+      label: user.name,
+      titleActions: t,
+      isTitle: true,
+    },
     ...makeDropdownPluginItem(userDropdownItems.filter(
       (item: PluginSdk.UserListDropdownInterface) => (item?.type === UserListDropdownItemType.INFORMATION),
     )),

@@ -102,7 +102,8 @@ class BBBMenu extends React.Component {
 
     return actions?.map(a => {
       const { dataTest, label, onClick, key, disabled,
-        description, selected, textColor, isToggle, loading } = a;
+        description, selected, textColor, isToggle, loading,
+        isTitle, titleActions } = a;
       const emojiSelected = key?.toLowerCase()?.includes(selectedEmoji?.toLowerCase());
 
       let customStyles = {
@@ -146,7 +147,7 @@ class BBBMenu extends React.Component {
             }}>
             <Styled.MenuItemWrapper>
               {a.icon ? <Icon iconName={a.icon} key="icon" /> : null}
-              <Styled.Option isHorizontal={isHorizontal} isMobile={isMobile} aria-describedby={`${key}-option-desc`}>{label}</Styled.Option>
+              <Styled.Option hasIcon={!!(a.icon)} isHorizontal={isHorizontal} isMobile={isMobile} aria-describedby={`${key}-option-desc`}>{label}</Styled.Option>
               {description && <div className="sr-only" id={`${key}-option-desc`}>{`${description}${selected ? ` - ${intl.formatMessage(intlMessages.active)}` : ''}`}</div>}
               {a.iconRight ? <Styled.IconRight iconName={a.iconRight} key="iconRight" /> : null}
             </Styled.MenuItemWrapper>
@@ -156,10 +157,25 @@ class BBBMenu extends React.Component {
           <Styled.BBBMenuInformation
             key={a.key}
           >
-            <Styled.MenuItemWrapper>
+            <Styled.MenuItemWrapper
+              hasSpaceBetween={isTitle && titleActions}
+            >
               {a.icon ? <Icon color={textColor} iconName={a.icon} key="icon" /> : null}
-              <Styled.Option textColor={textColor} isHorizontal={isHorizontal} isMobile={isMobile} aria-describedby={`${key}-option-desc`}>{label}</Styled.Option>
+              <Styled.Option hasIcon={!!(a.icon)} isTitle={isTitle} textColor={textColor} isHorizontal={isHorizontal} isMobile={isMobile} aria-describedby={`${key}-option-desc`}>{label}</Styled.Option>
               {a.iconRight ? <Styled.IconRight color={textColor} iconName={a.iconRight} key="iconRight" /> : null}
+              {(isTitle && titleActions?.length > 0) ? (
+                titleActions.map((item) => (
+                  <Styled.TitleAction
+                    tooltipplacement="right"
+                    size="md"
+                    onClick={item.onClick}
+                    circle
+                    tooltipLabel={item.tooltip}
+                    hideLabel
+                    icon={item.icon}
+                  />
+                ))
+              ) : null}
             </Styled.MenuItemWrapper>
           </Styled.BBBMenuInformation>
         ),

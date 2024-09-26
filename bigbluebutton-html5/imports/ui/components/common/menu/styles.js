@@ -2,8 +2,14 @@ import styled from 'styled-components';
 import Button from "/imports/ui/components/common/button/component";
 import Icon from '/imports/ui/components/common/icon/component';
 import MenuItem from "@mui/material/MenuItem";
-import { colorWhite, colorPrimary } from '/imports/ui/stylesheets/styled-components/palette';
-import { fontSizeLarge } from '/imports/ui/stylesheets/styled-components/typography';
+import {
+  colorWhite,
+  colorPrimary,
+} from '/imports/ui/stylesheets/styled-components/palette';
+import {
+  fontSizeLarge,
+  headingsFontWeight,
+} from '/imports/ui/stylesheets/styled-components/typography';
 import { mediumUp } from '/imports/ui/stylesheets/styled-components/breakpoints';
 import Menu from "@mui/material/Menu";
 
@@ -31,15 +37,36 @@ const MenuItemWrapper = styled.div`
   flex-flow: row;
   width: 100%;
   align-items: center;
+  ${({ hasSpaceBetween }) => hasSpaceBetween && `
+    justify-content: space-between;
+  `}
+`;
+
+const TitleAction = styled(Button)`
+  z-index: 3;
+  margin-left: .1rem;
+  & > span:first-child {
+    margin: 0;
+    padding: 0;
+  }
 `;
 
 const Option = styled.div`
   line-height: 1;
   margin-right: 1.65rem;
-  margin-left: .5rem;
+  ${({ hasIcon }) => hasIcon && `
+    margin-left: .5rem;
+  `}
   white-space: normal;
   overflow-wrap: anywhere;
   padding: .1rem 0;
+
+  ${({ isTitle }) => isTitle && `
+    margin-left: .1rem;
+    padding: .1rem 0 0 0;
+    font-size: 1.1rem;
+    font-weight: ${headingsFontWeight};
+  `}
 
   [dir="rtl"] & {
     margin-right: .5rem;
@@ -145,6 +172,7 @@ const SkeletonWrapper = styled.span`
 `;
 
 export default {
+  TitleAction,
   MenuWrapper,
   MenuItemWrapper,
   Option,
