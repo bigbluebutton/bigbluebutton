@@ -44,7 +44,7 @@ public class DocumentConversionServiceImp implements DocumentConversionService {
 
   private PresentationFileProcessor presentationFileProcessor;
 
-  public void processDocument(UploadedPresentation pres) {
+  public void processDocument(UploadedPresentation pres, boolean scanUploadedPresentationFiles) {
     if (pres.isUploadFailed()) {
       // We should send a message to the client in the future.
       // ralam may 1, 2020
@@ -53,19 +53,23 @@ public class DocumentConversionServiceImp implements DocumentConversionService {
       return;
     }
 
-    try {
-      ClamavClient client = new ClamavClient("localhost");
-      ScanResult result = client.scan(Path.of(pres.getUploadedFile().getAbsolutePath()));
+    if (scanUploadedPresentationFiles) {
+      try {
+        ClamavClient client = new ClamavClient("localhost");
+        ScanResult result = client.scan(Path.of(pres.getUploadedFile().getAbsolutePath()));
 
-      if (result instanceof ScanResult.VirusFound) {
-        log.error("Presentation upload failed for meetingId={} presId={}", pres.getMeetingId(), pres.getId());
-        log.error("Presentation upload failed because a virus was detected in the uploaded file");
-        notifier.sendUploadFileVirus(pres);
+        if (result instanceof ScanResult.VirusFound) {
+          log.error("Presentation upload failed for meetingId={} presId={}", pres.getMeetingId(), pres.getId());
+          log.error("Presentation upload failed because a virus was detected in the uploaded file");
+          notifier.sendUploadFileVirus(pres);
+          Util.deleteDirectoryFromFileHandlingErrors(pres.getUploadedFile());
+          return;
+        }
+      } catch (Exception e) {
+        log.error("Failed to scan uploaded file for meetingId={} presID={}: {}", pres.getMeetingId(), pres.getId(), e.getMessage());
         Util.deleteDirectoryFromFileHandlingErrors(pres.getUploadedFile());
         return;
       }
-    } catch (Exception e) {
-      log.warn("Failed to scan uploaded file for meetingId={} presID={}: {}", pres.getMeetingId(), pres.getId(), e.getMessage());
     }
 
     sendDocConversionRequestReceived(pres);

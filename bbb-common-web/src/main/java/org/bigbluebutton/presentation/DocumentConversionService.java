@@ -20,6 +20,6 @@
 package org.bigbluebutton.presentation;
 
 public interface DocumentConversionService {
-	void processDocument(UploadedPresentation pres);
+	void processDocument(UploadedPresentation pres, boolean scanUploadedPresentationFiles);
 	void sendDocConversionFailedOnMimeType(UploadedPresentation pres, String fileMime, String fileExtension);
 }
