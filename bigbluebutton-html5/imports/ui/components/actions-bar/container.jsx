@@ -30,6 +30,10 @@ import connectionStatus from '../../core/graphql/singletons/connectionStatus';
 import { useMeetingLayoutUpdater, usePushLayoutUpdater } from '../layout/push-layout/hooks';
 import useSettings from '/imports/ui/services/settings/hooks/useSettings';
 import { SETTINGS } from '/imports/ui/services/settings/enums';
+import deviceInfo from '/imports/utils/deviceInfo';
+import { SMALL_VIEWPORT_BREAKPOINT } from '../layout/enums';
+
+const isLayeredView = window.matchMedia(`(max-width: ${SMALL_VIEWPORT_BREAKPOINT}px)`);
 
 const isReactionsButtonEnabled = () => {
   const USER_REACTIONS_ENABLED = window.meetingClientSettings.public.userReaction.enabled;
@@ -40,11 +44,15 @@ const isReactionsButtonEnabled = () => {
 
 const ActionsBarContainer = (props) => {
   const NOTES_CONFIG = window.meetingClientSettings.public.notes;
+  const LAYOUT_CONFIG = window.meetingClientSettings.public.layout;
+  const { showPushLayoutButton } = LAYOUT_CONFIG;
   const actionsBarStyle = layoutSelectOutput((i) => i.actionBar);
   const layoutContextDispatch = layoutDispatch();
   const cameraDockOutput = layoutSelectOutput((i) => i.cameraDock);
   const cameraDockInput = layoutSelectInput((i) => i.cameraDock);
   const presentationInput = layoutSelectInput((i) => i.presentation);
+  const sidebarNavigation = layoutSelectInput((i) => i.sidebarNavigation);
+  const sidebarContent = layoutSelectInput((i) => i.sidebarContent);
 
   const { data: presentationPageData } = useDeduplicatedSubscription(
     CURRENT_PRESENTATION_PAGE_SUBSCRIPTION,
@@ -116,6 +124,11 @@ const ActionsBarContainer = (props) => {
     presentationInput,
     applicationSettings,
   );
+  const { isOpen: sidebarNavigationIsOpen } = sidebarNavigation;
+  const { isOpen: sidebarContentIsOpen } = sidebarContent;
+  const ariaHidden = sidebarNavigationIsOpen
+    && sidebarContentIsOpen
+    && (deviceInfo.isPhone || isLayeredView.matches);
   if (actionsBarStyle.display === false) return null;
   if (!currentMeeting) return null;
 
@@ -149,6 +162,8 @@ const ActionsBarContainer = (props) => {
         hasGenericContent: isThereGenericMainContent,
         setPushLayout,
         setMeetingLayout,
+        showPushLayout: showPushLayoutButton && applicationSettings.selectedLayout === 'custom',
+        ariaHidden,
       }
     }
     />

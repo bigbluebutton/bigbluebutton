@@ -23,10 +23,14 @@ import useCurrentUser from '/imports/ui/core/hooks/useCurrentUser';
 import { PRESENTATION_SET_ZOOM, PRESENTATION_SET_WRITERS } from './mutations';
 import { GET_USER_IDS } from '/imports/ui/core/graphql/queries/users';
 import useDeduplicatedSubscription from '../../core/hooks/useDeduplicatedSubscription';
+import useSettings from '/imports/ui/services/settings/hooks/useSettings';
+import { SETTINGS } from '/imports/ui/services/settings/enums';
 
 const fetchedpresentation = {};
 
 const PresentationContainer = (props) => {
+  const { selectedLayout } = useSettings(SETTINGS.APPLICATION);
+
   const { data: presentationPageData } = useDeduplicatedSubscription(
     CURRENT_PRESENTATION_PAGE_SUBSCRIPTION,
   );
@@ -238,6 +242,7 @@ const PresentationContainer = (props) => {
           currentUser,
           hasPoll,
           currentPresentationPage,
+          layoutType: selectedLayout,
         }
       }
     />

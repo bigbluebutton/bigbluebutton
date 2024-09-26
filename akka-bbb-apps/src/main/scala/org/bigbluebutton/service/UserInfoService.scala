@@ -19,7 +19,7 @@ object UserInfoService {
 
 class UserInfoService(system: ActorSystem, bbbActor: ActorRef) {
   implicit def executionContext: ExecutionContextExecutor = system.dispatcher
-  implicit val timeout: Timeout = 2 seconds
+  implicit val timeout: Timeout = 5 seconds
 
   def getUserInfo(sessionToken: String): Future[ApiResponse] = {
     val future = bbbActor.ask(GetUserApiMsg(sessionToken)).mapTo[ApiResponse]

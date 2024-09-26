@@ -59,7 +59,8 @@ test.describe.parallel('Presentation', () => {
     await presentation.hidePresentationToolbar();
   });
 
-  test('Zoom In, Zoom Out, Reset Zoom', { tag: '@ci' }, async ({ browser, context, page }) => {
+  test('Zoom In, Zoom Out, Reset Zoom', { tag: ['@ci', '@flaky'] }, async ({ browser, context, page }) => {
+    // @flaky: see https://github.com/bigbluebutton/bigbluebutton/issues/21266
     const presentation = new Presentation(browser, context);
     await presentation.initPages(page);
     await presentation.zoom();

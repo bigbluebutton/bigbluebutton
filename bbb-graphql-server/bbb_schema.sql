@@ -1565,6 +1565,12 @@ SELECT
         when "startedAt" + (("time" - coalesce("accumulated",0)) * interval '1 milliseconds') >= current_timestamp then true
         else false
      end "running",
+    case when
+        "stopwatch" is false
+        and "startedAt" + (("time" - coalesce("accumulated",0)) * interval '1 milliseconds') <= current_timestamp
+        then true
+        else false
+    end "elapsed",
      "active",
      "time",
      "accumulated",

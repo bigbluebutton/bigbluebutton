@@ -70,7 +70,7 @@ func AkkaAppsGetSessionVariablesFrom(browserConnectionId string, sessionToken st
 		return nil, internalError, internalErrorId
 	}
 	if response != "authorized" {
-		logger.Error(response, message, messageId)
+		logger.Errorf("not authorized: Response: %s, Message: %s, MessageId: %s", response, message, messageId)
 		return nil, fmt.Errorf(message), messageId
 	}
 
