@@ -574,13 +574,6 @@ export interface Layout {
 
 export interface Pads {
   url: string
-  cookie: Cookie
-}
-
-export interface Cookie {
-  path: string
-  sameSite: string
-  secure: boolean
 }
 
 export interface Media {

@@ -613,11 +613,6 @@ export const meetingClientSettingsInitialValues: MeetingClientSettings = {
     },
     pads: {
       url: 'ETHERPAD_HOST',
-      cookie: {
-        path: '/',
-        sameSite: 'None',
-        secure: true,
-      },
     },
     media: {
       audio: {
