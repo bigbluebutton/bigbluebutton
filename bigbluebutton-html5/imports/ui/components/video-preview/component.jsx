@@ -1315,9 +1315,6 @@ class VideoPreview extends Component {
 
     const darkThemeState = AppService.isDarkThemeEnabled();
     const isBlurred = Session.getItem('videoPreviewFirstOpen') && getFromUserSettings('bbb_auto_share_webcam', window.meetingClientSettings.public.kurento.autoShareWebcam);
-    console.log('isBlurred', isBlurred);
-    console.log('isFirstimOPEN', Session.getItem('videoPreviewFirstOpen'));
-    console.log();
 
     if (isCamLocked === true) {
       this.handleProceed();
