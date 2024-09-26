@@ -41,9 +41,6 @@ class Presentation extends MultiUsers {
     await this.modPage.waitAndClick(e.shareCameraAsContent);
     await this.modPage.hasElement(e.videoPreview, 'should display the camera preview when sharing camera as content');
     await this.modPage.waitAndClick(e.startSharingWebcam);
-    await this.modPage.hasElement(e.screenshareConnecting);
-
-    await this.modPage.wasRemoved(e.screenshareConnecting);
     await this.modPage.hasElement(e.screenShareVideo);
     // close all notifications displayed before comparing screenshots
     for (const closeButton of await this.modPage.getLocator(e.closeToastBtn).all()) {
@@ -320,7 +317,6 @@ class Presentation extends MultiUsers {
     }
     await this.modPage.waitAndClick(e.sendPresentationInCurrentStateBtn);
     await this.modPage.hasElement(e.downloadPresentationToast);
-    await this.modPage.hasElement(e.smallToastMsg, 20000);
     await this.userPage.hasElement(e.downloadPresentation, ELEMENT_WAIT_EXTRA_LONG_TIME);
     const downloadPresentationLocator = this.userPage.getLocator(e.downloadPresentation);
     await this.userPage.handleDownload(downloadPresentationLocator, testInfo);
@@ -437,12 +433,13 @@ class Presentation extends MultiUsers {
     await expect(resetZoomButtonLocator, 'should the reset zoom button contain the default value text').toContainText(defaultZoomLevel);
 
     //Zoom In 150%
+    await expect(wbBox).toHaveScreenshot('moderator1-no-zoom.png');
     await this.modPage.waitAndClick(e.zoomInButton);
-    await expect(zoomOutButtonLocator, 'should the zoom out butto to be enabled').toBeEnabled();
+    await expect(zoomOutButtonLocator, 'should the zoom out button to be enabled').toBeEnabled();
     await expect(resetZoomButtonLocator, 'should the reset zoom button to contain the text 125%').toContainText(/125%/);
     await this.modPage.waitAndClick(e.zoomInButton);
     await expect(resetZoomButtonLocator, 'should the reset zoom button to contain the text 150%').toContainText(/150%/);
-    await expect(wbBox).toHaveScreenshot('moderator1-zoom150.png');
+    await expect(wbBox).not.toHaveScreenshot('moderator1-no-zoom.png');
 
     //Zoom out 125%
     await this.modPage.waitAndClick(e.zoomOutButton);

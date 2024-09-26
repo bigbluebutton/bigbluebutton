@@ -89,7 +89,7 @@ trait PresentationUploadTokenReqMsgHdlr extends RightsManagementTrait {
         broadcastPresentationUploadTokenPassResp(msg, token, presentationId)
         broadcastPresentationUploadTokenSysPubMsg(msg, token, presentationId)
 
-        PresPresentationDAO.insertToken(
+        PresPresentationDAO.insertUploadTokenIfNotExists(
           meetingId,
           msg.header.userId,
           msg.body.uploadTemporaryId,

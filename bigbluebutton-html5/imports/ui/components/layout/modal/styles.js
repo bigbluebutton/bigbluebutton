@@ -144,9 +144,13 @@ const ButtonsContainer = styled.div`
 `;
 
 const ButtonBottomContainer = styled.div`
+  display: flex;
+  justify-content: space-between;
   align-self: end;
+  padding-left: 3rem;
   padding-right: 3rem;
   padding-top: 1rem;
+  width: 100%;
 
   @media ${smallOnly} {
     align-self: center;
@@ -159,15 +163,24 @@ const LabelLayoutNames = styled.label`
   margin: 0 0 0.1rem 0;
 `;
 
-const BottomButton = styled(Button)`
-  margin: 0 0.5rem;
+const ToggleLabel = styled.span`
+  margin-right: .5rem;
+  min-width: 4rem;
+  text-align: end;
+`;
+
+const ToggleStatusWrapper = styled.div`
+  display: flex;
+  flex-grow: 0;
+  justify-content: flex-end;
+  align-items: center;
 `;
 
 const PushContainer = styled.div`
   display: flex;
   justify-content: center;
   align-items: center;
-  padding: 1rem 0 1rem 0;
+  gap: 1rem;
 `;
 
 const LabelPushLayout = styled.div`
@@ -184,7 +197,8 @@ export default {
   ButtonsContainer,
   ButtonBottomContainer,
   LabelLayoutNames,
-  BottomButton,
   PushContainer,
   LabelPushLayout,
+  ToggleStatusWrapper,
+  ToggleLabel,
 };

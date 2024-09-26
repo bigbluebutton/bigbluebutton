@@ -379,6 +379,10 @@ class VideoProvider extends Component<VideoProviderProps, VideoProviderState> {
         this.handleIceCandidate(parsedMessage);
         break;
 
+      case 'restartIceResponse':
+        this.handleRestartIceResponse(parsedMessage);
+        break;
+
       case 'pong':
         break;
 
@@ -571,6 +575,40 @@ class VideoProvider extends Component<VideoProviderProps, VideoProviderState> {
     this.sendMessage(message);
   }
 
+  requestRestartIce(peer: WebRtcPeer, stream: string) {
+    const {
+      retries: RESTART_ICE_RETRIES = 3,
+    } = window.meetingClientSettings.public.kurento?.restartIce?.video || {};
+
+    if (peer == null) {
+      throw new Error('No peer to restart ICE');
+    }
+
+    if (peer.vpRestartIceRetries >= RESTART_ICE_RETRIES) {
+      throw new Error('Max ICE restart retries reached');
+    }
+
+    const role = VideoService.getRole(peer.isPublisher);
+    const message = {
+      id: 'restartIce',
+      type: 'video',
+      cameraId: stream,
+      role,
+    };
+
+    // eslint-disable-next-line no-param-reassign
+    peer.vpRestartIceRetries += 1;
+    logger.warn({
+      logCode: 'video_provider_restart_ice',
+      extraInfo: {
+        cameraId: stream,
+        role,
+        restartIceRetries: peer.vpRestartIceRetries,
+      },
+    }, `Requesting ICE restart (${peer.vpRestartIceRetries}/${RESTART_ICE_RETRIES})`);
+    this.sendMessage(message);
+  }
+
   startResponse(message: { cameraId: string; stream: string; role: string }) {
     const { cameraId: stream, role } = message;
     const peer = this.webRtcPeers[stream];
@@ -633,6 +671,36 @@ class VideoProvider extends Component<VideoProviderProps, VideoProviderState> {
         logCode: 'video_provider_addicecandidate_no_peer',
         extraInfo: { cameraId: stream },
       }, 'Trailing camera ICE candidate, discarded');
+    }
+  }
+
+  handleRestartIceResponse(message: { cameraId: string; sdp: string }) {
+    const { cameraId: stream, sdp } = message;
+    const peer = this.webRtcPeers[stream];
+
+    if (peer) {
+      peer?.restartIce(sdp, peer?.isPublisher)
+        .catch((error) => {
+          const { peerConnection } = peer;
+
+          if (peerConnection) peerConnection.onconnectionstatechange = null;
+
+          logger.error({
+            logCode: 'video_provider_restart_ice_error',
+            extraInfo: {
+              errorMessage: error?.message,
+              errorCode: error?.code,
+              errorName: error?.name,
+              cameraId: stream,
+              role: VideoService.getRole(peer?.isPublisher),
+            },
+          }, `ICE restart failed for camera ${stream}`);
+          this._onWebRTCError(
+            new Error('iceConnectionStateError'),
+            stream,
+            VideoService.isLocalStream(stream),
+          );
+        });
     }
   }
 
@@ -739,6 +807,7 @@ class VideoProvider extends Component<VideoProviderProps, VideoProviderState> {
         peer.isPublisher = true;
         peer.originalProfileId = profileId;
         peer.currentProfileId = profileId;
+        peer.vpRestartIceRetries = 0;
         peer.start();
         peer.generateOffer().then((offer) => {
           // Store the media stream if necessary. The scenario here is one where
@@ -1068,13 +1137,14 @@ class VideoProvider extends Component<VideoProviderProps, VideoProviderState> {
   private handleIceConnectionStateChange(stream: string, isLocal: boolean) {
     const peer = this.webRtcPeers[stream];
     const role = VideoService.getRole(isLocal);
+    const {
+      enabled: RESTART_ICE = false,
+    } = window.meetingClientSettings.public.kurento?.restartIce?.video || {};
 
     if (peer && peer.peerConnection) {
       const pc = peer.peerConnection;
       const { connectionState } = pc;
-      notifyStreamStateChange(stream, connectionState);
-
-      if (connectionState === 'failed' || connectionState === 'closed') {
+      const handleFatalFailure = () => {
         const error = new Error('iceConnectionStateError');
         // prevent the same error from being detected multiple times
         pc.onconnectionstatechange = null;
@@ -1089,6 +1159,47 @@ class VideoProvider extends Component<VideoProviderProps, VideoProviderState> {
         }, `Camera ICE connection state changed: ${connectionState}. Role: ${role}.`);
 
         this.onWebRTCError(error, stream, isLocal);
+      };
+
+      notifyStreamStateChange(stream, connectionState);
+
+      switch (connectionState) {
+        case 'closed':
+          handleFatalFailure();
+          break;
+
+        case 'failed':
+          // ICE restart only works for publishers right now - recvonly full
+          // reconnection works ok without it.
+          if (!RESTART_ICE || !peer?.isPublisher) {
+            handleFatalFailure();
+          } else {
+            try {
+              this.requestRestartIce(peer, stream);
+            } catch (error) {
+              handleFatalFailure();
+            }
+          }
+
+          break;
+
+        case 'connected':
+          if (peer && peer?.vpRestartIceRetries > 0) {
+            logger.info({
+              logCode: 'video_provider_ice_restarted',
+              extraInfo: {
+                cameraId: stream,
+                role: VideoService.getRole(peer?.isPublisher),
+                restartIceRetries: peer?.vpRestartIceRetries,
+              },
+            }, 'ICE restart successful');
+            peer.vpRestartIceRetries = 0;
+          }
+
+          break;
+
+        default:
+          break;
       }
     } else {
       logger.error({

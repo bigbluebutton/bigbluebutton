@@ -4,7 +4,6 @@ import (
 	"bbb-graphql-middleware/internal/common"
 	"bytes"
 	"encoding/json"
-	log "github.com/sirupsen/logrus"
 	"nhooyr.io/websocket"
 	"sync"
 )
@@ -12,16 +11,15 @@ import (
 func BrowserConnectionWriter(
 	browserConnection *common.BrowserConnection,
 	wg *sync.WaitGroup) {
-	log := log.WithField("_routine", "BrowserConnectionWriter").WithField("browserConnectionId", browserConnection.Id)
-	defer log.Debugf("finished")
-	log.Debugf("starting")
+	defer browserConnection.Logger.Debugf("finished")
+	browserConnection.Logger.Debugf("starting")
 	defer wg.Done()
 
 RangeLoop:
 	for {
 		select {
 		case <-browserConnection.Context.Done():
-			log.Debug("Browser context cancelled.")
+			browserConnection.Logger.Debug("Browser context cancelled.")
 			break RangeLoop
 		case toBrowserMessage := <-browserConnection.FromHasuraToBrowserChannel.ReceiveChannel():
 			{
@@ -32,10 +30,10 @@ RangeLoop:
 					continue
 				}
 
-				log.Tracef("sending to browser: %s", string(toBrowserMessage))
+				browserConnection.Logger.Tracef("sending to browser: %s", string(toBrowserMessage))
 				err := browserConnection.Websocket.Write(browserConnection.Context, websocket.MessageText, toBrowserMessage)
 				if err != nil {
-					log.Debugf("Browser is disconnected, skipping writing of ws message: %v", err)
+					browserConnection.Logger.Debugf("Browser is disconnected, skipping writing of ws message: %v", err)
 					return
 				}
 

@@ -71,6 +71,9 @@ subscription userCurrentSubscription {
       spoke
       listenOnly
     }
+    userLockSettings {
+      disablePublicChat
+    }
   }
 }
 `;

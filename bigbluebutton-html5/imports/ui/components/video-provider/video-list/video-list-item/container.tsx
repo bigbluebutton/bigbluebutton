@@ -1,6 +1,6 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { UpdatedEventDetailsForUserCameraDomElement } from 'bigbluebutton-html-plugin-sdk/dist/cjs/dom-element-manipulation/user-camera/types';
+import { UpdatedDataForUserCameraDomElement } from 'bigbluebutton-html-plugin-sdk/dist/cjs/dom-element-manipulation/user-camera/types';
 
 import useCurrentUser from '/imports/ui/core/hooks/useCurrentUser';
 import { layoutSelect, layoutDispatch } from '/imports/ui/components/layout/context';
@@ -13,17 +13,19 @@ import { useStorageKey } from '/imports/ui/services/storage/hooks';
 import useWhoIsTalking from '/imports/ui/core/hooks/useWhoIsTalking';
 import useWhoIsUnmuted from '/imports/ui/core/hooks/useWhoIsUnmuted';
 import { VIDEO_TYPES } from '/imports/ui/components/video-provider/enums';
+import { UserCameraHelperAreas } from '../../../plugins-engine/extensible-areas/components/user-camera-helper/types';
 
 interface VideoListItemContainerProps {
   numOfStreams: number;
   cameraId: string | null;
+  pluginUserCameraHelperPerPosition: UserCameraHelperAreas;
   userId: string;
   name: string;
   focused: boolean;
   isStream: boolean;
   onHandleVideoFocus: ((id: string) => void) | null;
   stream: VideoItem;
-  setUserCamerasRequestedFromPlugin: React.Dispatch<React.SetStateAction<UpdatedEventDetailsForUserCameraDomElement[]>>;
+  setUserCamerasRequestedFromPlugin: React.Dispatch<React.SetStateAction<UpdatedDataForUserCameraDomElement[]>>;
   onVideoItemUnmount: (stream: string) => void;
   onVirtualBgDrop: (type: string, name: string, data: string) => void;
   onVideoItemMount: (ref: HTMLVideoElement) => void;
@@ -43,6 +45,7 @@ const VideoListItemContainer: React.FC<VideoListItemContainerProps> = (props) =>
     setUserCamerasRequestedFromPlugin,
     stream,
     userId,
+    pluginUserCameraHelperPerPosition,
   } = props;
 
   const fullscreen = layoutSelect((i: Layout) => i.fullscreen);
@@ -76,6 +79,7 @@ const VideoListItemContainer: React.FC<VideoListItemContainerProps> = (props) =>
         isRTL,
         amIModerator,
       }}
+      pluginUserCameraHelperPerPosition={pluginUserCameraHelperPerPosition}
       setUserCamerasRequestedFromPlugin={setUserCamerasRequestedFromPlugin}
       cameraId={cameraId}
       disabledCams={disabledCams}

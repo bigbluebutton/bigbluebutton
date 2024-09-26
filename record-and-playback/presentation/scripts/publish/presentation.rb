@@ -575,6 +575,17 @@ def determine_slide_number(slide, current_slide)
   slide
 end
 
+def clean_arrow_end_or_start_props(props)
+  if props['type'] == 'binding'
+    # Remove 'x' and 'y' for 'binding' type
+    props = props.except('x', 'y')
+  elsif props['type'] == 'point'
+    # Remove unwanted properties for 'point' type
+    props = props.except('boundShapeId', 'normalizedAnchor', 'isExact', 'isPrecise')
+  end
+  props
+end
+
 def events_parse_tldraw_shape(shapes, event, current_presentation, current_slide, timestamp)
   presentation = event.at_xpath('presentation')
   slide = event.at_xpath('pageNumber')
@@ -615,6 +626,11 @@ def events_parse_tldraw_shape(shapes, event, current_presentation, current_slide
     prev_shape[:out] = timestamp
     shape[:shape_unique_id] = prev_shape[:shape_unique_id]
     shape[:shape_data] = prev_shape[:shape_data].deep_merge(shape[:shape_data])
+    # special handling to remove unwanted merged arrow props in tldraw v2
+    if shape[:shape_data]['type'] == 'arrow' && shape[:shape_data].key?('props')
+      shape[:shape_data]['props']['start'] = clean_arrow_end_or_start_props(shape[:shape_data]['props']['start'])
+      shape[:shape_data]['props']['end'] = clean_arrow_end_or_start_props(shape[:shape_data]['props']['end'])
+    end
   else
     shape[:shape_unique_id] = @svg_shape_unique_id
     @svg_shape_unique_id += 1

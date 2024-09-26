@@ -14,7 +14,10 @@ import (
 var sessionVarsHookUrl = config.GetConfig().SessionVarsHook.Url
 
 func AkkaAppsGetSessionVariablesFrom(browserConnectionId string, sessionToken string) (map[string]string, error) {
-	logger := log.WithField("_routine", "AkkaAppsClient").WithField("browserConnectionId", browserConnectionId)
+	logger := log.WithField("_routine", "AkkaAppsClient").
+		WithField("browserConnectionId", browserConnectionId).
+		WithField("sessionToken", sessionToken)
+
 	logger.Debug("Starting AkkaAppsClient")
 	defer logger.Debug("Finished AkkaAppsClient")
 
@@ -59,7 +62,9 @@ func AkkaAppsGetSessionVariablesFrom(browserConnectionId string, sessionToken st
 		return nil, fmt.Errorf("response key not found in the parsed object")
 	}
 	if response != "authorized" {
-		logger.Error(response)
+		message, _ := respBodyAsMap["message"]
+		logger.Errorf("not authorized: Response: %s, Message: %s", response, message)
+
 		return nil, fmt.Errorf("user not authorized")
 	}
 

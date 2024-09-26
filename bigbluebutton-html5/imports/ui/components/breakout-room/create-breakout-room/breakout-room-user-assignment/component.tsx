@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { defineMessages, useIntl } from 'react-intl';
 import { range } from '/imports/utils/array-utils';
 import Icon from '/imports/ui/components/common/icon/icon-ts/component';
@@ -180,6 +180,12 @@ const intlMessages = defineMessages({
 
 const isMe = (intId: string) => intId === Auth.userID;
 
+type User = {
+  userId: string;
+  name: string;
+  isModerator: boolean;
+};
+
 const BreakoutRoomUserAssignment: React.FC<ChildComponentProps> = ({
   moveUser,
   rooms,
@@ -199,6 +205,32 @@ const BreakoutRoomUserAssignment: React.FC<ChildComponentProps> = ({
   isUpdate,
 }) => {
   const intl = useIntl();
+  const [sortedRooms, setSortedRooms] = useState(rooms);
+
+  const sortUsers = (users: User[]) => {
+    return [...users].sort((a, b) => {
+      if (a.isModerator !== b.isModerator) {
+        return a.isModerator ? -1 : 1;
+      }
+      return a.name.localeCompare(b.name);
+    });
+  };
+
+  const updateSortedRooms = () => {
+    const newSortedRooms = { ...rooms };
+    Object.keys(newSortedRooms).forEach((roomNumber) => {
+      const roomNumberInt = parseInt(roomNumber, 10);
+      newSortedRooms[roomNumberInt] = {
+        ...newSortedRooms[roomNumberInt],
+        users: sortUsers(newSortedRooms[roomNumberInt].users),
+      };
+    });
+    setSortedRooms(newSortedRooms);
+  };
+
+  useEffect(() => {
+    updateSortedRooms();
+  }, [rooms]);
 
   const dragStart = (ev: React.DragEvent<HTMLParagraphElement>) => {
     const paragraphElement = ev.target as HTMLParagraphElement;
@@ -223,6 +255,7 @@ const BreakoutRoomUserAssignment: React.FC<ChildComponentProps> = ({
     const [userId, from] = data.split('-');
     moveUser(userId, Number(from), roomNumber);
     setSelectedId('');
+    updateSortedRooms();
   };
 
   const hasNameDuplicated = (room: number) => {
@@ -244,8 +277,8 @@ const BreakoutRoomUserAssignment: React.FC<ChildComponentProps> = ({
   }, [numberOfRooms]);
 
   const roomUserList = (room: number) => {
-    if (rooms[room]) {
-      return rooms[room].users.map((user) => {
+    if (sortedRooms[room] && Array.isArray(sortedRooms[room].users)) {
+      return sortedRooms[room].users.map((user) => {
         return (
           <Styled.RoomUserItem
             tabIndex={-1}
@@ -269,9 +302,11 @@ const BreakoutRoomUserAssignment: React.FC<ChildComponentProps> = ({
                   aria-label={intl.formatMessage(intlMessages.resetUserRoom)}
                   onKeyDown={() => {
                     moveUser(user.userId, room, 0);
+                    updateSortedRooms();
                   }}
                   onClick={() => {
                     moveUser(user.userId, room, 0);
+                    updateSortedRooms();
                   }}
                 >
                   <Icon iconName="close" />
