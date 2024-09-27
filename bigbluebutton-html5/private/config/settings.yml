@@ -1042,6 +1042,7 @@ public:
         # family: mono|sans|script|serif
         family: script
     toolbar:
+      multiUserPenOnly: false,
       tools:
         - icon: select_tool
           value: select

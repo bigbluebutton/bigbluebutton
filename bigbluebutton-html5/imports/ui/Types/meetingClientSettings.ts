@@ -729,6 +729,7 @@ export interface Text {
 }
 
 export interface Toolbar {
+  multiUserPenOnly: boolean
   tools: Tool[]
   presenterTools: string[]
   multiUserTools: string[]

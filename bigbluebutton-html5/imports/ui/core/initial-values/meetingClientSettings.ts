@@ -824,6 +824,7 @@ export const meetingClientSettingsInitialValues: MeetingClientSettings = {
         },
       },
       toolbar: {
+        multiUserPenOnly: false,
         tools: [
           { icon: 'select_tool', value: 'select' },
           { icon: 'hand_tool', value: 'hand' },
