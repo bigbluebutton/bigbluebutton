@@ -101,6 +101,13 @@ test.describe.parallel('Create Parameters', () => {
     await createParam.allowModsToEjectCameras();
   });
 
+  test('Override default presentation on CREATE meeting API call @ci', async ({ browser, context, page }) => {
+    const createParam = new CreateParameters(browser, context);
+    await createParam.initModPage(page, true, { createParameter: `${c.preUploadedPresentation}&${c.preUploadedPresentationOverrideDefault}&${c.preUploadedPresentationName}` });
+    await createParam.initUserPage(true, context);
+    await createParam.overrideDefaultPresentation();
+  });
+
   test.describe.parallel('Disabled Features @ci', () => {
     test.describe.serial(() => {
       test('Breakout rooms', async ({ browser, context, page}) => {
