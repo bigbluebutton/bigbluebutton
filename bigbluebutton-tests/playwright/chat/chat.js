@@ -345,11 +345,12 @@ class Chat extends MultiUsers {
     await this.modPage.hasElementDisabled(e.sendButton);
   }
 
-  async preventUserFromUsingPublicChat() {
+  async preventUserFromUsingPublicChat(context) {
     await openPublicChat(this.modPage);
     await openPublicChat(this.userPage);
     await this.modPage.waitAndClick(e.userListItem);
     await this.modPage.waitAndClick(e.togglePublicChat);
+    await this.initUserPage2(true, context)
     await this.userPage.hasElementDisabled(e.chatBox);
     await this.userPage.hasElementDisabled(e.sendButton);
     await this.userPage2.hasElement(e.chatBox);
