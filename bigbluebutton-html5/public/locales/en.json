@@ -336,7 +336,7 @@
     "app.presentationUploder.conversion.204": "No content to capture",
     "app.presentationUploder.upload.413": "File is too large, exceeded the maximum of {0} MB",
     "app.presentationUploder.genericError": "Oops, Something went wrong ...",
-    "app.presentationUploder.upload.fileVirus": "Upload failed: there is a problem with the file",
+    "app.presentationUploder.upload.fileVirus": "Upload failed: Virus detected! Please check your file and retry.",
     "app.presentationUploder.upload.scanFailed": "Upload failed: the file could not be scanned",
     "app.presentationUploder.upload.408": "Request upload token timeout.",
     "app.presentationUploder.upload.404": "404: Invalid upload token",
