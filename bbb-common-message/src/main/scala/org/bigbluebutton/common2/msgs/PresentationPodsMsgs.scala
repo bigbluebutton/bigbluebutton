@@ -220,6 +220,20 @@ case class PresentationUploadedFileVirusErrorSysPubMsgBody(
   presentationId: String,
 )
 
+object PresentationUploadedFileScanFailedErrorSysPubMsg { val NAME = "PresentationUploadedFileScanFailedErrorSysPubMsg" }
+case class PresentationUploadedFileScanFailedErrorSysPubMsg(
+  header: BbbClientMsgHeader,
+  body: PresentationUploadedFileScanFailedErrorSysPubMsgBody
+) extends StandardMsg
+case class PresentationUploadedFileScanFailedErrorSysPubMsgBody(
+  podId: String,
+  meetingId: String,
+  presentationName: String,
+  messageKey: String,
+  temporaryPresentationId: String,
+  presentationId: String,
+)
+
 // ------------ bbb-common-web to akka-apps ------------
 
 // ------------ akka-apps to client ------------
@@ -293,6 +307,11 @@ object PresentationUploadedFileVirusErrorEvtMsg { val NAME = "PresentationUpload
 case class PresentationUploadedFileVirusErrorEvtMsg(header: BbbClientMsgHeader, body: PresentationUploadedFileVirusErrorEvtMsgBody) extends BbbCoreMsg
 case class PresentationUploadedFileVirusErrorEvtMsgBody(podId: String, meetingId: String, presentationName: String,
                                                         messageKey: String, temporaryPresentationId: String, presentationId: String)
+
+object PresentationUploadedFileScanFailedErrorEvtMsg { val NAME = "PresentationUploadedFileScanFailedErrorEvtMsg"}
+case class PresentationUploadedFileScanFailedErrorEvtMsg(header: BbbClientMsgHeader, body: PresentationUploadedFileScanFailedErrorEvtMsgBody) extends BbbCoreMsg
+case class PresentationUploadedFileScanFailedErrorEvtMsgBody(podId: String, meetingId: String, presentationName: String,
+                                                             messageKey: String, temporaryPresentationId: String, presentationId: String)
 
 object PresentationConversionRequestReceivedEventMsg { val NAME = "PresentationConversionRequestReceivedEventMsg" }
 case class PresentationConversionRequestReceivedEventMsg(

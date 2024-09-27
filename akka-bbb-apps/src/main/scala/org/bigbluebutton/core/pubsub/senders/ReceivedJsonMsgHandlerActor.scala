@@ -302,6 +302,8 @@ class ReceivedJsonMsgHandlerActor(
         routeGenericMsg[PresentationUploadedFileTimeoutErrorSysPubMsg](envelope, jsonNode)
       case PresentationUploadedFileVirusErrorSysPubMsg.NAME =>
         routeGenericMsg[PresentationUploadedFileVirusErrorSysPubMsg](envelope, jsonNode)
+      case PresentationUploadedFileScanFailedErrorSysPubMsg.NAME =>
+        routeGenericMsg[PresentationUploadedFileScanFailedErrorSysPubMsg](envelope, jsonNode)
       case PresentationConversionUpdateSysPubMsg.NAME =>
         routeGenericMsg[PresentationConversionUpdateSysPubMsg](envelope, jsonNode)
       case PresentationPageCountErrorSysPubMsg.NAME =>

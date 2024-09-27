@@ -7,29 +7,29 @@ import org.bigbluebutton.core.domain.MeetingState2x
 import org.bigbluebutton.core.models.PresentationInPod
 import org.bigbluebutton.core.running.LiveMeeting
 
-trait PresentationUploadedFileVirusErrorPubMsgHdlr {
+trait PresentationUploadedFileScanFailedPubMsgHdlr {
   this: PresentationPodHdlrs =>
 
   def handle(
-      msg: PresentationUploadedFileVirusErrorSysPubMsg, state: MeetingState2x,
+      msg: PresentationUploadedFileScanFailedErrorSysPubMsg, state: MeetingState2x,
       liveMeeting: LiveMeeting, bus: MessageBus
   ): MeetingState2x = {
 
-    def broadcastEvent(msg: PresentationUploadedFileVirusErrorSysPubMsg): Unit = {
+    def broadcastEvent(msg: PresentationUploadedFileScanFailedErrorSysPubMsg): Unit = {
       val routing = Routing.addMsgToClientRouting(
         MessageTypes.BROADCAST_TO_MEETING,
         liveMeeting.props.meetingProp.intId, msg.header.userId
       )
-      val envelope = BbbCoreEnvelope(PresentationUploadedFileVirusErrorEvtMsg.NAME, routing)
+      val envelope = BbbCoreEnvelope(PresentationUploadedFileScanFailedErrorEvtMsg.NAME, routing)
       val header = BbbClientMsgHeader(
-        PresentationUploadedFileVirusErrorEvtMsg.NAME,
+        PresentationUploadedFileScanFailedErrorEvtMsg.NAME,
         liveMeeting.props.meetingProp.intId, msg.header.userId
       )
 
-      val body = PresentationUploadedFileVirusErrorEvtMsgBody(msg.body.podId, msg.body.meetingId,
+      val body = PresentationUploadedFileScanFailedErrorEvtMsgBody(msg.body.podId, msg.body.meetingId,
         msg.body.presentationName, msg.body.messageKey, msg.body.temporaryPresentationId,
         msg.body.presentationId)
-      val event = PresentationUploadedFileVirusErrorEvtMsg(header, body)
+      val event = PresentationUploadedFileScanFailedErrorEvtMsg(header, body)
       val msgEvent = BbbCommonEnvCoreMsg(envelope, event)
       bus.outGW.send(msgEvent)
     }

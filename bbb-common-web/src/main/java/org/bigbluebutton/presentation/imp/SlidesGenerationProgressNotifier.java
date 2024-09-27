@@ -87,6 +87,18 @@ public class SlidesGenerationProgressNotifier {
     messagingService.sendDocConversionMsg(message);
   }
 
+  public void sendUploadFileScanFailed(UploadedPresentation pres) {
+    UploadFileScanFailedMessage message = new UploadFileScanFailedMessage(
+            pres.getPodId(),
+            pres.getMeetingId(),
+            pres.getName(),
+            ConversionMessageConstants.SCAN_FAILED_KEY,
+            pres.getTemporaryPresentationId(),
+            pres.getId()
+    );
+    messagingService.sendDocConversionMsg(message);
+  }
+
   public void sendConversionUpdateMessage(int slidesCompleted, UploadedPresentation pres, int pageGenerated) {
     DocPageGeneratedProgress progress = new DocPageGeneratedProgress(pres.getPodId(),
             pres.getMeetingId(),

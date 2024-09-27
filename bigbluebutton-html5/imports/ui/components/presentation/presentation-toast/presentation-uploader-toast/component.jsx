@@ -56,6 +56,10 @@ const intlMessages = defineMessages({
     id: 'app.presentationUploder.upload.fileVirus',
     description: 'error that the file could not be uploaded due to security concerns',
   },
+  SCAN_FAILED: {
+    id: 'app.presentationUploder.upload.scanFailed',
+    description: 'error that the file could not be uploaded because scanning failed'
+  },
   CONVERSION_TIMEOUT: {
     id: 'app.presentationUploder.conversion.conversionTimeout',
     description: 'warns the user that the presentation timed out in the back-end in specific page of the document',

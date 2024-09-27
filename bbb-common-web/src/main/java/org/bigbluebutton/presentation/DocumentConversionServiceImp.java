@@ -36,6 +36,9 @@ import xyz.capybara.clamav.commands.scan.result.ScanResult;
 import static org.bigbluebutton.presentation.Util.deleteDirectoryFromFileHandlingErrors;
 
 public class DocumentConversionServiceImp implements DocumentConversionService {
+  private static final String CLAMAV_HOST = "localhost";
+  private static final Integer CLAMAV_PORT = 3310;
+
   private static Logger log = LoggerFactory.getLogger(DocumentConversionServiceImp.class);
 
   private IBbbWebApiGWApp gw;
@@ -55,7 +58,7 @@ public class DocumentConversionServiceImp implements DocumentConversionService {
 
     if (scanUploadedPresentationFiles) {
       try {
-        ClamavClient client = new ClamavClient("localhost");
+        ClamavClient client = new ClamavClient(CLAMAV_HOST, CLAMAV_PORT);
         ScanResult result = client.scan(Path.of(pres.getUploadedFile().getAbsolutePath()));
 
         if (result instanceof ScanResult.VirusFound) {
@@ -67,6 +70,7 @@ public class DocumentConversionServiceImp implements DocumentConversionService {
         }
       } catch (Exception e) {
         log.error("Failed to scan uploaded file for meetingId={} presID={}: {}", pres.getMeetingId(), pres.getId(), e.getMessage());
+        notifier.sendUploadFileScanFailed(pres);
         Util.deleteDirectoryFromFileHandlingErrors(pres.getUploadedFile());
         return;
       }
