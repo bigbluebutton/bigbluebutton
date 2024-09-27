@@ -19,6 +19,10 @@ exports.lockSettingsDisablePublicChat = 'lockSettingsDisablePublicChat=true';
 exports.lockSettingsHideUserList = 'lockSettingsHideUserList=true';
 exports.allowModsToEjectCameras = 'allowModsToEjectCameras=true';
 exports.notifyRecordingIsOn = 'notifyRecordingIsOn=true&notifyRecordingIsOn=true';
+exports.preUploadedPresentation = 'preUploadedPresentation=https://dagrs.berkeley.edu/sites/default/files/2020-01/sample.pdf';
+exports.preUploadedPresentationOverrideDefault = 'preUploadedPresentationOverrideDefault=true';
+exports.preUploadedPresentationName = 'preUploadedPresentationName=ScientificPaper.pdf';
+
 
 // Custom Parameters
 exports.autoJoin = 'userdata-bbb_auto_join_audio=false';

@@ -113,6 +113,15 @@ class CreateParameters extends MultiUsers {
     await this.modPage.waitAndClick(e.userListItem);
     await this.modPage.waitAndClick(e.ejectCamera);
   }
+
+  async overrideDefaultPresentation() {
+    await this.modPage.waitForSelector(e.whiteboard);
+    await this.userPage.waitForSelector(e.whiteboard);
+    const modWbLocator = this.modPage.getLocator(e.whiteboard);
+    await expect(modWbLocator).toHaveScreenshot('moderator-new-presentation.png');
+    const userWbLocator = this.userPage.getLocator(e.whiteboard);
+    await expect(userWbLocator).toHaveScreenshot('viewer-new-presentation.png');
+  }
 }
 
 exports.CreateParameters = CreateParameters;
