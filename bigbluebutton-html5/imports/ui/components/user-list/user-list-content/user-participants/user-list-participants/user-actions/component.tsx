@@ -56,14 +56,15 @@ interface UserActionsProps {
 
 interface DropdownItem {
   key: string;
-  label: string | undefined;
-  icon: string | undefined;
-  tooltip: string | undefined;
-  allowed: boolean | undefined;
-  iconRight: string | undefined;
-  textColor: string | undefined;
-  isSeparator: boolean | undefined;
-  onClick: (() => void) | undefined;
+  label?: string;
+  icon?: string;
+  tooltip?: string;
+  allowed?: boolean;
+  iconRight?: string;
+  textColor?: string;
+  isSeparator?: boolean;
+  contentFunction?: ((element: HTMLElement) => void);
+  onClick?: (() => void);
 }
 
 interface Writer {
@@ -171,13 +172,19 @@ const makeDropdownPluginItem: (
           returnValue.onClick = dropdownButton.onClick;
           break;
         }
-        case UserListDropdownItemType.INFORMATION: {
-          const dropdownButton = userDropdownItem as PluginSdk.UserListDropdownInformation;
+        case UserListDropdownItemType.FIXED_CONTENT_INFORMATION: {
+          const dropdownButton = userDropdownItem as PluginSdk.UserListDropdownFixedContentInformation;
           returnValue.label = dropdownButton.label;
           returnValue.icon = dropdownButton.icon;
           returnValue.iconRight = dropdownButton.iconRight;
           returnValue.textColor = dropdownButton.textColor;
           returnValue.allowed = dropdownButton.allowed;
+          break;
+        }
+        case UserListDropdownItemType.GENERIC_CONTENT_INFORMATION: {
+          const dropdownButton = userDropdownItem as PluginSdk.UserListDropdownGenericContentInformation;
+          returnValue.allowed = dropdownButton.allowed;
+          returnValue.contentFunction = dropdownButton.contentFunction;
           break;
         }
         case UserListDropdownItemType.SEPARATOR: {
@@ -330,7 +337,12 @@ const UserActions: React.FC<UserActionsProps> = ({
       isTitle: true,
     },
     ...makeDropdownPluginItem(userDropdownItems.filter(
-      (item: PluginSdk.UserListDropdownInterface) => (item?.type === UserListDropdownItemType.INFORMATION),
+      (item: PluginSdk.UserListDropdownInterface) => (
+        item?.type === UserListDropdownItemType.FIXED_CONTENT_INFORMATION
+        || item?.type === UserListDropdownItemType.GENERIC_CONTENT_INFORMATION
+        || (item?.type === UserListDropdownItemType.SEPARATOR
+          && (item as PluginSdk.UserListDropdownSeparator)?.position
+          === PluginSdk.UserListDropdownSeparatorPosition.BEFORE)),
     )),
     {
       allowed: user.cameras.length > 0
@@ -542,7 +554,13 @@ const UserActions: React.FC<UserActionsProps> = ({
       dataTest: 'ejectCamera',
     },
     ...makeDropdownPluginItem(userDropdownItems.filter(
-      (item: PluginSdk.UserListDropdownInterface) => (item?.type !== UserListDropdownItemType.INFORMATION),
+      (item: PluginSdk.UserListDropdownInterface) => (
+        item?.type !== UserListDropdownItemType.FIXED_CONTENT_INFORMATION
+        && item?.type !== UserListDropdownItemType.GENERIC_CONTENT_INFORMATION
+        && !(item?.type === UserListDropdownItemType.SEPARATOR
+          && (item as PluginSdk.UserListDropdownSeparator)?.position
+          === PluginSdk.UserListDropdownSeparatorPosition.BEFORE)
+      ),
     )),
   ];
 
