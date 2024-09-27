@@ -729,10 +729,6 @@ export interface Text {
 }
 
 export interface Toolbar {
-  multiUserPenOnly: boolean
-  colors: Color[]
-  thickness: Thickness[]
-  font_sizes: FontSize[]
   tools: Tool[]
   presenterTools: string[]
   multiUserTools: string[]
