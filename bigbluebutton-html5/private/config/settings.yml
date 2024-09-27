@@ -855,7 +855,7 @@ public:
     listenOnlyCallTimeout: 15000
     # Experimental: enables a new audio mechanism that has a server-side,
     # transparent listen only mode. See issue #14021.
-    # userdata-bbb_transparent-listen-only supersedes this setting
+    # userdata-bbb_transparent_listen_only supersedes this setting
     transparentListenOnly: true
     # Dev flag. Controls the WebRTC SDP negotiation role for SFU full audio.
     fullAudioOffering: true
