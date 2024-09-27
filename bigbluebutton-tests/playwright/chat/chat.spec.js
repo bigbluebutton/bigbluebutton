@@ -91,4 +91,8 @@ test.describe('Chat', () => {
   test('Private chat disabled when user leaves meeting @ci', async () => {
     await chat.chatDisabledUserLeaves();
   });
+
+  test('Prevent specific user from sending public chat messages @ci', async ({ context }) => {
+    await chat.preventUserFromUsingPublicChat(context);
+  });
 });

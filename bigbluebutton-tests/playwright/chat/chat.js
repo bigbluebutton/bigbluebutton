@@ -343,7 +343,24 @@ class Chat extends MultiUsers {
     await this.userPage.waitAndClick(e.logout);
     await this.modPage.hasElementDisabled(e.chatBox);
     await this.modPage.hasElementDisabled(e.sendButton);
-  }  
+  }
+
+  async preventUserFromUsingPublicChat(context) {
+    await openPublicChat(this.modPage);
+    await openPublicChat(this.userPage);
+    await this.modPage.waitAndClick(e.userListItem);
+    await this.modPage.waitAndClick(e.togglePublicChat);
+    await this.initUserPage2(true, context)
+    await this.userPage.hasElementDisabled(e.chatBox);
+    await this.userPage.hasElementDisabled(e.sendButton);
+    await this.userPage2.hasElement(e.chatBox);
+    await this.userPage2.hasElement(e.sendButton);
+    await this.userPage2.type(e.chatBox, 'test');
+    await this.userPage2.waitAndClick(e.sendButton);
+    await this.modPage.hasText(e.chatUserMessageText, 'test');
+    await this.userPage.hasText(e.chatUserMessageText, 'test');
+    await this.userPage2.hasText(e.chatUserMessageText, 'test');
+  }
 }
 
 exports.Chat = Chat;
