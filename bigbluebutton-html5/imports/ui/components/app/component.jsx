@@ -4,6 +4,7 @@ import { defineMessages, injectIntl } from 'react-intl';
 import ReactModal from 'react-modal';
 import browserInfo from '/imports/utils/browserInfo';
 import deviceInfo from '/imports/utils/deviceInfo';
+import Session from '/imports/ui/services/storage/in-memory';
 import PollingContainer from '/imports/ui/components/polling/container';
 import logger from '/imports/startup/client/logger';
 import ActivityCheckContainer from '/imports/ui/components/activity-check/container';
@@ -128,6 +129,8 @@ class App extends Component {
   componentDidMount() {
     const { browserName } = browserInfo;
     const { osName } = deviceInfo;
+
+    Session.setItem('videoPreviewFirstOpen', true);
 
     ReactModal.setAppElement('#app');
 
