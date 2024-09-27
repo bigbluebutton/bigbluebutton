@@ -87,8 +87,6 @@ const AppContainer = (props) => {
       minUtteranceLength,
     );
   }, [partialUtterances, minUtteranceLength]);
-  const customStyleUrl = getFromUserSettings('bbb_custom_style_url', false)
-  || window.meetingClientSettings.public.app.customStyleUrl;
 
   if (!currentUser) return null;
 
@@ -97,10 +95,8 @@ const AppContainer = (props) => {
       <App
         {...{
           hideActionsBar: getFromUserSettings('bbb_hide_actions_bar', false),
-          customStyle: getFromUserSettings('bbb_custom_style', false),
           currentUserAway: currentUser.away,
           currentUserRaiseHand: currentUser.raiseHand,
-          customStyleUrl,
           captionsStyle,
           presentationIsOpen,
           shouldShowExternalVideo,
