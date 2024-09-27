@@ -25,7 +25,7 @@ class UserInfoService(system: ActorSystem, bbbActor: ActorRef) {
     val future = bbbActor.ask(GetUserApiMsg(sessionToken)).mapTo[ApiResponse]
 
     future.recover {
-      case e: AskTimeoutException => ApiResponseFailure("Request Timeout error")
+      case e: AskTimeoutException => ApiResponseFailure("Request Timeout error", "request_timeout", Map())
     }
   }
 

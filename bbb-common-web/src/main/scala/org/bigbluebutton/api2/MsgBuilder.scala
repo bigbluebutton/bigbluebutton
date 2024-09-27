@@ -1,19 +1,19 @@
 package org.bigbluebutton.api2
 
+import scala.collection.JavaConverters._
 import org.bigbluebutton.api.messaging.converters.messages._
-import org.bigbluebutton.api.messaging.messages.ChatMessageFromApi
+import org.bigbluebutton.api.messaging.messages.{ ChatMessageFromApi, RegisterUserSessionToken }
 import org.bigbluebutton.api2.meeting.RegisterUser
 import org.bigbluebutton.common2.domain.{ DefaultProps, PageVO, PresentationPageConvertedVO, PresentationVO }
 import org.bigbluebutton.common2.msgs._
 import org.bigbluebutton.presentation.messages._
 
-import java.io.{ BufferedReader, IOException, InputStreamReader }
+import java.io.{ BufferedReader, InputStreamReader }
 import java.net.URL
 import java.nio.charset.StandardCharsets
 import java.util.stream.Collectors
-import javax.imageio.ImageIO
 import scala.io.Source
-import scala.util.{ Failure, Success, Try, Using }
+import scala.util.Using
 import scala.xml.XML
 
 object MsgBuilder {
@@ -53,6 +53,22 @@ object MsgBuilder {
       avatarURL = msg.avatarURL, webcamBackgroundURL = msg.webcamBackgroundURL, guest = msg.guest, authed = msg.authed, guestStatus = msg.guestStatus,
       excludeFromDashboard = msg.excludeFromDashboard, enforceLayout = msg.enforceLayout, userMetadata = msg.userMetadata)
     val req = RegisterUserReqMsg(header, body)
+    BbbCommonEnvCoreMsg(envelope, req)
+  }
+
+  def buildRegisterUserSessionTokenRequestToAkkaApps(msg: RegisterUserSessionToken): BbbCommonEnvCoreMsg = {
+    val routing = collection.immutable.HashMap("sender" -> "bbb-web")
+    val envelope = BbbCoreEnvelope(RegisterUserSessionTokenReqMsg.NAME, routing)
+    val header = BbbCoreHeaderWithMeetingId(RegisterUserSessionTokenReqMsg.NAME, msg.meetingID)
+    val body = RegisterUserSessionTokenReqMsgBody(
+      meetingId = msg.meetingID,
+      userId = msg.internalUserId,
+      sessionToken = msg.sessionToken,
+      replaceSessionToken = msg.replaceSessionToken,
+      enforceLayout = msg.enforceLayout,
+      userSessionMetadata = msg.userSessionMetadata.asScala.toMap
+    )
+    val req = RegisterUserSessionTokenReqMsg(header, body)
     BbbCommonEnvCoreMsg(envelope, req)
   }
 
