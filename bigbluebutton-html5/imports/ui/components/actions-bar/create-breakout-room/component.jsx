@@ -999,12 +999,13 @@ class BreakoutRoom extends PureComponent {
               { presentations.length > 0 && !isUpdate ? (
                 <Styled.BreakoutSlideLabel>
                   <Styled.InputRooms
+                    data-test="changeSlideBreakoutRoom"
                     value={this.getRoomPresentation(value)}
                     onChange={changeRoomPresentation(value)}
                     valid
                   >
                     { currentPresentation?.id ? (
-                      <option key="current-slide" value={`${CURRENT_SLIDE_PREFIX}${currentPresentation.id}`}>
+                      <option key="current-slide" value={`${CURRENT_SLIDE_PREFIX}${currentPresentation.id}`} data-test="slideBreakoutRoomOption">
                         {intl.formatMessage(intlMessages.currentSlide)}
                       </option>
                     ) : null }

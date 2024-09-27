@@ -140,5 +140,11 @@ test.describe.parallel('Breakout', () => {
       await join.createToAllowChooseOwnRoom();
       await join.userCanChooseRoom();
     });
+    
+    test('Breakout rooms can use different presentations @ci', async ({ browser, context, page }) => {
+      const join = new Join(browser, context);
+      await join.initPages(page);
+      await join.breakoutWithDifferentPresentations();
+    });
   });
 });
