@@ -6,6 +6,10 @@ import (
 	"context"
 	"encoding/json"
 	"errors"
+	"fmt"
+	"github.com/graphql-go/graphql/language/ast"
+	"github.com/graphql-go/graphql/language/parser"
+	"github.com/graphql-go/graphql/language/source"
 	"github.com/prometheus/client_golang/prometheus"
 	"nhooyr.io/websocket"
 	"strings"
@@ -15,6 +19,7 @@ import (
 var allowedSubscriptions []string
 var deniedSubscriptions []string
 var jsonPatchDisabled = config.GetConfig().Server.JsonPatchDisabled
+var queriesRateLimiter *common.CustomRateLimiter
 
 func init() {
 	if config.GetConfig().Server.SubscriptionAllowedList != "" {
@@ -24,6 +29,10 @@ func init() {
 	if config.GetConfig().Server.SubscriptionsDeniedList != "" {
 		deniedSubscriptions = strings.Split(config.GetConfig().Server.SubscriptionsDeniedList, ",")
 	}
+
+	cfg := config.GetConfig()
+	queriesRateLimiter = common.NewCustomRateLimiter(cfg.Server.MaxConnectionsPerSecond)
+
 }
 
 // HasuraConnectionWriter
@@ -70,6 +79,15 @@ RangeLoop:
 				}
 
 				if browserMessage.Type == "subscribe" {
+
+					if err := queriesRateLimiter.Wait(hc.Context); err != nil {
+						if !errors.Is(err, context.Canceled) {
+							//http.Error(w, "Request cancelled or rate limit exceeded", http.StatusTooManyRequests)
+						}
+
+						continue
+					}
+
 					var queryId = browserMessage.ID
 
 					//Identify type based on query string
@@ -80,8 +98,42 @@ RangeLoop:
 					var streamCursorInitialValue interface{}
 
 					query := browserMessage.Payload.Query
+
+					if config.GetConfig().Server.MaxQueryDepth > 0 {
+						queryDepth, _ := calculateQueryDepth(query)
+						if queryDepth > config.GetConfig().Server.MaxQueryDepth {
+							sendErrorMessage(
+								browserConnection,
+								queryId,
+								fmt.Sprintf("Query %s is not valid with depth %d and the max allowed is %d", browserMessage.Payload.OperationName, queryDepth, config.GetConfig().Server.MaxQueryDepth))
+							continue
+						}
+					}
+
+					if config.GetConfig().Server.MaxQueryLength > 0 {
+						queryLength := len(query)
+						if queryLength > config.GetConfig().Server.MaxQueryLength {
+							sendErrorMessage(
+								browserConnection,
+								queryId,
+								fmt.Sprintf("Query %s is not valid with length %d and the max allowed is %d", browserMessage.Payload.OperationName, queryLength, config.GetConfig().Server.MaxQueryLength))
+							continue
+						}
+					}
+
 					if query != "" {
 						if strings.HasPrefix(query, "subscription") {
+							if config.GetConfig().Server.MaxConnectionConcurrentSubscriptions > 0 {
+								browserConnection.ActiveSubscriptionsMutex.RLock()
+								totalOfActiveSubscriptions := len(browserConnection.ActiveSubscriptions)
+								browserConnection.ActiveSubscriptionsMutex.RUnlock()
+
+								if totalOfActiveSubscriptions > config.GetConfig().Server.MaxConnectionConcurrentSubscriptions {
+									sendErrorMessage(browserConnection, queryId, "Limit of concurrent subscriptions reached already")
+									continue
+								}
+							}
+
 							//Validate if subscription is allowed
 							if len(allowedSubscriptions) > 0 {
 								subscriptionAllowed := false
@@ -236,3 +288,84 @@ RangeLoop:
 //		panic(err)
 //	}
 //}
+
+func calculateQueryDepth(query string) (int, error) {
+	src := source.NewSource(&source.Source{
+		Body: []byte(query),
+		Name: "GraphQL query",
+	})
+	astDoc, err := parser.Parse(parser.ParseParams{
+		Source: src,
+	})
+	if err != nil {
+		return 0, fmt.Errorf("failed to parse query: %v", err)
+	}
+
+	maxDepth := 0
+	for _, def := range astDoc.Definitions {
+		if op, ok := def.(*ast.OperationDefinition); ok {
+			depth := traverseSelectionSet(op.SelectionSet, 0)
+			if depth > maxDepth {
+				maxDepth = depth
+			}
+		}
+	}
+
+	//if maxDepth > maxAllowedDepth {
+	//	return maxDepth, fmt.Errorf("query exceeds maximum depth of %d", maxAllowedDepth)
+	//}
+
+	return maxDepth, nil
+}
+
+func traverseSelectionSet(selectionSet *ast.SelectionSet, currentDepth int) int {
+	if selectionSet == nil {
+		return currentDepth
+	}
+
+	currentDepth++
+	maxDepth := currentDepth
+
+	for _, selection := range selectionSet.Selections {
+		var depth int
+		switch sel := selection.(type) {
+		case *ast.Field:
+			depth = traverseSelectionSet(sel.SelectionSet, currentDepth)
+		case *ast.InlineFragment:
+			depth = traverseSelectionSet(sel.SelectionSet, currentDepth)
+		case *ast.FragmentSpread:
+			// Without a schema, we cannot resolve fragment spreads
+			continue
+		}
+		if depth > maxDepth {
+			maxDepth = depth
+		}
+	}
+
+	return maxDepth
+}
+
+func sendErrorMessage(browserConnection *common.BrowserConnection, messageId string, errorMessage string) {
+	browserConnection.Logger.Errorf(errorMessage)
+
+	//Error on sending action, return error msg to client
+	browserResponseData := map[string]interface{}{
+		"id":   messageId,
+		"type": "error",
+		"payload": []interface{}{
+			map[string]interface{}{
+				"message": errorMessage,
+			},
+		},
+	}
+	jsonDataError, _ := json.Marshal(browserResponseData)
+	browserConnection.FromHasuraToBrowserChannel.Send(jsonDataError)
+
+	//Return complete msg to client
+	browserResponseComplete := map[string]interface{}{
+		"id":   messageId,
+		"type": "complete",
+	}
+	jsonDataComplete, _ := json.Marshal(browserResponseComplete)
+	browserConnection.FromHasuraToBrowserChannel.Send(jsonDataComplete)
+}

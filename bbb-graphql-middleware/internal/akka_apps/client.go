@@ -29,7 +29,7 @@ func AkkaAppsGetSessionVariablesFrom(browserConnectionId string, sessionToken st
 
 	// Check if the authentication hook URL is set.
 	if sessionVarsHookUrl == "" {
-		log.Error("BBB_GRAPHQL_MIDDLEWARE_SESSION_VARS_HOOK_URL not set")
+		log.Error("Config auth_hook.url not set")
 		return nil, internalError, internalErrorId
 	}
 
