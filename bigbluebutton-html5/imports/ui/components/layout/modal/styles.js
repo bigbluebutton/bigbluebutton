@@ -155,6 +155,8 @@ const ButtonBottomContainer = styled.div`
   @media ${smallOnly} {
     align-self: center;
     padding-right: unset;
+    position: relative;
+    right: 1rem;
   }
 `;
 
@@ -174,6 +176,11 @@ const ToggleStatusWrapper = styled.div`
   flex-grow: 0;
   justify-content: flex-end;
   align-items: center;
+  
+  @media ${smallOnly} {
+  position: relative;
+  right: 2rem;
+  }
 `;
 
 const PushContainer = styled.div`
