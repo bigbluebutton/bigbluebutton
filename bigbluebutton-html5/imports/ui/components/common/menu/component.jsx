@@ -157,6 +157,8 @@ class BBBMenu extends React.Component {
         (!onClick && !a.isSeparator) && (
           <Styled.BBBMenuInformation
             key={a.key}
+            isTitle={isTitle}
+            isGenericContent={!!contentFunction}
           >
             <Styled.MenuItemWrapper
               hasSpaceBetween={isTitle && titleActions}

@@ -112,7 +112,15 @@ const IconRight = styled(Icon)`
 `;
 
 const BBBMenuInformation = styled.div`
-  padding: 12px 16px;
+  ${({ isGenericContent }) => ((isGenericContent) ? `
+    padding: 0 16px;
+  ` : `
+    padding: 12px 16px;
+  `)}
+  ${({ isTitle }) => (isTitle) && `
+    min-width: 15rem;
+    padding: 12px 16px 8px 16px;
+  `}
   margin: 0;
 `;
 
