@@ -11,20 +11,41 @@ import {
   toggleMuteMicrophone,
   toggleMuteMicrophoneSystem,
 } from '/imports/ui/components/audio/audio-graphql/audio-controls/input-stream-live-selector/service';
+import apolloContextHolder from '/imports/ui/core/graphql/apolloContextHolder/apolloContextHolder';
+import { MEETING_IS_BREAKOUT } from '/imports/ui/components/audio/audio-graphql/audio-controls/queries';
 
 const MUTED_KEY = 'muted';
 
 const recoverMicState = (toggleVoice) => {
-  const muted = Storage.getItem(MUTED_KEY);
+  const recover = (storageKey) => {
+    const muted = Storage.getItem(storageKey);
 
-  if ((muted === undefined) || (muted === null) || AudioManager.inputDeviceId === 'listen-only') {
-    return;
-  }
+    if ((muted === undefined) || (muted === null) || AudioManager.inputDeviceId === 'listen-only') {
+      return;
+    }
 
-  logger.debug({
-    logCode: 'audio_recover_mic_state',
-  }, `Audio recover previous mic state: muted = ${muted}`);
-  toggleVoice(Auth.userID, muted);
+    logger.debug({
+      logCode: 'audio_recover_mic_state',
+    }, `Audio recover previous mic state: muted = ${muted}`);
+    toggleVoice(Auth.userID, muted);
+  };
+
+  apolloContextHolder.getClient().query({
+    query: MEETING_IS_BREAKOUT,
+    fetchPolicy: 'cache-first',
+  }).then((result) => {
+    const meeting = result?.data?.meeting?.[0];
+    const meetingId = meeting?.isBreakout && meeting?.breakoutPolicies?.parentId
+      ? meeting.breakoutPolicies.parentId
+      : Auth.meetingID;
+    const storageKey = `${MUTED_KEY}_${meetingId}`;
+
+    recover(storageKey);
+  }).catch(() => {
+    // Fallback
+    const storageKey = `${MUTED_KEY}_${Auth.meetingID}`;
+    recover(storageKey);
+  });
 };
 
 const audioEventHandler = (toggleVoice) => (event) => {

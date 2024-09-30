@@ -16,7 +16,7 @@ fi
 
 npm run build
 
-sudo cp -rf dist/* /var/bigbluebutton/html5-client/
+sudo cp -rf dist/* /usr/share/bigbluebutton/html5-client/
 
 sudo ln -sf /usr/share/bigbluebutton/nginx/bbb-html5.nginx.static /usr/share/bigbluebutton/nginx/bbb-html5.nginx
 sudo systemctl restart nginx

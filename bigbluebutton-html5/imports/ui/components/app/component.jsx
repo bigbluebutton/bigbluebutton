@@ -4,6 +4,7 @@ import { defineMessages, injectIntl } from 'react-intl';
 import ReactModal from 'react-modal';
 import browserInfo from '/imports/utils/browserInfo';
 import deviceInfo from '/imports/utils/deviceInfo';
+import Session from '/imports/ui/services/storage/in-memory';
 import PollingContainer from '/imports/ui/components/polling/container';
 import logger from '/imports/startup/client/logger';
 import ActivityCheckContainer from '/imports/ui/components/activity-check/container';
@@ -26,7 +27,6 @@ import ExternalVideoPlayerContainer from '../external-video-player/external-vide
 import GenericContentMainAreaContainer from '../generic-content/generic-main-content/container';
 import EmojiRainContainer from '../emoji-rain/container';
 import Styled from './styles';
-import { SMALL_VIEWPORT_BREAKPOINT } from '../layout/enums';
 import LayoutEngine from '../layout/layout-manager/layoutEngine';
 import NavBarContainer from '../nav-bar/container';
 import SidebarNavigationContainer from '../sidebar-navigation/container';
@@ -129,6 +129,8 @@ class App extends Component {
   componentDidMount() {
     const { browserName } = browserInfo;
     const { osName } = deviceInfo;
+
+    Session.setItem('videoPreviewFirstOpen', true);
 
     ReactModal.setAppElement('#app');
 
@@ -241,8 +243,6 @@ class App extends Component {
 
   render() {
     const {
-      customStyle,
-      customStyleUrl,
       shouldShowExternalVideo,
       shouldShowPresentation,
       shouldShowScreenshare,
@@ -338,8 +338,6 @@ class App extends Component {
           {this.renderActionsBar()}
           <EmojiRainContainer />
           <VoiceActivityAdapter />
-          {customStyleUrl ? <link rel="stylesheet" type="text/css" href={customStyleUrl} /> : null}
-          {customStyle ? <link rel="stylesheet" type="text/css" href={`data:text/css;charset=UTF-8,${encodeURIComponent(customStyle)}`} /> : null}
         </Styled.Layout>
       </>
     );
