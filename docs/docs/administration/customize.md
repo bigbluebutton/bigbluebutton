@@ -1452,6 +1452,7 @@ The use of *more will include all shapes listed above.
 | -------------------------------- | -------------------------------------------------------------------------------------------------------------------- | ------------- |
 | `userdata-bbb_custom_style=`     | URL encoded string with custom CSS                                                                                   | none          |
 | `userdata-bbb_custom_style_url=` | This parameter acts the same way as `userdata-bbb_custom_style` except that the CSS content comes from a hosted file | none          |
+| `userdata-bbb_prefer_dark_theme=` | This parameter makes the dark theme come in as default                                                               | false         |
 
 #### Layout parameters
 
