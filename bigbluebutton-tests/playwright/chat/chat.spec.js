@@ -25,7 +25,8 @@ test.describe('Chat', { tag: '@ci' }, () => {
     await chat.clearChat();
   });
 
-  test('Copy chat', { tag: '@only-headed' }, async () => {
+  test('Copy chat', { tag: '@only-headed' }, async ({}, testInfo) => {
+    test.skip(testInfo.project.use.headless, 'Only works in headed mode');
     await chat.copyChat();
   });
 
