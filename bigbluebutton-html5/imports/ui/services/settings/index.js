@@ -33,11 +33,17 @@ class Settings {
       || navigator.language
       || writableDefaultValues.application.locale;
 
+    const showAnimationsDefault = getFromUserSettings(
+      'bbb_show_animations_default',
+      window.meetingClientSettings.public.app.defaultSettings.application.animations,
+    );
+
     const showDarkThemeDefault = getFromUserSettings(
       'bbb_prefer_dark_theme',
       window.meetingClientSettings.public.app.defaultSettings.application.darkTheme,
     );
 
+    writableDefaultValues.application.animations = showAnimationsDefault;
     writableDefaultValues.application.darkTheme = showDarkThemeDefault;
 
     this.setDefault(writableDefaultValues);
