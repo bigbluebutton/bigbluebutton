@@ -162,10 +162,15 @@ const AudioCaptionsButton: React.FC<AudioCaptionsButtonProps> = ({
         if (availableVoice === availableVoices[0]) {
           indexToInsertSeparator = index;
         }
+
+        const label = intlMessages[availableVoice as keyof typeof intlMessages]
+          ? intl.formatMessage(intlMessages[availableVoice as keyof typeof intlMessages])
+          : AudioCaptionsService.getLocaleName(availableVoice);
+
         return (
           {
             icon: '',
-            label: intl.formatMessage(intlMessages[availableVoice as keyof typeof intlMessages]),
+            label,
             key: availableVoice,
             iconRight: selectedLocale.current === availableVoice ? 'check' : null,
             customStyles: (selectedLocale.current === availableVoice) && Styled.SelectedLabel,

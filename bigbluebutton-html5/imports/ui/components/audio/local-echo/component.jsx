@@ -17,6 +17,8 @@ const propTypes = {
   deattachEchoStream: PropTypes.func.isRequired,
   shouldUseRTCLoopback: PropTypes.func.isRequired,
   createAudioRTCLoopback: PropTypes.func.isRequired,
+  outputDeviceId: PropTypes.string,
+  setAudioSink: PropTypes.func.isRequired,
 };
 
 const intlMessages = defineMessages({
@@ -38,6 +40,8 @@ const LocalEcho = ({
   deattachEchoStream,
   shouldUseRTCLoopback,
   createAudioRTCLoopback,
+  outputDeviceId,
+  setAudioSink,
 }) => {
   const loopbackAgent = useRef(null);
   const [hearing, setHearing] = useState(initialHearingState);
@@ -69,6 +73,10 @@ const LocalEcho = ({
   useEffect(() => {
     applyHearingState(stream);
   }, [stream, hearing]);
+
+  useEffect(() => {
+    if (outputDeviceId) setAudioSink(outputDeviceId);
+  }, [outputDeviceId]);
 
   return (
     <Styled.LocalEchoTestButton

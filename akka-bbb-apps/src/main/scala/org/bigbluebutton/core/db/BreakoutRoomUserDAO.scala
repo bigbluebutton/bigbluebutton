@@ -76,14 +76,18 @@ object BreakoutRoomUserDAO {
   }
 
   def updateUserJoined(meetingId: String, usersInRoom: Vector[String], breakoutRoom: BreakoutRoom2x) = {
-    DatabaseConnection.enqueue(
-      sqlu"""UPDATE "breakoutRoom_user" SET
+    for {
+      userInRoom <- usersInRoom
+    } yield {
+      DatabaseConnection.enqueue(
+        sqlu"""UPDATE "breakoutRoom_user" SET
                 "joinedAt" = current_timestamp
                 WHERE "meetingId" = ${meetingId}
-                AND "userId" in (${usersInRoom.mkString(",")})
+                AND "userId" = ${userInRoom}
                 AND "breakoutRoomId" = ${breakoutRoom.id}
                 AND "joinedAt" is null"""
-    )
+      )
+    }
   }
 
   def insertBreakoutRoom(userId: String, room: BreakoutRoom2x, liveMeeting: LiveMeeting) = {

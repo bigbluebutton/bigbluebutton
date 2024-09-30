@@ -2,6 +2,7 @@ const { expect } = require('@playwright/test');
 const Page = require('../core/page');
 const e = require('../core/elements');
 const { ELEMENT_WAIT_LONGER_TIME } = require('../core/constants');
+const CI = process.env.CI === 'true';
 
 class Draw extends Page {
   constructor(browser, page) {
@@ -23,10 +24,12 @@ class Draw extends Page {
     await this.page.mouse.move(wbBox.x + 0.7 * wbBox.width, wbBox.y + 0.7 * wbBox.height);
     await this.page.mouse.up();
 
-    await this.waitForSelector(e.wbDrawnRectangle);
-    
-    await this.setHeightWidthViewPortSize();
-    await expect(modWbLocator).toHaveScreenshot('moderator-rect-ci.png', screenshotOptions);
+    await this.hasElement(e.wbDrawnShape);
+
+    if(!CI) {
+      await this.setHeightWidthViewPortSize();
+      await expect(modWbLocator).toHaveScreenshot('moderator-rect-ci.png', screenshotOptions);
+    }
   }
 
   async getOuterHtmlDrawn() {

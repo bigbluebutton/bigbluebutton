@@ -18,6 +18,27 @@ case class UserRegisteredRespMsg(
 case class UserRegisteredRespMsgBody(meetingId: String, userId: String, name: String,
                                      role: String, excludeFromDashboard: Boolean, registeredOn: Long)
 
+object RegisterUserSessionTokenReqMsg { val NAME = "RegisterUserSessionTokenReqMsg" }
+case class RegisterUserSessionTokenReqMsg(
+    header: BbbCoreHeaderWithMeetingId,
+    body:   RegisterUserSessionTokenReqMsgBody
+) extends BbbCoreMsg
+case class RegisterUserSessionTokenReqMsgBody(
+    meetingId:           String,
+    userId:              String,
+    sessionToken:        String,
+    replaceSessionToken: String,
+    enforceLayout:       String,
+    userSessionMetadata: Map[String, String]
+)
+
+object UserSessionTokenRegisteredRespMsg { val NAME = "UserSessionTokenRegisteredRespMsg" }
+case class UserSessionTokenRegisteredRespMsg(
+    header: BbbCoreHeaderWithMeetingId,
+    body:   UserSessionTokenRegisteredRespMsgBody
+) extends BbbCoreMsg
+case class UserSessionTokenRegisteredRespMsgBody(meetingId: String, userId: String, sessionToken: String)
+
 /**
  * Out Messages
  */
@@ -301,6 +322,23 @@ case class UserLockedInMeetingEvtMsgBody(userId: String, locked: Boolean, locked
 object LockUsersInMeetingCmdMsg { val NAME = "LockUsersInMeetingCmdMsg" }
 case class LockUsersInMeetingCmdMsg(header: BbbClientMsgHeader, body: LockUsersInMeetingCmdMsgBody) extends StandardMsg
 case class LockUsersInMeetingCmdMsgBody(lock: Boolean, lockedBy: String, except: Vector[String])
+
+/**
+ * Sent by client to set user lock setting.
+ */
+object ChangeUserLockSettingsInMeetingCmdMsg { val NAME = "ChangeUserLockSettingsInMeetingCmdMsg" }
+case class ChangeUserLockSettingsInMeetingCmdMsg(
+    header: BbbClientMsgHeader,
+    body:   ChangeUserLockSettingsInMeetingCmdMsgBody
+) extends StandardMsg
+case class ChangeUserLockSettingsInMeetingCmdMsgBody(userId: String, disablePubChat: Boolean, setBy: String)
+
+object UserLockSettingsInMeetingChangedEvtMsg { val NAME = "UserLockSettingsInMeetingChangedEvtMsg" }
+case class UserLockSettingsInMeetingChangedEvtMsg(
+    header: BbbClientMsgHeader,
+    body:   UserLockSettingsInMeetingChangedEvtMsgBody
+) extends BbbCoreMsg
+case class UserLockSettingsInMeetingChangedEvtMsgBody(userId: String, disablePubChat: Boolean, setBy: String)
 
 /**
  * Sent by client to set lock setting.
