@@ -16,6 +16,7 @@ import {
   EJECT_FROM_VOICE,
   SET_PRESENTER,
   SET_LOCKED,
+  SET_USER_CHAT_LOCKED,
 } from '/imports/ui/core/graphql/mutations/userMutations';
 import {
   isVideoPinEnabledForCurrentUser,
@@ -39,6 +40,7 @@ import { useMutation, useLazyQuery } from '@apollo/client';
 import { CURRENT_PAGE_WRITERS_QUERY } from '/imports/ui/components/whiteboard/queries';
 import { PRESENTATION_SET_WRITERS } from '/imports/ui/components/presentation/mutations';
 import useToggleVoice from '/imports/ui/components/audio/audio-graphql/hooks/useToggleVoice';
+import useWhoIsUnmuted from '/imports/ui/core/hooks/useWhoIsUnmuted';
 
 interface UserActionsProps {
   user: User;
@@ -121,6 +123,14 @@ const messages = defineMessages({
   LockUserLabel: {
     id: 'app.userList.menu.lockUser.label',
     description: 'Lock a unlocked user',
+  },
+  lockPublicChat: {
+    id: 'app.userList.menu.lockPublicChat.label',
+    description: 'label for option to lock user\'s public chat',
+  },
+  unlockPublicChat: {
+    id: 'app.userList.menu.unlockPublicChat.label',
+    description: 'label for option to lock user\'s public chat',
   },
   DirectoryLookupLabel: {
     id: 'app.userList.menu.directoryLookup.label',
@@ -242,12 +252,17 @@ const UserActions: React.FC<UserActionsProps> = ({
   };
 
   const { pluginsExtensibleAreasAggregatedState } = useContext(PluginsContext);
+
+  const { data: unmutedUsers } = useWhoIsUnmuted();
+  const isMuted = !unmutedUsers[user.userId];
+
   const actionsnPermitions = generateActionsPermissions(
     user,
     currentUser,
     lockSettings,
     usersPolicies,
     isBreakout,
+    isMuted,
   );
   const {
     allowedToChatPrivately,
@@ -265,6 +280,8 @@ const UserActions: React.FC<UserActionsProps> = ({
   const userLocked = user.locked
     && lockSettings?.hasActiveLockSetting
     && !user.isModerator;
+
+  const userChatLocked = user.userLockSettings?.disablePublicChat;
 
   let userListDropdownItems = [] as PluginSdk.UserListDropdownInterface[];
   if (pluginsExtensibleAreasAggregatedState.userListDropdownItems) {
@@ -288,6 +305,7 @@ const UserActions: React.FC<UserActionsProps> = ({
   const [ejectFromVoice] = useMutation(EJECT_FROM_VOICE);
   const [setPresenter] = useMutation(SET_PRESENTER);
   const [setLocked] = useMutation(SET_LOCKED);
+  const [setUserChatLocked] = useMutation(SET_USER_CHAT_LOCKED);
   const [userEjectCameras] = useMutation(USER_EJECT_CAMERAS);
 
   const removeUser = (userId: string, banUser: boolean) => {
@@ -367,6 +385,26 @@ const UserActions: React.FC<UserActionsProps> = ({
       },
       icon: 'chat',
       dataTest: 'startPrivateChat',
+    },
+    {
+      allowed: isChatEnabled
+        && !user.isModerator
+        && currentUser.isModerator
+        && !isVoiceOnlyUser(user.userId),
+      key: 'lockChat',
+      label: userChatLocked
+        ? intl.formatMessage(messages.unlockPublicChat)
+        : intl.formatMessage(messages.lockPublicChat),
+      onClick: () => {
+        try {
+          setUserChatLocked({ variables: { userId: user.userId, disablePubChat: !userChatLocked } });
+        } catch (e) {
+          logger.error('Error on trying to toggle muted');
+        }
+        setOpenUserAction(null);
+      },
+      icon: userChatLocked ? 'unlock' : 'lock',
+      dataTest: 'togglePublicChat',
     },
     {
       allowed: allowedToMuteAudio

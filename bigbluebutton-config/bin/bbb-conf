@@ -152,7 +152,7 @@ else
     WEBRTC_RECORDER_CONFIG=$(yq e $WEBRTC_RECORDER_DEFAULT_CONFIG 2> /dev/null)
 fi
 
-HTML5_DEFAULT_CONFIG=/usr/share/meteor/bundle/programs/server/assets/app/config/settings.yml
+HTML5_DEFAULT_CONFIG=/usr/share/bigbluebutton/html5-client/private/config/settings.yml
 HTML5_ETC_CONFIG=/etc/bigbluebutton/bbb-html5.yml
 if [ -f $HTML5_ETC_CONFIG ]; then
     HTML5_CONFIG=$(yq eval-all '. as $item ireduce ({}; . * $item )' $HTML5_DEFAULT_CONFIG $HTML5_ETC_CONFIG 2> /dev/null)
@@ -367,20 +367,10 @@ start_bigbluebutton () {
     echo "Starting BigBlueButton"
 
     systemctl restart bigbluebutton.target
-
-    if [ -f /usr/lib/systemd/system/bbb-html5.service ]; then
-        systemctl start mongod
-        sleep 3
-        systemctl start bbb-html5
-    fi
 }
 
 display_bigbluebutton_status () {
     units="nginx freeswitch $REDIS_SERVICE bbb-apps-akka bbb-fsesl-akka"
-
-    if [ -f /usr/lib/systemd/system/bbb-html5.service ]; then
-        units="$units mongod bbb-html5"
-    fi
 
     if [ -f /usr/lib/systemd/system/bbb-graphql-actions.service ]; then
         units="$units bbb-graphql-actions"
@@ -740,10 +730,10 @@ check_configuration() {
         fi
     fi
 
-    SIP_PROTOCOL=$(cat /usr/share/bigbluebutton/nginx/sip.nginx | grep -v \# | sed -n '/proxy_pass/{s/.*proxy_pass [ ]*//;s/:.*//;p}' | head -n 1)
+    SIP_PROTOCOL=$(cat "$SIP_CONFIG" | grep -v \# | sed -n '/proxy_pass/{s/.*proxy_pass [ ]*//;s/:.*//;p}' | head -n 1)
     if [[ $SIP_PROTOCOL == "https" ]]; then
         if ! grep wss-binding $FREESWITCH_EXTERNAL > /dev/null; then
-            echo "# Warning: Websockets is using HTTPS in /usr/share/bigbluebutton/nginx/sip.nginx"
+            echo "# Warning: Websockets is using HTTPS in $SIP_CONFIG"
             echo "# but no definition for wss-binding found in "
             echo "#"
             echo "#    $FREESWITCH_EXTERNAL"
@@ -1031,7 +1021,7 @@ check_state() {
         if [ "$SIP_NGINX_IP" != "\$freeswitch_addr" ]; then
           echo "# Warning: The setting of $SIP_NGINX_IP for proxy_pass in"
           echo "#"
-          echo "#    /usr/share/bigbluebutton/nginx/sip.nginx"
+          echo "#    $SIP_CONFIG"
           echo "#"
           echo "# does not match the local IP address ($IP)."
           echo "# (This is OK if you've manually changed the values)"
@@ -1203,6 +1193,16 @@ check_state() {
 			echo "#"
 		fi
 
+    # check for any maintainer configuration files being ignored
+    dpkg_dist_files=$(find /etc/default -type f -name "*.dpkg-dist")
+    if [ -n "$dpkg_dist_files" ]; then
+      echo "# Warning: found the following configuration files which were ignored when installing."
+      echo "# Please inspect those files and consider applying the differences to the similarly"
+      echo "# named configuration file in the same directory."
+      echo "# When done, please restart BigBlueButton."
+      echo "#"
+      echo "$dpkg_dist_files"
+    fi
 
     exit 0
 }
@@ -1288,7 +1288,7 @@ if [ $CHECK ]; then
         echo
         echo "$SIP_CONFIG (sip.nginx)"
         echo "                        proxy_pass: $SIP_NGINX_IP"
-        echo "                          protocol: $(cat /usr/share/bigbluebutton/nginx/sip.nginx | grep -v \# | sed -n '/proxy_pass/{s/.*proxy_pass [ ]*//;s/:.*//;p}' | head -n 1)"
+        echo "                          protocol: $(cat "$SIP_CONFIG" | grep -v \# | sed -n '/proxy_pass/{s/.*proxy_pass [ ]*//;s/:.*//;p}' | head -n 1)"
     fi
 
     if [ -n "$WEBRTC_SFU_CONFIG" ]; then
@@ -1318,7 +1318,7 @@ if [ $CHECK ]; then
 
     if [ -n "$HTML5_CONFIG" ]; then
     echo
-    echo "/usr/share/meteor/bundle/programs/server/assets/app/config/settings.yml (HTML5 client)"
+    echo "/usr/share/bigbluebutton/html5-client/private/config/settings.yml (HTML5 client)"
     echo "/etc/bigbluebutton/bbb-html5.yml (HTML5 client config override)"
     echo "                             build: $(echo "$HTML5_CONFIG" | yq e '.public.app.html5ClientBuild' -)"
     echo "                        kurentoUrl: $(echo "$HTML5_CONFIG" | yq e '.public.kurento.wsUrl' -)"
@@ -1361,7 +1361,6 @@ if [ $ZIP ]; then
     tar rf  $TMP_LOG_FILE /var/log/bbb-apps-akka   > /dev/null 2>&1
     tar rf  $TMP_LOG_FILE /var/log/bbb-fsesl-akka         > /dev/null 2>&1
     tar rf  $TMP_LOG_FILE /var/log/bbb-webrtc-sfu         > /dev/null 2>&1
-    tar rf  $TMP_LOG_FILE /var/log/mongodb              > /dev/null 2>&1
     tar rf  $TMP_LOG_FILE /var/log/redis                > /dev/null 2>&1
     tar rf  $TMP_LOG_FILE /var/log/nginx/error.log*     > /dev/null 2>&1
     tar rf  $TMP_LOG_FILE /var/log/nginx/bigbluebutton.access.log*    > /dev/null 2>&1
@@ -1530,7 +1529,6 @@ if [ -n "$HOST" ]; then
     if [ -f $HTML5_DEFAULT_CONFIG ]; then
         yq e -i ".public.kurento.wsUrl = \"wss://$HOST/bbb-webrtc-sfu\"" $HTML5_DEFAULT_CONFIG
         yq e -i ".public.pads.url = \"$PROTOCOL://$HOST/pad\"" $HTML5_DEFAULT_CONFIG
-        chown meteor:meteor $HTML5_DEFAULT_CONFIG
     fi
 
     #

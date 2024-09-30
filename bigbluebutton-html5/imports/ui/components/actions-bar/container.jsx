@@ -1,10 +1,14 @@
-import React, { useContext } from 'react';
+import React, { useContext, useEffect, useState } from 'react';
 import { useIntl } from 'react-intl';
 import { useMutation, useReactiveVar } from '@apollo/client';
 import getFromUserSettings from '/imports/ui/services/users-settings';
 import Auth from '/imports/ui/services/auth';
 import ActionsBar from './component';
-import { layoutSelectOutput, layoutDispatch } from '../layout/context';
+import {
+  layoutSelectOutput,
+  layoutSelectInput,
+  layoutDispatch,
+} from '../layout/context';
 import {
   useIsExternalVideoEnabled,
   useIsPollingEnabled,
@@ -23,6 +27,13 @@ import { EXTERNAL_VIDEO_STOP } from '../external-video-player/mutations';
 import { PINNED_PAD_SUBSCRIPTION } from '../notes/queries';
 import useDeduplicatedSubscription from '../../core/hooks/useDeduplicatedSubscription';
 import connectionStatus from '../../core/graphql/singletons/connectionStatus';
+import { useMeetingLayoutUpdater, usePushLayoutUpdater } from '../layout/push-layout/hooks';
+import useSettings from '/imports/ui/services/settings/hooks/useSettings';
+import { SETTINGS } from '/imports/ui/services/settings/enums';
+import deviceInfo from '/imports/utils/deviceInfo';
+import { SMALL_VIEWPORT_BREAKPOINT } from '../layout/enums';
+
+const isLayeredView = window.matchMedia(`(max-width: ${SMALL_VIEWPORT_BREAKPOINT}px)`);
 
 const isReactionsButtonEnabled = () => {
   const USER_REACTIONS_ENABLED = window.meetingClientSettings.public.userReaction.enabled;
@@ -33,14 +44,24 @@ const isReactionsButtonEnabled = () => {
 
 const ActionsBarContainer = (props) => {
   const NOTES_CONFIG = window.meetingClientSettings.public.notes;
+  const LAYOUT_CONFIG = window.meetingClientSettings.public.layout;
+  const { showPushLayoutButton } = LAYOUT_CONFIG;
   const actionsBarStyle = layoutSelectOutput((i) => i.actionBar);
   const layoutContextDispatch = layoutDispatch();
+  const cameraDockOutput = layoutSelectOutput((i) => i.cameraDock);
+  const cameraDockInput = layoutSelectInput((i) => i.cameraDock);
+  const presentationInput = layoutSelectInput((i) => i.presentation);
+  const sidebarNavigation = layoutSelectInput((i) => i.sidebarNavigation);
+  const sidebarContent = layoutSelectInput((i) => i.sidebarContent);
 
   const { data: presentationPageData } = useDeduplicatedSubscription(
     CURRENT_PRESENTATION_PAGE_SUBSCRIPTION,
   );
   const presentationPage = presentationPageData?.pres_page_curr[0] || {};
   const isThereCurrentPresentation = !!presentationPage?.presentationId;
+
+  const genericMainContent = layoutSelectInput((i) => i.genericMainContent);
+  const isThereGenericMainContent = !!genericMainContent.genericContentId;
 
   const { data: currentMeeting } = useMeeting((m) => ({
     externalVideo: m.externalVideo,
@@ -71,10 +92,21 @@ const ActionsBarContainer = (props) => {
   };
   const amIPresenter = currentUserData?.presenter;
   const amIModerator = currentUserData?.isModerator;
+  const [pinnedPadDataState, setPinnedPadDataState] = useState(null);
 
-  const { data: pinnedPadData } = useDeduplicatedSubscription(PINNED_PAD_SUBSCRIPTION);
-  const isSharedNotesPinnedFromGraphql = !!pinnedPadData
-    && pinnedPadData.sharedNotes[0]?.sharedNotesExtId === NOTES_CONFIG.id;
+  useEffect(() => {
+    const fetchData = async () => {
+      const { data: pinnedPadData } = await useDeduplicatedSubscription(
+        PINNED_PAD_SUBSCRIPTION,
+      );
+      setPinnedPadDataState(pinnedPadData || []);
+    };
+
+    fetchData();
+  }, []);
+
+  const isSharedNotesPinnedFromGraphql = !!pinnedPadDataState
+    && pinnedPadDataState.sharedNotes[0]?.sharedNotesExtId === NOTES_CONFIG.id;
 
   const isSharedNotesPinned = isSharedNotesPinnedFromGraphql;
   const allowExternalVideo = useIsExternalVideoEnabled();
@@ -83,6 +115,20 @@ const ActionsBarContainer = (props) => {
   const isPresentationEnabled = useIsPresentationEnabled();
   const isTimerFeatureEnabled = useIsTimerFeatureEnabled();
   const isPollingEnabled = useIsPollingEnabled() && isPresentationEnabled;
+  const applicationSettings = useSettings(SETTINGS.APPLICATION);
+  const { pushLayout } = applicationSettings;
+  const setPushLayout = usePushLayoutUpdater(pushLayout);
+  const setMeetingLayout = useMeetingLayoutUpdater(
+    cameraDockOutput,
+    cameraDockInput,
+    presentationInput,
+    applicationSettings,
+  );
+  const { isOpen: sidebarNavigationIsOpen } = sidebarNavigation;
+  const { isOpen: sidebarContentIsOpen } = sidebarContent;
+  const ariaHidden = sidebarNavigationIsOpen
+    && sidebarContentIsOpen
+    && (deviceInfo.isPhone || isLayeredView.matches);
   if (actionsBarStyle.display === false) return null;
   if (!currentMeeting) return null;
 
@@ -113,6 +159,11 @@ const ActionsBarContainer = (props) => {
         isSharedNotesPinned,
         isTimerActive: currentMeeting.componentsFlags.hasTimer,
         isTimerEnabled: isTimerFeatureEnabled,
+        hasGenericContent: isThereGenericMainContent,
+        setPushLayout,
+        setMeetingLayout,
+        showPushLayout: showPushLayoutButton && applicationSettings.selectedLayout === 'custom',
+        ariaHidden,
       }
     }
     />

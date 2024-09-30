@@ -52,7 +52,8 @@ trait UserJoinMeetingReqMsgHdlr extends HandlerHelpers {
     notifyPreviousUsersWithSameExtId(regUser)
     clearCachedVoiceUser(regUser)
     clearExpiredUserState(regUser)
-    ForceUserGraphqlReconnection(regUser)
+    forceUserGraphqlReconnection(regUser)
+    updateGraphqlDatabase(regUser)
 
     newState
   }
@@ -154,9 +155,16 @@ trait UserJoinMeetingReqMsgHdlr extends HandlerHelpers {
     VoiceUsers.recoverVoiceUser(liveMeeting.voiceUsers, regUser.id)
 
   private def clearExpiredUserState(regUser: RegisteredUser) =
-    UserStateDAO.updateExpired(regUser.meetingId, regUser.id, false)
+    UserStateDAO.updateExpired(regUser.meetingId, regUser.id, expired = false)
 
-  private def ForceUserGraphqlReconnection(regUser: RegisteredUser) =
+  private def forceUserGraphqlReconnection(regUser: RegisteredUser) = {
     Sender.sendForceUserGraphqlReconnectionSysMsg(liveMeeting.props.meetingProp.intId, regUser.id, regUser.sessionToken, "user_joined", outGW)
+  }
+
+  private def updateGraphqlDatabase(regUser: RegisteredUser) = {
+    if (!regUser.joined) {
+      RegisteredUsers.updateUserJoin(liveMeeting.registeredUsers, regUser, joined = true)
+    }
+  }
 
 }

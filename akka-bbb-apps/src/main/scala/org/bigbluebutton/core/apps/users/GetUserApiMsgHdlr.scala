@@ -19,7 +19,7 @@ trait GetUserApiMsgHdlr extends HandlerHelpers {
         actorRef ! ApiResponseSuccess("User found!", UserInfosApiMsg(getUserInfoResponse(regUser)))
       case None =>
         log.debug("User not found, sending failure message")
-        actorRef ! ApiResponseFailure("User not found", Map())
+        actorRef ! ApiResponseFailure("User not found", "user_not_found", Map())
     }
   }
 
@@ -28,7 +28,7 @@ trait GetUserApiMsgHdlr extends HandlerHelpers {
     val isLocked = Users2x.findWithIntId(liveMeeting.users2x, regUser.id).exists(u => u.locked)
     val userStateExists = Users2x.findWithIntId(liveMeeting.users2x, regUser.id).nonEmpty
 
-    val userIsOnline = regUser.joined && !regUser.loggedOut && !regUser.ejected && userStateExists
+    val currentlyInMeeting = regUser.joined && !regUser.loggedOut && !regUser.ejected && userStateExists
 
     val permissions = MeetingStatus2x.getPermissions(liveMeeting.status)
 
@@ -38,7 +38,7 @@ trait GetUserApiMsgHdlr extends HandlerHelpers {
     userInfos += ("externMeetingID" -> liveMeeting.props.meetingProp.extId)
     userInfos += ("externUserID" -> regUser.externId)
     userInfos += ("internalUserID" -> regUser.id)
-    userInfos += ("online" -> userIsOnline)
+    userInfos += ("currentlyInMeeting" -> currentlyInMeeting)
     userInfos += ("authToken" -> regUser.authToken)
     userInfos += ("sessionToken" -> regUser.sessionToken)
     userInfos += ("role" -> regUser.role)

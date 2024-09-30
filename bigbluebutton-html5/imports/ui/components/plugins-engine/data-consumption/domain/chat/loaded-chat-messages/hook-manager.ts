@@ -19,12 +19,13 @@ const LoadedChatMessagesHookContainer = () => {
     message: message.message,
     messageId: message.messageId,
     user: message.user,
+    messageMetadata: message.messageMetadata,
   }));
 
   const updateLoadedChatMessagesForPlugin = () => {
     window.dispatchEvent(new CustomEvent<
       UpdatedEventDetails<PluginSdk.GraphqlResponseWrapper<LoadedChatMessage[]>>
-    >(HookEvents.UPDATED, {
+    >(HookEvents.BBB_CORE_SENT_NEW_DATA, {
       detail: {
         data: formatLoadedChatMessagesDataFromGraphql(chatMessagesData),
         hook: DataConsumptionHooks.LOADED_CHAT_MESSAGES,
@@ -41,11 +42,11 @@ const LoadedChatMessagesHookContainer = () => {
       if (event.detail.hook === DataConsumptionHooks.LOADED_CHAT_MESSAGES) setSendSignal((signal) => !signal);
     }) as EventListener;
     window.addEventListener(
-      HookEvents.SUBSCRIBED, updateHookUseLoadedChatMessages,
+      HookEvents.PLUGIN_SUBSCRIBED_TO_BBB_CORE, updateHookUseLoadedChatMessages,
     );
     return () => {
       window.removeEventListener(
-        HookEvents.SUBSCRIBED, updateHookUseLoadedChatMessages,
+        HookEvents.PLUGIN_SUBSCRIBED_TO_BBB_CORE, updateHookUseLoadedChatMessages,
       );
     };
   }, []);

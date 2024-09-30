@@ -202,6 +202,16 @@ object MsgBuilder {
     BbbCommonEnvCoreMsg(envelope, event)
   }
 
+  def buildForceUserGraphqlDisconnectionSysMsg(meetingId: String, userId: String, sessionToken: String, reason: String, reasonMsgId: String): BbbCommonEnvCoreMsg = {
+    val routing = Routing.addMsgToClientRouting(MessageTypes.SYSTEM, meetingId, userId)
+    val envelope = BbbCoreEnvelope(ForceUserGraphqlDisconnectionSysMsg.NAME, routing)
+    val header = BbbCoreHeaderWithMeetingId(ForceUserGraphqlDisconnectionSysMsg.NAME, meetingId)
+    val body = ForceUserGraphqlDisconnectionSysMsgBody(meetingId, userId, sessionToken, reason, reasonMsgId)
+    val event = ForceUserGraphqlDisconnectionSysMsg(header, body)
+
+    BbbCommonEnvCoreMsg(envelope, event)
+  }
+
   def buildCheckGraphqlMiddlewareAlivePingSysMsg(middlewareUid: String): BbbCommonEnvCoreMsg = {
     val routing = Routing.addMsgToClientRouting(MessageTypes.SYSTEM, "", "")
     val envelope = BbbCoreEnvelope(CheckGraphqlMiddlewareAlivePingSysMsg.NAME, routing)
@@ -278,6 +288,17 @@ object MsgBuilder {
     val body = EjectUserFromVoiceConfSysMsgBody(voiceConf, voiceUserId)
     val header = BbbCoreHeaderWithMeetingId(EjectUserFromVoiceConfSysMsg.NAME, meetingId)
     val event = EjectUserFromVoiceConfSysMsg(header, body)
+
+    BbbCommonEnvCoreMsg(envelope, event)
+  }
+
+  def buildMeetingMutedEvtMsg(meetingId: String, userId: String, muted: Boolean, mutedBy: String): BbbCommonEnvCoreMsg = {
+    val routing = Routing.addMsgToClientRouting(MessageTypes.BROADCAST_TO_MEETING, meetingId, userId)
+    val envelope = BbbCoreEnvelope(MeetingMutedEvtMsg.NAME, routing)
+    val header = BbbClientMsgHeader(MeetingMutedEvtMsg.NAME, meetingId, userId)
+
+    val body = MeetingMutedEvtMsgBody(muted, mutedBy)
+    val event = MeetingMutedEvtMsg(header, body)
 
     BbbCommonEnvCoreMsg(envelope, event)
   }
@@ -574,11 +595,12 @@ object MsgBuilder {
       meetingId: String,
       voiceConf: String,
       userId:    String,
+      callerNum: String,
       enabled:   Boolean
   ): BbbCommonEnvCoreMsg = {
     val routing = collection.immutable.HashMap("sender" -> "bbb-apps-akka")
     val envelope = BbbCoreEnvelope(ToggleListenOnlyModeSysMsg.NAME, routing)
-    val body = ToggleListenOnlyModeSysMsgBody(voiceConf, userId, enabled)
+    val body = ToggleListenOnlyModeSysMsgBody(voiceConf, userId, callerNum, enabled)
     val header = BbbCoreHeaderWithMeetingId(ToggleListenOnlyModeSysMsg.NAME, meetingId)
     val event = ToggleListenOnlyModeSysMsg(header, body)
 

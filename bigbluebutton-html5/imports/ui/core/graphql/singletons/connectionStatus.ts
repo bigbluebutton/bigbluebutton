@@ -3,13 +3,14 @@ import logger from '/imports/startup/client/logger';
 import { User } from '/imports/ui/Types/user';
 
 type NetworkData = {
+  ready: boolean;
   user: User;
   audio: {
     audioCurrentUploadRate: number;
     audioCurrentDownloadRate: number;
     jitter: number;
     packetsLost: number;
-    transportStats: number;
+    transportStats: Record<string, unknown>;
   },
   video: {
     videoCurrentUploadRate: number,
@@ -31,15 +32,40 @@ class ConnectionStatus {
 
   // @ts-ignore
   private networkData: ReactiveVar<NetworkData> = makeVar({
-    audio: {},
-    video: {},
+    // These are placeholder values for the connstats modal to render something
+    // other than *undefined* while initial data is being collected.
+    // Do not replace it for empty stuff unless appropriately justified.
+    ready: false,
+    audio: {
+      audioCurrentUploadRate: 0,
+      audioCurrentDownloadRate: 0,
+      jitter: 0,
+      packetsLost: 0,
+      transportStats: {},
+    },
+    video: {
+      videoCurrentUploadRate: 0,
+      videoCurrentDownloadRate: 0,
+    },
   });
+
+  private userNetworkHistory = makeVar<Array<{
+    user: Pick<User, 'userId' | 'avatar' | 'isModerator' | 'color' | 'currentlyInMeeting' | 'name'>,
+    lastUnstableStatus: string,
+    lastUnstableStatusAt: Date | number,
+    clientNotResponding?: boolean,
+  }>>([]);
+
+  private packetLossFraction = makeVar(0);
 
   private packetLossStatus = makeVar('normal');
 
   public setPacketLossStatus(value: string): void {
     if (value !== this.packetLossStatus()) {
-      logger.info({ logCode: 'stats_packet_loss_state' }, `Packet loss status changed to ${value} (packet loss=${this.networkData()?.audio?.packetsLost})`);
+      const lossPercentage = this.getPacketLossFraction() * 100;
+      logger.info({
+        logCode: 'stats_packet_loss_state',
+      }, `Packet loss status changed to ${value} (packet loss=${lossPercentage.toFixed(2)}%)`);
       this.packetLossStatus(value);
     }
   }
@@ -50,6 +76,20 @@ class ConnectionStatus {
 
   public getPacketLossStatusVar() {
     return this.packetLossStatus;
+  }
+
+  public setPacketLossFraction(fraction: number): void {
+    if (fraction !== this.packetLossFraction()) {
+      this.packetLossFraction(fraction);
+    }
+  }
+
+  public getPacketLossFraction() {
+    return this.packetLossFraction();
+  }
+
+  public getPacketLossFractionVar() {
+    return this.packetLossFraction;
   }
 
   public setNetworkData(data: NetworkData): void {
@@ -66,7 +106,7 @@ class ConnectionStatus {
 
   public setRttValue(value: number): void {
     if (value !== this.rttValue()) {
-      logger.debug({ logCode: 'stats_rtt_value_state' }, `RTT value changed to ${value}`);
+      logger.debug({ logCode: 'stats_rtt_value_state' }, `RTT value changed to ${value}ms`);
       this.rttValue(value);
     }
   }
@@ -96,7 +136,7 @@ class ConnectionStatus {
 
   public setRttStatus(value: string): void {
     if (value !== this.rttStatus()) {
-      logger.info({ logCode: 'stats_rtt_status_state' }, `Connection status changed to ${value} (rtt=${this.rttValue()})`);
+      logger.info({ logCode: 'stats_rtt_status_state' }, `Connection status changed to ${value} (rtt=${this.rttValue()}ms)`);
       this.rttStatus(value);
     }
   }
@@ -152,6 +192,32 @@ class ConnectionStatus {
 
   public getConnectedStatusVar() {
     return this.connected;
+  }
+
+  public addUserNetworkHistory(
+    user: User,
+    lastUnstableStatus: string,
+    lastUnstableStatusAt: Date | number,
+  ): void {
+    const userNetworkHistory = [...this.userNetworkHistory()];
+    userNetworkHistory.push({
+      user: {
+        userId: user.userId,
+        avatar: user.avatar,
+        isModerator: user.isModerator,
+        color: user.color,
+        currentlyInMeeting: user.currentlyInMeeting,
+        name: user.name,
+      },
+      lastUnstableStatus,
+      lastUnstableStatusAt,
+      clientNotResponding: false,
+    });
+    this.userNetworkHistory(userNetworkHistory);
+  }
+
+  public getUserNetworkHistory() {
+    return this.userNetworkHistory();
   }
 }
 

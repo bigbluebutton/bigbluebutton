@@ -135,6 +135,7 @@ const Avatar = styled.div<AvatarProps>`
   position: relative;
   height: 2.25rem;
   width: 2.25rem;
+  min-width: 2.25rem;
   border-radius: 50%;
   text-align: center;
   font-size: .85rem;
@@ -192,6 +193,7 @@ const Avatar = styled.div<AvatarProps>`
 
   ${({ moderator }) => moderator && `
     border-radius: 5px;
+    color: ${colorWhite} !important;
   `}
 
   ${({ presenter }) => presenter && `
@@ -324,7 +326,7 @@ const Avatar = styled.div<AvatarProps>`
   // ================ image ================
 
   // ================ content ================
-  color: ${colorWhite};
+  color: ${colorWhite} !important;
   font-size: 110%;
   text-transform: capitalize;
   display: flex;
@@ -366,6 +368,7 @@ const UserNameContainer = styled.div`
   margin: 0 0 0 ${smPaddingX};
   justify-content: center;
   font-size: 90%;
+  max-width: 70%;
 
   [dir="rtl"]  & {
     margin: 0 ${smPaddingX} 0 0;

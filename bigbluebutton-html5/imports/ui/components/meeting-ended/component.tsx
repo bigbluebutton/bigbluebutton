@@ -229,7 +229,7 @@ const MeetingEnded: React.FC<MeetingEndedProps> = ({
       isModerator,
     };
 
-    const pathMatch = window.location.pathname.match('^(.*)/html5client/join$');
+    const pathMatch = window.location.pathname.match('^(.*)/html5client/$');
     if (pathMatch == null) {
       throw new Error('Failed to match BBB client URI');
     }
@@ -268,7 +268,11 @@ const MeetingEnded: React.FC<MeetingEndedProps> = ({
   const confirmRedirect = (isBreakout: boolean, allowRedirect: boolean) => {
     if (isBreakout) window.close();
     if (allowRedirect) {
-      window.location.href = logoutUrl;
+      let redirectTo = logoutUrl;
+      redirectTo = redirectTo.replaceAll('%%USERID%%', userId);
+      redirectTo = redirectTo.replaceAll('%%USERNAME%%', userName);
+      redirectTo = redirectTo.replaceAll('%%MEETINGID%%', meetingId);
+      window.location.href = redirectTo;
     }
   };
 
@@ -290,7 +294,7 @@ const MeetingEnded: React.FC<MeetingEndedProps> = ({
                       authToken,
                       learningDashboardBase,
                       locale)}
-                    aria-description={intl.formatMessage(intlMessage.open_activity_report_btn)}
+                    aria-details={intl.formatMessage(intlMessage.open_activity_report_btn)}
                   >
                     <Icon
                       iconName="multi_whiteboard"
@@ -306,7 +310,8 @@ const MeetingEnded: React.FC<MeetingEndedProps> = ({
           <Styled.MeetingEndedButton
             color="primary"
             onClick={() => confirmRedirect(isBreakout, allowDefaultLogoutUrl)}
-            aria-description={intl.formatMessage(intlMessage.confirmDesc)}
+            /* @eslint-disable-next-line */
+            aria-details={intl.formatMessage(intlMessage.confirmDesc)}
           >
             {intl.formatMessage(intlMessage.buttonOkay)}
           </Styled.MeetingEndedButton>
@@ -318,6 +323,23 @@ const MeetingEnded: React.FC<MeetingEndedProps> = ({
   const feedbackScreen = useMemo(() => {
     const shouldShowFeedback = askForFeedbackOnLogout && !dispatched;
     const noRating = selectedStars === 0;
+
+    let buttonAction = () => confirmRedirect(isBreakout, allowDefaultLogoutUrl);
+    let buttonDesc = intl.formatMessage(intlMessage.confirmDesc);
+    let buttonLabel = intl.formatMessage(intlMessage.buttonOkay);
+
+    if (!dispatched) {
+      if (noRating) {
+        buttonAction = () => setDispatched(true);
+        buttonDesc = intl.formatMessage(intlMessage.confirmDesc);
+        buttonLabel = intl.formatMessage(intlMessage.buttonOkay);
+      } else {
+        buttonAction = () => sendFeedback();
+        buttonDesc = intl.formatMessage(intlMessage.sendDesc);
+        buttonLabel = intl.formatMessage(intlMessage.sendLabel);
+      }
+    }
+
     return (
       <>
         <Styled.Text>
@@ -342,23 +364,16 @@ const MeetingEnded: React.FC<MeetingEndedProps> = ({
             ) : null}
           </div>
         ) : null}
-        {noRating ? (
+        <Styled.Wrapper>
           <Styled.MeetingEndedButton
             color="primary"
-            onClick={() => setDispatched(true)}
-            aria-description={intl.formatMessage(intlMessage.confirmDesc)}
+            onClick={buttonAction}
+            aria-details={buttonDesc}
+            data-test={(!noRating && !dispatched) ? 'sendFeedbackButton' : null}
           >
-            {intl.formatMessage(intlMessage.buttonOkay)}
+            {buttonLabel}
           </Styled.MeetingEndedButton>
-        ) : null}
-        {!noRating ? (
-          <Styled.MeetingEndedButton
-            onClick={sendFeedback}
-            aria-description={intl.formatMessage(intlMessage.sendDesc)}
-          >
-            {intl.formatMessage(intlMessage.sendLabel)}
-          </Styled.MeetingEndedButton>
-        ) : null}
+        </Styled.Wrapper>
       </>
     );
   }, [askForFeedbackOnLogout, dispatched, selectedStars]);
@@ -369,6 +384,7 @@ const MeetingEnded: React.FC<MeetingEndedProps> = ({
     // Stops all media tracks
     window.dispatchEvent(new Event('StopAudioTracks'));
     // get the media tag from the session storage
+    // @ts-ignore
     const data = window.meetingClientSettings.public.media;
     // get media element and stops it and removes the audio source
     const mediaElement = document.querySelector<HTMLMediaElement>(data.mediaTag);

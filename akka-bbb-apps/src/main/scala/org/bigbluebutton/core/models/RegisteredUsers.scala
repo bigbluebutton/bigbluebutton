@@ -1,12 +1,12 @@
 package org.bigbluebutton.core.models
 
 import com.softwaremill.quicklens._
-import org.bigbluebutton.core.db.{UserBreakoutRoomDAO, UserDAO, UserDbModel}
+import org.bigbluebutton.core.db.{UserBreakoutRoomDAO, UserDAO, UserDbModel, UserSessionTokenDAO}
 import org.bigbluebutton.core.domain.BreakoutRoom2x
 
 object RegisteredUsers {
   def create(meetingId: String, userId: String, extId: String, name: String, roles: String,
-             authToken: String, sessionToken: String, avatar: String, color: String, guest: Boolean, authenticated: Boolean,
+             authToken: String, sessionToken: Vector[String], avatar: String, webcamBackground: String, color: String, guest: Boolean, authenticated: Boolean,
              guestStatus: String, excludeFromDashboard: Boolean, enforceLayout: String,
              userMetadata: Map[String, String], loggedOut: Boolean): RegisteredUser = {
     new RegisteredUser(
@@ -18,6 +18,7 @@ object RegisteredUsers {
       authToken,
       sessionToken,
       avatar,
+      webcamBackground,
       color,
       guest,
       authenticated,
@@ -41,7 +42,7 @@ object RegisteredUsers {
   }
 
   def findWithSessionToken(sessionToken: String, users: RegisteredUsers): Option[RegisteredUser] = {
-    users.toVector.find(u => u.sessionToken == sessionToken)
+    users.toVector.find(u => u.sessionToken.contains(sessionToken))
   }
 
   def findAll(users: RegisteredUsers): Vector[RegisteredUser] = {
@@ -209,6 +210,20 @@ object RegisteredUsers {
     u
   }
 
+  def addUserSessionToken(users: RegisteredUsers, user: RegisteredUser, newSessionToken: String, enforceLayout: String): RegisteredUser = {
+    val u = user.copy(sessionToken = user.sessionToken :+ newSessionToken)
+    users.save(u)
+    UserSessionTokenDAO.insert(u.meetingId, u.id, newSessionToken, enforceLayout)
+    u
+  }
+
+  def removeUserSessionToken(users: RegisteredUsers, user: RegisteredUser, replaceSessionToken: String): RegisteredUser = {
+    val u = user.copy(sessionToken = user.sessionToken.filterNot(_ == replaceSessionToken))
+    users.save(u)
+    UserSessionTokenDAO.softDelete(u.meetingId, u.id, replaceSessionToken)
+    u
+  }
+
 }
 
 class RegisteredUsers {
@@ -237,8 +252,9 @@ case class RegisteredUser(
     name:                     String,
     role:                     String,
     authToken:                String,
-    sessionToken:             String,
+    sessionToken:             Vector[String],
     avatarURL:                String,
+    webcamBackgroundURL:      String,
     color:                    String,
     guest:                    Boolean,
     authed:                   Boolean,

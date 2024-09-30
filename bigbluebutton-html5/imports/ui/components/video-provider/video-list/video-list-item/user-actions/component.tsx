@@ -2,7 +2,7 @@ import React, { MutableRefObject, useContext, useEffect } from 'react';
 import { defineMessages, useIntl } from 'react-intl';
 import { useMutation } from '@apollo/client';
 import Session from '/imports/ui/services/storage/in-memory';
-import { UserCameraDropdownInterface } from 'bigbluebutton-html-plugin-sdk';
+import { UserCameraDropdownInterface, UserCameraDropdownOption } from 'bigbluebutton-html-plugin-sdk';
 import browserInfo from '/imports/utils/browserInfo';
 import FullscreenService from '/imports/ui/components/common/fullscreen-button/service';
 import BBBMenu from '/imports/ui/components/common/menu/component';
@@ -243,19 +243,24 @@ const UserActions: React.FC<UserActionProps> = (props) => {
       );
     }
 
-    userCameraDropdownItems.forEach((pluginItem) => {
+    userCameraDropdownItems.filter(
+      (pluginItem) => (pluginItem.displayFunction?.({ userId, streamId: cameraId }) ?? true),
+    ).forEach((pluginItem) => {
       switch (pluginItem.type) {
-        case UserCameraDropdownItemType.OPTION:
+        case UserCameraDropdownItemType.OPTION: {
+          const optionItem = pluginItem as UserCameraDropdownOption;
           menuItems.push({
-            key: pluginItem.id,
-            // @ts-expect-error -> Plugin-related.
-            label: pluginItem.label,
-            // @ts-expect-error -> Plugin-related.
-            onClick: pluginItem.onClick,
-            // @ts-expect-error -> Plugin-related.
-            icon: pluginItem.icon,
+            key: optionItem.id,
+            label: optionItem.label,
+            onClick: (event: React.MouseEvent<HTMLElement>) => optionItem.onClick({
+              streamId: cameraId,
+              userId,
+              browserClickEvent: event,
+            }),
+            icon: optionItem.icon,
           });
           break;
+        }
         case UserCameraDropdownItemType.SEPARATOR:
           menuItems.push({
             key: pluginItem.id,

@@ -26,6 +26,7 @@ import { useStorageKey } from '../../services/storage/hooks';
 import { BREAKOUT_COUNT } from './queries';
 import useMeeting from '../../core/hooks/useMeeting';
 import useWhoIsUnmuted from '../../core/hooks/useWhoIsUnmuted';
+import AudioService from '/imports/ui/components/audio/service';
 
 const intlMessages = defineMessages({
   joinedAudio: {
@@ -108,7 +109,6 @@ const AudioContainer = (props) => {
     isVideoPreviewModalOpen,
     intl,
     userLocks,
-    speechLocale,
   } = props;
 
   const APP_CONFIG = window.meetingClientSettings.public.app;
@@ -133,6 +133,7 @@ const AudioContainer = (props) => {
     },
   }));
   const { data: currentUserName } = useCurrentUser((u) => u.name);
+  const { data: speechLocale } = useCurrentUser((u) => u.speechLocale);
 
   const openAudioModal = () => setAudioModalIsOpen(true);
 
@@ -182,7 +183,7 @@ const AudioContainer = (props) => {
     if (Service.isConnected()) return;
 
     if (userSelectedMicrophone) {
-      joinMicrophone(true);
+      joinMicrophone({ skipEchoTest: true });
       return;
     }
 
@@ -207,6 +208,21 @@ const AudioContainer = (props) => {
       joinAudio();
     }
   }, [userIsReturningFromBreakoutRoom]);
+
+  useEffect(() => {
+    const CONFIRMATION_ON_LEAVE = window.meetingClientSettings.public.app.askForConfirmationOnLeave;
+    if (CONFIRMATION_ON_LEAVE) {
+      window.onbeforeunload = (event) => {
+        if (AudioService.isUsingAudio() && !AudioService.isMuted()) {
+          toggleVoice(currentUser?.userId, true);
+        }
+        event.stopImmediatePropagation();
+        event.preventDefault();
+        // eslint-disable-next-line no-param-reassign
+        event.returnValue = '';
+      };
+    }
+  }, [currentUser?.userId, toggleVoice]);
 
   if (Service.isConnected() && !Service.isListenOnly()) {
     Service.updateAudioConstraints(microphoneConstraints);
@@ -257,5 +273,4 @@ AudioContainer.propTypes = {
   userLocks: PropTypes.shape({
     userMic: PropTypes.bool.isRequired,
   }).isRequired,
-  speechLocale: PropTypes.string.isRequired,
 };

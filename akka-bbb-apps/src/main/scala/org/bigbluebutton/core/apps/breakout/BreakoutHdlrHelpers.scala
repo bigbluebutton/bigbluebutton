@@ -118,7 +118,7 @@ object BreakoutHdlrHelpers extends SystemConfiguration {
 
     eventBus.publish(BigBlueButtonEvent(
       liveMeeting.props.breakoutProps.parentId,
-      new BreakoutRoomUsersUpdateInternalMsg(liveMeeting.props.breakoutProps.parentId, liveMeeting.props.meetingProp.intId,
+      BreakoutRoomUsersUpdateInternalMsg(liveMeeting.props.breakoutProps.parentId, liveMeeting.props.meetingProp.intId,
         breakoutUsers, breakoutVoiceUsers)
     ))
   }

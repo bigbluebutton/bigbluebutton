@@ -1,42 +1,51 @@
 package writer
 
 import (
+	"bbb-graphql-middleware/config"
+	"bbb-graphql-middleware/internal/common"
 	"context"
 	"encoding/json"
 	"errors"
-	"github.com/iMDT/bbb-graphql-middleware/internal/common"
-	"github.com/iMDT/bbb-graphql-middleware/internal/msgpatch"
-	log "github.com/sirupsen/logrus"
+	"github.com/prometheus/client_golang/prometheus"
 	"nhooyr.io/websocket"
-	"os"
 	"strings"
 	"sync"
 )
 
+var allowedSubscriptions []string
+var deniedSubscriptions []string
+var jsonPatchDisabled = config.GetConfig().Server.JsonPatchDisabled
+
+func init() {
+	if config.GetConfig().Server.SubscriptionAllowedList != "" {
+		allowedSubscriptions = strings.Split(config.GetConfig().Server.SubscriptionAllowedList, ",")
+	}
+
+	if config.GetConfig().Server.SubscriptionsDeniedList != "" {
+		deniedSubscriptions = strings.Split(config.GetConfig().Server.SubscriptionsDeniedList, ",")
+	}
+}
+
 // HasuraConnectionWriter
 // process messages (middleware to hasura)
 func HasuraConnectionWriter(hc *common.HasuraConnection, wg *sync.WaitGroup, initMessage []byte) {
-	log := log.WithField("_routine", "HasuraConnectionWriter")
-
 	browserConnection := hc.BrowserConn
-
-	log = log.WithField("browserConnectionId", browserConnection.Id).WithField("hasuraConnectionId", hc.Id)
 
 	defer wg.Done()
 	defer hc.ContextCancelFunc()
-	defer log.Debugf("finished")
+	defer hc.BrowserConn.Logger.Debugf("finished")
 
 	//Send authentication (init) message at first
 	//It will not use the channel (fromBrowserToHasuraChannel) because this msg must bypass ChannelFreeze
 	if initMessage == nil {
-		log.Errorf("it can't start Hasura Connection because initMessage is null")
+		hc.BrowserConn.Logger.Errorf("it can't start Hasura Connection because initMessage is null")
 		return
 	}
 
 	//Send init connection message to Hasura to start
 	err := hc.Websocket.Write(hc.Context, websocket.MessageText, initMessage)
 	if err != nil {
-		log.Errorf("error on write authentication (init) message (we're disconnected from hasura): %v", err)
+		hc.BrowserConn.Logger.Errorf("error on write authentication (init) message (we're disconnected from hasura): %v", err)
 		return
 	}
 
@@ -56,7 +65,7 @@ RangeLoop:
 				var browserMessage common.BrowserSubscribeMessage
 				err := json.Unmarshal(fromBrowserMessage, &browserMessage)
 				if err != nil {
-					log.Errorf("failed to unmarshal message: %v", err)
+					hc.BrowserConn.Logger.Errorf("failed to unmarshal message: %v", err)
 					return
 				}
 
@@ -74,10 +83,9 @@ RangeLoop:
 					if query != "" {
 						if strings.HasPrefix(query, "subscription") {
 							//Validate if subscription is allowed
-							if allowedSubscriptions := os.Getenv("BBB_GRAPHQL_MIDDLEWARE_ALLOWED_SUBSCRIPTIONS"); allowedSubscriptions != "" {
-								allowedSubscriptionsSlice := strings.Split(allowedSubscriptions, ",")
+							if len(allowedSubscriptions) > 0 {
 								subscriptionAllowed := false
-								for _, s := range allowedSubscriptionsSlice {
+								for _, s := range allowedSubscriptions {
 									if s == browserMessage.Payload.OperationName {
 										subscriptionAllowed = true
 										break
@@ -85,16 +93,15 @@ RangeLoop:
 								}
 
 								if !subscriptionAllowed {
-									log.Infof("Subscription %s not allowed!", browserMessage.Payload.OperationName)
+									hc.BrowserConn.Logger.Infof("Subscription %s not allowed!", browserMessage.Payload.OperationName)
 									continue
 								}
 							}
 
 							//Validate if subscription is allowed
-							if deniedSubscriptions := os.Getenv("BBB_GRAPHQL_MIDDLEWARE_DENIED_SUBSCRIPTIONS"); deniedSubscriptions != "" {
-								deniedSubscriptionsSlice := strings.Split(deniedSubscriptions, ",")
+							if len(deniedSubscriptions) > 0 {
 								subscriptionAllowed := true
-								for _, s := range deniedSubscriptionsSlice {
+								for _, s := range deniedSubscriptions {
 									if s == browserMessage.Payload.OperationName {
 										subscriptionAllowed = false
 										break
@@ -102,7 +109,7 @@ RangeLoop:
 								}
 
 								if !subscriptionAllowed {
-									log.Infof("Subscription %s not allowed!", browserMessage.Payload.OperationName)
+									hc.BrowserConn.Logger.Infof("Subscription %s not allowed!", browserMessage.Payload.OperationName)
 									continue
 								}
 							}
@@ -146,11 +153,8 @@ RangeLoop:
 					//Identify if the client that requested this subscription expects to receive json-patch
 					//Client append `Patched_` to the query operationName to indicate that it supports
 					jsonPatchSupported := false
-					if strings.HasPrefix(browserMessage.Payload.OperationName, "Patched_") {
+					if !jsonPatchDisabled && strings.HasPrefix(browserMessage.Payload.OperationName, "Patched_") {
 						jsonPatchSupported = true
-					}
-					if jsonPatchDisabled := os.Getenv("BBB_GRAPHQL_MIDDLEWARE_JSON_PATCH_DISABLED"); jsonPatchDisabled != "" {
-						jsonPatchSupported = false
 					}
 
 					browserConnection.ActiveSubscriptionsMutex.Lock()
@@ -166,11 +170,15 @@ RangeLoop:
 						Type:                       messageType,
 						LastReceivedDataChecksum:   lastReceivedDataChecksum,
 					}
-					// log.Tracef("Current queries: %v", browserConnection.ActiveSubscriptions)
+					// hc.BrowserConn.Logger.Tracef("Current queries: %v", browserConnection.ActiveSubscriptions)
 					browserConnection.ActiveSubscriptionsMutex.Unlock()
 
-					common.ActivitiesOverviewStarted(string(messageType) + "-" + browserMessage.Payload.OperationName)
-					common.ActivitiesOverviewStarted("_Sum-" + string(messageType))
+					//Add Prometheus Metrics
+					common.GqlSubscribeCounter.
+						With(prometheus.Labels{
+							"type":          string(messageType),
+							"operationName": browserMessage.Payload.OperationName}).
+						Inc()
 
 					//Dump of all subscriptions for analysis purpose
 					//queryCounter++
@@ -180,19 +188,12 @@ RangeLoop:
 
 				if browserMessage.Type == "complete" {
 					browserConnection.ActiveSubscriptionsMutex.RLock()
-					jsonPatchSupported := browserConnection.ActiveSubscriptions[browserMessage.ID].JsonPatchSupported
-
 					//Remove subscriptions from ActivitiesOverview here once Hasura-Reader will ignore "complete" msg for them
-					common.ActivitiesOverviewCompleted(string(browserConnection.ActiveSubscriptions[browserMessage.ID].Type) + "-" + browserConnection.ActiveSubscriptions[browserMessage.ID].OperationName)
-					common.ActivitiesOverviewCompleted("_Sum-" + string(browserConnection.ActiveSubscriptions[browserMessage.ID].Type))
 
 					browserConnection.ActiveSubscriptionsMutex.RUnlock()
-					if jsonPatchSupported {
-						msgpatch.RemoveConnSubscriptionCacheFile(browserConnection.Id, browserConnection.SessionToken, browserMessage.ID)
-					}
 					browserConnection.ActiveSubscriptionsMutex.Lock()
 					delete(browserConnection.ActiveSubscriptions, browserMessage.ID)
-					// log.Tracef("Current queries: %v", browserConnection.ActiveSubscriptions)
+					// hc.BrowserConn.Logger.Tracef("Current queries: %v", browserConnection.ActiveSubscriptions)
 					browserConnection.ActiveSubscriptionsMutex.Unlock()
 				}
 
@@ -202,11 +203,11 @@ RangeLoop:
 					continue
 				}
 
-				log.Tracef("sending to hasura: %s", string(fromBrowserMessage))
+				hc.BrowserConn.Logger.Tracef("sending to hasura: %s", string(fromBrowserMessage))
 				errWrite := hc.Websocket.Write(hc.Context, websocket.MessageText, fromBrowserMessage)
 				if errWrite != nil {
 					if !errors.Is(errWrite, context.Canceled) {
-						log.Errorf("error on write (we're disconnected from hasura): %v", errWrite)
+						hc.BrowserConn.Logger.Errorf("error on write (we're disconnected from hasura): %v", errWrite)
 					}
 					return
 				}

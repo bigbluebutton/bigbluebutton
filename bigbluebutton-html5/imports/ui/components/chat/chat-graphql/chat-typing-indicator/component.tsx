@@ -108,9 +108,10 @@ const TypingIndicatorContainer: React.FC = () => {
   const intl = useIntl();
   const { data: currentUser } = useCurrentUser((user: Partial<User>) => {
     return {
-      userId: user.userId,
-      isModerator: user.isModerator,
-      locked: user.locked,
+      userId: user?.userId,
+      isModerator: user?.isModerator,
+      locked: user?.locked,
+      userLockSettings: user?.userLockSettings,
     };
   });
   // eslint-disable-next-line no-unused-expressions, no-console
@@ -127,10 +128,11 @@ const TypingIndicatorContainer: React.FC = () => {
     lockSettings: m?.lockSettings,
   }));
 
-  const isLocked = currentUser?.locked;
+  const isLocked = currentUser?.locked || currentUser?.userLockSettings?.disablePublicChat;
   const isModerator = currentUser?.isModerator;
   const isPublicChat = chat?.public;
-  const disablePublicChat = meeting?.lockSettings?.disablePublicChat;
+  const disablePublicChat = meeting?.lockSettings?.disablePublicChat
+    || currentUser?.userLockSettings?.disablePublicChat;
   const disablePrivateChat = meeting?.lockSettings?.disablePrivateChat;
 
   let locked = false;

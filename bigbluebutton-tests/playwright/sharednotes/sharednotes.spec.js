@@ -1,6 +1,6 @@
 const { test } = require('../fixtures');
 const { SharedNotes } = require('./sharednotes');
-const { initializePages } = require('../core/helpers');
+const { linkIssue, initializePages } = require('../core/helpers');
 const { fullyParallel } = require('../playwright.config');
 
 test.describe('Shared Notes', () => {
@@ -39,7 +39,8 @@ test.describe('Shared Notes', () => {
     await sharedNotes.seeNotesWithoutEditPermission();
   });
 
-  test('Pin and unpin notes onto whiteboard', { tag: '@ci' }, async () => {
+  test('Pin and unpin notes onto whiteboard', { tag: [ '@ci', '@flaky' ] }, async () => {
+    linkIssue('20892');
     await sharedNotes.pinAndUnpinNotesOntoWhiteboard();
   });
 });

@@ -15,7 +15,7 @@ object UserJoinedMeetingEvtMsgBuilder {
       raiseHand = userState.raiseHand,
       away = userState.away,
       pin = userState.pin,
-      presenter = userState.presenter, locked = userState.locked, avatar = userState.avatar, color = userState.color,
+      presenter = userState.presenter, locked = userState.locked, avatar = userState.avatar, webcamBackground = userState.webcamBackground, color = userState.color,
       clientType = userState.clientType,
       userMetadata = userState.userMetadata)
 

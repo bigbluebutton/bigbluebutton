@@ -19,13 +19,13 @@ object UserInfoService {
 
 class UserInfoService(system: ActorSystem, bbbActor: ActorRef) {
   implicit def executionContext: ExecutionContextExecutor = system.dispatcher
-  implicit val timeout: Timeout = 2 seconds
+  implicit val timeout: Timeout = 5 seconds
 
   def getUserInfo(sessionToken: String): Future[ApiResponse] = {
     val future = bbbActor.ask(GetUserApiMsg(sessionToken)).mapTo[ApiResponse]
 
     future.recover {
-      case e: AskTimeoutException => ApiResponseFailure("Request Timeout error")
+      case e: AskTimeoutException => ApiResponseFailure("Request Timeout error", "request_timeout", Map())
     }
   }
 
@@ -41,7 +41,7 @@ class UserInfoService(system: ActorSystem, bbbActor: ActorRef) {
       }
     }
 
-    if (conditionalValue("online", "true", "false") == "true") {
+    if (conditionalValue("currentlyInMeeting", "true", "false") == "true") {
       Map(
         "response" -> "authorized",
         "X-Hasura-Role" -> "bbb_client",
@@ -60,7 +60,7 @@ class UserInfoService(system: ActorSystem, bbbActor: ActorRef) {
     } else {
       Map(
         "response" -> "authorized",
-        "X-Hasura-Role" -> "not_joined_bbb_client",
+        "X-Hasura-Role" -> "bbb_client_not_in_meeting",
         "X-Hasura-ModeratorInMeeting" -> conditionalValue("moderator", meetingID, ""),
         "X-Hasura-PresenterInMeeting" -> conditionalValue("presenter", meetingID, ""),
         "X-Hasura-UserId" -> userId,

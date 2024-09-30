@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useContext } from 'react';
 import { useMutation, useReactiveVar } from '@apollo/client';
 import { defineMessages } from 'react-intl';
 import {
@@ -11,6 +11,7 @@ import {
   useScreenshareHasAudio,
   useBroadcastContentType,
 } from './service';
+import { PluginsContext } from '/imports/ui/components/components-data/plugin-context/context';
 import ScreenshareComponent from './component';
 import { layoutSelect, layoutSelectOutput, layoutDispatch } from '../layout/context';
 import getFromUserSettings from '/imports/ui/services/users-settings';
@@ -18,6 +19,7 @@ import { EXTERNAL_VIDEO_STOP } from '../external-video-player/mutations';
 import { PINNED_PAD_SUBSCRIPTION } from '../notes/queries';
 import useDeduplicatedSubscription from '../../core/hooks/useDeduplicatedSubscription';
 import AudioManager from '/imports/ui/services/audio-manager';
+import useCurrentUser from '/imports/ui/core/hooks/useCurrentUser';
 
 const screenshareIntlMessages = defineMessages({
   // SCREENSHARE
@@ -93,6 +95,7 @@ const ScreenshareContainer = (props) => {
   const screenShare = layoutSelectOutput((i) => i.screenShare);
   const fullscreen = layoutSelect((i) => i.fullscreen);
   const layoutContextDispatch = layoutDispatch();
+  const { pluginsExtensibleAreasAggregatedState } = useContext(PluginsContext);
 
   const { element } = fullscreen;
   const fullscreenElementId = 'Screenshare';
@@ -107,7 +110,12 @@ const ScreenshareContainer = (props) => {
   const isSharedNotesPinned = !!pinnedPadData
     && pinnedPadData.sharedNotes[0]?.sharedNotesExtId === NOTES_CONFIG.id;
 
-  const { isPresenter } = props;
+  const {
+    data: currentUserData,
+  } = useCurrentUser((u) => ({
+    presenter: u.presenter,
+  }));
+  const isPresenter = currentUserData?.presenter;
 
   const info = {
     screenshare: {
@@ -137,11 +145,18 @@ const ScreenshareContainer = (props) => {
   const isCameraAsContentBroadcasting = useIsCameraAsContentBroadcasting();
   const hasAudio = useScreenshareHasAudio();
 
-  if (isScreenBroadcasting || isCameraAsContentBroadcasting) {
+  let pluginScreenshareHelperItems = [];
+  if (pluginsExtensibleAreasAggregatedState.screenshareHelperItems) {
+    pluginScreenshareHelperItems = [
+      ...pluginsExtensibleAreasAggregatedState.screenshareHelperItems,
+    ];
+  }
+  if ((isScreenBroadcasting || isCameraAsContentBroadcasting) && currentUserData) {
     return (
       <ScreenshareComponent
         {
         ...{
+          pluginScreenshareHelperItems,
           layoutContextDispatch,
           ...props,
           ...screenShare,
@@ -159,6 +174,7 @@ const ScreenshareContainer = (props) => {
             LAYOUT_CONFIG.hidePresentationOnJoin,
           ),
           ...selectedInfo,
+          isPresenter,
         }
         }
       />

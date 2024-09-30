@@ -11,7 +11,7 @@ const intlMessages = defineMessages({
 
 interface ChatMessageHeaderProps {
   name: string;
-  isOnline: boolean;
+  currentlyInMeeting: boolean;
   dateTime: Date;
   sameSender: boolean;
 }
@@ -19,7 +19,7 @@ interface ChatMessageHeaderProps {
 const ChatMessageHeader: React.FC<ChatMessageHeaderProps> = ({
   sameSender,
   name,
-  isOnline,
+  currentlyInMeeting,
   dateTime,
 }) => {
   const intl = useIntl();
@@ -28,11 +28,11 @@ const ChatMessageHeader: React.FC<ChatMessageHeaderProps> = ({
   return (
     <Styled.HeaderContent>
       <Styled.ChatHeaderText>
-        <Styled.ChatUserName isOnline={isOnline}>
+        <Styled.ChatUserName currentlyInMeeting={currentlyInMeeting}>
           {name}
         </Styled.ChatUserName>
         {
-          isOnline ? null : (
+          currentlyInMeeting ? null : (
             <Styled.ChatUserOffline>
               {`(${intl.formatMessage(intlMessages.offline)})`}
             </Styled.ChatUserOffline>

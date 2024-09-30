@@ -83,6 +83,8 @@ public:
     allowFullscreen: true
     preloadNextSlides: 2
     warnAboutUnsavedContentOnMeetingEnd: false
+    # Flag used to enable apollo dev tools in production
+    enableApolloDevTools: false
     # Allows users to enable automatic transcription when joining a meeting.
     # Automatic transcription requires the browser to support the web
     # speech API, which involves sending voice data to third-party servers!
@@ -95,6 +97,9 @@ public:
       # provider: [webspeech, vosk, gladia]
       provider: webspeech
       language:
+        # Available languages will depend on the transcription service
+        # Google: https://cloud.google.com/speech-to-text/docs/speech-to-text-supported-languages?hl=pt-br
+        # Gladia: https://docs.gladia.io/chapters/speech-to-text-api/pages/languages#supported-languages
         available:
         # - de-DE
           - en-US
@@ -195,6 +200,7 @@ public:
         wakeLock: true
         paginationEnabled: true
         whiteboardToolbarAutoHide: false
+        pushToTalkEnabled: false
         autoCloseReactionsBar: true
         directLeaveButton: true
         darkTheme: false
@@ -316,6 +322,21 @@ public:
     # Controls whether ICE candidates should be signaled to bbb-webrtc-sfu.
     # Enable this if you want to use Kurento as the media server.
     signalCandidates: false
+    # restartIce: controls whether ICE restarts should be signaled to bbb-webrtc-sfu
+    #   whenever peers of the selected type (audio, video, screenshare) transition
+    #   to failure states. Disabled by default (experimental).
+    # restartIce.<mediaType>.retries: number of ICE restart retries before giving up
+    #   (i.e.: throwing an error). Default is 1 for audio, 3 for video and screenshare.
+    restartIce:
+      audio:
+        enabled: false
+        retries: 1
+      video:
+        enabled: false
+        retries: 3
+      screenshare:
+        enabled: false
+        retries: 3
     # traceLogs: <Boolean> - enable trace logs in SFU peers
     traceLogs: false
     cameraTimeouts:
@@ -326,6 +347,7 @@ public:
       # subscribe reattempt increases the reconnection timer up to this
       maxTimeout: 60000
     screenshare:
+      showButtonForNonPresenters: false
       # Whether volume control should be allowed if screen sharing has audio
       enableVolumeControl: true
       # Experimental. True is the canonical behavior. Flip to false to reverse
@@ -889,8 +911,6 @@ public:
         enabled: true
         delayTime: 0.5
         maxDelayTime: 2
-    # showVolumeMeter: shows an energy bar for microphones in the AudioSettings view
-    showVolumeMeter: true
     # networkPriorities: DSCP markings for each media type. Chromium only, applies
     # to sender flows. See https://datatracker.ietf.org/doc/html/rfc8837#section-5
     # for further info.
@@ -907,6 +927,12 @@ public:
     #audioTroubleshootingLinks:
     #  7: 'https://link.bigbluebutton.org/perm'
     #  0: 'https://link.bigbluebutton.org/unk'
+    # muteAudioOutputWhenAway: mute output audio if user is in away mode
+    muteAudioOutputWhenAway: false
+    # Index is the error code:
+    #   - 1136: permission denied
+    screenshareTroubleshootingLinks:
+      1136: 'https://support.bigbluebutton.org/hc/en-us/articles/1500005316582-Share-my-screen#:~:text=Error%201136%3A%20Permission%20to%20capture,able%20to%20screen%20share%20again'
   stats:
     enabled: true
     interval: 10000
@@ -1098,9 +1124,6 @@ public:
         - rectangle
         - more
   clientLog:
-    server:
-      enabled: false
-      level: info
     console:
       enabled: true
       level: debug
@@ -1131,13 +1154,6 @@ private:
     localesUrl: /locale-list
     pencilChunkLength: 100
     loadSlidesFromHttpAlways: false
-  serverLog:
-    level: info
-    streamerLog: false
-    includeServerInfo: true
-    healthChecker:
-      enable: true
-      intervalMs: 30000
   minBrowserVersions:
     - browser: chrome
       version: 72

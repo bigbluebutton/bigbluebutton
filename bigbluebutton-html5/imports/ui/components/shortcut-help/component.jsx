@@ -246,6 +246,10 @@ const intlMessages = defineMessages({
   duplicate: {
     id: 'app.shortcut-help.duplicate',
     description: 'describes the duplicate shortcut key',
+  },
+  pushToTalkDesc: {
+    id: 'app.shortcut-help.pushToTalk',
+    description: 'describes the push-to-talk shortcut',
   }
 });
 
@@ -314,6 +318,12 @@ const ShortcutHelpComponent = ({
       `${accessMod} + ${shortcut.accesskey}`
     );
   });
+
+  const ptt = renderItem(
+    `${intl.formatMessage(intlMessages.pushToTalkDesc)}`,
+    `M`
+  );
+  generalShortcutItems.splice(3, 0, ptt);
 
   const shortcutItems = [];
   shortcutItems.push(renderItem(intl.formatMessage(intlMessages.togglePan),

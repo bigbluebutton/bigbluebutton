@@ -1,5 +1,6 @@
 import React, { Component } from 'react';
 import { IntlShape, defineMessages, injectIntl } from 'react-intl';
+import { UpdatedDataForUserCameraDomElement } from 'bigbluebutton-html-plugin-sdk/dist/cjs/dom-element-manipulation/user-camera/types';
 import { throttle } from '/imports/utils/throttle';
 import { range } from '/imports/utils/array-utils';
 import Styled from './styles';
@@ -12,6 +13,7 @@ import { ACTIONS } from '/imports/ui/components/layout/enums';
 import { Output } from '/imports/ui/components/layout/layoutTypes';
 import { VideoItem } from '/imports/ui/components/video-provider/types';
 import { VIDEO_TYPES } from '/imports/ui/components/video-provider/enums';
+import { UserCameraHelperAreas } from '../../plugins-engine/extensible-areas/components/user-camera-helper/types';
 
 const intlMessages = defineMessages({
   autoplayBlockedDesc: {
@@ -66,6 +68,7 @@ const ASPECT_RATIO = 4 / 3;
 // const ACTION_NAME_BACKGROUND = 'blurBackground';
 
 interface VideoListProps {
+  pluginUserCameraHelperPerPosition: UserCameraHelperAreas;
   layoutType: string;
   layoutContextDispatch: (...args: unknown[]) => void;
   numberOfPages: number;
@@ -76,6 +79,7 @@ interface VideoListProps {
   isGridEnabled: boolean;
   streams: VideoItem[];
   intl: IntlShape;
+  setUserCamerasRequestedFromPlugin: React.Dispatch<React.SetStateAction<UpdatedDataForUserCameraDomElement[]>>;
   onVideoItemMount: (stream: string, video: HTMLVideoElement) => void;
   onVideoItemUnmount: (stream: string) => void;
   onVirtualBgDrop: (stream: string, type: string, name: string, data: string) => Promise<unknown>;
@@ -345,7 +349,9 @@ class VideoList extends Component<VideoListProps, VideoListState> {
       onVideoItemMount,
       onVideoItemUnmount,
       handleVideoFocus,
+      setUserCamerasRequestedFromPlugin,
       focusedId,
+      pluginUserCameraHelperPerPosition,
     } = this.props;
     const numOfStreams = streams.length;
 
@@ -363,12 +369,14 @@ class VideoList extends Component<VideoListProps, VideoListState> {
           data-test="webcamVideoItem"
         >
           <VideoListItemContainer
+            pluginUserCameraHelperPerPosition={pluginUserCameraHelperPerPosition}
             numOfStreams={numOfStreams}
             cameraId={stream}
             userId={userId}
             name={name}
             focused={isFocused}
             isStream={isStream}
+            setUserCamerasRequestedFromPlugin={setUserCamerasRequestedFromPlugin}
             onHandleVideoFocus={isStream ? handleVideoFocus : null}
             onVideoItemMount={(videoRef) => {
               this.handleCanvasResize();

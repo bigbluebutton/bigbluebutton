@@ -1,6 +1,7 @@
 package common
 
 import (
+	"bbb-graphql-middleware/config"
 	"github.com/google/uuid"
 	"sync"
 	"time"
@@ -105,4 +106,64 @@ func RemoveStreamCursorValueCache(cacheKey uint32, delayInSecs time.Duration) {
 	StreamCursorValueCacheMutex.Lock()
 	defer StreamCursorValueCacheMutex.Unlock()
 	delete(StreamCursorValueCache, cacheKey)
+}
+
+var MaxConnPerSessionToken = config.GetConfig().Server.MaxConnectionsPerSessionToken
+var MaxConnGlobal = config.GetConfig().Server.MaxConnections
+
+func GetMaxConnectionsPerSessionToken() int {
+	return MaxConnPerSessionToken
+}
+
+func GetMaxConnectionsGlobal() int {
+	return MaxConnGlobal
+}
+
+var GlobalConnectionsCount int
+var UserConnectionsCount = make(map[string]int)
+var UserConnectionsCountMutex sync.RWMutex
+
+func HasReachedMaxGlobalConnections() bool {
+	if GetMaxConnectionsGlobal() == 0 {
+		return true
+	}
+
+	return GlobalConnectionsCount >= GetMaxConnectionsGlobal()
+}
+
+func GetUserConnectionCount(sessionToken string) (int, bool) {
+	UserConnectionsCountMutex.RLock()
+	defer UserConnectionsCountMutex.RUnlock()
+
+	numOfConn, userConnExists := UserConnectionsCount[sessionToken]
+	return numOfConn, userConnExists
+}
+
+func HasReachedMaxUserConnections(sessionToken string) bool {
+	if GetMaxConnectionsPerSessionToken() == 0 {
+		return true
+	}
+
+	numOfConn, _ := GetUserConnectionCount(sessionToken)
+
+	return numOfConn >= GetMaxConnectionsPerSessionToken()
+}
+
+func AddUserConnection(sessionToken string) {
+	UserConnectionsCountMutex.Lock()
+	defer UserConnectionsCountMutex.Unlock()
+
+	GlobalConnectionsCount++
+	UserConnectionsCount[sessionToken]++
+}
+
+func RemoveUserConnection(sessionToken string) {
+	UserConnectionsCountMutex.Lock()
+	defer UserConnectionsCountMutex.Unlock()
+
+	GlobalConnectionsCount--
+	UserConnectionsCount[sessionToken]--
+	if UserConnectionsCount[sessionToken] <= 0 {
+		delete(UserConnectionsCount, sessionToken)
+	}
 }

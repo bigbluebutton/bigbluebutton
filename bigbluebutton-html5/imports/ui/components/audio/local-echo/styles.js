@@ -2,16 +2,15 @@ import styled from 'styled-components';
 import Button from '/imports/ui/components/common/button/component';
 import {
   colorPrimary,
-  colorWhite,
+  btnMutedBg,
 } from '/imports/ui/stylesheets/styled-components/palette';
 
 const LocalEchoTestButton = styled(Button)`
-  margin: 0 !important;
-  font-weight: normal;
-  border: none !important;
+  height: 2rem;
+  width: 100%;
 
   &:hover {
-    color: #0c5cb2;
+    background-color: ${btnMutedBg} !important
   }
 
   i {
@@ -22,11 +21,6 @@ const LocalEchoTestButton = styled(Button)`
 
   background-color: transparent !important;
   color: ${colorPrimary} !important;
-
-  ${({ $hearing }) => $hearing && `
-    background-color: ${colorPrimary} !important;
-    color: ${colorWhite} !important;
-  `}
 `;
 
 export default {

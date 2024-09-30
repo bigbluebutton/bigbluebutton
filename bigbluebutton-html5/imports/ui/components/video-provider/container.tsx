@@ -20,7 +20,6 @@ import VideoService from './service';
 import { Output } from '/imports/ui/components/layout/layoutTypes';
 import { VideoItem } from './types';
 import { debounce } from '/imports/utils/debounce';
-import WebRtcPeer from '/imports/ui/services/webrtc-base/peer';
 import useSettings from '/imports/ui/services/settings/hooks/useSettings';
 import { SETTINGS } from '/imports/ui/services/settings/enums';
 import { useStorageKey } from '/imports/ui/services/storage/hooks';
@@ -64,7 +63,7 @@ const VideoProviderContainer: React.FC<VideoProviderContainerProps> = (props) =>
     VideoService.applyCameraProfile,
     CAMERA_QUALITY_THR_DEBOUNCE,
     { leading: false, trailing: true },
-  );
+  ) as typeof VideoService.applyCameraProfile;
 
   const { data: currentMeeting } = useMeeting((m) => ({
     usersPolicies: m.usersPolicies,
@@ -89,6 +88,7 @@ const VideoProviderContainer: React.FC<VideoProviderContainerProps> = (props) =>
     totalNumberOfStreams,
     totalNumberOfOtherStreams,
   } = useVideoStreams();
+  VideoService.updateActivePeers(streams);
 
   let usersVideo: VideoItem[] = streams;
 
@@ -167,7 +167,7 @@ const VideoProviderContainer: React.FC<VideoProviderContainerProps> = (props) =>
       exitVideo={exitVideo}
       lockUser={lockUser}
       stopVideo={stopVideo}
-      applyCameraProfile={applyCameraProfile as (peer: WebRtcPeer, profileId: string) => void}
+      applyCameraProfile={applyCameraProfile}
       myRole={myRole}
     />
   );

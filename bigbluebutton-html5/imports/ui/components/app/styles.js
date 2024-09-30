@@ -1,7 +1,5 @@
 import styled from 'styled-components';
-import { barsPadding } from '/imports/ui/stylesheets/styled-components/general';
 import { FlexColumn } from '/imports/ui/stylesheets/styled-components/placeholders';
-import { colorBackground } from '/imports/ui/stylesheets/styled-components/palette';
 
 const CaptionsWrapper = styled.div`
   height: auto;
@@ -10,14 +8,6 @@ const CaptionsWrapper = styled.div`
   z-index: 5;
   pointer-events: none;
   user-select:none;
-`;
-
-const ActionsBar = styled.section`
-  flex: 1;
-  padding: ${barsPadding};
-  background-color: ${colorBackground};
-  position: relative;
-  order: 3;
 `;
 
 const Layout = styled(FlexColumn)``;
@@ -30,6 +20,9 @@ const DtfInvert = `
     background-color: var(--darkreader-neutral-background) !important;
   }
   section[id="ActionsBar"] {
+    background-color: var(--darkreader-neutral-background) !important;
+  }
+  div[id="app"] {
     background-color: var(--darkreader-neutral-background) !important;
   }
   select {
@@ -47,21 +40,61 @@ const DtfInvert = `
     border-left: unset !important;
   }
   .tl-container {
-    background-color: var(--tl-background) !important;
+    .tl-image {
+      background-color: white !important;
+    }
   }
-  #TD-Tools button, #TD-TopPanel-Undo, #TD-TopPanel-Redo, #TD-Styles {
-    border-color: transparent !important;
+  .tlui-slider__thumb {
+    background-color: var(--darkreader-text--color-text-1) !important;
   }
-  [id="TD-StylesMenu"],
-  [id="TD-Styles-Color-Container"],
-  div[data-test="brandingArea"],
-  #connectionBars > div
+  .tlui-button[data-state="hinted"]::after {
+    background-color: var(--darkreader-selection-background) !important;
+  }
+  div.tlui-toolbar__inner > div.tlui-toolbar__tools.fade-in {
+    background: var(--darkreader-border--color-selected) !important;
+  }
+  div[id="cameraDock"] {
+    background-color: var(--darkreader-neutral-background) !important;
+  }
+  .bnjzQC > div span div:hover {
+    background-color: var(--darkreader-selection-background) !important;
+  }
+  .tl-note__scrim,.tl-arrow-label[data-isediting="true"] > .tl-arrow-label__inner {
+    background-color: unset !important;
+  }
+  textarea {
+    caret-color: black !important;
+  }
+  #connectionBars > div {
+    background-color: var(--darkreader-neutral-text) !important;
+  }
+`;
+
+const DtfBrandingInvert = `
+  ${DtfInvert},
+  div[data-test="brandingArea"]
 `;
 
 const DtfCss = `
   [id="colorPicker"],
   path,
-  svg
+  svg,
+  g,
+  line,
+  textarea,
+  rect,
+  circle,
+  .tlui-buttons__grid > button,
+  .tlui-popover > button,
+  .tl-html-container > div.tl-text-shape__wrapper.tl-text-shadow,
+  .tl-text,
+  .tl-text-input,
+  .tl-text-content,
+  .tl-text-label__inner,
+  .tl-note__container,
+  .tl-text.tl-text-content,
+  .tl-arrow-label,
+  .tl-arrow-label__inner
 `;
 
 const DtfImages = `
@@ -70,9 +103,9 @@ const DtfImages = `
 
 export default {
   CaptionsWrapper,
-  ActionsBar,
   Layout,
   DtfInvert,
+  DtfBrandingInvert,
   DtfCss,
   DtfImages,
 };

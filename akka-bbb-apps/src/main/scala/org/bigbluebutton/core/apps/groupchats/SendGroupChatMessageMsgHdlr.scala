@@ -16,13 +16,26 @@ trait SendGroupChatMessageMsgHdlr extends HandlerHelpers {
   def handle(msg: SendGroupChatMessageMsg, state: MeetingState2x,
              liveMeeting: LiveMeeting, bus: MessageBus): MeetingState2x = {
 
+    def determineMessageType(metadata: Map[String, Any]): String = {
+      if (metadata.contains("pluginName")) {
+        GroupChatMessageType.PLUGIN
+      } else {
+        GroupChatMessageType.DEFAULT
+      }
+    }
+
     val chatDisabled: Boolean = liveMeeting.props.meetingProp.disabledFeatures.contains("chat")
     var chatLocked: Boolean = false
+    var chatLockedForUser: Boolean = false
 
     for {
       user <- Users2x.findWithIntId(liveMeeting.users2x, msg.header.userId)
       groupChat <- state.groupChats.find(msg.body.chatId)
     } yield {
+      if (groupChat.access == GroupChatAccess.PUBLIC && user.userLockSettings.disablePublicChat && user.role != Roles.MODERATOR_ROLE) {
+        chatLockedForUser = true
+      }
+
       if (user.role != Roles.MODERATOR_ROLE && user.locked) {
         val permissions = MeetingStatus2x.getPermissions(liveMeeting.status)
         if (groupChat.access == GroupChatAccess.PRIVATE) {
@@ -40,7 +53,7 @@ trait SendGroupChatMessageMsgHdlr extends HandlerHelpers {
       }
     }
 
-    if (!chatDisabled && !(applyPermissionCheck && chatLocked)) {
+    if (!chatDisabled && !(applyPermissionCheck && chatLocked) && !chatLockedForUser) {
       val newState = for {
         sender <- GroupChatApp.findGroupChatUser(msg.header.userId, liveMeeting.users2x)
         chat <- state.groupChats.find(msg.body.chatId)
@@ -59,8 +72,10 @@ trait SendGroupChatMessageMsgHdlr extends HandlerHelpers {
             !chatIsPrivate &&
             sender.role == Roles.MODERATOR_ROLE
 
-          val gcm = GroupChatApp.toGroupChatMessage(sender, msg.body.msg, emphasizedText)
-          val gcs = GroupChatApp.addGroupChatMessage(liveMeeting.props.meetingProp.intId, chat, state.groupChats, gcm)
+          val messageType = determineMessageType(msg.body.msg.metadata)
+
+          val gcm = GroupChatApp.toGroupChatMessage(sender, msg.body.msg, emphasizedText, msg.body.msg.metadata)
+          val gcs = GroupChatApp.addGroupChatMessage(liveMeeting.props.meetingProp.intId, chat, state.groupChats, gcm, messageType)
 
           val event = buildGroupChatMessageBroadcastEvtMsg(
             liveMeeting.props.meetingProp.intId,

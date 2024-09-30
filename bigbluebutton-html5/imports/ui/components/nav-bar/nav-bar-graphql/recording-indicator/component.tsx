@@ -25,7 +25,9 @@ import useTimeSync from '/imports/ui/core/local-states/useTimeSync';
 import RecordingNotify from './notify/component';
 import RecordingContainer from '/imports/ui/components/recording/container';
 import useDeduplicatedSubscription from '/imports/ui/core/hooks/useDeduplicatedSubscription';
+import { getSettingsSingletonInstance } from '/imports/ui/services/settings';
 import logger from '/imports/startup/client/logger';
+import SvgIcon from '/imports/ui/components/common/icon-svg/component';
 
 const intlMessages = defineMessages({
   notificationRecordingStart: {
@@ -169,29 +171,7 @@ const RecordingIndicator: React.FC<RecordingIndicatorProps> = ({
       titleMargin={!isPhone || recording}
       data-test="mainWhiteboard"
     >
-      <svg
-        xmlns="http://www.w3.org/2000/svg"
-        height="100%"
-        version="1"
-        viewBox="0 0 20 20"
-      >
-        <g stroke="#FFF" fill="#FFF" strokeLinecap="square">
-          <circle
-            fill="none"
-            strokeWidth="1"
-            r="9"
-            cx="10"
-            cy="10"
-          />
-          <circle
-            stroke="#FFF"
-            fill="#FFF"
-            r={recording ? '5' : '4'}
-            cx="10"
-            cy="10"
-          />
-        </g>
-      </svg>
+      <SvgIcon iconName="recording" />
     </Styled.RecordingIndicatorIcon>
   ), [isPhone, recording]);
 
@@ -294,7 +274,6 @@ const RecordingIndicator: React.FC<RecordingIndicatorProps> = ({
             setShouldNotify((prev) => !prev);
           }}
           priority="high"
-          setIsOpen={setIsRecordingNotifyModalOpen}
           isOpen={isRecordingNotifyModalOpen}
           closeModal={() => {
             setIsRecordingNotifyModalOpen(false);
@@ -347,7 +326,22 @@ const RecordingIndicatorContainer: React.FC = () => {
   }));
 
   const [timeSync] = useTimeSync();
+  const Settings = getSettingsSingletonInstance();
+  const animations = Settings?.application?.animations;
 
+  if (meetingRecordingPoliciesLoading || meetingRecordingLoading) {
+    return (
+      <>
+        <Styled.PresentationTitleSeparator aria-hidden="true">|</Styled.PresentationTitleSeparator>
+        <div>
+          <Styled.SpinnerOverlay animations={animations}>
+            <Styled.Bounce1 animations={animations} />
+            <Styled.Bounce2 animations={animations} />
+          </Styled.SpinnerOverlay>
+        </div>
+      </>
+    );
+  }
   if (meetingRecordingPoliciesError) {
     logger.error({
       logCode: 'meeting_recordingPolicies_sub_error',
