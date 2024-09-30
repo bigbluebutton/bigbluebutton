@@ -7,7 +7,7 @@ const { PARAMETER_HIDE_PRESENTATION_TOAST } = require('../core/constants');
 
 const hidePresentationToast = encodeCustomParams(PARAMETER_HIDE_PRESENTATION_TOAST);
 
-test.describe('Options', () => {
+test.describe('Options', { tag: '@ci' }, () => {
   const options = new Options();
 
   test.describe.configure({ mode: fullyParallel ? 'parallel' : 'serial' });
@@ -27,11 +27,11 @@ test.describe('Options', () => {
     await options.localesTest();
   });
 
-  test('Dark mode', { tag: ['@ci', '@flaky'] }, async () => {
+  test('Dark mode', async () => {
     await options.darkMode();
   });
 
-  test('Font size', { tag: ['@ci', '@flaky'] }, async () => {
+  test('Font size', async () => {
     await options.fontSizeTest();
   });
 });
