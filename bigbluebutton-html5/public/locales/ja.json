@@ -822,7 +822,7 @@
     "app.meeting.logout.validateTokenFailedEjectReason": "認証トークンが確認できませんでした",
     "app.meeting.logout.userInactivityEjectReason": "一定時間操作がなかったため、接続が中断されました",
     "app.meeting.logout.maxParticipantsReached": "この会議に参加可能な最大人数に達しました",
-    "app.meeting-ended.rating.legendLabel": "評価のフィードバック",
+    "app.meeting-ended.rating.legendLabel": "評価をフィードバック",
     "app.meeting-ended.rating.starLabel": "スター",
     "app.modal.close": "閉じる",
     "app.modal.close.description": "変更を保存せずにウィンドウを閉じる",
