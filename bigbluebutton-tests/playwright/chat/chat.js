@@ -35,7 +35,7 @@ class Chat extends MultiUsers {
     await this.userPage.hasElement(e.hidePrivateChat, 'should display the hide private chat element when opening a private chat');
     // check sent messages 
     await this.modPage.hasText(e.chatUserMessageText, e.message1, 'should display the message sent by the moderator');
-    await this.userPage.hasText(e.chatUserMessageText, e.message1, 'should display the message sent by the moderator for the attende');
+    await this.userPage.hasText(e.chatUserMessageText, e.message1, 'should display the message sent by the moderator for the attendee');
     // userPage send message
     await this.userPage.type(e.chatBox, e.message2);
     await this.modPage.hasElement(e.typingIndicator, 'should display the typing indicator for the moderator');
@@ -261,7 +261,7 @@ class Chat extends MultiUsers {
     await this.modPage.waitAndClick(e.sendButton);
     await this.userPage.waitUntilHaveCountSelector(e.chatButton, 2);
     await this.userPage.waitAndClickElement(e.chatButton, 1);
-    await this.userPage.hasElement(e.hidePrivateChat, 'should display the hide private chat element when the attende opens the private chat');
+    await this.userPage.hasElement(e.hidePrivateChat, 'should display the hide private chat element when the attendee opens the private chat');
     // check sent messages 
     await this.modPage.hasText(e.chatUserMessageText, e.frequentlyUsedEmoji, 'should display the emoji sent by the moderator on the private chat');
     await this.userPage.hasText(e.chatUserMessageText, e.frequentlyUsedEmoji, 'should display for the user the emoji sent by the moderator on the private chat');
@@ -364,7 +364,7 @@ class Chat extends MultiUsers {
     }
     await this.userPage.waitUntilHaveCountSelector(e.chatButton, 2);
     await this.userPage.waitAndClickElement(e.chatButton, 1);
-    await this.userPage.hasElement(e.hidePrivateChat, 'should display the hide private chat element for the attende when the private chat is opened');
+    await this.userPage.hasElement(e.hidePrivateChat, 'should display the hide private chat element for the attendee when the private chat is opened');
     // check sent messages
     await checkLastMessageSent(this.modPage, e.convertedEmojiMessage);
     await checkLastMessageSent(this.userPage, e.convertedEmojiMessage);
@@ -382,9 +382,9 @@ class Chat extends MultiUsers {
     await openPrivateChat(this.modPage);
     await this.modPage.hasElement(e.sendButton, 'should display the send button on the private chat');
     await this.userPage.logoutFromMeeting();
-    await this.modPage.hasElement(e.partnerDisconnectedMessage, 'should the attende be disconnected', ELEMENT_WAIT_LONGER_TIME);
-    await this.modPage.wasRemoved(e.sendButton, 'should the send button be removed because the attende left the meeting');
-  }  
+    await this.modPage.hasElement(e.partnerDisconnectedMessage, 'should the attendee be disconnected', ELEMENT_WAIT_LONGER_TIME);
+    await this.modPage.wasRemoved(e.sendButton, 'should the send button be removed because the attendee left the meeting');
+  }
 }
 
 exports.Chat = Chat;
