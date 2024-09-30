@@ -263,6 +263,7 @@ class MeetingActor(
     // Handling RegisterUserReqMsg as it is forwarded from BBBActor and
     // its type is not BbbCommonEnvCoreMsg
     case m: RegisterUserReqMsg                    => usersApp.handleRegisterUserReqMsg(m)
+    case m: RegisterUserSessionTokenReqMsg        => usersApp.handleRegisterUserSessionTokenReqMsg(m)
 
     //API Msgs
     case m: GetUserApiMsg                         => usersApp.handleGetUserApiMsg(m, sender)
@@ -590,6 +591,9 @@ class MeetingActor(
       case m: LockUserInMeetingCmdMsg =>
         handleLockUserInMeetingCmdMsg(m)
         updateUserLastActivity(m.body.lockedBy)
+      case m: ChangeUserLockSettingsInMeetingCmdMsg =>
+        handleChangeUserLockSettingsInMeetingCmdMsg(m)
+        updateUserLastActivity(m.body.setBy)
       case m: LockUsersInMeetingCmdMsg =>
         handleLockUsersInMeetingCmdMsg(m)
         updateUserLastActivity(m.body.lockedBy)

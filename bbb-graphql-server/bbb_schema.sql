@@ -269,7 +269,6 @@ CREATE TABLE "user" (
 	"avatar" varchar(500),
     "webcamBackground" varchar(500),
 	"color" varchar(7),
-    "sessionToken" varchar(16),
     "authToken" varchar(16),
     "authed" bool,
     "joined" bool,
@@ -530,6 +529,22 @@ CASE WHEN u."role" = 'MODERATOR' THEN w."welcomeMsgForModerators" ELSE NULL END 
 FROM "user" u
 join meeting_welcome w USING("meetingId");
 
+create table "user_lockSettings" (
+    "meetingId"             varchar(100),
+    "userId"                varchar(50),
+    "disablePublicChat"     boolean,
+    CONSTRAINT "user_lockSettings_pkey" PRIMARY KEY ("meetingId", "userId"),
+    FOREIGN KEY ("meetingId", "userId") REFERENCES "user"("meetingId","userId") ON DELETE CASCADE
+);
+create index "idx_user_lockSettings_pk_reverse" on "user_lockSettings"("userId", "meetingId");
+
+CREATE VIEW "v_user_lockSettings" as
+SELECT
+l."meetingId",
+l."userId",
+case when "user"."isModerator" then false else l."disablePublicChat" end "disablePublicChat"
+FROM "user_lockSettings" l
+join "user" on "user"."meetingId" = l."meetingId" and "user"."userId" = l."userId";
 
 CREATE TABLE "user_voice" (
     "meetingId" varchar(100),
@@ -761,6 +776,19 @@ GROUP BY u."meetingId", u."userId";
 
 CREATE INDEX "idx_user_connectionStatusMetrics_UnstableReport" ON "user_connectionStatusMetrics" ("meetingId", "userId") WHERE "status" != 'normal';
 
+CREATE TABLE "user_sessionToken" (
+	"meetingId" varchar(100),
+	"userId" varchar(50),
+	"sessionToken" varchar(16),
+	"enforceLayout" varchar(50),
+	"createdAt" timestamp with time zone not null default current_timestamp,
+	"removedAt" timestamp with time zone,
+	CONSTRAINT "user_sessionToken_pk" PRIMARY KEY ("meetingId", "userId","sessionToken"),
+	FOREIGN KEY ("meetingId", "userId") REFERENCES "user"("meetingId","userId") ON DELETE CASCADE
+);
+
+CREATE INDEX "idx_user_sessionToken_stk" ON "user_sessionToken"("sessionToken");
+create view "v_user_sessionToken" as select * from "user_sessionToken";
 
 CREATE TABLE "user_graphqlConnection" (
 	"graphqlConnectionId" serial PRIMARY KEY,
@@ -775,8 +803,6 @@ CREATE TABLE "user_graphqlConnection" (
 );
 
 CREATE INDEX "idx_user_graphqlConnectionSessionToken" ON "user_graphqlConnection"("sessionToken");
-
-
 
 --ALTER TABLE "user_connectionStatus" ADD COLUMN "applicationRttInMs" NUMERIC GENERATED ALWAYS AS
 --(CASE WHEN  "connectionAliveAt" IS NULL OR "userClientResponseAt" IS NULL THEN NULL
@@ -1539,6 +1565,12 @@ SELECT
         when "startedAt" + (("time" - coalesce("accumulated",0)) * interval '1 milliseconds') >= current_timestamp then true
         else false
      end "running",
+    case when
+        "stopwatch" is false
+        and "startedAt" + (("time" - coalesce("accumulated",0)) * interval '1 milliseconds') <= current_timestamp
+        then true
+        else false
+    end "elapsed",
      "active",
      "time",
      "accumulated",

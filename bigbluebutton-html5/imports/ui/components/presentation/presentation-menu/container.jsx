@@ -1,4 +1,4 @@
-import React, { useContext } from 'react';
+import React, { useContext, useState, useEffect } from 'react';
 import PropTypes from 'prop-types';
 import PresentationMenu from './component';
 import FullscreenService from '/imports/ui/components/common/fullscreen-button/service';
@@ -33,14 +33,22 @@ const PresentationMenuContainer = (props) => {
     ];
   }
 
-  const { data: whiteboardWritersData } = useDeduplicatedSubscription(
-    CURRENT_PAGE_WRITERS_SUBSCRIPTION,
-    {
-      variables: { pageId: whiteboardId },
-      skip: !whiteboardId,
-    },
-  );
-  const whiteboardWriters = whiteboardWritersData?.pres_page_writers || [];
+  const [whiteboardWriters, setWhiteboardWriters] = useState([]);
+
+  useEffect(() => {
+    const fetchData = async () => {
+      const { data } = await useDeduplicatedSubscription(
+        CURRENT_PAGE_WRITERS_SUBSCRIPTION,
+        {
+          variables: { pageId: whiteboardId },
+          skip: !whiteboardId,
+        },
+      );
+      setWhiteboardWriters(data?.pres_page_writers || []);
+    };
+
+    fetchData();
+  }, [whiteboardId]);
   const hasWBAccess = whiteboardWriters?.some((writer) => writer.userId === Auth.userID);
 
   const meetingInfo = useMeeting((meeting) => ({
@@ -67,6 +75,7 @@ const PresentationMenuContainer = (props) => {
         isIphone,
         allowSnapshotOfCurrentSlide,
         persistShape,
+        whiteboardWriters,
       }}
     />
   );

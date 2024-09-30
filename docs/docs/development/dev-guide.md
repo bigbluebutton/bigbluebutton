@@ -283,7 +283,7 @@ Make sure to check the HTML5 portion of the [Architecture page](/development/arc
 There is one change required to settings.yml to get webcam and screenshare working in the client (assuming you're using HTTPS already). The first step is to find the value for `kurento.wsUrl` packaged settings.yml.
 
 ```bash
-grep "wsUrl" /var/bigbluebutton/html5-client/private/config/settings.yml
+grep "wsUrl" /usr/share/bigbluebutton/html5-client/private/config/settings.yml
 ```
 
 Next, override the `wsURL` so that it remains the same even if you switch branches:
@@ -311,7 +311,10 @@ or `deploy.sh` to run in production mode and have the client files served by Ngi
 
 ### Audio configuration for development environment
 
-You may see the error "Call timeout (Error 1006)" during the microphone echo test after starting the developing HTML5 client by "npm start". A misconfiguration of Freeswitch may account for it, especially when BigBlueButton is set up with bbb-install.sh script. Try changing "sipjsHackViaWs" true in bigbluebutton-html5/private/config/settings.yml.
+You may see the error "Call timeout (Error 1006)" during the microphone echo test after starting the developing HTML5 client by "npm start". A misconfiguration of Freeswitch may account for it, especially when BigBlueButton is set up with bbb-install.sh script. Try setting "sipjsHackViaWs" to true for the client:
+
+`touch /etc/bigbluebutton/bbb-html5.yml`
+`yq e -i '.public.media.sipjsHackViaWs = true' /etc/bigbluebutton/bbb-html5.yml`
 
 ### `/private/config`
 
