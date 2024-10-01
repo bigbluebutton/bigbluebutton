@@ -98,4 +98,11 @@ class Webcams {
   }
 }
 
-case class WebcamStream(streamId: String, userId: String, subscribers: Set[String])
+case class WebcamStream(
+    streamId:    String,
+    userId:      String,
+    contentType: String,
+    hasAudio:    Boolean,
+    focused:     Boolean,
+    subscribers: Set[String]
+)

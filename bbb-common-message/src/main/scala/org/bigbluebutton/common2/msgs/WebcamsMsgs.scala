@@ -7,8 +7,10 @@ case class UserBroadcastCamStartedEvtMsg(
     body:   UserBroadcastCamStartedEvtMsgBody
 ) extends BbbCoreMsg
 case class UserBroadcastCamStartedEvtMsgBody(
-    userId: String,
-    stream: String
+    userId:      String,
+    stream:      String,
+    contentType: String,
+    hasAudio:    Boolean
 )
 
 object UserBroadcastCamStartMsg { val NAME = "UserBroadcastCamStartMsg" }
@@ -16,7 +18,11 @@ case class UserBroadcastCamStartMsg(
     header: BbbClientMsgHeader,
     body:   UserBroadcastCamStartMsgBody
 ) extends StandardMsg
-case class UserBroadcastCamStartMsgBody(stream: String)
+case class UserBroadcastCamStartMsgBody(
+    stream:      String,
+    contentType: String,
+    hasAudio:    Boolean
+)
 
 object UserBroadcastCamStopMsg { val NAME = "UserBroadcastCamStopMsg" }
 case class UserBroadcastCamStopMsg(
@@ -179,3 +185,10 @@ case class CamStreamSubscribedInSfuEvtMsgBody(
     subscriberStreamId: String,
     sfuSessionId:       String // Subscriber's SFU session ID
 )
+
+/**
+ * Sent from client to change the video focus state (used to send screenshare to presentation area).
+ */
+object SetCamFocusStateReqMsg { val NAME = "SetCamFocusStateReqMsg" }
+case class SetCamFocusStateReqMsg(header: BbbClientMsgHeader, body: SetCamFocusStateReqMsgBody) extends StandardMsg
+case class SetCamFocusStateReqMsgBody(streamId: String, focused: Boolean, setBy: String)
