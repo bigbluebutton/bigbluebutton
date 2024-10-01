@@ -644,7 +644,7 @@ CREATE TABLE "user_camera" (
 );
 CREATE INDEX "idx_user_camera_userId" ON "user_camera"("meetingId", "userId");
 CREATE INDEX "idx_user_camera_userId_reverse" ON "user_camera"("userId", "meetingId");
-CREATE INDEX "idx_user_camera_meeting_contentType" ON "user_camera"("meetingId", "contentType");
+CREATE INDEX "idx_user_camera_meeting_contentType" ON "user_camera"("meetingId", "contentType", "focused");
 
 CREATE OR REPLACE VIEW "v_user_camera" AS
 SELECT * FROM "user_camera";
