@@ -29,7 +29,6 @@ exports.closePopup = 'button[data-test="closePopup"]';
 exports.restoreWelcomeMessages = 'li[data-test="restoreWelcomeMessages"]';
 
 // Accesskey
-exports.chatButtonKey = 'div[accesskey="P"]';
 exports.userListButton = 'button[accesskey="U"]';
 
 // Audio
@@ -402,7 +401,7 @@ exports.lockEditSharedNotes = 'input[data-test="lockEditSharedNotes"]';
 exports.lockUserList = 'input[data-test="lockUserList"]';
 exports.hideViewersAnnotation = 'input[data-test="hideViewersAnnotation"]';
 exports.hideViewersCursor = 'input[data-test="hideViewersCursor"]';
-exports.whiteboardCursorIndicator = 'div[data-test="whiteboardCursorIndicator"]';
+exports.whiteboardCursorIndicator = 'svg use[data-test="whiteboardCursorIndicator"]';
 
 // Locales
 exports.locales = ['af', 'ar', 'az', 'bg-BG', 'bn', 'ca', 'cs-CZ', 'da', 'de',
@@ -493,7 +492,7 @@ exports.wbMoveForward = 'button[data-testid="menu-item.bring-forward"]';
 exports.wbMoveToFront = 'button[data-testid="menu-item.bring-to-front"]';
 exports.wbPaste = 'button[data-testid="menu-item.paste"]';
 exports.wbTextTrue = 'div[data-hastext="true"]';
-exports.wbDrawnArrow = 'div[data-shape-type="arrow"]';;
+exports.wbDrawnArrow = 'div[data-shape-type="arrow"]';
 
 // About modal
 exports.showAboutModalButton = 'li[data-test="aboutModal"]';
