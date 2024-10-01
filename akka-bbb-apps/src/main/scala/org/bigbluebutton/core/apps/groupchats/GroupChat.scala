@@ -23,7 +23,7 @@ object GroupChatApp {
   def toGroupChatMessage(sender: GroupChatUser, msg: GroupChatMsgFromUser, emphasizedText: Boolean, metadata: Map[String, Any] = Map.empty): GroupChatMessage = {
     val now = System.currentTimeMillis()
     val id = GroupChatFactory.genId()
-    GroupChatMessage(id, now, msg.correlationId, now, now, sender, emphasizedText, msg.message, metadata)
+    GroupChatMessage(id, now, msg.correlationId, now, now, sender, emphasizedText, msg.message, msg.replyToMessageId, metadata)
   }
 
   def toMessageToUser(msg: GroupChatMessage): GroupChatMsgToUser = {
@@ -93,9 +93,9 @@ object GroupChatApp {
     }
 
     val sender = GroupChatUser(SystemUser.ID)
-    val h1 = GroupChatMsgFromUser(correlationId = "cor1", sender = sender, message = "Hello Foo!")
-    val h2 = GroupChatMsgFromUser(correlationId = "cor2", sender = sender, message = "Hello Bar!")
-    val h3 = GroupChatMsgFromUser(correlationId = "cor3", sender = sender, message = "Hello Baz!")
+    val h1 = GroupChatMsgFromUser(correlationId = "cor1", sender = sender, message = "Hello Foo!", replyToMessageId = "")
+    val h2 = GroupChatMsgFromUser(correlationId = "cor2", sender = sender, message = "Hello Bar!", replyToMessageId = "")
+    val h3 = GroupChatMsgFromUser(correlationId = "cor3", sender = sender, message = "Hello Baz!", replyToMessageId = "")
     val state1 = addH(state, SystemUser.ID, liveMeeting, h1)
     val state2 = addH(state1, SystemUser.ID, liveMeeting, h2)
     val state3 = addH(state2, SystemUser.ID, liveMeeting, h3)

@@ -109,6 +109,7 @@ type Mutation {
   chatSendMessage(
     chatId: String!
     chatMessageInMarkdownFormat: String!
+    replyToMessageId: String
     metadata: json
   ): Boolean
 }
