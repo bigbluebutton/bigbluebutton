@@ -55,6 +55,10 @@ const ToggleTrack = styled.div`
     width: 4rem;
   }
 
+  ${({ isMobile }) => isMobile && `
+    width: 2.5rem;
+  `}
+
   ${({ animations }) => animations && `
     transition: all 0.2s ease;
   `}
