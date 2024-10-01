@@ -7,14 +7,20 @@ case class UserCameraDbModel(
         streamId:      String,
         meetingId:     String,
         userId:        String,
+        contentType:   String,
+        hasAudio:      Boolean,
+        focused:       Boolean,
 )
 
 class UserCameraDbTableDef(tag: Tag) extends Table[UserCameraDbModel](tag, None, "user_camera") {
   override def * = (
-    streamId, meetingId, userId) <> (UserCameraDbModel.tupled, UserCameraDbModel.unapply)
+    streamId, meetingId, userId, contentType, hasAudio, focused) <> (UserCameraDbModel.tupled, UserCameraDbModel.unapply)
   val streamId = column[String]("streamId", O.PrimaryKey)
   val meetingId = column[String]("meetingId")
   val userId = column[String]("userId")
+  val contentType = column[String]("contentType")
+  val hasAudio = column[Boolean]("hasAudio")
+  val focused = column[Boolean]("focused")
 }
 
 object UserCameraDAO {
@@ -26,6 +32,9 @@ object UserCameraDAO {
           streamId = webcam.streamId,
           meetingId = meetingId,
           userId = webcam.userId,
+          contentType = webcam.contentType,
+          hasAudio = webcam.hasAudio,
+          focused = webcam.focused,
         )
       )
     )

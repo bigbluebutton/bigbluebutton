@@ -637,10 +637,14 @@ CREATE TABLE "user_camera" (
 	"streamId" varchar(150) PRIMARY KEY,
 	"meetingId" varchar(100),
     "userId" varchar(50),
+    "contentType" varchar(50), --camera or screenshare
+    "hasAudio" boolean,
+    "focused" boolean,
     FOREIGN KEY ("meetingId", "userId") REFERENCES "user"("meetingId","userId") ON DELETE CASCADE
 );
 CREATE INDEX "idx_user_camera_userId" ON "user_camera"("meetingId", "userId");
 CREATE INDEX "idx_user_camera_userId_reverse" ON "user_camera"("userId", "meetingId");
+CREATE INDEX "idx_user_camera_meeting_contentType" ON "user_camera"("meetingId", "contentType");
 
 CREATE OR REPLACE VIEW "v_user_camera" AS
 SELECT * FROM "user_camera";
@@ -1524,7 +1528,7 @@ create table "screenshare"(
 "meetingId" varchar(100) REFERENCES "meeting"("meetingId") ON DELETE CASCADE,
 "voiceConf" varchar(50),
 "screenshareConf" varchar(50),
-"contentType" varchar(50),
+"contentType" varchar(50), --camera or screenshare
 "stream" varchar(100),
 "vidWidth" integer,
 "vidHeight" integer,
