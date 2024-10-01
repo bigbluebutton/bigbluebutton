@@ -91,10 +91,6 @@ const ToggleButtonWrapper = styled(ButtonWrapper)`
   &:hover {
     background-color: transparent !important;
   }
-
-  ${({ isMobile }) => isMobile && `
-    width: 3rem;
-  `}
 `;
 
 export default {
