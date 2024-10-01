@@ -21,7 +21,7 @@ trait UserBroadcastCamStartMsgHdlr {
       val routing = Routing.addMsgToClientRouting(MessageTypes.BROADCAST_TO_MEETING, meetingId, userId)
       val envelope = BbbCoreEnvelope(UserBroadcastCamStartedEvtMsg.NAME, routing)
       val header = BbbClientMsgHeader(UserBroadcastCamStartedEvtMsg.NAME, meetingId, userId)
-      val body = UserBroadcastCamStartedEvtMsgBody(userId, streamId, contentType, hasAudio: Boolean)
+      val body = UserBroadcastCamStartedEvtMsgBody(userId, streamId, contentType, hasAudio)
       val event = UserBroadcastCamStartedEvtMsg(header, body)
       val msgEvent = BbbCommonEnvCoreMsg(envelope, event)
 
