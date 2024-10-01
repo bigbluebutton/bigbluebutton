@@ -217,10 +217,8 @@ const ConnectionManager: React.FC<ConnectionManagerProps> = ({ children }): Reac
               // Check if it's a CloseEvent (which includes HTTP errors during WebSocket handshake)
               if (e instanceof CloseEvent) {
                 logger.error(`WebSocket closed with code ${e.code}: ${e.reason}`);
-                loadingContextInfo.setLoading(false, '');
-                setTerminalError('Server closed the connection');
+                connectionStatus.setConnectedStatus(false);
               }
-              connectionStatus.setConnectedStatus(false);
             },
             connected: (socket) => {
               activeSocket.current = socket as WebSocket;
