@@ -983,10 +983,12 @@ CREATE TABLE "chat_message" (
 	"messageId" varchar(100) PRIMARY KEY,
 	"chatId" varchar(100),
 	"meetingId" varchar(100),
-	"correlationId" varchar(100),
+	"correlationId" varchar(100), --create by akka-apps
+	"messageSequence" integer, --populated via trigger
 	"chatEmphasizedText" boolean,
 	"message" text,
 	"messageType" varchar(50),
+	"replyToMessageId" varchar(100) references "chat_message"("messageId"),
 	"messageMetadata" text,
     "senderId" varchar(100),
     "senderName" varchar(255),
@@ -995,6 +997,25 @@ CREATE TABLE "chat_message" (
     CONSTRAINT chat_fk FOREIGN KEY ("chatId", "meetingId") REFERENCES "chat"("chatId", "meetingId") ON DELETE CASCADE
 );
 CREATE INDEX "idx_chat_message_chatId" ON "chat_message"("chatId","meetingId");
+
+--Trigger to populate the message with its sequence number (useful to identify the page it lies)
+CREATE OR REPLACE FUNCTION "update_chatMessage_messageSequence"()
+RETURNS TRIGGER AS $$
+BEGIN
+    SELECT count(1)+1 INTO NEW."messageSequence"
+    from "chat_message" cm
+    where cm."meetingId" = NEW."meetingId"
+    and cm."chatId" = NEW."chatId"
+    and cm."createdAt" <= NEW."createdAt";
+    RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+
+CREATE TRIGGER "trigger_update_chatMessage_messageSequence"
+BEFORE INSERT ON "chat_message"
+FOR EACH ROW
+EXECUTE FUNCTION "update_chatMessage_messageSequence"();
+
 
 CREATE OR REPLACE FUNCTION "update_chatUser_clear_lastTypingAt_trigger_func"() RETURNS TRIGGER AS $$
 BEGIN
@@ -1049,9 +1070,11 @@ SELECT  cu."meetingId",
         cm."messageId",
         cm."chatId",
         cm."correlationId",
+        cm."messageSequence",
         cm."chatEmphasizedText",
         cm."message",
         cm."messageType",
+        cm."replyToMessageId",
         cm."messageMetadata",
         cm."senderId",
         cm."senderName",

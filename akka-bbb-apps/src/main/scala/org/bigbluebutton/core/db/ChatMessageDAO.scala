@@ -12,6 +12,7 @@ case class ChatMessageDbModel(
     chatEmphasizedText: Boolean,
     message:            String,
     messageType:        String,
+    replyToMessageId:   Option[String],
     messageMetadata:    Option[String],
     senderId:           Option[String],
     senderName:         String,
@@ -27,6 +28,7 @@ class ChatMessageDbTableDef(tag: Tag) extends Table[ChatMessageDbModel](tag, Non
   val chatEmphasizedText = column[Boolean]("chatEmphasizedText")
   val message = column[String]("message")
   val messageType = column[String]("messageType")
+  val replyToMessageId = column[Option[String]]("replyToMessageId")
   val messageMetadata = column[Option[String]]("messageMetadata")
   val senderId = column[Option[String]]("senderId")
   val senderName = column[String]("senderName")
@@ -34,7 +36,7 @@ class ChatMessageDbTableDef(tag: Tag) extends Table[ChatMessageDbModel](tag, Non
   //  val chat = foreignKey("chat_message_chat_fk", (chatId, meetingId), ChatTable.chats)(c => (c.chatId, c.meetingId), onDelete = ForeignKeyAction.Cascade)
   //  val sender = foreignKey("chat_message_sender_fk", senderId, UserTable.users)(_.userId, onDelete = ForeignKeyAction.SetNull)
 
-  override def * = (messageId, chatId, meetingId, correlationId, createdAt, chatEmphasizedText, message, messageType, messageMetadata, senderId, senderName, senderRole) <> (ChatMessageDbModel.tupled, ChatMessageDbModel.unapply)
+  override def * = (messageId, chatId, meetingId, correlationId, createdAt, chatEmphasizedText, message, messageType, replyToMessageId, messageMetadata, senderId, senderName, senderRole) <> (ChatMessageDbModel.tupled, ChatMessageDbModel.unapply)
 }
 
 object ChatMessageDAO {
@@ -50,6 +52,10 @@ object ChatMessageDAO {
           chatEmphasizedText = groupChatMessage.chatEmphasizedText,
           message = groupChatMessage.message,
           messageType = messageType,
+          replyToMessageId = groupChatMessage.replyToMessageId match {
+            case "" => None
+            case messageId => Some(messageId)
+          },
           messageMetadata = Some(JsonUtils.mapToJson(groupChatMessage.metadata).compactPrint),
           senderId = Some(groupChatMessage.sender.id),
           senderName = groupChatMessage.sender.name,
@@ -94,6 +100,7 @@ object ChatMessageDAO {
           chatEmphasizedText = false,
           message = message,
           messageType = messageType,
+          replyToMessageId = None,
           messageMetadata = Some(JsonUtils.mapToJson(messageMetadata).compactPrint),
           senderId = None,
           senderName = senderName,

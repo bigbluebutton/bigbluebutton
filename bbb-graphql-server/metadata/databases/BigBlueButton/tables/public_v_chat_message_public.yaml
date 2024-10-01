@@ -7,6 +7,15 @@ configuration:
   custom_name: chat_message_public
   custom_root_fields: {}
 object_relationships:
+  - name: replyToMessage
+    using:
+      manual_configuration:
+        column_mapping:
+          replyToMessageId: messageId
+        insertion_order: null
+        remote_table:
+          name: v_chat_message_public
+          schema: public
   - name: user
     using:
       manual_configuration:
@@ -28,6 +37,7 @@ select_permissions:
         - message
         - messageId
         - messageMetadata
+        - messageSequence
         - messageType
         - senderId
         - senderName

@@ -17,8 +17,21 @@ object GroupChatMessageType {
 }
 
 case class GroupChatUser(id: String, name: String = "", role: String = "VIEWER")
-case class GroupChatMsgFromUser(correlationId: String, sender: GroupChatUser, message: String, metadata: Map[String, Any] = Map.empty)
-case class GroupChatMsgToUser(id: String, timestamp: Long, correlationId: String, sender: GroupChatUser, chatEmphasizedText: Boolean = false, message: String)
+case class GroupChatMsgFromUser(
+    correlationId:    String,
+    sender:           GroupChatUser,
+    message:          String,
+    replyToMessageId: String,
+    metadata:         Map[String, Any] = Map.empty
+)
+case class GroupChatMsgToUser(
+    id:                 String,
+    timestamp:          Long,
+    correlationId:      String,
+    sender:             GroupChatUser,
+    chatEmphasizedText: Boolean       = false,
+    message:            String
+)
 case class GroupChatInfo(id: String, access: String, createdBy: GroupChatUser, users: Vector[GroupChatUser])
 
 object OpenGroupChatWindowReqMsg { val NAME = "OpenGroupChatWindowReqMsg" }
