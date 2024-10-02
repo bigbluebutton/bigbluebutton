@@ -478,7 +478,6 @@ exports.wbArrowShape = 'button[data-testid="tools.arrow"]';
 exports.wbDelete = 'span[id="TD-Delete"]';
 exports.wbUndo = 'button[data-testid="main.undo"]';
 exports.wbRedo = 'button[data-testid="main.redo"]';
-exports.wbStyles = 'button[id="TD-Styles"]';
 exports.whiteboardStyles = 'button[data-testid="mobile.styles"]';
 exports.wbColorRed = 'button[data-id="red"]';
 exports.wbFillDrawing = 'button[data-testid="style.fill.solid"]';
