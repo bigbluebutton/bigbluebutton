@@ -44,7 +44,7 @@ const VideoProviderContainer: React.FC<VideoProviderContainerProps> = (props) =>
   const [cameraBroadcastStart] = useMutation(CAMERA_BROADCAST_START);
 
   const sendUserShareWebcam = (cameraId: string) => {
-    return cameraBroadcastStart({ variables: { cameraId } });
+    return cameraBroadcastStart({ variables: { cameraId, contentType: 'camera' } });
   };
 
   const playStart = (cameraId: string) => {

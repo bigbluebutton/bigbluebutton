@@ -208,7 +208,7 @@ const ConnectionManager: React.FC<ConnectionManagerProps> = ({ children }): Reac
           },
           on: {
             error: (error) => {
-              logger.error('Error: on subscription to server', error);
+              logger.error('Graphql Client Error:', error);
               loadingContextInfo.setLoading(false, '');
               connectionStatus.setConnectedStatus(false);
               setErrorCounts((prev: number) => prev + 1);
@@ -217,10 +217,8 @@ const ConnectionManager: React.FC<ConnectionManagerProps> = ({ children }): Reac
               // Check if it's a CloseEvent (which includes HTTP errors during WebSocket handshake)
               if (e instanceof CloseEvent) {
                 logger.error(`WebSocket closed with code ${e.code}: ${e.reason}`);
-                loadingContextInfo.setLoading(false, '');
-                setTerminalError('Server closed the connection');
+                connectionStatus.setConnectedStatus(false);
               }
-              connectionStatus.setConnectedStatus(false);
             },
             connected: (socket) => {
               activeSocket.current = socket as WebSocket;
@@ -232,6 +230,13 @@ const ConnectionManager: React.FC<ConnectionManagerProps> = ({ children }): Reac
             message: (message) => {
               if (message.type === 'ping') {
                 tsLastPingMessageRef.current = Date.now();
+              }
+              if (message.type === 'error' && message.id === '-1') {
+                // message ID -1 as a signal to terminate the session
+                // it contains a prop message.messageId which can be used to show a proper error to the user
+                logger.error({ logCode: 'graphql_server_closed_connection', extraInfo: message }, 'Graphql Server closed the connection');
+                loadingContextInfo.setLoading(false, '');
+                setTerminalError('Server closed the connection');
               }
               tsLastMessageRef.current = Date.now();
             },

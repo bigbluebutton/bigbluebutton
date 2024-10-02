@@ -61,6 +61,8 @@ class ReceivedJsonMsgHandlerActor(
         // Route via meeting manager as there is a race condition if we send directly to meeting
         // because the meeting actor might not have been created yet.
         route[RegisterUserReqMsg](meetingManagerChannel, envelope, jsonNode)
+      case RegisterUserSessionTokenReqMsg.NAME =>
+        route[RegisterUserSessionTokenReqMsg](meetingManagerChannel, envelope, jsonNode)
       case UserJoinMeetingReqMsg.NAME =>
         routeGenericMsg[UserJoinMeetingReqMsg](envelope, jsonNode)
       case DestroyMeetingSysCmdMsg.NAME =>
@@ -402,6 +404,10 @@ class ReceivedJsonMsgHandlerActor(
         routeGenericMsg[SendGroupChatMessageMsg](envelope, jsonNode)
       case SendGroupChatMessageFromApiSysPubMsg.NAME =>
         routeGenericMsg[SendGroupChatMessageFromApiSysPubMsg](envelope, jsonNode)
+      case EditGroupChatMessageReqMsg.NAME =>
+        routeGenericMsg[EditGroupChatMessageReqMsg](envelope, jsonNode)
+      case DeleteGroupChatMessageReqMsg.NAME =>
+        routeGenericMsg[DeleteGroupChatMessageReqMsg](envelope, jsonNode)
       case GetGroupChatMsgsReqMsg.NAME =>
         routeGenericMsg[GetGroupChatMsgsReqMsg](envelope, jsonNode)
       case CreateGroupChatReqMsg.NAME =>

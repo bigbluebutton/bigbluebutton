@@ -269,7 +269,6 @@ CREATE TABLE "user" (
 	"avatar" varchar(500),
     "webcamBackground" varchar(500),
 	"color" varchar(7),
-    "sessionToken" varchar(16),
     "authToken" varchar(16),
     "authed" bool,
     "joined" bool,
@@ -638,10 +637,14 @@ CREATE TABLE "user_camera" (
 	"streamId" varchar(150) PRIMARY KEY,
 	"meetingId" varchar(100),
     "userId" varchar(50),
+    "contentType" varchar(50), --camera or screenshare
+    "hasAudio" boolean,
+    "focused" boolean,
     FOREIGN KEY ("meetingId", "userId") REFERENCES "user"("meetingId","userId") ON DELETE CASCADE
 );
 CREATE INDEX "idx_user_camera_userId" ON "user_camera"("meetingId", "userId");
 CREATE INDEX "idx_user_camera_userId_reverse" ON "user_camera"("userId", "meetingId");
+CREATE INDEX "idx_user_camera_meeting_contentType" ON "user_camera"("meetingId", "contentType", "focused");
 
 CREATE OR REPLACE VIEW "v_user_camera" AS
 SELECT * FROM "user_camera";
@@ -777,6 +780,19 @@ GROUP BY u."meetingId", u."userId";
 
 CREATE INDEX "idx_user_connectionStatusMetrics_UnstableReport" ON "user_connectionStatusMetrics" ("meetingId", "userId") WHERE "status" != 'normal';
 
+CREATE TABLE "user_sessionToken" (
+	"meetingId" varchar(100),
+	"userId" varchar(50),
+	"sessionToken" varchar(16),
+	"enforceLayout" varchar(50),
+	"createdAt" timestamp with time zone not null default current_timestamp,
+	"removedAt" timestamp with time zone,
+	CONSTRAINT "user_sessionToken_pk" PRIMARY KEY ("meetingId", "userId","sessionToken"),
+	FOREIGN KEY ("meetingId", "userId") REFERENCES "user"("meetingId","userId") ON DELETE CASCADE
+);
+
+CREATE INDEX "idx_user_sessionToken_stk" ON "user_sessionToken"("sessionToken");
+create view "v_user_sessionToken" as select * from "user_sessionToken";
 
 CREATE TABLE "user_graphqlConnection" (
 	"graphqlConnectionId" serial PRIMARY KEY,
@@ -791,8 +807,6 @@ CREATE TABLE "user_graphqlConnection" (
 );
 
 CREATE INDEX "idx_user_graphqlConnectionSessionToken" ON "user_graphqlConnection"("sessionToken");
-
-
 
 --ALTER TABLE "user_connectionStatus" ADD COLUMN "applicationRttInMs" NUMERIC GENERATED ALWAYS AS
 --(CASE WHEN  "connectionAliveAt" IS NULL OR "userClientResponseAt" IS NULL THEN NULL
@@ -973,18 +987,42 @@ CREATE TABLE "chat_message" (
 	"messageId" varchar(100) PRIMARY KEY,
 	"chatId" varchar(100),
 	"meetingId" varchar(100),
-	"correlationId" varchar(100),
+	"correlationId" varchar(100), --create by akka-apps
+	"messageSequence" integer, --populated via trigger
 	"chatEmphasizedText" boolean,
 	"message" text,
 	"messageType" varchar(50),
+	"replyToMessageId" varchar(100) references "chat_message"("messageId"),
 	"messageMetadata" text,
     "senderId" varchar(100),
     "senderName" varchar(255),
 	"senderRole" varchar(20),
-	"createdAt" timestamp with time zone,
+	"createdAt" timestamp with time zone not null,
+	"editedAt" timestamp with time zone,
+	"deletedByUserId" varchar(100),
+	"deletedAt" timestamp with time zone,
     CONSTRAINT chat_fk FOREIGN KEY ("chatId", "meetingId") REFERENCES "chat"("chatId", "meetingId") ON DELETE CASCADE
 );
 CREATE INDEX "idx_chat_message_chatId" ON "chat_message"("chatId","meetingId");
+
+--Trigger to populate the message with its sequence number (useful to identify the page it lies)
+CREATE OR REPLACE FUNCTION "update_chatMessage_messageSequence"()
+RETURNS TRIGGER AS $$
+BEGIN
+    SELECT count(1)+1 INTO NEW."messageSequence"
+    from "chat_message" cm
+    where cm."meetingId" = NEW."meetingId"
+    and cm."chatId" = NEW."chatId"
+    and cm."createdAt" <= NEW."createdAt";
+    RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+
+CREATE TRIGGER "trigger_update_chatMessage_messageSequence"
+BEFORE INSERT ON "chat_message"
+FOR EACH ROW
+EXECUTE FUNCTION "update_chatMessage_messageSequence"();
+
 
 CREATE OR REPLACE FUNCTION "update_chatUser_clear_lastTypingAt_trigger_func"() RETURNS TRIGGER AS $$
 BEGIN
@@ -997,6 +1035,43 @@ $$ LANGUAGE plpgsql;
 
 CREATE TRIGGER "update_chatUser_clear_lastTypingAt_trigger" AFTER INSERT ON chat_message FOR EACH ROW
 EXECUTE FUNCTION "update_chatUser_clear_lastTypingAt_trigger_func"();
+
+
+
+CREATE TABLE "chat_message_history" (
+	"messageId" varchar(100) REFERENCES "chat_message"("messageId") ON DELETE CASCADE,
+	"meetingId" varchar(100),
+	"messageVersionSequence" integer, --populated via trigger
+	"message" text,
+	"senderId" varchar(100),
+	"createdAt" timestamp with time zone,
+	"movedToHistoryAt" timestamp with time zone default current_timestamp,
+    CONSTRAINT chat_message_history_pk PRIMARY KEY ("messageId", "messageVersionSequence")
+);
+CREATE INDEX "chat_message_history_seq_idx" ON "chat_message_history"("messageId","messageVersionSequence");
+
+CREATE OR REPLACE VIEW "v_chat_message_history" AS SELECT * FROM "chat_message_history";
+
+CREATE OR REPLACE FUNCTION "update_chat_message_history_trigger_func"()
+RETURNS TRIGGER AS $$
+BEGIN
+    IF NEW."message" IS DISTINCT FROM OLD."message" THEN
+        insert into "chat_message_history"("messageId", "meetingId", "messageVersionSequence", "message", "senderId", "createdAt")
+	    values (OLD."messageId",
+	            OLD."meetingId",
+	            (select count(1) from "chat_message_history" prev where prev."messageId" = OLD."messageId"),
+	            OLD."message",
+	            OLD."senderId",
+	            coalesce(OLD."editedAt",OLD."createdAt")
+	            );
+    END IF;
+
+    RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+
+CREATE TRIGGER "update_chat_message_history_trigger" BEFORE UPDATE OF "message" ON "chat_message"
+    FOR EACH ROW EXECUTE FUNCTION "update_chat_message_history_trigger_func"();
 
 
 CREATE OR REPLACE VIEW "v_chat" AS
@@ -1039,14 +1114,19 @@ SELECT  cu."meetingId",
         cm."messageId",
         cm."chatId",
         cm."correlationId",
+        cm."messageSequence",
         cm."chatEmphasizedText",
         cm."message",
         cm."messageType",
+        cm."replyToMessageId",
         cm."messageMetadata",
         cm."senderId",
         cm."senderName",
         cm."senderRole",
         cm."createdAt",
+        cm."editedAt",
+        cm."deletedByUserId",
+        cm."deletedAt",
         CASE WHEN chat_with."lastSeenAt" >= cm."createdAt" THEN true ELSE false end "recipientHasSeen"
 FROM chat_message cm
 JOIN chat_user cu ON cu."meetingId" = cm."meetingId" AND cu."chatId" = cm."chatId"
@@ -1514,7 +1594,7 @@ create table "screenshare"(
 "meetingId" varchar(100) REFERENCES "meeting"("meetingId") ON DELETE CASCADE,
 "voiceConf" varchar(50),
 "screenshareConf" varchar(50),
-"contentType" varchar(50),
+"contentType" varchar(50), --camera or screenshare
 "stream" varchar(100),
 "vidWidth" integer,
 "vidHeight" integer,
@@ -1555,6 +1635,12 @@ SELECT
         when "startedAt" + (("time" - coalesce("accumulated",0)) * interval '1 milliseconds') >= current_timestamp then true
         else false
      end "running",
+    case when
+        "stopwatch" is false
+        and "startedAt" + (("time" - coalesce("accumulated",0)) * interval '1 milliseconds') <= current_timestamp
+        then true
+        else false
+    end "elapsed",
      "active",
      "time",
      "accumulated",

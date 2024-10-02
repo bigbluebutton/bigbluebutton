@@ -18,6 +18,27 @@ case class UserRegisteredRespMsg(
 case class UserRegisteredRespMsgBody(meetingId: String, userId: String, name: String,
                                      role: String, excludeFromDashboard: Boolean, registeredOn: Long)
 
+object RegisterUserSessionTokenReqMsg { val NAME = "RegisterUserSessionTokenReqMsg" }
+case class RegisterUserSessionTokenReqMsg(
+    header: BbbCoreHeaderWithMeetingId,
+    body:   RegisterUserSessionTokenReqMsgBody
+) extends BbbCoreMsg
+case class RegisterUserSessionTokenReqMsgBody(
+    meetingId:           String,
+    userId:              String,
+    sessionToken:        String,
+    replaceSessionToken: String,
+    enforceLayout:       String,
+    userSessionMetadata: Map[String, String]
+)
+
+object UserSessionTokenRegisteredRespMsg { val NAME = "UserSessionTokenRegisteredRespMsg" }
+case class UserSessionTokenRegisteredRespMsg(
+    header: BbbCoreHeaderWithMeetingId,
+    body:   UserSessionTokenRegisteredRespMsgBody
+) extends BbbCoreMsg
+case class UserSessionTokenRegisteredRespMsgBody(meetingId: String, userId: String, sessionToken: String)
+
 /**
  * Out Messages
  */

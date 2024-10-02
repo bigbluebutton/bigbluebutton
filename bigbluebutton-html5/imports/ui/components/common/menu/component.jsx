@@ -99,7 +99,7 @@ class BBBMenu extends React.Component {
   };
 
   makeMenuItems() {
-    const { actions, selectedEmoji, intl, isHorizontal, isMobile, roundButtons, keepOpen } = this.props;
+    const { actions, selectedEmoji, intl, isHorizontal, isEmoji, isMobile, roundButtons, keepOpen } = this.props;
 
     return actions?.map(a => {
       const { dataTest, label, onClick, key, disabled,
@@ -146,7 +146,10 @@ class BBBMenu extends React.Component {
               if (close) this.handleClose(event);
               event.stopPropagation();
             }}>
-            <Styled.MenuItemWrapper>
+            <Styled.MenuItemWrapper
+              isMobile={isMobile}
+              isEmoji={isEmoji}
+            >
               {a.icon ? <Icon iconName={a.icon} key="icon" /> : null}
               <Styled.Option hasIcon={!!(a.icon)} isHorizontal={isHorizontal} isMobile={isMobile} aria-describedby={`${key}-option-desc`}>{label}</Styled.Option>
               {description && <div className="sr-only" id={`${key}-option-desc`}>{`${description}${selected ? ` - ${intl.formatMessage(intlMessages.active)}` : ''}`}</div>}

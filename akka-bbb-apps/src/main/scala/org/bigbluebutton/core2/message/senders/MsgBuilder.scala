@@ -202,6 +202,16 @@ object MsgBuilder {
     BbbCommonEnvCoreMsg(envelope, event)
   }
 
+  def buildForceUserGraphqlDisconnectionSysMsg(meetingId: String, userId: String, sessionToken: String, reason: String, reasonMsgId: String): BbbCommonEnvCoreMsg = {
+    val routing = Routing.addMsgToClientRouting(MessageTypes.SYSTEM, meetingId, userId)
+    val envelope = BbbCoreEnvelope(ForceUserGraphqlDisconnectionSysMsg.NAME, routing)
+    val header = BbbCoreHeaderWithMeetingId(ForceUserGraphqlDisconnectionSysMsg.NAME, meetingId)
+    val body = ForceUserGraphqlDisconnectionSysMsgBody(meetingId, userId, sessionToken, reason, reasonMsgId)
+    val event = ForceUserGraphqlDisconnectionSysMsg(header, body)
+
+    BbbCommonEnvCoreMsg(envelope, event)
+  }
+
   def buildCheckGraphqlMiddlewareAlivePingSysMsg(middlewareUid: String): BbbCommonEnvCoreMsg = {
     val routing = Routing.addMsgToClientRouting(MessageTypes.SYSTEM, "", "")
     val envelope = BbbCoreEnvelope(CheckGraphqlMiddlewareAlivePingSysMsg.NAME, routing)

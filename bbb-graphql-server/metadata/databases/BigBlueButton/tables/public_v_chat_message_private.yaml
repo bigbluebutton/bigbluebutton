@@ -7,6 +7,25 @@ configuration:
   custom_name: chat_message_private
   custom_root_fields: {}
 object_relationships:
+  - name: deletedBy
+    using:
+      manual_configuration:
+        column_mapping:
+          deletedByUserId: userId
+          meetingId: meetingId
+        insertion_order: null
+        remote_table:
+          name: v_user_ref
+          schema: public
+  - name: replyToMessage
+    using:
+      manual_configuration:
+        column_mapping:
+          replyToMessageId: messageId
+        insertion_order: null
+        remote_table:
+          name: v_chat_message_private
+          schema: public
   - name: user
     using:
       manual_configuration:
@@ -25,14 +44,17 @@ select_permissions:
         - chatId
         - correlationId
         - createdAt
+        - deletedAt
         - message
         - messageId
         - messageMetadata
+        - messageSequence
         - messageType
+        - recipientHasSeen
         - senderId
         - senderName
         - senderRole
-        - recipientHasSeen
+        - editedAt
       filter:
         _and:
           - meetingId:

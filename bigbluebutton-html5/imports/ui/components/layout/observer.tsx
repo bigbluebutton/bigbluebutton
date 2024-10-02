@@ -208,13 +208,7 @@ const LayoutObserver: React.FC = () => {
   useEffect(() => {
     if (Session.equals('layoutReady', true) && (sidebarContentPanel === PANELS.NONE)) {
       if (!checkedUserSettings.current) {
-        const showAnimationsDefault = getFromUserSettings(
-          'bbb_show_animations_default',
-          window.meetingClientSettings.public.app.defaultSettings.application.animations,
-        );
-
         const Settings = getSettingsSingletonInstance();
-        Settings.application.animations = showAnimationsDefault;
         Settings.save(setLocalSettings);
 
         if (getFromUserSettings('bbb_show_participants_on_login', window.meetingClientSettings.public.layout.showParticipantsOnLogin) && !deviceInfo.isPhone) {

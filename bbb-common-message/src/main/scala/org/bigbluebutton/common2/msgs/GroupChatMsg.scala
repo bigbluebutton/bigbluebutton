@@ -17,8 +17,21 @@ object GroupChatMessageType {
 }
 
 case class GroupChatUser(id: String, name: String = "", role: String = "VIEWER")
-case class GroupChatMsgFromUser(correlationId: String, sender: GroupChatUser, message: String, metadata: Map[String, Any] = Map.empty)
-case class GroupChatMsgToUser(id: String, timestamp: Long, correlationId: String, sender: GroupChatUser, chatEmphasizedText: Boolean = false, message: String)
+case class GroupChatMsgFromUser(
+    correlationId:    String,
+    sender:           GroupChatUser,
+    message:          String,
+    replyToMessageId: String,
+    metadata:         Map[String, Any] = Map.empty
+)
+case class GroupChatMsgToUser(
+    id:                 String,
+    timestamp:          Long,
+    correlationId:      String,
+    sender:             GroupChatUser,
+    chatEmphasizedText: Boolean       = false,
+    message:            String
+)
 case class GroupChatInfo(id: String, access: String, createdBy: GroupChatUser, users: Vector[GroupChatUser])
 
 object OpenGroupChatWindowReqMsg { val NAME = "OpenGroupChatWindowReqMsg" }
@@ -105,6 +118,22 @@ case class SendGroupChatMessageFromApiSysPubMsgBody(
 object GroupChatMessageBroadcastEvtMsg { val NAME = "GroupChatMessageBroadcastEvtMsg" }
 case class GroupChatMessageBroadcastEvtMsg(header: BbbClientMsgHeader, body: GroupChatMessageBroadcastEvtMsgBody) extends BbbCoreMsg
 case class GroupChatMessageBroadcastEvtMsgBody(chatId: String, msg: GroupChatMsgToUser)
+
+object EditGroupChatMessageReqMsg { val NAME = "EditGroupChatMessageReqMsg" }
+case class EditGroupChatMessageReqMsg(header: BbbClientMsgHeader, body: EditGroupChatMessageReqMsgBody) extends StandardMsg
+case class EditGroupChatMessageReqMsgBody(chatId: String, messageId: String, message: String)
+
+object GroupChatMessageEditedEvtMsg { val NAME = "GroupChatMessageEditedEvtMsg" }
+case class GroupChatMessageEditedEvtMsg(header: BbbClientMsgHeader, body: GroupChatMessageEditedEvtMsgBody) extends BbbCoreMsg
+case class GroupChatMessageEditedEvtMsgBody(chatId: String, messageId: String, message: String)
+
+object DeleteGroupChatMessageReqMsg { val NAME = "DeleteGroupChatMessageReqMsg" }
+case class DeleteGroupChatMessageReqMsg(header: BbbClientMsgHeader, body: DeleteGroupChatMessageReqMsgBody) extends StandardMsg
+case class DeleteGroupChatMessageReqMsgBody(chatId: String, messageId: String)
+
+object GroupChatMessageDeletedEvtMsg { val NAME = "GroupChatMessageDeletedEvtMsg" }
+case class GroupChatMessageDeletedEvtMsg(header: BbbClientMsgHeader, body: GroupChatMessageDeletedEvtMsgBody) extends BbbCoreMsg
+case class GroupChatMessageDeletedEvtMsgBody(chatId: String, messageId: String)
 
 object UserTypingPubMsg { val NAME = "UserTypingPubMsg" }
 case class UserTypingPubMsg(header: BbbClientMsgHeader, body: UserTypingPubMsgBody) extends StandardMsg
