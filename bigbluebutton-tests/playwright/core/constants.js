@@ -22,4 +22,5 @@ exports.VIDEO_LOADING_WAIT_TIME = 15000;
 exports.UPLOAD_PDF_WAIT_TIME = 25000 * MULTIPLIER;
 
 exports.CUSTOM_MEETING_ID = 'custom-meeting';
+// it only works for snapshot comparisons. playwright assertions will complain about the element (still in the DOM)
 exports.PARAMETER_HIDE_PRESENTATION_TOAST = 'userdata-bbb_custom_style=.presentationUploaderToast{display: none;}.currentPresentationToast{display:none;}';
