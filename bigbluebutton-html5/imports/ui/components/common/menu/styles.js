@@ -31,6 +31,11 @@ const MenuItemWrapper = styled.div`
   flex-flow: row;
   width: 100%;
   align-items: center;
+
+  ${({ isMobile }) => isMobile && `
+    flex-flow: column;
+    align-items: center;
+  `}
 `;
 
 const Option = styled.div`
