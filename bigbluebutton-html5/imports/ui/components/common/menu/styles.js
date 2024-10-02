@@ -1,11 +1,11 @@
 import styled from 'styled-components';
-import Button from "/imports/ui/components/common/button/component";
+import Button from '/imports/ui/components/common/button/component';
 import Icon from '/imports/ui/components/common/icon/component';
-import MenuItem from "@mui/material/MenuItem";
+import MenuItem from '@mui/material/MenuItem';
 import { colorWhite, colorPrimary } from '/imports/ui/stylesheets/styled-components/palette';
 import { fontSizeLarge } from '/imports/ui/stylesheets/styled-components/typography';
 import { mediumUp } from '/imports/ui/stylesheets/styled-components/breakpoints';
-import Menu from "@mui/material/Menu";
+import Menu from '@mui/material/Menu';
 
 const MenuWrapper = styled(Menu)`
   ${({ isMobile }) => isMobile && `
@@ -136,10 +136,6 @@ const BBBMenuItem = styled(MenuItem)`
     @media (hover: none) {
       &:focus {
         background-color: ${colorWhite} !important;
-        div div div {
-          background-color: ${colorPrimary} !important;
-          border: 1px solid ${colorPrimary} !important;
-        }
       }
       &:hover {
         background-color: ${colorWhite} !important;
