@@ -999,6 +999,7 @@ CREATE TABLE "chat_message" (
 	"senderRole" varchar(20),
 	"createdAt" timestamp with time zone not null,
 	"editedAt" timestamp with time zone,
+	"deletedByUserId" varchar(100),
 	"deletedAt" timestamp with time zone,
     CONSTRAINT chat_fk FOREIGN KEY ("chatId", "meetingId") REFERENCES "chat"("chatId", "meetingId") ON DELETE CASCADE
 );
@@ -1124,6 +1125,7 @@ SELECT  cu."meetingId",
         cm."senderRole",
         cm."createdAt",
         cm."editedAt",
+        cm."deletedByUserId",
         cm."deletedAt",
         CASE WHEN chat_with."lastSeenAt" >= cm."createdAt" THEN true ELSE false end "recipientHasSeen"
 FROM chat_message cm

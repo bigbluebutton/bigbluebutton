@@ -50,8 +50,8 @@ object GroupChatApp {
     chats.update(c)
   }
 
-  def deleteGroupChatMessage(meetingId: String, chat: GroupChat, chats: GroupChats, msg: GroupChatMessage): GroupChats = {
-    ChatMessageDAO.softDelete(meetingId, chat.id, msg.id)
+  def deleteGroupChatMessage(meetingId: String, chat: GroupChat, chats: GroupChats, msg: GroupChatMessage, deletedBy: String): GroupChats = {
+    ChatMessageDAO.softDelete(meetingId, chat.id, msg.id, deletedBy)
 
     val c = chat.delete(msg.id)
     chats.update(c)

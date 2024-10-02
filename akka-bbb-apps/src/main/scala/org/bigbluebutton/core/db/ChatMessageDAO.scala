@@ -18,6 +18,7 @@ case class ChatMessageDbModel(
     senderRole:         Option[String],
     createdAt:          java.sql.Timestamp,
     editedAt:           Option[java.sql.Timestamp],
+    deletedByUserId:    Option[String],
     deletedAt:          Option[java.sql.Timestamp]
 )
 
@@ -38,12 +39,13 @@ class ChatMessageDbTableDef(tag: Tag) extends Table[ChatMessageDbModel](tag, Non
   //  val sender = foreignKey("chat_message_sender_fk", senderId, UserTable.users)(_.userId, onDelete = ForeignKeyAction.SetNull)
   val createdAt = column[java.sql.Timestamp]("createdAt")
   val editedAt = column[Option[java.sql.Timestamp]]("editedAt")
+  val deletedByUserId = column[Option[String]]("deletedByUserId")
   val deletedAt = column[Option[java.sql.Timestamp]]("deletedAt")
 
   override def * = (
     messageId, chatId, meetingId, correlationId, chatEmphasizedText,
     message, messageType, replyToMessageId, messageMetadata, senderId, senderName, senderRole,
-    createdAt, editedAt, deletedAt
+    createdAt, editedAt, deletedByUserId, deletedAt
   ) <> (ChatMessageDbModel.tupled, ChatMessageDbModel.unapply)
 }
 
@@ -69,6 +71,7 @@ object ChatMessageDAO {
           senderRole = Some(groupChatMessage.sender.role),
           createdAt = new java.sql.Timestamp(System.currentTimeMillis()),
           editedAt = None,
+          deletedByUserId = None,
           deletedAt = None,
         )
       )
@@ -96,6 +99,7 @@ object ChatMessageDAO {
           senderRole = None,
           createdAt = new java.sql.Timestamp(System.currentTimeMillis()),
           editedAt = None,
+          deletedByUserId = None,
           deletedAt = None,
         )
       )
@@ -118,7 +122,7 @@ object ChatMessageDAO {
     )
   }
 
-  def softDelete(meetingId: String, chatId: String, messageId: String) = {
+  def softDelete(meetingId: String, chatId: String, messageId: String, deletedByUserId: String) = {
     //set message=NULL instead of delete it from db, because the client will show "Message deleted"
     DatabaseConnection.enqueue(
       TableQuery[ChatMessageDbTableDef]
@@ -126,8 +130,8 @@ object ChatMessageDAO {
         .filter(_.chatId === chatId)
         .filter(_.messageId === messageId)
         .filter(_.message.nonEmpty)
-        .map(msg => (msg.message, msg.deletedAt))
-        .update((None, Some(new java.sql.Timestamp(System.currentTimeMillis()))))
+        .map(msg => (msg.message, msg.deletedByUserId, msg.deletedAt))
+        .update((None, Some(deletedByUserId), Some(new java.sql.Timestamp(System.currentTimeMillis()))))
     )
   }
 
