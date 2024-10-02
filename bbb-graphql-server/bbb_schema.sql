@@ -998,7 +998,7 @@ CREATE TABLE "chat_message" (
     "senderName" varchar(255),
 	"senderRole" varchar(20),
 	"createdAt" timestamp with time zone not null,
-	"updatedAt" timestamp with time zone,
+	"editedAt" timestamp with time zone,
 	"deletedAt" timestamp with time zone,
     CONSTRAINT chat_fk FOREIGN KEY ("chatId", "meetingId") REFERENCES "chat"("chatId", "meetingId") ON DELETE CASCADE
 );
@@ -1042,7 +1042,8 @@ CREATE TABLE "chat_message_history" (
 	"meetingId" varchar(100),
 	"messageVersionSequence" integer, --populated via trigger
 	"message" text,
-	"messageCreatedAt" timestamp with time zone,
+	"senderId" varchar(100),
+	"createdAt" timestamp with time zone,
 	"movedToHistoryAt" timestamp with time zone default current_timestamp,
     CONSTRAINT chat_message_history_pk PRIMARY KEY ("messageId", "messageVersionSequence")
 );
@@ -1053,20 +1054,15 @@ CREATE OR REPLACE VIEW "v_chat_message_history" AS SELECT * FROM "chat_message_h
 CREATE OR REPLACE FUNCTION "update_chat_message_history_trigger_func"()
 RETURNS TRIGGER AS $$
 BEGIN
-    IF NEW."message" <> OLD."message" THEN
-        insert into "chat_message_history"("messageId", "meetingId", "messageVersionSequence", "message", "messageCreatedAt")
+    IF NEW."message" IS DISTINCT FROM OLD."message" THEN
+        insert into "chat_message_history"("messageId", "meetingId", "messageVersionSequence", "message", "senderId", "createdAt")
 	    values (OLD."messageId",
 	            OLD."meetingId",
 	            (select count(1) from "chat_message_history" prev where prev."messageId" = OLD."messageId"),
 	            OLD."message",
-	            coalesce(OLD."updatedAt",OLD."createdAt")
+	            OLD."senderId",
+	            coalesce(OLD."editedAt",OLD."createdAt")
 	            );
-
-	    IF NEW."message" IS NULL THEN
-            NEW."deletedAt" = current_timestamp;
-        ELSE
-            NEW."updatedAt" = current_timestamp;
-        END IF;
     END IF;
 
     RETURN NEW;
@@ -1127,7 +1123,7 @@ SELECT  cu."meetingId",
         cm."senderName",
         cm."senderRole",
         cm."createdAt",
-        cm."updatedAt",
+        cm."editedAt",
         cm."deletedAt",
         CASE WHEN chat_with."lastSeenAt" >= cm."createdAt" THEN true ELSE false end "recipientHasSeen"
 FROM chat_message cm

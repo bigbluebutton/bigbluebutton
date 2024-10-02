@@ -17,7 +17,7 @@ case class ChatMessageDbModel(
     senderName:         String,
     senderRole:         Option[String],
     createdAt:          java.sql.Timestamp,
-    updatedAt:          Option[java.sql.Timestamp],
+    editedAt:           Option[java.sql.Timestamp],
     deletedAt:          Option[java.sql.Timestamp]
 )
 
@@ -37,13 +37,13 @@ class ChatMessageDbTableDef(tag: Tag) extends Table[ChatMessageDbModel](tag, Non
   //  val chat = foreignKey("chat_message_chat_fk", (chatId, meetingId), ChatTable.chats)(c => (c.chatId, c.meetingId), onDelete = ForeignKeyAction.Cascade)
   //  val sender = foreignKey("chat_message_sender_fk", senderId, UserTable.users)(_.userId, onDelete = ForeignKeyAction.SetNull)
   val createdAt = column[java.sql.Timestamp]("createdAt")
-  val updatedAt = column[Option[java.sql.Timestamp]]("updatedAt")
+  val editedAt = column[Option[java.sql.Timestamp]]("editedAt")
   val deletedAt = column[Option[java.sql.Timestamp]]("deletedAt")
 
   override def * = (
     messageId, chatId, meetingId, correlationId, chatEmphasizedText,
     message, messageType, replyToMessageId, messageMetadata, senderId, senderName, senderRole,
-    createdAt, updatedAt, deletedAt
+    createdAt, editedAt, deletedAt
   ) <> (ChatMessageDbModel.tupled, ChatMessageDbModel.unapply)
 }
 
@@ -68,7 +68,7 @@ object ChatMessageDAO {
           senderName = groupChatMessage.sender.name,
           senderRole = Some(groupChatMessage.sender.role),
           createdAt = new java.sql.Timestamp(System.currentTimeMillis()),
-          updatedAt = None,
+          editedAt = None,
           deletedAt = None,
         )
       )
@@ -77,26 +77,6 @@ object ChatMessageDAO {
     //Set chat visible for all participant users
     ChatUserDAO.updateChatVisible(meetingId, chatId, visible = true)
   }
-
-//  def insert(meetingId: String, chatId: String, groupChatMessage: GroupChatMessage): Unit = {
-//    val chatMessage = ChatMessageDbModel(
-//      messageId = groupChatMessage.id,
-//      chatId = chatId,
-//      meetingId = meetingId,
-//      correlationId = groupChatMessage.correlationId,
-//      createdAt = new java.sql.Timestamp(System.currentTimeMillis()),
-//      chatEmphasizedText = groupChatMessage.chatEmphasizedText,
-//      message = groupChatMessage.message,
-//      messageType = "default",
-//      messageMetadata = None,
-//      senderId = Some(groupChatMessage.sender.id),
-//      senderName = groupChatMessage.sender.name,
-//      senderRole = Some(groupChatMessage.sender.role),
-//    )
-//
-//    val insertAction = TableQuery[ChatMessageDbTableDef].insertOrUpdate(chatMessage)
-//    DatabaseConnection.enqueue(insertAction)
-//  }
 
   def insertSystemMsg(meetingId: String, chatId: String, message: String, messageType: String, messageMetadata: Map[String,Any], senderName: String) = {
     DatabaseConnection.enqueue(
@@ -115,7 +95,7 @@ object ChatMessageDAO {
           senderName = senderName,
           senderRole = None,
           createdAt = new java.sql.Timestamp(System.currentTimeMillis()),
-          updatedAt = None,
+          editedAt = None,
           deletedAt = None,
         )
       )
@@ -133,8 +113,8 @@ object ChatMessageDAO {
         .filter(_.chatId === chatId)
         .filter(_.messageId === messageId)
         .filter(_.message.nonEmpty)
-        .map(u => u.message)
-        .update(Some(message))
+        .map(msg => (msg.message, msg.editedAt))
+        .update((Some(message), Some(new java.sql.Timestamp(System.currentTimeMillis()))))
     )
   }
 
@@ -146,8 +126,8 @@ object ChatMessageDAO {
         .filter(_.chatId === chatId)
         .filter(_.messageId === messageId)
         .filter(_.message.nonEmpty)
-        .map(u => u.message)
-        .update(None)
+        .map(msg => (msg.message, msg.deletedAt))
+        .update((None, Some(new java.sql.Timestamp(System.currentTimeMillis()))))
     )
   }
 

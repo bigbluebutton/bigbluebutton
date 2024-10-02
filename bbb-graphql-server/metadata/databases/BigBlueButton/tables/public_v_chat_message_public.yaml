@@ -43,7 +43,7 @@ select_permissions:
         - senderId
         - senderName
         - senderRole
-        - updatedAt
+        - editedAt
       filter:
         meetingId:
           _eq: X-Hasura-MeetingId

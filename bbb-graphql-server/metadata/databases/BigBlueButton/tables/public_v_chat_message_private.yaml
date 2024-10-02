@@ -44,7 +44,7 @@ select_permissions:
         - senderId
         - senderName
         - senderRole
-        - updatedAt
+        - editedAt
       filter:
         _and:
           - meetingId:
