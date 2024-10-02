@@ -1962,6 +1962,17 @@ and n."createdAt" > current_timestamp - '5 seconds'::interval;
 
 create index idx_notification on notification("meetingId","userId","role","createdAt");
 
+-- ========== Plugin tables
+
+create table "plugin" (
+	"meetingId" varchar(100),
+	"name" varchar(100),
+	"javascriptEntrypointUrl" varchar(500),
+    CONSTRAINT "plugin_pk" PRIMARY KEY ("meetingId","name"),
+    FOREIGN KEY ("meetingId") REFERENCES "meeting"("meetingId") ON DELETE CASCADE
+);
+
+create view "v_plugin" as select * from "plugin";
 
 --------------------------------
 ---Plugins Data Channel

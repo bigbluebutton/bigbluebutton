@@ -540,6 +540,13 @@ public class ParamsProcessorUtil {
         listOfDisabledFeatures.replaceAll(String::trim);
         listOfDisabledFeatures = new ArrayList<>(new HashSet<>(listOfDisabledFeatures));
 
+        // Process Plugin Manifest Urls
+        ArrayList<String> listOfPlugins = new ArrayList<String>();
+        if (!StringUtils.isEmpty(params.get(ApiParams.PLUGINS))) {
+            String pluginsParam = params.get(ApiParams.PLUGINS);
+            listOfPlugins.addAll(Arrays.asList(pluginsParam.split(",")));
+        }
+
         // Check Disabled Features Exclude list -- passed as a CREATE parameter to cancel the disabling (typically from bbb-web's properties file)
         ArrayList<String> listOfDisabledFeaturesExclude = new ArrayList<>();
         if (!StringUtils.isEmpty(params.get(ApiParams.DISABLED_FEATURES_EXCLUDE))) {
@@ -790,6 +797,7 @@ public class ParamsProcessorUtil {
                 .withLearningDashboardCleanupDelayInMinutes(learningDashboardCleanupMins)
                 .withLearningDashboardAccessToken(learningDashboardAccessToken)
                 .withGroups(groups)
+                .withPluginManifestUrls(listOfPlugins)
                 .withDisabledFeatures(listOfDisabledFeatures)
                 .withNotifyRecordingIsOn(notifyRecordingIsOn)
                 .withPresentationUploadExternalDescription(presentationUploadExternalDescription)
