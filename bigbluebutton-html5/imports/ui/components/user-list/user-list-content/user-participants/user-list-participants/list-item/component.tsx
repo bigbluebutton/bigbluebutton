@@ -18,6 +18,7 @@ import { PluginsContext } from '/imports/ui/components/components-data/plugin-co
 import { useIsReactionsEnabled } from '/imports/ui/services/features';
 import useWhoIsTalking from '/imports/ui/core/hooks/useWhoIsTalking';
 import useWhoIsUnmuted from '/imports/ui/core/hooks/useWhoIsUnmuted';
+import { getSettingsSingletonInstance } from '/imports/ui/services/settings';
 
 const messages = defineMessages({
   moderator: {
@@ -224,6 +225,9 @@ const UserListItem: React.FC<UserListItemProps> = ({ user, lockSettings }) => {
     return modifiedElements;
   }
 
+  const Settings = getSettingsSingletonInstance();
+  const animations = Settings?.application?.animations;
+
   return (
     <Styled.UserItemContents tabIndex={-1} data-test={(user.userId === Auth.userID) ? 'userListItemCurrent' : 'userListItem'}>
       <Styled.Avatar
@@ -239,7 +243,7 @@ const UserListItem: React.FC<UserListItemProps> = ({ user, lockSettings }) => {
         noVoice={!voiceUser?.joined}
         color={user.color}
         whiteboardAccess={hasWhiteboardAccess}
-        animations
+        animations={animations}
         avatar={userAvatarFiltered}
         isChrome={isChrome}
         isFirefox={isFirefox}
