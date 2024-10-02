@@ -39,7 +39,7 @@ const ChatMessageToolbar: React.FC<ChatMessageToolbarProps> = (props) => {
   const intl = useIntl();
   const isRTL = layoutSelect((i: Layout) => i.isRTL);
   const CHAT_TOOLBAR_CONFIG = window.meetingClientSettings.public.chat.toolbar;
-  const CHAT_REPLIES_ENABLED = CHAT_TOOLBAR_CONFIG.includes('replies');
+  const CHAT_REPLIES_ENABLED = CHAT_TOOLBAR_CONFIG.includes('reply');
   const CHAT_REACTIONS_ENABLED = CHAT_TOOLBAR_CONFIG.includes('reactions');
   const CHAT_EDIT_ENABLED = CHAT_TOOLBAR_CONFIG.includes('edit');
   const CHAT_DELETE_ENABLED = CHAT_TOOLBAR_CONFIG.includes('delete');
