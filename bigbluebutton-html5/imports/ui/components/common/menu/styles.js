@@ -117,12 +117,30 @@ const BBBMenuItem = styled(MenuItem)`
     }
   `}
   ${({ $roundButtons, $isToggle }) => $roundButtons && !$isToggle && `
-    &:focus,
-    &:hover {
-      background-color: ${colorWhite} !important;
-      div div div {
-        background-color: ${colorPrimary} !important;
-        border: 1px solid ${colorPrimary} !important;
+    @media (hover: hover) {
+      &:focus,
+      &:hover {
+        background-color: ${colorWhite} !important;
+        div div div {
+          background-color: ${colorPrimary} !important;
+          border: 1px solid ${colorPrimary} !important;
+        }
+      }
+    }
+
+    @media (hover: none) {
+      &:focus {
+        background-color: ${colorWhite} !important;
+        div div div {
+          background-color: ${colorPrimary} !important;
+          border: 1px solid ${colorPrimary} !important;
+        }
+      }
+      &:hover {
+        background-color: ${colorWhite} !important;
+        div div div {
+          background-color: none !important;
+        }
       }
     }
   `}
