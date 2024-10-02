@@ -43,6 +43,20 @@ object GroupChatApp {
     chats.update(c)
   }
 
+  def updateGroupChatMessage(meetingId: String, chat: GroupChat, chats: GroupChats, msg: GroupChatMessage): GroupChats = {
+    ChatMessageDAO.update(meetingId, chat.id, msg.id, msg.message)
+
+    val c = chat.update(msg)
+    chats.update(c)
+  }
+
+  def deleteGroupChatMessage(meetingId: String, chat: GroupChat, chats: GroupChats, msg: GroupChatMessage, deletedBy: String): GroupChats = {
+    ChatMessageDAO.softDelete(meetingId, chat.id, msg.id, deletedBy)
+
+    val c = chat.delete(msg.id)
+    chats.update(c)
+  }
+
   def findGroupChatUser(userId: String, users: Users2x): Option[GroupChatUser] = {
     Users2x.findWithIntId(users, userId) match {
       case Some(u) => Some(GroupChatUser(u.intId, u.name, u.role))
