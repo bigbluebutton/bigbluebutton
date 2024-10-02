@@ -569,6 +569,7 @@ export const meetingClientSettingsInitialValues: MeetingClientSettings = {
         'p',
         'strong',
       ],
+      toolbar: ['replies'],
     },
     userReaction: {
       enabled: true,
