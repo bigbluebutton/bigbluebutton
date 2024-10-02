@@ -84,6 +84,7 @@ const ReactionsButton = (props) => {
         raiseHand: !raiseHand,
       },
     });
+    document.activeElement.blur();
   };
 
   const handleToggleAFK = () => {
