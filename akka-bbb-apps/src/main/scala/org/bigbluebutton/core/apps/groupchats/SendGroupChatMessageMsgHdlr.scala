@@ -44,7 +44,7 @@ trait SendGroupChatMessageMsgHdlr extends HandlerHelpers {
             case None       => false
           })
           // don't lock private chats that involve a moderator
-          if (modMembers.length == 0) {
+          if (modMembers.isEmpty) {
             chatLocked = permissions.disablePrivChat
           }
         } else {
@@ -59,7 +59,7 @@ trait SendGroupChatMessageMsgHdlr extends HandlerHelpers {
         chat <- state.groupChats.find(msg.body.chatId)
       } yield {
         val chatIsPrivate = chat.access == GroupChatAccess.PRIVATE;
-        val userIsAParticipant = chat.users.filter(u => u.id == sender.id).length > 0;
+        val userIsAParticipant = chat.users.exists(u => u.id == sender.id);
 
         if ((chatIsPrivate && userIsAParticipant) || !chatIsPrivate) {
           val moderatorChatEmphasizedEnabled = getConfigPropertyValueByPathAsBooleanOrElse(
@@ -74,17 +74,17 @@ trait SendGroupChatMessageMsgHdlr extends HandlerHelpers {
 
           val messageType = determineMessageType(msg.body.msg.metadata)
 
-          val gcm = GroupChatApp.toGroupChatMessage(sender, msg.body.msg, emphasizedText, msg.body.msg.metadata)
-          val gcs = GroupChatApp.addGroupChatMessage(liveMeeting.props.meetingProp.intId, chat, state.groupChats, gcm, messageType)
+          val gcMessage = GroupChatApp.toGroupChatMessage(sender, msg.body.msg, emphasizedText, msg.body.msg.metadata)
+          val updatedGroupChat = GroupChatApp.addGroupChatMessage(liveMeeting.props.meetingProp.intId, chat, state.groupChats, gcMessage, messageType)
 
           val event = buildGroupChatMessageBroadcastEvtMsg(
             liveMeeting.props.meetingProp.intId,
-            msg.header.userId, msg.body.chatId, gcm
+            msg.header.userId, msg.body.chatId, gcMessage
           )
 
           bus.outGW.send(event)
 
-          state.update(gcs)
+          state.update(updatedGroupChat)
         } else {
           val reason = "User isn't a participant of the chat"
           PermissionCheck.ejectUserForFailedPermission(msg.header.meetingId, msg.header.userId, reason, bus.outGW, liveMeeting)

@@ -404,6 +404,10 @@ class ReceivedJsonMsgHandlerActor(
         routeGenericMsg[SendGroupChatMessageMsg](envelope, jsonNode)
       case SendGroupChatMessageFromApiSysPubMsg.NAME =>
         routeGenericMsg[SendGroupChatMessageFromApiSysPubMsg](envelope, jsonNode)
+      case EditGroupChatMessageReqMsg.NAME =>
+        routeGenericMsg[EditGroupChatMessageReqMsg](envelope, jsonNode)
+      case DeleteGroupChatMessageReqMsg.NAME =>
+        routeGenericMsg[DeleteGroupChatMessageReqMsg](envelope, jsonNode)
       case GetGroupChatMsgsReqMsg.NAME =>
         routeGenericMsg[GetGroupChatMsgsReqMsg](envelope, jsonNode)
       case CreateGroupChatReqMsg.NAME =>

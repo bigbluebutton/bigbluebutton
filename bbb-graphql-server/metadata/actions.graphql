@@ -96,6 +96,21 @@ type Mutation {
 }
 
 type Mutation {
+  chatDeleteMessage(
+    chatId: String!
+    messageId: String!
+  ): Boolean
+}
+
+type Mutation {
+  chatEditMessage(
+    chatId: String!
+    messageId: String!
+    chatMessageInMarkdownFormat: String!
+  ): Boolean
+}
+
+type Mutation {
   chatPublicClearHistory: Boolean
 }
 

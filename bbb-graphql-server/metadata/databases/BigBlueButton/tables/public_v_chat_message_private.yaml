@@ -34,15 +34,17 @@ select_permissions:
         - chatId
         - correlationId
         - createdAt
+        - deletedAt
         - message
         - messageId
         - messageMetadata
         - messageSequence
         - messageType
+        - recipientHasSeen
         - senderId
         - senderName
         - senderRole
-        - recipientHasSeen
+        - updatedAt
       filter:
         _and:
           - meetingId:
