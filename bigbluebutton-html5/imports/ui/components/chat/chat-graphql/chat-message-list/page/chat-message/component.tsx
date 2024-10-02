@@ -320,21 +320,23 @@ const ChatMesssage: React.FC<ChatMessageProps> = ({
         isPresentationUpload={messageContent.isPresentationUpload}
         isCustomPluginMessage={isCustomPluginMessage}
       >
-        <ChatMessageToolbar
-          messageId={message.messageId}
-          chatId={message.chatId}
-          username={message.user.name}
-          message={message.message}
-          messageSequence={message.messageSequence}
-          onEmojiSelected={(emoji) => {
-            setReactions((prev) => {
-              return [
-                ...prev,
-                emoji,
-              ];
-            });
-          }}
-        />
+        {!isSystemSender && message.user && (
+          <ChatMessageToolbar
+            messageId={message.messageId}
+            chatId={message.chatId}
+            username={message.user.name}
+            message={message.message}
+            messageSequence={message.messageSequence}
+            onEmojiSelected={(emoji) => {
+              setReactions((prev) => {
+                return [
+                  ...prev,
+                  emoji,
+                ];
+              });
+            }}
+          />
+        )}
         <ChatMessageReactions reactions={reactions} />
         {((!message?.user || !sameSender) && (
           message.messageType !== ChatMessageType.USER_AWAY_STATUS_MSG
