@@ -172,8 +172,9 @@ class BBBMenu extends React.Component {
                     <Styled.Option hasIcon={!!(a.icon)} isTitle={isTitle} textColor={textColor} isHorizontal={isHorizontal} isMobile={isMobile} aria-describedby={`${key}-option-desc`}>{label}</Styled.Option>
                     {a.iconRight ? <Styled.IconRight color={textColor} iconName={a.iconRight} key="iconRight" /> : null}
                     {(isTitle && titleActions?.length > 0) ? (
-                      titleActions.map((item) => (
+                      titleActions.map((item, index) => (
                         <Styled.TitleAction
+                          key={item.id || index}
                           tooltipplacement="right"
                           size="md"
                           onClick={item.onClick}
