@@ -350,7 +350,135 @@ const createEndpointTableData = [
     "name": "disabledFeatures",
     "required": false,
     "type": "String",
-    "description": (<>List (comma-separated) of features to disable in a particular meeting. (added 2.5)<br /><br />Available options to disable:<br /><ul><li><code className="language-plaintext highlighter-rouge">breakoutRooms</code>- <b>Breakout Rooms</b> </li><li><code className="language-plaintext highlighter-rouge">captions</code>- <b>Closed Caption</b> </li><li><code className="language-plaintext highlighter-rouge">chat</code>- <b>Chat</b></li><li><code className="language-plaintext highlighter-rouge">downloadPresentationWithAnnotations</code>- <b>Annotated presentation download</b></li><li><code className="language-plaintext highlighter-rouge">snapshotOfCurrentSlide</code>- <b>Allow snapshot of the current slide</b></li><li><code className="language-plaintext highlighter-rouge">externalVideos</code>- <b>Share an external video</b> </li><li><code className="language-plaintext highlighter-rouge">importPresentationWithAnnotationsFromBreakoutRooms</code>- <b>Capture breakout presentation</b></li><li><code className="language-plaintext highlighter-rouge">importSharedNotesFromBreakoutRooms</code>- <b>Capture breakout shared notes</b></li><li><code className="language-plaintext highlighter-rouge">layouts</code>- <b>Layouts</b> (allow only default layout)</li><li><code className="language-plaintext highlighter-rouge">learningDashboard</code>- <b>Learning Analytics Dashboard</b></li><li><code className="language-plaintext highlighter-rouge">learningDashboardDownloadSessionData</code>- <b>Learning Analytics Dashboard Download Session Data (prevents the option to download)</b></li><li><code className="language-plaintext highlighter-rouge">polls</code>- <b>Polls</b> </li><li><code className="language-plaintext highlighter-rouge">screenshare</code>- <b>Screen Sharing</b></li><li><code className="language-plaintext highlighter-rouge">sharedNotes</code>- <b>Shared Notes</b></li><li><code className="language-plaintext highlighter-rouge">virtualBackgrounds</code>- <b>Virtual Backgrounds</b></li><li><code className="language-plaintext highlighter-rouge">customVirtualBackgrounds</code>- <b>Virtual Backgrounds Upload</b></li><li><code className="language-plaintext highlighter-rouge">liveTranscription</code>- <b>Live Transcription</b></li><li><code className="language-plaintext highlighter-rouge">presentation</code>- <b>Presentation</b></li><li><code className="language-plaintext highlighter-rouge">cameraAsContent</code>-<b>Enables/Disables camera as a content</b></li><li><code className="language-plaintext highlighter-rouge">timer</code>- <b>disables timer</b></li><li><code className="language-plaintext highlighter-rouge">infiniteWhiteboard</code>- <b>Infinite Whiteboard (added in BigBlueButton 3.0)</b></li></ul></>)
+    "description": (
+        <>
+          List (comma-separated) of features to disable in a particular meeting. (added 2.5)
+          <br /><br />
+          Available options to disable:
+          <ul>
+            <li>
+              <code className="language-plaintext highlighter-rouge">
+                breakoutRooms
+              </code> - <b>Breakout Rooms</b>
+            </li>
+            <li>
+              <code className="language-plaintext highlighter-rouge">
+                captions
+              </code> - <b>Closed Captions</b>
+            </li>
+            <li>
+              <code className="language-plaintext highlighter-rouge">
+                chat
+              </code> - <b>Public Chat</b>
+            </li>
+            <li>
+              <code className="language-plaintext highlighter-rouge">
+                deleteChatMessage
+              </code> - <b>Delete Chat Message (moderators or owner)</b>
+            </li>
+            <li>
+              <code className="language-plaintext highlighter-rouge">
+                editChatMessage
+              </code> - <b>Edit Chat Message (only owner)</b>
+            </li>
+            <li>
+              <code className="language-plaintext highlighter-rouge">
+                replyChatMessage
+              </code> - <b>Reply a Chat Message</b>
+            </li>
+            <li>
+              <code className="language-plaintext highlighter-rouge">
+                chatMessageReactions
+              </code> - <b>Send Reactions to a chat message</b>
+            </li>
+            <li>
+              <code className="language-plaintext highlighter-rouge">
+                download
+              </code> - <b>Download Presentation</b>
+            </li>
+            <li>
+              <code className="language-plaintext highlighter-rouge">
+                externalVideos
+              </code> - <b>Share external videos (YouTube, Vimeo, etc.)</b>
+            </li>
+            <li>
+              <code className="language-plaintext highlighter-rouge">
+                layout
+              </code> - <b>Layout Switch</b>
+            </li>
+            <li>
+              <code className="language-plaintext highlighter-rouge">
+                learningDashboard
+              </code> - <b>Learning Dashboard</b>
+            </li>
+            <li>
+              <code className="language-plaintext highlighter-rouge">
+                lockSettings
+              </code> - <b>Lock Settings</b>
+            </li>
+            <li>
+              <code className="language-plaintext highlighter-rouge">
+                meetingEnd
+              </code> - <b>End Meeting</b>
+            </li>
+            <li>
+              <code className="language-plaintext highlighter-rouge">
+                multiCam
+              </code> - <b>Multiple Cameras</b>
+            </li>
+            <li>
+              <code className="language-plaintext highlighter-rouge">
+                poll
+              </code> - <b>Poll</b>
+            </li>
+            <li>
+              <code className="language-plaintext highlighter-rouge">
+                presentation
+              </code> - <b>Presentation</b>
+            </li>
+            <li>
+              <code className="language-plaintext highlighter-rouge">
+                presentationAnnotations
+              </code> - <b>Presentation Annotations</b>
+            </li>
+            <li>
+              <code className="language-plaintext highlighter-rouge">
+                raiseHand
+              </code> - <b>Raise Hand</b>
+            </li>
+            <li>
+              <code className="language-plaintext highlighter-rouge">
+                recording
+              </code> - <b>Recording</b>
+            </li>
+            <li>
+              <code className="language-plaintext highlighter-rouge">
+                screenSharing
+              </code> - <b>Screen Sharing</b>
+            </li>
+            <li>
+              <code className="language-plaintext highlighter-rouge">
+                sharedNotes
+              </code> - <b>Shared Notes</b>
+            </li>
+            <li>
+              <code className="language-plaintext highlighter-rouge">
+                videos
+              </code> - <b>Webcams</b>
+            </li>
+            <li>
+              <code className="language-plaintext highlighter-rouge">
+                whiteboard
+              </code> - <b>Whiteboard</b>
+            </li>
+            <li>
+              <code className="language-plaintext highlighter-rouge">
+                virtualBackgrounds
+              </code> - <b>Virtual Backgrounds</b>
+            </li>
+          </ul>
+        </>
+    )
   },
   {
     "name": "disabledFeaturesExclude",
