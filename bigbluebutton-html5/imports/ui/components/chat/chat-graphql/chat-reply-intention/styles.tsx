@@ -17,7 +17,7 @@ const Container = styled.div<{ $hidden: boolean; $animations: boolean }>`
         height: 0;
       `
     : css`
-        height: 4rem;
+        height: 6rem;
         padding: 6px;
         margin-right: 0.75rem;
         margin-bottom: 0.25rem;
@@ -42,10 +42,16 @@ const Typography = styled.div`
 const Username = styled(Typography)`
   font-weight: bold;
   color: ${colorBlueLight};
-  margin-bottom: 6px;
+  line-height: 1rem;
+  height: 1rem;
+  font-size: 1rem;
 `;
 
-const Message = styled(Typography)``;
+const Message = styled.div`
+  // Container height - Username height - vertical padding
+  max-height: calc(5rem - 12px);
+  overflow: hidden;
+`;
 
 // @ts-ignore
 const CloseBtn = styled(Button)`

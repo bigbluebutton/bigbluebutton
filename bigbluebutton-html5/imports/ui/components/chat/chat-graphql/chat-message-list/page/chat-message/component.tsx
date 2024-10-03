@@ -304,14 +304,6 @@ const ChatMesssage: React.FC<ChatMessageProps> = ({
   }, []);
   return (
     <Container ref={containerRef}>
-      {message.replyToMessage && (
-        <ChatMessageReplied
-          message={message.replyToMessage.message}
-          username={message.replyToMessage.user.name}
-          sequence={message.replyToMessage.messageSequence}
-          userColor={message.replyToMessage.user.color}
-        />
-      )}
       <ChatWrapper
         id="chat-message-wrapper"
         isSystemSender={isSystemSender}
@@ -327,6 +319,7 @@ const ChatMesssage: React.FC<ChatMessageProps> = ({
             username={message.user.name}
             message={message.message}
             messageSequence={message.messageSequence}
+            emphasizedMessage={message.chatEmphasizedText}
             onEmojiSelected={(emoji) => {
               setReactions((prev) => {
                 return [
@@ -371,6 +364,15 @@ const ChatMesssage: React.FC<ChatMessageProps> = ({
               currentlyInMeeting={message.user?.currentlyInMeeting ?? true}
               dateTime={dateTime}
             />
+          )}
+          {message.replyToMessage && (
+          <ChatMessageReplied
+            message={message.replyToMessage.message}
+            username={message.replyToMessage.user.name}
+            sequence={message.replyToMessage.messageSequence}
+            userColor={message.replyToMessage.user.color}
+            emphasizedMessage={message.replyToMessage.chatEmphasizedText}
+          />
           )}
           <MessageItemWrapper>
             {messageContent.component}

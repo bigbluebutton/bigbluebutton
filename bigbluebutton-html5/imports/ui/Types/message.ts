@@ -19,6 +19,7 @@ export interface Message {
   replyToMessage: {
     messageSequence: number;
     message: string;
+    chatEmphasizedText: boolean;
     user: {
       name: string;
       color: string;

@@ -2,18 +2,21 @@ import React from 'react';
 import Styled from './styles';
 import Storage from '/imports/ui/services/storage/in-memory';
 import { ChatEvents } from '/imports/ui/core/enums/chat';
+import ChatMessageTextContent from '../message-content/text-content/component';
 
 interface MessageRepliedProps {
   username: string;
   message: string;
   sequence: number;
   userColor: string;
+  emphasizedMessage: boolean;
 }
 
 const ChatMessageReplied: React.FC<MessageRepliedProps> = (props) => {
   const {
-    message, username, sequence, userColor,
+    message, username, sequence, userColor, emphasizedMessage,
   } = props;
+
   return (
     <Styled.Container
       $userColor={userColor}
@@ -30,7 +33,14 @@ const ChatMessageReplied: React.FC<MessageRepliedProps> = (props) => {
       }}
     >
       <Styled.Username $userColor={userColor}>{username}</Styled.Username>
-      <Styled.Message>{message}</Styled.Message>
+      <Styled.Message>
+        <ChatMessageTextContent
+          text={message}
+          emphasizedMessage={emphasizedMessage}
+          systemMsg={false}
+          dataTest={null}
+        />
+      </Styled.Message>
     </Styled.Container>
   );
 };

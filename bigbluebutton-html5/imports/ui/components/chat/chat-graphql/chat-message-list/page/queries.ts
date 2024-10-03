@@ -14,6 +14,7 @@ export const CHAT_MESSAGE_PUBLIC_SUBSCRIPTION = gql`
       }
       messageSequence
       replyToMessage {
+        chatEmphasizedText
         messageSequence
         message
         user {

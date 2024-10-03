@@ -20,6 +20,7 @@ const Container = styled.div<{ $sequence: number }>`
   border-radius: 8px;
   padding: 1px;
   background-color: ${colorWhite};
+  z-index: 2;
 
   #chat-message-wrapper:hover & {
     display: flex;

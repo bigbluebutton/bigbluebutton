@@ -25,6 +25,7 @@ import {
 } from './styles';
 import useReactiveRef from '/imports/ui/hooks/useReactiveRef';
 import useStickyScroll from '/imports/ui/hooks/useStickyScroll';
+import ChatReplyIntention from '../chat-reply-intention/component';
 
 const PAGE_SIZE = 50;
 
@@ -313,6 +314,7 @@ const ChatMessageList: React.FC<ChatListProps> = ({
             />
           </MessageList>,
           renderUnreadNotification,
+          <ChatReplyIntention />,
         ]
       }
     </>

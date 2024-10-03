@@ -26,12 +26,13 @@ interface ChatMessageToolbarProps {
   username: string;
   message: string;
   messageSequence: number;
+  emphasizedMessage: boolean;
   onEmojiSelected(emoji: { id: string; native: string }): void;
 }
 
 const ChatMessageToolbar: React.FC<ChatMessageToolbarProps> = (props) => {
   const {
-    messageId, chatId, message, username, onEmojiSelected, messageSequence,
+    messageId, chatId, message, username, onEmojiSelected, messageSequence, emphasizedMessage,
   } = props;
   const [reactionsAnchor, setReactionsAnchor] = React.useState<Element | null>(
     null,
@@ -86,6 +87,8 @@ const ChatMessageToolbar: React.FC<ChatMessageToolbarProps> = (props) => {
                     message,
                     messageId,
                     chatId,
+                    emphasizedMessage,
+                    sequence: messageSequence,
                   },
                 }),
               );

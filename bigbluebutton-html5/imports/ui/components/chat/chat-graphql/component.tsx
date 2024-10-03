@@ -14,7 +14,6 @@ import { Chat as ChatType } from '/imports/ui/Types/chat';
 import { layoutDispatch } from '/imports/ui/components/layout/context';
 import browserInfo from '/imports/utils/browserInfo';
 import { GraphqlDataHookSubscriptionResponse } from '/imports/ui/Types/hook';
-import ChatReplyIntention from './chat-reply-intention/component';
 
 interface ChatProps {
   isRTL: boolean;
@@ -44,7 +43,6 @@ const Chat: React.FC<ChatProps> = ({ isRTL }) => {
     <Styled.Chat isRTL={isRTL} isChrome={isChrome}>
       <ChatHeader />
       <ChatMessageListContainer />
-      <ChatReplyIntention />
       <ChatMessageFormContainer />
       <ChatTypingIndicatorContainer />
     </Styled.Chat>
