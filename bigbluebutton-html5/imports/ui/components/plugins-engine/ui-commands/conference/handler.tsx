@@ -4,7 +4,7 @@ import { SetSpeakerLevelCommandArguments } from 'bigbluebutton-html-plugin-sdk/d
 import { setSpeakerLevel } from '../../../audio/audio-graphql/audio-controls/input-stream-live-selector/service';
 
 const PluginConferenceUiCommandsHandler = () => {
-  const handleUserStatusAway = (event: CustomEvent<SetSpeakerLevelCommandArguments>) => {
+  const handleSetSpeakerLevel = (event: CustomEvent<SetSpeakerLevelCommandArguments>) => {
     const { level } = event.detail;
     setSpeakerLevel(level);
   };
@@ -12,13 +12,13 @@ const PluginConferenceUiCommandsHandler = () => {
   useEffect(() => {
     window.addEventListener(
       ConferenceEnum.SET_SPEAKER_LEVEL,
-      handleUserStatusAway as EventListener,
+      handleSetSpeakerLevel as EventListener,
     );
 
     return () => {
-      window.addEventListener(
+      window.removeEventListener(
         ConferenceEnum.SET_SPEAKER_LEVEL,
-        handleUserStatusAway as EventListener,
+        handleSetSpeakerLevel as EventListener,
       );
     };
   }, []);

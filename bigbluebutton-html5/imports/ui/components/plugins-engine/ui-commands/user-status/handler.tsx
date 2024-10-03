@@ -32,7 +32,7 @@ const PluginUserStatusUiCommandsHandler = () => {
     );
 
     return () => {
-      window.addEventListener(
+      window.removeEventListener(
         UserStatusEnum.SET_AWAY_STATUS,
         handleUserStatusAway as EventListener,
       );
