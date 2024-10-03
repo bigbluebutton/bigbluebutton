@@ -1135,6 +1135,21 @@ LEFT JOIN "chat_user" chat_with ON chat_with."meetingId" = cm."meetingId"
                                 AND chat_with."userId" != cu."userId"
 WHERE cm."chatId" != 'MAIN-PUBLIC-GROUP-CHAT';
 
+CREATE TABLE "chat_message_reaction" (
+	"meetingId" varchar(100),
+	"messageId" varchar(100) REFERENCES "chat_message"("messageId") ON DELETE CASCADE,
+	"userId" varchar(100) not null,
+	"reactionEmoji" varchar(25),
+	"createdAt" timestamp with time zone,
+    CONSTRAINT chat_message_reaction_pk PRIMARY KEY ("messageId", "userId", "reactionEmoji"),
+    FOREIGN KEY ("meetingId", "userId") REFERENCES "user"("meetingId","userId") ON DELETE CASCADE
+);
+CREATE INDEX "chat_message_reaction_meeting_message_idx" ON "chat_message_reaction"("meetingId","messageId");
+CREATE INDEX "chat_message_reaction_meeting_message_idx_rev" ON "chat_message_reaction"("messageId", "meetingId");
+
+CREATE OR REPLACE VIEW "v_chat_message_reaction" AS SELECT * FROM "chat_message_reaction";
+
+
 --============ Presentation / Annotation
 
 
