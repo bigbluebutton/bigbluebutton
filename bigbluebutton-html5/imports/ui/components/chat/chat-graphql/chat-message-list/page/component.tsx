@@ -54,7 +54,7 @@ const areChatPagesEqual = (prevProps: ChatListPageProps, nextProps: ChatListPage
   });
 };
 
-const ChatListPage: React.FC<ChatListPageProps> = memo(({
+const ChatListPage: React.FC<ChatListPageProps> = ({
   messages,
   messageReadFeedbackEnabled,
   lastSenderPreviousPage,
@@ -103,7 +103,9 @@ const ChatListPage: React.FC<ChatListPageProps> = memo(({
       })}
     </div>
   );
-}, areChatPagesEqual);
+};
+
+const MemoizedChatListPage = memo(ChatListPage, areChatPagesEqual);
 
 const ChatListPageContainer: React.FC<ChatListPageContainerProps> = ({
   page,
@@ -147,7 +149,7 @@ const ChatListPageContainer: React.FC<ChatListPageContainerProps> = ({
   }
   setLoadedMessageGathering(page, chatMessageData);
   return (
-    <ChatListPage
+    <MemoizedChatListPage
       messages={chatMessageData}
       lastSenderPreviousPage={lastSenderPreviousPage}
       messageReadFeedbackEnabled={isPrivateReadFeedbackEnabled}
