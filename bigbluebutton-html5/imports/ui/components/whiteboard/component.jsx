@@ -304,11 +304,15 @@ const Whiteboard = React.memo((props) => {
   }, [tlEditorRef]);
 
   const handleKeyDown = useCallback((event) => {
-    const debouncedUndo = debounce({ delay: 150 }, () => {
-      tlEditorRef.current?.undo();
-    });
+    if (event.repeat) {
+      event.preventDefault();
+      event.stopPropagation();
+      return;
+    }
 
-    if (event.key === 'Escape' || event.keyCode === 27) {
+    const key = event.key.toLowerCase();
+
+    if (key === 'escape' || event.keyCode === 27) {
       tlEditorRef.current?.deselect(...tlEditorRef.current?.getSelectedShapes());
       return;
     }
@@ -318,12 +322,12 @@ const Whiteboard = React.memo((props) => {
       return;
     }
 
-    if (event.key === 'Delete') {
+    if (key === 'delete') {
       handleCut(false);
       return;
     }
 
-    if (event.key === ' ' && tlEditorRef.current?.getCurrentToolId() !== 'hand' && isPresenterRef.current) {
+    if (key === ' ' && tlEditorRef.current?.getCurrentToolId() !== 'hand' && isPresenterRef.current) {
       previousTool.current = tlEditorRef.current?.getCurrentToolId();
       tlEditorRef.current?.setCurrentTool('hand');
       return;
@@ -345,6 +349,19 @@ const Whiteboard = React.memo((props) => {
     };
 
     if (event.ctrlKey || event.metaKey) {
+      if (key === 'z') {
+        event.preventDefault();
+        event.stopPropagation();
+        if (event.shiftKey) {
+          // Redo (Ctrl + Shift + z)
+          tlEditorRef.current?.redo();
+        } else {
+          // Undo (Ctrl + z)
+          tlEditorRef.current?.undo();
+        }
+        return;
+      }
+
       const ctrlKeyMap = {
         a: () => {
           tlEditorRef.current?.selectAll();
@@ -366,20 +383,20 @@ const Whiteboard = React.memo((props) => {
             handlePaste();
           }
         },
-        z: debouncedUndo,
       };
-      if (ctrlKeyMap[event.key]) {
+
+      if (ctrlKeyMap[key]) {
         event.preventDefault();
         event.stopPropagation();
-        ctrlKeyMap[event.key]();
+        ctrlKeyMap[key]();
         return;
       }
     }
 
-    if (simpleKeyMap[event.key]) {
+    if (simpleKeyMap[key]) {
       event.preventDefault();
       event.stopPropagation();
-      simpleKeyMap[event.key]();
+      simpleKeyMap[key]();
       return;
     }
 
@@ -827,16 +844,6 @@ const Whiteboard = React.memo((props) => {
   }, [tlEditor]);
 
   React.useEffect(() => {
-    let undoRedoIntervalId = null;
-
-    const undo = () => {
-      tlEditorRef?.current?.history?.undo();
-    };
-
-    const redo = () => {
-      tlEditorRef?.current?.history?.redo();
-    };
-
     const handleArrowPress = (event) => {
       const currPageNum = parseInt(curPageIdRef.current, 10);
       const shapeSelected = tlEditorRef.current.getSelectedShapes()?.length > 0;
@@ -863,31 +870,7 @@ const Whiteboard = React.memo((props) => {
       }
     };
 
-    const handleUndoRedoOnCondition = (condition, action) => {
-      if (condition) {
-        action();
-      }
-    };
-
     const handleKeyDown2 = (event) => {
-      const isUndo = (event.ctrlKey || event.metaKey) && event.key === 'z' && !event.shiftKey;
-      const isRedo = (event.ctrlKey || event.metaKey) && event.shiftKey && event.key === 'Z';
-
-      if (
-        (isUndo || isRedo)
-        && (isPresenterRef.current || hasWBAccessRef.current)
-      ) {
-        event.preventDefault();
-        event.stopPropagation();
-
-        if (!undoRedoIntervalId) {
-          undoRedoIntervalId = setInterval(() => {
-            handleUndoRedoOnCondition(isUndo, undo);
-            handleUndoRedoOnCondition(isRedo, redo);
-          }, 300);
-        }
-      }
-
       if (
         (event.keyCode === KEY_CODES.ARROW_RIGHT
           || event.keyCode === KEY_CODES.ARROW_LEFT)
@@ -898,11 +881,6 @@ const Whiteboard = React.memo((props) => {
     };
 
     const handleKeyUp = (event) => {
-      if ((event.key === 'z' || event.key === 'Z') && undoRedoIntervalId) {
-        clearInterval(undoRedoIntervalId);
-        undoRedoIntervalId = null;
-      }
-
       if (event.key === ' ') {
         if (previousTool.current) {
           tlEditorRef.current?.setCurrentTool(previousTool.current);
@@ -921,9 +899,6 @@ const Whiteboard = React.memo((props) => {
     return () => {
       whiteboardRef.current?.removeEventListener('keydown', handleKeyDown2);
       whiteboardRef.current?.removeEventListener('keyup', handleKeyUp);
-      if (undoRedoIntervalId) {
-        clearInterval(undoRedoIntervalId);
-      }
     };
   }, [whiteboardRef.current]);
 
