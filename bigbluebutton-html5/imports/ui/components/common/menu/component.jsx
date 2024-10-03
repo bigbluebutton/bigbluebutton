@@ -6,6 +6,7 @@ import Icon from "/imports/ui/components/common/icon/component";
 import { SMALL_VIEWPORT_BREAKPOINT } from '/imports/ui/components/layout/enums';
 import KEY_CODES from '/imports/utils/keyCodes';
 import MenuSkeleton from './skeleton';
+import GenericContentItem from '/imports/ui/components/generic-content/generic-content-item/component';
 import Styled from './styles';
 
 const intlMessages = defineMessages({
@@ -102,7 +103,8 @@ class BBBMenu extends React.Component {
 
     return actions?.map(a => {
       const { dataTest, label, onClick, key, disabled,
-        description, selected, textColor, isToggle, loading } = a;
+        description, selected, textColor, isToggle, loading,
+        isTitle, titleActions, contentFunction } = a;
       const emojiSelected = key?.toLowerCase()?.includes(selectedEmoji?.toLowerCase());
 
       let customStyles = {
@@ -149,7 +151,7 @@ class BBBMenu extends React.Component {
               isEmoji={isEmoji}
             >
               {a.icon ? <Icon iconName={a.icon} key="icon" /> : null}
-              <Styled.Option isHorizontal={isHorizontal} isMobile={isMobile} aria-describedby={`${key}-option-desc`}>{label}</Styled.Option>
+              <Styled.Option hasIcon={!!(a.icon)} isHorizontal={isHorizontal} isMobile={isMobile} aria-describedby={`${key}-option-desc`}>{label}</Styled.Option>
               {description && <div className="sr-only" id={`${key}-option-desc`}>{`${description}${selected ? ` - ${intl.formatMessage(intlMessages.active)}` : ''}`}</div>}
               {a.iconRight ? <Styled.IconRight iconName={a.iconRight} key="iconRight" /> : null}
             </Styled.MenuItemWrapper>
@@ -158,11 +160,38 @@ class BBBMenu extends React.Component {
         (!onClick && !a.isSeparator) && (
           <Styled.BBBMenuInformation
             key={a.key}
+            isTitle={isTitle}
+            isGenericContent={!!contentFunction}
           >
-            <Styled.MenuItemWrapper>
-              {a.icon ? <Icon color={textColor} iconName={a.icon} key="icon" /> : null}
-              <Styled.Option textColor={textColor} isHorizontal={isHorizontal} isMobile={isMobile} aria-describedby={`${key}-option-desc`}>{label}</Styled.Option>
-              {a.iconRight ? <Styled.IconRight color={textColor} iconName={a.iconRight} key="iconRight" /> : null}
+            <Styled.MenuItemWrapper
+              hasSpaceBetween={isTitle && titleActions}
+            >
+              {!contentFunction ? (
+                  <>
+                    {a.icon ? <Icon color={textColor} iconName={a.icon} key="icon" /> : null}
+                    <Styled.Option hasIcon={!!(a.icon)} isTitle={isTitle} textColor={textColor} isHorizontal={isHorizontal} isMobile={isMobile} aria-describedby={`${key}-option-desc`}>{label}</Styled.Option>
+                    {a.iconRight ? <Styled.IconRight color={textColor} iconName={a.iconRight} key="iconRight" /> : null}
+                    {(isTitle && titleActions?.length > 0) ? (
+                      titleActions.map((item, index) => (
+                        <Styled.TitleAction
+                          key={item.id || index}
+                          tooltipplacement="right"
+                          size="md"
+                          onClick={item.onClick}
+                          circle
+                          tooltipLabel={item.tooltip}
+                          hideLabel
+                          icon={item.icon}
+                        />
+                      ))
+                    ) : null}
+                  </>
+              ) : (
+                <GenericContentItem
+                  width="100%"
+                  renderFunction={contentFunction}
+                />
+              )}
             </Styled.MenuItemWrapper>
           </Styled.BBBMenuInformation>
         ),
