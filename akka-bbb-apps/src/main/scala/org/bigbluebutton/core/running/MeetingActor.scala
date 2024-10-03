@@ -712,10 +712,10 @@ class MeetingActor(
         state = groupChatApp.handle(m, state, liveMeeting, msgBus)
         updateUserLastActivity(m.header.userId)
       case m: SendGroupChatMessageReactionReqMsg =>
-        state = groupChatApp.handle(m, state, liveMeeting, msgBus)
+        groupChatApp.handle(m, state, liveMeeting, msgBus)
         updateUserLastActivity(m.header.userId)
       case m: DeleteGroupChatMessageReactionReqMsg =>
-        state = groupChatApp.handle(m, state, liveMeeting, msgBus)
+        groupChatApp.handle(m, state, liveMeeting, msgBus)
         updateUserLastActivity(m.header.userId)
 
       // Plugin

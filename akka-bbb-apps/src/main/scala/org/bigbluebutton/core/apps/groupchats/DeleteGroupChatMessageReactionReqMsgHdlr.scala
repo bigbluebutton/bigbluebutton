@@ -12,12 +12,10 @@ import org.bigbluebutton.core2.MeetingStatus2x
 trait DeleteGroupChatMessageReactionReqMsgHdlr extends HandlerHelpers {
   this: GroupChatHdlrs =>
 
-  def handle(msg: DeleteGroupChatMessageReactionReqMsg, state: MeetingState2x, liveMeeting: LiveMeeting, bus: MessageBus): MeetingState2x = {
+  def handle(msg: DeleteGroupChatMessageReactionReqMsg, state: MeetingState2x, liveMeeting: LiveMeeting, bus: MessageBus): Unit = {
     val chatDisabled: Boolean = liveMeeting.props.meetingProp.disabledFeatures.contains("chat")
     var chatLocked: Boolean = false
     var chatLockedForUser: Boolean = false
-
-    var newState = state
 
     for {
       user <- Users2x.findWithIntId(liveMeeting.users2x, msg.header.userId)
@@ -63,7 +61,5 @@ trait DeleteGroupChatMessageReactionReqMsgHdlr extends HandlerHelpers {
         }
       }
     }
-
-    newState
   }
 }
