@@ -2,8 +2,8 @@
 
 TARGET=`basename $(pwd)`
 
-SERVER_VERSION=1.5.1
-CLI_VERSION=1.3.0
+SERVER_VERSION=1.7.2
+CLI_VERSION=2.2.0
 
 PACKAGE=$(echo $TARGET | cut -d'_' -f1)
 VERSION=$(echo $TARGET | cut -d'_' -f2)
@@ -32,7 +32,7 @@ cp livekit.yaml $DESTDIR/usr/share/livekit-server
 mkdir -p $DESTDIR/usr/bin
 
 curl https://github.com/livekit/livekit/releases/download/v${SERVER_VERSION}/livekit_${SERVER_VERSION}_linux_amd64.tar.gz  -Lo - | tar -C $DESTDIR/usr/bin -xzf - livekit-server
-curl https://github.com/livekit/livekit-cli/releases/download/v${CLI_VERSION}/livekit-cli_${CLI_VERSION}_linux_amd64.tar.gz -Lo - | tar -C $DESTDIR/usr/bin -xzf - livekit-cli
+curl https://github.com/livekit/livekit-cli/releases/download/v${CLI_VERSION}/lk_${CLI_VERSION}_linux_amd64.tar.gz -Lo - | tar -C $DESTDIR/usr/bin -xzf - lk
 
 fpm -s dir -C $DESTDIR -n $PACKAGE \
     --version $VERSION --epoch 2 \
