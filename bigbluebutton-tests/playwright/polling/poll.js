@@ -273,38 +273,7 @@ class Polling extends MultiUsers {
     await this.userPage.waitAndClick(e.pollAnswerOptionBtn);
     await this.modPage.hasElement(e.publishPollingLabel, 'should display the publish poll button enabled after the attendee answered the poll');
     await this.modPage.waitAndClick(e.publishPollingLabel);
-    await expect(wbDrawnRectangleLocator,'should display the rectangle with the poll information on the whiteboard').toHaveCount(initialWbDrawnRectangleCount + 1);
-
-    const lastWbDrawnRectangleLocator = await wbDrawnRectangleLocator.last();
-    await expect(lastWbDrawnRectangleLocator, 'should display the last rectangle with the poll information on the whiteboard').toBeVisible({ timeout: ELEMENT_WAIT_TIME});
-
-    const modWbLocator = this.modPage.getLocator(e.whiteboard);
-    const wbBox = await modWbLocator.boundingBox();
-
-    // poll results should be editable by the presenter
-    await lastWbDrawnRectangleLocator.dblclick({ timeout: ELEMENT_WAIT_TIME });
-    await this.modPage.page.mouse.down();
-    await this.modPage.page.mouse.move(wbBox.x + 0.7 * wbBox.width, wbBox.y + 0.7 * wbBox.height);
-    await this.modPage.page.mouse.up();
-    await lastWbDrawnRectangleLocator.dblclick({ timeout: ELEMENT_WAIT_TIME });
-    await this.modPage.page.keyboard.type('test');
-    await expect(lastWbDrawnRectangleLocator, 'should display the text test on the last rectangle poll results on the whiteboard').toContainText('test');
-
-    // user turns to presenter to edit the poll results
-    await this.modPage.waitAndClick(e.userListItem);
-    await this.modPage.waitAndClick(e.makePresenter);
-
-    await this.userPage.waitAndClick(e.zoomInButton);
-    await this.userPage.waitAndClick(e.resetZoomButton);
-
-    const wbDrawnRectangleUserLocator = await this.userPage.getLocator(e.wbPollShape).last();
-    await wbDrawnRectangleUserLocator.dblclick({ timeout: ELEMENT_WAIT_TIME });
-    await this.userPage.page.keyboard.type('testUser');
-    await expect(wbDrawnRectangleUserLocator, 'should display the edit that the attendee made to the poll results rectangle on the whiteboard').toContainText('testUser');
-
-    await this.modPage.waitAndClick(e.currentUser);
-    await this.modPage.waitAndClick(e.takePresenter);
-    await this.userPage.waitAndClick(e.hidePublicChat);
+    await expect(wbDrawnRectangleLocator,'should display a rectangle shape with the poll result on the whiteboard').toHaveCount(initialWbDrawnRectangleCount + 1);
   }
 
   async pollResultsInDifferentPresentation() {

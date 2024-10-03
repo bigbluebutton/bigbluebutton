@@ -99,7 +99,7 @@ class MultiUsers {
     await this.userPage.hasElement(e.actions, 'should display the actions button for the attendee');
     await this.userPage.hasElement(e.userListItem, 'should display the user list item for the attendee');
     const isPresenter = await checkIsPresenter(this.userPage);
-    await expect(isPresenter, 'should the attende be presenter').toBeTruthy();
+    await expect(isPresenter, 'should the attendee be presenter').toBeTruthy();
   }
 
   async takePresenter() {
