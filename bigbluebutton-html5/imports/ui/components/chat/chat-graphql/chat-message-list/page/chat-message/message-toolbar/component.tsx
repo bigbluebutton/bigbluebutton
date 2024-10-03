@@ -21,6 +21,14 @@ const intlMessages = defineMessages({
     id: 'app.chat.toolbar.reply',
     description: 'reply label',
   },
+  edit: {
+    id: 'app.chat.toolbar.edit',
+    description: 'edit label',
+  },
+  delete: {
+    id: 'app.chat.toolbar.delete',
+    description: 'delete label',
+  },
 });
 
 interface ChatMessageToolbarProps {
@@ -56,7 +64,7 @@ const ChatMessageToolbar: React.FC<ChatMessageToolbarProps> = (props) => {
     actions.push({
       key: 'edit',
       icon: 'pen_tool',
-      label: 'Edit',
+      label: intl.formatMessage(intlMessages.edit),
       onClick: (e: React.MouseEvent<HTMLDivElement, MouseEvent>) => {
         e.stopPropagation();
         onEditRequest();
@@ -77,7 +85,7 @@ const ChatMessageToolbar: React.FC<ChatMessageToolbarProps> = (props) => {
     actions.push({
       key: 'delete',
       icon: 'delete',
-      label: 'Delete',
+      label: intl.formatMessage(intlMessages.delete),
       customStyles,
       onClick: (e: React.MouseEvent<HTMLDivElement, MouseEvent>) => {
         e.stopPropagation();

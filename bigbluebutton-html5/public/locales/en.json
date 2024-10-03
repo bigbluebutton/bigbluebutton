@@ -43,6 +43,8 @@
     "app.chat.editTime": "Last edited at {0}",
     "app.chat.deleteMessage": "This message was deleted by {0}",
     "app.chat.toolbar.reply": "Reply to message {0}",
+    "app.chat.toolbar.edit": "Edit",
+    "app.chat.toolbar.delete": "Delete",
     "app.timer.toolTipTimerStopped": "The timer has stopped.",
     "app.timer.toolTipTimerRunning": "The timer is running.",
     "app.timer.toolTipStopwatchStopped": "The stopwatch has stopped.",
