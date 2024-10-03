@@ -795,10 +795,6 @@ public:
     showPushLayoutToggle: true
   pads:
     url: ETHERPAD_HOST
-    cookie:
-      path: /
-      sameSite: None
-      secure: true
   media:
     audio:
       #
