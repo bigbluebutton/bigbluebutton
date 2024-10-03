@@ -473,7 +473,7 @@ exports.zoomOutButton = 'button[data-test="zoomOutBtn"]';
 exports.wbPan = 'button[data-test="panButton"]';
 exports.wbEraser = 'button[data-testid="tools.eraser"]';
 exports.wbArrowShape = 'button[data-testid="tools.arrow"]';
-exports.wbDelete = 'span[id="TD-Delete"]';
+exports.wbDelete = 'button[title^="Delete"]';
 exports.wbUndo = 'button[data-testid="main.undo"]';
 exports.wbRedo = 'button[data-testid="main.redo"]';
 exports.whiteboardStyles = 'button[data-testid="mobile.styles"]';

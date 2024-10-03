@@ -1,5 +1,4 @@
 const { test } = require('../fixtures');
-const { Draw } = require('./draw');
 const { DrawRectangle } = require('./drawRectangle');
 const { DrawEllipse } = require('./drawEllipse');
 const { DrawTriangle } = require('./drawTriangle');
@@ -10,7 +9,6 @@ const { DrawStickyNote } = require('./drawStickyNote');
 const { Pan } = require('./pan');
 const { Eraser } = require('./eraser');
 const { DrawArrow } = require('./drawArrow');
-const { MultiUsers } = require('../user/multiusers');
 const { encodeCustomParams } = require('../parameters/util');
 const { PARAMETER_HIDE_PRESENTATION_TOAST } = require('../core/constants');
 const { DeleteDrawing } = require('./deleteDrawing');
@@ -19,6 +17,7 @@ const { RedoDrawing } = require('./redoDraw');
 const { ChangeStyles } = require('./changeStyles');
 const { RealTimeText } = require('./realTimeText');
 const { ShapeOptions } = require('./shapeOptions');
+const { linkIssue } = require('../core/helpers');
 
 const hidePresentationToast = encodeCustomParams(PARAMETER_HIDE_PRESENTATION_TOAST);
 
@@ -70,14 +69,18 @@ test.describe.parallel('Whiteboard tools', { tag: '@ci' }, () => {
     await drawText.test();
   });
 
-  test('Create sticky note', { tag: '@flaky'}, async ({ browser, context, page }) => {
+  test('Create sticky note', { tag: '@flaky' }, async ({ browser, context, page }) => {
+    // wrong/unexpected slide zoom for some users causing screenshot comparison to fail
+    linkIssue(21302);
     const drawStickyNote = new DrawStickyNote(browser, context);
     await drawStickyNote.initModPage(page, true, { customMeetingId: 'draw_sticky_meeting', joinParameter: hidePresentationToast });
     await drawStickyNote.initUserPage(true, context, { joinParameter: hidePresentationToast });
     await drawStickyNote.test();
   });
 
-  test('Pan', { tag: '@flaky'}, async ({ browser, context, page }) => {
+  test('Pan', { tag: '@flaky' } , async ({ browser, context, page }) => {
+    // different zoom position when clicking toolbar's zoom button
+    linkIssue(21266);
     const pan = new Pan(browser, context);
     await pan.initModPage(page, true, { customMeetingId: 'draw_line_meeting', joinParameter: hidePresentationToast });
     await pan.initUserPage(true, context, { joinParameter: hidePresentationToast });
@@ -98,28 +101,28 @@ test.describe.parallel('Whiteboard tools', { tag: '@ci' }, () => {
     await drawArrow.test();
   });
 
-  test.describe.parallel('Change Shapes Styles', { tag: '@ci'}, async () => {
+  test.describe.parallel('Change Shapes Styles', async () => {
     test('Change color', async ({ browser, context, page }) => {
       const changeColor = new ChangeStyles(browser, context);
       await changeColor.initModPage(page, true, { customMeetingId: 'draw_line_meeting', joinParameter: hidePresentationToast });
       await changeColor.initUserPage(true, context, { joinParameter: hidePresentationToast });
       await changeColor.changingColor();
     });
-  
+
     test('Fill drawing', async ({ browser, context, page }) => {
       const fillDrawing = new ChangeStyles(browser, context);
       await fillDrawing.initModPage(page, true, { customMeetingId: 'draw_line_meeting', joinParameter: hidePresentationToast });
       await fillDrawing.initUserPage(true, context, { joinParameter: hidePresentationToast });
       await fillDrawing.fillDrawing();
     });
-  
+
     test('Dash drawing', async ({ browser, context, page }) => {
       const dashDrawing = new ChangeStyles(browser, context);
       await dashDrawing.initModPage(page, true, { customMeetingId: 'draw_line_meeting', joinParameter: hidePresentationToast });
       await dashDrawing.initUserPage(true, context, { joinParameter: hidePresentationToast });
       await dashDrawing.dashDrawing();
     });
-  
+
     test('Size drawing', async ({ browser, context, page }) => {
       const sizeDrawing = new ChangeStyles(browser, context);
       await sizeDrawing.initModPage(page, true, { customMeetingId: 'draw_line_meeting', joinParameter: hidePresentationToast });
@@ -128,44 +131,44 @@ test.describe.parallel('Whiteboard tools', { tag: '@ci' }, () => {
     });
   });
 
-  test('Delete drawing', { tag: '@flaky'}, async ({ browser, context, page }) => {
+  test('Delete drawing', async ({ browser, context, page }) => {
     const deleteDrawing = new DeleteDrawing(browser, context);
     await deleteDrawing.initModPage(page, true, { customMeetingId: 'draw_line_meeting', joinParameter: hidePresentationToast });
     await deleteDrawing.initUserPage(true, context, { joinParameter: hidePresentationToast });
     await deleteDrawing.test();
   });
 
-  test('Undo drawing', { tag: '@ci'}, async ({ browser, context, page }) => {
+  test('Undo drawing', async ({ browser, context, page }) => {
     const undoDrawing = new UndoDrawing(browser, context);
     await undoDrawing.initModPage(page, true, { customMeetingId: 'draw_line_meeting', joinParameter: hidePresentationToast });
     await undoDrawing.initUserPage(true, context, { joinParameter: hidePresentationToast });
     await undoDrawing.test();
   });
 
-  test('Redo drawing', { tag: '@ci'}, async ({ browser, context, page }) => {
+  test('Redo drawing', async ({ browser, context, page }) => {
     const redoDrawing = new RedoDrawing(browser, context);
     await redoDrawing.initModPage(page, true, { customMeetingId: 'draw_line_meeting', joinParameter: hidePresentationToast });
     await redoDrawing.initUserPage(true, context, { joinParameter: hidePresentationToast });
     await redoDrawing.test();
   });
 
-  
-
-  test('Real time text typing', { tag: '@ci'}, async ({ browser, context, page }) => {
+  test('Real time text typing', async ({ browser, context, page }) => {
     const realTimeText = new RealTimeText(browser, context);
     await realTimeText.initModPage(page, true, { customMeetingId: 'draw_line_meeting', joinParameter: hidePresentationToast });
     await realTimeText.initUserPage(true, context, { joinParameter: hidePresentationToast });
     await realTimeText.realTimeTextTyping();
   });
 
-  test.describe.parallel('Shape Options', { tag: ['@ci', '@flaky']}, () => {
+  test.describe.parallel('Shape Options', { tag: '@flaky' }, () => {
+    // wrong/unexpected slide zoom for some users causing screenshot comparison to fail
+    // see https://github.com/bigbluebutton/bigbluebutton/issues/21302
     test('Duplicate', async ({ browser, context, page }) => {
       const shapeOptions = new ShapeOptions(browser, context);
       await shapeOptions.initModPage(page, true);
       await shapeOptions.initUserPage(true, context);
       await shapeOptions.duplicate();
     });
-  
+
     test('Rotate', async ({ browser, context, page }) => {
       const shapeOptions = new ShapeOptions(browser, context);
       await shapeOptions.initModPage(page, true);

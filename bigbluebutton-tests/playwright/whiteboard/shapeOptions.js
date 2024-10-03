@@ -2,7 +2,6 @@ const { expect } = require('@playwright/test');
 const e = require('../core/elements');
 const { ELEMENT_WAIT_LONGER_TIME } = require('../core/constants');
 const { MultiUsers } = require('../user/multiusers');
-const { sleep } = require('../core/helpers');
 
 class ShapeOptions extends MultiUsers {
   constructor(browser, context) {
