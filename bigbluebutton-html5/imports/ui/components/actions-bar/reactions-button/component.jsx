@@ -153,7 +153,7 @@ const ReactionsButton = (props) => {
           {ToggleAFKLabel()}
           <Toggle
             icons={false}
-            defaultChecked={away}
+            checked={away}
             onChange={handleToggleAFK}
             ariaLabel={ToggleAFKLabel()}
             showToggleLabel={false}
@@ -164,7 +164,7 @@ const ReactionsButton = (props) => {
         <>
           <Toggle
             icons={false}
-            defaultChecked={away}
+            checked={away}
             onChange={handleToggleAFK}
             ariaLabel={ToggleAFKLabel()}
             showToggleLabel={false}
