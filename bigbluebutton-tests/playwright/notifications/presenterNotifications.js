@@ -12,7 +12,6 @@ class PresenterNotifications extends MultiUsers {
   }
 
   async publishPollResults() {
-    await util.waitAndClearDefaultPresentationNotification(this.modPage);
     await utilPolling.startPoll(this.modPage);
     await this.userPage.waitAndClick(e.pollAnswerOptionBtn);
     await this.modPage.hasElementEnabled(e.publishPollingLabel);
