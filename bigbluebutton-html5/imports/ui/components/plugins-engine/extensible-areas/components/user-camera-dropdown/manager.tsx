@@ -22,7 +22,6 @@ const UserCameraDropdownPluginStateContainer = ((
   ] = useState<PluginSdk.UserCameraDropdownInterface[]>([]);
 
   const {
-    pluginsExtensibleAreasAggregatedState,
     setPluginsExtensibleAreasAggregatedState,
   } = useContext(PluginsContext);
 
@@ -36,12 +35,11 @@ const UserCameraDropdownPluginStateContainer = ((
       ...Object.values(extensibleAreaMap)
         .map((extensibleArea: ExtensibleArea) => extensibleArea.userCameraDropdownItems),
     );
-    setPluginsExtensibleAreasAggregatedState(
+    setPluginsExtensibleAreasAggregatedState((previousState) => (
       {
-        ...pluginsExtensibleAreasAggregatedState,
+        ...previousState,
         userCameraDropdownItems: aggregatedUserCameraDropdownItems,
-      },
-    );
+      }));
   }, [userCameraDropdownItems]);
 
   pluginApi.setUserCameraDropdownItems = (items: PluginSdk.UserCameraDropdownInterface[]) => {

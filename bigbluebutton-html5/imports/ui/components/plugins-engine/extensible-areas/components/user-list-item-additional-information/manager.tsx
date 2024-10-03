@@ -22,7 +22,6 @@ const UserListItemAdditionalInformationPluginStateContainer = ((
   ] = useState<PluginSdk.UserListItemAdditionalInformationInterface[]>([]);
 
   const {
-    pluginsExtensibleAreasAggregatedState,
     setPluginsExtensibleAreasAggregatedState,
   } = useContext(PluginsContext);
 
@@ -36,12 +35,11 @@ const UserListItemAdditionalInformationPluginStateContainer = ((
       ...Object.values(extensibleAreaMap)
         .map((extensibleArea: ExtensibleArea) => extensibleArea.userListItemAdditionalInformation),
     );
-    setPluginsExtensibleAreasAggregatedState(
+    setPluginsExtensibleAreasAggregatedState((previousState) => (
       {
-        ...pluginsExtensibleAreasAggregatedState,
+        ...previousState,
         userListItemAdditionalInformation: aggregatedUserListItemAdditionalInformation,
-      },
-    );
+      }));
   }, [userListItemAdditionalInformation]);
 
   pluginApi.setUserListItemAdditionalInformation = (items: PluginSdk.UserListItemAdditionalInformationInterface[]) => {
