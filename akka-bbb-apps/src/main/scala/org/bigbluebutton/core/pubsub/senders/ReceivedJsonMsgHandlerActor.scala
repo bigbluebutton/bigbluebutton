@@ -304,6 +304,10 @@ class ReceivedJsonMsgHandlerActor(
         routeGenericMsg[PresentationHasInvalidMimeTypeErrorSysPubMsg](envelope, jsonNode)
       case PresentationUploadedFileTimeoutErrorSysPubMsg.NAME =>
         routeGenericMsg[PresentationUploadedFileTimeoutErrorSysPubMsg](envelope, jsonNode)
+      case PresentationUploadedFileVirusErrorSysPubMsg.NAME =>
+        routeGenericMsg[PresentationUploadedFileVirusErrorSysPubMsg](envelope, jsonNode)
+      case PresentationUploadedFileScanFailedErrorSysPubMsg.NAME =>
+        routeGenericMsg[PresentationUploadedFileScanFailedErrorSysPubMsg](envelope, jsonNode)
       case PresentationConversionUpdateSysPubMsg.NAME =>
         routeGenericMsg[PresentationConversionUpdateSysPubMsg](envelope, jsonNode)
       case PresentationPageCountErrorSysPubMsg.NAME =>

@@ -212,6 +212,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
         <property name="defaultUploadedPresentation" value="${beans.presentationService.defaultUploadedPresentation}"/>
         <property name="presentationBaseUrl" value="${presentationBaseURL}"/>
         <property name="preUploadedPresentationOverrideDefault" value="${beans.presentationService.preUploadedPresentationOverrideDefault}"/>
+        <property name="scanUploadedPresentationFiles" value="${scanUploadedPresentationFiles}"/>
     </bean>
 
     <import resource="doc-conversion.xml"/>
