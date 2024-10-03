@@ -51,7 +51,7 @@ test.describe('Chat', { tag: '@ci' }, () => {
     await chat.sendEmoji();
   });
 
-  test('Copy chat with emoji', { tag: '@headed-only' }, async () => {
+  test('Copy chat with emoji', { tag: '@only-headed' }, async () => {
     await chat.emojiCopyChat();
   });
 
