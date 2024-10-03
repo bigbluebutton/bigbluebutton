@@ -64,6 +64,13 @@ type Mutation {
 }
 
 type Mutation {
+  cameraSetShowAsContent(
+    streamId: String!
+    showAsContent: Boolean!
+  ): Boolean
+}
+
+type Mutation {
   captionAddLocale(
     locale: String!
   ): Boolean

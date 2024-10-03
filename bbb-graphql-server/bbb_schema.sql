@@ -639,12 +639,12 @@ CREATE TABLE "user_camera" (
     "userId" varchar(50),
     "contentType" varchar(50), --camera or screenshare
     "hasAudio" boolean,
-    "focused" boolean,
+    "showAsContent" boolean,
     FOREIGN KEY ("meetingId", "userId") REFERENCES "user"("meetingId","userId") ON DELETE CASCADE
 );
 CREATE INDEX "idx_user_camera_userId" ON "user_camera"("meetingId", "userId");
 CREATE INDEX "idx_user_camera_userId_reverse" ON "user_camera"("userId", "meetingId");
-CREATE INDEX "idx_user_camera_meeting_contentType" ON "user_camera"("meetingId", "contentType", "focused");
+CREATE INDEX "idx_user_camera_meeting_contentType" ON "user_camera"("meetingId", "contentType", "showAsContent");
 
 CREATE OR REPLACE VIEW "v_user_camera" AS
 SELECT * FROM "user_camera";

@@ -1,7 +1,6 @@
 package org.bigbluebutton.core.models
 
 import org.bigbluebutton.core.db.UserCameraDAO
-
 import collection.immutable.HashMap
 
 object Webcams {
@@ -99,10 +98,10 @@ class Webcams {
 }
 
 case class WebcamStream(
-    streamId:    String,
-    userId:      String,
-    contentType: String,
-    hasAudio:    Boolean,
-    focused:     Boolean,
-    subscribers: Set[String]
+    streamId:      String,
+    userId:        String,
+    contentType:   String,
+    hasAudio:      Boolean,
+    showAsContent: Boolean,
+    subscribers:   Set[String]
 )

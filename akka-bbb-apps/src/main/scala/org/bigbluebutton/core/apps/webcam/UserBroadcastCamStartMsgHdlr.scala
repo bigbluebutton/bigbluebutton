@@ -46,8 +46,8 @@ trait UserBroadcastCamStartMsgHdlr {
       )
     } else {
       val userIsPresenter = !permissionFailed(PermissionCheck.GUEST_LEVEL, PermissionCheck.PRESENTER_LEVEL, liveMeeting.users2x, msg.header.userId)
-      val startFocused = msg.body.contentType == "screenshare" && userIsPresenter
-      val webcam = WebcamStream(msg.body.stream, msg.header.userId, msg.body.contentType, msg.body.hasAudio, focused = startFocused, Set.empty)
+      val startAsContent = msg.body.contentType == "screenshare" && userIsPresenter
+      val webcam = WebcamStream(msg.body.stream, msg.header.userId, msg.body.contentType, msg.body.hasAudio, showAsContent = startAsContent, Set.empty)
 
       for {
         _ <- Webcams.addWebcamStream(liveMeeting.props.meetingProp.intId, liveMeeting.webcams, webcam)
