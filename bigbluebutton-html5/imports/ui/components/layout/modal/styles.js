@@ -65,6 +65,11 @@ const LayoutBtn = styled(Button)`
   width: fit-content;
 
   @media ${smallOnly} {
+
+    ${({ layout }) => (layout === 'custom') && `
+      display: none;
+    `};
+    
     margin: 0.5rem;
     border: ${colorWhite} solid 4px;
     border-radius: 10px;
@@ -163,6 +168,13 @@ const ButtonBottomContainer = styled.div`
 const LabelLayoutNames = styled.label`
   text-align: center;
   margin: 0 0 0.1rem 0;
+
+  @media ${smallOnly} {
+    ${({ layout }) => (layout === 'custom') && `
+     display: none;
+    `};
+    margin: 0 0 3rem 0;
+  };
 `;
 
 const ToggleLabel = styled.span`
