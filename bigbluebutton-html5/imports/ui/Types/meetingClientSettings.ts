@@ -730,7 +730,6 @@ export interface Text {
 
 export interface Toolbar {
   multiUserPenOnly: boolean
-  tools: Tool[]
   presenterTools: string[]
   multiUserTools: string[]
 }
@@ -746,11 +745,6 @@ export interface Thickness {
 
 export interface FontSize {
   value: number
-}
-
-export interface Tool {
-  icon: string
-  value: string
 }
 
 export interface ClientLog {
