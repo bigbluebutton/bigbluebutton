@@ -1,4 +1,5 @@
 import React from 'react';
+import { useMutation } from '@apollo/client';
 import Popover from '@mui/material/Popover';
 import { layoutSelect } from '/imports/ui/components/layout/context';
 import Button from '/imports/ui/components/common/button/component';
@@ -12,6 +13,8 @@ import {
   EmojiPickerWrapper,
   EmojiButton,
 } from './styles';
+import { colorDanger, colorWhite } from '/imports/ui/stylesheets/styled-components/palette';
+import { CHAT_DELETE_MESSAGE_MUTATION } from '../mutations';
 
 const intlMessages = defineMessages({
   reply: {
@@ -28,16 +31,19 @@ interface ChatMessageToolbarProps {
   messageSequence: number;
   emphasizedMessage: boolean;
   onEmojiSelected(emoji: { id: string; native: string }): void;
+  onEditRequest(): void;
 }
 
 const ChatMessageToolbar: React.FC<ChatMessageToolbarProps> = (props) => {
   const {
-    messageId, chatId, message, username, onEmojiSelected, messageSequence, emphasizedMessage,
+    messageId, chatId, message, username, onEmojiSelected, messageSequence, emphasizedMessage, onEditRequest,
   } = props;
   const [reactionsAnchor, setReactionsAnchor] = React.useState<Element | null>(
     null,
   );
   const intl = useIntl();
+  const [chatDeleteMessage] = useMutation(CHAT_DELETE_MESSAGE_MUTATION);
+
   const isRTL = layoutSelect((i: Layout) => i.isRTL);
   const CHAT_TOOLBAR_CONFIG = window.meetingClientSettings.public.chat.toolbar;
   const CHAT_REPLIES_ENABLED = CHAT_TOOLBAR_CONFIG.includes('reply');
@@ -51,16 +57,38 @@ const ChatMessageToolbar: React.FC<ChatMessageToolbarProps> = (props) => {
       key: 'edit',
       icon: 'pen_tool',
       label: 'Edit',
-      onClick: () => null,
+      onClick: (e: React.MouseEvent<HTMLDivElement, MouseEvent>) => {
+        e.stopPropagation();
+        onEditRequest();
+        window.dispatchEvent(
+          new CustomEvent(ChatEvents.CHAT_EDIT_REQUEST, {
+            detail: {
+              messageId,
+              chatId,
+            },
+          }),
+        );
+      },
     });
   }
 
   if (CHAT_DELETE_ENABLED) {
+    const customStyles = { background: colorDanger, color: colorWhite };
     actions.push({
       key: 'delete',
       icon: 'delete',
       label: 'Delete',
-      onClick: () => null,
+      customStyles,
+      onClick: (e: React.MouseEvent<HTMLDivElement, MouseEvent>) => {
+        e.stopPropagation();
+
+        chatDeleteMessage({
+          variables: {
+            chatId,
+            messageId,
+          },
+        });
+      },
     });
   }
 

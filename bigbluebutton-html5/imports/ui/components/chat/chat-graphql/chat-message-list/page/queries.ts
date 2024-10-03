@@ -1,4 +1,3 @@
-/* eslint-disable camelcase */
 import { gql } from '@apollo/client';
 
 export const CHAT_MESSAGE_PUBLIC_SUBSCRIPTION = gql`
@@ -14,6 +13,10 @@ export const CHAT_MESSAGE_PUBLIC_SUBSCRIPTION = gql`
       }
       messageSequence
       replyToMessage {
+        deletedAt
+        deletedBy {
+          name
+        }
         chatEmphasizedText
         messageSequence
         message
@@ -28,6 +31,11 @@ export const CHAT_MESSAGE_PUBLIC_SUBSCRIPTION = gql`
       message
       messageId
       createdAt
+      editedAt
+      deletedAt
+      deletedBy {
+        name
+      }
       messageMetadata
       senderName
       senderRole

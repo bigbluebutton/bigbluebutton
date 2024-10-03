@@ -1,5 +1,5 @@
 import styled from 'styled-components';
-import { colorOffWhite } from '/imports/ui/stylesheets/styled-components/palette';
+import { colorOffWhite, colorText } from '/imports/ui/stylesheets/styled-components/palette';
 
 const Container = styled.div<{ $userColor: string }>`
   border-radius: 4px;
@@ -31,8 +31,15 @@ const Message = styled(Typography)`
   overflow: hidden;
 `;
 
+export const DeleteMessage = styled.span`
+  font-style: italic;
+  font-weight: bold;
+  color: ${colorText};
+`;
+
 export default {
   Container,
   Username,
   Message,
+  DeleteMessage,
 };

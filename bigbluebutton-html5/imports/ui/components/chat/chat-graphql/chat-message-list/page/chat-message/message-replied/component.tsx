@@ -1,8 +1,16 @@
 import React from 'react';
-import Styled from './styles';
+import { defineMessages, useIntl } from 'react-intl';
+import Styled, { DeleteMessage } from './styles';
 import Storage from '/imports/ui/services/storage/in-memory';
 import { ChatEvents } from '/imports/ui/core/enums/chat';
 import ChatMessageTextContent from '../message-content/text-content/component';
+
+const intlMessages = defineMessages({
+  deleteMessage: {
+    id: 'app.chat.deleteMessage',
+    description: '',
+  },
+});
 
 interface MessageRepliedProps {
   username: string;
@@ -10,12 +18,15 @@ interface MessageRepliedProps {
   sequence: number;
   userColor: string;
   emphasizedMessage: boolean;
+  deletedByUser: string | null;
 }
 
 const ChatMessageReplied: React.FC<MessageRepliedProps> = (props) => {
   const {
-    message, username, sequence, userColor, emphasizedMessage,
+    message, username, sequence, userColor, emphasizedMessage, deletedByUser,
   } = props;
+
+  const intl = useIntl();
 
   return (
     <Styled.Container
@@ -33,14 +44,21 @@ const ChatMessageReplied: React.FC<MessageRepliedProps> = (props) => {
       }}
     >
       <Styled.Username $userColor={userColor}>{username}</Styled.Username>
-      <Styled.Message>
-        <ChatMessageTextContent
-          text={message}
-          emphasizedMessage={emphasizedMessage}
-          systemMsg={false}
-          dataTest={null}
-        />
-      </Styled.Message>
+      {!deletedByUser && (
+        <Styled.Message>
+          <ChatMessageTextContent
+            text={message}
+            emphasizedMessage={emphasizedMessage}
+            systemMsg={false}
+            dataTest={null}
+          />
+        </Styled.Message>
+      )}
+      {deletedByUser && (
+        <DeleteMessage>
+          {intl.formatMessage(intlMessages.deleteMessage, { 0: deletedByUser })}
+        </DeleteMessage>
+      )}
     </Styled.Container>
   );
 };

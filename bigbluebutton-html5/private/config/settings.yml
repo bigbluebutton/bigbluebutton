@@ -59,7 +59,7 @@ public:
     askForFeedbackOnLogout: false
     # the default logoutUrl matches window.location.origin i.e. bigbluebutton.org for demo.bigbluebutton.org
     # in some cases we want only custom logoutUrl to be used when provided on meeting create. Default value: true
-    askForConfirmationOnLeave: true
+    askForConfirmationOnLeave: false
     wakeLock: 
       enabled: true
     allowDefaultLogoutUrl: true
@@ -768,8 +768,9 @@ public:
     # e.g.: disableEmojis: ['grin','laughing']
     disableEmojis: []
     allowedElements: ['a', 'code', 'em', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'li', 'ol', 'ul', 'p', 'strong']
-    # available options for toolbar: reply
-    toolbar: []
+    # available options for toolbar: reply, edit, delete
+    # example: ['reply', 'delete']
+    toolbar: ['reply', 'edit', 'delete']
   userReaction:
     enabled: true
     expire: 30

@@ -12,6 +12,8 @@ import {
   ChatAvatar,
   MessageItemWrapper,
   Container,
+  DeleteMessage,
+  ChatEditTime,
 } from './styles';
 import { ChatEvents, ChatMessageType } from '/imports/ui/core/enums/chat';
 import MessageReadConfirmation from './message-read-confirmation/component';
@@ -19,6 +21,7 @@ import ChatMessageToolbar from './message-toolbar/component';
 import ChatMessageReactions from './message-reactions/component';
 import ChatMessageReplied from './message-replied/component';
 import { STORAGES, useStorageKey } from '/imports/ui/services/storage/hooks';
+import ChatEditMessageForm from './message-edit-form/component';
 import useMeeting from '/imports/ui/core/hooks/useMeeting';
 import useCurrentUser from '/imports/ui/core/hooks/useCurrentUser';
 import { layoutSelect } from '/imports/ui/components/layout/context';
@@ -57,6 +60,14 @@ const intlMessages = defineMessages({
   userNotAway: {
     id: 'app.chat.notAway',
     description: 'message when user is no longer away',
+  },
+  editTime: {
+    id: 'app.chat.editTime',
+    description: '',
+  },
+  deleteMessage: {
+    id: 'app.chat.deleteMessage',
+    description: '',
   },
 });
 
@@ -103,10 +114,12 @@ const ChatMesssage: React.FC<ChatMessageProps> = ({
   }, [message, messageRef]);
   const messageContentRef = React.createRef<HTMLDivElement>();
   const [reactions, setReactions] = React.useState<{ id: string, native: string }[]>([]);
+  const [editing, setEditing] = React.useState(false);
   const chatFocusMessageRequest = useStorageKey(ChatEvents.CHAT_FOCUS_MESSAGE_REQUEST, STORAGES.IN_MEMORY);
   const containerRef = React.useRef<HTMLDivElement>(null);
   const animationInitialTimestamp = React.useRef(0);
 
+  const CHAT_TOOLBAR_CONFIG = window.meetingClientSettings.public.chat.toolbar;
   const isModerator = currentUser?.isModerator;
   const isPublicChat = chat?.public;
   const isLocked = currentUser?.locked || currentUser?.userLockSettings?.disablePublicChat;
@@ -123,6 +136,12 @@ const ChatMesssage: React.FC<ChatMessageProps> = ({
       locked = (isLocked && disablePrivateChat) || false;
     }
   }
+
+  const hasToolbar = CHAT_TOOLBAR_CONFIG.length > 0
+    && message.deletedAt === null
+    && !editing
+    && !!message.user
+    && !locked;
 
   const startScrollAnimation = (timestamp: number) => {
     if (scrollRef.current && containerRef.current) {
@@ -209,6 +228,8 @@ const ChatMesssage: React.FC<ChatMessageProps> = ({
     hour: 'numeric',
     minute: 'numeric',
   });
+  const editTime = message.editedAt ? new Date(message.editedAt) : null;
+  const deleteTime = message.deletedAt ? new Date(message.deletedAt) : null;
 
   const msgTime = formattedTime;
   const clearMessage = `${msgTime} ${intl.formatMessage(intlMessages.chatClear)}`;
@@ -339,7 +360,7 @@ const ChatMesssage: React.FC<ChatMessageProps> = ({
           ),
         };
     }
-  }, []);
+  }, [message.message]);
   return (
     <Container ref={containerRef}>
       <ChatWrapper
@@ -349,8 +370,9 @@ const ChatMesssage: React.FC<ChatMessageProps> = ({
         ref={messageRef}
         isPresentationUpload={messageContent.isPresentationUpload}
         isCustomPluginMessage={isCustomPluginMessage}
+        $highlight={hasToolbar}
       >
-        {!isSystemSender && message.user && !locked && (
+        {hasToolbar && (
           <ChatMessageToolbar
             messageId={message.messageId}
             chatId={message.chatId}
@@ -365,6 +387,9 @@ const ChatMesssage: React.FC<ChatMessageProps> = ({
                   emoji,
                 ];
               });
+            }}
+            onEditRequest={() => {
+              setEditing(true);
             }}
           />
         )}
@@ -387,11 +412,13 @@ const ChatMesssage: React.FC<ChatMessageProps> = ({
           )}
         </ChatAvatar>
         )}
+        {!editing && (
         <ChatContent
           ref={messageContentRef}
           sameSender={message?.user ? sameSender : false}
           isCustomPluginMessage={isCustomPluginMessage}
           data-chat-message-id={message?.messageId}
+          $highlight={hasToolbar}
         >
           {message.messageType !== ChatMessageType.CHAT_CLEAR
           && !isCustomPluginMessage
@@ -401,6 +428,7 @@ const ChatMesssage: React.FC<ChatMessageProps> = ({
               name={messageContent.name}
               currentlyInMeeting={message.user?.currentlyInMeeting ?? true}
               dateTime={dateTime}
+              deleteTime={deleteTime}
             />
           )}
           {message.replyToMessage && (
@@ -410,8 +438,10 @@ const ChatMesssage: React.FC<ChatMessageProps> = ({
             sequence={message.replyToMessage.messageSequence}
             userColor={message.replyToMessage.user.color}
             emphasizedMessage={message.replyToMessage.chatEmphasizedText}
+            deletedByUser={message.replyToMessage.deletedBy?.name ?? null}
           />
           )}
+          {!deleteTime && (
           <MessageItemWrapper>
             {messageContent.component}
             {messageReadFeedbackEnabled && (
@@ -420,7 +450,29 @@ const ChatMesssage: React.FC<ChatMessageProps> = ({
             />
             )}
           </MessageItemWrapper>
+          )}
+          {!deleteTime && editTime && (
+            <ChatEditTime>
+              {`(${intl.formatMessage(intlMessages.editTime, { 0: intl.formatTime(editTime) })})`}
+            </ChatEditTime>
+          )}
+          {deleteTime && (
+            <DeleteMessage>
+              {intl.formatMessage(intlMessages.deleteMessage, { 0: message.deletedBy?.name })}
+            </DeleteMessage>
+          )}
         </ChatContent>
+        )}
+        {editing && (
+          <ChatEditMessageForm
+            chatId={message.chatId}
+            initialMessage={message.message}
+            messageId={message.messageId}
+            onCancel={() => setEditing(false)}
+            onAfterSubmit={() => setEditing(false)}
+            sameSender={message?.user ? sameSender : false}
+          />
+        )}
       </ChatWrapper>
     </Container>
   );
