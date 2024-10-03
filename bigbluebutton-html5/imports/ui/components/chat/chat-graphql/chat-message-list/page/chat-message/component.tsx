@@ -19,6 +19,13 @@ import ChatMessageToolbar from './message-toolbar/component';
 import ChatMessageReactions from './message-reactions/component';
 import ChatMessageReplied from './message-replied/component';
 import { STORAGES, useStorageKey } from '/imports/ui/services/storage/hooks';
+import useMeeting from '/imports/ui/core/hooks/useMeeting';
+import useCurrentUser from '/imports/ui/core/hooks/useCurrentUser';
+import { layoutSelect } from '/imports/ui/components/layout/context';
+import { Layout } from '/imports/ui/components/layout/layoutTypes';
+import useChat from '/imports/ui/core/hooks/useChat';
+import { GraphqlDataHookSubscriptionResponse } from '/imports/ui/Types/hook';
+import { Chat } from '/imports/ui/Types/chat';
 
 interface ChatMessageProps {
   message: Message;
@@ -74,6 +81,20 @@ const ChatMesssage: React.FC<ChatMessageProps> = ({
   markMessageAsSeen,
   messageReadFeedbackEnabled,
 }) => {
+  const idChatOpen: string = layoutSelect((i: Layout) => i.idChatOpen);
+  const { data: meeting } = useMeeting((m) => ({
+    lockSettings: m?.lockSettings,
+  }));
+  const { data: currentUser } = useCurrentUser((c) => ({
+    isModerator: c?.isModerator,
+    userLockSettings: c?.userLockSettings,
+    locked: c?.locked,
+  }));
+  const { data: chat } = useChat((c: Partial<Chat>) => ({
+    participant: c?.participant,
+    chatId: c?.chatId,
+    public: c?.public,
+  }), idChatOpen) as GraphqlDataHookSubscriptionResponse<Partial<Chat>>;
   const intl = useIntl();
   const markMessageAsSeenOnScrollEnd = useCallback(() => {
     if (messageRef.current && isInViewport(messageRef.current)) {
@@ -85,6 +106,23 @@ const ChatMesssage: React.FC<ChatMessageProps> = ({
   const chatFocusMessageRequest = useStorageKey(ChatEvents.CHAT_FOCUS_MESSAGE_REQUEST, STORAGES.IN_MEMORY);
   const containerRef = React.useRef<HTMLDivElement>(null);
   const animationInitialTimestamp = React.useRef(0);
+
+  const isModerator = currentUser?.isModerator;
+  const isPublicChat = chat?.public;
+  const isLocked = currentUser?.locked || currentUser?.userLockSettings?.disablePublicChat;
+  const disablePublicChat = meeting?.lockSettings?.disablePublicChat
+    || currentUser?.userLockSettings?.disablePublicChat;
+  const disablePrivateChat = meeting?.lockSettings?.disablePrivateChat;
+
+  let locked = false;
+
+  if (!isModerator) {
+    if (isPublicChat) {
+      locked = (isLocked && disablePublicChat) || false;
+    } else {
+      locked = (isLocked && disablePrivateChat) || false;
+    }
+  }
 
   const startScrollAnimation = (timestamp: number) => {
     if (scrollRef.current && containerRef.current) {
@@ -312,7 +350,7 @@ const ChatMesssage: React.FC<ChatMessageProps> = ({
         isPresentationUpload={messageContent.isPresentationUpload}
         isCustomPluginMessage={isCustomPluginMessage}
       >
-        {!isSystemSender && message.user && (
+        {!isSystemSender && message.user && !locked && (
           <ChatMessageToolbar
             messageId={message.messageId}
             chatId={message.chatId}
