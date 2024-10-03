@@ -55,7 +55,7 @@ trait DeleteGroupChatMessageReactionReqMsgHdlr extends HandlerHelpers {
           if ((chatIsPrivate && userIsAParticipant) || !chatIsPrivate) {
             val event = buildGroupChatMessageReactionDeletedEvtMsg(liveMeeting.props.meetingProp.intId, msg.header.userId, msg.body.chatId, gcMessage.id, msg.body.reactionEmoji)
             bus.outGW.send(event)
-            ChatMessageReactionDAO.insert(liveMeeting.props.meetingProp.intId, gcMessage.id, msg.header.userId, msg.body.reactionEmoji)
+            ChatMessageReactionDAO.delete(liveMeeting.props.meetingProp.intId, gcMessage.id, msg.header.userId, msg.body.reactionEmoji)
           } else {
             val reason = "User isn't a participant of the chat"
             PermissionCheck.ejectUserForFailedPermission(msg.header.meetingId, msg.header.userId, reason, bus.outGW, liveMeeting)
