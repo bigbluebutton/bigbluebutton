@@ -725,6 +725,9 @@ class MeetingActor(
       case m: UserBroadcastCamStopMsg =>
         webcamApp2x.handle(m, liveMeeting, msgBus)
         updateUserLastActivity(m.header.userId)
+      case m: SetCamShowAsContentReqMsg =>
+        webcamApp2x.handle(m, liveMeeting, msgBus)
+        updateUserLastActivity(m.header.userId)
       case m: GetCamBroadcastPermissionReqMsg  => webcamApp2x.handle(m, liveMeeting, msgBus)
       case m: GetCamSubscribePermissionReqMsg  => webcamApp2x.handle(m, liveMeeting, msgBus)
       case m: CamStreamSubscribedInSfuEvtMsg   => webcamApp2x.handle(m, liveMeeting, msgBus)

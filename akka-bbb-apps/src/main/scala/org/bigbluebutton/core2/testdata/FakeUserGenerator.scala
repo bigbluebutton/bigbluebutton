@@ -115,7 +115,7 @@ object FakeUserGenerator {
 
   def createFakeWebcamStreamFor(userId: String, subscribers: Set[String]): WebcamStream = {
     val streamId = RandomStringGenerator.randomAlphanumericString(10)
-    WebcamStream(streamId, userId, "camera", hasAudio = false, focused = false, subscribers)
+    WebcamStream(streamId, userId, "camera", hasAudio = false, showAsContent = false, subscribers)
   }
 
 }

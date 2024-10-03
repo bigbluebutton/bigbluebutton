@@ -30,7 +30,7 @@ select_permissions:
     permission:
       columns:
         - contentType
-        - focused
+        - showAsContent
         - hasAudio
         - streamId
         - userId

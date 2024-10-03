@@ -6,11 +6,11 @@ export default function buildRedisMessage(sessionVariables: Record<string, unkno
   throwErrorIfInvalidInput(input,
       [
         {name: 'streamId', type: 'string', required: true},
-        {name: 'focused', type: 'boolean', required: true},
+        {name: 'showAsContent', type: 'boolean', required: true},
       ]
   )
 
-  const eventName = `SetCamFocusStateReqMsg`;
+  const eventName = `SetCamShowAsContentReqMsg`;
   const routing = {
     meetingId: sessionVariables['x-hasura-meetingid'] as String,
     userId: sessionVariables['x-hasura-userid'] as String
@@ -25,7 +25,7 @@ export default function buildRedisMessage(sessionVariables: Record<string, unkno
   const body = {
     setBy: routing.userId,
     streamId: input.streamId,
-    focused: input.focused
+    showAsContent: input.showAsContent
   };
 
   return { eventName, routing, header, body };
