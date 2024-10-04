@@ -2153,3 +2153,17 @@ select "meeting"."meetingId",
             where "v_caption_activeLocales"."meetingId" = "meeting"."meetingId"
         ) as "hasCaption"
 from "meeting";
+
+------------------------
+----LiveKit
+create table "user_livekit"(
+	"meetingId" varchar(100),
+	"userId" varchar(50),
+	"livekitToken" TEXT,
+	CONSTRAINT "user_livekit_pkey" PRIMARY KEY ("meetingId", "userId"),
+	FOREIGN KEY ("meetingId", "userId") REFERENCES "user"("meetingId","userId") ON DELETE CASCADE
+);
+
+CREATE VIEW "v_user_livekit" AS
+SELECT *
+FROM "user_livekit";

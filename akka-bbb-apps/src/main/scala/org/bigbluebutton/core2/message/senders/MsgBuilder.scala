@@ -607,4 +607,19 @@ object MsgBuilder {
     BbbCommonEnvCoreMsg(envelope, event)
   }
 
+  def buildGenerateLiveKitTokenReqMsg(
+    meetingId: String,
+    userId: String,
+    userName: String,
+    grant: LiveKitGrant,
+    metadata: LiveKitParticipantMetadata,
+  ): BbbCommonEnvCoreMsg = {
+    val routing = collection.immutable.HashMap("sender" -> "bbb-apps-akka")
+    val envelope = BbbCoreEnvelope(GenerateLiveKitTokenReqMsg.NAME, routing)
+    val body = GenerateLiveKitTokenReqMsgBody(userId, userName, grant, metadata)
+    val header = BbbCoreHeaderWithMeetingId(GenerateLiveKitTokenReqMsg.NAME, meetingId)
+    val event = GenerateLiveKitTokenReqMsg(header, body)
+
+    BbbCommonEnvCoreMsg(envelope, event)
+  }
 }

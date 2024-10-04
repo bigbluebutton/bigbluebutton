@@ -462,6 +462,7 @@ class MeetingActor(
       case m: SetUserCaptionLocaleReqMsg   => usersApp.handleSetUserCaptionLocaleReqMsg(m)
       case m: SetUserClientSettingsReqMsg  => usersApp.handleSetUserClientSettingsReqMsg(m)
       case m: SetUserEchoTestRunningReqMsg => usersApp.handleSetUserEchoTestRunningReqMsg(m)
+      case m: GenerateLiveKitTokenRespMsg  => handleGenerateLiveKitTokenRespMsg(m)
 
       // Client requested to eject user
       case m: EjectUserFromMeetingCmdMsg =>
