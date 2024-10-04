@@ -59,12 +59,31 @@ export const CHAT_MESSAGE_PRIVATE_SUBSCRIPTION = gql`
         isModerator
         color
       }
+      messageSequence
+      replyToMessage {
+        deletedAt
+        deletedBy {
+          name
+        }
+        chatEmphasizedText
+        messageSequence
+        message
+        user {
+          name
+          color
+        }
+      }
       chatId
       message
       messageType
       chatEmphasizedText
       messageId
       createdAt
+      editedAt
+      deletedAt
+      deletedBy {
+        name
+      }
       messageMetadata
       recipientHasSeen
     }
