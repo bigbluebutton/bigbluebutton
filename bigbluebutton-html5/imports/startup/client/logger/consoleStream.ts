@@ -44,7 +44,7 @@ export default class ConsoleFormattedStream {
 
     //get level name and pad start with spacs
     const formattedLevelName = (
-      Array(6 - levelName.length).join(' ') + levelName
+      Array(Math.max(0, 6 - levelName.length)).join(' ') + levelName
     ).toUpperCase();
 
     if (level === TRACE) {
@@ -96,7 +96,7 @@ export default class ConsoleFormattedStream {
       logArgs.push('\n');
       logArgs.push(extraFields);
     }
-    if (err && err.stack) {
+    if (err?.stack) {
       logArgs.push('\n');
       logArgs.push(err.stack);
     }
