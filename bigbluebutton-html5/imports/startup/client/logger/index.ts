@@ -38,8 +38,6 @@ export function createStreamForTarget(
       Stream = ServerLoggerStream;
       break;
     case TARGET_CONSOLE:
-      Stream = process.env.DETAILED_LOGS ? ConsoleStream : ConsoleFormattedStream;
-      break;
     default:
       Stream = process.env.DETAILED_LOGS ? ConsoleStream : ConsoleFormattedStream;
   }
