@@ -336,6 +336,8 @@
     "app.presentationUploder.conversion.204": "Δεν υπάρχει περιεχόμενο για καταγραφή",
     "app.presentationUploder.upload.413": "Το αρχείο είναι πολύ μεγάλο, ξεπερνά το μέγιστο όριο των {0} MB",
     "app.presentationUploder.genericError": "Παρουσιάστηκε σφάλμα ...",
+    "app.presentationUploder.upload.fileVirus": "Αποτυχία μεταφόρτωσης: Εντοπίστηκε Ιός! Παρακαλούμε ελέγξτε το αρχείο σας και προσπαθήστε ξανά. ",
+    "app.presentationUploder.upload.scanFailed": "Αποτυχία μεταφόρτωσης: το αρχείο δεν μπορεί να ελεγχθεί. ",
     "app.presentationUploder.upload.408": "Το αίτημα αναγνωριστικού μεταφόρτωσης έληξε",
     "app.presentationUploder.upload.404": "404: Το αναγνωριστικό της μεταφόρτωσης δεν είναι σωστό",
     "app.presentationUploder.upload.401": "Το διακριτικό μεταφόρτωσης της παρουσίασης απέτυχε.",
