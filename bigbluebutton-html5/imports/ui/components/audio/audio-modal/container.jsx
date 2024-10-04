@@ -101,6 +101,8 @@ const AudioModalContainer = (props) => {
   );
   const isTranscriptionEnabled = useIsAudioTranscriptionEnabled();
 
+  if (!currentUserData) return null;
+
   return (
     <AudioModal
       away={away}
