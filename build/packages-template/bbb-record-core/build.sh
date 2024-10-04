@@ -26,6 +26,7 @@ done
 
 mkdir -p staging/var/log/bigbluebutton
 cp -r scripts lib Gemfile Gemfile.lock  staging/usr/local/bigbluebutton/core
+chmod 644 staging/usr/local/bigbluebutton/core/Rakefile
 
 pushd staging/usr/local/bigbluebutton/core
   bundle config set --local deployment true

@@ -24,9 +24,9 @@ cp assets/etherpad-export.sh staging/usr/share/bbb-libreoffice-conversion/etherp
 cp assets/convert-local.sh  staging/usr/share/bbb-libreoffice-conversion/convert-local.sh
 cp assets/convert-remote.sh staging/usr/share/bbb-libreoffice-conversion/convert-remote.sh
 
-chmod +x staging/usr/share/bbb-libreoffice-conversion/convert-local.sh
-chmod +x staging/usr/share/bbb-libreoffice-conversion/convert-remote.sh
-chmod +x staging/usr/share/bbb-libreoffice-conversion/etherpad-export.sh
+chmod 755 staging/usr/share/bbb-libreoffice-conversion/convert-local.sh
+chmod 755 staging/usr/share/bbb-libreoffice-conversion/convert-remote.sh
+chmod 755 staging/usr/share/bbb-libreoffice-conversion/etherpad-export.sh
 
 
 cp -r docker staging/usr/share/bbb-libreoffice
