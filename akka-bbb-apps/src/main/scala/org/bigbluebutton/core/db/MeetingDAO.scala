@@ -21,6 +21,9 @@ case class MeetingDbModel(
     disabledFeatures:                      List[String],
     meetingCameraCap:                      Int,
     maxPinnedCameras:                      Int,
+    cameraBridge:                          String,
+    screenShareBridge:                     String,
+    fullAudioBridge:                       String,
     notifyRecordingIsOn:                   Boolean,
     presentationUploadExternalDescription: String,
     presentationUploadExternalUrl:         String,
@@ -44,6 +47,9 @@ class MeetingDbTableDef(tag: Tag) extends Table[MeetingDbModel](tag, None, "meet
     disabledFeatures,
     meetingCameraCap,
     maxPinnedCameras,
+    cameraBridge,
+    screenShareBridge,
+    fullAudioBridge,
     notifyRecordingIsOn,
     presentationUploadExternalDescription,
     presentationUploadExternalUrl,
@@ -64,6 +70,9 @@ class MeetingDbTableDef(tag: Tag) extends Table[MeetingDbModel](tag, None, "meet
   val disabledFeatures = column[List[String]]("disabledFeatures")
   val meetingCameraCap = column[Int]("meetingCameraCap")
   val maxPinnedCameras = column[Int]("maxPinnedCameras")
+  val cameraBridge = column[String]("cameraBridge")
+  val screenShareBridge = column[String]("screenShareBridge")
+  val fullAudioBridge = column[String]("fullAudioBridge")
   val notifyRecordingIsOn = column[Boolean]("notifyRecordingIsOn")
   val presentationUploadExternalDescription = column[String]("presentationUploadExternalDescription")
   val presentationUploadExternalUrl = column[String]("presentationUploadExternalUrl")
@@ -96,6 +105,9 @@ object MeetingDAO {
           disabledFeatures = meetingProps.meetingProp.disabledFeatures.toList,
           meetingCameraCap = meetingProps.meetingProp.meetingCameraCap,
           maxPinnedCameras = meetingProps.meetingProp.maxPinnedCameras,
+          cameraBridge = meetingProps.meetingProp.cameraBridge,
+          screenShareBridge = meetingProps.meetingProp.screenShareBridge,
+          fullAudioBridge = meetingProps.meetingProp.fullAudioBridge,
           notifyRecordingIsOn = meetingProps.meetingProp.notifyRecordingIsOn,
           presentationUploadExternalDescription = meetingProps.meetingProp.presentationUploadExternalDescription,
           presentationUploadExternalUrl = meetingProps.meetingProp.presentationUploadExternalUrl,
