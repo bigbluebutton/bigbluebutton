@@ -1,7 +1,6 @@
 import React, { useEffect } from 'react';
 import AudioCaptionsLiveContainer from '/imports/ui/components/audio/audio-graphql/audio-captions/live/component';
 import getFromUserSettings from '/imports/ui/services/users-settings';
-import deviceInfo from '/imports/utils/deviceInfo';
 import { useIsPresentationEnabled, useIsExternalVideoEnabled } from '/imports/ui/services/features';
 import useCurrentUser from '/imports/ui/core/hooks/useCurrentUser';
 import useMeeting from '/imports/ui/core/hooks/useMeeting';
@@ -29,7 +28,6 @@ const AppContainer = (props) => {
     raiseHand: u.raiseHand,
     userId: u.userId,
     presenter: u.presenter,
-    speechLocale: u.speechLocale,
   }));
 
   const {
@@ -47,16 +45,12 @@ const AppContainer = (props) => {
   const NOTES_CONFIG = window.meetingClientSettings.public.notes;
 
   const {
-    selectedLayout,
     darkTheme,
   } = useSettings(SETTINGS.APPLICATION);
 
   const { partialUtterances, minUtteranceLength } = useSettings(SETTINGS.TRANSCRIPTION);
 
-  const sidebarContent = layoutSelectInput((i) => i.sidebarContent);
   const genericMainContent = layoutSelectInput((i) => i.genericMainContent);
-  const sidebarNavigation = layoutSelectInput((i) => i.sidebarNavigation);
-  const actionsBarStyle = layoutSelectOutput((i) => i.actionBar);
   const captionsStyle = layoutSelectOutput((i) => i.captions);
   const presentation = layoutSelectInput((i) => i.presentation);
   const sharedNotesInput = layoutSelectInput((i) => i.sharedNotes);
@@ -70,8 +64,6 @@ const AppContainer = (props) => {
   const isPresentationEnabled = useIsPresentationEnabled();
   const isPresenter = currentUser?.presenter;
 
-  const { isOpen: sidebarContentIsOpen } = sidebarContent;
-  const { isOpen: sidebarNavigationIsOpen } = sidebarNavigation;
   const { isOpen } = presentation;
   const presentationIsOpen = isOpen;
 
@@ -88,13 +80,6 @@ const AppContainer = (props) => {
     && !shouldShowExternalVideo && !shouldShowGenericMainContent
     && (presentationIsOpen || presentationRestoreOnUpdate)) && isPresentationEnabled;
 
-  useEffect(() => {
-    setSpeechOptions(
-      partialUtterances,
-      minUtteranceLength,
-    );
-  }, [partialUtterances, minUtteranceLength]);
-
   // Update after editing app savings
   useEffect(() => {
     setSpeechOptions(
@@ -102,8 +87,6 @@ const AppContainer = (props) => {
       minUtteranceLength,
     );
   }, [partialUtterances, minUtteranceLength]);
-  const customStyleUrl = getFromUserSettings('bbb_custom_style_url', false)
-  || window.meetingClientSettings.public.app.customStyleUrl;
 
   if (!currentUser) return null;
 
@@ -112,27 +95,17 @@ const AppContainer = (props) => {
       <App
         {...{
           hideActionsBar: getFromUserSettings('bbb_hide_actions_bar', false),
-          customStyle: getFromUserSettings('bbb_custom_style', false),
-          isPhone: deviceInfo.isPhone,
           currentUserAway: currentUser.away,
           currentUserRaiseHand: currentUser.raiseHand,
-          customStyleUrl,
-          actionsBarStyle,
           captionsStyle,
-          selectedLayout,
           presentationIsOpen,
-          sidebarNavigationIsOpen,
-          sidebarContentIsOpen,
           shouldShowExternalVideo,
-          isPresenter,
-          speechLocale: currentUser?.speechLocale,
           shouldShowScreenshare,
           isSharedNotesPinned,
           shouldShowPresentation,
           genericMainContentId: genericMainContent.genericContentId,
           audioCaptions: <AudioCaptionsLiveContainer />,
           darkTheme,
-          isPresentationEnabled,
         }}
         {...props}
       />

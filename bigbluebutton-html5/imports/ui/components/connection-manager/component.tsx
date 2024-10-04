@@ -11,10 +11,27 @@ import apolloContextHolder from '../../core/graphql/apolloContextHolder/apolloCo
 import connectionStatus from '../../core/graphql/singletons/connectionStatus';
 import deviceInfo from '/imports/utils/deviceInfo';
 import BBBWeb from '/imports/api/bbb-web-api';
+import useMeetingSettings from '/imports/ui/core/local-states/useMeetingSettings';
 
 interface ConnectionManagerProps {
   children: React.ReactNode;
 }
+
+interface WsError {
+  name: string;
+  message: string;
+  reason: string;
+  code: number;
+}
+
+const isDetailedErrorObject = (error: unknown): error is WsError => {
+  const requiredKeys = ['name', 'message', 'reason', 'code'];
+  return (
+    error !== null
+    && typeof error === 'object'
+    && requiredKeys.every((key) => Object.hasOwn(error, key))
+  );
+};
 
 const DEFAULT_MAX_MUTATION_PAYLOAD_SIZE = 10485760; // 10MB
 const getMaxMutationPayloadSize = () => window.meetingClientSettings?.public?.app?.maxMutationPayloadSize
@@ -65,6 +82,9 @@ const ConnectionManager: React.FC<ConnectionManagerProps> = ({ children }): Reac
   const tsLastPingMessageRef = useRef<number>(0);
   const boundary = useRef(15_000);
   const [terminalError, setTerminalError] = React.useState<string>('');
+  const [MeetingSettings] = useMeetingSettings();
+  const enableDevTools = MeetingSettings.public.app.enableApolloDevTools;
+
   useEffect(() => {
     BBBWeb.index().then(({ data }) => {
       setGraphqlUrl(data.graphqlWebsocketUrl);
@@ -138,15 +158,45 @@ const ConnectionManager: React.FC<ConnectionManagerProps> = ({ children }): Reac
             });
           },
           shouldRetry: (error) => {
-            logger.error('Connection error:', error);
+            const isDetailedError = isDetailedErrorObject(error);
+            const terminated = isDetailedError && error.code === 4499;
+
+            if (terminated) {
+              logger.info({
+                logCode: 'connection_terminated',
+                extraInfo: {
+                  errorName: error.name,
+                  errorMessage: error.message,
+                  errorReason: error.reason,
+                },
+              }, 'Connection terminated (4499)');
+            } else if (isDetailedError) {
+              logger.error({
+                logCode: 'connection_error',
+                extraInfo: {
+                  errorName: error.name,
+                  errorMessage: error.message,
+                  errorReason: error.reason,
+                },
+              }, `Connection error (${error.code})`);
+            } else {
+              logger.error({
+                logCode: 'connection_error',
+                extraInfo: {
+                  errorName: 'Error',
+                  errorMessage: JSON.stringify(error),
+                  errorReason: 'Unknown',
+                },
+              }, `Connection error: ${JSON.stringify(error)}`);
+            }
+
             if (error && typeof error === 'object' && 'code' in error && error.code === 4403) {
               loadingContextInfo.setLoading(false, '');
               setTerminalError('Server refused the connection');
               return false;
             }
 
-            if (!apolloContextHolder.getShouldRetry()) return false;
-            return true;
+            return apolloContextHolder.getShouldRetry();
           },
           connectionParams: {
             headers: {
@@ -158,7 +208,7 @@ const ConnectionManager: React.FC<ConnectionManagerProps> = ({ children }): Reac
           },
           on: {
             error: (error) => {
-              logger.error('Error: on subscription to server', error);
+              logger.error('Graphql Client Error:', error);
               loadingContextInfo.setLoading(false, '');
               connectionStatus.setConnectedStatus(false);
               setErrorCounts((prev: number) => prev + 1);
@@ -167,10 +217,8 @@ const ConnectionManager: React.FC<ConnectionManagerProps> = ({ children }): Reac
               // Check if it's a CloseEvent (which includes HTTP errors during WebSocket handshake)
               if (e instanceof CloseEvent) {
                 logger.error(`WebSocket closed with code ${e.code}: ${e.reason}`);
-                loadingContextInfo.setLoading(false, '');
-                setTerminalError('Server closed the connection');
+                connectionStatus.setConnectedStatus(false);
               }
-              connectionStatus.setConnectedStatus(false);
             },
             connected: (socket) => {
               activeSocket.current = socket as WebSocket;
@@ -182,6 +230,13 @@ const ConnectionManager: React.FC<ConnectionManagerProps> = ({ children }): Reac
             message: (message) => {
               if (message.type === 'ping') {
                 tsLastPingMessageRef.current = Date.now();
+              }
+              if (message.type === 'error' && message.id === '-1') {
+                // message ID -1 as a signal to terminate the session
+                // it contains a prop message.messageId which can be used to show a proper error to the user
+                logger.error({ logCode: 'graphql_server_closed_connection', extraInfo: message }, 'Graphql Server closed the connection');
+                loadingContextInfo.setLoading(false, '');
+                setTerminalError('Server closed the connection');
               }
               tsLastMessageRef.current = Date.now();
             },
@@ -206,7 +261,7 @@ const ConnectionManager: React.FC<ConnectionManagerProps> = ({ children }): Reac
         client = new ApolloClient({
           link: wsLink,
           cache: new InMemoryCache(),
-          connectToDevTools: process.env.NODE_ENV === 'development',
+          connectToDevTools: (process.env.NODE_ENV === 'development') || enableDevTools,
         });
         setApolloClient(client);
         apolloContextHolder.setClient(client);

@@ -43,7 +43,7 @@ const StarRating = styled.div`
           color: ${colorPrimary};
           text-shadow: 0 0 3px ${colorPrimary};
           &:before {
-            content: '\\e951';
+            content: '\\e952';
           }
         }
       }

@@ -20,6 +20,7 @@ const config = {
   cache: {
     type: 'filesystem',
     allowCollectingMemory: true,
+    maxAge: 86400000,
   },
   devtool: 'source-map',
   plugins: [

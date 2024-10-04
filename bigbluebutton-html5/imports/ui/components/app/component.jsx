@@ -4,11 +4,11 @@ import { defineMessages, injectIntl } from 'react-intl';
 import ReactModal from 'react-modal';
 import browserInfo from '/imports/utils/browserInfo';
 import deviceInfo from '/imports/utils/deviceInfo';
+import Session from '/imports/ui/services/storage/in-memory';
 import PollingContainer from '/imports/ui/components/polling/container';
 import logger from '/imports/startup/client/logger';
 import ActivityCheckContainer from '/imports/ui/components/activity-check/container';
 import ToastContainer from '/imports/ui/components/common/toast/container';
-import PadsSessionsContainer from '/imports/ui/components/pads/pads-graphql/sessions/component';
 import WakeLockContainer from '../wake-lock/container';
 import NotificationsBarContainer from '../notifications-bar/container';
 import AudioContainer from '../audio/container';
@@ -26,7 +26,6 @@ import ExternalVideoPlayerContainer from '../external-video-player/external-vide
 import GenericContentMainAreaContainer from '../generic-content/generic-main-content/container';
 import EmojiRainContainer from '../emoji-rain/container';
 import Styled from './styles';
-import { SMALL_VIEWPORT_BREAKPOINT } from '../layout/enums';
 import LayoutEngine from '../layout/layout-manager/layoutEngine';
 import NavBarContainer from '../nav-bar/container';
 import SidebarNavigationContainer from '../sidebar-navigation/container';
@@ -110,8 +109,6 @@ const propTypes = {
   darkTheme: PropTypes.bool.isRequired,
 };
 
-const isLayeredView = window.matchMedia(`(max-width: ${SMALL_VIEWPORT_BREAKPOINT}px)`);
-
 class App extends Component {
   constructor(props) {
     super(props);
@@ -124,7 +121,6 @@ class App extends Component {
     this.timeOffsetInterval = null;
 
     this.setPresentationFitToWidth = this.setPresentationFitToWidth.bind(this);
-    this.shouldAriaHide = this.shouldAriaHide.bind(this);
     this.setAudioModalIsOpen = this.setAudioModalIsOpen.bind(this);
     this.setVideoPreviewModalIsOpen = this.setVideoPreviewModalIsOpen.bind(this);
   }
@@ -132,6 +128,8 @@ class App extends Component {
   componentDidMount() {
     const { browserName } = browserInfo;
     const { osName } = deviceInfo;
+
+    Session.setItem('videoPreviewFirstOpen', true);
 
     ReactModal.setAppElement('#app');
 
@@ -195,13 +193,6 @@ class App extends Component {
     this.setState({ isVideoPreviewModalOpen: value });
   }
 
-  shouldAriaHide() {
-    const { sidebarNavigationIsOpen, sidebarContentIsOpen, isPhone } = this.props;
-    return sidebarNavigationIsOpen
-      && sidebarContentIsOpen
-      && (isPhone || isLayeredView.matches);
-  }
-
   renderDarkMode() {
     const { darkTheme } = this.props;
 
@@ -210,42 +201,17 @@ class App extends Component {
 
   renderActionsBar() {
     const {
-      intl,
-      actionsBarStyle,
       hideActionsBar,
       presentationIsOpen,
-      selectedLayout,
     } = this.props;
-
-    const LAYOUT_CONFIG = window.meetingClientSettings.public.layout;
-
-    const { showPushLayoutButton } = LAYOUT_CONFIG;
 
     if (hideActionsBar) return null;
 
     return (
-      <Styled.ActionsBar
-        id="ActionsBar"
-        role="region"
-        aria-label={intl.formatMessage(intlMessages.actionsBarLabel)}
-        aria-hidden={this.shouldAriaHide()}
-        style={
-          {
-            position: 'absolute',
-            top: actionsBarStyle.top,
-            left: actionsBarStyle.left,
-            height: actionsBarStyle.height,
-            width: actionsBarStyle.width,
-            padding: actionsBarStyle.padding,
-          }
-        }
-      >
-        <ActionsBarContainer
-          showPushLayout={showPushLayoutButton && selectedLayout === 'custom'}
-          presentationIsOpen={presentationIsOpen}
-          setPresentationFitToWidth={this.setPresentationFitToWidth}
-        />
-      </Styled.ActionsBar>
+      <ActionsBarContainer
+        presentationIsOpen={presentationIsOpen}
+        setPresentationFitToWidth={this.setPresentationFitToWidth}
+      />
     );
   }
 
@@ -276,20 +242,14 @@ class App extends Component {
 
   render() {
     const {
-      customStyle,
-      customStyleUrl,
       shouldShowExternalVideo,
       shouldShowPresentation,
       shouldShowScreenshare,
       isSharedNotesPinned,
-      isPresenter,
-      selectedLayout,
       presentationIsOpen,
       darkTheme,
       intl,
       genericMainContentId,
-      speechLocale,
-      isPresentationEnabled,
     } = this.props;
 
     const {
@@ -308,10 +268,7 @@ class App extends Component {
           shouldShowScreenshare={shouldShowScreenshare}
           shouldShowExternalVideo={shouldShowExternalVideo}
         />
-        <LayoutEngine
-          layoutType={selectedLayout}
-          isPresentationEnabled={isPresentationEnabled}
-        />
+        <LayoutEngine />
         <LayoutObserver />
         <GlobalStyles />
         <Styled.Layout
@@ -341,7 +298,6 @@ class App extends Component {
                 fitToWidth={presentationFitToWidth}
                 darkTheme={darkTheme}
                 presentationIsOpen={presentationIsOpen}
-                layoutType={selectedLayout}
               />
             )
             : null
@@ -349,9 +305,7 @@ class App extends Component {
           {
           shouldShowScreenshare
             ? (
-              <ScreenshareContainer
-                isPresenter={isPresenter}
-              />
+              <ScreenshareContainer />
             )
             : null
           }
@@ -371,7 +325,6 @@ class App extends Component {
             setAudioModalIsOpen: this.setAudioModalIsOpen,
             isVideoPreviewModalOpen,
             setVideoPreviewModalIsOpen: this.setVideoPreviewModalIsOpen,
-            speechLocale,
           }}
           />
           <ToastContainer rtl />
@@ -379,13 +332,10 @@ class App extends Component {
           <RaiseHandNotifier />
           <ManyWebcamsNotifier />
           <PollingContainer />
-          <PadsSessionsContainer />
           <WakeLockContainer />
           {this.renderActionsBar()}
           <EmojiRainContainer />
           <VoiceActivityAdapter />
-          {customStyleUrl ? <link rel="stylesheet" type="text/css" href={customStyleUrl} /> : null}
-          {customStyle ? <link rel="stylesheet" type="text/css" href={`data:text/css;charset=UTF-8,${encodeURIComponent(customStyle)}`} /> : null}
         </Styled.Layout>
       </>
     );

@@ -55,6 +55,7 @@ const propTypes = {
   shouldShowExternalVideo: PropTypes.bool,
   enforceLayout: PropTypes.string,
   setLocalSettings: PropTypes.func.isRequired,
+  hasMeetingLayout: PropTypes.bool,
 };
 
 const PushLayoutEngine = (props) => {
@@ -88,6 +89,7 @@ const PushLayoutEngine = (props) => {
     selectedLayout,
     setMeetingLayout,
     setPushLayout,
+    hasMeetingLayout,
   } = props;
 
   useEffect(() => {
@@ -154,7 +156,7 @@ const PushLayoutEngine = (props) => {
         }
       }, 0);
     }
-  }, []);
+  }, [hasMeetingLayout]);
 
   useEffect(() => {
     const meetingLayoutDidChange = meetingLayout !== prevProps.meetingLayout;
@@ -381,6 +383,7 @@ const PushLayoutEngineContainer = (props) => {
         selectedLayout,
         setMeetingLayout,
         setPushLayout,
+        hasMeetingLayout: !!meetingLayout,
         ...props,
       }}
     />

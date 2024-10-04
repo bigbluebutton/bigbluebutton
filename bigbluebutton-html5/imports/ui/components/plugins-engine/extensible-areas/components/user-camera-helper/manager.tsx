@@ -22,7 +22,6 @@ const UserCameraHelperPluginStateContainer = ((
   ] = useState<PluginSdk.UserCameraHelperInterface[]>([]);
 
   const {
-    pluginsExtensibleAreasAggregatedState,
     setPluginsExtensibleAreasAggregatedState,
   } = useContext(PluginsContext);
 
@@ -34,12 +33,11 @@ const UserCameraHelperPluginStateContainer = ((
         .map((extensibleArea: ExtensibleArea) => extensibleArea.userCameraHelperItems),
     );
 
-    setPluginsExtensibleAreasAggregatedState(
+    setPluginsExtensibleAreasAggregatedState((previousState) => (
       {
-        ...pluginsExtensibleAreasAggregatedState,
+        ...previousState,
         userCameraHelperItems: aggregatedUserCameraHelperItems,
-      },
-    );
+      }));
   }, [userCameraHelperItems]);
 
   pluginApi.setUserCameraHelperItems = (items: PluginSdk.UserCameraHelperInterface[]) => {

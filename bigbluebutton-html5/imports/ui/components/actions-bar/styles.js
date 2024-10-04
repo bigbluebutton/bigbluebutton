@@ -1,13 +1,21 @@
 import styled from 'styled-components';
 import { smallOnly } from '/imports/ui/stylesheets/styled-components/breakpoints';
-import { smPaddingX, smPaddingY } from '/imports/ui/stylesheets/styled-components/general';
-import { colorWhite } from '/imports/ui/stylesheets/styled-components/palette';
+import { smPaddingX, smPaddingY, barsPadding } from '/imports/ui/stylesheets/styled-components/general';
+import { colorWhite, colorBackground } from '/imports/ui/stylesheets/styled-components/palette';
 import Button from '/imports/ui/components/common/button/component';
 
 const ActionsBar = styled.div`
   display: flex;
   flex-direction: row;
   align-items: center;
+`;
+
+const ActionsBarWrapper = styled.section`
+  flex: 1;
+  padding: ${barsPadding};
+  background-color: ${colorBackground};
+  position: relative;
+  order: 3;
 `;
 
 const Left = styled.div`
@@ -129,4 +137,5 @@ export default {
   ReactionsDropdown,
   Wrapper,
   Separator,
+  ActionsBarWrapper,
 };

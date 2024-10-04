@@ -1,4 +1,5 @@
-import React, { useEffect, useRef } from 'react';
+import React, { useContext, useEffect, useRef } from 'react';
+import * as PluginSdk from 'bigbluebutton-html-plugin-sdk';
 import useDeduplicatedSubscription from '/imports/ui/core/hooks/useDeduplicatedSubscription';
 import { MEETING_PERMISSIONS_SUBSCRIPTION } from '../queries';
 import { setLocalUserList, useLoadedUserList } from '/imports/ui/core/hooks/useLoadedUserList';
@@ -13,6 +14,7 @@ import ListItem from '../list-item/component';
 import { layoutSelect } from '/imports/ui/components/layout/context';
 import { Layout } from '/imports/ui/components/layout/layoutTypes';
 import SkeletonUserListItem from '../list-item/skeleton/component';
+import { PluginsContext } from '/imports/ui/components/components-data/plugin-context/context';
 
 interface UserListParticipantsContainerProps {
   index: number;
@@ -36,6 +38,14 @@ const UsersListParticipantsPage: React.FC<UsersListParticipantsPage> = ({
 }) => {
   const [openUserAction, setOpenUserAction] = React.useState<string | null>(null);
   const isRTL = layoutSelect((i: Layout) => i.isRTL);
+  const { pluginsExtensibleAreasAggregatedState } = useContext(PluginsContext);
+  let userListDropdownItems = [] as PluginSdk.UserListDropdownInterface[];
+  if (pluginsExtensibleAreasAggregatedState.userListDropdownItems) {
+    userListDropdownItems = [
+      ...pluginsExtensibleAreasAggregatedState.userListDropdownItems,
+    ];
+  }
+
   return (
     <>
       {
@@ -49,6 +59,7 @@ const UsersListParticipantsPage: React.FC<UsersListParticipantsPage> = ({
                 usersPolicies={meeting.usersPolicies}
                 isBreakout={meeting.isBreakout}
                 pageId={pageId}
+                userListDropdownItems={userListDropdownItems}
                 open={user.userId === openUserAction}
                 setOpenUserAction={setOpenUserAction}
               >

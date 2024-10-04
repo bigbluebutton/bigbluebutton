@@ -45,6 +45,10 @@ const TldrawV2GlobalStyle = createGlobalStyle`
     display: none !important;
   }
 
+  .tl-container:focus-within {
+    outline: none !important;
+  }
+
   .tlui-style-panel__wrapper {
     right: 0px;
     top: -0.35rem;

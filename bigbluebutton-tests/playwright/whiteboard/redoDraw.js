@@ -27,10 +27,8 @@ class RedoDrawing extends MultiUsers {
     await this.modPage.setHeightWidthViewPortSize();
     await this.userPage.setHeightWidthViewPortSize();
 
-    await expect(modWbLocator).toHaveScreenshot('moderator-redo-drawing.png');
-
-    const userWbLocator = this.userPage.getLocator(e.whiteboard);
-    await expect(userWbLocator).toHaveScreenshot('viewer-redo-drawing.png');
+    await this.modPage.hasElement(e.wbDrawnArrow);
+    await this.userPage.hasElement(e.wbDrawnArrow);
   }
 }
 

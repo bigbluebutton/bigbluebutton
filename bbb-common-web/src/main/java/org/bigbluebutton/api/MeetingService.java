@@ -140,6 +140,19 @@ public class MeetingService implements MessageListener {
     }
   }
 
+  public void registerUserSession(
+          String meetingID,
+          String internalUserId,
+          String sessionToken,
+          String replaceSessionToken,
+          String enforceLayout,
+          Map<String, String> userSessionMetadata
+  ) {
+    handle(
+            new RegisterUserSessionToken(meetingID, internalUserId, sessionToken, replaceSessionToken, enforceLayout, userSessionMetadata)
+    );
+  }
+
   public UserSession getUserSessionWithUserId(String userId) {
     for (UserSession userSession : sessions.values()) {
       if (userSession.internalUserId.equals(userId)) {
@@ -450,6 +463,11 @@ public class MeetingService implements MessageListener {
       message.authed, message.guestStatus, message.excludeFromDashboard, message.enforceLayout, message.userMetadata);
   }
 
+  private void processRegisterUserSessionToken(RegisterUserSessionToken message) {
+    gw.registerUserSessionToken(message.meetingID, message.internalUserId, message.sessionToken,
+            message.replaceSessionToken, message.enforceLayout, message.userSessionMetadata);
+  }
+
     public Meeting getMeeting(String meetingId) {
         if (meetingId == null)
             return null;
@@ -680,7 +698,7 @@ public class MeetingService implements MessageListener {
 
       presDownloadService.extractPresentationPage(message.parentMeetingId,
         message.sourcePresentationId,
-        message.sourcePresentationSlide, breakout.getInternalId());
+        message.sourcePresentationSlide, breakout.getInternalId(), false);
     } else {
       Map<String, Object> logData = new HashMap<String, Object>();
       logData.put("meetingId", message.meetingId);
@@ -1192,6 +1210,8 @@ public class MeetingService implements MessageListener {
           processEndMeeting((EndMeeting) message);
         } else if (message instanceof RegisterUser) {
           processRegisterUser((RegisterUser) message);
+        } else if (message instanceof RegisterUserSessionToken) {
+          processRegisterUserSessionToken((RegisterUserSessionToken) message);
         } else if (message instanceof CreateBreakoutRoom) {
           processCreateBreakoutRoom((CreateBreakoutRoom) message);
         } else if (message instanceof PresentationUploadToken) {

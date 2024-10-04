@@ -6,6 +6,18 @@ export const UPDATE_ECHO_TEST_RUNNING = gql`
   }
 `;
 
+export const MEETING_IS_BREAKOUT = gql`
+  query MeetingIsBreakout {
+    meeting {
+      isBreakout
+      breakoutPolicies {
+        parentId
+      }
+    }
+  }
+`;
+
 export default {
   UPDATE_ECHO_TEST_RUNNING,
+  MEETING_IS_BREAKOUT,
 };

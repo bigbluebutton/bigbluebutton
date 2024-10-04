@@ -315,6 +315,10 @@ const Avatar = styled.div<AvatarProps>`
   ${({ talking, animations, color }) => talking && animations && color && css`
     animation: ${pulse(color)} 1s infinite ease-in;
   `}
+
+  ${({ talking, animations }) => talking && !animations && `
+    box-shadow: 0 0 0 4px currentColor;
+  `}
   // ================ talking animation ================
   // ================ image ================
   ${({ avatar, emoji, color }) => avatar?.length !== 0 && !emoji && css`

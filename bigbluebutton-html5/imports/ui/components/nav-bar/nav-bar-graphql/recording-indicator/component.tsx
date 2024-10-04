@@ -5,7 +5,7 @@ import React, {
   useState,
 } from 'react';
 import useMeeting from '/imports/ui/core/hooks/useMeeting';
-import deviceInfo from '/imports/utils/deviceInfo';
+import deviceInfo, { isMobile } from '/imports/utils/deviceInfo';
 import {
   GET_MEETING_RECORDING_DATA,
   GET_MEETING_RECORDING_POLICIES,
@@ -237,10 +237,15 @@ const RecordingIndicator: React.FC<RecordingIndicatorProps> = ({
   if (!record) return null;
   return (
     <>
-      {record ? (
+      {record && !isMobile ? (
         <Styled.PresentationTitleSeparator aria-hidden="true">|</Styled.PresentationTitleSeparator>
       ) : null}
-      <Styled.RecordingIndicator data-test="recordingIndicator">
+      <Styled.RecordingIndicator
+        data-test="recordingIndicator"
+        isPhone={isMobile}
+        recording={recording}
+        disabled={!showButton}
+      >
         {showButton ? recordingButton : null}
         {showButton ? null : (
           <Tooltip
@@ -274,7 +279,6 @@ const RecordingIndicator: React.FC<RecordingIndicatorProps> = ({
             setShouldNotify((prev) => !prev);
           }}
           priority="high"
-          setIsOpen={setIsRecordingNotifyModalOpen}
           isOpen={isRecordingNotifyModalOpen}
           closeModal={() => {
             setIsRecordingNotifyModalOpen(false);

@@ -22,7 +22,6 @@ const PresentationToolbarPluginStateContainer = ((
   ] = useState<PluginSdk.PresentationToolbarInterface[]>([]);
 
   const {
-    pluginsExtensibleAreasAggregatedState,
     setPluginsExtensibleAreasAggregatedState,
   } = useContext(PluginsContext);
 
@@ -36,12 +35,11 @@ const PresentationToolbarPluginStateContainer = ((
         .map((extensibleArea: ExtensibleArea) => extensibleArea.presentationToolbarItems),
     );
 
-    setPluginsExtensibleAreasAggregatedState(
+    setPluginsExtensibleAreasAggregatedState((previousState) => (
       {
-        ...pluginsExtensibleAreasAggregatedState,
+        ...previousState,
         presentationToolbarItems: aggregatedPresentationToolbarItems,
-      },
-    );
+      }));
   }, [presentationToolbarItems]);
 
   pluginApi.setPresentationToolbarItems = (items: PluginSdk.PresentationToolbarInterface[]) => {

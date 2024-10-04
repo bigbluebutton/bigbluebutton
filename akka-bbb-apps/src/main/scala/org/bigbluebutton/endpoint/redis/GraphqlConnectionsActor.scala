@@ -68,6 +68,7 @@ class GraphqlConnectionsActor(
   private def handleBbbCommonEnvCoreMsg(msg: BbbCommonEnvCoreMsg): Unit = {
     msg.core match {
       case m: RegisterUserReqMsg                      => handleUserRegisteredRespMsg(m)
+      case m: RegisterUserSessionTokenReqMsg          => handleRegisterUserSessionTokenReqMsg(m)
       case m: DestroyMeetingSysCmdMsg                 => handleDestroyMeetingSysCmdMsg(m)
       // Messages from bbb-graphql-middleware
       case m: UserGraphqlConnectionEstablishedSysMsg  => handleUserGraphqlConnectionEstablishedSysMsg(m)
@@ -80,6 +81,14 @@ class GraphqlConnectionsActor(
   private def handleUserRegisteredRespMsg(msg: RegisterUserReqMsg): Unit = {
     users += (msg.body.sessionToken -> GraphqlUser(
       msg.body.intUserId,
+      msg.body.meetingId,
+      msg.body.sessionToken
+    ))
+  }
+
+  private def handleRegisterUserSessionTokenReqMsg(msg: RegisterUserSessionTokenReqMsg): Unit = {
+    users += (msg.body.sessionToken -> GraphqlUser(
+      msg.body.userId,
       msg.body.meetingId,
       msg.body.sessionToken
     ))
@@ -136,7 +145,8 @@ class GraphqlConnectionsActor(
       graphqlConnections = graphqlConnections.-(browserConnectionId)
 
       //Send internal message informing user disconnected
-      if (!graphqlConnections.values.exists(c => c.sessionToken == sessionToken)) {
+      if (!graphqlConnections.values.exists(c => c.sessionToken == sessionToken
+        || (c.user.meetingId == user.meetingId && c.user.intId == user.intId))) {
         eventBus.publish(BigBlueButtonEvent(user.meetingId, UserClosedAllGraphqlConnectionsInternalMsg(user.intId)))
       }
     }

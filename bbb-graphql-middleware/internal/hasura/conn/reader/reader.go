@@ -9,7 +9,7 @@ import (
 	"encoding/json"
 	"errors"
 	"github.com/prometheus/client_golang/prometheus"
-	log "github.com/sirupsen/logrus"
+	"github.com/sirupsen/logrus"
 	"hash/crc32"
 	"nhooyr.io/websocket"
 	"sync"
@@ -17,9 +17,8 @@ import (
 
 // HasuraConnectionReader consumes messages from Hasura connection and add send to the browser channel
 func HasuraConnectionReader(hc *common.HasuraConnection, wg *sync.WaitGroup) {
-	log := log.WithField("_routine", "HasuraConnectionReader").WithField("browserConnectionId", hc.BrowserConn.Id).WithField("hasuraConnectionId", hc.Id)
-	defer log.Debugf("finished")
-	log.Debugf("starting")
+	defer hc.BrowserConn.Logger.Debugf("finished")
+	hc.BrowserConn.Logger.Debugf("starting")
 
 	defer wg.Done()
 	defer hc.ContextCancelFunc()
@@ -30,10 +29,10 @@ func HasuraConnectionReader(hc *common.HasuraConnection, wg *sync.WaitGroup) {
 
 		if err != nil {
 			if errors.Is(err, context.Canceled) {
-				log.Debugf("Closing Hasura ws connection as Context was cancelled!")
+				hc.BrowserConn.Logger.Debugf("Closing Hasura ws connection as Context was cancelled!")
 			} else if errors.As(err, &closeError) {
 				hc.WebsocketCloseError = closeError
-				log.Debug("WebSocket connection closed: status = %v, reason = %s", closeError.Code, closeError.Reason)
+				hc.BrowserConn.Logger.Debug("WebSocket connection closed: status = %v, reason = %s", closeError.Code, closeError.Reason)
 				//TODO check if it should send {"type":"connection_error","payload":"Authentication hook unauthorized this request"}
 			} else {
 				if websocket.CloseStatus(err) == -1 {
@@ -46,17 +45,17 @@ func HasuraConnectionReader(hc *common.HasuraConnection, wg *sync.WaitGroup) {
 					}
 				}
 
-				log.Debugf("Error reading message from Hasura: %v", err)
+				hc.BrowserConn.Logger.Debugf("Error reading message from Hasura: %v", err)
 			}
 			return
 		}
 
 		if messageType != websocket.MessageText {
-			log.Warnf("received non-text message: %v", messageType)
+			hc.BrowserConn.Logger.Warnf("received non-text message: %v", messageType)
 			continue
 		}
 
-		log.Tracef("received from hasura: %s", string(message))
+		hc.BrowserConn.Logger.Tracef("received from hasura: %s", string(message))
 
 		handleMessageReceivedFromHasura(hc, message)
 	}
@@ -72,7 +71,7 @@ func handleMessageReceivedFromHasura(hc *common.HasuraConnection, message []byte
 	var hasuraMessageInfo HasuraMessageInfo
 	err := json.Unmarshal(message, &hasuraMessageInfo)
 	if err != nil {
-		log.Errorf("failed to unmarshal message: %v", err)
+		hc.BrowserConn.Logger.Errorf("failed to unmarshal message: %v", err)
 		return
 	}
 
@@ -85,7 +84,7 @@ func handleMessageReceivedFromHasura(hc *common.HasuraConnection, message []byte
 		subscription, ok := hc.BrowserConn.ActiveSubscriptions[hasuraMessageInfo.ID]
 		hc.BrowserConn.ActiveSubscriptionsMutex.RUnlock()
 		if !ok {
-			log.Debugf("Subscription with Id %s doesn't exist anymore, skipping response.", hasuraMessageInfo.ID)
+			hc.BrowserConn.Logger.Debugf("Subscription with Id %s doesn't exist anymore, skipping response.", hasuraMessageInfo.ID)
 			return
 		}
 
@@ -141,7 +140,7 @@ func handleMessageReceivedFromHasura(hc *common.HasuraConnection, message []byte
 }
 
 func handleSubscriptionMessage(hc *common.HasuraConnection, message *[]byte, subscription common.GraphQlSubscription, queryId string) bool {
-	dataChecksum, messageDataKey, messageData := getHasuraMessage(*message, subscription)
+	dataChecksum, messageDataKey, messageData := getHasuraMessage(*message, subscription, hc.BrowserConn.Logger)
 
 	//Check whether ReceivedData is different from the LastReceivedData
 	//Otherwise stop forwarding this message
@@ -189,11 +188,11 @@ func handleCompleteMessage(hc *common.HasuraConnection, queryId string) {
 	operationName := hc.BrowserConn.ActiveSubscriptions[queryId].OperationName
 	delete(hc.BrowserConn.ActiveSubscriptions, queryId)
 	hc.BrowserConn.ActiveSubscriptionsMutex.Unlock()
-	log.Debugf("%s (%s) with Id %s finished by Hasura.", queryType, operationName, queryId)
+	hc.BrowserConn.Logger.Debugf("%s (%s) with Id %s finished by Hasura.", queryType, operationName, queryId)
 }
 
 func handleConnectionAckMessage(hc *common.HasuraConnection, message []byte) {
-	log.Debugf("Received connection_ack")
+	hc.BrowserConn.Logger.Debugf("Received connection_ack")
 	//Hasura connection was initialized, now it's able to send new messages to Hasura
 	hc.BrowserConn.FromBrowserToHasuraChannel.UnfreezeChannel()
 
@@ -206,7 +205,7 @@ func handleConnectionAckMessage(hc *common.HasuraConnection, message []byte) {
 	go retransmiter.RetransmitSubscriptionStartMessages(hc)
 }
 
-func getHasuraMessage(message []byte, subscription common.GraphQlSubscription) (uint32, string, common.HasuraMessage) {
+func getHasuraMessage(message []byte, subscription common.GraphQlSubscription, logger *logrus.Entry) (uint32, string, common.HasuraMessage) {
 	dataChecksum := crc32.ChecksumIEEE(message)
 
 	common.GlobalCacheLocks.Lock(dataChecksum)
@@ -219,7 +218,7 @@ func getHasuraMessage(message []byte, subscription common.GraphQlSubscription) (
 
 	err := json.Unmarshal(message, &hasuraMessage)
 	if err != nil {
-		log.Fatalf("Error unmarshalling JSON: %v", err)
+		logger.Fatalf("Error unmarshalling JSON: %v", err)
 	}
 
 	for key := range hasuraMessage.Payload.Data {
