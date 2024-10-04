@@ -3,7 +3,7 @@
   "description": "BigBlueButton HTML5 Client",
   "license": "LGPL-3.0",
   "scripts": {
-    "start": "NODE_ENV=development webpack serve --open --config webpack.config.js",
+    "start": "NODE_ENV=development DETAILED_LOGS=true webpack serve --open --config webpack.config.js",
     "build": "NODE_ENV=production webpack --config webpack.config.js --mode production",
     "tscheck": "tsc",
     "lint": "eslint .",
@@ -41,6 +41,7 @@
     "@bigbluebutton/tldraw": "^2.0.0-alpha.25",
     "@browser-bunyan/console-formatted-stream": "^1.8.0",
     "@browser-bunyan/console-raw-stream": "^1.8.0",
+    "@browser-bunyan/levels": "^1.8.0",
     "@browser-bunyan/server-stream": "^1.8.0",
     "@emoji-mart/data": "^1.1.2",
     "@emoji-mart/react": "^1.1.1",
