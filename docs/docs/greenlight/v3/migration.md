@@ -187,3 +187,17 @@ To re-sync the list of recordings, run the following command **on the v3 machine
 ```bash 
 sudo docker exec -it greenlight-v3 bundle exec rake server_recordings_sync
 ```
+
+## Redirect old room urls (optional)
+
+If you want your old users to be able to access rooms via the old rool urls after deactivating greenlight-v2 then you can redirect those requests from /b/ to /rooms/ in order to avoid breaking user experience.
+
+`sudo nano /usr/share/bigbluebutton/nginx/greenlight-v3.nginx`
+```bash
+# Forward existing rooms from greenlight-v2 to greenlight-v3
+
+location /b/ {
+     rewrite ^/b/(.*)$ /rooms/$1 permanent;
+}
+```
+
