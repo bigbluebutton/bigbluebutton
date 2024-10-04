@@ -1,14 +1,21 @@
 package org.bigbluebutton.core.models
 
 import com.softwaremill.quicklens._
-import org.bigbluebutton.core.db.{UserBreakoutRoomDAO, UserDAO, UserDbModel, UserSessionTokenDAO}
+import org.bigbluebutton.core.db.{
+  UserBreakoutRoomDAO,
+  UserDAO,
+  UserDbModel,
+  UserSessionTokenDAO,
+  UserLivekitDAO
+}
 import org.bigbluebutton.core.domain.BreakoutRoom2x
 
 object RegisteredUsers {
   def create(meetingId: String, userId: String, extId: String, name: String, roles: String,
              authToken: String, sessionToken: Vector[String], avatar: String, webcamBackground: String, color: String, bot: Boolean,
              guest: Boolean, authenticated: Boolean, guestStatus: String, excludeFromDashboard: Boolean, enforceLayout: String, logoutUrl: String,
-             userMetadata: Map[String, String], loggedOut: Boolean): RegisteredUser = {
+             userMetadata: Map[String, String], loggedOut: Boolean,
+             livekitToken: Option[String] = None): RegisteredUser = {
     new RegisteredUser(
       userId,
       extId,
@@ -36,6 +43,7 @@ object RegisteredUsers {
       logoutUrl,
       userMetadata,
       loggedOut,
+      livekitToken = livekitToken
     )
   }
 
@@ -226,6 +234,12 @@ object RegisteredUsers {
     u
   }
 
+  def setLivekitToken(users: RegisteredUsers, user: RegisteredUser, token: String): RegisteredUser = {
+    val u = user.copy(livekitToken = Some(token))
+    users.save(u)
+    UserLivekitDAO.insert(u.meetingId, u.id, token)
+    u
+  }
 }
 
 class RegisteredUsers {
@@ -275,5 +289,6 @@ case class RegisteredUser(
     userMetadata:         Map[String,String],
     loggedOut:                Boolean,
     lastBreakoutRoom:         BreakoutRoom2x = null,
+    livekitToken:             Option[String] = None,
 )
 

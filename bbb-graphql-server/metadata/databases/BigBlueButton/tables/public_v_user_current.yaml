@@ -34,6 +34,15 @@ object_relationships:
         remote_table:
           name: v_user_breakoutRoom
           schema: public
+  - name: livekit
+    using:
+      manual_configuration:
+        column_mapping:
+          userId: userId
+        insertion_order: null
+        remote_table:
+          name: v_user_livekit
+          schema: public
   - name: meeting
     using:
       manual_configuration:

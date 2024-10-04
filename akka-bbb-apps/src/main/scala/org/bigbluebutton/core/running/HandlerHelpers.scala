@@ -346,4 +346,48 @@ trait HandlerHelpers extends SystemConfiguration {
     BbbCommonEnvCoreMsg(envelope, event)
   }
 
+  def buildLiveKitTokenGrant(
+      room: String,
+      canPublish: Boolean,
+      canSubscribe: Boolean,
+      agent: Boolean = false,
+      canPublishData: Boolean = false,
+      canPublishSources: List[TrackSource] = List(),
+      canUpdateOwnMetadata: Boolean = false,
+      hidden: Boolean = false,
+      ingressAdmin: Boolean = false,
+      recorder: Boolean = false,
+      roomAdmin: Boolean = false,
+      roomCreate: Boolean = false,
+      roomJoin: Boolean = true,
+      roomList: Boolean = false,
+      roomRecord: Boolean = false
+  ): LiveKitGrant = {
+    LiveKitGrant(
+      agent = agent,
+      canPublish = canPublish,
+      canPublishData = canPublishData,
+      canPublishSources = canPublishSources,
+      canSubscribe = canSubscribe,
+      canUpdateOwnMetadata = canUpdateOwnMetadata,
+      hidden = hidden,
+      ingressAdmin = ingressAdmin,
+      recorder = recorder,
+      room = room,
+      roomAdmin = roomAdmin,
+      roomCreate = roomCreate,
+      roomJoin = roomJoin,
+      roomList = roomList,
+      roomRecord = roomRecord,
+    )
+  }
+
+  def buildLiveKitParticipantMetadata(
+    liveMeeting: LiveMeeting,
+  ): LiveKitParticipantMetadata = {
+    LiveKitParticipantMetadata(
+      meetingId = liveMeeting.props.meetingProp.intId,
+      voiceConf = liveMeeting.props.voiceProp.voiceConf
+    )
+  }
 }

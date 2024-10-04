@@ -220,6 +220,10 @@ class ReceivedJsonMsgHandlerActor(
       case ListenOnlyModeToggledInSfuEvtMsg.NAME =>
         routeVoiceMsg[ListenOnlyModeToggledInSfuEvtMsg](envelope, jsonNode)
 
+      // RTC
+      case GenerateLiveKitTokenRespMsg.NAME =>
+        routeGenericMsg[GenerateLiveKitTokenRespMsg](envelope, jsonNode)
+
       // Breakout rooms
       case BreakoutRoomsListMsg.NAME =>
         routeGenericMsg[BreakoutRoomsListMsg](envelope, jsonNode)
