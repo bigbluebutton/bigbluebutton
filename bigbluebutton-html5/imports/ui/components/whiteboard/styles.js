@@ -112,6 +112,7 @@ const TldrawV2GlobalStyle = createGlobalStyle`
   [data-testid="tools.more.laser"],
   [data-testid="tools.asset"],
   [data-testid="page-menu.button"],
+  [data-testid="menu-item.zoom-to-100"],
   .tlui-menu-zone {
     display: none !important;
   }
