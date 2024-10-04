@@ -100,6 +100,7 @@ const ChatMesssage: React.FC<ChatMessageProps> = ({
     isModerator: c?.isModerator,
     userLockSettings: c?.userLockSettings,
     locked: c?.locked,
+    userId: c.userId,
   }));
   const { data: chat } = useChat((c: Partial<Chat>) => ({
     participant: c?.participant,
@@ -115,6 +116,7 @@ const ChatMesssage: React.FC<ChatMessageProps> = ({
   const messageContentRef = React.createRef<HTMLDivElement>();
   const [reactions, setReactions] = React.useState<{ id: string, native: string }[]>([]);
   const [editing, setEditing] = React.useState(false);
+  const [isToolbarMenuOpen, setIsToolbarMenuOpen] = React.useState(false);
   const chatFocusMessageRequest = useStorageKey(ChatEvents.CHAT_FOCUS_MESSAGE_REQUEST, STORAGES.IN_MEMORY);
   const containerRef = React.useRef<HTMLDivElement>(null);
   const animationInitialTimestamp = React.useRef(0);
@@ -371,12 +373,15 @@ const ChatMesssage: React.FC<ChatMessageProps> = ({
         isPresentationUpload={messageContent.isPresentationUpload}
         isCustomPluginMessage={isCustomPluginMessage}
         $highlight={hasToolbar}
+        $toolbarMenuIsOpen={isToolbarMenuOpen}
       >
         {hasToolbar && (
           <ChatMessageToolbar
             messageId={message.messageId}
             chatId={message.chatId}
             username={message.user.name}
+            own={message.user.userId === currentUser?.userId}
+            amIModerator={Boolean(currentUser?.isModerator)}
             message={message.message}
             messageSequence={message.messageSequence}
             emphasizedMessage={message.chatEmphasizedText}
@@ -391,6 +396,8 @@ const ChatMesssage: React.FC<ChatMessageProps> = ({
             onEditRequest={() => {
               setEditing(true);
             }}
+            onMenuOpenChange={setIsToolbarMenuOpen}
+            menuIsOpen={isToolbarMenuOpen}
           />
         )}
         <ChatMessageReactions reactions={reactions} />
@@ -419,6 +426,7 @@ const ChatMesssage: React.FC<ChatMessageProps> = ({
           isCustomPluginMessage={isCustomPluginMessage}
           data-chat-message-id={message?.messageId}
           $highlight={hasToolbar}
+          $toolbarMenuIsOpen={isToolbarMenuOpen}
         >
           {message.messageType !== ChatMessageType.CHAT_CLEAR
           && !isCustomPluginMessage

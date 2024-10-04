@@ -35,16 +35,21 @@ interface ChatMessageToolbarProps {
   messageId: string;
   chatId: string;
   username: string;
+  own: boolean;
+  amIModerator: boolean;
   message: string;
   messageSequence: number;
   emphasizedMessage: boolean;
   onEmojiSelected(emoji: { id: string; native: string }): void;
   onEditRequest(): void;
+  onMenuOpenChange(open: boolean): void;
+  menuIsOpen: boolean;
 }
 
 const ChatMessageToolbar: React.FC<ChatMessageToolbarProps> = (props) => {
   const {
-    messageId, chatId, message, username, onEmojiSelected, messageSequence, emphasizedMessage, onEditRequest,
+    messageId, chatId, message, username, onEmojiSelected, onMenuOpenChange,
+    messageSequence, emphasizedMessage, onEditRequest, own, amIModerator, menuIsOpen,
   } = props;
   const [reactionsAnchor, setReactionsAnchor] = React.useState<Element | null>(
     null,
@@ -60,7 +65,7 @@ const ChatMessageToolbar: React.FC<ChatMessageToolbarProps> = (props) => {
   const CHAT_DELETE_ENABLED = CHAT_TOOLBAR_CONFIG.includes('delete');
   const actions = [];
 
-  if (CHAT_EDIT_ENABLED) {
+  if (CHAT_EDIT_ENABLED && own) {
     actions.push({
       key: 'edit',
       icon: 'pen_tool',
@@ -80,7 +85,7 @@ const ChatMessageToolbar: React.FC<ChatMessageToolbarProps> = (props) => {
     });
   }
 
-  if (CHAT_DELETE_ENABLED) {
+  if (CHAT_DELETE_ENABLED && (own || amIModerator)) {
     const customStyles = { background: colorDanger, color: colorWhite };
     actions.push({
       key: 'delete',
@@ -103,7 +108,7 @@ const ChatMessageToolbar: React.FC<ChatMessageToolbarProps> = (props) => {
   if (!CHAT_TOOLBAR_CONFIG.length) return null;
 
   return (
-    <Container className="chat-message-toolbar" $sequence={messageSequence}>
+    <Container className="chat-message-toolbar" $sequence={messageSequence} $menuIsOpen={menuIsOpen}>
       {CHAT_REPLIES_ENABLED && (
         <>
           <Button
@@ -155,7 +160,9 @@ const ChatMessageToolbar: React.FC<ChatMessageToolbarProps> = (props) => {
         <BBBMenu
           trigger={(
             <Button
-              onClick={() => null}
+              onClick={() => {
+                onMenuOpenChange(true);
+              }}
               size="sm"
               icon="more"
               color="light"
@@ -165,6 +172,9 @@ const ChatMessageToolbar: React.FC<ChatMessageToolbarProps> = (props) => {
             />
           )}
           actions={actions}
+          onCloseCallback={() => {
+            onMenuOpenChange(false);
+          }}
           opts={{
             id: 'app-settings-dropdown-menu',
             keepMounted: true,
