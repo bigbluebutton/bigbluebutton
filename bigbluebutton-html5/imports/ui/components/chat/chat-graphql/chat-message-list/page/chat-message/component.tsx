@@ -496,7 +496,8 @@ function areChatMessagesEqual(prevProps: ChatMessageProps, nextProps: ChatMessag
   const nextMessage = nextProps?.message;
   return prevMessage?.createdAt === nextMessage?.createdAt
     && prevMessage?.user?.currentlyInMeeting === nextMessage?.user?.currentlyInMeeting
-    && prevMessage?.recipientHasSeen === nextMessage.recipientHasSeen;
+    && prevMessage?.recipientHasSeen === nextMessage.recipientHasSeen
+    && prevMessage?.message === nextMessage.message;
 }
 
 export default memo(ChatMesssage, areChatMessagesEqual);
