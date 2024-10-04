@@ -14,6 +14,7 @@ trait DeleteGroupChatMessageReactionReqMsgHdlr extends HandlerHelpers {
 
   def handle(msg: DeleteGroupChatMessageReactionReqMsg, state: MeetingState2x, liveMeeting: LiveMeeting, bus: MessageBus): Unit = {
     val chatDisabled: Boolean = liveMeeting.props.meetingProp.disabledFeatures.contains("chat")
+    val chatMessageReactionsDisabled: Boolean = liveMeeting.props.meetingProp.disabledFeatures.contains("chatMessageReactions")
     var chatLocked: Boolean = false
     var chatLockedForUser: Boolean = false
 
@@ -43,7 +44,7 @@ trait DeleteGroupChatMessageReactionReqMsgHdlr extends HandlerHelpers {
         }
       }
 
-      if (!chatDisabled && !(applyPermissionCheck && chatLocked) && !chatLockedForUser) {
+      if (!chatDisabled && !chatMessageReactionsDisabled && !(applyPermissionCheck && chatLocked) && !chatLockedForUser) {
         for {
           gcMessage <- groupChat.msgs.find(gcm => gcm.id == msg.body.messageId)
         } yield {
