@@ -33,6 +33,7 @@ cp bbb-graphql-client-settings-cache.conf staging/etc/nginx/conf.d
 
 # Create config file
 cp config/config.yml staging/usr/share/bbb-graphql-middleware/config.yml
+chmod a+r staging/usr/share/bbb-graphql-middleware/config.yml
 
 cp bbb-graphql-middleware.service staging/lib/systemd/system/bbb-graphql-middleware.service
 
