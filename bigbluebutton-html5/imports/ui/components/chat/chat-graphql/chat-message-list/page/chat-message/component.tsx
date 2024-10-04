@@ -1,4 +1,9 @@
-import React, { useCallback, useEffect, useMemo } from 'react';
+import React, {
+  memo,
+  useCallback,
+  useEffect,
+  useMemo,
+} from 'react';
 import { UpdatedEventDetailsForChatMessageDomElements } from 'bigbluebutton-html-plugin-sdk/dist/cjs/dom-element-manipulation/chat/message/types';
 import { Message } from '/imports/ui/Types/message';
 import { defineMessages, useIntl } from 'react-intl';
@@ -486,4 +491,12 @@ const ChatMesssage: React.FC<ChatMessageProps> = ({
   );
 };
 
-export default ChatMesssage;
+function areChatMessagesEqual(prevProps: ChatMessageProps, nextProps: ChatMessageProps) {
+  const prevMessage = prevProps?.message;
+  const nextMessage = nextProps?.message;
+  return prevMessage?.createdAt === nextMessage?.createdAt
+    && prevMessage?.user?.currentlyInMeeting === nextMessage?.user?.currentlyInMeeting
+    && prevMessage?.recipientHasSeen === nextMessage.recipientHasSeen;
+}
+
+export default memo(ChatMesssage, areChatMessagesEqual);

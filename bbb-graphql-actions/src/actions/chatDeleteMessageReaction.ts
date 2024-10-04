@@ -1,16 +1,16 @@
 import { RedisMessage } from '../types';
-import {throwErrorIfInvalidInput, throwErrorIfNotModerator, throwErrorIfNotPresenter} from "../imports/validation";
+import {throwErrorIfInvalidInput} from "../imports/validation";
 
 export default function buildRedisMessage(sessionVariables: Record<string, unknown>, input: Record<string, unknown>): RedisMessage {
-  throwErrorIfNotPresenter(sessionVariables);
   throwErrorIfInvalidInput(input,
       [
-        {name: 'streamId', type: 'string', required: true},
-        {name: 'focused', type: 'boolean', required: true},
+        {name: 'chatId', type: 'string', required: true},
+        {name: 'messageId', type: 'string', required: true},
+        {name: 'reactionEmoji', type: 'string', required: true},
       ]
   )
 
-  const eventName = `SetCamFocusStateReqMsg`;
+  const eventName = `DeleteGroupChatMessageReactionReqMsg`;
   const routing = {
     meetingId: sessionVariables['x-hasura-meetingid'] as String,
     userId: sessionVariables['x-hasura-userid'] as String
@@ -23,9 +23,9 @@ export default function buildRedisMessage(sessionVariables: Record<string, unkno
   };
 
   const body = {
-    setBy: routing.userId,
-    streamId: input.streamId,
-    focused: input.focused
+    chatId: input.chatId,
+    messageId: input.messageId,
+    reactionEmoji: input.reactionEmoji,
   };
 
   return { eventName, routing, header, body };

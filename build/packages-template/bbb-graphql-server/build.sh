@@ -30,6 +30,7 @@ cp -r hasura-graphql staging/usr/local/bin/hasura-graphql-engine
 
 cp -r hasura-config.env staging/etc/default/bbb-graphql-server
 cp -r bbb_schema.sql metadata config.yaml staging/usr/share/bbb-graphql-server
+chmod -R a+rX staging/usr/share/bbb-graphql-server
 
 #Copy BBB configs for Postgres
 mkdir -p staging/etc/postgresql/16/main/conf.d

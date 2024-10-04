@@ -20,10 +20,10 @@ object GroupChatApp {
     GroupChatFactory.create(gcId, access, createBy, users, msgs)
   }
 
-  def toGroupChatMessage(sender: GroupChatUser, msg: GroupChatMsgFromUser, emphasizedText: Boolean, metadata: Map[String, Any] = Map.empty): GroupChatMessage = {
+  def toGroupChatMessage(sender: GroupChatUser, msg: GroupChatMsgFromUser, emphasizedText: Boolean): GroupChatMessage = {
     val now = System.currentTimeMillis()
     val id = GroupChatFactory.genId()
-    GroupChatMessage(id, now, msg.correlationId, now, now, sender, emphasizedText, msg.message, msg.replyToMessageId, metadata)
+    GroupChatMessage(id, now, msg.correlationId, now, now, sender, emphasizedText, msg.message, msg.replyToMessageId, msg.metadata)
   }
 
   def toMessageToUser(msg: GroupChatMessage): GroupChatMsgToUser = {

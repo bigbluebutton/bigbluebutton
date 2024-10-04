@@ -187,8 +187,15 @@ case class CamStreamSubscribedInSfuEvtMsgBody(
 )
 
 /**
- * Sent from client to change the video focus state (used to send screenshare to presentation area).
+ * Sent from client to change the video showAsContent (used to send screenshare to presentation area).
  */
-object SetCamFocusStateReqMsg { val NAME = "SetCamFocusStateReqMsg" }
-case class SetCamFocusStateReqMsg(header: BbbClientMsgHeader, body: SetCamFocusStateReqMsgBody) extends StandardMsg
-case class SetCamFocusStateReqMsgBody(streamId: String, focused: Boolean, setBy: String)
+object SetCamShowAsContentReqMsg { val NAME = "SetCamShowAsContentReqMsg" }
+case class SetCamShowAsContentReqMsg(header: BbbClientMsgHeader, body: SetCamShowAsContentReqMsgBody) extends StandardMsg
+case class SetCamShowAsContentReqMsgBody(streamId: String, showAsContent: Boolean, setBy: String)
+
+object SetCamShowAsContentEvtMsg { val NAME = "SetCamShowAsContentEvtMsg" }
+case class SetCamShowAsContentEvtMsg(
+    header: BbbClientMsgHeader,
+    body:   SetCamShowAsContentEvtMsgBody
+) extends BbbCoreMsg
+case class SetCamShowAsContentEvtMsgBody(streamId: String, showAsContent: Boolean, setBy: String)

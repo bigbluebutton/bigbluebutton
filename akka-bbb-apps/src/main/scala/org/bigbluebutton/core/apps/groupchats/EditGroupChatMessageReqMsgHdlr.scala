@@ -13,6 +13,7 @@ trait EditGroupChatMessageReqMsgHdlr extends HandlerHelpers {
 
   def handle(msg: EditGroupChatMessageReqMsg, state: MeetingState2x, liveMeeting: LiveMeeting, bus: MessageBus): MeetingState2x = {
     val chatDisabled: Boolean = liveMeeting.props.meetingProp.disabledFeatures.contains("chat")
+    val editChatMessageDisabled: Boolean = liveMeeting.props.meetingProp.disabledFeatures.contains("editChatMessage")
     var chatLocked: Boolean = false
     var chatLockedForUser: Boolean = false
 
@@ -44,7 +45,7 @@ trait EditGroupChatMessageReqMsgHdlr extends HandlerHelpers {
         }
       }
 
-      if (!chatDisabled && !(applyPermissionCheck && chatLocked) && !chatLockedForUser) {
+      if (!chatDisabled && editChatMessageDisabled && !(applyPermissionCheck && chatLocked) && !chatLockedForUser) {
         for {
           gcMessage <- groupChat.msgs.find(gcm => gcm.id == msg.body.messageId)
         } yield {
