@@ -346,22 +346,28 @@ trait HandlerHelpers extends SystemConfiguration {
     BbbCommonEnvCoreMsg(envelope, event)
   }
 
+  def isUsingLiveKit(liveMeeting: LiveMeeting): Boolean = {
+    liveMeeting.props.meetingProp.audioBridge == "livekit" ||
+    liveMeeting.props.meetingProp.cameraBridge == "livekit" ||
+    liveMeeting.props.meetingProp.screenShareBridge == "livekit"
+  }
+
   def buildLiveKitTokenGrant(
-      room: String,
-      canPublish: Boolean,
-      canSubscribe: Boolean,
-      agent: Boolean = false,
-      canPublishData: Boolean = false,
-      canPublishSources: List[TrackSource] = List(),
-      canUpdateOwnMetadata: Boolean = false,
-      hidden: Boolean = false,
-      ingressAdmin: Boolean = false,
-      recorder: Boolean = false,
-      roomAdmin: Boolean = false,
-      roomCreate: Boolean = false,
-      roomJoin: Boolean = true,
-      roomList: Boolean = false,
-      roomRecord: Boolean = false
+    room: String,
+    canPublish: Boolean,
+    canSubscribe: Boolean,
+    agent: Boolean = false,
+    canPublishData: Boolean = false,
+    canPublishSources: List[TrackSource] = List(),
+    canUpdateOwnMetadata: Boolean = false,
+    hidden: Boolean = false,
+    ingressAdmin: Boolean = false,
+    recorder: Boolean = false,
+    roomAdmin: Boolean = false,
+    roomCreate: Boolean = false,
+    roomJoin: Boolean = true,
+    roomList: Boolean = false,
+    roomRecord: Boolean = false
   ): LiveKitGrant = {
     LiveKitGrant(
       agent = agent,

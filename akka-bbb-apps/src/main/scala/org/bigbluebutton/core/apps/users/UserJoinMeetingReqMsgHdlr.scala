@@ -152,21 +152,23 @@ trait UserJoinMeetingReqMsgHdlr extends HandlerHelpers {
   }
 
   private def generateLivekitToken(regUser: RegisteredUser, liveMeeting: LiveMeeting) = {
-    val grant = buildLiveKitTokenGrant(
-      room = liveMeeting.props.meetingProp.intId,
-      canPublish = true,
-      canSubscribe = true,
-    )
-    val metadata = buildLiveKitParticipantMetadata(liveMeeting)
+    if (isUsingLiveKit(liveMeeting)) {
+      val grant = buildLiveKitTokenGrant(
+        room = liveMeeting.props.meetingProp.intId,
+        canPublish = true,
+        canSubscribe = true,
+        )
+      val metadata = buildLiveKitParticipantMetadata(liveMeeting)
 
-    val generateLiveKitTokenReqMsg = MsgBuilder.buildGenerateLiveKitTokenReqMsg(
-      liveMeeting.props.meetingProp.intId,
-      regUser.id,
-      regUser.name,
-      grant,
-      metadata
-    )
-    outGW.send(generateLiveKitTokenReqMsg)
+      val generateLiveKitTokenReqMsg = MsgBuilder.buildGenerateLiveKitTokenReqMsg(
+        liveMeeting.props.meetingProp.intId,
+        regUser.id,
+        regUser.name,
+        grant,
+        metadata
+      )
+      outGW.send(generateLiveKitTokenReqMsg)
+    }
   }
 
   private def clearCachedVoiceUser(regUser: RegisteredUser) =
