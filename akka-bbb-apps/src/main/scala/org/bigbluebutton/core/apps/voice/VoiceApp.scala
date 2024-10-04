@@ -384,6 +384,7 @@ object VoiceApp extends SystemConfiguration {
         val event = MsgBuilder.buildMuteUserInVoiceConfSysMsg(
           liveMeeting.props.meetingProp.intId,
           voiceConf,
+          intId,
           voiceUserId,
           true
         )
@@ -505,6 +506,7 @@ object VoiceApp extends SystemConfiguration {
   def toggleUserAudioInVoiceConf(
     liveMeeting: LiveMeeting,
     outGW:       OutMsgRouter,
+    intId:       String,
     voiceUserId: String,
     enabled: Boolean
   ): Unit = {
@@ -536,6 +538,7 @@ object VoiceApp extends SystemConfiguration {
     val muteEvent = MsgBuilder.buildMuteUserInVoiceConfSysMsg(
       liveMeeting.props.meetingProp.intId,
       liveMeeting.props.voiceProp.voiceConf,
+      intId,
       voiceUserId,
       !enabled
     )
@@ -707,6 +710,7 @@ object VoiceApp extends SystemConfiguration {
           val muteEvent = MsgBuilder.buildMuteUserInVoiceConfSysMsg(
             liveMeeting.props.meetingProp.intId,
             liveMeeting.props.voiceProp.voiceConf,
+            u.intId,
             u.voiceUserId,
             muted
           )
@@ -733,5 +737,31 @@ object VoiceApp extends SystemConfiguration {
           outGW.send(muteEvent)
         }
       }
+  }
+
+  def handleUserTalking(
+    liveMeeting: LiveMeeting,
+    outGW:       OutMsgRouter,
+    voiceUserId: String,
+    talking:     Boolean
+  )(implicit context: ActorContext): Unit = {
+    for {
+      talkingUser <- VoiceUsers.userTalking(liveMeeting.voiceUsers, voiceUserId, talking)
+    } yield {
+      // Make sure lock settings are in effect
+      LockSettingsUtil.enforceLockSettingsForVoiceUser(
+        talkingUser,
+        liveMeeting,
+        outGW
+      )
+      val event = MsgBuilder.buildUserTalkingVoiceEvtMsg(
+        liveMeeting.props.meetingProp.intId,
+        liveMeeting.props.voiceProp.voiceConf,
+        talkingUser.intId,
+        talkingUser.voiceUserId,
+        talking
+      )
+      outGW.send(event)
+    }
   }
 }

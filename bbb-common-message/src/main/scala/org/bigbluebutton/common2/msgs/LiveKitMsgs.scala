@@ -96,3 +96,12 @@ case class GenerateLiveKitTokenRespMsgBody(
     token: String,
     grant: LiveKitGrant,
 )
+
+object LiveKitParticipantLeftEvtMsg { val NAME = "LiveKitParticipantLeftEvtMsg" }
+case class LiveKitParticipantLeftEvtMsg(
+    header: BbbClientMsgHeader,
+    body:   LiveKitParticipantLeftEvtMsgBody
+) extends StandardMsg
+case class LiveKitParticipantLeftEvtMsgBody(
+    userId: String,
+)

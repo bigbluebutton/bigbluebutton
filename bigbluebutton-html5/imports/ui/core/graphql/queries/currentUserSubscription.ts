@@ -74,6 +74,9 @@ subscription userCurrentSubscription {
     userLockSettings {
       disablePublicChat
     }
+    livekit {
+      livekitToken
+    }
   }
 }
 `;

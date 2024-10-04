@@ -187,6 +187,8 @@ class ReceivedJsonMsgHandlerActor(
         routeVoiceMsg[UserMutedInVoiceConfEvtMsg](envelope, jsonNode)
       case UserTalkingInVoiceConfEvtMsg.NAME =>
         routeVoiceMsg[UserTalkingInVoiceConfEvtMsg](envelope, jsonNode)
+      case SetUserTalkingReqMsg.NAME =>
+        routeGenericMsg[SetUserTalkingReqMsg](envelope, jsonNode)
       case MuteUserCmdMsg.NAME =>
         routeGenericMsg[MuteUserCmdMsg](envelope, jsonNode)
       case MuteAllExceptPresentersCmdMsg.NAME =>
@@ -220,9 +222,11 @@ class ReceivedJsonMsgHandlerActor(
       case ListenOnlyModeToggledInSfuEvtMsg.NAME =>
         routeVoiceMsg[ListenOnlyModeToggledInSfuEvtMsg](envelope, jsonNode)
 
-      // RTC
+      // LiveKit/RTC
       case GenerateLiveKitTokenRespMsg.NAME =>
         routeGenericMsg[GenerateLiveKitTokenRespMsg](envelope, jsonNode)
+      case LiveKitParticipantLeftEvtMsg.NAME =>
+        routeGenericMsg[LiveKitParticipantLeftEvtMsg](envelope, jsonNode)
 
       // Breakout rooms
       case BreakoutRoomsListMsg.NAME =>
