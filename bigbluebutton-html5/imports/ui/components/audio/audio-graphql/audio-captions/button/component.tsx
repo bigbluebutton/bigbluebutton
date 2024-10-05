@@ -20,7 +20,7 @@ import AudioCaptionsService from '/imports/ui/components/audio/audio-graphql/aud
 import useDeduplicatedSubscription from '/imports/ui/core/hooks/useDeduplicatedSubscription';
 import { TRANSCRIPTION_LOCALE } from '/imports/ui/components/audio/audio-graphql/audio-captions/transcriptionLocale';
 
-let messages = {
+const messages = {
   start: {
     id: 'app.audio.captions.button.start',
     description: 'Start audio captions',
