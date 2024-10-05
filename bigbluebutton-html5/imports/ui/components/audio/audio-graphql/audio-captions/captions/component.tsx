@@ -15,7 +15,7 @@ import { SET_SPEECH_LOCALE } from '/imports/ui/core/graphql/mutations/userMutati
 import Styled from './styles';
 import { TRANSCRIPTION_LOCALE } from '/imports/ui/components/audio/audio-graphql/audio-captions/transcriptionLocale';
 
-let messages = {
+const messages = {
   title: {
     id: 'app.audio.captions.speech.title',
     description: 'Audio speech recognition title',
