@@ -336,6 +336,8 @@
     "app.presentationUploder.conversion.204": "内容が読み取れませんでした",
     "app.presentationUploder.upload.413": "ファイルが大きすぎます。最大サイズは {0} MBです。",
     "app.presentationUploder.genericError": "申し訳ありませんが、何か問題があるようです。",
+    "app.presentationUploder.upload.fileVirus": "アップロード失敗：ウィルスが見つかりました！ファイルを確認の上、もう一度やってみてください。",
+    "app.presentationUploder.upload.scanFailed": "アップロード失敗：ファイルを検査できませんでした",
     "app.presentationUploder.upload.408": "アップロード許可の要求が時間切れになりました。",
     "app.presentationUploder.upload.404": "エラー404：無効なアップロード許可",
     "app.presentationUploder.upload.401": "アップロード許可の要求に失敗しました。",
