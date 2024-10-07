@@ -106,6 +106,10 @@ const TldrawV2GlobalStyle = createGlobalStyle`
     }
   `}
 
+  [data-testid="menu-item.toggle-lock"],
+  [data-testid="menu-item.modify"],
+  [data-testid="menu-item.edit-link"],
+  [data-testid="menu-item.conversions"],
   .tlui-helper-buttons,
   [data-testid="main.page-menu"],
   [data-testid="main.menu"],

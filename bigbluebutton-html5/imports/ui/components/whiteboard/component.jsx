@@ -679,7 +679,7 @@ const Whiteboard = React.memo((props) => {
 
           if (!isEqual(prev.hoveredShapeId, next.hoveredShapeId)) {
             const hoveredShapeOwner = prevShapesRef.current[next.hoveredShapeId]?.meta?.createdBy;
-            if (hoveredShapeOwner !== currentUser?.userId) {
+            if (hoveredShapeOwner !== currentUser?.userId || next.hoveredShapeId?.includes('shape:BG-')) {
               newNext.hoveredShapeId = null;
             }
           }
