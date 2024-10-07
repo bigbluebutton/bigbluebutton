@@ -22,7 +22,6 @@ const propTypes = {
   fullscreenRef: PropTypes.instanceOf(Element),
   dark: PropTypes.bool,
   bottom: PropTypes.bool,
-  isIphone: PropTypes.bool,
   isFullscreen: PropTypes.bool,
   elementName: PropTypes.string,
   handleToggleFullScreen: PropTypes.func.isRequired,
@@ -37,7 +36,6 @@ const FullscreenButtonComponent = ({
   elementName = '',
   elementId,
   elementGroup,
-  isIphone = false,
   isFullscreen = false,
   layoutContextDispatch,
   currentElement,
@@ -47,8 +45,6 @@ const FullscreenButtonComponent = ({
   fullscreenRef = null,
   handleToggleFullScreen,
 }) => {
-  if (isIphone) return null;
-
   const formattedLabel = (fullscreen) => (fullscreen
     ? intl.formatMessage(
       intlMessages.fullscreenUndoButton,
