@@ -364,7 +364,6 @@ class Presentation extends PureComponent {
 
     if (!userIsPresenter && prevProps.userIsPresenter && fitToWidth) {
       setPresentationFitToWidth(false);
-      // this.setState({ zoom: HUNDRED_PERCENT });
     }
   }
 

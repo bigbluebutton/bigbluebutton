@@ -1465,6 +1465,7 @@ const Whiteboard = React.memo((props) => {
     }
   }, [
     isMountedRef.current,
+    tlEditor,
     presentationId,
     curPageId,
     isMultiUserActive,
