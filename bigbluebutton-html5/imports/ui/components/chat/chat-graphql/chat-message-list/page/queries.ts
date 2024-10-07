@@ -25,6 +25,14 @@ export const CHAT_MESSAGE_PUBLIC_SUBSCRIPTION = gql`
           color
         }
       }
+      reactions {
+        createdAt
+        reactionEmoji
+        user {
+          name
+          userId
+        }
+      }
       messageType
       chatEmphasizedText
       chatId
@@ -71,6 +79,14 @@ export const CHAT_MESSAGE_PRIVATE_SUBSCRIPTION = gql`
         user {
           name
           color
+        }
+      }
+      reactions {
+        createdAt
+        reactionEmoji
+        user {
+          name
+          userId
         }
       }
       chatId

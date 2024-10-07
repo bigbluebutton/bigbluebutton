@@ -35,4 +35,12 @@ export interface Message {
       color: string;
     };
   } | null;
+  reactions: {
+    createdAt: string;
+    reactionEmoji: string;
+    user: {
+      name: string;
+      userId: string;
+    }
+  }[];
 }

@@ -50,12 +50,15 @@ interface ChatMessageToolbarProps {
   onEditRequest(): void;
   onMenuOpenChange(open: boolean): void;
   menuIsOpen: boolean;
+  onReactionPopoverOpenChange(open: boolean): void;
+  reactionPopoverIsOpen: boolean;
 }
 
 const ChatMessageToolbar: React.FC<ChatMessageToolbarProps> = (props) => {
   const {
     messageId, chatId, message, username, onEmojiSelected, onMenuOpenChange,
     messageSequence, emphasizedMessage, onEditRequest, own, amIModerator, menuIsOpen,
+    onReactionPopoverOpenChange, reactionPopoverIsOpen,
   } = props;
   const [reactionsAnchor, setReactionsAnchor] = React.useState<Element | null>(
     null,
@@ -118,7 +121,12 @@ const ChatMessageToolbar: React.FC<ChatMessageToolbarProps> = (props) => {
   ].every((config) => !config)) return null;
 
   return (
-    <Container className="chat-message-toolbar" $sequence={messageSequence} $menuIsOpen={menuIsOpen}>
+    <Container
+      className="chat-message-toolbar"
+      $sequence={messageSequence}
+      $menuIsOpen={menuIsOpen}
+      $reactionPopoverIsOpen={reactionPopoverIsOpen}
+    >
       {CHAT_REPLIES_ENABLED && (
         <>
           <Button
@@ -154,8 +162,9 @@ const ChatMessageToolbar: React.FC<ChatMessageToolbarProps> = (props) => {
         <EmojiButton
           onClick={(e: React.MouseEvent<HTMLButtonElement, MouseEvent>) => {
             e.stopPropagation();
-            setReactionsAnchor(e.currentTarget);
+            onReactionPopoverOpenChange(true);
           }}
+          setRef={setReactionsAnchor}
           size="sm"
           icon="happy"
           color="light"
@@ -204,10 +213,11 @@ const ChatMessageToolbar: React.FC<ChatMessageToolbarProps> = (props) => {
         />
       )}
       <Popover
-        open={Boolean(reactionsAnchor)}
+        open={reactionPopoverIsOpen}
         anchorEl={reactionsAnchor}
         onClose={() => {
           setReactionsAnchor(null);
+          onReactionPopoverOpenChange(false);
         }}
         anchorOrigin={{
           vertical: 'top',

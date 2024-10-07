@@ -51,6 +51,7 @@ const areChatPagesEqual = (prevProps: ChatListPageProps, nextProps: ChatListPage
       && prevMessage?.user?.currentlyInMeeting === nextMessage?.user?.currentlyInMeeting
       && prevMessage?.recipientHasSeen === nextMessage?.recipientHasSeen
       && prevMessage?.message === nextMessage?.message
+      && prevMessage?.reactions?.length === nextMessage?.reactions?.length
     );
   });
 };
