@@ -12,6 +12,12 @@ import {
   EmojiPickerWrapper,
   EmojiButton,
 } from './styles';
+import {
+  useIsChatMessageReactionsEnabled,
+  useIsDeleteChatMessageEnabled,
+  useIsEditChatMessageEnabled,
+  useIsReplyChatMessageEnabled,
+} from '/imports/ui/services/features';
 
 const intlMessages = defineMessages({
   reply: {
@@ -39,11 +45,10 @@ const ChatMessageToolbar: React.FC<ChatMessageToolbarProps> = (props) => {
   );
   const intl = useIntl();
   const isRTL = layoutSelect((i: Layout) => i.isRTL);
-  const CHAT_TOOLBAR_CONFIG = window.meetingClientSettings.public.chat.toolbar;
-  const CHAT_REPLIES_ENABLED = CHAT_TOOLBAR_CONFIG.includes('reply');
-  const CHAT_REACTIONS_ENABLED = CHAT_TOOLBAR_CONFIG.includes('reactions');
-  const CHAT_EDIT_ENABLED = CHAT_TOOLBAR_CONFIG.includes('edit');
-  const CHAT_DELETE_ENABLED = CHAT_TOOLBAR_CONFIG.includes('delete');
+  const CHAT_REPLIES_ENABLED = useIsReplyChatMessageEnabled();
+  const CHAT_REACTIONS_ENABLED = useIsChatMessageReactionsEnabled();
+  const CHAT_EDIT_ENABLED = useIsEditChatMessageEnabled();
+  const CHAT_DELETE_ENABLED = useIsDeleteChatMessageEnabled();
   const actions = [];
 
   if (CHAT_EDIT_ENABLED) {
@@ -64,7 +69,12 @@ const ChatMessageToolbar: React.FC<ChatMessageToolbarProps> = (props) => {
     });
   }
 
-  if (!CHAT_TOOLBAR_CONFIG.length) return null;
+  if ([
+    CHAT_REPLIES_ENABLED,
+    CHAT_REACTIONS_ENABLED,
+    CHAT_EDIT_ENABLED,
+    CHAT_DELETE_ENABLED,
+  ].every((config) => !config)) return null;
 
   return (
     <Container className="chat-message-toolbar" $sequence={messageSequence}>
