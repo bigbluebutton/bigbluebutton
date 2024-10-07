@@ -9,8 +9,6 @@ export default (props) => {
   const handleToggleFullScreen = (ref) => FullscreenService.toggleFullScreen(ref);
   const { isFullscreen } = props;
 
-  const isIphone = !!(navigator.userAgent.match(/iPhone/i));
-
   const fullscreen = layoutSelect((i) => i.fullscreen);
   const { element: currentElement, group: currentGroup } = fullscreen;
   const layoutContextDispatch = layoutDispatch();
@@ -20,7 +18,6 @@ export default (props) => {
       {...props}
       {...{
         handleToggleFullScreen,
-        isIphone,
         isFullscreen,
         currentElement,
         currentGroup,

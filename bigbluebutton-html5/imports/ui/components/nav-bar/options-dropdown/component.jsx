@@ -110,7 +110,6 @@ const propTypes = {
     formatMessage: PropTypes.func.isRequired,
   }).isRequired,
   handleToggleFullscreen: PropTypes.func.isRequired,
-  noIOSFullscreen: PropTypes.bool,
   amIModerator: PropTypes.bool,
   shortcuts: PropTypes.string,
   isBreakoutRoom: PropTypes.bool,
@@ -129,7 +128,6 @@ const propTypes = {
 };
 
 const defaultProps = {
-  noIOSFullscreen: true,
   amIModerator: false,
   shortcuts: '',
   isBreakoutRoom: false,
@@ -186,14 +184,13 @@ class OptionsDropdown extends PureComponent {
   getFullscreenItem(menuItems) {
     const {
       intl,
-      noIOSFullscreen,
       handleToggleFullscreen,
     } = this.props;
     const { isFullscreen } = this.state;
 
     const ALLOW_FULLSCREEN = window.meetingClientSettings.public.app.allowFullscreen;
 
-    if (noIOSFullscreen || !ALLOW_FULLSCREEN) return null;
+    if (!ALLOW_FULLSCREEN) return null;
 
     let fullscreenLabel = intl.formatMessage(intlMessages.fullscreenLabel);
     let fullscreenDesc = intl.formatMessage(intlMessages.fullscreenDesc);

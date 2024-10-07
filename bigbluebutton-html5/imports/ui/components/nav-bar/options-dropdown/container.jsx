@@ -1,6 +1,5 @@
 import React, { useContext } from 'react';
 import deviceInfo from '/imports/utils/deviceInfo';
-import browserInfo from '/imports/utils/browserInfo';
 import OptionsDropdown from './component';
 import FullscreenService from '/imports/ui/components/common/fullscreen-button/service';
 import { layoutSelect } from '../../layout/context';
@@ -12,11 +11,6 @@ import { useShortcut } from '/imports/ui/core/hooks/useShortcut';
 import { useStorageKey } from '/imports/ui/services/storage/hooks';
 import Session from '/imports/ui/services/storage/in-memory';
 import { useIsLayoutsEnabled } from '/imports/ui/services/features';
-
-const { isIphone } = deviceInfo;
-const { isSafari, isValidSafariVersion } = browserInfo;
-
-const noIOSFullscreen = !!(((isSafari && !isValidSafariVersion) || isIphone));
 
 const setAudioCaptions = (value) => Session.setItem('audioCaptions', value);
 
@@ -58,7 +52,6 @@ const OptionsDropdownContainer = (props) => {
       handleToggleFullscreen: FullscreenService.toggleFullScreen,
       audioCaptionsSet: (value) => setAudioCaptions(value),
       isMobile: deviceInfo.isMobile,
-      noIOSFullscreen,
       isBreakoutRoom: currentMeeting?.isBreakout,
       // TODO: Replace/Remove
       isMeteorConnected: true,
