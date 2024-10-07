@@ -15,6 +15,7 @@ import { PINNED_PAD_SUBSCRIPTION } from '../notes/queries';
 import useDeduplicatedSubscription from '../../core/hooks/useDeduplicatedSubscription';
 import useSettings from '../../services/settings/hooks/useSettings';
 import { SETTINGS } from '../../services/settings/enums';
+import { useScreenshare } from '../screenshare/service';
 
 const AppContainer = (props) => {
   const {
@@ -57,13 +58,17 @@ const AppContainer = (props) => {
 
   const setSpeechOptions = useSetSpeechOptions();
   const { data: pinnedPadData } = useDeduplicatedSubscription(PINNED_PAD_SUBSCRIPTION);
+  const { data: screenShare } = useScreenshare();
+
   const isSharedNotesPinnedFromGraphql = !!pinnedPadData
     && pinnedPadData.sharedNotes[0]?.sharedNotesExtId === NOTES_CONFIG.id;
   const isSharedNotesPinned = sharedNotesInput?.isPinned && isSharedNotesPinnedFromGraphql;
   const isExternalVideoEnabled = useIsExternalVideoEnabled();
   const isPresentationEnabled = useIsPresentationEnabled();
   const isPresenter = currentUser?.presenter;
+  const hasScreenFocused = screenShare && !!screenShare.find((s) => s.showAsContent);
 
+  const shouldShowScreenshare = (viewScreenshare || isPresenter) && hasScreenFocused;
   const { isOpen } = presentation;
   const presentationIsOpen = isOpen;
 
@@ -73,22 +78,19 @@ const AppContainer = (props) => {
 
   const shouldShowGenericMainContent = !!genericMainContent.genericContentId;
 
-  const shouldShowScreenshare = (viewScreenshare || isPresenter)
-    && (currentMeeting?.componentsFlags?.hasScreenshare
-      || currentMeeting?.componentsFlags?.hasCameraAsContent);
   const shouldShowPresentation = (!shouldShowScreenshare && !isSharedNotesPinned
     && !shouldShowExternalVideo && !shouldShowGenericMainContent
     && (presentationIsOpen || presentationRestoreOnUpdate)) && isPresentationEnabled;
-
-  // Update after editing app savings
-  useEffect(() => {
-    setSpeechOptions(
-      partialUtterances,
-      minUtteranceLength,
-    );
-  }, [partialUtterances, minUtteranceLength]);
-
-  if (!currentUser) return null;
+    
+    // Update after editing app savings
+    useEffect(() => {
+      setSpeechOptions(
+        partialUtterances,
+        minUtteranceLength,
+      );
+    }, [partialUtterances, minUtteranceLength]);
+    
+    if (!currentUser) return null;
 
   return currentUser?.userId
     ? (

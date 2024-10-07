@@ -75,7 +75,6 @@ const VideoListItem = styled.div<{
 const VideoCanvas = styled.div<{
   $position: string;
 }>`
-  position: absolute;
   width: 100%;
   min-height: calc((100vh - calc(${navbarHeight} + ${actionsBarHeight})) * 0.2);
   height: 100%;
@@ -87,11 +86,6 @@ const VideoCanvas = styled.div<{
   align-items: center;
   justify-content: center;
 
-  ${({ $position }) => ($position === 'contentRight' || $position === 'contentLeft') && `
-    flex-wrap: wrap;
-    align-content: center;
-    order: 0;
-  `}
 `;
 
 const VideoList = styled.div`

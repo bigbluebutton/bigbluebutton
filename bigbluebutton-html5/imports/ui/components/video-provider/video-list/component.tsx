@@ -266,6 +266,7 @@ class VideoList extends Component<VideoListProps, VideoListState> {
         height: optimalGrid.height,
       },
     });
+
     this.setState({
       optimalGrid,
     });
@@ -355,48 +356,54 @@ class VideoList extends Component<VideoListProps, VideoListState> {
     } = this.props;
     const numOfStreams = streams.length;
 
-    return streams.map((item) => {
-      const { userId, name } = item;
-      const isStream = item.type !== VIDEO_TYPES.GRID;
-      const stream = isStream ? item.stream : null;
-      const key = isStream ? stream : userId;
-      const isFocused = isStream && focusedId === stream && numOfStreams > 2;
+    return streams
+      .sort((a, b) => {
+        if (a.contentType === 'camera' && b.contentType === 'screenshare') return -1;
+        if (a.contentType === 'screenshare' && b.contentType === 'camera') return 1;
+        return 0;
+      })
+      .map((item) => {
+        const { userId, name } = item;
+        const isStream = item.type !== VIDEO_TYPES.GRID;
+        const stream = isStream ? item.stream : null;
+        const key = isStream ? stream : userId;
+        const isFocused = isStream && focusedId === stream && numOfStreams > 2;
 
-      return (
-        <Styled.VideoListItem
-          key={key}
-          $focused={isFocused}
-          data-test="webcamVideoItem"
-        >
-          <VideoListItemContainer
-            pluginUserCameraHelperPerPosition={pluginUserCameraHelperPerPosition}
-            numOfStreams={numOfStreams}
-            cameraId={stream}
-            userId={userId}
-            name={name}
-            focused={isFocused}
-            isStream={isStream}
-            setUserCamerasRequestedFromPlugin={setUserCamerasRequestedFromPlugin}
-            onHandleVideoFocus={isStream ? handleVideoFocus : null}
-            onVideoItemMount={(videoRef) => {
-              this.handleCanvasResize();
-              if (isStream) onVideoItemMount(item.stream, videoRef);
-            }}
-            stream={item}
-            onVideoItemUnmount={onVideoItemUnmount}
-            onVirtualBgDrop={
-              (type, name, data) => {
-                return isStream ? onVirtualBgDrop(item.stream, type, name, data) : Promise.resolve(null);
+        return (
+          <Styled.VideoListItem
+            key={key}
+            $focused={isFocused}
+            data-test="webcamVideoItem"
+          >
+            <VideoListItemContainer
+              pluginUserCameraHelperPerPosition={pluginUserCameraHelperPerPosition}
+              numOfStreams={numOfStreams}
+              cameraId={stream}
+              userId={userId}
+              name={name}
+              focused={isFocused}
+              isStream={isStream}
+              setUserCamerasRequestedFromPlugin={setUserCamerasRequestedFromPlugin}
+              onHandleVideoFocus={isStream ? handleVideoFocus : null}
+              onVideoItemMount={(videoRef) => {
+                this.handleCanvasResize();
+                if (isStream) onVideoItemMount(item.stream, videoRef);
+              }}
+              stream={item}
+              onVideoItemUnmount={onVideoItemUnmount}
+              onVirtualBgDrop={
+                (type, name, data) => {
+                  return isStream ? onVirtualBgDrop(item.stream, type, name, data) : Promise.resolve(null);
+                }
               }
-            }
-          />
-        </Styled.VideoListItem>
-      );
-    });
+            />
+          </Styled.VideoListItem>
+        );
+      });
   }
 
   render() {
-    const {
+    const {// a comes first
       streams,
       intl,
       cameraDock,
@@ -404,7 +411,6 @@ class VideoList extends Component<VideoListProps, VideoListState> {
     } = this.props;
     const { optimalGrid, autoplayBlocked } = this.state;
     const { position } = cameraDock;
-
     return (
       <Styled.VideoCanvas
         $position={position}
