@@ -173,7 +173,6 @@ class RedisRecorderActor(
       ev.setMeetingId(msg.header.meetingId)
       ev.setMessageId(msg.body.messageId)
       ev.setMessage(msg.body.message)
-
       record(msg.header.meetingId, ev.toMap.asJava)
     }
   }
@@ -183,6 +182,7 @@ class RedisRecorderActor(
       val ev = new DeletePublicChatMessageRecordEvent()
       ev.setMeetingId(msg.header.meetingId)
       ev.setMessageId(msg.body.messageId)
+      ev.setDeletedBy(msg.header.userId)
 
       record(msg.header.meetingId, ev.toMap.asJava)
     }

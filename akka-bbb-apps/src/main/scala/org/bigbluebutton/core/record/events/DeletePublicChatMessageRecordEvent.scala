@@ -27,8 +27,13 @@ class DeletePublicChatMessageRecordEvent extends AbstractChatRecordEvent {
   def setMessageId(messageId: String): Unit = {
     eventMap.put(MESSAGEID, messageId)
   }
+
+  def setDeletedBy(deletedBy: String): Unit = {
+    eventMap.put(DELETEDBY, deletedBy)
+  }
 }
 
 object DeletePublicChatMessageRecordEvent {
   private final val MESSAGEID = "messageId"
+  private final val DELETEDBY = "deletedBy"
 }
