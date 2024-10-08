@@ -81,7 +81,7 @@ const ConnectionManager: React.FC<ConnectionManagerProps> = ({ children }): Reac
   const tsLastMessageRef = useRef<number>(0);
   const tsLastPingMessageRef = useRef<number>(0);
   const boundary = useRef(15_000);
-  const [terminalError, setTerminalError] = React.useState<string>('');
+  const [terminalError, setTerminalError] = React.useState<string | Error>('');
   const [MeetingSettings] = useMeetingSettings();
   const enableDevTools = MeetingSettings.public.app.enableApolloDevTools;
 
@@ -125,7 +125,11 @@ const ConnectionManager: React.FC<ConnectionManagerProps> = ({ children }): Reac
 
   useEffect(() => {
     if (terminalError) {
-      throw new Error(terminalError);
+      if (typeof terminalError === 'string') {
+        throw new Error(terminalError);
+      } else {
+        throw terminalError;
+      }
     }
   }, [terminalError]);
 
@@ -236,7 +240,13 @@ const ConnectionManager: React.FC<ConnectionManagerProps> = ({ children }): Reac
                 // it contains a prop message.messageId which can be used to show a proper error to the user
                 logger.error({ logCode: 'graphql_server_closed_connection', extraInfo: message }, 'Graphql Server closed the connection');
                 loadingContextInfo.setLoading(false, '');
-                setTerminalError('Server closed the connection');
+                // @ts-ignore
+                if (message.payload[0]?.messageId) {
+                  // @ts-ignore
+                  setTerminalError(new Error(message.payload[0].message, { cause: message.payload[0].messageId }));
+                } else {
+                  setTerminalError('Server closed the connection');
+                }
               }
               tsLastMessageRef.current = Date.now();
             },
