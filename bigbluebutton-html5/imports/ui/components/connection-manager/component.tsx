@@ -12,9 +12,15 @@ import connectionStatus from '../../core/graphql/singletons/connectionStatus';
 import deviceInfo from '/imports/utils/deviceInfo';
 import BBBWeb from '/imports/api/bbb-web-api';
 import useMeetingSettings from '/imports/ui/core/local-states/useMeetingSettings';
+import { GraphQLError } from 'graphql';
 
 interface ConnectionManagerProps {
   children: React.ReactNode;
+}
+
+interface ErrorPayload extends GraphQLError {
+  messageId?: string;
+  message: string;
 }
 
 interface WsError {
@@ -240,10 +246,9 @@ const ConnectionManager: React.FC<ConnectionManagerProps> = ({ children }): Reac
                 // it contains a prop message.messageId which can be used to show a proper error to the user
                 logger.error({ logCode: 'graphql_server_closed_connection', extraInfo: message }, 'Graphql Server closed the connection');
                 loadingContextInfo.setLoading(false, '');
-                // @ts-ignore
-                if (message.payload[0]?.messageId) {
-                  // @ts-ignore
-                  setTerminalError(new Error(message.payload[0].message, { cause: message.payload[0].messageId }));
+                const payload = message.payload as ErrorPayload[];
+                if (payload[0].messageId) {
+                  setTerminalError(new Error(payload[0].message, { cause: payload[0].messageId }));
                 } else {
                   setTerminalError('Server closed the connection');
                 }
