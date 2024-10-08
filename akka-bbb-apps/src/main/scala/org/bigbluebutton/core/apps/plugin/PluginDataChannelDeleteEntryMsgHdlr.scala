@@ -18,7 +18,7 @@ trait PluginDataChannelDeleteEntryMsgHdlr extends HandlerHelpers {
     } yield {
       PluginModel.getPluginByName(liveMeeting.plugins, msg.body.pluginName) match {
         case Some(p) =>
-          p.manifest.content.dataChannels.find(dc => dc.name == msg.body.channelName) match {
+          p.manifest.content.dataChannels.getOrElse(List()).find(dc => dc.name == msg.body.channelName) match {
             case Some(dc) =>
               val hasPermission = for {
                 replaceOrDeletePermission <- dc.replaceOrDeletePermission

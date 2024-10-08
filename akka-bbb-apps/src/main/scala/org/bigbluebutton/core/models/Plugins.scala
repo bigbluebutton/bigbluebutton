@@ -1,9 +1,11 @@
 package org.bigbluebutton.core.models
 
-import com.fasterxml.jackson.databind.ObjectMapper
+import com.fasterxml.jackson.annotation.{ JsonIgnoreProperties, JsonProperty }
+import com.fasterxml.jackson.core.JsonProcessingException
+import com.fasterxml.jackson.databind.{ JsonMappingException, ObjectMapper }
 import com.fasterxml.jackson.module.scala.DefaultScalaModule
-import org.bigbluebutton.common2.util.JsonUtil
 import org.bigbluebutton.core.db.PluginDAO
+
 import java.util
 
 case class RateLimiting(
@@ -34,10 +36,10 @@ case class PluginManifestContent(
     requiredSdkVersion:      String,
     name:                    String,
     javascriptEntrypointUrl: String,
-    localesBaseUrl:          String,
-    eventPersistence:        EventPersistence,
-    dataChannels:            List[DataChannel],
-    remoteDataSources:       List[RemoteDataSource]
+    localesBaseUrl:          Option[String]                 = None,
+    eventPersistence:        Option[EventPersistence]       = None,
+    dataChannels:            Option[List[DataChannel]]      = None,
+    remoteDataSources:       Option[List[RemoteDataSource]] = None
 )
 
 case class PluginManifest(
@@ -59,9 +61,18 @@ object PluginModel {
     instance.plugins
   }
   def createPluginModelFromJson(json: util.Map[String, AnyRef]): PluginModel = {
-    val jsonString = objectMapper.writeValueAsString(json)
     val instance = new PluginModel()
-    instance.plugins = JsonUtil.fromJson[Map[String, Plugin]](jsonString).getOrElse(Map())
+    var pluginsMap: Map[String, Plugin] = Map.empty[String, Plugin]
+    json.forEach { case (pluginName, plugin) =>
+      try {
+        val pluginObject = objectMapper.readValue(objectMapper.writeValueAsString(plugin), classOf[Plugin])
+        pluginsMap = pluginsMap + (pluginName -> pluginObject)
+      } catch {
+        case err @ (_: JsonProcessingException | _: JsonMappingException) => println("Error while processing plugin " +
+          pluginName + ": ", err)
+      }
+    }
+    instance.plugins = pluginsMap
     instance
   }
   def persistPluginsForClient(instance: PluginModel, meetingId: String): Unit = {
