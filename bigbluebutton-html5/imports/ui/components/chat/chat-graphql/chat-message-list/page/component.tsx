@@ -1,5 +1,10 @@
 /* eslint-disable @typescript-eslint/ban-ts-comment */
-import React, { useContext, useEffect, useState } from 'react';
+import React, {
+  useContext,
+  useEffect,
+  useState,
+  memo,
+} from 'react';
 import { PluginsContext } from '/imports/ui/components/components-data/plugin-context/context';
 import { UpdatedEventDetailsForChatMessageDomElements } from 'bigbluebutton-html-plugin-sdk/dist/cjs/dom-element-manipulation/chat/message/types';
 import { HookEvents } from 'bigbluebutton-html-plugin-sdk/dist/cjs/core/enum';
@@ -35,6 +40,20 @@ interface ChatListPageProps {
   scrollRef: React.RefObject<HTMLDivElement>;
 }
 
+const areChatPagesEqual = (prevProps: ChatListPageProps, nextProps: ChatListPageProps) => {
+  const nextMessages = nextProps?.messages || [];
+  const prevMessages = prevProps?.messages || [];
+  if (nextMessages.length !== prevMessages.length) return false;
+  return nextMessages.every((nextMessage, idx) => {
+    const prevMessage = prevMessages[idx];
+    return (prevMessage.messageId === nextMessage.messageId
+      && prevMessage.createdAt === nextMessage.createdAt
+      && prevMessage?.user?.currentlyInMeeting === nextMessage?.user?.currentlyInMeeting
+      && prevMessage?.recipientHasSeen === nextMessage?.recipientHasSeen
+    );
+  });
+};
+
 const ChatListPage: React.FC<ChatListPageProps> = ({
   messages,
   messageReadFeedbackEnabled,
@@ -43,22 +62,25 @@ const ChatListPage: React.FC<ChatListPageProps> = ({
   markMessageAsSeen,
   scrollRef,
 }) => {
-  const { domElementManipulationMessageIds } = useContext(PluginsContext);
+  const { domElementManipulationIdentifiers } = useContext(PluginsContext);
+
   const [messagesRequestedFromPlugin, setMessagesRequestedFromPlugin] = useState<
-  UpdatedEventDetailsForChatMessageDomElements[]>([]);
+    UpdatedEventDetailsForChatMessageDomElements[]>([]);
   useEffect(() => {
     const dataToSend = messagesRequestedFromPlugin.filter((
-      message,
-    ) => domElementManipulationMessageIds.indexOf(message.messageId) !== -1);
+      chatMessageRequested,
+    ) => domElementManipulationIdentifiers.CHAT_MESSAGE?.includes(chatMessageRequested.messageId));
     window.dispatchEvent(
-      new CustomEvent<UpdatedEventDetails<UpdatedEventDetailsForChatMessageDomElements[]>>(HookEvents.UPDATED, {
-        detail: {
-          hook: DomElementManipulationHooks.CHAT_MESSAGE,
-          data: dataToSend,
-        },
-      }),
+      new CustomEvent<UpdatedEventDetails<
+        UpdatedEventDetailsForChatMessageDomElements[]>>(HookEvents.BBB_CORE_SENT_NEW_DATA, {
+          detail: {
+            hook: DomElementManipulationHooks.CHAT_MESSAGE,
+            data: dataToSend,
+          },
+        }),
     );
-  }, [domElementManipulationMessageIds]);
+  }, [domElementManipulationIdentifiers, messagesRequestedFromPlugin]);
+
   return (
     // eslint-disable-next-line react/jsx-filename-extension
     <div key={`messagePage-${page}`} id={`${page}`}>
@@ -82,6 +104,8 @@ const ChatListPage: React.FC<ChatListPageProps> = ({
     </div>
   );
 };
+
+const MemoizedChatListPage = memo(ChatListPage, areChatPagesEqual);
 
 const ChatListPageContainer: React.FC<ChatListPageContainerProps> = ({
   page,
@@ -125,7 +149,7 @@ const ChatListPageContainer: React.FC<ChatListPageContainerProps> = ({
   }
   setLoadedMessageGathering(page, chatMessageData);
   return (
-    <ChatListPage
+    <MemoizedChatListPage
       messages={chatMessageData}
       lastSenderPreviousPage={lastSenderPreviousPage}
       messageReadFeedbackEnabled={isPrivateReadFeedbackEnabled}

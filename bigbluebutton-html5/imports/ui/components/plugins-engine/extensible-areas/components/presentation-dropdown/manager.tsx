@@ -22,7 +22,6 @@ const PresentationDropdownPluginStateContainer = ((
   ] = useState<PluginSdk.PresentationDropdownInterface[]>([]);
 
   const {
-    pluginsExtensibleAreasAggregatedState,
     setPluginsExtensibleAreasAggregatedState,
   } = useContext(PluginsContext);
 
@@ -36,12 +35,11 @@ const PresentationDropdownPluginStateContainer = ((
       ...Object.values(extensibleAreaMap)
         .map((extensibleArea: ExtensibleArea) => extensibleArea.presentationDropdownItems),
     );
-    setPluginsExtensibleAreasAggregatedState(
+    setPluginsExtensibleAreasAggregatedState((previousState) => (
       {
-        ...pluginsExtensibleAreasAggregatedState,
+        ...previousState,
         presentationDropdownItems: aggregatedPresentationDropdownItems,
-      },
-    );
+      }));
   }, [presentationDropdownItems]);
 
   pluginApi.setPresentationDropdownItems = (items: PluginSdk.PresentationDropdownInterface[]) => {

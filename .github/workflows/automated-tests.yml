@@ -264,6 +264,7 @@ jobs:
         with:
           timeout_minutes: 25
           max_attempts: 2
+          retry_on: any
           command: |
             sudo -i <<EOF
             set -e

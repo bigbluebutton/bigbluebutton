@@ -58,7 +58,7 @@ class AudioManager {
     };
 
     this.defineProperties({
-      isMuted: makeVar(false),
+      isMuted: makeVar(true),
       isConnected: makeVar(false),
       isConnecting: makeVar(false),
       isHangingUp: makeVar(false),
@@ -67,7 +67,6 @@ class AudioManager {
       isTalking: makeVar(false),
       isWaitingPermissions: makeVar(false),
       error: makeVar(null),
-      muteHandle: makeVar(null),
       autoplayBlocked: makeVar(false),
       isReconnecting: makeVar(false),
       bypassGUM: makeVar(false),
@@ -89,6 +88,7 @@ class AudioManager {
     };
 
     this.BREAKOUT_AUDIO_TRANSFER_STATES = BREAKOUT_AUDIO_TRANSFER_STATES;
+    this._voiceActivityObserver = null;
 
     window.addEventListener('StopAudioTracks', () => this.forceExitAudio());
   }
@@ -192,17 +192,37 @@ class AudioManager {
       && this.fullAudioBridge?.supportsTransparentListenOnly();
   }
 
-  async init(userData, audioEventHandler) {
+  observeVoiceActivity() {
+    // Observe voice activity changes to update any relevant *local* states
+    // (see onVoiceUserChanges)
+    if (!this._voiceActivityObserver) {
+      const subHash = stringToHash(JSON.stringify({
+        subscription: VOICE_ACTIVITY,
+      }));
+      this._voiceActivityObserver = GrahqlSubscriptionStore.makeSubscription(VOICE_ACTIVITY);
+      window.addEventListener('graphqlSubscription', (e) => {
+        const { subscriptionHash, response } = e.detail;
+        if (subscriptionHash === subHash) {
+          if (response) {
+            const { data } = response;
+            const voiceUser = data.user_voice_activity_stream.find((v) => v.userId === Auth.userID);
+            this.onVoiceUserChanges(voiceUser);
+          }
+        }
+      });
+    }
+  }
+
+  init(userData, audioEventHandler) {
+    this.userData = userData;
     this.inputDeviceId = getStoredAudioInputDeviceId() || DEFAULT_INPUT_DEVICE_ID;
     this.outputDeviceId = getCurrentAudioSinkId();
     this._applyCachedOutputDeviceId();
     this._trackPermissionStatus();
     this.loadBridges(userData);
-    this.userData = userData;
-    this.initialized = true;
-    this.audioEventHandler = audioEventHandler;
-    await this.loadBridges(userData);
     this.transparentListenOnlySupported = this.supportsTransparentListenOnly();
+    this.audioEventHandler = audioEventHandler;
+    this.initialized = true;
   }
 
   /**
@@ -212,7 +232,7 @@ class AudioManager {
    * @param {Object} userData The Object representing user data to be passed to
    *                      the bridge.
    */
-  async loadBridges(userData) {
+  loadBridges(userData) {
     let FullAudioBridge = SIPBridge;
     let ListenOnlyBridge = SFUAudioBridge;
 
@@ -448,8 +468,19 @@ class AudioManager {
 
   onAudioJoining() {
     this.isConnecting = true;
-    this.isMuted = false;
+    this.isMuted = true;
     this.error = false;
+    this.observeVoiceActivity();
+    // Ensure the local mute state (this.isMuted) is aligned with the initial
+    // placeholder value before joining audio.
+    // Currently, the server sets the placeholder mute state to *true*, and this
+    // is only communicated via observeVoiceActivity's subscription if the initial
+    // state differs from the placeholder or when the state changes.
+    // Refer to user_voice_activity DB schema for details.
+    // tl;dr: without enforcing the initial mute state here, the client won't be
+    // locally muted if the audio channel starts muted (e.g., dialplan-level
+    // muteOnStart).
+    this.setSenderTrackEnabled(!this.isMuted);
 
     return Promise.resolve();
   }
@@ -501,24 +532,6 @@ class AudioManager {
     this.isConnecting = false;
 
     const STATS = window.meetingClientSettings.public.stats;
-
-    // listen to the VoiceUsers changes and update the flag
-    if (!this.muteHandle) {
-      const subHash = stringToHash(JSON.stringify({
-        subscription: VOICE_ACTIVITY,
-      }));
-      this.muteHandle = GrahqlSubscriptionStore.makeSubscription(VOICE_ACTIVITY);
-      window.addEventListener('graphqlSubscription', (e) => {
-        const { subscriptionHash, response } = e.detail;
-        if (subscriptionHash === subHash) {
-          if (response) {
-            const { data } = response;
-            const voiceUser = data.user_voice_activity_stream.find((v) => v.userId === Auth.userID);
-            this.onVoiceUserChanges(voiceUser);
-          }
-        }
-      });
-    }
     const secondsToActivateAudio = (new Date() - this.audioJoinStartTime) / 1000;
 
     if (!this.logAudioJoinTime) {
@@ -534,10 +547,51 @@ class AudioManager {
       );
     }
 
+    try {
+      this.inputStream = this.bridge ? this.bridge.inputStream : null;
+      // Enforce correct output device on audio join
+      this.changeOutputDevice(this.outputDeviceId, true);
+      storeAudioOutputDeviceId(this.outputDeviceId);
+      // Extract the deviceId again from the stream to guarantee consistency
+      // between stream DID vs chosen DID. That's necessary in scenarios where,
+      // eg, there's no default/pre-set deviceId ('') and the browser's
+      // default device has been altered by the user (browser default != system's
+      // default).
+      if (this.inputStream) {
+        const extractedDeviceId = MediaStreamUtils.extractDeviceIdFromStream(
+          this.inputStream,
+          'audio',
+        );
+        if (extractedDeviceId && extractedDeviceId !== this.inputDeviceId) {
+          this.changeInputDevice(extractedDeviceId);
+        }
+      }
+      // Audio joined successfully - add device IDs to session storage so they
+      // can be re-used on refreshes/other sessions
+      storeAudioInputDeviceId(this.inputDeviceId);
+    } catch (error) {
+      logger.warn({
+        logCode: 'audiomanager_device_enforce_failed',
+        extraInfo: {
+          errorName: error.name,
+          errorMessage: error.message,
+          inputDeviceId: this.inputDeviceId,
+          outputDeviceId: this.outputDeviceId,
+        },
+      }, `Failed to enforce input/output devices: ${error.message}`);
+    }
+
     if (!this.isEchoTest) {
       this.notify(this.intl.formatMessage(this.messages.info.JOINED_AUDIO));
-      logger.info({ logCode: 'audio_joined' }, 'Audio Joined');
-      this.inputStream = this.bridge ? this.bridge.inputStream : null;
+      logger.info({
+        logCode: 'audio_joined',
+        extraInfo: {
+          secondsToActivateAudio,
+          inputDeviceId: this.inputDeviceId,
+          outputDeviceId: this.outputDeviceId,
+          isListenOnly: this.isListenOnly,
+        },
+      }, 'Audio Joined');
       if (STATS.enabled) this.monitor();
       this.audioEventHandler({
         name: 'started',
@@ -545,28 +599,6 @@ class AudioManager {
       });
     }
     Session.setItem('audioModalIsOpen', false);
-
-    // Enforce correct output device on audio join
-    this.changeOutputDevice(this.outputDeviceId, true);
-    storeAudioOutputDeviceId(this.outputDeviceId);
-
-    // Extract the deviceId again from the stream to guarantee consistency
-    // between stream DID vs chosen DID. That's necessary in scenarios where,
-    // eg, there's no default/pre-set deviceId ('') and the browser's
-    // default device has been altered by the user (browser default != system's
-    // default).
-    if (this.inputStream) {
-      const extractedDeviceId = MediaStreamUtils.extractDeviceIdFromStream(
-        this.inputStream,
-        'audio',
-      );
-      if (extractedDeviceId && extractedDeviceId !== this.inputDeviceId) {
-        this.changeInputDevice(extractedDeviceId);
-      }
-    }
-    // Audio joined successfully - add device IDs to session storage so they
-    // can be re-used on refreshes/other sessions
-    storeAudioInputDeviceId(this.inputDeviceId);
   }
 
   onTransferStart() {
@@ -641,6 +673,9 @@ class AudioManager {
               errorCode: error,
               cause: bridgeError,
               bridge,
+              inputDeviceId: this.inputDeviceId,
+              outputDeviceId: this.outputDeviceId,
+              isListenOnly: this.isListenOnly,
             },
           },
           `Audio error - errorCode=${error}, cause=${bridgeError}`

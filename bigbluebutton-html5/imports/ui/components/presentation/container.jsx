@@ -24,11 +24,16 @@ import useCurrentUser from '/imports/ui/core/hooks/useCurrentUser';
 import { PRESENTATION_SET_ZOOM, PRESENTATION_SET_WRITERS } from './mutations';
 import { GET_USER_IDS } from '/imports/ui/core/graphql/queries/users';
 import useDeduplicatedSubscription from '../../core/hooks/useDeduplicatedSubscription';
+import useSettings from '/imports/ui/services/settings/hooks/useSettings';
+import { SETTINGS } from '/imports/ui/services/settings/enums';
 
 const fetchedpresentation = {};
 
 const PresentationContainer = (props) => {
+  const { presentationIsOpen } = props;
   const layoutContextDispatch = layoutDispatch();
+  const { selectedLayout } = useSettings(SETTINGS.APPLICATION);
+
   const { data: presentationPageData } = useDeduplicatedSubscription(
     CURRENT_PRESENTATION_PAGE_SUBSCRIPTION,
   );
@@ -45,8 +50,7 @@ const PresentationContainer = (props) => {
       (
         annotationStreamData?.pres_annotation_curr_stream
         && annotationStreamData.pres_annotation_curr_stream.length > 0)
-      && !props.presentationIsOpen) {
-        console.log("🚀 -> useEffect -> layoutContextDispatch:", layoutContextDispatch)
+      && !presentationIsOpen) {
       MediaService.setPresentationIsOpen(layoutContextDispatch, true);
     }
   }, [annotationStreamData]);
@@ -259,6 +263,7 @@ const PresentationContainer = (props) => {
           currentUser,
           hasPoll,
           currentPresentationPage,
+          layoutType: selectedLayout,
         }
       }
     />

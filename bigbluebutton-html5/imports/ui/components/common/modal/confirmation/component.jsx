@@ -34,7 +34,18 @@ class ConfirmationModal extends Component {
 
     this.state = {
       checked: false,
+      triggeredFocus: false,
     };
+    this.cancelButtonRef = React.createRef();
+  }
+
+  componentDidUpdate() {
+    const { triggeredFocus } = this.state;
+
+    if (!triggeredFocus && this.cancelButtonRef.current) {
+      this.cancelButtonRef.current.children[0].focus();
+      this.setState({ triggeredFocus: true });
+    }
   }
 
   render() {
@@ -108,10 +119,13 @@ class ConfirmationModal extends Component {
                 }}
               />
             )}
-            <Styled.CancelButton
-              label={cancelButtonLabel || intl.formatMessage(messages.noLabel)}
-              onClick={() => setIsOpen(false)}
-            />
+            <div ref={this.cancelButtonRef}>
+              <Styled.CancelButton
+                color="secondary"
+                label={cancelButtonLabel || intl.formatMessage(messages.noLabel)}
+                onClick={() => setIsOpen(false)}
+              />
+            </div>
           </Styled.Footer>
         </Styled.Container>
       </Styled.ConfirmationModal>

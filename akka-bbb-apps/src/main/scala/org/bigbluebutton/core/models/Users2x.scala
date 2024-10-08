@@ -1,7 +1,7 @@
 package org.bigbluebutton.core.models
 
 import com.softwaremill.quicklens._
-import org.bigbluebutton.core.db.{ UserDAO, UserReactionDAO, UserStateDAO }
+import org.bigbluebutton.core.db.{ UserDAO, UserLockSettingsDAO, UserReactionDAO, UserStateDAO }
 import org.bigbluebutton.core.util.TimeUtil
 import org.bigbluebutton.core2.message.senders.MsgBuilder
 
@@ -241,6 +241,17 @@ object Users2x {
     }
   }
 
+  def setUserLockSettings(users: Users2x, intId: String, userLockSettings: UserLockSettings): Option[UserState] = {
+    for {
+      u <- findWithIntId(users, intId)
+    } yield {
+      val newUser = u.modify(_.userLockSettings).setTo(userLockSettings)
+      UserLockSettingsDAO.insertOrUpdate(u.meetingId, u.intId, userLockSettings)
+      users.save(newUser)
+      newUser
+    }
+  }
+
   def setUserSpeechLocale(users: Users2x, intId: String, locale: String): Option[UserState] = {
     for {
       u <- findWithIntId(users, intId)
@@ -413,6 +424,8 @@ case class OldPresenter(userId: String, changedPresenterOn: Long)
 
 case class UserLeftFlag(left: Boolean, leftOn: Long)
 
+case class UserLockSettings(disablePublicChat: Boolean = false)
+
 case class UserState(
     intId:                 String,
     extId:                 String,
@@ -440,8 +453,8 @@ case class UserState(
     userLeftFlag:          UserLeftFlag,
     speechLocale:          String              = "",
     captionLocale:         String              = "",
-    userMetadata:          Map[String, String] = Map.empty
-
+    userMetadata:          Map[String, String] = Map.empty,
+    userLockSettings:      UserLockSettings    = UserLockSettings()
 )
 
 case class UserIdAndName(id: String, name: String)

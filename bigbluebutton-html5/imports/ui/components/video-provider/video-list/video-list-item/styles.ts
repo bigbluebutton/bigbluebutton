@@ -205,8 +205,31 @@ const RaiseHand = styled.div`
   font-size: 32px;
 `;
 
+const UserCameraButtonsContainterWrapper = styled.div<UserCameraButtonsContainterWrapperProps>`
+  position: absolute;
+  z-index: 2;
+  display: flex;
+  width: 50%;
+
+  ${({ positionXAxis }) => positionXAxis === 'right' && `
+    right: 0;
+    flex-direction: row-reverse;
+  `}
+  ${({ positionXAxis }) => positionXAxis === 'left' && `
+    left: 0;
+  `}
+
+  ${({ positionYAxis }) => positionYAxis === 'top' && `
+    top: 0;
+  `}
+  ${({ positionYAxis }) => positionYAxis === 'bottom' && `
+    bottom: 0;
+  `}
+`;
+
 export default {
   Content,
+  UserCameraButtonsContainterWrapper,
   WebcamConnecting,
   LoadingText,
   VideoContainer,

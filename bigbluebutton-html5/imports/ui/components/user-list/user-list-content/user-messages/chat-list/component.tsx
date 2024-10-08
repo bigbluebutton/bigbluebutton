@@ -7,6 +7,9 @@ import useChat from '/imports/ui/core/hooks/useChat';
 import { Chat } from '/imports/ui/Types/chat';
 import Service from '/imports/ui/components/user-list/service';
 import { GraphqlDataHookSubscriptionResponse } from '/imports/ui/Types/hook';
+import deviceInfo from '/imports/utils/deviceInfo';
+
+const { isMobile } = deviceInfo;
 
 const intlMessages = defineMessages({
   messagesTitle: {
@@ -16,7 +19,7 @@ const intlMessages = defineMessages({
 });
 
 interface ChatListProps {
-    chats: Chat[],
+  chats: Chat[],
 }
 
 const getActiveChats = (chats: Chat[], chatNodeRef: React.Ref<HTMLButtonElement>) => chats.map((chat) => (
@@ -40,8 +43,8 @@ const getActiveChats = (chats: Chat[], chatNodeRef: React.Ref<HTMLButtonElement>
 ));
 
 const ChatList: React.FC<ChatListProps> = ({ chats }) => {
-  const messageListRef = React.useRef<HTMLDivElement | null >(null);
-  const messageItemsRef = React.useRef<HTMLDivElement | null >(null);
+  const messageListRef = React.useRef<HTMLDivElement | null>(null);
+  const messageItemsRef = React.useRef<HTMLDivElement | null>(null);
   const [selectedChat, setSelectedChat] = React.useState<HTMLElement>();
   const { roving } = Service;
   const chatNodeRef = React.useRef<HTMLButtonElement | null>(null);
@@ -66,18 +69,21 @@ const ChatList: React.FC<ChatListProps> = ({ chats }) => {
           {intl.formatMessage(intlMessages.messagesTitle)}
         </Styled.MessagesTitle>
       </Styled.Container>
-      <Styled.ScrollableList
-        role="tabpanel"
-        tabIndex={0}
-        ref={messageListRef}
-        onKeyDown={rove}
-      >
-        <Styled.List ref={messageItemsRef}>
-          <TransitionGroup>
-            {getActiveChats(chats, chatNodeRef) ?? null}
-          </TransitionGroup>
-        </Styled.List>
-      </Styled.ScrollableList>
+      {!isMobile ? (
+        <Styled.ScrollableList
+          role="tabpanel"
+          tabIndex={0}
+          ref={messageListRef}
+          onKeyDown={rove}
+        >
+          <Styled.List ref={messageItemsRef}>
+            <TransitionGroup>
+              {getActiveChats(chats, chatNodeRef) ?? null}
+            </TransitionGroup>
+          </Styled.List>
+        </Styled.ScrollableList>
+      )
+        : (getActiveChats(chats, chatNodeRef) ?? null) }
     </Styled.Messages>
   );
 };
