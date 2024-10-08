@@ -106,9 +106,16 @@ const TldrawV2GlobalStyle = createGlobalStyle`
     }
   `}
 
-  [data-testid="menu-item.toggle-lock"],
+  ${({ bgSelected }) => (bgSelected) && `
+      [data-testid="menu-item.toggle-lock"],
+      [data-testid="menu-item.toggle-locked"],
+      [data-testid="menu-item.paste"],
+      [data-testid="menu-item.copy"] {
+        display: none !important;
+      }
+  `}
+
   [data-testid="menu-item.modify"],
-  [data-testid="menu-item.edit-link"],
   [data-testid="menu-item.conversions"],
   .tlui-helper-buttons,
   [data-testid="main.page-menu"],
