@@ -172,8 +172,7 @@ class MeetingActor(
   outGW.send(msgEvent)
 
   //Insert meeting into the database
-  MeetingDAO.insert(liveMeeting.props, liveMeeting.clientSettings)
-  PluginModel.persistPluginsForClient(liveMeeting.plugins, props.meetingProp.intId)
+  MeetingDAO.insert(liveMeeting.props, liveMeeting.clientSettings, liveMeeting.plugins)
 
   // Create a default public group chat
   state = groupChatApp.handleCreateDefaultPublicGroupChat(state, liveMeeting, msgBus)

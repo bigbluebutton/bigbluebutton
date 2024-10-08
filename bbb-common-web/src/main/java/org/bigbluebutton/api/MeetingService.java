@@ -362,8 +362,8 @@ public class MeetingService implements MessageListener {
     while (matcher.find()) {
 
       String variableName = matcher.group(1);
-      if (variableName.length() > 5){
-        // Remove "meta_" and turn everything lower case
+      if (variableName.startsWith("meta_") && variableName.length() > 5) {
+        // Remove "meta_" and convert to lower case
         variableName = variableName.substring(5).toLowerCase();
       } else {
         throw new NoSuchFieldException("Metadata " + variableName + " is malformed, please provide a valid one");
@@ -375,7 +375,7 @@ public class MeetingService implements MessageListener {
       else throw new NoSuchFieldException("Metadata " + variableName + " not found in URL parameters");
 
       // Replace the placeholder with the value from the map
-      matcher.appendReplacement(result, replacement);
+      matcher.appendReplacement(result, Matcher.quoteReplacement(replacement));
     }
     matcher.appendTail(result);
 
@@ -413,9 +413,9 @@ public class MeetingService implements MessageListener {
         String manifestContent = replaceMetaParametersIntoManifestTemplate(content.toString(), metadata);
 
         ObjectMapper mapper = new ObjectMapper();
-        Map<String, Object> MappedManifestContent = mapper.readValue(manifestContent, new TypeReference<>() {});
+        Map<String, Object> mappedManifestContent = mapper.readValue(manifestContent, new TypeReference<>() {});
 
-        manifestObject.put("content", MappedManifestContent);
+        manifestObject.put("content", mappedManifestContent);
         Map<String, Object> manifestWrapper = new HashMap<String, Object>();
         manifestWrapper.put(
                 "manifest", manifestObject

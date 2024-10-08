@@ -1,7 +1,10 @@
 package org.bigbluebutton.core.models
 
+import com.fasterxml.jackson.databind.ObjectMapper
+import com.fasterxml.jackson.module.scala.DefaultScalaModule
 import org.bigbluebutton.common2.util.JsonUtil
 import org.bigbluebutton.core.db.PluginDAO
+import java.util
 
 case class RateLimiting(
     messagesAllowedPerSecond: Int,
@@ -47,13 +50,16 @@ case class Plugin(
 )
 
 object PluginModel {
+  val objectMapper: ObjectMapper = new ObjectMapper()
+  objectMapper.registerModule(new DefaultScalaModule())
   def getPluginByName(instance: PluginModel, pluginName: String): Option[Plugin] = {
     instance.plugins.get(pluginName)
   }
   def getPlugins(instance: PluginModel): Map[String, Plugin] = {
     instance.plugins
   }
-  def createPluginModelFromJson(jsonString: String): PluginModel = {
+  def createPluginModelFromJson(json: util.Map[String, AnyRef]): PluginModel = {
+    val jsonString = objectMapper.writeValueAsString(json)
     val instance = new PluginModel()
     instance.plugins = JsonUtil.fromJson[Map[String, Plugin]](jsonString).getOrElse(Map())
     instance

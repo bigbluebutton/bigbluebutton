@@ -26,6 +26,8 @@ import java.nio.charset.StandardCharsets;
 import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
+
 import com.google.gson.Gson;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
@@ -544,7 +546,11 @@ public class ParamsProcessorUtil {
         ArrayList<String> listOfPlugins = new ArrayList<String>();
         if (!StringUtils.isEmpty(params.get(ApiParams.PLUGINS))) {
             String pluginsParam = params.get(ApiParams.PLUGINS);
-            listOfPlugins.addAll(Arrays.asList(pluginsParam.split(",")));
+            listOfPlugins.addAll(Arrays.stream(pluginsParam.split(","))
+                .map(String::trim)
+                .filter(s -> !s.isEmpty())
+                .collect(Collectors.toList()));
+
         }
 
         // Check Disabled Features Exclude list -- passed as a CREATE parameter to cancel the disabling (typically from bbb-web's properties file)
