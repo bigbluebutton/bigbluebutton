@@ -75,7 +75,7 @@ const UserListParticipants: React.FC<UserListParticipantsProps> = ({
   }, []);
   // --- End of plugin related code ---
   const rove = (ev: KeyboardEvent) => {
-    if (ev.code === 'Enter') {
+    if (ev.code === 'Enter' || ev.code === 'Space' || (ev.code === 'ArrowDown' && selectedUserRef.current !== document.activeElement)) {
       if (selectedUserRef.current && (selectedUserRef.current === document.activeElement)) {
         selectedUserRef.current.click();
       } else {
@@ -86,6 +86,7 @@ const UserListParticipants: React.FC<UserListParticipantsProps> = ({
           selectedUserRef.current.focus();
         }
       }
+      return;
     }
 
     if (ev.code === 'ArrowDown' || ev.code === 'ArrowUp') {
