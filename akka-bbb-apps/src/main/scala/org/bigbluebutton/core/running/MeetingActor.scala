@@ -623,16 +623,18 @@ class MeetingActor(
       case m: SetCurrentPagePubMsg =>
         state = presentationPodsApp.handle(m, state, liveMeeting, msgBus)
         updateUserLastActivity(m.header.userId)
-      case m: SetPageInfiniteWhiteboardPubMsg                => state = presentationPodsApp.handle(m, state, liveMeeting, msgBus)
-      case m: RemovePresentationPubMsg                       => state = presentationPodsApp.handle(m, state, liveMeeting, msgBus)
-      case m: SetPresentationDownloadablePubMsg              => state = presentationPodsApp.handle(m, state, liveMeeting, msgBus)
-      case m: PresentationConversionUpdateSysPubMsg          => state = presentationPodsApp.handle(m, state, liveMeeting, msgBus)
-      case m: PresentationUploadedFileTooLargeErrorSysPubMsg => state = presentationPodsApp.handle(m, state, liveMeeting, msgBus)
-      case m: PresentationHasInvalidMimeTypeErrorSysPubMsg   => state = presentationPodsApp.handle(m, state, liveMeeting, msgBus)
-      case m: PresentationUploadedFileTimeoutErrorSysPubMsg  => state = presentationPodsApp.handle(m, state, liveMeeting, msgBus)
-      case m: PresentationPageGeneratedSysPubMsg             => state = presentationPodsApp.handle(m, state, liveMeeting, msgBus)
-      case m: PresentationPageCountErrorSysPubMsg            => state = presentationPodsApp.handle(m, state, liveMeeting, msgBus)
-      case m: PresentationUploadTokenReqMsg                  => state = presentationPodsApp.handle(m, state, liveMeeting, msgBus)
+      case m: SetPageInfiniteWhiteboardPubMsg                  => state = presentationPodsApp.handle(m, state, liveMeeting, msgBus)
+      case m: RemovePresentationPubMsg                         => state = presentationPodsApp.handle(m, state, liveMeeting, msgBus)
+      case m: SetPresentationDownloadablePubMsg                => state = presentationPodsApp.handle(m, state, liveMeeting, msgBus)
+      case m: PresentationConversionUpdateSysPubMsg            => state = presentationPodsApp.handle(m, state, liveMeeting, msgBus)
+      case m: PresentationUploadedFileTooLargeErrorSysPubMsg   => state = presentationPodsApp.handle(m, state, liveMeeting, msgBus)
+      case m: PresentationHasInvalidMimeTypeErrorSysPubMsg     => state = presentationPodsApp.handle(m, state, liveMeeting, msgBus)
+      case m: PresentationUploadedFileTimeoutErrorSysPubMsg    => state = presentationPodsApp.handle(m, state, liveMeeting, msgBus)
+      case m: PresentationUploadedFileVirusErrorSysPubMsg      => state = presentationPodsApp.handle(m, state, liveMeeting, msgBus)
+      case m: PresentationUploadedFileScanFailedErrorSysPubMsg => state = presentationPodsApp.handle(m, state, liveMeeting, msgBus)
+      case m: PresentationPageGeneratedSysPubMsg               => state = presentationPodsApp.handle(m, state, liveMeeting, msgBus)
+      case m: PresentationPageCountErrorSysPubMsg              => state = presentationPodsApp.handle(m, state, liveMeeting, msgBus)
+      case m: PresentationUploadTokenReqMsg                    => state = presentationPodsApp.handle(m, state, liveMeeting, msgBus)
       case m: ResizeAndMovePagePubMsg =>
         state = presentationPodsApp.handle(m, state, liveMeeting, msgBus)
         updateUserLastActivity(m.header.userId)
@@ -705,6 +707,18 @@ class MeetingActor(
         updateUserLastActivity(m.body.msg.sender.id)
       case m: SendGroupChatMessageFromApiSysPubMsg =>
         state = groupChatApp.handle(m, state, liveMeeting, msgBus)
+      case m: EditGroupChatMessageReqMsg =>
+        state = groupChatApp.handle(m, state, liveMeeting, msgBus)
+        updateUserLastActivity(m.header.userId)
+      case m: DeleteGroupChatMessageReqMsg =>
+        state = groupChatApp.handle(m, state, liveMeeting, msgBus)
+        updateUserLastActivity(m.header.userId)
+      case m: SendGroupChatMessageReactionReqMsg =>
+        groupChatApp.handle(m, state, liveMeeting, msgBus)
+        updateUserLastActivity(m.header.userId)
+      case m: DeleteGroupChatMessageReactionReqMsg =>
+        groupChatApp.handle(m, state, liveMeeting, msgBus)
+        updateUserLastActivity(m.header.userId)
 
       // Plugin
       case m: PluginDataChannelPushEntryMsg    => pluginHdlrs.handle(m, state, liveMeeting)
@@ -717,6 +731,9 @@ class MeetingActor(
         webcamApp2x.handle(m, liveMeeting, msgBus)
         updateUserLastActivity(m.header.userId)
       case m: UserBroadcastCamStopMsg =>
+        webcamApp2x.handle(m, liveMeeting, msgBus)
+        updateUserLastActivity(m.header.userId)
+      case m: SetCamShowAsContentReqMsg =>
         webcamApp2x.handle(m, liveMeeting, msgBus)
         updateUserLastActivity(m.header.userId)
       case m: GetCamBroadcastPermissionReqMsg  => webcamApp2x.handle(m, liveMeeting, msgBus)

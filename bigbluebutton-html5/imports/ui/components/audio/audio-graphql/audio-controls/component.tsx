@@ -93,7 +93,6 @@ const AudioControls: React.FC<AudioControlsProps> = ({
         label={intl.formatMessage(joinAudioLabel)}
         data-test="joinAudio"
         color="default"
-        ghost
         icon="no_audio"
         size="lg"
         circle

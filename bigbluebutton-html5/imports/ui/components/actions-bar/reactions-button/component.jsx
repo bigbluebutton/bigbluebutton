@@ -84,6 +84,7 @@ const ReactionsButton = (props) => {
         raiseHand: !raiseHand,
       },
     });
+    document.activeElement.blur();
   };
 
   const handleToggleAFK = () => {
@@ -146,17 +147,42 @@ const ReactionsButton = (props) => {
   });
 
   actions.push({
-    label: <Styled.ToggleButtonWrapper><Toggle icons={false} defaultChecked={away} onChange={() => { handleToggleAFK(); }} ariaLabel={ToggleAFKLabel()} showToggleLabel={false} />{ToggleAFKLabel()}</Styled.ToggleButtonWrapper>,
+    label: <Styled.ToggleButtonWrapper isMobile={isMobile}>
+      {isMobile ? (
+        <div style={{ display: 'flex', flexDirection: 'column' }}>
+          {ToggleAFKLabel()}
+          <Toggle
+            icons={false}
+            checked={away}
+            onChange={handleToggleAFK}
+            ariaLabel={ToggleAFKLabel()}
+            showToggleLabel={false}
+            isMobile={isMobile}
+          />
+        </div>
+      ) : (
+        <>
+          <Toggle
+            icons={false}
+            checked={away}
+            onChange={handleToggleAFK}
+            ariaLabel={ToggleAFKLabel()}
+            showToggleLabel={false}
+          />
+          {ToggleAFKLabel()}
+        </>
+      )}
+    </Styled.ToggleButtonWrapper>,
     key: 'none',
     isToggle: true,
-    customStyles: {...actionCustomStyles, width: 'auto'},
+    customStyles: { ...actionCustomStyles, width: 'auto' },
   });
 
   actions.push({
     label: <Styled.RaiseHandButtonWrapper accessKey={shortcuts.raisehand} isMobile={isMobile} data-test={raiseHand ? 'lowerHandBtn' : 'raiseHandBtn'} active={raiseHand}><em-emoji key={handReaction.id} native={handReaction.native} emoji={{ id: handReaction.id }} {...emojiProps} />{RaiseHandButtonLabel()}</Styled.RaiseHandButtonWrapper>,
     key: 'hand',
     onClick: () => handleRaiseHandButtonClick(),
-    customStyles: {...actionCustomStyles, width: 'auto'},
+    customStyles: { ...actionCustomStyles, width: 'auto' },
   });
 
   const svgIcon = !raiseHand && !away && currentUserReaction === 'none' ? 'reactions' : null;
@@ -186,8 +212,7 @@ const ReactionsButton = (props) => {
             customIcon={customIcon}
             label={intl.formatMessage(intlMessages.reactionsLabel)}
             description="Reactions"
-            ghost={!showEmojiPicker && !customIcon}
-            onKeyPress={() => {}}
+            onKeyPress={() => { }}
             onClick={() => setShowEmojiPicker(true)}
             color={showEmojiPicker || customIcon ? 'primary' : 'default'}
             hideLabel
@@ -205,6 +230,7 @@ const ReactionsButton = (props) => {
       overrideMobileStyles
       isHorizontal={!isMobile}
       isMobile={isMobile}
+      isEmoji
       roundButtons={true}
       keepOpen={!autoCloseReactionsBar}
       opts={{
