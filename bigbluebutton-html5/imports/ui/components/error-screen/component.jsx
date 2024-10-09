@@ -92,6 +92,9 @@ const intlMessages = defineMessages({
   too_many_connections: {
     id: 'app.error.tooManyConnections',
   },
+  server_closed: {
+    id: 'app.error.serverClosed',
+  },
 });
 
 const propTypes = {

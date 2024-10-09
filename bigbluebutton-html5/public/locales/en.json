@@ -865,6 +865,7 @@
     "app.error.serverInternalError": "Server internal error.",
     "app.error.paramMissing": "Param missing on initial connection.",
     "app.error.tooManyConnections": "Too many connections.",
+    "app.error.serverClosed": "Server closed the connection.",
     "app.guest.errorSeeConsole": "Error: more details in the console.",
     "app.guest.noModeratorResponse": "No response from Moderator.",
     "app.guest.noSessionToken": "No session Token received.",

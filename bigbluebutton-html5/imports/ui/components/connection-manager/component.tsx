@@ -250,7 +250,7 @@ const ConnectionManager: React.FC<ConnectionManagerProps> = ({ children }): Reac
                 if (payload[0].messageId) {
                   setTerminalError(new Error(payload[0].message, { cause: payload[0].messageId }));
                 } else {
-                  setTerminalError('Server closed the connection');
+                  setTerminalError(new Error('Server closed the connection', { cause: 'server_closed' }));
                 }
               }
               tsLastMessageRef.current = Date.now();
