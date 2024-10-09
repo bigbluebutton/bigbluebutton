@@ -114,6 +114,7 @@ export const INITIAL_INPUT_STATE = {
 export const INITIAL_OUTPUT_STATE = {
   navBar: {
     display: false,
+    hideTopRow: false,
     width: 0,
     height: 0,
     top: 0,
