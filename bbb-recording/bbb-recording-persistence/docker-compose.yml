@@ -1,0 +1,14 @@
+version: '2'
+
+services:
+  postgres:
+    image: postgres:${POSTGRES_VERSION}
+    container_name: postgres
+    environment:
+      - "TZ=UTC"
+      - "POSTGRES_USER=${POSTGRES_USER}"
+      - "POSTGRES_PASSWORD=${POSTGRES_PASSWORD}"
+    ports:
+      - "${HOST_PORT}:${CONTAINER_PORT}"    
+    volumes:
+      - "./src/main/java/db/migration:/docker-entrypoint-initdb.d"  
