@@ -1,7 +1,6 @@
 import React from 'react';
 import { defineMessages } from 'react-intl';
 import PropTypes from 'prop-types';
-import { convertRemToPixels } from '/imports/utils/dom-utils';
 import data from '@emoji-mart/data';
 import withShortcutHelper from '/imports/ui/components/shortcut-help/service';
 import { init } from 'emoji-mart';
@@ -43,42 +42,17 @@ const RaiseHandButton = (props) => {
     document.activeElement.blur();
   };
 
-  const emojiProps = {
-    size: convertRemToPixels(1.5),
-    padding: '4px',
-  };
-
-  const handReaction = {
-    id: 'hand',
-    native: '✋',
-  };
-
-  const icon = !raiseHand ? 'hand' : null;
-
-  const customIcon = raiseHand
-    ? (
-      <em-emoji
-        key={handReaction.id}
-        native={handReaction.native}
-        emoji={handReaction}
-        {...emojiProps}
-      />
-    )
-    : null;
-
   const label = raiseHand ? intlMessages.notRaiseHandLabel : intlMessages.raiseHandLabel;
 
   return (
     <Styled.RaiseHandButton
       data-test="reactionsButton"
-      icon={icon}
-      customIcon={customIcon}
+      icon="hand"
       label={intl.formatMessage(label)}
       description="Reactions"
-      ghost={!raiseHand}
       onKeyPress={() => { }}
       onClick={() => handleRaiseHandButtonClick()}
-      color={customIcon ? 'primary' : 'default'}
+      color={raiseHand ? 'primary' : 'default'}
       accessKey={shortcuts.raisehand}
       hideLabel
       circle
