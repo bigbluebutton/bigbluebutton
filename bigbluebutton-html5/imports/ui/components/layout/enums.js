@@ -33,6 +33,19 @@ export const HIDDEN_LAYOUTS = [
   LAYOUT_TYPE.PARTICIPANTS_AND_CHAT_ONLY,
 ];
 
+export const LAYOUT_ELEMENTS = {
+  LAYOUT_TYPE: 'layoutType',
+  PRESENTATION_STATE: 'presentationState',
+  FOCUSED_CAMERA: 'focusedCamera',
+  CAMERA_DOCK_SIZE: 'cameraDockSize',
+  CAMERA_DOCK_POSITION: 'cameradockPosition',
+};
+
+export const SYNC = {
+  PROPAGATE_ELEMENTS: 'propagateElements',
+  REPLICATE_ELEMENTS: 'replicateElements',
+};
+
 export const ACTIONS = {
   SET_AUTO_ARRANGE_LAYOUT: 'setAutoArrangeLayout',
   SET_IS_RTL: 'setIsRTL',
