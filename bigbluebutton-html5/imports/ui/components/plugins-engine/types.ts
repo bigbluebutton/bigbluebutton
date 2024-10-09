@@ -16,7 +16,7 @@ export interface PluginsEngineManagerProps {
 export interface PluginConfig {
     name: string;
     url: string;
-    checksum?: string;
+    pluginJavascriptChecksum?: string;
 }
 
 export interface EffectivePluginConfig extends PluginConfig {

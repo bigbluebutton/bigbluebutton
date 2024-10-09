@@ -19,10 +19,8 @@
 package org.bigbluebutton.api;
 
 import java.io.File;
-import java.math.BigInteger;
 import java.net.URI;
 import java.net.URL;
-import java.security.MessageDigest;
 import java.util.*;
 import java.util.Map.Entry;
 import java.util.concurrent.BlockingQueue;
@@ -49,7 +47,6 @@ import org.bigbluebutton.api.messaging.messages.*;
 import org.bigbluebutton.api2.IBbbWebApiGWApp;
 import org.bigbluebutton.api2.domain.UploadedTrack;
 import org.bigbluebutton.common2.redis.RedisStorageService;
-import org.bigbluebutton.common2.util.JsonUtil;
 import org.bigbluebutton.presentation.PresentationUrlDownloadService;
 import org.bigbluebutton.presentation.imp.SlidesGenerationProgressNotifier;
 import org.bigbluebutton.web.services.UserCleanupTimerTask;
@@ -386,9 +383,11 @@ public class MeetingService implements MessageListener {
     Map<String, String> metadata = m.getMetadata();
 
     // Fetch content for each URL and store in the map
-    for (String manifestUrl : m.getPluginManifestUrls()) {
+    for (PluginsManifest pluginsManifest : m.getPluginsManifests()) {
       try {
-        URL url = new URL(manifestUrl);
+
+        String urlString = pluginsManifest.getUrl();
+        URL url = new URL(urlString);
         BufferedReader in = new BufferedReader(new InputStreamReader(url.openStream()));
         StringBuilder content = new StringBuilder();
         String inputLine;
@@ -398,18 +397,36 @@ public class MeetingService implements MessageListener {
         }
         in.close();
 
-        // Parse the JSON content and get the "name" field
+        // Parse the JSON content
         JsonNode jsonNode = objectMapper.readTree(content.toString());
+
+        // Validate checksum if any:
+        String checksum = pluginsManifest.getChecksum();
+        if (jsonNode.has("checksum") || !StringUtils.isEmpty(checksum)) {
+          if (!checksum.equals(jsonNode.get("checksum").asText())) {
+            log.info("Plugin checksum mismatch for {}. Manifest.json returned {} and URL parameter input was {}",
+              pluginsManifest.getUrl(),
+              jsonNode.get("checksum").asText(),
+              checksum
+            );
+            log.info("Plugin {} is not going to be loaded",
+              pluginsManifest.getUrl()
+            );
+            continue;
+          }
+        }
+
+        // Get the "name" field
         String name;
         if (jsonNode.has("name")) {
           name = jsonNode.get("name").asText();
         } else {
-          throw new NoSuchFieldException("For url " + manifestUrl + "there is no name field configured.");
+          throw new NoSuchFieldException("For url " + urlString + "there is no name field configured.");
         }
 
         String pluginKey = name;
         HashMap<String, Object> manifestObject = new HashMap<>();
-        manifestObject.put("url", manifestUrl);
+        manifestObject.put("url", urlString);
         String manifestContent = replaceMetaParametersIntoManifestTemplate(content.toString(), metadata);
 
         ObjectMapper mapper = new ObjectMapper();
@@ -423,7 +440,7 @@ public class MeetingService implements MessageListener {
         urlContents.put(pluginKey, manifestWrapper);
       } catch(Exception e) {
         log.error("Failed with the following plugin manifest URL: {}. Error: {} therefore this plugin will not load",
-                manifestUrl, e);
+                pluginsManifest.getUrl(), e);
       }
     }
     return urlContents;

@@ -33,13 +33,15 @@ case class RemoteDataSource(
 )
 
 case class PluginManifestContent(
-    requiredSdkVersion:      String,
-    name:                    String,
-    javascriptEntrypointUrl: String,
-    localesBaseUrl:          Option[String]                 = None,
-    eventPersistence:        Option[EventPersistence]       = None,
-    dataChannels:            Option[List[DataChannel]]      = None,
-    remoteDataSources:       Option[List[RemoteDataSource]] = None
+    requiredSdkVersion:       String,
+    name:                     String,
+    javascriptEntrypointUrl:  String,
+    checksum:                 Option[String]                 = None,
+    pluginJavascriptChecksum: Option[String]                 = None,
+    localesBaseUrl:           Option[String]                 = None,
+    eventPersistence:         Option[EventPersistence]       = None,
+    dataChannels:             Option[List[DataChannel]]      = None,
+    remoteDataSources:        Option[List[RemoteDataSource]] = None
 )
 
 case class PluginManifest(
@@ -77,7 +79,8 @@ object PluginModel {
   }
   def persistPluginsForClient(instance: PluginModel, meetingId: String): Unit = {
     instance.plugins.foreach { case (_, plugin) =>
-      PluginDAO.insert(meetingId, plugin.manifest.content.name, plugin.manifest.content.javascriptEntrypointUrl)
+      PluginDAO.insert(meetingId, plugin.manifest.content.name, plugin.manifest.content.javascriptEntrypointUrl,
+        plugin.manifest.content.pluginJavascriptChecksum.getOrElse(""))
     }
   }
 }

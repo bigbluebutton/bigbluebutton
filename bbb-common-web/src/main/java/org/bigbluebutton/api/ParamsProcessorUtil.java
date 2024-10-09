@@ -26,12 +26,12 @@ import java.nio.charset.StandardCharsets;
 import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-import java.util.stream.Collectors;
 
 import com.google.gson.Gson;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
+import org.bigbluebutton.api.domain.*;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.safety.Safelist;
@@ -41,10 +41,6 @@ import org.jsoup.select.Elements;
 import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.commons.lang3.RandomStringUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.bigbluebutton.api.domain.BreakoutRoomsParams;
-import org.bigbluebutton.api.domain.LockSettingsParams;
-import org.bigbluebutton.api.domain.Meeting;
-import org.bigbluebutton.api.domain.Group;
 import org.bigbluebutton.api.service.ServiceUtils;
 import org.bigbluebutton.api.util.ParamsUtil;
 import org.slf4j.Logger;
@@ -434,6 +430,33 @@ public class ParamsProcessorUtil {
         return groups;
     }
 
+    private ArrayList<PluginsManifest> processPluginsManifestsParams(Map<String, String> params) {
+        ArrayList<PluginsManifest> pluginsManifests = new ArrayList<PluginsManifest>();
+        String pluginsManifestParams = params.get(ApiParams.PLUGINS_MANIFESTS);
+        if (!StringUtils.isEmpty(pluginsManifestParams)) {
+            JsonElement pluginsManifestsJsonElement = new Gson().fromJson(pluginsManifestParams, JsonElement.class);
+
+            if(pluginsManifestsJsonElement != null && pluginsManifestsJsonElement.isJsonArray()) {
+                JsonArray pluginsManifestsJson = pluginsManifestsJsonElement.getAsJsonArray();
+                for (JsonElement pluginsManifestJson : pluginsManifestsJson) {
+                    if(pluginsManifestJson.isJsonObject()) {
+                        JsonObject pluginsManifestJsonObj = pluginsManifestJson.getAsJsonObject();
+                        if(pluginsManifestJsonObj.has("url")) {
+                            String url = pluginsManifestJsonObj.get("url").getAsString();
+                            PluginsManifest newPlugin = new PluginsManifest(url);
+                            if(pluginsManifestJsonObj.has("checksum")) {
+                                newPlugin.setChecksum(pluginsManifestJsonObj.get("checksum").getAsString());
+                            }
+                            pluginsManifests.add(newPlugin);
+                        }
+                    }
+                }
+            }
+        }
+
+        return pluginsManifests;
+    }
+
     public Meeting processCreateParams(Map<String, String> params) {
 
         String meetingName = params.get(ApiParams.NAME);
@@ -543,15 +566,7 @@ public class ParamsProcessorUtil {
         listOfDisabledFeatures = new ArrayList<>(new HashSet<>(listOfDisabledFeatures));
 
         // Process Plugin Manifest Urls
-        ArrayList<String> listOfPlugins = new ArrayList<String>();
-        if (!StringUtils.isEmpty(params.get(ApiParams.PLUGINS))) {
-            String pluginsParam = params.get(ApiParams.PLUGINS);
-            listOfPlugins.addAll(Arrays.stream(pluginsParam.split(","))
-                .map(String::trim)
-                .filter(s -> !s.isEmpty())
-                .collect(Collectors.toList()));
-
-        }
+        ArrayList<PluginsManifest> listOfPluginsManifests = processPluginsManifestsParams(params);
 
         // Check Disabled Features Exclude list -- passed as a CREATE parameter to cancel the disabling (typically from bbb-web's properties file)
         ArrayList<String> listOfDisabledFeaturesExclude = new ArrayList<>();
@@ -803,7 +818,7 @@ public class ParamsProcessorUtil {
                 .withLearningDashboardCleanupDelayInMinutes(learningDashboardCleanupMins)
                 .withLearningDashboardAccessToken(learningDashboardAccessToken)
                 .withGroups(groups)
-                .withPluginManifestUrls(listOfPlugins)
+                .withPluginManifests(listOfPluginsManifests)
                 .withDisabledFeatures(listOfDisabledFeatures)
                 .withNotifyRecordingIsOn(notifyRecordingIsOn)
                 .withPresentationUploadExternalDescription(presentationUploadExternalDescription)
