@@ -106,7 +106,8 @@ const AppContainer = (props) => {
           shouldShowPresentation,
           genericMainContentId: genericMainContent.genericContentId,
           audioCaptions: <AudioCaptionsLiveContainer />,
-          hideNotificationToasts,
+          hideNotificationToasts: hideNotificationToasts
+            || getFromUserSettings('bbb_hide_notifications', false),
           darkTheme,
         }}
         {...props}
