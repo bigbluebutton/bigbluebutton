@@ -144,6 +144,7 @@ const Whiteboard = React.memo((props) => {
 
   const THRESHOLD = 0.1;
   const CAMERA_UPDATE_DELAY = 650;
+  const MOUNTED_CAMERA_DELAY = 2000;
   const lastKnownHeight = React.useRef(presentationAreaHeight);
   const lastKnownWidth = React.useRef(presentationAreaWidth);
 
@@ -455,7 +456,14 @@ const Whiteboard = React.memo((props) => {
       : calcedZoom;
   };
 
+  let cameraUpdateTimeoutId = null;
+
   const adjustCameraOnMount = (includeViewerLogic = true) => {
+    // Clear any existing timeout to prevent overlaps
+    if (cameraUpdateTimeoutId) {
+      clearTimeout(cameraUpdateTimeoutId);
+    }
+
     if (presenterChanged) {
       localStorage.removeItem('initialViewBoxWidth');
       localStorage.removeItem('initialViewBoxHeight');
@@ -482,7 +490,7 @@ const Whiteboard = React.memo((props) => {
       localStorage.setItem('initialViewBoxHeight', calculatedHeight.toString());
     }
 
-    setTimeout(() => {
+    cameraUpdateTimeoutId = setTimeout(() => {
       if (
         presentationAreaHeight > 0
         && presentationAreaWidth > 0
@@ -530,7 +538,7 @@ const Whiteboard = React.memo((props) => {
           setCamera(baseZoom, adjustedXPos, adjustedYPos);
         }
       }
-    }, CAMERA_UPDATE_DELAY);
+    }, MOUNTED_CAMERA_DELAY);
   };
 
   const handleTldrawMount = (editor) => {
