@@ -27,7 +27,7 @@ trait PluginPersistEventMsgHdlr extends HandlerHelpers {
     } yield {
       PluginModel.getPluginByName(liveMeeting.plugins, msg.body.pluginName) match {
         case Some(p) =>
-          val eventPersistencePermissions = p.manifest.content.eventPersistence
+          val eventPersistencePermissions = p.manifest.content.eventPersistence.orNull;
           if (eventPersistencePermissions.isEnabled) {
             broadcastEvent(msg, bus)
           } else log.info(s"Event persistence not available for plugin '${msg.body.pluginName}'.")
