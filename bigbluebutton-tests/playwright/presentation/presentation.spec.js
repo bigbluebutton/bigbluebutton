@@ -37,7 +37,7 @@ test.describe.parallel('Presentation', { tag: '@ci' }, () => {
   // https://docs.bigbluebutton.org/2.6/release-tests.html#fit-to-width-option
   test('Presentation fit to width', async ({ browser, context, page }) => {
     const presentation = new Presentation(browser, context);
-    await presentation.initModPage(page, true, { createParameter: hidePresentationToast });
+    await presentation.initModPage(page, true, { joinParameter: hidePresentationToast });
     await presentation.initUserPage(true, context);
     await presentation.fitToWidthTest();
   });
@@ -127,7 +127,7 @@ test.describe.parallel('Presentation', { tag: '@ci' }, () => {
 
     test('Remove previous presentation from previous presenter', async ({ browser, context, page }) => {
       const presentation = new Presentation(browser, context);
-      await presentation.initModPage(page, true, { createParameter: hidePresentationToast });
+      await presentation.initModPage(page, true, { joinParameter: hidePresentationToast });
       await presentation.initUserPage(true, context);
       await presentation.removePreviousPresentationFromPreviousPresenter();
     });
