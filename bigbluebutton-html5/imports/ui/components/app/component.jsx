@@ -9,7 +9,6 @@ import PollingContainer from '/imports/ui/components/polling/container';
 import logger from '/imports/startup/client/logger';
 import ActivityCheckContainer from '/imports/ui/components/activity-check/container';
 import ToastContainer from '/imports/ui/components/common/toast/container';
-import PadsSessionsContainer from '/imports/ui/components/pads/pads-graphql/sessions/component';
 import WakeLockContainer from '../wake-lock/container';
 import NotificationsBarContainer from '../notifications-bar/container';
 import AudioContainer from '../audio/container';
@@ -333,7 +332,6 @@ class App extends Component {
           <RaiseHandNotifier />
           <ManyWebcamsNotifier />
           <PollingContainer />
-          <PadsSessionsContainer />
           <WakeLockContainer />
           {this.renderActionsBar()}
           <EmojiRainContainer />

@@ -637,10 +637,14 @@ CREATE TABLE "user_camera" (
 	"streamId" varchar(150) PRIMARY KEY,
 	"meetingId" varchar(100),
     "userId" varchar(50),
+    "contentType" varchar(50), --camera or screenshare
+    "hasAudio" boolean,
+    "showAsContent" boolean,
     FOREIGN KEY ("meetingId", "userId") REFERENCES "user"("meetingId","userId") ON DELETE CASCADE
 );
 CREATE INDEX "idx_user_camera_userId" ON "user_camera"("meetingId", "userId");
 CREATE INDEX "idx_user_camera_userId_reverse" ON "user_camera"("userId", "meetingId");
+CREATE INDEX "idx_user_camera_meeting_contentType" ON "user_camera"("meetingId", "contentType", "showAsContent");
 
 CREATE OR REPLACE VIEW "v_user_camera" AS
 SELECT * FROM "user_camera";
@@ -983,18 +987,42 @@ CREATE TABLE "chat_message" (
 	"messageId" varchar(100) PRIMARY KEY,
 	"chatId" varchar(100),
 	"meetingId" varchar(100),
-	"correlationId" varchar(100),
+	"correlationId" varchar(100), --create by akka-apps
+	"messageSequence" integer, --populated via trigger
 	"chatEmphasizedText" boolean,
 	"message" text,
 	"messageType" varchar(50),
+	"replyToMessageId" varchar(100) references "chat_message"("messageId"),
 	"messageMetadata" text,
     "senderId" varchar(100),
     "senderName" varchar(255),
 	"senderRole" varchar(20),
-	"createdAt" timestamp with time zone,
+	"createdAt" timestamp with time zone not null,
+	"editedAt" timestamp with time zone,
+	"deletedByUserId" varchar(100),
+	"deletedAt" timestamp with time zone,
     CONSTRAINT chat_fk FOREIGN KEY ("chatId", "meetingId") REFERENCES "chat"("chatId", "meetingId") ON DELETE CASCADE
 );
 CREATE INDEX "idx_chat_message_chatId" ON "chat_message"("chatId","meetingId");
+
+--Trigger to populate the message with its sequence number (useful to identify the page it lies)
+CREATE OR REPLACE FUNCTION "update_chatMessage_messageSequence"()
+RETURNS TRIGGER AS $$
+BEGIN
+    SELECT count(1)+1 INTO NEW."messageSequence"
+    from "chat_message" cm
+    where cm."meetingId" = NEW."meetingId"
+    and cm."chatId" = NEW."chatId"
+    and cm."createdAt" <= NEW."createdAt";
+    RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+
+CREATE TRIGGER "trigger_update_chatMessage_messageSequence"
+BEFORE INSERT ON "chat_message"
+FOR EACH ROW
+EXECUTE FUNCTION "update_chatMessage_messageSequence"();
+
 
 CREATE OR REPLACE FUNCTION "update_chatUser_clear_lastTypingAt_trigger_func"() RETURNS TRIGGER AS $$
 BEGIN
@@ -1007,6 +1035,43 @@ $$ LANGUAGE plpgsql;
 
 CREATE TRIGGER "update_chatUser_clear_lastTypingAt_trigger" AFTER INSERT ON chat_message FOR EACH ROW
 EXECUTE FUNCTION "update_chatUser_clear_lastTypingAt_trigger_func"();
+
+
+
+CREATE TABLE "chat_message_history" (
+	"messageId" varchar(100) REFERENCES "chat_message"("messageId") ON DELETE CASCADE,
+	"meetingId" varchar(100),
+	"messageVersionSequence" integer, --populated via trigger
+	"message" text,
+	"senderId" varchar(100),
+	"createdAt" timestamp with time zone,
+	"movedToHistoryAt" timestamp with time zone default current_timestamp,
+    CONSTRAINT chat_message_history_pk PRIMARY KEY ("messageId", "messageVersionSequence")
+);
+CREATE INDEX "chat_message_history_seq_idx" ON "chat_message_history"("messageId","messageVersionSequence");
+
+CREATE OR REPLACE VIEW "v_chat_message_history" AS SELECT * FROM "chat_message_history";
+
+CREATE OR REPLACE FUNCTION "update_chat_message_history_trigger_func"()
+RETURNS TRIGGER AS $$
+BEGIN
+    IF NEW."message" IS DISTINCT FROM OLD."message" THEN
+        insert into "chat_message_history"("messageId", "meetingId", "messageVersionSequence", "message", "senderId", "createdAt")
+	    values (OLD."messageId",
+	            OLD."meetingId",
+	            (select count(1) from "chat_message_history" prev where prev."messageId" = OLD."messageId"),
+	            OLD."message",
+	            OLD."senderId",
+	            coalesce(OLD."editedAt",OLD."createdAt")
+	            );
+    END IF;
+
+    RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+
+CREATE TRIGGER "update_chat_message_history_trigger" BEFORE UPDATE OF "message" ON "chat_message"
+    FOR EACH ROW EXECUTE FUNCTION "update_chat_message_history_trigger_func"();
 
 
 CREATE OR REPLACE VIEW "v_chat" AS
@@ -1049,14 +1114,19 @@ SELECT  cu."meetingId",
         cm."messageId",
         cm."chatId",
         cm."correlationId",
+        cm."messageSequence",
         cm."chatEmphasizedText",
         cm."message",
         cm."messageType",
+        cm."replyToMessageId",
         cm."messageMetadata",
         cm."senderId",
         cm."senderName",
         cm."senderRole",
         cm."createdAt",
+        cm."editedAt",
+        cm."deletedByUserId",
+        cm."deletedAt",
         CASE WHEN chat_with."lastSeenAt" >= cm."createdAt" THEN true ELSE false end "recipientHasSeen"
 FROM chat_message cm
 JOIN chat_user cu ON cu."meetingId" = cm."meetingId" AND cu."chatId" = cm."chatId"
@@ -1064,6 +1134,21 @@ LEFT JOIN "chat_user" chat_with ON chat_with."meetingId" = cm."meetingId"
                                 AND chat_with."chatId" = cm."chatId"
                                 AND chat_with."userId" != cu."userId"
 WHERE cm."chatId" != 'MAIN-PUBLIC-GROUP-CHAT';
+
+CREATE TABLE "chat_message_reaction" (
+	"meetingId" varchar(100),
+	"messageId" varchar(100) REFERENCES "chat_message"("messageId") ON DELETE CASCADE,
+	"userId" varchar(100) not null,
+	"reactionEmoji" varchar(25),
+	"createdAt" timestamp with time zone,
+    CONSTRAINT chat_message_reaction_pk PRIMARY KEY ("messageId", "userId", "reactionEmoji"),
+    FOREIGN KEY ("meetingId", "userId") REFERENCES "user"("meetingId","userId") ON DELETE CASCADE
+);
+CREATE INDEX "chat_message_reaction_meeting_message_idx" ON "chat_message_reaction"("meetingId","messageId");
+CREATE INDEX "chat_message_reaction_meeting_message_idx_rev" ON "chat_message_reaction"("messageId", "meetingId");
+
+CREATE OR REPLACE VIEW "v_chat_message_reaction" AS SELECT * FROM "chat_message_reaction";
+
 
 --============ Presentation / Annotation
 
@@ -1524,7 +1609,7 @@ create table "screenshare"(
 "meetingId" varchar(100) REFERENCES "meeting"("meetingId") ON DELETE CASCADE,
 "voiceConf" varchar(50),
 "screenshareConf" varchar(50),
-"contentType" varchar(50),
+"contentType" varchar(50), --camera or screenshare
 "stream" varchar(100),
 "vidWidth" integer,
 "vidHeight" integer,
