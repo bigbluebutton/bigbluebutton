@@ -165,7 +165,6 @@ const ReactionsButton = (props) => {
             customIcon={customIcon}
             label={intl.formatMessage(intlMessages.reactionsLabel)}
             description="Reactions"
-            ghost={!showEmojiPicker && !customIcon}
             onKeyPress={() => { }}
             onClick={() => setShowEmojiPicker(true)}
             color={showEmojiPicker || customIcon ? 'primary' : 'default'}
