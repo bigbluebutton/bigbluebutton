@@ -143,18 +143,20 @@ class Presentation extends PureComponent {
 
   componentDidMount() {
     this.getInitialPresentationSizes();
-    this.refPresentationContainer.addEventListener(
-      'keydown',
-      this.handlePanShortcut,
-    );
-    this.refPresentationContainer.addEventListener(
-      'keyup',
-      this.handlePanShortcut,
-    );
-    this.refPresentationContainer.addEventListener(
-      FULLSCREEN_CHANGE_EVENT,
-      this.onFullscreenChange,
-    );
+    if (this.refPresentationContainer) {
+      this.refPresentationContainer.addEventListener(
+        'keydown',
+        this.handlePanShortcut,
+      );
+      this.refPresentationContainer.addEventListener(
+        'keyup',
+        this.handlePanShortcut,
+      );
+      this.refPresentationContainer.addEventListener(
+        FULLSCREEN_CHANGE_EVENT,
+        this.onFullscreenChange,
+      );
+    }
     window.addEventListener('resize', this.onResize, false);
 
     const {
@@ -367,18 +369,20 @@ class Presentation extends PureComponent {
     const { fullscreenContext, layoutContextDispatch } = this.props;
 
     window.removeEventListener('resize', this.onResize, false);
-    this.refPresentationContainer.removeEventListener(
-      FULLSCREEN_CHANGE_EVENT,
-      this.onFullscreenChange,
-    );
-    this.refPresentationContainer.removeEventListener(
-      'keydown',
-      this.handlePanShortcut,
-    );
-    this.refPresentationContainer.removeEventListener(
-      'keyup',
-      this.handlePanShortcut,
-    );
+    if (this.refPresentationContainer) {
+      this.refPresentationContainer.removeEventListener(
+        FULLSCREEN_CHANGE_EVENT,
+        this.onFullscreenChange,
+      );
+      this.refPresentationContainer.removeEventListener(
+        'keydown',
+        this.handlePanShortcut,
+      );
+      this.refPresentationContainer.removeEventListener(
+        'keyup',
+        this.handlePanShortcut,
+      );
+    }
 
     if (fullscreenContext) {
       layoutContextDispatch({
@@ -817,7 +821,7 @@ class Presentation extends PureComponent {
     const presentationZIndex = fullscreenContext ? presentationBounds.zIndex : undefined;
 
     const APP_CRASH_METADATA = { logCode: 'whiteboard_crash', logMessage: 'Possible whiteboard crash' };
-
+  if (!presentationIsOpen) return null;
     return (
       <>
         <Styled.PresentationContainer
