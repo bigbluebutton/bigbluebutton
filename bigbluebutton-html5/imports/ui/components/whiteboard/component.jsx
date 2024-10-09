@@ -151,6 +151,7 @@ const Whiteboard = React.memo((props) => {
   const initialViewBoxWidthRef = React.useRef(null);
   const initialViewBoxHeightRef = React.useRef(null);
   const previousTool = React.useRef(null);
+  const bgSelectedRef = React.useRef(false);
 
   const THRESHOLD = 0.1;
   const CAMERA_UPDATE_DELAY = 650;
@@ -683,7 +684,7 @@ const Whiteboard = React.memo((props) => {
 
           if (!isEqual(prev.hoveredShapeId, next.hoveredShapeId)) {
             const hoveredShapeOwner = prevShapesRef.current[next.hoveredShapeId]?.meta?.createdBy;
-            if (hoveredShapeOwner !== currentUser?.userId) {
+            if (hoveredShapeOwner !== currentUser?.userId || next.hoveredShapeId?.includes('shape:BG-')) {
               newNext.hoveredShapeId = null;
             }
           }
@@ -718,6 +719,14 @@ const Whiteboard = React.memo((props) => {
 
         return newNext;
       };
+
+      editor.store.onAfterChange = (prev, next) => {
+        if (next['selectedShapeIds'] && next['selectedShapeIds']?.some(id => id.includes('shape:BG'))) {
+          bgSelectedRef.current = true;
+        } else if ((next['selectedShapeIds'] && !next['selectedShapeIds']?.some(id => id.includes('shape:BG')))) {
+          bgSelectedRef.current = false;
+        }
+      }
 
       if (!isPresenterRef.current && !hasWBAccessRef.current) {
         editor.setCurrentTool('noop');
@@ -1579,6 +1588,7 @@ const Whiteboard = React.memo((props) => {
       <Styled.TldrawV2GlobalStyle
         {...{
           hasWBAccess: hasWBAccessRef.current,
+          bgSelected: bgSelectedRef.current,
           isPresenter,
           isRTL,
           isMultiUserActive,
