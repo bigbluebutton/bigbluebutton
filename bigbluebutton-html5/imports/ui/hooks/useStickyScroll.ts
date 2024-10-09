@@ -7,7 +7,7 @@ interface Handlers {
   stopObserving(): void;
 }
 
-const useStickyScroll = (el: HTMLElement | null) => {
+const useStickyScroll = (stickyElement: HTMLElement | null, onResizeOf: HTMLElement | null) => {
   const elHeight = useRef(0);
   const timeout = useRef<ReturnType<typeof setTimeout>>();
   const handlers = useRef<Handlers>({
@@ -22,7 +22,10 @@ const useStickyScroll = (el: HTMLElement | null) => {
         if (target instanceof HTMLElement) {
           if (target.offsetHeight > elHeight.current) {
             elHeight.current = target.offsetHeight;
-            target.scrollTop = target.scrollHeight + target.clientHeight;
+            if (stickyElement) {
+              // eslint-disable-next-line no-param-reassign
+              stickyElement.scrollTop = stickyElement.scrollHeight + stickyElement.clientHeight;
+            }
           } else {
             elHeight.current = 0;
           }
@@ -33,17 +36,17 @@ const useStickyScroll = (el: HTMLElement | null) => {
   );
 
   handlers.current.startObserving = useCallback(() => {
-    if (!el) return;
+    if (!onResizeOf) return;
     clearTimeout(timeout.current);
-    observer.observe(el);
-  }, [el]);
+    observer.observe(onResizeOf);
+  }, [onResizeOf]);
 
   handlers.current.stopObserving = useCallback(() => {
-    if (!el) return;
+    if (!onResizeOf) return;
     timeout.current = setTimeout(() => {
-      observer.unobserve(el);
+      observer.unobserve(onResizeOf);
     }, 500);
-  }, [el]);
+  }, [onResizeOf]);
 
   useEffect(
     () => () => {
