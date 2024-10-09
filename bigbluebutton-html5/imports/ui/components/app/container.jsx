@@ -54,6 +54,7 @@ const AppContainer = (props) => {
   const captionsStyle = layoutSelectOutput((i) => i.captions);
   const presentation = layoutSelectInput((i) => i.presentation);
   const sharedNotesInput = layoutSelectInput((i) => i.sharedNotes);
+  const { hideNotificationToasts } = layoutSelectInput((i) => i.notificationsBar);
 
   const setSpeechOptions = useSetSpeechOptions();
   const { data: pinnedPadData } = useDeduplicatedSubscription(PINNED_PAD_SUBSCRIPTION);
@@ -105,6 +106,7 @@ const AppContainer = (props) => {
           shouldShowPresentation,
           genericMainContentId: genericMainContent.genericContentId,
           audioCaptions: <AudioCaptionsLiveContainer />,
+          hideNotificationToasts,
           darkTheme,
         }}
         {...props}
