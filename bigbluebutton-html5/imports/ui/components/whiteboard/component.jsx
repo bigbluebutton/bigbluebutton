@@ -785,8 +785,17 @@ const Whiteboard = React.memo((props) => {
         }
 
         // Get viewport dimensions and bounds
-        const viewportPageBounds = editor.getViewportPageBounds();
-        const { w: viewportWidth, h: viewportHeight } = viewportPageBounds;
+        let viewportWidth;
+        let viewportHeight;
+
+        if (isPresenterRef.current) {
+          const viewportPageBounds = editor?.getViewportPageBounds();
+          viewportWidth = viewportPageBounds?.w
+          viewportHeight = viewportPageBounds?.h
+        } else {
+          viewportWidth = currentPresentationPageRef.current?.scaledViewBoxWidth
+          viewportHeight = currentPresentationPageRef.current?.scaledViewBoxHeight
+        }
 
         const presentationWidthLocal = currentPresentationPage?.scaledWidth || 0;
         const presentationHeightLocal = currentPresentationPage?.scaledHeight || 0;
