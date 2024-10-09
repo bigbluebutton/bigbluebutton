@@ -23,9 +23,8 @@ const useCursor = (publishCursorUpdate, whiteboardId) => {
 };
 
 const useMouseEvents = ({
-  whiteboardRef, tlEditorRef, isWheelZoomRef, initialZoomRef,
+  whiteboardRef, tlEditorRef, isWheelZoomRef, initialZoomRef, isPresenterRef,
 }, {
-  isPresenter,
   hasWBAccess,
   whiteboardToolbarAutoHide,
   animations,
@@ -52,7 +51,7 @@ const useMouseEvents = ({
   };
 
   const handleMouseDownWhiteboard = (event) => {
-    if (!isPresenter && !hasWBAccess) {
+    if (!isPresenterRef.current && !hasWBAccess) {
       const updateProps = { isReadonly: false };
 
       if (event.button === 1) {
@@ -82,7 +81,7 @@ const useMouseEvents = ({
         'fade-out',
         'fade-in',
         animations ? '.3s' : '0s',
-        hasWBAccess || isPresenter,
+        hasWBAccess || isPresenterRef.current,
       );
     }
   };
@@ -93,7 +92,7 @@ const useMouseEvents = ({
         'fade-in',
         'fade-out',
         animations ? '3s' : '0s',
-        hasWBAccess || isPresenter,
+        hasWBAccess || isPresenterRef.current,
       );
     }
 
@@ -105,7 +104,7 @@ const useMouseEvents = ({
   const handleMouseWheel = throttle({ interval: 175 }, (event) => {
     event.preventDefault();
     event.stopPropagation();
-    if (!tlEditorRef.current || !isPresenter || !currentPresentationPage) {
+    if (!tlEditorRef.current || !isPresenterRef.current || !currentPresentationPage) {
       return;
     }
 
@@ -164,14 +163,14 @@ const useMouseEvents = ({
         'fade-in',
         'fade-out',
         animations ? '3s' : '0s',
-        hasWBAccess || isPresenter,
+        hasWBAccess || isPresenterRef.current,
       );
     } else {
       toggleToolsAnimations(
         'fade-out',
         'fade-in',
         animations ? '.3s' : '0s',
-        hasWBAccess || isPresenter,
+        hasWBAccess || isPresenterRef.current,
       );
     }
   }, [whiteboardToolbarAutoHide]);
@@ -203,6 +202,7 @@ const useMouseEvents = ({
   }, [
     whiteboardRef,
     tlEditorRef,
+    isPresenterRef,
     handleMouseDownWhiteboard,
     handleMouseUp,
     handleMouseEnter,

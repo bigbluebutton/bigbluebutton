@@ -213,6 +213,7 @@ class Presentation extends PureComponent {
       fitToWidth,
       isDefaultPresentation,
       presentationIsDownloadable,
+      setPresentationFitToWidth,
     } = this.props;
     const {
       presentationWidth,
@@ -360,6 +361,10 @@ class Presentation extends PureComponent {
     ) {
       this.setIsPanning();
     }
+
+    if (!userIsPresenter && prevProps.userIsPresenter && fitToWidth) {
+      setPresentationFitToWidth(false);
+    }
   }
 
   componentWillUnmount() {
@@ -500,9 +505,9 @@ class Presentation extends PureComponent {
   zoomChanger(zoom) {
     let boundZoom = parseInt(zoom);
     if (boundZoom < HUNDRED_PERCENT) {
-      boundZoom = HUNDRED_PERCENT
+      boundZoom = HUNDRED_PERCENT;
     } else if (boundZoom > MAX_PERCENT) {
-      boundZoom = MAX_PERCENT
+      boundZoom = MAX_PERCENT;
     }
     this.setState({ zoom: boundZoom });
   }
