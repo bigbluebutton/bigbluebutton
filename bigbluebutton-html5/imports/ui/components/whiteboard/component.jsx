@@ -530,7 +530,7 @@ const Whiteboard = React.memo((props) => {
           setCamera(baseZoom, adjustedXPos, adjustedYPos);
         }
       }
-    }, 200);
+    }, CAMERA_UPDATE_DELAY);
   };
 
   const handleTldrawMount = (editor) => {
