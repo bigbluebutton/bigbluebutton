@@ -45,7 +45,7 @@ trait EditGroupChatMessageReqMsgHdlr extends HandlerHelpers {
         }
       }
 
-      if (!chatDisabled && editChatMessageDisabled && !(applyPermissionCheck && chatLocked) && !chatLockedForUser) {
+      if (!chatDisabled && !editChatMessageDisabled && !(applyPermissionCheck && chatLocked) && !chatLockedForUser) {
         for {
           gcMessage <- groupChat.msgs.find(gcm => gcm.id == msg.body.messageId)
         } yield {

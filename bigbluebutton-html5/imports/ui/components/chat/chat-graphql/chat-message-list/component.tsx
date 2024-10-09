@@ -21,12 +21,11 @@ import LAST_SEEN_MUTATION from './queries';
 import {
   ButtonLoadMore,
   MessageList,
-  MessageListWrapper,
   UnreadButton,
-  ChatMessages,
 } from './styles';
 import useReactiveRef from '/imports/ui/hooks/useReactiveRef';
 import useStickyScroll from '/imports/ui/hooks/useStickyScroll';
+import ChatReplyIntention from '../chat-reply-intention/component';
 
 const PAGE_SIZE = 50;
 
@@ -113,10 +112,13 @@ const ChatMessageList: React.FC<ChatListProps> = ({
   isRTL,
 }) => {
   const intl = useIntl();
-  const contentRef = React.useRef<HTMLDivElement>(null);
   // I used a ref here because I don't want to re-render the component when the last sender changes
   const lastSenderPerPage = React.useRef<Map<number, string>>(new Map());
   const sentinelRef = React.useRef<HTMLDivElement | null>(null);
+  const {
+    ref: messageListContainerRef,
+    current: currentMessageListContainer,
+  } = useReactiveRef<HTMLDivElement>(null);
   const {
     ref: messageListRef,
     current: currentMessageList,
@@ -127,12 +129,12 @@ const ChatMessageList: React.FC<ChatListProps> = ({
   const {
     childRefProxy: sentinelRefProxy,
     intersecting: isSentinelVisible,
-    parentRefProxy: messageListRefProxy,
-  } = useIntersectionObserver(messageListRef, sentinelRef);
+    parentRefProxy: messageListContainerRefProxy,
+  } = useIntersectionObserver(messageListContainerRef, sentinelRef);
   const {
     startObserving,
     stopObserving,
-  } = useStickyScroll(currentMessageList);
+  } = useStickyScroll(currentMessageListContainer, currentMessageList);
 
   useEffect(() => {
     if (isSentinelVisible) startObserving(); else stopObserving();
@@ -159,6 +161,21 @@ const ChatMessageList: React.FC<ChatListProps> = ({
     }
   }, [lastMessageCreatedAt]);
 
+  useEffect(() => {
+    const handler = (e: Event) => {
+      if (e instanceof CustomEvent) {
+        toggleFollowingTail(false);
+        setUserLoadedBackUntilPage(Math.ceil(e.detail.sequence / PAGE_SIZE) - 1);
+      }
+    };
+
+    window.addEventListener(ChatEvents.CHAT_FOCUS_MESSAGE_REQUEST, handler);
+
+    return () => {
+      window.removeEventListener(ChatEvents.CHAT_FOCUS_MESSAGE_REQUEST, handler);
+    };
+  }, []);
+
   const markMessageAsSeen = useCallback((message: Message) => {
     if (new Date(message.createdAt).getTime() > new Date((lastMessageCreatedAt || 0)).getTime()) {
       dispatchLastSeen();
@@ -179,14 +196,14 @@ const ChatMessageList: React.FC<ChatListProps> = ({
 
   const toggleFollowingTail = (toggle: boolean) => {
     setFollowingTail(toggle);
-    if (isElement(contentRef.current)) {
+    if (isElement(messageListRef.current)) {
       if (toggle) {
-        scrollObserver.observe(contentRef.current);
+        scrollObserver.observe(messageListRef.current);
       } else {
         if (userLoadedBackUntilPage === null) {
           setUserLoadedBackUntilPage(Math.max(totalPages - 2, 0));
         }
-        scrollObserver.unobserve(contentRef.current);
+        scrollObserver.unobserve(messageListRef.current);
       }
     }
   };
@@ -246,68 +263,58 @@ const ChatMessageList: React.FC<ChatListProps> = ({
     <>
       {
         [
-          <MessageListWrapper key="message-list-wrapper" id="chat-list">
-            <MessageList
-              ref={messageListRefProxy}
-              onMouseUp={() => {
-                setScrollToTailEventHandler();
+          <MessageList
+            id="chat-list"
+            key="message-list-wrapper"
+            onMouseUp={() => {
+              setScrollToTailEventHandler();
+            }}
+            onTouchEnd={() => {
+              setScrollToTailEventHandler();
+            }}
+            data-test="chatMessages"
+            isRTL={isRTL}
+            ref={messageListContainerRefProxy}
+          >
+            <div ref={messageListRef}>
+              {userLoadedBackUntilPage ? (
+                <ButtonLoadMore
+                  onClick={() => {
+                    if (followingTail) {
+                      toggleFollowingTail(false);
+                    }
+                    setUserLoadedBackUntilPage(userLoadedBackUntilPage - 1);
+                  }}
+                >
+                  {intl.formatMessage(intlMessages.loadMoreButtonLabel)}
+                </ButtonLoadMore>
+              ) : null}
+              <ChatPopupContainer />
+              {Array.from({ length: pagesToLoad }, (_v, k) => k + (firstPageToLoad)).map((page) => {
+                return (
+                  <ChatListPage
+                    key={`page-${page}`}
+                    page={page}
+                    pageSize={PAGE_SIZE}
+                    setLastSender={() => setLastSender(lastSenderPerPage.current)}
+                    lastSenderPreviousPage={page ? lastSenderPerPage.current.get(page - 1) : undefined}
+                    chatId={chatId}
+                    markMessageAsSeen={markMessageAsSeen}
+                    scrollRef={messageListContainerRefProxy}
+                  />
+                );
+              })}
+            </div>
+            <div
+              ref={sentinelRefProxy}
+              style={{
+                height: 1,
+                background: 'none',
               }}
-              onTouchEnd={() => {
-                setScrollToTailEventHandler();
-              }}
-            >
-              <span>
-                {
-                  (userLoadedBackUntilPage)
-                    ? (
-                      <ButtonLoadMore
-                        onClick={() => {
-                          if (followingTail) {
-                            toggleFollowingTail(false);
-                          }
-                          setUserLoadedBackUntilPage(userLoadedBackUntilPage - 1);
-                        }}
-                      >
-                        {intl.formatMessage(intlMessages.loadMoreButtonLabel)}
-                      </ButtonLoadMore>
-                    ) : null
-                }
-              </span>
-              <ChatMessages
-                id="contentRef"
-                ref={contentRef}
-                data-test="chatMessages"
-                isRTL={isRTL}
-              >
-                <ChatPopupContainer />
-                {
-                  // @ts-ignore
-                  Array.from({ length: pagesToLoad }, (v, k) => k + (firstPageToLoad)).map((page) => {
-                    return (
-                      <ChatListPage
-                        key={`page-${page}`}
-                        page={page}
-                        pageSize={PAGE_SIZE}
-                        setLastSender={() => setLastSender(lastSenderPerPage.current)}
-                        lastSenderPreviousPage={page ? lastSenderPerPage.current.get(page - 1) : undefined}
-                        chatId={chatId}
-                        markMessageAsSeen={markMessageAsSeen}
-                        scrollRef={messageListRef}
-                      />
-                    );
-                  })
-                }
-              </ChatMessages>
-              <div
-                ref={sentinelRefProxy}
-                style={{
-                  height: 1,
-                  background: 'none',
-                }}
-              />
-            </MessageList>
-          </MessageListWrapper>,
+            />
+          </MessageList>,
           renderUnreadNotification,
+          <ChatReplyIntention />,
         ]
       }
     </>

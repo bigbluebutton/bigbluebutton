@@ -526,6 +526,7 @@ export interface Chat {
   emojiPicker: EmojiPicker
   disableEmojis: string[]
   allowedElements: string[]
+  toolbar: string[]
 }
 
 export interface SystemMessagesKeys {

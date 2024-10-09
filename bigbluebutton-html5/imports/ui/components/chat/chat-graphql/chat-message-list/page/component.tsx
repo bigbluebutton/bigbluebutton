@@ -50,6 +50,8 @@ const areChatPagesEqual = (prevProps: ChatListPageProps, nextProps: ChatListPage
       && prevMessage.createdAt === nextMessage.createdAt
       && prevMessage?.user?.currentlyInMeeting === nextMessage?.user?.currentlyInMeeting
       && prevMessage?.recipientHasSeen === nextMessage?.recipientHasSeen
+      && prevMessage?.message === nextMessage?.message
+      && prevMessage?.reactions?.length === nextMessage?.reactions?.length
     );
   });
 };
@@ -82,8 +84,7 @@ const ChatListPage: React.FC<ChatListPageProps> = ({
   }, [domElementManipulationIdentifiers, messagesRequestedFromPlugin]);
 
   return (
-    // eslint-disable-next-line react/jsx-filename-extension
-    <div key={`messagePage-${page}`} id={`${page}`}>
+    <React.Fragment key={`messagePage-${page}`}>
       {messages.map((message, index, messagesArray) => {
         const previousMessage = messagesArray[index - 1];
         return (
@@ -101,7 +102,7 @@ const ChatListPage: React.FC<ChatListPageProps> = ({
           />
         );
       })}
-    </div>
+    </React.Fragment>
   );
 };
 
@@ -130,7 +131,7 @@ const ChatListPageContainer: React.FC<ChatListPageContainerProps> = ({
     ? defaultVariables : { ...defaultVariables, requestedChatId: chatId };
   const isPrivateReadFeedbackEnabled = !isPublicChat && PRIVATE_MESSAGE_READ_FEEDBACK_ENABLED;
 
-  const useChatMessageSubscription = useCreateUseSubscription<Message>(chatQuery, variables, true);
+  const useChatMessageSubscription = useCreateUseSubscription<Message>(chatQuery, variables);
   const {
     data: chatMessageData,
   } = useChatMessageSubscription((msg) => msg) as GraphqlDataHookSubscriptionResponse<Message[]>;
