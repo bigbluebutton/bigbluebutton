@@ -19,8 +19,11 @@
 package org.bigbluebutton.api;
 
 import java.io.File;
+import java.io.InputStream;
 import java.net.URI;
 import java.net.URL;
+import java.security.DigestInputStream;
+import java.security.MessageDigest;
 import java.util.*;
 import java.util.Map.Entry;
 import java.util.concurrent.BlockingQueue;
@@ -34,6 +37,7 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.gson.JsonObject;
+import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.http.client.utils.URIBuilder;
 import org.bigbluebutton.api.domain.*;
@@ -401,13 +405,12 @@ public class MeetingService implements MessageListener {
         JsonNode jsonNode = objectMapper.readTree(content.toString());
 
         // Validate checksum if any:
-        String checksum = pluginsManifest.getChecksum();
-        if (jsonNode.has("checksum") || !StringUtils.isEmpty(checksum)) {
-          if (!checksum.equals(jsonNode.get("checksum").asText())) {
-            log.info("Plugin checksum mismatch for {}. Manifest.json returned {} and URL parameter input was {}",
-              pluginsManifest.getUrl(),
-              jsonNode.get("checksum").asText(),
-              checksum
+        String paramChecksum = pluginsManifest.getChecksum();
+        if (!StringUtils.isEmpty(paramChecksum)) {
+          String hash = DigestUtils.sha1Hex(content.toString());
+          if (!paramChecksum.equals(hash)) {
+            log.info("Plugin's manifest.json checksum mismatch with that of the URL parameter for {}.",
+              pluginsManifest.getUrl()
             );
             log.info("Plugin {} is not going to be loaded",
               pluginsManifest.getUrl()
@@ -439,8 +442,9 @@ public class MeetingService implements MessageListener {
         );
         urlContents.put(pluginKey, manifestWrapper);
       } catch(Exception e) {
-        log.error("Failed with the following plugin manifest URL: {}. Error: {} therefore this plugin will not load",
+        log.info("Failed with the following plugin manifest URL: {}. Error: ",
                 pluginsManifest.getUrl(), e);
+        log.info("Therefore this plugin will not be loaded");
       }
     }
     return urlContents;

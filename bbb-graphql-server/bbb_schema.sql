@@ -1968,7 +1968,7 @@ create table "plugin" (
 	"meetingId" varchar(100),
 	"name" varchar(100),
 	"javascriptEntrypointUrl" varchar(500),
-	"pluginJavascriptChecksum" varchar(500),
+	"javascriptEntrypointChecksum" varchar(500),
     CONSTRAINT "plugin_pk" PRIMARY KEY ("meetingId","name"),
     FOREIGN KEY ("meetingId") REFERENCES "meeting"("meetingId") ON DELETE CASCADE
 );

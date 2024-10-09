@@ -40,8 +40,8 @@ const PluginLoaderManager = (props: PluginLoaderManagerProps) => {
     script.src = plugin.url;
     script.setAttribute('uuid', div.id);
     script.setAttribute('pluginName', plugin.name);
-    if (plugin.pluginJavascriptChecksum) {
-      script.setAttribute('integrity', plugin.pluginJavascriptChecksum);
+    if (plugin.javascriptEntrypointChecksum) {
+      script.setAttribute('integrity', plugin.javascriptEntrypointChecksum);
     }
     document.head.appendChild(script);
   }, [plugin, containerRef]);
