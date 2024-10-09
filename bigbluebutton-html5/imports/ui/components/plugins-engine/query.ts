@@ -4,6 +4,7 @@ const PLUGIN_CONFIGURATION_QUERY = gql`query PluginConfigurationQuery {
   plugin {
     name,
     javascriptEntrypointUrl,
+    javascriptEntrypointChecksum,
   }  
 }`;
 

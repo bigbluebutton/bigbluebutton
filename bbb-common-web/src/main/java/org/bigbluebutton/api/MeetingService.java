@@ -19,9 +19,10 @@
 package org.bigbluebutton.api;
 
 import java.io.File;
-import java.math.BigInteger;
+import java.io.InputStream;
 import java.net.URI;
 import java.net.URL;
+import java.security.DigestInputStream;
 import java.security.MessageDigest;
 import java.util.*;
 import java.util.Map.Entry;
@@ -36,6 +37,7 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.gson.JsonObject;
+import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.http.client.utils.URIBuilder;
 import org.bigbluebutton.api.domain.*;
@@ -49,7 +51,6 @@ import org.bigbluebutton.api.messaging.messages.*;
 import org.bigbluebutton.api2.IBbbWebApiGWApp;
 import org.bigbluebutton.api2.domain.UploadedTrack;
 import org.bigbluebutton.common2.redis.RedisStorageService;
-import org.bigbluebutton.common2.util.JsonUtil;
 import org.bigbluebutton.presentation.PresentationUrlDownloadService;
 import org.bigbluebutton.presentation.imp.SlidesGenerationProgressNotifier;
 import org.bigbluebutton.web.services.UserCleanupTimerTask;
@@ -362,8 +363,8 @@ public class MeetingService implements MessageListener {
     while (matcher.find()) {
 
       String variableName = matcher.group(1);
-      if (variableName.length() > 5){
-        // Remove "meta_" and turn everything lower case
+      if (variableName.startsWith("meta_") && variableName.length() > 5) {
+        // Remove "meta_" and convert to lower case
         variableName = variableName.substring(5).toLowerCase();
       } else {
         throw new NoSuchFieldException("Metadata " + variableName + " is malformed, please provide a valid one");
@@ -375,7 +376,7 @@ public class MeetingService implements MessageListener {
       else throw new NoSuchFieldException("Metadata " + variableName + " not found in URL parameters");
 
       // Replace the placeholder with the value from the map
-      matcher.appendReplacement(result, replacement);
+      matcher.appendReplacement(result, Matcher.quoteReplacement(replacement));
     }
     matcher.appendTail(result);
 
@@ -386,9 +387,11 @@ public class MeetingService implements MessageListener {
     Map<String, String> metadata = m.getMetadata();
 
     // Fetch content for each URL and store in the map
-    for (String manifestUrl : m.getPluginManifestUrls()) {
+    for (PluginsManifest pluginsManifest : m.getPluginsManifests()) {
       try {
-        URL url = new URL(manifestUrl);
+
+        String urlString = pluginsManifest.getUrl();
+        URL url = new URL(urlString);
         BufferedReader in = new BufferedReader(new InputStreamReader(url.openStream()));
         StringBuilder content = new StringBuilder();
         String inputLine;
@@ -398,32 +401,50 @@ public class MeetingService implements MessageListener {
         }
         in.close();
 
-        // Parse the JSON content and get the "name" field
+        // Parse the JSON content
         JsonNode jsonNode = objectMapper.readTree(content.toString());
+
+        // Validate checksum if any:
+        String paramChecksum = pluginsManifest.getChecksum();
+        if (!StringUtils.isEmpty(paramChecksum)) {
+          String hash = DigestUtils.sha1Hex(content.toString());
+          if (!paramChecksum.equals(hash)) {
+            log.info("Plugin's manifest.json checksum mismatch with that of the URL parameter for {}.",
+              pluginsManifest.getUrl()
+            );
+            log.info("Plugin {} is not going to be loaded",
+              pluginsManifest.getUrl()
+            );
+            continue;
+          }
+        }
+
+        // Get the "name" field
         String name;
         if (jsonNode.has("name")) {
           name = jsonNode.get("name").asText();
         } else {
-          throw new NoSuchFieldException("For url " + manifestUrl + "there is no name field configured.");
+          throw new NoSuchFieldException("For url " + urlString + "there is no name field configured.");
         }
 
         String pluginKey = name;
         HashMap<String, Object> manifestObject = new HashMap<>();
-        manifestObject.put("url", manifestUrl);
+        manifestObject.put("url", urlString);
         String manifestContent = replaceMetaParametersIntoManifestTemplate(content.toString(), metadata);
 
         ObjectMapper mapper = new ObjectMapper();
-        Map<String, Object> MappedManifestContent = mapper.readValue(manifestContent, new TypeReference<>() {});
+        Map<String, Object> mappedManifestContent = mapper.readValue(manifestContent, new TypeReference<>() {});
 
-        manifestObject.put("content", MappedManifestContent);
+        manifestObject.put("content", mappedManifestContent);
         Map<String, Object> manifestWrapper = new HashMap<String, Object>();
         manifestWrapper.put(
                 "manifest", manifestObject
         );
         urlContents.put(pluginKey, manifestWrapper);
       } catch(Exception e) {
-        log.error("Failed with the following plugin manifest URL: {}. Error: {} therefore this plugin will not load",
-                manifestUrl, e);
+        log.info("Failed with the following plugin manifest URL: {}. Error: ",
+                pluginsManifest.getUrl(), e);
+        log.info("Therefore this plugin will not be loaded");
       }
     }
     return urlContents;
