@@ -1628,7 +1628,7 @@ class ApiController {
               uploadFailReasons,
               isDownloadable,
               isRemovable,
-              isDefaultPresentation
+              isDefaultPresentation,
       )
     } else {
       org.bigbluebutton.presentation.Util.deleteDirectoryFromFileHandlingErrors(pres)
@@ -1715,7 +1715,7 @@ class ApiController {
               uploadFailReasons,
               isDownloadable,
               isRemovable,
-              isDefaultPresentation
+              isDefaultPresentation,
       )
     } else {
       org.bigbluebutton.presentation.Util.deleteDirectoryFromFileHandlingErrors(pres)

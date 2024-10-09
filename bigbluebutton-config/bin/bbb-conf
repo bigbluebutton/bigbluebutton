@@ -163,7 +163,6 @@ fi
 mkdir -p /etc/bigbluebutton/bbb-webrtc-sfu
 WEBRTC_SFU_DEFAULT_CONFIG=/usr/local/bigbluebutton/bbb-webrtc-sfu/config/default.yml
 WEBRTC_SFU_ETC_CONFIG=/etc/bigbluebutton/bbb-webrtc-sfu/production.yml
-touch $WEBRTC_SFU_ETC_CONFIG # create it as it gets modified later in this script
 WEBRTC_SFU_CONFIG=$(yq eval-all '. as $item ireduce ({}; . * $item )' $WEBRTC_SFU_DEFAULT_CONFIG $WEBRTC_SFU_ETC_CONFIG 2> /dev/null)
 
 BBB_WEB_CONFIG="$SERVLET_DIR/WEB-INF/classes/bigbluebutton.properties"
@@ -627,6 +626,9 @@ if [[ $PORT_RANGE ]]; then
         xmlstarlet edit --inplace --update '/configuration/settings/param[@name="rtp-start-port"]/@value' --value $START_PORT $FREESWITCH_SWITCH_CONF
         xmlstarlet edit --inplace --update '/configuration/settings/param[@name="rtp-end-port"]/@value' --value $END_PORT $FREESWITCH_SWITCH_CONF
 
+        if [ ! -f $WEBRTC_SFU_ETC_CONFIG ]; then
+            touch $WEBRTC_SFU_ETC_CONFIG
+        fi
         yq e -i ".mediasoup.worker.rtcMinPort = \"$START_PORT\"" $WEBRTC_SFU_ETC_CONFIG
         yq e -i ".mediasoup.worker.rtcMaxPort = \"$END_PORT\"" $WEBRTC_SFU_ETC_CONFIG
 
@@ -1526,10 +1528,11 @@ if [ -n "$HOST" ]; then
     #
     # Update HTML5 client
     #
-    if [ -f $HTML5_DEFAULT_CONFIG ]; then
-        yq e -i ".public.kurento.wsUrl = \"wss://$HOST/bbb-webrtc-sfu\"" $HTML5_DEFAULT_CONFIG
-        yq e -i ".public.pads.url = \"$PROTOCOL://$HOST/pad\"" $HTML5_DEFAULT_CONFIG
+    if [ ! -f $HTML5_ETC_CONFIG ]; then
+        touch $HTML5_ETC_CONFIG
     fi
+    yq e -i ".public.kurento.wsUrl = \"wss://$HOST/bbb-webrtc-sfu\"" $HTML5_ETC_CONFIG
+    yq e -i ".public.pads.url = \"$PROTOCOL://$HOST/pad\"" $HTML5_ETC_CONFIG
 
     #
     # Update ESL passwords in three configuration files
@@ -1537,13 +1540,16 @@ if [ -n "$HOST" ]; then
     ESL_PASSWORD=$(cat /etc/bigbluebutton/bbb-fsesl-akka.conf | grep password | head -n 1 | sed 's/.*="//g' | sed 's/"//g')
     if [ "$ESL_PASSWORD" == "ClueCon" ]; then
         ESL_PASSWORD=$(openssl rand -hex 8)
-        sudo sed -i "s/ClueCon/$ESL_PASSWORD/g" /etc/bigbluebutton/bbb-fsesl-akka.conf
+        sed -i "s/ClueCon/$ESL_PASSWORD/g" /etc/bigbluebutton/bbb-fsesl-akka.conf
     fi
 
-    sudo yq e -i ".freeswitch.esl_password = \"$ESL_PASSWORD\"" $WEBRTC_SFU_ETC_CONFIG
-    sudo xmlstarlet edit --inplace --update 'configuration/settings//param[@name="password"]/@value' --value $ESL_PASSWORD /opt/freeswitch/etc/freeswitch/autoload_configs/event_socket.conf.xml
+    if [ ! -f $WEBRTC_SFU_ETC_CONFIG ]; then
+        touch $WEBRTC_SFU_ETC_CONFIG
+    fi
+    yq e -i ".freeswitch.esl_password = \"$ESL_PASSWORD\"" $WEBRTC_SFU_ETC_CONFIG
+    xmlstarlet edit --inplace --update 'configuration/settings//param[@name="password"]/@value' --value $ESL_PASSWORD /opt/freeswitch/etc/freeswitch/autoload_configs/event_socket.conf.xml
     if [ -f /usr/local/bigbluebutton/bbb-transcription-controller/config/default.yml ]; then
-        sudo yq e -i ".freeswitch.password = \"$ESL_PASSWORD\"" /usr/local/bigbluebutton/bbb-transcription-controller/config/default.yml
+        yq e -i ".freeswitch.password = \"$ESL_PASSWORD\"" /usr/local/bigbluebutton/bbb-transcription-controller/config/default.yml
     fi
 
     echo "Restarting BigBlueButton $BIGBLUEBUTTON_RELEASE ..."

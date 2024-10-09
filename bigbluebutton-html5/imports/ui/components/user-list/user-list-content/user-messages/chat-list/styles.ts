@@ -8,13 +8,19 @@ import {
 import {
   borderSize, smPaddingX, lgPaddingY, mdPaddingY,
 } from '/imports/ui/stylesheets/styled-components/general';
+import deviceInfo from '/imports/utils/deviceInfo';
+
+const { isMobile } = deviceInfo;
 
 const Messages = styled.div`
   flex-grow: 0;
   display: flex;
   flex-flow: column;
   flex-shrink: 0;
-  max-height: 30vh;
+
+  ${!isMobile && `
+    max-height: 30vh;
+  `}
 `;
 
 const Container = styled.div`

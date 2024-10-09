@@ -22,7 +22,6 @@ const ScreenshareHelperPluginStateContainer = ((
   ] = useState<PluginSdk.ScreenshareHelperInterface[]>([]);
 
   const {
-    pluginsExtensibleAreasAggregatedState,
     setPluginsExtensibleAreasAggregatedState,
   } = useContext(PluginsContext);
 
@@ -34,12 +33,11 @@ const ScreenshareHelperPluginStateContainer = ((
         .map((extensibleArea: ExtensibleArea) => extensibleArea.screenshareHelperItems),
     );
 
-    setPluginsExtensibleAreasAggregatedState(
+    setPluginsExtensibleAreasAggregatedState((previousState) => (
       {
-        ...pluginsExtensibleAreasAggregatedState,
+        ...previousState,
         screenshareHelperItems: aggregatedScreenshareHelperItems,
-      },
-    );
+      }));
   }, [screenshareHelperItems]);
 
   pluginApi.setScreenshareHelperItems = (items: PluginSdk.ScreenshareHelperInterface[]) => {

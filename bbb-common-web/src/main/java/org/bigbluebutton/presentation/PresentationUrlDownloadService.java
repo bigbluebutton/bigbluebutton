@@ -48,7 +48,7 @@ public class PresentationUrlDownloadService {
         scheduledThreadPool.shutdownNow();
     }
 
-    public void processUploadedPresentation(final UploadedPresentation uploadedPres) {
+    public void processUploadedPresentation(final UploadedPresentation uploadedPres, final boolean scanUploadedPresentationFiles) {
         /**
          * We delay processing of the presentation to make sure that the meeting has already been created.
          * Otherwise, the meeting won't get the conversion events.
@@ -56,7 +56,7 @@ public class PresentationUrlDownloadService {
         ScheduledFuture scheduledFuture =
                 scheduledThreadPool.schedule(new Runnable() {
                     public void run() {
-                        documentConversionService.processDocument(uploadedPres);
+                        documentConversionService.processDocument(uploadedPres, scanUploadedPresentationFiles);
                     }
                 }, 5, TimeUnit.SECONDS);
 
@@ -64,7 +64,7 @@ public class PresentationUrlDownloadService {
 
     public void processUploadedFile(String podId, String meetingId, String presId,
                                     String filename, File presFile, Boolean current, String authzToken,
-                                    Boolean uploadFailed, ArrayList<String> uploadFailReasons) {
+                                    Boolean uploadFailed, ArrayList<String> uploadFailReasons, Boolean scanUploadedPresentationFiles) {
         // TODO add podId
         UploadedPresentation uploadedPres = new UploadedPresentation(
           podId,
@@ -77,11 +77,11 @@ public class PresentationUrlDownloadService {
           uploadFailed,
           uploadFailReasons);
         uploadedPres.setUploadedFile(presFile);
-        processUploadedPresentation(uploadedPres);
+        processUploadedPresentation(uploadedPres, scanUploadedPresentationFiles);
     }
 
     public void extractPresentationPage(final String sourceMeetingId, final String presentationId,
-                                        final Integer presentationSlide, final String destinationMeetingId)  {
+                                        final Integer presentationSlide, final String destinationMeetingId, final Boolean scanUploadedPresentationFiles)  {
         /**
          * We delay processing of the presentation to make sure that the meeting has already been created.
          * Otherwise, the meeting won't get the conversion events.
@@ -89,14 +89,14 @@ public class PresentationUrlDownloadService {
         ScheduledFuture scheduledFuture =
                 scheduledThreadPool.schedule(new Runnable() {
                     public void run() {
-                        extractPage(sourceMeetingId, presentationId, presentationSlide, destinationMeetingId) ;
+                        extractPage(sourceMeetingId, presentationId, presentationSlide, destinationMeetingId, scanUploadedPresentationFiles);
                     }
                 }, 5, TimeUnit.SECONDS);
     }
 
     // A negative presentationSlide indicates the entire presentation deck should be used.
     private void extractPage(final String sourceMeetingId, final String presentationId,
-                             final Integer presentationSlide, final String destinationMeetingId) {
+                             final Integer presentationSlide, final String destinationMeetingId, final Boolean scanUploadedPresentationFiles) {
 
         Boolean uploadFailed = false;
         ArrayList<String> uploadFailedReasons = new ArrayList<String>();
@@ -168,7 +168,8 @@ public class PresentationUrlDownloadService {
           true,
           "breakout-authz-token",
           uploadFailed,
-          uploadFailedReasons);
+          uploadFailedReasons,
+          scanUploadedPresentationFiles);
     }
 
     private String followRedirect(String meetingId, String redirectUrl,
