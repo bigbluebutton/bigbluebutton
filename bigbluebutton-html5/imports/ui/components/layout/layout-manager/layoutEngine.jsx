@@ -69,7 +69,6 @@ const LayoutEngine = () => {
       return cameraDockBounds;
     }
 
-    const navBarHeight = calculatesNavbarHeight();
     const hasPresentation = isPresentationEnabled && slidesLength !== 0;
     const isGeneralMediaOff = !hasPresentation
       && !hasExternalVideo && !hasScreenShare
@@ -78,9 +77,9 @@ const LayoutEngine = () => {
     if (!isOpen || isGeneralMediaOff) {
       cameraDockBounds.width = mediaAreaBounds.width;
       cameraDockBounds.maxWidth = mediaAreaBounds.width;
-      cameraDockBounds.height = mediaAreaBounds.height - bannerAreaHeight();
+      cameraDockBounds.height = mediaAreaBounds.height;
       cameraDockBounds.maxHeight = mediaAreaBounds.height;
-      cameraDockBounds.top = navBarHeight + bannerAreaHeight();
+      cameraDockBounds.top = mediaAreaBounds.top;
       cameraDockBounds.left = !isRTL ? mediaAreaBounds.left : 0;
       cameraDockBounds.right = isRTL ? sidebarSize : null;
     }
