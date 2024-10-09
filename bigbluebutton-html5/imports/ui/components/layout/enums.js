@@ -6,6 +6,7 @@ export const LAYOUT_TYPE = {
   CAMERAS_ONLY: 'camerasOnly',
   PRESENTATION_ONLY: 'presentationOnly',
   PARTICIPANTS_AND_CHAT_ONLY: 'participantsAndChatOnly',
+  MEDIA_ONLY: 'mediaOnly',
 };
 
 export const DEVICE_TYPE = {
@@ -17,6 +18,8 @@ export const DEVICE_TYPE = {
 };
 
 export const SMALL_VIEWPORT_BREAKPOINT = 640;
+
+export const MEDIA_ONLY_LAYOUT_MARGIN = 10;
 
 export const CAMERADOCK_POSITION = {
   CONTENT_TOP: 'contentTop',
@@ -31,6 +34,7 @@ export const HIDDEN_LAYOUTS = [
   LAYOUT_TYPE.CAMERAS_ONLY,
   LAYOUT_TYPE.PRESENTATION_ONLY,
   LAYOUT_TYPE.PARTICIPANTS_AND_CHAT_ONLY,
+  LAYOUT_TYPE.MEDIA_ONLY,
 ];
 
 export const LAYOUT_ELEMENTS = {

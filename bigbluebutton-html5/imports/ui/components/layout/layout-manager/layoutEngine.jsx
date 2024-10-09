@@ -14,6 +14,7 @@ import { getSettingsSingletonInstance } from '/imports/ui/services/settings';
 import useSettings from '/imports/ui/services/settings/hooks/useSettings';
 import { SETTINGS } from '/imports/ui/services/settings/enums';
 import { useIsPresentationEnabled } from '/imports/ui/services/features';
+import MediaOnlyLayout from './mediaOnlyLayout';
 
 const LayoutEngine = () => {
   const bannerBarInput = layoutSelectInput((i) => i.bannerBar);
@@ -354,6 +355,9 @@ const LayoutEngine = () => {
     case LAYOUT_TYPE.PARTICIPANTS_AND_CHAT_ONLY:
       layout?.setAttribute('data-layout', LAYOUT_TYPE.PARTICIPANTS_AND_CHAT_ONLY);
       return <ParticipantsAndChatOnlyLayout {...common} />;
+    case LAYOUT_TYPE.MEDIA_ONLY:
+      layout?.setAttribute('data-layout', LAYOUT_TYPE.MEDIA_ONLY);
+      return <MediaOnlyLayout {...common} isPresentationEnabled={isPresentationEnabled} />;
     default:
       layout?.setAttribute('data-layout', LAYOUT_TYPE.CUSTOM_LAYOUT);
       return <CustomLayout {...common} isPresentationEnabled={isPresentationEnabled} />;
