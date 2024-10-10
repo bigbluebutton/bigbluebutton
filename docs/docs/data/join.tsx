@@ -90,6 +90,12 @@ const joinEndpointTableData = [
     "required": false,
     "type": "String",
     "description": (<>If passed it overrides the value of `meetingLayout` passed on CREATE or the value of `defaultMeetingLayout` read from configuration. Accepted values are the standard layouts: CUSTOM_LAYOUT, SMART_LAYOUT, PRESENTATION_FOCUS, VIDEO_FOCUS, but also several layouts which are not meant to be selectable via UI: CAMERAS_ONLY, PARTICIPANTS_CHAT_ONLY, PRESENTATION_ONLY. Added in BBB 3.0</>)
+  },
+  {
+    "name": "logoutURL",
+    "required": false,
+    "type": "String",
+    "description": (<>The URL that the BigBlueButton client will go to after the user click the OK button on the ‘You have been logged out message’.  This overrides the logoutURL in the meeting. You can use the following placeholders: %%MEETINGID%%, %%USERID%%, %%USERNAME%%, which would be replaced with the Meeting ID, User ID and Username respectively </>)
   }
 ];
 
