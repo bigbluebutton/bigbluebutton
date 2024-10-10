@@ -164,6 +164,7 @@ select_permissions:
         - ejectReasonCode
         - ejected
         - enforceLayout
+        - logoutUrl
         - expired
         - extId
         - guest
