@@ -14,6 +14,7 @@ export const INITIAL_INPUT_STATE = {
   },
   notificationsBar: {
     hasNotification: false,
+    hideNotificationToasts: false,
   },
   navBar: {
     hasNavBar: true,

@@ -107,6 +107,7 @@ const intlMessages = defineMessages({
 
 const propTypes = {
   darkTheme: PropTypes.bool.isRequired,
+  hideNotificationToasts: PropTypes.bool.isRequired,
 };
 
 class App extends Component {
@@ -250,6 +251,7 @@ class App extends Component {
       darkTheme,
       intl,
       genericMainContentId,
+      hideNotificationToasts,
     } = this.props;
 
     const {
@@ -317,7 +319,7 @@ class App extends Component {
             ) : null}
           <AudioCaptionsSpeechContainer />
           {this.renderAudioCaptions()}
-          <PresentationUploaderToastContainer intl={intl} />
+          { !hideNotificationToasts && <PresentationUploaderToastContainer intl={intl} /> }
           <UploaderContainer />
           <BreakoutJoinConfirmationContainerGraphQL />
           <AudioContainer {...{
@@ -327,7 +329,7 @@ class App extends Component {
             setVideoPreviewModalIsOpen: this.setVideoPreviewModalIsOpen,
           }}
           />
-          <ToastContainer rtl />
+          { !hideNotificationToasts && <ToastContainer rtl /> }
           <ChatAlertContainerGraphql />
           <RaiseHandNotifier />
           <ManyWebcamsNotifier />

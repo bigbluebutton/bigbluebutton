@@ -109,6 +109,11 @@ const LayoutObserver: React.FC = () => {
       value: !getFromUserSettings('bbb_hide_nav_bar', false),
     });
 
+    layoutContextDispatch({
+      type: ACTIONS.SET_HIDE_NOTIFICATION_TOASTS,
+      value: getFromUserSettings('bbb_hide_notifications', false),
+    });
+
     window.addEventListener('localeChanged', () => {
       layoutContextDispatch({
         type: ACTIONS.SET_IS_RTL,
