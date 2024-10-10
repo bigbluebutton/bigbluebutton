@@ -7,7 +7,6 @@ exports.ELEMENT_WAIT_TIME = 5000 * MULTIPLIER;
 exports.ELEMENT_WAIT_LONGER_TIME = 10000 * MULTIPLIER;
 exports.ELEMENT_WAIT_EXTRA_LONG_TIME = 15000 * MULTIPLIER;
 exports.LOOP_INTERVAL = 1200;
-exports.USER_LIST_VLIST_BOTS_LISTENING = 50;
 
 // STRESS TESTS VARS
 exports.JOIN_AS_MODERATOR_TEST_ROUNDS = 15;
@@ -23,4 +22,5 @@ exports.VIDEO_LOADING_WAIT_TIME = 15000;
 exports.UPLOAD_PDF_WAIT_TIME = 25000 * MULTIPLIER;
 
 exports.CUSTOM_MEETING_ID = 'custom-meeting';
+// it only works for snapshot comparisons. playwright assertions will complain about the element (still in the DOM)
 exports.PARAMETER_HIDE_PRESENTATION_TOAST = 'userdata-bbb_custom_style=.presentationUploaderToast{display: none;}.currentPresentationToast{display:none;}';

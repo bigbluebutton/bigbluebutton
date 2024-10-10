@@ -29,7 +29,6 @@ exports.closePopup = 'button[data-test="closePopup"]';
 exports.restoreWelcomeMessages = 'li[data-test="restoreWelcomeMessages"]';
 
 // Accesskey
-exports.chatButtonKey = 'div[accesskey="P"]';
 exports.userListButton = 'button[accesskey="U"]';
 
 // Audio
@@ -47,7 +46,6 @@ exports.audioDropdownMenu = 'button[data-test="audioDropdownMenu"]';
 exports.defaultInputAudioDevice = 'li[data-test="audioinput-1"]';
 exports.secondInputAudioDevice = 'li[data-test="audioinput-2"]';
 exports.microphoneButton = 'button[data-test="microphoneBtn"]';
-exports.echoYesButton = 'button[data-test="echoYesBtn"]';
 exports.connectingToEchoTest = 'span[data-test="connectingToEchoTest"]';
 exports.hasVolumeEchoTest = 'span[data-test="hasVolume"]';
 exports.hasNoVolumeEchoTest = 'span[data-test="hasNoVolume"]';
@@ -222,7 +220,6 @@ exports.joinAudioToast = 'You have joined the audio conference';
 exports.pollPublishedToast = 'Poll results were published';
 exports.startScreenshareToast = 'Screenshare has started';
 exports.endScreenshareToast = 'Screenshare has ended';
-exports.joiningMessageToast = 'You have joined the audio conference';
 exports.attendeeJoinedToast = 'Attendee joined the session';
 exports.raisingHandToast = 'You have raised your hand';
 exports.loweringHandToast = 'Your hand has been lowered';
@@ -402,7 +399,7 @@ exports.lockEditSharedNotes = 'input[data-test="lockEditSharedNotes"]';
 exports.lockUserList = 'input[data-test="lockUserList"]';
 exports.hideViewersAnnotation = 'input[data-test="hideViewersAnnotation"]';
 exports.hideViewersCursor = 'input[data-test="hideViewersCursor"]';
-exports.whiteboardCursorIndicator = 'div[data-test="whiteboardCursorIndicator"]';
+exports.whiteboardCursorIndicator = 'svg use[data-test="whiteboardCursorIndicator"]';
 
 // Locales
 exports.locales = ['af', 'ar', 'az', 'bg-BG', 'bn', 'ca', 'cs-CZ', 'da', 'de',
@@ -476,10 +473,9 @@ exports.zoomOutButton = 'button[data-test="zoomOutBtn"]';
 exports.wbPan = 'button[data-test="panButton"]';
 exports.wbEraser = 'button[data-testid="tools.eraser"]';
 exports.wbArrowShape = 'button[data-testid="tools.arrow"]';
-exports.wbDelete = 'span[id="TD-Delete"]';
+exports.wbDelete = 'button[title^="Delete"]';
 exports.wbUndo = 'button[data-testid="main.undo"]';
 exports.wbRedo = 'button[data-testid="main.redo"]';
-exports.wbStyles = 'button[id="TD-Styles"]';
 exports.whiteboardStyles = 'button[data-testid="mobile.styles"]';
 exports.wbColorRed = 'button[data-id="red"]';
 exports.wbFillDrawing = 'button[data-testid="style.fill.solid"]';
@@ -493,7 +489,7 @@ exports.wbMoveForward = 'button[data-testid="menu-item.bring-forward"]';
 exports.wbMoveToFront = 'button[data-testid="menu-item.bring-to-front"]';
 exports.wbPaste = 'button[data-testid="menu-item.paste"]';
 exports.wbTextTrue = 'div[data-hastext="true"]';
-exports.wbDrawnArrow = 'div[data-shape-type="arrow"]';;
+exports.wbDrawnArrow = 'div[data-shape-type="arrow"]';
 
 // About modal
 exports.showAboutModalButton = 'li[data-test="aboutModal"]';
