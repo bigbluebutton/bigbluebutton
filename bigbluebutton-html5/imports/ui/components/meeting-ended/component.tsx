@@ -274,7 +274,7 @@ const MeetingEnded: React.FC<MeetingEndedProps> = ({
       redirectTo = redirectTo.replaceAll('%%USERID%%', userId);
       redirectTo = redirectTo.replaceAll('%%USERNAME%%', userName);
       redirectTo = redirectTo.replaceAll('%%MEETINGID%%', meetingId);
-      if (validator.isURL) {
+      if (validator.isURL(redirectTo)) {
         window.location.href = redirectTo;
       }
     }
