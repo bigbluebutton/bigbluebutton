@@ -18,8 +18,9 @@ import useMeeting from '/imports/ui/core/hooks/useMeeting';
 import { ActiveCaptionsResponse, getactiveCaptions } from './queries';
 import AudioCaptionsService from '/imports/ui/components/audio/audio-graphql/audio-captions/service';
 import useDeduplicatedSubscription from '/imports/ui/core/hooks/useDeduplicatedSubscription';
+import { TRANSCRIPTION_LOCALE } from '/imports/ui/components/audio/audio-graphql/audio-captions/transcriptionLocale';
 
-const intlMessages = defineMessages({
+const messages = {
   start: {
     id: 'app.audio.captions.button.start',
     description: 'Start audio captions',
@@ -50,47 +51,16 @@ const intlMessages = defineMessages({
     id: 'app.audio.captions.button.autoDetect',
     description: 'Audio speech recognition language auto detect',
   },
-  'de-DE': {
-    id: 'app.audio.captions.select.de-DE',
-    description: 'Audio speech recognition german language',
-  },
-  'en-US': {
-    id: 'app.audio.captions.select.en-US',
-    description: 'Audio speech recognition english language',
-  },
-  'es-ES': {
-    id: 'app.audio.captions.select.es-ES',
-    description: 'Audio speech recognition spanish language',
-  },
-  'fr-FR': {
-    id: 'app.audio.captions.select.fr-FR',
-    description: 'Audio speech recognition french language',
-  },
-  'hi-ID': {
-    id: 'app.audio.captions.select.hi-ID',
-    description: 'Audio speech recognition indian language',
-  },
-  'it-IT': {
-    id: 'app.audio.captions.select.it-IT',
-    description: 'Audio speech recognition italian language',
-  },
-  'ja-JP': {
-    id: 'app.audio.captions.select.ja-JP',
-    description: 'Audio speech recognition japanese language',
-  },
-  'pt-BR': {
-    id: 'app.audio.captions.select.pt-BR',
-    description: 'Audio speech recognition portuguese language',
-  },
-  'ru-RU': {
-    id: 'app.audio.captions.select.ru-RU',
-    description: 'Audio speech recognition russian language',
-  },
-  'zh-CN': {
-    id: 'app.audio.captions.select.zh-CN',
-    description: 'Audio speech recognition chinese language',
-  },
-});
+};
+
+for (let key in TRANSCRIPTION_LOCALE) {
+  messages[TRANSCRIPTION_LOCALE[key]] = {
+    id: 'app.audio.captions.select.' + TRANSCRIPTION_LOCALE[key],
+    description: 'Audio speech recognition ' + key + ' language',
+  };
+}
+
+const intlMessages = defineMessages(messages);
 
 interface AudioCaptionsButtonProps {
   isRTL: boolean;
