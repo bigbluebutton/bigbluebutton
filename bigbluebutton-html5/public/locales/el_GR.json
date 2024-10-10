@@ -39,6 +39,7 @@
     "app.chat.copyErr": "Η αντιγραφή του αρχείου καταγραφής της συνομιλίας απέτυχε",
     "app.chat.messageRead": "Το μήνυμα διαβάστηκε από τον αποδέκτη", 
     "app.chat.closePopup": "Κλείσιμο",
+    "app.chat.toolbar.reply": "Απάντηση στο μήνυμα {0}",
     "app.timer.toolTipTimerStopped": "Ο χρόνος σταμάτησε.",
     "app.timer.toolTipTimerRunning": "Ο χρόνος λειτουργεί.",
     "app.timer.toolTipStopwatchStopped": "Το χρονόμετρο σταμάτησε.",
