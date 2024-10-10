@@ -2,6 +2,7 @@ import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import logger, { generateLoggerStreams } from '/imports/startup/client/logger';
 import apolloContextHolder from '/imports/ui/core/graphql/apolloContextHolder/apolloContextHolder';
+import Session from '/imports/ui/services/storage/in-memory';
 import { ApolloLink } from '@apollo/client';
 
 const propTypes = {
@@ -84,6 +85,10 @@ class ErrorBoundary extends Component {
           ws.terminate();
         }, 5000);
       }
+    }
+
+    if ('cause' in error) {
+      Session.setItem('errorMessageDescription', error.cause);
     }
 
     this.setState({
