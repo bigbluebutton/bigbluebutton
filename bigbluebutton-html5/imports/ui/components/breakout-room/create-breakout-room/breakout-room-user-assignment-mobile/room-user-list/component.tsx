@@ -18,10 +18,10 @@ interface RoomUserListProps {
   confirm: () => void;
   selectedRoom: number;
   rooms: {
-    [key:number]: {
-    id: number;
-    name: string;
-    users: BreakoutUser[];
+    [key: number]: {
+      id: number;
+      name: string;
+      users: BreakoutUser[];
     }
   }
   moveUser: (userId: string, fromRoomId: number, toRoomId: number) => void;
@@ -34,47 +34,36 @@ const RoomUserList: React.FC<RoomUserListProps> = ({
   confirm,
 }) => {
   const intl = useIntl();
+
   const users = useMemo(() => {
-    const userElements = Object.values(rooms).sort((a, b) => {
-      if (a.id === selectedRoom) {
-        return -1; // Move itemToMove to the front
-      }
-      if (b.id === selectedRoom) {
-        return 1; // Move itemToMove to the front
-      }
-      return 0;
-    }).map((room) => {
-      return room.users.map((user) => {
-        return (
-          <Styled.SelectUserContainer id={user.userId} key={`breakout-user-${user.userId}`}>
-            <Styled.Round>
-              <input
-                type="checkbox"
-                id={`itemId${room.id}`}
-                defaultChecked={selectedRoom === room.id}
-                onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
-                  if (e.target.checked) {
-                    moveUser(user.userId, room.id, selectedRoom);
-                  } else {
-                    moveUser(user.userId, room.id, 0);
-                  }
-                }}
-              />
-              {/* eslint-disable-next-line */}
-              <label htmlFor={`itemId${room.id}`}>
-                <input type="hidden" id={`itemId${room.id}`} />
-              </label>
-            </Styled.Round>
-            <Styled.TextName>
-              {user.name}
-              {((room.id !== selectedRoom) && room.id !== 0) ? `\t[${room.id}]` : ''}
-            </Styled.TextName>
-          </Styled.SelectUserContainer>
-        );
-      });
+    return Object.values(rooms).map((room) => {
+      return room.users.map((user) => (
+        <Styled.SelectUserContainer id={user.userId} key={`breakout-user-${user.userId}`}>
+          <Styled.Round>
+            <input
+              type="checkbox"
+              id={`user-${user.userId}-room-${room.id}`}
+              checked={selectedRoom === room.id}
+              onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
+                if (e.target.checked) {
+                  moveUser(user.userId, room.id, selectedRoom);
+                } else {
+                  moveUser(user.userId, room.id, 0);
+                }
+              }}
+            />
+            {/* eslint-disable-next-line */}
+            <label htmlFor={`user-${user.userId}-room-${room.id}`} />
+          </Styled.Round>
+          <Styled.TextName>
+            {user.name}
+            {room.id !== 0 && room.id !== selectedRoom ? `\t[${room.id}]` : ''}
+          </Styled.TextName>
+        </Styled.SelectUserContainer>
+      ));
     }).flat();
-    return userElements;
-  }, [rooms, selectedRoom]);
+  }, [rooms, selectedRoom, moveUser]);
+
   return (
     <Styled.SelectUserScreen>
       <Styled.Header>
