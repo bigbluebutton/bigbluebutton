@@ -5,6 +5,7 @@ import React, {
   useMemo,
   useState,
 } from 'react';
+import validator from 'validator';
 import { defineMessages, useIntl } from 'react-intl';
 import { isEmpty } from 'radash';
 import { ApolloLink, useQuery } from '@apollo/client';
@@ -269,11 +270,13 @@ const MeetingEnded: React.FC<MeetingEndedProps> = ({
   const confirmRedirect = (isBreakout: boolean, allowRedirect: boolean) => {
     if (isBreakout) window.close();
     if (allowRedirect) {
-      let redirectTo = logoutUrl;
+      let redirectTo = logoutUrl;   
       redirectTo = redirectTo.replaceAll('%%USERID%%', userId);
       redirectTo = redirectTo.replaceAll('%%USERNAME%%', userName);
       redirectTo = redirectTo.replaceAll('%%MEETINGID%%', meetingId);
-      window.location.href = redirectTo;
+      if (validator.isURL) {
+        window.location.href = redirectTo;
+      }
     }
   };
 
