@@ -45,6 +45,10 @@ const TldrawV2GlobalStyle = createGlobalStyle`
     display: none !important;
   }
 
+  .tl-container:focus-within {
+    outline: none !important;
+  }
+
   .tlui-style-panel__wrapper {
     right: 0px;
     top: -0.35rem;
@@ -102,6 +106,17 @@ const TldrawV2GlobalStyle = createGlobalStyle`
     }
   `}
 
+  ${({ bgSelected }) => (bgSelected) && `
+      [data-testid="menu-item.toggle-lock"],
+      [data-testid="menu-item.toggle-locked"],
+      [data-testid="menu-item.paste"],
+      [data-testid="menu-item.copy"] {
+        display: none !important;
+      }
+  `}
+
+  [data-testid="menu-item.modify"],
+  [data-testid="menu-item.conversions"],
   .tlui-helper-buttons,
   [data-testid="main.page-menu"],
   [data-testid="main.menu"],

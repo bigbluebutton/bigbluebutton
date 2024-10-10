@@ -5,6 +5,7 @@ import React, {
   useMemo,
   useCallback,
 } from 'react';
+import PropTypes from 'prop-types';
 import { useMutation, useQuery } from '@apollo/client';
 import {
   AssetRecordType,
@@ -35,7 +36,6 @@ import deviceInfo from '/imports/utils/deviceInfo';
 import Whiteboard from './component';
 
 import useCurrentUser from '/imports/ui/core/hooks/useCurrentUser';
-import useMeeting from '/imports/ui/core/hooks/useMeeting';
 import {
   PRESENTATION_SET_ZOOM,
   PRES_ANNOTATION_DELETE,
@@ -47,6 +47,7 @@ import { useMergedCursorData } from './hooks.ts';
 import useDeduplicatedSubscription from '../../core/hooks/useDeduplicatedSubscription';
 import MediaService from '/imports/ui/components/media/service';
 import getFromUserSettings from '/imports/ui/services/users-settings';
+import useLockContext from '/imports/ui/components/lock-viewers/hooks/useLockContext';
 
 const FORCE_RESTORE_PRESENTATION_ON_NEW_EVENTS = 'bbb_force_restore_presentation_on_new_events';
 
@@ -63,9 +64,8 @@ const WhiteboardContainer = (props) => {
   const [shapes, setShapes] = useState({});
   const [currentPresentationPage, setCurrentPresentationPage] = useState(null);
 
-  const meeting = useMeeting((m) => ({
-    lockSettings: m?.lockSettings,
-  }));
+  const { userLocks } = useLockContext();
+
   const { data: currentUser } = useCurrentUser((user) => ({
     presenter: user.presenter,
     isModerator: user.isModerator,
@@ -137,7 +137,9 @@ const WhiteboardContainer = (props) => {
     });
   };
 
-  const zoomSlide = (widthRatio, heightRatio, xOffset, yOffset, currPage = currentPresentationPage) => {
+  const zoomSlide = (
+    widthRatio, heightRatio, xOffset, yOffset, currPage = currentPresentationPage,
+  ) => {
     const { pageId, num } = currPage;
 
     presentationSetZoom({
@@ -298,9 +300,10 @@ const WhiteboardContainer = (props) => {
   } = WHITEBOARD_CONFIG.styles;
   const handleToggleFullScreen = (ref) => FullscreenService.toggleFullScreen(ref);
 
+  // use -0.5 offset to avoid white borders rounding erros
   bgShape.push({
-    x: 1,
-    y: 1,
+    x: -0.5,
+    y: -0.5,
     rotation: 0,
     isLocked: true,
     opacity: 1,
@@ -308,8 +311,8 @@ const WhiteboardContainer = (props) => {
     id: `shape:BG-${curPageNum}`,
     type: 'image',
     props: {
-      w: currentPresentationPage?.scaledWidth || 1,
-      h: currentPresentationPage?.scaledHeight || 1,
+      w: currentPresentationPage?.scaledWidth + 1.5 || 1,
+      h: currentPresentationPage?.scaledHeight + 1.5 || 1,
       assetId,
       playing: true,
       url: '',
@@ -368,14 +371,22 @@ const WhiteboardContainer = (props) => {
         darkTheme: Settings?.application?.darkTheme,
         selectedLayout: Settings?.application?.selectedLayout,
         isInfiniteWhiteboard,
+        curPageNum,
       }}
       {...props}
       meetingId={Auth.meetingID}
       publishCursorUpdate={throttledPublishCursorUpdate}
       otherCursors={cursorArray}
-      hideViewersCursor={meeting?.data?.lockSettings?.hideViewersCursor}
+      hideViewersCursor={userLocks?.hideViewersCursor}
     />
   );
+};
+
+WhiteboardContainer.propTypes = {
+  intl: PropTypes.shape({
+    formatMessage: PropTypes.func.isRequired,
+  }).isRequired,
+  zoomChanger: PropTypes.func.isRequired,
 };
 
 export default WhiteboardContainer;

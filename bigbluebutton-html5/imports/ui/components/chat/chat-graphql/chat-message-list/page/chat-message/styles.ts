@@ -14,6 +14,7 @@ import {
   colorWhite,
   userListBg,
   colorSuccess,
+  colorOffWhite,
 } from '/imports/ui/stylesheets/styled-components/palette';
 
 import Header from '/imports/ui/components/common/control-header/component';
@@ -74,6 +75,12 @@ export const ChatWrapper = styled.div<ChatWrapperProps>`
     margin: 0;
     padding: 0;
   `}
+  ${({ sameSender }) => !sameSender && `
+    &:hover {
+      background-color: ${colorOffWhite};
+    }
+    border-radius: 6px;
+  `}
 `;
 
 export const ChatContent = styled.div<ChatContentProps>`
@@ -84,6 +91,13 @@ export const ChatContent = styled.div<ChatContentProps>`
   ${({ sameSender, isCustomPluginMessage }) => sameSender
     && !isCustomPluginMessage && `
     margin-left: 2.6rem;
+  `}
+
+  ${({ sameSender }) => sameSender && `
+    &:hover {
+      background-color: ${colorOffWhite};
+    }
+    border-radius: 6px;
   `}
 `;
 
@@ -112,7 +126,6 @@ export const ChatAvatar = styled.div<ChatAvatarProps>`
   ${({ color }) => css`
     background-color: ${color};
   `}
-  }
 
   &:after,
   &:before {
@@ -171,11 +184,16 @@ export const ChatAvatar = styled.div<ChatAvatarProps>`
   justify-content: center;
   align-items:center;
   // ================ content ================
-  
+
   & .react-loading-skeleton {
     height: 2.25rem;
     width: 2.25rem;
   }
+`;
+
+export const Container = styled.div`
+  display: flex;
+  flex-direction: column;
 `;
 
 export const MessageItemWrapper = styled.div`

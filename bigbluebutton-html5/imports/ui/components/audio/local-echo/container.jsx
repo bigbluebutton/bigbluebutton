@@ -16,6 +16,7 @@ const LocalEchoContainer = (props) => {
       deattachEchoStream={LocalEchoService.deattachEchoStream}
       shouldUseRTCLoopback={LocalEchoService.shouldUseRTCLoopback}
       createAudioRTCLoopback={LocalEchoService.createAudioRTCLoopback}
+      setAudioSink={LocalEchoService.setAudioSink}
     />
   );
 };

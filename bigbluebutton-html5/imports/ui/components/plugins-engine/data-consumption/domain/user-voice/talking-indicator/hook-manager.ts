@@ -23,7 +23,7 @@ const TalkingIndicatorHookContainer = () => {
   const updateTalkingIndicatorForPlugin = () => {
     window.dispatchEvent(new CustomEvent<
       UpdatedEventDetails<PluginSdk.GraphqlResponseWrapper<PluginSdk.UserVoice[]>>
-    >(HookEvents.UPDATED, {
+    >(HookEvents.BBB_CORE_SENT_NEW_DATA, {
       detail: {
         data: formatTalkingIndicatorDataFromGraphql(userVoice),
         hook: DataConsumptionHooks.TALKING_INDICATOR,
@@ -40,11 +40,11 @@ const TalkingIndicatorHookContainer = () => {
       if (event.detail.hook === DataConsumptionHooks.TALKING_INDICATOR) setSendSignal((signal) => !signal);
     }) as EventListener;
     window.addEventListener(
-      HookEvents.SUBSCRIBED, updateHookUseTalkingIndicator,
+      HookEvents.PLUGIN_SUBSCRIBED_TO_BBB_CORE, updateHookUseTalkingIndicator,
     );
     return () => {
       window.removeEventListener(
-        HookEvents.SUBSCRIBED, updateHookUseTalkingIndicator,
+        HookEvents.PLUGIN_SUBSCRIBED_TO_BBB_CORE, updateHookUseTalkingIndicator,
       );
     };
   }, []);

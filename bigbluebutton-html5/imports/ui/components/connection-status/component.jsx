@@ -3,7 +3,6 @@ import { useMutation } from '@apollo/client';
 import { UPDATE_CONNECTION_ALIVE_AT } from './mutations';
 import {
   handleAudioStatsEvent,
-  startMonitoringNetwork,
 } from '/imports/ui/components/connection-status/service';
 import connectionStatus from '../../core/graphql/singletons/connectionStatus';
 
@@ -85,8 +84,9 @@ const ConnectionStatus = () => {
     const STATS_ENABLED = window.meetingClientSettings.public.stats.enabled;
 
     if (STATS_ENABLED) {
+      // This will generate metrics usage to determine alert statuses based
+      // on WebRTC stats
       window.addEventListener('audiostats', handleAudioStatsEvent);
-      startMonitoringNetwork();
     }
 
     return () => {

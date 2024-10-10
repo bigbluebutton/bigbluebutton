@@ -84,7 +84,7 @@ const UserItemContents = styled.div<UserItemContentsProps>`
     &:first-child {
       margin-top: 0;
     }
-
+    &:focus,
     &:hover {
       outline: transparent;
       outline-style: dotted;
@@ -92,8 +92,7 @@ const UserItemContents = styled.div<UserItemContentsProps>`
       background-color: ${listItemBgHover};
     }
 
-    &:active,
-    &:focus {
+    &:active{
       outline: transparent;
       outline-width: ${borderSize};
       outline-style: solid;
@@ -135,6 +134,7 @@ const Avatar = styled.div<AvatarProps>`
   position: relative;
   height: 2.25rem;
   width: 2.25rem;
+  min-width: 2.25rem;
   border-radius: 50%;
   text-align: center;
   font-size: .85rem;
@@ -314,6 +314,10 @@ const Avatar = styled.div<AvatarProps>`
   ${({ talking, animations, color }) => talking && animations && color && css`
     animation: ${pulse(color)} 1s infinite ease-in;
   `}
+
+  ${({ talking, animations }) => talking && !animations && `
+    box-shadow: 0 0 0 4px currentColor;
+  `}
   // ================ talking animation ================
   // ================ image ================
   ${({ avatar, emoji, color }) => avatar?.length !== 0 && !emoji && css`
@@ -367,6 +371,7 @@ const UserNameContainer = styled.div`
   margin: 0 0 0 ${smPaddingX};
   justify-content: center;
   font-size: 90%;
+  max-width: 70%;
 
   [dir="rtl"]  & {
     margin: 0 ${smPaddingX} 0 0;

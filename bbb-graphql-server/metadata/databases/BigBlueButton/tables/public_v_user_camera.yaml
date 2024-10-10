@@ -29,6 +29,9 @@ select_permissions:
   - role: bbb_client
     permission:
       columns:
+        - contentType
+        - showAsContent
+        - hasAudio
         - streamId
         - userId
       filter:

@@ -62,6 +62,19 @@ class ConnectionController {
 
   def checkGraphqlAuthorization = {
     try {
+      /* the graphql connection in cluster setups is a CORS request. The OPTIONS
+       * call is done as a preflight quest by the browser and does not contain
+       * secrets. The Access-Allow-Origin Header is added by Grails. This is just
+       * the auth_request endpoint called by nginx to check authorization.
+       */
+      if (request.getHeader("x-original-method") == 'OPTIONS') {
+          log.debug "OPTIONS SUCCESS \n"
+          response.setStatus(200)
+          response.addHeader("Cache-Control", "no-cache")
+          response.contentType = 'plain/text'
+          response.outputStream << 'graphql-success';
+          return;
+      }
       String sessionToken = request.getHeader("x-session-token")
 
       UserSession userSession = meetingService.getUserSessionWithSessionToken(sessionToken)

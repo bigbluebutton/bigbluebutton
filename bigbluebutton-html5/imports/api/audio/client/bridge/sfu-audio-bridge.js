@@ -355,6 +355,10 @@ export default class SFUAudioBridge extends BaseAudioBridge {
       const GATHERING_TIMEOUT = SETTINGS.public.kurento.gatheringTimeout;
       const RETRY_THROUGH_RELAY = MEDIA.audio.retryThroughRelay || false;
       const { audio: NETWORK_PRIORITY } = MEDIA.networkPriorities || {};
+      const {
+        enabled: RESTART_ICE = false,
+        retries: RESTART_ICE_RETRIES = 1,
+      } = SETTINGS.public.kurento?.restartIce?.audio || {};
 
       const handleInitError = (_error) => {
         mapErrorCode(_error);
@@ -389,6 +393,10 @@ export default class SFUAudioBridge extends BaseAudioBridge {
           gatheringTimeout: GATHERING_TIMEOUT,
           transparentListenOnly: isTransparentListenOnlyEnabled(),
           bypassGUM,
+          // ICE restart only works for publishers right now - recvonly full
+          // reconnection works ok without it.
+          restartIce: RESTART_ICE && !isListenOnly,
+          restartIceMaxRetries: RESTART_ICE_RETRIES,
         };
 
         this.broker = new AudioBroker(

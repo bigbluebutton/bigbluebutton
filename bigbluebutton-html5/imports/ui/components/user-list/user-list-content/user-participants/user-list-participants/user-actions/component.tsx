@@ -1,4 +1,4 @@
-import React, { useState, useContext } from 'react';
+import React, { useState } from 'react';
 import { User } from '/imports/ui/Types/user';
 import { LockSettings, UsersPolicies } from '/imports/ui/Types/meeting';
 import { useIntl, defineMessages } from 'react-intl';
@@ -16,6 +16,7 @@ import {
   EJECT_FROM_VOICE,
   SET_PRESENTER,
   SET_LOCKED,
+  SET_USER_CHAT_LOCKED,
 } from '/imports/ui/core/graphql/mutations/userMutations';
 import {
   isVideoPinEnabledForCurrentUser,
@@ -33,7 +34,6 @@ import ConfirmationModal from '/imports/ui/components/common/modal/confirmation/
 
 import BBBMenu from '/imports/ui/components/common/menu/component';
 import { setPendingChat } from '/imports/ui/core/local-states/usePendingChat';
-import { PluginsContext } from '/imports/ui/components/components-data/plugin-context/context';
 import Styled from './styles';
 import { useMutation, useLazyQuery } from '@apollo/client';
 import { CURRENT_PAGE_WRITERS_QUERY } from '/imports/ui/components/whiteboard/queries';
@@ -42,6 +42,7 @@ import useToggleVoice from '/imports/ui/components/audio/audio-graphql/hooks/use
 import useWhoIsUnmuted from '/imports/ui/core/hooks/useWhoIsUnmuted';
 
 interface UserActionsProps {
+  userListDropdownItems: PluginSdk.UserListDropdownInterface[];
   user: User;
   currentUser: User;
   lockSettings: LockSettings;
@@ -55,14 +56,15 @@ interface UserActionsProps {
 
 interface DropdownItem {
   key: string;
-  label: string | undefined;
-  icon: string | undefined;
-  tooltip: string | undefined;
-  allowed: boolean | undefined;
-  iconRight: string | undefined;
-  textColor: string | undefined;
-  isSeparator: boolean | undefined;
-  onClick: (() => void) | undefined;
+  label?: string;
+  icon?: string;
+  tooltip?: string;
+  allowed?: boolean;
+  iconRight?: string;
+  textColor?: string;
+  isSeparator?: boolean;
+  contentFunction?: ((element: HTMLElement) => void);
+  onClick?: (() => void);
 }
 
 interface Writer {
@@ -123,6 +125,14 @@ const messages = defineMessages({
     id: 'app.userList.menu.lockUser.label',
     description: 'Lock a unlocked user',
   },
+  lockPublicChat: {
+    id: 'app.userList.menu.lockPublicChat.label',
+    description: 'label for option to lock user\'s public chat',
+  },
+  unlockPublicChat: {
+    id: 'app.userList.menu.unlockPublicChat.label',
+    description: 'label for option to lock user\'s public chat',
+  },
   DirectoryLookupLabel: {
     id: 'app.userList.menu.directoryLookup.label',
     description: 'Directory lookup',
@@ -162,13 +172,19 @@ const makeDropdownPluginItem: (
           returnValue.onClick = dropdownButton.onClick;
           break;
         }
-        case UserListDropdownItemType.INFORMATION: {
-          const dropdownButton = userDropdownItem as PluginSdk.UserListDropdownInformation;
+        case UserListDropdownItemType.FIXED_CONTENT_INFORMATION: {
+          const dropdownButton = userDropdownItem as PluginSdk.UserListDropdownFixedContentInformation;
           returnValue.label = dropdownButton.label;
           returnValue.icon = dropdownButton.icon;
           returnValue.iconRight = dropdownButton.iconRight;
           returnValue.textColor = dropdownButton.textColor;
           returnValue.allowed = dropdownButton.allowed;
+          break;
+        }
+        case UserListDropdownItemType.GENERIC_CONTENT_INFORMATION: {
+          const dropdownButton = userDropdownItem as PluginSdk.UserListDropdownGenericContentInformation;
+          returnValue.allowed = dropdownButton.allowed;
+          returnValue.contentFunction = dropdownButton.contentFunction;
           break;
         }
         case UserListDropdownItemType.SEPARATOR: {
@@ -191,6 +207,7 @@ const UserActions: React.FC<UserActionsProps> = ({
   isBreakout,
   children,
   pageId,
+  userListDropdownItems,
   open,
   setOpenUserAction,
 }) => {
@@ -242,8 +259,6 @@ const UserActions: React.FC<UserActionsProps> = ({
     }
   };
 
-  const { pluginsExtensibleAreasAggregatedState } = useContext(PluginsContext);
-
   const { data: unmutedUsers } = useWhoIsUnmuted();
   const isMuted = !unmutedUsers[user.userId];
 
@@ -272,12 +287,7 @@ const UserActions: React.FC<UserActionsProps> = ({
     && lockSettings?.hasActiveLockSetting
     && !user.isModerator;
 
-  let userListDropdownItems = [] as PluginSdk.UserListDropdownInterface[];
-  if (pluginsExtensibleAreasAggregatedState.userListDropdownItems) {
-    userListDropdownItems = [
-      ...pluginsExtensibleAreasAggregatedState.userListDropdownItems,
-    ];
-  }
+  const userChatLocked = user.userLockSettings?.disablePublicChat;
 
   const userDropdownItems = userListDropdownItems.filter(
     (item: PluginSdk.UserListDropdownInterface) => (user?.userId === item?.userId),
@@ -294,6 +304,7 @@ const UserActions: React.FC<UserActionsProps> = ({
   const [ejectFromVoice] = useMutation(EJECT_FROM_VOICE);
   const [setPresenter] = useMutation(SET_PRESENTER);
   const [setLocked] = useMutation(SET_LOCKED);
+  const [setUserChatLocked] = useMutation(SET_USER_CHAT_LOCKED);
   const [userEjectCameras] = useMutation(USER_EJECT_CAMERAS);
 
   const removeUser = (userId: string, banUser: boolean) => {
@@ -313,10 +324,25 @@ const UserActions: React.FC<UserActionsProps> = ({
       });
     }
   };
-
+  const titleActions = userDropdownItems.filter(
+    (item: PluginSdk.UserListDropdownInterface) => (
+      item?.type === UserListDropdownItemType.TITLE_ACTION),
+  );
   const dropdownOptions = [
+    {
+      allowed: true,
+      key: 'userName',
+      label: user.name,
+      titleActions,
+      isTitle: true,
+    },
     ...makeDropdownPluginItem(userDropdownItems.filter(
-      (item: PluginSdk.UserListDropdownInterface) => (item?.type === UserListDropdownItemType.INFORMATION),
+      (item: PluginSdk.UserListDropdownInterface) => (
+        item?.type === UserListDropdownItemType.FIXED_CONTENT_INFORMATION
+        || item?.type === UserListDropdownItemType.GENERIC_CONTENT_INFORMATION
+        || (item?.type === UserListDropdownItemType.SEPARATOR
+          && (item as PluginSdk.UserListDropdownSeparator)?.position
+          === PluginSdk.UserListDropdownSeparatorPosition.BEFORE)),
     )),
     {
       allowed: user.cameras.length > 0
@@ -373,6 +399,26 @@ const UserActions: React.FC<UserActionsProps> = ({
       },
       icon: 'chat',
       dataTest: 'startPrivateChat',
+    },
+    {
+      allowed: isChatEnabled
+        && !user.isModerator
+        && currentUser.isModerator
+        && !isVoiceOnlyUser(user.userId),
+      key: 'lockChat',
+      label: userChatLocked
+        ? intl.formatMessage(messages.unlockPublicChat)
+        : intl.formatMessage(messages.lockPublicChat),
+      onClick: () => {
+        try {
+          setUserChatLocked({ variables: { userId: user.userId, disablePubChat: !userChatLocked } });
+        } catch (e) {
+          logger.error('Error on trying to toggle muted');
+        }
+        setOpenUserAction(null);
+      },
+      icon: userChatLocked ? 'unlock' : 'lock',
+      dataTest: 'togglePublicChat',
     },
     {
       allowed: allowedToMuteAudio
@@ -508,7 +554,13 @@ const UserActions: React.FC<UserActionsProps> = ({
       dataTest: 'ejectCamera',
     },
     ...makeDropdownPluginItem(userDropdownItems.filter(
-      (item: PluginSdk.UserListDropdownInterface) => (item?.type !== UserListDropdownItemType.INFORMATION),
+      (item: PluginSdk.UserListDropdownInterface) => (
+        item?.type !== UserListDropdownItemType.FIXED_CONTENT_INFORMATION
+        && item?.type !== UserListDropdownItemType.GENERIC_CONTENT_INFORMATION
+        && !(item?.type === UserListDropdownItemType.SEPARATOR
+          && (item as PluginSdk.UserListDropdownSeparator)?.position
+          === PluginSdk.UserListDropdownSeparatorPosition.BEFORE)
+      ),
     )),
   ];
 

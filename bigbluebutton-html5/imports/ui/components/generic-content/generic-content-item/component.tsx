@@ -4,6 +4,7 @@ import { GenericContentItemProps } from './types';
 const GenericContentItem: React.FC<GenericContentItemProps> = (props) => {
   const {
     renderFunction,
+    width,
   } = props;
   const elementRef = useRef(null);
 
@@ -13,12 +14,16 @@ const GenericContentItem: React.FC<GenericContentItemProps> = (props) => {
     }
   }, [elementRef]);
 
+  const style: React.CSSProperties = {
+    height: '100%',
+    overflow: 'hidden',
+  };
+  if (width) {
+    style.width = width;
+  }
   return (
     <div
-      style={{
-        height: '100%',
-        overflow: 'hidden',
-      }}
+      style={style}
       ref={elementRef}
     />
   );

@@ -134,6 +134,7 @@ const ChatMessageForm: React.FC<ChatMessageFormProps> = ({
   const emojiPickerRef = useRef<HTMLDivElement>(null);
   const emojiPickerButtonRef = useRef(null);
   const [isTextAreaFocused, setIsTextAreaFocused] = React.useState(false);
+  const [repliedMessageId, setRepliedMessageId] = React.useState<string>();
   const textAreaRef: RefObject<TextareaAutosize> = useRef<TextareaAutosize>(null);
   const { isMobile } = deviceInfo;
   const prevChatId = usePreviousValue(chatId);
@@ -282,6 +283,21 @@ const ChatMessageForm: React.FC<ChatMessageFormProps> = ({
     }));
   }, [message]);
 
+  useEffect(() => {
+    const handler = (e: Event) => {
+      if (e instanceof CustomEvent) {
+        setRepliedMessageId(e.detail.messageId);
+        textAreaRef.current?.textarea.focus();
+      }
+    };
+
+    window.addEventListener(ChatEvents.CHAT_REPLY_INTENTION, handler);
+
+    return () => {
+      window.removeEventListener(ChatEvents.CHAT_REPLY_INTENTION, handler);
+    };
+  }, []);
+
   const renderForm = () => {
     const formRef = useRef<HTMLFormElement | null>(null);
 
@@ -303,8 +319,20 @@ const ChatMessageForm: React.FC<ChatMessageFormProps> = ({
           variables: {
             chatMessageInMarkdownFormat: msg,
             chatId: chatId === PUBLIC_CHAT_ID ? PUBLIC_GROUP_CHAT_ID : chatId,
+            replyToMessageId: repliedMessageId,
           },
         });
+
+        window.dispatchEvent(
+          new CustomEvent(ChatEvents.CHAT_REPLY_INTENTION, {
+            detail: {
+              username: undefined,
+              message: undefined,
+              messageId: undefined,
+              chatId: undefined,
+            },
+          }),
+        );
       }
       const currentClosedChats = Storage.getItem(CLOSED_CHAT_LIST_KEY);
 
@@ -506,10 +534,7 @@ const ChatMessageForm: React.FC<ChatMessageFormProps> = ({
   return renderForm();
 };
 
-// eslint-disable-next-line no-empty-pattern
-const ChatMessageFormContainer: React.FC = ({
-  // connected, move to network status
-}) => {
+const ChatMessageFormContainer: React.FC = () => {
   const intl = useIntl();
   const idChatOpen: string = layoutSelect((i: Layout) => i.idChatOpen);
   const isRTL = layoutSelect((i: Layout) => i.isRTL);
@@ -521,6 +546,7 @@ const ChatMessageFormContainer: React.FC = ({
 
   const { data: currentUser } = useCurrentUser((c) => ({
     isModerator: c?.isModerator,
+    userLockSettings: c?.userLockSettings,
     locked: c?.locked,
   }));
 
@@ -534,8 +560,9 @@ const ChatMessageFormContainer: React.FC = ({
 
   const isModerator = currentUser?.isModerator;
   const isPublicChat = chat?.public;
-  const isLocked = currentUser?.locked;
-  const disablePublicChat = meeting?.lockSettings?.disablePublicChat;
+  const isLocked = currentUser?.locked || currentUser?.userLockSettings?.disablePublicChat;
+  const disablePublicChat = meeting?.lockSettings?.disablePublicChat
+    || currentUser?.userLockSettings?.disablePublicChat;
   const disablePrivateChat = meeting?.lockSettings?.disablePrivateChat;
 
   let locked = false;

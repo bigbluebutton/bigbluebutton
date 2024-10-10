@@ -16,9 +16,15 @@ case "$1" in
       log "Removed symbolic link /usr/share/bigbluebutton/html5-client"
     fi
 
+    # legacy location of html5-client circa BBB 3.0.0-beta.1
     if [ -d /var/bigbluebutton/html5-client ]; then
       rm -rf /var/bigbluebutton/html5-client
       log "Removed directory /var/bigbluebutton/html5-client"
+    fi
+
+    if [ -d /usr/share/bigbluebutton/html5-client ]; then
+      rm -rf /usr/share/bigbluebutton/html5-client
+      log "Removed directory /usr/share/bigbluebutton/html5-client"
     fi
   ;;
   upgrade)

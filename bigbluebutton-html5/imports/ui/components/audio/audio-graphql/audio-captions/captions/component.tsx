@@ -8,6 +8,7 @@ import {
   useFixedLocale,
   isGladia,
   useIsAudioTranscriptionEnabled,
+  getLocaleName,
 } from '../service';
 import useCurrentUser from '/imports/ui/core/hooks/useCurrentUser';
 import { SET_SPEECH_LOCALE } from '/imports/ui/core/graphql/mutations/userMutations';
@@ -152,7 +153,11 @@ const AudioCaptionsSelect: React.FC<AudioCaptionsSelectProps> = ({
           key={v}
           value={v}
         >
-          {intl.formatMessage(intlMessages[v as keyof typeof intlMessages])}
+          {
+          intlMessages[v as keyof typeof intlMessages]
+            ? intl.formatMessage(intlMessages[v as keyof typeof intlMessages])
+            : getLocaleName(v)
+          }
         </option>
       ))}
     </Styled.Select>
