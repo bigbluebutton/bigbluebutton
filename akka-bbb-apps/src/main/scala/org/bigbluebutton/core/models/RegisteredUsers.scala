@@ -1,14 +1,14 @@
 package org.bigbluebutton.core.models
 
 import com.softwaremill.quicklens._
-import org.bigbluebutton.core.db.{UserBreakoutRoomDAO, UserDAO, UserDbModel}
+import org.bigbluebutton.core.db.{UserBreakoutRoomDAO, UserDAO, UserDbModel, UserSessionTokenDAO}
 import org.bigbluebutton.core.domain.BreakoutRoom2x
 
 object RegisteredUsers {
   def create(meetingId: String, userId: String, extId: String, name: String, roles: String,
-             authToken: String, sessionToken: String, avatar: String, color: String, guest: Boolean, authenticated: Boolean,
+             authToken: String, sessionToken: Vector[String], avatar: String, webcamBackground: String, color: String, guest: Boolean, authenticated: Boolean,
              guestStatus: String, excludeFromDashboard: Boolean, enforceLayout: String,
-             customParameters: Map[String, String], loggedOut: Boolean): RegisteredUser = {
+             userMetadata: Map[String, String], loggedOut: Boolean): RegisteredUser = {
     new RegisteredUser(
       userId,
       extId,
@@ -18,25 +18,31 @@ object RegisteredUsers {
       authToken,
       sessionToken,
       avatar,
+      webcamBackground,
       color,
       guest,
       authenticated,
       guestStatus,
       excludeFromDashboard,
       System.currentTimeMillis(),
-      0,
-      false,
-      0,
-      false,
-      false,
+      lastAuthTokenValidatedOn = 0,
+      graphqlConnected = false,
+      graphqlDisconnectedOn = 0,
+      joined = false,
+      ejected = false,
+      banned = false,
       enforceLayout,
-      customParameters,
+      userMetadata,
       loggedOut,
     )
   }
 
   def findWithToken(token: String, users: RegisteredUsers): Option[RegisteredUser] = {
     users.toVector.find(u => u.authToken == token)
+  }
+
+  def findWithSessionToken(sessionToken: String, users: RegisteredUsers): Option[RegisteredUser] = {
+    users.toVector.find(u => u.sessionToken.contains(sessionToken))
   }
 
   def findAll(users: RegisteredUsers): Vector[RegisteredUser] = {
@@ -128,9 +134,10 @@ object RegisteredUsers {
       UserDAO.update(u)
       u
     } else {
-      users.delete(ejectedUser.id)
-      UserDAO.softDelete(ejectedUser.meetingId, ejectedUser.id)
-      ejectedUser
+      val u = ejectedUser.modify(_.ejected).setTo(true)
+      users.save(u)
+
+      updateUserJoin(users, u, joined = false)
     }
   }
 
@@ -203,6 +210,20 @@ object RegisteredUsers {
     u
   }
 
+  def addUserSessionToken(users: RegisteredUsers, user: RegisteredUser, newSessionToken: String, enforceLayout: String): RegisteredUser = {
+    val u = user.copy(sessionToken = user.sessionToken :+ newSessionToken)
+    users.save(u)
+    UserSessionTokenDAO.insert(u.meetingId, u.id, newSessionToken, enforceLayout)
+    u
+  }
+
+  def removeUserSessionToken(users: RegisteredUsers, user: RegisteredUser, replaceSessionToken: String): RegisteredUser = {
+    val u = user.copy(sessionToken = user.sessionToken.filterNot(_ == replaceSessionToken))
+    users.save(u)
+    UserSessionTokenDAO.softDelete(u.meetingId, u.id, replaceSessionToken)
+    u
+  }
+
 }
 
 class RegisteredUsers {
@@ -231,8 +252,9 @@ case class RegisteredUser(
     name:                     String,
     role:                     String,
     authToken:                String,
-    sessionToken:             String,
+    sessionToken:             Vector[String],
     avatarURL:                String,
+    webcamBackgroundURL:      String,
     color:                    String,
     guest:                    Boolean,
     authed:                   Boolean,
@@ -243,9 +265,10 @@ case class RegisteredUser(
     graphqlConnected:         Boolean,
     graphqlDisconnectedOn:    Long,
     joined:                   Boolean,
+    ejected:                  Boolean,
     banned:                   Boolean,
     enforceLayout:            String,
-    customParameters:         Map[String,String],
+    userMetadata:         Map[String,String],
     loggedOut:                Boolean,
     lastBreakoutRoom:         BreakoutRoom2x = null,
 )

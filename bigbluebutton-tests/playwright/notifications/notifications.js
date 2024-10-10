@@ -1,4 +1,4 @@
-const { test } = require('@playwright/test');
+const { expect } = require('@playwright/test');
 const { MultiUsers } = require('../user/multiusers');
 const e = require('../core/elements');
 const util = require('./util');
@@ -25,13 +25,18 @@ class Notifications extends MultiUsers {
     await this.modPage.joinMicrophone();
     await util.checkNotificationText(this.modPage, e.joinAudioToast);
     await util.checkNotificationIcon(this.modPage, e.unmuteIcon);
+    await expect(
+      this.modPage.getLocator(e.connectionStatusBtn),
+      'should not complain about loss in connection when joining audio'
+    ).not.toHaveAttribute('color', 'danger');
+    await this.modPage.checkElementCount(e.smallToastMsg, 1, 'should have only one notification displayed');
     await util.waitAndClearNotification(this.modPage);
     await this.modPage.waitAndClick(e.audioDropdownMenu);
     await this.modPage.waitAndClick(e.leaveAudio);
     await util.waitAndClearNotification(this.modPage);
     await this.modPage.waitAndClick(e.joinAudio);
     await this.modPage.waitAndClick(e.listenOnlyButton);
-    await this.modPage.wasRemoved(e.establishingAudioLabel);
+    await this.modPage.wasRemoved(e.establishingAudioLabel, 'should remove establish audio element after joining successfully');
     await util.checkNotificationText(this.modPage, e.joinAudioToast);
     await util.checkNotificationIcon(this.modPage, e.listenOnlyIcon);
   }
@@ -60,7 +65,7 @@ class Notifications extends MultiUsers {
     await sleep(1000);
     await this.modPage.waitAndClick(e.reactionsButton);
     await this.modPage.waitAndClick(e.lowerHandBtn);
-    await this.modPage.wasRemoved(e.raiseHandRejection);
+    await this.modPage.wasRemoved(e.raiseHandRejection, 'should the raise hand be rejected');
     await util.checkNotificationText(this.modPage, e.raisingHandToast);
     await this.modPage.hasText(`${e.smallToastMsg}>>nth=0`, e.raisingHandToast);
     await this.modPage.hasText(`${e.smallToastMsg}>>nth=1`, e.loweringHandToast);

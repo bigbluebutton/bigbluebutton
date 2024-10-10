@@ -16,15 +16,6 @@ object_relationships:
         remote_table:
           name: v_user_connectionStatus
           schema: public
-  - name: customParameters
-    using:
-      manual_configuration:
-        column_mapping:
-          userId: userId
-        insertion_order: null
-        remote_table:
-          name: v_user_customParameter
-          schema: public
   - name: guestStatusDetails
     using:
       manual_configuration:
@@ -78,6 +69,25 @@ object_relationships:
         insertion_order: null
         remote_table:
           name: v_user_clientSettings
+          schema: public
+  - name: userLockSettings
+    using:
+      manual_configuration:
+        column_mapping:
+          meetingId: meetingId
+          userId: userId
+        insertion_order: null
+        remote_table:
+          name: v_user_lockSettings
+          schema: public
+  - name: userMetadata
+    using:
+      manual_configuration:
+        column_mapping:
+          userId: userId
+        insertion_order: null
+        remote_table:
+          name: v_user_metadata
           schema: public
   - name: voice
     using:
@@ -142,6 +152,7 @@ select_permissions:
         - authToken
         - authed
         - avatar
+        - webcamBackground
         - away
         - banned
         - captionLocale
@@ -152,7 +163,6 @@ select_permissions:
         - ejectReason
         - ejectReasonCode
         - ejected
-        - emoji
         - enforceLayout
         - expired
         - extId
@@ -163,7 +173,7 @@ select_permissions:
         - inactivityWarningTimeoutSecs
         - isDialIn
         - isModerator
-        - isOnline
+        - currentlyInMeeting
         - isRunningEchoTest
         - joinErrorCode
         - joinErrorMessage
@@ -188,7 +198,7 @@ select_permissions:
               _eq: X-Hasura-MeetingId
           - userId:
               _eq: X-Hasura-UserId
-  - role: not_joined_bbb_client
+  - role: bbb_client_not_in_meeting
     permission:
       columns:
         - authToken
@@ -200,7 +210,7 @@ select_permissions:
         - ejectReasonCode
         - ejected
         - expired
-        - isOnline
+        - currentlyInMeeting
         - isModerator
         - extId
         - guest
@@ -220,15 +230,3 @@ select_permissions:
           - userId:
               _eq: X-Hasura-UserId
     comment: ""
-update_permissions:
-  - role: bbb_client
-    permission:
-      columns:
-        - echoTestRunningAt
-      filter:
-        _and:
-          - meetingId:
-              _eq: X-Hasura-MeetingId
-          - userId:
-              _eq: X-Hasura-UserId
-      check: null

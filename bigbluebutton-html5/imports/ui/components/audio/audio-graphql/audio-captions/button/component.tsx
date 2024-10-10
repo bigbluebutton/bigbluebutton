@@ -162,10 +162,15 @@ const AudioCaptionsButton: React.FC<AudioCaptionsButtonProps> = ({
         if (availableVoice === availableVoices[0]) {
           indexToInsertSeparator = index;
         }
+
+        const label = intlMessages[availableVoice as keyof typeof intlMessages]
+          ? intl.formatMessage(intlMessages[availableVoice as keyof typeof intlMessages])
+          : AudioCaptionsService.getLocaleName(availableVoice);
+
         return (
           {
             icon: '',
-            label: intl.formatMessage(intlMessages[availableVoice as keyof typeof intlMessages]),
+            label,
             key: availableVoice,
             iconRight: selectedLocale.current === availableVoice ? 'check' : null,
             customStyles: (selectedLocale.current === availableVoice) && Styled.SelectedLabel,
@@ -252,7 +257,6 @@ const AudioCaptionsButton: React.FC<AudioCaptionsButtonProps> = ({
       icon={active ? 'closed_caption' : 'closed_caption_stop'}
       label={intl.formatMessage(active ? intlMessages.stop : intlMessages.start)}
       color={active ? 'primary' : 'default'}
-      ghost={!active}
       hideLabel
       circle
       size="lg"

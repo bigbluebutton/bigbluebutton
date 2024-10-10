@@ -106,14 +106,17 @@ Updated in 2.6:
 
 Updated in 2.7:
 
-- **create** - **Added:** `preUploadedPresentation`, `preUploadedPresentationName`, `disabledFeatures` options`cameraAsContent`, `snapshotOfCurrentSlide`, `downloadPresentationOriginalFile`, `downloadPresentationConvertedToPdf`, `timer`, `learningDashboardDownloadSessionData` (2.7.5).
-- **join** - **Added:** `redirectErrorUrl`, `userdata-bbb_fullaudio_bridge`
+- **create** - **Added:** `preUploadedPresentation`, `preUploadedPresentationName`, `allowPromoteGuestToModerator` (2.7.9), `disabledFeatures` options`cameraAsContent`, `snapshotOfCurrentSlide`, `downloadPresentationOriginalFile`, `downloadPresentationConvertedToPdf`, `timer`, `learningDashboardDownloadSessionData` (2.7.5).
+- **join** - **Added:** `errorRedirectUrl`, `userdata-bbb_fullaudio_bridge`
 
 Updated in 3.0:
 
-- **create** - **Added parameters:** `allowOverrideClientSettingsOnCreateCall`, `allowPromoteGuestToModerator`, `loginURL`. Parameter `meetingLayout` supports a few new options: CAMERAS_ONLY, PARTICIPANTS_CHAT_ONLY, PRESENTATION_ONLY; **Added POST module:** `clientSettingsOverride`.
-- **join** - **Added:** `enforceLayout`, `userdata-bbb_default_layout`. **Removed:** `defaultLayout` (replaced by `userdata-bbb_default_layout`) and removed support for all HTTP request methods except GET.
+- **create** - **Added parameters:** `allowOverrideClientSettingsOnCreateCall`, `loginURL`. Parameter `meetingLayout` supports a few new options: CAMERAS_ONLY, PARTICIPANTS_CHAT_ONLY, PRESENTATION_ONLY; **Added POST module:** `clientSettingsOverride`; **Added:** `disabledFeatures` options `infiniteWhiteboard`;
+- **join** - **Added:** `enforceLayout`, `userdata-bbb_default_layout`, `userdata-bbb_skip_echotest_if_previous_device`, `userdata-bbb_prefer_dark_theme`. **Removed:** `defaultLayout` (replaced by `userdata-bbb_default_layout`) and removed support for all HTTP request methods except GET.
 - **sendChatMessage** endpoint was first introduced.
+- **enter** endpoint was removed. It was only used internally, never part of the api documentation.
+- **html5client/check** endpoint was removed. It was used for checking the health of the server returning `{"html5clientStatus":"running"}`
+- **feedback** endpoint was introduced, replacing calls to `/html5client/feedback` with `/api/feedback`
 
 ## API Data Types
 
@@ -550,11 +553,11 @@ There is a XML response for this call only when the `redirect` parameter is set 
 </response>
 ```
 
-See [Passing custom parameters to the client on join](/administration/customize/#passing-custom-parameters-to-the-client-on-join) for additional `join` parameters that can override default settings for the user.
+See [Passing user metadata to the client on join](/administration/customize/#passing-user-metadata-to-the-client-on-join) for additional `join` parameters that can override default settings for the user.
 
 ### `POST` insertDocument
 
-This endpoint insert one or more documents into a running meeting via API call
+This endpoint insert one or more documents into a running meeting via API call.
 
 **Resource URL:**
 
@@ -1264,7 +1267,7 @@ See the following [bigbluebutton-api-ruby](https://github.com/mconf/bigbluebutto
 
 To help you create/test valid API calls against your BigBlueButton server, use the excellent [API Mate](http://mconf.github.io/api-mate/) to interactively create API calls. API Mate generates the checksums within the browser (no server component needed) so you can use it to test API calls against a local BigBlueButton server.
 
-If you're developing new API calls or adding parameters on API calls, you can still use the API Mate to test them. Just scroll the page down or type "custom" in the parameter filter and you'll see the inputs where you can add custom API calls or custom parameters. New API calls will appear in the list of API links and new parameters will be added to all the API links.
+If you're developing new API calls or adding parameters on API calls, you can still use the API Mate to test them. Just scroll the page down or type "custom" in the parameter filter and you'll see the inputs where you can add custom API calls or user metadata. New API calls will appear in the list of API links and new parameters will be added to all the API links.
 
 If your using API Mate to test recordings and want to query by `meetingID`, be sure to clear the `recordID` field first.  BigBlueButton's API supports querying for recordings by either value, but not both at the same time.
 
@@ -1285,3 +1288,48 @@ For example, the application may be able to register a URL that BigBlueButton wo
 - http&#58;//third-party-app/bbb-integ.php?event=meetingEnded&meetingID=abcd
 - http&#58;//third-party-app/bbb-integ.php?event=userLeft&userID=1234
 - http&#58;//third-party-app/bbb-integ.php?event=meetingEnded&meetingID=abcd
+
+## Other Topics
+
+### Supported Document Types
+
+#### PDF Documents
+
+- PDF:
+  - .pdf
+
+#### Office Documents
+
+- Microsoft Word:
+  - .doc
+  - .docx
+- Microsoft Excel:
+  - .xls
+  - .xlsx
+- Microsoft PowerPoint:
+  - .ppt
+  - .pptx
+- OpenDocument Formats:
+  - .odt (Text Document)
+  - .ods (Spreadsheet)
+  - .odp (Presentation)
+  - .odg (Graphics)
+
+#### Image Files
+
+- Common Image Formats:
+  - .jpg
+  - .jpeg
+  - .png
+  - .webp
+  - .svg
+
+#### Text Files
+
+- Rich Text Format:
+  - .rtf
+- Plain Text:
+  - .txt
+
+All these valid formats are also present in a list in the [back-end](https://github.com/bigbluebutton/bigbluebutton/blob/v2.7.10/bbb-common-web/src/main/java/org/bigbluebutton/presentation/MimeTypeUtils.java#L28-L47) and in the [front-end](https://github.com/bigbluebutton/bigbluebutton/blob/v2.7.10/bigbluebutton-html5/private/config/settings.yml#L824-L862) if more details are needed.
+

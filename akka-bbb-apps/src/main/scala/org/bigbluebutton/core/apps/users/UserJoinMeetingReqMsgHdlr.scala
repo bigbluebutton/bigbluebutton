@@ -34,6 +34,7 @@ trait UserJoinMeetingReqMsgHdlr extends HandlerHelpers {
       val validationResult = for {
         _ <- checkIfUserGuestStatusIsAllowed(user)
         _ <- checkIfUserIsBanned(user)
+        _ <- checkIfUserEjected(user)
         _ <- checkIfUserLoggedOut(user)
         _ <- validateMaxParticipants(user)
       } yield user
@@ -51,7 +52,8 @@ trait UserJoinMeetingReqMsgHdlr extends HandlerHelpers {
     notifyPreviousUsersWithSameExtId(regUser)
     clearCachedVoiceUser(regUser)
     clearExpiredUserState(regUser)
-    ForceUserGraphqlReconnection(regUser)
+    forceUserGraphqlReconnection(regUser)
+    updateGraphqlDatabase(regUser)
 
     newState
   }
@@ -77,7 +79,7 @@ trait UserJoinMeetingReqMsgHdlr extends HandlerHelpers {
 
   private def validateMaxParticipants(regUser: RegisteredUser): Either[(String, String), Unit] = {
     val userHasJoinedAlready = RegisteredUsers.checkUserExtIdHasJoined(regUser.externId, liveMeeting.registeredUsers)
-    val maxParticipants = liveMeeting.props.usersProp.maxUsers - 1
+    val maxParticipants = liveMeeting.props.usersProp.maxUsers
 
     if (maxParticipants > 0 && //0 = no limit
       RegisteredUsers.numUniqueJoinedUsers(liveMeeting.registeredUsers) >= maxParticipants &&
@@ -99,6 +101,14 @@ trait UserJoinMeetingReqMsgHdlr extends HandlerHelpers {
   private def checkIfUserIsBanned(user: RegisteredUser): Either[(String, String), Unit] = {
     if (user.banned) {
       Left(("Banned user rejoining", EjectReasonCode.BANNED_USER_REJOINING))
+    } else {
+      Right(())
+    }
+  }
+
+  private def checkIfUserEjected(user: RegisteredUser): Either[(String, String), Unit] = {
+    if (user.ejected) {
+      Left(("User had ejected", EjectReasonCode.EJECT_USER))
     } else {
       Right(())
     }
@@ -145,9 +155,16 @@ trait UserJoinMeetingReqMsgHdlr extends HandlerHelpers {
     VoiceUsers.recoverVoiceUser(liveMeeting.voiceUsers, regUser.id)
 
   private def clearExpiredUserState(regUser: RegisteredUser) =
-    UserStateDAO.updateExpired(regUser.meetingId, regUser.id, false)
+    UserStateDAO.updateExpired(regUser.meetingId, regUser.id, expired = false)
 
-  private def ForceUserGraphqlReconnection(regUser: RegisteredUser) =
+  private def forceUserGraphqlReconnection(regUser: RegisteredUser) = {
     Sender.sendForceUserGraphqlReconnectionSysMsg(liveMeeting.props.meetingProp.intId, regUser.id, regUser.sessionToken, "user_joined", outGW)
+  }
+
+  private def updateGraphqlDatabase(regUser: RegisteredUser) = {
+    if (!regUser.joined) {
+      RegisteredUsers.updateUserJoin(liveMeeting.registeredUsers, regUser, joined = true)
+    }
+  }
 
 }

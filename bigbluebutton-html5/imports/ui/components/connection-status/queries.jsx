@@ -14,7 +14,7 @@ export const CONNECTION_STATUS_REPORT_SUBSCRIPTION = gql`subscription ConnStatus
       avatar
       color
       isModerator
-      isOnline
+      currentlyInMeeting
     }
     clientNotResponding
     lastUnstableStatus

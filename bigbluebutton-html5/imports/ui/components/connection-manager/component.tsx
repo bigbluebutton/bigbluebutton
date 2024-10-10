@@ -10,20 +10,28 @@ import logger from '/imports/startup/client/logger';
 import apolloContextHolder from '../../core/graphql/apolloContextHolder/apolloContextHolder';
 import connectionStatus from '../../core/graphql/singletons/connectionStatus';
 import deviceInfo from '/imports/utils/deviceInfo';
+import BBBWeb from '/imports/api/bbb-web-api';
+import useMeetingSettings from '/imports/ui/core/local-states/useMeetingSettings';
 
 interface ConnectionManagerProps {
   children: React.ReactNode;
 }
 
-interface Response {
-  response: {
-  returncode: string;
-  version: string;
-  apiVersion: string;
-  bbbVersion: string;
-  graphqlWebsocketUrl: string;
-  }
+interface WsError {
+  name: string;
+  message: string;
+  reason: string;
+  code: number;
 }
+
+const isDetailedErrorObject = (error: unknown): error is WsError => {
+  const requiredKeys = ['name', 'message', 'reason', 'code'];
+  return (
+    error !== null
+    && typeof error === 'object'
+    && requiredKeys.every((key) => Object.hasOwn(error, key))
+  );
+};
 
 const DEFAULT_MAX_MUTATION_PAYLOAD_SIZE = 10485760; // 10MB
 const getMaxMutationPayloadSize = () => window.meetingClientSettings?.public?.app?.maxMutationPayloadSize
@@ -70,27 +78,43 @@ const ConnectionManager: React.FC<ConnectionManagerProps> = ({ children }): Reac
   const numberOfAttempts = useRef(20);
   const [errorCounts, setErrorCounts] = React.useState(0);
   const activeSocket = useRef<WebSocket>();
-  const timedOut = useRef<ReturnType<typeof setTimeout>>();
+  const tsLastMessageRef = useRef<number>(0);
+  const tsLastPingMessageRef = useRef<number>(0);
+  const boundary = useRef(15_000);
   const [terminalError, setTerminalError] = React.useState<string>('');
+  const [MeetingSettings] = useMeetingSettings();
+  const enableDevTools = MeetingSettings.public.app.enableApolloDevTools;
+
   useEffect(() => {
-    const pathMatch = window.location.pathname.match('^(.*)/html5client/join$');
-    if (pathMatch == null) {
-      throw new Error('Failed to match BBB client URI');
-    }
-    const serverPathPrefix = pathMatch[1];
-    fetch(`https://${window.location.hostname}${serverPathPrefix}/bigbluebutton/api`, {
-      headers: {
-        'Content-Type': 'application/json',
-      },
-    }).then(async (response) => {
-      const responseJson: Response = await response.json();
-      setGraphqlUrl(responseJson.response.graphqlWebsocketUrl);
+    BBBWeb.index().then(({ data }) => {
+      setGraphqlUrl(data.graphqlWebsocketUrl);
     }).catch((error) => {
       loadingContextInfo.setLoading(false, '');
       throw new Error('Error fetching GraphQL URL: '.concat(error.message || ''));
     });
     logger.info('Fetching GraphQL URL');
-    loadingContextInfo.setLoading(true, '1/5');
+    loadingContextInfo.setLoading(true, '1/2');
+  }, []);
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      const tsNow = Date.now();
+
+      if (tsLastMessageRef.current !== 0 && tsLastPingMessageRef.current !== 0) {
+        if ((tsNow - tsLastMessageRef.current > boundary.current) && connectionStatus.getServerIsResponding()) {
+          connectionStatus.setServerIsResponding(false);
+        } else if ((tsNow - tsLastPingMessageRef.current > boundary.current) && connectionStatus.getPingIsComing()) {
+          connectionStatus.setPingIsComing(false);
+        }
+
+        if (tsNow - tsLastMessageRef.current < boundary.current && !connectionStatus.getServerIsResponding()) {
+          connectionStatus.setServerIsResponding(true);
+        } else if (tsNow - tsLastPingMessageRef.current < boundary.current && !connectionStatus.getPingIsComing()) {
+          connectionStatus.setPingIsComing(true);
+        }
+      }
+    }, 5_000);
+    return () => clearInterval(interval);
   }, []);
 
   useEffect(() => {
@@ -107,7 +131,7 @@ const ConnectionManager: React.FC<ConnectionManagerProps> = ({ children }): Reac
 
   useEffect(() => {
     logger.info('Connecting to GraphQL server');
-    loadingContextInfo.setLoading(true, '2/5');
+    loadingContextInfo.setLoading(true, '2/2');
     if (graphqlUrl) {
       const urlParams = new URLSearchParams(window.location.search);
       const sessionToken = urlParams.get('sessionToken');
@@ -125,7 +149,7 @@ const ConnectionManager: React.FC<ConnectionManagerProps> = ({ children }): Reac
         const subscription = createClient({
           url: graphqlUrl,
           retryAttempts: numberOfAttempts.current,
-          keepAlive: 10_000,
+          keepAlive: 99999999999,
           retryWait: async () => {
             return new Promise((res) => {
               setTimeout(() => {
@@ -134,15 +158,45 @@ const ConnectionManager: React.FC<ConnectionManagerProps> = ({ children }): Reac
             });
           },
           shouldRetry: (error) => {
-            // @ts-ignore - error is not a string
-            if (error.code === 4403) {
+            const isDetailedError = isDetailedErrorObject(error);
+            const terminated = isDetailedError && error.code === 4499;
+
+            if (terminated) {
+              logger.info({
+                logCode: 'connection_terminated',
+                extraInfo: {
+                  errorName: error.name,
+                  errorMessage: error.message,
+                  errorReason: error.reason,
+                },
+              }, 'Connection terminated (4499)');
+            } else if (isDetailedError) {
+              logger.error({
+                logCode: 'connection_error',
+                extraInfo: {
+                  errorName: error.name,
+                  errorMessage: error.message,
+                  errorReason: error.reason,
+                },
+              }, `Connection error (${error.code})`);
+            } else {
+              logger.error({
+                logCode: 'connection_error',
+                extraInfo: {
+                  errorName: 'Error',
+                  errorMessage: JSON.stringify(error),
+                  errorReason: 'Unknown',
+                },
+              }, `Connection error: ${JSON.stringify(error)}`);
+            }
+
+            if (error && typeof error === 'object' && 'code' in error && error.code === 4403) {
               loadingContextInfo.setLoading(false, '');
-              setTerminalError('Session token is invalid');
+              setTerminalError('Server refused the connection');
               return false;
             }
 
-            if (!apolloContextHolder.getShouldRetry()) return false;
-            return true;
+            return apolloContextHolder.getShouldRetry();
           },
           connectionParams: {
             headers: {
@@ -154,13 +208,17 @@ const ConnectionManager: React.FC<ConnectionManagerProps> = ({ children }): Reac
           },
           on: {
             error: (error) => {
-              logger.error(`Error: on subscription to server: ${error}`);
+              logger.error('Graphql Client Error:', error);
               loadingContextInfo.setLoading(false, '');
               connectionStatus.setConnectedStatus(false);
               setErrorCounts((prev: number) => prev + 1);
             },
-            closed: () => {
-              connectionStatus.setConnectedStatus(false);
+            closed: (e) => {
+              // Check if it's a CloseEvent (which includes HTTP errors during WebSocket handshake)
+              if (e instanceof CloseEvent) {
+                logger.error(`WebSocket closed with code ${e.code}: ${e.reason}`);
+                connectionStatus.setConnectedStatus(false);
+              }
             },
             connected: (socket) => {
               activeSocket.current = socket as WebSocket;
@@ -169,22 +227,20 @@ const ConnectionManager: React.FC<ConnectionManagerProps> = ({ children }): Reac
             connecting: () => {
               connectionStatus.setConnectedStatus(false);
             },
-            ping: (received) => {
-              if (!received) {
-                timedOut.current = setTimeout(() => {
-                  if (activeSocket?.current?.readyState === WebSocket.OPEN) {
-                    connectionStatus.setConnectedStatus(false);
-                    activeSocket?.current?.close(4408, 'Request Timeout');
-                  }
-                }, 5_000);
+            message: (message) => {
+              if (message.type === 'ping') {
+                tsLastPingMessageRef.current = Date.now();
               }
-            },
-            pong: () => {
-              clearTimeout(timedOut.current);
-              if (!connectionStatus.getConnectedStatus()) {
-                connectionStatus.setConnectedStatus(true);
+              if (message.type === 'error' && message.id === '-1') {
+                // message ID -1 as a signal to terminate the session
+                // it contains a prop message.messageId which can be used to show a proper error to the user
+                logger.error({ logCode: 'graphql_server_closed_connection', extraInfo: message }, 'Graphql Server closed the connection');
+                loadingContextInfo.setLoading(false, '');
+                setTerminalError('Server closed the connection');
               }
+              tsLastMessageRef.current = Date.now();
             },
+
           },
         });
         const graphWsLink = new GraphQLWsLink(
@@ -205,7 +261,7 @@ const ConnectionManager: React.FC<ConnectionManagerProps> = ({ children }): Reac
         client = new ApolloClient({
           link: wsLink,
           cache: new InMemoryCache(),
-          connectToDevTools: true,
+          connectToDevTools: (process.env.NODE_ENV === 'development') || enableDevTools,
         });
         setApolloClient(client);
         apolloContextHolder.setClient(client);

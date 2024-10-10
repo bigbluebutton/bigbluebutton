@@ -33,7 +33,7 @@ trait UserJoinedVoiceConfEvtMsgHdlr extends SystemConfiguration {
 
     def registerUserInRegisteredUsers() = {
       val regUser = RegisteredUsers.create(liveMeeting.props.meetingProp.intId, msg.body.intId, msg.body.voiceUserId,
-        msg.body.callerIdName, Roles.VIEWER_ROLE, msg.body.intId, "", "", userColor,
+        msg.body.callerIdName, Roles.VIEWER_ROLE, msg.body.intId, Vector(""), "", "", userColor,
         true, true, GuestStatus.WAIT, true, "", Map(), false)
       RegisteredUsers.add(liveMeeting.registeredUsers, regUser, liveMeeting.props.meetingProp.intId)
     }
@@ -48,7 +48,6 @@ trait UserJoinedVoiceConfEvtMsgHdlr extends SystemConfiguration {
         guest = true,
         authed = true,
         guestStatus = GuestStatus.WAIT,
-        emoji = "none",
         reactionEmoji = "none",
         raiseHand = false,
         away = false,
@@ -57,6 +56,7 @@ trait UserJoinedVoiceConfEvtMsgHdlr extends SystemConfiguration {
         presenter = false,
         locked = MeetingStatus2x.getPermissions(liveMeeting.status).lockOnJoin,
         avatar = "",
+        webcamBackground = "",
         color = userColor,
         clientType = if (isDialInUser) "dial-in-user" else "",
         userLeftFlag = UserLeftFlag(false, 0)
@@ -66,7 +66,7 @@ trait UserJoinedVoiceConfEvtMsgHdlr extends SystemConfiguration {
 
     def registerUserAsGuest() = {
       if (GuestsWaiting.findWithIntId(liveMeeting.guestsWaiting, msg.body.intId) == None) {
-        val guest = GuestWaiting(msg.body.intId, msg.body.callerIdName, Roles.VIEWER_ROLE, true, "", userColor, true, System.currentTimeMillis())
+        val guest = GuestWaiting(msg.body.intId, msg.body.callerIdName, Roles.VIEWER_ROLE, true, "", "", userColor, true, System.currentTimeMillis())
         GuestsWaiting.add(liveMeeting.guestsWaiting, guest)
         notifyModeratorsOfGuestWaiting(guest, liveMeeting.users2x, liveMeeting.props.meetingProp.intId)
 
@@ -112,14 +112,18 @@ trait UserJoinedVoiceConfEvtMsgHdlr extends SystemConfiguration {
       if (isDialInUser) {
         registerUserInRegisteredUsers()
         registerUserInUsers2x()
-        guestPolicy match {
-          case GuestPolicy(policy, setBy) => {
-            policy match {
-              case GuestPolicyType.ALWAYS_ACCEPT => letUserEnter()
-              case GuestPolicyType.ALWAYS_DENY   => VoiceApp.removeUserFromVoiceConf(liveMeeting, outGW, msg.body.voiceUserId)
-              case GuestPolicyType.ASK_MODERATOR => registerUserAsGuest()
+        if (dialInEnforceGuestPolicy) {
+          guestPolicy match {
+            case GuestPolicy(policy, setBy) => {
+              policy match {
+                case GuestPolicyType.ALWAYS_ACCEPT => letUserEnter()
+                case GuestPolicyType.ALWAYS_DENY   => VoiceApp.removeUserFromVoiceConf(liveMeeting, outGW, msg.body.voiceUserId)
+                case GuestPolicyType.ASK_MODERATOR => registerUserAsGuest()
+              }
             }
           }
+        } else {
+          letUserEnter()
         }
       } else {
         // Regular users reach this point after beeing

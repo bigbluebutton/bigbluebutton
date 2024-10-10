@@ -31,9 +31,8 @@ class ShapeOptions extends MultiUsers {
     await this.modPage.waitAndClick(e.wbDuplicate);
     await this.modPage.waitAndClick(e.wbOptions);
 
-    await expect(modWbLocator).toHaveScreenshot('moderator-duplicate.png', screenshotOptions);
-    const userWbLocator = this.userPage.getLocator(e.whiteboard);
-    await expect(userWbLocator).toHaveScreenshot('viewer-duplicate.png', screenshotOptions);
+    await this.modPage.checkElementCount(e.wbDrawnShape, 2);
+    await this.userPage.checkElementCount(e.wbDrawnShape, 2);
   }
 
   async rotate() {
@@ -71,34 +70,46 @@ class ShapeOptions extends MultiUsers {
     const screenshotOptions = {
       maxDiffPixels: 1000,
     };
-
+    
+    // First rectangle
     await this.modPage.waitAndClick(e.wbShapesButton);
     await this.modPage.waitAndClick(e.wbRectangleShape);
-
     await this.modPage.page.mouse.move(wbBox.x + 0.3 * wbBox.width, wbBox.y + 0.3 * wbBox.height);
     await this.modPage.page.mouse.down();
     await this.modPage.page.mouse.move(wbBox.x + 0.7 * wbBox.width, wbBox.y + 0.7 * wbBox.height);
     await this.modPage.page.mouse.up();
-
     await this.modPage.page.mouse.click(wbBox.x + 0.7 * wbBox.width, wbBox.y + 0.7 * wbBox.height);
+
+    // Second rectangle
+    await this.modPage.waitAndClick(e.wbRectangleShape);
+    await this.modPage.page.mouse.move(wbBox.x + 0.4 * wbBox.width, wbBox.y + 0.4 * wbBox.height);
+    await this.modPage.page.mouse.down();
+    await this.modPage.page.mouse.move(wbBox.x + 0.9 * wbBox.width, wbBox.y + 0.9 * wbBox.height);
+    await this.modPage.page.mouse.up();
+    await this.modPage.page.mouse.click(wbBox.x + 0.9 * wbBox.width, wbBox.y + 0.9 * wbBox.height);
     
+    await this.modPage.waitAndClick(e.whiteboardStyles);
     await this.modPage.waitAndClick(e.wbFillDrawing);
     
-    await this.modPage.waitAndClick(e.wbDuplicate);
     await this.modPage.waitAndClick(e.wbOptions);
     await this.modPage.waitAndClick(e.wbMoveBackward);
+    await this.modPage.waitAndClick(e.wbOptions);
     
     await expect(modWbLocator).toHaveScreenshot('moderator-move-backward.png', screenshotOptions);
     const userWbLocator = this.userPage.getLocator(e.whiteboard);
     await expect(userWbLocator).toHaveScreenshot('viewer-move-backward.png', screenshotOptions);
 
+    await this.modPage.waitAndClick(e.wbOptions);
     await this.modPage.waitAndClick(e.wbMoveForward);
+    await this.modPage.waitAndClick(e.wbOptions);
 
     await expect(modWbLocator).toHaveScreenshot('moderator-move-forward.png', screenshotOptions);
     await expect(userWbLocator).toHaveScreenshot('viewer-move-forward.png', screenshotOptions);
 
+    await this.modPage.waitAndClick(e.wbOptions);
     await this.modPage.waitAndClick(e.wbMoveBackward);
     await this.modPage.waitAndClick(e.wbMoveToFront);
+    await this.modPage.waitAndClick(e.wbOptions);
 
     await expect(modWbLocator).toHaveScreenshot('moderator-move-to-front.png', screenshotOptions);
     await expect(userWbLocator).toHaveScreenshot('viewer-move-to-front.png', screenshotOptions);

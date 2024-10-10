@@ -38,37 +38,21 @@ public final class SupportedFileTypes {
 
 	private static Logger log = LoggerFactory.getLogger(SupportedFileTypes.class);
 	private static MimeTypeUtils mimeTypeUtils = new MimeTypeUtils();
-
-	private static final List<String> SUPPORTED_FILE_LIST = Collections.unmodifiableList(new ArrayList<String>(15) {		
-		{				
-			// Add all the supported files				
-			add(XLS); add(XLSX);	add(DOC); add(DOCX); add(PPT); add(PPTX);				
-			add(ODT); add(RTF); add(TXT); add(ODS); add(ODP); add(PDF);
-			add(JPG); add(JPEG); add(PNG);
-		}
-	});
 		
 	private static final List<String> OFFICE_FILE_LIST = Collections.unmodifiableList(new ArrayList<String>(11) {		
 		{			
 			// Add all Offile file types
 			add(XLS); add(XLSX);	add(DOC); add(DOCX); add(PPT); add(PPTX);				
-			add(ODT); add(RTF); add(TXT); add(ODS); add(ODP); 
+			add(ODT); add(RTF); add(TXT); add(ODS); add(ODP); add(ODG);
 		}
 	});
 	
 	private static final List<String> IMAGE_FILE_LIST = Collections.unmodifiableList(new ArrayList<String>(3) {		
 		{	
 			// Add all image file types
-			add(JPEG); add(JPG); add(PNG);
+			add(JPEG); add(JPG); add(PNG); add(WEBP); add(SVG);
 		}
 	});
-
-	/*
-	 * Returns if the file with extension is supported.
-	 */
-	public static boolean isFileSupported(String fileExtension) {
-		return SUPPORTED_FILE_LIST.contains(fileExtension.toLowerCase());
-	}
 	
 	/*
 	 * Returns if the Office file is supported.

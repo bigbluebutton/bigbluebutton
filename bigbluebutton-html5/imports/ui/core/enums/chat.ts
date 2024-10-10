@@ -1,5 +1,7 @@
 export const enum ChatEvents {
   SENT_MESSAGE = 'sentMessage',
+  CHAT_FOCUS_MESSAGE_REQUEST = 'ChatFocusMessageRequest',
+  CHAT_REPLY_INTENTION = 'ChatReplyIntention',
 }
 
 export const enum ChatCommands {
@@ -13,5 +15,6 @@ export const enum ChatMessageType {
   PRESENTATION = 'presentation',
   CHAT_CLEAR = 'publicChatHistoryCleared',
   BREAKOUT_ROOM = 'breakoutRoomModeratorMsg',
-  USER_AWAY_STATUS_MSG = 'userAwayStatusMsg'
+  USER_AWAY_STATUS_MSG = 'userAwayStatusMsg',
+  PLUGIN = 'plugin'
 }

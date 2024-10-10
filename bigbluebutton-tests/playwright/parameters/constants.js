@@ -26,6 +26,7 @@ exports.listenOnlyMode = 'userdata-bbb_listen_only_mode=false';
 exports.forceListenOnly = 'userdata-bbb_force_listen_only=true';
 exports.skipCheck = 'userdata-bbb_skip_check_audio=true';
 exports.skipCheckOnFirstJoin = 'userdata-bbb_skip_check_audio_on_first_join=true';
+exports.skipEchoTestIfPreviousDevice = 'userdata-bbb_skip_echotest_if_previous_device=true';
 const docTitle = 'playwright';
 exports.docTitle = docTitle;
 exports.clientTitle = `userdata-bbb_client_title=${docTitle}`;
@@ -49,6 +50,7 @@ exports.forceRestorePresentationOnNewEvents = 'userdata-bbb_force_restore_presen
 exports.recordMeeting = 'record=true';
 exports.skipVideoPreview = 'userdata-bbb_skip_video_preview=true';
 exports.skipVideoPreviewOnFirstJoin = 'userdata-bbb_skip_video_preview_on_first_join=true';
+exports.skipVideoPreviewIfPreviousDevice = 'userdata-bbb_skip_video_preview_if_previous_device=true';
 exports.mirrorOwnWebcam = 'userdata-bbb_mirror_own_webcam=true';
 exports.showParticipantsOnLogin = 'userdata-bbb_show_participants_on_login=false';
 exports.hideActionsBar = 'userdata-bbb_hide_actions_bar=true';

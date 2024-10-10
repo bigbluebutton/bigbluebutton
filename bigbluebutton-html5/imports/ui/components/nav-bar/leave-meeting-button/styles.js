@@ -9,6 +9,13 @@ const LeaveButton = styled(Button)`
     }
   `}
 
+  ${({ state }) => state === 'closed' && `
+  @media ${smallOnly} {
+    margin-left: 0;
+    margin-right: 0;
+  }
+`}
+
   ${({ state, isMobile }) => state === 'closed' && !isMobile && `
     margin-left: 1.0rem;
     margin-right: 0.5rem;

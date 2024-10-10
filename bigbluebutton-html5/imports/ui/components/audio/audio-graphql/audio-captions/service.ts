@@ -52,6 +52,8 @@ export const getSpeechVoices = () => {
   const LANGUAGES = window.meetingClientSettings.public.app.audioCaptions.language.available;
   if (!isWebSpeechApi()) return LANGUAGES;
 
+  if (!window.speechSynthesis) return null;
+
   return unique(
     window
       .speechSynthesis
@@ -82,6 +84,13 @@ export const useFixedLocale = () => {
   return useIsAudioTranscriptionEnabled() && FORCE_LOCALE;
 };
 
+export const getLocaleName = (locale: string) => {
+  const languageNames = new Intl.DisplayNames([locale], {
+    type: 'language',
+  });
+  return languageNames.of(locale);
+};
+
 export default {
   getSpeechVoices,
   useIsAudioTranscriptionEnabled,
@@ -92,4 +101,5 @@ export default {
   useFixedLocale,
   isGladia,
   splitTranscript,
+  getLocaleName,
 };

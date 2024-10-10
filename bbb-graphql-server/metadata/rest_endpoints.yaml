@@ -11,17 +11,8 @@
   definition:
     query:
       collection_name: allowed-queries
-      query_name: clientStartupSettings
+      query_name: userMetadata
   methods:
     - GET
-  name: clientStartupSettings
-  url: clientStartupSettings
-- comment: ""
-  definition:
-    query:
-      collection_name: allowed-queries
-      query_name: UserCurrent
-  methods:
-    - GET
-  name: UserCurrent
-  url: usercurrent
+  name: userMetadata
+  url: userMetadata

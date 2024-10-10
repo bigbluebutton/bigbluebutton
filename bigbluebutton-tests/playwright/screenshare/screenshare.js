@@ -14,15 +14,15 @@ class ScreenShare extends Page {
     const { screensharingEnabled } = getSettings();
 
     if(!screensharingEnabled) {
-      await this.hasElement(e.joinVideo);
-      return this.wasRemoved(e.startScreenSharing);
+      await this.hasElement(e.joinVideo, 'should display the join video button');
+      return this.wasRemoved(e.startScreenSharing, 'should not display the start screenshare button');
     }
     await startScreenshare(this);
-    await this.hasElement(e.isSharingScreen);
+    await this.hasElement(e.isSharingScreen, 'should display the screenshare element');
   }
 
   async testMobileDevice() {
-    await this.wasRemoved(e.startScreenSharing);
+    await this.wasRemoved(e.startScreenSharing, 'should not display the start screenshare button');
   }
 
   async screenshareStopsExternalVideo() {
@@ -31,8 +31,8 @@ class ScreenShare extends Page {
     await this.waitForSelector(e.whiteboard);
 
     if(!screensharingEnabled) {
-      await this.hasElement(e.joinVideo);
-      return this.wasRemoved(e.startScreenSharing);
+      await this.hasElement(e.joinVideo, 'should display the join video button');
+      return this.wasRemoved(e.startScreenSharing, 'should not display the screenshare button');
     }
 
     await this.waitAndClick(e.actions);
@@ -42,14 +42,14 @@ class ScreenShare extends Page {
     await this.waitAndClick(e.startShareVideoBtn);
 
     const modFrame = await this.getYoutubeFrame();
-    await modFrame.hasElement('video');
+    await modFrame.hasElement('video', 'should display the video frame');
 
     await startScreenshare(this);
-    await this.hasElement(e.isSharingScreen);
+    await this.hasElement(e.isSharingScreen, 'should display the screenshare element');
 
-    await this.hasElement(e.stopScreenSharing);
+    await this.hasElement(e.stopScreenSharing, 'should display the stop screenshare button');
     await this.waitAndClick(e.stopScreenSharing);
-    await this.hasElement(e.whiteboard);
+    await this.hasElement(e.whiteboard, 'should display the whiteboard');
   }
 }
 
@@ -62,11 +62,11 @@ class MultiUserScreenShare extends MultiUsers {
     const { screensharingEnabled } = getSettings();
 
     if(!screensharingEnabled) {
-      await this.hasElement(e.joinVideo);
-      return this.wasRemoved(e.startScreenSharing);
+      await this.hasElement(e.joinVideo, 'should display the join video button');
+      return this.wasRemoved(e.startScreenSharing, 'should not display the start screenshare button');
     }
     await startScreenshare(page);
-    await page.hasElement(e.isSharingScreen);
+    await page.hasElement(e.isSharingScreen, 'should display the screenshare element');
   }
 }
 

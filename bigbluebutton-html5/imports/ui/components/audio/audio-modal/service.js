@@ -20,7 +20,10 @@ export const didUserSelectedListenOnly = () => (
   !!Storage.getItem(CLIENT_DID_USER_SELECTED_LISTEN_ONLY_KEY)
 );
 
-export const joinMicrophone = (skipEchoTest = false) => {
+export const joinMicrophone = (options = {}) => {
+  const { skipEchoTest = false } = options;
+  const shouldSkipEcho = skipEchoTest && Service.inputDeviceId() !== 'listen-only';
+
   Storage.setItem(CLIENT_DID_USER_SELECTED_MICROPHONE_KEY, true);
   Storage.setItem(CLIENT_DID_USER_SELECTED_LISTEN_ONLY_KEY, false);
 
@@ -30,8 +33,8 @@ export const joinMicrophone = (skipEchoTest = false) => {
 
   const call = new Promise((resolve, reject) => {
     try {
-      if ((skipEchoTest && !Service.isConnected()) || LOCAL_ECHO_TEST_ENABLED) {
-        return resolve(Service.joinMicrophone());
+      if ((shouldSkipEcho && !Service.isConnected()) || LOCAL_ECHO_TEST_ENABLED) {
+        return resolve(Service.joinMicrophone(options));
       }
 
       return resolve(Service.transferCall());
@@ -79,7 +82,7 @@ export const closeModal = (callback) => {
 };
 
 const getTroubleshootingLink = (errorCode) => {
-  const TROUBLESHOOTING_LINKS = Meteor.settings.public.media.audioTroubleshootingLinks;
+  const TROUBLESHOOTING_LINKS = window.meetingClientSettings.public.media.audioTroubleshootingLinks;
 
   if (TROUBLESHOOTING_LINKS) return TROUBLESHOOTING_LINKS[errorCode] || TROUBLESHOOTING_LINKS[0];
   return null;

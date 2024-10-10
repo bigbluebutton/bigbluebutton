@@ -12,7 +12,6 @@ public:
     forceListenOnly: false
     # Skips the echo test when connecting with microphone.
     skipCheck: false
-    instanceId: ''
     # Skips the echo test when connecting with microphone right after user
     # joins the room the first time. Subsequent joins to microphone won't
     # have echo test skipped, for example if user leaves and joins the mic
@@ -27,6 +26,7 @@ public:
     # "media.setsinkid.enabled" to make it work properly
     enableDynamicAudioDeviceSelection: true
     #
+    skipEchoTestIfPreviousDevice: false
     clientTitle: BigBlueButton
     appName: BigBlueButton HTML5 Client
     bbbServerVersion: HTML5_FULL_BBB_VERSION
@@ -83,6 +83,8 @@ public:
     allowFullscreen: true
     preloadNextSlides: 2
     warnAboutUnsavedContentOnMeetingEnd: false
+    # Flag used to enable apollo dev tools in production
+    enableApolloDevTools: false
     # Allows users to enable automatic transcription when joining a meeting.
     # Automatic transcription requires the browser to support the web
     # speech API, which involves sending voice data to third-party servers!
@@ -95,6 +97,9 @@ public:
       # provider: [webspeech, vosk, gladia]
       provider: webspeech
       language:
+        # Available languages will depend on the transcription service
+        # Google: https://cloud.google.com/speech-to-text/docs/speech-to-text-supported-languages
+        # Gladia: https://docs.gladia.io/chapters/speech-to-text-api/pages/languages#supported-languages
         available:
         # - de-DE
           - en-US
@@ -134,6 +139,7 @@ public:
       captureSharedNotesByDefault: false
       sendInvitationToAssignedModeratorsByDefault: false
       breakoutRoomLimit: 16
+      allowPresentationManagementInBreakouts: true
     # https://github.com/bigbluebutton/bigbluebutton/pull/10826
     customHeartbeat: false
     customHeartbeatUseDataFrames: true
@@ -145,14 +151,7 @@ public:
     # For more info, see 'microphoneConstraints' option in this config.
     # If not set, default value is true.
     showAudioFilters: true
-    raiseHandActionButton:
-      # Enables the old raiseHand icon
-      enabled: false
-      # If true, positions the icon next to the screenshare button, if false positions it where BBB had raisedHand button up to BBB 2.6 (right-hand bottom corner in LRT)
-      centered: true
     reactionsButton:
-      # Enables the new raiseHand icon inside of the reaction menu (introduced in BBB 2.7)
-      # If both reactionsButton and raiseHandActionButton are enabled, reactionsButton takes precedence.
       enabled: true
     emojiRain:
       # If true, new reactions will be activated
@@ -201,6 +200,7 @@ public:
         wakeLock: true
         paginationEnabled: true
         whiteboardToolbarAutoHide: false
+        pushToTalkEnabled: false
         autoCloseReactionsBar: true
         directLeaveButton: true
         darkTheme: false
@@ -322,6 +322,21 @@ public:
     # Controls whether ICE candidates should be signaled to bbb-webrtc-sfu.
     # Enable this if you want to use Kurento as the media server.
     signalCandidates: false
+    # restartIce: controls whether ICE restarts should be signaled to bbb-webrtc-sfu
+    #   whenever peers of the selected type (audio, video, screenshare) transition
+    #   to failure states. Disabled by default (experimental).
+    # restartIce.<mediaType>.retries: number of ICE restart retries before giving up
+    #   (i.e.: throwing an error). Default is 1 for audio, 3 for video and screenshare.
+    restartIce:
+      audio:
+        enabled: false
+        retries: 1
+      video:
+        enabled: false
+        retries: 3
+      screenshare:
+        enabled: false
+        retries: 3
     # traceLogs: <Boolean> - enable trace logs in SFU peers
     traceLogs: false
     cameraTimeouts:
@@ -332,6 +347,7 @@ public:
       # subscribe reattempt increases the reconnection timer up to this
       maxTimeout: 60000
     screenshare:
+      showButtonForNonPresenters: false
       # Whether volume control should be allowed if screen sharing has audio
       enableVolumeControl: true
       # Experimental. True is the canonical behavior. Flip to false to reverse
@@ -454,6 +470,7 @@ public:
     autoShareWebcam: false
     skipVideoPreview: false
     skipVideoPreviewOnFirstJoin: false
+    skipVideoPreviewIfPreviousDevice: false
     # cameraSortingModes.paginationSorting: sorting mode to be applied when pagination is active
     # cameraSortingModes.defaultSorting: sorting mode when pagination is not active (full mesh)
     # Current implemented modes are:
@@ -743,12 +760,16 @@ public:
       enabled: true
       showNames: true
     moderatorChatEmphasized: true
+    privateMessageReadFeedback:
+      enabled: false
     autoConvertEmoji: true
     emojiPicker:
       enable: false
     # e.g.: disableEmojis: ['grin','laughing']
     disableEmojis: []
     allowedElements: ['a', 'code', 'em', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'li', 'ol', 'ul', 'p', 'strong']
+    # available options for toolbar: reply
+    toolbar: []
   userReaction:
     enabled: true
     expire: 30
@@ -776,10 +797,6 @@ public:
     showPushLayoutToggle: true
   pads:
     url: ETHERPAD_HOST
-    cookie:
-      path: /
-      sameSite: None
-      secure: true
   media:
     audio:
       #
@@ -892,8 +909,6 @@ public:
         enabled: true
         delayTime: 0.5
         maxDelayTime: 2
-    # showVolumeMeter: shows an energy bar for microphones in the AudioSettings view
-    showVolumeMeter: true
     # networkPriorities: DSCP markings for each media type. Chromium only, applies
     # to sender flows. See https://datatracker.ietf.org/doc/html/rfc8837#section-5
     # for further info.
@@ -910,6 +925,12 @@ public:
     #audioTroubleshootingLinks:
     #  7: 'https://link.bigbluebutton.org/perm'
     #  0: 'https://link.bigbluebutton.org/unk'
+    # muteAudioOutputWhenAway: mute output audio if user is in away mode
+    muteAudioOutputWhenAway: false
+    # Index is the error code:
+    #   - 1136: permission denied
+    screenshareTroubleshootingLinks:
+      1136: 'https://support.bigbluebutton.org/hc/en-us/articles/1500005316582-Share-my-screen#:~:text=Error%201136%3A%20Permission%20to%20capture,able%20to%20screen%20share%20again'
   stats:
     enabled: true
     interval: 10000
@@ -918,22 +939,14 @@ public:
     notification:
       warning: false
       error: true
-    jitter:
-      - 10
-      - 20
-      - 30
     loss:
-      - 0.05
-      - 0.1
-      - 0.2
+      warning: 0.05
+      danger: 0.1
+      critical: 0.2
     rtt:
-      - 500
-      - 1000
-      - 2000
-    level:
-      - warning
-      - danger
-      - critical
+      warning: 500
+      danger: 1000
+      critical: 2000
     help: STATS_HELP_URL
   presentation:
     allowDownloadOriginal: true
@@ -947,6 +960,9 @@ public:
     mirroredFromBBBCore:
       uploadSizeMax: 30000000
       uploadPagesMax: 200
+    # If the following mime-types list is changed, please, make sure to also change:
+    # bbb-common-web/src/main/java/org/bigbluebutton/presentation/MimeTypeUtils.java: L34 (and related files.)
+    # docs/docs/development/api.md: L1222
     uploadValidMimeTypes:
       - extension: .pdf
         mime: application/pdf
@@ -974,10 +990,6 @@ public:
         mime: application/vnd.oasis.opendocument.presentation
       - extension: .odg
         mime: application/vnd.oasis.opendocument.graphics
-      - extension: .odc
-        mime: application/vnd.oasis.opendocument.chart
-      - extension: .odi
-        mime: application/vnd.oasis.opendocument.image
       - extension: .jpg
         mime: image/jpeg
       - extension: .jpeg
@@ -986,6 +998,8 @@ public:
         mime: image/png
       - extension: .webp
         mime: image/webp
+      - extension: .svg
+        mime: image/svg+xml
   user:
     role_moderator: MODERATOR
     role_viewer: VIEWER
@@ -997,6 +1011,8 @@ public:
   whiteboard:
     annotationsQueueProcessInterval: 60
     cursorInterval: 150
+    allowInfiniteWhiteboard: false
+    allowInfiniteWhiteboardInBreakouts: false
     pointerDiameter: 5
     maxStickyNoteLength: 1000
     # limit number of annotations per slide
@@ -1025,66 +1041,6 @@ public:
         family: script
     toolbar:
       multiUserPenOnly: false
-      colors:
-        - label: black
-          value: '#000000'
-        - label: white
-          value: '#ffffff'
-        - label: red
-          value: '#ff0000'
-        - label: orange
-          value: '#ff8800'
-        - label: eletricLime
-          value: '#ccff00'
-        - label: Lime
-          value: '#00ff00'
-        - label: Cyan
-          value: '#00ffff'
-        - label: dodgerBlue
-          value: '#0088ff'
-        - label: blue
-          value: '#0000ff'
-        - label: violet
-          value: '#8800ff'
-        - label: magenta
-          value: '#ff00ff'
-        - label: silver
-          value: '#c0c0c0'
-      thickness:
-        - value: 14
-        - value: 12
-        - value: 10
-        - value: 8
-        - value: 6
-        - value: 4
-        - value: 2
-        - value: 1
-      font_sizes:
-        - value: 36
-        - value: 32
-        - value: 28
-        - value: 24
-        - value: 20
-        - value: 16
-      tools:
-        - icon: select_tool
-          value: select
-        - icon: hand_tool
-          value: hand
-        - icon: draw_tool
-          value: draw
-        - icon: eraser_tool
-          value: eraser
-        - icon: arrow_tool
-          value: arrow
-        - icon: text_tool
-          value: text
-        - icon: note_tool
-          value: note
-        - icon: rectangle_tool
-          value: rectangle
-        - icon: more_tool
-          value: more
       presenterTools:
         - select
         - hand
@@ -1106,9 +1062,6 @@ public:
         - rectangle
         - more
   clientLog:
-    server:
-      enabled: false
-      level: info
     console:
       enabled: true
       level: debug
@@ -1132,13 +1085,6 @@ public:
       - coffeeshop.jpg
       - board.jpg
 private:
-  postgresql:
-    host: localhost
-    port: 5432
-    database: bbb_graphql
-    user: bbb_frontend
-    password: bbb_frontend
-    timeout: 30000
   analytics:
     includeChat: true
   app:
@@ -1146,13 +1092,6 @@ private:
     localesUrl: /locale-list
     pencilChunkLength: 100
     loadSlidesFromHttpAlways: false
-  serverLog:
-    level: info
-    streamerLog: false
-    includeServerInfo: true
-    healthChecker:
-      enable: true
-      intervalMs: 30000
   minBrowserVersions:
     - browser: chrome
       version: 72

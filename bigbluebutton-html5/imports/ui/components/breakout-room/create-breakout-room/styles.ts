@@ -52,7 +52,7 @@ const ContentContainer = styled.div`
   display: grid;
   grid-template-columns: 1fr 2fr;
   grid-template-areas: "sidebar content";
-  grid-gap: 1.5rem;
+  grid-gap: 1rem;
 `;
 
 const Alert = styled.div<withValidProp>`
@@ -104,7 +104,7 @@ const BreakoutNameInput = styled.input`
 `;
 
 const BreakoutBox = styled(ScrollboxVertical)<BreakoutBoxProps>`
-  width: 100%;
+  max-width: 13rem;
   height: 10rem;
   border: 1px solid ${colorGrayLightest};
   border-radius: ${borderRadius};
@@ -272,7 +272,6 @@ const FreeJoinCheckbox = styled.input`
 const RoomUserItem = styled.p`
   margin: 0;
   padding: .25rem 0 .25rem .25rem;
-  overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
   cursor: pointer;
@@ -349,6 +348,15 @@ const SubTitle = styled.p`
 
 const Content = styled(FlexColumn)``;
 
+const BreakoutSlideLabel = styled.label`
+  font-size: ${fontSizeSmall};
+  font-weight: bolder;
+  display: flex;
+  align-items: center;
+  font-size: ${fontSizeSmall};
+  margin-bottom: 0.2rem;
+`;
+
 export default {
   BoxContainer,
   Alert,
@@ -380,4 +388,5 @@ export default {
   SubTitle,
   Content,
   ContentContainer,
+  BreakoutSlideLabel,
 };

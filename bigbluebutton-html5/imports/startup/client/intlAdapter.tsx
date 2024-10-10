@@ -34,7 +34,7 @@ const IntlAdapter: React.FC<IntlAdapterProps> = ({
 
   useEffect(() => {
     intlHolder.setIntl(intl);
-  }, []);
+  }, [intl]);
 
   const sendUiDataToPlugins = () => {
     window.dispatchEvent(new CustomEvent(PluginSdk.IntlLocaleUiDataNames.CURRENT_LOCALE, {
@@ -81,7 +81,7 @@ const IntlAdapter: React.FC<IntlAdapterProps> = ({
     );
     // @ts-ignore - JS code
     const { locale } = Settings.application;
-    const clientSettings = JSON.parse(sessionStorage.getItem('clientStartupSettings') || '{}');
+    const clientSettings = window.meetingClientSettings.public.app.defaultSettings.application;
     const { overrideLocale } = clientSettings;
     const { bbb_override_default_locale } = localUserSettings();
     if (typeof bbb_override_default_locale === 'string') {
@@ -105,6 +105,14 @@ const IntlAdapter: React.FC<IntlAdapterProps> = ({
   const runOnCurrentLocaleUpdate = () => {
     setUp();
     sendUiDataToPlugins();
+    window.removeEventListener(
+      `${UI_DATA_LISTENER_SUBSCRIBED}-${PluginSdk.IntlLocaleUiDataNames.CURRENT_LOCALE}`,
+      sendUiDataToPlugins,
+    );
+    window.addEventListener(
+      `${UI_DATA_LISTENER_SUBSCRIBED}-${PluginSdk.IntlLocaleUiDataNames.CURRENT_LOCALE}`,
+      sendUiDataToPlugins,
+    );
   };
 
   useEffect(runOnMountAndUnmount, []);

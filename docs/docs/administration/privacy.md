@@ -184,12 +184,6 @@ This can be disable by switching the loglevel to 'ERROR' only in `/etc/nginx/sit
 
 The default installation of FreeSWITCH by default logs with loglevel DEBUG. This can be changed in `/etc/bbb-fsesl-akka/application.conf` and `/etc/bbb-fsesl-akka/logback.xml`. The default configuration stores usernames, joined sessions and timestamps.
 
-#### kurento
-
-Logs session names and timestamps, as well as user IP addresses. This also includes user IP addresses behind NATs, i.e., the actual client addresses, potentially making users identifiable across sessions. This can be configured in `/etc/default/kurento-media-server`, see [Kurento logging](https://doc-kurento.readthedocs.io/en/latest/features/logging.html)
-
-Note that this can most likely be overridden by kurento's systemd unit file. Hence, `--gst-debug-level=1` should also be set in `/usr/lib/systemd/system/kurento-media-server.service`.
-
 ### Integrations
 
 #### TURN server
@@ -198,16 +192,8 @@ BigBlueButton uses a TURN server for NAT traversal. By default, a STUN server fr
 
 #### sip.js
 
-There is a hardcoded google STUN server in `/usr/share/meteor/bundle/programs/web.browser/app/compatibility/sip.js`.
+There is a hardcoded google STUN server in `/usr/share/bigbluebutton/html5-client/compatibility/sip.js`.
 However, this should not be a problem because the hardcoded STUN server will not be used: a failed `GET` of the TURN/STUN settings in BBB-web should return an empty array, overwriting this setting. Nonetheless, careful server administrators may want to replace this default.
-
-#### Hardcoded Google STUN server for kurento
-
-On the server, Kurento uses a Google STUN server to identify its own external IP address on each ICE connect. This can be changed in `/etc/kurento/modules/kurento/WebRtcEndpoint.conf.ini` by statically setting the IP address of the external interface and disabling the stun server if the kurento system itself does not sit behind NAT.
-
-#### Kurento client side defaults
-
-For client side kurento activities (listen only, screenshare, video) there is a public fallback STUN server pool which is used if the bbb-web GET request fails. There is work in progress on removing this default.
 
 ## Greenlight
 

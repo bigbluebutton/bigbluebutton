@@ -6,6 +6,7 @@ import {
   DataChannelArguments,
   PushEntryFunction, ObjectTo, ToRole, ToUserId,
   ReplaceEntryFunctionArguments,
+  PushEntryFunctionOptionArgument,
 } from 'bigbluebutton-html-plugin-sdk/dist/cjs/data-channel/types';
 import { DataChannelHooks } from 'bigbluebutton-html-plugin-sdk/dist/cjs/data-channel/enums';
 import { HookEvents } from 'bigbluebutton-html-plugin-sdk/dist/cjs/core/enum';
@@ -55,7 +56,12 @@ const DataChannelItemManagerWriter: React.ElementType<DataChannelItemManagerWrit
   const [resetFunctionPluginDataChannel] = useMutation(PLUGIN_DATA_CHANNEL_RESET_MUTATION);
   const [replaceEntryFunctionPluginDataChannel] = useMutation(PLUGIN_DATA_CHANNEL_REPLACE_MUTATION);
 
-  const useDataChannelHandlerFunction = ((msg: object, objectsTo?: ObjectTo[]) => {
+  const useDataChannelHandlerFunction = ((msg: object, options?: PushEntryFunctionOptionArgument) => {
+    const {
+      receivers: objectsTo,
+    } = options || {
+      receivers: undefined,
+    };
     const argumentsOfPushEntryFunction = {
       variables: {
         pluginName,
@@ -137,11 +143,11 @@ const DataChannelItemManagerWriter: React.ElementType<DataChannelItemManagerWrit
     }) as EventListener;
 
   useEffect(() => {
-    window.addEventListener(HookEvents.UPDATED, deleteOrResetHandler);
-    window.addEventListener(HookEvents.UPDATED, replaceEntryHandler);
+    window.addEventListener(HookEvents.PLUGIN_SENT_CHANGES_TO_BBB_CORE, deleteOrResetHandler);
+    window.addEventListener(HookEvents.PLUGIN_SENT_CHANGES_TO_BBB_CORE, replaceEntryHandler);
     return () => {
-      window.removeEventListener(HookEvents.UPDATED, deleteOrResetHandler);
-      window.removeEventListener(HookEvents.UPDATED, replaceEntryHandler);
+      window.removeEventListener(HookEvents.PLUGIN_SENT_CHANGES_TO_BBB_CORE, deleteOrResetHandler);
+      window.removeEventListener(HookEvents.PLUGIN_SENT_CHANGES_TO_BBB_CORE, replaceEntryHandler);
     };
   }, []);
   return null;

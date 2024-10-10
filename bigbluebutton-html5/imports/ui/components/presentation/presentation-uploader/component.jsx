@@ -40,7 +40,7 @@ const propTypes = {
   selectedToBeNextCurrent: PropTypes.string,
   renderPresentationItemStatus: PropTypes.func.isRequired,
   externalUploadData: PropTypes.shape({
-    presentationUploadExternalDescription: PropTypes.string.isRequired,
+    presentationUploadExternalDescription: PropTypes.string,
     presentationUploadExternalUrl: PropTypes.string.isRequired,
   }).isRequired,
   isPresenter: PropTypes.bool.isRequired,
@@ -142,6 +142,14 @@ const intlMessages = defineMessages({
   401: {
     id: 'app.presentationUploder.upload.401',
     description: 'error for failed upload token request.',
+  },
+  FILE_VIRUS: {
+    id: 'app.presentationUploder.upload.fileVirus',
+    description: 'error that the file could not be uploaded due to security concerns',
+  },
+  SCAN_FAILED: {
+    id: 'app.presentationUploder.upload.scanFailed',
+    description: 'error that the file could not be uploaded because scanning failed'
   },
   conversionProcessingSlides: {
     id: 'app.presentationUploder.conversion.conversionProcessingSlides',
@@ -477,7 +485,6 @@ class PresentationUploader extends Component {
     const id = Session.getItem('presentationUploaderToastId');
     if (id) {
       toast.dismiss(id);
-      Session.setItem('presentationUploaderToastId', null);
     }
     Session.setItem('showUploadPresentationView', false);
   }

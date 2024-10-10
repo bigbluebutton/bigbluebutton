@@ -5,6 +5,7 @@ import DEFAULT_VALUES from '/imports/ui/components/layout/defaultValues';
 import { INITIAL_INPUT_STATE } from '/imports/ui/components/layout/initState';
 import {
   ACTIONS,
+  PANELS,
   CAMERADOCK_POSITION,
 } from '/imports/ui/components/layout/enums';
 import { defaultsDeep } from '/imports/utils/array-utils';
@@ -312,6 +313,21 @@ const PresentationOnlyLayout = (props) => {
         right: mediaBounds.right,
       },
     });
+
+    layoutContextDispatch({
+      type: ACTIONS.SET_SIDEBAR_NAVIGATION_IS_OPEN,
+      value: false,
+    });
+
+    layoutContextDispatch({
+      type: ACTIONS.SET_SIDEBAR_CONTENT_IS_OPEN,
+      value: false,
+    });
+
+    layoutContextDispatch({
+      type: ACTIONS.SET_SIDEBAR_CONTENT_PANEL,
+      value: PANELS.NONE,
+    });
   };
 
   const throttledCalculatesLayout = throttle(() => calculatesLayout(),
@@ -332,45 +348,50 @@ const PresentationOnlyLayout = (props) => {
   const init = () => {
     layoutContextDispatch({
       type: ACTIONS.SET_LAYOUT_INPUT,
-      value: defaultsDeep(
-        {
-          sidebarNavigation: {
-            isOpen: false,
-            width: 0,
-            height: 0,
-          },
-          sidebarContent: {
-            isOpen: false,
-            width: 0,
-            height: 0,
-          },
-          SidebarContentHorizontalResizer: {
-            isOpen: false,
-          },
-          presentation: {
-            isOpen: true,
-            slidesLength: presentationInput.slidesLength,
-            currentSlide: {
-              ...presentationInput.currentSlide,
+      value: (prevInput) => {
+        const {
+          presentation, externalVideo, genericMainContent, screenShare,
+        } = prevInput;
+        return defaultsDeep(
+          {
+            sidebarNavigation: {
+              isOpen: false,
+              width: 0,
+              height: 0,
+            },
+            sidebarContent: {
+              isOpen: false,
+              width: 0,
+              height: 0,
+            },
+            SidebarContentHorizontalResizer: {
+              isOpen: false,
+            },
+            presentation: {
+              isOpen: true,
+              slidesLength: presentation.slidesLength,
+              currentSlide: {
+                ...presentation.currentSlide,
+              },
+            },
+            cameraDock: {
+              numCameras: 0,
+            },
+            externalVideo: {
+              hasExternalVideo: externalVideo.hasExternalVideo,
+            },
+            genericMainContent: {
+              genericContentId: genericMainContent.genericContentId,
+            },
+            screenShare: {
+              hasScreenShare: screenShare.hasScreenShare,
+              width: screenShare.width,
+              height: screenShare.height,
             },
           },
-          cameraDock: {
-            numCameras: 0,
-          },
-          externalVideo: {
-            hasExternalVideo: input.externalVideo.hasExternalVideo,
-          },
-          genericMainContent: {
-            genericContentId: input.genericMainContent.genericContentId,
-          },
-          screenShare: {
-            hasScreenShare: input.screenShare.hasScreenShare,
-            width: input.screenShare.width,
-            height: input.screenShare.height,
-          },
-        },
-        INITIAL_INPUT_STATE,
-      ),
+          INITIAL_INPUT_STATE,
+        );
+      },
     });
     Session.setItem('layoutReady', true);
     throttledCalculatesLayout();

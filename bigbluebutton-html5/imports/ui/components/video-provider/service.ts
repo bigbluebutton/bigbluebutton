@@ -18,9 +18,15 @@ import WebRtcPeer from '/imports/ui/services/webrtc-base/peer';
 import { Constraints2 } from '/imports/ui/Types/meetingClientSettings';
 import MediaStreamUtils from '/imports/utils/media-stream-utils';
 import Session from '/imports/ui/services/storage/in-memory';
-import type { Stream } from './types';
+import type { Stream, StreamItem } from './types';
+import { VIDEO_TYPES } from './enums';
 
 const TOKEN = '_';
+
+const FILTER_VIDEO_STATS = [
+  'outbound-rtp',
+  'inbound-rtp',
+];
 
 class VideoService {
   public isMobile: boolean;
@@ -38,6 +44,8 @@ class VideoService {
   private hackRecordViewer: boolean | null;
 
   private deviceId: string | null = null;
+
+  private activePeers: Record<string, RTCPeerConnection>;
 
   private readonly clientSessionUUID: string;
 
@@ -59,6 +67,7 @@ class VideoService {
     }
 
     this.webRtcPeersRef = {};
+    this.activePeers = {};
   }
 
   static fetchNumberOfDevices(devices: MediaDeviceInfo[]) {
@@ -93,22 +102,18 @@ class VideoService {
         userId: Auth.userID as string,
         name: Auth.fullname as string,
         nameSortable: Auth.fullname as string,
-        type: 'connecting' as const,
+        type: VIDEO_TYPES.CONNECTING,
       };
       setConnectingStream(stream);
-      setVideoState((curr) => ({
-        ...curr,
-        isConnecting: true,
-      }));
+      setVideoState({ isConnecting: true });
     }
   }
 
   static joinedVideo() {
-    setVideoState((curr) => ({
-      ...curr,
+    setVideoState({
       isConnected: true,
       isConnecting: false,
-    }));
+    });
   }
 
   storeDeviceIds(streams: Stream[]) {
@@ -123,11 +128,10 @@ class VideoService {
 
   exitedVideo() {
     this.stopConnectingStream();
-    setVideoState((curr) => ({
-      ...curr,
-      isConnecting: false,
+    setVideoState({
       isConnected: false,
-    }));
+      isConnecting: false,
+    });
   }
 
   static getAuthenticatedURL() {
@@ -147,10 +151,7 @@ class VideoService {
   static setCurrentVideoPageIndex(newVideoPageIndex: number) {
     const { currentVideoPageIndex } = getVideoState();
     if (currentVideoPageIndex !== newVideoPageIndex) {
-      setVideoState((curr) => ({
-        ...curr,
-        currentVideoPageIndex: newVideoPageIndex,
-      }));
+      setVideoState({ currentVideoPageIndex: newVideoPageIndex });
     }
   }
 
@@ -481,6 +482,39 @@ class VideoService {
   getPrefix() {
     return `${Auth.userID}${TOKEN}${this.clientSessionUUID}`;
   }
+
+  updateActivePeers(streams: StreamItem[]) {
+    const activePeers: Record<string, RTCPeerConnection> = {};
+
+    streams.forEach((vs) => {
+      if (this.webRtcPeersRef[vs.stream]) {
+        activePeers[vs.stream] = this.webRtcPeersRef[vs.stream].peerConnection;
+      }
+    });
+
+    this.activePeers = activePeers;
+  }
+
+  async getStats() {
+    const stats: Record<string, unknown> = {};
+
+    await Promise.all(
+      Object.keys(this.activePeers).map(async (peerId) => {
+        const peerStats = await this.activePeers[peerId].getStats();
+
+        const videoStats: Record<string, unknown> = {};
+
+        peerStats.forEach((stat) => {
+          if (FILTER_VIDEO_STATS.includes(stat.type)) {
+            videoStats[stat.type] = stat;
+          }
+        });
+        stats[peerId] = videoStats;
+      }),
+    );
+
+    return stats;
+  }
 }
 
 const videoService = new VideoService();
@@ -514,7 +548,7 @@ export default {
   updatePeerDictionaryReference: (
     newRef: Record<string, WebRtcPeer>,
   ) => videoService.updatePeerDictionaryReference(newRef),
-  webRtcPeersRef: () => videoService.webRtcPeersRef,
+  getWebRtcPeersRef: () => videoService.webRtcPeersRef,
   isMobile: videoService.isMobile,
   notify: (message: string) => notify(message, 'error', 'video'),
   applyCameraProfile: VideoService.applyCameraProfile,
@@ -523,4 +557,6 @@ export default {
   getRoleViewer: VideoService.getRoleViewer,
   getPrefix: videoService.getPrefix.bind(videoService),
   isPinEnabled: VideoService.isPinEnabled,
+  updateActivePeers: (streams: StreamItem[]) => videoService.updateActivePeers(streams),
+  getStats: () => videoService.getStats(),
 };

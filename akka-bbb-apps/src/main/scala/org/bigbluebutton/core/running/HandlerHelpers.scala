@@ -2,29 +2,19 @@ package org.bigbluebutton.core.running
 
 import org.bigbluebutton.SystemConfiguration
 import org.bigbluebutton.common2.msgs._
-import org.bigbluebutton.core.api.{BreakoutRoomEndedInternalMsg, DestroyMeetingInternalMsg, EndBreakoutRoomInternalMsg}
+import org.bigbluebutton.core.api.{ BreakoutRoomEndedInternalMsg, DestroyMeetingInternalMsg, EndBreakoutRoomInternalMsg }
 import org.bigbluebutton.core.apps.groupchats.GroupChatApp
 import org.bigbluebutton.core.apps.users.UsersApp
 import org.bigbluebutton.core.apps.voice.VoiceApp
-import org.bigbluebutton.core.bus.{BigBlueButtonEvent, InternalEventBus}
-import org.bigbluebutton.core.db.{BreakoutRoomUserDAO, MeetingDAO, MeetingRecordingDAO, NotificationDAO, UserBreakoutRoomDAO}
-import org.bigbluebutton.core.domain.{MeetingEndReason, MeetingState2x}
+import org.bigbluebutton.core.bus.{ BigBlueButtonEvent, InternalEventBus }
+import org.bigbluebutton.core.db.{ BreakoutRoomUserDAO, MeetingDAO, MeetingRecordingDAO, NotificationDAO, UserBreakoutRoomDAO }
+import org.bigbluebutton.core.domain.{ MeetingEndReason, MeetingState2x }
 import org.bigbluebutton.core.models._
 import org.bigbluebutton.core2.MeetingStatus2x
-import org.bigbluebutton.core2.message.senders.{MsgBuilder, UserJoinedMeetingEvtMsgBuilder}
+import org.bigbluebutton.core2.message.senders.{ MsgBuilder, UserJoinedMeetingEvtMsgBuilder }
 import org.bigbluebutton.core.util.TimeUtil
 
 trait HandlerHelpers extends SystemConfiguration {
-
-  def trackUserJoin(
-      liveMeeting: LiveMeeting,
-      regUser:     RegisteredUser,
-  ): Unit = {
-    if (!regUser.joined) {
-      RegisteredUsers.updateUserJoin(liveMeeting.registeredUsers, regUser, joined = true)
-    }
-
-  }
 
   def sendUserLeftFlagUpdatedEvtMsg(
       outGW:       OutMsgRouter,
@@ -46,8 +36,6 @@ trait HandlerHelpers extends SystemConfiguration {
     val nu = for {
       regUser <- RegisteredUsers.findWithToken(authToken, liveMeeting.registeredUsers)
     } yield {
-      trackUserJoin(liveMeeting, regUser)
-
       // Flag that an authed user had joined the meeting in case
       // we need to end meeting when all authed users have left.
       if (regUser.authed) {
@@ -63,7 +51,6 @@ trait HandlerHelpers extends SystemConfiguration {
         guest = regUser.guest,
         authed = regUser.authed,
         guestStatus = regUser.guestStatus,
-        emoji = "none",
         reactionEmoji = "none",
         raiseHand = false,
         away = false,
@@ -72,10 +59,11 @@ trait HandlerHelpers extends SystemConfiguration {
         presenter = false,
         locked = MeetingStatus2x.getPermissions(liveMeeting.status).lockOnJoin,
         avatar = regUser.avatarURL,
+        webcamBackground = regUser.webcamBackgroundURL,
         color = regUser.color,
         clientType = clientType,
         userLeftFlag = UserLeftFlag(false, 0),
-        customParameters = regUser.customParameters
+        userMetadata = regUser.userMetadata
       )
     }
 
@@ -318,6 +306,42 @@ trait HandlerHelpers extends SystemConfiguration {
     val cmsgs = GroupChatApp.toMessageToUser(msg)
     val body = GroupChatMessageBroadcastEvtMsgBody(chatId, cmsgs)
     val event = GroupChatMessageBroadcastEvtMsg(header, body)
+    BbbCommonEnvCoreMsg(envelope, event)
+  }
+
+  def buildGroupChatMessageEditedEvtMsg(meetingId: String, chatId: String, userId: String, msg: GroupChatMessage): BbbCommonEnvCoreMsg = {
+    val routing = Routing.addMsgToClientRouting(MessageTypes.BROADCAST_TO_MEETING, meetingId, userId)
+    val envelope = BbbCoreEnvelope(GroupChatMessageEditedEvtMsg.NAME, routing)
+    val header = BbbClientMsgHeader(GroupChatMessageEditedEvtMsg.NAME, meetingId, userId)
+    val body = GroupChatMessageEditedEvtMsgBody(chatId, msg.id, msg.message)
+    val event = GroupChatMessageEditedEvtMsg(header, body)
+    BbbCommonEnvCoreMsg(envelope, event)
+  }
+
+  def buildGroupChatMessageDeletedEvtMsg(meetingId: String, chatId: String, userId: String, messageId: String): BbbCommonEnvCoreMsg = {
+    val routing = Routing.addMsgToClientRouting(MessageTypes.BROADCAST_TO_MEETING, meetingId, userId)
+    val envelope = BbbCoreEnvelope(GroupChatMessageDeletedEvtMsg.NAME, routing)
+    val header = BbbClientMsgHeader(GroupChatMessageDeletedEvtMsg.NAME, meetingId, userId)
+    val body = GroupChatMessageDeletedEvtMsgBody(chatId, messageId)
+    val event = GroupChatMessageDeletedEvtMsg(header, body)
+    BbbCommonEnvCoreMsg(envelope, event)
+  }
+
+  def buildGroupChatMessageReactionSentEvtMsg(meetingId: String, userId: String, chatId: String, messageId: String, reactionEmoji: String): BbbCommonEnvCoreMsg = {
+    val routing = Routing.addMsgToClientRouting(MessageTypes.BROADCAST_TO_MEETING, meetingId, userId)
+    val envelope = BbbCoreEnvelope(GroupChatMessageReactionSentEvtMsg.NAME, routing)
+    val header = BbbClientMsgHeader(GroupChatMessageReactionSentEvtMsg.NAME, meetingId, userId)
+    val body = GroupChatMessageReactionSentEvtMsgBody(chatId, messageId, reactionEmoji)
+    val event = GroupChatMessageReactionSentEvtMsg(header, body)
+    BbbCommonEnvCoreMsg(envelope, event)
+  }
+
+  def buildGroupChatMessageReactionDeletedEvtMsg(meetingId: String, userId: String, chatId: String, messageId: String, reactionEmoji: String): BbbCommonEnvCoreMsg = {
+    val routing = Routing.addMsgToClientRouting(MessageTypes.BROADCAST_TO_MEETING, meetingId, userId)
+    val envelope = BbbCoreEnvelope(GroupChatMessageReactionDeletedEvtMsg.NAME, routing)
+    val header = BbbClientMsgHeader(GroupChatMessageReactionDeletedEvtMsg.NAME, meetingId, userId)
+    val body = GroupChatMessageReactionDeletedEvtMsgBody(chatId, messageId, reactionEmoji)
+    val event = GroupChatMessageReactionDeletedEvtMsg(header, body)
     BbbCommonEnvCoreMsg(envelope, event)
   }
 

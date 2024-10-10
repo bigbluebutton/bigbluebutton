@@ -11,7 +11,6 @@ export const VIDEO_STREAMS_SUBSCRIPTION = gql`
         pinned
         away
         disconnected
-        emoji
         role
         avatar
         color
@@ -58,11 +57,13 @@ export const VIEWERS_IN_WEBCAM_COUNT_SUBSCRIPTION = gql`
 `;
 
 export const GRID_USERS_SUBSCRIPTION = gql`
-  subscription GridUsers($exceptUserIds: [String]!, $limit: Int!) {
+  subscription GridUsers($limit: Int!) {
     user(
       where: {
-        userId: {
-          _nin: $exceptUserIds,
+        cameras_aggregate: {
+          count: {
+            predicate: { _eq: 0 },
+          },
         },
       },
       limit: $limit,
@@ -77,7 +78,6 @@ export const GRID_USERS_SUBSCRIPTION = gql`
       pinned
       away
       disconnected
-      emoji
       role
       avatar
       color

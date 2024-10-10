@@ -15,8 +15,9 @@ import * as PluginSdk from 'bigbluebutton-html-plugin-sdk';
 import { layoutSelect } from '/imports/ui/components/layout/context';
 import { defineMessages, useIntl } from 'react-intl';
 import { useIsChatEnabled } from '/imports/ui/services/features';
-import ClickOutside from '/imports/ui/components/click-outside/component';
 import { checkText } from 'smile2emoji';
+import { findDOMNode } from 'react-dom';
+
 import Styled from './styles';
 import deviceInfo from '/imports/utils/deviceInfo';
 import usePreviousValue from '/imports/ui/hooks/usePreviousValue';
@@ -55,7 +56,6 @@ interface ChatMessageFormProps {
   locked: boolean,
   partnerIsLoggedOut: boolean,
   title: string,
-  handleClickOutside: () => void,
 }
 
 const messages = defineMessages({
@@ -114,7 +114,6 @@ const messages = defineMessages({
 });
 
 const ChatMessageForm: React.FC<ChatMessageFormProps> = ({
-  handleClickOutside,
   title,
   disabled,
   partnerIsLoggedOut,
@@ -132,7 +131,10 @@ const ChatMessageForm: React.FC<ChatMessageFormProps> = ({
   const [error, setError] = React.useState<string | null>(null);
   const [message, setMessage] = React.useState('');
   const [showEmojiPicker, setShowEmojiPicker] = React.useState(false);
+  const emojiPickerRef = useRef<HTMLDivElement>(null);
+  const emojiPickerButtonRef = useRef(null);
   const [isTextAreaFocused, setIsTextAreaFocused] = React.useState(false);
+  const [repliedMessageId, setRepliedMessageId] = React.useState<string>();
   const textAreaRef: RefObject<TextareaAutosize> = useRef<TextareaAutosize>(null);
   const { isMobile } = deviceInfo;
   const prevChatId = usePreviousValue(chatId);
@@ -281,6 +283,21 @@ const ChatMessageForm: React.FC<ChatMessageFormProps> = ({
     }));
   }, [message]);
 
+  useEffect(() => {
+    const handler = (e: Event) => {
+      if (e instanceof CustomEvent) {
+        setRepliedMessageId(e.detail.messageId);
+        textAreaRef.current?.textarea.focus();
+      }
+    };
+
+    window.addEventListener(ChatEvents.CHAT_REPLY_INTENTION, handler);
+
+    return () => {
+      window.removeEventListener(ChatEvents.CHAT_REPLY_INTENTION, handler);
+    };
+  }, []);
+
   const renderForm = () => {
     const formRef = useRef<HTMLFormElement | null>(null);
 
@@ -302,8 +319,20 @@ const ChatMessageForm: React.FC<ChatMessageFormProps> = ({
           variables: {
             chatMessageInMarkdownFormat: msg,
             chatId: chatId === PUBLIC_CHAT_ID ? PUBLIC_GROUP_CHAT_ID : chatId,
+            replyToMessageId: repliedMessageId,
           },
         });
+
+        window.dispatchEvent(
+          new CustomEvent(ChatEvents.CHAT_REPLY_INTENTION, {
+            detail: {
+              username: undefined,
+              message: undefined,
+              messageId: undefined,
+              chatId: undefined,
+            },
+          }),
+        );
       }
       const currentClosedChats = Storage.getItem(CLOSED_CHAT_LIST_KEY);
 
@@ -396,6 +425,24 @@ const ChatMessageForm: React.FC<ChatMessageFormProps> = ({
       }
     }, [chatSendMessageError]);
 
+    useEffect(() => {
+      const handleClickOutside = (event: MouseEvent) => {
+        // eslint-disable-next-line react/no-find-dom-node
+        const button = findDOMNode(emojiPickerButtonRef.current);
+        if (
+          (emojiPickerRef.current && !emojiPickerRef.current.contains(event.target as Node))
+          && (button && !button.contains(event.target as Node))
+        ) {
+          setShowEmojiPicker(false);
+        }
+      };
+
+      document.addEventListener('mousedown', handleClickOutside);
+      return () => {
+        document.removeEventListener('mousedown', handleClickOutside);
+      };
+    }, []);
+
     return (
       <Styled.Form
         ref={formRef}
@@ -403,7 +450,7 @@ const ChatMessageForm: React.FC<ChatMessageFormProps> = ({
         isRTL={isRTL}
       >
         {showEmojiPicker ? (
-          <Styled.EmojiPickerWrapper>
+          <Styled.EmojiPickerWrapper ref={emojiPickerRef}>
             <Styled.EmojiPicker
               onEmojiSelect={(emojiObject: { native: string }) => handleEmojiSelect(emojiObject)}
               showPreview={false}
@@ -447,6 +494,7 @@ const ChatMessageForm: React.FC<ChatMessageFormProps> = ({
           />
           {ENABLE_EMOJI_PICKER ? (
             <Styled.EmojiButton
+              ref={emojiPickerButtonRef}
               onClick={() => setShowEmojiPicker(!showEmojiPicker)}
               icon="happy"
               color="light"
@@ -483,21 +531,11 @@ const ChatMessageForm: React.FC<ChatMessageFormProps> = ({
     );
   };
 
-  return ENABLE_EMOJI_PICKER ? (
-    <ClickOutside
-      onClick={() => handleClickOutside()}
-    >
-      {renderForm()}
-    </ClickOutside>
-  ) : renderForm();
+  return renderForm();
 };
 
-// eslint-disable-next-line no-empty-pattern
-const ChatMessageFormContainer: React.FC = ({
-  // connected, move to network status
-}) => {
+const ChatMessageFormContainer: React.FC = () => {
   const intl = useIntl();
-  const [showEmojiPicker, setShowEmojiPicker] = React.useState(false);
   const idChatOpen: string = layoutSelect((i: Layout) => i.idChatOpen);
   const isRTL = layoutSelect((i: Layout) => i.isRTL);
   const { data: chat } = useChat((c: Partial<Chat>) => ({
@@ -508,6 +546,7 @@ const ChatMessageFormContainer: React.FC = ({
 
   const { data: currentUser } = useCurrentUser((c) => ({
     isModerator: c?.isModerator,
+    userLockSettings: c?.userLockSettings,
     locked: c?.locked,
   }));
 
@@ -521,8 +560,9 @@ const ChatMessageFormContainer: React.FC = ({
 
   const isModerator = currentUser?.isModerator;
   const isPublicChat = chat?.public;
-  const isLocked = currentUser?.locked;
-  const disablePublicChat = meeting?.lockSettings?.disablePublicChat;
+  const isLocked = currentUser?.locked || currentUser?.userLockSettings?.disablePublicChat;
+  const disablePublicChat = meeting?.lockSettings?.disablePublicChat
+    || currentUser?.userLockSettings?.disablePublicChat;
   const disablePrivateChat = meeting?.lockSettings?.disablePrivateChat;
 
   let locked = false;
@@ -535,13 +575,7 @@ const ChatMessageFormContainer: React.FC = ({
     }
   }
 
-  const handleClickOutside = () => {
-    if (showEmojiPicker) {
-      setShowEmojiPicker(false);
-    }
-  };
-
-  if (chat?.participant && !chat.participant.isOnline) {
+  if (chat?.participant && !chat.participant.currentlyInMeeting) {
     return <ChatOfflineIndicator participantName={chat.participant.name} />;
   }
 
@@ -553,14 +587,13 @@ const ChatMessageFormContainer: React.FC = ({
         minMessageLength: CHAT_CONFIG.min_message_length,
         maxMessageLength: CHAT_CONFIG.max_message_length,
         idChatOpen,
-        handleClickOutside,
         chatId: idChatOpen,
         connected: true, // TODO: monitoring network status
         disabled: locked ?? false,
         title,
         isRTL,
         // if participant is not defined, it means that the chat is public
-        partnerIsLoggedOut: chat?.participant ? !chat?.participant?.isOnline : false,
+        partnerIsLoggedOut: chat?.participant ? !chat?.participant?.currentlyInMeeting : false,
         locked: locked ?? false,
       }}
     />

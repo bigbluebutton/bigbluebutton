@@ -7,7 +7,7 @@ const { PARAMETER_HIDE_PRESENTATION_TOAST } = require('../core/constants');
 
 const hidePresentationToast = encodeCustomParams(PARAMETER_HIDE_PRESENTATION_TOAST);
 
-test.describe('Polling @ci', async () => {
+test.describe('Polling', { tag: '@ci' }, async () => {
   const polling = new Polling();
 
   test.describe.configure({ mode: fullyParallel ? 'parallel' : 'serial' });
@@ -61,7 +61,7 @@ test.describe('Polling @ci', async () => {
     await polling.pollResultsOnChat();
   });
 
-  test('Poll results on whiteboard @flaky', async () => {
+  test('Poll results on whiteboard', { tag: '@flaky' } , async () => {
     await polling.pollResultsOnWhiteboard();
   });
 

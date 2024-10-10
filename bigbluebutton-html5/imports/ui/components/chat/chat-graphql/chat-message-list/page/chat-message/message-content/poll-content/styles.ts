@@ -11,6 +11,12 @@ export const PollText = styled.div`
   word-break: break-word;
 `;
 
+export const PollWrapper = styled.div`
+  width: 90%;
+  margin-left: -50px;
+`;
+
 export default {
   PollText,
+  PollWrapper,
 };

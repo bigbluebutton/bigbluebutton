@@ -1,5 +1,7 @@
 import styled from 'styled-components';
 import Icon from '/imports/ui/components/common/icon/component';
+import SvgIcon from '/imports/ui/components/common/icon-svg/component';
+
 import {
   btnSpacing,
   borderRadius,
@@ -61,6 +63,30 @@ const ButtonIcon = styled(Icon)`
   width: 1em;
   height: 1em;
   text-align: center;
+
+  &:before {
+    width: 1em;
+    height: 1em;
+  }
+
+  .buttonWrapper & {
+    font-size: 125%;
+  }
+
+  & + span {
+    margin: 0 0 0 ${btnSpacing};
+
+    [dir="rtl"] & {
+      margin: 0 ${btnSpacing} 0 0;
+    }
+  }
+`;
+
+const ButtonSvgIcon = styled(SvgIcon)`
+  width: 1em;
+  height: 1em;
+  text-align: center;
+  background: red;
 
   &:before {
     width: 1em;
@@ -289,6 +315,60 @@ const ButtonWrapper = styled(BaseButton)`
       background-color: transparent;
     }
   `}
+  ${({ loading, animations }) => loading && animations && `
+  &::before {
+    position: relative;
+    border: 5px solid transparent;
+    border-radius: 50%;
+    background-color: #3498db;
+    color: white;
+    font-size: 16px;
+    text-align: center;
+    line-height: 90px;
+    cursor: pointer;
+  }
+  &::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    border-radius: 50%;
+    border: 2px solid white;
+    border-top-color: transparent;
+    animation: spin 1.5s ease infinite;
+  }
+
+  @media screen and (max-width: 480px) {
+
+    &::after {
+      height: 50px;
+      border-radius: 50%;
+      position: absolute;
+      line-height: 90px;
+      text-align: center;
+      bottom: 0;
+      top: 0;
+      left: -0.5px;
+      right: 0;
+      width: 49px;
+    }
+  }
+
+  @keyframes spin {
+    0% {
+        opacity: 0;
+    }
+    33% {
+        opacity: 1;
+        transform: rotate(0deg);
+    }
+    100% {
+        transform: rotate(360deg);
+    }
+  }
+`}
 `;
 
 const ButtonSpan = styled.span`
@@ -1215,6 +1295,7 @@ const Button = styled(BaseButton)`
 
 export default {
   ButtonIcon,
+  ButtonSvgIcon,
   EmojiButtonSibling,
   ButtonLabel,
   ButtonWrapper,

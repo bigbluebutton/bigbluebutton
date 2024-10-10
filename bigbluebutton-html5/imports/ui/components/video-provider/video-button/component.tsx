@@ -7,6 +7,7 @@ import { debounce } from '/imports/utils/debounce';
 import BBBMenu from '/imports/ui/components/common/menu/component';
 import Button from '/imports/ui/components/common/button/component';
 import VideoPreviewContainer from '/imports/ui/components/video-preview/container';
+import PreviewService from '/imports/ui/components/video-preview/service';
 import { CameraSettingsDropdownItemType } from 'bigbluebutton-html-plugin-sdk/dist/cjs/extensible-areas/camera-settings-dropdown-item/enums';
 import { getSettingsSingletonInstance } from '/imports/ui/services/settings';
 import { CameraSettingsDropdownInterface } from 'bigbluebutton-html-plugin-sdk';
@@ -46,9 +47,9 @@ const intlMessages = defineMessages({
     id: 'app.video.meetingCamCapReached',
     description: 'meeting camera cap label',
   },
-  meteorDisconnected: {
+  disconnected: {
     id: 'app.video.clientDisconnected',
-    description: 'Meteor disconnected label',
+    description: 'Client disconnected label',
   },
 });
 
@@ -68,6 +69,7 @@ interface JoinVideoButtonProps {
   exitVideo: () => void;
   stopVideo: (cameraId?: string | undefined) => void;
   intl: IntlShape;
+  videoConnecting: boolean;
 }
 
 const JoinVideoButton: React.FC<JoinVideoButtonProps> = ({
@@ -80,6 +82,7 @@ const JoinVideoButton: React.FC<JoinVideoButtonProps> = ({
   setLocalSettings,
   exitVideo: exit,
   stopVideo,
+  videoConnecting,
 }) => {
   const { isMobile } = deviceInfo;
   const isMobileSharingCamera = hasVideoStream && isMobile;
@@ -119,6 +122,7 @@ const JoinVideoButton: React.FC<JoinVideoButtonProps> = ({
       case 'connected':
       default:
         if (exitVideo()) {
+          PreviewService.clearStreams();
           exit();
         } else {
           setForceOpen(isMobileSharingCamera);
@@ -223,10 +227,10 @@ const JoinVideoButton: React.FC<JoinVideoButtonProps> = ({
           hideLabel
           color={hasVideoStream ? 'primary' : 'default'}
           icon={hasVideoStream ? 'video' : 'video_off'}
-          ghost={!hasVideoStream}
           size="lg"
           circle
           disabled={!!disableReason}
+          loading={videoConnecting}
         />
         {renderUserActions()}
       </Styled.OffsetBottom>

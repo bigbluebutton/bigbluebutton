@@ -6,6 +6,7 @@ import ConnectionStatusService from '/imports/ui/components/connection-status/se
 import Icon from '/imports/ui/components/connection-status/icon/component';
 import Styled from './styles';
 import Auth from '/imports/ui/services/auth';
+import deviceInfo, { isMobile } from '/imports/utils/deviceInfo';
 
 const intlMessages = defineMessages({
   label: {
@@ -40,16 +41,12 @@ class ConnectionStatusButton extends PureComponent {
   setModalIsOpen = (isOpen) => this.setState({ isModalOpen: isOpen }); 
 
   renderModal(isModalOpen) {
-    const { isGridLayout, paginationEnabled, viewParticipantsWebcams } = this.props;
     return (
       isModalOpen ?
       <ConnectionStatusModalComponent
         {...{
           isModalOpen,
           setModalIsOpen: this.setModalIsOpen,
-          isGridLayout,
-          paginationEnabled,
-          viewParticipantsWebcams,
         }}
       /> : null
     )
@@ -77,6 +74,7 @@ class ConnectionStatusButton extends PureComponent {
             circle
             onClick={() => {}}
             data-test="connectionStatusButton"
+            isMobile={isMobile}
           />
           {this.renderModal(isModalOpen)}
         </Styled.ButtonWrapper>

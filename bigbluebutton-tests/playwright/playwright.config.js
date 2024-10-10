@@ -9,9 +9,10 @@ const config = {
   workers: CI ? 1 : 2,
   timeout: 3 * 60 * 1000,
   reporter: CI
-    ? [['blob'], ['github']]
+    ? [['blob'], ['./custom-reporter.js']]
     : [['list'], ['html', { open: 'never' }],
   ],
+  reportSlowTests: null,
   forbidOnly: CI,
   fullyParallel: CI || isParallel,
   use: {

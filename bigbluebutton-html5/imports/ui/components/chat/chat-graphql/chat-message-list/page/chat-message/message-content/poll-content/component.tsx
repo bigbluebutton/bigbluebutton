@@ -4,6 +4,7 @@ import {
 } from 'recharts';
 import caseInsensitiveReducer from '/imports/utils/caseInsensitiveReducer';
 import { defineMessages, useIntl } from 'react-intl';
+import deviceInfo from '/imports/utils/deviceInfo';
 import Styled from './styles';
 
 interface ChatPollContentProps {
@@ -95,12 +96,13 @@ const ChatPollContent: React.FC<ChatPollContentProps> = ({
   });
 
   const useHeight = height || translatedAnswers.length * 50;
+  const useWidth = deviceInfo.isPortrait() ? '100%' : '130%';
   return (
-    <div data-test="chatPollMessageText">
+    <Styled.PollWrapper data-test="chatPollMessageText">
       <Styled.PollText>
         {pollData.questionText}
       </Styled.PollText>
-      <ResponsiveContainer width="90%" height={useHeight}>
+      <ResponsiveContainer width={useWidth} height={useHeight}>
         <BarChart
           data={translatedAnswers}
           layout="vertical"
@@ -110,7 +112,7 @@ const ChatPollContent: React.FC<ChatPollContentProps> = ({
           <Bar dataKey="numVotes" fill="#0C57A7" />
         </BarChart>
       </ResponsiveContainer>
-    </div>
+    </Styled.PollWrapper>
   );
 };
 

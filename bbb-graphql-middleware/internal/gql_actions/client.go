@@ -1,29 +1,26 @@
 package gql_actions
 
 import (
+	"bbb-graphql-middleware/config"
+	"bbb-graphql-middleware/internal/common"
 	"bytes"
 	"encoding/json"
 	"fmt"
-	"github.com/iMDT/bbb-graphql-middleware/internal/common"
+	"github.com/prometheus/client_golang/prometheus"
 	log "github.com/sirupsen/logrus"
 	"io/ioutil"
 	"net/http"
-	"os"
 	"regexp"
 	"strings"
 	"time"
 )
 
-var graphqlActionsUrl = os.Getenv("BBB_GRAPHQL_MIDDLEWARE_GRAPHQL_ACTIONS_URL")
+var graphqlActionsUrl = config.GetConfig().GraphqlActions.Url
 
 func GraphqlActionsClient(
-	browserConnection *common.BrowserConnection,
-	fromBrowserToGqlActionsChannel *common.SafeChannelByte,
-	fromHasuraToBrowserChannel *common.SafeChannelByte) error {
-
-	log := log.WithField("_routine", "GraphqlActionsClient").WithField("browserConnectionId", browserConnection.Id)
-	log.Debug("Starting GraphqlActionsClient")
-	defer log.Debug("Finished GraphqlActionsClient")
+	browserConnection *common.BrowserConnection) error {
+	browserConnection.Logger.Debug("Starting GraphqlActionsClient")
+	defer browserConnection.Logger.Debug("Finished GraphqlActionsClient")
 
 RangeLoop:
 	for {
@@ -31,9 +28,9 @@ RangeLoop:
 		case <-browserConnection.Context.Done():
 			break RangeLoop
 		case <-browserConnection.GraphqlActionsContext.Done():
-			log.Debug("GraphqlActionsContext cancelled!")
+			browserConnection.Logger.Debug("GraphqlActionsContext cancelled!")
 			break RangeLoop
-		case fromBrowserMessage := <-fromBrowserToGqlActionsChannel.ReceiveChannel():
+		case fromBrowserMessage := <-browserConnection.FromBrowserToGqlActionsChannel.ReceiveChannel():
 			{
 				if fromBrowserMessage == nil {
 					continue
@@ -42,7 +39,7 @@ RangeLoop:
 				var browserMessage common.BrowserSubscribeMessage
 				err := json.Unmarshal(fromBrowserMessage, &browserMessage)
 				if err != nil {
-					log.Errorf("failed to unmarshal message: %v", err)
+					browserConnection.Logger.Errorf("failed to unmarshal message: %v", err)
 					continue
 				}
 
@@ -53,14 +50,16 @@ RangeLoop:
 					if strings.HasPrefix(browserMessage.Payload.Query, "mutation") {
 						if funcName, inputs, err := parseGraphQLMutation(browserMessage.Payload.Query, browserMessage.Payload.Variables); err == nil {
 							mutationFuncName = funcName
-							if err = SendGqlActionsRequest(funcName, inputs, browserConnection.BBBWebSessionVariables, log); err == nil {
+							if err = SendGqlActionsRequest(funcName, inputs, browserConnection.BBBWebSessionVariables, browserConnection.Logger); err == nil {
+								//Add Prometheus Metrics
+								common.GqlMutationsCounter.With(prometheus.Labels{"operationName": browserMessage.Payload.OperationName}).Inc()
 							} else {
 								errorMessage = err.Error()
-								log.Error("It was not able to send the request to Graphql Actions", err)
+								browserConnection.Logger.Error("It was not able to send the request to Graphql Actions", err)
 							}
 						} else {
 							errorMessage = "It was not able to parse graphQL query"
-							log.Error("It was not able to parse graphQL query", err)
+							browserConnection.Logger.Error("It was not able to parse graphQL query", err)
 						}
 					}
 
@@ -76,7 +75,7 @@ RangeLoop:
 							},
 						}
 						jsonData, _ := json.Marshal(browserResponseData)
-						fromHasuraToBrowserChannel.Send(jsonData)
+						browserConnection.FromHasuraToBrowserChannel.Send(jsonData)
 					} else {
 						//Action sent successfully, return data msg to client
 						browserResponseData := map[string]interface{}{
@@ -89,7 +88,7 @@ RangeLoop:
 							},
 						}
 						jsonData, _ := json.Marshal(browserResponseData)
-						fromHasuraToBrowserChannel.Send(jsonData)
+						browserConnection.FromHasuraToBrowserChannel.Send(jsonData)
 					}
 
 					//Return complete msg to client
@@ -98,7 +97,7 @@ RangeLoop:
 						"type": "complete",
 					}
 					jsonData, _ := json.Marshal(browserResponseComplete)
-					fromHasuraToBrowserChannel.Send(jsonData)
+					browserConnection.FromHasuraToBrowserChannel.Send(jsonData)
 				}
 
 				//Fallback to Hasura was disabled (keeping the code temporarily)
@@ -110,8 +109,8 @@ RangeLoop:
 	return nil
 }
 
-func SendGqlActionsRequest(funcName string, inputs map[string]interface{}, sessionVariables map[string]string, logger *log.Entry) error {
-	logger = logger.WithField("funcName", funcName).WithField("inputs", inputs)
+func SendGqlActionsRequest(funcName string, inputs map[string]interface{}, sessionVariables map[string]string, bcLogger *log.Entry) error {
+	logger := bcLogger.WithField("funcName", funcName).WithField("inputs", inputs)
 
 	data := GqlActionsRequestBody{
 		Action: GqlActionsAction{

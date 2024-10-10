@@ -11,14 +11,13 @@ object UserJoinedMeetingEvtMsgBuilder {
     val body = UserJoinedMeetingEvtMsgBody(intId = userState.intId, extId = userState.extId, name = userState.name,
       role = userState.role, guest = userState.guest, authed = userState.authed,
       guestStatus = userState.guestStatus,
-      emoji = userState.emoji,
       reactionEmoji = userState.reactionEmoji,
       raiseHand = userState.raiseHand,
       away = userState.away,
       pin = userState.pin,
-      presenter = userState.presenter, locked = userState.locked, avatar = userState.avatar, color = userState.color,
+      presenter = userState.presenter, locked = userState.locked, avatar = userState.avatar, webcamBackground = userState.webcamBackground, color = userState.color,
       clientType = userState.clientType,
-      customParameters = userState.customParameters)
+      userMetadata = userState.userMetadata)
 
     val event = UserJoinedMeetingEvtMsg(meetingId, userState.intId, body)
 

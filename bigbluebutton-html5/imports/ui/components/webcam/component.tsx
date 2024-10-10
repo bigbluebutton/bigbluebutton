@@ -18,9 +18,9 @@ import Styled from './styles';
 import { Input, Layout, Output } from '/imports/ui/components/layout/layoutTypes';
 import { VideoItem } from '/imports/ui/components/video-provider/types';
 import useDeduplicatedSubscription from '/imports/ui/core/hooks/useDeduplicatedSubscription';
-import useSettings from '/imports/ui/services/settings/hooks/useSettings';
-import { SETTINGS } from '/imports/ui/services/settings/enums';
 import { useStorageKey } from '/imports/ui/services/storage/hooks';
+import useSettings from '../../services/settings/hooks/useSettings';
+import { SETTINGS } from '../../services/settings/enums';
 
 interface WebcamComponentProps {
   cameraDock: Output['cameraDock'];
@@ -32,7 +32,6 @@ interface WebcamComponentProps {
   displayPresentation: boolean;
   cameraOptimalGridSize: Input['cameraDock']['cameraOptimalGridSize'];
   isRTL: boolean;
-  isGridEnabled: boolean;
 }
 
 const WebcamComponent: React.FC<WebcamComponentProps> = ({
@@ -45,7 +44,6 @@ const WebcamComponent: React.FC<WebcamComponentProps> = ({
   displayPresentation,
   cameraOptimalGridSize: cameraSize,
   isRTL,
-  isGridEnabled,
 }) => {
   const [isResizing, setIsResizing] = useState(false);
   const [isDragging, setIsDragging] = useState(false);
@@ -287,7 +285,6 @@ const WebcamComponent: React.FC<WebcamComponentProps> = ({
                   cameraDock,
                   focusedId,
                   handleVideoFocus,
-                  isGridEnabled,
                 }}
               />
             </Styled.Draggable>
@@ -298,28 +295,19 @@ const WebcamComponent: React.FC<WebcamComponentProps> = ({
   );
 };
 
-interface WebcamContainerProps {
-  isLayoutSwapped: boolean;
-  layoutType: string;
-}
-
-const WebcamContainer: React.FC<WebcamContainerProps> = ({
-  isLayoutSwapped,
-  layoutType,
-}) => {
+const WebcamContainer: React.FC = () => {
   const fullscreen = layoutSelect((i: Layout) => i.fullscreen);
   const isRTL = layoutSelect((i: Layout) => i.isRTL);
   const cameraDockInput = layoutSelectInput((i: Input) => i.cameraDock);
+  const presentationInput = layoutSelectInput((i: Input) => i.presentation);
   const presentation = layoutSelectOutput((i: Output) => i.presentation);
   const cameraDock = layoutSelectOutput((i: Output) => i.cameraDock);
   const layoutContextDispatch = layoutDispatch();
   const { data: presentationPageData } = useDeduplicatedSubscription(CURRENT_PRESENTATION_PAGE_SUBSCRIPTION);
   const presentationPage = presentationPageData?.pres_page_curr[0] || {};
   const hasPresentation = !!presentationPage?.presentationId;
-  // @ts-ignore JS code
-  const { paginationEnabled } = useSettings(SETTINGS.APPLICATION);
-  // @ts-ignore JS code
-  const { viewParticipantsWebcams } = useSettings(SETTINGS.DATA_SAVING);
+  const { isOpen: presentationIsOpen } = presentationInput;
+  const isLayoutSwapped = !presentationIsOpen;
 
   const swapLayout = !hasPresentation || isLayoutSwapped;
 
@@ -337,10 +325,11 @@ const WebcamContainer: React.FC<WebcamContainerProps> = ({
   const { data: currentUserData } = useCurrentUser((user) => ({
     presenter: user.presenter,
   }));
+  const { selectedLayout } = useSettings(SETTINGS.APPLICATION) as { selectedLayout: string };
 
-  const isGridEnabled = layoutType === LAYOUT_TYPE.VIDEO_FOCUS;
+  const isGridEnabled = selectedLayout === LAYOUT_TYPE.VIDEO_FOCUS;
 
-  const { streams: videoUsers, gridUsers } = useVideoStreams(isGridEnabled, paginationEnabled, viewParticipantsWebcams);
+  const { streams: videoUsers, gridUsers } = useVideoStreams();
 
   let usersVideo: VideoItem[];
   if (gridUsers.length > 0) {
@@ -368,7 +357,6 @@ const WebcamContainer: React.FC<WebcamContainerProps> = ({
           isPresenter: currentUserData?.presenter ?? false,
           displayPresentation,
           isRTL,
-          isGridEnabled,
           floatingOverlay,
           hideOverlay,
         }}

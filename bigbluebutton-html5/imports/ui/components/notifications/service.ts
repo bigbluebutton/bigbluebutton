@@ -67,8 +67,7 @@ export const userJoinPushAlert = (
 
   if (userJoinAudioAlerts) {
     new Audio(`${window.meetingClientSettings.public.app.cdn
-      + window.meetingClientSettings.public.app.basename
-      + window.meetingClientSettings.public.app.instanceId}`
+      + window.meetingClientSettings.public.app.basename}`
       + '/resources/sounds/userJoin.mp3').play();
   }
 
@@ -92,8 +91,7 @@ export const userLeavePushAlert = (
 
   if (userLeaveAudioAlerts) {
     new Audio(`${window.meetingClientSettings.public.app.cdn
-      + window.meetingClientSettings.public.app.basename
-      + window.meetingClientSettings.public.app.instanceId}`
+      + window.meetingClientSettings.public.app.basename}`
       + '/resources/sounds/userJoin.mp3').play();
   }
 

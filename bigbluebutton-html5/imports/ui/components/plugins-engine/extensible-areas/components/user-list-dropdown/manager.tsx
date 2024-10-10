@@ -22,7 +22,6 @@ const UserListDropdownPluginStateContainer = ((
   ] = useState<PluginSdk.UserListDropdownInterface[]>([]);
 
   const {
-    pluginsExtensibleAreasAggregatedState,
     setPluginsExtensibleAreasAggregatedState,
   } = useContext(PluginsContext);
 
@@ -36,12 +35,11 @@ const UserListDropdownPluginStateContainer = ((
       ...Object.values(extensibleAreaMap)
         .map((extensibleArea: ExtensibleArea) => extensibleArea.userListDropdownItems),
     );
-    setPluginsExtensibleAreasAggregatedState(
+    setPluginsExtensibleAreasAggregatedState((previousState) => (
       {
-        ...pluginsExtensibleAreasAggregatedState,
+        ...previousState,
         userListDropdownItems: aggregatedUserListDropdownItems,
-      },
-    );
+      }));
   }, [userListDropdownItems]);
 
   pluginApi.setUserListDropdownItems = (items: PluginSdk.UserListDropdownInterface[]) => {

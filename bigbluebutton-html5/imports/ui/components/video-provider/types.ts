@@ -1,3 +1,5 @@
+import { VIDEO_TYPES } from './enums';
+
 export type User = {
   userId: string;
   pinned: boolean;
@@ -5,7 +7,6 @@ export type User = {
   name: string;
   away: boolean;
   disconnected: boolean;
-  emoji: string;
   role: string;
   avatar: string;
   color: string;
@@ -54,7 +55,7 @@ export type ConnectingStream = {
   stream: string;
   name: string;
   nameSortable: string;
-  type: 'connecting';
+  type: typeof VIDEO_TYPES.CONNECTING;
 };
 
 export type Stream = {
@@ -67,9 +68,10 @@ export type Stream = {
   floor: boolean;
   lastFloorTime: string;
   voice: Voice | undefined;
-  type: 'stream';
+  type: typeof VIDEO_TYPES.STREAM;
 }
 
 export type StreamItem = Stream | ConnectingStream;
-export type GridItem = GridUser & { type: 'grid' };
+export type GridItem = GridUser & { type: typeof VIDEO_TYPES.GRID };
 export type VideoItem = StreamItem | GridItem;
+export type StreamSubscriptionData = VideoStreamsResponse['user_camera'][number];

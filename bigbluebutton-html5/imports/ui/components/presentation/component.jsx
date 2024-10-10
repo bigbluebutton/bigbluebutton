@@ -143,18 +143,20 @@ class Presentation extends PureComponent {
 
   componentDidMount() {
     this.getInitialPresentationSizes();
-    this.refPresentationContainer.addEventListener(
-      'keydown',
-      this.handlePanShortcut,
-    );
-    this.refPresentationContainer.addEventListener(
-      'keyup',
-      this.handlePanShortcut,
-    );
-    this.refPresentationContainer.addEventListener(
-      FULLSCREEN_CHANGE_EVENT,
-      this.onFullscreenChange,
-    );
+    if (this.refPresentationContainer) {
+      this.refPresentationContainer.addEventListener(
+        'keydown',
+        this.handlePanShortcut,
+      );
+      this.refPresentationContainer.addEventListener(
+        'keyup',
+        this.handlePanShortcut,
+      );
+      this.refPresentationContainer.addEventListener(
+        FULLSCREEN_CHANGE_EVENT,
+        this.onFullscreenChange,
+      );
+    }
     window.addEventListener('resize', this.onResize, false);
 
     const {
@@ -186,6 +188,11 @@ class Presentation extends PureComponent {
       layoutContextDispatch({
         type: ACTIONS.SET_PRESENTATION_SLIDES_LENGTH,
         value: totalPages,
+      });
+    } else {
+      layoutContextDispatch({
+        type: ACTIONS.SET_PRESENTATION_SLIDES_LENGTH,
+        value: 0,
       });
     }
   }
@@ -269,7 +276,9 @@ class Presentation extends PureComponent {
                 this.currentPresentationToastId = null;
               },
               autoClose: shouldCloseToast,
-              className: 'actionToast currentPresentationToast',
+              className: 'toastClass actionToast currentPresentationToast',
+              bodyClassName: 'toastBodyClass',
+              progressClassName: 'toastProgressClass',
             },
           );
         }
@@ -298,7 +307,7 @@ class Presentation extends PureComponent {
           },
         });
       }
-      const presentationChanged = presentationId !== currentPresentationId;
+      const presentationChanged = presentationId && presentationId !== currentPresentationId;
 
       if (
         !presentationIsOpen
@@ -360,18 +369,20 @@ class Presentation extends PureComponent {
     const { fullscreenContext, layoutContextDispatch } = this.props;
 
     window.removeEventListener('resize', this.onResize, false);
-    this.refPresentationContainer.removeEventListener(
-      FULLSCREEN_CHANGE_EVENT,
-      this.onFullscreenChange,
-    );
-    this.refPresentationContainer.removeEventListener(
-      'keydown',
-      this.handlePanShortcut,
-    );
-    this.refPresentationContainer.removeEventListener(
-      'keyup',
-      this.handlePanShortcut,
-    );
+    if (this.refPresentationContainer) {
+      this.refPresentationContainer.removeEventListener(
+        FULLSCREEN_CHANGE_EVENT,
+        this.onFullscreenChange,
+      );
+      this.refPresentationContainer.removeEventListener(
+        'keydown',
+        this.handlePanShortcut,
+      );
+      this.refPresentationContainer.removeEventListener(
+        'keyup',
+        this.handlePanShortcut,
+      );
+    }
 
     if (fullscreenContext) {
       layoutContextDispatch({
@@ -595,8 +606,9 @@ class Presentation extends PureComponent {
       totalPages,
       userIsPresenter,
       hasPoll,
+      currentPresentationPage,
     } = this.props;
-    const { zoom, isPanning } = this.state;
+    const { zoom, isPanning, tldrawAPI } = this.state;
 
     if (!currentSlide) return null;
 
@@ -619,6 +631,8 @@ class Presentation extends PureComponent {
           layoutContextDispatch,
           presentationIsOpen,
           userIsPresenter,
+          currentPresentationPage,
+          tldrawAPI,
         }}
         setIsPanning={this.setIsPanning}
         isPanning={isPanning}
@@ -807,7 +821,7 @@ class Presentation extends PureComponent {
     const presentationZIndex = fullscreenContext ? presentationBounds.zIndex : undefined;
 
     const APP_CRASH_METADATA = { logCode: 'whiteboard_crash', logMessage: 'Possible whiteboard crash' };
-
+  if (!presentationIsOpen) return null;
     return (
       <>
         <Styled.PresentationContainer
@@ -943,7 +957,7 @@ Presentation.propTypes = {
   presentationIsDownloadable: PropTypes.bool,
   presentationName: PropTypes.string,
   currentPresentationId: PropTypes.string,
-  presentationIsOpen: PropTypes.bool.isRequired,
+  presentationIsOpen: PropTypes.bool,
   totalPages: PropTypes.number.isRequired,
   publishedPoll: PropTypes.bool.isRequired,
   presentationBounds: PropTypes.shape({
@@ -985,4 +999,5 @@ Presentation.defaultProps = {
   presentationIsDownloadable: false,
   currentPresentationId: '',
   presentationName: '',
+  presentationIsOpen: true,
 };

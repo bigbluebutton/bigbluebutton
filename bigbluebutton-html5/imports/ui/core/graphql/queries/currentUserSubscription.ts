@@ -5,13 +5,13 @@ subscription userCurrentSubscription {
   user_current {
     authToken
     avatar
+    webcamBackground
     away
     clientType
     color
     ejectReason
     ejectReasonCode
     ejected
-    emoji
     reactionEmoji
     enforceLayout
     extId
@@ -22,7 +22,7 @@ subscription userCurrentSubscription {
     inactivityWarningTimeoutSecs
     isDialIn
     isModerator
-    isOnline
+    currentlyInMeeting
     joinErrorCode
     joinErrorMessage
     joined
@@ -70,6 +70,9 @@ subscription userCurrentSubscription {
       joined
       spoke
       listenOnly
+    }
+    userLockSettings {
+      disablePublicChat
     }
   }
 }

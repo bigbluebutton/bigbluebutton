@@ -49,6 +49,10 @@ trait UserLeftVoiceConfEvtMsgHdlr {
     } yield {
       VoiceUsers.removeWithIntId(liveMeeting.voiceUsers, liveMeeting.props.meetingProp.intId, user.intId)
       broadcastEvent(user)
+
+      if (!user.listenOnly) {
+        VoiceApp.enforceMuteOnStartThreshold(liveMeeting, outGW)
+      }
     }
 
     if (liveMeeting.props.meetingProp.isBreakout) {

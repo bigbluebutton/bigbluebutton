@@ -5,6 +5,7 @@ import TooltipContainer from '/imports/ui/components/common/tooltip/container';
 import Styled from './styles';
 import BaseButton from './base/component';
 import ButtonEmoji from './button-emoji/ButtonEmoji';
+import { getSettingsSingletonInstance } from '/imports/ui/services/settings';
 
 const SIZES = [
   'jumbo', 'lg', 'md', 'sm',
@@ -55,6 +56,13 @@ const propTypes = {
   icon: PropTypes.string,
 
   /**
+   * Defines the button svg icon
+   * @defaultValue undefined
+   */
+
+  svgIcon: PropTypes.string,
+
+  /**
    * Defines the button icon is on the right side
    * @defaultValue false
    */
@@ -73,6 +81,12 @@ const propTypes = {
    * @defaultvalue undefined
    */
   customIcon: PropTypes.node,
+
+  /**
+   * Defines the buttom loading state
+   * @defaultValue false
+   */
+  loading: PropTypes.bool,
 };
 
 const defaultProps = {
@@ -85,12 +99,14 @@ const defaultProps = {
   iconRight: false,
   hideLabel: false,
   tooltipLabel: '',
+  loading: false,
 };
 
 export default class Button extends BaseButton {
   _cleanProps(otherProps) {
     const remainingProps = Object.assign({}, otherProps);
     delete remainingProps.icon;
+    delete remainingProps.svgIcon;
     delete remainingProps.customIcon;
     delete remainingProps.size;
     delete remainingProps.color;
@@ -154,6 +170,7 @@ export default class Button extends BaseButton {
       ghost,
       circle,
       block,
+      loading,
       ...otherProps
     } = this.props;
 
@@ -168,6 +185,7 @@ export default class Button extends BaseButton {
         block={block}
         className={className}
         iconRight={iconRight}
+        loading={loading}
         {...remainingProps}
       >
         {this.renderIcon()}
@@ -186,10 +204,13 @@ export default class Button extends BaseButton {
       ghost,
       circle,
       block,
+      loading,
       ...otherProps
     } = this.props;
 
     const remainingProps = this._cleanProps(otherProps);
+    const Settings = getSettingsSingletonInstance();
+    const animations = Settings?.application?.animations;
 
     return (
       <Styled.ButtonWrapper
@@ -199,6 +220,8 @@ export default class Button extends BaseButton {
         ghost={ghost}
         circle={circle}
         block={block}
+        loading={loading}
+        animations={animations}
         {...remainingProps}
       >
         {this.renderButtonEmojiSibling()}
@@ -229,8 +252,13 @@ export default class Button extends BaseButton {
   renderIcon() {
     const {
       icon: iconName,
+      svgIcon,
       customIcon,
     } = this.props;
+
+    if (svgIcon) {
+      return (<Styled.ButtonSvgIcon iconName={svgIcon} wrapped />);
+    }
 
     if (iconName) {
       return (<Styled.ButtonIcon iconName={iconName} />);

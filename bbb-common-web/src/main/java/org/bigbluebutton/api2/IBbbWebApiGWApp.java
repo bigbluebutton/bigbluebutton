@@ -61,6 +61,7 @@ public interface IBbbWebApiGWApp {
                      String loginUrl,
                      String logoutUrl,
                      String customLogoURL,
+                     String customDarkLogoURL,
                      String bannerText,
                      String bannerColor,
                      ArrayList<Group> groups,
@@ -71,9 +72,11 @@ public interface IBbbWebApiGWApp {
                      String overrideClientSettings);
 
   void registerUser(String meetingID, String internalUserId, String fullname, String role,
-                    String externUserID, String authToken, String sessionToken, String avatarURL,
+                    String externUserID, String authToken, String sessionToken, String avatarURL, String webcamBackgroundURL,
                     Boolean guest, Boolean authed, String guestStatus, Boolean excludeFromDashboard,
-                    String enforceLayout, Map<String, String> customParameters);
+                    String enforceLayout, Map<String, String> userMetadata);
+  void registerUserSessionToken(String meetingID, String internalUserId, String sessionToken,
+                                String replaceSessionToken, String enforceLayout, Map<String, String> userSessionMetadata);
 
   void destroyMeeting(DestroyMeetingMessage msg);
   void endMeeting(EndMeetingMessage msg);

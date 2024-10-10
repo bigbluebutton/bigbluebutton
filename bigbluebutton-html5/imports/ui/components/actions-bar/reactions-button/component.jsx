@@ -74,8 +74,7 @@ const ReactionsButton = (props) => {
   };
 
   const handleReactionSelect = (reaction) => {
-    const newReaction = currentUserReaction === reaction ? 'none' : reaction;
-    setReactionEmoji({ variables: { reactionEmoji: newReaction } });
+    setReactionEmoji({ variables: { reactionEmoji: reaction } });
   };
 
   const handleRaiseHandButtonClick = () => {
@@ -85,6 +84,7 @@ const ReactionsButton = (props) => {
         raiseHand: !raiseHand,
       },
     });
+    document.activeElement.blur();
   };
 
   const handleToggleAFK = () => {
@@ -147,21 +147,45 @@ const ReactionsButton = (props) => {
   });
 
   actions.push({
-    label: <Styled.ToggleButtonWrapper><Toggle icons={false} defaultChecked={away} onChange={() => { handleToggleAFK(); }} ariaLabel={ToggleAFKLabel()} showToggleLabel={false} />{ToggleAFKLabel()}</Styled.ToggleButtonWrapper>,
+    label: <Styled.ToggleButtonWrapper isMobile={isMobile}>
+      {isMobile ? (
+        <div style={{ display: 'flex', flexDirection: 'column' }}>
+          {ToggleAFKLabel()}
+          <Toggle
+            icons={false}
+            checked={away}
+            onChange={handleToggleAFK}
+            ariaLabel={ToggleAFKLabel()}
+            showToggleLabel={false}
+            isMobile={isMobile}
+          />
+        </div>
+      ) : (
+        <>
+          <Toggle
+            icons={false}
+            checked={away}
+            onChange={handleToggleAFK}
+            ariaLabel={ToggleAFKLabel()}
+            showToggleLabel={false}
+          />
+          {ToggleAFKLabel()}
+        </>
+      )}
+    </Styled.ToggleButtonWrapper>,
     key: 'none',
     isToggle: true,
-    onClick: () => handleToggleAFK(),
-    customStyles: {...actionCustomStyles, width: 'auto'},
+    customStyles: { ...actionCustomStyles, width: 'auto' },
   });
 
   actions.push({
     label: <Styled.RaiseHandButtonWrapper accessKey={shortcuts.raisehand} isMobile={isMobile} data-test={raiseHand ? 'lowerHandBtn' : 'raiseHandBtn'} active={raiseHand}><em-emoji key={handReaction.id} native={handReaction.native} emoji={{ id: handReaction.id }} {...emojiProps} />{RaiseHandButtonLabel()}</Styled.RaiseHandButtonWrapper>,
     key: 'hand',
     onClick: () => handleRaiseHandButtonClick(),
-    customStyles: {...actionCustomStyles, width: 'auto'},
+    customStyles: { ...actionCustomStyles, width: 'auto' },
   });
 
-  const icon = !raiseHand && !away && currentUserReaction === 'none' ? 'hand' : null;
+  const svgIcon = !raiseHand && !away && currentUserReaction === 'none' ? 'reactions' : null;
   const currentUserReactionEmoji = REACTIONS.find(({ native }) => native === currentUserReaction);
 
   let customIcon = null;
@@ -169,7 +193,7 @@ const ReactionsButton = (props) => {
   if (raiseHand) {
     customIcon = <em-emoji key={handReaction.id} native={handReaction.native} emoji={handReaction} {...emojiProps} />;
   } else {
-    if (!icon) {
+    if (!svgIcon) {
       customIcon = <em-emoji key={currentUserReactionEmoji?.id} native={currentUserReactionEmoji?.native} emoji={{ id: currentUserReactionEmoji?.id }} {...emojiProps} />;
     }
   }
@@ -184,12 +208,11 @@ const ReactionsButton = (props) => {
         <Styled.ReactionsDropdown id="interactionsButton">
           <Styled.RaiseHandButton
             data-test="reactionsButton"
-            icon={icon}
+            svgIcon={svgIcon}
             customIcon={customIcon}
             label={intl.formatMessage(intlMessages.reactionsLabel)}
             description="Reactions"
-            ghost={!showEmojiPicker && !customIcon}
-            onKeyPress={() => {}}
+            onKeyPress={() => { }}
             onClick={() => setShowEmojiPicker(true)}
             color={showEmojiPicker || customIcon ? 'primary' : 'default'}
             hideLabel
@@ -207,6 +230,7 @@ const ReactionsButton = (props) => {
       overrideMobileStyles
       isHorizontal={!isMobile}
       isMobile={isMobile}
+      isEmoji
       roundButtons={true}
       keepOpen={!autoCloseReactionsBar}
       opts={{

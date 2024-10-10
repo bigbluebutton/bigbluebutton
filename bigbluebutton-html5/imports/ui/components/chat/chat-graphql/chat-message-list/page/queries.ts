@@ -8,9 +8,19 @@ export const CHAT_MESSAGE_PUBLIC_SUBSCRIPTION = gql`
         name
         userId
         avatar
-        isOnline
+        currentlyInMeeting
         isModerator
         color
+      }
+      messageSequence
+      replyToMessage {
+        chatEmphasizedText
+        messageSequence
+        message
+        user {
+          name
+          color
+        }
       }
       messageType
       chatEmphasizedText
@@ -37,7 +47,7 @@ export const CHAT_MESSAGE_PRIVATE_SUBSCRIPTION = gql`
         name
         userId
         avatar
-        isOnline
+        currentlyInMeeting
         isModerator
         color
       }
@@ -48,6 +58,7 @@ export const CHAT_MESSAGE_PRIVATE_SUBSCRIPTION = gql`
       messageId
       createdAt
       messageMetadata
+      recipientHasSeen
     }
   }
 `;

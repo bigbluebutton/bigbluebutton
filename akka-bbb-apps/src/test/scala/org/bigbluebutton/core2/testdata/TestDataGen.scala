@@ -13,10 +13,12 @@ object TestDataGen {
     val sessionToken = RandomStringGenerator.randomAlphanumericString(16)
     val avatarURL = "https://www." + RandomStringGenerator.randomAlphanumericString(32) + ".com/" +
       RandomStringGenerator.randomAlphanumericString(10) + ".png"
+    val webcamBackgroundURL = "https://www." + RandomStringGenerator.randomAlphanumericString(32) + ".com/" +
+      RandomStringGenerator.randomAlphanumericString(10) + ".jpg"
     val color = "#ff6242"
 
     val ru = RegisteredUsers.create(meetingId, userId = id, extId, name, role,
-      authToken, sessionToken, avatarURL, color, guest, authed, GuestStatus.ALLOW, false, "", Map(), false)
+      authToken, Vector(sessionToken), avatarURL, webcamBackgroundURL, color, guest, authed, GuestStatus.ALLOW, false, "", Map(), false)
 
     RegisteredUsers.add(users, ru, meetingId = "test")
     ru
@@ -75,8 +77,8 @@ object TestDataGen {
   def createUserFor(liveMeeting: LiveMeeting, regUser: RegisteredUser, presenter: Boolean): UserState = {
     val u = UserState(intId = regUser.id, extId = regUser.externId, meetingId = regUser.meetingId, name = regUser.name,
       role = regUser.role, guest = regUser.guest, authed = regUser.authed, guestStatus = regUser.guestStatus,
-      emoji = "none", reactionEmoji = "none", raiseHand = false, away = false, pin = false, mobile = false,
-      locked = false, presenter = false, avatar = regUser.avatarURL, color = "#ff6242",
+      reactionEmoji = "none", raiseHand = false, away = false, pin = false, mobile = false,
+      locked = false, presenter = false, avatar = regUser.avatarURL, regUser.webcamBackgroundURL, color = "#ff6242",
       clientType = "unknown", userLeftFlag = UserLeftFlag(false, 0))
     Users2x.add(liveMeeting.users2x, u)
     u

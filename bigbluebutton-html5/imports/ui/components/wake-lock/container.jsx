@@ -1,6 +1,5 @@
 import React, { useEffect, useState, useRef } from 'react';
 import PropTypes from 'prop-types';
-import { withTracker } from 'meteor/react-meteor-data';
 import WakeLock from './component';
 import Service from './service';
 import getFromUserSettings from '/imports/ui/services/users-settings';
@@ -11,7 +10,7 @@ import { useStorageKey } from '../../services/storage/hooks';
 
 const propTypes = {
   areAudioModalsOpen: PropTypes.bool,
-  autoJoin: PropTypes.bool.isRequired,
+  autoJoin: PropTypes.bool,
 };
 
 function usePrevious(value) {

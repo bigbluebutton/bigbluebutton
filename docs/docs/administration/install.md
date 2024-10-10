@@ -12,6 +12,8 @@ We have tools to make it easy for you, a system administrator, to install BigBlu
 
 ## Before you install
 
+**Note: BigBlueButton 3.0 is still under development**
+
 We recommend installing BigBlueButton with a 'clean' and dedicated Ubuntu 22.04 64-bit server with no prior software installed. If you want to upgrade from an earlier version of BigBlueButton like 2.7, we recommend setting up a clean server for BigBlueButton 3.0 on Ubuntu 22.04 and, after setup, [migrate over your existing recordings](/administration/customize#transfer-published-recordings-from-another-server).
 
 A 'clean' server does not have any previous web servers installed (such as apache) or web applications (such as plesk or webadmin) that are [binding to port 80/443](/support/faq#we-recommend-running-bigbluebutton-on-port-80443). By 'dedicated' we mean that this server won't be used for anything else besides BigBlueButton (and possibly BigBlueButton-related applications such as [Greenlight](/greenlight/v3/install)).
@@ -225,7 +227,7 @@ UDP port ranges
                debug: false
                recorder.directory: /var/lib/bbb-webrtc-recorder
 
-/usr/share/meteor/bundle/programs/server/assets/app/config/settings.yml (HTML5 client)
+/usr/share/bigbluebutton/html5-client/private/config/settings.yml (HTML5 client)
 /etc/bigbluebutton/bbb-html5.yml (HTML5 client config override)
                              build: 13
                         kurentoUrl: wss://test30.bigbluebutton.org/bbb-webrtc-sfu
@@ -249,8 +251,6 @@ freeswitch ———————————————————————
 redis-server —————————————————————————► [✔ - active]
 bbb-apps-akka ————————————————————————► [✔ - active]
 bbb-fsesl-akka ———————————————————————► [✔ - active]
-mongod ———————————————————————————————► [✔ - active]
-bbb-html5 ————————————————————————————► [✔ - active]
 bbb-graphql-actions ——————————————————► [✔ - active]
 bbb-graphql-middleware ———————————————► [✔ - active]
 bbb-graphql-server ———————————————————► [✔ - active]
@@ -263,7 +263,6 @@ bbb-export-annotations ———————————————► [✔ - a
 bbb-rap-caption-inbox ————————————————► [✔ - active]
 bbb-rap-resque-worker ————————————————► [✔ - active]
 bbb-rap-starter ——————————————————————► [✔ - active]
-
 
 ```
 
@@ -281,8 +280,6 @@ ii  bbb-fsesl-akka                     1:3.0-5         all          BigBlueButto
 ii  bbb-graphql-actions                1:3.0-5         amd64        BigBlueButton GraphQL Actions
 ii  bbb-graphql-middleware             1:3.0-6         amd64        GraphQL middleware component for BigBlueButton
 ii  bbb-graphql-server                 1:3.0-5         amd64        GraphQL server component for BigBlueButton
-ii  bbb-html5                          1:3.0-10        amd64        The HTML5 components for BigBlueButton
-ii  bbb-html5-nodejs                   1:3.0-1         amd64        Include a specific NodeJS version for bbb-html5
 ii  bbb-learning-dashboard             1:3.0-1         amd64        BigBlueButton bbb-learning-dashboard
 ii  bbb-libreoffice-docker             1:3.0-1         amd64        BigBlueButton setup for LibreOffice running in docker
 ii  bbb-mkclean                        1:3.0-1         amd64        Clean and optimize Matroska and WebM files
@@ -294,11 +291,9 @@ ii  bbb-web                            1:3.0-6         amd64        BigBlueButto
 ii  bbb-webrtc-recorder                1:3.0-1         amd64        BigBlueButton WebRTC Recorder
 ii  bbb-webrtc-sfu                     1:3.0-1         amd64        BigBlueButton WebRTC SFU
 
-
-
 ```
 
-With Greenlight installed (that was the `-g` option), you can open `https://<hostname>/b` in a browser (where `<hostname>` is the hostname you specified in the `bbb-install.sh` command), create a local account, create a room and join it.
+With Greenlight installed (that was the `-g` option), you can open `https://<hostname>` in a browser (where `<hostname>` is the hostname you specified in the `bbb-install.sh` command), create a local account, create a room and join it.
 
 ![BigBlueButton's Greenlight Interface](/img/greenlight_welcome.png)
 
@@ -323,6 +318,44 @@ Do you have a firewall between you and your users? If so, see [configuring your 
 ### Upgrading BigBlueButton 3.0
 
 You can upgrade by re-running the `bbb-install.sh` script again -- it will download and install the latest release of BigBlueButton 3.0.
+
+#### Note about /etc/default/bbb-graphql-server configurations
+
+If you encounter the following message while upgrading:
+
+```
+Configuration file '/etc/default/bbb-graphql-server'
+ ==> Modified (by you or by a script) since installation.
+ ==> Package distributor has shipped an updated version.
+ ==> Keeping old config file as default.
+...
+
+```
+
+after the upgrade navigate to `/etc/default` and inspect:
+
+```
+root@test30:~# cd /etc/default/
+root@test30:/etc/default# ls -l bbb*
+-rw-r--r-- 1 root root  85 May 10 02:20 bbb-apps-akka
+-rw-r--r-- 1 root root  86 May  8 14:25 bbb-fsesl-akka
+-rw-r--r-- 1 root root 819 Aug 13 13:45 bbb-graphql-server
+-rw-r--r-- 1 root root 747 Aug 30 22:11 bbb-graphql-server.dpkg-dist
+-rw-r--r-- 1 root root 139 May 10 14:46 bbb-web
+-rw-r--r-- 1 root root  39 Mar 14 22:06 bbb-webrtc-recorder
+```
+
+You will notice that a newer version of the configuration file `bbb-graphql-server` could not be deployed because
+we had modified the original `bbb-graphql-server` after it was installed here. Typically you will only be seeing this
+message / use case if you are upgrading a server which had BigBlueButton 3.0.0-alpha version at some point.
+You can compare the differences between `bbb-graphql-server` and `bbb-graphql-server.dpkg-dist` but in pretty much all
+cases the way to resolve this problem is by only keeping the newer version of the file:
+
+`sudo mv /etc/default/bbb-graphql-server.dpkg-dist /etc/default/bbb-graphql-server`
+
+followed by a restart of BigBlueButton
+
+`sudo bbb-conf --restart`
 
 ### Upgrading from BigBlueButton 2.6 or 2.7
 

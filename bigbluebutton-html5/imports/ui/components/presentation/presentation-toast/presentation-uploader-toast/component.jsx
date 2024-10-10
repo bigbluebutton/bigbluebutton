@@ -7,8 +7,6 @@ import usePreviousValue from '/imports/ui/hooks/usePreviousValue';
 import { notify } from '/imports/ui/services/notification';
 import Session from '/imports/ui/services/storage/in-memory';
 
-const TIMEOUT_CLOSE_TOAST = 1; // second
-
 const EXPORT_STATUSES = {
   RUNNING: 'RUNNING',
   COLLECTING: 'COLLECTING',
@@ -53,6 +51,14 @@ const intlMessages = defineMessages({
   413: {
     id: 'app.presentationUploder.upload.413',
     description: 'error that file exceed the size limit',
+  },
+  FILE_VIRUS: {
+    id: 'app.presentationUploder.upload.fileVirus',
+    description: 'error that the file could not be uploaded due to security concerns',
+  },
+  SCAN_FAILED: {
+    id: 'app.presentationUploder.upload.scanFailed',
+    description: 'error that the file could not be uploaded because scanning failed'
   },
   CONVERSION_TIMEOUT: {
     id: 'app.presentationUploder.conversion.conversionTimeout',
@@ -435,12 +441,8 @@ function renderExportToast(presToShow, intl) {
 export const PresentationUploaderToast = ({
   intl,
   convertingPresentations,
-  uploadingPresentations,
   presentations,
 }) => {
-  const presentationsToConvert = convertingPresentations
-    .concat(uploadingPresentations)
-    .filter((p) => p);
   const prevPresentations = usePreviousValue(presentations);
 
   useEffect(() => {
@@ -486,24 +488,25 @@ export const PresentationUploaderToast = ({
   }, [presentations]);
 
   let activeToast = Session.getItem('presentationUploaderToastId');
-  const presentationsToConvertFiltered = presentationsToConvert.filter((p) => p);
-  const showToast = presentationsToConvertFiltered.length > 0;
+  const showToast = convertingPresentations.length > 0;
 
   if (showToast && !activeToast) {
-    activeToast = toast.info(() => renderToastList(presentationsToConvertFiltered, intl), {
+    activeToast = toast.info(() => renderToastList(convertingPresentations, intl), {
       hideProgressBar: true,
       autoClose: false,
       newestOnTop: true,
       closeOnClick: true,
       className: 'presentationUploaderToast toastClass',
+      onClose: () => {
+        Session.setItem('presentationUploaderToastId', null);
+      },
     });
     Session.setItem('presentationUploaderToastId', activeToast);
   } else if (!showToast && activeToast) {
     handleDismissToast(activeToast);
-    Session.setItem('presentationUploaderToastId', null);
   } else {
     toast.update(activeToast, {
-      render: renderToastList(presentationsToConvertFiltered, intl),
+      render: renderToastList(convertingPresentations, intl),
     });
   }
   return null;

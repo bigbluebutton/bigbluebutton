@@ -2,16 +2,17 @@ import { StreamItem } from './types';
 import UserListService from '/imports/ui/components/user-list/service';
 import Auth from '/imports/ui/services/auth';
 import VideoService from './service';
+import { VIDEO_TYPES } from './enums';
 
 const DEFAULT_SORTING_MODE = 'LOCAL_ALPHABETICAL';
 
-// connecting last -> pin first
+// pin first, ignore connecting streams
 export const sortPin = (s1: StreamItem, s2: StreamItem) => {
-  if (s1.type === 'connecting') {
-    return 1;
+  if (s1.type === VIDEO_TYPES.CONNECTING) {
+    return 0;
   }
-  if (s2.type === 'connecting') {
-    return -1;
+  if (s2.type === VIDEO_TYPES.CONNECTING) {
+    return 0;
   }
   if (s1.user.pinned) {
     return -1;
@@ -23,13 +24,13 @@ export const sortPin = (s1: StreamItem, s2: StreamItem) => {
 
 export const mandatorySorting = (s1: StreamItem, s2: StreamItem) => sortPin(s1, s2);
 
-// connecting last -> lastFloorTime (descending)
+// lastFloorTime (descending), ignore connecting streams
 export const sortVoiceActivity = (s1: StreamItem, s2: StreamItem) => {
-  if (s1.type === 'connecting') {
-    return 1;
+  if (s1.type === VIDEO_TYPES.CONNECTING) {
+    return 0;
   }
-  if (s2.type === 'connecting') {
-    return -1;
+  if (s2.type === VIDEO_TYPES.CONNECTING) {
+    return 0;
   }
   if (s2.lastFloorTime < s1.lastFloorTime) {
     return -1;
@@ -75,10 +76,10 @@ export const sortLocalAlphabetical = (s1: StreamItem, s2: StreamItem) => mandato
     || UserListService.sortUsersByName(s1, s2);
 
 export const sortPresenter = (s1: StreamItem, s2: StreamItem) => {
-  if (s1.type === 'stream' && s1.user.presenter) {
+  if (s1.type === VIDEO_TYPES.STREAM && s1.user.presenter) {
     return -1;
   }
-  if (s2.type === 'stream' && s2.user.presenter) {
+  if (s2.type === VIDEO_TYPES.STREAM && s2.user.presenter) {
     return 1;
   }
   return 0;

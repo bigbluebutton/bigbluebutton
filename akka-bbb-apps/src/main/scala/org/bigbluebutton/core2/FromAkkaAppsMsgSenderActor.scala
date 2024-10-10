@@ -23,14 +23,6 @@ class FromAkkaAppsMsgSenderActor(msgSender: MessageSender)
 
     msg.envelope.name match {
 
-      // HTML5 sync messages
-      case SyncGetPresentationPodsRespMsg.NAME => msgSender.send(toHTML5RedisChannel, json)
-      case SyncGetMeetingInfoRespMsg.NAME      => msgSender.send(toHTML5RedisChannel, json)
-      case SyncGetUsersMeetingRespMsg.NAME     => msgSender.send(toHTML5RedisChannel, json)
-      case SyncGetGroupChatsRespMsg.NAME       => msgSender.send(toHTML5RedisChannel, json)
-      case SyncGetGroupChatMsgsRespMsg.NAME    => msgSender.send(toHTML5RedisChannel, json)
-      case SyncGetVoiceUsersRespMsg.NAME       => msgSender.send(toHTML5RedisChannel, json)
-
       // Sent to FreeSWITCH
       case EjectAllFromVoiceConfMsg.NAME =>
         msgSender.send(toVoiceConfRedisChannel, json)
@@ -96,6 +88,8 @@ class FromAkkaAppsMsgSenderActor(msgSender: MessageSender)
         msgSender.send(fromAkkaAppsPresRedisChannel, json)
       case SetCurrentPageEvtMsg.NAME =>
         msgSender.send(fromAkkaAppsPresRedisChannel, json)
+      case SetPageInfiniteWhiteboardEvtMsg.NAME =>
+        msgSender.send(fromAkkaAppsPresRedisChannel, json)
       case ResizeAndMovePageEvtMsg.NAME =>
         msgSender.send(fromAkkaAppsPresRedisChannel, json)
       case RemovePresentationEvtMsg.NAME =>
@@ -104,15 +98,9 @@ class FromAkkaAppsMsgSenderActor(msgSender: MessageSender)
         msgSender.send(fromAkkaAppsPresRedisChannel, json)
 
       // Breakout
-      case UpdateBreakoutUsersEvtMsg.NAME =>
-        msgSender.send(fromAkkaAppsPresRedisChannel, json)
       case BreakoutRoomsListEvtMsg.NAME =>
         msgSender.send(fromAkkaAppsPresRedisChannel, json)
-      case BreakoutRoomsTimeRemainingUpdateEvtMsg.NAME =>
-        msgSender.send(fromAkkaAppsPresRedisChannel, json)
       case BreakoutRoomStartedEvtMsg.NAME =>
-        msgSender.send(fromAkkaAppsPresRedisChannel, json)
-      case MeetingTimeRemainingUpdateEvtMsg.NAME =>
         msgSender.send(fromAkkaAppsPresRedisChannel, json)
       //==================================================================
 
@@ -122,10 +110,6 @@ class FromAkkaAppsMsgSenderActor(msgSender: MessageSender)
       // Poll Record Event
       case UserRespondedToPollRecordMsg.NAME =>
       //==================================================================
-
-      case ValidateAuthTokenRespMsg.NAME =>
-        msgSender.send(fromAkkaAppsRedisChannel, json) // needed for cases when single nodejs process is running (like in development)
-        msgSender.send("from-akka-apps-frontend-redis-channel", json)
 
       // Message duplicated for frontend and backend processes
       case MeetingCreatedEvtMsg.NAME =>

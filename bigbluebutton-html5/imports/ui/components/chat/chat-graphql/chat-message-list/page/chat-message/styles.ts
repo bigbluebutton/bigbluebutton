@@ -14,6 +14,7 @@ import {
   colorWhite,
   userListBg,
   colorSuccess,
+  colorOffWhite,
 } from '/imports/ui/stylesheets/styled-components/palette';
 
 import Header from '/imports/ui/components/common/control-header/component';
@@ -22,10 +23,12 @@ interface ChatWrapperProps {
   sameSender: boolean;
   isSystemSender: boolean;
   isPresentationUpload?: boolean;
+  isCustomPluginMessage: boolean;
 }
 
 interface ChatContentProps {
   sameSender: boolean;
+  isCustomPluginMessage: boolean;
 }
 
 interface ChatAvatarProps {
@@ -68,6 +71,16 @@ export const ChatWrapper = styled.div<ChatWrapperProps>`
     border-radius: 0px 3px 3px 0px;
     padding: 8px 2px;
   `}
+  ${({ isCustomPluginMessage }) => isCustomPluginMessage && `
+    margin: 0;
+    padding: 0;
+  `}
+  ${({ sameSender }) => !sameSender && `
+    &:hover {
+      background-color: ${colorOffWhite};
+    }
+    border-radius: 6px;
+  `}
 `;
 
 export const ChatContent = styled.div<ChatContentProps>`
@@ -75,8 +88,16 @@ export const ChatContent = styled.div<ChatContentProps>`
   flex-flow: column;
   width: 100%;
 
-  ${({ sameSender }) => sameSender && `
+  ${({ sameSender, isCustomPluginMessage }) => sameSender
+    && !isCustomPluginMessage && `
     margin-left: 2.6rem;
+  `}
+
+  ${({ sameSender }) => sameSender && `
+    &:hover {
+      background-color: ${colorOffWhite};
+    }
+    border-radius: 6px;
   `}
 `;
 
@@ -105,7 +126,6 @@ export const ChatAvatar = styled.div<ChatAvatarProps>`
   ${({ color }) => css`
     background-color: ${color};
   `}
-  }
 
   &:after,
   &:before {
@@ -157,16 +177,26 @@ export const ChatAvatar = styled.div<ChatAvatarProps>`
   // ================ image ================
 
   // ================ content ================
-  color: ${colorWhite};
+  color: ${colorWhite} !important;
   font-size: 110%;
   text-transform: capitalize;
   display: flex;
   justify-content: center;
   align-items:center;
   // ================ content ================
-  
+
   & .react-loading-skeleton {
     height: 2.25rem;
     width: 2.25rem;
   }
+`;
+
+export const Container = styled.div`
+  display: flex;
+  flex-direction: column;
+`;
+
+export const MessageItemWrapper = styled.div`
+  display: flex;
+  flex-direction: row;
 `;

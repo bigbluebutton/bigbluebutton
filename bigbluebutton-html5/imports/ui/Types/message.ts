@@ -13,5 +13,16 @@ export interface Message {
   senderName: string;
   senderRole: string;
   messageMetadata: string;
+  recipientHasSeen: string;
   user: User;
+  messageSequence: number;
+  replyToMessage: {
+    messageSequence: number;
+    message: string;
+    chatEmphasizedText: boolean;
+    user: {
+      name: string;
+      color: string;
+    };
+  } | null;
 }

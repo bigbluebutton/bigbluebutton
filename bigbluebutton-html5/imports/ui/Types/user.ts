@@ -34,13 +34,12 @@ export interface Voice {
   endTime: number;
   floor: boolean;
   lastFloorTime: string
-  lastSpeakChangedAt: number;
   meetingId: string;
   spoke: boolean;
   startTime: number;
 }
 
-export interface CustomParameter {
+export interface UserMetadata {
   parameter: string;
   value: string;
 }
@@ -65,6 +64,10 @@ export interface BreakoutRooms {
   startedAt: string;
 }
 
+export interface userLockSettings {
+  disablePublicChat: boolean;
+}
+
 export interface User {
   authToken: string;
   userId: string;
@@ -74,7 +77,7 @@ export interface User {
   isModerator: boolean;
   clientType: string;
   disconnected: boolean;
-  isOnline: boolean;
+  currentlyInMeeting: boolean;
   ejectReason: string;
   ejectReasonCode: string;
   ejected: boolean;
@@ -82,7 +85,7 @@ export interface User {
   role: string;
   color: string;
   avatar: string;
-  emoji: string;
+  webcamBackground: string;
   reactionEmoji: string;
   presenter?: boolean;
   pinned?: boolean;
@@ -110,4 +113,5 @@ export interface User {
   away: boolean;
   raiseHand: boolean;
   breakoutRooms: BreakoutRooms;
+  userLockSettings: userLockSettings;
 }

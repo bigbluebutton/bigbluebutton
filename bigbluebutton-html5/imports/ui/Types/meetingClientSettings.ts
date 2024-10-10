@@ -29,7 +29,6 @@ export interface Locales {
   name: string
 }
 export interface App {
-  instanceId: string
   mobileFontSize: string
   desktopFontSize: string
   audioChatNotification: boolean
@@ -85,7 +84,6 @@ export interface App {
   customHeartbeat: boolean
   showAllAvailableLocales: boolean
   showAudioFilters: boolean
-  raiseHandActionButton: RaiseHandActionButton
   reactionsButton: ReactionsButton
   emojiRain: EmojiRain
   enableNetworkStats: boolean
@@ -100,6 +98,7 @@ export interface App {
   fallbackOnEmptyLocaleString: boolean
   disableWebsocketFallback: boolean
   maxMutationPayloadSize: number
+  enableApolloDevTools: boolean
 }
 
 export interface BbbTabletApp {
@@ -144,6 +143,7 @@ export interface Breakouts {
   captureSharedNotesByDefault: boolean
   sendInvitationToAssignedModeratorsByDefault: boolean
   breakoutRoomLimit: number
+  allowPresentationManagementInBreakouts: boolean
 }
 
 export interface RaiseHandActionButton {
@@ -190,6 +190,7 @@ export interface Application {
   wakeLock: boolean
   paginationEnabled: boolean
   whiteboardToolbarAutoHide: boolean
+  pushToTalkEnabled: boolean
   autoCloseReactionsBar: boolean
   darkTheme: boolean
   fallbackLocale: string
@@ -520,10 +521,12 @@ export interface Chat {
   system_messages_keys: SystemMessagesKeys
   typingIndicator: TypingIndicator
   moderatorChatEmphasized: boolean
+  privateMessageReadFeedback: MessageReadFeedback
   autoConvertEmoji: boolean
   emojiPicker: EmojiPicker
   disableEmojis: string[]
   allowedElements: string[]
+  toolbar: string[]
 }
 
 export interface SystemMessagesKeys {
@@ -536,6 +539,10 @@ export interface SystemMessagesKeys {
 export interface TypingIndicator {
   enabled: boolean
   showNames: boolean
+}
+
+export interface MessageReadFeedback {
+  enabled: boolean
 }
 
 export interface EmojiPicker {
@@ -568,17 +575,11 @@ export interface Layout {
 
 export interface Pads {
   url: string
-  cookie: Cookie
-}
-
-export interface Cookie {
-  path: string
-  sameSite: string
-  secure: boolean
 }
 
 export interface Media {
   audio: Audio2
+  screenshare: Screenshare2,
   stunTurnServersFetchAddress: string
   cacheStunTurnServers: boolean
   fallbackStunServer: string
@@ -606,7 +607,7 @@ export interface Media {
   traceSip: boolean
   sdpSemantics: string
   localEchoTest: LocalEchoTest
-  showVolumeMeter: boolean
+  muteAudioOutputWhenAway: boolean
 }
 
 export interface Audio2 {
@@ -614,6 +615,10 @@ export interface Audio2 {
   defaultListenOnlyBridge: string
   bridges: Bridge[]
   retryThroughRelay: boolean
+}
+
+export interface Screenshare2 {
+  showButtonForNonPresenters: boolean
 }
 
 export interface Bridge {
@@ -640,7 +645,6 @@ export interface Stats {
   timeout: number
   log: boolean
   notification: Notification
-  jitter: number[]
   loss: number[]
   rtt: number[]
   level: string[]
@@ -694,6 +698,8 @@ export interface Whiteboard {
   maxStickyNoteLength: number
   maxNumberOfAnnotations: number
   annotations: Annotations
+  allowInfiniteWhiteboard: boolean
+  allowInfiniteWhiteboardInBreakouts: boolean
   styles: Styles
   toolbar: Toolbar
 }
@@ -718,10 +724,6 @@ export interface Text {
 
 export interface Toolbar {
   multiUserPenOnly: boolean
-  colors: Color[]
-  thickness: Thickness[]
-  font_sizes: FontSize[]
-  tools: Tool[]
   presenterTools: string[]
   multiUserTools: string[]
 }
@@ -739,20 +741,9 @@ export interface FontSize {
   value: number
 }
 
-export interface Tool {
-  icon: string
-  value: string
-}
-
 export interface ClientLog {
-  server: Server
   console: Console
   external: External
-}
-
-export interface Server {
-  enabled: boolean
-  level: string
 }
 
 export interface Console {
@@ -783,7 +774,6 @@ export interface VirtualBackgrounds {
 export interface Private {
   analytics: Analytics
   app: App2
-  serverLog: ServerLog
   minBrowserVersions: MinBrowserVersion[]
   prometheus: Prometheus
 }
@@ -809,18 +799,6 @@ export interface Metrics {
 export interface Channels {
   toAkkaApps: string
   toThirdParty: string
-}
-
-export interface ServerLog {
-  level: string
-  streamerLog: boolean
-  includeServerInfo: boolean
-  healthChecker: HealthChecker
-}
-
-export interface HealthChecker {
-  enable: boolean
-  intervalMs: number
 }
 
 export interface MinBrowserVersion {
