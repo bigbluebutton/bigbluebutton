@@ -271,7 +271,6 @@ const UserActions: React.FC<UserActionsProps> = ({
     isMuted,
   );
   const {
-    allowedToChatPrivately,
     allowedToMuteAudio,
     allowedToUnmuteAudio,
     allowedToChangeWhiteboardAccess,
@@ -363,17 +362,18 @@ const UserActions: React.FC<UserActionsProps> = ({
       icon: user.pinned ? 'pin-video_off' : 'pin-video_on',
     },
     {
-      allowed: isChatEnabled
-        && (
-          currentUser.isModerator ? allowedToChatPrivately
-            : allowedToChatPrivately && (
-              !(currentUser.locked && lockSettings?.disablePrivateChat)
-              // TODO: Add check for hasPrivateChat between users
-              || user.isModerator
-            )
-        )
-        && !isVoiceOnlyUser(user.userId)
-        && !isBreakout,
+      allowed: (() => {
+        const moderatorOverride = currentUser.isModerator;
+        const regularUserCondition = (isChatEnabled
+          && !lockSettings?.disablePrivateChat
+          && !isVoiceOnlyUser(user.userId)
+          && !isBreakout)
+          || user.isModerator;
+
+        const isAllowed = moderatorOverride || regularUserCondition;
+
+        return isAllowed;
+      })(),
       key: 'activeChat',
       label: intl.formatMessage(messages.StartPrivateChat),
       onClick: () => {
