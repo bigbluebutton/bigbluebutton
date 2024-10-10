@@ -856,7 +856,8 @@ const reducer = (state, action) => {
         return state;
       }
       const { presentationAreaContentActions } = state;
-      presentationAreaContentActions[presentationAreaContentActions.length - 1].value.open = action.value;
+      presentationAreaContentActions[presentationAreaContentActions.length - 1]
+        .value.open = action.value;
       return {
         ...state,
         input: {
@@ -1317,7 +1318,7 @@ const reducer = (state, action) => {
             ) {
               indexes.push(index);
             }
-          } else if (p.value.content === action.value.content && p.value.open) {
+          } else if (p.value.content === action.value.content) {
             indexes.push(index);
           }
           return indexes;
