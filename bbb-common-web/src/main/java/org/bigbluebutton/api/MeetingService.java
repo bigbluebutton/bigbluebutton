@@ -392,14 +392,13 @@ public class MeetingService implements MessageListener {
 
         String urlString = pluginsManifest.getUrl();
         URL url = new URL(urlString);
-        BufferedReader in = new BufferedReader(new InputStreamReader(url.openStream()));
         StringBuilder content = new StringBuilder();
-        String inputLine;
-
-        while ((inputLine = in.readLine()) != null) {
-          content.append(inputLine).append("\n");
+        try (BufferedReader in = new BufferedReader(new InputStreamReader(url.openStream()))) {
+          String inputLine;
+          while ((inputLine = in.readLine()) != null) {
+            content.append(inputLine).append("\n");
+          }
         }
-        in.close();
 
         // Parse the JSON content
         JsonNode jsonNode = objectMapper.readTree(content.toString());
@@ -432,8 +431,7 @@ public class MeetingService implements MessageListener {
         manifestObject.put("url", urlString);
         String manifestContent = replaceMetaParametersIntoManifestTemplate(content.toString(), metadata);
 
-        ObjectMapper mapper = new ObjectMapper();
-        Map<String, Object> mappedManifestContent = mapper.readValue(manifestContent, new TypeReference<>() {});
+        Map<String, Object> mappedManifestContent = objectMapper.readValue(manifestContent, new TypeReference<>() {});
 
         manifestObject.put("content", mappedManifestContent);
         Map<String, Object> manifestWrapper = new HashMap<String, Object>();
@@ -442,9 +440,9 @@ public class MeetingService implements MessageListener {
         );
         urlContents.put(pluginKey, manifestWrapper);
       } catch(Exception e) {
-        log.info("Failed with the following plugin manifest URL: {}. Error: ",
+        log.error("Failed with the following plugin manifest URL: {}. Error: ",
                 pluginsManifest.getUrl(), e);
-        log.info("Therefore this plugin will not be loaded");
+        log.error("Therefore this plugin will not be loaded");
       }
     }
     return urlContents;
