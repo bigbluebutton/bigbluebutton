@@ -571,7 +571,7 @@ const ChatMessageFormContainer: React.FC = () => {
     if (isPublicChat) {
       locked = (isLocked && disablePublicChat) || false;
     } else {
-      locked = (isLocked && disablePrivateChat) || false;
+      locked = (isLocked && disablePrivateChat && !chat?.participant?.isModerator) || false;
     }
   }
 
