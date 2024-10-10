@@ -517,7 +517,7 @@ class VideoService {
   }
 }
 
-const videoService = new VideoService();
+export const videoService = new VideoService();
 
 export default {
   addCandidateToPeer: VideoService.addCandidateToPeer,
