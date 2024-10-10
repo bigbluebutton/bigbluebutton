@@ -3,7 +3,26 @@ import Auth from '/imports/ui/services/auth';
 import GuestUsers from '/imports/api/guest-users';
 import { makeCall } from '/imports/ui/services/api';
 
-const guestUsersCall = (guestsArray, status) => makeCall('allowPendingUsers', guestsArray, status);
+const sizeOfBatches = 3; // commonly deployments have 3-4 or more instances of bbb-html5-frontend
+const delayForApprovalOfGuests = Meteor.settings.public.app.delayForApprovalOfGuests || 500;
+
+const breakIntoSmallerGroups = (array) => {
+  return array
+  .map((_, index) => {
+    return index % sizeOfBatches === 0 ? array.slice(index, index + sizeOfBatches) : null;
+  })
+  .filter(group => group) // remove null values
+  .map(group => group.filter(item => item !== undefined)); // remove undefined items
+};
+
+async function guestUsersCall(guestsArray, status) {
+  // Processing large arrays (20+ guests) puts a lot of stress on frontends
+  // Here we split the approved guests into batches and space out the batch processing
+  for (const batch of breakIntoSmallerGroups(guestsArray)) {
+    makeCall('allowPendingUsers', batch, status);
+    await new Promise(resolve => setTimeout(resolve, delayForApprovalOfGuests));
+  };
+}
 
 const changeGuestPolicy = (policyRule) => makeCall('changeGuestPolicy', policyRule);
 
