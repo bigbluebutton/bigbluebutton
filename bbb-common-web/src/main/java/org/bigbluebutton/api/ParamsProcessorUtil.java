@@ -482,11 +482,19 @@ public class ParamsProcessorUtil {
         }
 
         String welcomeMessageTemplate = processWelcomeMessage(params.get(ApiParams.WELCOME), isBreakout);
+
+        // Replace newlines with a placeholder (to prevent sanitize functions from removing \n)
+        String placeholder = "NEWLINE_PLACEHOLDER";
+        welcomeMessageTemplate = welcomeMessageTemplate.replace("\n", placeholder);
+
         String welcomeMessage = substituteKeywords(welcomeMessageTemplate,dialNumber, telVoice, meetingName);
         welcomeMessage = sanitizeHtmlRemovingUnsafeTags(welcomeMessage);
         welcomeMessage = welcomeMessage.replace("href=\"event:", "href=\"");
         welcomeMessage = insertBlankTargetToLinks(welcomeMessage);
 
+        // Restore the newlines
+        welcomeMessage = welcomeMessage.replace(placeholder, "\n");
+        
         String internalMeetingId = convertToInternalMeetingId(externalMeetingId);
 
         // Check if this is a test meeting. NOTE: This should not belong here.
@@ -961,7 +969,7 @@ public class ParamsProcessorUtil {
             welcomeMessage = defaultWelcomeMessage;
         }
         if (!StringUtils.isEmpty(defaultWelcomeMessageFooter) && !isBreakout)
-            welcomeMessage += "<br><br>" + defaultWelcomeMessageFooter;
+            welcomeMessage += "\n\n" + defaultWelcomeMessageFooter;
         return welcomeMessage;
     }
 

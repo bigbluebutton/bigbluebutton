@@ -1148,7 +1148,7 @@ HERE
 
 #### Change the default welcome message
 
-The default welcome message is built from three parameters: two system-wide parameters (see below) and the `welcome` parameter from the BigBlueButton `create` API call.
+The default welcome message is built from three parameters: two system-wide parameters (see below) and the `welcomeMessage` parameter from the BigBlueButton `create` API call.
 
 You'll find the two system-wide welcome parameters `defaultWelcomeMessage` and `defaultWelcomeMessageFooter` in `/usr/share/bbb-web/WEB-INF/classes/bigbluebutton.properties`.
 
@@ -1157,11 +1157,13 @@ defaultWelcomeMessage=<default welcome message>
 defaultWelcomeMessageFooter=<default welcome message footer>
 ```
 
-When a front-end creates a BigBlueButton session, it may also pass a `welcome` parameter in the [create](/development/api#create) API call.
+OBS: Welcome messages are now rendered in Markdown format.
 
-The final welcome message shown to the user (as blue text in the Chat window) is a composite of `welcome` + `defaultWelcomeMessage` + `defaultWelcomeMessageFooter`.
+When a front-end creates a BigBlueButton session, it may also pass a `welcomeMessage` parameter in the [create](/development/api#create) API call.
 
-The welcome message is fixed for the duration of a meeting. If you want to see the effect of changing the `welcome` parameter, you must [end](/development/api#end) the current meeting or wait until the BigBlueButton server removes it from memory (which occurs about two minutes after the last person has left). You can overwrite these values in file `/etc/bigbluebutton/bbb-web.properties`, just remember to restart BigBlueButton with `sudo bbb-conf --restart` for the new values to take effect.
+The final welcome message shown to the user (as blue text in the Chat window) is a composite of `welcomeMessage` + `defaultWelcomeMessage` + `defaultWelcomeMessageFooter`.
+
+The welcome message is fixed for the duration of a meeting. If you want to see the effect of changing the `welcomeMessage` parameter, you must [end](/development/api#end) the current meeting or wait until the BigBlueButton server removes it from memory (which occurs about two minutes after the last person has left). You can overwrite these values in file `/etc/bigbluebutton/bbb-web.properties`, just remember to restart BigBlueButton with `sudo bbb-conf --restart` for the new values to take effect.
 
 #### Modify localization for the client (override with the latest locale)
 
