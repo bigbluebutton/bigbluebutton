@@ -407,7 +407,7 @@ public class MeetingService implements MessageListener {
         // Validate checksum if any:
         String paramChecksum = pluginsManifest.getChecksum();
         if (!StringUtils.isEmpty(paramChecksum)) {
-          String hash = DigestUtils.sha1Hex(content.toString());
+          String hash = DigestUtils.sha256Hex(content.toString());
           if (!paramChecksum.equals(hash)) {
             log.info("Plugin's manifest.json checksum mismatch with that of the URL parameter for {}.",
               pluginsManifest.getUrl()
