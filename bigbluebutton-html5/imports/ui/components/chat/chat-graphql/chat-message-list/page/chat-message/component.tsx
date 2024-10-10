@@ -16,9 +16,21 @@ import {
   ChatContent,
   ChatAvatar,
   MessageItemWrapper,
+  Container,
 } from './styles';
-import { ChatMessageType } from '/imports/ui/core/enums/chat';
+import { ChatEvents, ChatMessageType } from '/imports/ui/core/enums/chat';
 import MessageReadConfirmation from './message-read-confirmation/component';
+import ChatMessageToolbar from './message-toolbar/component';
+import ChatMessageReactions from './message-reactions/component';
+import ChatMessageReplied from './message-replied/component';
+import { STORAGES, useStorageKey } from '/imports/ui/services/storage/hooks';
+import useMeeting from '/imports/ui/core/hooks/useMeeting';
+import useCurrentUser from '/imports/ui/core/hooks/useCurrentUser';
+import { layoutSelect } from '/imports/ui/components/layout/context';
+import { Layout } from '/imports/ui/components/layout/layoutTypes';
+import useChat from '/imports/ui/core/hooks/useChat';
+import { GraphqlDataHookSubscriptionResponse } from '/imports/ui/Types/hook';
+import { Chat } from '/imports/ui/Types/chat';
 
 interface ChatMessageProps {
   message: Message;
@@ -63,6 +75,8 @@ function isInViewport(el: HTMLDivElement) {
 
 const messageRef = React.createRef<HTMLDivElement>();
 
+const ANIMATION_DURATION = 2000;
+
 const ChatMesssage: React.FC<ChatMessageProps> = ({
   previousMessage,
   lastSenderPreviousPage,
@@ -72,6 +86,20 @@ const ChatMesssage: React.FC<ChatMessageProps> = ({
   markMessageAsSeen,
   messageReadFeedbackEnabled,
 }) => {
+  const idChatOpen: string = layoutSelect((i: Layout) => i.idChatOpen);
+  const { data: meeting } = useMeeting((m) => ({
+    lockSettings: m?.lockSettings,
+  }));
+  const { data: currentUser } = useCurrentUser((c) => ({
+    isModerator: c?.isModerator,
+    userLockSettings: c?.userLockSettings,
+    locked: c?.locked,
+  }));
+  const { data: chat } = useChat((c: Partial<Chat>) => ({
+    participant: c?.participant,
+    chatId: c?.chatId,
+    public: c?.public,
+  }), idChatOpen) as GraphqlDataHookSubscriptionResponse<Partial<Chat>>;
   const intl = useIntl();
   const markMessageAsSeenOnScrollEnd = useCallback(() => {
     if (messageRef.current && isInViewport(messageRef.current)) {
@@ -79,6 +107,69 @@ const ChatMesssage: React.FC<ChatMessageProps> = ({
     }
   }, [message, messageRef]);
   const messageContentRef = React.createRef<HTMLDivElement>();
+  const [reactions, setReactions] = React.useState<{ id: string, native: string }[]>([]);
+  const chatFocusMessageRequest = useStorageKey(ChatEvents.CHAT_FOCUS_MESSAGE_REQUEST, STORAGES.IN_MEMORY);
+  const containerRef = React.useRef<HTMLDivElement>(null);
+  const animationInitialTimestamp = React.useRef(0);
+
+  const isModerator = currentUser?.isModerator;
+  const isPublicChat = chat?.public;
+  const isLocked = currentUser?.locked || currentUser?.userLockSettings?.disablePublicChat;
+  const disablePublicChat = meeting?.lockSettings?.disablePublicChat
+    || currentUser?.userLockSettings?.disablePublicChat;
+  const disablePrivateChat = meeting?.lockSettings?.disablePrivateChat;
+
+  let locked = false;
+
+  if (!isModerator) {
+    if (isPublicChat) {
+      locked = (isLocked && disablePublicChat) || false;
+    } else {
+      locked = (isLocked && disablePrivateChat) || false;
+    }
+  }
+
+  const startScrollAnimation = (timestamp: number) => {
+    if (scrollRef.current && containerRef.current) {
+      // eslint-disable-next-line no-param-reassign
+      scrollRef.current.scrollTop = containerRef.current.offsetTop;
+    }
+    animationInitialTimestamp.current = timestamp;
+    requestAnimationFrame(animate);
+  };
+
+  useEffect(() => {
+    const handler = (e: Event) => {
+      if (e instanceof CustomEvent) {
+        if (e.detail.sequence === message.messageSequence) {
+          requestAnimationFrame(startScrollAnimation);
+        }
+      }
+    };
+
+    window.addEventListener(ChatEvents.CHAT_FOCUS_MESSAGE_REQUEST, handler);
+
+    return () => {
+      window.removeEventListener(ChatEvents.CHAT_FOCUS_MESSAGE_REQUEST, handler);
+    };
+  }, []);
+
+  useEffect(() => {
+    if (chatFocusMessageRequest === message.messageSequence) {
+      requestAnimationFrame(startScrollAnimation);
+    }
+  }, []);
+
+  const animate = useCallback((timestamp: number) => {
+    if (!containerRef.current) return;
+    const value = (timestamp - animationInitialTimestamp.current) / ANIMATION_DURATION;
+    if (value < 1) {
+      containerRef.current.style.backgroundColor = `rgba(243, 246, 249, ${1 - value})`;
+      requestAnimationFrame(animate);
+    } else {
+      containerRef.current.style.backgroundColor = 'unset';
+    }
+  }, []);
 
   useEffect(() => {
     setMessagesRequestedFromPlugin((messages) => {
@@ -255,38 +346,59 @@ const ChatMesssage: React.FC<ChatMessageProps> = ({
     }
   }, []);
   return (
-    <ChatWrapper
-      isSystemSender={isSystemSender}
-      sameSender={sameSender}
-      ref={messageRef}
-      isPresentationUpload={messageContent.isPresentationUpload}
-      isCustomPluginMessage={isCustomPluginMessage}
-    >
-      {((!message?.user || !sameSender) && (
-        message.messageType !== ChatMessageType.USER_AWAY_STATUS_MSG
+    <Container ref={containerRef}>
+      <ChatWrapper
+        id="chat-message-wrapper"
+        isSystemSender={isSystemSender}
+        sameSender={sameSender}
+        ref={messageRef}
+        isPresentationUpload={messageContent.isPresentationUpload}
+        isCustomPluginMessage={isCustomPluginMessage}
+      >
+        {!isSystemSender && message.user && !locked && (
+          <ChatMessageToolbar
+            messageId={message.messageId}
+            chatId={message.chatId}
+            username={message.user.name}
+            message={message.message}
+            messageSequence={message.messageSequence}
+            emphasizedMessage={message.chatEmphasizedText}
+            onEmojiSelected={(emoji) => {
+              setReactions((prev) => {
+                return [
+                  ...prev,
+                  emoji,
+                ];
+              });
+            }}
+          />
+        )}
+        <ChatMessageReactions reactions={reactions} />
+        {((!message?.user || !sameSender) && (
+          message.messageType !== ChatMessageType.USER_AWAY_STATUS_MSG
         && message.messageType !== ChatMessageType.API
         && message.messageType !== ChatMessageType.CHAT_CLEAR
         && !isCustomPluginMessage)
-      ) && (
-      <ChatAvatar
-        avatar={message.user?.avatar}
-        color={messageContent.color}
-        moderator={messageContent.isModerator}
-      >
-        {!messageContent.avatarIcon ? (
-          !message.user || (message.user?.avatar.length === 0 ? messageContent.name.toLowerCase().slice(0, 2) : '')
-        ) : (
-          <i className={messageContent.avatarIcon} />
+        ) && (
+        <ChatAvatar
+          avatar={message.user?.avatar}
+          color={messageContent.color}
+          moderator={messageContent.isModerator}
+        >
+          {!messageContent.avatarIcon ? (
+            !message.user || (message.user?.avatar.length === 0 ? messageContent.name.toLowerCase().slice(0, 2) : '')
+          ) : (
+            <i className={messageContent.avatarIcon} />
+          )}
+        </ChatAvatar>
         )}
-      </ChatAvatar>
-      )}
-      <ChatContent
-        ref={messageContentRef}
-        sameSender={message?.user ? sameSender : false}
-        isCustomPluginMessage={isCustomPluginMessage}
-        data-chat-message-id={message?.messageId}
-      >
-        {message.messageType !== ChatMessageType.CHAT_CLEAR
+        <ChatContent
+          ref={messageContentRef}
+          sameSender={message?.user ? sameSender : false}
+          isCustomPluginMessage={isCustomPluginMessage}
+          data-chat-message-id={message?.messageId}
+        >
+          {message.messageType !== ChatMessageType.CHAT_CLEAR
           && !isCustomPluginMessage
           && (
             <ChatMessageHeader
@@ -296,16 +408,26 @@ const ChatMesssage: React.FC<ChatMessageProps> = ({
               dateTime={dateTime}
             />
           )}
-        <MessageItemWrapper>
-          {messageContent.component}
-          {messageReadFeedbackEnabled && (
+          {message.replyToMessage && (
+          <ChatMessageReplied
+            message={message.replyToMessage.message}
+            username={message.replyToMessage.user.name}
+            sequence={message.replyToMessage.messageSequence}
+            userColor={message.replyToMessage.user.color}
+            emphasizedMessage={message.replyToMessage.chatEmphasizedText}
+          />
+          )}
+          <MessageItemWrapper>
+            {messageContent.component}
+            {messageReadFeedbackEnabled && (
             <MessageReadConfirmation
               message={message}
             />
-          )}
-        </MessageItemWrapper>
-      </ChatContent>
-    </ChatWrapper>
+            )}
+          </MessageItemWrapper>
+        </ChatContent>
+      </ChatWrapper>
+    </Container>
   );
 };
 

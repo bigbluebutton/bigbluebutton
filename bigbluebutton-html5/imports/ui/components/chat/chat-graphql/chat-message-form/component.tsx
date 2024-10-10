@@ -134,6 +134,7 @@ const ChatMessageForm: React.FC<ChatMessageFormProps> = ({
   const emojiPickerRef = useRef<HTMLDivElement>(null);
   const emojiPickerButtonRef = useRef(null);
   const [isTextAreaFocused, setIsTextAreaFocused] = React.useState(false);
+  const [repliedMessageId, setRepliedMessageId] = React.useState<string>();
   const textAreaRef: RefObject<TextareaAutosize> = useRef<TextareaAutosize>(null);
   const { isMobile } = deviceInfo;
   const prevChatId = usePreviousValue(chatId);
@@ -282,6 +283,21 @@ const ChatMessageForm: React.FC<ChatMessageFormProps> = ({
     }));
   }, [message]);
 
+  useEffect(() => {
+    const handler = (e: Event) => {
+      if (e instanceof CustomEvent) {
+        setRepliedMessageId(e.detail.messageId);
+        textAreaRef.current?.textarea.focus();
+      }
+    };
+
+    window.addEventListener(ChatEvents.CHAT_REPLY_INTENTION, handler);
+
+    return () => {
+      window.removeEventListener(ChatEvents.CHAT_REPLY_INTENTION, handler);
+    };
+  }, []);
+
   const renderForm = () => {
     const formRef = useRef<HTMLFormElement | null>(null);
 
@@ -303,8 +319,20 @@ const ChatMessageForm: React.FC<ChatMessageFormProps> = ({
           variables: {
             chatMessageInMarkdownFormat: msg,
             chatId: chatId === PUBLIC_CHAT_ID ? PUBLIC_GROUP_CHAT_ID : chatId,
+            replyToMessageId: repliedMessageId,
           },
         });
+
+        window.dispatchEvent(
+          new CustomEvent(ChatEvents.CHAT_REPLY_INTENTION, {
+            detail: {
+              username: undefined,
+              message: undefined,
+              messageId: undefined,
+              chatId: undefined,
+            },
+          }),
+        );
       }
       const currentClosedChats = Storage.getItem(CLOSED_CHAT_LIST_KEY);
 

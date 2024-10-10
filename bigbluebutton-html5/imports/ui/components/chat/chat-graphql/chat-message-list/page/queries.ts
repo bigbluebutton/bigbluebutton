@@ -12,6 +12,16 @@ export const CHAT_MESSAGE_PUBLIC_SUBSCRIPTION = gql`
         isModerator
         color
       }
+      messageSequence
+      replyToMessage {
+        chatEmphasizedText
+        messageSequence
+        message
+        user {
+          name
+          color
+        }
+      }
       messageType
       chatEmphasizedText
       chatId

@@ -230,7 +230,6 @@ const ScreenshareButton = ({
                 label={intl.formatMessage(intlMessages[`${info}Label`])}
                 description={intl.formatMessage(intlMessages[`${info}Desc`])}
                 color={amIBroadcasting ? 'primary' : 'default'}
-                ghost={!amIBroadcasting}
                 hideLabel
                 circle
                 size="lg"

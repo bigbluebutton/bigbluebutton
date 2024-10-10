@@ -82,8 +82,7 @@ const ChatListPage: React.FC<ChatListPageProps> = ({
   }, [domElementManipulationIdentifiers, messagesRequestedFromPlugin]);
 
   return (
-    // eslint-disable-next-line react/jsx-filename-extension
-    <div key={`messagePage-${page}`} id={`${page}`}>
+    <React.Fragment key={`messagePage-${page}`}>
       {messages.map((message, index, messagesArray) => {
         const previousMessage = messagesArray[index - 1];
         return (
@@ -101,7 +100,7 @@ const ChatListPage: React.FC<ChatListPageProps> = ({
           />
         );
       })}
-    </div>
+    </React.Fragment>
   );
 };
 

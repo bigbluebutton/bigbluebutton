@@ -39,6 +39,7 @@
     "app.chat.copyErr": "Copy chat transcript failed",
     "app.chat.messageRead": "Message read by the recipient", 
     "app.chat.closePopup": "Close",
+    "app.chat.toolbar.reply": "Reply to message {0}",
     "app.timer.toolTipTimerStopped": "The timer has stopped.",
     "app.timer.toolTipTimerRunning": "The timer is running.",
     "app.timer.toolTipStopwatchStopped": "The stopwatch has stopped.",

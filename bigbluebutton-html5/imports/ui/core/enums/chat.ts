@@ -1,5 +1,7 @@
 export const enum ChatEvents {
   SENT_MESSAGE = 'sentMessage',
+  CHAT_FOCUS_MESSAGE_REQUEST = 'ChatFocusMessageRequest',
+  CHAT_REPLY_INTENTION = 'ChatReplyIntention',
 }
 
 export const enum ChatCommands {
