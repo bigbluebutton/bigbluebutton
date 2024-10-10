@@ -18,7 +18,6 @@ const ReactionsButtonContainer = ({ ...props }) => {
   const isMobile = browserWidth <= SMALL_VIEWPORT_BREAKPOINT;
 
   const { data: currentUserData } = useCurrentUser((user) => ({
-    raiseHand: user.raiseHand,
     away: user.away,
     voice: user.voice,
     reactionEmoji: user.reactionEmoji,
@@ -27,7 +26,6 @@ const ReactionsButtonContainer = ({ ...props }) => {
 
   const currentUser = {
     userId: Auth.userID,
-    raiseHand: currentUserData?.raiseHand,
     away: currentUserData?.away,
     muted: !unmutedUsers[Auth.userID],
   };
