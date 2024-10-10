@@ -172,7 +172,7 @@ class MeetingActor(
   outGW.send(msgEvent)
 
   //Insert meeting into the database
-  MeetingDAO.insert(liveMeeting.props, liveMeeting.clientSettings)
+  MeetingDAO.insert(liveMeeting.props, liveMeeting.clientSettings, liveMeeting.plugins)
 
   // Create a default public group chat
   state = groupChatApp.handleCreateDefaultPublicGroupChat(state, liveMeeting, msgBus)
@@ -725,6 +725,8 @@ class MeetingActor(
       case m: PluginDataChannelReplaceEntryMsg => pluginHdlrs.handle(m, state, liveMeeting)
       case m: PluginDataChannelDeleteEntryMsg  => pluginHdlrs.handle(m, state, liveMeeting)
       case m: PluginDataChannelResetMsg        => pluginHdlrs.handle(m, state, liveMeeting)
+
+      case m: PluginPersistEventMsg            => pluginHdlrs.handle(m, state, liveMeeting, msgBus)
 
       // Webcams
       case m: UserBroadcastCamStartMsg =>

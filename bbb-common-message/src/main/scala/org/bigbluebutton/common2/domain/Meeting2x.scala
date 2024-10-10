@@ -1,5 +1,7 @@
 package org.bigbluebutton.common2.domain
 
+import java.util
+
 case class DurationProps(duration: Int, createdTime: Long, createdDate: String,
                          meetingExpireIfNoUserJoinedInMinutes: Int, meetingExpireWhenLastUserLeftInMinutes: Int,
                          userInactivityInspectTimerInMinutes: Int, userInactivityThresholdInMinutes: Int,
@@ -85,6 +87,7 @@ case class GroupProps(
 )
 
 case class DefaultProps(
+    pluginProp:        util.Map[String, AnyRef],
     meetingProp:       MeetingProp,
     breakoutProps:     BreakoutProps,
     durationProps:     DurationProps,
