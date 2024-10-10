@@ -6,7 +6,7 @@ const PluginLoaderManager = (props: PluginLoaderManagerProps) => {
   const {
     uuid,
     containerRef,
-    loadedPlugins,
+    setNumberOfLoadedPlugins,
     setLastLoadedPlugin,
     pluginConfig: plugin,
   } = props;
@@ -22,7 +22,7 @@ const PluginLoaderManager = (props: PluginLoaderManagerProps) => {
 
     const script: HTMLScriptElement = document.createElement('script');
     script.onload = () => {
-      loadedPlugins.current += 1;
+      setNumberOfLoadedPlugins((current) => current + 1);
       setLastLoadedPlugin(script);
       logger.info({
         logCode: 'plugin_loaded',
@@ -40,8 +40,8 @@ const PluginLoaderManager = (props: PluginLoaderManagerProps) => {
     script.src = plugin.url;
     script.setAttribute('uuid', div.id);
     script.setAttribute('pluginName', plugin.name);
-    if (plugin.checksum) {
-      script.setAttribute('integrity', plugin.checksum);
+    if (plugin.javascriptEntrypointIntegrity) {
+      script.setAttribute('integrity', plugin.javascriptEntrypointIntegrity);
     }
     document.head.appendChild(script);
   }, [plugin, containerRef]);
