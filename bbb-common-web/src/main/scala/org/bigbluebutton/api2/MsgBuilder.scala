@@ -6,7 +6,7 @@ import org.bigbluebutton.api.messaging.messages.{ ChatMessageFromApi, RegisterUs
 import org.bigbluebutton.api2.meeting.RegisterUser
 import org.bigbluebutton.common2.domain.{ DefaultProps, PageVO, PresentationPageConvertedVO, PresentationVO }
 import org.bigbluebutton.common2.msgs._
-import org.bigbluebutton.common2.util.UrlvalidationUtil
+import org.bigbluebutton.common2.util.UrlValidationUtil
 import org.bigbluebutton.presentation.messages._
 
 import java.io.{ BufferedReader, InputStreamReader }
@@ -49,8 +49,8 @@ object MsgBuilder {
     // Check whether the logout Url is not empty and a valid url.
     // If not leave logoutUrl empty. An empty logoutUrl will fallback to the
     // meeting logoutUrl.
-    val logoutUrl = ""
-    if (!logoutUrl.isEmpty && UrlvalidationUtil.isValidUrl(msg.logoutUrl)) {
+    var logoutUrl = ""
+    if (msg.logoutUrl != null && !msg.logoutUrl.isEmpty && UrlValidationUtil.isValidUrl(msg.logoutUrl)) {
       logoutUrl = msg.logoutUrl
     }
     val routing = collection.immutable.HashMap("sender" -> "bbb-web")

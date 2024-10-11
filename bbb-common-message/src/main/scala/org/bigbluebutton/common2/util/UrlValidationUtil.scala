@@ -2,13 +2,15 @@ package org.bigbluebutton.common2.util
 
 import java.net.URL
 
-object UrlvalidationUtil {
+object UrlValidationUtil {
   def isValidUrl(url: String): Boolean = {
+    if (url == null) return false
     try {
-      new URL(url)
-      true
+      val parsedUrl = new URL(url)
+      val protocol = parsedUrl.getProtocol
+      protocol == "http" || protocol == "https"
     } catch {
-      case _: Exception => false
+      case _: MalformedURLException => false
     }
   }
 }

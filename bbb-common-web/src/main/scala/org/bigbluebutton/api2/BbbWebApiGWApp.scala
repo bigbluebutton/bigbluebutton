@@ -12,7 +12,7 @@ import org.bigbluebutton.common2.redis.MessageSender
 import org.bigbluebutton.api2.meeting.{OldMeetingMsgHdlrActor, RegisterUser}
 import org.bigbluebutton.common2.domain._
 import org.bigbluebutton.common2.util.JsonUtil
-import org.bigbluebutton.common2.util.UrlvalidationUtil
+import org.bigbluebutton.common2.util.UrlValidationUtil
 import org.bigbluebutton.presentation.messages._
 
 import scala.concurrent.duration._
@@ -296,7 +296,7 @@ class BbbWebApiGWApp(
     //     guest = guest, authed = authed)
 
     // Check whether the logout Url is either empty or a valid url.
-    require(logoutUrl.isEmpty || UrlvalidationUtil.isValidUrl(logoutUrl), "Invalid logout URL provided")
+    require(logoutUrl.isEmpty || UrlValidationUtil.isValidUrl(logoutUrl), "Invalid logout URL provided")
 
     val regUser = new RegisterUser(meetingId = meetingId, intUserId = intUserId, name = name,
       role = role, extUserId = extUserId, authToken = authToken, sessionToken = sessionToken,

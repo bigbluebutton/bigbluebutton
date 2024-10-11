@@ -56,7 +56,7 @@ object FakeUserGenerator {
     val webcamBackgroundURL = "https://www." + RandomStringGenerator.randomAlphanumericString(32) + ".com/" +
       RandomStringGenerator.randomAlphanumericString(10) + ".jpg"
     val color = "#ff6242"
-    val logoutUrl = val avatarURL = "https://www." + RandomStringGenerator.randomAlphanumericString(32) + ".com/";
+    val logoutUrl = "https://www." + RandomStringGenerator.randomAlphanumericString(32) + ".com/";
 
     val ru = RegisteredUsers.create(meetingId, userId = id, extId, name, role,
       authToken, Vector(sessionToken), avatarURL, webcamBackgroundURL, color, guest, authed, guestStatus = GuestStatus.ALLOW, false, "", logoutUrl, Map(), false)
