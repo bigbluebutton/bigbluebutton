@@ -768,6 +768,8 @@ public:
     # e.g.: disableEmojis: ['grin','laughing']
     disableEmojis: []
     allowedElements: ['a', 'code', 'em', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'li', 'ol', 'ul', 'p', 'strong']
+    # available options for toolbar: reply
+    toolbar: []
   userReaction:
     enabled: true
     expire: 30

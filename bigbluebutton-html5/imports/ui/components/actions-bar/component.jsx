@@ -71,7 +71,6 @@ class ActionsBar extends PureComponent {
   renderReactionsButton() {
     return (
       <>
-        <Styled.Separator />
         <ReactionsButtonContainer actionsBarRef={this.actionsBarRef} />
       </>
     );

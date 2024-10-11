@@ -16,6 +16,7 @@ import MediaService from '../media/service';
 import {
   CURRENT_PRESENTATION_PAGE_SUBSCRIPTION,
   CURRENT_PAGE_WRITERS_SUBSCRIPTION,
+  CURRENT_PAGE_ANNOTATIONS_STREAM,
 } from '/imports/ui/components/whiteboard/queries';
 import POLL_SUBSCRIPTION from '/imports/ui/core/graphql/queries/pollSubscription';
 import useMeeting from '/imports/ui/core/hooks/useMeeting';
@@ -29,11 +30,31 @@ import { SETTINGS } from '/imports/ui/services/settings/enums';
 const fetchedpresentation = {};
 
 const PresentationContainer = (props) => {
+  const { presentationIsOpen } = props;
+  const layoutContextDispatch = layoutDispatch();
   const { selectedLayout } = useSettings(SETTINGS.APPLICATION);
 
   const { data: presentationPageData } = useDeduplicatedSubscription(
     CURRENT_PRESENTATION_PAGE_SUBSCRIPTION,
   );
+
+  const { data: annotationStreamData } = useDeduplicatedSubscription(
+    CURRENT_PAGE_ANNOTATIONS_STREAM,
+    {
+      variables: { lastUpdatedAt: new Date(0).toISOString() },
+    },
+  );
+
+  useEffect(() => {
+    if (
+      (
+        annotationStreamData?.pres_annotation_curr_stream
+        && annotationStreamData.pres_annotation_curr_stream.length > 0)
+      && !presentationIsOpen) {
+      MediaService.setPresentationIsOpen(layoutContextDispatch, true);
+    }
+  }, [annotationStreamData]);
+
   const { pres_page_curr: presentationPageArray } = (presentationPageData || {});
   const currentPresentationPage = presentationPageArray && presentationPageArray[0];
   const slideSvgUrl = currentPresentationPage && currentPresentationPage.svgUrl;
@@ -176,13 +197,11 @@ const PresentationContainer = (props) => {
     }
   }
 
-  const { presentationIsOpen } = props;
-
   const cameraDock = layoutSelectInput((i) => i.cameraDock);
   const presentation = layoutSelectOutput((i) => i.presentation);
   const fullscreen = layoutSelect((i) => i.fullscreen);
   const deviceType = layoutSelect((i) => i.deviceType);
-  const layoutContextDispatch = layoutDispatch();
+  const layoutType = layoutSelect((i) => i.layoutType);
 
   const { numCameras } = cameraDock;
   const { element } = fullscreen;
@@ -202,6 +221,8 @@ const PresentationContainer = (props) => {
     presentationAreaWidth: presentation?.width,
     presentationAreaHeight: presentation?.height,
   };
+
+  if (layoutType === 'videoFocus' && presentation?.width === 0) return null;
 
   return (
     <Presentation

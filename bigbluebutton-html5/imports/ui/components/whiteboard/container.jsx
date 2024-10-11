@@ -36,7 +36,6 @@ import deviceInfo from '/imports/utils/deviceInfo';
 import Whiteboard from './component';
 
 import useCurrentUser from '/imports/ui/core/hooks/useCurrentUser';
-import useMeeting from '/imports/ui/core/hooks/useMeeting';
 import {
   PRESENTATION_SET_ZOOM,
   PRES_ANNOTATION_DELETE,
@@ -49,6 +48,7 @@ import useDeduplicatedSubscription from '../../core/hooks/useDeduplicatedSubscri
 import MediaService from '/imports/ui/components/media/service';
 import getFromUserSettings from '/imports/ui/services/users-settings';
 import { debounce } from '/imports/utils/debounce';
+import useLockContext from '/imports/ui/components/lock-viewers/hooks/useLockContext';
 
 const FORCE_RESTORE_PRESENTATION_ON_NEW_EVENTS = 'bbb_force_restore_presentation_on_new_events';
 
@@ -65,9 +65,8 @@ const WhiteboardContainer = (props) => {
   const [shapes, setShapes] = useState({});
   const [currentPresentationPage, setCurrentPresentationPage] = useState(null);
 
-  const meeting = useMeeting((m) => ({
-    lockSettings: m?.lockSettings,
-  }));
+  const { userLocks } = useLockContext();
+
   const { data: currentUser } = useCurrentUser((user) => ({
     presenter: user.presenter,
     isModerator: user.isModerator,
@@ -379,7 +378,7 @@ const WhiteboardContainer = (props) => {
       meetingId={Auth.meetingID}
       publishCursorUpdate={throttledPublishCursorUpdate}
       otherCursors={cursorArray}
-      hideViewersCursor={meeting?.data?.lockSettings?.hideViewersCursor}
+      hideViewersCursor={userLocks?.hideViewersCursor}
     />
   );
 };
