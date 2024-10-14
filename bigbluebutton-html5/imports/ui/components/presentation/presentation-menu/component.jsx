@@ -459,13 +459,13 @@ const PresentationMenu = (props) => {
     return null;
   }
 
-  const whiteboardMenuOnRight = getFromUserSettings('bbb_whiteboard_menu_on_right', false);
+  const whiteboardMenuSide = getFromUserSettings('bbb_whiteboard_menu_side', 'left');
 
   return (
-    whiteboardMenuOnRight ? (
+    whiteboardMenuSide === 'right' ? (
       <Styled.Right
         id="WhiteboardOptionButton"
-        isMenuOnRight={whiteboardMenuOnRight}
+        whiteboardMenuSide={whiteboardMenuSide}
       >
         <BBBMenu
           trigger={(
