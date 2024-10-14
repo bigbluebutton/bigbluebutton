@@ -173,8 +173,8 @@ SELECT "meeting_usersPolicies"."meetingId",
 
 create table "meeting_metadata" (
 	"meetingId" 		varchar(100) references "meeting"("meetingId") ON DELETE CASCADE,
-    "name"              varchar(100),
-    "value"             varchar(100),
+    "name"              varchar(255),
+    "value"             varchar(1000),
     CONSTRAINT "meeting_metadata_pkey" PRIMARY KEY ("meetingId","name")
 );
 create index "idx_meeting_metadata_meetingId" on "meeting_metadata"("meetingId");
@@ -510,7 +510,7 @@ create table "user_metadata"(
     "meetingId" varchar(100),
     "userId" varchar(50),
 	"parameter" varchar(255),
-	"value" varchar(255),
+	"value" varchar(1000),
 	CONSTRAINT "user_metadata_pkey" PRIMARY KEY ("meetingId", "userId","parameter"),
 	FOREIGN KEY ("meetingId", "userId") REFERENCES "user"("meetingId","userId") ON DELETE CASCADE
 );
