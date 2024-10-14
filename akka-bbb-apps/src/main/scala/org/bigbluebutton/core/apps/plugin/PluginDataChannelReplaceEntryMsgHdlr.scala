@@ -54,8 +54,8 @@ trait PluginDataChannelReplaceEntryMsgHdlr extends HandlerHelpers {
                 )
               }
             case None => println(s"Data channel '${msg.body.channelName}' not found in plugin '${msg.body.pluginName}'.")
-            case None => println(s"Plugin '${msg.body.pluginName}' not found.")
           }
+        case None => println(s"Plugin '${msg.body.pluginName}' not found.")
       }
     }
   }
