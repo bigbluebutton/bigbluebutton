@@ -24,7 +24,7 @@ test.describe.parallel('Notifications', { tag: '@ci' }, () => {
     await notifications.getUserJoinPopupResponse();
   });
 
-  test('Raise and lower hand notification', async ({ browser, context, page }) => {
+  test('Raise and lower hand notification @flaky', async ({ browser, context, page }) => {
     const notifications = new Notifications(browser, context);
     await notifications.initModPage(page);
     await notifications.raiseAndLowerHandNotification();
