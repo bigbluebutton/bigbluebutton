@@ -102,6 +102,7 @@ public class ParamsProcessorUtil {
     private boolean defaultAllowModsToUnmuteUsers = false;
     private boolean defaultAllowModsToEjectCameras = false;
     private String defaultDisabledFeatures;
+    private String defaultPluginsManifests;
     private boolean defaultNotifyRecordingIsOn = false;
     private boolean defaultKeepEvents = false;
     private Boolean useDefaultLogo;
@@ -430,25 +431,23 @@ public class ParamsProcessorUtil {
         return groups;
     }
 
-    private ArrayList<PluginsManifest> processPluginsManifestsParams(Map<String, String> params) {
+    private ArrayList<PluginsManifest> processPluginsManifests(String pluginsManifestsParam) {
         ArrayList<PluginsManifest> pluginsManifests = new ArrayList<PluginsManifest>();
-        String pluginsManifestParams = params.get(ApiParams.PLUGINS_MANIFESTS);
-        if (!StringUtils.isEmpty(pluginsManifestParams)) {
-            JsonElement pluginsManifestsJsonElement = new Gson().fromJson(pluginsManifestParams, JsonElement.class);
 
-            if(pluginsManifestsJsonElement != null && pluginsManifestsJsonElement.isJsonArray()) {
-                JsonArray pluginsManifestsJson = pluginsManifestsJsonElement.getAsJsonArray();
-                for (JsonElement pluginsManifestJson : pluginsManifestsJson) {
-                    if(pluginsManifestJson.isJsonObject()) {
-                        JsonObject pluginsManifestJsonObj = pluginsManifestJson.getAsJsonObject();
-                        if(pluginsManifestJsonObj.has("url")) {
-                            String url = pluginsManifestJsonObj.get("url").getAsString();
-                            PluginsManifest newPlugin = new PluginsManifest(url);
-                            if(pluginsManifestJsonObj.has("checksum")) {
-                                newPlugin.setChecksum(pluginsManifestJsonObj.get("checksum").getAsString());
-                            }
-                            pluginsManifests.add(newPlugin);
+        JsonElement pluginsManifestsJsonElement = new Gson().fromJson(pluginsManifestsParam, JsonElement.class);
+
+        if(pluginsManifestsJsonElement != null && pluginsManifestsJsonElement.isJsonArray()) {
+            JsonArray pluginsManifestsJson = pluginsManifestsJsonElement.getAsJsonArray();
+            for (JsonElement pluginsManifestJson : pluginsManifestsJson) {
+                if(pluginsManifestJson.isJsonObject()) {
+                    JsonObject pluginsManifestJsonObj = pluginsManifestJson.getAsJsonObject();
+                    if(pluginsManifestJsonObj.has("url")) {
+                        String url = pluginsManifestJsonObj.get("url").getAsString();
+                        PluginsManifest newPlugin = new PluginsManifest(url);
+                        if(pluginsManifestJsonObj.has("checksum")) {
+                            newPlugin.setChecksum(pluginsManifestJsonObj.get("checksum").getAsString());
                         }
+                        pluginsManifests.add(newPlugin);
                     }
                 }
             }
@@ -565,9 +564,6 @@ public class ParamsProcessorUtil {
         listOfDisabledFeatures.replaceAll(String::trim);
         listOfDisabledFeatures = new ArrayList<>(new HashSet<>(listOfDisabledFeatures));
 
-        // Process Plugin Manifest Urls
-        ArrayList<PluginsManifest> listOfPluginsManifests = processPluginsManifestsParams(params);
-
         // Check Disabled Features Exclude list -- passed as a CREATE parameter to cancel the disabling (typically from bbb-web's properties file)
         ArrayList<String> listOfDisabledFeaturesExclude = new ArrayList<>();
         if (!StringUtils.isEmpty(params.get(ApiParams.DISABLED_FEATURES_EXCLUDE))) {
@@ -576,6 +572,20 @@ public class ParamsProcessorUtil {
             listOfDisabledFeaturesExclude.removeAll(Arrays.asList("", null));
             listOfDisabledFeaturesExclude.replaceAll(String::trim);
             listOfDisabledFeatures.removeAll(Arrays.asList(disabledFeaturesExcludeParam.split(",")));
+        }
+
+        // Parse Plugins Manifests from config and param
+        ArrayList<PluginsManifest> listOfPluginsManifests = new ArrayList<PluginsManifest>();
+        //Process plugins from config
+        if(defaultPluginsManifests != null && !defaultPluginsManifests.isEmpty()) {
+            ArrayList<PluginsManifest> pluginsManifestsFromConfig = processPluginsManifests(defaultPluginsManifests);
+            listOfPluginsManifests.addAll(pluginsManifestsFromConfig);
+        }
+        //Process plugins from /create param
+        String pluginsManifestsParam = params.get(ApiParams.PLUGINS_MANIFESTS);
+        if (!StringUtils.isEmpty(pluginsManifestsParam)) {
+            ArrayList<PluginsManifest> pluginsManifestsFromParam = processPluginsManifests(pluginsManifestsParam);
+            listOfPluginsManifests.addAll(pluginsManifestsFromParam);
         }
 
         // Check if VirtualBackgrounds is disabled
@@ -1603,36 +1613,40 @@ public class ParamsProcessorUtil {
 		this.defaultEndWhenNoModerator = val;
 	}
 
-  public void setEndWhenNoModeratorDelayInMinutes(Integer value) {
-      this.defaultEndWhenNoModeratorDelayInMinutes = value;
-  }
+	public void setEndWhenNoModeratorDelayInMinutes(Integer value) {
+		this.defaultEndWhenNoModeratorDelayInMinutes = value;
+	}
 
-  public void setDisabledFeatures(String disabledFeatures) {
-        this.defaultDisabledFeatures = disabledFeatures;
-    }
+	public void setDisabledFeatures(String disabledFeatures) {
+		this.defaultDisabledFeatures = disabledFeatures;
+	}
 
-  public void setNotifyRecordingIsOn(Boolean notifyRecordingIsOn) {
-      this.defaultNotifyRecordingIsOn = notifyRecordingIsOn;
-  }
+	public void setPluginsManifests(String pluginsManifests) {
+		this.defaultPluginsManifests = pluginsManifests;
+	}
 
-  public void setPresentationUploadExternalDescription(String presentationUploadExternalDescription) {
-    this.defaultPresentationUploadExternalDescription = presentationUploadExternalDescription;
-  }
+	public void setNotifyRecordingIsOn(Boolean notifyRecordingIsOn) {
+		this.defaultNotifyRecordingIsOn = notifyRecordingIsOn;
+	}
 
-  public void setPresentationUploadExternalUrl(String presentationUploadExternalUrl) {
-    this.defaultPresentationUploadExternalUrl = presentationUploadExternalUrl;
-  }
+	public void setPresentationUploadExternalDescription(String presentationUploadExternalDescription) {
+		this.defaultPresentationUploadExternalDescription = presentationUploadExternalDescription;
+	}
 
-  public void setBbbVersion(String version) {
+	public void setPresentationUploadExternalUrl(String presentationUploadExternalUrl) {
+		this.defaultPresentationUploadExternalUrl = presentationUploadExternalUrl;
+	}
+
+	public void setBbbVersion(String version) {
       this.bbbVersion = this.allowRevealOfBBBVersion ? version : "";
-  }
+	}
 
-  public void setAllowRevealOfBBBVersion(Boolean allowVersion) {
-    this.allowRevealOfBBBVersion = allowVersion;
-  }
+	public void setAllowRevealOfBBBVersion(Boolean allowVersion) {
+		this.allowRevealOfBBBVersion = allowVersion;
+	}
 
-  public void setAllowOverrideClientSettingsOnCreateCall(Boolean allowOverrideClientSettingsOnCreateCall) {
-    this.allowOverrideClientSettingsOnCreateCall = allowOverrideClientSettingsOnCreateCall;
-  }
+	public void setAllowOverrideClientSettingsOnCreateCall(Boolean allowOverrideClientSettingsOnCreateCall) {
+		this.allowOverrideClientSettingsOnCreateCall = allowOverrideClientSettingsOnCreateCall;
+	}
 
 }
