@@ -39,7 +39,6 @@
     "app.chat.copyErr": "チャットのやりとりのコピーに失敗しました",
     "app.chat.messageRead": "メッセージら既読になりました", 
     "app.chat.closePopup": "閉じる",
-    "app.chat.toolbar.reply": "{0} のメッセージに返事をする",
     "app.timer.toolTipTimerStopped": "タイマーを止めました。",
     "app.timer.toolTipTimerRunning": "タイマーは動いています。",
     "app.timer.toolTipStopwatchStopped": "ストップウォッチを止めました。",
