@@ -39,7 +39,6 @@
     "app.chat.copyErr": "Produciuse un erro ao copiar a parola transcrita",
     "app.chat.messageRead": "Mensaxe lida polo destinatario", 
     "app.chat.closePopup": "Pechar",
-    "app.chat.toolbar.reply": "Responder á mensaxe {0}",
     "app.timer.toolTipTimerStopped": "O temporizador detívose.",
     "app.timer.toolTipTimerRunning": "O temporizador está en marcha.",
     "app.timer.toolTipStopwatchStopped": "O cronómetro detívose.",
