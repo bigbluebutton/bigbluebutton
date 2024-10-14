@@ -15,6 +15,8 @@ import {
   userListBg,
   colorSuccess,
   colorOffWhite,
+  colorText,
+  palettePlaceholderText,
 } from '/imports/ui/stylesheets/styled-components/palette';
 
 import Header from '/imports/ui/components/common/control-header/component';
@@ -24,11 +26,15 @@ interface ChatWrapperProps {
   isSystemSender: boolean;
   isPresentationUpload?: boolean;
   isCustomPluginMessage: boolean;
+  $highlight: boolean;
+  $toolbarMenuIsOpen: boolean;
 }
 
 interface ChatContentProps {
   sameSender: boolean;
   isCustomPluginMessage: boolean;
+  $highlight: boolean;
+  $toolbarMenuIsOpen: boolean;
 }
 
 interface ChatAvatarProps {
@@ -75,10 +81,14 @@ export const ChatWrapper = styled.div<ChatWrapperProps>`
     margin: 0;
     padding: 0;
   `}
-  ${({ sameSender }) => !sameSender && `
+  ${({ sameSender, $highlight }) => !sameSender && $highlight && `
     &:hover {
       background-color: ${colorOffWhite};
     }
+    border-radius: 6px;
+  `}
+  ${({ sameSender, $toolbarMenuIsOpen }) => !sameSender && $toolbarMenuIsOpen && `
+    background-color: ${colorOffWhite};
     border-radius: 6px;
   `}
 `;
@@ -93,10 +103,15 @@ export const ChatContent = styled.div<ChatContentProps>`
     margin-left: 2.6rem;
   `}
 
-  ${({ sameSender }) => sameSender && `
+  ${({ sameSender, $highlight }) => sameSender && $highlight && `
     &:hover {
       background-color: ${colorOffWhite};
     }
+    border-radius: 6px;
+  `}
+
+  ${({ sameSender, $toolbarMenuIsOpen }) => sameSender && $toolbarMenuIsOpen && `
+    background-color: ${colorOffWhite};
     border-radius: 6px;
   `}
 `;
@@ -199,4 +214,21 @@ export const Container = styled.div`
 export const MessageItemWrapper = styled.div`
   display: flex;
   flex-direction: row;
+`;
+
+export const DeleteMessage = styled.span`
+  font-style: italic;
+  font-weight: bold;
+  color: ${colorText};
+`;
+
+export const ChatEditTime = styled.time`
+  flex-shrink: 1;
+  flex-grow: 0;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  overflow: hidden;
+  min-width: 0;
+  font-size: 75%;
+  color: ${palettePlaceholderText};
 `;

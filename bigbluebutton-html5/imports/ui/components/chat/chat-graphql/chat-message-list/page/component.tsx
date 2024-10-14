@@ -50,6 +50,7 @@ const areChatPagesEqual = (prevProps: ChatListPageProps, nextProps: ChatListPage
       && prevMessage.createdAt === nextMessage.createdAt
       && prevMessage?.user?.currentlyInMeeting === nextMessage?.user?.currentlyInMeeting
       && prevMessage?.recipientHasSeen === nextMessage?.recipientHasSeen
+      && prevMessage?.message === nextMessage?.message
     );
   });
 };
@@ -129,7 +130,7 @@ const ChatListPageContainer: React.FC<ChatListPageContainerProps> = ({
     ? defaultVariables : { ...defaultVariables, requestedChatId: chatId };
   const isPrivateReadFeedbackEnabled = !isPublicChat && PRIVATE_MESSAGE_READ_FEEDBACK_ENABLED;
 
-  const useChatMessageSubscription = useCreateUseSubscription<Message>(chatQuery, variables, true);
+  const useChatMessageSubscription = useCreateUseSubscription<Message>(chatQuery, variables);
   const {
     data: chatMessageData,
   } = useChatMessageSubscription((msg) => msg) as GraphqlDataHookSubscriptionResponse<Message[]>;
