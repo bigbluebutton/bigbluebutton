@@ -60,10 +60,43 @@ const Left = styled.div`
     justify-content: center;
   }
 
-  [dir="rtl"] & {
-    right: 2px;
-    left: auto;
+  ${({ isMenuOnRight }) => !isMenuOnRight && `
+    [dir="rtl"] &{
+      right: 2px;
+      left: auto;
+    }
+  `}
+`;
+
+const Right = styled.div`
+  cursor: pointer;
+  position: absolute;
+  right: 2px;
+  top: 2px;
+  z-index: 999;
+
+  > div {
+    width: 50px;
+    height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
   }
+
+  button {
+    height: 100%;
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  ${({ isMenuOnRight }) => !isMenuOnRight && `
+    [dir="rtl"] &{
+      right: 2px;
+      left: auto;
+    }
+  `}
 `;
 
 const ToastText = styled.span`
@@ -147,6 +180,7 @@ const ButtonIcon = styled(Icon)`
 export default {
   DropdownButton,
   Left,
+  Right,
   ToastText,
   StatusIcon,
   ToastIcon,
