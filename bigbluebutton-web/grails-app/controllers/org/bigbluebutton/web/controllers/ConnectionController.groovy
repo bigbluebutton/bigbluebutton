@@ -102,12 +102,12 @@ class ConnectionController {
         UserSessionBasicData removedUserSession = meetingService.getRemovedUserSessionWithSessionToken(sessionToken)
         if(removedUserSession) {
           response.addHeader("Meeting-Id", removedUserSession.meetingId)
-          response.addHeader("Meeting-External-Id", userSession.externMeetingID)
-          response.addHeader("User-Id", userSession.internalUserId)
-          response.addHeader("User-External-Id", userSession.externUserID)
-          response.addHeader("User-Name", URLEncoder.encode(userSession.fullname, StandardCharsets.UTF_8.name()))
-          response.addHeader("User-Is-Moderator", u && u.isModerator() ? "true" : "false")
-          response.addHeader("User-Is-Presenter", u && u.isPresenter() ? "true" : "false")
+          response.addHeader("Meeting-External-Id", removedUserSession.externMeetingID)
+          response.addHeader("User-Id", removedUserSession.internalUserId)
+          response.addHeader("User-External-Id", removedUserSession.externUserID)
+          response.addHeader("User-Name", URLEncoder.encode(removedUserSession.fullname, StandardCharsets.UTF_8.name()))
+          response.addHeader("User-Is-Moderator", removedUserSession.isModerator() ? "true" : "false")
+          response.addHeader("User-Is-Presenter", "false")
           response.setStatus(200)
           withFormat {
             json {
