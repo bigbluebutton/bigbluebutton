@@ -119,6 +119,7 @@ const UserActions: React.FC<UserActionProps> = (props) => {
   const intl = useIntl();
   const enableVideoMenu = window.meetingClientSettings.public.kurento.enableVideoMenu || false;
   const { isFirefox } = browserInfo;
+  const isIphone = !!(navigator.userAgent.match(/iPhone/i));
 
   const [setCameraPinned] = useMutation(SET_CAMERA_PINNED);
   const pinEnabledForCurrentUser = useIsVideoPinEnabledForCurrentUser(amIModerator);
@@ -144,7 +145,7 @@ const UserActions: React.FC<UserActionProps> = (props) => {
     const disabledCams = (Session.getItem('disabledCams') || []) as string[];
     const isCameraDisabled = Array.isArray(disabledCams) && disabledCams?.includes(cameraId);
     const enableSelfCamIntlKey = !isCameraDisabled ? 'disable' : 'enable';
-    const ALLOW_FULLSCREEN = window.meetingClientSettings.public.app.allowFullscreen;
+    const ALLOW_FULLSCREEN = !isIphone ? window.meetingClientSettings.public.app.allowFullscreen : false;
 
     const menuItems = [];
 
