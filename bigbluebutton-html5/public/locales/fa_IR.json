@@ -39,7 +39,6 @@
     "app.chat.copyErr": "رونوشت از ترانوشت گپ با خطا مواجه شد",
     "app.chat.messageRead": "پیام توسط گیرنده خوانده شده", 
     "app.chat.closePopup": "بستن",
-    "app.chat.toolbar.reply": "پاسخ به پیام  {0}",
     "app.timer.toolTipTimerStopped": "شمارش معکوس متوقف شده است",
     "app.timer.toolTipTimerRunning": "شمارش معکوس درحال اجراست.",
     "app.timer.toolTipStopwatchStopped": "زمان‌سنج متوقف شده است",
