@@ -2,6 +2,7 @@ package org.bigbluebutton.core.apps.plugin
 
 import org.bigbluebutton.ClientSettings
 import org.bigbluebutton.common2.msgs.PluginDataChannelResetMsg
+import org.bigbluebutton.core.apps.plugin.PluginHdlrHelpers.checkPermission
 import org.bigbluebutton.core.db.PluginDataChannelEntryDAO
 import org.bigbluebutton.core.domain.MeetingState2x
 import org.bigbluebutton.core.models.{ PluginModel, Roles, Users2x }
@@ -21,16 +22,7 @@ trait PluginDataChannelResetMsgHdlr extends HandlerHelpers {
         case Some(p) =>
           p.manifest.content.dataChannels.getOrElse(List()).find(dc => dc.name == msg.body.channelName) match {
             case Some(dc) =>
-              val hasPermission = for {
-                replaceOrDeletePermission <- dc.replaceOrDeletePermission
-              } yield {
-                replaceOrDeletePermission.toLowerCase match {
-                  case "all"       => true
-                  case "moderator" => user.role == Roles.MODERATOR_ROLE
-                  case "presenter" => user.presenter
-                  case _           => false
-                }
-              }
+              val hasPermission = checkPermission(user, dc.replaceOrDeletePermission)
 
               if (!hasPermission.contains(true)) {
                 println(s"No permission to delete (reset) in plugin: '${msg.body.pluginName}', data channel: '${msg.body.channelName}'.")

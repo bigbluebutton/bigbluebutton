@@ -1,6 +1,7 @@
 package org.bigbluebutton.core.apps.plugin
 
 import org.bigbluebutton.common2.msgs.PluginDataChannelReplaceEntryMsg
+import org.bigbluebutton.core.apps.plugin.PluginHdlrHelpers.{checkPermission, defaultCreatorCheck}
 import org.bigbluebutton.core.db.{JsonUtils, PluginDataChannelEntryDAO}
 import org.bigbluebutton.core.domain.MeetingState2x
 import org.bigbluebutton.core.models.{PluginModel, Roles, Users2x}
@@ -20,26 +21,8 @@ trait PluginDataChannelReplaceEntryMsgHdlr extends HandlerHelpers {
         case Some(p) =>
           p.manifest.content.dataChannels.getOrElse(List()).find(dc => dc.name == msg.body.channelName) match {
             case Some(dc) =>
-              val hasPermission = for {
-                replaceOrDeletePermission <- dc.replaceOrDeletePermission
-              } yield {
-                replaceOrDeletePermission.toLowerCase match {
-                  case "all" => true
-                  case "moderator" => user.role == Roles.MODERATOR_ROLE
-                  case "presenter" => user.presenter
-                  case "creator" => {
-                    val creatorUserId = PluginDataChannelEntryDAO.getEntryCreator(
-                      meetingId,
-                      msg.body.pluginName,
-                      msg.body.channelName,
-                      msg.body.subChannelName,
-                      msg.body.entryId
-                    )
-                    creatorUserId == msg.header.userId
-                  }
-                  case _ => false
-                }
-              }
+              val hasPermission = checkPermission(user, dc.replaceOrDeletePermission, defaultCreatorCheck(
+                meetingId, msg.body, msg.header.userId))
 
               if (!hasPermission.contains(true)) {
                 println(s"No permission to write in plugin: '${msg.body.pluginName}', data channel: '${msg.body.channelName}'.")

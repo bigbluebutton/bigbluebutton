@@ -27,10 +27,7 @@ import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import com.google.gson.Gson;
-import com.google.gson.JsonArray;
-import com.google.gson.JsonElement;
-import com.google.gson.JsonObject;
+import com.google.gson.*;
 import org.bigbluebutton.api.domain.*;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
@@ -434,23 +431,27 @@ public class ParamsProcessorUtil {
         ArrayList<PluginsManifest> pluginsManifests = new ArrayList<PluginsManifest>();
         String pluginsManifestParams = params.get(ApiParams.PLUGINS_MANIFESTS);
         if (!StringUtils.isEmpty(pluginsManifestParams)) {
-            JsonElement pluginsManifestsJsonElement = new Gson().fromJson(pluginsManifestParams, JsonElement.class);
+            try {
+                JsonElement pluginsManifestsJsonElement = new Gson().fromJson(pluginsManifestParams, JsonElement.class);
 
-            if(pluginsManifestsJsonElement != null && pluginsManifestsJsonElement.isJsonArray()) {
-                JsonArray pluginsManifestsJson = pluginsManifestsJsonElement.getAsJsonArray();
-                for (JsonElement pluginsManifestJson : pluginsManifestsJson) {
-                    if(pluginsManifestJson.isJsonObject()) {
-                        JsonObject pluginsManifestJsonObj = pluginsManifestJson.getAsJsonObject();
-                        if(pluginsManifestJsonObj.has("url")) {
-                            String url = pluginsManifestJsonObj.get("url").getAsString();
-                            PluginsManifest newPlugin = new PluginsManifest(url);
-                            if(pluginsManifestJsonObj.has("checksum")) {
-                                newPlugin.setChecksum(pluginsManifestJsonObj.get("checksum").getAsString());
+                if(pluginsManifestsJsonElement != null && pluginsManifestsJsonElement.isJsonArray()) {
+                    JsonArray pluginsManifestsJson = pluginsManifestsJsonElement.getAsJsonArray();
+                    for (JsonElement pluginsManifestJson : pluginsManifestsJson) {
+                        if(pluginsManifestJson.isJsonObject()) {
+                            JsonObject pluginsManifestJsonObj = pluginsManifestJson.getAsJsonObject();
+                            if(pluginsManifestJsonObj.has("url")) {
+                                String url = pluginsManifestJsonObj.get("url").getAsString();
+                                PluginsManifest newPlugin = new PluginsManifest(url);
+                                if(pluginsManifestJsonObj.has("checksum")) {
+                                    newPlugin.setChecksum(pluginsManifestJsonObj.get("checksum").getAsString());
+                                }
+                                pluginsManifests.add(newPlugin);
                             }
-                            pluginsManifests.add(newPlugin);
                         }
                     }
                 }
+            } catch (JsonSyntaxException err) {
+                log.error("Error in pluginsManifests URL parameter's json structure.");
             }
         }
 
