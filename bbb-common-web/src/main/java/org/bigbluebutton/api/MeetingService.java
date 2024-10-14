@@ -202,7 +202,10 @@ public class MeetingService implements MessageListener {
 
       UserSessionBasicData removedUser = new UserSessionBasicData();
       removedUser.meetingId = us.meetingID;
+      removedUser.extMeetingId = us.externMeetingID;
       removedUser.userId = us.internalUserId;
+      removedUser.extUserId = us.externUserID;
+      removedUser.userFullName = us.fullname;
       removedUser.sessionToken = us.authToken;
       removedUser.role = us.role;
       removedSessions.put(token, removedUser);
