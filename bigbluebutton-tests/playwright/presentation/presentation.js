@@ -112,23 +112,22 @@ class Presentation extends MultiUsers {
 
     await this.modPage.closeAllToastNotifications();
     await this.userPage.closeAllToastNotifications();
-    const modWhiteboardLocator = this.modPage.getLocator(e.whiteboard);
-
     await this.modPage.setHeightWidthViewPortSize();
 
     // Skip check for screenshot on ci, due to the ci and the local machine generating two different image sizes
     if (!CI) {
+      const modWhiteboardLocator = this.modPage.getLocator(e.whiteboard);
       await expect(modWhiteboardLocator).toHaveScreenshot('moderator-new-presentation-screenshot.png', {
         maxDiffPixels: 1000,
       });
     }
-     const imageURLSecondPresentation = await this.modPage.page.evaluate(() => {
+    const imageURLSecondPresentation = await this.modPage.page.evaluate(() => {
       const element = document.querySelector('div[id="whiteboard-element"] div[class="tl-image"]');
       const style = element.getAttribute('style')
       const urlMatch = style.match(/background-image: url\("([^"]+)"\)/);
       return urlMatch ? urlMatch[1] : null;
     });
-    
+
     await this.userPage.reloadPage();
     await this.userPage.closeAudioModal();
     await this.userPage.closeAllToastNotifications();
@@ -136,7 +135,7 @@ class Presentation extends MultiUsers {
     await this.userPage.setHeightWidthViewPortSize();
 
     await expect(imageURLFirstPresentation).not.toBe(imageURLSecondPresentation);
-    
+
     // Skip check for screenshot on ci, due to the ci and the local machine generating two different image sizes
     if (!CI) {
       await expect(userWhiteboardLocator).toHaveScreenshot('viewer-new-presentation-screenshot.png', {
@@ -414,12 +413,28 @@ class Presentation extends MultiUsers {
   }
 
   async hidePresentationToolbar() {
+    await this.modPage.waitAndClick(e.multiUsersWhiteboardOn);
     await this.modPage.waitAndClick(e.whiteboardOptionsButton);
     await this.modPage.waitAndClick(e.toolVisibility);
+    const screenshotOptions = {
+      maxDiffPixels: 250,
+    };
+
+    // mod checks
     await this.modPage.wasRemoved(e.wbToolbar, 'should not display the whiteboard toolbar for the moderator');
-    await this.modPage.wasRemoved(e.wbStyles, 'should not display the whiteboard styles menu');
+    await this.modPage.wasRemoved(e.whiteboardStyles, 'should not display the whiteboard styles menu');
     await this.modPage.wasRemoved(e.wbUndo, 'should not display the whiteboard undo button');
     await this.modPage.wasRemoved(e.wbRedo, 'should not display the whiteboard redo button');
+    const wbModLocator = this.modPage.getLocator(e.whiteboard);
+    await expect(wbModLocator, 'should not display the presentation toolbars').toHaveScreenshot('mod-hide-toolbars.png', screenshotOptions);
+
+    // user checks
+    await this.userPage.hasElement(e.wbToolbar, 'should display the whiteboard toolbar for the viewer with whiteboard access');
+    await this.userPage.hasElement(e.whiteboardStyles, 'should display the whiteboard styles menu for the viewer with whiteboard access');
+    await this.userPage.hasElement(e.wbUndo, 'should display the whiteboard undo button for the viewer with whiteboard access');
+    await this.userPage.hasElement(e.wbRedo, 'should display the whiteboard redo button for the viewer with whiteboard access');
+    const wbUserLocator = this.userPage.getLocator(e.whiteboard);
+    await expect(wbUserLocator, 'should display the presentation toolbars').toHaveScreenshot('user-toolbars.png', screenshotOptions);
   }
 
   async zoom() {

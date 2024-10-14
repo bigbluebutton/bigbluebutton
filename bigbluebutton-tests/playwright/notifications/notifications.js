@@ -13,14 +13,12 @@ class Notifications extends MultiUsers {
   }
 
   async saveSettingsNotification() {
-    await util.waitAndClearDefaultPresentationNotification(this.modPage);
     await openSettings(this.modPage);
     await util.saveSettings(this.modPage);
     await util.checkNotificationText(this.modPage, e.savedSettingsToast);
   }
 
   async audioNotification() {
-    await util.waitAndClearDefaultPresentationNotification(this.modPage);
     await this.modPage.waitAndClick(e.joinAudio);
     await this.modPage.joinMicrophone();
     await util.checkNotificationText(this.modPage, e.joinAudioToast);
@@ -42,7 +40,6 @@ class Notifications extends MultiUsers {
   }
 
   async getUserJoinPopupResponse() {
-    await util.waitAndClearDefaultPresentationNotification(this.modPage);
     await this.userJoinNotification(this.modPage);
     await util.waitAndClearNotification(this.modPage);
     await this.initUserPage();
@@ -55,11 +52,9 @@ class Notifications extends MultiUsers {
     if (!reactionsButton) {
       await this.modPage.waitForSelector(e.whiteboard);
       await this.modPage.hasElement(e.joinAudio);
-      await this.modPage.wasRemoved(e.reactionsButton);
-      return
+      return this.modPage.wasRemoved(e.reactionsButton);
     }
 
-    await util.waitAndClearDefaultPresentationNotification(this.modPage);
     await this.modPage.waitAndClick(e.reactionsButton);
     await this.modPage.waitAndClick(e.raiseHandBtn);
     await sleep(1000);

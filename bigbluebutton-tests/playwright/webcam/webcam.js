@@ -84,6 +84,7 @@ class Webcam extends Page {
     });
     await this.waitAndClick(e.dropdownWebcamButton);
     await this.waitAndClick(e.webcamsFullscreenButton);
+    await sleep(1000);  // timeout to ensure the video is in fullscreen
     // get fullscreen webcam size
     const { width, height } = await this.getLocator('video').boundingBox();
     await expect(width + 1, 'should the width to be the same as window width').toBe(windowWidth);  // not sure why there is a difference of 1 pixel
