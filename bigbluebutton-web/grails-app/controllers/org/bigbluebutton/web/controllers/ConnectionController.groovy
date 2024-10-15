@@ -116,7 +116,7 @@ class ConnectionController {
         if(removedUserSession) {
           response.addHeader("Meeting-Id", removedUserSession.meetingId)
           response.addHeader("Meeting-External-Id", removedUserSession.extMeetingId)
-          response.addHeader("User-Id", removedUserSession.internalUserId)
+          response.addHeader("User-Id", removedUserSession.userId)
           response.addHeader("User-External-Id", removedUserSession.extUserId)
           response.addHeader("User-Name", URLEncoder.encode(removedUserSession.userFullName, StandardCharsets.UTF_8.name()))
           response.addHeader("User-Is-Moderator", removedUserSession.isModerator() ? "true" : "false")
