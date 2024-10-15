@@ -103,7 +103,6 @@ const propTypes = {
     PropTypes.number,
   ]),
   error: PropTypes.object,
-  errorInfo: PropTypes.object,
 };
 
 const defaultProps = {
@@ -111,7 +110,6 @@ const defaultProps = {
   callback: () => {},
   endedReason: null,
   error: {},
-  errorInfo: null,
 };
 
 class ErrorScreen extends PureComponent {
@@ -128,7 +126,6 @@ class ErrorScreen extends PureComponent {
       code,
       children,
       error,
-      errorInfo,
     } = this.props;
     let formatedMessage = 'Oops, something went wrong';
     let errorMessageDescription = Session.getItem('errorMessageDescription');
@@ -165,19 +162,6 @@ class ErrorScreen extends PureComponent {
               {errorMessageDescription}
             </Styled.SessionMessage>
           )
-        }
-        {
-          errorInfo
-            ? (
-              <textarea
-                rows="5"
-                cols="33"
-                disabled
-              >
-                {JSON.stringify(errorInfo)}
-              </textarea>
-            )
-            : null
         }
         <Styled.Separator />
         <Styled.CodeError>
