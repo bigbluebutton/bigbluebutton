@@ -17,6 +17,7 @@ import deviceInfo from '/imports/utils/deviceInfo';
 import Session from '/imports/ui/services/storage/in-memory';
 import { LAYOUT_TYPE } from '/imports/ui/components/layout/enums';
 import { getSettingsSingletonInstance } from '/imports/ui/services/settings';
+import Toggle from '/imports/ui/components/common/switch/component';
 
 const intlMessages = defineMessages({
   optionsLabel: {
@@ -102,6 +103,14 @@ const intlMessages = defineMessages({
   layoutModal: {
     id: 'app.actionsBar.actionsDropdown.layoutModal',
     description: 'Label for layouts selection button',
+  },
+  awayLabel: {
+    id: 'app.actionsBar.reactions.away',
+    description: 'Away Label',
+  },
+  activeLabel: {
+    id: 'app.actionsBar.reactions.active',
+    description: 'Active Label',
   },
 });
 
@@ -255,7 +264,7 @@ class OptionsDropdown extends PureComponent {
     const {
       intl, amIModerator, isBreakoutRoom, isMeteorConnected, audioCaptionsEnabled,
       audioCaptionsActive, audioCaptionsSet, isMobile, optionsDropdownItems,
-      isDirectLeaveButtonEnabled, isLayoutsEnabled,
+      isDirectLeaveButtonEnabled, isLayoutsEnabled, away, handleToggleAFK,
     } = this.props;
 
     const { isIos } = deviceInfo;
@@ -269,6 +278,42 @@ class OptionsDropdown extends PureComponent {
     } = window.meetingClientSettings.public.app;
 
     this.menuItems = [];
+
+    const actionCustomStyles = {
+      paddingLeft: 0,
+      paddingRight: 0,
+      paddingTop: isMobile ? '0' : '0.5rem',
+      paddingBottom: isMobile ? '0' : '0.5rem',
+    };
+
+    const ToggleAFKLabel = () => (away
+      ? intl.formatMessage(intlMessages.awayLabel)
+      : intl.formatMessage(intlMessages.activeLabel));
+
+    this.menuItems.push({
+      label: (
+        <Styled.AwayOption>
+          <>Presence</>
+          <Styled.ToggleButtonWrapper>
+            <Styled.AFKLabel>{ToggleAFKLabel()}</Styled.AFKLabel>
+            <Toggle
+              icons={false}
+              checked={away}
+              onChange={handleToggleAFK}
+              ariaLabel={ToggleAFKLabel()}
+              showToggleLabel={false}
+              invertColors
+            />
+          </Styled.ToggleButtonWrapper>
+        </Styled.AwayOption>
+      ),
+      key: 'none',
+      isToggle: true,
+      customStyles: { ...actionCustomStyles, width: 'auto' },
+    }, {
+      key: 'separator-01',
+      isSeparator: true,
+    });
 
     this.getFullscreenItem(this.menuItems);
 
