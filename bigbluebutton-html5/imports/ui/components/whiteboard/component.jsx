@@ -145,7 +145,7 @@ const Whiteboard = React.memo((props) => {
 
   const THRESHOLD = 0.1;
   const CAMERA_UPDATE_DELAY = 650;
-  const MOUNTED_CAMERA_DELAY = 2000;
+  const MOUNTED_CAMERA_DELAY = 500;
   const lastKnownHeight = React.useRef(presentationAreaHeight);
   const lastKnownWidth = React.useRef(presentationAreaWidth);
 
@@ -803,11 +803,11 @@ const Whiteboard = React.memo((props) => {
 
         if (isPresenterRef.current) {
           const viewportPageBounds = editor?.getViewportPageBounds();
-          viewportWidth = viewportPageBounds?.w
-          viewportHeight = viewportPageBounds?.h
+          viewportWidth = viewportPageBounds?.w;
+          viewportHeight = viewportPageBounds?.h;
         } else {
-          viewportWidth = currentPresentationPageRef.current?.scaledViewBoxWidth
-          viewportHeight = currentPresentationPageRef.current?.scaledViewBoxHeight
+          viewportWidth = currentPresentationPageRef.current?.scaledViewBoxWidth;
+          viewportHeight = currentPresentationPageRef.current?.scaledViewBoxHeight;
         }
 
         const presentationWidthLocal = currentPresentationPage?.scaledWidth || 0;
@@ -834,13 +834,14 @@ const Whiteboard = React.memo((props) => {
         return newNext;
       };
 
+      // eslint-disable-next-line no-param-reassign
       editor.store.onAfterChange = (prev, next) => {
-        if (next['selectedShapeIds'] && next['selectedShapeIds']?.some(id => id.includes('shape:BG'))) {
+        if (next.selectedShapeIds && next.selectedShapeIds?.some((id) => id.includes('shape:BG'))) {
           bgSelectedRef.current = true;
-        } else if ((next['selectedShapeIds'] && !next['selectedShapeIds']?.some(id => id.includes('shape:BG')))) {
+        } else if ((next.selectedShapeIds && !next.selectedShapeIds?.some((id) => id.includes('shape:BG')))) {
           bgSelectedRef.current = false;
         }
-      }
+      };
 
       if (!isPresenterRef.current && !hasWBAccessRef.current) {
         editor.setCurrentTool('noop');
