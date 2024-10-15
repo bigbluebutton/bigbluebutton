@@ -370,7 +370,7 @@ public class MeetingService implements MessageListener {
   public String replaceMetaParametersIntoManifestTemplate(String manifestContent, Map<String, String> metadata)
           throws NoSuchFieldException {
     // Pattern to match ${variable} in the input string
-    Pattern pattern = Pattern.compile("\\$\\{(\\w+)}");
+    Pattern pattern = Pattern.compile("\\$\\{([\\w-]+)}");
     Matcher matcher = pattern.matcher(manifestContent);
 
     StringBuilder result = new StringBuilder();
