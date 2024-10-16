@@ -4,6 +4,7 @@ import React, {
   useEffect,
   useMemo,
 } from 'react';
+import { useMutation } from '@apollo/client';
 import { UpdatedEventDetailsForChatMessageDomElements } from 'bigbluebutton-html-plugin-sdk/dist/cjs/dom-element-manipulation/chat/message/types';
 import { Message } from '/imports/ui/Types/message';
 import { defineMessages, useIntl } from 'react-intl';
@@ -34,6 +35,7 @@ import { Layout } from '/imports/ui/components/layout/layoutTypes';
 import useChat from '/imports/ui/core/hooks/useChat';
 import { GraphqlDataHookSubscriptionResponse } from '/imports/ui/Types/hook';
 import { Chat } from '/imports/ui/Types/chat';
+import { CHAT_DELETE_REACTION_MUTATION, CHAT_SEND_REACTION_MUTATION } from './mutations';
 
 interface ChatMessageProps {
   message: Message;
@@ -119,12 +121,34 @@ const ChatMesssage: React.FC<ChatMessageProps> = ({
     }
   }, [message, messageRef]);
   const messageContentRef = React.createRef<HTMLDivElement>();
-  const [reactions, setReactions] = React.useState<{ id: string, native: string }[]>([]);
   const [editing, setEditing] = React.useState(false);
   const [isToolbarMenuOpen, setIsToolbarMenuOpen] = React.useState(false);
+  const [isToolbarReactionPopoverOpen, setIsToolbarReactionPopoverOpen] = React.useState(false);
   const chatFocusMessageRequest = useStorageKey(ChatEvents.CHAT_FOCUS_MESSAGE_REQUEST, STORAGES.IN_MEMORY);
   const containerRef = React.useRef<HTMLDivElement>(null);
   const animationInitialTimestamp = React.useRef(0);
+  const [chatSendReaction] = useMutation(CHAT_SEND_REACTION_MUTATION);
+  const [chatDeleteReaction] = useMutation(CHAT_DELETE_REACTION_MUTATION);
+
+  const sendReaction = useCallback((reactionEmoji: string) => {
+    chatSendReaction({
+      variables: {
+        chatId: message.chatId,
+        messageId: message.messageId,
+        reactionEmoji,
+      },
+    });
+  }, []);
+
+  const deleteReaction = useCallback((reactionEmoji: string) => {
+    chatDeleteReaction({
+      variables: {
+        chatId: message.chatId,
+        messageId: message.messageId,
+        reactionEmoji,
+      },
+    });
+  }, []);
 
   const CHAT_TOOLBAR_CONFIG = window.meetingClientSettings.public.chat.toolbar;
   const isModerator = currentUser?.isModerator;
@@ -379,6 +403,7 @@ const ChatMesssage: React.FC<ChatMessageProps> = ({
         isCustomPluginMessage={isCustomPluginMessage}
         $highlight={hasToolbar}
         $toolbarMenuIsOpen={isToolbarMenuOpen}
+        $reactionPopoverIsOpen={isToolbarReactionPopoverOpen}
       >
         {hasToolbar && (
           <ChatMessageToolbar
@@ -391,21 +416,18 @@ const ChatMesssage: React.FC<ChatMessageProps> = ({
             messageSequence={message.messageSequence}
             emphasizedMessage={message.chatEmphasizedText}
             onEmojiSelected={(emoji) => {
-              setReactions((prev) => {
-                return [
-                  ...prev,
-                  emoji,
-                ];
-              });
+              sendReaction(emoji.native);
+              setIsToolbarReactionPopoverOpen(false);
             }}
             onEditRequest={() => {
               setEditing(true);
             }}
             onMenuOpenChange={setIsToolbarMenuOpen}
             menuIsOpen={isToolbarMenuOpen}
+            onReactionPopoverOpenChange={setIsToolbarReactionPopoverOpen}
+            reactionPopoverIsOpen={isToolbarReactionPopoverOpen}
           />
         )}
-        <ChatMessageReactions reactions={reactions} />
         {((!message?.user || !sameSender) && (
           message.messageType !== ChatMessageType.USER_AWAY_STATUS_MSG
         && message.messageType !== ChatMessageType.API
@@ -432,6 +454,7 @@ const ChatMesssage: React.FC<ChatMessageProps> = ({
           data-chat-message-id={message?.messageId}
           $highlight={hasToolbar}
           $toolbarMenuIsOpen={isToolbarMenuOpen}
+          $reactionPopoverIsOpen={isToolbarReactionPopoverOpen}
         >
           {message.messageType !== ChatMessageType.CHAT_CLEAR
           && !isCustomPluginMessage
@@ -474,6 +497,13 @@ const ChatMesssage: React.FC<ChatMessageProps> = ({
               {intl.formatMessage(intlMessages.deleteMessage, { 0: message.deletedBy?.name })}
             </DeleteMessage>
           )}
+          {!deleteTime && (
+            <ChatMessageReactions
+              reactions={message.reactions}
+              deleteReaction={deleteReaction}
+              sendReaction={sendReaction}
+            />
+          )}
         </ChatContent>
         )}
         {editing && (
@@ -497,7 +527,8 @@ function areChatMessagesEqual(prevProps: ChatMessageProps, nextProps: ChatMessag
   return prevMessage?.createdAt === nextMessage?.createdAt
     && prevMessage?.user?.currentlyInMeeting === nextMessage?.user?.currentlyInMeeting
     && prevMessage?.recipientHasSeen === nextMessage.recipientHasSeen
-    && prevMessage?.message === nextMessage.message;
+    && prevMessage?.message === nextMessage.message
+    && prevMessage?.reactions?.length === nextMessage?.reactions?.length;
 }
 
 export default memo(ChatMesssage, areChatMessagesEqual);

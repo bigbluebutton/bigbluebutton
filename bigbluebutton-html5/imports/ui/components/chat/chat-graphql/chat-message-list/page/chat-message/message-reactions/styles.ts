@@ -1,7 +1,7 @@
 import styled from 'styled-components';
 import { colorBlueLighter, colorBlueLightest, colorGray } from '/imports/ui/stylesheets/styled-components/palette';
 
-const EmojiWrapper = styled.div<{ highlighted: boolean }>`
+const EmojiWrapper = styled.button<{ highlighted: boolean }>`
   background-color: ${colorBlueLightest};
   border-radius: 10px;
   margin-left: 3px;
@@ -24,9 +24,6 @@ const EmojiWrapper = styled.div<{ highlighted: boolean }>`
 const ReactionsWrapper = styled.div`
   display: flex;
   flex-wrap: wrap;
-  position: absolute;
-  bottom: 0;
-  left: 0;
 `;
 
 export default {

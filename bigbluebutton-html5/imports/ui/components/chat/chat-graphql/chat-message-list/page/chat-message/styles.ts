@@ -28,6 +28,7 @@ interface ChatWrapperProps {
   isCustomPluginMessage: boolean;
   $highlight: boolean;
   $toolbarMenuIsOpen: boolean;
+  $reactionPopoverIsOpen: boolean;
 }
 
 interface ChatContentProps {
@@ -35,6 +36,7 @@ interface ChatContentProps {
   isCustomPluginMessage: boolean;
   $highlight: boolean;
   $toolbarMenuIsOpen: boolean;
+  $reactionPopoverIsOpen: boolean;
 }
 
 interface ChatAvatarProps {
@@ -87,7 +89,9 @@ export const ChatWrapper = styled.div<ChatWrapperProps>`
     }
     border-radius: 6px;
   `}
-  ${({ sameSender, $toolbarMenuIsOpen }) => !sameSender && $toolbarMenuIsOpen && `
+  ${({ sameSender, $toolbarMenuIsOpen, $reactionPopoverIsOpen }) => !sameSender
+    && ($toolbarMenuIsOpen || $reactionPopoverIsOpen)
+    && `
     background-color: ${colorOffWhite};
     border-radius: 6px;
   `}
@@ -110,7 +114,9 @@ export const ChatContent = styled.div<ChatContentProps>`
     border-radius: 6px;
   `}
 
-  ${({ sameSender, $toolbarMenuIsOpen }) => sameSender && $toolbarMenuIsOpen && `
+  ${({ sameSender, $toolbarMenuIsOpen, $reactionPopoverIsOpen }) => sameSender
+    && ($toolbarMenuIsOpen || $reactionPopoverIsOpen)
+    && `
     background-color: ${colorOffWhite};
     border-radius: 6px;
   `}

@@ -8,7 +8,7 @@ import { borderRadius, smPaddingX } from '/imports/ui/stylesheets/styled-compone
 import EmojiPickerComponent from '/imports/ui/components/emoji-picker/component';
 import Button from '/imports/ui/components/common/button/component';
 
-const Container = styled.div<{ $sequence: number, $menuIsOpen: boolean }>`
+const Container = styled.div<{ $sequence: number, $menuIsOpen: boolean, $reactionPopoverIsOpen: boolean }>`
   height: calc(1.5rem + 12px);
   line-height: calc(1.5rem + 8px);
   max-width: 184px;
@@ -26,7 +26,7 @@ const Container = styled.div<{ $sequence: number, $menuIsOpen: boolean }>`
     display: flex;
   }
 
-  ${({ $menuIsOpen }) => ($menuIsOpen && css`
+  ${({ $menuIsOpen, $reactionPopoverIsOpen }) => (($menuIsOpen || $reactionPopoverIsOpen) && css`
     display: flex;
   `)}
 
