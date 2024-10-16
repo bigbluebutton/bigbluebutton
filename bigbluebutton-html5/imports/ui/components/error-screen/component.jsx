@@ -151,7 +151,6 @@ class ErrorScreen extends PureComponent {
             </Styled.SessionMessage>
           )
         }
-        <Styled.Separator />
         <div>
           {children}
         </div>
