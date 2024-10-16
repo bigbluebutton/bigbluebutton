@@ -212,7 +212,7 @@ class OptionsDropdown extends PureComponent {
           icon: fullscreenIcon,
           label: fullscreenLabel,
           description: fullscreenDesc,
-          onClick: handleToggleFullscreen,
+          onClick: () => handleToggleFullscreen(),
         },
       )
     );

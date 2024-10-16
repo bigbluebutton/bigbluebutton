@@ -100,7 +100,6 @@ const PresentationOptionsContainer = ({
         }
       }}
       id="restore-presentation"
-      ghost={!presentationIsOpen}
       disabled={!isThereCurrentPresentation}
       data-test={!presentationIsOpen ? 'restorePresentation' : 'minimizePresentation'}
     />

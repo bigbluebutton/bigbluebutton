@@ -218,7 +218,7 @@ class BBBMenu extends React.Component {
     } = this.props;
     const actionsItems = this.makeMenuItems();
 
-    const roundedCornersStyles = { borderRadius: '1.8rem' };
+    const roundedCornersStyles = { borderRadius: '3rem' };
     let menuStyles = { zIndex: 999 };
 
     if (customStyles) {

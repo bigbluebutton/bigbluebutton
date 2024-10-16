@@ -249,6 +249,7 @@ class App extends Component {
       presentationIsOpen,
       darkTheme,
       intl,
+      pluginConfig,
       genericMainContentId,
     } = this.props;
 
@@ -260,7 +261,7 @@ class App extends Component {
     return (
       <>
         <ScreenReaderAlertAdapter />
-        <PluginsEngineManager />
+        <PluginsEngineManager pluginConfig={pluginConfig} />
         <FloatingWindowContainer />
         <TimeSync />
         <Notifications />
