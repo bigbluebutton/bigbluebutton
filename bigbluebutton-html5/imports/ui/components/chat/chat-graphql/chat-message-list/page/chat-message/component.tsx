@@ -4,7 +4,7 @@ import React, {
   useEffect,
   useMemo,
 } from 'react';
-import { UpdatedEventDetailsForChatMessageDomElements } from 'bigbluebutton-html-plugin-sdk/dist/cjs/dom-element-manipulation/chat/message/types';
+import { MessageDetails } from 'bigbluebutton-html-plugin-sdk/dist/cjs/dom-element-manipulation/chat/message/types';
 import { Message } from '/imports/ui/Types/message';
 import { defineMessages, useIntl } from 'react-intl';
 import ChatMessageHeader from './message-header/component';
@@ -39,7 +39,7 @@ interface ChatMessageProps {
   message: Message;
   previousMessage: Message;
   lastSenderPreviousPage: string | null | undefined;
-  setMessagesRequestedFromPlugin: React.Dispatch<React.SetStateAction<UpdatedEventDetailsForChatMessageDomElements[]>>
+  setRenderedChatMessages: React.Dispatch<React.SetStateAction<MessageDetails[]>>
   scrollRef: React.RefObject<HTMLDivElement>;
   markMessageAsSeen: (message: Message) => void;
   messageReadFeedbackEnabled: boolean;
@@ -93,7 +93,7 @@ const ChatMesssage: React.FC<ChatMessageProps> = ({
   lastSenderPreviousPage,
   scrollRef,
   message,
-  setMessagesRequestedFromPlugin,
+  setRenderedChatMessages,
   markMessageAsSeen,
   messageReadFeedbackEnabled,
 }) => {
@@ -193,7 +193,7 @@ const ChatMesssage: React.FC<ChatMessageProps> = ({
   }, []);
 
   useEffect(() => {
-    setMessagesRequestedFromPlugin((messages) => {
+    setRenderedChatMessages((messages) => {
       if (messageContentRef.current && !messages.some((m) => m.messageId === message.messageId)) {
         messages.push({
           messageId: message.messageId,
