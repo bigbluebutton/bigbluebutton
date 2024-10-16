@@ -1,6 +1,7 @@
 import {
   ApolloClient, ApolloProvider, InMemoryCache, NormalizedCacheObject, ApolloLink,
 } from '@apollo/client';
+import { GraphQLError } from 'graphql';
 import { GraphQLWsLink } from '@apollo/client/link/subscriptions';
 import { createClient } from 'graphql-ws';
 import { onError } from '@apollo/client/link/error';
@@ -12,7 +13,6 @@ import connectionStatus from '../../core/graphql/singletons/connectionStatus';
 import deviceInfo from '/imports/utils/deviceInfo';
 import BBBWeb from '/imports/api/bbb-web-api';
 import useMeetingSettings from '/imports/ui/core/local-states/useMeetingSettings';
-import { GraphQLError } from 'graphql';
 
 interface ConnectionManagerProps {
   children: React.ReactNode;
