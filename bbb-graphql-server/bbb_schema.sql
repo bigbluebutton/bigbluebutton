@@ -272,6 +272,7 @@ CREATE TABLE "user" (
     "authToken" varchar(16),
     "authed" bool,
     "joined" bool,
+    "firstJoinedAt" timestamp with time zone,
     "joinErrorCode" varchar(50),
     "joinErrorMessage" varchar(400),
     "banned" bool,
@@ -328,6 +329,28 @@ ALTER TABLE "user" ADD COLUMN "isAllowed" boolean GENERATED ALWAYS AS ("guestSta
 ALTER TABLE "user" ADD COLUMN "isDenied" boolean GENERATED ALWAYS AS ("guestStatus" = 'DENY') STORED;
 
 ALTER TABLE "user" ADD COLUMN "registeredAt" timestamp with time zone GENERATED ALWAYS AS (to_timestamp("registeredOn"::double precision / 1000)) STORED;
+
+--Populate column `firstJoinedAt` to register if the user has joined in the meeting (once column `joined` turn false when user leaves)
+CREATE OR REPLACE FUNCTION "set_user_firstJoinedAt_trigger_func"()
+RETURNS TRIGGER AS $$
+BEGIN
+    IF NEW."joined" is true AND NEW."firstJoinedAt" IS NULL THEN
+        NEW."firstJoinedAt" := NOW();
+    END IF;
+    RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+
+CREATE TRIGGER "set_user_firstJoinedAt_ins_trigger"
+BEFORE INSERT ON "user"
+FOR EACH ROW
+EXECUTE FUNCTION "set_user_firstJoinedAt_trigger_func"();
+
+CREATE TRIGGER "set_user_firstJoinedAt_upd_trigger"
+BEFORE UPDATE ON "user"
+FOR EACH ROW
+WHEN (OLD."joined" IS DISTINCT FROM NEW."joined")
+EXECUTE FUNCTION "set_user_firstJoinedAt_trigger_func"();
 
 --Used to sort the Userlist
 ALTER TABLE "user" ADD COLUMN "nameSortable" varchar(255) GENERATED ALWAYS AS (trim(remove_emojis(immutable_lower_unaccent("name")))) STORED;
@@ -505,6 +528,17 @@ AS SELECT
     CASE WHEN "user"."role" = 'MODERATOR' THEN true ELSE false END "isModerator",
     "user"."currentlyInMeeting"
    FROM "user";
+
+--Provide users that have joined in the meeting, either who is currently in meeting or has left
+CREATE OR REPLACE VIEW "v_user_presenceLog"
+AS SELECT
+    "user"."meetingId",
+    "user"."userId",
+    "user"."extId",
+    CASE WHEN "user"."role" = 'MODERATOR' THEN true ELSE false END "isModerator",
+    "user"."currentlyInMeeting"
+FROM "user"
+where "firstJoinedAt" is not null;
 
 create table "user_metadata"(
     "meetingId" varchar(100),
