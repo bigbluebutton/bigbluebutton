@@ -1076,7 +1076,7 @@ public class MeetingService implements MessageListener {
         message.name, message.role, message.locked, message.avatarURL, message.webcamBackgroundURL, message.bot,
         message.guest, message.guestStatus, message.clientType);
 
-      if(m.getMaxUsers() > 0 && m.countUniqueExtIds() >= m.getMaxUsers()) {
+      if(m.getMaxUsers() > 0 && m.countUniqueExtIds() >= m.getMaxUsers() && !user.isBot()) {
         m.removeEnteredUser(user.getInternalUserId());
         return;
       }

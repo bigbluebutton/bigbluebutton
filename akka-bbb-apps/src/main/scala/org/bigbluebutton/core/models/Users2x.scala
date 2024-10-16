@@ -67,7 +67,7 @@ object Users2x {
   }
 
   def numUsers(users: Users2x): Int = {
-    users.toVector.filter(u => !u.bot).length
+    users.toVector.length
   }
 
   def numActiveModerators(users: Users2x): Int = {
