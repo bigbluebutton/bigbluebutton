@@ -97,7 +97,6 @@ const CustomUsersSettings: React.FC<CustomUsersSettingsProps> = ({
       {error ? (
         <ErrorScreen
           endedReason={error}
-          code={403}
         />
       ) : null}
       {loading ? (
