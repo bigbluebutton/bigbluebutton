@@ -85,6 +85,7 @@ const Whiteboard = React.memo((props) => {
     zoomChanger,
     isMultiUserActive,
     isRTL,
+    whiteboardMenuOnRightValue,
     fitToWidth,
     zoomValue,
     colorStyle,
@@ -1591,6 +1592,7 @@ const Whiteboard = React.memo((props) => {
           bgSelected: bgSelectedRef.current,
           isPresenter,
           isRTL,
+          whiteboardMenuOnRightValue,
           isMultiUserActive,
           isToolbarVisible,
           presentationHeight,
@@ -1618,6 +1620,7 @@ Whiteboard.propTypes = {
   presentationHeight: PropTypes.number.isRequired,
   zoomChanger: PropTypes.func.isRequired,
   isRTL: PropTypes.bool.isRequired,
+  whiteboardMenuOnRightValue: PropTypes.bool.isRequired,
   fitToWidth: PropTypes.bool.isRequired,
   zoomValue: PropTypes.number.isRequired,
   intl: PropTypes.shape({

@@ -17,9 +17,14 @@ import browserInfo from '/imports/utils/browserInfo';
 import AppService from '/imports/ui/components/app/service';
 import { getSettingsSingletonInstance } from '/imports/ui/services/settings';
 import SvgIcon from '/imports/ui/components/common/icon-svg/component';
-import getFromUserSettings from '/imports/ui/services/users-settings';
+import useWhiteboardMenuOnRight from '/imports/ui/components/presentation/hooks/useWhiteboardMenuOnRight';
 
 const intlMessages = defineMessages({
+  changeOptionsSide: {
+    id: 'app.presentation.presentationToolbar.changeOptionsSide',
+    description: 'Change options side label',
+    defaultMessage: 'Change options side',
+  },
   downloading: {
     id: 'app.presentation.options.downloading',
     description: 'Downloading label',
@@ -138,6 +143,16 @@ const PresentationMenu = (props) => {
   const toastId = useRef(null);
   const dropdownRef = useRef(null);
 
+  const {
+    setWhiteboardMenuOnRight,
+    whiteboardMenuOnRight,
+  } = useWhiteboardMenuOnRight();
+
+  const WBsideValue = () => {
+    const newValue = whiteboardMenuOnRight();
+    setWhiteboardMenuOnRight(!newValue);
+  };
+
   const formattedLabel = (fullscreen) => (fullscreen
     ? intl.formatMessage(intlMessages.exitFullscreenLabel)
     : intl.formatMessage(intlMessages.fullscreenLabel)
@@ -147,6 +162,8 @@ const PresentationMenu = (props) => {
     ? intl.formatMessage(intlMessages.hideToolsDesc)
     : intl.formatMessage(intlMessages.showToolsDesc)
   );
+
+  const WBOptionLabel = intl.formatMessage(intlMessages.changeOptionsSide);
 
   const extractShapes = (savedState) => {
     let data;
@@ -391,6 +408,20 @@ const PresentationMenu = (props) => {
       },
     );
 
+    // const wbMenuRight = getFromUserSettings('bbb_whiteboard_menu_on_right', false);
+
+    menuItems.push(
+      {
+        key: 'list-item-WBOptions',
+        dataTest: 'WBOptions',
+        label: WBOptionLabel,
+        icon: 'redo',
+        onClick: () => {
+          WBsideValue();
+        },
+      },
+    );
+
     // if (props.amIPresenter) {
     //   menuItems.push({
     //     key: 'list-item-load-shapes',
@@ -459,13 +490,11 @@ const PresentationMenu = (props) => {
     return null;
   }
 
-  const whiteboardMenuSide = getFromUserSettings('bbb_whiteboard_menu_side', 'left');
-
   return (
-    whiteboardMenuSide === 'right' ? (
+    whiteboardMenuOnRight() ? (
       <Styled.Right
         id="WhiteboardOptionButton"
-        whiteboardMenuSide={whiteboardMenuSide}
+        isWhiteboardMenuOnRight={whiteboardMenuOnRight()}
       >
         <BBBMenu
           trigger={(
@@ -506,7 +535,7 @@ const PresentationMenu = (props) => {
     ) : (
       <Styled.Left
         id="WhiteboardOptionButton"
-        isMenuOnRight={whiteboardMenuOnRight}
+        isWhiteboardMenuOnRight={whiteboardMenuOnRight()}
       >
         <BBBMenu
           trigger={(

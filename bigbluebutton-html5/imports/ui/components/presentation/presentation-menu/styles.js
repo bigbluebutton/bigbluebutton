@@ -60,7 +60,7 @@ const Left = styled.div`
     justify-content: center;
   }
 
-  ${({ whiteboardMenuSide }) => !whiteboardMenuSide && `
+  ${({ isWhiteboardMenuOnRight }) => !isWhiteboardMenuOnRight && `
     [dir="rtl"] &{
       right: 2px;
       left: auto;
@@ -91,7 +91,7 @@ const Right = styled.div`
     justify-content: center;
   }
 
-  ${({ whiteboardMenuSide }) => !whiteboardMenuSide && `
+  ${({ isWhiteboardMenuOnRight }) => !isWhiteboardMenuOnRight && `
     [dir="rtl"] &{
       right: 2px;
       left: auto;
