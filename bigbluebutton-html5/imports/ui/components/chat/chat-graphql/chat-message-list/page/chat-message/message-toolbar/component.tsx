@@ -1,26 +1,21 @@
 import React from 'react';
+import { defineMessages, useIntl } from 'react-intl';
 import { useMutation } from '@apollo/client';
 import Popover from '@mui/material/Popover';
+import { FocusTrap } from '@mui/base/FocusTrap';
 import { layoutSelect } from '/imports/ui/components/layout/context';
-import Button from '/imports/ui/components/common/button/component';
-import BBBMenu from '/imports/ui/components/common/menu/component';
 import { Layout } from '/imports/ui/components/layout/layoutTypes';
 import { ChatEvents } from '/imports/ui/core/enums/chat';
-import { defineMessages, useIntl } from 'react-intl';
+import ConfirmationModal from '/imports/ui/components/common/modal/confirmation/component';
 import {
   Container,
+  Divider,
+  EmojiButton,
   EmojiPicker,
   EmojiPickerWrapper,
-  EmojiButton,
+  Root,
 } from './styles';
-import { colorDanger, colorWhite } from '/imports/ui/stylesheets/styled-components/palette';
 import { CHAT_DELETE_MESSAGE_MUTATION } from '../mutations';
-import {
-  useIsChatMessageReactionsEnabled,
-  useIsDeleteChatMessageEnabled,
-  useIsEditChatMessageEnabled,
-  useIsReplyChatMessageEnabled,
-} from '/imports/ui/services/features';
 
 const intlMessages = defineMessages({
   reply: {
@@ -35,6 +30,18 @@ const intlMessages = defineMessages({
     id: 'app.chat.toolbar.delete',
     description: 'delete label',
   },
+  cancelLabel: {
+    id: 'app.chat.toolbar.delete.cancelLabel',
+    description: '',
+  },
+  confirmationTitle: {
+    id: 'app.chat.toolbar.delete.confirmationTitle',
+    description: '',
+  },
+  confirmationDescription: {
+    id: 'app.chat.toolbar.delete.confimationDescription',
+    description: '',
+  },
 });
 
 interface ChatMessageToolbarProps {
@@ -47,198 +54,183 @@ interface ChatMessageToolbarProps {
   messageSequence: number;
   emphasizedMessage: boolean;
   onEmojiSelected(emoji: { id: string; native: string }): void;
-  onEditRequest(): void;
-  onMenuOpenChange(open: boolean): void;
-  menuIsOpen: boolean;
   onReactionPopoverOpenChange(open: boolean): void;
   reactionPopoverIsOpen: boolean;
+  hasToolbar: boolean;
+  locked: boolean;
+  deleted: boolean;
+  chatReplyEnabled: boolean;
+  chatReactionsEnabled: boolean;
+  chatEditEnabled: boolean;
+  chatDeleteEnabled: boolean;
+  keyboardFocused: boolean;
 }
 
 const ChatMessageToolbar: React.FC<ChatMessageToolbarProps> = (props) => {
   const {
-    messageId, chatId, message, username, onEmojiSelected, onMenuOpenChange,
-    messageSequence, emphasizedMessage, onEditRequest, own, amIModerator, menuIsOpen,
-    onReactionPopoverOpenChange, reactionPopoverIsOpen,
+    messageId, chatId, message, username, onEmojiSelected, deleted,
+    messageSequence, emphasizedMessage, own, amIModerator, locked,
+    onReactionPopoverOpenChange, reactionPopoverIsOpen, hasToolbar, keyboardFocused,
+    chatDeleteEnabled, chatEditEnabled, chatReactionsEnabled, chatReplyEnabled,
   } = props;
   const [reactionsAnchor, setReactionsAnchor] = React.useState<Element | null>(
     null,
   );
+  const [isTryingToDelete, setIsTryingToDelete] = React.useState(false);
   const intl = useIntl();
   const [chatDeleteMessage] = useMutation(CHAT_DELETE_MESSAGE_MUTATION);
 
   const isRTL = layoutSelect((i: Layout) => i.isRTL);
-  const CHAT_REPLIES_ENABLED = useIsReplyChatMessageEnabled();
-  const CHAT_REACTIONS_ENABLED = useIsChatMessageReactionsEnabled();
-  const CHAT_EDIT_ENABLED = useIsEditChatMessageEnabled();
-  const CHAT_DELETE_ENABLED = useIsDeleteChatMessageEnabled();
-  const actions = [];
-
-  if (CHAT_EDIT_ENABLED && own) {
-    actions.push({
-      key: 'edit',
-      icon: 'pen_tool',
-      label: intl.formatMessage(intlMessages.edit),
-      onClick: (e: React.MouseEvent<HTMLDivElement, MouseEvent>) => {
-        e.stopPropagation();
-        onEditRequest();
-        window.dispatchEvent(
-          new CustomEvent(ChatEvents.CHAT_EDIT_REQUEST, {
-            detail: {
-              messageId,
-              chatId,
-            },
-          }),
-        );
-      },
-    });
-  }
-
-  if (CHAT_DELETE_ENABLED && (own || amIModerator)) {
-    const customStyles = { background: colorDanger, color: colorWhite };
-    actions.push({
-      key: 'delete',
-      icon: 'delete',
-      label: intl.formatMessage(intlMessages.delete),
-      customStyles,
-      onClick: (e: React.MouseEvent<HTMLDivElement, MouseEvent>) => {
-        e.stopPropagation();
-
-        chatDeleteMessage({
-          variables: {
-            chatId,
-            messageId,
-          },
-        });
-      },
-    });
-  }
 
   if ([
-    CHAT_REPLIES_ENABLED,
-    CHAT_REACTIONS_ENABLED,
-    CHAT_EDIT_ENABLED,
-    CHAT_DELETE_ENABLED,
-  ].every((config) => !config)) return null;
+    chatReplyEnabled,
+    chatReactionsEnabled,
+    chatEditEnabled,
+    chatDeleteEnabled,
+  ].every((config) => !config) || !hasToolbar || locked || deleted) return null;
+
+  const showReplyButton = chatReplyEnabled;
+  const showReactionsButton = chatReactionsEnabled;
+  const showEditButton = chatEditEnabled && own;
+  const showDeleteButton = chatDeleteEnabled && (own || amIModerator);
+  const showDivider = (showReplyButton || showReactionsButton) && (showEditButton || showDeleteButton);
 
   return (
-    <Container
-      className="chat-message-toolbar"
-      $sequence={messageSequence}
-      $menuIsOpen={menuIsOpen}
+    <Root
       $reactionPopoverIsOpen={reactionPopoverIsOpen}
+      onKeyDown={(e) => {
+        if (e.key === 'Escape' && keyboardFocused) {
+          window.dispatchEvent(new CustomEvent(ChatEvents.CHAT_KEYBOARD_FOCUS_MESSAGE_CANCEL));
+        }
+      }}
     >
-      {CHAT_REPLIES_ENABLED && (
-        <>
-          <Button
-            circle
-            ghost
-            aria-describedby={`chat-reply-btn-label-${messageSequence}`}
-            icon="undo"
-            color="light"
-            size="sm"
-            type="button"
-            onClick={(e: React.MouseEvent<HTMLButtonElement, MouseEvent>) => {
-              e.stopPropagation();
-              window.dispatchEvent(
-                new CustomEvent(ChatEvents.CHAT_REPLY_INTENTION, {
-                  detail: {
-                    username,
-                    message,
-                    messageId,
-                    chatId,
-                    emphasizedMessage,
-                    sequence: messageSequence,
-                  },
-                }),
-              );
-            }}
-          />
-          <span id={`chat-reply-btn-label-${messageSequence}`} className="sr-only">
-            {intl.formatMessage(intlMessages.reply, { 0: messageSequence })}
-          </span>
-        </>
-      )}
-      {CHAT_REACTIONS_ENABLED && (
-        <EmojiButton
-          onClick={(e: React.MouseEvent<HTMLButtonElement, MouseEvent>) => {
-            e.stopPropagation();
-            onReactionPopoverOpenChange(true);
-          }}
-          setRef={setReactionsAnchor}
-          size="sm"
-          icon="happy"
-          color="light"
-          ghost
-          type="button"
-          circle
-          data-test="emojiPickerButton"
-        />
-      )}
-
-      {actions.length > 0 && (
-        <BBBMenu
-          trigger={(
-            <Button
-              onClick={() => {
-                onMenuOpenChange(true);
+      <FocusTrap open={keyboardFocused}>
+        <Container className="chat-message-toolbar">
+          {showReplyButton && (
+            <>
+              <EmojiButton
+                aria-describedby={`chat-reply-btn-label-${messageSequence}`}
+                icon="undo"
+                color="light"
+                onClick={(e: React.MouseEvent<HTMLButtonElement, MouseEvent>) => {
+                  e.stopPropagation();
+                  window.dispatchEvent(
+                    new CustomEvent(ChatEvents.CHAT_REPLY_INTENTION, {
+                      detail: {
+                        username,
+                        message,
+                        messageId,
+                        chatId,
+                        emphasizedMessage,
+                        sequence: messageSequence,
+                      },
+                    }),
+                  );
+                  window.dispatchEvent(
+                    new CustomEvent(ChatEvents.CHAT_CANCEL_EDIT_REQUEST),
+                  );
+                }}
+              />
+              <span id={`chat-reply-btn-label-${messageSequence}`} className="sr-only">
+                {intl.formatMessage(intlMessages.reply, { 0: messageSequence })}
+              </span>
+            </>
+          )}
+          {showReactionsButton && (
+            <EmojiButton
+              onClick={(e: React.MouseEvent<HTMLButtonElement, MouseEvent>) => {
+                e.stopPropagation();
+                onReactionPopoverOpenChange(true);
               }}
-              size="sm"
-              icon="more"
+              icon="happy"
               color="light"
-              ghost
-              type="button"
-              circle
+              data-test="emojiPickerButton"
+              ref={setReactionsAnchor}
             />
           )}
-          actions={actions}
-          onCloseCallback={() => {
-            onMenuOpenChange(false);
-          }}
-          opts={{
-            id: 'app-settings-dropdown-menu',
-            keepMounted: true,
-            transitionDuration: 0,
-            elevation: 3,
-            getcontentanchorel: null,
-            fullwidth: 'true',
-            anchorOrigin: {
-              vertical: 'bottom',
-              horizontal: isRTL ? 'left' : 'right',
-            },
-            transformorigin: {
+          {showDivider && <Divider role="separator" />}
+          {showEditButton && (
+            <EmojiButton
+              onClick={(e: React.MouseEvent<HTMLButtonElement, MouseEvent>) => {
+                e.stopPropagation();
+                window.dispatchEvent(
+                  new CustomEvent(ChatEvents.CHAT_EDIT_REQUEST, {
+                    detail: {
+                      messageId,
+                      chatId,
+                      message,
+                    },
+                  }),
+                );
+                window.dispatchEvent(
+                  new CustomEvent(ChatEvents.CHAT_CANCEL_REPLY_INTENTION),
+                );
+              }}
+              icon="pen_tool"
+              color="light"
+              data-test="editMessageButton"
+            />
+          )}
+          {showDeleteButton && (
+            <EmojiButton
+              onClick={(e: React.MouseEvent<HTMLButtonElement, MouseEvent>) => {
+                e.stopPropagation();
+                setIsTryingToDelete(true);
+              }}
+              icon="delete"
+              color="light"
+              data-test="deleteMessageButton"
+            />
+          )}
+          <Popover
+            open={reactionPopoverIsOpen}
+            anchorEl={reactionsAnchor}
+            onClose={() => {
+              onReactionPopoverOpenChange(false);
+            }}
+            anchorOrigin={{
               vertical: 'top',
               horizontal: isRTL ? 'left' : 'right',
-            },
-          }}
-        />
-      )}
-      <Popover
-        open={reactionPopoverIsOpen}
-        anchorEl={reactionsAnchor}
-        onClose={() => {
-          setReactionsAnchor(null);
-          onReactionPopoverOpenChange(false);
-        }}
-        anchorOrigin={{
-          vertical: 'top',
-          horizontal: isRTL ? 'left' : 'right',
-        }}
-        transformOrigin={{
-          vertical: 'top',
-          horizontal: isRTL ? 'right' : 'left',
-        }}
-      >
-        <EmojiPickerWrapper>
-          <EmojiPicker
-            onEmojiSelect={(emojiObject: { id: string; native: string }) => {
-              onEmojiSelected(emojiObject);
             }}
-            showPreview={false}
-            showSkinTones={false}
-          />
-        </EmojiPickerWrapper>
-      </Popover>
-    </Container>
+            transformOrigin={{
+              vertical: 'top',
+              horizontal: isRTL ? 'right' : 'left',
+            }}
+          >
+            <EmojiPickerWrapper>
+              <EmojiPicker
+                onEmojiSelect={(emojiObject: { id: string; native: string }) => {
+                  onEmojiSelected(emojiObject);
+                }}
+                showPreview={false}
+                showSkinTones={false}
+              />
+            </EmojiPickerWrapper>
+          </Popover>
+          {isTryingToDelete && (
+            <ConfirmationModal
+              isOpen={isTryingToDelete}
+              setIsOpen={setIsTryingToDelete}
+              onRequestClose={() => setIsTryingToDelete(false)}
+              onConfirm={() => {
+                chatDeleteMessage({
+                  variables: {
+                    chatId,
+                    messageId,
+                  },
+                });
+              }}
+              title={intl.formatMessage(intlMessages.confirmationTitle)}
+              confirmButtonLabel={intl.formatMessage(intlMessages.delete)}
+              cancelButtonLabel={intl.formatMessage(intlMessages.cancelLabel)}
+              description={intl.formatMessage(intlMessages.confirmationDescription)}
+              confirmButtonColor="danger"
+              priority="low"
+            />
+          )}
+        </Container>
+      </FocusTrap>
+    </Root>
   );
 };
 

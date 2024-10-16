@@ -1,8 +1,12 @@
 export const enum ChatEvents {
   SENT_MESSAGE = 'sentMessage',
   CHAT_FOCUS_MESSAGE_REQUEST = 'ChatFocusMessageRequest',
+  CHAT_KEYBOARD_FOCUS_MESSAGE_REQUEST = 'ChatKeyboardFocusMessageRequest',
+  CHAT_KEYBOARD_FOCUS_MESSAGE_CANCEL = 'ChatKeyboardFocusMessageCancel',
   CHAT_REPLY_INTENTION = 'ChatReplyIntention',
+  CHAT_CANCEL_REPLY_INTENTION = 'ChatCancelReplyIntention',
   CHAT_EDIT_REQUEST = 'ChatEditRequest',
+  CHAT_CANCEL_EDIT_REQUEST = 'ChatCancelEditRequest',
   CHAT_DELETE_REQUEST = 'ChatDeleteRequest',
 }
 

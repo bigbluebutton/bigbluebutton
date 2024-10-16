@@ -6,6 +6,7 @@ import React, {
   useRef,
   useMemo,
 } from 'react';
+import { useMutation } from '@apollo/client';
 import TextareaAutosize from 'react-autosize-textarea';
 import { ChatFormCommandsEnum } from 'bigbluebutton-html-plugin-sdk/dist/cjs/ui-commands/chat/form/enums';
 import { FillChatFormCommandArguments } from 'bigbluebutton-html-plugin-sdk/dist/cjs/ui-commands/chat/form/types';
@@ -32,13 +33,13 @@ import useMeeting from '/imports/ui/core/hooks/useMeeting';
 
 import ChatOfflineIndicator from './chat-offline-indicator/component';
 import { ChatEvents } from '/imports/ui/core/enums/chat';
-import { useMutation } from '@apollo/client';
 import { CHAT_SEND_MESSAGE, CHAT_SET_TYPING } from './mutations';
 import Storage from '/imports/ui/services/storage/session';
 import { indexOf, without } from '/imports/utils/array-utils';
 import { GraphqlDataHookSubscriptionResponse } from '/imports/ui/Types/hook';
 import { throttle } from '/imports/utils/throttle';
 import logger from '/imports/startup/client/logger';
+import { CHAT_EDIT_MESSAGE_MUTATION } from '../chat-message-list/page/chat-message/mutations';
 
 const CLOSED_CHAT_LIST_KEY = 'closedChatList';
 const START_TYPING_THROTTLE_INTERVAL = 1000;
@@ -113,6 +114,8 @@ const messages = defineMessages({
   },
 });
 
+type EditingMessage = { chatId: string; messageId: string, message: string };
+
 const ChatMessageForm: React.FC<ChatMessageFormProps> = ({
   title,
   disabled,
@@ -135,6 +138,7 @@ const ChatMessageForm: React.FC<ChatMessageFormProps> = ({
   const emojiPickerButtonRef = useRef(null);
   const [isTextAreaFocused, setIsTextAreaFocused] = React.useState(false);
   const [repliedMessageId, setRepliedMessageId] = React.useState<string>();
+  const [editingMessage, setEditingMessage] = React.useState<EditingMessage | null>(null);
   const textAreaRef: RefObject<TextareaAutosize> = useRef<TextareaAutosize>(null);
   const { isMobile } = deviceInfo;
   const prevChatId = usePreviousValue(chatId);
@@ -152,6 +156,10 @@ const ChatMessageForm: React.FC<ChatMessageFormProps> = ({
   const [chatSendMessage, {
     loading: chatSendMessageLoading, error: chatSendMessageError,
   }] = useMutation(CHAT_SEND_MESSAGE);
+  const [
+    chatEditMessage,
+    { loading: chatEditMessageLoading },
+  ] = useMutation(CHAT_EDIT_MESSAGE_MUTATION);
 
   const CHAT_CONFIG = window.meetingClientSettings.public.chat;
   const PUBLIC_CHAT_ID = CHAT_CONFIG.public_id;
@@ -284,17 +292,37 @@ const ChatMessageForm: React.FC<ChatMessageFormProps> = ({
   }, [message]);
 
   useEffect(() => {
-    const handler = (e: Event) => {
+    const handleReplyIntention = (e: Event) => {
       if (e instanceof CustomEvent) {
         setRepliedMessageId(e.detail.messageId);
         textAreaRef.current?.textarea.focus();
       }
     };
 
-    window.addEventListener(ChatEvents.CHAT_REPLY_INTENTION, handler);
+    const handleEditingMessage = (e: Event) => {
+      if (e instanceof CustomEvent) {
+        if (textAreaRef.current) {
+          setMessage(e.detail.message);
+          setEditingMessage(e.detail);
+        }
+      }
+    };
+
+    const handleCancelEditingMessage = (e: Event) => {
+      if (e instanceof CustomEvent) {
+        setMessage('');
+        setEditingMessage(null);
+      }
+    };
+
+    window.addEventListener(ChatEvents.CHAT_REPLY_INTENTION, handleReplyIntention);
+    window.addEventListener(ChatEvents.CHAT_EDIT_REQUEST, handleEditingMessage);
+    window.addEventListener(ChatEvents.CHAT_CANCEL_EDIT_REQUEST, handleCancelEditingMessage);
 
     return () => {
-      window.removeEventListener(ChatEvents.CHAT_REPLY_INTENTION, handler);
+      window.removeEventListener(ChatEvents.CHAT_REPLY_INTENTION, handleReplyIntention);
+      window.removeEventListener(ChatEvents.CHAT_EDIT_REQUEST, handleEditingMessage);
+      window.removeEventListener(ChatEvents.CHAT_CANCEL_EDIT_REQUEST, handleCancelEditingMessage);
     };
   }, []);
 
@@ -314,25 +342,30 @@ const ChatMessageForm: React.FC<ChatMessageFormProps> = ({
         return;
       }
 
-      if (!chatSendMessageLoading) {
+      if (editingMessage && !chatEditMessageLoading) {
+        chatEditMessage({
+          variables: {
+            chatId: editingMessage.chatId,
+            messageId: editingMessage.messageId,
+            chatMessageInMarkdownFormat: msg,
+          },
+        }).then(() => {
+          window.dispatchEvent(
+            new CustomEvent(ChatEvents.CHAT_CANCEL_EDIT_REQUEST),
+          );
+        });
+      } else if (!chatSendMessageLoading) {
         chatSendMessage({
           variables: {
             chatMessageInMarkdownFormat: msg,
             chatId: chatId === PUBLIC_CHAT_ID ? PUBLIC_GROUP_CHAT_ID : chatId,
             replyToMessageId: repliedMessageId,
           },
+        }).then(() => {
+          window.dispatchEvent(
+            new CustomEvent(ChatEvents.CHAT_CANCEL_REPLY_INTENTION),
+          );
         });
-
-        window.dispatchEvent(
-          new CustomEvent(ChatEvents.CHAT_REPLY_INTENTION, {
-            detail: {
-              username: undefined,
-              message: undefined,
-              messageId: undefined,
-              chatId: undefined,
-            },
-          }),
-        );
       }
       const currentClosedChats = Storage.getItem(CLOSED_CHAT_LIST_KEY);
 
@@ -459,65 +492,69 @@ const ChatMessageForm: React.FC<ChatMessageFormProps> = ({
           </Styled.EmojiPickerWrapper>
         ) : null}
         <Styled.Wrapper>
-          <Styled.Input
-            id="message-input"
-            ref={textAreaRef}
-            placeholder={intl.formatMessage(messages.inputPlaceholder, { 0: title })}
-            aria-label={intl.formatMessage(messages.inputLabel, { 0: title })}
-            aria-invalid={hasErrors ? 'true' : 'false'}
-            autoCorrect="off"
-            autoComplete="off"
-            spellCheck="true"
-            disabled={disabled || partnerIsLoggedOut}
-            value={message}
-            onFocus={() => {
-              window.dispatchEvent(new CustomEvent(PluginSdk.ChatFormUiDataNames.CHAT_INPUT_IS_FOCUSED, {
-                detail: {
-                  value: true,
-                },
-              }));
-              setIsTextAreaFocused(true);
-            }}
-            onBlur={() => {
-              window.dispatchEvent(new CustomEvent(PluginSdk.ChatFormUiDataNames.CHAT_INPUT_IS_FOCUSED, {
-                detail: {
-                  value: false,
-                },
-              }));
-            }}
-            onChange={handleMessageChange}
-            onKeyDown={handleMessageKeyDown}
-            onPaste={(e) => { e.stopPropagation(); }}
-            onCut={(e) => { e.stopPropagation(); }}
-            onCopy={(e) => { e.stopPropagation(); }}
-            async
-          />
-          {ENABLE_EMOJI_PICKER ? (
-            <Styled.EmojiButton
-              ref={emojiPickerButtonRef}
-              onClick={() => setShowEmojiPicker(!showEmojiPicker)}
-              icon="happy"
-              color="light"
-              ghost
-              type="button"
-              circle
-              hideLabel
-              label={intl.formatMessage(messages.emojiButtonLabel)}
-              data-test="emojiPickerButton"
+          <Styled.InputWrapper>
+            <Styled.Input
+              id="message-input"
+              ref={textAreaRef}
+              placeholder={intl.formatMessage(messages.inputPlaceholder, { 0: title })}
+              aria-label={intl.formatMessage(messages.inputLabel, { 0: title })}
+              aria-invalid={hasErrors ? 'true' : 'false'}
+              autoCorrect="off"
+              autoComplete="off"
+              spellCheck="true"
+              disabled={disabled || partnerIsLoggedOut}
+              value={message}
+              onFocus={() => {
+                window.dispatchEvent(new CustomEvent(PluginSdk.ChatFormUiDataNames.CHAT_INPUT_IS_FOCUSED, {
+                  detail: {
+                    value: true,
+                  },
+                }));
+                setIsTextAreaFocused(true);
+              }}
+              onBlur={() => {
+                window.dispatchEvent(new CustomEvent(PluginSdk.ChatFormUiDataNames.CHAT_INPUT_IS_FOCUSED, {
+                  detail: {
+                    value: false,
+                  },
+                }));
+              }}
+              onChange={handleMessageChange}
+              onKeyDown={handleMessageKeyDown}
+              onPaste={(e) => { e.stopPropagation(); }}
+              onCut={(e) => { e.stopPropagation(); }}
+              onCopy={(e) => { e.stopPropagation(); }}
+              async
             />
-          ) : null}
-          <Styled.SendButton
-            hideLabel
-            circle
-            aria-label={intl.formatMessage(messages.submitLabel)}
-            type="submit"
-            disabled={disabled || partnerIsLoggedOut || chatSendMessageLoading}
-            label={intl.formatMessage(messages.submitLabel)}
-            color="primary"
-            icon="send"
-            onClick={() => { }}
-            data-test="sendMessageButton"
-          />
+            {ENABLE_EMOJI_PICKER ? (
+              <Styled.EmojiButton
+                ref={emojiPickerButtonRef}
+                onClick={() => setShowEmojiPicker(!showEmojiPicker)}
+                icon="happy"
+                color="light"
+                ghost
+                type="button"
+                circle
+                hideLabel
+                label={intl.formatMessage(messages.emojiButtonLabel)}
+                data-test="emojiPickerButton"
+              />
+            ) : null}
+          </Styled.InputWrapper>
+          <div style={{ zIndex: 10 }}>
+            <Styled.SendButton
+              hideLabel
+              circle
+              aria-label={intl.formatMessage(messages.submitLabel)}
+              type="submit"
+              disabled={disabled || partnerIsLoggedOut || chatSendMessageLoading}
+              label={intl.formatMessage(messages.submitLabel)}
+              color="primary"
+              icon="send"
+              onClick={() => { }}
+              data-test="sendMessageButton"
+            />
+          </div>
         </Styled.Wrapper>
         {
           error && (
