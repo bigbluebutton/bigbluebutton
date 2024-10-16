@@ -276,6 +276,7 @@ CREATE TABLE "user" (
     "joinErrorMessage" varchar(400),
     "banned" bool,
     "loggedOut" bool,  -- when user clicked Leave meeting button
+    "bot" bool, -- used to flag au
     "guest" bool, --used for dialIn
     "guestStatus" varchar(50),
     "registeredOn" bigint,
@@ -359,6 +360,7 @@ AS SELECT "user"."userId",
     "user"."raiseHandTime",
     "user"."reactionEmoji",
     "user"."reactionEmojiTime",
+    "user"."bot",
     "user"."guest",
     "user"."guestStatus",
     "user"."mobile",

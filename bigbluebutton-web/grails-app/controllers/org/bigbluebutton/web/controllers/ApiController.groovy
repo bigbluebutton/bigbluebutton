@@ -301,6 +301,11 @@ class ApiController {
       authenticated = true
     }
 
+    Boolean bot = false;
+    if(!StringUtils.isEmpty(params.bot)) {
+      bot = Boolean.parseBoolean(params.bot)
+    }
+
 
     if (!StringUtils.isEmpty(params.auth)) {
       authenticated = Boolean.parseBoolean(params.auth)
@@ -435,6 +440,7 @@ class ApiController {
     us.mode = "LIVE"
     us.record = meeting.isRecord()
     us.welcome = meeting.getWelcomeMessage()
+    us.bot = bot
     us.guest = guest
     us.authed = authenticated
     us.guestStatus = guestStatusVal
@@ -494,6 +500,7 @@ class ApiController {
         sessionToken,
         us.avatarURL,
         us.webcamBackgroundURL,
+        us.bot,
         us.guest,
         us.authed,
         guestStatusVal,
