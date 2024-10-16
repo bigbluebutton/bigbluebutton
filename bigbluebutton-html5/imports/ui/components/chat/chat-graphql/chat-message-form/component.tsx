@@ -589,7 +589,7 @@ const ChatMessageFormContainer: React.FC = () => {
         idChatOpen,
         chatId: idChatOpen,
         connected: true, // TODO: monitoring network status
-        disabled: false, //Set to false due to change of approach on locked settings(private chat)
+        disabled: false, // Set to false due to change of approach on locked settings(private chat)
         title,
         isRTL,
         // if participant is not defined, it means that the chat is public
