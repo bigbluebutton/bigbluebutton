@@ -86,6 +86,7 @@ export const ChatContent = styled.div<ChatContentProps>`
   flex-flow: column;
   width: 100%;
   border-radius: 0.5rem;
+  background-color: #f4f6fa;
 
   ${({ $highlight }) => $highlight && `
     .chat-message-wrapper:hover > & {
