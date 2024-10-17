@@ -350,6 +350,19 @@ const ChatMessageForm: React.FC<ChatMessageFormProps> = ({
         return;
       }
 
+      const sendCancelEvents = () => {
+        if (repliedMessageId) {
+          window.dispatchEvent(
+            new CustomEvent(ChatEvents.CHAT_CANCEL_REPLY_INTENTION),
+          );
+        }
+        if (editingMessage) {
+          window.dispatchEvent(
+            new CustomEvent(ChatEvents.CHAT_CANCEL_EDIT_REQUEST),
+          );
+        }
+      };
+
       if (editingMessage && !chatEditMessageLoading) {
         chatEditMessage({
           variables: {
@@ -358,9 +371,7 @@ const ChatMessageForm: React.FC<ChatMessageFormProps> = ({
             chatMessageInMarkdownFormat: msg,
           },
         }).then(() => {
-          window.dispatchEvent(
-            new CustomEvent(ChatEvents.CHAT_CANCEL_EDIT_REQUEST),
-          );
+          sendCancelEvents();
         });
       } else if (!chatSendMessageLoading) {
         chatSendMessage({
@@ -370,9 +381,7 @@ const ChatMessageForm: React.FC<ChatMessageFormProps> = ({
             replyToMessageId: repliedMessageId,
           },
         }).then(() => {
-          window.dispatchEvent(
-            new CustomEvent(ChatEvents.CHAT_CANCEL_REPLY_INTENTION),
-          );
+          sendCancelEvents();
         });
       }
       const currentClosedChats = Storage.getItem(CLOSED_CHAT_LIST_KEY);
