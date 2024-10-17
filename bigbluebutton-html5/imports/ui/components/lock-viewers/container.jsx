@@ -4,7 +4,7 @@ import LockViewersComponent from './component';
 import useCurrentUser from '/imports/ui/core/hooks/useCurrentUser';
 import { SET_LOCK_SETTINGS_PROPS, SET_WEBCAM_ONLY_FOR_MODERATOR } from './mutations';
 import useMeeting from '../../core/hooks/useMeeting';
-import { useIsChatEnabled, useIsSharedNotesEnabled } from '../../services/features';
+import { useIsChatEnabled, useIsPrivateChatEnabled, useIsSharedNotesEnabled } from '../../services/features';
 
 const LockViewersContainer = (props) => {
   const { data: currentUserData } = useCurrentUser((user) => ({
@@ -47,6 +47,7 @@ const LockViewersContainer = (props) => {
     usersPolicies: m.usersPolicies,
   }));
   const isChatEnabled = useIsChatEnabled();
+  const isPrivateChatEnabled = useIsPrivateChatEnabled();
   const isSharedNotesEnabled = useIsSharedNotesEnabled();
 
   return amIModerator && meeting && (
@@ -57,6 +58,7 @@ const LockViewersContainer = (props) => {
       showToggleLabel={false}
       meeting={meeting}
       isChatEnabled={isChatEnabled}
+      isPrivateChatEnabled={isPrivateChatEnabled}
       isSharedNotesEnabled={isSharedNotesEnabled}
       {...props}
     />
