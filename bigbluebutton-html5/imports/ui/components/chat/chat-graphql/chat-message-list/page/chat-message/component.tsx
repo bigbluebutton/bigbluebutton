@@ -391,8 +391,8 @@ const ChatMesssage: React.FC<ChatMessageProps> = ({
       case ChatMessageType.USER_AWAY_STATUS_MSG: {
         const { away } = JSON.parse(message.messageMetadata);
         const awayMessage = (away)
-          ? intl.formatMessage(intlMessages.userAway, { user: message.senderName })
-          : intl.formatMessage(intlMessages.userNotAway, { user: message.senderName });
+          ? `${message.senderName} ${intl.formatMessage(intlMessages.userAway)}`
+          : `${message.senderName} ${intl.formatMessage(intlMessages.userNotAway)}`;
         return {
           name: message.senderName,
           color: '#0F70D7',
