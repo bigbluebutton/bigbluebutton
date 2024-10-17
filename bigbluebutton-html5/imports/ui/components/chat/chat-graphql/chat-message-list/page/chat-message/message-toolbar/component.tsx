@@ -144,7 +144,7 @@ const ChatMessageToolbar: React.FC<ChatMessageToolbarProps> = (props) => {
               }}
               icon="happy"
               color="light"
-              data-test="emojiPickerButton"
+              data-test="reactionsPickerButton"
               ref={setReactionsAnchor}
             />
           )}

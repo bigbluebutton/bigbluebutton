@@ -9,7 +9,7 @@ interface ChatMessageNotificationContentProps {
 const ChatMessageNotificationContent: React.FC<ChatMessageNotificationContentProps> = (props) => {
   const { text, iconName } = props;
   return (
-    <Styled.Root>
+    <Styled.Root data-test="chatMessageNotificationContent">
       {iconName && <Styled.Icon iconName={iconName} />}
       <Styled.Typography>
         {text}

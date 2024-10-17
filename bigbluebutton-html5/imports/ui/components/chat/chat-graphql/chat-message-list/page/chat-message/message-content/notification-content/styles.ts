@@ -22,7 +22,9 @@ export const Icon = styled(BaseIcon)`
   }
 `;
 
-export const Typography = styled.span`
+export const Typography = styled.p`
+  display: inline;
+  margin: 0;
   vertical-align: baseline;
   overflow-wrap: break-word;
   white-space: pre-wrap;
