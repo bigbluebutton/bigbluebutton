@@ -1,13 +1,14 @@
 import styled from 'styled-components';
 import {
-  colorGrayLightest, colorOffWhite, colorPrimary, colorText,
+  colorGrayLightest, colorPrimary, colorText,
+  colorWhite,
 } from '/imports/ui/stylesheets/styled-components/palette';
 import { $3xlPadding, lgPadding } from '/imports/ui/stylesheets/styled-components/general';
 
 const Container = styled.div`
   border-top-left-radius: 0.5rem;
   border-top-right-radius: 0.5rem;
-  background-color: ${colorOffWhite};
+  background-color: ${colorWhite};
   box-shadow: inset 0 0 0 1px ${colorGrayLightest};
   padding: ${lgPadding} ${$3xlPadding};
   position: relative;
