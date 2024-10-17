@@ -50,7 +50,7 @@
     "app.chat.toolbar.reactions.andLabel": "and",
     "app.chat.toolbar.reactions.findReactionButtonLabel": "Find a reaction",
     "app.chat.toolbar.edit.editing": "Editing message",
-    "app.chat.toolbar.edit.cancel": "Press {key} to cancel.",
+    "app.chat.toolbar.edit.cancel": "Press {0} to cancel.",
     "app.chat.toolbar.edit.edited": "Edited",
     "app.chat.toolbar.delete.cancelLabel": "Cancel",
     "app.chat.toolbar.delete.confirmationTitle": "Are you sure?",

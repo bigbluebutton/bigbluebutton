@@ -2,7 +2,9 @@ import React, { useEffect, useState } from 'react';
 import { defineMessages, useIntl } from 'react-intl';
 import { ChatEvents } from '/imports/ui/core/enums/chat';
 import Icon from '/imports/ui/components/common/icon/component';
-import { Highlighted, Left, Root } from './styles';
+import {
+  Cancel, Highlighted, Left, Root,
+} from './styles';
 
 const intlMessages = defineMessages({
   editing: {
@@ -44,7 +46,7 @@ const ChatEditingWarning = () => {
 
   if (!show) return null;
 
-  const cancelMessage = intl.formatMessage(intlMessages.cancel, { key: CANCEL_KEY_LABEL });
+  const cancelMessage = intl.formatMessage(intlMessages.cancel, { 0: CANCEL_KEY_LABEL });
   const editingMessage = intl.formatMessage(intlMessages.editing);
 
   return (
@@ -53,13 +55,17 @@ const ChatEditingWarning = () => {
         <Icon iconName="pen_tool" />
         {editingMessage}
       </Left>
-      <span>
+      <Cancel
+        onClick={() => {
+          window.dispatchEvent(new CustomEvent(ChatEvents.CHAT_CANCEL_EDIT_REQUEST));
+        }}
+      >
         {cancelMessage.split(CANCEL_KEY_LABEL)[0]}
         &nbsp;
         <Highlighted>{CANCEL_KEY_LABEL}</Highlighted>
         &nbsp;
         {cancelMessage.split(CANCEL_KEY_LABEL)[1]}
-      </span>
+      </Cancel>
       <span className="sr-only" id="cancel-editing-msg">
         {`${editingMessage} ${cancelMessage}`}
       </span>

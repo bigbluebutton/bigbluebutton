@@ -28,7 +28,27 @@ export const Left = styled.span`
   gap: ${xsPadding};
 `;
 
+export const Cancel = styled.button`
+  background: none;
+  outline: none;
+  border: none;
+  color: inherit;
+  padding: 0.125rem;
+  border-radius: 0.5rem;
+  text-decoration: underline;
+  cursor: pointer;
+
+  &:hover {
+    opacity: .75;
+  }
+
+  &:focus {
+    box-shadow: inset 0 0 0.125rem ${colorGrayLight};
+  }
+`;
+
 export default {
   Root,
   Left,
+  Cancel,
 };
