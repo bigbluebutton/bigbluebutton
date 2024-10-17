@@ -25,6 +25,8 @@ import WebRtcPeer from '/imports/ui/services/webrtc-base/peer';
 import { StreamItem, VideoItem } from './types';
 import { Output } from '/imports/ui/components/layout/layoutTypes';
 import { VIDEO_TYPES } from './enums';
+import { display } from '@mui/system';
+import { isEqual } from 'radash';
 
 const intlClientErrors = defineMessages({
   permissionError: {
@@ -94,6 +96,7 @@ const intlSFUErrors = defineMessages({
 
 interface VideoProviderState {
   socketOpen: boolean;
+  pendingScreenshareStatus: string[];
 }
 
 interface VideoProviderProps {
@@ -192,6 +195,7 @@ class VideoProvider extends Component<VideoProviderProps, VideoProviderState> {
     // socketOpen state is there to force update when the signaling socket opens or closes
     this.state = {
       socketOpen: false,
+      pendingScreenshareStatus: [],
     };
     this.mounted = false;
     this.info = info;
@@ -252,7 +256,31 @@ class VideoProvider extends Component<VideoProviderProps, VideoProviderState> {
       && this.ws == null) {
       this.ws = this.openWs();
     }
+    const connectedStreams = streams.filter((s) => s.type !== "connecting");
+    const pendingScreenshareStatus = this.state
+    .pendingScreenshareStatus
+    .map((st) => {
+      const stream = connectedStreams.find((s) => s.stream === st);
+      if (stream?.showAsContent) {
+        const screenshare = document.getElementById('screenshareVideo');
+        const videoTag = this.videoTags[stream.stream];
+        screenshare.pause();
+        screenshare.srcObject = videoTag.srcObject;
+        screenshare.load();
+        screenshare.play();
+      }
+      return st;
+    })
+    .filter((stream) => {
+      const st = connectedStreams.find((s) => s.stream === stream);
+      return !st;
+    });
+
+    if (!isEqual(pendingScreenshareStatus, this.state.pendingScreenshareStatus)) {
+      this.setState({ pendingScreenshareStatus });
+    }
   }
+
 
   componentWillUnmount() {
     const { exitVideo } = this.props;
@@ -1215,6 +1243,7 @@ class VideoProvider extends Component<VideoProviderProps, VideoProviderState> {
       videoElement.pause();
       videoElement.srcObject = stream;
       videoElement.load();
+      videoElement.play();
     }
   }
 
@@ -1223,8 +1252,13 @@ class VideoProvider extends Component<VideoProviderProps, VideoProviderState> {
   }
 
   attachVideoStream(stream: string) {
+    const {
+      streams,
+    } = this.props;
+
     const videoElement = this.getVideoElement(stream);
-    const isLocal = VideoService.isLocalStream(stream);
+    const isScreenShare = stream.includes('screenshare');
+    // const isLocal = VideoService.isLocalStream(stream);
     const peer = this.webRtcPeers[stream];
 
     if (VideoProvider.shouldAttachVideoStream(peer, videoElement)) {
@@ -1236,6 +1270,12 @@ class VideoProvider extends Component<VideoProviderProps, VideoProviderState> {
       // hidden/shown when the stream is attached.
       notifyStreamStateChange(stream, pc.connectionState);
       VideoProvider.attach(peer, videoElement);
+      if (isScreenShare) {
+        this.setState({
+          ...this.state,
+          pendingScreenshareStatus: [...this.state.pendingScreenshareStatus, stream],
+        });
+      }
     }
   }
 
@@ -1414,20 +1454,30 @@ class VideoProvider extends Component<VideoProviderProps, VideoProviderState> {
     } = this.props;
 
     return (
-      <VideoListContainer
-        {...{
-          streams,
-          swapLayout,
-          currentVideoPageIndex,
-          cameraDock,
-          focusedId,
-          handleVideoFocus,
-          isGridEnabled,
+      <div
+        style={{
+          width: cameraDock.width,
+          height: cameraDock.height,
+          position: cameraDock.position,
+          display: 'flex',
+          flexDirection: 'column',
         }}
-        onVideoItemMount={this.createVideoTag}
-        onVideoItemUnmount={this.destroyVideoTag}
-        onVirtualBgDrop={this.startVirtualBackgroundByDrop}
-      />
+      >
+        <VideoListContainer
+          {...{
+            streams,
+            swapLayout,
+            currentVideoPageIndex,
+            cameraDock,
+            focusedId,
+            handleVideoFocus,
+            isGridEnabled,
+          }}
+          onVideoItemMount={this.createVideoTag}
+          onVideoItemUnmount={this.destroyVideoTag}
+          onVirtualBgDrop={this.startVirtualBackgroundByDrop}
+        />
+      </div>
     );
   }
 }
