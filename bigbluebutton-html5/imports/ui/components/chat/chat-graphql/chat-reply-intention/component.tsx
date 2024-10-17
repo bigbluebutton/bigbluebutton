@@ -47,40 +47,42 @@ const ChatReplyIntention = () => {
   const hidden = !username || !message;
 
   return (
-    <Styled.Container
-      $hidden={hidden}
-      $animations={animations}
-      onClick={() => {
-        window.dispatchEvent(
-          new CustomEvent(ChatEvents.CHAT_FOCUS_MESSAGE_REQUEST, {
-            detail: {
-              sequence,
-            },
-          }),
-        );
-        Storage.removeItem(ChatEvents.CHAT_FOCUS_MESSAGE_REQUEST);
-        if (sequence) Storage.setItem(ChatEvents.CHAT_FOCUS_MESSAGE_REQUEST, sequence);
-      }}
-    >
-      <Styled.Message>
-        <ChatMessageTextContent
-          text={message || ''}
-          emphasizedMessage={!!emphasizedMessage}
-          dataTest={null}
-        />
-      </Styled.Message>
-      <Styled.CloseBtn
-        onClick={(e) => {
-          e.stopPropagation();
+    <Styled.Root>
+      <Styled.Container
+        $hidden={hidden}
+        $animations={animations}
+        onClick={() => {
           window.dispatchEvent(
-            new CustomEvent(ChatEvents.CHAT_CANCEL_REPLY_INTENTION),
+            new CustomEvent(ChatEvents.CHAT_FOCUS_MESSAGE_REQUEST, {
+              detail: {
+                sequence,
+              },
+            }),
           );
+          Storage.removeItem(ChatEvents.CHAT_FOCUS_MESSAGE_REQUEST);
+          if (sequence) Storage.setItem(ChatEvents.CHAT_FOCUS_MESSAGE_REQUEST, sequence);
         }}
-        icon="close"
-        tabIndex={hidden ? -1 : 0}
-        aria-hidden={hidden}
-      />
-    </Styled.Container>
+      >
+        <Styled.Message>
+          <ChatMessageTextContent
+            text={message || ''}
+            emphasizedMessage={!!emphasizedMessage}
+            dataTest={null}
+          />
+        </Styled.Message>
+        <Styled.CloseBtn
+          onClick={(e) => {
+            e.stopPropagation();
+            window.dispatchEvent(
+              new CustomEvent(ChatEvents.CHAT_CANCEL_REPLY_INTENTION),
+            );
+          }}
+          icon="close"
+          tabIndex={hidden ? -1 : 0}
+          aria-hidden={hidden}
+        />
+      </Styled.Container>
+    </Styled.Root>
   );
 };
 

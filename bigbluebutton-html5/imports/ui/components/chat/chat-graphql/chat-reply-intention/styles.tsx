@@ -12,7 +12,11 @@ import EmojiButton from '../chat-message-list/page/chat-message/message-toolbar/
 const Container = styled.div<{ $hidden: boolean; $animations: boolean }>`
   border-radius: 0.375rem;
   background-color: ${colorWhite};
-  position: relative;
+  position: absolute;
+  right: 0;
+  left: 0;
+  bottom: 100%;
+  z-index: 10;
   overflow: hidden;
   box-shadow: inset 0 0 0 1px ${colorGrayLightest};
   display: flex;
@@ -75,8 +79,13 @@ const CloseBtn = styled(EmojiButton)`
   padding: 0;
 `;
 
+const Root = styled.div`
+  position: relative;
+`;
+
 export default {
   Container,
   CloseBtn,
   Message,
+  Root,
 };
