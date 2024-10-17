@@ -31,6 +31,8 @@ import { LoadingContext } from '/imports/ui/components/common/loading-screen/loa
 import IntlAdapter from '/imports/startup/client/intlAdapter';
 import PresenceAdapter from '../imports/ui/components/presence-adapter/component';
 import CustomUsersSettings from '/imports/ui/components/join-handler/custom-users-settings/component';
+import createUseSubscription from '/imports/ui/core/hooks/createUseSubscription';
+import PLUGIN_CONFIGURATION_QUERY from '/imports/ui/components/plugins-engine/query';
 
 // eslint-disable-next-line import/prefer-default-export
 const Startup = () => {
@@ -60,11 +62,14 @@ const Startup = () => {
     }, message);
   });
 
+  const { data: pluginConfig } = createUseSubscription(
+    PLUGIN_CONFIGURATION_QUERY,
+  )((obj) => obj);
   return (
     <ContextProviders>
       <PresenceAdapter>
         <IntlAdapter>
-          <Base />
+          <Base pluginConfig={pluginConfig} />
         </IntlAdapter>
       </PresenceAdapter>
     </ContextProviders>

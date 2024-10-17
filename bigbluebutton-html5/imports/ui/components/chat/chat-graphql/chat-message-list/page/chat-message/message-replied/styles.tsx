@@ -1,24 +1,36 @@
 import styled from 'styled-components';
-import { colorOffWhite } from '/imports/ui/stylesheets/styled-components/palette';
+import {
+  colorGrayLightest, colorPrimary, colorText,
+  colorWhite,
+} from '/imports/ui/stylesheets/styled-components/palette';
+import { $3xlPadding, lgPadding } from '/imports/ui/stylesheets/styled-components/general';
 
-const Container = styled.div<{ $userColor: string }>`
-  border-radius: 4px;
-  border-left: 4px solid ${({ $userColor }) => $userColor};
-  background-color: ${colorOffWhite};
-  padding: 6px;
+const Container = styled.div`
+  border-top-left-radius: 0.5rem;
+  border-top-right-radius: 0.5rem;
+  background-color: ${colorWhite};
+  box-shadow: inset 0 0 0 1px ${colorGrayLightest};
+  padding: ${lgPadding} ${$3xlPadding};
   position: relative;
-  margin: 0.25rem 0 0.25rem 0;
   overflow: hidden;
   cursor: pointer;
+
+  [dir='ltr'] & {
+    border-right: 0.5rem solid ${colorPrimary};
+  }
+
+  [dir='rtl'] & {
+    border-left: 0.5rem solid ${colorPrimary};
+  }
 `;
 
 const Typography = styled.div`
   overflow: hidden;
 `;
 
-const Username = styled(Typography)<{ $userColor: string }>`
+const Username = styled(Typography)`
   font-weight: bold;
-  color: ${({ $userColor }) => $userColor};
+  color: ${colorPrimary};
   line-height: 1rem;
   font-size: 1rem;
   white-space: nowrap;
@@ -26,13 +38,20 @@ const Username = styled(Typography)<{ $userColor: string }>`
 `;
 
 const Message = styled(Typography)`
-  max-height: 3.6rem;
-  line-height: 1.2rem;
+  max-height: 1rem;
+  line-height: 1rem;
   overflow: hidden;
+`;
+
+export const DeleteMessage = styled.span`
+  font-style: italic;
+  font-weight: bold;
+  color: ${colorText};
 `;
 
 export default {
   Container,
   Username,
   Message,
+  DeleteMessage,
 };

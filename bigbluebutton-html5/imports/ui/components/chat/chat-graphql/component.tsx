@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useRef } from 'react';
 import { CircularProgress } from '@mui/material';
 import ChatHeader from './chat-header/component';
 import { layoutSelect, layoutSelectInput } from '../../layout/context';
@@ -14,6 +14,7 @@ import { Chat as ChatType } from '/imports/ui/Types/chat';
 import { layoutDispatch } from '/imports/ui/components/layout/context';
 import browserInfo from '/imports/utils/browserInfo';
 import { GraphqlDataHookSubscriptionResponse } from '/imports/ui/Types/hook';
+import { ChatEvents } from '/imports/ui/core/enums/chat';
 
 interface ChatProps {
   isRTL: boolean;
@@ -21,6 +22,7 @@ interface ChatProps {
 
 const Chat: React.FC<ChatProps> = ({ isRTL }) => {
   const { isChrome } = browserInfo;
+  const isEditingMessage = useRef(false);
 
   React.useEffect(() => {
     const handleMouseDown = () => {
@@ -32,10 +34,36 @@ const Chat: React.FC<ChatProps> = ({ isRTL }) => {
       }
     };
 
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape' && isEditingMessage.current) {
+        window.dispatchEvent(
+          new CustomEvent(ChatEvents.CHAT_CANCEL_EDIT_REQUEST),
+        );
+      }
+    };
+
+    const handleEditingMessage = (e: Event) => {
+      if (e instanceof CustomEvent) {
+        isEditingMessage.current = true;
+      }
+    };
+
+    const handleCancelEditingMessage = (e: Event) => {
+      if (e instanceof CustomEvent) {
+        isEditingMessage.current = false;
+      }
+    };
+
     document.addEventListener('mousedown', handleMouseDown);
+    document.addEventListener('keydown', handleKeyDown);
+    window.addEventListener(ChatEvents.CHAT_EDIT_REQUEST, handleEditingMessage);
+    window.addEventListener(ChatEvents.CHAT_CANCEL_EDIT_REQUEST, handleCancelEditingMessage);
 
     return () => {
       document.removeEventListener('mousedown', handleMouseDown);
+      document.removeEventListener('keydown', handleKeyDown);
+      window.removeEventListener(ChatEvents.CHAT_EDIT_REQUEST, handleEditingMessage);
+      window.removeEventListener(ChatEvents.CHAT_CANCEL_EDIT_REQUEST, handleCancelEditingMessage);
     };
   }, []);
 

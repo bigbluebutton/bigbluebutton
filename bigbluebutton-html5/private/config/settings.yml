@@ -105,7 +105,7 @@ public:
           - en-US
           - es-ES
           - fr-FR
-        # - hi-ID
+        # - hi-IN
         # - it-IT
         # - ja-JP
           - pt-BR
@@ -768,7 +768,8 @@ public:
     # e.g.: disableEmojis: ['grin','laughing']
     disableEmojis: []
     allowedElements: ['a', 'code', 'em', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'li', 'ol', 'ul', 'p', 'strong']
-    # available options for toolbar: reply
+    # available options for toolbar: reply, edit, delete, reactions
+    # example: ['reply', 'delete']
     toolbar: []
   userReaction:
     enabled: true

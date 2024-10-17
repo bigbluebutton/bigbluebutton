@@ -1,4 +1,3 @@
-/* eslint-disable camelcase */
 import { gql } from '@apollo/client';
 
 export const CHAT_MESSAGE_PUBLIC_SUBSCRIPTION = gql`
@@ -14,6 +13,10 @@ export const CHAT_MESSAGE_PUBLIC_SUBSCRIPTION = gql`
       }
       messageSequence
       replyToMessage {
+        deletedAt
+        deletedBy {
+          name
+        }
         chatEmphasizedText
         messageSequence
         message
@@ -22,12 +25,25 @@ export const CHAT_MESSAGE_PUBLIC_SUBSCRIPTION = gql`
           color
         }
       }
+      reactions {
+        createdAt
+        reactionEmoji
+        user {
+          name
+          userId
+        }
+      }
       messageType
       chatEmphasizedText
       chatId
       message
       messageId
       createdAt
+      editedAt
+      deletedAt
+      deletedBy {
+        name
+      }
       messageMetadata
       senderName
       senderRole
@@ -51,12 +67,39 @@ export const CHAT_MESSAGE_PRIVATE_SUBSCRIPTION = gql`
         isModerator
         color
       }
+      messageSequence
+      replyToMessage {
+        deletedAt
+        deletedBy {
+          name
+        }
+        chatEmphasizedText
+        messageSequence
+        message
+        user {
+          name
+          color
+        }
+      }
+      reactions {
+        createdAt
+        reactionEmoji
+        user {
+          name
+          userId
+        }
+      }
       chatId
       message
       messageType
       chatEmphasizedText
       messageId
       createdAt
+      editedAt
+      deletedAt
+      deletedBy {
+        name
+      }
       messageMetadata
       recipientHasSeen
     }

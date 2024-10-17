@@ -133,6 +133,7 @@ const PresentationMenu = (props) => {
     persistShape,
     whiteboardMenuOnRight,
     setWhiteboardMenuOnRight,
+    hasWBAccess,
   } = props;
 
   const [state, setState] = useState({
@@ -391,7 +392,9 @@ const PresentationMenu = (props) => {
       );
     }
 
-    menuItems.push(
+    const showVisibilityOption = currentUser?.presenter || hasWBAccess;
+
+    showVisibilityOption && menuItems.push(
       {
         key: 'list-item-toolvisibility',
         dataTest: 'toolVisibility',
