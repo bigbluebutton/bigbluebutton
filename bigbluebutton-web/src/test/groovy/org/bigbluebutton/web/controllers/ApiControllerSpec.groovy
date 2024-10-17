@@ -20,7 +20,7 @@ class ApiControllerSpec extends Specification implements ControllerUnitTest<ApiC
   def apiVersion = "2.0"
   def securitySalt = "b4578c133b8a49acaecacbb3abec91a1"
   def defaultServerUrl = "http://127.0.0.1"
-  def welcomeMessage = "<br>Welcome to <b>%%CONFNAME%%</b>!"
+  def welcomeMessage = "Welcome to **%%CONFNAME%%**!"
   def logoutUrl = defaultServerUrl + "/api/logout"
 
   def setupSpec() {}
