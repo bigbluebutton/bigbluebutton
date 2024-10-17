@@ -137,7 +137,7 @@ const ChatMessageForm: React.FC<ChatMessageFormProps> = ({
   const emojiPickerRef = useRef<HTMLDivElement>(null);
   const emojiPickerButtonRef = useRef(null);
   const [isTextAreaFocused, setIsTextAreaFocused] = React.useState(false);
-  const [repliedMessageId, setRepliedMessageId] = React.useState<string>();
+  const [repliedMessageId, setRepliedMessageId] = React.useState<string | null>(null);
   const [editingMessage, setEditingMessage] = React.useState<EditingMessage | null>(null);
   const textAreaRef: RefObject<TextareaAutosize> = useRef<TextareaAutosize>(null);
   const { isMobile } = deviceInfo;
@@ -315,14 +315,22 @@ const ChatMessageForm: React.FC<ChatMessageFormProps> = ({
       }
     };
 
+    const handleCancelReplyIntention = (e: Event) => {
+      if (e instanceof CustomEvent) {
+        setRepliedMessageId(null);
+      }
+    };
+
     window.addEventListener(ChatEvents.CHAT_REPLY_INTENTION, handleReplyIntention);
     window.addEventListener(ChatEvents.CHAT_EDIT_REQUEST, handleEditingMessage);
     window.addEventListener(ChatEvents.CHAT_CANCEL_EDIT_REQUEST, handleCancelEditingMessage);
+    window.addEventListener(ChatEvents.CHAT_CANCEL_REPLY_INTENTION, handleCancelReplyIntention);
 
     return () => {
       window.removeEventListener(ChatEvents.CHAT_REPLY_INTENTION, handleReplyIntention);
       window.removeEventListener(ChatEvents.CHAT_EDIT_REQUEST, handleEditingMessage);
       window.removeEventListener(ChatEvents.CHAT_CANCEL_EDIT_REQUEST, handleCancelEditingMessage);
+      window.removeEventListener(ChatEvents.CHAT_CANCEL_REPLY_INTENTION, handleCancelReplyIntention);
     };
   }, []);
 
