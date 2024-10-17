@@ -205,6 +205,24 @@ const reducer = (state, action) => {
       };
     }
 
+    // NOTIFICATION TOASTS
+    case ACTIONS.SET_HIDE_NOTIFICATION_TOASTS: {
+      const { notificationsBar } = state.input;
+      if (notificationsBar.hideNotificationToasts === action.value) {
+        return state;
+      }
+      return {
+        ...state,
+        input: {
+          ...state.input,
+          notificationsBar: {
+            ...notificationsBar,
+            hideNotificationToasts: action.value,
+          },
+        },
+      };
+    }
+
     // NAV BAR
 
     case ACTIONS.SET_HAS_NAVBAR: {

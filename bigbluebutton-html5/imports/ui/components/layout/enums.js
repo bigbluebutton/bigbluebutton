@@ -53,6 +53,7 @@ export const ACTIONS = {
 
   SET_HAS_BANNER_BAR: 'setHasBannerBar',
   SET_HAS_NOTIFICATIONS_BAR: 'setHasNotificationsBar',
+  SET_HIDE_NOTIFICATION_TOASTS: 'setHideNotificationToasts',
 
   SET_HAS_NAVBAR: 'setHasNavBar',
   SET_NAVBAR_OUTPUT: 'setNavBarOutput',
