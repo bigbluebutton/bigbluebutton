@@ -690,6 +690,7 @@ class VideoPreview extends Component {
       extraInfo: {
         errorName: error.name,
         errorMessage: error.message,
+        errorStack: error.stack,
         virtualBgType: type,
         virtualBgName: name,
       },
