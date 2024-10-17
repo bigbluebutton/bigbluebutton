@@ -1563,6 +1563,7 @@ FROM poll
 JOIN v_user u ON u."meetingId" = poll."meetingId" AND "isDialIn" IS FALSE AND presenter IS FALSE
 LEFT JOIN poll_response r ON r."pollId" = poll."pollId" AND r."userId" = u."userId"
 LEFT JOIN poll_option o ON o."pollId" = r."pollId" AND o."optionId" = r."optionId"
+WHERE u."bot" IS FALSE
 GROUP BY poll."pollId", u."meetingId", u."userId";
 
 CREATE VIEW "v_poll" AS SELECT * FROM "poll";
