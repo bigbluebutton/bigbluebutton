@@ -98,6 +98,9 @@ public class ParamsProcessorUtil {
     private boolean defaultMuteOnStart = false;
     private boolean defaultAllowModsToUnmuteUsers = false;
     private boolean defaultAllowModsToEjectCameras = false;
+    private String defaultCameraBridge = "bbb-webrtc-sfu";
+    private String defaultScreenShareBridge = "bbb-webrtc-sfu";
+    private String defaultFullAudioBridge = "bbb-webrtc-sfu";
     private String defaultDisabledFeatures;
     private String defaultPluginsManifests;
     private boolean defaultNotifyRecordingIsOn = false;
@@ -680,6 +683,21 @@ public class ParamsProcessorUtil {
           }
         }
 
+        String cameraBridge = defaultCameraBridge;
+        if (!StringUtils.isEmpty(params.get(ApiParams.CAMERA_BRIDGE))) {
+            cameraBridge = params.get(ApiParams.CAMERA_BRIDGE);
+        }
+
+        String screenShareBridge = defaultScreenShareBridge;
+        if (!StringUtils.isEmpty(params.get(ApiParams.SCREEN_SHARE_BRIDGE))) {
+            screenShareBridge = params.get(ApiParams.SCREEN_SHARE_BRIDGE);
+        }
+
+        String fullAudioBridge = defaultFullAudioBridge;
+        if (!StringUtils.isEmpty(params.get(ApiParams.FULL_AUDIO_BRIDGE))) {
+            fullAudioBridge = params.get(ApiParams.FULL_AUDIO_BRIDGE);
+        }
+
         Integer meetingExpireIfNoUserJoinedInMinutes = defaultMeetingExpireIfNoUserJoinedInMinutes;
         if (!StringUtils.isEmpty(params.get(ApiParams.MEETING_EXPIRE_IF_NO_USER_JOINED_IN_MINUTES))) {
             try {
@@ -811,6 +829,9 @@ public class ParamsProcessorUtil {
                 .withMeetingCameraCap(meetingCameraCap)
                 .withUserCameraCap(userCameraCap)
                 .withMaxPinnedCameras(maxPinnedCameras)
+                .withCameraBridge(cameraBridge)
+                .withScreenShareBridge(screenShareBridge)
+                .withFullAudioBridge(fullAudioBridge)
                 .withMetadata(meetingInfo)
                 .withWelcomeMessageTemplate(welcomeMessageTemplate)
                 .withWelcomeMessage(welcomeMessage)
@@ -1472,6 +1493,30 @@ public class ParamsProcessorUtil {
 	public Boolean getMuteOnStart() {
 		return defaultMuteOnStart;
 	}
+
+  public void setCameraBridge(String cameraBridge) {
+    defaultCameraBridge = cameraBridge;
+  }
+
+  public String getCameraBridge(String cameraBridge) {
+    return defaultCameraBridge;
+  }
+
+  public void setScreenShareBridge(String screenShareBridge) {
+    defaultScreenShareBridge = screenShareBridge;
+  }
+
+  public String getScreenShareBridge(String screenShareBridge) {
+    return defaultScreenShareBridge;
+  }
+
+  public void setFullAudioBridge(String fullAudioBridge) {
+    defaultFullAudioBridge = fullAudioBridge;
+  }
+
+  public String getFullAudioBridge(String fullAudioBridge) {
+    return defaultFullAudioBridge;
+  }
 
 	public void setDefaultKeepEvents(Boolean mke) {
 		defaultKeepEvents = mke;

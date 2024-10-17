@@ -101,6 +101,9 @@ public class Meeting {
 	private String customDarkLogoURL = "";
 	private String customCopyright = "";
 	private Boolean muteOnStart = false;
+	private String cameraBridge = "bbb-webrtc-sfu";
+	private String screenShareBridge = "bbb-webrtc-sfu";
+	private String fullAudioBridge = "bbb-webrtc-sfu";
 	private Boolean allowModsToUnmuteUsers = false;
 	private Boolean allowRequestsWithoutSession = false;
 	private Boolean allowModsToEjectCameras = false;
@@ -183,6 +186,9 @@ public class Meeting {
         endWhenNoModerator = builder.endWhenNoModerator;
         endWhenNoModeratorDelayInMinutes = builder.endWhenNoModeratorDelayInMinutes;
 		groups = builder.groups;
+				cameraBridge = builder.cameraBridge;
+				screenShareBridge = builder.screenShareBridge;
+				fullAudioBridge = builder.fullAudioBridge;
 		guestUsersWithPositionInWaitingLine = new HashMap<>();
         userCustomData = new HashMap<>();
 		usersWithGuestLobbyMessages = new HashMap<>();
@@ -660,6 +666,18 @@ public class Meeting {
         return maxPinnedCameras;
     }
 
+		public String getCameraBridge() {
+			return cameraBridge;
+		}
+
+		public String getScreenShareBridge() {
+			return screenShareBridge;
+		}
+
+		public String getFullAudioBridge() {
+			return fullAudioBridge;
+		}
+
 	public boolean hasUserJoined() {
 		return userHasJoined;
 	}
@@ -956,6 +974,9 @@ public class Meeting {
     	private String logoutUrl;
     	private String bannerColor;
     	private String bannerText;
+			private String cameraBridge;
+			private String screenShareBridge;
+			private String fullAudioBridge;
     	private int logoutTimer;
     	private Map<String, String> metadata;
     	private String dialNumber;
@@ -1037,6 +1058,21 @@ public class Meeting {
             this.maxPinnedCameras = pins;
             return this;
         }
+
+				public Builder withCameraBridge(String bridge) {
+					this.cameraBridge = bridge;
+					return this;
+				}
+
+				public Builder withScreenShareBridge(String bridge) {
+					this.screenShareBridge = bridge;
+					return this;
+				}
+
+				public Builder withFullAudioBridge(String bridge) {
+					this.fullAudioBridge = bridge;
+					return this;
+				}
 
     	public Builder withWebVoice(String w) {
     		this.webVoice = w;

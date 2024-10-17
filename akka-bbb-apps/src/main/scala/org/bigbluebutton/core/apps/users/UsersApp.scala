@@ -152,6 +152,25 @@ object UsersApp {
     }
   }
 
+  def sendGenerateLiveKitTokenReqMsg(
+    outGW: OutMsgRouter,
+    meetingId: String,
+    userId: String,
+    userName: String,
+    grant: LiveKitGrant,
+    metadata: LiveKitParticipantMetadata
+  ): Unit = {
+    val event = MsgBuilder.buildGenerateLiveKitTokenReqMsg(
+      meetingId,
+      userId,
+      userName,
+      grant,
+      metadata
+    )
+
+    outGW.send(event)
+  }
+
 }
 
 class UsersApp(

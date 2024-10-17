@@ -54,6 +54,7 @@
 - "!include public_v_user_connectionStatusReport.yaml"
 - "!include public_v_user_current.yaml"
 - "!include public_v_user_guest.yaml"
+- "!include public_v_user_livekit.yaml"
 - "!include public_v_user_lockSettings.yaml"
 - "!include public_v_user_metadata.yaml"
 - "!include public_v_user_presenceLog.yaml"

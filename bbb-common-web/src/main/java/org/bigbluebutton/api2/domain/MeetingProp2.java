@@ -7,6 +7,9 @@ public class MeetingProp2 {
     public final String intId;
     public final int meetingCameraCap;
     public final int maxPinnedCameras;
+    public final String cameraBridge;
+    public final String screenShareBridge;
+    public final String fullAudioBridge;
     public final String parentId;
     public final Integer sequence;
     public final Boolean isBreakout;
@@ -16,6 +19,9 @@ public class MeetingProp2 {
                         String intId,
                         int meetingCameraCap,
                         int maxPinnedCameras,
+                        String cameraBridge,
+                        String screenShareBridge,
+                        String fullAudioBridge,
                         String parentId,
                         Integer sequence,
                         Boolean isBreakout) {
@@ -24,6 +30,9 @@ public class MeetingProp2 {
         this.intId = intId;
         this.meetingCameraCap = meetingCameraCap;
         this.maxPinnedCameras = maxPinnedCameras;
+        this.cameraBridge = cameraBridge;
+        this.screenShareBridge = screenShareBridge;
+        this.fullAudioBridge = fullAudioBridge;
         this.parentId = parentId;
         this.sequence = sequence;
         this.isBreakout = isBreakout;

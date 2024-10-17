@@ -3,6 +3,7 @@ import {
   getAudioConstraints,
   doGUM,
 } from '/imports/api/audio/client/bridge/service';
+import { liveKitRoom } from '/imports/ui/components/webcam/livekit/component';
 
 const BASE_BRIDGE_NAME = 'base';
 
@@ -63,6 +64,19 @@ export default class BaseAudioBridge {
     return this._inputDeviceId;
   }
 
+  setSenderTrackEnabled(shouldEnable) {
+    const peer = this.getPeerConnection();
+
+    if (!peer) return;
+
+    peer.getSenders().forEach((sender) => {
+      const { track } = sender;
+      if (track && track.kind === 'audio') {
+        track.enabled = shouldEnable;
+      }
+    });
+  }
+
   /* eslint-disable class-methods-use-this */
   supportsTransparentListenOnly() {
     return false;
@@ -107,7 +121,7 @@ export default class BaseAudioBridge {
       }
 
       newStream = await doGUM(constraints);
-      await this.setInputStream(newStream);
+      await this.setInputStream(newStream, deviceId);
       if (backupStream && backupStream.active) {
         backupStream.getAudioTracks().forEach((track) => track.stop());
         backupStream = null;
