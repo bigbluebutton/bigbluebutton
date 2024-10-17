@@ -49,6 +49,7 @@
     "@emotion/styled": "^11.10.8",
     "@jitsi/sdp-interop": "0.1.14",
     "@mconf/bbb-diff": "^1.2.0",
+    "@mui/base": "^5.0.0-beta.58",
     "@mui/material": "^5.12.2",
     "@mui/system": "^5.12.3",
     "@types/node": "^20.5.7",

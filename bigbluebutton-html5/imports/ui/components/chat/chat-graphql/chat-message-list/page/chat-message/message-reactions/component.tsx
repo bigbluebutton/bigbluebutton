@@ -38,6 +38,8 @@ const ChatMessageReactions: React.FC<ChatMessageReactionsProps> = (props) => {
   const { data: currentUser } = useCurrentUser((u) => ({ userId: u.userId }));
   const intl = useIntl();
 
+  if (reactions.length === 0) return null;
+
   const reactionItems: Record<string, { count: number; userNames: string[]; reactedByMe: boolean }> = {};
 
   reactions.forEach((reaction) => {
