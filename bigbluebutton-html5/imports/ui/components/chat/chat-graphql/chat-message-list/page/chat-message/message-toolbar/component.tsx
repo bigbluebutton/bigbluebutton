@@ -39,7 +39,7 @@ const intlMessages = defineMessages({
     description: '',
   },
   confirmationDescription: {
-    id: 'app.chat.toolbar.delete.confimationDescription',
+    id: 'app.chat.toolbar.delete.confirmationDescription',
     description: '',
   },
 });
