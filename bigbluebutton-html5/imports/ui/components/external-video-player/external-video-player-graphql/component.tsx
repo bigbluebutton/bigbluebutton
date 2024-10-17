@@ -77,7 +77,7 @@ interface ExternalVideoPlayerProps {
   isSidebarContentOpen: boolean;
   setPlayerKey: (key: string) => void;
   sendMessage: (event: string, data: {
-    rate: number;
+    rate: number | Promise<number>;
     time: number;
     state?: string;
   }) => void;
@@ -273,10 +273,14 @@ const ExternalVideoPlayer: React.FC<ExternalVideoPlayerProps> = ({
     playerRef.current?.seekTo(truncateTime(currentTime), 'seconds');
   };
 
-  const handleOnPlay = () => {
+  const handleOnPlay = async () => {
     setReactPlayerPlaying(true);
     if (isPresenter && !playing) {
-      const rate = playerRef.current?.getInternalPlayer()?.getPlaybackRate() as number ?? 1;
+      let rate = playerRef.current?.getInternalPlayer()?.getPlaybackRate() ?? 1;
+
+      if (rate instanceof Promise) {
+        rate = await rate;
+      }
 
       const currentTime = played * duration;
       sendMessage('play', {
@@ -290,10 +294,14 @@ const ExternalVideoPlayer: React.FC<ExternalVideoPlayerProps> = ({
     }
   };
 
-  const handleOnStop = () => {
+  const handleOnStop = async () => {
     setReactPlayerPlaying(false);
     if (isPresenter && playing) {
-      const rate = playerRef.current?.getInternalPlayer()?.getPlaybackRate() as number ?? 1;
+      let rate = playerRef.current?.getInternalPlayer()?.getPlaybackRate() ?? 1;
+      if (rate instanceof Promise) {
+        rate = await rate;
+      }
+
       const currentTime = playerRef.current?.getCurrentTime() ?? 0;
       sendMessage('stop', {
         rate,
