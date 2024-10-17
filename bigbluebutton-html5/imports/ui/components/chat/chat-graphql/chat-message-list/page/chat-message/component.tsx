@@ -315,6 +315,7 @@ const ChatMesssage: React.FC<ChatMessageProps> = ({
     isSystemSender?: boolean;
     showAvatar: boolean;
     showHeading: boolean;
+    showToolbar: boolean;
   } = useMemo(() => {
     switch (message.messageType) {
       case ChatMessageType.POLL:
@@ -328,6 +329,7 @@ const ChatMesssage: React.FC<ChatMessageProps> = ({
           avatarIcon: 'icon-bbb-polling',
           showAvatar: true,
           showHeading: true,
+          showToolbar: false,
         };
       case ChatMessageType.PRESENTATION:
         return {
@@ -343,6 +345,7 @@ const ChatMesssage: React.FC<ChatMessageProps> = ({
           avatarIcon: 'icon-bbb-download',
           showAvatar: true,
           showHeading: true,
+          showToolbar: false,
         };
       case ChatMessageType.CHAT_CLEAR:
         return {
@@ -358,6 +361,7 @@ const ChatMesssage: React.FC<ChatMessageProps> = ({
           ),
           showAvatar: false,
           showHeading: false,
+          showToolbar: false,
         };
       case ChatMessageType.BREAKOUT_ROOM:
         return {
@@ -373,6 +377,7 @@ const ChatMesssage: React.FC<ChatMessageProps> = ({
           ),
           showAvatar: true,
           showHeading: true,
+          showToolbar: true,
         };
       case ChatMessageType.API:
         return {
@@ -387,6 +392,7 @@ const ChatMesssage: React.FC<ChatMessageProps> = ({
           ),
           showAvatar: false,
           showHeading: false,
+          showToolbar: false,
         };
       case ChatMessageType.USER_AWAY_STATUS_MSG: {
         const { away } = JSON.parse(message.messageMetadata);
@@ -406,6 +412,7 @@ const ChatMesssage: React.FC<ChatMessageProps> = ({
           ),
           showAvatar: false,
           showHeading: false,
+          showToolbar: false,
         };
       }
       case ChatMessageType.PLUGIN: {
@@ -416,6 +423,7 @@ const ChatMesssage: React.FC<ChatMessageProps> = ({
           isSystemSender: false,
           showAvatar: true,
           showHeading: true,
+          showToolbar: true,
           component: currentPluginMessageMetadata.custom
             ? null
             : (
@@ -435,6 +443,7 @@ const ChatMesssage: React.FC<ChatMessageProps> = ({
           isSystemSender: false,
           showAvatar: true,
           showHeading: true,
+          showToolbar: true,
           component: (
             <ChatMessageTextContent
               emphasizedMessage={message.chatEmphasizedText}
@@ -470,7 +479,7 @@ const ChatMesssage: React.FC<ChatMessageProps> = ({
       >
         <ChatMessageToolbar
           keyboardFocused={keyboardFocused}
-          hasToolbar={hasToolbar}
+          hasToolbar={hasToolbar && messageContent.showToolbar}
           locked={locked}
           deleted={!!deleteTime}
           messageId={message.messageId}
@@ -525,7 +534,7 @@ const ChatMesssage: React.FC<ChatMessageProps> = ({
           sameSender={message?.user ? sameSender : false}
           isCustomPluginMessage={isCustomPluginMessage}
           data-chat-message-id={message?.messageId}
-          $highlight={hasToolbar && !deleteTime}
+          $highlight={hasToolbar && messageContent.showToolbar && !deleteTime}
           $editing={editing}
           $focused={focused}
           $keyboardFocused={keyboardFocused}
