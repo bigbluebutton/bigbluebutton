@@ -33,8 +33,9 @@ const PresentationContainer = (props) => {
   const { presentationIsOpen } = props;
   const layoutContextDispatch = layoutDispatch();
   const { selectedLayout } = useSettings(SETTINGS.APPLICATION);
+  const initialWbMenuRight = getFromUserSettings('bbb_whiteboard_menu_on_right', false);
 
-  const [whiteboardMenuOnRight, setWhiteboardMenuOnRight] = useState(false);
+  const [whiteboardMenuOnRight, setWhiteboardMenuOnRight] = useState(initialWbMenuRight);
 
   const { data: presentationPageData } = useDeduplicatedSubscription(
     CURRENT_PRESENTATION_PAGE_SUBSCRIPTION,
