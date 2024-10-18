@@ -303,13 +303,13 @@ class App extends Component {
             )
             : null
             }
-          {
-          shouldShowScreenshare
-            ? (
+            <div
+              style={{
+                display: shouldShowScreenshare ? 'block' : 'none',
+              }}
+            >
               <ScreenshareContainer />
-            )
-            : null
-          }
+            </div>
           {isSharedNotesPinned
             ? (
               <NotesContainer

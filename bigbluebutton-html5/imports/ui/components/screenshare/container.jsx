@@ -10,6 +10,7 @@ import {
   useIsCameraAsContentBroadcasting,
   useScreenshareHasAudio,
   useBroadcastContentType,
+  useScreenshare,
 } from './service';
 import { PluginsContext } from '/imports/ui/components/components-data/plugin-context/context';
 import ScreenshareComponent from './component';
@@ -141,8 +142,6 @@ const ScreenshareContainer = (props) => {
   const screenIsGloballyBroadcasting = useIsScreenGloballyBroadcasting();
   const cameraAsContentIsGloballyBroadcasting = useIsCameraAsContentGloballyBroadcasting();
   const enableVolumeControl = useShouldEnableVolumeControl();
-  const isScreenBroadcasting = useIsScreenBroadcasting();
-  const isCameraAsContentBroadcasting = useIsCameraAsContentBroadcasting();
   const hasAudio = useScreenshareHasAudio();
 
   let pluginScreenshareHelperItems = [];
@@ -151,7 +150,7 @@ const ScreenshareContainer = (props) => {
       ...pluginsExtensibleAreasAggregatedState.screenshareHelperItems,
     ];
   }
-  if ((isScreenBroadcasting || isCameraAsContentBroadcasting) && currentUserData) {
+  if ((currentUserData)) {
     return (
       <ScreenshareComponent
         {
