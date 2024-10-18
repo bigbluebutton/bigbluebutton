@@ -139,7 +139,7 @@ const ChatMesssage: React.FC<ChatMessageProps> = ({
       markMessageAsSeen(message);
     }
   }, [message, messageRef]);
-  const messageContentRef = React.useRef<HTMLDivElement>();
+  const messageContentRef = React.useRef<HTMLDivElement>(null);
   const [editing, setEditing] = React.useState(false);
   const [isToolbarReactionPopoverOpen, setIsToolbarReactionPopoverOpen] = React.useState(false);
   const chatFocusMessageRequest = useStorageKey(ChatEvents.CHAT_FOCUS_MESSAGE_REQUEST, STORAGES.IN_MEMORY);
