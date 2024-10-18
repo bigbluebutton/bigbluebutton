@@ -35,17 +35,13 @@ case class RemoteDataSource(
 case class PluginManifestContent(
     requiredSdkVersion:            String,
     name:                          String,
-    var javascriptEntrypointUrl:   String,
+    javascriptEntrypointUrl:       String,
     javascriptEntrypointIntegrity: Option[String]                 = None,
     localesBaseUrl:                Option[String]                 = None,
     eventPersistence:              Option[EventPersistence]       = None,
     dataChannels:                  Option[List[DataChannel]]      = None,
     remoteDataSources:             Option[List[RemoteDataSource]] = None
-) {
-  def setJavascriptEntrypointUrl(newUrl: String) = {
-    this.javascriptEntrypointUrl = newUrl
-  }
-}
+)
 
 case class PluginManifest(
     url:     String,
@@ -66,15 +62,15 @@ object PluginModel {
     instance.plugins
   }
   def replaceRelativeJavascriptEntrypoint(plugin: Plugin): Plugin = {
-    val pluginWithAbsoluteJavascriptEntrypoint = plugin.copy()
     val jsEntrypoint = plugin.manifest.content.javascriptEntrypointUrl
     if (jsEntrypoint.startsWith("http://") || jsEntrypoint.startsWith("https://")) {
-      pluginWithAbsoluteJavascriptEntrypoint
+      plugin
     } else {
       val baseUrl = plugin.manifest.url.substring(0, plugin.manifest.url.lastIndexOf('/') + 1)
       val absoluteJavascriptEntrypoint = baseUrl + jsEntrypoint
-      pluginWithAbsoluteJavascriptEntrypoint.manifest.content.setJavascriptEntrypointUrl(absoluteJavascriptEntrypoint)
-      pluginWithAbsoluteJavascriptEntrypoint
+      val newPluginManifestContent = plugin.manifest.content.copy(javascriptEntrypointUrl = absoluteJavascriptEntrypoint)
+      val newPluginManifest = plugin.manifest.copy(content = newPluginManifestContent)
+      plugin.copy(manifest = newPluginManifest)
     }
   }
   def createPluginModelFromJson(json: util.Map[String, AnyRef]): PluginModel = {
