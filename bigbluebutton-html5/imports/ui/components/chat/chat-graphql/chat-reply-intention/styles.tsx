@@ -1,7 +1,9 @@
 import styled, { css } from 'styled-components';
+import ReactMarkdown from 'react-markdown';
 import {
   colorGrayLightest,
   colorPrimary,
+  colorText,
   colorWhite,
 } from '/imports/ui/stylesheets/styled-components/palette';
 import {
@@ -12,14 +14,10 @@ import EmojiButton from '../chat-message-list/page/chat-message/message-toolbar/
 const Container = styled.div<{ $hidden: boolean; $animations: boolean }>`
   border-radius: 0.375rem;
   background-color: ${colorWhite};
-  position: absolute;
-  right: 0;
-  left: 0;
-  bottom: 100%;
-  z-index: 10;
-  overflow: hidden;
   box-shadow: inset 0 0 0 1px ${colorGrayLightest};
   display: flex;
+  align-items: center;
+  overflow: hidden;
 
   [dir='ltr'] & {
     border-right: 0.375rem solid ${colorPrimary};
@@ -35,8 +33,8 @@ const Container = styled.div<{ $hidden: boolean; $animations: boolean }>`
         min-height: 0;
       `
     : css`
-        min-height: calc(1rem + ${mdPadding} * 2);
-        height: calc(1rem + ${mdPadding} * 2);
+        min-height: calc(1rlh + ${mdPadding} * 2);
+        height: calc(1rlh + ${mdPadding} * 2);
         padding: ${mdPadding} calc(${smPaddingX} * 1.25);
         margin-bottom: ${smPadding};
 
@@ -57,20 +55,39 @@ const Container = styled.div<{ $hidden: boolean; $animations: boolean }>`
     `}
 `;
 
-const Typography = styled.div`
-  line-height: 1;
-  font-size: 1rem;
-  white-space: nowrap;
-  text-overflow: ellipsis;
-  overflow: hidden;
+const Message = styled.div`
+  line-height: 1rlh;
+  flex-grow: 1;
 `;
 
-const Message = styled(Typography)`
-  font-size: 1rem;
-  line-height: 1;
-  white-space: nowrap;
-  overflow: hidden;
-  flex-grow: 1;
+const Markdown = styled(ReactMarkdown)<{
+  $emphasizedMessage: boolean;
+}>`
+  color: ${colorText};
+
+  ${({ $emphasizedMessage }) => $emphasizedMessage && `
+    font-weight: bold;
+  `}
+
+  & img {
+    max-width: 100%;
+    max-height: 100%;
+  }
+
+  & p {
+    line-height: 1rlh;
+    margin: 0;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  & code {
+    line-height: 1rlh;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
 `;
 
 const CloseBtn = styled(EmojiButton)`
@@ -79,13 +96,9 @@ const CloseBtn = styled(EmojiButton)`
   padding: 0;
 `;
 
-const Root = styled.div`
-  position: relative;
-`;
-
 export default {
   Container,
   CloseBtn,
   Message,
-  Root,
+  Markdown,
 };

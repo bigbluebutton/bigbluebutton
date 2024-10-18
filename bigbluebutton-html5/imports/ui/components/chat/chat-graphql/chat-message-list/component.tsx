@@ -189,12 +189,22 @@ const ChatMessageList: React.FC<ChatListProps> = ({
     parentRefProxy: messageListContainerRefProxy,
   } = useIntersectionObserver(messageListContainerRef, sentinelRef);
   const {
-    startObserving,
-    stopObserving,
+    startObserving: startObservingMessageListStickyScroll,
+    stopObserving: stopObservingMessageListStickyScroll,
   } = useStickyScroll(currentMessageListContainer, currentMessageList);
+  const {
+    startObserving: startObservingMessageListContainerStickyScroll,
+    stopObserving: stopObservingMessageListContainerStickyScroll,
+  } = useStickyScroll(currentMessageListContainer, currentMessageListContainer);
 
   useEffect(() => {
-    if (isSentinelVisible) startObserving(); else stopObserving();
+    if (isSentinelVisible) {
+      startObservingMessageListStickyScroll();
+      startObservingMessageListContainerStickyScroll();
+    } else {
+      stopObservingMessageListStickyScroll();
+      stopObservingMessageListContainerStickyScroll();
+    }
     toggleFollowingTail(isSentinelVisible);
   }, [isSentinelVisible]);
 

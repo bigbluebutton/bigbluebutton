@@ -1,5 +1,5 @@
 import {
-  useCallback, useEffect, useMemo, useRef,
+  useCallback, useEffect, useRef,
 } from 'react';
 
 interface Handlers {
@@ -10,17 +10,22 @@ interface Handlers {
 const useStickyScroll = (stickyElement: HTMLElement | null, onResizeOf: HTMLElement | null) => {
   const elHeight = useRef(0);
   const timeout = useRef<ReturnType<typeof setTimeout>>();
+  const observer = useRef<ResizeObserver | null>(null);
   const handlers = useRef<Handlers>({
     startObserving: () => {},
     stopObserving: () => {},
   });
 
-  const observer = useMemo(
-    () => new ResizeObserver((entries) => {
+  useEffect(() => {
+    if (observer.current) {
+      observer.current.disconnect();
+    }
+
+    observer.current = new ResizeObserver((entries) => {
       entries.forEach((entry) => {
         const { target } = entry;
         if (target instanceof HTMLElement) {
-          if (target.offsetHeight > elHeight.current) {
+          if (target.offsetHeight !== elHeight.current) {
             elHeight.current = target.offsetHeight;
             if (stickyElement) {
               // eslint-disable-next-line no-param-reassign
@@ -31,26 +36,25 @@ const useStickyScroll = (stickyElement: HTMLElement | null, onResizeOf: HTMLElem
           }
         }
       });
-    }),
-    [],
-  );
+    });
+  }, [stickyElement]);
 
   handlers.current.startObserving = useCallback(() => {
     if (!onResizeOf) return;
     clearTimeout(timeout.current);
-    observer.observe(onResizeOf);
-  }, [onResizeOf]);
+    observer.current?.observe(onResizeOf);
+  }, [onResizeOf, observer.current]);
 
   handlers.current.stopObserving = useCallback(() => {
     if (!onResizeOf) return;
     timeout.current = setTimeout(() => {
-      observer.unobserve(onResizeOf);
+      observer.current?.unobserve(onResizeOf);
     }, 500);
-  }, [onResizeOf]);
+  }, [onResizeOf, observer.current]);
 
   useEffect(
     () => () => {
-      observer.disconnect();
+      observer.current?.disconnect();
     },
     [],
   );

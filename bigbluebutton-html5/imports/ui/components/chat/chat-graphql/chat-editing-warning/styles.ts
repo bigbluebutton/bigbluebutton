@@ -12,10 +12,6 @@ export const Container = styled.div`
   align-items: center;
   flex-wrap: nowrap;
   color: ${colorGrayLight};
-  position: absolute;
-  right: 0;
-  left: 0;
-  bottom: 100%;
   z-index: 10;
   background-color: ${colorWhite};
 
