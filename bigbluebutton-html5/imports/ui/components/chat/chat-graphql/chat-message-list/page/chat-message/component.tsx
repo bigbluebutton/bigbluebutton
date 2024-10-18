@@ -251,7 +251,7 @@ const ChatMesssage: React.FC<ChatMessageProps> = ({
       messageContentRef.current.style.backgroundColor = `rgb(${colorBlueLightestChannel} / ${1 - value})`;
       requestAnimationFrame(animate);
     } else {
-      messageContentRef.current.style.backgroundColor = 'unset';
+      messageContentRef.current.style.backgroundColor = '#f4f6fa';
     }
   }, []);
 
