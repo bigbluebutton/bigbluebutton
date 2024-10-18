@@ -232,7 +232,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
     </bean>
 
     <bean id="pdfPageDownscaler" class="org.bigbluebutton.presentation.imp.PdfPageDownscaler">
-        <property name="execTimeout" value="${pfgPageDownscaleExecTimeout}"/>
+        <property name="execTimeout" value="${pdfPageDownscaleExecTimeout}"/>
     </bean>
 
     <bean id="imageResizerImp" class="org.bigbluebutton.presentation.imp.ImageResizerImp">
