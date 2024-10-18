@@ -72,7 +72,7 @@ export const USER_AGGREGATE_COUNT_SUBSCRIPTION = gql`
 
 export const GET_USER_IDS = gql`
   query Users {
-    user {
+    user(where: { bot: { _eq: false } } ) {
       userId
     }
   }
