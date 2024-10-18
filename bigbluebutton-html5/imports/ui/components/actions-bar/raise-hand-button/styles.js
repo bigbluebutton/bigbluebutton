@@ -10,6 +10,10 @@ ${({ ghost }) => ghost && `
     border-color: ${colorWhite} !important;
   }
    `}
+   
+   & span i {
+    left: -.05rem;
+   }
 `;
 
 export default {
