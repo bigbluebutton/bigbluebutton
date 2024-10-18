@@ -168,12 +168,28 @@ class App extends React.Component {
       learningDashboardAccessToken, meetingId, sessionToken, invalidSessionCount,
     } = this.state;
 
+    // adjust user sessions to be compatible with old json
+    const convertUserUsessionsFormat = (activitiesJson) => {
+      const newActivivies = activitiesJson;
+      Object.values(newActivivies.users).forEach((user) => {
+        Object.values(user.intIds).forEach((intId) => {
+          if (!intId?.sessions && intId?.registeredOn) {
+            const newIntId = intId;
+            newIntId.sessions = [
+              { registeredOn: intId.registeredOn, leftOn: intId.leftOn },
+            ];
+          }
+        });
+      });
+      return newActivivies;
+    };
+
     if (learningDashboardAccessToken !== '') {
       fetch(`${meetingId}/${learningDashboardAccessToken}/learning_dashboard_data.json`)
         .then((response) => response.json())
         .then((json) => {
           this.setState({
-            activitiesJson: json,
+            activitiesJson: convertUserUsessionsFormat(json),
             loading: false,
             invalidSessionCount: 0,
             lastUpdated: Date.now(),
@@ -254,13 +270,17 @@ class App extends React.Component {
       ]), []);
 
       const minTime = Object.values(usersTimes || {}).reduce((prevVal, elem) => {
-        if (prevVal === 0 || elem.registeredOn < prevVal) return elem.registeredOn;
+        if (prevVal === 0 || elem.sessions[0].registeredOn < prevVal) {
+          return elem.sessions[0].registeredOn;
+        }
         return prevVal;
       }, 0);
 
       const maxTime = Object.values(usersTimes || {}).reduce((prevVal, elem) => {
-        if (elem.leftOn === 0) return (new Date()).getTime();
-        if (elem.leftOn > prevVal) return elem.leftOn;
+        if (elem.sessions[elem.sessions.length - 1].leftOn === 0) return (new Date()).getTime();
+        if (elem.sessions[elem.sessions.length - 1].leftOn > prevVal) {
+          return elem.sessions[elem.sessions.length - 1].leftOn;
+        }
         return prevVal;
       }, 0);
 
