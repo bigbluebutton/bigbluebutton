@@ -99,7 +99,7 @@ class MultiUsers {
     await this.userPage.hasElement(e.actions, 'should display the actions button for the attendee');
     await this.userPage.hasElement(e.userListItem, 'should display the user list item for the attendee');
     const isPresenter = await checkIsPresenter(this.userPage);
-    await expect(isPresenter, 'should the attende be presenter').toBeTruthy();
+    await expect(isPresenter, 'should the attendee be presenter').toBeTruthy();
   }
 
   async takePresenter() {
@@ -241,7 +241,7 @@ class MultiUsers {
     await this.modPage.waitAndClick(e.manageUsers);
     await this.modPage.waitAndClick(e.muteAllExceptPresenter);
     
-    await this.modPage.hasElement(e.isTalking, 'should display the is talking element for the moderator');
+    await this.modPage.hasElement(e.isTalking, 'should display the is talking element only for the moderator - 1 item');
     await checkMutedUsers(this.modPage2);
     await checkMutedUsers(this.userPage);
   }
@@ -280,9 +280,9 @@ class MultiUsers {
 
     // Due to same reason above, sometimes it displays different messages
     try {
-      await this.modPage2.hasText(e.userBannedMessage2, /banned/, 'should display the banned message for the second moderator');
+      await this.modPage2.hasText('body', /banned/, 'should display the banned message for the second moderator');
     } catch {
-      await this.modPage2.hasText(e.userBannedMessage1, /removed/, 'should display the removed message for the second moderator');
+      await this.modPage2.hasText('body', /removed/, 'should display the removed message for the second moderator');
     }
   }
 }

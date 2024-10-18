@@ -85,6 +85,7 @@ class Options extends MultiUsers {
   async fontSizeTest() {
     await this.modPage.hasElement(e.whiteboard, 'should the whiteboard be display');
     await this.modPage.waitAndClick(e.closePopup);
+    await this.modPage.setHeightWidthViewPortSize();
     // Increasing font size
     await openSettings(this.modPage);
     await this.modPage.waitAndClick(e.increaseFontSize);
@@ -92,7 +93,6 @@ class Options extends MultiUsers {
 
     const modPageLocator = this.modPage.getLocator('body');
 
-    await this.modPage.setHeightWidthViewPortSize();
     const screenshotOptions = {
       maxDiffPixels: 1000,
     };
