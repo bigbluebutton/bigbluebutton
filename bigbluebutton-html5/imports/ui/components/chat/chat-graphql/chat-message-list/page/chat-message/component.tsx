@@ -104,7 +104,7 @@ function isInViewport(el: HTMLDivElement) {
 
 const messageRef = React.createRef<HTMLDivElement>();
 
-const ANIMATION_DURATION = 2000;
+const ANIMATION_DURATION = 1000;
 const SCROLL_ANIMATION_DURATION = 500;
 
 const ChatMesssage: React.FC<ChatMessageProps> = ({

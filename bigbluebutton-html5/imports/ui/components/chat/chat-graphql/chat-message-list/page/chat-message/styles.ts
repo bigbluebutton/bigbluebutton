@@ -91,7 +91,7 @@ export const ChatContent = styled.div<ChatContentProps>`
     background-color: #f4f6fa;
 
     .chat-message-wrapper:hover > & {
-      background-color: ${colorBlueLightest};
+      background-color: ${colorBlueLightest} !important;
     }
   `}
 
@@ -99,7 +99,7 @@ export const ChatContent = styled.div<ChatContentProps>`
     $editing, $reactionPopoverIsOpen, $focused, $keyboardFocused,
   }) => ($reactionPopoverIsOpen || $editing || $focused || $keyboardFocused)
     && `
-    background-color: ${colorBlueLightest};
+    background-color: ${colorBlueLightest} !important;
   `}
 `;
 
