@@ -138,7 +138,7 @@ const ChatMesssage: React.FC<ChatMessageProps> = ({
       markMessageAsSeen(message);
     }
   }, [message, messageRef]);
-  const messageContentRef = React.createRef<HTMLDivElement>();
+  const messageContentRef = React.useRef<HTMLDivElement>();
   const [editing, setEditing] = React.useState(false);
   const [isToolbarReactionPopoverOpen, setIsToolbarReactionPopoverOpen] = React.useState(false);
   const chatFocusMessageRequest = useStorageKey(ChatEvents.CHAT_FOCUS_MESSAGE_REQUEST, STORAGES.IN_MEMORY);
@@ -245,13 +245,13 @@ const ChatMesssage: React.FC<ChatMessageProps> = ({
   }, []);
 
   const animate = useCallback((timestamp: number) => {
-    if (!containerRef.current) return;
+    if (!messageContentRef.current) return;
     const value = (timestamp - animationInitialTimestamp.current) / ANIMATION_DURATION;
     if (value < 1) {
-      containerRef.current.style.backgroundColor = `rgb(${colorBlueLightestChannel} / ${1 - value})`;
+      messageContentRef.current.style.backgroundColor = `rgb(${colorBlueLightestChannel} / ${1 - value})`;
       requestAnimationFrame(animate);
     } else {
-      containerRef.current.style.backgroundColor = 'unset';
+      messageContentRef.current.style.backgroundColor = 'unset';
     }
   }, []);
 
