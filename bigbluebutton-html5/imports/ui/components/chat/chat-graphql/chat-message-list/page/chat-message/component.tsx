@@ -542,7 +542,7 @@ const ChatMesssage: React.FC<ChatMessageProps> = ({
         >
           {message.replyToMessage && !deleteTime && (
           <ChatMessageReplied
-            message={message.replyToMessage.message}
+            message={message.replyToMessage.message || ''}
             sequence={message.replyToMessage.messageSequence}
             emphasizedMessage={message.replyToMessage.chatEmphasizedText}
             deletedByUser={message.replyToMessage.deletedBy?.name ?? null}
@@ -593,7 +593,8 @@ function areChatMessagesEqual(prevProps: ChatMessageProps, nextProps: ChatMessag
     && prevMessage?.message === nextMessage.message
     && prevMessage?.reactions?.length === nextMessage?.reactions?.length
     && prevProps.focused === nextProps.focused
-    && prevProps.keyboardFocused === nextProps.keyboardFocused;
+    && prevProps.keyboardFocused === nextProps.keyboardFocused
+    && prevMessage.replyToMessage?.message === nextMessage.replyToMessage?.message;
 }
 
 export default memo(ChatMesssage, areChatMessagesEqual);

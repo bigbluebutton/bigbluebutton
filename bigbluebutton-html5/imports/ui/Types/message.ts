@@ -28,7 +28,7 @@ export interface Message {
       name: string;
     } | null;
     messageSequence: number;
-    message: string;
+    message: string | null;
     chatEmphasizedText: boolean;
     user: {
       name: string;
