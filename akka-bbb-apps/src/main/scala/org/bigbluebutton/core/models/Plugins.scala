@@ -35,13 +35,17 @@ case class RemoteDataSource(
 case class PluginManifestContent(
     requiredSdkVersion:            String,
     name:                          String,
-    javascriptEntrypointUrl:       String,
+    var javascriptEntrypointUrl:   String,
     javascriptEntrypointIntegrity: Option[String]                 = None,
     localesBaseUrl:                Option[String]                 = None,
     eventPersistence:              Option[EventPersistence]       = None,
     dataChannels:                  Option[List[DataChannel]]      = None,
     remoteDataSources:             Option[List[RemoteDataSource]] = None
-)
+) {
+  def setJavascriptEntrypointUrl(newUrl: String) = {
+    this.javascriptEntrypointUrl = newUrl
+  }
+}
 
 case class PluginManifest(
     url:     String,
@@ -61,13 +65,26 @@ object PluginModel {
   def getPlugins(instance: PluginModel): Map[String, Plugin] = {
     instance.plugins
   }
+  def replaceRelativeJavascriptEntrypoint(plugin: Plugin): Plugin = {
+    val pluginWithAbsoluteJavascriptEntrypoint = plugin.copy()
+    val jsEntrypoint = plugin.manifest.content.javascriptEntrypointUrl
+    if (jsEntrypoint.startsWith("http://") || jsEntrypoint.startsWith("https://")) {
+      pluginWithAbsoluteJavascriptEntrypoint
+    } else {
+      val baseUrl = plugin.manifest.url.substring(0, plugin.manifest.url.lastIndexOf('/') + 1)
+      val absoluteJavascriptEntrypoint = baseUrl + jsEntrypoint
+      pluginWithAbsoluteJavascriptEntrypoint.manifest.content.setJavascriptEntrypointUrl(absoluteJavascriptEntrypoint)
+      pluginWithAbsoluteJavascriptEntrypoint
+    }
+  }
   def createPluginModelFromJson(json: util.Map[String, AnyRef]): PluginModel = {
     val instance = new PluginModel()
     var pluginsMap: Map[String, Plugin] = Map.empty[String, Plugin]
     json.forEach { case (pluginName, plugin) =>
       try {
         val pluginObject = objectMapper.readValue(objectMapper.writeValueAsString(plugin), classOf[Plugin])
-        pluginsMap = pluginsMap + (pluginName -> pluginObject)
+        val pluginObjectWithAbsoluteJavascriptEntrypoint = replaceRelativeJavascriptEntrypoint(pluginObject)
+        pluginsMap = pluginsMap + (pluginName -> pluginObjectWithAbsoluteJavascriptEntrypoint)
       } catch {
         case err @ (_: JsonProcessingException | _: JsonMappingException) => println("Error while processing plugin " +
           pluginName + ": ", err)
