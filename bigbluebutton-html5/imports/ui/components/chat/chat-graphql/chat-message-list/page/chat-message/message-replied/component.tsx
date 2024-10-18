@@ -28,7 +28,8 @@ const ChatMessageReplied: React.FC<MessageRepliedProps> = (props) => {
 
   return (
     <Styled.Container
-      onClick={() => {
+      onClick={(e) => {
+        e.preventDefault();
         window.dispatchEvent(
           new CustomEvent(ChatEvents.CHAT_FOCUS_MESSAGE_REQUEST, {
             detail: {

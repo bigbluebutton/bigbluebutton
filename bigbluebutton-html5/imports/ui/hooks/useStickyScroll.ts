@@ -7,8 +7,12 @@ interface Handlers {
   stopObserving(): void;
 }
 
-const useStickyScroll = (stickyElement: HTMLElement | null, onResizeOf: HTMLElement | null) => {
-  const elHeight = useRef(0);
+const useStickyScroll = (
+  stickyElement: HTMLElement | null,
+  onResizeOf: HTMLElement | null,
+  operator: 'ne' | 'gt' = 'gt',
+) => {
+  const elHeight = useRef(stickyElement?.offsetHeight ?? 0);
   const timeout = useRef<ReturnType<typeof setTimeout>>();
   const observer = useRef<ResizeObserver | null>(null);
   const handlers = useRef<Handlers>({
@@ -25,14 +29,24 @@ const useStickyScroll = (stickyElement: HTMLElement | null, onResizeOf: HTMLElem
       entries.forEach((entry) => {
         const { target } = entry;
         if (target instanceof HTMLElement) {
-          if (target.offsetHeight !== elHeight.current) {
+          let elementHeightChanged = false;
+          switch (operator) {
+            case 'ne': {
+              elementHeightChanged = target.offsetHeight !== elHeight.current;
+              break;
+            }
+            case 'gt':
+            default: {
+              elementHeightChanged = target.offsetHeight > elHeight.current;
+              break;
+            }
+          }
+          if (elementHeightChanged) {
             elHeight.current = target.offsetHeight;
             if (stickyElement) {
               // eslint-disable-next-line no-param-reassign
               stickyElement.scrollTop = stickyElement.scrollHeight + stickyElement.clientHeight;
             }
-          } else {
-            elHeight.current = 0;
           }
         }
       });

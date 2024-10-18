@@ -2,6 +2,7 @@ import React, {
   memo,
   useCallback,
   useEffect,
+  useImperativeHandle,
   useMemo,
 } from 'react';
 import { useMutation } from '@apollo/client';
@@ -23,12 +24,11 @@ import {
   EditLabel,
   EditLabelWrapper,
 } from './styles';
-import { ChatEvents, ChatMessageType } from '/imports/ui/core/enums/chat';
+import { ChatMessageType } from '/imports/ui/core/enums/chat';
 import MessageReadConfirmation from './message-read-confirmation/component';
 import ChatMessageToolbar from './message-toolbar/component';
 import ChatMessageReactions from './message-reactions/component';
 import ChatMessageReplied from './message-replied/component';
-import { STORAGES, useStorageKey } from '/imports/ui/services/storage/hooks';
 import useMeeting from '/imports/ui/core/hooks/useMeeting';
 import useCurrentUser from '/imports/ui/core/hooks/useCurrentUser';
 import { layoutSelect } from '/imports/ui/components/layout/context';
@@ -38,7 +38,7 @@ import { GraphqlDataHookSubscriptionResponse } from '/imports/ui/Types/hook';
 import { Chat } from '/imports/ui/Types/chat';
 import { CHAT_DELETE_REACTION_MUTATION, CHAT_SEND_REACTION_MUTATION } from './mutations';
 import Icon from '/imports/ui/components/common/icon/component';
-import { colorBlueLightestChannel } from '/imports/ui/stylesheets/styled-components/palette';
+import { colorBlueLighterChannel } from '/imports/ui/stylesheets/styled-components/palette';
 import {
   useIsReplyChatMessageEnabled,
   useIsChatMessageReactionsEnabled,
@@ -57,6 +57,11 @@ interface ChatMessageProps {
   messageReadFeedbackEnabled: boolean;
   focused: boolean;
   keyboardFocused: boolean;
+  editing: boolean;
+}
+
+export interface ChatMessageRef {
+  requestFocus: () => void;
 }
 
 const intlMessages = defineMessages({
@@ -107,7 +112,7 @@ const messageRef = React.createRef<HTMLDivElement>();
 const ANIMATION_DURATION = 1000;
 const SCROLL_ANIMATION_DURATION = 500;
 
-const ChatMesssage: React.FC<ChatMessageProps> = ({
+const ChatMessage = React.forwardRef<ChatMessageRef, ChatMessageProps>(({
   previousMessage,
   lastSenderPreviousPage,
   scrollRef,
@@ -117,7 +122,8 @@ const ChatMesssage: React.FC<ChatMessageProps> = ({
   messageReadFeedbackEnabled,
   focused,
   keyboardFocused,
-}) => {
+  editing,
+}, ref) => {
   const idChatOpen: string = layoutSelect((i: Layout) => i.idChatOpen);
   const { data: meeting } = useMeeting((m) => ({
     lockSettings: m?.lockSettings,
@@ -140,9 +146,7 @@ const ChatMesssage: React.FC<ChatMessageProps> = ({
     }
   }, [message, messageRef]);
   const messageContentRef = React.useRef<HTMLDivElement>(null);
-  const [editing, setEditing] = React.useState(false);
   const [isToolbarReactionPopoverOpen, setIsToolbarReactionPopoverOpen] = React.useState(false);
-  const chatFocusMessageRequest = useStorageKey(ChatEvents.CHAT_FOCUS_MESSAGE_REQUEST, STORAGES.IN_MEMORY);
   const containerRef = React.useRef<HTMLDivElement>(null);
   const animationInitialTimestamp = React.useRef(0);
   const animationInitialScrollPosition = React.useRef(0);
@@ -199,6 +203,13 @@ const ChatMesssage: React.FC<ChatMessageProps> = ({
     CHAT_DELETE_ENABLED,
   ].some((config) => config);
 
+  useImperativeHandle(ref, () => ({
+    requestFocus() {
+      requestAnimationFrame(startScrollAnimation);
+      requestAnimationFrame(startBackgroundAnimation);
+    },
+  }), []);
+
   const startScrollAnimation = (timestamp: number) => {
     animationInitialScrollPosition.current = scrollRef.current?.scrollTop || 0;
     animationScrollPositionDiff.current = (scrollRef.current?.scrollTop || 0)
@@ -212,55 +223,16 @@ const ChatMesssage: React.FC<ChatMessageProps> = ({
     requestAnimationFrame(animateBackgroundColor);
   };
 
-  useEffect(() => {
-    const handleFocusMessageRequest = (e: Event) => {
-      if (e instanceof CustomEvent) {
-        if (e.detail.sequence === message.messageSequence) {
-          requestAnimationFrame(startScrollAnimation);
-          requestAnimationFrame(startBackgroundAnimation);
-        }
-      }
-    };
-
-    const handleChatEditRequest = (e: Event) => {
-      if (e instanceof CustomEvent) {
-        const editing = e.detail.messageId === message.messageId;
-        setEditing(editing);
-      }
-    };
-
-    const handleCancelChatEditRequest = (e: Event) => {
-      if (e instanceof CustomEvent) {
-        setEditing(false);
-      }
-    };
-
-    window.addEventListener(ChatEvents.CHAT_FOCUS_MESSAGE_REQUEST, handleFocusMessageRequest);
-    window.addEventListener(ChatEvents.CHAT_EDIT_REQUEST, handleChatEditRequest);
-    window.addEventListener(ChatEvents.CHAT_CANCEL_EDIT_REQUEST, handleCancelChatEditRequest);
-
-    return () => {
-      window.removeEventListener(ChatEvents.CHAT_FOCUS_MESSAGE_REQUEST, handleFocusMessageRequest);
-      window.removeEventListener(ChatEvents.CHAT_EDIT_REQUEST, handleChatEditRequest);
-      window.removeEventListener(ChatEvents.CHAT_CANCEL_EDIT_REQUEST, handleCancelChatEditRequest);
-    };
-  }, []);
-
-  useEffect(() => {
-    if (chatFocusMessageRequest === message.messageSequence) {
-      requestAnimationFrame(startScrollAnimation);
-    }
-  }, []);
-
   const animateScrollPosition = useCallback((timestamp: number) => {
     const value = (timestamp - animationInitialTimestamp.current) / SCROLL_ANIMATION_DURATION;
     const { current: scrollContainer } = scrollRef;
     const { current: messageContainer } = containerRef;
+    const { current: initialPosition } = animationInitialScrollPosition;
+    const { current: diff } = animationScrollPositionDiff;
     if (!scrollContainer || !messageContainer) return;
     if (value <= 1) {
       // eslint-disable-next-line no-param-reassign
-      scrollContainer.scrollTop = animationInitialScrollPosition.current
-        - (value * animationScrollPositionDiff.current);
+      scrollContainer.scrollTop = initialPosition - (value * diff);
       requestAnimationFrame(animateScrollPosition);
     }
   }, []);
@@ -269,7 +241,7 @@ const ChatMesssage: React.FC<ChatMessageProps> = ({
     if (!messageContentRef.current) return;
     const value = (timestamp - animationInitialTimestamp.current) / ANIMATION_DURATION;
     if (value < 1) {
-      messageContentRef.current.style.backgroundColor = `rgb(${colorBlueLightestChannel} / ${1 - value})`;
+      messageContentRef.current.style.backgroundColor = `rgb(${colorBlueLighterChannel} / ${1 - value})`;
       requestAnimationFrame(animateBackgroundColor);
     } else {
       messageContentRef.current.style.backgroundColor = '#f4f6fa';
@@ -603,7 +575,7 @@ const ChatMesssage: React.FC<ChatMessageProps> = ({
       </ChatWrapper>
     </Container>
   );
-};
+});
 
 function areChatMessagesEqual(prevProps: ChatMessageProps, nextProps: ChatMessageProps) {
   const prevMessage = prevProps?.message;
@@ -618,4 +590,4 @@ function areChatMessagesEqual(prevProps: ChatMessageProps, nextProps: ChatMessag
     && prevMessage.replyToMessage?.message === nextMessage.replyToMessage?.message;
 }
 
-export default memo(ChatMesssage, areChatMessagesEqual);
+export default memo(ChatMessage, areChatMessagesEqual);
