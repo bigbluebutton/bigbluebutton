@@ -99,7 +99,7 @@ public class ParamsProcessorUtil {
     private boolean defaultAllowModsToUnmuteUsers = false;
     private boolean defaultAllowModsToEjectCameras = false;
     private String defaultDisabledFeatures;
-    private String defaultPluginsManifests;
+    private String defaultPluginManifests;
     private boolean defaultNotifyRecordingIsOn = false;
     private boolean defaultKeepEvents = false;
     private Boolean useDefaultLogo;
@@ -428,31 +428,31 @@ public class ParamsProcessorUtil {
         return groups;
     }
 
-    private ArrayList<PluginsManifest> processPluginsManifests(String pluginsManifestsParam) {
-        ArrayList<PluginsManifest> pluginsManifests = new ArrayList<PluginsManifest>();
-        JsonElement pluginsManifestsJsonElement = new Gson().fromJson(pluginsManifestsParam, JsonElement.class);
+    private ArrayList<PluginManifest> processPluginManifests(String pluginManifestsParam) {
+        ArrayList<PluginManifest> pluginManifests = new ArrayList<PluginManifest>();
+        JsonElement pluginManifestsJsonElement = new Gson().fromJson(pluginManifestsParam, JsonElement.class);
         try {
-            if (pluginsManifestsJsonElement != null && pluginsManifestsJsonElement.isJsonArray()) {
-                JsonArray pluginsManifestsJson = pluginsManifestsJsonElement.getAsJsonArray();
-                for (JsonElement pluginsManifestJson : pluginsManifestsJson) {
-                    if (pluginsManifestJson.isJsonObject()) {
-                        JsonObject pluginsManifestJsonObj = pluginsManifestJson.getAsJsonObject();
-                        if (pluginsManifestJsonObj.has("url")) {
-                            String url = pluginsManifestJsonObj.get("url").getAsString();
-                            PluginsManifest newPlugin = new PluginsManifest(url);
-                            if (pluginsManifestJsonObj.has("checksum")) {
-                                newPlugin.setChecksum(pluginsManifestJsonObj.get("checksum").getAsString());
+            if (pluginManifestsJsonElement != null && pluginManifestsJsonElement.isJsonArray()) {
+                JsonArray pluginManifestsJson = pluginManifestsJsonElement.getAsJsonArray();
+                for (JsonElement pluginManifestJson : pluginManifestsJson) {
+                    if (pluginManifestJson.isJsonObject()) {
+                        JsonObject pluginManifestJsonObj = pluginManifestJson.getAsJsonObject();
+                        if (pluginManifestJsonObj.has("url")) {
+                            String url = pluginManifestJsonObj.get("url").getAsString();
+                            PluginManifest newPlugin = new PluginManifest(url);
+                            if (pluginManifestJsonObj.has("checksum")) {
+                                newPlugin.setChecksum(pluginManifestJsonObj.get("checksum").getAsString());
                             }
-                            pluginsManifests.add(newPlugin);
+                            pluginManifests.add(newPlugin);
                         }
                     }
                 }
             }
         } catch(JsonSyntaxException err){
-            log.error("Error in pluginsManifests URL parameter's json structure.");
+            log.error("Error in pluginManifests URL parameter's json structure.");
         }
 
-        return pluginsManifests;
+        return pluginManifests;
     }
 
     public Meeting processCreateParams(Map<String, String> params) {
@@ -574,17 +574,17 @@ public class ParamsProcessorUtil {
         }
 
         // Parse Plugins Manifests from config and param
-        ArrayList<PluginsManifest> listOfPluginsManifests = new ArrayList<PluginsManifest>();
+        ArrayList<PluginManifest> listOfPluginManifests = new ArrayList<PluginManifest>();
         //Process plugins from config
-        if(defaultPluginsManifests != null && !defaultPluginsManifests.isEmpty()) {
-            ArrayList<PluginsManifest> pluginsManifestsFromConfig = processPluginsManifests(defaultPluginsManifests);
-            listOfPluginsManifests.addAll(pluginsManifestsFromConfig);
+        if(defaultPluginManifests != null && !defaultPluginManifests.isEmpty()) {
+            ArrayList<PluginManifest> pluginManifestsFromConfig = processPluginManifests(defaultPluginManifests);
+            listOfPluginManifests.addAll(pluginManifestsFromConfig);
         }
         //Process plugins from /create param
-        String pluginsManifestsParam = params.get(ApiParams.PLUGINS_MANIFESTS);
-        if (!StringUtils.isEmpty(pluginsManifestsParam)) {
-            ArrayList<PluginsManifest> pluginsManifestsFromParam = processPluginsManifests(pluginsManifestsParam);
-            listOfPluginsManifests.addAll(pluginsManifestsFromParam);
+        String pluginManifestsParam = params.get(ApiParams.PLUGIN_MANIFESTS);
+        if (!StringUtils.isEmpty(pluginManifestsParam)) {
+            ArrayList<PluginManifest> pluginManifestsFromParam = processPluginManifests(pluginManifestsParam);
+            listOfPluginManifests.addAll(pluginManifestsFromParam);
         }
 
         // Check if VirtualBackgrounds is disabled
@@ -827,7 +827,7 @@ public class ParamsProcessorUtil {
                 .withLearningDashboardCleanupDelayInMinutes(learningDashboardCleanupMins)
                 .withLearningDashboardAccessToken(learningDashboardAccessToken)
                 .withGroups(groups)
-                .withPluginManifests(listOfPluginsManifests)
+                .withPluginManifests(listOfPluginManifests)
                 .withDisabledFeatures(listOfDisabledFeatures)
                 .withNotifyRecordingIsOn(notifyRecordingIsOn)
                 .withPresentationUploadExternalDescription(presentationUploadExternalDescription)
@@ -1620,8 +1620,8 @@ public class ParamsProcessorUtil {
 		this.defaultDisabledFeatures = disabledFeatures;
 	}
 
-	public void setPluginsManifests(String pluginsManifests) {
-		this.defaultPluginsManifests = pluginsManifests;
+	public void setPluginManifests(String pluginManifests) {
+		this.defaultPluginManifests = pluginManifests;
 	}
 
 	public void setNotifyRecordingIsOn(Boolean notifyRecordingIsOn) {

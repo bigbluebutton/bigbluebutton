@@ -1,18 +1,16 @@
 package org.bigbluebutton.api.domain;
 
-import java.util.Vector;
-
-public class PluginsManifest {
+public class PluginManifest {
 
     private String url = "";
     private String checksum = "";
-    public PluginsManifest(
+    public PluginManifest(
             String url,
              String checksum) {
         this.url = url;
         this.checksum = checksum;
     }
-    public PluginsManifest(
+    public PluginManifest(
             String url) {
         this.url = url;
     }
