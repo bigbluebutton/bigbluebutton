@@ -28,10 +28,10 @@ class Notifications extends MultiUsers {
       'should not complain about loss in connection when joining audio'
     ).not.toHaveAttribute('color', 'danger');
     await this.modPage.checkElementCount(e.smallToastMsg, 1, 'should have only one notification displayed');
-    await util.waitAndClearNotification(this.modPage);
+    await this.modPage.closeAllToastNotifications();
     await this.modPage.waitAndClick(e.audioDropdownMenu);
     await this.modPage.waitAndClick(e.leaveAudio);
-    await util.waitAndClearNotification(this.modPage);
+    await this.modPage.closeAllToastNotifications();
     await this.modPage.waitAndClick(e.joinAudio);
     await this.modPage.waitAndClick(e.listenOnlyButton);
     await this.modPage.wasRemoved(e.establishingAudioLabel, 'should remove establish audio element after joining successfully');
@@ -41,7 +41,7 @@ class Notifications extends MultiUsers {
 
   async getUserJoinPopupResponse() {
     await this.userJoinNotification(this.modPage);
-    await util.waitAndClearNotification(this.modPage);
+    await this.modPage.closeAllToastNotifications();
     await this.initUserPage();
     await this.modPage.waitForSelector(e.smallToastMsg, ELEMENT_WAIT_LONGER_TIME);
     await util.checkNotificationText(this.modPage, e.attendeeJoinedToast);
