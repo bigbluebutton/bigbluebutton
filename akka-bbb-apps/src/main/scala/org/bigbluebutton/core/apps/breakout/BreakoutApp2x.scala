@@ -63,13 +63,20 @@ object BreakoutRoomsUtil extends SystemConfiguration {
     checksum(apiCall.concat(baseString).concat(sharedSecret))
   }
 
-  def joinParams(username: String, userId: String, isBreakout: Boolean, breakoutMeetingId: String,
-                 password: String): (collection.immutable.Map[String, String], collection.immutable.Map[String, String]) = {
+  def joinParams(
+      username:          String,
+      userId:            String,
+      isBreakout:        Boolean,
+      breakoutMeetingId: String,
+      avatarURL:         String,
+      password:          String
+  ): (collection.immutable.Map[String, String], collection.immutable.Map[String, String]) = {
     val params = collection.immutable.HashMap(
       "fullName" -> urlEncode(username),
       "userID" -> urlEncode(userId),
       "isBreakout" -> urlEncode(isBreakout.toString()),
       "meetingID" -> urlEncode(breakoutMeetingId),
+      "avatarURL" -> urlEncode(avatarURL),
       "password" -> urlEncode(password),
       "redirect" -> urlEncode("true")
     )
