@@ -83,7 +83,7 @@ trait UserJoinMeetingReqMsgHdlr extends HandlerHelpers {
 
     if (maxParticipants > 0 && //0 = no limit
       RegisteredUsers.numUniqueJoinedUsers(liveMeeting.registeredUsers) >= maxParticipants &&
-      !userHasJoinedAlready) {
+      !userHasJoinedAlready && !regUser.bot) {
       Left(("The maximum number of participants allowed for this meeting has been reached.", EjectReasonCode.MAX_PARTICIPANTS))
     } else {
       Right(())

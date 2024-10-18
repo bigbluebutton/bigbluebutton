@@ -81,6 +81,12 @@ const joinEndpointTableData = [
     "description": (<>Set to “true” to indicate that the user is a guest, otherwise do NOT send this parameter.</>)
   },
   {
+    "name": "bot",
+    "required": false,
+    "type": "String",
+    "description": (<>Set to “true” to indicate that the user is a bot or an automated agent, otherwise do NOT send this parameter.</>)
+  },
+  {
     "name": "excludeFromDashboard",
     "required": false,
     "type": "String",

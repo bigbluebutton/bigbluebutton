@@ -7,8 +7,9 @@ case class RegisterUserReqMsg(
 ) extends BbbCoreMsg
 case class RegisterUserReqMsgBody(meetingId: String, intUserId: String, name: String, role: String,
                                   extUserId: String, authToken: String, sessionToken: String, avatarURL: String,
-                                  webcamBackgroundURL: String, guest: Boolean, authed: Boolean, guestStatus: String,
-                                  excludeFromDashboard: Boolean, enforceLayout: String, userMetadata: Map[String, String])
+                                  webcamBackgroundURL: String, bot: Boolean, guest: Boolean, authed: Boolean,
+                                  guestStatus: String, excludeFromDashboard: Boolean, enforceLayout: String,
+                                  userMetadata: Map[String, String])
 
 object UserRegisteredRespMsg { val NAME = "UserRegisteredRespMsg" }
 case class UserRegisteredRespMsg(
@@ -88,6 +89,7 @@ case class UserJoinedMeetingEvtMsgBody(
     extId:            String,
     name:             String,
     role:             String,
+    bot:              Boolean,
     guest:            Boolean,
     authed:           Boolean,
     guestStatus:      String,

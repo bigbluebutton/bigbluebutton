@@ -565,7 +565,7 @@ const UserActions: React.FC<UserActionsProps> = ({
   ];
 
   const actions = dropdownOptions.filter((key) => key.allowed);
-  if (!actions.length) {
+  if (!actions.length || user.bot) {
     return (
       <span>
         {children}

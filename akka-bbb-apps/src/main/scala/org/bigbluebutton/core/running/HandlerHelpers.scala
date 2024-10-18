@@ -48,6 +48,7 @@ trait HandlerHelpers extends SystemConfiguration {
         meetingId = regUser.meetingId,
         name = regUser.name,
         role = regUser.role,
+        bot = regUser.bot,
         guest = regUser.guest,
         authed = regUser.authed,
         guestStatus = regUser.guestStatus,
