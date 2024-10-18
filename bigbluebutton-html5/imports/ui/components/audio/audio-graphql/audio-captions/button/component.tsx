@@ -20,7 +20,7 @@ import AudioCaptionsService from '/imports/ui/components/audio/audio-graphql/aud
 import useDeduplicatedSubscription from '/imports/ui/core/hooks/useDeduplicatedSubscription';
 import { TRANSCRIPTION_LOCALE } from '/imports/ui/components/audio/audio-graphql/audio-captions/transcriptionLocale';
 
-const messages = {
+const messages: { [key: string]: { id: string; description?: string } } = {
   start: {
     id: 'app.audio.captions.button.start',
     description: 'Start audio captions',
@@ -53,12 +53,13 @@ const messages = {
   },
 };
 
-for (let key in TRANSCRIPTION_LOCALE) {
-  messages[TRANSCRIPTION_LOCALE[key]] = {
-    id: 'app.audio.captions.select.' + TRANSCRIPTION_LOCALE[key],
-    description: 'Audio speech recognition ' + key + ' language',
+Object.keys(TRANSCRIPTION_LOCALE).forEach((key: string) => {
+  const localeKey = TRANSCRIPTION_LOCALE[key as keyof typeof TRANSCRIPTION_LOCALE];
+  messages[localeKey] = {
+    id: `app.audio.captions.select.${localeKey}`,
+    description: `Audio speech recognition ${key} language`,
   };
-}
+});
 
 const intlMessages = defineMessages(messages);
 

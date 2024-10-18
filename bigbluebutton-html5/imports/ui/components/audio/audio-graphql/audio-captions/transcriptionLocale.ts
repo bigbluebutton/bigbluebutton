@@ -69,3 +69,5 @@ export const TRANSCRIPTION_LOCALE = {
   Uzbek: 'uz-UZ',
   Vietnamese: 'vi-VN',
 };
+
+export default TRANSCRIPTION_LOCALE;

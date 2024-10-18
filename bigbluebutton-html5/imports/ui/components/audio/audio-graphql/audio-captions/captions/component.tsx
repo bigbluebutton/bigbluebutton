@@ -15,7 +15,7 @@ import { SET_SPEECH_LOCALE } from '/imports/ui/core/graphql/mutations/userMutati
 import Styled from './styles';
 import { TRANSCRIPTION_LOCALE } from '/imports/ui/components/audio/audio-graphql/audio-captions/transcriptionLocale';
 
-const messages = {
+const messages: { [key: string]: { id: string; description?: string } } = {
   title: {
     id: 'app.audio.captions.speech.title',
     description: 'Audio speech recognition title',
@@ -34,12 +34,13 @@ const messages = {
   },
 };
 
-for (let key in TRANSCRIPTION_LOCALE) {
-  messages[TRANSCRIPTION_LOCALE[key]] = {
-    id: 'app.audio.captions.select.' + TRANSCRIPTION_LOCALE[key],
-    description: 'Audio speech recognition ' + key + ' language',
+Object.keys(TRANSCRIPTION_LOCALE).forEach((key: string) => {
+  const localeKey = TRANSCRIPTION_LOCALE[key as keyof typeof TRANSCRIPTION_LOCALE];
+  messages[localeKey] = {
+    id: `app.audio.captions.select.${localeKey}`,
+    description: `Audio speech recognition ${key} language`,
   };
-}
+});
 
 const intlMessages = defineMessages(messages);
 
