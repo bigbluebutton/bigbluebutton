@@ -105,6 +105,7 @@ function isInViewport(el: HTMLDivElement) {
 const messageRef = React.createRef<HTMLDivElement>();
 
 const ANIMATION_DURATION = 2000;
+const SCROLL_ANIMATION_DURATION = 500;
 
 const ChatMesssage: React.FC<ChatMessageProps> = ({
   previousMessage,
@@ -144,6 +145,8 @@ const ChatMesssage: React.FC<ChatMessageProps> = ({
   const chatFocusMessageRequest = useStorageKey(ChatEvents.CHAT_FOCUS_MESSAGE_REQUEST, STORAGES.IN_MEMORY);
   const containerRef = React.useRef<HTMLDivElement>(null);
   const animationInitialTimestamp = React.useRef(0);
+  const animationInitialScrollPosition = React.useRef(0);
+  const animationScrollPositionDiff = React.useRef(0);
   const [chatSendReaction] = useMutation(CHAT_SEND_REACTION_MUTATION);
   const [chatDeleteReaction] = useMutation(CHAT_DELETE_REACTION_MUTATION);
 
@@ -197,12 +200,16 @@ const ChatMesssage: React.FC<ChatMessageProps> = ({
   ].some((config) => config);
 
   const startScrollAnimation = (timestamp: number) => {
-    if (scrollRef.current && containerRef.current) {
-      // eslint-disable-next-line no-param-reassign
-      scrollRef.current.scrollTop = containerRef.current.offsetTop;
-    }
+    animationInitialScrollPosition.current = scrollRef.current?.scrollTop || 0;
+    animationScrollPositionDiff.current = (scrollRef.current?.scrollTop || 0)
+      - ((containerRef.current?.offsetTop || 0) - ((scrollRef.current?.offsetHeight || 0) / 2));
     animationInitialTimestamp.current = timestamp;
-    requestAnimationFrame(animate);
+    requestAnimationFrame(animateScrollPosition);
+  };
+
+  const startBackgroundAnimation = (timestamp: number) => {
+    animationInitialTimestamp.current = timestamp;
+    requestAnimationFrame(animateBackgroundColor);
   };
 
   useEffect(() => {
@@ -210,6 +217,7 @@ const ChatMesssage: React.FC<ChatMessageProps> = ({
       if (e instanceof CustomEvent) {
         if (e.detail.sequence === message.messageSequence) {
           requestAnimationFrame(startScrollAnimation);
+          requestAnimationFrame(startBackgroundAnimation);
         }
       }
     };
@@ -244,12 +252,25 @@ const ChatMesssage: React.FC<ChatMessageProps> = ({
     }
   }, []);
 
-  const animate = useCallback((timestamp: number) => {
+  const animateScrollPosition = useCallback((timestamp: number) => {
+    const value = (timestamp - animationInitialTimestamp.current) / SCROLL_ANIMATION_DURATION;
+    const { current: scrollContainer } = scrollRef;
+    const { current: messageContainer } = containerRef;
+    if (!scrollContainer || !messageContainer) return;
+    if (value <= 1) {
+      // eslint-disable-next-line no-param-reassign
+      scrollContainer.scrollTop = animationInitialScrollPosition.current
+        - (value * animationScrollPositionDiff.current);
+      requestAnimationFrame(animateScrollPosition);
+    }
+  }, []);
+
+  const animateBackgroundColor = useCallback((timestamp: number) => {
     if (!messageContentRef.current) return;
     const value = (timestamp - animationInitialTimestamp.current) / ANIMATION_DURATION;
     if (value < 1) {
       messageContentRef.current.style.backgroundColor = `rgb(${colorBlueLightestChannel} / ${1 - value})`;
-      requestAnimationFrame(animate);
+      requestAnimationFrame(animateBackgroundColor);
     } else {
       messageContentRef.current.style.backgroundColor = '#f4f6fa';
     }
