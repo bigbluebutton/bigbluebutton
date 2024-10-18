@@ -18,6 +18,8 @@ import scala.concurrent.duration._
 import org.bigbluebutton.common2.redis._
 import org.bigbluebutton.common2.bus._
 
+import java.util
+
 class BbbWebApiGWApp(
     val oldMessageReceivedGW: OldMessageReceivedGW,
     redisHost:                String,
@@ -165,6 +167,7 @@ class BbbWebApiGWApp(
                     notifyRecordingIsOn:                    java.lang.Boolean,
                     presentationUploadExternalDescription:  String,
                     presentationUploadExternalUrl:          String,
+                    plugins:                                util.Map[String, AnyRef],
                     overrideClientSettings:                 String): Unit = {
 
     val disabledFeaturesAsVector: Vector[String] = disabledFeatures.asScala.toVector
@@ -262,6 +265,7 @@ class BbbWebApiGWApp(
     val groupsAsVector: Vector[GroupProps] = groups.asScala.toVector.map(g => GroupProps(g.getGroupId(), g.getName(), g.getUsersExtId().asScala.toVector))
 
     val defaultProps = DefaultProps(
+      plugins,
       meetingProp,
       breakoutProps,
       durationProps,

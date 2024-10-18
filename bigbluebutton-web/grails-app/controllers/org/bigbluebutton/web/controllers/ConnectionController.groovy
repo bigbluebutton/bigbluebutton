@@ -90,6 +90,12 @@ class ConnectionController {
         }
 
         response.addHeader("Meeting-Id", userSession.meetingID)
+        response.addHeader("Meeting-External-Id", userSession.externMeetingID)
+        response.addHeader("User-Id", userSession.internalUserId)
+        response.addHeader("User-External-Id", userSession.externUserID)
+        response.addHeader("User-Name", URLEncoder.encode(userSession.fullname, StandardCharsets.UTF_8.name()))
+        response.addHeader("User-Is-Moderator", u && u.isModerator() ? "true" : "false")
+        response.addHeader("User-Is-Presenter", u && u.isPresenter() ? "true" : "false")
         response.setStatus(200)
         withFormat {
           json {
@@ -109,6 +115,12 @@ class ConnectionController {
         UserSessionBasicData removedUserSession = meetingService.getRemovedUserSessionWithSessionToken(sessionToken)
         if(removedUserSession) {
           response.addHeader("Meeting-Id", removedUserSession.meetingId)
+          response.addHeader("Meeting-External-Id", removedUserSession.extMeetingId)
+          response.addHeader("User-Id", removedUserSession.userId)
+          response.addHeader("User-External-Id", removedUserSession.extUserId)
+          response.addHeader("User-Name", URLEncoder.encode(removedUserSession.userFullName, StandardCharsets.UTF_8.name()))
+          response.addHeader("User-Is-Moderator", removedUserSession.isModerator() ? "true" : "false")
+          response.addHeader("User-Is-Presenter", "false")
           response.setStatus(200)
           withFormat {
             json {

@@ -1,6 +1,5 @@
 import styled from 'styled-components';
 import {
-  mdPaddingX,
   smPaddingX,
   borderRadius,
 } from '/imports/ui/stylesheets/styled-components/general';
@@ -8,22 +7,24 @@ import { ScrollboxVertical } from '/imports/ui/stylesheets/styled-components/scr
 import { colorGrayDark } from '/imports/ui/stylesheets/styled-components/palette';
 import { ButtonElipsis } from '/imports/ui/stylesheets/styled-components/placeholders';
 
-interface ChatMessagesProps {
+interface MessageListProps {
   isRTL: boolean;
 }
 
-export const MessageListWrapper = styled.div`
-  height: 100%;
-  display: flex;
+export const MessageList = styled(ScrollboxVertical)<MessageListProps>`
   flex-flow: column;
   flex-shrink: 1;
-  position: relative;
+  padding-top: 2rem;
+  outline-style: none;
   overflow-x: hidden;
-  overflow-y: auto;
+  user-select: text;
+  height: 100%;
   z-index: 2;
-`;
+  overflow-y: auto;
+  position: relative;
+  display: flex;
+  padding-bottom: ${smPaddingX};
 
-export const ChatMessages = styled.div<ChatMessagesProps>`
   ${({ isRTL }) => isRTL && `
     padding-left: ${smPaddingX};
   `}
@@ -31,25 +32,6 @@ export const ChatMessages = styled.div<ChatMessagesProps>`
   ${({ isRTL }) => !isRTL && `
     padding-right: ${smPaddingX};
   `}
-
-  padding-bottom: ${smPaddingX};
-  user-select: text;
-`;
-
-export const MessageList = styled(ScrollboxVertical)`
-  flex-flow: column;
-  flex-shrink: 1;
-  right: 0 ${mdPaddingX} 0 0;
-  padding-top: 0;
-  outline-style: none;
-  overflow-x: hidden;
-  user-select: none;
-
-  [dir='rtl'] & {
-    margin: 0 0 0 auto;
-    padding: 0 0 0 ${mdPaddingX};
-  }
-  display: block;
 `;
 
 export const ButtonLoadMore = styled.button`
@@ -70,8 +52,6 @@ export const UnreadButton = styled(ButtonElipsis)`
 `;
 
 export default {
-  MessageListWrapper,
   MessageList,
   UnreadButton,
-  ChatMessages,
 };

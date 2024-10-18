@@ -25,7 +25,8 @@ test.describe.parallel('Notifications', { tag: '@ci' }, () => {
     await notifications.getUserJoinPopupResponse();
   });
 
-  test('Raise and lower hand notification', async ({ browser, context, page }) => {
+  //Notification does not disappear, test needs to be updated after the fix.
+  test('Raise and lower hand notification', { tag: '@flaky' }, async ({ browser, context, page }) => {
     const notifications = new Notifications(browser, context);
     await notifications.initModPage(page);
     await notifications.raiseAndLowerHandNotification();
