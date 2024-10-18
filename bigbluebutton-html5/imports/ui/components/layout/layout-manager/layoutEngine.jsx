@@ -1,5 +1,5 @@
 import React from 'react';
-import { layoutSelect, layoutSelectInput } from '/imports/ui/components/layout/context';
+import { layoutSelect, layoutSelectInput, layoutSelectOutput } from '/imports/ui/components/layout/context';
 import DEFAULT_VALUES from '/imports/ui/components/layout/defaultValues';
 import { LAYOUT_TYPE, DEVICE_TYPE } from '/imports/ui/components/layout/enums';
 
@@ -22,6 +22,7 @@ const LayoutEngine = () => {
   const presentationInput = layoutSelectInput((i) => i.presentation);
   const actionbarInput = layoutSelectInput((i) => i.actionBar);
   const navBarInput = layoutSelectInput((i) => i.navBar);
+  const navBarOutput = layoutSelectOutput((i) => i.navBar);
   const sidebarNavigationInput = layoutSelectInput((i) => i.sidebarNavigation);
   const sidebarContentInput = layoutSelectInput((i) => i.sidebarContent);
   const externalVideoInput = layoutSelectInput((i) => i.externalVideo);
@@ -106,7 +107,9 @@ const LayoutEngine = () => {
   const calculatesNavbarHeight = () => {
     const { navBarHeight } = DEFAULT_VALUES;
 
-    return navBarInput.hasNavBar ? navBarHeight : 0;
+    const finalHeight = navBarOutput.hideTopRow ? navBarHeight / 2 : navBarHeight;
+
+    return navBarInput.hasNavBar ? finalHeight : 0;
   };
 
   const calculatesNavbarBounds = (mediaAreaBounds) => {

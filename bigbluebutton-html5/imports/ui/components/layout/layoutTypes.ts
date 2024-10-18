@@ -97,6 +97,7 @@ export interface GenericContentMainArea {
 }
 interface NavBar {
     hasNavBar?: boolean;
+    hideTopRow: boolean;
     height: number;
     display?: boolean;
     left?: number;

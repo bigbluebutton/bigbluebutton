@@ -94,7 +94,8 @@ const AppContainer = (props) => {
     ? (
       <App
         {...{
-          hideActionsBar: getFromUserSettings('bbb_hide_actions_bar', false),
+          hideActionsBar: getFromUserSettings('bbb_hide_actions_bar', false)
+            || getFromUserSettings('bbb_hide_controls', false),
           currentUserAway: currentUser.away,
           currentUserRaiseHand: currentUser.raiseHand,
           captionsStyle,
