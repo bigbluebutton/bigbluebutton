@@ -205,8 +205,9 @@ const ChatMessage = React.forwardRef<ChatMessageRef, ChatMessageProps>(({
 
   useImperativeHandle(ref, () => ({
     requestFocus() {
-      requestAnimationFrame(startScrollAnimation);
-      requestAnimationFrame(startBackgroundAnimation);
+      setTimeout(() => {
+        requestAnimationFrame(startScrollAnimation);
+      }, 0);
     },
   }), []);
 
@@ -234,6 +235,8 @@ const ChatMessage = React.forwardRef<ChatMessageRef, ChatMessageProps>(({
       // eslint-disable-next-line no-param-reassign
       scrollContainer.scrollTop = initialPosition - (value * diff);
       requestAnimationFrame(animateScrollPosition);
+    } else {
+      requestAnimationFrame(startBackgroundAnimation);
     }
   }, []);
 

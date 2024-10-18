@@ -113,7 +113,9 @@ const ChatListPage: React.FC<ChatListPageProps> = ({
     const handleFocusMessageRequest = (e: Event) => {
       if (e instanceof CustomEvent) {
         if (e.detail.sequence) {
-          if ((e.detail.sequence / PAGE_SIZE) < firstPageToLoad) return;
+          if ((e.detail.sequence / PAGE_SIZE) < firstPageToLoad) {
+            return;
+          }
           messageRefs.current[Number.parseInt(e.detail.sequence, 10)]?.requestFocus();
         }
       }
