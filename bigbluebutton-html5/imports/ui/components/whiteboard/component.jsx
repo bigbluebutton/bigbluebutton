@@ -118,6 +118,7 @@ const Whiteboard = React.memo((props) => {
     selectedLayout,
     isInfiniteWhiteboard,
     whiteboardWriters,
+    isPhone,
   } = props;
 
   clearTldrawCache();
@@ -152,6 +153,7 @@ const Whiteboard = React.memo((props) => {
   const initialViewBoxHeightRef = React.useRef(null);
   const previousTool = React.useRef(null);
   const bgSelectedRef = React.useRef(false);
+  const lastVisibilityStateRef = React.useRef('');
 
   const THRESHOLD = 0.1;
   const CAMERA_UPDATE_DELAY = 650;
@@ -668,6 +670,57 @@ const Whiteboard = React.memo((props) => {
 
       // eslint-disable-next-line no-param-reassign
       editor.store.onBeforeChange = (prev, next) => {
+        if (isPhone) {
+          const path = editor.getPath();
+          const activePaths = [
+            'draw.drawing',
+            'eraser.erasing',
+            'select.dragging_handle',
+            'select.resizing',
+            'select.translating',
+            'select.rotating',
+            'select.editing_shape',
+            'hand.pointing',
+            'hand.dragging',
+            'geo.pointing',
+            'line.pointing',
+            'highlight.drawing',
+          ];
+          const idlePaths = [
+            'draw.idle',
+            'eraser.idle',
+            'select.idle',
+            'hand.idle',
+            'highlight.idle',
+          ];
+
+          let visibilityState = null;
+          if (activePaths.includes(path)) {
+            visibilityState = 'visible';
+          } else if (idlePaths.includes(path)) {
+            visibilityState = 'hidden';
+          }
+
+          if (visibilityState && visibilityState !== lastVisibilityStateRef.current) {
+            if (visibilityState === 'visible') {
+              toggleToolsAnimations(
+                'fade-in',
+                'fade-out',
+                animations ? '0s' : '0s',
+                hasWBAccessRef.current || isPresenterRef.current,
+              );
+            } else if (visibilityState === 'hidden') {
+              toggleToolsAnimations(
+                'fade-out',
+                'fade-in',
+                animations ? '0s' : '0s',
+                hasWBAccessRef.current || isPresenterRef.current,
+              );
+            }
+            lastVisibilityStateRef.current = visibilityState;
+          }
+        }
+
         const newNext = next;
         if (next?.typeName === 'instance_page_state') {
           if (isPresenterRef.current || isModeratorRef.current) return next;
