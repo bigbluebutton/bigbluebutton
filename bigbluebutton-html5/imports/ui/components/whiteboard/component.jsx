@@ -706,14 +706,14 @@ const Whiteboard = React.memo((props) => {
               toggleToolsAnimations(
                 'fade-in',
                 'fade-out',
-                animations ? '0s' : '0s',
+                '0s',
                 hasWBAccessRef.current || isPresenterRef.current,
               );
             } else if (visibilityState === 'hidden') {
               toggleToolsAnimations(
                 'fade-out',
                 'fade-in',
-                animations ? '0s' : '0s',
+                '0s',
                 hasWBAccessRef.current || isPresenterRef.current,
               );
             }
@@ -1657,6 +1657,7 @@ export default Whiteboard;
 
 Whiteboard.propTypes = {
   isPresenter: PropTypes.bool,
+  isPhone: PropTypes.bool,
   removeShapes: PropTypes.func.isRequired,
   persistShapeWrapper: PropTypes.func.isRequired,
   notifyNotAllowedChange: PropTypes.func.isRequired,
