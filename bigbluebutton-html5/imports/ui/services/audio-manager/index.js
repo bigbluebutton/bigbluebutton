@@ -432,6 +432,8 @@ class AudioManager {
           break;
         case 'NotFoundError':
           errorPayload.errCode = AudioErrors.MIC_ERROR.DEVICE_NOT_FOUND;
+          // Reset the input device ID so the user can select a new one
+          this.changeInputDevice(null);
           logger.error({
             logCode: 'audiomanager_error_device_not_found',
             extraInfo: {
