@@ -8,7 +8,7 @@ import React, {
 import { useMutation } from '@apollo/client';
 import { UpdatedEventDetailsForChatMessageDomElements } from 'bigbluebutton-html-plugin-sdk/dist/cjs/dom-element-manipulation/chat/message/types';
 import { Message } from '/imports/ui/Types/message';
-import { defineMessages, useIntl } from 'react-intl';
+import { defineMessages, FormattedTime, useIntl } from 'react-intl';
 import ChatMessageHeader from './message-header/component';
 import ChatMessageTextContent from './message-content/text-content/component';
 import ChatPollContent from './message-content/poll-content/component';
@@ -22,7 +22,7 @@ import {
   DeleteMessage,
   ChatHeading,
   EditLabel,
-  EditLabelWrapper,
+  ChatContentFooter,
 } from './styles';
 import { ChatMessageType } from '/imports/ui/core/enums/chat';
 import MessageReadConfirmation from './message-read-confirmation/component';
@@ -46,6 +46,7 @@ import {
   useIsDeleteChatMessageEnabled,
 } from '/imports/ui/services/features';
 import ChatMessageNotificationContent from './message-content/notification-content/component';
+import { ChatTime } from './message-header/styles';
 
 interface ChatMessageProps {
   message: Message;
@@ -154,22 +155,24 @@ const ChatMessage = React.forwardRef<ChatMessageRef, ChatMessageProps>(({
   const [chatSendReaction] = useMutation(CHAT_SEND_REACTION_MUTATION);
   const [chatDeleteReaction] = useMutation(CHAT_DELETE_REACTION_MUTATION);
 
-  const sendReaction = useCallback((reactionEmoji: string) => {
+  const sendReaction = useCallback((reactionEmoji: string, reactionEmojiId: string) => {
     chatSendReaction({
       variables: {
         chatId: message.chatId,
         messageId: message.messageId,
         reactionEmoji,
+        reactionEmojiId,
       },
     });
   }, []);
 
-  const deleteReaction = useCallback((reactionEmoji: string) => {
+  const deleteReaction = useCallback((reactionEmoji: string, reactionEmojiId: string) => {
     chatDeleteReaction({
       variables: {
         chatId: message.chatId,
         messageId: message.messageId,
         reactionEmoji,
+        reactionEmojiId,
       },
     });
   }, []);
@@ -224,7 +227,7 @@ const ChatMessage = React.forwardRef<ChatMessageRef, ChatMessageProps>(({
     requestAnimationFrame(animateBackgroundColor);
   };
 
-  const animateScrollPosition = useCallback((timestamp: number) => {
+  const animateScrollPosition = (timestamp: number) => {
     const value = (timestamp - animationInitialTimestamp.current) / SCROLL_ANIMATION_DURATION;
     const { current: scrollContainer } = scrollRef;
     const { current: messageContainer } = containerRef;
@@ -238,9 +241,9 @@ const ChatMessage = React.forwardRef<ChatMessageRef, ChatMessageProps>(({
     } else {
       requestAnimationFrame(startBackgroundAnimation);
     }
-  }, []);
+  };
 
-  const animateBackgroundColor = useCallback((timestamp: number) => {
+  const animateBackgroundColor = (timestamp: number) => {
     if (!messageContentRef.current) return;
     const value = (timestamp - animationInitialTimestamp.current) / ANIMATION_DURATION;
     if (value < 1) {
@@ -249,7 +252,7 @@ const ChatMessage = React.forwardRef<ChatMessageRef, ChatMessageProps>(({
     } else {
       messageContentRef.current.style.backgroundColor = '#f4f6fa';
     }
-  }, []);
+  };
 
   useEffect(() => {
     setMessagesRequestedFromPlugin((messages) => {
@@ -487,7 +490,7 @@ const ChatMessage = React.forwardRef<ChatMessageRef, ChatMessageProps>(({
           messageSequence={message.messageSequence}
           emphasizedMessage={message.chatEmphasizedText}
           onEmojiSelected={(emoji) => {
-            sendReaction(emoji.native);
+            sendReaction(emoji.native, emoji.id);
             setIsToolbarReactionPopoverOpen(false);
           }}
           onReactionPopoverOpenChange={setIsToolbarReactionPopoverOpen}
@@ -545,7 +548,7 @@ const ChatMessage = React.forwardRef<ChatMessageRef, ChatMessageProps>(({
           />
           )}
           {!deleteTime && (
-          <MessageItemWrapper $edited={!!editTime} $sameSender={sameSender}>
+          <MessageItemWrapper>
             {messageContent.component}
             {messageReadFeedbackEnabled && (
             <MessageReadConfirmation
@@ -554,13 +557,18 @@ const ChatMessage = React.forwardRef<ChatMessageRef, ChatMessageProps>(({
             )}
           </MessageItemWrapper>
           )}
-          {!deleteTime && editTime && sameSender && (
-            <EditLabelWrapper>
-              <EditLabel>
-                <Icon iconName="pen_tool" />
-                <span>{intl.formatMessage(intlMessages.edited)}</span>
-              </EditLabel>
-            </EditLabelWrapper>
+          {sameSender && (
+            <ChatContentFooter>
+              {!deleteTime && editTime && (
+                <EditLabel>
+                  <Icon iconName="pen_tool" />
+                  <span>{intl.formatMessage(intlMessages.edited)}</span>
+                </EditLabel>
+              )}
+              <ChatTime>
+                <FormattedTime value={dateTime} hour12={false} />
+              </ChatTime>
+            </ChatContentFooter>
           )}
           {deleteTime && (
             <DeleteMessage>
