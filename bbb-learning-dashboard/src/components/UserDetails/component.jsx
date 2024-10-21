@@ -53,11 +53,14 @@ const UserDatailsComponent = (props) => {
   const currTime = () => new Date().getTime();
 
   // Join and left times.
-  const registeredTimes = Object.values(user.intIds).map((intId) => intId.registeredOn);
-  const leftTimes = Object.values(user.intIds).map((intId) => intId.leftOn);
+  const registeredTimes = Object.values(user.intIds)
+    .map((intId) => intId.sessions.map((session) => session.registeredOn)).flat();
+  const leftTimes = Object.values(user.intIds)
+    .map((intId) => intId.sessions.map((session) => session.leftOn)).flat();
   const joinTime = Math.min(...registeredTimes);
   const leftTime = Math.max(...leftTimes);
-  const currentlyInMeeting = Object.values(user.intIds).some((intId) => intId.leftOn === 0);
+  const currentlyInMeeting = Object.values(user.intIds)
+    .some((intId) => intId.sessions.some((session) => session.leftOn === 0));
 
   // Used in the calculation of the online loader.
   const sessionDuration = (endedOn || currTime()) - createdOn;
