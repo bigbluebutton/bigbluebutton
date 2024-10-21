@@ -1,6 +1,7 @@
 import {
   ApolloClient, ApolloProvider, InMemoryCache, NormalizedCacheObject, ApolloLink,
 } from '@apollo/client';
+import { GraphQLError } from 'graphql';
 import { GraphQLWsLink } from '@apollo/client/link/subscriptions';
 import { createClient } from 'graphql-ws';
 import { onError } from '@apollo/client/link/error';
@@ -15,6 +16,11 @@ import useMeetingSettings from '/imports/ui/core/local-states/useMeetingSettings
 
 interface ConnectionManagerProps {
   children: React.ReactNode;
+}
+
+interface ErrorPayload extends GraphQLError {
+  messageId?: string;
+  message: string;
 }
 
 interface WsError {
@@ -81,7 +87,7 @@ const ConnectionManager: React.FC<ConnectionManagerProps> = ({ children }): Reac
   const tsLastMessageRef = useRef<number>(0);
   const tsLastPingMessageRef = useRef<number>(0);
   const boundary = useRef(15_000);
-  const [terminalError, setTerminalError] = React.useState<string>('');
+  const [terminalError, setTerminalError] = React.useState<string | Error>('');
   const [MeetingSettings] = useMeetingSettings();
   const enableDevTools = MeetingSettings.public.app.enableApolloDevTools;
 
@@ -125,7 +131,11 @@ const ConnectionManager: React.FC<ConnectionManagerProps> = ({ children }): Reac
 
   useEffect(() => {
     if (terminalError) {
-      throw new Error(terminalError);
+      if (typeof terminalError === 'string') {
+        throw new Error(terminalError);
+      } else {
+        throw terminalError;
+      }
     }
   }, [terminalError]);
 
@@ -236,7 +246,12 @@ const ConnectionManager: React.FC<ConnectionManagerProps> = ({ children }): Reac
                 // it contains a prop message.messageId which can be used to show a proper error to the user
                 logger.error({ logCode: 'graphql_server_closed_connection', extraInfo: message }, 'Graphql Server closed the connection');
                 loadingContextInfo.setLoading(false, '');
-                setTerminalError('Server closed the connection');
+                const payload = message.payload as ErrorPayload[];
+                if (payload[0].messageId) {
+                  setTerminalError(new Error(payload[0].message, { cause: payload[0].messageId }));
+                } else {
+                  setTerminalError(new Error('Server closed the connection', { cause: 'server_closed' }));
+                }
               }
               tsLastMessageRef.current = Date.now();
             },

@@ -167,7 +167,7 @@ const RecordingStatusViewOnly = styled.div<RecordingStatusViewOnlyProps>`
   display: flex;
 
   ${({ recording }) => recording && `
-    padding: 5px 0 5px 5px;
+    padding: 5px 5px 5px 5px;
     background-color: ${colorDangerDark};
     border: ${borderSizeLarge} solid ${colorDangerDark};
     border-radius: 10px;
