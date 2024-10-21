@@ -17,7 +17,7 @@ import {
 import { fontSizeBase } from '/imports/ui/stylesheets/styled-components/typography';
 import TextareaAutosize from 'react-autosize-textarea';
 import EmojiPickerComponent from '/imports/ui/components/emoji-picker/component';
-import Button from '/imports/ui/components/common/button/component';
+import Button from '@mui/material/Button';
 
 interface FormProps {
   isRTL: boolean;
@@ -30,14 +30,6 @@ const Form = styled.form<FormProps>`
   width: 100%;
   position: relative;
   margin-top: .2rem;
-
-  ${({ isRTL }) => isRTL && `
-    padding-left: ${smPaddingX};
-  `}
-
-  ${({ isRTL }) => !isRTL && `
-    padding-right: ${smPaddingX};
-  `}
 `;
 
 const Wrapper = styled.div`
@@ -52,11 +44,11 @@ const Input = styled(TextareaAutosize)`
   background: #fff;
   background-clip: padding-box;
   margin: ${xsPadding} 0 ${xsPadding} ${xsPadding};
-  color: ${colorText};
+  color: ${colorGrayLighter};
   -webkit-appearance: none;
-  padding: calc(${smPaddingY} * 2.5) calc(${smPaddingX} * 1.25);
+  padding: calc(${smPaddingY} * 2.5) 0 calc(${smPaddingX} * 1.25) calc(${smPaddingY} * 2.5);
   resize: none;
-  transition: none;
+  transition: color 0.3s ease;
   border-radius: ${borderRadius};
   font-size: ${fontSizeBase};
   line-height: 1;
@@ -72,6 +64,10 @@ const Input = styled(TextareaAutosize)`
 
   [dir='rtl'] & {
     border-radius: 0 0.75rem 0.75rem 0;
+  }
+
+  &:focus {
+    color: ${colorText};
   }
 
   &:disabled,
@@ -109,8 +105,6 @@ const EmojiButtonWrapper = styled.div``;
 // @ts-ignore - as button comes from JS, we can't provide its props
 const EmojiButton = styled(Button)`
   margin:0 0 0 ${smPaddingX};
-  align-self: center;
-  font-size: 0.5rem;
 
   [dir="rtl"]  & {
     margin: 0 ${smPaddingX} 0 0;
@@ -171,19 +165,10 @@ const InputWrapper = styled.div`
   flex-grow: 1;
   min-width: 0;
   z-index: 0;
-
-  [dir='ltr'] & {
-    border-radius: 0.75rem 0 0 0.75rem;
-    margin-right: ${xsPadding};
-  }
-
-  [dir='rtl'] & {
-    border-radius: 0 0.75rem 0.75rem 0;
-    margin-left: ${xsPadding};
-  }
+  border-radius: 0.75rem;
 
   &:focus-within {
-    box-shadow: 0 0 0 ${xsPadding} ${colorBlueLight};
+    box-shadow: 0 0 0 ${xsPadding} ${colorGrayLighter};
   }
 `;
 

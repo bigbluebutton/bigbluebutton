@@ -112,7 +112,8 @@ const SidebarContent = (props) => {
         setResizeStartHeight(0);
       }}
       style={{
-        position: 'absolute',
+        display:'flex',
+        alignItems: 'center',
         top,
         left,
         right,
