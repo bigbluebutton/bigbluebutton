@@ -27,6 +27,8 @@ const SidebarContentContainer = () => {
 
   const currentSlideId = presentationPage?.pageId;
 
+  if (sidebarContentOutput.display === false) return null;
+
   return (
     <SidebarContent
       {...sidebarContentOutput}
