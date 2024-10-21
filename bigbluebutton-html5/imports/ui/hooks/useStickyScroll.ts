@@ -51,20 +51,20 @@ const useStickyScroll = (
         }
       });
     });
-  }, [stickyElement]);
+  }, [stickyElement, operator]);
 
   handlers.current.startObserving = useCallback(() => {
     if (!onResizeOf) return;
     clearTimeout(timeout.current);
     observer.current?.observe(onResizeOf);
-  }, [onResizeOf, observer.current]);
+  }, [onResizeOf]);
 
   handlers.current.stopObserving = useCallback(() => {
     if (!onResizeOf) return;
     timeout.current = setTimeout(() => {
       observer.current?.unobserve(onResizeOf);
     }, 500);
-  }, [onResizeOf, observer.current]);
+  }, [onResizeOf]);
 
   useEffect(
     () => () => {
