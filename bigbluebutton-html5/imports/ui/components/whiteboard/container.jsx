@@ -269,7 +269,7 @@ const WhiteboardContainer = (props) => {
     setShapes(updatedShapes);
   }, [annotations, intl, curPageNum, currentPresentationPage]);
 
-  const { isIphone } = deviceInfo;
+  const { isIphone, isPhone } = deviceInfo;
 
   const assetId = AssetRecordType.createId(curPageNum);
   const assets = [{
@@ -361,6 +361,7 @@ const WhiteboardContainer = (props) => {
         animations: Settings?.application?.animations,
         toggleToolsAnimations,
         isIphone,
+        isPhone,
         currentPresentationPage,
         numberOfPages: currentPresentationPage?.totalPages,
         presentationId,
