@@ -23,7 +23,7 @@ export function useMeetingIsBreakout() {
 export const setDarkTheme = (value) => {
   let invert = [Styled.DtfInvert];
 
-  if(equalURLs()) {
+  if (equalURLs()) {
     invert = [Styled.DtfBrandingInvert];
   }
 
@@ -36,22 +36,16 @@ export const setDarkTheme = (value) => {
         ignoreImageAnalysis: [Styled.DtfImages],
       },
     );
-    logger.info(
-      {
-        logCode: 'dark_mode',
-      },
-      'Dark mode is on.',
-    );
+    logger.info({ logCode: 'dark_mode' }, 'Dark mode is on.');
+
+    window.dispatchEvent(new CustomEvent('darkmodechange', { detail: { enabled: true } }));
   }
 
   if (!value && DarkReader.isEnabled()) {
     DarkReader.disable();
-    logger.info(
-      {
-        logCode: 'dark_mode',
-      },
-      'Dark mode is off.',
-    );
+    logger.info({ logCode: 'dark_mode' }, 'Dark mode is off.');
+
+    window.dispatchEvent(new CustomEvent('darkmodechange', { detail: { enabled: false } }));
   }
 };
 
