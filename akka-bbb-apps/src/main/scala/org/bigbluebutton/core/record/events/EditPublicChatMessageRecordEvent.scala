@@ -19,36 +19,21 @@
 
 package org.bigbluebutton.core.record.events
 
-class PublicChatRecordEvent extends AbstractChatRecordEvent {
-  import PublicChatRecordEvent._
+class EditPublicChatMessageRecordEvent extends AbstractChatRecordEvent {
+  import EditPublicChatMessageRecordEvent._
 
-  setEvent("PublicChatEvent")
+  setEvent("EditPublicChatMessageRecordEvent")
 
-  def setSenderId(senderId: String) {
-    eventMap.put(SENDERID, senderId)
-  }
-
-  def setSenderRole(senderRole: String): Unit = {
-    eventMap.put(SENDER_ROLE, senderRole)
-  }
-
-  def setChatEmphasizedText(chatEmphasizedText: Boolean): Unit = {
-    eventMap.put(CHAT_EMPHASIZED_TEXT, chatEmphasizedText.toString)
+  def setMessageId(messageId: String): Unit = {
+    eventMap.put(MESSAGEID, messageId)
   }
 
   def setMessage(message: String) {
     eventMap.put(MESSAGE, message)
   }
-
-  def setReplyToMessageId(replyToMessageId: String) {
-    eventMap.put(REPLY_TO_MESSAGEID, replyToMessageId)
-  }
 }
 
-object PublicChatRecordEvent {
-  private final val SENDERID = "senderId"
+object EditPublicChatMessageRecordEvent {
+  private final val MESSAGEID = "messageId"
   private final val MESSAGE = "message"
-  private final val SENDER_ROLE = "senderRole"
-  private final val CHAT_EMPHASIZED_TEXT = "chatEmphasizedText"
-  private final val REPLY_TO_MESSAGEID = "replyToMessageId"
 }

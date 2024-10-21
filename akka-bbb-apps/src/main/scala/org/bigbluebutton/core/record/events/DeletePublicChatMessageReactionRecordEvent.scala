@@ -19,36 +19,26 @@
 
 package org.bigbluebutton.core.record.events
 
-class PublicChatRecordEvent extends AbstractChatRecordEvent {
-  import PublicChatRecordEvent._
+class DeletePublicChatMessageReactionRecordEvent extends AbstractChatRecordEvent {
+  import DeletePublicChatMessageReactionRecordEvent._
 
-  setEvent("PublicChatEvent")
+  setEvent("DeletePublicChatMessageReactionRecordEvent")
 
   def setSenderId(senderId: String) {
     eventMap.put(SENDERID, senderId)
   }
 
-  def setSenderRole(senderRole: String): Unit = {
-    eventMap.put(SENDER_ROLE, senderRole)
+  def setMessageId(messageId: String): Unit = {
+    eventMap.put(MESSAGEID, messageId)
   }
 
-  def setChatEmphasizedText(chatEmphasizedText: Boolean): Unit = {
-    eventMap.put(CHAT_EMPHASIZED_TEXT, chatEmphasizedText.toString)
-  }
-
-  def setMessage(message: String) {
-    eventMap.put(MESSAGE, message)
-  }
-
-  def setReplyToMessageId(replyToMessageId: String) {
-    eventMap.put(REPLY_TO_MESSAGEID, replyToMessageId)
+  def setReactionEmoji(reactionEmoji: String) {
+    eventMap.put(REACTIONEMOJI, reactionEmoji)
   }
 }
 
-object PublicChatRecordEvent {
+object DeletePublicChatMessageReactionRecordEvent {
   private final val SENDERID = "senderId"
-  private final val MESSAGE = "message"
-  private final val SENDER_ROLE = "senderRole"
-  private final val CHAT_EMPHASIZED_TEXT = "chatEmphasizedText"
-  private final val REPLY_TO_MESSAGEID = "replyToMessageId"
+  private final val MESSAGEID = "messageId"
+  private final val REACTIONEMOJI = "reactionEmoji"
 }
