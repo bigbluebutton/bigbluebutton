@@ -34,7 +34,9 @@ const ActionsDropdownContainer = (props) => {
 
   let actionButtonDropdownItems = [];
   if (pluginsExtensibleAreasAggregatedState.actionButtonDropdownItems) {
-    actionButtonDropdownItems = [...pluginsExtensibleAreasAggregatedState.actionButtonDropdownItems];
+    actionButtonDropdownItems = [
+      ...pluginsExtensibleAreasAggregatedState.actionButtonDropdownItems,
+    ];
   }
 
   const openActions = useShortcut('openActions');
