@@ -368,6 +368,7 @@ public class SvgImageCreatorImp implements SvgImageCreator {
 	}
 
 
+
 	public void setBlankSvg(String blankSvg) {
 		BLANK_SVG = blankSvg;
 	}
