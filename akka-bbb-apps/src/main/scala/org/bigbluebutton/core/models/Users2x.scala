@@ -67,7 +67,7 @@ object Users2x {
   }
 
   def numUsers(users: Users2x): Int = {
-    users.toVector.length
+    users.toVector.filter(u => !u.bot).length
   }
 
   def numActiveModerators(users: Users2x): Int = {
@@ -432,6 +432,7 @@ case class UserState(
     meetingId:             String,
     name:                  String,
     role:                  String,
+    bot:                   Boolean,
     guest:                 Boolean,
     pin:                   Boolean,
     mobile:                Boolean,
