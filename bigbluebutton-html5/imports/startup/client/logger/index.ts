@@ -5,6 +5,7 @@ import { ConsoleFormattedStream } from '@browser-bunyan/console-formatted-stream
 import { ConsoleRawStream } from '@browser-bunyan/console-raw-stream';
 import { ClientLog } from '/imports/ui/Types/meetingClientSettings';
 import ServerLoggerStream from './ServerStream';
+import ConsoleStream from './consoleStream';
 import meetingClientSettingsInitialValues from '/imports/ui/core/initial-values/meetingClientSettings';
 
 // The logger accepts "console","server", and "external" as targets
@@ -31,17 +32,14 @@ export function createStreamForTarget(
 ) {
   const TARGET_EXTERNAL = 'external';
   const TARGET_CONSOLE = 'console';
-
   let Stream;
   switch (target) {
     case TARGET_EXTERNAL:
       Stream = ServerLoggerStream;
       break;
     case TARGET_CONSOLE:
-      Stream = ConsoleFormattedStream;
-      break;
     default:
-      Stream = ConsoleFormattedStream;
+      Stream = process.env.DETAILED_LOGS ? ConsoleStream : ConsoleFormattedStream;
   }
 
   return new Stream(options);

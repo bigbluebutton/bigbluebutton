@@ -26,10 +26,9 @@ import java.nio.charset.StandardCharsets;
 import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-import com.google.gson.Gson;
-import com.google.gson.JsonArray;
-import com.google.gson.JsonElement;
-import com.google.gson.JsonObject;
+
+import com.google.gson.*;
+import org.bigbluebutton.api.domain.*;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.safety.Safelist;
@@ -39,10 +38,6 @@ import org.jsoup.select.Elements;
 import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.commons.lang3.RandomStringUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.bigbluebutton.api.domain.BreakoutRoomsParams;
-import org.bigbluebutton.api.domain.LockSettingsParams;
-import org.bigbluebutton.api.domain.Meeting;
-import org.bigbluebutton.api.domain.Group;
 import org.bigbluebutton.api.service.ServiceUtils;
 import org.bigbluebutton.api.util.ParamsUtil;
 import org.slf4j.Logger;
@@ -104,6 +99,7 @@ public class ParamsProcessorUtil {
     private boolean defaultAllowModsToUnmuteUsers = false;
     private boolean defaultAllowModsToEjectCameras = false;
     private String defaultDisabledFeatures;
+    private String defaultPluginManifests;
     private boolean defaultNotifyRecordingIsOn = false;
     private boolean defaultKeepEvents = false;
     private Boolean useDefaultLogo;
@@ -432,6 +428,33 @@ public class ParamsProcessorUtil {
         return groups;
     }
 
+    private ArrayList<PluginManifest> processPluginManifests(String pluginManifestsParam) {
+        ArrayList<PluginManifest> pluginManifests = new ArrayList<PluginManifest>();
+        JsonElement pluginManifestsJsonElement = new Gson().fromJson(pluginManifestsParam, JsonElement.class);
+        try {
+            if (pluginManifestsJsonElement != null && pluginManifestsJsonElement.isJsonArray()) {
+                JsonArray pluginManifestsJson = pluginManifestsJsonElement.getAsJsonArray();
+                for (JsonElement pluginManifestJson : pluginManifestsJson) {
+                    if (pluginManifestJson.isJsonObject()) {
+                        JsonObject pluginManifestJsonObj = pluginManifestJson.getAsJsonObject();
+                        if (pluginManifestJsonObj.has("url")) {
+                            String url = pluginManifestJsonObj.get("url").getAsString();
+                            PluginManifest newPlugin = new PluginManifest(url);
+                            if (pluginManifestJsonObj.has("checksum")) {
+                                newPlugin.setChecksum(pluginManifestJsonObj.get("checksum").getAsString());
+                            }
+                            pluginManifests.add(newPlugin);
+                        }
+                    }
+                }
+            }
+        } catch(JsonSyntaxException err){
+            log.error("Error in pluginManifests URL parameter's json structure.");
+        }
+
+        return pluginManifests;
+    }
+
     public Meeting processCreateParams(Map<String, String> params) {
 
         String meetingName = params.get(ApiParams.NAME);
@@ -548,6 +571,20 @@ public class ParamsProcessorUtil {
             listOfDisabledFeaturesExclude.removeAll(Arrays.asList("", null));
             listOfDisabledFeaturesExclude.replaceAll(String::trim);
             listOfDisabledFeatures.removeAll(Arrays.asList(disabledFeaturesExcludeParam.split(",")));
+        }
+
+        // Parse Plugins Manifests from config and param
+        ArrayList<PluginManifest> listOfPluginManifests = new ArrayList<PluginManifest>();
+        //Process plugins from config
+        if(defaultPluginManifests != null && !defaultPluginManifests.isEmpty()) {
+            ArrayList<PluginManifest> pluginManifestsFromConfig = processPluginManifests(defaultPluginManifests);
+            listOfPluginManifests.addAll(pluginManifestsFromConfig);
+        }
+        //Process plugins from /create param
+        String pluginManifestsParam = params.get(ApiParams.PLUGIN_MANIFESTS);
+        if (!StringUtils.isEmpty(pluginManifestsParam)) {
+            ArrayList<PluginManifest> pluginManifestsFromParam = processPluginManifests(pluginManifestsParam);
+            listOfPluginManifests.addAll(pluginManifestsFromParam);
         }
 
         // Check if VirtualBackgrounds is disabled
@@ -790,6 +827,7 @@ public class ParamsProcessorUtil {
                 .withLearningDashboardCleanupDelayInMinutes(learningDashboardCleanupMins)
                 .withLearningDashboardAccessToken(learningDashboardAccessToken)
                 .withGroups(groups)
+                .withPluginManifests(listOfPluginManifests)
                 .withDisabledFeatures(listOfDisabledFeatures)
                 .withNotifyRecordingIsOn(notifyRecordingIsOn)
                 .withPresentationUploadExternalDescription(presentationUploadExternalDescription)
@@ -1574,36 +1612,40 @@ public class ParamsProcessorUtil {
 		this.defaultEndWhenNoModerator = val;
 	}
 
-  public void setEndWhenNoModeratorDelayInMinutes(Integer value) {
-      this.defaultEndWhenNoModeratorDelayInMinutes = value;
-  }
+	public void setEndWhenNoModeratorDelayInMinutes(Integer value) {
+		this.defaultEndWhenNoModeratorDelayInMinutes = value;
+	}
 
-  public void setDisabledFeatures(String disabledFeatures) {
-        this.defaultDisabledFeatures = disabledFeatures;
-    }
+	public void setDisabledFeatures(String disabledFeatures) {
+		this.defaultDisabledFeatures = disabledFeatures;
+	}
 
-  public void setNotifyRecordingIsOn(Boolean notifyRecordingIsOn) {
-      this.defaultNotifyRecordingIsOn = notifyRecordingIsOn;
-  }
+	public void setPluginManifests(String pluginManifests) {
+		this.defaultPluginManifests = pluginManifests;
+	}
 
-  public void setPresentationUploadExternalDescription(String presentationUploadExternalDescription) {
-    this.defaultPresentationUploadExternalDescription = presentationUploadExternalDescription;
-  }
+	public void setNotifyRecordingIsOn(Boolean notifyRecordingIsOn) {
+		this.defaultNotifyRecordingIsOn = notifyRecordingIsOn;
+	}
 
-  public void setPresentationUploadExternalUrl(String presentationUploadExternalUrl) {
-    this.defaultPresentationUploadExternalUrl = presentationUploadExternalUrl;
-  }
+	public void setPresentationUploadExternalDescription(String presentationUploadExternalDescription) {
+		this.defaultPresentationUploadExternalDescription = presentationUploadExternalDescription;
+	}
 
-  public void setBbbVersion(String version) {
+	public void setPresentationUploadExternalUrl(String presentationUploadExternalUrl) {
+		this.defaultPresentationUploadExternalUrl = presentationUploadExternalUrl;
+	}
+
+	public void setBbbVersion(String version) {
       this.bbbVersion = this.allowRevealOfBBBVersion ? version : "";
-  }
+	}
 
-  public void setAllowRevealOfBBBVersion(Boolean allowVersion) {
-    this.allowRevealOfBBBVersion = allowVersion;
-  }
+	public void setAllowRevealOfBBBVersion(Boolean allowVersion) {
+		this.allowRevealOfBBBVersion = allowVersion;
+	}
 
-  public void setAllowOverrideClientSettingsOnCreateCall(Boolean allowOverrideClientSettingsOnCreateCall) {
-    this.allowOverrideClientSettingsOnCreateCall = allowOverrideClientSettingsOnCreateCall;
-  }
+	public void setAllowOverrideClientSettingsOnCreateCall(Boolean allowOverrideClientSettingsOnCreateCall) {
+		this.allowOverrideClientSettingsOnCreateCall = allowOverrideClientSettingsOnCreateCall;
+	}
 
 }

@@ -29,7 +29,7 @@ test.describe('Learning Dashboard', async () => {
   test('Basic Infos', { tag: '@ci' }, async () => {
     await learningDashboard.basicInfos();
   });
-
+  
   test('Overview', { tag: '@ci' }, async () => {
     await learningDashboard.overview();
   });

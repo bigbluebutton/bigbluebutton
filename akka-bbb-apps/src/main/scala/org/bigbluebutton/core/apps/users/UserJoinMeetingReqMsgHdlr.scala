@@ -79,7 +79,7 @@ trait UserJoinMeetingReqMsgHdlr extends HandlerHelpers {
 
   private def validateMaxParticipants(regUser: RegisteredUser): Either[(String, String), Unit] = {
     val userHasJoinedAlready = RegisteredUsers.checkUserExtIdHasJoined(regUser.externId, liveMeeting.registeredUsers)
-    val maxParticipants = liveMeeting.props.usersProp.maxUsers - 1
+    val maxParticipants = liveMeeting.props.usersProp.maxUsers
 
     if (maxParticipants > 0 && //0 = no limit
       RegisteredUsers.numUniqueJoinedUsers(liveMeeting.registeredUsers) >= maxParticipants &&

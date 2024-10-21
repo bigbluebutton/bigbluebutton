@@ -21,7 +21,7 @@ const GenericContentItem: React.FC<GenericContentItemProps> = (props) => {
       // instance of ReactDOM
       if (rootRef) rootRef.unmount();
     };
-  }, [elementRef]);
+  }, [elementRef, renderFunction]);
 
   const style: React.CSSProperties = {
     height: '100%',

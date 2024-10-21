@@ -1,6 +1,6 @@
 package org.bigbluebutton.core.apps.groupchats
 
-import org.bigbluebutton.ClientSettings.{ getConfigPropertyValueByPath, getConfigPropertyValueByPathAsBooleanOrElse }
+import org.bigbluebutton.ClientSettings.getConfigPropertyValueByPathAsBooleanOrElse
 import org.bigbluebutton.common2.msgs._
 import org.bigbluebutton.core.apps.PermissionCheck
 import org.bigbluebutton.core.bus.MessageBus
@@ -25,6 +25,7 @@ trait SendGroupChatMessageMsgHdlr extends HandlerHelpers {
     }
 
     val chatDisabled: Boolean = liveMeeting.props.meetingProp.disabledFeatures.contains("chat")
+    val replyChatMessageDisabled: Boolean = liveMeeting.props.meetingProp.disabledFeatures.contains("replyChatMessage")
     var chatLocked: Boolean = false
     var chatLockedForUser: Boolean = false
 
@@ -73,8 +74,15 @@ trait SendGroupChatMessageMsgHdlr extends HandlerHelpers {
             sender.role == Roles.MODERATOR_ROLE
 
           val messageType = determineMessageType(msg.body.msg.metadata)
+          val groupChatMsgReceived = {
+            if (replyChatMessageDisabled && msg.body.msg.replyToMessageId != "") {
+              msg.body.msg.copy(replyToMessageId = "")
+            } else {
+              msg.body.msg
+            }
+          }
 
-          val gcMessage = GroupChatApp.toGroupChatMessage(sender, msg.body.msg, emphasizedText, msg.body.msg.metadata)
+          val gcMessage = GroupChatApp.toGroupChatMessage(sender, groupChatMsgReceived, emphasizedText)
           val updatedGroupChat = GroupChatApp.addGroupChatMessage(liveMeeting.props.meetingProp.intId, chat, state.groupChats, gcMessage, messageType)
 
           val event = buildGroupChatMessageBroadcastEvtMsg(
@@ -90,7 +98,6 @@ trait SendGroupChatMessageMsgHdlr extends HandlerHelpers {
           PermissionCheck.ejectUserForFailedPermission(msg.header.meetingId, msg.header.userId, reason, bus.outGW, liveMeeting)
           state
         }
-
       }
 
       newState match {

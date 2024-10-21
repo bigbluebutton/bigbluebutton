@@ -22,7 +22,6 @@ const ActionButtonDropdownPluginStateContainer = ((
   ] = useState<PluginSdk.ActionButtonDropdownInterface[]>([]);
 
   const {
-    pluginsExtensibleAreasAggregatedState,
     setPluginsExtensibleAreasAggregatedState,
   } = useContext(PluginsContext);
 
@@ -36,12 +35,11 @@ const ActionButtonDropdownPluginStateContainer = ((
       ...Object.values(extensibleAreaMap)
         .map((extensibleArea: ExtensibleArea) => extensibleArea.actionButtonDropdownItems),
     );
-    setPluginsExtensibleAreasAggregatedState(
+    setPluginsExtensibleAreasAggregatedState((previousState) => (
       {
-        ...pluginsExtensibleAreasAggregatedState,
+        ...previousState,
         actionButtonDropdownItems: aggregatedActionButtonDropdownItems,
-      },
-    );
+      }));
   }, [actionButtonDropdownItems]);
 
   pluginApi.setActionButtonDropdownItems = (items: PluginSdk.ActionButtonDropdownInterface[]) => {

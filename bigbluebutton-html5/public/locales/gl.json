@@ -336,6 +336,8 @@
     "app.presentationUploder.conversion.204": "Non hai contido que capturar",
     "app.presentationUploder.upload.413": "O ficheiro é demasiado grande, superou o máximo de {0} MB",
     "app.presentationUploder.genericError": "Ouh! algo foi mal…",
+    "app.presentationUploder.upload.fileVirus": "Produciuse un fallo no envío: detectouse un virus! Comprobe o ficheiro e ténteo de novo.",
+    "app.presentationUploder.upload.scanFailed": "Produciuse un fallo no envío: non foi posíbel analizar o ficheiro",
     "app.presentationUploder.upload.408": "Solicitar o tempo de espera do testemuño de envío.",
     "app.presentationUploder.upload.404": "404: o testemuño de envío non é válido",
     "app.presentationUploder.upload.401": "Produciuse un fallo na solicitude do tempo de espera do testemuño de envío.",
