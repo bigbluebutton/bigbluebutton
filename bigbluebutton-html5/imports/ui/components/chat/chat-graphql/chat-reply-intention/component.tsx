@@ -3,7 +3,6 @@ import Styled from './styles';
 import useSettings from '/imports/ui/services/settings/hooks/useSettings';
 import { SETTINGS } from '/imports/ui/services/settings/enums';
 import { ChatEvents } from '/imports/ui/core/enums/chat';
-import ChatMessageTextContent from '../chat-message-list/page/chat-message/message-content/text-content/component';
 import Storage from '/imports/ui/services/storage/in-memory';
 
 const ChatReplyIntention = () => {
@@ -45,6 +44,7 @@ const ChatReplyIntention = () => {
   };
 
   const hidden = !username || !message;
+  const messageChunks = message ? message.split('\n') : null;
 
   return (
     <Styled.Container
@@ -63,11 +63,11 @@ const ChatReplyIntention = () => {
       }}
     >
       <Styled.Message>
-        <ChatMessageTextContent
-          text={message || ''}
-          emphasizedMessage={!!emphasizedMessage}
-          dataTest={null}
-        />
+        <Styled.Markdown
+          $emphasizedMessage={!!emphasizedMessage}
+        >
+          {messageChunks ? messageChunks[0] : ''}
+        </Styled.Markdown>
       </Styled.Message>
       <Styled.CloseBtn
         onClick={(e) => {

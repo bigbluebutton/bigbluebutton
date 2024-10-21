@@ -1,16 +1,17 @@
 import styled from 'styled-components';
 import {
-  colorGrayLightest, colorPrimary, colorText,
-  colorWhite,
+  colorGrayLight,
+  colorGrayLightest, colorPrimary, colorText, colorWhite,
 } from '/imports/ui/stylesheets/styled-components/palette';
-import { $3xlPadding, lgPadding } from '/imports/ui/stylesheets/styled-components/general';
+import { $3xlPadding, smPadding } from '/imports/ui/stylesheets/styled-components/general';
+import ReactMarkdown from 'react-markdown';
 
 const Container = styled.div`
   border-top-left-radius: 0.5rem;
   border-top-right-radius: 0.5rem;
   background-color: ${colorWhite};
   box-shadow: inset 0 0 0 1px ${colorGrayLightest};
-  padding: ${lgPadding} ${$3xlPadding};
+  padding: ${smPadding} ${$3xlPadding};
   position: relative;
   overflow: hidden;
   cursor: pointer;
@@ -24,34 +25,49 @@ const Container = styled.div`
   }
 `;
 
-const Typography = styled.div`
-  overflow: hidden;
-`;
-
-const Username = styled(Typography)`
-  font-weight: bold;
-  color: ${colorPrimary};
-  line-height: 1rem;
-  font-size: 1rem;
-  white-space: nowrap;
-  text-overflow: ellipsis;
-`;
-
-const Message = styled(Typography)`
-  max-height: 1rem;
-  line-height: 1rem;
+const Message = styled.div`
+  line-height: normal;
   overflow: hidden;
 `;
 
 export const DeleteMessage = styled.span`
-  font-style: italic;
-  font-weight: bold;
+  color: ${colorGrayLight};
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+`;
+
+export const Markdown = styled(ReactMarkdown)<{
+  $emphasizedMessage: boolean;
+}>`
   color: ${colorText};
+
+  ${({ $emphasizedMessage }) => $emphasizedMessage && `
+    font-weight: bold;
+  `}
+
+  & img {
+    max-width: 100%;
+    max-height: 100%;
+  }
+
+  & p {
+    margin: 0;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  & code {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
 `;
 
 export default {
   Container,
-  Username,
   Message,
   DeleteMessage,
+  Markdown,
 };

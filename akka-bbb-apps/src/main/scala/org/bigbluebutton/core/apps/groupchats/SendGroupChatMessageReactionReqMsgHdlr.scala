@@ -26,7 +26,7 @@ trait SendGroupChatMessageReactionReqMsgHdlr extends HandlerHelpers {
         chatLockedForUser = true
       }
 
-      val userIsModerator = user.role != Roles.MODERATOR_ROLE
+      val userIsModerator = user.role == Roles.MODERATOR_ROLE
 
       if (!userIsModerator && user.locked) {
         val permissions = MeetingStatus2x.getPermissions(liveMeeting.status)
@@ -52,9 +52,9 @@ trait SendGroupChatMessageReactionReqMsgHdlr extends HandlerHelpers {
           val userIsAParticipant = groupChat.users.exists(u => u.id == user.intId)
 
           if ((chatIsPrivate && userIsAParticipant) || !chatIsPrivate) {
-            val event = buildGroupChatMessageReactionSentEvtMsg(liveMeeting.props.meetingProp.intId, msg.header.userId, msg.body.chatId, gcMessage.id, msg.body.reactionEmoji)
+            val event = buildGroupChatMessageReactionSentEvtMsg(liveMeeting.props.meetingProp.intId, msg.header.userId, msg.body.chatId, gcMessage.id, msg.body.reactionEmoji, msg.body.reactionEmojiId)
             bus.outGW.send(event)
-            ChatMessageReactionDAO.insert(liveMeeting.props.meetingProp.intId, gcMessage.id, msg.header.userId, msg.body.reactionEmoji)
+            ChatMessageReactionDAO.insert(liveMeeting.props.meetingProp.intId, gcMessage.id, msg.header.userId, msg.body.reactionEmoji, msg.body.reactionEmojiId)
           } else {
             val reason = "User isn't a participant of the chat"
             PermissionCheck.ejectUserForFailedPermission(msg.header.meetingId, msg.header.userId, reason, bus.outGW, liveMeeting)

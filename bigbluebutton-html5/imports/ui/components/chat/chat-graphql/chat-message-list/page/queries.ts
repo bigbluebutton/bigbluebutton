@@ -25,9 +25,10 @@ export const CHAT_MESSAGE_PUBLIC_SUBSCRIPTION = gql`
           color
         }
       }
-      reactions {
+      reactions(order_by: { createdAt: asc }) {
         createdAt
         reactionEmoji
+        reactionEmojiId
         user {
           name
           userId

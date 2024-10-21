@@ -27,6 +27,12 @@ const EmojiButton = styled.button`
     width: 100%;
     height: 100%;
   }
+
+  svg {
+    width: 1rem;
+    height: 1rem;
+    vertical-align: middle;
+  }
 `;
 
 export default {

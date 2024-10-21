@@ -1,20 +1,26 @@
 import styled from 'styled-components';
-import { colorGrayLight } from '/imports/ui/stylesheets/styled-components/palette';
+import { colorGrayLight, colorWhite } from '/imports/ui/stylesheets/styled-components/palette';
 import { xlPadding, xsPadding } from '/imports/ui/stylesheets/styled-components/general';
 
 export const Root = styled.div`
+  position: relative;
+`;
+
+export const Container = styled.div`
   display: flex;
   justify-content: space-between;
   align-items: center;
   flex-wrap: nowrap;
   color: ${colorGrayLight};
+  z-index: 10;
+  background-color: ${colorWhite};
 
   [dir='ltr'] & {
-    padding-right: ${xlPadding};
+    margin-right: ${xlPadding};
   }
 
   [dir='rtl'] & {
-    padding-left: ${xlPadding};
+    margin-left: ${xlPadding};
   }
 `;
 
@@ -48,7 +54,8 @@ export const Cancel = styled.button`
 `;
 
 export default {
-  Root,
+  Container,
   Left,
   Cancel,
+  Root,
 };
