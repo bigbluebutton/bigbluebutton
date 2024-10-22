@@ -3,7 +3,6 @@ import { defineMessages, useIntl } from 'react-intl';
 import Styled, { DeleteMessage } from './styles';
 import Storage from '/imports/ui/services/storage/in-memory';
 import { ChatEvents } from '/imports/ui/core/enums/chat';
-import ChatMessageTextContent from '../message-content/text-content/component';
 
 const intlMessages = defineMessages({
   deleteMessage: {
@@ -25,10 +24,12 @@ const ChatMessageReplied: React.FC<MessageRepliedProps> = (props) => {
   } = props;
 
   const intl = useIntl();
+  const messageChunks = message.split('\n');
 
   return (
     <Styled.Container
-      onClick={() => {
+      onClick={(e) => {
+        e.preventDefault();
         window.dispatchEvent(
           new CustomEvent(ChatEvents.CHAT_FOCUS_MESSAGE_REQUEST, {
             detail: {
@@ -42,11 +43,9 @@ const ChatMessageReplied: React.FC<MessageRepliedProps> = (props) => {
     >
       {!deletedByUser && (
         <Styled.Message>
-          <ChatMessageTextContent
-            text={message}
-            emphasizedMessage={emphasizedMessage}
-            dataTest={null}
-          />
+          <Styled.Markdown $emphasizedMessage={emphasizedMessage}>
+            {messageChunks[0]}
+          </Styled.Markdown>
         </Styled.Message>
       )}
       {deletedByUser && (

@@ -175,10 +175,7 @@ const ChatMessageList: React.FC<ChatListProps> = ({
     ref: messageListContainerRef,
     current: currentMessageListContainer,
   } = useReactiveRef<HTMLDivElement>(null);
-  const {
-    ref: messageListRef,
-    current: currentMessageList,
-  } = useReactiveRef<HTMLDivElement>(null);
+  const messageListRef = React.useRef<HTMLDivElement>(null);
   const [userLoadedBackUntilPage, setUserLoadedBackUntilPage] = useState<number | null>(null);
   const [lastMessageCreatedAt, setLastMessageCreatedAt] = useState<string>('');
   const [followingTail, setFollowingTail] = React.useState(true);
@@ -189,12 +186,16 @@ const ChatMessageList: React.FC<ChatListProps> = ({
     parentRefProxy: messageListContainerRefProxy,
   } = useIntersectionObserver(messageListContainerRef, sentinelRef);
   const {
-    startObserving,
-    stopObserving,
-  } = useStickyScroll(currentMessageListContainer, currentMessageList);
+    startObserving: startObservingStickyScroll,
+    stopObserving: stopObservingStickyScroll,
+  } = useStickyScroll(currentMessageListContainer, currentMessageListContainer, 'ne');
 
   useEffect(() => {
-    if (isSentinelVisible) startObserving(); else stopObserving();
+    if (isSentinelVisible) {
+      startObservingStickyScroll();
+    } else {
+      stopObservingStickyScroll();
+    }
     toggleFollowingTail(isSentinelVisible);
   }, [isSentinelVisible]);
 
@@ -369,6 +370,7 @@ const ChatMessageList: React.FC<ChatListProps> = ({
               {Array.from({ length: pagesToLoad }, (_v, k) => k + (firstPageToLoad)).map((page) => {
                 return (
                   <ChatListPage
+                    firstPageToLoad={firstPageToLoad}
                     key={`page-${page}`}
                     page={page}
                     pageSize={PAGE_SIZE}

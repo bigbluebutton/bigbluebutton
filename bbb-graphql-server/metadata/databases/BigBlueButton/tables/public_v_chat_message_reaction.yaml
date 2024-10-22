@@ -23,6 +23,7 @@ select_permissions:
       columns:
         - createdAt
         - reactionEmoji
+        - reactionEmojiId
         - userId
       filter:
         meetingId:

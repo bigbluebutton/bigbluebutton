@@ -27,7 +27,7 @@ trait DeleteGroupChatMessageReqMsgHdlr extends HandlerHelpers {
         chatLockedForUser = true
       }
 
-      val userIsModerator = user.role != Roles.MODERATOR_ROLE
+      val userIsModerator = user.role == Roles.MODERATOR_ROLE
 
       if (!userIsModerator && user.locked) {
         val permissions = MeetingStatus2x.getPermissions(liveMeeting.status)
