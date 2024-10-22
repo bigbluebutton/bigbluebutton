@@ -1,6 +1,7 @@
 import Auth from '/imports/ui/services/auth';
 import SIPBridge from '/imports/api/audio/client/bridge/sip';
 import SFUAudioBridge from '/imports/api/audio/client/bridge/sfu-audio-bridge';
+import LiveKitAudioBridge from '/imports/api/audio/client/bridge/livekit';
 import logger from '/imports/startup/client/logger';
 import { notify } from '/imports/ui/services/notification';
 import playAndRetry from '/imports/utils/mediaElementPlayRetry';
@@ -26,7 +27,6 @@ import Session from '/imports/ui/services/storage/in-memory';
 import GrahqlSubscriptionStore, { stringToHash } from '/imports/ui/core/singletons/subscriptionStore';
 import VOICE_ACTIVITY from '../../core/graphql/queries/whoIsTalking';
 
-const DEFAULT_AUDIO_BRIDGES_PATH = '/imports/api/audio/client/';
 const CALL_STATES = {
   STARTED: 'started',
   ENDED: 'ended',
@@ -93,6 +93,12 @@ class AudioManager {
     this._voiceActivityObserver = null;
 
     window.addEventListener('StopAudioTracks', () => this.forceExitAudio());
+    this.onBeforeUnload = this.onBeforeUnload.bind(this);
+    window.addEventListener('beforeunload', this.onBeforeUnload);
+  }
+
+  onBeforeUnload() {
+    this.exitAudio();
   }
 
   _trackPermissionStatus() {
@@ -235,31 +241,56 @@ class AudioManager {
    *                      the bridge.
    */
   loadBridges(userData) {
-    let FullAudioBridge = SIPBridge;
+    const MEDIA = window.meetingClientSettings.public.media;
+    const { defaultFullAudioBridge, defaultListenOnlyBridge } = MEDIA?.audio || {};
+
+    const fullAudioBridgeName = getFromUserSettings(
+      'bbb_fullaudio_bridge',
+      getFromMeetingSettings('fullaudio-bridge', defaultFullAudioBridge),
+    );
+
+    let FullAudioBridge = SFUAudioBridge;
     let ListenOnlyBridge = SFUAudioBridge;
 
-    const MEDIA = window.meetingClientSettings.public.media;
+    switch (fullAudioBridgeName) {
+      case 'fullaudio':
+        FullAudioBridge = SFUAudioBridge;
+        break;
+      case 'livekit':
+        FullAudioBridge = LiveKitAudioBridge;
+        break;
+      case 'sip':
+        FullAudioBridge = SIPBridge;
+        break;
+      default:
+        logger.warn({
+          logCode: 'audiomanager_unknown_fullaudio_bridge',
+          extraInfo: {
+            bridgeName: fullAudioBridgeName,
+          },
+        }, `Unknown fullaudio bridge: ${fullAudioBridgeName}`);
+    }
 
-    if (MEDIA.audio) {
-      const { defaultFullAudioBridge, defaultListenOnlyBridge } = MEDIA.audio;
+    switch (defaultListenOnlyBridge) {
+      case 'fullaudio':
+        ListenOnlyBridge = SFUAudioBridge;
+        break;
 
-      const _fullAudioBridge = getFromUserSettings(
-        'bbb_fullaudio_bridge',
-        getFromMeetingSettings('fullaudio-bridge', defaultFullAudioBridge),
-      );
+      case 'livekit':
+        ListenOnlyBridge = LiveKitAudioBridge;
+        break;
 
-      this.bridges = {
-        [_fullAudioBridge]: SIPBridge,
-        [defaultListenOnlyBridge]: SFUAudioBridge,
-      };
+      case 'sip':
+        ListenOnlyBridge = SIPBridge;
+        break;
 
-      if (_fullAudioBridge && this.bridges[_fullAudioBridge]) {
-        FullAudioBridge = this.bridges[_fullAudioBridge];
-      }
-
-      if (defaultListenOnlyBridge && this.bridges[defaultListenOnlyBridge]) {
-        ListenOnlyBridge = this.bridges[defaultListenOnlyBridge];
-      }
+      default:
+        logger.warn({
+          logCode: 'audiomanager_unknown_listenonly_bridge',
+          extraInfo: {
+            bridgeName: defaultListenOnlyBridge,
+          },
+        }, `Unknown listen-only bridge: ${defaultListenOnlyBridge}`);
     }
 
     this.fullAudioBridge = new FullAudioBridge(userData);
@@ -986,19 +1017,7 @@ class AudioManager {
     // is solely for muting outbound tracks.
     if (this.isListenOnly) return;
 
-    // Bridge -> SIP.js bridge, the only full audio capable one right now
-    const peer = this.bridge.getPeerConnection();
-
-    if (!peer) {
-      return;
-    }
-
-    peer.getSenders().forEach((sender) => {
-      const { track } = sender;
-      if (track && track.kind === 'audio') {
-        track.enabled = shouldEnable;
-      }
-    });
+    this.bridge.setSenderTrackEnabled(shouldEnable);
   }
 
   mute() {
