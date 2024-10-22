@@ -108,6 +108,7 @@ interface NavBar {
 
 interface NotificationsBar {
     hasNotification: boolean;
+    hideNotificationToasts: boolean;
 }
 
 interface Size {
