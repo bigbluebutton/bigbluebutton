@@ -88,6 +88,8 @@ class AudioManager {
     this._outputDeviceId = {
       value: makeVar(null),
     };
+    this._inputDevices = [];
+    this._outputDevices = [];
 
     this.BREAKOUT_AUDIO_TRANSFER_STATES = BREAKOUT_AUDIO_TRANSFER_STATES;
     this._voiceActivityObserver = null;
@@ -183,6 +185,34 @@ class AudioManager {
 
   get outputDeviceId() {
     return this._outputDeviceId.value();
+  }
+
+  set inputDevices(value) {
+    if (value?.length) {
+      this._inputDevices = value;
+    }
+  }
+
+  get inputDevices() {
+    return this._inputDevices;
+  }
+
+  get inputDevicesJSON() {
+    return this.inputDevices.map((device) => device.toJSON());
+  }
+
+  set outputDevices(value) {
+    if (value?.length) {
+      this._outputDevices = value;
+    }
+  }
+
+  get outputDevices() {
+    return this._outputDevices;
+  }
+
+  get outputDevicesJSON() {
+    return this.outputDevices.map((device) => device.toJSON());
   }
 
   shouldBypassGUM() {
@@ -432,15 +462,17 @@ class AudioManager {
           break;
         case 'NotFoundError':
           errorPayload.errCode = AudioErrors.MIC_ERROR.DEVICE_NOT_FOUND;
-          // Reset the input device ID so the user can select a new one
-          this.changeInputDevice(null);
           logger.error({
             logCode: 'audiomanager_error_device_not_found',
             extraInfo: {
               errorName: error.name,
               errorMessage: error.message,
+              inputDeviceId: this.inputDeviceId,
+              inputDevices: this.inputDevicesJSON,
             },
           }, `Error getting microphone - {${error.name}: ${error.message}}`);
+          // Reset the input device ID so the user can select a new one
+          this.changeInputDevice(null);
           break;
         default:
           logger.error({
@@ -448,6 +480,11 @@ class AudioManager {
             extraInfo: {
               errorName: error.name,
               errorMessage: error.message,
+              errorStack: error?.stack,
+              inputDeviceId: this.inputDeviceId,
+              inputDevices: this.inputDevicesJSON,
+              outputDeviceId: this.outputDeviceId,
+              outputDevices: this.outputDevicesJSON,
             },
           }, `Error enabling audio - {${name}: ${message}}`);
           break;
@@ -607,10 +644,13 @@ class AudioManager {
         extraInfo: {
           secondsToActivateAudio,
           inputDeviceId: this.inputDeviceId,
+          inputDevices: this.inputDevicesJSON,
           outputDeviceId: this.outputDeviceId,
+          outputDevices: this.outputDevicesJSON,
           isListenOnly: this.isListenOnly,
         },
       }, 'Audio Joined');
+
       if (STATS.enabled) this.monitor();
       this.audioEventHandler({
         name: 'started',
@@ -674,8 +714,17 @@ class AudioManager {
           breakoutMeetingId: '',
           status: BREAKOUT_AUDIO_TRANSFER_STATES.DISCONNECTED,
         });
-        logger.info({ logCode: 'audio_ended' }, 'Audio ended without issue');
         this.onAudioExit();
+        logger.info({
+          logCode: 'audio_ended',
+          extraInfo: {
+            inputDeviceId: this.inputDeviceId,
+            inputDevices: this.inputDevicesJSON,
+            outputDeviceId: this.outputDeviceId,
+            outputDevices: this.outputDevicesJSON,
+            isListenOnly: this.isListenOnly,
+          },
+        }, 'Audio ended without issue');
       } else if (status === FAILED) {
         this.isReconnecting = false;
         this.setBreakoutAudioTransferStatus({
@@ -693,7 +742,9 @@ class AudioManager {
               cause: bridgeError,
               bridge,
               inputDeviceId: this.inputDeviceId,
+              inputDevices: this.inputDevicesJSON,
               outputDeviceId: this.outputDeviceId,
+              outputDevices: this.outputDevicesJSON,
               isListenOnly: this.isListenOnly,
             },
           },
@@ -768,18 +819,16 @@ class AudioManager {
         this.setSenderTrackEnabled(!this.isMuted);
       })
       .catch((error) => {
-        logger.error(
-          {
-            logCode: 'audiomanager_input_live_device_change_failure',
-            extraInfo: {
-              errorName: error.name,
-              errorMessage: error.message,
-              deviceId: currentDeviceId,
-              newDeviceId: deviceId,
-            },
+        logger.error({
+          logCode: 'audiomanager_input_live_device_change_failure',
+          extraInfo: {
+            errorName: error.name,
+            errorMessage: error.message,
+            deviceId: currentDeviceId,
+            newDeviceId: deviceId,
+            inputDevices: this.inputDevicesJSON,
           },
-          `Input device live change failed - {${error.name}: ${error.message}}`
-        );
+        }, `Input device live change failed - {${error.name}: ${error.message}}`);
 
         throw error;
       });
@@ -820,18 +869,16 @@ class AudioManager {
 
         return this.outputDeviceId;
       } catch (error) {
-        logger.error(
-          {
-            logCode: 'audiomanager_output_device_change_failure',
-            extraInfo: {
-              errorName: error.name,
-              errorMessage: error.message,
-              deviceId: currentDeviceId,
-              newDeviceId: targetDeviceId,
-            },
-          },
-          `Error changing output device - {${error.name}: ${error.message}}`
-        );
+        logger.error({
+          logCode: 'audiomanager_output_device_change_failure',
+          extraInfo: {
+            errorName: error.name,
+            errorMessage: error.message,
+            deviceId: currentDeviceId,
+            newDeviceId: targetDeviceId,
+            outputDevices: this.outputDevicesJSON,
+          }
+        }, `Error changing output device - {${error.name}: ${error.message}}`);
 
         // Rollback/enforce current sinkId (if possible)
         if (sinkIdSupported) {
