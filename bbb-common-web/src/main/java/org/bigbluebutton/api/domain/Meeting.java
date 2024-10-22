@@ -79,7 +79,7 @@ public class Meeting {
 	private String defaultAvatarURL;
 	private String defaultWebcamBackgroundURL;
 	private Map<String, Object> plugins;
-	private  ArrayList<PluginsManifest> pluginsManifests;
+	private  ArrayList<PluginManifest> pluginManifests;
 	private String guestPolicy = GuestPolicy.ASK_MODERATOR;
 	private String guestLobbyMessage = "";
 	private Map<String,String> usersWithGuestLobbyMessages;
@@ -130,7 +130,7 @@ public class Meeting {
         extMeetingId = builder.externalId;
         intMeetingId = builder.internalId;
 		disabledFeatures = builder.disabledFeatures;
-		pluginsManifests = builder.pluginsManifests;
+		pluginManifests = builder.pluginManifests;
 		notifyRecordingIsOn = builder.notifyRecordingIsOn;
 		presentationUploadExternalDescription = builder.presentationUploadExternalDescription;
 		presentationUploadExternalUrl = builder.presentationUploadExternalUrl;
@@ -452,8 +452,8 @@ public class Meeting {
 		plugins = p;
 	}
 
-	public ArrayList<PluginsManifest> getPluginsManifests() {
-		return pluginsManifests;
+	public ArrayList<PluginManifest> getPluginManifests() {
+		return pluginManifests;
 	}
 
 	public Boolean getNotifyRecordingIsOn() {
@@ -943,7 +943,7 @@ public class Meeting {
     	private int learningDashboardCleanupDelayInMinutes;
     	private String learningDashboardAccessToken;
 		private ArrayList<String> disabledFeatures;
-		private ArrayList<PluginsManifest> pluginsManifests;
+		private ArrayList<PluginManifest> pluginManifests;
 		private Boolean notifyRecordingIsOn;
 		private String presentationUploadExternalDescription;
 		private String presentationUploadExternalUrl;
@@ -1078,8 +1078,8 @@ public class Meeting {
 			return this;
 		}
 
-		public Builder withPluginManifests(ArrayList<PluginsManifest> map) {
-			this.pluginsManifests = map;
+		public Builder withPluginManifests(ArrayList<PluginManifest> map) {
+			this.pluginManifests = map;
 			return this;
 		}
 

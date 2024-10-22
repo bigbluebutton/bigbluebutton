@@ -61,13 +61,26 @@ object PluginModel {
   def getPlugins(instance: PluginModel): Map[String, Plugin] = {
     instance.plugins
   }
+  def replaceRelativeJavascriptEntrypoint(plugin: Plugin): Plugin = {
+    val jsEntrypoint = plugin.manifest.content.javascriptEntrypointUrl
+    if (jsEntrypoint.startsWith("http://") || jsEntrypoint.startsWith("https://")) {
+      plugin
+    } else {
+      val baseUrl = plugin.manifest.url.substring(0, plugin.manifest.url.lastIndexOf('/') + 1)
+      val absoluteJavascriptEntrypoint = baseUrl + jsEntrypoint
+      val newPluginManifestContent = plugin.manifest.content.copy(javascriptEntrypointUrl = absoluteJavascriptEntrypoint)
+      val newPluginManifest = plugin.manifest.copy(content = newPluginManifestContent)
+      plugin.copy(manifest = newPluginManifest)
+    }
+  }
   def createPluginModelFromJson(json: util.Map[String, AnyRef]): PluginModel = {
     val instance = new PluginModel()
     var pluginsMap: Map[String, Plugin] = Map.empty[String, Plugin]
     json.forEach { case (pluginName, plugin) =>
       try {
         val pluginObject = objectMapper.readValue(objectMapper.writeValueAsString(plugin), classOf[Plugin])
-        pluginsMap = pluginsMap + (pluginName -> pluginObject)
+        val pluginObjectWithAbsoluteJavascriptEntrypoint = replaceRelativeJavascriptEntrypoint(pluginObject)
+        pluginsMap = pluginsMap + (pluginName -> pluginObjectWithAbsoluteJavascriptEntrypoint)
       } catch {
         case err @ (_: JsonProcessingException | _: JsonMappingException) => println("Error while processing plugin " +
           pluginName + ": ", err)

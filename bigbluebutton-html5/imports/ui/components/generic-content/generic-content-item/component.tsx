@@ -12,7 +12,7 @@ const GenericContentItem: React.FC<GenericContentItemProps> = (props) => {
     if (elementRef.current && renderFunction) {
       renderFunction(elementRef.current);
     }
-  }, [elementRef]);
+  }, [elementRef, renderFunction]);
 
   const style: React.CSSProperties = {
     height: '100%',
