@@ -269,22 +269,27 @@ jobs:
           chmod +x bbb-install.sh
 
           COMMAND="./bbb-install.sh -v jammy-30-dev -s bbb-ci.test -j -d /certs/"
-          TIMEOUT=1500  # 25 minutes
-          MAX_RETRIES=2
+          TIMEOUT=1200  # 20 minutes
+          MAX_RETRIES=3
           RETRY_COUNT=0
           SUCCESS=0
 
           while [[ $RETRY_COUNT -lt $MAX_RETRIES ]]; do
             echo "Attempt $((RETRY_COUNT + 1)) of $MAX_RETRIES to install BBB..."
-            timeout $TIMEOUT $COMMAND
 
-            if [[ $? -eq 0 ]]; then
+            # Run the command with timeout and handle its exit code
+            (timeout $TIMEOUT $COMMAND && COMMAND_EXIT_CODE=$?) || COMMAND_EXIT_CODE=1
+
+            if [[ $COMMAND_EXIT_CODE -eq 0 ]]; then
               SUCCESS=1
               break
+            elif [[ $COMMAND_EXIT_CODE -eq 124 ]]; then
+              echo "Command timed out. Retrying to install BBB..."
             else
-              echo "Attempt $((RETRY_COUNT + 1)) failed. Retrying to install BBB..."
-              RETRY_COUNT=$((RETRY_COUNT + 1))
+              echo "Command failed with exit code $COMMAND_EXIT_CODE. Retrying to install BBB..."
             fi
+
+            RETRY_COUNT=$((RETRY_COUNT + 1))
           done
 
           if [[ $SUCCESS -eq 0 ]]; then
