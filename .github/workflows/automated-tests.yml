@@ -271,6 +271,7 @@ jobs:
           COMMAND="./bbb-install.sh -v jammy-30-dev -s bbb-ci.test -j -d /certs/"
           TIMEOUT=1200  # 20 minutes
           MAX_RETRIES=3
+          RETRY_INTERVAL=60
           RETRY_COUNT=0
           SUCCESS=0
 
@@ -280,7 +281,7 @@ jobs:
             # Run the command with timeout and handle its exit code
             # Capture both stdout and stderr
             OUTPUT=$(timeout $TIMEOUT $COMMAND 2>&1) || COMMAND_EXIT_CODE=$?
-            
+
             if [[ $COMMAND_EXIT_CODE -eq 0 ]]; then
               SUCCESS=1
               break
@@ -290,7 +291,8 @@ jobs:
               echo "Installation failed with exit code $COMMAND_EXIT_CODE"
               echo "Error output:"
               echo "$OUTPUT"
-              echo "Retrying installation..."
+              echo "Retrying installation within $RETRY_INTERVAL seconds..."
+              sleep $RETRY_INTERVAL
             fi
             RETRY_COUNT=$((RETRY_COUNT + 1))
           done
