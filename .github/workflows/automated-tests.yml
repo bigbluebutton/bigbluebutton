@@ -278,17 +278,20 @@ jobs:
             echo "Attempt $((RETRY_COUNT + 1)) of $MAX_RETRIES to install BBB..."
 
             # Run the command with timeout and handle its exit code
-            (timeout $TIMEOUT $COMMAND && COMMAND_EXIT_CODE=$?) || COMMAND_EXIT_CODE=1
-
+            # Capture both stdout and stderr
+            OUTPUT=$(timeout $TIMEOUT $COMMAND 2>&1) || COMMAND_EXIT_CODE=$?
+            
             if [[ $COMMAND_EXIT_CODE -eq 0 ]]; then
               SUCCESS=1
               break
             elif [[ $COMMAND_EXIT_CODE -eq 124 ]]; then
-              echo "Command timed out. Retrying to install BBB..."
+              echo "Installation timed out after ${TIMEOUT} seconds. Retrying..."
             else
-              echo "Command failed with exit code $COMMAND_EXIT_CODE. Retrying to install BBB..."
+              echo "Installation failed with exit code $COMMAND_EXIT_CODE"
+              echo "Error output:"
+              echo "$OUTPUT"
+              echo "Retrying installation..."
             fi
-
             RETRY_COUNT=$((RETRY_COUNT + 1))
           done
 
