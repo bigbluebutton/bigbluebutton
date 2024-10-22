@@ -16,6 +16,8 @@ import {
   storeAudioInputDeviceId,
   getStoredAudioOutputDeviceId,
   storeAudioOutputDeviceId,
+  getAudioConstraints,
+  doGUM,
 } from '/imports/api/audio/client/bridge/service';
 import MediaStreamUtils from '/imports/utils/media-stream-utils';
 import { makeVar } from '@apollo/client';
@@ -335,8 +337,6 @@ class AudioManager {
   }
 
   joinMicrophone() {
-    this.audioJoinStartTime = new Date();
-    this.logAudioJoinTime = false;
     this.isListenOnly = false;
     this.isEchoTest = false;
 
@@ -354,8 +354,6 @@ class AudioManager {
   }
 
   joinEchoTest() {
-    this.audioJoinStartTime = new Date();
-    this.logAudioJoinTime = false;
     this.isListenOnly = false;
     this.isEchoTest = true;
 
@@ -390,62 +388,78 @@ class AudioManager {
       });
   }
 
-  joinAudio(callOptions, callStateCallback) {
-    return this.bridge
-      .joinAudio(callOptions, callStateCallback.bind(this))
-      .catch((error) => {
-        const { name, message } = error;
-        const errorPayload = {
-          type: 'MEDIA_ERROR',
-          errMessage: message || 'MEDIA_ERROR',
-          errCode: AudioErrors.MIC_ERROR.UNKNOWN,
-        };
+  async joinAudio(callOptions, callStateCallback) {
+    try {
+      // If there's no input stream, we need to get one via getUserMedia
+      if (callOptions?.inputStream == null
+        && !this.shouldBypassGUM()
+        && !callOptions.isListenOnly) {
+        const constraints = getAudioConstraints({ deviceId: this?.bridge?.inputDeviceId });
+        this.inputStream = await doGUM({ audio: constraints });
+        // eslint-disable-next-line no-param-reassign
+        callOptions.inputStream = this.inputStream;
+      }
 
-        switch (name) {
-          case 'NotAllowedError':
-            errorPayload.errCode = AudioErrors.MIC_ERROR.NO_PERMISSION;
-            logger.error({
-                logCode: 'audiomanager_error_getting_device',
-                extraInfo: {
-                  errorName: error.name,
-                  errorMessage: error.message,
-                },
-              },
-              `Error getting microphone - {${error.name}: ${error.message}}`,
-            );
-            break;
-          case 'NotFoundError':
-            errorPayload.errCode = AudioErrors.MIC_ERROR.DEVICE_NOT_FOUND;
-            logger.error({
-                logCode: 'audiomanager_error_device_not_found',
-                extraInfo: {
-                  errorName: error.name,
-                  errorMessage: error.message,
-                },
-              },
-              `Error getting microphone - {${error.name}: ${error.message}}`,
-            );
-            break;
-          default:
-            logger.error({
-              logCode: 'audiomanager_error_unknown',
-              extraInfo: {
-                errorName: error.name,
-                errorMessage: error.message,
-              },
-            }, `Error enabling audio - {${name}: ${message}}`);
-            break;
-        }
+      // Start tracking audio join time here to avoid counting time spent on
+      // getUserMedia prompts. We're primarily focused on negotiation times here.
+      // We're only concerned with gUM timeouts - and it'll throw an error which
+      // is logged accordingly whenever it times out.
+      this.audioJoinStartTime = new Date();
+      this.logAudioJoinTime = false;
 
-        this.isConnecting = false;
+      await this.bridge.joinAudio(callOptions, callStateCallback.bind(this));
+    } catch (error) {
+      // Reset audio join time tracking if an error occurs
+      this.audioJoinStartTime = null;
+      this.logAudioJoinTime = false;
+      const { name, message } = error;
+      const errorPayload = {
+        type: 'MEDIA_ERROR',
+        errMessage: message || 'MEDIA_ERROR',
+        errCode: AudioErrors.MIC_ERROR.UNKNOWN,
+      };
 
-        throw errorPayload;
-      });
+      switch (name) {
+        case 'NotAllowedError':
+          errorPayload.errCode = AudioErrors.MIC_ERROR.NO_PERMISSION;
+          logger.error({
+            logCode: 'audiomanager_error_getting_device',
+            extraInfo: {
+              errorName: error.name,
+              errorMessage: error.message,
+            },
+          }, `Error getting microphone - {${error.name}: ${error.message}}`);
+          break;
+        case 'NotFoundError':
+          errorPayload.errCode = AudioErrors.MIC_ERROR.DEVICE_NOT_FOUND;
+          // Reset the input device ID so the user can select a new one
+          this.changeInputDevice(null);
+          logger.error({
+            logCode: 'audiomanager_error_device_not_found',
+            extraInfo: {
+              errorName: error.name,
+              errorMessage: error.message,
+            },
+          }, `Error getting microphone - {${error.name}: ${error.message}}`);
+          break;
+        default:
+          logger.error({
+            logCode: 'audiomanager_error_unknown',
+            extraInfo: {
+              errorName: error.name,
+              errorMessage: error.message,
+            },
+          }, `Error enabling audio - {${name}: ${message}}`);
+          break;
+      }
+
+      this.isConnecting = false;
+
+      throw errorPayload;
+    }
   }
 
   async joinListenOnly() {
-    this.audioJoinStartTime = new Date();
-    this.logAudioJoinTime = false;
     this.isListenOnly = true;
     this.isEchoTest = false;
 
@@ -532,7 +546,12 @@ class AudioManager {
     this.isConnecting = false;
 
     const STATS = window.meetingClientSettings.public.stats;
-    const secondsToActivateAudio = (new Date() - this.audioJoinStartTime) / 1000;
+    // If we don't have a start time, something went wrong with the tracking code
+    // Log it as 0 seconds to keep things consistent, but 0 should be treated
+    // as an invalid value and be ignored in any log analysis.
+    const secondsToActivateAudio = this.audioJoinStartTime > 0
+      ? (new Date() - this.audioJoinStartTime) / 1000
+      : 0;
 
     if (!this.logAudioJoinTime) {
       this.logAudioJoinTime = true;

@@ -7,6 +7,7 @@ import Auth from '/imports/ui/services/auth';
 import logger from '/imports/startup/client/logger';
 import { toggleMuteMicrophone } from '/imports/ui/components/audio/audio-graphql/audio-controls/input-stream-live-selector/service';
 import { useIsPrivateChatEnabled } from '/imports/ui/services/features';
+import getFromUserSettings from '/imports/ui/services/users-settings';
 
 export const isVoiceOnlyUser = (userId: string) => userId.toString().startsWith('v_');
 
@@ -26,6 +27,9 @@ export const generateActionsPermissions = (
   const isDialInUser = isVoiceOnlyUser(subjectUser.userId);
   const amISubjectUser = isMe(subjectUser.userId);
   const isSubjectUserModerator = subjectUser.isModerator;
+  // Breakout rooms mess up with role permissions
+  // A breakout room user that has a moderator role in it's parent room
+  const parentRoomModerator = getFromUserSettings('bbb_parent_room_moderator', false);
   const isSubjectUserGuest = subjectUser.guest;
   const hasAuthority = currentUser.isModerator || amISubjectUser;
   const allowedToChatPrivately = !amISubjectUser && !isDialInUser && useIsPrivateChatEnabled();
@@ -43,7 +47,7 @@ export const generateActionsPermissions = (
   // if currentUser is a moderator, allow removing other users
   const allowedToRemove = amIModerator
     && !amISubjectUser
-    && !isBreakout;
+    && (!isBreakout || parentRoomModerator);
 
   const allowedToPromote = amIModerator
     && !amISubjectUser

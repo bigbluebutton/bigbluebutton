@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/ban-ts-comment */
 import React, {
   useContext,
   useEffect,
@@ -6,7 +5,10 @@ import React, {
   memo,
 } from 'react';
 import { PluginsContext } from '/imports/ui/components/components-data/plugin-context/context';
-import { UpdatedEventDetailsForChatMessageDomElements } from 'bigbluebutton-html-plugin-sdk/dist/cjs/dom-element-manipulation/chat/message/types';
+import {
+  UpdatedEventDetailsForChatMessageDomElements,
+  MessageDetails,
+} from 'bigbluebutton-html-plugin-sdk/dist/cjs/dom-element-manipulation/chat/message/types';
 import { HookEvents } from 'bigbluebutton-html-plugin-sdk/dist/cjs/core/enum';
 import { UpdatedEventDetails } from 'bigbluebutton-html-plugin-sdk/dist/cjs/core/types';
 import { DomElementManipulationHooks } from 'bigbluebutton-html-plugin-sdk/dist/cjs/dom-element-manipulation/enums';
@@ -20,6 +22,7 @@ import { GraphqlDataHookSubscriptionResponse } from '/imports/ui/Types/hook';
 import { useCreateUseSubscription } from '/imports/ui/core/hooks/createUseSubscription';
 import { setLoadedMessageGathering } from '/imports/ui/core/hooks/useLoadedChatMessages';
 import { ChatLoading } from '../../component';
+import { ChatEvents } from '/imports/ui/core/enums/chat';
 
 interface ChatListPageContainerProps {
   page: number;
@@ -29,6 +32,7 @@ interface ChatListPageContainerProps {
   chatId: string;
   markMessageAsSeen: (message: Message) => void;
   scrollRef: React.RefObject<HTMLDivElement>;
+  focusedId: number | null;
 }
 
 interface ChatListPageProps {
@@ -38,6 +42,7 @@ interface ChatListPageProps {
   page: number;
   markMessageAsSeen: (message: Message)=> void;
   scrollRef: React.RefObject<HTMLDivElement>;
+  focusedId: number | null;
 }
 
 const areChatPagesEqual = (prevProps: ChatListPageProps, nextProps: ChatListPageProps) => {
@@ -53,7 +58,7 @@ const areChatPagesEqual = (prevProps: ChatListPageProps, nextProps: ChatListPage
       && prevMessage?.message === nextMessage?.message
       && prevMessage?.reactions?.length === nextMessage?.reactions?.length
     );
-  });
+  }) && prevProps.focusedId === nextProps.focusedId;
 };
 
 const ChatListPage: React.FC<ChatListPageProps> = ({
@@ -63,25 +68,72 @@ const ChatListPage: React.FC<ChatListPageProps> = ({
   page,
   markMessageAsSeen,
   scrollRef,
+  focusedId,
 }) => {
   const { domElementManipulationIdentifiers } = useContext(PluginsContext);
 
-  const [messagesRequestedFromPlugin, setMessagesRequestedFromPlugin] = useState<
-    UpdatedEventDetailsForChatMessageDomElements[]>([]);
+  const [renderedChatMessages, setRenderedChatMessages] = useState<MessageDetails[]>([]);
   useEffect(() => {
-    const dataToSend = messagesRequestedFromPlugin.filter((
+    const requestedMessages = renderedChatMessages.filter((
       chatMessageRequested,
     ) => domElementManipulationIdentifiers.CHAT_MESSAGE?.includes(chatMessageRequested.messageId));
-    window.dispatchEvent(
-      new CustomEvent<UpdatedEventDetails<
-        UpdatedEventDetailsForChatMessageDomElements[]>>(HookEvents.BBB_CORE_SENT_NEW_DATA, {
-          detail: {
-            hook: DomElementManipulationHooks.CHAT_MESSAGE,
-            data: dataToSend,
-          },
-        }),
-    );
-  }, [domElementManipulationIdentifiers, messagesRequestedFromPlugin]);
+
+    if (renderedChatMessages.length === messages.length) {
+      // Only dispatch event when all messages from the page have been rendered
+      // and dom elements registered in the components state
+      window.dispatchEvent(
+        new CustomEvent<UpdatedEventDetails<
+          UpdatedEventDetailsForChatMessageDomElements>>(HookEvents.BBB_CORE_SENT_NEW_DATA, {
+            detail: {
+              hook: DomElementManipulationHooks.CHAT_MESSAGE,
+              data: {
+                page,
+                messages: requestedMessages,
+              },
+            },
+          }),
+      );
+    }
+
+    return () => {
+      // The page has unmounted, send an event to indicate this to the plugins sdk
+      window.dispatchEvent(
+        new CustomEvent<UpdatedEventDetails<
+          UpdatedEventDetailsForChatMessageDomElements>>(HookEvents.BBB_CORE_SENT_NEW_DATA, {
+            detail: {
+              hook: DomElementManipulationHooks.CHAT_MESSAGE,
+              data: {
+                page,
+                messages: [],
+              },
+            },
+          }),
+      );
+    };
+  }, [domElementManipulationIdentifiers, renderedChatMessages]);
+
+  const [keyboardFocusedMessageSequence, setKeyboardFocusedMessageSequence] = useState<number | null>(null);
+  useEffect(() => {
+    const handleKeyboardFocusMessageRequest = (e: Event) => {
+      if (e instanceof CustomEvent) {
+        setKeyboardFocusedMessageSequence(Number.parseInt(e.detail.sequence, 10));
+      }
+    };
+
+    const handleKeyboardFocusMessageCancel = (e: Event) => {
+      if (e instanceof CustomEvent) {
+        setKeyboardFocusedMessageSequence(null);
+      }
+    };
+
+    window.addEventListener(ChatEvents.CHAT_KEYBOARD_FOCUS_MESSAGE_REQUEST, handleKeyboardFocusMessageRequest);
+    window.addEventListener(ChatEvents.CHAT_KEYBOARD_FOCUS_MESSAGE_CANCEL, handleKeyboardFocusMessageCancel);
+
+    return () => {
+      window.removeEventListener(ChatEvents.CHAT_KEYBOARD_FOCUS_MESSAGE_REQUEST, handleKeyboardFocusMessageRequest);
+      window.removeEventListener(ChatEvents.CHAT_KEYBOARD_FOCUS_MESSAGE_CANCEL, handleKeyboardFocusMessageCancel);
+    };
+  }, []);
 
   return (
     <React.Fragment key={`messagePage-${page}`}>
@@ -92,13 +144,15 @@ const ChatListPage: React.FC<ChatListPageProps> = ({
             key={message.createdAt}
             message={message}
             previousMessage={previousMessage}
-            setMessagesRequestedFromPlugin={setMessagesRequestedFromPlugin}
+            setRenderedChatMessages={setRenderedChatMessages}
             lastSenderPreviousPage={
               !previousMessage ? lastSenderPreviousPage : null
             }
             scrollRef={scrollRef}
             markMessageAsSeen={markMessageAsSeen}
             messageReadFeedbackEnabled={messageReadFeedbackEnabled}
+            focused={focusedId === message.messageSequence}
+            keyboardFocused={keyboardFocusedMessageSequence === message.messageSequence}
           />
         );
       })}
@@ -116,8 +170,8 @@ const ChatListPageContainer: React.FC<ChatListPageContainerProps> = ({
   chatId,
   markMessageAsSeen,
   scrollRef,
+  focusedId,
 }) => {
-  // @ts-ignore - temporary, while meteor exists in the project
   const CHAT_CONFIG = window.meetingClientSettings.public.chat;
   const PUBLIC_GROUP_CHAT_KEY = CHAT_CONFIG.public_group_id;
   const PRIVATE_MESSAGE_READ_FEEDBACK_ENABLED = CHAT_CONFIG.privateMessageReadFeedback.enabled;
@@ -157,6 +211,7 @@ const ChatListPageContainer: React.FC<ChatListPageContainerProps> = ({
       page={page}
       markMessageAsSeen={markMessageAsSeen}
       scrollRef={scrollRef}
+      focusedId={focusedId}
     />
   );
 };

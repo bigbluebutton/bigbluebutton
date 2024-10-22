@@ -13,7 +13,7 @@ const ChatReplyIntention = () => {
   const [sequence, setSequence] = useState<number>();
 
   useEffect(() => {
-    const handler = (e: Event) => {
+    const handleReplyIntention = (e: Event) => {
       if (e instanceof CustomEvent) {
         setUsername(e.detail.username);
         setMessage(e.detail.message);
@@ -22,10 +22,21 @@ const ChatReplyIntention = () => {
       }
     };
 
-    window.addEventListener(ChatEvents.CHAT_REPLY_INTENTION, handler);
+    const handleCancelReplyIntention = (e: Event) => {
+      if (e instanceof CustomEvent) {
+        setUsername(undefined);
+        setMessage(undefined);
+        setEmphasizedMessage(undefined);
+        setSequence(undefined);
+      }
+    };
+
+    window.addEventListener(ChatEvents.CHAT_REPLY_INTENTION, handleReplyIntention);
+    window.addEventListener(ChatEvents.CHAT_CANCEL_REPLY_INTENTION, handleCancelReplyIntention);
 
     return () => {
-      window.removeEventListener(ChatEvents.CHAT_REPLY_INTENTION, handler);
+      window.removeEventListener(ChatEvents.CHAT_REPLY_INTENTION, handleReplyIntention);
+      window.removeEventListener(ChatEvents.CHAT_CANCEL_REPLY_INTENTION, handleCancelReplyIntention);
     };
   }, []);
 
@@ -33,9 +44,11 @@ const ChatReplyIntention = () => {
     animations: boolean;
   };
 
+  const hidden = !username || !message;
+
   return (
     <Styled.Container
-      $hidden={!username || !message}
+      $hidden={hidden}
       $animations={animations}
       onClick={() => {
         window.dispatchEvent(
@@ -49,25 +62,23 @@ const ChatReplyIntention = () => {
         if (sequence) Storage.setItem(ChatEvents.CHAT_FOCUS_MESSAGE_REQUEST, sequence);
       }}
     >
-      <Styled.Username>{username}</Styled.Username>
       <Styled.Message>
         <ChatMessageTextContent
           text={message || ''}
           emphasizedMessage={!!emphasizedMessage}
-          systemMsg={false}
           dataTest={null}
         />
       </Styled.Message>
       <Styled.CloseBtn
-        onClick={() => {
-          setMessage(undefined);
-          setUsername(undefined);
+        onClick={(e) => {
+          e.stopPropagation();
+          window.dispatchEvent(
+            new CustomEvent(ChatEvents.CHAT_CANCEL_REPLY_INTENTION),
+          );
         }}
         icon="close"
-        ghost
-        circle
-        color="light"
-        size="sm"
+        tabIndex={hidden ? -1 : 0}
+        aria-hidden={hidden}
       />
     </Styled.Container>
   );

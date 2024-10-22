@@ -13,24 +13,21 @@ const intlMessages = defineMessages({
 });
 
 interface MessageRepliedProps {
-  username: string;
   message: string;
   sequence: number;
-  userColor: string;
   emphasizedMessage: boolean;
   deletedByUser: string | null;
 }
 
 const ChatMessageReplied: React.FC<MessageRepliedProps> = (props) => {
   const {
-    message, username, sequence, userColor, emphasizedMessage, deletedByUser,
+    message, sequence, emphasizedMessage, deletedByUser,
   } = props;
 
   const intl = useIntl();
 
   return (
     <Styled.Container
-      $userColor={userColor}
       onClick={() => {
         window.dispatchEvent(
           new CustomEvent(ChatEvents.CHAT_FOCUS_MESSAGE_REQUEST, {
@@ -43,13 +40,11 @@ const ChatMessageReplied: React.FC<MessageRepliedProps> = (props) => {
         Storage.setItem(ChatEvents.CHAT_FOCUS_MESSAGE_REQUEST, sequence);
       }}
     >
-      <Styled.Username $userColor={userColor}>{username}</Styled.Username>
       {!deletedByUser && (
         <Styled.Message>
           <ChatMessageTextContent
             text={message}
             emphasizedMessage={emphasizedMessage}
-            systemMsg={false}
             dataTest={null}
           />
         </Styled.Message>
