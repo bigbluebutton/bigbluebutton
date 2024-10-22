@@ -40,6 +40,9 @@ func main() {
 		log.Infof("Json Patch Disabled!")
 	}
 
+	// Routine to check for idle connections and close them
+	go websrv.InvalidateIdleBrowserConnectionsRoutine()
+
 	// Websocket listener
 
 	rateLimiter := common.NewCustomRateLimiter(cfg.Server.MaxConnectionsPerSecond)
