@@ -291,6 +291,8 @@ jobs:
               echo "Installation failed with exit code $COMMAND_EXIT_CODE"
               echo "Retrying installation within $RETRY_INTERVAL seconds..."
               sleep $RETRY_INTERVAL
+              # Remove lock in case the timeout was during an apt install
+              sudo rm -f /var/lib/dpkg/lock
             fi
             RETRY_COUNT=$((RETRY_COUNT + 1))
           done
