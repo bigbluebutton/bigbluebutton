@@ -86,10 +86,12 @@ const ConnectionManager: React.FC<ConnectionManagerProps> = ({ children }): Reac
   const activeSocket = useRef<WebSocket>();
   const tsLastMessageRef = useRef<number>(0);
   const tsLastPingMessageRef = useRef<number>(0);
+  const terminateTimeoutRef = useRef<number>();
   const boundary = useRef(15_000);
   const [terminalError, setTerminalError] = React.useState<string | Error>('');
   const [MeetingSettings] = useMeetingSettings();
   const enableDevTools = MeetingSettings.public.app.enableApolloDevTools;
+  const terminateAndRetry = MeetingSettings.public.app.terminateAndRetryConnection;
 
   useEffect(() => {
     BBBWeb.index().then(({ data }) => {
@@ -105,16 +107,21 @@ const ConnectionManager: React.FC<ConnectionManagerProps> = ({ children }): Reac
   useEffect(() => {
     const interval = setInterval(() => {
       const tsNow = Date.now();
-
       if (tsLastMessageRef.current !== 0 && tsLastPingMessageRef.current !== 0) {
         if ((tsNow - tsLastMessageRef.current > boundary.current) && connectionStatus.getServerIsResponding()) {
           connectionStatus.setServerIsResponding(false);
+          terminateTimeoutRef.current = window.setTimeout(() => {
+            // The apollo client will try to reconnect after the connection is terminated
+            // if the option to reconnect is true
+            apolloContextHolder.getLink().terminate();
+          }, terminateAndRetry);
         } else if ((tsNow - tsLastPingMessageRef.current > boundary.current) && connectionStatus.getPingIsComing()) {
           connectionStatus.setPingIsComing(false);
         }
 
         if (tsNow - tsLastMessageRef.current < boundary.current && !connectionStatus.getServerIsResponding()) {
           connectionStatus.setServerIsResponding(true);
+          clearTimeout(terminateTimeoutRef.current);
         } else if (tsNow - tsLastPingMessageRef.current < boundary.current && !connectionStatus.getPingIsComing()) {
           connectionStatus.setPingIsComing(true);
         }
