@@ -77,6 +77,7 @@ public class Meeting {
 	private Integer maxPinnedCameras = 0;
 	private String dialNumber;
 	private String defaultAvatarURL;
+	private String defaultBotAvatarURL;
 	private String defaultWebcamBackgroundURL;
 	private Map<String, Object> plugins;
 	private  ArrayList<PluginManifest> pluginManifests;
@@ -153,7 +154,8 @@ public class Meeting {
         logoutUrl = builder.logoutUrl;
         logoutTimer = builder.logoutTimer;
         defaultAvatarURL = builder.defaultAvatarURL;
-		defaultWebcamBackgroundURL = builder.defaultWebcamBackgroundURL;
+        defaultBotAvatarURL = builder.defaultBotAvatarURL;
+				defaultWebcamBackgroundURL = builder.defaultWebcamBackgroundURL;
         record = builder.record;
         autoStartRecording = builder.autoStartRecording;
         allowStartStopRecording = builder.allowStartStopRecording;
@@ -477,6 +479,10 @@ public class Meeting {
 
 	public String getDefaultAvatarURL() {
 		return defaultAvatarURL;
+	}
+
+	public String getDefaultBotAvatarURL() {
+		return defaultBotAvatarURL;
 	}
 
 	public String getDefaultWebcamBackgroundURL() {
@@ -960,6 +966,7 @@ public class Meeting {
     	private Map<String, String> metadata;
     	private String dialNumber;
     	private String defaultAvatarURL;
+    	private String defaultBotAvatarURL;
 		private String defaultWebcamBackgroundURL;
     	private long createdTime;
     	private boolean isBreakout;
@@ -1110,6 +1117,11 @@ public class Meeting {
 
     	public Builder withDefaultAvatarURL(String w) {
     		defaultAvatarURL = w;
+    		return this;
+    	}
+
+    	public Builder withDefaultBotAvatarURL(String w) {
+    		defaultBotAvatarURL = w;
     		return this;
     	}
 
