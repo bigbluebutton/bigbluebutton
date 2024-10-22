@@ -257,24 +257,44 @@ jobs:
           apt --purge -y remove apache2-bin
           '
       - name: Install BBB
-        uses: nick-fields/retry@v3
         env:
           NODE_EXTRA_CA_CERTS: /usr/local/share/ca-certificates/bbb-dev/bbb-dev-ca.crt
           ACTIONS_RUNNER_DEBUG: true
-        with:
-          timeout_minutes: 25
-          max_attempts: 2
-          retry_on: any
-          command: |
-            sudo -i <<EOF
-            set -e
-            cd /root/ && wget -nv https://raw.githubusercontent.com/bigbluebutton/bbb-install/v3.0.x-release--no-mongo/bbb-install.sh -O bbb-install.sh
-            cat bbb-install.sh | sed "s|> /etc/apt/sources.list.d/bigbluebutton.list||g" | bash -s -- -v jammy-30-dev -s bbb-ci.test -j -d /certs/
-            bbb-conf --salt bbbci
-            sed -i "s/\"minify\": true,/\"minify\": false,/" /usr/share/etherpad-lite/settings.json
-            sudo yq e -i '.log_level = "TRACE"' /usr/share/bbb-graphql-middleware/config.yml
-            bbb-conf --restart
-            EOF
+        run: |
+          sudo -i <<EOF
+          set -e
+          cd /root/
+          wget -nv https://raw.githubusercontent.com/bigbluebutton/bbb-install/v3.0.x-release--no-mongo/bbb-install.sh -O bbb-install.sh
+          sed -i "s|> /etc/apt/sources.list.d/bigbluebutton.list||g" bbb-install.sh
+          chmod +x bbb-install.sh
+          COMMAND="./bbb-install.sh -v jammy-30-dev -s bbb-ci.test -j -d /certs/"
+          TIMEOUT=1500  # 25 minutes
+          MAX_RETRIES=2
+          RETRY_COUNT=0
+          SUCCESS=0
+          while [[ $RETRY_COUNT -lt $MAX_RETRIES ]]; do
+            echo "Attempt $((RETRY_COUNT + 1)) of $MAX_RETRIES to install BBB..."
+            timeout $TIMEOUT $COMMAND
+
+            if [[ $? -eq 0 ]]; then
+              SUCCESS=1
+              break
+            else
+              echo "Attempt $((RETRY_COUNT + 1)) failed. Retrying to install BBB..."
+              RETRY_COUNT=$((RETRY_COUNT + 1))
+            fi
+          done
+
+          if [[ $SUCCESS -eq 0 ]]; then
+            echo "All attempts to install BBB failed."
+            exit 1
+          fi
+
+          bbb-conf --salt bbbci
+          sed -i "s/\"minify\": true,/\"minify\": false,/" /usr/share/etherpad-lite/settings.json
+          sudo yq e -i '.log_level = "TRACE"' /usr/share/bbb-graphql-middleware/config.yml
+          bbb-conf --restart
+          EOF
       - name: List systemctl services
         timeout-minutes: 1
         run: |
