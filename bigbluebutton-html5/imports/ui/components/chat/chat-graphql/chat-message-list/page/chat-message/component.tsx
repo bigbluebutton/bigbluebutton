@@ -311,7 +311,7 @@ const ChatMessage = React.forwardRef<ChatMessageRef, ChatMessageProps>(({
     isPresentationUpload?: boolean;
     component: React.ReactNode;
     avatarIcon?: string;
-    isSystemSender?: boolean;
+    isSystemSender: boolean;
     showAvatar: boolean;
     showHeading: boolean;
     showToolbar: boolean;
@@ -329,6 +329,7 @@ const ChatMessage = React.forwardRef<ChatMessageRef, ChatMessageProps>(({
           showAvatar: true,
           showHeading: true,
           showToolbar: false,
+          isSystemSender: true,
         };
       case ChatMessageType.PRESENTATION:
         return {
@@ -336,6 +337,7 @@ const ChatMessage = React.forwardRef<ChatMessageRef, ChatMessageProps>(({
           color: '#0F70D7',
           isModerator: false,
           isPresentationUpload: true,
+          isSystemSender: true,
           component: (
             <ChatMessagePresentationContent
               metadata={message.messageMetadata}
@@ -532,6 +534,7 @@ const ChatMessage = React.forwardRef<ChatMessageRef, ChatMessageProps>(({
           ref={messageContentRef}
           sameSender={message?.user ? sameSender : false}
           isCustomPluginMessage={isCustomPluginMessage}
+          $isSystemSender={messageContent.isSystemSender}
           data-chat-message-id={message?.messageId}
           $highlight={hasToolbar && messageContent.showToolbar && !deleteTime}
           $editing={editing}

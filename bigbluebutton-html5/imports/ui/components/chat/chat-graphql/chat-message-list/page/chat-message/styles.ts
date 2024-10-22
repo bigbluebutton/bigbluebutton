@@ -35,6 +35,7 @@ interface ChatWrapperProps {
 interface ChatContentProps {
   sameSender: boolean;
   isCustomPluginMessage: boolean;
+  $isSystemSender: boolean;
   $editing: boolean;
   $highlight: boolean;
   $reactionPopoverIsOpen: boolean;
@@ -87,9 +88,11 @@ export const ChatContent = styled.div<ChatContentProps>`
   width: 100%;
   border-radius: 0.5rem;
 
-  ${({ $highlight }) => $highlight && `
+  ${({ $isSystemSender }) => !$isSystemSender && `
     background-color: #f4f6fa;
+  `}
 
+  ${({ $highlight }) => $highlight && `
     .chat-message-wrapper:hover > & {
       background-color: ${colorBlueLightest} !important;
     }
