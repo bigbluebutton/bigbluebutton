@@ -722,6 +722,8 @@ class Presentation extends PureComponent {
       userIsPresenter,
       currentSlide,
       currentUser,
+      whiteboardMenuOnRight,
+      setWhiteboardMenuOnRight,
     } = this.props;
     const { tldrawAPI, isToolbarVisible } = this.state;
 
@@ -738,6 +740,8 @@ class Presentation extends PureComponent {
         slideNum={currentSlide?.num}
         currentUser={currentUser}
         whiteboardId={currentSlide?.id}
+        setWhiteboardMenuOnRight={setWhiteboardMenuOnRight}
+        whiteboardMenuOnRight={whiteboardMenuOnRight}
       />
     );
   }
@@ -760,6 +764,7 @@ class Presentation extends PureComponent {
       darkTheme,
       isViewersAnnotationsLocked,
       fitToWidth,
+      whiteboardMenuOnRight,
     } = this.props;
 
     const {
@@ -903,6 +908,7 @@ class Presentation extends PureComponent {
                     darkTheme={darkTheme}
                     isToolbarVisible={isToolbarVisible}
                     isViewersAnnotationsLocked={isViewersAnnotationsLocked}
+                    whiteboardMenuOnRight={whiteboardMenuOnRight}
                   />
                 </LocatedErrorBoundary>
                 {isFullscreen && <PollingContainer />}

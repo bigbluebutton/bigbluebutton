@@ -87,14 +87,14 @@ const TldrawV2GlobalStyle = createGlobalStyle`
       0px 2px 6px rgba(0, 0, 0, 0.1);
   }
 
-  ${({ isRTL, whiteboardMenuOnRightValue }) => (!isRTL && !whiteboardMenuOnRightValue) && `
+  ${({ isRTL, whiteboardMenuOnRight }) => (!isRTL && !whiteboardMenuOnRight) && `
     .tlui-toolbar__extras {
       right: 0;
       left: 50px !important;
     }
   `}
 
-  ${({ isRTL, whiteboardMenuOnRightValue }) => ((isRTL) || whiteboardMenuOnRightValue) && `
+  ${({ isRTL, whiteboardMenuOnRight }) => ((isRTL) || whiteboardMenuOnRight) && `
     .tlui-toolbar__extras {
       right: 50px !important;
       left: 0;

@@ -17,7 +17,6 @@ import browserInfo from '/imports/utils/browserInfo';
 import AppService from '/imports/ui/components/app/service';
 import { getSettingsSingletonInstance } from '/imports/ui/services/settings';
 import SvgIcon from '/imports/ui/components/common/icon-svg/component';
-import useWhiteboardMenuOnRight from '/imports/ui/components/presentation/hooks/useWhiteboardMenuOnRight';
 
 const intlMessages = defineMessages({
   changeOptionsSide: {
@@ -132,6 +131,8 @@ const PresentationMenu = (props) => {
     currentUser,
     whiteboardId,
     persistShape,
+    whiteboardMenuOnRight,
+    setWhiteboardMenuOnRight,
   } = props;
 
   const [state, setState] = useState({
@@ -143,14 +144,8 @@ const PresentationMenu = (props) => {
   const toastId = useRef(null);
   const dropdownRef = useRef(null);
 
-  const {
-    setWhiteboardMenuOnRight,
-    whiteboardMenuOnRight,
-  } = useWhiteboardMenuOnRight();
-
   const WBsideValue = () => {
-    const newValue = whiteboardMenuOnRight();
-    setWhiteboardMenuOnRight(!newValue);
+    setWhiteboardMenuOnRight(!whiteboardMenuOnRight);
   };
 
   const formattedLabel = (fullscreen) => (fullscreen
@@ -491,10 +486,10 @@ const PresentationMenu = (props) => {
   }
 
   return (
-    whiteboardMenuOnRight() ? (
+    whiteboardMenuOnRight ? (
       <Styled.Right
         id="WhiteboardOptionButton"
-        isWhiteboardMenuOnRight={whiteboardMenuOnRight()}
+        isWhiteboardMenuOnRight={whiteboardMenuOnRight}
       >
         <BBBMenu
           trigger={(
@@ -535,7 +530,7 @@ const PresentationMenu = (props) => {
     ) : (
       <Styled.Left
         id="WhiteboardOptionButton"
-        isWhiteboardMenuOnRight={whiteboardMenuOnRight()}
+        isWhiteboardMenuOnRight={whiteboardMenuOnRight}
       >
         <BBBMenu
           trigger={(

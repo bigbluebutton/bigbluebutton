@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import PropTypes from 'prop-types';
 import { notify } from '/imports/ui/services/notification';
 import Presentation from '/imports/ui/components/presentation/component';
@@ -33,6 +33,8 @@ const PresentationContainer = (props) => {
   const { presentationIsOpen } = props;
   const layoutContextDispatch = layoutDispatch();
   const { selectedLayout } = useSettings(SETTINGS.APPLICATION);
+
+  const [whiteboardMenuOnRight, setWhiteboardMenuOnRight] = useState(false);
 
   const { data: presentationPageData } = useDeduplicatedSubscription(
     CURRENT_PRESENTATION_PAGE_SUBSCRIPTION,
@@ -264,6 +266,8 @@ const PresentationContainer = (props) => {
           hasPoll,
           currentPresentationPage,
           layoutType: selectedLayout,
+          whiteboardMenuOnRight,
+          setWhiteboardMenuOnRight,
         }
       }
     />

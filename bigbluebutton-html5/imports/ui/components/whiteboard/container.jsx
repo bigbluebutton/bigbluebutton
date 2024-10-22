@@ -48,7 +48,6 @@ import useDeduplicatedSubscription from '../../core/hooks/useDeduplicatedSubscri
 import MediaService from '/imports/ui/components/media/service';
 import getFromUserSettings from '/imports/ui/services/users-settings';
 import useLockContext from '/imports/ui/components/lock-viewers/hooks/useLockContext';
-import useWhiteboardMenuOnRight from '/imports/ui/components/presentation/hooks/useWhiteboardMenuOnRight';
 
 const FORCE_RESTORE_PRESENTATION_ON_NEW_EVENTS = 'bbb_force_restore_presentation_on_new_events';
 
@@ -56,12 +55,11 @@ const WhiteboardContainer = (props) => {
   const {
     intl,
     zoomChanger,
+    whiteboardMenuOnRight,
   } = props;
 
   const WHITEBOARD_CONFIG = window.meetingClientSettings.public.whiteboard;
   const layoutContextDispatch = layoutDispatch();
-
-  const { whiteboardMenuOnRight } = useWhiteboardMenuOnRight();
 
   const [annotations, setAnnotations] = useState([]);
   const [shapes, setShapes] = useState({});
@@ -291,7 +289,6 @@ const WhiteboardContainer = (props) => {
 
   const Settings = getSettingsSingletonInstance();
   const { isRTL } = Settings.application;
-  const whiteboardMenuOnRightValue = whiteboardMenuOnRight();
   const width = layoutSelect((i) => i?.output?.presentation?.width);
   const height = layoutSelect((i) => i?.output?.presentation?.height);
   const sidebarNavigationWidth = layoutSelect(
@@ -337,7 +334,7 @@ const WhiteboardContainer = (props) => {
         isModerator,
         currentUser,
         isRTL,
-        whiteboardMenuOnRightValue,
+        whiteboardMenuOnRight,
         width,
         height,
         maxStickyNoteLength,
