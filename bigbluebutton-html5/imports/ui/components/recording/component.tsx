@@ -46,7 +46,6 @@ const intlMessages = defineMessages({
 });
 
 interface RecordingComponentProps {
-  amIModerator: boolean;
   connected: boolean;
   isOpen: boolean;
   recordingStatus: boolean,
@@ -59,7 +58,6 @@ interface RecordingComponentProps {
 
 const RecordingComponent: React.FC<RecordingComponentProps> = (props) => {
   const {
-    amIModerator,
     connected,
     isOpen,
     recordingStatus,
@@ -75,8 +73,6 @@ const RecordingComponent: React.FC<RecordingComponentProps> = (props) => {
   let title;
   let description;
   let cancelButtonLabel;
-
-  if (!amIModerator) return null;
 
   if (recordingStatus) {
     description = intl.formatMessage(intlMessages.stopDescription);
