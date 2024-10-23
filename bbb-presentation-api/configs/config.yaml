@@ -1,0 +1,5 @@
+conversion:
+  office:
+    script: /usr/share/bbb-libreoffice-conversion/convert.sh
+    timeout: 60 # Timeout in seconds
+    max_attempts: 3
