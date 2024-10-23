@@ -47,6 +47,7 @@ import { useMergedCursorData } from './hooks.ts';
 import useDeduplicatedSubscription from '../../core/hooks/useDeduplicatedSubscription';
 import MediaService from '/imports/ui/components/media/service';
 import getFromUserSettings from '/imports/ui/services/users-settings';
+import { debounce } from '/imports/utils/debounce';
 import useLockContext from '/imports/ui/components/lock-viewers/hooks/useLockContext';
 
 const FORCE_RESTORE_PRESENTATION_ON_NEW_EVENTS = 'bbb_force_restore_presentation_on_new_events';
@@ -137,7 +138,7 @@ const WhiteboardContainer = (props) => {
     });
   };
 
-  const zoomSlide = (
+  const zoomSlide = debounce((
     widthRatio, heightRatio, xOffset, yOffset, currPage = currentPresentationPage,
   ) => {
     const { pageId, num } = currPage;
@@ -153,7 +154,7 @@ const WhiteboardContainer = (props) => {
         heightRatio,
       },
     });
-  };
+  }, 500);
 
   const submitAnnotations = async (newAnnotations) => {
     const isAnnotationSent = await presentationSubmitAnnotations({

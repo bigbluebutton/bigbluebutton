@@ -73,9 +73,9 @@ interface ExternalVideoPlayerProps {
   externalVideo: ExternalVideo;
   playing: boolean;
   playerPlaybackRate: number;
-  key: string;
+  playerKey: string;
   isSidebarContentOpen: boolean;
-  setKey: (key: string) => void;
+  setPlayerKey: (key: string) => void;
   sendMessage: (event: string, data: {
     rate: number;
     time: number;
@@ -104,8 +104,8 @@ const ExternalVideoPlayer: React.FC<ExternalVideoPlayerProps> = ({
   playing,
   playerPlaybackRate,
   isEchoTest,
-  key,
-  setKey,
+  playerKey,
+  setPlayerKey,
   sendMessage,
   getCurrentTime,
 }) => {
@@ -130,15 +130,15 @@ const ExternalVideoPlayer: React.FC<ExternalVideoPlayerProps> = ({
     return {
       // default option for all players, can be overwritten
       playerOptions: {
-        autoplay: true,
-        playsinline: true,
+        autoPlay: true,
+        playsInline: true,
         controls: isPresenter,
       },
       file: {
         attributes: {
           controls: isPresenter ? 'controls' : '',
-          autoplay: 'autoplay',
-          playsinline: 'playsinline',
+          autoPlay: true,
+          playsInline: true,
         },
       },
       facebook: {
@@ -263,16 +263,14 @@ const ExternalVideoPlayer: React.FC<ExternalVideoPlayerProps> = ({
 
   useEffect(() => {
     if (isPresenter !== presenterRef.current) {
-      setKey(uniqueId('react-player'));
+      setPlayerKey(uniqueId('react-player'));
       presenterRef.current = isPresenter;
     }
   }, [isPresenter]);
 
   const handleOnStart = () => {
-    if (!isPresenter) {
-      currentTime = getCurrentTime();
-      playerRef.current?.seekTo(truncateTime(currentTime), 'seconds');
-    }
+    currentTime = getCurrentTime();
+    playerRef.current?.seekTo(truncateTime(currentTime), 'seconds');
   };
 
   const handleOnPlay = () => {
@@ -306,10 +304,6 @@ const ExternalVideoPlayer: React.FC<ExternalVideoPlayerProps> = ({
     if (!isPresenter && playing) {
       playerRef.current?.getInternalPlayer().playVideo();
     }
-  };
-
-  const handleOnReady = (reactPlayer: ReactPlayer) => {
-    reactPlayer.seekTo(truncateTime(currentTime), 'seconds');
   };
 
   const handleProgress = (state: OnProgressProps) => {
@@ -379,12 +373,11 @@ const ExternalVideoPlayer: React.FC<ExternalVideoPlayerProps> = ({
           url={videoUrl}
           playing={playing}
           playbackRate={playerPlaybackRate}
-          key={key}
+          key={playerKey}
           height="100%"
           width="100%"
           ref={playerRef}
           volume={volume}
-          onReady={handleOnReady}
           onStart={handleOnStart}
           onPlay={handleOnPlay}
           onDuration={handleDuration}
@@ -397,7 +390,7 @@ const ExternalVideoPlayer: React.FC<ExternalVideoPlayerProps> = ({
           shouldShowTools() ? (
             <ExternalVideoPlayerToolbar
               handleOnMuted={(m: boolean) => { setMute(m); }}
-              handleReload={() => setKey(uniqueId('react-player'))}
+              handleReload={() => setPlayerKey(uniqueId('react-player'))}
               setShowHoverToolBar={setShowHoverToolBar}
               toolbarStyle={toolbarStyle}
               handleVolumeChanged={changeVolume}
@@ -578,8 +571,8 @@ const ExternalVideoPlayerContainer: React.FC = () => {
       fullscreenContext={fullscreenContext}
       externalVideo={externalVideo}
       getCurrentTime={getCurrentTime}
-      key={key}
-      setKey={setKey}
+      playerKey={key}
+      setPlayerKey={setKey}
       sendMessage={sendMessage}
     />
   );

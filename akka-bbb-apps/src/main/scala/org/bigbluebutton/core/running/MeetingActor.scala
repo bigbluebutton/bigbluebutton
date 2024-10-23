@@ -172,7 +172,7 @@ class MeetingActor(
   outGW.send(msgEvent)
 
   //Insert meeting into the database
-  MeetingDAO.insert(liveMeeting.props, liveMeeting.clientSettings)
+  MeetingDAO.insert(liveMeeting.props, liveMeeting.clientSettings, liveMeeting.plugins)
 
   // Create a default public group chat
   state = groupChatApp.handleCreateDefaultPublicGroupChat(state, liveMeeting, msgBus)
@@ -1134,7 +1134,7 @@ class MeetingActor(
       val hasActivityAfterWarning = u.lastInactivityInspect < u.lastActivityTime
       val hasActivityRecently = (lastUsersInactivityInspection - expiryTracker.userInactivityThresholdInMs) < u.lastActivityTime
 
-      if (hasActivityAfterWarning && !hasActivityRecently) {
+      if (hasActivityAfterWarning && !hasActivityRecently && !u.bot) {
         log.info("User has been inactive for " + TimeUnit.MILLISECONDS.toMinutes(expiryTracker.userInactivityThresholdInMs) + " minutes. Sending inactivity warning. meetingId=" + props.meetingProp.intId + " userId=" + u.intId + " user=" + u)
 
         val secsToDisconnect = TimeUnit.MILLISECONDS.toSeconds(expiryTracker.userActivitySignResponseDelayInMs);

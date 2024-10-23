@@ -1,4 +1,9 @@
-import { DEVICE_TYPE, LAYOUT_TYPE } from './enums';
+import {
+  DEVICE_TYPE,
+  LAYOUT_ELEMENTS,
+  LAYOUT_TYPE,
+  SYNC,
+} from './enums';
 
 const phoneUpperBoundary = 600;
 const tabletPortraitUpperBoundary = 900;
@@ -66,4 +71,58 @@ const suportedLayouts = [
     ],
   },
 ];
-export { suportedLayouts };
+
+const COMMON_ELEMENTS = {
+  DEFAULT: [
+    LAYOUT_ELEMENTS.LAYOUT_TYPE,
+    LAYOUT_ELEMENTS.PRESENTATION_STATE,
+    LAYOUT_ELEMENTS.FOCUSED_CAMERA,
+  ],
+  DOCK: [
+    LAYOUT_ELEMENTS.CAMERA_DOCK_POSITION,
+    LAYOUT_ELEMENTS.CAMERA_DOCK_SIZE,
+  ],
+};
+
+const LAYOUTS_SYNC = {
+  [LAYOUT_TYPE.CUSTOM_LAYOUT]: {
+    [SYNC.PROPAGATE_ELEMENTS]: [...COMMON_ELEMENTS.DEFAULT, ...COMMON_ELEMENTS.DOCK],
+    [SYNC.REPLICATE_ELEMENTS]: [...COMMON_ELEMENTS.DEFAULT, ...COMMON_ELEMENTS.DOCK],
+  },
+  [LAYOUT_TYPE.SMART_LAYOUT]: {
+    [SYNC.PROPAGATE_ELEMENTS]: COMMON_ELEMENTS.DEFAULT,
+    [SYNC.REPLICATE_ELEMENTS]: COMMON_ELEMENTS.DEFAULT,
+  },
+  [LAYOUT_TYPE.PRESENTATION_FOCUS]: {
+    [SYNC.PROPAGATE_ELEMENTS]: COMMON_ELEMENTS.DEFAULT,
+    [SYNC.REPLICATE_ELEMENTS]: COMMON_ELEMENTS.DEFAULT,
+  },
+  [LAYOUT_TYPE.VIDEO_FOCUS]: {
+    [SYNC.PROPAGATE_ELEMENTS]: COMMON_ELEMENTS.DEFAULT,
+    [SYNC.REPLICATE_ELEMENTS]: COMMON_ELEMENTS.DEFAULT,
+  },
+  // Hidden layouts neither propagate nor replicate the layout type pushed.
+  // These layouts are not available for selection in the UI and are set only via join parameters.
+  // Propagating or replicating the layout type would be inappropriate, as
+  // they are intended to maintain a specific view unaffected by layout type changes.
+  [LAYOUT_TYPE.CAMERAS_ONLY]: {
+    [SYNC.PROPAGATE_ELEMENTS]: [],
+    [SYNC.REPLICATE_ELEMENTS]: [LAYOUT_ELEMENTS.FOCUSED_CAMERA],
+  },
+  [LAYOUT_TYPE.PRESENTATION_ONLY]: {
+    [SYNC.PROPAGATE_ELEMENTS]: [],
+    [SYNC.REPLICATE_ELEMENTS]: [],
+  },
+  [LAYOUT_TYPE.PARTICIPANTS_AND_CHAT_ONLY]: {
+    [SYNC.PROPAGATE_ELEMENTS]: [],
+    [SYNC.REPLICATE_ELEMENTS]: [],
+  },
+  [LAYOUT_TYPE.MEDIA_ONLY]: {
+    [SYNC.PROPAGATE_ELEMENTS]: [],
+    [SYNC.REPLICATE_ELEMENTS]: [
+      LAYOUT_ELEMENTS.FOCUSED_CAMERA,
+      LAYOUT_ELEMENTS.PRESENTATION_STATE,
+    ],
+  },
+};
+export { suportedLayouts, LAYOUTS_SYNC };

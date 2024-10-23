@@ -162,6 +162,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
         <property name="defaultMaxPinnedCameras" value="${maxPinnedCameras}"/>
         <property name="useDefaultAvatar" value="${useDefaultAvatar}"/>
         <property name="defaultAvatarURL" value="${defaultAvatarURL}"/>
+        <property name="defaultBotAvatarURL" value="${defaultBotAvatarURL}"/>
         <property name="useDefaultWebcamBackground" value="${useDefaultWebcamBackground}"/>
         <property name="defaultWebcamBackgroundURL" value="${defaultWebcamBackgroundURL}"/>
         <property name="defaultGuestPolicy" value="${defaultGuestPolicy}"/>
@@ -201,6 +202,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
         <property name="defaultKeepEvents" value="${defaultKeepEvents}"/>
         <property name="allowRevealOfBBBVersion" value="${allowRevealOfBBBVersion}"/>
         <property name="allowOverrideClientSettingsOnCreateCall" value="${allowOverrideClientSettingsOnCreateCall}"/>
+        <property name="pluginManifests" value="${pluginManifests}"/>
     </bean>
 
     <bean id="presentationService" class="org.bigbluebutton.web.services.PresentationService">

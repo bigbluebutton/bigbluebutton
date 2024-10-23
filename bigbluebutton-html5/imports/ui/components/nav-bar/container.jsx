@@ -3,7 +3,7 @@ import { defineMessages, useIntl } from 'react-intl';
 import Auth from '/imports/ui/services/auth';
 import getFromUserSettings from '/imports/ui/services/users-settings';
 import NavBar from './component';
-import { layoutSelectInput, layoutSelectOutput, layoutDispatch } from '../layout/context';
+import { layoutSelectInput, layoutDispatch, layoutSelectOutput } from '../layout/context';
 import { PluginsContext } from '/imports/ui/components/components-data/plugin-context/context';
 import { PANELS } from '/imports/ui/components/layout/enums';
 import useCurrentUser from '/imports/ui/core/hooks/useCurrentUser';
@@ -121,6 +121,7 @@ const NavBarContainer = ({ children, ...props }) => {
         isDirectLeaveButtonEnabled: IS_DIRECT_LEAVE_BUTTON_ENABLED,
         // TODO: Remove/Replace
         isMeteorConnected: true,
+        hideTopRow: navBar.hideTopRow,
         ...props,
       }}
       style={{ ...navBar }}

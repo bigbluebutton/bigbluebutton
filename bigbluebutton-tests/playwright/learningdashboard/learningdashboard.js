@@ -138,7 +138,6 @@ class LearningDashboard extends MultiUsers {
   async overview() {
     await this.modPage.waitAndClick(e.joinVideo);
     await this.modPage.waitAndClick(e.startSharingWebcam);
-    await this.modPage.waitAndClick(e.reactionsButton);
     await this.modPage.waitAndClick(e.raiseHandBtn);
 
     await this.dashboardPage.reloadPage();

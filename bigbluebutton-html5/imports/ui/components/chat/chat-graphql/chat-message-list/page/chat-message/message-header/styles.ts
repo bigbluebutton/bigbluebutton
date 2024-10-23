@@ -2,10 +2,10 @@ import styled from 'styled-components';
 
 import {
   colorHeading,
-  palettePlaceholderText,
   colorGrayLight,
+  colorGrayDark,
 } from '/imports/ui/stylesheets/styled-components/palette';
-import { lineHeightComputed } from '/imports/ui/stylesheets/styled-components/typography';
+import { fontSizeSmaller, lineHeightComputed } from '/imports/ui/stylesheets/styled-components/typography';
 
 interface ChatUserNameProps {
   currentlyInMeeting: boolean;
@@ -14,6 +14,7 @@ interface ChatUserNameProps {
 export const HeaderContent = styled.div`
   display: flex;
   flex-flow: row;
+  align-items: center;
   width: 100%;
 `;
 
@@ -30,6 +31,7 @@ export const ChatUserName = styled.div<ChatUserNameProps>`
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
+  flex-grow: 1;
 
   ${({ currentlyInMeeting }) => currentlyInMeeting && `
     color: ${colorHeading};
@@ -65,8 +67,8 @@ export const ChatUserOffline = styled.span`
 export const ChatTime = styled.time`
   flex-shrink: 0;
   flex-grow: 0;
-  flex-basis: 3.5rem;
-  color: ${palettePlaceholderText};
+  flex-basis: max-content;
+  color: ${colorGrayDark};
   text-transform: uppercase;
   font-size: 75%;
   [dir='rtl'] & {
@@ -84,10 +86,27 @@ export const ChatHeaderText = styled.div`
   width: 100%;
 `;
 
+export const EditLabel = styled.span`
+  color: ${colorGrayLight};
+  font-size: ${fontSizeSmaller};
+  display: flex;
+  align-items: center;
+  gap: calc(${lineHeightComputed} / 4);
+
+  [dir='ltr'] & {
+    margin-right: calc(${lineHeightComputed} / 2);
+  }
+
+  [dir='rtl'] & {
+    margin-left: calc(${lineHeightComputed} / 2);
+  }
+`;
+
 export default {
   HeaderContent,
   ChatTime,
   ChatUserOffline,
   ChatUserName,
   ChatHeaderText,
+  EditLabel,
 };
