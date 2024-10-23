@@ -3,7 +3,7 @@ import { defineMessages, useIntl } from 'react-intl';
 import { ChatEvents } from '/imports/ui/core/enums/chat';
 import Icon from '/imports/ui/components/common/icon/component';
 import {
-  Cancel, Highlighted, Left, Root,
+  Cancel, Container, Highlighted, Left, Root,
 } from './styles';
 
 const intlMessages = defineMessages({
@@ -51,24 +51,26 @@ const ChatEditingWarning = () => {
 
   return (
     <Root role="note" aria-describedby="cancel-editing-msg">
-      <Left>
-        <Icon iconName="pen_tool" />
-        {editingMessage}
-      </Left>
-      <Cancel
-        onClick={() => {
-          window.dispatchEvent(new CustomEvent(ChatEvents.CHAT_CANCEL_EDIT_REQUEST));
-        }}
-      >
-        {cancelMessage.split(CANCEL_KEY_LABEL)[0]}
+      <Container>
+        <Left>
+          <Icon iconName="pen_tool" />
+          {editingMessage}
+        </Left>
+        <Cancel
+          onClick={() => {
+            window.dispatchEvent(new CustomEvent(ChatEvents.CHAT_CANCEL_EDIT_REQUEST));
+          }}
+        >
+          {cancelMessage.split(CANCEL_KEY_LABEL)[0]}
         &nbsp;
-        <Highlighted>{CANCEL_KEY_LABEL}</Highlighted>
+          <Highlighted>{CANCEL_KEY_LABEL}</Highlighted>
         &nbsp;
-        {cancelMessage.split(CANCEL_KEY_LABEL)[1]}
-      </Cancel>
-      <span className="sr-only" id="cancel-editing-msg">
-        {`${editingMessage} ${cancelMessage}`}
-      </span>
+          {cancelMessage.split(CANCEL_KEY_LABEL)[1]}
+        </Cancel>
+        <span className="sr-only" id="cancel-editing-msg">
+          {`${editingMessage} ${cancelMessage}`}
+        </span>
+      </Container>
     </Root>
   );
 };

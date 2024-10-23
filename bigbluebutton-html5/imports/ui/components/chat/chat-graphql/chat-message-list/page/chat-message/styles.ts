@@ -33,6 +33,7 @@ interface ChatWrapperProps {
 interface ChatContentProps {
   sameSender: boolean;
   isCustomPluginMessage: boolean;
+  $isSystemSender: boolean;
   $editing: boolean;
   $highlight: boolean;
   $reactionPopoverIsOpen: boolean;
@@ -85,11 +86,13 @@ export const ChatContent = styled.div<ChatContentProps>`
   width: 100%;
   border-radius: 0.5rem;
 
-  ${({ $highlight }) => $highlight && `
+  ${({ $isSystemSender }) => !$isSystemSender && `
     background-color: #f4f6fa;
+  `}
 
+  ${({ $highlight }) => $highlight && `
     .chat-message-wrapper:hover > & {
-      background-color: ${colorBlueLightest};
+      background-color: ${colorBlueLightest} !important;
     }
   `}
 
@@ -97,8 +100,15 @@ export const ChatContent = styled.div<ChatContentProps>`
     $editing, $reactionPopoverIsOpen, $focused, $keyboardFocused,
   }) => ($reactionPopoverIsOpen || $editing || $focused || $keyboardFocused)
     && `
-    background-color: ${colorBlueLightest};
+    background-color: ${colorBlueLightest} !important;
   `}
+`;
+
+export const ChatContentFooter = styled.div`
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.25rem;
+  padding: 0 ${lgPadding} ${lgPadding};
 `;
 
 export const ChatAvatar = styled.div<ChatAvatarProps>`
@@ -190,14 +200,10 @@ export const Container = styled.div<{ $sequence: number }>`
   }
 `;
 
-export const MessageItemWrapper = styled.div<{ $edited: boolean, $sameSender: boolean }>`
+export const MessageItemWrapper = styled.div`
   display: flex;
   flex-direction: row;
   padding: ${lgPadding} ${$3xlPadding};
-
-  ${({ $edited, $sameSender }) => $edited && $sameSender && `
-    padding-bottom: 0;
-  `}
 `;
 
 export const DeleteMessage = styled.span`
@@ -215,12 +221,7 @@ export const EditLabel = styled.span`
   color: ${colorGrayLight};
   font-size: 75%;
   display: flex;
-  justify-content: flex-end;
   align-items: center;
-  gap: 2px;
-`;
-
-export const EditLabelWrapper = styled.div`
+  gap: 0.125rem;
   line-height: 1;
-  padding: ${xlPadding};
 `;

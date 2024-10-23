@@ -362,7 +362,7 @@ export default class SFUAudioBridge extends BaseAudioBridge {
 
       const handleInitError = (_error) => {
         mapErrorCode(_error);
-        if (RETRYABLE_ERRORS.includes(_error?.errorCode)
+        if (!RETRYABLE_ERRORS.includes(_error?.errorCode)
           || !RETRY_THROUGH_RELAY
           || this.reconnecting) {
           reject(_error);

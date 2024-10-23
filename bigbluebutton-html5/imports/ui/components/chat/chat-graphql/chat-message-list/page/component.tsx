@@ -3,9 +3,13 @@ import React, {
   useEffect,
   useState,
   memo,
+  useRef,
 } from 'react';
 import { PluginsContext } from '/imports/ui/components/components-data/plugin-context/context';
-import { UpdatedEventDetailsForChatMessageDomElements } from 'bigbluebutton-html-plugin-sdk/dist/cjs/dom-element-manipulation/chat/message/types';
+import {
+  UpdatedEventDetailsForChatMessageDomElements,
+  MessageDetails,
+} from 'bigbluebutton-html-plugin-sdk/dist/cjs/dom-element-manipulation/chat/message/types';
 import { HookEvents } from 'bigbluebutton-html-plugin-sdk/dist/cjs/core/enum';
 import { UpdatedEventDetails } from 'bigbluebutton-html-plugin-sdk/dist/cjs/core/types';
 import { DomElementManipulationHooks } from 'bigbluebutton-html-plugin-sdk/dist/cjs/dom-element-manipulation/enums';
@@ -14,12 +18,15 @@ import {
   CHAT_MESSAGE_PRIVATE_SUBSCRIPTION,
 } from './queries';
 import { Message } from '/imports/ui/Types/message';
-import ChatMessage from './chat-message/component';
+import ChatMessage, { ChatMessageRef } from './chat-message/component';
 import { GraphqlDataHookSubscriptionResponse } from '/imports/ui/Types/hook';
 import { useCreateUseSubscription } from '/imports/ui/core/hooks/createUseSubscription';
 import { setLoadedMessageGathering } from '/imports/ui/core/hooks/useLoadedChatMessages';
 import { ChatLoading } from '../../component';
 import { ChatEvents } from '/imports/ui/core/enums/chat';
+import { useStorageKey, STORAGES } from '/imports/ui/services/storage/hooks';
+
+const PAGE_SIZE = 50;
 
 interface ChatListPageContainerProps {
   page: number;
@@ -30,6 +37,7 @@ interface ChatListPageContainerProps {
   markMessageAsSeen: (message: Message) => void;
   scrollRef: React.RefObject<HTMLDivElement>;
   focusedId: number | null;
+  firstPageToLoad: number;
 }
 
 interface ChatListPageProps {
@@ -40,6 +48,7 @@ interface ChatListPageProps {
   markMessageAsSeen: (message: Message)=> void;
   scrollRef: React.RefObject<HTMLDivElement>;
   focusedId: number | null;
+  firstPageToLoad: number;
 }
 
 const areChatPagesEqual = (prevProps: ChatListPageProps, nextProps: ChatListPageProps) => {
@@ -66,27 +75,54 @@ const ChatListPage: React.FC<ChatListPageProps> = ({
   markMessageAsSeen,
   scrollRef,
   focusedId,
+  firstPageToLoad,
 }) => {
   const { domElementManipulationIdentifiers } = useContext(PluginsContext);
+  const messageRefs = useRef<Record<number, ChatMessageRef | null>>({});
+  const chatFocusMessageRequest = useStorageKey(ChatEvents.CHAT_FOCUS_MESSAGE_REQUEST, STORAGES.IN_MEMORY);
+  const [keyboardFocusedMessageSequence, setKeyboardFocusedMessageSequence] = useState<number | null>(null);
+  const [editingId, setEditingId] = useState<string | null>(null);
 
-  const [messagesRequestedFromPlugin, setMessagesRequestedFromPlugin] = useState<
-    UpdatedEventDetailsForChatMessageDomElements[]>([]);
+  const [renderedChatMessages, setRenderedChatMessages] = useState<MessageDetails[]>([]);
   useEffect(() => {
-    const dataToSend = messagesRequestedFromPlugin.filter((
+    const requestedMessages = renderedChatMessages.filter((
       chatMessageRequested,
     ) => domElementManipulationIdentifiers.CHAT_MESSAGE?.includes(chatMessageRequested.messageId));
-    window.dispatchEvent(
-      new CustomEvent<UpdatedEventDetails<
-        UpdatedEventDetailsForChatMessageDomElements[]>>(HookEvents.BBB_CORE_SENT_NEW_DATA, {
-          detail: {
-            hook: DomElementManipulationHooks.CHAT_MESSAGE,
-            data: dataToSend,
-          },
-        }),
-    );
-  }, [domElementManipulationIdentifiers, messagesRequestedFromPlugin]);
 
-  const [keyboardFocusedMessageSequence, setKeyboardFocusedMessageSequence] = useState<number | null>(null);
+    if (renderedChatMessages.length === messages.length) {
+      // Only dispatch event when all messages from the page have been rendered
+      // and dom elements registered in the components state
+      window.dispatchEvent(
+        new CustomEvent<UpdatedEventDetails<
+          UpdatedEventDetailsForChatMessageDomElements>>(HookEvents.BBB_CORE_SENT_NEW_DATA, {
+            detail: {
+              hook: DomElementManipulationHooks.CHAT_MESSAGE,
+              data: {
+                page,
+                messages: requestedMessages,
+              },
+            },
+          }),
+      );
+    }
+
+    return () => {
+      // The page has unmounted, send an event to indicate this to the plugins sdk
+      window.dispatchEvent(
+        new CustomEvent<UpdatedEventDetails<
+          UpdatedEventDetailsForChatMessageDomElements>>(HookEvents.BBB_CORE_SENT_NEW_DATA, {
+            detail: {
+              hook: DomElementManipulationHooks.CHAT_MESSAGE,
+              data: {
+                page,
+                messages: [],
+              },
+            },
+          }),
+      );
+    };
+  }, [domElementManipulationIdentifiers, renderedChatMessages]);
+
   useEffect(() => {
     const handleKeyboardFocusMessageRequest = (e: Event) => {
       if (e instanceof CustomEvent) {
@@ -100,13 +136,48 @@ const ChatListPage: React.FC<ChatListPageProps> = ({
       }
     };
 
+    const handleFocusMessageRequest = (e: Event) => {
+      if (e instanceof CustomEvent) {
+        if (e.detail.sequence) {
+          if (Math.ceil(e.detail.sequence / PAGE_SIZE) < firstPageToLoad) {
+            return;
+          }
+          messageRefs.current[Number.parseInt(e.detail.sequence, 10)]?.requestFocus();
+        }
+      }
+    };
+
+    const handleChatEditRequest = (e: Event) => {
+      if (e instanceof CustomEvent) {
+        setEditingId(e.detail.messageId);
+      }
+    };
+
+    const handleCancelChatEditRequest = (e: Event) => {
+      if (e instanceof CustomEvent) {
+        setEditingId(null);
+      }
+    };
+
     window.addEventListener(ChatEvents.CHAT_KEYBOARD_FOCUS_MESSAGE_REQUEST, handleKeyboardFocusMessageRequest);
     window.addEventListener(ChatEvents.CHAT_KEYBOARD_FOCUS_MESSAGE_CANCEL, handleKeyboardFocusMessageCancel);
+    window.addEventListener(ChatEvents.CHAT_FOCUS_MESSAGE_REQUEST, handleFocusMessageRequest);
+    window.addEventListener(ChatEvents.CHAT_EDIT_REQUEST, handleChatEditRequest);
+    window.addEventListener(ChatEvents.CHAT_CANCEL_EDIT_REQUEST, handleCancelChatEditRequest);
 
     return () => {
       window.removeEventListener(ChatEvents.CHAT_KEYBOARD_FOCUS_MESSAGE_REQUEST, handleKeyboardFocusMessageRequest);
       window.removeEventListener(ChatEvents.CHAT_KEYBOARD_FOCUS_MESSAGE_CANCEL, handleKeyboardFocusMessageCancel);
+      window.removeEventListener(ChatEvents.CHAT_FOCUS_MESSAGE_REQUEST, handleFocusMessageRequest);
+      window.removeEventListener(ChatEvents.CHAT_EDIT_REQUEST, handleChatEditRequest);
+      window.removeEventListener(ChatEvents.CHAT_CANCEL_EDIT_REQUEST, handleCancelChatEditRequest);
     };
+  }, [firstPageToLoad]);
+
+  useEffect(() => {
+    if (typeof chatFocusMessageRequest === 'number') {
+      messageRefs.current[chatFocusMessageRequest]?.requestFocus();
+    }
   }, []);
 
   return (
@@ -118,7 +189,7 @@ const ChatListPage: React.FC<ChatListPageProps> = ({
             key={message.createdAt}
             message={message}
             previousMessage={previousMessage}
-            setMessagesRequestedFromPlugin={setMessagesRequestedFromPlugin}
+            setRenderedChatMessages={setRenderedChatMessages}
             lastSenderPreviousPage={
               !previousMessage ? lastSenderPreviousPage : null
             }
@@ -127,6 +198,10 @@ const ChatListPage: React.FC<ChatListPageProps> = ({
             messageReadFeedbackEnabled={messageReadFeedbackEnabled}
             focused={focusedId === message.messageSequence}
             keyboardFocused={keyboardFocusedMessageSequence === message.messageSequence}
+            editing={editingId === message.messageId}
+            ref={(ref) => {
+              messageRefs.current[message.messageSequence] = ref;
+            }}
           />
         );
       })}
@@ -145,6 +220,7 @@ const ChatListPageContainer: React.FC<ChatListPageContainerProps> = ({
   markMessageAsSeen,
   scrollRef,
   focusedId,
+  firstPageToLoad,
 }) => {
   const CHAT_CONFIG = window.meetingClientSettings.public.chat;
   const PUBLIC_GROUP_CHAT_KEY = CHAT_CONFIG.public_group_id;
@@ -186,6 +262,7 @@ const ChatListPageContainer: React.FC<ChatListPageContainerProps> = ({
       markMessageAsSeen={markMessageAsSeen}
       scrollRef={scrollRef}
       focusedId={focusedId}
+      firstPageToLoad={firstPageToLoad}
     />
   );
 };

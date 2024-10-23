@@ -89,6 +89,7 @@ export interface User {
   reactionEmoji: string;
   presenter?: boolean;
   pinned?: boolean;
+  bot?: boolean;
   guest?: boolean;
   guestStatus: string;
   joinErrorCode: string;

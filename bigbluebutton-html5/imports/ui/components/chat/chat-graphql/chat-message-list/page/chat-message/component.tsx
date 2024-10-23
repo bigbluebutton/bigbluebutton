@@ -2,12 +2,13 @@ import React, {
   memo,
   useCallback,
   useEffect,
+  useImperativeHandle,
   useMemo,
 } from 'react';
 import { useMutation } from '@apollo/client';
-import { UpdatedEventDetailsForChatMessageDomElements } from 'bigbluebutton-html-plugin-sdk/dist/cjs/dom-element-manipulation/chat/message/types';
+import { MessageDetails } from 'bigbluebutton-html-plugin-sdk/dist/cjs/dom-element-manipulation/chat/message/types';
 import { Message } from '/imports/ui/Types/message';
-import { defineMessages, useIntl } from 'react-intl';
+import { defineMessages, FormattedTime, useIntl } from 'react-intl';
 import ChatMessageHeader from './message-header/component';
 import ChatMessageTextContent from './message-content/text-content/component';
 import ChatPollContent from './message-content/poll-content/component';
@@ -21,14 +22,13 @@ import {
   DeleteMessage,
   ChatHeading,
   EditLabel,
-  EditLabelWrapper,
+  ChatContentFooter,
 } from './styles';
-import { ChatEvents, ChatMessageType } from '/imports/ui/core/enums/chat';
+import { ChatMessageType } from '/imports/ui/core/enums/chat';
 import MessageReadConfirmation from './message-read-confirmation/component';
 import ChatMessageToolbar from './message-toolbar/component';
 import ChatMessageReactions from './message-reactions/component';
 import ChatMessageReplied from './message-replied/component';
-import { STORAGES, useStorageKey } from '/imports/ui/services/storage/hooks';
 import useMeeting from '/imports/ui/core/hooks/useMeeting';
 import useCurrentUser from '/imports/ui/core/hooks/useCurrentUser';
 import { layoutSelect } from '/imports/ui/components/layout/context';
@@ -38,7 +38,7 @@ import { GraphqlDataHookSubscriptionResponse } from '/imports/ui/Types/hook';
 import { Chat } from '/imports/ui/Types/chat';
 import { CHAT_DELETE_REACTION_MUTATION, CHAT_SEND_REACTION_MUTATION } from './mutations';
 import Icon from '/imports/ui/components/common/icon/component';
-import { colorBlueLightestChannel } from '/imports/ui/stylesheets/styled-components/palette';
+import { colorBlueLighterChannel } from '/imports/ui/stylesheets/styled-components/palette';
 import {
   useIsReplyChatMessageEnabled,
   useIsChatMessageReactionsEnabled,
@@ -46,17 +46,23 @@ import {
   useIsDeleteChatMessageEnabled,
 } from '/imports/ui/services/features';
 import ChatMessageNotificationContent from './message-content/notification-content/component';
+import { ChatTime } from './message-header/styles';
 
 interface ChatMessageProps {
   message: Message;
   previousMessage: Message;
   lastSenderPreviousPage: string | null | undefined;
-  setMessagesRequestedFromPlugin: React.Dispatch<React.SetStateAction<UpdatedEventDetailsForChatMessageDomElements[]>>
+  setRenderedChatMessages: React.Dispatch<React.SetStateAction<MessageDetails[]>>
   scrollRef: React.RefObject<HTMLDivElement>;
   markMessageAsSeen: (message: Message) => void;
   messageReadFeedbackEnabled: boolean;
   focused: boolean;
   keyboardFocused: boolean;
+  editing: boolean;
+}
+
+export interface ChatMessageRef {
+  requestFocus: () => void;
 }
 
 const intlMessages = defineMessages({
@@ -104,19 +110,21 @@ function isInViewport(el: HTMLDivElement) {
 
 const messageRef = React.createRef<HTMLDivElement>();
 
-const ANIMATION_DURATION = 2000;
+const ANIMATION_DURATION = 1000;
+const SCROLL_ANIMATION_DURATION = 500;
 
-const ChatMesssage: React.FC<ChatMessageProps> = ({
+const ChatMessage = React.forwardRef<ChatMessageRef, ChatMessageProps>(({
   previousMessage,
   lastSenderPreviousPage,
   scrollRef,
   message,
-  setMessagesRequestedFromPlugin,
+  setRenderedChatMessages,
   markMessageAsSeen,
   messageReadFeedbackEnabled,
   focused,
   keyboardFocused,
-}) => {
+  editing,
+}, ref) => {
   const idChatOpen: string = layoutSelect((i: Layout) => i.idChatOpen);
   const { data: meeting } = useMeeting((m) => ({
     lockSettings: m?.lockSettings,
@@ -138,31 +146,33 @@ const ChatMesssage: React.FC<ChatMessageProps> = ({
       markMessageAsSeen(message);
     }
   }, [message, messageRef]);
-  const messageContentRef = React.createRef<HTMLDivElement>();
-  const [editing, setEditing] = React.useState(false);
+  const messageContentRef = React.useRef<HTMLDivElement>(null);
   const [isToolbarReactionPopoverOpen, setIsToolbarReactionPopoverOpen] = React.useState(false);
-  const chatFocusMessageRequest = useStorageKey(ChatEvents.CHAT_FOCUS_MESSAGE_REQUEST, STORAGES.IN_MEMORY);
   const containerRef = React.useRef<HTMLDivElement>(null);
   const animationInitialTimestamp = React.useRef(0);
+  const animationInitialScrollPosition = React.useRef(0);
+  const animationScrollPositionDiff = React.useRef(0);
   const [chatSendReaction] = useMutation(CHAT_SEND_REACTION_MUTATION);
   const [chatDeleteReaction] = useMutation(CHAT_DELETE_REACTION_MUTATION);
 
-  const sendReaction = useCallback((reactionEmoji: string) => {
+  const sendReaction = useCallback((reactionEmoji: string, reactionEmojiId: string) => {
     chatSendReaction({
       variables: {
         chatId: message.chatId,
         messageId: message.messageId,
         reactionEmoji,
+        reactionEmojiId,
       },
     });
   }, []);
 
-  const deleteReaction = useCallback((reactionEmoji: string) => {
+  const deleteReaction = useCallback((reactionEmoji: string, reactionEmojiId: string) => {
     chatDeleteReaction({
       variables: {
         chatId: message.chatId,
         messageId: message.messageId,
         reactionEmoji,
+        reactionEmojiId,
       },
     });
   }, []);
@@ -196,67 +206,56 @@ const ChatMesssage: React.FC<ChatMessageProps> = ({
     CHAT_DELETE_ENABLED,
   ].some((config) => config);
 
+  useImperativeHandle(ref, () => ({
+    requestFocus() {
+      setTimeout(() => {
+        requestAnimationFrame(startScrollAnimation);
+      }, 0);
+    },
+  }), []);
+
   const startScrollAnimation = (timestamp: number) => {
-    if (scrollRef.current && containerRef.current) {
-      // eslint-disable-next-line no-param-reassign
-      scrollRef.current.scrollTop = containerRef.current.offsetTop;
-    }
+    animationInitialScrollPosition.current = scrollRef.current?.scrollTop || 0;
+    animationScrollPositionDiff.current = (scrollRef.current?.scrollTop || 0)
+      - ((containerRef.current?.offsetTop || 0) - ((scrollRef.current?.offsetHeight || 0) / 2));
     animationInitialTimestamp.current = timestamp;
-    requestAnimationFrame(animate);
+    requestAnimationFrame(animateScrollPosition);
+  };
+
+  const startBackgroundAnimation = (timestamp: number) => {
+    animationInitialTimestamp.current = timestamp;
+    requestAnimationFrame(animateBackgroundColor);
+  };
+
+  const animateScrollPosition = (timestamp: number) => {
+    const value = (timestamp - animationInitialTimestamp.current) / SCROLL_ANIMATION_DURATION;
+    const { current: scrollContainer } = scrollRef;
+    const { current: messageContainer } = containerRef;
+    const { current: initialPosition } = animationInitialScrollPosition;
+    const { current: diff } = animationScrollPositionDiff;
+    if (!scrollContainer || !messageContainer) return;
+    if (value <= 1) {
+      // eslint-disable-next-line no-param-reassign
+      scrollContainer.scrollTop = initialPosition - (value * diff);
+      requestAnimationFrame(animateScrollPosition);
+    } else {
+      requestAnimationFrame(startBackgroundAnimation);
+    }
+  };
+
+  const animateBackgroundColor = (timestamp: number) => {
+    if (!messageContentRef.current) return;
+    const value = (timestamp - animationInitialTimestamp.current) / ANIMATION_DURATION;
+    if (value < 1) {
+      messageContentRef.current.style.backgroundColor = `rgb(${colorBlueLighterChannel} / ${1 - value})`;
+      requestAnimationFrame(animateBackgroundColor);
+    } else {
+      messageContentRef.current.style.backgroundColor = '#f4f6fa';
+    }
   };
 
   useEffect(() => {
-    const handleFocusMessageRequest = (e: Event) => {
-      if (e instanceof CustomEvent) {
-        if (e.detail.sequence === message.messageSequence) {
-          requestAnimationFrame(startScrollAnimation);
-        }
-      }
-    };
-
-    const handleChatEditRequest = (e: Event) => {
-      if (e instanceof CustomEvent) {
-        const editing = e.detail.messageId === message.messageId;
-        setEditing(editing);
-      }
-    };
-
-    const handleCancelChatEditRequest = (e: Event) => {
-      if (e instanceof CustomEvent) {
-        setEditing(false);
-      }
-    };
-
-    window.addEventListener(ChatEvents.CHAT_FOCUS_MESSAGE_REQUEST, handleFocusMessageRequest);
-    window.addEventListener(ChatEvents.CHAT_EDIT_REQUEST, handleChatEditRequest);
-    window.addEventListener(ChatEvents.CHAT_CANCEL_EDIT_REQUEST, handleCancelChatEditRequest);
-
-    return () => {
-      window.removeEventListener(ChatEvents.CHAT_FOCUS_MESSAGE_REQUEST, handleFocusMessageRequest);
-      window.removeEventListener(ChatEvents.CHAT_EDIT_REQUEST, handleChatEditRequest);
-      window.removeEventListener(ChatEvents.CHAT_CANCEL_EDIT_REQUEST, handleCancelChatEditRequest);
-    };
-  }, []);
-
-  useEffect(() => {
-    if (chatFocusMessageRequest === message.messageSequence) {
-      requestAnimationFrame(startScrollAnimation);
-    }
-  }, []);
-
-  const animate = useCallback((timestamp: number) => {
-    if (!containerRef.current) return;
-    const value = (timestamp - animationInitialTimestamp.current) / ANIMATION_DURATION;
-    if (value < 1) {
-      containerRef.current.style.backgroundColor = `rgb(${colorBlueLightestChannel} / ${1 - value})`;
-      requestAnimationFrame(animate);
-    } else {
-      containerRef.current.style.backgroundColor = 'unset';
-    }
-  }, []);
-
-  useEffect(() => {
-    setMessagesRequestedFromPlugin((messages) => {
+    setRenderedChatMessages((messages) => {
       if (messageContentRef.current && !messages.some((m) => m.messageId === message.messageId)) {
         messages.push({
           messageId: message.messageId,
@@ -312,7 +311,7 @@ const ChatMesssage: React.FC<ChatMessageProps> = ({
     isPresentationUpload?: boolean;
     component: React.ReactNode;
     avatarIcon?: string;
-    isSystemSender?: boolean;
+    isSystemSender: boolean;
     showAvatar: boolean;
     showHeading: boolean;
     showToolbar: boolean;
@@ -330,6 +329,7 @@ const ChatMesssage: React.FC<ChatMessageProps> = ({
           showAvatar: true,
           showHeading: true,
           showToolbar: false,
+          isSystemSender: true,
         };
       case ChatMessageType.PRESENTATION:
         return {
@@ -337,6 +337,7 @@ const ChatMesssage: React.FC<ChatMessageProps> = ({
           color: '#0F70D7',
           isModerator: false,
           isPresentationUpload: true,
+          isSystemSender: true,
           component: (
             <ChatMessagePresentationContent
               metadata={message.messageMetadata}
@@ -491,7 +492,7 @@ const ChatMesssage: React.FC<ChatMessageProps> = ({
           messageSequence={message.messageSequence}
           emphasizedMessage={message.chatEmphasizedText}
           onEmojiSelected={(emoji) => {
-            sendReaction(emoji.native);
+            sendReaction(emoji.native, emoji.id);
             setIsToolbarReactionPopoverOpen(false);
           }}
           onReactionPopoverOpenChange={setIsToolbarReactionPopoverOpen}
@@ -533,6 +534,7 @@ const ChatMesssage: React.FC<ChatMessageProps> = ({
           ref={messageContentRef}
           sameSender={message?.user ? sameSender : false}
           isCustomPluginMessage={isCustomPluginMessage}
+          $isSystemSender={messageContent.isSystemSender}
           data-chat-message-id={message?.messageId}
           $highlight={hasToolbar && messageContent.showToolbar && !deleteTime}
           $editing={editing}
@@ -542,14 +544,14 @@ const ChatMesssage: React.FC<ChatMessageProps> = ({
         >
           {message.replyToMessage && !deleteTime && (
           <ChatMessageReplied
-            message={message.replyToMessage.message}
+            message={message.replyToMessage.message || ''}
             sequence={message.replyToMessage.messageSequence}
             emphasizedMessage={message.replyToMessage.chatEmphasizedText}
             deletedByUser={message.replyToMessage.deletedBy?.name ?? null}
           />
           )}
           {!deleteTime && (
-          <MessageItemWrapper $edited={!!editTime} $sameSender={sameSender}>
+          <MessageItemWrapper>
             {messageContent.component}
             {messageReadFeedbackEnabled && (
             <MessageReadConfirmation
@@ -558,13 +560,18 @@ const ChatMesssage: React.FC<ChatMessageProps> = ({
             )}
           </MessageItemWrapper>
           )}
-          {!deleteTime && editTime && sameSender && (
-            <EditLabelWrapper>
-              <EditLabel>
-                <Icon iconName="pen_tool" />
-                <span>{intl.formatMessage(intlMessages.edited)}</span>
-              </EditLabel>
-            </EditLabelWrapper>
+          {sameSender && (
+            <ChatContentFooter>
+              {!deleteTime && editTime && (
+                <EditLabel>
+                  <Icon iconName="pen_tool" />
+                  <span>{intl.formatMessage(intlMessages.edited)}</span>
+                </EditLabel>
+              )}
+              <ChatTime>
+                <FormattedTime value={dateTime} hour12={false} />
+              </ChatTime>
+            </ChatContentFooter>
           )}
           {deleteTime && (
             <DeleteMessage>
@@ -582,7 +589,7 @@ const ChatMesssage: React.FC<ChatMessageProps> = ({
       </ChatWrapper>
     </Container>
   );
-};
+});
 
 function areChatMessagesEqual(prevProps: ChatMessageProps, nextProps: ChatMessageProps) {
   const prevMessage = prevProps?.message;
@@ -593,7 +600,8 @@ function areChatMessagesEqual(prevProps: ChatMessageProps, nextProps: ChatMessag
     && prevMessage?.message === nextMessage.message
     && prevMessage?.reactions?.length === nextMessage?.reactions?.length
     && prevProps.focused === nextProps.focused
-    && prevProps.keyboardFocused === nextProps.keyboardFocused;
+    && prevProps.keyboardFocused === nextProps.keyboardFocused
+    && prevMessage.replyToMessage?.message === nextMessage.replyToMessage?.message;
 }
 
-export default memo(ChatMesssage, areChatMessagesEqual);
+export default memo(ChatMessage, areChatMessagesEqual);

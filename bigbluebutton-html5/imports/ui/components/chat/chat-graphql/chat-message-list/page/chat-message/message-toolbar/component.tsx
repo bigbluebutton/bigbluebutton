@@ -142,7 +142,7 @@ const ChatMessageToolbar: React.FC<ChatMessageToolbarProps> = (props) => {
                 e.stopPropagation();
                 onReactionPopoverOpenChange(true);
               }}
-              icon="happy"
+              svgIcon="reactions"
               color="light"
               data-test="reactionsPickerButton"
               ref={setReactionsAnchor}
