@@ -14,6 +14,7 @@ import { getSettingsSingletonInstance } from '/imports/ui/services/settings';
 import useSettings from '/imports/ui/services/settings/hooks/useSettings';
 import { SETTINGS } from '/imports/ui/services/settings/enums';
 import { useIsPresentationEnabled } from '/imports/ui/services/features';
+import MediaOnlyLayout from './mediaOnlyLayout';
 
 const LayoutEngine = () => {
   const bannerBarInput = layoutSelectInput((i) => i.bannerBar);
@@ -70,7 +71,6 @@ const LayoutEngine = () => {
       return cameraDockBounds;
     }
 
-    const navBarHeight = calculatesNavbarHeight();
     const hasPresentation = isPresentationEnabled && slidesLength !== 0;
     const isGeneralMediaOff = !hasPresentation
       && !hasExternalVideo && !hasScreenShare
@@ -79,9 +79,9 @@ const LayoutEngine = () => {
     if (!isOpen || isGeneralMediaOff) {
       cameraDockBounds.width = mediaAreaBounds.width;
       cameraDockBounds.maxWidth = mediaAreaBounds.width;
-      cameraDockBounds.height = mediaAreaBounds.height - bannerAreaHeight();
+      cameraDockBounds.height = mediaAreaBounds.height;
       cameraDockBounds.maxHeight = mediaAreaBounds.height;
-      cameraDockBounds.top = navBarHeight + bannerAreaHeight();
+      cameraDockBounds.top = mediaAreaBounds.top;
       cameraDockBounds.left = !isRTL ? mediaAreaBounds.left : 0;
       cameraDockBounds.right = isRTL ? sidebarSize : null;
     }
@@ -296,7 +296,7 @@ const LayoutEngine = () => {
     };
   };
 
-  const calculatesMediaAreaBounds = (sidebarNavWidth, sidebarContentWidth) => {
+  const calculatesMediaAreaBounds = (sidebarNavWidth, sidebarContentWidth, margin = 0) => {
     const { height: actionBarHeight } = calculatesActionbarHeight();
     const navBarHeight = calculatesNavbarHeight();
 
@@ -310,10 +310,10 @@ const LayoutEngine = () => {
     }
 
     return {
-      width,
-      height: windowHeight() - (navBarHeight + actionBarHeight + bannerAreaHeight()),
-      top: navBarHeight + bannerAreaHeight(),
-      left,
+      width: width - (2 * margin),
+      height: windowHeight() - (navBarHeight + actionBarHeight + bannerAreaHeight() + (2 * margin)),
+      top: navBarHeight + bannerAreaHeight() + margin,
+      left: left + margin,
     };
   };
 
@@ -358,6 +358,9 @@ const LayoutEngine = () => {
     case LAYOUT_TYPE.PARTICIPANTS_AND_CHAT_ONLY:
       layout?.setAttribute('data-layout', LAYOUT_TYPE.PARTICIPANTS_AND_CHAT_ONLY);
       return <ParticipantsAndChatOnlyLayout {...common} />;
+    case LAYOUT_TYPE.MEDIA_ONLY:
+      layout?.setAttribute('data-layout', LAYOUT_TYPE.MEDIA_ONLY);
+      return <MediaOnlyLayout {...common} isPresentationEnabled={isPresentationEnabled} />;
     default:
       layout?.setAttribute('data-layout', LAYOUT_TYPE.CUSTOM_LAYOUT);
       return <CustomLayout {...common} isPresentationEnabled={isPresentationEnabled} />;

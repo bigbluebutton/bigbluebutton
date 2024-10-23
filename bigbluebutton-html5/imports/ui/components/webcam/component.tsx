@@ -21,6 +21,7 @@ import useDeduplicatedSubscription from '/imports/ui/core/hooks/useDeduplicatedS
 import { useStorageKey } from '/imports/ui/services/storage/hooks';
 import useSettings from '../../services/settings/hooks/useSettings';
 import { SETTINGS } from '../../services/settings/enums';
+import { INITIAL_INPUT_STATE } from '../layout/initState';
 
 interface WebcamComponentProps {
   cameraDock: Output['cameraDock'];
@@ -107,7 +108,7 @@ const WebcamComponent: React.FC<WebcamComponentProps> = ({
   const handleVideoFocus = (id: string) => {
     layoutContextDispatch({
       type: ACTIONS.SET_FOCUSED_CAMERA_ID,
-      value: focusedId !== id ? id : false,
+      value: focusedId !== id ? id : INITIAL_INPUT_STATE.cameraDock.focusedId,
     });
   };
 
