@@ -30,15 +30,15 @@ public class PageExtractorImp implements PageExtractor {
 
   private static final String SPACE = " ";
 
-  private long extractTimeout = 10000; // 10sec
+  private long extractTimeoutInMs = 10000; // 10sec
 
   public boolean extractPage(File presentationFile, File output, int page) {
     String COMMAND = "pdfseparate -f " + page + " -l " + page + SPACE
         + presentationFile.getAbsolutePath() + SPACE + output.getAbsolutePath();
-    return new ExternalProcessExecutor().exec(COMMAND, extractTimeout);
+    return new ExternalProcessExecutor().exec(COMMAND, extractTimeoutInMs);
   }
 
-  public void setExtractTimeout(long extractTimeout) {
-    this.extractTimeout = extractTimeout;
+  public void setExtractTimeoutInMs(long extractTimeoutInMs) {
+    this.extractTimeoutInMs = extractTimeoutInMs;
   }
 }

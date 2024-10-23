@@ -41,7 +41,7 @@ public class PresentationUrlDownloadService {
     private String defaultUploadedPresentation;
     private List<String> insertDocumentSupportedProtocols;
     private List<String> insertDocumentBlockedHosts;
-    private int presDownloadReadTimeout = 60000;
+    private int presDownloadReadTimeoutInMs = 60000;
 
     private ScheduledExecutorService scheduledThreadPool = Executors.newScheduledThreadPool(3);
 
@@ -195,7 +195,7 @@ public class PresentationUrlDownloadService {
         HttpURLConnection conn;
         try {
             conn = (HttpURLConnection) presUrl.openConnection();
-            conn.setReadTimeout(presDownloadReadTimeout);
+            conn.setReadTimeout(presDownloadReadTimeoutInMs);
             conn.addRequestProperty("Accept-Language", "en-US,en;q=0.8");
             conn.addRequestProperty("User-Agent", "Mozilla");
             conn.setInstanceFollowRedirects(false);
@@ -373,7 +373,7 @@ public class PresentationUrlDownloadService {
         this.insertDocumentBlockedHosts = new ArrayList<>(Arrays.asList(insertDocumentBlockedHosts.split(",")));
     }
 
-    public void setPresDownloadReadTimeout(int presDownloadReadTimeout) {
-        this.presDownloadReadTimeout = presDownloadReadTimeout;
+    public void setPresDownloadReadTimeoutInMs(int presDownloadReadTimeoutInMs) {
+        this.presDownloadReadTimeoutInMs = presDownloadReadTimeoutInMs;
     }
 }
