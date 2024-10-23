@@ -317,6 +317,32 @@ create index "idx_user_pk_reverse" on "user" ("userId", "meetingId");
 CREATE INDEX "idx_user_meetingId" ON "user"("meetingId");
 CREATE INDEX "idx_user_extId" ON "user"("meetingId", "extId");
 
+-- user (on update raiseHand or away: set new time)
+CREATE OR REPLACE FUNCTION update_user_raiseHand_away_time_trigger_func()
+RETURNS TRIGGER AS $$
+BEGIN
+    IF NEW."raiseHand" IS DISTINCT FROM OLD."raiseHand" THEN
+        IF NEW."raiseHand" is false THEN
+            NEW."raiseHandTime" := NULL;
+        ELSE
+            NEW."raiseHandTime" := NOW();
+        END IF;
+    END IF;
+    IF NEW."away" IS DISTINCT FROM OLD."away" THEN
+        IF NEW."away" is false THEN
+            NEW."awayTime" := NULL;
+        ELSE
+            NEW."awayTime" := NOW();
+        END IF;
+    END IF;
+    RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+
+CREATE TRIGGER update_user_raiseHand_away_time_trigger BEFORE UPDATE OF "raiseHand", "away" ON "user"
+    FOR EACH ROW EXECUTE FUNCTION update_user_raiseHand_away_time_trigger_func();
+
+
 --hasDrawPermissionOnCurrentPage is necessary to improve the performance of the order by of userlist
 COMMENT ON COLUMN "user"."hasDrawPermissionOnCurrentPage" IS 'This column is dynamically populated by triggers of tables: user, pres_presentation, pres_page, pres_page_writers';
 COMMENT ON COLUMN "user"."disconnected" IS 'This column is set true when the user closes the window or his with the server is over';
