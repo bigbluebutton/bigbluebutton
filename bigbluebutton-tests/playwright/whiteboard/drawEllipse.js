@@ -24,7 +24,7 @@ class DrawEllipse extends MultiUsers {
     await this.modPage.page.mouse.up();
     await this.modPage.hasElement(e.wbDrawnShape);
 
-    if(CI) {
+    if (!CI) {
       await this.modPage.setHeightWidthViewPortSize();
       await this.userPage.setHeightWidthViewPortSize();
       await expect(modWbLocator).toHaveScreenshot('moderator-ellipse.png');
