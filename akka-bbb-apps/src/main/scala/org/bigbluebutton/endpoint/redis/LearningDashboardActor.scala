@@ -21,6 +21,7 @@ case class Meeting(
   extId: String,
   name:  String,
   downloadSessionDataEnabled: Boolean,
+  other: Map[String, String] = Map(),
   users: Map[String, User] = Map(),
   genericDataTitles: Vector[String],
   polls: Map[String, Poll] = Map(),
@@ -626,7 +627,11 @@ class LearningDashboardActor(
         msg.body.props.meetingProp.extId,
         msg.body.props.meetingProp.name,
         downloadSessionDataEnabled = !msg.body.props.meetingProp.disabledFeatures.contains("learningDashboardDownloadSessionData"),
-        genericDataTitles = Vector()
+        genericDataTitles = Vector(),
+        other = Map(
+          "learning-dashboard-learn-more-link"  -> msg.body.props.metadataProp.metadata.get("learning-dashboard-learn-more-link").getOrElse(""),
+          "learning-dashboard-feedback-link" -> msg.body.props.metadataProp.metadata.get("learning-dashboard-feedback-link").getOrElse("")
+        ),
       )
 
       meetings += (newMeeting.intId -> newMeeting)
