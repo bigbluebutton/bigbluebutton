@@ -101,7 +101,13 @@ const LayoutObserver: React.FC = () => {
 
     layoutContextDispatch({
       type: ACTIONS.SET_HAS_ACTIONBAR,
-      value: !getFromUserSettings('bbb_hide_actions_bar', false),
+      value: !(getFromUserSettings('bbb_hide_actions_bar', false)
+        || getFromUserSettings('bbb_hide_controls', false)),
+    });
+
+    layoutContextDispatch({
+      type: ACTIONS.SET_HIDE_NAVBAR_TOP_ROW,
+      value: getFromUserSettings('bbb_hide_controls', false),
     });
 
     layoutContextDispatch({

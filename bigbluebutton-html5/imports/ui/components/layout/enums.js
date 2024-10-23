@@ -56,6 +56,7 @@ export const ACTIONS = {
   SET_HIDE_NOTIFICATION_TOASTS: 'setHideNotificationToasts',
 
   SET_HAS_NAVBAR: 'setHasNavBar',
+  SET_HIDE_NAVBAR_TOP_ROW: 'setHideNavBarTopRow',
   SET_NAVBAR_OUTPUT: 'setNavBarOutput',
 
   SET_HAS_ACTIONBAR: 'setHasActionBar',

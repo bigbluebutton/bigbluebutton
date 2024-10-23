@@ -242,6 +242,23 @@ const reducer = (state, action) => {
       };
     }
 
+    case ACTIONS.SET_HIDE_NAVBAR_TOP_ROW: {
+      const { navBar } = state.output;
+      if (navBar.hideTopRow === action.value) {
+        return state;
+      }
+      return {
+        ...state,
+        output: {
+          ...state.output,
+          navBar: {
+            ...navBar,
+            hideTopRow: action.value,
+          },
+        },
+      };
+    }
+
     case ACTIONS.SET_NAVBAR_OUTPUT: {
       const {
         display, width, height, top, left, tabOrder, zIndex,
