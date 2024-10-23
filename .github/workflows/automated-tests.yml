@@ -280,6 +280,7 @@ jobs:
 
             # Run the command with timeout and handle its exit code
             # Capture both stdout and stderr
+            COMMAND_EXIT_CODE=0
             timeout $TIMEOUT $COMMAND || COMMAND_EXIT_CODE=$?
 
             if [[ $COMMAND_EXIT_CODE -eq 0 ]]; then
