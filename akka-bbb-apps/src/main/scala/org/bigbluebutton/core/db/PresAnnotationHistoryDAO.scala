@@ -24,24 +24,8 @@ class PresAnnotationHistoryDbTableDef(tag: Tag) extends Table[PresAnnotationHist
 
 object PresAnnotationHistoryDAO {
 
-  def delete(wbId: String, meetingId: String, userId: String, annotationId: String, annotationUpdatedAt: Long) = {
-    DatabaseConnection.enqueue(
-      TableQuery[PresAnnotationHistoryDbTableDef].forceInsert(
-        PresAnnotationHistoryDbModel(
-          //          None,
-          annotationId = annotationId,
-          pageId = wbId,
-          meetingId = meetingId,
-          userId = userId,
-          annotationInfo = "",
-          updatedAt = new java.sql.Timestamp(annotationUpdatedAt)
-        )
-      )
-    )
-  }
-
-  def prepareInsertOrUpdate(meetingId: String, annotation: AnnotationVO, annotationUpdatedAt: Long) = {
-    TableQuery[PresAnnotationHistoryDbTableDef].forceInsert(
+  def insertOrUpdateMap(meetingId: String, annotations: Array[AnnotationVO], annotationUpdatedAt: Long) = {
+    val dbModels = annotations.map { annotation =>
       PresAnnotationHistoryDbModel(
         annotationId = annotation.id,
         pageId = annotation.wbId,
@@ -50,21 +34,14 @@ object PresAnnotationHistoryDAO {
         annotationInfo = JsonUtils.mapToJson(annotation.annotationInfo).compactPrint,
         updatedAt = new java.sql.Timestamp(annotationUpdatedAt)
       )
-    )
-  }
-
-  def insertOrUpdateMap(meetingId: String, annotations: Array[AnnotationVO], annotationUpdatedAt: Long) = {
+    }
     DatabaseConnection.enqueue(
-      DBIO.sequence(
-        annotations.map { annotation =>
-          prepareInsertOrUpdate(meetingId, annotation, annotationUpdatedAt)
-        }.toVector
-      ).transactionally
+      TableQuery[PresAnnotationHistoryDbTableDef] ++= dbModels
     )
   }
 
-  def prepareDelete(meetingId: String, pageId: String, annotationId: String, userId: String, annotationUpdatedAt: Long) = {
-    TableQuery[PresAnnotationHistoryDbTableDef].forceInsert(
+  def deleteAnnotations(meetingId: String, pageId: String, userId: String, annotations: Array[String], annotationUpdatedAt: Long) = {
+    val dbModels = annotations.map { annotationId =>
       PresAnnotationHistoryDbModel(
         annotationId = annotationId,
         pageId = pageId,
@@ -73,16 +50,11 @@ object PresAnnotationHistoryDAO {
         annotationInfo = "",
         updatedAt = new java.sql.Timestamp(annotationUpdatedAt)
       )
-    )
-  }
+    }
 
-  def deleteAnnotations(meetingId: String, pageId: String, userId: String, annotations: Array[String], annotationUpdatedAt: Long) = {
     DatabaseConnection.enqueue(
-      DBIO.sequence(
-        annotations.map { annotationId =>
-          prepareDelete(meetingId, pageId, annotationId, userId, annotationUpdatedAt)
-        }.toVector
-      ).transactionally
+      TableQuery[PresAnnotationHistoryDbTableDef] ++= dbModels
     )
+
   }
 }

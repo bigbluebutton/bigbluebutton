@@ -23,28 +23,23 @@ class PresAnnotationDbTableDef(tag: Tag) extends Table[PresAnnotationDbModel](ta
 }
 
 object PresAnnotationDAO {
-
-  def prepareInsertOrUpdate(meetingId: String, annotation: AnnotationVO, annotationUpdatedAt: Long) = {
-    TableQuery[PresAnnotationDbTableDef].insertOrUpdate(
-      PresAnnotationDbModel(
-        annotationId = annotation.id,
-        pageId = annotation.wbId,
-        meetingId = meetingId,
-        userId = annotation.userId,
-        annotationInfo = JsonUtils.mapToJson(annotation.annotationInfo).compactPrint,
-        lastUpdatedAt = new java.sql.Timestamp(annotationUpdatedAt)
-      )
-    )
-  }
-
   def insertOrUpdateMap(meetingId: String, annotations: Array[AnnotationVO], annotationUpdatedAt: Long) = {
-    DatabaseConnection.enqueue(
-      DBIO.sequence(
-        annotations.map { annotation =>
-          prepareInsertOrUpdate(meetingId, annotation, annotationUpdatedAt)
-        }.toVector
-      ).transactionally
-    )
+    for {
+      annotation <- annotations
+    } yield {
+      DatabaseConnection.enqueue(
+        TableQuery[PresAnnotationDbTableDef].insertOrUpdate(
+          PresAnnotationDbModel(
+            annotationId = annotation.id,
+            pageId = annotation.wbId,
+            meetingId = meetingId,
+            userId = annotation.userId,
+            annotationInfo = JsonUtils.mapToJson(annotation.annotationInfo).compactPrint,
+            lastUpdatedAt = new java.sql.Timestamp(annotationUpdatedAt)
+          )
+        )
+      )
+    }
   }
 
   def deleteAnnotations(meetingId: String, userId: String, annotationIds: Array[String], annotationUpdatedAt: Long) = {
