@@ -298,9 +298,9 @@ jobs:
             killall apt-get
             killall dpkg
             # Remove the lock files that may have been left behind
-            rm /var/lib/dpkg/lock-frontend
-            rm /var/lib/dpkg/lock
-            rm /var/cache/apt/archives/lock
+            rm -f /var/lib/dpkg/lock-frontend
+            rm -f /var/lib/dpkg/lock
+            rm -f /var/cache/apt/archives/lock
             # Reconfigure the package manager
             dpkg --configure -a
             # Clean up any partially installed packages
