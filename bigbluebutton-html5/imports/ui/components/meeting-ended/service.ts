@@ -83,7 +83,7 @@ export const setLearningDashboardCookie = (accessToken: string, mId: string, lea
 
     // In a cluster setup it will be necessary to specify the root domain
     // because the Dashboard might be in a different subdomain
-    if (learningDashboardBase.startsWith('http')) {
+    if (learningDashboardBase && learningDashboardBase.startsWith('http')) {
       const commonDomain = findCommonDomain(learningDashboardBase, window.location.href);
       if (commonDomain !== '') {
         cookieString += `;domain=${commonDomain}`;
