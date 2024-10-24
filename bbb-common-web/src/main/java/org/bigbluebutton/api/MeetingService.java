@@ -464,15 +464,29 @@ public class MeetingService implements MessageListener {
     }
     return urlContents;
   }
+  public synchronized boolean createMeeting(Meeting m, Map<String, Object> plugins) {
+    return createMeetingInternal(m, plugins);
+  }
+
   public synchronized boolean createMeeting(Meeting m) {
+    return createMeetingInternal(m, null);
+  }
+
+  private boolean createMeetingInternal(Meeting m, Map<String, Object> plugins) {
     String internalMeetingId = paramsProcessorUtil.convertToInternalMeetingId(m.getExternalId());
     Meeting existingId = getNotEndedMeetingWithId(internalMeetingId);
     Meeting existingTelVoice = getNotEndedMeetingWithTelVoice(m.getTelVoice());
     Meeting existingWebVoice = getNotEndedMeetingWithWebVoice(m.getWebVoice());
     if (existingId == null && existingTelVoice == null && existingWebVoice == null) {
       meetings.put(m.getInternalId(), m);
-      Map<String, Object> requestedManifests = requestPluginManifests(m);
-      m.setPlugins(requestedManifests);
+      Map<String, Object> pluginsMap;
+      if (m.isBreakout()) {
+        pluginsMap = plugins;
+      } else {
+        pluginsMap = requestPluginManifests(m);
+      }
+
+      m.setPlugins(pluginsMap);
       handle(new CreateMeeting(m));
       return true;
     }
@@ -808,7 +822,7 @@ public class MeetingService implements MessageListener {
 
       Meeting breakout = paramsProcessorUtil.processCreateParams(params);
 
-      createMeeting(breakout);
+      createMeeting(breakout, message.pluginProp);
 
       presDownloadService.extractPresentationPage(message.parentMeetingId,
         message.sourcePresentationId,

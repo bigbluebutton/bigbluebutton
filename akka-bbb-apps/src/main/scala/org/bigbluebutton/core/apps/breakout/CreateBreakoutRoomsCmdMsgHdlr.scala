@@ -99,6 +99,7 @@ trait CreateBreakoutRoomsCmdMsgHdlr extends RightsManagementTrait {
         breakout.captureSlides,
         breakout.captureNotesFilename,
         breakout.captureSlidesFilename,
+        pluginProp = liveMeeting.props.pluginProp,
       )
 
       val event = buildCreateBreakoutRoomSysCmdMsg(liveMeeting.props.meetingProp.intId, roomDetail)
