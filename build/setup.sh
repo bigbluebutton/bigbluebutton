@@ -62,7 +62,7 @@ while [[ $retry_count -lt $max_retries ]]; do
         break
     else
         echo "Failed to pull Docker image, attempt $((retry_count+1))/$max_retries."
-        ((retry_count++))
+        retry_count=$((retry_count+1))
         if [[ $retry_count -lt $max_retries ]]; then
             echo "Waiting for $retry_wait seconds before retrying..."
             sleep $retry_wait
