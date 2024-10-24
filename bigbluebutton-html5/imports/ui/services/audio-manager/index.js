@@ -425,7 +425,7 @@ class AudioManager {
         && !this.shouldBypassGUM()
         && !callOptions.isListenOnly) {
         const constraints = getAudioConstraints({ deviceId: this?.bridge?.inputDeviceId });
-        this.inputStream = await doGUM({ audio: constraints });
+        this.inputStream = await doGUM({ audio: constraints }, true);
         // eslint-disable-next-line no-param-reassign
         callOptions.inputStream = this.inputStream;
       }
