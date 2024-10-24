@@ -28,16 +28,17 @@ object PresAnnotationDAO {
       annotation <- annotations
     } yield {
       DatabaseConnection.enqueue(
-        TableQuery[PresAnnotationDbTableDef].insertOrUpdate(
-          PresAnnotationDbModel(
-            annotationId = annotation.id,
-            pageId = annotation.wbId,
-            meetingId = meetingId,
-            userId = annotation.userId,
-            annotationInfo = JsonUtils.mapToJson(annotation.annotationInfo).compactPrint,
-            lastUpdatedAt = new java.sql.Timestamp(annotationUpdatedAt)
-          )
-        )
+        sqlu"""
+          WITH upsert AS (
+            UPDATE pres_annotation
+            SET "annotationInfo"=${JsonUtils.mapToJson(annotation.annotationInfo).compactPrint},
+            "lastUpdatedAt" = ${new java.sql.Timestamp(annotationUpdatedAt)}
+            WHERE "annotationId" = ${annotation.id}
+            RETURNING *)
+          INSERT INTO pres_annotation ("annotationId", "pageId", "meetingId", "userId", "annotationInfo", "lastUpdatedAt")
+          SELECT ${annotation.id}, ${annotation.wbId}, ${meetingId}, ${annotation.userId},
+          ${JsonUtils.mapToJson(annotation.annotationInfo).compactPrint}, ${new java.sql.Timestamp(annotationUpdatedAt)}
+          WHERE NOT EXISTS (SELECT * FROM upsert)"""
       )
     }
   }
