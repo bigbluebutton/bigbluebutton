@@ -102,7 +102,7 @@ class ErrorBoundary extends Component {
     const { children, Fallback, errorMessage } = this.props;
 
     const fallbackElement = Fallback && error
-      ? <Fallback error={error || {}} errorInfo={errorInfo} /> : <div>{errorMessage}</div>;
+      ? <Fallback error={error || {}} /> : <div>{errorMessage}</div>;
     return (error
       ? fallbackElement
       : children);

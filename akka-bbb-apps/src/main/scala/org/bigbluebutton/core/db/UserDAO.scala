@@ -18,6 +18,7 @@ case class UserDbModel(
     joinErrorCode:          Option[String],
     banned:                 Boolean = false,
     loggedOut:              Boolean = false,
+    bot:                    Boolean,
     guest:                  Boolean,
     guestStatus:            String,
     registeredOn:           Long,
@@ -30,7 +31,7 @@ case class UserDbModel(
 class UserDbTableDef(tag: Tag) extends Table[UserDbModel](tag, None, "user") {
   override def * = (
     meetingId,userId,extId,name,role,avatar,webcamBackground,color, authToken, authed,joined,joinErrorCode,
-    joinErrorMessage, banned,loggedOut,guest,guestStatus,registeredOn,excludeFromDashboard, enforceLayout) <> (UserDbModel.tupled, UserDbModel.unapply)
+    joinErrorMessage, banned,loggedOut,bot, guest,guestStatus,registeredOn,excludeFromDashboard, enforceLayout) <> (UserDbModel.tupled, UserDbModel.unapply)
   val meetingId = column[String]("meetingId", O.PrimaryKey)
   val userId = column[String]("userId", O.PrimaryKey)
   val extId = column[String]("extId")
@@ -46,6 +47,7 @@ class UserDbTableDef(tag: Tag) extends Table[UserDbModel](tag, None, "user") {
   val joinErrorMessage = column[Option[String]]("joinErrorMessage")
   val banned = column[Boolean]("banned")
   val loggedOut = column[Boolean]("loggedOut")
+  val bot = column[Boolean]("bot")
   val guest = column[Boolean]("guest")
   val guestStatus = column[String]("guestStatus")
   val registeredOn = column[Long]("registeredOn")
@@ -73,6 +75,7 @@ object UserDAO {
           joinErrorMessage = None,
           banned = regUser.banned,
           loggedOut = regUser.loggedOut,
+          bot = regUser.bot,
           guest = regUser.guest,
           guestStatus = regUser.guestStatus,
           registeredOn = regUser.registeredOn,

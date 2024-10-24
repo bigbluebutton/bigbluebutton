@@ -277,6 +277,7 @@ CREATE TABLE "user" (
     "joinErrorMessage" varchar(400),
     "banned" bool,
     "loggedOut" bool,  -- when user clicked Leave meeting button
+    "bot" bool, -- used to flag au
     "guest" bool, --used for dialIn
     "guestStatus" varchar(50),
     "registeredOn" bigint,
@@ -315,6 +316,32 @@ CREATE TABLE "user" (
 create index "idx_user_pk_reverse" on "user" ("userId", "meetingId");
 CREATE INDEX "idx_user_meetingId" ON "user"("meetingId");
 CREATE INDEX "idx_user_extId" ON "user"("meetingId", "extId");
+
+-- user (on update raiseHand or away: set new time)
+CREATE OR REPLACE FUNCTION update_user_raiseHand_away_time_trigger_func()
+RETURNS TRIGGER AS $$
+BEGIN
+    IF NEW."raiseHand" IS DISTINCT FROM OLD."raiseHand" THEN
+        IF NEW."raiseHand" is false THEN
+            NEW."raiseHandTime" := NULL;
+        ELSE
+            NEW."raiseHandTime" := NOW();
+        END IF;
+    END IF;
+    IF NEW."away" IS DISTINCT FROM OLD."away" THEN
+        IF NEW."away" is false THEN
+            NEW."awayTime" := NULL;
+        ELSE
+            NEW."awayTime" := NOW();
+        END IF;
+    END IF;
+    RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+
+CREATE TRIGGER update_user_raiseHand_away_time_trigger BEFORE UPDATE OF "raiseHand", "away" ON "user"
+    FOR EACH ROW EXECUTE FUNCTION update_user_raiseHand_away_time_trigger_func();
+
 
 --hasDrawPermissionOnCurrentPage is necessary to improve the performance of the order by of userlist
 COMMENT ON COLUMN "user"."hasDrawPermissionOnCurrentPage" IS 'This column is dynamically populated by triggers of tables: user, pres_presentation, pres_page, pres_page_writers';
@@ -382,6 +409,7 @@ AS SELECT "user"."userId",
     "user"."raiseHandTime",
     "user"."reactionEmoji",
     "user"."reactionEmojiTime",
+    "user"."bot",
     "user"."guest",
     "user"."guestStatus",
     "user"."mobile",
@@ -1174,6 +1202,7 @@ CREATE TABLE "chat_message_reaction" (
 	"messageId" varchar(100) REFERENCES "chat_message"("messageId") ON DELETE CASCADE,
 	"userId" varchar(100) not null,
 	"reactionEmoji" varchar(25),
+    "reactionEmojiId" varchar(50),
 	"createdAt" timestamp with time zone,
     CONSTRAINT chat_message_reaction_pk PRIMARY KEY ("messageId", "userId", "reactionEmoji"),
     FOREIGN KEY ("meetingId", "userId") REFERENCES "user"("meetingId","userId") ON DELETE CASCADE
@@ -1595,6 +1624,7 @@ FROM poll
 JOIN v_user u ON u."meetingId" = poll."meetingId" AND "isDialIn" IS FALSE AND presenter IS FALSE
 LEFT JOIN poll_response r ON r."pollId" = poll."pollId" AND r."userId" = u."userId"
 LEFT JOIN poll_option o ON o."pollId" = r."pollId" AND o."optionId" = r."optionId"
+WHERE u."bot" IS FALSE
 GROUP BY poll."pollId", u."meetingId", u."userId";
 
 CREATE VIEW "v_poll" AS SELECT * FROM "poll";

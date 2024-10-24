@@ -28,7 +28,7 @@ export interface Message {
       name: string;
     } | null;
     messageSequence: number;
-    message: string;
+    message: string | null;
     chatEmphasizedText: boolean;
     user: {
       name: string;
@@ -38,6 +38,7 @@ export interface Message {
   reactions: {
     createdAt: string;
     reactionEmoji: string;
+    reactionEmojiId: string;
     user: {
       name: string;
       userId: string;

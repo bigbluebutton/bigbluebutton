@@ -1,9 +1,9 @@
-/* eslint-disable @typescript-eslint/ban-ts-comment */
 import React, {
   useCallback,
   useEffect,
   useState,
   useMemo,
+  KeyboardEventHandler,
 } from 'react';
 import { makeVar, useMutation } from '@apollo/client';
 import { defineMessages, useIntl } from 'react-intl';
@@ -26,6 +26,8 @@ import {
 import useReactiveRef from '/imports/ui/hooks/useReactiveRef';
 import useStickyScroll from '/imports/ui/hooks/useStickyScroll';
 import ChatReplyIntention from '../chat-reply-intention/component';
+import ChatEditingWarning from '../chat-editing-warning/component';
+import KEY_CODES from '/imports/utils/keyCodes';
 
 const PAGE_SIZE = 50;
 
@@ -104,6 +106,60 @@ const dispatchLastSeen = () => setTimeout(() => {
   }
 }, 500);
 
+const roving = (
+  event: React.KeyboardEvent<HTMLElement>,
+  changeState: (el: HTMLElement | null) => void,
+  elementsList: HTMLElement,
+  element: HTMLElement | null,
+) => {
+  const numberOfChilds = elementsList.childElementCount;
+
+  if ([KEY_CODES.ESCAPE, KEY_CODES.TAB].includes(event.keyCode)) {
+    changeState(null);
+  }
+
+  if (event.keyCode === KEY_CODES.ARROW_DOWN) {
+    const firstElement = elementsList.firstChild as HTMLElement;
+    let elRef = element && numberOfChilds > 1 ? (element.nextSibling as HTMLElement) : firstElement;
+
+    while (elRef && elRef.dataset.focusable !== 'true' && elRef.nextSibling) {
+      elRef = elRef.nextSibling as HTMLElement;
+    }
+
+    elRef = (elRef && elRef.dataset.focusable === 'true') ? elRef : firstElement;
+    changeState(elRef);
+  }
+
+  if (event.keyCode === KEY_CODES.ARROW_UP) {
+    const lastElement = elementsList.lastChild as HTMLElement;
+    let elRef = element ? (element.previousSibling as HTMLElement) : lastElement;
+
+    while (elRef && elRef.dataset.focusable !== 'true' && elRef.previousSibling) {
+      elRef = elRef.previousSibling as HTMLElement;
+    }
+
+    elRef = (elRef && elRef.dataset.focusable === 'true') ? elRef : lastElement;
+    changeState(elRef);
+  }
+
+  if ([KEY_CODES.SPACE, KEY_CODES.ENTER].includes(event.keyCode)) {
+    const elRef = document.activeElement?.firstChild as HTMLElement;
+    changeState(elRef);
+  }
+
+  if ([KEY_CODES.ARROW_RIGHT].includes(event.keyCode)) {
+    if (element?.dataset) {
+      const { sequence } = element.dataset;
+
+      window.dispatchEvent(new CustomEvent(ChatEvents.CHAT_KEYBOARD_FOCUS_MESSAGE_REQUEST, {
+        detail: {
+          sequence,
+        },
+      }));
+    }
+  }
+};
+
 const ChatMessageList: React.FC<ChatListProps> = ({
   totalPages,
   chatId,
@@ -119,25 +175,27 @@ const ChatMessageList: React.FC<ChatListProps> = ({
     ref: messageListContainerRef,
     current: currentMessageListContainer,
   } = useReactiveRef<HTMLDivElement>(null);
-  const {
-    ref: messageListRef,
-    current: currentMessageList,
-  } = useReactiveRef<HTMLDivElement>(null);
+  const messageListRef = React.useRef<HTMLDivElement>(null);
   const [userLoadedBackUntilPage, setUserLoadedBackUntilPage] = useState<number | null>(null);
   const [lastMessageCreatedAt, setLastMessageCreatedAt] = useState<string>('');
   const [followingTail, setFollowingTail] = React.useState(true);
+  const [selectedMessage, setSelectedMessage] = React.useState<HTMLElement | null>(null);
   const {
     childRefProxy: sentinelRefProxy,
     intersecting: isSentinelVisible,
     parentRefProxy: messageListContainerRefProxy,
   } = useIntersectionObserver(messageListContainerRef, sentinelRef);
   const {
-    startObserving,
-    stopObserving,
-  } = useStickyScroll(currentMessageListContainer, currentMessageList);
+    startObserving: startObservingStickyScroll,
+    stopObserving: stopObservingStickyScroll,
+  } = useStickyScroll(currentMessageListContainer, currentMessageListContainer, 'ne');
 
   useEffect(() => {
-    if (isSentinelVisible) startObserving(); else stopObserving();
+    if (isSentinelVisible) {
+      startObservingStickyScroll();
+    } else {
+      stopObservingStickyScroll();
+    }
     toggleFollowingTail(isSentinelVisible);
   }, [isSentinelVisible]);
 
@@ -259,6 +317,17 @@ const ChatMessageList: React.FC<ChatListProps> = ({
     : Math.max(totalPages - 2, 0);
   const pagesToLoad = (totalPages - firstPageToLoad) || 1;
 
+  const rove: KeyboardEventHandler<HTMLElement> = (e) => {
+    if (messageListRef.current) {
+      roving(
+        e,
+        setSelectedMessage,
+        messageListRef.current,
+        selectedMessage,
+      );
+    }
+  };
+
   return (
     <>
       {
@@ -276,7 +345,15 @@ const ChatMessageList: React.FC<ChatListProps> = ({
             isRTL={isRTL}
             ref={messageListContainerRefProxy}
           >
-            <div ref={messageListRef}>
+            <div
+              role="listbox"
+              ref={messageListRef}
+              tabIndex={0}
+              onKeyDown={rove}
+              onBlur={() => {
+                setSelectedMessage(null);
+              }}
+            >
               {userLoadedBackUntilPage ? (
                 <ButtonLoadMore
                   onClick={() => {
@@ -293,6 +370,7 @@ const ChatMessageList: React.FC<ChatListProps> = ({
               {Array.from({ length: pagesToLoad }, (_v, k) => k + (firstPageToLoad)).map((page) => {
                 return (
                   <ChatListPage
+                    firstPageToLoad={firstPageToLoad}
                     key={`page-${page}`}
                     page={page}
                     pageSize={PAGE_SIZE}
@@ -301,6 +379,9 @@ const ChatMessageList: React.FC<ChatListProps> = ({
                     chatId={chatId}
                     markMessageAsSeen={markMessageAsSeen}
                     scrollRef={messageListContainerRefProxy}
+                    focusedId={selectedMessage?.dataset.sequence
+                      ? Number.parseInt(selectedMessage?.dataset.sequence, 10)
+                      : null}
                   />
                 );
               })}
@@ -311,10 +392,13 @@ const ChatMessageList: React.FC<ChatListProps> = ({
                 height: 1,
                 background: 'none',
               }}
+              tabIndex={-1}
+              aria-hidden
             />
           </MessageList>,
           renderUnreadNotification,
-          <ChatReplyIntention />,
+          <ChatReplyIntention key="chatReplyIntention" />,
+          <ChatEditingWarning key="chatEditingWarning" />,
         ]
       }
     </>
