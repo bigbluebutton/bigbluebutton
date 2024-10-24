@@ -464,15 +464,13 @@ public class MeetingService implements MessageListener {
     }
     return urlContents;
   }
-  public synchronized boolean createMeeting(Meeting m, Map<String, Object> plugins) {
-    return createMeetingInternal(m, plugins);
-  }
 
   public synchronized boolean createMeeting(Meeting m) {
-    return createMeetingInternal(m, null);
+    Map<String, Object> pluginsMap = new HashMap<>();
+    return createMeeting(m, pluginsMap);
   }
 
-  private boolean createMeetingInternal(Meeting m, Map<String, Object> plugins) {
+  public synchronized boolean createMeeting(Meeting m, Map<String, Object> plugins) {
     String internalMeetingId = paramsProcessorUtil.convertToInternalMeetingId(m.getExternalId());
     Meeting existingId = getNotEndedMeetingWithId(internalMeetingId);
     Meeting existingTelVoice = getNotEndedMeetingWithTelVoice(m.getTelVoice());
