@@ -28,6 +28,15 @@ import useStickyScroll from '/imports/ui/hooks/useStickyScroll';
 import ChatReplyIntention from '../chat-reply-intention/component';
 import ChatEditingWarning from '../chat-editing-warning/component';
 import KEY_CODES from '/imports/utils/keyCodes';
+import useMeeting from '/imports/ui/core/hooks/useMeeting';
+import useCurrentUser from '/imports/ui/core/hooks/useCurrentUser';
+import {
+  useIsReplyChatMessageEnabled,
+  useIsChatMessageReactionsEnabled,
+  useIsEditChatMessageEnabled,
+  useIsDeleteChatMessageEnabled,
+} from '/imports/ui/services/features';
+import { CHAT_DELETE_REACTION_MUTATION, CHAT_SEND_REACTION_MUTATION } from './page/chat-message/mutations';
 
 const PAGE_SIZE = 50;
 
@@ -189,6 +198,50 @@ const ChatMessageList: React.FC<ChatListProps> = ({
     startObserving: startObservingStickyScroll,
     stopObserving: stopObservingStickyScroll,
   } = useStickyScroll(currentMessageListContainer, currentMessageListContainer, 'ne');
+  const { data: meeting } = useMeeting((m) => ({
+    lockSettings: m?.lockSettings,
+  }));
+  const { data: currentUser } = useCurrentUser((c) => ({
+    isModerator: c?.isModerator,
+    userLockSettings: c?.userLockSettings,
+    locked: c?.locked,
+    userId: c.userId,
+  }));
+  const CHAT_REPLY_ENABLED = useIsReplyChatMessageEnabled();
+  const CHAT_REACTIONS_ENABLED = useIsChatMessageReactionsEnabled();
+  const CHAT_EDIT_ENABLED = useIsEditChatMessageEnabled();
+  const CHAT_DELETE_ENABLED = useIsDeleteChatMessageEnabled();
+  const messageToolbarIsEnabled = [
+    CHAT_REPLY_ENABLED,
+    CHAT_REACTIONS_ENABLED,
+    CHAT_EDIT_ENABLED,
+    CHAT_DELETE_ENABLED,
+  ].some((config) => config);
+
+  const [chatSendReaction] = useMutation(CHAT_SEND_REACTION_MUTATION);
+  const [chatDeleteReaction] = useMutation(CHAT_DELETE_REACTION_MUTATION);
+
+  const sendReaction = (reactionEmoji: string, reactionEmojiId: string, chatId: string, messageId: string) => {
+    chatSendReaction({
+      variables: {
+        chatId,
+        messageId,
+        reactionEmoji,
+        reactionEmojiId,
+      },
+    });
+  };
+
+  const deleteReaction = (reactionEmoji: string, reactionEmojiId: string, chatId: string, messageId: string) => {
+    chatDeleteReaction({
+      variables: {
+        chatId,
+        messageId,
+        reactionEmoji,
+        reactionEmojiId,
+      },
+    });
+  };
 
   useEffect(() => {
     if (isSentinelVisible) {
@@ -382,6 +435,19 @@ const ChatMessageList: React.FC<ChatListProps> = ({
                     focusedId={selectedMessage?.dataset.sequence
                       ? Number.parseInt(selectedMessage?.dataset.sequence, 10)
                       : null}
+                    meetingDisablePublicChat={!!meeting?.lockSettings?.disablePublicChat}
+                    meetingDisablePrivateChat={!!meeting?.lockSettings?.disablePrivateChat}
+                    currentUserDisablePublicChat={!!currentUser?.userLockSettings?.disablePublicChat}
+                    currentUserId={currentUser?.userId ?? ''}
+                    currentUserIsLocked={!!currentUser?.locked}
+                    currentUserIsModerator={!!currentUser?.isModerator}
+                    messageToolbarIsEnabled={messageToolbarIsEnabled}
+                    chatDeleteEnabled={CHAT_DELETE_ENABLED}
+                    chatEditEnabled={CHAT_EDIT_ENABLED}
+                    chatReactionsEnabled={CHAT_REACTIONS_ENABLED}
+                    chatReplyEnabled={CHAT_REPLY_ENABLED}
+                    deleteReaction={deleteReaction}
+                    sendReaction={sendReaction}
                   />
                 );
               })}
