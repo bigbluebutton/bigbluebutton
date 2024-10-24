@@ -439,6 +439,7 @@ class AudioManager {
 
       await this.bridge.joinAudio(callOptions, callStateCallback.bind(this));
     } catch (error) {
+      this.error = !!error;
       // Reset audio join time tracking if an error occurs
       this.audioJoinStartTime = null;
       this.logAudioJoinTime = false;
@@ -452,43 +453,27 @@ class AudioManager {
       switch (name) {
         case 'NotAllowedError':
           errorPayload.errCode = AudioErrors.MIC_ERROR.NO_PERMISSION;
-          logger.error({
-            logCode: 'audiomanager_error_getting_device',
-            extraInfo: {
-              errorName: error.name,
-              errorMessage: error.message,
-            },
-          }, `Error getting microphone - {${error.name}: ${error.message}}`);
-          break;
         case 'NotFoundError':
           errorPayload.errCode = AudioErrors.MIC_ERROR.DEVICE_NOT_FOUND;
-          logger.error({
-            logCode: 'audiomanager_error_device_not_found',
-            extraInfo: {
-              errorName: error.name,
-              errorMessage: error.message,
-              inputDeviceId: this.inputDeviceId,
-              inputDevices: this.inputDevicesJSON,
-            },
-          }, `Error getting microphone - {${error.name}: ${error.message}}`);
           // Reset the input device ID so the user can select a new one
           this.changeInputDevice(null);
           break;
         default:
-          logger.error({
-            logCode: 'audiomanager_error_unknown',
-            extraInfo: {
-              errorName: error.name,
-              errorMessage: error.message,
-              errorStack: error?.stack,
-              inputDeviceId: this.inputDeviceId,
-              inputDevices: this.inputDevicesJSON,
-              outputDeviceId: this.outputDeviceId,
-              outputDevices: this.outputDevicesJSON,
-            },
-          }, `Error enabling audio - {${name}: ${message}}`);
           break;
       }
+
+      logger.error({
+        logCode: 'audio_join_failure',
+        extraInfo: {
+          errorName: error.name,
+          errorMessage: error.message,
+          errorStack: error?.stack,
+          inputDeviceId: this.inputDeviceId,
+          inputDevices: this.inputDevicesJSON,
+          outputDeviceId: this.outputDeviceId,
+          outputDevices: this.outputDevicesJSON,
+        },
+      }, `Error enabling audio - {${name}: ${message}}`);
 
       this.isConnecting = false;
 
@@ -734,22 +719,19 @@ class AudioManager {
         const errorKey = this.messages.error[error] || this.messages.error.GENERIC_ERROR;
         const errorMsg = this.intl.formatMessage(errorKey, { 0: bridgeError });
         this.error = !!error;
-        logger.error(
-          {
-            logCode: 'audio_failure',
-            extraInfo: {
-              errorCode: error,
-              cause: bridgeError,
-              bridge,
-              inputDeviceId: this.inputDeviceId,
-              inputDevices: this.inputDevicesJSON,
-              outputDeviceId: this.outputDeviceId,
-              outputDevices: this.outputDevicesJSON,
-              isListenOnly: this.isListenOnly,
-            },
+        logger.error({
+          logCode: 'audio_failure',
+          extraInfo: {
+            errorCode: error,
+            cause: bridgeError,
+            bridge,
+            inputDeviceId: this.inputDeviceId,
+            inputDevices: this.inputDevicesJSON,
+            outputDeviceId: this.outputDeviceId,
+            outputDevices: this.outputDevicesJSON,
+            isListenOnly: this.isListenOnly,
           },
-          `Audio error - errorCode=${error}, cause=${bridgeError}`
-        );
+        }, `Audio error - errorCode=${error}, cause=${bridgeError}`);
         if (silenceNotifications !== true) {
           this.notify(errorMsg, true);
           this.exitAudio();
@@ -761,8 +743,19 @@ class AudioManager {
           breakoutMeetingId: '',
           status: BREAKOUT_AUDIO_TRANSFER_STATES.DISCONNECTED,
         });
-        logger.info({ logCode: 'audio_reconnecting' }, 'Attempting to reconnect audio');
-        this.notify(this.intl.formatMessage(this.messages.info.RECONNECTING_AUDIO), true);
+        logger.info({
+          logCode: 'audio_reconnecting',
+          extraInfo: {
+            bridge,
+            inputDeviceId: this.inputDeviceId,
+            outputDeviceId: this.outputDeviceId,
+            isListenOnly: this.isListenOnly,
+          },
+        }, 'Attempting to reconnect audio');
+        this.notify(
+          this.intl.formatMessage(this.messages.info.RECONNECTING_AUDIO),
+          true,
+        );
         this.playHangUpSound();
       } else if (status === AUTOPLAY_BLOCKED) {
         this.setBreakoutAudioTransferStatus({
