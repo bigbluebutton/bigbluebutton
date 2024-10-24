@@ -24,6 +24,43 @@ export const MeetingEndedTable = {
   ENDED_DUE_TO_SERVICE_INTERRUPTION: 'ENDED_DUE_TO_SERVICE_INTERRUPTION',
 };
 
+const findCommonDomain = (url1: string, url2: string): string => {
+  // Helper function to extract domain parts in reverse order
+  const getDomainParts = (url: string): string[] => {
+    try {
+      const { hostname } = new URL(url);
+      return hostname.split('.').reverse();
+    } catch (e) {
+      throw new Error(`Invalid URL format: ${url}`);
+    }
+  };
+
+  try {
+    const domain1Parts: string[] = getDomainParts(url1);
+    const domain2Parts: string[] = getDomainParts(url2);
+
+    // Find common parts starting from the end (TLD)
+    const commonParts: string[] = [];
+    const minLength: number = Math.min(domain1Parts.length, domain2Parts.length);
+
+    for (let i = 0; i < minLength; i += 1) {
+      if (domain1Parts[i] === domain2Parts[i]) {
+        commonParts.push(domain1Parts[i]);
+      } else {
+        break;
+      }
+    }
+
+    // Return the common parts in correct order
+    if (commonParts.length > 0) {
+      return commonParts.reverse().join('.');
+    }
+    return '';
+  } catch (error) {
+    return '';
+  }
+};
+
 export const openLearningDashboardUrl = (
   accessToken: string,
   mId: string,
@@ -57,45 +94,6 @@ export const setLearningDashboardCookie = (accessToken: string, mId: string, lea
   }
   return false;
 };
-
-function findCommonDomain(url1: string, url2: string): string {
-  // Helper function to extract domain parts in reverse order
-  const getDomainParts = (url: string): string[] => {
-    try {
-      const { hostname } = new URL(url);
-      return hostname.split('.').reverse();
-    } catch (e) {
-      throw new Error(`Invalid URL format: ${url}`);
-    }
-  };
-
-  try {
-    const domain1Parts: string[] = getDomainParts(url1);
-    const domain2Parts: string[] = getDomainParts(url2);
-
-    // Find common parts starting from the end (TLD)
-    const commonParts: string[] = [];
-    const minLength: number = Math.min(domain1Parts.length, domain2Parts.length);
-
-    for (let i = 0; i < minLength; i += 1) {
-      if (domain1Parts[i] === domain2Parts[i]) {
-        commonParts.push(domain1Parts[i]);
-      } else {
-        break;
-      }
-    }
-
-    // Return the common parts in correct order
-    if (commonParts.length > 0) {
-      const commonDomain: string = commonParts.reverse().join('.');
-      const domainsAreDifferent: boolean = domain1Parts.join('.') !== domain2Parts.join('.');
-      return domainsAreDifferent ? `.${commonDomain}` : commonDomain;
-    }
-    return '';
-  } catch (error) {
-    return '';
-  }
-}
 
 export default {
   JoinErrorCodeTable,
