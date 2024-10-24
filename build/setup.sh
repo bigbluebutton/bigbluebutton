@@ -57,7 +57,7 @@ max_retries=5
 retry_wait=300  # wait time in seconds (5 minutes)
 
 while [[ $retry_count -lt $max_retries ]]; do
-    if sudo docker pull "$DOCKER_IMAGE"; then
+    if sudo docker pull "$DOCKER_IMAGE" || false; then
         echo "Docker image pulled successfully."
         break
     else
