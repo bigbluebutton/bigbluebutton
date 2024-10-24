@@ -406,7 +406,6 @@ const PresentationMenu = (props) => {
       },
     );
 
-    // const wbMenuRight = getFromUserSettings('bbb_whiteboard_menu_on_right', false);
 
     menuItems.push(
       {
