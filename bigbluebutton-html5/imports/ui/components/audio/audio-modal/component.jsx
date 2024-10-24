@@ -290,6 +290,7 @@ const AudioModal = ({
 
   const handleGUMFailure = (error) => {
     const { MIC_ERROR } = AudioError;
+    let errCode;
 
     logger.error({
       logCode: 'audio_gum_failed',
@@ -299,14 +300,26 @@ const AudioModal = ({
       },
     }, `Audio gUM failed: ${error.name}`);
 
+    switch (error?.name) {
+      case 'NotAllowedError':
+        errCode = MIC_ERROR.NO_PERMISSION;
+        break;
+
+      case 'NotFoundError':
+        errCode = MIC_ERROR.DEVICE_NOT_FOUND;
+        break;
+
+      default:
+        errCode = MIC_ERROR.UNKNOWN;
+        break;
+    }
+
     setContent('help');
     setDisableActions(false);
     setHasError(true);
     setErrorInfo({
-      errCode: error?.name === 'NotAllowedError'
-        ? MIC_ERROR.NO_PERMISSION
-        : 0,
-      errMessage: error?.name || 'NotAllowedError',
+      errCode,
+      errMessage: error?.name || 'getUserMediaError',
     });
   };
 
