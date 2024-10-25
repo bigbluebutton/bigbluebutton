@@ -421,6 +421,11 @@ const ChatMessage = React.forwardRef<ChatMessageRef, ChatMessageProps>(({
     && !sameSender
     && !isCustomPluginMessage;
 
+  const onEmojiSelected = useCallback((emoji: { id: string; native: string }) => {
+    sendReaction(emoji.native, emoji.id, message.chatId, message.messageId);
+    setIsToolbarReactionPopoverOpen(false);
+  }, [message.chatId, message.messageId, sendReaction]);
+
   return (
     <Container
       ref={containerRef}
@@ -449,10 +454,7 @@ const ChatMessage = React.forwardRef<ChatMessageRef, ChatMessageProps>(({
           message={message.message}
           messageSequence={message.messageSequence}
           emphasizedMessage={message.chatEmphasizedText}
-          onEmojiSelected={(emoji) => {
-            sendReaction(emoji.native, emoji.id, message.chatId, message.messageId);
-            setIsToolbarReactionPopoverOpen(false);
-          }}
+          onEmojiSelected={onEmojiSelected}
           onReactionPopoverOpenChange={setIsToolbarReactionPopoverOpen}
           reactionPopoverIsOpen={isToolbarReactionPopoverOpen}
           chatDeleteEnabled={chatDeleteEnabled}
