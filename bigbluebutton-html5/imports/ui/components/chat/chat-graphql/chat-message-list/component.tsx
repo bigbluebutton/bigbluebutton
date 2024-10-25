@@ -221,7 +221,12 @@ const ChatMessageList: React.FC<ChatListProps> = ({
   const [chatSendReaction] = useMutation(CHAT_SEND_REACTION_MUTATION);
   const [chatDeleteReaction] = useMutation(CHAT_DELETE_REACTION_MUTATION);
 
-  const sendReaction = (reactionEmoji: string, reactionEmojiId: string, chatId: string, messageId: string) => {
+  const sendReaction = useCallback((
+    reactionEmoji: string,
+    reactionEmojiId: string,
+    chatId: string,
+    messageId: string,
+  ) => {
     chatSendReaction({
       variables: {
         chatId,
@@ -230,9 +235,14 @@ const ChatMessageList: React.FC<ChatListProps> = ({
         reactionEmojiId,
       },
     });
-  };
+  }, [chatSendReaction]);
 
-  const deleteReaction = (reactionEmoji: string, reactionEmojiId: string, chatId: string, messageId: string) => {
+  const deleteReaction = useCallback((
+    reactionEmoji: string,
+    reactionEmojiId: string,
+    chatId: string,
+    messageId: string,
+  ) => {
     chatDeleteReaction({
       variables: {
         chatId,
@@ -241,7 +251,7 @@ const ChatMessageList: React.FC<ChatListProps> = ({
         reactionEmojiId,
       },
     });
-  };
+  }, [chatDeleteReaction]);
 
   useEffect(() => {
     if (isSentinelVisible) {
