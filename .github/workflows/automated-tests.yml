@@ -255,6 +255,7 @@ jobs:
         run: |
           sudo sh -c '
           apt --purge -y remove apache2-bin
+          apt-mark hold firefox #hold ff once bbb-install frequently stuck at `Installing the firefox snap`
           '
       - name: Install BBB
         env:
