@@ -36,7 +36,7 @@ case class PluginManifestContent(
     requiredSdkVersion:            String,
     name:                          String,
     javascriptEntrypointUrl:       String,
-    enabledInBreakoutRoom:         Option[Boolean]                = None,
+    enabledForBreakoutRooms:       Option[Boolean]                = None,
     javascriptEntrypointIntegrity: Option[String]                 = None,
     localesBaseUrl:                Option[String]                 = None,
     eventPersistence:              Option[EventPersistence]       = None,

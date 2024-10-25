@@ -83,7 +83,7 @@ trait CreateBreakoutRoomsCmdMsgHdlr extends RightsManagementTrait {
 
       val scalaPluginProp = liveMeeting.props.pluginProp.asScala
       val filterPluginsNotEnabledInBreakouts: ((String, Plugin)) => Boolean = { case (_, plugin) =>
-        plugin.manifest.content.enabledInBreakoutRoom.getOrElse(false)
+        plugin.manifest.content.enabledForBreakoutRooms.getOrElse(false)
       }
       val filteredPlugins = getPlugins(liveMeeting.plugins).filter(filterPluginsNotEnabledInBreakouts)
 
