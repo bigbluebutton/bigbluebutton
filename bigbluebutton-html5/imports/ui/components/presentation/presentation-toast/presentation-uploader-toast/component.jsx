@@ -505,13 +505,13 @@ export const PresentationUploaderToast = ({
       });
   }, [presentations]);
 
-  let activeToast = Session.getItem('presentationUploaderToastId');
+  const activeToast = Session.getItem('presentationUploaderToastId');
 
   const showToast = convertingPresentations
     .filter((p) => !dismissedErrorItems.current.includes(p.presentationId)).length > 0;
 
-  if (showToast && !activeToast) {
-    activeToast = toast.info(() => renderToastList(convertingPresentations, intl), {
+  if (showToast && !toast.isActive(activeToast)) {
+    const convertingPresToast = toast.info(() => renderToastList(convertingPresentations, intl), {
       hideProgressBar: true,
       autoClose: false,
       newestOnTop: true,
@@ -522,7 +522,7 @@ export const PresentationUploaderToast = ({
         getIdsFromPresentationsAndDismiss(presentations);
       },
     });
-    Session.setItem('presentationUploaderToastId', activeToast);
+    Session.setItem('presentationUploaderToastId', convertingPresToast);
   } else if (!showToast && activeToast) {
     handleDismissToast(activeToast);
   } else {

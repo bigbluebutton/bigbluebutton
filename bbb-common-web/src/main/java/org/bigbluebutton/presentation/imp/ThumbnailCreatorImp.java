@@ -46,6 +46,8 @@ public class ThumbnailCreatorImp implements ThumbnailCreator {
 
   private String BLANK_THUMBNAIL;
 
+  private long execTimeout = 10000;
+
   @Override
   public boolean createThumbnail(UploadedPresentation pres, int page, File pageFile) {
     boolean success = false;
@@ -88,7 +90,7 @@ public class ThumbnailCreatorImp implements ThumbnailCreator {
 
     //System.out.println(COMMAND);
 
-    boolean done = new ExternalProcessExecutor().exec(COMMAND, 10000);
+    boolean done = new ExternalProcessExecutor().exec(COMMAND, execTimeout);
 
     if (done) {
       return true;
@@ -194,4 +196,7 @@ public class ThumbnailCreatorImp implements ThumbnailCreator {
     BLANK_THUMBNAIL = blankThumbnail;
   }
 
+  public void setExecTimeout(long execTimeout) {
+    this.execTimeout = execTimeout;
+  }
 }

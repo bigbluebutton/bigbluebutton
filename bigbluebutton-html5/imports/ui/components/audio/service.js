@@ -186,6 +186,8 @@ export default {
     outputDeviceId,
     isLive,
   ) => AudioManager.changeOutputDevice(outputDeviceId, isLive),
+  updateInputDevices: (devices) => { AudioManager.inputDevices = devices },
+  updateOutputDevices: (devices) => { AudioManager.outputDevices = devices },
   toggleMuteMicrophone,
   toggleMuteMicrophoneSystem,
   isConnectedToBreakout: () => {

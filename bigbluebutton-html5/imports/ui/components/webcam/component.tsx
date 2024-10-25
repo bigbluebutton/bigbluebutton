@@ -186,8 +186,8 @@ const WebcamComponent: React.FC<WebcamComponentProps> = ({
   }
 
   const isIphone = !!(navigator.userAgent.match(/iPhone/i));
-  const mobileWidth = `${isDragging ? cameraSize?.width : cameraDock.width}pt`;
-  const mobileHeight = `${isDragging ? cameraSize?.height : cameraDock.height}pt`;
+  const mobileWidth = `${isDragging ? cameraSize?.width : cameraDock.width}px`;
+  const mobileHeight = `${isDragging ? cameraSize?.height : cameraDock.height}px`;
   const isDesktopWidth = isDragging ? cameraSize?.width : cameraDock.width;
   const isDesktopHeight = isDragging ? cameraSize?.height : cameraDock.height;
   const camOpacity = isDragging ? 0.5 : undefined;
