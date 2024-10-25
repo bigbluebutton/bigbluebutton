@@ -573,7 +573,6 @@ function areChatMessagesEqual(prevProps: ChatMessageProps, nextProps: ChatMessag
     'message.user.currentlyInMeeting',
     'message.reactions.length',
     'message.replyToMessage.message',
-    'message.recipientHasSeen',
   ] as const;
   return propsToCompare.every((pointer) => {
     const previousValue = getValueByPointer(prevProps, pointer);
