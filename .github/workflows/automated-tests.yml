@@ -255,6 +255,7 @@ jobs:
         run: |
           sudo sh -c '
           apt --purge -y remove apache2-bin
+          apt-mark hold firefox #hold ff once bbb-install frequently stuck at `Installing the firefox snap`
           '
       - name: Install BBB
         env:
@@ -303,6 +304,7 @@ jobs:
             rm -f /var/lib/dpkg/lock-frontend
             rm -f /var/lib/dpkg/lock
             rm -f /var/cache/apt/archives/lock
+            rm -f /var/cache/debconf/config.dat
 
             echo "Reconfigure the package manager"
             dpkg --configure -a
