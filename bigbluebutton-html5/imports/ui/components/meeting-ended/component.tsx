@@ -284,7 +284,7 @@ const MeetingEnded: React.FC<MeetingEndedProps> = ({
           {
             learningDashboardAccessToken && isModerator
             // Always set cookie in case Dashboard is already opened
-            && setLearningDashboardCookie(learningDashboardAccessToken, meetingId) === true
+            && setLearningDashboardCookie(learningDashboardAccessToken, meetingId, learningDashboardBase) === true
               ? (
                 <Styled.Text>
                   <Styled.MeetingEndedButton
