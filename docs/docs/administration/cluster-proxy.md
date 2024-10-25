@@ -107,7 +107,7 @@ public:
   app:
     basename: '/bbb-01/html5client'
     bbbWebBase: 'https://bbb-01.example.com/bigbluebutton'
-    learningDashboardBase: 'https://bbb-01.example.com/learning-dashboard'
+    learningDashboardBase: 'https://bbb-01.example.com/learning-analytics-dashboard'
   media:
     stunTurnServersFetchAddress: 'https://bbb-01.example.com/bigbluebutton/api/stuns'
     sip_ws_host: 'bbb-01.example.com'

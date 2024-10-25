@@ -4,6 +4,44 @@ import Meetings from '/imports/api/meetings';
 
 const ROLE_MODERATOR = Meteor.settings.public.user.role_moderator;
 
+const findCommonDomain = (url1, url2) => {
+  // Helper function to extract domain parts in reverse order
+  const getDomainParts = (url) => {
+    try {
+      const { hostname } = new URL(url);
+      return hostname.split('.').reverse();
+    } catch (e) {
+      throw new Error('Invalid URL format');
+    }
+  };
+
+  try {
+    const domain1Parts = getDomainParts(url1);
+    const domain2Parts = getDomainParts(url2);
+
+    // Find common parts starting from the end (TLD)
+    const commonParts = [];
+    const minLength = Math.min(domain1Parts.length, domain2Parts.length);
+
+    for (let i = 0; i < minLength; i += 1) {
+      if (domain1Parts[i] === domain2Parts[i]) {
+        commonParts.push(domain1Parts[i]);
+      } else {
+        break;
+      }
+    }
+
+    // Return the common parts in correct order
+    // Add leading dot if domains are different in any way
+    if (commonParts.length > 1) {
+      return commonParts.reverse().join('.');
+    }
+    return '';
+  } catch (error) {
+    return '';
+  }
+};
+
 const isModerator = () => {
   const user = Users.findOne(
     {
@@ -29,11 +67,24 @@ const getLearningDashboardAccessToken = () => ((
   ) || {}).learningDashboardAccessToken || null);
 
 const setLearningDashboardCookie = () => {
+  const learningDashboardBase = Meteor.settings.public.app?.learningDashboardBase;
   const learningDashboardAccessToken = getLearningDashboardAccessToken();
   if (learningDashboardAccessToken !== null) {
     const lifetime = new Date();
     lifetime.setTime(lifetime.getTime() + (3600000)); // 1h (extends 7d when open Dashboard)
-    document.cookie = `ld-${Auth.meetingID}=${getLearningDashboardAccessToken()}; expires=${lifetime.toGMTString()}; path=/`;
+    let cookieString = `ld-${Auth.meetingID}=${getLearningDashboardAccessToken()}; expires=${lifetime.toUTCString()}; path=/`;
+
+    // In a cluster setup it will be necessary to specify the root domain
+    // because the Dashboard might be in a different subdomain
+    if (learningDashboardBase && learningDashboardBase.startsWith('http')) {
+      const commonDomain = findCommonDomain(learningDashboardBase, window.location.href);
+      if (commonDomain !== '') {
+        cookieString += `;domain=${commonDomain}`;
+      }
+    }
+
+    document.cookie = cookieString;
+
     return true;
   }
   return false;
