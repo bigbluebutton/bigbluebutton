@@ -79,6 +79,8 @@ interface InputStreamLiveSelectorProps extends InputStreamLiveSelectorContainerP
   away: boolean;
   permissionStatus: string;
   supportsTransparentListenOnly: boolean;
+  updateInputDevices: (devices: InputDeviceInfo[]) => void;
+  updateOutputDevices: (devices: MediaDeviceInfo[]) => void;
 }
 
 const InputStreamLiveSelector: React.FC<InputStreamLiveSelectorProps> = ({
@@ -100,6 +102,8 @@ const InputStreamLiveSelector: React.FC<InputStreamLiveSelectorProps> = ({
   permissionStatus,
   supportsTransparentListenOnly,
   openAudioSettings,
+  updateInputDevices,
+  updateOutputDevices,
 }) => {
   const intl = useIntl();
   const toggleVoice = useToggleVoice();
@@ -164,6 +168,9 @@ const InputStreamLiveSelector: React.FC<InputStreamLiveSelectorProps> = ({
         const audioOutputDevices = devices.filter((i) => i.kind === AUDIO_OUTPUT);
         setInputDevices(audioInputDevices as InputDeviceInfo[]);
         setOutputDevices(audioOutputDevices);
+        // Update audio devices in AudioManager
+        updateInputDevices(audioInputDevices as InputDeviceInfo[]);
+        updateOutputDevices(audioOutputDevices);
 
         if (inAudio) updateRemovedDevices(audioInputDevices, audioOutputDevices);
       })
@@ -308,6 +315,12 @@ const InputStreamLiveSelectorContainer: React.FC<InputStreamLiveSelectorContaine
   const permissionStatus = useReactiveVar(AudioManager._permissionStatus.value) as string;
   // @ts-ignore - temporary while hybrid (meteor+GraphQl)
   const supportsTransparentListenOnly = useReactiveVar(AudioManager._transparentListenOnlySupported.value) as boolean;
+  const updateInputDevices = (devices: InputDeviceInfo[] = []) => {
+    AudioManager.inputDevices = devices;
+  };
+  const updateOutputDevices = (devices: MediaDeviceInfo[] = []) => {
+    AudioManager.outputDevices = devices;
+  };
 
   return (
     <InputStreamLiveSelector
@@ -330,6 +343,8 @@ const InputStreamLiveSelectorContainer: React.FC<InputStreamLiveSelectorContaine
       openAudioSettings={openAudioSettings}
       permissionStatus={permissionStatus}
       supportsTransparentListenOnly={supportsTransparentListenOnly}
+      updateInputDevices={updateInputDevices}
+      updateOutputDevices={updateOutputDevices}
     />
   );
 };
