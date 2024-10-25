@@ -5,7 +5,6 @@ import (
 	"log/slog"
 	"os"
 	"path"
-	"time"
 
 	"gopkg.in/yaml.v3"
 )
@@ -21,9 +20,9 @@ var cfg *Config
 type Config struct {
 	Conversion struct {
 		Office struct {
-			Script      string        `yaml:"script"`
-			Timeout     time.Duration `yaml:"timeout"`
-			MaxAttempts int           `yaml:"max_attempts"`
+			Script      string `yaml:"script"`
+			Timeout     int    `yaml:"timeout"`
+			MaxAttempts int    `yaml:"max_attempts"`
 		} `yaml:"office"`
 	} `yaml:"conversion"`
 }
@@ -74,8 +73,6 @@ func loadConfig(path string) (*Config, error) {
 	if err := yaml.Unmarshal(data, &cfg); err != nil {
 		return nil, fmt.Errorf("failed to parse config: %w", err)
 	}
-
-	cfg.Conversion.Office.Timeout *= time.Second
 
 	return &cfg, nil
 }

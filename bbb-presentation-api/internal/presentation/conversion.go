@@ -2,7 +2,6 @@ package presentation
 
 import (
 	"context"
-	"errors"
 	"fmt"
 	"log/slog"
 	"os"
@@ -14,60 +13,107 @@ import (
 	"github.com/bigbluebutton/bigbluebutton/bbb-presentation-api/internal/config"
 )
 
+var execCommandContext = exec.CommandContext
+var removeFileFunc = os.Remove
+
+// Converter is the interface that wraps the basic Convert method. Given the path to
+// an input file of one type and the path to an output file of another type Convert will
+// convert the input file to the output type. An error will be returned if any problem
+// arises during the conversion process.
 type Converter interface {
 	Convert(in string, out string) error
 }
 
-type OfficeConverter struct {
+// OfficePDFConverter is an implementation of the Converter interface which converts office
+// documents to PDFs.
+type OfficePDFConverter struct {
 	script      string
-	timeout     time.Duration
+	timeout     int
 	maxAttempts int
 }
 
-func NewOfficeConverter() *OfficeConverter {
-	return NewOfficeConverterWithConfig(config.DefaultConfig())
+// NewOfficeConverter creates a new OfficePDFConverter using the default configuration that
+// is loaded when the application starts.
+func NewOfficePDFConverter() *OfficePDFConverter {
+	return NewOfficePDFConverterWithConfig(config.DefaultConfig())
 }
 
-func NewOfficeConverterWithConfig(cfg *config.Config) *OfficeConverter {
-	return &OfficeConverter{
+// NewOfficePDFConverterWithConfig is like NewOfficeConverter, but allows the caller to specify
+// the configuration that should be used.
+func NewOfficePDFConverterWithConfig(cfg *config.Config) *OfficePDFConverter {
+	return &OfficePDFConverter{
 		script:      cfg.Conversion.Office.Script,
 		timeout:     cfg.Conversion.Office.Timeout,
 		maxAttempts: cfg.Conversion.Office.MaxAttempts,
 	}
 }
 
-func (c *OfficeConverter) Convert(in string, out string) error {
-	for i := 1; i <= c.maxAttempts; i++ {
-		slog.Info(fmt.Sprintf("Attempt %d/%d: Converting %s to PDF...", i, c.maxAttempts, in))
+// Convert takes the path to an office doucment and converts the document into a new PDF
+// at the output path.
+func (c *OfficePDFConverter) Convert(in string, out string) error {
+	var (
+		officefile = IsOfficeFile(ToFileExt(filepath.Ext(in)))
+		pdf        = IsPDF(ToFileExt(filepath.Ext(out)))
+	)
 
-		ctx, cancel := context.WithTimeout(context.Background(), c.timeout)
-		defer cancel()
-
-		err := convertToPDF(ctx, c.script, in, out)
-		if err == nil {
-			slog.Info("Conversion successful")
-			return nil
-		}
-
-		slog.Error(fmt.Sprintf("Conversion attempt %d failed: %v", i, err))
-
-		if err := os.Remove(PDFName(in)); err != nil && !errors.Is(err, os.ErrNotExist) {
-			slog.Error(fmt.Sprintf("Failed to remove generated PDF: %v", err))
-		}
+	if !officefile {
+		return fmt.Errorf("input file %s is not an office file", in)
 	}
 
-	return errors.New("all conversion attempts failed")
+	if !pdf {
+		return fmt.Errorf("output file %s is not a PDF", out)
+	}
+
+	for attempt := 1; attempt <= c.maxAttempts; attempt++ {
+		slog.Info("Starting conversion attempt",
+			"attempt", attempt, "maxAttempts", c.maxAttempts, "inputFile", in)
+
+		ctx, cancel := context.WithTimeout(context.Background(), time.Duration(c.timeout)*time.Second)
+		defer cancel()
+
+		if err := c.executeConversion(ctx, in, out); err == nil {
+			slog.Info("Conversion succeeded", "inputFile", in)
+			return nil
+		} else {
+			slog.Error("Conversion attempt failed",
+				"attempt", attempt, "error", err)
+
+			if rmErr := removeFile(PDFName(in)); rmErr != nil {
+				slog.Error("Failed to remove generated PDF", "error", rmErr)
+			}
+		}
+	}
+	return fmt.Errorf("all conversion attempts failed for file: %s", in)
 }
 
-func convertToPDF(ctx context.Context, script string, in string, out string) error {
-	cmd := exec.CommandContext(ctx, script, in, out)
+func (c *OfficePDFConverter) executeConversion(ctx context.Context, in, out string) error {
+	args := []string{
+		fmt.Sprintf("%ds", c.timeout), // timeout argument
+		"/bin/sh", "-c",
+		fmt.Sprintf("\"%s\" \"%s\" \"%s\" pdf %d", c.script, in, out, c.timeout),
+	}
+
+	cmd := execCommandContext(ctx, "timeout", args...)
 	output, err := cmd.CombinedOutput()
 	if err != nil {
-		return fmt.Errorf("conversion failed: %s, output: %s", err.Error(), string(output))
+		return fmt.Errorf("conversion failed: %w, output: %s", err, string(output))
 	}
 	return nil
 }
 
+// PDFName takes an input file name or path and generates an output string with the
+// file extension changed to '.pdf'.
+//
+// example.doc becomes example.pdf
+//
+// a/b/c.odt becomes a/b/c.pdf
 func PDFName(in string) string {
 	return strings.TrimSuffix(in, filepath.Ext(in)) + ".pdf"
+}
+
+func removeFile(path string) error {
+	if err := removeFileFunc(path); err != nil {
+		return fmt.Errorf("failed to remove file %s: %w", path, err)
+	}
+	return nil
 }
