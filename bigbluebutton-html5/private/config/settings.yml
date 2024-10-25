@@ -733,7 +733,6 @@ public:
     tabIndicator: false
   chat:
     enabled: true
-    private: true
     itemsPerPage: 100
     timeBetweenFetchs: 1000
     enableSaveAndCopyPublicChat: true

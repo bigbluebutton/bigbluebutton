@@ -133,8 +133,5 @@ export function useIsChatMessageReactionsEnabled() {
 }
 
 export function useIsPrivateChatEnabled() {
-  return (
-    useDisabledFeatures().indexOf('privateChat') === -1
-    && window.meetingClientSettings.public.chat.private
-  );
+  return useDisabledFeatures().indexOf('privateChat') === -1;
 }
