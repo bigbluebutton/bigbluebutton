@@ -6,6 +6,7 @@ import {
 import Auth from '/imports/ui/services/auth';
 import logger from '/imports/startup/client/logger';
 import { toggleMuteMicrophone } from '/imports/ui/components/audio/audio-graphql/audio-controls/input-stream-live-selector/service';
+import { useIsPrivateChatEnabled } from '/imports/ui/services/features';
 import getFromUserSettings from '/imports/ui/services/users-settings';
 
 export const isVoiceOnlyUser = (userId: string) => userId.toString().startsWith('v_');
@@ -31,7 +32,7 @@ export const generateActionsPermissions = (
   const parentRoomModerator = getFromUserSettings('bbb_parent_room_moderator', false);
   const isSubjectUserGuest = subjectUser.guest;
   const hasAuthority = currentUser.isModerator || amISubjectUser;
-  const allowedToChatPrivately = !amISubjectUser && !isDialInUser;
+  const allowedToChatPrivately = !amISubjectUser && !isDialInUser && useIsPrivateChatEnabled();
   const allowedToMuteAudio = hasAuthority
     && subjectUserVoice?.joined
     && !isMuted
