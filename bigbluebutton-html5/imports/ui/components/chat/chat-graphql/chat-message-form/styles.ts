@@ -43,7 +43,6 @@ const Form = styled.form<FormProps>`
 const Wrapper = styled.div`
   display: flex;
   flex-direction: row;
-  box-shadow: inset 0 0 0 1px ${colorGrayLightest};
   border-radius: 0.75rem;
 `;
 
@@ -51,10 +50,9 @@ const Input = styled(TextareaAutosize)`
   flex: 1;
   background: #fff;
   background-clip: padding-box;
-  margin: ${xsPadding} 0 ${xsPadding} ${xsPadding};
   color: ${colorText};
   -webkit-appearance: none;
-  padding: calc(${smPaddingY} * 2.5) calc(${smPaddingX} * 1.25);
+  padding: calc(${smPaddingY} * 2.5 - ${xsPadding}) calc(${smPaddingX} * 1.25 - ${xsPadding});
   resize: none;
   transition: none;
   border-radius: ${borderRadius};
@@ -171,19 +169,23 @@ const InputWrapper = styled.div`
   flex-grow: 1;
   min-width: 0;
   z-index: 0;
+  padding: ${xsPadding} 0 ${xsPadding} ${xsPadding};
+  box-shadow: inset 0.0625rem 0 0 0 ${colorGrayLightest},
+    inset 0 0.0625rem 0 0 ${colorGrayLightest},
+    inset 0 -0.0625rem 0 0 ${colorGrayLightest};
 
   [dir='ltr'] & {
     border-radius: 0.75rem 0 0 0.75rem;
-    margin-right: ${xsPadding};
   }
 
   [dir='rtl'] & {
     border-radius: 0 0.75rem 0.75rem 0;
-    margin-left: ${xsPadding};
   }
 
   &:focus-within {
-    box-shadow: 0 0 0 ${xsPadding} ${colorBlueLight};
+    box-shadow: inset ${xsPadding} 0 0 0 ${colorBlueLight},
+      inset 0 ${xsPadding} 0 0 ${colorBlueLight},
+      inset 0 -${xsPadding} 0 0 ${colorBlueLight};
   }
 `;
 
