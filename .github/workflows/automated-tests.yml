@@ -296,6 +296,10 @@ jobs:
             fi
             echo "Stop any ongoing processes related to apt-get or dpkg that might be stuck"
             # Use -q to suppress "no process found" messages
+            # Kill any apt-get or dpkg processes that might be hanging
+            for process in apt-get dpkg; do
+                pkill -9 "$process" 2>/dev/null || true
+            done
             killall -q apt-get || true
             killall -q dpkg || true
 
@@ -312,6 +316,9 @@ jobs:
             echo "Clean up any partially installed packages"
             apt-get clean
             apt-get autoremove
+
+            echo "Identify if there is some process still locking"
+            ps aux | grep -E 'dpkg|apt'
 
             RETRY_COUNT=$((RETRY_COUNT + 1))
           done
