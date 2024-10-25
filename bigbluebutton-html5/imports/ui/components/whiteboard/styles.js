@@ -39,6 +39,12 @@ const TldrawV2GlobalStyle = createGlobalStyle`
     bottom: 0px;
   }
 
+  ${({ whiteboardMenuOnRight }) => whiteboardMenuOnRight && `
+    .tlui-popover__content {
+      left: -50px !important;
+    }
+`}
+
   .tlui-navigation-zone,
   .tlui-help-menu,
   .tlui-debug-panel {
@@ -87,14 +93,14 @@ const TldrawV2GlobalStyle = createGlobalStyle`
       0px 2px 6px rgba(0, 0, 0, 0.1);
   }
 
-  ${({ isRTL }) => (!isRTL) && `
+  ${({ isRTL, whiteboardMenuOnRight }) => (!isRTL && !whiteboardMenuOnRight) && `
     .tlui-toolbar__extras {
       right: 0;
       left: 50px !important;
     }
   `}
 
-  ${({ isRTL }) => (isRTL) && `
+  ${({ isRTL, whiteboardMenuOnRight }) => ((isRTL) || whiteboardMenuOnRight) && `
     .tlui-toolbar__extras {
       right: 50px !important;
       left: 0;
@@ -144,10 +150,15 @@ const TldrawV2GlobalStyle = createGlobalStyle`
 
   .tlui-toolbar__tools {
     flex-direction: column !important;
+
+    ${({ whiteboardMenuOnRight }) => (whiteboardMenuOnRight) && `
+      margin-top: 1rem !important;
+    `}
   }
 
   .tlui-toolbar {
     align-items: end !important;
+    top: 50rem !important;
   }
 
   .tlui-layout__bottom {

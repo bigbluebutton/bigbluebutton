@@ -19,6 +19,11 @@ import { getSettingsSingletonInstance } from '/imports/ui/services/settings';
 import SvgIcon from '/imports/ui/components/common/icon-svg/component';
 
 const intlMessages = defineMessages({
+  changeOptionsSide: {
+    id: 'app.presentation.presentationToolbar.changeOptionsSide',
+    description: 'Change options side label',
+    defaultMessage: 'Change options side',
+  },
   downloading: {
     id: 'app.presentation.options.downloading',
     description: 'Downloading label',
@@ -126,6 +131,8 @@ const PresentationMenu = (props) => {
     currentUser,
     whiteboardId,
     persistShape,
+    whiteboardMenuOnRight,
+    setWhiteboardMenuOnRight,
     hasWBAccess,
   } = props;
 
@@ -138,6 +145,10 @@ const PresentationMenu = (props) => {
   const toastId = useRef(null);
   const dropdownRef = useRef(null);
 
+  const WBsideValue = () => {
+    setWhiteboardMenuOnRight(!whiteboardMenuOnRight);
+  };
+
   const formattedLabel = (fullscreen) => (fullscreen
     ? intl.formatMessage(intlMessages.exitFullscreenLabel)
     : intl.formatMessage(intlMessages.fullscreenLabel)
@@ -147,6 +158,8 @@ const PresentationMenu = (props) => {
     ? intl.formatMessage(intlMessages.hideToolsDesc)
     : intl.formatMessage(intlMessages.showToolsDesc)
   );
+
+  const WBOptionLabel = intl.formatMessage(intlMessages.changeOptionsSide);
 
   const extractShapes = (savedState) => {
     let data;
@@ -393,6 +406,19 @@ const PresentationMenu = (props) => {
       },
     );
 
+
+    menuItems.push(
+      {
+        key: 'list-item-WBOptions',
+        dataTest: 'WBOptions',
+        label: WBOptionLabel,
+        icon: 'redo',
+        onClick: () => {
+          WBsideValue();
+        },
+      },
+    );
+
     // if (props.amIPresenter) {
     //   menuItems.push({
     //     key: 'list-item-load-shapes',
@@ -462,43 +488,89 @@ const PresentationMenu = (props) => {
   }
 
   return (
-    <Styled.Left id="WhiteboardOptionButton">
-      <BBBMenu
-        trigger={(
-          <TooltipContainer title={intl.formatMessage(intlMessages.optionsLabel)}>
-            <Styled.DropdownButton
-              state={isDropdownOpen ? 'open' : 'closed'}
-              aria-label={`${intl.formatMessage(intlMessages.whiteboardLabel)} ${intl.formatMessage(intlMessages.optionsLabel)}`}
-              data-test="whiteboardOptionsButton"
-              data-state={isDropdownOpen ? 'open' : 'closed'}
-              onClick={() => {
-                setIsDropdownOpen((isOpen) => !isOpen);
-              }}
-            >
-              <SvgIcon iconName="whiteboardOptions" />
-            </Styled.DropdownButton>
-          </TooltipContainer>
-        )}
-        opts={{
-          id: 'presentation-dropdown-menu',
-          keepMounted: true,
-          transitionDuration: 0,
-          elevation: 3,
-          getcontentanchorel: null,
-          fullwidth: 'true',
-          anchorOrigin: { vertical: 'bottom', horizontal: isRTL ? 'right' : 'left' },
-          transformOrigin: { vertical: 'top', horizontal: isRTL ? 'right' : 'left' },
-          container: fullscreenRef,
-        }}
-        actions={options}
-      />
-      <input
-        type="file"
-        id="hiddenFileInput"
-        style={{ display: 'none' }}
-        onChange={handleFileInput}
-      />
-    </Styled.Left>
+    whiteboardMenuOnRight ? (
+      <Styled.Right
+        id="WhiteboardOptionButton"
+        isWhiteboardMenuOnRight={whiteboardMenuOnRight}
+      >
+        <BBBMenu
+          trigger={(
+            <TooltipContainer title={intl.formatMessage(intlMessages.optionsLabel)}>
+              <Styled.DropdownButton
+                state={isDropdownOpen ? 'open' : 'closed'}
+                aria-label={`${intl.formatMessage(intlMessages.whiteboardLabel)} ${intl.formatMessage(intlMessages.optionsLabel)}`}
+                data-test="whiteboardOptionsButton"
+                data-state={isDropdownOpen ? 'open' : 'closed'}
+                onClick={() => {
+                  setIsDropdownOpen((isOpen) => !isOpen);
+                }}
+              >
+                <SvgIcon iconName="whiteboardOptions" />
+              </Styled.DropdownButton>
+            </TooltipContainer>
+          )}
+          opts={{
+            id: 'presentation-dropdown-menu',
+            keepMounted: true,
+            transitionDuration: 0,
+            elevation: 3,
+            getcontentanchorel: null,
+            fullwidth: 'true',
+            anchorOrigin: { vertical: 'bottom', horizontal: isRTL ? 'right' : 'left' },
+            transformOrigin: { vertical: 'top', horizontal: isRTL ? 'right' : 'left' },
+            container: fullscreenRef,
+          }}
+          actions={options}
+        />
+        <input
+          type="file"
+          id="hiddenFileInput"
+          style={{ display: 'none' }}
+          onChange={handleFileInput}
+        />
+      </Styled.Right>
+    ) : (
+      <Styled.Left
+        id="WhiteboardOptionButton"
+        isWhiteboardMenuOnRight={whiteboardMenuOnRight}
+      >
+        <BBBMenu
+          trigger={(
+            <TooltipContainer title={intl.formatMessage(intlMessages.optionsLabel)}>
+              <Styled.DropdownButton
+                state={isDropdownOpen ? 'open' : 'closed'}
+                aria-label={`${intl.formatMessage(intlMessages.whiteboardLabel)} ${intl.formatMessage(intlMessages.optionsLabel)}`}
+                data-test="whiteboardOptionsButton"
+                data-state={isDropdownOpen ? 'open' : 'closed'}
+                onClick={() => {
+                  setIsDropdownOpen((isOpen) => !isOpen);
+                }}
+              >
+                <SvgIcon iconName="whiteboardOptions" />
+              </Styled.DropdownButton>
+            </TooltipContainer>
+          )}
+          opts={{
+            id: 'presentation-dropdown-menu',
+            keepMounted: true,
+            transitionDuration: 0,
+            elevation: 3,
+            getcontentanchorel: null,
+            fullwidth: 'true',
+            anchorOrigin: { vertical: 'bottom', horizontal: isRTL ? 'right' : 'left' },
+            transformOrigin: { vertical: 'top', horizontal: isRTL ? 'right' : 'left' },
+            container: fullscreenRef,
+          }}
+          actions={options}
+        />
+        <input
+          type="file"
+          id="hiddenFileInput"
+          style={{ display: 'none' }}
+          onChange={handleFileInput}
+        />
+      </Styled.Left>
+    )
   );
 };
 

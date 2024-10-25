@@ -56,6 +56,7 @@ const WhiteboardContainer = (props) => {
   const {
     intl,
     zoomChanger,
+    whiteboardMenuOnRight,
   } = props;
 
   const WHITEBOARD_CONFIG = window.meetingClientSettings.public.whiteboard;
@@ -334,6 +335,7 @@ const WhiteboardContainer = (props) => {
         isModerator,
         currentUser,
         isRTL,
+        whiteboardMenuOnRight,
         width,
         height,
         maxStickyNoteLength,
