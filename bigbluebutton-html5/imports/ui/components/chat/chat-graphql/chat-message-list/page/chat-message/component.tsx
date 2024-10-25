@@ -158,9 +158,9 @@ const ChatMessage = React.forwardRef<ChatMessageRef, ChatMessageProps>(({
 
   if (!currentUserIsModerator) {
     if (isPublicChat) {
-      locked = (currentUserIsLocked && disablePublicChat) || false;
+      locked = currentUserIsLocked && disablePublicChat;
     } else {
-      locked = (currentUserIsLocked && meetingDisablePrivateChat) || false;
+      locked = currentUserIsLocked && meetingDisablePrivateChat;
     }
   }
 
