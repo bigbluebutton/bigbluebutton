@@ -553,27 +553,28 @@ const ChatMessage = React.forwardRef<ChatMessageRef, ChatMessageProps>(({
   );
 });
 
+const propsToCompare = [
+  'meetingDisablePublicChat',
+  'meetingDisablePrivateChat',
+  'currentUserDisablePublicChat',
+  'currentUserId',
+  'currentUserIsLocked',
+  'currentUserIsModerator',
+  'chatDeleteEnabled',
+  'chatEditEnabled',
+  'chatReactionsEnabled',
+  'chatReplyEnabled',
+  'focused',
+  'keyboardFocused',
+  'message.createdAt',
+  'message.message',
+  'message.recipientHasSeen',
+  'message.user.currentlyInMeeting',
+  'message.reactions.length',
+  'message.replyToMessage.message',
+] as const;
+
 function areChatMessagesEqual(prevProps: ChatMessageProps, nextProps: ChatMessageProps) {
-  const propsToCompare = [
-    'meetingDisablePublicChat',
-    'meetingDisablePrivateChat',
-    'currentUserDisablePublicChat',
-    'currentUserId',
-    'currentUserIsLocked',
-    'currentUserIsModerator',
-    'chatDeleteEnabled',
-    'chatEditEnabled',
-    'chatReactionsEnabled',
-    'chatReplyEnabled',
-    'focused',
-    'keyboardFocused',
-    'message.createdAt',
-    'message.message',
-    'message.recipientHasSeen',
-    'message.user.currentlyInMeeting',
-    'message.reactions.length',
-    'message.replyToMessage.message',
-  ] as const;
   return propsToCompare.every((pointer) => {
     const previousValue = getValueByPointer(prevProps, pointer);
     const nextValue = getValueByPointer(nextProps, pointer);

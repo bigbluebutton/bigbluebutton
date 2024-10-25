@@ -63,28 +63,29 @@ interface ChatListPageProps extends ChatListPageCommonProps {
   isPublicChat: boolean;
 }
 
+const propsToCompare = [
+  'focusedId',
+  'meetingDisablePublicChat',
+  'meetingDisablePrivateChat',
+  'currentUserDisablePublicChat',
+  'currentUserId',
+  'currentUserIsLocked',
+  'currentUserIsModerator',
+  'chatDeleteEnabled',
+  'chatEditEnabled',
+  'chatReactionsEnabled',
+  'chatReplyEnabled',
+] as const;
+const messagePropsToCompare = [
+  'messageId',
+  'createdAt',
+  'user.currentlyInMeeting',
+  'recipientHasSeen',
+  'message',
+  'reactions.length',
+] as const;
+
 const areChatPagesEqual = (prevProps: ChatListPageProps, nextProps: ChatListPageProps) => {
-  const propsToCompare = [
-    'focusedId',
-    'meetingDisablePublicChat',
-    'meetingDisablePrivateChat',
-    'currentUserDisablePublicChat',
-    'currentUserId',
-    'currentUserIsLocked',
-    'currentUserIsModerator',
-    'chatDeleteEnabled',
-    'chatEditEnabled',
-    'chatReactionsEnabled',
-    'chatReplyEnabled',
-  ] as const;
-  const messagePropsToCompare = [
-    'messageId',
-    'createdAt',
-    'user.currentlyInMeeting',
-    'recipientHasSeen',
-    'message',
-    'reactions.length',
-  ] as const;
   const nextMessages = nextProps?.messages || [];
   const prevMessages = prevProps?.messages || [];
   if (nextMessages.length !== prevMessages.length) return false;
