@@ -205,7 +205,7 @@ const ChatMessageList: React.FC<ChatListProps> = ({
     isModerator: c?.isModerator,
     userLockSettings: c?.userLockSettings,
     locked: c?.locked,
-    userId: c.userId,
+    userId: c?.userId,
   }));
   const CHAT_REPLY_ENABLED = useIsReplyChatMessageEnabled();
   const CHAT_REACTIONS_ENABLED = useIsChatMessageReactionsEnabled();
