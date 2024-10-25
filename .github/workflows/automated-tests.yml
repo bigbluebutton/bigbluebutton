@@ -303,6 +303,7 @@ jobs:
             rm -f /var/lib/dpkg/lock-frontend
             rm -f /var/lib/dpkg/lock
             rm -f /var/cache/apt/archives/lock
+            rm -f /var/cache/debconf/config.dat
 
             echo "Reconfigure the package manager"
             dpkg --configure -a
