@@ -7,6 +7,7 @@ import Button from '/imports/ui/components/common/button/component';
 import {
   HUNDRED_PERCENT,
   MAX_PERCENT,
+  MIN_PERCENT,
   STEP,
 } from '/imports/utils/slideCalcUtils';
 import {
@@ -132,8 +133,6 @@ class PresentationToolbar extends PureComponent {
       zoom, setIsPanning, fitToWidth, fitToWidthHandler, currentSlideNum,
     } = this.props;
     const { wasFTWActive } = this.state;
-
-    if (zoom <= HUNDRED_PERCENT && zoom !== prevProps.zoom && !fitToWidth) setIsPanning();
 
     if ((prevProps?.currentSlideNum !== currentSlideNum) && (!fitToWidth && wasFTWActive)) {
       setTimeout(() => {
@@ -539,7 +538,7 @@ class PresentationToolbar extends PureComponent {
                 zoomValue={zoom}
                 currentSlideNum={currentSlideNum}
                 change={this.change}
-                minBound={HUNDRED_PERCENT}
+                minBound={isInfiniteWhiteboard ? MIN_PERCENT : HUNDRED_PERCENT}
                 maxBound={MAX_PERCENT}
                 step={STEP}
                 isInfiniteWhiteboard={isInfiniteWhiteboard}

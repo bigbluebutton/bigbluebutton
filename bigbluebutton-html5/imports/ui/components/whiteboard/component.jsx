@@ -528,8 +528,8 @@ const Whiteboard = React.memo((props) => {
           setCamera(baseZoom, adjustedXPos, adjustedYPos);
         } else if (includeViewerLogic) {
           baseZoom = calculateZoomValue(
-            currentPresentationPage.scaledViewBoxWidth,
-            currentPresentationPage.scaledViewBoxHeight,
+            currentPresentationPageRef.current.scaledViewBoxWidth,
+            currentPresentationPageRef.current.scaledViewBoxHeight,
           );
 
           const presenterXOffset = currentPresentationPageRef.current.xOffset;
@@ -537,10 +537,10 @@ const Whiteboard = React.memo((props) => {
 
           const adjustedXPos = isInfiniteWhiteboard
             ? presenterXOffset
-            : currentPresentationPage.xOffset;
+            : currentPresentationPageRef.current.xOffset;
           const adjustedYPos = isInfiniteWhiteboard
             ? presenterYOffset
-            : currentPresentationPage.yOffset;
+            : currentPresentationPageRef.current.yOffset;
 
           setCamera(baseZoom, adjustedXPos, adjustedYPos);
         }
@@ -998,6 +998,7 @@ const Whiteboard = React.memo((props) => {
       setIsMouseDown,
       setIsWheelZoom,
       setWheelZoomTimeout,
+      isInfiniteWhiteboard,
     },
   );
 
@@ -1106,7 +1107,6 @@ const Whiteboard = React.memo((props) => {
         zoomValue !== prevZoomValueRef.current
       ) {
         tlEditor.setCamera(nextCamera, { duration: 175 });
-
         timeoutId = setTimeout(() => {
           if (zoomValue === HUNDRED_PERCENT && !fitToWidthRef.current) {
             zoomChanger(HUNDRED_PERCENT);
@@ -1115,11 +1115,11 @@ const Whiteboard = React.memo((props) => {
             // Recalculate viewed region width and height for zoomSlide call
             const viewedRegionW = SlideCalcUtil.calcViewedRegionWidth(
               tlEditorRef.current.getViewportPageBounds().w,
-              currentPresentationPage.scaledWidth,
+              currentPresentationPageRef.current.scaledWidth,
             );
             const viewedRegionH = SlideCalcUtil.calcViewedRegionHeight(
               tlEditorRef.current.getViewportPageBounds().h,
-              currentPresentationPage.scaledHeight,
+              currentPresentationPageRef.current.scaledHeight,
             );
 
             zoomSlide(viewedRegionW, viewedRegionH, nextCamera.x, nextCamera.y);
@@ -1137,15 +1137,15 @@ const Whiteboard = React.memo((props) => {
     // A slight delay to ensure the canvas has rendered
     const timeoutId = setTimeout(() => {
       if (
-        currentPresentationPage.scaledWidth > 0
-        && currentPresentationPage.scaledHeight > 0
+        currentPresentationPageRef.current.scaledWidth > 0
+        && currentPresentationPageRef.current.scaledHeight > 0
       ) {
         // Subtract the toolbar height from the presentation area height for the presenter
         const adjustedPresentationAreaHeight = isPresenter
           ? presentationAreaHeight - 40
           : presentationAreaHeight;
-        const slideAspectRatio = currentPresentationPage.scaledWidth
-          / currentPresentationPage.scaledHeight;
+        const slideAspectRatio = currentPresentationPageRef.current.scaledWidth
+          / currentPresentationPageRef.current.scaledHeight;
         const presentationAreaAspectRatio = presentationAreaWidth / adjustedPresentationAreaHeight;
 
         let initialZoom;
@@ -1153,10 +1153,10 @@ const Whiteboard = React.memo((props) => {
         if (slideAspectRatio > presentationAreaAspectRatio
           || (fitToWidthRef.current && isPresenter)
         ) {
-          initialZoom = presentationAreaWidth / currentPresentationPage.scaledWidth;
+          initialZoom = presentationAreaWidth / currentPresentationPageRef.current.scaledWidth;
         } else {
           initialZoom = adjustedPresentationAreaHeight
-            / currentPresentationPage.scaledHeight;
+            / currentPresentationPageRef.current.scaledHeight;
         }
 
         initialZoomRef.current = initialZoom;
