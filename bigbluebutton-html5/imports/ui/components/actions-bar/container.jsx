@@ -1,4 +1,4 @@
-import React, { useContext, useEffect, useState } from 'react';
+import React, { useContext } from 'react';
 import { useIntl } from 'react-intl';
 import { useMutation, useReactiveVar } from '@apollo/client';
 import getFromUserSettings from '/imports/ui/services/users-settings';
@@ -92,21 +92,10 @@ const ActionsBarContainer = (props) => {
   };
   const amIPresenter = currentUserData?.presenter;
   const amIModerator = currentUserData?.isModerator;
-  const [pinnedPadDataState, setPinnedPadDataState] = useState(null);
+  const { data: pinnedPadData } = useDeduplicatedSubscription(PINNED_PAD_SUBSCRIPTION);
 
-  useEffect(() => {
-    const fetchData = async () => {
-      const { data: pinnedPadData } = await useDeduplicatedSubscription(
-        PINNED_PAD_SUBSCRIPTION,
-      );
-      setPinnedPadDataState(pinnedPadData || []);
-    };
-
-    fetchData();
-  }, []);
-
-  const isSharedNotesPinnedFromGraphql = !!pinnedPadDataState
-    && pinnedPadDataState.sharedNotes[0]?.sharedNotesExtId === NOTES_CONFIG.id;
+  const isSharedNotesPinnedFromGraphql = !!pinnedPadData
+    && pinnedPadData.sharedNotes[0]?.sharedNotesExtId === NOTES_CONFIG.id;
 
   const isSharedNotesPinned = isSharedNotesPinnedFromGraphql;
   const allowExternalVideo = useIsExternalVideoEnabled();
