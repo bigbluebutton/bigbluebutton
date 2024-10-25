@@ -111,7 +111,6 @@ export const CURRENT_PAGE_ANNOTATIONS_QUERY = gql`query CurrentPageAnnotationsQu
   pres_annotation_curr(order_by: { lastUpdatedAt: desc }) {
     annotationId
     annotationInfo
-    lastHistorySequence
     lastUpdatedAt
     pageId
     presentationId
