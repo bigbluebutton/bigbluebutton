@@ -45,7 +45,9 @@ const extensibleAreaComponentManagers: ExtensibleAreaComponentManager[] = [
 function generateItemWithId<T extends PluginProvidedUiItemDescriptor>(
   item: T,
 ): T {
-  item.setItemId(uuidLib.v4());
+  if (!item.id) {
+    item.setItemId(uuidLib.v4());
+  }
   return item;
 }
 

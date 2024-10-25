@@ -16,6 +16,8 @@ import {
   storeAudioInputDeviceId,
   getStoredAudioOutputDeviceId,
   storeAudioOutputDeviceId,
+  getAudioConstraints,
+  doGUM,
 } from '/imports/api/audio/client/bridge/service';
 import MediaStreamUtils from '/imports/utils/media-stream-utils';
 import { makeVar } from '@apollo/client';
@@ -86,6 +88,8 @@ class AudioManager {
     this._outputDeviceId = {
       value: makeVar(null),
     };
+    this._inputDevices = [];
+    this._outputDevices = [];
 
     this.BREAKOUT_AUDIO_TRANSFER_STATES = BREAKOUT_AUDIO_TRANSFER_STATES;
     this._voiceActivityObserver = null;
@@ -181,6 +185,34 @@ class AudioManager {
 
   get outputDeviceId() {
     return this._outputDeviceId.value();
+  }
+
+  set inputDevices(value) {
+    if (value?.length) {
+      this._inputDevices = value;
+    }
+  }
+
+  get inputDevices() {
+    return this._inputDevices;
+  }
+
+  get inputDevicesJSON() {
+    return this.inputDevices.map((device) => device.toJSON());
+  }
+
+  set outputDevices(value) {
+    if (value?.length) {
+      this._outputDevices = value;
+    }
+  }
+
+  get outputDevices() {
+    return this._outputDevices;
+  }
+
+  get outputDevicesJSON() {
+    return this.outputDevices.map((device) => device.toJSON());
   }
 
   shouldBypassGUM() {
@@ -335,8 +367,6 @@ class AudioManager {
   }
 
   joinMicrophone() {
-    this.audioJoinStartTime = new Date();
-    this.logAudioJoinTime = false;
     this.isListenOnly = false;
     this.isEchoTest = false;
 
@@ -354,8 +384,6 @@ class AudioManager {
   }
 
   joinEchoTest() {
-    this.audioJoinStartTime = new Date();
-    this.logAudioJoinTime = false;
     this.isListenOnly = false;
     this.isEchoTest = true;
 
@@ -390,62 +418,85 @@ class AudioManager {
       });
   }
 
-  joinAudio(callOptions, callStateCallback) {
-    return this.bridge
-      .joinAudio(callOptions, callStateCallback.bind(this))
-      .catch((error) => {
-        const { name, message } = error;
-        const errorPayload = {
-          type: 'MEDIA_ERROR',
-          errMessage: message || 'MEDIA_ERROR',
-          errCode: AudioErrors.MIC_ERROR.UNKNOWN,
-        };
+  async joinAudio(callOptions, callStateCallback) {
+    try {
+      // If there's no input stream, we need to get one via getUserMedia
+      if (callOptions?.inputStream == null
+        && !this.shouldBypassGUM()
+        && !callOptions.isListenOnly) {
+        const constraints = getAudioConstraints({ deviceId: this?.bridge?.inputDeviceId });
+        this.inputStream = await doGUM({ audio: constraints });
+        // eslint-disable-next-line no-param-reassign
+        callOptions.inputStream = this.inputStream;
+      }
 
-        switch (name) {
-          case 'NotAllowedError':
-            errorPayload.errCode = AudioErrors.MIC_ERROR.NO_PERMISSION;
-            logger.error({
-                logCode: 'audiomanager_error_getting_device',
-                extraInfo: {
-                  errorName: error.name,
-                  errorMessage: error.message,
-                },
-              },
-              `Error getting microphone - {${error.name}: ${error.message}}`,
-            );
-            break;
-          case 'NotFoundError':
-            errorPayload.errCode = AudioErrors.MIC_ERROR.DEVICE_NOT_FOUND;
-            logger.error({
-                logCode: 'audiomanager_error_device_not_found',
-                extraInfo: {
-                  errorName: error.name,
-                  errorMessage: error.message,
-                },
-              },
-              `Error getting microphone - {${error.name}: ${error.message}}`,
-            );
-            break;
-          default:
-            logger.error({
-              logCode: 'audiomanager_error_unknown',
-              extraInfo: {
-                errorName: error.name,
-                errorMessage: error.message,
-              },
-            }, `Error enabling audio - {${name}: ${message}}`);
-            break;
-        }
+      // Start tracking audio join time here to avoid counting time spent on
+      // getUserMedia prompts. We're primarily focused on negotiation times here.
+      // We're only concerned with gUM timeouts - and it'll throw an error which
+      // is logged accordingly whenever it times out.
+      this.audioJoinStartTime = new Date();
+      this.logAudioJoinTime = false;
 
-        this.isConnecting = false;
+      await this.bridge.joinAudio(callOptions, callStateCallback.bind(this));
+    } catch (error) {
+      // Reset audio join time tracking if an error occurs
+      this.audioJoinStartTime = null;
+      this.logAudioJoinTime = false;
+      const { name, message } = error;
+      const errorPayload = {
+        type: 'MEDIA_ERROR',
+        errMessage: message || 'MEDIA_ERROR',
+        errCode: AudioErrors.MIC_ERROR.UNKNOWN,
+      };
 
-        throw errorPayload;
-      });
+      switch (name) {
+        case 'NotAllowedError':
+          errorPayload.errCode = AudioErrors.MIC_ERROR.NO_PERMISSION;
+          logger.error({
+            logCode: 'audiomanager_error_getting_device',
+            extraInfo: {
+              errorName: error.name,
+              errorMessage: error.message,
+            },
+          }, `Error getting microphone - {${error.name}: ${error.message}}`);
+          break;
+        case 'NotFoundError':
+          errorPayload.errCode = AudioErrors.MIC_ERROR.DEVICE_NOT_FOUND;
+          logger.error({
+            logCode: 'audiomanager_error_device_not_found',
+            extraInfo: {
+              errorName: error.name,
+              errorMessage: error.message,
+              inputDeviceId: this.inputDeviceId,
+              inputDevices: this.inputDevicesJSON,
+            },
+          }, `Error getting microphone - {${error.name}: ${error.message}}`);
+          // Reset the input device ID so the user can select a new one
+          this.changeInputDevice(null);
+          break;
+        default:
+          logger.error({
+            logCode: 'audiomanager_error_unknown',
+            extraInfo: {
+              errorName: error.name,
+              errorMessage: error.message,
+              errorStack: error?.stack,
+              inputDeviceId: this.inputDeviceId,
+              inputDevices: this.inputDevicesJSON,
+              outputDeviceId: this.outputDeviceId,
+              outputDevices: this.outputDevicesJSON,
+            },
+          }, `Error enabling audio - {${name}: ${message}}`);
+          break;
+      }
+
+      this.isConnecting = false;
+
+      throw errorPayload;
+    }
   }
 
   async joinListenOnly() {
-    this.audioJoinStartTime = new Date();
-    this.logAudioJoinTime = false;
     this.isListenOnly = true;
     this.isEchoTest = false;
 
@@ -532,7 +583,12 @@ class AudioManager {
     this.isConnecting = false;
 
     const STATS = window.meetingClientSettings.public.stats;
-    const secondsToActivateAudio = (new Date() - this.audioJoinStartTime) / 1000;
+    // If we don't have a start time, something went wrong with the tracking code
+    // Log it as 0 seconds to keep things consistent, but 0 should be treated
+    // as an invalid value and be ignored in any log analysis.
+    const secondsToActivateAudio = this.audioJoinStartTime > 0
+      ? (new Date() - this.audioJoinStartTime) / 1000
+      : 0;
 
     if (!this.logAudioJoinTime) {
       this.logAudioJoinTime = true;
@@ -588,10 +644,13 @@ class AudioManager {
         extraInfo: {
           secondsToActivateAudio,
           inputDeviceId: this.inputDeviceId,
+          inputDevices: this.inputDevicesJSON,
           outputDeviceId: this.outputDeviceId,
+          outputDevices: this.outputDevicesJSON,
           isListenOnly: this.isListenOnly,
         },
       }, 'Audio Joined');
+
       if (STATS.enabled) this.monitor();
       this.audioEventHandler({
         name: 'started',
@@ -655,8 +714,17 @@ class AudioManager {
           breakoutMeetingId: '',
           status: BREAKOUT_AUDIO_TRANSFER_STATES.DISCONNECTED,
         });
-        logger.info({ logCode: 'audio_ended' }, 'Audio ended without issue');
         this.onAudioExit();
+        logger.info({
+          logCode: 'audio_ended',
+          extraInfo: {
+            inputDeviceId: this.inputDeviceId,
+            inputDevices: this.inputDevicesJSON,
+            outputDeviceId: this.outputDeviceId,
+            outputDevices: this.outputDevicesJSON,
+            isListenOnly: this.isListenOnly,
+          },
+        }, 'Audio ended without issue');
       } else if (status === FAILED) {
         this.isReconnecting = false;
         this.setBreakoutAudioTransferStatus({
@@ -674,7 +742,9 @@ class AudioManager {
               cause: bridgeError,
               bridge,
               inputDeviceId: this.inputDeviceId,
+              inputDevices: this.inputDevicesJSON,
               outputDeviceId: this.outputDeviceId,
+              outputDevices: this.outputDevicesJSON,
               isListenOnly: this.isListenOnly,
             },
           },
@@ -749,18 +819,16 @@ class AudioManager {
         this.setSenderTrackEnabled(!this.isMuted);
       })
       .catch((error) => {
-        logger.error(
-          {
-            logCode: 'audiomanager_input_live_device_change_failure',
-            extraInfo: {
-              errorName: error.name,
-              errorMessage: error.message,
-              deviceId: currentDeviceId,
-              newDeviceId: deviceId,
-            },
+        logger.error({
+          logCode: 'audiomanager_input_live_device_change_failure',
+          extraInfo: {
+            errorName: error.name,
+            errorMessage: error.message,
+            deviceId: currentDeviceId,
+            newDeviceId: deviceId,
+            inputDevices: this.inputDevicesJSON,
           },
-          `Input device live change failed - {${error.name}: ${error.message}}`
-        );
+        }, `Input device live change failed - {${error.name}: ${error.message}}`);
 
         throw error;
       });
@@ -801,18 +869,16 @@ class AudioManager {
 
         return this.outputDeviceId;
       } catch (error) {
-        logger.error(
-          {
-            logCode: 'audiomanager_output_device_change_failure',
-            extraInfo: {
-              errorName: error.name,
-              errorMessage: error.message,
-              deviceId: currentDeviceId,
-              newDeviceId: targetDeviceId,
-            },
-          },
-          `Error changing output device - {${error.name}: ${error.message}}`
-        );
+        logger.error({
+          logCode: 'audiomanager_output_device_change_failure',
+          extraInfo: {
+            errorName: error.name,
+            errorMessage: error.message,
+            deviceId: currentDeviceId,
+            newDeviceId: targetDeviceId,
+            outputDevices: this.outputDevicesJSON,
+          }
+        }, `Error changing output device - {${error.name}: ${error.message}}`);
 
         // Rollback/enforce current sinkId (if possible)
         if (sinkIdSupported) {

@@ -9,7 +9,7 @@ import {
   btnPrimaryActiveBg,
 } from '/imports/ui/stylesheets/styled-components/palette';
 
-const RaiseHandButton = styled(Button)`
+const ReactionsButton = styled(Button)`
 ${({ ghost }) => ghost && `
   & > span {
     box-shadow: none;
@@ -57,7 +57,7 @@ const ButtonWrapper = styled.div`
   `}
 `;
 
-const RaiseHandButtonWrapper = styled(ButtonWrapper)`
+const ReactionsButtonWrapper = styled(ButtonWrapper)`
   width: 2.5rem;
   border-radius: 1.7rem;
 
@@ -94,9 +94,9 @@ const ToggleButtonWrapper = styled(ButtonWrapper)`
 `;
 
 export default {
-  RaiseHandButton,
+  ReactionsButton,
   ReactionsDropdown,
   ButtonWrapper,
-  RaiseHandButtonWrapper,
+  ReactionsButtonWrapper,
   ToggleButtonWrapper,
 };

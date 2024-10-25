@@ -173,8 +173,8 @@ SELECT "meeting_usersPolicies"."meetingId",
 
 create table "meeting_metadata" (
 	"meetingId" 		varchar(100) references "meeting"("meetingId") ON DELETE CASCADE,
-    "name"              varchar(100),
-    "value"             varchar(100),
+    "name"              varchar(255),
+    "value"             varchar(1000),
     CONSTRAINT "meeting_metadata_pkey" PRIMARY KEY ("meetingId","name")
 );
 create index "idx_meeting_metadata_meetingId" on "meeting_metadata"("meetingId");
@@ -272,10 +272,12 @@ CREATE TABLE "user" (
     "authToken" varchar(16),
     "authed" bool,
     "joined" bool,
+    "firstJoinedAt" timestamp with time zone,
     "joinErrorCode" varchar(50),
     "joinErrorMessage" varchar(400),
     "banned" bool,
     "loggedOut" bool,  -- when user clicked Leave meeting button
+    "bot" bool, -- used to flag au
     "guest" bool, --used for dialIn
     "guestStatus" varchar(50),
     "registeredOn" bigint,
@@ -315,6 +317,32 @@ create index "idx_user_pk_reverse" on "user" ("userId", "meetingId");
 CREATE INDEX "idx_user_meetingId" ON "user"("meetingId");
 CREATE INDEX "idx_user_extId" ON "user"("meetingId", "extId");
 
+-- user (on update raiseHand or away: set new time)
+CREATE OR REPLACE FUNCTION update_user_raiseHand_away_time_trigger_func()
+RETURNS TRIGGER AS $$
+BEGIN
+    IF NEW."raiseHand" IS DISTINCT FROM OLD."raiseHand" THEN
+        IF NEW."raiseHand" is false THEN
+            NEW."raiseHandTime" := NULL;
+        ELSE
+            NEW."raiseHandTime" := NOW();
+        END IF;
+    END IF;
+    IF NEW."away" IS DISTINCT FROM OLD."away" THEN
+        IF NEW."away" is false THEN
+            NEW."awayTime" := NULL;
+        ELSE
+            NEW."awayTime" := NOW();
+        END IF;
+    END IF;
+    RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+
+CREATE TRIGGER update_user_raiseHand_away_time_trigger BEFORE UPDATE OF "raiseHand", "away" ON "user"
+    FOR EACH ROW EXECUTE FUNCTION update_user_raiseHand_away_time_trigger_func();
+
+
 --hasDrawPermissionOnCurrentPage is necessary to improve the performance of the order by of userlist
 COMMENT ON COLUMN "user"."hasDrawPermissionOnCurrentPage" IS 'This column is dynamically populated by triggers of tables: user, pres_presentation, pres_page, pres_page_writers';
 COMMENT ON COLUMN "user"."disconnected" IS 'This column is set true when the user closes the window or his with the server is over';
@@ -328,6 +356,28 @@ ALTER TABLE "user" ADD COLUMN "isAllowed" boolean GENERATED ALWAYS AS ("guestSta
 ALTER TABLE "user" ADD COLUMN "isDenied" boolean GENERATED ALWAYS AS ("guestStatus" = 'DENY') STORED;
 
 ALTER TABLE "user" ADD COLUMN "registeredAt" timestamp with time zone GENERATED ALWAYS AS (to_timestamp("registeredOn"::double precision / 1000)) STORED;
+
+--Populate column `firstJoinedAt` to register if the user has joined in the meeting (once column `joined` turn false when user leaves)
+CREATE OR REPLACE FUNCTION "set_user_firstJoinedAt_trigger_func"()
+RETURNS TRIGGER AS $$
+BEGIN
+    IF NEW."joined" is true AND NEW."firstJoinedAt" IS NULL THEN
+        NEW."firstJoinedAt" := NOW();
+    END IF;
+    RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+
+CREATE TRIGGER "set_user_firstJoinedAt_ins_trigger"
+BEFORE INSERT ON "user"
+FOR EACH ROW
+EXECUTE FUNCTION "set_user_firstJoinedAt_trigger_func"();
+
+CREATE TRIGGER "set_user_firstJoinedAt_upd_trigger"
+BEFORE UPDATE ON "user"
+FOR EACH ROW
+WHEN (OLD."joined" IS DISTINCT FROM NEW."joined")
+EXECUTE FUNCTION "set_user_firstJoinedAt_trigger_func"();
 
 --Used to sort the Userlist
 ALTER TABLE "user" ADD COLUMN "nameSortable" varchar(255) GENERATED ALWAYS AS (trim(remove_emojis(immutable_lower_unaccent("name")))) STORED;
@@ -359,6 +409,7 @@ AS SELECT "user"."userId",
     "user"."raiseHandTime",
     "user"."reactionEmoji",
     "user"."reactionEmojiTime",
+    "user"."bot",
     "user"."guest",
     "user"."guestStatus",
     "user"."mobile",
@@ -506,11 +557,22 @@ AS SELECT
     "user"."currentlyInMeeting"
    FROM "user";
 
+--Provide users that have joined in the meeting, either who is currently in meeting or has left
+CREATE OR REPLACE VIEW "v_user_presenceLog"
+AS SELECT
+    "user"."meetingId",
+    "user"."userId",
+    "user"."extId",
+    CASE WHEN "user"."role" = 'MODERATOR' THEN true ELSE false END "isModerator",
+    "user"."currentlyInMeeting"
+FROM "user"
+where "firstJoinedAt" is not null;
+
 create table "user_metadata"(
     "meetingId" varchar(100),
     "userId" varchar(50),
 	"parameter" varchar(255),
-	"value" varchar(255),
+	"value" varchar(1000),
 	CONSTRAINT "user_metadata_pkey" PRIMARY KEY ("meetingId", "userId","parameter"),
 	FOREIGN KEY ("meetingId", "userId") REFERENCES "user"("meetingId","userId") ON DELETE CASCADE
 );
@@ -1140,6 +1202,7 @@ CREATE TABLE "chat_message_reaction" (
 	"messageId" varchar(100) REFERENCES "chat_message"("messageId") ON DELETE CASCADE,
 	"userId" varchar(100) not null,
 	"reactionEmoji" varchar(25),
+    "reactionEmojiId" varchar(50),
 	"createdAt" timestamp with time zone,
     CONSTRAINT chat_message_reaction_pk PRIMARY KEY ("messageId", "userId", "reactionEmoji"),
     FOREIGN KEY ("meetingId", "userId") REFERENCES "user"("meetingId","userId") ON DELETE CASCADE
@@ -1561,6 +1624,7 @@ FROM poll
 JOIN v_user u ON u."meetingId" = poll."meetingId" AND "isDialIn" IS FALSE AND presenter IS FALSE
 LEFT JOIN poll_response r ON r."pollId" = poll."pollId" AND r."userId" = u."userId"
 LEFT JOIN poll_option o ON o."pollId" = r."pollId" AND o."optionId" = r."optionId"
+WHERE u."bot" IS FALSE
 GROUP BY poll."pollId", u."meetingId", u."userId";
 
 CREATE VIEW "v_poll" AS SELECT * FROM "poll";
@@ -2063,6 +2127,18 @@ and n."createdAt" > current_timestamp - '5 seconds'::interval;
 
 create index idx_notification on notification("meetingId","userId","role","createdAt");
 
+-- ========== Plugin tables
+
+create table "plugin" (
+	"meetingId" varchar(100),
+	"name" varchar(100),
+	"javascriptEntrypointUrl" varchar(500),
+	"javascriptEntrypointIntegrity" varchar(500),
+    CONSTRAINT "plugin_pk" PRIMARY KEY ("meetingId","name"),
+    FOREIGN KEY ("meetingId") REFERENCES "meeting"("meetingId") ON DELETE CASCADE
+);
+
+create view "v_plugin" as select * from "plugin";
 
 --------------------------------
 ---Plugins Data Channel

@@ -100,7 +100,7 @@ const AudioControls: React.FC<AudioControlsProps> = ({
         loading={isConnecting}
       />
     );
-  }, [isConnected, disabled, joinAudioShortcut, away]);
+  }, [isConnected, disabled, joinAudioShortcut, away, intl.locale]);
 
   useEffect(() => {
     if (isEchoTest) {

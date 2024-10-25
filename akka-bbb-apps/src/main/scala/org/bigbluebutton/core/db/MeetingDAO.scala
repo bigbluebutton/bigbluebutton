@@ -3,6 +3,7 @@ package org.bigbluebutton.core.db
 import org.bigbluebutton.common2.domain.DefaultProps
 import PostgresProfile.api._
 import org.bigbluebutton.core.apps.groupchats.GroupChatApp
+import org.bigbluebutton.core.models.PluginModel
 
 case class MeetingSystemColumnsDbModel(
       loginUrl:                              Option[String],
@@ -85,7 +86,7 @@ class MeetingDbTableDef(tag: Tag) extends Table[MeetingDbModel](tag, None, "meet
 }
 
 object MeetingDAO {
-  def insert(meetingProps: DefaultProps, clientSettings: Map[String, Object]) = {
+  def insert(meetingProps: DefaultProps, clientSettings: Map[String, Object], pluginProps: PluginModel) = {
     DatabaseConnection.enqueue(
       TableQuery[MeetingDbTableDef].forceInsert(
         MeetingDbModel(
@@ -148,6 +149,7 @@ object MeetingDAO {
     MeetingBreakoutDAO.insert(meetingProps.meetingProp.intId, meetingProps.breakoutProps)
     LayoutDAO.insert(meetingProps.meetingProp.intId, meetingProps.usersProp.meetingLayout)
     MeetingClientSettingsDAO.insert(meetingProps.meetingProp.intId, JsonUtils.mapToJson(clientSettings))
+    PluginModel.persistPluginsForClient(pluginProps, meetingProps.meetingProp.intId)
   }
 
   def updateMeetingDurationByParentMeeting(parentMeetingId: String, newDurationInSeconds: Int) = {
