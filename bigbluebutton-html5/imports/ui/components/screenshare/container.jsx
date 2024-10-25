@@ -1,4 +1,4 @@
-import React, { useContext } from 'react';
+import React, { useContext, useCallback } from 'react';
 import { useMutation, useReactiveVar } from '@apollo/client';
 import { defineMessages } from 'react-intl';
 import {
@@ -20,6 +20,7 @@ import { PINNED_PAD_SUBSCRIPTION } from '../notes/queries';
 import useDeduplicatedSubscription from '../../core/hooks/useDeduplicatedSubscription';
 import AudioManager from '/imports/ui/services/audio-manager';
 import useCurrentUser from '/imports/ui/core/hooks/useCurrentUser';
+import { PIN_NOTES } from '../notes/mutations';
 
 const screenshareIntlMessages = defineMessages({
   // SCREENSHARE
@@ -101,6 +102,11 @@ const ScreenshareContainer = (props) => {
   const fullscreenElementId = 'Screenshare';
   const fullscreenContext = (element === fullscreenElementId);
   const [stopExternalVideoShare] = useMutation(EXTERNAL_VIDEO_STOP);
+  const [pinSharedNotes] = useMutation(PIN_NOTES);
+
+  const unpinSharedNotes = useCallback(() => {
+    pinSharedNotes({ variables: { pinned: false } });
+  }, [pinSharedNotes]);
 
   const { data: pinnedPadData } = useDeduplicatedSubscription(PINNED_PAD_SUBSCRIPTION);
 
@@ -164,6 +170,7 @@ const ScreenshareContainer = (props) => {
           fullscreenElementId,
           isSharedNotesPinned,
           stopExternalVideoShare,
+          unpinSharedNotes,
           outputDeviceId,
           enableVolumeControl,
           hasAudio,
