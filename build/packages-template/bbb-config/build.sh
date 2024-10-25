@@ -52,7 +52,7 @@ cp include_default.nginx staging/usr/share/bigbluebutton/
 cp bigbluebutton.target staging/usr/lib/systemd/system/
 
 # inject dependency to bigbluebutton.target
-for unit in freeswitch nginx redis-server; do
+for unit in freeswitch nginx redis-server postgres; do
   mkdir -p "staging/usr/lib/systemd/system/${unit}.service.d"
   cp bigbluebutton.conf "staging/usr/lib/systemd/system/${unit}.service.d/"
 done
