@@ -37,6 +37,7 @@ import {
   useIsDeleteChatMessageEnabled,
 } from '/imports/ui/services/features';
 import { CHAT_DELETE_REACTION_MUTATION, CHAT_SEND_REACTION_MUTATION } from './page/chat-message/mutations';
+import logger from '/imports/startup/client/logger';
 
 const PAGE_SIZE = 50;
 
@@ -234,6 +235,14 @@ const ChatMessageList: React.FC<ChatListProps> = ({
         reactionEmoji,
         reactionEmojiId,
       },
+    }).catch((e) => {
+      logger.error({
+        logCode: 'chat_send_message_reaction_error',
+        extraInfo: {
+          errorName: e?.name,
+          errorMessage: e?.message,
+        },
+      }, `Sending reaction failed: ${e?.message}`);
     });
   }, [chatSendReaction]);
 
@@ -250,6 +259,14 @@ const ChatMessageList: React.FC<ChatListProps> = ({
         reactionEmoji,
         reactionEmojiId,
       },
+    }).catch((e) => {
+      logger.error({
+        logCode: 'chat_delete_message_reaction_error',
+        extraInfo: {
+          errorName: e?.name,
+          errorMessage: e?.message,
+        },
+      }, `Deleting reaction failed: ${e?.message}`);
     });
   }, [chatDeleteReaction]);
 

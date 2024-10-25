@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useCallback } from 'react';
 import { defineMessages, useIntl } from 'react-intl';
 import { useMutation } from '@apollo/client';
 import Popover from '@mui/material/Popover';
@@ -16,6 +16,7 @@ import {
   Root,
 } from './styles';
 import { CHAT_DELETE_MESSAGE_MUTATION } from '../mutations';
+import logger from '/imports/startup/client/logger';
 
 const intlMessages = defineMessages({
   reply: {
@@ -79,6 +80,23 @@ const ChatMessageToolbar: React.FC<ChatMessageToolbarProps> = (props) => {
   const [isTryingToDelete, setIsTryingToDelete] = React.useState(false);
   const intl = useIntl();
   const [chatDeleteMessage] = useMutation(CHAT_DELETE_MESSAGE_MUTATION);
+
+  const onDeleteConfirmation = useCallback(() => {
+    chatDeleteMessage({
+      variables: {
+        chatId,
+        messageId,
+      },
+    }).catch((e) => {
+      logger.error({
+        logCode: 'chat_delete_message_error',
+        extraInfo: {
+          errorName: e?.name,
+          errorMessage: e?.message,
+        },
+      }, `Deleting the message failed: ${e?.message}`);
+    });
+  }, [chatDeleteMessage, chatId, messageId]);
 
   const isRTL = layoutSelect((i: Layout) => i.isRTL);
 
@@ -212,14 +230,7 @@ const ChatMessageToolbar: React.FC<ChatMessageToolbarProps> = (props) => {
               isOpen={isTryingToDelete}
               setIsOpen={setIsTryingToDelete}
               onRequestClose={() => setIsTryingToDelete(false)}
-              onConfirm={() => {
-                chatDeleteMessage({
-                  variables: {
-                    chatId,
-                    messageId,
-                  },
-                });
-              }}
+              onConfirm={onDeleteConfirmation}
               title={intl.formatMessage(intlMessages.confirmationTitle)}
               confirmButtonLabel={intl.formatMessage(intlMessages.delete)}
               cancelButtonLabel={intl.formatMessage(intlMessages.cancelLabel)}
