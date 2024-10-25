@@ -208,6 +208,13 @@ const PresenceManagerContainer: React.FC<PresenceManagerContainerProps> = ({ chi
     logger.debug(`Error on user authentication: ${error}`);
   }
 
+  if (
+    !userInfoLoading
+    && (userInfoData?.meeting.length === 0 && userInfoData?.user_current.length === 0)
+  ) {
+    throw new Error('Meeting Not Found.', { cause: 'meeting_not_found' });
+  }
+
   if (!data || data.user_current.length === 0) return null;
   if (!userInfoData
       || userInfoData.meeting.length === 0
