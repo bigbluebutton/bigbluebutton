@@ -114,6 +114,7 @@ type Mutation {
     chatId: String!
     messageId: String!
     reactionEmoji: String!
+    reactionEmojiId: String!
   ): Boolean
 }
 
@@ -149,6 +150,7 @@ type Mutation {
     chatId: String!
     messageId: String!
     reactionEmoji: String!
+    reactionEmojiId: String!
   ): Boolean
 }
 

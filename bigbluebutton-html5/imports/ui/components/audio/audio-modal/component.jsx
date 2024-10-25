@@ -38,6 +38,8 @@ const propTypes = {
   leaveEchoTest: PropTypes.func.isRequired,
   changeInputDevice: PropTypes.func.isRequired,
   changeOutputDevice: PropTypes.func.isRequired,
+  updateInputDevices: PropTypes.func.isRequired,
+  updateOutputDevices: PropTypes.func.isRequired,
   isEchoTest: PropTypes.bool.isRequired,
   isConnecting: PropTypes.bool.isRequired,
   isConnected: PropTypes.bool.isRequired,
@@ -207,6 +209,8 @@ const AudioModal = ({
   unmuteOnExit = false,
   permissionStatus = null,
   isTranscriptionEnabled,
+  updateInputDevices,
+  updateOutputDevices,
 }) => {
   const [content, setContent] = useState(initialContent);
   const [hasError, setHasError] = useState(false);
@@ -528,6 +532,8 @@ const AudioModal = ({
         permissionStatus={permissionStatus}
         isTranscriptionEnabled={isTranscriptionEnabled}
         skipAudioOptions={skipAudioOptions}
+        updateInputDevices={updateInputDevices}
+        updateOutputDevices={updateOutputDevices}
       />
     );
   };

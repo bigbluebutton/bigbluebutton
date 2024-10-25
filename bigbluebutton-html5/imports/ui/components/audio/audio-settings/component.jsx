@@ -21,6 +21,8 @@ const propTypes = {
   changeInputDevice: PropTypes.func.isRequired,
   liveChangeInputDevice: PropTypes.func.isRequired,
   changeOutputDevice: PropTypes.func.isRequired,
+  updateInputDevices: PropTypes.func.isRequired,
+  updateOutputDevices: PropTypes.func.isRequired,
   handleBack: PropTypes.func.isRequired,
   handleConfirmation: PropTypes.func.isRequired,
   handleGUMFailure: PropTypes.func.isRequired,
@@ -384,11 +386,16 @@ class AudioSettings extends React.Component {
   }
 
   updateDeviceList() {
+    const { updateInputDevices, updateOutputDevices } = this.props;
+
     return navigator.mediaDevices.enumerateDevices()
       .then((devices) => {
         const audioInputDevices = devices.filter((i) => i.kind === 'audioinput');
         const audioOutputDevices = devices.filter((i) => i.kind === 'audiooutput');
 
+        // Update audio devices in AudioManager
+        updateInputDevices(audioInputDevices);
+        updateOutputDevices(audioOutputDevices);
         this.setState({
           audioInputDevices,
           audioOutputDevices,
