@@ -1119,7 +1119,7 @@
     "app.notificationBar.connectionCode3003": "O servidor non responde actualmente. Reconexión en curso (código 3003)",
     "app.notificationBar.connectionCode3004": "A conexión é inestable. Comprobe a súa conexión a Internet (código 3004)",
     "app.notificationBar.connectionCode3005": "Os datos están a cargar lentamente. Reconexión en curso (código 3005)",
-    "app.learning-dashboard.label": " Taboleiro de análise da aprendizaxe",
+    "app.learning-dashboard.label": "Taboleiro de análise da aprendizaxe",
     "app.learning-dashboard.description": "Taboleiro coas actividades dos usuarios",
     "app.learning-dashboard.clickHereToOpen": "Abrir o taboleiro de análise da aprendizaxe",
     "app.recording.startTitle": "Iniciar a gravación",
