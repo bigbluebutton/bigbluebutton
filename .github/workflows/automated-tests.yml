@@ -271,7 +271,6 @@ jobs:
 
           COMMAND="./bbb-install.sh -v jammy-30-dev -s bbb-ci.test -j -d /certs/"
           TIMEOUT=1500  # 25 minutes
-          TIMEOUT=420  # 7 minutes - temporary for testing
           MAX_RETRIES=3
           RETRY_INTERVAL=60
           RETRY_COUNT=0
