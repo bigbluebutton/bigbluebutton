@@ -19,7 +19,6 @@ import { Message } from '/imports/ui/Types/message';
 import ChatListPage from './page/component';
 import LAST_SEEN_MUTATION from './queries';
 import {
-  ButtonLoadMore,
   MessageList,
   UnreadButton,
 } from './styles';
@@ -180,7 +179,8 @@ const ChatMessageList: React.FC<ChatListProps> = ({
   const intl = useIntl();
   // I used a ref here because I don't want to re-render the component when the last sender changes
   const lastSenderPerPage = React.useRef<Map<number, string>>(new Map());
-  const sentinelRef = React.useRef<HTMLDivElement | null>(null);
+  const endSentinelRef = React.useRef<HTMLDivElement | null>(null);
+  const startSentinelRef = React.useRef<HTMLDivElement | null>(null);
   const {
     ref: messageListContainerRef,
     current: currentMessageListContainer,
@@ -191,10 +191,15 @@ const ChatMessageList: React.FC<ChatListProps> = ({
   const [followingTail, setFollowingTail] = React.useState(true);
   const [selectedMessage, setSelectedMessage] = React.useState<HTMLElement | null>(null);
   const {
-    childRefProxy: sentinelRefProxy,
-    intersecting: isSentinelVisible,
-    parentRefProxy: messageListContainerRefProxy,
-  } = useIntersectionObserver(messageListContainerRef, sentinelRef);
+    childRefProxy: endSentinelRefProxy,
+    intersecting: isEndSentinelVisible,
+    parentRefProxy: endSentinelParentRefProxy,
+  } = useIntersectionObserver(messageListContainerRef, endSentinelRef);
+  const {
+    childRefProxy: startSentinelRefProxy,
+    intersecting: isStartSentinelVisible,
+    parentRefProxy: startSentinelParentRefProxy,
+  } = useIntersectionObserver(messageListContainerRef, startSentinelRef);
   const {
     startObserving: startObservingStickyScroll,
     stopObserving: stopObservingStickyScroll,
@@ -271,13 +276,27 @@ const ChatMessageList: React.FC<ChatListProps> = ({
   }, [chatDeleteReaction]);
 
   useEffect(() => {
-    if (isSentinelVisible) {
+    if (isEndSentinelVisible) {
       startObservingStickyScroll();
     } else {
       stopObservingStickyScroll();
     }
-    toggleFollowingTail(isSentinelVisible);
-  }, [isSentinelVisible]);
+    toggleFollowingTail(isEndSentinelVisible);
+  }, [isEndSentinelVisible]);
+
+  useEffect(() => {
+    if (isStartSentinelVisible) {
+      if (followingTail) {
+        toggleFollowingTail(false);
+      }
+      setUserLoadedBackUntilPage((prev) => {
+        if (typeof prev === 'number') {
+          return prev - 1;
+        }
+        return prev;
+      });
+    }
+  }, [isStartSentinelVisible]);
 
   useEffect(() => {
     setter({
@@ -329,7 +348,7 @@ const ChatMessageList: React.FC<ChatListProps> = ({
   }, [lastMessageCreatedAt, chatId]);
 
   const setScrollToTailEventHandler = () => {
-    toggleFollowingTail(isSentinelVisible);
+    toggleFollowingTail(isEndSentinelVisible);
   };
 
   const toggleFollowingTail = (toggle: boolean) => {
@@ -356,8 +375,8 @@ const ChatMessageList: React.FC<ChatListProps> = ({
           key="unread-messages"
           label={intl.formatMessage(intlMessages.moreMessages)}
           onClick={() => {
-            if (sentinelRef.current) {
-              sentinelRef.current.scrollIntoView({ behavior: 'smooth' });
+            if (endSentinelRef.current) {
+              endSentinelRef.current.scrollIntoView({ behavior: 'smooth' });
             }
           }}
         />
@@ -368,8 +387,8 @@ const ChatMessageList: React.FC<ChatListProps> = ({
 
   useEffect(() => {
     const scrollToTailEventHandler = () => {
-      if (isElement(sentinelRef.current)) {
-        sentinelRef.current.scrollIntoView();
+      if (isElement(endSentinelRef.current)) {
+        endSentinelRef.current.scrollIntoView();
       }
     };
 
@@ -387,8 +406,8 @@ const ChatMessageList: React.FC<ChatListProps> = ({
   }, [followingTail]);
 
   useEffect(() => {
-    if (isElement(sentinelRef.current)) {
-      sentinelRef.current.scrollIntoView();
+    if (isElement(endSentinelRef.current)) {
+      endSentinelRef.current.scrollIntoView();
     }
   }, []);
 
@@ -409,9 +428,15 @@ const ChatMessageList: React.FC<ChatListProps> = ({
   };
 
   const hasToolbar = CHAT_DELETE_ENABLED
-  || CHAT_EDIT_ENABLED
-  || CHAT_REPLY_ENABLED
-  || CHAT_REACTIONS_ENABLED;
+    || CHAT_EDIT_ENABLED
+    || CHAT_REPLY_ENABLED
+    || CHAT_REACTIONS_ENABLED;
+
+  const updateRefs = useCallback((el: HTMLDivElement | null) => {
+    messageListContainerRef.current = el;
+    startSentinelParentRefProxy.current = el;
+    endSentinelParentRefProxy.current = el;
+  }, []);
 
   return (
     <>
@@ -428,7 +453,7 @@ const ChatMessageList: React.FC<ChatListProps> = ({
             }}
             data-test="chatMessages"
             isRTL={isRTL}
-            ref={messageListContainerRefProxy}
+            ref={updateRefs}
           >
             <div
               role="listbox"
@@ -439,18 +464,15 @@ const ChatMessageList: React.FC<ChatListProps> = ({
                 setSelectedMessage(null);
               }}
             >
-              {userLoadedBackUntilPage ? (
-                <ButtonLoadMore
-                  onClick={() => {
-                    if (followingTail) {
-                      toggleFollowingTail(false);
-                    }
-                    setUserLoadedBackUntilPage(userLoadedBackUntilPage - 1);
-                  }}
-                >
-                  {intl.formatMessage(intlMessages.loadMoreButtonLabel)}
-                </ButtonLoadMore>
-              ) : null}
+              <div
+                ref={startSentinelRefProxy}
+                style={{
+                  height: 1,
+                  background: 'none',
+                }}
+                tabIndex={-1}
+                aria-hidden
+              />
               <ChatPopupContainer />
               {Array.from({ length: pagesToLoad }, (_v, k) => k + (firstPageToLoad)).map((page) => {
                 return (
@@ -463,7 +485,7 @@ const ChatMessageList: React.FC<ChatListProps> = ({
                     lastSenderPreviousPage={page ? lastSenderPerPage.current.get(page - 1) : undefined}
                     chatId={chatId}
                     markMessageAsSeen={markMessageAsSeen}
-                    scrollRef={messageListContainerRefProxy}
+                    scrollRef={messageListContainerRef}
                     focusedId={selectedMessage?.dataset.sequence
                       ? Number.parseInt(selectedMessage?.dataset.sequence, 10)
                       : null}
@@ -485,7 +507,7 @@ const ChatMessageList: React.FC<ChatListProps> = ({
               })}
             </div>
             <div
-              ref={sentinelRefProxy}
+              ref={endSentinelRefProxy}
               style={{
                 height: 1,
                 background: 'none',
