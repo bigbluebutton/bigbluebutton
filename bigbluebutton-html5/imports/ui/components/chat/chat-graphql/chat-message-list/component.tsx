@@ -408,6 +408,11 @@ const ChatMessageList: React.FC<ChatListProps> = ({
     }
   };
 
+  const hasToolbar = CHAT_DELETE_ENABLED
+  || CHAT_EDIT_ENABLED
+  || CHAT_REPLY_ENABLED
+  || CHAT_REACTIONS_ENABLED;
+
   return (
     <>
       {
@@ -428,7 +433,7 @@ const ChatMessageList: React.FC<ChatListProps> = ({
             <div
               role="listbox"
               ref={messageListRef}
-              tabIndex={0}
+              tabIndex={hasToolbar ? 0 : -1}
               onKeyDown={rove}
               onBlur={() => {
                 setSelectedMessage(null);
