@@ -292,7 +292,7 @@ const ChatMessageList: React.FC<ChatListProps> = ({
         toggleFollowingTail(false);
       }
       setUserLoadedBackUntilPage((prev) => {
-        if (typeof prev === 'number') {
+        if (typeof prev === 'number' && prev > 0) {
           return prev - 1;
         }
         return prev;
