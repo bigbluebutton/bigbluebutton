@@ -794,7 +794,7 @@ class AudioManager {
           breakoutMeetingId: '',
           status: BREAKOUT_AUDIO_TRANSFER_STATES.DISCONNECTED,
         });
-        logger.info({
+        logger.warn({
           logCode: 'audio_reconnecting',
           extraInfo: {
             bridge,
