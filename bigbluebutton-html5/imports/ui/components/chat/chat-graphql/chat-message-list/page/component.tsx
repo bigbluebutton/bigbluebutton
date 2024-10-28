@@ -26,6 +26,7 @@ import { setLoadedMessageGathering } from '/imports/ui/core/hooks/useLoadedChatM
 import { ChatLoading } from '../../component';
 import { ChatEvents } from '/imports/ui/core/enums/chat';
 import { useStorageKey, STORAGES } from '/imports/ui/services/storage/hooks';
+import Storage from '/imports/ui/services/storage/in-memory';
 import { getValueByPointer } from '/imports/utils/object-utils';
 
 const PAGE_SIZE = 50;
@@ -228,6 +229,7 @@ const ChatListPage: React.FC<ChatListPageProps> = ({
   useEffect(() => {
     if (typeof chatFocusMessageRequest === 'number') {
       messageRefs.current[chatFocusMessageRequest]?.requestFocus();
+      Storage.removeItem(ChatEvents.CHAT_FOCUS_MESSAGE_REQUEST);
     }
   }, []);
 
