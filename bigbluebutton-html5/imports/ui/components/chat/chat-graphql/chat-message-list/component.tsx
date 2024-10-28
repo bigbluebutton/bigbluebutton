@@ -39,6 +39,7 @@ import { CHAT_DELETE_REACTION_MUTATION, CHAT_SEND_REACTION_MUTATION } from './pa
 import logger from '/imports/startup/client/logger';
 
 const PAGE_SIZE = 50;
+const CLEANUP_TIMEOUT = 3000;
 
 const intlMessages = defineMessages({
   loadMoreButtonLabel: {
@@ -186,6 +187,7 @@ const ChatMessageList: React.FC<ChatListProps> = ({
     current: currentMessageListContainer,
   } = useReactiveRef<HTMLDivElement>(null);
   const messageListRef = React.useRef<HTMLDivElement>(null);
+  const cleanupTimeoutRef = React.useRef<ReturnType<typeof setTimeout> | null>(null);
   const [userLoadedBackUntilPage, setUserLoadedBackUntilPage] = useState<number | null>(null);
   const [lastMessageCreatedAt, setLastMessageCreatedAt] = useState<string>('');
   const [followingTail, setFollowingTail] = React.useState(true);
@@ -296,7 +298,7 @@ const ChatMessageList: React.FC<ChatListProps> = ({
         return prev;
       });
     }
-  }, [isStartSentinelVisible]);
+  }, [isStartSentinelVisible, followingTail]);
 
   useEffect(() => {
     setter({
@@ -401,9 +403,16 @@ const ChatMessageList: React.FC<ChatListProps> = ({
 
   useEffect(() => {
     if (followingTail) {
-      setUserLoadedBackUntilPage(null);
+      if (userLoadedBackUntilPage !== null) {
+        cleanupTimeoutRef.current = setTimeout(() => {
+          setUserLoadedBackUntilPage(null);
+        }, CLEANUP_TIMEOUT);
+      }
+    } else if (cleanupTimeoutRef.current !== null) {
+      clearTimeout(cleanupTimeoutRef.current);
+      cleanupTimeoutRef.current = null;
     }
-  }, [followingTail]);
+  }, [followingTail, userLoadedBackUntilPage]);
 
   useEffect(() => {
     if (isElement(endSentinelRef.current)) {
