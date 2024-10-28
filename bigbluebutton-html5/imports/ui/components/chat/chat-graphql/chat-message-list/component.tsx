@@ -427,7 +427,7 @@ const ChatMessageList: React.FC<ChatListProps> = ({
     }
   };
 
-  const hasToolbar = CHAT_DELETE_ENABLED
+  const hasMessageToolbar = CHAT_DELETE_ENABLED
     || CHAT_EDIT_ENABLED
     || CHAT_REPLY_ENABLED
     || CHAT_REACTIONS_ENABLED;
@@ -454,11 +454,12 @@ const ChatMessageList: React.FC<ChatListProps> = ({
             data-test="chatMessages"
             isRTL={isRTL}
             ref={updateRefs}
+            $hasMessageToolbar={hasMessageToolbar}
           >
             <div
               role="listbox"
               ref={messageListRef}
-              tabIndex={hasToolbar ? 0 : -1}
+              tabIndex={hasMessageToolbar ? 0 : -1}
               onKeyDown={rove}
               onBlur={() => {
                 setSelectedMessage(null);
@@ -473,7 +474,7 @@ const ChatMessageList: React.FC<ChatListProps> = ({
                 tabIndex={-1}
                 aria-hidden
               />
-              <ChatPopupContainer />
+              <ChatPopupContainer hasMessageToolbar={hasMessageToolbar} />
               {Array.from({ length: pagesToLoad }, (_v, k) => k + (firstPageToLoad)).map((page) => {
                 return (
                   <ChatListPage

@@ -5,12 +5,12 @@ import { ButtonElipsis } from '/imports/ui/stylesheets/styled-components/placeho
 
 interface MessageListProps {
   isRTL: boolean;
+  $hasMessageToolbar: boolean;
 }
 
 export const MessageList = styled(ScrollboxVertical)<MessageListProps>`
   flex-flow: column;
   flex-shrink: 1;
-  padding-top: 2rem;
   outline-style: none;
   overflow-x: hidden;
   user-select: text;
@@ -27,6 +27,10 @@ export const MessageList = styled(ScrollboxVertical)<MessageListProps>`
 
   ${({ isRTL }) => !isRTL && `
     padding-right: ${smPaddingX};
+  `}
+
+  ${({ $hasMessageToolbar }) => $hasMessageToolbar && `
+    padding-top: 2rem;
   `}
 `;
 
