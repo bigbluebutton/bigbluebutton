@@ -192,8 +192,8 @@ export default class SFUAudioBridge extends BaseAudioBridge {
       this.broker.onended = () => {};
     }
 
-    this.broker.stop();
     this.reconnecting = true;
+    this.broker.stop();
     this._startBroker({ isListenOnly: this.isListenOnly, ...options })
       .catch((error) => {
         // Error handling is a no-op because it will be "handled" in handleBrokerFailure
@@ -278,7 +278,10 @@ export default class SFUAudioBridge extends BaseAudioBridge {
 
   handleTermination() {
     this.clearConnectionTimeout();
-    return this.callback({ status: this.baseCallStates.ended, bridge: this.bridgeName });
+
+    if (!this.reconnecting) {
+      this.callback({ status: this.baseCallStates.ended, bridge: this.bridgeName });
+    }
   }
 
   handleStart() {
