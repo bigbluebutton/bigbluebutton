@@ -134,12 +134,12 @@ public class MeetingService implements MessageListener {
 
   public void registerUser(String meetingID, String internalUserId,
                            String fullname, String role, String externUserID,
-                           String authToken, String sessionToken, String avatarURL, String webcamBackgroundURL, Boolean guest, 
-                           Boolean authed, String guestStatus, Boolean excludeFromDashboard, Boolean leftGuestLobby,
+                           String authToken, String sessionToken, String avatarURL, String webcamBackgroundURL, Boolean bot,
+                           Boolean guest, Boolean authed, String guestStatus, Boolean excludeFromDashboard, Boolean leftGuestLobby,
                            String enforceLayout, Map<String, String> userMetadata) {
     handle(
             new RegisterUser(meetingID, internalUserId, fullname, role,
-                            externUserID, authToken, sessionToken, avatarURL, webcamBackgroundURL, guest, authed, guestStatus,
+                            externUserID, authToken, sessionToken, avatarURL, webcamBackgroundURL, bot, guest, authed, guestStatus,
                             excludeFromDashboard, leftGuestLobby, enforceLayout, userMetadata
             )
     );
@@ -404,10 +404,10 @@ public class MeetingService implements MessageListener {
     Map<String, String> metadata = m.getMetadata();
 
     // Fetch content for each URL and store in the map
-    for (PluginsManifest pluginsManifest : m.getPluginsManifests()) {
+    for (PluginManifest pluginManifest : m.getPluginManifests()) {
       try {
 
-        String urlString = pluginsManifest.getUrl();
+        String urlString = pluginManifest.getUrl();
         URL url = new URL(urlString);
         StringBuilder content = new StringBuilder();
         try (BufferedReader in = new BufferedReader(new InputStreamReader(url.openStream()))) {
@@ -421,15 +421,15 @@ public class MeetingService implements MessageListener {
         JsonNode jsonNode = objectMapper.readTree(content.toString());
 
         // Validate checksum if any:
-        String paramChecksum = pluginsManifest.getChecksum();
+        String paramChecksum = pluginManifest.getChecksum();
         if (!StringUtils.isEmpty(paramChecksum)) {
           String hash = DigestUtils.sha256Hex(content.toString());
           if (!paramChecksum.equals(hash)) {
             log.info("Plugin's manifest.json checksum mismatch with that of the URL parameter for {}.",
-              pluginsManifest.getUrl()
+              pluginManifest.getUrl()
             );
             log.info("Plugin {} is not going to be loaded",
-              pluginsManifest.getUrl()
+              pluginManifest.getUrl()
             );
             continue;
           }
@@ -458,21 +458,33 @@ public class MeetingService implements MessageListener {
         urlContents.put(pluginKey, manifestWrapper);
       } catch(Exception e) {
         log.error("Failed with the following plugin manifest URL: {}. Error: ",
-                pluginsManifest.getUrl(), e);
+                pluginManifest.getUrl(), e);
         log.error("Therefore this plugin will not be loaded");
       }
     }
     return urlContents;
   }
+
   public synchronized boolean createMeeting(Meeting m) {
+    Map<String, Object> pluginsMap = new HashMap<>();
+    return createMeeting(m, pluginsMap);
+  }
+
+  public synchronized boolean createMeeting(Meeting m, Map<String, Object> plugins) {
     String internalMeetingId = paramsProcessorUtil.convertToInternalMeetingId(m.getExternalId());
     Meeting existingId = getNotEndedMeetingWithId(internalMeetingId);
     Meeting existingTelVoice = getNotEndedMeetingWithTelVoice(m.getTelVoice());
     Meeting existingWebVoice = getNotEndedMeetingWithWebVoice(m.getWebVoice());
     if (existingId == null && existingTelVoice == null && existingWebVoice == null) {
       meetings.put(m.getInternalId(), m);
-      Map<String, Object> requestedManifests = requestPluginManifests(m);
-      m.setPlugins(requestedManifests);
+      Map<String, Object> pluginsMap;
+      if (m.isBreakout()) {
+        pluginsMap = plugins;
+      } else {
+        pluginsMap = requestPluginManifests(m);
+      }
+
+      m.setPlugins(pluginsMap);
       handle(new CreateMeeting(m));
       return true;
     }
@@ -573,8 +585,8 @@ public class MeetingService implements MessageListener {
   private void processRegisterUser(RegisterUser message) {
     gw.registerUser(message.meetingID,
       message.internalUserId, message.fullname, message.role,
-      message.externUserID, message.authToken, message.sessionToken, message.avatarURL, message.webcamBackgroundURL, message.guest,
-      message.authed, message.guestStatus, message.excludeFromDashboard, message.enforceLayout, message.userMetadata);
+      message.externUserID, message.authToken, message.sessionToken, message.avatarURL, message.webcamBackgroundURL, message.bot,
+      message.guest, message.authed, message.guestStatus, message.excludeFromDashboard, message.enforceLayout, message.userMetadata);
   }
 
   private void processRegisterUserSessionToken(RegisterUserSessionToken message) {
@@ -808,7 +820,7 @@ public class MeetingService implements MessageListener {
 
       Meeting breakout = paramsProcessorUtil.processCreateParams(params);
 
-      createMeeting(breakout);
+      createMeeting(breakout, message.pluginProp);
 
       presDownloadService.extractPresentationPage(message.parentMeetingId,
         message.sourcePresentationId,
@@ -1074,10 +1086,10 @@ public class MeetingService implements MessageListener {
       }
 
       User user = new User(message.userId, message.externalUserId,
-        message.name, message.role, message.locked, message.avatarURL, message.webcamBackgroundURL, message.guest, message.guestStatus,
-              message.clientType);
+        message.name, message.role, message.locked, message.avatarURL, message.webcamBackgroundURL, message.bot,
+        message.guest, message.guestStatus, message.clientType);
 
-      if(m.getMaxUsers() > 0 && m.countUniqueExtIds() >= m.getMaxUsers()) {
+      if(m.getMaxUsers() > 0 && m.countUniqueExtIds() >= m.getMaxUsers() && !user.isBot()) {
         m.removeEnteredUser(user.getInternalUserId());
         return;
       }
@@ -1097,6 +1109,7 @@ public class MeetingService implements MessageListener {
       logData.put("externalUserId", user.getExternalUserId());
       logData.put("username", user.getFullname());
       logData.put("role", user.getRole());
+      logData.put("bot", user.isBot());
       logData.put("guest", user.isGuest());
       logData.put("guestStatus", user.getGuestStatus());
       logData.put("logCode", "user_joined_message");
@@ -1193,9 +1206,10 @@ public class MeetingService implements MessageListener {
         user.setVoiceJoined(true);
       } else {
         if (message.userId.startsWith("v_")) {
+          Boolean bot = false;
           // A dial-in user joined the meeting. Dial-in users by convention has userId that starts with "v_".
                     User vuser = new User(message.userId, message.userId, message.name, "DIAL-IN-USER", true, "", "",
-                            true, GuestPolicy.ALLOW, "DIAL-IN");
+                            bot, true, GuestPolicy.ALLOW, "DIAL-IN");
           vuser.setVoiceJoined(true);
           m.userJoined(vuser);
         }

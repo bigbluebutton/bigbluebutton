@@ -1,5 +1,7 @@
 package org.bigbluebutton.api.messaging.messages;
 
+import java.util.Map;
+
 public class CreateBreakoutRoom implements IMessage {
 
     public final String meetingId;
@@ -23,6 +25,7 @@ public class CreateBreakoutRoom implements IMessage {
     public final Boolean captureSlides; // Upload annotated breakout slides to main room after breakout room end
     public final String captureNotesFilename;
     public final String captureSlidesFilename;
+    public final Map<String, Object> pluginProp;
 
     public CreateBreakoutRoom(String meetingId,
 															String parentMeetingId,
@@ -43,7 +46,8 @@ public class CreateBreakoutRoom implements IMessage {
                                                             Boolean captureNotes,
                                                             Boolean captureSlides,
                                                             String captureNotesFilename,
-                                                            String captureSlidesFilename) {
+                                                            String captureSlidesFilename,
+                                                            Map<String, Object> pluginProp) {
         this.meetingId = meetingId;
         this.parentMeetingId = parentMeetingId;
         this.name = name;
@@ -64,5 +68,6 @@ public class CreateBreakoutRoom implements IMessage {
         this.captureSlides = captureSlides;
         this.captureNotesFilename = captureNotesFilename;
         this.captureSlidesFilename = captureSlidesFilename;
+        this.pluginProp = pluginProp;
     }
 }

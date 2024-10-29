@@ -98,39 +98,30 @@ const intlMessages = defineMessages({
 });
 
 const propTypes = {
-  code: PropTypes.oneOfType([
-    PropTypes.string,
-    PropTypes.number,
-  ]),
   error: PropTypes.object,
-  errorInfo: PropTypes.object,
 };
 
 const defaultProps = {
-  code: '500',
   callback: () => {},
   endedReason: null,
   error: {},
-  errorInfo: null,
 };
 
 class ErrorScreen extends PureComponent {
   componentDidMount() {
-    const { code, callback, endedReason } = this.props;
+    const { callback, endedReason } = this.props;
     // stop audio
     window.dispatchEvent(new Event('StopAudioTracks'));
     callback(endedReason, () => {});
-    console.error({ logCode: 'startup_client_usercouldnotlogin_error' }, `User could not log in HTML5, hit ${code}`);
+    console.error({ logCode: 'startup_client_usercouldnotlogin_error' }, 'User could not log in HTML5');
   }
 
   render() {
     const {
-      code,
       children,
       error,
-      errorInfo,
     } = this.props;
-    let formatedMessage = 'Oops, something went wrong';
+    const formatedMessage = 'Oops, something went wrong';
     let errorMessageDescription = Session.getItem('errorMessageDescription');
     const intl = intlHolder.getIntl();
 
@@ -139,12 +130,6 @@ class ErrorScreen extends PureComponent {
     }
 
     if (intl) {
-      formatedMessage = intl.formatMessage(intlMessages[defaultProps.code]);
-
-      if (code in intlMessages) {
-        formatedMessage = intl.formatMessage(intlMessages[code]);
-      }
-
       errorMessageDescription = Session.getItem('errorMessageDescription');
 
       if (errorMessageDescription in intlMessages) {
@@ -166,23 +151,6 @@ class ErrorScreen extends PureComponent {
             </Styled.SessionMessage>
           )
         }
-        {
-          errorInfo
-            ? (
-              <textarea
-                rows="5"
-                cols="33"
-                disabled
-              >
-                {JSON.stringify(errorInfo)}
-              </textarea>
-            )
-            : null
-        }
-        <Styled.Separator />
-        <Styled.CodeError>
-          {code}
-        </Styled.CodeError>
         <div>
           {children}
         </div>

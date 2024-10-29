@@ -121,7 +121,7 @@ case class AnswerVO(id: Int, key: String, text: Option[String], responders: Opti
 case class QuestionVO(id: Int, questionType: String, multiResponse: Boolean, questionText: Option[String], answers: Option[Array[AnswerVO]])
 case class PollVO(id: String, questions: Array[QuestionVO], title: Option[String], started: Boolean, stopped: Boolean, showResult: Boolean, isSecret: Boolean)
 
-case class UserVO(id: String, externalId: String, name: String, role: String,
+case class UserVO(id: String, externalId: String, name: String, role: String, bot: Boolean,
                   guest: Boolean, authed: Boolean, guestStatus: String, emojiStatus: String,
                   presenter: Boolean, hasStream: Boolean, locked: Boolean, webcamStreams: Set[String],
                   phoneUser: Boolean, voiceUser: VoiceUserVO, listenOnly: Boolean, avatarURL: String,
