@@ -129,6 +129,22 @@ export const CURRENT_PAGE_ANNOTATIONS_STREAM = gql`subscription annotationsStrea
   }
 }`;
 
+export const ANNOTATION_HISTORY_STREAM = gql`
+  subscription annotationHistoryStream($updatedAt: timestamptz) {
+    pres_annotation_history_curr_stream(
+      batch_size: 100,
+      cursor: {initial_value: {updatedAt: $updatedAt}, ordering: ASC}
+    ) {
+      annotationId
+      annotationInfo
+      pageId
+      presentationId
+      updatedAt
+      userId
+    }
+  }
+`;
+
 export const CURRENT_PAGE_WRITERS_SUBSCRIPTION = gql`
   subscription currentPageWritersSubscription($pageId: String!) {
     pres_page_writers(where: { pageId: { _eq: $pageId } }) {
