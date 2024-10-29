@@ -452,8 +452,8 @@ const ExternalVideoPlayerContainer: React.FC = () => {
 
     // don't re-send repeated update messages
     if (
-      lastMessageRef.current.event === event &&
-      Math.abs(lastMessageRef.current.time - data.time) < UPDATE_INTERVAL_THRESHOLD_MS
+      lastMessageRef.current.event === event
+      && Math.abs(lastMessageRef.current.time - data.time) < UPDATE_INTERVAL_THRESHOLD_MS
     ) {
       return;
     }
