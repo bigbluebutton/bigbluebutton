@@ -4,6 +4,7 @@ import React, {
   useState,
   memo,
   useRef,
+  useCallback,
 } from 'react';
 import { PluginsContext } from '/imports/ui/components/components-data/plugin-context/context';
 import {
@@ -25,31 +26,65 @@ import { setLoadedMessageGathering } from '/imports/ui/core/hooks/useLoadedChatM
 import { ChatLoading } from '../../component';
 import { ChatEvents } from '/imports/ui/core/enums/chat';
 import { useStorageKey, STORAGES } from '/imports/ui/services/storage/hooks';
+import { getValueByPointer } from '/imports/utils/object-utils';
 
 const PAGE_SIZE = 50;
 
-interface ChatListPageContainerProps {
-  page: number;
-  pageSize: number;
-  setLastSender: (page: number, message: string) => void;
-  lastSenderPreviousPage: string | undefined;
-  chatId: string;
-  markMessageAsSeen: (message: Message) => void;
-  scrollRef: React.RefObject<HTMLDivElement>;
-  focusedId: number | null;
+interface ChatListPageCommonProps {
   firstPageToLoad: number;
+  focusedId: number | null;
+  scrollRef: React.RefObject<HTMLDivElement>;
+  markMessageAsSeen: (message: Message) => void;
+  lastSenderPreviousPage: string | undefined;
+  page: number;
+  meetingDisablePublicChat: boolean;
+  meetingDisablePrivateChat: boolean;
+  currentUserIsModerator: boolean;
+  currentUserIsLocked: boolean;
+  currentUserId: string;
+  currentUserDisablePublicChat: boolean;
+  messageToolbarIsEnabled: boolean;
+  chatReplyEnabled: boolean;
+  chatDeleteEnabled: boolean;
+  chatEditEnabled: boolean;
+  chatReactionsEnabled: boolean;
+  sendReaction: (reactionEmoji: string, reactionEmojiId: string, chatId: string, messageId: string) => void;
+  deleteReaction: (reactionEmoji: string, reactionEmojiId: string, chatId: string, messageId: string) => void;
 }
 
-interface ChatListPageProps {
+interface ChatListPageContainerProps extends ChatListPageCommonProps {
+  pageSize: number;
+  setLastSender: (page: number, message: string) => void;
+  chatId: string;
+}
+
+interface ChatListPageProps extends ChatListPageCommonProps {
   messages: Array<Message>;
   messageReadFeedbackEnabled: boolean;
-  lastSenderPreviousPage: string | undefined;
-  page: number;
-  markMessageAsSeen: (message: Message)=> void;
-  scrollRef: React.RefObject<HTMLDivElement>;
-  focusedId: number | null;
-  firstPageToLoad: number;
+  isPublicChat: boolean;
 }
+
+const propsToCompare = [
+  'focusedId',
+  'meetingDisablePublicChat',
+  'meetingDisablePrivateChat',
+  'currentUserDisablePublicChat',
+  'currentUserId',
+  'currentUserIsLocked',
+  'currentUserIsModerator',
+  'chatDeleteEnabled',
+  'chatEditEnabled',
+  'chatReactionsEnabled',
+  'chatReplyEnabled',
+] as const;
+const messagePropsToCompare = [
+  'messageId',
+  'createdAt',
+  'user.currentlyInMeeting',
+  'recipientHasSeen',
+  'message',
+  'reactions.length',
+] as const;
 
 const areChatPagesEqual = (prevProps: ChatListPageProps, nextProps: ChatListPageProps) => {
   const nextMessages = nextProps?.messages || [];
@@ -57,14 +92,16 @@ const areChatPagesEqual = (prevProps: ChatListPageProps, nextProps: ChatListPage
   if (nextMessages.length !== prevMessages.length) return false;
   return nextMessages.every((nextMessage, idx) => {
     const prevMessage = prevMessages[idx];
-    return (prevMessage.messageId === nextMessage.messageId
-      && prevMessage.createdAt === nextMessage.createdAt
-      && prevMessage?.user?.currentlyInMeeting === nextMessage?.user?.currentlyInMeeting
-      && prevMessage?.recipientHasSeen === nextMessage?.recipientHasSeen
-      && prevMessage?.message === nextMessage?.message
-      && prevMessage?.reactions?.length === nextMessage?.reactions?.length
-    );
-  }) && prevProps.focusedId === nextProps.focusedId;
+    return messagePropsToCompare.every((pointer) => {
+      const previousValue = getValueByPointer(prevMessage, pointer);
+      const nextValue = getValueByPointer(nextMessage, pointer);
+      return previousValue === nextValue;
+    });
+  }) && propsToCompare.every((pointer) => {
+    const previousValue = getValueByPointer(prevProps, pointer);
+    const nextValue = getValueByPointer(nextProps, pointer);
+    return previousValue === nextValue;
+  });
 };
 
 const ChatListPage: React.FC<ChatListPageProps> = ({
@@ -76,6 +113,20 @@ const ChatListPage: React.FC<ChatListPageProps> = ({
   scrollRef,
   focusedId,
   firstPageToLoad,
+  meetingDisablePrivateChat,
+  meetingDisablePublicChat,
+  currentUserId,
+  currentUserDisablePublicChat,
+  currentUserIsLocked,
+  currentUserIsModerator,
+  isPublicChat,
+  messageToolbarIsEnabled,
+  chatDeleteEnabled,
+  chatEditEnabled,
+  chatReactionsEnabled,
+  chatReplyEnabled,
+  deleteReaction,
+  sendReaction,
 }) => {
   const { domElementManipulationIdentifiers } = useContext(PluginsContext);
   const messageRefs = useRef<Record<number, ChatMessageRef | null>>({});
@@ -180,6 +231,11 @@ const ChatListPage: React.FC<ChatListPageProps> = ({
     }
   }, []);
 
+  const updateMessageRef = useCallback((ref: ChatMessageRef | null) => {
+    if (!ref) return;
+    messageRefs.current[ref.sequence] = ref;
+  }, []);
+
   return (
     <React.Fragment key={`messagePage-${page}`}>
       {messages.map((message, index, messagesArray) => {
@@ -199,9 +255,21 @@ const ChatListPage: React.FC<ChatListPageProps> = ({
             focused={focusedId === message.messageSequence}
             keyboardFocused={keyboardFocusedMessageSequence === message.messageSequence}
             editing={editingId === message.messageId}
-            ref={(ref) => {
-              messageRefs.current[message.messageSequence] = ref;
-            }}
+            ref={updateMessageRef}
+            meetingDisablePrivateChat={meetingDisablePrivateChat}
+            meetingDisablePublicChat={meetingDisablePublicChat}
+            currentUserId={currentUserId}
+            currentUserDisablePublicChat={currentUserDisablePublicChat}
+            currentUserIsLocked={currentUserIsLocked}
+            currentUserIsModerator={currentUserIsModerator}
+            isPublicChat={isPublicChat}
+            hasToolbar={messageToolbarIsEnabled && !!message.user}
+            chatDeleteEnabled={chatDeleteEnabled}
+            chatEditEnabled={chatEditEnabled}
+            chatReactionsEnabled={chatReactionsEnabled}
+            chatReplyEnabled={chatReplyEnabled}
+            deleteReaction={deleteReaction}
+            sendReaction={sendReaction}
           />
         );
       })}
@@ -221,6 +289,19 @@ const ChatListPageContainer: React.FC<ChatListPageContainerProps> = ({
   scrollRef,
   focusedId,
   firstPageToLoad,
+  meetingDisablePrivateChat,
+  meetingDisablePublicChat,
+  currentUserId,
+  currentUserDisablePublicChat,
+  currentUserIsLocked,
+  currentUserIsModerator,
+  messageToolbarIsEnabled,
+  chatDeleteEnabled,
+  chatEditEnabled,
+  chatReactionsEnabled,
+  chatReplyEnabled,
+  deleteReaction,
+  sendReaction,
 }) => {
   const CHAT_CONFIG = window.meetingClientSettings.public.chat;
   const PUBLIC_GROUP_CHAT_KEY = CHAT_CONFIG.public_group_id;
@@ -263,6 +344,20 @@ const ChatListPageContainer: React.FC<ChatListPageContainerProps> = ({
       scrollRef={scrollRef}
       focusedId={focusedId}
       firstPageToLoad={firstPageToLoad}
+      meetingDisablePrivateChat={meetingDisablePrivateChat}
+      meetingDisablePublicChat={meetingDisablePublicChat}
+      currentUserId={currentUserId}
+      currentUserDisablePublicChat={currentUserDisablePublicChat}
+      currentUserIsLocked={currentUserIsLocked}
+      currentUserIsModerator={currentUserIsModerator}
+      isPublicChat={isPublicChat}
+      messageToolbarIsEnabled={messageToolbarIsEnabled}
+      chatDeleteEnabled={chatDeleteEnabled}
+      chatEditEnabled={chatEditEnabled}
+      chatReactionsEnabled={chatReactionsEnabled}
+      chatReplyEnabled={chatReplyEnabled}
+      deleteReaction={deleteReaction}
+      sendReaction={sendReaction}
     />
   );
 };

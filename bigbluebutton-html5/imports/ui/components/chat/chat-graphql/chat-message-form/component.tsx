@@ -372,6 +372,14 @@ const ChatMessageForm: React.FC<ChatMessageFormProps> = ({
           },
         }).then(() => {
           sendCancelEvents();
+        }).catch((e) => {
+          logger.error({
+            logCode: 'chat_edit_message_error',
+            extraInfo: {
+              errorName: e?.name,
+              errorMessage: e?.message,
+            },
+          }, `Editing the message failed: ${e?.message}`);
         });
       } else if (!chatSendMessageLoading) {
         chatSendMessage({
