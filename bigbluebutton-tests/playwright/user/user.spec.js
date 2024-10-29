@@ -46,6 +46,51 @@ test.describe.parallel('User', () => {
     });
   });
 
+  test.describe.parallel('Reactions @ci', () => {
+    test('Smile', async ({ browser, context, page }) => {
+      const multiusers = new MultiUsers(browser, context);
+      await multiusers.initModPage(page, true);
+      await multiusers.initUserPage(true, context);
+      await multiusers.smileReaction();
+    });
+
+    test('Indifferent', async ({ browser, context, page }) => {
+      const multiusers = new MultiUsers(browser, context);
+      await multiusers.initModPage(page, true);
+      await multiusers.initUserPage(true, context);
+      await multiusers.indifferentReaction();
+    });
+
+    test('Sad', async ({ browser, context, page }) => {
+      const multiusers = new MultiUsers(browser, context);
+      await multiusers.initModPage(page);
+      await multiusers.initUserPage(true, context);
+      await multiusers.sadReaction();
+    });
+
+    test('Thumbs Up', async ({ browser, context, page })=> {
+      const multiusers = new MultiUsers(browser, context);
+      await multiusers.initModPage(page);
+      await multiusers.initUserPage(true, context);
+      await multiusers.thumbsUpReaction();
+    });
+
+    test('Thumbs Down', async ({ browser, context, page })=> {
+      const multiusers = new MultiUsers(browser, context);
+      await multiusers.initModPage(page);
+      await multiusers.initUserPage(true, context);
+      await multiusers.thumbsDownReaction();
+    });
+
+    test('Applauses', async ({ browser, context, page })=> {
+      const multiusers = new MultiUsers(browser, context);
+      await multiusers.initModPage(page);
+      await multiusers.initUserPage(true, context);
+      await multiusers.applausesReaction();
+    });
+    
+  });
+
   test.describe.parallel('List', () => {
     // https://docs.bigbluebutton.org/2.7/testing/release-testing/#set-status--raise-hand-automated
     test('Change user status @ci', async ({ browser, page }) => {
