@@ -276,11 +276,10 @@ const ExternalVideoPlayer: React.FC<ExternalVideoPlayerProps> = ({
   const handleOnPlay = async () => {
     setReactPlayerPlaying(true);
     if (isPresenter && !playing) {
-      let rate = playerRef.current?.getInternalPlayer()?.getPlaybackRate() ?? 1;
-
-      if (rate instanceof Promise) {
-        rate = await rate;
-      }
+      const internalPlayer = playerRef.current?.getInternalPlayer();
+      const rate = internalPlayer instanceof HTMLVideoElement
+        ? internalPlayer.playbackRate
+        : internalPlayer?.getPlaybackRate?.() ?? 1;
 
       const currentTime = played * duration;
       sendMessage('play', {
@@ -297,7 +296,11 @@ const ExternalVideoPlayer: React.FC<ExternalVideoPlayerProps> = ({
   const handleOnStop = async () => {
     setReactPlayerPlaying(false);
     if (isPresenter && playing) {
-      let rate = playerRef.current?.getInternalPlayer()?.getPlaybackRate() ?? 1;
+      const internalPlayer = playerRef.current?.getInternalPlayer();
+      let rate = internalPlayer instanceof HTMLVideoElement
+        ? internalPlayer.playbackRate
+        : internalPlayer?.getPlaybackRate?.() ?? 1;
+
       if (rate instanceof Promise) {
         rate = await rate;
       }
