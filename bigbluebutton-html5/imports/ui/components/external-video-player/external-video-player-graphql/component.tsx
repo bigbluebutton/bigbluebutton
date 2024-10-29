@@ -447,11 +447,13 @@ const ExternalVideoPlayerContainer: React.FC = () => {
 
   const [updateExternalVideo] = useMutation(EXTERNAL_VIDEO_UPDATE);
 
-  const sendMessage = (event: string, data: { rate: number; time: number; state?: string}) => {
+  const sendMessage = async (event: string, data: { rate: number | Promise<number>; time: number; state?: string }) => {
+    const resolvedRate = data.rate instanceof Promise ? await data.rate : data.rate;
+
     // don't re-send repeated update messages
     if (
-      lastMessageRef.current.event === event
-      && Math.abs(lastMessageRef.current.time - data.time) < UPDATE_INTERVAL_THRESHOLD_MS
+      lastMessageRef.current.event === event &&
+      Math.abs(lastMessageRef.current.time - data.time) < UPDATE_INTERVAL_THRESHOLD_MS
     ) {
       return;
     }
@@ -461,7 +463,7 @@ const ExternalVideoPlayerContainer: React.FC = () => {
       return;
     }
 
-    lastMessageRef.current = { ...data, event };
+    lastMessageRef.current = { ...data, event, rate: resolvedRate };
 
     // Use an integer for playing state
     // 0: stopped 1: playing
@@ -471,8 +473,8 @@ const ExternalVideoPlayerContainer: React.FC = () => {
     updateExternalVideo({
       variables: {
         status: event,
-        rate: data?.rate,
-        time: data?.time,
+        rate: resolvedRate,
+        time: data.time,
         state,
       },
     });
