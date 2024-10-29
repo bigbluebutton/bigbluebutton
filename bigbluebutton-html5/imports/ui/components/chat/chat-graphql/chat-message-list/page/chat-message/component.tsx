@@ -63,6 +63,7 @@ interface ChatMessageProps {
 
 export interface ChatMessageRef {
   requestFocus: () => void;
+  sequence: number;
 }
 
 const intlMessages = defineMessages({
@@ -170,7 +171,8 @@ const ChatMessage = React.forwardRef<ChatMessageRef, ChatMessageProps>(({
         requestAnimationFrame(startScrollAnimation);
       }, 0);
     },
-  }), []);
+    sequence: message.messageSequence,
+  }), [message.messageSequence]);
 
   const startScrollAnimation = (timestamp: number) => {
     animationInitialScrollPosition.current = scrollRef.current?.scrollTop || 0;

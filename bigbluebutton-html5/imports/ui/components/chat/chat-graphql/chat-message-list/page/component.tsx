@@ -4,6 +4,7 @@ import React, {
   useState,
   memo,
   useRef,
+  useCallback,
 } from 'react';
 import { PluginsContext } from '/imports/ui/components/components-data/plugin-context/context';
 import {
@@ -230,6 +231,11 @@ const ChatListPage: React.FC<ChatListPageProps> = ({
     }
   }, []);
 
+  const updateMessageRef = useCallback((ref: ChatMessageRef | null) => {
+    if (!ref) return;
+    messageRefs.current[ref.sequence] = ref;
+  }, []);
+
   return (
     <React.Fragment key={`messagePage-${page}`}>
       {messages.map((message, index, messagesArray) => {
@@ -249,9 +255,7 @@ const ChatListPage: React.FC<ChatListPageProps> = ({
             focused={focusedId === message.messageSequence}
             keyboardFocused={keyboardFocusedMessageSequence === message.messageSequence}
             editing={editingId === message.messageId}
-            ref={(ref) => {
-              messageRefs.current[message.messageSequence] = ref;
-            }}
+            ref={updateMessageRef}
             meetingDisablePrivateChat={meetingDisablePrivateChat}
             meetingDisablePublicChat={meetingDisablePublicChat}
             currentUserId={currentUserId}
