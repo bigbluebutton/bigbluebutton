@@ -36,7 +36,8 @@ const errorCodeMap = {
 };
 
 // Error codes that are prone to a retry according to RETRY_THROUGH_RELAY
-const RETRYABLE_ERRORS = [1007, 1010];
+const RTC_CONNECTIVITY_ERRORS = [1007, 1010];
+const RETRYABLE_ERRORS = [...RTC_CONNECTIVITY_ERRORS, 1002, 1005];
 
 const mapErrorCode = (error) => {
   const { errorCode } = error;
@@ -101,6 +102,14 @@ export default class SFUAudioBridge extends BaseAudioBridge {
     this.supportsTransparentListenOnly = isTransparentListenOnlyEnabled;
 
     this.handleTermination = this.handleTermination.bind(this);
+  }
+
+  set reconnecting(value) {
+    this._reconnecting = value;
+  }
+
+  get reconnecting() {
+    return this._reconnecting;
   }
 
   get inputStream() {
@@ -194,7 +203,7 @@ export default class SFUAudioBridge extends BaseAudioBridge {
 
     this.reconnecting = true;
     this.broker.stop();
-    this._startBroker({ isListenOnly: this.isListenOnly, ...options })
+    return this._startBroker({ isListenOnly: this.isListenOnly, ...options })
       .catch((error) => {
         // Error handling is a no-op because it will be "handled" in handleBrokerFailure
         logger.debug({
@@ -206,6 +215,8 @@ export default class SFUAudioBridge extends BaseAudioBridge {
             role: this.role,
           },
         }, 'SFU audio reconnect failed');
+
+        throw error;
       });
   }
 
@@ -230,23 +241,25 @@ export default class SFUAudioBridge extends BaseAudioBridge {
               role: this.role,
             },
           }, 'SFU audio failed, try to reconnect');
-          this.reconnect();
-          return resolve();
+
+          return this.reconnect().then(resolve).catch(reject);
         }
 
-        if (RETRYABLE_ERRORS.includes(errorCode) && RETRY_THROUGH_RELAY) {
+        if (RETRYABLE_ERRORS.includes(errorCode)) {
+          const forceRelay = RETRY_THROUGH_RELAY && RTC_CONNECTIVITY_ERRORS.includes(errorCode);
           logger.error({
-            logCode: 'sfuaudio_error_retry_through_relay',
+            logCode: 'sfuaudio_error_retry',
             extraInfo: {
               errorMessage,
               errorCode,
               errorCause,
               bridge: this.bridgeName,
               role: this.role,
+              forceRelay,
             },
-          }, 'SFU audio failed to connect, retry through relay');
-          this.reconnect({ forceRelay: true });
-          return resolve();
+          }, `SFU audio failed to connect, retrying (relay=${forceRelay})`);
+
+          return this.reconnect({ forceRelay }).then(resolve).catch(reject);
         }
       }
 
@@ -349,6 +362,7 @@ export default class SFUAudioBridge extends BaseAudioBridge {
         forceRelay: _forceRelay = false,
         bypassGUM = false,
       } = options;
+      const _reconnecting = this.reconnecting;
 
       const SETTINGS = window.meetingClientSettings;
       const MEDIA = SETTINGS.public.media;
@@ -356,7 +370,6 @@ export default class SFUAudioBridge extends BaseAudioBridge {
       const SFU_URL = SETTINGS.public.kurento.wsUrl;
       const TRACE_LOGS = SETTINGS.public.kurento.traceLogs;
       const GATHERING_TIMEOUT = SETTINGS.public.kurento.gatheringTimeout;
-      const RETRY_THROUGH_RELAY = MEDIA.audio.retryThroughRelay || false;
       const { audio: NETWORK_PRIORITY } = MEDIA.networkPriorities || {};
       const {
         enabled: RESTART_ICE = false,
@@ -365,9 +378,7 @@ export default class SFUAudioBridge extends BaseAudioBridge {
 
       const handleInitError = (_error) => {
         mapErrorCode(_error);
-        if (!RETRYABLE_ERRORS.includes(_error?.errorCode)
-          || !RETRY_THROUGH_RELAY
-          || this.reconnecting) {
+        if (!RETRYABLE_ERRORS.includes(_error?.errorCode) || _reconnecting) {
           reject(_error);
         }
       };
