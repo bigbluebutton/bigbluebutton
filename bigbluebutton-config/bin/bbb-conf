@@ -677,6 +677,7 @@ check_configuration() {
     ignore_configs_args+=(-e "redis.pass")
     ignore_configs_args+=(-e "redisPassword")
     ignore_configs_args+=(-e "disabledFeatures")
+    ignore_configs_args+=(-e "pluginManifests")
 
     for file in $CONFIG_FILES ; do
         if [ ! -f $file ]; then
