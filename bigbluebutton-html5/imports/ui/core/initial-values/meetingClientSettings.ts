@@ -3,6 +3,7 @@ import { MeetingClientSettings } from '../../Types/meetingClientSettings';
 export const meetingClientSettingsInitialValues: MeetingClientSettings = {
   public: {
     app: {
+      terminateAndRetryConnection: 30000,
       mobileFontSize: '16px',
       desktopFontSize: '14px',
       audioChatNotification: false,
@@ -569,6 +570,7 @@ export const meetingClientSettingsInitialValues: MeetingClientSettings = {
         'p',
         'strong',
       ],
+      toolbar: [],
     },
     userReaction: {
       enabled: true,
@@ -613,11 +615,6 @@ export const meetingClientSettingsInitialValues: MeetingClientSettings = {
     },
     pads: {
       url: 'ETHERPAD_HOST',
-      cookie: {
-        path: '/',
-        sameSite: 'None',
-        secure: true,
-      },
     },
     media: {
       audio: {
@@ -825,113 +822,6 @@ export const meetingClientSettingsInitialValues: MeetingClientSettings = {
       },
       toolbar: {
         multiUserPenOnly: false,
-        colors: [
-          {
-            label: 'black',
-            value: '#000000',
-          },
-          {
-            label: 'white',
-            value: '#ffffff',
-          },
-          {
-            label: 'red',
-            value: '#ff0000',
-          },
-          {
-            label: 'orange',
-            value: '#ff8800',
-          },
-          {
-            label: 'eletricLime',
-            value: '#ccff00',
-          },
-          {
-            label: 'Lime',
-            value: '#00ff00',
-          },
-          {
-            label: 'Cyan',
-            value: '#00ffff',
-          },
-          {
-            label: 'dodgerBlue',
-            value: '#0088ff',
-          },
-          {
-            label: 'blue',
-            value: '#0000ff',
-          },
-          {
-            label: 'violet',
-            value: '#8800ff',
-          },
-          {
-            label: 'magenta',
-            value: '#ff00ff',
-          },
-          {
-            label: 'silver',
-            value: '#c0c0c0',
-          },
-        ],
-        thickness: [
-          {
-            value: 14,
-          },
-          {
-            value: 12,
-          },
-          {
-            value: 10,
-          },
-          {
-            value: 8,
-          },
-          {
-            value: 6,
-          },
-          {
-            value: 4,
-          },
-          {
-            value: 2,
-          },
-          {
-            value: 1,
-          },
-        ],
-        font_sizes: [
-          {
-            value: 36,
-          },
-          {
-            value: 32,
-          },
-          {
-            value: 28,
-          },
-          {
-            value: 24,
-          },
-          {
-            value: 20,
-          },
-          {
-            value: 16,
-          },
-        ],
-        tools: [
-          { icon: 'select_tool', value: 'select' },
-          { icon: 'hand_tool', value: 'hand' },
-          { icon: 'draw_tool', value: 'draw' },
-          { icon: 'eraser_tool', value: 'eraser' },
-          { icon: 'arrow_tool', value: 'arrow' },
-          { icon: 'text_tool', value: 'text' },
-          { icon: 'note_tool', value: 'note' },
-          { icon: 'rectangle_tool', value: 'rectangle' },
-          { icon: 'more_tool', value: 'more' },
-        ],
         presenterTools: [
           'select',
           'hand',

@@ -6,6 +6,7 @@ import (
 	"github.com/sirupsen/logrus"
 	"net/http"
 	"sync"
+	"time"
 
 	"nhooyr.io/websocket"
 )
@@ -56,6 +57,8 @@ type BrowserConnection struct {
 	FromBrowserToHasuraChannel     *SafeChannelByte               // channel to transmit messages from Browser to Hasura
 	FromBrowserToGqlActionsChannel *SafeChannelByte               // channel to transmit messages from Browser to Graphq-Actions
 	FromHasuraToBrowserChannel     *SafeChannelByte               // channel to transmit messages from Hasura/GqlActions to Browser
+	LastBrowserMessageTime         time.Time                      // stores the time of the last message to control browser idleness
+	LastBrowserMessageTimeMutex    sync.RWMutex                   // mutex for LastBrowserMessageTime
 	Logger                         *logrus.Entry                  // connection logger populated with connection info
 }
 

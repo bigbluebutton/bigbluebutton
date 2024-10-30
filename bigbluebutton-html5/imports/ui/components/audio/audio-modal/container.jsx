@@ -101,6 +101,8 @@ const AudioModalContainer = (props) => {
   );
   const isTranscriptionEnabled = useIsAudioTranscriptionEnabled();
 
+  if (!currentUserData) return null;
+
   return (
     <AudioModal
       away={away}
@@ -127,6 +129,8 @@ const AudioModalContainer = (props) => {
       liveChangeInputDevice={Service.liveChangeInputDevice}
       changeInputStream={Service.changeInputStream}
       changeOutputDevice={Service.changeOutputDevice}
+      updateInputDevices={Service.updateInputDevices}
+      updateOutputDevices={Service.updateOutputDevices}
       joinEchoTest={Service.joinEchoTest}
       exitAudio={Service.exitAudio}
       localEchoEnabled={LOCAL_ECHO_TEST_ENABLED}

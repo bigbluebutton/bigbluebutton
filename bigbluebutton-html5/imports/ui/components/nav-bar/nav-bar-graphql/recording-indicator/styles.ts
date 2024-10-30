@@ -21,6 +21,7 @@ interface RecordingIndicatorIconProps {
 interface RecordingIndicatorProps {
   recording: boolean;
   disabled: boolean;
+  isPhone?: boolean;
 }
 
 interface RecordingStatusViewOnlyProps {
@@ -142,7 +143,11 @@ const PresentationTitleSeparator = styled.span`
   margin: 0 1rem;
 `;
 
-const RecordingIndicator = styled.div`
+const RecordingIndicator = styled.div<RecordingIndicatorProps>`
+  ${({ isPhone }) => isPhone && `
+    margin-left: ${smPaddingX};
+  `}
+
   &:hover {
     outline: transparent;
     outline-style: dotted;
@@ -162,7 +167,7 @@ const RecordingStatusViewOnly = styled.div<RecordingStatusViewOnlyProps>`
   display: flex;
 
   ${({ recording }) => recording && `
-    padding: 5px;
+    padding: 5px 5px 5px 5px;
     background-color: ${colorDangerDark};
     border: ${borderSizeLarge} solid ${colorDangerDark};
     border-radius: 10px;

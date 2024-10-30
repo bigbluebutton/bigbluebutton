@@ -20,9 +20,9 @@ trait PresentationUploadedFileTimeoutErrorPubMsgHdlr {
         MessageTypes.BROADCAST_TO_MEETING,
         liveMeeting.props.meetingProp.intId, msg.header.userId
       )
-      val envelope = BbbCoreEnvelope(PresentationUploadedFileTooLargeErrorEvtMsg.NAME, routing)
+      val envelope = BbbCoreEnvelope(PresentationUploadedFileTimeoutErrorEvtMsg.NAME, routing)
       val header = BbbClientMsgHeader(
-        PresentationUploadedFileTooLargeErrorEvtMsg.NAME,
+        PresentationUploadedFileTimeoutErrorEvtMsg.NAME,
         liveMeeting.props.meetingProp.intId, msg.header.userId
       )
 

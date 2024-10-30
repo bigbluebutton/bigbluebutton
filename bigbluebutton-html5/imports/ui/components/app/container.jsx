@@ -54,6 +54,7 @@ const AppContainer = (props) => {
   const captionsStyle = layoutSelectOutput((i) => i.captions);
   const presentation = layoutSelectInput((i) => i.presentation);
   const sharedNotesInput = layoutSelectInput((i) => i.sharedNotes);
+  const { hideNotificationToasts } = layoutSelectInput((i) => i.notificationsBar);
 
   const setSpeechOptions = useSetSpeechOptions();
   const { data: pinnedPadData } = useDeduplicatedSubscription(PINNED_PAD_SUBSCRIPTION);
@@ -87,8 +88,6 @@ const AppContainer = (props) => {
       minUtteranceLength,
     );
   }, [partialUtterances, minUtteranceLength]);
-  const customStyleUrl = getFromUserSettings('bbb_custom_style_url', false)
-  || window.meetingClientSettings.public.app.customStyleUrl;
 
   if (!currentUser) return null;
 
@@ -96,11 +95,10 @@ const AppContainer = (props) => {
     ? (
       <App
         {...{
-          hideActionsBar: getFromUserSettings('bbb_hide_actions_bar', false),
-          customStyle: getFromUserSettings('bbb_custom_style', false),
+          hideActionsBar: getFromUserSettings('bbb_hide_actions_bar', false)
+            || getFromUserSettings('bbb_hide_controls', false),
           currentUserAway: currentUser.away,
           currentUserRaiseHand: currentUser.raiseHand,
-          customStyleUrl,
           captionsStyle,
           presentationIsOpen,
           shouldShowExternalVideo,
@@ -109,6 +107,8 @@ const AppContainer = (props) => {
           shouldShowPresentation,
           genericMainContentId: genericMainContent.genericContentId,
           audioCaptions: <AudioCaptionsLiveContainer />,
+          hideNotificationToasts: hideNotificationToasts
+            || getFromUserSettings('bbb_hide_notifications', false),
           darkTheme,
         }}
         {...props}

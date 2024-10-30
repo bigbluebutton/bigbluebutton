@@ -18,3 +18,15 @@ select_permissions:
               _eq: X-Hasura-MeetingId
           - userId:
               _eq: X-Hasura-UserId
+  - role: bbb_client_not_in_meeting
+    permission:
+      columns:
+        - parameter
+        - value
+      filter:
+        _and:
+          - meetingId:
+              _eq: X-Hasura-MeetingId
+          - userId:
+              _eq: X-Hasura-UserId
+    comment: ""

@@ -423,6 +423,7 @@ async function processPresentationAnnotations() {
   const serverFilenameWithExtension = `${sanitizedServerFilename}.pdf`;
   const mergePDFs = [
     '-dNOPAUSE',
+    '-dAutoRotatePages=/None',
     '-sDEVICE=pdfwrite',
     `-sOUTPUTFILE="${path.join(outputDir, serverFilenameWithExtension)}"`,
     `-dBATCH`].concat(ghostScriptInput);

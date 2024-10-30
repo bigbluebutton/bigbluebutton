@@ -143,18 +143,20 @@ class Presentation extends PureComponent {
 
   componentDidMount() {
     this.getInitialPresentationSizes();
-    this.refPresentationContainer.addEventListener(
-      'keydown',
-      this.handlePanShortcut,
-    );
-    this.refPresentationContainer.addEventListener(
-      'keyup',
-      this.handlePanShortcut,
-    );
-    this.refPresentationContainer.addEventListener(
-      FULLSCREEN_CHANGE_EVENT,
-      this.onFullscreenChange,
-    );
+    if (this.refPresentationContainer) {
+      this.refPresentationContainer.addEventListener(
+        'keydown',
+        this.handlePanShortcut,
+      );
+      this.refPresentationContainer.addEventListener(
+        'keyup',
+        this.handlePanShortcut,
+      );
+      this.refPresentationContainer.addEventListener(
+        FULLSCREEN_CHANGE_EVENT,
+        this.onFullscreenChange,
+      );
+    }
     window.addEventListener('resize', this.onResize, false);
 
     const {
@@ -213,6 +215,7 @@ class Presentation extends PureComponent {
       fitToWidth,
       isDefaultPresentation,
       presentationIsDownloadable,
+      setPresentationFitToWidth,
     } = this.props;
     const {
       presentationWidth,
@@ -274,7 +277,9 @@ class Presentation extends PureComponent {
                 this.currentPresentationToastId = null;
               },
               autoClose: shouldCloseToast,
-              className: 'actionToast currentPresentationToast',
+              className: 'toastClass actionToast currentPresentationToast',
+              bodyClassName: 'toastBodyClass',
+              progressClassName: 'toastProgressClass',
             },
           );
         }
@@ -358,6 +363,10 @@ class Presentation extends PureComponent {
     ) {
       this.setIsPanning();
     }
+
+    if (!userIsPresenter && prevProps.userIsPresenter && fitToWidth) {
+      setPresentationFitToWidth(false);
+    }
   }
 
   componentWillUnmount() {
@@ -365,18 +374,20 @@ class Presentation extends PureComponent {
     const { fullscreenContext, layoutContextDispatch } = this.props;
 
     window.removeEventListener('resize', this.onResize, false);
-    this.refPresentationContainer.removeEventListener(
-      FULLSCREEN_CHANGE_EVENT,
-      this.onFullscreenChange,
-    );
-    this.refPresentationContainer.removeEventListener(
-      'keydown',
-      this.handlePanShortcut,
-    );
-    this.refPresentationContainer.removeEventListener(
-      'keyup',
-      this.handlePanShortcut,
-    );
+    if (this.refPresentationContainer) {
+      this.refPresentationContainer.removeEventListener(
+        FULLSCREEN_CHANGE_EVENT,
+        this.onFullscreenChange,
+      );
+      this.refPresentationContainer.removeEventListener(
+        'keydown',
+        this.handlePanShortcut,
+      );
+      this.refPresentationContainer.removeEventListener(
+        'keyup',
+        this.handlePanShortcut,
+      );
+    }
 
     if (fullscreenContext) {
       layoutContextDispatch({
@@ -498,9 +509,9 @@ class Presentation extends PureComponent {
   zoomChanger(zoom) {
     let boundZoom = parseInt(zoom);
     if (boundZoom < HUNDRED_PERCENT) {
-      boundZoom = HUNDRED_PERCENT
+      boundZoom = HUNDRED_PERCENT;
     } else if (boundZoom > MAX_PERCENT) {
-      boundZoom = MAX_PERCENT
+      boundZoom = MAX_PERCENT;
     }
     this.setState({ zoom: boundZoom });
   }
@@ -815,7 +826,7 @@ class Presentation extends PureComponent {
     const presentationZIndex = fullscreenContext ? presentationBounds.zIndex : undefined;
 
     const APP_CRASH_METADATA = { logCode: 'whiteboard_crash', logMessage: 'Possible whiteboard crash' };
-
+  if (!presentationIsOpen) return null;
     return (
       <>
         <Styled.PresentationContainer

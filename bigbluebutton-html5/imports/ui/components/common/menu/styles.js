@@ -1,7 +1,7 @@
 import styled from 'styled-components';
-import Button from "/imports/ui/components/common/button/component";
+import Button from '/imports/ui/components/common/button/component';
 import Icon from '/imports/ui/components/common/icon/component';
-import MenuItem from "@mui/material/MenuItem";
+import MenuItem from '@mui/material/MenuItem';
 import {
   colorWhite,
   colorPrimary,
@@ -11,7 +11,7 @@ import {
   headingsFontWeight,
 } from '/imports/ui/stylesheets/styled-components/typography';
 import { mediumUp } from '/imports/ui/stylesheets/styled-components/breakpoints';
-import Menu from "@mui/material/Menu";
+import Menu from '@mui/material/Menu';
 
 const MenuWrapper = styled(Menu)`
   ${({ isMobile }) => isMobile && `
@@ -37,6 +37,11 @@ const MenuItemWrapper = styled.div`
   flex-flow: row;
   width: 100%;
   align-items: center;
+
+  ${({ isMobile }) => isMobile && `
+    flex-flow: column;
+    align-items: center;
+  `}
   ${({ hasSpaceBetween }) => hasSpaceBetween && `
     justify-content: space-between;
   `}
@@ -81,6 +86,13 @@ const Option = styled.div`
     margin-right: 0;
     margin-left: 0;
   `}
+
+  ${({ $isToggle }) => $isToggle && `
+    margin: 0 !important;
+    padding: .1rem 0 0 0;
+    width: 100%;
+ `}
+
 `;
 
 const CloseButton = styled(Button)`
@@ -152,12 +164,26 @@ const BBBMenuItem = styled(MenuItem)`
     }
   `}
   ${({ $roundButtons, $isToggle }) => $roundButtons && !$isToggle && `
-    &:focus,
-    &:hover {
-      background-color: ${colorWhite} !important;
-      div div div {
-        background-color: ${colorPrimary} !important;
-        border: 1px solid ${colorPrimary} !important;
+    @media (hover: hover) {
+      &:focus,
+      &:hover {
+        background-color: ${colorWhite} !important;
+        div div div {
+          background-color: ${colorPrimary} !important;
+          border: 1px solid ${colorPrimary} !important;
+        }
+      }
+    }
+
+    @media (hover: none) {
+      &:focus {
+        background-color: ${colorWhite} !important;
+      }
+      &:hover {
+        background-color: ${colorWhite} !important;
+        div div div {
+          background-color: none !important;
+        }
       }
     }
   `}

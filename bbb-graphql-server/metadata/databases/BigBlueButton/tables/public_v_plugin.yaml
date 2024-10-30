@@ -10,7 +10,7 @@ select_permissions:
   - role: bbb_client
     permission:
       columns:
-        - javascriptEntrypointChecksum
+        - javascriptEntrypointIntegrity
         - javascriptEntrypointUrl
         - name
       filter:
@@ -20,7 +20,7 @@ select_permissions:
   - role: bbb_client_not_in_meeting
     permission:
       columns:
-        - javascriptEntrypointChecksum
+        - javascriptEntrypointIntegrity
         - javascriptEntrypointUrl
         - name
       filter:

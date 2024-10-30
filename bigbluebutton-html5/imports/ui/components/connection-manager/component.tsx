@@ -1,6 +1,7 @@
 import {
   ApolloClient, ApolloProvider, InMemoryCache, NormalizedCacheObject, ApolloLink,
 } from '@apollo/client';
+import { GraphQLError } from 'graphql';
 import { GraphQLWsLink } from '@apollo/client/link/subscriptions';
 import { createClient } from 'graphql-ws';
 import { onError } from '@apollo/client/link/error';
@@ -15,6 +16,11 @@ import useMeetingSettings from '/imports/ui/core/local-states/useMeetingSettings
 
 interface ConnectionManagerProps {
   children: React.ReactNode;
+}
+
+interface ErrorPayload extends GraphQLError {
+  messageId?: string;
+  message: string;
 }
 
 interface WsError {
@@ -80,10 +86,12 @@ const ConnectionManager: React.FC<ConnectionManagerProps> = ({ children }): Reac
   const activeSocket = useRef<WebSocket>();
   const tsLastMessageRef = useRef<number>(0);
   const tsLastPingMessageRef = useRef<number>(0);
+  const terminateTimeoutRef = useRef<number>();
   const boundary = useRef(15_000);
-  const [terminalError, setTerminalError] = React.useState<string>('');
+  const [terminalError, setTerminalError] = React.useState<string | Error>('');
   const [MeetingSettings] = useMeetingSettings();
   const enableDevTools = MeetingSettings.public.app.enableApolloDevTools;
+  const terminateAndRetry = MeetingSettings.public.app.terminateAndRetryConnection ?? 30_000; // Default to 30 seconds
 
   useEffect(() => {
     BBBWeb.index().then(({ data }) => {
@@ -99,22 +107,34 @@ const ConnectionManager: React.FC<ConnectionManagerProps> = ({ children }): Reac
   useEffect(() => {
     const interval = setInterval(() => {
       const tsNow = Date.now();
-
       if (tsLastMessageRef.current !== 0 && tsLastPingMessageRef.current !== 0) {
         if ((tsNow - tsLastMessageRef.current > boundary.current) && connectionStatus.getServerIsResponding()) {
           connectionStatus.setServerIsResponding(false);
+          if (!terminateTimeoutRef.current) {
+            terminateTimeoutRef.current = window.setTimeout(() => {
+              // The apollo client will try to reconnect after the connection is terminated
+              // if the option to reconnect is true
+              apolloContextHolder.getLink().terminate();
+            }, terminateAndRetry);
+          }
         } else if ((tsNow - tsLastPingMessageRef.current > boundary.current) && connectionStatus.getPingIsComing()) {
           connectionStatus.setPingIsComing(false);
         }
 
         if (tsNow - tsLastMessageRef.current < boundary.current && !connectionStatus.getServerIsResponding()) {
           connectionStatus.setServerIsResponding(true);
+          clearTimeout(terminateTimeoutRef.current);
         } else if (tsNow - tsLastPingMessageRef.current < boundary.current && !connectionStatus.getPingIsComing()) {
           connectionStatus.setPingIsComing(true);
         }
       }
     }, 5_000);
-    return () => clearInterval(interval);
+    return () => {
+      clearInterval(interval);
+      if (terminateTimeoutRef.current !== undefined) {
+        clearTimeout(terminateTimeoutRef.current);
+      }
+    };
   }, []);
 
   useEffect(() => {
@@ -125,7 +145,11 @@ const ConnectionManager: React.FC<ConnectionManagerProps> = ({ children }): Reac
 
   useEffect(() => {
     if (terminalError) {
-      throw new Error(terminalError);
+      if (typeof terminalError === 'string') {
+        throw new Error(terminalError);
+      } else {
+        throw terminalError;
+      }
     }
   }, [terminalError]);
 
@@ -208,7 +232,7 @@ const ConnectionManager: React.FC<ConnectionManagerProps> = ({ children }): Reac
           },
           on: {
             error: (error) => {
-              logger.error('Error: on subscription to server', error);
+              logger.error('Graphql Client Error:', error);
               loadingContextInfo.setLoading(false, '');
               connectionStatus.setConnectedStatus(false);
               setErrorCounts((prev: number) => prev + 1);
@@ -217,10 +241,8 @@ const ConnectionManager: React.FC<ConnectionManagerProps> = ({ children }): Reac
               // Check if it's a CloseEvent (which includes HTTP errors during WebSocket handshake)
               if (e instanceof CloseEvent) {
                 logger.error(`WebSocket closed with code ${e.code}: ${e.reason}`);
-                loadingContextInfo.setLoading(false, '');
-                setTerminalError('Server closed the connection');
+                connectionStatus.setConnectedStatus(false);
               }
-              connectionStatus.setConnectedStatus(false);
             },
             connected: (socket) => {
               activeSocket.current = socket as WebSocket;
@@ -232,6 +254,18 @@ const ConnectionManager: React.FC<ConnectionManagerProps> = ({ children }): Reac
             message: (message) => {
               if (message.type === 'ping') {
                 tsLastPingMessageRef.current = Date.now();
+              }
+              if (message.type === 'error' && message.id === '-1') {
+                // message ID -1 as a signal to terminate the session
+                // it contains a prop message.messageId which can be used to show a proper error to the user
+                logger.error({ logCode: 'graphql_server_closed_connection', extraInfo: message }, 'Graphql Server closed the connection');
+                loadingContextInfo.setLoading(false, '');
+                const payload = message.payload as ErrorPayload[];
+                if (payload[0].messageId) {
+                  setTerminalError(new Error(payload[0].message, { cause: payload[0].messageId }));
+                } else {
+                  setTerminalError(new Error('Server closed the connection', { cause: 'server_closed' }));
+                }
               }
               tsLastMessageRef.current = Date.now();
             },

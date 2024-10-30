@@ -46,7 +46,12 @@ class BigBlueButtonActor(
 
   private val meetings = new RunningMeetings
 
-  private var sessionTokens = new collection.immutable.HashMap[String, (String, String)] //sessionToken -> (meetingId, userId)
+  private case class SessionTokenInfo(
+      meetingId: String,
+      userId:    String,
+      replaced:  Boolean = false
+  )
+  private var sessionTokens = new collection.immutable.HashMap[String, SessionTokenInfo] //sessionToken -> SessionTokenInfo
 
   override val supervisorStrategy = OneForOneStrategy(maxNrOfRetries = 10, withinTimeRange = 1 minute) {
     case e: Exception => {
@@ -96,36 +101,46 @@ class BigBlueButtonActor(
 
     sessionTokens.get(msg.sessionToken) match {
       case Some(sessionTokenInfo) =>
-        RunningMeetings.findWithId(meetings, sessionTokenInfo._1) match {
-          case Some(m) =>
-            m.actorRef forward (msg)
+        if (sessionTokenInfo.replaced) {
+          log.debug("handleGetUserApiMsg ({}): Session token replaced.", msg.sessionToken)
+          actorRef ! ApiResponseFailure("Session token replaced.", "session_token_replaced")
+        } else {
+          RunningMeetings.findWithId(meetings, sessionTokenInfo.meetingId) match {
+            case Some(m) =>
+              log.debug("handleGetUserApiMsg ({}): {}.", msg.sessionToken, m)
+              m.actorRef forward (msg)
 
-          case None =>
-            //The meeting is ended, it will return some data just to confirm the session was valid
-            //The client can request data after the meeting is ended
-            val userInfos = Map(
-              "returncode" -> "SUCCESS",
-              "sessionToken" -> msg.sessionToken,
-              "meetingID" -> sessionTokenInfo._1,
-              "internalUserID" -> sessionTokenInfo._2,
-              "externMeetingID" -> "",
-              "externUserID" -> "",
-              "currentlyInMeeting" -> false,
-              "authToken" -> "",
-              "role" -> Roles.VIEWER_ROLE,
-              "guest" -> "false",
-              "guestStatus" -> "ALLOWED",
-              "moderator" -> false,
-              "presenter" -> false,
-              "hideViewersCursor" -> false,
-              "hideViewersAnnotation" -> false,
-              "hideUserList" -> false,
-              "webcamsOnlyForModerator" -> false
-            )
-            actorRef ! ApiResponseSuccess("Meeting is ended!", UserInfosApiMsg(userInfos))
+            case None =>
+              //The meeting is ended, it will return some data just to confirm the session was valid
+              //The client can request data after the meeting is ended
+              val userInfos = Map(
+                "returncode" -> "SUCCESS",
+                "sessionToken" -> msg.sessionToken,
+                "meetingID" -> sessionTokenInfo.meetingId,
+                "internalUserID" -> sessionTokenInfo.userId,
+                "externMeetingID" -> "",
+                "externUserID" -> "",
+                "currentlyInMeeting" -> false,
+                "authToken" -> "",
+                "role" -> Roles.VIEWER_ROLE,
+                "guest" -> "false",
+                "guestStatus" -> "ALLOWED",
+                "moderator" -> false,
+                "presenter" -> false,
+                "hideViewersCursor" -> false,
+                "hideViewersAnnotation" -> false,
+                "hideUserList" -> false,
+                "webcamsOnlyForModerator" -> false
+              )
+
+              log.debug("handleGetUserApiMsg ({}): Meeting is ended.", msg.sessionToken)
+              actorRef ! ApiResponseSuccess("Meeting is ended.", UserInfosApiMsg(userInfos))
+          }
         }
+
       case None =>
-        actorRef ! ApiResponseFailure("Meeting not found!")
+        log.debug("handleGetUserApiMsg ({}): Meeting not found.", msg.sessionToken)
+        actorRef ! ApiResponseFailure("Meeting not found.", "meeting_not_found")
     }
   }
 
@@ -134,6 +149,7 @@ class BigBlueButtonActor(
 
       case m: CreateMeetingReqMsg                    => handleCreateMeetingReqMsg(m)
       case m: RegisterUserReqMsg                     => handleRegisterUserReqMsg(m)
+      case m: RegisterUserSessionTokenReqMsg         => handleRegisterUserSessionTokenReqMsg(m)
       case m: CheckAlivePingSysMsg                   => handleCheckAlivePingSysMsg(m)
       case _: UserGraphqlConnectionEstablishedSysMsg => //Ignore
       case _: UserGraphqlConnectionClosedSysMsg      => //Ignore
@@ -150,7 +166,29 @@ class BigBlueButtonActor(
       log.debug("FORWARDING Register user message")
 
       //Store sessionTokens and associate them with their respective meetingId + userId owners
-      sessionTokens += (msg.body.sessionToken -> (msg.body.meetingId, msg.body.intUserId))
+      sessionTokens += (msg.body.sessionToken -> SessionTokenInfo(msg.body.meetingId, msg.body.intUserId))
+
+      m.actorRef forward (msg)
+    }
+  }
+
+  def handleRegisterUserSessionTokenReqMsg(msg: RegisterUserSessionTokenReqMsg): Unit = {
+    log.debug("RECEIVED RegisterUserSessionTokenReqMsg msg {}", msg)
+    for {
+      m <- RunningMeetings.findWithId(meetings, msg.header.meetingId)
+    } yield {
+      log.debug("FORWARDING Register user session token message")
+
+      //Store sessionTokens and associate them with their respective meetingId + userId owners
+      sessionTokens += (msg.body.sessionToken -> SessionTokenInfo(msg.body.meetingId, msg.body.userId))
+
+      if (msg.body.replaceSessionToken.nonEmpty) {
+        for {
+          sessionTokenInfo <- sessionTokens.get(msg.body.replaceSessionToken)
+        } yield {
+          sessionTokens += (msg.body.replaceSessionToken -> sessionTokenInfo.copy(replaced = true))
+        }
+      }
 
       m.actorRef forward (msg)
     }
@@ -226,7 +264,7 @@ class BigBlueButtonActor(
       context.system.scheduler.scheduleOnce(Duration.create(60, TimeUnit.MINUTES)) {
         log.debug("Removing Graphql data and session tokens. meetingID={}", msg.meetingId)
 
-        sessionTokens = sessionTokens.filter(sessionTokenInfo => sessionTokenInfo._2._1 != msg.meetingId)
+        sessionTokens = sessionTokens.filter(sessionTokenInfo => sessionTokenInfo._2.meetingId != msg.meetingId)
 
         //In Db, Removing the meeting is enough, all other tables has "ON DELETE CASCADE"
         MeetingDAO.delete(msg.meetingId)

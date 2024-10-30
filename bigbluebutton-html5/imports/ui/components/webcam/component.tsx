@@ -21,6 +21,7 @@ import useDeduplicatedSubscription from '/imports/ui/core/hooks/useDeduplicatedS
 import { useStorageKey } from '/imports/ui/services/storage/hooks';
 import useSettings from '../../services/settings/hooks/useSettings';
 import { SETTINGS } from '../../services/settings/enums';
+import { INITIAL_INPUT_STATE } from '../layout/initState';
 
 interface WebcamComponentProps {
   cameraDock: Output['cameraDock'];
@@ -107,7 +108,7 @@ const WebcamComponent: React.FC<WebcamComponentProps> = ({
   const handleVideoFocus = (id: string) => {
     layoutContextDispatch({
       type: ACTIONS.SET_FOCUSED_CAMERA_ID,
-      value: focusedId !== id ? id : false,
+      value: focusedId !== id ? id : INITIAL_INPUT_STATE.cameraDock.focusedId,
     });
   };
 
@@ -185,8 +186,8 @@ const WebcamComponent: React.FC<WebcamComponentProps> = ({
   }
 
   const isIphone = !!(navigator.userAgent.match(/iPhone/i));
-  const mobileWidth = `${isDragging ? cameraSize?.width : cameraDock.width}pt`;
-  const mobileHeight = `${isDragging ? cameraSize?.height : cameraDock.height}pt`;
+  const mobileWidth = `${isDragging ? cameraSize?.width : cameraDock.width}px`;
+  const mobileHeight = `${isDragging ? cameraSize?.height : cameraDock.height}px`;
   const isDesktopWidth = isDragging ? cameraSize?.width : cameraDock.width;
   const isDesktopHeight = isDragging ? cameraSize?.height : cameraDock.height;
   const camOpacity = isDragging ? 0.5 : undefined;

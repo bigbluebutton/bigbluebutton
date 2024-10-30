@@ -101,12 +101,23 @@ const LayoutObserver: React.FC = () => {
 
     layoutContextDispatch({
       type: ACTIONS.SET_HAS_ACTIONBAR,
-      value: !getFromUserSettings('bbb_hide_actions_bar', false),
+      value: !(getFromUserSettings('bbb_hide_actions_bar', false)
+        || getFromUserSettings('bbb_hide_controls', false)),
+    });
+
+    layoutContextDispatch({
+      type: ACTIONS.SET_HIDE_NAVBAR_TOP_ROW,
+      value: getFromUserSettings('bbb_hide_controls', false),
     });
 
     layoutContextDispatch({
       type: ACTIONS.SET_HAS_NAVBAR,
       value: !getFromUserSettings('bbb_hide_nav_bar', false),
+    });
+
+    layoutContextDispatch({
+      type: ACTIONS.SET_HIDE_NOTIFICATION_TOASTS,
+      value: getFromUserSettings('bbb_hide_notifications', false),
     });
 
     window.addEventListener('localeChanged', () => {
@@ -208,13 +219,7 @@ const LayoutObserver: React.FC = () => {
   useEffect(() => {
     if (Session.equals('layoutReady', true) && (sidebarContentPanel === PANELS.NONE)) {
       if (!checkedUserSettings.current) {
-        const showAnimationsDefault = getFromUserSettings(
-          'bbb_show_animations_default',
-          window.meetingClientSettings.public.app.defaultSettings.application.animations,
-        );
-
         const Settings = getSettingsSingletonInstance();
-        Settings.application.animations = showAnimationsDefault;
         Settings.save(setLocalSettings);
 
         if (getFromUserSettings('bbb_show_participants_on_login', window.meetingClientSettings.public.layout.showParticipantsOnLogin) && !deviceInfo.isPhone) {

@@ -52,8 +52,6 @@ const UserItemContents = styled.div<UserItemContentsProps>`
   position: static;
   padding: .45rem;
   width: 100%;
-  margin-left: .5rem;
-
 
   ${({ selected }) => selected && `
     background-color: ${listItemBgHover};
@@ -84,7 +82,7 @@ const UserItemContents = styled.div<UserItemContentsProps>`
     &:first-child {
       margin-top: 0;
     }
-
+    &:focus,
     &:hover {
       outline: transparent;
       outline-style: dotted;
@@ -92,8 +90,7 @@ const UserItemContents = styled.div<UserItemContentsProps>`
       background-color: ${listItemBgHover};
     }
 
-    &:active,
-    &:focus {
+    &:active{
       outline: transparent;
       outline-width: ${borderSize};
       outline-style: solid;
@@ -314,6 +311,10 @@ const Avatar = styled.div<AvatarProps>`
   // ================ talking animation ================
   ${({ talking, animations, color }) => talking && animations && color && css`
     animation: ${pulse(color)} 1s infinite ease-in;
+  `}
+
+  ${({ talking, animations }) => talking && !animations && `
+    box-shadow: 0 0 0 4px currentColor;
   `}
   // ================ talking animation ================
   // ================ image ================

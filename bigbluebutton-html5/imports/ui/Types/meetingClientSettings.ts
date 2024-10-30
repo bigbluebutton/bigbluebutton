@@ -99,6 +99,7 @@ export interface App {
   disableWebsocketFallback: boolean
   maxMutationPayloadSize: number
   enableApolloDevTools: boolean
+  terminateAndRetryConnection: number
 }
 
 export interface BbbTabletApp {
@@ -526,6 +527,7 @@ export interface Chat {
   emojiPicker: EmojiPicker
   disableEmojis: string[]
   allowedElements: string[]
+  toolbar: string[]
 }
 
 export interface SystemMessagesKeys {
@@ -574,13 +576,6 @@ export interface Layout {
 
 export interface Pads {
   url: string
-  cookie: Cookie
-}
-
-export interface Cookie {
-  path: string
-  sameSite: string
-  secure: boolean
 }
 
 export interface Media {
@@ -730,10 +725,6 @@ export interface Text {
 
 export interface Toolbar {
   multiUserPenOnly: boolean
-  colors: Color[]
-  thickness: Thickness[]
-  font_sizes: FontSize[]
-  tools: Tool[]
   presenterTools: string[]
   multiUserTools: string[]
 }
@@ -749,11 +740,6 @@ export interface Thickness {
 
 export interface FontSize {
   value: number
-}
-
-export interface Tool {
-  icon: string
-  value: string
 }
 
 export interface ClientLog {

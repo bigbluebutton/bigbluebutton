@@ -1,0 +1,34 @@
+table:
+  name: v_chat_message_reaction
+  schema: public
+configuration:
+  column_config: {}
+  custom_column_names: {}
+  custom_name: chat_message_reaction
+  custom_root_fields: {}
+object_relationships:
+  - name: user
+    using:
+      manual_configuration:
+        column_mapping:
+          meetingId: meetingId
+          userId: userId
+        insertion_order: null
+        remote_table:
+          name: v_user_ref
+          schema: public
+select_permissions:
+  - role: bbb_client
+    permission:
+      columns:
+        - createdAt
+        - reactionEmoji
+        - reactionEmojiId
+        - userId
+      filter:
+        meetingId:
+          _eq: X-Hasura-MeetingId
+      allow_aggregations: true
+      query_root_fields: []
+      subscription_root_fields: []
+    comment: ""

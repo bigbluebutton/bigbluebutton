@@ -324,7 +324,7 @@ const UserActions: React.FC<UserActionsProps> = ({
       });
     }
   };
-  const t = userDropdownItems.filter(
+  const titleActions = userDropdownItems.filter(
     (item: PluginSdk.UserListDropdownInterface) => (
       item?.type === UserListDropdownItemType.TITLE_ACTION),
   );
@@ -333,7 +333,7 @@ const UserActions: React.FC<UserActionsProps> = ({
       allowed: true,
       key: 'userName',
       label: user.name,
-      titleActions: t,
+      titleActions,
       isTitle: true,
     },
     ...makeDropdownPluginItem(userDropdownItems.filter(
@@ -565,11 +565,11 @@ const UserActions: React.FC<UserActionsProps> = ({
   ];
 
   const actions = dropdownOptions.filter((key) => key.allowed);
-  if (!actions.length) {
+  if (!(actions.length > 1) || user.bot) {
     return (
-      <span>
+      <Styled.NoPointerEvents>
         {children}
-      </span>
+      </Styled.NoPointerEvents>
     );
   }
 

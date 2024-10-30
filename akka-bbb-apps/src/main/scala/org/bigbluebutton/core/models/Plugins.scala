@@ -33,14 +33,14 @@ case class RemoteDataSource(
 )
 
 case class PluginManifestContent(
-    requiredSdkVersion:           String,
-    name:                         String,
-    javascriptEntrypointUrl:      String,
-    javascriptEntrypointChecksum: Option[String]                 = None,
-    localesBaseUrl:               Option[String]                 = None,
-    eventPersistence:             Option[EventPersistence]       = None,
-    dataChannels:                 Option[List[DataChannel]]      = None,
-    remoteDataSources:            Option[List[RemoteDataSource]] = None
+    requiredSdkVersion:            String,
+    name:                          String,
+    javascriptEntrypointUrl:       String,
+    javascriptEntrypointIntegrity: Option[String]                 = None,
+    localesBaseUrl:                Option[String]                 = None,
+    eventPersistence:              Option[EventPersistence]       = None,
+    dataChannels:                  Option[List[DataChannel]]      = None,
+    remoteDataSources:             Option[List[RemoteDataSource]] = None
 )
 
 case class PluginManifest(
@@ -61,13 +61,26 @@ object PluginModel {
   def getPlugins(instance: PluginModel): Map[String, Plugin] = {
     instance.plugins
   }
+  def replaceRelativeJavascriptEntrypoint(plugin: Plugin): Plugin = {
+    val jsEntrypoint = plugin.manifest.content.javascriptEntrypointUrl
+    if (jsEntrypoint.startsWith("http://") || jsEntrypoint.startsWith("https://")) {
+      plugin
+    } else {
+      val baseUrl = plugin.manifest.url.substring(0, plugin.manifest.url.lastIndexOf('/') + 1)
+      val absoluteJavascriptEntrypoint = baseUrl + jsEntrypoint
+      val newPluginManifestContent = plugin.manifest.content.copy(javascriptEntrypointUrl = absoluteJavascriptEntrypoint)
+      val newPluginManifest = plugin.manifest.copy(content = newPluginManifestContent)
+      plugin.copy(manifest = newPluginManifest)
+    }
+  }
   def createPluginModelFromJson(json: util.Map[String, AnyRef]): PluginModel = {
     val instance = new PluginModel()
     var pluginsMap: Map[String, Plugin] = Map.empty[String, Plugin]
     json.forEach { case (pluginName, plugin) =>
       try {
         val pluginObject = objectMapper.readValue(objectMapper.writeValueAsString(plugin), classOf[Plugin])
-        pluginsMap = pluginsMap + (pluginName -> pluginObject)
+        val pluginObjectWithAbsoluteJavascriptEntrypoint = replaceRelativeJavascriptEntrypoint(pluginObject)
+        pluginsMap = pluginsMap + (pluginName -> pluginObjectWithAbsoluteJavascriptEntrypoint)
       } catch {
         case err @ (_: JsonProcessingException | _: JsonMappingException) => println("Error while processing plugin " +
           pluginName + ": ", err)
@@ -79,7 +92,7 @@ object PluginModel {
   def persistPluginsForClient(instance: PluginModel, meetingId: String): Unit = {
     instance.plugins.foreach { case (_, plugin) =>
       PluginDAO.insert(meetingId, plugin.manifest.content.name, plugin.manifest.content.javascriptEntrypointUrl,
-        plugin.manifest.content.javascriptEntrypointChecksum.getOrElse(""))
+        plugin.manifest.content.javascriptEntrypointIntegrity.getOrElse(""))
     }
   }
 }
