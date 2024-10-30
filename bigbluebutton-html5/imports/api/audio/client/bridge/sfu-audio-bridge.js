@@ -421,7 +421,11 @@ export default class SFUAudioBridge extends BaseAudioBridge {
 
         this.broker.onended = this.handleTermination.bind(this);
         this.broker.onerror = (error) => {
-          this.handleBrokerFailure(error).catch(reject);
+          // Broker failures can be successfully handled if they're retryable
+          // and the attempt to reconnect is successful. In that case, this
+          // promise will resolve and the connection will be established
+          // normally
+          this.handleBrokerFailure(error).then(resolve).catch(reject);
         };
         this.broker.onstart = () => {
           this.handleStart().then(resolve).catch(reject);
