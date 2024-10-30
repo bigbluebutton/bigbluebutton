@@ -341,7 +341,6 @@ const ExternalVideoPlayer: React.FC<ExternalVideoPlayerProps> = ({
     }
   };
 
-
   const isMinimized = width === 0 && height === 0;
 
   // @ts-ignore accessing lib private property
