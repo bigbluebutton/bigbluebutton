@@ -9,6 +9,8 @@ import { PRESENTATION_SET_ZOOM, PRESENTATION_SET_PAGE, PRESENTATION_SET_PAGE_INF
 import PresentationToolbar from './component';
 import Session from '/imports/ui/services/storage/in-memory';
 import { useMeetingIsBreakout } from '/imports/ui/components/app/service';
+import useDeduplicatedSubscription from '/imports/ui/core/hooks/useDeduplicatedSubscription';
+import { USER_AGGREGATE_COUNT_SUBSCRIPTION } from '/imports/ui/core/graphql/queries/users';
 
 const infiniteWhiteboardIcon = (isinfiniteWhiteboard) => {
   if (isinfiniteWhiteboard) {
@@ -183,6 +185,8 @@ const PresentationToolbarContainer = (props) => {
   const isPollingEnabled = useIsPollingEnabled();
   const meetingIsBreakout = useMeetingIsBreakout();
   const allowInfiniteWhiteboard = useIsInfiniteWhiteboardEnabled();
+  const { data: countData } = useDeduplicatedSubscription(USER_AGGREGATE_COUNT_SUBSCRIPTION);
+  const numberOfJoinedUsers = countData?.user_aggregate?.aggregate?.count || 0;
 
   if (userIsPresenter && !layoutSwapped) {
     // Only show controls if user is presenter and layout isn't swapped
@@ -200,6 +204,8 @@ const PresentationToolbarContainer = (props) => {
         allowInfiniteWhiteboard={allowInfiniteWhiteboard}
         // TODO: Remove this
         isMeteorConnected
+        maxNumberOfActiveUsers={WHITEBOARD_CONFIG.maxNumberOfActiveUsers}
+        numberOfJoinedUsers={numberOfJoinedUsers}
         {...{
           pluginProvidedPresentationToolbarItems,
           handleToggleFullScreen,

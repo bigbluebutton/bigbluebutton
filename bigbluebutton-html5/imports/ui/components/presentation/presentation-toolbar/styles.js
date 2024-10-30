@@ -7,6 +7,7 @@ import {
   colorDanger,
   colorWhite,
   colorGrayDark,
+  toolbarButtonColorDisabled,
 } from '/imports/ui/stylesheets/styled-components/palette';
 import {
   whiteboardToolbarMargin,
@@ -278,6 +279,10 @@ const WBAccessButton = styled(Button)`
   &:focus {
     background-color: ${colorOffWhite};
     border: 0;
+  }
+
+  &:disabled {
+    color: ${toolbarButtonColorDisabled};
   }
 `;
 

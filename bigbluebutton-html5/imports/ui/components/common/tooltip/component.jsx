@@ -100,6 +100,7 @@ class Tooltip extends Component {
       placement: overridePlacement,
       touch: ['hold', 1000],
       theme: 'bbbtip',
+      maxWidth: 300,
     };
     this.tooltip = Tippy(`#${this.tippySelectorId}`, options);
   }
