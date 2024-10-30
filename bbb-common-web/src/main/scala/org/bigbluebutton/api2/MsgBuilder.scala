@@ -49,10 +49,9 @@ object MsgBuilder {
     // Check whether the logout Url is not empty and a valid url.
     // If not leave logoutUrl empty. An empty logoutUrl will fallback to the
     // meeting logoutUrl.
-    var logoutUrl = ""
-    if (msg.logoutUrl != null && !msg.logoutUrl.isEmpty && UrlValidationUtil.isValidUrl(msg.logoutUrl)) {
-      logoutUrl = msg.logoutUrl
-    }
+    val logoutUrl = Option(msg.logoutUrl)
+      .filter(url => url.nonEmpty && UrlValidationUtil.isValidUrl(url))
+      .getOrElse("")
     val routing = collection.immutable.HashMap("sender" -> "bbb-web")
     val envelope = BbbCoreEnvelope(RegisterUserReqMsg.NAME, routing)
     val header = BbbCoreHeaderWithMeetingId(RegisterUserReqMsg.NAME, msg.meetingId)

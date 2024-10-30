@@ -37,6 +37,7 @@ import org.bigbluebutton.api.service.ValidationService
 import org.bigbluebutton.api.service.ServiceUtils
 import org.bigbluebutton.api.util.ParamsUtil
 import org.bigbluebutton.api.util.ResponseBuilder
+import org.bigbluebutton.common2.util.UrlValidationUtil
 import org.bigbluebutton.presentation.PresentationUrlDownloadService
 import org.bigbluebutton.presentation.UploadedPresentation
 import org.bigbluebutton.presentation.SupportedFileTypes;
@@ -418,7 +419,13 @@ class ApiController {
 
     String logoutUrl = meeting.getLogoutUrl()
     if(!StringUtils.isEmpty(params.get(ApiParams.LOGOUT_URL))) {
-      logoutUrl = params.get(ApiParams.LOGOUT_URL)
+      String userProvidedUrl = params.get(ApiParams.LOGOUT_URL)
+      if(!UrlValidationUtil.isValidUrl(userProvidedUrl)) {
+        log.warn("Invalid logout URL provided: " + userProvidedUrl)
+        // Use default URL from meeting
+      } else {
+        logoutUrl = params.get(ApiParams.LOGOUT_URL)
+  +  }
     }
     log.debug "The following logout URL is present: " + logoutUrl
 
