@@ -91,10 +91,10 @@ const Right = styled.div`
     justify-content: center;
   }
 
-  ${({ isWhiteboardMenuOnRight }) => !isWhiteboardMenuOnRight && `
+  ${({ isWhiteboardMenuOnRight }) => isWhiteboardMenuOnRight && `
     [dir="rtl"] &{
-      right: 2px;
-      left: auto;
+      left: 2px;
+      right: auto;
     }
   `}
 `;
