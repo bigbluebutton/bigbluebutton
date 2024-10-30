@@ -335,6 +335,19 @@ jobs:
           bbb-conf --salt bbbci
           sed -i "s/\"minify\": true,/\"minify\": false,/" /usr/share/etherpad-lite/settings.json
           sudo yq e -i '.log_level = "TRACE"' /usr/share/bbb-graphql-middleware/config.yml
+          cat > /etc/bigbluebutton/bbb-conf/apply-config.sh << HERE
+          #!/bin/bash
+          
+          # Pull in the helper functions for configuring BigBlueButton
+          source /etc/bigbluebutton/bbb-conf/apply-lib.sh
+          
+          # Available configuration options
+          
+          enableHTML5ClientLog
+          #enableUFWRules
+          
+          HERE
+          chmod +x /etc/bigbluebutton/bbb-conf/apply-config.sh
           bbb-conf --restart
           EOF
       - name: List systemctl services
