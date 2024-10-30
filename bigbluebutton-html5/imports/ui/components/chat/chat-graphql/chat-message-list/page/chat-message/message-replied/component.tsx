@@ -37,7 +37,6 @@ const ChatMessageReplied: React.FC<MessageRepliedProps> = (props) => {
             },
           }),
         );
-        Storage.removeItem(ChatEvents.CHAT_FOCUS_MESSAGE_REQUEST);
         Storage.setItem(ChatEvents.CHAT_FOCUS_MESSAGE_REQUEST, sequence);
       }}
     >

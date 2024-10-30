@@ -17,16 +17,17 @@ import { DomElementManipulationHooks } from 'bigbluebutton-html-plugin-sdk/dist/
 import {
   CHAT_MESSAGE_PUBLIC_SUBSCRIPTION,
   CHAT_MESSAGE_PRIVATE_SUBSCRIPTION,
+  ChatMessageSubscriptionResponse,
 } from './queries';
 import { Message } from '/imports/ui/Types/message';
 import ChatMessage, { ChatMessageRef } from './chat-message/component';
-import { GraphqlDataHookSubscriptionResponse } from '/imports/ui/Types/hook';
-import { useCreateUseSubscription } from '/imports/ui/core/hooks/createUseSubscription';
 import { setLoadedMessageGathering } from '/imports/ui/core/hooks/useLoadedChatMessages';
 import { ChatLoading } from '../../component';
 import { ChatEvents } from '/imports/ui/core/enums/chat';
 import { useStorageKey, STORAGES } from '/imports/ui/services/storage/hooks';
+import Storage from '/imports/ui/services/storage/in-memory';
 import { getValueByPointer } from '/imports/utils/object-utils';
+import useDeduplicatedSubscription from '/imports/ui/core/hooks/useDeduplicatedSubscription';
 
 const PAGE_SIZE = 50;
 
@@ -230,6 +231,7 @@ const ChatListPage: React.FC<ChatListPageProps> = ({
   useEffect(() => {
     if (typeof chatFocusMessageRequest === 'number') {
       messageRefs.current[chatFocusMessageRequest]?.requestFocus();
+      Storage.removeItem(ChatEvents.CHAT_FOCUS_MESSAGE_REQUEST);
     }
   }, []);
 
@@ -320,10 +322,18 @@ const ChatListPageContainer: React.FC<ChatListPageContainerProps> = ({
     ? defaultVariables : { ...defaultVariables, requestedChatId: chatId };
   const isPrivateReadFeedbackEnabled = !isPublicChat && PRIVATE_MESSAGE_READ_FEEDBACK_ENABLED;
 
-  const useChatMessageSubscription = useCreateUseSubscription<Message>(chatQuery, variables);
   const {
-    data: chatMessageData,
-  } = useChatMessageSubscription((msg) => msg) as GraphqlDataHookSubscriptionResponse<Message[]>;
+    data,
+    loading,
+  } = useDeduplicatedSubscription<ChatMessageSubscriptionResponse>(chatQuery, { variables });
+  let chatMessageData: Message[] | null = null;
+  if (data) {
+    if ('chat_message_public' in data) {
+      chatMessageData = data.chat_message_public;
+    } else if ('chat_message_private' in data) {
+      chatMessageData = data.chat_message_private;
+    }
+  }
 
   useEffect(() => {
     // component will unmount
@@ -332,8 +342,8 @@ const ChatListPageContainer: React.FC<ChatListPageContainerProps> = ({
     };
   }, []);
 
+  if (loading) return <ChatLoading isRTL={document.dir === 'rtl'} />;
   if (!chatMessageData) return null;
-  if (chatMessageData.length > 0 && chatId !== chatMessageData[0].chatId) return <ChatLoading isRTL={document.dir === 'rtl'} />;
   if (chatMessageData.length > 0 && chatMessageData[chatMessageData.length - 1].user?.userId) {
     setLastSender(page, chatMessageData[chatMessageData.length - 1].user?.userId);
   }
