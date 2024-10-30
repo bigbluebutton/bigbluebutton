@@ -1,5 +1,7 @@
 import { RedisMessage } from '../types';
 import {throwErrorIfInvalidInput} from "../imports/validation";
+import {ValidationError} from "../types/ValidationError";
+const emojiRegex = /^(?:\p{Emoji_Presentation}|\p{Emoji}\uFE0F|\p{Emoji_Modifier_Base})(\u200D(?:\p{Emoji_Presentation}|\p{Emoji}\uFE0F|\p{Emoji_Modifier_Base}))*$/u;
 
 export default function buildRedisMessage(sessionVariables: Record<string, unknown>, input: Record<string, unknown>): RedisMessage {
   throwErrorIfInvalidInput(input,
@@ -7,6 +9,10 @@ export default function buildRedisMessage(sessionVariables: Record<string, unkno
         {name: 'reactionEmoji', type: 'string', required: true},
       ]
   )
+
+  if(typeof input.reactionEmoji !== 'string' || !emojiRegex.test(input.reactionEmoji)) {
+    throw new ValidationError(`Parameter 'reactionEmoji' contains an invalid Emoji`, 400);
+  }
 
   const eventName = `ChangeUserReactionEmojiReqMsg`;
 
