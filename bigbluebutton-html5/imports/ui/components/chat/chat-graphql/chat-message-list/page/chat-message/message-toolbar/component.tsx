@@ -51,6 +51,7 @@ interface ChatMessageToolbarProps {
   username: string;
   own: boolean;
   amIModerator: boolean;
+  isBreakoutRoom: boolean;
   message: string;
   messageSequence: number;
   emphasizedMessage: boolean;
@@ -70,7 +71,7 @@ interface ChatMessageToolbarProps {
 const ChatMessageToolbar: React.FC<ChatMessageToolbarProps> = (props) => {
   const {
     messageId, chatId, message, username, onEmojiSelected, deleted,
-    messageSequence, emphasizedMessage, own, amIModerator, locked,
+    messageSequence, emphasizedMessage, own, amIModerator, isBreakoutRoom, locked,
     onReactionPopoverOpenChange, reactionPopoverIsOpen, hasToolbar, keyboardFocused,
     chatDeleteEnabled, chatEditEnabled, chatReactionsEnabled, chatReplyEnabled,
   } = props;
@@ -110,7 +111,7 @@ const ChatMessageToolbar: React.FC<ChatMessageToolbarProps> = (props) => {
   const showReplyButton = chatReplyEnabled;
   const showReactionsButton = chatReactionsEnabled;
   const showEditButton = chatEditEnabled && own;
-  const showDeleteButton = chatDeleteEnabled && (own || amIModerator);
+  const showDeleteButton = chatDeleteEnabled && (own || (amIModerator && !isBreakoutRoom));
   const showDivider = (showReplyButton || showReactionsButton) && (showEditButton || showDeleteButton);
 
   return (

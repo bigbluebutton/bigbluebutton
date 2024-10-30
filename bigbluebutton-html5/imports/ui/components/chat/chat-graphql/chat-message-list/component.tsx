@@ -201,6 +201,7 @@ const ChatMessageList: React.FC<ChatListProps> = ({
   } = useStickyScroll(currentMessageListContainer, currentMessageListContainer, 'ne');
   const { data: meeting } = useMeeting((m) => ({
     lockSettings: m?.lockSettings,
+    isBreakout: m?.isBreakout,
   }));
   const { data: currentUser } = useCurrentUser((c) => ({
     isModerator: c?.isModerator,
@@ -468,6 +469,7 @@ const ChatMessageList: React.FC<ChatListProps> = ({
                     currentUserId={currentUser?.userId ?? ''}
                     currentUserIsLocked={!!currentUser?.locked}
                     currentUserIsModerator={!!currentUser?.isModerator}
+                    isBreakoutRoom={!!meeting?.isBreakout}
                     messageToolbarIsEnabled={messageToolbarIsEnabled}
                     chatDeleteEnabled={CHAT_DELETE_ENABLED}
                     chatEditEnabled={CHAT_EDIT_ENABLED}
