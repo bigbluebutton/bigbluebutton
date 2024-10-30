@@ -5,6 +5,11 @@ export interface Message {
   chatId: string;
   correlationId: string;
   createdAt: string;
+  editedAt: string | null;
+  deletedAt: string | null;
+  deletedBy: {
+    name: string;
+  } | null;
   meetingId: string;
   message: string;
   messageType: string;
@@ -17,12 +22,26 @@ export interface Message {
   user: User;
   messageSequence: number;
   replyToMessage: {
+    editedAt: string | null;
+    deletedAt: string | null;
+    deletedBy: {
+      name: string;
+    } | null;
     messageSequence: number;
-    message: string;
+    message: string | null;
     chatEmphasizedText: boolean;
     user: {
       name: string;
       color: string;
     };
   } | null;
+  reactions: {
+    createdAt: string;
+    reactionEmoji: string;
+    reactionEmojiId: string;
+    user: {
+      name: string;
+      userId: string;
+    }
+  }[];
 }

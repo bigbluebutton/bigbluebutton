@@ -46,6 +46,11 @@ const UserActionsTrigger = styled.div<UserActionsTriggerProps>`
     }
 `;
 
+const NoPointerEvents = styled.div`
+  pointer-events: none;
+`;
+
 export default {
   UserActionsTrigger,
+  NoPointerEvents,
 };

@@ -151,7 +151,7 @@ class BBBMenu extends React.Component {
               isEmoji={isEmoji}
             >
               {a.icon ? <Icon iconName={a.icon} key="icon" /> : null}
-              <Styled.Option hasIcon={!!(a.icon)} isHorizontal={isHorizontal} isMobile={isMobile} aria-describedby={`${key}-option-desc`}>{label}</Styled.Option>
+              <Styled.Option hasIcon={!!(a.icon)} isHorizontal={isHorizontal} isMobile={isMobile} aria-describedby={`${key}-option-desc`} $isToggle={isToggle}>{label}</Styled.Option>
               {description && <div className="sr-only" id={`${key}-option-desc`}>{`${description}${selected ? ` - ${intl.formatMessage(intlMessages.active)}` : ''}`}</div>}
               {a.iconRight ? <Styled.IconRight iconName={a.iconRight} key="iconRight" /> : null}
             </Styled.MenuItemWrapper>
@@ -169,7 +169,7 @@ class BBBMenu extends React.Component {
               {!contentFunction ? (
                   <>
                     {a.icon ? <Icon color={textColor} iconName={a.icon} key="icon" /> : null}
-                    <Styled.Option hasIcon={!!(a.icon)} isTitle={isTitle} textColor={textColor} isHorizontal={isHorizontal} isMobile={isMobile} aria-describedby={`${key}-option-desc`}>{label}</Styled.Option>
+                    <Styled.Option hasIcon={!!(a.icon)} isTitle={isTitle} textColor={textColor} isHorizontal={isHorizontal} isMobile={isMobile} aria-describedby={`${key}-option-desc`} $isToggle={isToggle}>{label}</Styled.Option>
                     {a.iconRight ? <Styled.IconRight color={textColor} iconName={a.iconRight} key="iconRight" /> : null}
                     {(isTitle && titleActions?.length > 0) ? (
                       titleActions.map((item, index) => (
@@ -218,7 +218,7 @@ class BBBMenu extends React.Component {
     } = this.props;
     const actionsItems = this.makeMenuItems();
 
-    const roundedCornersStyles = { borderRadius: '1.8rem' };
+    const roundedCornersStyles = { borderRadius: '3rem' };
     let menuStyles = { zIndex: 999 };
 
     if (customStyles) {

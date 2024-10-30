@@ -45,6 +45,10 @@ func (s *SafeChannelByte) Closed() bool {
 }
 
 func (s *SafeChannelByte) Close() {
+	if s.Frozen() {
+		s.UnfreezeChannel()
+	}
+
 	s.mux.Lock()
 	defer s.mux.Unlock()
 

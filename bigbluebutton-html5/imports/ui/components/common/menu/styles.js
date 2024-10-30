@@ -86,6 +86,13 @@ const Option = styled.div`
     margin-right: 0;
     margin-left: 0;
   `}
+
+  ${({ $isToggle }) => $isToggle && `
+    margin: 0 !important;
+    padding: .1rem 0 0 0;
+    width: 100%;
+ `}
+
 `;
 
 const CloseButton = styled(Button)`

@@ -138,45 +138,24 @@ class MultiUsers {
   }
 
   async raiseAndLowerHand() {
-    const { reactionsButton } = getSettings();
-    if (!reactionsButton) {
-      await this.modPage.waitForSelector(e.whiteboard);
-      await this.modPage.hasElement(e.joinAudio, 'should display the join audio button for the moderator');
-      await this.modPage.wasRemoved(e.reactionsButton, 'should not display the reactions button for the moderator');
-      return;
-    }
-
+    await this.modPage.waitForSelector(e.whiteboard);
     await this.initUserPage();
-    await this.userPage.waitAndClick(e.reactionsButton);
     await this.userPage.waitAndClick(e.raiseHandBtn);
-    await this.userPage.waitAndClick(e.reactionsButton);
-    await this.userPage.hasElement(e.lowerHandBtn);
+    await this.userPage.hasElement(e.raiseHandBtn);
     await this.modPage.comparingSelectorsBackgroundColor(e.avatarsWrapperAvatar, `${e.userListItem} div:first-child`);
     await sleep(1000);
-    await this.userPage.waitAndClick(e.lowerHandBtn);
-    await this.userPage.waitAndClick(e.reactionsButton);
+    await this.userPage.waitAndClick(e.raiseHandBtn);
     await this.userPage.hasElement(e.raiseHandBtn, 'should display the raise hand button for the attendee');
   }
 
   async raiseHandRejected() {
-    const { reactionsButton } = getSettings();
-    if (!reactionsButton) {
-      await this.modPage.waitForSelector(e.whiteboard);
-      await this.modPage.hasElement(e.joinAudio, 'should display the join audio button for the moderator');
-      await this.modPage.wasRemoved(e.reactionsButton, 'should not display the reactions button for the moderator');
-      return
-    }
-
-    await waitAndClearDefaultPresentationNotification(this.modPage);
+    await this.modPage.waitForSelector(e.whiteboard);
     await this.initUserPage();
-    await this.userPage.waitAndClick(e.reactionsButton);
     await this.userPage.waitAndClick(e.raiseHandBtn);
-    await this.userPage.waitAndClick(e.reactionsButton);
-    await this.userPage.hasElement(e.lowerHandBtn, 'should display the lower hand button for the attendee');
+    await this.userPage.hasElement(e.raiseHandBtn, 'should display the lower hand button for the attendee');
     await this.userPage.press('Escape');
     await this.modPage.comparingSelectorsBackgroundColor(e.avatarsWrapperAvatar, `${e.userListItem} div:first-child`);
     await this.modPage.waitAndClick(e.raiseHandRejection);
-    await this.userPage.waitAndClick(e.reactionsButton);
     await this.userPage.hasElement(e.raiseHandBtn, 'should display the raise hand button for the attendee');
   }
 

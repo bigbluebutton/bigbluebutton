@@ -140,10 +140,14 @@ const TalkingIndicator: React.FC<TalkingIndicatorProps> = ({
           color="primary"
           icon={icon}
           size="lg"
-          style={{
-            backgroundColor: color,
-            border: `solid 2px ${color}`,
-          }}
+          style={
+            isModerator
+              ? {
+                backgroundColor: color,
+                border: `solid 2px ${color}`,
+              }
+              : undefined
+          }
         >
           {talking ? (
             <Styled.Hidden id="description">
@@ -179,11 +183,13 @@ const TalkingIndicator: React.FC<TalkingIndicatorProps> = ({
         aria-label={ariaLabel}
         color="primary"
         size="sm"
-        style={{
-          backgroundColor: '#4a148c',
-          border: 'solid 2px #4a148c',
-          cursor: 'default',
-        }}
+        style={
+          isModerator ? {
+            backgroundColor: '#4a148c',
+            border: 'solid 2px #4a148c',
+            cursor: 'default',
+          } : undefined
+        }
       />
     );
   };

@@ -29,6 +29,7 @@ type Config struct {
 		JsonPatchDisabled             bool   `yaml:"json_patch_disabled"`
 		SubscriptionAllowedList       string `yaml:"subscriptions_allowed_list"`
 		SubscriptionsDeniedList       string `yaml:"subscriptions_denied_list"`
+		WebsocketIdleTimeoutSeconds   int    `yaml:"websocket_idle_timeout_seconds"`
 	} `yaml:"server"`
 	Redis struct {
 		Host     string `yaml:"host"`

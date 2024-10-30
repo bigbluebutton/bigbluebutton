@@ -45,7 +45,7 @@ object FakeUserGenerator {
 
   private def getRandomElement(list: Seq[String], random: Random): String = list(random.nextInt(list.length))
 
-  def createFakeRegisteredUser(users: RegisteredUsers, role: String, guest: Boolean, authed: Boolean, meetingId: String): RegisteredUser = {
+  def createFakeRegisteredUser(users: RegisteredUsers, role: String, bot: Boolean, guest: Boolean, authed: Boolean, meetingId: String): RegisteredUser = {
     val name = getRandomElement(firstNames, random) + " " + getRandomElement(lastNames, random)
     val id = "w_" + RandomStringGenerator.randomAlphanumericString(16)
     val extId = RandomStringGenerator.randomAlphanumericString(16)
@@ -59,7 +59,8 @@ object FakeUserGenerator {
     val logoutUrl = "https://www." + RandomStringGenerator.randomAlphanumericString(32) + ".com/";
 
     val ru = RegisteredUsers.create(meetingId, userId = id, extId, name, role,
-      authToken, Vector(sessionToken), avatarURL, webcamBackgroundURL, color, guest, authed, guestStatus = GuestStatus.ALLOW, false, "", logoutUrl, Map(), false)
+      authToken, Vector(sessionToken), avatarURL, webcamBackgroundURL, color, bot,
+      guest, authed, guestStatus = GuestStatus.ALLOW, false, "", logoutUrl, Map(), false)
     RegisteredUsers.add(users, ru, meetingId)
     ru
   }

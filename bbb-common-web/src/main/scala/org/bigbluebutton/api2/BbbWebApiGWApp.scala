@@ -19,6 +19,8 @@ import scala.concurrent.duration._
 import org.bigbluebutton.common2.redis._
 import org.bigbluebutton.common2.bus._
 
+import java.util
+
 class BbbWebApiGWApp(
     val oldMessageReceivedGW: OldMessageReceivedGW,
     redisHost:                String,
@@ -166,6 +168,7 @@ class BbbWebApiGWApp(
                     notifyRecordingIsOn:                    java.lang.Boolean,
                     presentationUploadExternalDescription:  String,
                     presentationUploadExternalUrl:          String,
+                    plugins:                                util.Map[String, AnyRef],
                     overrideClientSettings:                 String): Unit = {
 
     val disabledFeaturesAsVector: Vector[String] = disabledFeatures.asScala.toVector
@@ -263,6 +266,7 @@ class BbbWebApiGWApp(
     val groupsAsVector: Vector[GroupProps] = groups.asScala.toVector.map(g => GroupProps(g.getGroupId(), g.getName(), g.getUsersExtId().asScala.toVector))
 
     val defaultProps = DefaultProps(
+      plugins,
       meetingProp,
       breakoutProps,
       durationProps,
@@ -287,8 +291,8 @@ class BbbWebApiGWApp(
 
   def registerUser(meetingId: String, intUserId: String, name: String,
                    role: String, extUserId: String, authToken: String, sessionToken: String,
-                   avatarURL: String, webcamBackgroundURL: String, guest: java.lang.Boolean, authed: java.lang.Boolean,
-                   guestStatus: String, excludeFromDashboard: java.lang.Boolean,
+                   avatarURL: String, webcamBackgroundURL: String, bot: java.lang.Boolean, guest: java.lang.Boolean,
+                   authed: java.lang.Boolean, guestStatus: String, excludeFromDashboard: java.lang.Boolean,
                    enforceLayout: String, logoutUrl: String, userMetadata: java.util.Map[String, String]): Unit = {
 
     //    meetingManagerActorRef ! new RegisterUser(meetingId = meetingId, intUserId = intUserId, name = name,
@@ -300,9 +304,9 @@ class BbbWebApiGWApp(
 
     val regUser = new RegisterUser(meetingId = meetingId, intUserId = intUserId, name = name,
       role = role, extUserId = extUserId, authToken = authToken, sessionToken = sessionToken,
-      avatarURL = avatarURL, webcamBackgroundURL = webcamBackgroundURL, guest = guest.booleanValue(), authed = authed.booleanValue(),
-      guestStatus = guestStatus, excludeFromDashboard = excludeFromDashboard, enforceLayout = enforceLayout, logoutUrl = logoutUrl,
-      userMetadata = (userMetadata).asScala.toMap)
+      avatarURL = avatarURL, webcamBackgroundURL = webcamBackgroundURL, bot = bot.booleanValue(), guest = guest.booleanValue(),
+      authed = authed.booleanValue(), guestStatus = guestStatus, excludeFromDashboard = excludeFromDashboard,
+      enforceLayout = enforceLayout, logoutUrl = logoutUrl, userMetadata = (userMetadata).asScala.toMap)
 
     val event = MsgBuilder.buildRegisterUserRequestToAkkaApps(regUser)
     msgToAkkaAppsEventBus.publish(MsgToAkkaApps(toAkkaAppsChannel, event))

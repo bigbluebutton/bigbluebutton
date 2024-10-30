@@ -1,6 +1,5 @@
 import styled from 'styled-components';
 import {
-  mdPaddingX,
   smPaddingX,
   borderRadius,
 } from '/imports/ui/stylesheets/styled-components/general';
@@ -15,8 +14,7 @@ interface MessageListProps {
 export const MessageList = styled(ScrollboxVertical)<MessageListProps>`
   flex-flow: column;
   flex-shrink: 1;
-  right: 0 ${mdPaddingX} 0 0;
-  padding-top: 0;
+  padding-top: 2rem;
   outline-style: none;
   overflow-x: hidden;
   user-select: text;
@@ -26,11 +24,6 @@ export const MessageList = styled(ScrollboxVertical)<MessageListProps>`
   position: relative;
   display: flex;
   padding-bottom: ${smPaddingX};
-
-  [dir='rtl'] & {
-    margin: 0 0 0 auto;
-    padding: 0 0 0 ${mdPaddingX};
-  }
 
   ${({ isRTL }) => isRTL && `
     padding-left: ${smPaddingX};

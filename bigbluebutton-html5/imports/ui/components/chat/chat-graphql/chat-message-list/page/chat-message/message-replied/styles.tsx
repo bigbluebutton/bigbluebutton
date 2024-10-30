@@ -1,38 +1,73 @@
 import styled from 'styled-components';
-import { colorOffWhite } from '/imports/ui/stylesheets/styled-components/palette';
+import {
+  colorGrayLight,
+  colorGrayLightest, colorPrimary, colorText, colorWhite,
+} from '/imports/ui/stylesheets/styled-components/palette';
+import { $3xlPadding, smPadding } from '/imports/ui/stylesheets/styled-components/general';
+import ReactMarkdown from 'react-markdown';
 
-const Container = styled.div<{ $userColor: string }>`
-  border-radius: 4px;
-  border-left: 4px solid ${({ $userColor }) => $userColor};
-  background-color: ${colorOffWhite};
-  padding: 6px;
+const Container = styled.div`
+  border-top-left-radius: 0.5rem;
+  border-top-right-radius: 0.5rem;
+  background-color: ${colorWhite};
+  box-shadow: inset 0 0 0 1px ${colorGrayLightest};
+  padding: ${smPadding} ${$3xlPadding};
   position: relative;
-  margin: 0.25rem 0 0.25rem 0;
   overflow: hidden;
   cursor: pointer;
+
+  [dir='ltr'] & {
+    border-right: 0.5rem solid ${colorPrimary};
+  }
+
+  [dir='rtl'] & {
+    border-left: 0.5rem solid ${colorPrimary};
+  }
 `;
 
-const Typography = styled.div`
+const Message = styled.div`
+  line-height: normal;
   overflow: hidden;
 `;
 
-const Username = styled(Typography)<{ $userColor: string }>`
-  font-weight: bold;
-  color: ${({ $userColor }) => $userColor};
-  line-height: 1rem;
-  font-size: 1rem;
-  white-space: nowrap;
+export const DeleteMessage = styled.span`
+  color: ${colorGrayLight};
+  overflow: hidden;
   text-overflow: ellipsis;
+  white-space: nowrap;
 `;
 
-const Message = styled(Typography)`
-  max-height: 3.6rem;
-  line-height: 1.2rem;
-  overflow: hidden;
+export const Markdown = styled(ReactMarkdown)<{
+  $emphasizedMessage: boolean;
+}>`
+  color: ${colorText};
+
+  ${({ $emphasizedMessage }) => $emphasizedMessage && `
+    font-weight: bold;
+  `}
+
+  & img {
+    max-width: 100%;
+    max-height: 100%;
+  }
+
+  & p {
+    margin: 0;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  & code {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
 `;
 
 export default {
   Container,
-  Username,
   Message,
+  DeleteMessage,
+  Markdown,
 };
