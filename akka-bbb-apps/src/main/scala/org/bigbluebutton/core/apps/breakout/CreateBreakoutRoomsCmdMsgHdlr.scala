@@ -61,6 +61,11 @@ trait CreateBreakoutRoomsCmdMsgHdlr extends RightsManagementTrait {
     val presSlide = getPresentationSlide(state) // The current slide
     val parentId = liveMeeting.props.meetingProp.intId
     var rooms = new collection.immutable.HashMap[String, BreakoutRoom2x]
+    val filteredPluginProp = liveMeeting.props.pluginProp.asScala
+      .filter { case (key, _) =>
+        getPlugins(liveMeeting.plugins).get(key).exists(_.manifest.content.enabledForBreakoutRooms)
+      }
+      .asJava
 
     var i = 0
     for (room <- msg.body.rooms) {
@@ -80,13 +85,6 @@ trait CreateBreakoutRoomsCmdMsgHdlr extends RightsManagementTrait {
 
     for (breakout <- rooms.values.toVector) {
       val roomSlides = if (breakout.allPages) -1 else presSlide;
-
-      val filteredPluginProp = liveMeeting.props.pluginProp.asScala
-        .filter { case (key, _) =>
-          getPlugins(liveMeeting.plugins).get(key).exists(_.manifest.content.enabledForBreakoutRooms)
-        }
-        .asJava
-
       val roomDetail = new BreakoutRoomDetail(
         breakout.id, breakout.name,
         liveMeeting.props.meetingProp.intId,
