@@ -43,6 +43,15 @@ export const ChatMessage = styled.div<ChatMessageProps>`
     font-size: 1.1em;
     margin: 0;
   }
+  & h4 {
+    margin: 0;
+  }
+  & h5 {
+    margin: 0;
+  }
+  & h6 {
+    margin: 0;
+  }
 `;
 
 export default {
