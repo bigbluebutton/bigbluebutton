@@ -231,6 +231,18 @@ const WhiteboardContainer = (props) => {
         const finalShapes = validShapes.filter(
           (shape) => !annotationsToBeRemoved.has(shape.id)
         );
+
+        if (finalShapes.length > 0) {
+          const restoreOnUpdate = getFromUserSettings(
+            FORCE_RESTORE_PRESENTATION_ON_NEW_EVENTS,
+            window.meetingClientSettings.public.presentation.restoreOnUpdate,
+          );
+
+          if (restoreOnUpdate) {
+            MediaService.setPresentationIsOpen(layoutContextDispatch, true);
+          }
+        }
+
         return finalShapes;
       });
 
@@ -296,6 +308,18 @@ const WhiteboardContainer = (props) => {
         id: annotationId,
       })),
     ]});
+
+    if (updatedAnnotations.length > 0 || newAnnotations.length > 0) {
+      const restoreOnUpdate = getFromUserSettings(
+        FORCE_RESTORE_PRESENTATION_ON_NEW_EVENTS,
+        window.meetingClientSettings.public.presentation.restoreOnUpdate,
+      );
+
+      if (restoreOnUpdate) {
+        MediaService.setPresentationIsOpen(layoutContextDispatch, true);
+      }
+    }
+
     setRemovedShapes(Array.from(annotationsToBeRemoved));
   };
 
