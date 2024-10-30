@@ -112,6 +112,13 @@ const TldrawV2GlobalStyle = createGlobalStyle`
     }
   `}
 
+  ${({ isRTL, whiteboardMenuOnRight }) => isRTL && whiteboardMenuOnRight && `
+    .tlui-toolbar__extras__controls {
+      margin-right: -40px;
+      margin-left: 0;
+    }
+  `}
+
   ${({ bgSelected }) => (bgSelected) && `
       [data-testid="menu-item.toggle-lock"],
       [data-testid="menu-item.toggle-locked"],
