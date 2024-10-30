@@ -12,7 +12,6 @@ import {
   smPaddingY,
   borderRadius,
   borderSize,
-  xsPadding,
 } from '/imports/ui/stylesheets/styled-components/general';
 import { fontSizeBase } from '/imports/ui/stylesheets/styled-components/typography';
 import TextareaAutosize from 'react-autosize-textarea';
@@ -52,7 +51,7 @@ const Input = styled(TextareaAutosize)`
   background-clip: padding-box;
   color: ${colorText};
   -webkit-appearance: none;
-  padding: calc(${smPaddingY} * 2.5 - ${xsPadding}) calc(${smPaddingX} * 1.25 - ${xsPadding});
+  padding: calc(${smPaddingY} * 2.5) calc(${smPaddingX} * 1.25);
   resize: none;
   transition: none;
   border-radius: ${borderRadius};
@@ -169,10 +168,8 @@ const InputWrapper = styled.div`
   flex-grow: 1;
   min-width: 0;
   z-index: 0;
-  padding: ${xsPadding} 0 ${xsPadding} ${xsPadding};
-  box-shadow: inset 0.0625rem 0 0 0 ${colorGrayLightest},
-    inset 0 0.0625rem 0 0 ${colorGrayLightest},
-    inset 0 -0.0625rem 0 0 ${colorGrayLightest};
+  padding: 1px 0 1px 1px;
+  border: 1px solid ${colorGrayLightest};
 
   [dir='ltr'] & {
     border-radius: 0.75rem 0 0 0.75rem;
@@ -183,9 +180,7 @@ const InputWrapper = styled.div`
   }
 
   &:focus-within {
-    box-shadow: inset ${xsPadding} 0 0 0 ${colorBlueLight},
-      inset 0 ${xsPadding} 0 0 ${colorBlueLight},
-      inset 0 -${xsPadding} 0 0 ${colorBlueLight};
+    border: 1px solid ${colorBlueLight};
   }
 `;
 
