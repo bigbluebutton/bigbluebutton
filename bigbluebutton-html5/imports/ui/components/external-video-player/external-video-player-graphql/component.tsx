@@ -326,6 +326,21 @@ const ExternalVideoPlayer: React.FC<ExternalVideoPlayerProps> = ({
     }
   };
 
+  const handleOnSeek = async (seconds: number) => {
+    if (isPresenter) {
+      let rate = playerRef.current?.getInternalPlayer()?.getPlaybackRate() ?? 1;
+      if (rate instanceof Promise) {
+        rate = await rate;
+      }
+
+      sendMessage('seek', {
+        rate,
+        time: seconds,
+      });
+      playerRef.current?.seekTo(seconds, 'seconds');
+    }
+  };
+
   const isMinimized = width === 0 && height === 0;
 
   // @ts-ignore accessing lib private property
@@ -391,6 +406,7 @@ const ExternalVideoPlayer: React.FC<ExternalVideoPlayerProps> = ({
           volume={volume}
           onStart={handleOnStart}
           onPlay={handleOnPlay}
+          onSeek={handleOnSeek}
           onDuration={handleDuration}
           onProgress={handleProgress}
           onPause={handleOnStop}
