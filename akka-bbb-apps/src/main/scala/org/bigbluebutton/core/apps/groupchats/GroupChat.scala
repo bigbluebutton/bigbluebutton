@@ -28,7 +28,7 @@ object GroupChatApp {
 
   def toMessageToUser(msg: GroupChatMessage): GroupChatMsgToUser = {
     GroupChatMsgToUser(id = msg.id, timestamp = msg.timestamp, correlationId = msg.correlationId,
-      sender = msg.sender, chatEmphasizedText = msg.chatEmphasizedText, message = msg.message)
+      sender = msg.sender, chatEmphasizedText = msg.chatEmphasizedText, message = msg.message, replyToMessageId = msg.replyToMessageId)
   }
 
   def addGroupChatMessage(meetingId: String, chat: GroupChat, chats: GroupChats,
