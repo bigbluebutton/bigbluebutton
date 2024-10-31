@@ -33,8 +33,8 @@ cp -r bbb_schema.sql metadata config.yaml staging/usr/share/bbb-graphql-server
 chmod -R a+rX staging/usr/share/bbb-graphql-server
 
 #Copy BBB configs for Postgres
-mkdir -p staging/etc/postgresql/16/main/conf.d
-cp bbb-pg.conf staging/etc/postgresql/16/main/conf.d
+mkdir -p staging/etc/postgresql/17/main/conf.d
+cp bbb-pg.conf staging/etc/postgresql/17/main/conf.d
 
 cp bbb-graphql-server.service staging/lib/systemd/system/bbb-graphql-server.service
 
