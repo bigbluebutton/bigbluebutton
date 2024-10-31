@@ -1,6 +1,6 @@
 import styled from 'styled-components';
-import { colorGray } from '/imports/ui/stylesheets/styled-components/palette';
-import { lgPadding } from '/imports/ui/stylesheets/styled-components/general';
+import { colorGray, colorGrayDark, colorOffWhite } from '/imports/ui/stylesheets/styled-components/palette';
+import { smPadding } from '/imports/ui/stylesheets/styled-components/general';
 import { fontSizeSmaller } from '/imports/ui/stylesheets/styled-components/typography';
 
 const EmojiButton = styled.button`
@@ -9,13 +9,15 @@ const EmojiButton = styled.button`
   background: none;
   border: none;
   outline: none;
-  padding: ${lgPadding};
+  padding: ${smPadding};
   color: ${colorGray};
   cursor: pointer;
+  border-radius: 0.25rem;
 
   &:focus,
   &:hover {
-    opacity: 0.5;
+    color: ${colorGrayDark};
+    background-color: ${colorOffWhite};
   }
 
   &:active {

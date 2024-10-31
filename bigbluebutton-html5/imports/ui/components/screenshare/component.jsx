@@ -123,6 +123,7 @@ class ScreenshareComponent extends React.Component {
       isPresenter,
       startPreviewSizeBig,
       outputDeviceId,
+      unpinSharedNotes,
       isSharedNotesPinned,
       hasAudio,
     } = this.props;
@@ -148,6 +149,7 @@ class ScreenshareComponent extends React.Component {
     });
 
     Session.setItem('pinnedNotesLastState', isSharedNotesPinned);
+    unpinSharedNotes();
   }
 
   componentDidUpdate(prevProps) {

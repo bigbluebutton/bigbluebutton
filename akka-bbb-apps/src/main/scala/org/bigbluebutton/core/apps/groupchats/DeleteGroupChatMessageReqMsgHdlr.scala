@@ -54,10 +54,12 @@ trait DeleteGroupChatMessageReqMsgHdlr extends HandlerHelpers {
           val userIsOwner = gcMessage.sender.id == user.intId
 
           if ((chatIsPrivate && userIsAParticipant) || !chatIsPrivate) {
-            if (userIsOwner || userIsModerator) {
+            if (userIsOwner ||
+              (userIsModerator && !liveMeeting.props.meetingProp.isBreakout) //not allowed in breakoutRooms as everyone is moderator
+              ) {
               val updatedGroupChat = GroupChatApp.deleteGroupChatMessage(liveMeeting.props.meetingProp.intId, groupChat, state.groupChats, gcMessage, user.intId)
 
-              val event = buildGroupChatMessageDeletedEvtMsg(liveMeeting.props.meetingProp.intId, msg.header.userId, msg.body.chatId, gcMessage.id)
+              val event = buildGroupChatMessageDeletedEvtMsg(liveMeeting.props.meetingProp.intId, msg.body.chatId, msg.header.userId, gcMessage.id)
               bus.outGW.send(event)
               newState = state.update(updatedGroupChat)
             } else {

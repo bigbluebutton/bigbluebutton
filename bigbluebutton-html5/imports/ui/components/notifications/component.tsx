@@ -39,21 +39,24 @@ const Notifications: React.FC = () => {
   const Settings = getSettingsSingletonInstance();
   const {
     userJoinPushAlerts,
+    userJoinAudioAlerts,
     userLeavePushAlerts,
+    userLeaveAudioAlerts,
     guestWaitingPushAlerts,
+    guestWaitingAudioAlerts,
   } = Settings.application;
 
   const excludedMessageIds = [];
 
-  if (!userJoinPushAlerts) {
+  if (!userJoinPushAlerts && !userJoinAudioAlerts) {
     excludedMessageIds.push('app.notification.userJoinPushAlert');
   }
 
-  if (!userLeavePushAlerts) {
+  if (!userLeavePushAlerts && !userLeaveAudioAlerts) {
     excludedMessageIds.push('app.notification.userLeavePushAlert');
   }
 
-  if (!guestWaitingPushAlerts) {
+  if (!guestWaitingPushAlerts && !guestWaitingAudioAlerts) {
     excludedMessageIds.push('app.userList.guest.pendingGuestAlert');
   }
 

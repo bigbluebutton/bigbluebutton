@@ -3,6 +3,7 @@ import { MeetingClientSettings } from '../../Types/meetingClientSettings';
 export const meetingClientSettingsInitialValues: MeetingClientSettings = {
   public: {
     app: {
+      terminateAndRetryConnection: 30000,
       mobileFontSize: '16px',
       desktopFontSize: '14px',
       audioChatNotification: false,
