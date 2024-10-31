@@ -4,7 +4,9 @@ import {
   colorGrayLightest,
   colorWhite,
 } from '/imports/ui/stylesheets/styled-components/palette';
-import { $2xlPadding, borderRadius, smPadding } from '/imports/ui/stylesheets/styled-components/general';
+import {
+  $2xlPadding, borderRadius, lgPadding, smPadding,
+} from '/imports/ui/stylesheets/styled-components/general';
 import EmojiPickerComponent from '/imports/ui/components/emoji-picker/component';
 import BaseEmojiButton from './emoji-button/component';
 
@@ -50,6 +52,8 @@ const Container = styled.div`
   border-radius: 1rem;
   background-color: ${colorWhite};
   box-shadow: 0 0.125rem 0.125rem 0 ${colorGrayLighter};
+  padding: ${smPadding} ${lgPadding};
+  gap: ${smPadding};
 `;
 
 const EmojiPickerWrapper = styled.div`

@@ -99,6 +99,7 @@ export interface App {
   disableWebsocketFallback: boolean
   maxMutationPayloadSize: number
   enableApolloDevTools: boolean
+  terminateAndRetryConnection: number
 }
 
 export interface BbbTabletApp {
