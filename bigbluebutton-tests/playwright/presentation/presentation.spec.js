@@ -28,7 +28,9 @@ test.describe.parallel('Presentation', { tag: '@ci' }, () => {
   });
 
   // https://docs.bigbluebutton.org/2.6/release-tests.html#start-youtube-video-sharing
-  test('Start external video', async ({ browser, context, page }) => {
+  test('Start external video', { tag: '@flaky' }, async ({ browser, context, page }) => {
+    // requiring logged user to start external video on CI environment
+    linkIssue(21589);
     const presentation = new Presentation(browser, context);
     await presentation.initPages(page);
     await presentation.startExternalVideo();

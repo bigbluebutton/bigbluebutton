@@ -1,8 +1,7 @@
 require('dotenv').config();
 const { chromiumConfig, firefoxConfig, webkitConfig } = require('./core/browsersConfig');
-const { ELEMENT_WAIT_TIME } = require('./core/constants');
+const { ELEMENT_WAIT_TIME, CI } = require('./core/constants');
 
-const CI = process.env.CI === 'true';
 const isParallel = !!process.env.npm_config_parallel;
 
 const config = {

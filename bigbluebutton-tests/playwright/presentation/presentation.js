@@ -1,13 +1,10 @@
-const { expect, default: test } = require('@playwright/test');
+const { expect } = require('@playwright/test');
 const { MultiUsers } = require('../user/multiusers');
-const Page = require('../core/page');
 const e = require('../core/elements');
 const { checkSvgIndex, getSlideOuterHtml, uploadSinglePresentation, uploadMultiplePresentations, getCurrentPresentationHeight } = require('./util.js');
-const { ELEMENT_WAIT_LONGER_TIME, ELEMENT_WAIT_EXTRA_LONG_TIME, UPLOAD_PDF_WAIT_TIME, ELEMENT_WAIT_TIME } = require('../core/constants');
+const { ELEMENT_WAIT_LONGER_TIME, ELEMENT_WAIT_EXTRA_LONG_TIME, UPLOAD_PDF_WAIT_TIME, CI } = require('../core/constants');
 const { sleep } = require('../core/helpers');
 const { getSettings } = require('../core/settings');
-const { waitAndClearNotification } = require('../notifications/util.js');
-const CI = process.env.CI === 'true';
 
 const defaultZoomLevel = '100%';
 
