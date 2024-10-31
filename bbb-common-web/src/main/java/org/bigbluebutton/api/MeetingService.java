@@ -26,12 +26,7 @@ import java.security.DigestInputStream;
 import java.security.MessageDigest;
 import java.util.*;
 import java.util.Map.Entry;
-import java.util.concurrent.BlockingQueue;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ConcurrentMap;
-import java.util.concurrent.Executor;
-import java.util.concurrent.Executors;
-import java.util.concurrent.LinkedBlockingQueue;
+import java.util.concurrent.*;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.JsonNode;
@@ -400,68 +395,66 @@ public class MeetingService implements MessageListener {
     return result.toString();
   }
   public Map<String, Object> requestPluginManifests(Meeting m) {
-    Map<String, Object> urlContents = new HashMap<>();
+    Map<String, Object> urlContents = new ConcurrentHashMap<>();
     Map<String, String> metadata = m.getMetadata();
-
-    // Fetch content for each URL and store in the map
+    List<CompletableFuture<Void>> futures = new ArrayList<>();
     for (PluginManifest pluginManifest : m.getPluginManifests()) {
-      try {
-
-        String urlString = pluginManifest.getUrl();
-        URL url = new URL(urlString);
-        StringBuilder content = new StringBuilder();
-        try (BufferedReader in = new BufferedReader(new InputStreamReader(url.openStream()))) {
-          String inputLine;
-          while ((inputLine = in.readLine()) != null) {
-            content.append(inputLine).append("\n");
+      CompletableFuture<Void> future = CompletableFuture.runAsync(() -> {
+        try {
+          String urlString = pluginManifest.getUrl();
+          URL url = new URL(urlString);
+          StringBuilder content = new StringBuilder();
+          try (BufferedReader in = new BufferedReader(new InputStreamReader(url.openStream()))) {
+            String inputLine;
+            while ((inputLine = in.readLine()) != null) {
+              content.append(inputLine).append("\n");
+            }
           }
-        }
 
-        // Parse the JSON content
-        JsonNode jsonNode = objectMapper.readTree(content.toString());
+          // Parse the JSON content
+          JsonNode jsonNode = objectMapper.readTree(content.toString());
 
-        // Validate checksum if any:
-        String paramChecksum = pluginManifest.getChecksum();
-        if (!StringUtils.isEmpty(paramChecksum)) {
-          String hash = DigestUtils.sha256Hex(content.toString());
-          if (!paramChecksum.equals(hash)) {
-            log.info("Plugin's manifest.json checksum mismatch with that of the URL parameter for {}.",
-              pluginManifest.getUrl()
-            );
-            log.info("Plugin {} is not going to be loaded",
-              pluginManifest.getUrl()
-            );
-            continue;
+          // Validate checksum if any
+          String paramChecksum = pluginManifest.getChecksum();
+          if (!StringUtils.isEmpty(paramChecksum)) {
+            String hash = DigestUtils.sha256Hex(content.toString());
+            if (!paramChecksum.equals(hash)) {
+              log.info("Plugin's manifest.json checksum mismatch with that of the URL parameter for {}.",
+                      pluginManifest.getUrl());
+              log.info("Plugin {} is not going to be loaded", pluginManifest.getUrl());
+              return;
+            }
           }
+
+          // Get the "name" field
+          String name;
+          if (jsonNode.has("name")) {
+            name = jsonNode.get("name").asText();
+          } else {
+            throw new NoSuchFieldException("For url " + urlString + " there is no name field configured.");
+          }
+
+          String pluginKey = name;
+          HashMap<String, Object> manifestObject = new HashMap<>();
+          manifestObject.put("url", urlString);
+          String manifestContent = replaceMetaParametersIntoManifestTemplate(content.toString(), metadata);
+
+          Map<String, Object> mappedManifestContent = objectMapper.readValue(manifestContent, new TypeReference<Map<String, Object>>() {});
+          manifestObject.put("content", mappedManifestContent);
+
+          Map<String, Object> manifestWrapper = new HashMap<>();
+          manifestWrapper.put("manifest", manifestObject);
+          urlContents.put(pluginKey, manifestWrapper);
+        } catch (Exception e) {
+          log.error("Failed with the following plugin manifest URL: {}. Error: ", pluginManifest.getUrl(), e);
+          log.error("Therefore this plugin will not be loaded");
         }
-
-        // Get the "name" field
-        String name;
-        if (jsonNode.has("name")) {
-          name = jsonNode.get("name").asText();
-        } else {
-          throw new NoSuchFieldException("For url " + urlString + "there is no name field configured.");
-        }
-
-        String pluginKey = name;
-        HashMap<String, Object> manifestObject = new HashMap<>();
-        manifestObject.put("url", urlString);
-        String manifestContent = replaceMetaParametersIntoManifestTemplate(content.toString(), metadata);
-
-        Map<String, Object> mappedManifestContent = objectMapper.readValue(manifestContent, new TypeReference<>() {});
-
-        manifestObject.put("content", mappedManifestContent);
-        Map<String, Object> manifestWrapper = new HashMap<String, Object>();
-        manifestWrapper.put(
-                "manifest", manifestObject
-        );
-        urlContents.put(pluginKey, manifestWrapper);
-      } catch(Exception e) {
-        log.error("Failed with the following plugin manifest URL: {}. Error: ",
-                pluginManifest.getUrl(), e);
-        log.error("Therefore this plugin will not be loaded");
-      }
+      });
+      futures.add(future);
     }
+    // Wait for all tasks to complete
+    CompletableFuture.allOf(futures.toArray(new CompletableFuture[0])).join();
+
     return urlContents;
   }
 
