@@ -235,6 +235,35 @@ class AudioManager {
     return this.outputDevices.map((device) => device.toJSON());
   }
 
+  async enumerateDevices() {
+    try {
+      const devices = await navigator.mediaDevices.enumerateDevices();
+      const inputDevices = devices.filter((i) => i.kind === 'audioinput');
+      const outputDevices = devices.filter((i) => i.kind === 'audiooutput');
+
+      this.inputDevices = inputDevices;
+      this.outputDevices = outputDevices;
+
+      return {
+        inputDevices,
+        outputDevices,
+      };
+    } catch (error) {
+      logger.warn({
+        logCode: 'audiomanager_enumerate_devices_failed',
+        extraInfo: {
+          errorName: error.name,
+          errorMessage: error.message,
+        },
+      }, `Audio manager: error enumerating devices - {${error.name}: ${error.message}}`);
+
+      return {
+        inputDevices: this.inputDevices,
+        outputDevices: this.outputDevices,
+      };
+    }
+  }
+
   shouldBypassGUM() {
     return this.supportsTransparentListenOnly() && this.inputDeviceId === 'listen-only';
   }
@@ -439,13 +468,28 @@ class AudioManager {
   }
 
   async joinAudio(callOptions, callStateCallback) {
+    const enumDevicesIfNecessary = () => {
+      // If we don't have I/O devices yet (e.g.: skipCheck/Echo), enumerate
+      if (!this.inputDevices?.length || !this.outputDevices?.length) {
+        return this.enumerateDevices();
+      }
+
+      return Promise.resolve({
+        inputDevices: this.inputDevices,
+        outputDevices: this.outputDevices,
+      });
+    };
+
     try {
       // If there's no input stream, we need to get one via getUserMedia
       if (callOptions?.inputStream == null
         && !this.shouldBypassGUM()
         && !callOptions.isListenOnly) {
         const constraints = getAudioConstraints({ deviceId: this?.bridge?.inputDeviceId });
+
         this.inputStream = await doGUM({ audio: constraints }, true);
+        await enumDevicesIfNecessary();
+
         // eslint-disable-next-line no-param-reassign
         callOptions.inputStream = this.inputStream;
       }
@@ -467,18 +511,7 @@ class AudioManager {
         errCode: AudioErrors.MIC_ERROR.UNKNOWN,
       };
 
-      switch (name) {
-        case 'NotAllowedError':
-          errorPayload.errCode = AudioErrors.MIC_ERROR.NO_PERMISSION;
-        case 'NotFoundError':
-          errorPayload.errCode = AudioErrors.MIC_ERROR.DEVICE_NOT_FOUND;
-          // Reset the input device ID so the user can select a new one
-          this.changeInputDevice(null);
-          break;
-        default:
-          break;
-      }
-
+      await enumDevicesIfNecessary();
       logger.error({
         logCode: 'audio_join_failure',
         extraInfo: {
@@ -492,6 +525,19 @@ class AudioManager {
           outputDevices: this.outputDevicesJSON,
         },
       }, `Error enabling audio - {${name}: ${message}}`);
+
+      switch (name) {
+        case 'NotAllowedError':
+          errorPayload.errCode = AudioErrors.MIC_ERROR.NO_PERMISSION;
+          break;
+        case 'NotFoundError':
+          errorPayload.errCode = AudioErrors.MIC_ERROR.DEVICE_NOT_FOUND;
+          // Reset the input device ID so the user can select a new one
+          this.changeInputDevice(DEFAULT_INPUT_DEVICE_ID);
+          break;
+        default:
+          break;
+      }
 
       this.isConnecting = false;
 
