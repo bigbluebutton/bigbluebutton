@@ -25,6 +25,9 @@ const ClosedCaptionToggleButton = styled(Button)`
 
 const SpanButtonWrapper = styled.span`
   position: relative;
+  & i {
+    bottom: -.11em;
+   }
 `;
 
 const TranscriptionToggle = styled(Toggle)`
