@@ -1,3 +1,4 @@
+const { linkIssue } = require('../core/helpers');
 const { test } = require('../fixtures');
 const { Create } = require('./create');
 const { Join } = require('./join');
@@ -120,14 +121,18 @@ test.describe.parallel('Breakout', { tag: '@ci' }, () => {
       await join.moveUserToOtherRoom();
     });
 
-    test('Export breakout room shared notes @flaky', async ({ browser, context, page }) => {
+    test('Export breakout room shared notes', { tag: '@flaky' }, async ({ browser, context, page }) => {
+      // frequently failing on CI due to missing "current presentation" notifications
+      linkIssue(21576);
       const join = new Join(browser, context);
       await join.initPages(page);
       await join.create(true);
       await join.exportBreakoutNotes();
     });
 
-    test('Export breakout room whiteboard annotations', async ({ browser, context, page }) => {
+    test('Export breakout room whiteboard annotations', { tag: '@flaky' }, async ({ browser, context, page }) => {
+      // frequently failing on CI due to missing "current presentation" notifications
+      linkIssue(21576);
       const join = new Join(browser, context);
       await join.initPages(page);
       await join.create(false, true);
