@@ -19,11 +19,8 @@
 package org.bigbluebutton.api;
 
 import java.io.File;
-import java.io.InputStream;
 import java.net.URI;
 import java.net.URL;
-import java.security.DigestInputStream;
-import java.security.MessageDigest;
 import java.util.*;
 import java.util.Map.Entry;
 import java.util.concurrent.*;
@@ -398,6 +395,8 @@ public class MeetingService implements MessageListener {
     Map<String, Object> urlContents = new ConcurrentHashMap<>();
     Map<String, String> metadata = m.getMetadata();
     List<CompletableFuture<Void>> futures = new ArrayList<>();
+    // The maximum number of threads can be adjusted later on
+    ExecutorService executorService = Executors.newFixedThreadPool(10);
     for (PluginManifest pluginManifest : m.getPluginManifests()) {
       CompletableFuture<Void> future = CompletableFuture.runAsync(() -> {
         try {
@@ -449,12 +448,12 @@ public class MeetingService implements MessageListener {
           log.error("Failed with the following plugin manifest URL: {}. Error: ", pluginManifest.getUrl(), e);
           log.error("Therefore this plugin will not be loaded");
         }
-      });
+      }, executorService);
       futures.add(future);
     }
     // Wait for all tasks to complete
     CompletableFuture.allOf(futures.toArray(new CompletableFuture[0])).join();
-
+    executorService.shutdown();
     return urlContents;
   }
 
