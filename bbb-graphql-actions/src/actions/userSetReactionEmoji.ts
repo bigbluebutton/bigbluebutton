@@ -1,7 +1,7 @@
 import { RedisMessage } from '../types';
 import {throwErrorIfInvalidInput} from "../imports/validation";
 import {ValidationError} from "../types/ValidationError";
-const emojiRegex = /^(?:\p{Emoji_Presentation}|\p{Emoji}\uFE0F|\p{Emoji_Modifier_Base})(\u200D(?:\p{Emoji_Presentation}|\p{Emoji}\uFE0F|\p{Emoji_Modifier_Base}))*$/u;
+const emojiRegex = /^(?:\p{Emoji_Presentation}|\p{Extended_Pictographic}\uFE0F|\p{Emoji_Modifier_Base}|\p{Regional_Indicator}{2})(\u200D(?:\p{Emoji_Presentation}|\p{Extended_Pictographic}\uFE0F|\p{Emoji_Modifier_Base}|\p{Regional_Indicator}{2}))*$/u;
 
 export default function buildRedisMessage(sessionVariables: Record<string, unknown>, input: Record<string, unknown>): RedisMessage {
   throwErrorIfInvalidInput(input,
