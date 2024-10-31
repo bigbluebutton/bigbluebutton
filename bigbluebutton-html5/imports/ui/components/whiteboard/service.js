@@ -156,18 +156,9 @@ const formatAnnotations = (annotations, intl, curPageId, currentPresentationPage
   const result = {};
 
   annotations.forEach((annotation) => {
-    if (annotation.annotationInfo === '') return;
+    if (!annotation.annotationInfo) return;
 
-    let annotationInfo;
-
-    try {
-      annotationInfo =
-        typeof annotation.annotationInfo === 'string'
-          ? JSON.parse(annotation.annotationInfo)
-          : annotation.annotationInfo;
-    } catch (error) {
-      console.error('Error parsing annotationInfo:', error, annotation.annotationInfo);
-    }
+    let annotationInfo = annotation.annotationInfo;
 
     if (annotationInfo.questionType) {
       // poll result, convert it to text and create tldraw shape

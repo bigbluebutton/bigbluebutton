@@ -216,14 +216,10 @@ const WhiteboardContainer = (props) => {
 
       // Process only the latest occurrence of each shape
       shapeMap.forEach(({ annotationId, annotationInfo }) => {
-        if (!annotationInfo || annotationInfo.trim() === "") {
+        if (!annotationInfo) {
           annotationsToBeRemoved.add(annotationId);
         } else {
-          const parsedInfo = typeof annotationInfo === "string"
-            ? JSON.parse(annotationInfo)
-            : annotationInfo;
-
-          validShapes.push({ ...parsedInfo, id: annotationId });
+          validShapes.push({ ...annotationInfo, id: annotationId });
         }
       });
 
@@ -269,20 +265,14 @@ const WhiteboardContainer = (props) => {
     const updatedAnnotations = [];
 
     data.forEach((item) => {
-      if (!item.annotationInfo || item.annotationInfo === '') {
+      if (!item.annotationInfo) {
         annotationsToBeRemoved.push(item.annotationId);
       } else {
-        const parsedInfo =
-          typeof item.annotationInfo === 'string'
-            ? JSON.parse(item.annotationInfo)
-            : item.annotationInfo;
-
         const existingShape = editor?.getShape(item.annotationId);
-
         if (existingShape) {
           updatedAnnotations.push({
             ...item,
-            annotationInfo: parsedInfo,
+            annotationInfo: item.annotationInfo,
           });
 
           annotationsToBeRemoved = annotationsToBeRemoved.filter(
@@ -291,7 +281,7 @@ const WhiteboardContainer = (props) => {
         } else {
           newAnnotations.push({
             ...item,
-            annotationInfo: parsedInfo,
+            annotationInfo: item.annotationInfo,
           });
         }
       }
