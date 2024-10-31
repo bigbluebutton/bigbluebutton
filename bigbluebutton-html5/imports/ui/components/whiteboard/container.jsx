@@ -10,7 +10,7 @@ import { useMutation, useQuery, useSubscription } from '@apollo/client';
 import {
   AssetRecordType,
 } from '@bigbluebutton/tldraw';
-import { throttle, isEqual } from 'radash';
+import { throttle } from 'radash';
 import {
   CURRENT_PRESENTATION_PAGE_SUBSCRIPTION,
   ANNOTATION_HISTORY_STREAM,
