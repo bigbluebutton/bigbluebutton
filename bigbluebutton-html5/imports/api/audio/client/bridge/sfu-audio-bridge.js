@@ -164,20 +164,32 @@ export default class SFUAudioBridge extends BaseAudioBridge {
     const MEDIA = SETTINGS.public.media;
     const CONNECTION_TIMEOUT_MS = MEDIA.listenOnlyCallTimeout || 15000;
 
-    this.connectionTimeout = setTimeout(() => {
-      const error = new Error(`ICE negotiation timeout after ${CONNECTION_TIMEOUT_MS / 1000}s`);
-      error.errorCode = 1010;
-      // Duplicating key-vals because I can'decide settle on an error pattern - prlanzarin again
-      error.errorCause = error.message;
-      error.errorMessage = error.message;
-      this.handleBrokerFailure(error);
-    }, CONNECTION_TIMEOUT_MS);
+    const createTimeout = (resolve, reject) => {
+      this.connectionTimeout = setTimeout(() => {
+        const error = new Error(`ICE negotiation timeout after ${CONNECTION_TIMEOUT_MS / 1000}s`);
+        error.errorCode = 1010;
+        // Duplicating key-vals because I can'decide settle on an error pattern - prlanzarin again
+        error.errorCause = error.message;
+        error.errorMessage = error.message;
+        this.handleBrokerFailure(error).then(resolve).catch(reject);
+      }, CONNECTION_TIMEOUT_MS);
+    };
+
+    this._timeoutPromise = new Promise((resolve, reject) => {
+      createTimeout(resolve, reject);
+    });
+
+    return this._timeoutPromise;
   }
 
   clearConnectionTimeout() {
     if (this.connectionTimeout) {
       clearTimeout(this.connectionTimeout);
       this.connectionTimeout = null;
+    }
+
+    if (this._timeoutPromise) {
+      this._timeoutPromise = null;
     }
   }
 
@@ -433,7 +445,7 @@ export default class SFUAudioBridge extends BaseAudioBridge {
 
         // Set up a connectionTimeout in case the server or network are botching
         // negotiation or conn checks.
-        this.setConnectionTimeout();
+        this.setConnectionTimeout().then(resolve).catch(reject);
         this.broker.joinAudio().catch(handleInitError);
       } catch (error) {
         handleInitError(error);
