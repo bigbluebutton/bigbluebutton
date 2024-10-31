@@ -202,17 +202,16 @@ export default class SFUAudioBridge extends BaseAudioBridge {
   }
 
   reconnect(options = {}) {
-    // If broker has already started, fire the reconnecting callback so the user
-    // knows what's going on
-    if (this.broker.started) {
-      this.callback({ status: this.baseCallStates.reconnecting, bridge: this.bridgeName });
-    } else {
-      // Otherwise: override termination handler so the ended callback doesn't get
-      // triggered - this is a retry attempt and the user shouldn't be notified
-      // yet.
+    // If broker hasn't started, override termination handler so the ended callback
+    // doesn't get triggered - this is a retry attempt and the user shouldn't be
+    // terminated yet
+    if (!this.broker.started) {
       this.broker.onended = () => {};
     }
 
+    // Notify the user that the bridge is reconnecting - this can be read as
+    // a re-connect attempt or a retry attempt (when join fails)
+    this.callback({ status: this.baseCallStates.reconnecting, bridge: this.bridgeName });
     this.reconnecting = true;
     this.broker.stop();
     return this._startBroker({ isListenOnly: this.isListenOnly, ...options })

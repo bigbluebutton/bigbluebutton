@@ -42,6 +42,7 @@ const propTypes = {
   updateOutputDevices: PropTypes.func.isRequired,
   isEchoTest: PropTypes.bool.isRequired,
   isConnecting: PropTypes.bool.isRequired,
+  isReconnecting: PropTypes.bool.isRequired,
   isConnected: PropTypes.bool.isRequired,
   isUsingAudio: PropTypes.bool.isRequired,
   isListenOnly: PropTypes.bool.isRequired,
@@ -146,6 +147,10 @@ const intlMessages = defineMessages({
     id: 'app.audioModal.connecting',
     description: 'Message for audio connecting',
   },
+  retrying: {
+    id: 'app.audioModal.retrying',
+    description: 'Message for audio retrying',
+  },
   ariaModalTitle: {
     id: 'app.audioModal.ariaTitle',
     description: 'aria label for modal title',
@@ -178,6 +183,7 @@ const AudioModal = ({
   AudioError,
   joinEchoTest,
   isConnecting,
+  isReconnecting,
   localEchoEnabled,
   joinListenOnly,
   changeInputStream,
@@ -636,6 +642,11 @@ const AudioModal = ({
             <span data-test={!isEchoTest ? 'establishingAudioLabel' : 'connectingToEchoTest'}>
               {intl.formatMessage(intlMessages.connecting)}
             </span>
+            {isReconnecting && (
+              <Styled.ConnectingSubtext>
+                {intl.formatMessage(intlMessages.retrying)}
+              </Styled.ConnectingSubtext>
+            )}
             <Styled.ConnectingAnimation animations={animations} />
           </Styled.Connecting>
         );
