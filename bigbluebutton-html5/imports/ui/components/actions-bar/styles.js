@@ -46,7 +46,7 @@ const Center = styled.div`
   flex-direction: row;
   flex: 1;
   justify-content: center;
-  > *:not(span) {
+  > *:not(span):not(:last-child) {
     margin: 0 ${smPaddingX};
     @media ${smallOnly} {
       margin: 0 ${smPaddingY};
