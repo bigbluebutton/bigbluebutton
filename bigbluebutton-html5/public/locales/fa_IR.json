@@ -999,7 +999,7 @@
     "app.toast.setEmoji.lowerHand": "دست شما پایین آورده شد",
     "app.toast.setEmoji.away": "وضعیت خود را به‌عنوان عدم حضور تنظیم کردید",
     "app.toast.setEmoji.notAway": "وضعیت عدم حضور خود را حذف کردید",
-    "app.toast.promotedLabel": "نقش شما به مدیر ارتقا یافت",
+    "app.toast.promotedLabel": "نقش شما به مدیر ارتقاء یافت",
     "app.toast.demotedLabel": "نقش شما به کاربر عادی تنزل یافت",
     "app.notification.recordingStart": "اکنون جلسه درحال ضبط شدن است",
     "app.notification.recordingStop": "این جلسه ضبط نمی‌شود",
