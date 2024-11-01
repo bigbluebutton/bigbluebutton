@@ -17,8 +17,8 @@ const (
 	nonExistentFile   = "nonexistent.pdf"
 )
 
-func mockExecCommandContext(ctx context.Context, name string, args ...string) *exec.Cmd {
-	cs := []string{"-test.run=TestHelperProcess", "--", name}
+func mockExecCommandContextForConversion(ctx context.Context, name string, args ...string) *exec.Cmd {
+	cs := []string{"-test.run=TestHelperProcessForConversion", "--", name}
 	cs = append(cs, args...)
 	cmd := exec.CommandContext(ctx, os.Args[0], cs...)
 	cmd.Env = append(cmd.Env, "GO_WANT_HELPER_PROCESS=1")
@@ -37,7 +37,7 @@ func mockRemoveFile(path string) error {
 	return nil
 }
 
-func TestHelperProcess(*testing.T) {
+func TestHelperProcessForConversion(*testing.T) {
 	if os.Getenv("GO_WANT_HELPER_PROCESS") != "1" {
 		return
 	}
@@ -60,10 +60,10 @@ func TestOfficePDFConverter_Convert(t *testing.T) {
 		{"Failed conversion", failConvertIn, failConvertOut, true},
 	}
 
-	execCommandContext = mockExecCommandContext
 	removeFileFunc = mockRemoveFile
 
 	converter := NewOfficePDFConverter()
+	converter.exec = mockExecCommandContextForConversion
 
 	for _, test := range tests {
 		t.Run(test.name, func(t *testing.T) {

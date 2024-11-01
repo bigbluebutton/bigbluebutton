@@ -13,7 +13,6 @@ import (
 	"github.com/bigbluebutton/bigbluebutton/bbb-presentation-api/internal/config"
 )
 
-var execCommandContext = exec.CommandContext
 var removeFileFunc = os.Remove
 
 // Converter is the interface that wraps the basic Convert method. Given the path to
@@ -30,6 +29,7 @@ type OfficePDFConverter struct {
 	script      string
 	timeout     int
 	maxAttempts int
+	exec        func(ctx context.Context, name string, args ...string) *exec.Cmd
 }
 
 // NewOfficeConverter creates a new OfficePDFConverter using the default configuration that
@@ -45,6 +45,7 @@ func NewOfficePDFConverterWithConfig(cfg *config.Config) *OfficePDFConverter {
 		script:      cfg.Conversion.Office.Script,
 		timeout:     cfg.Conversion.Office.Timeout,
 		maxAttempts: cfg.Conversion.Office.MaxAttempts,
+		exec:        exec.CommandContext,
 	}
 }
 
@@ -88,12 +89,12 @@ func (c *OfficePDFConverter) Convert(in string, out string) error {
 
 func (c *OfficePDFConverter) executeConversion(ctx context.Context, in, out string) error {
 	args := []string{
-		fmt.Sprintf("%ds", c.timeout), // timeout argument
+		fmt.Sprintf("%ds", c.timeout),
 		"/bin/sh", "-c",
 		fmt.Sprintf("\"%s\" \"%s\" \"%s\" pdf %d", c.script, in, out, c.timeout),
 	}
 
-	cmd := execCommandContext(ctx, "timeout", args...)
+	cmd := c.exec(ctx, "timeout", args...)
 	output, err := cmd.CombinedOutput()
 	if err != nil {
 		return fmt.Errorf("conversion failed: %w, output: %s", err, string(output))

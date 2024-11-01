@@ -3,3 +3,18 @@ conversion:
     script: /usr/share/bbb-libreoffice-conversion/convert.sh
     timeout: 60 # Timeout in seconds
     max_attempts: 3
+processing:
+  pdf:
+    page:
+      downscale:
+        script: /etc/bigbluebutton/nopdfmark.ps
+        timeout: 10 # Timeout in seconds
+validation:
+  office:
+    script: /usr/share/prescheck/prescheck.sh
+    timeout: 20 # Timeout in seconds
+    exec_timeout: 25 # timeout in seconds
+generation:
+  thumbnail:
+    image_magick_dir: /usr/bin
+    timeout: 10 # Timeout in seconds

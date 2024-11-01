@@ -25,6 +25,29 @@ type Config struct {
 			MaxAttempts int    `yaml:"max_attempts"`
 		} `yaml:"office"`
 	} `yaml:"conversion"`
+	Processing struct {
+		PDF struct {
+			Page struct {
+				Downscale struct {
+					Script  string `yaml:"script"`
+					Timeout int    `yaml:"timeout"`
+				} `yaml:"downscale"`
+			} `yaml:"page"`
+		} `yaml:"pdf"`
+	} `yaml:"processing"`
+	Validation struct {
+		Office struct {
+			Script      string `yaml:"script"`
+			Timeout     int    `yaml:"timeout"`
+			ExecTimeout int    `yaml:"exec_timeout"`
+		} `yaml:"office"`
+	} `yaml:"validation"`
+	Generation struct {
+		Thumbnail struct {
+			ImageMagickDir string `yaml:"image_magick_dir"`
+			Timeout        int    `yaml:"timeout"`
+		} `yaml:"thumbnail"`
+	} `yaml:"generation"`
 }
 
 func init() {
