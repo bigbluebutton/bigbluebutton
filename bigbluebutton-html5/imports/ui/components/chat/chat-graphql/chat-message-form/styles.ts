@@ -12,7 +12,6 @@ import {
   smPaddingY,
   borderRadius,
   borderSize,
-  xsPadding,
 } from '/imports/ui/stylesheets/styled-components/general';
 import { fontSizeBase } from '/imports/ui/stylesheets/styled-components/typography';
 import TextareaAutosize from 'react-autosize-textarea';
@@ -35,7 +34,6 @@ const Form = styled.form<FormProps>`
 const Wrapper = styled.div`
   display: flex;
   flex-direction: row;
-  box-shadow: inset 0 0 0 1px ${colorGrayLightest};
   border-radius: 0.75rem;
 `;
 

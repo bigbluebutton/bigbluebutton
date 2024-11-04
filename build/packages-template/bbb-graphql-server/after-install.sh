@@ -56,7 +56,7 @@ case "$1" in
 
     # Apply BBB metadata in Hasura
     cd /usr/share/bbb-graphql-server
-    timeout 15s /usr/local/bin/hasura metadata apply --skip-update-check
+    timeout 15s /usr/bin/hasura metadata apply --skip-update-check
     cd ..
     rm -rf /usr/share/bbb-graphql-server/metadata
   fi

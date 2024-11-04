@@ -1366,8 +1366,7 @@ CREATE TABLE "pres_annotation" (
 	"meetingId" varchar(100),
 	"userId" varchar(50),
 	"annotationInfo" TEXT,
-	"lastHistorySequence" integer,
-	"lastUpdatedAt" timestamp with time zone DEFAULT now()
+	"lastUpdatedAt" timestamp with time zone
 );
 CREATE INDEX "idx_pres_annotation_pageId" ON "pres_annotation"("pageId");
 CREATE INDEX "idx_pres_annotation_updatedAt" ON "pres_annotation"("pageId","lastUpdatedAt");
@@ -1379,25 +1378,30 @@ CREATE TABLE "pres_annotation_history" (
 	"pageId" varchar(100) REFERENCES "pres_page"("pageId") ON DELETE CASCADE,
 	"meetingId" varchar(100),
 	"userId" varchar(50),
-	"annotationInfo" TEXT
---	"lastUpdatedAt" timestamp with time zone DEFAULT now()
+	"annotationInfo" jsonb,
+	"updatedAt" timestamp with time zone
 );
 CREATE INDEX "idx_pres_annotation_history_pageId" ON "pres_annotation"("pageId");
 create index "idx_pres_annotation_history_user_meeting" on "pres_annotation_history" ("userId", "meetingId");
+CREATE INDEX "idx_pres_annotation_history_updatedAt" ON "pres_annotation_history"("pageId", "updatedAt");
 
 CREATE VIEW "v_pres_annotation_curr" AS
-SELECT p."meetingId", pp."presentationId", pa."annotationId", pa."pageId", pa."userId", pa."annotationInfo", pa."lastHistorySequence", pa."lastUpdatedAt"
+SELECT p."meetingId", pp."presentationId", pa."annotationId", pa."pageId", pa."userId", pa."annotationInfo",
+pa."lastUpdatedAt", "user"."isModerator" as "userIsModerator"
 FROM pres_presentation p
 JOIN pres_page pp ON pp."presentationId" = p."presentationId"
 JOIN pres_annotation pa ON pa."pageId" = pp."pageId"
+JOIN "user" on "user"."meetingId" = pa."meetingId" and "user"."userId" = pa."userId"
 WHERE p."current" IS true
 AND pp."current" IS true;
 
 CREATE VIEW "v_pres_annotation_history_curr" AS
-SELECT p."meetingId", pp."presentationId", pah."pageId", pah."userId", pah."annotationId", pah."annotationInfo", pah."sequence"
+SELECT p."meetingId", pp."presentationId", pah."pageId", pah."userId", pah."annotationId", pah."annotationInfo",
+pah."updatedAt", "user"."isModerator" as "userIsModerator"
 FROM pres_presentation p
 JOIN pres_page pp ON pp."presentationId" = p."presentationId"
 JOIN pres_annotation_history pah ON pah."pageId" = pp."pageId"
+JOIN "user" on "user"."meetingId" = pah."meetingId" and "user"."userId" = pah."userId"
 WHERE p."current" IS true
 AND pp."current" IS true;
 

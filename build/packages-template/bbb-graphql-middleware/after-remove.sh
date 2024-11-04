@@ -6,7 +6,8 @@ case "$1" in
    ;;
    purge)
      # remove
-     rm -rf /usr/local/bin/bbb-graphql-middleware
+     rm -rf /usr/local/bin/bbb-graphql-middleware #legacy location of the binary
+     rm -rf /usr/bin/bbb-graphql-middleware
      rm -rf /usr/share/bbb-graphql-middleware
    ;;
    upgrade)
