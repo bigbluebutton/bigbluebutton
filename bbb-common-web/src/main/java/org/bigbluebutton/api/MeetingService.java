@@ -88,6 +88,7 @@ public class MeetingService implements MessageListener {
   private SlidesGenerationProgressNotifier notifier;
 
   private long usersTimeout;
+  private int numPluginManifestsFetchingThreads;
   private long waitingGuestUsersTimeout;
   private int sessionsCleanupDelayInMinutes;
   private long enteredUsersTimeout;
@@ -396,7 +397,7 @@ public class MeetingService implements MessageListener {
     Map<String, String> metadata = m.getMetadata();
     List<CompletableFuture<Void>> futures = new ArrayList<>();
     // The maximum number of threads can be adjusted later on
-    ExecutorService executorService = Executors.newFixedThreadPool(10);
+    ExecutorService executorService = Executors.newFixedThreadPool(numPluginManifestsFetchingThreads);
     for (PluginManifest pluginManifest : m.getPluginManifests()) {
       CompletableFuture<Void> future = CompletableFuture.runAsync(() -> {
         try {
@@ -1512,6 +1513,10 @@ public class MeetingService implements MessageListener {
 
   public void setWaitingGuestUsersTimeout(long value) {
     waitingGuestUsersTimeout = value;
+  }
+
+  public void setNumPluginManifestsFetchingThreads(int value) {
+    numPluginManifestsFetchingThreads = value;
   }
 
   public void setSessionsCleanupDelayInMinutes(int value) {
