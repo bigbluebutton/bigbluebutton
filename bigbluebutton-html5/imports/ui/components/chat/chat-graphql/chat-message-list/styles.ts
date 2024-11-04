@@ -14,7 +14,7 @@ interface MessageListProps {
 export const MessageList = styled(ScrollboxVertical)<MessageListProps>`
   flex-flow: column;
   flex-shrink: 1;
-  padding-top: 2rem;
+  padding-top: 1rem;
   outline-style: none;
   overflow-x: hidden;
   user-select: text;
