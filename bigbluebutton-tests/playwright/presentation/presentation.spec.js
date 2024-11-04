@@ -80,7 +80,9 @@ test.describe.parallel('Presentation', { tag: '@ci' }, () => {
 
   test.describe.parallel('Manage', () => {
     // https://docs.bigbluebutton.org/2.6/release-tests.html#uploading-a-presentation-automated
-    test('Upload single presentation', async ({ browser, context, page }) => {
+    test('Upload single presentation', { tag: '@flaky' }, async ({ browser, context, page }) => {
+      // current presentation toast not being displayed sometimes
+      linkIssue(21576);
       const presentation = new Presentation(browser, context);
       await presentation.initPages(page, true);
       await presentation.uploadSinglePresentationTest();
@@ -96,7 +98,9 @@ test.describe.parallel('Presentation', { tag: '@ci' }, () => {
     });
 
     // https://docs.bigbluebutton.org/2.6/release-tests.html#uploading-multiple-presentations-automated
-    test('Upload multiple presentations', async ({ browser, context, page }) => {
+    test('Upload multiple presentations', { tag: '@flaky' }, async ({ browser, context, page }) => {
+      // current presentation toast not being displayed sometimes
+      linkIssue(21576);
       const presentation = new Presentation(browser, context);
       await presentation.initPages(page, true);
       await presentation.uploadMultiplePresentationsTest();
