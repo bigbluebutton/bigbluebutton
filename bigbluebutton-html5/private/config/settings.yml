@@ -925,6 +925,7 @@ public:
     # If no link is provided, the audio troubleshooting button will not be shown.
     # Index is the error code:
     #   - 7: permission denied error code
+    #   - 6: no input devices found
     #   - 0: unknown error
     #audioTroubleshootingLinks:
     #  7: 'https://link.bigbluebutton.org/perm'
