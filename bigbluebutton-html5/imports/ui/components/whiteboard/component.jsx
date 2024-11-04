@@ -1017,68 +1017,96 @@ const Whiteboard = React.memo((props) => {
     let timeoutId = null;
 
     if (
-      tlEditor
-      && curPageIdRef.current
-      && currentPresentationPage
-      && isPresenter
-      && isWheelZoomRef.current === false
+      tlEditor &&
+      curPageIdRef.current &&
+      currentPresentationPage &&
+      isPresenter &&
+      !isWheelZoomRef.current
     ) {
-      const zoomLevelForReset = (fitToWidthRef.current || !initialZoomRef.current)
-        ? calculateZoomValue(
-          currentPresentationPage.scaledWidth,
-          currentPresentationPage.scaledHeight,
-        ) : initialZoomRef.current;
+      const zoomLevelForReset =
+        fitToWidthRef.current || !initialZoomRef.current
+          ? calculateZoomValue(
+              currentPresentationPage.scaledWidth,
+              currentPresentationPage.scaledHeight
+            )
+          : initialZoomRef.current;
 
-      const zoomCamera = zoomValue === HUNDRED_PERCENT
-        ? zoomLevelForReset
-        : (zoomLevelForReset * zoomValue) / HUNDRED_PERCENT;
+      const zoomCamera = (zoomLevelForReset * zoomValue) / HUNDRED_PERCENT;
+      const slideShape = tlEditorRef.current.getShape(`shape:BG-${curPageIdRef.current}`);
       const camera = tlEditorRef.current.getCamera();
 
-      const nextCamera = {
-        x:
-          zoomValue === HUNDRED_PERCENT
-            ? 0
-            : (camera.x
-              + (tlEditorRef.current.getViewportPageBounds().w / 2 / zoomCamera
-              - tlEditorRef.current.getViewportPageBounds().w / 2 / camera.z)),
-        y:
-          zoomValue === HUNDRED_PERCENT
-            ? 0
-            : (camera.y
-              + (tlEditorRef.current.getViewportPageBounds().h / 2 / zoomCamera
-              - tlEditorRef.current.getViewportPageBounds().h / 2 / camera.z)),
-        z: zoomCamera,
-      };
+      const viewportScreenBounds = tlEditorRef.current.getViewportScreenBounds();
+      const viewportWidth = viewportScreenBounds.width;
+      const viewportHeight = viewportScreenBounds.height;
 
-      if (
-        zoomValue !== prevZoomValueRef.current
-      ) {
-        tlEditor.setCamera(nextCamera, { duration: 175 });
-        timeoutId = setTimeout(() => {
-          if (zoomValue === HUNDRED_PERCENT && !fitToWidthRef.current) {
-            zoomChanger(HUNDRED_PERCENT);
-            zoomSlide(HUNDRED_PERCENT, HUNDRED_PERCENT, 0, 0);
-          } else {
-            // Recalculate viewed region width and height for zoomSlide call
-            const viewedRegionW = SlideCalcUtil.calcViewedRegionWidth(
-              tlEditorRef.current.getViewportPageBounds().w,
-              currentPresentationPageRef.current.scaledWidth,
-            );
-            const viewedRegionH = SlideCalcUtil.calcViewedRegionHeight(
-              tlEditorRef.current.getViewportPageBounds().h,
-              currentPresentationPageRef.current.scaledHeight,
-            );
+      let newCamera;
 
-            zoomSlide(viewedRegionW, viewedRegionH, nextCamera.x, nextCamera.y);
-          }
-        }, 500);
+      if (slideShape) {
+        const centeredCameraX =
+          -slideShape.x +
+          (viewportWidth - slideShape.props.w * camera.z) / (2 * camera.z);
+        const centeredCameraY =
+          -slideShape.y +
+          (viewportHeight - slideShape.props.h * camera.z) / (2 * camera.z);
+
+        const panningOffsetX = camera.x - centeredCameraX;
+        const panningOffsetY = camera.y - centeredCameraY;
+
+        const newCenteredCameraX =
+          -slideShape.x +
+          (viewportWidth - slideShape.props.w * zoomCamera) / (2 * zoomCamera);
+        const newCenteredCameraY =
+          -slideShape.y +
+          (viewportHeight - slideShape.props.h * zoomCamera) / (2 * zoomCamera);
+
+        newCamera = {
+          x: newCenteredCameraX + panningOffsetX,
+          y: newCenteredCameraY + panningOffsetY,
+          z: zoomCamera,
+        };
+      } else {
+        newCamera = {
+          x:
+            camera.x +
+            ((viewportWidth / 2) / camera.z - (viewportWidth / 2) / zoomCamera),
+          y:
+            camera.y +
+            ((viewportHeight / 2) / camera.z - (viewportHeight / 2) / zoomCamera),
+          z: zoomCamera,
+        };
       }
+
+      if (newCamera) {
+        tlEditorRef.current.setCamera(newCamera, { duration: 175 });
+      }
+
+      timeoutId = setTimeout(() => {
+        const viewportBounds = tlEditorRef.current.getViewportPageBounds();
+        const viewedRegionW = SlideCalcUtil.calcViewedRegionWidth(
+          viewportBounds.w,
+          currentPresentationPageRef.current.scaledWidth
+        );
+        const viewedRegionH = SlideCalcUtil.calcViewedRegionHeight(
+          viewportBounds.h,
+          currentPresentationPageRef.current.scaledHeight
+        );
+        const updatedCamera = tlEditorRef.current.getCamera();
+
+        zoomSlide(
+          viewedRegionW,
+          viewedRegionH,
+          updatedCamera.x,
+          updatedCamera.y,
+          currentPresentationPageRef.current
+        );
+      }, 500);
     }
 
-    // Update the previous zoom value ref with the current zoom value
     prevZoomValueRef.current = zoomValue;
     return () => clearTimeout(timeoutId);
-  }, [zoomValue, tlEditor, curPageId, isWheelZoomRef.current, fitToWidthRef.current]);
+  }, [
+    zoomValue, tlEditor, curPageId, isWheelZoomRef.current, fitToWidthRef.current,
+  ]);
 
   React.useEffect(() => {
     // A slight delay to ensure the canvas has rendered
