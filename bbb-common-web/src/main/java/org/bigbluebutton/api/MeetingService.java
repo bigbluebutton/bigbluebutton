@@ -19,12 +19,15 @@
 package org.bigbluebutton.api;
 
 import java.io.File;
+import java.io.IOException;
+import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URL;
 import java.util.*;
 import java.util.Map.Entry;
 import java.util.concurrent.*;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -445,9 +448,14 @@ public class MeetingService implements MessageListener {
           Map<String, Object> manifestWrapper = new HashMap<>();
           manifestWrapper.put("manifest", manifestObject);
           urlContents.put(pluginKey, manifestWrapper);
+        } catch (MalformedURLException e) {
+          log.error("Invalid URL: {}", pluginManifest.getUrl(), e);
+        } catch (JsonProcessingException e) {
+          log.error("Failed to parse JSON from URL: {}", pluginManifest.getUrl(), e);
+        } catch (IOException e) {
+          log.error("I/O error when fetching URL: {}", pluginManifest.getUrl(), e);
         } catch (Exception e) {
-          log.error("Failed with the following plugin manifest URL: {}. Error: ", pluginManifest.getUrl(), e);
-          log.error("Therefore this plugin will not be loaded");
+          log.error("Unexpected error processing plugin manifest from URL: {}", pluginManifest.getUrl(), e);
         }
       }, executorService);
       futures.add(future);
