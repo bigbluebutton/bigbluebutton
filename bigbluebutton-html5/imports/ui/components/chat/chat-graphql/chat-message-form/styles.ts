@@ -9,6 +9,7 @@ import {
 } from '/imports/ui/stylesheets/styled-components/palette';
 import {
   smPaddingX,
+  xsPadding,
   smPaddingY,
   borderRadius,
   borderSize,
