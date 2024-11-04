@@ -23,6 +23,7 @@ import {
   colorGrayLightest,
   colorGrayDark,
 } from '/imports/ui/stylesheets/styled-components/palette';
+import { ChatTime as ChatTimeBase } from './message-header/styles';
 
 interface ChatWrapperProps {
   sameSender: boolean;
