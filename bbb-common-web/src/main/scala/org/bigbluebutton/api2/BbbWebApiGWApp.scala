@@ -6,13 +6,13 @@ import org.apache.pekko.event.Logging
 import org.bigbluebutton.api.domain.{BreakoutRoomsParams, Group, LockSettingsParams}
 import org.bigbluebutton.api.messaging.converters.messages._
 import org.bigbluebutton.api.messaging.messages.{ChatMessageFromApi, RegisterUserSessionToken}
+import org.bigbluebutton.api.service.validationService
 import org.bigbluebutton.api2.bus._
 import org.bigbluebutton.api2.endpoint.redis.WebRedisSubscriberActor
 import org.bigbluebutton.common2.redis.MessageSender
 import org.bigbluebutton.api2.meeting.{OldMeetingMsgHdlrActor, RegisterUser}
 import org.bigbluebutton.common2.domain._
 import org.bigbluebutton.common2.util.JsonUtil
-import org.bigbluebutton.common2.util.UrlValidationUtil
 import org.bigbluebutton.presentation.messages._
 
 import scala.concurrent.duration._
@@ -300,7 +300,7 @@ class BbbWebApiGWApp(
     //     guest = guest, authed = authed)
 
     // Check whether the logout Url is either empty or a valid url.
-    require(logoutUrl.isEmpty || UrlValidationUtil.isValidUrl(logoutUrl), "Invalid logout URL provided")
+    require(logoutUrl.isEmpty || validationService.isValidURL(logoutUrl), "Invalid logout URL provided")
 
     val regUser = new RegisterUser(meetingId = meetingId, intUserId = intUserId, name = name,
       role = role, extUserId = extUserId, authToken = authToken, sessionToken = sessionToken,

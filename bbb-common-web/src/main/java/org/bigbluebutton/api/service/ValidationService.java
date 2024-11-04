@@ -95,7 +95,7 @@ public class ValidationService {
         return violations;
     }
 
-    boolean isValidURL(String url) {
+    public boolean isValidURL(String url) {
         try {
             new URL(url).toURI();
             return true;
