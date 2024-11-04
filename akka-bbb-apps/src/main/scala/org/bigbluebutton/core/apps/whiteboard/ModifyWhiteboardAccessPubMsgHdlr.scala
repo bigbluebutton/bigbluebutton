@@ -29,7 +29,7 @@ trait ModifyWhiteboardAccessPubMsgHdlr extends RightsManagementTrait {
       val newWriters = newMultiUser.filter(u => !oldMultiUser.contains(u))
       val oldWriters = oldMultiUser.filter(u => !newMultiUser.contains(u))
 
-      for (u <- newWriters) yield {
+      for (u <- newWriters) {
         val notifyEvent = MsgBuilder.buildNotifyUserInMeetingEvtMsg(
           u,
           liveMeeting.props.meetingProp.intId,
@@ -43,7 +43,7 @@ trait ModifyWhiteboardAccessPubMsgHdlr extends RightsManagementTrait {
         NotificationDAO.insert(notifyEvent)
       }
 
-      for (u <- oldWriters) yield {
+      for (u <- oldWriters) {
         val notifyEvent = MsgBuilder.buildNotifyUserInMeetingEvtMsg(
           u,
           liveMeeting.props.meetingProp.intId,
