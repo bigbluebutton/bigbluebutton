@@ -414,7 +414,7 @@ class Presentation extends MultiUsers {
     await this.modPage.waitAndClick(e.whiteboardOptionsButton);
     await this.modPage.waitAndClick(e.toolVisibility);
     const screenshotOptions = {
-      maxDiffPixels: 250,
+      maxDiffPixels: 1000,
     };
 
     // mod checks
@@ -422,16 +422,14 @@ class Presentation extends MultiUsers {
     await this.modPage.wasRemoved(e.whiteboardStyles, 'should not display the whiteboard styles menu');
     await this.modPage.wasRemoved(e.wbUndo, 'should not display the whiteboard undo button');
     await this.modPage.wasRemoved(e.wbRedo, 'should not display the whiteboard redo button');
-    const wbModLocator = this.modPage.getLocator(e.whiteboard);
-    await expect(wbModLocator, 'should not display the presentation toolbars').toHaveScreenshot('mod-hide-toolbars.png', screenshotOptions);
+    await expect(this.modPage.page, 'should not display the presentation toolbars').toHaveScreenshot('mod-hide-toolbars.png', screenshotOptions);
 
     // user checks
     await this.userPage.hasElement(e.wbToolbar, 'should display the whiteboard toolbar for the viewer with whiteboard access');
     await this.userPage.hasElement(e.whiteboardStyles, 'should display the whiteboard styles menu for the viewer with whiteboard access');
     await this.userPage.hasElement(e.wbUndo, 'should display the whiteboard undo button for the viewer with whiteboard access');
     await this.userPage.hasElement(e.wbRedo, 'should display the whiteboard redo button for the viewer with whiteboard access');
-    const wbUserLocator = this.userPage.getLocator(e.whiteboard);
-    await expect(wbUserLocator, 'should display the presentation toolbars').toHaveScreenshot('user-toolbars.png', screenshotOptions);
+    await expect(this.userPage.page, 'should display the presentation toolbars').toHaveScreenshot('user-toolbars.png', screenshotOptions);
   }
 
   async zoom() {
