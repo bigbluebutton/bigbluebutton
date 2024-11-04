@@ -2,13 +2,14 @@ package org.bigbluebutton.core.db
 
 import org.bigbluebutton.common2.msgs.AnnotationVO
 import PostgresProfile.api._
+import spray.json.JsValue
 
 case class PresAnnotationHistoryDbModel(
     annotationId:   String,
     pageId:         String,
     meetingId:      String,
     userId:         String,
-    annotationInfo: String,
+    annotationInfo: Option[JsValue],
     updatedAt:      java.sql.Timestamp
 )
 
@@ -17,7 +18,7 @@ class PresAnnotationHistoryDbTableDef(tag: Tag) extends Table[PresAnnotationHist
   val pageId = column[String]("pageId")
   val meetingId = column[String]("meetingId")
   val userId = column[String]("userId")
-  val annotationInfo = column[String]("annotationInfo")
+  val annotationInfo = column[Option[JsValue]]("annotationInfo")
   val updatedAt = column[java.sql.Timestamp]("updatedAt")
   def * = (annotationId, pageId, meetingId, userId, annotationInfo, updatedAt) <> (PresAnnotationHistoryDbModel.tupled, PresAnnotationHistoryDbModel.unapply)
 }
@@ -31,7 +32,7 @@ object PresAnnotationHistoryDAO {
         pageId = annotation.wbId,
         meetingId = meetingId,
         userId = annotation.userId,
-        annotationInfo = JsonUtils.mapToJson(annotation.annotationInfo).compactPrint,
+        annotationInfo = Some(JsonUtils.mapToJson(annotation.annotationInfo)),
         updatedAt = new java.sql.Timestamp(annotationUpdatedAt)
       )
     }
@@ -47,7 +48,7 @@ object PresAnnotationHistoryDAO {
         pageId = pageId,
         meetingId = meetingId,
         userId = userId,
-        annotationInfo = "",
+        annotationInfo = None,
         updatedAt = new java.sql.Timestamp(annotationUpdatedAt)
       )
     }

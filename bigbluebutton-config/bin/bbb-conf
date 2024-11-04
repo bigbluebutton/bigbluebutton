@@ -360,16 +360,13 @@ start_bigbluebutton () {
         fi
     fi
 
-    echo "Reloading NginX configuration"
-    systemctl reload nginx
-
     echo "Starting BigBlueButton"
 
     systemctl restart bigbluebutton.target
 }
 
 display_bigbluebutton_status () {
-    units="nginx freeswitch $REDIS_SERVICE bbb-apps-akka bbb-fsesl-akka"
+    units="nginx freeswitch $REDIS_SERVICE bbb-apps-akka bbb-fsesl-akka postgresql"
 
     if [ -f /usr/lib/systemd/system/bbb-graphql-actions.service ]; then
         units="$units bbb-graphql-actions"
@@ -677,6 +674,7 @@ check_configuration() {
     ignore_configs_args+=(-e "redis.pass")
     ignore_configs_args+=(-e "redisPassword")
     ignore_configs_args+=(-e "disabledFeatures")
+    ignore_configs_args+=(-e "pluginManifests")
 
     for file in $CONFIG_FILES ; do
         if [ ! -f $file ]; then
