@@ -92,6 +92,7 @@ public class MeetingService implements MessageListener {
 
   private long usersTimeout;
   private int numPluginManifestsFetchingThreads;
+  private long pluginManifestFetchTimeout;
   private long waitingGuestUsersTimeout;
   private int sessionsCleanupDelayInMinutes;
   private long enteredUsersTimeout;
@@ -457,7 +458,15 @@ public class MeetingService implements MessageListener {
         } catch (Exception e) {
           log.error("Unexpected error processing plugin manifest from URL: {}", pluginManifest.getUrl(), e);
         }
-      }, executorService);
+      }, executorService).orTimeout(pluginManifestFetchTimeout, TimeUnit.MILLISECONDS)
+      .exceptionally(ex -> {
+        if (ex instanceof TimeoutException) {
+          log.warn("Timeout occurred when fetching URL: {}", pluginManifest.getUrl());
+        } else {
+          log.error("Unexpected error for plugin {}: {}", pluginManifest.getUrl(), ex);
+        }
+        return null;
+      });
       futures.add(future);
     }
     // Wait for all tasks to complete
@@ -1525,6 +1534,10 @@ public class MeetingService implements MessageListener {
 
   public void setNumPluginManifestsFetchingThreads(int value) {
     numPluginManifestsFetchingThreads = value;
+  }
+
+  public void setPluginManifestFetchTimeout(long value) {
+    pluginManifestFetchTimeout = value;
   }
 
   public void setSessionsCleanupDelayInMinutes(int value) {
