@@ -840,6 +840,11 @@ public:
       # Forces a retry with iceTransportPolicy = 'relay' if the first attempt
       # fails with a few selected errors codes (eg 1007, 1010)
       retryThroughRelay: false
+      # allowAudioJoinCancel: permit users to cancel audio join requests by
+      # letting them close the audio modal while audio is being negotiated.
+      # If false, the audio modal will be locked until the audio is successfully
+      # joined or the request fails.
+      allowAudioJoinCancel: true
     stunTurnServersFetchAddress: '/bigbluebutton/api/stuns'
     cacheStunTurnServers: true
     fallbackStunServer: ''
