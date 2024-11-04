@@ -302,7 +302,6 @@ class OptionsDropdown extends PureComponent {
               onChange={handleToggleAFK}
               ariaLabel={ToggleAFKLabel()}
               showToggleLabel={false}
-              invertColors
             />
           </Styled.ToggleButtonWrapper>
         </Styled.AwayOption>
