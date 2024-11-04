@@ -133,7 +133,7 @@ test.describe.parallel('Presentation', { tag: '@ci' }, () => {
 
     test('Remove previous presentation from previous presenter', async ({ browser, context, page }) => {
       const presentation = new Presentation(browser, context);
-      await presentation.initModPage(page, true, { joinParameter: hidePresentationToast });
+      await presentation.initModPage(page, true);
       await presentation.initUserPage(true, context);
       await presentation.removePreviousPresentationFromPreviousPresenter();
     });
