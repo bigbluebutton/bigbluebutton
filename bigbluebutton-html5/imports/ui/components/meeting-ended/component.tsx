@@ -5,7 +5,6 @@ import React, {
   useMemo,
   useState,
 } from 'react';
-import validator from 'validator';
 import { defineMessages, useIntl } from 'react-intl';
 import { isEmpty } from 'radash';
 import { ApolloLink, useQuery } from '@apollo/client';
@@ -24,6 +23,7 @@ import { LoadingContext } from '../common/loading-screen/loading-screen-HOC/comp
 import logger from '/imports/startup/client/logger';
 import apolloContextHolder from '/imports/ui/core/graphql/apolloContextHolder/apolloContextHolder';
 import getFromUserSettings from '/imports/ui/services/users-settings';
+import isURL from 'validator/lib/isURL';
 
 const intlMessage = defineMessages({
   410: {
