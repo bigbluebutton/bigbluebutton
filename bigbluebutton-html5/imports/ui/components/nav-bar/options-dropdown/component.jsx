@@ -112,6 +112,10 @@ const intlMessages = defineMessages({
     id: 'app.actionsBar.reactions.active',
     description: 'Active Label',
   },
+  presenceLabel: {
+    id: 'app.navBar.optionsDropdown.presenceLabel',
+    description: 'Presence Label',
+  },
 });
 
 const propTypes = {
@@ -293,7 +297,7 @@ class OptionsDropdown extends PureComponent {
     this.menuItems.push({
       label: (
         <Styled.AwayOption>
-          <>Presence</>
+          <>{intl.formatMessage(intlMessages.presenceLabel)}</>
           <Styled.ToggleButtonWrapper>
             <Styled.AFKLabel>{ToggleAFKLabel()}</Styled.AFKLabel>
             <Toggle
