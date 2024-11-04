@@ -131,3 +131,7 @@ export function useIsChatMessageReactionsEnabled() {
     && window.meetingClientSettings.public.chat.toolbar.includes('reactions')
   );
 }
+
+export function useIsPrivateChatEnabled() {
+  return useDisabledFeatures().indexOf('privateChat') === -1;
+}

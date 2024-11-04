@@ -186,6 +186,8 @@ export default {
     outputDeviceId,
     isLive,
   ) => AudioManager.changeOutputDevice(outputDeviceId, isLive),
+  updateInputDevices: (devices) => { AudioManager.inputDevices = devices },
+  updateOutputDevices: (devices) => { AudioManager.outputDevices = devices },
   toggleMuteMicrophone,
   toggleMuteMicrophoneSystem,
   isConnectedToBreakout: () => {
@@ -202,6 +204,7 @@ export default {
   },
   isUsingAudio: () => AudioManager.isUsingAudio(),
   isConnecting: () => AudioManager.isConnecting,
+  isReconnecting: () => AudioManager.isReconnecting,
   isListenOnly: () => AudioManager.isListenOnly,
   inputDeviceId: () => AudioManager.inputDeviceId,
   outputDeviceId: () => AudioManager.outputDeviceId,
@@ -212,7 +215,6 @@ export default {
   playAlertSound: (url) => AudioManager.playAlertSound(url),
   updateAudioConstraints: (constraints) => AudioManager.updateAudioConstraints(constraints),
   recoverMicState,
-  isReconnecting: () => AudioManager.isReconnecting,
   setBreakoutAudioTransferStatus: (status) => AudioManager
     .setBreakoutAudioTransferStatus(status),
   getBreakoutAudioTransferStatus: () => AudioManager

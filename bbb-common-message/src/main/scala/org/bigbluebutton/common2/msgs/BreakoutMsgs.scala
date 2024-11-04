@@ -1,5 +1,7 @@
 package org.bigbluebutton.common2.msgs
 
+import java.util
+
 object BreakoutRoomEndedEvtMsg { val NAME = "BreakoutRoomEndedEvtMsg" }
 case class BreakoutRoomEndedEvtMsg(header: BbbClientMsgHeader, body: BreakoutRoomEndedEvtMsgBody) extends BbbCoreMsg
 case class BreakoutRoomEndedEvtMsgBody(parentId: String, breakoutId: String)
@@ -56,6 +58,7 @@ case class BreakoutRoomDetail(
     captureSlides:           Boolean,
     captureNotesFilename:    String,
     captureSlidesFilename:   String,
+    pluginProp:              util.Map[String, AnyRef],
 )
 
 /**

@@ -52,8 +52,6 @@ const UserItemContents = styled.div<UserItemContentsProps>`
   position: static;
   padding: .45rem;
   width: 100%;
-  margin-left: .5rem;
-
 
   ${({ selected }) => selected && `
     background-color: ${listItemBgHover};

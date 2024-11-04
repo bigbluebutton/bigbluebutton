@@ -24,16 +24,15 @@ select_permissions:
         - pageId
         - presentationId
         - userId
-        - sequence
+        - updatedAt
         - annotationInfo
       filter:
         _and:
           - meetingId:
               _eq: X-Hasura-MeetingId
           - _or:
-              - user:
-                  isModerator:
-                    _eq: true
+              - userIsModerator:
+                  _eq: true
               - meetingId:
                   _eq: X-Hasura-AnnotationsNotLockedInMeeting
               - userId:

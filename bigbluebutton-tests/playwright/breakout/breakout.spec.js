@@ -122,9 +122,8 @@ test.describe.parallel('Breakout', { tag: '@ci' }, () => {
     });
 
     test('Export breakout room shared notes', { tag: '@flaky' }, async ({ browser, context, page }) => {
-      // presentation uploader toast not displayed sometimes
-      // see issue below
-      linkIssue(21321)
+      // frequently failing on CI due to missing "current presentation" notifications
+      linkIssue(21576);
       const join = new Join(browser, context);
       await join.initPages(page);
       await join.create(true);
@@ -132,8 +131,8 @@ test.describe.parallel('Breakout', { tag: '@ci' }, () => {
     });
 
     test('Export breakout room whiteboard annotations', { tag: '@flaky' }, async ({ browser, context, page }) => {
-      // presentation uploader toast not displayed sometimes
-      linkIssue(21321)
+      // frequently failing on CI due to missing "current presentation" notifications
+      linkIssue(21576);
       const join = new Join(browser, context);
       await join.initPages(page);
       await join.create(false, true);

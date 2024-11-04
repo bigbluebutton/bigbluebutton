@@ -576,16 +576,18 @@ public class ParamsProcessorUtil {
 
         // Parse Plugins Manifests from config and param
         ArrayList<PluginManifest> listOfPluginManifests = new ArrayList<PluginManifest>();
-        //Process plugins from config
-        if(defaultPluginManifests != null && !defaultPluginManifests.isEmpty()) {
-            ArrayList<PluginManifest> pluginManifestsFromConfig = processPluginManifests(defaultPluginManifests);
-            listOfPluginManifests.addAll(pluginManifestsFromConfig);
-        }
-        //Process plugins from /create param
-        String pluginManifestsParam = params.get(ApiParams.PLUGIN_MANIFESTS);
-        if (!StringUtils.isEmpty(pluginManifestsParam)) {
-            ArrayList<PluginManifest> pluginManifestsFromParam = processPluginManifests(pluginManifestsParam);
-            listOfPluginManifests.addAll(pluginManifestsFromParam);
+        if (!isBreakout){
+            //Process plugins from config
+            if (defaultPluginManifests != null && !defaultPluginManifests.isEmpty()) {
+                ArrayList<PluginManifest> pluginManifestsFromConfig = processPluginManifests(defaultPluginManifests);
+                listOfPluginManifests.addAll(pluginManifestsFromConfig);
+            }
+            //Process plugins from /create param
+            String pluginManifestsParam = params.get(ApiParams.PLUGIN_MANIFESTS);
+            if (!StringUtils.isEmpty(pluginManifestsParam)) {
+                ArrayList<PluginManifest> pluginManifestsFromParam = processPluginManifests(pluginManifestsParam);
+                listOfPluginManifests.addAll(pluginManifestsFromParam);
+            }
         }
 
         // Check if VirtualBackgrounds is disabled

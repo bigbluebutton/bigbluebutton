@@ -58,7 +58,7 @@ trait EditGroupChatMessageReqMsgHdlr extends HandlerHelpers {
               val editedGCMessage = gcMessage.copy(message = msg.body.message)
               val updatedGroupChat = GroupChatApp.updateGroupChatMessage(liveMeeting.props.meetingProp.intId, groupChat, state.groupChats, editedGCMessage)
 
-              val event = buildGroupChatMessageEditedEvtMsg(liveMeeting.props.meetingProp.intId, msg.header.userId, msg.body.chatId, editedGCMessage)
+              val event = buildGroupChatMessageEditedEvtMsg(liveMeeting.props.meetingProp.intId, msg.body.chatId, msg.header.userId, editedGCMessage)
               bus.outGW.send(event)
               newState = state.update(updatedGroupChat)
             } else {
