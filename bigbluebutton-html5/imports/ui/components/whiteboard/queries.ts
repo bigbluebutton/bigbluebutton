@@ -32,6 +32,19 @@ export interface CursorSubscriptionResponse {
   pres_page_cursor: Array<userCursorResponse>;
 }
 
+export const PRE_LOAD_PAGE_URL_QUERY = gql`
+  query PreLoadPages($presentationId: String!, $offset: Int!, $limit: Int!) {
+    pres_page(offset: $offset, 
+    limit: $limit, order_by: {num: asc}, where: {presentation: {presentationId: {_eq: $presentationId}}}) {
+      svgUrl: urlsJson(path: "$.svg")
+      num
+      presentation {
+        presentationId
+      }
+    }
+  }
+`;
+
 export const CURRENT_PRESENTATION_PAGE_SUBSCRIPTION = gql`subscription CurrentPresentationPagesSubscription {
   pres_page_curr {
     height

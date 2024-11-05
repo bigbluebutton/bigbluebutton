@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useRef } from 'react';
 import PropTypes from 'prop-types';
 import { notify } from '/imports/ui/services/notification';
 import Presentation from '/imports/ui/components/presentation/component';
@@ -17,6 +17,7 @@ import {
   CURRENT_PRESENTATION_PAGE_SUBSCRIPTION,
   CURRENT_PAGE_WRITERS_SUBSCRIPTION,
   CURRENT_PAGE_ANNOTATIONS_STREAM,
+  PRE_LOAD_PAGE_URL_QUERY,
 } from '/imports/ui/components/whiteboard/queries';
 import POLL_SUBSCRIPTION from '/imports/ui/core/graphql/queries/pollSubscription';
 import useMeeting from '/imports/ui/core/hooks/useMeeting';
@@ -27,12 +28,24 @@ import useDeduplicatedSubscription from '../../core/hooks/useDeduplicatedSubscri
 import useSettings from '/imports/ui/services/settings/hooks/useSettings';
 import { SETTINGS } from '/imports/ui/services/settings/enums';
 
-const fetchedpresentation = {};
-
-const PresentationContainer = (props) => {
-  const { presentationIsOpen } = props;
+const PresentationContainer = ({
+  darkTheme = false,
+  fitToWidth = false,
+  presentationIsOpen = true,
+  setPresentationFitToWidth = () => {},
+}) => {
+  const fetchedpresentation = useRef({});
   const layoutContextDispatch = layoutDispatch();
   const { selectedLayout } = useSettings(SETTINGS.APPLICATION);
+
+  const [
+    getPreLoadPage,
+    {
+      data: preLoadPageData,
+      loading: preLoadPageLoading,
+      error: preLoadPageError,
+    },
+  ] = useLazyQuery(PRE_LOAD_PAGE_URL_QUERY);
 
   const { data: presentationPageData } = useDeduplicatedSubscription(
     CURRENT_PRESENTATION_PAGE_SUBSCRIPTION,
@@ -96,6 +109,38 @@ const PresentationContainer = (props) => {
       addWhiteboardGlobalAccess();
     }
   }, [users]);
+
+  useEffect(() => {
+    if (!preLoadPageLoading && preLoadPageData) {
+      const pages = preLoadPageData.pres_page.map((page) => page);
+      const presentation = fetchedpresentation.current[currentPresentationPage.presentationId];
+      const promiseImageGet = pages
+        .filter((s) => !presentation.fetchedSlide[s.num])
+        .map(async (slide) => {
+          if (presentation.canFetch) presentation.canFetch = false;
+          const image = await fetch(slide.svgUrl);
+          if (image.ok) {
+            presentation.fetchedSlide[slide.num] = true;
+          }
+        });
+      Promise.all(promiseImageGet).then(() => {
+        presentation.canFetch = true;
+      });
+    }
+  }, [preLoadPageData, preLoadPageLoading]);
+
+  useEffect(() => {
+    if (preLoadPageError && !preLoadPageData) {
+      // I want to load the current slide too, so I decrease the offset by 1
+      getPreLoadPage({
+        variables: {
+          presentationId: currentPresentationPage.presentationId,
+          offset: currentPresentationPage.num - 1,
+          limit: PRELOAD_NEXT_SLIDE + 1,
+        },
+      });
+    }
+  }, [preLoadPageError]);
 
   const removeWhiteboardGlobalAccess = () => {
     const { pageId } = currentPresentationPage;
@@ -168,32 +213,25 @@ const PresentationContainer = (props) => {
       y: currentPresentationPage.yOffset,
     };
 
-    if (PRELOAD_NEXT_SLIDE && !fetchedpresentation[presentationId]) {
-      fetchedpresentation[presentationId] = {
+    if (PRELOAD_NEXT_SLIDE && !fetchedpresentation.current[presentationId]) {
+      fetchedpresentation.current[presentationId] = {
         canFetch: true,
         fetchedSlide: {},
       };
     }
-    const presentation = fetchedpresentation[presentationId];
-
+    const presentation = fetchedpresentation.current[presentationId];
     if (PRELOAD_NEXT_SLIDE
       && !presentation.fetchedSlide[currentSlide.num + PRELOAD_NEXT_SLIDE]
       && presentation.canFetch) {
-      // TODO: preload next slides should be reimplemented in graphql
-      const slidesToFetch = [currentPresentationPage];
-
-      const promiseImageGet = slidesToFetch
-        .filter((s) => !fetchedpresentation[presentationId].fetchedSlide[s.num])
-        .map(async (slide) => {
-          if (presentation.canFetch) presentation.canFetch = false;
-          const image = await fetch(slide.svgUrl);
-          if (image.ok) {
-            presentation.fetchedSlide[slide.num] = true;
-          }
-        });
-      Promise.all(promiseImageGet).then(() => {
-        presentation.canFetch = true;
+      // I want to load the current slide too, so I decrease the offset by 1
+      getPreLoadPage({
+        variables: {
+          presentationId,
+          offset: currentSlide.num - 1,
+          limit: PRELOAD_NEXT_SLIDE + 1,
+        },
       });
+      presentation.canFetch = false;
     }
   }
 
@@ -230,7 +268,10 @@ const PresentationContainer = (props) => {
         ...{
           layoutContextDispatch,
           numCameras,
-          ...props,
+          darkTheme,
+          fitToWidth,
+          presentationIsOpen,
+          setPresentationFitToWidth,
           userIsPresenter,
           presentationBounds: presentation,
           fullscreenContext,
@@ -274,7 +315,4 @@ export default PresentationContainer;
 
 PresentationContainer.propTypes = {
   presentationIsOpen: PropTypes.bool,
-};
-PresentationContainer.defaultProps = {
-  presentationIsOpen: true,
 };
