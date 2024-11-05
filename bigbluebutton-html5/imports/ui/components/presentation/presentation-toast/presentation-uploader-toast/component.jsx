@@ -430,7 +430,7 @@ function renderExportToast(presToShow, intl) {
       <Styled.InnerToast>
         <div>
           <div>
-            {presToShowSorted.filter().map((item) => renderToastExportItem(item, intl))}
+            {presToShowSorted.map((item) => renderToastExportItem(item, intl))}
           </div>
         </div>
       </Styled.InnerToast>
@@ -452,7 +452,7 @@ export const PresentationUploaderToast = ({
 
   const getIdsFromPresentationsAndDismiss = (pres) => {
     pres.forEach((p) => {
-      if (p.uploadErrorMsgKey) {
+      if (p.uploadErrorMsgKey && !dismissedErrorItems.current.includes(p.presentationId)) {
         addPressIdToDismissed(p.presentationId);
       }
     });
