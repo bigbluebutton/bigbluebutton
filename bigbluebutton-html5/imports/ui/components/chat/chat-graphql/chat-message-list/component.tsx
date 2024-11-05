@@ -467,6 +467,15 @@ const ChatMessageList: React.FC<ChatListProps> = ({
             $hasMessageToolbar={hasMessageToolbar}
           >
             <div
+              ref={startSentinelRefProxy}
+              style={{
+                height: 1,
+                background: 'none',
+              }}
+              tabIndex={-1}
+              aria-hidden
+            />
+            <div
               role="listbox"
               ref={messageListRef}
               tabIndex={hasMessageToolbar ? 0 : -1}
@@ -475,16 +484,7 @@ const ChatMessageList: React.FC<ChatListProps> = ({
                 setSelectedMessage(null);
               }}
             >
-              <div
-                ref={startSentinelRefProxy}
-                style={{
-                  height: 1,
-                  background: 'none',
-                }}
-                tabIndex={-1}
-                aria-hidden
-              />
-              <ChatPopupContainer hasMessageToolbar={hasMessageToolbar} />
+              <ChatPopupContainer />
               {Array.from({ length: pagesToLoad }, (_v, k) => k + (firstPageToLoad)).map((page) => {
                 return (
                   <ChatListPage

@@ -28,10 +28,6 @@ export const MessageList = styled(ScrollboxVertical)<MessageListProps>`
   ${({ isRTL }) => !isRTL && `
     padding-right: ${smPaddingX};
   `}
-
-  ${({ $hasMessageToolbar }) => $hasMessageToolbar && `
-    padding-top: 2rem;
-  `}
 `;
 
 export const UnreadButton = styled(ButtonElipsis)`

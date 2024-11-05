@@ -229,7 +229,7 @@ export const Container = styled.div<{ $sequence: number }>`
   display: flex;
   flex-direction: column;
 
-  &:not(:first-child) {
+  &:not(:first-of-type) {
     margin-top: calc((${fontSizeSmaller} + ${lgPadding} * 2) / 2);
   }
 `;
