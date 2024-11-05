@@ -122,7 +122,7 @@ const doGUM = async (constraints, retryOnFailure = false) => {
         },
       }, 'Audio getUserMedia returned OverconstrainedError, rollback');
 
-      return navigator.mediaDevices.getUserMedia({ audio: getAudioConstraints() });
+      return navigator.mediaDevices.getUserMedia({ audio: true });
     }
 
     // Not OverconstrainedError - bubble up the error.

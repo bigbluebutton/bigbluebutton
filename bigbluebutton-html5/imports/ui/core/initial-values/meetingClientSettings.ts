@@ -631,6 +631,7 @@ export const meetingClientSettingsInitialValues: MeetingClientSettings = {
           },
         ],
         retryThroughRelay: false,
+        allowAudioJoinCancel: true,
       },
       stunTurnServersFetchAddress: '/bigbluebutton/api/stuns',
       cacheStunTurnServers: true,
