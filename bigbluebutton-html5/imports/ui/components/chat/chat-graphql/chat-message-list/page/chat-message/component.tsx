@@ -248,7 +248,7 @@ const ChatMessage = React.forwardRef<ChatMessageRef, ChatMessageProps>(({
   if (!message) return null;
   const pluginMessageNotCustom = (previousMessage?.messageType !== ChatMessageType.PLUGIN
     || !JSON.parse(previousMessage?.messageMetadata).custom);
-  const sameSender = ((previousMessage?.user?.userId
+  let sameSender = ((previousMessage?.user?.userId
     || lastSenderPreviousPage) === message?.user?.userId) && pluginMessageNotCustom;
   const isSystemSender = message.messageType === ChatMessageType.BREAKOUT_ROOM;
   const currentPluginMessageMetadata = message.messageType === ChatMessageType.PLUGIN
@@ -331,7 +331,7 @@ const ChatMessage = React.forwardRef<ChatMessageRef, ChatMessageProps>(({
           name: message.senderName,
           color: '#0F70D7',
           isModerator: true,
-          isSystemSender: false,
+          isSystemSender: true,
           component: (
             <ChatMessageTextContent
               emphasizedMessage
@@ -416,6 +416,11 @@ const ChatMessage = React.forwardRef<ChatMessageRef, ChatMessageProps>(({
         };
     }
   }, [message.message]);
+
+  sameSender = message.messageType === ChatMessageType.BREAKOUT_ROOM
+    ? false
+    : ((previousMessage?.user?.userId
+      || lastSenderPreviousPage) === message?.user?.userId) && pluginMessageNotCustom;
 
   const shouldRenderAvatar = messageContent.showAvatar
     && !sameSender
