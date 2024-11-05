@@ -99,6 +99,7 @@ export interface App {
   disableWebsocketFallback: boolean
   maxMutationPayloadSize: number
   enableApolloDevTools: boolean
+  terminateAndRetryConnection: number
 }
 
 export interface BbbTabletApp {
@@ -615,6 +616,7 @@ export interface Audio2 {
   defaultListenOnlyBridge: string
   bridges: Bridge[]
   retryThroughRelay: boolean
+  allowAudioJoinCancel: boolean
 }
 
 export interface Screenshare2 {

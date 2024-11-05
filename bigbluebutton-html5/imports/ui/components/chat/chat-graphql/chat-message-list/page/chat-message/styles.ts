@@ -8,6 +8,7 @@ import {
   $3xlPadding,
   xlPadding,
   mdPadding,
+  smPadding,
 } from '/imports/ui/stylesheets/styled-components/general';
 import {
   fontSizeBase,
@@ -24,6 +25,7 @@ import {
 } from '/imports/ui/stylesheets/styled-components/palette';
 
 import Header from '/imports/ui/components/common/control-header/component';
+import { ChatTime as ChatTimeBase } from './message-header/styles';
 
 interface ChatWrapperProps {
   sameSender: boolean;
@@ -87,13 +89,14 @@ export const ChatContent = styled.div<ChatContentProps>`
   flex-flow: column;
   width: 100%;
   border-radius: 0.5rem;
+  position: relative;
 
   ${({ $isSystemSender }) => !$isSystemSender && `
     background-color: #f4f6fa;
   `}
 
   ${({ $highlight }) => $highlight && `
-    .chat-message-wrapper:hover > & {
+    &:hover {
       background-color: ${colorBlueLightest} !important;
     }
   `}
@@ -107,10 +110,29 @@ export const ChatContent = styled.div<ChatContentProps>`
 `;
 
 export const ChatContentFooter = styled.div`
-  display: flex;
   justify-content: flex-end;
   gap: 0.25rem;
-  padding: 0 ${lgPadding} ${lgPadding};
+  padding: ${smPadding} 0 0 ${smPadding};
+  position: absolute;
+  bottom: calc(${lgPadding} + 2px);
+  display: none;
+  background-color: inherit;
+  border-radius: 0.5rem;
+
+  [dir="rtl"] & {
+    left: ${$3xlPadding};
+  }
+
+  [dir="ltr"] & {
+    right: ${$3xlPadding};
+  }
+
+  .chat-message-wrapper-focused &,
+  .chat-message-wrapper-keyboard-focused &,
+  .chat-message-content:focus &,
+  .chat-message-content:hover & {
+    display: flex;
+  }
 `;
 
 export const ChatHeader = styled(Header)`
@@ -215,7 +237,7 @@ export const Container = styled.div<{ $sequence: number }>`
 export const MessageItemWrapper = styled.div`
   display: flex;
   flex-direction: row;
-  padding: ${lgPadding} ${$3xlPadding};
+  padding: calc(${lgPadding} + 2px) ${$3xlPadding};
 `;
 
 export const DeleteMessage = styled.span`
@@ -231,9 +253,15 @@ export const ChatHeading = styled.div`
 
 export const EditLabel = styled.span`
   color: ${colorGrayLight};
+  font-style: italic;
   font-size: 75%;
   display: flex;
   align-items: center;
   gap: 0.125rem;
   line-height: 1;
+`;
+
+export const ChatTime = styled(ChatTimeBase)`
+  font-style: italic;
+  color: ${colorGrayLight};
 `;

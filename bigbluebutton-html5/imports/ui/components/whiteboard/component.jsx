@@ -9,6 +9,8 @@ import {
   DefaultFillStyle,
   DefaultFontStyle,
   DefaultSizeStyle,
+  DefaultHorizontalAlignStyle,
+  DefaultVerticalAlignStyle,
   InstancePresenceRecordType,
   setDefaultUiAssetUrls,
   setDefaultEditorAssetUrls,
@@ -65,6 +67,7 @@ const Whiteboard = React.memo((props) => {
     removeShapes,
     persistShapeWrapper,
     shapes,
+    removedShapes,
     assets,
     currentUser = defaultUser,
     whiteboardId = undefined,
@@ -108,6 +111,7 @@ const Whiteboard = React.memo((props) => {
     isInfiniteWhiteboard,
     whiteboardWriters,
     isPhone,
+    setEditor,
   } = props;
 
   clearTldrawCache();
@@ -151,8 +155,6 @@ const Whiteboard = React.memo((props) => {
   const lastKnownHeight = React.useRef(presentationAreaHeight);
   const lastKnownWidth = React.useRef(presentationAreaWidth);
 
-  // eslint-disable-next-line no-unused-vars
-  const [shapesVersion, setShapesVersion] = React.useState(0);
   const customTools = [NoopTool];
 
   const presenterChanged = usePrevious(isPresenter) !== isPresenter;
@@ -173,6 +175,13 @@ const Whiteboard = React.memo((props) => {
     isWheelZoomRef.currentTimeout = setTimeout(() => {
       setIsWheelZoom(false);
     }, 300);
+  };
+
+  const sanitizeShape = (shape) => {
+    const { isModerator, questionType, ...rest } = shape;
+    return {
+      ...rest,
+    };
   };
 
   React.useEffect(() => {
@@ -216,9 +225,18 @@ const Whiteboard = React.memo((props) => {
   React.useEffect(() => {
     if (!isEqual(prevShapesRef.current, shapes)) {
       prevShapesRef.current = shapes;
-      setShapesVersion((v) => v + 1);
+      tlEditorRef.current?.store.mergeRemoteChanges(() => {
+        const shapesArray = Object.values(shapes).map((shape) => sanitizeShape(shape));
+        tlEditorRef.current?.store?.put(shapesArray);
+      });
     }
   }, [shapes]);
+
+  React.useEffect(() => {
+    if (removedShapes && removedShapes.length > 0) {
+      tlEditorRef.current?.store.remove([...removedShapes]);
+    }
+  }, [removedShapes]);
 
   const handleCopy = useCallback(() => {
     const selectedShapes = tlEditorRef.current?.getSelectedShapes();
@@ -551,6 +569,10 @@ const Whiteboard = React.memo((props) => {
   const handleTldrawMount = (editor) => {
     setTlEditor(editor);
     setTldrawAPI(editor);
+    setEditor(editor);
+
+    DefaultHorizontalAlignStyle.defaultValue = isRTL ? 'end' : 'start';
+    DefaultVerticalAlignStyle.defaultValue = 'start';
 
     editor?.user?.updateUserPreferences({ locale: language });
 
@@ -742,35 +764,9 @@ const Whiteboard = React.memo((props) => {
         });
       });
 
-      const remoteShapes = shapes;
-      const localShapes = editor.store.allRecords();
-      const filteredShapes = localShapes.filter((item) => item?.typeName === 'shape') || [];
-
-      const localShapesObj = {};
-      filteredShapes.forEach((shape) => {
-        localShapesObj[shape.id] = shape;
-      });
-
-      const shapesToAdd = [];
-      Object.keys(remoteShapes).forEach((id) => {
-        if (
-          !localShapesObj[id]
-          || JSON.stringify(remoteShapes[id])
-            !== JSON.stringify(localShapesObj[id])
-        ) {
-          shapesToAdd.push(remoteShapes[id]);
-        }
-      });
-
       editor.store.mergeRemoteChanges(() => {
-        if (shapesToAdd && shapesToAdd.length) {
-          shapesToAdd.forEach((shape) => {
-            const newShape = shape;
-            delete newShape.isModerator;
-            delete newShape.questionType;
-          });
-          editor.store.put(shapesToAdd);
-        }
+        const remoteShapesArray = Object.values(shapes).map((shape) => sanitizeShape(shape));
+         editor.store.put(remoteShapesArray);
       });
 
       // eslint-disable-next-line no-param-reassign
@@ -829,19 +825,26 @@ const Whiteboard = React.memo((props) => {
         const newNext = next;
         if (next?.typeName === 'instance_page_state') {
           if (isPresenterRef.current || isModeratorRef.current) return next;
+          const createLookup = (arr) =>
+            arr.reduce((acc, entry) => {
+              acc[entry.id] = entry;
+              return acc;
+            }, {});
+
+          const formattedLookup = createLookup(prevShapesRef.current);
 
           // Filter selectedShapeIds based on shape owner
           if (next.selectedShapeIds.length > 0
             && !isEqual(prev.selectedShapeIds, next.selectedShapeIds)
           ) {
             newNext.selectedShapeIds = next.selectedShapeIds.filter((shapeId) => {
-              const shapeOwner = prevShapesRef.current[shapeId]?.meta?.createdBy;
+              const shapeOwner = formattedLookup[shapeId]?.meta?.createdBy;
               return !shapeOwner || shapeOwner === currentUser?.userId;
             });
           }
 
           if (!isEqual(prev.hoveredShapeId, next.hoveredShapeId)) {
-            const hoveredShapeOwner = prevShapesRef.current[next.hoveredShapeId]?.meta?.createdBy;
+            const hoveredShapeOwner = formattedLookup[next.hoveredShapeId]?.meta?.createdBy;
             if (hoveredShapeOwner !== currentUser?.userId || next.hoveredShapeId?.includes('shape:BG-')) {
               newNext.hoveredShapeId = null;
             }
@@ -904,64 +907,6 @@ const Whiteboard = React.memo((props) => {
     adjustCameraOnMount(true);
     isMountedRef.current = true;
   };
-
-  const shapesToRemove = React.useMemo(() => {
-    if (isMouseDownRef.current) return [];
-    const remoteShapeIds = Object.keys(prevShapesRef.current);
-    const localShapes = tlEditorRef.current?.getCurrentPageShapes();
-    const filteredShapes = localShapes?.filter((item) => item?.index !== 'a0') || [];
-    return filteredShapes
-      .filter((localShape) => !remoteShapeIds.includes(localShape.id))
-      .map((localShape) => localShape.id);
-  }, [prevShapesRef.current, curPageId]);
-
-  const { shapesToAdd, shapesToUpdate } = React.useMemo(() => {
-    const toAdd = [];
-    const toUpdate = [];
-
-    Object.values(prevShapesRef.current).forEach((remoteShape) => {
-      if (!remoteShape.id) return;
-      const localShapes = tlEditorRef.current?.getCurrentPageShapes();
-      const filteredShapes = localShapes?.filter((item) => item?.index !== 'a0') || [];
-      const localLookup = new Map(
-        filteredShapes.map((shape) => [shape.id, shape]),
-      );
-      const localShape = localLookup.get(remoteShape.id);
-
-      if (!localShape) {
-        const newRemoteShape = remoteShape;
-        delete newRemoteShape.isModerator;
-        delete newRemoteShape.questionType;
-        toAdd.push(newRemoteShape);
-      } else {
-        const remoteShapeMeta = remoteShape?.meta;
-        const isCreatedByCurrentUser = remoteShapeMeta?.createdBy === currentUser?.userId;
-        const isUpdatedByCurrentUser = remoteShapeMeta?.updatedBy === currentUser?.userId;
-
-        // System-level shapes (background image) lack createdBy
-        // and updatedBy metadata, which can cause false positives.
-        // These cases expect an early return and shouldn't be updated.
-        if (
-          remoteShapeMeta && (
-            (isCreatedByCurrentUser && isUpdatedByCurrentUser)
-            || (!isCreatedByCurrentUser && isUpdatedByCurrentUser)
-          )
-        ) {
-          return;
-        }
-
-        const diff = remoteShape;
-        delete diff.isModerator;
-        delete diff.questionType;
-        toUpdate.push(diff);
-      }
-    });
-
-    return {
-      shapesToAdd: toAdd,
-      shapesToUpdate: toUpdate,
-    };
-  }, [prevShapesRef.current, curPageId]);
 
   const calculateZoomWithGapValue = (
     localWidth,
@@ -1349,37 +1294,6 @@ const Whiteboard = React.memo((props) => {
       );
     }
   }, [currentPresentationPage, isPresenter]);
-
-  React.useEffect(() => {
-    if (shapesToAdd.length || shapesToUpdate.length || shapesToRemove.length) {
-      const tlStoreUpdateTimeoutId = setTimeout(() => {
-        tlEditor?.store?.mergeRemoteChanges(() => {
-          if (shapesToRemove.length > 0) {
-            tlEditor?.store?.remove(shapesToRemove);
-          }
-          if (shapesToAdd.length) {
-            tlEditor?.store?.put(shapesToAdd);
-          }
-          if (shapesToUpdate.length) {
-            const updatedShapes = shapesToUpdate.map((shape) => {
-              const currentShape = tlEditor?.getShape(shape.id);
-              if (currentShape) {
-                return { ...currentShape, ...shape };
-              }
-              return null;
-            }).filter(Boolean);
-
-            if (updatedShapes.length) {
-              tlEditor?.store?.put(updatedShapes);
-            }
-          }
-        });
-      }, 300);
-
-      return () => clearTimeout(tlStoreUpdateTimeoutId);
-    }
-    return undefined;
-  }, [shapesToAdd, shapesToUpdate, shapesToRemove]);
 
   // Updating presences in tldraw store based on changes in cursors
   React.useEffect(() => {

@@ -69,7 +69,7 @@ jobs:
           - package: bbb-freeswitch
             build-list: bbb-freeswitch-core bbb-freeswitch-sounds
             cache-files-list: freeswitch.placeholder.sh
-            cache-urls-list: http://bigbluebutton.org/downloads/sounds.tar.gz
+            cache-urls-list: https://ubuntu.bigbluebutton.org/sounds.tar.gz
           - package: bbb-webrtc
             build-list: bbb-webrtc-sfu bbb-webrtc-recorder
             cache-files-list: bbb-webrtc-sfu.placeholder.sh bbb-webrtc-recorder.placeholder.sh
@@ -255,6 +255,16 @@ jobs:
         run: |
           sudo sh -c '
           apt --purge -y remove apache2-bin
+          apt-mark hold firefox #hold ff once bbb-install frequently stuck at `Installing the firefox snap`
+
+          #bbb-webrtc-sfu: removes the special scheduling policies
+          mkdir -p /etc/systemd/system/bbb-webrtc-sfu.service.d/
+          tee /etc/systemd/system/bbb-webrtc-sfu.service.d/override.conf > /dev/null <<EOL
+          [Service]
+          CPUSchedulingPolicy=other
+          Nice=19
+          EOL
+          systemctl daemon-reload
           '
       - name: Install BBB
         env:
@@ -293,16 +303,22 @@ jobs:
               echo "Retrying installation within $RETRY_INTERVAL seconds..."
               sleep $RETRY_INTERVAL
             fi
+
+            echo "Check if there is some process still locking:1"
+            ps aux | grep -E 'dpkg|apt'
+
             echo "Stop any ongoing processes related to apt-get or dpkg that might be stuck"
             # Use -q to suppress "no process found" messages
-            killall -q apt-get || true
-            killall -q dpkg || true
+            # Kill any apt-get or dpkg processes that might be hanging
+            killall -9 -q apt-get || true
+            killall -9 -q dpkg || true
 
             echo "Remove the lock files that may have been left behind"
             # Group lock file removal for better readability
             rm -f /var/lib/dpkg/lock-frontend
             rm -f /var/lib/dpkg/lock
             rm -f /var/cache/apt/archives/lock
+            rm -f /var/cache/debconf/config.dat
 
             echo "Reconfigure the package manager"
             dpkg --configure -a
@@ -310,6 +326,12 @@ jobs:
             echo "Clean up any partially installed packages"
             apt-get clean
             apt-get autoremove
+
+            echo "Check if there is some process still locking:2"
+            ps aux | grep -E 'dpkg|apt'
+
+            #remove all apt-update to make the install faster
+            sed -i 's/apt-get update/#apt-get update/g' bbb-install.sh
 
             RETRY_COUNT=$((RETRY_COUNT + 1))
           done
@@ -322,6 +344,19 @@ jobs:
           bbb-conf --salt bbbci
           sed -i "s/\"minify\": true,/\"minify\": false,/" /usr/share/etherpad-lite/settings.json
           sudo yq e -i '.log_level = "TRACE"' /usr/share/bbb-graphql-middleware/config.yml
+          cat > /etc/bigbluebutton/bbb-conf/apply-config.sh << HERE
+          #!/bin/bash
+
+          # Pull in the helper functions for configuring BigBlueButton
+          source /etc/bigbluebutton/bbb-conf/apply-lib.sh
+
+          # Available configuration options
+
+          enableHTML5ClientLog
+          #enableUFWRules
+
+          HERE
+          chmod +x /etc/bigbluebutton/bbb-conf/apply-config.sh
           bbb-conf --restart
           EOF
       - name: List systemctl services

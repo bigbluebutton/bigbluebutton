@@ -30,7 +30,8 @@ case class GroupChatMsgToUser(
     correlationId:      String,
     sender:             GroupChatUser,
     chatEmphasizedText: Boolean       = false,
-    message:            String
+    message:            String,
+    replyToMessageId:   String,
 )
 case class GroupChatInfo(id: String, access: String, createdBy: GroupChatUser, users: Vector[GroupChatUser])
 

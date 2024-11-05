@@ -16,6 +16,7 @@ const propTypes = {
       NO_SSL: PropTypes.number,
       MAC_OS_BLOCK: PropTypes.number,
       NO_PERMISSION: PropTypes.number,
+      DEVICE_NOT_FOUND: PropTypes.number,
     }),
   }).isRequired,
   handleBack: PropTypes.func.isRequired,
@@ -52,6 +53,18 @@ const intlMessages = defineMessages({
   helpPermissionStep3: {
     id: 'app.audioModal.helpPermissionStep3',
     description: 'Text description for the audio permission help step 3',
+  },
+  helpSubtitleNoDevice: {
+    id: 'app.audioModal.helpSubtitleNoDevice',
+    description: 'Text description for the audio help subtitle (no device)',
+  },
+  helpNoDeviceStep1: {
+    id: 'app.audioModal.helpNoDeviceStep1',
+    description: 'Text description for the audio no device help step 1',
+  },
+  helpNoDeviceStep2: {
+    id: 'app.audioModal.helpNoDeviceStep2',
+    description: 'Text description for the audio no device help step 2',
   },
   backLabel: {
     id: 'app.audio.backLabel',
@@ -92,13 +105,16 @@ class Help extends Component {
     const { audioErr, intl, isListenOnly } = this.props;
     const { MIC_ERROR } = audioErr;
 
-    if (audioErr.code === MIC_ERROR.NO_PERMISSION) {
-      return intl.formatMessage(intlMessages.helpSubtitlePermission);
+    switch (audioErr.code) {
+      case MIC_ERROR.NO_PERMISSION:
+        return intl.formatMessage(intlMessages.helpSubtitlePermission);
+      case MIC_ERROR.DEVICE_NOT_FOUND:
+        return intl.formatMessage(intlMessages.helpSubtitleNoDevice);
+      default:
+        return !isListenOnly
+          ? intl.formatMessage(intlMessages.helpSubtitleMic)
+          : intl.formatMessage(intlMessages.helpSubtitleGeneric);
     }
-
-    return !isListenOnly
-      ? intl.formatMessage(intlMessages.helpSubtitleMic)
-      : intl.formatMessage(intlMessages.helpSubtitleGeneric);
   }
 
   renderNoSSL() {
@@ -125,14 +141,30 @@ class Help extends Component {
     const { intl } = this.props;
     return (
       <>
-        <Styled.Text>
+        <Styled.Subtitle>
           {this.getSubtitle()}
-        </Styled.Text>
-        <Styled.PermissionHelpSteps>
+        </Styled.Subtitle>
+        <Styled.HelpItems>
           <li>{intl.formatMessage(intlMessages.helpPermissionStep1)}</li>
           <li>{intl.formatMessage(intlMessages.helpPermissionStep2)}</li>
           <li>{intl.formatMessage(intlMessages.helpPermissionStep3)}</li>
-        </Styled.PermissionHelpSteps>
+        </Styled.HelpItems>
+      </>
+    );
+  }
+
+  renderDeviceNotFound() {
+    const { intl } = this.props;
+
+    return (
+      <>
+        <Styled.Subtitle>
+          {this.getSubtitle()}
+        </Styled.Subtitle>
+        <Styled.HelpItems>
+          <li>{intl.formatMessage(intlMessages.helpNoDeviceStep1)}</li>
+          <li>{intl.formatMessage(intlMessages.helpNoDeviceStep2)}</li>
+        </Styled.HelpItems>
       </>
     );
   }
@@ -143,9 +175,9 @@ class Help extends Component {
 
     return (
       <>
-        <Styled.Text>
+        <Styled.Subtitle>
           {this.getSubtitle()}
-        </Styled.Text>
+        </Styled.Subtitle>
         <Styled.Text>
           {intl.formatMessage(intlMessages.unknownError)}
         </Styled.Text>
@@ -167,6 +199,8 @@ class Help extends Component {
         return this.renderMacNotAllowed();
       case MIC_ERROR.NO_PERMISSION:
         return this.renderPermissionHelp();
+      case MIC_ERROR.DEVICE_NOT_FOUND:
+        return this.renderDeviceNotFound();
       default:
         return this.renderGenericErrorHelp();
     }

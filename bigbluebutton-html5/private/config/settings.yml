@@ -85,6 +85,9 @@ public:
     warnAboutUnsavedContentOnMeetingEnd: false
     # Flag used to enable apollo dev tools in production
     enableApolloDevTools: false
+    # Time used when the client connection is stale
+    # and a new connection is attempted 
+    terminateAndRetryConnection: 30_000
     # Allows users to enable automatic transcription when joining a meeting.
     # Automatic transcription requires the browser to support the web
     # speech API, which involves sending voice data to third-party servers!
@@ -837,6 +840,11 @@ public:
       # Forces a retry with iceTransportPolicy = 'relay' if the first attempt
       # fails with a few selected errors codes (eg 1007, 1010)
       retryThroughRelay: false
+      # allowAudioJoinCancel: permit users to cancel audio join requests by
+      # letting them close the audio modal while audio is being negotiated.
+      # If false, the audio modal will be locked until the audio is successfully
+      # joined or the request fails.
+      allowAudioJoinCancel: true
     stunTurnServersFetchAddress: '/bigbluebutton/api/stuns'
     cacheStunTurnServers: true
     fallbackStunServer: ''
@@ -922,6 +930,7 @@ public:
     # If no link is provided, the audio troubleshooting button will not be shown.
     # Index is the error code:
     #   - 7: permission denied error code
+    #   - 6: no input devices found
     #   - 0: unknown error
     #audioTroubleshootingLinks:
     #  7: 'https://link.bigbluebutton.org/perm'
