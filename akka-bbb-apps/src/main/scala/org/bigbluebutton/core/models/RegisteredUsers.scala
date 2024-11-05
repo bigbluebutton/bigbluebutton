@@ -1,7 +1,7 @@
 package org.bigbluebutton.core.models
 
 import com.softwaremill.quicklens._
-import org.bigbluebutton.api.service.ValidationService
+import org.bigbluebutton.api.service.ServiceUtils;
 import org.bigbluebutton.core.db.{UserBreakoutRoomDAO, UserDAO, UserDbModel, UserSessionTokenDAO}
 import org.bigbluebutton.core.domain.BreakoutRoom2x
 
@@ -41,7 +41,7 @@ object RegisteredUsers {
   }
 
   // Check whether the logout Url is either empty or a valid url.
-  require(logoutUrl.isEmpty || ValidationService.isValidURL(logoutUrl), "Invalid logout URL provided")
+  require(logoutUrl.isEmpty || ServiceUtils.getValidationService().isValidURL(logoutUrl), "Invalid logout URL provided")
 
   def findWithToken(token: String, users: RegisteredUsers): Option[RegisteredUser] = {
     users.toVector.find(u => u.authToken == token)
