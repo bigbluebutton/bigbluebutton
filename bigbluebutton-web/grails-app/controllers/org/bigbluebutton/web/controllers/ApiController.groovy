@@ -419,7 +419,7 @@ class ApiController {
     String logoutUrl = meeting.getLogoutUrl()
     if(!StringUtils.isEmpty(params.get(ApiParams.LOGOUT_URL))) {
       String userProvidedUrl = params.get(ApiParams.LOGOUT_URL)
-      if(!validationService.isValidURL(userProvidedUrl)) {
+      if(!ServiceUtils.getValidationService().isValidURL(userProvidedUrl)) {
         log.warn("Invalid logout URL provided: " + userProvidedUrl)
         // Use default URL from meeting
       } else {
