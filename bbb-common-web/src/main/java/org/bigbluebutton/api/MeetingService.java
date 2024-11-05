@@ -62,6 +62,7 @@ import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
 import org.springframework.data.domain.*;
 
@@ -407,21 +408,18 @@ public class MeetingService implements MessageListener {
         try {
           String urlString = pluginManifest.getUrl();
           URL url = new URL(urlString);
-          StringBuilder content = new StringBuilder();
+          String content;
           try (BufferedReader in = new BufferedReader(new InputStreamReader(url.openStream()))) {
-            String inputLine;
-            while ((inputLine = in.readLine()) != null) {
-              content.append(inputLine).append("\n");
-            }
+            content = in.lines().collect(Collectors.joining("\n"));
           }
 
           // Parse the JSON content
-          JsonNode jsonNode = objectMapper.readTree(content.toString());
+          JsonNode jsonNode = objectMapper.readTree(content);
 
           // Validate checksum if any
           String paramChecksum = pluginManifest.getChecksum();
           if (!StringUtils.isEmpty(paramChecksum)) {
-            String hash = DigestUtils.sha256Hex(content.toString());
+            String hash = DigestUtils.sha256Hex(content);
             if (!paramChecksum.equals(hash)) {
               log.info("Plugin's manifest.json checksum mismatch with that of the URL parameter for {}.",
                       pluginManifest.getUrl());
@@ -441,7 +439,7 @@ public class MeetingService implements MessageListener {
           String pluginKey = name;
           HashMap<String, Object> manifestObject = new HashMap<>();
           manifestObject.put("url", urlString);
-          String manifestContent = replaceMetaParametersIntoManifestTemplate(content.toString(), metadata);
+          String manifestContent = replaceMetaParametersIntoManifestTemplate(content, metadata);
 
           Map<String, Object> mappedManifestContent = objectMapper.readValue(manifestContent, new TypeReference<Map<String, Object>>() {});
           manifestObject.put("content", mappedManifestContent);
