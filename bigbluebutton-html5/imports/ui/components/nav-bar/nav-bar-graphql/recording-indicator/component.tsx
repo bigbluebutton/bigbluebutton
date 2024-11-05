@@ -194,6 +194,7 @@ const RecordingIndicator: React.FC<RecordingIndicatorProps> = ({
         recordingToggle(micUser, recording);
       }}
       onKeyDown={(ev) => {
+        ev.preventDefault();
         if (ev.key === 'Enter') {
           recordingToggle(micUser, recording);
         }
