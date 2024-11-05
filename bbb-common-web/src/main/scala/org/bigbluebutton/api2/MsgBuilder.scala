@@ -3,7 +3,7 @@ package org.bigbluebutton.api2
 import scala.collection.JavaConverters._
 import org.bigbluebutton.api.messaging.converters.messages._
 import org.bigbluebutton.api.messaging.messages.{ ChatMessageFromApi, RegisterUserSessionToken }
-import org.bigbluebutton.api.service.validationService
+import org.bigbluebutton.api.service.ValidationService
 import org.bigbluebutton.api2.meeting.RegisterUser
 import org.bigbluebutton.common2.domain.{ DefaultProps, PageVO, PresentationPageConvertedVO, PresentationVO }
 import org.bigbluebutton.common2.msgs._
@@ -50,7 +50,7 @@ object MsgBuilder {
     // If not leave logoutUrl empty. An empty logoutUrl will fallback to the
     // meeting logoutUrl.
     val logoutUrl = Option(msg.logoutUrl)
-      .filter(url => url.nonEmpty && validationService.isValidURL(url))
+      .filter(url => url.nonEmpty && ValidationService.isValidURL(url))
       .getOrElse("")
     val routing = collection.immutable.HashMap("sender" -> "bbb-web")
     val envelope = BbbCoreEnvelope(RegisterUserReqMsg.NAME, routing)
