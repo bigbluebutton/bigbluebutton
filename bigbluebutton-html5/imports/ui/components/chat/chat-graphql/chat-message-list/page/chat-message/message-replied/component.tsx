@@ -28,7 +28,10 @@ const ChatMessageReplied: React.FC<MessageRepliedProps> = (props) => {
 
   return (
     <Styled.Container
-      onClick={() => {
+      onClick={(e) => {
+        if (e.target instanceof HTMLAnchorElement) {
+          return;
+        }
         window.dispatchEvent(
           new CustomEvent(ChatEvents.CHAT_FOCUS_MESSAGE_REQUEST, {
             detail: {
