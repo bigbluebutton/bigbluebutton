@@ -458,7 +458,7 @@ public class MeetingService implements MessageListener {
         } catch (Exception e) {
           log.error("Unexpected error processing plugin manifest from URL: {}", pluginManifest.getUrl(), e);
         }
-      }, executorService).orTimeout(pluginManifestFetchTimeout, TimeUnit.MILLISECONDS)
+      }, executorService).orTimeout(pluginManifestFetchTimeout, TimeUnit.SECONDS)
       .exceptionally(ex -> {
         if (ex instanceof TimeoutException) {
           log.warn("Timeout occurred when fetching URL: {}", pluginManifest.getUrl());
