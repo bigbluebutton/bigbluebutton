@@ -268,11 +268,12 @@ const WhiteboardContainer = (props) => {
       if (!item.annotationInfo) {
         annotationsToBeRemoved.push(item.annotationId);
       } else {
+        const annotationInfoParsed = JSON.parse(item.annotationInfo);
         const existingShape = editor?.getShape(item.annotationId);
         if (existingShape) {
           updatedAnnotations.push({
             ...item,
-            annotationInfo: item.annotationInfo,
+            annotationInfo: annotationInfoParsed,
           });
 
           annotationsToBeRemoved = annotationsToBeRemoved.filter(
@@ -281,7 +282,7 @@ const WhiteboardContainer = (props) => {
         } else {
           newAnnotations.push({
             ...item,
-            annotationInfo: item.annotationInfo,
+            annotationInfo: annotationInfoParsed,
           });
         }
       }
@@ -289,15 +290,16 @@ const WhiteboardContainer = (props) => {
 
     setShapes(() => {
       return [
-      ...updatedAnnotations.map(({ annotationInfo, annotationId }) => ({
-        ...annotationInfo,
-        id: annotationId,
-      })),
-      ...newAnnotations.map(({ annotationInfo, annotationId }) => ({
-        ...annotationInfo,
-        id: annotationId,
-      })),
-    ]});
+        ...updatedAnnotations.map(({ annotationInfo, annotationId }) => ({
+          ...annotationInfo,
+          id: annotationId,
+        })),
+        ...newAnnotations.map(({ annotationInfo, annotationId }) => ({
+          ...annotationInfo,
+          id: annotationId,
+        })),
+      ];
+    });
 
     if (updatedAnnotations.length > 0 || newAnnotations.length > 0) {
       const restoreOnUpdate = getFromUserSettings(
