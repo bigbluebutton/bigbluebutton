@@ -214,7 +214,7 @@ const WhiteboardContainer = (props) => {
       const validShapes = [];
       const annotationsToBeRemoved = new Set();
 
-      // Process only the latest occurrence of each shape
+      //Process only the latest occurrence of each shape
       shapeMap.forEach(({ annotationId, annotationInfo }) => {
         if (!annotationInfo) {
           annotationsToBeRemoved.add(annotationId);
