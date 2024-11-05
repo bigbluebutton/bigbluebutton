@@ -424,7 +424,7 @@ class ApiController {
         // Use default URL from meeting
       } else {
         logoutUrl = params.get(ApiParams.LOGOUT_URL)
-  +  }
+      }
     }
     log.debug "The following logout URL is present: " + logoutUrl
 
