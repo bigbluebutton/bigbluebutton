@@ -40,6 +40,9 @@ import { indexOf, without } from '/imports/utils/array-utils';
 import { GraphqlDataHookSubscriptionResponse } from '/imports/ui/Types/hook';
 import { throttle } from '/imports/utils/throttle';
 import logger from '/imports/startup/client/logger';
+import AddReactionIcon from '@mui/icons-material/AddReaction';
+import SendIcon from '@mui/icons-material/Send';
+import Tooltip from '@mui/material/Tooltip';
 import { CHAT_EDIT_MESSAGE_MUTATION } from '../chat-message-list/page/chat-message/mutations';
 import {
   LastSentMessageData,
@@ -176,7 +179,7 @@ const ChatMessageForm: React.FC<ChatMessageFormProps> = ({
   const PUBLIC_CHAT_ID = CHAT_CONFIG.public_id;
   const PUBLIC_GROUP_CHAT_ID = CHAT_CONFIG.public_group_id;
   const AUTO_CONVERT_EMOJI = window.meetingClientSettings.public.chat.autoConvertEmoji;
-  const ENABLE_EMOJI_PICKER = window.meetingClientSettings.public.chat.emojiPicker.enable;
+  const ENABLE_EMOJI_PICKER = true;
   const ENABLE_TYPING_INDICATOR = CHAT_CONFIG.typingIndicator.enabled;
 
   const handleUserTyping = (hasError?: boolean) => {
@@ -592,34 +595,42 @@ const ChatMessageForm: React.FC<ChatMessageFormProps> = ({
               async
             />
             {ENABLE_EMOJI_PICKER ? (
-              <Styled.EmojiButton
-                ref={emojiPickerButtonRef}
-                onClick={() => setShowEmojiPicker(!showEmojiPicker)}
-                icon="happy"
-                color="light"
-                ghost
-                type="button"
-                circle
-                hideLabel
-                label={intl.formatMessage(messages.emojiButtonLabel)}
-                data-test="emojiPickerButton"
-              />
+              <Tooltip title={<span style={{ fontSize: '0.9rem' }}>{intl.formatMessage(messages.emojiButtonLabel)}</span>} arrow>
+                <Styled.EmojiButton
+                  sx={{
+                    alignSelf: 'center',
+                    height: '100%',
+                    minWidth: 'auto',
+                    color: 'action.active',
+                  }}
+                  onClick={() => setShowEmojiPicker(!showEmojiPicker)}
+                  data-test="emojiPickerButton"
+                >
+                  <AddReactionIcon />
+                </Styled.EmojiButton>
+              </Tooltip>
             ) : null}
+            <div style={{ zIndex: 10 }}>
+              <Tooltip title={<span style={{ fontSize: '0.9rem' }}>{intl.formatMessage(messages.submitLabel)}</span>} arrow>
+                <Styled.SendButton
+                  sx={{
+                    alignSelf: 'center',
+                    fontSize: '0.9rem',
+                    height: '100%',
+                    borderRadius: '0 0.75rem 0.75rem 0',
+                    minWidth: 'auto',
+                    padding: '8px',
+                  }}
+                  variant="contained"
+                  disabled={disabled || partnerIsLoggedOut || chatSendMessageLoading}
+                  type="submit"
+                  data-test="sendMessageButton"
+                >
+                <SendIcon />
+                </Styled.SendButton>
+              </Tooltip>
+            </div>
           </Styled.InputWrapper>
-          <div style={{ zIndex: 10 }}>
-            <Styled.SendButton
-              hideLabel
-              circle
-              aria-label={intl.formatMessage(messages.submitLabel)}
-              type="submit"
-              disabled={disabled || partnerIsLoggedOut || chatSendMessageLoading}
-              label={intl.formatMessage(messages.submitLabel)}
-              color="primary"
-              icon="send"
-              onClick={() => { }}
-              data-test="sendMessageButton"
-            />
-          </div>
         </Styled.Wrapper>
         {
           error && (
