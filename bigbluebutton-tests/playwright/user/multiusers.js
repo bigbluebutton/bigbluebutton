@@ -480,6 +480,20 @@ class MultiUsers {
     await this.modPage.hasText(e.reactionsButton, 'Reactions');
     await this.modPage.hasText(e.moderatorAvatar, 'mo');
   }
+
+  async emojiRainTest() {
+    await this.modPage.waitForSelector(e.whiteboard);
+    await this.modPage.waitForSelector(e.whiteboard);
+    await this.modPage.waitAndClick(e.reactionsButton);
+    await this.modPage.waitAndClick('li[data-test="reaction"]:nth-child(1)');
+    
+
+    const div = this.modPage.getLocator('div[data-test="emojiRain"] svg');
+    await expect(div).toHaveCount(5, { timeout: ELEMENT_WAIT_TIME });
+
+    await sleep(1000);
+    await expect(div).toHaveCount(0, { timeout: ELEMENT_WAIT_TIME });
+  }
 }
 
 exports.MultiUsers = MultiUsers;

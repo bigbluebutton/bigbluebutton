@@ -88,7 +88,12 @@ test.describe.parallel('User', () => {
       await multiusers.initUserPage(true, context);
       await multiusers.applausesReaction();
     });
-    
+
+    test('Emoji rain', async ({ browser, context, page }) => {
+      const emojiRain = new MultiUsers(browser, context);
+      await emojiRain.initModPage(page, true);
+      await emojiRain.emojiRainTest();
+    });
   });
 
   test.describe.parallel('List', () => {
