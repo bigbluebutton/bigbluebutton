@@ -570,6 +570,7 @@ const propsToCompare = [
   'chatReactionsEnabled',
   'chatReplyEnabled',
   'focused',
+  'editing',
   'keyboardFocused',
   'message.createdAt',
   'message.message',
