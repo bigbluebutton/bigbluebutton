@@ -193,8 +193,11 @@ const RecordingIndicator: React.FC<RecordingIndicatorProps> = ({
       onClick={() => {
         recordingToggle(micUser, recording);
       }}
-      onKeyDown={() => {
-        recordingToggle(micUser, recording);
+      onKeyDown={(ev) => {
+        ev.preventDefault();
+        if (ev.key === 'Enter') {
+          recordingToggle(micUser, recording);
+        }
       }}
     >
       {recordingIndicatorIcon}

@@ -66,6 +66,13 @@ const Connecting = styled.div`
   text-align: center;
 `;
 
+const ConnectingSubtext = styled.p`
+  margin-top: 0.5rem;
+  margin-bottom: 0;
+  font-size: 1.5rem;
+  text-align: center;
+`;
+
 const ellipsis = keyframes`
   to {
     width: 1.5em;
@@ -159,6 +166,7 @@ export default {
   Background,
   Connecting,
   ConnectingAnimation,
+  ConnectingSubtext,
   AudioModal,
   BrowserWarning,
   Content,
