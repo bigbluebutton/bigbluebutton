@@ -107,6 +107,32 @@ export const ChatContent = styled.div<ChatContentProps>`
   `}
 `;
 
+export const ChatContentFooter = styled.div`
+  justify-content: flex-end;
+  gap: 0.25rem;
+  padding: ${smPadding} 0 0 ${smPadding};
+  position: absolute;
+  bottom: calc(${lgPadding} + 2px);
+  display: none;
+  background-color: inherit;
+  border-radius: 0.5rem;
+
+  [dir="rtl"] & {
+    left: ${$3xlPadding};
+  }
+
+  [dir="ltr"] & {
+    right: ${$3xlPadding};
+  }
+
+  .chat-message-wrapper-focused &,
+  .chat-message-wrapper-keyboard-focused &,
+  .chat-message-content:focus &,
+  .chat-message-content:hover & {
+    display: flex;
+  }
+`;
+
 export const ChatAvatar = styled.div<ChatAvatarProps>`
   flex: 0 0 2.25rem;
   margin: 0px calc(0.5rem) 0px 0px;
