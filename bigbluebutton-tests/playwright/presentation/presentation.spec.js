@@ -125,7 +125,9 @@ test.describe.parallel('Presentation', { tag: '@ci' }, () => {
       await presentation.removeAllPresentation();
     });
 
-    test('Upload and remove all presentations', async ({ browser, context, page }) => {
+    test('Upload and remove all presentations', { tag: '@flaky' }, async ({ browser, context, page }) => {
+      // sometimes the uploaded presentation is not displayed in the manage presentations modal
+      linkIssue(21624);
       const presentation = new Presentation(browser, context);
       await presentation.initPages(page);
       await presentation.uploadAndRemoveAllPresentations();

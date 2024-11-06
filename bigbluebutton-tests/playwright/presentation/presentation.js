@@ -333,6 +333,7 @@ class Presentation extends MultiUsers {
 
   async uploadAndRemoveAllPresentations() {
     await uploadSinglePresentation(this.modPage, e.uploadPresentationFileName);
+    await this.modPage.waitForSelector(e.whiteboard, ELEMENT_WAIT_LONGER_TIME);
     await sleep(1000);  // timeout to avoid trying to get the slide data before it's ready
 
     const modSlides1 = await getSlideOuterHtml(this.modPage);
@@ -340,11 +341,11 @@ class Presentation extends MultiUsers {
     await expect(modSlides1, 'should the moderator slide and the attendee slide to be equal').toEqual(userSlides1);
 
     // Remove
-    await this.modPage.waitForSelector(e.whiteboard, ELEMENT_WAIT_LONGER_TIME);
     await this.modPage.waitAndClick(e.actions);
     await this.modPage.waitAndClick(e.managePresentations);
-    await this.modPage.waitAndClick(e.removePresentation);
-    await this.modPage.waitAndClick(e.removePresentation);
+    await this.modPage.checkElementCount(e.presentationItem, 2, 'should display both default and uploaded presentation on the manage presentations modal');
+    await this.modPage.waitAndClick(e.removePresentation);  // remove first presentation
+    await this.modPage.waitAndClick(e.removePresentation);  // remove second presentation
     await this.modPage.waitAndClick(e.confirmManagePresentation);
 
     await this.modPage.wasRemoved(e.whiteboard, 'should not display the whiteboard for the moderator');

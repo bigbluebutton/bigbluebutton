@@ -299,6 +299,7 @@ exports.presentationOptionsDownloadBtn = 'button[data-test="presentationOptionsD
 exports.confirmManagePresentation = 'button[data-test="confirmManagePresentation"]';
 exports.toastDownload = 'a[data-test="toastDownload"]';
 exports.presentationDownloadBtn = 'button[data-test="presentationDownload"]';
+exports.presentationItem = 'tr[data-test="presentationItem"]';
 exports.removePresentation = 'button[data-test="removePresentation"]';
 exports.presentationPlaceholder = 'div[data-test="presentationPlaceholder"]';
 exports.presentationContainer = 'div[data-test="presentationContainer"]';
