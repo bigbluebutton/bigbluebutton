@@ -19,36 +19,21 @@
 
 package org.bigbluebutton.core.record.events
 
-class PublicChatRecordEvent extends AbstractChatRecordEvent {
-  import PublicChatRecordEvent._
+class DeletePublicChatMessageRecordEvent extends AbstractChatRecordEvent {
+  import DeletePublicChatMessageRecordEvent._
 
-  setEvent("PublicChatEvent")
+  setEvent("DeletePublicChatMessageRecordEvent")
 
-  def setSenderId(senderId: String) {
-    eventMap.put(SENDERID, senderId)
+  def setMessageId(messageId: String): Unit = {
+    eventMap.put(MESSAGEID, messageId)
   }
 
-  def setSenderRole(senderRole: String): Unit = {
-    eventMap.put(SENDER_ROLE, senderRole)
-  }
-
-  def setChatEmphasizedText(chatEmphasizedText: Boolean): Unit = {
-    eventMap.put(CHAT_EMPHASIZED_TEXT, chatEmphasizedText.toString)
-  }
-
-  def setMessage(message: String) {
-    eventMap.put(MESSAGE, message)
-  }
-
-  def setReplyToMessageId(replyToMessageId: String) {
-    eventMap.put(REPLY_TO_MESSAGEID, replyToMessageId)
+  def setDeletedBy(deletedBy: String): Unit = {
+    eventMap.put(DELETEDBY, deletedBy)
   }
 }
 
-object PublicChatRecordEvent {
-  private final val SENDERID = "senderId"
-  private final val MESSAGE = "message"
-  private final val SENDER_ROLE = "senderRole"
-  private final val CHAT_EMPHASIZED_TEXT = "chatEmphasizedText"
-  private final val REPLY_TO_MESSAGEID = "replyToMessageId"
+object DeletePublicChatMessageRecordEvent {
+  private final val MESSAGEID = "messageId"
+  private final val DELETEDBY = "deletedBy"
 }
