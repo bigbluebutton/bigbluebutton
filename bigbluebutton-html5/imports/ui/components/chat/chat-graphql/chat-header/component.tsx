@@ -8,7 +8,7 @@ import { useShortcut } from '../../../../core/hooks/useShortcut';
 import { Layout } from '../../../layout/layoutTypes';
 import { ACTIONS, PANELS } from '../../../layout/enums';
 import ChatActions from './chat-actions/component';
-import { ChatHeader as Header } from '../chat-message-list/page/chat-message/styles';
+import Header from '/imports/ui/components/common/control-header/component';
 
 interface ChatHeaderProps {
   chatId: string;
@@ -48,26 +48,8 @@ const ChatHeader: React.FC<ChatHeaderProps> = ({
     <Header
       isRTL={isRTL}
       data-test="chatTitle"
-      leftButtonProps={{
-        accessKey: chatId !== 'public' ? HIDE_CHAT_AK : null,
-        'aria-label': intl.formatMessage(intlMessages.hideChatLabel, { 0: title }),
-        'data-test': isPublicChat ? 'hidePublicChat' : 'hidePrivateChat',
-        label: title,
-        onClick: () => {
-          layoutContextDispatch({
-            type: ACTIONS.SET_SIDEBAR_CONTENT_IS_OPEN,
-            value: false,
-          });
-          layoutContextDispatch({
-            type: ACTIONS.SET_ID_CHAT_OPEN,
-            value: '',
-          });
-          layoutContextDispatch({
-            type: ACTIONS.SET_SIDEBAR_CONTENT_PANEL,
-            value: PANELS.NONE,
-          });
-        },
-      }}
+      title={title}
+      leftButtonProps={{}}
       rightButtonProps={{
         accessKey: CLOSE_CHAT_AK,
         'aria-label': intl.formatMessage(intlMessages.closeChatLabel, { 0: title }),

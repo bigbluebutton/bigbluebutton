@@ -24,9 +24,6 @@ import {
   colorGrayLightest,
 } from '/imports/ui/stylesheets/styled-components/palette';
 
-import Header from '/imports/ui/components/common/control-header/component';
-import { ChatTime as ChatTimeBase } from './message-header/styles';
-
 interface ChatWrapperProps {
   sameSender: boolean;
   isSystemSender: boolean;
@@ -106,42 +103,6 @@ export const ChatContent = styled.div<ChatContentProps>`
   }) => ($reactionPopoverIsOpen || $editing || $focused || $keyboardFocused)
     && `
     background-color: ${colorBlueLightest} !important;
-  `}
-`;
-
-export const ChatContentFooter = styled.div`
-  justify-content: flex-end;
-  gap: 0.25rem;
-  padding: ${smPadding} 0 0 ${smPadding};
-  position: absolute;
-  bottom: calc(${lgPadding} + 2px);
-  display: none;
-  background-color: inherit;
-  border-radius: 0.5rem;
-
-  [dir="rtl"] & {
-    left: ${$3xlPadding};
-  }
-
-  [dir="ltr"] & {
-    right: ${$3xlPadding};
-  }
-
-  .chat-message-wrapper-focused &,
-  .chat-message-wrapper-keyboard-focused &,
-  .chat-message-content:focus &,
-  .chat-message-content:hover & {
-    display: flex;
-  }
-`;
-
-export const ChatHeader = styled(Header)`
-  ${({ isRTL }) => isRTL && `
-    padding-left: ${smPaddingX};
-  `}
-
-  ${({ isRTL }) => !isRTL && `
-    padding-right: ${smPaddingX};
   `}
 `;
 
