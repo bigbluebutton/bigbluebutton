@@ -177,6 +177,10 @@ const ChatMessage = React.forwardRef<ChatMessageRef, ChatMessageProps>(({
   }), [message.messageSequence]);
 
   const startScrollAnimation = (timestamp: number) => {
+    if ((containerRef.current?.offsetTop || 0) > (scrollRef.current?.scrollTop || 0)) {
+      requestAnimationFrame(startBackgroundAnimation);
+      return;
+    }
     animationInitialScrollPosition.current = scrollRef.current?.scrollTop || 0;
     animationScrollPositionDiff.current = (scrollRef.current?.scrollTop || 0)
       - ((containerRef.current?.offsetTop || 0) - ((scrollRef.current?.offsetHeight || 0) / 2));
