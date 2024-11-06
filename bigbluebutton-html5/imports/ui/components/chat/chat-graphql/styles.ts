@@ -68,7 +68,7 @@ const ChatMessages = styled.div`
 `;
 
 const Separator = styled.hr`
-  margin: 1rem auto 0 auto;
+  margin: 1rem auto;
   width: 100%;
   border: 0;
   border-top: 1px solid ${colorGrayLighter};
