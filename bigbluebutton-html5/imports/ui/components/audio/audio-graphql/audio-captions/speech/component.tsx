@@ -196,8 +196,8 @@ const AudioCaptionsSpeech: React.FC<AudioCaptionsSpeechProps> = ({
   }, [locale]);
 
   const stop = useCallback(() => {
-    logger.debug('Stopping browser speech recognition');
     if (speechRecognitionRef.current) {
+      logger.debug('Stopping browser speech recognition');
       if (!speechHasStarted.started) {
         return;
       }
