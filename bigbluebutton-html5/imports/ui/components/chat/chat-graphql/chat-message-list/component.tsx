@@ -192,6 +192,7 @@ const ChatMessageList: React.FC<ChatListProps> = ({
   const [lastMessageCreatedAt, setLastMessageCreatedAt] = useState<string>('');
   const [followingTail, setFollowingTail] = React.useState(true);
   const [selectedMessage, setSelectedMessage] = React.useState<HTMLElement | null>(null);
+  const [showStartSentinel, setShowStartSentinel] = React.useState(false);
   const {
     childRefProxy: endSentinelRefProxy,
     intersecting: isEndSentinelVisible,
@@ -461,20 +462,28 @@ const ChatMessageList: React.FC<ChatListProps> = ({
             onTouchEnd={() => {
               setScrollToTailEventHandler();
             }}
+            onScroll={(e) => {
+              if (e.target instanceof HTMLDivElement) {
+                const userScrolledUp = Math.ceil(e.target.scrollTop + e.target.clientHeight) < e.target.scrollHeight;
+                setShowStartSentinel(userScrolledUp);
+              }
+            }}
             data-test="chatMessages"
             isRTL={isRTL}
             ref={updateRefs}
             $hasMessageToolbar={hasMessageToolbar}
           >
-            <div
-              ref={startSentinelRefProxy}
-              style={{
-                height: 1,
-                background: 'none',
-              }}
-              tabIndex={-1}
-              aria-hidden
-            />
+            {showStartSentinel && (
+              <div
+                ref={startSentinelRefProxy}
+                style={{
+                  height: 1,
+                  background: 'none',
+                }}
+                tabIndex={-1}
+                aria-hidden
+              />
+            )}
             <div
               role="listbox"
               ref={messageListRef}
