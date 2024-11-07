@@ -25,6 +25,8 @@ case "$1" in
   fi
 
   # Create user hasura_app@hasura_app (for hasura metadata)
+  runuser -u postgres -- psql -d hasura_app -tc "SELECT 1 FROM pg_namespace WHERE nspname='hdb_catalog'" | grep -q 1 || \
+    runuser -u postgres -- psql -d hasura_app -c "CREATE SCHEMA hdb_catalog"
   runuser -u postgres -- psql -tc "SELECT 1 FROM pg_roles WHERE rolname='hasura_app'" | grep -q 1 || \
     runuser -u postgres -- psql -c "CREATE USER hasura_app WITH PASSWORD 'hasura_app'"
   runuser -u postgres -- psql -c "GRANT CONNECT ON DATABASE hasura_app TO hasura_app"
