@@ -36,6 +36,8 @@ case "$1" in
   runuser -u postgres -- psql -tc "SELECT 1 FROM pg_roles WHERE rolname='bbb_core'" | grep -q 1 || \
     runuser -u postgres -- psql -c "CREATE USER bbb_core WITH PASSWORD 'bbb_core'"
   runuser -u postgres -- psql -c "GRANT CONNECT ON DATABASE bbb_graphql TO bbb_core"
+  runuser -u postgres -- psql -d bbb_graphql -c "GRANT USAGE, SELECT ON ALL SEQUENCES IN SCHEMA public TO bbb_core"
+  runuser -u postgres -- psql -d bbb_graphql -c "ALTER DEFAULT PRIVILEGES IN SCHEMA public GRANT USAGE, SELECT ON SEQUENCES TO bbb_core"
   runuser -u postgres -- psql -d bbb_graphql -c "GRANT SELECT, INSERT, UPDATE, DELETE ON ALL TABLES IN SCHEMA public TO bbb_core"
   runuser -u postgres -- psql -d bbb_graphql -c "ALTER DEFAULT PRIVILEGES IN SCHEMA public GRANT SELECT, INSERT, UPDATE, DELETE ON TABLES TO bbb_core"
 
