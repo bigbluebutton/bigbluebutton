@@ -406,6 +406,7 @@ class OptionsDropdown extends PureComponent {
           icon: 'manage_layout',
           label: intl.formatMessage(intlMessages.layoutModal),
           onClick: () => this.setLayoutModalIsOpen(true),
+          dataTest: 'manageLayoutBtn',
         },
       );
     }
