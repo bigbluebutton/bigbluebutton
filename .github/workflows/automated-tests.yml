@@ -64,7 +64,7 @@ jobs:
           - package: bbb-freeswitch
             build-list: bbb-freeswitch-core bbb-freeswitch-sounds
             cache-files-list: freeswitch.placeholder.sh
-            cache-urls-list: http://bigbluebutton.org/downloads/sounds.tar.gz
+            cache-urls-list: https://ubuntu.bigbluebutton.org/sounds.tar.gz
           - package: bbb-webrtc
             build-list: bbb-webrtc-sfu bbb-webrtc-recorder
             cache-files-list: bbb-webrtc-sfu.placeholder.sh bbb-webrtc-recorder.placeholder.sh
