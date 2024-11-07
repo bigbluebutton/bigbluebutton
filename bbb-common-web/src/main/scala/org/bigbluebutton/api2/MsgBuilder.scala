@@ -50,8 +50,9 @@ object MsgBuilder {
     val header = BbbCoreHeaderWithMeetingId(RegisterUserReqMsg.NAME, msg.meetingId)
     val body = RegisterUserReqMsgBody(meetingId = msg.meetingId, intUserId = msg.intUserId,
       name = msg.name, role = msg.role, extUserId = msg.extUserId, authToken = msg.authToken, sessionToken = msg.sessionToken,
-      avatarURL = msg.avatarURL, webcamBackgroundURL = msg.webcamBackgroundURL, guest = msg.guest, authed = msg.authed, guestStatus = msg.guestStatus,
-      excludeFromDashboard = msg.excludeFromDashboard, enforceLayout = msg.enforceLayout, userMetadata = msg.userMetadata)
+      avatarURL = msg.avatarURL, webcamBackgroundURL = msg.webcamBackgroundURL, bot = msg.bot, guest = msg.guest, authed = msg.authed,
+      guestStatus = msg.guestStatus, excludeFromDashboard = msg.excludeFromDashboard, enforceLayout = msg.enforceLayout,
+      userMetadata = msg.userMetadata)
     val req = RegisterUserReqMsg(header, body)
     BbbCommonEnvCoreMsg(envelope, req)
   }
@@ -391,6 +392,32 @@ object MsgBuilder {
       maxNumberOfAttempts = msg.maxNumberOfAttempts)
 
     val req = PresentationUploadedFileTimeoutErrorSysPubMsg(header, body)
+    BbbCommonEnvCoreMsg(envelope, req)
+  }
+
+  def buildPresentationUploadedFileVirusErrorSysPubMsg(msg: UploadFileVirusMessage): BbbCommonEnvCoreMsg = {
+    val routing = collection.immutable.HashMap("sender" -> "bbb-web")
+    val envelope = BbbCoreEnvelope(PresentationUploadedFileVirusErrorSysPubMsg.NAME, routing)
+    val header = BbbClientMsgHeader(PresentationUploadedFileVirusErrorSysPubMsg.NAME, msg.meetingId, "not-used")
+
+    val body = PresentationUploadedFileVirusErrorSysPubMsgBody(podId = msg.podId, presentationName = msg.filename,
+      meetingId = msg.meetingId, messageKey = msg.messageKey, temporaryPresentationId = msg.temporaryPresentationId,
+      presentationId = msg.presentationId)
+
+    val req = PresentationUploadedFileVirusErrorSysPubMsg(header, body)
+    BbbCommonEnvCoreMsg(envelope, req)
+  }
+
+  def buildPresentationUploadedFileScanFailedErrorSysPubMsg(msg: UploadFileScanFailedMessage): BbbCommonEnvCoreMsg = {
+    val routing = collection.immutable.HashMap("sender" -> "bbb-web")
+    val envelope = BbbCoreEnvelope(PresentationUploadedFileScanFailedErrorSysPubMsg.NAME, routing)
+    val header = BbbClientMsgHeader(PresentationUploadedFileScanFailedErrorSysPubMsg.NAME, msg.meetingId, "not-used")
+
+    val body = PresentationUploadedFileScanFailedErrorSysPubMsgBody(podId = msg.podId, presentationName = msg.filename,
+      meetingId = msg.meetingId, messageKey = msg.messageKey, temporaryPresentationId = msg.temporaryPresentationId,
+      presentationId = msg.presentationId)
+
+    val req = PresentationUploadedFileScanFailedErrorSysPubMsg(header, body)
     BbbCommonEnvCoreMsg(envelope, req)
   }
 

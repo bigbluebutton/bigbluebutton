@@ -13,7 +13,8 @@ class WebcamApp2x(implicit val context: ActorContext)
   with GetWebcamsOnlyForModeratorReqMsgHdlr
   with UpdateWebcamsOnlyForModeratorCmdMsgHdlr
   with UserBroadcastCamStartMsgHdlr
-  with UserBroadcastCamStopMsgHdlr {
+  with UserBroadcastCamStopMsgHdlr
+  with SetCamShowAsContentReqMsgHdlr {
 
   val log = Logging(context.system, getClass)
 }

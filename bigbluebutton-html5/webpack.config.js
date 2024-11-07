@@ -6,6 +6,7 @@ const CopyPlugin = require('copy-webpack-plugin');
 const TerserPlugin = require('terser-webpack-plugin');
 
 const env = process.env.NODE_ENV || 'development';
+const detailedLogs = process.env.DETAILED_LOGS || false;
 
 const prodEnv = 'production';
 const devEnv = 'development';
@@ -38,6 +39,7 @@ const config = {
     }),
     new webpack.DefinePlugin({
       'process.env.NODE_ENV': JSON.stringify(env),
+      'process.env.DETAILED_LOGS': detailedLogs,
     }),
   ],
   resolve: {

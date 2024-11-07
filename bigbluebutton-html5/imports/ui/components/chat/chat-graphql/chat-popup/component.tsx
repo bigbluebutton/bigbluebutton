@@ -8,7 +8,11 @@ import { layoutSelect } from '../../../layout/context';
 import { Layout } from '../../../layout/layoutTypes';
 import { ChatCommands } from '/imports/ui/core/enums/chat';
 
-interface ChatPopupProps {
+interface ChatPopupCommonProps {
+  hasMessageToolbar: boolean;
+}
+
+interface ChatPopupProps extends ChatPopupCommonProps {
   welcomeMessage: string | null;
   welcomeMsgForModerators: string | null;
 }
@@ -31,6 +35,7 @@ const isBoolean = (v: unknown): boolean => {
 };
 
 const ChatPopup: React.FC<ChatPopupProps> = ({
+  hasMessageToolbar,
   welcomeMessage,
   welcomeMsgForModerators,
 }) => {
@@ -60,7 +65,7 @@ const ChatPopup: React.FC<ChatPopupProps> = ({
   }, []);
   if (!showWelcomeMessage && !showWelcomeMessageForModerators) return null;
   return (
-    <PopupContainer>
+    <PopupContainer $hasMessageToolbar={hasMessageToolbar}>
       <PopupContents>
         {showWelcomeMessage && welcomeMessage && (
           <PopupContent
@@ -86,7 +91,9 @@ const ChatPopup: React.FC<ChatPopupProps> = ({
   );
 };
 
-const ChatPopupContainer: React.FC = () => {
+const ChatPopupContainer: React.FC<ChatPopupCommonProps> = (props) => {
+  const { hasMessageToolbar } = props;
+
   const {
     data: welcomeData,
     loading: welcomeLoading,
@@ -104,6 +111,7 @@ const ChatPopupContainer: React.FC = () => {
 
   return (
     <ChatPopup
+      hasMessageToolbar={hasMessageToolbar}
       welcomeMessage={welcomeData.user_welcomeMsgs[0]?.welcomeMsg}
       welcomeMsgForModerators={welcomeData.user_welcomeMsgs[0]?.welcomeMsgForModerators}
     />

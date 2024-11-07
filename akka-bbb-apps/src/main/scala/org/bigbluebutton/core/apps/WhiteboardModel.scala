@@ -4,7 +4,7 @@ import scala.collection.immutable.HashMap
 import org.bigbluebutton.common2.msgs.AnnotationVO
 import org.bigbluebutton.core.apps.whiteboard.Whiteboard
 import org.bigbluebutton.SystemConfiguration
-import org.bigbluebutton.core.db.{ PresAnnotationDAO, PresPageWritersDAO }
+import org.bigbluebutton.core.db.{ PresAnnotationDAO, PresAnnotationHistoryDAO, PresPageWritersDAO }
 
 class WhiteboardModel extends SystemConfiguration {
   private var _whiteboards = new HashMap[String, Whiteboard]()
@@ -85,7 +85,9 @@ class WhiteboardModel extends SystemConfiguration {
       }
     }
 
-    PresAnnotationDAO.insertOrUpdateMap(meetingId, annotationsAdded)
+    val annotationUpdatedAt = System.currentTimeMillis()
+    PresAnnotationHistoryDAO.insertOrUpdateMap(meetingId, annotationsDiffAdded, annotationUpdatedAt)
+    PresAnnotationDAO.insertOrUpdateMap(meetingId, annotationsAdded, annotationUpdatedAt)
 
     val newWb = wb.copy(annotationsMap = newAnnotationsMap)
     saveWhiteboard(newWb)
@@ -154,7 +156,9 @@ class WhiteboardModel extends SystemConfiguration {
     val updatedWb = wb.copy(annotationsMap = newAnnotationsMap)
     saveWhiteboard(updatedWb)
 
-    PresAnnotationDAO.delete(meetingId, userId, annotationsIdsRemoved)
+    val annotationUpdatedAt = System.currentTimeMillis()
+    PresAnnotationHistoryDAO.deleteAnnotations(meetingId, wb.id, userId, annotationsIdsRemoved, annotationUpdatedAt)
+    PresAnnotationDAO.deleteAnnotations(meetingId, userId, annotationsIdsRemoved, annotationUpdatedAt)
 
     annotationsIdsRemoved
   }

@@ -19,7 +19,6 @@ const ActionBarPluginStateContainer = ((
   ] = useState<PluginSdk.ActionsBarInterface[]>([]);
 
   const {
-    pluginsExtensibleAreasAggregatedState,
     setPluginsExtensibleAreasAggregatedState,
   } = useContext(PluginsContext);
 
@@ -33,12 +32,11 @@ const ActionBarPluginStateContainer = ((
       ...Object.values(extensibleAreaMap)
         .map((extensibleArea: ExtensibleArea) => extensibleArea.actionsBarItems),
     );
-    setPluginsExtensibleAreasAggregatedState(
+    setPluginsExtensibleAreasAggregatedState((previousState) => (
       {
-        ...pluginsExtensibleAreasAggregatedState,
+        ...previousState,
         actionsBarItems: aggregatedActionBarItems,
-      },
-    );
+      }));
   }, [actionBarItems]);
 
   pluginApi.setActionsBarItems = (items: PluginSdk.ActionsBarInterface[]) => {

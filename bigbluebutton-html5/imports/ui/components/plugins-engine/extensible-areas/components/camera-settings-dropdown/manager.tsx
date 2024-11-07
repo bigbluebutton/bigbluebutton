@@ -22,7 +22,6 @@ const CameraSettingsDropdownPluginStateContainer = ((
   ] = useState<PluginSdk.CameraSettingsDropdownInterface[]>([]);
 
   const {
-    pluginsExtensibleAreasAggregatedState,
     setPluginsExtensibleAreasAggregatedState,
   } = useContext(PluginsContext);
 
@@ -36,12 +35,11 @@ const CameraSettingsDropdownPluginStateContainer = ((
       ...Object.values(extensibleAreaMap)
         .map((extensibleArea: ExtensibleArea) => extensibleArea.cameraSettingsDropdownItems),
     );
-    setPluginsExtensibleAreasAggregatedState(
+    setPluginsExtensibleAreasAggregatedState((previousState) => (
       {
-        ...pluginsExtensibleAreasAggregatedState,
+        ...previousState,
         cameraSettingsDropdownItems: aggregatedCameraSettingsDropdownItems,
-      },
-    );
+      }));
   }, [cameraSettingsDropdownItems]);
 
   pluginApi.setCameraSettingsDropdownItems = (items: PluginSdk.CameraSettingsDropdownInterface[]) => {

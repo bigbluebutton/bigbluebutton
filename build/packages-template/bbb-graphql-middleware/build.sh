@@ -14,7 +14,7 @@ rm -rf staging
 rm -rf ./build
 
 # Create directories for fpm to process
-DIRS="/usr/local/bin /lib/systemd/system /usr/share/bigbluebutton/nginx /usr/share/bbb-graphql-middleware/"
+DIRS="/usr/bin /lib/systemd/system /usr/share/bigbluebutton/nginx /usr/share/bbb-graphql-middleware/"
 for dir in $DIRS; do
   mkdir -p staging$dir
 done
@@ -26,13 +26,14 @@ go version
 CGO_ENABLED=0 go build -o bbb-graphql-middleware cmd/bbb-graphql-middleware/main.go
 echo "Build of bbb-graphql-middleware finished"
 
-cp bbb-graphql-middleware staging/usr/local/bin/bbb-graphql-middleware
+cp bbb-graphql-middleware staging/usr/bin/bbb-graphql-middleware
 
 mkdir -p staging/etc/nginx/conf.d
 cp bbb-graphql-client-settings-cache.conf staging/etc/nginx/conf.d
 
 # Create config file
 cp config/config.yml staging/usr/share/bbb-graphql-middleware/config.yml
+chmod a+r staging/usr/share/bbb-graphql-middleware/config.yml
 
 cp bbb-graphql-middleware.service staging/lib/systemd/system/bbb-graphql-middleware.service
 

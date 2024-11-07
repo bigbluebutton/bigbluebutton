@@ -98,6 +98,7 @@ func ConnectionHandler(w http.ResponseWriter, r *http.Request) {
 		FromBrowserToHasuraChannel:     common.NewSafeChannelByte(bufferSize),
 		FromBrowserToGqlActionsChannel: common.NewSafeChannelByte(bufferSize),
 		FromHasuraToBrowserChannel:     common.NewSafeChannelByte(bufferSize),
+		LastBrowserMessageTime:         time.Now(),
 		Logger:                         connectionLogger,
 	}
 
@@ -493,4 +494,28 @@ func disconnectWithError(
 	browserConnectionContextCancel()
 
 	return
+}
+
+var websocketIdleTimeoutSeconds = config.GetConfig().Server.WebsocketIdleTimeoutSeconds
+
+func InvalidateIdleBrowserConnectionsRoutine() {
+	for {
+		time.Sleep(15 * time.Second)
+
+		BrowserConnectionsMutex.RLock()
+		for _, browserConnection := range BrowserConnections {
+			browserConnection.LastBrowserMessageTimeMutex.RLock()
+			browserIdleSince := time.Since(browserConnection.LastBrowserMessageTime)
+			browserConnection.LastBrowserMessageTimeMutex.RUnlock()
+
+			if browserIdleSince > time.Duration(websocketIdleTimeoutSeconds)*time.Second {
+				browserConnection.Logger.Info("Closing browser connection, reason: idle timeout")
+				errCloseWs := browserConnection.Websocket.Close(websocket.StatusNormalClosure, "idle timeout")
+				if errCloseWs != nil {
+					browserConnection.Logger.Debugf("Error on close websocket: %v", errCloseWs)
+				}
+			}
+		}
+		BrowserConnectionsMutex.RUnlock()
+	}
 }

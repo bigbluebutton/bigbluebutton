@@ -5,9 +5,11 @@ import org.bigbluebutton.common2.msgs._
 import org.bigbluebutton.core.apps.{BreakoutModel, PermissionCheck, RightsManagementTrait}
 import org.bigbluebutton.core.db.BreakoutRoomDAO
 import org.bigbluebutton.core.domain.{BreakoutRoom2x, MeetingState2x}
-import org.bigbluebutton.core.models.PresentationInPod
+import org.bigbluebutton.core.models.PluginModel.getPlugins
+import org.bigbluebutton.core.models.{Plugin, PresentationInPod}
 import org.bigbluebutton.core.running.{LiveMeeting, OutMsgRouter}
 import org.bigbluebutton.core.running.MeetingActor
+import scala.jdk.CollectionConverters._
 
 trait CreateBreakoutRoomsCmdMsgHdlr extends RightsManagementTrait {
   this: MeetingActor =>
@@ -59,6 +61,11 @@ trait CreateBreakoutRoomsCmdMsgHdlr extends RightsManagementTrait {
     val presSlide = getPresentationSlide(state) // The current slide
     val parentId = liveMeeting.props.meetingProp.intId
     var rooms = new collection.immutable.HashMap[String, BreakoutRoom2x]
+    val filteredPluginProp = liveMeeting.props.pluginProp.asScala
+      .filter { case (key, _) =>
+        getPlugins(liveMeeting.plugins).get(key).exists(_.manifest.content.enabledForBreakoutRooms)
+      }
+      .asJava
 
     var i = 0
     for (room <- msg.body.rooms) {
@@ -78,7 +85,6 @@ trait CreateBreakoutRoomsCmdMsgHdlr extends RightsManagementTrait {
 
     for (breakout <- rooms.values.toVector) {
       val roomSlides = if (breakout.allPages) -1 else presSlide;
-
       val roomDetail = new BreakoutRoomDetail(
         breakout.id, breakout.name,
         liveMeeting.props.meetingProp.intId,
@@ -99,6 +105,7 @@ trait CreateBreakoutRoomsCmdMsgHdlr extends RightsManagementTrait {
         breakout.captureSlides,
         breakout.captureNotesFilename,
         breakout.captureSlidesFilename,
+        pluginProp = filteredPluginProp,
       )
 
       val event = buildCreateBreakoutRoomSysCmdMsg(liveMeeting.props.meetingProp.intId, roomDetail)

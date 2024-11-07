@@ -131,6 +131,8 @@ class ReceivedJsonMsgHandlerActor(
         routeGenericMsg[UserBroadcastCamStartMsg](envelope, jsonNode)
       case UserBroadcastCamStopMsg.NAME =>
         routeGenericMsg[UserBroadcastCamStopMsg](envelope, jsonNode)
+      case SetCamShowAsContentReqMsg.NAME =>
+        routeGenericMsg[SetCamShowAsContentReqMsg](envelope, jsonNode)
       case GetCamBroadcastPermissionReqMsg.NAME =>
         routeGenericMsg[GetCamBroadcastPermissionReqMsg](envelope, jsonNode)
       case GetCamSubscribePermissionReqMsg.NAME =>
@@ -302,6 +304,10 @@ class ReceivedJsonMsgHandlerActor(
         routeGenericMsg[PresentationHasInvalidMimeTypeErrorSysPubMsg](envelope, jsonNode)
       case PresentationUploadedFileTimeoutErrorSysPubMsg.NAME =>
         routeGenericMsg[PresentationUploadedFileTimeoutErrorSysPubMsg](envelope, jsonNode)
+      case PresentationUploadedFileVirusErrorSysPubMsg.NAME =>
+        routeGenericMsg[PresentationUploadedFileVirusErrorSysPubMsg](envelope, jsonNode)
+      case PresentationUploadedFileScanFailedErrorSysPubMsg.NAME =>
+        routeGenericMsg[PresentationUploadedFileScanFailedErrorSysPubMsg](envelope, jsonNode)
       case PresentationConversionUpdateSysPubMsg.NAME =>
         routeGenericMsg[PresentationConversionUpdateSysPubMsg](envelope, jsonNode)
       case PresentationPageCountErrorSysPubMsg.NAME =>
@@ -404,6 +410,14 @@ class ReceivedJsonMsgHandlerActor(
         routeGenericMsg[SendGroupChatMessageMsg](envelope, jsonNode)
       case SendGroupChatMessageFromApiSysPubMsg.NAME =>
         routeGenericMsg[SendGroupChatMessageFromApiSysPubMsg](envelope, jsonNode)
+      case EditGroupChatMessageReqMsg.NAME =>
+        routeGenericMsg[EditGroupChatMessageReqMsg](envelope, jsonNode)
+      case DeleteGroupChatMessageReqMsg.NAME =>
+        routeGenericMsg[DeleteGroupChatMessageReqMsg](envelope, jsonNode)
+      case SendGroupChatMessageReactionReqMsg.NAME =>
+        routeGenericMsg[SendGroupChatMessageReactionReqMsg](envelope, jsonNode)
+      case DeleteGroupChatMessageReactionReqMsg.NAME =>
+        routeGenericMsg[DeleteGroupChatMessageReactionReqMsg](envelope, jsonNode)
       case GetGroupChatMsgsReqMsg.NAME =>
         routeGenericMsg[GetGroupChatMsgsReqMsg](envelope, jsonNode)
       case CreateGroupChatReqMsg.NAME =>

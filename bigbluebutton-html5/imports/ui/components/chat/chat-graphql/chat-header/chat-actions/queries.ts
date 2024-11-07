@@ -24,6 +24,9 @@ query getChatMessageHistory {
       name
       role
     }
+    deletedBy {
+      name
+    }
   }
   meeting {
     name

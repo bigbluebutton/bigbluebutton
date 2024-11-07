@@ -100,15 +100,17 @@ class UsersTable extends React.Component {
       },
       onlineTimeOrder(a, b) {
         const onlineTimeA = Object.values(a.intIds).reduce((prev, intId) => (
-          prev + ((intId.leftOn > 0
-            ? intId.leftOn
-            : (new Date()).getTime()) - intId.registeredOn)
+          prev + intId.sessions.reduce((prev2, session) => (
+            prev2 + (session.leftOn > 0
+              ? session.leftOn
+              : (new Date()).getTime()) - session.registeredOn), 0)
         ), 0);
 
         const onlineTimeB = Object.values(b.intIds).reduce((prev, intId) => (
-          prev + ((intId.leftOn > 0
-            ? intId.leftOn
-            : (new Date()).getTime()) - intId.registeredOn)
+          prev + intId.sessions.reduce((prev2, session) => (
+            prev2 + (session.leftOn > 0
+              ? session.leftOn
+              : (new Date()).getTime()) - session.registeredOn), 0)
         ), 0);
 
         if (onlineTimeA < onlineTimeB) {
@@ -251,68 +253,70 @@ class UsersTable extends React.Component {
                         >
                           {user.name}
                         </button>
-                        { Object.values(user.intIds || {}).map((intId, index) => (
-                          <>
-                            <p className="text-xs text-gray-700 dark:text-gray-400">
-                              <svg
-                                xmlns="http://www.w3.org/2000/svg"
-                                className="h-4 w-4 inline"
-                                fill="none"
-                                viewBox="0 0 24 24"
-                                stroke="currentColor"
-                              >
-                                <path
-                                  strokeLinecap="round"
-                                  strokeLinejoin="round"
-                                  strokeWidth="2"
-                                  d="M11 16l-4-4m0 0l4-4m-4 4h14m-5 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h7a3 3 0 013 3v1"
-                                />
-                              </svg>
-                              <FormattedDate
-                                value={intId.registeredOn}
-                                month="short"
-                                day="numeric"
-                                hour="2-digit"
-                                minute="2-digit"
-                                second="2-digit"
-                              />
-                            </p>
-                            { intId.leftOn > 0
-                              ? (
-                                <p className="text-xs text-gray-700 dark:text-gray-400">
-                                  <svg
-                                    xmlns="http://www.w3.org/2000/svg"
-                                    className="h-4 w-4 inline"
-                                    fill="none"
-                                    viewBox="0 0 24 24"
-                                    stroke="currentColor"
-                                  >
-                                    <path
-                                      strokeLinecap="round"
-                                      strokeLinejoin="round"
-                                      strokeWidth="2"
-                                      d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"
-                                    />
-                                  </svg>
-
-                                  <FormattedDate
-                                    value={intId.leftOn}
-                                    month="short"
-                                    day="numeric"
-                                    hour="2-digit"
-                                    minute="2-digit"
-                                    second="2-digit"
+                        { Object.values(user.intIds || {}).map((intId, index) => intId.sessions
+                          .map((session, sessionIndex) => (
+                            <>
+                              <p className="text-xs text-gray-700 dark:text-gray-400">
+                                <svg
+                                  xmlns="http://www.w3.org/2000/svg"
+                                  className="h-4 w-4 inline"
+                                  fill="none"
+                                  viewBox="0 0 24 24"
+                                  stroke="currentColor"
+                                >
+                                  <path
+                                    strokeLinecap="round"
+                                    strokeLinejoin="round"
+                                    strokeWidth="2"
+                                    d="M11 16l-4-4m0 0l4-4m-4 4h14m-5 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h7a3 3 0 013 3v1"
                                   />
-                                </p>
-                              )
-                              : null }
-                            { index === Object.values(user.intIds).length - 1
-                              ? null
-                              : (
-                                <hr className="my-1" />
-                              ) }
-                          </>
-                        )) }
+                                </svg>
+                                <FormattedDate
+                                  value={session.registeredOn}
+                                  month="short"
+                                  day="numeric"
+                                  hour="2-digit"
+                                  minute="2-digit"
+                                  second="2-digit"
+                                />
+                              </p>
+                              { session.leftOn > 0
+                                ? (
+                                  <p className="text-xs text-gray-700 dark:text-gray-400">
+                                    <svg
+                                      xmlns="http://www.w3.org/2000/svg"
+                                      className="h-4 w-4 inline"
+                                      fill="none"
+                                      viewBox="0 0 24 24"
+                                      stroke="currentColor"
+                                    >
+                                      <path
+                                        strokeLinecap="round"
+                                        strokeLinejoin="round"
+                                        strokeWidth="2"
+                                        d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"
+                                      />
+                                    </svg>
+
+                                    <FormattedDate
+                                      value={session.leftOn}
+                                      month="short"
+                                      day="numeric"
+                                      hour="2-digit"
+                                      minute="2-digit"
+                                      second="2-digit"
+                                    />
+                                  </p>
+                                )
+                                : null }
+                              { index === Object.values(user.intIds).length - 1
+                                && sessionIndex === intId?.sessions.length - 1
+                                ? null
+                                : (
+                                  <hr className="my-1" />
+                                ) }
+                            </>
+                          ))) }
                       </div>
                     </td>
                     <td className={`px-4 py-3 text-sm text-center items-center ${opacity}`} data-test="userOnlineTimeDashboard">
@@ -332,16 +336,17 @@ class UsersTable extends React.Component {
                       </svg>
                       &nbsp;
                       { tsToHHmmss(Object.values(user.intIds).reduce((prev, intId) => (
-                        prev + ((intId.leftOn > 0
-                          ? intId.leftOn
-                          : (new Date()).getTime()) - intId.registeredOn)
-                      ), 0)) }
+                        prev + intId.sessions.reduce((prev2, session) => ((session.leftOn > 0
+                          ? prev2 + session.leftOn
+                          : prev2 + (new Date()).getTime()) - session.registeredOn), 0)), 0)) }
                       <br />
                       {
                         (function getPercentage() {
                           const { intIds } = user;
                           const percentage = Object.values(intIds || {}).reduce((prev, intId) => (
-                            prev + getOnlinePercentage(intId.registeredOn, intId.leftOn)
+                            prev + intId.sessions.reduce((prev2, session) => (
+                              prev2 + getOnlinePercentage(session.registeredOn, session.leftOn)
+                            ), 0)
                           ), 0);
 
                           return (
@@ -475,7 +480,8 @@ class UsersTable extends React.Component {
                     }
                     <td className="px-3.5 2xl:px-4 py-3 text-xs text-center" data-test="userStatusDashboard">
                       {
-                        Object.values(user.intIds)[Object.values(user.intIds).length - 1].leftOn > 0
+                        Object.values(user.intIds)[Object.values(user.intIds).length - 1]
+                          .sessions.slice(-1)[0].leftOn > 0
                           ? (
                             <span className="px-2 py-1 font-semibold leading-tight text-red-700 bg-red-100 rounded-full">
                               <FormattedMessage id="app.learningDashboard.usersTable.userStatusOffline" defaultMessage="Offline" />

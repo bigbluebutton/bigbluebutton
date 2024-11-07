@@ -1,8 +1,8 @@
 import React from 'react';
 import Auth from '/imports/ui/services/auth';
 import Storage from '/imports/ui/services/storage/session';
-import KEY_CODES from '/imports/utils/keyCodes';
 import AudioService from '/imports/ui/components/audio/service';
+import KEY_CODES from '/imports/utils/keyCodes';
 import logger from '/imports/startup/client/logger';
 import Session from '/imports/ui/services/storage/in-memory';
 import { getSettingsSingletonInstance } from '/imports/ui/services/settings';

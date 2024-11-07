@@ -33,7 +33,7 @@ import com.zaxxer.nuprocess.NuProcessBuilder;
 public class ImageResizerImp implements ImageResizer {
     private static Logger log = LoggerFactory.getLogger(ImageResizerImp.class);
 
-    private static int waitForSec = 7;
+    private int wait = 7;
 
     public boolean resize(UploadedPresentation pres, String ratio) {
         Boolean conversionSuccess = true;
@@ -47,7 +47,7 @@ public class ImageResizerImp implements ImageResizer {
 
         NuProcess process = imgResize.start();
         try {
-            process.waitFor(waitForSec, TimeUnit.SECONDS);
+            process.waitFor(wait, TimeUnit.SECONDS);
         } catch (InterruptedException e) {
             log.error(e.getMessage());
             conversionSuccess = false;
@@ -56,4 +56,7 @@ public class ImageResizerImp implements ImageResizer {
         return conversionSuccess;
     }
 
+    public void setWait(int wait) {
+        this.wait = wait;
+    }
 }

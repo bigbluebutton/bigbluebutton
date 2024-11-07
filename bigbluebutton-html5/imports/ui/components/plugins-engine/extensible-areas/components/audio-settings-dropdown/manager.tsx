@@ -21,7 +21,6 @@ const AudioSettingsDropdownPluginStateContainer = ((
   ] = useState<PluginSdk.AudioSettingsDropdownInterface[]>([]);
 
   const {
-    pluginsExtensibleAreasAggregatedState,
     setPluginsExtensibleAreasAggregatedState,
   } = useContext(PluginsContext);
 
@@ -35,12 +34,11 @@ const AudioSettingsDropdownPluginStateContainer = ((
         .map((extensibleArea: ExtensibleArea) => extensibleArea.audioSettingsDropdownItems),
     );
 
-    setPluginsExtensibleAreasAggregatedState(
+    setPluginsExtensibleAreasAggregatedState((previousState) => (
       {
-        ...pluginsExtensibleAreasAggregatedState,
+        ...previousState,
         audioSettingsDropdownItems: aggregatedAudioSettingsDropdownItems,
-      },
-    );
+      }));
   }, [audioSettingsDropdownItems]);
 
   pluginApi.setAudioSettingsDropdownItems = (items: PluginSdk.AudioSettingsDropdownInterface[]) => {

@@ -1,12 +1,20 @@
 import styled from 'styled-components';
 import Button from '/imports/ui/components/common/button/component';
 import { smallOnly } from '/imports/ui/stylesheets/styled-components/breakpoints';
-import { jumboPaddingY, smPaddingY } from '/imports/ui/stylesheets/styled-components/general';
 import {
+  mdPaddingY,
+  smPaddingX,
+  jumboPaddingY,
+  smPaddingY,
+} from '/imports/ui/stylesheets/styled-components/general';
+import {
+  fontSizeBase,
+  fontSizeSmall,
   fontSizeSmaller,
 } from '/imports/ui/stylesheets/styled-components/typography';
 import {
   colorLink,
+  colorGrayDark,
 } from '/imports/ui/stylesheets/styled-components/palette';
 
 const Help = styled.span`
@@ -20,6 +28,25 @@ const Text = styled.div`
   justify-content: center;
   margin-top: auto;
   margin-bottom: auto;
+  font-size: ${fontSizeBase};
+
+  @media ${smallOnly} {
+    font-size: ${fontSizeSmall};
+  }
+`;
+
+const Subtitle = styled.div`
+  margin-bottom: ${mdPaddingY};
+  justify-content: center;
+  text-align: center;
+  font-size: calc(${fontSizeBase} + 0.05rem);
+  color: ${colorGrayDark};
+  white-space: normal;
+
+  @media ${smallOnly} {
+    font-size: ${fontSizeSmall};
+    padding: 0 ${smPaddingX};
+  }
 `;
 
 const EnterAudio = styled.div`
@@ -60,11 +87,16 @@ const UnknownError = styled.label`
   margin-bottom: ${smPaddingY};
 `;
 
-const PermissionHelpSteps = styled.ul`
+const HelpItems = styled.ul`
   text-align: left;
   justify-content: center;
   li {
     margin-bottom: ${smPaddingY};
+  }
+  font-size: ${fontSizeBase};
+
+  @media ${smallOnly} {
+    font-size: ${fontSizeSmall};
   }
 `;
 
@@ -75,5 +107,6 @@ export default {
   HelpActionButton,
   TroubleshootLink,
   UnknownError,
-  PermissionHelpSteps,
+  HelpItems,
+  Subtitle,
 };

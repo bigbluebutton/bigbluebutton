@@ -26,6 +26,7 @@ server:
   json_patch_disabled: false
   subscriptions_allowed_list:
   subscriptions_denied_list:
+  websocket_idle_timeout_seconds: 60
 redis:
   host: 127.0.0.1
   port: 6379

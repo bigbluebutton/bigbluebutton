@@ -65,6 +65,11 @@ const LayoutBtn = styled(Button)`
   width: fit-content;
 
   @media ${smallOnly} {
+
+    ${({ layout }) => (layout === 'custom') && `
+      display: none;
+    `};
+    
     margin: 0.5rem;
     border: ${colorWhite} solid 4px;
     border-radius: 10px;
@@ -155,12 +160,21 @@ const ButtonBottomContainer = styled.div`
   @media ${smallOnly} {
     align-self: center;
     padding-right: unset;
+    position: relative;
+    right: 1rem;
   }
 `;
 
 const LabelLayoutNames = styled.label`
   text-align: center;
   margin: 0 0 0.1rem 0;
+
+  @media ${smallOnly} {
+    ${({ layout }) => (layout === 'custom') && `
+     display: none;
+    `};
+    margin: 0 0 3rem 0;
+  };
 `;
 
 const ToggleLabel = styled.span`
@@ -174,6 +188,11 @@ const ToggleStatusWrapper = styled.div`
   flex-grow: 0;
   justify-content: flex-end;
   align-items: center;
+  
+  @media ${smallOnly} {
+  position: relative;
+  right: 2rem;
+  }
 `;
 
 const PushContainer = styled.div`

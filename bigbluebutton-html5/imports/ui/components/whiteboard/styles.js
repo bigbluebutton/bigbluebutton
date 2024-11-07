@@ -106,12 +106,24 @@ const TldrawV2GlobalStyle = createGlobalStyle`
     }
   `}
 
+  ${({ bgSelected }) => (bgSelected) && `
+      [data-testid="menu-item.toggle-lock"],
+      [data-testid="menu-item.toggle-locked"],
+      [data-testid="menu-item.paste"],
+      [data-testid="menu-item.copy"] {
+        display: none !important;
+      }
+  `}
+
+  [data-testid="menu-item.modify"],
+  [data-testid="menu-item.conversions"],
   .tlui-helper-buttons,
   [data-testid="main.page-menu"],
   [data-testid="main.menu"],
   [data-testid="tools.more.laser"],
   [data-testid="tools.asset"],
   [data-testid="page-menu.button"],
+  [data-testid="menu-item.zoom-to-100"],
   .tlui-menu-zone {
     display: none !important;
   }

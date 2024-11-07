@@ -18,6 +18,7 @@ import { PluginsContext } from '/imports/ui/components/components-data/plugin-co
 import { useIsReactionsEnabled } from '/imports/ui/services/features';
 import useWhoIsTalking from '/imports/ui/core/hooks/useWhoIsTalking';
 import useWhoIsUnmuted from '/imports/ui/core/hooks/useWhoIsUnmuted';
+import { getSettingsSingletonInstance } from '/imports/ui/services/settings';
 
 const messages = defineMessages({
   moderator: {
@@ -69,6 +70,7 @@ declare global {
 interface UserListItemProps {
   user: User;
   lockSettings: LockSettings;
+  index: number;
 }
 
 const renderUserListItemIconsFromPlugin = (
@@ -90,7 +92,7 @@ const Emoji: React.FC<EmojiProps> = ({ emoji, native, size }) => (
   <em-emoji emoji={emoji} native={native} size={size} />
 );
 
-const UserListItem: React.FC<UserListItemProps> = ({ user, lockSettings }) => {
+const UserListItem: React.FC<UserListItemProps> = ({ user, lockSettings, index }) => {
   const { pluginsExtensibleAreasAggregatedState } = useContext(PluginsContext);
   let userItemsFromPlugin = [] as PluginSdk.UserListItemAdditionalInformationInterface[];
   if (pluginsExtensibleAreasAggregatedState.userListItemAdditionalInformation) {
@@ -224,8 +226,11 @@ const UserListItem: React.FC<UserListItemProps> = ({ user, lockSettings }) => {
     return modifiedElements;
   }
 
+  const Settings = getSettingsSingletonInstance();
+  const animations = Settings?.application?.animations;
+
   return (
-    <Styled.UserItemContents tabIndex={-1} data-test={(user.userId === Auth.userID) ? 'userListItemCurrent' : 'userListItem'}>
+    <Styled.UserItemContents id={`user-index-${index}`} tabIndex={-1} data-test={(user.userId === Auth.userID) ? 'userListItemCurrent' : 'userListItem'}>
       <Styled.Avatar
         data-test={user.isModerator ? 'moderatorAvatar' : 'viewerAvatar'}
         data-test-presenter={user.presenter ? '' : undefined}
@@ -239,7 +244,7 @@ const UserListItem: React.FC<UserListItemProps> = ({ user, lockSettings }) => {
         noVoice={!voiceUser?.joined}
         color={user.color}
         whiteboardAccess={hasWhiteboardAccess}
-        animations
+        animations={animations}
         avatar={userAvatarFiltered}
         isChrome={isChrome}
         isFirefox={isFirefox}

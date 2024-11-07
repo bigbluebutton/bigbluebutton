@@ -1,3 +1,6 @@
+import * as ReactDOM from 'react-dom/client';
+
 export interface GenericContentItemProps {
-    renderFunction: (element: HTMLElement) => void;
+    renderFunction: (element: HTMLElement) => ReactDOM.Root;
+    width?: string;
 }

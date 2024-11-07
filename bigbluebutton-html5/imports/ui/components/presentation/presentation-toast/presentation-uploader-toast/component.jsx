@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useRef } from 'react';
 import Icon from '/imports/ui/components/common/icon/component';
 import Styled from '/imports/ui/components/presentation/presentation-uploader/styles';
 import { toast } from 'react-toastify';
@@ -51,6 +51,14 @@ const intlMessages = defineMessages({
   413: {
     id: 'app.presentationUploder.upload.413',
     description: 'error that file exceed the size limit',
+  },
+  FILE_VIRUS: {
+    id: 'app.presentationUploder.upload.fileVirus',
+    description: 'error that the file could not be uploaded due to security concerns',
+  },
+  SCAN_FAILED: {
+    id: 'app.presentationUploder.upload.scanFailed',
+    description: 'error that the file could not be uploaded because scanning failed',
   },
   CONVERSION_TIMEOUT: {
     id: 'app.presentationUploder.conversion.conversionTimeout',
@@ -435,55 +443,75 @@ export const PresentationUploaderToast = ({
   convertingPresentations,
   presentations,
 }) => {
+  const dismissedErrorItems = useRef([]);
   const prevPresentations = usePreviousValue(presentations);
 
-  useEffect(() => {
-    presentations.forEach((p) => {
-      const prevPropPres = (prevPresentations || [])
-        .find((pres) => pres.presentationId === p.presentationId);
-      // display notification when presentation is exported
-      let exportToastId = Session.getItem('presentationUploaderExportToastId');
+  const addPressIdToDismissed = (presId) => {
+    dismissedErrorItems.current.push(presId);
+  };
 
-      if (prevPropPres?.exportToChatStatus
-        && p?.exportToChatStatus === EXPORT_STATUSES.EXPORTED
-        && prevPropPres?.exportToChatStatus !== p?.exportToChatStatus
-      ) {
-        notify(intl.formatMessage(intlMessages.linkAvailable, { 0: p.name }), 'success');
-        Session.setItem('presentationUploaderExportToastId', null);
-        handleDismissToast(exportToastId);
-      }
-
-      // display notification for exportation status
-      if ([
-        EXPORT_STATUSES.RUNNING,
-        EXPORT_STATUSES.COLLECTING,
-        EXPORT_STATUSES.PROCESSING,
-      ].includes(p?.exportToChatStatus)) {
-        if (exportToastId) {
-          toast.update(exportToastId, {
-            render: renderExportToast(presentations, intl),
-          });
-        } else {
-          exportToastId = toast.info(renderExportToast(presentations, intl), {
-            hideProgressBar: true,
-            autoClose: false,
-            newestOnTop: true,
-            closeOnClick: true,
-            onClose: () => {
-              Session.setItem('presentationUploaderExportToastId', null);
-            },
-          });
-          Session.setItem('presentationUploaderExportToastId', exportToastId);
-        }
+  const getIdsFromPresentationsAndDismiss = (pres) => {
+    pres.forEach((p) => {
+      if (p.uploadErrorMsgKey && !dismissedErrorItems.current.includes(p.presentationId)) {
+        addPressIdToDismissed(p.presentationId);
       }
     });
+  };
+
+  useEffect(() => {
+    presentations
+      .filter((p) => !dismissedErrorItems.current.includes(p.presentationId))
+      .forEach((p) => {
+        const prevPropPres = (prevPresentations || [])
+          .find((pres) => pres.presentationId === p.presentationId);
+        // display notification when presentation is exported
+        let exportToastId = Session.getItem('presentationUploaderExportToastId');
+
+        if (prevPropPres?.exportToChatStatus
+        && p?.exportToChatStatus === EXPORT_STATUSES.EXPORTED
+        && prevPropPres?.exportToChatStatus !== p?.exportToChatStatus
+        ) {
+          notify(intl.formatMessage(intlMessages.linkAvailable, { 0: p.name }), 'success');
+          Session.setItem('presentationUploaderExportToastId', null);
+          handleDismissToast(exportToastId);
+        }
+
+        // display notification for exportation status
+        if ([
+          EXPORT_STATUSES.RUNNING,
+          EXPORT_STATUSES.COLLECTING,
+          EXPORT_STATUSES.PROCESSING,
+        ].includes(p?.exportToChatStatus)) {
+          if (exportToastId) {
+            toast.update(exportToastId, {
+              render: renderExportToast(presentations, intl),
+            });
+          } else {
+            exportToastId = toast.info(
+              renderExportToast(presentations, intl), {
+                hideProgressBar: true,
+                autoClose: false,
+                newestOnTop: true,
+                closeOnClick: true,
+                onClose: () => {
+                  Session.setItem('presentationUploaderExportToastId', null);
+                  getIdsFromPresentationsAndDismiss(presentations);
+                },
+              },
+            );
+            Session.setItem('presentationUploaderExportToastId', exportToastId);
+          }
+        }
+      });
   }, [presentations]);
 
-  let activeToast = Session.getItem('presentationUploaderToastId');
-  const showToast = convertingPresentations.length > 0;
+  const activeToast = Session.getItem('presentationUploaderToastId');
 
-  if (showToast && !activeToast) {
-    activeToast = toast.info(() => renderToastList(convertingPresentations, intl), {
+  const showToast = convertingPresentations
+    .filter((p) => !dismissedErrorItems.current.includes(p.presentationId)).length > 0;
+
+  if (showToast && !toast.isActive(activeToast)) {
+    const convertingPresToast = toast.info(() => renderToastList(convertingPresentations, intl), {
       hideProgressBar: true,
       autoClose: false,
       newestOnTop: true,
@@ -491,9 +519,10 @@ export const PresentationUploaderToast = ({
       className: 'presentationUploaderToast toastClass',
       onClose: () => {
         Session.setItem('presentationUploaderToastId', null);
+        getIdsFromPresentationsAndDismiss(presentations);
       },
     });
-    Session.setItem('presentationUploaderToastId', activeToast);
+    Session.setItem('presentationUploaderToastId', convertingPresToast);
   } else if (!showToast && activeToast) {
     handleDismissToast(activeToast);
   } else {
