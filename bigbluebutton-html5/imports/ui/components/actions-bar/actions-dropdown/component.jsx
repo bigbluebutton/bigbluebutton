@@ -12,7 +12,6 @@ import { PANELS, ACTIONS, LAYOUT_TYPE } from '../../layout/enums';
 import { uniqueId } from '/imports/utils/string-utils';
 import VideoPreviewContainer from '/imports/ui/components/video-preview/container';
 import { screenshareHasEnded } from '/imports/ui/components/screenshare/service';
-import { getSettingsSingletonInstance } from '/imports/ui/services/settings';
 import Session from '/imports/ui/services/storage/in-memory';
 
 const propTypes = {
@@ -183,8 +182,6 @@ class ActionsDropdown extends PureComponent {
       isCameraAsContentEnabled,
       isTimerFeatureEnabled,
       presentations,
-      isDirectLeaveButtonEnabled,
-      isLayoutsEnabled,
       isPresentationEnabled,
       isPresentationManagementDisabled,
     } = this.props;
@@ -264,23 +261,6 @@ class ActionsDropdown extends PureComponent {
         key: this.timerId,
         onClick: () => this.handleTimerClick(),
         dataTest: 'timerStopWatchFeature',
-      });
-    }
-
-    const Settings = getSettingsSingletonInstance();
-    const { selectedLayout } = Settings.application;
-    const shouldShowManageLayoutButton = selectedLayout !== LAYOUT_TYPE.CAMERAS_ONLY
-      && selectedLayout !== LAYOUT_TYPE.PRESENTATION_ONLY
-      && selectedLayout !== LAYOUT_TYPE.PARTICIPANTS_AND_CHAT_ONLY;
-
-    if (shouldShowManageLayoutButton && isLayoutsEnabled && (amIModerator || amIPresenter)) {
-      actions.push({
-        icon: 'manage_layout',
-        label: intl.formatMessage(intlMessages.layoutModal),
-        key: 'layoutModal',
-        onClick: () => this.setLayoutModalIsOpen(true),
-        dataTest: 'manageLayoutBtn',
-        divider: !isDirectLeaveButtonEnabled,
       });
     }
 
