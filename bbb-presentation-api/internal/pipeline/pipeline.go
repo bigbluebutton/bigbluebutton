@@ -16,15 +16,20 @@ import (
 	"errors"
 )
 
+// A Message is a wrapper for message payloads of type T that are to be processed through the pipeline.
+// Messages also provide a [context.Context] to carry metadata through the pipeline.
 type Message[T any] struct {
 	ctx     context.Context
 	Payload T
 }
 
+// NewMessage creates a new Message with the provided payload using [context.Background].
 func NewMessage[T any](payload T) Message[T] {
 	return NewMessageWithContext(payload, context.Background())
 }
 
+// NewMessageWithContext creates a new Message using the given payload and [context.Context]. The provided
+// ctx must not be nil.
 func NewMessageWithContext[T any](payload T, ctx context.Context) Message[T] {
 	if ctx == nil {
 		panic("nil context provided")
@@ -35,6 +40,8 @@ func NewMessageWithContext[T any](payload T, ctx context.Context) Message[T] {
 	}
 }
 
+// Context returns the message's context. The returned context will never be nil. If no context
+// has been set the default background context is returned.
 func (m Message[T]) Context() context.Context {
 	if m.ctx != nil {
 		return m.ctx
@@ -42,6 +49,7 @@ func (m Message[T]) Context() context.Context {
 	return context.Background()
 }
 
+// WithContext returns a copy of m with its context changed to ctx. The provided ctx must must not be nil.
 func (m Message[T]) WithContext(ctx context.Context) Message[T] {
 	if ctx == nil {
 		panic("nil context provided")
@@ -52,8 +60,12 @@ func (m Message[T]) WithContext(ctx context.Context) Message[T] {
 	}
 }
 
+// A ContextKey is an identifer used for the retrieval of context values from a message's context.
 type ContextKey string
 
+// ContextValue attempts to return the value associated with the provided ContextKey from the provided ctx.
+// Returns the default value for the specified type along with an error if the ContextKey is not associated
+// with a value or the associated value does not conform to the specified type.
 func ContextValue[T any](ctx context.Context, key ContextKey) (T, error) {
 	var t T
 	val := ctx.Value(key)
@@ -68,10 +80,15 @@ func ContextValue[T any](ctx context.Context, key ContextKey) (T, error) {
 	return result, nil
 }
 
+// A Filter can be applied to a [Message] to ensure that it meets a set of criteria before allowing
+// processing to continue. If the message does not pass the filter, an error should be returned to
+// abort further processing.
 type Filter[T any] interface {
 	Filter(Message[T]) error
 }
 
+// A Transformer is a processor that transforms an incoming [Message] of type T into a new outgoing
+// message of type U. If transformation fails, an error should be returned to abort further processing.
 type Transformer[T, U any] interface {
 	Transform(Message[T]) (Message[U], error)
 }
@@ -80,15 +97,23 @@ type Generator[T, U any] interface {
 	Generate(Message[T]) (Message[U], error)
 }
 
+// A Flow is an assembled composition of pipeline steps that is used to carry out the processing of a
+// [Message] through the pipeline. The flow takes and input [Message] with a payload of type T and
+// returns a [Message] of type U or an error if a problem occurs in the flow.
 type Flow[T, U any] struct {
 	Execute func(Message[T]) (Message[U], error)
 }
 
+// A Step is single unit of processing of a [Flow]. It is composed of a filter and a processor. The input
+// to a step is a [Message] with a payload of type T. The output will be a [Message] with a payload of
+// type U or an error if filtering or processing fails.
 type Step[T, U any] struct {
 	filter    func(Message[T]) error
 	processor func(Message[T]) (Message[U], error)
 }
 
+// NewStep creates a new empty [Step]. A [Step] must have a processor and, optionally, a filter before it
+// can be used in a [Flow].
 func NewStep[T, U any]() *Step[T, U] {
 	return &Step[T, U]{
 		filter:    func(m Message[T]) error { return nil },
@@ -113,6 +138,7 @@ func (s *Step[T, U]) execute(msg Message[T]) (Message[U], error) {
 	return result, nil
 }
 
+// Flow returns a new [Flow] containing a single [Step]. Use [Add] to add additional steps to the flow.
 func (s *Step[T, U]) Flow() Flow[T, U] {
 	return Flow[T, U]{
 		Execute: s.execute,
