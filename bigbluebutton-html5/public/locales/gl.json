@@ -495,7 +495,7 @@
     "app.navBar.optionsDropdown.endMeetingForAllLabel": "Finalizar a sesión para todos",
     "app.navBar.optionsDropdown.presenceLabel": "Presencia",
     "app.navBar.userListToggleBtnLabel": "Amosar/agochar a lista de usuarios",
-    "app.navBar.toggleUserList.ariaLabel": "Os usuarios e as mensaxes se alternan",
+    "app.navBar.toggleUserList.ariaLabel": "Os usuarios e as mensaxes alternanse",
     "app.navBar.toggleUserList.newMessages": "con nova notificación de mensaxes",
     "app.navBar.toggleUserList.newMsgAria": "Nova mensaxe de {0}",
     "app.navBar.recording": "Esta sesión esta a ser gravada",
