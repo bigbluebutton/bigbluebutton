@@ -2,6 +2,7 @@ import {
   useCallback,
   useEffect,
   useRef,
+  useState,
 } from 'react';
 import {
   useReactiveVar,
@@ -51,6 +52,7 @@ import { useStorageKey } from '/imports/ui/services/storage/hooks';
 import ConnectionStatus from '/imports/ui/core/graphql/singletons/connectionStatus';
 import { VIDEO_TYPES } from '/imports/ui/components/video-provider/enums';
 import createUseSubscription from '/imports/ui/core/hooks/createUseSubscription';
+import { set } from 'ramda';
 
 const useVideoStreamsSubscription = createUseSubscription(
   VIDEO_STREAMS_SUBSCRIPTION,
@@ -60,9 +62,29 @@ const useVideoStreamsSubscription = createUseSubscription(
 
 export const useStreams = () => {
   const { data, loading, errors } = useVideoStreamsSubscription();
-  const streams = useRef<Stream[]>([]);
+  const [streams, setStreams] = useState<Stream[]>([]);
 
-  if (loading) return streams.current;
+  useEffect(() => {
+    if (!data) {
+      setStreams([]);
+    } else {
+      const mappedStreams = (data as StreamSubscriptionData[]).map(({ streamId, user, voice }) => ({
+        stream: streamId,
+        deviceId: streamId.split('_')[3],
+        name: user.name,
+        nameSortable: user.nameSortable,
+        userId: user.userId,
+        user,
+        floor: voice?.floor ?? false,
+        lastFloorTime: voice?.lastFloorTime ?? '0',
+        voice,
+        type: VIDEO_TYPES.STREAM,
+      }));
+      setStreams(mappedStreams);
+    }
+  }, [data]);
+
+  if (loading) return streams;
 
   if (errors) {
     errors.forEach((error) => {
@@ -75,27 +97,7 @@ export const useStreams = () => {
     });
   }
 
-  if (!data) {
-    streams.current = [];
-    return streams.current;
-  }
-
-  const mappedStreams = (data as StreamSubscriptionData[]).map(({ streamId, user, voice }) => ({
-    stream: streamId,
-    deviceId: streamId.split('_')[3],
-    name: user.name,
-    nameSortable: user.nameSortable,
-    userId: user.userId,
-    user,
-    floor: voice?.floor ?? false,
-    lastFloorTime: voice?.lastFloorTime ?? '0',
-    voice,
-    type: VIDEO_TYPES.STREAM,
-  }));
-
-  streams.current = mappedStreams;
-
-  return streams.current;
+  return streams;
 };
 
 export const useStatus = () => {

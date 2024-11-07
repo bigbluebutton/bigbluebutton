@@ -23,7 +23,7 @@ const VideoPreviewContainer = (props) => {
   const cameraAsContentDeviceId = ScreenShareService.useCameraAsContentDeviceIdType();
   const [stopExternalVideoShare] = useMutation(EXTERNAL_VIDEO_STOP);
 
-  const { streams } = useStreams();
+  const streams = useStreams();
   const exitVideo = useExitVideo();
   const stopVideo = useStopVideo();
   const sharedDevices = useSharedDevices();
