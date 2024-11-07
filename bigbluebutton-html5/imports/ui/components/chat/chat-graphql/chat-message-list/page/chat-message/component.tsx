@@ -22,6 +22,7 @@ import {
   ChatHeading,
   EditLabel,
   ChatContentFooter,
+  ChatTime,
 } from './styles';
 import { ChatMessageType } from '/imports/ui/core/enums/chat';
 import MessageReadConfirmation from './message-read-confirmation/component';
@@ -31,7 +32,6 @@ import ChatMessageReplied from './message-replied/component';
 import Icon from '/imports/ui/components/common/icon/component';
 import { colorBlueLighterChannel } from '/imports/ui/stylesheets/styled-components/palette';
 import ChatMessageNotificationContent from './message-content/notification-content/component';
-import { ChatTime } from './message-header/styles';
 import { getValueByPointer } from '/imports/utils/object-utils';
 
 interface ChatMessageProps {
@@ -445,28 +445,6 @@ const ChatMessage = React.forwardRef<ChatMessageRef, ChatMessageProps>(({
         isPresentationUpload={messageContent.isPresentationUpload}
         isCustomPluginMessage={isCustomPluginMessage}
       >
-        <ChatMessageToolbar
-          keyboardFocused={keyboardFocused}
-          hasToolbar={hasToolbar && messageContent.showToolbar}
-          locked={locked}
-          deleted={!!deleteTime}
-          messageId={message.messageId}
-          chatId={message.chatId}
-          username={message.user?.name}
-          own={message.user?.userId === currentUserId}
-          amIModerator={currentUserIsModerator}
-          isBreakoutRoom={isBreakoutRoom}
-          message={message.message}
-          messageSequence={message.messageSequence}
-          emphasizedMessage={message.chatEmphasizedText}
-          onEmojiSelected={onEmojiSelected}
-          onReactionPopoverOpenChange={setIsToolbarReactionPopoverOpen}
-          reactionPopoverIsOpen={isToolbarReactionPopoverOpen}
-          chatDeleteEnabled={chatDeleteEnabled}
-          chatEditEnabled={chatEditEnabled}
-          chatReactionsEnabled={chatReactionsEnabled}
-          chatReplyEnabled={chatReplyEnabled}
-        />
         {(shouldRenderAvatar || shouldRenderHeader) && (
         <ChatHeading>
           {shouldRenderAvatar && (
@@ -507,6 +485,28 @@ const ChatMessage = React.forwardRef<ChatMessageRef, ChatMessageProps>(({
           $keyboardFocused={keyboardFocused}
           $reactionPopoverIsOpen={isToolbarReactionPopoverOpen}
         >
+          <ChatMessageToolbar
+            keyboardFocused={keyboardFocused}
+            hasToolbar={hasToolbar && messageContent.showToolbar}
+            locked={locked}
+            deleted={!!deleteTime}
+            messageId={message.messageId}
+            chatId={message.chatId}
+            username={message.user?.name}
+            own={message.user?.userId === currentUserId}
+            amIModerator={currentUserIsModerator}
+            isBreakoutRoom={isBreakoutRoom}
+            message={message.message}
+            messageSequence={message.messageSequence}
+            emphasizedMessage={message.chatEmphasizedText}
+            onEmojiSelected={onEmojiSelected}
+            onReactionPopoverOpenChange={setIsToolbarReactionPopoverOpen}
+            reactionPopoverIsOpen={isToolbarReactionPopoverOpen}
+            chatDeleteEnabled={chatDeleteEnabled}
+            chatEditEnabled={chatEditEnabled}
+            chatReactionsEnabled={chatReactionsEnabled}
+            chatReplyEnabled={chatReplyEnabled}
+          />
           {message.replyToMessage && !deleteTime && (
           <ChatMessageReplied
             message={message.replyToMessage.message || ''}

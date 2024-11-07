@@ -225,6 +225,7 @@ const AudioCaptionsButton: React.FC<AudioCaptionsButtonProps> = ({
 
   const startStopCaptionsButton = (
     <Styled.ClosedCaptionToggleButton
+      active={active}
       icon={active ? 'closed_caption' : 'closed_caption_stop'}
       label={intl.formatMessage(active ? intlMessages.stop : intlMessages.start)}
       color={active ? 'primary' : 'default'}
@@ -238,7 +239,7 @@ const AudioCaptionsButton: React.FC<AudioCaptionsButtonProps> = ({
   return (
     shouldRenderChevron || shouldRenderSelector
       ? (
-        <Styled.SpanButtonWrapper>
+        <Styled.SpanButtonWrapper active={active}>
           <BBBMenu
             trigger={(
               <>

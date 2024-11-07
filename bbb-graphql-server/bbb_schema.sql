@@ -20,20 +20,20 @@ $$ LANGUAGE plpgsql IMMUTABLE;
 
 create table "meeting" (
 	"meetingId"	varchar(100) primary key,
-	"extId" 	varchar(100),
-	"name" varchar(100),
+	"extId" 	text,
+	"name" text,
 	"isBreakout" boolean,
 	"disabledFeatures" varchar[],
 	"meetingCameraCap" integer,
 	"maxPinnedCameras" integer,
 	"notifyRecordingIsOn" boolean,
 	"presentationUploadExternalDescription" text,
-	"presentationUploadExternalUrl" varchar(500),
+	"presentationUploadExternalUrl" text,
 	"learningDashboardAccessToken" varchar(100),
-	"loginUrl" varchar(500),
-	"logoutUrl" varchar(500),
-	"customLogoUrl" varchar(500),
-    "customDarkLogoUrl" varchar(500),
+	"loginUrl" text,
+	"logoutUrl" text,
+	"customLogoUrl" text,
+    "customDarkLogoUrl" text,
 	"bannerText" text,
 	"bannerColor" varchar(50),
 	"createdTime" bigint,
@@ -1226,6 +1226,7 @@ CREATE TABLE "pres_presentation" (
 	"filenameConverted" varchar(500),
 	"isDefault" boolean,
 	"current" boolean,
+	"preloadNextPages" integer,
 	"removable" boolean,
 	"downloadable" boolean,
 	"downloadFileExtension" varchar(25),
@@ -1243,6 +1244,20 @@ CREATE TABLE "pres_presentation" (
 CREATE INDEX "idx_pres_presentation_meetingId" ON "pres_presentation"("meetingId");
 CREATE INDEX "idx_pres_presentation_meetingId_curr" ON "pres_presentation"("meetingId") where "current" is true;
 CREATE INDEX "idx_pres_presentation_meetingId_uploadUserId" ON "pres_presentation"("meetingId","uploadUserId");
+
+--Populate preloadNextPages, which will be used to provide the SVG of next slides at pres_page_curr
+CREATE OR REPLACE FUNCTION "update_preloadNextPages"() RETURNS TRIGGER AS $$
+BEGIN
+    SELECT coalesce(("clientSettingsJson"->'public'->'app'->'preloadNextSlides')::int,0) INTO NEW."preloadNextPages"
+    from "meeting_clientSettings" mcs
+    where mcs."meetingId" = NEW."meetingId";
+    RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+
+CREATE TRIGGER "trigger_update_preloadNextPages" BEFORE INSERT ON "pres_presentation"
+FOR EACH ROW EXECUTE FUNCTION "update_preloadNextPages"();
+
 
 CREATE TABLE "pres_page" (
 	"pageId" varchar(100) PRIMARY KEY,
@@ -1355,7 +1370,14 @@ SELECT pres_presentation."meetingId",
     (pres_page."height" * LEAST(pres_page."maxImageWidth" / pres_page."width", pres_page."maxImageHeight" / pres_page."height")) AS "scaledHeight",
     (pres_page."width" * pres_page."widthRatio" / 100 * LEAST(pres_page."maxImageWidth" / pres_page."width", pres_page."maxImageHeight" / pres_page."height")) AS "scaledViewBoxWidth",
     (pres_page."height" * pres_page."heightRatio" / 100 * LEAST(pres_page."maxImageWidth" / pres_page."width", pres_page."maxImageHeight" / pres_page."height")) AS "scaledViewBoxHeight",
-    pres_page."infiniteWhiteboard"
+    pres_page."infiniteWhiteboard",
+    (
+        select array_agg("nextPages"."urlsJson"->>'svg')
+        from pres_page "nextPages"
+        where "nextPages"."presentationId" = pres_page."presentationId"
+        and "nextPages".num > pres_page."num"
+        and "nextPages".num <= pres_page."num" + pres_presentation."preloadNextPages"
+    ) "nextPagesSvg"
 FROM pres_presentation
 JOIN pres_page ON pres_presentation."presentationId" = pres_page."presentationId" AND pres_page."current" IS TRUE
 and pres_presentation."current" IS TRUE;
