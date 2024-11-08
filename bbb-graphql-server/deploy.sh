@@ -25,28 +25,38 @@ sudo runuser -u postgres -- psql -q -c "alter database bbb_graphql set timezone 
 echo "Creating tables in bbb_graphql"
 sudo runuser -u postgres -- psql -U postgres -d bbb_graphql -q -f bbb_schema.sql --set ON_ERROR_STOP=on
 
+HASURA_DATABASE_NAME="hasura_app"
+DB_EXISTS=$(sudo runuser -u postgres -- psql -U postgres -tAc "SELECT 1 FROM pg_database WHERE datname='$HASURA_DATABASE_NAME'")
+if [ "$DB_EXISTS" = '1' ]
+then
+    echo "Database $HASURA_DATABASE_NAME already exists"
+else
+    sudo runuser -u postgres -- psql -c "create database hasura_app"
+    echo "Database $HASURA_DATABASE_NAME created"
+fi
+
 echo "Creating users"
-# Create user hasura_app@hasura_app (for hasura metadata)
-sudo runuser -u postgres -- psql -tc "SELECT 1 FROM pg_roles WHERE rolname='hasura_app'" | grep -q 1 || \
-  sudo runuser -u postgres -- psql -c "CREATE USER hasura_app WITH PASSWORD 'hasura_app'"
-sudo runuser -u postgres -- psql -c "GRANT CONNECT ON DATABASE hasura_app TO hasura_app"
-sudo runuser -u postgres -- psql -d hasura_app -c "GRANT USAGE ON SCHEMA hdb_catalog TO hasura_app"
-sudo runuser -u postgres -- psql -d hasura_app -c "GRANT ALL PRIVILEGES ON ALL TABLES IN SCHEMA hdb_catalog TO hasura_app"
-sudo runuser -u postgres -- psql -d hasura_app -c "ALTER DEFAULT PRIVILEGES IN SCHEMA hdb_catalog GRANT ALL PRIVILEGES ON TABLES TO hasura_app"
+  # Create user hasura_app@hasura_app (for hasura metadata)
+  sudo runuser -u postgres -- psql -tc "SELECT 1 FROM pg_roles WHERE rolname='hasura_app'" | grep -q 1 || \
+    sudo runuser -u postgres -- psql -c "CREATE USER hasura_app WITH PASSWORD 'hasura_app'"
+  sudo runuser -u postgres -- psql -c "ALTER DATABASE $HASURA_DATABASE_NAME OWNER TO hasura_app"
+  sudo runuser -u postgres -- psql -c "GRANT ALL PRIVILEGES ON DATABASE $HASURA_DATABASE_NAME TO hasura_app"
 
-# Create user bbb_core@bbb_graphql (for akka-apps)
-sudo runuser -u postgres -- psql -tc "SELECT 1 FROM pg_roles WHERE rolname='bbb_core'" | grep -q 1 || \
-  sudo runuser -u postgres -- psql -c "CREATE USER bbb_core WITH PASSWORD 'bbb_core'"
-sudo runuser -u postgres -- psql -c "GRANT CONNECT ON DATABASE bbb_graphql TO bbb_core"
-sudo runuser -u postgres -- psql -d bbb_graphql -c "GRANT SELECT, INSERT, UPDATE, DELETE ON ALL TABLES IN SCHEMA public TO bbb_core"
-sudo runuser -u postgres -- psql -d bbb_graphql -c "ALTER DEFAULT PRIVILEGES IN SCHEMA public GRANT SELECT, INSERT, UPDATE, DELETE ON TABLES TO bbb_core"
+  # Create user bbb_core@bbb_graphql (for akka-apps)
+  sudo runuser -u postgres -- psql -tc "SELECT 1 FROM pg_roles WHERE rolname='bbb_core'" | grep -q 1 || \
+    sudo runuser -u postgres -- psql -c "CREATE USER bbb_core WITH PASSWORD 'bbb_core'"
+  sudo runuser -u postgres -- psql -c "GRANT CONNECT ON DATABASE bbb_graphql TO bbb_core"
+  sudo runuser -u postgres -- psql -d bbb_graphql -c "GRANT USAGE, SELECT ON ALL SEQUENCES IN SCHEMA public TO bbb_core"
+  sudo runuser -u postgres -- psql -d bbb_graphql -c "ALTER DEFAULT PRIVILEGES IN SCHEMA public GRANT USAGE, SELECT ON SEQUENCES TO bbb_core"
+  sudo runuser -u postgres -- psql -d bbb_graphql -c "GRANT SELECT, INSERT, UPDATE, DELETE ON ALL TABLES IN SCHEMA public TO bbb_core"
+  sudo runuser -u postgres -- psql -d bbb_graphql -c "ALTER DEFAULT PRIVILEGES IN SCHEMA public GRANT SELECT, INSERT, UPDATE, DELETE ON TABLES TO bbb_core"
 
-# Create user bbb_hasura@bbb_graphql (for Hasura ReadOnly)
-sudo runuser -u postgres -- psql -tc "SELECT 1 FROM pg_roles WHERE rolname='bbb_hasura'" | grep -q 1 || \
-  sudo runuser -u postgres -- psql -c "CREATE USER bbb_hasura WITH PASSWORD 'bbb_hasura'"
-sudo runuser -u postgres -- psql -c "GRANT CONNECT ON DATABASE bbb_graphql TO bbb_hasura"
-sudo runuser -u postgres -- psql -d bbb_graphql -c "GRANT SELECT ON ALL TABLES IN SCHEMA public TO bbb_hasura"
-sudo runuser -u postgres -- psql -d bbb_graphql -c "ALTER DEFAULT PRIVILEGES IN SCHEMA public GRANT SELECT ON TABLES TO bbb_hasura"
+  # Create user bbb_hasura@bbb_graphql (for Hasura ReadOnly)
+  sudo runuser -u postgres -- psql -tc "SELECT 1 FROM pg_roles WHERE rolname='bbb_hasura'" | grep -q 1 || \
+    sudo runuser -u postgres -- psql -c "CREATE USER bbb_hasura WITH PASSWORD 'bbb_hasura'"
+  sudo runuser -u postgres -- psql -c "GRANT CONNECT ON DATABASE bbb_graphql TO bbb_hasura"
+  sudo runuser -u postgres -- psql -d bbb_graphql -c "GRANT SELECT ON ALL TABLES IN SCHEMA public TO bbb_hasura"
+  sudo runuser -u postgres -- psql -d bbb_graphql -c "ALTER DEFAULT PRIVILEGES IN SCHEMA public GRANT SELECT ON TABLES TO bbb_hasura"
 
 
 echo "Starting Hasura"

@@ -14,21 +14,23 @@ case "$1" in
   runuser -u postgres -- psql -c "alter database bbb_graphql set timezone to 'UTC'"
   runuser -u postgres -- psql -U postgres -d bbb_graphql -q -f /usr/share/bbb-graphql-server/bbb_schema.sql --set ON_ERROR_STOP=on
 
-  DATABASE_NAME="hasura_app"
-  DB_EXISTS=$(runuser -u postgres -- psql -U postgres -tAc "SELECT 1 FROM pg_database WHERE datname='$DATABASE_NAME'")
+  HASURA_DATABASE_NAME="hasura_app"
+  DB_EXISTS=$(runuser -u postgres -- psql -U postgres -tAc "SELECT 1 FROM pg_database WHERE datname='$HASURA_DATABASE_NAME'")
   if [ "$DB_EXISTS" = '1' ]
   then
-      echo "Database $DATABASE_NAME already exists"
+      echo "Database $HASURA_DATABASE_NAME already exists"
   else
       runuser -u postgres -- psql -c "create database hasura_app"
-      echo "Database $DATABASE_NAME created"
+      echo "Database $HASURA_DATABASE_NAME created"
   fi
 
   # Create user hasura_app@hasura_app (for hasura metadata)
-  runuser -u postgres -- psql -d hasura_app -tc "SELECT 1 FROM pg_namespace WHERE nspname='hdb_catalog'" | grep -q 1 || \
-    runuser -u postgres -- psql -d hasura_app -c "CREATE SCHEMA hdb_catalog"
   runuser -u postgres -- psql -tc "SELECT 1 FROM pg_roles WHERE rolname='hasura_app'" | grep -q 1 || \
     runuser -u postgres -- psql -c "CREATE USER hasura_app WITH PASSWORD 'hasura_app'"
+  runuser -u postgres -- psql -c "ALTER DATABASE $HASURA_DATABASE_NAME OWNER TO hasura_app"
+  runuser -u postgres -- psql -c "GRANT ALL PRIVILEGES ON DATABASE $HASURA_DATABASE_NAME TO hasura_app"
+
+
   runuser -u postgres -- psql -c "GRANT CONNECT ON DATABASE hasura_app TO hasura_app"
   runuser -u postgres -- psql -d hasura_app -c "GRANT USAGE ON SCHEMA hdb_catalog TO hasura_app"
   runuser -u postgres -- psql -d hasura_app -c "GRANT ALL PRIVILEGES ON ALL TABLES IN SCHEMA hdb_catalog TO hasura_app"
