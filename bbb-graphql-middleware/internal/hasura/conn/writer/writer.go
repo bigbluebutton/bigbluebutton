@@ -305,10 +305,6 @@ func calculateQueryDepth(query string) (int, error) {
 		}
 	}
 
-	//if maxDepth > maxAllowedDepth {
-	//	return maxDepth, fmt.Errorf("query exceeds maximum depth of %d", maxAllowedDepth)
-	//}
-
 	return maxDepth, nil
 }
 
