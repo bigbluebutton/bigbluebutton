@@ -769,7 +769,7 @@
     "app.audioModal.help.noSSL": "このページは保護されていません。 マイクへのアクセスを許可するには、HTTPSでアクセスする必要があります。 サーバ管理者に連絡してください。",
     "app.audioModal.help.macNotAllowed": "Macのシステム設定でマイクへのアクセスがブロックされているようです。 ［システム環境設定］－［セキュリティとプライバシー］－［プライバシー］－［マイク］を開き、使用しているブラウザがチェックされていることを確認します。",
     "app.audioModal.audioDialTitle": "電話から参加",
-    "app.audioDial.audioDialDescription": "ダイアル",
+    "app.audioDial.audioDialDescription": "ダイヤル",
     "app.audioDial.audioDialConfrenceText": "会議PINナンバーを入力：",
     "app.audioModal.autoplayBlockedDesc": "音声を再生するため、許可してください",
     "app.audioModal.playAudio": "音声を再生する",
