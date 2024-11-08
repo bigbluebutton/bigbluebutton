@@ -14,12 +14,12 @@ import (
 	"nhooyr.io/websocket"
 	"strings"
 	"sync"
+	"time"
 )
 
 var allowedSubscriptions []string
 var deniedSubscriptions []string
 var jsonPatchDisabled = config.GetConfig().Server.JsonPatchDisabled
-var queriesRateLimiter *common.CustomRateLimiter
 
 func init() {
 	if config.GetConfig().Server.SubscriptionAllowedList != "" {
@@ -29,10 +29,6 @@ func init() {
 	if config.GetConfig().Server.SubscriptionsDeniedList != "" {
 		deniedSubscriptions = strings.Split(config.GetConfig().Server.SubscriptionsDeniedList, ",")
 	}
-
-	cfg := config.GetConfig()
-	queriesRateLimiter = common.NewCustomRateLimiter(cfg.Server.MaxConnectionsPerSecond)
-
 }
 
 // HasuraConnectionWriter
@@ -79,16 +75,14 @@ RangeLoop:
 				}
 
 				if browserMessage.Type == "subscribe" {
+					var queryId = browserMessage.ID
 
-					if err := queriesRateLimiter.Wait(hc.Context); err != nil {
-						if !errors.Is(err, context.Canceled) {
-							//http.Error(w, "Request cancelled or rate limit exceeded", http.StatusTooManyRequests)
-						}
-
+					//Rate limiter from config max_connection_queries_per_minute
+					ctxRateLimiter, _ := context.WithTimeout(hc.Context, 30*time.Second)
+					if err := hc.BrowserConn.FromBrowserToHasuraRateLimiter.Wait(ctxRateLimiter); err != nil {
+						sendErrorMessage(browserConnection, queryId, "Limit of subscriptions per minute reached already")
 						continue
 					}
-
-					var queryId = browserMessage.ID
 
 					//Identify type based on query string
 					messageType := common.Query
