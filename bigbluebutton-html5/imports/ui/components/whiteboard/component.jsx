@@ -1049,8 +1049,13 @@ const Whiteboard = React.memo((props) => {
           -slideShape.y +
           (viewportHeight - slideShape.props.h * camera.z) / (2 * camera.z);
 
-        const panningOffsetX = camera.x - centeredCameraX;
-        const panningOffsetY = camera.y - centeredCameraY;
+        let panningOffsetX = 0;
+        let panningOffsetY = 0;
+
+        if (zoomValue !== 100) {
+          panningOffsetX = camera.x - centeredCameraX;
+          panningOffsetY = camera.y - centeredCameraY;
+        }
 
         const newCenteredCameraX =
           -slideShape.x +
@@ -1628,7 +1633,7 @@ const Whiteboard = React.memo((props) => {
     >
       <Tldraw
         autoFocus={false}
-        key={`tldrawv2-${presentationId}-${animations}-${isInfiniteWhiteboard}`}
+        key={`tldrawv2-${presentationId}-${animations}`}
         forceMobile
         hideUi={!(hasWBAccessRef.current || isPresenter)}
         onMount={handleTldrawMount}
