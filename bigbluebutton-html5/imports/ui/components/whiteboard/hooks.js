@@ -35,6 +35,7 @@ const useMouseEvents = ({
   setIsMouseDown,
   setIsWheelZoom,
   setWheelZoomTimeout,
+  isInfiniteWhiteboard,
 }) => {
   const timeoutIdRef = React.useRef();
 
@@ -111,7 +112,7 @@ const useMouseEvents = ({
     setIsWheelZoom(true);
 
     const MAX_ZOOM_FACTOR = 4; // Represents 400%
-    const MIN_ZOOM_FACTOR = 1; // Represents 100%
+    const MIN_ZOOM_FACTOR = isInfiniteWhiteboard ? .25 : 1;
     const ZOOM_IN_FACTOR = 0.25;
     const ZOOM_OUT_FACTOR = 0.25;
 
