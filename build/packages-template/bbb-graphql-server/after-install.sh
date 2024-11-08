@@ -30,12 +30,6 @@ case "$1" in
   runuser -u postgres -- psql -c "ALTER DATABASE $HASURA_DATABASE_NAME OWNER TO hasura_app"
   runuser -u postgres -- psql -c "GRANT ALL PRIVILEGES ON DATABASE $HASURA_DATABASE_NAME TO hasura_app"
 
-
-  runuser -u postgres -- psql -c "GRANT CONNECT ON DATABASE hasura_app TO hasura_app"
-  runuser -u postgres -- psql -d hasura_app -c "GRANT USAGE ON SCHEMA hdb_catalog TO hasura_app"
-  runuser -u postgres -- psql -d hasura_app -c "GRANT ALL PRIVILEGES ON ALL TABLES IN SCHEMA hdb_catalog TO hasura_app"
-  runuser -u postgres -- psql -d hasura_app -c "ALTER DEFAULT PRIVILEGES IN SCHEMA hdb_catalog GRANT ALL PRIVILEGES ON TABLES TO hasura_app"
-
   # Create user bbb_core@bbb_graphql (for akka-apps)
   runuser -u postgres -- psql -tc "SELECT 1 FROM pg_roles WHERE rolname='bbb_core'" | grep -q 1 || \
     runuser -u postgres -- psql -c "CREATE USER bbb_core WITH PASSWORD 'bbb_core'"
