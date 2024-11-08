@@ -44,7 +44,7 @@ func main() {
 	go websrv.InvalidateIdleBrowserConnectionsRoutine()
 
 	// Websocket listener
-
+	
 	rateLimiter := common.NewCustomRateLimiter(cfg.Server.MaxConnectionsPerSecond)
 	http.HandleFunc("/graphql", func(w http.ResponseWriter, r *http.Request) {
 		ctx, cancel := context.WithTimeout(r.Context(), 120*time.Second)
