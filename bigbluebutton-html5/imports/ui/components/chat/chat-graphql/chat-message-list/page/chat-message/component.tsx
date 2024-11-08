@@ -435,6 +435,18 @@ const ChatMessage = React.forwardRef<ChatMessageRef, ChatMessageProps>(({
     setIsToolbarReactionPopoverOpen(false);
   }, [message.chatId, message.messageId, sendReaction]);
 
+  let avatarDisplay;
+
+  if (!messageContent.avatarIcon) {
+    if (!message.user || message.user?.avatar.length === 0) {
+      avatarDisplay = message.senderName.toLowerCase().slice(0, 2);
+    } else {
+      avatarDisplay = '';
+    }
+  } else {
+    avatarDisplay = <i className={messageContent.avatarIcon} />;
+  }
+
   return (
     <Container
       ref={containerRef}
@@ -451,31 +463,27 @@ const ChatMessage = React.forwardRef<ChatMessageRef, ChatMessageProps>(({
         isCustomPluginMessage={isCustomPluginMessage}
       >
         {(shouldRenderAvatar || shouldRenderHeader) && (
-        <ChatHeading>
-          {shouldRenderAvatar && (
-            <ChatAvatar
-              avatar={message.user?.avatar}
-              color={messageContent.color}
-              moderator={messageContent.isModerator}
-            >
-              {!messageContent.avatarIcon ? (
-                !message.user || (message.user?.avatar.length === 0 ? messageContent.name.toLowerCase().slice(0, 2) : '')
-              ) : (
-                <i className={messageContent.avatarIcon} />
-              )}
-            </ChatAvatar>
-          )}
-          {shouldRenderHeader && (
-            <ChatMessageHeader
-              sameSender={message?.user ? sameSender : false}
-              name={messageContent.name}
-              currentlyInMeeting={message.user?.currentlyInMeeting ?? true}
-              dateTime={dateTime}
-              deleteTime={deleteTime}
-              editTime={editTime}
-            />
-          )}
-        </ChatHeading>
+          <ChatHeading>
+            {shouldRenderAvatar && (
+              <ChatAvatar
+                avatar={message.user?.avatar || ''}
+                color={messageContent.color}
+                moderator={messageContent.isModerator}
+              >
+                {avatarDisplay}
+              </ChatAvatar>
+            )}
+            {shouldRenderHeader && (
+              <ChatMessageHeader
+                sameSender={message?.user ? sameSender : false}
+                name={messageContent.name}
+                currentlyInMeeting={message.user?.currentlyInMeeting ?? true}
+                dateTime={dateTime}
+                deleteTime={deleteTime}
+                editTime={editTime}
+              />
+            )}
+          </ChatHeading>
         )}
         <ChatContent
           className="chat-message-content"
