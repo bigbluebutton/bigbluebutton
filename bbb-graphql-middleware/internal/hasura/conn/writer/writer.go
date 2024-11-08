@@ -80,7 +80,12 @@ RangeLoop:
 					//Rate limiter from config max_connection_queries_per_minute
 					ctxRateLimiter, _ := context.WithTimeout(hc.Context, 30*time.Second)
 					if err := hc.BrowserConn.FromBrowserToHasuraRateLimiter.Wait(ctxRateLimiter); err != nil {
-						sendErrorMessage(browserConnection, queryId, "Limit of subscriptions per minute reached already")
+						sendErrorMessage(
+							browserConnection,
+							queryId,
+							fmt.Sprintf("Rate limit exceeded: Maximum %d queries per minute allowed. Please try again later.", config.GetConfig().Server.MaxConnectionQueriesPerMinute),
+						)
+
 						continue
 					}
 
@@ -122,8 +127,13 @@ RangeLoop:
 								totalOfActiveSubscriptions := len(browserConnection.ActiveSubscriptions)
 								browserConnection.ActiveSubscriptionsMutex.RUnlock()
 
-								if totalOfActiveSubscriptions > config.GetConfig().Server.MaxConnectionConcurrentSubscriptions {
-									sendErrorMessage(browserConnection, queryId, "Limit of concurrent subscriptions reached already")
+								if totalOfActiveSubscriptions >= config.GetConfig().Server.MaxConnectionConcurrentSubscriptions {
+									sendErrorMessage(
+										browserConnection,
+										queryId,
+										fmt.Sprintf("Limit exceeded: Maximum %d concurrent subscriptions allowed.", config.GetConfig().Server.MaxConnectionConcurrentSubscriptions),
+									)
+
 									continue
 								}
 							}

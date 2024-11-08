@@ -64,7 +64,12 @@ RangeLoop:
 					//Rate limiter from config max_connection_mutations_per_minute
 					ctxRateLimiter, _ := context.WithTimeout(browserConnection.Context, 30*time.Second)
 					if err := browserConnection.FromBrowserToHasuraRateLimiter.Wait(ctxRateLimiter); err != nil {
-						sendErrorMessage(browserConnection, browserMessage.ID, "Limit of mutations per minute reached already")
+						sendErrorMessage(
+							browserConnection,
+							browserMessage.ID,
+							fmt.Sprintf("Rate limit exceeded: Maximum %d mutations per minute allowed. Please try again later.", config.GetConfig().Server.MaxConnectionMutationsPerMinute),
+						)
+
 						continue
 					}
 
