@@ -255,26 +255,88 @@ jobs:
         run: |
           sudo sh -c '
           apt --purge -y remove apache2-bin
+          apt-mark hold firefox #hold ff once bbb-install frequently stuck at `Installing the firefox snap`
           '
       - name: Install BBB
-        uses: nick-fields/retry@v3
         env:
           NODE_EXTRA_CA_CERTS: /usr/local/share/ca-certificates/bbb-dev/bbb-dev-ca.crt
           ACTIONS_RUNNER_DEBUG: true
-        with:
-          timeout_minutes: 25
-          max_attempts: 2
-          retry_on: any
-          command: |
-            sudo -i <<EOF
-            set -e
-            cd /root/ && wget -nv https://raw.githubusercontent.com/bigbluebutton/bbb-install/v3.0.x-release--no-mongo/bbb-install.sh -O bbb-install.sh
-            cat bbb-install.sh | sed "s|> /etc/apt/sources.list.d/bigbluebutton.list||g" | bash -s -- -v jammy-30-dev -s bbb-ci.test -j -d /certs/
-            bbb-conf --salt bbbci
-            sed -i "s/\"minify\": true,/\"minify\": false,/" /usr/share/etherpad-lite/settings.json
-            sudo yq e -i '.log_level = "TRACE"' /usr/share/bbb-graphql-middleware/config.yml
-            bbb-conf --restart
-            EOF
+        run: |
+          sudo -i <<'EOF'
+          set -e
+          cd /root/
+          wget -nv https://raw.githubusercontent.com/bigbluebutton/bbb-install/v3.0.x-release--no-mongo/bbb-install.sh -O bbb-install.sh
+          sed -i "s|> /etc/apt/sources.list.d/bigbluebutton.list||g" bbb-install.sh
+          chmod +x bbb-install.sh
+
+          COMMAND="./bbb-install.sh -v jammy-30-dev -s bbb-ci.test -j -d /certs/"
+          TIMEOUT=1500  # 25 minutes
+          MAX_RETRIES=3
+          RETRY_INTERVAL=60
+          RETRY_COUNT=0
+          SUCCESS=0
+
+          while [[ $RETRY_COUNT -lt $MAX_RETRIES ]]; do
+            echo "Attempt $((RETRY_COUNT + 1)) of $MAX_RETRIES to install BBB..."
+
+            # Run the command with timeout and handle its exit code
+            # Capture both stdout and stderr
+            COMMAND_EXIT_CODE=0
+            timeout $TIMEOUT $COMMAND || COMMAND_EXIT_CODE=$?
+
+            if [[ $COMMAND_EXIT_CODE -eq 0 ]]; then
+              SUCCESS=1
+              break
+            elif [[ $COMMAND_EXIT_CODE -eq 124 ]]; then
+              echo "Installation timed out after ${TIMEOUT} seconds. Retrying..."
+            else
+              echo "Installation failed with exit code $COMMAND_EXIT_CODE"
+              echo "Retrying installation within $RETRY_INTERVAL seconds..."
+              sleep $RETRY_INTERVAL
+            fi
+
+            echo "Check if there is some process still locking:1"
+            ps aux | grep -E 'dpkg|apt'
+
+            echo "Stop any ongoing processes related to apt-get or dpkg that might be stuck"
+            # Use -q to suppress "no process found" messages
+            # Kill any apt-get or dpkg processes that might be hanging
+            killall -9 -q apt-get || true
+            killall -9 -q dpkg || true
+
+            echo "Remove the lock files that may have been left behind"
+            # Group lock file removal for better readability
+            rm -f /var/lib/dpkg/lock-frontend
+            rm -f /var/lib/dpkg/lock
+            rm -f /var/cache/apt/archives/lock
+            rm -f /var/cache/debconf/config.dat
+
+            echo "Reconfigure the package manager"
+            dpkg --configure -a
+
+            echo "Clean up any partially installed packages"
+            apt-get clean
+            apt-get autoremove
+
+            echo "Check if there is some process still locking:2"
+            ps aux | grep -E 'dpkg|apt'
+
+            #remove all apt-update to make the install faster
+            sed -i 's/apt-get update/#apt-get update/g' bbb-install.sh
+
+            RETRY_COUNT=$((RETRY_COUNT + 1))
+          done
+
+          if [[ $SUCCESS -eq 0 ]]; then
+            echo "All attempts to install BBB failed."
+            exit 1
+          fi
+
+          bbb-conf --salt bbbci
+          sed -i "s/\"minify\": true,/\"minify\": false,/" /usr/share/etherpad-lite/settings.json
+          sudo yq e -i '.log_level = "TRACE"' /usr/share/bbb-graphql-middleware/config.yml
+          bbb-conf --restart
+          EOF
       - name: List systemctl services
         timeout-minutes: 1
         run: |

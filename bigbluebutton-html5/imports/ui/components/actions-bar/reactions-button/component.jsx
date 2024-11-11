@@ -6,21 +6,13 @@ import { convertRemToPixels } from '/imports/utils/dom-utils';
 import data from '@emoji-mart/data';
 import { init } from 'emoji-mart';
 import { SET_REACTION_EMOJI } from '/imports/ui/core/graphql/mutations/userMutations';
-import { SET_AWAY } from '/imports/ui/components/user-list/user-list-content/user-participants/user-list-participants/user-actions/mutations';
 import { useMutation } from '@apollo/client';
-import Toggle from '/imports/ui/components/common/switch/component';
-import useToggleVoice from '/imports/ui/components/audio/audio-graphql/hooks/useToggleVoice';
-import {
-  muteAway,
-} from '/imports/ui/components/audio/audio-graphql/audio-controls/input-stream-live-selector/service';
 import Styled from './styles';
 
 const ReactionsButton = (props) => {
   const {
     intl,
     actionsBarRef,
-    away,
-    muted,
     isMobile,
     currentUserReaction,
     autoCloseReactionsBar,
@@ -31,25 +23,14 @@ const ReactionsButton = (props) => {
   // initialize emoji-mart data, need for the new version
   init({ data });
 
-  const [setAway] = useMutation(SET_AWAY);
   const [setReactionEmoji] = useMutation(SET_REACTION_EMOJI);
 
   const [showEmojiPicker, setShowEmojiPicker] = useState(false);
-
-  const voiceToggle = useToggleVoice();
 
   const intlMessages = defineMessages({
     reactionsLabel: {
       id: 'app.actionsBar.reactions.reactionsButtonLabel',
       description: 'reactions Label',
-    },
-    setAwayLabel: {
-      id: 'app.actionsBar.reactions.setAway',
-      description: 'setAway Label',
-    },
-    setActiveLabel: {
-      id: 'app.actionsBar.reactions.setActive',
-      description: 'setActive Label',
     },
   });
 
@@ -63,19 +44,6 @@ const ReactionsButton = (props) => {
   const handleReactionSelect = (reaction) => {
     setReactionEmoji({ variables: { reactionEmoji: reaction } });
   };
-
-  const handleToggleAFK = () => {
-    muteAway(muted, away, voiceToggle);
-    setAway({
-      variables: {
-        away: !away,
-      },
-    });
-  };
-
-  const ToggleAFKLabel = () => (away
-    ? intl.formatMessage(intlMessages.setActiveLabel)
-    : intl.formatMessage(intlMessages.setAwayLabel));
 
   const customStyles = {
     top: '-1rem',
@@ -94,11 +62,6 @@ const ReactionsButton = (props) => {
     padding: '4px',
   };
 
-  const awayReaction = {
-    id: 'clock7',
-    native: '⏰',
-  };
-
   let actions = [];
 
   REACTIONS.forEach(({ id, native }) => {
@@ -110,49 +73,13 @@ const ReactionsButton = (props) => {
     });
   });
 
-  actions.push({
-    label: <Styled.ToggleButtonWrapper isMobile={isMobile}>
-      {isMobile ? (
-        <div style={{ display: 'flex', flexDirection: 'column' }}>
-          {ToggleAFKLabel()}
-          <Toggle
-            icons={false}
-            checked={away}
-            onChange={handleToggleAFK}
-            ariaLabel={ToggleAFKLabel()}
-            showToggleLabel={false}
-            isMobile={isMobile}
-          />
-        </div>
-      ) : (
-        <>
-          <Toggle
-            icons={false}
-            checked={away}
-            onChange={handleToggleAFK}
-            ariaLabel={ToggleAFKLabel()}
-            showToggleLabel={false}
-          />
-          {ToggleAFKLabel()}
-        </>
-      )}
-    </Styled.ToggleButtonWrapper>,
-    key: 'none',
-    isToggle: true,
-    customStyles: { ...actionCustomStyles, width: 'auto' },
-  });
-
-  const svgIcon = !away && currentUserReaction === 'none' ? 'reactions' : null;
+  const svgIcon = currentUserReaction === 'none' ? 'reactions' : null;
   const currentUserReactionEmoji = REACTIONS.find(({ native }) => native === currentUserReaction);
 
   let customIcon = null;
 
   if (!svgIcon) {
     customIcon = <em-emoji key={currentUserReactionEmoji?.id} native={currentUserReactionEmoji?.native} emoji={{ id: currentUserReactionEmoji?.id }} {...emojiProps} />;
-  }
-
-  if (away) {
-    customIcon = <em-emoji key={awayReaction.id} native={awayReaction.native} emoji={awayReaction} {...emojiProps} />;
   }
 
   return (
@@ -206,7 +133,6 @@ const propTypes = {
   userId: PropTypes.string.isRequired,
   sidebarContentPanel: PropTypes.string.isRequired,
   layoutContextDispatch: PropTypes.func.isRequired,
-  muted: PropTypes.bool.isRequired,
 };
 
 ReactionsButton.propTypes = propTypes;

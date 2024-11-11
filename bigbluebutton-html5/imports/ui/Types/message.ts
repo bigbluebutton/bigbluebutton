@@ -28,11 +28,20 @@ export interface Message {
       name: string;
     } | null;
     messageSequence: number;
-    message: string;
+    message: string | null;
     chatEmphasizedText: boolean;
     user: {
       name: string;
       color: string;
     };
   } | null;
+  reactions: {
+    createdAt: string;
+    reactionEmoji: string;
+    reactionEmojiId: string;
+    user: {
+      name: string;
+      userId: string;
+    }
+  }[];
 }

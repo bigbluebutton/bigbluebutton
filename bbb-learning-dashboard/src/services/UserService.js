@@ -46,6 +46,14 @@ export function getActivityScore(user, allUsers, totalOfPolls) {
 
 export function getSumOfTime(eventsArr) {
   return eventsArr.reduce((prevVal, elem) => {
+    if (elem?.sessions) {
+      return prevVal + elem.sessions.reduce((prevVal2, session) => {
+        if (session.leftOn > 0) {
+          return prevVal2 + (session.leftOn - session.registeredOn);
+        }
+        return prevVal2 + (new Date().getTime() - session.registeredOn);
+      }, 0);
+    }
     if ((elem.stoppedOn || elem.leftOn) > 0) {
       return prevVal + ((elem.stoppedOn || elem.leftOn) - (elem.startedOn || elem.registeredOn));
     }
@@ -55,8 +63,8 @@ export function getSumOfTime(eventsArr) {
 
 export function getJoinTime(eventsArr) {
   return eventsArr.reduce((prevVal, elem) => {
-    if (prevVal === 0 || elem.registeredOn < prevVal) {
-      return elem.registeredOn;
+    if (prevVal === 0 || elem.sessions[0].registeredOn < prevVal) {
+      return elem.sessions[0].registeredOn;
     }
     return prevVal;
   }, 0);
@@ -64,8 +72,8 @@ export function getJoinTime(eventsArr) {
 
 export function getLeaveTime(eventsArr) {
   return eventsArr.reduce((prevVal, elem) => {
-    if (elem.leftOn > prevVal) {
-      return elem.leftOn;
+    if (elem.sessions[elem.sessions.length - 1].leftOn > prevVal) {
+      return elem.sessions[elem.sessions.length - 1].leftOn;
     }
     return prevVal;
   }, 0);
@@ -203,8 +211,8 @@ export function makeUserCSVData(users, polls, intl) {
   }
 
   for (let i = 0; i < pollValues.length; i += 1) {
-    // Add the poll question headers
-    header += `,${pollValues[i].question || `Poll ${i + 1}`}`;
+    // Add the poll question headers (remove spaces and line breaks)
+    header += `,${pollValues[i].question.replace(/\s+/g, ' ').trim() || `Poll ${i + 1}`}`;
 
     // Add the anonymous answers
     anonymousRecord += `,"${pollValues[i].anonymousAnswers.join('\r\n')}"`;

@@ -565,11 +565,11 @@ const UserActions: React.FC<UserActionsProps> = ({
   ];
 
   const actions = dropdownOptions.filter((key) => key.allowed);
-  if (!actions.length) {
+  if (!(actions.length > 1) || user.bot) {
     return (
-      <span>
+      <Styled.NoPointerEvents>
         {children}
-      </span>
+      </Styled.NoPointerEvents>
     );
   }
 
