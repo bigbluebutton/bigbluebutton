@@ -40,10 +40,11 @@ cp bbb-graphql-server.service staging/lib/systemd/system/bbb-graphql-server.serv
 
 mkdir -p hasura-cli
 cd hasura-cli
-npm install --save-dev hasura-cli@2.38.0
+npm install --save-dev hasura-cli@2.36.2
 cp node_modules/hasura-cli/hasura ../staging/usr/bin/hasura
 cd ..
 rm -rf hasura-cli
+hasura update-cli
 
 . ./opts-$DISTRO.sh
 
