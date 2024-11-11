@@ -439,7 +439,7 @@ const ChatMessage = React.forwardRef<ChatMessageRef, ChatMessageProps>(({
 
   if (!messageContent.avatarIcon) {
     if (!message.user || message.user?.avatar.length === 0) {
-      avatarDisplay = message.senderName.toLowerCase().slice(0, 2);
+      avatarDisplay = messageContent.name.toLowerCase().slice(0, 2);
     } else {
       avatarDisplay = '';
     }
