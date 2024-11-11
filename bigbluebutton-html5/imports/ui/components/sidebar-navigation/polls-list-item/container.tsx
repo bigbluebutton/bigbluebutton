@@ -1,10 +1,15 @@
 import React from 'react';
 import UserPolls from './component';
-import { layoutSelectInput, layoutDispatch } from '../../../layout/context';
+import { layoutSelectInput, layoutDispatch } from '/imports/ui/components/layout/context';
+import { Input } from '/imports/ui/components/layout/layoutTypes';
 import { useStorageKey } from '/imports/ui/services/storage/hooks';
 
-const UserPollsContainer = (props) => {
-  const sidebarContent = layoutSelectInput((i) => i.sidebarContent);
+interface PollsListItemContainerProps {
+  isPresenter: boolean;
+}
+
+const PollsListItemContainer = ({ isPresenter }: PollsListItemContainerProps) => {
+  const sidebarContent = layoutSelectInput((i: Input) => i.sidebarContent);
   const { sidebarContentPanel } = sidebarContent;
   const layoutContextDispatch = layoutDispatch();
   const pollIsOpen = useStorageKey('isPollOpen') || false;
@@ -17,10 +22,10 @@ const UserPollsContainer = (props) => {
         layoutContextDispatch,
         pollIsOpen,
         forcePollOpen,
-        ...props,
+        isPresenter,
       }}
     />
   );
 };
 
-export default UserPollsContainer;
+export default PollsListItemContainer;

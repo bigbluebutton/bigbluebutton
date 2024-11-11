@@ -12,9 +12,10 @@ import {
 import Styled from './styles';
 import usePreviousValue from '/imports/ui/hooks/usePreviousValue';
 import useRev from '/imports/ui/components/pads/pads-graphql/hooks/useRev';
-import useNotesLastRev from '../../../../notes/hooks/useNotesLastRev';
-import useHasUnreadNotes from '../../../../notes/hooks/useHasUnreadNotes';
+import useNotesLastRev from '../../notes/hooks/useNotesLastRev';
+import useHasUnreadNotes from '../../notes/hooks/useHasUnreadNotes';
 import useDeduplicatedSubscription from '/imports/ui/core/hooks/useDeduplicatedSubscription';
+import TooltipContainer from '../../common/tooltip/container';
 
 const intlMessages = defineMessages({
   title: {
@@ -129,71 +130,58 @@ const UserNotesGraphql: React.FC<UserNotesGraphqlProps> = (props) => {
     const showTitle = isPinned ? intl.formatMessage(intlMessages.sharedNotesPinned)
       : intl.formatMessage(intlMessages.sharedNotes);
     return (
-      // @ts-ignore
-      <Styled.ListItem
-        aria-label={showTitle}
-        aria-describedby="lockedNotes"
-        role="button"
-        tabIndex={0}
-        active={notesOpen}
-        data-test="sharedNotesButton"
-        onClick={() => toggleNotesPanel(sidebarContentPanel, layoutContextDispatch)}
-        // @ts-ignore
-        onKeyDown={(e) => {
-          if (e.key === 'Enter') {
-            toggleNotesPanel(sidebarContentPanel, layoutContextDispatch);
-          }
-        }}
-        as={isPinned ? 'button' : 'div'}
-        disabled={isPinned}
-        $disabled={isPinned}
+      <TooltipContainer
+        title={showTitle}
+        position="right"
       >
         {/* @ts-ignore */}
-        <Icon iconName="copy" />
-        <div aria-hidden>
-          <Styled.NotesTitle data-test="sharedNotes">
-            { showTitle }
-          </Styled.NotesTitle>
-          {disableNotes
-            ? (
-              <Styled.NotesLock>
-                {/* @ts-ignore */}
-                <span id="lockedNotes">
+        <Styled.ListItem
+          id="shared-notes-toggle-button"
+          aria-label={showTitle}
+          aria-describedby="lockedNotes"
+          role="button"
+          tabIndex={0}
+          active={notesOpen}
+          data-test="sharedNotesButton"
+          onClick={() => toggleNotesPanel(sidebarContentPanel, layoutContextDispatch)}
+          // @ts-ignore
+          onKeyDown={(e) => {
+            if (e.key === 'Enter') {
+              toggleNotesPanel(sidebarContentPanel, layoutContextDispatch);
+            }
+          }}
+          as={isPinned ? 'button' : 'div'}
+          disabled={isPinned}
+          $disabled={isPinned}
+        >
+          {/* @ts-ignore */}
+          <Icon iconName="copy" />
+          <div aria-hidden>
+            {disableNotes
+              ? (
+                <Styled.NotesLock>
+                  {/* @ts-ignore */}
                   <Icon iconName="lock" />
-                  &nbsp;
-                  {`${intl.formatMessage(intlMessages.locked)} ${intl.formatMessage(intlMessages.byModerator)}`}
-                </span>
-              </Styled.NotesLock>
-            ) : null}
-          {isPinned
-            ? (
-              <span className="sr-only">{`${intl.formatMessage(intlMessages.disabled)}`}</span>
-            ) : null}
-        </div>
-        {notification}
-      </Styled.ListItem>
+                  <span id="lockedNotes">{`${intl.formatMessage(intlMessages.locked)} ${intl.formatMessage(intlMessages.byModerator)}`}</span>
+                </Styled.NotesLock>
+              ) : null}
+            {isPinned
+              ? (
+                <span className="sr-only">{`${intl.formatMessage(intlMessages.disabled)}`}</span>
+              ) : null}
+          </div>
+          {notification}
+        </Styled.ListItem>
+      </TooltipContainer>
     );
   };
 
   if (!isEnabled) return null;
 
-  return (
-    <Styled.Messages>
-      <Styled.Container>
-        <Styled.SmallTitle data-test="notesTitle">
-          {intl.formatMessage(intlMessages.title)}
-        </Styled.SmallTitle>
-      </Styled.Container>
-      <Styled.ScrollableList>
-        <Styled.List>
-          {renderNotes()}
-        </Styled.List>
-      </Styled.ScrollableList>
-    </Styled.Messages>
-  );
+  return renderNotes();
 };
 
-const UserNotesContainerGraphql: React.FC<UserNotesContainerGraphqlProps> = (props) => {
+const UserNotesListItemContainerGraphql: React.FC<UserNotesContainerGraphqlProps> = (props) => {
   const { userLocks } = props;
   const disableNotes = userLocks.userNotes;
   const { data: pinnedPadData } = useDeduplicatedSubscription(
@@ -229,4 +217,4 @@ const UserNotesContainerGraphql: React.FC<UserNotesContainerGraphqlProps> = (pro
   );
 };
 
-export default lockContextContainer(UserNotesContainerGraphql);
+export default lockContextContainer(UserNotesListItemContainerGraphql);
