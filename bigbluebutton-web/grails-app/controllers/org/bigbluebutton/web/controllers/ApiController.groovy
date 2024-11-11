@@ -1974,8 +1974,6 @@ class ApiController {
     String newURL = logoutUrl;
     String userName = fullName != null ? validationService.encodeString(fullName) : "";
 
-    log.info(meetingID, userID, fullName);
-
     newURL = newURL.replace('%%MEETINGID%%', meetingID != null ? meetingID : "");
     newURL = newURL.replace('%%USERID%%', userID != null ? userID : "");
     newURL = newURL.replace('%%USERNAME%%', userName);
