@@ -194,17 +194,10 @@ interface SidebarContentHorizontalResizer {
 interface SidebarNavigation {
     browserWidth?: number;
     isOpen?: boolean;
-    sidebarNavPanel?: string;
     width: number;
     height: number;
     display?: boolean;
-    isResizable?: boolean;
     left?: number;
-    maxHeight?: number;
-    maxWidth?: number;
-    minHeight?: number;
-    minWidth?: number;
-    resizableEdge?: ResizableEdge;
     tabOrder?: number;
     top?: number;
     zIndex?: number;
