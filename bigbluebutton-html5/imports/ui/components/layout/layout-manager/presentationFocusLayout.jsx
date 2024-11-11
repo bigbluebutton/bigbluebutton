@@ -176,7 +176,7 @@ const PresentationFocusLayout = (props) => {
     mediaAreaBounds,
     sidebarNavWidth,
     sidebarContentWidth,
-    sidebarContentHeight
+    sidebarContentHeight,
   ) => {
     const { baseCameraDockBounds } = props;
     const sidebarSize = sidebarNavWidth + sidebarContentWidth;
@@ -208,15 +208,15 @@ const PresentationFocusLayout = (props) => {
       if (cameraDockInput.height === 0) {
         cameraDockHeight = min(
           max(windowHeight() - sidebarContentHeight, cameraDockMinHeight),
-          windowHeight() - cameraDockMinHeight
+          windowHeight() - cameraDockMinHeight,
         );
-        const bannerAreaDiff =
-          windowHeight() - sidebarContentHeight - cameraDockHeight - bannerAreaHeight();
+        const bannerAreaDiff = windowHeight()
+          - sidebarContentHeight - cameraDockHeight - bannerAreaHeight();
         cameraDockHeight += bannerAreaDiff;
       } else {
         cameraDockHeight = min(
           max(cameraDockInput.height, cameraDockMinHeight),
-          windowHeight() - cameraDockMinHeight
+          windowHeight() - cameraDockMinHeight,
         );
       }
       cameraDockBounds.top = windowHeight() - cameraDockHeight - bannerAreaHeight();
@@ -238,10 +238,10 @@ const PresentationFocusLayout = (props) => {
     const { element: fullscreenElement } = fullscreen;
 
     if (
-      fullscreenElement === 'Presentation' ||
-      fullscreenElement === 'Screenshare' ||
-      fullscreenElement === 'ExternalVideo' ||
-      fullscreenElement === 'GenericContent'
+      fullscreenElement === 'Presentation'
+      || fullscreenElement === 'Screenshare'
+      || fullscreenElement === 'ExternalVideo'
+      || fullscreenElement === 'GenericContent'
     ) {
       mediaBounds.width = windowWidth();
       mediaBounds.height = windowHeight();
@@ -283,23 +283,25 @@ const PresentationFocusLayout = (props) => {
     const sidebarNavWidth = calculatesSidebarNavWidth();
     const sidebarNavHeight = calculatesSidebarNavHeight();
     const sidebarContentWidth = calculatesSidebarContentWidth();
-    const sidebarNavBounds = calculatesSidebarNavBounds();
-    const sidebarContentBounds = calculatesSidebarContentBounds(sidebarNavWidth.width);
+    const sidebarNavBounds = calculatesSidebarNavBounds(sidebarNavHeight);
+    const sidebarContentBounds = calculatesSidebarContentBounds(
+      sidebarNavWidth.horizontalSpaceOccupied,
+    );
     const mediaAreaBounds = calculatesMediaAreaBounds(
-      sidebarNavWidth.width,
-      sidebarContentWidth.width
+      sidebarNavWidth.horizontalSpaceOccupied,
+      sidebarContentWidth.width,
     );
     const navbarBounds = calculatesNavbarBounds(mediaAreaBounds);
     const actionbarBounds = calculatesActionbarBounds(mediaAreaBounds);
-    const sidebarSize = sidebarContentWidth.width + sidebarNavWidth.width;
+    const sidebarSize = sidebarContentWidth.width + sidebarNavWidth.horizontalSpaceOccupied;
     const mediaBounds = calculatesMediaBounds(mediaAreaBounds, sidebarSize);
     const sidebarContentHeight = calculatesSidebarContentHeight();
     const cameraDockBounds = calculatesCameraDockBounds(
       mediaBounds,
       mediaAreaBounds,
-      sidebarNavWidth.width,
+      sidebarNavWidth.horizontalSpaceOccupied,
       sidebarContentWidth.width,
-      sidebarContentHeight.height
+      sidebarContentHeight.height,
     );
     const { isOpen } = presentationInput;
 

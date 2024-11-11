@@ -26,13 +26,15 @@ const DEFAULT_VALUES = {
   actionBarPadding: 11.2,
   actionBarTabOrder: 6,
 
-  sidebarNavMaxWidth: 240,
-  sidebarNavMinWidth: 70,
-  sidebarNavHeight: '100%',
+  sidebarNavWidth: 60,
+  sidebarNavWidthMobile: 48,
+  sidebarNavHeightPercentage: 0.97,
+  sidebarNavHeightPercentageMobile: 0.80,
+  sidebarNavHorizontalMargin: 24, // px
+  sidebarNavHorizontalMarginMobile: 5, // px
   sidebarNavTop: 0,
   sidebarNavLeft: 0,
   sidebarNavTabOrder: 1,
-  sidebarNavPanel: PANELS.USERLIST,
 
   sidebarContentMaxWidth: 800,
   sidebarContentMinWidth: 70,

@@ -62,6 +62,13 @@ const propTypes = {
   pluginNavBarItems: PropTypes.arrayOf(PropTypes.shape({
     id: PropTypes.string,
   })).isRequired,
+  sidebarNavigation: PropTypes.shape({
+    isOpen: PropTypes.boolean,
+  }).isRequired,
+  sidebarContent: PropTypes.shape({
+    isOpen: PropTypes.boolean,
+  }).isRequired,
+  layoutContextDispatch: PropTypes.func.isRequired,
 };
 
 const defaultProps = {
@@ -235,25 +242,11 @@ class NavBar extends Component {
           value: '',
         });
       }
-
-      layoutContextDispatch({
-        type: ACTIONS.SET_SIDEBAR_NAVIGATION_IS_OPEN,
-        value: false,
-      });
-      layoutContextDispatch({
-        type: ACTIONS.SET_SIDEBAR_NAVIGATION_PANEL,
-        value: PANELS.NONE,
-      });
-    } else {
-      layoutContextDispatch({
-        type: ACTIONS.SET_SIDEBAR_NAVIGATION_IS_OPEN,
-        value: true,
-      });
-      layoutContextDispatch({
-        type: ACTIONS.SET_SIDEBAR_NAVIGATION_PANEL,
-        value: PANELS.USERLIST,
-      });
     }
+    layoutContextDispatch({
+      type: ACTIONS.SET_SIDEBAR_NAVIGATION_IS_OPEN,
+      value: !sidebarNavigation.isOpen,
+    });
   }
 
   splitPluginItems() {

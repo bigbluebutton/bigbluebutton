@@ -387,22 +387,6 @@ const reducer = (state, action) => {
         },
       };
     }
-    case ACTIONS.SET_SIDEBAR_NAVIGATION_PANEL: {
-      const { sidebarNavigation } = state.input;
-      if (sidebarNavigation.sidebarNavPanel === action.value) {
-        return state;
-      }
-      return {
-        ...state,
-        input: {
-          ...state.input,
-          sidebarNavigation: {
-            ...sidebarNavigation,
-            sidebarNavPanel: action.value,
-          },
-        },
-      };
-    }
     case ACTIONS.SET_SIDEBAR_NAVIGATION_SIZE: {
       const { width, browserWidth } = action.value;
       const { sidebarNavigation } = state.input;
@@ -425,33 +409,22 @@ const reducer = (state, action) => {
     case ACTIONS.SET_SIDEBAR_NAVIGATION_OUTPUT: {
       const {
         display,
-        minWidth,
         width,
-        maxWidth,
-        minHeight,
         height,
-        maxHeight,
         top,
         left,
         right,
         tabOrder,
-        isResizable,
         zIndex,
       } = action.value;
       const { sidebarNavigation } = state.output;
       if (sidebarNavigation.display === display
-        && sidebarNavigation.minWidth === minWidth
-        && sidebarNavigation.maxWidth === maxWidth
         && sidebarNavigation.width === width
-        && sidebarNavigation.minHeight === minHeight
         && sidebarNavigation.height === height
-        && sidebarNavigation.maxHeight === maxHeight
-        && sidebarNavigation.top === top
         && sidebarNavigation.left === left
         && sidebarNavigation.right === right
         && sidebarNavigation.tabOrder === tabOrder
-        && sidebarNavigation.zIndex === zIndex
-        && sidebarNavigation.isResizable === isResizable) {
+        && sidebarNavigation.zIndex === zIndex) {
         return state;
       }
       return {
@@ -461,45 +434,13 @@ const reducer = (state, action) => {
           sidebarNavigation: {
             ...sidebarNavigation,
             display,
-            minWidth,
             width,
-            maxWidth,
-            minHeight,
             height,
-            maxHeight,
             top,
             left,
             right,
             tabOrder,
-            isResizable,
             zIndex,
-          },
-        },
-      };
-    }
-    case ACTIONS.SET_SIDEBAR_NAVIGATION_RESIZABLE_EDGE: {
-      const {
-        top, right, bottom, left,
-      } = action.value;
-      const { sidebarNavigation } = state.output;
-      if (sidebarNavigation.resizableEdge.top === top
-        && sidebarNavigation.resizableEdge.right === right
-        && sidebarNavigation.resizableEdge.bottom === bottom
-        && sidebarNavigation.resizableEdge.left === left) {
-        return state;
-      }
-      return {
-        ...state,
-        output: {
-          ...state.output,
-          sidebarNavigation: {
-            ...sidebarNavigation,
-            resizableEdge: {
-              top,
-              right,
-              bottom,
-              left,
-            },
           },
         },
       };
