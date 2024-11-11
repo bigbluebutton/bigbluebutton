@@ -284,7 +284,7 @@ interface Layout {
 
 interface ActionForDispatcher {
   type: string;
-  value: object;
+  value: object | boolean | string;
 }
 
 type DispatcherFunction = (action: ActionForDispatcher) => void;
