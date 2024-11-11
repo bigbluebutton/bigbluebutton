@@ -581,6 +581,8 @@ const ChatMessageFormContainer: React.FC = () => {
 
   const CHAT_CONFIG = window.meetingClientSettings.public.chat;
 
+  const disabled = !isModerator && disablePrivateChat && !isPublicChat;
+
   return (
     <ChatMessageForm
       {...{
@@ -589,7 +591,7 @@ const ChatMessageFormContainer: React.FC = () => {
         idChatOpen,
         chatId: idChatOpen,
         connected: true, // TODO: monitoring network status
-        disabled: false, // Set to false due to change of approach on locked settings(private chat)
+        disabled: disabled ?? false,
         title,
         isRTL,
         // if participant is not defined, it means that the chat is public
