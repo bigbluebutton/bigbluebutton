@@ -44,7 +44,7 @@ npm install --save-dev hasura-cli@2.36.2
 cp node_modules/hasura-cli/hasura ../staging/usr/bin/hasura
 cd ..
 rm -rf hasura-cli
-hasura update-cli
+staging/usr/bin/hasura update-cli
 
 . ./opts-$DISTRO.sh
 
