@@ -1,18 +1,12 @@
 import styled from 'styled-components';
 import { ScrollboxVertical } from '/imports/ui/stylesheets/styled-components/scrollable';
 
-export const PopupContainer = styled.div<{
-  $hasMessageToolbar: boolean;
-}>`
+export const PopupContainer = styled.div`
   position: sticky;
   top: 0;
   max-height: 80%;
-  z-index: 3;
+  z-index: 20;
   background-color: white;
-
-  ${({ $hasMessageToolbar }) => $hasMessageToolbar && `
-    top: -2rem;
-  `}
 `;
 
 export const PopupContents = styled(ScrollboxVertical)`
