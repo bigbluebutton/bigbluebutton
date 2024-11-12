@@ -913,7 +913,7 @@
     "app.modal.close": "Sulge",
     "app.modal.close.description": "Tühistab muudatused ja sulgeb akna",
     "app.modal.confirm": "Valmis",
-    "app.modal.newTab": "(avab uue vahekaardi)",
+    "app.modal.newTab": "(avab uue saki)",
     "app.modal.confirm.description": "Salvestab muudatused ja sulgeb akna",
     "app.modal.randomUser.noViewers.description": "Pole vaatajaid, kelle hulgast juhuslikult valida",
     "app.modal.randomUser.selected.description": "Sind valiti juhuslikult",
