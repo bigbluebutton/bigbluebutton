@@ -58,7 +58,7 @@ trait ModifyWhiteboardAccessPubMsgHdlr extends RightsManagementTrait {
       }
     }
 
-    val maxNumberOfActiveUsers = getConfigPropertyValueByPathAsIntOrElse(liveMeeting.clientSettings, "public.whiteboard.maxNumberOfActiveUsers", 100)
+    val maxNumberOfActiveUsers = getConfigPropertyValueByPathAsIntOrElse(liveMeeting.clientSettings, "public.whiteboard.maxNumberOfActiveUsers", 25)
 
     if (filterWhiteboardMessage(msg.body.whiteboardId, msg.header.userId, liveMeeting) && permissionFailed(PermissionCheck.GUEST_LEVEL, PermissionCheck.PRESENTER_LEVEL, liveMeeting.users2x, msg.header.userId)) {
       if (isNonEjectionGracePeriodOver(msg.body.whiteboardId, msg.header.userId, liveMeeting)) {

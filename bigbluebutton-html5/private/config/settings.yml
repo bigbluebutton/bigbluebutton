@@ -1022,7 +1022,7 @@ public:
     # limit number of annotations per slide
     maxNumberOfAnnotations: 300
     # Limit the number of users who can interact with the whiteboard
-    maxNumberOfActiveUsers: 100
+    maxNumberOfActiveUsers: 25
     annotations:
       status:
         start: DRAW_START
