@@ -1125,7 +1125,7 @@
     "app.connection-status.prev": "Eelmine leht",
     "app.notificationBar.connectionCode3001": "Toimub uuesti ühendamine (kood 3001).",
     "app.notificationBar.connectionCode3002": "Ühendust ei õnnestunud luua. Palun kontrolli oma internetiühendust (kood 3002)",
-    "app.notificationBar.connectionCode3003": "Server praegu ei vasta. Toimub uuesti ühendamine (kood 3003)",
+    "app.notificationBar.connectionCode3003": "Server ei vasta. Toimub uuesti ühendamine (kood 3003)",
     "app.notificationBar.connectionCode3004": "Ühendus on ebastabiilne. Palun kontrolli oma internetiühendust (kood 3004)",
     "app.notificationBar.connectionCode3005": "Andmete laadimine on aeglane. Toimub uuesti ühendamine (kood 3005)",
     "app.learning-dashboard.label": "Õpianalüütika andmelaud",
