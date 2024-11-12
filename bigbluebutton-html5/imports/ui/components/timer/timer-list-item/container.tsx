@@ -1,11 +1,12 @@
 import React from 'react';
-import Timer from './component';
+import TimerListItem from './component';
 import { layoutSelectInput, layoutDispatch } from '/imports/ui/components/layout/context';
 import useCurrentUser from '/imports/ui/core/hooks/useCurrentUser';
 import useTimer from '/imports/ui/core/hooks/useTImer';
+import { Input } from '/imports/ui/components/layout/layoutTypes';
 
-const TimerListItemContainer = (props) => {
-  const sidebarContent = layoutSelectInput((i) => i.sidebarContent);
+const TimerListItemContainer = () => {
+  const sidebarContent = layoutSelectInput((i: Input) => i.sidebarContent);
   const { sidebarContentPanel } = sidebarContent;
   const layoutContextDispatch = layoutDispatch();
   const { data: currentUserData } = useCurrentUser((user) => ({
@@ -16,19 +17,13 @@ const TimerListItemContainer = (props) => {
   } = useTimer();
 
   if (!timerData) return null;
-  const { stopwatch } = timerData;
-  const isModerator = currentUserData?.isModerator;
+  const isModerator = currentUserData?.isModerator || false;
 
   return (
-    <Timer {
-    ...{
-      layoutContextDispatch,
-      stopwatch,
-      sidebarContentPanel,
-      isModerator,
-      ...props,
-    }
-    }
+    <TimerListItem
+      layoutContextDispatch={layoutContextDispatch} // Spread object error fixed
+      sidebarContentPanel={sidebarContentPanel}
+      isModerator={isModerator}
     />
   );
 };
