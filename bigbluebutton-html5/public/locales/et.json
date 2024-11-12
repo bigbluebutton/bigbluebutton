@@ -947,7 +947,7 @@
     "app.error.meetingNotFound": "Koosolekut ei leitud",
     "app.error.sessionTokenReplaced": "Kasutaja on ühendunud uue sessioonitõendiga.",
     "app.error.serverInternalError": "Serverisisene viga.",
-    "app.error.paramMissing": "Esmasel ühendamisel puudub parameeter.",
+    "app.error.paramMissing": "Esmasel ühendumisel puudub parameeter.",
     "app.error.tooManyConnections": "Liiga palju ühendusi.",
     "app.error.serverClosed": "Server sulges ühenduse.",
     "app.guest.errorSeeConsole": "Viga: rohkem üksikasju konsoolil.",
