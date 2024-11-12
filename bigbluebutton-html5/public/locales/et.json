@@ -29,7 +29,7 @@
     "app.chat.breakoutDurationUpdated": "Eraldatud ruumi aeg on nüüd {0} minutit",
     "app.chat.breakoutDurationUpdatedModerator": "Eraldatud ruumi aeg on nüüd {0} minutit, teavitus saadetud.",
     "app.chat.emptyLogLabel": "Vestluse logi on tühi",
-    "app.chat.away": "On eemal",
+    "app.chat.away": "on eemal",
     "app.chat.notAway": "on taas kohal",
     "app.chat.clearPublicChatMessage": "Moderaator tühjendas avaliku vestluse ajaloo",
     "app.chat.multi.typing": "Mitu kasutajat kirjutavad",
