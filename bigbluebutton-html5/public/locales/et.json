@@ -1301,7 +1301,7 @@
     "app.videoDock.webcamDisableLabelAllCams": "Keela enesevaade (kõik kaamerad)",
     "app.videoDock.webcamEnableLabel": "Luba enesevaade",
     "app.videoDock.webcamDisableDesc": "Enesevaade keelatud",
-    "app.videoDock.webcamDisableWarning": "Sinu veebikaamera on endiselt teistele nähtav! Vaade on välja lülitatud ainult oma arvutis.",
+    "app.videoDock.webcamDisableWarning": "Sinu veebikaamera on endiselt teistele nähtav! Vaade on välja lülitatud ainult sinu arvutis.",
     "app.videoDock.webcamPinLabel": "Kinnita",
     "app.videoDock.webcamPinDesc": "Kinnita valitud veebikaamera",
     "app.videoDock.webcamFullscreenLabel": "Veebikaamera täisekraanile",
