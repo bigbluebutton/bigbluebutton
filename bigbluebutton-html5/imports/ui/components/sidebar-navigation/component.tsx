@@ -7,12 +7,10 @@ import ChatListItemContainer from './chat-list-item/container';
 import UserNotesListItemContainer from './user-notes-list-item/component';
 import UsersListItem from './users-list-item/component';
 import WidgetsListItem from './widgets-list-item/component';
-import PollsListItemContainer from './polls-list-item/container';
-import BreakoutRoomsListItemContainer from './breakout-rooms-list-item/container';
 import LearningDashboardListItem from './learning-dashboard-list-item/component';
 import SettingsListItem from './settings-list-item/component';
-import { User } from '/imports/ui/Types/user';
-import useCurrentUser from '../../core/hooks/useCurrentUser';
+import PinnedWidgets from './pinned-widgets/component';
+import { SidebarNavigation as SidebarNavigationInput } from '../layout/layoutTypes';
 import Styled from './styles';
 
 interface SidebarNavigationProps {
@@ -22,6 +20,7 @@ interface SidebarNavigationProps {
   zIndex: number,
   height: number,
   width: number,
+  sidebarNavigationInput: SidebarNavigationInput,
 }
 
 const SidebarNavigation = ({
@@ -31,17 +30,10 @@ const SidebarNavigation = ({
   zIndex,
   height,
   width,
+  sidebarNavigationInput,
 }: SidebarNavigationProps) => {
   const showBrandingArea = getFromUserSettings('bbb_display_branding_area', window.meetingClientSettings.public.app.branding.displayBrandingArea);
   const isChatEnabled = useIsChatEnabled();
-  const { data: currentUser } = useCurrentUser((u: Partial<User>) => (
-    {
-      presenter: u.presenter,
-      isModerator: u.isModerator,
-    }
-  ));
-
-  const isPresenterOrMod = currentUser?.presenter || currentUser?.isModerator;
 
   return (
     <Styled.NavigationSidebar
@@ -65,12 +57,9 @@ const SidebarNavigation = ({
 
         <Styled.Center>
           <WidgetsListItem />
-          { isPresenterOrMod && (
-            <PollsListItemContainer
-              isPresenter={Boolean(currentUser?.presenter)}
-            />
-          )}
-          { isPresenterOrMod && <BreakoutRoomsListItemContainer /> }
+          <PinnedWidgets
+            sidebarNavigationInput={sidebarNavigationInput}
+          />
         </Styled.Center>
 
         <Styled.Bottom>

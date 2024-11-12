@@ -1,7 +1,7 @@
 import React from 'react';
 import { defineMessages, injectIntl, IntlShape } from 'react-intl';
 import Icon from '/imports/ui/components/common/icon/component';
-import Styled from '../styles';
+import Styled from '/imports/ui/components/sidebar-navigation/styles';
 import { ACTIONS, PANELS } from '/imports/ui/components/layout/enums';
 import { DispatcherFunction } from '/imports/ui/components/layout/layoutTypes';
 import TooltipContainer from '/imports/ui/components/common/tooltip/container';
@@ -44,7 +44,7 @@ const BreakoutRoomsListItem = ({
   return (
     <TooltipContainer
       title={intl.formatMessage(intlMessages.breakoutTitle)}
-      position="right" // TODO: determine the position based on the RTL state
+      position="right"
     >
       <Styled.ListItem
         id="breakout-rooms-toggle-button"

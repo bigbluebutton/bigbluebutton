@@ -1,4 +1,10 @@
 import DEFAULT_VALUES from '/imports/ui/components/layout/defaultValues';
+import { POLLS_PINNED_WIDGET } from '/imports/ui/components/poll/constants';
+import PollsListItemContainer from '/imports/ui/components/poll/polls-list-item/container';
+import { BREAKOUTS_PINNED_WIDGET } from '/imports/ui/components/breakout-room/constants';
+import BreakoutRoomsListItemContainer from '/imports/ui/components/breakout-room/breakout-rooms-list-item/container';
+import { TIMER_PINNED_WIDGET } from '/imports/ui/components/timer/constants';
+import TimerListItemContainer from '/imports/ui/components/timer/timer-list-item/container';
 
 export const INITIAL_INPUT_STATE = {
   autoarrAngeLayout: true,
@@ -29,6 +35,15 @@ export const INITIAL_INPUT_STATE = {
     width: 0,
     height: 0,
     browserWidth: 0,
+    registeredWidgets: {
+      [POLLS_PINNED_WIDGET]: PollsListItemContainer,
+      [BREAKOUTS_PINNED_WIDGET]: BreakoutRoomsListItemContainer,
+      [TIMER_PINNED_WIDGET]: TimerListItemContainer,
+    },
+    pinnedWidgets: [
+      POLLS_PINNED_WIDGET,
+      BREAKOUTS_PINNED_WIDGET,
+    ],
   },
   sidebarContent: {
     isOpen: true,
