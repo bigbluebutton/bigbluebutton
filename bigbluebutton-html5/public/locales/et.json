@@ -1342,7 +1342,7 @@
     "app.createBreakoutRoom.minusRoomTime": "Vähenda eraldatud ruumi aega kuni:",
     "app.createBreakoutRoom.addRoomTime": "Suurenda eraldatud ruumi aega kuni:",
     "app.createBreakoutRoom.addParticipantLabel": "+ Lisa osaleja",
-    "app.createBreakoutRoom.freeJoin": "Luba kasutajatel ise valida eraldatud ruum, millega liituda",
+    "app.createBreakoutRoom.freeJoin": "Luba kasutajatel ise valida ruum",
     "app.createBreakoutRoom.manageRoomsLabel": "Ruumide haldamine",
     "app.createBreakoutRoom.captureNotes": "Salvesta jagatud märkmed, kui eraldatud ruumid lõpevad",
     "app.createBreakoutRoom.captureSlides": "Salvesta tahvel, kui eraldatud ruumid lõpevad",
