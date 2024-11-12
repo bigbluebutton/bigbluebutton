@@ -1345,7 +1345,7 @@
     "app.createBreakoutRoom.freeJoin": "Luba kasutajatel endil ruumid valida",
     "app.createBreakoutRoom.manageRoomsLabel": "Ruumide haldamine",
     "app.createBreakoutRoom.captureNotes": "Salvesta jagatud märkmed",
-    "app.createBreakoutRoom.captureSlides": "Salvesta tahvel, kui eraldatud ruumid lõpevad",
+    "app.createBreakoutRoom.captureSlides": "Salvesta tahvel",
     "app.createBreakoutRoom.sendInvitationToMods": "Saada kutse määratud moderaatoritele",
     "app.createBreakoutRoom.leastOneWarnBreakout": "Tuleb paigutada vähemalt üks kasutaja eraldatud ruumi.",
     "app.createBreakoutRoom.minimumDurationWarnBreakout": "Eraldatud ruumi vähim kestus on {0} minutit.",
