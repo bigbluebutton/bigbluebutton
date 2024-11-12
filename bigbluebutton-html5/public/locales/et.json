@@ -390,7 +390,7 @@
     "app.presentationUploder.uploadViewTitle": "Laadi esitlus üles",
     "app.poll.questionAndoptions.label": "Kuvatav küsimuse tekst.\nA. Vastus *\nB. Vastus (valikuline)\nC. Vastus (valikuline)\nD. Vastus (valikuline)\nE. Vastus (valikuline)",
     "app.poll.customInput.label": "Kohandatud sisend",
-    "app.poll.customInputInstructions.label": "Kohandatud sisend on lubatud – kirjuta küsimus ja vastus(-ed) antud vormingus või vali tekstifail samas vormingus.",
+    "app.poll.customInputInstructions.label": "Kohandatud sisend on lubatud – kirjuta küsimus ja vastus(-ed) antud vormingus või kopeeri ja kleebi tekstifail samas vormingus.",
     "app.poll.maxOptionsWarning.label": "Kasutada saab ainult esimest 5 vastust!",
     "app.poll.pollPaneTitle": "Küsitlus",
     "app.poll.enableMultipleResponseLabel": "Kas lubada mitut vastust vastaja kohta?",
