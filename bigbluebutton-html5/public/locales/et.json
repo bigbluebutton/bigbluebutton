@@ -268,7 +268,7 @@
     "app.meeting.endedByUserMessage": "{0} lõpetas sessiooni",
     "app.meeting.endedByNoModeratorMessageSingular": "Sessioon lõppes, sest ühe minuti jooksul ei olnud ükski moderaator kohal",
     "app.meeting.endedByNoModeratorMessagePlural": "Sessioon lõppes, sest {0} minuti jooksul ei olnud ükski moderaator kohal",
-    "app.meeting.endedMessage": "Sind suunatakse tagasi avalehele",
+    "app.meeting.endedMessage": "Klõpsa nuppu, et minna avalehele",
     "app.meeting.alertMeetingEndsUnderMinutesSingular": "Sessioon sulgub ühe minuti pärast.",
     "app.meeting.alertMeetingEndsUnderMinutesPlural": "Sessioon sulgub {0} minuti pärast.",
     "app.meeting.alertBreakoutEndsUnderMinutesPlural": "Ruum sulgub {0} minuti pärast.",
