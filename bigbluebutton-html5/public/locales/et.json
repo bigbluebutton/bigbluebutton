@@ -318,7 +318,7 @@
     "app.presentation.placeholder": "Aktiivne esitlus puudub",
     "app.presentationUploder.title": "Esitlus",
     "app.presentationUploder.message": "Esitlejana saad üles laadida ükskõik millise Office'i dokumendi või PDF-faili. Parima tulemuse saamiseks soovitame PDF-faili. Veendu, et esitlus oleks valitud vasakul asuva märkeringiga.",
-    "app.presentationUploader.exportHint": "Menüüs \"Ekspordi valikud\" saad lubada originaalesitluse allalaadimise ja anda kasutajatele avalikus vestluses allalaadimislingi koos märgetega.",
+    "app.presentationUploader.exportHint": "Menüüs \"Ekspordi valikud\" saad lubada algse esitluse allalaadimise ja anda kasutajatele avalikus vestluses allalaadimislingi koos märgetega.",
     "app.presentationUploader.exportToastHeader": "Vestlusesse saatmine ({0} element)",
     "app.presentationUploader.exportToastHeaderPlural": "Vestlusesse saatmine ({0} elementi)",
     "app.presentationUploader.exporting": "Vestlusesse saatmine",
