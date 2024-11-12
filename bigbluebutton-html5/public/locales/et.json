@@ -350,7 +350,7 @@
     "app.presentationUploder.externalUploadLabel": "Sirvi faile",
     "app.presentationUploder.fileToUpload": "Valmis üleslaadimiseks...",
     "app.presentationUploder.currentBadge": "Aktiivne",
-    "app.presentationUploder.rejectedError": "Valitud failid lükati tagasi. Palun kontrolli failitüüpi.",
+    "app.presentationUploder.rejectedError": "Valitud fail(id) lükati tagasi. Palun kontrolli failitüüpi.",
     "app.presentationUploder.connectionClosedError": "Katkestatud halva ühenduvuse tõttu. Palun proovi uuesti.",
     "app.presentationUploder.upload.progress": "Üleslaadimine ({0}%)",
     "app.presentationUploder.conversion.204": "Pole sisu, mida jäädvustada",
