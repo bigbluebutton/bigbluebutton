@@ -465,7 +465,7 @@
     "app.failedMessage": "Vabandust! Serveriga ühenduse loomisel esineb probleeme.",
     "app.serverIsNotResponding": "Server ei vasta. Palun oota.",
     "app.serverIsSlow": "Andmete laadimine on aeglane. Palun oota.",
-    "app.downloadPresentationButton.label": "Laadi alla esitlus",
+    "app.downloadPresentationButton.label": "Laadi esitlus alla",
     "app.connectingMessage": "Ühendumine...",
     "app.waitingMessage": "Ühendus katkes. Proovin uuesti ühendust luua {0} sekundi pärast ...",
     "app.reconnectingMessage": "Ühendus kadus. Palun kontrolli oma internetiühendust.",
