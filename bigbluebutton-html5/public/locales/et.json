@@ -777,7 +777,7 @@
     "app.audioDial.tipIndicator": "Soovitus",
     "app.audioDial.tipMessage": "Vajuta oma telefonil klahvi '0', et end vaigistada või vaigistus eemaldada.",
     "app.audioModal.connecting": "Audioühenduse loomine",
-    "app.audioModal.retrying": "See võtab veidi kauem aega. Palun oodake üks hetk.",
+    "app.audioModal.retrying": "See võtab veidi kauem aega. Palun oota üks hetk.",
     "app.audioManager.joinedAudio": "Oled audiosessiooniga liitunud",
     "app.audioManager.joinedEcho": "Oled helitestiga liitunud",
     "app.audioManager.leftAudio": "Oled audiosessioonist lahkunud",
