@@ -13,6 +13,7 @@ import { useIsPresentationEnabled } from '/imports/ui/services/features';
 import useDeduplicatedSubscription from '../../core/hooks/useDeduplicatedSubscription';
 import { usePrevious } from '../whiteboard/utils';
 import Session from '/imports/ui/services/storage/in-memory';
+import logger from '/imports/startup/client/logger';
 
 // variable to debug in console log
 const debug = false;
@@ -402,6 +403,60 @@ const reducer = (state, action) => {
             ...sidebarNavigation,
             width,
             browserWidth,
+          },
+        },
+      };
+    }
+    case ACTIONS.REGISTER_SIDEBAR_NAVIGATION_WIDGET: {
+      const { widgetName, widgetPinnedButtonComponent } = action.value;
+      const { sidebarNavigation } = state.input;
+      const { registeredWidgets } = sidebarNavigation;
+      if (widgetName in registeredWidgets) {
+        logger.warn({
+          logCode: 'overriding_registered_widget',
+          extraInfo: {
+            widgetName,
+          },
+        }, `Layout Context: Attempting to register widget "${widgetName}" that already exists. Overriding the previous instance.`);
+      }
+      return {
+        ...state,
+        input: {
+          ...state.input,
+          sidebarNavigation: {
+            ...sidebarNavigation,
+            registeredWidgets: {
+              ...registeredWidgets,
+              [widgetName]: widgetPinnedButtonComponent,
+            },
+          },
+        },
+      };
+    }
+    case ACTIONS.SET_SIDEBAR_NAVIGATION_PIN_WIDGET: {
+      const { widgetName, pin } = action.value;
+      const { sidebarNavigation } = state.input;
+      const { pinnedWidgets, registeredWidgets } = sidebarNavigation;
+
+      const isWidgetRegistered = widgetName in registeredWidgets;
+      const isWidgetPinned = pinnedWidgets.includes(widgetName);
+
+      if (!isWidgetRegistered) return state;
+      if ((pin && isWidgetPinned) || (!pin && !isWidgetPinned)) {
+        return state;
+      }
+
+      const updatedPinnedWidgets = pin
+        ? [...pinnedWidgets, widgetName]
+        : pinnedWidgets.filter((pinnedWidget) => pinnedWidget !== widgetName);
+
+      return {
+        ...state,
+        input: {
+          ...state.input,
+          sidebarNavigation: {
+            ...sidebarNavigation,
+            pinnedWidgets: updatedPinnedWidgets,
           },
         },
       };

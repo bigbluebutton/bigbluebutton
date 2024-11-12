@@ -1,10 +1,11 @@
 import React from 'react';
-import { layoutSelectOutput } from '../layout/context';
+import { layoutSelectInput, layoutSelectOutput } from '../layout/context';
 import SidebarNavigation from './component';
-import { Input } from '../layout/layoutTypes';
+import { Input, Output } from '../layout/layoutTypes';
 
 const SidebarNavigationContainer = () => {
-  const sidebarNavigation = layoutSelectOutput((i: Input) => i.sidebarNavigation);
+  const sidebarNavigationInput = layoutSelectInput((i: Input) => i.sidebarNavigation);
+  const sidebarNavigation = layoutSelectOutput((i: Output) => i.sidebarNavigation);
   const {
     top,
     left,
@@ -24,6 +25,7 @@ const SidebarNavigationContainer = () => {
       zIndex={zIndex}
       width={width}
       height={height}
+      sidebarNavigationInput={sidebarNavigationInput}
     />
   );
 };
