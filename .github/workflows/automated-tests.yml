@@ -69,7 +69,7 @@ jobs:
           - package: bbb-freeswitch
             build-list: bbb-freeswitch-core bbb-freeswitch-sounds
             cache-files-list: freeswitch.placeholder.sh
-            cache-urls-list: http://bigbluebutton.org/downloads/sounds.tar.gz
+            cache-urls-list: https://ubuntu.bigbluebutton.org/sounds.tar.gz
           - package: bbb-webrtc
             build-list: bbb-webrtc-sfu bbb-webrtc-recorder
             cache-files-list: bbb-webrtc-sfu.placeholder.sh bbb-webrtc-recorder.placeholder.sh
@@ -256,6 +256,15 @@ jobs:
           sudo sh -c '
           apt --purge -y remove apache2-bin
           apt-mark hold firefox #hold ff once bbb-install frequently stuck at `Installing the firefox snap`
+
+          #bbb-webrtc-sfu: removes the special scheduling policies
+          mkdir -p /etc/systemd/system/bbb-webrtc-sfu.service.d/
+          tee /etc/systemd/system/bbb-webrtc-sfu.service.d/override.conf > /dev/null <<EOL
+          [Service]
+          CPUSchedulingPolicy=other
+          Nice=19
+          EOL
+          systemctl daemon-reload
           '
       - name: Install BBB
         env:
@@ -265,7 +274,7 @@ jobs:
           sudo -i <<'EOF'
           set -e
           cd /root/
-          wget -nv https://raw.githubusercontent.com/bigbluebutton/bbb-install/v3.0.x-release--no-mongo/bbb-install.sh -O bbb-install.sh
+          wget -nv https://raw.githubusercontent.com/bigbluebutton/bbb-install/v3.0.x-release/bbb-install.sh -O bbb-install.sh
           sed -i "s|> /etc/apt/sources.list.d/bigbluebutton.list||g" bbb-install.sh
           chmod +x bbb-install.sh
 
@@ -337,15 +346,15 @@ jobs:
           sudo yq e -i '.log_level = "TRACE"' /usr/share/bbb-graphql-middleware/config.yml
           cat > /etc/bigbluebutton/bbb-conf/apply-config.sh << HERE
           #!/bin/bash
-          
+
           # Pull in the helper functions for configuring BigBlueButton
           source /etc/bigbluebutton/bbb-conf/apply-lib.sh
-          
+
           # Available configuration options
-          
+
           enableHTML5ClientLog
           #enableUFWRules
-          
+
           HERE
           chmod +x /etc/bigbluebutton/bbb-conf/apply-config.sh
           bbb-conf --restart
@@ -358,6 +367,7 @@ jobs:
           EOF
       - name: Install test dependencies
         working-directory: ./bigbluebutton-tests/playwright
+        timeout-minutes: 25
         run: |
           sh -c '
           npm ci

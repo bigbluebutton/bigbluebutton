@@ -9,13 +9,13 @@ PartOf=bigbluebutton.target
 Type=simple
 User=bigbluebutton
 Group=bigbluebutton
-WorkingDirectory=/usr/local/bin
+WorkingDirectory=/usr/bin
 EnvironmentFile=/etc/default/bbb-graphql-server
 # Optional file (the service should not fail if the file does not exist)
 EnvironmentFile=-/etc/bigbluebutton/bbb-graphql-server.env
 # Load Hasura password
 EnvironmentFile=/etc/default/bbb-graphql-server-admin-pass
-ExecStart=/usr/local/bin/hasura-graphql-engine serve
+ExecStart=/usr/bin/hasura-graphql-engine serve
 ExecReload=/bin/kill -HUP $MAINPID
 Restart=always
 RestartSec=60

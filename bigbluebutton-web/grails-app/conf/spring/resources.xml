@@ -57,6 +57,8 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
         <property name="callbackUrlService" ref="callbackUrlService"/>
         <property name="usersTimeout" value="${usersTimeout}"/>
         <property name="enteredUsersTimeout" value="${enteredUsersTimeout}"/>
+        <property name="numPluginManifestsFetchingThreads" value="${numPluginManifestsFetchingThreads}"/>
+        <property name="pluginManifestFetchTimeout" value="${pluginManifestFetchTimeout}"/>
         <property name="slidesGenerationProgressNotifier" ref="slidesGenerationProgressNotifier"/>
     </bean>
 

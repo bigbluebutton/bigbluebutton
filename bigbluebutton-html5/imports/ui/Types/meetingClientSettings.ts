@@ -616,6 +616,7 @@ export interface Audio2 {
   defaultListenOnlyBridge: string
   bridges: Bridge[]
   retryThroughRelay: boolean
+  allowAudioJoinCancel: boolean
 }
 
 export interface Screenshare2 {

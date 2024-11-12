@@ -307,6 +307,7 @@ const ChatMessageForm: React.FC<ChatMessageFormProps> = ({
             messageBeforeEditingRef.current = messageRef.current;
           }
           setMessage(e.detail.message);
+          textAreaRef.current?.textarea.focus();
           editingMessage.current = e.detail;
         }
       }
