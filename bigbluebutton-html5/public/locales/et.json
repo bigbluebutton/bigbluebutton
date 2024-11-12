@@ -1349,7 +1349,7 @@
     "app.createBreakoutRoom.sendInvitationToMods": "Saada kutse määratud moderaatoritele",
     "app.createBreakoutRoom.leastOneWarnBreakout": "Eraldatud ruumi tuleb paigutada vähemalt üks kasutaja",
     "app.createBreakoutRoom.minimumDurationWarnBreakout": "Eraldatud ruumi vähim kestus on {0} minutit.",
-    "app.createBreakoutRoom.modalDesc": "Vihje: kasutajate nimesid saab hiirega lohistada soovitud eraldatud ruumidesse.",
+    "app.createBreakoutRoom.modalDesc": "Sessiooni eraldatud ruumide loomiseks täida alljärgnevad sammud. Osalejate lisamiseks ruumi lohista lihtsalt nende nimed soovitud ruumi.",
     "app.createBreakoutRoom.roomTime": "{0} minutit",
     "app.createBreakoutRoom.numberOfRoomsError": "Ruumide arv ei sobi.",
     "app.createBreakoutRoom.duplicatedRoomNameError": "Ruumi nimi ei või korduda.",
