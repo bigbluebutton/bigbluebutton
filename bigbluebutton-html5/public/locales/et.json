@@ -967,7 +967,7 @@
     "app.guest.guestInvalid": "Külaline on sobimatu",
     "app.guest.meetingForciblyEnded": "Ei saa liituda sessiooniga, mis on lõpetatud",
     "app.guest.calculating": "Koha arvutamine ootejärjekorras",
-    "app.userList.guest.waitingUsers": "Ootel kasutajad",
+    "app.userList.guest.waitingUsers": "Ootavad kasutajad",
     "app.userList.guest.waitingUsersTitle": "Kasutajate haldamine",
     "app.userList.guest.optionTitle": "Vaata ootel olevaid kasutajaid",
     "app.userList.guest.allowAllAuthenticated": "Luba kõik autenditud",
