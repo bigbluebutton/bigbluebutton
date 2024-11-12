@@ -1488,7 +1488,7 @@
     "app.learningDashboard.userDetails.onlineIndicator": "{0} kohaloldud aeg",
     "app.learningDashboard.usersTable.title": "Ülevaade",
     "app.learningDashboard.usersTable.colOnline": "Kohaloldud aeg",
-    "app.learningDashboard.usersTable.colTalk": "Rääkimise aeg",
+    "app.learningDashboard.usersTable.colTalk": "Rääkimisaeg",
     "app.learningDashboard.usersTable.colWebcam": "Veebikaamera aeg",
     "app.learningDashboard.usersTable.colMessages": "Sõnumid",
     "app.learningDashboard.usersTable.colReactions": "Reaktsioonid",
