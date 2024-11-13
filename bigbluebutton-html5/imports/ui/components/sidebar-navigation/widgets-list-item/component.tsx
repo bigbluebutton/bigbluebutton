@@ -57,7 +57,7 @@ const WidgetsListItem = () => {
           }
         }}
       >
-        <Icon iconName="manage_layout" />
+        <Icon iconName="widgets" />
       </Styled.ListItem>
     </TooltipContainer>
   );

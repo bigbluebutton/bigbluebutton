@@ -143,7 +143,7 @@ const UserNotesGraphql: React.FC<UserNotesGraphqlProps> = (props) => {
           disabled={isPinned || disableNotes}
           $disabled={isPinned || disableNotes}
         >
-          <Icon iconName="copy" />
+          <Icon iconName="shared_notes" />
         </Styled.ListItem>
       </TooltipContainer>
 
