@@ -71,6 +71,10 @@ const ChatListItem = (props: ChatListItemProps) => {
         ? PANELS.NONE
         : CURRENT_PANEL,
     });
+    layoutContextDispatch({
+      type: ACTIONS.SET_ID_CHAT_OPEN,
+      value: PUBLIC_GROUP_CHAT_ID,
+    });
   };
 
   return (
