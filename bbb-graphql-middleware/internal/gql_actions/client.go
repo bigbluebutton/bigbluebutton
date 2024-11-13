@@ -4,6 +4,7 @@ import (
 	"bbb-graphql-middleware/config"
 	"bbb-graphql-middleware/internal/common"
 	"bytes"
+	"context"
 	"encoding/json"
 	"fmt"
 	"github.com/prometheus/client_golang/prometheus"
@@ -44,8 +45,33 @@ RangeLoop:
 				}
 
 				if browserMessage.Type == "subscribe" {
-					var errorMessage string
 					var mutationFuncName string
+
+					if config.GetConfig().Server.MaxMutationLength > 0 {
+						mutationLength := len(browserMessage.Payload.Query)
+						if mutationLength > config.GetConfig().Server.MaxMutationLength {
+							sendErrorMessage(
+								browserConnection,
+								browserMessage.ID,
+								fmt.Sprintf(
+									"Mutation %s is not valid with length %d and the max allowed is %d",
+									browserMessage.Payload.OperationName,
+									mutationLength, config.GetConfig().Server.MaxMutationLength))
+							continue
+						}
+					}
+
+					//Rate limiter from config max_connection_mutations_per_minute
+					ctxRateLimiter, _ := context.WithTimeout(browserConnection.Context, 30*time.Second)
+					if err := browserConnection.FromBrowserToHasuraRateLimiter.Wait(ctxRateLimiter); err != nil {
+						sendErrorMessage(
+							browserConnection,
+							browserMessage.ID,
+							fmt.Sprintf("Rate limit exceeded: Maximum %d mutations per minute allowed. Please try again later.", config.GetConfig().Server.MaxConnectionMutationsPerMinute),
+						)
+
+						continue
+					}
 
 					if strings.HasPrefix(browserMessage.Payload.Query, "mutation") {
 						if funcName, inputs, err := parseGraphQLMutation(browserMessage.Payload.Query, browserMessage.Payload.Variables); err == nil {
@@ -54,50 +80,35 @@ RangeLoop:
 								//Add Prometheus Metrics
 								common.GqlMutationsCounter.With(prometheus.Labels{"operationName": browserMessage.Payload.OperationName}).Inc()
 							} else {
-								errorMessage = err.Error()
-								browserConnection.Logger.Error("It was not able to send the request to Graphql Actions", err)
+								sendErrorMessage(browserConnection, browserMessage.ID, fmt.Sprintf("It was not able to send the request to Graphql Actions: %s", err.Error()))
+								continue
 							}
 						} else {
-							errorMessage = "It was not able to parse graphQL query"
-							browserConnection.Logger.Error("It was not able to parse graphQL query", err)
+							sendErrorMessage(browserConnection, browserMessage.ID, fmt.Sprintf("It was not able to parse graphQL query: %s", err.Error()))
+							continue
 						}
 					}
 
-					if errorMessage != "" {
-						//Error on sending action, return error msg to client
-						browserResponseData := map[string]interface{}{
-							"id":   browserMessage.ID,
-							"type": "error",
-							"payload": []interface{}{
-								map[string]interface{}{
-									"message": errorMessage,
-								},
+					//Action sent successfully, return data msg to client
+					browserResponseData := map[string]interface{}{
+						"id":   browserMessage.ID,
+						"type": "next",
+						"payload": map[string]interface{}{
+							"data": map[string]interface{}{
+								mutationFuncName: true,
 							},
-						}
-						jsonData, _ := json.Marshal(browserResponseData)
-						browserConnection.FromHasuraToBrowserChannel.Send(jsonData)
-					} else {
-						//Action sent successfully, return data msg to client
-						browserResponseData := map[string]interface{}{
-							"id":   browserMessage.ID,
-							"type": "next",
-							"payload": map[string]interface{}{
-								"data": map[string]interface{}{
-									mutationFuncName: true,
-								},
-							},
-						}
-						jsonData, _ := json.Marshal(browserResponseData)
-						browserConnection.FromHasuraToBrowserChannel.Send(jsonData)
+						},
 					}
+					jsonDataNext, _ := json.Marshal(browserResponseData)
+					browserConnection.FromHasuraToBrowserChannel.Send(jsonDataNext)
 
 					//Return complete msg to client
 					browserResponseComplete := map[string]interface{}{
 						"id":   browserMessage.ID,
 						"type": "complete",
 					}
-					jsonData, _ := json.Marshal(browserResponseComplete)
-					browserConnection.FromHasuraToBrowserChannel.Send(jsonData)
+					jsonDataComplete, _ := json.Marshal(browserResponseComplete)
+					browserConnection.FromHasuraToBrowserChannel.Send(jsonDataComplete)
 				}
 
 				//Fallback to Hasura was disabled (keeping the code temporarily)
@@ -217,4 +228,29 @@ func parseGraphQLMutation(query string, variables map[string]interface{}) (strin
 	}
 
 	return funcName, queryParams, nil
+}
+
+func sendErrorMessage(browserConnection *common.BrowserConnection, messageId string, errorMessage string) {
+	browserConnection.Logger.Errorf(errorMessage)
+
+	//Error on sending action, return error msg to client
+	browserResponseData := map[string]interface{}{
+		"id":   messageId,
+		"type": "error",
+		"payload": []interface{}{
+			map[string]interface{}{
+				"message": errorMessage,
+			},
+		},
+	}
+	jsonDataError, _ := json.Marshal(browserResponseData)
+	browserConnection.FromHasuraToBrowserChannel.Send(jsonDataError)
+
+	//Return complete msg to client
+	browserResponseComplete := map[string]interface{}{
+		"id":   messageId,
+		"type": "complete",
+	}
+	jsonDataComplete, _ := json.Marshal(browserResponseComplete)
+	browserConnection.FromHasuraToBrowserChannel.Send(jsonDataComplete)
 }

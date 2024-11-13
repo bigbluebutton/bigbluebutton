@@ -88,18 +88,20 @@ func ConnectionHandler(w http.ResponseWriter, r *http.Request) {
 	defer browserWsConn.Close(websocket.StatusInternalError, "the sky is falling")
 
 	var thisConnection = common.BrowserConnection{
-		Id:                             browserConnectionId,
-		Websocket:                      browserWsConn,
-		BrowserRequestCookies:          r.Cookies(),
-		ActiveSubscriptions:            make(map[string]common.GraphQlSubscription, 1),
-		Context:                        browserConnectionContext,
-		ContextCancelFunc:              browserConnectionContextCancel,
-		ConnAckSentToBrowser:           false,
-		FromBrowserToHasuraChannel:     common.NewSafeChannelByte(bufferSize),
-		FromBrowserToGqlActionsChannel: common.NewSafeChannelByte(bufferSize),
-		FromHasuraToBrowserChannel:     common.NewSafeChannelByte(bufferSize),
-		LastBrowserMessageTime:         time.Now(),
-		Logger:                         connectionLogger,
+		Id:                                 browserConnectionId,
+		Websocket:                          browserWsConn,
+		BrowserRequestCookies:              r.Cookies(),
+		ActiveSubscriptions:                make(map[string]common.GraphQlSubscription, 1),
+		Context:                            browserConnectionContext,
+		ContextCancelFunc:                  browserConnectionContextCancel,
+		ConnAckSentToBrowser:               false,
+		FromBrowserToHasuraChannel:         common.NewSafeChannelByte(bufferSize),
+		FromBrowserToHasuraRateLimiter:     common.NewCustomSimpleRateLimiter(cfg.Server.MaxConnectionQueriesPerMinute, 60),
+		FromBrowserToGqlActionsChannel:     common.NewSafeChannelByte(bufferSize),
+		FromBrowserToGqlActionsRateLimiter: common.NewCustomSimpleRateLimiter(cfg.Server.MaxConnectionMutationsPerMinute, 60),
+		FromHasuraToBrowserChannel:         common.NewSafeChannelByte(bufferSize),
+		LastBrowserMessageTime:             time.Now(),
+		Logger:                             connectionLogger,
 	}
 
 	BrowserConnectionsMutex.Lock()
