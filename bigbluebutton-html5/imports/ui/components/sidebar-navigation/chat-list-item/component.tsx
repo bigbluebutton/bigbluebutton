@@ -73,10 +73,6 @@ const ChatListItem = (props: ChatListItemProps) => {
     });
   };
 
-  const arialabel = `${intl.formatMessage(intlMessages.messagesTitle)} ${chatsAggregateUnreadMessages > 1
-    ? intl.formatMessage(intlMessages.unreadPlural, { 0: chatsAggregateUnreadMessages })
-    : intl.formatMessage(intlMessages.unreadSingular)}`;
-
   return (
     <TooltipContainer
       title={intl.formatMessage(intlMessages.messagesTitle)}
@@ -92,6 +88,7 @@ const ChatListItem = (props: ChatListItemProps) => {
         onClick={handleClickToggleChat}
         id="chat-toggle-button"
         aria-label={intl.formatMessage(intlMessages.messagesTitle)}
+        hasNotification={chatsAggregateUnreadMessages > 0}
         // @ts-ignore
         onKeyDown={(e) => {
           if (e.key === 'Enter') {
@@ -101,15 +98,6 @@ const ChatListItem = (props: ChatListItemProps) => {
         }}
       >
         <Icon iconName="group_chat" />
-        {(chatsAggregateUnreadMessages > 0)
-          ? (
-            <Styled.UnreadMessages data-test="unreadMessages" aria-label={arialabel}>
-              <Styled.UnreadMessagesText aria-hidden="true">
-                {chatsAggregateUnreadMessages}
-              </Styled.UnreadMessagesText>
-            </Styled.UnreadMessages>
-          )
-          : null}
       </Styled.ListItem>
     </TooltipContainer>
   );
