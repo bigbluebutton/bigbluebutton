@@ -2,7 +2,6 @@ import {
   useCallback,
   useEffect,
   useRef,
-  useState,
 } from 'react';
 import {
   useReactiveVar,
@@ -40,7 +39,6 @@ import {
   GridUsersResponse,
   OwnVideoStreamsResponse,
   StreamSubscriptionData,
-  Stream,
 } from '/imports/ui/components/video-provider/types';
 import { DesktopPageSizes, MobilePageSizes } from '/imports/ui/Types/meetingClientSettings';
 import logger from '/imports/startup/client/logger';
@@ -52,7 +50,6 @@ import { useStorageKey } from '/imports/ui/services/storage/hooks';
 import ConnectionStatus from '/imports/ui/core/graphql/singletons/connectionStatus';
 import { VIDEO_TYPES } from '/imports/ui/components/video-provider/enums';
 import createUseSubscription from '/imports/ui/core/hooks/createUseSubscription';
-import { set } from 'ramda';
 
 const useVideoStreamsSubscription = createUseSubscription(
   VIDEO_STREAMS_SUBSCRIPTION,
@@ -62,29 +59,8 @@ const useVideoStreamsSubscription = createUseSubscription(
 
 export const useStreams = () => {
   const { data, loading, errors } = useVideoStreamsSubscription();
-  const [streams, setStreams] = useState<Stream[]>([]);
 
-  useEffect(() => {
-    if (!data) {
-      setStreams([]);
-    } else {
-      const mappedStreams = (data as StreamSubscriptionData[]).map(({ streamId, user, voice }) => ({
-        stream: streamId,
-        deviceId: streamId.split('_')[3],
-        name: user.name,
-        nameSortable: user.nameSortable,
-        userId: user.userId,
-        user,
-        floor: voice?.floor ?? false,
-        lastFloorTime: voice?.lastFloorTime ?? '0',
-        voice,
-        type: VIDEO_TYPES.STREAM,
-      }));
-      setStreams(mappedStreams);
-    }
-  }, [data]);
-
-  if (loading) return streams;
+  if (loading) return [];
 
   if (errors) {
     errors.forEach((error) => {
@@ -97,7 +73,20 @@ export const useStreams = () => {
     });
   }
 
-  return streams;
+  const mappedStreams = (data as StreamSubscriptionData[]).map(({ streamId, user, voice }) => ({
+    stream: streamId,
+    deviceId: streamId.split('_')[3],
+    name: user.name,
+    nameSortable: user.nameSortable,
+    userId: user.userId,
+    user,
+    floor: voice?.floor ?? false,
+    lastFloorTime: voice?.lastFloorTime ?? '0',
+    voice,
+    type: VIDEO_TYPES.STREAM,
+  }));
+
+  return mappedStreams.length > 0 ? mappedStreams : [];
 };
 
 export const useStatus = () => {
