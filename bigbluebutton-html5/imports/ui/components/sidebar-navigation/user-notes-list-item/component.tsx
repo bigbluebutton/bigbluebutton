@@ -16,6 +16,7 @@ import useNotesLastRev from '../../notes/hooks/useNotesLastRev';
 import useHasUnreadNotes from '../../notes/hooks/useHasUnreadNotes';
 import useDeduplicatedSubscription from '/imports/ui/core/hooks/useDeduplicatedSubscription';
 import TooltipContainer from '../../common/tooltip/container';
+import { DispatcherFunction } from '/imports/ui/components/layout/layoutTypes';
 
 const intlMessages = defineMessages({
   title: {
@@ -55,10 +56,8 @@ const intlMessages = defineMessages({
 interface UserNotesGraphqlProps {
   isPinned: boolean,
   disableNotes: boolean,
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  sidebarContentPanel: any,
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  layoutContextDispatch: any,
+  sidebarContentPanel: string,
+  layoutContextDispatch: DispatcherFunction,
   hasUnreadNotes: boolean,
   markNotesAsRead: () => void,
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -116,17 +115,6 @@ const UserNotesGraphql: React.FC<UserNotesGraphqlProps> = (props) => {
   }
 
   const renderNotes = () => {
-    let notification = null;
-    if (unread && !isPinned) {
-      notification = (
-        <Styled.UnreadMessages aria-label={intl.formatMessage(intlMessages.unreadContent)}>
-          <Styled.UnreadMessagesText aria-hidden="true">
-            ···
-          </Styled.UnreadMessagesText>
-        </Styled.UnreadMessages>
-      );
-    }
-
     const showTitle = isPinned ? intl.formatMessage(intlMessages.sharedNotesPinned)
       : intl.formatMessage(intlMessages.sharedNotes);
     return (
@@ -150,27 +138,12 @@ const UserNotesGraphql: React.FC<UserNotesGraphqlProps> = (props) => {
               toggleNotesPanel(sidebarContentPanel, layoutContextDispatch);
             }
           }}
+          hasNotification={unread && !isPinned}
           as={isPinned ? 'button' : 'div'}
-          disabled={isPinned}
-          $disabled={isPinned}
+          disabled={isPinned || disableNotes}
+          $disabled={isPinned || disableNotes}
         >
-          {/* @ts-ignore */}
           <Icon iconName="copy" />
-          <div aria-hidden>
-            {disableNotes
-              ? (
-                <Styled.NotesLock>
-                  {/* @ts-ignore */}
-                  <Icon iconName="lock" />
-                  <span id="lockedNotes">{`${intl.formatMessage(intlMessages.locked)} ${intl.formatMessage(intlMessages.byModerator)}`}</span>
-                </Styled.NotesLock>
-              ) : null}
-            {isPinned
-              ? (
-                <span className="sr-only">{`${intl.formatMessage(intlMessages.disabled)}`}</span>
-              ) : null}
-          </div>
-          {notification}
         </Styled.ListItem>
       </TooltipContainer>
 

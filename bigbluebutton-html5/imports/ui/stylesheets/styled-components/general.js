@@ -27,7 +27,8 @@ const descriptionMargin = '3.5rem';
 const navbarHeight = '3.9375rem';
 const barsPadding = '0.8rem'; // so user-list and chat title is aligned with the presentation title
 const navigationSidebarLogoPadding = '15%';
-const navigationSidebarListItemsMargin = '0.2rem';
+const navigationSidebarListItemsContainerGap = '2.5rem';
+const navigationSidebarListItemsGap = '0.8rem';
 const navigationSidebarListItemsWidth = '65%';
 const navigationSidebarBorderRadius = '48px';
 const navigationSidebarPaddingY = '20px';
@@ -122,7 +123,8 @@ export {
   navbarHeight,
   barsPadding,
   navigationSidebarLogoPadding,
-  navigationSidebarListItemsMargin,
+  navigationSidebarListItemsContainerGap,
+  navigationSidebarListItemsGap,
   navigationSidebarListItemsWidth,
   navigationSidebarBorderRadius,
   navigationSidebarPaddingY,

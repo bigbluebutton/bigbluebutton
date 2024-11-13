@@ -12,6 +12,7 @@ const colorGrayLightest = 'var(--color-gray-lightest, #D4D9DF)';
 const colorBlueLight = 'var(--color-blue-light, #54a1f3)';
 const colorBlueLighter = 'var(--color-blue-lighter, #92BCEA)';
 const colorBlueLightest = 'var(--color-blue-lightest, #E4ECF2)';
+const colorBlueAux = 'var(--color-blue-aux, #E5EFFB)';
 const colorBlueLightestChannel = '228 236 242';
 const colorBlueLighterChannel = '146 188 234';
 
@@ -36,7 +37,7 @@ const colorGrayLabel = `var(--color-gray-label, ${colorGray})`;
 const colorText = `var(--color-text, ${colorGray})`;
 const colorLink = `var(--color-link, ${colorPrimary})`;
 
-const listItemBgHover = `var(--list-item-bg-hover, ${colorOffWhite})`;
+const listItemBgHover = `var(--list-item-bg-hover, ${colorBlueAux})`;
 const colorTipBg = 'var(--color-tip-bg, #333333)';
 const itemFocusBorder = `var(--item-focus-border, ${colorBlueLighter})`;
 

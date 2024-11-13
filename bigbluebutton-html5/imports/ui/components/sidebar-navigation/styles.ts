@@ -3,7 +3,8 @@ import { ListItemProps } from './types';
 import {
   borderSize,
   navigationSidebarBorderRadius,
-  navigationSidebarListItemsMargin,
+  navigationSidebarListItemsContainerGap,
+  navigationSidebarListItemsGap,
   navigationSidebarListItemsWidth,
   navigationSidebarPaddingY,
 } from '/imports/ui/stylesheets/styled-components/general';
@@ -11,6 +12,7 @@ import {
   colorGrayDark,
   colorGrayLight,
   colorWhite,
+  colorDanger,
   colorPrimary,
   listItemBgHover,
   itemFocusBorder,
@@ -30,24 +32,30 @@ const NavigationSidebarListItemsContainer = styled.div`
   flex-direction: column;
   justify-content: space-between;
   flex-grow: 1;
+  gap: ${navigationSidebarListItemsContainerGap};
 `;
 
 const PositionedDiv = styled.div`
   display: flex;
   flex-direction: column;
   width: 100%;
-  flex-grow: 1;
+  gap: ${navigationSidebarListItemsGap};
 `;
 
-const Top = styled(PositionedDiv)``;
+const Top = styled(PositionedDiv)`
+  flex-grow: 0;
+`;
 
-const Center = styled(PositionedDiv)``;
+const Center = styled(PositionedDiv)`
+  flex-grow: 1;
+`;
 
 const Bottom = styled(PositionedDiv)`
   justify-content: flex-end;
 `;
 
 const ListItem = styled.div<ListItemProps>`
+  position: relative;
   display: flex;
   flex-flow: row;
   align-items: center;
@@ -59,7 +67,6 @@ const ListItem = styled.div<ListItemProps>`
   width: ${navigationSidebarListItemsWidth};
   aspect-ratio: 1 / 1;
   border-radius: 50%;
-  margin: ${navigationSidebarListItemsMargin} 0;
 
   > i {
     font-size: 175%;
@@ -90,6 +97,20 @@ const ListItem = styled.div<ListItemProps>`
     background-color: ${colorPrimary} !important;
     > i {
       color: ${colorWhite} !important;
+    }
+  `}
+
+  ${({ hasNotification }: ListItemProps) => hasNotification && `
+    &:after {
+      content: '';
+      position: absolute;
+      border-radius: 50%;
+      width: 12px;
+      height: 12px;
+      bottom: ${borderSize};
+      right: 3px;
+      background-color: ${colorDanger};
+      border: ${borderSize} solid ${colorGrayDark};
     }
   `}
 
