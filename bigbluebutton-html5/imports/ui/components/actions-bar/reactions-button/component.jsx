@@ -31,6 +31,7 @@ const ReactionsButton = (props) => {
     reactionsLabel: {
       id: 'app.actionsBar.reactions.reactionsButtonLabel',
       description: 'reactions Label',
+      defaultMessage: 'Share a reaction',
     },
   });
 
@@ -75,7 +76,7 @@ const ReactionsButton = (props) => {
 
   const svgIcon = currentUserReaction === 'none' ? 'reactions' : null;
   const currentUserReactionEmoji = REACTIONS.find(({ native }) => native === currentUserReaction);
-
+d
   let customIcon = null;
 
   if (!svgIcon) {
