@@ -1,4 +1,4 @@
----
+w---
 id: customize
 slug: /administration/customize
 title: Server Customization
@@ -838,7 +838,9 @@ defaultDialAccessNumber=613-555-1234
 and set `defaultWelcomeMessageFooter` to
 
 ```properties
-defaultWelcomeMessageFooter=<br><br>To join this meeting by phone, dial:<br>  %%DIALNUM%%<br>Then enter %%CONFNUM%%# as the conference PIN number.
+defaultWelcomeMessageFooter=To join this meeting by phone, dial:\
+\n%%DIALNUM%%\
+\nThen enter %%CONFNUM%%# as the conference PIN number.
 ```
 
 Save `/etc/bigbluebutton/bbb-web.properties` and restart BigBlueButton again. Each user that joins a session will see a message in the chat similar to.
@@ -1148,7 +1150,7 @@ HERE
 
 #### Change the default welcome message
 
-The default welcome message is built from three parameters: two system-wide parameters (see below) and the `welcome` parameter from the BigBlueButton `create` API call.
+The default welcome message is built from three parameters: two system-wide parameters (see below) and the `welcomeMessage` parameter from the BigBlueButton `create` API call.
 
 You'll find the two system-wide welcome parameters `defaultWelcomeMessage` and `defaultWelcomeMessageFooter` in `/usr/share/bbb-web/WEB-INF/classes/bigbluebutton.properties`.
 
@@ -1157,11 +1159,11 @@ defaultWelcomeMessage=<default welcome message>
 defaultWelcomeMessageFooter=<default welcome message footer>
 ```
 
-When a front-end creates a BigBlueButton session, it may also pass a `welcome` parameter in the [create](/development/api#create) API call.
+When a front-end creates a BigBlueButton session, it may also pass a `welcomeMessage` parameter in the [create](/development/api#create) API call.
 
-The final welcome message shown to the user (as blue text in the Chat window) is a composite of `welcome` + `defaultWelcomeMessage` + `defaultWelcomeMessageFooter`.
+The final welcome message shown to the user is a composite of `welcomeMessage` (or `defaultWelcomeMessage`) + `defaultWelcomeMessageFooter`.
 
-The welcome message is fixed for the duration of a meeting. If you want to see the effect of changing the `welcome` parameter, you must [end](/development/api#end) the current meeting or wait until the BigBlueButton server removes it from memory (which occurs about two minutes after the last person has left). You can overwrite these values in file `/etc/bigbluebutton/bbb-web.properties`, just remember to restart BigBlueButton with `sudo bbb-conf --restart` for the new values to take effect.
+The welcome message is fixed for the duration of a meeting. If you want to see the effect of changing the `welcomeMessage` parameter, you must [end](/development/api#end) the current meeting or wait until the BigBlueButton server removes it from memory (which occurs about two minutes after the last person has left). You can overwrite these values in file `/etc/bigbluebutton/bbb-web.properties`, just remember to restart BigBlueButton with `sudo bbb-conf --restart` for the new values to take effect.
 
 #### Modify localization for the client (override with the latest locale)
 

@@ -4,6 +4,12 @@ import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
 import java.util.regex.Pattern;
 
+import org.jsoup.Jsoup;
+import org.jsoup.nodes.Document;
+import org.jsoup.nodes.Element;
+import org.jsoup.nodes.Node;
+import org.jsoup.select.NodeVisitor;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -66,4 +72,77 @@ public class ParamsUtil {
     String trimmedString = sanitizedString.trim();
     return trimmedString;
   }
+
+  public static String htmlToMarkdown(String htmlContent) {
+    htmlContent = htmlContent.replaceAll("\\s?\\s?\n","<br>"); //preserve line-break
+
+    Document document = Jsoup.parse(htmlContent);
+
+    StringBuilder markdown = new StringBuilder();
+    document.body().traverse(new NodeVisitor() {
+      @Override
+      public void head(Node node, int depth) {
+        if (node instanceof Element) {
+          Element element = (Element) node;
+          switch (element.tagName()) {
+            case "h1":
+              markdown.append("# ");
+              break;
+            case "h2":
+              markdown.append("## ");
+              break;
+            case "h3":
+              markdown.append("### ");
+              break;
+            case "strong":
+            case "b":
+              markdown.append("**");
+              break;
+            case "em":
+            case "i":
+              markdown.append("_");
+              break;
+            case "a":
+              markdown.append("[");
+              break;
+          }
+        }
+      }
+
+      @Override
+      public void tail(Node node, int depth) {
+        if (node instanceof Element) {
+          Element element = (Element) node;
+          switch (element.tagName()) {
+            case "strong":
+            case "b":
+              markdown.append("**");
+              break;
+            case "em":
+            case "i":
+              markdown.append("_");
+              break;
+            case "a":
+              Element link = (Element) node;
+              markdown.append("](").append(link.attr("href")).append(")");
+              break;
+            case "p":
+            case "h1":
+            case "h2":
+            case "h3":
+              markdown.append("\n\n");
+              break;
+            case "br":
+              markdown.append("  \n"); //the renderer expects two spaces before \n to consider a line break
+              break;
+          }
+        } else if (node instanceof org.jsoup.nodes.TextNode) {
+          markdown.append(((org.jsoup.nodes.TextNode) node).text());
+        }
+      }
+    });
+
+    return markdown.toString().trim();
+  }
+
 }

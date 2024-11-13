@@ -505,11 +505,32 @@ public class ParamsProcessorUtil {
             isBreakout = Boolean.valueOf(params.get(ApiParams.IS_BREAKOUT));
         }
 
-        String welcomeMessageTemplate = processWelcomeMessage(params.get(ApiParams.WELCOME), isBreakout);
-        String welcomeMessage = substituteKeywords(welcomeMessageTemplate,dialNumber, telVoice, meetingName);
-        welcomeMessage = sanitizeHtmlRemovingUnsafeTags(welcomeMessage);
-        welcomeMessage = welcomeMessage.replace("href=\"event:", "href=\"");
-        welcomeMessage = insertBlankTargetToLinks(welcomeMessage);
+        String welcomeMessage = ParamsUtil.htmlToMarkdown(defaultWelcomeMessage);
+        if (!StringUtils.isEmpty(params.get(ApiParams.WELCOME_MESSAGE))) {
+            welcomeMessage = params.get(ApiParams.WELCOME_MESSAGE);
+        } else if(!StringUtils.isEmpty(params.get(ApiParams.WELCOME))) {
+            log.warn("[DEPRECATION] use "+ApiParams.WELCOME_MESSAGE+" instead of "+ApiParams.WELCOME);
+            welcomeMessage = params.get(ApiParams.WELCOME);
+            welcomeMessage = ParamsUtil.htmlToMarkdown(welcomeMessage);
+        }
+
+        if (!StringUtils.isEmpty(defaultWelcomeMessageFooter) && !isBreakout) {
+            welcomeMessage += "\n\n" + ParamsUtil.htmlToMarkdown(defaultWelcomeMessageFooter);
+        }
+
+        String welcomeMessageTemplate = welcomeMessage;
+        welcomeMessage = substituteKeywords(welcomeMessage,dialNumber, telVoice, meetingName);
+
+        String welcomeMessageForModerators = "";
+        if (!StringUtils.isEmpty(params.get(ApiParams.WELCOME_MESSAGE_FOR_MODERATORS))) {
+            welcomeMessageForModerators = params.get(ApiParams.WELCOME_MESSAGE_FOR_MODERATORS);
+        } else if (!StringUtils.isEmpty(params.get(ApiParams.MODERATOR_ONLY_MESSAGE))) {
+            log.warn("[DEPRECATION] use "+ApiParams.WELCOME_MESSAGE_FOR_MODERATORS+" instead of "+ApiParams.MODERATOR_ONLY_MESSAGE);
+            welcomeMessageForModerators = params.get(ApiParams.MODERATOR_ONLY_MESSAGE);
+            welcomeMessageForModerators = ParamsUtil.htmlToMarkdown(welcomeMessageForModerators);
+            welcomeMessageForModerators = substituteKeywords(welcomeMessageForModerators, dialNumber, telVoice, meetingName);
+        }
+
 
         String internalMeetingId = convertToInternalMeetingId(externalMeetingId);
 
@@ -819,6 +840,7 @@ public class ParamsProcessorUtil {
                 .withMetadata(meetingInfo)
                 .withWelcomeMessageTemplate(welcomeMessageTemplate)
                 .withWelcomeMessage(welcomeMessage)
+                .withWelcomeMessageForModerators(welcomeMessageForModerators)
                 .withIsBreakout(isBreakout)
                 .withGuestPolicy(guestPolicy)
                 .withAuthenticatedGuest(authenticatedGuest)
@@ -838,16 +860,6 @@ public class ParamsProcessorUtil {
                 .withPresentationUploadExternalDescription(presentationUploadExternalDescription)
                 .withPresentationUploadExternalUrl(presentationUploadExternalUrl)
                 .build();
-
-        if (!StringUtils.isEmpty(params.get(ApiParams.MODERATOR_ONLY_MESSAGE))) {
-            String moderatorOnlyMessageTemplate = params.get(ApiParams.MODERATOR_ONLY_MESSAGE);
-            String welcomeMsgForModerators = substituteKeywords(moderatorOnlyMessageTemplate, dialNumber, telVoice, meetingName);
-            welcomeMsgForModerators = sanitizeHtmlRemovingUnsafeTags(welcomeMsgForModerators);
-            welcomeMsgForModerators = welcomeMsgForModerators.replace("href=\"event:", "href=\"");
-            welcomeMsgForModerators = insertBlankTargetToLinks(welcomeMsgForModerators);
-
-            meeting.setWelcomeMsgForModerators(welcomeMsgForModerators);
-        }
 
         if (!StringUtils.isEmpty(params.get(ApiParams.MEETING_ENDED_CALLBACK_URL))) {
         	String meetingEndedCallbackURL = params.get(ApiParams.MEETING_ENDED_CALLBACK_URL);
@@ -998,16 +1010,6 @@ public class ParamsProcessorUtil {
     return allowOverrideClientSettingsOnCreateCall;
   }
 
-    public String processWelcomeMessage(String message, Boolean isBreakout) {
-        String welcomeMessage = message;
-        if (StringUtils.isEmpty(message)) {
-            welcomeMessage = defaultWelcomeMessage;
-        }
-        if (!StringUtils.isEmpty(defaultWelcomeMessageFooter) && !isBreakout)
-            welcomeMessage += "<br><br>" + defaultWelcomeMessageFooter;
-        return welcomeMessage;
-    }
-
     public String sanitizeHtmlRemovingUnsafeTags(String original) {
         Safelist safelist = new Safelist()
                 .addTags("a", "b", "br", "i", "img", "li", "small", "span", "strong", "u", "ul")
@@ -1016,17 +1018,6 @@ public class ParamsProcessorUtil {
                 .addProtocols("a", "href", "https", "mailto", "tel");
 
         return Jsoup.clean(original, safelist);
-    }
-
-    private static String insertBlankTargetToLinks(String html) {
-        Document document = Jsoup.parse(html);
-        Elements links = document.select("a[href]");  // Select all <a> elements with an href attribute
-
-        for (Element link : links) {
-            link.attr("target", "_blank");  // Set target="_blank" attribute
-        }
-
-        return document.body().html();  // Return the modified HTML
     }
 
 	public String convertToInternalMeetingId(String extMeetingId) {
