@@ -1,4 +1,4 @@
-w---
+---
 id: customize
 slug: /administration/customize
 title: Server Customization
