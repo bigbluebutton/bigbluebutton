@@ -87,12 +87,16 @@ type Filter[T any] interface {
 	Filter(Message[T]) error
 }
 
-// A Transformer is a processor that transforms an incoming [Message] of type T into a new outgoing
-// message of type U. If transformation fails, an error should be returned to abort further processing.
+// A Transformer is a processor that transforms an incoming [Message] with a payload of type T into a
+// new outgoing message with a payload of type U. If transformation fails, an error should be returned
+// to abort further processing.
 type Transformer[T, U any] interface {
 	Transform(Message[T]) (Message[U], error)
 }
 
+// A Generator is a processor that generates additional data based on the incoming [Message] with a payload of
+// type T and returns a new message with a payload of type U. If generation fails, an error should be returned
+// to abort futher processing.
 type Generator[T, U any] interface {
 	Generate(Message[T]) (Message[U], error)
 }
@@ -145,11 +149,13 @@ func (s *Step[T, U]) Flow() Flow[T, U] {
 	}
 }
 
+// Filter adds a [Filter] for a [Message] with a payload of type T to a [Step].
 func (s *Step[T, U]) Filter(f Filter[T]) *Step[T, U] {
 	s.filter = f.Filter
 	return s
 }
 
+// Transform sets the processor for a [Step] to the provided [Transformer].
 func (s *Step[T, U]) Transform(t Transformer[T, U]) *Step[T, U] {
 	if s.processor != nil {
 		panic("cannot call Transform on a Step that already has a processor function")
@@ -158,6 +164,7 @@ func (s *Step[T, U]) Transform(t Transformer[T, U]) *Step[T, U] {
 	return s
 }
 
+// Generate sets the processor for a [Step] to the provided [Generator].
 func (s *Step[T, U]) Generate(g Generator[T, U]) *Step[T, U] {
 	if s.processor != nil {
 		panic("cannot call Generate on a Step that already has a processor function")
@@ -166,6 +173,10 @@ func (s *Step[T, U]) Generate(g Generator[T, U]) *Step[T, U] {
 	return s
 }
 
+// Add connects an existing [Flow] that takes an input [Message] with a payload of type T and outputs
+// a message with a payload of type U with a [Step] that takes an input message with a payload of type U
+// and outputs a message with a payload of type V. The returned flow will take an input an input Message
+// with a payload of type T and output a message with a payload of type V.
 func Add[T, U, V any](flow Flow[T, U], step *Step[U, V]) Flow[T, V] {
 	return Flow[T, V]{
 		Execute: composeExecute(flow.Execute, step.execute),

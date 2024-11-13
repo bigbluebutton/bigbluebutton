@@ -14,6 +14,7 @@ validation:
     script: /usr/share/prescheck/prescheck.sh
     timeout: 20 # Timeout in seconds
     exec_timeout: 25 # timeout in seconds
+    skip_precheck: true # Skip Office doc pre-check. Attempt to convert immediately
 generation:
   thumbnail:
     image_magick_dir: /usr/bin

@@ -37,9 +37,10 @@ type Config struct {
 	} `yaml:"processing"`
 	Validation struct {
 		Office struct {
-			Script      string `yaml:"script"`
-			Timeout     int    `yaml:"timeout"`
-			ExecTimeout int    `yaml:"exec_timeout"`
+			Script       string `yaml:"script"`
+			Timeout      int    `yaml:"timeout"`
+			ExecTimeout  int    `yaml:"exec_timeout"`
+			SkipPrecheck bool   `yaml:"skip_precheck"`
 		} `yaml:"office"`
 	} `yaml:"validation"`
 	Generation struct {
