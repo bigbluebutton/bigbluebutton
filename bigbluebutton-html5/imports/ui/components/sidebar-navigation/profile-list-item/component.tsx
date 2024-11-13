@@ -57,7 +57,7 @@ const ProfileListItem = () => {
           }
         }}
       >
-        <Icon iconName="user" />
+        <Icon iconName="profile" />
       </Styled.ListItem>
     </TooltipContainer>
   );

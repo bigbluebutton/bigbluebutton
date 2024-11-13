@@ -16,6 +16,7 @@ import {
   colorPrimary,
   listItemBgHover,
   itemFocusBorder,
+  colorGrayIcons,
 } from '/imports/ui/stylesheets/styled-components/palette';
 
 const NavigationSidebar = styled.div`
@@ -62,7 +63,7 @@ const ListItem = styled.div<ListItemProps>`
   justify-content: center;
   align-self: center;
   text-decoration: none;
-  color: ${colorGrayDark};
+  color: ${colorGrayIcons};
   cursor: pointer;
   width: ${navigationSidebarListItemsWidth};
   aspect-ratio: 1 / 1;

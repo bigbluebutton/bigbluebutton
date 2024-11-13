@@ -57,7 +57,7 @@ const LearningDashboardListItem = () => {
           }
         }}
       >
-        <Icon iconName="multi_whiteboard" />
+        <Icon iconName="learning_dashboard" />
       </Styled.ListItem>
     </TooltipContainer>
   );

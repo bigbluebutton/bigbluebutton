@@ -57,7 +57,7 @@ const UsersListItem = () => {
           }
         }}
       >
-        <Icon iconName="user" />
+        <Icon iconName="user_list" />
       </Styled.ListItem>
     </TooltipContainer>
   );
