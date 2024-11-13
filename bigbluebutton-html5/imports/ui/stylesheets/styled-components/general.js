@@ -22,6 +22,9 @@ const $3xlPadding = '1.25rem';
 const whiteboardToolbarPadding = '.5rem';
 const whiteboardToolbarMargin = '.5rem';
 const whiteboardToolbarPaddingSm = '.3rem';
+const contentSidebarPadding = '1.5rem';
+const contentSidebarHeight = '58.5rem';
+const contentSidebarBorderRadius = '1rem';
 const minModalHeight = '20rem';
 const descriptionMargin = '3.5rem';
 const navbarHeight = '3.9375rem';
@@ -197,4 +200,7 @@ export {
   $3xlPadding,
   xlPadding,
   xsPadding,
+  contentSidebarPadding,
+  contentSidebarHeight,
+  contentSidebarBorderRadius,
 };

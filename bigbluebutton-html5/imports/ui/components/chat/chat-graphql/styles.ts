@@ -1,6 +1,11 @@
 import styled from 'styled-components';
 import { colorWhite, colorPrimary, colorGrayLighter } from '/imports/ui/stylesheets/styled-components/palette';
 import { smallOnly } from '/imports/ui/stylesheets/styled-components/breakpoints';
+import { 
+  contentSidebarPadding,
+  contentSidebarHeight,
+  contentSidebarBorderRadius,
+} from '/imports/ui/stylesheets/styled-components/general';
 
 interface ChatProps {
   isChrome: boolean;
@@ -9,15 +14,15 @@ interface ChatProps {
 
 export const Chat = styled.div<ChatProps>`
   background-color: ${colorWhite};
-  padding: 16px;
+  padding: ${contentSidebarPadding};
   padding-bottom: 0;
   display: flex;
   flex-grow: 1;
   flex-direction: column;
   justify-content: space-around;
   overflow: hidden;
-  height: 85%;
-  border-radius: 16px;
+  height: ${contentSidebarHeight};
+  border-radius: ${contentSidebarBorderRadius};
   user-select: none;
 
   a {
