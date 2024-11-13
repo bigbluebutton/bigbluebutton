@@ -462,9 +462,9 @@ public class Meeting {
 		return presentationUploadExternalUrl;
 	}
 
-  	public String getWelcomeMessageTemplate() {
-    return welcomeMsgTemplate;
-  }
+	public String getWelcomeMessageTemplate() {
+		return welcomeMsgTemplate;
+	}
 
 	public String getWelcomeMessage() {
 		return welcomeMsg;
