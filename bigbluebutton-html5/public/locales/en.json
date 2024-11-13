@@ -162,7 +162,7 @@
     "app.userList.presenter": "Presenter",
     "app.userList.you": "You",
     "app.userList.locked": "Locked",
-    "app.userList.byModerator": "by (Moderator)",
+    "app.userList.byModerator": "(by moderator)",
     "app.userList.label": "User list",
     "app.userList.toggleCompactView.label": "Toggle compact view mode",
     "app.userList.moderator": "Moderator",
