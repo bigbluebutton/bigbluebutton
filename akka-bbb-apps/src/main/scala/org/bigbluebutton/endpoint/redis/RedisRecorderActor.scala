@@ -155,6 +155,7 @@ class RedisRecorderActor(
     if (msg.body.chatId == GroupChatApp.MAIN_PUBLIC_CHAT) {
       val ev = new PublicChatRecordEvent()
       ev.setMeetingId(msg.header.meetingId)
+      ev.setMessageId(msg.body.msg.id)
       ev.setSenderId(msg.body.msg.sender.id)
       ev.setMessage(msg.body.msg.message)
       ev.setSenderRole(msg.body.msg.sender.role)

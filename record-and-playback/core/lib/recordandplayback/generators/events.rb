@@ -732,6 +732,38 @@ module BigBlueButton
       map
     end
 
+    def self.get_chat_reactions(events)
+      reactions = {}
+      events.xpath('/recording/event').each do |event|
+        case [event[:module], event[:eventname]]
+        when %w[CHAT SendPublicChatMessageReactionRecordEvent]
+          reaction_emoji = event.at_xpath('./reactionEmoji')&.content
+          message_id = event.at_xpath('./messageId')&.content
+          if reactions[message_id] != nil  then
+            if reactions[message_id][reaction_emoji] != nil then
+              reactions[message_id][reaction_emoji] += 1
+            else
+              reactions[message_id][reaction_emoji] = 1
+            end
+
+          else
+            reactions[message_id] = { reaction_emoji => 1}
+          end
+        when %w[CHAT DeletePublicChatMessageReactionRecordEvent]
+          reaction_emoji = event.at_xpath('./reactionEmoji')&.content
+          message_id = event.at_xpath('./messageId')&.content
+          if reactions[message_id] != nil  then
+            if reactions[message_id][reaction_emoji] != nil && reactions[message_id][reaction_emoji] > 1 then
+              reactions[message_id][reaction_emoji] -= 1
+            elsif reactions[message_id][reaction_emoji] != nil && reactions[message_id][reaction_emoji] <= 1
+              reactions[message_id].delete(reaction_emoji)
+            end
+          end
+        end
+      end
+      reactions
+    end
+
     # Get a list of chat events, with start/end time for segments and recording marks applied.
     # Optionally anonymizes chat participant names.
     # Reads the keys 'anonymize_chat' and 'anonymize_chat_moderators' from bbb_props, but allows
@@ -766,7 +798,7 @@ module BigBlueButton
       anonymize_moderators = anonymize_moderators.to_s.casecmp?('true')
 
       user_map = anonymize_senders ? anonymous_user_map(events, moderators: anonymize_moderators) : user_name_map(events);
-
+      reaction_emoji = get_chat_reactions(events)
       chats = []
       events.xpath('/recording/event').each do |event|
         timestamp = event[:timestamp].to_i - initial_timestamp
@@ -782,6 +814,7 @@ module BigBlueButton
           sender_id = event.at_xpath('./senderId')&.content
           senderRole = event.at_xpath('./senderRole')&.content
           chatEmphasizedText = event.at_xpath('./chatEmphasizedText')&.content
+          message_id = event.at_xpath('./messageId')&.content
 
           chats << {
             in: timestamp - offset,
@@ -791,6 +824,7 @@ module BigBlueButton
             senderRole: senderRole,
             chatEmphasizedText: chatEmphasizedText,
             message: linkify(event.at_xpath('./message').content.strip),
+            reactions: reaction_emoji[message_id],
             date: date,
           }
         when %w[CHAT ClearPublicChatEvent]
