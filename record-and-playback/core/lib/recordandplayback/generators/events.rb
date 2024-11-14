@@ -840,6 +840,13 @@ module BigBlueButton
           message_id = event.at_xpath('./messageId')&.content
           index_to_be_deleted = chats.index { |message| message[:id] === message_id }
           chats.delete_at(index_to_be_deleted)
+        when %w[CHAT EditPublicChatMessageRecordEvent]
+          next if timestamp < start_time
+          message_id = event.at_xpath('./messageId')&.content
+          new_message_content = event.at_xpath('./message')&.content
+          index_to_be_deleted = chats.index { |message| message[:id] === message_id }
+          chats[index_to_be_deleted][:message] = new_message_content
+          chats[index_to_be_deleted][:lastEditedTimestamp] = timestamp
         when %w[PARTICIPANT RecordStatusEvent]
           record = event.at_xpath('status').content == 'true'
           next if timestamp < start_time
