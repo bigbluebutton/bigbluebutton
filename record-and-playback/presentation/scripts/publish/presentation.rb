@@ -858,15 +858,19 @@ def events_get_image_info(slide, tldraw)
     BigBlueButton.logger.warn("Missing image file #{image_path}!")
     # Emergency last-ditch blank image creation
     FileUtils.mkdir_p(File.dirname(image_path))
-    command = \
-      if slide_deskshare
-        ['convert', '-size',
-         "#{@presentation_props['deskshare_output_width']}x#{@presentation_props['deskshare_output_height']}", 'xc:transparent', '-background', 'transparent', image_path,]
-      else
-        ['convert', '-size', '1600x1200', 'xc:transparent', '-background', 'transparent', '-quality', '90', '+dither',
-         '-depth', '8', '-colors', '256', image_path,]
-      end
-    BigBlueButton.exec_ret(*command) || raise("Unable to generate blank image for #{image_path}")
+    if image_path.end_with?(".svg")
+      File.write(image_path, '<svg version="1.1" width="1600" height="1600" xmlns="http://www.w3.org/2000/svg"></svg>')
+    else
+      command = \
+        if slide_deskshare
+          ['convert', '-size',
+           "#{@presentation_props['deskshare_output_width']}x#{@presentation_props['deskshare_output_height']}", 'xc:transparent', '-background', 'transparent', image_path,]
+        else
+          ['convert', '-size', '1600x1200', 'xc:transparent', '-background', 'transparent', '-quality', '90', '+dither',
+           '-depth', '8', '-colors', '256', image_path,]
+        end
+      BigBlueButton.exec_ret(*command) || raise("Unable to generate blank image for #{image_path}")
+    end
   end
 
   slide[:width], slide[:height] = FastImage.size(image_path)
