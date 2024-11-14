@@ -157,7 +157,7 @@ const Whiteboard = React.memo((props) => {
 
   const THRESHOLD = 0.1;
   const CAMERA_UPDATE_DELAY = 650;
-  const MOUNTED_CAMERA_DELAY = 500;
+  const MOUNTED_CAMERA_DELAY = 1250;
   const lastKnownHeight = React.useRef(presentationAreaHeight);
   const lastKnownWidth = React.useRef(presentationAreaWidth);
 
