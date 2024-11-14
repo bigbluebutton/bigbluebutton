@@ -493,8 +493,9 @@ const MeetingEndedContainer: React.FC<MeetingEndedContainerProps> = ({
     learningDashboardBase,
   } = clientSettings;
 
-  const shouldAskForFeedback = askForFeedbackOnLogout
-    || getFromUserSettings('bbb_ask_for_feedback_on_logout');
+  const shouldAskForFeedback = !isBreakout
+  && (askForFeedbackOnLogout
+  || getFromUserSettings('bbb_ask_for_feedback_on_logout'));
 
   return (
     <MeetingEnded
