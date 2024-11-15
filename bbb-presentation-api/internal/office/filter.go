@@ -14,17 +14,17 @@ import (
 	"github.com/bigbluebutton/bigbluebutton/bbb-presentation-api/internal/presentation"
 )
 
-type officeConversionFilter struct {
+type ConversionFilter struct {
 	exec func(ctx context.Context, name string, args ...string) *exec.Cmd
 }
 
-func NewOfficeConversionFilter() *officeConversionFilter {
-	return &officeConversionFilter{
+func NewConversionFilter() *ConversionFilter {
+	return &ConversionFilter{
 		exec: exec.CommandContext,
 	}
 }
 
-func (f *officeConversionFilter) Filter(msg pipeline.Message[*OfficeFileToConvert]) error {
+func (f *ConversionFilter) Filter(msg pipeline.Message[*FileToConvert]) error {
 	inFile := msg.Payload.InFile
 	outFile := msg.Payload.OutFile
 

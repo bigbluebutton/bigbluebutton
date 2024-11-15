@@ -39,7 +39,7 @@ func TestHelperProcessForFilter(*testing.T) {
 	os.Exit(0)
 }
 
-func TestOfficeConversionFilter_Filter(t *testing.T) {
+func TestConversionFilter_Filter(t *testing.T) {
 	tests := []struct {
 		name         string
 		in           string
@@ -55,7 +55,7 @@ func TestOfficeConversionFilter_Filter(t *testing.T) {
 		{"Failed PowerPoint validation", failPowerPointValidate, "output.pdf", false, true},
 	}
 
-	filter := NewOfficeConversionFilter()
+	filter := NewConversionFilter()
 	filter.exec = mockExecCommandContextForFilter
 
 	for _, test := range tests {
@@ -63,7 +63,7 @@ func TestOfficeConversionFilter_Filter(t *testing.T) {
 			cfg := config.DefaultConfig()
 			cfg.Validation.Office.SkipPrecheck = test.skipPrecheck
 			ctx := context.WithValue(context.Background(), presentation.ConfigKey, cfg)
-			msg := pipeline.NewMessageWithContext(&OfficeFileToConvert{InFile: test.in, OutFile: test.out}, ctx)
+			msg := pipeline.NewMessageWithContext(&FileToConvert{InFile: test.in, OutFile: test.out}, ctx)
 			err := filter.Filter(msg)
 			if err != nil {
 				if test.shouldErr {

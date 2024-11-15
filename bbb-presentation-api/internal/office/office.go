@@ -1,6 +1,8 @@
 package office
 
-type OfficeFileToConvert struct {
-	InFile  string
-	OutFile string
+type FileToConvert struct {
+	ID             string
+	InFile         string
+	OutFile        string
+	IsDownloadable bool
 }

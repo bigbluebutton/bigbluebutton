@@ -32,6 +32,7 @@ type Config struct {
 					Script  string `yaml:"script"`
 					Timeout int    `yaml:"timeout"`
 				} `yaml:"downscale"`
+				MaxSize int64 `yaml:"max_size"`
 			} `yaml:"page"`
 		} `yaml:"pdf"`
 	} `yaml:"processing"`
@@ -48,6 +49,20 @@ type Config struct {
 			ImageMagickDir string `yaml:"image_magick_dir"`
 			Timeout        int    `yaml:"timeout"`
 		} `yaml:"thumbnail"`
+		TextFile struct {
+			Timeout int `yaml:"timeout"`
+		} `yaml:"text_file"`
+		Png struct {
+			SlideWidth int  `yaml:"slide_width"`
+			Generate   bool `yaml:"generate"`
+			Timeout    int  `yaml:"timeout"`
+		} `yaml:"png"`
+		Blank struct {
+			Presentation string `yaml:"presentation"`
+			Thumbnail    string `yaml:"thumbnail"`
+			Png          string `yaml:"png"`
+			Svg          string `yaml:"svg"`
+		} `yaml:"blank"`
 	} `yaml:"generation"`
 }
 

@@ -51,7 +51,7 @@ func TestHelperProcessForTransformation(*testing.T) {
 	os.Exit(0)
 }
 
-func TestOfficePDFTransformer_Transform(t *testing.T) {
+func TestPDFTransformer_Transform(t *testing.T) {
 	tests := []struct {
 		name        string
 		in          string
@@ -64,14 +64,14 @@ func TestOfficePDFTransformer_Transform(t *testing.T) {
 		{"Failed conversion; could not remove file", failConvertIn, nonExistentFile, "", true},
 	}
 
-	transformer := NewOfficePDFTransformer()
+	transformer := NewPDFTransformer()
 	transformer.removeFileFunc = mockRemoveFile
 	transformer.exec = mockExecCommandContextForTransformation
 
 	for _, test := range tests {
 		t.Run(test.name, func(t *testing.T) {
 			ctx := context.WithValue(context.Background(), presentation.ConfigKey, config.DefaultConfig())
-			msg := pipeline.NewMessageWithContext(&OfficeFileToConvert{InFile: test.in, OutFile: test.out}, ctx)
+			msg := pipeline.NewMessageWithContext(&FileToConvert{InFile: test.in, OutFile: test.out}, ctx)
 			output, err := transformer.Transform(msg)
 
 			if err != nil {

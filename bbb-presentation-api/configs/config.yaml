@@ -9,6 +9,7 @@ processing:
       downscale:
         script: /etc/bigbluebutton/nopdfmark.ps
         timeout: 10 # Timeout in seconds
+      max_size: 2000000
 validation:
   office:
     script: /usr/share/prescheck/prescheck.sh
@@ -19,3 +20,14 @@ generation:
   thumbnail:
     image_magick_dir: /usr/bin
     timeout: 10 # Timeout in seconds
+  text_file:
+    timeout: 60 # Timeout in seconds
+  png:
+    slide_width: 800
+    generate: false
+    timeout: 10 # Timeout in seconds
+  blank:
+    presentation: /usr/share/bigbluebutton/blank/blank-presentation.pdf
+    thumbnail: /usr/share/bigbluebutton/blank/blank-thumb.png
+    png: /usr/share/bigbluebutton/blank/blank-png.png
+    svg: /usr/share/bigbluebutton/blank/blank-svg.svg

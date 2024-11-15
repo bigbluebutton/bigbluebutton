@@ -7,7 +7,7 @@ import "github.com/pdfcpu/pdfcpu/pkg/api"
 // on the requirements.
 type PDFProcessor interface {
 	countPages(path string) (int, error)
-	extractPages(in, out string, pages []string) error
+	extractPages(inFile, outFile string, pages []string) error
 }
 
 // PDFCPU is an implementation of PDFProcessor that uses the pdfcpu library for
@@ -18,6 +18,6 @@ func (p *PDFCPU) countPages(path string) (int, error) {
 	return api.PageCountFile(path)
 }
 
-func (p *PDFCPU) extractPages(in, out string, pages []string) error {
-	return api.ExtractPagesFile(in, out, pages, nil)
+func (p *PDFCPU) extractPages(inFile, outFile string, pages []string) error {
+	return api.ExtractPagesFile(inFile, outFile, pages, nil)
 }

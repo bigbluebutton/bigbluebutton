@@ -23,7 +23,7 @@ type PageCounter interface {
 // to extract the specified page from the input file into a separate file located at
 // the specified output path.
 type PageExtractor interface {
-	ExtractPage(in string, out string, page int) error
+	ExtractPage(inFile string, outFile string, page int) error
 }
 
 // PageDownscaler is the interface that wraps the basic DownscalePage method. Given
@@ -31,7 +31,7 @@ type PageExtractor interface {
 // to downscale the input file for the purpose of reducting file size. The downsclaed
 // file will be located at the output path.
 type PageDownscaler interface {
-	DownscalePage(in string, out string) error
+	DownscalePage(inFile string, outFile string) error
 }
 
 type PageProcessor interface {
@@ -92,12 +92,12 @@ func NewPDFPageExtractorWithProcessor(pdfProcessor PDFProcessor) *PDFPageExtract
 }
 
 // ExtractPage takes as input the path to a PDF, the path to an output directory, and a
-// page number and attempts to exract the specified page into its own file. The
+// page number and attempts to extract the specified page into its own file. The
 // extracted page will be stored in a generated single page PDF located in the output
 // directory. An error will be returned if the page number is invalid or if an error occurs
 // during the extraction process.
-func (e *PDFPageExtractor) ExtractPage(in string, out string, page int) error {
-	pageCount, err := e.pdfProcessor.countPages(in)
+func (e *PDFPageExtractor) ExtractPage(inFile, outFile string, page int) error {
+	pageCount, err := e.pdfProcessor.countPages(inFile)
 	if err != nil {
 		return fmt.Errorf("failed to get page count: %w", err)
 	}
@@ -107,7 +107,7 @@ func (e *PDFPageExtractor) ExtractPage(in string, out string, page int) error {
 	}
 
 	pages := []string{strconv.Itoa(page)}
-	return e.pdfProcessor.extractPages(in, out, pages)
+	return e.pdfProcessor.extractPages(inFile, outFile, pages)
 }
 
 // PDfPageDownscaler is an implementation of the PageDownscaler interface that downscales
@@ -138,7 +138,7 @@ func NewPDFPageDownscalerWithConfig(config *config.Config) *PDFPageDownscaler {
 // An attempt is made to downscale the input PDF and save the downscaled version of the
 // PDF to the output PDF. Returns an error if any problems occur during the downscaling
 // process.
-func (d *PDFPageDownscaler) DownscalePage(in string, out string) error {
+func (d *PDFPageDownscaler) DownscalePage(inFile, outFile string) error {
 	args := []string{
 		"-sDEVICE=pdfwrite",
 		"-dNOPAUSE",
@@ -146,9 +146,9 @@ func (d *PDFPageDownscaler) DownscalePage(in string, out string) error {
 		"-dBATCH",
 		"-dFirstPage=1",
 		"-dLastPage=1",
-		fmt.Sprintf("-sOutputFile=%s", out),
+		fmt.Sprintf("-sOutputFile=%s", outFile),
 		d.script,
-		in,
+		inFile,
 	}
 
 	ctx, cancel := context.WithTimeout(context.Background(), time.Duration(d.timeout)*time.Second)

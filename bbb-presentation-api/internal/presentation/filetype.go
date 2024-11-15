@@ -20,51 +20,6 @@ type FileExt string
 // Matches determines if the FileExt is equivalent to the given string.
 func (fileExt FileExt) Matches(ext string) bool { return strings.EqualFold(string(fileExt), ext) }
 
-const (
-	TextXML                   MimeType = "text/xml"
-	ApplicationXML            MimeType = "application/xml"
-	ApplicationFormURLEncoded MimeType = "application/x-www-form-urlencoded"
-	MultipartFormData         MimeType = "multipart/form-data"
-	Xls                       MimeType = "application/vnd.ms-excel"
-	Xlsx                      MimeType = "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
-	Doc                       MimeType = "application/msword"
-	Docx                      MimeType = "application/vnd.openxmlformats-officedocument.wordprocessingml.document"
-	Ppt                       MimeType = "application/vnd.ms-powerpoint"
-	Pptx                      MimeType = "application/vnd.openxmlformats-officedocument.presentationml.presentation"
-	Tika_MSOffice             MimeType = "application/x-tika-msoffice"
-	Tika_MSOffice_x           MimeType = "application/x-tika-ooxml"
-	Odt                       MimeType = "application/vnd.oasis.opendocument.text"
-	Rtf                       MimeType = "application/rtf"
-	Txt                       MimeType = "text/plain"
-	Ods                       MimeType = "application/vnd.oasis.opendocument.spreadsheet"
-	Odp                       MimeType = "application/vnd.oasis.opendocument.presentation"
-	Odg                       MimeType = "application/vnd.oasis.opendocument.graphics"
-	Pdf                       MimeType = "application/pdf"
-	Jpeg                      MimeType = "image/jpeg"
-	Png                       MimeType = "image/png"
-	Svg                       MimeType = "image/svg+xml"
-	Webp                      MimeType = "image/webp"
-
-	ExtDoc  FileExt = ".doc"
-	ExtXls  FileExt = ".xls"
-	ExtPpt  FileExt = ".ppt"
-	ExtDocx FileExt = ".docx"
-	ExtPptx FileExt = ".pptx"
-	ExtXlsx FileExt = ".xlsx"
-	ExtOdt  FileExt = ".odt"
-	ExtRtf  FileExt = ".rtf"
-	ExtTxt  FileExt = ".txt"
-	ExtOds  FileExt = ".ods"
-	ExtOdp  FileExt = ".odp"
-	ExtOdg  FileExt = ".odg"
-	ExtPdf  FileExt = ".pdf"
-	ExtJpg  FileExt = ".jpg"
-	ExtJpeg FileExt = ".jpeg"
-	ExtPng  FileExt = ".png"
-	ExtSvg  FileExt = ".svg"
-	ExtWebp FileExt = ".webp"
-)
-
 var officeExt = map[FileExt]struct{}{
 	ExtDoc: {}, ExtDocx: {}, ExtXls: {}, ExtXlsx: {},
 	ExtPpt: {}, ExtPptx: {}, ExtOdt: {}, ExtRtf: {},
