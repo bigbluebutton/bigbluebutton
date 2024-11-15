@@ -23,8 +23,6 @@ import {
   colorGrayLight,
   colorGrayLightest,
 } from '/imports/ui/stylesheets/styled-components/palette';
-
-import Header from '/imports/ui/components/common/control-header/component';
 import { ChatTime as ChatTimeBase } from './message-header/styles';
 
 interface ChatWrapperProps {
@@ -133,16 +131,6 @@ export const ChatContentFooter = styled.div`
   .chat-message-content:hover & {
     display: flex;
   }
-`;
-
-export const ChatHeader = styled(Header)`
-  ${({ isRTL }) => isRTL && `
-    padding-left: ${smPaddingX};
-  `}
-
-  ${({ isRTL }) => !isRTL && `
-    padding-right: ${smPaddingX};
-  `}
 `;
 
 export const ChatAvatar = styled.div<ChatAvatarProps>`

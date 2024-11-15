@@ -13,6 +13,7 @@ import { useIsPresentationEnabled } from '/imports/ui/services/features';
 import useDeduplicatedSubscription from '../../core/hooks/useDeduplicatedSubscription';
 import { usePrevious } from '../whiteboard/utils';
 import Session from '/imports/ui/services/storage/in-memory';
+import logger from '/imports/startup/client/logger';
 
 // variable to debug in console log
 const debug = false;
@@ -387,22 +388,6 @@ const reducer = (state, action) => {
         },
       };
     }
-    case ACTIONS.SET_SIDEBAR_NAVIGATION_PANEL: {
-      const { sidebarNavigation } = state.input;
-      if (sidebarNavigation.sidebarNavPanel === action.value) {
-        return state;
-      }
-      return {
-        ...state,
-        input: {
-          ...state.input,
-          sidebarNavigation: {
-            ...sidebarNavigation,
-            sidebarNavPanel: action.value,
-          },
-        },
-      };
-    }
     case ACTIONS.SET_SIDEBAR_NAVIGATION_SIZE: {
       const { width, browserWidth } = action.value;
       const { sidebarNavigation } = state.input;
@@ -422,36 +407,79 @@ const reducer = (state, action) => {
         },
       };
     }
+    case ACTIONS.REGISTER_SIDEBAR_NAVIGATION_WIDGET: {
+      const { widgetName, widgetPinnedButtonComponent } = action.value;
+      const { sidebarNavigation } = state.input;
+      const { registeredWidgets } = sidebarNavigation;
+      if (widgetName in registeredWidgets) {
+        logger.warn({
+          logCode: 'overriding_registered_widget',
+          extraInfo: {
+            widgetName,
+          },
+        }, `Layout Context: Attempting to register widget "${widgetName}" that already exists. Overriding the previous instance.`);
+      }
+      return {
+        ...state,
+        input: {
+          ...state.input,
+          sidebarNavigation: {
+            ...sidebarNavigation,
+            registeredWidgets: {
+              ...registeredWidgets,
+              [widgetName]: widgetPinnedButtonComponent,
+            },
+          },
+        },
+      };
+    }
+    case ACTIONS.SET_SIDEBAR_NAVIGATION_PIN_WIDGET: {
+      const { widgetName, pin } = action.value;
+      const { sidebarNavigation } = state.input;
+      const { pinnedWidgets, registeredWidgets } = sidebarNavigation;
+
+      const isWidgetRegistered = widgetName in registeredWidgets;
+      const isWidgetPinned = pinnedWidgets.includes(widgetName);
+
+      if (!isWidgetRegistered) return state;
+      if ((pin && isWidgetPinned) || (!pin && !isWidgetPinned)) {
+        return state;
+      }
+
+      const updatedPinnedWidgets = pin
+        ? [...pinnedWidgets, widgetName]
+        : pinnedWidgets.filter((pinnedWidget) => pinnedWidget !== widgetName);
+
+      return {
+        ...state,
+        input: {
+          ...state.input,
+          sidebarNavigation: {
+            ...sidebarNavigation,
+            pinnedWidgets: updatedPinnedWidgets,
+          },
+        },
+      };
+    }
     case ACTIONS.SET_SIDEBAR_NAVIGATION_OUTPUT: {
       const {
         display,
-        minWidth,
         width,
-        maxWidth,
-        minHeight,
         height,
-        maxHeight,
         top,
         left,
         right,
         tabOrder,
-        isResizable,
         zIndex,
       } = action.value;
       const { sidebarNavigation } = state.output;
       if (sidebarNavigation.display === display
-        && sidebarNavigation.minWidth === minWidth
-        && sidebarNavigation.maxWidth === maxWidth
         && sidebarNavigation.width === width
-        && sidebarNavigation.minHeight === minHeight
         && sidebarNavigation.height === height
-        && sidebarNavigation.maxHeight === maxHeight
-        && sidebarNavigation.top === top
         && sidebarNavigation.left === left
         && sidebarNavigation.right === right
         && sidebarNavigation.tabOrder === tabOrder
-        && sidebarNavigation.zIndex === zIndex
-        && sidebarNavigation.isResizable === isResizable) {
+        && sidebarNavigation.zIndex === zIndex) {
         return state;
       }
       return {
@@ -461,45 +489,13 @@ const reducer = (state, action) => {
           sidebarNavigation: {
             ...sidebarNavigation,
             display,
-            minWidth,
             width,
-            maxWidth,
-            minHeight,
             height,
-            maxHeight,
             top,
             left,
             right,
             tabOrder,
-            isResizable,
             zIndex,
-          },
-        },
-      };
-    }
-    case ACTIONS.SET_SIDEBAR_NAVIGATION_RESIZABLE_EDGE: {
-      const {
-        top, right, bottom, left,
-      } = action.value;
-      const { sidebarNavigation } = state.output;
-      if (sidebarNavigation.resizableEdge.top === top
-        && sidebarNavigation.resizableEdge.right === right
-        && sidebarNavigation.resizableEdge.bottom === bottom
-        && sidebarNavigation.resizableEdge.left === left) {
-        return state;
-      }
-      return {
-        ...state,
-        output: {
-          ...state.output,
-          sidebarNavigation: {
-            ...sidebarNavigation,
-            resizableEdge: {
-              top,
-              right,
-              bottom,
-              left,
-            },
           },
         },
       };

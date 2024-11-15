@@ -1,7 +1,6 @@
 import styled from 'styled-components';
-import { colorWhite, colorPrimary } from '/imports/ui/stylesheets/styled-components/palette';
+import { colorWhite, colorPrimary, colorGrayLighter } from '/imports/ui/stylesheets/styled-components/palette';
 import { smallOnly } from '/imports/ui/stylesheets/styled-components/breakpoints';
-import { smPaddingX } from '/imports/ui/stylesheets/styled-components/general';
 
 interface ChatProps {
   isChrome: boolean;
@@ -10,23 +9,16 @@ interface ChatProps {
 
 export const Chat = styled.div<ChatProps>`
   background-color: ${colorWhite};
-  padding: ${smPaddingX};
+  padding: 16px;
   padding-bottom: 0;
   display: flex;
   flex-grow: 1;
   flex-direction: column;
   justify-content: space-around;
   overflow: hidden;
-  height: 100%;
+  height: 85%;
+  border-radius: 16px;
   user-select: none;
-
-  ${({ isRTL }) => isRTL && `
-    padding-left: 0.1rem;
-  `}
-
-  ${({ isRTL }) => !isRTL && `
-    padding-right: 0.1rem;
-  `}
 
   a {
     color: ${colorPrimary};
@@ -75,4 +67,11 @@ const ChatMessages = styled.div`
   user-select: text;
 `;
 
-export default { Chat, ChatMessages, ChatContent };
+const Separator = styled.hr`
+  margin: 1rem auto;
+  width: 100%;
+  border: 0;
+  border-top: 1px solid ${colorGrayLighter};
+`;
+
+export default { Chat, ChatMessages, ChatContent, Separator };

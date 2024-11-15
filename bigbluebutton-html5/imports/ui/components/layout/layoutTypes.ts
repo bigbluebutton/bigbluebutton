@@ -1,3 +1,5 @@
+import React from 'react';
+
 interface ActionBar {
     hasActionBar?: boolean;
     height: number;
@@ -191,23 +193,22 @@ interface SidebarContentHorizontalResizer {
     width: number;
 }
 
-interface SidebarNavigation {
+interface RegisteredWidgets {
+  [key: string]: React.FC | React.JSX.Element;
+}
+
+export interface SidebarNavigation {
     browserWidth?: number;
     isOpen?: boolean;
-    sidebarNavPanel?: string;
     width: number;
     height: number;
     display?: boolean;
-    isResizable?: boolean;
     left?: number;
-    maxHeight?: number;
-    maxWidth?: number;
-    minHeight?: number;
-    minWidth?: number;
-    resizableEdge?: ResizableEdge;
     tabOrder?: number;
     top?: number;
     zIndex?: number;
+    registeredWidgets?: RegisteredWidgets;
+    pinnedWidgets?: string[];
 }
 
 interface Fullscreen {
@@ -291,7 +292,7 @@ interface Layout {
 
 interface ActionForDispatcher {
   type: string;
-  value: object;
+  value: object | boolean | string;
 }
 
 type DispatcherFunction = (action: ActionForDispatcher) => void;
