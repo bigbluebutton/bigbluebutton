@@ -1278,7 +1278,7 @@
     "app.whiteboard.toolbar.clearConfirmation": "Kas soovid kõik märked kustutada?",
     "app.whiteboard.toolbar.multiUserOn": "Lülita mitme kasutaja tahvel sisse",
     "app.whiteboard.toolbar.multiUserOff": "Lülita mitme kasutaja tahvel välja",
-    "app.whiteboard.toolbar.multiUserLimitHasBeenReached": "Sessiooni kasutajate arv ületab mitme kasutaja tahvli käivitamiseks lubatud osalejate piirarvu {0}. Kasutajaid saab endiselt ükshaaval osalema valida.",
+    "app.whiteboard.toolbar.multiUserLimitHasBeenReached": "Sessiooni kasutajate arv ületab mitme kasutaja tahvli käivitamiseks lubatud piirarvu {0}. Kasutajaid saab endiselt ükshaaval osalema valida.",
     "app.whiteboard.toolbar.multiUserLimitHasBeenReachedNotification": "Mitme kasutaja tahvli maksimaalne kohtade arv on saavutatud ({0}).",
     "app.whiteboard.available": "Tahvel on nüüd saadaval!",
     "app.whiteboard.unavailable": "Juurdepääs tahvlile on eemaldatud.",
