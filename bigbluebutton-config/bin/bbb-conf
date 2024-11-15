@@ -360,8 +360,8 @@ start_bigbluebutton () {
         fi
     fi
 
-    echo "Reloading NginX configuration"
-    systemctl reload nginx
+    echo "Reloading NginX configuration, restarting if needed"
+    systemctl reload-or-restart nginx
 
     echo "Starting BigBlueButton"
 
