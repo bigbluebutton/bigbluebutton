@@ -229,7 +229,7 @@ const Whiteboard = React.memo((props) => {
   }, [fitToWidth]);
 
   React.useEffect(() => {
-    if (!isEqual(prevShapesRef.current, shapes)) {
+    if (shapes && !isEqual(prevShapesRef.current, shapes)) {
       prevShapesRef.current = shapes;
       tlEditorRef.current?.store.mergeRemoteChanges(() => {
         const shapesArray = Object.values(shapes).map((shape) => sanitizeShape(shape));
@@ -771,8 +771,10 @@ const Whiteboard = React.memo((props) => {
       });
 
       editor.store.mergeRemoteChanges(() => {
-        const remoteShapesArray = Object.values(shapes).map((shape) => sanitizeShape(shape));
-         editor.store.put(remoteShapesArray);
+        if (shapes) {
+          const remoteShapesArray = Object.values(shapes).map((shape) => sanitizeShape(shape));
+          editor.store.put(remoteShapesArray);
+        }
       });
 
       // eslint-disable-next-line no-param-reassign
