@@ -50,6 +50,7 @@ import MediaService from '/imports/ui/components/media/service';
 import getFromUserSettings from '/imports/ui/services/users-settings';
 import { debounce } from '/imports/utils/debounce';
 import useLockContext from '/imports/ui/components/lock-viewers/hooks/useLockContext';
+import useMeeting from '/imports/ui/core/hooks/useMeeting';
 
 const FORCE_RESTORE_PRESENTATION_ON_NEW_EVENTS = 'bbb_force_restore_presentation_on_new_events';
 
@@ -198,53 +199,11 @@ const WhiteboardContainer = (props) => {
 
   const cursorArray = useMergedCursorData();
 
-  const { data: annotationStreamData } = useSubscription(ANNOTATION_HISTORY_STREAM, {
-    variables: { updatedAt: new Date(0).toISOString() },
-    skip: !curPageId,
-    onSubscriptionData: ({ subscriptionData }) => {
-      const annotationStream = subscriptionData.data?.pres_annotation_history_curr_stream || [];
-
-      const shapeMap = new Map();
-
-      annotationStream.forEach((annotation) => {
-        const { annotationId, annotationInfo } = annotation;
-        shapeMap.set(annotationId, annotation);
-      });
-
-      const validShapes = [];
-      const annotationsToBeRemoved = new Set();
-
-      //Process only the latest occurrence of each shape
-      shapeMap.forEach(({ annotationId, annotationInfo }) => {
-        if (!annotationInfo) {
-          annotationsToBeRemoved.add(annotationId);
-        } else {
-          validShapes.push({ ...annotationInfo, id: annotationId });
-        }
-      });
-
-      setShapes(() => {
-        const finalShapes = validShapes.filter(
-          (shape) => !annotationsToBeRemoved.has(shape.id)
-        );
-
-        if (finalShapes.length > 0) {
-          const restoreOnUpdate = getFromUserSettings(
-            FORCE_RESTORE_PRESENTATION_ON_NEW_EVENTS,
-            window.meetingClientSettings.public.presentation.restoreOnUpdate,
-          );
-
-          if (restoreOnUpdate) {
-            MediaService.setPresentationIsOpen(layoutContextDispatch, true);
-          }
-        }
-
-        return finalShapes;
-      });
-
-      setRemovedShapes(Array.from(annotationsToBeRemoved));
-    },
-  });
+  const {
+    data: currentMeeting,
+  } = useMeeting((m) => ({
+    createdTime: m.createdTime,
+  }));
 
   const { data: initialPageAnnotations, refetch: refetchInitialPageAnnotations } = useQuery(
     CURRENT_PAGE_ANNOTATIONS_QUERY,
@@ -252,6 +211,65 @@ const WhiteboardContainer = (props) => {
       skip: !curPageId,
     },
   );
+
+  const lastUpdatedAt = useMemo(() => {
+    if (!initialPageAnnotations?.pres_annotation_curr?.length) {
+      return currentMeeting?.createdTime
+        ? new Date(currentMeeting.createdTime).toISOString()
+        : null;
+    }
+    return initialPageAnnotations.pres_annotation_curr.reduce((latest, annotation) => {
+      const updatedAt = new Date(annotation.lastUpdatedAt);
+      return updatedAt > latest ? updatedAt : latest;
+    }, new Date(0)).toISOString();
+  }, [initialPageAnnotations]);
+
+  const { data: annotationStreamData } = useSubscription(ANNOTATION_HISTORY_STREAM, {
+    variables: { updatedAt: lastUpdatedAt },
+    skip: !curPageId || !lastUpdatedAt,
+    onSubscriptionData: ({ subscriptionData }) => {
+      const annotationStream =
+        subscriptionData.data?.pres_annotation_history_curr_stream || [];
+
+      const processedAnnotationIds = new Set();
+      const validShapes = [];
+      const annotationsToBeRemoved = new Set();
+
+      for (let i = annotationStream.length - 1; i >= 0; i--) {
+        const annotation = annotationStream[i];
+        const { annotationId, annotationInfo } = annotation;
+
+        if (processedAnnotationIds.has(annotationId)) {
+          continue;
+        }
+
+        processedAnnotationIds.add(annotationId);
+
+        if (!annotationInfo) {
+          annotationsToBeRemoved.add(annotationId);
+        } else {
+          validShapes.push({ ...annotationInfo, id: annotationId });
+        }
+      }
+
+      setShapes(() => {
+        if (validShapes.length > 0) {
+          const restoreOnUpdate = getFromUserSettings(
+            FORCE_RESTORE_PRESENTATION_ON_NEW_EVENTS,
+            window.meetingClientSettings.public.presentation.restoreOnUpdate
+          );
+
+          if (restoreOnUpdate) {
+            MediaService.setPresentationIsOpen(layoutContextDispatch, true);
+          }
+        }
+
+        return validShapes;
+      });
+
+      setRemovedShapes(Array.from(annotationsToBeRemoved));
+    },
+  });
 
   React.useEffect(() => {
     if (curPageIdRef.current) {
