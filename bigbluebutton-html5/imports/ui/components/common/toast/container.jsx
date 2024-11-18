@@ -23,6 +23,8 @@ class ToastContainer extends React.Component {
         hideProgressBar={false}
         closeOnClick
         pauseOnHover
+        icon={false}
+        theme="colored"
       />
     );
   }
