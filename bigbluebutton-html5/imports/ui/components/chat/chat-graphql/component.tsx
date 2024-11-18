@@ -1,4 +1,5 @@
 import React, { useRef, useState } from 'react';
+import { defineMessages, useIntl } from 'react-intl';
 import { CircularProgress, Button } from '@mui/material';
 import BackButton from '/imports/ui/components/chat/chat-graphql/private-back-button/component';
 import ChatHeader from './chat-header/component';
@@ -14,10 +15,8 @@ import usePendingChat from '/imports/ui/core/local-states/usePendingChat';
 import useChat from '/imports/ui/core/hooks/useChat';
 import { Chat as ChatType } from '/imports/ui/Types/chat';
 import { layoutDispatch } from '/imports/ui/components/layout/context';
-import browserInfo from '/imports/utils/browserInfo';
 import { GraphqlDataHookSubscriptionResponse } from '/imports/ui/Types/hook';
 import { ChatEvents } from '/imports/ui/core/enums/chat';
-import { defineMessages, useIntl } from 'react-intl';
 
 const intlMessages = defineMessages({
   messagesTitle: {
@@ -35,18 +34,21 @@ const intlMessages = defineMessages({
 });
 
 interface ChatProps {
-  isRTL: boolean;
   publicUnreadMessages: boolean;
   privateUnreadMessages: boolean;
   chatId: string;
   participantName: string;
 }
 
-const Chat: React.FC<ChatProps> = ({ isRTL, publicUnreadMessages, privateUnreadMessages, chatId, participantName }) => {
+const Chat: React.FC<ChatProps> = ({
+  publicUnreadMessages,
+  privateUnreadMessages,
+  chatId,
+  participantName,
+}) => {
   const CHAT_CONFIG = window.meetingClientSettings.public.chat;
   const PUBLIC_GROUP_CHAT_ID = CHAT_CONFIG.public_group_id;
 
-  const { isChrome } = browserInfo;
   const isEditingMessage = useRef(false);
   const [showMessages, setShowMessages] = useState(chatId === PUBLIC_GROUP_CHAT_ID);
   const [privateList, setPrivateList] = useState(false); // novo estado
@@ -115,7 +117,7 @@ const Chat: React.FC<ChatProps> = ({ isRTL, publicUnreadMessages, privateUnreadM
   }, []);
 
   return (
-    <Styled.Chat isRTL={isRTL} isChrome={isChrome}>
+    <>
       <ChatHeader />
       <Styled.Separator />
       <div style={{ display: 'flex', justifyContent: 'space-between', padding: '8px' }}>
@@ -129,10 +131,10 @@ const Chat: React.FC<ChatProps> = ({ isRTL, publicUnreadMessages, privateUnreadM
             width: '100%',
             marginRight: '8px',
             padding: '8px 16px',
-            textTransform: 'none', 
-            backgroundColor: showMessages ? 'primary.main' : '#E3F2FD', 
+            textTransform: 'none',
+            backgroundColor: showMessages ? 'primary.main' : '#E3F2FD',
             color: showMessages ? '#FFFFFF' : '#B0BEC5',
-            borderColor: showMessages ? 'transparent' : '#BBDEFB', 
+            borderColor: showMessages ? 'transparent' : '#BBDEFB',
           }}
           onClick={() => handleClickSelectChat(true)}
         >
@@ -146,7 +148,8 @@ const Chat: React.FC<ChatProps> = ({ isRTL, publicUnreadMessages, privateUnreadM
               height: '8px',
               backgroundColor: 'red',
               borderRadius: '50%',
-            }} />
+            }}
+            />
           )}
         </Button>
         <Button
@@ -175,7 +178,8 @@ const Chat: React.FC<ChatProps> = ({ isRTL, publicUnreadMessages, privateUnreadM
               height: '8px',
               backgroundColor: 'red',
               borderRadius: '50%',
-            }} />
+            }}
+            />
           )}
         </Button>
       </div>
@@ -192,22 +196,16 @@ const Chat: React.FC<ChatProps> = ({ isRTL, publicUnreadMessages, privateUnreadM
           <ChatTypingIndicatorContainer />
         </>
       )}
-    </Styled.Chat>
+    </>
   );
 };
 
-export const ChatLoading: React.FC<ChatProps> = ({ isRTL }) => {
-  const { isChrome } = browserInfo;
-  return (
-    <Styled.Chat isRTL={isRTL} isChrome={isChrome}>
-      <CircularProgress style={{ alignSelf: 'center' }} />
-    </Styled.Chat>
-  );
+export const ChatLoading: React.FC = () => {
+  return <CircularProgress style={{ alignSelf: 'center' }} />;
 };
 
 const ChatContainer: React.FC = () => {
   const idChatOpen = layoutSelect((i: Layout) => i.idChatOpen);
-  const isRTL = layoutSelect((i: Layout) => i.isRTL);
   const sidebarContent = layoutSelectInput((i: Input) => i.sidebarContent);
   const layoutContextDispatch = layoutDispatch();
   const { data: chats } = useChat((chat) => {
@@ -221,15 +219,23 @@ const ChatContainer: React.FC = () => {
   const [pendingChat, setPendingChat] = usePendingChat();
 
   const PUBLIC_GROUP_CHAT_ID = window.meetingClientSettings.public.chat.public_group_id;
-  const publicUnreadMessages = !!chats?.some(chat => chat.chatId === PUBLIC_GROUP_CHAT_ID && chat.totalUnread > 0);
-  const privateUnreadMessages = !!chats?.some(chat => chat.chatId !== PUBLIC_GROUP_CHAT_ID && chat.totalUnread > 0);
+  const publicUnreadMessages = !!chats?.some((chat) => (
+    chat.chatId === PUBLIC_GROUP_CHAT_ID
+    && chat?.totalUnread
+    && chat.totalUnread > 0
+  ));
+  const privateUnreadMessages = !!chats?.some((chat) => (
+    chat.chatId !== PUBLIC_GROUP_CHAT_ID
+    && chat?.totalUnread
+    && chat.totalUnread > 0
+  ));
 
   let participantName = '';
-  const currentChat = chats?.find(chat => chat.chatId === idChatOpen);
+  const currentChat = chats?.find((chat) => chat.chatId === idChatOpen);
   if (currentChat && currentChat.participant) {
     participantName = currentChat.participant.name || '';
   }
-  
+
   if (pendingChat && chats) {
     const chat = chats.find((c) => {
       return c.participant?.userId === pendingChat;
@@ -244,9 +250,16 @@ const ChatContainer: React.FC = () => {
   }
 
   if (sidebarContent.sidebarContentPanel !== PANELS.CHAT) return null;
-  if (!idChatOpen) return <ChatLoading isRTL={isRTL} />;
-  
-  return <Chat isRTL={isRTL} publicUnreadMessages={publicUnreadMessages} privateUnreadMessages={privateUnreadMessages} participantName={participantName} chatId={idChatOpen}/>;
+  if (!idChatOpen) return <ChatLoading />;
+
+  return (
+    <Chat
+      publicUnreadMessages={publicUnreadMessages}
+      privateUnreadMessages={privateUnreadMessages}
+      participantName={participantName}
+      chatId={idChatOpen}
+    />
+  );
 };
 
 export default ChatContainer;

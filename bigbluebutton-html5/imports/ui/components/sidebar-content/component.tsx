@@ -1,5 +1,4 @@
 import React, { useState, useEffect } from 'react';
-import PropTypes from 'prop-types';
 import Resizable from 're-resizable';
 import { ACTIONS, PANELS } from '../layout/enums';
 import ChatContainer from '/imports/ui/components/chat/chat-graphql/component';
@@ -11,27 +10,18 @@ import GuestUsersManagementPanel from '/imports/ui/components/waiting-users/wait
 import Styled from './styles';
 import ErrorBoundary from '/imports/ui/components/common/error-boundary/component';
 import FallbackView from '/imports/ui/components/common/fallback-errors/fallback-view/component';
+import WidgetsGallery from '/imports/ui/components/widgets-gallery/container';
 import GenericContentSidekickContainer from '/imports/ui/components/generic-content/generic-sidekick-content/container';
+import browserInfo from '/imports/utils/browserInfo';
+import { layoutSelect } from '/imports/ui/components/layout/context';
+import { Layout } from '/imports/ui/components/layout/layoutTypes';
+import { SidebarContentProps } from './types';
 
-const propTypes = {
-  top: PropTypes.number.isRequired,
-  left: PropTypes.number,
-  right: PropTypes.number,
-  zIndex: PropTypes.number.isRequired,
-  minWidth: PropTypes.number.isRequired,
-  width: PropTypes.number.isRequired,
-  maxWidth: PropTypes.number.isRequired,
-  height: PropTypes.number.isRequired,
-  isResizable: PropTypes.bool.isRequired,
-  resizableEdge: PropTypes.objectOf(PropTypes.bool).isRequired,
-  contextDispatch: PropTypes.func.isRequired,
-};
-
-const SidebarContent = (props) => {
+const SidebarContent = (props: SidebarContentProps) => {
   const {
     top,
-    left = null,
-    right = null,
+    left = undefined,
+    right = undefined,
     zIndex,
     minWidth,
     width,
@@ -43,10 +33,7 @@ const SidebarContent = (props) => {
     resizableEdge,
     contextDispatch,
     sidebarContentPanel,
-    amIPresenter,
     isSharedNotesPinned,
-    currentSlideId,
-    amIModerator,
   } = props;
 
   const [resizableWidth, setResizableWidth] = useState(width);
@@ -54,6 +41,7 @@ const SidebarContent = (props) => {
   const [isResizing, setIsResizing] = useState(false);
   const [resizeStartWidth, setResizeStartWidth] = useState(0);
   const [resizeStartHeight, setResizeStartHeight] = useState(0);
+  const isRTL = layoutSelect((i: Layout) => i.isRTL);
 
   useEffect(() => {
     if (!isResizing) {
@@ -62,7 +50,7 @@ const SidebarContent = (props) => {
     }
   }, [width, height]);
 
-  const setSidebarContentSize = (dWidth, dHeight) => {
+  const setSidebarContentSize = (dWidth: number, dHeight: number) => {
     const newWidth = resizeStartWidth + dWidth;
     const newHeight = resizeStartHeight + dHeight;
 
@@ -80,8 +68,8 @@ const SidebarContent = (props) => {
     });
   };
 
-  const smallSidebar = width < (maxWidth / 2);
   const pollDisplay = sidebarContentPanel === PANELS.POLL ? 'inherit' : 'none';
+  const { isChrome } = browserInfo;
 
   return (
     <Resizable
@@ -94,10 +82,10 @@ const SidebarContent = (props) => {
         height,
       }}
       enable={{
-        top: isResizable && resizableEdge.top,
-        left: isResizable && resizableEdge.left,
-        bottom: isResizable && resizableEdge.bottom,
-        right: isResizable && resizableEdge.right,
+        top: isResizable && resizableEdge?.top,
+        left: isResizable && resizableEdge?.left,
+        bottom: isResizable && resizableEdge?.bottom,
+        right: isResizable && resizableEdge?.right,
       }}
       handleWrapperClass="resizeSidebarContentWrapper"
       onResizeStart={() => {
@@ -137,42 +125,40 @@ const SidebarContent = (props) => {
         },
       }}
     >
-      {sidebarContentPanel === PANELS.CHAT
-        && (
-          <ErrorBoundary
-            Fallback={FallbackView}
-          >
-            <ChatContainer width={width} />
-          </ErrorBoundary>
-        )}
-      {!isSharedNotesPinned && (
-        <NotesContainer
-          isToSharedNotesBeShow={sidebarContentPanel === PANELS.SHARED_NOTES}
-        />
-      )}
-      {sidebarContentPanel === PANELS.BREAKOUT && <BreakoutRoomContainer />}
-      {sidebarContentPanel === PANELS.TIMER && <TimerContainer isModerator={amIModerator} />}
-      {sidebarContentPanel === PANELS.WAITING_USERS && <GuestUsersManagementPanel />}
-      {sidebarContentPanel === PANELS.POLL && (
-        <Styled.Poll
-          style={{ minWidth, top: '0', display: pollDisplay }}
-          id="pollPanel"
-        >
-          <PollContainer
-            smallSidebar={smallSidebar}
-            amIPresenter={amIPresenter}
-            currentSlideId={currentSlideId}
+      <Styled.SidebarContentPanel isRTL={isRTL} isChrome={isChrome}>
+        {sidebarContentPanel === PANELS.CHAT
+          && (
+            <ErrorBoundary
+              Fallback={FallbackView}
+            >
+              <ChatContainer />
+            </ErrorBoundary>
+          )}
+        {!isSharedNotesPinned && (
+          <NotesContainer
+            isToSharedNotesBeShow={sidebarContentPanel === PANELS.SHARED_NOTES}
           />
-        </Styled.Poll>
-      )}
-      {sidebarContentPanel.includes(PANELS.GENERIC_CONTENT_SIDEKICK) && (
-        <GenericContentSidekickContainer
-          genericSidekickContentId={sidebarContentPanel}
-        />
-      )}
+        )}
+        {sidebarContentPanel === PANELS.BREAKOUT && <BreakoutRoomContainer />}
+        {sidebarContentPanel === PANELS.TIMER && <TimerContainer />}
+        {sidebarContentPanel === PANELS.WAITING_USERS && <GuestUsersManagementPanel />}
+        {sidebarContentPanel === PANELS.POLL && (
+          <Styled.Poll
+            style={{ minWidth, top: '0', display: pollDisplay }}
+            id="pollPanel"
+          >
+            <PollContainer />
+          </Styled.Poll>
+        )}
+        {sidebarContentPanel === PANELS.WIDGETS && <WidgetsGallery />}
+        {sidebarContentPanel.includes(PANELS.GENERIC_CONTENT_SIDEKICK) && (
+          <GenericContentSidekickContainer
+            genericSidekickContentId={sidebarContentPanel}
+          />
+        )}
+      </Styled.SidebarContentPanel>
     </Resizable>
   );
 };
 
-SidebarContent.propTypes = propTypes;
 export default SidebarContent;
