@@ -8,6 +8,7 @@ import React, {
 import { defineMessages, useIntl } from 'react-intl';
 import { isEmpty } from 'radash';
 import { ApolloLink, useQuery } from '@apollo/client';
+import isURL from 'validator/lib/isURL';
 import {
   JoinErrorCodeTable,
   MeetingEndedTable,
@@ -23,7 +24,6 @@ import { LoadingContext } from '../common/loading-screen/loading-screen-HOC/comp
 import logger from '/imports/startup/client/logger';
 import apolloContextHolder from '/imports/ui/core/graphql/apolloContextHolder/apolloContextHolder';
 import getFromUserSettings from '/imports/ui/services/users-settings';
-import isURL from 'validator/lib/isURL';
 
 const intlMessage = defineMessages({
   410: {
@@ -274,7 +274,7 @@ const MeetingEnded: React.FC<MeetingEndedProps> = ({
       redirectTo = redirectTo.replaceAll('%%USERID%%', userId);
       redirectTo = redirectTo.replaceAll('%%USERNAME%%', userName);
       redirectTo = redirectTo.replaceAll('%%MEETINGID%%', meetingId);
-      if (validator.isURL(redirectTo)) {
+      if (isURL(redirectTo)) {
         window.location.href = redirectTo;
       }
     }
