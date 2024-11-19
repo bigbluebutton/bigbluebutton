@@ -815,6 +815,7 @@ module BigBlueButton
           senderRole = event.at_xpath('./senderRole')&.content
           chatEmphasizedText = event.at_xpath('./chatEmphasizedText')&.content
           message_id = event.at_xpath('./messageId')&.content
+          replyToMessageId = event.at_xpath('./replyToMessageId')&.content
 
           chats << {
             id: message_id,
@@ -824,6 +825,7 @@ module BigBlueButton
             sender: sender_id.nil? ? sender : user_map.fetch(sender_id),
             senderRole: senderRole,
             chatEmphasizedText: chatEmphasizedText,
+            replyToMessageId: replyToMessageId,
             message: linkify(event.at_xpath('./message').content.strip),
             reactions: reaction_emoji[message_id],
             date: date,
@@ -838,6 +840,12 @@ module BigBlueButton
         when %w[CHAT DeletePublicChatMessageRecordEvent]
           next if timestamp < start_time
           message_id = event.at_xpath('./messageId')&.content
+
+          # Delete messages that reply to this message first
+          messagesReply = chats.select{|message| message[:replyToMessageId] == message_id}
+          messagesReply.each { |message| chats.delete(message) }
+
+          # Properly delete this message
           index_to_be_deleted = chats.index { |message| message[:id] === message_id }
           chats.delete_at(index_to_be_deleted)
         when %w[CHAT EditPublicChatMessageRecordEvent]
