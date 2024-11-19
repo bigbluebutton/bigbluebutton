@@ -1123,6 +1123,7 @@
     "app.connection-status.sessionLogs": "Session Logs",
     "app.connection-status.next": "Next page",
     "app.connection-status.prev": "Previous page",
+    "app.connection-status.lastTimeActive": "Last time user has been active",
     "app.notificationBar.connectionCode3001": "Reconnection in progress (code 3001)",
     "app.notificationBar.connectionCode3002": "Unable to connect. Please check your internet connection (code 3002)",
     "app.notificationBar.connectionCode3003": "Server is currently not responding. Reconnection in progress (code 3003)",
