@@ -125,7 +125,7 @@ const GuestWait: React.FC<GuestWaitProps> = (props) => {
     const sessionToken = getSearchParam('sessionToken');
 
     if (loadingContextInfo.isLoading) {
-      loadingContextInfo.setLoading(false, '');
+      loadingContextInfo.setLoading(false);
     }
 
     if (!sessionToken) {
