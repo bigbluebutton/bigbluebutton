@@ -528,6 +528,7 @@ export interface Chat {
   disableEmojis: string[]
   allowedElements: string[]
   toolbar: string[]
+  mention: boolean
 }
 
 export interface SystemMessagesKeys {

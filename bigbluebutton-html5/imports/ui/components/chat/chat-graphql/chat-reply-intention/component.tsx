@@ -4,8 +4,15 @@ import useSettings from '/imports/ui/services/settings/hooks/useSettings';
 import { SETTINGS } from '/imports/ui/services/settings/enums';
 import { ChatEvents } from '/imports/ui/core/enums/chat';
 import Storage from '/imports/ui/services/storage/in-memory';
+import { findAndReplaceMentions } from '/imports/ui/components/chat/chat-graphql/utils';
+import CustomMarkdownLink from '/imports/ui/components/chat/chat-graphql/custom-markdown-components/link/component';
 
-const ChatReplyIntention = () => {
+interface ChatReplyIntentionProps {
+  userNames: string[];
+}
+
+const ChatReplyIntention: React.FC<ChatReplyIntentionProps> = (props) => {
+  const { userNames } = props;
   const [username, setUsername] = useState<string>();
   const [message, setMessage] = useState<string>();
   const [emphasizedMessage, setEmphasizedMessage] = useState<boolean>();
@@ -46,6 +53,12 @@ const ChatReplyIntention = () => {
   const hidden = !username || !message;
   const messageChunks = message ? message.split('\n') : null;
 
+  const { mention: mentionEnabled } = window.meetingClientSettings.public.chat;
+
+  const replaceMentions = (msg: string) => {
+    return mentionEnabled ? findAndReplaceMentions(msg, userNames) : msg;
+  };
+
   return (
     <Styled.Container
       $hidden={hidden}
@@ -65,8 +78,9 @@ const ChatReplyIntention = () => {
       <Styled.Message>
         <Styled.Markdown
           $emphasizedMessage={!!emphasizedMessage}
+          components={{ a: CustomMarkdownLink }}
         >
-          {messageChunks ? messageChunks[0] : ''}
+          {messageChunks ? replaceMentions(messageChunks[0]) : ''}
         </Styled.Markdown>
       </Styled.Message>
       <Styled.CloseBtn
