@@ -40,6 +40,7 @@ class Notifications extends MultiUsers {
   }
 
   async getUserJoinPopupResponse() {
+    await this.modPage.hasElement(e.whiteboard);
     await this.userJoinNotification(this.modPage);
     await this.modPage.closeAllToastNotifications();
     await this.initUserPage();
