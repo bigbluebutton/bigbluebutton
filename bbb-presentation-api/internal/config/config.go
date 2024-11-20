@@ -52,16 +52,33 @@ type Config struct {
 		TextFile struct {
 			Timeout int `yaml:"timeout"`
 		} `yaml:"text_file"`
-		Png struct {
+		PNG struct {
 			SlideWidth int  `yaml:"slide_width"`
 			Generate   bool `yaml:"generate"`
 			Timeout    int  `yaml:"timeout"`
 		} `yaml:"png"`
+		SVG struct {
+			Generate   bool `yaml:"generate"`
+			Timeout    int  `yaml:"timeout"`
+			Resolution int  `yaml:"resolution"`
+			MaxImages  int  `yaml:"max_images"`
+			MaxTags    int  `yaml:"max_tags"`
+			PDF        struct {
+				Font struct {
+					Timeout     int `yaml:"timeout"`
+					MaxAttempts int `yaml:"max_attempts"`
+				} `yaml:"font"`
+			} `yaml:"pdf"`
+			Rasterize struct {
+				Force bool `yaml:"force"`
+				Width int  `yaml:"width"`
+			} `yaml:"rasterize"`
+		} `yaml:"svg"`
 		Blank struct {
 			Presentation string `yaml:"presentation"`
 			Thumbnail    string `yaml:"thumbnail"`
-			Png          string `yaml:"png"`
-			Svg          string `yaml:"svg"`
+			PNG          string `yaml:"png"`
+			SVG          string `yaml:"svg"`
 		} `yaml:"blank"`
 	} `yaml:"generation"`
 }

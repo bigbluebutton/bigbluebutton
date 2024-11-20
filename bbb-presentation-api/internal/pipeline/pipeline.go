@@ -175,11 +175,21 @@ func (s *Step[T, U]) Generate(g Generator[T, U]) *Step[T, U] {
 
 // Add connects an existing [Flow] that takes an input [Message] with a payload of type T and outputs
 // a message with a payload of type U with a [Step] that takes an input message with a payload of type U
-// and outputs a message with a payload of type V. The returned flow will take an input an input Message
+// and outputs a message with a payload of type V. The returned flow will take an input Message
 // with a payload of type T and output a message with a payload of type V.
 func Add[T, U, V any](flow Flow[T, U], step *Step[U, V]) Flow[T, V] {
 	return Flow[T, V]{
 		Execute: composeExecute(flow.Execute, step.execute),
+	}
+}
+
+// Merge combines an existing [Flow] that takes an input [Message] with a payload of type T and outputs
+// a message with a payload of type U with another [Flow] that takes an input message with a payload of
+// type U and outputs a message with a payload of type V. The returned flow will take an input Message
+// with a payload of type T and output a message with a payload of type V.
+func Merge[T, U, V any](f1 Flow[T, U], f2 Flow[U, V]) Flow[T, V] {
+	return Flow[T, V]{
+		Execute: composeExecute(f1.Execute, f2.Execute),
 	}
 }
 

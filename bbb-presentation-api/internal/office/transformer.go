@@ -14,19 +14,19 @@ import (
 	"github.com/bigbluebutton/bigbluebutton/bbb-presentation-api/internal/presentation"
 )
 
-type PdfTransformer struct {
+type PDFTransformer struct {
 	removeFileFunc func(name string) error
 	exec           func(ctx context.Context, name string, args ...string) *exec.Cmd
 }
 
-func NewPDFTransformer() *PdfTransformer {
-	return &PdfTransformer{
+func NewPDFTransformer() *PDFTransformer {
+	return &PDFTransformer{
 		removeFileFunc: os.Remove,
 		exec:           exec.CommandContext,
 	}
 }
 
-func (t *PdfTransformer) Transform(msg pipeline.Message[*FileToConvert]) (pipeline.Message[*pdf.FileToProcess], error) {
+func (t *PDFTransformer) Transform(msg pipeline.Message[*FileToConvert]) (pipeline.Message[*pdf.FileToProcess], error) {
 	inFile := msg.Payload.InFile
 	outFile := msg.Payload.OutFile
 
@@ -98,7 +98,7 @@ func convertOfficeFileToPDF(f *fileToConvert) error {
 	return nil
 }
 
-func (t *PdfTransformer) removeFile(path string) error {
+func (t *PDFTransformer) removeFile(path string) error {
 	if err := t.removeFileFunc(path); err != nil {
 		return fmt.Errorf("failed to remove file %s: %w", path, err)
 	}

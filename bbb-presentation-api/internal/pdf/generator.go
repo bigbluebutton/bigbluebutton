@@ -11,6 +11,7 @@ import (
 	"time"
 
 	"github.com/bigbluebutton/bigbluebutton/bbb-presentation-api/internal/config"
+	"github.com/bigbluebutton/bigbluebutton/bbb-presentation-api/internal/image"
 	"github.com/bigbluebutton/bigbluebutton/bbb-presentation-api/internal/pipeline"
 	"github.com/bigbluebutton/bigbluebutton/bbb-presentation-api/internal/presentation"
 )
@@ -18,14 +19,19 @@ import (
 type DownloadMarkerGenerator struct{}
 
 func (g *DownloadMarkerGenerator) Generate(msg pipeline.Message[*FileToProcess]) (pipeline.Message[*FileToProcess], error) {
-	err := presentation.MakeFileDownloadable(msg.Payload.ID, msg.Payload.File)
-	if err != nil {
-		return pipeline.Message[*FileToProcess]{}, err
-	}
 	ftp := &FileToProcess{
 		ID:             msg.Payload.ID,
 		File:           msg.Payload.File,
 		IsDownloadable: msg.Payload.IsDownloadable,
+	}
+
+	if !msg.Payload.IsDownloadable {
+		return pipeline.NewMessageWithContext(ftp, msg.Context()), nil
+	}
+
+	err := presentation.MakeFileDownloadable(msg.Payload.ID, msg.Payload.File)
+	if err != nil {
+		return pipeline.Message[*FileToProcess]{}, err
 	}
 	return pipeline.NewMessageWithContext(ftp, msg.Context()), nil
 }
@@ -215,39 +221,23 @@ func (g *TextFileGenerator) Generate(msg pipeline.Message[*FileWithPages]) (pipe
 	}, msg.Context()), nil
 }
 
-// type SvgGenerator struct {}
-
-// func (g SvgGenerator) Generate(msg pipeline.Message[*FileWithPages]) (pipeline.Message[*FileWithPages], error) {
-// 	cfg, err := pipeline.ContextValue[*config.Config](msg.Context(), presentation.ConfigKey)
-// 	if err != nil {
-// 		return pipeline.Message[*FileWithPages]{}, fmt.Errorf("could not load the required configuration: %w", err)
-// 	}
-
-// 	svgs := make([]string, 0)
-// 	svgDir := fmt.Sprintf("%s%csvgs", filepath.Dir(msg.Payload.File), os.PathSeparator)
-
-// 	for _, page := range msg.Payload.Pages {
-// 		svg := fmt.Sprintf("%s%cslide-%d.svg", svgDir, os.PathSeparator, page.Num)
-// 	}
-// }
-
-type PngGenerator struct {
+type SVGGenerator struct {
 	exec func(ctx context.Context, name string, args ...string) *exec.Cmd
 }
 
-func NewPngGenerator() *PngGenerator {
-	return &PngGenerator{
+func NewSVGGenerator() *SVGGenerator {
+	return &SVGGenerator{
 		exec: exec.CommandContext,
 	}
 }
 
-func (g *PngGenerator) Generate(msg pipeline.Message[*FileWithPages]) (pipeline.Message[*FileWithPages], error) {
+func (g SVGGenerator) Generate(msg pipeline.Message[*FileWithPages]) (pipeline.Message[*FileWithPages], error) {
 	cfg, err := pipeline.ContextValue[*config.Config](msg.Context(), presentation.ConfigKey)
 	if err != nil {
 		return pipeline.Message[*FileWithPages]{}, fmt.Errorf("could not load the required configuration: %w", err)
 	}
 
-	if !cfg.Generation.Png.Generate {
+	if !cfg.Generation.SVG.Generate {
 		return pipeline.NewMessageWithContext(&FileWithPages{
 			ID:         msg.Payload.ID,
 			File:       msg.Payload.File,
@@ -259,7 +249,177 @@ func (g *PngGenerator) Generate(msg pipeline.Message[*FileWithPages]) (pipeline.
 		}, msg.Context()), nil
 	}
 
-	timeout := cfg.Generation.Png.Timeout
+	timeout := cfg.Generation.SVG.Timeout
+	svgs := make([]string, 0)
+	svgDir := fmt.Sprintf("%s%csvgs", filepath.Dir(msg.Payload.File), os.PathSeparator)
+
+	for _, page := range msg.Payload.Pages {
+		svg := fmt.Sprintf("%s%cslide-%d.svg", svgDir, os.PathSeparator, page.Num)
+
+		detector := presentation.NewPDFFontTypeDetectorWithConfig(cfg)
+		attempt := 1
+		var rasterize, failed bool
+
+		for {
+			var fontErr error
+			if rasterize, fontErr = detector.HasFontType3(page.File, page.Num); fontErr != nil {
+				if attempt > cfg.Generation.SVG.PDF.Font.MaxAttempts {
+					slog.Error("failed to generate SVG", "file", msg.Payload.File, "page", page.Num,
+						"error", fmt.Errorf("could not determine font type of provided file"))
+					failed = true
+					break
+				}
+				attempt++
+			} else {
+				break
+			}
+		}
+
+		if failed {
+			continue
+		}
+
+		if !rasterize {
+			ctx, cancel := context.WithTimeout(context.Background(), time.Duration(timeout)*time.Second)
+			defer cancel()
+			cmd := presentation.NewGenerationProcess(presentation.GenerationProcessPDFToCairo).Resolution(cfg.Generation.SVG.Resolution).
+				Format(presentation.GenerationProcessFormatSVG).Pages(page.Num, page.Num).InputOutput(msg.Payload.File, svg).
+				Execute(g.exec, timeout, ctx)
+			output, genErr := cmd.CombinedOutput()
+			if genErr != nil {
+				slog.Error("failed to generate SVG", "file", msg.Payload.File, "page", page.Num, "error", genErr, "output", output)
+			}
+		}
+
+		var svgSize int64
+		if fileInfo, statErr := os.Stat(svg); statErr == nil {
+			svgSize = fileInfo.Size()
+		}
+
+		numImgTags, _ := image.CountSVGImageTags(svg)
+		numTags, _ := image.CountSVGTags(svg)
+
+		var (
+			fileEmpty = svgSize == 0
+			maxImages = numImgTags > cfg.Generation.SVG.MaxImages
+			maxTags   = numTags > cfg.Generation.SVG.MaxTags
+		)
+
+		if fileEmpty || maxImages || maxTags || rasterize {
+			os.Remove(svg)
+			png := fmt.Sprintf("%s%cslide-%d.png", svgDir, os.PathSeparator, page.Num)
+
+			ctx, cancel := context.WithTimeout(context.Background(), time.Duration(timeout)*time.Second)
+			defer cancel()
+			cmd := presentation.NewGenerationProcess(presentation.GenerationProcessPDFToCairo).Resolution(cfg.Generation.SVG.Resolution).
+				Format(presentation.GenerationProcessFormatPNG).Rasterize(cfg.Generation.SVG.Rasterize.Width).Pages(page.Num, page.Num).
+				InputOutput(msg.Payload.File, png).Execute(g.exec, timeout, ctx)
+			output, genErr := cmd.CombinedOutput()
+			if genErr != nil {
+				slog.Error("failed to generate PNG", "file", msg.Payload.File, "page", page.Num, "error", genErr, "output", output)
+			}
+
+			var pngSize int64
+			if fileInfo, statErr := os.Stat(png); statErr == nil {
+				pngSize = fileInfo.Size()
+			}
+
+			if pngSize > 0 {
+				args := []string{
+					fmt.Sprintf("%ds", timeout),
+					"convert",
+					png,
+					svg,
+				}
+
+				ctx, cancel := context.WithTimeout(context.Background(), time.Duration(timeout)*time.Second)
+				defer cancel()
+
+				cmd := g.exec(ctx, "timeout", args...)
+				output, timeoutErr := cmd.CombinedOutput()
+				if timeoutErr != nil {
+					slog.Error("failed to generate SVG", "file", png, "error", timeoutErr, "output", output)
+				}
+
+				var svgSize int64
+				if fileInfo, statErr := os.Stat(svg); statErr == nil {
+					svgSize = fileInfo.Size()
+				}
+
+				if svgSize > 0 {
+					args := []string{
+						fmt.Sprintf("%ds", timeout),
+						"/bin/sh",
+						"-c",
+						fmt.Sprintf("sed -i '4s|>| xmlns=\"http://www.w3.org/2000/svg\" xmlns:xlink=\"http://www.w3.org/1999/xlink\" version=\"1.2\">|' %s", svg),
+					}
+
+					ctx, cancel := context.WithTimeout(context.Background(), time.Duration(timeout)*time.Second)
+					defer cancel()
+
+					cmd := g.exec(ctx, "timeout", args...)
+					output, timeoutErr := cmd.CombinedOutput()
+					if timeoutErr != nil {
+						slog.Error("failed to add SVG namespace", "file", svg, "error", timeoutErr, "output", output)
+					}
+				}
+			}
+
+			os.Remove(png)
+		}
+
+		_, statErr := os.Stat(svg)
+		if os.IsNotExist(statErr) {
+			blank := cfg.Generation.Blank.SVG
+			cpErr := presentation.Copy(blank, svg)
+			if cpErr != nil {
+				slog.Error("Failed copy blank thumbnail", "source", blank, "dest", svg, "error", cpErr)
+			}
+		}
+
+		svgs = append(svgs, svg)
+	}
+
+	return pipeline.NewMessageWithContext(&FileWithPages{
+		ID:         msg.Payload.ID,
+		File:       msg.Payload.File,
+		Pages:      msg.Payload.Pages,
+		Thumbnails: msg.Payload.Thumbnails,
+		TextFiles:  msg.Payload.TextFiles,
+		Svgs:       svgs,
+		Pngs:       msg.Payload.Pngs,
+	}, msg.Context()), nil
+}
+
+type PNGGenerator struct {
+	exec func(ctx context.Context, name string, args ...string) *exec.Cmd
+}
+
+func NewPNGGenerator() *PNGGenerator {
+	return &PNGGenerator{
+		exec: exec.CommandContext,
+	}
+}
+
+func (g *PNGGenerator) Generate(msg pipeline.Message[*FileWithPages]) (pipeline.Message[*FileWithPages], error) {
+	cfg, err := pipeline.ContextValue[*config.Config](msg.Context(), presentation.ConfigKey)
+	if err != nil {
+		return pipeline.Message[*FileWithPages]{}, fmt.Errorf("could not load the required configuration: %w", err)
+	}
+
+	if !cfg.Generation.PNG.Generate {
+		return pipeline.NewMessageWithContext(&FileWithPages{
+			ID:         msg.Payload.ID,
+			File:       msg.Payload.File,
+			Pages:      msg.Payload.Pages,
+			Thumbnails: msg.Payload.Thumbnails,
+			TextFiles:  msg.Payload.TextFiles,
+			Svgs:       msg.Payload.Svgs,
+			Pngs:       msg.Payload.Pngs,
+		}, msg.Context()), nil
+	}
+
+	timeout := cfg.Generation.PNG.Timeout
 	pngs := make([]string, 0)
 	pngDir := fmt.Sprintf("%s%cpngs", msg.Payload.File, os.PathSeparator)
 
@@ -269,7 +429,7 @@ func (g *PngGenerator) Generate(msg pipeline.Message[*FileWithPages]) (pipeline.
 		args := []string{
 			"-png",
 			"-scale-to",
-			strconv.Itoa(cfg.Generation.Png.SlideWidth),
+			strconv.Itoa(cfg.Generation.PNG.SlideWidth),
 			"-cropbox",
 			"-singlefile",
 			page.File,
@@ -285,7 +445,7 @@ func (g *PngGenerator) Generate(msg pipeline.Message[*FileWithPages]) (pipeline.
 			slog.Error("Failed to generate PNG", "source", page.File, "page", page.Num, "error", pngErr, "output", output)
 			_, statErr := os.Stat(png)
 			if os.IsNotExist(statErr) {
-				blank := cfg.Generation.Blank.Png
+				blank := cfg.Generation.Blank.PNG
 				cpErr := presentation.Copy(blank, png)
 				if cpErr != nil {
 					slog.Error("Failed copy blank PNG", "source", blank, "dest", png, "error", cpErr)

@@ -48,4 +48,9 @@ const (
 	ExtSvg          FileExt = ".svg"
 	ExtWebp         FileExt = ".webp"
 	ExtDownloadable FileExt = ".downloadable"
+
+	GenerationProcessPDFToCairo GenerationProcessImpl = "pdftocairo"
+
+	GenerationProcessFormatSVG GenerationProcessFormat = "-svg"
+	GenerationProcessFormatPNG GenerationProcessFormat = "-png"
 )
