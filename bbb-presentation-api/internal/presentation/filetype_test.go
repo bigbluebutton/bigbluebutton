@@ -234,3 +234,21 @@ func TestIsMimeTypeValid(t *testing.T) {
 		})
 	}
 }
+
+func TestPDFName(t *testing.T) {
+	tests := []struct {
+		input    string
+		expected string
+	}{
+		{"test.docx", "test.pdf"},
+		{"a/b/c.odt", "a/b/c.pdf"},
+		{"example.pptx", "example.pdf"},
+	}
+
+	for _, test := range tests {
+		result := PDFName(test.input)
+		if result != test.expected {
+			t.Errorf("PDFName(%q) = %q; expected %q", test.input, result, test.expected)
+		}
+	}
+}

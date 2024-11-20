@@ -36,7 +36,7 @@ func NewPowerPointDocumentValidator() *PowerPointDocumentValidator {
 
 // NewPowerPointDocumentValidatorWithConfig constructs a new PointPointDocumentValidator using
 // the provided configuration.
-func NewPowerPointDocumentValidatorWithConfig(config *config.Config) *PowerPointDocumentValidator {
+func NewPowerPointDocumentValidatorWithConfig(config config.Config) *PowerPointDocumentValidator {
 	return &PowerPointDocumentValidator{
 		script:      config.Validation.Office.Script,
 		timeout:     config.Validation.Office.Timeout,

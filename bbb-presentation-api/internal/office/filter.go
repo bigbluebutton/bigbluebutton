@@ -15,11 +15,17 @@ import (
 )
 
 type ConversionFilter struct {
+	cfg  config.Config
 	exec func(ctx context.Context, name string, args ...string) *exec.Cmd
 }
 
 func NewConversionFilter() *ConversionFilter {
+	return NewConversionFilterWithConfig(config.DefaultConfig())
+}
+
+func NewConversionFilterWithConfig(cfg config.Config) *ConversionFilter {
 	return &ConversionFilter{
+		cfg:  cfg,
 		exec: exec.CommandContext,
 	}
 }
@@ -41,18 +47,13 @@ func (f *ConversionFilter) Filter(msg pipeline.Message[*FileToConvert]) error {
 		return fmt.Errorf("output file %s is not a PDF", outFile)
 	}
 
-	cfg, err := pipeline.ContextValue[*config.Config](msg.Context(), presentation.ConfigKey)
-	if err != nil {
-		return fmt.Errorf("could not load the required configuration: %w", err)
-	}
-
-	if cfg.Validation.Office.SkipPrecheck {
+	if f.cfg.Validation.Office.SkipPrecheck {
 		return nil
 	}
 
-	script := cfg.Validation.Office.Script
-	timeout := cfg.Validation.Office.Timeout
-	execTimeout := cfg.Validation.Office.ExecTimeout
+	script := f.cfg.Validation.Office.Script
+	timeout := f.cfg.Validation.Office.Timeout
+	execTimeout := f.cfg.Validation.Office.ExecTimeout
 
 	p := &powerPointToValidate{
 		file:        inFile,
@@ -62,7 +63,7 @@ func (f *ConversionFilter) Filter(msg pipeline.Message[*FileToConvert]) error {
 		exec:        f.exec,
 	}
 
-	err = validatePowerPoint(p)
+	err := validatePowerPoint(p)
 	if err != nil {
 		slog.Error("PowerPoint validation failed", "error", err)
 		return fmt.Errorf("powerpoint file is not valid")

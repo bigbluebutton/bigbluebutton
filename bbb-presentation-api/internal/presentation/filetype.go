@@ -3,6 +3,7 @@ package presentation
 import (
 	"fmt"
 	"log/slog"
+	"path/filepath"
 	"strings"
 
 	"github.com/gabriel-vasile/mimetype"
@@ -111,4 +112,14 @@ func IsImageFile(ext FileExt) bool {
 // IsPDF determines if the provided FileExt is an extension appropriate for a PDF.
 func IsPDF(ext FileExt) bool {
 	return ext == ExtPdf
+}
+
+// PDFName takes an input file name or path and generates an output string with the
+// file extension changed to '.pdf'.
+//
+// example.doc becomes example.pdf
+//
+// a/b/c.odt becomes a/b/c.pdf
+func PDFName(in string) string {
+	return strings.TrimSuffix(in, filepath.Ext(in)) + ".pdf"
 }

@@ -133,6 +133,6 @@ func loadConfig(path string) (*Config, error) {
 	return &cfg, nil
 }
 
-func DefaultConfig() *Config {
-	return cfg
+func DefaultConfig() Config {
+	return *cfg
 }

@@ -1,17 +1,18 @@
 package pdf
 
 import (
+	"github.com/bigbluebutton/bigbluebutton/bbb-presentation-api/internal/config"
 	"github.com/bigbluebutton/bigbluebutton/bbb-presentation-api/internal/pipeline"
 	"github.com/bigbluebutton/bigbluebutton/bbb-presentation-api/internal/presentation"
 )
 
-func NewPDFFlow() pipeline.Flow[*FileToProcess, *presentation.ProcessedFile] {
+func NewPDFFlow(cfg config.Config, processor presentation.PageProcessor) pipeline.Flow[*FileToProcess, *presentation.ProcessedFile] {
 	generateDownloadMarker := pipeline.NewStep[*FileToProcess, *FileToProcess]().Generate(&DownloadMarkerGenerator{})
-	generatePages := pipeline.NewStep[*FileToProcess, *FileWithPages]().Generate(&PageGenerator{})
-	generateThumbnails := pipeline.NewStep[*FileWithPages, *FileWithPages]().Generate(NewThumbnailGenerator())
-	generateTextFiles := pipeline.NewStep[*FileWithPages, *FileWithPages]().Generate(NewTextFileGenerator())
-	generateSVGs := pipeline.NewStep[*FileWithPages, *FileWithPages]().Generate(NewSVGGenerator())
-	generatePNGs := pipeline.NewStep[*FileWithPages, *FileWithPages]().Generate(NewPNGGenerator())
+	generatePages := pipeline.NewStep[*FileToProcess, *FileWithPages]().Generate(NewPageGeneratorWithProcessorAndConfig(processor, cfg))
+	generateThumbnails := pipeline.NewStep[*FileWithPages, *FileWithPages]().Generate(NewThumbnailGeneratorWithConfig(cfg))
+	generateTextFiles := pipeline.NewStep[*FileWithPages, *FileWithPages]().Generate(NewTextFileGeneratorWithConfig(cfg))
+	generateSVGs := pipeline.NewStep[*FileWithPages, *FileWithPages]().Generate(NewSVGGeneratorWithConfig(cfg))
+	generatePNGs := pipeline.NewStep[*FileWithPages, *FileWithPages]().Generate(NewPNGGeneratorWithConfig(cfg))
 	transformToProcessed := pipeline.NewStep[*FileWithPages, *presentation.ProcessedFile]().Transform(&ProcessedTransformer{})
 
 	f1 := pipeline.Add(generateDownloadMarker.Flow(), generatePages)

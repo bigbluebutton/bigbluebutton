@@ -126,7 +126,7 @@ func NewPDFPageDownscaler() *PDFPageDownscaler {
 
 // NewPDFPageDownscalerWithConfg is like NewPDFPageDownscaler, but allows the caller to specify
 // the configuration that should be used.
-func NewPDFPageDownscalerWithConfig(config *config.Config) *PDFPageDownscaler {
+func NewPDFPageDownscalerWithConfig(config config.Config) *PDFPageDownscaler {
 	return &PDFPageDownscaler{
 		script:  config.Processing.PDF.Page.Downscale.Script,
 		timeout: config.Processing.PDF.Page.Downscale.Timeout,
@@ -161,4 +161,26 @@ func (d *PDFPageDownscaler) DownscalePage(inFile, outFile string) error {
 	}
 
 	return nil
+}
+
+type PDFPageProcessor struct {
+	PDFPageCounter
+	PDFPageExtractor
+	PDFPageDownscaler
+}
+
+func NewPDFPageProcessor() PageProcessor {
+	return &PDFPageProcessor{
+		*NewPDFPageCounter(),
+		*NewPDFPageExtractor(),
+		*NewPDFPageDownscaler(),
+	}
+}
+
+func NewCustomPDFPageProcessor(processor PDFProcessor, cfg config.Config) PageProcessor {
+	return &PDFPageProcessor{
+		*NewPDFPageCounterWithProcessor(processor),
+		*NewPDFPageExtractorWithProcessor(processor),
+		*NewPDFPageDownscalerWithConfig(cfg),
+	}
 }

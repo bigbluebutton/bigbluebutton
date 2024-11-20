@@ -41,7 +41,7 @@ func NewPDFFontTypeDetector() *PDFFontTypeDetector {
 	return NewPDFFontTypeDetectorWithConfig(config.DefaultConfig())
 }
 
-func NewPDFFontTypeDetectorWithConfig(cfg *config.Config) *PDFFontTypeDetector {
+func NewPDFFontTypeDetectorWithConfig(cfg config.Config) *PDFFontTypeDetector {
 	return &PDFFontTypeDetector{
 		timeout: cfg.Generation.SVG.PDF.Font.Timeout,
 		exec:    exec.CommandContext,

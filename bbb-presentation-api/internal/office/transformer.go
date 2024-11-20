@@ -15,12 +15,18 @@ import (
 )
 
 type PDFTransformer struct {
+	cfg            config.Config
 	removeFileFunc func(name string) error
 	exec           func(ctx context.Context, name string, args ...string) *exec.Cmd
 }
 
 func NewPDFTransformer() *PDFTransformer {
+	return NewPDFTransformerWithConfig(config.DefaultConfig())
+}
+
+func NewPDFTransformerWithConfig(cfg config.Config) *PDFTransformer {
 	return &PDFTransformer{
+		cfg:            cfg,
 		removeFileFunc: os.Remove,
 		exec:           exec.CommandContext,
 	}
@@ -30,14 +36,9 @@ func (t *PDFTransformer) Transform(msg pipeline.Message[*FileToConvert]) (pipeli
 	inFile := msg.Payload.InFile
 	outFile := msg.Payload.OutFile
 
-	cfg, err := pipeline.ContextValue[*config.Config](msg.Context(), presentation.ConfigKey)
-	if err != nil {
-		return pipeline.Message[*pdf.FileToProcess]{}, fmt.Errorf("could not load the required configuration: %w", err)
-	}
-
-	script := cfg.Conversion.Office.Script
-	maxAttempts := cfg.Conversion.Office.MaxAttempts
-	timeout := cfg.Conversion.Office.Timeout
+	script := t.cfg.Conversion.Office.Script
+	maxAttempts := t.cfg.Conversion.Office.MaxAttempts
+	timeout := t.cfg.Conversion.Office.Timeout
 
 	if outFile == "" {
 		outFile = presentation.PDFName(inFile)
