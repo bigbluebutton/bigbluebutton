@@ -279,9 +279,9 @@ const ChatMessageForm: React.FC<ChatMessageFormProps> = ({
 
     const txtArea = textAreaRef.current?.textarea;
     if (txtArea && CHAT_CONFIG.mention) {
-      const mentionMatch = newMessage.matchAll(MENTION_REGEX);
+      const mentionMatches = Array.from(newMessage.matchAll(MENTION_REGEX));
       const { selectionStart } = txtArea;
-      const foundMatch = mentionMatch.find((match) => {
+      const foundMatch = mentionMatches.find((match) => {
         const { 0: matchedText, index } = match;
         return selectionStart >= index && selectionStart <= index + matchedText.length;
       });
