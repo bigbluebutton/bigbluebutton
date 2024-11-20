@@ -1367,18 +1367,6 @@ class VideoPreview extends Component {
           isOpen,
           priority,
         }}
-        style={{
-          overlay: {
-            position: 'fixed',
-            top: 0,
-            left: 0,
-            width: '100%',
-            height: '100%',
-            backdropFilter: 'blur(10px)',
-            zIndex: 998,
-          }
-        }
-        }
       >
         <Styled.Container>
     <Styled.Header>
