@@ -1,3 +1,12 @@
+// Package config manages the global configuration that will be used throughout
+// the lifecycle of the application.
+//
+// A default configuration is provided in config.yaml found in the configs directory
+// under the root directory of this application. This configuration is loaded when this
+// package is called for the first time during the life of the application.
+//
+// The default configuration can be accessed for reading by any other package of this
+// application. The default configuration may not be modified after its creation.
 package config
 
 import (
@@ -17,6 +26,8 @@ const (
 
 var cfg *Config
 
+// A Config encapsulates all of the settings necessary for the processing of
+// uploaded documents.
 type Config struct {
 	Conversion struct {
 		Office struct {
@@ -133,6 +144,7 @@ func loadConfig(path string) (*Config, error) {
 	return &cfg, nil
 }
 
+// DefaultConfig returns a copy of the default global configuration.
 func DefaultConfig() Config {
 	return *cfg
 }
