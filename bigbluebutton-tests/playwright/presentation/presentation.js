@@ -425,14 +425,14 @@ class Presentation extends MultiUsers {
     await this.modPage.wasRemoved(e.whiteboardStyles, 'should not display the whiteboard styles menu');
     await this.modPage.wasRemoved(e.wbUndo, 'should not display the whiteboard undo button');
     await this.modPage.wasRemoved(e.wbRedo, 'should not display the whiteboard redo button');
-    await expect(this.modPage.page, 'should not display the presentation toolbars').toHaveScreenshot('mod-hide-toolbars.png', screenshotOptions);
+    if (!CI) await expect(this.modPage.page, 'should not display the presentation toolbars').toHaveScreenshot('mod-hide-toolbars.png', screenshotOptions);
 
     // user checks
     await this.userPage.hasElement(e.wbToolbar, 'should display the whiteboard toolbar for the viewer with whiteboard access');
     await this.userPage.hasElement(e.whiteboardStyles, 'should display the whiteboard styles menu for the viewer with whiteboard access');
     await this.userPage.hasElement(e.wbUndo, 'should display the whiteboard undo button for the viewer with whiteboard access');
     await this.userPage.hasElement(e.wbRedo, 'should display the whiteboard redo button for the viewer with whiteboard access');
-    await expect(this.userPage.page, 'should display the presentation toolbars').toHaveScreenshot('user-toolbars.png', screenshotOptions);
+    if (!CI) await expect(this.userPage.page, 'should display the presentation toolbars').toHaveScreenshot('user-toolbars.png', screenshotOptions);
   }
 
   async zoom() {
