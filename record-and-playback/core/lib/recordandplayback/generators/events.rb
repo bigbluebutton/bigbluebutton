@@ -739,25 +739,20 @@ module BigBlueButton
         when %w[CHAT SendPublicChatMessageReactionRecordEvent]
           reaction_emoji = event.at_xpath('./reactionEmoji')&.content
           message_id = event.at_xpath('./messageId')&.content
-          if reactions[message_id] != nil  then
-            if reactions[message_id][reaction_emoji] != nil then
-              reactions[message_id][reaction_emoji] += 1
-            else
-              reactions[message_id][reaction_emoji] = 1
-            end
-
-          else
-            reactions[message_id] = { reaction_emoji => 1}
-          end
+          next if message_id.nil? || reaction_emoji.nil?
+          reactions[message_id] ||= {}
+          reactions[message_id][reaction_emoji] = (reactions[message_id][reaction_emoji] || 0) + 1
         when %w[CHAT DeletePublicChatMessageReactionRecordEvent]
           reaction_emoji = event.at_xpath('./reactionEmoji')&.content
           message_id = event.at_xpath('./messageId')&.content
-          if reactions[message_id] != nil  then
-            if reactions[message_id][reaction_emoji] != nil && reactions[message_id][reaction_emoji] > 1 then
-              reactions[message_id][reaction_emoji] -= 1
-            elsif reactions[message_id][reaction_emoji] != nil && reactions[message_id][reaction_emoji] <= 1
-              reactions[message_id].delete(reaction_emoji)
-            end
+          next if message_id.nil? || reaction_emoji.nil?
+          # Check if there is any of that emoji to be deleted
+          next unless reactions[message_id]&.key?(reaction_emoji)
+          if reactions[message_id][reaction_emoji] > 1
+            reactions[message_id][reaction_emoji] -= 1
+          else
+            reactions[message_id].delete(reaction_emoji)
+            reactions.delete(message_id) if reactions[message_id].empty?
           end
         end
       end
