@@ -99,6 +99,7 @@ exports.roomOption = 'option[data-test="roomOption"]';
 
 // Chat
 exports.chatBox = 'textarea[id="message-input"]';
+exports.chatMessageItem = 'div[data-test="chatMessageItem"]';
 exports.partnerDisconnectedMessage = 'span[data-test="partnerDisconnected"]';
 exports.chatButton = 'button[data-test="chatButton"]';
 exports.sendButton = 'button[data-test="sendMessageButton"]';
@@ -131,7 +132,7 @@ exports.guestMessage = 'p[data-test="guestMessage"]';
 exports.privateMessageGuest = 'button[data-test="privateMessageGuest"]';
 exports.acceptGuest = 'button[data-test="acceptGuest"]';
 exports.denyGuest = 'button[data-test="denyGuest"]';
-exports.inputPrivateLobbyMesssage = 'div[data-test="privateLobbyMessage"] >> textarea';
+exports.inputPrivateLobbyMessage = 'div[data-test="privateLobbyMessage"] >> textarea';
 exports.sendPrivateLobbyMessage = 'div[data-test="privateLobbyMessage"] >> button';
 exports.rememberCheckboxId = 'input[id="rememberCheckboxId"]';
 exports.welcomeMessage = 'h1[id="welcome-message"]';
@@ -153,6 +154,7 @@ exports.uniqueCharacterMessage = 'A';
 
 // CustomParameters
 exports.audioOptionsButtons = 'span[data-test="audioModalOptions"] > button';
+exports.userListContainer = 'div[data-test="userListContainer"]';
 exports.userListContent = 'div[data-test="userListContent"]';
 exports.brandingAreaLogo = 'div[data-test="brandingArea"]';
 exports.toolbarToolsList = 'div[data-test="toolbarToolsList"]';
