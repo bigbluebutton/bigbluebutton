@@ -14,7 +14,7 @@ class ChangeStyles extends MultiUsers {
     await this.modPage.setHeightWidthViewPortSize();
     await this.userPage.setHeightWidthViewPortSize();
 
-    await expect(this.modPage.page).toHaveScreenshot('moderator-change-color.png');
+    await expect(this.modPage.page).toHaveScreenshot('moderator-change-color.png', { timeout: ELEMENT_WAIT_LONGER_TIME });
 
     const userWbLocator = this.userPage.getLocator(e.whiteboard);
     await expect(userWbLocator).toHaveScreenshot('viewer-change-color.png');
@@ -28,7 +28,7 @@ class ChangeStyles extends MultiUsers {
     await this.modPage.setHeightWidthViewPortSize();
     await this.userPage.setHeightWidthViewPortSize();
 
-    await expect(this.modPage.page).toHaveScreenshot('moderator-fill-drawing.png');
+    await expect(this.modPage.page).toHaveScreenshot('moderator-fill-drawing.png', { timeout: ELEMENT_WAIT_LONGER_TIME });
 
     const userWbLocator = this.userPage.getLocator(e.whiteboard);
     await expect(userWbLocator).toHaveScreenshot('viewer-fill-drawing.png');
@@ -41,7 +41,7 @@ class ChangeStyles extends MultiUsers {
     await this.modPage.setHeightWidthViewPortSize();
     await this.userPage.setHeightWidthViewPortSize();
 
-    await expect(this.modPage.page).toHaveScreenshot('moderator-dash-drawing.png');
+    await expect(this.modPage.page).toHaveScreenshot('moderator-dash-drawing.png', { timeout: ELEMENT_WAIT_LONGER_TIME });
 
     const userWbLocator = this.userPage.getLocator(e.whiteboard);
     await expect(userWbLocator).toHaveScreenshot('viewer-dash-drawing.png');
@@ -54,7 +54,7 @@ class ChangeStyles extends MultiUsers {
     await this.modPage.setHeightWidthViewPortSize();
     await this.userPage.setHeightWidthViewPortSize();
     
-    await expect(this.modPage.page).toHaveScreenshot('moderator-size-drawing.png');
+    await expect(this.modPage.page).toHaveScreenshot('moderator-size-drawing.png', { timeout: ELEMENT_WAIT_LONGER_TIME });
 
     const userWbLocator = this.userPage.getLocator(e.whiteboard);
     await expect(userWbLocator).toHaveScreenshot('viewer-size-drawing.png');

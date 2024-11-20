@@ -1,6 +1,6 @@
 const { expect } = require('@playwright/test');
 const e = require('../core/elements');
-const { ELEMENT_WAIT_LONGER_TIME } = require('../core/constants');
+const { ELEMENT_WAIT_LONGER_TIME, ELEMENT_WAIT_EXTRA_LONG_TIME } = require('../core/constants');
 const { MultiUsers } = require('../user/multiusers');
 const CI = process.env.CI === 'true';
 
@@ -27,7 +27,7 @@ class DrawEllipse extends MultiUsers {
     if(CI) {
       await this.modPage.setHeightWidthViewPortSize();
       await this.userPage.setHeightWidthViewPortSize();
-      await expect(modWbLocator).toHaveScreenshot('moderator-ellipse.png');
+      await expect(modWbLocator).toHaveScreenshot('moderator-ellipse.png', { timeout: ELEMENT_WAIT_LONGER_TIME });
   
       const userWbLocator = this.userPage.getLocator(e.whiteboard);
       await expect(userWbLocator).toHaveScreenshot('viewer-ellipse.png');

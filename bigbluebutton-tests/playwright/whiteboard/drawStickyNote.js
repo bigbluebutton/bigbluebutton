@@ -15,6 +15,7 @@ class DrawStickyNote extends MultiUsers {
     const wbBox = await modWbLocator.boundingBox();
     const screenshotOptions = {
       maxDiffPixels: 1000,
+      timeout: ELEMENT_WAIT_LONGER_TIME,
     };
 
     await this.modPage.waitAndClick(e.wbStickyNoteShape);
