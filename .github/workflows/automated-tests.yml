@@ -367,6 +367,7 @@ jobs:
           EOF
       - name: Install test dependencies
         working-directory: ./bigbluebutton-tests/playwright
+        timeout-minutes: 25
         run: |
           sh -c '
           npm ci

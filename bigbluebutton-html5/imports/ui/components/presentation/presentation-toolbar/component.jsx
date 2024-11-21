@@ -90,6 +90,10 @@ const intlMessages = defineMessages({
     id: 'app.whiteboard.toolbar.multiUserOff',
     description: 'Whiteboard toolbar turn multi-user off menu',
   },
+  multiUserLimitHasBeenReached: {
+    id: 'app.whiteboard.toolbar.multiUserLimitHasBeenReached',
+    description: 'Whiteboard toolbar toggle multi-user disabled',
+  },
   infiniteWhiteboardOn: {
     id: 'app.whiteboard.toolbar.infiniteWhiteboardOn',
     description: 'Whiteboard toolbar turn infinite wb on',
@@ -375,6 +379,8 @@ class PresentationToolbar extends PureComponent {
       resetSlide,
       zoomChanger,
       tldrawAPI,
+      maxNumberOfActiveUsers,
+      numberOfJoinedUsers,
     } = this.props;
 
     const { isMobile } = deviceInfo;
@@ -396,6 +402,20 @@ class PresentationToolbar extends PureComponent {
 
     const showIWB = (allowInfiniteWhiteboard && !meetingIsBreakout)
       || (meetingIsBreakout && allowInfiniteWhiteboardInBreakouts);
+
+    const multiUserLimitExceeded = numberOfJoinedUsers > maxNumberOfActiveUsers;
+    const disableStartingMultiUser = !multiUser && multiUserLimitExceeded;
+    let multiUserLabel;
+    if (disableStartingMultiUser) {
+      multiUserLabel = intl.formatMessage(
+        intlMessages.multiUserLimitHasBeenReached,
+        { 0: maxNumberOfActiveUsers },
+      );
+    } else if (multiUser) {
+      multiUserLabel = intl.formatMessage(intlMessages.toolbarMultiUserOff);
+    } else {
+      multiUserLabel = intl.formatMessage(intlMessages.toolbarMultiUserOn);
+    }
 
     return (
       <Styled.PresentationToolbarWrapper
@@ -504,22 +524,14 @@ class PresentationToolbar extends PureComponent {
           <Styled.WBAccessButton
             data-test={multiUser ? 'turnMultiUsersWhiteboardOff' : 'turnMultiUsersWhiteboardOn'}
             role="button"
-            aria-label={
-              multiUser
-                ? intl.formatMessage(intlMessages.toolbarMultiUserOff)
-                : intl.formatMessage(intlMessages.toolbarMultiUserOn)
-            }
+            aria-label={multiUserLabel}
             color="light"
-            disabled={!isMeteorConnected}
+            disabled={disableStartingMultiUser}
             icon={multiUser ? 'multi_whiteboard' : 'whiteboard'}
             size="md"
             circle
             onClick={() => this.handleSwitchWhiteboardMode(!multiUser)}
-            label={
-              multiUser
-                ? intl.formatMessage(intlMessages.toolbarMultiUserOff)
-                : intl.formatMessage(intlMessages.toolbarMultiUserOn)
-            }
+            label={multiUserLabel}
             hideLabel
           />
           {multiUser ? (
@@ -611,6 +623,8 @@ PresentationToolbar.propTypes = {
   currentSlide: PropTypes.shape().isRequired,
   slidePosition: PropTypes.shape().isRequired,
   multiUserSize: PropTypes.number.isRequired,
+  maxNumberOfActiveUsers: PropTypes.number.isRequired,
+  numberOfJoinedUsers: PropTypes.number.isRequired,
 };
 
 PresentationToolbar.defaultProps = {

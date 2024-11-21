@@ -57,6 +57,12 @@ const createCamera = (pageId, zoomLevel) => ({
   z: zoomLevel,
 });
 
+const createLookup = (arr) =>
+  arr.reduce((acc, entry) => {
+    acc[entry.id] = entry;
+    return acc;
+  }, {});
+
 const defaultUser = {
   userId: '',
 };
@@ -150,8 +156,8 @@ const Whiteboard = React.memo((props) => {
   const lastVisibilityStateRef = React.useRef('');
 
   const THRESHOLD = 0.1;
-  const CAMERA_UPDATE_DELAY = 650;
-  const MOUNTED_CAMERA_DELAY = 500;
+  const CAMERA_UPDATE_DELAY = 1300;
+  const MOUNTED_CAMERA_DELAY = 2000;
   const lastKnownHeight = React.useRef(presentationAreaHeight);
   const lastKnownWidth = React.useRef(presentationAreaWidth);
 
@@ -223,7 +229,7 @@ const Whiteboard = React.memo((props) => {
   }, [fitToWidth]);
 
   React.useEffect(() => {
-    if (!isEqual(prevShapesRef.current, shapes)) {
+    if (shapes && !isEqual(prevShapesRef.current, shapes)) {
       prevShapesRef.current = shapes;
       tlEditorRef.current?.store.mergeRemoteChanges(() => {
         const shapesArray = Object.values(shapes).map((shape) => sanitizeShape(shape));
@@ -655,8 +661,8 @@ const Whiteboard = React.memo((props) => {
 
         // Update existing shapes and add them to the batch
         Object.values(updated).forEach(([, record]) => {
-          const createdBy = prevShapesRef.current[record?.id]?.meta?.createdBy
-            || currentUser?.userId;
+          const formattedLookup = createLookup(editor.getCurrentPageShapes());
+          const createdBy = formattedLookup[record?.id]?.meta?.createdBy || currentUser?.userId;
           const updatedRecord = {
             ...record,
             meta: {
@@ -765,8 +771,10 @@ const Whiteboard = React.memo((props) => {
       });
 
       editor.store.mergeRemoteChanges(() => {
-        const remoteShapesArray = Object.values(shapes).map((shape) => sanitizeShape(shape));
-         editor.store.put(remoteShapesArray);
+        if (shapes) {
+          const remoteShapesArray = Object.values(shapes).map((shape) => sanitizeShape(shape));
+          editor.store.put(remoteShapesArray);
+        }
       });
 
       // eslint-disable-next-line no-param-reassign
@@ -825,18 +833,10 @@ const Whiteboard = React.memo((props) => {
         const newNext = next;
         if (next?.typeName === 'instance_page_state') {
           if (isPresenterRef.current || isModeratorRef.current) return next;
-          const createLookup = (arr) =>
-            arr.reduce((acc, entry) => {
-              acc[entry.id] = entry;
-              return acc;
-            }, {});
-
-          const formattedLookup = createLookup(prevShapesRef.current);
+          const formattedLookup = createLookup(editor.getCurrentPageShapes());
 
           // Filter selectedShapeIds based on shape owner
-          if (next.selectedShapeIds.length > 0
-            && !isEqual(prev.selectedShapeIds, next.selectedShapeIds)
-          ) {
+          if (next.selectedShapeIds.length > 0) {
             newNext.selectedShapeIds = next.selectedShapeIds.filter((shapeId) => {
               const shapeOwner = formattedLookup[shapeId]?.meta?.createdBy;
               return !shapeOwner || shapeOwner === currentUser?.userId;
