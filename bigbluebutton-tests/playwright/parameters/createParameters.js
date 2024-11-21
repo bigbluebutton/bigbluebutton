@@ -57,12 +57,12 @@ class CreateParameters extends MultiUsers {
 
     await this.userPage2.waitAndClick(e.joinVideo);
     await this.userPage2.waitAndClick(e.startSharingWebcam);
-    await this.userPage2.hasElement(e.webcamContainer, 'should display the attende 2 camera');
+    await this.userPage2.hasElement(e.webcamMirroredVideoContainer, 'should display the attende 2 camera');
 
     await this.modPage.checkElementCount(e.webcamContainer, 1, 'should display one camera from the attende 2 for the moderator');
-    await this.userPage2.checkElementCount(e.webcamContainer, 1, 'should display one camera from the attendee 2 ');
+    await this.userPage2.checkElementCount(e.webcamMirroredVideoContainer, 1, 'should display one camera from the attendee 2 ');
     await this.initUserPage(true, context);
-    await this.userPage.checkElementCount(e.webcamContainer, 0, 'should not display any camera for the attendee 1');
+    await this.userPage.checkElementCount(e.webcamMirroredVideoContainer, 0, 'should not display any camera for the attendee 1');
   }
 
   async muteOnStart() {
