@@ -171,8 +171,8 @@ const Whiteboard = React.memo((props) => {
   const lastVisibilityStateRef = React.useRef('');
   const mountedTimeoutIdRef = useRef(null);
 
-  const CAMERA_UPDATE_DELAY = 850;
-  const MOUNTED_CAMERA_DELAY = 1300;
+  const CAMERA_UPDATE_DELAY = 650;
+  const MOUNTED_CAMERA_DELAY = 500;
 
   const customTools = [NoopTool];
 
