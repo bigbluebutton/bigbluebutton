@@ -44,6 +44,7 @@ async function generateSettingsData(page) {
       skipVideoPreview: settingsData.kurento.skipVideoPreview,
       skipVideoPreviewOnFirstJoin: settingsData.kurento.skipVideoPreviewOnFirstJoin,
       skipVideoPreviewIfPreviousDevice: settingsData.kurento.skipVideoPreviewIfPreviousDevice,
+      mirrorOwnWebcam: settingsData.app.mirrorOwnWebcam,
     }
 
     return settings;

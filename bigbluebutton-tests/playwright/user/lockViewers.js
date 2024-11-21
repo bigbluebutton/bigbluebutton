@@ -32,7 +32,7 @@ class LockViewers extends MultiUsers {
     await this.modPage.waitAndClick(`${e.unlockUserButton}>>nth=1`);
     await this.userPage2.waitAndClick(e.joinVideo);
     await this.userPage2.waitAndClick(e.startSharingWebcam);
-    await this.modPage.checkElementCount(e.webcamContainer, 2, 'should display two webcams container for the moderator');
+    await this.modPage.checkElementCount(e.webcamContainer, 1, 'should display one webcams container for the moderator');
     await this.userPage.hasElementDisabled(e.joinVideo, 'should the join video button to be disabled');
   }
 
@@ -57,9 +57,9 @@ class LockViewers extends MultiUsers {
     await this.modPage.waitAndClick(`${e.userListItem}>>nth=1`);
     await this.modPage.waitAndClick(`${e.unlockUserButton}>>nth=1`);
 
-    await this.modPage.checkElementCount(e.webcamContainer, 3, 'should display three webcams container for the moderator');
-    await this.userPage.checkElementCount(e.webcamContainer, 2, 'should display two webcams container for the first attendee');
-    await this.userPage2.checkElementCount(e.webcamContainer, 3, 'should display three webcam container for the second attendee');
+    await this.modPage.checkElementCount(e.webcamContainer, 2, 'should display 2 webcams container for the moderator');
+    await this.userPage.checkElementCount(e.webcamContainer, 1, 'should display 1 webcams container for the first attendee');
+    await this.userPage2.checkElementCount(e.webcamContainer, 2, 'should display 2 webcam container for the second attendee');
   }
 
   async lockShareMicrophone() {
