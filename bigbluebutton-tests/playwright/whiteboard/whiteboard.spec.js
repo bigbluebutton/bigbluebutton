@@ -21,7 +21,12 @@ const { linkIssue } = require('../core/helpers');
 
 const hidePresentationToast = encodeCustomParams(PARAMETER_HIDE_PRESENTATION_TOAST);
 
-test.describe.parallel('Whiteboard tools', { tag: '@ci' }, () => {
+//! @flaky note:
+// all whiteboard tests are flagged as flaky due to unexpected zooming slides
+// only avoiding those assertions won't be enough as most of the tests are relying only on snapshot comparisons
+// so together with the further fix + re-enablement of the tests, they will need to have non-snapshot assertions added as well
+// P.S. 1. the failures seems to be noticeable only on the CI
+test.describe.parallel('Whiteboard tools', { tag: ['@ci', '@flaky'] }, () => {
   test.beforeEach(({ browserName }) => {
     test.skip(browserName !== 'chromium',
       'Drawing visual regression tests are enabled only for Chromium');

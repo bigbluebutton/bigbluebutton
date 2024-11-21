@@ -1027,6 +1027,8 @@ public:
     maxStickyNoteLength: 1000
     # limit number of annotations per slide
     maxNumberOfAnnotations: 300
+    # Limit the number of users who can interact with the whiteboard
+    maxNumberOfActiveUsers: 25
     annotations:
       status:
         start: DRAW_START

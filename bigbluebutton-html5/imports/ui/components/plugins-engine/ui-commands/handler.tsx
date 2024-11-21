@@ -4,6 +4,7 @@ import PluginSidekickOptionsContainerUiCommandsHandler from './sidekick-options-
 import PluginPresentationAreaUiCommandsHandler from './presentation/handler';
 import PluginUserStatusUiCommandsHandler from './user-status/handler';
 import PluginConferenceUiCommandsHandler from './conference/handler';
+import PluginNotificationUiCommandsHandler from './notification/handler';
 
 const PluginUiCommandsHandler = () => (
   <>
@@ -12,6 +13,7 @@ const PluginUiCommandsHandler = () => (
     <PluginPresentationAreaUiCommandsHandler />
     <PluginUserStatusUiCommandsHandler />
     <PluginConferenceUiCommandsHandler />
+    <PluginNotificationUiCommandsHandler />
   </>
 );
 

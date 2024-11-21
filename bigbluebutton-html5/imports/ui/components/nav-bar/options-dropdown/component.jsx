@@ -112,6 +112,10 @@ const intlMessages = defineMessages({
     id: 'app.actionsBar.reactions.active',
     description: 'Active Label',
   },
+  presenceLabel: {
+    id: 'app.navBar.optionsDropdown.presenceLabel',
+    description: 'Presence Label',
+  },
 });
 
 const propTypes = {
@@ -293,7 +297,7 @@ class OptionsDropdown extends PureComponent {
     this.menuItems.push({
       label: (
         <Styled.AwayOption>
-          <>Presence</>
+          <>{intl.formatMessage(intlMessages.presenceLabel)}</>
           <Styled.ToggleButtonWrapper>
             <Styled.AFKLabel>{ToggleAFKLabel()}</Styled.AFKLabel>
             <Toggle
@@ -302,7 +306,6 @@ class OptionsDropdown extends PureComponent {
               onChange={handleToggleAFK}
               ariaLabel={ToggleAFKLabel()}
               showToggleLabel={false}
-              invertColors
             />
           </Styled.ToggleButtonWrapper>
         </Styled.AwayOption>
@@ -403,6 +406,7 @@ class OptionsDropdown extends PureComponent {
           icon: 'manage_layout',
           label: intl.formatMessage(intlMessages.layoutModal),
           onClick: () => this.setLayoutModalIsOpen(true),
+          dataTest: 'manageLayoutBtn',
         },
       );
     }

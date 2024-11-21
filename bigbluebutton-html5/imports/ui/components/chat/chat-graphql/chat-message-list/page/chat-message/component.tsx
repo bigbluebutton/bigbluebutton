@@ -177,6 +177,10 @@ const ChatMessage = React.forwardRef<ChatMessageRef, ChatMessageProps>(({
   }), [message.messageSequence]);
 
   const startScrollAnimation = (timestamp: number) => {
+    if ((containerRef.current?.offsetTop || 0) > (scrollRef.current?.scrollTop || 0)) {
+      requestAnimationFrame(startBackgroundAnimation);
+      return;
+    }
     animationInitialScrollPosition.current = scrollRef.current?.scrollTop || 0;
     animationScrollPositionDiff.current = (scrollRef.current?.scrollTop || 0)
       - ((containerRef.current?.offsetTop || 0) - ((scrollRef.current?.offsetHeight || 0) / 2));
@@ -248,7 +252,7 @@ const ChatMessage = React.forwardRef<ChatMessageRef, ChatMessageProps>(({
   if (!message) return null;
   const pluginMessageNotCustom = (previousMessage?.messageType !== ChatMessageType.PLUGIN
     || !JSON.parse(previousMessage?.messageMetadata).custom);
-  const sameSender = ((previousMessage?.user?.userId
+  let sameSender = ((previousMessage?.user?.userId
     || lastSenderPreviousPage) === message?.user?.userId) && pluginMessageNotCustom;
   const isSystemSender = message.messageType === ChatMessageType.BREAKOUT_ROOM;
   const currentPluginMessageMetadata = message.messageType === ChatMessageType.PLUGIN
@@ -331,7 +335,7 @@ const ChatMessage = React.forwardRef<ChatMessageRef, ChatMessageProps>(({
           name: message.senderName,
           color: '#0F70D7',
           isModerator: true,
-          isSystemSender: false,
+          isSystemSender: true,
           component: (
             <ChatMessageTextContent
               emphasizedMessage
@@ -417,6 +421,11 @@ const ChatMessage = React.forwardRef<ChatMessageRef, ChatMessageProps>(({
     }
   }, [message.message]);
 
+  sameSender = message.messageType === ChatMessageType.BREAKOUT_ROOM
+    ? false
+    : ((previousMessage?.user?.userId
+      || lastSenderPreviousPage) === message?.user?.userId) && pluginMessageNotCustom;
+
   const shouldRenderAvatar = messageContent.showAvatar
     && !sameSender
     && !isCustomPluginMessage;
@@ -429,6 +438,18 @@ const ChatMessage = React.forwardRef<ChatMessageRef, ChatMessageProps>(({
     sendReaction(emoji.native, emoji.id, message.chatId, message.messageId);
     setIsToolbarReactionPopoverOpen(false);
   }, [message.chatId, message.messageId, sendReaction]);
+
+  let avatarDisplay;
+
+  if (!messageContent.avatarIcon) {
+    if (!message.user || message.user?.avatar.length === 0) {
+      avatarDisplay = messageContent.name.toLowerCase().slice(0, 2);
+    } else {
+      avatarDisplay = '';
+    }
+  } else {
+    avatarDisplay = <i className={messageContent.avatarIcon} />;
+  }
 
   return (
     <Container
@@ -446,31 +467,27 @@ const ChatMessage = React.forwardRef<ChatMessageRef, ChatMessageProps>(({
         isCustomPluginMessage={isCustomPluginMessage}
       >
         {(shouldRenderAvatar || shouldRenderHeader) && (
-        <ChatHeading>
-          {shouldRenderAvatar && (
-            <ChatAvatar
-              avatar={message.user?.avatar}
-              color={messageContent.color}
-              moderator={messageContent.isModerator}
-            >
-              {!messageContent.avatarIcon ? (
-                !message.user || (message.user?.avatar.length === 0 ? messageContent.name.toLowerCase().slice(0, 2) : '')
-              ) : (
-                <i className={messageContent.avatarIcon} />
-              )}
-            </ChatAvatar>
-          )}
-          {shouldRenderHeader && (
-            <ChatMessageHeader
-              sameSender={message?.user ? sameSender : false}
-              name={messageContent.name}
-              currentlyInMeeting={message.user?.currentlyInMeeting ?? true}
-              dateTime={dateTime}
-              deleteTime={deleteTime}
-              editTime={editTime}
-            />
-          )}
-        </ChatHeading>
+          <ChatHeading>
+            {shouldRenderAvatar && (
+              <ChatAvatar
+                avatar={message.user?.avatar || ''}
+                color={messageContent.color}
+                moderator={messageContent.isModerator}
+              >
+                {avatarDisplay}
+              </ChatAvatar>
+            )}
+            {shouldRenderHeader && (
+              <ChatMessageHeader
+                sameSender={message?.user ? sameSender : false}
+                name={messageContent.name}
+                currentlyInMeeting={message.user?.currentlyInMeeting ?? true}
+                dateTime={dateTime}
+                deleteTime={deleteTime}
+                editTime={editTime}
+              />
+            )}
+          </ChatHeading>
         )}
         <ChatContent
           className="chat-message-content"
@@ -571,6 +588,7 @@ const propsToCompare = [
   'chatReactionsEnabled',
   'chatReplyEnabled',
   'focused',
+  'editing',
   'keyboardFocused',
   'message.createdAt',
   'message.message',

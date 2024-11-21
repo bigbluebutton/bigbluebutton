@@ -121,7 +121,7 @@ const PresenceManager: React.FC<PresenceManagerProps> = ({
   useEffect(() => {
     if (isGuestAllowed) {
       timeoutRef.current = setTimeout(() => {
-        loadingContextInfo.setLoading(false, '');
+        loadingContextInfo.setLoading(false);
         throw new Error('Authentication timeout');
       }, connectionTimeout);
     }
@@ -155,7 +155,7 @@ const PresenceManager: React.FC<PresenceManagerProps> = ({
 
   useEffect(() => {
     if (joinErrorCode) {
-      loadingContextInfo.setLoading(false, '');
+      loadingContextInfo.setLoading(false);
     }
   },
   [joinErrorCode, joinErrorMessage]);
@@ -204,7 +204,7 @@ const PresenceManagerContainer: React.FC<PresenceManagerContainerProps> = ({ chi
   const loadingContextInfo = useContext(LoadingContext);
   if (loading || userInfoLoading) return null;
   if (error || userInfoError) {
-    loadingContextInfo.setLoading(false, '');
+    loadingContextInfo.setLoading(false);
     logger.debug(`Error on user authentication: ${error}`);
   }
 

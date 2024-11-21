@@ -1,7 +1,7 @@
 import React, { PureComponent } from 'react';
 import PropTypes from 'prop-types';
 import WhiteboardContainer from '/imports/ui/components/whiteboard/container';
-import { HUNDRED_PERCENT, MAX_PERCENT } from '/imports/utils/slideCalcUtils';
+import { HUNDRED_PERCENT, MAX_PERCENT, MIN_PERCENT } from '/imports/utils/slideCalcUtils';
 import { SPACE } from '/imports/utils/keyCodes';
 import { defineMessages, injectIntl } from 'react-intl';
 import { toast } from 'react-toastify';
@@ -507,9 +507,11 @@ class Presentation extends PureComponent {
   }
 
   zoomChanger(zoom) {
+    const { currentSlide } = this.props;
     let boundZoom = parseInt(zoom);
-    if (boundZoom < HUNDRED_PERCENT) {
-      boundZoom = HUNDRED_PERCENT;
+    const min = currentSlide?.infiniteWhiteboard ? MIN_PERCENT : HUNDRED_PERCENT;
+    if (boundZoom < min) {
+      boundZoom = min;
     } else if (boundZoom > MAX_PERCENT) {
       boundZoom = MAX_PERCENT;
     }
