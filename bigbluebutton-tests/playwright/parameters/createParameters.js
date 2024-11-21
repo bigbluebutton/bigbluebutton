@@ -110,7 +110,7 @@ class CreateParameters extends MultiUsers {
     await this.modPage.hasElement(e.whiteboard, 'should display the whiteboard for the moderator');
     await this.userPage.waitAndClick(e.joinVideo);
     await this.userPage.waitAndClick(e.startSharingWebcam);
-    await this.userPage.hasElement(e.webcamContainer, 'should display the webcam container for the attendee');
+    await this.userPage.hasElement(e.webcamMirroredVideoContainer, 'should display the webcam container for the attendee');
     await this.modPage.waitAndClick(e.userListItem);
     await this.modPage.waitAndClick(e.ejectCamera);
   }
