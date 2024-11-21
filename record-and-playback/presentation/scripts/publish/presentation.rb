@@ -1121,18 +1121,30 @@ def process_chat_messages(events, bbb_props)
     BigBlueButton::Events.get_chat_events(events, @meeting_start.to_i, @meeting_end.to_i, bbb_props).each do |chat|
       chattimeline = {
         in: (chat[:in] / 1000.0).round(1),
+        id: chat[:id],
         direction: 'down',
         name: chat[:sender],
         chatEmphasizedText: chat[:chatEmphasizedText],
         senderRole: chat[:senderRole],
         message: chat[:message],
+        replyToMessageId: chat[:replyToMessageId],
+        lastEditedTimestamp: chat[:lastEditedTimestamp],
         target: 'chat',
       }
       if (chat[:out])
         chattimeline[:out] = (chat[:out] / 1000.0).round(1)
       end
 
-      xml.chattimeline(**chattimeline)
+      xml.chattimeline(**chattimeline) do
+        # Add reactions only if present
+        if chat[:reactions]
+          xml.reactions do
+            chat[:reactions].each do |emoji, count|
+              xml.reaction(emoji: emoji, count: count)
+            end
+          end
+        end
+      end
     end
   end
 
