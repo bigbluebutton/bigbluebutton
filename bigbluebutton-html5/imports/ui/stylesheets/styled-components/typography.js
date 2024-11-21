@@ -11,7 +11,9 @@ const fontSizeXL = '1.75rem';
 const fontSizeXXL = '2.75rem';
 const fontSizeMD = '0.95rem';
 
-const headingsFontWeight = '500';
+const headingsFontWeight = '600';
+const titlesFontWeight = '700';
+const textFontWeight = '400';
 const btnFontWeight = '600';
 const talkerFontWeight = '400';
 const toolbarButtonFontSize = '1.75rem';
@@ -31,6 +33,8 @@ export {
   fontSizeXXL,
   fontSizeMD,
   headingsFontWeight,
+  titlesFontWeight,
+  textFontWeight,
   btnFontWeight,
   talkerFontWeight,
   toolbarButtonFontSize,

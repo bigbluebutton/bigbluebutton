@@ -2,6 +2,7 @@ const borderSizeSmall = '1px';
 const borderSize = '2px';
 const borderSizeLarge = '3px';
 const borderRadius = '.2rem';
+const lgBorderRadius = '1rem';
 const smPaddingX = '.75rem';
 const smPaddingY = '.3rem';
 const mdPaddingY = '.45rem';
@@ -23,7 +24,7 @@ const whiteboardToolbarPadding = '.5rem';
 const whiteboardToolbarMargin = '.5rem';
 const whiteboardToolbarPaddingSm = '.3rem';
 const contentSidebarPadding = '1.5rem';
-const contentSidebarHeight = '58.5rem';
+const contentSidebarHeight = '86%';
 const contentSidebarBorderRadius = '1rem';
 const minModalHeight = '20rem';
 const descriptionMargin = '3.5rem';
@@ -106,10 +107,19 @@ const presentationMenuHeight = '45px';
 const styleMenuOffset = '6.25rem';
 const styleMenuOffsetSmall = '5rem';
 
+const widgetsPanelGroupItemsSpacing = '1.5rem';
+const widgetsPanelItemsSpacing = '1rem';
+const widgetsButtonsBorderRadius = '8px';
+const widgetsModalButtonPaddingX = '10%';
+const widgetsModalButtonPaddingY = '2%';
+const widgetsModalPadding = '3rem';
+const widgetsModalPaddingBottom = '1.5rem';
+
 export {
   borderSizeSmall,
   borderSize,
   borderSizeLarge,
+  lgBorderRadius,
   borderRadius,
   smPaddingX,
   smPaddingY,
@@ -203,4 +213,11 @@ export {
   contentSidebarPadding,
   contentSidebarHeight,
   contentSidebarBorderRadius,
+  widgetsPanelGroupItemsSpacing,
+  widgetsPanelItemsSpacing,
+  widgetsButtonsBorderRadius,
+  widgetsModalButtonPaddingX,
+  widgetsModalButtonPaddingY,
+  widgetsModalPadding,
+  widgetsModalPaddingBottom,
 };

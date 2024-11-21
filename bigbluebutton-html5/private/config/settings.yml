@@ -130,6 +130,8 @@ public:
       interval: 200
       threshold: -50
       duration: 4000
+    widgets:
+      maxPinnedWidgets: 3
     remainingTimeThreshold: 30
     remainingTimeAlertThresholdArray: [1,5]
     enableDebugWindow: true
