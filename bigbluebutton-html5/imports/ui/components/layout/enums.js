@@ -81,6 +81,7 @@ export const ACTIONS = {
   SET_SIDEBAR_NAVIGATION_IS_OPEN: 'setSidebarNavigationIsOpen',
   SET_SIDEBAR_NAVIGATION_SIZE: 'setSidebarNavigationSize',
   REGISTER_SIDEBAR_NAVIGATION_WIDGET: 'registerSidebarNavigationWidget',
+  UNREGISTER_SIDEBAR_NAVIGATION_WIDGET: 'unregisterSidebarNavigationWidget',
   SET_SIDEBAR_NAVIGATION_PIN_WIDGET: 'setSidebarNavigationPinWidget',
   SET_SIDEBAR_NAVIGATION_OUTPUT: 'setSidebarNavigationOutput',
 

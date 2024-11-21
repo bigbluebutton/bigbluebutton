@@ -90,11 +90,14 @@ const VideoFocusLayout = (props) => {
           externalVideo, genericMainContent, screenShare,
         } = prevInput;
         const { sidebarContentPanel } = sidebarContent;
+        const { registeredWidgets, pinnedWidgets } = sidebarNavigation;
         return defaultsDeep(
           {
             sidebarNavigation: {
               isOpen:
                 sidebarNavigation.isOpen || sidebarContentPanel !== PANELS.NONE || false,
+              registeredWidgets,
+              pinnedWidgets,
             },
             sidebarContent: {
               isOpen: sidebarContentPanel !== PANELS.NONE,

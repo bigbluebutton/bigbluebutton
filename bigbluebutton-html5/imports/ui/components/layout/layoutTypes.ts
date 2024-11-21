@@ -1,4 +1,4 @@
-import React from 'react';
+import * as ReactDOM from 'react-dom/client';
 
 interface ActionBar {
     hasActionBar?: boolean;
@@ -193,8 +193,19 @@ interface SidebarContentHorizontalResizer {
     width: number;
 }
 
-interface RegisteredWidgets {
-  [key: string]: React.FC | React.JSX.Element;
+interface Widget {
+    name: string;
+    icon: string;
+}
+
+export interface NativeWidget extends Widget {}
+
+export interface InjectedWidget extends Widget {
+    contentFunction: (element: HTMLElement) => ReactDOM.Root;
+}
+
+export interface RegisteredWidgets {
+    [key: string]: NativeWidget | InjectedWidget;
 }
 
 export interface SidebarNavigation {

@@ -408,16 +408,24 @@ const reducer = (state, action) => {
       };
     }
     case ACTIONS.REGISTER_SIDEBAR_NAVIGATION_WIDGET: {
-      const { widgetName, widgetPinnedButtonComponent } = action.value;
+      const {
+        panel,
+        name,
+        icon,
+        contentFunction = null,
+      } = action.value;
       const { sidebarNavigation } = state.input;
       const { registeredWidgets } = sidebarNavigation;
-      if (widgetName in registeredWidgets) {
+      if (panel in registeredWidgets) {
         logger.warn({
           logCode: 'overriding_registered_widget',
           extraInfo: {
-            widgetName,
+            panel,
+            name,
+            icon,
+            contentFunction,
           },
-        }, `Layout Context: Attempting to register widget "${widgetName}" that already exists. Overriding the previous instance.`);
+        }, `Layout Context: Attempting to register widget "${panel}" that already exists. Overriding the previous instance.`);
       }
       return {
         ...state,
@@ -427,19 +435,56 @@ const reducer = (state, action) => {
             ...sidebarNavigation,
             registeredWidgets: {
               ...registeredWidgets,
-              [widgetName]: widgetPinnedButtonComponent,
+              [panel]: {
+                name,
+                icon,
+                ...(contentFunction && { contentFunction }),
+              },
+            },
+          },
+        },
+      };
+    }
+    case ACTIONS.UNREGISTER_SIDEBAR_NAVIGATION_WIDGET: {
+      const {
+        value,
+      } = action;
+      const { sidebarNavigation } = state.input;
+      const { registeredWidgets, pinnedWidgets } = sidebarNavigation;
+      if (!(value in registeredWidgets)) {
+        logger.warn({
+          logCode: 'unregister_not_found_widget',
+          extraInfo: {
+            panel: value,
+          },
+        }, `Layout Context: Attempting to unregister a widget "${value}" that is not registered.`);
+        return state;
+      }
+      const updatedRegisteredWidgets = { ...registeredWidgets };
+      delete updatedRegisteredWidgets[value];
+      // Also remove it from pinned widgets
+      const updatedPinnedWidgets = pinnedWidgets.filter((pinnedWidget) => pinnedWidget !== value);
+      return {
+        ...state,
+        input: {
+          ...state.input,
+          sidebarNavigation: {
+            ...sidebarNavigation,
+            pinnedWidgets: updatedPinnedWidgets,
+            registeredWidgets: {
+              ...updatedRegisteredWidgets,
             },
           },
         },
       };
     }
     case ACTIONS.SET_SIDEBAR_NAVIGATION_PIN_WIDGET: {
-      const { widgetName, pin } = action.value;
+      const { panel: widgetKey, pin } = action.value;
       const { sidebarNavigation } = state.input;
       const { pinnedWidgets, registeredWidgets } = sidebarNavigation;
 
-      const isWidgetRegistered = widgetName in registeredWidgets;
-      const isWidgetPinned = pinnedWidgets.includes(widgetName);
+      const isWidgetRegistered = widgetKey in registeredWidgets;
+      const isWidgetPinned = pinnedWidgets.includes(widgetKey);
 
       if (!isWidgetRegistered) return state;
       if ((pin && isWidgetPinned) || (!pin && !isWidgetPinned)) {
@@ -447,8 +492,8 @@ const reducer = (state, action) => {
       }
 
       const updatedPinnedWidgets = pin
-        ? [...pinnedWidgets, widgetName]
-        : pinnedWidgets.filter((pinnedWidget) => pinnedWidget !== widgetName);
+        ? [...pinnedWidgets, widgetKey]
+        : pinnedWidgets.filter((pinnedWidget) => pinnedWidget !== widgetKey);
 
       return {
         ...state,
