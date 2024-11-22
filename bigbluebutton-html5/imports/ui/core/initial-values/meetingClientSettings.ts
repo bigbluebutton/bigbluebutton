@@ -83,6 +83,9 @@ export const meetingClientSettingsInitialValues: MeetingClientSettings = {
         threshold: -50,
         duration: 4000,
       },
+      appsGallery: {
+        maxPinnedApps: 3,
+      },
       remainingTimeThreshold: 30,
       remainingTimeAlertThresholdArray: [
         1,
