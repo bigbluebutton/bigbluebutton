@@ -34,6 +34,8 @@ type PageDownscaler interface {
 	DownscalePage(inFile string, outFile string) error
 }
 
+// PageProcessor is the interface that encapsulates all of the page processing
+// functionality.
 type PageProcessor interface {
 	PageCounter
 	PageExtractor
@@ -163,12 +165,17 @@ func (d *PDFPageDownscaler) DownscalePage(inFile, outFile string) error {
 	return nil
 }
 
+// A PDFPageProcessor is a [PageProcessor] that specifically
+// handles PDF documents.
 type PDFPageProcessor struct {
 	PDFPageCounter
 	PDFPageExtractor
 	PDFPageDownscaler
 }
 
+// NewPDFPageProcessor creates a new [PageProcessor] for
+// the processing of PDF document pages using a default
+// [PDFProcessor].
 func NewPDFPageProcessor() PageProcessor {
 	return &PDFPageProcessor{
 		*NewPDFPageCounter(),
@@ -177,6 +184,9 @@ func NewPDFPageProcessor() PageProcessor {
 	}
 }
 
+// NewCustomPDFPageProcessor is like NewPDFPageProcessor but
+// allows the caller to specify the [PDFProcessor] and the
+// configuration that should be used.
 func NewCustomPDFPageProcessor(processor PDFProcessor, cfg config.Config) PageProcessor {
 	return &PDFPageProcessor{
 		*NewPDFPageCounterWithProcessor(processor),

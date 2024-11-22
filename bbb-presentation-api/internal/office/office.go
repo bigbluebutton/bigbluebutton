@@ -3,6 +3,9 @@
 // uploaded MS Office documents.
 package office
 
+// FileToConvert encasulates all the of necessary data for
+// carrying out the step of converting an uploaded MS Office
+// document to a PDF.
 type FileToConvert struct {
 	ID             string
 	InFile         string

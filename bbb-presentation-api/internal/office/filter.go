@@ -14,15 +14,21 @@ import (
 	"github.com/bigbluebutton/bigbluebutton/bbb-presentation-api/internal/presentation"
 )
 
+// ConversionFilter handles the validation of incoming documents to ensure they
+// are appropriate for conversion to PDF.
 type ConversionFilter struct {
 	cfg  config.Config
 	exec func(ctx context.Context, name string, args ...string) *exec.Cmd
 }
 
+// NewConversionFilter creates a new [ConversionFilter] using the global default
+// configuration.
 func NewConversionFilter() *ConversionFilter {
 	return NewConversionFilterWithConfig(config.DefaultConfig())
 }
 
+// NewConversionFilter is like NewConversionFilter but allows the caller to specify the
+// configuration that should be used.
 func NewConversionFilterWithConfig(cfg config.Config) *ConversionFilter {
 	return &ConversionFilter{
 		cfg:  cfg,
@@ -30,6 +36,10 @@ func NewConversionFilterWithConfig(cfg config.Config) *ConversionFilter {
 	}
 }
 
+// Filter will validate an incoming [pipeline.Message] with a payload of type [FileToConvert]
+// to verify that the conversion process can proceed. These checks include verifying that the
+// input file is a MS Office document, the output file is a PDF, and additional validation logic
+// if the input document is a PowerPoint.
 func (f *ConversionFilter) Filter(msg pipeline.Message[*FileToConvert]) error {
 	inFile := msg.Payload.InFile
 	outFile := msg.Payload.OutFile

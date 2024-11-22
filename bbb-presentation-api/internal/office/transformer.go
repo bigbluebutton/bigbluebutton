@@ -14,16 +14,22 @@ import (
 	"github.com/bigbluebutton/bigbluebutton/bbb-presentation-api/internal/presentation"
 )
 
+// A PDFTransformer is used to carry out the transformation of an uploaded
+// MS Office document to a PDF.
 type PDFTransformer struct {
 	cfg            config.Config
 	removeFileFunc func(name string) error
 	exec           func(ctx context.Context, name string, args ...string) *exec.Cmd
 }
 
+// NewPDFTransformer creates a new PDFTransformer using the global default
+// configuration.
 func NewPDFTransformer() *PDFTransformer {
 	return NewPDFTransformerWithConfig(config.DefaultConfig())
 }
 
+// NewPDFTransformerWithConfig is NewPDFTransformer but allows the caller to specify
+// the configuration that should be used.
 func NewPDFTransformerWithConfig(cfg config.Config) *PDFTransformer {
 	return &PDFTransformer{
 		cfg:            cfg,
@@ -32,6 +38,10 @@ func NewPDFTransformerWithConfig(cfg config.Config) *PDFTransformer {
 	}
 }
 
+// Transform will convert an incoming [Message] with a payload of type [FileToConver] into a message with a payload
+// of type [pdf.FileToProcess]. An attempt will be made create a new PDF document from the provided MS Office
+// document. The creation of the new PDF will be attempted multiple time in case of failure with the exact number of
+// attempt being specified in the configuration provided to the [PDFTransformer].
 func (t *PDFTransformer) Transform(msg pipeline.Message[*FileToConvert]) (pipeline.Message[*pdf.FileToProcess], error) {
 	inFile := msg.Payload.InFile
 	outFile := msg.Payload.OutFile

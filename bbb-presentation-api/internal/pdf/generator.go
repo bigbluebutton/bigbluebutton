@@ -16,8 +16,12 @@ import (
 	"github.com/bigbluebutton/bigbluebutton/bbb-presentation-api/internal/presentation"
 )
 
+// DownloadMarkerGenerator handles the creation of download markers
+// for a file that is indicated to be downloadable.
 type DownloadMarkerGenerator struct{}
 
+// Generate takes an incoming [pipeline.Message] with a payload of type [FileToProcess] and generates a new
+// download marker for the provided file if the file is marked as downloadable.
 func (g *DownloadMarkerGenerator) Generate(msg pipeline.Message[*FileToProcess]) (pipeline.Message[*FileToProcess], error) {
 	ftp := &FileToProcess{
 		ID:             msg.Payload.ID,
@@ -36,15 +40,21 @@ func (g *DownloadMarkerGenerator) Generate(msg pipeline.Message[*FileToProcess])
 	return pipeline.NewMessageWithContext(ftp, msg.Context()), nil
 }
 
+// PageGenerator handles the creation of individual page documents
+// from the provided input document.
 type PageGenerator struct {
 	cfg       config.Config
 	processor presentation.PageProcessor
 }
 
+// NewPageGenerator creates a new PageGenerator using a default [presentation.PageProcessor] for PDFs
+// along with the global default configuration.
 func NewPageGenerator() *PageGenerator {
 	return NewPageGeneratorWithProcessorAndConfig(presentation.NewPDFPageProcessor(), config.DefaultConfig())
 }
 
+// NewPageGeneratorWithProcessorAndConfig is like NewPageGenerator but allows the caller to specify
+// the [presentation.PageProcessor] and configuration that should be used.
 func NewPageGeneratorWithProcessorAndConfig(processor presentation.PageProcessor, cfg config.Config) *PageGenerator {
 	return &PageGenerator{
 		cfg:       cfg,
@@ -52,6 +62,12 @@ func NewPageGeneratorWithProcessorAndConfig(processor presentation.PageProcessor
 	}
 }
 
+// Generate will create individual single page PDF documents for each of the pages in the PDF document
+// provided in the payload of the incoming [pipeline.Message]. If the size of any of the generated pages
+// exceeds the maximum size defined in the provided configuration then the page will be downscaled. It is
+// possible that the number of page files generated and found in the outgoing [pipeline.Message] with a
+// payload of type FileWithPages will be less than the number of pages in the input PDF since no file will
+// exist for a page if an error occurs anywhere in the generation process.
 func (g *PageGenerator) Generate(msg pipeline.Message[*FileToProcess]) (pipeline.Message[*FileWithPages], error) {
 	inFile := msg.Payload.File
 	numPages, err := g.processor.CountPages(inFile)
@@ -109,15 +125,21 @@ func (g *PageGenerator) Generate(msg pipeline.Message[*FileToProcess]) (pipeline
 	return pipeline.NewMessageWithContext(fwp, msg.Context()), nil
 }
 
+// Thumbnail generator handles the creation of a thumbnails for a
+// provided document.
 type ThumbnailGenerator struct {
 	cfg  config.Config
 	exec func(ctx context.Context, name string, args ...string) *exec.Cmd
 }
 
+// NewThumbnailGenerator creates a new ThumbnailGenerator using the default
+// global configuration.
 func NewThumbnailGenerator() *ThumbnailGenerator {
 	return NewThumbnailGeneratorWithConfig(config.DefaultConfig())
 }
 
+// NewThumbnailGeneratorWithConfig is like NewThumbnailGenerator but allows the
+// caller to specify the configuration that should be used.
 func NewThumbnailGeneratorWithConfig(cfg config.Config) *ThumbnailGenerator {
 	return &ThumbnailGenerator{
 		cfg:  cfg,
@@ -125,6 +147,11 @@ func NewThumbnailGeneratorWithConfig(cfg config.Config) *ThumbnailGenerator {
 	}
 }
 
+// Generate will take an incoming [pipeline.Message] with a payload of type [FileWithPages] and generate
+// a PNG thumbnail for each of the page documents. Only one thumbnail will be generated for each page document.
+// Therefore, if a page document happens to have more than one page a thumbnail will only be generated for
+// the first page of that document. If thumbnail generation fails for a page then a default blank thumbnail
+// will be used for that page's thumbnail.
 func (g *ThumbnailGenerator) Generate(msg pipeline.Message[*FileWithPages]) (pipeline.Message[*FileWithPages], error) {
 
 	timeout := g.cfg.Generation.Thumbnail.Timeout
@@ -173,15 +200,21 @@ func (g *ThumbnailGenerator) Generate(msg pipeline.Message[*FileWithPages]) (pip
 	}, msg.Context()), nil
 }
 
+// TextFileGenerate handles the generation of text files from
+// a provided document.
 type TextFileGenerator struct {
 	cfg  config.Config
 	exec func(ctx context.Context, name string, args ...string) *exec.Cmd
 }
 
+// NewTextFileGenerator creates a new TextFileGenerator using the global
+// default confguration.
 func NewTextFileGenerator() *TextFileGenerator {
 	return NewTextFileGeneratorWithConfig(config.DefaultConfig())
 }
 
+// NewTextFileGeneratorWithConfig is like NewTextFileGenerator but allows the
+// caller to specify the configuration that should be used.
 func NewTextFileGeneratorWithConfig(cfg config.Config) *TextFileGenerator {
 	return &TextFileGenerator{
 		cfg:  cfg,
@@ -189,6 +222,9 @@ func NewTextFileGeneratorWithConfig(cfg config.Config) *TextFileGenerator {
 	}
 }
 
+// Generate takes an incoming [pipeline.Message] with a payload of type [FileWithPages]
+// and creates a text file for each of the page documents that contains the content
+// from the PDF corresponding to the page.
 func (g *TextFileGenerator) Generate(msg pipeline.Message[*FileWithPages]) (pipeline.Message[*FileWithPages], error) {
 	timeout := g.cfg.Generation.TextFile.Timeout
 	textFiles := make([]string, 0)
@@ -231,15 +267,21 @@ func (g *TextFileGenerator) Generate(msg pipeline.Message[*FileWithPages]) (pipe
 	}, msg.Context()), nil
 }
 
+// SVGGenerator manages the generation of SVGs for a
+// provided document.
 type SVGGenerator struct {
 	cfg  config.Config
 	exec func(ctx context.Context, name string, args ...string) *exec.Cmd
 }
 
+// NewSVGGenerator creates a new SVGGenerator using the global
+// default configuration.
 func NewSVGGenerator() *SVGGenerator {
 	return NewSVGGeneratorWithConfig(config.DefaultConfig())
 }
 
+// NewSVGGeneratorWithConfig is like NewSVGGenerator but allows the
+// caller to specifiy the configuration that should be used.
 func NewSVGGeneratorWithConfig(cfg config.Config) *SVGGenerator {
 	return &SVGGenerator{
 		cfg:  cfg,
@@ -247,6 +289,13 @@ func NewSVGGeneratorWithConfig(cfg config.Config) *SVGGenerator {
 	}
 }
 
+// Generate takes an incoming [pipeline.Message] with a payload of type [FileWithPages]
+// and generates an SVG for each of the page documents. SVG generation will only occur
+// if SVGs are required as specified in the provided configuration. If a page's PDF
+// contains font type 3 or the SVG generated for the PDF is too large the document
+// will be rasterized by first converting the PDF into a PNG with a limited resolution
+// and then converting that PNG into the final SVG. If SVG generation fails for a page
+// then a default blank SVG will be used for that page's SVG.
 func (g SVGGenerator) Generate(msg pipeline.Message[*FileWithPages]) (pipeline.Message[*FileWithPages], error) {
 	if !g.cfg.Generation.SVG.Generate {
 		return pipeline.NewMessageWithContext(&FileWithPages{
@@ -402,15 +451,22 @@ func (g SVGGenerator) Generate(msg pipeline.Message[*FileWithPages]) (pipeline.M
 	}, msg.Context()), nil
 }
 
+// PNGGenerator handles the creation of PNGs
+// for a provided file.
 type PNGGenerator struct {
 	cfg  config.Config
 	exec func(ctx context.Context, name string, args ...string) *exec.Cmd
 }
 
+// NewPNGGenerator creates a new PNGGenerator using
+// the global default configuration.
 func NewPNGGenerator() *PNGGenerator {
 	return NewPNGGeneratorWithConfig(config.DefaultConfig())
 }
 
+// NewPNGGeneratorWithConfig is like NewPNGGenerator
+// but allows the caller to specify the confguration
+// that should be used.
 func NewPNGGeneratorWithConfig(cfg config.Config) *PNGGenerator {
 	return &PNGGenerator{
 		cfg:  cfg,
@@ -418,6 +474,10 @@ func NewPNGGeneratorWithConfig(cfg config.Config) *PNGGenerator {
 	}
 }
 
+// Generate takes an incoming [pipeline.Message] with a payload of type [FileWithPages]
+// and generates a PNG for the each of the page files. PNG generation will only occur
+// if PNGs are required as specified by the provided configuration. If PNG generation
+// fails for a page then a default blank PNG will be used for that page's PNG.
 func (g *PNGGenerator) Generate(msg pipeline.Message[*FileWithPages]) (pipeline.Message[*FileWithPages], error) {
 	if !g.cfg.Generation.PNG.Generate {
 		return pipeline.NewMessageWithContext(&FileWithPages{

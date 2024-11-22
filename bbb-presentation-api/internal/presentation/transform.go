@@ -7,10 +7,14 @@ import (
 	"path/filepath"
 )
 
+// MakeFileDownloadable creates a new download marker file for the provided file.
+// The name of the download marker file will be of the form {id}.{format}.downloadable
+// where {format} is the extension of the provided file, for example ".pdf". Any
+// previously created download marker files in the same directory will be deleted.
 func MakeFileDownloadable(id, file string) error {
 	parentDir := filepath.Dir(file)
 	ext := filepath.Ext(file)
-	marker := fmt.Sprintf("%s.%s%s", id, ext, ExtDownloadable)
+	marker := fmt.Sprintf("%s%s%s", id, ext, ExtDownloadable)
 	dlFile := fmt.Sprintf("%s%c%s", parentDir, os.PathSeparator, marker)
 
 	_, err := os.Stat(dlFile)

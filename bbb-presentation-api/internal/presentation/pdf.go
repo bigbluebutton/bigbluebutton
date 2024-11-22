@@ -32,15 +32,21 @@ func (p *PDFCPU) extractPages(inFile, outFile string, pages []string) error {
 	return api.ExtractPagesFile(inFile, outFile, pages, nil)
 }
 
+// A PDFFontTypeDetector is used to determine the font type of provided
+// PDF.
 type PDFFontTypeDetector struct {
 	timeout int
 	exec    func(ctx context.Context, name string, args ...string) *exec.Cmd
 }
 
+// NewPDFFontTypeDetector creates a new PDFFontTypeDetector using the
+// global default configuration.
 func NewPDFFontTypeDetector() *PDFFontTypeDetector {
 	return NewPDFFontTypeDetectorWithConfig(config.DefaultConfig())
 }
 
+// NewPDFFontTypeDetectorWithConfig is like NewPDFFontTYpeDetector but allows
+// the caller specifiy the configuration that should be used.
 func NewPDFFontTypeDetectorWithConfig(cfg config.Config) *PDFFontTypeDetector {
 	return &PDFFontTypeDetector{
 		timeout: cfg.Generation.SVG.PDF.Font.Timeout,
@@ -48,6 +54,8 @@ func NewPDFFontTypeDetectorWithConfig(cfg config.Config) *PDFFontTypeDetector {
 	}
 }
 
+// HasFontType3 determines whether the page in the provided file contains font type 3.
+// Returns false if an error occurs
 func (d *PDFFontTypeDetector) HasFontType3(file string, page int) (bool, error) {
 	ext := ToFileExt(filepath.Ext(file))
 	if !IsPDF(ext) {
