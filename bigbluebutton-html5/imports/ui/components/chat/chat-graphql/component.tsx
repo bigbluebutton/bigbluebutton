@@ -119,7 +119,6 @@ const Chat: React.FC<ChatProps> = ({
   return (
     <>
       <ChatHeader />
-      <Styled.Separator />
       <div style={{ display: 'flex', justifyContent: 'space-between', padding: '8px' }}>
         <Button
           variant={showMessages ? 'contained' : 'outlined'}

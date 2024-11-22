@@ -52,8 +52,9 @@ const Input = styled(TextareaAutosize)`
   font-size: ${fontSizeBase};
   line-height: 1;
   min-height: 2.5rem;
-  max-height: 10rem;
-  border: none;
+  max-height: 3.5rem;
+  overflow-y: auto;
+  border: ${colorGrayLightest};
   box-shadow: none;
   outline: none;
 
