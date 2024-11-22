@@ -1,0 +1,374 @@
+import styled, { css, keyframes } from 'styled-components';
+import {
+  colorWhite, colorText, colorPrimary, colorGrayLightest,
+  colorGrayDark, colorLink, listItemBgHover,
+} from '/imports/ui/stylesheets/styled-components/palette';
+import {
+  contentSidebarPadding,
+  contentSidebarBorderRadius,
+} from '/imports/ui/stylesheets/styled-components/general';
+import {
+  fontSizeSmall, fontSizeBase, textFontWeight, titlesFontWeight, fontSizeLarge,
+} from '/imports/ui/stylesheets/styled-components/typography';
+import { smallOnly, mediumOnly } from '/imports/ui/stylesheets/styled-components/breakpoints';
+import { ScrollboxVertical } from '/imports/ui/stylesheets/styled-components/scrollable';
+import CameraIcon from '@mui/icons-material/Videocam';
+import WbSunny from '@mui/icons-material/WbSunny';
+import Headphones from '@mui/icons-material/Headphones';
+import Mic from '@mui/icons-material/Mic';
+import Select from '@mui/material/Select';
+import Slider from '@mui/material/Slider';
+import Switch from '@mui/material/Switch';
+import FormControlLabel from '@mui/material/FormControlLabel';
+import Header from '/imports/ui/components/common/control-header/component';
+
+const SimpleButton = styled.button`
+  cursor: pointer;
+  border: none;
+  background: none;
+  padding: 0;
+  outline: none; 
+`;
+
+const ProfileSettings = styled(ScrollboxVertical)`
+  display: flex;
+  width: 100%;
+  height: 100%;
+  padding: 1.0rem 0;
+  flex-direction: column;
+  gap: ${contentSidebarPadding};
+  border-radius: ${contentSidebarBorderRadius};
+  background: ${colorWhite};
+  overflow-y: auto;
+`;
+
+const HeaderContainer = styled(Header)`
+  padding-bottom: 0.5rem;
+`;
+
+interface VideoPreviewProps {
+  mirroredVideo: boolean;
+}
+
+const VideoPreview = styled.video<VideoPreviewProps>`
+  height: 100%;
+  width: 100%;
+
+  @media ${smallOnly} {
+    height: 10rem;
+  }
+
+  ${({ mirroredVideo }) => mirroredVideo && `
+    transform: scale(-1, 1);
+  `}
+`;
+
+const VideoPreviewContent = styled.div`
+  position: sticky;
+  top: 0;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  
+  color: ${colorText};
+  font-weight: normal;
+
+  @media ${smallOnly} {
+    display: flex;
+    flex-wrap: wrap;
+    flex-direction: row;
+    margin: 5px;
+  }
+`;
+
+const Col = styled.div`
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  justify-content: center;
+
+  @media ${smallOnly}, ${mediumOnly} {
+    justify-content: space-between;
+    align-items: center;
+    overflow: auto;
+    margin: 0;
+  }
+`;
+
+const VideoCol = styled(Col)`
+  align-items: center;
+`;
+
+interface FetchingAnimationProps {
+  animations: boolean;
+}
+
+const ellipsis = keyframes`
+  to {
+    width: 1.5em;
+  }
+`;
+
+const FetchingAnimation = styled.span<FetchingAnimationProps>`
+  margin: auto;
+  display: inline-block;
+  width: 1.5em;
+
+  &:after {
+    overflow: hidden;
+    display: inline-block;
+    vertical-align: bottom;
+    content: "\\2026"; /* ascii code for the ellipsis character */
+    width: 0;
+    margin-left: 0.25em;
+
+    ${({ animations }) => animations && css`
+      animation: ${ellipsis} steps(4, end) 900ms infinite;
+    `}
+  }
+`;
+
+const UsernameContainer = styled.div`
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  width: 100%;
+`;
+
+const UsernameTitle = styled.div`
+  color: ${colorGrayDark};
+  font-size: ${fontSizeSmall};
+  font-weight: ${textFontWeight};
+`;
+
+const Username = styled.div`
+  color: ${colorGrayDark};
+  font-size: ${fontSizeLarge};
+  font-weight: ${titlesFontWeight};
+`;
+
+const UserPresenceRoot = styled.div`
+  width: 100%;
+`;
+
+const UserPresenceContainer = styled.div`
+  display: flex;
+  height: 3.5rem;
+  padding: 0.5rem 1rem;
+  align-items: center;
+  gap: 1rem;
+  border-radius: 1rem;
+  border: 1px solid ${colorGrayLightest};
+`;
+
+const UserPresenceButton = styled(SimpleButton)<{ active?: boolean }>`
+  display: flex;
+  padding: 0.125rem 1rem;
+  justify-content: center;
+  align-items: center;
+  flex: 1 0 0;
+  align-self: stretch;
+  border-radius: 0.5rem;
+
+  ${({ active }) => active && `
+    background: ${listItemBgHover};
+    cursor: not-allowed;
+    pointer-events: none;
+    border-radius: 1.0rem;
+  `}
+`;
+
+const UserPresenceText = styled.div`
+  color: ${colorGrayDark};
+  text-align: center;
+  font-size: ${fontSizeBase}
+  font-weight: ${textFontWeight};
+`;
+
+const UserPresenceDivider = styled.div`
+  width: 0.0625rem;
+  height: 2.5rem;
+  background: ${colorGrayLightest};
+`;
+
+const Separator = styled.hr`
+  width: 100%;
+  border: 0;
+  border-bottom: 1px solid ${colorGrayLightest};
+`;
+
+const DevicesSettingsContainer = styled.div`
+  display: flex;
+  width: 100%;
+  flex-direction: column;
+  gap: 1rem;
+`;
+
+const DeviceContainer = styled.div`
+  display: flex;
+  flex-direction: row;
+  height: 3.5rem;
+  flex-shrink: 0;
+  gap: 1rem;
+  align-items: center;
+`;
+
+const Icon = `
+  width: 1.5rem;
+  height: 1.5rem;
+  flex-shrink: 0;
+  color: ${colorPrimary};
+`;
+
+const IconCamera = styled(CameraIcon)`
+  ${Icon}
+`;
+
+const WbSunnyIcon = styled(WbSunny)`
+  ${Icon}
+`;
+
+const HeadphonesIcon = styled(Headphones)`
+  ${Icon}
+`;
+
+const MicIcon = styled(Mic)`
+  ${Icon}
+`;
+
+const DeviceSelector = styled(Select)`
+  height: 3.5rem;
+  flex: 1;
+  border-radius: 0.5rem !important;
+  overflow: hidden;
+  width: 100%;
+`;
+
+const CameraQualityContainer = styled.div`
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  width: 100%;
+  gap: 0.5rem;
+`;
+
+const CameraQualityText = styled.div`
+  color: ${colorGrayDark};
+  font-size: ${fontSizeSmall};
+  font-weight: ${textFontWeight};
+`;
+
+const CameraQualitySelector = styled(DeviceSelector)`
+  width: 100%;
+`;
+
+const BrightnessSlider = styled(Slider)`
+  color: ${colorPrimary};
+`;
+
+const VirtualBackgroundContainer = styled.div`
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: ${contentSidebarPadding};
+  align-self: stretch;
+`;
+
+const SwitchTitle = styled(FormControlLabel)`
+  height: 1.5rem;
+  flex-shrink: 0;
+  .MuiFormControlLabel-label {
+    color: ${colorGrayDark};
+    font-size: ${fontSizeBase}
+    font-weight: ${textFontWeight};
+  }
+`;
+
+const DefaultSwitch = styled(Switch)`
+  color: ${colorPrimary};
+`;
+
+const VirtualBgSelectorBorder = styled.div`
+  width: 100%;
+  border-radius: 0.25rem;
+  border: 1px solid ${colorGrayLightest};
+`;
+
+const CaptionsContainer = styled.div`
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  align-self: stretch;
+  gap: 1.0rem;
+`;
+
+const CaptionsToggleContainer = styled.div`
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  align-self: stretch;
+`;
+
+const CaptionsSelectorContainer = styled.div`
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  width: 100%;
+  gap: 0.5rem;
+`;
+
+const CaptionsLanguageText = styled.div`
+  color: ${colorGrayDark};
+  font-size: ${fontSizeSmall};
+  font-weight: ${textFontWeight};
+`;
+
+const CaptionsTerms = styled.div`
+  padding-left: 3.3rem;
+  color: ${colorGrayDark};
+  font-size: ${fontSizeSmall};
+  font-weight: ${textFontWeight};
+`;
+
+const CaptionsTermsLink = styled.a`
+  color: ${colorLink};
+`;
+
+export default {
+  ProfileSettings,
+  HeaderContainer,
+  VideoPreview,
+  VideoPreviewContent,
+  VideoCol,
+  FetchingAnimation,
+  UsernameContainer,
+  UsernameTitle,
+  Username,
+  UserPresenceRoot,
+  UserPresenceContainer,
+  UserPresenceButton,
+  UserPresenceText,
+  UserPresenceDivider,
+  Separator,
+  DevicesSettingsContainer,
+  DeviceContainer,
+  IconCamera,
+  WbSunnyIcon,
+  HeadphonesIcon,
+  MicIcon,
+  DeviceSelector,
+  CameraQualityContainer,
+  CameraQualityText,
+  CameraQualitySelector,
+  BrightnessSlider,
+  VirtualBackgroundContainer,
+  SwitchTitle,
+  DefaultSwitch,
+  VirtualBgSelectorBorder,
+  CaptionsContainer,
+  CaptionsToggleContainer,
+  CaptionsSelectorContainer,
+  CaptionsLanguageText,
+  CaptionsTerms,
+  CaptionsTermsLink,
+};

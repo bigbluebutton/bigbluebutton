@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import Resizable from 're-resizable';
 import { ACTIONS, PANELS } from '../layout/enums';
 import ChatContainer from '/imports/ui/components/chat/chat-graphql/component';
+import ProfileSettings from '/imports/ui/components/profile-settings/component';
 import NotesContainer from '/imports/ui/components/notes/component';
 import PollContainer from '/imports/ui/components/poll/container';
 import BreakoutRoomContainer from '../breakout-room/breakout-room/component';
@@ -139,6 +140,7 @@ const SidebarContent = (props: SidebarContentProps) => {
             isToSharedNotesBeShow={sidebarContentPanel === PANELS.SHARED_NOTES}
           />
         )}
+        {sidebarContentPanel === PANELS.PROFILE && <ProfileSettings />}
         {sidebarContentPanel === PANELS.BREAKOUT && <BreakoutRoomContainer />}
         {sidebarContentPanel === PANELS.TIMER && <TimerContainer />}
         {sidebarContentPanel === PANELS.WAITING_USERS && <GuestUsersManagementPanel />}

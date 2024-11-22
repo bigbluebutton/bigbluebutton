@@ -91,6 +91,14 @@ export const getLocaleName = (locale: string) => {
   return languageNames.of(locale);
 };
 
+export const getCaptionsTermsLink = (locale: string) => {
+  const DEFAULT_LOCALE = 'en-US';
+  // @ts-ignore
+  const terms = window.meetingClientSettings.public.app.audioCaptions.terms || {};
+  if (Object.keys(terms).includes(locale)) return terms[locale];
+  return terms[DEFAULT_LOCALE];
+};
+
 export default {
   getSpeechVoices,
   useIsAudioTranscriptionEnabled,
@@ -102,4 +110,5 @@ export default {
   isGladia,
   splitTranscript,
   getLocaleName,
+  getCaptionsTermsLink,
 };

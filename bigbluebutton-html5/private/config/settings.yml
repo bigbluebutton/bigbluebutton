@@ -125,6 +125,10 @@ public:
         # [en-US, es-ES, pt-BR,...]: to set a specific locale
         # disabled: to set disabled
         locale: disabled
+      terms:
+        # The URL to the terms of service for the transcription service
+        # Specify the URL for each locale you want: 
+        # en-US: 'https://xxx/SubtitleTerms'
     mutedAlert:
       enabled: true
       interval: 200
