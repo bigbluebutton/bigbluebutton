@@ -115,10 +115,10 @@ class Page {
     await this.waitAndClick(e.joinVideo);
     if (shouldConfirmSharing) {
       await this.bringToFront();
-      await this.hasElement(e.videoPreview, 'should display the video preview when sharing webcam ', videoPreviewTimeout);
+      await this.hasElement(e.webcamMirroredVideoPreview, 'should display the video preview when sharing webcam ', videoPreviewTimeout);
       await this.waitAndClick(e.startSharingWebcam);
     }
-    await this.waitForSelector(e.webcamContainer, VIDEO_LOADING_WAIT_TIME);
+    await this.waitForSelector(e.webcamMirroredVideoContainer, VIDEO_LOADING_WAIT_TIME);
     await this.waitForSelector(e.leaveVideo, VIDEO_LOADING_WAIT_TIME);
     await this.wasRemoved(e.webcamConnecting, VIDEO_LOADING_WAIT_TIME);
   }
