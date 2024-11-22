@@ -6,10 +6,10 @@ import { useIsChatEnabled } from '/imports/ui/services/features';
 import ChatListItemContainer from './chat-list-item/container';
 import UserNotesListItemContainer from './user-notes-list-item/component';
 import UsersListItem from './users-list-item/component';
-import WidgetsListItem from './widgets-list-item/component';
+import AppsListItem from './apps-list-item/component';
 import LearningDashboardListItem from './learning-dashboard-list-item/component';
 import SettingsListItem from './settings-list-item/component';
-import PinnedWidgets from './pinned-widgets/component';
+import PinnedApps from './pinned-apps/component';
 import { SidebarNavigation as SidebarNavigationInput } from '../layout/layoutTypes';
 import Styled from './styles';
 
@@ -56,8 +56,8 @@ const SidebarNavigation = ({
         </Styled.Top>
 
         <Styled.Center>
-          <WidgetsListItem />
-          <PinnedWidgets
+          <AppsListItem />
+          <PinnedApps
             sidebarNavigationInput={sidebarNavigationInput}
           />
         </Styled.Center>

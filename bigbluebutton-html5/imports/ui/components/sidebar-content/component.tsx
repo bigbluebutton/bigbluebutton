@@ -10,7 +10,7 @@ import GuestUsersManagementPanel from '/imports/ui/components/waiting-users/wait
 import Styled from './styles';
 import ErrorBoundary from '/imports/ui/components/common/error-boundary/component';
 import FallbackView from '/imports/ui/components/common/fallback-errors/fallback-view/component';
-import WidgetsGallery from '/imports/ui/components/widgets-gallery/container';
+import AppsGallery from '../apps-gallery/container';
 import GenericContentSidekickContainer from '/imports/ui/components/generic-content/generic-sidekick-content/container';
 import browserInfo from '/imports/utils/browserInfo';
 import { layoutSelect } from '/imports/ui/components/layout/context';
@@ -150,7 +150,7 @@ const SidebarContent = (props: SidebarContentProps) => {
             <PollContainer />
           </Styled.Poll>
         )}
-        {sidebarContentPanel === PANELS.WIDGETS && <WidgetsGallery />}
+        {sidebarContentPanel === PANELS.APPS_GALLERY && <AppsGallery />}
         {sidebarContentPanel.includes(PANELS.GENERIC_CONTENT_SIDEKICK) && (
           <GenericContentSidekickContainer
             genericSidekickContentId={sidebarContentPanel}

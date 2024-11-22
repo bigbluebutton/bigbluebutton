@@ -1,6 +1,6 @@
 import React from 'react';
 
-export interface TooManyPinnedWidgetsProps {
+export interface TooManypinnedAppsProps {
   setError: React.Dispatch<React.SetStateAction<boolean>>;
-  pinnedWidgetsNumber: number;
+  pinnedAppsNumber: number;
 }

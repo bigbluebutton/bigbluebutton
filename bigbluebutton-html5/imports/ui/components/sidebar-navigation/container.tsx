@@ -14,9 +14,9 @@ import useCurrentUser from '/imports/ui/core/hooks/useCurrentUser';
 import useDeduplicatedSubscription from '/imports/ui/core/hooks/useDeduplicatedSubscription';
 import { userIsInvited } from '/imports/ui/components/breakout-room/breakout-rooms-list-item/query';
 import useTimer from '/imports/ui/core/hooks/useTImer';
-import { BREAKOUTS_ICON, BREAKOUTS_LABEL, BREAKOUTS_WIDGET_KEY } from '/imports/ui/components/breakout-room/constants';
-import { TIMER_ICON, TIMER_LABEL, TIMER_WIDGET_KEY } from '/imports/ui/components/timer/constants';
-import { POLLS_ICON, POLLS_LABEL, POLLS_WIDGET_KEY } from '/imports/ui/components/poll/constants';
+import { BREAKOUTS_ICON, BREAKOUTS_LABEL, BREAKOUTS_APP_KEY } from '/imports/ui/components/breakout-room/constants';
+import { TIMER_ICON, TIMER_LABEL, TIMER_APP_KEY } from '/imports/ui/components/timer/constants';
+import { POLLS_ICON, POLLS_LABEL, POLLS_APP_KEY } from '/imports/ui/components/poll/constants';
 import { ACTIONS } from '/imports/ui/components/layout/enums';
 
 const SidebarNavigationContainer = () => {
@@ -56,18 +56,18 @@ const SidebarNavigationContainer = () => {
     height,
   } = sidebarNavigation;
   const {
-    registeredWidgets,
+    registeredApps,
   } = sidebarNavigationInput;
   const breakoutsAreRegistered = useMemo(() => (
-    Object.keys(registeredWidgets).includes(BREAKOUTS_WIDGET_KEY)), [registeredWidgets]);
+    Object.keys(registeredApps).includes(BREAKOUTS_APP_KEY)), [registeredApps]);
   const pollsAreRegistered = useMemo(() => (
-    Object.keys(registeredWidgets).includes(POLLS_WIDGET_KEY)), [registeredWidgets]);
+    Object.keys(registeredApps).includes(POLLS_APP_KEY)), [registeredApps]);
   const timerIsRegistered = useMemo(() => (
-    Object.keys(registeredWidgets).includes(TIMER_WIDGET_KEY)), [registeredWidgets]);
+    Object.keys(registeredApps).includes(TIMER_APP_KEY)), [registeredApps]);
 
-  const registerWidget = (panel: string, name: string, icon: string) => {
+  const registerApp = (panel: string, name: string, icon: string) => {
     layoutContextDispatch({
-      type: ACTIONS.REGISTER_SIDEBAR_NAVIGATION_WIDGET,
+      type: ACTIONS.REGISTER_SIDEBAR_APP,
       value: {
         panel,
         name,
@@ -76,9 +76,9 @@ const SidebarNavigationContainer = () => {
     });
   };
 
-  const pinWidget = (panel: string) => {
+  const pinApp = (panel: string) => {
     layoutContextDispatch({
-      type: ACTIONS.SET_SIDEBAR_NAVIGATION_PIN_WIDGET,
+      type: ACTIONS.SET_SIDEBAR_NAVIGATION_PIN_APP,
       value: {
         panel,
         pin: true,
@@ -86,46 +86,46 @@ const SidebarNavigationContainer = () => {
     });
   };
 
-  const unregisterWidget = (panel: string) => {
+  const unregisterApp = (panel: string) => {
     layoutContextDispatch({
-      type: ACTIONS.UNREGISTER_SIDEBAR_NAVIGATION_WIDGET,
+      type: ACTIONS.UNREGISTER_SIDEBAR_APP,
       value: panel,
     });
   };
 
   useEffect(() => {
-    // TODO: remove this widgets setup from here.
+    // TODO: remove this apps setup from here.
     // Ideally each component(i.e breakouts, polls, timer) should register/unregister itself based
     // on its specific conditions.
     if (!breakoutsAreRegistered && hasBreakoutRoom
       && (isModerator || userIsInvitedData?.breakoutRoom.length > 0)) {
-      registerWidget(BREAKOUTS_WIDGET_KEY, intl.formatMessage(BREAKOUTS_LABEL), BREAKOUTS_ICON);
-      pinWidget(BREAKOUTS_WIDGET_KEY);
+      registerApp(BREAKOUTS_APP_KEY, intl.formatMessage(BREAKOUTS_LABEL), BREAKOUTS_ICON);
+      pinApp(BREAKOUTS_APP_KEY);
     }
     if (breakoutsAreRegistered
       && (!hasBreakoutRoom || !isModerator || userIsInvitedData?.breakoutRoom.length === 0)) {
-      unregisterWidget(BREAKOUTS_WIDGET_KEY);
+      unregisterApp(BREAKOUTS_APP_KEY);
     }
 
     if (!pollsAreRegistered && isPresenter) {
-      registerWidget(POLLS_WIDGET_KEY, intl.formatMessage(POLLS_LABEL), POLLS_ICON);
-      pinWidget(POLLS_WIDGET_KEY);
+      registerApp(POLLS_APP_KEY, intl.formatMessage(POLLS_LABEL), POLLS_ICON);
+      pinApp(POLLS_APP_KEY);
     }
     if (pollsAreRegistered && !isPresenter) {
-      unregisterWidget(POLLS_WIDGET_KEY);
+      unregisterApp(POLLS_APP_KEY);
     }
 
     if (!timerIsRegistered && isModerator && timerData) {
-      registerWidget(TIMER_WIDGET_KEY, intl.formatMessage(TIMER_LABEL), TIMER_ICON);
-      pinWidget(TIMER_WIDGET_KEY);
+      registerApp(TIMER_APP_KEY, intl.formatMessage(TIMER_LABEL), TIMER_ICON);
+      pinApp(TIMER_APP_KEY);
     }
     if (timerIsRegistered && (!isModerator || !timerData)) {
-      unregisterWidget(TIMER_WIDGET_KEY);
+      unregisterApp(TIMER_APP_KEY);
     }
   }, [
     layoutContextDispatch,
     currentUser,
-    registeredWidgets,
+    registeredApps,
     hasBreakoutRoom,
     isModerator,
     timerData,
@@ -133,15 +133,15 @@ const SidebarNavigationContainer = () => {
   ]);
 
   useEffect(() => {
-    // update widgets label when intl changes
+    // update apps label when intl changes
     if (breakoutsAreRegistered) {
-      registerWidget(BREAKOUTS_WIDGET_KEY, intl.formatMessage(BREAKOUTS_LABEL), BREAKOUTS_ICON);
+      registerApp(BREAKOUTS_APP_KEY, intl.formatMessage(BREAKOUTS_LABEL), BREAKOUTS_ICON);
     }
     if (pollsAreRegistered) {
-      registerWidget(POLLS_WIDGET_KEY, intl.formatMessage(POLLS_LABEL), POLLS_ICON);
+      registerApp(POLLS_APP_KEY, intl.formatMessage(POLLS_LABEL), POLLS_ICON);
     }
     if (timerIsRegistered) {
-      registerWidget(TIMER_WIDGET_KEY, intl.formatMessage(TIMER_LABEL), TIMER_ICON);
+      registerApp(TIMER_APP_KEY, intl.formatMessage(TIMER_LABEL), TIMER_ICON);
     }
   }, [intl]);
 

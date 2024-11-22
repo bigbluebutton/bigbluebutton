@@ -204,7 +204,7 @@ export interface InjectedWidget extends Widget {
     contentFunction: (element: HTMLElement) => ReactDOM.Root;
 }
 
-export interface RegisteredWidgets {
+export interface registeredApps {
     [key: string]: NativeWidget | InjectedWidget;
 }
 
@@ -218,8 +218,8 @@ export interface SidebarNavigation {
     tabOrder?: number;
     top?: number;
     zIndex?: number;
-    registeredWidgets?: RegisteredWidgets;
-    pinnedWidgets?: string[];
+    registeredApps?: registeredApps;
+    pinnedApps?: string[];
 }
 
 interface Fullscreen {

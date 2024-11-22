@@ -1,28 +1,28 @@
 import React from 'react';
 import { defineMessages, useIntl } from 'react-intl';
-import { TooManyPinnedWidgetsProps } from './types';
+import { TooManypinnedAppsProps } from './types';
 import Styled from './styles';
 
 const intlMessages = defineMessages({
   title: {
-    id: 'app.widgets.modal.title',
-    description: 'Title for the widgets warning modal',
+    id: 'app.appsGallery.modal.title',
+    description: 'Title for the apps warning modal',
   },
   subTitle: {
-    id: 'app.widgets.modal.subtitle',
-    description: 'Sub title for the widgets warning modal',
+    id: 'app.appsGallery.modal.subtitle',
+    description: 'Sub title for the apps warning modal',
   },
   description: {
-    id: 'app.widgets.modal.description',
-    description: 'Description for the widgets warning modal',
+    id: 'app.appsGallery.modal.description',
+    description: 'Description for the apps warning modal',
   },
   buttonLabel: {
-    id: 'app.widgets.modal.confirmButtonLabel',
+    id: 'app.appsGallery.modal.confirmButtonLabel',
     description: 'Label for the confirmation button',
   },
 });
 
-const TooManyPinnedWidgetsModal = ({ setError, pinnedWidgetsNumber }: TooManyPinnedWidgetsProps) => {
+const TooManypinnedAppsModal = ({ setError, pinnedAppsNumber }: TooManypinnedAppsProps) => {
   const intl = useIntl();
   return (
     <Styled.Modal
@@ -33,11 +33,11 @@ const TooManyPinnedWidgetsModal = ({ setError, pinnedWidgetsNumber }: TooManyPin
       onRequestClose={() => setError(false)}
       headerPosition="top"
       title={<Styled.Title>{intl.formatMessage(intlMessages.title)}</Styled.Title>}
-      data-test="pinnedWidgetsWarningModal"
+      data-test="pinnedAppsWarningModal"
     >
       <Styled.ModalContent>
         <div>
-          <Styled.SubTitle>{intl.formatMessage(intlMessages.subTitle, { 0: pinnedWidgetsNumber })}</Styled.SubTitle>
+          <Styled.SubTitle>{intl.formatMessage(intlMessages.subTitle, { 0: pinnedAppsNumber })}</Styled.SubTitle>
           <Styled.Description>{intl.formatMessage(intlMessages.description)}</Styled.Description>
         </div>
         <Styled.ButtonWrapper>
@@ -52,4 +52,4 @@ const TooManyPinnedWidgetsModal = ({ setError, pinnedWidgetsNumber }: TooManyPin
   );
 };
 
-export default TooManyPinnedWidgetsModal;
+export default TooManypinnedAppsModal;

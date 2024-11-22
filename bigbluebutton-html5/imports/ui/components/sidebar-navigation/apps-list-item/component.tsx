@@ -9,19 +9,19 @@ import Styled from '../styles';
 
 const intlMessages = defineMessages({
   wigetsLabel: {
-    id: 'app.userList.widgetsTitle',
-    description: 'Title for the widgets panel',
+    id: 'app.userList.appsTitle',
+    description: 'Title for the apps panel',
   },
 });
 
-const WidgetsListItem = () => {
-  const CURRENT_PANEL = PANELS.WIDGETS;
+const AppsListItem = () => {
+  const CURRENT_PANEL = PANELS.APPS_GALLERY;
   const intl = useIntl();
   const layoutContextDispatch = layoutDispatch();
   const sidebarContent = layoutSelectInput((i: Input) => i.sidebarContent);
   const { sidebarContentPanel } = sidebarContent;
 
-  const toggleWidgetsPanel = () => {
+  const toggleAppsGalleryPanel = () => {
     layoutContextDispatch({
       type: ACTIONS.SET_SIDEBAR_CONTENT_IS_OPEN,
       value: sidebarContentPanel !== CURRENT_PANEL,
@@ -42,18 +42,18 @@ const WidgetsListItem = () => {
       position="right"
     >
       <Styled.ListItem
-        id="widgets-toggle-button"
+        id="apps-gallery-toggle-button"
         aria-label={label}
-        aria-describedby="widgets"
+        aria-describedby="appsGallery"
         active={sidebarContentPanel === CURRENT_PANEL}
         role="button"
         tabIndex={0}
-        data-test="widgetsSidebarButton"
-        onClick={toggleWidgetsPanel}
+        data-test="appsGallerySidebarButton"
+        onClick={toggleAppsGalleryPanel}
         // @ts-ignore
         onKeyDown={(e) => {
           if (e.key === 'Enter') {
-            toggleWidgetsPanel();
+            toggleAppsGalleryPanel();
           }
         }}
       >
@@ -63,4 +63,4 @@ const WidgetsListItem = () => {
   );
 };
 
-export default WidgetsListItem;
+export default AppsListItem;

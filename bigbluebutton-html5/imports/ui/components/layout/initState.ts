@@ -29,8 +29,8 @@ export const INITIAL_INPUT_STATE = {
     width: 0,
     height: 0,
     browserWidth: 0,
-    registeredWidgets: {},
-    pinnedWidgets: [],
+    registeredApps: {},
+    pinnedApps: [],
   },
   sidebarContent: {
     isOpen: true,

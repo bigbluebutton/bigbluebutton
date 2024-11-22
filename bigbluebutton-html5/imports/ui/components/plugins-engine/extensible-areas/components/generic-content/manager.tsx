@@ -49,7 +49,7 @@ const GenericContentPluginStateContainer = ((
       .filter((g) => g.type === GenericContentType.SIDEKICK_AREA) as PluginSdk.GenericContentSidekickArea[];
     genericContentSidekickArea.map((genericContentItem) => {
       return layoutContextDispatch({
-        type: ACTIONS.REGISTER_SIDEBAR_NAVIGATION_WIDGET,
+        type: ACTIONS.REGISTER_SIDEBAR_APP,
         value: {
           panel: genericContentSidekickId(genericContentItem.id),
           name: genericContentItem.name,

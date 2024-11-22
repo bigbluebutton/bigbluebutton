@@ -80,9 +80,9 @@ export const ACTIONS = {
 
   SET_SIDEBAR_NAVIGATION_IS_OPEN: 'setSidebarNavigationIsOpen',
   SET_SIDEBAR_NAVIGATION_SIZE: 'setSidebarNavigationSize',
-  REGISTER_SIDEBAR_NAVIGATION_WIDGET: 'registerSidebarNavigationWidget',
-  UNREGISTER_SIDEBAR_NAVIGATION_WIDGET: 'unregisterSidebarNavigationWidget',
-  SET_SIDEBAR_NAVIGATION_PIN_WIDGET: 'setSidebarNavigationPinWidget',
+  REGISTER_SIDEBAR_APP: 'registerSidebarApp',
+  UNREGISTER_SIDEBAR_APP: 'unregisterSidebarApp',
+  SET_SIDEBAR_NAVIGATION_PIN_APP: 'setSidebarNavigationPinApp',
   SET_SIDEBAR_NAVIGATION_OUTPUT: 'setSidebarNavigationOutput',
 
   SET_SIDEBAR_CONTENT_IS_OPEN: 'setSidebarContentIsOpen',
@@ -148,7 +148,7 @@ export const PANELS = {
   USERLIST: 'userlist',
   CHAT: 'chat',
   SHARED_NOTES: 'shared-notes',
-  WIDGETS: 'widgets',
+  APPS_GALLERY: 'apps-gallery',
   POLL: 'poll',
   BREAKOUT: 'breakoutroom',
   LEARNING_DASHBOARD: 'learning-dashboard',

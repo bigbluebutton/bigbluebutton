@@ -3,24 +3,24 @@ import {
   colorGrayLighter,
   colorPrimary,
   colorBlueAux,
-  widgetsGalleryOutlineColor,
-  unpinnedWidgetIconColor,
+  appsGalleryOutlineColor,
+  unpinnedAppIconColor,
   colorWhite,
-  widgetsPanelTextColor,
+  appsPanelTextColor,
 } from '/imports/ui/stylesheets/styled-components/palette';
 import Button from '/imports/ui/components/common/button/component';
 import { titlesFontWeight, textFontWeight, headingsFontWeight } from '/imports/ui/stylesheets/styled-components/typography';
 import {
   $2xlPadding,
   lgPadding,
-  widgetsButtonsBorderRadius,
-  widgetsPanelItemsSpacing,
-  widgetsPanelGroupItemsSpacing,
+  appsButtonsBorderRadius,
+  appsPanelItemsSpacing,
+  appsPanelGroupItemsSpacing,
 } from '/imports/ui/stylesheets/styled-components/general';
 
 const Content = styled.div`
   height: 100%;
-  color: ${widgetsPanelTextColor};
+  color: ${appsPanelTextColor};
   font-weight: ${textFontWeight};
   line-height: normal;`;
 
@@ -35,21 +35,21 @@ const Wrapper = styled.div`
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: ${widgetsPanelGroupItemsSpacing};
+  gap: ${appsPanelGroupItemsSpacing};
   flex-shrink: 0;
 `;
 
-const PinnedWidgetsWrapper = styled.div`
+const PinnedAppsWrapper = styled.div`
   display: flex;
   flex-direction: column;
-  gap: ${widgetsPanelItemsSpacing};
+  gap: ${appsPanelItemsSpacing};
   width: 100%;
   font-weight: ${headingsFontWeight};
 `;
 
-const UnpinnedWidgetsWrapper = PinnedWidgetsWrapper;
+const UnpinnedAppsWrapper = PinnedAppsWrapper;
 
-const RegisteredWidgetWrapper = styled.div`
+const RegisteredAppWrapper = styled.div`
   display: flex;
   flex-direction: row;
   gap: 0px;
@@ -57,18 +57,18 @@ const RegisteredWidgetWrapper = styled.div`
   cursor: pointer;
 `;
 
-const WidgetTitle = styled.div`
+const AppTitle = styled.div`
   flex-grow: 1;
 `;
 
-const RegisteredWidgetContent = styled.div`
+const RegisteredAppContent = styled.div`
   display: flex;
   flex-direction: row;
   flex-grow: 1;
-  border-radius: 0px ${widgetsButtonsBorderRadius} ${widgetsButtonsBorderRadius} 0px;
-  border-top: 1px solid ${widgetsGalleryOutlineColor};
-  border-right: 1px solid ${widgetsGalleryOutlineColor};
-  border-bottom: 1px solid ${widgetsGalleryOutlineColor};
+  border-radius: 0px ${appsButtonsBorderRadius} ${appsButtonsBorderRadius} 0px;
+  border-top: 1px solid ${appsGalleryOutlineColor};
+  border-right: 1px solid ${appsGalleryOutlineColor};
+  border-bottom: 1px solid ${appsGalleryOutlineColor};
   align-items: center;
   gap: 4px;
   padding: ${lgPadding} ${$2xlPadding};
@@ -77,7 +77,7 @@ const RegisteredWidgetContent = styled.div`
 // @ts-expect-error -> Untyped component.
 const OpenButton = styled(Button)<{pinned: boolean}>`
   padding: ${$2xlPadding};
-  border-radius: ${widgetsButtonsBorderRadius} 0px 0px ${widgetsButtonsBorderRadius};
+  border-radius: ${appsButtonsBorderRadius} 0px 0px ${appsButtonsBorderRadius};
   
   ${({ pinned }) => (pinned ? `
     background-color: ${colorPrimary};
@@ -92,12 +92,12 @@ const OpenButton = styled(Button)<{pinned: boolean}>`
   }
 `;
 
-const PinWidget = styled.div<{pinned: boolean}>`
+const PinApp = styled.div<{pinned: boolean}>`
   color: ${colorPrimary};
   cursor: pointer;
   > i {
     font-size: 120%;
-    color: ${({ pinned }) => (pinned ? colorPrimary : unpinnedWidgetIconColor)};
+    color: ${({ pinned }) => (pinned ? colorPrimary : unpinnedAppIconColor)};
   }
 `;
 
@@ -109,12 +109,12 @@ export default {
   Content,
   Separator,
   Wrapper,
-  PinnedWidgetsWrapper,
-  UnpinnedWidgetsWrapper,
-  RegisteredWidgetWrapper,
-  WidgetTitle,
-  RegisteredWidgetContent,
+  PinnedAppsWrapper,
+  UnpinnedAppsWrapper,
+  RegisteredAppWrapper,
+  AppTitle,
+  RegisteredAppContent,
   OpenButton,
-  PinWidget,
+  PinApp,
   BoldText,
 };

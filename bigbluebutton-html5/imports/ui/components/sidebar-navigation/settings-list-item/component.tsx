@@ -14,7 +14,7 @@ const intlMessages = defineMessages({
   },
 });
 
-const WidgetsListItem = () => {
+const SettingsListItem = () => {
   const CURRENT_PANEL = PANELS.SETTINGS;
   const intl = useIntl();
   const layoutContextDispatch = layoutDispatch();
@@ -63,4 +63,4 @@ const WidgetsListItem = () => {
   );
 };
 
-export default WidgetsListItem;
+export default SettingsListItem;

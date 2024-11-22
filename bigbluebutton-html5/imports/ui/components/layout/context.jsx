@@ -407,7 +407,7 @@ const reducer = (state, action) => {
         },
       };
     }
-    case ACTIONS.REGISTER_SIDEBAR_NAVIGATION_WIDGET: {
+    case ACTIONS.REGISTER_SIDEBAR_APP: {
       const {
         panel,
         name,
@@ -415,17 +415,17 @@ const reducer = (state, action) => {
         contentFunction = null,
       } = action.value;
       const { sidebarNavigation } = state.input;
-      const { registeredWidgets } = sidebarNavigation;
-      if (panel in registeredWidgets) {
+      const { registeredApps } = sidebarNavigation;
+      if (panel in registeredApps) {
         logger.warn({
-          logCode: 'overriding_registered_widget',
+          logCode: 'overriding_registered_app',
           extraInfo: {
             panel,
             name,
             icon,
             contentFunction,
           },
-        }, `Layout Context: Attempting to register widget "${panel}" that already exists. Overriding the previous instance.`);
+        }, `Layout Context: Attempting to register an app "${panel}" that already exists. Overriding the previous instance.`);
       }
       return {
         ...state,
@@ -433,8 +433,8 @@ const reducer = (state, action) => {
           ...state.input,
           sidebarNavigation: {
             ...sidebarNavigation,
-            registeredWidgets: {
-              ...registeredWidgets,
+            registeredApps: {
+              ...registeredApps,
               [panel]: {
                 name,
                 icon,
@@ -445,55 +445,55 @@ const reducer = (state, action) => {
         },
       };
     }
-    case ACTIONS.UNREGISTER_SIDEBAR_NAVIGATION_WIDGET: {
+    case ACTIONS.UNREGISTER_SIDEBAR_APP: {
       const {
         value,
       } = action;
       const { sidebarNavigation } = state.input;
-      const { registeredWidgets, pinnedWidgets } = sidebarNavigation;
-      if (!(value in registeredWidgets)) {
+      const { registeredApps, pinnedApps } = sidebarNavigation;
+      if (!(value in registeredApps)) {
         logger.warn({
-          logCode: 'unregister_not_found_widget',
+          logCode: 'unregister_not_found_app',
           extraInfo: {
             panel: value,
           },
-        }, `Layout Context: Attempting to unregister a widget "${value}" that is not registered.`);
+        }, `Layout Context: Attempting to unregister an app "${value}" that is not registered.`);
         return state;
       }
-      const updatedRegisteredWidgets = { ...registeredWidgets };
-      delete updatedRegisteredWidgets[value];
-      // Also remove it from pinned widgets
-      const updatedPinnedWidgets = pinnedWidgets.filter((pinnedWidget) => pinnedWidget !== value);
+      const updatedRegisteredApps = { ...registeredApps };
+      delete updatedRegisteredApps[value];
+      // Also remove it from pinned apps
+      const updatedPinnedApps = pinnedApps.filter((pinnedApp) => pinnedApp !== value);
       return {
         ...state,
         input: {
           ...state.input,
           sidebarNavigation: {
             ...sidebarNavigation,
-            pinnedWidgets: updatedPinnedWidgets,
-            registeredWidgets: {
-              ...updatedRegisteredWidgets,
+            pinnedApps: updatedPinnedApps,
+            registeredApps: {
+              ...updatedRegisteredApps,
             },
           },
         },
       };
     }
-    case ACTIONS.SET_SIDEBAR_NAVIGATION_PIN_WIDGET: {
-      const { panel: widgetKey, pin } = action.value;
+    case ACTIONS.SET_SIDEBAR_NAVIGATION_PIN_APP: {
+      const { panel: appKey, pin } = action.value;
       const { sidebarNavigation } = state.input;
-      const { pinnedWidgets, registeredWidgets } = sidebarNavigation;
+      const { pinnedApps, registeredApps } = sidebarNavigation;
 
-      const isWidgetRegistered = widgetKey in registeredWidgets;
-      const isWidgetPinned = pinnedWidgets.includes(widgetKey);
+      const isAppRegistered = appKey in registeredApps;
+      const isAppPinned = pinnedApps.includes(appKey);
 
-      if (!isWidgetRegistered) return state;
-      if ((pin && isWidgetPinned) || (!pin && !isWidgetPinned)) {
+      if (!isAppRegistered) return state;
+      if ((pin && isAppPinned) || (!pin && !isAppPinned)) {
         return state;
       }
 
-      const updatedPinnedWidgets = pin
-        ? [...pinnedWidgets, widgetKey]
-        : pinnedWidgets.filter((pinnedWidget) => pinnedWidget !== widgetKey);
+      const updatedPinnedApps = pin
+        ? [...pinnedApps, appKey]
+        : pinnedApps.filter((pinnedApp) => pinnedApp !== appKey);
 
       return {
         ...state,
@@ -501,7 +501,7 @@ const reducer = (state, action) => {
           ...state.input,
           sidebarNavigation: {
             ...sidebarNavigation,
-            pinnedWidgets: updatedPinnedWidgets,
+            pinnedApps: updatedPinnedApps,
           },
         },
       };

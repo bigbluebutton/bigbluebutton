@@ -107,13 +107,13 @@ const presentationMenuHeight = '45px';
 const styleMenuOffset = '6.25rem';
 const styleMenuOffsetSmall = '5rem';
 
-const widgetsPanelGroupItemsSpacing = '1.5rem';
-const widgetsPanelItemsSpacing = '1rem';
-const widgetsButtonsBorderRadius = '8px';
-const widgetsModalButtonPaddingX = '10%';
-const widgetsModalButtonPaddingY = '2%';
-const widgetsModalPadding = '3rem';
-const widgetsModalPaddingBottom = '1.5rem';
+const appsPanelGroupItemsSpacing = '1.5rem';
+const appsPanelItemsSpacing = '1rem';
+const appsButtonsBorderRadius = '8px';
+const appsModalButtonPaddingX = '10%';
+const appsModalButtonPaddingY = '2%';
+const appsModalPadding = '3rem';
+const appsModalPaddingBottom = '1.5rem';
 
 export {
   borderSizeSmall,
@@ -213,11 +213,11 @@ export {
   contentSidebarPadding,
   contentSidebarHeight,
   contentSidebarBorderRadius,
-  widgetsPanelGroupItemsSpacing,
-  widgetsPanelItemsSpacing,
-  widgetsButtonsBorderRadius,
-  widgetsModalButtonPaddingX,
-  widgetsModalButtonPaddingY,
-  widgetsModalPadding,
-  widgetsModalPaddingBottom,
+  appsPanelGroupItemsSpacing,
+  appsPanelItemsSpacing,
+  appsButtonsBorderRadius,
+  appsModalButtonPaddingX,
+  appsModalButtonPaddingY,
+  appsModalPadding,
+  appsModalPaddingBottom,
 };

@@ -1,19 +1,19 @@
 import styled from 'styled-components';
 import ModalSimple from '/imports/ui/components/common/modal/simple/component';
 import Button from '/imports/ui/components/common/button/component';
-import { widgetsPanelTextColor } from '/imports/ui/stylesheets/styled-components/palette';
+import { appsPanelTextColor } from '/imports/ui/stylesheets/styled-components/palette';
 import {
   lgBorderRadius,
-  widgetsModalButtonPaddingX,
-  widgetsModalButtonPaddingY,
-  widgetsModalPadding,
-  widgetsModalPaddingBottom,
+  appsModalButtonPaddingX,
+  appsModalButtonPaddingY,
+  appsModalPadding,
+  appsModalPaddingBottom,
 } from '/imports/ui/stylesheets/styled-components/general';
 import { titlesFontWeight } from '/imports/ui/stylesheets/styled-components/typography';
 
 const Modal = styled(ModalSimple)`
-  padding: ${widgetsModalPadding} ${widgetsModalPadding} ${widgetsModalPaddingBottom} ${widgetsModalPadding};
-  color: ${widgetsPanelTextColor};
+  padding: ${appsModalPadding} ${appsModalPadding} ${appsModalPaddingBottom} ${appsModalPadding};
+  color: ${appsPanelTextColor};
 `;
 
 const ModalContent = styled.div`
@@ -29,7 +29,7 @@ const Title = styled.div`
   white-space: normal;
   margin: 0px 0px 1rem;
   line-height: calc(2rem);
-  color: ${widgetsPanelTextColor};
+  color: ${appsPanelTextColor};
 `;
 
 const SubTitle = styled.div`
@@ -48,7 +48,7 @@ const ButtonWrapper = styled.div`
 
 // @ts-expect-error -> Untyped component.
 const ConfirmButton = styled(Button)`
-  padding: ${widgetsModalButtonPaddingY} ${widgetsModalButtonPaddingX};
+  padding: ${appsModalButtonPaddingY} ${appsModalButtonPaddingX};
   border-radius: ${lgBorderRadius};
   align-self: flex-end;
 `;
