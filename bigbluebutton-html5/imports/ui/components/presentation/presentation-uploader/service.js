@@ -238,6 +238,37 @@ const useExternalUploadData = () => {
   };
 };
 
+function createUploadFileObject(file) {
+  const id = uniqueId(file.name);
+  const PRESENTATION_CONFIG = window.meetingClientSettings.public.presentation;
+
+  return {
+    file,
+    downloadable: false, // by default new presentations are set not to be downloadable
+    isRemovable: true,
+    presentationId: id,
+    meetingId: Auth.meetingID,
+    endpoint: PRESENTATION_CONFIG.uploadEndpoint,
+    name: file.name,
+    current: false,
+    conversion: { done: false, error: false },
+    upload: { done: false, error: false, progress: 0 },
+    exportation: { error: false },
+    onProgress: (event) => {
+      console.log(event);
+    },
+    onConversion: (conversion) => {
+      console.log(conversion);
+    },
+    onUpload: (upload) => {
+      console.log(upload);
+    },
+    onDone: (newId) => {
+      console.log(newId);
+    },
+  };
+}
+
 function handleFiledrop(files, files2, that, intl, intlMessages) {
   if (that) {
     const { fileValidMimeTypes } = that.props;
@@ -313,5 +344,6 @@ export default {
   requestPresentationUploadToken,
   uploadAndConvertPresentation,
   handleFiledrop,
+  createUploadFileObject,
   useExternalUploadData,
 };
