@@ -1348,32 +1348,31 @@ class VideoPreview extends Component {
 
     const allowCloseModal = !!(deviceError || previewError)
     || !PreviewService.getSkipVideoPreview()
-    || forceOpen;
+      || forceOpen;
 
-    const shouldShowVirtualBackgroundsTab = isVirtualBackgroundsEnabled 
-    && !cameraAsContent
-    && !(webcamDeviceId === cameraAsContentDeviceId)
-    && isVirtualBackgroundSupported()
+    const shouldShowVirtualBackgroundsTab = isVirtualBackgroundsEnabled
+      && !cameraAsContent
+      && !(webcamDeviceId === cameraAsContentDeviceId)
+      && isVirtualBackgroundSupported()
 
     return (
-      <Styled.Background isBlurred={isBlurred}>
-        <Styled.VideoPreviewModal
-          onRequestClose={this.handleProceed}
-          contentLabel={intl.formatMessage(intlMessages.webcamSettingsTitle)}
-          shouldShowCloseButton={allowCloseModal}
-          shouldCloseOnOverlayClick={allowCloseModal}
-          isPhone={deviceInfo.isPhone}
-          data-test="webcamSettingsModal"
-          {...{
-            isOpen,
-            priority,
-          }}
-        >
-          <Styled.Container>
-            <Styled.Header>
-              <Styled.WebcamTabs
-              onSelect={this.handleSelectTab}
-              selectedIndex={selectedTab}
+      <Styled.VideoPreviewModal
+        onRequestClose={this.handleProceed}
+        contentLabel={intl.formatMessage(intlMessages.webcamSettingsTitle)}
+        shouldShowCloseButton={allowCloseModal}
+        shouldCloseOnOverlayClick={allowCloseModal}
+        isPhone={deviceInfo.isPhone}
+        data-test="webcamSettingsModal"
+        {...{
+          isOpen,
+          priority,
+        }}
+      >
+        <Styled.Container>
+    <Styled.Header>
+      <Styled.WebcamTabs
+        onSelect={this.handleSelectTab}
+        selectedIndex={selectedTab}
               >
                 <Styled.WebcamTabList>
                   <Styled.WebcamTabSelector selectedClassName="is-selected">
@@ -1409,7 +1408,6 @@ class VideoPreview extends Component {
 
           </Styled.Container>
         </Styled.VideoPreviewModal>
-      </Styled.Background>
     );
   }
 }
