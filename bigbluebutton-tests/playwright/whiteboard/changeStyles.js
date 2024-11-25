@@ -1,7 +1,6 @@
 const { expect } = require('@playwright/test');
 const e = require('../core/elements');
 const { ELEMENT_WAIT_LONGER_TIME } = require('../core/constants');
-const { sleep } = require('../core/helpers');
 const { MultiUsers } = require('../user/multiusers');
 
 class ChangeStyles extends MultiUsers {
@@ -54,7 +53,7 @@ class ChangeStyles extends MultiUsers {
 
     await this.modPage.setHeightWidthViewPortSize();
     await this.userPage.setHeightWidthViewPortSize();
-    await sleep(5000);
+    
     await expect(this.modPage.page).toHaveScreenshot('moderator-size-drawing.png');
 
     const userWbLocator = this.userPage.getLocator(e.whiteboard);
