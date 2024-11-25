@@ -17,7 +17,7 @@ import { layoutSelect } from '/imports/ui/components/layout/context';
 import { Layout } from '/imports/ui/components/layout/layoutTypes';
 import { Message } from '/imports/ui/Types/message';
 import ChatListPage from './page/component';
-import LAST_SEEN_MUTATION, { BASIC_USER_INFO, BasicUserInfoSubscriptionResponse } from './queries';
+import LAST_SEEN_MUTATION from './queries';
 import {
   MessageList,
   UnreadButton,
@@ -37,7 +37,6 @@ import {
 } from '/imports/ui/services/features';
 import { CHAT_DELETE_REACTION_MUTATION, CHAT_SEND_REACTION_MUTATION } from './page/chat-message/mutations';
 import logger from '/imports/startup/client/logger';
-import useDeduplicatedSubscription from '/imports/ui/core/hooks/useDeduplicatedSubscription';
 
 const PAGE_SIZE = 50;
 const CLEANUP_TIMEOUT = 3000;
@@ -218,7 +217,6 @@ const ChatMessageList: React.FC<ChatListProps> = ({
     locked: c?.locked,
     userId: c?.userId,
   }));
-  const { data: userInfoData } = useDeduplicatedSubscription<BasicUserInfoSubscriptionResponse>(BASIC_USER_INFO);
   const CHAT_REPLY_ENABLED = useIsReplyChatMessageEnabled();
   const CHAT_REACTIONS_ENABLED = useIsChatMessageReactionsEnabled();
   const CHAT_EDIT_ENABLED = useIsEditChatMessageEnabled();
@@ -451,10 +449,6 @@ const ChatMessageList: React.FC<ChatListProps> = ({
     endSentinelParentRefProxy.current = el;
   }, []);
 
-  const userNames = useMemo(() => {
-    return userInfoData?.user ? userInfoData.user.map((u) => u.name) : [];
-  }, [userInfoData]);
-
   return (
     <>
       {
@@ -529,7 +523,6 @@ const ChatMessageList: React.FC<ChatListProps> = ({
                     chatReplyEnabled={CHAT_REPLY_ENABLED}
                     deleteReaction={deleteReaction}
                     sendReaction={sendReaction}
-                    userNames={userNames}
                   />
                 );
               })}
@@ -545,7 +538,7 @@ const ChatMessageList: React.FC<ChatListProps> = ({
             />
           </MessageList>,
           renderUnreadNotification,
-          <ChatReplyIntention key="chatReplyIntention" userNames={userNames} />,
+          <ChatReplyIntention key="chatReplyIntention" />,
           <ChatEditingWarning key="chatEditingWarning" />,
         ]
       }

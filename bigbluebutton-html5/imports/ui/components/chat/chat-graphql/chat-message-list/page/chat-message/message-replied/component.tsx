@@ -4,7 +4,6 @@ import Styled, { DeleteMessage } from './styles';
 import Storage from '/imports/ui/services/storage/in-memory';
 import { ChatEvents } from '/imports/ui/core/enums/chat';
 import CustomMarkdownLink from '/imports/ui/components/chat/chat-graphql/custom-markdown-components/link/component';
-import { findAndReplaceMentions } from '/imports/ui/components/chat/chat-graphql/utils';
 
 const intlMessages = defineMessages({
   deleteMessage: {
@@ -18,18 +17,15 @@ interface MessageRepliedProps {
   sequence: number;
   emphasizedMessage: boolean;
   deletedByUser: string | null;
-  userNames: string[];
 }
 
 const ChatMessageReplied: React.FC<MessageRepliedProps> = (props) => {
   const {
-    message, sequence, emphasizedMessage, deletedByUser, userNames,
+    message, sequence, emphasizedMessage, deletedByUser,
   } = props;
 
   const intl = useIntl();
   const messageChunks = message.split('\n');
-
-  const { mention: mentionEnabled } = window.meetingClientSettings.public.chat;
 
   return (
     <Styled.Container
@@ -57,7 +53,7 @@ const ChatMessageReplied: React.FC<MessageRepliedProps> = (props) => {
             components={{ a: CustomMarkdownLink }}
             unwrapDisallowed
           >
-            {mentionEnabled ? findAndReplaceMentions(messageChunks[0], userNames) : messageChunks[0]}
+            {messageChunks[0]}
           </Styled.Markdown>
         </Styled.Message>
       )}

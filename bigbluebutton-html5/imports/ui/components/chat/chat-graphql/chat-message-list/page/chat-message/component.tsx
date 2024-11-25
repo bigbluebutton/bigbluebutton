@@ -60,7 +60,6 @@ interface ChatMessageProps {
   chatReactionsEnabled: boolean;
   sendReaction: (reactionEmoji: string, reactionEmojiId: string, chatId: string, messageId: string) => void;
   deleteReaction: (reactionEmoji: string, reactionEmojiId: string, chatId: string, messageId: string) => void;
-  userNames: string[];
 }
 
 export interface ChatMessageRef {
@@ -142,7 +141,6 @@ const ChatMessage = React.forwardRef<ChatMessageRef, ChatMessageProps>(({
   chatReplyEnabled,
   deleteReaction,
   sendReaction,
-  userNames,
 }, ref) => {
   const intl = useIntl();
   const markMessageAsSeenOnScrollEnd = useCallback(() => {
@@ -342,7 +340,7 @@ const ChatMessage = React.forwardRef<ChatMessageRef, ChatMessageProps>(({
             <ChatMessageTextContent
               emphasizedMessage
               text={message.message}
-              userNames={userNames}
+
             />
           ),
           showAvatar: true,
@@ -400,7 +398,6 @@ const ChatMessage = React.forwardRef<ChatMessageRef, ChatMessageProps>(({
               <ChatMessageTextContent
                 emphasizedMessage={message.chatEmphasizedText}
                 text={message.message}
-                userNames={userNames}
               />
             ),
         };
@@ -419,7 +416,6 @@ const ChatMessage = React.forwardRef<ChatMessageRef, ChatMessageProps>(({
             <ChatMessageTextContent
               emphasizedMessage={message.chatEmphasizedText}
               text={message.message}
-              userNames={userNames}
             />
           ),
         };
@@ -535,7 +531,6 @@ const ChatMessage = React.forwardRef<ChatMessageRef, ChatMessageProps>(({
             sequence={message.replyToMessage.messageSequence}
             emphasizedMessage={message.replyToMessage.chatEmphasizedText}
             deletedByUser={message.replyToMessage.deletedBy?.name ?? null}
-            userNames={userNames}
           />
           )}
           {!deleteTime && (

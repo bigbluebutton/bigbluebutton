@@ -5,6 +5,7 @@ import useDeduplicatedSubscription from '/imports/ui/core/hooks/useDeduplicatedS
 import { BASIC_USER_INFO, BasicUserInfoSubscriptionResponse } from '/imports/ui/components/chat/chat-graphql/chat-message-list/queries';
 import ChatMentionPickerItem from './item/component';
 import Styled from './styles';
+import ClickOutside from '/imports/ui/components/click-outside/component';
 
 interface ChatMentionPickerProps {
   input: string;
@@ -85,21 +86,27 @@ const ChatMentionPicker = React.forwardRef<ChatMentionPickerRef, ChatMentionPick
     },
   }), [count, filteredUsers, focusedIndex]);
 
+  if (!count) {
+    return null;
+  }
+
   return (
-    <Styled.Root>
-      <Styled.Container onScroll={handleScroll}>
-        <Styled.List>
-          {filteredUsers.slice(0, numberOfItems).map((user, index) => (
-            <ChatMentionPickerItem
-              key={`page-${index + 1}`}
-              onSelect={onSelect}
-              user={user}
-              focused={index === focusedIndex}
-            />
-          ))}
-        </Styled.List>
-      </Styled.Container>
-    </Styled.Root>
+    <ClickOutside onClick={onClose}>
+      <Styled.Root>
+        <Styled.Container onScroll={handleScroll}>
+          <Styled.List>
+            {filteredUsers.slice(0, numberOfItems).map((user, index) => (
+              <ChatMentionPickerItem
+                key={`page-${index + 1}`}
+                onSelect={onSelect}
+                user={user}
+                focused={index === focusedIndex}
+              />
+            ))}
+          </Styled.List>
+        </Styled.Container>
+      </Styled.Root>
+    </ClickOutside>
   );
 });
 

@@ -52,7 +52,6 @@ interface ChatListPageCommonProps {
   chatReactionsEnabled: boolean;
   sendReaction: (reactionEmoji: string, reactionEmojiId: string, chatId: string, messageId: string) => void;
   deleteReaction: (reactionEmoji: string, reactionEmojiId: string, chatId: string, messageId: string) => void;
-  userNames: string[];
 }
 
 interface ChatListPageContainerProps extends ChatListPageCommonProps {
@@ -131,7 +130,6 @@ const ChatListPage: React.FC<ChatListPageProps> = ({
   chatReplyEnabled,
   deleteReaction,
   sendReaction,
-  userNames,
 }) => {
   const { domElementManipulationIdentifiers } = useContext(PluginsContext);
   const messageRefs = useRef<Record<number, ChatMessageRef | null>>({});
@@ -277,7 +275,6 @@ const ChatListPage: React.FC<ChatListPageProps> = ({
             chatReplyEnabled={chatReplyEnabled}
             deleteReaction={deleteReaction}
             sendReaction={sendReaction}
-            userNames={userNames}
           />
         );
       })}
@@ -311,7 +308,6 @@ const ChatListPageContainer: React.FC<ChatListPageContainerProps> = ({
   chatReplyEnabled,
   deleteReaction,
   sendReaction,
-  userNames,
 }) => {
   const CHAT_CONFIG = window.meetingClientSettings.public.chat;
   const PUBLIC_GROUP_CHAT_KEY = CHAT_CONFIG.public_group_id;
@@ -377,7 +373,6 @@ const ChatListPageContainer: React.FC<ChatListPageContainerProps> = ({
       chatReplyEnabled={chatReplyEnabled}
       deleteReaction={deleteReaction}
       sendReaction={sendReaction}
-      userNames={userNames}
     />
   );
 };

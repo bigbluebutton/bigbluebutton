@@ -7,7 +7,7 @@ type Props = Omit<React.DetailedHTMLProps<React.AnchorHTMLAttributes<HTMLAnchorE
 
 const CustomMarkdownLink: React.FC<Props> = (props) => {
   const { children, node, ...rest } = props;
-  if (typeof node.properties?.href === 'string' && node.properties.href.includes('mention://')) {
+  if (typeof node.properties?.href === 'string' && node.properties.href.includes('bbb://')) {
     return <Styled.Mention>{children}</Styled.Mention>;
   }
   return <a {...rest}>{children}</a>;

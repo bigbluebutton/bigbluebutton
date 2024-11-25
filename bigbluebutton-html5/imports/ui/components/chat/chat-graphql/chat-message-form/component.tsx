@@ -531,7 +531,7 @@ const ChatMessageForm: React.FC<ChatMessageFormProps> = ({
 
     const handleMentionSelect = useCallback((user: { userId: string; name: string }) => {
       if (!mention) return;
-      setMessage((msg) => msg.replace(mention[0], `@${user.name}`));
+      setMessage((msg) => msg.replace(mention[0], `[@${user.name}](bbb://${user.userId})`));
       setMention(undefined);
     }, [mention]);
 
@@ -589,7 +589,6 @@ const ChatMessageForm: React.FC<ChatMessageFormProps> = ({
                     value: false,
                   },
                 }));
-                setMention(undefined);
               }}
               onChange={handleMessageChange}
               onKeyDown={handleMessageKeyDown}
