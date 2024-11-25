@@ -1,7 +1,6 @@
 import styled, { css, keyframes } from 'styled-components';
 import { mdPaddingX } from '/imports/ui/stylesheets/styled-components/general';
-import { loaderBg, loaderBullet, colorWhite } from '/imports/ui/stylesheets/styled-components/palette';
-import { fontSizeLarge } from '/imports/ui/stylesheets/styled-components/typography';
+import { loaderBg, loaderBullet } from '/imports/ui/stylesheets/styled-components/palette';
 
 const Background = styled.div`
   position: fixed;
@@ -57,16 +56,9 @@ const Bounce2 = styled.div`
   `}
 `;
 
-const Message = styled.div`
-  font-size: ${fontSizeLarge};
-  color: ${colorWhite};
-  text-align: center;
-`;
-
 export default {
   Background,
   Spinner,
   Bounce1,
   Bounce2,
-  Message,
 };

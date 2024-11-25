@@ -264,10 +264,10 @@ const WhiteboardContainer = (props) => {
           }
         }
 
-        return validShapes;
+        return validShapes.length > 0 ? validShapes : [];
       });
 
-      setRemovedShapes(Array.from(annotationsToBeRemoved));
+      setRemovedShapes(Array.from(annotationsToBeRemoved || []));
     },
   });
 
@@ -306,18 +306,16 @@ const WhiteboardContainer = (props) => {
       }
     });
 
-    setShapes(() => {
-      return [
-        ...updatedAnnotations.map(({ annotationInfo, annotationId }) => ({
-          ...annotationInfo,
-          id: annotationId,
-        })),
-        ...newAnnotations.map(({ annotationInfo, annotationId }) => ({
-          ...annotationInfo,
-          id: annotationId,
-        })),
-      ];
-    });
+    setShapes(() => [
+      ...updatedAnnotations.map(({ annotationInfo, annotationId }) => ({
+        ...annotationInfo,
+        id: annotationId,
+      })),
+      ...newAnnotations.map(({ annotationInfo, annotationId }) => ({
+        ...annotationInfo,
+        id: annotationId,
+      })),
+    ]);
 
     if (updatedAnnotations.length > 0 || newAnnotations.length > 0) {
       const restoreOnUpdate = getFromUserSettings(
@@ -330,7 +328,7 @@ const WhiteboardContainer = (props) => {
       }
     }
 
-    setRemovedShapes(Array.from(annotationsToBeRemoved));
+    setRemovedShapes(annotationsToBeRemoved.length > 0 ? annotationsToBeRemoved : []);
   };
 
   useEffect(() => {
@@ -338,6 +336,14 @@ const WhiteboardContainer = (props) => {
       processAnnotations(initialPageAnnotations.pres_annotation_curr);
     }
   }, [initialPageAnnotations]);
+
+  useEffect(() => {
+    if (!curPageId || !lastUpdatedAt) {
+      setShapes([]);
+      setRemovedShapes([]);
+    }
+  }, [curPageId, lastUpdatedAt]);
+  
 
   const bgShape = [];
 

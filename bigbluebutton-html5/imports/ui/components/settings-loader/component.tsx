@@ -93,11 +93,7 @@ const SettingsLoader: React.FC<SettingsLoaderProps> = (props) => {
         />
       ) : null}
       {loading ? (
-        <LoadingScreen>
-          <div style={{ display: 'none' }}>
-            Loading...
-          </div>
-        </LoadingScreen>
+        <LoadingScreen />
       ) : null}
     </>
   );

@@ -380,7 +380,7 @@ const MeetingEnded: React.FC<MeetingEndedProps> = ({
 
   useEffect(() => {
     // Sets Loading to falsed and removes loading splash screen
-    loadingContextInfo.setLoading(false, '');
+    loadingContextInfo.setLoading(false);
     // Stops all media tracks
     window.dispatchEvent(new Event('StopAudioTracks'));
     // get the media tag from the session storage
