@@ -1,4 +1,4 @@
 export interface ListItemProps {
-  active: boolean;
+  active?: boolean;
   hasNotification?: boolean;
 }
