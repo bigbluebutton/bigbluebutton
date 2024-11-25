@@ -1063,6 +1063,7 @@ public:
         - note
         - rectangle
         - more
+        - actions
       multiUserTools:
         - select
         - hand
@@ -1073,6 +1074,7 @@ public:
         - note
         - rectangle
         - more
+        - actions
   clientLog:
     console:
       enabled: true
