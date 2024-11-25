@@ -1,7 +1,6 @@
 const { expect } = require('@playwright/test');
 const e = require('../core/elements');
 const { ELEMENT_WAIT_LONGER_TIME } = require('../core/constants');
-const { sleep } = require('../core/helpers');
 const { MultiUsers } = require('../user/multiusers');
 
 class RealTimeText extends MultiUsers {
@@ -20,7 +19,6 @@ class RealTimeText extends MultiUsers {
     await this.modPage.press('A');
     
     const userWbLocator = this.userPage.getLocator(e.whiteboard);
-    await sleep(5000);
     await expect(modWbLocator).toHaveScreenshot('moderator-realtime-text.png');
     await expect(userWbLocator).toHaveScreenshot('viewer-realtime-text.png');
 
