@@ -103,6 +103,7 @@ class Layouts extends MultiUsers {
     await this.modPage.hasElement(e.restorePresentation, 'should be displayed the restore presentation button for the moderator');
 
     await this.modPage.waitAndClick(e.restorePresentation);
+    await this.modPage.closeAllToastNotifications();
     await this.modPage.dragAndDropWebcams(e.dropAreaSidebarBottom);
 
     await checkScreenshots(this, 'layout should be updated for everyone', 'video', 'update-everyone');

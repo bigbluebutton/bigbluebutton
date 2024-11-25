@@ -308,7 +308,7 @@ class Page {
       const closeToastBtnLocator = this.page.locator(e.closeToastBtn);
       while (await closeToastBtnLocator.count() > 0) {
         await this.page.click(e.closeToastBtn, { timeout: ELEMENT_WAIT_TIME });
-        await helpers.sleep(1000);  // expected time to toast notification disappear
+        await helpers.sleep(1500);  // expected time to toast notification disappear
       }
   }
 
