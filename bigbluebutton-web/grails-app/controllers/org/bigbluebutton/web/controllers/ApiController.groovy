@@ -264,9 +264,14 @@ class ApiController {
             request
     )
 
+    String errorRedirectUrl = ""
+    if(!StringUtils.isEmpty(params.errorRedirectUrl)) {
+      errorRedirectUrl = params.errorRedirectUrl
+    }
+
     boolean redirectClient = REDIRECT_RESPONSE
     if(!(validationResponse == null)) {
-      invalid(validationResponse.getKey(), validationResponse.getValue(), redirectClient)
+      invalid(validationResponse.getKey(), validationResponse.getValue(), redirectClient, errorRedirectUrl);
       return
     }
 
@@ -316,11 +321,6 @@ class ApiController {
     String attPW = params.password
 
     Meeting meeting = ServiceUtils.findMeetingFromMeetingID(params.meetingID);
-
-    String errorRedirectUrl = ""
-    if(!StringUtils.isEmpty(params.errorRedirectUrl)) {
-      errorRedirectUrl = params.errorRedirectUrl
-    }
 
     // the createTime mismatch with meeting's createTime, complain
     // In the future, the createTime param will be required
@@ -1970,24 +1970,39 @@ class ApiController {
     }
   }
 
+  private String subLogoutParams(logoutUrl, meetingID, userID, fullName) {
+    String newURL = logoutUrl;
+    String userName = fullName != null ? validationService.encodeString(fullName) : "";
+
+    newURL = newURL.replace('%%MEETINGID%%', meetingID != null ? meetingID : "");
+    newURL = newURL.replace('%%USERID%%', userID != null ? userID : "");
+    newURL = newURL.replace('%%USERNAME%%', userName);
+
+    return newURL;
+  }
+
   private void respondWithRedirect(errorsJSONArray, redirectUrl = "") {
-    String logoutUrl = paramsProcessorUtil.getDefaultLogoutUrl()
-    URI oldUri = URI.create(logoutUrl)
+    String uriString = paramsProcessorUtil.getDefaultLogoutUrl();
 
     if (!StringUtils.isEmpty(params.logoutURL)) {
       try {
-        oldUri = URI.create(params.logoutURL)
+        uriString = params.logoutURL;
       } catch (Exception e) {
         // Do nothing, the variable oldUri was already initialized
       }
     }
 
+    // If logoutUrl strings get here with %%FIELDS%% we don't
+    // have enough info to construct them, so just clear the fields
+    uriString = subLogoutParams(uriString, "", "", "");
+
     if(!StringUtils.isEmpty(redirectUrl)) {
       try {
-        oldUri = URI.create(redirectUrl)
+        uriString = redirectUrl;
       } catch(Exception ignored) {}
     }
 
+    URI oldUri = URI.create(uriString);
     String newQuery = oldUri.getQuery();
 
     if (newQuery == null) {
