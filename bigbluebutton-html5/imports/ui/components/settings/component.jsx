@@ -1,7 +1,8 @@
 import React, { Component } from 'react';
-import ModalFullscreen from '/imports/ui/components/common/modal/fullscreen/component';
+import ModalSimple from '/imports/ui/components/common/modal/simple/component';
 import { defineMessages, injectIntl } from 'react-intl';
 import Langmap from 'langmap';
+import About from '/imports/ui/components/settings/submenus/about/component';
 import DataSaving from '/imports/ui/components/settings/submenus/data-saving/component';
 import Application from '/imports/ui/components/settings/submenus/application/component';
 import Notification from '/imports/ui/components/settings/submenus/notification/component';
@@ -16,6 +17,10 @@ const intlMessages = defineMessages({
   appTabLabel: {
     id: 'app.settings.applicationTab.label',
     description: 'label for application tab',
+  },
+  aboutTabLabel: {
+    id: 'app.about.title',
+    description: 'label for about tab',
   },
   audioTabLabel: {
     id: 'app.settings.audioTab.label',
@@ -232,16 +237,20 @@ class Settings extends Component {
       >
         <Styled.SettingsTabList>
           <Styled.SettingsTabSelector
+            aria-labelledby="aboutTab"
+            selectedClassName="is-selected"
+          >
+            <span id="aboutTab">{intl.formatMessage(intlMessages.aboutTabLabel)}</span>
+          </Styled.SettingsTabSelector>
+          <Styled.SettingsTabSelector
             aria-labelledby="appTab"
             selectedClassName="is-selected"
           >
-            <Styled.SettingsIcon iconName="application" />
             <span id="appTab">{intl.formatMessage(intlMessages.appTabLabel)}</span>
           </Styled.SettingsTabSelector>
           <Styled.SettingsTabSelector
             selectedClassName="is-selected"
           >
-            <Styled.SettingsIcon iconName="alert" />
             <span id="notificationTab">{intl.formatMessage(intlMessages.notificationLabel)}</span>
           </Styled.SettingsTabSelector>
           {isDataSavingTabEnabled
@@ -250,7 +259,6 @@ class Settings extends Component {
                 aria-labelledby="dataSavingTab"
                 selectedClassName="is-selected"
               >
-                <Styled.SettingsIcon iconName="network" />
                 <span id="dataSaving">{intl.formatMessage(intlMessages.dataSavingLabel)}</span>
               </Styled.SettingsTabSelector>
             )
@@ -261,12 +269,15 @@ class Settings extends Component {
                 aria-labelledby="transcriptionTab"
                 selectedClassName="is-selected"
               >
-                <Styled.SettingsIcon iconName="closed_caption" />
                 <span id="transcriptionTab">{intl.formatMessage(intlMessages.transcriptionLabel)}</span>
               </Styled.SettingsTabSelector>
             )
             : null}
         </Styled.SettingsTabList>
+        <Styled.SettingsTabPanel selectedClassName="is-selected">
+          <About
+            settings={current.application} />
+        </Styled.SettingsTabPanel>
         <Styled.SettingsTabPanel selectedClassName="is-selected">
           <Application
             allLocales={allLocales}
@@ -328,49 +339,57 @@ class Settings extends Component {
       isOpen,
       priority,
       setLocalSettings,
+      modalHeight,
+      modalWidth,
     } = this.props;
-    const {
-      current,
-      saved,
-    } = this.state;
+    const { current, saved } = this.state;
+  
     return (
-      <ModalFullscreen
+      <ModalSimple
         title={intl.formatMessage(intlMessages.SettingsLabel)}
-        confirm={{
-          callback: () => {
-            this.updateSettings(current, intlMessages.savedAlertLabel, setLocalSettings);
-
-            if (saved.application.locale !== current.application.locale) {
-              const { language } = formatLocaleCode(saved.application.locale);
-              const newLanguage = current.application.locale;
-              setUseCurrentLocale(newLanguage);
-              document.body.classList.remove(`lang-${language}`);
-            }
-
-            /* We need to use setIsOpen(false) here to prevent submenu state updates,
-            *  from re-opening the modal.
-            */
-            setIsOpen(false);
-          },
-          label: intl.formatMessage(intlMessages.SaveLabel),
-          description: intl.formatMessage(intlMessages.SaveLabelDesc),
-        }}
+        width={modalWidth}
+        height={modalHeight}
+        modalisOpen={isOpen}
         dismiss={{
           callback: () => {
             Settings.setHtmlFontSize(saved.application.fontSize);
             document.getElementsByTagName('html')[0].lang = saved.application.locale;
             setIsOpen(false);
           },
-          label: intl.formatMessage(intlMessages.CancelLabel),
-          description: intl.formatMessage(intlMessages.CancelLabelDesc),
         }}
-        {...{
-          isOpen,
-          priority,
-        }}
+        onRequestClose={() => setIsOpen(false)}
       >
-        {this.renderModalContent()}
-      </ModalFullscreen>
+        <div>
+          {this.renderModalContent()}
+          <Styled.ActionsContainer>
+            <Styled.ActionButton
+              onClick={() => {
+                this.updateSettings(current, intlMessages.savedAlertLabel, setLocalSettings);
+  
+                if (saved.application.locale !== current.application.locale) {
+                  const { language } = formatLocaleCode(saved.application.locale);
+                  const newLanguage = current.application.locale;
+                  setUseCurrentLocale(newLanguage);
+                  document.body.classList.remove(`lang-${language}`);
+                }
+  
+                setIsOpen(false);
+              }}
+            >
+              {intl.formatMessage(intlMessages.SaveLabel)}
+            </Styled.ActionButton>
+            <Styled.ActionButton
+              onClick={() => {
+                Settings.setHtmlFontSize(saved.application.fontSize);
+                document.getElementsByTagName('html')[0].lang = saved.application.locale;
+                setIsOpen(false);
+              }}
+            >
+              {intl.formatMessage(intlMessages.CancelLabel)}
+            </Styled.ActionButton>
+          </Styled.ActionsContainer>
+        </div>
+      </ModalSimple>
     );
   }
 }

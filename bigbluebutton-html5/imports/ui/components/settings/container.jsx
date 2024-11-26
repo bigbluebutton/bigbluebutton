@@ -4,6 +4,7 @@ import { layoutDispatch } from '../layout/context';
 import { useIsChatEnabled, useIsScreenSharingEnabled } from '/imports/ui/services/features';
 import UserReactionService from '/imports/ui/components/user-reaction/service';
 import AudioCaptionsService from '/imports/ui/components/audio/audio-graphql/audio-captions/service';
+import { settingsModalHeight, settingsModalWidth } from '/imports/ui/stylesheets/styled-components/general';
 
 import {
   updateSettings,
@@ -44,6 +45,8 @@ const SettingsContainer = (props) => {
   const isReactionsEnabled = UserReactionService.useIsEnabled();
   const isGladiaEnabled = AudioCaptionsService.isGladia();
   const isChatEnabled = useIsChatEnabled();
+  const modalHeight = settingsModalHeight;
+  const modalWidth = settingsModalWidth;
 
   return (
     <Settings
@@ -64,6 +67,8 @@ const SettingsContainer = (props) => {
         isVideoEnabled: window.meetingClientSettings.public.kurento.enableVideo,
         isGladiaEnabled,
         isChatEnabled,
+        modalHeight,
+        modalWidth,
       }}
       layoutContextDispatch={layoutContextDispatch}
       setLocalSettings={setLocalSettings}

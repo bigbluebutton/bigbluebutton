@@ -129,6 +129,40 @@ const SettingsTabPanel = styled(TabPanel)`
   }
 `;
 
+const ActionsContainer = styled.div`
+  display: flex;
+  justify-content: flex-end;
+  gap: 16px;
+  padding: 16px;
+  border-top: 1px solid #ccc;
+`;
+
+const ActionButton = styled.button`
+  padding: 8px 16px;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 16px;
+  color: #fff;
+
+  &:first-child {
+    background-color: #007bff;
+  }
+
+  &:last-child {
+    background-color: #dc3545;
+  }
+
+  &:hover {
+    opacity: 0.9;
+  }
+
+  &:disabled {
+    background-color: #aaa;
+    cursor: not-allowed;
+  }
+`;
+
 export default {
   ToggleLabel,
   SettingsTabs,
@@ -136,4 +170,6 @@ export default {
   SettingsTabSelector,
   SettingsIcon,
   SettingsTabPanel,
+  ActionsContainer,
+  ActionButton,
 };
