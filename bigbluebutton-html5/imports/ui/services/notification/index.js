@@ -14,7 +14,6 @@ let lastToast = {
 
 export function notify(message, type = 'default', icon, options, content, small) {
   const settings = {
-    type,
     ...options,
   };
 
