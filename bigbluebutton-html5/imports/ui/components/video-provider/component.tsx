@@ -96,7 +96,6 @@ interface VideoProviderProps {
   handleVideoFocus: (id: string) => void;
   isGridEnabled: boolean;
   isClientConnected: boolean;
-  swapLayout: boolean;
   totalNumberOfStreams: number;
   isUserLocked: boolean;
   currentVideoPageIndex: number;
@@ -1369,7 +1368,6 @@ class VideoProvider extends Component<VideoProviderProps, VideoProviderState> {
 
   render() {
     const {
-      swapLayout,
       currentVideoPageIndex,
       streams,
       cameraDock,
@@ -1382,7 +1380,6 @@ class VideoProvider extends Component<VideoProviderProps, VideoProviderState> {
       <VideoListContainer
         {...{
           streams,
-          swapLayout,
           currentVideoPageIndex,
           cameraDock,
           focusedId,
