@@ -306,13 +306,7 @@ class App extends Component {
             )
             : null
             }
-          {
-          shouldShowScreenshare
-            ? (
-              <ScreenshareContainer />
-            )
-            : null
-          }
+          <ScreenshareContainer shouldShowScreenshare={shouldShowScreenshare} />
           {isSharedNotesPinned
             ? (
               <NotesContainer
