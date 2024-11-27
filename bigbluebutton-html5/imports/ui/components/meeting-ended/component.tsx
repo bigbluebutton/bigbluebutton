@@ -8,6 +8,7 @@ import React, {
 import { defineMessages, useIntl } from 'react-intl';
 import { isEmpty } from 'radash';
 import { ApolloLink, useQuery } from '@apollo/client';
+import isURL from 'validator/lib/isURL';
 import {
   JoinErrorCodeTable,
   MeetingEndedTable,
@@ -178,6 +179,7 @@ interface MeetingEndedProps extends MeetingEndedContainerProps {
   askForFeedbackOnLogout: boolean
   learningDashboardAccessToken: string;
   isModerator: boolean;
+  logoutUrl: string;
   learningDashboardBase: string;
   isBreakout: boolean;
 }
@@ -190,6 +192,7 @@ const MeetingEnded: React.FC<MeetingEndedProps> = ({
   askForFeedbackOnLogout,
   learningDashboardAccessToken,
   isModerator,
+  logoutUrl,
   learningDashboardBase,
   isBreakout,
 }) => {
@@ -198,7 +201,6 @@ const MeetingEnded: React.FC<MeetingEndedProps> = ({
   const [{
     authToken,
     meetingId,
-    logoutUrl,
     userName,
     userId,
   }] = useAuthData();
@@ -272,7 +274,9 @@ const MeetingEnded: React.FC<MeetingEndedProps> = ({
       redirectTo = redirectTo.replaceAll('%%USERID%%', userId);
       redirectTo = redirectTo.replaceAll('%%USERNAME%%', userName);
       redirectTo = redirectTo.replaceAll('%%MEETINGID%%', meetingId);
-      window.location.href = redirectTo;
+      if (isURL(redirectTo)) {
+        window.location.href = redirectTo;
+      }
     }
   };
 
@@ -450,6 +454,7 @@ const MeetingEndedContainer: React.FC<MeetingEndedContainerProps> = ({
         askForFeedbackOnLogout={false}
         learningDashboardAccessToken=""
         isModerator={false}
+        logoutUrl=""
         learningDashboardBase=""
         isBreakout={false}
       />
@@ -467,6 +472,7 @@ const MeetingEndedContainer: React.FC<MeetingEndedContainerProps> = ({
         askForFeedbackOnLogout={false}
         learningDashboardAccessToken=""
         isModerator={false}
+        logoutUrl=""
         learningDashboardBase=""
         isBreakout={false}
       />
@@ -478,6 +484,7 @@ const MeetingEndedContainer: React.FC<MeetingEndedContainerProps> = ({
   } = meetingEndData;
   const {
     isModerator,
+    logoutUrl,
     meeting,
   } = user_current[0];
 
@@ -506,6 +513,7 @@ const MeetingEndedContainer: React.FC<MeetingEndedContainerProps> = ({
       askForFeedbackOnLogout={shouldAskForFeedback}
       learningDashboardAccessToken={learningDashboard?.learningDashboardAccessToken}
       isModerator={isModerator}
+      logoutUrl={logoutUrl}
       learningDashboardBase={learningDashboardBase}
       isBreakout={isBreakout}
     />

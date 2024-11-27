@@ -134,18 +134,18 @@ public class MeetingService implements MessageListener {
                            String fullname, String role, String externUserID,
                            String authToken, String sessionToken, String avatarURL, String webcamBackgroundURL, Boolean bot,
                            Boolean guest, Boolean authed, String guestStatus, Boolean excludeFromDashboard, Boolean leftGuestLobby,
-                           String enforceLayout, Map<String, String> userMetadata) {
+                           String enforceLayout, String logoutUrl, Map<String, String> userMetadata) {
     handle(
             new RegisterUser(meetingID, internalUserId, fullname, role,
                             externUserID, authToken, sessionToken, avatarURL, webcamBackgroundURL, bot, guest, authed, guestStatus,
-                            excludeFromDashboard, leftGuestLobby, enforceLayout, userMetadata
+                            excludeFromDashboard, leftGuestLobby, enforceLayout, logoutUrl, userMetadata
             )
     );
 
     Meeting m = getMeeting(meetingID);
     if (m != null) {
       RegisteredUser ruser = new RegisteredUser(authToken, internalUserId, guestStatus,
-                                                excludeFromDashboard, leftGuestLobby, enforceLayout);
+                                                excludeFromDashboard, leftGuestLobby, enforceLayout, logoutUrl);
       m.userRegistered(ruser);
     }
   }
@@ -594,7 +594,7 @@ public class MeetingService implements MessageListener {
     gw.registerUser(message.meetingID,
       message.internalUserId, message.fullname, message.role,
       message.externUserID, message.authToken, message.sessionToken, message.avatarURL, message.webcamBackgroundURL, message.bot,
-      message.guest, message.authed, message.guestStatus, message.excludeFromDashboard, message.enforceLayout, message.userMetadata);
+      message.guest, message.authed, message.guestStatus, message.excludeFromDashboard, message.enforceLayout, message.logoutUrl, message.userMetadata);
   }
 
   private void processRegisterUserSessionToken(RegisterUserSessionToken message) {
