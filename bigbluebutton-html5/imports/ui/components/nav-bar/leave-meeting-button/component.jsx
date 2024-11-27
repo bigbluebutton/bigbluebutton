@@ -3,9 +3,10 @@ import { defineMessages, injectIntl } from 'react-intl';
 import PropTypes from 'prop-types';
 import EndMeetingConfirmationContainer from '/imports/ui/components/end-meeting-confirmation/container';
 import BBBMenu from '/imports/ui/components/common/menu/component';
-import { colorDanger, colorWhite } from '/imports/ui/stylesheets/styled-components/palette';
+import { colorBlack } from '/imports/ui/stylesheets/styled-components/palette';
 import Styled from './styles';
 import Session from '/imports/ui/services/storage/in-memory';
+import { fontWeight } from '@mui/system';
 
 const intlMessages = defineMessages({
   leaveMeetingBtnLabel: {
@@ -93,6 +94,7 @@ class LeaveMeetingButton extends PureComponent {
     this.menuItems = [];
 
     if (allowLogoutSetting && connected) {
+      const customStyles = { fontWeight: 'bold' };
       this.menuItems.push(
         {
           key: 'list-item-logout',
@@ -100,13 +102,14 @@ class LeaveMeetingButton extends PureComponent {
           icon: 'logout',
           label: intl.formatMessage(intlMessages.leaveSessionLabel),
           description: intl.formatMessage(intlMessages.leaveSessionDesc),
+          customStyles,
           onClick: () => this.leaveSession(),
         },
       );
     }
 
     if (allowedToEndMeeting && connected) {
-      const customStyles = { background: colorDanger, color: colorWhite };
+      const customStyles = { background: 'inherit', color: colorBlack };
 
       this.menuItems.push(
         {
