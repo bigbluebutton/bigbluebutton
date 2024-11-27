@@ -246,7 +246,7 @@ const Whiteboard = React.memo((props) => {
       prevShapesRef.current = shapes;
       tlEditorRef.current?.store.mergeRemoteChanges(() => {
         const remoteShapesArray = Object.values(shapes).map((shape) => sanitizeShape(shape));
-        editor.store.put(remoteShapesArray);
+        tlEditorRef.current.store.put(remoteShapesArray);
       });
     }
   }, [shapes]);
