@@ -69,7 +69,6 @@ const SidebarContent = (props: SidebarContentProps) => {
     });
   };
 
-  const pollDisplay = sidebarContentPanel === PANELS.POLL ? 'inherit' : 'none';
   const { isChrome } = browserInfo;
 
   return (
@@ -144,14 +143,7 @@ const SidebarContent = (props: SidebarContentProps) => {
         {sidebarContentPanel === PANELS.BREAKOUT && <BreakoutRoomContainer />}
         {sidebarContentPanel === PANELS.TIMER && <TimerContainer />}
         {sidebarContentPanel === PANELS.WAITING_USERS && <GuestUsersManagementPanel />}
-        {sidebarContentPanel === PANELS.POLL && (
-          <Styled.Poll
-            style={{ minWidth, top: '0', display: pollDisplay }}
-            id="pollPanel"
-          >
-            <PollContainer />
-          </Styled.Poll>
-        )}
+        {sidebarContentPanel === PANELS.POLL && <PollContainer />}
         {sidebarContentPanel === PANELS.APPS_GALLERY && <AppsGallery />}
         {sidebarContentPanel.includes(PANELS.GENERIC_CONTENT_SIDEKICK) && (
           <GenericContentSidekickContainer

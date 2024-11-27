@@ -19,6 +19,9 @@ import { defineMessages, useIntl } from 'react-intl';
 import { useIsChatEnabled, useIsEditChatMessageEnabled } from '/imports/ui/services/features';
 import { checkText } from 'smile2emoji';
 import { findDOMNode } from 'react-dom';
+import AddReactionIcon from '@mui/icons-material/AddReaction';
+import SendIcon from '@mui/icons-material/Send';
+import Tooltip from '@mui/material/Tooltip';
 
 import Styled from './styles';
 import deviceInfo from '/imports/utils/deviceInfo';
@@ -40,17 +43,10 @@ import { indexOf, without } from '/imports/utils/array-utils';
 import { GraphqlDataHookSubscriptionResponse } from '/imports/ui/Types/hook';
 import { throttle } from '/imports/utils/throttle';
 import logger from '/imports/startup/client/logger';
-import AddReactionIcon from '@mui/icons-material/AddReaction';
-import SendIcon from '@mui/icons-material/Send';
-import Tooltip from '@mui/material/Tooltip';
 import { CHAT_EDIT_MESSAGE_MUTATION } from '../chat-message-list/page/chat-message/mutations';
-import {
-  LastSentMessageData,
-  LastSentMessageResponse,
-  USER_LAST_SENT_PRIVATE_CHAT_MESSAGE_QUERY,
-  USER_LAST_SENT_PUBLIC_CHAT_MESSAGE_QUERY,
-} from './queries';
-import Auth from '/imports/ui/services/auth';
+import ChatTypingIndicatorContainer from '../chat-typing-indicator/component';
+import ChatReplyIntention from '../chat-reply-intention/component';
+import ChatEditingWarning from '../chat-editing-warning/component';
 
 const CLOSED_CHAT_LIST_KEY = 'closedChatList';
 const START_TYPING_THROTTLE_INTERVAL = 1000;
@@ -550,6 +546,8 @@ const ChatMessageForm: React.FC<ChatMessageFormProps> = ({
         onSubmit={handleSubmit}
         isRTL={isRTL}
       >
+        <ChatReplyIntention key="chatReplyIntention" />
+        <ChatEditingWarning key="chatEditingWarning" />
         {showEmojiPicker ? (
           <Styled.EmojiPickerWrapper ref={emojiPickerRef}>
             <Styled.EmojiPicker
@@ -626,7 +624,7 @@ const ChatMessageForm: React.FC<ChatMessageFormProps> = ({
                   type="submit"
                   data-test="sendMessageButton"
                 >
-                <SendIcon />
+                  <SendIcon />
                 </Styled.SendButton>
               </Tooltip>
             </div>
@@ -640,6 +638,7 @@ const ChatMessageForm: React.FC<ChatMessageFormProps> = ({
           )
         }
 
+        <ChatTypingIndicatorContainer />
       </Styled.Form>
     );
   };

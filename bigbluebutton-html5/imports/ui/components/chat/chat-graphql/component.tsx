@@ -1,6 +1,6 @@
 import React, { useRef, useState } from 'react';
 import { defineMessages, useIntl } from 'react-intl';
-import { CircularProgress, Button } from '@mui/material';
+import { Button } from '@mui/material';
 import BackButton from '/imports/ui/components/chat/chat-graphql/private-back-button/component';
 import ChatHeader from './chat-header/component';
 import { layoutSelect, layoutSelectInput } from '../../layout/context';
@@ -9,7 +9,6 @@ import Styled from './styles';
 import ChatMessageListContainer from './chat-message-list/component';
 import PrivateChatListContainer from '/imports/ui/components/chat/chat-graphql/user-messages/private-chat-list/component';
 import ChatMessageFormContainer from './chat-message-form/component';
-import ChatTypingIndicatorContainer from './chat-typing-indicator/component';
 import { PANELS, ACTIONS } from '/imports/ui/components/layout/enums';
 import usePendingChat from '/imports/ui/core/local-states/usePendingChat';
 import useChat from '/imports/ui/core/hooks/useChat';
@@ -119,88 +118,89 @@ const Chat: React.FC<ChatProps> = ({
   return (
     <>
       <ChatHeader />
-      <div style={{ display: 'flex', justifyContent: 'space-between', padding: '8px' }}>
-        <Button
-          variant={showMessages ? 'contained' : 'outlined'}
-          color="primary"
-          size="medium"
-          sx={{
-            position: 'relative',
-            borderRadius: '16px',
-            width: '100%',
-            marginRight: '8px',
-            padding: '8px 16px',
-            textTransform: 'none',
-            backgroundColor: showMessages ? 'primary.main' : '#E3F2FD',
-            color: showMessages ? '#FFFFFF' : '#B0BEC5',
-            borderColor: showMessages ? 'transparent' : '#BBDEFB',
-          }}
-          onClick={() => handleClickSelectChat(true)}
-        >
-          {intl.formatMessage(intlMessages.titlePublic)}
-          {publicUnreadMessages && (
-            <span style={{
-              position: 'absolute',
-              bottom: '8px',
-              right: '8px',
-              width: '8px',
-              height: '8px',
-              backgroundColor: 'red',
-              borderRadius: '50%',
+      <Styled.Separator />
+      <Styled.ContentWrapper>
+        <Styled.ButtonsWrapper>
+          <Button
+            variant={showMessages ? 'contained' : 'outlined'}
+            color="primary"
+            size="medium"
+            sx={{
+              position: 'relative',
+              borderRadius: '16px',
+              width: '100%',
+              marginRight: '8px',
+              padding: '8px 16px',
+              textTransform: 'none',
+              backgroundColor: showMessages ? 'primary.main' : '#E3F2FD',
+              color: showMessages ? '#FFFFFF' : '#B0BEC5',
+              borderColor: showMessages ? 'transparent' : '#BBDEFB',
             }}
-            />
-          )}
-        </Button>
-        <Button
-          variant={!showMessages ? 'contained' : 'outlined'}
-          color="primary"
-          size="medium"
-          sx={{
-            position: 'relative',
-            borderRadius: '16px',
-            width: '100%',
-            padding: '8px 16px',
-            textTransform: 'none',
-            backgroundColor: !showMessages ? 'primary.main' : '#E3F2FD',
-            color: !showMessages ? '#FFFFFF' : '#B0BEC5',
-            borderColor: !showMessages ? 'transparent' : '#BBDEFB',
-          }}
-          onClick={() => handleClickSelectChat(false)}
-        >
-          {intl.formatMessage(intlMessages.titlePrivate)}
-          {privateUnreadMessages && (
-            <span style={{
-              position: 'absolute',
-              bottom: '8px',
-              right: '8px',
-              width: '8px',
-              height: '8px',
-              backgroundColor: 'red',
-              borderRadius: '50%',
+            onClick={() => handleClickSelectChat(true)}
+          >
+            {intl.formatMessage(intlMessages.titlePublic)}
+            {publicUnreadMessages && (
+              <span style={{
+                position: 'absolute',
+                bottom: '8px',
+                right: '8px',
+                width: '8px',
+                height: '8px',
+                backgroundColor: 'red',
+                borderRadius: '50%',
+              }}
+              />
+            )}
+          </Button>
+          <Button
+            variant={!showMessages ? 'contained' : 'outlined'}
+            color="primary"
+            size="medium"
+            sx={{
+              position: 'relative',
+              borderRadius: '16px',
+              width: '100%',
+              padding: '8px 16px',
+              textTransform: 'none',
+              backgroundColor: !showMessages ? 'primary.main' : '#E3F2FD',
+              color: !showMessages ? '#FFFFFF' : '#B0BEC5',
+              borderColor: !showMessages ? 'transparent' : '#BBDEFB',
             }}
-            />
-          )}
-        </Button>
-      </div>
-
-      {privateList ? (
-        <PrivateChatListContainer />
-      ) : (
-        <>
-          {!showMessages && !privateList && (
-            <BackButton onClick={handleClickReturnPrivateList} title={participantName} />
-          )}
-          <ChatMessageListContainer />
-          <ChatMessageFormContainer />
-          <ChatTypingIndicatorContainer />
-        </>
-      )}
+            onClick={() => handleClickSelectChat(false)}
+          >
+            {intl.formatMessage(intlMessages.titlePrivate)}
+            {privateUnreadMessages && (
+              <span style={{
+                position: 'absolute',
+                bottom: '8px',
+                right: '8px',
+                width: '8px',
+                height: '8px',
+                backgroundColor: 'red',
+                borderRadius: '50%',
+              }}
+              />
+            )}
+          </Button>
+        </Styled.ButtonsWrapper>
+        {privateList ? (
+          <PrivateChatListContainer />
+        ) : (
+          <>
+            {!showMessages && !privateList && (
+              <BackButton onClick={handleClickReturnPrivateList} title={participantName} />
+            )}
+            <ChatMessageListContainer />
+            <ChatMessageFormContainer />
+          </>
+        )}
+      </Styled.ContentWrapper>
     </>
   );
 };
 
 export const ChatLoading: React.FC = () => {
-  return <CircularProgress style={{ alignSelf: 'center' }} />;
+  return <Styled.CircularProgressContainer />;
 };
 
 const ChatContainer: React.FC = () => {

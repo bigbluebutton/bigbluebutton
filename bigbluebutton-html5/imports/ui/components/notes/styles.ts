@@ -5,6 +5,17 @@ import {
 import { colorWhite } from '/imports/ui/stylesheets/styled-components/palette';
 import { smallOnly } from '/imports/ui/stylesheets/styled-components/breakpoints';
 import CommonHeader from '/imports/ui/components/common/control-header/component';
+import {
+  HeaderContainer as BaseHeaderContainer,
+  PanelContent as BasePanelContent,
+  Separator as BaseSeparator,
+} from '/imports/ui/components/sidebar-content/styles';
+
+const HeaderContainer = styled(BaseHeaderContainer)``;
+
+const PanelContent = styled(BasePanelContent)``;
+
+const Separator = styled(BaseSeparator)``;
 
 const Notes = styled.div<{ isChrome: boolean }>`
   background-color: ${colorWhite};
@@ -32,6 +43,9 @@ const Header = styled(CommonHeader)`
 `;
 
 export default {
+  HeaderContainer,
+  PanelContent,
+  Separator,
   Notes,
   Header,
 };

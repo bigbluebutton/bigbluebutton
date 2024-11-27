@@ -9,7 +9,6 @@ import { defineMessages, useIntl } from 'react-intl';
 import {
   useMutation,
 } from '@apollo/client';
-import Header from '/imports/ui/components/common/control-header/component';
 import Styled from './styles';
 import GET_TIMER, { GetTimerResponse, TimerData } from '../../../core/graphql/queries/timer';
 import logger from '/imports/startup/client/logger';
@@ -384,14 +383,23 @@ const TimerPanel: React.FC<TimerPanelProps> = ({
       data-test={`${stopwatch ? 'stopwatch' : 'timer'}Container`}
     >
       {/* @ts-ignore - JS code */}
-      <Header
+      <Styled.HeaderContainer
+        title={intl.formatMessage(intlMessages.title)}
         leftButtonProps={{
           onClick: closePanel,
           'aria-label': intl.formatMessage(intlMessages.hideTimerLabel),
           label: intl.formatMessage(headerMessage),
         }}
+        rightButtonProps={{
+          'aria-label': intl.formatMessage(intlMessages.hideTimerLabel),
+          'data-test': 'closeTimer',
+          icon: 'close',
+          label: intl.formatMessage(intlMessages.hideTimerLabel),
+          onClick: closePanel,
+        }}
         data-test="timerHeader"
       />
+      <Styled.Separator />
       <Styled.TimerContent>
         <Styled.TimerCurrent
           aria-hidden

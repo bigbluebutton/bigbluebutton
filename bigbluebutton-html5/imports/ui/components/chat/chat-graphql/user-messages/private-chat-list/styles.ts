@@ -67,8 +67,6 @@ const ScrollableList = styled.div`
   }
 
   overflow-x: hidden;
-  padding-top: 1px;
-  padding-right: 1px;
 `;
 
 const ListTransition = styled.div`

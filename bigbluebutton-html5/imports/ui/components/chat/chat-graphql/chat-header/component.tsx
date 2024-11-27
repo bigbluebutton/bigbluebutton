@@ -2,13 +2,11 @@ import React from 'react';
 import { useMutation, useQuery } from '@apollo/client';
 import { defineMessages, useIntl } from 'react-intl';
 import { GET_CHAT_DATA, GetChatDataResponse, CLOSE_PRIVATE_CHAT_MUTATION } from './queries';
-import closePrivateChat from './services';
 import { layoutSelect, layoutDispatch } from '../../../layout/context';
 import { useShortcut } from '../../../../core/hooks/useShortcut';
 import { Layout } from '../../../layout/layoutTypes';
 import { ACTIONS, PANELS } from '../../../layout/enums';
-import ChatActions from './chat-actions/component';
-import Header from '/imports/ui/components/common/control-header/component';
+import Styled from './styles';
 
 interface ChatHeaderProps {
   chatId: string;
@@ -39,9 +37,9 @@ const ChatHeader: React.FC<ChatHeaderProps> = ({
   const layoutContextDispatch = layoutDispatch();
   const intl = useIntl();
   const [updateVisible] = useMutation(CLOSE_PRIVATE_CHAT_MUTATION);
-  
+
   return (
-    <Header
+    <Styled.HeaderContainer
       isRTL={isRTL}
       data-test="chatTitle"
       title={title}
@@ -68,7 +66,7 @@ const ChatHeader: React.FC<ChatHeaderProps> = ({
           });
         },
       }}
-      customRightButton={isPublicChat ? <ChatActions /> : null}
+      customRightButton={isPublicChat ? <Styled.ChatActionsContainer /> : null}
     />
   );
 };
@@ -108,8 +106,8 @@ const ChatHeaderContainer: React.FC = () => {
     );
   }
   const isPublicChat = chatData.chat[0]?.public;
-  const title = intl.formatMessage(intlMessages.messagesTitle)
-  
+  const title = intl.formatMessage(intlMessages.messagesTitle);
+
   return (
     <ChatHeader
       chatId={idChatOpen}

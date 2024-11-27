@@ -1,11 +1,10 @@
 import styled from 'styled-components';
-import { colorGrayLighter, colorText } from '/imports/ui/stylesheets/styled-components/palette';
+import { colorText } from '/imports/ui/stylesheets/styled-components/palette';
 
 const Header = styled.header`
   display: flex;
   justify-content: space-between;
   align-items: center;
-  border-bottom: 1px solid ${colorGrayLighter};
 `;
 
 const RightWrapper = styled.div`

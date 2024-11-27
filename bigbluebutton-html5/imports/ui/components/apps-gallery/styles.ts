@@ -1,35 +1,32 @@
 import styled from 'styled-components';
 import {
-  colorGrayLighter,
   colorPrimary,
   colorBlueAux,
   appsGalleryOutlineColor,
   unpinnedAppIconColor,
   colorWhite,
-  appsPanelTextColor,
 } from '/imports/ui/stylesheets/styled-components/palette';
 import Button from '/imports/ui/components/common/button/component';
-import { titlesFontWeight, textFontWeight, headingsFontWeight } from '/imports/ui/stylesheets/styled-components/typography';
+import { titlesFontWeight, headingsFontWeight } from '/imports/ui/stylesheets/styled-components/typography';
 import {
   $2xlPadding,
   lgPadding,
   appsButtonsBorderRadius,
   appsPanelItemsSpacing,
   appsPanelGroupItemsSpacing,
+  contentSidebarPadding,
 } from '/imports/ui/stylesheets/styled-components/general';
+import {
+  HeaderContainer as BaseHeaderContainer,
+  PanelContent as BasePanelContent,
+  Separator as BaseSeparator,
+} from '/imports/ui/components/sidebar-content/styles';
 
-const Content = styled.div`
-  height: 100%;
-  color: ${appsPanelTextColor};
-  font-weight: ${textFontWeight};
-  line-height: normal;`;
+const HeaderContainer = styled(BaseHeaderContainer)``;
 
-const Separator = styled.hr`
-  margin: 1rem auto;
-  width: 100%;
-  border: 0;
-  border-top: 1px solid ${colorGrayLighter};
-`;
+const PanelContent = styled(BasePanelContent)``;
+
+const Separator = styled(BaseSeparator)``;
 
 const Wrapper = styled.div`
   display: flex;
@@ -37,6 +34,7 @@ const Wrapper = styled.div`
   align-items: center;
   gap: ${appsPanelGroupItemsSpacing};
   flex-shrink: 0;
+  padding: ${contentSidebarPadding};
 `;
 
 const PinnedAppsWrapper = styled.div`
@@ -106,7 +104,8 @@ const BoldText = styled.span`
 `;
 
 export default {
-  Content,
+  HeaderContainer,
+  PanelContent,
   Separator,
   Wrapper,
   PinnedAppsWrapper,

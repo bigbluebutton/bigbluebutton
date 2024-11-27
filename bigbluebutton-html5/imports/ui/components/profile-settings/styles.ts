@@ -4,7 +4,9 @@ import {
   colorGrayDark, colorLink, listItemBgHover,
 } from '/imports/ui/stylesheets/styled-components/palette';
 import {
+  smPadding,
   contentSidebarPadding,
+  contentSidebarBottomScrollPadding,
   contentSidebarBorderRadius,
 } from '/imports/ui/stylesheets/styled-components/general';
 import {
@@ -20,7 +22,9 @@ import Select from '@mui/material/Select';
 import Slider from '@mui/material/Slider';
 import Switch from '@mui/material/Switch';
 import FormControlLabel from '@mui/material/FormControlLabel';
-import Header from '/imports/ui/components/common/control-header/component';
+import {
+  HeaderContainer as BaseHeaderContainer,
+} from '/imports/ui/components/sidebar-content/styles';
 
 const SimpleButton = styled.button`
   cursor: pointer;
@@ -32,9 +36,9 @@ const SimpleButton = styled.button`
 
 const ProfileSettings = styled(ScrollboxVertical)`
   display: flex;
-  width: 100%;
   height: 100%;
-  padding: 1.0rem 0;
+  padding: ${contentSidebarPadding} 0 ${contentSidebarBottomScrollPadding} 0;
+  margin: 0 ${smPadding} 0;
   flex-direction: column;
   gap: ${contentSidebarPadding};
   border-radius: ${contentSidebarBorderRadius};
@@ -42,9 +46,7 @@ const ProfileSettings = styled(ScrollboxVertical)`
   overflow-y: auto;
 `;
 
-const HeaderContainer = styled(Header)`
-  padding-bottom: 0.5rem;
-`;
+const HeaderContainer = styled(BaseHeaderContainer)``;
 
 interface VideoPreviewProps {
   mirroredVideo: boolean;
@@ -64,6 +66,7 @@ const VideoPreview = styled.video<VideoPreviewProps>`
 `;
 
 const VideoPreviewContent = styled.div`
+  padding: 0px ${contentSidebarPadding};
   position: sticky;
   top: 0;
   display: flex;
@@ -133,6 +136,7 @@ const UsernameContainer = styled.div`
   flex-direction: column;
   align-items: flex-start;
   width: 100%;
+  padding: 0px ${contentSidebarPadding};
 `;
 
 const UsernameTitle = styled.div`
@@ -149,6 +153,7 @@ const Username = styled.div`
 
 const UserPresenceRoot = styled.div`
   width: 100%;
+  padding: 0px ${contentSidebarPadding};
 `;
 
 const UserPresenceContainer = styled.div`
@@ -202,6 +207,7 @@ const DevicesSettingsContainer = styled.div`
   width: 100%;
   flex-direction: column;
   gap: 1rem;
+  padding: 0px ${contentSidebarPadding};
 `;
 
 const DeviceContainer = styled.div`
@@ -272,6 +278,7 @@ const VirtualBackgroundContainer = styled.div`
   align-items: flex-start;
   gap: ${contentSidebarPadding};
   align-self: stretch;
+  padding: 0px ${contentSidebarPadding};
 `;
 
 const SwitchTitle = styled(FormControlLabel)`

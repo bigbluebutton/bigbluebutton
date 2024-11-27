@@ -2,17 +2,21 @@ import styled from 'styled-components';
 import {
   colorWhite,
   colorPrimary,
+  colorGrayLightest,
+  appsPanelTextColor,
 } from '/imports/ui/stylesheets/styled-components/palette';
 import {
   borderSize,
   navbarHeight,
   smPaddingX,
-  contentSidebarPadding,
   contentSidebarHeight,
   contentSidebarBorderRadius,
+  contentSidebarPadding,
 } from '/imports/ui/stylesheets/styled-components/general';
 import { smallOnly, mediumUp } from '/imports/ui/stylesheets/styled-components/breakpoints';
 import { SidebarContentPanelProps } from './types';
+import Header from '../common/control-header/component';
+import { textFontWeight } from '../../stylesheets/styled-components/typography';
 
 const Poll = styled.div`
   position: absolute;
@@ -51,8 +55,6 @@ const Poll = styled.div`
 
 export const SidebarContentPanel = styled.div<SidebarContentPanelProps>`
   background-color: ${colorWhite};
-  padding: ${contentSidebarPadding};
-  padding-bottom: 0;
   display: flex;
   flex-grow: 1;
   flex-direction: column;
@@ -100,7 +102,28 @@ export const SidebarContentPanel = styled.div<SidebarContentPanelProps>`
   }
 `;
 
+export const HeaderContainer = styled(Header)`
+  padding: ${contentSidebarPadding};
+  padding-bottom: 0.5rem;
+`;
+
+export const Separator = styled.hr`
+  width: 100%;
+  border: 0;
+  border-bottom: 1px solid ${colorGrayLightest};
+`;
+
+export const PanelContent = styled.div`
+  height: 100%;
+  color: ${appsPanelTextColor};
+  font-weight: ${textFontWeight};
+  line-height: normal;
+`;
+
 export default {
   Poll,
   SidebarContentPanel,
+  HeaderContainer,
+  Separator,
+  PanelContent,
 };

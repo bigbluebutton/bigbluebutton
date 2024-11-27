@@ -1,7 +1,6 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { defineMessages, useIntl } from 'react-intl';
 import useCurrentUser from '/imports/ui/core/hooks/useCurrentUser';
-import Header from '/imports/ui/components/common/control-header/component';
 import { useMutation } from '@apollo/client';
 import { Input } from '../layout/layoutTypes';
 import { layoutDispatch, layoutSelectInput } from '../layout/context';
@@ -470,9 +469,10 @@ const PollCreationPanel: React.FC<PollCreationPanelProps> = ({
   };
 
   return (
-    <div>
-      <Header
+    <Styled.PanelContent>
+      <Styled.HeaderContainer
         data-test="pollPaneTitle"
+        title={intl.formatMessage(intlMessages.pollPaneTitle)}
         leftButtonProps={{
           'aria-label': intl.formatMessage(intlMessages.hidePollDesc),
           'data-test': 'hidePollDesc',
@@ -509,11 +509,14 @@ const PollCreationPanel: React.FC<PollCreationPanelProps> = ({
         }}
         customRightButton={null}
       />
-      {pollOptions()}
-      <span className="sr-only" id="poll-config-button">{intl.formatMessage(intlMessages.showRespDesc)}</span>
-      <span className="sr-only" id="add-item-button">{intl.formatMessage(intlMessages.addRespDesc)}</span>
-      <span className="sr-only" id="start-poll-button">{intl.formatMessage(intlMessages.startPollDesc)}</span>
-    </div>
+      <Styled.Separator />
+      <Styled.ContentWrapper>
+        {pollOptions()}
+        <span className="sr-only" id="poll-config-button">{intl.formatMessage(intlMessages.showRespDesc)}</span>
+        <span className="sr-only" id="add-item-button">{intl.formatMessage(intlMessages.addRespDesc)}</span>
+        <span className="sr-only" id="start-poll-button">{intl.formatMessage(intlMessages.startPollDesc)}</span>
+      </Styled.ContentWrapper>
+    </Styled.PanelContent>
   );
 };
 

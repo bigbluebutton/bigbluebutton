@@ -24,6 +24,7 @@ const whiteboardToolbarPadding = '.5rem';
 const whiteboardToolbarMargin = '.5rem';
 const whiteboardToolbarPaddingSm = '.3rem';
 const contentSidebarPadding = '1.5rem';
+const contentSidebarBottomScrollPadding = '2rem';
 const contentSidebarHeight = '86%';
 const contentSidebarBorderRadius = '1rem';
 const minModalHeight = '20rem';
@@ -211,6 +212,7 @@ export {
   xlPadding,
   xsPadding,
   contentSidebarPadding,
+  contentSidebarBottomScrollPadding,
   contentSidebarHeight,
   contentSidebarBorderRadius,
   appsPanelGroupItemsSpacing,
