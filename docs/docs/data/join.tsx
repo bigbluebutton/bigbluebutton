@@ -68,6 +68,12 @@ const joinEndpointTableData = [
     "description": (<>A custom URL to redirect users to when an error occurs while joining. By default users are redirected to the meeting's default logout URL.</>)
   },
   {
+    "name": "logoutURL",
+    "required": false,
+    "type": "String",
+    "description": (<>A custom URL to redirect client when the user click on OK button in the meeting ended screen. By default users are redirected to the meeting's default logout URL.</>)
+  },
+  {
     "name": "joinViaHtml5",
     "required": false,
     "type": "String",
