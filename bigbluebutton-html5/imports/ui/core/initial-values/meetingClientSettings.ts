@@ -37,7 +37,6 @@ export const meetingClientSettingsInitialValues: MeetingClientSettings = {
       darkTheme: {
         enabled: true,
       },
-      askForFeedbackOnLogout: false,
       askForConfirmationOnLeave: false,
       wakeLock: {
         enabled: true,
