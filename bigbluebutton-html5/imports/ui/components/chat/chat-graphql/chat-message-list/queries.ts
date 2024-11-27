@@ -9,7 +9,7 @@ const LAST_SEEN_MUTATION = gql`
   }
 `;
 
-export interface BasicUserInfoSubscriptionResponse {
+export interface UserBasicInfoQueryResponse {
   user: {
     userId: string;
     name: string;
@@ -18,16 +18,26 @@ export interface BasicUserInfoSubscriptionResponse {
     avatar: string;
     presenter: boolean;
   }[];
+  user_aggregate: {
+    aggregate: {
+      count: number;
+    };
+  };
 }
 
-export const BASIC_USER_INFO = gql`
-  subscription UserNames {
+export const USER_BASIC_INFO = gql`
+  query UserBasicInfo($limit: Int!, $offset: Int!, $name: String!) {
     user(
+      where: {
+        name: { _like: $name },
+      },
       order_by: [
         { presenter: desc },
         { role: asc },
         { nameSortable: asc },
       ],
+      limit: $limit,
+      offset: $offset,
     ) {
       userId
       name
@@ -35,6 +45,15 @@ export const BASIC_USER_INFO = gql`
       color
       avatar
       presenter
+    }
+    user_aggregate(
+      where: {
+        name: { _like: $name },
+      },
+    ) {
+      aggregate {
+        count
+      }
     }
   }
 `;

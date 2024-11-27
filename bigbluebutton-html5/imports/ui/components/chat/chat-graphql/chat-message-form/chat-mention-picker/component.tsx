@@ -1,8 +1,8 @@
 import React, {
-  useCallback, useImperativeHandle, useMemo, useState,
+  useCallback, useImperativeHandle, useState,
 } from 'react';
-import useDeduplicatedSubscription from '/imports/ui/core/hooks/useDeduplicatedSubscription';
-import { BASIC_USER_INFO, BasicUserInfoSubscriptionResponse } from '/imports/ui/components/chat/chat-graphql/chat-message-list/queries';
+import { useQuery } from '@apollo/client';
+import { USER_BASIC_INFO, UserBasicInfoQueryResponse } from '/imports/ui/components/chat/chat-graphql/chat-message-list/queries';
 import ChatMentionPickerItem from './item/component';
 import Styled from './styles';
 import ClickOutside from '/imports/ui/components/click-outside/component';
@@ -27,23 +27,41 @@ const KEYS = {
 
 const ChatMentionPicker = React.forwardRef<ChatMentionPickerRef, ChatMentionPickerProps>((props, ref) => {
   const { input, onSelect, onClose } = props;
-  const [numberOfItems, setNumberOfItems] = useState(PAGE_SIZE);
   const [focusedIndex, setFocusedIndex] = useState(0);
+  const { data: userBasicInfoData, fetchMore } = useQuery<UserBasicInfoQueryResponse>(USER_BASIC_INFO, {
+    variables: {
+      offset: 0,
+      limit: PAGE_SIZE,
+      name: `%${input}%`,
+    },
+    fetchPolicy: 'no-cache',
+  });
 
-  const { data: userInfoData } = useDeduplicatedSubscription<BasicUserInfoSubscriptionResponse>(BASIC_USER_INFO);
-  const filteredUsers = useMemo(() => {
-    return userInfoData?.user.filter((user) => user.name.includes(input)) ?? [];
-  }, [input, userInfoData]);
-  const count = filteredUsers.length;
+  const users = userBasicInfoData?.user ?? [];
+  const userCount = userBasicInfoData?.user_aggregate.aggregate.count ?? 0;
+
+  const fetchMoreUsers = useCallback((offset: number, limit: number) => {
+    if (userCount === users.length) return Promise.resolve();
+    return fetchMore({
+      variables: { offset, limit },
+      updateQuery(previousQueryResult, { fetchMoreResult, variables: { offset } }) {
+        const updatedUser = previousQueryResult.user.slice(0);
+        for (let i = 0; i < fetchMoreResult.user.length; i += 1) {
+          updatedUser[offset + i] = fetchMoreResult.user[i];
+        }
+        return { ...previousQueryResult, user: updatedUser };
+      },
+    });
+  }, [fetchMore, userCount, users.length]);
 
   const handleScroll = useCallback((e: React.UIEvent<HTMLDivElement, UIEvent>) => {
     if (e.target instanceof HTMLDivElement) {
       const { scrollTop, scrollHeight, clientHeight } = e.target;
       if (Math.ceil(scrollTop) >= scrollHeight - clientHeight) {
-        setNumberOfItems((prev) => Math.min(prev + PAGE_SIZE, count));
+        fetchMoreUsers(users.length, PAGE_SIZE);
       }
     }
-  }, [count]);
+  }, [userCount, users.length, fetchMoreUsers]);
 
   useImperativeHandle(ref, () => ({
     dispatchInputKeyDownEvent(event) {
@@ -52,7 +70,7 @@ const ChatMentionPicker = React.forwardRef<ChatMentionPickerRef, ChatMentionPick
           event.preventDefault();
           setFocusedIndex((prev) => {
             const next = prev + 1;
-            if (next > count - 1) {
+            if (next > userCount - 1) {
               return 0;
             }
             return next;
@@ -64,8 +82,8 @@ const ChatMentionPicker = React.forwardRef<ChatMentionPickerRef, ChatMentionPick
           setFocusedIndex((prev) => {
             const next = prev - 1;
             if (next < 0) {
-              setNumberOfItems(count);
-              return count - 1;
+              fetchMoreUsers(users.length, userCount - users.length);
+              return userCount - 1;
             }
             return next;
           });
@@ -73,7 +91,7 @@ const ChatMentionPicker = React.forwardRef<ChatMentionPickerRef, ChatMentionPick
         }
         case KEYS.ENTER: {
           event.preventDefault();
-          onSelect(filteredUsers[focusedIndex]);
+          onSelect(users[focusedIndex]);
           break;
         }
         case KEYS.ESC: {
@@ -84,9 +102,9 @@ const ChatMentionPicker = React.forwardRef<ChatMentionPickerRef, ChatMentionPick
         default:
       }
     },
-  }), [count, filteredUsers, focusedIndex]);
+  }), [userCount, users, focusedIndex]);
 
-  if (!count) {
+  if (!userCount) {
     return null;
   }
 
@@ -95,7 +113,7 @@ const ChatMentionPicker = React.forwardRef<ChatMentionPickerRef, ChatMentionPick
       <Styled.Root>
         <Styled.Container onScroll={handleScroll}>
           <Styled.List>
-            {filteredUsers.slice(0, numberOfItems).map((user, index) => (
+            {users.map((user, index) => (
               <ChatMentionPickerItem
                 key={`page-${index + 1}`}
                 onSelect={onSelect}
