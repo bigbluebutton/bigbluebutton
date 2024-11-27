@@ -780,7 +780,7 @@ public class Meeting {
         int sum = 0;
         for (Map.Entry<String, User> entry : users.entrySet()) {
             User u = entry.getValue();
-            if (u.isModerator())
+            if (!u.hasLeft() && u.isModerator())
                 sum++;
         }
         return sum;
