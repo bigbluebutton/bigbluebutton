@@ -56,7 +56,6 @@ export interface App {
   learningDashboardBase: string
   customStyleUrl: string | null
   darkTheme: DarkTheme
-  askForFeedbackOnLogout: boolean
   askForConfirmationOnLeave: boolean
   wakeLock: WakeLock
   allowDefaultLogoutUrl: boolean
