@@ -39,7 +39,6 @@ import {
   GridUsersResponse,
   OwnVideoStreamsResponse,
   StreamSubscriptionData,
-  Stream,
 } from '/imports/ui/components/video-provider/types';
 import { DesktopPageSizes, MobilePageSizes } from '/imports/ui/Types/meetingClientSettings';
 import logger from '/imports/startup/client/logger';
@@ -60,9 +59,8 @@ const useVideoStreamsSubscription = createUseSubscription(
 
 export const useStreams = () => {
   const { data, loading, errors } = useVideoStreamsSubscription();
-  const streams = useRef<Stream[]>([]);
 
-  if (loading) return streams.current;
+  if (loading) return [];
 
   if (errors) {
     errors.forEach((error) => {
@@ -73,11 +71,6 @@ export const useStreams = () => {
         },
       }, 'Video streams subscription failed.');
     });
-  }
-
-  if (!data) {
-    streams.current = [];
-    return streams.current;
   }
 
   const mappedStreams = (data as StreamSubscriptionData[]).map(({ streamId, user, voice }) => ({
@@ -93,9 +86,7 @@ export const useStreams = () => {
     type: VIDEO_TYPES.STREAM,
   }));
 
-  streams.current = mappedStreams;
-
-  return streams.current;
+  return mappedStreams.length > 0 ? mappedStreams : [];
 };
 
 export const useStatus = () => {

@@ -385,8 +385,7 @@ class VideoPreview extends Component {
   }
 
   componentDidUpdate() {
-    const { viewState } = this.state;
-
+    const { viewState, webcamDeviceId } = this.state;
     if (viewState === VIEW_STATES.found && !this.video?.srcObject) {
       this.displayPreview();
     }
