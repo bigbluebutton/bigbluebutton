@@ -28,6 +28,10 @@ class PublicChatRecordEvent extends AbstractChatRecordEvent {
     eventMap.put(SENDERID, senderId)
   }
 
+  final def setMessageId(messageId: String) {
+    eventMap.put(MESSAGE_ID, messageId)
+  }
+
   def setSenderRole(senderRole: String): Unit = {
     eventMap.put(SENDER_ROLE, senderRole)
   }
@@ -39,11 +43,17 @@ class PublicChatRecordEvent extends AbstractChatRecordEvent {
   def setMessage(message: String) {
     eventMap.put(MESSAGE, message)
   }
+
+  def setReplyToMessageId(replyToMessageId: String) {
+    eventMap.put(REPLY_TO_MESSAGEID, replyToMessageId)
+  }
 }
 
 object PublicChatRecordEvent {
   private final val SENDERID = "senderId"
   private final val MESSAGE = "message"
   private final val SENDER_ROLE = "senderRole"
+  private final val MESSAGE_ID = "messageId"
   private final val CHAT_EMPHASIZED_TEXT = "chatEmphasizedText"
+  private final val REPLY_TO_MESSAGEID = "replyToMessageId"
 }

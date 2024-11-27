@@ -616,6 +616,7 @@ export interface Audio2 {
   defaultListenOnlyBridge: string
   bridges: Bridge[]
   retryThroughRelay: boolean
+  allowAudioJoinCancel: boolean
 }
 
 export interface Screenshare2 {
@@ -698,6 +699,7 @@ export interface Whiteboard {
   pointerDiameter: number
   maxStickyNoteLength: number
   maxNumberOfAnnotations: number
+  maxNumberOfActiveUsers: number
   annotations: Annotations
   allowInfiniteWhiteboard: boolean
   allowInfiniteWhiteboardInBreakouts: boolean

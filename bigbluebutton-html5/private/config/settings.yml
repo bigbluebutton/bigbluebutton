@@ -76,7 +76,7 @@ public:
     enableWebcamSelectorButton: true
     enableTalkingIndicator: true
     enableCameraBrightness: true
-    mirrorOwnWebcam: false
+    mirrorOwnWebcam: true
     viewersInWebcam: 8
     ipv4FallbackDomain: ''
     allowLogout: true
@@ -840,6 +840,11 @@ public:
       # Forces a retry with iceTransportPolicy = 'relay' if the first attempt
       # fails with a few selected errors codes (eg 1007, 1010)
       retryThroughRelay: false
+      # allowAudioJoinCancel: permit users to cancel audio join requests by
+      # letting them close the audio modal while audio is being negotiated.
+      # If false, the audio modal will be locked until the audio is successfully
+      # joined or the request fails.
+      allowAudioJoinCancel: true
     stunTurnServersFetchAddress: '/bigbluebutton/api/stuns'
     cacheStunTurnServers: true
     fallbackStunServer: ''
@@ -925,6 +930,7 @@ public:
     # If no link is provided, the audio troubleshooting button will not be shown.
     # Index is the error code:
     #   - 7: permission denied error code
+    #   - 6: no input devices found
     #   - 0: unknown error
     #audioTroubleshootingLinks:
     #  7: 'https://link.bigbluebutton.org/perm'
@@ -1021,6 +1027,8 @@ public:
     maxStickyNoteLength: 1000
     # limit number of annotations per slide
     maxNumberOfAnnotations: 300
+    # Limit the number of users who can interact with the whiteboard
+    maxNumberOfActiveUsers: 25
     annotations:
       status:
         start: DRAW_START

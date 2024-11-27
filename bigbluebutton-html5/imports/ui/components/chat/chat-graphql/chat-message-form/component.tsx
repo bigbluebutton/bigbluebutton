@@ -138,11 +138,12 @@ const ChatMessageForm: React.FC<ChatMessageFormProps> = ({
   const emojiPickerButtonRef = useRef(null);
   const [isTextAreaFocused, setIsTextAreaFocused] = React.useState(false);
   const [repliedMessageId, setRepliedMessageId] = React.useState<string | null>(null);
-  const [editingMessage, setEditingMessage] = React.useState<EditingMessage | null>(null);
+  const editingMessage = React.useRef<EditingMessage | null>(null);
   const textAreaRef: RefObject<TextareaAutosize> = useRef<TextareaAutosize>(null);
   const { isMobile } = deviceInfo;
   const prevChatId = usePreviousValue(chatId);
   const messageRef = useRef<string>('');
+  const messageBeforeEditingRef = useRef<string | null>(null);
   messageRef.current = message;
   const updateUnreadMessages = (chatId: string, message: string) => {
     const storedData = localStorage.getItem('unsentMessages') || '{}';
@@ -302,16 +303,25 @@ const ChatMessageForm: React.FC<ChatMessageFormProps> = ({
     const handleEditingMessage = (e: Event) => {
       if (e instanceof CustomEvent) {
         if (textAreaRef.current) {
+          if (messageBeforeEditingRef.current === null) {
+            messageBeforeEditingRef.current = messageRef.current;
+          }
           setMessage(e.detail.message);
-          setEditingMessage(e.detail);
+          textAreaRef.current?.textarea.focus();
+          editingMessage.current = e.detail;
         }
       }
     };
 
     const handleCancelEditingMessage = (e: Event) => {
       if (e instanceof CustomEvent) {
-        setMessage('');
-        setEditingMessage(null);
+        if (editingMessage.current) {
+          if (messageBeforeEditingRef.current !== null) {
+            setMessage(messageBeforeEditingRef.current);
+            messageBeforeEditingRef.current = null;
+          }
+          editingMessage.current = null;
+        }
       }
     };
 
@@ -363,11 +373,11 @@ const ChatMessageForm: React.FC<ChatMessageFormProps> = ({
         }
       };
 
-      if (editingMessage && !chatEditMessageLoading) {
+      if (editingMessage.current && !chatEditMessageLoading) {
         chatEditMessage({
           variables: {
-            chatId: editingMessage.chatId,
-            messageId: editingMessage.messageId,
+            chatId: editingMessage.current.chatId,
+            messageId: editingMessage.current.messageId,
             chatMessageInMarkdownFormat: msg,
           },
         }).then(() => {

@@ -211,6 +211,7 @@ select_permissions:
         - ejectReasonCode
         - ejected
         - expired
+        - logoutUrl
         - currentlyInMeeting
         - isModerator
         - extId

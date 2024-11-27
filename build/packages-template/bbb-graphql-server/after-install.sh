@@ -8,21 +8,35 @@ case "$1" in
   # make sure postgres can read this directory
   chmod 755 /usr/share/bbb-graphql-server/ -R
 
-  runuser -u postgres -- psql -c "alter user postgres password 'bbb_graphql'"
-  runuser -u postgres -- psql -c "drop database if exists bbb_graphql with (force)"
+  runuser -u postgres -- psql -q -c "drop database if exists bbb_graphql with (force)"
   runuser -u postgres -- psql -c "create database bbb_graphql WITH TEMPLATE template0 LC_COLLATE 'C.UTF-8'"
-  runuser -u postgres -- psql -c "alter database bbb_graphql set timezone to 'UTC'"
+  runuser -u postgres -- psql -q -c "alter database bbb_graphql set timezone to 'UTC'"
   runuser -u postgres -- psql -U postgres -d bbb_graphql -q -f /usr/share/bbb-graphql-server/bbb_schema.sql --set ON_ERROR_STOP=on
 
-  DATABASE_NAME="hasura_app"
-  DB_EXISTS=$(runuser -u postgres -- psql -U postgres -tAc "SELECT 1 FROM pg_database WHERE datname='$DATABASE_NAME'")
-  if [ "$DB_EXISTS" = '1' ]
-  then
-      echo "Database $DATABASE_NAME already exists"
-  else
-      runuser -u postgres -- psql -c "create database hasura_app"
-      echo "Database $DATABASE_NAME created"
-  fi
+  # Create user hasura_app@hasura_app (for hasura metadata)
+  runuser -u postgres -- psql -tc "SELECT 1 FROM pg_roles WHERE rolname='hasura_app'" | grep -q 1 || \
+    runuser -u postgres -- psql -c "CREATE USER hasura_app WITH PASSWORD 'hasura_app'"
+
+  HASURA_DATABASE_NAME="hasura_app"
+  runuser -u postgres -- psql -q -c "DROP DATABASE IF EXISTS $HASURA_DATABASE_NAME WITH (FORCE);"
+  runuser -u postgres -- psql -q -c "CREATE DATABASE $HASURA_DATABASE_NAME OWNER hasura_app;"
+
+  # Create user bbb_core@bbb_graphql (for akka-apps)
+  runuser -u postgres -- psql -tc "SELECT 1 FROM pg_roles WHERE rolname='bbb_core'" | grep -q 1 || \
+    runuser -u postgres -- psql -c "CREATE USER bbb_core WITH PASSWORD 'bbb_core'"
+  runuser -u postgres -- psql -q -c "GRANT CONNECT ON DATABASE bbb_graphql TO bbb_core"
+  runuser -u postgres -- psql -q -d bbb_graphql -c "GRANT USAGE, SELECT ON ALL SEQUENCES IN SCHEMA public TO bbb_core"
+  runuser -u postgres -- psql -q -d bbb_graphql -c "ALTER DEFAULT PRIVILEGES IN SCHEMA public GRANT USAGE, SELECT ON SEQUENCES TO bbb_core"
+  runuser -u postgres -- psql -q -d bbb_graphql -c "GRANT SELECT, INSERT, UPDATE, DELETE ON ALL TABLES IN SCHEMA public TO bbb_core"
+  runuser -u postgres -- psql -q -d bbb_graphql -c "ALTER DEFAULT PRIVILEGES IN SCHEMA public GRANT SELECT, INSERT, UPDATE, DELETE ON TABLES TO bbb_core"
+
+  # Create user bbb_hasura@bbb_graphql (for Hasura ReadOnly)
+  runuser -u postgres -- psql -tc "SELECT 1 FROM pg_roles WHERE rolname='bbb_hasura'" | grep -q 1 || \
+    runuser -u postgres -- psql -c "CREATE USER bbb_hasura WITH PASSWORD 'bbb_hasura'"
+  runuser -u postgres -- psql -q -c "GRANT CONNECT ON DATABASE bbb_graphql TO bbb_hasura"
+  runuser -u postgres -- psql -q -d bbb_graphql -c "GRANT SELECT ON ALL TABLES IN SCHEMA public TO bbb_hasura"
+  runuser -u postgres -- psql -q -d bbb_graphql -c "ALTER DEFAULT PRIVILEGES IN SCHEMA public GRANT SELECT ON TABLES TO bbb_hasura"
+
 
   echo "Postgresql configured"
 
@@ -56,7 +70,7 @@ case "$1" in
 
     # Apply BBB metadata in Hasura
     cd /usr/share/bbb-graphql-server
-    timeout 15s /usr/local/bin/hasura metadata apply --skip-update-check
+    timeout 15s /usr/bin/hasura metadata apply --skip-update-check
     cd ..
     rm -rf /usr/share/bbb-graphql-server/metadata
   fi

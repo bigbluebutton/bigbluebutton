@@ -17,6 +17,7 @@ import {
 } from './styles';
 import { CHAT_DELETE_MESSAGE_MUTATION } from '../mutations';
 import logger from '/imports/startup/client/logger';
+import Tooltip from '/imports/ui/components/common/tooltip/component';
 
 const intlMessages = defineMessages({
   reply: {
@@ -43,6 +44,26 @@ const intlMessages = defineMessages({
     id: 'app.chat.toolbar.delete.confirmationDescription',
     description: '',
   },
+  editTooltip: {
+    id: 'app.chat.header.tooltipEdit',
+    description: '',
+    defaultMessage: 'Edit message',
+  },
+  replyTooltip: {
+    id: 'app.chat.header.tooltipReply',
+    description: '',
+    defaultMessage: 'Reply to message',
+  },
+  deleteTooltip: {
+    id: 'app.chat.header.tooltipDelete',
+    description: '',
+    defaultMessage: 'Delete message',
+  },
+  reactTooltip: {
+    id: 'app.chat.header.tooltipReact',
+    description: '',
+    defaultMessage: 'React to message',
+  },
 });
 
 interface ChatMessageToolbarProps {
@@ -51,6 +72,7 @@ interface ChatMessageToolbarProps {
   username: string;
   own: boolean;
   amIModerator: boolean;
+  isBreakoutRoom: boolean;
   message: string;
   messageSequence: number;
   emphasizedMessage: boolean;
@@ -70,7 +92,7 @@ interface ChatMessageToolbarProps {
 const ChatMessageToolbar: React.FC<ChatMessageToolbarProps> = (props) => {
   const {
     messageId, chatId, message, username, onEmojiSelected, deleted,
-    messageSequence, emphasizedMessage, own, amIModerator, locked,
+    messageSequence, emphasizedMessage, own, amIModerator, isBreakoutRoom, locked,
     onReactionPopoverOpenChange, reactionPopoverIsOpen, hasToolbar, keyboardFocused,
     chatDeleteEnabled, chatEditEnabled, chatReactionsEnabled, chatReplyEnabled,
   } = props;
@@ -110,7 +132,7 @@ const ChatMessageToolbar: React.FC<ChatMessageToolbarProps> = (props) => {
   const showReplyButton = chatReplyEnabled;
   const showReactionsButton = chatReactionsEnabled;
   const showEditButton = chatEditEnabled && own;
-  const showDeleteButton = chatDeleteEnabled && (own || amIModerator);
+  const showDeleteButton = chatDeleteEnabled && (own || (amIModerator && !isBreakoutRoom));
   const showDivider = (showReplyButton || showReactionsButton) && (showEditButton || showDeleteButton);
 
   return (
@@ -126,79 +148,88 @@ const ChatMessageToolbar: React.FC<ChatMessageToolbarProps> = (props) => {
         <Container className="chat-message-toolbar">
           {showReplyButton && (
             <>
-              <EmojiButton
-                aria-describedby={`chat-reply-btn-label-${messageSequence}`}
-                icon="undo"
-                color="light"
-                onClick={(e: React.MouseEvent<HTMLButtonElement, MouseEvent>) => {
-                  e.stopPropagation();
-                  window.dispatchEvent(
-                    new CustomEvent(ChatEvents.CHAT_REPLY_INTENTION, {
-                      detail: {
-                        username,
-                        message,
-                        messageId,
-                        chatId,
-                        emphasizedMessage,
-                        sequence: messageSequence,
-                      },
-                    }),
-                  );
-                  window.dispatchEvent(
-                    new CustomEvent(ChatEvents.CHAT_CANCEL_EDIT_REQUEST),
-                  );
-                }}
-              />
+              <Tooltip title={intl.formatMessage(intlMessages.replyTooltip)}>
+                <EmojiButton
+                  aria-describedby={`chat-reply-btn-label-${messageSequence}`}
+                  icon="undo"
+                  color="light"
+                  onClick={(e: React.MouseEvent<HTMLButtonElement, MouseEvent>) => {
+                    e.stopPropagation();
+                    window.dispatchEvent(
+                      new CustomEvent(ChatEvents.CHAT_REPLY_INTENTION, {
+                        detail: {
+                          username,
+                          message,
+                          messageId,
+                          chatId,
+                          emphasizedMessage,
+                          sequence: messageSequence,
+                        },
+                      }),
+                    );
+                    window.dispatchEvent(
+                      new CustomEvent(ChatEvents.CHAT_CANCEL_EDIT_REQUEST),
+                    );
+                  }}
+                />
+              </Tooltip>
               <span id={`chat-reply-btn-label-${messageSequence}`} className="sr-only">
                 {intl.formatMessage(intlMessages.reply, { 0: messageSequence })}
               </span>
             </>
           )}
           {showReactionsButton && (
-            <EmojiButton
-              onClick={(e: React.MouseEvent<HTMLButtonElement, MouseEvent>) => {
-                e.stopPropagation();
-                onReactionPopoverOpenChange(true);
-              }}
-              svgIcon="reactions"
-              color="light"
-              data-test="reactionsPickerButton"
-              ref={setReactionsAnchor}
-            />
+            <Tooltip title={intl.formatMessage(intlMessages.reactTooltip)}>
+              <EmojiButton
+                onClick={(e: React.MouseEvent<HTMLButtonElement, MouseEvent>) => {
+                  e.stopPropagation();
+                  onReactionPopoverOpenChange(true);
+                }}
+                svgIcon="reactions"
+                color="light"
+                data-test="reactionsPickerButton"
+                ref={setReactionsAnchor}
+              />
+            </Tooltip>
           )}
           {showDivider && <Divider role="separator" />}
           {showEditButton && (
-            <EmojiButton
-              onClick={(e: React.MouseEvent<HTMLButtonElement, MouseEvent>) => {
-                e.stopPropagation();
-                window.dispatchEvent(
-                  new CustomEvent(ChatEvents.CHAT_EDIT_REQUEST, {
-                    detail: {
-                      messageId,
-                      chatId,
-                      message,
-                    },
-                  }),
-                );
-                window.dispatchEvent(
-                  new CustomEvent(ChatEvents.CHAT_CANCEL_REPLY_INTENTION),
-                );
-              }}
-              icon="pen_tool"
-              color="light"
-              data-test="editMessageButton"
-            />
+            <Tooltip title={intl.formatMessage(intlMessages.editTooltip)}>
+              <EmojiButton
+                onClick={(e: React.MouseEvent<HTMLButtonElement, MouseEvent>) => {
+                  e.stopPropagation();
+                  window.dispatchEvent(
+                    new CustomEvent(ChatEvents.CHAT_EDIT_REQUEST, {
+                      detail: {
+                        messageId,
+                        chatId,
+                        message,
+                      },
+                    }),
+                  );
+                  window.dispatchEvent(
+                    new CustomEvent(ChatEvents.CHAT_CANCEL_REPLY_INTENTION),
+                  );
+                }}
+                icon="pen_tool"
+                color="light"
+                data-test="editMessageButton"
+              />
+            </Tooltip>
           )}
           {showDeleteButton && (
-            <EmojiButton
-              onClick={(e: React.MouseEvent<HTMLButtonElement, MouseEvent>) => {
-                e.stopPropagation();
-                setIsTryingToDelete(true);
-              }}
-              icon="delete"
-              color="light"
-              data-test="deleteMessageButton"
-            />
+            <Tooltip title={intl.formatMessage(intlMessages.deleteTooltip)}>
+
+              <EmojiButton
+                onClick={(e: React.MouseEvent<HTMLButtonElement, MouseEvent>) => {
+                  e.stopPropagation();
+                  setIsTryingToDelete(true);
+                }}
+                icon="delete"
+                color="light"
+                data-test="deleteMessageButton"
+              />
+            </Tooltip>
           )}
           <Popover
             open={reactionPopoverIsOpen}
