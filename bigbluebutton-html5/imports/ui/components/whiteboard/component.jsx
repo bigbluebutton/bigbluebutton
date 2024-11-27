@@ -244,9 +244,9 @@ const Whiteboard = React.memo((props) => {
   React.useEffect(() => {
     if (shapes && Object.keys(shapes).length > 0) {
       prevShapesRef.current = shapes;
+      const remoteShapesArray = Object.values(shapes).map((shape) => sanitizeShape(shape));
       tlEditorRef.current?.store.mergeRemoteChanges(() => {
-        const remoteShapesArray = Object.values(shapes).map((shape) => sanitizeShape(shape));
-        tlEditorRef.current.store.put(remoteShapesArray);
+        tlEditorRef.current?.store.put(remoteShapesArray);
       });
     }
   }, [shapes]);
@@ -778,14 +778,18 @@ const Whiteboard = React.memo((props) => {
         },
       ];
 
+      const hasShapes = shapes && Object.keys(shapes).length > 0;
+      const remoteShapesArray = hasShapes 
+        ? Object.values(shapes).map((shape) => sanitizeShape(shape))
+        : [];
+
       editor.store.mergeRemoteChanges(() => {
         editor.batch(() => {
           editor.store.put(pages);
           editor.store.put(assets);
           editor.setCurrentPage(`page:${curPageIdRef.current}`);
           editor.store.put(bgShape);
-          if (shapes && Object.keys(shapes).length > 0) {
-            const remoteShapesArray = Object.values(shapes).map((shape) => sanitizeShape(shape));
+          if (hasShapes) {
             editor.store.put(remoteShapesArray);
           }
           editor.history.clear();
