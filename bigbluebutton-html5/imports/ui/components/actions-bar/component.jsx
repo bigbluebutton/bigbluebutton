@@ -162,11 +162,10 @@ class ActionsBar extends PureComponent {
               setPresentationFitToWidth,
             }}
             />
-
-            <AudioCaptionsButtonContainer />
           </Styled.Left>
           <Styled.Center>
             {this.renderPluginsActionBarItems(ActionsBarPosition.LEFT)}
+            <AudioCaptionsButtonContainer />
             <AudioControlsContainer />
             {shouldShowVideoButton && enableVideo
               ? (

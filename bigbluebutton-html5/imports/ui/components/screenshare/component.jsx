@@ -149,7 +149,9 @@ class ScreenshareComponent extends React.Component {
     });
 
     Session.setItem('pinnedNotesLastState', isSharedNotesPinned);
-    unpinSharedNotes();
+    if (isPresenter) {
+      unpinSharedNotes();
+    }
   }
 
   componentDidUpdate(prevProps) {

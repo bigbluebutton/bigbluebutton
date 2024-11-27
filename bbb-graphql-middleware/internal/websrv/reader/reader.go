@@ -46,9 +46,9 @@ func BrowserConnectionReader(
 		}
 
 		browserConnection.Logger.Tracef("received from browser: %s", string(message))
-		browserConnection.LastBrowserMessageTimeMutex.Lock()
+		browserConnection.Lock()
 		browserConnection.LastBrowserMessageTime = time.Now()
-		browserConnection.LastBrowserMessageTimeMutex.Unlock()
+		browserConnection.Unlock()
 
 		if messageType != websocket.MessageText {
 			browserConnection.Logger.Warnf("received non-text message: %v", messageType)

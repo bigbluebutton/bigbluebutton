@@ -699,6 +699,7 @@ export interface Whiteboard {
   pointerDiameter: number
   maxStickyNoteLength: number
   maxNumberOfAnnotations: number
+  maxNumberOfActiveUsers: number
   annotations: Annotations
   allowInfiniteWhiteboard: boolean
   allowInfiniteWhiteboardInBreakouts: boolean

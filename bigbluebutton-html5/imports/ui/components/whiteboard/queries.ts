@@ -133,7 +133,7 @@ export const CURRENT_PAGE_ANNOTATIONS_STREAM = gql`subscription annotationsStrea
 export const ANNOTATION_HISTORY_STREAM = gql`
   subscription annotationHistoryStream($updatedAt: timestamptz) {
     pres_annotation_history_curr_stream(
-      batch_size: 100,
+      batch_size: 1000,
       cursor: {initial_value: {updatedAt: $updatedAt}, ordering: ASC}
     ) {
       annotationId

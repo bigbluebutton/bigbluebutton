@@ -100,11 +100,7 @@ const CustomUsersSettings: React.FC<CustomUsersSettingsProps> = ({
         />
       ) : null}
       {loading ? (
-        <LoadingScreen>
-          <div className="sr-only">
-            Loading...
-          </div>
-        </LoadingScreen>
+        <LoadingScreen />
       ) : null}
     </>
   );
