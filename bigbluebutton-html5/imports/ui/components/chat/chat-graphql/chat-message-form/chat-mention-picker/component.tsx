@@ -1,5 +1,5 @@
 import React, {
-  useCallback, useImperativeHandle, useState,
+  useImperativeHandle, useState,
 } from 'react';
 import { useQuery } from '@apollo/client';
 import { USER_BASIC_INFO, UserBasicInfoQueryResponse } from '/imports/ui/components/chat/chat-graphql/chat-message-list/queries';
@@ -17,7 +17,7 @@ export interface ChatMentionPickerRef {
   dispatchInputKeyDownEvent(event: React.KeyboardEvent<HTMLTextAreaElement>): void;
 }
 
-const PAGE_SIZE = 5;
+const PAGE_SIZE = 30;
 const KEYS = {
   ARROW_DOWN: 'ArrowDown',
   ARROW_UP: 'ArrowUp',
@@ -28,9 +28,8 @@ const KEYS = {
 const ChatMentionPicker = React.forwardRef<ChatMentionPickerRef, ChatMentionPickerProps>((props, ref) => {
   const { input, onSelect, onClose } = props;
   const [focusedIndex, setFocusedIndex] = useState(0);
-  const { data: userBasicInfoData, fetchMore } = useQuery<UserBasicInfoQueryResponse>(USER_BASIC_INFO, {
+  const { data: userBasicInfoData } = useQuery<UserBasicInfoQueryResponse>(USER_BASIC_INFO, {
     variables: {
-      offset: 0,
       limit: PAGE_SIZE,
       name: `%${input}%`,
     },
@@ -38,30 +37,6 @@ const ChatMentionPicker = React.forwardRef<ChatMentionPickerRef, ChatMentionPick
   });
 
   const users = userBasicInfoData?.user ?? [];
-  const userCount = userBasicInfoData?.user_aggregate.aggregate.count ?? 0;
-
-  const fetchMoreUsers = useCallback((offset: number, limit: number) => {
-    if (userCount === users.length) return Promise.resolve();
-    return fetchMore({
-      variables: { offset, limit },
-      updateQuery(previousQueryResult, { fetchMoreResult, variables: { offset } }) {
-        const updatedUser = previousQueryResult.user.slice(0);
-        for (let i = 0; i < fetchMoreResult.user.length; i += 1) {
-          updatedUser[offset + i] = fetchMoreResult.user[i];
-        }
-        return { ...previousQueryResult, user: updatedUser };
-      },
-    });
-  }, [fetchMore, userCount, users.length]);
-
-  const handleScroll = useCallback((e: React.UIEvent<HTMLDivElement, UIEvent>) => {
-    if (e.target instanceof HTMLDivElement) {
-      const { scrollTop, scrollHeight, clientHeight } = e.target;
-      if (Math.ceil(scrollTop) >= scrollHeight - clientHeight) {
-        fetchMoreUsers(users.length, PAGE_SIZE);
-      }
-    }
-  }, [userCount, users.length, fetchMoreUsers]);
 
   useImperativeHandle(ref, () => ({
     dispatchInputKeyDownEvent(event) {
@@ -70,7 +45,7 @@ const ChatMentionPicker = React.forwardRef<ChatMentionPickerRef, ChatMentionPick
           event.preventDefault();
           setFocusedIndex((prev) => {
             const next = prev + 1;
-            if (next > userCount - 1) {
+            if (next > users.length - 1) {
               return 0;
             }
             return next;
@@ -82,8 +57,7 @@ const ChatMentionPicker = React.forwardRef<ChatMentionPickerRef, ChatMentionPick
           setFocusedIndex((prev) => {
             const next = prev - 1;
             if (next < 0) {
-              fetchMoreUsers(users.length, userCount - users.length);
-              return userCount - 1;
+              return users.length - 1;
             }
             return next;
           });
@@ -102,16 +76,16 @@ const ChatMentionPicker = React.forwardRef<ChatMentionPickerRef, ChatMentionPick
         default:
       }
     },
-  }), [userCount, users, focusedIndex]);
+  }), [users, focusedIndex]);
 
-  if (!userCount) {
+  if (!users.length) {
     return null;
   }
 
   return (
     <ClickOutside onClick={onClose}>
       <Styled.Root>
-        <Styled.Container onScroll={handleScroll}>
+        <Styled.Container>
           <Styled.List>
             {users.map((user, index) => (
               <ChatMentionPickerItem

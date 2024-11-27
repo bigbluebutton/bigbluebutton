@@ -18,15 +18,10 @@ export interface UserBasicInfoQueryResponse {
     avatar: string;
     presenter: boolean;
   }[];
-  user_aggregate: {
-    aggregate: {
-      count: number;
-    };
-  };
 }
 
 export const USER_BASIC_INFO = gql`
-  query UserBasicInfo($limit: Int!, $offset: Int!, $name: String!) {
+  query UserBasicInfo($limit: Int!, $name: String!) {
     user(
       where: {
         name: { _like: $name },
@@ -37,7 +32,6 @@ export const USER_BASIC_INFO = gql`
         { nameSortable: asc },
       ],
       limit: $limit,
-      offset: $offset,
     ) {
       userId
       name
@@ -45,15 +39,6 @@ export const USER_BASIC_INFO = gql`
       color
       avatar
       presenter
-    }
-    user_aggregate(
-      where: {
-        name: { _like: $name },
-      },
-    ) {
-      aggregate {
-        count
-      }
     }
   }
 `;
