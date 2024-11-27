@@ -242,11 +242,11 @@ const Whiteboard = React.memo((props) => {
   }, [fitToWidth]);
 
   React.useEffect(() => {
-    if (shapes && !isEqual(prevShapesRef.current, shapes)) {
+    if (shapes && Object.keys(shapes).length > 0) {
       prevShapesRef.current = shapes;
       tlEditorRef.current?.store.mergeRemoteChanges(() => {
-        const shapesArray = Object.values(shapes).map((shape) => sanitizeShape(shape));
-        tlEditorRef.current?.store?.put(shapesArray);
+        const remoteShapesArray = Object.values(shapes).map((shape) => sanitizeShape(shape));
+        editor.store.put(remoteShapesArray);
       });
     }
   }, [shapes]);
@@ -784,15 +784,12 @@ const Whiteboard = React.memo((props) => {
           editor.store.put(assets);
           editor.setCurrentPage(`page:${curPageIdRef.current}`);
           editor.store.put(bgShape);
+          if (shapes && Object.keys(shapes).length > 0) {
+            const remoteShapesArray = Object.values(shapes).map((shape) => sanitizeShape(shape));
+            editor.store.put(remoteShapesArray);
+          }
           editor.history.clear();
         });
-      });
-
-      editor.store.mergeRemoteChanges(() => {
-        if (shapes) {
-          const remoteShapesArray = Object.values(shapes).map((shape) => sanitizeShape(shape));
-          editor.store.put(remoteShapesArray);
-        }
       });
 
       // eslint-disable-next-line no-param-reassign
