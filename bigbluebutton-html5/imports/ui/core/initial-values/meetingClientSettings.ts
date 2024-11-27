@@ -847,6 +847,7 @@ export const meetingClientSettingsInitialValues: MeetingClientSettings = {
           'note',
           'rectangle',
           'more',
+          'actions',
         ],
         multiUserTools: [
           'select',
@@ -858,6 +859,7 @@ export const meetingClientSettingsInitialValues: MeetingClientSettings = {
           'note',
           'rectangle',
           'more',
+          'actions',
         ],
       },
     },

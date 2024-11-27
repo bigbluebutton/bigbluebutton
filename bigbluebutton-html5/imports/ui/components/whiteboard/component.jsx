@@ -361,7 +361,7 @@ const Whiteboard = React.memo((props) => {
       return;
     }
 
-    if (key === 'delete') {
+    if (['delete', 'backspace'].includes(key.toLowerCase())) {
       handleCut(false);
       return;
     }
@@ -1521,6 +1521,7 @@ const Whiteboard = React.memo((props) => {
       meetingClientSettingsInitialValues.public.whiteboard.toolbar.multiUserTools,
     );
     const allElements = document.querySelectorAll('[data-testid^="tools."]');
+    const actionsElement = document.querySelector('[data-testid="main.action-menu"]');
 
     if (bbbMultiUserTools.length >= 1 && !isModerator) {
       allElements.forEach((element) => {
@@ -1531,6 +1532,12 @@ const Whiteboard = React.memo((props) => {
           element.style.display = 'none';
         }
       });
+
+      if (actionsElement) {
+        if (!bbbMultiUserTools.includes('actions')) {
+          actionsElement.style.display = 'none';
+        }
+      }
     }
   // TODO: we should add the dependency  list in [] parameter here
   // so this is not run on every render
@@ -1542,6 +1549,7 @@ const Whiteboard = React.memo((props) => {
       meetingClientSettingsInitialValues.public.whiteboard.toolbar.presenterTools,
     );
     const allElements = document.querySelectorAll('[data-testid^="tools."]');
+    const actionsElement = document.querySelector('[data-testid="main.action-menu"]');
 
     if (bbbPresenterTools.length >= 1 && isPresenter) {
       allElements.forEach((element) => {
@@ -1552,6 +1560,12 @@ const Whiteboard = React.memo((props) => {
           element.style.display = 'none';
         }
       });
+
+      if (actionsElement) {
+        if (!bbbPresenterTools.includes('actions')) {
+          actionsElement.style.display = 'none';
+        }
+      }
     }
   // TODO: we should add the dependency  list in [] parameter here
   // so this is not run on every render
@@ -1563,6 +1577,7 @@ const Whiteboard = React.memo((props) => {
       false,
     );
     const allElements = document.querySelectorAll('[data-testid^="tools."]');
+    const actionsElement = document.querySelector('[data-testid="main.action-menu"]');
 
     if (bbbMultiUserPenOnly && !isModerator && !isPresenter) {
       allElements.forEach((element) => {
@@ -1572,6 +1587,10 @@ const Whiteboard = React.memo((props) => {
         // eslint-disable-next-line no-param-reassign
         element.style.display = displayStyle;
       });
+
+      if (actionsElement) {
+        actionsElement.style.display = 'none';
+      }
     }
   // TODO: we should add the dependency  list in [] parameter here
   // so this is not run on every render
