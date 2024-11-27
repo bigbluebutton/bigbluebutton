@@ -1,20 +1,16 @@
 import styled from 'styled-components';
-import {
-  smPaddingX,
-  borderRadius,
-} from '/imports/ui/stylesheets/styled-components/general';
+import { smPaddingX } from '/imports/ui/stylesheets/styled-components/general';
 import { ScrollboxVertical } from '/imports/ui/stylesheets/styled-components/scrollable';
-import { colorGrayDark } from '/imports/ui/stylesheets/styled-components/palette';
 import { ButtonElipsis } from '/imports/ui/stylesheets/styled-components/placeholders';
 
 interface MessageListProps {
   isRTL: boolean;
+  $hasMessageToolbar: boolean;
 }
 
 export const MessageList = styled(ScrollboxVertical)<MessageListProps>`
   flex-flow: column;
   flex-shrink: 1;
-  padding-top: 2rem;
   outline-style: none;
   overflow-x: hidden;
   user-select: text;
@@ -32,15 +28,6 @@ export const MessageList = styled(ScrollboxVertical)<MessageListProps>`
   ${({ isRTL }) => !isRTL && `
     padding-right: ${smPaddingX};
   `}
-`;
-
-export const ButtonLoadMore = styled.button`
-  width: 100%;
-  min-height: 1.5rem;
-  margin-bottom: 0.75rem;
-  background-color: transparent;
-  border-radius: ${borderRadius};
-  border: 1px ridge ${colorGrayDark};
 `;
 
 export const UnreadButton = styled(ButtonElipsis)`

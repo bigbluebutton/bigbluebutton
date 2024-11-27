@@ -1,4 +1,5 @@
 import { gql } from '@apollo/client';
+import { Message } from '/imports/ui/Types/message';
 
 export const CHAT_MESSAGE_PUBLIC_SUBSCRIPTION = gql`
   subscription chatMessages($limit: Int!, $offset: Int!) {
@@ -85,6 +86,7 @@ export const CHAT_MESSAGE_PRIVATE_SUBSCRIPTION = gql`
       reactions {
         createdAt
         reactionEmoji
+        reactionEmojiId
         user {
           name
           userId
@@ -106,3 +108,9 @@ export const CHAT_MESSAGE_PRIVATE_SUBSCRIPTION = gql`
     }
   }
 `;
+
+export type ChatMessageSubscriptionResponse = {
+  chat_message_public: Message[]
+} | {
+  chat_message_private: Message[]
+}

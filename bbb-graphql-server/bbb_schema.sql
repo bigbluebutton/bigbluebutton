@@ -20,20 +20,20 @@ $$ LANGUAGE plpgsql IMMUTABLE;
 
 create table "meeting" (
 	"meetingId"	varchar(100) primary key,
-	"extId" 	varchar(100),
-	"name" varchar(100),
+	"extId" 	text,
+	"name" text,
 	"isBreakout" boolean,
 	"disabledFeatures" varchar[],
 	"meetingCameraCap" integer,
 	"maxPinnedCameras" integer,
 	"notifyRecordingIsOn" boolean,
 	"presentationUploadExternalDescription" text,
-	"presentationUploadExternalUrl" varchar(500),
+	"presentationUploadExternalUrl" text,
 	"learningDashboardAccessToken" varchar(100),
-	"loginUrl" varchar(500),
-	"logoutUrl" varchar(500),
-	"customLogoUrl" varchar(500),
-    "customDarkLogoUrl" varchar(500),
+	"loginUrl" text,
+	"logoutUrl" text,
+	"customLogoUrl" text,
+    "customDarkLogoUrl" text,
 	"bannerText" text,
 	"bannerColor" varchar(50),
 	"createdTime" bigint,
@@ -812,9 +812,9 @@ BEGIN
     "lastNetworkRttInMs" = NEW."networkRttInMs",
     "lastOccurrenceAt" = current_timestamp
     WHERE "meetingId"=NEW."meetingId" AND "userId"=NEW."userId" AND "status"= NEW."status" RETURNING *)
-    INSERT INTO "user_connectionStatusMetrics"("meetingId","userId","status","occurrencesCount", "firstOccurrenceAt",
+    INSERT INTO "user_connectionStatusMetrics"("meetingId","userId","status","occurrencesCount", "firstOccurrenceAt", "lastOccurrenceAt",
     "highestNetworkRttInMs", "lowestNetworkRttInMs", "lastNetworkRttInMs")
-    SELECT NEW."meetingId", NEW."userId", NEW."status", 1, current_timestamp,
+    SELECT NEW."meetingId", NEW."userId", NEW."status", 1, current_timestamp, current_timestamp,
     NEW."networkRttInMs", NEW."networkRttInMs", NEW."networkRttInMs"
     WHERE NOT EXISTS (SELECT * FROM upsert);
 
@@ -1380,7 +1380,7 @@ CREATE TABLE "pres_annotation_history" (
 	"pageId" varchar(100) REFERENCES "pres_page"("pageId") ON DELETE CASCADE,
 	"meetingId" varchar(100),
 	"userId" varchar(50),
-	"annotationInfo" TEXT,
+	"annotationInfo" jsonb,
 	"updatedAt" timestamp with time zone
 );
 CREATE INDEX "idx_pres_annotation_history_pageId" ON "pres_annotation"("pageId");

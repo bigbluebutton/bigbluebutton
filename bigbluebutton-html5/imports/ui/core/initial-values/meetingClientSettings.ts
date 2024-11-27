@@ -631,6 +631,7 @@ export const meetingClientSettingsInitialValues: MeetingClientSettings = {
           },
         ],
         retryThroughRelay: false,
+        allowAudioJoinCancel: true,
       },
       stunTurnServersFetchAddress: '/bigbluebutton/api/stuns',
       cacheStunTurnServers: true,
@@ -806,6 +807,7 @@ export const meetingClientSettingsInitialValues: MeetingClientSettings = {
       pointerDiameter: 5,
       maxStickyNoteLength: 1000,
       maxNumberOfAnnotations: 300,
+      maxNumberOfActiveUsers: 25,
       allowInfiniteWhiteboard: false,
       allowInfiniteWhiteboardInBreakouts: false,
       annotations: {

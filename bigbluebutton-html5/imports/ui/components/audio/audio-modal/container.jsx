@@ -75,6 +75,7 @@ const AudioModalContainer = (props) => {
   const showPermissionsOvelay = useReactiveVar(AudioManager._isWaitingPermissions.value);
   const isUsingAudio = Service.useIsUsingAudio();
   const isConnecting = useReactiveVar(AudioManager._isConnecting.value);
+  const isReconnecting = useReactiveVar(AudioManager._isReconnecting.value);
   const isConnected = useReactiveVar(AudioManager._isConnected.value);
   const isListenOnly = useReactiveVar(AudioManager._isListenOnly.value);
   const isEchoTest = useReactiveVar(AudioManager._isEchoTest.value);
@@ -112,6 +113,7 @@ const AudioModalContainer = (props) => {
       showPermissionsOvelay={showPermissionsOvelay}
       isUsingAudio={isUsingAudio}
       isConnecting={isConnecting}
+      isReconnecting={isReconnecting}
       isConnected={isConnected}
       isListenOnly={isListenOnly}
       isEchoTest={isEchoTest}

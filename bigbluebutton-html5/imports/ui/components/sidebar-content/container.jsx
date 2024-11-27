@@ -8,7 +8,8 @@ import {
 import useCurrentUser from '/imports/ui/core/hooks/useCurrentUser';
 import useDeduplicatedSubscription from '../../core/hooks/useDeduplicatedSubscription';
 
-const SidebarContentContainer = () => {
+const SidebarContentContainer = (props) => {
+  const { isSharedNotesPinned } = props;
   const sidebarContentInput = layoutSelectInput((i) => i.sidebarContent);
   const sidebarContentOutput = layoutSelectOutput((i) => i.sidebarContent);
   const layoutContextDispatch = layoutDispatch();
@@ -37,6 +38,7 @@ const SidebarContentContainer = () => {
       amIPresenter={amIPresenter}
       amIModerator={amIModerator}
       currentSlideId={currentSlideId}
+      isSharedNotesPinned={isSharedNotesPinned}
     />
   );
 };

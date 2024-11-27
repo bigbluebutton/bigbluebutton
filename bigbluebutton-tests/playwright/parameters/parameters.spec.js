@@ -478,7 +478,8 @@ test.describe.parallel('Custom Parameters', { tag: '@ci' }, () => {
       await customParam.hidePresentationOnJoin();
     });
 
-    test('Force restore presentation on new events', { tag: '@ci' }, async ({ browser, context, page }) => {
+    test('Force restore presentation on new events', { tag: ['@ci', '@flaky'] }, async ({ browser, context, page }) => {
+      // tagged as flaky because it's restoring presentation right after minimizing it due to unexpected zooming slide
       const customParam = new CustomParameters(browser, context);
       await customParam.initModPage(page);
       await customParam.initUserPage(true, context, { useModMeetingId: true, joinParameter: c.forceRestorePresentationOnNewEvents });

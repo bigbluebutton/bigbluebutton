@@ -29,7 +29,10 @@ const ChatMessageReplied: React.FC<MessageRepliedProps> = (props) => {
   return (
     <Styled.Container
       onClick={(e) => {
-        e.preventDefault();
+        e.stopPropagation();
+        if (e.target instanceof HTMLAnchorElement) {
+          return;
+        }
         window.dispatchEvent(
           new CustomEvent(ChatEvents.CHAT_FOCUS_MESSAGE_REQUEST, {
             detail: {
@@ -37,13 +40,17 @@ const ChatMessageReplied: React.FC<MessageRepliedProps> = (props) => {
             },
           }),
         );
-        Storage.removeItem(ChatEvents.CHAT_FOCUS_MESSAGE_REQUEST);
         Storage.setItem(ChatEvents.CHAT_FOCUS_MESSAGE_REQUEST, sequence);
       }}
     >
       {!deletedByUser && (
         <Styled.Message>
-          <Styled.Markdown $emphasizedMessage={emphasizedMessage}>
+          <Styled.Markdown
+            $emphasizedMessage={emphasizedMessage}
+            linkTarget="_blank"
+            allowedElements={window.meetingClientSettings.public.chat.allowedElements}
+            unwrapDisallowed
+          >
             {messageChunks[0]}
           </Styled.Markdown>
         </Styled.Message>
