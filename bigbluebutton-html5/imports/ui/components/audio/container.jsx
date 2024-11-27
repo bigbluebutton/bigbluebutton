@@ -128,13 +128,24 @@ const AudioContainer = (props) => {
   const hasBreakoutRooms = (breakoutCountData?.breakoutRoom_aggregate?.aggregate?.count ?? 0) > 0;
   const meetingIsBreakout = useMeetingIsBreakout();
   const { data: meeting } = useMeeting((m) => ({
+    audioBridge: m.audioBridge,
     voiceSettings: {
       voiceConf: m?.voiceSettings?.voiceConf,
     },
   }));
   const { data: currentUserName } = useCurrentUser((u) => u.name);
   const { data: speechLocale } = useCurrentUser((u) => u.speechLocale);
-
+  // public.media.defaultFullAudioBridge/public.media.defaultListenOnlyBridge
+  // are legacy configs. They will be removed in the future. Use
+  // audioBridge (bbb-web, create) instead.
+  const {
+    defaultFullAudioBridge,
+    defaultListenOnlyBridge,
+  } = window.meetingClientSettings.public.media || {};
+  const bridges = {
+    fullAudioBridge: meeting?.audioBridge ?? defaultFullAudioBridge,
+    listenOnlyBridge: meeting?.audioBridge ?? defaultListenOnlyBridge,
+  };
   const openAudioModal = () => setAudioModalIsOpen(true);
 
   const openVideoPreviewModal = () => {
@@ -150,7 +161,9 @@ const AudioContainer = (props) => {
       speechLocale,
       meeting?.voiceSettings?.voiceConf,
       currentUserName,
+      bridges,
     );
+
     if ((!autoJoin || didMountAutoJoin)) {
       if (enableVideo && autoShareWebcam) {
         openVideoPreviewModal();

@@ -45,6 +45,7 @@ import ChatAlertContainerGraphql from '../chat/chat-graphql/alert/component';
 import { notify } from '/imports/ui/services/notification';
 import VoiceActivityAdapter from '../../core/adapters/voice-activity';
 import LayoutObserver from '../layout/observer';
+import BBBLiveKitRoomContainer from '/imports/ui/components/livekit/component';
 
 const intlMessages = defineMessages({
   userListLabel: {
@@ -305,13 +306,7 @@ class App extends Component {
             )
             : null
             }
-          {
-          shouldShowScreenshare
-            ? (
-              <ScreenshareContainer />
-            )
-            : null
-          }
+          <ScreenshareContainer shouldShowScreenshare={shouldShowScreenshare} />
           {isSharedNotesPinned
             ? (
               <NotesContainer
@@ -323,6 +318,7 @@ class App extends Component {
           { !hideNotificationToasts && <PresentationUploaderToastContainer intl={intl} /> }
           <UploaderContainer />
           <BreakoutJoinConfirmationContainerGraphQL />
+          <BBBLiveKitRoomContainer />
           <AudioContainer {...{
             isAudioModalOpen,
             setAudioModalIsOpen: this.setAudioModalIsOpen,

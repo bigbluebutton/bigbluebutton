@@ -74,6 +74,7 @@ trait UserJoinedVoiceConfEvtMsgHdlr extends SystemConfiguration {
         VoiceApp.toggleUserAudioInVoiceConf(
           liveMeeting,
           outGW,
+          msg.body.intId,
           msg.body.voiceUserId,
           false
         )

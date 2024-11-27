@@ -54,6 +54,7 @@ trait UserJoinMeetingReqMsgHdlr extends HandlerHelpers {
     clearExpiredUserState(regUser)
     forceUserGraphqlReconnection(regUser)
     updateGraphqlDatabase(regUser)
+    generateLivekitToken(regUser, liveMeeting)
 
     newState
   }
@@ -148,6 +149,26 @@ trait UserJoinMeetingReqMsgHdlr extends HandlerHelpers {
     )
     outGW.send(notifyUserEvent)
     NotificationDAO.insert(notifyUserEvent)
+  }
+
+  private def generateLivekitToken(regUser: RegisteredUser, liveMeeting: LiveMeeting) = {
+    if (isUsingLiveKit(liveMeeting)) {
+      val grant = buildLiveKitTokenGrant(
+        room = liveMeeting.props.meetingProp.intId,
+        canPublish = true,
+        canSubscribe = true,
+        )
+      val metadata = buildLiveKitParticipantMetadata(liveMeeting)
+
+      val generateLiveKitTokenReqMsg = MsgBuilder.buildGenerateLiveKitTokenReqMsg(
+        liveMeeting.props.meetingProp.intId,
+        regUser.id,
+        regUser.name,
+        grant,
+        metadata
+      )
+      outGW.send(generateLiveKitTokenReqMsg)
+    }
   }
 
   private def clearCachedVoiceUser(regUser: RegisteredUser) =
