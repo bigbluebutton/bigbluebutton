@@ -26,6 +26,8 @@ import { useStorageKey } from '/imports/ui/services/storage/hooks';
 import ConnectionStatus from '/imports/ui/core/graphql/singletons/connectionStatus';
 import { setVideoState, useVideoState } from './state';
 import { VIDEO_TYPES } from './enums';
+import { useSubscription } from '../../core/hooks/createUseSubscription';
+import { PRESENTER_ID } from './queries';
 
 interface VideoProviderContainerProps {
   focusedId: string;
@@ -43,17 +45,22 @@ const VideoProviderContainer: React.FC<VideoProviderContainerProps> = (props) =>
   } = props;
   const [cameraBroadcastStart] = useMutation(CAMERA_BROADCAST_START);
 
-  const sendUserShareWebcam = (cameraId: string) => {
-    return cameraBroadcastStart({ variables: { cameraId, contentType: 'camera' } });
+  const sendUserShareWebcam = (cameraId: string, contentType: string) => {
+    return cameraBroadcastStart({ variables: { cameraId, contentType } });
   };
 
   const playStart = (cameraId: string) => {
     if (VideoService.isLocalStream(cameraId)) {
-      sendUserShareWebcam(cameraId).then(() => {
+      const contentType = cameraId.includes('screenshare') ? 'screenshare' : 'camera';
+      sendUserShareWebcam(cameraId, contentType).then(() => {
         VideoService.joinedVideo();
       });
     }
   };
+
+  const {
+    data: presenter,
+  } = useSubscription(PRESENTER_ID);
 
   const {
     debounceTime: CAMERA_QUALITY_THR_DEBOUNCE = 2500,
@@ -145,7 +152,8 @@ const VideoProviderContainer: React.FC<VideoProviderContainerProps> = (props) =>
     }
   }, [myPageSize, numberOfPages, totalNumberOfOtherStreams, isPaginationEnabled]);
 
-  if (!usersVideo.length && !isGridEnabled) return null;
+  if ((!usersVideo.length && !isGridEnabled)) return null;
+  if (!presenter) return null;
 
   return (
     <VideoProvider

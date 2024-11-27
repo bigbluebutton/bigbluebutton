@@ -80,7 +80,7 @@ export const useStreams = () => {
     return streams.current;
   }
 
-  const mappedStreams = (data as StreamSubscriptionData[]).map(({ streamId, user, voice }) => ({
+  const mappedStreams = (data as StreamSubscriptionData[]).map(({ streamId, user, voice, contentType, showAsContent }) => ({
     stream: streamId,
     deviceId: streamId.split('_')[3],
     name: user.name,
@@ -90,6 +90,8 @@ export const useStreams = () => {
     floor: voice?.floor ?? false,
     lastFloorTime: voice?.lastFloorTime ?? '0',
     voice,
+    contentType,
+    showAsContent,
     type: VIDEO_TYPES.STREAM,
   }));
 
@@ -391,6 +393,7 @@ export const useVideoStreams = () => {
   const myPageSize = useMyPageSize();
   const isPaginationEnabled = useIsPaginationEnabled();
   let streams: StreamItem[] = [...videoStreams];
+  console.log("🚀 -> useVideoStreams -> streams:", streams)
   let totalNumberOfOtherStreams: number | undefined;
 
   const {
@@ -404,6 +407,7 @@ export const useVideoStreams = () => {
     streams = streams.filter((vs) => videoService.isLocalStream(vs.stream));
   }
 
+  console.log("🚀 -> useVideoStreams -> isPaginationEnabled:", isPaginationEnabled)
   if (isPaginationEnabled) {
     const [filtered, others] = partition(
       streams,
@@ -441,8 +445,9 @@ export const useVideoStreams = () => {
 
 export const useHasVideoStream = () => {
   const streams = useStreams();
-  const connectingStream = useConnectingStream();
-  return !!connectingStream || streams.some((s) => videoService.isLocalStream(s.stream));
+  return streams
+    .filter((s) => s.contentType === 'camera')
+    .some((s) => videoService.isLocalStream(s.stream));
 };
 
 const useOwnVideoStreamsQuery = () => useLazyQuery<OwnVideoStreamsResponse>(

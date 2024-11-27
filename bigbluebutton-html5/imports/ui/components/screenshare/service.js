@@ -8,6 +8,9 @@ import ConnectionStatusService from '/imports/ui/components/connection-status/se
 import browserInfo from '/imports/utils/browserInfo';
 import createUseSubscription from '/imports/ui/core/hooks/createUseSubscription';
 import { SCREENSHARE_SUBSCRIPTION } from './queries';
+import VideoPreviewService from '/imports/ui/components/video-preview/service';
+import VideoService, {videoService as vs} from '/imports/ui/components/video-provider/service';
+import BBBVideoStream from '/imports/ui/services/webrtc-base/bbb-video-stream';
 
 export const SCREENSHARE_MEDIA_ELEMENT_NAME = 'screenshareVideo';
 
@@ -108,7 +111,7 @@ export const useIsScreenGloballyBroadcasting = () => {
       data
     && data[0]
     && data[0].contentType === CONTENT_TYPE_SCREENSHARE
-    && data[0].stream,
+    && data[0].streamId,
     ),
     loading,
   };
@@ -210,6 +213,7 @@ export const attachLocalPreviewStream = (mediaElement) => {
 };
 
 export const setOutputDeviceId = (outputDeviceId) => {
+  console.log("🚀 -> setOutputDeviceId -> outputDeviceId:", outputDeviceId)
   const screenShareElement = document.getElementById(SCREENSHARE_MEDIA_ELEMENT_NAME);
   const sinkIdSupported = screenShareElement && typeof screenShareElement.setSinkId === 'function';
   const srcStream = screenShareElement?.srcObject;
@@ -242,9 +246,23 @@ export const setOutputDeviceId = (outputDeviceId) => {
 
 export const screenshareHasStarted = (hasAudio, isPresenter, options = {}) => {
   // Presenter's screen preview is local, so skip
-  if (!isPresenter) {
-    viewScreenshare({ outputDeviceId: options.outputDeviceId }, hasAudio);
-  }
+  // outputDeviceId: options.outputDeviceId,
+  // screenshareId: options.screenshareId,
+  // const screenShareElement = document.getElementById(SCREENSHARE_MEDIA_ELEMENT_NAME);
+  // console.log("🚀 -> screenshareHasStarted -> screenShareElement:", screenShareElement)
+  // const peer = vs.webRtcPeersRef[options.screenshareId];
+  // console.log("🚀 -> screenshareHasStarted -> peer:", peer, vs.webRtcPeersRef)
+  // console.log("🚀 -> screenshareHasStarted -> peer2:", vs.activePeers[options.screenshareId], vs.activePeers)
+  // if (peer && screenShareElement) {
+  //   const stream = peer.isPublisher ? peer.getLocalStream() : peer.getRemoteStream();
+  //   screenShareElement.pause();
+  //   screenShareElement.srcObject = stream;
+  //   screenShareElement.load();
+  //   screenShareElement.play();
+  // }
+  // if (!isPresenter) {
+  //   viewScreenshare({ outputDeviceId: options.outputDeviceId }, hasAudio);
+  // }
 };
 
 export const shareScreen = async (
@@ -254,9 +272,9 @@ export const shareScreen = async (
   onFail,
   options = {},
 ) => {
-  if (isCameraAsContentBroadcasting) {
-    screenshareHasEnded();
-  }
+  // if (isCameraAsContentBroadcasting) {
+  //   screenshareHasEnded();
+  // }
 
   try {
     let stream;
@@ -269,25 +287,27 @@ export const shareScreen = async (
     }
     _trackStreamTermination(stream, _handleStreamTermination);
 
-    if (!isPresenter) {
-      MediaStreamUtils.stopMediaStreamTracks(stream);
-      return;
-    }
+    // if (!isPresenter) {
+    //   MediaStreamUtils.stopMediaStreamTracks(stream);
+    //   return;
+    // }
 
-    await KurentoBridge.share(stream, onFail, contentType);
+    // await KurentoBridge.share(stream, onFail, contentType);
+    VideoPreviewService.storeStream('screenshare', new BBBVideoStream(stream));
+    VideoService.joinVideo('screenshare', false, 'screenshare');
 
     // Stream might have been disabled in the meantime. I love badly designed
     // async components like this screen sharing bridge :) - prlanzarin 09 May 22
-    if (!_isStreamActive(stream)) {
-      _handleStreamTermination();
-      return;
-    }
+    // if (!_isStreamActive(stream)) {
+    //   _handleStreamTermination();
+    //   return;
+    // }
 
     // stop external video share if running
-    stopWatching();
+    // stopWatching();
 
-    setSharingContentType(contentType);
-    setIsSharing(true);
+    // setSharingContentType(contentType);
+    // setIsSharing(true);
   } catch (error) {
     onFail(error);
   }

@@ -2,8 +2,10 @@ import { gql } from '@apollo/client';
 
 export const VIDEO_STREAMS_SUBSCRIPTION = gql`
   subscription VideoStreams {
-    user_camera {
+    user_camera  {
       streamId
+      contentType
+      showAsContent
       user {
         name
         userId
@@ -95,9 +97,17 @@ export const GRID_USERS_SUBSCRIPTION = gql`
   }
 `;
 
+export const PRESENTER_ID = gql`
+  subscription presenterId {
+  user(where: {presenter: {_eq: true}}) {
+    userId
+  }
+}
+`;
 export default {
   OWN_VIDEO_STREAMS_QUERY,
   VIDEO_STREAMS_SUBSCRIPTION,
   VIEWERS_IN_WEBCAM_COUNT_SUBSCRIPTION,
   GRID_USERS_SUBSCRIPTION,
+  PRESENTER_ID,
 };
