@@ -424,9 +424,9 @@ class ApiController {
         // Use default URL from meeting
       } else {
         logoutUrl = params.get(ApiParams.LOGOUT_URL)
+        log.debug "The following logout URL is present: " + logoutUrl
       }
     }
-    log.debug "The following logout URL is present: " + logoutUrl
 
     //Return a Map with the user custom data
     Map<String, String> userCustomData = meetingService.getUserCustomData(meeting, externUserID, params);
