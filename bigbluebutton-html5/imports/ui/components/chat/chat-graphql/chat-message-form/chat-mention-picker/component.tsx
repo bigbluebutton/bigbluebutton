@@ -45,10 +45,7 @@ const ChatMentionPicker = React.forwardRef<ChatMentionPickerRef, ChatMentionPick
           event.preventDefault();
           setFocusedIndex((prev) => {
             const next = prev + 1;
-            if (next > users.length - 1) {
-              return 0;
-            }
-            return next;
+            return next > users.length - 1 ? 0 : next;
           });
           break;
         }
@@ -56,10 +53,7 @@ const ChatMentionPicker = React.forwardRef<ChatMentionPickerRef, ChatMentionPick
           event.preventDefault();
           setFocusedIndex((prev) => {
             const next = prev - 1;
-            if (next < 0) {
-              return users.length - 1;
-            }
-            return next;
+            return next < 0 ? users.length - 1 : next;
           });
           break;
         }
