@@ -6,7 +6,7 @@ import { layoutDispatch, layoutSelect } from '/imports/ui/components/layout/cont
 import { ACTIONS, PANELS } from '/imports/ui/components/layout/enums';
 import { Layout } from '/imports/ui/components/layout/layoutTypes';
 import Styled from './styles';
-import TooManypinnedAppsModal from './modal/component';
+import TooManyPinnedAppsModal from './modal/component';
 
 const intlMessages = defineMessages({
   appsGalleryTitle: {
@@ -110,7 +110,7 @@ const AppsGallery: React.FC<AppsGalleryProps> = ({ registeredApps, pinnedApps })
   return (
     <Styled.PanelContent>
       { error && (
-        <TooManypinnedAppsModal
+        <TooManyPinnedAppsModal
           setError={setError}
           pinnedAppsNumber={pinnedApps.length}
         />

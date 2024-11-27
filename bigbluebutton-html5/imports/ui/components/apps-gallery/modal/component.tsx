@@ -22,7 +22,7 @@ const intlMessages = defineMessages({
   },
 });
 
-const TooManypinnedAppsModal = ({ setError, pinnedAppsNumber }: TooManypinnedAppsProps) => {
+const TooManyPinnedAppsModal = ({ setError, pinnedAppsNumber }: TooManypinnedAppsProps) => {
   const intl = useIntl();
   return (
     <Styled.Modal
@@ -52,4 +52,4 @@ const TooManypinnedAppsModal = ({ setError, pinnedAppsNumber }: TooManypinnedApp
   );
 };
 
-export default TooManypinnedAppsModal;
+export default TooManyPinnedAppsModal;
