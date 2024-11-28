@@ -31,6 +31,8 @@
     "app.chat.emptyLogLabel": "Το αρχείο καταγραφής συνομιλίας είναι κενό",
     "app.chat.away": "Είναι απών",
     "app.chat.notAway": "είναι ενεργό ξανά",
+    "app.chat.isPresenter": "Ο/Η {0} είναι παρουσιαστής",
+    "app.chat.isPresenterSetBy": "Ο/Η {0} είναι παρουσιαστής, ορίστηκε από {1}",
     "app.chat.clearPublicChatMessage": "Το ιστορικό δημόσιας συνομιλίας έχει διαγραφεί από τον συντονιστή.",
     "app.chat.multi.typing": "Πολλοί χρήστες πληκτρολογούν",
     "app.chat.someone.typing": "Κάποιος πληκτρολογεί",
