@@ -171,6 +171,7 @@ class LockViewers extends MultiUsers {
     await this.modPage.waitForSelector(e.whiteboard);
     await this.modPage.waitAndClick(e.multiUsersWhiteboardOn);
     await this.userPage.waitForSelector(e.whiteboard);
+    await sleep(1000);   // timeout to ensure that the userPage presentation is zoomed in stabilized
     await drawArrow(this.userPage);
     const screenshotOptions = {
       maxDiffPixels: 250,
