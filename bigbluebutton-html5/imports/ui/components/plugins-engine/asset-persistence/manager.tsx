@@ -26,6 +26,7 @@ const PersistAssets = () => {
             fileObject.onProgress,
             fileObject.onConversion,
             fileObject.current,
+            eventDetail.pluginName,
           );
         });
       }

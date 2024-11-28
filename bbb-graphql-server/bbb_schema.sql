@@ -2138,6 +2138,9 @@ create table "plugin" (
 	"name" varchar(100),
 	"javascriptEntrypointUrl" varchar(500),
 	"javascriptEntrypointIntegrity" varchar(500),
+    "assetPersistenceEnabled" boolean,
+    "assetPersistenceMaxFileSize" integer,
+    "assetPersistenceMaxUploadSizePerUser" integer,
     CONSTRAINT "plugin_pk" PRIMARY KEY ("meetingId","name"),
     FOREIGN KEY ("meetingId") REFERENCES "meeting"("meetingId") ON DELETE CASCADE
 );

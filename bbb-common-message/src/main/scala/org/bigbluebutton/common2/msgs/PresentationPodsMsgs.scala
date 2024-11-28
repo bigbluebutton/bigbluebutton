@@ -13,7 +13,7 @@ case class RemovePresentationPodPubMsgBody(podId: String)
 
 object PresentationUploadTokenReqMsg { val NAME = "PresentationUploadTokenReqMsg" }
 case class PresentationUploadTokenReqMsg(header: BbbClientMsgHeader, body: PresentationUploadTokenReqMsgBody) extends StandardMsg
-case class PresentationUploadTokenReqMsgBody(podId: String, filename: String, uploadTemporaryId: String)
+case class PresentationUploadTokenReqMsgBody(podId: String, filename: String, uploadTemporaryId: String, pluginName: String)
 
 object GetAllPresentationPodsReqMsg { val NAME = "GetAllPresentationPodsReqMsg" }
 case class GetAllPresentationPodsReqMsg(header: BbbClientMsgHeader, body: GetAllPresentationPodsReqMsgBody) extends StandardMsg
@@ -165,6 +165,7 @@ case class PresentationUploadedFileTooLargeErrorSysPubMsg(
     body:   PresentationUploadedFileTooLargeErrorSysPubMsgBody
 ) extends StandardMsg
 case class PresentationUploadedFileTooLargeErrorSysPubMsgBody(
+    presentationId:    String,
     podId:             String,
     messageKey:        String,
     code:              String,
@@ -398,5 +399,7 @@ case class SetCurrentPresentationEvtMsgBody(podId: String, presentationId: Strin
 // ------------ akka-apps to bbb-common-web ------------
 object PresentationUploadTokenSysPubMsg { val NAME = "PresentationUploadTokenSysPubMsg" }
 case class PresentationUploadTokenSysPubMsg(header: BbbClientMsgHeader, body: PresentationUploadTokenSysPubMsgBody) extends BbbCoreMsg
-case class PresentationUploadTokenSysPubMsgBody(podId: String, authzToken: String, filename: String, meetingId: String, presentationId: String)
+case class PresentationUploadTokenSysPubMsgBody(podId: String, authzToken: String, filename: String, meetingId: String,
+                                                presentationId: String, isFromPlugin: Boolean,
+                                                pluginAssetPersistenceMaxFileSize: Integer, pluginName: String)
 // ------------ akka-apps to bbb-common-web ------------
