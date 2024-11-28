@@ -773,7 +773,7 @@ public:
     allowedElements: ['a', 'code', 'em', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'li', 'ol', 'ul', 'p', 'strong']
     # available options for toolbar: reply, edit, delete, reactions
     # example: ['reply', 'delete']
-    toolbar: []
+    toolbar: ['reply', 'delete', 'edit', 'reactions']
     announcePresenterChangeInChat: true
   userReaction:
     enabled: true
