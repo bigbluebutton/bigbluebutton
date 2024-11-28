@@ -156,6 +156,7 @@ interface MeetingEndedContainerProps {
 
 interface MeetingEndedProps extends MeetingEndedContainerProps {
   allowDefaultLogoutUrl: boolean;
+  skipMeetingEnded: boolean;
   learningDashboardAccessToken: string;
   isModerator: boolean;
   logoutUrl: string;
@@ -168,6 +169,7 @@ const MeetingEnded: React.FC<MeetingEndedProps> = ({
   joinErrorCode,
   meetingEndedCode,
   allowDefaultLogoutUrl,
+  skipMeetingEnded,
   learningDashboardAccessToken,
   isModerator,
   logoutUrl,
@@ -282,6 +284,10 @@ const MeetingEnded: React.FC<MeetingEndedProps> = ({
     }
   }, []);
 
+  if (skipMeetingEnded) {
+    return confirmRedirect(isBreakout, allowDefaultLogoutUrl);
+  }
+
   return (
     <Styled.Parent>
       <Styled.Modal data-test="meetingEndedModal">
@@ -314,6 +320,7 @@ const MeetingEndedContainer: React.FC<MeetingEndedContainerProps> = ({
         joinErrorCode=""
         meetingEndedCode=""
         allowDefaultLogoutUrl={false}
+        skipMeetingEnded={false}
         learningDashboardAccessToken=""
         isModerator={false}
         logoutUrl=""
@@ -331,6 +338,7 @@ const MeetingEndedContainer: React.FC<MeetingEndedContainerProps> = ({
         joinErrorCode=""
         meetingEndedCode=""
         allowDefaultLogoutUrl={false}
+        skipMeetingEnded={false}
         learningDashboardAccessToken=""
         isModerator={false}
         logoutUrl=""
@@ -357,6 +365,7 @@ const MeetingEndedContainer: React.FC<MeetingEndedContainerProps> = ({
 
   const {
     allowDefaultLogoutUrl,
+    skipMeetingEnded,
     learningDashboardBase,
   } = clientSettings;
 
@@ -366,6 +375,7 @@ const MeetingEndedContainer: React.FC<MeetingEndedContainerProps> = ({
       joinErrorCode={joinErrorCode}
       meetingEndedCode={meetingEndedCode}
       allowDefaultLogoutUrl={allowDefaultLogoutUrl}
+      skipMeetingEnded={skipMeetingEnded}
       learningDashboardAccessToken={learningDashboard?.learningDashboardAccessToken}
       isModerator={isModerator}
       logoutUrl={logoutUrl}

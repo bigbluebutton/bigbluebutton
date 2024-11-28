@@ -10,6 +10,7 @@ export interface MeetingEndDataResponse {
       }
       isBreakout: boolean;
       clientSettings: {
+        skipMeetingEnded: boolean,
         allowDefaultLogoutUrl: boolean;
         learningDashboardBase: string;
       };
@@ -28,6 +29,7 @@ query getMeetingEndData {
       }
       isBreakout
       clientSettings {
+        skipMeetingEnded: clientSettingsJson(path: "$.public.app.skipMeetingEnded")
         allowDefaultLogoutUrl: clientSettingsJson(path: "$.public.app.allowDefaultLogoutUrl")
         learningDashboardBase: clientSettingsJson(path: "$.public.app.learningDashboardBase")
       }
