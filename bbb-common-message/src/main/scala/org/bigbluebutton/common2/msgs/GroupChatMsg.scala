@@ -13,6 +13,7 @@ object GroupChatMessageType {
   val BREAKOUTROOM_MOD_MSG = "breakoutRoomModeratorMsg"
   val PUBLIC_CHAT_HIST_CLEARED = "publicChatHistoryCleared"
   val USER_AWAY_STATUS_MSG = "userAwayStatusMsg"
+  val USER_IS_PRESENTER_MSG = "userIsPresenterMsg"
   val PLUGIN = "plugin"
 }
 
