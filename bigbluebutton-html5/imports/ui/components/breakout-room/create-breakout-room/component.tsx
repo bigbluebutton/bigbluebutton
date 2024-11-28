@@ -29,6 +29,8 @@ import {
 } from './room-managment-state/types';
 import { BREAKOUT_ROOM_CREATE, BREAKOUT_ROOM_MOVE_USER } from '../mutations';
 import useDeduplicatedSubscription from '/imports/ui/core/hooks/useDeduplicatedSubscription';
+import { ACTIONS, PANELS } from '/imports/ui/components/layout/enums';
+import { layoutDispatch } from '/imports/ui/components/layout/context';
 
 const MIN_BREAKOUT_ROOMS = 2;
 const MIN_BREAKOUT_TIME = 5;
@@ -230,6 +232,7 @@ const CreateBreakoutRoom: React.FC<CreateBreakoutRoomProps> = ({
 }) => {
   const { isMobile } = deviceInfo;
   const intl = useIntl();
+  const layoutContextDispatch = layoutDispatch();
 
   const initialNumberOfRooms = runningRooms.length > 0 ? runningRooms.length : MIN_BREAKOUT_ROOMS;
 
@@ -325,6 +328,14 @@ const CreateBreakoutRoom: React.FC<CreateBreakoutRoomProps> = ({
       },
     );
     setIsOpen(false);
+    layoutContextDispatch({
+      type: ACTIONS.SET_SIDEBAR_CONTENT_IS_OPEN,
+      value: true,
+    });
+    layoutContextDispatch({
+      type: ACTIONS.SET_SIDEBAR_CONTENT_PANEL,
+      value: PANELS.BREAKOUT,
+    });
   };
 
   const userUpdate = () => {

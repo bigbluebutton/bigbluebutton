@@ -7,9 +7,7 @@ import {
 import { useIntl } from 'react-intl';
 import SidebarNavigation from './component';
 import { User } from '/imports/ui/Types/user';
-import { Meeting } from '/imports/ui/Types/meeting';
 import { Input, Output } from '/imports/ui/components/layout/layoutTypes';
-import useMeeting from '/imports/ui/core/hooks/useMeeting';
 import useCurrentUser from '/imports/ui/core/hooks/useCurrentUser';
 import useDeduplicatedSubscription from '/imports/ui/core/hooks/useDeduplicatedSubscription';
 import { userIsInvited } from '/imports/ui/components/breakout-room/breakout-rooms-list-item/query';
@@ -18,6 +16,8 @@ import { BREAKOUTS_ICON, BREAKOUTS_LABEL, BREAKOUTS_APP_KEY } from '/imports/ui/
 import { TIMER_ICON, TIMER_LABEL, TIMER_APP_KEY } from '/imports/ui/components/timer/constants';
 import { POLLS_ICON, POLLS_LABEL, POLLS_APP_KEY } from '/imports/ui/components/poll/constants';
 import { ACTIONS } from '/imports/ui/components/layout/enums';
+import useMeeting from '/imports/ui/core/hooks/useMeeting';
+import { Meeting } from '/imports/ui/Types/meeting';
 
 const SidebarNavigationContainer = () => {
   const { data: currentUser } = useCurrentUser((u: Partial<User>) => (
@@ -39,6 +39,7 @@ const SidebarNavigationContainer = () => {
     componentsFlags: m.componentsFlags,
   }));
   const hasBreakoutRoom = currentMeeting?.componentsFlags?.hasBreakoutRoom ?? false;
+  const isUserInvited = userIsInvitedData?.breakoutRoom.length > 0;
 
   const {
     data: timerData,
@@ -97,13 +98,12 @@ const SidebarNavigationContainer = () => {
     // TODO: remove this apps setup from here.
     // Ideally each component(i.e breakouts, polls, timer) should register/unregister itself based
     // on its specific conditions.
-    if (!breakoutsAreRegistered && hasBreakoutRoom
-      && (isModerator || userIsInvitedData?.breakoutRoom.length > 0)) {
+    if (!breakoutsAreRegistered && (
+      isModerator || (!isModerator && hasBreakoutRoom && isUserInvited))) {
       registerApp(BREAKOUTS_APP_KEY, intl.formatMessage(BREAKOUTS_LABEL), BREAKOUTS_ICON);
       pinApp(BREAKOUTS_APP_KEY);
     }
-    if (breakoutsAreRegistered
-      && (!hasBreakoutRoom || !isModerator || userIsInvitedData?.breakoutRoom.length === 0)) {
+    if (breakoutsAreRegistered && !isModerator && (!hasBreakoutRoom || !isUserInvited)) {
       unregisterApp(BREAKOUTS_APP_KEY);
     }
 
@@ -127,6 +127,7 @@ const SidebarNavigationContainer = () => {
     currentUser,
     registeredApps,
     hasBreakoutRoom,
+    isUserInvited,
     isModerator,
     timerData,
     isPresenter,

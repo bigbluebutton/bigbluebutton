@@ -1,5 +1,5 @@
 import { useMutation } from '@apollo/client';
-import React, { useCallback, useEffect } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import { defineMessages, useIntl } from 'react-intl';
 import {
   BreakoutRoom as BreakoutRoomType,
@@ -24,6 +24,7 @@ import {
 } from './service';
 import { useExitVideo, useStreams } from '/imports/ui/components/video-provider/hooks';
 import useDeduplicatedSubscription from '/imports/ui/core/hooks/useDeduplicatedSubscription';
+import CreateBreakoutRoomContainer from '../create-breakout-room/component';
 
 interface BreakoutRoomProps {
   breakouts: BreakoutRoomType[];
@@ -316,11 +317,13 @@ const BreakoutRoom: React.FC<BreakoutRoomProps> = ({
 };
 
 const BreakoutRoomContainer: React.FC = () => {
+  const layoutContextDispatch = layoutDispatch();
   const {
     data: meetingData,
   } = useMeeting((m) => ({
     durationInSeconds: m.durationInSeconds,
     meetingId: m.meetingId,
+    componentsFlags: m.componentsFlags,
   }));
 
   const {
@@ -332,13 +335,13 @@ const BreakoutRoomContainer: React.FC = () => {
     voice: u.voice,
     userId: u.userId,
   }));
-
+  const hasBreakoutRoom = meetingData?.componentsFlags?.hasBreakoutRoom ?? false;
   const {
     data: breakoutData,
     loading: breakoutLoading,
     error: breakoutError,
   } = useDeduplicatedSubscription<GetBreakoutDataResponse>(getBreakoutData);
-
+  const [isOpen, setIsOpen] = useState(!hasBreakoutRoom);
   if (
     breakoutLoading
     || currentUserLoading
@@ -354,6 +357,27 @@ const BreakoutRoomContainer: React.FC = () => {
     );
   }
   if (!currentUserData || !breakoutData || !meetingData) return null; // or loading spinner or error
+  if (!hasBreakoutRoom && currentUserData.isModerator && isOpen) {
+    return (
+      <CreateBreakoutRoomContainer
+        isOpen={isOpen}
+        setIsOpen={(value: boolean) => {
+          if (!hasBreakoutRoom) {
+            layoutContextDispatch({
+              type: ACTIONS.SET_SIDEBAR_CONTENT_IS_OPEN,
+              value: false,
+            });
+            layoutContextDispatch({
+              type: ACTIONS.SET_SIDEBAR_CONTENT_PANEL,
+              value: PANELS.NONE,
+            });
+          }
+          setIsOpen(value);
+        }}
+        priority="low"
+      />
+    );
+  }
   return (
     <BreakoutRoom
       breakouts={breakoutData.breakoutRoom || []}
