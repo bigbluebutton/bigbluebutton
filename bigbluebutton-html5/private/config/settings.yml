@@ -774,6 +774,7 @@ public:
     # available options for toolbar: reply, edit, delete, reactions
     # example: ['reply', 'delete']
     toolbar: []
+    announcePresenterChangeInChat: true
   userReaction:
     enabled: true
     expire: 30
