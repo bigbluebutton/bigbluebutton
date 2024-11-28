@@ -123,11 +123,13 @@ class ScreenshareComponent extends React.Component {
       isPresenter,
       startPreviewSizeBig,
       outputDeviceId,
+      unpinSharedNotes,
       isSharedNotesPinned,
       hasAudio,
+      streamId,
     } = this.props;
 
-    screenshareHasStarted(hasAudio, isPresenter, { outputDeviceId });
+    screenshareHasStarted(streamId, hasAudio, isPresenter, { outputDeviceId });
     // Autoplay failure handling
     window.addEventListener('screensharePlayFailed', this.handlePlayElementFailed);
     // Stream health state tracker to propagate UI changes on reconnections
@@ -148,6 +150,9 @@ class ScreenshareComponent extends React.Component {
     });
 
     Session.setItem('pinnedNotesLastState', isSharedNotesPinned);
+    if (isPresenter) {
+      unpinSharedNotes();
+    }
   }
 
   componentDidUpdate(prevProps) {
@@ -688,4 +693,5 @@ ScreenshareComponent.propTypes = {
   layoutContextDispatch: PropTypes.func.isRequired,
   enableVolumeControl: PropTypes.bool.isRequired,
   outputDeviceId: PropTypes.string,
+  streamId: PropTypes.string.isRequired,
 };

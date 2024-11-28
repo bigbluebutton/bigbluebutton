@@ -121,7 +121,7 @@ const PresenceManager: React.FC<PresenceManagerProps> = ({
   useEffect(() => {
     if (isGuestAllowed) {
       timeoutRef.current = setTimeout(() => {
-        loadingContextInfo.setLoading(false, '');
+        loadingContextInfo.setLoading(false);
         throw new Error('Authentication timeout');
       }, connectionTimeout);
     }
@@ -155,7 +155,7 @@ const PresenceManager: React.FC<PresenceManagerProps> = ({
 
   useEffect(() => {
     if (joinErrorCode) {
-      loadingContextInfo.setLoading(false, '');
+      loadingContextInfo.setLoading(false);
     }
   },
   [joinErrorCode, joinErrorMessage]);
@@ -204,8 +204,15 @@ const PresenceManagerContainer: React.FC<PresenceManagerContainerProps> = ({ chi
   const loadingContextInfo = useContext(LoadingContext);
   if (loading || userInfoLoading) return null;
   if (error || userInfoError) {
-    loadingContextInfo.setLoading(false, '');
+    loadingContextInfo.setLoading(false);
     logger.debug(`Error on user authentication: ${error}`);
+  }
+
+  if (
+    !userInfoLoading
+    && (userInfoData?.meeting.length === 0 && userInfoData?.user_current.length === 0)
+  ) {
+    throw new Error('Meeting Not Found.', { cause: 'meeting_not_found' });
   }
 
   if (!data || data.user_current.length === 0) return null;

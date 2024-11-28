@@ -4,7 +4,9 @@ import {
   colorGrayLightest,
   colorWhite,
 } from '/imports/ui/stylesheets/styled-components/palette';
-import { $2xlPadding, borderRadius, smPadding } from '/imports/ui/stylesheets/styled-components/general';
+import {
+  borderRadius, lgPadding, smPadding,
+} from '/imports/ui/stylesheets/styled-components/general';
 import EmojiPickerComponent from '/imports/ui/components/emoji-picker/component';
 import BaseEmojiButton from './emoji-button/component';
 
@@ -13,25 +15,24 @@ interface RootProps {
 }
 
 const Root = styled.div<RootProps>`
-  padding-bottom: ${smPadding};
+  padding: ${smPadding};
   justify-content: flex-end;
   display: none;
   position: absolute;
   bottom: 100%;
+  transform: translateY(50%);
   z-index: 10;
 
   [dir='ltr'] & {
-    padding-left: ${$2xlPadding};
     right: 0;
   }
 
   [dir='rtl'] & {
-    padding-right: ${$2xlPadding};
     left: 0;
   }
 
-  .chat-message-wrapper:hover &,
-  .chat-message-wrapper:focus &,
+  .chat-message-content:hover &,
+  .chat-message-content:focus &,
   .chat-message-wrapper-focused &,
   .chat-message-wrapper-keyboard-focused &,
   &:hover,
@@ -50,6 +51,8 @@ const Container = styled.div`
   border-radius: 1rem;
   background-color: ${colorWhite};
   box-shadow: 0 0.125rem 0.125rem 0 ${colorGrayLighter};
+  padding: ${smPadding} ${lgPadding};
+  gap: ${smPadding};
 `;
 
 const EmojiPickerWrapper = styled.div`

@@ -8,7 +8,7 @@
 
 ### List of official plugins
 
-This list is updated periodically. All official plugins can be found at our [GitHub plugins repository list](https://github.com/orgs/bigbluebutton/repositories?language=&q=plugin-&sort=&type=public)
+This list is updated periodically. All official plugins can be found at our [GitHub plugins repository list](https://github.com/bigbluebutton/plugins) or by searching for plugins on the  [BigBlueButton's GitHub organization page](https://github.com/orgs/bigbluebutton/repositories?language=&q=plugin-&sort=&type=public)
  
 - [H5P plugin for BigBlueButton](https://github.com/bigbluebutton/plugin-h5p)
 - [Select random user](https://github.com/bigbluebutton/plugin-pick-random-user)

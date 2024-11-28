@@ -4,6 +4,7 @@ import React, {
   useState,
   memo,
   useRef,
+  useCallback,
 } from 'react';
 import { PluginsContext } from '/imports/ui/components/components-data/plugin-context/context';
 import {
@@ -16,40 +17,76 @@ import { DomElementManipulationHooks } from 'bigbluebutton-html-plugin-sdk/dist/
 import {
   CHAT_MESSAGE_PUBLIC_SUBSCRIPTION,
   CHAT_MESSAGE_PRIVATE_SUBSCRIPTION,
+  ChatMessageSubscriptionResponse,
 } from './queries';
 import { Message } from '/imports/ui/Types/message';
 import ChatMessage, { ChatMessageRef } from './chat-message/component';
-import { GraphqlDataHookSubscriptionResponse } from '/imports/ui/Types/hook';
-import { useCreateUseSubscription } from '/imports/ui/core/hooks/createUseSubscription';
 import { setLoadedMessageGathering } from '/imports/ui/core/hooks/useLoadedChatMessages';
 import { ChatLoading } from '../../component';
 import { ChatEvents } from '/imports/ui/core/enums/chat';
 import { useStorageKey, STORAGES } from '/imports/ui/services/storage/hooks';
+import Storage from '/imports/ui/services/storage/in-memory';
+import { getValueByPointer } from '/imports/utils/object-utils';
+import useDeduplicatedSubscription from '/imports/ui/core/hooks/useDeduplicatedSubscription';
 
 const PAGE_SIZE = 50;
 
-interface ChatListPageContainerProps {
-  page: number;
-  pageSize: number;
-  setLastSender: (page: number, message: string) => void;
-  lastSenderPreviousPage: string | undefined;
-  chatId: string;
-  markMessageAsSeen: (message: Message) => void;
-  scrollRef: React.RefObject<HTMLDivElement>;
-  focusedId: number | null;
+interface ChatListPageCommonProps {
   firstPageToLoad: number;
+  focusedId: number | null;
+  scrollRef: React.RefObject<HTMLDivElement>;
+  markMessageAsSeen: (message: Message) => void;
+  lastSenderPreviousPage: string | undefined;
+  page: number;
+  meetingDisablePublicChat: boolean;
+  meetingDisablePrivateChat: boolean;
+  currentUserIsModerator: boolean;
+  currentUserIsLocked: boolean;
+  currentUserId: string;
+  currentUserDisablePublicChat: boolean;
+  isBreakoutRoom: boolean;
+  messageToolbarIsEnabled: boolean;
+  chatReplyEnabled: boolean;
+  chatDeleteEnabled: boolean;
+  chatEditEnabled: boolean;
+  chatReactionsEnabled: boolean;
+  sendReaction: (reactionEmoji: string, reactionEmojiId: string, chatId: string, messageId: string) => void;
+  deleteReaction: (reactionEmoji: string, reactionEmojiId: string, chatId: string, messageId: string) => void;
 }
 
-interface ChatListPageProps {
+interface ChatListPageContainerProps extends ChatListPageCommonProps {
+  pageSize: number;
+  setLastSender: (page: number, message: string) => void;
+  chatId: string;
+}
+
+interface ChatListPageProps extends ChatListPageCommonProps {
   messages: Array<Message>;
   messageReadFeedbackEnabled: boolean;
-  lastSenderPreviousPage: string | undefined;
-  page: number;
-  markMessageAsSeen: (message: Message)=> void;
-  scrollRef: React.RefObject<HTMLDivElement>;
-  focusedId: number | null;
-  firstPageToLoad: number;
+  isPublicChat: boolean;
 }
+
+const propsToCompare = [
+  'focusedId',
+  'meetingDisablePublicChat',
+  'meetingDisablePrivateChat',
+  'currentUserDisablePublicChat',
+  'currentUserId',
+  'currentUserIsLocked',
+  'currentUserIsModerator',
+  'chatDeleteEnabled',
+  'chatEditEnabled',
+  'chatReactionsEnabled',
+  'chatReplyEnabled',
+] as const;
+const messagePropsToCompare = [
+  'messageId',
+  'createdAt',
+  'user.currentlyInMeeting',
+  'recipientHasSeen',
+  'message',
+  'reactions.length',
+] as const;
 
 const areChatPagesEqual = (prevProps: ChatListPageProps, nextProps: ChatListPageProps) => {
   const nextMessages = nextProps?.messages || [];
@@ -57,14 +94,16 @@ const areChatPagesEqual = (prevProps: ChatListPageProps, nextProps: ChatListPage
   if (nextMessages.length !== prevMessages.length) return false;
   return nextMessages.every((nextMessage, idx) => {
     const prevMessage = prevMessages[idx];
-    return (prevMessage.messageId === nextMessage.messageId
-      && prevMessage.createdAt === nextMessage.createdAt
-      && prevMessage?.user?.currentlyInMeeting === nextMessage?.user?.currentlyInMeeting
-      && prevMessage?.recipientHasSeen === nextMessage?.recipientHasSeen
-      && prevMessage?.message === nextMessage?.message
-      && prevMessage?.reactions?.length === nextMessage?.reactions?.length
-    );
-  }) && prevProps.focusedId === nextProps.focusedId;
+    return messagePropsToCompare.every((pointer) => {
+      const previousValue = getValueByPointer(prevMessage, pointer);
+      const nextValue = getValueByPointer(nextMessage, pointer);
+      return previousValue === nextValue;
+    });
+  }) && propsToCompare.every((pointer) => {
+    const previousValue = getValueByPointer(prevProps, pointer);
+    const nextValue = getValueByPointer(nextProps, pointer);
+    return previousValue === nextValue;
+  });
 };
 
 const ChatListPage: React.FC<ChatListPageProps> = ({
@@ -76,6 +115,21 @@ const ChatListPage: React.FC<ChatListPageProps> = ({
   scrollRef,
   focusedId,
   firstPageToLoad,
+  meetingDisablePrivateChat,
+  meetingDisablePublicChat,
+  currentUserId,
+  currentUserDisablePublicChat,
+  currentUserIsLocked,
+  currentUserIsModerator,
+  isBreakoutRoom,
+  isPublicChat,
+  messageToolbarIsEnabled,
+  chatDeleteEnabled,
+  chatEditEnabled,
+  chatReactionsEnabled,
+  chatReplyEnabled,
+  deleteReaction,
+  sendReaction,
 }) => {
   const { domElementManipulationIdentifiers } = useContext(PluginsContext);
   const messageRefs = useRef<Record<number, ChatMessageRef | null>>({});
@@ -140,6 +194,7 @@ const ChatListPage: React.FC<ChatListPageProps> = ({
       if (e instanceof CustomEvent) {
         if (e.detail.sequence) {
           if (Math.ceil(e.detail.sequence / PAGE_SIZE) < firstPageToLoad) {
+            Storage.setItem(ChatEvents.CHAT_FOCUS_MESSAGE_REQUEST, e.detail.sequence);
             return;
           }
           messageRefs.current[Number.parseInt(e.detail.sequence, 10)]?.requestFocus();
@@ -177,7 +232,13 @@ const ChatListPage: React.FC<ChatListPageProps> = ({
   useEffect(() => {
     if (typeof chatFocusMessageRequest === 'number') {
       messageRefs.current[chatFocusMessageRequest]?.requestFocus();
+      Storage.removeItem(ChatEvents.CHAT_FOCUS_MESSAGE_REQUEST);
     }
+  }, []);
+
+  const updateMessageRef = useCallback((ref: ChatMessageRef | null) => {
+    if (!ref) return;
+    messageRefs.current[ref.sequence] = ref;
   }, []);
 
   return (
@@ -199,9 +260,22 @@ const ChatListPage: React.FC<ChatListPageProps> = ({
             focused={focusedId === message.messageSequence}
             keyboardFocused={keyboardFocusedMessageSequence === message.messageSequence}
             editing={editingId === message.messageId}
-            ref={(ref) => {
-              messageRefs.current[message.messageSequence] = ref;
-            }}
+            ref={updateMessageRef}
+            meetingDisablePrivateChat={meetingDisablePrivateChat}
+            meetingDisablePublicChat={meetingDisablePublicChat}
+            currentUserId={currentUserId}
+            currentUserDisablePublicChat={currentUserDisablePublicChat}
+            currentUserIsLocked={currentUserIsLocked}
+            currentUserIsModerator={currentUserIsModerator}
+            isBreakoutRoom={isBreakoutRoom}
+            isPublicChat={isPublicChat}
+            hasToolbar={messageToolbarIsEnabled && !!message.user}
+            chatDeleteEnabled={chatDeleteEnabled}
+            chatEditEnabled={chatEditEnabled}
+            chatReactionsEnabled={chatReactionsEnabled}
+            chatReplyEnabled={chatReplyEnabled}
+            deleteReaction={deleteReaction}
+            sendReaction={sendReaction}
           />
         );
       })}
@@ -221,6 +295,20 @@ const ChatListPageContainer: React.FC<ChatListPageContainerProps> = ({
   scrollRef,
   focusedId,
   firstPageToLoad,
+  meetingDisablePrivateChat,
+  meetingDisablePublicChat,
+  currentUserId,
+  currentUserDisablePublicChat,
+  currentUserIsLocked,
+  currentUserIsModerator,
+  isBreakoutRoom,
+  messageToolbarIsEnabled,
+  chatDeleteEnabled,
+  chatEditEnabled,
+  chatReactionsEnabled,
+  chatReplyEnabled,
+  deleteReaction,
+  sendReaction,
 }) => {
   const CHAT_CONFIG = window.meetingClientSettings.public.chat;
   const PUBLIC_GROUP_CHAT_KEY = CHAT_CONFIG.public_group_id;
@@ -235,10 +323,18 @@ const ChatListPageContainer: React.FC<ChatListPageContainerProps> = ({
     ? defaultVariables : { ...defaultVariables, requestedChatId: chatId };
   const isPrivateReadFeedbackEnabled = !isPublicChat && PRIVATE_MESSAGE_READ_FEEDBACK_ENABLED;
 
-  const useChatMessageSubscription = useCreateUseSubscription<Message>(chatQuery, variables);
   const {
-    data: chatMessageData,
-  } = useChatMessageSubscription((msg) => msg) as GraphqlDataHookSubscriptionResponse<Message[]>;
+    data,
+    loading,
+  } = useDeduplicatedSubscription<ChatMessageSubscriptionResponse>(chatQuery, { variables });
+  let chatMessageData: Message[] | null = null;
+  if (data) {
+    if ('chat_message_public' in data) {
+      chatMessageData = data.chat_message_public;
+    } else if ('chat_message_private' in data) {
+      chatMessageData = data.chat_message_private;
+    }
+  }
 
   useEffect(() => {
     // component will unmount
@@ -247,8 +343,8 @@ const ChatListPageContainer: React.FC<ChatListPageContainerProps> = ({
     };
   }, []);
 
+  if (loading) return <ChatLoading isRTL={document.dir === 'rtl'} />;
   if (!chatMessageData) return null;
-  if (chatMessageData.length > 0 && chatId !== chatMessageData[0].chatId) return <ChatLoading isRTL={document.dir === 'rtl'} />;
   if (chatMessageData.length > 0 && chatMessageData[chatMessageData.length - 1].user?.userId) {
     setLastSender(page, chatMessageData[chatMessageData.length - 1].user?.userId);
   }
@@ -263,6 +359,21 @@ const ChatListPageContainer: React.FC<ChatListPageContainerProps> = ({
       scrollRef={scrollRef}
       focusedId={focusedId}
       firstPageToLoad={firstPageToLoad}
+      meetingDisablePrivateChat={meetingDisablePrivateChat}
+      meetingDisablePublicChat={meetingDisablePublicChat}
+      currentUserId={currentUserId}
+      currentUserDisablePublicChat={currentUserDisablePublicChat}
+      currentUserIsLocked={currentUserIsLocked}
+      currentUserIsModerator={currentUserIsModerator}
+      isBreakoutRoom={isBreakoutRoom}
+      isPublicChat={isPublicChat}
+      messageToolbarIsEnabled={messageToolbarIsEnabled}
+      chatDeleteEnabled={chatDeleteEnabled}
+      chatEditEnabled={chatEditEnabled}
+      chatReactionsEnabled={chatReactionsEnabled}
+      chatReplyEnabled={chatReplyEnabled}
+      deleteReaction={deleteReaction}
+      sendReaction={sendReaction}
     />
   );
 };

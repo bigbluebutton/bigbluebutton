@@ -29,6 +29,9 @@ trait AppsTestFixtures {
   val meetingCameraCap = 0
   val userCameraCap = 0
   val maxPinnedCameras = 3
+  val cameraBridge = "testCameraBridge"
+  val screenShareBridge = "testScreenShareBridge"
+  val audioBridge = "testAudioBridge"
   val moderatorPassword = "modpass"
   val viewerPassword = "viewpass"
   val learningDashboardAccessToken = "ldToken"
@@ -58,6 +61,9 @@ trait AppsTestFixtures {
   val meetingProp = MeetingProp(name = meetingName, extId = externalMeetingId, intId = meetingId,
     meetingCameraCap = meetingCameraCap,
     maxPinnedCameras = maxPinnedCameras,
+    cameraBridge = cameraBridge,
+    screenShareBridge = screenShareBridge,
+    audioBridge = audioBridge,
     isBreakout = isBreakout.booleanValue())
   val durationProps = DurationProps(duration = durationInMinutes, createdTime = createTime, createdDate = createDate,
     meetingExpireIfNoUserJoinedInMinutes = meetingExpireIfNoUserJoinedInMinutes, meetingExpireWhenLastUserLeftInMinutes = meetingExpireWhenLastUserLeftInMinutes,

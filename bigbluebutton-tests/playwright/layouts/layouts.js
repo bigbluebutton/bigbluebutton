@@ -4,7 +4,7 @@ const { reopenChatSidebar, checkScreenshots } = require('./util');
 
 class Layouts extends MultiUsers {
   async focusOnPresentation() {
-    await this.modPage.waitAndClick(e.actions);
+    await this.modPage.waitAndClick(e.optionsButton);
     await this.modPage.waitAndClick(e.manageLayoutBtn);
     await this.modPage.waitAndClick(e.focusOnPresentation);
     await this.modPage.waitAndClick(e.updateLayoutBtn);
@@ -15,7 +15,7 @@ class Layouts extends MultiUsers {
   }
 
   async gridLayout() {
-    await this.modPage.waitAndClick(e.actions);
+    await this.modPage.waitAndClick(e.optionsButton);
     await this.modPage.waitAndClick(e.manageLayoutBtn);
     await this.modPage.waitAndClick(e.focusOnVideo);
     await this.modPage.waitAndClick(e.updateLayoutBtn);
@@ -26,7 +26,7 @@ class Layouts extends MultiUsers {
   }
 
   async smartLayout() {
-    await this.modPage.waitAndClick(e.actions);
+    await this.modPage.waitAndClick(e.optionsButton);
     await this.modPage.waitAndClick(e.manageLayoutBtn);
     await this.modPage.waitAndClick(e.smartLayout);
     await this.modPage.waitAndClick(e.updateLayoutBtn);
@@ -43,7 +43,7 @@ class Layouts extends MultiUsers {
   }
 
   async customLayout() {
-    await this.modPage.waitAndClick(e.actions);
+    await this.modPage.waitAndClick(e.optionsButton);
     await this.modPage.waitAndClick(e.manageLayoutBtn);
     await this.modPage.waitAndClick(e.customLayout);
     await this.modPage.waitAndClick(e.updateLayoutBtn);
@@ -80,7 +80,7 @@ class Layouts extends MultiUsers {
   }
 
   async updateEveryone() {
-    await this.modPage.waitAndClick(e.actions);
+    await this.modPage.waitAndClick(e.optionsButton);
     await this.modPage.waitAndClick(e.manageLayoutBtn);
     await this.modPage.waitAndClick(e.customLayout);
     await this.modPage.waitAndClickElement(e.updateEveryoneLayoutToggle);
@@ -103,6 +103,7 @@ class Layouts extends MultiUsers {
     await this.modPage.hasElement(e.restorePresentation, 'should be displayed the restore presentation button for the moderator');
 
     await this.modPage.waitAndClick(e.restorePresentation);
+    await this.modPage.closeAllToastNotifications();
     await this.modPage.dragAndDropWebcams(e.dropAreaSidebarBottom);
 
     await checkScreenshots(this, 'layout should be updated for everyone', 'video', 'update-everyone');

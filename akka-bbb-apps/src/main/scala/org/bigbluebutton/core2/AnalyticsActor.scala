@@ -103,6 +103,11 @@ class AnalyticsActor(val includeChat: Boolean) extends Actor with ActorLogging {
       case m: ListenOnlyModeToggledInSfuEvtMsg => logMessage(msg)
       case m: MeetingMutedEvtMsg => logMessage(msg)
 
+      // LiveKit/RTC
+      case m: GenerateLiveKitTokenReqMsg => logMessage(msg)
+      case m: GenerateLiveKitTokenRespMsg => logMessage(msg)
+      case m: LiveKitParticipantLeftEvtMsg => logMessage(msg)
+
       // Breakout
       case m: BreakoutRoomEndedEvtMsg => logMessage(msg)
 
@@ -142,8 +147,8 @@ class AnalyticsActor(val includeChat: Boolean) extends Actor with ActorLogging {
       case m: SendGroupChatMessageMsg => logChatMessage(msg)
       case m: EditGroupChatMessageReqMsg => logChatMessage(msg)
       case m: DeleteGroupChatMessageReqMsg => logChatMessage(msg)
-      case m: DeleteGroupChatMessageReqMsg => logChatMessage(msg)
-      case m: DeleteGroupChatMessageReqMsg => logChatMessage(msg)
+      case m: SendGroupChatMessageReactionReqMsg => logChatMessage(msg)
+      case m: DeleteGroupChatMessageReactionReqMsg => logChatMessage(msg)
       case m: GroupChatMessageBroadcastEvtMsg => logChatMessage(msg)
       case m: GetGroupChatMsgsReqMsg => logChatMessage(msg)
       case m: GetGroupChatMsgsRespMsg => logChatMessage(msg)

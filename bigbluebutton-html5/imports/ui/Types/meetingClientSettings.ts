@@ -1,3 +1,5 @@
+import type { TrackPublishOptions } from 'livekit-client';
+
 export interface MeetingClientSettings {
   public: Public
   private: Private
@@ -99,6 +101,7 @@ export interface App {
   disableWebsocketFallback: boolean
   maxMutationPayloadSize: number
   enableApolloDevTools: boolean
+  terminateAndRetryConnection: number
 }
 
 export interface BbbTabletApp {
@@ -608,22 +611,38 @@ export interface Media {
   sdpSemantics: string
   localEchoTest: LocalEchoTest
   muteAudioOutputWhenAway: boolean
+  livekit: LiveKitSettings
+}
+
+export interface LiveKitCameraSettings {
+  publishOptions?: TrackPublishOptions
+}
+
+export interface LiveKitScreenShareSettings {
+  publishOptions?: TrackPublishOptions
+}
+
+export interface LiveKitAudioSettings {
+  publishOptions?: TrackPublishOptions
+  unpublishOnMute?: boolean
+}
+
+export interface LiveKitSettings {
+  url?: string
+  audio?: LiveKitAudioSettings
+  camera?: LiveKitCameraSettings
+  screenshare?: LiveKitScreenShareSettings
 }
 
 export interface Audio2 {
   defaultFullAudioBridge: string
   defaultListenOnlyBridge: string
-  bridges: Bridge[]
   retryThroughRelay: boolean
+  allowAudioJoinCancel: boolean
 }
 
 export interface Screenshare2 {
   showButtonForNonPresenters: boolean
-}
-
-export interface Bridge {
-  name: string
-  path: string
 }
 
 export interface LocalEchoTest {
@@ -697,6 +716,7 @@ export interface Whiteboard {
   pointerDiameter: number
   maxStickyNoteLength: number
   maxNumberOfAnnotations: number
+  maxNumberOfActiveUsers: number
   annotations: Annotations
   allowInfiniteWhiteboard: boolean
   allowInfiniteWhiteboardInBreakouts: boolean

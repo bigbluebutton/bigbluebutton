@@ -29,8 +29,10 @@ interface ChatMessageReactionsProps {
       userId: string;
     };
   }[];
-  sendReaction(reactionEmoji: string, reactionEmojiId: string): void;
-  deleteReaction(reactionEmoji: string, reactionEmojiId: string): void;
+  sendReaction(reactionEmoji: string, reactionEmojiId: string, chatId: string, messageId: string): void;
+  deleteReaction(reactionEmoji: string, reactionEmojiId: string, chatId: string, messageId: string): void;
+  chatId: string;
+  messageId: string;
 }
 
 type ReactionItem = {
@@ -46,64 +48,78 @@ const sortByCount = (r1: ReactionItem, r2: ReactionItem) => r2.count - r1.count;
 const sortByLeastRecent = (r1: ReactionItem, r2: ReactionItem) => r1.leastRecent - r2.leastRecent;
 
 const ChatMessageReactions: React.FC<ChatMessageReactionsProps> = (props) => {
-  const { reactions, sendReaction, deleteReaction } = props;
+  const {
+    reactions, sendReaction, deleteReaction, chatId, messageId,
+  } = props;
 
   const { data: currentUser } = useCurrentUser((u) => ({ userId: u.userId }));
   const intl = useIntl();
 
   if (reactions.length === 0) return null;
 
-  const reactionItems: Record<
-    string,
-    ReactionItem
-  > = {};
+  const reactionItems = reactions.reduce((previousValue, reaction) => {
+    const newValue = { ...previousValue };
+    const {
+      createdAt,
+      reactionEmoji,
+      reactionEmojiId,
+      user,
+    } = reaction;
 
-  reactions.forEach((reaction) => {
-    if (!reactionItems[reaction.reactionEmojiId]) {
-      const reactedByMe = reaction.user.userId === currentUser?.userId;
-      reactionItems[reaction.reactionEmojiId] = {
+    if (!newValue[reactionEmojiId]) {
+      const reactedByMe = user.userId === currentUser?.userId;
+      newValue[reactionEmojiId] = {
         count: 1,
-        userNames: reactedByMe ? [] : [reaction.user.name],
+        userNames: reactedByMe ? [] : [user.name],
         reactedByMe,
-        reactionEmoji: reaction.reactionEmoji,
-        reactionEmojiId: reaction.reactionEmojiId,
-        leastRecent: new Date(reaction.createdAt).getTime(),
+        reactionEmoji,
+        reactionEmojiId,
+        leastRecent: new Date(createdAt).getTime(),
       };
-      return;
+      return newValue;
     }
 
-    reactionItems[reaction.reactionEmojiId].count += 1;
-    if (reaction.user.userId === currentUser?.userId) {
-      reactionItems[reaction.reactionEmojiId].reactedByMe = true;
+    newValue[reactionEmojiId].count += 1;
+    if (user.userId === currentUser?.userId) {
+      newValue[reactionEmojiId].reactedByMe = true;
     } else {
-      reactionItems[reaction.reactionEmojiId].userNames.push(reaction.user.name);
+      newValue[reactionEmojiId].userNames.push(user.name);
     }
-  });
+
+    return newValue;
+  }, {} as Record<string, ReactionItem>);
 
   return (
     <Styled.ReactionsWrapper>
       {Object.values(reactionItems).sort(sortByLeastRecent).sort(sortByCount).map((details) => {
+        const {
+          count,
+          reactedByMe,
+          reactionEmoji,
+          reactionEmojiId,
+          userNames,
+        } = details;
         let label = intl.formatMessage(intlMessages.reactedBy);
-        if (details.userNames.length) {
-          const users = details.userNames.join(', ');
+        if (userNames.length) {
+          const users = userNames.join(', ');
           label += ` ${users}`;
 
-          if (details.reactedByMe) {
+          if (reactedByMe) {
             label += ` ${intl.formatMessage(intlMessages.and)} ${intl.formatMessage(intlMessages.you)}`;
           }
-        } else if (details.reactedByMe) {
+        } else if (reactedByMe) {
           label += ` ${intl.formatMessage(intlMessages.you)}`;
         }
 
         return (
-          <TooltipContainer title={label}>
+          <TooltipContainer title={label} key={reactionEmojiId}>
             <Styled.EmojiWrapper
-              highlighted={details.reactedByMe}
+              highlighted={reactedByMe}
               onClick={() => {
-                if (details.reactedByMe) {
-                  deleteReaction(details.reactionEmoji, details.reactionEmojiId);
+                if (reactedByMe) {
+                  deleteReaction(reactionEmoji, reactionEmojiId, chatId, messageId);
                 } else {
-                  sendReaction(details.reactionEmoji, details.reactionEmojiId);
+                  sendReaction(reactionEmoji, reactionEmojiId, chatId, messageId);
                 }
               }}
             >
@@ -112,12 +128,12 @@ const ChatMessageReactions: React.FC<ChatMessageReactionsProps> = (props) => {
                   window.getComputedStyle(document.documentElement).fontSize,
                 )}
                 emoji={{
-                  id: details.reactionEmojiId,
-                  native: details.reactionEmoji,
+                  id: reactionEmojiId,
+                  native: reactionEmoji,
                 }}
-                native={details.reactionEmoji}
+                native={reactionEmoji}
               />
-              <span>{details.count}</span>
+              <span>{count}</span>
             </Styled.EmojiWrapper>
           </TooltipContainer>
         );

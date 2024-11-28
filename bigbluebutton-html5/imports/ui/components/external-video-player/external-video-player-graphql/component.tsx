@@ -77,7 +77,7 @@ interface ExternalVideoPlayerProps {
   isSidebarContentOpen: boolean;
   setPlayerKey: (key: string) => void;
   sendMessage: (event: string, data: {
-    rate: number;
+    rate: number | Promise<number>;
     time: number;
     state?: string;
   }) => void;
@@ -273,10 +273,13 @@ const ExternalVideoPlayer: React.FC<ExternalVideoPlayerProps> = ({
     playerRef.current?.seekTo(truncateTime(currentTime), 'seconds');
   };
 
-  const handleOnPlay = () => {
+  const handleOnPlay = async () => {
     setReactPlayerPlaying(true);
     if (isPresenter && !playing) {
-      const rate = playerRef.current?.getInternalPlayer()?.getPlaybackRate() as number ?? 1;
+      const internalPlayer = playerRef.current?.getInternalPlayer();
+      const rate = internalPlayer instanceof HTMLVideoElement
+        ? internalPlayer.playbackRate
+        : internalPlayer?.getPlaybackRate?.() ?? 1;
 
       const currentTime = played * duration;
       sendMessage('play', {
@@ -290,10 +293,18 @@ const ExternalVideoPlayer: React.FC<ExternalVideoPlayerProps> = ({
     }
   };
 
-  const handleOnStop = () => {
+  const handleOnStop = async () => {
     setReactPlayerPlaying(false);
     if (isPresenter && playing) {
-      const rate = playerRef.current?.getInternalPlayer()?.getPlaybackRate() as number ?? 1;
+      const internalPlayer = playerRef.current?.getInternalPlayer();
+      let rate = internalPlayer instanceof HTMLVideoElement
+        ? internalPlayer.playbackRate
+        : internalPlayer?.getPlaybackRate?.() ?? 1;
+
+      if (rate instanceof Promise) {
+        rate = await rate;
+      }
+
       const currentTime = playerRef.current?.getCurrentTime() ?? 0;
       sendMessage('stop', {
         rate,
@@ -312,6 +323,21 @@ const ExternalVideoPlayer: React.FC<ExternalVideoPlayerProps> = ({
 
     if (playing && isPresenter) {
       currentTime = playerRef.current?.getCurrentTime() || 0;
+    }
+  };
+
+  const handleOnSeek = async (seconds: number) => {
+    if (isPresenter) {
+      let rate = playerRef.current?.getInternalPlayer()?.getPlaybackRate() ?? 1;
+      if (rate instanceof Promise) {
+        rate = await rate;
+      }
+
+      sendMessage('seek', {
+        rate,
+        time: seconds,
+      });
+      playerRef.current?.seekTo(seconds, 'seconds');
     }
   };
 
@@ -380,6 +406,7 @@ const ExternalVideoPlayer: React.FC<ExternalVideoPlayerProps> = ({
           volume={volume}
           onStart={handleOnStart}
           onPlay={handleOnPlay}
+          onSeek={handleOnSeek}
           onDuration={handleDuration}
           onProgress={handleProgress}
           onPause={handleOnStop}
@@ -436,7 +463,9 @@ const ExternalVideoPlayerContainer: React.FC = () => {
 
   const [updateExternalVideo] = useMutation(EXTERNAL_VIDEO_UPDATE);
 
-  const sendMessage = (event: string, data: { rate: number; time: number; state?: string}) => {
+  const sendMessage = async (event: string, data: { rate: number | Promise<number>; time: number; state?: string }) => {
+    const resolvedRate = data.rate instanceof Promise ? await data.rate : data.rate;
+
     // don't re-send repeated update messages
     if (
       lastMessageRef.current.event === event
@@ -450,7 +479,7 @@ const ExternalVideoPlayerContainer: React.FC = () => {
       return;
     }
 
-    lastMessageRef.current = { ...data, event };
+    lastMessageRef.current = { ...data, event, rate: resolvedRate };
 
     // Use an integer for playing state
     // 0: stopped 1: playing
@@ -460,8 +489,8 @@ const ExternalVideoPlayerContainer: React.FC = () => {
     updateExternalVideo({
       variables: {
         status: event,
-        rate: data?.rate,
-        time: data?.time,
+        rate: resolvedRate,
+        time: data.time,
         state,
       },
     });

@@ -86,41 +86,55 @@ const ConnectionManager: React.FC<ConnectionManagerProps> = ({ children }): Reac
   const activeSocket = useRef<WebSocket>();
   const tsLastMessageRef = useRef<number>(0);
   const tsLastPingMessageRef = useRef<number>(0);
+  const terminateTimeoutRef = useRef<number>();
   const boundary = useRef(15_000);
   const [terminalError, setTerminalError] = React.useState<string | Error>('');
   const [MeetingSettings] = useMeetingSettings();
   const enableDevTools = MeetingSettings.public.app.enableApolloDevTools;
+  const terminateAndRetry = MeetingSettings.public.app.terminateAndRetryConnection ?? 30_000; // Default to 30 seconds
 
   useEffect(() => {
     BBBWeb.index().then(({ data }) => {
       setGraphqlUrl(data.graphqlWebsocketUrl);
     }).catch((error) => {
-      loadingContextInfo.setLoading(false, '');
+      loadingContextInfo.setLoading(false);
       throw new Error('Error fetching GraphQL URL: '.concat(error.message || ''));
     });
     logger.info('Fetching GraphQL URL');
-    loadingContextInfo.setLoading(true, '1/2');
+    loadingContextInfo.setLoading(true);
   }, []);
 
   useEffect(() => {
     const interval = setInterval(() => {
       const tsNow = Date.now();
-
       if (tsLastMessageRef.current !== 0 && tsLastPingMessageRef.current !== 0) {
         if ((tsNow - tsLastMessageRef.current > boundary.current) && connectionStatus.getServerIsResponding()) {
           connectionStatus.setServerIsResponding(false);
+          if (!terminateTimeoutRef.current) {
+            terminateTimeoutRef.current = window.setTimeout(() => {
+              // The apollo client will try to reconnect after the connection is terminated
+              // if the option to reconnect is true
+              apolloContextHolder.getLink().terminate();
+            }, terminateAndRetry);
+          }
         } else if ((tsNow - tsLastPingMessageRef.current > boundary.current) && connectionStatus.getPingIsComing()) {
           connectionStatus.setPingIsComing(false);
         }
 
         if (tsNow - tsLastMessageRef.current < boundary.current && !connectionStatus.getServerIsResponding()) {
           connectionStatus.setServerIsResponding(true);
+          clearTimeout(terminateTimeoutRef.current);
         } else if (tsNow - tsLastPingMessageRef.current < boundary.current && !connectionStatus.getPingIsComing()) {
           connectionStatus.setPingIsComing(true);
         }
       }
     }, 5_000);
-    return () => clearInterval(interval);
+    return () => {
+      clearInterval(interval);
+      if (terminateTimeoutRef.current !== undefined) {
+        clearTimeout(terminateTimeoutRef.current);
+      }
+    };
   }, []);
 
   useEffect(() => {
@@ -141,12 +155,12 @@ const ConnectionManager: React.FC<ConnectionManagerProps> = ({ children }): Reac
 
   useEffect(() => {
     logger.info('Connecting to GraphQL server');
-    loadingContextInfo.setLoading(true, '2/2');
+    loadingContextInfo.setLoading(true);
     if (graphqlUrl) {
       const urlParams = new URLSearchParams(window.location.search);
       const sessionToken = urlParams.get('sessionToken');
       if (!sessionToken) {
-        loadingContextInfo.setLoading(false, '');
+        loadingContextInfo.setLoading(false);
         throw new Error('Missing session token');
       }
       sessionStorage.setItem('sessionToken', sessionToken);
@@ -201,7 +215,7 @@ const ConnectionManager: React.FC<ConnectionManagerProps> = ({ children }): Reac
             }
 
             if (error && typeof error === 'object' && 'code' in error && error.code === 4403) {
-              loadingContextInfo.setLoading(false, '');
+              loadingContextInfo.setLoading(false);
               setTerminalError('Server refused the connection');
               return false;
             }
@@ -219,7 +233,7 @@ const ConnectionManager: React.FC<ConnectionManagerProps> = ({ children }): Reac
           on: {
             error: (error) => {
               logger.error('Graphql Client Error:', error);
-              loadingContextInfo.setLoading(false, '');
+              loadingContextInfo.setLoading(false);
               connectionStatus.setConnectedStatus(false);
               setErrorCounts((prev: number) => prev + 1);
             },
@@ -245,7 +259,7 @@ const ConnectionManager: React.FC<ConnectionManagerProps> = ({ children }): Reac
                 // message ID -1 as a signal to terminate the session
                 // it contains a prop message.messageId which can be used to show a proper error to the user
                 logger.error({ logCode: 'graphql_server_closed_connection', extraInfo: message }, 'Graphql Server closed the connection');
-                loadingContextInfo.setLoading(false, '');
+                loadingContextInfo.setLoading(false);
                 const payload = message.payload as ErrorPayload[];
                 if (payload[0].messageId) {
                   setTerminalError(new Error(payload[0].message, { cause: payload[0].messageId }));
@@ -263,12 +277,12 @@ const ConnectionManager: React.FC<ConnectionManagerProps> = ({ children }): Reac
         );
         wsLink = ApolloLink.from([payloadSizeCheckLink, errorLink, graphWsLink]);
         wsLink.setOnError((error) => {
-          loadingContextInfo.setLoading(false, '');
+          loadingContextInfo.setLoading(false);
           throw new Error('Error: on apollo connection'.concat(JSON.stringify(error) || ''));
         });
         apolloContextHolder.setLink(subscription);
       } catch (error) {
-        loadingContextInfo.setLoading(false, '');
+        loadingContextInfo.setLoading(false);
         throw new Error('Error creating WebSocketLink: '.concat(JSON.stringify(error) || ''));
       }
       let client;
@@ -281,7 +295,7 @@ const ConnectionManager: React.FC<ConnectionManagerProps> = ({ children }): Reac
         setApolloClient(client);
         apolloContextHolder.setClient(client);
       } catch (error) {
-        loadingContextInfo.setLoading(false, '');
+        loadingContextInfo.setLoading(false);
         throw new Error('Error creating Apollo Client: '.concat(JSON.stringify(error) || ''));
       }
     }
