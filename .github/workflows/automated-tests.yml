@@ -274,7 +274,7 @@ jobs:
           sudo -i <<'EOF'
           set -e
           cd /root/
-          wget -nv https://raw.githubusercontent.com/bigbluebutton/bbb-install/ubuntu-version-of-postgres/bbb-install.sh -O bbb-install.sh
+          wget -nv https://raw.githubusercontent.com/bigbluebutton/bbb-install/v3.0.x-release/bbb-install.sh -O bbb-install.sh
           sed -i "s|> /etc/apt/sources.list.d/bigbluebutton.list||g" bbb-install.sh
           chmod +x bbb-install.sh
 
