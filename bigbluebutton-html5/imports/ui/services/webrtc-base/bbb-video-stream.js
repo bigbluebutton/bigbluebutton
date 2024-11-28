@@ -73,6 +73,10 @@ export default class BBBVideoStream extends EventEmitter2 {
     return this._virtualBgService;
   }
 
+  inactivationHandler() {
+    this.emit('inactive', { id: this.mediaStream.id });
+  }
+
   _trackOriginalStreamTermination() {
     const notify = ({ id }) => {
       this.emit('inactive', { id });

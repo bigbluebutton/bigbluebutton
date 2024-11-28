@@ -244,9 +244,9 @@ const Whiteboard = React.memo((props) => {
   React.useEffect(() => {
     if (shapes && Object.keys(shapes).length > 0) {
       prevShapesRef.current = shapes;
+      const remoteShapesArray = Object.values(shapes).map((shape) => sanitizeShape(shape));
       tlEditorRef.current?.store.mergeRemoteChanges(() => {
-        const shapesArray = Object.values(prevShapesRef.current).map((shape) => sanitizeShape(shape));
-        tlEditorRef.current?.store?.put(shapesArray);
+        tlEditorRef.current?.store.put(remoteShapesArray);
       });
     }
   }, [shapes]);
@@ -361,7 +361,7 @@ const Whiteboard = React.memo((props) => {
       return;
     }
 
-    if (key === 'delete') {
+    if (['delete', 'backspace'].includes(key.toLowerCase())) {
       handleCut(false);
       return;
     }
@@ -807,14 +807,18 @@ const Whiteboard = React.memo((props) => {
         },
       ];
 
+      const hasShapes = shapes && Object.keys(shapes).length > 0;
+      const remoteShapesArray = hasShapes 
+        ? Object.values(shapes).map((shape) => sanitizeShape(shape))
+        : [];
+
       editor.store.mergeRemoteChanges(() => {
         editor.batch(() => {
           editor.store.put(pages);
           editor.store.put(assets);
           editor.setCurrentPage(`page:${curPageIdRef.current}`);
           editor.store.put(bgShape);
-          if (shapes && Object.keys(shapes).length > 0) {
-            const remoteShapesArray = Object.values(shapes).map((shape) => sanitizeShape(shape));
+          if (hasShapes) {
             editor.store.put(remoteShapesArray);
           }
           editor.history.clear();
@@ -1508,6 +1512,7 @@ const Whiteboard = React.memo((props) => {
       meetingClientSettingsInitialValues.public.whiteboard.toolbar.multiUserTools,
     );
     const allElements = document.querySelectorAll('[data-testid^="tools."]');
+    const actionsElement = document.querySelector('[data-testid="main.action-menu"]');
 
     if (bbbMultiUserTools.length >= 1 && !isModerator) {
       allElements.forEach((element) => {
@@ -1518,6 +1523,12 @@ const Whiteboard = React.memo((props) => {
           element.style.display = 'none';
         }
       });
+
+      if (actionsElement) {
+        if (!bbbMultiUserTools.includes('actions')) {
+          actionsElement.style.display = 'none';
+        }
+      }
     }
   // TODO: we should add the dependency  list in [] parameter here
   // so this is not run on every render
@@ -1529,6 +1540,7 @@ const Whiteboard = React.memo((props) => {
       meetingClientSettingsInitialValues.public.whiteboard.toolbar.presenterTools,
     );
     const allElements = document.querySelectorAll('[data-testid^="tools."]');
+    const actionsElement = document.querySelector('[data-testid="main.action-menu"]');
 
     if (bbbPresenterTools.length >= 1 && isPresenter) {
       allElements.forEach((element) => {
@@ -1539,6 +1551,12 @@ const Whiteboard = React.memo((props) => {
           element.style.display = 'none';
         }
       });
+
+      if (actionsElement) {
+        if (!bbbPresenterTools.includes('actions')) {
+          actionsElement.style.display = 'none';
+        }
+      }
     }
   // TODO: we should add the dependency  list in [] parameter here
   // so this is not run on every render
@@ -1550,6 +1568,7 @@ const Whiteboard = React.memo((props) => {
       false,
     );
     const allElements = document.querySelectorAll('[data-testid^="tools."]');
+    const actionsElement = document.querySelector('[data-testid="main.action-menu"]');
 
     if (bbbMultiUserPenOnly && !isModerator && !isPresenter) {
       allElements.forEach((element) => {
@@ -1559,6 +1578,10 @@ const Whiteboard = React.memo((props) => {
         // eslint-disable-next-line no-param-reassign
         element.style.display = displayStyle;
       });
+
+      if (actionsElement) {
+        actionsElement.style.display = 'none';
+      }
     }
   // TODO: we should add the dependency  list in [] parameter here
   // so this is not run on every render
