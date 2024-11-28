@@ -275,7 +275,7 @@ const WhiteboardContainer = (props) => {
     if (curPageIdRef.current) {
       refetchInitialPageAnnotations();
     }
-  }, [curPageIdRef.current]);
+  }, [curPageIdRef.current, presentationId]);
 
   const processAnnotations = (data) => {
     let annotationsToBeRemoved = [];
