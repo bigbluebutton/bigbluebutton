@@ -531,7 +531,19 @@ const ChatMessageForm: React.FC<ChatMessageFormProps> = ({
 
     const handleMentionSelect = useCallback((user: { userId: string; name: string }) => {
       if (!mention) return;
-      setMessage((msg) => msg.replace(mention[0], `[@${user.name}](bbb://${user.userId})`));
+      setMessage((msg) => msg.replace(MENTION_REGEX, (match, _group, offset) => {
+        const txtArea = textAreaRef.current?.textarea;
+        if (txtArea) {
+          const { selectionStart } = txtArea;
+          const matchStartPosition = offset;
+          const matchEndPosition = offset + match.length;
+          if (selectionStart >= matchStartPosition && selectionStart <= matchEndPosition) {
+            const replaceValue = `[@${user.name}](bbb://${user.userId})`;
+            return replaceValue;
+          }
+        }
+        return match;
+      }));
       setMention(undefined);
     }, [mention]);
 
