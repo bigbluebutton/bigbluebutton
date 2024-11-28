@@ -31,9 +31,10 @@ interface BBBLiveKitRoomProps {
 
 interface ObserverProps {
   room: Room;
+  url?: string;
 }
 
-const LiveKitObserver = ({ room }: ObserverProps) => {
+const LiveKitObserver = ({ room, url }: ObserverProps) => {
   const { localParticipant } = useLocalParticipant();
   const [setUserTalking] = useMutation(USER_SET_TALKING);
   const isSpeaking = useIsSpeaking(localParticipant);
@@ -47,7 +48,7 @@ const LiveKitObserver = ({ room }: ObserverProps) => {
       logCode: 'livekit_conn_state_changed',
       extraInfo: {
         connectionState,
-        serverInfo: room.serverInfo,
+        url,
       },
     }, `LiveKit conn state changed: ${connectionState}`);
   }, [connectionState]);
@@ -120,8 +121,8 @@ const BBBLiveKitRoom: React.FC<BBBLiveKitRoomProps> = (props) => {
       room={liveKitRoom}
       style={{ zIndex: 0, height: 'initial', width: 'initial' }}
     >
+      <LiveKitObserver room={liveKitRoom} url={url} />
       <RoomAudioRenderer />
-      <LiveKitObserver room={liveKitRoom} />
     </LiveKitRoom>
   );
 };
@@ -131,9 +132,8 @@ const BBBLiveKitRoomContainer: React.FC = () => {
     livekit: u.livekit,
   }));
   const [meetingSettings] = useMeetingSettings();
-  const { url } = meetingSettings.public.media.livekit || {
-    url: `wss://${window.location.hostname}/livekit`,
-  };
+  const url = meetingSettings.public.media?.livekit?.url
+    || `wss://${window.location.hostname}/livekit`;
   const { data: bridges } = useMeeting((m) => ({
     cameraBridge: m.cameraBridge,
     screenShareBridge: m.screenShareBridge,

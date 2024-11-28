@@ -38,9 +38,9 @@ export const setBridge = (bridgeName) => {
     logCode: 'screenshare_bridge_set',
     extraInfo: {
       targetBridge: bridgeName,
-      bridge: screenShareBridge?.constructor?.name,
+      bridge: screenShareBridge?.bridgeName,
     },
-  }, `Screenshare bridge set to ${screenShareBridge?.constructor?.name}`);
+  }, `Screenshare bridge set to ${screenShareBridge?.bridgeName}`);
 
   return screenShareBridge;
 };
