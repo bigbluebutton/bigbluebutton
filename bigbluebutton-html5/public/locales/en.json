@@ -682,6 +682,7 @@
     "app.actionsBar.actionsDropdown.presentationLabel": "Upload/Manage presentations",
     "app.actionsBar.actionsDropdown.initPollLabel": "Initiate a poll",
     "app.actionsBar.actionsDropdown.desktopShareLabel": "Share your screen",
+    "app.actionsBar.actionsDropdown.lockedDesktopShareLabel": "Screenshare locked",
     "app.actionsBar.actionsDropdown.lockedDesktopShareDesc": "Screenshare locked",
     "app.actionsBar.actionsDropdown.notPresenterDesktopShareLabel": "You must be a presenter to share your screen",
     "app.actionsBar.actionsDropdown.notPresenterDesktopShareDesc": "You must be a presenter to share your screen",
