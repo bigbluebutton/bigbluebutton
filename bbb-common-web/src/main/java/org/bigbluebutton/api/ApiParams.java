@@ -50,6 +50,9 @@ public class ApiParams {
     public static final String WELCOME_MESSAGE_FOR_MODERATORS = "welcomeMessageForModerators";
     public static final String MODERATOR_PW = "moderatorPW";
     public static final String MUTE_ON_START = "muteOnStart";
+    public static final String CAMERA_BRIDGE = "cameraBridge";
+    public static final String SCREEN_SHARE_BRIDGE = "screenShareBridge";
+    public static final String AUDIO_BRIDGE = "audioBridge";
     public static final String MEETING_KEEP_EVENTS = "meetingKeepEvents";
     public static final String ALLOW_MODS_TO_UNMUTE_USERS = "allowModsToUnmuteUsers";
     public static final String ALLOW_REQUESTS_WITHOUT_SESSION = "allowRequestsWithoutSession";

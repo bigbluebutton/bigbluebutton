@@ -99,6 +99,9 @@ public class ParamsProcessorUtil {
     private boolean defaultMuteOnStart = false;
     private boolean defaultAllowModsToUnmuteUsers = false;
     private boolean defaultAllowModsToEjectCameras = false;
+    private String defaultCameraBridge = "bbb-webrtc-sfu";
+    private String defaultScreenShareBridge = "bbb-webrtc-sfu";
+    private String defaultAudioBridge = "bbb-webrtc-sfu";
     private String defaultDisabledFeatures;
     private String defaultPluginManifests;
     private boolean defaultNotifyRecordingIsOn = false;
@@ -704,6 +707,21 @@ public class ParamsProcessorUtil {
           }
         }
 
+        String cameraBridge = defaultCameraBridge;
+        if (!StringUtils.isEmpty(params.get(ApiParams.CAMERA_BRIDGE))) {
+            cameraBridge = params.get(ApiParams.CAMERA_BRIDGE);
+        }
+
+        String screenShareBridge = defaultScreenShareBridge;
+        if (!StringUtils.isEmpty(params.get(ApiParams.SCREEN_SHARE_BRIDGE))) {
+            screenShareBridge = params.get(ApiParams.SCREEN_SHARE_BRIDGE);
+        }
+
+        String audioBridge = defaultAudioBridge;
+        if (!StringUtils.isEmpty(params.get(ApiParams.AUDIO_BRIDGE))) {
+            audioBridge = params.get(ApiParams.AUDIO_BRIDGE);
+        }
+
         Integer meetingExpireIfNoUserJoinedInMinutes = defaultMeetingExpireIfNoUserJoinedInMinutes;
         if (!StringUtils.isEmpty(params.get(ApiParams.MEETING_EXPIRE_IF_NO_USER_JOINED_IN_MINUTES))) {
             try {
@@ -837,6 +855,9 @@ public class ParamsProcessorUtil {
                 .withMeetingCameraCap(meetingCameraCap)
                 .withUserCameraCap(userCameraCap)
                 .withMaxPinnedCameras(maxPinnedCameras)
+                .withCameraBridge(cameraBridge)
+                .withScreenShareBridge(screenShareBridge)
+                .withAudioBridge(audioBridge)
                 .withMetadata(meetingInfo)
                 .withWelcomeMessageTemplate(welcomeMessageTemplate)
                 .withWelcomeMessage(welcomeMessage)
@@ -1472,6 +1493,30 @@ public class ParamsProcessorUtil {
 	public Boolean getMuteOnStart() {
 		return defaultMuteOnStart;
 	}
+
+  public void setCameraBridge(String cameraBridge) {
+    defaultCameraBridge = cameraBridge;
+  }
+
+  public String getCameraBridge() {
+    return defaultCameraBridge;
+  }
+
+  public void setScreenShareBridge(String screenShareBridge) {
+    defaultScreenShareBridge = screenShareBridge;
+  }
+
+  public String getScreenShareBridge() {
+    return defaultScreenShareBridge;
+  }
+
+  public void setAudioBridge(String audioBridge) {
+    defaultAudioBridge = audioBridge;
+  }
+
+  public String getAudioBridge() {
+    return defaultAudioBridge;
+  }
 
 	public void setDefaultKeepEvents(Boolean mke) {
 		defaultKeepEvents = mke;

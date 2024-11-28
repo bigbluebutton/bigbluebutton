@@ -1,5 +1,4 @@
 // @ts-nocheck
-/* eslint-disable */
 import React, { Component } from 'react';
 import ReconnectingWebSocket from 'reconnecting-websocket';
 import { IntlShape, defineMessages, injectIntl } from 'react-intl';
@@ -15,14 +14,9 @@ import { notifyStreamStateChange } from '/imports/ui/services/bbb-webrtc-sfu/str
 import VideoPreviewService from '/imports/ui/components/video-preview/service';
 import MediaStreamUtils from '/imports/utils/media-stream-utils';
 import BBBVideoStream from '/imports/ui/services/webrtc-base/bbb-video-stream';
-import {
-  EFFECT_TYPES,
-  getSessionVirtualBackgroundInfo,
-} from '/imports/ui/services/virtual-background/service';
-import { notify } from '/imports/ui/services/notification';
 import { shouldForceRelay } from '/imports/ui/services/bbb-webrtc-sfu/utils';
 import WebRtcPeer from '/imports/ui/services/webrtc-base/peer';
-import { StreamItem, VideoItem } from './types';
+import { VideoItem } from './types';
 import { Output } from '/imports/ui/components/layout/layoutTypes';
 import { VIDEO_TYPES } from './enums';
 
@@ -102,10 +96,6 @@ interface VideoProviderProps {
   handleVideoFocus: (id: string) => void;
   isGridEnabled: boolean;
   isClientConnected: boolean;
-  swapLayout: boolean;
-  currentUserId: string;
-  paginationEnabled: boolean;
-  viewParticipantsWebcams: boolean;
   totalNumberOfStreams: number;
   isUserLocked: boolean;
   currentVideoPageIndex: number;
@@ -166,7 +156,7 @@ class VideoProvider extends Component<VideoProviderProps, VideoProviderState> {
 
   private webRtcPeers: Record<string, WebRtcPeer>;
 
-  private debouncedConnectStreams: Function;
+  private debouncedConnectStreams: (streamsToConnect: string[]) => void;
 
   private ws: ReconnectingWebSocket | null = null;
 
@@ -322,7 +312,7 @@ class VideoProvider extends Component<VideoProviderProps, VideoProviderState> {
         reconnectOnFailure: true,
       },
     } = window.meetingClientSettings.public.kurento.cameraWsOptions;
-    
+
     if (WS_HEARTBEAT_OPTS.interval === 0 || this.ws == null || this.ws.wsHeartbeat) return;
 
     this.ws.isAlive = true;
@@ -397,7 +387,7 @@ class VideoProvider extends Component<VideoProviderProps, VideoProviderState> {
     const {
       maxRetries: WS_MAX_RETRIES = 5,
     } = window.meetingClientSettings.public.kurento.cameraWsOptions;
-    
+
     const { exitVideo } = this.props;
     logger.info({
       logCode: 'video_provider_onwsclose',
@@ -455,8 +445,8 @@ class VideoProvider extends Component<VideoProviderProps, VideoProviderState> {
     } = window.meetingClientSettings.public.kurento.cameraQualityThresholds;
 
     const { applyCameraProfile } = this.props;
-    
     const { threshold, profile } = VideoService.getThreshold(numberOfPublishers);
+
     if (profile) {
       const privilegedStreams = this.findAllPrivilegedStreams();
       Object.values(this.webRtcPeers)
@@ -466,26 +456,11 @@ class VideoProvider extends Component<VideoProviderProps, VideoProviderState> {
           // 1) Threshold 0 means original profile/inactive constraint
           // 2) Privileged streams
           const exempt = threshold === 0
-            || (CAMERA_QUALITY_THR_PRIVILEGED && privilegedStreams.some(vs => vs.stream === peer.stream))
+            || (CAMERA_QUALITY_THR_PRIVILEGED && privilegedStreams.some((vs) => vs.stream === peer.stream));
           const profileToApply = exempt ? peer.originalProfileId : profile;
           applyCameraProfile(peer, profileToApply);
         });
     }
-  }
-
-  getStreamsToConnectAndDisconnect(streams: VideoItem[]) {
-    const streamsCameraIds = streams.filter((s) => s?.type !== VIDEO_TYPES.GRID).map((s) => (s as StreamItem).stream);
-    const streamsConnected = Object.keys(this.webRtcPeers);
-
-    const streamsToConnect = streamsCameraIds.filter((stream) => {
-      return !streamsConnected.includes(stream);
-    });
-
-    const streamsToDisconnect = streamsConnected.filter((stream) => {
-      return !streamsCameraIds.includes(stream);
-    });
-
-    return [streamsToConnect, streamsToDisconnect];
   }
 
   connectStreams(streamsToConnect: string[]) {
@@ -500,7 +475,11 @@ class VideoProvider extends Component<VideoProviderProps, VideoProviderState> {
   }
 
   updateStreams(streams: VideoItem[], shouldDebounce = false) {
-    const [streamsToConnect, streamsToDisconnect] = this.getStreamsToConnectAndDisconnect(streams);
+    const connectedStreamIds = Object.keys(this.webRtcPeers);
+    const [
+      streamsToConnect,
+      streamsToDisconnect,
+    ] = VideoService.getStreamsToConnectAndDisconnect(streams, connectedStreamIds);
 
     if (shouldDebounce) {
       this.debouncedConnectStreams(streamsToConnect);
@@ -513,7 +492,7 @@ class VideoProvider extends Component<VideoProviderProps, VideoProviderState> {
     const {
       enabled: CAMERA_QUALITY_THRESHOLDS_ENABLED = true,
     } = window.meetingClientSettings.public.kurento.cameraQualityThresholds;
-    
+
     if (CAMERA_QUALITY_THRESHOLDS_ENABLED) {
       const { totalNumberOfStreams } = this.props;
       this.updateQualityThresholds(totalNumberOfStreams);
@@ -563,7 +542,7 @@ class VideoProvider extends Component<VideoProviderProps, VideoProviderState> {
     }
   }
 
-  sendLocalAnswer (peer: WebRtcPeer, stream: string, answer) {
+  sendLocalAnswer(peer: WebRtcPeer, stream: string, answer) {
     const message = {
       id: 'subscriberAnswer',
       type: 'video',
@@ -695,7 +674,7 @@ class VideoProvider extends Component<VideoProviderProps, VideoProviderState> {
               role: VideoService.getRole(peer?.isPublisher),
             },
           }, `ICE restart failed for camera ${stream}`);
-          this._onWebRTCError(
+          this.onWebRTCError(
             new Error('iceConnectionStateError'),
             stream,
             VideoService.isLocalStream(stream),
@@ -794,6 +773,7 @@ class VideoProvider extends Component<VideoProviderProps, VideoProviderState> {
         let bbbVideoStream = VideoService.getPreloadedStream();
 
         if (bbbVideoStream) {
+          // eslint-disable-next-line no-param-reassign
           peerOptions.videoStream = bbbVideoStream.mediaStream;
         }
 
@@ -960,7 +940,7 @@ class VideoProvider extends Component<VideoProviderProps, VideoProviderState> {
     const {
       maxTimeout: MAX_CAMERA_SHARE_FAILED_WAIT_TIME = 60000,
     } = window.meetingClientSettings.public.kurento.cameraTimeouts || {};
-    
+
     return () => {
       const role = VideoService.getRole(isLocal);
       if (!isLocal) {
@@ -1052,13 +1032,12 @@ class VideoProvider extends Component<VideoProviderProps, VideoProviderState> {
   }
 
   setReconnectionTimeout(stream: string, isLocal: boolean, isEstablishedConnection: boolean) {
-    const peer = this.webRtcPeers[stream];
     const shouldSetReconnectionTimeout = !this.restartTimeout[stream] && !isEstablishedConnection;
 
     const {
       baseTimeout: CAMERA_SHARE_FAILED_WAIT_TIME = 15000,
     } = window.meetingClientSettings.public.kurento.cameraTimeouts || {};
-    
+
     // This is an ongoing reconnection which succeeded in the first place but
     // then failed mid call. Try to reconnect it right away. Clear the restart
     // timers since we don't need them in this case.
@@ -1076,7 +1055,7 @@ class VideoProvider extends Component<VideoProviderProps, VideoProviderState> {
 
       this.restartTimeout[stream] = setTimeout(
         this.getWebRTCStartTimeout(stream, isLocal),
-        this.restartTimer[stream]
+        this.restartTimer[stream],
       );
     }
     return null;
@@ -1213,6 +1192,7 @@ class VideoProvider extends Component<VideoProviderProps, VideoProviderState> {
     if (peer && videoElement) {
       const stream = peer.isPublisher ? peer.getLocalStream() : peer.getRemoteStream();
       videoElement.pause();
+      // eslint-disable-next-line no-param-reassign
       videoElement.srcObject = stream;
       videoElement.load();
     }
@@ -1224,7 +1204,6 @@ class VideoProvider extends Component<VideoProviderProps, VideoProviderState> {
 
   attachVideoStream(stream: string) {
     const videoElement = this.getVideoElement(stream);
-    const isLocal = VideoService.isLocalStream(stream);
     const peer = this.webRtcPeers[stream];
 
     if (VideoProvider.shouldAttachVideoStream(peer, videoElement)) {
@@ -1239,32 +1218,17 @@ class VideoProvider extends Component<VideoProviderProps, VideoProviderState> {
     }
   }
 
-  startVirtualBackgroundByDrop(stream: string, type: string, name: string, data: string) {
-    return new Promise((resolve, reject) => {
+  async startVirtualBackgroundByDrop(stream: string, type: string, name: string, data: string) {
+    try {
       const peer = this.webRtcPeers[stream];
       const { bbbVideoStream } = peer;
-      const video = this.getVideoElement(stream);
+      await VideoService.startVirtualBackground(bbbVideoStream, type, name, data);
+    } catch (error) {
+      const { intl } = this.props;
+      const errorLocale = intlClientErrors.virtualBgGenericError;
 
-      if (peer && video && video.srcObject) {
-        bbbVideoStream.startVirtualBackground(type, name, { file: data })
-          .then(resolve)
-          .catch(reject);
-      }
-    }).catch((error) => {
-      VideoProvider.handleVirtualBgErrorByDropping(error, type, name);
-    });
-  }
-
-  static handleVirtualBgErrorByDropping(error: Error, type: string, name: string) {
-    logger.error({
-      logCode: 'video_provider_virtualbg_error',
-      extraInfo: {
-        errorName: error.name,
-        errorMessage: error.message,
-        virtualBgType: type,
-        virtualBgName: name,
-      },
-    }, `Failed to start virtual background by dropping image: ${error.message}`);
+      if (errorLocale) VideoService.notify(intl.formatMessage(errorLocale));
+    }
   }
 
   createVideoTag(stream: string, video: HTMLVideoElement) {
@@ -1404,7 +1368,6 @@ class VideoProvider extends Component<VideoProviderProps, VideoProviderState> {
 
   render() {
     const {
-      swapLayout,
       currentVideoPageIndex,
       streams,
       cameraDock,
@@ -1417,7 +1380,6 @@ class VideoProvider extends Component<VideoProviderProps, VideoProviderState> {
       <VideoListContainer
         {...{
           streams,
-          swapLayout,
           currentVideoPageIndex,
           cameraDock,
           focusedId,

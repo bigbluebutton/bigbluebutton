@@ -278,6 +278,10 @@ In BigBlueButton 2.6.18/2.7.8 POST requests are no longer allowed for the `join`
 
 We improved the documentation for which types of files we support when uploading presentations. Support for `.odi` and `.odc` was dropped. Support for `.svg`, `.odg` and `.webp` was officially added even though animated webp's are no longer animated after the image processing. 
 
+#### We mirror the webcam preview by default now
+
+We have supported the option to mirror your own webcam while viewing it. Starting with BigBlueButton 3.0.0-beta.6 we mirror it by default (which leads to the same result you would expect if you looked yourself in a physical mirror).
+
 ### Development
 
 For information on developing in BigBlueButton, see [setting up a development environment for 3.0](/development/guide).

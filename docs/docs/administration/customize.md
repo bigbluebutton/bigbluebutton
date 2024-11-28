@@ -1337,6 +1337,10 @@ defaultGuestPolicy=ALWAYS_ACCEPT
 
 Ensure that the parameter `displayBrandingArea` is set to `true` in bbb-html5's configuration, restart BigBlueButton server with `sudo bbb-conf --restart` and pass `logo=<image-url>` in Custom parameters when creating the meeting.
 
+### Changing the default logo
+
+To update the default logo, navigate to the `images` folder located at `/var/www/bigbluebutton-default/assets/images/`, and replace the `logo.png` file with your new logo.
+
 ## Other meeting configs available
 These configs can be set in `/etc/bigbluebutton/bbb-web.properties`
 
