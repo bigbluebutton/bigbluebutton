@@ -1,11 +1,11 @@
-import React from 'react';
+import React, { useCallback } from 'react';
 import TooltipContainer from '/imports/ui/components/common/tooltip/container';
 import { defineMessages, useIntl } from 'react-intl';
 import Icon from '/imports/ui/components/common/icon/component';
-import { PANELS, ACTIONS } from '../../layout/enums';
-import { layoutDispatch, layoutSelectInput } from '/imports/ui/components/layout/context';
-import { Input } from '/imports/ui/components/layout/layoutTypes';
+import LearningDashboardService from '/imports/ui/components/learning-dashboard/service';
 import Styled from '../styles';
+import useMeeting from '/imports/ui/core/hooks/useMeeting';
+import { Meeting } from '/imports/ui/Types/meeting';
 
 const intlMessages = defineMessages({
   learningDashboardLabel: {
@@ -15,24 +15,14 @@ const intlMessages = defineMessages({
 });
 
 const LearningDashboardListItem = () => {
-  const CURRENT_PANEL = PANELS.LEARNING_DASHBOARD;
   const intl = useIntl();
-  const layoutContextDispatch = layoutDispatch();
-  const sidebarContent = layoutSelectInput((i: Input) => i.sidebarContent);
-  const { sidebarContentPanel } = sidebarContent;
+  const { data: meetingInfo } = useMeeting((meeting: Partial<Meeting>) => ({
+    learningDashboardAccessToken: meeting.learningDashboardAccessToken,
+  }));
 
-  const toggleLearningDashboardPanel = () => {
-    layoutContextDispatch({
-      type: ACTIONS.SET_SIDEBAR_CONTENT_IS_OPEN,
-      value: sidebarContentPanel !== CURRENT_PANEL,
-    });
-    layoutContextDispatch({
-      type: ACTIONS.SET_SIDEBAR_CONTENT_PANEL,
-      value: sidebarContentPanel === CURRENT_PANEL
-        ? PANELS.NONE
-        : CURRENT_PANEL,
-    });
-  };
+  const toggleLearningDashboardPanel = useCallback(() => {
+    LearningDashboardService.openLearningDashboardUrl(intl.locale, meetingInfo?.learningDashboardAccessToken);
+  }, [intl, meetingInfo]);
 
   const label = intl.formatMessage(intlMessages.learningDashboardLabel);
 
@@ -45,7 +35,7 @@ const LearningDashboardListItem = () => {
         id="learning-dashboard-toggle-button"
         aria-label={label}
         aria-describedby="learningDashboard"
-        active={sidebarContentPanel === CURRENT_PANEL}
+        active={false}
         role="button"
         tabIndex={0}
         data-test="learningDashboardSidebarButton"
