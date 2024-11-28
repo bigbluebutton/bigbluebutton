@@ -457,7 +457,7 @@ const PresentationMenu = (props) => {
   }
 
   return (
-    <Styled.Left id="WhiteboardOptionButton">
+    <Styled.Right id="WhiteboardOptionButton">
       <BBBMenu
         trigger={(
           <TooltipContainer title={intl.formatMessage(intlMessages.optionsLabel)}>
@@ -493,7 +493,7 @@ const PresentationMenu = (props) => {
         style={{ display: 'none' }}
         onChange={handleFileInput}
       />
-    </Styled.Left>
+    </Styled.Right>
   );
 };
 
