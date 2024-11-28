@@ -45,7 +45,7 @@ import ChatMentionPicker, { ChatMentionPickerRef } from './chat-mention-picker/c
 
 const CLOSED_CHAT_LIST_KEY = 'closedChatList';
 const START_TYPING_THROTTLE_INTERVAL = 1000;
-const MENTION_REGEX = /@([^\s@]*)/gi;
+const MENTION_REGEX = /@([^@]*)/gi;
 
 interface ChatMessageFormProps {
   minMessageLength: number,
