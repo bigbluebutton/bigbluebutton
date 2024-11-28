@@ -1150,7 +1150,6 @@ const Whiteboard = React.memo((props) => {
     tlEditor,
     curPageId,
     isWheelZoomRef.current,
-    // fitToWidth
   ]);
 
   React.useEffect(() => {
