@@ -26,6 +26,9 @@ create table "meeting" (
 	"disabledFeatures" varchar[],
 	"meetingCameraCap" integer,
 	"maxPinnedCameras" integer,
+	"cameraBridge" varchar(30),
+	"screenShareBridge" varchar(30),
+	"audioBridge" varchar(30),
 	"notifyRecordingIsOn" boolean,
 	"presentationUploadExternalDescription" text,
 	"presentationUploadExternalUrl" text,
@@ -283,6 +286,7 @@ CREATE TABLE "user" (
     "registeredOn" bigint,
     "excludeFromDashboard" bool,
     "enforceLayout" varchar(50),
+    "logoutUrl" varchar(500),
     --columns of user state below
     "raiseHand" bool default false,
     "raiseHandTime" timestamp with time zone,
@@ -473,6 +477,7 @@ AS SELECT "user"."userId",
     "user"."mobile",
     "user"."clientType",
     "user"."enforceLayout",
+    "user"."logoutUrl",
     "user"."isDialIn",
     "user"."role",
     "user"."authed",
@@ -2233,3 +2238,16 @@ select "meeting"."meetingId",
             where "v_caption_activeLocales"."meetingId" = "meeting"."meetingId"
         ) as "hasCaption"
 from "meeting";
+
+------------------------
+----LiveKit
+CREATE TABLE "user_livekit"(
+	"meetingId" varchar(100),
+	"userId" varchar(50),
+	"livekitToken" TEXT,
+	CONSTRAINT "user_livekit_pkey" PRIMARY KEY ("meetingId", "userId"),
+	FOREIGN KEY ("meetingId", "userId") REFERENCES "user"("meetingId","userId") ON DELETE CASCADE
+);
+
+CREATE INDEX "idx_user_livekit_token" ON "user_livekit"("livekitToken");
+CREATE VIEW "v_user_livekit" AS SELECT * FROM "user_livekit";

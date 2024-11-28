@@ -36,7 +36,7 @@ class Presentation extends MultiUsers {
 
     await this.modPage.waitAndClick(e.actions);
     await this.modPage.waitAndClick(e.shareCameraAsContent);
-    await this.modPage.hasElement(e.videoPreview, 'should display the camera preview when sharing camera as content');
+    await this.modPage.hasElement(e.webcamMirroredVideoPreview, 'should display the camera preview when sharing camera as content');
     await this.modPage.waitAndClick(e.startSharingWebcam);
     await this.modPage.hasElement(e.screenShareVideo);
     // close all notifications displayed before comparing screenshots

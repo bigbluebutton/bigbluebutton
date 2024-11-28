@@ -68,6 +68,10 @@ export interface userLockSettings {
   disablePublicChat: boolean;
 }
 
+export interface Livekit {
+  livekitToken: string;
+}
+
 export interface User {
   authToken: string;
   userId: string;
@@ -115,4 +119,5 @@ export interface User {
   raiseHand: boolean;
   breakoutRooms: BreakoutRooms;
   userLockSettings: userLockSettings;
+  livekit?: Livekit;
 }

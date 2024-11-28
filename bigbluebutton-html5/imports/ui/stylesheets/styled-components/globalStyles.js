@@ -106,6 +106,7 @@ const GlobalStyle = createGlobalStyle`
     flex: 1;
     background-color: inherit;
     max-width: 17.75rem !important;
+    background-color: ${colorWhite} !important;
   }
 
   @keyframes track-progress {
@@ -126,7 +127,7 @@ const GlobalStyle = createGlobalStyle`
     height: 5px;
     z-index: 999;
     animation: track-progress linear 1;
-    background-color: ${colorGrayLighter};
+    background-color: ${colorGrayLighter} !important;
     border-radius: ${borderRadius};
 
     [dir="rtl"] & {
