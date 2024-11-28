@@ -87,7 +87,7 @@ class Presentation extends PureComponent {
 
     const PAN_ZOOM_INTERVAL = window.meetingClientSettings.public.presentation.panZoomInterval || 200;
 
-    this.currentPresentationToastId = null;
+    this.currentPresentationToastId = 'currentPresentationToastId';
 
     this.getSvgRef = this.getSvgRef.bind(this);
     this.zoomChanger = debounce(this.zoomChanger.bind(this), 200);
@@ -264,22 +264,20 @@ class Presentation extends PureComponent {
         prevProps?.currentPresentationId !== currentPresentationId
         || (downloadableOn && !userIsPresenter)
       ) {
-        if (this.currentPresentationToastId) {
+        if (toast.isActive(this.currentPresentationToastId)) {
           toast.update(this.currentPresentationToastId, {
             autoClose: shouldCloseToast,
             render: this.renderCurrentPresentationToast(),
           });
         } else {
-          this.currentPresentationToastId = toast(
+          toast(
             this.renderCurrentPresentationToast(),
             {
-              onClose: () => {
-                this.currentPresentationToastId = null;
-              },
               autoClose: shouldCloseToast,
               className: 'toastClass actionToast currentPresentationToast',
               bodyClassName: 'toastBodyClass',
               progressClassName: 'toastProgressClass',
+              toastId: this.currentPresentationToastId,
             },
           );
         }
@@ -287,7 +285,7 @@ class Presentation extends PureComponent {
 
       const downloadableOff = prevProps?.presentationIsDownloadable && !presentationIsDownloadable;
 
-      if (this.currentPresentationToastId && downloadableOff) {
+      if (toast.isActive(this.currentPresentationToastId) && downloadableOff) {
         toast.update(this.currentPresentationToastId, {
           autoClose: true,
           render: this.renderCurrentPresentationToast(),

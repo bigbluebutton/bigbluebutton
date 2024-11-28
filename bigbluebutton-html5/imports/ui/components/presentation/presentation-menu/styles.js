@@ -4,7 +4,6 @@ import { headingsFontWeight } from '/imports/ui/stylesheets/styled-components/ty
 import {
   colorDanger,
   colorGray,
-  colorGrayDark,
   colorSuccess,
   colorGrayLightest,
   colorOffWhite,
@@ -37,13 +36,12 @@ const DropdownButton = styled.button`
   }
 `;
 
-const Left = styled.div`
+const Right = styled.div`
   cursor: pointer;
   position: absolute;
-  left: 2px;
+  right: 2px;
   top: 2px;
   z-index: 999;
-
   > div {
     width: 50px;
     height: 40px;
@@ -51,7 +49,6 @@ const Left = styled.div`
     align-items: center;
     justify-content: center;
   }
-
   button {
     height: 100%;
     width: 100%;
@@ -60,12 +57,11 @@ const Left = styled.div`
     justify-content: center;
   }
 
-  [dir="rtl"] & {
-    right: 2px;
-    left: auto;
-  }
+  [dir="rtl"] &{
+      left: 2px;
+      right: auto;
+    }
 `;
-
 const ToastText = styled.span`
   overflow: hidden;
   text-overflow: ellipsis;
@@ -146,7 +142,7 @@ const ButtonIcon = styled(Icon)`
 
 export default {
   DropdownButton,
-  Left,
+  Right,
   ToastText,
   StatusIcon,
   ToastIcon,

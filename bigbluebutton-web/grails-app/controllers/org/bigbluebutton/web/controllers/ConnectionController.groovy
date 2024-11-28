@@ -78,7 +78,8 @@ class ConnectionController {
       String sessionToken = request.getHeader("x-session-token")
 
       UserSession userSession = meetingService.getUserSessionWithSessionToken(sessionToken)
-      Boolean isSessionTokenValid = session[sessionToken] != null
+      Boolean allowRequestsWithoutSession = meetingService.getAllowRequestsWithoutSession(sessionToken)
+      Boolean isSessionTokenValid = session[sessionToken] != null || allowRequestsWithoutSession
 
       response.addHeader("Cache-Control", "no-cache")
 

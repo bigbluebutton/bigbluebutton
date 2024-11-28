@@ -31,6 +31,8 @@
     "app.chat.emptyLogLabel": "Chat log empty",
     "app.chat.away": "is away",
     "app.chat.notAway": "is back online",
+    "app.chat.isPresenter": "{0} is now the presenter",
+    "app.chat.isPresenterSetBy": "{0} is now the presenter, set by {1}",
     "app.chat.clearPublicChatMessage": "The public chat history was cleared by a moderator",
     "app.chat.multi.typing": "Multiple users are typing",
     "app.chat.someone.typing": "Someone is typing",

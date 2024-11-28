@@ -152,7 +152,7 @@
     "app.user.activityCheck": "Έλεγχος δραστηριότητας χρήστη",
     "app.user.activityCheck.label": "Έλεγχος αν υπάρχουν ακόμα χρήστες στην τηλεδιάσκεψη ({0})",
     "app.user.activityCheck.check": "Έλεγχος",
-    "app.userList.usersTitle": "Χρήστες",
+    "app.userList.usersTitle": "Χρήστες ({0})",
     "app.userList.participantsTitle": "Συμμετέχοντες",
     "app.userList.messagesTitle": "Μηνύματα",
     "app.userList.notesTitle": "Σημειώσεις",
