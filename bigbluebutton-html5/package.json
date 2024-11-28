@@ -54,7 +54,7 @@
     "flat": "^5.0.2",
     "focus-trap-react": "^10.2.1",
     "hark": "^1.2.3",
-    "html-to-image": "^1.9.0",
+    "html-to-image": "^1.11.11",
     "immutability-helper": "~2.8.1",
     "langmap": "0.0.16",
     "makeup-screenreader-trap": "0.0.5",

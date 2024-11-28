@@ -233,6 +233,27 @@ const parseCurrentSlideContent = (yesValue, noValue, abstentionValue, trueValue,
   };
 };
 
+async function replaceImageHrefWithBase64(svgString) {
+  const svgDoc = new DOMParser().parseFromString(svgString, 'image/svg+xml');
+  const xlinkNS = 'http://www.w3.org/1999/xlink';
+  await Promise.all(Array.from(svgDoc.querySelectorAll('image')).map(async (img) => {
+    const href = img.getAttributeNS(xlinkNS, 'href') || img.getAttribute('href');
+    if (href && !href.startsWith('data:')) {
+      const base64 = await fetch(href)
+        .then((res) => res.blob())
+        .then((blob) => new Promise((resolve, reject) => {
+          const fr = new FileReader();
+          fr.onload = () => resolve(fr.result);
+          fr.onerror = reject;
+          fr.readAsDataURL(blob);
+        }));
+      img.setAttributeNS(null, 'href', base64);
+      img.setAttributeNS(xlinkNS, 'href', base64);
+    }
+  }));
+  return new XMLSerializer().serializeToString(svgDoc);
+}
+
 export default {
   getCurrentSlide,
   getSlidePosition,
@@ -241,4 +262,5 @@ export default {
   parseCurrentSlideContent,
   getCurrentPresentation,
   getSlidesLength,
+  replaceImageHrefWithBase64,
 };
