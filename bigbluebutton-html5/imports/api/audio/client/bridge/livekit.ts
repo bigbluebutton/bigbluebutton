@@ -108,7 +108,7 @@ export default class LiveKitAudioBridge extends BaseAudioBridge {
             role: this.role,
             inputDeviceId: this.inputDeviceId,
           },
-        }, 'Failed to set input stream');
+        }, 'LiveKit: set audio input stream failed');
         throw error;
       });
   }
@@ -128,7 +128,7 @@ export default class LiveKitAudioBridge extends BaseAudioBridge {
           role: this.role,
           enabled: shouldEnable,
         },
-      }, `setSenderTrackEnabled failed: ${error.message}`);
+      }, `LiveKit: setSenderTrackEnabled failed - ${error.message}`);
     };
 
     if (shouldEnable) {
@@ -139,10 +139,26 @@ export default class LiveKitAudioBridge extends BaseAudioBridge {
       // Just toggle mute.
       if (currentPubs.length) {
         currentPubs.forEach((pub) => pub.unmute());
+        logger.debug({
+          logCode: 'livekit_audio_track_unmuted',
+          extraInfo: {
+            bridgeName: this.bridgeName,
+            role: this.role,
+            trackName,
+          },
+        }, 'LiveKit: audio track unmuted');
       } else if (trackPubs.length === 0) {
         // Track was unpublished on previous mute toggle, so publish again
         // If audio hasn't been shared yet, do nothing
         this.publish(this.originalStream).catch(handleMuteError);
+        logger.debug({
+          logCode: 'livekit_audio_track_unmute_publish',
+          extraInfo: {
+            bridgeName: this.bridgeName,
+            role: this.role,
+            trackName,
+          },
+        }, 'LiveKit: audio track unmuted and published');
       }
     } else {
       const LIVEKIT_SETTINGS = window.meetingClientSettings.public.media?.livekit?.audio;
@@ -151,6 +167,13 @@ export default class LiveKitAudioBridge extends BaseAudioBridge {
         this.unpublish();
       } else {
         this.liveKitRoom.localParticipant.setMicrophoneEnabled(false).catch(handleMuteError);
+        logger.debug({
+          logCode: 'livekit_audio_track_muted',
+          extraInfo: {
+            bridgeName: this.bridgeName,
+            role: this.role,
+          },
+        }, 'LiveKit: audio track muted');
       }
     }
   }
@@ -198,7 +221,22 @@ export default class LiveKitAudioBridge extends BaseAudioBridge {
         // Get tracks from the stream and publish them. Map into an array of
         // Promise objects and wait for all of them to resolve.
         const trackPublishers = cloneStream.getTracks()
-          .map((track) => this.liveKitRoom.localParticipant.publishTrack(track, publishOptions));
+          .map((track) => {
+            return this.liveKitRoom.localParticipant.publishTrack(track, publishOptions)
+              .then((publication) => {
+                logger.debug({
+                  logCode: 'livekit_audio_published',
+                  extraInfo: {
+                    bridgeName: this.bridgeName,
+                    role: this.role,
+                    trackName: publication.trackName,
+                    trackSid: publication.trackSid,
+                  },
+                }, 'LiveKit: audio track published');
+
+                return publication;
+              });
+          });
         await Promise.all(trackPublishers);
       } else {
         await this.liveKitRoom.localParticipant.setMicrophoneEnabled(
@@ -209,7 +247,7 @@ export default class LiveKitAudioBridge extends BaseAudioBridge {
       }
     } catch (error) {
       logger.error({
-        logCode: 'livekit_audiopublish_error',
+        logCode: 'livekit_audio_publish_error',
         extraInfo: {
           errorMessage: (error as Error).message,
           errorName: (error as Error).name,
@@ -217,7 +255,7 @@ export default class LiveKitAudioBridge extends BaseAudioBridge {
           bridgeName: this.bridgeName,
           role: this.role,
         },
-      }, 'Failed to publish audio track');
+      }, 'LiveKit: failed to publish audio track');
       throw error;
     }
   }
@@ -231,7 +269,18 @@ export default class LiveKitAudioBridge extends BaseAudioBridge {
       audioTrackPublications.values(),
     ).map((publication: LocalTrackPublication) => {
       if (publication?.track && publication?.source === Track.Source.Microphone) {
-        return this.liveKitRoom.localParticipant.unpublishTrack(publication.track);
+        return this.liveKitRoom.localParticipant.unpublishTrack(publication.track)
+          .then(() => {
+            logger.debug({
+              logCode: 'livekit_audio_unpublished',
+              extraInfo: {
+                bridgeName: this.bridgeName,
+                role: this.role,
+                trackName: publication.trackName,
+                trackSid: publication?.trackSid,
+              },
+            }, 'LiveKit: audio track unpublished');
+          });
       }
 
       return Promise.resolve();
@@ -248,7 +297,7 @@ export default class LiveKitAudioBridge extends BaseAudioBridge {
             bridgeName: this.bridgeName,
             role: this.role,
           },
-        }, 'Failed to unpublish audio track');
+        }, 'LiveKit: failed to unpublish audio track');
       });
   }
 
@@ -326,7 +375,7 @@ export default class LiveKitAudioBridge extends BaseAudioBridge {
           bridgeName: this.bridgeName,
           role: this.role,
         },
-      }, 'Failed to update audio constraint');
+      }, 'LiveKit: update audio constraints failed');
     }
   }
 
@@ -344,7 +393,7 @@ export default class LiveKitAudioBridge extends BaseAudioBridge {
             bridgeName: this.bridgeName,
             role: this.role,
           },
-        }, 'Failed to exit audio');
+        }, 'LiveKit: exit audio failed');
         return false;
       })
       .finally(this.publicationEnded);
