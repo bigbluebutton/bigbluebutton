@@ -682,7 +682,7 @@
     "app.actionsBar.actionsDropdown.presentationLabel": "プレゼンファイルをアップロード / 管理",
     "app.actionsBar.actionsDropdown.initPollLabel": "投票を初期化",
     "app.actionsBar.actionsDropdown.desktopShareLabel": "画面を共有",
-    "app.actionsBar.actionsDropdown.lockedDesktopShareLabel": "スクリーンシェアが無効です",
+    "app.actionsBar.actionsDropdown.lockedDesktopShareLabel": "画面共有無効",
     "app.actionsBar.actionsDropdown.lockedDesktopShareDesc": "画面共有無効",
     "app.actionsBar.actionsDropdown.notPresenterDesktopShareLabel": "画面を共有するには発表者である必要があります",
     "app.actionsBar.actionsDropdown.notPresenterDesktopShareDesc": "画面を共有できるのは発表者だけです",
