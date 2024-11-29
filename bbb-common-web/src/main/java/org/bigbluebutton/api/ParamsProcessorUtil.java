@@ -591,15 +591,6 @@ public class ParamsProcessorUtil {
             }
         }
 
-        // Check if VirtualBackgrounds is disabled
-        if (!StringUtils.isEmpty(params.get(ApiParams.VIRTUAL_BACKGROUNDS_DISABLED))) {
-            boolean virtualBackgroundsDisabled = Boolean.valueOf(params.get(ApiParams.VIRTUAL_BACKGROUNDS_DISABLED));
-            if(virtualBackgroundsDisabled == true && !listOfDisabledFeatures.contains("virtualBackgrounds")) {
-                log.warn("[DEPRECATION] use disabledFeatures=virtualBackgrounds instead of virtualBackgroundsDisabled=true");
-                listOfDisabledFeatures.add("virtualBackgrounds");
-            }
-        }
-
         // Learning Dashboard not allowed for Breakout Rooms
         if(isBreakout) {
 		listOfDisabledFeatures.add("learningDashboard");
