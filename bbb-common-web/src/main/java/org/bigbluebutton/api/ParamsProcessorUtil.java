@@ -90,7 +90,6 @@ public class ParamsProcessorUtil {
     private boolean autoStartRecording;
     private boolean allowStartStopRecording;
     private boolean recordFullDurationMedia;
-    private boolean learningDashboardEnabled = true;
     private int learningDashboardCleanupDelayInMinutes;
     private boolean webcamsOnlyForModerator;
     private Integer defaultMeetingCameraCap = 0;
@@ -599,19 +598,6 @@ public class ParamsProcessorUtil {
                 log.warn("[DEPRECATION] use disabledFeatures=virtualBackgrounds instead of virtualBackgroundsDisabled=true");
                 listOfDisabledFeatures.add("virtualBackgrounds");
             }
-        }
-
-        boolean learningDashboardEn = learningDashboardEnabled;
-        if (!StringUtils.isEmpty(params.get(ApiParams.LEARNING_DASHBOARD_ENABLED))) {
-            try {
-                learningDashboardEn = Boolean.parseBoolean(params.get(ApiParams.LEARNING_DASHBOARD_ENABLED));
-            } catch (Exception ex) {
-                log.warn("Invalid param [learningDashboardEnabled] for meeting=[{}]",internalMeetingId);
-            }
-        }
-        if(learningDashboardEn == false && !listOfDisabledFeatures.contains("learningDashboard")) {
-            log.warn("[DEPRECATION] use disabledFeatures=learningDashboard instead of learningDashboardEnabled=false");
-            listOfDisabledFeatures.add("learningDashboard");
         }
 
         // Learning Dashboard not allowed for Breakout Rooms
@@ -1374,10 +1360,6 @@ public class ParamsProcessorUtil {
 
     public void setRecordFullDurationMedia(boolean recordFullDurationMedia) {
         this.recordFullDurationMedia = recordFullDurationMedia;
-    }
-
-    public void setLearningDashboardEnabled(boolean learningDashboardEnabled) {
-        this.learningDashboardEnabled = learningDashboardEnabled;
     }
 
     public void setLearningDashboardCleanupDelayInMinutes(int learningDashboardCleanupDelayInMinutes) {
