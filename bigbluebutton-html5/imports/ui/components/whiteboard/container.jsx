@@ -67,7 +67,7 @@ const WhiteboardContainer = (props) => {
   const [annotations, setAnnotations] = useState([]);
   const [shapes, setShapes] = useState([]);
   const [removedShapes, setRemovedShapes] = useState([]);
-
+  const [isTabVisible, setIsTabVisible] = useState(document.visibilityState === 'visible');
   const [currentPresentationPage, setCurrentPresentationPage] = useState(null);
 
   const { userLocks } = useLockContext();
@@ -85,6 +85,18 @@ const WhiteboardContainer = (props) => {
   );
   const { pres_page_curr: presentationPageArray } = (presentationPageData || {});
   const newPresentationPage = presentationPageArray && presentationPageArray[0];
+
+  useEffect(() => {
+    const handleVisibilityChange = () => {
+      setIsTabVisible(document.visibilityState === 'visible');
+    };
+
+    document.addEventListener('visibilitychange', handleVisibilityChange);
+
+    return () => {
+      document.removeEventListener('visibilitychange', handleVisibilityChange);
+    };
+  }, []);
 
   useEffect(() => {
     if (newPresentationPage) {
@@ -271,11 +283,11 @@ const WhiteboardContainer = (props) => {
     },
   });
 
-  React.useEffect(() => {
-    if (curPageIdRef.current) {
+  useEffect(() => {
+    if (isTabVisible && curPageIdRef.current) {
       refetchInitialPageAnnotations();
     }
-  }, [curPageIdRef.current]);
+  }, [isTabVisible, curPageIdRef.current]);
 
   const processAnnotations = (data) => {
     let annotationsToBeRemoved = [];
@@ -454,6 +466,7 @@ const WhiteboardContainer = (props) => {
         isInfiniteWhiteboard,
         curPageNum,
         setEditor,
+        isTabVisible,
       }}
       {...props}
       meetingId={Auth.meetingID}
