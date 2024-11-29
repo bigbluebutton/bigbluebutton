@@ -186,7 +186,6 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
         <property name="audioBridge" value="${audioBridge}"/>
         <property name="allowModsToUnmuteUsers" value="${allowModsToUnmuteUsers}"/>
         <property name="allowModsToEjectCameras" value="${allowModsToEjectCameras}"/>
-        <property name="breakoutRoomsEnabled" value="${breakoutRoomsEnabled}"/>
         <property name="breakoutRoomsRecord" value="${breakoutRoomsRecord}"/>
         <property name="breakoutRoomsPrivateChatEnabled" value="${breakoutRoomsPrivateChatEnabled}"/>
         <property name="lockSettingsDisableCam" value="${lockSettingsDisableCam}"/>

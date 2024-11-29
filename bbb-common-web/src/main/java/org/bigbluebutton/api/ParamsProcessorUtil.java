@@ -113,7 +113,6 @@ public class ParamsProcessorUtil {
     private String defaultPresentationUploadExternalDescription = "";
     private String defaultPresentationUploadExternalUrl = "";
 
-		private boolean defaultBreakoutRoomsEnabled = true;
 		private boolean defaultBreakoutRoomsRecord;
         private boolean defaultBreakoutRoomsCaptureSlides = false;
         private boolean defaultBreakoutRoomsCaptureNotes = false;
@@ -763,16 +762,6 @@ public class ParamsProcessorUtil {
 
         if (!StringUtils.isEmpty(params.get(ApiParams.MEETING_LAYOUT))) {
             meetingLayout = params.get(ApiParams.MEETING_LAYOUT);
-        }
-
-        Boolean breakoutRoomsEnabled = defaultBreakoutRoomsEnabled;
-        String breakoutRoomsEnabledParam = params.get(ApiParams.BREAKOUT_ROOMS_ENABLED);
-        if (!StringUtils.isEmpty(breakoutRoomsEnabledParam)) {
-            breakoutRoomsEnabled = Boolean.parseBoolean(breakoutRoomsEnabledParam);
-        }
-        if(breakoutRoomsEnabled == false && !listOfDisabledFeatures.contains("breakoutRooms")) {
-            log.warn("[DEPRECATION] use disabledFeatures=breakoutRooms instead of breakoutRoomsEnabled=false");
-            listOfDisabledFeatures.add("breakoutRooms");
         }
 
         BreakoutRoomsParams breakoutParams = processBreakoutRoomsParams(params);
@@ -1601,10 +1590,6 @@ public class ParamsProcessorUtil {
 
         return filters;
     }
-
-	public void setBreakoutRoomsEnabled(Boolean breakoutRoomsEnabled) {
-		this.defaultBreakoutRoomsEnabled = breakoutRoomsEnabled;
-	}
 
 	public void setBreakoutRoomsRecord(Boolean breakoutRoomsRecord) {
 		this.defaultBreakoutRoomsRecord = breakoutRoomsRecord;
