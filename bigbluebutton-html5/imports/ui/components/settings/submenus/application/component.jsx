@@ -612,13 +612,15 @@ class ApplicationMenu extends BaseMenu {
                 </Styled.Label>
               </Styled.FormElement>
             </Styled.Col>
+          </Styled.Row>
+
+          <Styled.Row>
             <Styled.Col>
-              <Styled.FormElementCenter aria-hidden>
-                {/* eslint-disable-next-line jsx-a11y/label-has-associated-control */}
-                <Styled.BoldLabel>
-                  {`${pixelPercentage[settings.fontSize]}`}
-                </Styled.BoldLabel>
-              </Styled.FormElementCenter>
+              <Styled.FormElement>
+                <Styled.ExampleText style={{ fontSize: settings.fontSize }}>
+                  Exemplo de frase que será afetada pelo tamanho da fonte.
+                </Styled.ExampleText>
+              </Styled.FormElement>
             </Styled.Col>
             <Styled.Col>
               <Styled.FormElementRight>
@@ -626,7 +628,7 @@ class ApplicationMenu extends BaseMenu {
                   <Styled.Col>
                     <Button
                       onClick={() => this.handleDecreaseFontSize()}
-                      color="primary"
+                      color="transparent"
                       icon="substract"
                       circle
                       hideLabel
@@ -637,9 +639,12 @@ class ApplicationMenu extends BaseMenu {
                     />
                   </Styled.Col>
                   <Styled.Col>
+                    <Styled.BoldLabel>{`${pixelPercentage[settings.fontSize]}`}</Styled.BoldLabel>
+                  </Styled.Col>
+                  <Styled.Col>
                     <Button
                       onClick={() => this.handleIncreaseFontSize()}
-                      color="primary"
+                      color="transparent"
                       icon="add"
                       circle
                       hideLabel

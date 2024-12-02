@@ -219,6 +219,8 @@ class Settings extends Component {
       isGladiaEnabled,
       paginationToggleEnabled,
       isChatEnabled,
+      setIsOpen,
+      setIsShortcutModalOpen,
     } = this.props;
 
     const {
@@ -276,7 +278,10 @@ class Settings extends Component {
         </Styled.SettingsTabList>
         <Styled.SettingsTabPanel selectedClassName="is-selected">
           <About
-            settings={current.application} />
+            settings={current.application}
+            setIsShortcutModalOpen={setIsShortcutModalOpen}
+            setIsOpen={setIsOpen}
+            />
         </Styled.SettingsTabPanel>
         <Styled.SettingsTabPanel selectedClassName="is-selected">
           <Application
@@ -345,7 +350,7 @@ class Settings extends Component {
     const { current, saved } = this.state;
   
     return (
-      <ModalSimple
+      <Styled.Modal
         title={intl.formatMessage(intlMessages.SettingsLabel)}
         width={modalWidth}
         height={modalHeight}
@@ -364,6 +369,15 @@ class Settings extends Component {
           <Styled.ActionsContainer>
             <Styled.ActionButton
               onClick={() => {
+                Settings.setHtmlFontSize(saved.application.fontSize);
+                document.getElementsByTagName('html')[0].lang = saved.application.locale;
+                setIsOpen(false);
+              }}
+            >
+              {intl.formatMessage(intlMessages.CancelLabel)}
+            </Styled.ActionButton>
+            <Styled.ActionButton
+              onClick={() => {
                 this.updateSettings(current, intlMessages.savedAlertLabel, setLocalSettings);
   
                 if (saved.application.locale !== current.application.locale) {
@@ -378,18 +392,9 @@ class Settings extends Component {
             >
               {intl.formatMessage(intlMessages.SaveLabel)}
             </Styled.ActionButton>
-            <Styled.ActionButton
-              onClick={() => {
-                Settings.setHtmlFontSize(saved.application.fontSize);
-                document.getElementsByTagName('html')[0].lang = saved.application.locale;
-                setIsOpen(false);
-              }}
-            >
-              {intl.formatMessage(intlMessages.CancelLabel)}
-            </Styled.ActionButton>
           </Styled.ActionsContainer>
         </div>
-      </ModalSimple>
+      </Styled.Modal>
     );
   }
 }

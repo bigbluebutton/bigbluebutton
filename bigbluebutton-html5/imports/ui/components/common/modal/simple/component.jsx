@@ -28,6 +28,7 @@ const propTypes = {
   modalisOpen: PropTypes.bool,
   width: PropTypes.string,
   height: PropTypes.string,
+  padding: PropTypes.string,
 };
 
 const defaultProps = {
@@ -104,6 +105,7 @@ class ModalSimple extends Component {
       children,
       width,
       height,
+      padding,
       ...otherProps
     } = this.props;
 
@@ -138,6 +140,7 @@ class ModalSimple extends Component {
         dataTest={dataTest}
         width={width}
         height={height}
+        padding={padding}
         {...otherProps}
       >
         <FocusTrap active={modalisOpen} focusTrapOptions={{ initialFocus: false }}>

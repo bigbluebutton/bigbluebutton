@@ -17,10 +17,42 @@ const Text = styled.p`
   color: #333;
 `;
 
+const Link = styled.a`
+  color: #333;
+`;
+
+const TableButton = styled.button`
+  color: #333;
+  background-color: transparent;
+  border: none;
+  font-size: 1rem;
+  font-size: 1rem;
+  font-weight: 700;
+  cursor: pointer;
+  padding: 4px 8px;
+  margin-top: 8px;
+  text-decoration: underline;
+
+  &:hover {
+    text-decoration: none;
+  }
+
+  &:focus {
+    outline: 2px solid #007BFF;
+    outline-offset: 2px;
+  }
+
+  &:active {
+    color: #0056b3;
+  }
+`;
+
 export default {
   Title,
   Form,
   Label,
   Text,
   Content,
+  Link,
+  TableButton,
 };

@@ -9,9 +9,13 @@ import { borderSize, borderSizeLarge } from '/imports/ui/stylesheets/styled-comp
 import SpinnerStyles from '/imports/ui/components/common/loading-screen/styles';
 import Styled from '/imports/ui/components/settings/submenus/styles';
 
-const Row = styled(Styled.Row)``;
+const Row = styled(Styled.Row)`
+  margin-bottom: 1rem;
+`;
 
-const Col = styled(Styled.Col)``;
+const Col = styled(Styled.Col)`
+  padding: 0 10px;
+`;
 
 const FormElement = styled(Styled.FormElement)``;
 
@@ -58,6 +62,9 @@ const PullContentRight = styled.div`
 `;
 
 const LocalesDropdownSelect = styled.div`
+  width: 100%;
+  margin-top: 0.5rem;
+
   & > select {
     &:focus {
       box-shadow: inset 0 0 0 ${borderSizeLarge} ${colorPrimary};
@@ -82,6 +89,11 @@ const LocalesDropdownSelect = styled.div`
   }
 `;
 
+const ExampleText = styled.p`
+  color: ${colorGrayLabel};
+  font-size: ${(props) => props.style.fontSize || '16px'};
+`;
+
 export default {
   Row,
   Col,
@@ -99,4 +111,5 @@ export default {
   BoldLabel,
   PullContentRight,
   LocalesDropdownSelect,
+  ExampleText,
 };

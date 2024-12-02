@@ -4,6 +4,7 @@ import { defineMessages, useIntl } from 'react-intl';
 import Icon from '/imports/ui/components/common/icon/component';
 import Styled from '../styles';
 import SettingsContainer from '/imports/ui/components/settings/container';
+import ShortcutHelpComponent from '/imports/ui/components/shortcut-help/component';
 
 const intlMessages = defineMessages({
   settingsLabel: {
@@ -15,13 +16,13 @@ const intlMessages = defineMessages({
 const SettingsListItem = () => {
   const intl = useIntl();
   const [isSettingsModalOpen, setIsSettingsModalOpen] = useState(false);
+  const [isShortcutModalOpen, setIsShortcutModalOpen] = useState(false);
 
   const openSettingsModal = () => {
     setIsSettingsModalOpen(true);
   };
 
   const label = intl.formatMessage(intlMessages.settingsLabel);
-
   return (
     <>
       <TooltipContainer title={label} position="right">
@@ -48,6 +49,13 @@ const SettingsListItem = () => {
         <SettingsContainer
           isOpen={isSettingsModalOpen}
           setIsOpen={setIsSettingsModalOpen}
+          setIsShortcutModalOpen={setIsShortcutModalOpen}
+        />
+      )}
+      {isShortcutModalOpen && (
+        <ShortcutHelpComponent
+          isOpen={isShortcutModalOpen}
+          onRequestClose={() => setIsShortcutModalOpen(false)}
         />
       )}
     </>
