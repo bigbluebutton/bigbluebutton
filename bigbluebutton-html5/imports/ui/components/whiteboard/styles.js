@@ -60,6 +60,10 @@ const TldrawV2GlobalStyle = createGlobalStyle`
     width: auto !important;
   }
 
+  .tlui-popover__content {
+    left: -50px !important;
+  }
+
   ${({ isPresenter, isMultiUserActive }) => !isPresenter && !isMultiUserActive && `
     .tl-cursor use {
       transform: scale(0.05)!important;

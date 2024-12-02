@@ -47,6 +47,7 @@ export default class KurentoScreenshareBridge {
     this._restartIntervalMs = null;
     this.startedOnce = false;
     this.outputDeviceId = null;
+    this.bridgeName = BRIDGE_NAME;
   }
 
   get restartIntervalMs() {

@@ -80,6 +80,14 @@ const intlMessages = defineMessages({
     id: 'app.chat.clearPublicChatMessage',
     description: 'message of when clear the public chat',
   },
+  userIsPresenter: {
+    id: 'app.chat.isPresenter',
+    description: 'message when user is set presenter',
+  },
+  userIsPresenterSetBy: {
+    id: 'app.chat.isPresenterSetBy',
+    description: 'message when user is set presenter by someone else',
+  },
   userAway: {
     id: 'app.chat.away',
     description: 'message when user is away',
@@ -375,6 +383,27 @@ const ChatMessage = React.forwardRef<ChatMessageRef, ChatMessageProps>(({
             <ChatMessageNotificationContent
               iconName="time"
               text={awayMessage}
+            />
+          ),
+          showAvatar: false,
+          showHeading: false,
+          showToolbar: false,
+        };
+      }
+      case ChatMessageType.USER_IS_PRESENTER_MSG: {
+        const { assignedBy } = JSON.parse(message.messageMetadata);
+        const userIsPresenterMsg = (assignedBy)
+          ? `${intl.formatMessage(intlMessages.userIsPresenterSetBy, { 0: message.senderName, 1: assignedBy })}`
+          : `${intl.formatMessage(intlMessages.userIsPresenter, { 0: message.senderName })}`;
+        return {
+          name: message.senderName,
+          color: '#0F70D7',
+          isModerator: true,
+          isSystemSender: true,
+          component: (
+            <ChatMessageNotificationContent
+              iconName="presentation"
+              text={userIsPresenterMsg}
             />
           ),
           showAvatar: false,

@@ -91,7 +91,18 @@ export default class LiveKitScreenshareBridge {
     }, 'LiveKit: screen share published');
   }
 
-  private static publicationEnded(): void {
+  private publicationEnded(): void {
+    if (this.role === SEND_ROLE) {
+      logger.info({
+        logCode: 'livekit_screenshare_unpublished',
+        extraInfo: {
+          bridgeName: BRIDGE_NAME,
+          streamId: this.streamId,
+          role: this.role,
+        },
+      }, 'LiveKit: screen share unpublished');
+    }
+
     screenShareEndAlert();
   }
 
@@ -106,7 +117,7 @@ export default class LiveKitScreenshareBridge {
     if (source !== Track.Source.ScreenShare && source !== Track.Source.ScreenShareAudio) return;
     this.publications.delete(trackSid);
     this.subscriptions.delete(trackSid);
-    LiveKitScreenshareBridge.publicationEnded();
+    this.publicationEnded();
   }
 
   private handleTrackSubscribed(
@@ -118,6 +129,14 @@ export default class LiveKitScreenshareBridge {
     const { trackSid } = publication;
     this.subscriptions.set(trackSid, { track, publication });
     if (trackSid === this.streamId) this.handleViewerStart(trackSid);
+    logger.debug({
+      logCode: 'livekit_screenshare_subscribed',
+      extraInfo: {
+        bridgeName: this.bridgeName,
+        streamId: trackSid,
+        role: this.role,
+      },
+    }, `LiveKit: screen share subscribed - ${trackSid}`);
   }
 
   private handleTrackUnsubscribed(
@@ -128,6 +147,14 @@ export default class LiveKitScreenshareBridge {
 
     const { trackSid } = publication;
     this.subscriptions.delete(trackSid);
+    logger.debug({
+      logCode: 'livekit_screenshare_unsubscribed',
+      extraInfo: {
+        bridgeName: this.bridgeName,
+        streamId: trackSid,
+        role: this.role,
+      },
+    }, `LiveKit: screen share unsubscribed - ${trackSid}`);
   }
 
   private observeRoomEvents(): void {
@@ -182,6 +209,7 @@ export default class LiveKitScreenshareBridge {
 
   // eslint-disable-next-line class-methods-use-this
   getPeerConnection(): void {
+    // eslint-disable-next-line no-console
     console.error('The Bridge must implement getPeerConnection');
   }
 
@@ -232,7 +260,7 @@ export default class LiveKitScreenshareBridge {
             bridgeName: this.bridgeName,
             role: this.role,
           },
-        }, 'LiveKit: viewer start failed');
+        }, `LiveKit: screen attachment failed: ${(error as Error).message}`);
       }
     }
   }
@@ -256,7 +284,7 @@ export default class LiveKitScreenshareBridge {
           bridgeName: this.bridgeName,
           role: this.role,
         },
-      }, `LiveKit: activate screenshare failed: ${error.message}`);
+      }, `LiveKit: screen subscribe failed: ${error.message}`);
     };
 
     try {
@@ -337,6 +365,7 @@ export default class LiveKitScreenshareBridge {
     if (this.role === SEND_ROLE) {
       try {
         await this.liveKitRoom.localParticipant.setScreenShareEnabled(false);
+        this.publicationEnded();
       } catch (error) {
         logger.error({
           logCode: 'livekit_screenshare_exit_error',
