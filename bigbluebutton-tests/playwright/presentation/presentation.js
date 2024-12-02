@@ -370,6 +370,7 @@ class Presentation extends MultiUsers {
 
   async removePreviousPresentationFromPreviousPresenter() {
     await this.modPage.waitForSelector(e.whiteboard, ELEMENT_WAIT_LONGER_TIME);
+    await this.modPage.closeAllToastNotifications();
     await uploadSinglePresentation(this.modPage, e.uploadPresentationFileName);
 
     const modSlides1 = await getSlideOuterHtml(this.modPage);
@@ -419,20 +420,10 @@ class Presentation extends MultiUsers {
     const screenshotOptions = {
       maxDiffPixels: 1000,
     };
-
-    // mod checks
     await this.modPage.wasRemoved(e.wbToolbar, 'should not display the whiteboard toolbar for the moderator');
-    await this.modPage.wasRemoved(e.whiteboardStyles, 'should not display the whiteboard styles menu');
-    await this.modPage.wasRemoved(e.wbUndo, 'should not display the whiteboard undo button');
-    await this.modPage.wasRemoved(e.wbRedo, 'should not display the whiteboard redo button');
-    if (!CI) await expect(this.modPage.page, 'should not display the presentation toolbars').toHaveScreenshot('mod-hide-toolbars.png', screenshotOptions);
-
-    // user checks
+    if (!CI) await expect(this.modPage.page, 'should not display the presentation toolbar').toHaveScreenshot('mod-hide-toolbars.png', screenshotOptions);
     await this.userPage.hasElement(e.wbToolbar, 'should display the whiteboard toolbar for the viewer with whiteboard access');
-    await this.userPage.hasElement(e.whiteboardStyles, 'should display the whiteboard styles menu for the viewer with whiteboard access');
-    await this.userPage.hasElement(e.wbUndo, 'should display the whiteboard undo button for the viewer with whiteboard access');
-    await this.userPage.hasElement(e.wbRedo, 'should display the whiteboard redo button for the viewer with whiteboard access');
-    if (!CI) await expect(this.userPage.page, 'should display the presentation toolbars').toHaveScreenshot('user-toolbars.png', screenshotOptions);
+    if (!CI) await expect(this.userPage.page, 'should display the presentation toolbar').toHaveScreenshot('user-toolbars.png', screenshotOptions);
   }
 
   async zoom() {

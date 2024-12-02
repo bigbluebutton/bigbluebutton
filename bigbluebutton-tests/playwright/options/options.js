@@ -67,22 +67,22 @@ class Options extends MultiUsers {
     await this.modPage.hasElement(e.chatUserMessageText, 'should the chat message be displayed');
     // set all locators
     const [
-      chatMessageItemLocator,
       userListContainerLocator,
       whiteboardOptionsButtonLocator,
       messageTitleLocator,
       presentationTitleLocator,
       chatUserMessageTextLocator,
+      chatNotificationMessageItemLocator,
       sendButtonLocator,
       joinAudioLocator,
       minimizePresentationLocator,
     ] = [
-      e.chatMessageItem,
       e.userListContainer,
       e.whiteboardOptionsButton,
       e.messageTitle,
       e.presentationTitle,
       e.chatUserMessageText,
+      e.chatNotificationMessageText,
       `${e.sendButton} span[color]`,
       `${e.joinAudio} span[color]`,
       `${e.minimizePresentation} span[color]`,
@@ -91,13 +91,13 @@ class Options extends MultiUsers {
     const getBackgroundColorComputed = (node) => getComputedStyle(node).backgroundColor;
     const getTextColorComputed = (node) => getComputedStyle(node).color;
     // background color elements that should be changed (light mode)
-    const chatMessagesBackgroundColor = await chatMessageItemLocator.evaluate(getBackgroundColorComputed);
     const userListContainerBackgroundColor = await userListContainerLocator.evaluate(getBackgroundColorComputed);
     const whiteboardOptionsButtonBackground = await whiteboardOptionsButtonLocator.evaluate(getBackgroundColorComputed);
     const sendButtonBackgroundColor = await sendButtonLocator.evaluate(getBackgroundColorComputed);
     const joinAudioBackgroundColor = await joinAudioLocator.evaluate(getBackgroundColorComputed);
     const minimizePresentationBackgroundColor = await minimizePresentationLocator.evaluate(getBackgroundColorComputed);
     // text colors that should be changed (light mode)
+    const chatMessagesBackgroundColor = await chatNotificationMessageItemLocator.evaluate(getTextColorComputed);
     const messageTitleColor = await messageTitleLocator.evaluate(getTextColorComputed);
     const presentationTitleColor = await presentationTitleLocator.evaluate(getTextColorComputed);
     const chatUserMessageTextColor = await chatUserMessageTextLocator.evaluate(getTextColorComputed);
@@ -106,12 +106,12 @@ class Options extends MultiUsers {
     await this.modPage.waitAndClickElement(e.darkModeToggleBtn);
     await this.modPage.waitAndClick(e.modalConfirmButton);
     await sleep(500); // wait for the changes to be applied
-    expect.soft(chatMessagesBackgroundColor).not.toEqual(await chatMessageItemLocator.evaluate(getBackgroundColorComputed), 'should the chat messages background color be changed');
     expect.soft(userListContainerBackgroundColor).not.toEqual(await userListContainerLocator.evaluate(getBackgroundColorComputed), 'should the user list container background color be changed');
     expect.soft(whiteboardOptionsButtonBackground).not.toEqual(await whiteboardOptionsButtonLocator.evaluate(getBackgroundColorComputed), 'should the whiteboard options button background color be changed');
     expect.soft(sendButtonBackgroundColor).not.toEqual(await sendButtonLocator.evaluate(getBackgroundColorComputed), 'should the send button background color be changed');
     expect.soft(joinAudioBackgroundColor).not.toEqual(await joinAudioLocator.evaluate(getBackgroundColorComputed), 'should the join audio button background color be changed');
     expect.soft(minimizePresentationBackgroundColor).not.toEqual(await minimizePresentationLocator.evaluate(getBackgroundColorComputed), 'should the minimize presentation button background color be changed');
+    expect.soft(chatMessagesBackgroundColor).not.toEqual(await chatNotificationMessageItemLocator.evaluate(getTextColorComputed), 'should the chat notification message color be changed');
     expect.soft(messageTitleColor).not.toEqual(await messageTitleLocator.evaluate(getTextColorComputed), 'should the message title text color be changed');
     expect.soft(presentationTitleColor).not.toEqual(await presentationTitleLocator.evaluate(getTextColorComputed), 'should the presentation title text color be changed');
     expect.soft(chatUserMessageTextColor).not.toEqual(await chatUserMessageTextLocator.evaluate(getTextColorComputed), 'should the chat user message text color be changed');

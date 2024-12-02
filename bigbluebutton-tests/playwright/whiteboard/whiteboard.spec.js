@@ -143,14 +143,18 @@ test.describe.parallel('Whiteboard tools', { tag: ['@ci', '@flaky'] }, () => {
     await deleteDrawing.test();
   });
 
-  test('Undo drawing', async ({ browser, context, page }) => {
+  test.fixme('Undo drawing', async ({ browser, context, page }) => {
+    // action button has been removed on #21738
+    // alternative: use keyboard shortcut
     const undoDrawing = new UndoDrawing(browser, context);
     await undoDrawing.initModPage(page, true, { customMeetingId: 'draw_line_meeting', joinParameter: hidePresentationToast });
     await undoDrawing.initUserPage(true, context, { joinParameter: hidePresentationToast });
     await undoDrawing.test();
   });
 
-  test('Redo drawing', async ({ browser, context, page }) => {
+  test.fixme('Redo drawing', async ({ browser, context, page }) => {
+    // action button has been removed on #21738
+    // alternative: use keyboard shortcut
     const redoDrawing = new RedoDrawing(browser, context);
     await redoDrawing.initModPage(page, true, { customMeetingId: 'draw_line_meeting', joinParameter: hidePresentationToast });
     await redoDrawing.initUserPage(true, context, { joinParameter: hidePresentationToast });
@@ -167,7 +171,9 @@ test.describe.parallel('Whiteboard tools', { tag: ['@ci', '@flaky'] }, () => {
   test.describe.parallel('Shape Options', { tag: '@flaky' }, () => {
     // wrong/unexpected slide zoom for some users causing screenshot comparison to fail
     // see https://github.com/bigbluebutton/bigbluebutton/issues/21302
-    test('Duplicate', async ({ browser, context, page }) => {
+    test.fixme('Duplicate', async ({ browser, context, page }) => {
+      // action button has been removed on #21738
+      // alternative: use keyboard shortcut
       const shapeOptions = new ShapeOptions(browser, context);
       await shapeOptions.initModPage(page, true);
       await shapeOptions.initUserPage(true, context);

@@ -21,7 +21,7 @@ class DeleteDrawing extends MultiUsers {
     await this.modPage.hasElement(e.wbDrawnArrow);
     await this.userPage.hasElement(e.wbDrawnArrow);
     // delete the drawn arrow
-    await this.modPage.waitAndClick(e.wbDelete);
+    await this.modPage.press('Delete');
     await this.modPage.wasRemoved(e.wbDrawnArrow);
     await this.userPage.wasRemoved(e.wbDrawnArrow);
   }
