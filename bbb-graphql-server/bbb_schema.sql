@@ -2086,6 +2086,7 @@ CREATE TABLE "layout" (
 	"cameraDockAspectRatio" numeric,
 	"cameraWithFocus" 		varchar(100),
 	"propagateLayout" 		boolean,
+	"screenshareAsContent" 	boolean,
 	"updatedAt" 			timestamp with time zone
 );
 
@@ -2221,6 +2222,13 @@ select "meeting"."meetingId",
             where "v_screenshare"."meetingId" = "meeting"."meetingId"
             and "contentType" = 'screenshare'
         ) as "hasScreenshare",
+        exists (
+            select 1
+            from "v_screenshare"
+            join "v_layout" on "v_layout"."meetingId" = "v_screenshare"."meetingId" and "v_layout"."screenshareAsContent" is true
+            where "v_screenshare"."meetingId" = "meeting"."meetingId"
+            and "contentType" = 'screenshare'
+        ) as "hasScreenshareAsContent",
         exists (
             select 1
             from "v_screenshare"
