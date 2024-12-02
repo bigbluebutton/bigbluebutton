@@ -444,7 +444,7 @@ class AudioManager {
     }
   }
 
-  joinMicrophone() {
+  joinMicrophone({ muted }) {
     this.isListenOnly = false;
     this.isEchoTest = false;
 
@@ -456,12 +456,13 @@ class AudioManager {
           extension: null,
           inputStream: this.inputStream,
           bypassGUM: this.shouldBypassGUM(),
+          muted,
         };
         return this.joinAudio(callOptions, this.callStateCallback.bind(this));
       });
   }
 
-  joinEchoTest() {
+  joinEchoTest({ muted }) {
     this.isListenOnly = false;
     this.isEchoTest = true;
 
@@ -484,6 +485,7 @@ class AudioManager {
           inputStream: this.inputStream,
           validIceCandidates,
           bypassGUM: this.shouldBypassGUM(),
+          muted,
         };
         logger.info(
           {
@@ -590,6 +592,7 @@ class AudioManager {
         const callOptions = {
           isListenOnly: true,
           extension: null,
+          muted: true,
         };
         return this.joinAudio(callOptions, this.callStateCallback.bind(this));
       });
