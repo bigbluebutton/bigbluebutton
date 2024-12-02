@@ -27,6 +27,7 @@ const ROOM_CONNECTION_TIMEOUT = 15000;
 
 interface JoinOptions {
   inputStream: MediaStream;
+  muted: boolean;
 }
 
 export default class LiveKitAudioBridge extends BaseAudioBridge {
@@ -321,12 +322,21 @@ export default class LiveKitAudioBridge extends BaseAudioBridge {
     });
   }
 
-  async joinAudio(options: JoinOptions, callback: (args: { status: string; bridge: string }) => void): Promise<void> {
+  async joinAudio(
+    options: JoinOptions,
+    callback: (args: { status: string; bridge: string }) => void,
+  ): Promise<void> {
     this.callback = callback;
+    const {
+      muted,
+      inputStream,
+    } = options;
 
     try {
       await this.waitForRoomConnection();
-      await this.publish(options.inputStream);
+
+      if (!muted) await this.publish(inputStream);
+
       this.publicationStarted();
     } catch (error) {
       logger.error({
