@@ -105,7 +105,7 @@ const withFileReader = (
       toast.dismiss(toastId.current);
     }
 
-    toastId.current = toast.info(renderToastContent(text, status), {
+    toastId.current = toast(renderToastContent(text, status), {
       hideProgressBar: status === STATUS.DONE ? false : true,
       autoClose: status === STATUS.DONE ? 5000 : false,
       newestOnTop: true,
