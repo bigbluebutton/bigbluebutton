@@ -10,6 +10,12 @@ processing:
         script: /etc/bigbluebutton/nopdfmark.ps
         timeout: 10 # Timeout in seconds
       max_size: 2000000
+  image:
+    # Maximum resolution for uploaded presentation images
+    max_width: 2048
+    max_height: 1536
+    resize:
+      timeout: 7 # Timeout in seconds
 validation:
   office:
     script: /usr/share/prescheck/prescheck.sh

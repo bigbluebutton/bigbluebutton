@@ -5,7 +5,7 @@ import (
 	"github.com/bigbluebutton/bigbluebutton/bbb-presentation-api/internal/presentation"
 )
 
-// ProcessedTransformer is used to create a [presentationProcessedFile]
+// ProcessedTransformer is used to create a [presentation.ProcessedFile]
 // that indciates the completion of document processing.
 type ProcessedTransformer struct{}
 

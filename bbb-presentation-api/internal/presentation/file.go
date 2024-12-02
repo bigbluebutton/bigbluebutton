@@ -33,3 +33,23 @@ func Copy(source, destination string) error {
 
 	return nil
 }
+
+func Write(destination, text string) error {
+	dest, err := os.Create(destination)
+	if err != nil {
+		return fmt.Errorf("failed to create text file %s: %w", destination, err)
+	}
+	defer dest.Close()
+
+	_, err = dest.WriteString(text)
+	if err != nil {
+		return fmt.Errorf("failed to write to %s: %w", destination, err)
+	}
+
+	err = dest.Sync()
+	if err != nil {
+		return fmt.Errorf("failed to sync %s: %w", destination, err)
+	}
+
+	return nil
+}

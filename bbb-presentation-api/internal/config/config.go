@@ -46,6 +46,13 @@ type Config struct {
 				MaxSize int64 `yaml:"max_size"`
 			} `yaml:"page"`
 		} `yaml:"pdf"`
+		Image struct {
+			MaxWidth  int `yaml:"max_width"`
+			MaxHeight int `yaml:"max_height"`
+			Resize    struct {
+				Timeout int `yaml:"timeout"`
+			} `yaml:"resize"`
+		} `yaml:"image"`
 	} `yaml:"processing"`
 	Validation struct {
 		Office struct {

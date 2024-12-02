@@ -11,7 +11,6 @@ import (
 	"time"
 
 	"github.com/bigbluebutton/bigbluebutton/bbb-presentation-api/internal/config"
-	"github.com/bigbluebutton/bigbluebutton/bbb-presentation-api/internal/image"
 	"github.com/bigbluebutton/bigbluebutton/bbb-presentation-api/internal/pipeline"
 	"github.com/bigbluebutton/bigbluebutton/bbb-presentation-api/internal/presentation"
 )
@@ -22,8 +21,8 @@ type DownloadMarkerGenerator struct{}
 
 // Generate takes an incoming [pipeline.Message] with a payload of type [FileToProcess] and generates a new
 // download marker for the provided file if the file is marked as downloadable.
-func (g *DownloadMarkerGenerator) Generate(msg pipeline.Message[*FileToProcess]) (pipeline.Message[*FileToProcess], error) {
-	ftp := &FileToProcess{
+func (g *DownloadMarkerGenerator) Generate(msg pipeline.Message[*presentation.FileToProcess]) (pipeline.Message[*presentation.FileToProcess], error) {
+	ftp := &presentation.FileToProcess{
 		ID:             msg.Payload.ID,
 		File:           msg.Payload.File,
 		IsDownloadable: msg.Payload.IsDownloadable,
@@ -35,7 +34,7 @@ func (g *DownloadMarkerGenerator) Generate(msg pipeline.Message[*FileToProcess])
 
 	err := presentation.MakeFileDownloadable(msg.Payload.ID, msg.Payload.File)
 	if err != nil {
-		return pipeline.Message[*FileToProcess]{}, err
+		return pipeline.Message[*presentation.FileToProcess]{}, err
 	}
 	return pipeline.NewMessageWithContext(ftp, msg.Context()), nil
 }
@@ -68,7 +67,7 @@ func NewPageGeneratorWithProcessorAndConfig(processor presentation.PageProcessor
 // possible that the number of page files generated and found in the outgoing [pipeline.Message] with a
 // payload of type FileWithPages will be less than the number of pages in the input PDF since no file will
 // exist for a page if an error occurs anywhere in the generation process.
-func (g *PageGenerator) Generate(msg pipeline.Message[*FileToProcess]) (pipeline.Message[*FileWithPages], error) {
+func (g *PageGenerator) Generate(msg pipeline.Message[*presentation.FileToProcess]) (pipeline.Message[*FileWithPages], error) {
 	inFile := msg.Payload.File
 	numPages, err := g.processor.CountPages(inFile)
 	if err != nil {
@@ -151,11 +150,10 @@ func NewThumbnailGeneratorWithConfig(cfg config.Config) *ThumbnailGenerator {
 // a PNG thumbnail for each of the page documents. Only one thumbnail will be generated for each page document.
 // Therefore, if a page document happens to have more than one page a thumbnail will only be generated for
 // the first page of that document. If thumbnail generation fails for a page then a default blank thumbnail
-// will be used for that page's thumbnail.
+// will try to be used for that page's thumbnail.
 func (g *ThumbnailGenerator) Generate(msg pipeline.Message[*FileWithPages]) (pipeline.Message[*FileWithPages], error) {
-
+	pages := make([]*Page, 0)
 	timeout := g.cfg.Generation.Thumbnail.Timeout
-	thumbnails := make([]string, 0)
 	thumbnailDir := fmt.Sprintf("%s%cthumbnails", filepath.Dir(msg.Payload.File), os.PathSeparator)
 
 	for _, page := range msg.Payload.Pages {
@@ -182,21 +180,27 @@ func (g *ThumbnailGenerator) Generate(msg pipeline.Message[*FileWithPages]) (pip
 				blank := g.cfg.Generation.Blank.Thumbnail
 				cpErr := presentation.Copy(blank, thumbnail)
 				if cpErr != nil {
-					slog.Error("Failed copy blank thumbnail", "source", blank, "dest", thumbnail, "error", cpErr)
+					slog.Error("Failed to copy blank thumbnail", "source", blank, "dest", thumbnail, "error", cpErr)
+					thumbnail = page.Thumbnail
 				}
 			}
 		}
-		thumbnails = append(thumbnails, thumbnail)
+
+		pages = append(pages, &Page{
+			ParentFile: page.ParentFile,
+			File:       page.File,
+			Num:        page.Num,
+			Thumbnail:  thumbnail,
+			TextFile:   page.TextFile,
+			SVG:        page.SVG,
+			PNG:        page.PNG,
+		})
 	}
 
 	return pipeline.NewMessageWithContext(&FileWithPages{
-		ID:         msg.Payload.ID,
-		File:       msg.Payload.File,
-		Pages:      msg.Payload.Pages,
-		Thumbnails: thumbnails,
-		TextFiles:  msg.Payload.TextFiles,
-		Svgs:       msg.Payload.Svgs,
-		Pngs:       msg.Payload.Pngs,
+		ID:    msg.Payload.ID,
+		File:  msg.Payload.File,
+		Pages: pages,
 	}, msg.Context()), nil
 }
 
@@ -226,8 +230,8 @@ func NewTextFileGeneratorWithConfig(cfg config.Config) *TextFileGenerator {
 // and creates a text file for each of the page documents that contains the content
 // from the PDF corresponding to the page.
 func (g *TextFileGenerator) Generate(msg pipeline.Message[*FileWithPages]) (pipeline.Message[*FileWithPages], error) {
+	pages := make([]*Page, 0)
 	timeout := g.cfg.Generation.TextFile.Timeout
-	textFiles := make([]string, 0)
 	textFileDir := fmt.Sprintf("%s%ctextfiles", msg.Payload.File, os.PathSeparator)
 
 	for _, page := range msg.Payload.Pages {
@@ -252,18 +256,24 @@ func (g *TextFileGenerator) Generate(msg pipeline.Message[*FileWithPages]) (pipe
 		output, thumbErr := cmd.CombinedOutput()
 		if thumbErr != nil {
 			slog.Error("Failed to generate text file", "source", msg.Payload.File, "page", page.Num, "error", thumbErr, "output", output)
+			textFile = ""
 		}
-		textFiles = append(textFiles, textFile)
+
+		pages = append(pages, &Page{
+			ParentFile: page.ParentFile,
+			File:       page.File,
+			Num:        page.Num,
+			Thumbnail:  page.Thumbnail,
+			TextFile:   textFile,
+			SVG:        page.SVG,
+			PNG:        page.PNG,
+		})
 	}
 
 	return pipeline.NewMessageWithContext(&FileWithPages{
-		ID:         msg.Payload.ID,
-		File:       msg.Payload.File,
-		Pages:      msg.Payload.Pages,
-		Thumbnails: msg.Payload.Thumbnails,
-		TextFiles:  textFiles,
-		Svgs:       msg.Payload.Svgs,
-		Pngs:       msg.Payload.Pngs,
+		ID:    msg.Payload.ID,
+		File:  msg.Payload.File,
+		Pages: pages,
 	}, msg.Context()), nil
 }
 
@@ -295,22 +305,18 @@ func NewSVGGeneratorWithConfig(cfg config.Config) *SVGGenerator {
 // contains font type 3 or the SVG generated for the PDF is too large the document
 // will be rasterized by first converting the PDF into a PNG with a limited resolution
 // and then converting that PNG into the final SVG. If SVG generation fails for a page
-// then a default blank SVG will be used for that page's SVG.
+// then a default blank SVG will try to be used for that page's SVG.
 func (g SVGGenerator) Generate(msg pipeline.Message[*FileWithPages]) (pipeline.Message[*FileWithPages], error) {
 	if !g.cfg.Generation.SVG.Generate {
 		return pipeline.NewMessageWithContext(&FileWithPages{
-			ID:         msg.Payload.ID,
-			File:       msg.Payload.File,
-			Pages:      msg.Payload.Pages,
-			Thumbnails: msg.Payload.Thumbnails,
-			TextFiles:  msg.Payload.TextFiles,
-			Svgs:       msg.Payload.Svgs,
-			Pngs:       msg.Payload.Pngs,
+			ID:    msg.Payload.ID,
+			File:  msg.Payload.File,
+			Pages: msg.Payload.Pages,
 		}, msg.Context()), nil
 	}
 
+	pages := make([]*Page, 0)
 	timeout := g.cfg.Generation.SVG.Timeout
-	svgs := make([]string, 0)
 	svgDir := fmt.Sprintf("%s%csvgs", filepath.Dir(msg.Payload.File), os.PathSeparator)
 
 	for _, page := range msg.Payload.Pages {
@@ -356,8 +362,8 @@ func (g SVGGenerator) Generate(msg pipeline.Message[*FileWithPages]) (pipeline.M
 			svgSize = fileInfo.Size()
 		}
 
-		numImgTags, _ := image.CountSVGImageTags(svg)
-		numTags, _ := image.CountSVGTags(svg)
+		numImgTags, _ := presentation.CountSVGImageTags(svg)
+		numTags, _ := presentation.CountSVGTags(svg)
 
 		var (
 			fileEmpty = svgSize == 0
@@ -434,20 +440,25 @@ func (g SVGGenerator) Generate(msg pipeline.Message[*FileWithPages]) (pipeline.M
 			cpErr := presentation.Copy(blank, svg)
 			if cpErr != nil {
 				slog.Error("Failed copy blank thumbnail", "source", blank, "dest", svg, "error", cpErr)
+				svg = page.SVG
 			}
 		}
 
-		svgs = append(svgs, svg)
+		pages = append(pages, &Page{
+			ParentFile: page.ParentFile,
+			File:       page.File,
+			Num:        page.Num,
+			Thumbnail:  page.Thumbnail,
+			TextFile:   page.TextFile,
+			SVG:        svg,
+			PNG:        page.PNG,
+		})
 	}
 
 	return pipeline.NewMessageWithContext(&FileWithPages{
-		ID:         msg.Payload.ID,
-		File:       msg.Payload.File,
-		Pages:      msg.Payload.Pages,
-		Thumbnails: msg.Payload.Thumbnails,
-		TextFiles:  msg.Payload.TextFiles,
-		Svgs:       svgs,
-		Pngs:       msg.Payload.Pngs,
+		ID:    msg.Payload.ID,
+		File:  msg.Payload.File,
+		Pages: pages,
 	}, msg.Context()), nil
 }
 
@@ -477,26 +488,22 @@ func NewPNGGeneratorWithConfig(cfg config.Config) *PNGGenerator {
 // Generate takes an incoming [pipeline.Message] with a payload of type [FileWithPages]
 // and generates a PNG for the each of the page files. PNG generation will only occur
 // if PNGs are required as specified by the provided configuration. If PNG generation
-// fails for a page then a default blank PNG will be used for that page's PNG.
+// fails for a page then a default blank PNG will try to be used for that page's PNG.
 func (g *PNGGenerator) Generate(msg pipeline.Message[*FileWithPages]) (pipeline.Message[*FileWithPages], error) {
 	if !g.cfg.Generation.PNG.Generate {
 		return pipeline.NewMessageWithContext(&FileWithPages{
-			ID:         msg.Payload.ID,
-			File:       msg.Payload.File,
-			Pages:      msg.Payload.Pages,
-			Thumbnails: msg.Payload.Thumbnails,
-			TextFiles:  msg.Payload.TextFiles,
-			Svgs:       msg.Payload.Svgs,
-			Pngs:       msg.Payload.Pngs,
+			ID:    msg.Payload.ID,
+			File:  msg.Payload.File,
+			Pages: msg.Payload.Pages,
 		}, msg.Context()), nil
 	}
 
+	pages := make([]*Page, 0)
 	timeout := g.cfg.Generation.PNG.Timeout
-	pngs := make([]string, 0)
 	pngDir := fmt.Sprintf("%s%cpngs", msg.Payload.File, os.PathSeparator)
 
 	for _, page := range msg.Payload.Pages {
-		png := fmt.Sprintf("%s%cslide-%d.txt", pngDir, os.PathSeparator, page.Num)
+		png := fmt.Sprintf("%s%cslide-%d.png", pngDir, os.PathSeparator, page.Num)
 
 		args := []string{
 			"-png",
@@ -521,19 +528,25 @@ func (g *PNGGenerator) Generate(msg pipeline.Message[*FileWithPages]) (pipeline.
 				cpErr := presentation.Copy(blank, png)
 				if cpErr != nil {
 					slog.Error("Failed copy blank PNG", "source", blank, "dest", png, "error", cpErr)
+					png = page.PNG
 				}
 			}
 		}
-		pngs = append(pngs, png)
+
+		pages = append(pages, &Page{
+			ParentFile: page.ParentFile,
+			File:       page.File,
+			Num:        page.Num,
+			TextFile:   page.TextFile,
+			Thumbnail:  page.Thumbnail,
+			SVG:        page.SVG,
+			PNG:        png,
+		})
 	}
 
 	return pipeline.NewMessageWithContext(&FileWithPages{
-		ID:         msg.Payload.ID,
-		File:       msg.Payload.File,
-		Pages:      msg.Payload.Pages,
-		Thumbnails: msg.Payload.Thumbnails,
-		TextFiles:  msg.Payload.TextFiles,
-		Svgs:       msg.Payload.Svgs,
-		Pngs:       pngs,
+		ID:    msg.Payload.ID,
+		File:  msg.Payload.File,
+		Pages: pages,
 	}, msg.Context()), nil
 }

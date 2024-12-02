@@ -9,7 +9,6 @@ import (
 	"time"
 
 	"github.com/bigbluebutton/bigbluebutton/bbb-presentation-api/internal/config"
-	"github.com/bigbluebutton/bigbluebutton/bbb-presentation-api/internal/pdf"
 	"github.com/bigbluebutton/bigbluebutton/bbb-presentation-api/internal/pipeline"
 	"github.com/bigbluebutton/bigbluebutton/bbb-presentation-api/internal/presentation"
 )
@@ -42,7 +41,7 @@ func NewPDFTransformerWithConfig(cfg config.Config) *PDFTransformer {
 // of type [pdf.FileToProcess]. An attempt will be made create a new PDF document from the provided MS Office
 // document. The creation of the new PDF will be attempted multiple time in case of failure with the exact number of
 // attempt being specified in the configuration provided to the [PDFTransformer].
-func (t *PDFTransformer) Transform(msg pipeline.Message[*FileToConvert]) (pipeline.Message[*pdf.FileToProcess], error) {
+func (t *PDFTransformer) Transform(msg pipeline.Message[*FileToConvert]) (pipeline.Message[*presentation.FileToProcess], error) {
 	inFile := msg.Payload.InFile
 	outFile := msg.Payload.OutFile
 
@@ -72,7 +71,7 @@ func (t *PDFTransformer) Transform(msg pipeline.Message[*FileToConvert]) (pipeli
 
 		if err := convertOfficeFileToPDF(o); err == nil {
 			slog.Info("Conversion succeeded", "inputFile", inFile)
-			return pipeline.NewMessageWithContext(&pdf.FileToProcess{ID: msg.Payload.ID, File: outFile, IsDownloadable: msg.Payload.IsDownloadable}, ctx), nil
+			return pipeline.NewMessageWithContext(&presentation.FileToProcess{ID: msg.Payload.ID, File: outFile, IsDownloadable: msg.Payload.IsDownloadable}, ctx), nil
 		} else {
 			slog.Error("Conversion attempt failed",
 				"attempt", attempt, "error", err)
@@ -82,7 +81,7 @@ func (t *PDFTransformer) Transform(msg pipeline.Message[*FileToConvert]) (pipeli
 			}
 		}
 	}
-	return pipeline.Message[*pdf.FileToProcess]{}, fmt.Errorf("all conversion attempts failed for file: %s", inFile)
+	return pipeline.Message[*presentation.FileToProcess]{}, fmt.Errorf("all conversion attempts failed for file: %s", inFile)
 }
 
 type fileToConvert struct {

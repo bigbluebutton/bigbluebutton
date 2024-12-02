@@ -1,9 +1,14 @@
-package image
+package presentation
 
 import (
+	"context"
 	"encoding/xml"
 	"fmt"
 	"os"
+	"os/exec"
+	"time"
+
+	"github.com/bigbluebutton/bigbluebutton/bbb-presentation-api/internal/config"
 )
 
 func CountSVGImageTags(path string) (int, error) {
@@ -62,4 +67,44 @@ func CountSVGTags(filePath string) (int, error) {
 	}
 
 	return tagCount, nil
+}
+
+type ImageResizer interface {
+	Resize(path, ratio string) error
+}
+
+type CMDImageResizer struct {
+	cfg  config.Config
+	exec func(ctx context.Context, name string, args ...string) *exec.Cmd
+}
+
+func NewCMDIMageResizer() *CMDImageResizer {
+	return NewCMDIMageResizerWithConfig(config.DefaultConfig())
+}
+
+func NewCMDIMageResizerWithConfig(cfg config.Config) *CMDImageResizer {
+	return &CMDImageResizer{
+		cfg:  cfg,
+		exec: exec.CommandContext,
+	}
+}
+
+func (r CMDImageResizer) Resize(path, ratio string) error {
+	args := []string{
+		"-resize",
+		ratio,
+		path,
+		path,
+	}
+
+	ctx, cancel := context.WithTimeout(context.Background(), time.Duration(r.cfg.Processing.Image.Resize.Timeout)*time.Second)
+	defer cancel()
+
+	cmd := r.exec(ctx, "convert", args...)
+	_, err := cmd.CombinedOutput()
+	if err != nil {
+		return fmt.Errorf("failed to resize image %s to %s: %w", path, ratio, err)
+	}
+
+	return nil
 }
