@@ -17,7 +17,17 @@ webhook:
 
 EOT
   ) > /etc/bigbluebutton/livekit.yaml
+(umask 007; cat << EOT
+# This file will be merged with /usr/share/livekit-server/livekit-sip.yaml
+# on startup. Settings specified here will take  precedence.
+
+api_key: $API_KEY
+api_secret: $API_SECRET
+
+EOT
+  ) > /etc/bigbluebutton/livekit-sip.yaml
   chown bigbluebutton:bigbluebutton /etc/bigbluebutton/livekit.yaml
+  chown bigbluebutton:bigbluebutton /etc/bigbluebutton/livekit-sip.yaml
 
   # Update bbb-webrtc-sfu's production.yml with the generated keys.
   # We're opting not to use the /usr/local file because it may be overwritten
