@@ -497,7 +497,7 @@ class ScreenshareComponent extends React.Component {
           break;
         case PluginSdk.ScreenshareHelperItemPosition.BOTTOM_RIGHT:
           result.bottomRightPluginItems.push(item);
-          break;ivan
+          break;
         case PluginSdk.ScreenshareHelperItemPosition.BOTTOM_LEFT:
           result.bottomLeftPluginItems.push(item);
           break;
