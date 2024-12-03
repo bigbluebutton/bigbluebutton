@@ -416,6 +416,8 @@ class ApiController {
       externUserID = internalUserID
     }
 
+    // Get the logoutUrl, either from the meeting or from the join api.
+    // Also replace the tokens.
     String logoutUrl = meeting.getLogoutUrl()
     if(!StringUtils.isEmpty(params.get(ApiParams.LOGOUT_URL))) {
       String userProvidedUrl = params.get(ApiParams.LOGOUT_URL)
@@ -427,6 +429,7 @@ class ApiController {
         log.debug "The following logout URL is present: " + logoutUrl
       }
     }
+    logoutUrl = subLogoutParams(uriString, us.meetingID, us.internalUserId, us.fullname);
 
     //Return a Map with the user custom data
     Map<String, String> userCustomData = meetingService.getUserCustomData(meeting, externUserID, params);

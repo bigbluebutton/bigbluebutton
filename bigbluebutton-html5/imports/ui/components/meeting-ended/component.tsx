@@ -271,9 +271,6 @@ const MeetingEnded: React.FC<MeetingEndedProps> = ({
     if (isBreakout) window.close();
     if (allowRedirect) {
       let redirectTo = logoutUrl;
-      redirectTo = redirectTo.replaceAll('%%USERID%%', userId);
-      redirectTo = redirectTo.replaceAll('%%USERNAME%%', userName);
-      redirectTo = redirectTo.replaceAll('%%MEETINGID%%', meetingId);
       if (isURL(redirectTo)) {
         window.location.href = redirectTo;
       }
