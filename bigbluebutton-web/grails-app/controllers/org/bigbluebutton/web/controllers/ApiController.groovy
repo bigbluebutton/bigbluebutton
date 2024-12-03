@@ -429,7 +429,7 @@ class ApiController {
         log.debug "The following logout URL is present: " + logoutUrl
       }
     }
-    logoutUrl = subLogoutParams(uriString, us.meetingID, us.internalUserId, us.fullname);
+    logoutUrl = subLogoutParams(logoutUrl, meeting.getInternalId(), internalUserID, fullName);
 
     //Return a Map with the user custom data
     Map<String, String> userCustomData = meetingService.getUserCustomData(meeting, externUserID, params);
