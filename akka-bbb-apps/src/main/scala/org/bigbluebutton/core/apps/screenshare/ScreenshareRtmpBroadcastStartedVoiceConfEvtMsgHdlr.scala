@@ -3,7 +3,8 @@ package org.bigbluebutton.core.apps.screenshare
 import org.bigbluebutton.common2.msgs._
 import org.bigbluebutton.core.apps.{ ExternalVideoModel, ScreenshareModel }
 import org.bigbluebutton.core.bus.MessageBus
-import org.bigbluebutton.core.db.ScreenshareDAO
+import org.bigbluebutton.core.db.{ LayoutDAO, ScreenshareDAO }
+import org.bigbluebutton.core.models.Layouts
 import org.bigbluebutton.core.running.LiveMeeting
 
 trait ScreenshareRtmpBroadcastStartedVoiceConfEvtMsgHdlr {
@@ -65,9 +66,32 @@ trait ScreenshareRtmpBroadcastStartedVoiceConfEvtMsgHdlr {
         val msgEvent = broadcastEvent(msg.body.voiceConf, msg.body.screenshareConf, msg.body.stream,
           msg.body.vidWidth, msg.body.vidHeight, msg.body.timestamp, msg.body.hasAudio, msg.body.contentType)
         bus.outGW.send(msgEvent)
+
+        //Set screenshare as content
+        if (!Layouts.getScreenshareAsContent(liveMeeting.layouts)) {
+          Layouts.setScreenshareAsContent(liveMeeting.layouts, screenshareAsContent = true)
+          LayoutDAO.insertOrUpdate(liveMeeting.props.meetingProp.intId, liveMeeting.layouts)
+          sendSetScreenshareAsContentEvtMsg("not-used")
+        }
+
       } else {
         log.info("START broadcast NOT ALLOWED when isBroadcastingRTMP=true")
       }
+    }
+
+
+    def sendSetScreenshareAsContentEvtMsg(fromUserId: String): Unit = {
+      val routing = Routing.addMsgToClientRouting(MessageTypes.BROADCAST_TO_MEETING, liveMeeting.props.meetingProp.intId, fromUserId)
+      val envelope = BbbCoreEnvelope(SetScreenshareAsContentEvtMsg.NAME, routing)
+      val header = BbbClientMsgHeader(SetScreenshareAsContentEvtMsg.NAME, liveMeeting.props.meetingProp.intId, fromUserId)
+
+      val body = SetScreenshareAsContentEvtMsgBody(
+        Layouts.getScreenshareAsContent(liveMeeting.layouts),
+      )
+      val event = SetScreenshareAsContentEvtMsg(header, body)
+      val msgEvent = BbbCommonEnvCoreMsg(envelope, event)
+
+      bus.outGW.send(msgEvent)
     }
   }
 
