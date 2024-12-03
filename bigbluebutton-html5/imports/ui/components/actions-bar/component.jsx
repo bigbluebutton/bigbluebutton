@@ -185,22 +185,24 @@ class ActionsBar extends PureComponent {
             {this.renderPluginsActionBarItems(ActionsBarPosition.RIGHT)}
           </Styled.Center>
           <Styled.Right>
-          <SwapPresentationButton />
-            {shouldShowPresentationButton && shouldShowOptionsButton
-              ? (
-                <PresentationOptionsContainer
-                  presentationIsOpen={presentationIsOpen}
-                  setPresentationIsOpen={setPresentationIsOpen}
-                  layoutContextDispatch={layoutContextDispatch}
-                  hasPresentation={isThereCurrentPresentation}
-                  hasExternalVideo={isSharingVideo}
-                  hasScreenshare={hasScreenshare}
-                  hasPinnedSharedNotes={isSharedNotesPinned}
-                  hasGenericContent={hasGenericContent}
-                  hasCameraAsContent={hasCameraAsContent}
-                />
-              )
-              : null}
+            <Styled.Gap>
+              <SwapPresentationButton />
+              {shouldShowPresentationButton && shouldShowOptionsButton
+                ? (
+                  <PresentationOptionsContainer
+                    presentationIsOpen={presentationIsOpen}
+                    setPresentationIsOpen={setPresentationIsOpen}
+                    layoutContextDispatch={layoutContextDispatch}
+                    hasPresentation={isThereCurrentPresentation}
+                    hasExternalVideo={isSharingVideo}
+                    hasScreenshare={hasScreenshare}
+                    hasPinnedSharedNotes={isSharedNotesPinned}
+                    hasGenericContent={hasGenericContent}
+                    hasCameraAsContent={hasCameraAsContent}
+                  />
+                )
+                : null}
+            </Styled.Gap>
           </Styled.Right>
         </Styled.ActionsBar>
       </Styled.ActionsBarWrapper>

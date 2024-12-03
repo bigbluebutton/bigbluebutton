@@ -15,7 +15,7 @@ import { PINNED_PAD_SUBSCRIPTION } from '../notes/queries';
 import useDeduplicatedSubscription from '../../core/hooks/useDeduplicatedSubscription';
 import useSettings from '../../services/settings/hooks/useSettings';
 import { SETTINGS } from '../../services/settings/enums';
-import usePresentationSwap from '../../core/local-states/usePresentationSwap';
+import usePresentationSwap from '../../core/hooks/usePresentationSwap';
 
 const AppContainer = (props) => {
   const {
@@ -65,7 +65,7 @@ const AppContainer = (props) => {
   const isExternalVideoEnabled = useIsExternalVideoEnabled();
   const isPresentationEnabled = useIsPresentationEnabled();
   const [showScreenshare] = usePresentationSwap();
-  console.log("🚀 -> AppContainer -> showScreenshare:", showScreenshare);
+
   const isPresenter = currentUser?.presenter;
 
   const { isOpen } = presentation;
