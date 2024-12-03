@@ -133,7 +133,9 @@ test.describe.parallel('Presentation', { tag: '@ci' }, () => {
       await presentation.uploadAndRemoveAllPresentations();
     });
 
-    test('Remove previous presentation from previous presenter', async ({ browser, context, page }) => {
+    test('Remove previous presentation from previous presenter', { tag: '@flaky' }, async ({ browser, context, page }) => {
+      // missing the uploader presentation toast notification in some CI runs
+      linkIssue(21576)
       const presentation = new Presentation(browser, context);
       await presentation.initModPage(page, true);
       await presentation.initUserPage(true, context);

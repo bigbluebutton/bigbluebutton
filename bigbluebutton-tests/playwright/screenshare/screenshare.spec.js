@@ -1,6 +1,6 @@
 const { test } = require('../fixtures');
-const { devices } = require('@playwright/test');
 const { ScreenShare } = require('./screenshare');
+const { linkIssue } = require('../core/helpers');
 
 test.describe.parallel('Screenshare', { tag: '@ci' }, () => {
   // https://docs.bigbluebutton.org/2.6/release-tests.html#sharing-screen-in-full-screen-mode-automated
