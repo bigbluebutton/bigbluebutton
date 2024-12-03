@@ -22,7 +22,13 @@ const usePresentationSwap = (): [boolean, (v: boolean) => void] => {
     });
   }, []);
 
-  return [data?.componentsFlags?.hasScreenshareAsContent || fallbackValue, setPresentationSwap];
+  return [
+    (
+      data?.componentsFlags?.hasScreenshareAsContent
+      || data?.componentsFlags?.hasCameraAsContent
+    )
+    || fallbackValue,
+    setPresentationSwap];
 };
 
 export default usePresentationSwap;
