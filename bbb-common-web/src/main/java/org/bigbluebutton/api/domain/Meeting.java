@@ -59,7 +59,7 @@ public class Meeting {
 	private Boolean notifyRecordingIsOn;
 	private String welcomeMsgTemplate;
 	private String welcomeMsg;
-	private String welcomeMsgForModerators = "";
+	private String welcomeMsgForModerators;
 	private String loginUrl;
 	private String logoutUrl;
 	private int logoutTimer = 0;
@@ -172,6 +172,7 @@ public class Meeting {
         telVoice = builder.telVoice;
         welcomeMsgTemplate = builder.welcomeMsgTemplate;
         welcomeMsg = builder.welcomeMsg;
+        welcomeMsgForModerators = builder.welcomeMsgForModerators;
         dialNumber = builder.dialNumber;
         metadata = builder.metadata;
         createdTime = builder.createdTime;
@@ -369,14 +370,6 @@ public class Meeting {
 		return endTime;
 	}
 
-	public void setWelcomeMsgForModerators(String msg) {
-		welcomeMsgForModerators = msg;
-	}
-
-	public String getWelcomeMsgForModerators() {
-		return welcomeMsgForModerators;
-	}
-
 	public void setEndTime(long t) {
 		endTime = t;
 	}
@@ -475,12 +468,16 @@ public class Meeting {
 		return presentationUploadExternalUrl;
 	}
 
-  public String getWelcomeMessageTemplate() {
-    return welcomeMsgTemplate;
-  }
+	public String getWelcomeMessageTemplate() {
+		return welcomeMsgTemplate;
+	}
 
 	public String getWelcomeMessage() {
 		return welcomeMsg;
+	}
+
+	public String getWelcomeMsgForModerators() {
+		return welcomeMsgForModerators;
 	}
 
 	public String getDefaultAvatarURL() {
@@ -976,6 +973,7 @@ public class Meeting {
     	private String telVoice;
     	private String welcomeMsgTemplate;
     	private String welcomeMsg;
+    	private String welcomeMsgForModerators;
     	private String loginUrl;
     	private String logoutUrl;
     	private String bannerColor;
@@ -1145,6 +1143,11 @@ public class Meeting {
     		welcomeMsg = w;
     		return this;
     	}
+
+		public Builder withWelcomeMessageForModerators(String w) {
+			welcomeMsgForModerators = w;
+			return this;
+		}
 
 	    public Builder withWelcomeMessageTemplate(String w) {
             welcomeMsgTemplate = w;

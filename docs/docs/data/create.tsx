@@ -29,7 +29,19 @@ const createEndpointTableData = [
     "name": "welcome",
     "required": false,
     "type": "String",
-    "description": (<>A welcome message that gets displayed on the chat window when the participant joins. You can include keywords (<code className="language-plaintext highlighter-rouge">%%CONFNAME%%</code>, <code className="language-plaintext highlighter-rouge">%%DIALNUM%%</code>, <code className="language-plaintext highlighter-rouge">%%CONFNUM%%</code>) which will be substituted automatically.<br /><br /> This parameter overrides the default <code className="language-plaintext highlighter-rouge">defaultWelcomeMessage</code> in <code className="language-plaintext highlighter-rouge">bigbluebutton.properties</code>.<br /><br /> The welcome message has limited support for HTML formatting. Be careful about copy/pasted HTML from e.g. MS Word, as it can easily exceed the maximum supported URL length when used on a GET request.</>)
+    "description": (<><b>[DEPRECATED]</b> Removed in 3.0, temporarily still handled, please transition to welcomeMessage.</>)
+  },
+  {
+    "name": "welcomeMessage",
+    "required": false,
+    "type": "String",
+    "description": (<>A welcome message using markdown syntax that gets displayed when the participant joins. You can include keywords (<code className="language-plaintext highlighter-rouge">%%CONFNAME%%</code>, <code className="language-plaintext highlighter-rouge">%%DIALNUM%%</code>, <code className="language-plaintext highlighter-rouge">%%CONFNUM%%</code>) which will be substituted automatically.<br /><br /> This parameter overrides the default <code className="language-plaintext highlighter-rouge">defaultWelcomeMessage</code> in <code className="language-plaintext highlighter-rouge">bigbluebutton.properties</code>.</>)
+  },
+  {
+    "name": "welcomeMessageForModerators",
+    "required": false,
+    "type": "String",
+    "description": (<>A welcome message using markdown syntax that gets displayed when the moderator joins.<br /><br /> The value is interpreted in the same way as the <code className="language-plaintext highlighter-rouge">welcomeMessage</code> parameter.</>)
   },
   {
     "name": "dialNumber",
@@ -128,7 +140,7 @@ const createEndpointTableData = [
     "name": "moderatorOnlyMessage",
     "required": false,
     "type": "String",
-    "description": (<>Display a message to all moderators in the public chat.<br /><br /> The value is interpreted in the same way as the <code className="language-plaintext highlighter-rouge">welcome</code> parameter.</>)
+    "description": (<><b>[DEPRECATED]</b> Removed in 3.0, temporarily still handled, please transition to `welcomeMessageForModerators`.</>)
   },
   {
     "name": "autoStartRecording",
