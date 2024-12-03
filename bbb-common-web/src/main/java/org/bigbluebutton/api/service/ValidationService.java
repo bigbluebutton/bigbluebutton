@@ -98,11 +98,11 @@ public class ValidationService {
     public boolean isValidURL(String url) {
         // Replace the tokens because they won't validate correctly. 
         String newUrl = url;
-        newURL = newURL.replace('%%MEETINGID%%', "123");
-        newURL = newURL.replace('%%USERID%%', "456");
-        newURL = newURL.replace('%%USERNAME%%', "John Doe");
+        newUrl = newUrl.replace('%%MEETINGID%%', "123");
+        newUrl = newUrl.replace('%%USERID%%', "456");
+        newUrl = newUrl.replace('%%USERNAME%%', "John Doe");
         try {
-            new URL(url).toURI();
+            new URL(newUrl).toURI();
             return true;
         } catch (MalformedURLException | URISyntaxException e) {
             return false;
