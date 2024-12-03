@@ -56,7 +56,7 @@ object FakeUserGenerator {
     val webcamBackgroundURL = "https://www." + RandomStringGenerator.randomAlphanumericString(32) + ".com/" +
       RandomStringGenerator.randomAlphanumericString(10) + ".jpg"
     val color = "#ff6242"
-    val logoutUrlFormats = Seq(
+     val logoutUrlFormats = Seq(
       s"https://www.${RandomStringGenerator.randomAlphanumericString(32)}.com/logout?user=${RandomStringGenerator.randomAlphanumericString(8)}#section",
       s"http://localhost:8080/logout/${RandomStringGenerator.randomAlphanumericString(8)}",
       s"https://example.com/logout?redirect=${java.net.URLEncoder.encode("https://another-site.com", "UTF-8")}"
