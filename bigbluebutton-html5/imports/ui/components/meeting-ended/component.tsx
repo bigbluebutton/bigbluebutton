@@ -3,7 +3,6 @@ import React, {
   useContext,
   useEffect,
   useMemo,
-  useState,
 } from 'react';
 import { defineMessages, useIntl } from 'react-intl';
 import { isEmpty } from 'radash';
@@ -19,11 +18,9 @@ import { MeetingEndDataResponse, getMeetingEndData } from './queries';
 import useAuthData from '/imports/ui/core/local-states/useAuthData';
 import Icon from '/imports/ui/components/common/icon/icon-ts/component';
 import Styled from './styles';
-import Rating from './rating/component';
 import { LoadingContext } from '../common/loading-screen/loading-screen-HOC/component';
 import logger from '/imports/startup/client/logger';
 import apolloContextHolder from '/imports/ui/core/graphql/apolloContextHolder/apolloContextHolder';
-import getFromUserSettings from '/imports/ui/services/users-settings';
 
 const intlMessage = defineMessages({
   410: {
@@ -285,7 +282,8 @@ const MeetingEnded: React.FC<MeetingEndedProps> = ({
   }, []);
 
   if (skipMeetingEnded) {
-    return confirmRedirect(isBreakout, allowDefaultLogoutUrl);
+    confirmRedirect(isBreakout, allowDefaultLogoutUrl);
+    return <></>; // even though well redirect, return empty component and prevent lint error
   }
 
   return (
