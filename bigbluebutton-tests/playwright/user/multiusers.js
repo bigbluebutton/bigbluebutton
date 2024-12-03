@@ -482,6 +482,17 @@ class MultiUsers {
   }
 
   async emojiRainTest() {
+    const { emojiRain } = getSettings();
+    
+    if (!emojiRain) {
+      await this.modPage.waitForSelector(e.whiteboard);
+      await this.modPage.waitForSelector(e.whiteboard);
+      await this.modPage.waitAndClick(e.reactionsButton);
+      await this.modPage.waitAndClick('li[data-test="reaction"]:nth-child(1)');
+      await this.modPage.wasRemoved('div[data-test="emojiRain"] svg');
+      return
+    }
+
     await this.modPage.waitForSelector(e.whiteboard);
     await this.modPage.waitForSelector(e.whiteboard);
     await this.modPage.waitAndClick(e.reactionsButton);
