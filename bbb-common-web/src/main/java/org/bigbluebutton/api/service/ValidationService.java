@@ -96,6 +96,11 @@ public class ValidationService {
     }
 
     public boolean isValidURL(String url) {
+        // Replace the tokens because they won't validate correctly. 
+        String newUrl = url;
+        newURL = newURL.replace('%%MEETINGID%%', "123");
+        newURL = newURL.replace('%%USERID%%', "456");
+        newURL = newURL.replace('%%USERNAME%%', "John Doe");
         try {
             new URL(url).toURI();
             return true;
