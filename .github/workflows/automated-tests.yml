@@ -274,7 +274,7 @@ jobs:
           sudo -i <<'EOF'
           set -e
           cd /root/
-          wget -nv https://raw.githubusercontent.com/bigbluebutton/bbb-install/v3.0.x-release--no-mongo/bbb-install.sh -O bbb-install.sh
+          wget -nv https://raw.githubusercontent.com/bigbluebutton/bbb-install/v3.0.x-release/bbb-install.sh -O bbb-install.sh
           sed -i "s|> /etc/apt/sources.list.d/bigbluebutton.list||g" bbb-install.sh
           chmod +x bbb-install.sh
 
@@ -330,9 +330,6 @@ jobs:
             echo "Check if there is some process still locking:2"
             ps aux | grep -E 'dpkg|apt'
 
-            #remove all apt-update to make the install faster
-            sed -i 's/apt-get update/#apt-get update/g' bbb-install.sh
-
             RETRY_COUNT=$((RETRY_COUNT + 1))
           done
 
@@ -367,6 +364,7 @@ jobs:
           EOF
       - name: Install test dependencies
         working-directory: ./bigbluebutton-tests/playwright
+        timeout-minutes: 25
         run: |
           sh -c '
           npm ci

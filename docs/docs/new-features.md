@@ -180,6 +180,38 @@ Everyone sees the margins and follows the presenter's point of view. If multi-us
 
 Recording is not yet implemented, meaning that if you enable this experimental feature on your server and use it in a recorded session, the recording will most likely have broken whiteboard at best. The recording (and playback) work is planned for after BigBlueButton 3.0.
 
+#### Integration with LiveKit
+
+We have added initial support for LiveKit as a media framework for BigBlueButton.
+It's an experimental feature and, consequently, disabled by default.
+For an in-depth overview of this initiative, please refer to [issue 21059](https://github.com/bigbluebutton/bigbluebutton/issues/21059).
+Feature parity with the current media framework is not yet achieved, but the
+aforementioned issue provides parity tracking in section `Annex 1`.
+
+To enable support for LiveKit:
+  - Install bbb-livekit: `$ sudo apt-get install bbb-livekit`
+  - Enable the LiveKit controller module in bbb-webrtc-sfu: `$ sudo yq -i '.livekit.enabled = true' /etc/bigbluebutton/bbb-webrtc-sfu/production.yml`
+  - Restart bbb-webrtc-sfu: `$ sudo systemctl restart bbb-webrtc-sfu`
+
+Once enabled, LiveKit still won't be used by default. There are two ways to make
+use of it in meetings:
+- Per meeting: set any of the following meeting `/create` parameters
+  - `audioBridge=livekit`
+  - `cameraBridge=livekit`
+  - `screenShareBridge=livekit`
+- Server-wide: set any of the following properties in `/etc/bigbluebutton/bbb-web.properties`
+  - `audioBridge=livekit`
+  - `cameraBridge=livekit`
+  - `screenShareBridge=livekit`
+
+Those parameters do *not* need to be set concurrently. LiveKit can be enabled for
+audio only, for example, while keeping the current media framework for camera
+and screen sharing by setting just `audioBridge=livekit`.
+
+Keep in mind that the LiveKit integration is still experimental and not feature
+complete. Configuration, API parameters, and other details are subject to change.
+We encourage users to test it and provide feedback via our GitHub issue tracker
+or the mailing lists.
 
 ### Upgraded components
 
@@ -277,6 +309,10 @@ In BigBlueButton 2.6.18/2.7.8 POST requests are no longer allowed for the `join`
 #### Changes in document formats we support
 
 We improved the documentation for which types of files we support when uploading presentations. Support for `.odi` and `.odc` was dropped. Support for `.svg`, `.odg` and `.webp` was officially added even though animated webp's are no longer animated after the image processing. 
+
+#### We mirror the webcam preview by default now
+
+We have supported the option to mirror your own webcam while viewing it. Starting with BigBlueButton 3.0.0-beta.6 we mirror it by default (which leads to the same result you would expect if you looked yourself in a physical mirror).
 
 ### Development
 

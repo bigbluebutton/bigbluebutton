@@ -97,7 +97,7 @@ const PadContainerGraphql: React.FC<PadContainerGraphqlProps> = (props) => {
   const sessionData = padSessionData?.sharedNotes_session ?? [];
   const session = sessionData.find((s) => s.sharedNotesExtId === externalId);
   const hasPad = !!hasPadData && hasPadData.sharedNotes.length > 0;
-  const hasSession = !!session?.sessionId;
+  const hasSession = session?.sessionId !== undefined;
   const sessionIds = new Set<string>(sessionData.map((s) => s.sessionId));
 
   if (hasPad && !hasSession && hasPermission) {

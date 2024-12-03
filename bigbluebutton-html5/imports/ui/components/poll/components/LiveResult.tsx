@@ -121,7 +121,7 @@ const LiveResult: React.FC<LiveResultProps> = ({
             data={responses}
             layout="vertical"
           >
-            <XAxis type="number" />
+            <XAxis type="number" allowDecimals={false} />
             <YAxis width={70} type="category" dataKey="optionDesc" />
             <Bar dataKey="optionResponsesCount" fill="#0C57A7" />
           </BarChart>

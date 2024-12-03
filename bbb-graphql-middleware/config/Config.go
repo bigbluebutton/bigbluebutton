@@ -20,16 +20,22 @@ var OverrideConfigPath = "/etc/bigbluebutton/bbb-graphql-middleware.yml"
 
 type Config struct {
 	Server struct {
-		Host                          string `yaml:"listen_host"`
-		Port                          int    `yaml:"listen_port"`
-		MaxConnections                int    `yaml:"max_connections"`
-		MaxConnectionsPerSecond       int    `yaml:"max_connections_per_session_token"`
-		MaxConnectionsPerSessionToken int    `yaml:"max_connections_per_second"`
-		AuthorizedCrossOrigin         string `yaml:"authorized_cross_origin"`
-		JsonPatchDisabled             bool   `yaml:"json_patch_disabled"`
-		SubscriptionAllowedList       string `yaml:"subscriptions_allowed_list"`
-		SubscriptionsDeniedList       string `yaml:"subscriptions_denied_list"`
-		WebsocketIdleTimeoutSeconds   int    `yaml:"websocket_idle_timeout_seconds"`
+		Host                                 string `yaml:"listen_host"`
+		Port                                 int    `yaml:"listen_port"`
+		MaxConnections                       int    `yaml:"max_connections"`
+		MaxConnectionsPerSecond              int    `yaml:"max_connections_per_second"`
+		MaxConnectionsPerSessionToken        int    `yaml:"max_connections_per_session_token"`
+		MaxConnectionQueriesPerMinute        int    `yaml:"max_connection_queries_per_minute"`
+		MaxConnectionMutationsPerMinute      int    `yaml:"max_connection_mutations_per_minute"`
+		MaxConnectionConcurrentSubscriptions int    `yaml:"max_connection_concurrent_subscriptions"`
+		MaxQueryLength                       int    `yaml:"max_query_length"`
+		MaxQueryDepth                        int    `yaml:"max_query_depth"`
+		MaxMutationLength                    int    `yaml:"max_mutation_length"`
+		AuthorizedCrossOrigin                string `yaml:"authorized_cross_origin"`
+		JsonPatchDisabled                    bool   `yaml:"json_patch_disabled"`
+		SubscriptionAllowedList              string `yaml:"subscriptions_allowed_list"`
+		SubscriptionsDeniedList              string `yaml:"subscriptions_denied_list"`
+		WebsocketIdleTimeoutSeconds          int    `yaml:"websocket_idle_timeout_seconds"`
 	} `yaml:"server"`
 	Redis struct {
 		Host     string `yaml:"host"`

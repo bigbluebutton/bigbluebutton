@@ -9,7 +9,7 @@ import {
   colorOffWhite,
   colorWhite,
 } from '/imports/ui/stylesheets/styled-components/palette';
-import { smPaddingX, smPaddingY } from '/imports/ui/stylesheets/styled-components/general';
+import { smPaddingY, smPadding } from '/imports/ui/stylesheets/styled-components/general';
 import { smallOnly } from '/imports/ui/stylesheets/styled-components/breakpoints';
 
 const pulse = keyframes`
@@ -57,7 +57,7 @@ export const MuteToggleButton = styled(Button)`
   
       [dir='rtl'] & {
         margin-right: 0;
-        margin-left: ${smPaddingX};
+        margin-left: -${smPadding};
   
         @media ${smallOnly} {
           margin-left: ${smPaddingY};

@@ -31,8 +31,9 @@ const NotesLock = styled.div`
   font-size: ${fontSizeSmaller};
   color: ${colorGray};
 
-  > i {
+  > span i {
     font-size: ${fontSizeXS};
+    left: 0;
   }
 `;
 

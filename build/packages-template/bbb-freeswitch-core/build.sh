@@ -76,7 +76,7 @@ ldconfig
 # libwebsockets start
 # mod_audio_fork needs it (used in built-in speech transcription)
 if [ ! -d libwebsockets ]; then
-  git clone https://github.com/warmcat/libwebsockets.git
+  git clone https://github.com/bigbluebutton/libwebsockets.git
 fi
 cd libwebsockets/
 git checkout v3.2.3
@@ -95,7 +95,7 @@ ldconfig
 # mod_audio_fork start
 # copy mod_audio_fork into place (used in built-in speech transcription)
 if [ ! -d drachtio-freeswitch-modules ]; then
-  git clone https://github.com/drachtio/drachtio-freeswitch-modules.git
+  git clone https://github.com/bigbluebutton/drachtio-freeswitch-modules.git
 fi
 
 cd drachtio-freeswitch-modules

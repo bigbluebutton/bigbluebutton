@@ -86,6 +86,7 @@ export const CHAT_MESSAGE_PRIVATE_SUBSCRIPTION = gql`
       reactions {
         createdAt
         reactionEmoji
+        reactionEmojiId
         user {
           name
           userId
