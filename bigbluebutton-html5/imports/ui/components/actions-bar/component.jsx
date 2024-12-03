@@ -8,6 +8,7 @@ import ScreenshareButtonContainer from '/imports/ui/components/actions-bar/scree
 import AudioControlsContainer from '../audio/audio-graphql/audio-controls/component';
 import JoinVideoOptionsContainer from '../video-provider/video-button/container';
 import PresentationOptionsContainer from './presentation-options/component';
+import SwapPresentationButton from './swap-presentation/component';
 import Button from '/imports/ui/components/common/button/component';
 import { getSettingsSingletonInstance } from '/imports/ui/services/settings';
 import { LAYOUT_TYPE } from '../layout/enums';
@@ -184,6 +185,7 @@ class ActionsBar extends PureComponent {
             {this.renderPluginsActionBarItems(ActionsBarPosition.RIGHT)}
           </Styled.Center>
           <Styled.Right>
+          <SwapPresentationButton />
             {shouldShowPresentationButton && shouldShowOptionsButton
               ? (
                 <PresentationOptionsContainer

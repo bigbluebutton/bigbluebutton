@@ -156,13 +156,19 @@ class ScreenshareComponent extends React.Component {
   }
 
   componentDidUpdate(prevProps) {
-    const { isPresenter, outputDeviceId } = this.props;
+    const { isPresenter, outputDeviceId, shouldShowScreenshare } = this.props;
     if (prevProps.isPresenter && !isPresenter) {
       screenshareHasEnded();
     }
 
     if (prevProps.outputDeviceId !== outputDeviceId && !isPresenter) {
       setOutputDeviceId(outputDeviceId);
+    }
+
+    if (prevProps.shouldShowScreenshare && !shouldShowScreenshare) {
+      setVolume(0);
+    } else if (!prevProps.shouldShowScreenshare && shouldShowScreenshare) {
+      setVolume(this.volume);
     }
   }
 
@@ -491,7 +497,7 @@ class ScreenshareComponent extends React.Component {
           break;
         case PluginSdk.ScreenshareHelperItemPosition.BOTTOM_RIGHT:
           result.bottomRightPluginItems.push(item);
-          break;
+          break;ivan
         case PluginSdk.ScreenshareHelperItemPosition.BOTTOM_LEFT:
           result.bottomLeftPluginItems.push(item);
           break;
@@ -616,6 +622,7 @@ class ScreenshareComponent extends React.Component {
       height,
       zIndex,
       fullscreenContext,
+      shouldShowScreenshare,
     } = this.props;
 
     // Conditions to render the (re)connecting dots and the unhealthy stream
@@ -628,7 +635,7 @@ class ScreenshareComponent extends React.Component {
     || (isPresenter && !isGloballyBroadcasting)
     || (!mediaFlowing && loaded && isGloballyBroadcasting);
 
-    const display = (width > 0 && height > 0) ? 'inherit' : 'none';
+    const display = (width > 0 && height > 0) && shouldShowScreenshare ? 'inherit' : 'none';
     const Settings = getSettingsSingletonInstance();
     const { animations } = Settings.application;
 
