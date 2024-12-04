@@ -921,22 +921,22 @@ class AudioManager {
 
     if (typeof deviceId === 'string' && sinkIdSupported && currentDeviceId !== targetDeviceId) {
       try {
-        if (!isLive) audioElement.srcObject = null;
+        if (typeof this.bridge?.changeOutputDevice === 'function') {
+          // If the bridge supports changing the output device, use it
+          await this.bridge.changeOutputDevice(deviceId);
+        } else {
+          if (!isLive) audioElement.srcObject = null;
+          await audioElement.setSinkId(deviceId);
+          reloadAudioElement(audioElement);
+        }
 
-        await audioElement.setSinkId(deviceId);
-        reloadAudioElement(audioElement);
-        logger.debug(
-          {
-            logCode: 'audiomanager_output_device_change',
-            extraInfo: {
-              deviceId: currentDeviceId,
-              newDeviceId: deviceId,
-            },
+        logger.debug({
+          logCode: 'audiomanager_output_device_change',
+          extraInfo: {
+            deviceId: currentDeviceId,
+            newDeviceId: deviceId,
           },
-          `Audio output device changed: from ${currentDeviceId || 'default'} to ${
-            deviceId || 'default'
-          }`
-        );
+        }, `Audio output device changed: ${currentDeviceId || 'default'} to ${deviceId || 'default'}`);
         this.outputDeviceId = deviceId;
 
         // Live output device change - add device ID to session storage so it
@@ -953,7 +953,7 @@ class AudioManager {
             deviceId: currentDeviceId,
             newDeviceId: targetDeviceId,
             outputDevices: this.outputDevicesJSON,
-          }
+          },
         }, `Error changing output device - {${error.name}: ${error.message}}`);
 
         // Rollback/enforce current sinkId (if possible)
