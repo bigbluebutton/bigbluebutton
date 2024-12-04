@@ -3,15 +3,17 @@ package org.bigbluebutton.core.apps.users
 import org.apache.pekko.actor.ActorContext
 import org.apache.pekko.event.Logging
 import org.bigbluebutton.Boot.eventBus
+import org.bigbluebutton.ClientSettings.getConfigPropertyValueByPathAsBooleanOrElse
 import org.bigbluebutton.common2.msgs._
 import org.bigbluebutton.core.api.SetPresenterInDefaultPodInternalMsg
 import org.bigbluebutton.core.apps.ExternalVideoModel
+import org.bigbluebutton.core.apps.groupchats.GroupChatApp
 import org.bigbluebutton.core.bus.{BigBlueButtonEvent, InternalEventBus}
 import org.bigbluebutton.core.models._
 import org.bigbluebutton.core.running.{LiveMeeting, OutMsgRouter}
 import org.bigbluebutton.core2.message.senders.{MsgBuilder, Sender}
 import org.bigbluebutton.core.apps.screenshare.ScreenshareApp2x
-import org.bigbluebutton.core.db.UserStateDAO
+import org.bigbluebutton.core.db.{ChatMessageDAO, UserStateDAO}
 
 object UsersApp {
   def broadcastAddUserToPresenterGroup(meetingId: String, userId: String, requesterId: String,
@@ -78,6 +80,19 @@ object UsersApp {
       } yield {
         Sender.sendForceUserGraphqlReconnectionSysMsg(liveMeeting.props.meetingProp.intId, regUser.id, regUser.sessionToken, "role_changed", outGW)
       }
+
+      //Chat message to announce new presenter
+      val announcePresenterChangeInChat = getConfigPropertyValueByPathAsBooleanOrElse(
+        liveMeeting.clientSettings,
+        "public.chat.announcePresenterChangeInChat",
+        alternativeValue = true
+      )
+
+      if (announcePresenterChangeInChat) {
+        //System message
+        ChatMessageDAO.insertSystemMsg(liveMeeting.props.meetingProp.intId, GroupChatApp.MAIN_PUBLIC_CHAT, "", GroupChatMessageType.USER_IS_PRESENTER_MSG, Map(), newPresenter.name)
+      }
+
     }
   }
 
@@ -150,6 +165,25 @@ object UsersApp {
         liveMeeting.props.voiceProp.voiceConf, vu.voiceUserId
       )
     }
+  }
+
+  def sendGenerateLiveKitTokenReqMsg(
+    outGW: OutMsgRouter,
+    meetingId: String,
+    userId: String,
+    userName: String,
+    grant: LiveKitGrant,
+    metadata: LiveKitParticipantMetadata
+  ): Unit = {
+    val event = MsgBuilder.buildGenerateLiveKitTokenReqMsg(
+      meetingId,
+      userId,
+      userName,
+      grant,
+      metadata
+    )
+
+    outGW.send(event)
   }
 
 }

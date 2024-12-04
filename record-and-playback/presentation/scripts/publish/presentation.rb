@@ -858,15 +858,19 @@ def events_get_image_info(slide, tldraw)
     BigBlueButton.logger.warn("Missing image file #{image_path}!")
     # Emergency last-ditch blank image creation
     FileUtils.mkdir_p(File.dirname(image_path))
-    command = \
-      if slide_deskshare
-        ['convert', '-size',
-         "#{@presentation_props['deskshare_output_width']}x#{@presentation_props['deskshare_output_height']}", 'xc:transparent', '-background', 'transparent', image_path,]
-      else
-        ['convert', '-size', '1600x1200', 'xc:transparent', '-background', 'transparent', '-quality', '90', '+dither',
-         '-depth', '8', '-colors', '256', image_path,]
-      end
-    BigBlueButton.exec_ret(*command) || raise("Unable to generate blank image for #{image_path}")
+    if image_path.end_with?(".svg")
+      File.write(image_path, '<svg version="1.1" width="1600" height="1600" xmlns="http://www.w3.org/2000/svg"></svg>')
+    else
+      command = \
+        if slide_deskshare
+          ['convert', '-size',
+           "#{@presentation_props['deskshare_output_width']}x#{@presentation_props['deskshare_output_height']}", 'xc:transparent', '-background', 'transparent', image_path,]
+        else
+          ['convert', '-size', '1600x1200', 'xc:transparent', '-background', 'transparent', '-quality', '90', '+dither',
+           '-depth', '8', '-colors', '256', image_path,]
+        end
+      BigBlueButton.exec_ret(*command) || raise("Unable to generate blank image for #{image_path}")
+    end
   end
 
   slide[:width], slide[:height] = FastImage.size(image_path)
@@ -1117,18 +1121,30 @@ def process_chat_messages(events, bbb_props)
     BigBlueButton::Events.get_chat_events(events, @meeting_start.to_i, @meeting_end.to_i, bbb_props).each do |chat|
       chattimeline = {
         in: (chat[:in] / 1000.0).round(1),
+        id: chat[:id],
         direction: 'down',
         name: chat[:sender],
         chatEmphasizedText: chat[:chatEmphasizedText],
         senderRole: chat[:senderRole],
         message: chat[:message],
+        replyToMessageId: chat[:replyToMessageId],
+        lastEditedTimestamp: chat[:lastEditedTimestamp],
         target: 'chat',
       }
       if (chat[:out])
         chattimeline[:out] = (chat[:out] / 1000.0).round(1)
       end
 
-      xml.chattimeline(**chattimeline)
+      xml.chattimeline(**chattimeline) do
+        # Add reactions only if present
+        if chat[:reactions]
+          xml.reactions do
+            chat[:reactions].each do |emoji, count|
+              xml.reaction(emoji: emoji, count: count)
+            end
+          end
+        end
+      end
     end
   end
 

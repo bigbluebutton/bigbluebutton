@@ -196,8 +196,8 @@ const AudioCaptionsSpeech: React.FC<AudioCaptionsSpeechProps> = ({
   }, [locale]);
 
   const stop = useCallback(() => {
-    logger.debug('Stopping browser speech recognition');
     if (speechRecognitionRef.current) {
+      logger.debug('Stopping browser speech recognition');
       if (!speechHasStarted.started) {
         return;
       }
@@ -219,9 +219,8 @@ const AudioCaptionsSpeech: React.FC<AudioCaptionsSpeechProps> = ({
   }, [locale]);
 
   const start = (settedLocale: string) => {
-    logger.debug('Starting browser speech recognition');
-
     if (speechRecognitionRef.current && isLocaleValid(settedLocale)) {
+      logger.debug('Starting browser speech recognition');
       speechRecognitionRef.current.lang = settedLocale;
 
       if (speechHasStarted.started) {

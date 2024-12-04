@@ -134,18 +134,18 @@ public class MeetingService implements MessageListener {
                            String fullname, String role, String externUserID,
                            String authToken, String sessionToken, String avatarURL, String webcamBackgroundURL, Boolean bot,
                            Boolean guest, Boolean authed, String guestStatus, Boolean excludeFromDashboard, Boolean leftGuestLobby,
-                           String enforceLayout, Map<String, String> userMetadata) {
+                           String enforceLayout, String logoutUrl, Map<String, String> userMetadata) {
     handle(
             new RegisterUser(meetingID, internalUserId, fullname, role,
                             externUserID, authToken, sessionToken, avatarURL, webcamBackgroundURL, bot, guest, authed, guestStatus,
-                            excludeFromDashboard, leftGuestLobby, enforceLayout, userMetadata
+                            excludeFromDashboard, leftGuestLobby, enforceLayout, logoutUrl, userMetadata
             )
     );
 
     Meeting m = getMeeting(meetingID);
     if (m != null) {
       RegisteredUser ruser = new RegisteredUser(authToken, internalUserId, guestStatus,
-                                                excludeFromDashboard, leftGuestLobby, enforceLayout);
+                                                excludeFromDashboard, leftGuestLobby, enforceLayout, logoutUrl);
       m.userRegistered(ruser);
     }
   }
@@ -552,6 +552,9 @@ public class MeetingService implements MessageListener {
     logData.put("meetingCameraCap", m.getMeetingCameraCap());
     logData.put("userCameraCap", m.getUserCameraCap());
     logData.put("maxPinnedCameras", m.getMaxPinnedCameras());
+    logData.put("cameraBridge", m.getCameraBridge());
+    logData.put("screenShareBridge", m.getScreenShareBridge());
+    logData.put("audioBridge", m.getAudioBridge());
     logData.put("record", m.isRecord());
     logData.put("logCode", "create_meeting");
     logData.put("description", "Create meeting.");
@@ -567,7 +570,11 @@ public class MeetingService implements MessageListener {
     gw.createMeeting(m.getInternalId(), m.getExternalId(), m.getParentMeetingId(), m.getName(), m.isRecord(),
             m.getTelVoice(), m.getDuration(), m.getAutoStartRecording(), m.getAllowStartStopRecording(),
             m.getRecordFullDurationMedia(),
-            m.getWebcamsOnlyForModerator(), m.getMeetingCameraCap(), m.getUserCameraCap(), m.getMaxPinnedCameras(), m.getModeratorPassword(), m.getViewerPassword(),
+            m.getWebcamsOnlyForModerator(), m.getMeetingCameraCap(), m.getUserCameraCap(), m.getMaxPinnedCameras(),
+            m.getCameraBridge(),
+            m.getScreenShareBridge(),
+            m.getAudioBridge(),
+            m.getModeratorPassword(), m.getViewerPassword(),
             m.getLearningDashboardAccessToken(), m.getCreateTime(),
             formatPrettyDate(m.getCreateTime()), m.isBreakout(), m.getSequence(), m.isFreeJoin(), m.getMetadata(),
             m.getGuestPolicy(), m.getAuthenticatedGuest(), m.getAllowPromoteGuestToModerator(), m.getWaitingGuestUsersTimeout(), m.getMeetingLayout(), m.getWelcomeMessageTemplate(), m.getWelcomeMessage(),
@@ -594,7 +601,7 @@ public class MeetingService implements MessageListener {
     gw.registerUser(message.meetingID,
       message.internalUserId, message.fullname, message.role,
       message.externUserID, message.authToken, message.sessionToken, message.avatarURL, message.webcamBackgroundURL, message.bot,
-      message.guest, message.authed, message.guestStatus, message.excludeFromDashboard, message.enforceLayout, message.userMetadata);
+      message.guest, message.authed, message.guestStatus, message.excludeFromDashboard, message.enforceLayout, message.logoutUrl, message.userMetadata);
   }
 
   private void processRegisterUserSessionToken(RegisterUserSessionToken message) {

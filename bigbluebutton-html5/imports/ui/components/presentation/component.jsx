@@ -1,7 +1,7 @@
 import React, { PureComponent } from 'react';
 import PropTypes from 'prop-types';
 import WhiteboardContainer from '/imports/ui/components/whiteboard/container';
-import { HUNDRED_PERCENT, MAX_PERCENT } from '/imports/utils/slideCalcUtils';
+import { HUNDRED_PERCENT, MAX_PERCENT, MIN_PERCENT } from '/imports/utils/slideCalcUtils';
 import { SPACE } from '/imports/utils/keyCodes';
 import { defineMessages, injectIntl } from 'react-intl';
 import { toast } from 'react-toastify';
@@ -87,7 +87,7 @@ class Presentation extends PureComponent {
 
     const PAN_ZOOM_INTERVAL = window.meetingClientSettings.public.presentation.panZoomInterval || 200;
 
-    this.currentPresentationToastId = null;
+    this.currentPresentationToastId = 'currentPresentationToastId';
 
     this.getSvgRef = this.getSvgRef.bind(this);
     this.zoomChanger = debounce(this.zoomChanger.bind(this), 200);
@@ -264,22 +264,20 @@ class Presentation extends PureComponent {
         prevProps?.currentPresentationId !== currentPresentationId
         || (downloadableOn && !userIsPresenter)
       ) {
-        if (this.currentPresentationToastId) {
+        if (toast.isActive(this.currentPresentationToastId)) {
           toast.update(this.currentPresentationToastId, {
             autoClose: shouldCloseToast,
             render: this.renderCurrentPresentationToast(),
           });
         } else {
-          this.currentPresentationToastId = toast(
+          toast(
             this.renderCurrentPresentationToast(),
             {
-              onClose: () => {
-                this.currentPresentationToastId = null;
-              },
               autoClose: shouldCloseToast,
               className: 'toastClass actionToast currentPresentationToast',
               bodyClassName: 'toastBodyClass',
               progressClassName: 'toastProgressClass',
+              toastId: this.currentPresentationToastId,
             },
           );
         }
@@ -287,7 +285,7 @@ class Presentation extends PureComponent {
 
       const downloadableOff = prevProps?.presentationIsDownloadable && !presentationIsDownloadable;
 
-      if (this.currentPresentationToastId && downloadableOff) {
+      if (toast.isActive(this.currentPresentationToastId) && downloadableOff) {
         toast.update(this.currentPresentationToastId, {
           autoClose: true,
           render: this.renderCurrentPresentationToast(),
@@ -507,9 +505,11 @@ class Presentation extends PureComponent {
   }
 
   zoomChanger(zoom) {
+    const { currentSlide } = this.props;
     let boundZoom = parseInt(zoom);
-    if (boundZoom < HUNDRED_PERCENT) {
-      boundZoom = HUNDRED_PERCENT;
+    const min = currentSlide?.infiniteWhiteboard ? MIN_PERCENT : HUNDRED_PERCENT;
+    if (boundZoom < min) {
+      boundZoom = min;
     } else if (boundZoom > MAX_PERCENT) {
       boundZoom = MAX_PERCENT;
     }
