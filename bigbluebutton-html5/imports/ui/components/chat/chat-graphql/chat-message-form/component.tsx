@@ -28,6 +28,9 @@ import deviceInfo from '/imports/utils/deviceInfo';
 import usePreviousValue from '/imports/ui/hooks/usePreviousValue';
 import useChat from '/imports/ui/core/hooks/useChat';
 import useCurrentUser from '/imports/ui/core/hooks/useCurrentUser';
+import {
+  replaceImageLinks,
+} from './service';
 import { Chat } from '/imports/ui/Types/chat';
 import { Layout } from '../../../layout/layoutTypes';
 import useMeeting from '/imports/ui/core/hooks/useMeeting';
@@ -371,10 +374,12 @@ const ChatMessageForm: React.FC<ChatMessageFormProps> = ({
     const formRef = useRef<HTMLFormElement | null>(null);
     const CHAT_EDIT_ENABLED = useIsEditChatMessageEnabled();
 
-    const handleSubmit = (e: React.FormEvent<HTMLFormElement> | React.KeyboardEvent<HTMLInputElement> | Event) => {
+    const handleSubmit = async (
+      e: React.FormEvent<HTMLFormElement> | React.KeyboardEvent<HTMLInputElement> | Event,
+    ) => {
       e.preventDefault();
 
-      const msg = message;
+      let msg = message;
 
       if (msg.length < minMessageLength || chatSendMessageLoading) return;
 
@@ -416,6 +421,8 @@ const ChatMessageForm: React.FC<ChatMessageFormProps> = ({
           }, `Editing the message failed: ${e?.message}`);
         });
       } else if (!chatSendMessageLoading) {
+        msg = await replaceImageLinks(msg);
+
         chatSendMessage({
           variables: {
             chatMessageInMarkdownFormat: msg,
