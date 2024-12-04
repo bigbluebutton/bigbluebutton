@@ -25,6 +25,7 @@ import usePreviousValue from '/imports/ui/hooks/usePreviousValue';
 import useChat from '/imports/ui/core/hooks/useChat';
 import useCurrentUser from '/imports/ui/core/hooks/useCurrentUser';
 import {
+  replaceImageLinks,
   textToMarkdown,
 } from './service';
 import { Chat } from '/imports/ui/Types/chat';
@@ -348,10 +349,10 @@ const ChatMessageForm: React.FC<ChatMessageFormProps> = ({
   const renderForm = () => {
     const formRef = useRef<HTMLFormElement | null>(null);
 
-    const handleSubmit = (e: React.FormEvent<HTMLFormElement> | React.KeyboardEvent<HTMLInputElement> | Event) => {
+    const handleSubmit = async (e: React.FormEvent<HTMLFormElement> | React.KeyboardEvent<HTMLInputElement> | Event) => {
       e.preventDefault();
 
-      const msg = textToMarkdown(message);
+      let msg = textToMarkdown(message);
 
       if (msg.length < minMessageLength || chatSendMessageLoading) return;
 
@@ -393,6 +394,8 @@ const ChatMessageForm: React.FC<ChatMessageFormProps> = ({
           }, `Editing the message failed: ${e?.message}`);
         });
       } else if (!chatSendMessageLoading) {
+        msg = await replaceImageLinks(msg);
+
         chatSendMessage({
           variables: {
             chatMessageInMarkdownFormat: msg,
