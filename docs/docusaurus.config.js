@@ -78,10 +78,13 @@ const config = {
                     {
                         to: "/2.6/new-features/",
                         from: "/2.6/new.html"
-                    },
+
                     {
                         to: "/new-features/",
                         from: "/2.7/new-features/"
+                    },                    {
+                        to: "/3.0/new-features/",
+                        from: "/3.0/new/"
                     },
                     {
                         to: "/development/api/",
