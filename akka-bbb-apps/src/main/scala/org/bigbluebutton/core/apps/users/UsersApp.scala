@@ -79,7 +79,7 @@ object UsersApp {
       // Force reconnection with graphql to refresh permissions (if user already joined)
       if(regUser.joined) {
         GraphqlMiddleware.requestGraphqlReconnection(regUser.sessionToken, "assigned_presenter_automatically")
-      }
+    }
 
       //Update dabatase
       UserStateDAO.update(newPresenter)

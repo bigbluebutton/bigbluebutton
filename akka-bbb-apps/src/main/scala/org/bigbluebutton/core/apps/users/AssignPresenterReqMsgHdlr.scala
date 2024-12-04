@@ -1,6 +1,6 @@
 package org.bigbluebutton.core.apps.users
 
-import org.bigbluebutton.ClientSettings.{ getConfigPropertyValueByPathAsBooleanOrElse, getConfigPropertyValueByPathAsIntOrElse }
+import org.bigbluebutton.ClientSettings.getConfigPropertyValueByPathAsBooleanOrElse
 import org.bigbluebutton.common2.msgs._
 import org.bigbluebutton.core.apps.presentationpod.SetPresenterInPodActionHandler
 import org.bigbluebutton.core.apps.ExternalVideoModel
@@ -12,7 +12,6 @@ import org.bigbluebutton.core.domain.MeetingState2x
 import org.bigbluebutton.core.apps.screenshare.ScreenshareApp2x.requestBroadcastStop
 import org.bigbluebutton.core.db.{ ChatMessageDAO, UserStateDAO }
 import org.bigbluebutton.core.graphql.GraphqlMiddleware
-import org.bigbluebutton.core2.message.senders.Sender
 
 trait AssignPresenterReqMsgHdlr extends RightsManagementTrait {
   this: UsersApp =>
