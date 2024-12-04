@@ -1,4 +1,3 @@
-// @ts-nocheck
 import {
   AudioPresets,
   Track,
@@ -82,6 +81,9 @@ export default class LiveKitAudioBridge extends BaseAudioBridge {
     return true;
   }
 
+  // Typings for setInputStream are absent in base class and needs to be corrected
+  // there and in audio-manager
+  // @ts-ignore
   setInputStream(stream: MediaStream | null, deviceId?: string): Promise<void> {
     if (!stream || this.originalStream?.id === stream.id) return Promise.resolve();
 
@@ -179,6 +181,46 @@ export default class LiveKitAudioBridge extends BaseAudioBridge {
     }
   }
 
+  async changeOutputDevice(deviceId: string): Promise<void> {
+    try {
+      const switched = await this.liveKitRoom.switchActiveDevice(
+        'audiooutput',
+        deviceId,
+        true,
+      );
+
+      if (!switched) throw new Error('Failed to switch audio output device');
+
+      const activeDevices = Array.from(
+        this.liveKitRoom.localParticipant.activeDeviceMap.entries(),
+      );
+
+      logger.debug({
+        logCode: 'livekit_audio_change_output_device',
+        extraInfo: {
+          bridgeName: this.bridgeName,
+          role: this.role,
+          deviceId,
+          activeDevices,
+        },
+      }, 'LiveKit: audio output device changed');
+    } catch (error) {
+      logger.error({
+        logCode: 'livekit_audio_change_output_device_error',
+        extraInfo: {
+          errorMessage: (error as Error).message,
+          errorName: (error as Error).name,
+          errorStack: (error as Error).stack,
+          bridgeName: this.bridgeName,
+          role: this.role,
+          deviceId,
+        },
+      }, 'LiveKit: change audio output device failed');
+
+      throw error;
+    }
+  }
+
   dispatchAutoplayHandlingEvent(mediaElement: HTMLMediaElement): void {
     const tagFailedEvent = new CustomEvent('audioPlayFailed', {
       detail: { mediaElement },
@@ -197,6 +239,7 @@ export default class LiveKitAudioBridge extends BaseAudioBridge {
 
   private async publish(inputStream: MediaStream | null): Promise<void> {
     try {
+      // @ts-ignore
       const LIVEKIT_SETTINGS = window.meetingClientSettings.public.media?.livekit?.audio;
       const basePublishOptions: TrackPublishOptions = LIVEKIT_SETTINGS?.publishOptions || {
         audioPreset: AudioPresets.speech,
@@ -368,6 +411,7 @@ export default class LiveKitAudioBridge extends BaseAudioBridge {
       const matchConstraints = filterSupportedConstraints(constraints);
 
       if (IS_CHROME) {
+        // @ts-ignore
         matchConstraints.deviceId = this.inputDeviceId;
         const stream = await doGUM({ audio: matchConstraints });
         await this.setInputStream(stream, this.inputDeviceId);
