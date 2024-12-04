@@ -68,6 +68,18 @@ app.post('/api/rest/chatImageUpload', async (req: Request, res: Response) => {
 
   const url = req.body.file;
 
+  // if url contains a base64 string, do not download the file, only store it and return the filename
+  if (url.startsWith('data:image')) {
+    console.log('[post] received base64 image upload request');
+    const base64Data = url.replace(/^data:image\/\w+;base64,/, '');
+    const fileName = `${uuid()}.png`;
+    const outputPath = path.join(__dirname, '..', 'uploads', fileName);
+    fs.writeFileSync(outputPath, base64Data, 'base64');
+    res.status(200).send({message: 'Image uploaded successfully', imageUrl: fileName});
+    return;
+  }
+
+
   validateFileSize(url).then((exceedsLimit) => {
     if (exceedsLimit) {
       console.error('File exceeds the maximum allowed size.');
