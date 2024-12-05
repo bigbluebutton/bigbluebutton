@@ -3,8 +3,9 @@ package org.bigbluebutton.core.graphql
 import org.bigbluebutton.SystemConfiguration
 import org.slf4j.LoggerFactory
 
-import java.net.URI
+import java.net.{ URI, URLEncoder }
 import java.net.http.{ HttpClient, HttpRequest, HttpResponse }
+import java.nio.charset.StandardCharsets
 import java.time.Duration
 
 object GraphqlMiddleware extends SystemConfiguration {
@@ -15,7 +16,8 @@ object GraphqlMiddleware extends SystemConfiguration {
     for {
       sessionToken <- sessionTokens
     } yield {
-      val url = s"${graphqlMiddlewareAPI}/graphql-reconnection?sessionToken=$sessionToken&reason=${reason}"
+      val encodedReason = URLEncoder.encode(reason, StandardCharsets.UTF_8.toString)
+      val url = s"${graphqlMiddlewareAPI}/graphql-reconnection?sessionToken=$sessionToken&reason=$encodedReason"
 
       val client = HttpClient.newHttpClient()
       val request = HttpRequest.newBuilder()
