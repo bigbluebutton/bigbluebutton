@@ -6,6 +6,7 @@ import { useMutation } from '@apollo/client';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import { SelectChangeEvent } from '@mui/material/Select';
 import MenuItem from '@mui/material/MenuItem';
+import Slider from '@mui/material/Slider';
 import Styled from './styles';
 import { layoutDispatch, layoutSelect } from '../layout/context';
 import { ACTIONS, PANELS } from '../layout/enums';
@@ -38,6 +39,7 @@ import VirtualBgSelector from '/imports/ui/components/video-preview/virtual-back
 import AudioSelectors from './audio-selectors/component';
 import AudioCaptions from './audio-captions/component';
 import BBBVideoStream from '/imports/ui/services/webrtc-base/bbb-video-stream';
+import { colorPrimary } from '../../stylesheets/styled-components/palette';
 
 const intlMessages: { [key: string]: { id: string; description?: string } } = defineMessages({
   title: {
@@ -872,7 +874,7 @@ const ProfileSettings: React.FC<ProfileSettingsProps> = () => {
     if (!ENABLE_CAMERA_BRIGHTNESS) return null;
 
     return (
-      <Styled.BrightnessSlider
+      <Slider
         value={brightness - 100}
         defaultValue={0}
         min={-100}
@@ -882,6 +884,9 @@ const ProfileSettings: React.FC<ProfileSettingsProps> = () => {
         aria-describedby="brightness-slider-desc"
         valueLabelDisplay="auto"
         disabled={!isVirtualBackgroundSupported() || isCameraLoading}
+        sx={{
+          color: colorPrimary,
+        }}
       />
     );
   };

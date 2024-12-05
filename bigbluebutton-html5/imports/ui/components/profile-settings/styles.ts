@@ -19,7 +19,6 @@ import WbSunny from '@mui/icons-material/WbSunny';
 import Headphones from '@mui/icons-material/Headphones';
 import Mic from '@mui/icons-material/Mic';
 import Select from '@mui/material/Select';
-import Slider from '@mui/material/Slider';
 import Switch from '@mui/material/Switch';
 import FormControlLabel from '@mui/material/FormControlLabel';
 import {
@@ -268,10 +267,6 @@ const CameraQualitySelector = styled(DeviceSelector)`
   width: 100%;
 `;
 
-const BrightnessSlider = styled(Slider)`
-  color: ${colorPrimary};
-`;
-
 const VirtualBackgroundContainer = styled.div`
   display: flex;
   flex-direction: column;
@@ -307,6 +302,7 @@ const CaptionsContainer = styled.div`
   align-items: flex-start;
   align-self: stretch;
   gap: 1.0rem;
+  padding: 0px ${contentSidebarPadding};
 `;
 
 const CaptionsToggleContainer = styled.div`
@@ -367,7 +363,6 @@ export default {
   CameraQualityContainer,
   CameraQualityText,
   CameraQualitySelector,
-  BrightnessSlider,
   VirtualBackgroundContainer,
   SwitchTitle,
   DefaultSwitch,
