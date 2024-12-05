@@ -192,6 +192,10 @@ To enable support for LiveKit:
   - Install bbb-livekit: `$ sudo apt-get install bbb-livekit`
   - Enable the LiveKit controller module in bbb-webrtc-sfu: `$ sudo yq -i '.livekit.enabled = true' /etc/bigbluebutton/bbb-webrtc-sfu/production.yml`
   - Restart bbb-webrtc-sfu: `$ sudo systemctl restart bbb-webrtc-sfu`
+  - Guarantee that Node.js 22 is installed in your server: `$ node -v`
+    - Older 3.0 installations might still be using Node.js 18. If that's the case,
+      re-run bbb-install or correct any custom installation scripts to ensure
+      Node.js 22 is installed.
 
 Once enabled, LiveKit still won't be used by default. There are two ways to make
 use of it in meetings:
