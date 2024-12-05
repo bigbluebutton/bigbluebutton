@@ -1,4 +1,3 @@
-// @ts-nocheck
 import React, { useEffect, useRef, useCallback } from 'react';
 import { defineMessages, useIntl } from 'react-intl';
 import {
@@ -213,10 +212,10 @@ const LiveKitCameraBridge: React.FC<LiveKitCameraBridgeProps> = ({
         }
       });
       delete streamRefs.current.localTracks[stream];
+      delete streamRefs.current.localVideoStreams[stream];
     } else {
       const track = streamRefs.current.remoteTracks[stream];
       if (track) track.detach();
-      delete streamRefs.current.remoteTracks[stream];
     }
   }, [isCameraSource]);
 
@@ -261,7 +260,11 @@ const LiveKitCameraBridge: React.FC<LiveKitCameraBridgeProps> = ({
       name: stream,
     };
 
-    if (!isLocal || !bbbVideoStream) return;
+    if (!isLocal || !bbbVideoStream) {
+      attachLiveKitStream(stream);
+      notifyStreamStateChange(stream, 'completed');
+      return;
+    }
 
     streamRefs.current.connectingStreams[stream] = true;
 
@@ -357,6 +360,8 @@ const LiveKitCameraBridge: React.FC<LiveKitCameraBridgeProps> = ({
         trackSid: publication.trackSid,
       },
     }, `LiveKit: camera unsubscribed - ${trackSid}`);
+
+    delete streamRefs.current.remoteTracks[stream];
   }, [isCameraSource]);
 
   const handleTrackPublished = useCallback((publication: RemoteTrackPublication) => {

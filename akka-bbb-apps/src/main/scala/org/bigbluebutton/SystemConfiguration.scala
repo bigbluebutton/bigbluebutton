@@ -18,6 +18,9 @@ trait SystemConfiguration {
   lazy val bbbWebViewerPassword = Try(config.getString("services.viewerPassword")).getOrElse("changeme")
   lazy val keysExpiresInSec = Try(config.getInt("redis.keyExpiry")).getOrElse(14 * 86400) // 14 days
 
+  // Graphql Middleware API url
+  lazy val graphqlMiddlewareAPI = Try(config.getString("services.graphqlMiddlewareAPI")).getOrElse("http://127.0.0.1:8378")
+
   lazy val expireLastUserLeft = Try(config.getInt("expire.lastUserLeft")).getOrElse(60) // 1 minute
   lazy val expireNeverJoined = Try(config.getInt("expire.neverJoined")).getOrElse(5 * 60) // 5 minutes
 

@@ -7,7 +7,7 @@ import org.bigbluebutton.core.bus.BigBlueButtonEvent
 import org.bigbluebutton.core.db.{ BreakoutRoomDAO, MeetingDAO, NotificationDAO }
 import org.bigbluebutton.core.domain.MeetingState2x
 import org.bigbluebutton.core.running.{ MeetingActor, OutMsgRouter }
-import org.bigbluebutton.core2.message.senders.{ MsgBuilder, Sender }
+import org.bigbluebutton.core2.message.senders.MsgBuilder
 import org.bigbluebutton.core.util.TimeUtil
 
 trait UpdateBreakoutRoomsTimeMsgHdlr extends RightsManagementTrait {

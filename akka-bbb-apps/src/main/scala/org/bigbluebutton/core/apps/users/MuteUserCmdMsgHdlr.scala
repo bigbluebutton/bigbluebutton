@@ -6,7 +6,6 @@ import org.bigbluebutton.core.apps.voice.VoiceApp
 import org.bigbluebutton.core.models.{ Roles, Users2x, VoiceUsers }
 import org.bigbluebutton.core.running.{ LiveMeeting, OutMsgRouter }
 import org.bigbluebutton.core2.MeetingStatus2x
-import org.bigbluebutton.core2.message.senders.MsgBuilder
 
 trait MuteUserCmdMsgHdlr extends RightsManagementTrait {
   this: UsersApp =>

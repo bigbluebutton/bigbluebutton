@@ -1,7 +1,7 @@
 package org.bigbluebutton.core.apps
 
 import org.bigbluebutton.core.running.{ LiveMeeting, OutMsgRouter }
-import org.bigbluebutton.core2.message.senders.{ MsgBuilder }
+import org.bigbluebutton.core2.message.senders.MsgBuilder
 
 object ExternalVideoModel {
   def setURL(externalVideoModel: ExternalVideoModel, externalVideoUrl: String) {

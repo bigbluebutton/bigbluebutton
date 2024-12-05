@@ -5,7 +5,7 @@ import org.bigbluebutton.common2.msgs._
 import org.bigbluebutton.core.models.{ RegisteredUsers, Users2x, VoiceUsers }
 import org.bigbluebutton.core.running.{ MeetingActor, OutMsgRouter }
 import org.bigbluebutton.core.apps.{ PermissionCheck, RightsManagementTrait }
-import org.bigbluebutton.core2.message.senders.Sender
+import org.bigbluebutton.core.graphql.GraphqlMiddleware
 
 trait LockUserInMeetingCmdMsgHdlr extends RightsManagementTrait {
   this: MeetingActor =>
@@ -44,7 +44,7 @@ trait LockUserInMeetingCmdMsgHdlr extends RightsManagementTrait {
         for {
           u <- RegisteredUsers.findWithUserId(uvo.intId, liveMeeting.registeredUsers)
         } yield {
-          Sender.sendForceUserGraphqlReconnectionSysMsg(liveMeeting.props.meetingProp.intId, uvo.intId, u.sessionToken, "lock_user_changed", outGW)
+          GraphqlMiddleware.requestGraphqlReconnection(u.sessionToken, "lock_user_changed")
         }
 
         log.info("Lock user.  meetingId=" + props.meetingProp.intId + " userId=" + uvo.intId + " locked=" + uvo.locked)

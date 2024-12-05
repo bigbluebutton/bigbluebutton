@@ -361,7 +361,7 @@ followed by a restart of BigBlueButton
 
 If you are upgrading BigBlueButton 2.6 or 2.7 we recommend you set up a new Ubuntu 22.04 server with BigBlueButton 3.0 and then [copy over your existing recordings from the old server](/administration/customize#transfer-published-recordings-from-another-server).
 
-Make sure you read through the ["what's new in 3.0" document](https://docs.bigbluebutton.org/3.0/new) and especially [the section covering notable changes](https://docs.bigbluebutton.org/3.0/new#other-notable-changes)
+Make sure you read through the ["what's new in 3.0" document](https://docs.bigbluebutton.org/3.0/new-features) and especially [the section covering notable changes](https://docs.bigbluebutton.org/3.0/new-features#other-notable-changes)
 
 ### Restart your server
 

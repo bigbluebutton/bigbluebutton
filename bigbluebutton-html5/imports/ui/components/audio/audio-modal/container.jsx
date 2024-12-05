@@ -97,8 +97,9 @@ const AudioModalContainer = (props) => {
   const joinMic = useCallback(
     (options = {}) => joinMicrophone({
       skipEchoTest: options.skipEchoTest || joinFullAudioImmediately,
+      muted: options.muteOnStart || meeting?.voiceSettings?.muteOnStart,
     }),
-    [skipCheck, skipCheckOnJoin],
+    [skipCheck, skipCheckOnJoin, meeting],
   );
   const isTranscriptionEnabled = useIsAudioTranscriptionEnabled();
 
