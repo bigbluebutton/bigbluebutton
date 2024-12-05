@@ -7,6 +7,7 @@ import { v4 as uuid } from 'uuid';
 const MAX_BODY_SIZE = 1024 * 1024 * 10; // 10MB
 const SERVER_PORT = 8094;
 const SERVER_HOST = '127.0.0.1';
+const FILE_UPLOAD_PATH = '/var/bigbluebutton/chat-images';
 
 // Initialize Express Application
 const app = express();
@@ -49,7 +50,7 @@ app.get('/api/rest/chatImageUpload', async (req: Request, res: Response) => {
     // Send a success response.
     console.log('[get] received image request:', imageUrl);
 
-    const imagePath = path.join(__dirname, '..', 'uploads', imageUrl);
+    const imagePath = path.join(FILE_UPLOAD_PATH, imageUrl);
 
     res.sendFile(imagePath, (err) => {
       if (err) {
@@ -73,7 +74,7 @@ app.post('/api/rest/chatImageUpload', async (req: Request, res: Response) => {
     console.log('[post] received base64 image upload request');
     const base64Data = url.replace(/^data:image\/\w+;base64,/, '');
     const fileName = `${uuid()}.png`;
-    const outputPath = path.join(__dirname, '..', 'uploads', fileName);
+    const outputPath = path.join(FILE_UPLOAD_PATH, fileName);
     fs.writeFileSync(outputPath, base64Data, 'base64');
     res.status(200).send({message: 'Image uploaded successfully', imageUrl: fileName});
     return;
@@ -93,11 +94,10 @@ app.post('/api/rest/chatImageUpload', async (req: Request, res: Response) => {
   const fileName = `${uuid()}.${fileExtension}`;
 
   // store file in the uploads directory
-  const outputDir = path.join(__dirname, '..', 'uploads');
-  if (!fs.existsSync(outputDir)) {
-    fs.mkdirSync(outputDir, { recursive: true });
+  if (!fs.existsSync(FILE_UPLOAD_PATH)) {
+    fs.mkdirSync(FILE_UPLOAD_PATH, { recursive: true });
   }
-  const outputPath = path.join(outputDir, fileName);
+  const outputPath = path.join(FILE_UPLOAD_PATH, fileName);
   console.log({outputPath});
 
   try {
