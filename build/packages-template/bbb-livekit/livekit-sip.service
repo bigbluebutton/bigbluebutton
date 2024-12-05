@@ -10,6 +10,8 @@ ExecStart=/usr/bin/livekit-sip --config "${RUNTIME_DIRECTORY}/livekit-sip.yaml"
 ExecStopPost=rm ${RUNTIME_DIRECTORY}/livekit-sip.yaml
 RuntimeDirectory=livekit-sip
 Restart=always
+# LiveKit has a graceful shutdown, but we don't need it local BBB setup
+TimeoutStopSec=5
 User=bigbluebutton
 Group=bigbluebutton
 CPUSchedulingPolicy=fifo
