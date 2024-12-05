@@ -188,6 +188,7 @@ const ChatMessageForm: React.FC<ChatMessageFormProps> = ({
   const AUTO_CONVERT_EMOJI = window.meetingClientSettings.public.chat.autoConvertEmoji;
   const ENABLE_EMOJI_PICKER = window.meetingClientSettings.public.chat.emojiPicker.enable;
   const ENABLE_TYPING_INDICATOR = CHAT_CONFIG.typingIndicator.enabled;
+  const ALLOWED_ELEMENTS = CHAT_CONFIG.allowedElements;
 
   const handleUserTyping = (hasError?: boolean) => {
     if (hasError || !ENABLE_TYPING_INDICATOR) return;
@@ -421,7 +422,9 @@ const ChatMessageForm: React.FC<ChatMessageFormProps> = ({
           }, `Editing the message failed: ${e?.message}`);
         });
       } else if (!chatSendMessageLoading) {
-        msg = await replaceImageLinks(msg);
+        if (ALLOWED_ELEMENTS.includes('img')) {
+          msg = await replaceImageLinks(msg);
+        }
 
         chatSendMessage({
           variables: {
