@@ -2,6 +2,7 @@ import React from 'react';
 import Skeleton, { SkeletonTheme } from 'react-loading-skeleton';
 import Styled from './styles';
 import listItemStyles from '../styles';
+import AvatarStyled from '../user-name-with-subs/styles';
 import { getSettingsSingletonInstance } from '/imports/ui/services/settings';
 
 interface SkeletonUserListItemProps {
@@ -26,18 +27,18 @@ const SkeletonUserListItem: React.FC<SkeletonUserListItemProps> = ({
                 <Skeleton circle />
               </listItemStyles.Avatar>
             </Styled.UserAvatar>
-            <listItemStyles.UserNameContainer>
-              <listItemStyles.UserName>
+            <AvatarStyled.UserNameContainer>
+              <AvatarStyled.UserName>
                 <Styled.SkeletonWrapper>
                   <Skeleton />
                 </Styled.SkeletonWrapper>
-              </listItemStyles.UserName>
-              <listItemStyles.UserNameSub>
+              </AvatarStyled.UserName>
+              <AvatarStyled.UserNameSub>
                 <Styled.SkeletonWrapper>
                   <Skeleton />
                 </Styled.SkeletonWrapper>
-              </listItemStyles.UserNameSub>
-            </listItemStyles.UserNameContainer>
+              </AvatarStyled.UserNameSub>
+            </AvatarStyled.UserNameContainer>
           </listItemStyles.UserItemContents>
         </div>
       </SkeletonTheme>

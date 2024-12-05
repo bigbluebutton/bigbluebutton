@@ -1,5 +1,5 @@
-import React, { useEffect, useMemo } from 'react';
-
+import React, { useEffect } from 'react';
+import { defineMessages, useIntl } from 'react-intl';
 import { UI_DATA_LISTENER_SUBSCRIBED } from 'bigbluebutton-html-plugin-sdk/dist/cjs/ui-data-hooks/consts';
 import { UserListUiDataPayloads } from 'bigbluebutton-html-plugin-sdk/dist/cjs/ui-data-hooks/user-list/types';
 import * as PluginSdk from 'bigbluebutton-html-plugin-sdk';
@@ -12,11 +12,23 @@ import useDeduplicatedSubscription from '/imports/ui/core/hooks/useDeduplicatedS
 import UserListParticipantsPageContainer from './page/component';
 import IntersectionWatcher from './intersection-watcher/intersectionWatcher';
 import { setLocalUserList } from '/imports/ui/core/hooks/useLoadedUserList';
-import roveBuilder from '/imports/ui/core/utils/keyboardRove';
+import { layoutDispatch } from '/imports/ui/components/layout/context';
+import { ACTIONS, PANELS } from '/imports/ui/components/layout/enums';
 
 interface UserListParticipantsProps {
   count: number;
 }
+
+const intlMessages = defineMessages({
+  usersTitle: {
+    id: 'app.userList.usersTitle',
+    description: 'Title for the Header',
+  },
+  closeLabel: {
+    id: 'app.userList.close',
+    description: 'Label for the close button in the user list panel',
+  },
+});
 
 const UserListParticipants: React.FC<UserListParticipantsProps> = ({
   count,
@@ -26,6 +38,8 @@ const UserListParticipants: React.FC<UserListParticipantsProps> = ({
   }>({});
   const userListRef = React.useRef<HTMLDivElement | null>(null);
   const selectedUserRef = React.useRef<HTMLElement | null>(null);
+  const intl = useIntl();
+  const layoutContextDispatch = layoutDispatch();
 
   useEffect(() => {
     const keys = Object.keys(visibleUsers);
@@ -81,35 +95,41 @@ const UserListParticipants: React.FC<UserListParticipantsProps> = ({
   const amountOfPages = Math.ceil(count / 50);
   return (
     (
-      <Styled.UserListColumn
-      // @ts-ignore
-        onKeyDown={rove}
-        tabIndex={0}
-      >
-        <Styled.VirtualizedList ref={userListRef}>
-          {
-            Array.from({ length: amountOfPages }).map((_, i) => {
-              const isLastItem = amountOfPages === (i + 1);
-              const restOfUsers = count % 50;
-              const key = i;
-              return i === 0
-                ? (
-                  <UserListParticipantsPageContainer
-                    key={key}
-                    index={i}
-                    isLastItem={isLastItem}
-                    restOfUsers={isLastItem ? restOfUsers : 50}
-                    setVisibleUsers={setVisibleUsers}
-                  />
-                )
-                : (
-                  <IntersectionWatcher
-                    // eslint-disable-next-line react/no-array-index-key
-                    key={i}
-                    ParentRef={userListRef}
-                    isLastItem={isLastItem}
-                    restOfUsers={isLastItem ? restOfUsers : 50}
-                  >
+      <Styled.PanelContent>
+        <Styled.HeaderContainer
+          title={intl.formatMessage(intlMessages.usersTitle)}
+          rightButtonProps={{
+            'aria-label': intl.formatMessage(intlMessages.closeLabel),
+            'data-test': 'closeUserList',
+            icon: 'close',
+            label: intl.formatMessage(intlMessages.closeLabel),
+            onClick: () => {
+              layoutContextDispatch({
+                type: ACTIONS.SET_SIDEBAR_CONTENT_IS_OPEN,
+                value: false,
+              });
+              layoutContextDispatch({
+                type: ACTIONS.SET_SIDEBAR_CONTENT_PANEL,
+                value: PANELS.NONE,
+              });
+            },
+          }}
+        />
+        <Styled.Separator />
+        <Styled.UserListColumn
+        // @ts-ignore
+          onKeyDown={rove}
+          tabIndex={0}
+          ref={userListRef}
+        >
+          <Styled.VirtualizedList>
+            {
+              Array.from({ length: amountOfPages }).map((_, i) => {
+                const isLastItem = amountOfPages === (i + 1);
+                const restOfUsers = count % 50;
+                const key = i;
+                return i === 0
+                  ? (
                     <UserListParticipantsPageContainer
                       key={key}
                       index={i}
@@ -117,12 +137,29 @@ const UserListParticipants: React.FC<UserListParticipantsProps> = ({
                       restOfUsers={isLastItem ? restOfUsers : 50}
                       setVisibleUsers={setVisibleUsers}
                     />
-                  </IntersectionWatcher>
-                );
-            })
-          }
-        </Styled.VirtualizedList>
-      </Styled.UserListColumn>
+                  )
+                  : (
+                    <IntersectionWatcher
+                      // eslint-disable-next-line react/no-array-index-key
+                      key={i}
+                      ParentRef={userListRef}
+                      isLastItem={isLastItem}
+                      restOfUsers={isLastItem ? restOfUsers : 50}
+                    >
+                      <UserListParticipantsPageContainer
+                        key={key}
+                        index={i}
+                        isLastItem={isLastItem}
+                        restOfUsers={isLastItem ? restOfUsers : 50}
+                        setVisibleUsers={setVisibleUsers}
+                      />
+                    </IntersectionWatcher>
+                  );
+              })
+            }
+          </Styled.VirtualizedList>
+        </Styled.UserListColumn>
+      </Styled.PanelContent>
     )
   );
 };

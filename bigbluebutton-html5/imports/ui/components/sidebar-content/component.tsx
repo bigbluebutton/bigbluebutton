@@ -6,6 +6,7 @@ import ProfileSettings from '/imports/ui/components/profile-settings/component';
 import GuestManagement from '../user-list/guest-management/component';
 import NotesContainer from '/imports/ui/components/notes/component';
 import PollContainer from '/imports/ui/components/poll/container';
+import UserListParticipants from '/imports/ui/components/user-list/user-list-participants/component';
 import BreakoutRoomContainer from '../breakout-room/breakout-room/component';
 import TimerContainer from '/imports/ui/components/timer/panel/component';
 import GuestUsersManagementPanel from '/imports/ui/components/waiting-users/waiting-users-graphql/component';
@@ -142,6 +143,7 @@ const SidebarContent = (props: SidebarContentProps) => {
         )}
         {sidebarContentPanel === PANELS.USERLIST && <GuestManagement />}
         {sidebarContentPanel === PANELS.PROFILE && <ProfileSettings />}
+        {sidebarContentPanel === PANELS.USERLIST && <UserListParticipants />}
         {sidebarContentPanel === PANELS.BREAKOUT && <BreakoutRoomContainer />}
         {sidebarContentPanel === PANELS.TIMER && <TimerContainer />}
         {sidebarContentPanel === PANELS.WAITING_USERS && <GuestUsersManagementPanel />}

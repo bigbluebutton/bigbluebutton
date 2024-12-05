@@ -9,7 +9,6 @@ import { User } from '/imports/ui/Types/user';
 import { GraphqlDataHookSubscriptionResponse } from '/imports/ui/Types/hook';
 import { Meeting } from '/imports/ui/Types/meeting';
 import Styled from '../styles';
-import UserActions from '../user-actions/component';
 import ListItem from '../list-item/component';
 import { layoutSelect } from '/imports/ui/components/layout/context';
 import { Layout } from '/imports/ui/components/layout/layoutTypes';
@@ -54,19 +53,18 @@ const UsersListParticipantsPage: React.FC<UsersListParticipantsPage> = ({
         users.map((user, idx) => {
           return (
             <Styled.UserListItem key={user.userId} style={{ direction: isRTL }}>
-              <UserActions
-                user={user}
+              <ListItem
+                index={offset + idx}
                 currentUser={currentUser as User}
+                user={user}
                 lockSettings={meeting.lockSettings}
                 usersPolicies={meeting.usersPolicies}
                 isBreakout={meeting.isBreakout}
-                pageId={pageId}
                 userListDropdownItems={userListDropdownItems}
-                open={user.userId === openUserAction}
                 setOpenUserAction={setOpenUserAction}
-              >
-                <ListItem index={offset + idx} user={user} lockSettings={meeting.lockSettings} />
-              </UserActions>
+                open={user.userId === openUserAction}
+                pageId={pageId}
+              />
             </Styled.UserListItem>
           );
         })

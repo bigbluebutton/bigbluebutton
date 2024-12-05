@@ -1024,7 +1024,8 @@ public:
     role_moderator: MODERATOR
     role_viewer: VIEWER
     label:
-      moderator: false
+      presenter: true
+      moderator: true
       mobile: true
       guest: true
       sharingWebcam: true

@@ -710,6 +710,7 @@ export interface User {
 }
 
 export interface Label {
+  presenter: boolean;
   moderator: boolean
   mobile: boolean
   guest: boolean

@@ -9,6 +9,7 @@ const colorGrayLight = 'var(--color-gray-light, #8B9AA8)';
 const colorGrayLighter = 'var(--color-gray-lighter, #A7B3BD)';
 const colorGrayLightest = 'var(--color-gray-lightest, #D4D9DF)';
 const colorGrayIcons = 'var(--color-gray-icons, #909CAF)';
+const colorGrayUserListToolbar = 'var(--color-gray-user-list-toolbar, #F4F6FA)';
 
 const colorBlueLight = 'var(--color-blue-light, #54a1f3)';
 const colorBlueLighter = 'var(--color-blue-lighter, #92BCEA)';
@@ -141,6 +142,7 @@ export {
   colorGrayLighter,
   colorGrayLightest,
   colorGrayIcons,
+  colorGrayUserListToolbar,
   colorTransparent,
   colorBlueLight,
   colorBlueLighter,
