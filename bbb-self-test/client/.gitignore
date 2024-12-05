@@ -1,0 +1,8 @@
+.dbshell
+npm-debug.log
+node_modules/
+.meteor/dev_bundle
+public/files
+.env
+
+

@@ -1,0 +1,17 @@
+{
+  "ip": "0.0.0.0"
+,"port": "8080"
+,"ultimateTimeout": "120"
+,"limits": {
+  "downloadStartSize": "100000"
+,"uploadStartSize": "2000000"
+,"downloadSizeModifier": "2"
+,"uploadSizeModifier": "1.5"
+,"maxDownloadSize": "2000000000"
+,"maxUploadSize": "100000000"
+,"maxDownloadTime": "8"
+,"maxUploadTime": "4"
+,"maxUploadIterations": "5"
+,"restInterval": "0"
+}
+}
