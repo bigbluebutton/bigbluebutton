@@ -29,6 +29,7 @@ bbb-playback
 bbb-playback-presentation
 bbb-record-core
 bbb-web
+bbb-livekit
 bbb-webrtc-sfu
 bbb-webrtc-recorder"
 

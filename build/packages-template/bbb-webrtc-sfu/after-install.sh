@@ -27,6 +27,8 @@ case "$1" in
     #   - reducing noise from video streams in these single threaded workers
     #   - giving the possibility to specify different scheduling priorities for audio workers
     yq e -i '.mediasoup.dedicatedMediaTypeWorkers.audio = "auto"' $TARGET
+    # Test: enable livekit module
+    yq e -i '.livekit.enabled = true' $TARGET
 
 
     FREESWITCH_IP=$(xmlstarlet sel -t -v '//X-PRE-PROCESS[@cmd="set" and starts-with(@data, "local_ip_v4=")]/@data' /opt/freeswitch/conf/vars.xml | sed 's/local_ip_v4=//g')
