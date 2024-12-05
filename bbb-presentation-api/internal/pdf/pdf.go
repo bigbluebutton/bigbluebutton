@@ -13,7 +13,7 @@ type FileWithPages struct {
 	Pages []*Page
 }
 
-// A Page is a represnetation of an individual page file
+// A Page is a representation of an individual page file
 // that has been generated from a parent document.
 type Page struct {
 	ParentFile string

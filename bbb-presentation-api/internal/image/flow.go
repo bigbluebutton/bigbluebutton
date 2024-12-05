@@ -7,6 +7,9 @@ import (
 	"github.com/bigbluebutton/bigbluebutton/bbb-presentation-api/internal/presentation"
 )
 
+// NewImageFlow creates a [pipeline.Flow] for handling the processing of an uploaded image document. If necessary, a download marker is generated
+// for the file. A thumbnail and text file is then generated for the document which is then converted into a PDF for further processing. If required,
+// an SVG and PNG will be generated from the PDF.
 func NewImageFlow(imgResizer presentation.ImageResizer, cfg config.Config) pipeline.Flow[*presentation.FileToProcess, *presentation.ProcessedFile] {
 	generateDownloadMarker := pipeline.NewStep[*presentation.FileToProcess, *presentation.FileToProcess]().Generate(&DownloadMarkerGenerator{})
 	trasnformToFileWithAuxilliaries := pipeline.NewStep[*presentation.FileToProcess, *FileWithAuxilliaries]().Transform(NewFileWithAuxilliariesTransformerWithResizerAndConfig(imgResizer, cfg))

@@ -27,7 +27,7 @@ func NewPDFTransformer() *PDFTransformer {
 	return NewPDFTransformerWithConfig(config.DefaultConfig())
 }
 
-// NewPDFTransformerWithConfig is NewPDFTransformer but allows the caller to specify
+// NewPDFTransformerWithConfig is like NewPDFTransformer but allows the caller to specify
 // the configuration that should be used.
 func NewPDFTransformerWithConfig(cfg config.Config) *PDFTransformer {
 	return &PDFTransformer{
@@ -37,7 +37,7 @@ func NewPDFTransformerWithConfig(cfg config.Config) *PDFTransformer {
 	}
 }
 
-// Transform will convert an incoming [Message] with a payload of type [FileToConver] into a message with a payload
+// Transform will convert an incoming [Message] with a payload of type [FileToConvert] into a message with a payload
 // of type [pdf.FileToProcess]. An attempt will be made create a new PDF document from the provided MS Office
 // document. The creation of the new PDF will be attempted multiple time in case of failure with the exact number of
 // attempt being specified in the configuration provided to the [PDFTransformer].

@@ -29,74 +29,143 @@ var cfg *Config
 // A Config encapsulates all of the settings necessary for the processing of
 // uploaded documents.
 type Config struct {
+	// Document conversion settings.
 	Conversion struct {
+		// Office document settings.
 		Office struct {
-			Script      string `yaml:"script"`
-			Timeout     int    `yaml:"timeout"`
-			MaxAttempts int    `yaml:"max_attempts"`
+			// Path to script file for converting office documents
+			// to PDF.
+			Script string `yaml:"script"`
+			// Timeout in seconds for an office document to PDF
+			// conversion attempt.
+			Timeout int `yaml:"timeout"`
+			// Maximum number of times office to PDF conversion
+			// should be attempted.
+			MaxAttempts int `yaml:"max_attempts"`
 		} `yaml:"office"`
 	} `yaml:"conversion"`
+	// Document processing settings
 	Processing struct {
+		// PDF settings.
 		PDF struct {
+			// Page settings.
 			Page struct {
+				// Downscaling settings.
 				Downscale struct {
-					Script  string `yaml:"script"`
-					Timeout int    `yaml:"timeout"`
+					// Path to script file for downscaling PDF pages.
+					Script string `yaml:"script"`
+					// Timeout in seconds for PDF page downscaling.
+					Timeout int `yaml:"timeout"`
 				} `yaml:"downscale"`
+				// Maximum size in bytes for a single PDF page.
 				MaxSize int64 `yaml:"max_size"`
 			} `yaml:"page"`
 		} `yaml:"pdf"`
+		// Image settings.
 		Image struct {
-			MaxWidth  int `yaml:"max_width"`
+			// Maximum width in pixels for an uploaded image.
+			MaxWidth int `yaml:"max_width"`
+			// Maximum height in pixels for an uploaded image.
 			MaxHeight int `yaml:"max_height"`
-			Resize    struct {
+			// Resize settings.
+			Resize struct {
+				// Timeout in seconds for resizing an uploaded
+				// image.
 				Timeout int `yaml:"timeout"`
 			} `yaml:"resize"`
 		} `yaml:"image"`
 	} `yaml:"processing"`
+	// Document validation settings.
 	Validation struct {
+		// Office document settings.
 		Office struct {
-			Script       string `yaml:"script"`
-			Timeout      int    `yaml:"timeout"`
-			ExecTimeout  int    `yaml:"exec_timeout"`
-			SkipPrecheck bool   `yaml:"skip_precheck"`
+			// Path to script for validating .pptx files
+			Script string `yaml:"script"`
+			// Script timeout in seconds for validating
+			//powerpoint files.
+			Timeout int `yaml:"timeout"`
+			// Command process execution timeout in seconds.
+			ExecTimeout int `yaml:"exec_timeout"`
+			// Indicates whether powerpoint validation should
+			// be skipped.
+			SkipPrecheck bool `yaml:"skip_precheck"`
 		} `yaml:"office"`
 	} `yaml:"validation"`
+	// Document generation settings.
 	Generation struct {
+		// Thumbnail settings
 		Thumbnail struct {
+			// Path to the location of ImageMagick.
 			ImageMagickDir string `yaml:"image_magick_dir"`
-			Timeout        int    `yaml:"timeout"`
+			// Thumbnail generation timeout in seconds.
+			Timeout int `yaml:"timeout"`
 		} `yaml:"thumbnail"`
+		// Text file settings
 		TextFile struct {
+			// Text file generation timeout in seconds.
 			Timeout int `yaml:"timeout"`
 		} `yaml:"text_file"`
+		// PNG settings.
 		PNG struct {
-			SlideWidth int  `yaml:"slide_width"`
-			Generate   bool `yaml:"generate"`
-			Timeout    int  `yaml:"timeout"`
+			// The width in pixels of the generated PNG.
+			SlideWidth int `yaml:"slide_width"`
+			// Indicates whether PNGs should be generated
+			// for uploaded documents.
+			Generate bool `yaml:"generate"`
+			// PNG generation timeout in seconds.
+			Timeout int `yaml:"timeout"`
 		} `yaml:"png"`
+		// SVG settings.
 		SVG struct {
-			Generate   bool `yaml:"generate"`
-			Timeout    int  `yaml:"timeout"`
-			Resolution int  `yaml:"resolution"`
-			MaxImages  int  `yaml:"max_images"`
-			MaxTags    int  `yaml:"max_tags"`
-			PDF        struct {
+			// Indiciates whether SVGs should be generated
+			// for uploaded documents.
+			Generate bool `yaml:"generate"`
+			// SVG generation timeout in seconds.
+			Timeout int `yaml:"timeout"`
+			// The resolution to be used when converting
+			// PDFs to PNGs before SVG generation.
+			Resolution int `yaml:"resolution"`
+			// The maximum number of images tags that can
+			// be present in a generated SVG.
+			MaxImages int `yaml:"max_images"`
+			// The maximum number of overall tags that can
+			// be present in a generated SVG.
+			MaxTags int `yaml:"max_tags"`
+			// PDF settings
+			PDF struct {
+				// Font detection settings.
 				Font struct {
-					Timeout     int `yaml:"timeout"`
+					// Font detection timeout in seconds.
+					Timeout int `yaml:"timeout"`
+					// Maximum number of times to attempt to
+					// determine the font type of an uploaded PDF.
 					MaxAttempts int `yaml:"max_attempts"`
 				} `yaml:"font"`
 			} `yaml:"pdf"`
+			// Rasterization settings.
 			Rasterize struct {
+				// Indicates whether rasterization should
+				// be used for all uploaded documents regardless
+				// of document complexity.
 				Force bool `yaml:"force"`
-				Width int  `yaml:"width"`
+				// The maximum width for rasterized document images.
+				Width int `yaml:"width"`
 			} `yaml:"rasterize"`
 		} `yaml:"svg"`
+		// Blank document settings.
 		Blank struct {
+			// Path to the location of the default blank
+			// presentation.
 			Presentation string `yaml:"presentation"`
-			Thumbnail    string `yaml:"thumbnail"`
-			PNG          string `yaml:"png"`
-			SVG          string `yaml:"svg"`
+			// Path to the location of the default blank
+			// thumbnail.
+			Thumbnail string `yaml:"thumbnail"`
+			// Path to the location of the default blank
+			// PNG.
+			PNG string `yaml:"png"`
+			// Path to the location of the default blank
+			// SVG.
+			SVG string `yaml:"svg"`
 		} `yaml:"blank"`
 	} `yaml:"generation"`
 }

@@ -34,6 +34,8 @@ func Copy(source, destination string) error {
 	return nil
 }
 
+// Write attempts to create a new file located at the destination path and
+// then write the provided text to that file.
 func Write(destination, text string) error {
 	dest, err := os.Create(destination)
 	if err != nil {

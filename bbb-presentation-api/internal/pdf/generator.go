@@ -124,7 +124,7 @@ func (g *PageGenerator) Generate(msg pipeline.Message[*presentation.FileToProces
 	return pipeline.NewMessageWithContext(fwp, msg.Context()), nil
 }
 
-// Thumbnail generator handles the creation of a thumbnails for a
+// Thumbnail generator handles the creation of thumbnails for a
 // provided document.
 type ThumbnailGenerator struct {
 	cfg  config.Config

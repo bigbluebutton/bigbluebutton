@@ -14,8 +14,12 @@ import (
 	"github.com/bigbluebutton/bigbluebutton/bbb-presentation-api/internal/presentation"
 )
 
+// DownloadMarkerGenerator handles the creation of download markers
+// for a file that is indicated to be downloadable.
 type DownloadMarkerGenerator struct{}
 
+// Generate takes an incoming [pipeline.Message] with a payload of type [FileToProcess] and generates a new
+// download marker for the provided file if the file is marked as downloadable.
 func (g *DownloadMarkerGenerator) Generate(msg pipeline.Message[*presentation.FileToProcess]) (pipeline.Message[*presentation.FileToProcess], error) {
 	ftp := &presentation.FileToProcess{
 		ID:             msg.Payload.ID,
@@ -34,15 +38,21 @@ func (g *DownloadMarkerGenerator) Generate(msg pipeline.Message[*presentation.Fi
 	return pipeline.NewMessageWithContext(ftp, msg.Context()), nil
 }
 
+// Thumbnail generator handles the creation of thumbnails for a
+// provided document.
 type ThumbnailGenerator struct {
 	cfg  config.Config
 	exec func(ctx context.Context, name string, args ...string) *exec.Cmd
 }
 
+// NewThumbnailGenerator creates a new ThumbnailGenerator using the default
+// global configuration.
 func NewThumbnailGenerator() *ThumbnailGenerator {
 	return NewThumbnailGeneratorWithConfig(config.DefaultConfig())
 }
 
+// NewThumbnailGeneratorWithConfig is like NewThumbnailGenerator but allows the
+// caller to specify the configuration that should be used.
 func NewThumbnailGeneratorWithConfig(cfg config.Config) *ThumbnailGenerator {
 	return &ThumbnailGenerator{
 		cfg:  cfg,
@@ -50,6 +60,9 @@ func NewThumbnailGeneratorWithConfig(cfg config.Config) *ThumbnailGenerator {
 	}
 }
 
+// Generate will take an incoming [pipeline.Message] with a payload of type [FileWithAuxilliaries] and generate
+// a PNG thumbnail for the image file. If thumbnail generation fails then a default blank thumbnail
+// will try to be used as the thumbnail.
 func (g *ThumbnailGenerator) Generate(msg pipeline.Message[*FileWithAuxilliaries]) (pipeline.Message[*FileWithAuxilliaries], error) {
 	timeout := g.cfg.Generation.Thumbnail.Timeout
 	thumbnailDir := fmt.Sprintf("%s%cthumbnails", filepath.Dir(msg.Payload.File), os.PathSeparator)
@@ -89,8 +102,13 @@ func (g *ThumbnailGenerator) Generate(msg pipeline.Message[*FileWithAuxilliaries
 	}, msg.Context()), nil
 }
 
+// TextFileGenerate handles the generation of text files from
+// a provided document.
 type TextFileGenerator struct{}
 
+// Generate takes an incoming [pipeline.Message] with a payload of type [FileWithAuxilliaries]
+// and attempts to creates a text file containing some boilerplate text to associate with the
+// uploaded image document.
 func (g *TextFileGenerator) Generate(msg pipeline.Message[*FileWithAuxilliaries]) (pipeline.Message[*FileWithAuxilliaries], error) {
 	textFileDir := fmt.Sprintf("%s%ctextfiles", msg.Payload.File, os.PathSeparator)
 	textFile := fmt.Sprintf("%s%cslide-1.txt", textFileDir, os.PathSeparator)
