@@ -775,6 +775,7 @@ public:
     # example: ['reply', 'delete']
     toolbar: ['reply', 'delete', 'edit', 'reactions']
     announcePresenterChangeInChat: true
+    mention: false
   userReaction:
     enabled: true
     expire: 30

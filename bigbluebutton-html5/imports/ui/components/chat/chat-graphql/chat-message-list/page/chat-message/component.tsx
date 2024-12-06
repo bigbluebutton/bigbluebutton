@@ -348,6 +348,7 @@ const ChatMessage = React.forwardRef<ChatMessageRef, ChatMessageProps>(({
             <ChatMessageTextContent
               emphasizedMessage
               text={message.message}
+
             />
           ),
           showAvatar: true,
