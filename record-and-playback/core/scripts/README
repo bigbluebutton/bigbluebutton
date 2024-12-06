@@ -80,11 +80,11 @@ playback_host: 127.0.0.1
 
    Set the path of the captions generation script by changing the line
 
-   ret = BigBlueButton.exec_ret('utils/gen_webvtt', '-i', raw_archive_dir, '-o', target_dir)
+   ret = BigBlueButton.exec_ret('utils/gen_webvtt.rb', '-i', raw_archive_dir, '-o', target_dir)
 
    to
 
-   ret = BigBlueButton.exec_ret('/home/ubuntu/dev/bigbluebutton/record-and-playback/core/scripts/utils/gen_webvtt', '-i', raw_archive_dir, '-o', target_dir)
+   ret = BigBlueButton.exec_ret('/home/ubuntu/dev/bigbluebutton/record-and-playback/core/scripts/utils/gen_webvtt.rb', '-i', raw_archive_dir, '-o', target_dir)
 
    Now, you can run the presentation processing script:
 

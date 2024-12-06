@@ -36,6 +36,7 @@ gem 'resque', '~> 2.6', '>= 2.6.0'
 gem 'bbbevents', '~> 2.0', '>= 2.0.0'
 gem 'rake', '>= 12.3', '<14'
 gem 'tzinfo', '>= 1.2.10'
+gem 'ffi-icu'
 
 group :test, optional: true do
   gem 'rubocop', '~> 1.32.0'
