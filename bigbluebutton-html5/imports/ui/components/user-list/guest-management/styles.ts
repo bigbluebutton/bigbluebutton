@@ -10,7 +10,6 @@ import {
 
 const GuestManagement = styled.div`
   display: flex;
-  height: 100%;
   padding: ${contentSidebarPadding} ${contentSidebarPadding} 
            ${contentSidebarBottomScrollPadding} ${contentSidebarPadding};
   margin: 0 ${smPadding} 0;
@@ -18,6 +17,7 @@ const GuestManagement = styled.div`
   border-radius: ${contentSidebarBorderRadius};
   background: ${colorWhite};
   overflow-y: auto;
+  max-height: 50%;
 `;
 
 const GuestPolicyContainer = styled.div`

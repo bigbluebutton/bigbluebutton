@@ -1,27 +1,14 @@
 import styled, { css, keyframes } from 'styled-components';
 import {
-  userIndicatorsOffset,
-  mdPaddingY,
-  indicatorPadding,
   contentSidebarBottomScrollPadding,
   contentSidebarPadding,
 } from '/imports/ui/stylesheets/styled-components/general';
 import {
-  colorPrimary,
   colorWhite,
-  userListBg,
-  colorSuccess,
-  colorDanger,
-  colorOffWhite,
 } from '/imports/ui/stylesheets/styled-components/palette';
 import {
   ScrollboxVertical,
 } from '/imports/ui/stylesheets/styled-components/scrollable';
-import {
-  HeaderContainer as BaseHeaderContainer,
-  PanelContent as BasePanelContent,
-  Separator as BaseSeparator,
-} from '/imports/ui/components/sidebar-content/styles';
 
 interface AvatarProps {
   color: string;
@@ -40,12 +27,6 @@ interface AvatarProps {
   emoji: string;
   talking?: boolean;
 }
-
-const HeaderContainer = styled(BaseHeaderContainer)``;
-
-const PanelContent = styled(BasePanelContent)``;
-
-const Separator = styled(BaseSeparator)``;
 
 const Avatar = styled.div<AvatarProps>`
   position: relative;
@@ -105,7 +86,6 @@ const UserListColumn = styled.div`
   min-height: 0;
   flex-grow: 1;
   padding: ${contentSidebarPadding} ${contentSidebarPadding} ${contentSidebarBottomScrollPadding};
-  height: 100%;
 `;
 
 const pulse = (color: string) => keyframes`
@@ -129,9 +109,6 @@ const VirtualizedList = styled(ScrollboxVertical)`
 const UserListItem = styled.div``;
 
 export default {
-  HeaderContainer,
-  Separator,
-  PanelContent,
   Avatar,
   Skeleton,
   UserListColumn,

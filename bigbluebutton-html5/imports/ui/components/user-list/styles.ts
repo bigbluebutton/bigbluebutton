@@ -9,6 +9,20 @@ import {
   itemFocusBorder,
 } from '/imports/ui/stylesheets/styled-components/palette';
 import { smPaddingX, borderSize } from '/imports/ui/stylesheets/styled-components/general';
+import {
+  HeaderContainer as BaseHeaderContainer,
+  PanelContent as BasePanelContent,
+  Separator as BaseSeparator,
+} from '/imports/ui/components/sidebar-content/styles';
+
+const HeaderContainer = styled(BaseHeaderContainer)``;
+
+const PanelContent = styled(BasePanelContent)`
+  display: flex;
+  flex-direction: column;
+`;
+
+const Separator = styled(BaseSeparator)``;
 
 const UserList = styled(FlexColumn)`
   justify-content: flex-start;
@@ -73,6 +87,9 @@ const ListItem = styled.div`
 `;
 
 export default {
+  HeaderContainer,
+  PanelContent,
+  Separator,
   UserList,
   SmallTitle,
   ListItem,
