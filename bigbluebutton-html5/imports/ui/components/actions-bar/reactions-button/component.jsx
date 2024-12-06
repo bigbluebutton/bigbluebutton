@@ -99,6 +99,7 @@ const ReactionsButton = (props) => {
       key: id,
       onClick: () => handleReactionSelect(native),
       customStyles: actionCustomStyles,
+      dataTest: 'reaction'
     });
   });
 
