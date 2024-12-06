@@ -141,7 +141,6 @@ object RegisteredUsers {
       // ralam april 21, 2020
       val u = ejectedUser.modify(_.banned).setTo(true)
       users.save(u)
-      UserDAO.update(u)
       u
     } else {
       val u = ejectedUser.modify(_.ejected).setTo(true)
@@ -171,7 +170,6 @@ object RegisteredUsers {
                      role: String): RegisteredUser = {
     val u = user.modify(_.role).setTo(role)
     users.save(u)
-    UserDAO.update(u)
     u
   }
 
@@ -186,7 +184,6 @@ object RegisteredUsers {
   def updateUserJoin(users: RegisteredUsers, user: RegisteredUser, joined: Boolean): RegisteredUser = {
     val u = user.copy(joined = joined)
     users.save(u)
-    UserDAO.update(u)
     u
   }
 

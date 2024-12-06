@@ -6,10 +6,11 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
-	"github.com/redis/go-redis/v9"
-	log "github.com/sirupsen/logrus"
 	"strings"
 	"time"
+
+	"github.com/redis/go-redis/v9"
+	log "github.com/sirupsen/logrus"
 )
 
 var redisClient = redis.NewClient(&redis.Options{
@@ -32,7 +33,7 @@ func StartRedisListener() {
 	for {
 		msg, err := subscriber.ReceiveMessage(ctx)
 		if err != nil {
-			log.Errorf("error: ", err)
+			log.Errorf("error: %v", err)
 		}
 
 		// Skip parsing unnecessary messages

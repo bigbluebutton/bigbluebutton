@@ -13,7 +13,7 @@ import org.bigbluebutton.core.models._
 import org.bigbluebutton.core.running.{LiveMeeting, OutMsgRouter}
 import org.bigbluebutton.core2.message.senders.{MsgBuilder, Sender}
 import org.bigbluebutton.core.apps.screenshare.ScreenshareApp2x
-import org.bigbluebutton.core.db.{ChatMessageDAO, UserStateDAO}
+import org.bigbluebutton.core.db.{ChatMessageDAO, UserDAO, UserStateDAO}
 import org.bigbluebutton.core.graphql.GraphqlMiddleware
 
 object UsersApp {
@@ -70,32 +70,22 @@ object UsersApp {
     val meetingId = liveMeeting.props.meetingProp.intId
     for {
       moderator <- Users2x.findModerator(liveMeeting.users2x)
+      regUser <- RegisteredUsers.findWithUserId(moderator.intId, liveMeeting.registeredUsers)
       newPresenter <- Users2x.makePresenter(liveMeeting.users2x, moderator.intId)
     } yield {
       sendPresenterAssigned(outGW, meetingId, newPresenter.intId, newPresenter.name, newPresenter.intId)
       sendPresenterInPodReq(meetingId, newPresenter.intId)
 
       // Force reconnection with graphql to refresh permissions (if user already joined)
-      for {
-        regUser <- RegisteredUsers.findWithUserId(newPresenter.intId, liveMeeting.registeredUsers)
-      } yield {
-        if(regUser.joined) {
-          GraphqlMiddleware.requestGraphqlReconnection(regUser.sessionToken, "assigned_presenter_automatically")
-        }
-      }
+      if(regUser.joined) {
+        GraphqlMiddleware.requestGraphqlReconnection(regUser.sessionToken, "assigned_presenter_automatically")
+    }
+
+      //Update dabatase
+      UserStateDAO.update(newPresenter)
 
       //Chat message to announce new presenter
-      val announcePresenterChangeInChat = getConfigPropertyValueByPathAsBooleanOrElse(
-        liveMeeting.clientSettings,
-        "public.chat.announcePresenterChangeInChat",
-        alternativeValue = true
-      )
-
-      if (announcePresenterChangeInChat) {
-        //System message
-        ChatMessageDAO.insertSystemMsg(liveMeeting.props.meetingProp.intId, GroupChatApp.MAIN_PUBLIC_CHAT, "", GroupChatMessageType.USER_IS_PRESENTER_MSG, Map(), newPresenter.name)
-      }
-
+      sendChatMessageAnnouncingNewPresenter(liveMeeting, newPresenter)
     }
   }
 
@@ -144,13 +134,18 @@ object UsersApp {
   def ejectUserFromMeeting(outGW: OutMsgRouter, liveMeeting: LiveMeeting,
                            userId: String, ejectedBy: String, reason: String,
                            reasonCode: String, ban: Boolean): Unit = {
-
-    val meetingId = liveMeeting.props.meetingProp.intId
-    RegisteredUsers.eject(userId, liveMeeting.registeredUsers, ban)
     for {
+      regUser <- RegisteredUsers.eject(userId, liveMeeting.registeredUsers, ban)
       user <- Users2x.ejectFromMeeting(liveMeeting.users2x, userId)
     } yield {
-      sendUserLeftMeetingToAllClients(outGW, meetingId, userId, true, ejectedBy, reason, reasonCode)
+      // Force reconnection with graphql to refresh permissions
+      GraphqlMiddleware.requestGraphqlReconnection(regUser.sessionToken, reason)
+
+      // Update database
+      UserDAO.update(regUser)
+
+      val meetingId = liveMeeting.props.meetingProp.intId
+      sendUserLeftMeetingToAllClients(outGW, meetingId, userId, eject = true, ejectedBy, reason, reasonCode)
       sendEjectUserFromSfuSysMsg(outGW, meetingId, userId)
       if (user.presenter) {
         // println(s"ejectUserFromMeeting will cause a automaticallyAssignPresenter for user=${user}")
@@ -167,6 +162,19 @@ object UsersApp {
         liveMeeting.props.meetingProp.intId,
         liveMeeting.props.voiceProp.voiceConf, vu.voiceUserId
       )
+    }
+  }
+
+  def sendChatMessageAnnouncingNewPresenter(liveMeeting: LiveMeeting, newPresenter: UserState): Unit = {
+    val announcePresenterChangeInChat = getConfigPropertyValueByPathAsBooleanOrElse(
+      liveMeeting.clientSettings,
+      "public.chat.announcePresenterChangeInChat",
+      alternativeValue = true
+    )
+
+    if (announcePresenterChangeInChat) {
+      //System message
+      ChatMessageDAO.insertSystemMsg(liveMeeting.props.meetingProp.intId, GroupChatApp.MAIN_PUBLIC_CHAT, "", GroupChatMessageType.USER_IS_PRESENTER_MSG, Map(), newPresenter.name)
     }
   }
 
