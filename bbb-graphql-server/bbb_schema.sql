@@ -624,8 +624,6 @@ left join "user_graphqlConnection" ugc on ugc."sessionToken" = ust."sessionToken
 where ust."removedAt" is null
 group by ust."meetingId", ust."userId", ust."sessionToken", ust."sessionName", ust."enforceLayout";
 
---TODO create indexes for this view
-
 create table "user_metadata"(
     "meetingId" varchar(100),
     "userId" varchar(50),
