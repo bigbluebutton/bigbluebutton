@@ -248,7 +248,6 @@ public class SvgImageCreatorImp implements SvgImageCreator {
                     int browserLimit = 2 * 1024 * 1024;
                     if (base64Size > browserLimit) {
                         log.error("Encoded PNG is too large for the browser");
-                        return false;
                     } else {
                         int width = 500;
                         int height = 500;
