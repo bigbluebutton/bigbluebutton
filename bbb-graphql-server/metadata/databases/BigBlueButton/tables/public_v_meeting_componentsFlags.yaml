@@ -11,11 +11,12 @@ select_permissions:
     permission:
       columns:
         - hasBreakoutRoom
+        - hasCameraAsContent
         - hasCaption
         - hasExternalVideo
         - hasPoll
         - hasScreenshare
-        - hasCameraAsContent
+        - hasScreenshareAsContent
         - hasTimer
         - showRemainingTime
       filter:
