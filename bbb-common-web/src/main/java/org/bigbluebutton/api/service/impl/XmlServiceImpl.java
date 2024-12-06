@@ -58,11 +58,7 @@ public class XmlServiceImpl implements XmlService {
                 rootElement.appendChild(node);
             }
 
-            String result = documentToString(document);
-//            logger.info("========== Result ==========");
-//            logger.info("{}", result);
-//            logger.info("============================");
-            return result;
+            return documentToString(document);
         } catch(Exception e) {
             e.printStackTrace();
         }
@@ -72,7 +68,6 @@ public class XmlServiceImpl implements XmlService {
 
     @Override
     public String recordingToXml(Recording recording) {
-//        logger.info("Converting {} to xml", recording);
         try {
             setup();
             Document document = builder.newDocument();
@@ -111,11 +106,7 @@ public class XmlServiceImpl implements XmlService {
                 rootElement.appendChild(node);
             }
 
-            String result = documentToString(document);
-//            logger.info("========== Result ==========");
-//            logger.info("{}", result);
-//            logger.info("============================");
-            return result;
+            return documentToString(document);
         } catch(Exception e) {
             e.printStackTrace();
         }
@@ -125,8 +116,6 @@ public class XmlServiceImpl implements XmlService {
 
     @Override
     public String metadataToXml(Metadata metadata) {
-//        logger.info("Converting {} to xml", metadata);
-
         try {
             setup();
             Document document = builder.newDocument();
@@ -134,11 +123,7 @@ public class XmlServiceImpl implements XmlService {
             Element rootElement = createElement(document, metadata.getKey(), metadata.getValue());
             document.appendChild(rootElement);
 
-            String result = documentToString(document);
-//            logger.info("========== Result ==========");
-//            logger.info("{}", result);
-//            logger.info("============================");
-            return result;
+            return documentToString(document);
         } catch(Exception e) {
             e.printStackTrace();
         }
@@ -148,8 +133,6 @@ public class XmlServiceImpl implements XmlService {
 
     @Override
     public String playbackFormatToXml(PlaybackFormat playbackFormat) {
-//        logger.info("Converting {} to xml", playbackFormat);
-
         try {
             setup();
             Document document = builder.newDocument();
@@ -173,11 +156,7 @@ public class XmlServiceImpl implements XmlService {
                 }
             }
 
-            String result = documentToString(document);
-//            logger.info("========== Result ==========");
-//            logger.info("{}", result);
-//            logger.info("============================");
-            return result;
+            return documentToString(document);
         } catch(Exception e) {
             e.printStackTrace();
         }
@@ -187,8 +166,6 @@ public class XmlServiceImpl implements XmlService {
 
     @Override
     public String thumbnailToXml(Thumbnail thumbnail) {
-//        logger.info("Converting {} to xml", thumbnail);
-
         try {
             setup();
             Document document = builder.newDocument();
@@ -197,11 +174,7 @@ public class XmlServiceImpl implements XmlService {
             document.appendChild(rootElement);
             appendFields(document, rootElement, thumbnail, new String[] {"id", "url", "playbackFormat"}, Type.ATTRIBUTE);
 
-            String result = documentToString(document);
-//            logger.info("========== Result ==========");
-//            logger.info("{}", result);
-//            logger.info("============================");
-            return result;
+            return documentToString(document);
         } catch(Exception e) {
             e.printStackTrace();
         }
@@ -211,8 +184,6 @@ public class XmlServiceImpl implements XmlService {
 
     @Override
     public String callbackDataToXml(CallbackData callbackData) {
-//        logger.info("Converting {} to xml", callbackData);
-
         try {
             setup();
             Document document = builder.newDocument();
@@ -221,11 +192,7 @@ public class XmlServiceImpl implements XmlService {
             document.appendChild(rootElement);
             appendFields(document, rootElement, callbackData, new String[] {"id", "recording"}, Type.CHILD);
 
-            String result = documentToString(document);
-//            logger.info("========== Result ==========");
-//            logger.info("{}", result);
-//            logger.info("============================");
-            return result;
+            return documentToString(document);
         } catch(Exception e) {
             e.printStackTrace();
         }
@@ -251,11 +218,7 @@ public class XmlServiceImpl implements XmlService {
             Node recordingsNode = document.importNode(recordingsDoc.getDocumentElement(), true);
             rootElement.appendChild(recordingsNode);
 
-            String result = documentToString(document);
-//            logger.info("========== Result ==========");
-//            logger.info("{}", result);
-//            logger.info("============================");
-            return result;
+            return documentToString(document);
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -283,11 +246,7 @@ public class XmlServiceImpl implements XmlService {
             Element message = createElement(document, "message", "No recordings found. This may occur if you attempt to retrieve all recordings.");
             rootElement.appendChild(message);
 
-            String result = documentToString(document);
-//            logger.info("========== Result ==========");
-//            logger.info("{}", result);
-//            logger.info("============================");
-            return result;
+            return documentToString(document);
         } catch(Exception e) {
             e.printStackTrace();
         }
@@ -309,91 +268,11 @@ public class XmlServiceImpl implements XmlService {
             Document document = builder.parse(new ByteArrayInputStream(response.getBytes()));
             Element rootElement = document.getDocumentElement();
 
-            Element pagination = createElement(document, "pagination", null);
-
-            String xml;
-            Document secondDoc;
-            Node node;
-
-            xml = pageableToXml(page.getPageable(), offset);
-            secondDoc = builder.parse(new ByteArrayInputStream(xml.getBytes()));
-            node = document.importNode(secondDoc.getDocumentElement(), true);
-            pagination.appendChild(node);
-
             Element totalElements = createElement(document, "totalElements", String.valueOf(page.getTotalElements()));
-            pagination.appendChild(totalElements);
+            rootElement.appendChild(totalElements);
 
-//            Element last = createElement(document, "last", String.valueOf(page.isLast()));
-//            pagination.appendChild(last);
-
-//            Element totalPages = createElement(document, "totalPages", String.valueOf(page.getTotalPages()));
-//            pagination.appendChild(totalPages);
-
-//            Element first = createElement(document, "first", String.valueOf(page.isFirst()));
-//            pagination.appendChild(first);
-
-            Element empty = createElement(document, "empty", String.valueOf(!page.hasContent()));
-            pagination.appendChild(empty);
-
-            rootElement.appendChild(pagination);
-
-            String result = documentToString(document);
-//            logger.info("========== Result ==========");
-//            logger.info("{}", result);
-//            logger.info("============================");
-            return result;
+            return documentToString(document);
         } catch (Exception e) {
-            e.printStackTrace();
-        }
-
-        return null;
-    }
-
-    private String pageableToXml(Pageable pageable, int o) {
-        logger.info("Converting {} to xml", pageable);
-
-        try {
-            setup();
-            Document document = builder.newDocument();
-
-            Element rootElement = createElement(document, "pageable", null);
-            document.appendChild(rootElement);
-
-//            Sort sort = pageable.getSort();
-//            Element sortElement = createElement(document, "sort", null);
-//
-//            Element unsorted = createElement(document, "unsorted", String.valueOf(sort.isUnsorted()));
-//            sortElement.appendChild(unsorted);
-//
-//            Element sorted = createElement(document, "sorted", String.valueOf(sort.isSorted()));
-//            sortElement.appendChild(sorted);
-//
-//            Element empty = createElement(document, "empty", String.valueOf(sort.isEmpty()));
-//            sortElement.appendChild(empty);
-//
-//            rootElement.appendChild(sortElement);
-
-            Element offset = createElement(document, "offset", String.valueOf(o));
-            rootElement.appendChild(offset);
-
-            Element limit = createElement(document, "limit", String.valueOf(pageable.getPageSize()));
-            rootElement.appendChild(limit);
-
-//            Element pageNumber = createElement(document, "pageNumber", String.valueOf(pageable.getPageNumber()));
-//            rootElement.appendChild(pageNumber);
-
-            Element paged = createElement(document, "paged", String.valueOf(pageable.isPaged()));
-            rootElement.appendChild(paged);
-
-            Element unpaged = createElement(document, "unpaged", String.valueOf(pageable.isUnpaged()));
-            rootElement.appendChild(unpaged);
-
-            String result = documentToString(document);
-//            logger.info("========== Result ==========");
-//            logger.info("{}", result);
-//            logger.info("============================");
-            return result;
-        } catch(Exception e) {
             e.printStackTrace();
         }
 
