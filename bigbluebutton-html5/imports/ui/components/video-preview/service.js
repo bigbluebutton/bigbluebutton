@@ -5,6 +5,7 @@ import MediaStreamUtils from '/imports/utils/media-stream-utils';
 import VideoService from '/imports/ui/components/video-provider/service';
 import BBBVideoStream from '/imports/ui/services/webrtc-base/bbb-video-stream';
 import browserInfo from '/imports/utils/browserInfo';
+import logger from '/imports/startup/client/logger';
 
 const GUM_TIMEOUT = Meteor.settings.public.kurento.gUMTimeout;
 // GUM retry + delay params (Chrome only for now)
@@ -219,6 +220,29 @@ const doGUM = (deviceId, profile) => {
   return promiseTimeout(GUM_TIMEOUT, postProcessedgUM(constraints));
 };
 
+const doEnumerateDevices = ({ priorityDeviceId }) => navigator.mediaDevices.enumerateDevices()
+  .then((devices) => {
+    const {
+      webcams,
+      areLabelled,
+      areIdentified,
+    } = digestVideoDevices(devices, priorityDeviceId);
+    logger.debug({
+      logCode: 'video_preview_enumerate_devices',
+      extraInfo: {
+        devices,
+        webcams,
+      },
+    }, `Enumerate devices came back. There are ${devices.length} devices and ${webcams.length} are video inputs`);
+
+    return {
+      devices,
+      digestedWebcams: webcams,
+      areLabelled,
+      areIdentified,
+    };
+  });
+
 const terminateCameraStream = (bbbVideoStream, deviceId) => {
   // Cleanup current stream if it wasn't shared/stored
   if (bbbVideoStream && !hasStream(deviceId)) {
@@ -246,6 +270,7 @@ export default {
   getDefaultProfile,
   getCameraAsContentProfile,
   getCameraProfile,
+  doEnumerateDevices,
   doGUM,
   terminateCameraStream,
   clearStreams,
