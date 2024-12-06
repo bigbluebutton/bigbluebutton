@@ -248,9 +248,18 @@ public class SvgImageCreatorImp implements SvgImageCreator {
                     int browserLimit = 2 * 1024 * 1024;
                     if (base64Size > browserLimit) {
                         log.error("Encoded PNG is too large for the browser");
+                        return false;
                     } else {
+                        int width = 500;
+                        int height = 500;
+
                         BufferedImage img = ImageIO.read(tempPng);
-                        String svg = createSvgWithEmbeddedPng(base64encodedPng, img.getWidth(), img.getHeight());
+                        if (img != null) {
+                            width = img.getWidth();
+                            height = img.getHeight();
+                        }
+
+                        String svg = createSvgWithEmbeddedPng(base64encodedPng, width, height);
                         try (FileWriter writer = new FileWriter(destsvg)) {
                             writer.write(svg);
                         }
