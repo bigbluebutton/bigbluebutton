@@ -8,10 +8,9 @@ raw_deskshare_src: /var/bigbluebutton/deskshare
 raw_presentation_src: /var/bigbluebutton
 notes_endpoint: http://127.0.0.1:9002/p
 # Specify the notes formats we archive
-# txt, doc and odt are also supported
+# txt, doc, html, and odt are also supported
 notes_formats:
   - etherpad
-  - html
   - pdf
 redis_host: 127.0.0.1
 redis_port: 6379
@@ -63,6 +62,10 @@ published_dir: /var/bigbluebutton/published
 captions_dir: /var/bigbluebutton/captions
 playback_host: 127.0.0.1
 playback_protocol: http
+
+# Utils
+script_utils_dir: /usr/local/bigbluebutton/core/scripts/utils
+diff_to_events_filename: extractEventsFromDiffs.js
 
 # For DEVELOPMENT
 # This allows us to run the scripts manually
