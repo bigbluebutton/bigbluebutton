@@ -1,0 +1,19 @@
+[Unit]
+Description=BigBlueButton File Upload Server
+Wants=bbb-graphql-server.service
+After=syslog.target network.target bbb-graphql-server.service
+PartOf=bigbluebutton.target
+StartLimitIntervalSec=0
+
+[Service]
+WorkingDirectory=/usr/local/bigbluebutton/bbb-file-upload
+ExecStart=/usr/bin/node bbb-file-upload.js
+Restart=always
+SyslogIdentifier=bbb-file-upload
+User=bigbluebutton
+Group=bigbluebutton
+Environment=NODE_ENV=production
+RestartSec=1s
+
+[Install]
+WantedBy=multi-user.target bigbluebutton.target
