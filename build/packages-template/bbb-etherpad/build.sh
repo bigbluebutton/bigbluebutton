@@ -18,45 +18,37 @@ rm -rf staging
 
 set +e
 
-# as of March 12, 2022, circa BigBlueButton 2.5-alpha4, we set npm by default to 8.5.0
-# however, it seems bbb-etherpad has troubles building with npm as high.
-# Setting npm to 6.14.11 which was used successfully for building in BigBlueButton 2.4.x
-npm -v
-npm i -g npm@6.14.11
-npm -v
+npm install -g pnpm@9.14.4
+pnpm -v
 
 ls -l node_modules/
 ls -l node_modules/ep_etherpad-lite
 ls -l src/
-# rm -f node_modules/ep_etherpad-lite/package.json # Was preventing npm ci running, see https://github.com/ether/etherpad-lite/issues/4962#issuecomment-916642078
+
 bin/installDeps.sh
 set -e
 
-rm -rf ep_pad_ttl
-git clone https://github.com/mconf/ep_pad_ttl.git
-npm pack ./ep_pad_ttl
-npm install ./ep_pad_ttl-*.tgz
-
-rm -rf bbb-etherpad-plugin
-git clone https://github.com/alangecker/bbb-etherpad-plugin.git
-npm pack ./bbb-etherpad-plugin
-npm install ./ep_bigbluebutton_patches-*.tgz
-
-rm -rf ep_redis_publisher
-git clone https://github.com/mconf/ep_redis_publisher.git
-npm pack ./ep_redis_publisher
-npm install ./ep_redis_publisher-*.tgz
-
-npm install ep_cursortrace
-npm install ep_disable_chat
-npm install --no-save --legacy-peer-deps ep_auth_session
+pnpm run plugins i \
+    ep_cursortrace@3.1.18 \
+    ep_disable_chat@0.0.10 \
+    ep_auth_session@1.1.1 \
+    --github \
+        mconf/ep_pad_ttl#360136cd38493dd698435631f2373cbb7089082d \
+        mconf/ep_redis_publisher#2b6e47c1c59362916a0b2961a29b259f2977b694 \
+        alangecker/bbb-etherpad-plugin#927747e0e18500f027a91bea2742e6061d388e28
 
 mkdir -p staging/usr/share/etherpad-lite
 
-cp -r CHANGELOG.md CONTRIBUTING.md LICENSE README.md bin doc src tests var node_modules staging/usr/share/etherpad-lite
+cp -r CHANGELOG.md CONTRIBUTING.md LICENSE README.md pnpm-workspace.yaml bin doc src tests var node_modules staging/usr/share/etherpad-lite
 
 cp settings.json staging/usr/share/etherpad-lite
+
 git clone https://github.com/alangecker/bbb-etherpad-skin.git staging/usr/share/etherpad-lite/src/static/skins/bigbluebutton
+pushd staging/usr/share/etherpad-lite/src/static/skins/bigbluebutton
+    git checkout 91b052c2cc4c169f2e381538e4342e894f944dbe
+    rm -rf .git
+popd
+
 chmod -R a+rX staging/usr/share/etherpad-lite
 
 mkdir -p staging/usr/lib/systemd/system
