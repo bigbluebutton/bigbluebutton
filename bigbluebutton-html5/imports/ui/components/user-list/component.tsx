@@ -4,6 +4,7 @@ import UserListParticipants from './user-list-participants/component';
 import GuestManagement from './guest-management/component';
 import { layoutDispatch } from '/imports/ui/components/layout/context';
 import { ACTIONS, PANELS } from '/imports/ui/components/layout/enums';
+import CrowActionsButtons from '/imports/ui/components/user-list/crowd-action-buttons/component';
 import useCurrentUser from '/imports/ui/core/hooks/useCurrentUser';
 import { UserListComponentProps } from './types';
 import Styled from './styles';
@@ -36,6 +37,16 @@ const UserList: React.FC<UserListComponentProps> = () => {
     );
   };
 
+  const renderCrowdActionButtons = () => {
+    if (!currentUserData?.isModerator) return null;
+    return (
+      <>
+        <Styled.Separator />
+        <CrowActionsButtons />
+      </>
+    );
+  };
+
   return (
     <Styled.PanelContent>
       <Styled.HeaderContainer
@@ -60,6 +71,7 @@ const UserList: React.FC<UserListComponentProps> = () => {
       <Styled.Separator />
       {renderGuestManagement()}
       <UserListParticipants />
+      {renderCrowdActionButtons()}
     </Styled.PanelContent>
   );
 };
