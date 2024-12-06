@@ -573,19 +573,72 @@ AS SELECT
 FROM "user"
 where "firstJoinedAt" is not null;
 
+CREATE TABLE "user_sessionToken" (
+	"meetingId" varchar(100),
+	"userId" varchar(50),
+	"sessionToken" varchar(16),
+	"sessionName" varchar(255),
+	"enforceLayout" varchar(50),
+	"createdAt" timestamp with time zone not null default current_timestamp,
+	"removedAt" timestamp with time zone,
+	CONSTRAINT "user_sessionToken_pk" PRIMARY KEY ("meetingId", "userId","sessionToken"),
+	FOREIGN KEY ("meetingId", "userId") REFERENCES "user"("meetingId","userId") ON DELETE CASCADE
+);
+
+CREATE INDEX "idx_user_sessionToken_stk" ON "user_sessionToken"("sessionToken");
+
+create view "v_user_sessionToken" as select * from "user_sessionToken";
+create view "v_user_session_current" as select * from "user_sessionToken";
+
+CREATE TABLE "user_graphqlConnection" (
+	"graphqlConnectionId" serial PRIMARY KEY,
+	"sessionToken" varchar(16),
+	"clientSessionUUID" varchar(36),
+	"clientType" varchar(50),
+	"clientIsMobile" bool,
+	"middlewareUID" varchar(36),
+	"middlewareConnectionId" varchar(12),
+	"establishedAt" timestamp with time zone,
+	"closedAt" timestamp with time zone
+);
+
+CREATE INDEX "idx_user_graphqlConnectionSessionToken" ON "user_graphqlConnection"("sessionToken");
+
+create view "v_user_session" as
+select ust."meetingId", ust."userId", ust."sessionToken", ust."sessionName", ust."enforceLayout", count(ugc."graphqlConnectionId") as "connectionsAlive"
+from "user_sessionToken" ust
+left join "user_graphqlConnection" ugc on ugc."sessionToken" = ust."sessionToken" and ugc."closedAt" is null
+where ust."removedAt" is null
+group by ust."meetingId", ust."userId", ust."sessionToken", ust."sessionName", ust."enforceLayout";
+
+--TODO create indexes for this view
+
 create table "user_metadata"(
     "meetingId" varchar(100),
     "userId" varchar(50),
+    "sessionToken" varchar(16),
 	"parameter" varchar(255),
 	"value" varchar(1000),
-	CONSTRAINT "user_metadata_pkey" PRIMARY KEY ("meetingId", "userId","parameter"),
+	CONSTRAINT "user_metadata_pkey" PRIMARY KEY ("meetingId", "userId", "sessionToken", "parameter"),
 	FOREIGN KEY ("meetingId", "userId") REFERENCES "user"("meetingId","userId") ON DELETE CASCADE
 );
 create index "idx_user_metadata_pk_reverse" on "user_metadata" ("userId", "meetingId");
+create index "idx_user_metadata_sessionToken" on "user_metadata" ("meetingId", "userId", "sessionToken");
 
 CREATE VIEW "v_user_metadata" AS
-SELECT *
-FROM "user_metadata";
+SELECT DISTINCT ON (ust."sessionToken", ust."meetingId", ust."userId", umd."parameter")
+    ust."sessionToken",
+    ust."meetingId",
+    ust."userId",
+    umd."parameter",
+    umd."value"
+FROM "user_sessionToken" ust
+JOIN "user_metadata" umd
+    ON umd."meetingId" = ust."meetingId"
+    AND umd."userId" = ust."userId"
+    AND (umd."sessionToken" = '' OR umd."sessionToken" = ust."sessionToken")
+    --show params specific for a sessionToken first and generic (with empty sessionToken) last
+ORDER BY ust."sessionToken", ust."meetingId", ust."userId", umd."parameter", umd."sessionToken" = '';
 
 CREATE VIEW "v_user_welcomeMsgs" AS
 SELECT
@@ -846,34 +899,6 @@ LEFT JOIN "user_connectionStatusMetrics" csm ON csm."meetingId" = u."meetingId" 
 GROUP BY u."meetingId", u."userId";
 
 CREATE INDEX "idx_user_connectionStatusMetrics_UnstableReport" ON "user_connectionStatusMetrics" ("meetingId", "userId") WHERE "status" != 'normal';
-
-CREATE TABLE "user_sessionToken" (
-	"meetingId" varchar(100),
-	"userId" varchar(50),
-	"sessionToken" varchar(16),
-	"enforceLayout" varchar(50),
-	"createdAt" timestamp with time zone not null default current_timestamp,
-	"removedAt" timestamp with time zone,
-	CONSTRAINT "user_sessionToken_pk" PRIMARY KEY ("meetingId", "userId","sessionToken"),
-	FOREIGN KEY ("meetingId", "userId") REFERENCES "user"("meetingId","userId") ON DELETE CASCADE
-);
-
-CREATE INDEX "idx_user_sessionToken_stk" ON "user_sessionToken"("sessionToken");
-create view "v_user_sessionToken" as select * from "user_sessionToken";
-
-CREATE TABLE "user_graphqlConnection" (
-	"graphqlConnectionId" serial PRIMARY KEY,
-	"sessionToken" varchar(16),
-	"clientSessionUUID" varchar(36),
-	"clientType" varchar(50),
-	"clientIsMobile" bool,
-	"middlewareUID" varchar(36),
-	"middlewareConnectionId" varchar(12),
-	"establishedAt" timestamp with time zone,
-	"closedAt" timestamp with time zone
-);
-
-CREATE INDEX "idx_user_graphqlConnectionSessionToken" ON "user_graphqlConnection"("sessionToken");
 
 --ALTER TABLE "user_connectionStatus" ADD COLUMN "applicationRttInMs" NUMERIC GENERATED ALWAYS AS
 --(CASE WHEN  "connectionAliveAt" IS NULL OR "userClientResponseAt" IS NULL THEN NULL

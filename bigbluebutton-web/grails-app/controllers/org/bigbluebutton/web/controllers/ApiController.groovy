@@ -633,20 +633,24 @@ class ApiController {
       us.enforceLayout = params.enforceLayout;
     }
 
+    if (!StringUtils.isEmpty(params.sessionName)) {
+      us.sessionName = params.sessionName;
+    }
+
     //used to drop the previous session of the user
     String replaceSessionToken = ""
     if (!StringUtils.isEmpty(params.replaceSessionToken)) {
       replaceSessionToken = params.replaceSessionToken;
     }
 
-    //TODO parse user-session-metadata
-    Map<String, String> userSessionCustomData = new LinkedHashMap<String, String>()
+    Map<String, String> userSessionCustomData = paramsProcessorUtil.getUserCustomData(params)
 
     // Register a new session token to the user
     meetingService.registerUserSession(
             us.meetingID,
             us.internalUserId,
             sessionToken,
+            us.sessionName,
             replaceSessionToken,
             us.enforceLayout,
             userSessionCustomData
@@ -1196,12 +1200,18 @@ class ApiController {
         queryParameters.put("redirect", "true");
         queryParameters.put("existingUserID", us.getInternalUserId());
 
-        // revokePreviousSession: If this link is intended to replace the previous session of the user
+        // replaceSession: If this link is intended to replace the previous session of the user
         if (!StringUtils.isEmpty(params.replaceSession) && Boolean.parseBoolean(params.replaceSession)) {
           queryParameters.put("replaceSessionToken", sessionToken);
         }
 
-        // TODO allow to specify enforceLayout and user-session-data
+        // If the user calling getJoinUrl is a moderator (except in breakout rooms), allow to specify additional parameters
+        if (us.role.equals(ROLE_MODERATOR) && !meeting.isBreakout()) {
+          request.getParameterMap()
+                  .findAll { key, value -> ["enforceLayout","sessionName"].contains(key) || key.startsWith("userdata-") }
+                  .findAll { key, value -> !StringUtils.isEmpty(value[-1]) }
+                  .each { key, value -> queryParameters.put(key, value[-1]) };
+        }
 
         String httpQueryString = "";
         for(String parameterName : queryParameters.keySet()) {

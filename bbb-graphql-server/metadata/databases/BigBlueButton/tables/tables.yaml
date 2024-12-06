@@ -60,6 +60,8 @@
 - "!include public_v_user_presenceLog.yaml"
 - "!include public_v_user_reaction.yaml"
 - "!include public_v_user_ref.yaml"
+- "!include public_v_user_session.yaml"
+- "!include public_v_user_session_current.yaml"
 - "!include public_v_user_transcriptionError.yaml"
 - "!include public_v_user_typing_private.yaml"
 - "!include public_v_user_typing_public.yaml"

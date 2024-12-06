@@ -1,17 +1,18 @@
 table:
-  name: v_user_metadata
+  name: v_user_session_current
   schema: public
 configuration:
   column_config: {}
   custom_column_names: {}
-  custom_name: user_metadata
+  custom_name: user_session_current
   custom_root_fields: {}
 select_permissions:
   - role: bbb_client
     permission:
       columns:
-        - parameter
-        - value
+        - enforceLayout
+        - sessionName
+        - sessionToken
       filter:
         _and:
           - meetingId:
@@ -20,15 +21,4 @@ select_permissions:
               _eq: X-Hasura-UserId
           - sessionToken:
               _eq: X-Hasura-SessionToken
-  - role: bbb_client_not_in_meeting
-    permission:
-      columns:
-        - parameter
-        - value
-      filter:
-        _and:
-          - meetingId:
-              _eq: X-Hasura-MeetingId
-          - userId:
-              _eq: X-Hasura-UserId
     comment: ""

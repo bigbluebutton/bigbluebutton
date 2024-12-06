@@ -154,12 +154,14 @@ public class MeetingService implements MessageListener {
           String meetingID,
           String internalUserId,
           String sessionToken,
+          String sessionName,
           String replaceSessionToken,
           String enforceLayout,
           Map<String, String> userSessionMetadata
   ) {
     handle(
-            new RegisterUserSessionToken(meetingID, internalUserId, sessionToken, replaceSessionToken, enforceLayout, userSessionMetadata)
+            new RegisterUserSessionToken(meetingID, internalUserId, sessionToken, sessionName,
+                    replaceSessionToken, enforceLayout, userSessionMetadata)
     );
   }
 
@@ -605,7 +607,7 @@ public class MeetingService implements MessageListener {
   }
 
   private void processRegisterUserSessionToken(RegisterUserSessionToken message) {
-    gw.registerUserSessionToken(message.meetingID, message.internalUserId, message.sessionToken,
+    gw.registerUserSessionToken(message.meetingID, message.internalUserId, message.sessionToken, message.sessionName,
             message.replaceSessionToken, message.enforceLayout, message.userSessionMetadata);
   }
 
