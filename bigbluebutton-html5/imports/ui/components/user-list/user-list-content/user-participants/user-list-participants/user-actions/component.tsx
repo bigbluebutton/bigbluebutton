@@ -384,16 +384,16 @@ const UserActions: React.FC<UserActionsProps> = ({
     },
     {
       allowed: isChatEnabled
-        && (
-          currentUser.isModerator ? allowedToChatPrivately
-            : allowedToChatPrivately && (
-              !(currentUser.locked && lockSettings?.disablePrivateChat)
-              // TODO: Add check for hasPrivateChat between users
-              || user.isModerator
-            )
-        )
-        && !isVoiceOnlyUser(user.userId)
-        && !isBreakout,
+      && (
+        currentUser.isModerator ? allowedToChatPrivately
+          : allowedToChatPrivately && (
+            !(currentUser.locked && lockSettings?.disablePrivateChat)
+            // TODO: Add check for hasPrivateChat between users
+            || user.isModerator
+          )
+      )
+      && !isVoiceOnlyUser(user.userId)
+      && !isBreakout,
       key: 'activeChat',
       label: intl.formatMessage(messages.StartPrivateChat),
       onClick: () => {
