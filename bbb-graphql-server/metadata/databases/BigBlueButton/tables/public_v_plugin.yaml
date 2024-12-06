@@ -13,6 +13,9 @@ select_permissions:
         - javascriptEntrypointIntegrity
         - javascriptEntrypointUrl
         - name
+        - assetPersistenceEnabled
+        - assetPersistenceMaxFileSize
+        - assetPersistenceMaxUploadSizePerUser
       filter:
         meetingId:
           _eq: X-Hasura-MeetingId
@@ -23,6 +26,9 @@ select_permissions:
         - javascriptEntrypointIntegrity
         - javascriptEntrypointUrl
         - name
+        - assetPersistenceEnabled
+        - assetPersistenceMaxFileSize
+        - assetPersistenceMaxUploadSizePerUser
       filter:
         meetingId:
           _eq: X-Hasura-MeetingId

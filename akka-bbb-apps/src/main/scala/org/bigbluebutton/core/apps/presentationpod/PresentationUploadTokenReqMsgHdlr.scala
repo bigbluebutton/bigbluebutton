@@ -4,7 +4,7 @@ import org.apache.commons.codec.digest.DigestUtils
 import org.bigbluebutton.common2.msgs._
 import org.bigbluebutton.core.bus.MessageBus
 import org.bigbluebutton.core.domain.MeetingState2x
-import org.bigbluebutton.core.models.Users2x
+import org.bigbluebutton.core.models.{ AssetPersistence, Plugin, PluginModel, Users2x }
 import org.bigbluebutton.core.running.LiveMeeting
 import org.bigbluebutton.core.apps.{ PermissionCheck, RightsManagementTrait }
 import org.bigbluebutton.core.db.PresPresentationDAO
@@ -40,13 +40,17 @@ trait PresentationUploadTokenReqMsgHdlr extends RightsManagementTrait {
       bus.outGW.send(msgEvent)
     }
 
-    def broadcastPresentationUploadTokenSysPubMsg(msg: PresentationUploadTokenReqMsg, token: String, presId: String): Unit = {
+    def broadcastPresentationUploadTokenSysPubMsg(msg: PresentationUploadTokenReqMsg, token: String, presId: String,
+                                                  pluginAssetPersistence: AssetPersistence, isFromPlugin: Boolean): Unit = {
       // send to bbb-web
       val routing = collection.immutable.HashMap("sender" -> "bbb-apps-akka")
       val envelope = BbbCoreEnvelope(PresentationUploadTokenSysPubMsg.NAME, routing)
       val header = BbbClientMsgHeader(PresentationUploadTokenSysPubMsg.NAME, liveMeeting.props.meetingProp.intId, msg.header.userId)
+      val pluginAssetPersistenceMaxFileSize: Int = pluginAssetPersistence.maxFileSize.getOrElse(-1)
 
-      val body = PresentationUploadTokenSysPubMsgBody(msg.body.podId, token, msg.body.filename, liveMeeting.props.meetingProp.intId, presId)
+      val body = PresentationUploadTokenSysPubMsgBody(msg.body.podId, token, msg.body.filename, liveMeeting.props.meetingProp.intId,
+        presId, isFromPlugin, pluginAssetPersistenceMaxFileSize, msg.body.pluginName)
+
       val event = PresentationUploadTokenSysPubMsg(header, body)
       val msgEvent = BbbCommonEnvCoreMsg(envelope, event)
 
@@ -71,6 +75,13 @@ trait PresentationUploadTokenReqMsgHdlr extends RightsManagementTrait {
     log.info("handlePresentationUploadTokenReqMsg" + liveMeeting.props.meetingProp.intId +
       " userId=" + msg.header.userId + " filename=" + msg.body.filename)
 
+    val plugin = PluginModel.getPluginByName(liveMeeting.plugins, msg.body.pluginName).getOrElse(Plugin(null))
+    val isFromPlugin: Boolean = msg.body.pluginName.nonEmpty
+    val pluginAssetPersistence: AssetPersistence = if (plugin.manifest != null) {
+      plugin.manifest.content.assetPersistence.getOrElse(
+        AssetPersistence(enabled = false, Option(-1), Option(-1))
+      )
+    } else AssetPersistence(enabled = false, Option(-1), Option(-1))
     val meetingId = liveMeeting.props.meetingProp.intId
 
     if (liveMeeting.props.meetingProp.disabledFeatures.contains("presentation")) {
@@ -82,12 +93,16 @@ trait PresentationUploadTokenReqMsgHdlr extends RightsManagementTrait {
       val meetingId = liveMeeting.props.meetingProp.intId
       val reason = "No permission to request presentation upload token."
       PermissionCheck.ejectUserForFailedPermission(meetingId, msg.header.userId, reason, bus.outGW, liveMeeting)
+    } else if (isFromPlugin && !pluginAssetPersistence.enabled) {
+      val meetingId = liveMeeting.props.meetingProp.intId
+      val reason = s"Plugin ${msg.body.pluginName} has no permission to upload a presentation, neither to request a presentation upload token."
+      PermissionCheck.ejectUserForFailedPermission(meetingId, msg.header.userId, reason, bus.outGW, liveMeeting)
     } else {
       if (userIsAllowedToUploadInPod(msg.body.podId, msg.header.userId)) {
         val token = PresentationPodsApp.generateToken(msg.body.podId, msg.header.userId)
         val presentationId = PresentationPodsApp.generatePresentationId(msg.body.filename)
         broadcastPresentationUploadTokenPassResp(msg, token, presentationId)
-        broadcastPresentationUploadTokenSysPubMsg(msg, token, presentationId)
+        broadcastPresentationUploadTokenSysPubMsg(msg, token, presentationId, pluginAssetPersistence, isFromPlugin)
 
         PresPresentationDAO.insertUploadTokenIfNotExists(
           meetingId,

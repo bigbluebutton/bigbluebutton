@@ -188,7 +188,9 @@ class OldMeetingMsgHdlrActor(val olgMsgGW: OldMessageReceivedGW)
   }
 
   def handlePresentationUploadTokenSysPubMsg(msg: PresentationUploadTokenSysPubMsg): Unit = {
-    olgMsgGW.handle(new PresentationUploadToken(msg.body.podId, msg.body.authzToken, msg.body.filename, msg.body.meetingId, msg.body.presentationId))
+    olgMsgGW.handle(new PresentationUploadToken(msg.body.podId, msg.body.authzToken, msg.body.filename,
+      msg.body.meetingId, msg.body.presentationId, msg.body.isFromPlugin,
+      msg.body.pluginAssetPersistenceMaxFileSize, msg.body.pluginName))
   }
 
   def handleGuestsWaitingApprovedEvtMsg(msg: GuestsWaitingApprovedEvtMsg): Unit = {
