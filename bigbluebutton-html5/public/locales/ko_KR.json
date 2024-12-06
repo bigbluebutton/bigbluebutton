@@ -812,6 +812,7 @@
     "app.toast.chat.system": "시스템",
     "app.toast.chat.poll": "설문조사 결과",
     "app.toast.chat.pollClick": "투표 결과가 나왔습니다. 보려면 여기를 클릭하십요",
+    "app.toast.chat.exportedPresentation": "프레젠테이션 파일",
     "app.toast.clearedEmoji.label": "이모티콘 상태가 정리 됨",
     "app.toast.setEmoji.label": "이모티콘 상태를 {0} 로 설정",
     "app.toast.meetingMuteOn.label": "모든 사용자가 음소거 되었습니다 ",
