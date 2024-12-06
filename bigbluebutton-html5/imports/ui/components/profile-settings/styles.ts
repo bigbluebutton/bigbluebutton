@@ -71,6 +71,8 @@ const VideoPreviewContent = styled.div`
   display: flex;
   justify-content: center;
   align-items: center;
+  z-index: 10;
+  background: ${colorWhite};
   
   color: ${colorText};
   font-weight: normal;

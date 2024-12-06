@@ -6,6 +6,8 @@ import { PANELS, ACTIONS } from '../../layout/enums';
 import { layoutDispatch, layoutSelectInput } from '/imports/ui/components/layout/context';
 import { Input } from '/imports/ui/components/layout/layoutTypes';
 import Styled from '../styles';
+import { GET_GUEST_WAITING_USERS_SUBSCRIPTION, GuestWaitingUsers } from '../../user-list/guest-management/waiting-users/queries';
+import useDeduplicatedSubscription from '/imports/ui/core/hooks/useDeduplicatedSubscription';
 
 const intlMessages = defineMessages({
   usersListLabel: {
@@ -20,6 +22,10 @@ const UsersListItem = () => {
   const layoutContextDispatch = layoutDispatch();
   const sidebarContent = layoutSelectInput((i: Input) => i.sidebarContent);
   const { sidebarContentPanel } = sidebarContent;
+
+  const {
+    data: guestWaitingUsersData,
+  } = useDeduplicatedSubscription<GuestWaitingUsers>(GET_GUEST_WAITING_USERS_SUBSCRIPTION);
 
   const toggleUsersListPanel = () => {
     layoutContextDispatch({
@@ -56,6 +62,7 @@ const UsersListItem = () => {
             toggleUsersListPanel();
           }
         }}
+        hasNotification={(guestWaitingUsersData?.user_guest?.length ?? 0) > 0}
       >
         <Icon iconName="user_list" />
       </Styled.ListItem>
