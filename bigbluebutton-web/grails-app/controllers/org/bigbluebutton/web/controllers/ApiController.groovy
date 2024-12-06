@@ -1205,10 +1205,14 @@ class ApiController {
           queryParameters.put("replaceSessionToken", sessionToken);
         }
 
+        if (!StringUtils.isEmpty(params.sessionName)) {
+          queryParameters.put("sessionName", sessionName);
+        }
+
         // If the user calling getJoinUrl is a moderator (except in breakout rooms), allow to specify additional parameters
         if (us.role.equals(ROLE_MODERATOR) && !meeting.isBreakout()) {
           request.getParameterMap()
-                  .findAll { key, value -> ["enforceLayout","sessionName"].contains(key) || key.startsWith("userdata-") }
+                  .findAll { key, value -> ["enforceLayout"].contains(key) || key.startsWith("userdata-") }
                   .findAll { key, value -> !StringUtils.isEmpty(value[-1]) }
                   .each { key, value -> queryParameters.put(key, value[-1]) };
         }
