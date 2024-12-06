@@ -214,19 +214,21 @@ class ApiController {
 
     HashMap<String, String> roles = new HashMap<String, String>();
 
-    roles.put("moderator", ROLE_MODERATOR);
-    roles.put("viewer", ROLE_ATTENDEE);
+    roles.put("moderator", ROLE_MODERATOR)
+    roles.put("viewer", ROLE_ATTENDEE)
 
     if(!(validationResponse == null)) {
       invalid(validationResponse.getKey(), validationResponse.getValue(), REDIRECT_RESPONSE)
       return
     }
 
-    Boolean authenticated = false;
+    Boolean authenticated = false
 
-    Boolean guest = false;
+    Boolean guest = false
+    Boolean guestParamProvided = false
     if (!StringUtils.isEmpty(params.guest)) {
       guest = Boolean.parseBoolean(params.guest)
+      guestParamProvided = true;
     } else {
       // guest param has not been passed. Make user as
       // authenticated by default. (ralam july 3, 2018)
@@ -345,7 +347,7 @@ class ApiController {
     if (userCustomData.size() > 0)
       meetingService.addUserCustomData(meeting.getInternalId(), externUserID, userCustomData);
 
-    String guestStatusVal = meeting.calcGuestStatus(role, guest, authenticated)
+    String guestStatusVal = meeting.calcGuestStatus(role, guest, authenticated, guestParamProvided)
 
     UserSession us = new UserSession();
     us.authToken = authToken;
