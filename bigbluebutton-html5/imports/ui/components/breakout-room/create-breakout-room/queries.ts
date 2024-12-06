@@ -69,7 +69,23 @@ export const getBreakoutCount = gql`
   }
 `;
 
+export const getLastBreakout = gql`
+subscription {
+  user {
+    lastBreakoutRoom {
+      breakoutRoomId
+      currentlyInRoom
+      isDefaultName
+      sequence
+      shortName
+      userId
+    }
+  }
+}
+`;
+
 export default {
   getUser,
   getBreakouts,
+  getLastBreakout,
 };
