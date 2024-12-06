@@ -49,6 +49,7 @@ const SettingsTabList = styled(TabList)`
   border-bottom: 1px solid #ddd;
   padding: 0;
   width: calc(100% / 3);
+  height: 39rem;
 
   @media ${smallOnly} {
     width: 100%;
@@ -82,18 +83,19 @@ const SettingsTabSelector = styled(Tab)`
   @media ${smallOnly} {
     max-width: 100%;
     margin: 0 ${smPaddingX} 0 0;
+
     & > i {
       display: none;
     }
 
     [dir="rtl"] & {
-       margin: 0 0 0 ${smPaddingX};
+      margin: 0 0 0 ${smPaddingX};
     }
   }
 
   &.is-selected {
     color: ${colorText};
-    background-color: ${colorBlueLighter};
+    background-color: #eaf4fc; // Azul mais claro
     font-weight: bold;
     box-shadow: 0px 2px 4px rgba(0, 0, 0, 0.1);
   }
@@ -136,25 +138,28 @@ const SettingsTabPanel = styled(TabPanel)`
 const ActionsContainer = styled.div`
   display: flex;
   justify-content: flex-end;
-  gap: 16px;
-  padding: 16px;
+  gap: 1.5rem;
+  padding: 1.5rem;
   border-top: 1px solid #ccc;
 `;
 
 const ActionButton = styled.button`
-  padding: 8px 16px;
+  width: 12.75rem;
+  height: 3.5rem;
+  padding: 0.5rem 1rem;
   border: none;
-  border-radius: 4px;
+  border-radius: 1rem;
   cursor: pointer;
   font-size: 16px;
   color: #fff;
 
   &:first-child {
-    background-color: #007bff;
+    background-color: transparent; 
+    color: #ccc;
   }
 
   &:last-child {
-    background-color: #dc3545;
+    background-color: #007bff;
   }
 
   &:hover {

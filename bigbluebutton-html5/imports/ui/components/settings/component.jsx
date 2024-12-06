@@ -1,5 +1,4 @@
 import React, { Component } from 'react';
-import ModalSimple from '/imports/ui/components/common/modal/simple/component';
 import { defineMessages, injectIntl } from 'react-intl';
 import Langmap from 'langmap';
 import About from '/imports/ui/components/settings/submenus/about/component';
@@ -179,9 +178,12 @@ class Settings extends Component {
   }
 
   handleUpdateSettings(key, newSettings) {
-    const settings = this.state;
-    settings.current[key] = newSettings;
-    this.setState(settings);
+    this.setState((prevState) => ({
+      current: {
+        ...prevState.current,
+        [key]: newSettings,
+      },
+    }));
   }
 
   handleSelectTab(tab) {
@@ -281,7 +283,7 @@ class Settings extends Component {
             settings={current.application}
             setIsShortcutModalOpen={setIsShortcutModalOpen}
             setIsOpen={setIsOpen}
-            />
+          />
         </Styled.SettingsTabPanel>
         <Styled.SettingsTabPanel selectedClassName="is-selected">
           <Application
@@ -342,13 +344,12 @@ class Settings extends Component {
       intl,
       setIsOpen,
       isOpen,
-      priority,
       setLocalSettings,
       modalHeight,
       modalWidth,
     } = this.props;
     const { current, saved } = this.state;
-  
+
     return (
       <Styled.Modal
         title={intl.formatMessage(intlMessages.SettingsLabel)}
@@ -379,14 +380,14 @@ class Settings extends Component {
             <Styled.ActionButton
               onClick={() => {
                 this.updateSettings(current, intlMessages.savedAlertLabel, setLocalSettings);
-  
+
                 if (saved.application.locale !== current.application.locale) {
                   const { language } = formatLocaleCode(saved.application.locale);
                   const newLanguage = current.application.locale;
                   setUseCurrentLocale(newLanguage);
                   document.body.classList.remove(`lang-${language}`);
                 }
-  
+
                 setIsOpen(false);
               }}
             >

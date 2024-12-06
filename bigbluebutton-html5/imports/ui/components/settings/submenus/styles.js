@@ -6,6 +6,8 @@ import {
   colorWhite,
   colorGrayLighter,
 } from '/imports/ui/stylesheets/styled-components/palette';
+import { Switch } from '@mui/material';
+import { styled as materialStyled } from '@mui/material/styles';
 import { borderSize, borderSizeLarge } from '/imports/ui/stylesheets/styled-components/general';
 
 const Title = styled.h3`
@@ -78,7 +80,6 @@ const FormElementCenter = styled.div`
 const Label = styled.span`
   color: ${colorGrayLabel};
   font-size: 0.9rem;
-  margin-bottom: 0.5rem;
 `;
 
 const Select = styled.select`
@@ -104,6 +105,54 @@ const Select = styled.select`
   }
 `;
 
+const MaterialSwitch = materialStyled(Switch)(({ theme }) => ({
+  width: 22,
+  height: 12,
+  padding: 0,
+  display: 'flex',
+  '&:active': {
+    '& .MuiSwitch-thumb': {
+      // width: 10,
+    },
+    '& .MuiSwitch-switchBase.Mui-checked': {
+      transform: 'translateX(9px)',
+    },
+  },
+  '& .MuiSwitch-switchBase': {
+    padding: 2,
+    '&.Mui-checked': {
+      transform: 'translateX(12px)',
+      color: '#fff',
+      '& + .MuiSwitch-track': {
+        opacity: 1,
+        backgroundColor: colorPrimary,
+        ...theme.applyStyles('dark', {
+          backgroundColor: colorPrimary,
+        }),
+      },
+    },
+  },
+  '& .MuiSwitch-thumb': {
+    boxShadow: '0 2px 4px 0 rgb(0 35 11 / 20%)',
+    width: 6,
+    height: 6,
+    borderRadius: 6,
+    transition: theme.transitions.create(['width'], {
+      duration: 200,
+    }),
+    transform: 'translateY(1px)',
+  },
+  '& .MuiSwitch-track': {
+    borderRadius: 16 / 2,
+    opacity: 1,
+    backgroundColor: 'rgba(0,0,0,.25)',
+    boxSizing: 'border-box',
+    ...theme.applyStyles('dark', {
+      backgroundColor: 'rgba(255,255,255,.35)',
+    }),
+  },
+}));
+
 export default {
   Title,
   SubTitle,
@@ -115,4 +164,5 @@ export default {
   FormElementCenter,
   Label,
   Select,
+  MaterialSwitch,
 };
