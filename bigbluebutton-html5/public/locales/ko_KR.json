@@ -604,7 +604,7 @@
     "app.submenu.video.videoQualityLabel": "비디오 품질",
     "app.submenu.video.qualityOptionLabel": "비디오 품질 선택",
     "app.submenu.video.participantsCamLabel": "관람 참가자 웹캠",
-    "app.submenu.transcription.desc": "transcription 백엔드 매개변수 조정",
+    "app.submenu.transcription.desc": "전사 백엔드 매개변수 조정",
     "app.submenu.transcription.sectionTitle": "전사 옵션",
     "app.settings.applicationTab.label": "신청",
     "app.settings.audioTab.label": "오디오",
