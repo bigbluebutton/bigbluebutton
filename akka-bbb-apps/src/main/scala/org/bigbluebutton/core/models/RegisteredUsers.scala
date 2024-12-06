@@ -220,10 +220,11 @@ object RegisteredUsers {
     u
   }
 
-  def addUserSessionToken(users: RegisteredUsers, user: RegisteredUser, newSessionToken: String, enforceLayout: String): RegisteredUser = {
+  def addUserSessionToken(users: RegisteredUsers, user: RegisteredUser, newSessionToken: String, newSessionName: String,
+                          enforceLayout: String): RegisteredUser = {
     val u = user.copy(sessionToken = user.sessionToken :+ newSessionToken)
     users.save(u)
-    UserSessionTokenDAO.insert(u.meetingId, u.id, newSessionToken, enforceLayout)
+    UserSessionTokenDAO.insert(u.meetingId, u.id, newSessionToken, newSessionName, enforceLayout)
     u
   }
 
