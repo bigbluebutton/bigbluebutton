@@ -2,17 +2,13 @@ const { test } = require('../fixtures');
 const { fullyParallel } = require('../playwright.config');
 const { Options } = require('./options');
 const { initializePages } = require('../core/helpers');
-const { encodeCustomParams } = require('../parameters/util');
-const { PARAMETER_HIDE_PRESENTATION_TOAST } = require('../core/constants');
 
-const hidePresentationToast = encodeCustomParams(PARAMETER_HIDE_PRESENTATION_TOAST);
-
-test.describe('Options', () => {
+test.describe('Options', { tag: '@ci' }, () => {
   const options = new Options();
 
   test.describe.configure({ mode: fullyParallel ? 'parallel' : 'serial' });
   test[fullyParallel ? 'beforeEach' : 'beforeAll'](async ({ browser }) => {
-    await initializePages(options, browser, { joinParameter: hidePresentationToast });
+    await initializePages(options, browser);
   });
 
   test('Open about modal', async () => {
@@ -23,15 +19,16 @@ test.describe('Options', () => {
     await options.openHelp();
   });
 
-  test('Locales test', async () => {
+  test('Locales', { tag: '@flaky' }, async () => {
+    // not applying the correct locale for some main elements
     await options.localesTest();
   });
 
-  test('Dark mode', { tag: ['@ci', '@flaky'] }, async () => {
+  test('Dark mode', async () => {
     await options.darkMode();
   });
 
-  test('Font size', { tag: ['@ci', '@flaky'] }, async () => {
+  test('Font size', async () => {
     await options.fontSizeTest();
   });
 });

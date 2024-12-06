@@ -21,7 +21,7 @@ class Pan extends MultiUsers {
     for(let i = 100; i < 200; i += 25) {
       const currentZoomLabel = await zoomResetBtn.textContent();
       await this.modPage.waitAndClick(e.zoomInButton);
-      await expect(zoomResetBtn).not.toContainText(currentZoomLabel);
+      await expect(zoomResetBtn, 'reset zoom button label should change after clicking to zoom in').not.toContainText(currentZoomLabel);
     }
 
     await this.modPage.page.mouse.move(wbBox.x + 0.3 * wbBox.width, wbBox.y + 0.3 * wbBox.height);

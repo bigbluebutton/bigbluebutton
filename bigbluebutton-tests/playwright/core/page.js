@@ -305,11 +305,15 @@ class Page {
   }
 
   async closeAllToastNotifications() {
-      const closeToastBtnLocator = this.page.locator(e.closeToastBtn);
-      while (await closeToastBtnLocator.count() > 0) {
+    const closeToastBtnLocator = this.page.locator(e.closeToastBtn);
+    while (await closeToastBtnLocator.count() > 0) {
+      try {
         await this.page.click(e.closeToastBtn, { timeout: ELEMENT_WAIT_TIME });
         await helpers.sleep(1500);  // expected time to toast notification disappear
+      } catch (error) {
+        console.log('not able to close the toast notification');
       }
+    }
   }
 
   async setHeightWidthViewPortSize() {

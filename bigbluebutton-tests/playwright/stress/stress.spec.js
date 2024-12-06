@@ -1,6 +1,8 @@
 const { test } = require('../fixtures');
 const { Stress } = require('./stress.js');
 
+// @ci Note: Stress tests are not intended to be run in CI
+
 test.describe.parallel('Stress', () => {
   test.beforeEach(async () => test.setTimeout(0));
 

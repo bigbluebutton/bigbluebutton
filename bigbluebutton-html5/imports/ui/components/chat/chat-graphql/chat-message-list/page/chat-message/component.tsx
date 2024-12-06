@@ -530,6 +530,7 @@ const ChatMessage = React.forwardRef<ChatMessageRef, ChatMessageProps>(({
           $focused={focused}
           $keyboardFocused={keyboardFocused}
           $reactionPopoverIsOpen={isToolbarReactionPopoverOpen}
+          data-test="chatMessageItem"
         >
           <ChatMessageToolbar
             keyboardFocused={keyboardFocused}

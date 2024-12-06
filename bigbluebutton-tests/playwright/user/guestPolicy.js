@@ -66,7 +66,7 @@ class GuestPolicy extends MultiUsers {
     await this.modPage.waitAndClick(e.waitingUsersBtn);
 
     await this.modPage.waitAndClick(e.privateMessageGuest);
-    await this.modPage.type(e.inputPrivateLobbyMesssage, 'test');
+    await this.modPage.type(e.inputPrivateLobbyMessage, 'test');
     await this.modPage.waitAndClick(e.sendPrivateLobbyMessage);
     await this.userPage.hasText(e.guestMessage, /test/, 'should the guest message contain the text "test" for the attendee', ELEMENT_WAIT_LONGER_TIME);
   }

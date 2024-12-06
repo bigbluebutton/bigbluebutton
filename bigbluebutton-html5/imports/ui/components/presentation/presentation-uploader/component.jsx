@@ -869,6 +869,7 @@ class PresentationUploader extends Component {
         error={hasError}
         animated={isProcessing}
         animations={animations}
+        data-test="presentationItem"
       >
         <Styled.SetCurrentAction>
           <Radio

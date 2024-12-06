@@ -40,7 +40,7 @@ exports.presenterTools = 'userdata-bbb_presenter_tools=["select","draw", "arrow"
 exports.multiUserTools = 'userdata-bbb_multi_user_tools=["arrow","text"]';
 const cssCode = `${e.presentationTitle}{display: none;}`;
 exports.customStyle = `userdata-bbb_custom_style=${cssCode}`;
-exports.customStyleUrl = 'userdata-bbb_custom_style_url=https://develop.bigbluebutton.org/css-test-file.css';
+exports.customStyleUrl = 'userdata-bbb_custom_style_url=https://dev30.bigbluebutton.org/css-test-file.css';
 exports.autoSwapLayout = 'userdata-bbb_auto_swap_layout=true';
 exports.hidePresentationOnJoin = 'userdata-bbb_hide_presentation_on_join=true';
 exports.outsideToggleSelfVoice = 'userdata-bbb_outside_toggle_self_voice=true';
