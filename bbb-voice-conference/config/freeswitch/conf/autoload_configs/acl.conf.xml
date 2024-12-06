@@ -19,18 +19,6 @@
       <node type="deny" cidr="fe80::/10"/>
       <node type="deny" cidr="fc00::/7"/>
     </list>
-    <!--
-        This will traverse the directory adding all users
-        with the cidr= tag to this ACL, when this ACL matches
-        the users variables and params apply as if they
-        digest authenticated.
-    -->
-    <list name="domains" default="allow">
-      <!-- domain= is special it scans the domain from the directory to build the ACL -->
-      <node type="allow" domain="$${domain}"/>
-      <!-- use cidr= if you wish to allow ip ranges to this domains acl. -->
-      <!-- <node type="allow" cidr="192.168.0.0/24"/> -->
-    </list>
 
   </network-lists>
 </configuration>
