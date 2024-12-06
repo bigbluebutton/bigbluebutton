@@ -585,7 +585,15 @@ CREATE TABLE "user_sessionToken" (
 	FOREIGN KEY ("meetingId", "userId") REFERENCES "user"("meetingId","userId") ON DELETE CASCADE
 );
 
-CREATE INDEX "idx_user_sessionToken_stk" ON "user_sessionToken"("sessionToken");
+CREATE INDEX "idx_user_sessionToken_sessionToken" ON "user_sessionToken"("sessionToken");
+
+--Index for v_user_session
+CREATE INDEX "idx_user_sessionToken_not_removed"
+ON "user_sessionToken" ("meetingId", "userId", "sessionToken")
+WHERE "removedAt" IS NULL;
+
+--Index for v_user_metadata
+CREATE INDEX "idx_user_sessionToken_pk_reverse" ON "user_sessionToken" ("sessionToken", "userId", "meetingId");
 
 create view "v_user_sessionToken" as select * from "user_sessionToken";
 create view "v_user_session_current" as select * from "user_sessionToken";
@@ -603,6 +611,11 @@ CREATE TABLE "user_graphqlConnection" (
 );
 
 CREATE INDEX "idx_user_graphqlConnectionSessionToken" ON "user_graphqlConnection"("sessionToken");
+
+--Index for v_user_session
+CREATE INDEX "idx_user_graphqlConnection_sessionToken_closedAt"
+ON "user_graphqlConnection" ("sessionToken", "closedAt");
+
 
 create view "v_user_session" as
 select ust."meetingId", ust."userId", ust."sessionToken", ust."sessionName", ust."enforceLayout", count(ugc."graphqlConnectionId") as "connectionsAlive"
