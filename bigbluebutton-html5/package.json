@@ -51,6 +51,8 @@
     "@mui/icons-material": "^6.1.4",
     "@mui/material": "^6.1.4",
     "@mui/system": "^5.12.3",
+    "@tiptap/core": "^2.10.3",
+    "@tiptap/extension-image": "^2.10.3",
     "@tiptap/extension-placeholder": "^2.10.3",
     "@tiptap/pm": "^2.10.3",
     "@tiptap/react": "^2.10.3",

@@ -35,7 +35,7 @@ export const uploadImage = async (fileUrl: string): Promise<string> => {
     const response = await fetch(url, {
       method: 'post',
       credentials: 'include',
-      body: JSON.stringify({file: fileUrl}),
+      body: JSON.stringify({ file: fileUrl }),
       headers: {
         'x-session-token': sessionToken ?? '',
         Accept: 'application/json',
@@ -77,8 +77,42 @@ export const replaceImageLinks = async (message: string) => {
   return newMessage;
 };
 
+const MAX_FILE_SIZE = 5 * 1024 * 1024; // 5MB
+export const MIME_TYPES_ALLOWED = ['image/jpg', 'image/jpeg', 'image/png'];
+
+export const readFileAsDataURL = (
+  file: File,
+  onLoad: (e: ProgressEvent<FileReader>) => void,
+  onError: (e: Error) => void,
+) => {
+  const { size, type } = file;
+  const sizeInKB = size / 1024;
+
+  if (sizeInKB > MAX_FILE_SIZE) {
+    onError(new Error('Maximum file size exceeded.'));
+    return;
+  }
+
+  if (!MIME_TYPES_ALLOWED.includes(type)) {
+    onError(new Error('File type not allowed.'));
+    return;
+  }
+
+  const reader = new FileReader();
+
+  reader.onload = onLoad;
+
+  reader.onerror = () => {
+    onError(new Error('Something went wrong when reading the file.'));
+  };
+
+  reader.readAsDataURL(file);
+};
+
 export default {
   textToMarkdown,
   uploadImage,
   replaceImageLinks,
+  readFileAsDataURL,
+  MIME_TYPES_ALLOWED,
 };

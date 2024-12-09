@@ -6,6 +6,7 @@ import React, {
 import { useEditor } from '@tiptap/react';
 import StarterKit from '@tiptap/starter-kit';
 import Placeholder from '@tiptap/extension-placeholder';
+import Image from '@tiptap/extension-image';
 import Showdown from 'showdown';
 import Turndown from 'turndown';
 import { useMutation } from '@apollo/client';
@@ -29,6 +30,8 @@ import SvgIcon from '/imports/ui/components/common/icon-svg/component';
 import Icon from '/imports/ui/components/common/icon/icon-ts/component';
 import Styled from './styles';
 import Tooltip from '/imports/ui/components/common/tooltip/component';
+import FileHandler from './extensions/FileHandler';
+import { MIME_TYPES_ALLOWED, readFileAsDataURL, uploadImage } from '../service';
 
 const messages = defineMessages({
   submitLabel: {
@@ -161,6 +164,7 @@ const ChatRichTextEditor: React.FC<ChatRichTextEditorProps> = (props) => {
   const prevChatId = usePreviousValue(chatId);
   const messageRef = useRef<string>('');
   const messageBeforeEditingRef = useRef<string | null>(null);
+  const fileInputRef = useRef<HTMLInputElement | null>(null);
   const updateUnsentMessages = (chatId: string, message: string) => {
     const storedData = localStorage.getItem('unsentMessages') || '{}';
     const unsentMessages = JSON.parse(storedData);
@@ -206,6 +210,8 @@ const ChatRichTextEditor: React.FC<ChatRichTextEditorProps> = (props) => {
   const editor = useEditor({
     extensions: [
       StarterKit,
+      Image.configure({ allowBase64: true }),
+      FileHandler,
       Placeholder.configure({
         placeholder: intl.formatMessage(messages.inputPlaceholder, { 0: title }),
       }),
@@ -579,12 +585,49 @@ const ChatRichTextEditor: React.FC<ChatRichTextEditorProps> = (props) => {
         .toggleCodeBlock()
         .run(),
     },
+    {
+      label: 'Image',
+      icon: 'photo',
+      id: 'chat-editor-image-tool',
+      command: () => fileInputRef.current?.click(),
+      active: editor.isActive('image'),
+      disabled: false,
+    },
   ];
+
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+
+    if (!file) return;
+
+    readFileAsDataURL(file, (e) => {
+      const data = e.target?.result;
+      if (!data || typeof data !== 'string') return;
+      uploadImage(data).then((url) => {
+        editor?.chain().focus().setImage({ src: url, title: file.name }).run();
+      });
+    }, (error) => {
+      logger.error({
+        logCode: 'file_reading_error',
+        extraInfo: {
+          errorName: error?.name,
+          errorMessage: error?.message,
+        },
+      }, `File reading error: ${error?.message}`);
+    });
+  };
 
   if (!editor) return null;
 
   return (
     <Styled.Form onSubmit={handleSubmit} $isRTL={isRTL}>
+      <input
+        ref={fileInputRef}
+        type="file"
+        accept={MIME_TYPES_ALLOWED.join(' ,')}
+        onChange={handleFileChange}
+        hidden
+      />
       {showEmojiPicker ? (
         <Styled.EmojiPickerWrapper ref={emojiPickerRef}>
           <Styled.EmojiPicker
