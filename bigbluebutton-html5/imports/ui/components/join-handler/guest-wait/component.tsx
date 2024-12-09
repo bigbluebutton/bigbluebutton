@@ -176,7 +176,6 @@ const GuestWait: React.FC<GuestWaitProps> = (props) => {
   return (
     <Styled.Container>
       <Styled.Content id="content">
-        <Styled.Heading as="h2">3/5</Styled.Heading>
         <Styled.Heading id="heading">{intl.formatMessage(intlMessages.windowTitle)}</Styled.Heading>
         {animate && (
           <Styled.Spinner>
