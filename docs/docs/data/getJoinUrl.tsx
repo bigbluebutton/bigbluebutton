@@ -37,7 +37,7 @@ const getJoinUrlTableData = [
         description: (
             <>
                 Include additional user data parameters prefixed with userdata-. These parameters will merge with the original user's existing userdata
-                settings. In cases where the same parameter is defined both in the original and the new session, the new session’s parameter takes precedence.
+                settings. In cases where the same parameter is defined both in the original and the new session, the new session's parameter takes precedence.
             </>
         ),
     },
