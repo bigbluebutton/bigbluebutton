@@ -270,6 +270,123 @@ class MultiUsers {
       await this.modPage2.hasText('body', /removed/, 'should display the removed message for the second moderator');
     }
   }
+
+  // Reactions tests
+  async reactionsTest() {
+    await this.modPage.waitForSelector(e.whiteboard);
+    await this.userPage.waitForSelector(e.whiteboard);
+    await this.modPage.waitAndClick(e.reactionsButton);
+    await this.modPage.waitAndClick('li[data-test="reaction"]:nth-child(1)');
+    await this.modPage.hasText(e.moderatorAvatar, '😃');
+    await this.modPage.hasText(e.reactionsButton, '😃');
+    await this.userPage.hasText(e.moderatorAvatar, '😃');
+
+    await this.modPage.waitAndClick(e.reactionsButton);
+    await this.modPage.waitAndClick('li[data-test="reaction"]:nth-child(1)');
+    await this.modPage.hasText(e.reactionsButton, 'Reactions');
+    await this.modPage.hasText(e.moderatorAvatar, 'mo');
+
+    await this.modPage.waitAndClick(e.reactionsButton);
+    await this.modPage.waitAndClick('li[data-test="reaction"]:nth-child(2)');
+    await this.modPage.hasText(e.moderatorAvatar, '😐');
+    await this.modPage.hasText(e.reactionsButton, '😐');
+    await this.userPage.hasText(e.moderatorAvatar, '😐');
+
+    await this.modPage.waitAndClick(e.reactionsButton);
+    await this.modPage.waitAndClick('li[data-test="reaction"]:nth-child(2)');
+    await this.modPage.hasText(e.reactionsButton, 'Reactions');
+    await this.modPage.hasText(e.moderatorAvatar, 'mo');
+
+    await this.modPage.waitAndClick(e.reactionsButton);
+    await this.modPage.waitAndClick('li[data-test="reaction"]:nth-child(2)');
+    await this.modPage.hasText(e.moderatorAvatar, '😐');
+    await this.modPage.hasText(e.reactionsButton, '😐');
+    await this.userPage.hasText(e.moderatorAvatar, '😐');
+
+    await this.modPage.waitAndClick(e.reactionsButton);
+    await this.modPage.waitAndClick('li[data-test="reaction"]:nth-child(2)');
+    await this.modPage.hasText(e.reactionsButton, 'Reactions');
+    await this.modPage.hasText(e.moderatorAvatar, 'mo');
+
+    await this.modPage.waitAndClick(e.reactionsButton);
+    await this.modPage.waitAndClick('li[data-test="reaction"]:nth-child(3)');
+    await this.modPage.hasText(e.moderatorAvatar, '🙁');
+    await this.modPage.hasText(e.reactionsButton, '🙁');
+    await this.userPage.hasText(e.moderatorAvatar, '🙁');
+
+    await this.modPage.waitAndClick(e.reactionsButton);
+    await this.modPage.waitAndClick('li[data-test="reaction"]:nth-child(3)');
+    await this.modPage.hasText(e.reactionsButton, 'Reactions');
+    await this.modPage.hasText(e.moderatorAvatar, 'mo');
+
+    await this.modPage.waitAndClick(e.reactionsButton);
+    await this.modPage.waitAndClick('li[data-test="reaction"]:nth-child(3)');
+    await this.modPage.hasText(e.moderatorAvatar, '🙁');
+    await this.modPage.hasText(e.reactionsButton, '🙁');
+    await this.userPage.hasText(e.moderatorAvatar, '🙁');
+
+    await this.modPage.waitAndClick(e.reactionsButton);
+    await this.modPage.waitAndClick('li[data-test="reaction"]:nth-child(3)');
+    await this.modPage.hasText(e.reactionsButton, 'Reactions');
+    await this.modPage.hasText(e.moderatorAvatar, 'mo');
+
+    await this.modPage.waitAndClick(e.reactionsButton);
+    await this.modPage.waitAndClick('li[data-test="reaction"]:nth-child(4)');
+    await this.modPage.hasText(e.moderatorAvatar, '👍');
+    await this.modPage.hasText(e.reactionsButton, '👍');
+    await this.userPage.hasText(e.moderatorAvatar, '👍');
+
+    await this.modPage.waitAndClick(e.reactionsButton);
+    await this.modPage.waitAndClick('li[data-test="reaction"]:nth-child(4)');
+    await this.modPage.hasText(e.reactionsButton, 'Reactions');
+    await this.modPage.hasText(e.moderatorAvatar, 'mo');
+
+    await this.modPage.waitAndClick(e.reactionsButton);
+    await this.modPage.waitAndClick('li[data-test="reaction"]:nth-child(5)');
+    await this.modPage.hasText(e.moderatorAvatar, '👎');
+    await this.modPage.hasText(e.reactionsButton, '👎');
+    await this.userPage.hasText(e.moderatorAvatar, '👎');
+
+    await this.modPage.waitAndClick(e.reactionsButton);
+    await this.modPage.waitAndClick('li[data-test="reaction"]:nth-child(5)');
+    await this.modPage.hasText(e.reactionsButton, 'Reactions');
+    await this.modPage.hasText(e.moderatorAvatar, 'mo');
+
+    await this.modPage.waitAndClick(e.reactionsButton);
+    await this.modPage.waitAndClick('li[data-test="reaction"]:nth-child(6)');
+    await this.modPage.hasText(e.moderatorAvatar, '👏');
+    await this.modPage.hasText(e.reactionsButton, '👏');
+    await this.userPage.hasText(e.moderatorAvatar, '👏');
+
+    await this.modPage.waitAndClick(e.reactionsButton);
+    await this.modPage.waitAndClick('li[data-test="reaction"]:nth-child(6)');
+    await this.modPage.hasText(e.reactionsButton, 'Reactions');
+    await this.modPage.hasText(e.moderatorAvatar, 'mo');
+  }
+
+  async emojiRainTest() {
+    const { emojiRain } = getSettings();
+
+    if (!emojiRain) {
+      await this.modPage.waitForSelector(e.whiteboard);
+      await this.modPage.waitForSelector(e.whiteboard);
+      await this.modPage.waitAndClick(e.reactionsButton);
+      await this.modPage.waitAndClick('li[data-test="reaction"]:nth-child(1)');
+      await this.modPage.wasRemoved('div[data-test="emojiRain"] svg');
+      return
+    }
+
+    await this.modPage.waitForSelector(e.whiteboard);
+    await this.modPage.waitForSelector(e.whiteboard);
+    await this.modPage.waitAndClick(e.reactionsButton);
+    await this.modPage.waitAndClick('li[data-test="reaction"]:nth-child(1)');
+
+    const div = this.modPage.getLocator('div[data-test="emojiRain"] svg');
+    await expect(div).toHaveCount(5, { timeout: ELEMENT_WAIT_TIME });
+
+    await sleep(1000);
+    await expect(div).toHaveCount(0, { timeout: ELEMENT_WAIT_TIME });
+  }
 }
 
 exports.MultiUsers = MultiUsers;
