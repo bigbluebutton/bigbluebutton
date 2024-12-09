@@ -163,6 +163,14 @@
   "showSettingsInAdminPage": true,
 
   /*
+   * Settings for cleanup of pads
+   */
+  "cleanup": {
+    "enabled": false,
+    "keepRevisions": 5
+  },
+
+  /*
    * Node native SSL support
    *
    * This is disabled by default.
@@ -273,6 +281,14 @@
   },
 
   /*
+   * Enables the use of a different server. We have a different one that syncs changes from the original server.
+   * It is hosted on GitHub and should not be blocked by many firewalls.
+   *  https://etherpad.org/ep_infos
+   */
+
+  "updateServer": "https://etherpad.org/ep_infos",
+
+  /*
    * Should we suppress errors from being visible in the default Pad Text?
    */
   "suppressErrorsInPadText": true,
@@ -324,13 +340,6 @@
    */
   "soffice": "/usr/share/bbb-libreoffice-conversion/etherpad-export.sh",
 
-  /*
-   * Path to the Tidy executable.
-   *
-   * Tidy is used to improve the quality of exported pads.
-   * Setting it to null disables Tidy.
-   */
-  "tidyHtml": null,
 
   /*
    * Allow import of file types other than the supported ones:
@@ -366,6 +375,22 @@
    */
   "cookie": {
     /*
+     * How often (in milliseconds) the key used to sign the express_sid cookie
+     * should be rotated. Long rotation intervals reduce signature verification
+     * overhead (because there are fewer historical keys to check) and database
+     * load (fewer historical keys to store, and less frequent queries to
+     * get/update the keys). Short rotation intervals are slightly more secure.
+     *
+     * Multiple Etherpad processes sharing the same database (table) is
+     * supported as long as the clock sync error is significantly less than this
+     * value.
+     *
+     * Key rotation can be disabled (not recommended) by setting this to 0 or
+     * null, or by disabling session expiration (see sessionLifetime).
+     */
+    "keyRotationInterval": 86400000, // = 1d * 24h/d * 60m/h * 60s/m * 1000ms/s
+
+    /*
      * Value of the SameSite cookie property. "Lax" is recommended unless
      * Etherpad will be embedded in an iframe from another site, in which case
      * this must be set to "None". Note: "None" will not work (the browser will
@@ -376,7 +401,51 @@
      * significant usability drawbacks vs. "Lax". See
      * https://stackoverflow.com/q/41841880 for discussion.
      */
-    "sameSite": "None"
+    "sameSite": "None",
+
+    /*
+     * How long (in milliseconds) after navigating away from Etherpad before the
+     * user is required to log in again. (The express_sid cookie is set to
+     * expire at time now + sessionLifetime when first created, and its
+     * expiration time is periodically refreshed to a new now + sessionLifetime
+     * value.) If requireAuthentication is false then this value does not really
+     * matter.
+     *
+     * The "best" value depends on your users' usage patterns and the amount of
+     * convenience you desire. A long lifetime is more convenient (users won't
+     * have to log back in as often) but has some drawbacks:
+     *   - It increases the amount of state kept in the database.
+     *   - It might weaken security somewhat: The cookie expiration is refreshed
+     *     indefinitely without consulting authentication or authorization
+     *     hooks, so once a user has accessed a pad, the user can continue to
+     *     use the pad until the user leaves for longer than sessionLifetime.
+     *   - More historical keys (sessionLifetime / keyRotationInterval) must be
+     *     checked when verifying signatures.
+     *
+     * Session lifetime can be set to infinity (not recommended) by setting this
+     * to null or 0. Note that if the session does not expire, most browsers
+     * will delete the cookie when the browser exits, but a session record is
+     * kept in the database forever.
+     */
+    "sessionLifetime": 864000000, // = 10d * 24h/d * 60m/h * 60s/m * 1000ms/s
+
+    /*
+     * How long (in milliseconds) before the expiration time of an active user's
+     * session is refreshed (to now + sessionLifetime). This setting affects the
+     * following:
+     *   - How often a new session expiration time will be written to the
+     *     database.
+     *   - How often each user's browser will ping the Etherpad server to
+     *     refresh the expiration time of the session cookie.
+     *
+     * High values reduce the load on the database and the load from browsers,
+     * but can shorten the effective session lifetime if Etherpad is restarted
+     * or the user navigates away.
+     *
+     * Automatic session refreshes can be disabled (not recommended) by setting
+     * this to null.
+     */
+    "sessionRefreshInterval": 86400000 // = 1d * 24h/d * 60m/h * 60s/m * 1000ms/s
   },
 
   /*
@@ -476,7 +545,7 @@
   /*
    * Restrict socket.io transport methods
    */
-  "socketTransportProtocols" : ["xhr-polling", "jsonp-polling", "htmlfile"],
+  "socketTransportProtocols" : ["websocket", "polling"],
 
   "socketIo": {
     /*
@@ -486,7 +555,7 @@
      * value to work properly, but increasing the value increases susceptibility
      * to denial of service attacks (malicious clients can exhaust memory).
      */
-    "maxHttpBufferSize": 10000
+    "maxHttpBufferSize": 50000
   },
 
   /*
@@ -552,6 +621,13 @@
   "importMaxFileSize": 52428800, // 50 * 1024 * 1024
 
   /*
+    The authentication method used by the server.
+    The default value is sso
+    If you want to use the old authentication system, change this to apikey
+   */
+  "authenticationMethod": "apikey",
+
+  /*
    * From Etherpad 1.8.5 onwards, when Etherpad is in production mode commits from individual users are rate limited
    *
    * The default is to allow at most 10 changes per IP in a 1 second window.
@@ -566,7 +642,7 @@
     // maximum number of changes per IP to allow during the rate limit window
     "points": 100
   },
-
+  
 
   /*
    * Toolbar buttons configuration.
@@ -596,6 +672,13 @@
    * Valid values: DEBUG, INFO, WARN, ERROR
    */
   "loglevel": "INFO",
+
+    /*
+   * The log layout type to use.
+   *
+   * Valid values: basic, colored
+   */
+   "logLayoutType": "colored",
 
   /* Override any strings found in locale directories */
   "customLocaleStrings": {
@@ -634,7 +717,41 @@
   },
 
   /* Disable Admin UI tests */
-  "enableAdminUITests": false
+  "enableAdminUITests": false,
+
+  /*
+   * Enable/Disable case-insensitive pad names.
+   */
+  "lowerCasePadIds": false,
+
+  "sso": {
+    "issuer": "${SSO_ISSUER:http://localhost:9001}",
+      "clients": [
+        {
+          "client_id": "${ADMIN_CLIENT:admin_client}",
+          "client_secret": "${ADMIN_SECRET:admin}",
+          "grant_types": ["authorization_code"],
+          "response_types": ["code"],
+          "redirect_uris": ["${ADMIN_REDIRECT:http://localhost:9001/admin/}"]
+        },
+        {
+          "client_id": "${USER_CLIENT:user_client}",
+          "client_secret": "${USER_SECRET:user}",
+          "grant_types": ["authorization_code"],
+          "response_types": ["code"],
+          "redirect_uris": ["${USER_REDIRECT:http://localhost:9001/}"]
+        }
+      ]
+    }
+
+    /* Set the time to live for the tokens
+         This is the time of seconds a user is logged into Etherpad
+    "ttl":  {
+        "AccessToken": 3600,
+        "AuthorizationCode": 600,
+        "ClientCredentials": 3600,
+        "IdToken": 3600,
+        "RefreshToken": 86400
+    }
+    */
 }
-
-
