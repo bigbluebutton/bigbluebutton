@@ -235,8 +235,6 @@ class OptionsDropdown extends PureComponent {
     const { userLeaveMeeting } = this.props;
     
     userLeaveMeeting();
-    // we don't check askForFeedbackOnLogout here,
-    // it is checked in meeting-ended component
     Session.setItem('codeError', this.LOGOUT_CODE);
   }
 
