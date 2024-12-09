@@ -104,7 +104,6 @@ const propTypes = {
   }).isRequired,
   updateSettings: PropTypes.func.isRequired,
   availableLocales: PropTypes.objectOf(PropTypes.array).isRequired,
-  showToggleLabel: PropTypes.bool.isRequired,
   isReactionsEnabled: PropTypes.bool.isRequired,
   transcription: PropTypes.shape({
     partialUtterances: PropTypes.bool,
@@ -212,7 +211,6 @@ class Settings extends Component {
       isModerator,
       isPresenter,
       showGuestNotification,
-      showToggleLabel,
       layoutContextDispatch,
       selectedLayout,
       isScreenSharingEnabled,
@@ -290,7 +288,6 @@ class Settings extends Component {
             allLocales={allLocales}
             handleUpdateSettings={this.handleUpdateSettings}
             settings={current.application}
-            showToggleLabel={showToggleLabel}
             displaySettingsStatus={this.displaySettingsStatus}
             layoutContextDispatch={layoutContextDispatch}
             selectedLayout={selectedLayout}
@@ -304,7 +301,6 @@ class Settings extends Component {
             handleUpdateSettings={this.handleUpdateSettings}
             settings={current.application}
             showGuestNotification={showGuestNotification}
-            showToggleLabel={showToggleLabel}
             displaySettingsStatus={this.displaySettingsStatus}
             isChatEnabled={isChatEnabled}
             {...{ isModerator }}
@@ -316,7 +312,6 @@ class Settings extends Component {
               <DataSaving
                 settings={current.dataSaving}
                 handleUpdateSettings={this.handleUpdateSettings}
-                showToggleLabel={showToggleLabel}
                 displaySettingsStatus={this.displaySettingsStatus}
                 isScreenSharingEnabled={isScreenSharingEnabled}
                 isVideoEnabled={isVideoEnabled}

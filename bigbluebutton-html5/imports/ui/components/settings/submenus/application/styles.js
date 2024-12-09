@@ -44,11 +44,7 @@ const FormElementRight = styled(Styled.FormElementRight)`
 
 const Select = styled(Styled.Select)``;
 
-const Title = styled(Styled.Title)`
-  font-size: 1rem;
-  font-weight: 600;
-  margin-bottom: 0;
-`;
+const Title = styled(Styled.Title)``;
 
 const ApplicationTitle = styled(Styled.Title)`
   font-size: 1rem;

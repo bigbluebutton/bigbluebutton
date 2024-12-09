@@ -12,10 +12,10 @@ import { borderSize, borderSizeLarge } from '/imports/ui/stylesheets/styled-comp
 
 const Title = styled.h3`
   color: ${colorGrayDark};
-  font-weight: 400;
-  font-size: 1.3rem;
   margin: 0;
-  margin-bottom: 1.5rem;
+  font-size: 1rem;
+  font-weight: 600;
+  margin-bottom: 0;
 `;
 
 const SubTitle = styled.h4`

@@ -63,7 +63,7 @@ class About extends Component {
   }
 
   render() {
-    const { intl, isOpen, onRequestClose, priority, setIsOpen, setIsShortcutModalOpen } = this.props;
+    const { intl, setIsOpen, setIsShortcutModalOpen } = this.props;
     const { settings } = this.state;
 
     const {
@@ -103,7 +103,9 @@ class About extends Component {
                   setIsShortcutModalOpen(true);
                 }}
               >
-                [{intl.formatMessage(intlMessages.hotkeysTable)}]
+                [
+                {intl.formatMessage(intlMessages.hotkeysTable)}
+                ]
               </Styled.TableButton>
             </Styled.Text>
           </Styled.Content>
@@ -111,7 +113,8 @@ class About extends Component {
           <Styled.Content>
             <Styled.Title as="h3">{intl.formatMessage(intlMessages.helpTitle)}</Styled.Title>
             <Styled.Text>
-              {intl.formatMessage(intlMessages.beforeLink)}{' '}
+              {intl.formatMessage(intlMessages.beforeLink)}
+              {' '}
               <Styled.Link
                 href={helpLink}
                 target="_blank"
