@@ -43,6 +43,18 @@ trait ChangeLockSettingsInMeetingCmdMsgHdlr extends RightsManagementTrait {
         val oldPermissions = MeetingStatus2x.getPermissions(liveMeeting.status)
 
         MeetingStatus2x.setPermissions(liveMeeting.status, settings)
+
+        //Refresh graphql session for all locked viewers
+        for {
+          user <- Users2x.findAll(liveMeeting.users2x)
+          if user.locked
+          if user.role == Roles.VIEWER_ROLE
+          regUser <- RegisteredUsers.findWithUserId(user.intId, liveMeeting.registeredUsers)
+        } yield {
+          GraphqlMiddleware.requestGraphqlReconnection(regUser.sessionToken, "lockSettings_changed")
+        }
+
+        //Update database
         MeetingLockSettingsDAO.update(liveMeeting.props.meetingProp.intId, settings)
 
         // Dial-in
@@ -250,16 +262,6 @@ trait ChangeLockSettingsInMeetingCmdMsgHdlr extends RightsManagementTrait {
         )
 
         outGW.send(BbbCommonEnvCoreMsg(envelope, LockSettingsInMeetingChangedEvtMsg(header, body)))
-
-        //Refresh graphql session for all locked viewers
-        for {
-          user <- Users2x.findAll(liveMeeting.users2x)
-          if user.locked
-          if user.role == Roles.VIEWER_ROLE
-          regUser <- RegisteredUsers.findWithUserId(user.intId, liveMeeting.registeredUsers)
-        } yield {
-          GraphqlMiddleware.requestGraphqlReconnection(regUser.sessionToken, "lockSettings_changed")
-        }
       }
     }
   }

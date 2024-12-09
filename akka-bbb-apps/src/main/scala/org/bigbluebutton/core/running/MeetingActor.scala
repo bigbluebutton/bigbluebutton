@@ -41,7 +41,7 @@ import scala.concurrent.duration._
 import org.bigbluebutton.core.apps.layout.LayoutApp2x
 import org.bigbluebutton.core.apps.plugin.PluginHdlrs
 import org.bigbluebutton.core.apps.users.ChangeLockSettingsInMeetingCmdMsgHdlr
-import org.bigbluebutton.core.db.{ MeetingDAO, NotificationDAO, TimerDAO, UserStateDAO }
+import org.bigbluebutton.core.db.{ MeetingDAO, NotificationDAO, TimerDAO, UserDAO, UserStateDAO }
 import org.bigbluebutton.core.graphql.GraphqlMiddleware
 import org.bigbluebutton.core.models.VoiceUsers.{ findAllFreeswitchCallers, findAllListenOnlyVoiceUsers }
 import org.bigbluebutton.core.models.Webcams.findAll
@@ -1070,7 +1070,8 @@ class MeetingActor(
       } yield {
         log.info("Removing user from meeting. meetingId=" + props.meetingProp.intId + " userId=" + u.intId + " user=" + u)
 
-        RegisteredUsers.updateUserJoin(liveMeeting.registeredUsers, ru, joined = false)
+        val updatedRegUser = RegisteredUsers.updateUserJoin(liveMeeting.registeredUsers, ru, joined = false)
+        UserDAO.update(updatedRegUser)
 
         // send a user left event for the clients to update
         val userLeftMeetingEvent = MsgBuilder.buildUserLeftMeetingEvtMsg(liveMeeting.props.meetingProp.intId, u.intId)
@@ -1095,7 +1096,7 @@ class MeetingActor(
           Polls.handleStopPollReqMsg(state, u.intId, liveMeeting)
         }
 
-        UserStateDAO.updateExpired(u.meetingId, u.intId, true)
+        UserStateDAO.updateExpired(u.meetingId, u.intId, expired = true)
       }
     }
 
