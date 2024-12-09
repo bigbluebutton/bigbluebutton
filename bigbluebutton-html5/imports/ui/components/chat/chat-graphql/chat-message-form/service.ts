@@ -18,7 +18,7 @@ export const textToMarkdown = (message: string) => {
 
   // append https:// to URLs that don't have it
   const appendHttps = (match: string, text: string, url: string) => {
-    if (!/^https?:\/\//.test(url)) {
+    if (!/^https?:\/\//.test(url) && !/^bbb:\/\//.test(url)) {
       return `[${text}](https://${url})`;
     }
     return match;

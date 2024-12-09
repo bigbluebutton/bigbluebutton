@@ -1,6 +1,7 @@
 import React from 'react';
 import ReactMarkdown from 'react-markdown';
 import Styled from './styles';
+import CustomMarkdownLink from '/imports/ui/components/chat/chat-graphql/custom-markdown-components/link/component';
 
 interface ChatMessageTextContentProps {
   text: string;
@@ -20,10 +21,12 @@ const ChatMessageTextContent: React.FC<ChatMessageTextContentProps> = ({
         linkTarget="_blank"
         allowedElements={allowedElements}
         unwrapDisallowed
+        components={{ a: CustomMarkdownLink }}
       >
         {text}
       </ReactMarkdown>
     </Styled.ChatMessage>
   );
 };
+
 export default ChatMessageTextContent;

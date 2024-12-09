@@ -4,8 +4,9 @@ import useSettings from '/imports/ui/services/settings/hooks/useSettings';
 import { SETTINGS } from '/imports/ui/services/settings/enums';
 import { ChatEvents } from '/imports/ui/core/enums/chat';
 import Storage from '/imports/ui/services/storage/in-memory';
+import CustomMarkdownLink from '/imports/ui/components/chat/chat-graphql/custom-markdown-components/link/component';
 
-const ChatReplyIntention = () => {
+const ChatReplyIntention: React.FC = () => {
   const [username, setUsername] = useState<string>();
   const [message, setMessage] = useState<string>();
   const [emphasizedMessage, setEmphasizedMessage] = useState<boolean>();
@@ -65,6 +66,7 @@ const ChatReplyIntention = () => {
       <Styled.Message>
         <Styled.Markdown
           $emphasizedMessage={!!emphasizedMessage}
+          components={{ a: CustomMarkdownLink }}
         >
           {messageChunks ? messageChunks[0] : ''}
         </Styled.Markdown>
