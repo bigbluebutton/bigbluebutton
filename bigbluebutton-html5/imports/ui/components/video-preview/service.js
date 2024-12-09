@@ -197,8 +197,32 @@ const doGUM = (deviceId, profile) => {
   }
 
   const postProcessedgUM = (cts) => {
-    const ppGUM = () => navigator.mediaDevices.getUserMedia(cts)
-      .then((stream) => new BBBVideoStream(stream));
+    const ppGUM = async () => {
+      try {
+        const stream = await navigator.mediaDevices.getUserMedia(cts);
+
+        return new BBBVideoStream(stream);
+      } catch (error) {
+        logger.error({
+          logCode: 'video_preview_dogum_error',
+          extraInfo: {
+            errorMessage: error.message,
+            errorName: error.name,
+            errorStack: error.stack,
+            constraints: cts,
+          },
+        }, `Error in video getUserMedia: ${error.name} - ${error.message}`);
+
+        // This is probably a deviceId mistmatch. Retry with base constraints
+        // without an exact deviceId.
+        if (error.name === 'OverconstrainedError') {
+          return navigator.mediaDevices.getUserMedia({ video: true })
+            .then((stream) => new BBBVideoStream(stream));
+        }
+
+        throw error;
+      }
+    };
 
     // Chrome/Edge sometimes bork gUM calls when switching camera
     // profiles. This looks like a browser bug. Track release not

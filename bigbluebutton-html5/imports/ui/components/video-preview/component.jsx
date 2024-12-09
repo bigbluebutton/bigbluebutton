@@ -324,7 +324,7 @@ class VideoPreview extends Component {
       devices,
       areLabelled,
       areIdentified,
-    }) => {
+    } = { }) => {
       if (devices) VideoService.updateNumberOfDevices(devices);
       // Video preview skip is activated, short circuit via a simpler procedure
       if (PreviewService.getSkipVideoPreview() && !forceOpen) {
@@ -335,7 +335,7 @@ class VideoPreview extends Component {
       if (!this._isMounted) return;
 
       let processedCamerasList = digestedWebcams;
-      const initialDeviceId = processedCamerasList[0]?.deviceId;
+      const initialDeviceId = processedCamerasList[0]?.deviceId || webcamDeviceId;
 
       this.getInitialCameraStream(initialDeviceId)
         .then(async () => {
@@ -392,8 +392,17 @@ class VideoPreview extends Component {
         PreviewService.doEnumerateDevices({ priorityDeviceId: webcamDeviceId })
           .then(populatePreview)
           .catch((error) => {
-            // enumerateDevices failed
-            this.handleDeviceError('mount', error, 'enumerating devices');
+            // Late enumerateDevices rejection, stop.
+            logger.error({
+              logCode: 'video_preview_enumerate_failure',
+              extraInfo: {
+                errorName: error.name,
+                errorMessage: error.message,
+                errorStack: error.stack,
+              },
+            }, 'video-preview: enumerateDevices failed');
+            // Try populating the preview anyways after an initial gUM is run.
+            populatePreview();
           });
       }
     } else {
@@ -615,9 +624,11 @@ class VideoPreview extends Component {
     logger.error({
       logCode: 'video_preview_gum_failure',
       extraInfo: {
-        errorName: error.name, errorMessage: error.message,
+        errorName: error.name,
+        errorMessage: error.message,
+        errorStack: error.stack,
       },
-    }, 'getUserMedia failed in video-preview');
+    }, `getUserMedia failed in video-preview: ${error.name} - ${error.message}`);
 
     const intlError = intlMessages[error.name] || intlMessages[error.message];
     if (intlError) {
