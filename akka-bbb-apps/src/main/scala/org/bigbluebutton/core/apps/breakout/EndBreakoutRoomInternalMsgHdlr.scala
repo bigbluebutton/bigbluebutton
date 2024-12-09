@@ -4,7 +4,7 @@ import org.bigbluebutton.common2.msgs.{ BbbClientMsgHeader, BbbCommonEnvCoreMsg,
 import org.bigbluebutton.core.api.{ CapturePresentationReqInternalMsg, EndBreakoutRoomInternalMsg }
 import org.bigbluebutton.core.apps.presentationpod.PresentationPodsApp
 import org.bigbluebutton.core.bus.{ BigBlueButtonEvent, InternalEventBus }
-import org.bigbluebutton.core.db.{ PresPresentationDAO }
+import org.bigbluebutton.core.db.PresPresentationDAO
 import org.bigbluebutton.core.models.{ Pads, PresentationInPod, PresentationPage, PresentationPod }
 import org.bigbluebutton.core.running.{ BaseMeetingActor, HandlerHelpers, LiveMeeting, OutMsgRouter }
 
@@ -77,7 +77,9 @@ trait EndBreakoutRoomInternalMsgHdlr extends HandlerHelpers {
     val routing = collection.immutable.HashMap("sender" -> "bbb-apps-akka")
     val envelope = BbbCoreEnvelope(PresentationUploadTokenSysPubMsg.NAME, routing)
     val header = BbbClientMsgHeader(PresentationUploadTokenSysPubMsg.NAME, parentMeetingId, userId)
-    val body = PresentationUploadTokenSysPubMsgBody("DEFAULT_PRESENTATION_POD", presentationUploadToken, filename, parentMeetingId, presId)
+    val body = PresentationUploadTokenSysPubMsgBody(
+      "DEFAULT_PRESENTATION_POD", presentationUploadToken, filename, parentMeetingId, presId, isFromPlugin = false, -1, ""
+    )
     val event = PresentationUploadTokenSysPubMsg(header, body)
     BbbCommonEnvCoreMsg(envelope, event)
   }

@@ -41,6 +41,7 @@ public class SlidesGenerationProgressNotifier {
 
   public void sendUploadFileTooLargeMessage(PresentationUploadToken pres, int uploadedFileSize, int maxUploadFileSize) {
     UploadFileTooLargeMessage progress = new UploadFileTooLargeMessage(
+            pres.presentationId,
             pres.podId,
             pres.meetingId,
             pres.filename,

@@ -17,6 +17,7 @@ import PluginUiCommandsHandler from './ui-commands/handler';
 import PluginDomElementManipulationManager from './dom-element-manipulation/manager';
 import PluginServerCommandsHandler from './server-commands/handler';
 import PluginLearningAnalyticsDashboardManager from './learning-analytics-dashboard/manager';
+import PersistAssets from './asset-persistence/manager';
 
 const PluginsEngineManager = (props: PluginsEngineManagerProps) => {
   // eslint-disable-next-line @typescript-eslint/ban-ts-comment
@@ -58,6 +59,7 @@ const PluginsEngineManager = (props: PluginsEngineManagerProps) => {
           containerRef,
         }}
       />
+      <PersistAssets />
       <PluginDataConsumptionManager />
       <PluginServerCommandsHandler />
       <PluginUiCommandsHandler />
