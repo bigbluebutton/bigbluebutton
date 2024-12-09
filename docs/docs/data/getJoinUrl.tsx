@@ -14,7 +14,7 @@ const getJoinUrlTableData = [
         type: "String",
         description: (
             <>
-                Assign a descriptive name to the newly created session. Allowing to quickly understand the session’s origin or purpose when reviewing the user’s
+                Assign a descriptive name to the newly created session. Allowing to quickly understand the session’s origin or purpose when reviewing the user's
                 session history.
             </>
         ),
