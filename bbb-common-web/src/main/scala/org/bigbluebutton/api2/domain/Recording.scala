@@ -8,7 +8,11 @@ object RecMeta {
   def getMeetingId(r: RecMeta): String = {
     r.meeting match {
       case Some(m) => m.externalId
-      case None    => r.id
+      case None =>
+        r.meta match {
+          case Some(m) => m.getOrElse("meetingId", "unknown")
+          case None    => "unknown"
+        }
     }
   }
 
