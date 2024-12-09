@@ -26,7 +26,7 @@ const getJoinUrlTableData = [
         description: (
             <>
                 Specify a layout enforcement setting for the new session. If provided, this overrides the `enforceLayout` parameter inherited from the original
-                user’s session. If not specified, the new session inherits the layout behavior of the original session.
+                user's session. If not specified, the new session inherits the layout behavior of the original session.
             </>
         ),
     },
