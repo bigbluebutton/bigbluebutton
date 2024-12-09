@@ -25,6 +25,10 @@ const ChatEditorContent = styled(EditorContent)`
       height: 0;
       pointer-events: none;
     }
+
+    img {
+      max-width: 100%;
+    }
   }
 `;
 

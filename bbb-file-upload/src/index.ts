@@ -69,6 +69,10 @@ app.post('/api/rest/chatImageUpload', async (req: Request, res: Response) => {
 
   const url = req.body.file;
 
+  if (!fs.existsSync(FILE_UPLOAD_PATH)) {
+    fs.mkdirSync(FILE_UPLOAD_PATH, { recursive: true });
+  }
+
   // if url contains a base64 string, do not download the file, only store it and return the filename
   if (url.startsWith('data:image')) {
     console.log('[post] received base64 image upload request');
@@ -94,9 +98,6 @@ app.post('/api/rest/chatImageUpload', async (req: Request, res: Response) => {
   const fileName = `${uuid()}.${fileExtension}`;
 
   // store file in the uploads directory
-  if (!fs.existsSync(FILE_UPLOAD_PATH)) {
-    fs.mkdirSync(FILE_UPLOAD_PATH, { recursive: true });
-  }
   const outputPath = path.join(FILE_UPLOAD_PATH, fileName);
   console.log({outputPath});
 
