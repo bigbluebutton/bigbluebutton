@@ -440,10 +440,6 @@ display_bigbluebutton_status () {
         units="$units livekit-server"
     fi
 
-    if [ -f /usr/lib/systemd/system/livekit-sip.service ]; then
-        units="$units livekit-sip"
-    fi
-
     line='—————————————————————————————►'
     for unit in $units; do
         status=$(systemctl is-active "$unit")
