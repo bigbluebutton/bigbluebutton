@@ -40,6 +40,7 @@ mkdir -p staging/etc/postgresql/$POSTGRES_MAJOR_VERSION/main/conf.d
 cp bbb-pg.conf staging/etc/postgresql/$POSTGRES_MAJOR_VERSION/main/conf.d
 
 cp bbb-graphql-server.service staging/lib/systemd/system/bbb-graphql-server.service
+cp bbb-graphql-server@.service staging/lib/systemd/system/bbb-graphql-server@.service
 
 # Install Hasura CLI
 curl -L https://github.com/hasura/graphql-engine/raw/stable/cli/get.sh | INSTALL_PATH=staging/usr/bin VERSION=$HASURA_VERSION bash
