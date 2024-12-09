@@ -391,7 +391,7 @@ class MultiUsers {
   }
 
   // Reactions tests
-  async smileReaction() {
+  async reactionsTest() {
     await this.modPage.waitForSelector(e.whiteboard);
     await this.userPage.waitForSelector(e.whiteboard);
     await this.modPage.waitAndClick(e.reactionsButton);
@@ -404,11 +404,7 @@ class MultiUsers {
     await this.modPage.waitAndClick('li[data-test="reaction"]:nth-child(1)');
     await this.modPage.hasText(e.reactionsButton, 'Reactions');
     await this.modPage.hasText(e.moderatorAvatar, 'mo');
-  }
 
-  async indifferentReaction() {
-    await this.modPage.waitForSelector(e.whiteboard);
-    await this.userPage.waitForSelector(e.whiteboard);
     await this.modPage.waitAndClick(e.reactionsButton);
     await this.modPage.waitAndClick('li[data-test="reaction"]:nth-child(2)');
     await this.modPage.hasText(e.moderatorAvatar, '😐');
@@ -419,11 +415,18 @@ class MultiUsers {
     await this.modPage.waitAndClick('li[data-test="reaction"]:nth-child(2)');
     await this.modPage.hasText(e.reactionsButton, 'Reactions');
     await this.modPage.hasText(e.moderatorAvatar, 'mo');
-  }
 
-  async sadReaction() {
-    await this.modPage.waitForSelector(e.whiteboard);
-    await this.userPage.waitForSelector(e.whiteboard);
+    await this.modPage.waitAndClick(e.reactionsButton);
+    await this.modPage.waitAndClick('li[data-test="reaction"]:nth-child(2)');
+    await this.modPage.hasText(e.moderatorAvatar, '😐');
+    await this.modPage.hasText(e.reactionsButton, '😐');
+    await this.userPage.hasText(e.moderatorAvatar, '😐');
+
+    await this.modPage.waitAndClick(e.reactionsButton);
+    await this.modPage.waitAndClick('li[data-test="reaction"]:nth-child(2)');
+    await this.modPage.hasText(e.reactionsButton, 'Reactions');
+    await this.modPage.hasText(e.moderatorAvatar, 'mo');
+
     await this.modPage.waitAndClick(e.reactionsButton);
     await this.modPage.waitAndClick('li[data-test="reaction"]:nth-child(3)');
     await this.modPage.hasText(e.moderatorAvatar, '🙁');
@@ -434,11 +437,18 @@ class MultiUsers {
     await this.modPage.waitAndClick('li[data-test="reaction"]:nth-child(3)');
     await this.modPage.hasText(e.reactionsButton, 'Reactions');
     await this.modPage.hasText(e.moderatorAvatar, 'mo');
-  }
 
-  async thumbsUpReaction() {
-    await this.modPage.waitForSelector(e.whiteboard);
-    await this.userPage.waitForSelector(e.whiteboard);
+    await this.modPage.waitAndClick(e.reactionsButton);
+    await this.modPage.waitAndClick('li[data-test="reaction"]:nth-child(3)');
+    await this.modPage.hasText(e.moderatorAvatar, '🙁');
+    await this.modPage.hasText(e.reactionsButton, '🙁');
+    await this.userPage.hasText(e.moderatorAvatar, '🙁');
+
+    await this.modPage.waitAndClick(e.reactionsButton);
+    await this.modPage.waitAndClick('li[data-test="reaction"]:nth-child(3)');
+    await this.modPage.hasText(e.reactionsButton, 'Reactions');
+    await this.modPage.hasText(e.moderatorAvatar, 'mo');
+
     await this.modPage.waitAndClick(e.reactionsButton);
     await this.modPage.waitAndClick('li[data-test="reaction"]:nth-child(4)');
     await this.modPage.hasText(e.moderatorAvatar, '👍');
@@ -449,11 +459,7 @@ class MultiUsers {
     await this.modPage.waitAndClick('li[data-test="reaction"]:nth-child(4)');
     await this.modPage.hasText(e.reactionsButton, 'Reactions');
     await this.modPage.hasText(e.moderatorAvatar, 'mo');
-  }
 
-  async thumbsDownReaction() {
-    await this.modPage.waitForSelector(e.whiteboard);
-    await this.userPage.waitForSelector(e.whiteboard);
     await this.modPage.waitAndClick(e.reactionsButton);
     await this.modPage.waitAndClick('li[data-test="reaction"]:nth-child(5)');
     await this.modPage.hasText(e.moderatorAvatar, '👎');
@@ -464,11 +470,7 @@ class MultiUsers {
     await this.modPage.waitAndClick('li[data-test="reaction"]:nth-child(5)');
     await this.modPage.hasText(e.reactionsButton, 'Reactions');
     await this.modPage.hasText(e.moderatorAvatar, 'mo');
-  }
 
-  async applausesReaction() {
-    await this.modPage.waitForSelector(e.whiteboard);
-    await this.userPage.waitForSelector(e.whiteboard);
     await this.modPage.waitAndClick(e.reactionsButton);
     await this.modPage.waitAndClick('li[data-test="reaction"]:nth-child(6)');
     await this.modPage.hasText(e.moderatorAvatar, '👏');
