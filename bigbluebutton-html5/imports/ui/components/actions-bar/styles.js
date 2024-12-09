@@ -113,6 +113,11 @@ const Separator = styled.div`
   opacity: .75;
 `;
 
+const Gap = styled.div`
+  display: flex;
+  gap: .5rem;
+`;
+
 export default {
   ActionsBar,
   Left,
@@ -124,4 +129,5 @@ export default {
   Wrapper,
   Separator,
   ActionsBarWrapper,
+  Gap,
 };
