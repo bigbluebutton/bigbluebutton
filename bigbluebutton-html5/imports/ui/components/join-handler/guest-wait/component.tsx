@@ -184,9 +184,12 @@ const GuestWait: React.FC<GuestWaitProps> = (props) => {
             <Styled.Bounce />
           </Styled.Spinner>
         )}
-        <p aria-live="polite" data-test="guestMessage">
-          {message}
-        </p>
+        <p
+          aria-live="polite"
+          data-test="guestMessage"
+          // eslint-disable-next-line react/no-danger
+          dangerouslySetInnerHTML={{ __html: message }}
+        />
         <Styled.Position id="positionInWaitingQueue">
           <p aria-live="polite">{positionMessage}</p>
         </Styled.Position>
