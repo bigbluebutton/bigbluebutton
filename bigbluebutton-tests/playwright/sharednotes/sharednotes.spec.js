@@ -3,7 +3,7 @@ const { SharedNotes } = require('./sharednotes');
 const { linkIssue, initializePages } = require('../core/helpers');
 const { fullyParallel } = require('../playwright.config');
 
-test.describe('Shared Notes', () => {
+test.describe('Shared Notes', { tag: '@ci' }, () => {
   const sharedNotes = new SharedNotes();
 
   test.describe.configure({ mode: fullyParallel ? 'parallel' : 'serial' });
@@ -11,23 +11,23 @@ test.describe('Shared Notes', () => {
     await initializePages(sharedNotes, browser, { isMultiUser: true });
   });
 
-  test('Open shared notes', { tag: '@ci' }, async () => {
+  test('Open shared notes', async () => {
     await sharedNotes.openSharedNotes();
   });
 
-  test('Type in shared notes', { tag: '@ci' }, async () => {
+  test('Type in shared notes', async () => {
     await sharedNotes.typeInSharedNotes();
   });
 
-  test('Formate text in shared notes', { tag: '@ci' }, async () => {
+  test('Formate text in shared notes', async () => {
     await sharedNotes.formatTextInSharedNotes();
   });
 
-  test('Export shared notes', { tag: '@ci' }, async ({}, testInfo) => {
+  test('Export shared notes', async ({}, testInfo) => {
     await sharedNotes.exportSharedNotes(testInfo);
   });
 
-  test('Convert notes to presentation', { tag: '@ci' }, async () => {
+  test('Convert notes to presentation', async () => {
     await sharedNotes.convertNotesToWhiteboard();
   });
 
@@ -39,8 +39,9 @@ test.describe('Shared Notes', () => {
     await sharedNotes.seeNotesWithoutEditPermission();
   });
 
-  test('Pin and unpin notes onto whiteboard', { tag: [ '@ci', '@flaky' ] }, async () => {
+  test('Pin and unpin notes onto whiteboard', { tag: '@flaky' }, async () => {
     linkIssue('20892');
+    linkIssue('21283');
     await sharedNotes.pinAndUnpinNotesOntoWhiteboard();
   });
 });
