@@ -284,6 +284,7 @@ const BreakoutRoomUserAssignment: React.FC<ChildComponentProps> = ({
             tabIndex={-1}
             id={`${user.userId}-${room}`}
             key={user.userId}
+            data-test="roomUserItem"
             draggable
             onDragStart={dragStart}
             onDragEnd={dragEnd}
@@ -319,6 +320,37 @@ const BreakoutRoomUserAssignment: React.FC<ChildComponentProps> = ({
     return '';
   };
 
+  const rover = (e: React.KeyboardEvent<HTMLDivElement>) => {
+    e.preventDefault();
+    e.stopPropagation();
+    const element = e.target as HTMLElement;
+    if (element.id.includes('breakoutBox')) {
+      if (e.key === 'Enter' || e.key === 'ArrowDown') {
+        (element.firstChild as HTMLElement).focus();
+      }
+    }
+
+    if (element?.dataset?.test?.includes('roomUserItem')) {
+      const splitted = element.id.split('-');
+      const [userId, StringFrom] = splitted;
+      const from = Number(StringFrom);
+      if (e.key === 'ArrowDown' || e.key === 'ArrowUp') {
+        const nextElement = e.key === 'ArrowDown' ? element.nextSibling : element.previousSibling;
+        if (nextElement) (nextElement as HTMLElement).focus();
+      }
+
+      if (e.key === 'ArrowRight') {
+        moveUser(userId, from, from + 1);
+        updateSortedRooms();
+      }
+
+      if (e.key === 'ArrowLeft') {
+        moveUser(userId, from, from - 1 < 0 ? 0 : from - 1);
+        updateSortedRooms();
+      }
+    }
+  };
+
   return (
     <>
       <ManageRoomLabel
@@ -344,6 +376,7 @@ const BreakoutRoomUserAssignment: React.FC<ChildComponentProps> = ({
             onDrop={drop(0)}
             onDragOver={allowDrop}
             tabIndex={0}
+            onKeyDown={rover}
           >
             {roomUserList(0)}
           </Styled.BreakoutBox>
@@ -404,6 +437,7 @@ const BreakoutRoomUserAssignment: React.FC<ChildComponentProps> = ({
                   onDragOver={allowDrop}
                   hundred={false}
                   tabIndex={0}
+                  onKeyDown={rover}
                 >
                   {roomUserList(value)}
                 </Styled.BreakoutBox>

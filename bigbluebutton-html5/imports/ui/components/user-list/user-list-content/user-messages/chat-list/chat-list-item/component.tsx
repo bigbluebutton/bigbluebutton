@@ -26,8 +26,9 @@ const intlMessages = defineMessages({
 });
 
 interface ChatListItemProps {
-  chat: Chat,
-  chatNodeRef: React.Ref<HTMLButtonElement>,
+  chat: Chat;
+  chatNodeRef: React.Ref<HTMLButtonElement>;
+  index: number;
 }
 
 const ChatListItem = (props: ChatListItemProps) => {
@@ -42,6 +43,7 @@ const ChatListItem = (props: ChatListItemProps) => {
   const {
     chat,
     chatNodeRef,
+    index,
   } = props;
 
   const countUnreadMessages = chat.totalUnread || 0;
@@ -142,15 +144,9 @@ const ChatListItem = (props: ChatListItemProps) => {
       tabIndex={-1}
       accessKey={isPublicGroupChat(chat) ? TOGGLE_CHAT_PUB_AK : undefined}
       onClick={handleClickToggleChat}
-      id="chat-toggle-button"
+      id={`chat-list-${index}`}
       aria-label={isPublicGroupChat(chat) ? intl.formatMessage(intlMessages.titlePublic)
         : chat.participant?.name}
-      onKeyDown={(e) => {
-        if (e.key === 'Enter') {
-          e.preventDefault();
-          e.stopPropagation();
-        }
-      }}
       ref={chatNodeRef}
     >
       <Styled.ChatListItemLink>
