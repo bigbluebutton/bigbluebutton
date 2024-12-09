@@ -11,16 +11,24 @@ const FileHandler = Extension.create({
         key: new PluginKey('FileHandler'),
         props: {
           handleDrop(view, event, slice, moved) {
-            console.log(view, event, slice, moved);
+            if (moved) return;
 
             if (event.dataTransfer) {
               const { files } = event.dataTransfer;
               const file = files[0];
+              if (!file) return;
               readFileAsDataURL(file, (e) => {
                 const data = e.target?.result;
                 if (!data || typeof data !== 'string') return;
                 uploadImage(data).then((url) => {
-                  // view?.chain().focus().setImage({ src: url, title: file.name }).run();
+                  view.dispatch(view.state.tr.insert(
+                    slice.openStart,
+                    view.state.schema.nodes.image.create({ src: url }),
+                  ));
+                }).catch(() => {
+                  logger.error({
+                    logCode: 'file_reading_error',
+                  }, 'File upload error');
                 });
               }, (error) => {
                 logger.error({
