@@ -1,8 +1,10 @@
 import styled from 'styled-components';
-import { fontSizeSmall } from '/imports/ui/stylesheets/styled-components/typography';
+import { fontSizeSmall, fontSizeBase } from '/imports/ui/stylesheets/styled-components/typography';
 import {
   lgPaddingY,
+  lgPadding,
   smPaddingY,
+  xlPadding,
   borderSize,
   userIndicatorsOffset,
 } from '/imports/ui/stylesheets/styled-components/general';
@@ -47,6 +49,87 @@ const ChatIcon = styled.div`
   flex: 0 0 2.2rem;
 `;
 
+const UserAvatar = styled.div<UserAvatarProps>`
+  flex: 0 0 2.25rem;
+  margin: 0px calc(0.5rem) 0px 0px;
+  box-flex: 0;
+  position: relative;
+  height: 2.25rem;
+  width: 2.25rem;
+  border-radius: 50%;
+  text-align: center;
+  font-size: .85rem;
+  border: 2px solid transparent;
+  user-select: none;
+  ${
+  ({ color }: UserAvatarProps) => `
+    background-color: ${color};
+  `}
+  }
+  &:after,
+  &:before {
+    content: "";
+    position: absolute;
+    width: 0;
+    height: 0;
+    padding-top: .5rem;
+    padding-right: 0;
+    padding-left: 0;
+    padding-bottom: 0;
+    color: inherit;
+    top: auto;
+    left: auto;
+    bottom: ${userIndicatorsOffset};
+    right: ${userIndicatorsOffset};
+    border: 1.5px solid ${userListBg};
+    border-radius: 50%;
+    background-color: ${colorSuccess};
+    color: ${colorWhite};
+    opacity: 0;
+    font-family: 'bbb-icons';
+    font-size: .65rem;
+    line-height: 0;
+    text-align: center;
+    vertical-align: middle;
+    letter-spacing: -.65rem;
+    z-index: 1;
+    [dir="rtl"] & {
+      left: ${userIndicatorsOffset};
+      right: auto;
+      padding-right: .65rem;
+      padding-left: 0;
+    }
+  }
+  ${({ moderator }: UserAvatarProps) => moderator && `
+    border-radius: 5px;
+  `}
+  // ================ image ================
+  ${({ avatar, emoji, color }: UserAvatarProps) => avatar?.length !== 0 && !emoji && `
+    background-image: url(${avatar});
+    background-repeat: no-repeat;
+    background-size: contain;
+    border: 2px solid ${color};
+  `}
+  // ================ image ================
+  // ================ content ================
+  color: ${colorWhite};
+  font-size: 110%;
+  text-transform: capitalize;
+  display: flex;
+  justify-content: center;
+  align-items:center;  
+  // ================ content ================
+  & .react-loading-skeleton {    
+    height: 2.25rem;
+    width: 2.25rem;
+  }
+`;
+
+const ChatHeading = styled.div`
+  display: flex;
+  align-items: center;
+`;
+
 const ChatName = styled.div`
   display: flex;
   align-items: center;
@@ -84,20 +167,10 @@ const ChatNameMain = styled.span`
 const ChatListItem = styled.button<ChatListItemProps>`
   display: flex;
   flex-flow: row;
-  border-top-left-radius: 5px;
-  border-bottom-left-radius: 5px;
-  border-top-right-radius: 0;
-  border-bottom-right-radius: 0;
+  border-radius: 5px;
   cursor: pointer;
   border-color: transparent;
   border-width: 0;
-
-  [dir="rtl"] & {
-    border-top-left-radius: 0;
-    border-bottom-left-radius: 0;
-    border-top-right-radius: 5px;
-    border-bottom-right-radius: 5px;
-  }
 
   &:first-child {
     margin-top: 0;
@@ -122,22 +195,12 @@ const ChatListItem = styled.button<ChatListItemProps>`
   flex-grow: 1;
   line-height: 2;
   color: ${colorGrayDark};
-  background-color: ${colorOffWhite};
+  background-color: transparent;
   padding-top: ${lgPaddingY};
   padding-bottom: ${lgPaddingY};
   padding-left: ${lgPaddingY};
-  padding-right: 0;
-  margin-left: ${borderSize};
-  margin-top: ${borderSize};
-  margin-bottom: ${borderSize};
-  margin-right: 0;
+  padding-right: ${lgPaddingY};
 
-  [dir="rtl"] & {
-    padding-left: 0;
-    padding-right: ${lgPaddingY};
-    margin-left: 0;
-    margin-right: ${borderSize};
-  }
   ${({ active }: ChatListItemProps) => active && `
     outline: transparent;
     outline-style: dotted;
@@ -157,6 +220,7 @@ const ChatThumbnail = styled.div`
 const UnreadMessages = styled.div`
   display: flex;
   flex-flow: column;
+  padding: 10px;
   justify-content: center;
   margin-left: auto;
   [dir="rtl"] & {
@@ -178,13 +242,44 @@ const UnreadMessagesText = styled.div`
   background-color: ${unreadMessagesBg};
 `;
 
+const ChatWrapper = styled.div`
+  pointer-events: auto;
+  display: flex;
+  width: 100%;
+  flex-flow: column;
+  gap: ${smPaddingY};
+  position: relative;
+  font-size: ${fontSizeBase};
+  position: relative;
+
+`;
+
+const ChatContent = styled.div`
+  display: flex;
+  flex-flow: row;
+  width: 100%;
+  border-radius: 0.5rem;
+  background-color: ${colorOffWhite};
+`;
+
+const MessageItemWrapper = styled.div`
+  display: flex;
+  flex-direction: row;
+  padding: ${lgPadding} ${xlPadding};
+`;
+
 export default {
   ChatListItemLink,
   ChatIcon,
   ChatName,
   ChatNameMain,
+  ChatHeading,
   ChatListItem,
   ChatThumbnail,
+  ChatWrapper,
+  ChatContent,
+  MessageItemWrapper,
   UnreadMessages,
   UnreadMessagesText,
+  UserAvatar,
 };
