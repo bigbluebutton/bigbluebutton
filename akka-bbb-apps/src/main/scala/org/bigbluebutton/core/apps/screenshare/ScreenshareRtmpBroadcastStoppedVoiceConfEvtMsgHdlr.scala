@@ -5,7 +5,6 @@ import org.bigbluebutton.core.apps.ScreenshareModel
 import org.bigbluebutton.core.apps.ScreenshareModel.getRTMPBroadcastingUrl
 import org.bigbluebutton.core.bus.MessageBus
 import org.bigbluebutton.core.running.LiveMeeting
-import org.bigbluebutton.core2.message.senders.MsgBuilder
 import org.bigbluebutton.core.apps.screenshare.ScreenshareApp2x.broadcastStopped
 import org.bigbluebutton.core.db.ScreenshareDAO
 

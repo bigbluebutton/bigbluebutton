@@ -7,7 +7,6 @@ import org.bigbluebutton.core.db.ChatMessageDAO
 import org.bigbluebutton.core.models.{ GroupChatFactory, GroupChatMessage, Roles, UserState, Users2x }
 import org.bigbluebutton.core.running.{ LiveMeeting, OutMsgRouter }
 import org.bigbluebutton.core2.MeetingStatus2x
-import org.bigbluebutton.core2.message.senders.MsgBuilder
 
 trait ChangeUserAwayReqMsgHdlr extends RightsManagementTrait {
   this: UsersApp =>
