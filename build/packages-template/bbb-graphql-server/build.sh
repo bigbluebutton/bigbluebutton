@@ -22,7 +22,9 @@ for dir in $DIRS; do
   mkdir -p staging$dir
 done
 
-git clone --branch v2.44.0 https://github.com/iMDT/hasura-graphql-engine.git
+HASURA_VERSION=v2.45.0
+
+git clone --branch $HASURA_VERSION https://github.com/iMDT/hasura-graphql-engine.git
 cat hasura-graphql-engine/hasura-graphql.part-a* > hasura-graphql
 rm -rf hasura-graphql-engine/
 chmod +x hasura-graphql
@@ -40,7 +42,7 @@ cp bbb-pg.conf staging/etc/postgresql/$POSTGRES_MAJOR_VERSION/main/conf.d
 cp bbb-graphql-server.service staging/lib/systemd/system/bbb-graphql-server.service
 
 # Install Hasura CLI
-curl -L https://github.com/hasura/graphql-engine/raw/stable/cli/get.sh | INSTALL_PATH=staging/usr/bin VERSION=v2.44.0 bash
+curl -L https://github.com/hasura/graphql-engine/raw/stable/cli/get.sh | INSTALL_PATH=staging/usr/bin VERSION=$HASURA_VERSION bash
 
 
 . ./opts-$DISTRO.sh

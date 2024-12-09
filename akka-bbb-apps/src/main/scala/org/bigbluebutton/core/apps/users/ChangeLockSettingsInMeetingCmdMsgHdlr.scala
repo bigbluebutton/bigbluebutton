@@ -4,12 +4,13 @@ import org.bigbluebutton.LockSettingsUtil
 import org.bigbluebutton.common2.msgs._
 import org.bigbluebutton.core.apps.{ PermissionCheck, RightsManagementTrait }
 import org.bigbluebutton.core.db.{ MeetingLockSettingsDAO, NotificationDAO }
+import org.bigbluebutton.core.graphql.GraphqlMiddleware
 import org.bigbluebutton.core.models._
 import org.bigbluebutton.core.running.OutMsgRouter
 import org.bigbluebutton.core.running.MeetingActor
 import org.bigbluebutton.core2.MeetingStatus2x
 import org.bigbluebutton.core2.Permissions
-import org.bigbluebutton.core2.message.senders.{ MsgBuilder, Sender }
+import org.bigbluebutton.core2.message.senders.MsgBuilder
 
 trait ChangeLockSettingsInMeetingCmdMsgHdlr extends RightsManagementTrait {
   this: MeetingActor =>
@@ -257,7 +258,7 @@ trait ChangeLockSettingsInMeetingCmdMsgHdlr extends RightsManagementTrait {
           if user.role == Roles.VIEWER_ROLE
           regUser <- RegisteredUsers.findWithUserId(user.intId, liveMeeting.registeredUsers)
         } yield {
-          Sender.sendForceUserGraphqlReconnectionSysMsg(liveMeeting.props.meetingProp.intId, regUser.id, regUser.sessionToken, "lockSettings_changed", outGW)
+          GraphqlMiddleware.requestGraphqlReconnection(regUser.sessionToken, "lockSettings_changed")
         }
       }
     }

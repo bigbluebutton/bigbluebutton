@@ -14,6 +14,7 @@ import org.bigbluebutton.core.running.{LiveMeeting, OutMsgRouter}
 import org.bigbluebutton.core2.message.senders.{MsgBuilder, Sender}
 import org.bigbluebutton.core.apps.screenshare.ScreenshareApp2x
 import org.bigbluebutton.core.db.{ChatMessageDAO, UserStateDAO}
+import org.bigbluebutton.core.graphql.GraphqlMiddleware
 
 object UsersApp {
   def broadcastAddUserToPresenterGroup(meetingId: String, userId: String, requesterId: String,
@@ -74,11 +75,13 @@ object UsersApp {
       sendPresenterAssigned(outGW, meetingId, newPresenter.intId, newPresenter.name, newPresenter.intId)
       sendPresenterInPodReq(meetingId, newPresenter.intId)
 
-      // Force reconnection with graphql to refresh permissions
+      // Force reconnection with graphql to refresh permissions (if user already joined)
       for {
         regUser <- RegisteredUsers.findWithUserId(newPresenter.intId, liveMeeting.registeredUsers)
       } yield {
-        Sender.sendForceUserGraphqlReconnectionSysMsg(liveMeeting.props.meetingProp.intId, regUser.id, regUser.sessionToken, "role_changed", outGW)
+        if(regUser.joined) {
+          GraphqlMiddleware.requestGraphqlReconnection(regUser.sessionToken, "assigned_presenter_automatically")
+        }
       }
 
       //Chat message to announce new presenter

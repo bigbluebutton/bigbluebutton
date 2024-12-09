@@ -11,6 +11,7 @@ import org.bigbluebutton.core.apps.{ PermissionCheck, RightsManagementTrait }
 import org.bigbluebutton.core.domain.MeetingState2x
 import org.bigbluebutton.core.apps.screenshare.ScreenshareApp2x.requestBroadcastStop
 import org.bigbluebutton.core.db.ChatMessageDAO
+import org.bigbluebutton.core.graphql.GraphqlMiddleware
 import org.bigbluebutton.core2.message.senders.Sender
 
 trait AssignPresenterReqMsgHdlr extends RightsManagementTrait {
@@ -88,7 +89,7 @@ object AssignPresenterActionHandler extends RightsManagementTrait {
           for {
             u <- RegisteredUsers.findWithUserId(oldPres.intId, liveMeeting.registeredUsers)
           } yield {
-            Sender.sendForceUserGraphqlReconnectionSysMsg(liveMeeting.props.meetingProp.intId, oldPres.intId, u.sessionToken, "role_changed", outGW)
+            GraphqlMiddleware.requestGraphqlReconnection(u.sessionToken, "assigned_presenter")
           }
         }
       }
@@ -103,7 +104,7 @@ object AssignPresenterActionHandler extends RightsManagementTrait {
         for {
           u <- RegisteredUsers.findWithUserId(newPres.intId, liveMeeting.registeredUsers)
         } yield {
-          Sender.sendForceUserGraphqlReconnectionSysMsg(liveMeeting.props.meetingProp.intId, newPres.intId, u.sessionToken, "role_changed", outGW)
+          GraphqlMiddleware.requestGraphqlReconnection(u.sessionToken, "assigned_presenter")
         }
 
         //Chat message to announce new presenter
