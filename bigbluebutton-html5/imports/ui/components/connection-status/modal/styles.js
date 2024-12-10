@@ -123,6 +123,15 @@ const Time = styled.div`
   justify-content: flex-end;
 `;
 
+const TimeActive = styled.time`
+  color: ${colorPrimary} !important;
+  display: flex;
+  align-items: center;
+  width: 100%;
+  height: 100%;
+  justify-content: flex-end;
+`;
+
 const NetworkDataContainer = styled(ScrollboxVertical)`
   width: 100%;
   height: 100%;
@@ -391,6 +400,7 @@ export default {
   Icon,
   Right,
   Time,
+  TimeActive,
   NetworkDataContainer,
   NetworkData,
   CopyContainer,
