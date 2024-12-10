@@ -235,6 +235,12 @@ type Mutation {
 }
 
 type Mutation {
+  meetingLayoutSetScreenshareAsContent(
+    screenshareAsContent: Boolean!
+  ): Boolean
+}
+
+type Mutation {
   meetingLayoutSetSyncWithPresenterLayout(
     syncWithPresenterLayout: Boolean!
   ): Boolean
