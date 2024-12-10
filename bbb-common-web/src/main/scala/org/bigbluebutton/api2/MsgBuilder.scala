@@ -72,6 +72,7 @@ object MsgBuilder {
       meetingId = msg.meetingID,
       userId = msg.internalUserId,
       sessionToken = msg.sessionToken,
+      sessionName = msg.sessionName,
       replaceSessionToken = msg.replaceSessionToken,
       enforceLayout = msg.enforceLayout,
       userSessionMetadata = msg.userSessionMetadata.asScala.toMap

@@ -52,6 +52,16 @@ object_relationships:
         remote_table:
           name: v_meeting
           schema: public
+  - name: sessionCurrent
+    using:
+      manual_configuration:
+        column_mapping:
+          meetingId: meetingId
+          userId: userId
+        insertion_order: null
+        remote_table:
+          name: v_user_session_current
+          schema: public
   - name: sharedNotesSession
     using:
       manual_configuration:

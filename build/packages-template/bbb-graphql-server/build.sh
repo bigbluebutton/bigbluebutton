@@ -22,7 +22,9 @@ for dir in $DIRS; do
   mkdir -p staging$dir
 done
 
-git clone --branch v2.44.0 https://github.com/iMDT/hasura-graphql-engine.git
+HASURA_VERSION=v2.45.0
+
+git clone --branch $HASURA_VERSION https://github.com/iMDT/hasura-graphql-engine.git
 cat hasura-graphql-engine/hasura-graphql.part-a* > hasura-graphql
 rm -rf hasura-graphql-engine/
 chmod +x hasura-graphql
@@ -39,8 +41,39 @@ cp bbb-pg.conf staging/etc/postgresql/$POSTGRES_MAJOR_VERSION/main/conf.d
 
 cp bbb-graphql-server.service staging/lib/systemd/system/bbb-graphql-server.service
 
-# Install Hasura CLI
-curl -L https://github.com/hasura/graphql-engine/raw/stable/cli/get.sh | INSTALL_PATH=staging/usr/bin VERSION=v2.44.0 bash
+# ============= Begin: Install Hasura CLI =============
+# The logic bellow is based on https://github.com/hasura/graphql-engine/raw/stable/cli/get.sh
+
+platform='unknown'
+unamestr=`uname`
+if [ "$unamestr" == 'Linux' ]; then
+    platform='linux'
+elif [ "$unamestr" == 'Darwin' ]; then
+    platform='darwin'
+else
+    echo "Unknown OS platform"
+    exit 1
+fi
+
+arch='unknown'
+archstr=`uname -m`
+if [ "$archstr" == 'x86_64' ]; then
+    arch='amd64'
+elif [ "$archstr" == 'arm64' ] || [ "$archstr" == 'aarch64' ]; then
+    arch='arm64'
+else
+    echo "prebuilt binaries for $(arch) architecture not available"
+    exit 1
+fi
+
+url="https://github.com/hasura/graphql-engine/releases/download/${HASURA_VERSION}/cli-hasura-${platform}-${arch}"
+
+echo "Downloading Hasura CLI from $url"
+
+curl -L -f -o staging/usr/bin/hasura "$url"
+chmod +x staging/usr/bin/hasura
+staging/usr/bin/hasura version --skip-update-check
+# ============= End: Install Hasura CLI =============
 
 
 . ./opts-$DISTRO.sh
