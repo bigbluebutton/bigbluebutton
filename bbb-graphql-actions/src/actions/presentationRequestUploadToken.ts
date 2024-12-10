@@ -8,6 +8,7 @@ export default function buildRedisMessage(sessionVariables: Record<string, unkno
         {name: 'podId', type: 'string', required: true},
         {name: 'filename', type: 'string', required: true},
         {name: 'uploadTemporaryId', type: 'string', required: true},
+        {name: 'pluginName', type: 'string', required: true},
       ]
   )
 
@@ -28,6 +29,7 @@ export default function buildRedisMessage(sessionVariables: Record<string, unkno
     podId: input.podId,
     filename: input.filename,
     uploadTemporaryId: input.uploadTemporaryId,
+    pluginName: input.pluginName,
   };
 
   return { eventName, routing, header, body };
