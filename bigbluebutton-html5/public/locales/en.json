@@ -47,7 +47,7 @@
     "app.chat.toolbar.reply": "Reply to message {0}",
     "app.chat.toolbar.edit": "Edit",
     "app.chat.toolbar.delete": "Delete",
-    "app.chat.toolbar.reactions.reactedByLabel": "Reacted by",
+    "app.chat.toolbar.reactions.reactionLabel": "{0} reacted with {1}",
     "app.chat.toolbar.reactions.youLabel": "you",
     "app.chat.toolbar.reactions.andLabel": "and",
     "app.chat.toolbar.reactions.findReactionButtonLabel": "Find a reaction",
