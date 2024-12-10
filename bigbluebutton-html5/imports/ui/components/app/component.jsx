@@ -254,6 +254,7 @@ class App extends Component {
       pluginConfig,
       genericMainContentId,
       hideNotificationToasts,
+      isNotificationEnabled,
     } = this.props;
 
     const {
@@ -315,7 +316,9 @@ class App extends Component {
             ) : null}
           <AudioCaptionsSpeechContainer />
           {this.renderAudioCaptions()}
-          { !hideNotificationToasts && <PresentationUploaderToastContainer intl={intl} /> }
+          { (
+            !hideNotificationToasts
+            && isNotificationEnabled) && <PresentationUploaderToastContainer intl={intl} /> }
           <UploaderContainer />
           <BreakoutJoinConfirmationContainerGraphQL />
           <BBBLiveKitRoomContainer />
@@ -326,7 +329,9 @@ class App extends Component {
             setVideoPreviewModalIsOpen: this.setVideoPreviewModalIsOpen,
           }}
           />
-          { !hideNotificationToasts && <ToastContainer rtl /> }
+          { (
+            !hideNotificationToasts
+            && isNotificationEnabled) && <ToastContainer rtl /> }
           <ChatAlertContainerGraphql />
           <RaiseHandNotifier />
           <ManyWebcamsNotifier />
