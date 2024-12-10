@@ -108,6 +108,12 @@ export const SET_USER_CHAT_LOCKED = gql`
   }
 `;
 
+export const SWAP_SCREENSHARE = gql`
+  mutation($screenshareAsContent: Boolean!) {
+   meetingLayoutSetScreenshareAsContent(screenshareAsContent: $screenshareAsContent)
+  }
+`;
+
 export default {
   SET_CAMERA_PINNED,
   SET_RAISE_HAND,
