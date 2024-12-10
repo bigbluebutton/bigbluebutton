@@ -412,21 +412,10 @@ const reducer = (state, action) => {
         panel,
         name,
         icon,
-        contentFunction = null,
+        contentFunction = undefined,
       } = action.value;
       const { sidebarNavigation } = state.input;
       const { registeredApps } = sidebarNavigation;
-      if (panel in registeredApps) {
-        logger.warn({
-          logCode: 'overriding_registered_app',
-          extraInfo: {
-            panel,
-            name,
-            icon,
-            contentFunction,
-          },
-        }, `Layout Context: Attempting to register an app "${panel}" that already exists. Overriding the previous instance.`);
-      }
       return {
         ...state,
         input: {
