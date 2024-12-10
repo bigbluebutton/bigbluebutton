@@ -2,11 +2,10 @@ import React, { useContext } from 'react';
 import { useMutation } from '@apollo/client';
 import ActionsDropdown from './component';
 import { layoutSelectInput, layoutDispatch, layoutSelect } from '../../layout/context';
-import { SMALL_VIEWPORT_BREAKPOINT, ACTIONS, PANELS } from '../../layout/enums';
+import { SMALL_VIEWPORT_BREAKPOINT } from '../../layout/enums';
 import {
   useIsCameraAsContentEnabled,
   useIsPresentationEnabled,
-  useIsTimerFeatureEnabled,
 } from '/imports/ui/services/features';
 import { PluginsContext } from '/imports/ui/components/components-data/plugin-context/context';
 import { useShortcut } from '/imports/ui/core/hooks/useShortcut';
@@ -15,7 +14,6 @@ import {
 } from '/imports/ui/components/whiteboard/queries';
 import useDeduplicatedSubscription from '/imports/ui/core/hooks/useDeduplicatedSubscription';
 import { SET_PRESENTER } from '/imports/ui/core/graphql/mutations/userMutations';
-import { TIMER_ACTIVATE, TIMER_DEACTIVATE } from '../../timer/mutations';
 import Auth from '/imports/ui/services/auth';
 import { PRESENTATION_SET_CURRENT } from '../../presentation/mutations';
 import { useStorageKey } from '/imports/ui/services/storage/hooks';
@@ -53,8 +51,6 @@ const ActionsDropdownContainer = (props) => {
     && !allowPresentationManagementInBreakouts;
 
   const [setPresenter] = useMutation(SET_PRESENTER);
-  const [timerActivate] = useMutation(TIMER_ACTIVATE);
-  const [timerDeactivate] = useMutation(TIMER_DEACTIVATE);
   const [presentationSetCurrent] = useMutation(PRESENTATION_SET_CURRENT);
 
   const handleTakePresenter = () => {
@@ -65,30 +61,8 @@ const ActionsDropdownContainer = (props) => {
     presentationSetCurrent({ variables: { presentationId } });
   };
 
-  const activateTimer = () => {
-    const TIMER_CONFIG = window.meetingClientSettings.public.timer;
-    const MILLI_IN_MINUTE = 60000;
-    const stopwatch = true;
-    const running = false;
-    const time = TIMER_CONFIG.time * MILLI_IN_MINUTE;
-
-    timerActivate({ variables: { stopwatch, running, time } });
-
-    setTimeout(() => {
-      layoutContextDispatch({
-        type: ACTIONS.SET_SIDEBAR_CONTENT_IS_OPEN,
-        value: true,
-      });
-      layoutContextDispatch({
-        type: ACTIONS.SET_SIDEBAR_CONTENT_PANEL,
-        value: PANELS.TIMER,
-      });
-    }, 500);
-  };
-
   const isDropdownOpen = useStorageKey('dropdownOpen');
   const isPresentationEnabled = useIsPresentationEnabled();
-  const isTimerFeatureEnabled = useIsTimerFeatureEnabled();
   const isCameraAsContentEnabled = useIsCameraAsContentEnabled();
 
   return (
@@ -101,13 +75,10 @@ const ActionsDropdownContainer = (props) => {
         isRTL,
         actionButtonDropdownItems,
         presentations,
-        isTimerFeatureEnabled,
         isDropdownOpen,
         setPresentation,
         isCameraAsContentEnabled,
         handleTakePresenter,
-        activateTimer,
-        deactivateTimer: timerDeactivate,
         shortcuts: openActions,
         isPresentationEnabled,
         isPresentationManagementDisabled,

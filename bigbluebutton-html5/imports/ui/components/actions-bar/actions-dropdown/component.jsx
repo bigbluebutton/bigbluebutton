@@ -1,14 +1,13 @@
 import React, { PureComponent } from 'react';
 import PropTypes from 'prop-types';
 import { defineMessages } from 'react-intl';
-import withShortcutHelper from '/imports/ui/components/shortcut-help/service';
 import ExternalVideoModal from '/imports/ui/components/external-video-player/external-video-player-graphql/modal/component';
 import LayoutModalContainer from '/imports/ui/components/layout/modal/container';
 import BBBMenu from '/imports/ui/components/common/menu/component';
 import { ActionButtonDropdownItemType } from 'bigbluebutton-html-plugin-sdk/dist/cjs/extensible-areas/action-button-dropdown-item/enums';
 import Styled from './styles';
 import { colorPrimary } from '/imports/ui/stylesheets/styled-components/palette';
-import { PANELS, ACTIONS, LAYOUT_TYPE } from '../../layout/enums';
+import { LAYOUT_TYPE } from '../../layout/enums';
 import { uniqueId } from '/imports/utils/string-utils';
 import VideoPreviewContainer from '/imports/ui/components/video-preview/container';
 import { screenshareHasEnded } from '/imports/ui/components/screenshare/service';
@@ -22,15 +21,12 @@ const propTypes = {
   amIModerator: PropTypes.bool,
   shortcuts: PropTypes.string,
   handleTakePresenter: PropTypes.func.isRequired,
-  isTimerActive: PropTypes.bool.isRequired,
-  isTimerEnabled: PropTypes.bool.isRequired,
   allowExternalVideo: PropTypes.bool.isRequired,
   stopExternalVideoShare: PropTypes.func.isRequired,
   isMobile: PropTypes.bool.isRequired,
   setMeetingLayout: PropTypes.func.isRequired,
   setPushLayout: PropTypes.func.isRequired,
   showPushLayout: PropTypes.bool.isRequired,
-  isTimerFeatureEnabled: PropTypes.bool.isRequired,
   isCameraAsContentEnabled: PropTypes.bool.isRequired,
   actionButtonDropdownItems: PropTypes.arrayOf(
     PropTypes.shape({
@@ -54,14 +50,6 @@ const intlMessages = defineMessages({
     id: 'app.actionsBar.actionsDropdown.actionsLabel',
     description: 'Actions button label',
   },
-  activateTimerStopwatchLabel: {
-    id: 'app.actionsBar.actionsDropdown.activateTimerStopwatchLabel',
-    description: 'Activate timer/stopwatch label',
-  },
-  deactivateTimerStopwatchLabel: {
-    id: 'app.actionsBar.actionsDropdown.deactivateTimerStopwatchLabel',
-    description: 'Deactivate timer/stopwatch label',
-  },
   presentationLabel: {
     id: 'app.actionsBar.actionsDropdown.presentationLabel',
     description: 'Upload a presentation option label',
@@ -77,14 +65,6 @@ const intlMessages = defineMessages({
   stopDesktopShareDesc: {
     id: 'app.actionsBar.actionsDropdown.stopDesktopShareDesc',
     description: 'adds context to stop desktop share option',
-  },
-  pollBtnLabel: {
-    id: 'app.actionsBar.actionsDropdown.pollBtnLabel',
-    description: 'poll menu toggle button label',
-  },
-  pollBtnDesc: {
-    id: 'app.actionsBar.actionsDropdown.pollBtnDesc',
-    description: 'poll menu toggle button description',
   },
   takePresenter: {
     id: 'app.actionsBar.actionsDropdown.takePresenter',
@@ -123,9 +103,7 @@ class ActionsDropdown extends PureComponent {
     super(props);
 
     this.presentationItemId = uniqueId('action-item-');
-    this.pollId = uniqueId('action-item-');
     this.takePresenterId = uniqueId('action-item-');
-    this.timerId = uniqueId('action-item-');
     this.selectUserRandId = uniqueId('action-item-');
     this.state = {
       isExternalVideoModalOpen: false,
@@ -140,7 +118,6 @@ class ActionsDropdown extends PureComponent {
     this.setCameraAsContentModalIsOpen = this.setCameraAsContentModalIsOpen.bind(this);
     this.setPropsToPassModal = this.setPropsToPassModal.bind(this);
     this.setForceOpen = this.setForceOpen.bind(this);
-    this.handleTimerClick = this.handleTimerClick.bind(this);
   }
 
   componentDidUpdate(prevProps) {
@@ -155,15 +132,6 @@ class ActionsDropdown extends PureComponent {
     this.setExternalVideoModalIsOpen(true);
   }
 
-  handleTimerClick() {
-    const { isTimerActive, activateTimer, deactivateTimer } = this.props;
-    if (!isTimerActive) {
-      activateTimer();
-    } else {
-      deactivateTimer();
-    }
-  }
-
   getAvailableActions() {
     const {
       intl,
@@ -171,22 +139,17 @@ class ActionsDropdown extends PureComponent {
       allowExternalVideo,
       handleTakePresenter,
       isSharingVideo,
-      isPollingEnabled,
       stopExternalVideoShare,
-      isTimerActive,
-      isTimerEnabled,
-      layoutContextDispatch,
       amIModerator,
       hasCameraAsContent,
       actionButtonDropdownItems,
       isCameraAsContentEnabled,
-      isTimerFeatureEnabled,
       presentations,
       isPresentationEnabled,
       isPresentationManagementDisabled,
     } = this.props;
 
-    const { pollBtnLabel, presentationLabel, takePresenter } = intlMessages;
+    const { presentationLabel, takePresenter } = intlMessages;
 
     const { formatMessage } = intl;
 
@@ -208,29 +171,6 @@ class ActionsDropdown extends PureComponent {
       });
     }
 
-    if (amIPresenter && isPollingEnabled) {
-      actions.push({
-        icon: 'polling',
-        dataTest: 'polling',
-        label: formatMessage(pollBtnLabel),
-        key: this.pollId,
-        onClick: () => {
-          if (Session.equals('pollInitiated', true)) {
-            Session.setItem('resetPollPanel', true);
-          }
-          layoutContextDispatch({
-            type: ACTIONS.SET_SIDEBAR_CONTENT_IS_OPEN,
-            value: true,
-          });
-          layoutContextDispatch({
-            type: ACTIONS.SET_SIDEBAR_CONTENT_PANEL,
-            value: PANELS.POLL,
-          });
-          Session.setItem('forcePollOpen', true);
-        },
-      });
-    }
-
     if (!amIPresenter && amIModerator) {
       actions.push({
         icon: 'presentation',
@@ -249,18 +189,6 @@ class ActionsDropdown extends PureComponent {
         key: 'external-video',
         onClick: isSharingVideo ? stopExternalVideoShare : this.handleExternalVideoClick,
         dataTest: 'shareExternalVideo',
-      });
-    }
-
-    if (amIModerator && isTimerEnabled && isTimerFeatureEnabled) {
-      actions.push({
-        icon: 'time',
-        label: isTimerActive
-          ? intl.formatMessage(intlMessages.deactivateTimerStopwatchLabel)
-          : intl.formatMessage(intlMessages.activateTimerStopwatchLabel),
-        key: this.timerId,
-        onClick: () => this.handleTimerClick(),
-        dataTest: 'timerStopWatchFeature',
       });
     }
 
@@ -307,6 +235,26 @@ class ActionsDropdown extends PureComponent {
     return actions;
   }
 
+  setExternalVideoModalIsOpen(value) {
+    this.setState({ isExternalVideoModalOpen: value });
+  }
+
+  setLayoutModalIsOpen(value) {
+    this.setState({ isLayoutModalOpen: value });
+  }
+
+  setCameraAsContentModalIsOpen(value) {
+    this.setState({ isCameraAsContentModalOpen: value });
+  }
+
+  setPropsToPassModal(value) {
+    this.setState({ propsToPassModal: value });
+  }
+
+  setForceOpen(value) {
+    this.setState({ forceOpen: value });
+  }
+
   makePresentationItems() {
     const {
       presentations,
@@ -336,26 +284,6 @@ class ActionsDropdown extends PureComponent {
         );
       });
     return presentationItemElements;
-  }
-
-  setExternalVideoModalIsOpen(value) {
-    this.setState({ isExternalVideoModalOpen: value });
-  }
-
-  setLayoutModalIsOpen(value) {
-    this.setState({ isLayoutModalOpen: value });
-  }
-
-  setCameraAsContentModalIsOpen(value) {
-    this.setState({ isCameraAsContentModalOpen: value });
-  }
-
-  setPropsToPassModal(value) {
-    this.setState({ propsToPassModal: value });
-  }
-
-  setForceOpen(value) {
-    this.setState({ forceOpen: value });
   }
 
   renderModal(isOpen, setIsOpen, priority, Component) {
