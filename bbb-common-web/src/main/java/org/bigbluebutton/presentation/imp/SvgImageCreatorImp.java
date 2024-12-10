@@ -239,11 +239,7 @@ public class SvgImageCreatorImp implements SvgImageCreator {
                 try  {
                     byte[] pngData = readFileToByteArray(tempPng);
                     String base64encodedPng = Base64.getEncoder().encodeToString(pngData);
-
-                    int binarySize = pngData.length;
                     int base64Size = base64encodedPng.getBytes(StandardCharsets.UTF_8).length;
-
-                    log.info("PNG size: {} bytes, PNG size after encoding: {} bytes", binarySize, base64Size);
 
                     // Maximum base64 encoded PNG size to embed in the SVG (currently 4MB)
                     int browserLimit = 2 * 2 * 1024 * 1024;
