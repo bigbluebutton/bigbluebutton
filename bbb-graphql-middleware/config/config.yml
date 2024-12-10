@@ -5,7 +5,7 @@ server:
   max_connections: 500
   max_connections_per_session_token: 3
   # Rate limit: maximum number of new connections/clients allowed per second.
-  max_connections_per_second: 100
+  max_connections_per_second: 50
   # Rate limit: maximum number of queries each connection can send per minute.
   max_connection_queries_per_minute: 200
   # Rate limit: maximum number of mutations each connection can send per minute.
@@ -32,7 +32,7 @@ redis:
   port: 6379
   password: ""
 hasura:
-  url: ws://127.0.0.1:8085/v1/graphql
+  url: ws://127.0.0.1:8185/v1/graphql
 graphql-actions:
   url: http://127.0.0.1:8093
 auth_hook:

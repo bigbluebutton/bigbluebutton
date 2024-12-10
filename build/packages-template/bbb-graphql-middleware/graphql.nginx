@@ -24,7 +24,7 @@ location /api/rest/clientSettings {
     proxy_set_header Upgrade $http_upgrade;
     proxy_set_header Connection "Upgrade";
     proxy_set_header Host $host;
-    proxy_pass http://127.0.0.1:8085; #Hasura
+    proxy_pass http://127.0.0.1:8185; #Hasura
 }
 
 location /api/rest/userMetadata {
@@ -35,5 +35,5 @@ location /api/rest/userMetadata {
     proxy_set_header Upgrade $http_upgrade;
     proxy_set_header Connection "Upgrade";
     proxy_set_header Host $host;
-    proxy_pass http://127.0.0.1:8085; #Hasura
+    proxy_pass http://127.0.0.1:8185; #Hasura
 }
