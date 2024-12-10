@@ -245,7 +245,9 @@ public class SvgImageCreatorImp implements SvgImageCreator {
 
                     log.info("PNG size: {} bytes, PNG size after encoding: {} bytes", binarySize, base64Size);
 
-                    int browserLimit = 2 * 1024 * 1024;
+                    // Maximum base64 encoded PNG size to embed in the SVG (currently 4MB)
+                    int browserLimit = 2 * 2 * 1024 * 1024;
+
                     if (base64Size > browserLimit) {
                         log.error("Encoded PNG is too large for the browser");
                     } else {
