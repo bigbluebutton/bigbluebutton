@@ -2,6 +2,7 @@ import React from 'react';
 import { defineMessages, useIntl } from 'react-intl';
 import Styled, { DeleteMessage } from './styles';
 import { ChatEvents } from '/imports/ui/core/enums/chat';
+import CustomMarkdownLink from '/imports/ui/components/chat/chat-graphql/custom-markdown-components/link/component';
 
 const intlMessages = defineMessages({
   deleteMessage: {
@@ -47,6 +48,7 @@ const ChatMessageReplied: React.FC<MessageRepliedProps> = (props) => {
             $emphasizedMessage={emphasizedMessage}
             linkTarget="_blank"
             allowedElements={window.meetingClientSettings.public.chat.allowedElements}
+            components={{ a: CustomMarkdownLink }}
             unwrapDisallowed
           >
             {messageChunks[0]}
