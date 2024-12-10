@@ -47,8 +47,6 @@ const Title = styled(TitleElipsis)`
   color: ${colorGrayDark};
   white-space: normal;
   margin: 0;
-  font-family: "Nunito Sans";
-  font-style: normal;
   font-weight: ${headingsFontWeight};
   text-transform: uppercase;
   line-height: calc(${lineHeightComputed} * 2);
