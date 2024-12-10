@@ -1,13 +1,13 @@
-import React from 'react';
+import React, { useMemo } from 'react';
 import { TransitionGroup, CSSTransition } from 'react-transition-group';
 import { defineMessages, useIntl } from 'react-intl';
 import Styled from './styles';
 import ChatListItem from './chat-list-item/component';
 import useChat from '/imports/ui/core/hooks/useChat';
 import { Chat } from '/imports/ui/Types/chat';
-import Service from '/imports/ui/components/user-list/service';
 import { GraphqlDataHookSubscriptionResponse } from '/imports/ui/Types/hook';
 import deviceInfo from '/imports/utils/deviceInfo';
+import roveBuilder from '/imports/ui/core/utils/keyboardRove';
 
 const { isMobile } = deviceInfo;
 
@@ -22,7 +22,7 @@ interface ChatListProps {
   chats: Chat[],
 }
 
-const getActiveChats = (chats: Chat[], chatNodeRef: React.Ref<HTMLButtonElement>) => chats.map((chat) => (
+const getActiveChats = (chats: Chat[], chatNodeRef: React.Ref<HTMLButtonElement>) => chats.map((chat, idx) => (
   <CSSTransition
     classNames="transition"
     appear
@@ -37,6 +37,7 @@ const getActiveChats = (chats: Chat[], chatNodeRef: React.Ref<HTMLButtonElement>
       <ChatListItem
         chat={chat}
         chatNodeRef={chatNodeRef}
+        index={idx}
       />
     </Styled.ListTransition>
   </CSSTransition>
@@ -45,21 +46,9 @@ const getActiveChats = (chats: Chat[], chatNodeRef: React.Ref<HTMLButtonElement>
 const ChatList: React.FC<ChatListProps> = ({ chats }) => {
   const messageListRef = React.useRef<HTMLDivElement | null>(null);
   const messageItemsRef = React.useRef<HTMLDivElement | null>(null);
-  const [selectedChat, setSelectedChat] = React.useState<HTMLElement>();
-  const { roving } = Service;
   const chatNodeRef = React.useRef<HTMLButtonElement | null>(null);
 
-  React.useEffect(() => {
-    const firstChild = (selectedChat as HTMLElement)?.firstChild;
-    if (firstChild && firstChild instanceof HTMLElement) firstChild.focus();
-  }, [selectedChat]);
-
-  const rove = (event: React.KeyboardEvent) => {
-    const msgItemsRef = messageItemsRef.current;
-    const msgItemsRefChild = msgItemsRef?.firstChild;
-    roving(event, setSelectedChat, msgItemsRefChild, selectedChat);
-    event.stopPropagation();
-  };
+  const rove = useMemo(() => roveBuilder(messageItemsRef, 'chat-list'), []);
 
   const intl = useIntl();
   return (
@@ -74,7 +63,7 @@ const ChatList: React.FC<ChatListProps> = ({ chats }) => {
           role="tabpanel"
           tabIndex={0}
           ref={messageListRef}
-          onKeyDown={rove}
+          onKeyDown={(e:React.KeyboardEvent<HTMLDivElement>) => rove(e)}
         >
           <Styled.List ref={messageItemsRef}>
             <TransitionGroup>
