@@ -149,7 +149,7 @@ interface UserTitleOptionsProps {
 
 const UserTitleOptions: React.FC<UserTitleOptionsProps> = ({
   isRTL,
-  isMeetingMuted = false,
+  isMeetingMuted,
   isBreakout,
   isModerator,
   hasBreakoutRooms,
@@ -248,7 +248,7 @@ const UserTitleOptions: React.FC<UserTitleOptionsProps> = ({
         key: uuids.current[1],
         label: intl.formatMessage(intlMessages.muteAllExceptPresenterLabel),
         description: intl.formatMessage(intlMessages.muteAllExceptPresenterDesc),
-        onClick: toggleMute.bind(null, isMeetingMuted, true),
+        onClick: toggleMute.bind(null, !isMeetingMuted, true),
         icon: 'mute',
         dataTest: 'muteAllExceptPresenter',
       },
@@ -401,7 +401,7 @@ const UserTitleOptionsContainer: React.FC = () => {
   return (
     <UserTitleOptions
       isRTL={isRTL}
-      isMeetingMuted={meetingInfo?.voiceSettings?.muteOnStart}
+      isMeetingMuted={false}
       isBreakout={meetingInfo?.isBreakout}
       isModerator={currentUser?.isModerator ?? false}
       hasBreakoutRooms={hasBreakoutRooms}

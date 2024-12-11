@@ -34,7 +34,9 @@ trait MuteMeetingCmdMsgHdlr extends RightsManagementTrait {
           outGW.send(notifyEvent)
           NotificationDAO.insert(notifyEvent)
 
-          MeetingStatus2x.muteMeeting(liveMeeting.status)
+          //          Temporarily it will just mute users but doesn't set the meeting as muted
+          //          As the reason/usefulness of this state is not clear
+          //          MeetingStatus2x.muteMeeting(liveMeeting.status)
         } else {
           val notifyEvent = MsgBuilder.buildNotifyAllInMeetingEvtMsg(
             liveMeeting.props.meetingProp.intId,
@@ -50,7 +52,7 @@ trait MuteMeetingCmdMsgHdlr extends RightsManagementTrait {
           MeetingStatus2x.unmuteMeeting(liveMeeting.status)
         }
 
-        val muted = MeetingStatus2x.isMeetingMuted(liveMeeting.status)
+        val muted = msg.body.mute
         val meetingMutedEvent = MsgBuilder.buildMeetingMutedEvtMsg(
           props.meetingProp.intId,
           msg.body.mutedBy,
