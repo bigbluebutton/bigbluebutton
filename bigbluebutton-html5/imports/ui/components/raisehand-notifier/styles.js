@@ -104,9 +104,11 @@ const IconWrapper = styled.div`
 const ToastMessage = styled.div`
   font-size: ${fontSizeSmall};
   margin-top: ${toastMargin};
+  color: black;
 
   & > div {
     font-weight: bold;
+    line-height: 2;
   }
 `;
 
