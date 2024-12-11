@@ -20,8 +20,13 @@ const MoreItems = styled.div`
   color: ${colorGrayIcons};
 `;
 
+const Pipe = styled.span`
+  color: ${colorGrayIcons};
+`;
+
 export default {
   ToolbarContainer,
   ToolbarItem,
   MoreItems,
+  Pipe,
 };

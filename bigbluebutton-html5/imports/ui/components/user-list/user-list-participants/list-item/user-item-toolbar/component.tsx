@@ -52,7 +52,7 @@ const UserItemToolbar: React.FC<UserItemToolbarProps> = ({
     if (allowedOtherToolbarOptions.length > 0) {
       return (
         <>
-          {addSeparator && <span key={uniqueId('separator-toolbar')}> | </span>}
+          {addSeparator && <Styled.Pipe key={uniqueId('separator-toolbar')}> | </Styled.Pipe>}
           <BBBMenu
             trigger={
               (
