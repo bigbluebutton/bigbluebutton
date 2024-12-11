@@ -47,7 +47,7 @@
     "app.chat.toolbar.reply": "Απάντηση στο μήνυμα {0}",
     "app.chat.toolbar.edit": "Επεξεργασία",
     "app.chat.toolbar.delete": "Διαγραφή",
-    "app.chat.toolbar.reactions.reactedByLabel": "Αντίδραση από ",
+    "app.chat.toolbar.reactions.reactionLabel": "Ο/Η {0} αντέδρασε με {1}",
     "app.chat.toolbar.reactions.youLabel": "εσάς",
     "app.chat.toolbar.reactions.andLabel": "και",
     "app.chat.toolbar.reactions.findReactionButtonLabel": "Βρείτε μια αντίδραση",
