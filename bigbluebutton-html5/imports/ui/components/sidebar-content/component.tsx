@@ -144,7 +144,6 @@ const SidebarContent = (props: SidebarContentProps) => {
         {sidebarContentPanel === PANELS.USERLIST && <UserListComponent />}
         {sidebarContentPanel === PANELS.BREAKOUT && <BreakoutRoomContainer />}
         {sidebarContentPanel === PANELS.TIMER && <TimerContainer />}
-        {sidebarContentPanel === PANELS.WAITING_USERS && <GuestUsersManagementPanel />}
         {sidebarContentPanel === PANELS.POLL && <PollContainer />}
         {sidebarContentPanel === PANELS.APPS_GALLERY && <AppsGallery />}
         {sidebarContentPanel.includes(PANELS.GENERIC_CONTENT_SIDEKICK) && (

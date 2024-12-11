@@ -29,7 +29,7 @@ import {
   SET_LOBBY_MESSAGE,
   SET_LOBBY_MESSAGE_PRIVATE,
   SUBMIT_APPROVAL_STATUS,
-} from '../../../waiting-users/mutations';
+} from './mutations';
 import { colorPrimary } from '/imports/ui/stylesheets/styled-components/palette';
 
 interface GuestUsersManagementPanelProps {

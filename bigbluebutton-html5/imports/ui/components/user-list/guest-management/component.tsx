@@ -6,7 +6,7 @@ import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import Styled from './styles';
 import useCurrentUser from '/imports/ui/core/hooks/useCurrentUser';
 import useMeeting from '/imports/ui/core/hooks/useMeeting';
-import { SET_POLICY } from '../../waiting-users/mutations';
+import { SET_POLICY } from './waiting-users/mutations';
 import { notify } from '/imports/ui/services/notification';
 import GuestUsersManagementPanel from './waiting-users/component';
 
