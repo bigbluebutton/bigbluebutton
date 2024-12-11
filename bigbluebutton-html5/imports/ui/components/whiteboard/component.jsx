@@ -118,7 +118,6 @@ const Whiteboard = React.memo((props) => {
     whiteboardWriters,
     isPhone,
     setEditor,
-    isTabVisible,
   } = props;
 
   clearTldrawCache();
