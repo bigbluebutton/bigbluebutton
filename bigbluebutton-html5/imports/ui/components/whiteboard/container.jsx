@@ -355,7 +355,6 @@ const WhiteboardContainer = (props) => {
       setRemovedShapes([]);
     }
   }, [curPageId, lastUpdatedAt]);
-  
 
   const bgShape = [];
 

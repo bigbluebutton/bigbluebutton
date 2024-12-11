@@ -1583,10 +1583,6 @@ const Whiteboard = React.memo((props) => {
   // so this is not run on every render
   });
 
-  if (!isTabVisible) {
-    return null;
-  }
-
   return (
     <div
       ref={whiteboardRef}
