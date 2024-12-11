@@ -468,6 +468,8 @@ const reducer = (state, action) => {
       };
     }
     case ACTIONS.SET_SIDEBAR_NAVIGATION_PIN_APP: {
+      const APP_CONFIG = window.meetingClientSettings.public.app;
+      const MAX_PINNED_APPS_GALLERY = APP_CONFIG.appsGallery.maxPinnedApps;
       const { panel: appKey, pin } = action.value;
       const { sidebarNavigation } = state.input;
       const { pinnedApps, registeredApps } = sidebarNavigation;
@@ -477,6 +479,9 @@ const reducer = (state, action) => {
 
       if (!isAppRegistered) return state;
       if ((pin && isAppPinned) || (!pin && !isAppPinned)) {
+        return state;
+      }
+      if (pinnedApps.length === MAX_PINNED_APPS_GALLERY) {
         return state;
       }
 
