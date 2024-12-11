@@ -99,7 +99,6 @@ const Avatar = styled.div<AvatarProps>`
   position: relative;
   height: 3rem;
   width: 3rem;
-  min-width: 3.25rem;
   border-radius: 50%;
   text-align: center;
   font-size: .85rem;
