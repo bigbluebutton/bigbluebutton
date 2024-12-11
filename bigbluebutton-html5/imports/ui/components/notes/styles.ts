@@ -13,7 +13,11 @@ import {
 
 const HeaderContainer = styled(BaseHeaderContainer)``;
 
-const PanelContent = styled(BasePanelContent)``;
+const PanelContent = styled(BasePanelContent)`
+  display: flex;
+  flex-direction: column;
+  flex-grow: 1;
+`;
 
 const Separator = styled(BaseSeparator)``;
 
@@ -39,6 +43,7 @@ const Notes = styled.div<{ isChrome: boolean }>`
 `;
 
 const Header = styled(CommonHeader)`
+  background-color: ${colorWhite};
   padding-bottom: .2rem;
 `;
 
