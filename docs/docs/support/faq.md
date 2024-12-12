@@ -334,13 +334,13 @@ The easiest way to get your own BigBlueButton server under OS X is to install VM
 
 #### Android
 
-BigBlueButton runs within the default Chrome browser (no app to install) on Android 6.0+. You can test this at [https://test.bigbluebutton.org/](https://test.bigbluebutton.org/).
+BigBlueButton runs within the default Chrome browser (no app to install) on Android 6.0+. You can test this at [https://demo.bigbluebutton.org/](https://demo.bigbluebutton.org/).
 
 All the features of BigBlueButton are available on Android except screen sharing (Chrome does not support screen sharing on Android).
 
 #### iOS
 
-BigBlueButton runs within the default Safari Mobile browser (no app to install) on iOS 12.2+. You can test this at [https://test.bigbluebutton.org/](https://test.bigbluebutton.org/).
+BigBlueButton runs within the default Safari Mobile browser (no app to install) on iOS 12.2+. You can test this at [https://demo.bigbluebutton.org/](https://demo.bigbluebutton.org/).
 
 All the features of BigBlueButton are available on iOS except screen sharing (Safari Mobile does not support screen sharing on iOS).
 
