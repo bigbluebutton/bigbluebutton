@@ -197,7 +197,7 @@ const UserTitleOptions: React.FC<UserTitleOptionsProps> = ({
     }
   }, [users]);
 
-  const toggleMute = (muted: boolean, exceptPresenter: boolean) => {
+  const callSetMuted = (muted: boolean, exceptPresenter: boolean) => {
     setMuted({
       variables: {
         muted,
@@ -239,7 +239,7 @@ const UserTitleOptions: React.FC<UserTitleOptionsProps> = ({
         key: uuids.current[0],
         label: intl.formatMessage(intlMessages[isMeetingMuted ? 'usersJoinMutedDisableLabel' : 'usersJoinMutedEnableLabel']),
         description: intl.formatMessage(intlMessages[isMeetingMuted ? 'usersJoinMutedDisableDesc' : 'usersJoinMutedEnableDesc']),
-        onClick: toggleMute.bind(null, !isMeetingMuted, false),
+        onClick: callSetMuted.bind(null, !isMeetingMuted, false),
         icon: isMeetingMuted ? 'unmute' : 'mute',
         dataTest: 'usersJoinMuted',
       },
@@ -248,7 +248,7 @@ const UserTitleOptions: React.FC<UserTitleOptionsProps> = ({
         key: uuids.current[1],
         label: intl.formatMessage(intlMessages.muteAllExceptPresenterLabel),
         description: intl.formatMessage(intlMessages.muteAllExceptPresenterDesc),
-        onClick: toggleMute.bind(null, !isMeetingMuted, true),
+        onClick: callSetMuted.bind(null, true, true),
         icon: 'mute',
         dataTest: 'muteAllExceptPresenter',
       },
