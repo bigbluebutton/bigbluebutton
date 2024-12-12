@@ -4,7 +4,6 @@ import Styled from './styles';
 import useSettings from '/imports/ui/services/settings/hooks/useSettings';
 import { SETTINGS } from '/imports/ui/services/settings/enums';
 import { ChatEvents } from '/imports/ui/core/enums/chat';
-import Storage from '/imports/ui/services/storage/in-memory';
 import Tooltip from '/imports/ui/components/common/tooltip/container';
 
 const intlMessages = defineMessages({
@@ -85,8 +84,6 @@ const ChatReplyIntention = () => {
             },
           }),
         );
-        Storage.removeItem(ChatEvents.CHAT_FOCUS_MESSAGE_REQUEST);
-        if (sequence) Storage.setItem(ChatEvents.CHAT_FOCUS_MESSAGE_REQUEST, sequence);
       }}
     >
       <Styled.Message>
