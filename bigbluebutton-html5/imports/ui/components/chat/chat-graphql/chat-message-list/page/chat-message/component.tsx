@@ -257,6 +257,12 @@ const ChatMessage = React.forwardRef<ChatMessageRef, ChatMessageProps>(({
     };
   }, [message, messageRef, markMessageAsSeenOnScrollEnd]);
 
+  useEffect(() => {
+    if (focused) {
+      containerRef.current?.scrollIntoView({ behavior: 'instant', block: 'center', inline: 'center' });
+    }
+  }, [focused]);
+
   if (!message) return null;
   const pluginMessageNotCustom = (previousMessage?.messageType !== ChatMessageType.PLUGIN
     || !JSON.parse(previousMessage?.messageMetadata).custom);
