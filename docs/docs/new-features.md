@@ -166,8 +166,6 @@ You can test your setup with one of the files from [eicar.org](https://www.eicar
 
 ### Experimental
 
-<!-- #### LiveKit support -->
-
 #### Infinite Whiteboard (experimental)
 
 We have added initial support for inifinite whiteboard in the live session. Only the presenter can trigger it. It allows for annotations to be created in the margins, or to write content without being limited by space.
@@ -190,7 +188,7 @@ aforementioned issue provides parity tracking in section `Annex 1`.
 
 To enable support for LiveKit:
   - Install bbb-livekit: `$ sudo apt-get install bbb-livekit`
-  - Enable the LiveKit controller module in bbb-webrtc-sfu: `$ sudo yq -i '.livekit.enabled = true' /etc/bigbluebutton/bbb-webrtc-sfu/production.yml`
+  - Enable the LiveKit controller module in bbb-webrtc-sfu: `$ sudo yq e -i '.livekit.enabled = true' /etc/bigbluebutton/bbb-webrtc-sfu/production.yml`
   - Restart bbb-webrtc-sfu: `$ sudo systemctl restart bbb-webrtc-sfu`
   - Guarantee that Node.js 22 is installed in your server: `$ node -v`
     - Older 3.0 installations might still be using Node.js 18. If that's the case,
