@@ -508,11 +508,11 @@ if [ $LIST ]; then
    #
 
    if [ $WITHDESC ]; then
-      echo "Internal MeetingID                                               Time                APVD APVDE RAS Slides Processed            Published           External MeetingID  Description"
-      echo "------------------------------------------------------  ---------------------------- ---- ----- --- ------ -------------------- ------------------  ------------------- -----------"
+      echo "Internal MeetingID                                      Time                            APVD APVDE RAS Slides Processed            Published           External MeetingID  Description"
+      echo "------------------------------------------------------  ------------------------------- ---- ----- --- ------ -------------------- ------------------  ------------------- -----------"
    else
-      echo "Internal MeetingID                                               Time                APVD APVDE RAS Slides Processed            Published           External MeetingID"
-      echo "------------------------------------------------------  ---------------------------- ---- ----- --- ------ -------------------- ------------------  -------------------"
+      echo "Internal MeetingID                                      Time                            APVD APVDE RAS Slides Processed            Published           External MeetingID"
+      echo "------------------------------------------------------  ------------------------------- ---- ----- --- ------ -------------------- ------------------  -------------------"
    fi
 
    if [ -z $HEAD ]; then
