@@ -319,7 +319,7 @@ WebRTC: ICE failed, your TURN server appears to be broken, see about:webrtc for 
 
 then FireFox was unable to communicate with your TURN server, or your TURN server was not running or configured correctly.
 
-To ensure that your firewall is not blocking UDP connections over port 443, open a new tad visit [https://test.bigbluebutton.org/](https://test.bigbluebutton.org/), launch a test session, and try sharing your webcam.
+To ensure that your firewall is not blocking UDP connections over port 443, open a new tab and visit [https://demo.bigbluebutton.org/](https://demo.bigbluebutton.org/), launch a test session, and try sharing your webcam.
 the browser may not be able to connect to the TURN server or the TURN server is not running or configured correctly.
 
 The TURN server also acts as a STUN server, so you can first check that the STUN portion is working using the `stunclient`. Run the following commands below and substitute `<youor-turn-server-host>` with the hostname of your TURN server.
