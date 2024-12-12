@@ -222,18 +222,6 @@ class MultiUsers {
     await this.modPage.hasElement(e.multiUsersWhiteboardOn);
   }
 
-  async muteAllUsers() {
-    await this.modPage.joinMicrophone();
-    await this.modPage2.joinMicrophone();
-    await this.userPage.joinMicrophone();
-    await this.modPage.waitAndClick(e.manageUsers);
-    await this.modPage.waitAndClick(e.muteAll);
-    
-    await checkMutedUsers(this.modPage);
-    await checkMutedUsers(this.modPage2);
-    await checkMutedUsers(this.userPage);
-  }
-
   async muteAllUsersExceptPresenter(){
     await this.modPage.joinMicrophone();
     await this.modPage2.joinMicrophone();

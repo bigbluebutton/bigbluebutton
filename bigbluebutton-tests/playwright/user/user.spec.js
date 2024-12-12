@@ -239,7 +239,6 @@ test.describe.parallel('User', { tag: '@ci' }, () => {
       await multiusers.initModPage(page, false);
       await multiusers.initModPage2(false);
       await multiusers.initUserPage(false);
-      await multiusers.muteAllUsers();
     });
 
     test('Mute all users except presenter', { tag: '@flaky' }, async ({ browser, context, page }) => {
