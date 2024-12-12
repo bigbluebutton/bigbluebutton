@@ -228,6 +228,7 @@ export const ChatAvatar = styled.div<ChatAvatarProps>`
 export const Container = styled.div<{ $sequence: number }>`
   display: flex;
   flex-direction: column;
+  user-select: text;
 
   &:not(:first-of-type) {
     margin-top: calc((${fontSizeSmaller} + ${lgPadding} * 2) / 2);
