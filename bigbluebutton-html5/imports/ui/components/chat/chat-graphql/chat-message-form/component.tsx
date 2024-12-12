@@ -5,6 +5,7 @@ import React, {
   useEffect,
   useRef,
   useMemo,
+  useCallback,
 } from 'react';
 import { useMutation } from '@apollo/client';
 import TextareaAutosize from 'react-autosize-textarea';
@@ -40,9 +41,11 @@ import { GraphqlDataHookSubscriptionResponse } from '/imports/ui/Types/hook';
 import { throttle } from '/imports/utils/throttle';
 import logger from '/imports/startup/client/logger';
 import { CHAT_EDIT_MESSAGE_MUTATION } from '../chat-message-list/page/chat-message/mutations';
+import ChatMentionPicker, { ChatMentionPickerRef } from './chat-mention-picker/component';
 
 const CLOSED_CHAT_LIST_KEY = 'closedChatList';
 const START_TYPING_THROTTLE_INTERVAL = 1000;
+const MENTION_REGEX = /@([^@]*)/gi;
 
 interface ChatMessageFormProps {
   minMessageLength: number,
@@ -136,8 +139,10 @@ const ChatMessageForm: React.FC<ChatMessageFormProps> = ({
   const [showEmojiPicker, setShowEmojiPicker] = React.useState(false);
   const emojiPickerRef = useRef<HTMLDivElement>(null);
   const emojiPickerButtonRef = useRef(null);
+  const mentionPickerRef = useRef<ChatMentionPickerRef>(null);
   const [isTextAreaFocused, setIsTextAreaFocused] = React.useState(false);
   const [repliedMessageId, setRepliedMessageId] = React.useState<string | null>(null);
+  const [mention, setMention] = React.useState<RegExpExecArray>();
   const editingMessage = React.useRef<EditingMessage | null>(null);
   const textAreaRef: RefObject<TextareaAutosize> = useRef<TextareaAutosize>(null);
   const { isMobile } = deviceInfo;
@@ -270,6 +275,17 @@ const ChatMessageForm: React.FC<ChatMessageFormProps> = ({
       newMessage = checkText(e.target.value);
     } else {
       newMessage = e.target.value;
+    }
+
+    const txtArea = textAreaRef.current?.textarea;
+    if (txtArea && CHAT_CONFIG.mention) {
+      const mentionMatches = Array.from(newMessage.matchAll(MENTION_REGEX));
+      const { selectionStart } = txtArea;
+      const foundMatch = mentionMatches.find((match) => {
+        const { 0: matchedText, index } = match;
+        return selectionStart >= index && selectionStart <= index + matchedText.length;
+      });
+      setMention(foundMatch);
     }
 
     if (newMessage.length > maxMessageLength) {
@@ -420,7 +436,7 @@ const ChatMessageForm: React.FC<ChatMessageFormProps> = ({
 
     const handleMessageKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
       // TODO Prevent send message pressing enter on mobile and/or virtual keyboard
-      if (e.keyCode === 13 && !e.shiftKey) {
+      if (e.keyCode === 13 && !e.shiftKey && !mention) {
         e.preventDefault();
 
         const event = new Event('submit', {
@@ -429,6 +445,8 @@ const ChatMessageForm: React.FC<ChatMessageFormProps> = ({
         });
         handleSubmit(event);
       }
+
+      mentionPickerRef.current?.dispatchInputKeyDownEvent(e);
     };
     const handleFillChatFormThroughPlugin = ((
       event: CustomEvent<FillChatFormCommandArguments>,
@@ -511,6 +529,28 @@ const ChatMessageForm: React.FC<ChatMessageFormProps> = ({
       };
     }, []);
 
+    const handleMentionSelect = useCallback((user: { userId: string; name: string }) => {
+      if (!mention) return;
+      setMessage((msg) => msg.replace(MENTION_REGEX, (match, _group, offset) => {
+        const txtArea = textAreaRef.current?.textarea;
+        if (txtArea) {
+          const { selectionStart } = txtArea;
+          const matchStartPosition = offset;
+          const matchEndPosition = offset + match.length;
+          if (selectionStart >= matchStartPosition && selectionStart <= matchEndPosition) {
+            const replaceValue = `[@${user.name}](bbb://${user.userId})`;
+            return replaceValue;
+          }
+        }
+        return match;
+      }));
+      setMention(undefined);
+    }, [mention]);
+
+    const handleMentionPickerClose = useCallback(() => {
+      setMention(undefined);
+    }, []);
+
     return (
       <Styled.Form
         ref={formRef}
@@ -526,6 +566,14 @@ const ChatMessageForm: React.FC<ChatMessageFormProps> = ({
             />
           </Styled.EmojiPickerWrapper>
         ) : null}
+        {mention && (
+          <ChatMentionPicker
+            input={mention[1]}
+            onSelect={handleMentionSelect}
+            onClose={handleMentionPickerClose}
+            ref={mentionPickerRef}
+          />
+        )}
         <Styled.Wrapper>
           <Styled.InputWrapper>
             <Styled.Input
