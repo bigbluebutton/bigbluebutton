@@ -539,21 +539,21 @@ if [ $LIST ]; then
       #
       # Check if there is any recorded audio
       if ls -A "$RAW_AUDIO_SRC"/"$meeting"-*.wav &> /dev/null; then
-         echo -n "X"
+         echo -n "A"
       else
-         echo -n " "
+         echo -n "."
       fi
 
       #
       # Check if there is any uploaded presentations
       if [ -d "$RAW_PRESENTATION_SRC"/"$meeting"/"$meeting" ]; then
          if [ "$(ls -A "$RAW_PRESENTATION_SRC"/"$meeting"/"$meeting")" ]; then
-            echo -n "X"
+            echo -n "P"
          else
-            echo -n " "
+            echo -n "."
          fi
       else
-         echo -n " "
+         echo -n "."
       fi
 
 
@@ -561,12 +561,12 @@ if [ $LIST ]; then
       # Check if there is any recorded videos
       if [ -d "$RAW_VIDEO_SRC"/"$meeting" ]; then
          if [ "$(ls -A "$RAW_VIDEO_SRC"/"$meeting")" ]; then
-            echo -n "X"
+            echo -n "V"
          else
-            echo -n " "
+            echo -n "."
          fi
       else
-         echo -n " "
+         echo -n "."
       fi
 
       #echo "## $RAW_SCREENSHARE_SRC/$meeting-*.flv"
@@ -574,9 +574,9 @@ if [ $LIST ]; then
       #
       # Check if there is any recorded desktop sharing
       if ls -A "$RAW_SCREENSHARE_SRC"/"$meeting"/*.flv &> /dev/null; then
-         echo -n "X"
+         echo -n "D"
       else
-         echo -n " "
+         echo -n "."
       fi
 
       #
@@ -591,19 +591,19 @@ if [ $LIST ]; then
       for dir in $DIRS; do
          if [ -d "$RAW_DIR"/"$dir" ]; then
             if [ "$(ls -A "$RAW_DIR"/"$dir")" ]; then
-               echo -n "X"
+               echo -n "${dir:0:1}" | tr "a-z" "A-Z"
             else
-               echo -n " "
+               echo -n "."
             fi
          else
-            echo -n " "
+            echo -n "."
          fi
       done
 
       if [ -f "$RAW_DIR"/events.xml ]; then
-         echo -n "X"
+         echo -n "E"
       else
-         echo -n " "
+         echo -n "."
       fi
 
       #
@@ -613,9 +613,9 @@ if [ $LIST ]; then
       DIRS="recorded archived sanity"
       for dir in $DIRS; do
          if [ -f "$STATUS"/"$dir"/"$meeting".done ]; then
-            echo -n "X"
+            echo -n "${dir:0:1}" | tr "a-z" "A-Z"
          else
-            echo -n " "
+            echo -n "."
          fi
       done
 
