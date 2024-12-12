@@ -426,7 +426,7 @@ curl -s -X POST "$URL/$CONTROLLER?$PARAMS&checksum=$CHECKSUM" --header "Content-
          {
             "public": {
                "kurento": {
-                  "wsUrl": "wss://test.bigbluebutton.org//bbb-webrtc-sfu"
+                  "wsUrl": "wss://test.bigbluebutton.org/bbb-webrtc-sfu"
                },
                "media": {
                   "sipjsHackViaWs": false
