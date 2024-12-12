@@ -5,7 +5,7 @@ server:
   max_connections: 500
   max_connections_per_session_token: 3
   # Rate limit: maximum number of new connections/clients allowed per second.
-  max_connections_per_second: 50
+  max_connections_per_second: 100
   # Rate limit: maximum number of queries each connection can send per minute.
   max_connection_queries_per_minute: 200
   # Rate limit: maximum number of mutations each connection can send per minute.
