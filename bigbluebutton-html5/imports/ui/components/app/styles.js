@@ -59,12 +59,14 @@ const DtfInvert = `
   .bnjzQC > div span div:hover {
     background-color: var(--darkreader-selection-background) !important;
   }
-  #connectionBars > div,
   .tl-note__scrim,.tl-arrow-label[data-isediting="true"] > .tl-arrow-label__inner {
     background-color: unset !important;
   }
   textarea {
     caret-color: black !important;
+  }
+  #connectionBars > div {
+    background-color: var(--darkreader-neutral-text) !important;
   }
 `;
 

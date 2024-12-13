@@ -4,3 +4,9 @@ export interface GetRecordingResponse {
     previousRecordedTimeInSeconds: number;
   }[]
 }
+
+export interface GetRecordingPoliciesResponse {
+  meeting_recordingPolicies: {
+    allowStartStopRecording: boolean;
+  }[]
+}

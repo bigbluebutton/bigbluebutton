@@ -16,15 +16,18 @@ public class OfficeDocumentValidator2 {
 
   private String presCheckExec;
 
+  private int presCheckTimeout = 20;
+  private long execTimeout = 25000;
+
   public boolean isValid(UploadedPresentation pres) {
     boolean valid = true;
 
     if (FilenameUtils.isExtension(pres.getUploadedFile().getName(), FileTypeConstants.PPTX)) {
-      String COMMAND = "timeout 20 " + presCheckExec + " " + pres.getUploadedFile().getAbsolutePath();
+      String COMMAND = "timeout " + presCheckTimeout + " " + presCheckExec + " " + pres.getUploadedFile().getAbsolutePath();
 
       log.info("Running pres check " + COMMAND);
 
-      boolean done = new ExternalProcessExecutor().exec(COMMAND, 25000);
+      boolean done = new ExternalProcessExecutor().exec(COMMAND, execTimeout);
 
       if (done) {
         return true;
@@ -49,4 +52,11 @@ public class OfficeDocumentValidator2 {
     this.presCheckExec = path;
   }
 
+  public void setPresCheckTimeout(int presCheckTimeout) {
+    this.presCheckTimeout = presCheckTimeout;
+  }
+
+  public void setExecTimeout(long execTimeout) {
+    this.execTimeout = execTimeout;
+  }
 }

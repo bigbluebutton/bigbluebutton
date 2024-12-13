@@ -6,10 +6,11 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
-	"github.com/redis/go-redis/v9"
-	log "github.com/sirupsen/logrus"
 	"strings"
 	"time"
+
+	"github.com/redis/go-redis/v9"
+	log "github.com/sirupsen/logrus"
 )
 
 var redisClient = redis.NewClient(&redis.Options{
@@ -32,11 +33,12 @@ func StartRedisListener() {
 	for {
 		msg, err := subscriber.ReceiveMessage(ctx)
 		if err != nil {
-			log.Errorf("error: ", err)
+			log.Errorf("error: %v", err)
 		}
 
 		// Skip parsing unnecessary messages
 		if !strings.Contains(msg.Payload, "ForceUserGraphqlReconnectionSysMsg") &&
+			!strings.Contains(msg.Payload, "ForceUserGraphqlDisconnectionSysMsg") &&
 			!strings.Contains(msg.Payload, "CheckGraphqlMiddlewareAlivePingSysMsg") {
 			continue
 		}
@@ -57,10 +59,21 @@ func StartRedisListener() {
 			messageBodyAsMap := messageCoreAsMap["body"].(map[string]interface{})
 			sessionTokenToInvalidate := messageBodyAsMap["sessionToken"]
 			reason := messageBodyAsMap["reason"]
-			log.Debugf("Received invalidate request for sessionToken %v (%v)", sessionTokenToInvalidate, reason)
+			log.Debugf("Received reconnection request for sessionToken %v (%v)", sessionTokenToInvalidate, reason)
+
+			go InvalidateSessionTokenHasuraConnections(sessionTokenToInvalidate.(string))
+		}
+
+		if messageType == "ForceUserGraphqlDisconnectionSysMsg" {
+			messageCoreAsMap := messageAsMap["core"].(map[string]interface{})
+			messageBodyAsMap := messageCoreAsMap["body"].(map[string]interface{})
+			sessionTokenToInvalidate := messageBodyAsMap["sessionToken"]
+			reason := messageBodyAsMap["reason"]
+			reasonMsgId := messageBodyAsMap["reasonMessageId"]
+			log.Debugf("Received disconnection request for sessionToken %v (%s - %s)", sessionTokenToInvalidate, reasonMsgId, reason)
 
 			//Not being used yet
-			go InvalidateSessionTokenConnections(sessionTokenToInvalidate.(string))
+			go InvalidateSessionTokenBrowserConnections(sessionTokenToInvalidate.(string), reasonMsgId.(string), reason.(string))
 		}
 
 		//Ping message requires a response with a Pong message
@@ -124,6 +137,15 @@ func SendUserGraphqlReconnectionForcedEvtMsg(sessionToken string) {
 	}
 
 	sendBbbCoreMsgToRedis("UserGraphqlReconnectionForcedEvtMsg", body)
+}
+
+func SendUserGraphqlDisconnectionForcedEvtMsg(sessionToken string) {
+	var body = map[string]interface{}{
+		"middlewareUID": common.GetUniqueID(),
+		"sessionToken":  sessionToken,
+	}
+
+	sendBbbCoreMsgToRedis("UserGraphqlDisconnectionForcedEvtMsg", body)
 }
 
 func SendUserGraphqlConnectionEstablishedSysMsg(

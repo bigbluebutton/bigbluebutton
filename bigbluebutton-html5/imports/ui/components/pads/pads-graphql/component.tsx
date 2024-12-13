@@ -1,8 +1,12 @@
 import React, { useEffect, useState } from 'react';
 import { defineMessages, useIntl } from 'react-intl';
 import { useMutation } from '@apollo/client';
-import { HAS_PAD_SUBSCRIPTION, HasPadSubscriptionResponse } from './queries';
-import { PAD_SESSION_SUBSCRIPTION, PadSessionSubscriptionResponse } from './sessions/queries';
+import {
+  HAS_PAD_SUBSCRIPTION,
+  HasPadSubscriptionResponse,
+  PAD_SESSION_SUBSCRIPTION,
+  PadSessionSubscriptionResponse,
+} from './queries';
 import { CREATE_SESSION } from './mutations';
 import Service from './service';
 import Styled from './styles';
@@ -93,7 +97,7 @@ const PadContainerGraphql: React.FC<PadContainerGraphqlProps> = (props) => {
   const sessionData = padSessionData?.sharedNotes_session ?? [];
   const session = sessionData.find((s) => s.sharedNotesExtId === externalId);
   const hasPad = !!hasPadData && hasPadData.sharedNotes.length > 0;
-  const hasSession = !!session?.sessionId;
+  const hasSession = session?.sessionId !== undefined;
   const sessionIds = new Set<string>(sessionData.map((s) => s.sessionId));
 
   if (hasPad && !hasSession && hasPermission) {

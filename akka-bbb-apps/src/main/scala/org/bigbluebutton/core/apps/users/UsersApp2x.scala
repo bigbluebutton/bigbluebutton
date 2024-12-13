@@ -7,7 +7,9 @@ trait UsersApp2x
   with LockUserInMeetingCmdMsgHdlr
   with ChangeUserLockSettingsInMeetingCmdMsgHdlr
   with LockUsersInMeetingCmdMsgHdlr
-  with ClearAllUsersReactionCmdMsgHdlr {
+  with ClearAllUsersReactionCmdMsgHdlr
+  with GenerateLiveKitTokenRespMsgHdlr
+  with LiveKitParticipantLeftEvtMsgHdlr {
 
   this: MeetingActor =>
 

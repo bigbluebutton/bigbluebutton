@@ -190,6 +190,13 @@ case class ForceUserGraphqlReconnectionSysMsg(
 ) extends BbbCoreMsg
 case class ForceUserGraphqlReconnectionSysMsgBody(meetingId: String, userId: String, sessionToken: String, reason: String)
 
+object ForceUserGraphqlDisconnectionSysMsg { val NAME = "ForceUserGraphqlDisconnectionSysMsg" }
+case class ForceUserGraphqlDisconnectionSysMsg(
+    header: BbbCoreHeaderWithMeetingId,
+    body:   ForceUserGraphqlDisconnectionSysMsgBody
+) extends BbbCoreMsg
+case class ForceUserGraphqlDisconnectionSysMsgBody(meetingId: String, userId: String, sessionToken: String, reason: String, reasonMessageId: String)
+
 /**
  * Sent from graphql-middleware to akka-apps
  */
@@ -200,6 +207,13 @@ case class UserGraphqlReconnectionForcedEvtMsg(
     body:   UserGraphqlReconnectionForcedEvtMsgBody
 ) extends BbbCoreMsg
 case class UserGraphqlReconnectionForcedEvtMsgBody(middlewareUID: String, sessionToken: String, browserConnectionId: String)
+
+object UserGraphqlDisconnectionForcedEvtMsg { val NAME = "UserGraphqlDisconnectionForcedEvtMsg" }
+case class UserGraphqlDisconnectionForcedEvtMsg(
+    header: BbbCoreBaseHeader,
+    body:   UserGraphqlDisconnectionForcedEvtMsgBody
+) extends BbbCoreMsg
+case class UserGraphqlDisconnectionForcedEvtMsgBody(middlewareUID: String, sessionToken: String, browserConnectionId: String)
 
 object UserGraphqlConnectionEstablishedSysMsg { val NAME = "UserGraphqlConnectionEstablishedSysMsg" }
 case class UserGraphqlConnectionEstablishedSysMsg(

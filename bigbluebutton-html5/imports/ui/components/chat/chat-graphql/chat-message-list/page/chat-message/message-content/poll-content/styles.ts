@@ -12,7 +12,8 @@ export const PollText = styled.div`
 `;
 
 export const PollWrapper = styled.div`
-  width: 100%;
+  width: 90%;
+  margin-left: -50px;
 `;
 
 export default {

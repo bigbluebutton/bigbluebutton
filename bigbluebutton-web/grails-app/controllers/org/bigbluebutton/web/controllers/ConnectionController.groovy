@@ -62,10 +62,24 @@ class ConnectionController {
 
   def checkGraphqlAuthorization = {
     try {
+      /* the graphql connection in cluster setups is a CORS request. The OPTIONS
+       * call is done as a preflight quest by the browser and does not contain
+       * secrets. The Access-Allow-Origin Header is added by Grails. This is just
+       * the auth_request endpoint called by nginx to check authorization.
+       */
+      if (request.getHeader("x-original-method") == 'OPTIONS') {
+          log.debug "OPTIONS SUCCESS \n"
+          response.setStatus(200)
+          response.addHeader("Cache-Control", "no-cache")
+          response.contentType = 'plain/text'
+          response.outputStream << 'graphql-success';
+          return;
+      }
       String sessionToken = request.getHeader("x-session-token")
 
       UserSession userSession = meetingService.getUserSessionWithSessionToken(sessionToken)
-      Boolean isSessionTokenValid = session[sessionToken] != null
+      Boolean allowRequestsWithoutSession = meetingService.getAllowRequestsWithoutSession(sessionToken)
+      Boolean isSessionTokenValid = session[sessionToken] != null || allowRequestsWithoutSession
 
       response.addHeader("Cache-Control", "no-cache")
 
@@ -77,6 +91,12 @@ class ConnectionController {
         }
 
         response.addHeader("Meeting-Id", userSession.meetingID)
+        response.addHeader("Meeting-External-Id", userSession.externMeetingID)
+        response.addHeader("User-Id", userSession.internalUserId)
+        response.addHeader("User-External-Id", userSession.externUserID)
+        response.addHeader("User-Name", URLEncoder.encode(userSession.fullname, StandardCharsets.UTF_8.name()))
+        response.addHeader("User-Is-Moderator", u && u.isModerator() ? "true" : "false")
+        response.addHeader("User-Is-Presenter", u && u.isPresenter() ? "true" : "false")
         response.setStatus(200)
         withFormat {
           json {
@@ -96,6 +116,12 @@ class ConnectionController {
         UserSessionBasicData removedUserSession = meetingService.getRemovedUserSessionWithSessionToken(sessionToken)
         if(removedUserSession) {
           response.addHeader("Meeting-Id", removedUserSession.meetingId)
+          response.addHeader("Meeting-External-Id", removedUserSession.extMeetingId)
+          response.addHeader("User-Id", removedUserSession.userId)
+          response.addHeader("User-External-Id", removedUserSession.extUserId)
+          response.addHeader("User-Name", URLEncoder.encode(removedUserSession.userFullName, StandardCharsets.UTF_8.name()))
+          response.addHeader("User-Is-Moderator", removedUserSession.isModerator() ? "true" : "false")
+          response.addHeader("User-Is-Presenter", "false")
           response.setStatus(200)
           withFormat {
             json {

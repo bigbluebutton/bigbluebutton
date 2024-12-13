@@ -286,7 +286,7 @@ Make sure to check the HTML5 portion of the [Architecture page](/development/arc
 There is one change required to settings.yml to get webcam and screenshare working in the client (assuming you're using HTTPS already). The first step is to find the value for `kurento.wsUrl` packaged settings.yml.
 
 ```bash
-grep "wsUrl" /var/bigbluebutton/html5-client/private/config/settings.yml
+grep "wsUrl" /usr/share/bigbluebutton/html5-client/private/config/settings.yml
 ```
 
 Next, override the `wsURL` so that it remains the same even if you switch branches:

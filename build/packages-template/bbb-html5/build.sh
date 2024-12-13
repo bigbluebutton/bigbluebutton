@@ -17,7 +17,7 @@ rm -rf dist
 # package
 #
 # Create directory for fpm to process
-DIRS="/var/bigbluebutton/html5-client /usr/share/bigbluebutton/html5-client /usr/share/bigbluebutton/nginx"
+DIRS="/usr/share/bigbluebutton/html5-client /usr/share/bigbluebutton/nginx"
 for dir in $DIRS; do
   mkdir -p staging$dir
   DIRECTORIES="$DIRECTORIES --directories $dir"
@@ -47,7 +47,7 @@ find dist -name '*.js' -exec gzip -k -f -9 '{}' \;
 find dist -name '*.css' -exec gzip -k -f -9 '{}' \;
 find dist -name '*.wasm' -exec gzip -k -f -9 '{}' \;
 
-cp -r dist/* staging/var/bigbluebutton/html5-client
+cp -r dist/* staging/usr/share/bigbluebutton/html5-client
 
 mkdir -p staging/etc/nginx/sites-available
 cp bigbluebutton.nginx staging/etc/nginx/sites-available/bigbluebutton

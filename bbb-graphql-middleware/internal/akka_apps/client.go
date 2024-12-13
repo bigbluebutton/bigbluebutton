@@ -10,10 +10,12 @@ import (
 	"strings"
 )
 
-// sessionVarsHookUrl is the authentication hook URL obtained from an environment variable.
 var sessionVarsHookUrl = config.GetConfig().SessionVarsHook.Url
 
-func AkkaAppsGetSessionVariablesFrom(browserConnectionId string, sessionToken string) (map[string]string, error) {
+var internalError = fmt.Errorf("server internal error")
+var internalErrorId = "internal_error"
+
+func AkkaAppsGetSessionVariablesFrom(browserConnectionId string, sessionToken string) (map[string]string, error, string) {
 	logger := log.WithField("_routine", "AkkaAppsClient").
 		WithField("browserConnectionId", browserConnectionId).
 		WithField("sessionToken", sessionToken)
@@ -24,17 +26,19 @@ func AkkaAppsGetSessionVariablesFrom(browserConnectionId string, sessionToken st
 	// Create a new HTTP client with a cookie jar.
 	client := &http.Client{}
 
-	// Check if the authentication hook URL is set.
+	// Check if the session_vars hook URL is set.
 	if sessionVarsHookUrl == "" {
-		return nil, fmt.Errorf("BBB_GRAPHQL_MIDDLEWARE_SESSION_VARS_HOOK_URL not set")
+		log.Error("Config session_vars_hook.url not set")
+		return nil, internalError, internalErrorId
 	}
 
 	log.Trace("Get user session vars from: " + sessionVarsHookUrl + "?sessionToken=" + sessionToken)
 
-	// Create a new HTTP request to the authentication hook URL.
+	// Create a new HTTP request to the session_vars hook URL.
 	req, err := http.NewRequest("GET", sessionVarsHookUrl, nil)
 	if err != nil {
-		return nil, err
+		log.Error(err)
+		return nil, internalError, internalErrorId
 	}
 
 	// Execute the HTTP request to obtain user session variables (like X-Hasura-Role)
@@ -42,28 +46,31 @@ func AkkaAppsGetSessionVariablesFrom(browserConnectionId string, sessionToken st
 	req.Header.Set("User-Agent", "bbb-graphql-middleware")
 	resp, err := client.Do(req)
 	if err != nil {
-		return nil, err
+		return nil, internalError, internalErrorId
 	}
 	defer resp.Body.Close()
 
 	respBody, err := ioutil.ReadAll(resp.Body)
 	if err != nil {
-		return nil, err
+		return nil, internalError, internalErrorId
 	}
 
 	var respBodyAsMap map[string]string
 	if err := json.Unmarshal(respBody, &respBodyAsMap); err != nil {
-		return nil, err
+		return nil, internalError, internalErrorId
 	}
 
 	// Check the response status.
 	response, ok := respBodyAsMap["response"]
+	message, _ := respBodyAsMap["message"]
+	messageId, _ := respBodyAsMap["message_id"]
 	if !ok {
-		return nil, fmt.Errorf("response key not found in the parsed object")
+		log.Error("response key not found in the parsed object")
+		return nil, internalError, internalErrorId
 	}
 	if response != "authorized" {
-		logger.Error(response)
-		return nil, fmt.Errorf("user not authorized")
+		logger.Errorf("not authorized: Response: %s, Message: %s, MessageId: %s", response, message, messageId)
+		return nil, fmt.Errorf(message), messageId
 	}
 
 	// Normalize the response header keys.
@@ -74,5 +81,5 @@ func AkkaAppsGetSessionVariablesFrom(browserConnectionId string, sessionToken st
 		}
 	}
 
-	return normalizedResponse, nil
+	return normalizedResponse, nil, ""
 }

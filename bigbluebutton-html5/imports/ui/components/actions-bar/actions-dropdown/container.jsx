@@ -5,7 +5,6 @@ import { layoutSelectInput, layoutDispatch, layoutSelect } from '../../layout/co
 import { SMALL_VIEWPORT_BREAKPOINT, ACTIONS, PANELS } from '../../layout/enums';
 import {
   useIsCameraAsContentEnabled,
-  useIsLayoutsEnabled,
   useIsPresentationEnabled,
   useIsTimerFeatureEnabled,
 } from '/imports/ui/services/features';
@@ -34,7 +33,9 @@ const ActionsDropdownContainer = (props) => {
 
   let actionButtonDropdownItems = [];
   if (pluginsExtensibleAreasAggregatedState.actionButtonDropdownItems) {
-    actionButtonDropdownItems = [...pluginsExtensibleAreasAggregatedState.actionButtonDropdownItems];
+    actionButtonDropdownItems = [
+      ...pluginsExtensibleAreasAggregatedState.actionButtonDropdownItems,
+    ];
   }
 
   const openActions = useShortcut('openActions');
@@ -86,7 +87,6 @@ const ActionsDropdownContainer = (props) => {
   };
 
   const isDropdownOpen = useStorageKey('dropdownOpen');
-  const isLayoutsEnabled = useIsLayoutsEnabled();
   const isPresentationEnabled = useIsPresentationEnabled();
   const isTimerFeatureEnabled = useIsTimerFeatureEnabled();
   const isCameraAsContentEnabled = useIsCameraAsContentEnabled();
@@ -109,7 +109,6 @@ const ActionsDropdownContainer = (props) => {
         activateTimer,
         deactivateTimer: timerDeactivate,
         shortcuts: openActions,
-        isLayoutsEnabled,
         isPresentationEnabled,
         isPresentationManagementDisabled,
         ...props,

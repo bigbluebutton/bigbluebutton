@@ -11,20 +11,41 @@ import {
   toggleMuteMicrophone,
   toggleMuteMicrophoneSystem,
 } from '/imports/ui/components/audio/audio-graphql/audio-controls/input-stream-live-selector/service';
+import apolloContextHolder from '/imports/ui/core/graphql/apolloContextHolder/apolloContextHolder';
+import { MEETING_IS_BREAKOUT } from '/imports/ui/components/audio/audio-graphql/audio-controls/queries';
 
 const MUTED_KEY = 'muted';
 
 const recoverMicState = (toggleVoice) => {
-  const muted = Storage.getItem(MUTED_KEY);
+  const recover = (storageKey) => {
+    const muted = Storage.getItem(storageKey);
 
-  if ((muted === undefined) || (muted === null) || AudioManager.inputDeviceId === 'listen-only') {
-    return;
-  }
+    if ((muted === undefined) || (muted === null) || AudioManager.inputDeviceId === 'listen-only') {
+      return;
+    }
 
-  logger.debug({
-    logCode: 'audio_recover_mic_state',
-  }, `Audio recover previous mic state: muted = ${muted}`);
-  toggleVoice(Auth.userID, muted);
+    logger.debug({
+      logCode: 'audio_recover_mic_state',
+    }, `Audio recover previous mic state: muted = ${muted}`);
+    toggleVoice(Auth.userID, muted);
+  };
+
+  apolloContextHolder.getClient().query({
+    query: MEETING_IS_BREAKOUT,
+    fetchPolicy: 'cache-first',
+  }).then((result) => {
+    const meeting = result?.data?.meeting?.[0];
+    const meetingId = meeting?.isBreakout && meeting?.breakoutPolicies?.parentId
+      ? meeting.breakoutPolicies.parentId
+      : Auth.meetingID;
+    const storageKey = `${MUTED_KEY}_${meetingId}`;
+
+    recover(storageKey);
+  }).catch(() => {
+    // Fallback
+    const storageKey = `${MUTED_KEY}_${Auth.meetingID}`;
+    recover(storageKey);
+  });
 };
 
 const audioEventHandler = (toggleVoice) => (event) => {
@@ -41,7 +62,15 @@ const audioEventHandler = (toggleVoice) => (event) => {
   }
 };
 
-const init = (messages, intl, toggleVoice, speechLocale, voiceConf, username) => {
+const init = (
+  messages,
+  intl,
+  toggleVoice,
+  speechLocale,
+  voiceConf,
+  username,
+  bridges,
+) => {
   AudioManager.setAudioMessages(messages, intl);
   if (AudioManager.initialized) return Promise.resolve(false);
   const meetingId = Auth.meetingID;
@@ -49,20 +78,16 @@ const init = (messages, intl, toggleVoice, speechLocale, voiceConf, username) =>
   const { sessionToken } = Auth;
   const voiceBridge = voiceConf;
 
-  // FIX ME
-  const microphoneLockEnforced = false;
-
   const userData = {
     meetingId,
     userId,
     sessionToken,
     username,
     voiceBridge,
-    microphoneLockEnforced,
     speechLocale,
   };
 
-  return AudioManager.init(userData, audioEventHandler(toggleVoice));
+  return AudioManager.init(userData, audioEventHandler(toggleVoice), bridges);
 };
 
 const useIsUsingAudio = () => {
@@ -165,6 +190,8 @@ export default {
     outputDeviceId,
     isLive,
   ) => AudioManager.changeOutputDevice(outputDeviceId, isLive),
+  updateInputDevices: (devices) => { AudioManager.inputDevices = devices },
+  updateOutputDevices: (devices) => { AudioManager.outputDevices = devices },
   toggleMuteMicrophone,
   toggleMuteMicrophoneSystem,
   isConnectedToBreakout: () => {
@@ -181,6 +208,7 @@ export default {
   },
   isUsingAudio: () => AudioManager.isUsingAudio(),
   isConnecting: () => AudioManager.isConnecting,
+  isReconnecting: () => AudioManager.isReconnecting,
   isListenOnly: () => AudioManager.isListenOnly,
   inputDeviceId: () => AudioManager.inputDeviceId,
   outputDeviceId: () => AudioManager.outputDeviceId,
@@ -191,7 +219,6 @@ export default {
   playAlertSound: (url) => AudioManager.playAlertSound(url),
   updateAudioConstraints: (constraints) => AudioManager.updateAudioConstraints(constraints),
   recoverMicState,
-  isReconnecting: () => AudioManager.isReconnecting,
   setBreakoutAudioTransferStatus: (status) => AudioManager
     .setBreakoutAudioTransferStatus(status),
   getBreakoutAudioTransferStatus: () => AudioManager

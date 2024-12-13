@@ -19,13 +19,13 @@ object UserInfoService {
 
 class UserInfoService(system: ActorSystem, bbbActor: ActorRef) {
   implicit def executionContext: ExecutionContextExecutor = system.dispatcher
-  implicit val timeout: Timeout = 2 seconds
+  implicit val timeout: Timeout = 5 seconds
 
   def getUserInfo(sessionToken: String): Future[ApiResponse] = {
     val future = bbbActor.ask(GetUserApiMsg(sessionToken)).mapTo[ApiResponse]
 
     future.recover {
-      case e: AskTimeoutException => ApiResponseFailure("Request Timeout error")
+      case e: AskTimeoutException => ApiResponseFailure("Request Timeout error", "request_timeout", Map())
     }
   }
 
@@ -33,6 +33,7 @@ class UserInfoService(system: ActorSystem, bbbActor: ActorRef) {
     val infos = userInfos.infos
     val meetingID = infos.getOrElse("meetingID", "").toString
     val userId = infos.getOrElse("internalUserID", "").toString
+    val sessionToken = infos.getOrElse("sessionToken", "").toString
 
     def conditionalValue(key: String, defaultValueTrue: String, defaultValueFalse: String): String = {
       infos.get(key) match {
@@ -49,6 +50,7 @@ class UserInfoService(system: ActorSystem, bbbActor: ActorRef) {
         "X-Hasura-PresenterInMeeting" -> conditionalValue("presenter", meetingID, ""),
         "X-Hasura-UserId" -> userId,
         "X-Hasura-MeetingId" -> meetingID,
+        "X-Hasura-SessionToken" -> sessionToken,
         "X-Hasura-CursorNotLockedInMeeting" -> conditionalValue("hideViewersCursor", "", meetingID),
         "X-Hasura-CursorLockedUserId" -> conditionalValue("hideViewersCursor", userId, ""),
         "X-Hasura-AnnotationsNotLockedInMeeting" -> conditionalValue("hideViewersAnnotation", "", meetingID),
@@ -65,6 +67,7 @@ class UserInfoService(system: ActorSystem, bbbActor: ActorRef) {
         "X-Hasura-PresenterInMeeting" -> conditionalValue("presenter", meetingID, ""),
         "X-Hasura-UserId" -> userId,
         "X-Hasura-MeetingId" -> meetingID,
+        "X-Hasura-SessionToken" -> sessionToken,
       )
     }
 

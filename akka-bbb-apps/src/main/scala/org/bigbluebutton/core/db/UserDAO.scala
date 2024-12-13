@@ -11,7 +11,6 @@ case class UserDbModel(
     avatar:                 String = "",
     webcamBackground:       String = "",
     color:                  String = "",
-    sessionToken:           String = "",
     authToken:              String = "",
     authed:                 Boolean = false,
     joined:                 Boolean = false,
@@ -19,19 +18,21 @@ case class UserDbModel(
     joinErrorCode:          Option[String],
     banned:                 Boolean = false,
     loggedOut:              Boolean = false,
+    bot:                    Boolean,
     guest:                  Boolean,
     guestStatus:            String,
     registeredOn:           Long,
     excludeFromDashboard:   Boolean,
     enforceLayout:          Option[String],
+    logoutUrl:              String = "",
 )
 
 
 
 class UserDbTableDef(tag: Tag) extends Table[UserDbModel](tag, None, "user") {
   override def * = (
-    meetingId,userId,extId,name,role,avatar,webcamBackground,color, sessionToken, authToken, authed,joined,joinErrorCode,
-    joinErrorMessage, banned,loggedOut,guest,guestStatus,registeredOn,excludeFromDashboard, enforceLayout) <> (UserDbModel.tupled, UserDbModel.unapply)
+    meetingId,userId,extId,name,role,avatar,webcamBackground,color, authToken, authed,joined,joinErrorCode,
+    joinErrorMessage, banned,loggedOut,bot, guest,guestStatus,registeredOn,excludeFromDashboard, enforceLayout, logoutUrl) <> (UserDbModel.tupled, UserDbModel.unapply)
   val meetingId = column[String]("meetingId", O.PrimaryKey)
   val userId = column[String]("userId", O.PrimaryKey)
   val extId = column[String]("extId")
@@ -40,7 +41,6 @@ class UserDbTableDef(tag: Tag) extends Table[UserDbModel](tag, None, "user") {
   val avatar = column[String]("avatar")
   val webcamBackground = column[String]("webcamBackground")
   val color = column[String]("color")
-  val sessionToken = column[String]("sessionToken")
   val authToken = column[String]("authToken")
   val authed = column[Boolean]("authed")
   val joined = column[Boolean]("joined")
@@ -48,11 +48,13 @@ class UserDbTableDef(tag: Tag) extends Table[UserDbModel](tag, None, "user") {
   val joinErrorMessage = column[Option[String]]("joinErrorMessage")
   val banned = column[Boolean]("banned")
   val loggedOut = column[Boolean]("loggedOut")
+  val bot = column[Boolean]("bot")
   val guest = column[Boolean]("guest")
   val guestStatus = column[String]("guestStatus")
   val registeredOn = column[Long]("registeredOn")
   val excludeFromDashboard = column[Boolean]("excludeFromDashboard")
   val enforceLayout = column[Option[String]]("enforceLayout")
+  val logoutUrl = column[String]("logoutUrl")
 }
 
 object UserDAO {
@@ -69,13 +71,13 @@ object UserDAO {
           avatar = regUser.avatarURL,
           webcamBackground = regUser.webcamBackgroundURL,
           color = regUser.color,
-          sessionToken = regUser.sessionToken,
           authed = regUser.authed,
           joined = regUser.joined,
           joinErrorCode = None,
           joinErrorMessage = None,
           banned = regUser.banned,
           loggedOut = regUser.loggedOut,
+          bot = regUser.bot,
           guest = regUser.guest,
           guestStatus = regUser.guestStatus,
           registeredOn = regUser.registeredOn,
@@ -83,16 +85,18 @@ object UserDAO {
           enforceLayout = regUser.enforceLayout match {
             case "" => None
             case enforceLayout: String => Some(enforceLayout)
-          }
+          },
+          logoutUrl = regUser.logoutUrl
         )
       )
     )
 
     UserConnectionStatusDAO.insert(meetingId, regUser.id)
-    UserMetadataDAO.insert(meetingId, regUser.id, regUser.userMetadata)
+    UserMetadataDAO.insert(meetingId, regUser.id, "", regUser.userMetadata)
     UserLockSettingsDAO.insertOrUpdate(meetingId, regUser.id, UserLockSettings())
     UserClientSettingsDAO.insertOrUpdate(meetingId, regUser.id, JsonUtils.stringToJson("{}"))
     ChatUserDAO.insertUserPublicChat(meetingId, regUser.id)
+    UserSessionTokenDAO.insert(regUser.meetingId, regUser.id, regUser.sessionToken.head, sessionName = "", regUser.enforceLayout)
   }
 
   def update(regUser: RegisteredUser) = {

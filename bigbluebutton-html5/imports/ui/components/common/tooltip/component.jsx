@@ -92,7 +92,7 @@ class Tooltip extends Component {
       content: title,
       delay: overrideDelay,
       duration: animations ? ANIMATION_DURATION : 0,
-      interactive: true,
+      interactive: false,
       interactiveBorder: 10,
       onShow: this.onShow,
       onHide: this.onHide,
@@ -100,6 +100,7 @@ class Tooltip extends Component {
       placement: overridePlacement,
       touch: ['hold', 1000],
       theme: 'bbbtip',
+      maxWidth: 300,
     };
     this.tooltip = Tippy(`#${this.tippySelectorId}`, options);
   }

@@ -25,6 +25,8 @@ const TABS = {
   TIMELINE: 2,
   POLLING: 3,
 };
+const LEARNING_DASHBOARD_LEARN_MORE_LINK = 'learning-dashboard-learn-more-link';
+const LEARNING_DASHBOARD_FEEDBACK_LINK = 'learning-dashboard-feedback-link';
 
 class App extends React.Component {
   constructor(props) {
@@ -168,12 +170,28 @@ class App extends React.Component {
       learningDashboardAccessToken, meetingId, sessionToken, invalidSessionCount,
     } = this.state;
 
+    // adjust user sessions to be compatible with old json
+    const convertUserUsessionsFormat = (activitiesJson) => {
+      const newActivivies = activitiesJson;
+      Object.values(newActivivies.users).forEach((user) => {
+        Object.values(user.intIds).forEach((intId) => {
+          if (!intId?.sessions && intId?.registeredOn) {
+            const newIntId = intId;
+            newIntId.sessions = [
+              { registeredOn: intId.registeredOn, leftOn: intId.leftOn },
+            ];
+          }
+        });
+      });
+      return newActivivies;
+    };
+
     if (learningDashboardAccessToken !== '') {
       fetch(`${meetingId}/${learningDashboardAccessToken}/learning_dashboard_data.json`)
         .then((response) => response.json())
         .then((json) => {
           this.setState({
-            activitiesJson: json,
+            activitiesJson: convertUserUsessionsFormat(json),
             loading: false,
             invalidSessionCount: 0,
             lastUpdated: Date.now(),
@@ -254,13 +272,17 @@ class App extends React.Component {
       ]), []);
 
       const minTime = Object.values(usersTimes || {}).reduce((prevVal, elem) => {
-        if (prevVal === 0 || elem.registeredOn < prevVal) return elem.registeredOn;
+        if (prevVal === 0 || elem.sessions[0].registeredOn < prevVal) {
+          return elem.sessions[0].registeredOn;
+        }
         return prevVal;
       }, 0);
 
       const maxTime = Object.values(usersTimes || {}).reduce((prevVal, elem) => {
-        if (elem.leftOn === 0) return (new Date()).getTime();
-        if (elem.leftOn > prevVal) return elem.leftOn;
+        if (elem.sessions[elem.sessions.length - 1].leftOn === 0) return (new Date()).getTime();
+        if (elem.sessions[elem.sessions.length - 1].leftOn > prevVal) {
+          return elem.sessions[elem.sessions.length - 1].leftOn;
+        }
         return prevVal;
       }, 0);
 
@@ -341,7 +363,7 @@ class App extends React.Component {
     return (
       <div className="mx-10">
         <div className="flex flex-col sm:flex-row items-start justify-between pb-3">
-          <h1 className="mt-3 text-2xl font-semibold whitespace-nowrap inline-block">
+          <h1 className="mt-3 text-2xl font-semibold inline-block">
             <FormattedMessage id="app.learningDashboard.dashboardTitle" defaultMessage="Learning Dashboard" />
             {
               ldAccessTokenCopied === true
@@ -353,6 +375,27 @@ class App extends React.Component {
                 : null
             }
             <br />
+            { activitiesJson?.other
+              && activitiesJson.other[LEARNING_DASHBOARD_LEARN_MORE_LINK] !== ''
+              && (
+                <>
+                  <span className="text-sm font-light font-base mt-0">
+                    {intl.formatMessage({ id: 'app.learningDashboard.learnMore', defaultMessage: 'Learn more about the use of the Dashboard in {0} from our Knowledge Base.' }, {
+                      0: (
+                        <a
+                          target="_blank"
+                          rel="noreferrer"
+                          href={activitiesJson.other[LEARNING_DASHBOARD_LEARN_MORE_LINK]}
+                          className="underline"
+                        >
+                          {intl.formatMessage({ id: 'app.learningDashboard.learnMoreLinkText', defaultMessage: 'this article' })}
+                        </a>
+                      ),
+                    })}
+                  </span>
+                  <br />
+                </>
+              )}
             <span className="text-sm font-medium">{activitiesJson.name || ''}</span>
           </h1>
           <div className="mt-3 col-text-right py-1 text-gray-500 inline-block">
@@ -609,6 +652,27 @@ class App extends React.Component {
         </TabsUnstyled>
         <UserDetails dataJson={activitiesJson} />
         <hr className="my-8" />
+        { activitiesJson?.other
+          && activitiesJson.other[LEARNING_DASHBOARD_FEEDBACK_LINK] !== ''
+          && (
+            <>
+              <div className="mt-6 mb-4 text-sm font-light font-base text-gray-500">
+                { intl.formatMessage({ id: 'app.learningDashboard.feedback', defaultMessage: 'How has your experience been with this feature? We would love to hear your opinion and even suggestions on how we can improve it. Share with us by clicking {0}.' }, {
+                  0: (
+                    <a
+                      target="_blank"
+                      rel="noreferrer"
+                      href={activitiesJson.other[LEARNING_DASHBOARD_FEEDBACK_LINK]}
+                      className="underline"
+                    >
+                      {intl.formatMessage({ id: 'app.learningDashboard.feedbackLinkText', defaultMessage: 'here' })}
+                    </a>
+                  ),
+                })}
+              </div>
+              <hr className="mb-8" />
+            </>
+          )}
         <div className="flex justify-between pb-8 text-xs text-gray-800 dark:text-gray-400 whitespace-nowrap flex-col sm:flex-row">
           <div className="flex flex-col justify-center mb-4 sm:mb-0">
             <p className="text-gray-700">

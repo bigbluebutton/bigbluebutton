@@ -70,6 +70,7 @@ func HasuraClient(
 	defer func() {
 		//When Hasura sends an CloseError, it will forward the error to the browser and close the connection
 		if thisConnection.WebsocketCloseError != nil {
+			browserConnection.Logger.Infof("Closing browser connection because Hasura connection was closed, reason: %s", thisConnection.WebsocketCloseError.Reason)
 			browserConnection.Websocket.Close(thisConnection.WebsocketCloseError.Code, thisConnection.WebsocketCloseError.Reason)
 			browserConnection.ContextCancelFunc()
 		}

@@ -6,6 +6,7 @@ import ConnectionStatusService from '/imports/ui/components/connection-status/se
 import Icon from '/imports/ui/components/connection-status/icon/component';
 import Styled from './styles';
 import Auth from '/imports/ui/services/auth';
+import deviceInfo, { isMobile } from '/imports/utils/deviceInfo';
 
 const intlMessages = defineMessages({
   label: {
@@ -73,6 +74,7 @@ class ConnectionStatusButton extends PureComponent {
             circle
             onClick={() => {}}
             data-test="connectionStatusButton"
+            isMobile={isMobile}
           />
           {this.renderModal(isModalOpen)}
         </Styled.ButtonWrapper>

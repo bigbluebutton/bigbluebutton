@@ -1,0 +1,29 @@
+table:
+  name: v_plugin
+  schema: public
+configuration:
+  column_config: {}
+  custom_column_names: {}
+  custom_name: plugin
+  custom_root_fields: {}
+select_permissions:
+  - role: bbb_client
+    permission:
+      columns:
+        - javascriptEntrypointIntegrity
+        - javascriptEntrypointUrl
+        - name
+      filter:
+        meetingId:
+          _eq: X-Hasura-MeetingId
+    comment: ""
+  - role: bbb_client_not_in_meeting
+    permission:
+      columns:
+        - javascriptEntrypointIntegrity
+        - javascriptEntrypointUrl
+        - name
+      filter:
+        meetingId:
+          _eq: X-Hasura-MeetingId
+    comment: ""

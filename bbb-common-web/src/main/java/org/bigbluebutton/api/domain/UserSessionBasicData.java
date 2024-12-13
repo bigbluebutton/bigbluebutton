@@ -22,7 +22,10 @@ package org.bigbluebutton.api.domain;
 public class UserSessionBasicData {
   public String sessionToken = null;
   public String userId = null;
+  public String extUserId = null;
   public String meetingId = null;
+  public String extMeetingId = null;
+  public String userFullName = null;
   public String role = null;
 
   public Boolean isModerator() {

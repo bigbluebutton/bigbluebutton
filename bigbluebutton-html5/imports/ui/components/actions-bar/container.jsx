@@ -93,22 +93,10 @@ const ActionsBarContainer = (props) => {
   const amIPresenter = currentUserData?.presenter;
   const amIModerator = currentUserData?.isModerator;
   const [pinnedPadDataState, setPinnedPadDataState] = useState(null);
+  const { data: pinnedPadData } = useDeduplicatedSubscription(
+    PINNED_PAD_SUBSCRIPTION,
+  );
 
-  useEffect(() => {
-    const fetchData = async () => {
-      const { data: pinnedPadData } = await useDeduplicatedSubscription(
-        PINNED_PAD_SUBSCRIPTION,
-      );
-      setPinnedPadDataState(pinnedPadData || []);
-    };
-
-    fetchData();
-  }, []);
-
-  const isSharedNotesPinnedFromGraphql = !!pinnedPadDataState
-    && pinnedPadDataState.sharedNotes[0]?.sharedNotesExtId === NOTES_CONFIG.id;
-
-  const isSharedNotesPinned = isSharedNotesPinnedFromGraphql;
   const allowExternalVideo = useIsExternalVideoEnabled();
   const connected = useReactiveVar(connectionStatus.getConnectedStatusVar());
   const intl = useIntl();
@@ -131,7 +119,12 @@ const ActionsBarContainer = (props) => {
     && (deviceInfo.isPhone || isLayeredView.matches);
   if (actionsBarStyle.display === false) return null;
   if (!currentMeeting) return null;
+  if (!pinnedPadData) return null;
 
+  const isSharedNotesPinnedFromGraphql = !!pinnedPadData
+  && pinnedPadData.sharedNotes[0]?.sharedNotesExtId === NOTES_CONFIG.id;
+
+  const isSharedNotesPinned = isSharedNotesPinnedFromGraphql;
   return (
     <ActionsBar {
       ...{

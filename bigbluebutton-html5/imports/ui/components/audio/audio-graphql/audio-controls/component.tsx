@@ -93,7 +93,6 @@ const AudioControls: React.FC<AudioControlsProps> = ({
         label={intl.formatMessage(joinAudioLabel)}
         data-test="joinAudio"
         color="default"
-        ghost
         icon="no_audio"
         size="lg"
         circle
@@ -101,7 +100,7 @@ const AudioControls: React.FC<AudioControlsProps> = ({
         loading={isConnecting}
       />
     );
-  }, [isConnected, disabled, joinAudioShortcut, away]);
+  }, [isConnected, disabled, joinAudioShortcut, away, intl.locale]);
 
   useEffect(() => {
     if (isEchoTest) {

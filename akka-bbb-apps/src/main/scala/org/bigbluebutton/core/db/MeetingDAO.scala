@@ -3,6 +3,7 @@ package org.bigbluebutton.core.db
 import org.bigbluebutton.common2.domain.DefaultProps
 import PostgresProfile.api._
 import org.bigbluebutton.core.apps.groupchats.GroupChatApp
+import org.bigbluebutton.core.models.PluginModel
 
 case class MeetingSystemColumnsDbModel(
       loginUrl:                              Option[String],
@@ -21,6 +22,9 @@ case class MeetingDbModel(
     disabledFeatures:                      List[String],
     meetingCameraCap:                      Int,
     maxPinnedCameras:                      Int,
+    cameraBridge:                          String,
+    screenShareBridge:                     String,
+    audioBridge:                           String,
     notifyRecordingIsOn:                   Boolean,
     presentationUploadExternalDescription: String,
     presentationUploadExternalUrl:         String,
@@ -44,6 +48,9 @@ class MeetingDbTableDef(tag: Tag) extends Table[MeetingDbModel](tag, None, "meet
     disabledFeatures,
     meetingCameraCap,
     maxPinnedCameras,
+    cameraBridge,
+    screenShareBridge,
+    audioBridge,
     notifyRecordingIsOn,
     presentationUploadExternalDescription,
     presentationUploadExternalUrl,
@@ -64,6 +71,9 @@ class MeetingDbTableDef(tag: Tag) extends Table[MeetingDbModel](tag, None, "meet
   val disabledFeatures = column[List[String]]("disabledFeatures")
   val meetingCameraCap = column[Int]("meetingCameraCap")
   val maxPinnedCameras = column[Int]("maxPinnedCameras")
+  val cameraBridge = column[String]("cameraBridge")
+  val screenShareBridge = column[String]("screenShareBridge")
+  val audioBridge = column[String]("audioBridge")
   val notifyRecordingIsOn = column[Boolean]("notifyRecordingIsOn")
   val presentationUploadExternalDescription = column[String]("presentationUploadExternalDescription")
   val presentationUploadExternalUrl = column[String]("presentationUploadExternalUrl")
@@ -85,7 +95,7 @@ class MeetingDbTableDef(tag: Tag) extends Table[MeetingDbModel](tag, None, "meet
 }
 
 object MeetingDAO {
-  def insert(meetingProps: DefaultProps, clientSettings: Map[String, Object]) = {
+  def insert(meetingProps: DefaultProps, clientSettings: Map[String, Object], pluginProps: PluginModel) = {
     DatabaseConnection.enqueue(
       TableQuery[MeetingDbTableDef].forceInsert(
         MeetingDbModel(
@@ -96,6 +106,9 @@ object MeetingDAO {
           disabledFeatures = meetingProps.meetingProp.disabledFeatures.toList,
           meetingCameraCap = meetingProps.meetingProp.meetingCameraCap,
           maxPinnedCameras = meetingProps.meetingProp.maxPinnedCameras,
+          cameraBridge = meetingProps.meetingProp.cameraBridge,
+          screenShareBridge = meetingProps.meetingProp.screenShareBridge,
+          audioBridge = meetingProps.meetingProp.audioBridge,
           notifyRecordingIsOn = meetingProps.meetingProp.notifyRecordingIsOn,
           presentationUploadExternalDescription = meetingProps.meetingProp.presentationUploadExternalDescription,
           presentationUploadExternalUrl = meetingProps.meetingProp.presentationUploadExternalUrl,
@@ -148,6 +161,7 @@ object MeetingDAO {
     MeetingBreakoutDAO.insert(meetingProps.meetingProp.intId, meetingProps.breakoutProps)
     LayoutDAO.insert(meetingProps.meetingProp.intId, meetingProps.usersProp.meetingLayout)
     MeetingClientSettingsDAO.insert(meetingProps.meetingProp.intId, JsonUtils.mapToJson(clientSettings))
+    PluginModel.persistPluginsForClient(pluginProps, meetingProps.meetingProp.intId)
   }
 
   def updateMeetingDurationByParentMeeting(parentMeetingId: String, newDurationInSeconds: Int) = {

@@ -161,6 +161,7 @@ const LayoutModalComponent = ({
         .map((layout) => (
           <Styled.ButtonLayoutContainer key={layout}>
             <Styled.LayoutBtn
+              layout={layout}
               label=""
               customIcon={(
                 <Styled.IconSvg
@@ -178,7 +179,10 @@ const LayoutModalComponent = ({
               aria-describedby="layout-btn-desc"
               data-test={`${layout}Layout`}
             />
-            <Styled.LabelLayoutNames aria-hidden>{intl.formatMessage(intlMessages[`${layout}Layout`])}</Styled.LabelLayoutNames>
+            <Styled.LabelLayoutNames
+              layout={layout}
+              aria-hidden>{intl.formatMessage(intlMessages[`${layout}Layout`])}
+            </Styled.LabelLayoutNames>
           </Styled.ButtonLayoutContainer>
         ))}
     </Styled.ButtonsContainer>

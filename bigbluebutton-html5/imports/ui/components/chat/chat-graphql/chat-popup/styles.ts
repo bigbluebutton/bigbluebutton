@@ -5,7 +5,7 @@ export const PopupContainer = styled.div`
   position: sticky;
   top: 0;
   max-height: 80%;
-  z-index: 3;
+  z-index: 20;
   background-color: white;
 `;
 

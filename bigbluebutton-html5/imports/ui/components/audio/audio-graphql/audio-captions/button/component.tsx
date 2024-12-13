@@ -18,8 +18,9 @@ import useMeeting from '/imports/ui/core/hooks/useMeeting';
 import { ActiveCaptionsResponse, getactiveCaptions } from './queries';
 import AudioCaptionsService from '/imports/ui/components/audio/audio-graphql/audio-captions/service';
 import useDeduplicatedSubscription from '/imports/ui/core/hooks/useDeduplicatedSubscription';
+import { TRANSCRIPTION_LOCALE } from '/imports/ui/components/audio/audio-graphql/audio-captions/transcriptionLocale';
 
-const intlMessages = defineMessages({
+const messages: { [key: string]: { id: string; description?: string } } = {
   start: {
     id: 'app.audio.captions.button.start',
     description: 'Start audio captions',
@@ -50,47 +51,17 @@ const intlMessages = defineMessages({
     id: 'app.audio.captions.button.autoDetect',
     description: 'Audio speech recognition language auto detect',
   },
-  'de-DE': {
-    id: 'app.audio.captions.select.de-DE',
-    description: 'Audio speech recognition german language',
-  },
-  'en-US': {
-    id: 'app.audio.captions.select.en-US',
-    description: 'Audio speech recognition english language',
-  },
-  'es-ES': {
-    id: 'app.audio.captions.select.es-ES',
-    description: 'Audio speech recognition spanish language',
-  },
-  'fr-FR': {
-    id: 'app.audio.captions.select.fr-FR',
-    description: 'Audio speech recognition french language',
-  },
-  'hi-ID': {
-    id: 'app.audio.captions.select.hi-ID',
-    description: 'Audio speech recognition indian language',
-  },
-  'it-IT': {
-    id: 'app.audio.captions.select.it-IT',
-    description: 'Audio speech recognition italian language',
-  },
-  'ja-JP': {
-    id: 'app.audio.captions.select.ja-JP',
-    description: 'Audio speech recognition japanese language',
-  },
-  'pt-BR': {
-    id: 'app.audio.captions.select.pt-BR',
-    description: 'Audio speech recognition portuguese language',
-  },
-  'ru-RU': {
-    id: 'app.audio.captions.select.ru-RU',
-    description: 'Audio speech recognition russian language',
-  },
-  'zh-CN': {
-    id: 'app.audio.captions.select.zh-CN',
-    description: 'Audio speech recognition chinese language',
-  },
+};
+
+Object.keys(TRANSCRIPTION_LOCALE).forEach((key: string) => {
+  const localeKey = TRANSCRIPTION_LOCALE[key as keyof typeof TRANSCRIPTION_LOCALE];
+  messages[localeKey] = {
+    id: `app.audio.captions.select.${localeKey}`,
+    description: `Audio speech recognition ${key} language`,
+  };
 });
+
+const intlMessages = defineMessages(messages);
 
 interface AudioCaptionsButtonProps {
   isRTL: boolean;
@@ -162,10 +133,15 @@ const AudioCaptionsButton: React.FC<AudioCaptionsButtonProps> = ({
         if (availableVoice === availableVoices[0]) {
           indexToInsertSeparator = index;
         }
+
+        const label = intlMessages[availableVoice as keyof typeof intlMessages]
+          ? intl.formatMessage(intlMessages[availableVoice as keyof typeof intlMessages])
+          : AudioCaptionsService.getLocaleName(availableVoice);
+
         return (
           {
             icon: '',
-            label: intl.formatMessage(intlMessages[availableVoice as keyof typeof intlMessages]),
+            label,
             key: availableVoice,
             iconRight: selectedLocale.current === availableVoice ? 'check' : null,
             customStyles: (selectedLocale.current === availableVoice) && Styled.SelectedLabel,
@@ -249,10 +225,10 @@ const AudioCaptionsButton: React.FC<AudioCaptionsButtonProps> = ({
 
   const startStopCaptionsButton = (
     <Styled.ClosedCaptionToggleButton
+      active={active}
       icon={active ? 'closed_caption' : 'closed_caption_stop'}
       label={intl.formatMessage(active ? intlMessages.stop : intlMessages.start)}
       color={active ? 'primary' : 'default'}
-      ghost={!active}
       hideLabel
       circle
       size="lg"
@@ -263,7 +239,7 @@ const AudioCaptionsButton: React.FC<AudioCaptionsButtonProps> = ({
   return (
     shouldRenderChevron || shouldRenderSelector
       ? (
-        <Styled.SpanButtonWrapper>
+        <Styled.SpanButtonWrapper active={active}>
           <BBBMenu
             trigger={(
               <>

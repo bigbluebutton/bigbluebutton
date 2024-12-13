@@ -30,6 +30,7 @@ subscription UserListSubscription($offset: Int!, $limit: Int!) {
     locked
     authed
     mobile
+    bot
     guest
     clientType
     disconnected
@@ -71,7 +72,7 @@ export const USER_AGGREGATE_COUNT_SUBSCRIPTION = gql`
 
 export const GET_USER_IDS = gql`
   query Users {
-    user {
+    user(where: { bot: { _eq: false } } ) {
       userId
     }
   }
@@ -79,7 +80,7 @@ export const GET_USER_IDS = gql`
 
 export const GET_USER_NAMES = gql`
   query Users {
-    user {
+    user(where: { bot: { _eq: false } } ) {
       name
     }
   }

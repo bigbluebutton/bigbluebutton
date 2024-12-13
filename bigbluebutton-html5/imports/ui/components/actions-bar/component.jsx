@@ -12,6 +12,7 @@ import Button from '/imports/ui/components/common/button/component';
 import { getSettingsSingletonInstance } from '/imports/ui/services/settings';
 import { LAYOUT_TYPE } from '../layout/enums';
 import ReactionsButtonContainer from '/imports/ui/components/actions-bar/reactions-button/container';
+import RaiseHandButtonContainer from '/imports/ui/components/actions-bar/raise-hand-button/container';
 
 const intlMessages = defineMessages({
   actionsBarLabel: {
@@ -71,7 +72,6 @@ class ActionsBar extends PureComponent {
   renderReactionsButton() {
     return (
       <>
-        <Styled.Separator />
         <ReactionsButtonContainer actionsBarRef={this.actionsBarRef} />
       </>
     );
@@ -162,11 +162,10 @@ class ActionsBar extends PureComponent {
               setPresentationFitToWidth,
             }}
             />
-
-            <AudioCaptionsButtonContainer />
           </Styled.Left>
           <Styled.Center>
             {this.renderPluginsActionBarItems(ActionsBarPosition.LEFT)}
+            <AudioCaptionsButtonContainer />
             <AudioControlsContainer />
             {shouldShowVideoButton && enableVideo
               ? (
@@ -181,6 +180,7 @@ class ActionsBar extends PureComponent {
               />
             )}
             {this.renderReactionsButton()}
+            <RaiseHandButtonContainer />
             {this.renderPluginsActionBarItems(ActionsBarPosition.RIGHT)}
           </Styled.Center>
           <Styled.Right>

@@ -35,6 +35,7 @@ func BrowserConnectionReader(
 
 	for {
 		messageType, message, err := browserConnection.Websocket.Read(browserConnection.Context)
+
 		if err != nil {
 			if errors.Is(err, context.Canceled) {
 				browserConnection.Logger.Debugf("Closing Browser ws connection as Context was cancelled!")
@@ -45,6 +46,9 @@ func BrowserConnectionReader(
 		}
 
 		browserConnection.Logger.Tracef("received from browser: %s", string(message))
+		browserConnection.Lock()
+		browserConnection.LastBrowserMessageTime = time.Now()
+		browserConnection.Unlock()
 
 		if messageType != websocket.MessageText {
 			browserConnection.Logger.Warnf("received non-text message: %v", messageType)

@@ -51,6 +51,10 @@ const intlMessages = defineMessages({
     id: 'app.actionsBar.actionsDropdown.lockedDesktopShareDesc',
     description: 'Desktop locked Share option desc',
   },
+  lockedDesktopShareLabel: {
+    id: 'app.actionsBar.actionsDropdown.lockedDesktopShareLabel',
+    description: 'Desktop locked Share option label',
+  },
   notPresenterDesktopShareLabel: {
     id: 'app.actionsBar.actionsDropdown.notPresenterDesktopShareLabel',
     description: 'You are not the presenter label',
@@ -230,7 +234,6 @@ const ScreenshareButton = ({
                 label={intl.formatMessage(intlMessages[`${info}Label`])}
                 description={intl.formatMessage(intlMessages[`${info}Desc`])}
                 color={amIBroadcasting ? 'primary' : 'default'}
-                ghost={!amIBroadcasting}
                 hideLabel
                 circle
                 size="lg"

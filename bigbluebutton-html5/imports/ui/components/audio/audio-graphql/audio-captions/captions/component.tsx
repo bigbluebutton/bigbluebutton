@@ -8,12 +8,14 @@ import {
   useFixedLocale,
   isGladia,
   useIsAudioTranscriptionEnabled,
+  getLocaleName,
 } from '../service';
 import useCurrentUser from '/imports/ui/core/hooks/useCurrentUser';
 import { SET_SPEECH_LOCALE } from '/imports/ui/core/graphql/mutations/userMutations';
 import Styled from './styles';
+import { TRANSCRIPTION_LOCALE } from '/imports/ui/components/audio/audio-graphql/audio-captions/transcriptionLocale';
 
-const intlMessages = defineMessages({
+const messages: { [key: string]: { id: string; description?: string } } = {
   title: {
     id: 'app.audio.captions.speech.title',
     description: 'Audio speech recognition title',
@@ -30,47 +32,17 @@ const intlMessages = defineMessages({
     id: 'app.audio.captions.speech.auto',
     description: 'Audio speech recognition auto',
   },
-  'de-DE': {
-    id: 'app.audio.captions.select.de-DE',
-    description: 'Audio speech recognition german language',
-  },
-  'en-US': {
-    id: 'app.audio.captions.select.en-US',
-    description: 'Audio speech recognition english language',
-  },
-  'es-ES': {
-    id: 'app.audio.captions.select.es-ES',
-    description: 'Audio speech recognition spanish language',
-  },
-  'fr-FR': {
-    id: 'app.audio.captions.select.fr-FR',
-    description: 'Audio speech recognition french language',
-  },
-  'hi-ID': {
-    id: 'app.audio.captions.select.hi-ID',
-    description: 'Audio speech recognition indian language',
-  },
-  'it-IT': {
-    id: 'app.audio.captions.select.it-IT',
-    description: 'Audio speech recognition italian language',
-  },
-  'ja-JP': {
-    id: 'app.audio.captions.select.ja-JP',
-    description: 'Audio speech recognition japanese language',
-  },
-  'pt-BR': {
-    id: 'app.audio.captions.select.pt-BR',
-    description: 'Audio speech recognition portuguese language',
-  },
-  'ru-RU': {
-    id: 'app.audio.captions.select.ru-RU',
-    description: 'Audio speech recognition russian language',
-  },
-  'zh-CN': {
-    id: 'app.audio.captions.select.zh-CN',
-    description: 'Audio speech recognition chinese language',
-  },
+};
+
+Object.keys(TRANSCRIPTION_LOCALE).forEach((key: string) => {
+  const localeKey = TRANSCRIPTION_LOCALE[key as keyof typeof TRANSCRIPTION_LOCALE];
+  messages[localeKey] = {
+    id: `app.audio.captions.select.${localeKey}`,
+    description: `Audio speech recognition ${key} language`,
+  };
 });
+
+const intlMessages = defineMessages(messages);
 
 interface AudioCaptionsContainerProps {
   showTitleLabel?: boolean;
@@ -152,7 +124,11 @@ const AudioCaptionsSelect: React.FC<AudioCaptionsSelectProps> = ({
           key={v}
           value={v}
         >
-          {intl.formatMessage(intlMessages[v as keyof typeof intlMessages])}
+          {
+          intlMessages[v as keyof typeof intlMessages]
+            ? intl.formatMessage(intlMessages[v as keyof typeof intlMessages])
+            : getLocaleName(v)
+          }
         </option>
       ))}
     </Styled.Select>

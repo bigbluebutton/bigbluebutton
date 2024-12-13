@@ -3,6 +3,7 @@ import PropTypes from 'prop-types';
 import { defineMessages, injectIntl } from 'react-intl';
 import Session from '/imports/ui/services/storage/in-memory';
 import Styled from './styles';
+import intlHolder from '../../core/singletons/intlHolder';
 
 const intlMessages = defineMessages({
   503: {
@@ -70,60 +71,70 @@ const intlMessages = defineMessages({
   able_to_rejoin_user_disconnected_reason: {
     id: 'app.error.disconnected.rejoin',
   },
+  user_not_found: {
+    id: 'app.error.userNotFound',
+  },
+  request_timeout: {
+    id: 'app.error.requestTimeout',
+  },
+  meeting_not_found: {
+    id: 'app.error.meetingNotFound',
+  },
+  session_token_replaced: {
+    id: 'app.error.sessionTokenReplaced',
+  },
+  internal_error: {
+    id: 'app.error.serverInternalError',
+  },
+  param_missing: {
+    id: 'app.error.paramMissing',
+  },
+  too_many_connections: {
+    id: 'app.error.tooManyConnections',
+  },
+  server_closed: {
+    id: 'app.error.serverClosed',
+  },
 });
 
 const propTypes = {
-  code: PropTypes.oneOfType([
-    PropTypes.string,
-    PropTypes.number,
-  ]),
   error: PropTypes.object,
-  errorInfo: PropTypes.object,
 };
 
 const defaultProps = {
-  code: '500',
   callback: () => {},
   endedReason: null,
   error: {},
-  errorInfo: null,
 };
 
 class ErrorScreen extends PureComponent {
   componentDidMount() {
-    const { code, callback, endedReason } = this.props;
+    const { callback, endedReason } = this.props;
     // stop audio
     window.dispatchEvent(new Event('StopAudioTracks'));
     callback(endedReason, () => {});
-    console.error({ logCode: 'startup_client_usercouldnotlogin_error' }, `User could not log in HTML5, hit ${code}`);
+    console.error({ logCode: 'startup_client_usercouldnotlogin_error' }, 'User could not log in HTML5');
   }
 
   render() {
     const {
-      intl,
-      code,
       children,
       error,
-      errorInfo,
     } = this.props;
-    let formatedMessage = 'Oops, something went wrong';
+    const formatedMessage = 'Oops, something went wrong';
     let errorMessageDescription = Session.getItem('errorMessageDescription');
+    const intl = intlHolder.getIntl();
+
+    if (error) {
+      errorMessageDescription = error.message;
+    }
+
     if (intl) {
-      formatedMessage = intl.formatMessage(intlMessages[defaultProps.code]);
-
-      if (code in intlMessages) {
-        formatedMessage = intl.formatMessage(intlMessages[code]);
-      }
-
       errorMessageDescription = Session.getItem('errorMessageDescription');
 
       if (errorMessageDescription in intlMessages) {
         errorMessageDescription = intl.formatMessage(intlMessages[errorMessageDescription]);
       }
-    }
-
-    if (error) {
-      errorMessageDescription = error.message;
     }
 
     return (
@@ -140,23 +151,6 @@ class ErrorScreen extends PureComponent {
             </Styled.SessionMessage>
           )
         }
-        {
-          errorInfo
-            ? (
-              <textarea
-                rows="5"
-                cols="33"
-                disabled
-              >
-                {JSON.stringify(errorInfo)}
-              </textarea>
-            )
-            : null
-        }
-        <Styled.Separator />
-        <Styled.CodeError>
-          {code}
-        </Styled.CodeError>
         <div>
           {children}
         </div>

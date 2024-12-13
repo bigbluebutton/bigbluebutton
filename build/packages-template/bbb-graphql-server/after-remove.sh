@@ -5,8 +5,10 @@ case "$1" in
 
    ;;
    purge)
-     rm  /usr/local/bin/hasura
-     rm -rf /usr/local/bin/hasura-graphql-engine
+     rm -f /usr/local/bin/hasura # legacy location
+     rm -f /usr/bin/hasura
+     rm -f /usr/local/bin/hasura-graphql-engine # legacy location
+     rm -f /usr/bin/hasura-graphql-engine
      rm -rf /usr/share/bbb-graphql-server
    ;;
    upgrade)

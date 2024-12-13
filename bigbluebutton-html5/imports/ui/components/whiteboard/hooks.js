@@ -23,9 +23,8 @@ const useCursor = (publishCursorUpdate, whiteboardId) => {
 };
 
 const useMouseEvents = ({
-  whiteboardRef, tlEditorRef, isWheelZoomRef, initialZoomRef,
+  whiteboardRef, tlEditorRef, isWheelZoomRef, initialZoomRef, isPresenterRef,
 }, {
-  isPresenter,
   hasWBAccess,
   whiteboardToolbarAutoHide,
   animations,
@@ -36,6 +35,7 @@ const useMouseEvents = ({
   setIsMouseDown,
   setIsWheelZoom,
   setWheelZoomTimeout,
+  isInfiniteWhiteboard,
 }) => {
   const timeoutIdRef = React.useRef();
 
@@ -52,7 +52,7 @@ const useMouseEvents = ({
   };
 
   const handleMouseDownWhiteboard = (event) => {
-    if (!isPresenter && !hasWBAccess) {
+    if (!isPresenterRef.current && !hasWBAccess) {
       const updateProps = { isReadonly: false };
 
       if (event.button === 1) {
@@ -70,7 +70,7 @@ const useMouseEvents = ({
     if (!(presentationInnerWrapper && presentationInnerWrapper.contains(event.target))) {
       const editingShape = tlEditorRef.current?.getEditingShape();
       if (editingShape) {
-        return tlEditorRef.current?.setEditingShape(null);
+        return tlEditorRef.current?.complete();
       }
     }
     return undefined;
@@ -82,7 +82,7 @@ const useMouseEvents = ({
         'fade-out',
         'fade-in',
         animations ? '.3s' : '0s',
-        hasWBAccess || isPresenter,
+        hasWBAccess || isPresenterRef.current,
       );
     }
   };
@@ -93,7 +93,7 @@ const useMouseEvents = ({
         'fade-in',
         'fade-out',
         animations ? '3s' : '0s',
-        hasWBAccess || isPresenter,
+        hasWBAccess || isPresenterRef.current,
       );
     }
 
@@ -105,14 +105,14 @@ const useMouseEvents = ({
   const handleMouseWheel = throttle({ interval: 175 }, (event) => {
     event.preventDefault();
     event.stopPropagation();
-    if (!tlEditorRef.current || !isPresenter || !currentPresentationPage) {
+    if (!tlEditorRef.current || !isPresenterRef.current || !currentPresentationPage) {
       return;
     }
 
     setIsWheelZoom(true);
 
     const MAX_ZOOM_FACTOR = 4; // Represents 400%
-    const MIN_ZOOM_FACTOR = 1; // Represents 100%
+    const MIN_ZOOM_FACTOR = isInfiniteWhiteboard ? .25 : 1;
     const ZOOM_IN_FACTOR = 0.25;
     const ZOOM_OUT_FACTOR = 0.25;
 
@@ -164,14 +164,14 @@ const useMouseEvents = ({
         'fade-in',
         'fade-out',
         animations ? '3s' : '0s',
-        hasWBAccess || isPresenter,
+        hasWBAccess || isPresenterRef.current,
       );
     } else {
       toggleToolsAnimations(
         'fade-out',
         'fade-in',
         animations ? '.3s' : '0s',
-        hasWBAccess || isPresenter,
+        hasWBAccess || isPresenterRef.current,
       );
     }
   }, [whiteboardToolbarAutoHide]);
@@ -203,6 +203,7 @@ const useMouseEvents = ({
   }, [
     whiteboardRef,
     tlEditorRef,
+    isPresenterRef,
     handleMouseDownWhiteboard,
     handleMouseUp,
     handleMouseEnter,

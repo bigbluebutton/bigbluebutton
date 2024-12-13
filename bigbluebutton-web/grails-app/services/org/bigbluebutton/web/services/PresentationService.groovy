@@ -35,6 +35,7 @@ class PresentationService {
 	def defaultUploadedPresentation
 	def presentationBaseUrl
 	def preUploadedPresentationOverrideDefault
+	def scanUploadedPresentationFiles
 
 	def deletePresentation = {conf, room, filename ->
 		def directory = new File(roomDirectory(conf, room).absolutePath + File.separatorChar + filename)
@@ -83,7 +84,7 @@ class PresentationService {
 
 		t.runAfter(5000) {
 			try {
-				documentConversionService.processDocument(uploadedPres)
+				documentConversionService.processDocument(uploadedPres, Boolean.parseBoolean(scanUploadedPresentationFiles))
 			} catch(Throwable e) {
 				log.error "\nError in Presentation service:\n${e}\n"
 			}finally {

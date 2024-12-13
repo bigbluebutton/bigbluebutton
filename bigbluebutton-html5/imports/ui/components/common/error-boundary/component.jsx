@@ -2,6 +2,7 @@ import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import logger, { generateLoggerStreams } from '/imports/startup/client/logger';
 import apolloContextHolder from '/imports/ui/core/graphql/apolloContextHolder/apolloContextHolder';
+import Session from '/imports/ui/services/storage/in-memory';
 import { ApolloLink } from '@apollo/client';
 
 const propTypes = {
@@ -86,6 +87,10 @@ class ErrorBoundary extends Component {
       }
     }
 
+    if ('cause' in error) {
+      Session.setItem('errorMessageDescription', error.cause);
+    }
+
     this.setState({
       error,
       errorInfo,
@@ -97,7 +102,7 @@ class ErrorBoundary extends Component {
     const { children, Fallback, errorMessage } = this.props;
 
     const fallbackElement = Fallback && error
-      ? <Fallback error={error || {}} errorInfo={errorInfo} /> : <div>{errorMessage}</div>;
+      ? <Fallback error={error || {}} /> : <div>{errorMessage}</div>;
     return (error
       ? fallbackElement
       : children);

@@ -1,12 +1,12 @@
 #!/bin/bash -e
 
 BIGBLUEBUTTON_USER=bigbluebutton
-BBB_HTML5_SETTINGS_FILE=/var/bigbluebutton/html5-client/private/config/settings.yml
+BBB_HTML5_SETTINGS_FILE=/usr/share/bigbluebutton/html5-client/private/config/settings.yml
 BBB_RELEASE_FILE=/etc/bigbluebutton/bigbluebutton-release
 
 HOST=$(grep -v '#' /etc/bigbluebutton/bbb-web.properties | sed -n '/^bigbluebutton.web.serverURL/{s/.*\///;p}')
 
-chown -R $BIGBLUEBUTTON_USER:$BIGBLUEBUTTON_USER /var/bigbluebutton/html5-client/
+chown -R $BIGBLUEBUTTON_USER:$BIGBLUEBUTTON_USER /usr/share/bigbluebutton/html5-client/
 
 if [ ! -L /etc/nginx/sites-enabled/bigbluebutton ]; then
   mkdir -p /etc/nginx/sites-enabled

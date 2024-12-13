@@ -40,7 +40,7 @@ class DisabledFeatures extends MultiUsers {
   }
 
   async layouts() {
-    await this.modPage.waitAndClick(e.actions);
+    await this.modPage.waitAndClick(e.optionsButton);
     await this.modPage.wasRemoved(e.manageLayoutBtn, 'should not display manage layout option when the actions is open');
   }
 
@@ -145,7 +145,7 @@ class DisabledFeatures extends MultiUsers {
   }
 
   async layoutsExclude() {
-    await this.modPage.waitAndClick(e.actions);
+    await this.modPage.waitAndClick(e.optionsButton);
     await this.modPage.hasElement(e.manageLayoutBtn, 'should display the manage layout button');
   }
 

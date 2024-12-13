@@ -131,4 +131,4 @@ case class UserInfosApiMsg(infos: Map[String, Any])
 
 trait ApiResponse
 case class ApiResponseSuccess(msg: String, any: Any = null) extends ApiResponse
-case class ApiResponseFailure(msg: String, any: Any = null) extends ApiResponse
+case class ApiResponseFailure(msg: String, msgId: String, any: Any = null) extends ApiResponse

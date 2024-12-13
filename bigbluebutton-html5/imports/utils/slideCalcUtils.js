@@ -1,5 +1,6 @@
 export const HUNDRED_PERCENT = 100;
 export const MAX_PERCENT = 400;
+export const MIN_PERCENT = 25;
 export const MYSTERY_NUM = 2;
 export const STEP = 25;
 
@@ -13,18 +14,12 @@ export default class SlideCalcUtil {
    */
   static calcViewedRegionWidth(vpw, cpw) {
     const width = (vpw / cpw) * HUNDRED_PERCENT;
-    if (width > HUNDRED_PERCENT) {
-      return HUNDRED_PERCENT;
-    }
-    return width;
+    return Math.max(MIN_PERCENT, width);
   }
 
   static calcViewedRegionHeight(vph, cph) {
     const height = (vph / cph) * HUNDRED_PERCENT;
-    if (height > HUNDRED_PERCENT) {
-      return HUNDRED_PERCENT;
-    }
-    return height;
+    return Math.max(MIN_PERCENT, height);
   }
 
   static calcCalcPageSizeWidth(ftp, vpw, vrw) {

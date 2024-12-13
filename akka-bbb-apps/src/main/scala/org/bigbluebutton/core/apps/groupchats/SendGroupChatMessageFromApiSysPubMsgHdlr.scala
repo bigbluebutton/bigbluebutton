@@ -20,7 +20,7 @@ trait SendGroupChatMessageFromApiSysPubMsgHdlr extends HandlerHelpers {
         sender <- GroupChatApp.findGroupChatUser(SystemUser.ID, liveMeeting.users2x)
         chat <- state.groupChats.find(GroupChatApp.MAIN_PUBLIC_CHAT)
       } yield {
-        val groupChatMsgFromUser = GroupChatMsgFromUser(sender.id, sender.copy(name = msg.body.userName), msg.body.message)
+        val groupChatMsgFromUser = GroupChatMsgFromUser(sender.id, sender.copy(name = msg.body.userName), msg.body.message, replyToMessageId = "")
         val gcm = GroupChatApp.toGroupChatMessage(sender.copy(name = msg.body.userName), groupChatMsgFromUser, emphasizedText = true)
         val gcs = GroupChatApp.addGroupChatMessage(liveMeeting.props.meetingProp.intId, chat, state.groupChats, gcm, GroupChatMessageType.API)
 

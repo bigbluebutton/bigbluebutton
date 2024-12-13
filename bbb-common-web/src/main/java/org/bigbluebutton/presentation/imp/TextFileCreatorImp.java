@@ -38,6 +38,8 @@ import com.google.gson.Gson;
 public class TextFileCreatorImp implements TextFileCreator {
   private static Logger log = LoggerFactory.getLogger(TextFileCreatorImp.class);
 
+  private long execTimeout = 60000;
+
   @Override
   public boolean createTextFile(UploadedPresentation pres, int page) {
     boolean success = false;
@@ -97,7 +99,7 @@ public class TextFileCreatorImp implements TextFileCreator {
 
         //System.out.println(COMMAND);
 
-        boolean done = new ExternalProcessExecutor().exec(COMMAND, 60000);
+        boolean done = new ExternalProcessExecutor().exec(COMMAND, execTimeout);
         if (!done) {
           success = false;
 
@@ -130,4 +132,7 @@ public class TextFileCreatorImp implements TextFileCreator {
     }
   }
 
+  public void setExecTimeout(long execTimeout) {
+    this.execTimeout = execTimeout;
+  }
 }

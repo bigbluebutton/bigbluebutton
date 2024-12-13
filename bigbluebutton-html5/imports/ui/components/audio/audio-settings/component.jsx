@@ -21,6 +21,8 @@ const propTypes = {
   changeInputDevice: PropTypes.func.isRequired,
   liveChangeInputDevice: PropTypes.func.isRequired,
   changeOutputDevice: PropTypes.func.isRequired,
+  updateInputDevices: PropTypes.func.isRequired,
+  updateOutputDevices: PropTypes.func.isRequired,
   handleBack: PropTypes.func.isRequired,
   handleConfirmation: PropTypes.func.isRequired,
   handleGUMFailure: PropTypes.func.isRequired,
@@ -273,7 +275,11 @@ class AudioSettings extends React.Component {
       intl,
       notify,
     } = this.props;
-    const { inputDeviceId: currentInputDeviceId } = this.state;
+    const {
+      inputDeviceId: currentInputDeviceId,
+      audioInputDevices,
+      audioOutputDevices,
+    } = this.state;
     try {
       if (!isConnected) changeInputDevice(deviceId);
 
@@ -313,15 +319,30 @@ class AudioSettings extends React.Component {
           // gUM permission is flagged as granted).
           this.updateDeviceList();
         }).catch((error) => {
-          logger.warn({
-            logCode: 'audiosettings_gum_failed',
-            extraInfo: {
-              deviceId,
-              errorMessage: error.message,
-              errorName: error.name,
-            },
-          }, `Audio settings gUM failed: ${error.name}`);
-          handleGUMFailure(error);
+          const handleFailure = (devices) => {
+            const inputDevices = devices?.audioInputDevices.map((device) => device.toJSON());
+            const outputDevices = devices?.audioOutputDevices.map((device) => device.toJSON());
+            logger.warn({
+              logCode: 'audiosettings_gum_failed',
+              extraInfo: {
+                inputDeviceId: deviceId,
+                inputDevices,
+                outputDevices,
+                errorMessage: error.message,
+                errorName: error.name,
+              },
+            }, `Audio settings gUM failed: ${error.name}`);
+            handleGUMFailure(error);
+          };
+
+          // Forcibly run enumeration after gUM failure to add I/O data to the
+          // error log for better debugging.
+          if ((audioInputDevices.length === 0 || audioOutputDevices.length === 0)
+            && this._isMounted) {
+            this.updateDeviceList().then(handleFailure);
+          } else {
+            handleFailure({ audioInputDevices, audioOutputDevices });
+          }
         }).finally(() => {
           // Component unmounted after gUM resolution -> skip echo rendering
           if (!this._isMounted) return;
@@ -384,15 +405,25 @@ class AudioSettings extends React.Component {
   }
 
   updateDeviceList() {
+    const { updateInputDevices, updateOutputDevices } = this.props;
+
     return navigator.mediaDevices.enumerateDevices()
       .then((devices) => {
         const audioInputDevices = devices.filter((i) => i.kind === 'audioinput');
         const audioOutputDevices = devices.filter((i) => i.kind === 'audiooutput');
 
+        // Update audio devices in AudioManager
+        updateInputDevices(audioInputDevices);
+        updateOutputDevices(audioOutputDevices);
         this.setState({
           audioInputDevices,
           audioOutputDevices,
         });
+
+        return {
+          audioInputDevices,
+          audioOutputDevices,
+        };
       })
       .catch((error) => {
         logger.warn({

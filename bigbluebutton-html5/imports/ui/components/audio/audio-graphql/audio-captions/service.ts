@@ -84,6 +84,13 @@ export const useFixedLocale = () => {
   return useIsAudioTranscriptionEnabled() && FORCE_LOCALE;
 };
 
+export const getLocaleName = (locale: string) => {
+  const languageNames = new Intl.DisplayNames([locale], {
+    type: 'language',
+  });
+  return languageNames.of(locale);
+};
+
 export default {
   getSpeechVoices,
   useIsAudioTranscriptionEnabled,
@@ -94,4 +101,5 @@ export default {
   useFixedLocale,
   isGladia,
   splitTranscript,
+  getLocaleName,
 };

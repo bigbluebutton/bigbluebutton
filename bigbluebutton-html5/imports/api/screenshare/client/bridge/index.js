@@ -1,5 +1,10 @@
 import KurentoBridge from './kurento';
+import LiveKitBridge from './livekit';
 
-const screenshareBridge = new KurentoBridge();
+const sfuScreenShareBridge = new KurentoBridge();
+const liveKitScreenShareBridge = new LiveKitBridge();
 
-export default screenshareBridge;
+export {
+  sfuScreenShareBridge,
+  liveKitScreenShareBridge,
+};

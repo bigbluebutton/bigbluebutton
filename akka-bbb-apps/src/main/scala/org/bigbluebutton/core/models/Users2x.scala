@@ -67,7 +67,7 @@ object Users2x {
   }
 
   def numUsers(users: Users2x): Int = {
-    users.toVector.length
+    users.toVector.filter(u => !u.bot).length
   }
 
   def numActiveModerators(users: Users2x): Int = {
@@ -136,7 +136,6 @@ object Users2x {
       _ <- users.remove(intId)
       ejectedUser <- users.removeFromCache(intId)
     } yield {
-      //      UserDAO.softDelete(intId)  --it will keep the user on Db
       ejectedUser
     }
   }
@@ -147,7 +146,6 @@ object Users2x {
     } yield {
       val newUser = u.modify(_.presenter).setTo(true)
       users.save(newUser)
-      UserStateDAO.update(newUser)
       newUser
     }
   }
@@ -158,7 +156,6 @@ object Users2x {
     } yield {
       val newUser = u.modify(_.presenter).setTo(false)
       users.save(newUser)
-      UserStateDAO.update(newUser)
       newUser
     }
   }
@@ -432,6 +429,7 @@ case class UserState(
     meetingId:             String,
     name:                  String,
     role:                  String,
+    bot:                   Boolean,
     guest:                 Boolean,
     pin:                   Boolean,
     mobile:                Boolean,

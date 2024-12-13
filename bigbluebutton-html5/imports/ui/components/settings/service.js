@@ -11,14 +11,12 @@ export const updateSettings = (obj, msgDescriptor, mutation) => {
 
   if (msgDescriptor) {
     // prevents React state update on unmounted component
-    setTimeout(() => {
-      const intl = intlHolder.getIntl();
-      notify(
-        intl.formatMessage(msgDescriptor),
-        'info',
-        'settings',
-      );
-    }, 0);
+    const intl = intlHolder.getIntl();
+    notify(
+      intl.formatMessage(msgDescriptor),
+      'info',
+      'settings',
+    );
   }
 };
 

@@ -7,8 +7,9 @@ case class RegisterUserReqMsg(
 ) extends BbbCoreMsg
 case class RegisterUserReqMsgBody(meetingId: String, intUserId: String, name: String, role: String,
                                   extUserId: String, authToken: String, sessionToken: String, avatarURL: String,
-                                  webcamBackgroundURL: String, guest: Boolean, authed: Boolean, guestStatus: String,
-                                  excludeFromDashboard: Boolean, enforceLayout: String, userMetadata: Map[String, String])
+                                  webcamBackgroundURL: String, bot: Boolean, guest: Boolean, authed: Boolean,
+                                  guestStatus: String, excludeFromDashboard: Boolean, enforceLayout: String,
+                                  logoutUrl: String, userMetadata: Map[String, String])
 
 object UserRegisteredRespMsg { val NAME = "UserRegisteredRespMsg" }
 case class UserRegisteredRespMsg(
@@ -17,6 +18,28 @@ case class UserRegisteredRespMsg(
 ) extends BbbCoreMsg
 case class UserRegisteredRespMsgBody(meetingId: String, userId: String, name: String,
                                      role: String, excludeFromDashboard: Boolean, registeredOn: Long)
+
+object RegisterUserSessionTokenReqMsg { val NAME = "RegisterUserSessionTokenReqMsg" }
+case class RegisterUserSessionTokenReqMsg(
+    header: BbbCoreHeaderWithMeetingId,
+    body:   RegisterUserSessionTokenReqMsgBody
+) extends BbbCoreMsg
+case class RegisterUserSessionTokenReqMsgBody(
+    meetingId:           String,
+    userId:              String,
+    sessionToken:        String,
+    sessionName:         String,
+    replaceSessionToken: String,
+    enforceLayout:       String,
+    userSessionMetadata: Map[String, String]
+)
+
+object UserSessionTokenRegisteredRespMsg { val NAME = "UserSessionTokenRegisteredRespMsg" }
+case class UserSessionTokenRegisteredRespMsg(
+    header: BbbCoreHeaderWithMeetingId,
+    body:   UserSessionTokenRegisteredRespMsgBody
+) extends BbbCoreMsg
+case class UserSessionTokenRegisteredRespMsgBody(meetingId: String, userId: String, sessionToken: String)
 
 /**
  * Out Messages
@@ -67,6 +90,7 @@ case class UserJoinedMeetingEvtMsgBody(
     extId:            String,
     name:             String,
     role:             String,
+    bot:              Boolean,
     guest:            Boolean,
     authed:           Boolean,
     guestStatus:      String,

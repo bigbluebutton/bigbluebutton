@@ -34,7 +34,7 @@ For production, we recommend the following minimum requirements
 - A hostname (such as bbb.example.com) for setup of a SSL certificate
 - IPV4 and IPV6 address
 
-If you install BigBlueButton on a virtual machine in the cloud, we recommend you choose an instance type that has dedicated CPU.  These are usually called "compute-intensive" instances.  On Digital Ocean we recommend the c-8 compute intensive instances (or larger). On AWS we recommend c5a.2xlarge (or larger).  On Hetzner we recommend the AX52 servers or CCX32 instances.
+If you install BigBlueButton on a virtual machine in the cloud, we recommend you choose an instance type that has dedicated CPU.  These are usually called "compute-intensive" instances.  On Digital Ocean we recommend the c-8 compute intensive instances (or larger). On AWS we recommend c5a.2xlarge (or larger).  On Hetzner we recommend the AX52 servers or CCX33 instances.
 
 If you are setting up BigBlueButton for local development on your workstation, you can relax some of the above requirements as there will only be few users on the server. Starting with the above requirements, you can reduce them as follows
 
@@ -227,7 +227,7 @@ UDP port ranges
                debug: false
                recorder.directory: /var/lib/bbb-webrtc-recorder
 
-/var/bigbluebutton/html5-client/private/config/settings.yml (HTML5 client)
+/usr/share/bigbluebutton/html5-client/private/config/settings.yml (HTML5 client)
 /etc/bigbluebutton/bbb-html5.yml (HTML5 client config override)
                              build: 13
                         kurentoUrl: wss://test30.bigbluebutton.org/bbb-webrtc-sfu
@@ -361,7 +361,7 @@ followed by a restart of BigBlueButton
 
 If you are upgrading BigBlueButton 2.6 or 2.7 we recommend you set up a new Ubuntu 22.04 server with BigBlueButton 3.0 and then [copy over your existing recordings from the old server](/administration/customize#transfer-published-recordings-from-another-server).
 
-Make sure you read through the ["what's new in 3.0" document](https://docs.bigbluebutton.org/3.0/new) and especially [the section covering notable changes](https://docs.bigbluebutton.org/3.0/new#other-notable-changes)
+Make sure you read through the ["what's new in 3.0" document](https://docs.bigbluebutton.org/3.0/new-features) and especially [the section covering notable changes](https://docs.bigbluebutton.org/3.0/new-features#other-notable-changes)
 
 ### Restart your server
 

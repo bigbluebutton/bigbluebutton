@@ -125,9 +125,46 @@ We upgraded tl;draw from version 1 to version 2.0.0-alpha.19 (the last version o
 Collabora Productivity contributed the support for an alternative conversion script where Collabora Online (deployed locally [as a docker container] or running remotely) can be used for document conversion.
 For more information check the [pull request](https://github.com/bigbluebutton/bigbluebutton/pull/18783)
 
-### Experimental
+#### Support for ClamAV as presentation file scanner
 
-<!-- #### LiveKit support -->
+We have added support for ClamAV to automatically scan every presentation file for viruses before sharing it with the others in the session.
+To use it you would need to first install ClamAV:
+The simplest way would be to run it locally as a container.
+
+```
+docker pull clamav/clamav`
+docker run --name "clamav" --mount type=bind,source=/var/bigbluebutton,target=/var/bigbluebutton -p 3310:3310 -p 7357:7357 clamav/clamav:latest
+```
+
+
+The above run command may take a minute to start. If you prefer you could run with `-d` flag to make it detachable.
+
+Now when you check the running containers you should see an entry like this one:
+
+```
+root@test30:~# docker ps
+CONTAINER ID   IMAGE                                                       COMMAND                  CREATED          STATUS                    PORTS                                                                                                           NAMES
+bda7f5596192   clamav/clamav:latest                                        "/init"                  21 minutes ago   Up 21 minutes (healthy)   0.0.0.0:3310->3310/tcp, :::3310->3310/tcp, 0.0.0.0:7357->7357/tcp, :::7357->7357/tcp                            clamav
+```
+
+
+Additionally you will have to enable scanning:
+Specify `scanUploadedPresentationFiles=true` in `/etc/bigbluebutton/bbb-web.properties` and restart BigBlueButton via `sudo bbb-conf --restart`
+
+When you create a new session and try uploading some presentation files, you should not see anything different if the file was fine.
+However, if a threat was detected, you will see the message "Upload failed: Virus detected! Please check your file and retry." in the client and the presentation sharing will not proceed.
+Additionally, in the logs for `bbb-web` you will see similar log lines:
+
+```
+Oct 09 01:07:18 test30 java[2810929]: 2024-10-09T01:07:18.285Z DEBUG o.b.w.c.PresentationController - processing file upload eicar.com.txt (presId: f7ff3fd7c0ab460f7139541c02df46f24ac90b67-1728436037947)
+Oct 09 01:07:18 test30 java[2810929]: 2024-10-09T01:07:18.550Z DEBUG o.b.w.c.PresentationController - file upload success eicar.com.txt
+Oct 09 01:07:23 test30 java[2810929]: 2024-10-09T01:07:23.589Z ERROR o.b.p.DocumentConversionServiceImp - Presentation upload failed for meetingId=4814d8e60f2e15576bebfe7cef34367ef5b54539-1728435987030 presId=f7ff3fd7c0ab460f7139541c02df46f24ac90b67-1728436037947
+Oct 09 01:07:23 test30 java[2810929]: 2024-10-09T01:07:23.590Z ERROR o.b.p.DocumentConversionServiceImp - Presentation upload failed because a virus was detected in the uploaded file
+```
+
+You can test your setup with one of the files from [eicar.org](https://www.eicar.org/download-anti-malware-testfile/).
+
+### Experimental
 
 #### Infinite Whiteboard (experimental)
 
@@ -141,6 +178,42 @@ Everyone sees the margins and follows the presenter's point of view. If multi-us
 
 Recording is not yet implemented, meaning that if you enable this experimental feature on your server and use it in a recorded session, the recording will most likely have broken whiteboard at best. The recording (and playback) work is planned for after BigBlueButton 3.0.
 
+#### Integration with LiveKit
+
+We have added initial support for LiveKit as a media framework for BigBlueButton.
+It's an experimental feature and, consequently, disabled by default.
+For an in-depth overview of this initiative, please refer to [issue 21059](https://github.com/bigbluebutton/bigbluebutton/issues/21059).
+Feature parity with the current media framework is not yet achieved, but the
+aforementioned issue provides parity tracking in section `Annex 1`.
+
+To enable support for LiveKit:
+  - Install bbb-livekit: `$ sudo apt-get install bbb-livekit`
+  - Enable the LiveKit controller module in bbb-webrtc-sfu: `$ sudo yq e -i '.livekit.enabled = true' /etc/bigbluebutton/bbb-webrtc-sfu/production.yml`
+  - Restart bbb-webrtc-sfu: `$ sudo systemctl restart bbb-webrtc-sfu`
+  - Guarantee that Node.js 22 is installed in your server: `$ node -v`
+    - Older 3.0 installations might still be using Node.js 18. If that's the case,
+      re-run bbb-install or correct any custom installation scripts to ensure
+      Node.js 22 is installed.
+
+Once enabled, LiveKit still won't be used by default. There are two ways to make
+use of it in meetings:
+- Per meeting: set any of the following meeting `/create` parameters
+  - `audioBridge=livekit`
+  - `cameraBridge=livekit`
+  - `screenShareBridge=livekit`
+- Server-wide: set any of the following properties in `/etc/bigbluebutton/bbb-web.properties`
+  - `audioBridge=livekit`
+  - `cameraBridge=livekit`
+  - `screenShareBridge=livekit`
+
+Those parameters do *not* need to be set concurrently. LiveKit can be enabled for
+audio only, for example, while keeping the current media framework for camera
+and screen sharing by setting just `audioBridge=livekit`.
+
+Keep in mind that the LiveKit integration is still experimental and not feature
+complete. Configuration, API parameters, and other details are subject to change.
+We encourage users to test it and provide feedback via our GitHub issue tracker
+or the mailing lists.
 
 ### Upgraded components
 
@@ -152,6 +225,9 @@ For full details on what is new in BigBlueButton 3.0, see the release notes.
 
 Recent releases:
 
+- [3.0.0-beta.4](https://github.com/bigbluebutton/bigbluebutton/releases/tag/v3.0.0-beta.4)
+- [3.0.0-beta.3](https://github.com/bigbluebutton/bigbluebutton/releases/tag/v3.0.0-beta.3)
+- [3.0.0-beta.2](https://github.com/bigbluebutton/bigbluebutton/releases/tag/v3.0.0-beta.2)
 - [3.0.0-beta.1](https://github.com/bigbluebutton/bigbluebutton/releases/tag/v3.0.0-beta.1)
 - [3.0.0-alpha.7](https://github.com/bigbluebutton/bigbluebutton/releases/tag/v3.0.0-alpha.7)
 - [3.0.0-alpha.6](https://github.com/bigbluebutton/bigbluebutton/releases/tag/v3.0.0-alpha.6)
@@ -236,6 +312,10 @@ In BigBlueButton 2.6.18/2.7.8 POST requests are no longer allowed for the `join`
 #### Changes in document formats we support
 
 We improved the documentation for which types of files we support when uploading presentations. Support for `.odi` and `.odc` was dropped. Support for `.svg`, `.odg` and `.webp` was officially added even though animated webp's are no longer animated after the image processing. 
+
+#### We mirror the webcam preview by default now
+
+We have supported the option to mirror your own webcam while viewing it. Starting with BigBlueButton 3.0.0-beta.6 we mirror it by default (which leads to the same result you would expect if you looked yourself in a physical mirror).
 
 ### Development
 

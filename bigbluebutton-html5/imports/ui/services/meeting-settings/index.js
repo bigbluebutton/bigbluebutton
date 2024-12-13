@@ -17,7 +17,12 @@ window.addEventListener('graphqlSubscription', (e) => {
     const { data } = response;
     if (data) {
       const { metadata = [], voiceSettings } = data.meeting[0];
-      settings(metadata);
+      // convert metadata format to { key: value }
+      const result = metadata.reduce((acc, item) => {
+        acc[item.name] = item.value;
+        return acc;
+      }, {});
+      settings(result);
       voiceConf(voiceSettings.voiceConf);
     }
   }

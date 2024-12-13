@@ -21,6 +21,10 @@ const intlMessages = defineMessages({
     id: 'app.chat.notAway',
     description: 'message when user is no longer away',
   },
+  deleteMessage: {
+    id: 'app.chat.deleteMessage',
+    description: '',
+  },
 });
 
 export const htmlDecode = (input: string) => {
@@ -70,7 +74,9 @@ export const generateExportedMessages = (
       }
       case ChatMessageType.TEXT:
       default:
-        messageText = htmlDecode(message.message);
+        messageText = message.message
+          ? htmlDecode(message.message)
+          : intl.formatMessage(intlMessages.deleteMessage, { 0: message.deletedBy?.name });
         break;
     }
     return `${acc}${hourMin} ${userName}${messageText}\n`;

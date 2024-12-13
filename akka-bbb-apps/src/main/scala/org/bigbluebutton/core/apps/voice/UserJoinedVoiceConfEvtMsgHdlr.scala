@@ -33,8 +33,8 @@ trait UserJoinedVoiceConfEvtMsgHdlr extends SystemConfiguration {
 
     def registerUserInRegisteredUsers() = {
       val regUser = RegisteredUsers.create(liveMeeting.props.meetingProp.intId, msg.body.intId, msg.body.voiceUserId,
-        msg.body.callerIdName, Roles.VIEWER_ROLE, msg.body.intId, "", "", "", userColor,
-        true, true, GuestStatus.WAIT, true, "", Map(), false)
+        msg.body.callerIdName, Roles.VIEWER_ROLE, msg.body.intId, Vector(""), "", "", userColor, false,
+        true, true, GuestStatus.WAIT, true, "", "", Map(), false)
       RegisteredUsers.add(liveMeeting.registeredUsers, regUser, liveMeeting.props.meetingProp.intId)
     }
 
@@ -45,6 +45,7 @@ trait UserJoinedVoiceConfEvtMsgHdlr extends SystemConfiguration {
         meetingId = liveMeeting.props.meetingProp.intId,
         name = msg.body.callerIdName,
         role = Roles.VIEWER_ROLE,
+        bot = false,
         guest = true,
         authed = true,
         guestStatus = GuestStatus.WAIT,
@@ -73,6 +74,7 @@ trait UserJoinedVoiceConfEvtMsgHdlr extends SystemConfiguration {
         VoiceApp.toggleUserAudioInVoiceConf(
           liveMeeting,
           outGW,
+          msg.body.intId,
           msg.body.voiceUserId,
           false
         )

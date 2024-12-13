@@ -39,6 +39,8 @@ public class ConversionMessageConstants {
     public static final String CONVERSION_STARTED_KEY = "CONVERSION_STARTED_KEY";
     public static final String CONVERSION_COMPLETED_KEY = "CONVERSION_COMPLETED";
     public static final String CONVERSION_TIMEOUT_KEY = "CONVERSION_TIMEOUT";
+    public static final String FILE_VIRUS_KEY = "FILE_VIRUS";
+    public static final String SCAN_FAILED_KEY = "SCAN_FAILED";
 
     private ConversionMessageConstants() {
         throw new IllegalStateException("ConversionMessageConstants is a utility class. Instantiation is forbidden.");

@@ -26,7 +26,7 @@ import Checkbox from '/imports/ui/components/common/checkbox/component'
 import AppService from '/imports/ui/components/app/service';
 import { CustomVirtualBackgroundsContext } from '/imports/ui/components/video-preview/virtual-background/context';
 import VBGSelectorService from '/imports/ui/components/video-preview/virtual-background/service';
-import Storage from '/imports/ui/services/storage/session';
+import Session from '/imports/ui/services/storage/in-memory';
 import getFromUserSettings from '/imports/ui/services/users-settings';
 
 const VIEW_STATES = {
@@ -411,6 +411,7 @@ class VideoPreview extends Component {
     this.terminateCameraStream(this.currentVideoStream, webcamDeviceId);
     this.cleanupStreamAndVideo();
     this._isMounted = false;
+    Session.setItem('videoPreviewFirstOpen', false);
   }
 
   async startCameraBrightness() {
@@ -689,6 +690,7 @@ class VideoPreview extends Component {
       extraInfo: {
         errorName: error.name,
         errorMessage: error.message,
+        errorStack: error.stack,
         virtualBgType: type,
         virtualBgName: name,
       },
@@ -1328,8 +1330,7 @@ class VideoPreview extends Component {
     const WebcamBackgroundImg = `${BASE_NAME}/resources/images/webcam_background.svg`;
 
     const darkThemeState = AppService.isDarkThemeEnabled();
-    const isBlurred = Storage.getItem('isFirstJoin') !== false 
-    && getFromUserSettings('bbb_auto_share_webcam', window.meetingClientSettings.public.kurento.autoShareWebcam);
+    const isBlurred = Session.getItem('videoPreviewFirstOpen') && getFromUserSettings('bbb_auto_share_webcam', window.meetingClientSettings.public.kurento.autoShareWebcam);
 
     if (isCamLocked === true) {
       this.handleProceed();
@@ -1347,32 +1348,31 @@ class VideoPreview extends Component {
 
     const allowCloseModal = !!(deviceError || previewError)
     || !PreviewService.getSkipVideoPreview()
-    || forceOpen;
+      || forceOpen;
 
-    const shouldShowVirtualBackgroundsTab = isVirtualBackgroundsEnabled 
-    && !cameraAsContent
-    && !(webcamDeviceId === cameraAsContentDeviceId)
-    && isVirtualBackgroundSupported()
+    const shouldShowVirtualBackgroundsTab = isVirtualBackgroundsEnabled
+      && !cameraAsContent
+      && !(webcamDeviceId === cameraAsContentDeviceId)
+      && isVirtualBackgroundSupported()
 
     return (
-      <Styled.Background isBlurred={isBlurred}>
-        <Styled.VideoPreviewModal
-          onRequestClose={this.handleProceed}
-          contentLabel={intl.formatMessage(intlMessages.webcamSettingsTitle)}
-          shouldShowCloseButton={allowCloseModal}
-          shouldCloseOnOverlayClick={allowCloseModal}
-          isPhone={deviceInfo.isPhone}
-          data-test="webcamSettingsModal"
-          {...{
-            isOpen,
-            priority,
-          }}
-        >
-          <Styled.Container>
-            <Styled.Header>
-              <Styled.WebcamTabs
-              onSelect={this.handleSelectTab}
-              selectedIndex={selectedTab}
+      <Styled.VideoPreviewModal
+        onRequestClose={this.handleProceed}
+        contentLabel={intl.formatMessage(intlMessages.webcamSettingsTitle)}
+        shouldShowCloseButton={allowCloseModal}
+        shouldCloseOnOverlayClick={allowCloseModal}
+        isPhone={deviceInfo.isPhone}
+        data-test="webcamSettingsModal"
+        {...{
+          isOpen,
+          priority,
+        }}
+      >
+        <Styled.Container>
+    <Styled.Header>
+      <Styled.WebcamTabs
+        onSelect={this.handleSelectTab}
+        selectedIndex={selectedTab}
               >
                 <Styled.WebcamTabList>
                   <Styled.WebcamTabSelector selectedClassName="is-selected">
@@ -1408,7 +1408,6 @@ class VideoPreview extends Component {
 
           </Styled.Container>
         </Styled.VideoPreviewModal>
-      </Styled.Background>
     );
   }
 }

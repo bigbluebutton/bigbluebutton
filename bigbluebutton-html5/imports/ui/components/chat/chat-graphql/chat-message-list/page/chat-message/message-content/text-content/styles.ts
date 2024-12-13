@@ -1,11 +1,5 @@
 import styled from 'styled-components';
-import {
-  systemMessageBackgroundColor,
-  systemMessageBorderColor,
-  colorText,
-} from '/imports/ui/stylesheets/styled-components/palette';
-import { borderRadius } from '/imports/ui/stylesheets/styled-components/general';
-import { fontSizeBase, btnFontWeight } from '/imports/ui/stylesheets/styled-components/typography';
+import { colorText } from '/imports/ui/stylesheets/styled-components/palette';
 
 interface ChatMessageProps {
   emphasizedMessage: boolean;
@@ -19,17 +13,7 @@ export const ChatMessage = styled.div<ChatMessageProps>`
   flex-direction: column;
   color: ${colorText};
   word-break: break-word;
-  ${({ systemMsg }) => systemMsg && `
-  background: ${systemMessageBackgroundColor};
-  border: 1px solid ${systemMessageBorderColor};
-  border-radius: ${borderRadius};
-  font-weight: ${btnFontWeight};
-  padding: ${fontSizeBase};
-  text-color: #1f252b;
-  margin-top: 0;
-  margin-bottom: 0;
-  overflow-wrap: break-word;
-  `}
+
   ${({ emphasizedMessage }) => emphasizedMessage && `
     font-weight: bold;
   `}
@@ -46,6 +30,27 @@ export const ChatMessage = styled.div<ChatMessageProps>`
 
   & code {
     white-space: pre-wrap;
+  }
+  & h1 {
+    font-size: 1.5em;
+    margin: 0;
+  }
+  & h2 {
+    font-size: 1.3em;
+    margin: 0;
+  }
+  & h3 {
+    font-size: 1.1em;
+    margin: 0;
+  }
+  & h4 {
+    margin: 0;
+  }
+  & h5 {
+    margin: 0;
+  }
+  & h6 {
+    margin: 0;
   }
 `;
 
