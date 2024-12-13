@@ -3,7 +3,7 @@ import { NotificationEnum } from 'bigbluebutton-html-plugin-sdk/dist/cjs/ui-comm
 import { makeVar } from '@apollo/client';
 import {
   SendNotificationCommandArguments,
-  SetDisplayNotificationsArguments,
+  SetEnableDisplayNotificationsArguments,
 } from 'bigbluebutton-html-plugin-sdk/dist/cjs/ui-commands/notification/types';
 import { notify } from '/imports/ui/services/notification';
 import { PluginUiCommandNotificationDisplay } from './types';
@@ -18,9 +18,9 @@ const PluginNotificationUiCommandsHandler = () => {
       information.content, information.small);
   };
 
-  const handleSetDisplayNotification = (event: CustomEvent<SetDisplayNotificationsArguments>) => {
+  const handleSetDisplayNotification = (event: CustomEvent<SetEnableDisplayNotificationsArguments>) => {
     const { detail: isNotificationDisplaying } = event;
-    const { isNotificationDisplaying: isNotificationEnabled } = isNotificationDisplaying;
+    const { isNotificationDisplayEnabled: isNotificationEnabled } = isNotificationDisplaying;
     handleIsNotificationEnabled({ isNotificationEnabled });
   };
 
@@ -30,7 +30,7 @@ const PluginNotificationUiCommandsHandler = () => {
       handleSendNotification as EventListener,
     );
     window.addEventListener(
-      NotificationEnum.SET_DISPLAY,
+      NotificationEnum.SET_ENABLED_DISPLAY,
       handleSetDisplayNotification as EventListener,
     );
 
@@ -40,7 +40,7 @@ const PluginNotificationUiCommandsHandler = () => {
         handleSendNotification as EventListener,
       );
       window.removeEventListener(
-        NotificationEnum.SET_DISPLAY,
+        NotificationEnum.SET_ENABLED_DISPLAY,
         handleSetDisplayNotification as EventListener,
       );
     };
