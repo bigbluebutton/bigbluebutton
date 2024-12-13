@@ -481,7 +481,7 @@ const reducer = (state, action) => {
       if ((pin && isAppPinned) || (!pin && !isAppPinned)) {
         return state;
       }
-      if (pinnedApps.length === MAX_PINNED_APPS_GALLERY) {
+      if (pin && pinnedApps.length === MAX_PINNED_APPS_GALLERY) {
         return state;
       }
 
