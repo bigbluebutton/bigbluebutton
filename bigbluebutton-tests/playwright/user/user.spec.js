@@ -46,6 +46,21 @@ test.describe.parallel('User', () => {
     });
   });
 
+  test.describe.parallel('Reactions @ci', () => {
+    test('Reactions', async ({ browser, context, page }) => {
+      const multiusers = new MultiUsers(browser, context);
+      await multiusers.initModPage(page, true);
+      await multiusers.initUserPage(true, context);
+      await multiusers.reactionsTest();
+    });
+
+    test('Emoji rain', async ({ browser, context, page }) => {
+      const emojiRain = new MultiUsers(browser, context);
+      await emojiRain.initModPage(page, true);
+      await emojiRain.emojiRainTest();
+    });
+  });
+
   test.describe.parallel('List', () => {
     // https://docs.bigbluebutton.org/2.7/testing/release-testing/#set-status--raise-hand-automated
     test('Change user status @ci', async ({ browser, page }) => {

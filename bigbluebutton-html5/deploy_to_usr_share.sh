@@ -34,7 +34,7 @@ echo 'stage3'
 
 cd "$DESTINATION_DIR"/programs/server/ || exit
 sudo chmod -R 777 .
-meteor npm i
+npm i
 
 echo "deployed to $DESTINATION_DIR/programs/server\n\n\n"
 

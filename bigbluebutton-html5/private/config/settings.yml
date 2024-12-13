@@ -725,6 +725,9 @@ public:
     callHangupMaximumRetries: 10
     echoTestNumber: 'echo'
     listenOnlyCallTimeout: 15000
+    # skipInitialCamEnumeration: whether to skip the initial camera enumeration
+    # See https://github.com/bigbluebutton/bigbluebutton/issues/21746
+    skipInitialCamEnumeration: false
     # Experimental: enables a new audio mechanism that has a server-side,
     # transparent listen only mode. See issue #14021.
     # bbb_userdata-transparent-listen-only supersedes this setting

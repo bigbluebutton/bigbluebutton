@@ -37,6 +37,7 @@ const VIEW_STATES = {
 };
 
 const ENABLE_CAMERA_BRIGHTNESS = Meteor.settings.public.app.enableCameraBrightness;
+const SKIP_INITIAL_ENUM = Meteor.settings.public.media.skipInitialCamEnumeration;
 const CAMERA_BRIGHTNESS_AVAILABLE = ENABLE_CAMERA_BRIGHTNESS && isVirtualBackgroundSupported();
 
 const propTypes = {
@@ -318,69 +319,92 @@ class VideoPreview extends Component {
       });
     }
 
-    if (deviceInfo.hasMediaDevices) {
-      navigator.mediaDevices.enumerateDevices().then((devices) => {
-        VideoService.updateNumberOfDevices(devices);
-        // Video preview skip is activated, short circuit via a simpler procedure
-        if (PreviewService.getSkipVideoPreview() && !forceOpen) return this.skipVideoPreview();
-        // Late enumerateDevices resolution, stop.
-        if (!this._isMounted) return;
+    const populatePreview = ({
+      digestedWebcams = [],
+      devices,
+      areLabelled,
+      areIdentified,
+    } = { }) => {
+      if (devices) VideoService.updateNumberOfDevices(devices);
+      // Video preview skip is activated, short circuit via a simpler procedure
+      if (PreviewService.getSkipVideoPreview() && !forceOpen) {
+        this.skipVideoPreview();
+        return;
+      }
+      // Late enumerateDevices resolution, stop.
+      if (!this._isMounted) return;
 
-        let {
-          webcams,
-          areLabelled,
-          areIdentified
-        } = PreviewService.digestVideoDevices(devices, webcamDeviceId);
+      let processedCamerasList = digestedWebcams;
+      const initialDeviceId = processedCamerasList[0]?.deviceId || webcamDeviceId;
 
-        logger.debug({
-          logCode: 'video_preview_enumerate_devices',
-          extraInfo: {
-            devices,
-            webcams,
-          },
-        }, `Enumerate devices came back. There are ${devices.length} devices and ${webcams.length} are video inputs`);
+      this.getInitialCameraStream(initialDeviceId)
+        .then(async () => {
+          // Late gUM resolve, stop.
+          if (!this._isMounted) return;
 
-        if (webcams.length > 0) {
-          this.getInitialCameraStream(webcams[0].deviceId)
-            .then(async () => {
-              // Late gUM resolve, stop.
-              if (!this._isMounted) return;
+          if (!areLabelled || !areIdentified) {
+            // If they aren't labelled or have nullish deviceIds, run
+            // enumeration again and get their full versions
+            // Why: fingerprinting countermeasures obfuscate those when
+            // no permission was granted via gUM
+            try {
+              const {
+                devices: newDevices,
+                digestedWebcams: newDigestedWebcams,
+              } = await PreviewService.doEnumerateDevices({ priorityDeviceId: webcamDeviceId });
+              processedCamerasList = newDigestedWebcams;
+              VideoService.updateNumberOfDevices(newDevices);
+            } catch (error) {
+              // Not a critical error beucase it should only affect UI; log it
+              // and go ahead
+              logger.error({
+                logCode: 'video_preview_enumerate_relabel_failure',
+                extraInfo: {
+                  errorName: error.name, errorMessage: error.message,
+                },
+              }, 'enumerateDevices for relabelling failed');
+            }
+          }
 
-              if (!areLabelled || !areIdentified) {
-                // If they aren't labelled or have nullish deviceIds, run
-                // enumeration again and get their full versions
-                // Why: fingerprinting countermeasures obfuscate those when
-                // no permission was granted via gUM
-                try {
-                  const newDevices = await navigator.mediaDevices.enumerateDevices();
-                  webcams = PreviewService.digestVideoDevices(newDevices, webcamDeviceId).webcams;
-                } catch (error) {
-                  // Not a critical error beucase it should only affect UI; log it
-                  // and go ahead
-                  logger.error({
-                    logCode: 'video_preview_enumerate_relabel_failure',
-                    extraInfo: {
-                      errorName: error.name, errorMessage: error.message,
-                    },
-                  }, 'enumerateDevices for relabelling failed');
-                }
-              }
-
-              this.setState({
-                availableWebcams: webcams,
-                viewState: VIEW_STATES.found,
-              });
-              this.displayPreview();
+          if (processedCamerasList.length > 0) {
+            this.setState({
+              availableWebcams: processedCamerasList,
+              viewState: VIEW_STATES.found,
             });
-        } else {
-          // There were no webcams coming from enumerateDevices. Throw an error.
-          const noWebcamsError = new Error('NotFoundError');
-          this.handleDeviceError('enumerate', noWebcamsError, ': no webcams found');
-        }
-      }).catch((error) => {
-        // enumerateDevices failed
-        this.handleDeviceError('enumerate', error, 'enumerating devices');
-      });
+            this.displayPreview();
+          } else {
+            // There were no webcams coming from enumerateDevices. Throw an error.
+            const noWebcamsError = new Error('NotFoundError');
+            this.handleDeviceError('enumerate', noWebcamsError, ': no webcams found');
+          }
+        });
+    };
+
+    if (deviceInfo.hasMediaDevices) {
+      if (SKIP_INITIAL_ENUM) {
+        populatePreview({
+          digestedWebcams: [],
+          devices: [],
+          areLabelled: false,
+          areIdentified: false,
+        });
+      } else {
+        PreviewService.doEnumerateDevices({ priorityDeviceId: webcamDeviceId })
+          .then(populatePreview)
+          .catch((error) => {
+            // Late enumerateDevices rejection, stop.
+            logger.error({
+              logCode: 'video_preview_enumerate_failure',
+              extraInfo: {
+                errorName: error.name,
+                errorMessage: error.message,
+                errorStack: error.stack,
+              },
+            }, 'video-preview: enumerateDevices failed');
+            // Try populating the preview anyways after an initial gUM is run.
+            populatePreview();
+          });
+      }
     } else {
       // Top-level navigator.mediaDevices is not supported.
       // The session went through the version checking, but somehow ended here.
@@ -600,9 +624,11 @@ class VideoPreview extends Component {
     logger.error({
       logCode: 'video_preview_gum_failure',
       extraInfo: {
-        errorName: error.name, errorMessage: error.message,
+        errorName: error.name,
+        errorMessage: error.message,
+        errorStack: error.stack,
       },
-    }, 'getUserMedia failed in video-preview');
+    }, `getUserMedia failed in video-preview: ${error.name} - ${error.message}`);
 
     const intlError = intlMessages[error.name] || intlMessages[error.message];
     if (intlError) {

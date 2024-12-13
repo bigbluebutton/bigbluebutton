@@ -10,6 +10,7 @@ import TooltipContainer from '/imports/ui/components/common/tooltip/container';
 import { ACTIONS } from '/imports/ui/components/layout/enums';
 import browserInfo from '/imports/utils/browserInfo';
 import AppService from '/imports/ui/components/app/service';
+import PresentationService from '/imports/ui/components/presentation/service';
 
 const intlMessages = defineMessages({
   downloading: {
@@ -240,7 +241,8 @@ const PresentationMenu = (props) => {
               // filter shapes that are inside the slide
               const backgroundShape = getShape('slide-background-shape');
               const shapes = getShapes(currentPageId);
-              const svgString = await copySvg(shapes.map((shape) => shape.id));
+              const baseSvgString = await copySvg(shapes.map((shape) => shape.id));
+              const svgString = await PresentationService.replaceImageHrefWithBase64(baseSvgString);
               const container = document.createElement('div');
               container.innerHTML = svgString;
               const svgElem = container.firstChild;

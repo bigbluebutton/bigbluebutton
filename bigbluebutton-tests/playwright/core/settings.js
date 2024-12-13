@@ -43,6 +43,8 @@ async function generateSettingsData(page) {
       skipVideoPreviewOnFirstJoin: settingsData.kurento.skipVideoPreviewOnFirstJoin,
       // User
       userStatusEnabled: settingsData.userStatus.enabled,
+      // Emoji
+      emojiRain: settingsData.app.emojiRain.enabled,
     }
 
     return settings;

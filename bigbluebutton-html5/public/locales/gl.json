@@ -1110,7 +1110,7 @@
     "app.video.virtualBackground.coffeeshop": "Cafetería",
     "app.video.virtualBackground.background": "Fondo",
     "app.video.virtualBackground.backgroundWithIndex": "Fondo {0}",
-    "app.video.virtualBackground.custom": "Enviar dende o seu computador",
+    "app.video.virtualBackground.custom": "Enviar desde o seu computador",
     "app.video.virtualBackground.remove": "Retirar a imaxe engadida",
     "app.video.virtualBackground.genericError": "Produciuse un fallo ao aplicar o efecto da cámara. Ténteo de novo.",
     "app.video.virtualBackground.camBgAriaDesc": "Define o fondo virtual da cámara web a {0}",
