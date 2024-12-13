@@ -5,15 +5,13 @@ import {
 } from '../../../stylesheets/styled-components/palette';
 import { fontSizeSmall, textFontWeight } from '../../../stylesheets/styled-components/typography';
 import {
-  contentSidebarBorderRadius, contentSidebarBottomScrollPadding, contentSidebarPadding, smPadding,
+  contentSidebarBorderRadius, contentSidebarPadding,
 } from '/imports/ui/stylesheets/styled-components/general';
+import { ScrollboxVertical } from '/imports/ui/stylesheets/styled-components/scrollable';
 
-const GuestManagement = styled.div`
-  display: flex;
+const GuestManagement = styled(ScrollboxVertical)`
   padding: ${contentSidebarPadding} ${contentSidebarPadding} 
-           ${contentSidebarBottomScrollPadding} ${contentSidebarPadding};
-  margin: 0 ${smPadding} 0;
-  flex-direction: column;
+           ${contentSidebarPadding} ${contentSidebarPadding};
   border-radius: ${contentSidebarBorderRadius};
   background: ${colorWhite};
   overflow-y: auto;

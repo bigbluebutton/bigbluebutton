@@ -139,7 +139,6 @@ const Panel = styled.div<PanelProps>`
   flex-direction: column;
   justify-content: flex-start;
   overflow: hidden;
-  height: 100%;
   gap: 1rem;
 
   ${({ isChrome }) => isChrome && `

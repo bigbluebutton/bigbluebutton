@@ -8,7 +8,6 @@ import CommonHeader from '/imports/ui/components/common/control-header/component
 
 const Container = styled.div`
   background-color: ${colorWhite};
-  padding: ${mdPaddingX};
   display: flex;
   flex-grow: 1;
   flex-direction: column;
