@@ -1,6 +1,6 @@
 import { useEffect } from 'react';
 import { CameraEnum } from 'bigbluebutton-html-plugin-sdk/dist/cjs/ui-commands/camera/enums';
-import { SetSelfViewDisableAllDevicesCommandArguments } from 'bigbluebutton-html-plugin-sdk/dist/cjs/ui-commands/camera/types';
+import { SetSelfViewDisableAllDevicesCommandArguments, SetSelfViewDisableCommandArguments } from 'bigbluebutton-html-plugin-sdk/dist/cjs/ui-commands/camera/types';
 import Session from '/imports/ui/services/storage/in-memory';
 import useCurrentUser from '/imports/ui/core/hooks/useCurrentUser';
 
@@ -18,7 +18,7 @@ const PluginCameraUiCommandsHandler = () => {
       Session.setItem('disabledCams', disabledCams.filter((cId: string) => cId !== cameraId));
     }
   };
-  const handleSetSelfViewDisable = (event: CustomEvent<SetSelfViewDisableAllDevicesCommandArguments>) => {
+  const handleSetSelfViewDisableAllDevices = (event: CustomEvent<SetSelfViewDisableAllDevicesCommandArguments>) => {
     const { isSelfViewDisabledAllDevices } = event.detail;
     const cameras = currentUserData.data?.cameras;
     if (cameras && cameras.length > 0) {
@@ -27,6 +27,25 @@ const PluginCameraUiCommandsHandler = () => {
       });
     }
   };
+
+  const handleSetSelfViewDisable = (event: CustomEvent<SetSelfViewDisableCommandArguments>) => {
+    const { isSelfViewDisabled, streamId } = event.detail;
+    handleChangeSelfView(isSelfViewDisabled, streamId);
+  };
+
+  useEffect(() => {
+    window.addEventListener(
+      CameraEnum.SET_SELF_VIEW_DISABLED_ALL_DEVICES,
+      handleSetSelfViewDisableAllDevices as EventListener,
+    );
+
+    return () => {
+      window.removeEventListener(
+        CameraEnum.SET_SELF_VIEW_DISABLED_ALL_DEVICES,
+        handleSetSelfViewDisableAllDevices as EventListener,
+      );
+    };
+  }, [currentUserData, disabledCams]);
 
   useEffect(() => {
     window.addEventListener(
@@ -40,7 +59,8 @@ const PluginCameraUiCommandsHandler = () => {
         handleSetSelfViewDisable as EventListener,
       );
     };
-  }, [currentUserData, disabledCams]);
+  }, []);
+
   return null;
 };
 
