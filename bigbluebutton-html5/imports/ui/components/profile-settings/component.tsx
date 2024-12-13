@@ -905,8 +905,10 @@ const ProfileSettings: React.FC<ProfileSettingsProps> = () => {
     return (
       <>
         <Styled.SwitchTitle
+          sx={{ margin: 0 }}
           control={(
-            <Styled.DefaultSwitch
+            <Styled.MaterialSwitch
+              sx={{ marginRight: '1rem' }}
               checked={virtualBackgroundChecked}
               onChange={(_, checked) => {
                 setVirtualBackgroundChecked(checked);

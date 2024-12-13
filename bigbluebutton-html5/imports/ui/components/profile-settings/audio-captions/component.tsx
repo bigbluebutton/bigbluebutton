@@ -126,8 +126,10 @@ const AudioCaptions: React.FC = () => {
     <Styled.CaptionsContainer>
       <Styled.CaptionsToggleContainer>
         <Styled.SwitchTitle
+          sx={{ margin: 0 }}
           control={(
-            <Styled.DefaultSwitch
+            <Styled.MaterialSwitch
+              sx={{ marginRight: '1rem' }}
               checked={captionsChecked}
               onChange={(_, checked) => {
                 setCaptionsChecked(checked);

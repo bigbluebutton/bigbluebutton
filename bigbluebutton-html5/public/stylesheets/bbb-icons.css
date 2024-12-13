@@ -354,3 +354,9 @@
 .icon-bbb-questions:before {
   content: "\e96e";
 }
+.icon-bbb-stream:before {
+  content: "\e96f";
+}
+.icon-bbb-translate:before {
+  content: "\e970";
+}
