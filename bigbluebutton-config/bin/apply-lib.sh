@@ -50,7 +50,7 @@ if [ ! -f "${HTML5_CONFIG}" ]; then
 fi
 
 #
-# Enable Looging of the HTML5 client for debugging
+# Enable Logging of the HTML5 client for debugging
 #
 enableHTML5ClientLog() {
   echo "  - Enable HTML5 client log to /var/log/nginx/html5-client.log"
