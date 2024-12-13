@@ -219,8 +219,7 @@ test.describe.parallel('User', { tag: '@ci' }, () => {
         await lockViewers.lockSeeOtherViewersAnnotations();
       });
 
-      test('Lock see other viewers cursor', { tag: '@flaky' }, async ({ browser, context, page }) => {
-        // Unlocking specific user not working, see https://github.com/bigbluebutton/bigbluebutton/issues/21297
+      test('Lock see other viewers cursor', async ({ browser, context, page }) => {
         const lockViewers = new LockViewers(browser, context);
         await lockViewers.initPages(page);
         await lockViewers.lockSeeOtherViewersCursor();

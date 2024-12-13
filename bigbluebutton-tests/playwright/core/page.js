@@ -276,7 +276,7 @@ class Page {
 
   async checkElementCount(selector, count, description) {
     const locator = await this.page.locator(selector);
-    await expect(locator, description).toHaveCount(count, { timeout: ELEMENT_WAIT_LONGER_TIME });
+    await expect(locator, description).toHaveCount(count, { timeout: ELEMENT_WAIT_TIME });
   }
 
   async hasValue(selector, value, description) {
