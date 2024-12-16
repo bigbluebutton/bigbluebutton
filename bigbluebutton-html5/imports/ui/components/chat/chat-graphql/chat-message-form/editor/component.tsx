@@ -585,6 +585,7 @@ const ChatRichTextEditor: React.FC<ChatRichTextEditorProps> = (props) => {
         .toggleCodeBlock()
         .run(),
     },
+    { divider: true },
     {
       label: 'Image',
       icon: 'photo',
@@ -685,7 +686,6 @@ const ChatRichTextEditor: React.FC<ChatRichTextEditorProps> = (props) => {
             </React.Fragment>
           );
         })}
-        <div style={{ flex: 1 }} />
         <Styled.Controls>
           <Tooltip title={intl.formatMessage(messages.clear)}>
             <Styled.ClearButton
