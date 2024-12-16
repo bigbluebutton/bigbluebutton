@@ -27,14 +27,20 @@ interface BBBLiveKitRoomProps {
   url?: string;
   token?: string;
   bbbSessionToken: string;
+  usingAudio: boolean;
 }
 
 interface ObserverProps {
   room: Room;
   url?: string;
+  usingAudio: boolean;
 }
 
-const LiveKitObserver = ({ room, url }: ObserverProps) => {
+const LiveKitObserver = ({
+  room,
+  url,
+  usingAudio,
+}: ObserverProps) => {
   const { localParticipant } = useLocalParticipant();
   const [setUserTalking] = useMutation(USER_SET_TALKING);
   const isSpeaking = useIsSpeaking(localParticipant);
@@ -54,6 +60,8 @@ const LiveKitObserver = ({ room, url }: ObserverProps) => {
   }, [connectionState]);
 
   useEffect(() => {
+    if (!usingAudio) return;
+
     setUserTalking({
       variables: {
         talking: isSpeaking,
@@ -64,12 +72,12 @@ const LiveKitObserver = ({ room, url }: ObserverProps) => {
   return null;
 };
 
-const BBBLiveKitRoom: React.FC<BBBLiveKitRoomProps> = (props) => {
-  const {
-    url,
-    token,
-    bbbSessionToken,
-  } = props;
+const BBBLiveKitRoom: React.FC<BBBLiveKitRoomProps> = ({
+  url,
+  token,
+  bbbSessionToken,
+  usingAudio,
+}) => {
   const {
     iceServers,
     isLoading: iceServersLoading,
@@ -121,7 +129,7 @@ const BBBLiveKitRoom: React.FC<BBBLiveKitRoomProps> = (props) => {
       room={liveKitRoom}
       style={{ zIndex: 0, height: 'initial', width: 'initial' }}
     >
-      <LiveKitObserver room={liveKitRoom} url={url} />
+      <LiveKitObserver room={liveKitRoom} url={url} usingAudio={usingAudio} />
       <RoomAudioRenderer />
     </LiveKitRoom>
   );
@@ -150,6 +158,7 @@ const BBBLiveKitRoomContainer: React.FC = () => {
       token={currentUserData?.livekit?.livekitToken}
       url={url}
       bbbSessionToken={Auth.sessionToken as string}
+      usingAudio={bridges?.audioBridge === 'livekit'}
     />
   );
 };
