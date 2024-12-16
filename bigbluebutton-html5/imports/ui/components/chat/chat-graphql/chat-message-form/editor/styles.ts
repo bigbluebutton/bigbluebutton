@@ -111,7 +111,9 @@ const ClearButton = styled(BaseButton)`
 
 const Controls = styled.div`
   display: flex;
+  flex: 1;
   align-items: center;
+  justify-content: flex-end;
   gap: 4px;
   margin-inline-start: 4px;
 `;
