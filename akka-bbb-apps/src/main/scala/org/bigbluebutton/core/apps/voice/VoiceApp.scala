@@ -11,7 +11,7 @@ import org.bigbluebutton.common2.msgs._
 import org.bigbluebutton.core.running.{LiveMeeting, MeetingActor, OutMsgRouter}
 import org.bigbluebutton.core.models._
 import org.bigbluebutton.core.apps.users.UsersApp
-import org.bigbluebutton.core.db.{UserDAO, UserVoiceDAO}
+import org.bigbluebutton.core.db.{MeetingVoiceDAO, UserDAO, UserVoiceDAO}
 import org.bigbluebutton.core.util.ColorPicker
 import org.bigbluebutton.core.util.TimeUtil
 
@@ -384,6 +384,7 @@ object VoiceApp extends SystemConfiguration {
         val event = MsgBuilder.buildMuteUserInVoiceConfSysMsg(
           liveMeeting.props.meetingProp.intId,
           voiceConf,
+          intId,
           voiceUserId,
           true
         )
@@ -486,6 +487,8 @@ object VoiceApp extends SystemConfiguration {
       )
       outGW.send(event)
     }
+
+    MeetingVoiceDAO.updateMuteOnStart(liveMeeting.props.meetingProp.intId, liveMeeting.status)
   }
 
 /** Toggle audio for the given user in voice conference.
@@ -505,6 +508,7 @@ object VoiceApp extends SystemConfiguration {
   def toggleUserAudioInVoiceConf(
     liveMeeting: LiveMeeting,
     outGW:       OutMsgRouter,
+    intId:       String,
     voiceUserId: String,
     enabled: Boolean
   ): Unit = {
@@ -536,6 +540,7 @@ object VoiceApp extends SystemConfiguration {
     val muteEvent = MsgBuilder.buildMuteUserInVoiceConfSysMsg(
       liveMeeting.props.meetingProp.intId,
       liveMeeting.props.voiceProp.voiceConf,
+      intId,
       voiceUserId,
       !enabled
     )
@@ -707,6 +712,7 @@ object VoiceApp extends SystemConfiguration {
           val muteEvent = MsgBuilder.buildMuteUserInVoiceConfSysMsg(
             liveMeeting.props.meetingProp.intId,
             liveMeeting.props.voiceProp.voiceConf,
+            u.intId,
             u.voiceUserId,
             muted
           )
@@ -733,5 +739,31 @@ object VoiceApp extends SystemConfiguration {
           outGW.send(muteEvent)
         }
       }
+  }
+
+  def handleUserTalking(
+    liveMeeting: LiveMeeting,
+    outGW:       OutMsgRouter,
+    voiceUserId: String,
+    talking:     Boolean
+  )(implicit context: ActorContext): Unit = {
+    for {
+      talkingUser <- VoiceUsers.userTalking(liveMeeting.voiceUsers, voiceUserId, talking)
+    } yield {
+      // Make sure lock settings are in effect
+      LockSettingsUtil.enforceLockSettingsForVoiceUser(
+        talkingUser,
+        liveMeeting,
+        outGW
+      )
+      val event = MsgBuilder.buildUserTalkingVoiceEvtMsg(
+        liveMeeting.props.meetingProp.intId,
+        liveMeeting.props.voiceProp.voiceConf,
+        talkingUser.intId,
+        talkingUser.voiceUserId,
+        talking
+      )
+      outGW.send(event)
+    }
   }
 }

@@ -9,7 +9,7 @@ case class RegisterUserReqMsgBody(meetingId: String, intUserId: String, name: St
                                   extUserId: String, authToken: String, sessionToken: String, avatarURL: String,
                                   webcamBackgroundURL: String, bot: Boolean, guest: Boolean, authed: Boolean,
                                   guestStatus: String, excludeFromDashboard: Boolean, enforceLayout: String,
-                                  userMetadata: Map[String, String])
+                                  logoutUrl: String, userMetadata: Map[String, String])
 
 object UserRegisteredRespMsg { val NAME = "UserRegisteredRespMsg" }
 case class UserRegisteredRespMsg(
@@ -28,6 +28,7 @@ case class RegisterUserSessionTokenReqMsgBody(
     meetingId:           String,
     userId:              String,
     sessionToken:        String,
+    sessionName:         String,
     replaceSessionToken: String,
     enforceLayout:       String,
     userSessionMetadata: Map[String, String]

@@ -177,6 +177,9 @@ select_permissions:
         - logoutUrl
         - maxPinnedCameras
         - meetingCameraCap
+        - cameraBridge
+        - screenShareBridge
+        - audioBridge
         - meetingId
         - name
         - notifyRecordingIsOn

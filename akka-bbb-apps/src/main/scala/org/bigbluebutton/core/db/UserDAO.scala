@@ -24,6 +24,7 @@ case class UserDbModel(
     registeredOn:           Long,
     excludeFromDashboard:   Boolean,
     enforceLayout:          Option[String],
+    logoutUrl:              String = "",
 )
 
 
@@ -31,7 +32,7 @@ case class UserDbModel(
 class UserDbTableDef(tag: Tag) extends Table[UserDbModel](tag, None, "user") {
   override def * = (
     meetingId,userId,extId,name,role,avatar,webcamBackground,color, authToken, authed,joined,joinErrorCode,
-    joinErrorMessage, banned,loggedOut,bot, guest,guestStatus,registeredOn,excludeFromDashboard, enforceLayout) <> (UserDbModel.tupled, UserDbModel.unapply)
+    joinErrorMessage, banned,loggedOut,bot, guest,guestStatus,registeredOn,excludeFromDashboard, enforceLayout, logoutUrl) <> (UserDbModel.tupled, UserDbModel.unapply)
   val meetingId = column[String]("meetingId", O.PrimaryKey)
   val userId = column[String]("userId", O.PrimaryKey)
   val extId = column[String]("extId")
@@ -53,6 +54,7 @@ class UserDbTableDef(tag: Tag) extends Table[UserDbModel](tag, None, "user") {
   val registeredOn = column[Long]("registeredOn")
   val excludeFromDashboard = column[Boolean]("excludeFromDashboard")
   val enforceLayout = column[Option[String]]("enforceLayout")
+  val logoutUrl = column[String]("logoutUrl")
 }
 
 object UserDAO {
@@ -83,17 +85,18 @@ object UserDAO {
           enforceLayout = regUser.enforceLayout match {
             case "" => None
             case enforceLayout: String => Some(enforceLayout)
-          }
+          },
+          logoutUrl = regUser.logoutUrl
         )
       )
     )
 
     UserConnectionStatusDAO.insert(meetingId, regUser.id)
-    UserMetadataDAO.insert(meetingId, regUser.id, regUser.userMetadata)
+    UserMetadataDAO.insert(meetingId, regUser.id, "", regUser.userMetadata)
     UserLockSettingsDAO.insertOrUpdate(meetingId, regUser.id, UserLockSettings())
     UserClientSettingsDAO.insertOrUpdate(meetingId, regUser.id, JsonUtils.stringToJson("{}"))
     ChatUserDAO.insertUserPublicChat(meetingId, regUser.id)
-    UserSessionTokenDAO.insert(regUser.meetingId, regUser.id, regUser.sessionToken.head, enforceLayout = "")
+    UserSessionTokenDAO.insert(regUser.meetingId, regUser.id, regUser.sessionToken.head, sessionName = "", regUser.enforceLayout)
   }
 
   def update(regUser: RegisteredUser) = {

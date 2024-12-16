@@ -166,8 +166,6 @@ You can test your setup with one of the files from [eicar.org](https://www.eicar
 
 ### Experimental
 
-<!-- #### LiveKit support -->
-
 #### Infinite Whiteboard (experimental)
 
 We have added initial support for inifinite whiteboard in the live session. Only the presenter can trigger it. It allows for annotations to be created in the margins, or to write content without being limited by space.
@@ -180,6 +178,42 @@ Everyone sees the margins and follows the presenter's point of view. If multi-us
 
 Recording is not yet implemented, meaning that if you enable this experimental feature on your server and use it in a recorded session, the recording will most likely have broken whiteboard at best. The recording (and playback) work is planned for after BigBlueButton 3.0.
 
+#### Integration with LiveKit
+
+We have added initial support for LiveKit as a media framework for BigBlueButton.
+It's an experimental feature and, consequently, disabled by default.
+For an in-depth overview of this initiative, please refer to [issue 21059](https://github.com/bigbluebutton/bigbluebutton/issues/21059).
+Feature parity with the current media framework is not yet achieved, but the
+aforementioned issue provides parity tracking in section `Annex 1`.
+
+To enable support for LiveKit:
+  - Install bbb-livekit: `$ sudo apt-get install bbb-livekit`
+  - Enable the LiveKit controller module in bbb-webrtc-sfu: `$ sudo yq e -i '.livekit.enabled = true' /etc/bigbluebutton/bbb-webrtc-sfu/production.yml`
+  - Restart bbb-webrtc-sfu: `$ sudo systemctl restart bbb-webrtc-sfu`
+  - Guarantee that Node.js 22 is installed in your server: `$ node -v`
+    - Older 3.0 installations might still be using Node.js 18. If that's the case,
+      re-run bbb-install or correct any custom installation scripts to ensure
+      Node.js 22 is installed.
+
+Once enabled, LiveKit still won't be used by default. There are two ways to make
+use of it in meetings:
+- Per meeting: set any of the following meeting `/create` parameters
+  - `audioBridge=livekit`
+  - `cameraBridge=livekit`
+  - `screenShareBridge=livekit`
+- Server-wide: set any of the following properties in `/etc/bigbluebutton/bbb-web.properties`
+  - `audioBridge=livekit`
+  - `cameraBridge=livekit`
+  - `screenShareBridge=livekit`
+
+Those parameters do *not* need to be set concurrently. LiveKit can be enabled for
+audio only, for example, while keeping the current media framework for camera
+and screen sharing by setting just `audioBridge=livekit`.
+
+Keep in mind that the LiveKit integration is still experimental and not feature
+complete. Configuration, API parameters, and other details are subject to change.
+We encourage users to test it and provide feedback via our GitHub issue tracker
+or the mailing lists.
 
 ### Upgraded components
 
@@ -221,6 +255,12 @@ We implemented a plugin for typed captions - [Typed captions plugin](https://git
 #### Removed userStatus
 
 The `userStatus` feature was replaced by `userReaction`. They were vastly overlapping, causing some confusion when using and maintaining.
+
+#### Changes to User Muting Actions
+
+- The **"Mute all except presenter"** button now only mutes all current users except the presenter, as the label suggests. It no longer affects the mute state of incoming users.
+- A new button, **"Enable Users Join Muted" / "Disable Users Join Muted"**, has been added to manage whether new users join muted.
+- The **"Mute all users"** button has been removed, as muting all users (except the presenter) is covered by the existing functionality, and the presenter can be muted individually if needed.
 
 #### Upgrade of config editing tool yq
 
