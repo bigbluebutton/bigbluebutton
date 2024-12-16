@@ -384,14 +384,17 @@ const UserActions: React.FC<UserActionsProps> = ({
     },
     {
       allowed: (() => {
-        const moderatorOverride = currentUser.isModerator;
+        const preventSelfChat = user.userId !== currentUser.userId;
+        const moderatorOverride = currentUser.isModerator
+          && allowedToChatPrivately;
         const regularUserCondition = (isChatEnabled
           && !lockSettings?.disablePrivateChat
           && !isVoiceOnlyUser(user.userId)
           && !isBreakout)
           || user.isModerator;
 
-        const isAllowed = moderatorOverride || regularUserCondition;
+        const isAllowed = preventSelfChat
+          && (moderatorOverride || regularUserCondition);
 
         return isAllowed;
       })(),
