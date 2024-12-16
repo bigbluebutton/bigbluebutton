@@ -53,7 +53,7 @@ export const uploadImage = async (fileUrl: string): Promise<string> => {
     return '';
   } catch (error) {
     console.log({ error });
-    return '';
+    throw error;
   }
 };
 
