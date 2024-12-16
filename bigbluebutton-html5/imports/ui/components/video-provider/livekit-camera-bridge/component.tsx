@@ -1,4 +1,3 @@
-// @ts-nocheck
 import React, { useEffect, useRef, useCallback } from 'react';
 import { defineMessages, useIntl } from 'react-intl';
 import {
@@ -128,7 +127,7 @@ const LiveKitCameraBridge: React.FC<LiveKitCameraBridgeProps> = ({
         errorMessage: error.message,
         errorStack: error.stack,
       },
-    }, `LiveKit camera failure: ${errorName} - ${errorMessage}`);
+    }, `LiveKit: camera failure ${errorName} - ${errorMessage}`);
 
     if (isLocal) {
       stopStream(stream, false);
@@ -159,7 +158,7 @@ const LiveKitCameraBridge: React.FC<LiveKitCameraBridgeProps> = ({
     logger.info({
       logCode: 'livekit_camera_feed_stop_requested',
       extraInfo: { role, cameraId: stream, restarting },
-    }, `Camera feed stop requested. Role ${role}, restarting ${restarting}`);
+    }, `LiveKit: camera stop requested. Role ${role}, restarting ${restarting}`);
 
     if (isLocal) stopVideo(stream);
     destroyStream(stream);
@@ -185,11 +184,38 @@ const LiveKitCameraBridge: React.FC<LiveKitCameraBridgeProps> = ({
 
       videoTrackPublications.forEach((publication: LocalTrackPublication) => {
         if (isCameraSource(publication) && publication.track) {
-          liveKitRoom.localParticipant.unpublishTrack(publication.track);
-          streamRefs.current.publications.delete(publication.trackName);
+          liveKitRoom.localParticipant.unpublishTrack(publication.track)
+            .then(() => {
+              logger.debug({
+                logCode: 'livekit_camera_unpublished',
+                extraInfo: {
+                  cameraId: stream,
+                  trackName: publication.trackName,
+                  trackSid: publication?.trackSid,
+                },
+              }, `LiveKit: camera unpublished - ${publication.trackSid}`);
+            })
+            .catch((error) => {
+              logger.error({
+                logCode: 'livekit_camera_unpublish_error',
+                extraInfo: {
+                  cameraId: stream,
+                  trackName: publication.trackName,
+                  trackSid: publication.trackSid,
+                  errorMessage: error.message,
+                  errorStack: error.stack,
+                },
+              }, `LiveKit: failed to unpublish track: ${error.message}`);
+            }).finally(() => {
+              streamRefs.current.publications.delete(publication.trackName);
+            });
         }
       });
       delete streamRefs.current.localTracks[stream];
+      delete streamRefs.current.localVideoStreams[stream];
+    } else {
+      const track = streamRefs.current.remoteTracks[stream];
+      if (track) track.detach();
     }
   }, [isCameraSource]);
 
@@ -234,7 +260,11 @@ const LiveKitCameraBridge: React.FC<LiveKitCameraBridgeProps> = ({
       name: stream,
     };
 
-    if (!isLocal || !bbbVideoStream) return;
+    if (!isLocal || !bbbVideoStream) {
+      attachLiveKitStream(stream);
+      notifyStreamStateChange(stream, 'completed');
+      return;
+    }
 
     streamRefs.current.connectingStreams[stream] = true;
 
@@ -244,11 +274,28 @@ const LiveKitCameraBridge: React.FC<LiveKitCameraBridgeProps> = ({
       const { mediaStream } = localBBBStream;
       const publishers: Promise<LocalTrackPublication>[] = mediaStream
         .getTracks()
-        .map((track: MediaStreamTrack) => liveKitRoom.localParticipant.publishTrack(track, publishOptions));
+        .map((track: MediaStreamTrack) => {
+          return liveKitRoom.localParticipant.publishTrack(track, publishOptions).then((publication) => {
+            if (!publication || !publication.track) {
+              throw new Error('Failed to publish track: publication or track is missing');
+            }
+
+            logger.debug({
+              logCode: 'livekit_camera_published',
+              extraInfo: {
+                cameraId: stream,
+                trackName: publication?.trackName,
+                trackSid: publication?.trackSid,
+              },
+            }, `LiveKit: camera published - ${publication?.trackSid}`);
+            return publication;
+          });
+        });
+
       const trackPublications = await Promise.all(publishers);
       const [publication] = trackPublications;
 
-      if (!publication || !publication.track) {
+      if (publication == null || publication?.track == null) {
         throw new Error('Failed to publish track: publication or track is missing');
       }
 
@@ -283,6 +330,14 @@ const LiveKitCameraBridge: React.FC<LiveKitCameraBridgeProps> = ({
       const stream = publication.trackName;
       streamRefs.current.remoteTracks[stream] = track;
       attachLiveKitStream(stream);
+      logger.debug({
+        logCode: 'livekit_camera_subscribed',
+        extraInfo: {
+          cameraId: stream,
+          trackName: publication.trackName,
+          trackSid: publication.trackSid,
+        },
+      }, `LiveKit: camera subscribed - ${trackSid}`);
     }
   }, [isCameraSource, attachLiveKitStream]);
 
@@ -295,6 +350,18 @@ const LiveKitCameraBridge: React.FC<LiveKitCameraBridgeProps> = ({
     if (!isCameraSource(track)) return;
 
     streamRefs.current.subscriptions.delete(trackSid);
+    const stream = publication?.trackName;
+
+    logger.debug({
+      logCode: 'livekit_camera_unsubscribed',
+      extraInfo: {
+        cameraId: stream,
+        trackName: publication.trackName,
+        trackSid: publication.trackSid,
+      },
+    }, `LiveKit: camera unsubscribed - ${trackSid}`);
+
+    delete streamRefs.current.remoteTracks[stream];
   }, [isCameraSource]);
 
   const handleTrackPublished = useCallback((publication: RemoteTrackPublication) => {

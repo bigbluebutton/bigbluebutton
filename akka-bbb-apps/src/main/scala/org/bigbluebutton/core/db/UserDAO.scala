@@ -92,11 +92,11 @@ object UserDAO {
     )
 
     UserConnectionStatusDAO.insert(meetingId, regUser.id)
-    UserMetadataDAO.insert(meetingId, regUser.id, regUser.userMetadata)
+    UserMetadataDAO.insert(meetingId, regUser.id, "", regUser.userMetadata)
     UserLockSettingsDAO.insertOrUpdate(meetingId, regUser.id, UserLockSettings())
     UserClientSettingsDAO.insertOrUpdate(meetingId, regUser.id, JsonUtils.stringToJson("{}"))
     ChatUserDAO.insertUserPublicChat(meetingId, regUser.id)
-    UserSessionTokenDAO.insert(regUser.meetingId, regUser.id, regUser.sessionToken.head, enforceLayout = "")
+    UserSessionTokenDAO.insert(regUser.meetingId, regUser.id, regUser.sessionToken.head, sessionName = "", regUser.enforceLayout)
   }
 
   def update(regUser: RegisteredUser) = {

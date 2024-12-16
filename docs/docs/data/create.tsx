@@ -98,13 +98,6 @@ const createEndpointTableData = [
     "description": (<>If set to true, the client will give the user the choice to choose the breakout rooms he wants to join.</>)
   },
   {
-    "name": "breakoutRoomsEnabled",
-    "required": "Optional(Breakout Room)",
-    "type": "Boolean",
-    "default": "true",
-    "description": (<><b>[DEPRECATED]</b> Removed in 2.5, temporarily still handled, please transition to disabledFeatures.<br /><br />If set to false, breakout rooms will be disabled.</>)
-  },
-  {
     "name": "breakoutRoomsPrivateChatEnabled",
     "required": "Optional(Breakout Room)",
     "type": "Boolean",
@@ -244,12 +237,6 @@ const createEndpointTableData = [
     "description": (<>Will set the guest policy for the meeting. The guest policy determines whether or not users who send a join request with <code className="language-plaintext highlighter-rouge">guest=true</code> will be allowed to join the meeting. Possible values are ALWAYS_ACCEPT, ALWAYS_DENY, and ASK_MODERATOR.</>)
   },
   {
-    "name": "keepEvents",
-    "type": "Boolean",
-    "deprecated": true,
-    "description": (<>Removed in 2.3 in favor of <code className="language-plaintext highlighter-rouge">meetingKeepEvents</code> and bigbluebutton.properties <code className="language-plaintext highlighter-rouge">defaultKeepEvents</code>.</>)
-  },
-  {
     "name": "meetingKeepEvents",
     "type": "Boolean",
     "default": "false",
@@ -274,12 +261,6 @@ const createEndpointTableData = [
     "description": (<>Will set the default layout for the meeting. Possible values are: CUSTOM_LAYOUT, SMART_LAYOUT, PRESENTATION_FOCUS, VIDEO_FOCUS. (added 2.4) In version 3.0 a few more possible options were added: CAMERAS_ONLY, PRESENTATION_ONLY, PARTICIPANTS_AND_CHAT_ONLY</>)
   },
   {
-    "name": "learningDashboardEnabled",
-    "type": "Boolean",
-    "default": "true",
-    "description": (<><b>[DEPRECATED]</b> Removed in 2.5, temporarily still handled, please transition to disabledFeatures.<br /><br />Default <code className="language-plaintext highlighter-rouge">learningDashboardEnabled=true</code>. When this option is enabled BigBlueButton generates a Dashboard where moderators can view a summary of the activities of the meeting. (added 2.4)</>)
-  },
-  {
     "name": "learningDashboardCleanupDelayInMinutes",
     "type": "Number",
     "default": "2",
@@ -298,13 +279,6 @@ const createEndpointTableData = [
     "type": "Boolean",
     "default": "false",
     "description": (<>Setting to <code className="language-plaintext highlighter-rouge">true</code> will allow users to join meetings without session cookie's validation. (added 2.4.3)</>)
-  },
-  {
-    "name": "virtualBackgroundsDisabled",
-    "required": false,
-    "type": "Boolean",
-    "default": "false",
-    "description": (<><b>[DEPRECATED]</b> Removed in 2.5, temporarily still handled, please transition to disabledFeatures.<br /><br />Setting to <code className="language-plaintext highlighter-rouge">true</code> will disable Virtual Backgrounds for all users in the meeting. (added 2.4.3)</>)
   },
   {
     "name": "userCameraCap",

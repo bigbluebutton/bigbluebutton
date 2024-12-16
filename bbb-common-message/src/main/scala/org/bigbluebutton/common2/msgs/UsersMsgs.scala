@@ -28,6 +28,7 @@ case class RegisterUserSessionTokenReqMsgBody(
     meetingId:           String,
     userId:              String,
     sessionToken:        String,
+    sessionName:         String,
     replaceSessionToken: String,
     enforceLayout:       String,
     userSessionMetadata: Map[String, String]

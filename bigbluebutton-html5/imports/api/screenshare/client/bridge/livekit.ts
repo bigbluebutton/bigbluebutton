@@ -1,4 +1,3 @@
-// @ts-nocheck
 import Auth from '/imports/ui/services/auth';
 import logger from '/imports/startup/client/logger';
 import BridgeService from './service';
@@ -43,9 +42,11 @@ interface PublicationData {
 export default class LiveKitScreenshareBridge {
   private readonly liveKitRoom: Room;
 
-  private readonly publications: Map<string, LocalTrackPublication | RemoteTrackPublication>;
+  private readonly screenPublications: Map<string, LocalTrackPublication | RemoteTrackPublication>;
 
-  private readonly subscriptions: Map<string, PublicationData>;
+  private readonly audioPublications: Map<string, LocalTrackPublication | RemoteTrackPublication>;
+
+  private readonly subscriptions: Map<string, PublicationData> = new Map();
 
   private readonly bridgeName: string;
 
@@ -63,8 +64,8 @@ export default class LiveKitScreenshareBridge {
     this.hasAudio = false;
     this.liveKitRoom = liveKitRoom;
     this.bridgeName = BRIDGE_NAME;
-    this.publications = new Map();
-    this.subscriptions = new Map();
+    this.screenPublications = new Map();
+    this.audioPublications = new Map();
 
     this.handleTrackPublished = this.handleTrackPublished.bind(this);
     this.handleTrackUnpublished = this.handleTrackUnpublished.bind(this);
@@ -74,10 +75,80 @@ export default class LiveKitScreenshareBridge {
     this.observeRoomEvents();
   }
 
+  private static isScreenSharePublication(publication: LocalTrackPublication | RemoteTrackPublication): boolean {
+    const { source } = publication;
+
+    return source === Track.Source.ScreenShare || source === Track.Source.ScreenShareAudio;
+  }
+
   private static isScreenShareTrack(track?: LocalTrack | RemoteTrack): boolean {
     if (!track) return false;
+
     const { source } = track;
+
     return source === Track.Source.ScreenShare || source === Track.Source.ScreenShareAudio;
+  }
+
+  getPublications(source: Track.Source): Map<string, LocalTrackPublication | RemoteTrackPublication> | null {
+    if (source === Track.Source.ScreenShare) {
+      return this.screenPublications;
+    }
+    if (source === Track.Source.ScreenShareAudio) {
+      return this.audioPublications;
+    }
+
+    return null;
+  }
+
+  getPublication(trackSid: string): LocalTrackPublication | RemoteTrackPublication | undefined {
+    const screenPublication = this.screenPublications.get(trackSid);
+    const audioPublication = this.audioPublications.get(trackSid);
+
+    return screenPublication || audioPublication;
+  }
+
+  clearPublications(): void {
+    this.screenPublications.clear();
+    this.audioPublications.clear();
+  }
+
+  private setPublication(
+    publication: LocalTrackPublication | RemoteTrackPublication,
+  ): LocalTrackPublication | RemoteTrackPublication {
+    const { source } = publication;
+    const publications = this.getPublications(source);
+
+    if (publications) publications.set(publication.trackSid, publication);
+
+    return publication;
+  }
+
+  private removePublication(trackSid: string): void {
+    const screenPublication = this.screenPublications.get(trackSid);
+    const audioPublication = this.audioPublications.get(trackSid);
+
+    if (screenPublication) this.screenPublications.delete(trackSid);
+    if (audioPublication) this.audioPublications.delete(trackSid);
+  }
+
+  private setSubscription(
+    trackSid: string,
+    track: LocalTrack | RemoteTrack,
+    publication: LocalTrackPublication | RemoteTrackPublication,
+  ): void {
+    this.subscriptions.set(trackSid, { track, publication });
+  }
+
+  private removeSubscription(trackSid: string): void {
+    this.subscriptions.delete(trackSid);
+  }
+
+  private getSubscription(trackSid: string): PublicationData | undefined {
+    return this.subscriptions.get(trackSid);
+  }
+
+  private clearSubscriptions(): void {
+    this.subscriptions.clear();
   }
 
   private publicationStarted(): void {
@@ -91,22 +162,38 @@ export default class LiveKitScreenshareBridge {
     }, 'LiveKit: screen share published');
   }
 
-  private static publicationEnded(): void {
-    screenShareEndAlert();
+  private publicationEnded(publication: LocalTrackPublication | RemoteTrackPublication): void {
+    if (!LiveKitScreenshareBridge.isScreenSharePublication(publication)) return;
+
+    const { trackSid, source } = publication;
+
+    if (this.role === SEND_ROLE) {
+      logger.info({
+        logCode: 'livekit_screenshare_unpublished',
+        extraInfo: {
+          bridgeName: BRIDGE_NAME,
+          streamId: this.streamId,
+          trackSid,
+          role: this.role,
+        },
+      }, 'LiveKit: screen share unpublished');
+    }
+
+    // We only want to alert the user once when the screen share ends, so
+    // only do it for the main screen share track (not the audio track)
+    if (source === Track.Source.ScreenShare) screenShareEndAlert();
   }
 
   private handleTrackPublished(publication: LocalTrackPublication | RemoteTrackPublication): void {
-    const { source, trackSid } = publication;
-    if (source !== Track.Source.ScreenShare && source !== Track.Source.ScreenShareAudio) return;
-    this.publications.set(trackSid, publication);
+    this.setPublication(publication);
   }
 
   private handleTrackUnpublished(publication: LocalTrackPublication | RemoteTrackPublication): void {
-    const { source, trackSid } = publication;
-    if (source !== Track.Source.ScreenShare && source !== Track.Source.ScreenShareAudio) return;
-    this.publications.delete(trackSid);
-    this.subscriptions.delete(trackSid);
-    LiveKitScreenshareBridge.publicationEnded();
+    const { trackSid } = publication;
+
+    this.removePublication(trackSid);
+    this.removeSubscription(trackSid);
+    this.publicationEnded(publication);
   }
 
   private handleTrackSubscribed(
@@ -116,8 +203,16 @@ export default class LiveKitScreenshareBridge {
     if (!LiveKitScreenshareBridge.isScreenShareTrack(track)) return;
 
     const { trackSid } = publication;
-    this.subscriptions.set(trackSid, { track, publication });
+    this.setSubscription(trackSid, track, publication);
     if (trackSid === this.streamId) this.handleViewerStart(trackSid);
+    logger.debug({
+      logCode: 'livekit_screenshare_subscribed',
+      extraInfo: {
+        bridgeName: this.bridgeName,
+        streamId: trackSid,
+        role: this.role,
+      },
+    }, `LiveKit: screen share subscribed - ${trackSid}`);
   }
 
   private handleTrackUnsubscribed(
@@ -127,7 +222,15 @@ export default class LiveKitScreenshareBridge {
     if (!LiveKitScreenshareBridge.isScreenShareTrack(track)) return;
 
     const { trackSid } = publication;
-    this.subscriptions.delete(trackSid);
+    this.removeSubscription(trackSid);
+    logger.debug({
+      logCode: 'livekit_screenshare_unsubscribed',
+      extraInfo: {
+        bridgeName: this.bridgeName,
+        streamId: trackSid,
+        role: this.role,
+      },
+    }, `LiveKit: screen share unsubscribed - ${trackSid}`);
   }
 
   private observeRoomEvents(): void {
@@ -135,16 +238,17 @@ export default class LiveKitScreenshareBridge {
     this.removeRoomObservers();
     this.liveKitRoom.on(RoomEvent.TrackPublished, this.handleTrackPublished);
     this.liveKitRoom.on(RoomEvent.TrackUnpublished, this.handleTrackUnpublished);
+    this.liveKitRoom.on(RoomEvent.LocalTrackUnpublished, this.handleTrackUnpublished);
     this.liveKitRoom.on(RoomEvent.TrackSubscribed, this.handleTrackSubscribed);
     this.liveKitRoom.on(RoomEvent.TrackUnsubscribed, this.handleTrackUnsubscribed);
 
     this.liveKitRoom.remoteParticipants.forEach((participant) => {
       participant.trackPublications.forEach((publication) => {
         if (LiveKitScreenshareBridge.isScreenShareTrack(publication.track)) {
-          const { trackSid } = publication;
-          this.publications.set(trackSid, publication);
+          this.setPublication(publication);
+
           if (publication.isSubscribed && publication.track) {
-            this.subscriptions.set(trackSid, { track: publication.track, publication });
+            this.setSubscription(publication.trackSid, publication.track, publication);
           }
         }
       });
@@ -155,9 +259,11 @@ export default class LiveKitScreenshareBridge {
     if (!this.liveKitRoom) return;
     this.liveKitRoom.off(RoomEvent.TrackPublished, this.handleTrackPublished);
     this.liveKitRoom.off(RoomEvent.TrackUnpublished, this.handleTrackUnpublished);
+    this.liveKitRoom.off(RoomEvent.LocalTrackUnpublished, this.handleTrackUnpublished);
     this.liveKitRoom.off(RoomEvent.TrackSubscribed, this.handleTrackSubscribed);
     this.liveKitRoom.off(RoomEvent.TrackUnsubscribed, this.handleTrackUnsubscribed);
-    this.publications.clear();
+    this.clearPublications();
+    this.clearSubscriptions();
   }
 
   private waitForRoomConnection(): Promise<void> {
@@ -182,35 +288,54 @@ export default class LiveKitScreenshareBridge {
 
   // eslint-disable-next-line class-methods-use-this
   getPeerConnection(): void {
+    // eslint-disable-next-line no-console
     console.error('The Bridge must implement getPeerConnection');
   }
 
-  // eslint-disable-next-line class-methods-use-this
   setVolume(volume: number): number {
-    const mediaElement = document.getElementById(SCREENSHARE_VIDEO_TAG) as HTMLMediaElement;
-    if (mediaElement) {
-      if (typeof volume === 'number' && volume >= 0 && volume <= 1) {
-        mediaElement.volume = volume;
+    if (this.role === RECV_ROLE
+      && typeof volume === 'number' && volume >= 0 && volume <= 1) {
+      const audioPublications = Array.from(this.audioPublications.values());
+
+      if (audioPublications.length > 0) {
+        audioPublications.forEach((publication) => {
+          const { track } = publication;
+
+          // @ts-ignore
+          if (track && track?.setVolume) track.setVolume(volume);
+        });
+
+        return volume;
       }
-      return mediaElement.volume;
     }
+
     return DEFAULT_VOLUME;
   }
 
-  // eslint-disable-next-line class-methods-use-this
   getVolume(): number {
-    const mediaElement = document.getElementById(SCREENSHARE_VIDEO_TAG) as HTMLMediaElement;
-    if (mediaElement) return mediaElement.volume;
+    const audioPublications = Array.from(this.audioPublications.values());
+
+    if (audioPublications.length > 0) {
+      const remote = audioPublications.find((publication) => {
+        const { track } = publication;
+
+        // @ts-ignore
+        return track && track.setVolume;
+      });
+
+      if (remote) {
+        // @ts-ignore
+        return remote?.track?.volume;
+      }
+    }
 
     return DEFAULT_VOLUME;
   }
 
   handleViewerStart(streamId: string): void {
-    if (this.subscriptions.has(streamId)) {
-      const publicationData = this.subscriptions.get(streamId);
+    const publicationData = this.getSubscription(streamId);
 
-      if (!publicationData?.track) return;
-
+    if (publicationData && publicationData.track) {
       try {
         const { track } = publicationData;
         const mediaElement = document.getElementById(SCREENSHARE_VIDEO_TAG) as HTMLMediaElement;
@@ -232,7 +357,7 @@ export default class LiveKitScreenshareBridge {
             bridgeName: this.bridgeName,
             role: this.role,
           },
-        }, 'LiveKit: viewer start failed');
+        }, `LiveKit: screen attachment failed: ${(error as Error).message}`);
       }
     }
   }
@@ -244,7 +369,6 @@ export default class LiveKitScreenshareBridge {
     this.streamId = streamId;
     this.role = RECV_ROLE;
     this.hasAudio = options.hasAudio || false;
-    const publication = this.publications.get(streamId);
 
     const handleInitError = (error: Error) => {
       logger.error({
@@ -256,11 +380,13 @@ export default class LiveKitScreenshareBridge {
           bridgeName: this.bridgeName,
           role: this.role,
         },
-      }, `LiveKit: activate screenshare failed: ${error.message}`);
+      }, `LiveKit: screen subscribe failed: ${error.message}`);
     };
 
     try {
       await this.waitForRoomConnection();
+
+      const publication = this.getPublication(streamId);
 
       if (!publication || !(publication instanceof RemoteTrackPublication)) {
         throw new Error('Publication not found');
@@ -278,7 +404,9 @@ export default class LiveKitScreenshareBridge {
   }
 
   async share(stream: MediaStream, onFailure: (error: Error) => void, contentType: string): Promise<void> {
+    // @ts-ignore
     const LIVEKIT_SCREEN_SETTINGS = window.meetingClientSettings.public.media?.livekit?.screenshare;
+    // @ts-ignore
     const LIVEKIT_AUDIO_SETTINGS = window.meetingClientSettings.public.media?.livekit?.audio;
     const baseAudioOptions: TrackPublishOptions = LIVEKIT_AUDIO_SETTINGS?.publishOptions || {
       audioPreset: AudioPresets.speech,
