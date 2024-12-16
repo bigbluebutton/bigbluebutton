@@ -10,7 +10,7 @@ const FileHandler = Extension.create({
       new Plugin({
         key: new PluginKey('FileHandler'),
         props: {
-          handleDrop(view, event, slice, moved) {
+          handleDrop(view, event, _slice, moved) {
             if (moved) return;
 
             if (event.dataTransfer) {
@@ -22,7 +22,7 @@ const FileHandler = Extension.create({
                 if (!data || typeof data !== 'string') return;
                 uploadImage(data).then((url) => {
                   view.dispatch(view.state.tr.insert(
-                    slice.openStart,
+                    view.posAtCoords({ left: event.clientX, top: event.clientY })?.pos ?? -1,
                     view.state.schema.nodes.image.create({ src: url }),
                   ));
                 }).catch(() => {
