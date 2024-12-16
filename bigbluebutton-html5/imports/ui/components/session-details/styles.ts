@@ -67,9 +67,22 @@ export const CopyButton = styled(Button)`
   }
 `;
 
+export const Chevron = styled.div`
+  position: absolute;
+  width: 0;
+  height: 0;
+  border-left: 10px solid transparent;
+  border-right: 10px solid transparent;
+  border-bottom: 10px solid white;
+  top: -10px;
+  left: 50%;
+  transform: translateX(-50%);
+`;
+
 export default {
   WelcomeMessage,
   Container,
   JoinTitle,
   CopyButton,
+  Chevron,
 };

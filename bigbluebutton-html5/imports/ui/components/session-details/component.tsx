@@ -54,6 +54,7 @@ interface SessionDetailsProps extends SessionDetailsContainerProps {
   loginUrl: string,
   formattedDialNum: string,
   formattedTelVoice: string,
+  anchorElement: HTMLElement | null,
 }
 
 const SessionDetails: React.FC<SessionDetailsProps> = (props) => {
@@ -67,6 +68,7 @@ const SessionDetails: React.FC<SessionDetailsProps> = (props) => {
     loginUrl,
     formattedDialNum,
     formattedTelVoice,
+    anchorElement,
   } = props;
   const intl = useIntl();
 
@@ -87,8 +89,10 @@ const SessionDetails: React.FC<SessionDetailsProps> = (props) => {
         isOpen,
         onRequestClose,
         priority,
+        anchorElement,
       }}
     >
+      <Styled.Chevron />
       <Styled.Container>
         <div>
           <Styled.WelcomeMessage dangerouslySetInnerHTML={{ __html: welcomeMessage }} />
@@ -179,6 +183,8 @@ const SessionDetailsContainer: React.FC<SessionDetailsContainerProps> = ({
     }
   }
 
+  const anchorElement = document.getElementById('presentationTitle') as HTMLElement;
+
   return (
     <SessionDetails
       isOpen={isOpen}
@@ -190,6 +196,7 @@ const SessionDetailsContainer: React.FC<SessionDetailsContainerProps> = ({
       welcomeMsgForModerators={welcomeData.user_welcomeMsgs[0]?.welcomeMsgForModerators ?? ''}
       formattedDialNum={formattedDialNum}
       formattedTelVoice={formattedTelVoice}
+      anchorElement={anchorElement}
     />
   );
 };

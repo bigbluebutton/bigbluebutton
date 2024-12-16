@@ -152,7 +152,7 @@ class NavBar extends Component {
     this.splitPluginItems = this.splitPluginItems.bind(this);
 
     this.state = {
-      isModalOpen: false,
+      isModalOpen: true,
     };
   }
 
@@ -374,6 +374,7 @@ class NavBar extends Component {
             <Styled.Center>
               <Styled.PresentationTitle
                 data-test="presentationTitle"
+                id="presentationTitle"
                 onClick={() => this.setModalIsOpen(true)}
               >
                 <Tooltip title={intl.formatMessage(intlMessages.openDetailsTooltip)}>
