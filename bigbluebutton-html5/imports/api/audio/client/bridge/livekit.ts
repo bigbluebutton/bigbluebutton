@@ -234,13 +234,13 @@ export default class LiveKitAudioBridge extends BaseAudioBridge {
 
   private removeLiveKitObservers(): void {
     if (!this.liveKitRoom) return;
-    this.liveKitRoom.removeAllListeners(RoomEvent.TrackSubscribed);
-    this.liveKitRoom.removeAllListeners(RoomEvent.TrackUnsubscribed);
-    this.liveKitRoom.removeAllListeners(RoomEvent.TrackSubscriptionFailed);
-    this.liveKitRoom.localParticipant.removeAllListeners(ParticipantEvent.TrackMuted);
-    this.liveKitRoom.localParticipant.removeAllListeners(ParticipantEvent.TrackUnmuted);
-    this.liveKitRoom.localParticipant.removeAllListeners(ParticipantEvent.LocalTrackPublished);
-    this.liveKitRoom.localParticipant.removeAllListeners(ParticipantEvent.LocalTrackUnpublished);
+    this.liveKitRoom.off(RoomEvent.TrackSubscribed, this.handleTrackSubscribed);
+    this.liveKitRoom.off(RoomEvent.TrackUnsubscribed, this.handleTrackUnsubscribed);
+    this.liveKitRoom.off(RoomEvent.TrackSubscriptionFailed, this.handleTrackSubscriptionFailed);
+    this.liveKitRoom.localParticipant.off(ParticipantEvent.TrackMuted, this.handleLocalTrackMuted);
+    this.liveKitRoom.localParticipant.off(ParticipantEvent.TrackUnmuted, this.handleLocalTrackUnmuted);
+    this.liveKitRoom.localParticipant.off(ParticipantEvent.LocalTrackPublished, this.handleLocalTrackPublished);
+    this.liveKitRoom.localParticipant.off(ParticipantEvent.LocalTrackUnpublished, this.handleLocalTrackUnpublished);
   }
 
   // eslint-disable-next-line class-methods-use-this
