@@ -48,6 +48,7 @@ const JoinTitle = styled.h2`
   font-weight: 600;
 `;
 
+// @ts-ignore - as button comes from JS, we can't provide its props
 export const CopyButton = styled(Button)`
   [dir='ltr'] & {
     margin-left: ${smPadding};
