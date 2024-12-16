@@ -638,16 +638,18 @@ const ChatRichTextEditor: React.FC<ChatRichTextEditorProps> = (props) => {
           />
         </Styled.EmojiPickerWrapper>
       ) : null}
-      <Styled.ChatEditorContent
-        editor={editor}
-        id="message-input"
-        aria-label={intl.formatMessage(messages.inputLabel, { 0: title })}
-        aria-invalid={hasErrors ? 'true' : 'false'}
-        autoCorrect="off"
-        autoComplete="off"
-        spellCheck="true"
-        disabled={disabled || partnerIsLoggedOut}
-      />
+      <Styled.ChatEditorContentWrapper>
+        <Styled.ChatEditorContent
+          editor={editor}
+          id="message-input"
+          aria-label={intl.formatMessage(messages.inputLabel, { 0: title })}
+          aria-invalid={hasErrors ? 'true' : 'false'}
+          autoCorrect="off"
+          autoComplete="off"
+          spellCheck="true"
+          disabled={disabled || partnerIsLoggedOut}
+        />
+      </Styled.ChatEditorContentWrapper>
       <Styled.Toolbar>
         {ENABLE_EMOJI_PICKER ? (
           <>
