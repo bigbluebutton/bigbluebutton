@@ -64,6 +64,13 @@ type Mutation {
 }
 
 type Mutation {
+  cameraSetShowAsContent(
+    streamId: String!
+    showAsContent: Boolean!
+  ): Boolean
+}
+
+type Mutation {
   captionAddLocale(
     locale: String!
   ): Boolean
@@ -96,6 +103,30 @@ type Mutation {
 }
 
 type Mutation {
+  chatDeleteMessage(
+    chatId: String!
+    messageId: String!
+  ): Boolean
+}
+
+type Mutation {
+  chatDeleteMessageReaction(
+    chatId: String!
+    messageId: String!
+    reactionEmoji: String!
+    reactionEmojiId: String!
+  ): Boolean
+}
+
+type Mutation {
+  chatEditMessage(
+    chatId: String!
+    messageId: String!
+    chatMessageInMarkdownFormat: String!
+  ): Boolean
+}
+
+type Mutation {
   chatPublicClearHistory: Boolean
 }
 
@@ -109,7 +140,17 @@ type Mutation {
   chatSendMessage(
     chatId: String!
     chatMessageInMarkdownFormat: String!
+    replyToMessageId: String
     metadata: json
+  ): Boolean
+}
+
+type Mutation {
+  chatSendMessageReaction(
+    chatId: String!
+    messageId: String!
+    reactionEmoji: String!
+    reactionEmojiId: String!
   ): Boolean
 }
 
@@ -601,6 +642,19 @@ type Mutation {
   userSetSpeechOptions(
     partialUtterances: Boolean!
     minUtteranceLength: Float!
+  ): Boolean
+}
+
+type Mutation {
+  userSetTalking(
+    talking: Boolean!
+  ): Boolean
+}
+
+type Mutation {
+  userSetUserLockSettings(
+    userId: String!
+    disablePubChat: Boolean!
   ): Boolean
 }
 

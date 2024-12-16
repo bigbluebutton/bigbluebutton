@@ -41,8 +41,15 @@ object BreakoutHdlrHelpers extends SystemConfiguration {
     for {
       user <- Users2x.findWithIntId(liveMeeting.users2x, userId)
       apiCall = "join"
-      (redirectParams, redirectToHtml5Params) = BreakoutRoomsUtil.joinParams(user.name, userId + "-" + roomSequence, true,
-        externalMeetingId, liveMeeting.props.password.moderatorPass)
+      (redirectParams, redirectToHtml5Params) = BreakoutRoomsUtil.joinParams(
+        user.name,
+        userId + "-" + roomSequence,
+        true,
+        externalMeetingId,
+        user.avatar,
+        user.role,
+        liveMeeting.props.password.moderatorPass
+      )
       // We generate a first url with redirect -> true
       redirectBaseString = BreakoutRoomsUtil.createBaseString(redirectParams)
       redirectJoinURL = BreakoutRoomsUtil.createJoinURL(bbbWebAPI, apiCall, redirectBaseString,
@@ -118,7 +125,7 @@ object BreakoutHdlrHelpers extends SystemConfiguration {
 
     eventBus.publish(BigBlueButtonEvent(
       liveMeeting.props.breakoutProps.parentId,
-      new BreakoutRoomUsersUpdateInternalMsg(liveMeeting.props.breakoutProps.parentId, liveMeeting.props.meetingProp.intId,
+      BreakoutRoomUsersUpdateInternalMsg(liveMeeting.props.breakoutProps.parentId, liveMeeting.props.meetingProp.intId,
         breakoutUsers, breakoutVoiceUsers)
     ))
   }

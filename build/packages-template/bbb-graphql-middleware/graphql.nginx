@@ -24,5 +24,16 @@ location /api/rest/clientSettings {
     proxy_set_header Upgrade $http_upgrade;
     proxy_set_header Connection "Upgrade";
     proxy_set_header Host $host;
-    proxy_pass http://127.0.0.1:8085; #Hasura
+    proxy_pass http://127.0.0.1:8185; #Hasura
+}
+
+location /api/rest/userMetadata {
+    auth_request /bigbluebutton/connection/checkGraphqlAuthorization;
+    auth_request_set $meeting_id $sent_http_meeting_id;
+
+    proxy_http_version 1.1;
+    proxy_set_header Upgrade $http_upgrade;
+    proxy_set_header Connection "Upgrade";
+    proxy_set_header Host $host;
+    proxy_pass http://127.0.0.1:8185; #Hasura
 }

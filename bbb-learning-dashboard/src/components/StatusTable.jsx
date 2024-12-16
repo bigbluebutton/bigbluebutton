@@ -66,29 +66,39 @@ class StatusTable extends React.Component {
     Object.values(allUsers || {}).forEach((user) => {
       usersPeriods[user.userKey] = [];
       Object.values(user.intIds || {}).forEach((intId, index, intIdsArray) => {
-        let { leftOn } = intId;
-        const nextPeriod = intIdsArray[index + 1];
-        if (nextPeriod && Math.abs(leftOn - nextPeriod.registeredOn) <= 30000) {
-          leftOn = nextPeriod.leftOn;
-          intIdsArray.splice(index + 1, 1);
-        }
-        usersPeriods[user.userKey].push({
-          registeredOn: intId.registeredOn,
-          leftOn,
+        intId.sessions.forEach((session, sessionIndex, sessionArray) => {
+          let { leftOn } = session;
+          const nextSession = sessionArray[sessionIndex + 1];
+          if (nextSession && Math.abs(leftOn - nextSession.registeredOn) <= 30000) {
+            leftOn = nextSession.leftOn;
+            sessionArray.splice(sessionIndex + 1, 1);
+          }
+          if (!nextSession) {
+            const nextPeriod = intIdsArray[index + 1];
+            if (nextPeriod && Math.abs(leftOn - nextPeriod.sessions[0].registeredOn) <= 30000) {
+              leftOn = nextPeriod.sessions[0].leftOn;
+              intIdsArray.splice(index + 1, 1);
+            }
+          }
+          usersPeriods[user.userKey].push({
+            registeredOn: session.registeredOn,
+            leftOn,
+          });
         });
       });
     });
 
     const usersRegisteredTimes = Object
       .values(allUsers || {})
-      .map((user) => Object.values(user.intIds).map((intId) => intId.registeredOn))
+      .map((user) => Object.values(user.intIds)
+        .map((intId) => intId.sessions.map((session) => session.registeredOn)).flat())
       .flat();
     const usersLeftTimes = Object
       .values(allUsers || {})
-      .map((user) => Object.values(user.intIds).map((intId) => {
-        if (intId.leftOn === 0) return (new Date()).getTime();
-        return intId.leftOn;
-      }))
+      .map((user) => Object.values(user.intIds).map((intId) => intId.sessions.map((session) => {
+        if (session.leftOn === 0) return (new Date()).getTime();
+        return session.leftOn;
+      })).flat())
       .flat();
 
     const firstRegisteredOnTime = Math.min(...usersRegisteredTimes);

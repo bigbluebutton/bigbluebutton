@@ -3,11 +3,6 @@ const e = require('../core/elements');
 const c = require('./constants');
 const { ELEMENT_WAIT_LONGER_TIME } = require('../core/constants');
 
-async function forceListenOnly(test) {
-  await test.wasRemoved(e.echoYesButton);
-  await test.hasText(e.toastContainer, e.joiningMessageToast);
-}
-
 function hexToRgb(hex) {
   const bigint = parseInt(hex, 16);
   const r = (bigint >> 16) & 255;
@@ -66,7 +61,7 @@ async function nextSlide(test) {
 async function annotation(test) {
   await test.waitAndClick(e.wbPencilShape);
   await test.waitAndClick(e.whiteboard);
-  await test.hasElement(e.wbDrawnLine, 'should the presentation displays the tool drawn line');
+  await test.hasElement(e.wbPencilShape, 'should the presentation displays the tool drawn line');
 }
 
 function encodeCustomParams(param) {
@@ -109,7 +104,6 @@ exports.previousSlide = previousSlide;
 exports.nextSlide = nextSlide;
 exports.annotation = annotation;
 exports.hexToRgb = hexToRgb;
-exports.forceListenOnly = forceListenOnly;
 exports.encodeCustomParams = encodeCustomParams;
 exports.getAllShortcutParams = getAllShortcutParams;
 exports.checkAccesskey = checkAccesskey;

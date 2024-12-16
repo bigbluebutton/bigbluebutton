@@ -44,7 +44,7 @@ class Page {
     const hasErrorLabel = await this.checkElement(e.errorMessageLabel);
     await expect(hasErrorLabel, 'should pass the authentication and the layout element should be displayed').toBeFalsy();
     if (shouldCheckAllInitialSteps != undefined ? shouldCheckAllInitialSteps : true) {
-      await this.waitForSelector('div#layout', 25000);
+      await this.waitForSelector('div#layout', ELEMENT_WAIT_EXTRA_LONG_TIME);
       this.settings = await generateSettingsData(this.page);
       const { autoJoinAudioModal } = this.settings;
       if (isRecording && !isModerator) await this.closeRecordingModal();
@@ -115,10 +115,10 @@ class Page {
     await this.waitAndClick(e.joinVideo);
     if (shouldConfirmSharing) {
       await this.bringToFront();
-      await this.hasElement(e.videoPreview, 'should display the video preview when sharing webcam ', videoPreviewTimeout);
+      await this.hasElement(e.webcamMirroredVideoPreview, 'should display the video preview when sharing webcam ', videoPreviewTimeout);
       await this.waitAndClick(e.startSharingWebcam);
     }
-    await this.waitForSelector(e.webcamContainer, VIDEO_LOADING_WAIT_TIME);
+    await this.waitForSelector(e.webcamMirroredVideoContainer, VIDEO_LOADING_WAIT_TIME);
     await this.waitForSelector(e.leaveVideo, VIDEO_LOADING_WAIT_TIME);
     await this.wasRemoved(e.webcamConnecting, VIDEO_LOADING_WAIT_TIME);
   }
@@ -305,12 +305,15 @@ class Page {
   }
 
   async closeAllToastNotifications() {
-    await this.page.waitForSelector(e.whiteboard);
-      const closeToastBtnLocator = this.page.locator(e.closeToastBtn);
-      while (await closeToastBtnLocator.count() > 0) {
-        await this.page.click(e.closeToastBtn);
-        await helpers.sleep(1000);  // expected time to toast notification disappear
+    const closeToastBtnLocator = this.page.locator(e.closeToastBtn);
+    while (await closeToastBtnLocator.count() > 0) {
+      try {
+        await this.page.click(e.closeToastBtn, { timeout: ELEMENT_WAIT_TIME });
+        await helpers.sleep(1500);  // expected time to toast notification disappear
+      } catch (error) {
+        console.log('not able to close the toast notification');
       }
+    }
   }
 
   async setHeightWidthViewPortSize() {

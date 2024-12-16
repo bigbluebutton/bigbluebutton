@@ -135,8 +135,15 @@ class ApiService(healthz: HealthzService, meetingInfoz: MeetingInfoService, user
                 val responseMap = userInfoService.generateResponseMap(userInfos)
                 userInfoService.createHttpResponse(StatusCodes.OK, responseMap)
 
-              case ApiResponseFailure(msg, arg) =>
-                userInfoService.createHttpResponse(StatusCodes.OK, Map("response" -> "unauthorized", "message" -> msg))
+              case ApiResponseFailure(msg, msgId, arg) =>
+                userInfoService.createHttpResponse(
+                  StatusCodes.OK,
+                  Map(
+                    "response"    -> "unauthorized",
+                    "message"     -> msg,
+                    "message_id"  -> msgId,
+                  )
+                )
             }
 
             complete(entityFuture)

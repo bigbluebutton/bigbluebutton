@@ -6,7 +6,6 @@ import (
 	"bbb-graphql-middleware/internal/hasura/conn/writer"
 	"context"
 	"fmt"
-	log "github.com/sirupsen/logrus"
 	"math"
 	"net/http"
 	"net/http/cookiejar"
@@ -24,14 +23,14 @@ var hasuraEndpoint = config.GetConfig().Hasura.Url
 // Hasura client connection
 func HasuraClient(
 	browserConnection *common.BrowserConnection) error {
-	log := log.WithField("_routine", "HasuraClient").WithField("browserConnectionId", browserConnection.Id)
 
 	// Obtain id for this connection
 	lastHasuraConnectionId++
 	hasuraConnectionId := "HC" + fmt.Sprintf("%010d", lastHasuraConnectionId)
-	log = log.WithField("hasuraConnectionId", hasuraConnectionId)
 
-	defer log.Debugf("finished")
+	browserConnection.Logger = browserConnection.Logger.WithField("hasuraConnectionId", hasuraConnectionId)
+
+	defer browserConnection.Logger.Debugf("finished")
 
 	// Add sub-protocol
 	var dialOptions websocket.DialOptions
@@ -71,6 +70,7 @@ func HasuraClient(
 	defer func() {
 		//When Hasura sends an CloseError, it will forward the error to the browser and close the connection
 		if thisConnection.WebsocketCloseError != nil {
+			browserConnection.Logger.Infof("Closing browser connection because Hasura connection was closed, reason: %s", thisConnection.WebsocketCloseError.Reason)
 			browserConnection.Websocket.Close(thisConnection.WebsocketCloseError.Code, thisConnection.WebsocketCloseError.Reason)
 			browserConnection.ContextCancelFunc()
 		}
@@ -94,7 +94,7 @@ func HasuraClient(
 	thisConnection.Websocket = hasuraWsConn
 
 	// Log the connection success
-	log.Debugf("connected with Hasura")
+	browserConnection.Logger.Info("connected with Hasura")
 
 	// Configure the wait group
 	var wg sync.WaitGroup

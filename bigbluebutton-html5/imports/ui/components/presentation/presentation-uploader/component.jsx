@@ -143,6 +143,14 @@ const intlMessages = defineMessages({
     id: 'app.presentationUploder.upload.401',
     description: 'error for failed upload token request.',
   },
+  FILE_VIRUS: {
+    id: 'app.presentationUploder.upload.fileVirus',
+    description: 'error that the file could not be uploaded due to security concerns',
+  },
+  SCAN_FAILED: {
+    id: 'app.presentationUploder.upload.scanFailed',
+    description: 'error that the file could not be uploaded because scanning failed'
+  },
   conversionProcessingSlides: {
     id: 'app.presentationUploder.conversion.conversionProcessingSlides',
     description: 'indicates how many slides were converted',
@@ -296,9 +304,8 @@ class PresentationUploader extends Component {
       presExporting: new Set(),
     };
 
-    this.toastId = null;
     this.hasError = null;
-    this.exportToastId = null;
+    this.exportToastId = 'exportPresentationToastId';
 
     const { handleFiledrop } = this.props;
     // handlers
@@ -462,7 +469,7 @@ class PresentationUploader extends Component {
       if (selected.length > 0) Session.setItem('selectedToBeNextCurrent', selected[0].presentationId);
     }
 
-    if (this.exportToastId) {
+    if (toast.isActive(this.exportToastId)) {
       if (!prevProps.isOpen && isOpen) {
         handleDismissToast(this.exportToastId);
       }
@@ -474,9 +481,8 @@ class PresentationUploader extends Component {
   }
 
   componentWillUnmount() {
-    const id = Session.getItem('presentationUploaderToastId');
-    if (id) {
-      toast.dismiss(id);
+    if (toast.isActive(this.exportToastId)) {
+      toast.dismiss(this.exportToastId);
     }
     Session.setItem('showUploadPresentationView', false);
   }
@@ -863,6 +869,7 @@ class PresentationUploader extends Component {
         error={hasError}
         animated={isProcessing}
         animations={animations}
+        data-test="presentationItem"
       >
         <Styled.SetCurrentAction>
           <Radio

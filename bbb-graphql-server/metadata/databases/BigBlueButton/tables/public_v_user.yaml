@@ -34,6 +34,16 @@ object_relationships:
         remote_table:
           name: v_meeting
           schema: public
+  - name: userLockSettings
+    using:
+      manual_configuration:
+        column_mapping:
+          meetingId: meetingId
+          userId: userId
+        insertion_order: null
+        remote_table:
+          name: v_user_lockSettings
+          schema: public
   - name: voice
     using:
       manual_configuration:
@@ -78,6 +88,7 @@ select_permissions:
         - disconnected
         - expired
         - extId
+        - bot
         - guest
         - guestStatus
         - hasDrawPermissionOnCurrentPage

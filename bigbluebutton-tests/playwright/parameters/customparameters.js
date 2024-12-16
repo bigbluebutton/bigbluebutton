@@ -112,9 +112,10 @@ class CustomParameters extends MultiUsers {
   }
 
   async forceListenOnly() {
-    await this.userPage.wasRemoved(e.audioModal, 'should not display the audio modal, should join without microphone');
-    await this.userPage.hasElement(e.toastContainer, 'should display the toast container for the attendee', ELEMENT_WAIT_LONGER_TIME);
-    await util.forceListenOnly(this.userPage);
+    await this.userPage.wasRemoved(e.audioModal, 'should not display the audio modal after joining meeting');
+    await this.userPage.hasElement(e.leaveListenOnly, 'should join listen only mode and display button to leave it');
+    await this.userPage.wasRemoved(e.muteMicButton, 'should not display the mute mic button');
+    await this.userPage.wasRemoved(e.unmuteMicButton, 'should not display the mute mic button');
   }
 
   async skipCheck() {
@@ -155,12 +156,12 @@ class CustomParameters extends MultiUsers {
     const notificationBarColor = await notificationLocator.evaluate((elem) => {
       return getComputedStyle(elem).backgroundColor;
     }, e.notificationBannerBar);
-    expect(notificationBarColor, 'should display the banner bar with the choosen color').toBe(colorToRGB);
+    expect(notificationBarColor, 'should display the banner bar with the chosen color').toBe(colorToRGB);
   }
 
   async hidePresentationOnJoin() {
     await this.modPage.hasElement(e.actions, 'should display the actions button');
-    await this.modPage.hasElement(e.restorePresentation, 'should display the restore presentation button for the moderator');
+    await this.modPage.hasElement(e.minimizePresentation, 'should display the minimize presentation button for the moderator');
     await this.userPage.hasElement(e.restorePresentation, 'should display the restore presentation button for the attendee');
     await this.userPage.wasRemoved(e.whiteboard, 'should not display the whiteboard for the attendee');
   }

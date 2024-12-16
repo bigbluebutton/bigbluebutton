@@ -217,7 +217,12 @@ case class MuteUserInVoiceConfSysMsg(
     header: BbbCoreHeaderWithMeetingId,
     body:   MuteUserInVoiceConfSysMsgBody
 ) extends BbbCoreMsg
-case class MuteUserInVoiceConfSysMsgBody(voiceConf: String, voiceUserId: String, mute: Boolean)
+case class MuteUserInVoiceConfSysMsgBody(
+    voiceConf:   String,
+    intId:       String,
+    voiceUserId: String,
+    mute:        Boolean
+)
 
 /**
  * Sent by client to mute all users in the meeting.
@@ -447,6 +452,14 @@ object UserTalkingVoiceEvtMsg { val NAME = "UserTalkingVoiceEvtMsg" }
 case class UserTalkingVoiceEvtMsg(header: BbbClientMsgHeader, body: UserTalkingVoiceEvtMsgBody) extends BbbCoreMsg
 case class UserTalkingVoiceEvtMsgBody(voiceConf: String, intId: String, voiceUserId: String, talking: Boolean)
 
+/**
+ * Sent from client to notify that an user is talking (client-side version of
+ * UserTalkingInVoiceConfEvtMsg).
+ * Used by audio bridges incapable of generating the event server-side (LiveKit)
+ */
+object SetUserTalkingReqMsg { val NAME = "SetUserTalkingReqMsg" }
+case class SetUserTalkingReqMsg(header: BbbClientMsgHeader, body: SetUserTalkingReqMsgBody) extends StandardMsg
+case class SetUserTalkingReqMsgBody(talking: Boolean)
 /**
  * Received from FS that user is talking in voice conference.
  */

@@ -9,7 +9,21 @@ location /html5client/ {
 }
 
 location /html5client/locales {
-  alias /var/bigbluebutton/html5-client/locales;
+  # try path of locales in docker dev first
+  set $locales_dir /home/bigbluebutton/src/bigbluebutton-html5/public/locales;
+
+  if (!-d $locales_dir) {
+    # as fallback use the production path
+    set $locales_dir /usr/share/bigbluebutton/html5-client/locales;
+  }
+
+  alias $locales_dir;
+
   autoindex on;
   autoindex_format json;
+
+  # Prevent browsers from caching
+  add_header Cache-Control "no-store, no-cache, must-revalidate, proxy-revalidate, max-age=0";
+  add_header Pragma "no-cache";
+  add_header Expires 0;
 }

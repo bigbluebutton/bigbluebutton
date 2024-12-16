@@ -57,6 +57,8 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
         <property name="callbackUrlService" ref="callbackUrlService"/>
         <property name="usersTimeout" value="${usersTimeout}"/>
         <property name="enteredUsersTimeout" value="${enteredUsersTimeout}"/>
+        <property name="numPluginManifestsFetchingThreads" value="${numPluginManifestsFetchingThreads}"/>
+        <property name="pluginManifestFetchTimeout" value="${pluginManifestFetchTimeout}"/>
         <property name="slidesGenerationProgressNotifier" ref="slidesGenerationProgressNotifier"/>
     </bean>
 
@@ -94,6 +96,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
         <property name="defaultUploadedPresentation" value="${beans.presentationService.defaultUploadedPresentation}"/>
         <property name="insertDocumentSupportedProtocols" value="${insertDocumentSupportedProtocols}" />
         <property name="insertDocumentBlockedHosts" value="${insertDocumentBlockedHosts}" />
+        <property name="presDownloadReadTimeoutInMs" value="${presDownloadReadTimeoutInMs}" />
     </bean>
 
     <bean id="xmlService" class="org.bigbluebutton.api.service.impl.XmlServiceImpl"/>
@@ -154,7 +157,6 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
         <property name="autoStartRecording" value="${autoStartRecording}"/>
         <property name="allowStartStopRecording" value="${allowStartStopRecording}"/>
         <property name="recordFullDurationMedia" value="${recordFullDurationMedia}"/>
-        <property name="learningDashboardEnabled" value="${learningDashboardEnabled}"/>
         <property name="learningDashboardCleanupDelayInMinutes" value="${learningDashboardCleanupDelayInMinutes}"/>
         <property name="webcamsOnlyForModerator" value="${webcamsOnlyForModerator}"/>
         <property name="defaultMeetingCameraCap" value="${meetingCameraCap}"/>
@@ -162,6 +164,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
         <property name="defaultMaxPinnedCameras" value="${maxPinnedCameras}"/>
         <property name="useDefaultAvatar" value="${useDefaultAvatar}"/>
         <property name="defaultAvatarURL" value="${defaultAvatarURL}"/>
+        <property name="defaultBotAvatarURL" value="${defaultBotAvatarURL}"/>
         <property name="useDefaultWebcamBackground" value="${useDefaultWebcamBackground}"/>
         <property name="defaultWebcamBackgroundURL" value="${defaultWebcamBackgroundURL}"/>
         <property name="defaultGuestPolicy" value="${defaultGuestPolicy}"/>
@@ -177,9 +180,11 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
         <property name="maxPresentationFileUpload" value="${maxFileSizeUpload}"/>
         <property name="clientLogoutTimerInMinutes" value="${clientLogoutTimerInMinutes}"/>
         <property name="muteOnStart" value="${muteOnStart}"/>
+        <property name="cameraBridge" value="${cameraBridge}"/>
+        <property name="screenShareBridge" value="${screenShareBridge}"/>
+        <property name="audioBridge" value="${audioBridge}"/>
         <property name="allowModsToUnmuteUsers" value="${allowModsToUnmuteUsers}"/>
         <property name="allowModsToEjectCameras" value="${allowModsToEjectCameras}"/>
-        <property name="breakoutRoomsEnabled" value="${breakoutRoomsEnabled}"/>
         <property name="breakoutRoomsRecord" value="${breakoutRoomsRecord}"/>
         <property name="breakoutRoomsPrivateChatEnabled" value="${breakoutRoomsPrivateChatEnabled}"/>
         <property name="lockSettingsDisableCam" value="${lockSettingsDisableCam}"/>
@@ -201,6 +206,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
         <property name="defaultKeepEvents" value="${defaultKeepEvents}"/>
         <property name="allowRevealOfBBBVersion" value="${allowRevealOfBBBVersion}"/>
         <property name="allowOverrideClientSettingsOnCreateCall" value="${allowOverrideClientSettingsOnCreateCall}"/>
+        <property name="pluginManifests" value="${pluginManifests}"/>
     </bean>
 
     <bean id="presentationService" class="org.bigbluebutton.web.services.PresentationService">
@@ -212,6 +218,51 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
         <property name="defaultUploadedPresentation" value="${beans.presentationService.defaultUploadedPresentation}"/>
         <property name="presentationBaseUrl" value="${presentationBaseURL}"/>
         <property name="preUploadedPresentationOverrideDefault" value="${beans.presentationService.preUploadedPresentationOverrideDefault}"/>
+        <property name="scanUploadedPresentationFiles" value="${scanUploadedPresentationFiles}"/>
+    </bean>
+
+    <bean id="pageExtractorImp" class="org.bigbluebutton.presentation.imp.PageExtractorImp">
+        <property name="extractTimeoutInMs" value="${extractTimeoutInMs}"/>
+    </bean>
+
+    <bean id="pngCreatorImp" class="org.bigbluebutton.presentation.imp.PngCreatorImp">
+        <property name="convTimeout" value="${pngCreationConversionTimeout}"/>
+        <property name="wait" value="${pngCreationWait}"/>
+        <property name="execTimeout" value="${pngCreationExecTimeoutInMs}"/>
+    </bean>
+
+    <bean id="thumbnailCreatorImp" class="org.bigbluebutton.presentation.imp.ThumbnailCreatorImp">
+        <property name="execTimeout" value="${thumbnailCreationExecTimeoutInMs}"/>
+    </bean>
+
+    <bean id="pdfPageDownscaler" class="org.bigbluebutton.presentation.imp.PdfPageDownscaler">
+        <property name="execTimeout" value="${pdfPageDownscaleExecTimeoutInMs}"/>
+    </bean>
+
+    <bean id="imageResizerImp" class="org.bigbluebutton.presentation.imp.ImageResizerImp">
+        <property name="wait" value="${imageResizeWait}"/>
+    </bean>
+
+    <bean id="officeDocumentValidator2" class="org.bigbluebutton.presentation.imp.OfficeDocumentValidator2">
+        <property name="presCheckTimeout" value="${officeDocumentValidationTimeout}"/>
+        <property name="execTimeout" value="${officeDocumentValidationExecTimeoutInMs}"/>
+    </bean>
+
+    <bean id="officeToPdfConversionService" class="org.bigbluebutton.presentation.imp.OfficeToPdfConversionService">
+        <property name="presOfficeConversionTimeout" value="${presOfficeConversionTimeout}"/>
+    </bean>
+
+    <bean id="pdfPageCounter" class="org.bigbluebutton.presentation.imp.PdfPageCounter">
+        <property name="wait" value="${pdfPageCountWait}"/>
+    </bean>
+
+    <bean id="svgImageCreatorImp" class="org.bigbluebutton.presentation.imp.SvgImageCreatorImp">
+        <property name="convPdfToSvgTimeout" value="${pdfToSvgTimeout}"/>
+        <property name="pdfFontsTimeout" value="${pdfFontsTimeout}"/>
+    </bean>
+
+    <bean id="textFileCreatorImp" class="org.bigbluebutton.presentation.imp.TextFileCreatorImp">
+        <property name="execTimeout" value="${textFileCreationExecTimeoutInMs}"/>
     </bean>
 
     <import resource="doc-conversion.xml"/>

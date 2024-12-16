@@ -9,19 +9,19 @@ import {
 } from './queries';
 import useDeduplicatedSubscription from '../../core/hooks/useDeduplicatedSubscription';
 
-interface mergedData extends CursorCoordinates, userCursorResponse {}
+interface mergedData extends CursorCoordinates, userCursorResponse { }
 
 // Custom hook to fetch and merge data
 export const useMergedCursorData = () => {
   const [
     cursorCoordinates,
     setCursorCoordinates,
-  ] = useState<{[key :string]: CursorCoordinates}>({});
+  ] = useState<{ [key: string]: CursorCoordinates }>({});
 
   const [
     userCursor,
     setUserCursor,
-  ] = useState<{[key :string]: userCursorResponse}>({});
+  ] = useState<{ [key: string]: userCursorResponse }>({});
 
   const [
     userCursorMerged,
@@ -43,7 +43,7 @@ export const useMergedCursorData = () => {
       const cursorData = cursorCoordinatesData.pres_page_cursor_stream.reduce((acc, cursor) => {
         acc[cursor.userId] = cursor;
         return acc;
-      }, {} as {[key :string]: CursorCoordinates});
+      }, {} as { [key: string]: CursorCoordinates });
       setCursorCoordinates((prev) => {
         return {
           ...prev,
@@ -58,7 +58,7 @@ export const useMergedCursorData = () => {
       const cursorData = cursorSubscriptionData.pres_page_cursor.reduce((acc, cursor) => {
         acc[cursor.userId] = cursor;
         return acc;
-      }, {} as {[key :string]: userCursorResponse});
+      }, {} as { [key: string]: userCursorResponse });
       setUserCursor(cursorData);
     }
   }, [cursorSubscriptionDataString]);

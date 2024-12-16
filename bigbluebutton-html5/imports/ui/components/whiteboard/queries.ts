@@ -111,7 +111,6 @@ export const CURRENT_PAGE_ANNOTATIONS_QUERY = gql`query CurrentPageAnnotationsQu
   pres_annotation_curr(order_by: { lastUpdatedAt: desc }) {
     annotationId
     annotationInfo
-    lastHistorySequence
     lastUpdatedAt
     pageId
     presentationId
@@ -129,6 +128,22 @@ export const CURRENT_PAGE_ANNOTATIONS_STREAM = gql`subscription annotationsStrea
     userId
   }
 }`;
+
+export const ANNOTATION_HISTORY_STREAM = gql`
+  subscription annotationHistoryStream($updatedAt: timestamptz) {
+    pres_annotation_history_curr_stream(
+      batch_size: 1000,
+      cursor: {initial_value: {updatedAt: $updatedAt}, ordering: ASC}
+    ) {
+      annotationId
+      annotationInfo
+      pageId
+      presentationId
+      updatedAt
+      userId
+    }
+  }
+`;
 
 export const CURRENT_PAGE_WRITERS_SUBSCRIPTION = gql`
   subscription currentPageWritersSubscription($pageId: String!) {

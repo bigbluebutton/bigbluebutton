@@ -13,7 +13,6 @@ subscription userCurrentSubscription {
     ejectReasonCode
     ejected
     reactionEmoji
-    enforceLayout
     extId
     guest
     guestStatus
@@ -70,6 +69,15 @@ subscription userCurrentSubscription {
       joined
       spoke
       listenOnly
+    }
+    userLockSettings {
+      disablePublicChat
+    }
+    sessionCurrent {
+      enforceLayout
+    }
+    livekit {
+      livekitToken
     }
   }
 }

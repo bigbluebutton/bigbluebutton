@@ -197,6 +197,13 @@ export const useDisableCam = () => {
   return meeting?.lockSettings ? meeting?.lockSettings.disableCam : false;
 };
 
+const getCountData = () => {
+  const { data: countData } = useDeduplicatedSubscription(
+    USER_AGGREGATE_COUNT_SUBSCRIPTION,
+  );
+  return countData?.user_aggregate?.aggregate?.count || 0;
+};
+
 export const usePageSizeDictionary = () => {
   const {
     desktopPageSizes: DESKTOP_PAGE_SIZES,
@@ -209,10 +216,6 @@ export const usePageSizeDictionary = () => {
     (t1, t2) => t1.users - t2.users,
   );
 
-  const { data: countData } = useDeduplicatedSubscription(
-    USER_AGGREGATE_COUNT_SUBSCRIPTION,
-  );
-  const userCount = countData?.user_aggregate?.aggregate?.count || 0;
   // Dynamic page sizes are disabled. Fetch the stock page sizes.
   if (!PAGINATION_THRESHOLDS_ENABLED || PAGINATION_THRESHOLDS.length <= 0) {
     return !videoService.isMobile ? DESKTOP_PAGE_SIZES : MOBILE_PAGE_SIZES;
@@ -241,7 +244,7 @@ export const usePageSizeDictionary = () => {
   };
 
   // Short-circuit: no threshold yet, return stock values (processThreshold has a default arg)
-  if (userCount < PAGINATION_THRESHOLDS[0].users) return processThreshold();
+  if (getCountData() < PAGINATION_THRESHOLDS[0].users) return processThreshold();
 
   // Reverse search for the threshold where our participant count is directly equal or great
   // The PAGINATION_THRESHOLDS config is sorted when imported.
@@ -251,7 +254,7 @@ export const usePageSizeDictionary = () => {
     mapIndex -= 1
   ) {
     targetThreshold = PAGINATION_THRESHOLDS[mapIndex];
-    if (targetThreshold.users <= userCount) {
+    if (targetThreshold.users <= getCountData()) {
       return processThreshold(targetThreshold);
     }
   }

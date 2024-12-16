@@ -36,7 +36,8 @@ const errorCodeMap = {
 };
 
 // Error codes that are prone to a retry according to RETRY_THROUGH_RELAY
-const RETRYABLE_ERRORS = [1007, 1010];
+const RTC_CONNECTIVITY_ERRORS = [1007, 1010];
+const RETRYABLE_ERRORS = [...RTC_CONNECTIVITY_ERRORS, 1002, 1005];
 
 const mapErrorCode = (error) => {
   const { errorCode } = error;
@@ -103,6 +104,14 @@ export default class SFUAudioBridge extends BaseAudioBridge {
     this.handleTermination = this.handleTermination.bind(this);
   }
 
+  set reconnecting(value) {
+    this._reconnecting = value;
+  }
+
+  get reconnecting() {
+    return this._reconnecting;
+  }
+
   get inputStream() {
     // Only return the stream if the broker is active and the role isn't recvonly
     // Input stream == actual input-capturing stream, not the one that's being played
@@ -155,20 +164,32 @@ export default class SFUAudioBridge extends BaseAudioBridge {
     const MEDIA = SETTINGS.public.media;
     const CONNECTION_TIMEOUT_MS = MEDIA.listenOnlyCallTimeout || 15000;
 
-    this.connectionTimeout = setTimeout(() => {
-      const error = new Error(`ICE negotiation timeout after ${CONNECTION_TIMEOUT_MS / 1000}s`);
-      error.errorCode = 1010;
-      // Duplicating key-vals because I can'decide settle on an error pattern - prlanzarin again
-      error.errorCause = error.message;
-      error.errorMessage = error.message;
-      this.handleBrokerFailure(error);
-    }, CONNECTION_TIMEOUT_MS);
+    const createTimeout = (resolve, reject) => {
+      this.connectionTimeout = setTimeout(() => {
+        const error = new Error(`ICE negotiation timeout after ${CONNECTION_TIMEOUT_MS / 1000}s`);
+        error.errorCode = 1010;
+        // Duplicating key-vals because I can'decide settle on an error pattern - prlanzarin again
+        error.errorCause = error.message;
+        error.errorMessage = error.message;
+        this.handleBrokerFailure(error).then(resolve).catch(reject);
+      }, CONNECTION_TIMEOUT_MS);
+    };
+
+    this._timeoutPromise = new Promise((resolve, reject) => {
+      createTimeout(resolve, reject);
+    });
+
+    return this._timeoutPromise;
   }
 
   clearConnectionTimeout() {
     if (this.connectionTimeout) {
       clearTimeout(this.connectionTimeout);
       this.connectionTimeout = null;
+    }
+
+    if (this._timeoutPromise) {
+      this._timeoutPromise = null;
     }
   }
 
@@ -181,20 +202,21 @@ export default class SFUAudioBridge extends BaseAudioBridge {
   }
 
   reconnect(options = {}) {
-    // If broker has already started, fire the reconnecting callback so the user
-    // knows what's going on
-    if (this.broker.started) {
-      this.callback({ status: this.baseCallStates.reconnecting, bridge: this.bridgeName });
-    } else {
-      // Otherwise: override termination handler so the ended callback doesn't get
-      // triggered - this is a retry attempt and the user shouldn't be notified
-      // yet.
+    // If broker hasn't started, override termination handler so the ended callback
+    // doesn't get triggered - this is a retry attempt and the user shouldn't be
+    // terminated yet
+    if (!this.broker?.started) {
       this.broker.onended = () => {};
     }
 
-    this.broker.stop();
+    // Notify the user that the bridge is reconnecting - this can be read as
+    // a re-connect attempt or a retry attempt (when join fails)
+    this.callback({ status: this.baseCallStates.reconnecting, bridge: this.bridgeName });
     this.reconnecting = true;
-    this._startBroker({ isListenOnly: this.isListenOnly, ...options })
+
+    if (this.broker) this.broker.stop();
+
+    return this._startBroker({ isListenOnly: this.isListenOnly, ...options })
       .catch((error) => {
         // Error handling is a no-op because it will be "handled" in handleBrokerFailure
         logger.debug({
@@ -206,6 +228,8 @@ export default class SFUAudioBridge extends BaseAudioBridge {
             role: this.role,
           },
         }, 'SFU audio reconnect failed');
+
+        throw error;
       });
   }
 
@@ -219,7 +243,7 @@ export default class SFUAudioBridge extends BaseAudioBridge {
       const RETRY_THROUGH_RELAY = MEDIA.audio.retryThroughRelay || false;
 
       if (!this.reconnecting) {
-        if (this.broker.started) {
+        if (this.broker?.started) {
           logger.error({
             logCode: 'sfuaudio_error_try_to_reconnect',
             extraInfo: {
@@ -230,23 +254,25 @@ export default class SFUAudioBridge extends BaseAudioBridge {
               role: this.role,
             },
           }, 'SFU audio failed, try to reconnect');
-          this.reconnect();
-          return resolve();
+
+          return this.reconnect().then(resolve).catch(reject);
         }
 
-        if (RETRYABLE_ERRORS.includes(errorCode) && RETRY_THROUGH_RELAY) {
+        if (RETRYABLE_ERRORS.includes(errorCode)) {
+          const forceRelay = RETRY_THROUGH_RELAY && RTC_CONNECTIVITY_ERRORS.includes(errorCode);
           logger.error({
-            logCode: 'sfuaudio_error_retry_through_relay',
+            logCode: 'sfuaudio_error_retry',
             extraInfo: {
               errorMessage,
               errorCode,
               errorCause,
               bridge: this.bridgeName,
               role: this.role,
+              forceRelay,
             },
-          }, 'SFU audio failed to connect, retry through relay');
-          this.reconnect({ forceRelay: true });
-          return resolve();
+          }, `SFU audio failed to connect, retrying (relay=${forceRelay})`);
+
+          return this.reconnect({ forceRelay }).then(resolve).catch(reject);
         }
       }
 
@@ -265,7 +291,9 @@ export default class SFUAudioBridge extends BaseAudioBridge {
         },
       }, 'SFU audio failed');
       this.clearConnectionTimeout();
-      this.broker.stop();
+
+      if (this.broker) this.broker.stop();
+
       this.callback({
         status: this.baseCallStates.failed,
         error: errorCode,
@@ -278,7 +306,10 @@ export default class SFUAudioBridge extends BaseAudioBridge {
 
   handleTermination() {
     this.clearConnectionTimeout();
-    return this.callback({ status: this.baseCallStates.ended, bridge: this.bridgeName });
+
+    if (!this.reconnecting) {
+      this.callback({ status: this.baseCallStates.ended, bridge: this.bridgeName });
+    }
   }
 
   handleStart() {
@@ -346,6 +377,7 @@ export default class SFUAudioBridge extends BaseAudioBridge {
         forceRelay: _forceRelay = false,
         bypassGUM = false,
       } = options;
+      const _reconnecting = this.reconnecting;
 
       const SETTINGS = window.meetingClientSettings;
       const MEDIA = SETTINGS.public.media;
@@ -353,14 +385,15 @@ export default class SFUAudioBridge extends BaseAudioBridge {
       const SFU_URL = SETTINGS.public.kurento.wsUrl;
       const TRACE_LOGS = SETTINGS.public.kurento.traceLogs;
       const GATHERING_TIMEOUT = SETTINGS.public.kurento.gatheringTimeout;
-      const RETRY_THROUGH_RELAY = MEDIA.audio.retryThroughRelay || false;
       const { audio: NETWORK_PRIORITY } = MEDIA.networkPriorities || {};
+      const {
+        enabled: RESTART_ICE = false,
+        retries: RESTART_ICE_RETRIES = 1,
+      } = SETTINGS.public.kurento?.restartIce?.audio || {};
 
       const handleInitError = (_error) => {
         mapErrorCode(_error);
-        if (RETRYABLE_ERRORS.includes(_error?.errorCode)
-          || !RETRY_THROUGH_RELAY
-          || this.reconnecting) {
+        if (!RETRYABLE_ERRORS.includes(_error?.errorCode) || _reconnecting) {
           reject(_error);
         }
       };
@@ -389,6 +422,10 @@ export default class SFUAudioBridge extends BaseAudioBridge {
           gatheringTimeout: GATHERING_TIMEOUT,
           transparentListenOnly: isTransparentListenOnlyEnabled(),
           bypassGUM,
+          // ICE restart only works for publishers right now - recvonly full
+          // reconnection works ok without it.
+          restartIce: RESTART_ICE && !isListenOnly,
+          restartIceMaxRetries: RESTART_ICE_RETRIES,
         };
 
         this.broker = new AudioBroker(
@@ -399,7 +436,11 @@ export default class SFUAudioBridge extends BaseAudioBridge {
 
         this.broker.onended = this.handleTermination.bind(this);
         this.broker.onerror = (error) => {
-          this.handleBrokerFailure(error).catch(reject);
+          // Broker failures can be successfully handled if they're retryable
+          // and the attempt to reconnect is successful. In that case, this
+          // promise will resolve and the connection will be established
+          // normally
+          this.handleBrokerFailure(error).then(resolve).catch(reject);
         };
         this.broker.onstart = () => {
           this.handleStart().then(resolve).catch(reject);
@@ -407,7 +448,7 @@ export default class SFUAudioBridge extends BaseAudioBridge {
 
         // Set up a connectionTimeout in case the server or network are botching
         // negotiation or conn checks.
-        this.setConnectionTimeout();
+        this.setConnectionTimeout().then(resolve).catch(reject);
         this.broker.joinAudio().catch(handleInitError);
       } catch (error) {
         handleInitError(error);

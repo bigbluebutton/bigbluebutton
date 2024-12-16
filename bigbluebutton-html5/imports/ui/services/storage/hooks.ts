@@ -53,8 +53,10 @@ const useStorageKey = (key: string, storage?: Storage[keyof Storage]) => {
 
 export {
   useStorageKey,
+  STORAGES,
 };
 
 export default {
   useStorageKey,
+  STORAGES,
 };

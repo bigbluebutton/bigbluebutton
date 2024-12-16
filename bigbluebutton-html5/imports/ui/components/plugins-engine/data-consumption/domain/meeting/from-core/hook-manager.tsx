@@ -29,7 +29,7 @@ const MeetingHookContainer: React.FunctionComponent<
     );
     window.dispatchEvent(
       new CustomEvent<UpdatedEventDetails<PluginSdk.GraphqlResponseWrapper<PluginSdk.Meeting>>>(
-        HookEvents.UPDATED,
+        HookEvents.BBB_CORE_SENT_NEW_DATA,
         {
           detail: {
             data: meetingProjection,
@@ -53,11 +53,11 @@ const MeetingHookContainer: React.FunctionComponent<
       if (event.detail.hook === DataConsumptionHooks.MEETING) setSendSignal((signal) => !signal);
     }) as EventListener;
     window.addEventListener(
-      HookEvents.SUBSCRIBED, updateHookUseCurrentMeeting,
+      HookEvents.PLUGIN_SUBSCRIBED_TO_BBB_CORE, updateHookUseCurrentMeeting,
     );
     return () => {
       window.removeEventListener(
-        HookEvents.SUBSCRIBED, updateHookUseCurrentMeeting,
+        HookEvents.PLUGIN_SUBSCRIBED_TO_BBB_CORE, updateHookUseCurrentMeeting,
       );
     };
   }, []);

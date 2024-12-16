@@ -2,12 +2,9 @@ package retransmiter
 
 import (
 	"bbb-graphql-middleware/internal/common"
-	log "github.com/sirupsen/logrus"
 )
 
 func RetransmitSubscriptionStartMessages(hc *common.HasuraConnection) {
-	log := log.WithField("_routine", "RetransmitSubscriptionStartMessages").WithField("browserConnectionId", hc.BrowserConn.Id).WithField("hasuraConnectionId", hc.Id)
-
 	hc.BrowserConn.ActiveSubscriptionsMutex.RLock()
 	defer hc.BrowserConn.ActiveSubscriptionsMutex.RUnlock()
 
@@ -26,12 +23,12 @@ func RetransmitSubscriptionStartMessages(hc *common.HasuraConnection) {
 		if !userCurrentlyInMeeting &&
 			subscription.OperationName != "getUserInfo" &&
 			subscription.OperationName != "getUserCurrent" {
-			log.Debugf("Skipping retransmit %s because the user is offline", subscription.OperationName)
+			hc.BrowserConn.Logger.Debugf("Skipping retransmit %s because the user is offline", subscription.OperationName)
 			continue
 		}
 
 		if subscription.LastSeenOnHasuraConnection != hc.Id {
-			log.Tracef("retransmiting subscription start: %v", string(subscription.Message))
+			hc.BrowserConn.Logger.Tracef("retransmiting subscription start: %v", string(subscription.Message))
 
 			if subscription.Type == common.Streaming && subscription.StreamCursorCurrValue != nil {
 				hc.BrowserConn.FromBrowserToHasuraChannel.Send(common.PatchQuerySettingLastCursorValue(subscription))

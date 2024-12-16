@@ -19,12 +19,13 @@ You first need to set up a BigBlueButton 3.0 server. See the instructions at [In
 
 ## Overview
 
+**Note: BigBlueButton 3.0 is still under development**
+
 A BigBlueButton server is built from a number of components that correspond to Ubuntu packages. Some of these components are
 
 - bbb-web -- Implements the BigBlueButton API and conversion of documents for presentation
 - bbb-akka-apps -- Server side application that handles the state of meetings on the server
 - bbb-akka-fsesl -- server component handling the communication with FreeSWITCH
-- bbb-html5 -- HTML5 client that loads in the browser
 - bbb-learning-dashboard -- a live dashboard available to moderators, which displays user activity information that can be useful for instructors
 - bbb-fsesl-akka -- Component to send commands to FreeSWITCH
 - bbb-playback-presentation -- Record and playback script to create presentation layout
@@ -284,22 +285,16 @@ Make sure to check the HTML5 portion of the [Architecture page](/development/arc
 
 There is one change required to settings.yml to get webcam and screenshare working in the client (assuming you're using HTTPS already). The first step is to find the value for `kurento.wsUrl` packaged settings.yml.
 
-<!-- TODO recommend /etc/bigbluebutton/bbb-html5.yml change instead -->
+```bash
+grep "wsUrl" /usr/share/bigbluebutton/html5-client/private/config/settings.yml
+```
+
+Next, override the `wsURL` so that it remains the same even if you switch branches:
 
 ```bash
-grep "wsUrl" /var/bigbluebutton/html5-client/private/config/settings.yml
-```
-
-Next, edit the development settings.yml and change `wsUrl` to match what was retrieved before.
-
-```bash
-$ vi private/config/settings.yml
-```
-
-You're now ready to run the HTML5 code. First shut down the packaged version of the HTML5 client so you are not running two copies in parallel.
-
-```
-$ sudo systemctl stop bbb-html5
+HOST=$(grep -v '#' /etc/bigbluebutton/bbb-web.properties | sed -n '/^bigbluebutton.web.serverURL/{s/.*\///;p}')
+sudo yq e -i ".public.kurento.wsUrl = \"wss://$HOST/bbb-webrtc-sfu\"" /etc/bigbluebutton/bbb-html5.yml
+sudo bbb-conf --restart
 ```
 
 Install the npm dependencies.
@@ -308,17 +303,21 @@ Install the npm dependencies.
 $ npm install
 ```
 
-Finally, run the HTML5 code.
+Finally, run the HTML5 code and have it served.
 
 ```bash
 $ npm start
 ```
 
-You can deploy locally your modified version of the HTML5 client source using the script [bigbluebutton-html5/deploy_to_usr_share.sh](https://github.com/bigbluebutton/bigbluebutton/blob/v3.0.x-release/bigbluebutton-html5/deploy_to_usr_share.sh) - which deploys your [customized] bigbluebutton-html5/\* code as locally running `bbb-html5` package (production mode). Make sure to read through the script to understand what it does prior to using it.
+The last couple of steps could alternatively be done with the `run-dev.sh` script (running in developer mode)
+or `deploy.sh` to run in production mode and have the client files served by NginX.
 
 ### Audio configuration for development environment
 
-You may see the error "Call timeout (Error 1006)" during the microphone echo test after starting the developing HTML5 client by "npm start". A misconfiguration of Freeswitch may account for it, especially when BigBlueButton is set up with bbb-install.sh script. Try changing "sipjsHackViaWs" true in bigbluebutton-html5/private/config/settings.yml.
+You may see the error "Call timeout (Error 1006)" during the microphone echo test after starting the developing HTML5 client by "npm start". A misconfiguration of Freeswitch may account for it, especially when BigBlueButton is set up with bbb-install.sh script. Try setting "sipjsHackViaWs" to true for the client:
+
+`touch /etc/bigbluebutton/bbb-html5.yml`
+`yq e -i '.public.media.sipjsHackViaWs = true' /etc/bigbluebutton/bbb-html5.yml`
 
 ### `/private/config`
 

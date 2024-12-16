@@ -8,3 +8,11 @@
               clientSettingsJson
             }
           }
+      - name: userMetadata
+        query: |
+          query getUserMetadata {
+            user_metadata {
+              parameter
+              value
+            }
+          }

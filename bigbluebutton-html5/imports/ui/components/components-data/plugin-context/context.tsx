@@ -1,6 +1,7 @@
 import React, { createContext, useState } from 'react';
 import { ExtensibleArea } from '/imports/ui/components/plugins-engine/extensible-areas/types';
 import { PluginsContextType } from './types';
+import { DomElementManipulationIdentifiers } from '../../plugins-engine/dom-element-manipulation/types';
 
 export const PluginsContext = createContext<PluginsContextType>({} as PluginsContextType);
 
@@ -9,19 +10,17 @@ export const PluginsContextProvider = ({ children, ...props }: any) => {
   const [pluginsExtensibleAreasAggregatedState, setPluginsExtensibleAreasAggregatedState] = useState<ExtensibleArea>(
     {} as ExtensibleArea,
   );
-  const [domElementManipulationMessageIds, setDomElementManipulationMessageIds] = useState<string[]>([]);
-  const [domElementManipulationStreamIds, setDomElementManipulationStreamIds] = useState<string[]>([]);
-
+  const [domElementManipulationIdentifiers, setDomElementManipulationIdentifiers] = useState<
+    DomElementManipulationIdentifiers
+  >({} as DomElementManipulationIdentifiers);
   return (
     <PluginsContext.Provider
       value={{
         ...props,
         setPluginsExtensibleAreasAggregatedState,
         pluginsExtensibleAreasAggregatedState,
-        domElementManipulationMessageIds,
-        setDomElementManipulationMessageIds,
-        domElementManipulationStreamIds,
-        setDomElementManipulationStreamIds,
+        domElementManipulationIdentifiers,
+        setDomElementManipulationIdentifiers,
       }}
     >
       {children}

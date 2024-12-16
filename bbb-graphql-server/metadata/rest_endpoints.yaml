@@ -7,3 +7,12 @@
     - GET
   name: clientSettings
   url: clientSettings
+- comment: ""
+  definition:
+    query:
+      collection_name: allowed-queries
+      query_name: userMetadata
+  methods:
+    - GET
+  name: userMetadata
+  url: userMetadata

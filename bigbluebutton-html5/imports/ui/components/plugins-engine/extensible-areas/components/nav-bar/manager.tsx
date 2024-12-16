@@ -22,7 +22,6 @@ const NavBarPluginStateContainer = ((
   ] = useState<PluginSdk.NavBarInterface[]>([]);
 
   const {
-    pluginsExtensibleAreasAggregatedState,
     setPluginsExtensibleAreasAggregatedState,
   } = useContext(PluginsContext);
 
@@ -36,12 +35,11 @@ const NavBarPluginStateContainer = ((
         .map((extensibleArea: ExtensibleArea) => extensibleArea.navBarItems),
     );
 
-    setPluginsExtensibleAreasAggregatedState(
+    setPluginsExtensibleAreasAggregatedState((previousState) => (
       {
-        ...pluginsExtensibleAreasAggregatedState,
+        ...previousState,
         navBarItems: aggregatedNavBarItems,
-      },
-    );
+      }));
   }, [navBarItems]);
 
   pluginApi.setNavBarItems = (items: PluginSdk.NavBarInterface[]) => {

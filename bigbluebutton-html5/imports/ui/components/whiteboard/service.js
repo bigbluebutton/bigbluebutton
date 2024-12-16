@@ -71,7 +71,9 @@ const sendAnnotation = (annotation, submitAnnotations) => {
   } else {
     annotationsQueue.push(annotation);
   }
-  if (!annotationsSenderIsRunning) setTimeout(() => proccessAnnotationsQueue(submitAnnotations), annotationsBufferTimeMin);
+  if (!annotationsSenderIsRunning) {
+    setTimeout(() => proccessAnnotationsQueue(submitAnnotations), annotationsBufferTimeMin);
+  }
 };
 
 const persistShape = async (shape, whiteboardId, isModerator, submitAnnotations) => {
@@ -125,7 +127,7 @@ const toggleToolsAnimations = (activeAnim, anim, time, hasWBAccess = false) => {
       optionsDropdown.style.transition = `opacity ${time} ease-in-out`;
       optionsDropdown.classList.add(anim);
     }
-  }
+  };
 
   if (hasWBAccess === false) {
     return handleOptionsDropdown();
@@ -134,8 +136,9 @@ const toggleToolsAnimations = (activeAnim, anim, time, hasWBAccess = false) => {
   const checkElementsAndRun = () => {
     const tlEls = document.querySelectorAll('.tlui-menu-zone, .tlui-toolbar__tools, .tlui-toolbar__extras, .tlui-style-panel__wrapper');
     if (tlEls.length) {
-      tlEls?.forEach(el => {
+      tlEls?.forEach((el) => {
         el.classList.remove(activeAnim);
+        // eslint-disable-next-line no-param-reassign
         el.style.transition = `opacity ${time} ease-in-out`;
         el.classList.add(anim);
       });
@@ -146,16 +149,16 @@ const toggleToolsAnimations = (activeAnim, anim, time, hasWBAccess = false) => {
     }
   };
 
-  checkElementsAndRun();
+  return checkElementsAndRun();
 };
 
 const formatAnnotations = (annotations, intl, curPageId, currentPresentationPage) => {
   const result = {};
 
   annotations.forEach((annotation) => {
-    if (annotation.annotationInfo === '') return;
+    if (!annotation.annotationInfo) return;
 
-    let annotationInfo = JSON.parse(annotation.annotationInfo);
+    let annotationInfo = annotation.annotationInfo;
 
     if (annotationInfo.questionType) {
       // poll result, convert it to text and create tldraw shape
@@ -163,7 +166,7 @@ const formatAnnotations = (annotations, intl, curPageId, currentPresentationPage
         annotationInfo.answers = annotationInfo.answers.reduce(
           caseInsensitiveReducer, [],
         );
-        let pollResult = PollService.getPollResultString(annotationInfo, intl)
+        const pollResult = PollService.getPollResultString(annotationInfo, intl)
           .split('<br/>').join('\n').replace(/(<([^>]+)>)/ig, '');
 
         const lines = pollResult.split('\n');
@@ -204,7 +207,7 @@ const formatAnnotations = (annotations, intl, curPageId, currentPresentationPage
             numResponders: annotationInfo.numResponders,
             questionText: annotationInfo.questionText,
             questionType: annotationInfo.questionType,
-            question: annotationInfo.question || "",
+            question: annotationInfo.question || '',
           },
         };
       } else {
@@ -264,12 +267,12 @@ const getCustomAssetUrls = () => {
   const TL_ICON_PATHS = `${BASENAME}/svgs/tldraw`;
   return {
     icons: {
-      'menu': `${TL_ICON_PATHS}/menu.svg`,
-      'undo': `${TL_ICON_PATHS}/undo.svg`,
-      'redo': `${TL_ICON_PATHS}/redo.svg`,
-      'trash': `${TL_ICON_PATHS}/trash.svg`,
-      'duplicate': `${TL_ICON_PATHS}/duplicate.svg`,
-      'unlock': `${TL_ICON_PATHS}/unlock.svg`,
+      menu: `${TL_ICON_PATHS}/menu.svg`,
+      undo: `${TL_ICON_PATHS}/undo.svg`,
+      redo: `${TL_ICON_PATHS}/redo.svg`,
+      trash: `${TL_ICON_PATHS}/trash.svg`,
+      duplicate: `${TL_ICON_PATHS}/duplicate.svg`,
+      unlock: `${TL_ICON_PATHS}/unlock.svg`,
       'arrowhead-none': `${TL_ICON_PATHS}/arrowhead-none.svg`,
       'arrowhead-arrow': `${TL_ICON_PATHS}/arrowhead-arrow.svg`,
       'arrowhead-triangle': `${TL_ICON_PATHS}/arrowhead-triangle.svg`,
@@ -295,7 +298,7 @@ const getCustomAssetUrls = () => {
       'chevron-up': `${TL_ICON_PATHS}/chevron-up.svg`,
       'chevron-down': `${TL_ICON_PATHS}/chevron-down.svg`,
       'chevron-right': `${TL_ICON_PATHS}/chevron-right.svg`,
-      'blob': `${TL_ICON_PATHS}/blob.svg`,
+      blob: `${TL_ICON_PATHS}/blob.svg`,
       'geo-rectangle': `${TL_ICON_PATHS}/geo-rectangle.svg`,
       'geo-ellipse': `${TL_ICON_PATHS}/geo-ellipse.svg`,
       'geo-diamond': `${TL_ICON_PATHS}/geo-diamond.svg`,
@@ -333,9 +336,9 @@ const getCustomAssetUrls = () => {
       'bring-to-front': `${TL_ICON_PATHS}/bring-to-front.svg`,
       'reset-zoom': `${TL_ICON_PATHS}/reset-zoom.svg`,
       'rotate-cw': `${TL_ICON_PATHS}/rotate-cw.svg`,
-      'link': `${TL_ICON_PATHS}/link.svg`,
-      'group': `${TL_ICON_PATHS}/group.svg`,
-      'color': `${TL_ICON_PATHS}/color.svg`,
+      link: `${TL_ICON_PATHS}/link.svg`,
+      group: `${TL_ICON_PATHS}/group.svg`,
+      color: `${TL_ICON_PATHS}/color.svg`,
       'fill-none': `${TL_ICON_PATHS}/fill-none.svg`,
       'fill-semi': `${TL_ICON_PATHS}/fill-semi.svg`,
       'fill-solid': `${TL_ICON_PATHS}/fill-solid.svg`,

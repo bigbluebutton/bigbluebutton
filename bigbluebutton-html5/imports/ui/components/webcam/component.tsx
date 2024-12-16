@@ -19,6 +19,9 @@ import { Input, Layout, Output } from '/imports/ui/components/layout/layoutTypes
 import { VideoItem } from '/imports/ui/components/video-provider/types';
 import useDeduplicatedSubscription from '/imports/ui/core/hooks/useDeduplicatedSubscription';
 import { useStorageKey } from '/imports/ui/services/storage/hooks';
+import useSettings from '../../services/settings/hooks/useSettings';
+import { SETTINGS } from '../../services/settings/enums';
+import { INITIAL_INPUT_STATE } from '../layout/initState';
 
 interface WebcamComponentProps {
   cameraDock: Output['cameraDock'];
@@ -105,7 +108,7 @@ const WebcamComponent: React.FC<WebcamComponentProps> = ({
   const handleVideoFocus = (id: string) => {
     layoutContextDispatch({
       type: ACTIONS.SET_FOCUSED_CAMERA_ID,
-      value: focusedId !== id ? id : false,
+      value: focusedId !== id ? id : INITIAL_INPUT_STATE.cameraDock.focusedId,
     });
   };
 
@@ -183,8 +186,8 @@ const WebcamComponent: React.FC<WebcamComponentProps> = ({
   }
 
   const isIphone = !!(navigator.userAgent.match(/iPhone/i));
-  const mobileWidth = `${isDragging ? cameraSize?.width : cameraDock.width}pt`;
-  const mobileHeight = `${isDragging ? cameraSize?.height : cameraDock.height}pt`;
+  const mobileWidth = `${isDragging ? cameraSize?.width : cameraDock.width}px`;
+  const mobileHeight = `${isDragging ? cameraSize?.height : cameraDock.height}px`;
   const isDesktopWidth = isDragging ? cameraSize?.width : cameraDock.width;
   const isDesktopHeight = isDragging ? cameraSize?.height : cameraDock.height;
   const camOpacity = isDragging ? 0.5 : undefined;
@@ -293,24 +296,19 @@ const WebcamComponent: React.FC<WebcamComponentProps> = ({
   );
 };
 
-interface WebcamContainerProps {
-  isLayoutSwapped: boolean;
-  layoutType: string;
-}
-
-const WebcamContainer: React.FC<WebcamContainerProps> = ({
-  isLayoutSwapped,
-  layoutType,
-}) => {
+const WebcamContainer: React.FC = () => {
   const fullscreen = layoutSelect((i: Layout) => i.fullscreen);
   const isRTL = layoutSelect((i: Layout) => i.isRTL);
   const cameraDockInput = layoutSelectInput((i: Input) => i.cameraDock);
+  const presentationInput = layoutSelectInput((i: Input) => i.presentation);
   const presentation = layoutSelectOutput((i: Output) => i.presentation);
   const cameraDock = layoutSelectOutput((i: Output) => i.cameraDock);
   const layoutContextDispatch = layoutDispatch();
   const { data: presentationPageData } = useDeduplicatedSubscription(CURRENT_PRESENTATION_PAGE_SUBSCRIPTION);
   const presentationPage = presentationPageData?.pres_page_curr[0] || {};
   const hasPresentation = !!presentationPage?.presentationId;
+  const { isOpen: presentationIsOpen } = presentationInput;
+  const isLayoutSwapped = !presentationIsOpen;
 
   const swapLayout = !hasPresentation || isLayoutSwapped;
 
@@ -328,8 +326,9 @@ const WebcamContainer: React.FC<WebcamContainerProps> = ({
   const { data: currentUserData } = useCurrentUser((user) => ({
     presenter: user.presenter,
   }));
+  const { selectedLayout } = useSettings(SETTINGS.APPLICATION) as { selectedLayout: string };
 
-  const isGridEnabled = layoutType === LAYOUT_TYPE.VIDEO_FOCUS;
+  const isGridEnabled = selectedLayout === LAYOUT_TYPE.VIDEO_FOCUS;
 
   const { streams: videoUsers, gridUsers } = useVideoStreams();
 

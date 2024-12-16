@@ -6,15 +6,18 @@ class BBBWebApi {
 
   private routes = {
     index: {
-      path: '/bigbluebutton/api',
+      // this needs to be a relative path because it may be mounted as a subpath
+      // for example in cluster setups
+      path: 'bigbluebutton/api',
       cacheKey: `${this.cachePrefix}_index`,
     },
   };
 
   private static buildURL(route: string) {
-    const pathMatch = window.location.pathname.match('^(.*)/html5client/join$');
-    const serverPathPrefix = pathMatch ? pathMatch[1] : '';
+    const pathMatch = window.location.pathname.match('^(.*)/html5client/?$');
+    const serverPathPrefix = pathMatch ? `${pathMatch[1]}/` : '';
     const { hostname, protocol } = window.location;
+
     return new URL(route, `${protocol}//${hostname}${serverPathPrefix}`);
   }
 

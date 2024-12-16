@@ -22,7 +22,6 @@ const GenericContentPluginStateContainer = ((
   ] = useState<PluginSdk.GenericContentInterface[]>([]);
 
   const {
-    pluginsExtensibleAreasAggregatedState,
     setPluginsExtensibleAreasAggregatedState,
   } = useContext(PluginsContext);
 
@@ -36,13 +35,12 @@ const GenericContentPluginStateContainer = ((
       ...Object.values(extensibleAreaMap)
         .map((extensibleArea: ExtensibleArea) => extensibleArea.genericContentItems),
     );
-    setPluginsExtensibleAreasAggregatedState(
+    setPluginsExtensibleAreasAggregatedState((previousState) => (
       {
-        ...pluginsExtensibleAreasAggregatedState,
+        ...previousState,
         genericContentItems: aggregatedGenericContentItems,
-      },
-    );
-  }, [genericContentItems]);
+      }));
+  }, [genericContentItems, setPluginsExtensibleAreasAggregatedState]);
 
   pluginApi.setGenericContentItems = (items: PluginSdk.GenericContentInterface[]) => {
     const itemsWithId = items.map(generateItemWithId) as PluginSdk.GenericContentInterface[];

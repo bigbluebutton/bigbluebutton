@@ -8,6 +8,9 @@ import VideoService from '/imports/ui/components/video-provider/service';
 import Auth from '/imports/ui/services/auth';
 import { debounce } from '/imports/utils/debounce';
 import { throttle } from '/imports/utils/throttle';
+import apolloContextHolder from '/imports/ui/core/graphql/apolloContextHolder/apolloContextHolder';
+import { MEETING_IS_BREAKOUT } from '/imports/ui/components/audio/audio-graphql/audio-controls/queries';
+import { ReactiveVar, makeVar, useReactiveVar } from '@apollo/client';
 
 const MUTED_KEY = 'muted';
 const DEVICE_LABEL_MAX_LENGTH = 40;
@@ -40,32 +43,60 @@ export const handleLeaveAudio = (meetingIsBreakout: boolean) => {
   );
 };
 
+export const muteLoadingState: ReactiveVar<boolean> = makeVar(false);
+
+export const useIsMuteLoading = () => useReactiveVar(muteLoadingState);
+
 const toggleMute = (
   muted: boolean,
   toggleVoice: (userId: string, muted: boolean) => void,
   actionType = 'user_action',
 ) => {
-  if (muted) {
-    if (AudioManager.inputDeviceId === 'listen-only') {
-      // User is in duplex audio, passive-sendrecv, but has no input device set
-      // Unmuting should not be allowed at all
-      return;
-    }
+  const toggle = (storageKey: string) => {
+    if (muted) {
+      if (AudioManager.inputDeviceId === 'listen-only') {
+        // User is in duplex audio, passive-sendrecv, but has no input device set
+        // Unmuting should not be allowed at all
+        return;
+      }
 
-    logger.info({
-      logCode: 'audiomanager_unmute_audio',
-      extraInfo: { logType: actionType },
-    }, 'microphone unmuted');
-    Storage.setItem(MUTED_KEY, false);
-    toggleVoice(Auth.userID as string, false);
-  } else {
-    logger.info({
-      logCode: 'audiomanager_mute_audio',
-      extraInfo: { logType: actionType },
-    }, 'microphone muted');
-    Storage.setItem(MUTED_KEY, true);
-    toggleVoice(Auth.userID as string, true);
-  }
+      logger.info({
+        logCode: 'audiomanager_unmute_audio',
+        extraInfo: { logType: actionType },
+      }, 'microphone unmuted');
+      Storage.setItem(storageKey, false);
+      toggleVoice(Auth.userID as string, false);
+    } else {
+      logger.info({
+        logCode: 'audiomanager_mute_audio',
+        extraInfo: { logType: actionType },
+      }, 'microphone muted');
+      Storage.setItem(storageKey, true);
+      toggleVoice(Auth.userID as string, true);
+    }
+  };
+
+  apolloContextHolder.getClient().query({
+    query: MEETING_IS_BREAKOUT,
+    fetchPolicy: 'cache-first',
+  })
+    .then((result) => {
+      const meeting = result?.data?.meeting?.[0];
+      const meetingId = meeting?.isBreakout && meeting?.breakoutPolicies?.parentId
+        ? meeting.breakoutPolicies.parentId
+        : Auth.meetingID;
+      const storageKey = `${MUTED_KEY}_${meetingId}`;
+
+      toggle(storageKey);
+    })
+    .catch(() => {
+      // Fallback
+      const storageKey = `${MUTED_KEY}_${Auth.meetingID}`;
+      toggle(storageKey);
+    })
+    .finally(() => {
+      muteLoadingState(true);
+    });
 };
 
 const toggleMuteMicrophoneThrottled = throttle(toggleMute, TOGGLE_MUTE_THROTTLE_TIME);
@@ -157,7 +188,6 @@ export const muteAway = (
 export default {
   handleLeaveAudio,
   toggleMuteMicrophone,
-  toggleMuteMicrophoneSystem,
   truncateDeviceName,
   notify,
   liveChangeInputDevice,

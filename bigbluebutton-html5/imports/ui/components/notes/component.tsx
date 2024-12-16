@@ -60,7 +60,6 @@ interface NotesGraphqlProps extends NotesContainerGraphqlProps {
   isPresentationEnabled: boolean;
 }
 
-let timoutRef: ReturnType<typeof setTimeout>;
 const sidebarContentToIgnoreDelay = ['captions'];
 
 const NotesGraphql: React.FC<NotesGraphqlProps> = (props) => {
@@ -100,10 +99,11 @@ const NotesGraphql: React.FC<NotesGraphqlProps> = (props) => {
 
   const DELAY_UNMOUNT_SHARED_NOTES = window.meetingClientSettings.public.app.delayForUnmountOfSharedNote;
 
+  let timoutRef: NodeJS.Timeout | undefined;
   useEffect(() => {
     if (isToSharedNotesBeShow) {
       setShouldRenderNotes(true);
-      clearTimeout(timoutRef);
+      clearTimeout(timoutRef!);
     } else {
       timoutRef = setTimeout(() => {
         setShouldRenderNotes(false);
@@ -111,7 +111,7 @@ const NotesGraphql: React.FC<NotesGraphqlProps> = (props) => {
         || shouldShowSharedNotesOnPresentationArea)
         ? 0 : DELAY_UNMOUNT_SHARED_NOTES);
     }
-    return () => clearTimeout(timoutRef);
+    return () => clearTimeout(timoutRef!);
   }, [isToSharedNotesBeShow, sidebarContent.sidebarContentPanel]);
 
   const renderHeaderOnMedia = () => {
@@ -176,6 +176,7 @@ const NotesContainerGraphql: React.FC<NotesContainerGraphqlProps> = (props) => {
 
   const hasPermission = useHasPermission();
   const { data: pinnedPadData } = useDeduplicatedSubscription<PinnedPadSubscriptionResponse>(PINNED_PAD_SUBSCRIPTION);
+
   const { data: currentUserData } = useCurrentUser((user) => ({
     presenter: user.presenter,
   }));
@@ -198,7 +199,8 @@ const NotesContainerGraphql: React.FC<NotesContainerGraphqlProps> = (props) => {
   const isGridLayout = useStorageKey('isGridEnabled');
 
   const shouldShowSharedNotesOnPresentationArea = isGridLayout ? !!pinnedPadData
-    && pinnedPadData.sharedNotes[0]?.sharedNotesExtId === NOTES_CONFIG.id && isSidebarContentOpen : !!pinnedPadData
+    && pinnedPadData.sharedNotes[0]?.sharedNotesExtId === NOTES_CONFIG.id
+    && isSidebarContentOpen : !!pinnedPadData
     && pinnedPadData.sharedNotes[0]?.sharedNotesExtId === NOTES_CONFIG.id;
 
   const [stopExternalVideoShare] = useMutation(EXTERNAL_VIDEO_STOP);

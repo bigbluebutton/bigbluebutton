@@ -34,7 +34,7 @@ const CustomSubscriptionHookContainer = (props: HookWithArgumentsContainerProps)
   const updatePresentationForPlugin = () => {
     window.dispatchEvent(
       new CustomEvent<UpdatedEventDetails<any>>(
-        HookEvents.UPDATED,
+        HookEvents.BBB_CORE_SENT_NEW_DATA,
         {
           detail: {
             data: customSubscriptionData,
@@ -58,11 +58,11 @@ const CustomSubscriptionHookContainer = (props: HookWithArgumentsContainerProps)
       if (event.detail.hook === DataConsumptionHooks.CUSTOM_SUBSCRIPTION) setSendSignal((signal) => !signal);
     }) as EventListener;
     window.addEventListener(
-      HookEvents.SUBSCRIBED, updateHookUseCustomSubscription,
+      HookEvents.PLUGIN_SUBSCRIBED_TO_BBB_CORE, updateHookUseCustomSubscription,
     );
     return () => {
       window.removeEventListener(
-        HookEvents.SUBSCRIBED, updateHookUseCustomSubscription,
+        HookEvents.PLUGIN_SUBSCRIBED_TO_BBB_CORE, updateHookUseCustomSubscription,
       );
     };
   }, []);

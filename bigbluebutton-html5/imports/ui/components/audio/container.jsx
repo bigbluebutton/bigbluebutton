@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React, { useCallback, useEffect } from 'react';
 import { useSubscription } from '@apollo/client';
 import PropTypes from 'prop-types';
 import Session from '/imports/ui/services/storage/in-memory';
@@ -109,7 +109,6 @@ const AudioContainer = (props) => {
     isVideoPreviewModalOpen,
     intl,
     userLocks,
-    speechLocale,
   } = props;
 
   const APP_CONFIG = window.meetingClientSettings.public.app;
@@ -129,12 +128,26 @@ const AudioContainer = (props) => {
   const hasBreakoutRooms = (breakoutCountData?.breakoutRoom_aggregate?.aggregate?.count ?? 0) > 0;
   const meetingIsBreakout = useMeetingIsBreakout();
   const { data: meeting } = useMeeting((m) => ({
+    audioBridge: m.audioBridge,
     voiceSettings: {
       voiceConf: m?.voiceSettings?.voiceConf,
+      muteOnStart: m?.voiceSettings?.muteOnStart,
     },
   }));
-  const { data: currentUserName } = useCurrentUser((u) => u.name);
 
+  const { data: currentUserName } = useCurrentUser((u) => u.name);
+  const { data: speechLocale } = useCurrentUser((u) => u.speechLocale);
+  // public.media.defaultFullAudioBridge/public.media.defaultListenOnlyBridge
+  // are legacy configs. They will be removed in the future. Use
+  // audioBridge (bbb-web, create) instead.
+  const {
+    defaultFullAudioBridge,
+    defaultListenOnlyBridge,
+  } = window.meetingClientSettings.public.media || {};
+  const bridges = {
+    fullAudioBridge: meeting?.audioBridge ?? defaultFullAudioBridge,
+    listenOnlyBridge: meeting?.audioBridge ?? defaultListenOnlyBridge,
+  };
   const openAudioModal = () => setAudioModalIsOpen(true);
 
   const openVideoPreviewModal = () => {
@@ -150,7 +163,9 @@ const AudioContainer = (props) => {
       speechLocale,
       meeting?.voiceSettings?.voiceConf,
       currentUserName,
+      bridges,
     );
+
     if ((!autoJoin || didMountAutoJoin)) {
       if (enableVideo && autoShareWebcam) {
         openVideoPreviewModal();
@@ -179,16 +194,16 @@ const AudioContainer = (props) => {
   const { data: unmutedUsers } = useWhoIsUnmuted();
   const currentUserMuted = currentUser?.userId && !unmutedUsers[currentUser.userId];
 
-  const joinAudio = () => {
+  const joinAudio = useCallback(() => {
     if (Service.isConnected()) return;
 
     if (userSelectedMicrophone) {
-      joinMicrophone({ skipEchoTest: true });
+      joinMicrophone({ skipEchoTest: true, muted: meeting?.voiceSettings?.muteOnStart });
       return;
     }
 
     if (userSelectedListenOnly) joinListenOnly();
-  };
+  }, [userSelectedMicrophone, userSelectedListenOnly, meeting?.voiceSettings?.muteOnStart]);
 
   useEffect(() => {
     // Data is not loaded yet.
@@ -273,5 +288,4 @@ AudioContainer.propTypes = {
   userLocks: PropTypes.shape({
     userMic: PropTypes.bool.isRequired,
   }).isRequired,
-  speechLocale: PropTypes.string.isRequired,
 };

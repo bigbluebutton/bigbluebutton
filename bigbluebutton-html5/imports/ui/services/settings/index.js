@@ -3,6 +3,7 @@ import { isEmpty } from 'radash';
 import LocalStorage from '/imports/ui/services/storage/local';
 import SessionStorage from '/imports/ui/services/storage/session';
 import { CHANGED_SETTINGS, DEFAULT_SETTINGS, SETTINGS } from './enums';
+import getFromUserSettings from '/imports/ui/services/users-settings';
 
 class Settings {
   constructor(defaultValues = {}) {
@@ -31,6 +32,19 @@ class Settings {
     writableDefaultValues.application.locale = navigator.languages ? navigator.languages[0] : false
       || navigator.language
       || writableDefaultValues.application.locale;
+
+    const showAnimationsDefault = getFromUserSettings(
+      'bbb_show_animations_default',
+      window.meetingClientSettings.public.app.defaultSettings.application.animations,
+    );
+
+    const showDarkThemeDefault = getFromUserSettings(
+      'bbb_prefer_dark_theme',
+      window.meetingClientSettings.public.app.defaultSettings.application.darkTheme,
+    );
+
+    writableDefaultValues.application.animations = showAnimationsDefault;
+    writableDefaultValues.application.darkTheme = showDarkThemeDefault;
 
     this.setDefault(writableDefaultValues);
     this.loadChanged();

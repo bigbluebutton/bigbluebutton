@@ -79,6 +79,8 @@ interface InputStreamLiveSelectorProps extends InputStreamLiveSelectorContainerP
   away: boolean;
   permissionStatus: string;
   supportsTransparentListenOnly: boolean;
+  updateInputDevices: (devices: InputDeviceInfo[]) => void;
+  updateOutputDevices: (devices: MediaDeviceInfo[]) => void;
 }
 
 const InputStreamLiveSelector: React.FC<InputStreamLiveSelectorProps> = ({
@@ -100,6 +102,8 @@ const InputStreamLiveSelector: React.FC<InputStreamLiveSelectorProps> = ({
   permissionStatus,
   supportsTransparentListenOnly,
   openAudioSettings,
+  updateInputDevices,
+  updateOutputDevices,
 }) => {
   const intl = useIntl();
   const toggleVoice = useToggleVoice();
@@ -114,13 +118,61 @@ const InputStreamLiveSelector: React.FC<InputStreamLiveSelectorProps> = ({
   const MUTE_ALERT_CONFIG = window.meetingClientSettings.public.app.mutedAlert;
   const { enabled: muteAlertEnabled } = MUTE_ALERT_CONFIG;
 
-  const updateDevices = (isAudioConnected: boolean) => {
+  const updateRemovedDevices = useCallback((
+    audioInputDevices: MediaDeviceInfo[],
+    audioOutputDevices: MediaDeviceInfo[],
+  ) => {
+    if (inputDeviceId
+      && (inputDeviceId !== DEFAULT_DEVICE)
+      && !audioInputDevices.find((d) => d.deviceId === inputDeviceId)) {
+      const fallbackInputDevice = audioInputDevices[0];
+
+      if (fallbackInputDevice?.deviceId) {
+        logger.warn({
+          logCode: 'audio_input_live_selector',
+          extraInfo: {
+            fallbackDeviceId: fallbackInputDevice?.deviceId,
+            fallbackDeviceLabel: fallbackInputDevice?.label,
+          },
+        }, 'Current input device was removed. Fallback to default device');
+        liveChangeInputDevice(fallbackInputDevice.deviceId).catch(() => {
+          notify(intl.formatMessage(intlMessages.deviceChangeFailed), true);
+        });
+      }
+    }
+
+    if (outputDeviceId
+      && (outputDeviceId !== DEFAULT_DEVICE)
+      && !audioOutputDevices.find((d) => d.deviceId === outputDeviceId)) {
+      const fallbackOutputDevice = audioOutputDevices[0];
+
+      if (fallbackOutputDevice?.deviceId) {
+        logger.warn({
+          logCode: 'audio_output_live_selector',
+          extraInfo: {
+            fallbackDeviceId: fallbackOutputDevice?.deviceId,
+            fallbackDeviceLabel: fallbackOutputDevice?.label,
+          },
+        }, 'Current output device was removed. Fallback to default device');
+        liveChangeOutputDevice(fallbackOutputDevice.deviceId, true).catch(() => {
+          notify(intl.formatMessage(intlMessages.deviceChangeFailed), true);
+        });
+      }
+    }
+  }, [inputDeviceId, outputDeviceId]);
+
+  const updateDevices = useCallback(() => {
     navigator.mediaDevices.enumerateDevices()
       .then((devices) => {
         const audioInputDevices = devices.filter((i) => i.kind === AUDIO_INPUT);
         const audioOutputDevices = devices.filter((i) => i.kind === AUDIO_OUTPUT);
         setInputDevices(audioInputDevices as InputDeviceInfo[]);
         setOutputDevices(audioOutputDevices);
+        // Update audio devices in AudioManager
+        updateInputDevices(audioInputDevices as InputDeviceInfo[]);
+        updateOutputDevices(audioOutputDevices);
+
+        if (inAudio) updateRemovedDevices(audioInputDevices, audioOutputDevices);
       })
       .catch((error) => {
         logger.warn({
@@ -131,62 +183,21 @@ const InputStreamLiveSelector: React.FC<InputStreamLiveSelectorProps> = ({
           },
         }, `Error enumerating audio devices: ${error.message}`);
       });
-    if (isAudioConnected) {
-      updateRemovedDevices(inputDevices, outputDevices);
-    }
-  };
+  }, [inAudio, inputDevices, outputDevices, updateRemovedDevices]);
 
-  const fallbackInputDevice = useCallback((fallbackDevice: MediaDeviceInfo) => {
-    if (!fallbackDevice || !fallbackDevice.deviceId) return;
+  useEffect(() => {
+    navigator.mediaDevices.addEventListener('devicechange', updateDevices);
 
-    logger.warn({
-      logCode: 'audio_input_live_selector',
-      extraInfo: {
-        fallbackDeviceId: fallbackDevice?.deviceId,
-        fallbackDeviceLabel: fallbackDevice?.label,
-      },
-    }, 'Current input device was removed. Fallback to default device');
-    liveChangeInputDevice(fallbackDevice.deviceId).catch(() => {
-      notify(intl.formatMessage(intlMessages.deviceChangeFailed), true);
-    });
-  }, []);
-
-  const fallbackOutputDevice = useCallback((fallbackDevice: MediaDeviceInfo) => {
-    if (!fallbackDevice || !fallbackDevice.deviceId) return;
-    logger.warn({
-      logCode: 'audio_output_live_selector',
-      extraInfo: {
-        fallbackDeviceId: fallbackDevice?.deviceId,
-        fallbackDeviceLabel: fallbackDevice?.label,
-      },
-    }, 'Current output device was removed. Fallback to default device');
-    liveChangeOutputDevice(fallbackDevice.deviceId, true).catch(() => {
-      notify(intl.formatMessage(intlMessages.deviceChangeFailed), true);
-    });
-  }, []);
-
-  const updateRemovedDevices = useCallback((
-    audioInputDevices: MediaDeviceInfo[],
-    audioOutputDevices: MediaDeviceInfo[],
-  ) => {
-    if (inputDeviceId
-      && (inputDeviceId !== DEFAULT_DEVICE)
-      && !audioInputDevices.find((d) => d.deviceId === inputDeviceId)) {
-      fallbackInputDevice(audioInputDevices[0]);
-    }
-
-    if (outputDeviceId
-      && (outputDeviceId !== DEFAULT_DEVICE)
-      && !audioOutputDevices.find((d) => d.deviceId === outputDeviceId)) {
-      fallbackOutputDevice(audioOutputDevices[0]);
-    }
-  }, [inputDeviceId]);
+    return () => {
+      navigator.mediaDevices.removeEventListener('devicechange', updateDevices);
+    };
+  }, [updateDevices]);
 
   useEffect(() => {
     if (enableDynamicAudioDeviceSelection) {
-      updateDevices(inAudio);
+      updateDevices();
     }
-  }, [inAudio, permissionStatus]);
+  }, [permissionStatus]);
 
   useEffect(() => {
     // If the user has no input device, is connected to audio and unmuted,
@@ -304,6 +315,12 @@ const InputStreamLiveSelectorContainer: React.FC<InputStreamLiveSelectorContaine
   const permissionStatus = useReactiveVar(AudioManager._permissionStatus.value) as string;
   // @ts-ignore - temporary while hybrid (meteor+GraphQl)
   const supportsTransparentListenOnly = useReactiveVar(AudioManager._transparentListenOnlySupported.value) as boolean;
+  const updateInputDevices = (devices: InputDeviceInfo[] = []) => {
+    AudioManager.inputDevices = devices;
+  };
+  const updateOutputDevices = (devices: MediaDeviceInfo[] = []) => {
+    AudioManager.outputDevices = devices;
+  };
 
   return (
     <InputStreamLiveSelector
@@ -326,6 +343,8 @@ const InputStreamLiveSelectorContainer: React.FC<InputStreamLiveSelectorContaine
       openAudioSettings={openAudioSettings}
       permissionStatus={permissionStatus}
       supportsTransparentListenOnly={supportsTransparentListenOnly}
+      updateInputDevices={updateInputDevices}
+      updateOutputDevices={updateOutputDevices}
     />
   );
 };

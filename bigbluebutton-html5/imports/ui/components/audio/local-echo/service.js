@@ -1,5 +1,6 @@
 import LocalPCLoopback from '/imports/ui/services/webrtc-base/local-pc-loopback';
 import browserInfo from '/imports/utils/browserInfo';
+import logger from '/imports/startup/client/logger';
 
 const LOCAL_MEDIA_TAG = '#local-media';
 
@@ -125,9 +126,27 @@ const playEchoStream = async (stream, loopbackAgent = null) => {
   }
 };
 
+const setAudioSink = (deviceId) => {
+  const audioElement = document.querySelector(LOCAL_MEDIA_TAG);
+
+  if (audioElement.setSinkId) {
+    audioElement.setSinkId(deviceId).catch((error) => {
+      logger.warn({
+        logCode: 'localecho_output_change_error',
+        extraInfo: {
+          errorName: error?.name,
+          errorMessage: error?.message,
+          deviceId,
+        },
+      }, `Error setting audio sink in local echo test: ${error?.name}`);
+    });
+  }
+};
+
 export default {
   shouldUseRTCLoopback,
   createAudioRTCLoopback,
   deattachEchoStream,
   playEchoStream,
+  setAudioSink,
 };

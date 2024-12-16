@@ -7,7 +7,6 @@ import org.bigbluebutton.core.db.ChatMessageDAO
 import org.bigbluebutton.core.models.{ GroupChatFactory, GroupChatMessage, Roles, UserState, Users2x }
 import org.bigbluebutton.core.running.{ LiveMeeting, OutMsgRouter }
 import org.bigbluebutton.core2.MeetingStatus2x
-import org.bigbluebutton.core2.message.senders.MsgBuilder
 
 trait ChangeUserAwayReqMsgHdlr extends RightsManagementTrait {
   this: UsersApp =>
@@ -44,6 +43,7 @@ trait ChangeUserAwayReqMsgHdlr extends RightsManagementTrait {
       )
 
       if (!(user.role == Roles.VIEWER_ROLE && user.locked && permissions.disablePubChat)
+        && (!user.userLockSettings.disablePublicChat || user.role == Roles.MODERATOR_ROLE)
         && ((user.away && !msg.body.away) || (!user.away && msg.body.away))) {
         ChatMessageDAO.insertSystemMsg(liveMeeting.props.meetingProp.intId, GroupChatApp.MAIN_PUBLIC_CHAT, "", GroupChatMessageType.USER_AWAY_STATUS_MSG, msgMeta, user.name)
       }

@@ -90,15 +90,10 @@ const SettingsLoader: React.FC<SettingsLoaderProps> = (props) => {
       {error ? (
         <ErrorScreen
           endedReason={error}
-          code={403}
         />
       ) : null}
       {loading ? (
-        <LoadingScreen>
-          <div style={{ display: 'none' }}>
-            Loading...
-          </div>
-        </LoadingScreen>
+        <LoadingScreen />
       ) : null}
     </>
   );

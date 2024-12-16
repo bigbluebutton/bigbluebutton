@@ -6,7 +6,6 @@ import (
 	"context"
 	"encoding/json"
 	"errors"
-	log "github.com/sirupsen/logrus"
 	"nhooyr.io/websocket"
 	"sync"
 	"time"
@@ -15,9 +14,8 @@ import (
 func BrowserConnectionReader(
 	browserConnection *common.BrowserConnection,
 	waitGroups []*sync.WaitGroup) {
-	log := log.WithField("_routine", "BrowserConnectionReader").WithField("browserConnectionId", browserConnection.Id)
-	defer log.Debugf("finished")
-	log.Debugf("starting")
+	defer browserConnection.Logger.Debugf("finished")
+	browserConnection.Logger.Debugf("starting")
 
 	defer func() {
 		browserConnection.FromBrowserToHasuraChannel.Close()
@@ -37,19 +35,23 @@ func BrowserConnectionReader(
 
 	for {
 		messageType, message, err := browserConnection.Websocket.Read(browserConnection.Context)
+
 		if err != nil {
 			if errors.Is(err, context.Canceled) {
-				log.Debugf("Closing Browser ws connection as Context was cancelled!")
+				browserConnection.Logger.Debugf("Closing Browser ws connection as Context was cancelled!")
 			} else {
-				log.Debugf("Browser is disconnected, skipping reading of ws message: %v", err)
+				browserConnection.Logger.Debugf("Browser is disconnected, skipping reading of ws message: %v", err)
 			}
 			return
 		}
 
-		log.Tracef("received from browser: %s", string(message))
+		browserConnection.Logger.Tracef("received from browser: %s", string(message))
+		browserConnection.Lock()
+		browserConnection.LastBrowserMessageTime = time.Now()
+		browserConnection.Unlock()
 
 		if messageType != websocket.MessageText {
-			log.Warnf("received non-text message: %v", messageType)
+			browserConnection.Logger.Warnf("received non-text message: %v", messageType)
 			continue
 		}
 
@@ -58,7 +60,7 @@ func BrowserConnectionReader(
 		}
 		err = json.Unmarshal(message, &browserMessageType)
 		if err != nil {
-			log.Errorf("failed to unmarshal message: %v", err)
+			browserConnection.Logger.Errorf("failed to unmarshal message: %v", err)
 			continue
 		}
 

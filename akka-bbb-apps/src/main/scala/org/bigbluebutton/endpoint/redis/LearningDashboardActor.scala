@@ -21,6 +21,7 @@ case class Meeting(
   extId: String,
   name:  String,
   downloadSessionDataEnabled: Boolean,
+  other: Map[String, String] = Map(),
   users: Map[String, User] = Map(),
   genericDataTitles: Vector[String],
   polls: Map[String, Poll] = Map(),
@@ -50,9 +51,13 @@ case class User(
 
 case class UserId(
   intId:         String,
+  sessions: Vector[UserSession] = Vector(UserSession()),
+  userLeftFlag:  Boolean = false,
+)
+
+case class UserSession(
   registeredOn:  Long = System.currentTimeMillis(),
   leftOn:        Long = 0,
-  userLeftFlag:  Boolean = false,
 )
 
 case class Poll(
@@ -286,12 +291,12 @@ class LearningDashboardActor(
   }
 
   private def findUserByIntId(meeting: Meeting, intId: String): Option[User] = {
-    meeting.users.values.find(u => u.currentIntId == intId ||  (u.currentIntId == null && u.intIds.exists(uId => uId._2.intId == intId && uId._2.leftOn == 0)))
+    meeting.users.values.find(u => u.currentIntId == intId ||  (u.currentIntId == null && u.intIds.exists(uId => uId._2.intId == intId && uId._2.sessions.last.leftOn == 0)))
   }
 
   private def findUserByExtId(meeting: Meeting, extId: String, filterUserLeft: Boolean = false): Option[User] = {
     meeting.users.values.find(u => {
-      u.extId == extId && (filterUserLeft == false || !u.intIds.exists(uId => uId._2.leftOn == 0 && uId._2.userLeftFlag == false))
+      u.extId == extId && (filterUserLeft == false || !u.intIds.exists(uId => uId._2.sessions.last.leftOn == 0 && uId._2.userLeftFlag == false))
     })
   }
 
@@ -309,14 +314,21 @@ class LearningDashboardActor(
         for {
           userId <- user.intIds.get(msg.body.userId)
         } yield {
-          val updatedUser = user.copy(currentIntId = userId.intId, intIds = user.intIds + (userId.intId -> userId.copy(leftOn = 0, userLeftFlag = false)))
+          val updatedUserId = userId.copy(
+            sessions = userId.sessions.init :+ userId.sessions.last.copy(leftOn = 0),
+            userLeftFlag = false
+          )
+          val updatedUser = user.copy(
+            currentIntId = userId.intId,
+            intIds = user.intIds + (userId.intId -> updatedUserId)
+          )
           val updatedMeeting = meeting.copy(users = meeting.users + (updatedUser.userKey -> updatedUser))
 
           meetings += (updatedMeeting.intId -> updatedMeeting)
         }
       } else {
         val userLeftFlagged = meeting.users.values.filter(u => u.intIds.exists(uId => {
-          uId._2.intId == msg.body.userId && uId._2.userLeftFlag == true && uId._2.leftOn == 0
+          uId._2.intId == msg.body.userId && uId._2.userLeftFlag == true && uId._2.sessions.last.leftOn == 0
         }))
 
         //Flagged user must be reactivated, once UserJoinedMeetingEvtMsg won't be sent
@@ -353,12 +365,17 @@ class LearningDashboardActor(
   private def handleUserLeftMeetingEvtMsg(msg: UserLeftMeetingEvtMsg): Unit = {
     for {
       meeting <- meetings.values.find(m => m.intId == msg.header.meetingId)
-      user <- meeting.users.values.find(u => u.intIds.exists(uId => uId._2.intId == msg.body.intId && uId._2.leftOn == 0))
+      user <- meeting.users.values.find(u => u.intIds.exists(uId => uId._2.intId == msg.body.intId && uId._2.sessions.last.leftOn == 0))
       userId <- user.intIds.get(msg.body.intId)
     } yield {
+      val updatedSessions = userId.sessions.init :+ userId.sessions.last.copy(leftOn = System.currentTimeMillis())
+      val updatedUserId = userId.copy(
+        userLeftFlag = true,
+        sessions = updatedSessions
+      )
       val updatedUser = user.copy(
         currentIntId = if(user.currentIntId == userId.intId) null else user.currentIntId,
-        intIds = user.intIds + (userId.intId -> userId.copy(leftOn = System.currentTimeMillis()))
+        intIds = user.intIds + (userId.intId -> updatedUserId)
       )
       val updatedMeeting = meeting.copy(users = meeting.users + (updatedUser.userKey -> updatedUser))
 
@@ -478,7 +495,11 @@ class LearningDashboardActor(
       endUserTalk(meeting, user)
 
       if(user.isDialIn) {
-        val updatedUser = user.copy(intIds = user.intIds + (userId.intId -> userId.copy(leftOn = System.currentTimeMillis())))
+        val updatedSessions = userId.sessions.init :+ userId.sessions.last.copy(leftOn = System.currentTimeMillis())
+        val updatedUserId = userId.copy(
+          sessions = updatedSessions
+        )
+        val updatedUser = user.copy(intIds = user.intIds + (userId.intId -> updatedUserId))
         val updatedMeeting = meeting.copy(users = meeting.users + (updatedUser.userKey -> updatedUser))
 
         meetings += (updatedMeeting.intId -> updatedMeeting)
@@ -606,7 +627,11 @@ class LearningDashboardActor(
         msg.body.props.meetingProp.extId,
         msg.body.props.meetingProp.name,
         downloadSessionDataEnabled = !msg.body.props.meetingProp.disabledFeatures.contains("learningDashboardDownloadSessionData"),
-        genericDataTitles = Vector()
+        genericDataTitles = Vector(),
+        other = Map(
+          "learning-dashboard-learn-more-link"  -> msg.body.props.metadataProp.metadata.get("learning-dashboard-learn-more-link").getOrElse(""),
+          "learning-dashboard-feedback-link" -> msg.body.props.metadataProp.metadata.get("learning-dashboard-feedback-link").getOrElse("")
+        ),
       )
 
       meetings += (newMeeting.intId -> newMeeting)
@@ -653,9 +678,15 @@ class LearningDashboardActor(
     user.copy(
       currentIntId = null,
       intIds = user.intIds.map(uId => {
-        if(uId._2.leftOn > 0) (uId._1 -> uId._2)
+        if(uId._2.sessions.last.leftOn > 0) (uId._1 -> uId._2)
         else if(forceFlaggedIdsToLeft == false && uId._2.userLeftFlag == true) (uId._1 -> uId._2)
-        else (uId._1 -> uId._2.copy(leftOn = endedOn))
+        else {
+          val updatedSessions = uId._2.sessions.init :+ uId._2.sessions.last.copy(leftOn = endedOn)
+          val updatedUserId = uId._2.copy(
+            sessions = updatedSessions
+          )
+          (uId._1 -> updatedUserId)
+        }
       }),
       talk = user.talk.copy(
         totalTime = user.talk.totalTime + (if (user.talk.lastTalkStartedOn > 0) (endedOn - user.talk.lastTalkStartedOn) else 0),
@@ -691,20 +722,25 @@ class LearningDashboardActor(
           )
           , currentTime, false)
 
+        val currentUserId = user.intIds.get(intId).getOrElse(UserId(intId, sessions = Vector()))
+
         meetings += (meeting.intId -> meeting.copy(
           //Set leftOn to same intId in past user records
           users = meeting.users.map(u => {
             (u._1 -> u._2.copy(
               intIds = u._2.intIds.map(uId => {
                 (uId._1 -> {
-                  if (uId._2.intId == intId && uId._2.leftOn == 0) uId._2.copy(leftOn = currentTime)
+                  if (uId._2.intId == intId && uId._2.sessions.last.leftOn == 0) {
+                    val updatedSessions = uId._2.sessions.init :+ uId._2.sessions.last.copy(leftOn = currentTime)
+                     uId._2.copy(sessions = updatedSessions)
+                  }
                   else uId._2
                 })
               })))
           }) + (user.userKey -> user.copy(
             currentIntId = intId,
-            intIds = user.intIds + (intId -> user.intIds.get(intId).getOrElse(UserId(intId, currentTime)).copy(
-              leftOn = 0,
+            intIds = user.intIds + (intId -> currentUserId.copy(
+              sessions = currentUserId.sessions :+ UserSession(currentTime),
               userLeftFlag = false
             ))
           ))

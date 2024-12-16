@@ -1,0 +1,23 @@
+table:
+  name: v_user_lockSettings
+  schema: public
+configuration:
+  column_config: {}
+  custom_column_names: {}
+  custom_name: user_lockSettings
+  custom_root_fields: {}
+select_permissions:
+  - role: bbb_client
+    permission:
+      columns:
+        - disablePublicChat
+      filter:
+        _and:
+          - meetingId:
+              _eq: X-Hasura-MeetingId
+          - _or:
+              - userId:
+                  _eq: X-Hasura-UserId
+              - meetingId:
+                  _eq: X-Hasura-ModeratorInMeeting
+    comment: ""

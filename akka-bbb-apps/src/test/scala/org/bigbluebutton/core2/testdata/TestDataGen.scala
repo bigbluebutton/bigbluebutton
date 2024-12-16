@@ -6,7 +6,7 @@ import org.bigbluebutton.core.util.RandomStringGenerator
 
 object TestDataGen {
   def createRegisteredUser(meetingId: String, users: RegisteredUsers, name: String, role: String,
-                           guest: Boolean, authed: Boolean, waitForApproval: Boolean): RegisteredUser = {
+                          bot: Boolean, guest: Boolean, authed: Boolean, waitForApproval: Boolean, logoutURL: String = ""): RegisteredUser = {
     val id = "w_" + RandomStringGenerator.randomAlphanumericString(16)
     val extId = RandomStringGenerator.randomAlphanumericString(16)
     val authToken = RandomStringGenerator.randomAlphanumericString(16)
@@ -18,7 +18,8 @@ object TestDataGen {
     val color = "#ff6242"
 
     val ru = RegisteredUsers.create(meetingId, userId = id, extId, name, role,
-      authToken, sessionToken, avatarURL, webcamBackgroundURL, color, guest, authed, GuestStatus.ALLOW, false, "", Map(), false)
+      authToken, Vector(sessionToken), avatarURL, webcamBackgroundURL, color, bot,
+      guest, authed, GuestStatus.ALLOW, false, "", logoutUrl, Map(), false)
 
     RegisteredUsers.add(users, ru, meetingId = "test")
     ru
@@ -76,7 +77,7 @@ object TestDataGen {
 
   def createUserFor(liveMeeting: LiveMeeting, regUser: RegisteredUser, presenter: Boolean): UserState = {
     val u = UserState(intId = regUser.id, extId = regUser.externId, meetingId = regUser.meetingId, name = regUser.name,
-      role = regUser.role, guest = regUser.guest, authed = regUser.authed, guestStatus = regUser.guestStatus,
+      role = regUser.role,bot = regUser.bot, guest = regUser.guest, authed = regUser.authed, guestStatus = regUser.guestStatus,
       reactionEmoji = "none", raiseHand = false, away = false, pin = false, mobile = false,
       locked = false, presenter = false, avatar = regUser.avatarURL, regUser.webcamBackgroundURL, color = "#ff6242",
       clientType = "unknown", userLeftFlag = UserLeftFlag(false, 0))

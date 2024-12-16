@@ -152,7 +152,7 @@ else
     WEBRTC_RECORDER_CONFIG=$(yq e $WEBRTC_RECORDER_DEFAULT_CONFIG 2> /dev/null)
 fi
 
-HTML5_DEFAULT_CONFIG=/var/bigbluebutton/html5-client/private/config/settings.yml
+HTML5_DEFAULT_CONFIG=/usr/share/bigbluebutton/html5-client/private/config/settings.yml
 HTML5_ETC_CONFIG=/etc/bigbluebutton/bbb-html5.yml
 if [ -f $HTML5_ETC_CONFIG ]; then
     HTML5_CONFIG=$(yq eval-all '. as $item ireduce ({}; . * $item )' $HTML5_DEFAULT_CONFIG $HTML5_ETC_CONFIG 2> /dev/null)
@@ -163,8 +163,16 @@ fi
 mkdir -p /etc/bigbluebutton/bbb-webrtc-sfu
 WEBRTC_SFU_DEFAULT_CONFIG=/usr/local/bigbluebutton/bbb-webrtc-sfu/config/default.yml
 WEBRTC_SFU_ETC_CONFIG=/etc/bigbluebutton/bbb-webrtc-sfu/production.yml
-touch $WEBRTC_SFU_ETC_CONFIG # create it as it gets modified later in this script
 WEBRTC_SFU_CONFIG=$(yq eval-all '. as $item ireduce ({}; . * $item )' $WEBRTC_SFU_DEFAULT_CONFIG $WEBRTC_SFU_ETC_CONFIG 2> /dev/null)
+
+LIVEKIT_SERVER_DEFAULT_CONFIG=/usr/share/livekit-server/livekit.yaml
+LIVEKIT_SERVER_ETC_CONFIG=/etc/bigbluebutton/livekit.yaml
+if [ -f $LIVEKIT_SERVER_ETC_CONFIG ]; then
+    LIVEKIT_SERVER_CONFIG=$(yq eval-all '. as $item ireduce ({}; . * $item )' $LIVEKIT_SERVER_DEFAULT_CONFIG $LIVEKIT_SERVER_ETC_CONFIG 2> /dev/null)
+else
+    LIVEKIT_SERVER_CONFIG=$(yq e $LIVEKIT_SERVER_DEFAULT_CONFIG 2> /dev/null)
+fi
+
 
 BBB_WEB_CONFIG="$SERVLET_DIR/WEB-INF/classes/bigbluebutton.properties"
 BBB_WEB_ETC_CONFIG="/etc/bigbluebutton/bbb-web.properties"
@@ -361,8 +369,8 @@ start_bigbluebutton () {
         fi
     fi
 
-    echo "Reloading NginX configuration"
-    systemctl reload nginx
+    echo "Reloading NginX configuration, restarting if needed"
+    systemctl reload-or-restart nginx
 
     echo "Starting BigBlueButton"
 
@@ -370,7 +378,7 @@ start_bigbluebutton () {
 }
 
 display_bigbluebutton_status () {
-    units="nginx freeswitch $REDIS_SERVICE bbb-apps-akka bbb-fsesl-akka"
+    units="nginx freeswitch $REDIS_SERVICE bbb-apps-akka bbb-fsesl-akka postgresql"
 
     if [ -f /usr/lib/systemd/system/bbb-graphql-actions.service ]; then
         units="$units bbb-graphql-actions"
@@ -426,6 +434,10 @@ display_bigbluebutton_status () {
 
     if [ -f /usr/lib/systemd/system/bbb-transcription-controller.service ]; then
         units="$units bbb-transcription-controller"
+    fi
+
+    if [ -f /usr/lib/systemd/system/livekit-server.service ]; then
+        units="$units livekit-server"
     fi
 
     line='—————————————————————————————►'
@@ -627,11 +639,19 @@ if [[ $PORT_RANGE ]]; then
         xmlstarlet edit --inplace --update '/configuration/settings/param[@name="rtp-start-port"]/@value' --value $START_PORT $FREESWITCH_SWITCH_CONF
         xmlstarlet edit --inplace --update '/configuration/settings/param[@name="rtp-end-port"]/@value' --value $END_PORT $FREESWITCH_SWITCH_CONF
 
+        if [ ! -f $WEBRTC_SFU_ETC_CONFIG ]; then
+            touch $WEBRTC_SFU_ETC_CONFIG
+        fi
         yq e -i ".mediasoup.worker.rtcMinPort = \"$START_PORT\"" $WEBRTC_SFU_ETC_CONFIG
         yq e -i ".mediasoup.worker.rtcMaxPort = \"$END_PORT\"" $WEBRTC_SFU_ETC_CONFIG
 
         yq e -i ".webrtc.rtcMinPort = \"$START_PORT\"" $WEBRTC_RECORDER_DEFAULT_CONFIG
         yq e -i ".webrtc.rtcMaxPort = \"$END_PORT\"" $WEBRTC_RECORDER_DEFAULT_CONFIG
+
+        if [ -f $LIVEKIT_SERVER_ETC_CONFIG ]; then
+            yq e -i ".rtc.port_range_start = \"$START_PORT\"" $LIVEKIT_SERVER_ETC_CONFIG
+            yq e -i ".rtc.port_range_end = \"$END_PORT\"" $LIVEKIT_SERVER_ETC_CONFIG
+        fi
 
         echo
         echo "BigBlueButton's UDP port range is now $START_PORT-$END_PORT"
@@ -675,6 +695,7 @@ check_configuration() {
     ignore_configs_args+=(-e "redis.pass")
     ignore_configs_args+=(-e "redisPassword")
     ignore_configs_args+=(-e "disabledFeatures")
+    ignore_configs_args+=(-e "pluginManifests")
 
     for file in $CONFIG_FILES ; do
         if [ ! -f $file ]; then
@@ -1275,6 +1296,10 @@ if [ $CHECK ]; then
 
     echo "                    bbb-webrtc-sfu: $(echo "$WEBRTC_SFU_CONFIG" | yq e '.mediasoup.worker.rtcMinPort' -)-$(echo "$WEBRTC_SFU_CONFIG" |yq e '.mediasoup.worker.rtcMaxPort' -)"
     echo "                    bbb-webrtc-recorder: $(echo "$WEBRTC_RECORDER_CONFIG" | yq e '.webrtc.rtcMinPort' -)-$(echo "$WEBRTC_RECORDER_CONFIG" | yq e '.webrtc.rtcMaxPort' -)"
+    if [ -n "$LIVEKIT_SERVER_CONFIG" ]; then
+        echo "                    livekit.rtc.port_range_start: $(echo "$LIVEKIT_SERVER_CONFIG" | yq e '.rtc.port_range_start' -)"
+        echo "                    livekit.rtc.port_range_end: $(echo "$LIVEKIT_SERVER_CONFIG" | yq e '.rtc.port_range_end' -)"
+    fi
 
     if [ -f $RECORD_CONFIG ]; then
         echo
@@ -1316,9 +1341,21 @@ if [ $CHECK ]; then
         echo "               recorder.directory: $(echo "$WEBRTC_RECORDER_CONFIG" | yq e '.recorder.directory' -)"
     fi
 
+    if [ -n "$LIVEKIT_SERVER_CONFIG" ]; then
+        LIVEKIT_ENABLED_CODECS=$(echo "$LIVEKIT_SERVER_CONFIG" | yq e '.room.enabled_codecs.[] | .mime' -)
+        echo
+        echo "/etc/bigbluebutton/livekit-server.yml (livekit-server)"
+        echo "               log_level: $(echo "$LIVEKIT_SERVER_CONFIG" | yq e '.log_level' -)"
+        echo "               port_range_start: $(echo "$LIVEKIT_SERVER_CONFIG" | yq e '.rtc.port_range_start' -)"
+        echo "               port_range_end: $(echo "$LIVEKIT_SERVER_CONFIG" | yq e '.rtc.port_range_end' -)"
+        echo "               room.enabled_codecs: $(echo "$LIVEKIT_ENABLED_CODECS" | awk -v ORS=", " '{ print $1 }' | sed 's/, $//')"
+        echo "               webrtc-sfu.livekit.enabled: $(echo "$WEBRTC_SFU_CONFIG" | yq e '.livekit.enabled' -)"
+        echo "               webrtc-sfu.livekit.keyIsSet: $(echo "$WEBRTC_SFU_CONFIG" | yq e '.livekit.key != null' -)"
+    fi
+
     if [ -n "$HTML5_CONFIG" ]; then
     echo
-    echo "/var/bigbluebutton/html5-client/private/config/settings.yml (HTML5 client)"
+    echo "/usr/share/bigbluebutton/html5-client/private/config/settings.yml (HTML5 client)"
     echo "/etc/bigbluebutton/bbb-html5.yml (HTML5 client config override)"
     echo "                             build: $(echo "$HTML5_CONFIG" | yq e '.public.app.html5ClientBuild' -)"
     echo "                        kurentoUrl: $(echo "$HTML5_CONFIG" | yq e '.public.kurento.wsUrl' -)"
@@ -1526,10 +1563,11 @@ if [ -n "$HOST" ]; then
     #
     # Update HTML5 client
     #
-    if [ -f $HTML5_DEFAULT_CONFIG ]; then
-        yq e -i ".public.kurento.wsUrl = \"wss://$HOST/bbb-webrtc-sfu\"" $HTML5_DEFAULT_CONFIG
-        yq e -i ".public.pads.url = \"$PROTOCOL://$HOST/pad\"" $HTML5_DEFAULT_CONFIG
+    if [ ! -f $HTML5_ETC_CONFIG ]; then
+        touch $HTML5_ETC_CONFIG
     fi
+    yq e -i ".public.kurento.wsUrl = \"wss://$HOST/bbb-webrtc-sfu\"" $HTML5_ETC_CONFIG
+    yq e -i ".public.pads.url = \"$PROTOCOL://$HOST/pad\"" $HTML5_ETC_CONFIG
 
     #
     # Update ESL passwords in three configuration files
@@ -1537,13 +1575,16 @@ if [ -n "$HOST" ]; then
     ESL_PASSWORD=$(cat /etc/bigbluebutton/bbb-fsesl-akka.conf | grep password | head -n 1 | sed 's/.*="//g' | sed 's/"//g')
     if [ "$ESL_PASSWORD" == "ClueCon" ]; then
         ESL_PASSWORD=$(openssl rand -hex 8)
-        sudo sed -i "s/ClueCon/$ESL_PASSWORD/g" /etc/bigbluebutton/bbb-fsesl-akka.conf
+        sed -i "s/ClueCon/$ESL_PASSWORD/g" /etc/bigbluebutton/bbb-fsesl-akka.conf
     fi
 
-    sudo yq e -i ".freeswitch.esl_password = \"$ESL_PASSWORD\"" $WEBRTC_SFU_ETC_CONFIG
-    sudo xmlstarlet edit --inplace --update 'configuration/settings//param[@name="password"]/@value' --value $ESL_PASSWORD /opt/freeswitch/etc/freeswitch/autoload_configs/event_socket.conf.xml
+    if [ ! -f $WEBRTC_SFU_ETC_CONFIG ]; then
+        touch $WEBRTC_SFU_ETC_CONFIG
+    fi
+    yq e -i ".freeswitch.esl_password = \"$ESL_PASSWORD\"" $WEBRTC_SFU_ETC_CONFIG
+    xmlstarlet edit --inplace --update 'configuration/settings//param[@name="password"]/@value' --value $ESL_PASSWORD /opt/freeswitch/etc/freeswitch/autoload_configs/event_socket.conf.xml
     if [ -f /usr/local/bigbluebutton/bbb-transcription-controller/config/default.yml ]; then
-        sudo yq e -i ".freeswitch.password = \"$ESL_PASSWORD\"" /usr/local/bigbluebutton/bbb-transcription-controller/config/default.yml
+        yq e -i ".freeswitch.password = \"$ESL_PASSWORD\"" /usr/local/bigbluebutton/bbb-transcription-controller/config/default.yml
     fi
 
     echo "Restarting BigBlueButton $BIGBLUEBUTTON_RELEASE ..."

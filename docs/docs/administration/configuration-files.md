@@ -24,7 +24,7 @@ Starting with BigBlueButton 2.3 many of the configuration files have local overr
 | /usr/share/bbb-web/WEB-INF/classes/bigbluebutton.properties             | /etc/bigbluebutton/bbb-web.properties            | Minimum containing general configuration (`securitySalt` and `serverURL`) |
 | /usr/share/bbb-apps-akka/conf/application.conf                          | /etc/bigbluebutton/bbb-apps-akka.conf            |                                                                                  |
 | /usr/share/bbb-fsesl-akka/conf/application.conf                         | /etc/bigbluebutton/bbb-fsesl-akka.conf           |                                                                                  |
-| /var/bigbluebutton/html5-client/private/config/settings.yml             | /etc/bigbluebutton/bbb-html5.yml                 | Arrays are merged by replacement (as of 2.4-rc-5)                                |
+| /usr/share/bigbluebutton/html5-client/private/config/settings.yml       | /etc/bigbluebutton/bbb-html5.yml                 | Arrays are merged by replacement (as of 2.4-rc-5)                                |
 | /etc/default/bbb-graphql-server                                         | /etc/bigbluebutton/bbb-graphql-server.env        | It can replace any Hasura config but HASURA_GRAPHQL_ADMIN_SECRET                 |
 | /usr/share/bbb-graphql-server/admin-secret                              |                                                  | Stores Hasura admin password (HASURA_GRAPHQL_ADMIN_SECRET), it can be edited     |
 | /usr/share/bbb-graphql-middleware/config.yml                            | /etc/bigbluebutton/bbb-graphql-middleware.yml    |                                                                                  |
@@ -69,7 +69,7 @@ services {
 
 ### Configuration files
 
-For `bbb-html5.yml` the settings file are YAML formatted. Any setting in this file overrides the corresponding setting in `/var/bigbluebutton/html5-client/private/config/settings.yml`. For example, the following `bbb-html5.yml` overrides the values for `public.kurento.screenshare.constraints.audio` to `true`.
+For `bbb-html5.yml` the settings file are YAML formatted. Any setting in this file overrides the corresponding setting in `/usr/share/bigbluebutton/html5-client/private/config/settings.yml`. For example, the following `bbb-html5.yml` overrides the values for `public.kurento.screenshare.constraints.audio` to `true`.
 
 ```
 public:

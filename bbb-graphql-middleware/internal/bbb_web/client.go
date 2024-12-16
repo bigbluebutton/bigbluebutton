@@ -15,7 +15,10 @@ import (
 var authHookUrl = config.GetConfig().AuthHook.Url
 
 func BBBWebCheckAuthorization(browserConnectionId string, sessionToken string, cookies []*http.Cookie) (string, string, error) {
-	logger := log.WithField("_routine", "BBBWebClient").WithField("browserConnectionId", browserConnectionId)
+	logger := log.WithField("_routine", "BBBWebClient").
+		WithField("browserConnectionId", browserConnectionId).
+		WithField("sessionToken", sessionToken)
+
 	logger.Debug("Starting BBBWebClient")
 	defer logger.Debug("Finished BBBWebClient")
 

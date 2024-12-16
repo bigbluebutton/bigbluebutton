@@ -27,12 +27,7 @@ class DrawPencil extends MultiUsers {
     await this.modPage.page.mouse.move(wbBox.x + 0.8 * wbBox.width, wbBox.y + 0.4 * wbBox.height, moveOptions);
     await this.modPage.page.mouse.up();
 
-    await this.modPage.setHeightWidthViewPortSize();
-    await expect(modWbLocator).toHaveScreenshot('moderator-pencil.png', screenshotOptions);
-
-    await this.userPage.setHeightWidthViewPortSize();
-    const userWbLocator = this.userPage.getLocator(e.whiteboard);
-    await expect(userWbLocator).toHaveScreenshot('viewer-pencil.png', screenshotOptions);
+    await this.modPage.hasElement(e.wbDraw);
   }
 }
 

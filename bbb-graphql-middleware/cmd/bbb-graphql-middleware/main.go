@@ -19,10 +19,12 @@ func main() {
 	// Configure logger
 	if logLevelFromConfig, err := log.ParseLevel(cfg.LogLevel); err == nil {
 		log.SetLevel(logLevelFromConfig)
+		if logLevelFromConfig > log.InfoLevel {
+			log.SetReportCaller(true)
+		}
 	} else {
 		log.SetLevel(log.InfoLevel)
 	}
-
 	log.SetFormatter(&log.JSONFormatter{})
 	log := log.WithField("_routine", "main")
 
@@ -37,6 +39,9 @@ func main() {
 	if cfg.Server.JsonPatchDisabled {
 		log.Infof("Json Patch Disabled!")
 	}
+
+	// Routine to check for idle connections and close them
+	go websrv.InvalidateIdleBrowserConnectionsRoutine()
 
 	// Websocket listener
 
@@ -59,6 +64,8 @@ func main() {
 
 		websrv.ConnectionHandler(w, r)
 	})
+
+	http.HandleFunc("/graphql-reconnection", websrv.ReconnectionHandler)
 
 	// Add Prometheus metrics endpoint
 	http.Handle("/metrics", promhttp.Handler())

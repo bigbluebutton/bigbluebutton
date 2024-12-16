@@ -1,9 +1,10 @@
 import { gql } from '@apollo/client';
 
 export const CAMERA_BROADCAST_START = gql`
-  mutation CameraBroadcastStart($cameraId: String!) {
+  mutation CameraBroadcastStart($cameraId: String!, $contentType: String!) {
     cameraBroadcastStart(
       stream: $cameraId
+      contentType: $contentType
     )
   }
 `;

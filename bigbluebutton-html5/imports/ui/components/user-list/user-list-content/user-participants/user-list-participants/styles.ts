@@ -272,6 +272,7 @@ const VirtualizedList = styled(ScrollboxVertical)`
 
 const UserListItem = styled.div`
   padding: .25em 0;
+  margin-left: .5rem;
 `;
 
 export default {

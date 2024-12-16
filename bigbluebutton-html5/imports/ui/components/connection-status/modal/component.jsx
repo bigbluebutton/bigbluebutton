@@ -10,6 +10,7 @@ import Styled from './styles';
 import ConnectionStatusHelper from '../status-helper/component';
 import Auth from '/imports/ui/services/auth';
 import connectionStatus from '../../../core/graphql/singletons/connectionStatus';
+import logger from '/imports/startup/client/logger';
 
 const MIN_TIMEOUT = 3000;
 
@@ -145,6 +146,24 @@ const propTypes = {
   intl: PropTypes.shape({
     formatMessage: PropTypes.func.isRequired,
   }).isRequired,
+  startMonitoringNetwork: PropTypes.func.isRequired,
+  stopMonitoringNetwork: PropTypes.func.isRequired,
+  networkData: PropTypes.shape({
+    ready: PropTypes.bool,
+    audio: PropTypes.shape({
+      audioCurrentUploadRate: PropTypes.number,
+      audioCurrentDownloadRate: PropTypes.number,
+      jitter: PropTypes.number,
+      packetsLost: PropTypes.number,
+      transportStats: PropTypes.shape({
+        isUsingTurn: PropTypes.bool,
+      }),
+    }),
+    video: PropTypes.shape({
+      videoCurrentUploadRate: PropTypes.number,
+      videoCurrentDownloadRate: PropTypes.number,
+    }),
+  }),
 };
 
 const isConnectionStatusEmpty = (connectionStatusParam) => {
@@ -169,11 +188,9 @@ class ConnectionStatusComponent extends PureComponent {
     this.help = getHelp();
     this.state = {
       selectedTab: 0,
-      hasNetworkData: true,
       copyButtonText: intl.formatMessage(intlMessages.copy),
     };
     this.setButtonMessage = this.setButtonMessage.bind(this);
-    this.rateInterval = null;
     this.audioUploadLabel = intl.formatMessage(intlMessages.audioUploadRate);
     this.audioDownloadLabel = intl.formatMessage(intlMessages.audioDownloadRate);
     this.videoUploadLabel = intl.formatMessage(intlMessages.videoUploadRate);
@@ -181,12 +198,27 @@ class ConnectionStatusComponent extends PureComponent {
     this.handleSelectTab = this.handleSelectTab.bind(this);
   }
 
-  // async componentDidMount() {
-  //   this.startMonitoringNetwork();
-  // }
+  async componentDidMount() {
+    const { startMonitoringNetwork } = this.props;
+
+    try {
+      await startMonitoringNetwork();
+    } catch (error) {
+      logger.warn({
+        logCode: 'stats_monitor_network_error',
+        extraInfo: {
+          errorMessage: error?.message,
+          errorStack: error?.stack,
+        },
+      }, 'Failed to start monitoring network');
+    }
+  }
 
   componentWillUnmount() {
-    clearInterval(this.rateInterval);
+    const { stopMonitoringNetwork } = this.props;
+
+    clearTimeout(this.copyNetworkDataTimeout);
+    stopMonitoringNetwork();
   }
 
   handleSelectTab(tab) {
@@ -209,11 +241,8 @@ class ConnectionStatusComponent extends PureComponent {
    */
   async copyNetworkData() {
     const { intl, networkData } = this.props;
-    const {
-      hasNetworkData,
-    } = this.state;
 
-    if (!hasNetworkData) return;
+    if (!networkData?.ready) return;
 
     this.setButtonMessage(intl.formatMessage(intlMessages.copied));
 
@@ -445,17 +474,18 @@ class ConnectionStatusComponent extends PureComponent {
    * @return {Object} - The component to be renderized
    */
   renderCopyDataButton() {
+    const { networkData } = this.props;
     const { enableCopyNetworkStatsButton } = window.meetingClientSettings.public.app;
 
     if (!enableCopyNetworkStatsButton) {
       return null;
     }
 
-    const { hasNetworkData, copyButtonText } = this.state;
+    const { copyButtonText } = this.state;
     return (
       <Styled.CopyContainer aria-live="polite">
         <Styled.Copy
-          disabled={!hasNetworkData}
+          disabled={!networkData?.ready}
           role="button"
           data-test="copyStats"
           // eslint-disable-next-line react/jsx-no-bind

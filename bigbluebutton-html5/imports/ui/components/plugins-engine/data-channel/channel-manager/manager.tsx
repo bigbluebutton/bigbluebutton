@@ -37,7 +37,6 @@ export const DataChannelItemManager: React.ElementType<DataChannelItemManagerPro
           pluginName,
           channelName,
           pluginApi,
-          dataChannelTypes,
           subChannelName,
           dataChannelIdentifier,
         }}

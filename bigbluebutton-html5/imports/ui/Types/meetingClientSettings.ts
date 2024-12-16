@@ -1,3 +1,5 @@
+import type { TrackPublishOptions } from 'livekit-client';
+
 export interface MeetingClientSettings {
   public: Public
   private: Private
@@ -98,6 +100,8 @@ export interface App {
   fallbackOnEmptyLocaleString: boolean
   disableWebsocketFallback: boolean
   maxMutationPayloadSize: number
+  enableApolloDevTools: boolean
+  terminateAndRetryConnection: number
 }
 
 export interface BbbTabletApp {
@@ -525,6 +529,7 @@ export interface Chat {
   emojiPicker: EmojiPicker
   disableEmojis: string[]
   allowedElements: string[]
+  toolbar: string[]
 }
 
 export interface SystemMessagesKeys {
@@ -573,17 +578,11 @@ export interface Layout {
 
 export interface Pads {
   url: string
-  cookie: Cookie
-}
-
-export interface Cookie {
-  path: string
-  sameSite: string
-  secure: boolean
 }
 
 export interface Media {
   audio: Audio2
+  screenshare: Screenshare2,
   stunTurnServersFetchAddress: string
   cacheStunTurnServers: boolean
   fallbackStunServer: string
@@ -612,18 +611,38 @@ export interface Media {
   sdpSemantics: string
   localEchoTest: LocalEchoTest
   muteAudioOutputWhenAway: boolean
+  livekit: LiveKitSettings
+}
+
+export interface LiveKitCameraSettings {
+  publishOptions?: TrackPublishOptions
+}
+
+export interface LiveKitScreenShareSettings {
+  publishOptions?: TrackPublishOptions
+}
+
+export interface LiveKitAudioSettings {
+  publishOptions?: TrackPublishOptions
+  unpublishOnMute?: boolean
+}
+
+export interface LiveKitSettings {
+  url?: string
+  audio?: LiveKitAudioSettings
+  camera?: LiveKitCameraSettings
+  screenshare?: LiveKitScreenShareSettings
 }
 
 export interface Audio2 {
   defaultFullAudioBridge: string
   defaultListenOnlyBridge: string
-  bridges: Bridge[]
   retryThroughRelay: boolean
+  allowAudioJoinCancel: boolean
 }
 
-export interface Bridge {
-  name: string
-  path: string
+export interface Screenshare2 {
+  showButtonForNonPresenters: boolean
 }
 
 export interface LocalEchoTest {
@@ -697,6 +716,7 @@ export interface Whiteboard {
   pointerDiameter: number
   maxStickyNoteLength: number
   maxNumberOfAnnotations: number
+  maxNumberOfActiveUsers: number
   annotations: Annotations
   allowInfiniteWhiteboard: boolean
   allowInfiniteWhiteboardInBreakouts: boolean
@@ -724,10 +744,6 @@ export interface Text {
 
 export interface Toolbar {
   multiUserPenOnly: boolean
-  colors: Color[]
-  thickness: Thickness[]
-  font_sizes: FontSize[]
-  tools: Tool[]
   presenterTools: string[]
   multiUserTools: string[]
 }
@@ -743,11 +759,6 @@ export interface Thickness {
 
 export interface FontSize {
   value: number
-}
-
-export interface Tool {
-  icon: string
-  value: string
 }
 
 export interface ClientLog {

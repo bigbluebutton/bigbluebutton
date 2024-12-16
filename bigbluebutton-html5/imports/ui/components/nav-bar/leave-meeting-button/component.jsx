@@ -42,7 +42,7 @@ const propTypes = {
   isBreakoutRoom: PropTypes.bool,
   connected: PropTypes.bool.isRequired,
   isDropdownOpen: PropTypes.bool,
-  isMobile: PropTypes.bool.isRequired,
+  ismobile: PropTypes.bool.isRequired,
   userLeaveMeeting: PropTypes.func.isRequired,
 };
 
@@ -149,7 +149,7 @@ class LeaveMeetingButton extends PureComponent {
     const {
       intl,
       isDropdownOpen,
-      isMobile,
+      ismobile,
       isRTL,
     } = this.props;
 
@@ -160,11 +160,11 @@ class LeaveMeetingButton extends PureComponent {
     return (
       <>
         <BBBMenu
-          customStyles={!isMobile ? customStyles : null}
+          customStyles={!ismobile ? customStyles : null}
           trigger={(
             <Styled.LeaveButton
               state={isDropdownOpen ? 'open' : 'closed'}
-              isMobile={isMobile}
+              ismobile={ismobile.toString()}
               aria-label={intl.formatMessage(intlMessages.leaveMeetingBtnLabel)}
               label={intl.formatMessage(intlMessages.leaveMeetingBtnLabel)}
               tooltipLabel={intl.formatMessage(intlMessages.leaveMeetingBtnLabel)}

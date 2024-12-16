@@ -34,7 +34,7 @@ const LeaveMeetingButtonContainer = (props) => {
   return (
     <LeaveMeetingButton {...
       {
-        isMobile,
+        ismobile: isMobile,
         isRTL,
         userLeaveMeeting,
         isDropdownOpen,

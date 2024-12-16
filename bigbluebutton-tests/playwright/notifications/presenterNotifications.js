@@ -12,7 +12,6 @@ class PresenterNotifications extends MultiUsers {
   }
 
   async publishPollResults() {
-    await util.waitAndClearDefaultPresentationNotification(this.modPage);
     await utilPolling.startPoll(this.modPage);
     await this.userPage.waitAndClick(e.pollAnswerOptionBtn);
     await this.modPage.hasElementEnabled(e.publishPollingLabel);
@@ -30,7 +29,7 @@ class PresenterNotifications extends MultiUsers {
     await util.waitAndClearDefaultPresentationNotification(this.modPage);
     await utilScreenShare.startScreenshare(this.modPage);
     await util.checkNotificationText(this.modPage, e.startScreenshareToast);
-    await util.waitAndClearNotification(this.modPage);
+    await this.modPage.closeAllToastNotifications();
     await this.modPage.waitAndClick(e.stopScreenSharing);
     await util.checkNotificationText(this.modPage, e.endScreenshareToast);
   }
