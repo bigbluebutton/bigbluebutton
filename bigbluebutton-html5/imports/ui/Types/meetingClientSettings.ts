@@ -547,7 +547,7 @@ export interface Chat {
   disableEmojis: string[]
   allowedElements: string[]
   toolbar: string[]
-  messageInputComponent: 'rich' | 'simple'
+  inputType: 'plainText' | 'richEditor'
 }
 
 export interface SystemMessagesKeys {

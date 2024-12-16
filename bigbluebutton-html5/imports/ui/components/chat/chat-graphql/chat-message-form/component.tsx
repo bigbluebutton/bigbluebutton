@@ -753,7 +753,7 @@ const ChatMessageFormContainer: React.FC = () => {
 
   const disabled = locked && !isModerator && disablePrivateChat && !isPublicChat && !chat?.participant?.isModerator;
 
-  if (CHAT_CONFIG.messageInputComponent === 'rich') {
+  if (CHAT_CONFIG.inputType === 'richEditor') {
     return (
       <ChatRichTextEditor
         {...{
