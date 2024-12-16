@@ -141,7 +141,7 @@ const intlMessages = defineMessages({
   },
   lastTimeActive: {
     id: 'app.connection-status.lastTimeActive',
-    description: 'Last Time the user sent a active message',
+    description: 'Last time the client confirmed its connection was alive (sent a connection-alive message)',
   },
 });
 
