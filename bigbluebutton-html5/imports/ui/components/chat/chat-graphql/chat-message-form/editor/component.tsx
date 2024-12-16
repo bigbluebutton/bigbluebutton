@@ -701,6 +701,7 @@ const ChatRichTextEditor: React.FC<ChatRichTextEditorProps> = (props) => {
               disabled={editor.isEmpty}
               onClick={() => {
                 editor.commands.clearContent();
+                messageRef.current = '';
               }}
             >
               <SvgIcon iconName="xMark" />
