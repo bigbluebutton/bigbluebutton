@@ -27,6 +27,8 @@ import useDeduplicatedSubscription from '../../core/hooks/useDeduplicatedSubscri
 import AudioManager from '/imports/ui/services/audio-manager';
 import useCurrentUser from '/imports/ui/core/hooks/useCurrentUser';
 import { PIN_NOTES } from '../notes/mutations';
+import VideoProviderContainer from '../video-provider/container';
+import { useVideoStreams } from '../video-provider/hooks';
 
 const screenshareIntlMessages = defineMessages({
   // SCREENSHARE
@@ -164,11 +166,50 @@ const ScreenshareContainer = (props) => {
   const hasAudio = useScreenshareHasAudio();
   const streamId = useScreenshareStreamId();
 
+  const {
+    streams,
+    gridUsers,
+    totalNumberOfStreams,
+    totalNumberOfOtherStreams,
+  } = useVideoStreams();
+
+
   let pluginScreenshareHelperItems = [];
   if (pluginsExtensibleAreasAggregatedState.screenshareHelperItems) {
     pluginScreenshareHelperItems = [
       ...pluginsExtensibleAreasAggregatedState.screenshareHelperItems,
     ];
+  }
+
+  const screenShareStreams = streams.filter((stream) => stream.contentType === 'screenshare');
+  console.log("🚀 -> ScreenshareContainer -> screenShareStreams:", screenShareStreams)
+
+  if (screenShareStreams.length > 0) {
+    return (
+      <div
+        style={
+          {
+            position: 'absolute',
+            backgroundColor: '#06172A',
+            ...screenShare,
+          }
+        }
+      >
+        <VideoProviderContainer
+          cameraDock={{
+            position: 'absolute',
+            backgroundColor: '#06172A',
+            ...screenShare,
+          }}
+          streams={screenShareStreams}
+          focusedId=""
+          handleVideoFocus={() => {}}
+          screenShare
+        />
+      </div>
+    );
+  } else {
+    return null;
   }
 
   if ((isScreenBroadcasting || isCameraAsContentBroadcasting)

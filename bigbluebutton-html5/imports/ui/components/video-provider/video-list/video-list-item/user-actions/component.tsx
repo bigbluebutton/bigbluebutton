@@ -104,7 +104,7 @@ const UserActions: React.FC<UserActionProps> = (props) => {
   const {
     name, cameraId, numOfStreams, onHandleVideoFocus, stream, focused, onHandleMirror,
     isVideoSqueezed = false, videoContainer, isRTL, isStream, isSelfViewDisabled, isMirrored,
-    amIModerator, isFullscreenContext, layoutContextDispatch,
+    amIModerator, isFullscreenContext, layoutContextDispatch, screenShare,
   } = props;
 
   const { pluginsExtensibleAreasAggregatedState } = useContext(PluginsContext);

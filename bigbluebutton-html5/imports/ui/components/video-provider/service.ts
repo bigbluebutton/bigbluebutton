@@ -21,6 +21,7 @@ import Session from '/imports/ui/services/storage/in-memory';
 import type { Stream, StreamItem, VideoItem } from './types';
 import { VIDEO_TYPES } from './enums';
 import BBBVideoStream from '/imports/ui/services/webrtc-base/bbb-video-stream';
+import { log } from 'console';
 
 const TOKEN = '_';
 
@@ -104,7 +105,9 @@ class VideoService {
         name: Auth.fullname as string,
         nameSortable: Auth.fullname as string,
         type: VIDEO_TYPES.CONNECTING,
+        contentType: deviceId === 'screenshare' ? 'screenshare' : 'camera',
       };
+
       setConnectingStream(stream);
       setVideoState({ isConnecting: true });
     }
@@ -473,10 +476,12 @@ class VideoService {
   }
 
   getPreloadedStream() {
+    console.log("🚀 -> VideoService -> getPreloadedStream -> this.deviceId:", this.deviceId)
+    console.log("🚀 -> VideoService -> getPreloadedStream -> VideoPreviewService.getStream(this.deviceId):", VideoPreviewService.getStream(this.deviceId))
     if (this.deviceId == null) return null;
     return VideoPreviewService.getStream(this.deviceId);
   }
-
+  
   updatePeerDictionaryReference(newRef: Record<string, WebRtcPeer>) {
     this.webRtcPeersRef = newRef;
   }

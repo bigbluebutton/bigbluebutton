@@ -111,6 +111,8 @@ public class Meeting {
 	private Boolean meetingKeepEvents;
 	private String presentationUploadExternalDescription;
 	private String presentationUploadExternalUrl;
+	private String screenShareBroadcastAllowedFor = "PRESENTER";
+	private String viewerScreenShareViewAllowedFor = "MODERATORS";
 
 	private Integer meetingExpireIfNoUserJoinedInMinutes = 5;
 	private Integer meetingExpireWhenLastUserLeftInMinutes = 1;
@@ -198,6 +200,8 @@ public class Meeting {
         users = new ConcurrentHashMap<>();
         registeredUsers = new ConcurrentHashMap<>();
         enteredUsers = new  ConcurrentHashMap<>();
+		screenShareBroadcastAllowedFor = builder.screenShareBroadcastAllowedFor;
+		viewerScreenShareViewAllowedFor = builder.viewerScreenShareViewAllowedFor;
     }
 
 	public void addBreakoutRoom(String meetingId) {
@@ -280,6 +284,14 @@ public class Meeting {
 			ruser.setGuestStatus(guestStatus);
 		}
 
+	}
+
+	public String getViewerScreenShareViewAllowedFor() {
+		return viewerScreenShareViewAllowedFor;
+	}
+
+	public String getScreenShareBroadcastAllowedFor() {
+		return screenShareBroadcastAllowedFor;
 	}
 
 	public RegisteredUser getRegisteredUserWithUserId(String userId) {
@@ -1004,6 +1016,8 @@ public class Meeting {
 		private Boolean endWhenNoModerator;
 		private Integer endWhenNoModeratorDelayInMinutes;
 		private ArrayList<Group> groups;
+		private String screenShareBroadcastAllowedFor;
+		private String viewerScreenShareViewAllowedFor;
 
     	public Builder(String externalId, String internalId, long createTime) {
     		this.externalId = externalId;
@@ -1258,6 +1272,16 @@ public class Meeting {
 
 		public Builder withGroups(ArrayList<Group> groups) {
 			this.groups = groups;
+			return this;
+		}
+
+		public Builder withScreenShareBroadcastAllowedFor (String screenShareBroadcastAllowedFor) {
+			this.screenShareBroadcastAllowedFor = screenShareBroadcastAllowedFor;
+			return this;
+		}
+
+		public Builder withViewerScreenShareViewAllowedFor (String viewerScreenShareViewAllowedFor) {
+			this.viewerScreenShareViewAllowedFor = viewerScreenShareViewAllowedFor;
 			return this;
 		}
 

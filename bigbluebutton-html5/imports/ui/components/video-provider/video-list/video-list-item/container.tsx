@@ -46,6 +46,7 @@ const VideoListItemContainer: React.FC<VideoListItemContainerProps> = (props) =>
     stream,
     userId,
     pluginUserCameraHelperPerPosition,
+    screenShare,
   } = props;
 
   const fullscreen = layoutSelect((i: Layout) => i.fullscreen);
@@ -78,6 +79,7 @@ const VideoListItemContainer: React.FC<VideoListItemContainerProps> = (props) =>
         layoutContextDispatch,
         isRTL,
         amIModerator,
+        screenShare,
       }}
       pluginUserCameraHelperPerPosition={pluginUserCameraHelperPerPosition}
       setUserCamerasRequestedFromPlugin={setUserCamerasRequestedFromPlugin}
