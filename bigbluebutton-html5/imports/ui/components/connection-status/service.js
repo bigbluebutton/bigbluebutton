@@ -7,7 +7,7 @@ import AudioService from '/imports/ui/components/audio/service';
 import ScreenshareService from '/imports/ui/components/screenshare/service';
 import VideoService from '/imports/ui/components/video-provider/service';
 import connectionStatus from '../../core/graphql/singletons/connectionStatus';
-import { getStatus } from '/imports/ui/core/utils/getStatus';
+import getStatus from '../../core/utils/getStatus';
 
 const intlMessages = defineMessages({
   saved: {

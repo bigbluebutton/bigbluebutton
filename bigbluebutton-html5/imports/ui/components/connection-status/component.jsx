@@ -8,7 +8,7 @@ import connectionStatus from '../../core/graphql/singletons/connectionStatus';
 
 import getBaseUrl from '/imports/ui/core/utils/getBaseUrl';
 import useCurrentUser from '../../core/hooks/useCurrentUser';
-import { getStatus } from '/imports/ui/core/utils/getStatus';
+import getStatus from '../../core/utils/getStatus';
 
 const ConnectionStatus = () => {
   const STATS_INTERVAL = window.meetingClientSettings.public.stats.interval;
