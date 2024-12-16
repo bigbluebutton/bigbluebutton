@@ -8,7 +8,7 @@ export const CONNECTION_STATUS_REPORT_SUBSCRIPTION = gql`subscription ConnStatus
             { lastUnstableStatus: { _is_null: false } }
           ]
   },
-  order_by: {lastUnstableStatusAt: asc}
+  order_by: {lastUnstableStatusAt: desc}
   ) {
     user {
       userId

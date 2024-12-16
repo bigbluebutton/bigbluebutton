@@ -296,7 +296,8 @@ class ConnectionStatusComponent extends PureComponent {
 
     return connections.map((conn, index) => {
       const dateTime = new Date(conn.lastUnstableStatusAt);
-      const lastActiveConnection = new Date(conn.connectionAliveAt)
+      const lastActiveConnection = conn.connectionAliveAt
+        ? new Date(conn.connectionAliveAt) : new Date();
       return (
         <Styled.Item
           key={`${conn.user.name}-${conn.user.userId}`}
