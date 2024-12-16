@@ -572,7 +572,7 @@ export const meetingClientSettingsInitialValues: MeetingClientSettings = {
         'strong',
       ],
       toolbar: [],
-      messageInputComponent: 'rich',
+      inputType: 'plainText',
     },
     userReaction: {
       enabled: true,

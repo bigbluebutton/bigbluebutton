@@ -660,7 +660,7 @@ const ChatMessageFormContainer: React.FC = () => {
 
   const CHAT_CONFIG = window.meetingClientSettings.public.chat;
 
-  if (CHAT_CONFIG.messageInputComponent === 'rich') {
+  if (CHAT_CONFIG.inputType === 'richEditor') {
     return (
       <ChatRichTextEditor
         {...{
