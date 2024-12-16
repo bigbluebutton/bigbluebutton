@@ -1,14 +1,21 @@
 package org.bigbluebutton.core.models
 
 import com.softwaremill.quicklens._
-import org.bigbluebutton.core.db.{UserBreakoutRoomDAO, UserDAO, UserDbModel, UserSessionTokenDAO}
+import org.bigbluebutton.core.db.{
+  UserBreakoutRoomDAO,
+  UserDAO,
+  UserDbModel,
+  UserSessionTokenDAO,
+  UserLivekitDAO
+}
 import org.bigbluebutton.core.domain.BreakoutRoom2x
 
 object RegisteredUsers {
   def create(meetingId: String, userId: String, extId: String, name: String, roles: String,
              authToken: String, sessionToken: Vector[String], avatar: String, webcamBackground: String, color: String, bot: Boolean,
-             guest: Boolean, authenticated: Boolean, guestStatus: String, excludeFromDashboard: Boolean, enforceLayout: String,
-             userMetadata: Map[String, String], loggedOut: Boolean): RegisteredUser = {
+             guest: Boolean, authenticated: Boolean, guestStatus: String, excludeFromDashboard: Boolean, enforceLayout: String, logoutUrl: String,
+             userMetadata: Map[String, String], loggedOut: Boolean,
+             livekitToken: Option[String] = None): RegisteredUser = {
     new RegisteredUser(
       userId,
       extId,
@@ -33,8 +40,10 @@ object RegisteredUsers {
       ejected = false,
       banned = false,
       enforceLayout,
+      logoutUrl,
       userMetadata,
       loggedOut,
+      livekitToken = livekitToken
     )
   }
 
@@ -132,7 +141,6 @@ object RegisteredUsers {
       // ralam april 21, 2020
       val u = ejectedUser.modify(_.banned).setTo(true)
       users.save(u)
-      UserDAO.update(u)
       u
     } else {
       val u = ejectedUser.modify(_.ejected).setTo(true)
@@ -162,7 +170,6 @@ object RegisteredUsers {
                      role: String): RegisteredUser = {
     val u = user.modify(_.role).setTo(role)
     users.save(u)
-    UserDAO.update(u)
     u
   }
 
@@ -177,7 +184,6 @@ object RegisteredUsers {
   def updateUserJoin(users: RegisteredUsers, user: RegisteredUser, joined: Boolean): RegisteredUser = {
     val u = user.copy(joined = joined)
     users.save(u)
-    UserDAO.update(u)
     u
   }
 
@@ -211,10 +217,11 @@ object RegisteredUsers {
     u
   }
 
-  def addUserSessionToken(users: RegisteredUsers, user: RegisteredUser, newSessionToken: String, enforceLayout: String): RegisteredUser = {
+  def addUserSessionToken(users: RegisteredUsers, user: RegisteredUser, newSessionToken: String, newSessionName: String,
+                          enforceLayout: String): RegisteredUser = {
     val u = user.copy(sessionToken = user.sessionToken :+ newSessionToken)
     users.save(u)
-    UserSessionTokenDAO.insert(u.meetingId, u.id, newSessionToken, enforceLayout)
+    UserSessionTokenDAO.insert(u.meetingId, u.id, newSessionToken, newSessionName, enforceLayout)
     u
   }
 
@@ -225,6 +232,12 @@ object RegisteredUsers {
     u
   }
 
+  def setLivekitToken(users: RegisteredUsers, user: RegisteredUser, token: String): RegisteredUser = {
+    val u = user.copy(livekitToken = Some(token))
+    users.save(u)
+    UserLivekitDAO.insert(u.meetingId, u.id, token)
+    u
+  }
 }
 
 class RegisteredUsers {
@@ -270,8 +283,10 @@ case class RegisteredUser(
     ejected:                  Boolean,
     banned:                   Boolean,
     enforceLayout:            String,
+    logoutUrl:                String,
     userMetadata:         Map[String,String],
     loggedOut:                Boolean,
     lastBreakoutRoom:         BreakoutRoom2x = null,
+    livekitToken:             Option[String] = None,
 )
 

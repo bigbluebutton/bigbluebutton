@@ -97,11 +97,11 @@ const ConnectionManager: React.FC<ConnectionManagerProps> = ({ children }): Reac
     BBBWeb.index().then(({ data }) => {
       setGraphqlUrl(data.graphqlWebsocketUrl);
     }).catch((error) => {
-      loadingContextInfo.setLoading(false, '');
+      loadingContextInfo.setLoading(false);
       throw new Error('Error fetching GraphQL URL: '.concat(error.message || ''));
     });
     logger.info('Fetching GraphQL URL');
-    loadingContextInfo.setLoading(true, '1/2');
+    loadingContextInfo.setLoading(true);
   }, []);
 
   useEffect(() => {
@@ -155,12 +155,12 @@ const ConnectionManager: React.FC<ConnectionManagerProps> = ({ children }): Reac
 
   useEffect(() => {
     logger.info('Connecting to GraphQL server');
-    loadingContextInfo.setLoading(true, '2/2');
+    loadingContextInfo.setLoading(true);
     if (graphqlUrl) {
       const urlParams = new URLSearchParams(window.location.search);
       const sessionToken = urlParams.get('sessionToken');
       if (!sessionToken) {
-        loadingContextInfo.setLoading(false, '');
+        loadingContextInfo.setLoading(false);
         throw new Error('Missing session token');
       }
       sessionStorage.setItem('sessionToken', sessionToken);
@@ -215,7 +215,7 @@ const ConnectionManager: React.FC<ConnectionManagerProps> = ({ children }): Reac
             }
 
             if (error && typeof error === 'object' && 'code' in error && error.code === 4403) {
-              loadingContextInfo.setLoading(false, '');
+              loadingContextInfo.setLoading(false);
               setTerminalError('Server refused the connection');
               return false;
             }
@@ -233,7 +233,7 @@ const ConnectionManager: React.FC<ConnectionManagerProps> = ({ children }): Reac
           on: {
             error: (error) => {
               logger.error('Graphql Client Error:', error);
-              loadingContextInfo.setLoading(false, '');
+              loadingContextInfo.setLoading(false);
               connectionStatus.setConnectedStatus(false);
               setErrorCounts((prev: number) => prev + 1);
             },
@@ -259,7 +259,7 @@ const ConnectionManager: React.FC<ConnectionManagerProps> = ({ children }): Reac
                 // message ID -1 as a signal to terminate the session
                 // it contains a prop message.messageId which can be used to show a proper error to the user
                 logger.error({ logCode: 'graphql_server_closed_connection', extraInfo: message }, 'Graphql Server closed the connection');
-                loadingContextInfo.setLoading(false, '');
+                loadingContextInfo.setLoading(false);
                 const payload = message.payload as ErrorPayload[];
                 if (payload[0].messageId) {
                   setTerminalError(new Error(payload[0].message, { cause: payload[0].messageId }));
@@ -277,12 +277,12 @@ const ConnectionManager: React.FC<ConnectionManagerProps> = ({ children }): Reac
         );
         wsLink = ApolloLink.from([payloadSizeCheckLink, errorLink, graphWsLink]);
         wsLink.setOnError((error) => {
-          loadingContextInfo.setLoading(false, '');
+          loadingContextInfo.setLoading(false);
           throw new Error('Error: on apollo connection'.concat(JSON.stringify(error) || ''));
         });
         apolloContextHolder.setLink(subscription);
       } catch (error) {
-        loadingContextInfo.setLoading(false, '');
+        loadingContextInfo.setLoading(false);
         throw new Error('Error creating WebSocketLink: '.concat(JSON.stringify(error) || ''));
       }
       let client;
@@ -295,7 +295,7 @@ const ConnectionManager: React.FC<ConnectionManagerProps> = ({ children }): Reac
         setApolloClient(client);
         apolloContextHolder.setClient(client);
       } catch (error) {
-        loadingContextInfo.setLoading(false, '');
+        loadingContextInfo.setLoading(false);
         throw new Error('Error creating Apollo Client: '.concat(JSON.stringify(error) || ''));
       }
     }

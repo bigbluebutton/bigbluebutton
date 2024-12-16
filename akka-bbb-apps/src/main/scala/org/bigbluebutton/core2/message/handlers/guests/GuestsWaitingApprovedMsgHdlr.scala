@@ -57,6 +57,7 @@ trait GuestsWaitingApprovedMsgHdlr extends HandlerHelpers with RightsManagementT
                         VoiceApp.toggleUserAudioInVoiceConf(
                           liveMeeting,
                           outGW,
+                          vu.intId,
                           vu.voiceUserId,
                           true
                         )

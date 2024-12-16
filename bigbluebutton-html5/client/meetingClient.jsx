@@ -38,7 +38,7 @@ import PLUGIN_CONFIGURATION_QUERY from '/imports/ui/components/plugins-engine/qu
 const Startup = () => {
   const loadingContextInfo = useContext(LoadingContext);
   useEffect(() => {
-    loadingContextInfo.setLoading(false, '');
+    loadingContextInfo.setLoading(false);
   }, []);
   // Logs all uncaught exceptions to the client logger
   window.addEventListener('error', (e) => {

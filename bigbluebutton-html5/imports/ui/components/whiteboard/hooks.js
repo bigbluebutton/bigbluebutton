@@ -70,7 +70,7 @@ const useMouseEvents = ({
     if (!(presentationInnerWrapper && presentationInnerWrapper.contains(event.target))) {
       const editingShape = tlEditorRef.current?.getEditingShape();
       if (editingShape) {
-        return tlEditorRef.current?.setEditingShape(null);
+        return tlEditorRef.current?.complete();
       }
     }
     return undefined;

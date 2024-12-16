@@ -31,7 +31,7 @@ class Webcam extends Page {
 
   async talkingIndicator() {
     await this.webcamLayoutStart();
-    await this.waitForSelector(e.webcamContainer, VIDEO_LOADING_WAIT_TIME);
+    await this.waitForSelector(e.webcamMirroredVideoContainer, VIDEO_LOADING_WAIT_TIME);
     await this.waitForSelector(e.leaveVideo, VIDEO_LOADING_WAIT_TIME);
     await this.waitForSelector(e.isTalking);
     await this.hasElement(e.webcamItemTalkingUser, 'should display the webcam item talking user');
@@ -45,7 +45,7 @@ class Webcam extends Page {
       await this.waitForSelector(e.videoQualitySelector);
       const langDropdown = await this.page.$(e.videoQualitySelector);
       await langDropdown.selectOption({ value });
-      await this.waitForSelector(e.videoPreview, videoPreviewTimeout);
+      await this.waitForSelector(e.webcamMirroredVideoPreview, videoPreviewTimeout);
       await this.waitAndClick(e.startSharingWebcam);
       await this.waitForSelector(e.webcamConnecting);
       await this.waitForSelector(e.leaveVideo, VIDEO_LOADING_WAIT_TIME);
@@ -68,8 +68,8 @@ class Webcam extends Page {
     await this.waitAndClick(`${e.selectDefaultBackground}[aria-label="Home"]`);
     await sleep(1000);
     await this.waitAndClick(e.startSharingWebcam);
-    await this.waitForSelector(e.webcamContainer);
-    const webcamVideoLocator = await this.getLocator(e.webcamContainer);
+    await this.waitForSelector(e.webcamMirroredVideoContainer);
+    const webcamVideoLocator = await this.getLocator(e.webcamMirroredVideoContainer);
     await expect(webcamVideoLocator).toHaveScreenshot('webcam-with-home-background.png');
   }
 
@@ -84,6 +84,7 @@ class Webcam extends Page {
     });
     await this.waitAndClick(e.dropdownWebcamButton);
     await this.waitAndClick(e.webcamsFullscreenButton);
+    await sleep(1000);  // timeout to ensure the video is in fullscreen
     // get fullscreen webcam size
     const { width, height } = await this.getLocator('video').boundingBox();
     await expect(width + 1, 'should the width to be the same as window width').toBe(windowWidth);  // not sure why there is a difference of 1 pixel
@@ -99,7 +100,7 @@ class Webcam extends Page {
     await this.waitAndClick(e.selectCustomBackground);
     await sleep(1000);
     await this.waitAndClick(e.startSharingWebcam);
-    await this.waitForSelector(e.webcamContainer);
+    await this.waitForSelector(e.webcamMirroredVideoContainer);
 
     await this.waitAndClick(e.dropdownWebcamButton);
     await this.waitAndClick(e.selfViewDisableBtn);
@@ -120,8 +121,8 @@ class Webcam extends Page {
     await this.waitAndClick(e.selectCustomBackground);
     await sleep(1000);
     await this.waitAndClick(e.startSharingWebcam);
-    await this.waitForSelector(e.webcamContainer);
-    const webcamVideoLocator = await this.getLocator(e.webcamContainer);
+    await this.waitForSelector(e.webcamMirroredVideoContainer);
+    const webcamVideoLocator = await this.getLocator(e.webcamMirroredVideoContainer);
     await expect(webcamVideoLocator).toHaveScreenshot('webcam-with-new-background.png');
 
     // Remove

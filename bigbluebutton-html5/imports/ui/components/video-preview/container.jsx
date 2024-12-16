@@ -1,7 +1,7 @@
 import React from 'react';
 import { useMutation } from '@apollo/client';
 import Service from './service';
-import VideoPreview from './component';
+import VideoPreview from '/imports/ui/components/video-preview/component';
 import VideoService from '/imports/ui/components/video-provider/service';
 import * as ScreenShareService from '/imports/ui/components/screenshare/service';
 import logger from '/imports/startup/client/logger';
@@ -22,7 +22,6 @@ const VideoPreviewContainer = (props) => {
   } = props;
   const cameraAsContentDeviceId = ScreenShareService.useCameraAsContentDeviceIdType();
   const [stopExternalVideoShare] = useMutation(EXTERNAL_VIDEO_STOP);
-
   const streams = useStreams();
   const exitVideo = useExitVideo();
   const stopVideo = useStopVideo();
