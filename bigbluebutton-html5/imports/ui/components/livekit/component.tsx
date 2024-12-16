@@ -22,12 +22,14 @@ import {
 } from '/imports/ui/services/livekit';
 import { USER_SET_TALKING } from '/imports/ui/components/livekit/mutations';
 import { useIceServers } from '/imports/ui/components/livekit/hooks';
+import LKAutoplayModalContainer from '/imports/ui/components/livekit/autoplay-modal/container';
 
 interface BBBLiveKitRoomProps {
   url?: string;
   token?: string;
   bbbSessionToken: string;
   usingAudio: boolean;
+  usingScreenShare: boolean;
 }
 
 interface ObserverProps {
@@ -77,6 +79,7 @@ const BBBLiveKitRoom: React.FC<BBBLiveKitRoomProps> = ({
   token,
   bbbSessionToken,
   usingAudio,
+  usingScreenShare,
 }) => {
   const {
     iceServers,
@@ -119,6 +122,9 @@ const BBBLiveKitRoom: React.FC<BBBLiveKitRoomProps> = ({
     });
   }, [url]);
 
+  // Screen share requires audio playback as well (Chrome supports it)
+  const withAudioPlayback = usingAudio || usingScreenShare;
+
   return (
     <LiveKitRoom
       video={false}
@@ -130,7 +136,8 @@ const BBBLiveKitRoom: React.FC<BBBLiveKitRoomProps> = ({
       style={{ zIndex: 0, height: 'initial', width: 'initial' }}
     >
       <LiveKitObserver room={liveKitRoom} url={url} usingAudio={usingAudio} />
-      <RoomAudioRenderer />
+      {withAudioPlayback && <LKAutoplayModalContainer />}
+      {withAudioPlayback && <RoomAudioRenderer />}
     </LiveKitRoom>
   );
 };
@@ -159,6 +166,7 @@ const BBBLiveKitRoomContainer: React.FC = () => {
       url={url}
       bbbSessionToken={Auth.sessionToken as string}
       usingAudio={bridges?.audioBridge === 'livekit'}
+      usingScreenShare={bridges?.screenShareBridge === 'livekit'}
     />
   );
 };

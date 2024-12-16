@@ -80,7 +80,6 @@ export default class LiveKitAudioBridge extends BaseAudioBridge {
   }
 
   private async publicationStarted(): Promise<void> {
-    await this.waitForAutoplay();
     this.callback({
       status: this.baseCallStates.started,
       bridge: this.bridgeName,
@@ -391,14 +390,6 @@ export default class LiveKitAudioBridge extends BaseAudioBridge {
     }
   }
 
-  dispatchAutoplayHandlingEvent(mediaElement: HTMLMediaElement): void {
-    const tagFailedEvent = new CustomEvent('audioPlayFailed', {
-      detail: { mediaElement },
-    });
-    window.dispatchEvent(tagFailedEvent);
-    this.callback({ status: this.baseCallStates.autoplayBlocked, bridge: this.bridgeName });
-  }
-
   private hasMicrophoneTrack(): boolean {
     const tracks = Array.from(
       this.liveKitRoom.localParticipant.audioTrackPublications.values(),
@@ -508,53 +499,6 @@ export default class LiveKitAudioBridge extends BaseAudioBridge {
       };
 
       this.liveKitRoom.once(RoomEvent.Connected, onRoomConnected);
-    });
-  }
-
-  private onPlaybackStatusChange(): boolean {
-    if (this.liveKitRoom.canPlaybackAudio) {
-      logger.info({
-        logCode: 'livekit_audio_autoplayed',
-        extraInfo: {
-          bridgeName: this.bridgeName,
-          role: this.role,
-        },
-      }, 'LiveKit: audio autoplayed');
-
-      return true;
-    }
-
-    this.handleAutoplayBlocked();
-
-    return false;
-  }
-
-  private handleAutoplayBlocked(): void {
-    const tagFailedEvent = new CustomEvent('audioPlayFailed', {
-      detail: { callback: this.liveKitRoom.startAudio },
-    });
-    window.dispatchEvent(tagFailedEvent);
-    logger.warn({
-      logCode: 'livekit_audio_autoplay_blocked',
-      extraInfo: {
-        bridgeName: this.bridgeName,
-        role: this.role,
-      },
-    }, 'LiveKit: audio autoplay blocked');
-  }
-
-  private waitForAutoplay(): Promise<void> {
-    return new Promise((resolve) => {
-      this.liveKitRoom.removeAllListeners(RoomEvent.AudioPlaybackStatusChanged);
-      this.liveKitRoom.on(RoomEvent.AudioPlaybackStatusChanged, () => {
-        if (this.onPlaybackStatusChange()) resolve();
-      });
-
-      if (this.liveKitRoom.canPlaybackAudio) {
-        resolve();
-      } else {
-        this.handleAutoplayBlocked();
-      }
     });
   }
 
