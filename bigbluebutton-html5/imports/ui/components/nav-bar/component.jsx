@@ -152,7 +152,7 @@ class NavBar extends Component {
     this.splitPluginItems = this.splitPluginItems.bind(this);
 
     this.state = {
-      isModalOpen: true,
+      isModalOpen: false,
     };
   }
 
