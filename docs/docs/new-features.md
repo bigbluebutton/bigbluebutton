@@ -256,6 +256,12 @@ We implemented a plugin for typed captions - [Typed captions plugin](https://git
 
 The `userStatus` feature was replaced by `userReaction`. They were vastly overlapping, causing some confusion when using and maintaining.
 
+#### Changes to User Muting Actions
+
+- The **"Mute all except presenter"** button now only mutes all current users except the presenter, as the label suggests. It no longer affects the mute state of incoming users.
+- A new button, **"Enable Users Join Muted" / "Disable Users Join Muted"**, has been added to manage whether new users join muted.
+- The **"Mute all users"** button has been removed, as muting all users (except the presenter) is covered by the existing functionality, and the presenter can be muted individually if needed.
+
 #### Upgrade of config editing tool yq
 
 We have upgraded `yq` from version 3.4.1 (which was no longer maintained) to 4.16.2. This is a major jump and the syntax used is quite different as well. We went through all internal uses of `yq` - packaging, bbb-install.sh, bbb-conf and others and updated the syntax. However, if you have custom scripts, you may have to rework the syntax too. Here is a [guide](https://mikefarah.gitbook.io/yq/upgrading-from-v3).
