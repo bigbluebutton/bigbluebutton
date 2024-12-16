@@ -49,6 +49,7 @@ func (t *FileWithAuxilliariesTransformer) Transform(msg pipeline.Message[*presen
 	if err != nil {
 		return pipeline.Message[*FileWithAuxilliaries]{}, fmt.Errorf("failed to open file: %w", err)
 	}
+	defer file.Close()
 
 	imgCfg, _, err := image.DecodeConfig(file)
 	if err != nil {

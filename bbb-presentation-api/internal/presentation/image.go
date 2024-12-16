@@ -109,7 +109,7 @@ func NewCMDIMageResizerWithConfig(cfg config.Config) *CMDImageResizer {
 	}
 }
 
-func (r CMDImageResizer) Resize(path, dimensions string) error {
+func (r *CMDImageResizer) Resize(path, dimensions string) error {
 	args := []string{
 		"-resize",
 		dimensions,

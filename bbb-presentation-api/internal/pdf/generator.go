@@ -2,7 +2,9 @@ package pdf
 
 import (
 	"context"
+	"encoding/base64"
 	"fmt"
+	"image"
 	"log/slog"
 	"os"
 	"os/exec"
@@ -353,7 +355,7 @@ func (g SVGGenerator) Generate(msg pipeline.Message[*FileWithPages]) (pipeline.M
 				Execute(g.exec, timeout, ctx)
 			output, genErr := cmd.CombinedOutput()
 			if genErr != nil {
-				slog.Error("failed to generate SVG", "file", msg.Payload.File, "page", page.Num, "error", genErr, "output", output)
+				slog.Error("Failed to generate SVG", "file", msg.Payload.File, "page", page.Num, "error", genErr, "output", output)
 			}
 		}
 
@@ -382,7 +384,7 @@ func (g SVGGenerator) Generate(msg pipeline.Message[*FileWithPages]) (pipeline.M
 				InputOutput(msg.Payload.File, png).Execute(g.exec, timeout, ctx)
 			output, genErr := cmd.CombinedOutput()
 			if genErr != nil {
-				slog.Error("failed to generate PNG", "file", msg.Payload.File, "page", page.Num, "error", genErr, "output", output)
+				slog.Error("Failed to generate PNG", "file", msg.Payload.File, "page", page.Num, "error", genErr, "output", output)
 			}
 
 			var pngSize int64
@@ -391,20 +393,32 @@ func (g SVGGenerator) Generate(msg pipeline.Message[*FileWithPages]) (pipeline.M
 			}
 
 			if pngSize > 0 {
-				args := []string{
-					fmt.Sprintf("%ds", timeout),
-					"convert",
-					png,
-					svg,
+				pngFile, openErr := os.Open(png)
+				if openErr != nil {
+					slog.Error("Failed to open PNG", "file", png, "error", openErr)
+				}
+				defer pngFile.Close()
+
+				pngData, readErr := os.ReadFile(png)
+				if readErr != nil {
+					slog.Error("Fail to read PNG data", "file", png, "error", readErr)
 				}
 
-				ctx, cancel := context.WithTimeout(context.Background(), time.Duration(timeout)*time.Second)
-				defer cancel()
+				imgCfg, _, decodeErr := image.DecodeConfig(pngFile)
+				if decodeErr != nil {
+					slog.Error("Failed to decode PNG", "file", png, "error", decodeErr)
+				}
 
-				cmd := g.exec(ctx, "timeout", args...)
-				output, timeoutErr := cmd.CombinedOutput()
-				if timeoutErr != nil {
-					slog.Error("failed to generate SVG", "file", png, "error", timeoutErr, "output", output)
+				base64EncodedPNG := base64.StdEncoding.EncodeToString(pngData)
+				svgData := fmt.Sprintf(`
+					<svg xmlns="http://www.w3.org/2000/svg" width="%d" height="%d">
+						<image href="data:image/png;base64,%s" width="%d" height="%d"/>
+					</svg>
+				`, imgCfg.Width, imgCfg.Height, base64EncodedPNG, imgCfg.Width, imgCfg.Height)
+
+				writeErr := os.WriteFile(svg, []byte(svgData), 0644)
+				if writeErr != nil {
+					slog.Error("Failed to write SVG data", "file", svg, "error", writeErr)
 				}
 
 				var svgSize int64
@@ -426,7 +440,7 @@ func (g SVGGenerator) Generate(msg pipeline.Message[*FileWithPages]) (pipeline.M
 					cmd := g.exec(ctx, "timeout", args...)
 					output, timeoutErr := cmd.CombinedOutput()
 					if timeoutErr != nil {
-						slog.Error("failed to add SVG namespace", "file", svg, "error", timeoutErr, "output", output)
+						slog.Error("Failed to add SVG namespace", "file", svg, "error", timeoutErr, "output", output)
 					}
 				}
 			}
