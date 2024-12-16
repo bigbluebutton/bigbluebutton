@@ -5,6 +5,7 @@ import ModalSimple from '/imports/ui/components/common/modal/simple/component';
 import { useQuery } from '@apollo/client';
 import { GET_WELCOME_MESSAGE, WelcomeMsgsResponse } from './queries';
 import Styled from './styles';
+import deviceInfo from '/imports/utils/deviceInfo';
 
 const intlMessages = defineMessages({
   title: {
@@ -78,6 +79,8 @@ const SessionDetails: React.FC<SessionDetailsProps> = (props) => {
     await navigator.clipboard.writeText(content);
   };
 
+  const { isMobile } = deviceInfo;
+
   return (
     <ModalSimple
       title={intl.formatMessage(intlMessages.title, { 0: meetingName })}
@@ -93,7 +96,9 @@ const SessionDetails: React.FC<SessionDetailsProps> = (props) => {
       }}
     >
       <Styled.Chevron />
-      <Styled.Container>
+      <Styled.Container
+        isFullWidth={isMobile || !(loginUrl || (formattedDialNum && formattedTelVoice))}
+      >
         <div>
           <Styled.WelcomeMessage dangerouslySetInnerHTML={{ __html: welcomeMessage }} />
           <Styled.WelcomeMessage dangerouslySetInnerHTML={{ __html: welcomeMsgForModerators }} />
@@ -120,27 +125,31 @@ const SessionDetails: React.FC<SessionDetailsProps> = (props) => {
               </p>
             </>
           )}
-          <Styled.JoinTitle>
-            {intl.formatMessage(intlMessages.joinByPhoneLabel)}
-            <Styled.CopyButton
-              key="copy-dial-in"
-              onClick={() => copyData(formattedDialNum)}
-              hideLabel
-              color="primary"
-              icon="copy"
-              size="sm"
-              circle
-              ghost
-              label={intl.formatMessage(intlMessages.copyPhoneTooltip)}
-            />
-          </Styled.JoinTitle>
-          <p>{formattedDialNum}</p>
-          <p>
-            <b>
-              {`${intl.formatMessage(intlMessages.phonePinLabel)}:`}
-            </b>
-            {` ${formattedPin} #`}
-          </p>
+          {formattedDialNum && formattedTelVoice && (
+            <>
+              <Styled.JoinTitle>
+                {intl.formatMessage(intlMessages.joinByPhoneLabel)}
+                <Styled.CopyButton
+                  key="copy-dial-in"
+                  onClick={() => copyData(formattedDialNum)}
+                  hideLabel
+                  color="primary"
+                  icon="copy"
+                  size="sm"
+                  circle
+                  ghost
+                  label={intl.formatMessage(intlMessages.copyPhoneTooltip)}
+                />
+              </Styled.JoinTitle>
+              <p>{formattedDialNum}</p>
+              <p>
+                <b>
+                  {`${intl.formatMessage(intlMessages.phonePinLabel)}:`}
+                </b>
+                {` ${formattedPin} #`}
+              </p>
+            </>
+          )}
         </div>
       </Styled.Container>
     </ModalSimple>

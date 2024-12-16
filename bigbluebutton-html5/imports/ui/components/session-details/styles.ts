@@ -3,18 +3,15 @@ import {
   colorGrayLightest,
   colorBlack,
 } from '/imports/ui/stylesheets/styled-components/palette';
-import deviceInfo from '/imports/utils/deviceInfo';
 import Button from '/imports/ui/components/common/button/component';
 import { smPadding } from '/imports/ui/stylesheets/styled-components/general';
-
-const { isMobile } = deviceInfo;
 
 const WelcomeMessage = styled.div`
   font-size: 1.0rem;
   margin-bottom: 1rem;
 `;
 
-const Container = styled.div`
+const Container = styled.div<{ isFullWidth: boolean }>`
   display: flex;
   flex-wrap: wrap;
   width: 100%;
@@ -22,7 +19,7 @@ const Container = styled.div`
   text-align: left;
 
   & > div {
-    flex: 1 1 50%;
+    flex: ${({ isFullWidth }) => (isFullWidth ? '1 1 100%' : '1 1 50%')};
     box-sizing: border-box;
     padding: 10px;
   }
@@ -31,13 +28,7 @@ const Container = styled.div`
     margin: 0;
   }
 
-  ${isMobile && `
-    & div {
-      flex: 1 1 100%;
-    }
-  `}
-
-  ${!isMobile && `
+  ${({ isFullWidth }) => !isFullWidth && `
     &::before {
       content: '';
       position: absolute;
