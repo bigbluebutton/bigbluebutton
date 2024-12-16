@@ -1,17 +1,16 @@
 import { EditorContent } from '@tiptap/react';
 import styled, { css } from 'styled-components';
 import {
-  btnPrimaryHoverBg, colorBlueLight, colorDanger, colorGrayDark, colorGrayLighter,
+  btnPrimaryHoverBg, colorBlueLight, colorBlueLighter, colorDanger, colorGrayDark, colorGrayLighter,
   colorGrayLightest, colorOffWhite, colorPrimary, colorText, colorWhite,
 } from '/imports/ui/stylesheets/styled-components/palette';
 import EmojiPickerComponent from '/imports/ui/components/emoji-picker/component';
 import { borderRadius } from '@mui/system';
-import { borderSize, smPaddingX } from '/imports/ui/stylesheets/styled-components/general';
+import { borderSize, smPaddingX, smPaddingY } from '/imports/ui/stylesheets/styled-components/general';
 import { fontSizeBase } from '/imports/ui/stylesheets/styled-components/typography';
+import { ScrollboxVertical } from '/imports/ui/stylesheets/styled-components/scrollable';
 
 const ChatEditorContent = styled(EditorContent)`
-  max-height: 150px;
-  overflow: auto;
   padding: 0 0.5rem;
 
   .tiptap {
@@ -30,6 +29,11 @@ const ChatEditorContent = styled(EditorContent)`
       max-width: 100%;
     }
   }
+`;
+
+const ChatEditorContentWrapper = styled(ScrollboxVertical)`
+  max-height: 150px;
+  margin-bottom: ${smPaddingY};
 `;
 
 const BaseButton = styled.button`
@@ -180,6 +184,7 @@ const Form = styled.form<{ $isRTL?: boolean }>`
 
   &:focus-within {
     border: 1px solid ${colorBlueLight};
+    box-shadow: 0 0 0 2px ${colorBlueLighter};
   }
 `;
 
@@ -209,4 +214,5 @@ export default {
   SendButton,
   Toolbar,
   ToolButton,
+  ChatEditorContentWrapper,
 };
