@@ -189,6 +189,7 @@ const ChatRichTextEditor: React.FC<ChatRichTextEditorProps> = (props) => {
   // const AUTO_CONVERT_EMOJI = window.meetingClientSettings.public.chat.autoConvertEmoji;
   const ENABLE_EMOJI_PICKER = window.meetingClientSettings.public.chat.emojiPicker.enable;
   const ENABLE_TYPING_INDICATOR = CHAT_CONFIG.typingIndicator.enabled;
+  const ALLOWED_ELEMENTS = CHAT_CONFIG.allowedElements;
 
   const handleUserTyping = (hasError?: boolean) => {
     if (hasError || !ENABLE_TYPING_INDICATOR) return;
@@ -585,16 +586,21 @@ const ChatRichTextEditor: React.FC<ChatRichTextEditorProps> = (props) => {
         .toggleCodeBlock()
         .run(),
     },
-    { divider: true },
-    {
-      label: 'Image',
-      icon: 'photo',
-      id: 'chat-editor-image-tool',
-      command: () => fileInputRef.current?.click(),
-      active: editor.isActive('image'),
-      disabled: false,
-    },
   ];
+
+  if (ALLOWED_ELEMENTS.includes('img') && commands) {
+    commands.push(
+      { divider: true },
+      {
+        label: 'Image',
+        icon: 'photo',
+        id: 'chat-editor-image-tool',
+        command: () => Boolean(fileInputRef.current?.click()),
+        active: editor.isActive('image'),
+        disabled: false,
+      },
+    );
+  }
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
