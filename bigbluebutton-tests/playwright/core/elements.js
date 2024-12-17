@@ -29,7 +29,6 @@ exports.closePopup = 'button[data-test="closePopup"]';
 exports.restoreWelcomeMessages = 'li[data-test="restoreWelcomeMessages"]';
 
 // Accesskey
-exports.chatButtonKey = 'div[accesskey="P"]';
 exports.userListButton = 'button[accesskey="U"]';
 
 // Audio
@@ -47,7 +46,6 @@ exports.audioDropdownMenu = 'button[data-test="audioDropdownMenu"]';
 exports.defaultInputAudioDevice = 'li[data-test="audioinput-1"]';
 exports.secondInputAudioDevice = 'li[data-test="audioinput-2"]';
 exports.microphoneButton = 'button[data-test="microphoneBtn"]';
-exports.echoYesButton = 'button[data-test="echoYesBtn"]';
 exports.connectingToEchoTest = 'span[data-test="connectingToEchoTest"]';
 exports.hasVolumeEchoTest = 'span[data-test="hasVolume"]';
 exports.hasNoVolumeEchoTest = 'span[data-test="hasNoVolume"]';
@@ -101,6 +99,7 @@ exports.roomOption = 'option[data-test="roomOption"]';
 
 // Chat
 exports.chatBox = 'textarea[id="message-input"]';
+exports.chatMessageItem = 'div[data-test="chatMessageItem"]';
 exports.partnerDisconnectedMessage = 'span[data-test="partnerDisconnected"]';
 exports.chatButton = 'button[data-test="chatButton"]';
 exports.sendButton = 'button[data-test="sendMessageButton"]';
@@ -133,7 +132,7 @@ exports.guestMessage = 'p[data-test="guestMessage"]';
 exports.privateMessageGuest = 'button[data-test="privateMessageGuest"]';
 exports.acceptGuest = 'button[data-test="acceptGuest"]';
 exports.denyGuest = 'button[data-test="denyGuest"]';
-exports.inputPrivateLobbyMesssage = 'div[data-test="privateLobbyMessage"] >> textarea';
+exports.inputPrivateLobbyMessage = 'div[data-test="privateLobbyMessage"] >> textarea';
 exports.sendPrivateLobbyMessage = 'div[data-test="privateLobbyMessage"] >> button';
 exports.rememberCheckboxId = 'input[id="rememberCheckboxId"]';
 exports.welcomeMessage = 'h1[id="welcome-message"]';
@@ -155,6 +154,7 @@ exports.uniqueCharacterMessage = 'A';
 
 // CustomParameters
 exports.audioOptionsButtons = 'span[data-test="audioModalOptions"] > button';
+exports.userListContainer = 'div[data-test="userListContainer"]';
 exports.userListContent = 'div[data-test="userListContent"]';
 exports.brandingAreaLogo = 'div[data-test="brandingArea"]';
 exports.toolbarToolsList = 'div[data-test="toolbarToolsList"]';
@@ -223,7 +223,6 @@ exports.joinAudioToast = 'You have joined the audio conference';
 exports.pollPublishedToast = 'Poll results were published';
 exports.startScreenshareToast = 'Screenshare has started';
 exports.endScreenshareToast = 'Screenshare has ended';
-exports.joiningMessageToast = 'You have joined the audio conference';
 exports.attendeeJoinedToast = 'Attendee joined the session';
 exports.raisingHandToast = 'You have raised your hand';
 exports.loweringHandToast = 'Your hand has been lowered';
@@ -302,6 +301,7 @@ exports.presentationOptionsDownloadBtn = 'button[data-test="presentationOptionsD
 exports.confirmManagePresentation = 'button[data-test="confirmManagePresentation"]';
 exports.toastDownload = 'a[data-test="toastDownload"]';
 exports.presentationDownloadBtn = 'button[data-test="presentationDownload"]';
+exports.presentationItem = 'tr[data-test="presentationItem"]';
 exports.removePresentation = 'button[data-test="removePresentation"]';
 exports.presentationPlaceholder = 'div[data-test="presentationPlaceholder"]';
 exports.presentationContainer = 'div[data-test="presentationContainer"]';
@@ -324,7 +324,7 @@ exports.presentationFullscreen = 'li[data-test="presentationFullscreen"]';
 exports.presentationSnapshot = 'li[data-test="presentationSnapshot"]';
 exports.toolVisibility = 'li[data-test="toolVisibility"]';
 // YouTube frame
-exports.youtubeLink = 'https://www.youtube.com/watch?v=Hso8yLzkqj8&ab_channel=BigBlueButton';
+exports.youtubeLink = 'https://www.youtube.com/watch?v=Wjx5_IONaNg&t=158s&ab_channel=BigBlueButton';
 // The title we match for here is the title of the test video specified by youtubeLink
 exports.youtubeFrame = 'div[data-test="videoPlayer"]';
 exports.ytFrameTitle = 'a[class^="ytp-title-link"]';
@@ -378,7 +378,7 @@ exports.promoteToModerator = 'li[data-test="promoteToModerator"]';
 exports.demoteToViewer = 'li[data-test="demoteToViewer"]';
 exports.makePresenter = 'li[data-test="makePresenter"]';
 exports.takePresenter = 'li[data-test="takePresenter"]';
-exports.muteAll = 'li[data-test="muteAll"]';
+exports.usersJoinMuted = 'li[data-test="usersJoinMuted"]';
 exports.muteAllExceptPresenter = 'li[data-test="muteAllExceptPresenter"]';
 exports.error403removedLabel = 'You have been removed from the meeting';
 exports.removeUser = 'li[data-test="removeUser"]';
@@ -403,7 +403,7 @@ exports.lockEditSharedNotes = 'input[data-test="lockEditSharedNotes"]';
 exports.lockUserList = 'input[data-test="lockUserList"]';
 exports.hideViewersAnnotation = 'input[data-test="hideViewersAnnotation"]';
 exports.hideViewersCursor = 'input[data-test="hideViewersCursor"]';
-exports.whiteboardCursorIndicator = 'div[data-test="whiteboardCursorIndicator"]';
+exports.whiteboardCursorIndicator = 'svg use[data-test="whiteboardCursorIndicator"]';
 
 // Locales
 exports.locales = ['af', 'ar', 'az', 'bg-BG', 'bn', 'ca', 'cs-CZ', 'da', 'de',
@@ -477,10 +477,8 @@ exports.zoomOutButton = 'button[data-test="zoomOutBtn"]';
 exports.wbPan = 'button[data-test="panButton"]';
 exports.wbEraser = 'button[data-testid="tools.eraser"]';
 exports.wbArrowShape = 'button[data-testid="tools.arrow"]';
-exports.wbDelete = 'span[id="TD-Delete"]';
 exports.wbUndo = 'button[data-testid="main.undo"]';
 exports.wbRedo = 'button[data-testid="main.redo"]';
-exports.wbStyles = 'button[id="TD-Styles"]';
 exports.whiteboardStyles = 'button[data-testid="mobile.styles"]';
 exports.wbColorRed = 'button[data-id="red"]';
 exports.wbFillDrawing = 'button[data-testid="style.fill.solid"]';
@@ -494,7 +492,7 @@ exports.wbMoveForward = 'button[data-testid="menu-item.bring-forward"]';
 exports.wbMoveToFront = 'button[data-testid="menu-item.bring-to-front"]';
 exports.wbPaste = 'button[data-testid="menu-item.paste"]';
 exports.wbTextTrue = 'div[data-hastext="true"]';
-exports.wbDrawnArrow = 'div[data-shape-type="arrow"]';;
+exports.wbDrawnArrow = 'div[data-shape-type="arrow"]';
 
 // About modal
 exports.showAboutModalButton = 'li[data-test="aboutModal"]';

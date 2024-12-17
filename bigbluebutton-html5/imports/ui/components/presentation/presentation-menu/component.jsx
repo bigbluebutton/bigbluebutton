@@ -286,7 +286,7 @@ const PresentationMenu = (props) => {
               hasError: false,
             });
 
-            toast.info(renderToastContent(), {
+            toast(renderToastContent(), {
               hideProgressBar: true,
               autoClose: false,
               newestOnTop: true,

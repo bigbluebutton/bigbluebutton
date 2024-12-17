@@ -74,6 +74,7 @@ const PresentationTitle = styled.h1`
   overflow: hidden;
   text-overflow: ellipsis;
   max-width: 30vw;
+  cursor: pointer;
 
   > [class^="icon-bbb-"] {
     font-size: 75%;
