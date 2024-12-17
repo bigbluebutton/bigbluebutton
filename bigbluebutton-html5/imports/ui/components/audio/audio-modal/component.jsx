@@ -409,7 +409,7 @@ const AudioModal = ({
     setDisableActions(true);
     setErrorInfo(null);
 
-    joinMicrophone({ muted: true }).then(() => {
+    joinMicrophone().then(() => {
       setDisableActions(false);
     }).catch((err) => {
       handleJoinAudioError(err);
