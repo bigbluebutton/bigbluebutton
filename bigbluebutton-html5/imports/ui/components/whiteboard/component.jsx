@@ -501,119 +501,150 @@ const Whiteboard = React.memo((props) => {
   };
 
   const adjustCameraOnMount = (includeViewerLogic = true) => {
-    if (presenterChanged) {
-      localStorage.removeItem('initialViewBoxWidth');
-      localStorage.removeItem('initialViewBoxHeight');
-    }
+    const throwIfInvalid = (value, description) => {
+      if (!isFinite(value)) {
+        throw new Error(`Invalid ${description}: ${value}`);
+      }
+    };
 
-    const storedWidth = localStorage.getItem('initialViewBoxWidth');
-    const storedHeight = localStorage.getItem('initialViewBoxHeight');
-    if (storedWidth && storedHeight) {
-      initialViewBoxWidthRef.current = parseFloat(storedWidth);
-      initialViewBoxHeightRef.current = parseFloat(storedHeight);
-    } else {
-      const currentZoomLevel =
-        currentPresentationPageRef.current.scaledWidth /
-        currentPresentationPageRef.current.scaledViewBoxWidth;
-      const calculatedWidth =
-        currentZoomLevel !== 1
-          ? currentPresentationPageRef.current.scaledWidth / currentZoomLevel
-          : currentPresentationPageRef.current.scaledWidth;
-      const calculatedHeight =
-        currentZoomLevel !== 1
-          ? currentPresentationPageRef.current.scaledHeight / currentZoomLevel
-          : currentPresentationPageRef.current.scaledHeight;
+    const validateCameraObject = (cam) => {
+      try {
+        throwIfInvalid(cam.x, 'camera.x');
+        throwIfInvalid(cam.y, 'camera.y');
+        throwIfInvalid(cam.z, 'camera.z');
+      } catch (error) {
+        logger.error('Invalid camera object:', cam, error);
+        return false;
+      }
+      return true;
+    };
 
-      initialViewBoxWidthRef.current = calculatedWidth;
-      initialViewBoxHeightRef.current = calculatedHeight;
-      localStorage.setItem('initialViewBoxWidth', calculatedWidth.toString());
-      localStorage.setItem('initialViewBoxHeight', calculatedHeight.toString());
-    }
+    const setupCamera = (baseZoom, adjustedXPos, adjustedYPos, description) => {
+      throwIfInvalid(baseZoom, `baseZoom ${description}`);
+      throwIfInvalid(adjustedXPos, `camera.x ${description}`);
+      throwIfInvalid(adjustedYPos, `camera.y ${description}`);
 
-    if (
-      presentationAreaHeight > 0 &&
-      presentationAreaWidth > 0 &&
-      currentPresentationPageRef.current &&
-      currentPresentationPageRef.current.scaledWidth > 0 &&
-      currentPresentationPageRef.current.scaledHeight > 0 &&
-      tlEditorRef.current
-    ) {
-      const adjustedPresentationAreaHeight = isPresenterRef.current
-        ? presentationAreaHeight - 40 // Subtract toolbar height if presenter
-        : presentationAreaHeight;
-
-      let baseZoom = calculateZoomValue(
-        currentPresentationPageRef.current.scaledWidth,
-        currentPresentationPageRef.current.scaledHeight
-      );
-
-      if (isPresenterRef.current) {
-        const container = document.querySelector('[data-test="presentationContainer"]');
-        const innerWrapper = document.getElementById('presentationInnerWrapper');
-        const containerWidth = container ? container.offsetWidth : 0;
-        const innerWrapperWidth = innerWrapper ? innerWrapper.offsetWidth : 0;
-        const widthGap = Math.max(containerWidth - innerWrapperWidth, 0);
-
-        if (widthGap > 0) {
-          baseZoom = calculateZoomWithGapValue(
-            currentPresentationPageRef.current.scaledWidth,
-            currentPresentationPageRef.current.scaledHeight,
-            widthGap
-          );
-        }
-
-        const adjustedXPos = currentPresentationPageRef.current.xOffset;
-        const adjustedYPos = currentPresentationPageRef.current.yOffset;
-        const camera = tlEditorRef.current.getCamera();
-        const formattedPageId = Number(curPageIdRef.current);
-        const updatedCurrentCam = {
-          ...camera,
-          x: adjustedXPos,
-          y: adjustedYPos,
-          z: baseZoom,
-        };
-
-        let cameras = [
-          createCamera(formattedPageId - 1, baseZoom),
-          updatedCurrentCam,
-          createCamera(formattedPageId + 1, baseZoom),
-        ];
-        cameras = cameras.filter((cam) => cam.id !== 'camera:page:0');
-        tlEditorRef.current.store.put(cameras);
-      } else if (includeViewerLogic) {
-        // Viewer logic
-        baseZoom = calculateZoomValue(
-          currentPresentationPageRef.current.scaledViewBoxWidth,
-          currentPresentationPageRef.current.scaledViewBoxHeight
-        );
-
-        const adjustedXPos = isInfiniteWhiteboard
-          ? currentPresentationPageRef.current.xOffset
-          : 0;
-        const adjustedYPos = isInfiniteWhiteboard
-          ? currentPresentationPageRef.current.yOffset
-          : 0;
-
-        const camera = tlEditorRef.current.getCamera();
-        const formattedPageId = Number(curPageIdRef.current);
-
-        const updatedCurrentCam = {
-          ...camera,
-          x: adjustedXPos,
-          y: adjustedYPos,
-          z: baseZoom,
-        };
-
-        let cameras = [
-          createCamera(formattedPageId - 1, baseZoom),
-          updatedCurrentCam,
-          createCamera(formattedPageId + 1, baseZoom),
-        ];
-        cameras = cameras.filter((cam) => cam.id !== 'camera:page:0');
-        tlEditorRef.current.store.put(cameras);
+      const camera = tlEditorRef.current.getCamera();
+      const formattedPageId = Number(curPageIdRef.current);
+      if (Number.isNaN(formattedPageId)) {
+        throw new Error(`Invalid formattedPageId ${description}: ${formattedPageId}`);
       }
 
-      isMountedRef.current = true;
+      const updatedCurrentCam = {
+        ...camera,
+        x: adjustedXPos,
+        y: adjustedYPos,
+        z: baseZoom,
+      };
+
+      let cameras = [
+        createCamera(formattedPageId - 1, baseZoom),
+        updatedCurrentCam,
+        createCamera(formattedPageId + 1, baseZoom),
+      ];
+      cameras = cameras.filter((cam) => cam.id !== 'camera:page:0');
+
+      if (!cameras.every(validateCameraObject)) {
+        throw new Error(`One or more camera objects are invalid ${description}`);
+      }
+
+      tlEditorRef.current.store.put(cameras);
+    };
+
+    try {
+      if (presenterChanged) {
+        localStorage.removeItem('initialViewBoxWidth');
+        localStorage.removeItem('initialViewBoxHeight');
+      }
+
+      const storedWidth = localStorage.getItem('initialViewBoxWidth');
+      const storedHeight = localStorage.getItem('initialViewBoxHeight');
+
+      if (storedWidth && storedHeight) {
+        const parsedWidth = parseFloat(storedWidth);
+        const parsedHeight = parseFloat(storedHeight);
+
+        throwIfInvalid(parsedWidth, 'stored initialViewBoxWidth');
+        throwIfInvalid(parsedHeight, 'stored initialViewBoxHeight');
+
+        initialViewBoxWidthRef.current = parsedWidth;
+        initialViewBoxHeightRef.current = parsedHeight;
+      } else {
+        const currentPage = currentPresentationPageRef.current;
+        const { scaledWidth, scaledHeight, scaledViewBoxWidth, scaledViewBoxHeight } = currentPage;
+
+        if (scaledViewBoxWidth === 0 || scaledViewBoxHeight === 0) {
+          throw new Error(`scaledViewBoxWidth or scaledViewBoxHeight is zero: ${scaledViewBoxWidth}, ${scaledViewBoxHeight}`);
+        }
+
+        const currentZoomLevel = scaledWidth / scaledViewBoxWidth;
+        throwIfInvalid(currentZoomLevel, 'currentZoomLevel');
+
+        const calculatedWidth =
+          currentZoomLevel !== 1 ? scaledWidth / currentZoomLevel : scaledWidth;
+        const calculatedHeight =
+          currentZoomLevel !== 1 ? scaledHeight / currentZoomLevel : scaledHeight;
+
+        throwIfInvalid(calculatedWidth, 'calculatedWidth');
+        throwIfInvalid(calculatedHeight, 'calculatedHeight');
+
+        initialViewBoxWidthRef.current = calculatedWidth;
+        initialViewBoxHeightRef.current = calculatedHeight;
+        try {
+          localStorage.setItem('initialViewBoxWidth', calculatedWidth.toString());
+          localStorage.setItem('initialViewBoxHeight', calculatedHeight.toString());
+        } catch (error) {
+          logger.warn('Failed to store viewbox dimensions:', error);
+        }
+      }
+
+      const {
+        scaledWidth,
+        scaledHeight,
+        scaledViewBoxWidth,
+        scaledViewBoxHeight,
+        xOffset,
+        yOffset
+      } = currentPresentationPageRef.current;
+
+      if (
+        presentationAreaHeight > 0 &&
+        presentationAreaWidth > 0 &&
+        scaledWidth > 0 &&
+        scaledHeight > 0 &&
+        tlEditorRef.current
+      ) {
+        const adjustedPresentationAreaHeight = isPresenterRef.current
+          ? presentationAreaHeight - 40 // Subtract toolbar height if presenter
+          : presentationAreaHeight;
+
+        let baseZoom = calculateZoomValue(scaledWidth, scaledHeight);
+        throwIfInvalid(baseZoom, 'baseZoom');
+
+        if (isPresenterRef.current) {
+          const container = document.querySelector('[data-test="presentationContainer"]');
+          const innerWrapper = document.getElementById('presentationInnerWrapper');
+          const containerWidth = container ? container.offsetWidth : 0;
+          const innerWrapperWidth = innerWrapper ? innerWrapper.offsetWidth : 0;
+          const widthGap = Math.max(containerWidth - innerWrapperWidth, 0);
+
+          if (widthGap > 0) {
+            const zoomWithGap = calculateZoomWithGapValue(scaledWidth, scaledHeight, widthGap);
+            throwIfInvalid(zoomWithGap, 'zoomWithGap');
+            baseZoom = zoomWithGap;
+          }
+
+          setupCamera(baseZoom, xOffset, yOffset, '(presenter)');
+        } else if (includeViewerLogic) {
+          baseZoom = calculateZoomValue(scaledViewBoxWidth, scaledViewBoxHeight);
+          setupCamera(baseZoom, xOffset, yOffset, '(viewer)');
+        }
+
+        isMountedRef.current = true;
+      }
+    } catch (error) {
+      logger.error('Error in adjustCameraOnMount:', error);
+      throw error;
     }
   };
 
