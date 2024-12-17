@@ -179,9 +179,11 @@ const PresentationContainer = (props) => {
     if (PRELOAD_NEXT_SLIDE
       && !presentation.fetchedSlide[currentSlide.num + PRELOAD_NEXT_SLIDE]
       && presentation.canFetch) {
+      const nextSlidesSvgUrl = (currentPresentationPage.nextPagesSvg || [])
+        .map((url) => ({ svgUrl: url }));
       const slidesToFetch = [
         currentPresentationPage,
-        ...currentPresentationPage.nextPagesSvg.map((url) => ({ svgUrl: url })),
+        ...nextSlidesSvgUrl,
       ];
 
       const promiseImageGet = slidesToFetch
