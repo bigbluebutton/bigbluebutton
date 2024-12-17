@@ -47,51 +47,51 @@ const defaultProps = {
 
 const intlMessages = defineMessages({
   mediaLabel: {
-    id: 'app.actionsBar.mediaDropdown.actionsLabel',
+    id: 'app.actionsBar.actionsDropdown.actionsLabel',
     description: 'Actions button label',
   },
   presentationLabel: {
-    id: 'app.actionsBar.mediaDropdown.presentationLabel',
+    id: 'app.actionsBar.actionsDropdown.presentationLabel',
     description: 'Upload a presentation option label',
   },
   presentationDesc: {
-    id: 'app.actionsBar.mediaDropdown.presentationDesc',
+    id: 'app.actionsBar.actionsDropdown.presentationDesc',
     description: 'adds context to upload presentation option',
   },
   desktopShareDesc: {
-    id: 'app.actionsBar.mediaDropdown.desktopShareDesc',
+    id: 'app.actionsBar.actionsDropdown.desktopShareDesc',
     description: 'adds context to desktop share option',
   },
   stopDesktopShareDesc: {
-    id: 'app.actionsBar.mediaDropdown.stopDesktopShareDesc',
+    id: 'app.actionsBar.actionsDropdown.stopDesktopShareDesc',
     description: 'adds context to stop desktop share option',
   },
   takePresenter: {
-    id: 'app.actionsBar.mediaDropdown.takePresenter',
+    id: 'app.actionsBar.actionsDropdown.takePresenter',
     description: 'Label for take presenter role option',
   },
   takePresenterDesc: {
-    id: 'app.actionsBar.mediaDropdown.takePresenterDesc',
+    id: 'app.actionsBar.actionsDropdown.takePresenterDesc',
     description: 'Description of take presenter role option',
   },
   startExternalVideoLabel: {
-    id: 'app.actionsBar.mediaDropdown.shareExternalVideo',
+    id: 'app.actionsBar.actionsDropdown.shareExternalVideo',
     description: 'Start sharing external video button',
   },
   stopExternalVideoLabel: {
-    id: 'app.actionsBar.mediaDropdown.stopShareExternalVideo',
+    id: 'app.actionsBar.actionsDropdown.stopShareExternalVideo',
     description: 'Stop sharing external video button',
   },
   layoutModal: {
-    id: 'app.actionsBar.mediaDropdown.layoutModal',
+    id: 'app.actionsBar.actionsDropdown.layoutModal',
     description: 'Label for layouts selection button',
   },
   shareCameraAsContent: {
-    id: 'app.actionsBar.mediaDropdown.shareCameraAsContent',
+    id: 'app.actionsBar.actionsDropdown.shareCameraAsContent',
     description: 'Label for share camera as content',
   },
   unshareCameraAsContent: {
-    id: 'app.actionsBar.mediaDropdown.unshareCameraAsContent',
+    id: 'app.actionsBar.actionsDropdown.unshareCameraAsContent',
     description: 'Label for unshare camera as content',
   },
 });
