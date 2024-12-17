@@ -103,7 +103,7 @@ const VideoListItem: React.FC<VideoListItemProps> = (props) => {
     cameraId, numOfStreams, focused, onVideoItemMount, onVideoItemUnmount,
     makeDragOperations, dragging, draggingOver, isRTL, isStream, settingsSelfViewDisable,
     disabledCams, amIModerator, stream, setUserCamerasRequestedFromPlugin,
-    pluginUserCameraHelperPerPosition,
+    pluginUserCameraHelperPerPosition, screenShare,
   } = props;
 
   const intl = useIntl();
@@ -238,7 +238,7 @@ const VideoListItem: React.FC<VideoListItemProps> = (props) => {
     setIsSelfViewDisabled(settingsSelfViewDisable);
   }, [settingsSelfViewDisable]);
 
-  const renderSqueezedButton = () => (
+  const renderSqueezedButton = () => !screenShare && (
     <UserActions
       name={name}
       stream={stream}
@@ -260,7 +260,7 @@ const VideoListItem: React.FC<VideoListItemProps> = (props) => {
     />
   );
 
-  const renderWebcamConnecting = () => (
+  const renderWebcamConnecting = () => !screenShare && (
     <Styled.WebcamConnecting
       data-test="webcamConnecting"
       animations={animations}
@@ -326,6 +326,7 @@ const VideoListItem: React.FC<VideoListItemProps> = (props) => {
       userCameraHelperBottomRight: bottomRightPluginItems,
     } = pluginUserCameraHelperPerPosition;
     const { userId } = stream;
+    if (screenShare) return null;
     return (
       <>
         <Styled.UserCameraButtonsContainterWrapper
@@ -356,7 +357,7 @@ const VideoListItem: React.FC<VideoListItemProps> = (props) => {
     );
   };
 
-  const renderDefaultButtons = () => (
+  const renderDefaultButtons = () => !screenShare && (
     <>
       <Styled.TopBar>
         {raiseHand && <Styled.RaiseHand>✋</Styled.RaiseHand>}
@@ -430,6 +431,7 @@ const VideoListItem: React.FC<VideoListItemProps> = (props) => {
           muted
           autoPlay
           playsInline
+          screenShare={screenShare}
         />
       </Styled.VideoContainer>
 
@@ -442,7 +444,7 @@ const VideoListItem: React.FC<VideoListItemProps> = (props) => {
 
       {/* eslint-disable-next-line no-nested-ternary */}
 
-      {(videoIsReady || (isSelfViewDisabled || disabledCams.includes(cameraId))) && (
+      {((videoIsReady || (isSelfViewDisabled || disabledCams.includes(cameraId))) && !screenShare) && (
         isVideoSqueezed ? renderSqueezedButton() : renderDefaultButtons()
       )}
       {!videoIsReady && (!isSelfViewDisabled || !isStream) && (

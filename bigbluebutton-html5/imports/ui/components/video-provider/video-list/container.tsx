@@ -41,6 +41,7 @@ const VideoListContainer: React.FC<VideoListContainerProps> = (props) => {
     onVideoItemMount,
     onVideoItemUnmount,
     onVirtualBgDrop,
+    screenShare,
   } = props;
   const numberOfPages = useNumberOfPages();
 
@@ -115,6 +116,7 @@ const VideoListContainer: React.FC<VideoListContainerProps> = (props) => {
           onVideoItemMount={onVideoItemMount}
           onVideoItemUnmount={onVideoItemUnmount}
           onVirtualBgDrop={onVirtualBgDrop}
+          screenShare={screenShare}
         />
       )
   );

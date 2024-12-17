@@ -15,19 +15,14 @@ export interface ScreenshareResponse {
 
 export const SCREENSHARE_SUBSCRIPTION = gql`
   subscription Screenshare {
-    screenshare {
-      contentType
-      hasAudio
-      screenshareConf
-      screenshareId
-      startedAt
-      stoppedAt
-      stream
-      vidHeight
-      vidWidth
-      voiceConf
-    }
+    user_camera(where: {contentType: {_eq: "screenshare"}}) {
+    contentType
+    showAsContent
+    hasAudio
+    streamId
+    userId
   }
+}
 `;
 
 export default {

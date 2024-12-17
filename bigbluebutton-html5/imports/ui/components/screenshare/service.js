@@ -11,6 +11,9 @@ import ConnectionStatusService from '/imports/ui/components/connection-status/se
 import browserInfo from '/imports/utils/browserInfo';
 import createUseSubscription from '/imports/ui/core/hooks/createUseSubscription';
 import { SCREENSHARE_SUBSCRIPTION } from './queries';
+import VideoService from '/imports/ui/components/video-provider/service';
+import VideoPreviewService from '/imports/ui/components/video-preview/service';
+import BBBVideoStream from '../../services/webrtc-base/bbb-video-stream';
 
 let screenShareBridge = sfuScreenShareBridge;
 
@@ -141,6 +144,7 @@ export const useIsScreenGloballyBroadcasting = () => {
     && data[0]
     && data[0].contentType === CONTENT_TYPE_SCREENSHARE
     && data[0].stream,
+    // && data[0].streamId,
     ),
     loading,
   };
@@ -251,8 +255,8 @@ export const attachLocalPreviewStream = (mediaElement) => {
   }
 };
 
-export const setOutputDeviceId = (outputDeviceId) => {
-  const screenShareElement = document.getElementById(SCREENSHARE_MEDIA_ELEMENT_NAME);
+export const setOutputDeviceId = (outputDeviceId, element) => {
+  const screenShareElement = element || document.getElementById(SCREENSHARE_MEDIA_ELEMENT_NAME);
   const sinkIdSupported = screenShareElement && typeof screenShareElement.setSinkId === 'function';
   const srcStream = screenShareElement?.srcObject;
 
@@ -282,7 +286,7 @@ export const setOutputDeviceId = (outputDeviceId) => {
   }
 };
 
-export const shareScreen = async (
+export const shareScreen1 = async (
   isCameraAsContentBroadcasting,
   stopWatching,
   isPresenter,
@@ -327,6 +331,56 @@ export const shareScreen = async (
     onFail(error);
   }
 };
+
+export const shareScreen2 = async (
+  isCameraAsContentBroadcasting,
+  stopWatching,
+  isPresenter,
+  onFail,
+  options = {},
+) => {
+  // if (isCameraAsContentBroadcasting) {
+  //   screenshareHasEnded();
+  // }
+
+  try {
+    let stream;
+    let contentType = CONTENT_TYPE_SCREENSHARE;
+    if (options.stream == null) {
+      stream = await BridgeService.getScreenStream();
+    } else {
+      contentType = CONTENT_TYPE_CAMERA;
+      stream = options.stream;
+    }
+    _trackStreamTermination(stream, _handleStreamTermination);
+
+    // if (!isPresenter) {
+    //   MediaStreamUtils.stopMediaStreamTracks(stream);
+    //   return;
+    // }
+
+    // await KurentoBridge.share(stream, onFail, contentType);
+    VideoPreviewService.storeStream('screenshare', new BBBVideoStream(stream));
+    VideoService.joinVideo('screenshare', false, 'screenshare');
+
+    // Stream might have been disabled in the meantime. I love badly designed
+    // async components like this screen sharing bridge :) - prlanzarin 09 May 22
+    // if (!_isStreamActive(stream)) {
+    //   _handleStreamTermination();
+    //   return;
+    // }
+
+    // stop external video share if running
+    // stopWatching();
+
+    // setSharingContentType(contentType);
+    // setIsSharing(true);
+  } catch (error) {
+    onFail(error);
+  }
+};
+
+export const shareScreen = shareScreen2;
 
 export const viewScreenshare = (streamId, hasAudio, options = {}) => {
   screenShareBridge.view(streamId, { hasAudio, outputDeviceId: options.outputDeviceId })

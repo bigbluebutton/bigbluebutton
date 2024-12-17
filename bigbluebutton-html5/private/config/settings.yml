@@ -352,7 +352,7 @@ public:
     screenshare:
       showButtonForNonPresenters: false
       # Whether volume control should be allowed if screen sharing has audio
-      enableVolumeControl: true
+      enableVolumeControl: false
       # Experimental. True is the canonical behavior. Flip to false to reverse
       # the negotiation flow for subscribers.
       subscriberOffering: false
@@ -381,7 +381,7 @@ public:
             max: 2560
           height:
             max: 1600
-        audio: true
+        audio: false
     # cameraProfiles is an array of:
     # - id: profile identifier
     #   name: human-readable profile name

@@ -33,6 +33,7 @@ interface VideoProviderContainerProps {
   focusedId: string;
   cameraDock: Output['cameraDock'];
   handleVideoFocus:(id: string) => void;
+  screenShare?: boolean;
 }
 
 const VideoProviderContainer: React.FC<VideoProviderContainerProps> = (props) => {
@@ -40,17 +41,20 @@ const VideoProviderContainer: React.FC<VideoProviderContainerProps> = (props) =>
     cameraDock,
     focusedId,
     handleVideoFocus,
+    screenShare,
+    streams,
   } = props;
+
   const [cameraBroadcastStart] = useMutation(CAMERA_BROADCAST_START);
   const [meetingSettings] = useMeetingSettings();
 
-  const sendUserShareWebcam = (cameraId: string) => {
-    return cameraBroadcastStart({ variables: { cameraId, contentType: 'camera' } });
+  const sendUserShareWebcam = (cameraId: string, contentType: string = 'camera') => {
+    return cameraBroadcastStart({ variables: { cameraId, contentType } });
   };
 
-  const playStart = (cameraId: string) => {
+  const playStart = (cameraId: string, contentType: string = 'camera') => {
     if (VideoService.isLocalStream(cameraId)) {
-      sendUserShareWebcam(cameraId).then(() => {
+      sendUserShareWebcam(cameraId, contentType).then(() => {
         VideoService.joinedVideo();
       });
     }
@@ -85,11 +89,11 @@ const VideoProviderContainer: React.FC<VideoProviderContainerProps> = (props) =>
   const isClientConnected = useReactiveVar(ConnectionStatus.getConnectedStatusVar());
 
   const {
-    streams,
     gridUsers,
     totalNumberOfStreams,
     totalNumberOfOtherStreams,
   } = useVideoStreams();
+
   VideoService.updateActivePeers(streams);
 
   let usersVideo: VideoItem[] = streams;
@@ -154,21 +158,22 @@ const VideoProviderContainer: React.FC<VideoProviderContainerProps> = (props) =>
     focusedId,
     handleVideoFocus,
     isGridEnabled,
-    isClientConnected,
     currentUserId,
     paginationEnabled,
     viewParticipantsWebcams,
+    isClientConnected,
     totalNumberOfStreams,
     isUserLocked,
     currentVideoPageIndex,
     streams: usersVideo,
-    info,
     playStart,
     exitVideo,
     lockUser,
     stopVideo,
     applyCameraProfile,
     myRole,
+    info,
+    screenShare,
   };
 
   switch (currentMeeting?.cameraBridge) {
