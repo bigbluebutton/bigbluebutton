@@ -85,7 +85,9 @@ class BBBMenu extends React.Component {
 
   handleClose(event) {
     const { onCloseCallback } = this.props;
-    this.setState({ anchorEl: null }, onCloseCallback());
+    this.setState({ anchorEl: null }, () => {
+      if (onCloseCallback) onCloseCallback();
+    });
 
     if (event) {
       event.persist();
@@ -167,25 +169,25 @@ class BBBMenu extends React.Component {
               hasSpaceBetween={isTitle && titleActions}
             >
               {!contentFunction ? (
-                  <>
-                    {a.icon ? <Icon color={textColor} iconName={a.icon} key="icon" /> : null}
-                    <Styled.Option hasIcon={!!(a.icon)} isTitle={isTitle} textColor={textColor} isHorizontal={isHorizontal} isMobile={isMobile} aria-describedby={`${key}-option-desc`} $isToggle={isToggle}>{label}</Styled.Option>
-                    {a.iconRight ? <Styled.IconRight color={textColor} iconName={a.iconRight} key="iconRight" /> : null}
-                    {(isTitle && titleActions?.length > 0) ? (
-                      titleActions.map((item, index) => (
-                        <Styled.TitleAction
-                          key={item.id || index}
-                          tooltipplacement="right"
-                          size="md"
-                          onClick={item.onClick}
-                          circle
-                          tooltipLabel={item.tooltip}
-                          hideLabel
-                          icon={item.icon}
-                        />
-                      ))
-                    ) : null}
-                  </>
+                <>
+                  {a.icon ? <Icon color={textColor} iconName={a.icon} key="icon" /> : null}
+                  <Styled.Option hasIcon={!!(a.icon)} isTitle={isTitle} textColor={textColor} isHorizontal={isHorizontal} isMobile={isMobile} aria-describedby={`${key}-option-desc`} $isToggle={isToggle}>{label}</Styled.Option>
+                  {a.iconRight ? <Styled.IconRight color={textColor} iconName={a.iconRight} key="iconRight" /> : null}
+                  {(isTitle && titleActions?.length > 0) ? (
+                    titleActions.map((item, index) => (
+                      <Styled.TitleAction
+                        key={item.id || index}
+                        tooltipplacement="right"
+                        size="md"
+                        onClick={item.onClick}
+                        circle
+                        tooltipLabel={item.tooltip}
+                        hideLabel
+                        icon={item.icon}
+                      />
+                    ))
+                  ) : null}
+                </>
               ) : (
                 <GenericContentItem
                   width="100%"
@@ -227,7 +229,7 @@ class BBBMenu extends React.Component {
 
     if (isHorizontal) {
       const horizontalStyles = { display: 'flex' };
-      menuStyles = { ...menuStyles, ...horizontalStyles};
+      menuStyles = { ...menuStyles, ...horizontalStyles };
     }
 
     return (

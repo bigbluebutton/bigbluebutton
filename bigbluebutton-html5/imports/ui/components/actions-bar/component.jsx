@@ -3,6 +3,7 @@ import { defineMessages } from 'react-intl';
 import { ActionsBarItemType, ActionsBarPosition } from 'bigbluebutton-html-plugin-sdk/dist/cjs/extensible-areas/actions-bar-item/enums';
 import Styled from './styles';
 import ActionsDropdown from './actions-dropdown/container';
+import MediaAreaDropdown from './media-area-dropdown/container';
 import AudioCaptionsButtonContainer from '/imports/ui/components/audio/audio-graphql/audio-captions/button/component';
 import ScreenshareButtonContainer from '/imports/ui/components/actions-bar/screenshare/container';
 import AudioControlsContainer from '../audio/audio-graphql/audio-controls/component';
@@ -186,17 +187,38 @@ class ActionsBar extends PureComponent {
           <Styled.Right>
             {shouldShowPresentationButton && shouldShowOptionsButton
               ? (
-                <PresentationOptionsContainer
-                  presentationIsOpen={presentationIsOpen}
-                  setPresentationIsOpen={setPresentationIsOpen}
-                  layoutContextDispatch={layoutContextDispatch}
-                  hasPresentation={isThereCurrentPresentation}
-                  hasExternalVideo={isSharingVideo}
-                  hasScreenshare={hasScreenshare}
-                  hasPinnedSharedNotes={isSharedNotesPinned}
-                  hasGenericContent={hasGenericContent}
-                  hasCameraAsContent={hasCameraAsContent}
-                />
+                <>
+                  <PresentationOptionsContainer
+                    presentationIsOpen={presentationIsOpen}
+                    setPresentationIsOpen={setPresentationIsOpen}
+                    layoutContextDispatch={layoutContextDispatch}
+                    hasPresentation={isThereCurrentPresentation}
+                    hasExternalVideo={isSharingVideo}
+                    hasScreenshare={hasScreenshare}
+                    hasPinnedSharedNotes={isSharedNotesPinned}
+                    hasGenericContent={hasGenericContent}
+                    hasCameraAsContent={hasCameraAsContent}
+                  />
+                  <MediaAreaDropdown {...{
+                    amIPresenter,
+                    amIModerator,
+                    isPollingEnabled,
+                    allowExternalVideo,
+                    intl,
+                    isSharingVideo,
+                    stopExternalVideoShare,
+                    isTimerActive,
+                    isTimerEnabled,
+                    isMeteorConnected,
+                    setMeetingLayout,
+                    setPushLayout,
+                    presentationIsOpen,
+                    showPushLayout,
+                    hasCameraAsContent,
+                    setPresentationFitToWidth,
+                  }}
+                  />
+                </>
               )
               : null}
           </Styled.Right>
