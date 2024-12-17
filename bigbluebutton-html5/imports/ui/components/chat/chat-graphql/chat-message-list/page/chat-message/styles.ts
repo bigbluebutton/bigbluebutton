@@ -8,7 +8,6 @@ import {
   $3xlPadding,
   xlPadding,
   mdPadding,
-  smPadding,
 } from '/imports/ui/stylesheets/styled-components/general';
 import {
   fontSizeBase,
@@ -112,19 +111,20 @@ export const ChatContent = styled.div<ChatContentProps>`
 export const ChatContentFooter = styled.div`
   justify-content: flex-end;
   gap: 0.25rem;
-  padding: ${smPadding} 0 0 ${smPadding};
   position: absolute;
-  bottom: calc(${lgPadding} + 2px);
+  bottom: 0.25rem;
+  line-height: 1;
+  font-size: 95%;
   display: none;
   background-color: inherit;
   border-radius: 0.5rem;
 
   [dir="rtl"] & {
-    left: ${$3xlPadding};
+    left: 0.25rem;
   }
 
   [dir="ltr"] & {
-    right: ${$3xlPadding};
+    right: 0.25rem;
   }
 
   .chat-message-wrapper-focused &,

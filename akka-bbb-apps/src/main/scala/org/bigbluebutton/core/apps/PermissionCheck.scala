@@ -2,9 +2,9 @@ package org.bigbluebutton.core.apps
 
 import org.bigbluebutton.SystemConfiguration
 import org.bigbluebutton.core.apps.users.UsersApp
+import org.bigbluebutton.core.graphql.GraphqlMiddleware
 import org.bigbluebutton.core.models._
 import org.bigbluebutton.core.running.{ LiveMeeting, OutMsgRouter }
-import org.bigbluebutton.core2.message.senders.Sender
 
 trait RightsManagementTrait extends SystemConfiguration {
   /**
@@ -87,13 +87,6 @@ object PermissionCheck extends SystemConfiguration {
       val ejectedBy = SystemUser.ID
 
       UsersApp.ejectUserFromMeeting(outGW, liveMeeting, userId, ejectedBy, reason, EjectReasonCode.PERMISSION_FAILED, ban = false)
-
-      // Force reconnection with graphql to refresh permissions
-      for {
-        regUser <- RegisteredUsers.findWithUserId(userId, liveMeeting.registeredUsers)
-      } yield {
-        Sender.sendForceUserGraphqlReconnectionSysMsg(liveMeeting.props.meetingProp.intId, regUser.id, regUser.sessionToken, reason, outGW)
-      }
     } else {
       // TODO: get this object a context so it can use the akka logging system
       println(s"Skipping violation ejection of ${userId} trying to ${reason} in ${meetingId}")

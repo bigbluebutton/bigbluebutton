@@ -1,6 +1,7 @@
 package org.bigbluebutton.core.apps.users
 
 import org.bigbluebutton.common2.msgs._
+import org.bigbluebutton.core.db.UserMetadataDAO
 import org.bigbluebutton.core.models._
 import org.bigbluebutton.core.running.{ LiveMeeting, OutMsgRouter }
 import org.bigbluebutton.core2.message.senders.Sender
@@ -15,11 +16,17 @@ trait RegisterUserSessionTokenReqMsgHdlr {
     for {
       ru <- RegisteredUsers.findWithUserId(msg.body.userId, liveMeeting.registeredUsers)
     } yield {
-      val updatedRU = RegisteredUsers.addUserSessionToken(liveMeeting.registeredUsers, ru, msg.body.sessionToken, msg.body.enforceLayout)
+      //Case enforceLayout was not specified for the session, use the value of the user
+      val enforceLayout = msg.body.enforceLayout match {
+        case ""            => ru.enforceLayout
+        case enforceLayout => enforceLayout
+      }
+
+      val updatedRU = RegisteredUsers.addUserSessionToken(liveMeeting.registeredUsers, ru, msg.body.sessionToken, msg.body.sessionName, enforceLayout)
       log.info("Register user session token success. meetingId=" + liveMeeting.props.meetingProp.intId + " userId=" + msg.body.userId + " sessionToken=" + msg.body.sessionToken)
 
       if (msg.body.userSessionMetadata.nonEmpty) {
-        //TODO store user session metadata
+        UserMetadataDAO.insert(liveMeeting.props.meetingProp.intId, ru.id, msg.body.sessionToken, msg.body.userSessionMetadata)
       }
 
       if (msg.body.replaceSessionToken.nonEmpty) {

@@ -975,6 +975,27 @@ public:
 
 and restart BigBlueButton via `sudo bbb-conf --restart`
 
+#### Configure S3-based cache for presentation assets
+
+In BigBlueButton 3.0 we introduced a functionality to store outputs such as SVGs, PNGs, thumbnails and text generated from PDFs or document files uploaded as presentations.
+The processed outputs are cached in an S3-based storage system, keyed by a hash of the presentation file.
+When the same presentation is uploaded again, the system retrieves the cached outputs, avoiding redundant processing and improving performance.
+
+In order to enable this feature, change the file `/etc/bigbluebutton/bbb-web.properties` including the following content:
+
+```
+presentationConversionCacheEnabled=true
+presentationConversionCacheS3AccessKeyId=AAAAAAAAAAAAAAAAAAAA
+presentationConversionCacheS3AccessKeySecret=aaaAAAaaaaaaaaaaaAAAAAAAAAaaaaaaaaaaaaa+aaA
+presentationConversionCacheS3BucketName=my-storage-name
+presentationConversionCacheS3Region=nyc3
+presentationConversionCacheS3EndpointURL=https://nyc3.digitaloceanspaces.com
+presentationConversionCacheS3PathStyle=false
+```
+_This is an example of config for DigitalOcean Spaces S3-Compatible Object Storage._
+
+and restart BigBlueButton via `sudo bbb-conf --restart`
+
 
 ### Frontends
 
@@ -1334,6 +1355,10 @@ defaultGuestPolicy=ALWAYS_ACCEPT
 ### Show a custom logo on the client
 
 Ensure that the parameter `displayBrandingArea` is set to `true` in bbb-html5's configuration, restart BigBlueButton server with `sudo bbb-conf --restart` and pass `logo=<image-url>` in Custom parameters when creating the meeting.
+
+### Changing the default logo
+
+To update the default logo, navigate to the `images` folder located at `/var/www/bigbluebutton-default/assets/images/`, and replace the `logo.png` file with your new logo.
 
 ## Other meeting configs available
 These configs can be set in `/etc/bigbluebutton/bbb-web.properties`

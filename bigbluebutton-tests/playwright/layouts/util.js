@@ -12,14 +12,18 @@ async function reopenChatSidebar(page) {
 }
 
 async function checkScreenshots(layoutTest, description, maskedSelectors, screenshotName, screenshotNumber) {
-  const modPageWebcamsLocator = layoutTest.modPage.getLocator(maskedSelectors);
+  const getMaskedLocators = (page) => Array.isArray(maskedSelectors)
+  ? maskedSelectors.map(selector => page.getLocator(selector))
+  : [page.getLocator(maskedSelectors)];
+
+  const modPageMaskedSelectors = getMaskedLocators(layoutTest.modPage);
   await expect(layoutTest.modPage.page, description).toHaveScreenshot(`moderator-${screenshotName}${screenshotNumber ? '-' + screenshotNumber : ''}.png`, {
-    mask: [modPageWebcamsLocator],
+    mask: modPageMaskedSelectors,
   });
 
-  const userWebcamsLocator = layoutTest.userPage.getLocator(maskedSelectors);
+  const userPageMaskedSelectors = getMaskedLocators(layoutTest.userPage);
   await expect(layoutTest.userPage.page, description).toHaveScreenshot(`user-${screenshotName}${screenshotNumber ? '-' + screenshotNumber : ''}.png`, {
-    mask: [userWebcamsLocator],
+    mask: userPageMaskedSelectors,
   });
 }
 

@@ -1,7 +1,6 @@
 import React from 'react';
 import { defineMessages, useIntl } from 'react-intl';
 import Styled, { DeleteMessage } from './styles';
-import Storage from '/imports/ui/services/storage/in-memory';
 import { ChatEvents } from '/imports/ui/core/enums/chat';
 
 const intlMessages = defineMessages({
@@ -40,7 +39,6 @@ const ChatMessageReplied: React.FC<MessageRepliedProps> = (props) => {
             },
           }),
         );
-        Storage.setItem(ChatEvents.CHAT_FOCUS_MESSAGE_REQUEST, sequence);
       }}
     >
       {!deletedByUser && (
