@@ -60,7 +60,6 @@ class Options extends MultiUsers {
 
   async darkMode() {
     await this.modPage.hasElement(e.whiteboard, 'should the whiteboard be display');
-    await this.modPage.waitAndClick(e.closePopup);
     // send chat message
     await this.modPage.type(e.chatBox, e.message);
     await this.modPage.waitAndClick(e.sendButton);
@@ -129,7 +128,6 @@ class Options extends MultiUsers {
 
   async fontSizeTest() {
     await this.modPage.hasElement(e.whiteboard, 'should the whiteboard be display');
-    await this.modPage.waitAndClick(e.closePopup);
     await this.modPage.setHeightWidthViewPortSize();
     const getFontSizeNumber = (node) => Number(getComputedStyle(node).fontSize.slice(0, -2));
     const [
