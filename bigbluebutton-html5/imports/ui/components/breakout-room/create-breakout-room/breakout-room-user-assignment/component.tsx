@@ -334,19 +334,26 @@ const BreakoutRoomUserAssignment: React.FC<ChildComponentProps> = ({
       const splitted = element.id.split('-');
       const [userId, StringFrom] = splitted;
       const from = Number(StringFrom);
+      const maxRooms = numberOfRooms;
       if (e.key === 'ArrowDown' || e.key === 'ArrowUp') {
         const nextElement = e.key === 'ArrowDown' ? element.nextSibling : element.previousSibling;
         if (nextElement) (nextElement as HTMLElement).focus();
       }
 
       if (e.key === 'ArrowRight') {
-        moveUser(userId, from, from + 1);
-        updateSortedRooms();
+        const nextRoom = from + 1;
+        if (nextRoom <= maxRooms) {
+          moveUser(userId, from, from + 1);
+          updateSortedRooms();
+        }
       }
 
       if (e.key === 'ArrowLeft') {
-        moveUser(userId, from, from - 1 < 0 ? 0 : from - 1);
-        updateSortedRooms();
+        const prevRoom = from - 1;
+        if (prevRoom >= 0) {
+          moveUser(userId, from, from - 1 < 0 ? 0 : from - 1);
+          updateSortedRooms();
+        }
       }
     }
   };
