@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { defineMessages, useIntl } from 'react-intl';
 import useMeeting from '/imports/ui/core/hooks/useMeeting';
 import ModalSimple from '/imports/ui/components/common/modal/simple/component';
@@ -40,6 +40,10 @@ const intlMessages = defineMessages({
     id: 'app.sessionDetails.phonePin',
     description: 'adds descriptive context to dissmissLabel',
   },
+  copied: {
+    id: 'app.sessionDetails.copied',
+    description: 'Copied join data',
+  },
 });
 
 interface SessionDetailsContainerProps {
@@ -58,6 +62,8 @@ interface SessionDetailsProps extends SessionDetailsContainerProps {
   anchorElement: HTMLElement | null,
 }
 
+const COPY_MESSAGE_TIMEOUT = 3000;
+
 const SessionDetails: React.FC<SessionDetailsProps> = (props) => {
   const {
     meetingName,
@@ -72,11 +78,21 @@ const SessionDetails: React.FC<SessionDetailsProps> = (props) => {
     anchorElement,
   } = props;
   const intl = useIntl();
+  const [copyingJoinUrl, setCopyingJoinUrl] = useState(false);
+  const [copyingDialIn, setCopyingDialIn] = useState(false);
 
   const formattedPin = formattedTelVoice.replace(/(?=(\d{3})+(?!\d))/g, ' ');
 
-  const copyData = async (content: string) => {
+  const copyData = async (content: string, type: string) => {
+    if (type === 'join-url') setCopyingJoinUrl(true);
+    if (type === 'dial-in') setCopyingDialIn(true);
+
     await navigator.clipboard.writeText(content);
+
+    setTimeout(() => {
+      if (type === 'join-url') setCopyingJoinUrl(false);
+      if (type === 'dial-in') setCopyingDialIn(false);
+    }, COPY_MESSAGE_TIMEOUT);
   };
 
   const { isMobile } = deviceInfo;
@@ -113,14 +129,16 @@ const SessionDetails: React.FC<SessionDetailsProps> = (props) => {
                 {loginUrl}
                 <Styled.CopyButton
                   key="copy-join-url"
-                  onClick={() => copyData(loginUrl)}
+                  onClick={() => copyData(loginUrl, 'join-url')}
                   hideLabel
-                  color="primary"
-                  icon="copy"
+                  color="light"
+                  icon={copyingJoinUrl ? 'check' : 'copy'}
                   size="sm"
                   circle
                   ghost
-                  label={intl.formatMessage(intlMessages.copyUrlTooltip)}
+                  label={copyingJoinUrl
+                    ? intl.formatMessage(intlMessages.copied)
+                    : intl.formatMessage(intlMessages.copyUrlTooltip)}
                 />
               </p>
             </>
@@ -131,14 +149,16 @@ const SessionDetails: React.FC<SessionDetailsProps> = (props) => {
                 {intl.formatMessage(intlMessages.joinByPhoneLabel)}
                 <Styled.CopyButton
                   key="copy-dial-in"
-                  onClick={() => copyData(formattedDialNum)}
+                  onClick={() => copyData(formattedDialNum, 'dial-in')}
                   hideLabel
-                  color="primary"
-                  icon="copy"
+                  color="light"
+                  icon={copyingDialIn ? 'check' : 'copy'}
                   size="sm"
                   circle
                   ghost
-                  label={intl.formatMessage(intlMessages.copyPhoneTooltip)}
+                  label={copyingDialIn
+                    ? intl.formatMessage(intlMessages.copied)
+                    : intl.formatMessage(intlMessages.copyPhoneTooltip)}
                 />
               </Styled.JoinTitle>
               <p>{formattedDialNum}</p>
