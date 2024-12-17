@@ -14,10 +14,10 @@ const roveBuilder = (
     } else {
       const userItem = document.getElementById(`${prefixId}-0`);
       if (userItem) {
+        /* eslint-disable no-param-reassign */
         selectedRef.current = userItem;
         userItem.focus();
       }
-  
     }
     return;
   }
@@ -30,13 +30,14 @@ const roveBuilder = (
     if (el) {
       try {
         const currentId = Number.parseInt(el.id.split('-')[2], 10);
-        if (isNaN(currentId)) throw new Error('Invalid ID format');
-        
+        if (Number.isNaN(currentId)) throw new Error('Invalid ID format');
+
         const nextId = currentId + sum;
         if (nextId < 0) return; // Prevent negative indices
-        
+
         const nextEl = document.getElementById(`${prefixId}-${nextId}`);
         if (nextEl) {
+          /* eslint-disable no-param-reassign */
           selectedRef.current = nextEl;
           nextEl.focus();
         }
@@ -46,6 +47,5 @@ const roveBuilder = (
     }
   }
 };
-
 
 export default roveBuilder;
