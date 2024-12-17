@@ -1,7 +1,8 @@
 import styled from 'styled-components';
 import {
   colorGrayLightest,
-  colorBlack,
+  colorGrayDark,
+  colorPrimary,
 } from '/imports/ui/stylesheets/styled-components/palette';
 import Button from '/imports/ui/components/common/button/component';
 import { smPadding } from '/imports/ui/stylesheets/styled-components/general';
@@ -39,17 +40,45 @@ const Container = styled.div<{ isFullWidth: boolean }>`
       transform: translateX(-50%);
     }
   `}
+
+  & a {
+    color: ${colorPrimary};
+    text-decoration: none;
+
+    &:focus {
+      color: ${colorPrimary};
+      text-decoration: underline;
+    }
+    &:hover {
+      filter: brightness(90%);
+      text-decoration: underline;
+    }
+    &:active {
+      filter: brightness(85%);
+      text-decoration: underline;
+    }
+    &:hover:focus {
+      filter: brightness(90%);
+      text-decoration: underline;
+    }
+    &:focus:active {
+      filter: brightness(85%);
+      text-decoration: underline;
+    }
+  }
 `;
 
 const JoinTitle = styled.h2`
   font-size: 0.9rem;
   text-transform: uppercase;
-  color: ${colorBlack};
+  color: ${colorGrayDark};
   font-weight: 600;
 `;
 
 // @ts-ignore - as button comes from JS, we can't provide its props
 export const CopyButton = styled(Button)`
+  color: ${colorPrimary};
+  
   [dir='ltr'] & {
     margin-left: ${smPadding};
   }

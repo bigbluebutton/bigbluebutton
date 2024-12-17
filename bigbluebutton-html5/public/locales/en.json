@@ -1535,6 +1535,7 @@
     "app.sessionDetails.copyUrlTooltip": "Copy join URL",
     "app.sessionDetails.copyPhoneTooltip": "Copy phone number",
     "app.sessionDetails.phonePin": "pin",
+    "app.sessionDetails.copied": "Copied!",
     "mobileApp.portals.list.empty.addFirstPortal.label": "Add your first portal using the button above,",
     "mobileApp.portals.list.empty.orUseOurDemoServer.label": "or use our demo server.",
     "mobileApp.portals.list.add.button.label": "Add portal",
