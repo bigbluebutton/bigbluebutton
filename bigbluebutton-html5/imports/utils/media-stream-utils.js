@@ -49,8 +49,6 @@ const getDeviceIdFromTrack = (track) => {
 };
 
 const extractDeviceIdFromStream = (stream, kind) => {
-  if (!stream) return null;
-
   // An empty string is the browser's default...
   let tracks = [];
 

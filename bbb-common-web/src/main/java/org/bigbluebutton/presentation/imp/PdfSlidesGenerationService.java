@@ -49,7 +49,7 @@ public class PdfSlidesGenerationService {
                 pageToConvert.getMeetingId(),
                 new ArrayList<>());
         presentationConversionCompletionService.handle(msg);
-        pageToConvert.getPageFile().delete();
+        // The pdf of the page will be removed after cache storing
       }
     };
 

@@ -1,8 +1,6 @@
-const { expect } = require('@playwright/test');
 const e = require('../core/elements');
 const { ELEMENT_WAIT_LONGER_TIME } = require('../core/constants');
 const { MultiUsers } = require('../user/multiusers');
-const CI = process.env.CI === 'true';
 
 class DrawRectangle extends MultiUsers {
   constructor(browser, context) {
