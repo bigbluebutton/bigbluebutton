@@ -502,7 +502,7 @@ const Whiteboard = React.memo((props) => {
 
   const adjustCameraOnMount = (includeViewerLogic = true) => {
     const throwIfInvalid = (value, description) => {
-      if (!isFinite(value)) {
+      if (!Number.isFinite(value)) {
         throw new Error(`Invalid ${description}: ${value}`);
       }
     };
