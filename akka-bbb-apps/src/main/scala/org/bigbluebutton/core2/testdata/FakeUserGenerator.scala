@@ -56,10 +56,16 @@ object FakeUserGenerator {
     val webcamBackgroundURL = "https://www." + RandomStringGenerator.randomAlphanumericString(32) + ".com/" +
       RandomStringGenerator.randomAlphanumericString(10) + ".jpg"
     val color = "#ff6242"
+    val logoutUrlFormats = Seq(
+      s"https://www.${RandomStringGenerator.randomAlphanumericString(32)}.com/logout?user=${RandomStringGenerator.randomAlphanumericString(8)}#section",
+      s"http://localhost:8080/logout/${RandomStringGenerator.randomAlphanumericString(8)}",
+      s"https://example.com/logout?redirect=${java.net.URLEncoder.encode("https://another-site.com", "UTF-8")}"
+    )
+    val logoutUrl = logoutUrlFormats(random.nextInt(logoutUrlFormats.length))
 
     val ru = RegisteredUsers.create(meetingId, userId = id, extId, name, role,
       authToken, Vector(sessionToken), avatarURL, webcamBackgroundURL, color, bot,
-      guest, authed, guestStatus = GuestStatus.ALLOW, false, "", Map(), false)
+      guest, authed, guestStatus = GuestStatus.ALLOW, false, "", logoutUrl, Map(), false)
     RegisteredUsers.add(users, ru, meetingId)
     ru
   }

@@ -63,7 +63,7 @@ RangeLoop:
 
 					//Rate limiter from config max_connection_mutations_per_minute
 					ctxRateLimiter, _ := context.WithTimeout(browserConnection.Context, 30*time.Second)
-					if err := browserConnection.FromBrowserToHasuraRateLimiter.Wait(ctxRateLimiter); err != nil {
+					if err := browserConnection.FromBrowserToGqlActionsRateLimiter.Wait(ctxRateLimiter); err != nil {
 						sendErrorMessage(
 							browserConnection,
 							browserMessage.ID,

@@ -1,23 +1,8 @@
 import React from 'react';
-import { defineMessages, useIntl } from 'react-intl';
+import emojiData from '@emoji-mart/data';
 import Styled from './styles';
 import useCurrentUser from '/imports/ui/core/hooks/useCurrentUser';
-import TooltipContainer from '/imports/ui/components/common/tooltip/container';
-
-const intlMessages = defineMessages({
-  reactedBy: {
-    id: 'app.chat.toolbar.reactions.reactedByLabel',
-  },
-  you: {
-    id: 'app.chat.toolbar.reactions.youLabel',
-  },
-  and: {
-    id: 'app.chat.toolbar.reactions.andLabel',
-  },
-  findAReaction: {
-    id: 'app.chat.toolbar.reactions.findReactionButtonLabel',
-  },
-});
+import ReactionItem from './reaction-item/component';
 
 interface ChatMessageReactionsProps {
   reactions: {
@@ -42,6 +27,7 @@ type ReactionItem = {
   reactionEmoji: string;
   reactionEmojiId: string;
   leastRecent: number;
+  shortcodes: string;
 }
 
 const sortByCount = (r1: ReactionItem, r2: ReactionItem) => r2.count - r1.count;
@@ -53,7 +39,6 @@ const ChatMessageReactions: React.FC<ChatMessageReactionsProps> = (props) => {
   } = props;
 
   const { data: currentUser } = useCurrentUser((u) => ({ userId: u.userId }));
-  const intl = useIntl();
 
   if (reactions.length === 0) return null;
 
@@ -75,6 +60,8 @@ const ChatMessageReactions: React.FC<ChatMessageReactionsProps> = (props) => {
         reactionEmoji,
         reactionEmojiId,
         leastRecent: new Date(createdAt).getTime(),
+        // @ts-ignore
+        shortcodes: emojiData.emojis[reactionEmojiId].skins[0].shortcodes,
       };
       return newValue;
     }
@@ -91,53 +78,21 @@ const ChatMessageReactions: React.FC<ChatMessageReactionsProps> = (props) => {
 
   return (
     <Styled.ReactionsWrapper>
-      {Object.values(reactionItems).sort(sortByLeastRecent).sort(sortByCount).map((details) => {
-        const {
-          count,
-          reactedByMe,
-          reactionEmoji,
-          reactionEmojiId,
-          userNames,
-        } = details;
-        let label = intl.formatMessage(intlMessages.reactedBy);
-        if (userNames.length) {
-          const users = userNames.join(', ');
-          label += ` ${users}`;
-
-          if (reactedByMe) {
-            label += ` ${intl.formatMessage(intlMessages.and)} ${intl.formatMessage(intlMessages.you)}`;
-          }
-        } else if (reactedByMe) {
-          label += ` ${intl.formatMessage(intlMessages.you)}`;
-        }
-
-        return (
-          <TooltipContainer title={label} key={reactionEmojiId}>
-            <Styled.EmojiWrapper
-              highlighted={reactedByMe}
-              onClick={() => {
-                if (reactedByMe) {
-                  deleteReaction(reactionEmoji, reactionEmojiId, chatId, messageId);
-                } else {
-                  sendReaction(reactionEmoji, reactionEmojiId, chatId, messageId);
-                }
-              }}
-            >
-              <em-emoji
-                size={parseFloat(
-                  window.getComputedStyle(document.documentElement).fontSize,
-                )}
-                emoji={{
-                  id: reactionEmojiId,
-                  native: reactionEmoji,
-                }}
-                native={reactionEmoji}
-              />
-              <span>{count}</span>
-            </Styled.EmojiWrapper>
-          </TooltipContainer>
-        );
-      })}
+      {Object.values(reactionItems).sort(sortByLeastRecent).sort(sortByCount).map((details) => (
+        <ReactionItem
+          chatId={chatId}
+          count={details.count}
+          deleteReaction={deleteReaction}
+          messageId={messageId}
+          reactedByMe={details.reactedByMe}
+          reactionEmoji={details.reactionEmoji}
+          reactionEmojiId={details.reactionEmojiId}
+          sendReaction={sendReaction}
+          shortcodes={details.shortcodes}
+          userNames={details.userNames}
+          key={details.reactionEmojiId}
+        />
+      ))}
     </Styled.ReactionsWrapper>
   );
 };

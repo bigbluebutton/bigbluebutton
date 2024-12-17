@@ -135,7 +135,7 @@ const PresentationMenu = (props) => {
   });
 
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
-  const toastId = useRef(null);
+  const toastId = useRef('presentation-menu-toast');
   const dropdownRef = useRef(null);
 
   const formattedLabel = (fullscreen) => (fullscreen
@@ -286,14 +286,12 @@ const PresentationMenu = (props) => {
               hasError: false,
             });
 
-            toastId.current = toast.info(renderToastContent(), {
+            toast.info(renderToastContent(), {
               hideProgressBar: true,
               autoClose: false,
               newestOnTop: true,
               closeOnClick: true,
-              onClose: () => {
-                toastId.current = null;
-              },
+              toastId: toastId.current,
             });
 
             // This is a workaround to a conflict of the
@@ -428,16 +426,13 @@ const PresentationMenu = (props) => {
   }
 
   useEffect(() => {
-    if (toastId.current) {
+    if (toast.isActive(toastId.current)) {
       toast.update(toastId.current, {
         render: renderToastContent(),
         hideProgressBar: state.loading,
         autoClose: state.loading ? false : 3000,
         newestOnTop: true,
         closeOnClick: true,
-        onClose: () => {
-          toastId.current = null;
-        },
       });
     }
 
@@ -462,7 +457,7 @@ const PresentationMenu = (props) => {
   }
 
   return (
-    <Styled.Left id="WhiteboardOptionButton">
+    <Styled.Right id="WhiteboardOptionButton">
       <BBBMenu
         trigger={(
           <TooltipContainer title={intl.formatMessage(intlMessages.optionsLabel)}>
@@ -498,7 +493,7 @@ const PresentationMenu = (props) => {
         style={{ display: 'none' }}
         onChange={handleFileInput}
       />
-    </Styled.Left>
+    </Styled.Right>
   );
 };
 

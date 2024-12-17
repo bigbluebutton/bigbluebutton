@@ -646,6 +646,12 @@ type Mutation {
 }
 
 type Mutation {
+  userSetTalking(
+    talking: Boolean!
+  ): Boolean
+}
+
+type Mutation {
   userSetUserLockSettings(
     userId: String!
     disablePubChat: Boolean!

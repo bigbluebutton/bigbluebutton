@@ -10,7 +10,6 @@ import (
 	"strings"
 )
 
-// sessionVarsHookUrl is the authentication hook URL obtained from an environment variable.
 var sessionVarsHookUrl = config.GetConfig().SessionVarsHook.Url
 
 var internalError = fmt.Errorf("server internal error")
@@ -27,15 +26,15 @@ func AkkaAppsGetSessionVariablesFrom(browserConnectionId string, sessionToken st
 	// Create a new HTTP client with a cookie jar.
 	client := &http.Client{}
 
-	// Check if the authentication hook URL is set.
+	// Check if the session_vars hook URL is set.
 	if sessionVarsHookUrl == "" {
-		log.Error("Config auth_hook.url not set")
+		log.Error("Config session_vars_hook.url not set")
 		return nil, internalError, internalErrorId
 	}
 
 	log.Trace("Get user session vars from: " + sessionVarsHookUrl + "?sessionToken=" + sessionToken)
 
-	// Create a new HTTP request to the authentication hook URL.
+	// Create a new HTTP request to the session_vars hook URL.
 	req, err := http.NewRequest("GET", sessionVarsHookUrl, nil)
 	if err != nil {
 		log.Error(err)

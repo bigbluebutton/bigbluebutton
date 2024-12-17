@@ -39,7 +39,7 @@ export default class BaseAudioBridge {
     console.error('The Bridge must implement exitAudio');
   }
 
-  joinAudio() {
+  joinAudio(options, callback) {
     console.error('The Bridge must implement joinAudio');
   }
 
@@ -47,7 +47,7 @@ export default class BaseAudioBridge {
     console.error('The Bridge must implement changeInputDevice');
   }
 
-  setInputStream() {
+  setInputStream(inputStream, deviceId = null) {
     console.error('The Bridge must implement setInputStream');
   }
 
@@ -61,6 +61,19 @@ export default class BaseAudioBridge {
 
   get inputDeviceId () {
     return this._inputDeviceId;
+  }
+
+  setSenderTrackEnabled(shouldEnable) {
+    const peer = this.getPeerConnection();
+
+    if (!peer) return;
+
+    peer.getSenders().forEach((sender) => {
+      const { track } = sender;
+      if (track && track.kind === 'audio') {
+        track.enabled = shouldEnable;
+      }
+    });
   }
 
   /* eslint-disable class-methods-use-this */
@@ -107,7 +120,7 @@ export default class BaseAudioBridge {
       }
 
       newStream = await doGUM(constraints);
-      await this.setInputStream(newStream);
+      await this.setInputStream(newStream, deviceId);
       if (backupStream && backupStream.active) {
         backupStream.getAudioTracks().forEach((track) => track.stop());
         backupStream = null;

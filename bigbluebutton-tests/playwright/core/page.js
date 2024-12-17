@@ -115,10 +115,10 @@ class Page {
     await this.waitAndClick(e.joinVideo);
     if (shouldConfirmSharing) {
       await this.bringToFront();
-      await this.hasElement(e.videoPreview, 'should display the video preview when sharing webcam ', videoPreviewTimeout);
+      await this.hasElement(e.webcamMirroredVideoPreview, 'should display the video preview when sharing webcam ', videoPreviewTimeout);
       await this.waitAndClick(e.startSharingWebcam);
     }
-    await this.waitForSelector(e.webcamContainer, VIDEO_LOADING_WAIT_TIME);
+    await this.waitForSelector(e.webcamMirroredVideoContainer, VIDEO_LOADING_WAIT_TIME);
     await this.waitForSelector(e.leaveVideo, VIDEO_LOADING_WAIT_TIME);
     await this.wasRemoved(e.webcamConnecting, VIDEO_LOADING_WAIT_TIME);
   }
@@ -305,11 +305,15 @@ class Page {
   }
 
   async closeAllToastNotifications() {
-      const closeToastBtnLocator = this.page.locator(e.closeToastBtn);
-      while (await closeToastBtnLocator.count() > 0) {
+    const closeToastBtnLocator = this.page.locator(e.closeToastBtn);
+    while (await closeToastBtnLocator.count() > 0) {
+      try {
         await this.page.click(e.closeToastBtn, { timeout: ELEMENT_WAIT_TIME });
-        await helpers.sleep(1000);  // expected time to toast notification disappear
+        await helpers.sleep(1500);  // expected time to toast notification disappear
+      } catch (error) {
+        console.log('not able to close the toast notification');
       }
+    }
   }
 
   async setHeightWidthViewPortSize() {

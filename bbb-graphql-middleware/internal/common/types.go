@@ -4,6 +4,7 @@ import (
 	"context"
 	"encoding/json"
 	"github.com/sirupsen/logrus"
+	"golang.org/x/time/rate"
 	"net/http"
 	"sync"
 	"time"
@@ -36,6 +37,7 @@ type GraphQlSubscription struct {
 }
 
 type BrowserConnection struct {
+	sync.RWMutex
 	Id                                 string             // browser connection id
 	Websocket                          *websocket.Conn    // websocket of browser connection
 	SessionToken                       string             // session token of this connection
@@ -55,12 +57,11 @@ type BrowserConnection struct {
 	GraphqlActionsContext              context.Context                // graphql actions context
 	GraphqlActionsContextCancel        context.CancelFunc             // function to cancel the graphql actions context
 	FromBrowserToHasuraChannel         *SafeChannelByte               // channel to transmit messages from Browser to Hasura
-	FromBrowserToHasuraRateLimiter     *CustomSimpleRateLimiter       // rate limiter to transmit messages from Browser to Hasura
+	FromBrowserToHasuraRateLimiter     *rate.Limiter                  // rate limiter to transmit messages from Browser to Hasura
 	FromBrowserToGqlActionsChannel     *SafeChannelByte               // channel to transmit messages from Browser to Graphq-Actions
-	FromBrowserToGqlActionsRateLimiter *CustomSimpleRateLimiter       // rate limiter to transmit messages from Browser to Graphq-Actions
+	FromBrowserToGqlActionsRateLimiter *rate.Limiter                  // rate limiter to transmit messages from Browser to Graphq-Actions
 	FromHasuraToBrowserChannel         *SafeChannelByte               // channel to transmit messages from Hasura/GqlActions to Browser
 	LastBrowserMessageTime             time.Time                      // stores the time of the last message to control browser idleness
-	LastBrowserMessageTimeMutex        sync.RWMutex                   // mutex for LastBrowserMessageTime
 	Logger                             *logrus.Entry                  // connection logger populated with connection info
 }
 

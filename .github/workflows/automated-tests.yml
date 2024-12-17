@@ -330,9 +330,6 @@ jobs:
             echo "Check if there is some process still locking:2"
             ps aux | grep -E 'dpkg|apt'
 
-            #remove all apt-update to make the install faster
-            sed -i 's/apt-get update/#apt-get update/g' bbb-install.sh
-
             RETRY_COUNT=$((RETRY_COUNT + 1))
           done
 
