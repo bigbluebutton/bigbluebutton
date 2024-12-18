@@ -106,22 +106,30 @@ CREATE TRIGGER "update_meeting_recording_trigger" BEFORE UPDATE OF "stoppedAt" O
 --(CASE WHEN "startedAt" IS NULL OR "stoppedAt" IS NULL THEN 0 ELSE EXTRACT(EPOCH FROM ("stoppedAt" - "startedAt")) END) STORED;
 
 CREATE VIEW v_meeting_recording AS
-SELECT r.*,
-CASE
-    WHEN "startedAt" IS NULL THEN false
-    WHEN "stoppedAt" IS NULL THEN true
-    ELSE "startedAt" > "stoppedAt"
-END AS "isRecording"
+SELECT
+    r."meetingId",
+    r."startedAt",
+    r."startedBy",
+    r."stoppedAt",
+    r."stoppedBy",
+    COALESCE(r."previousRecordedTimeInSeconds", 0) AS "previousRecordedTimeInSeconds",
+    CASE
+        WHEN r."startedAt" IS NULL THEN false
+        WHEN r."stoppedAt" IS NULL THEN true
+        ELSE r."startedAt" > r."stoppedAt"
+    END AS "isRecording"
 FROM (
-	select "meetingId",
-	(array_agg("startedAt" ORDER BY "startedAt" DESC))[1] as "startedAt",
-	(array_agg("startedBy" ORDER BY "startedAt" DESC))[1] as "startedBy",
-	(array_agg("stoppedAt" ORDER BY "startedAt" DESC))[1] as "stoppedAt",
-	(array_agg("stoppedBy" ORDER BY "startedAt" DESC))[1] as "stoppedBy",
-    coalesce(sum("recordedTimeInSeconds"),0) "previousRecordedTimeInSeconds"
-	from "meeting_recording"
-	GROUP BY "meetingId"
-) r;
+    SELECT
+        mr."meetingId",
+        mr."startedAt",
+        mr."startedBy",
+        mr."stoppedAt",
+        mr."stoppedBy",
+        SUM(mr."recordedTimeInSeconds") OVER (PARTITION BY mr."meetingId") AS "previousRecordedTimeInSeconds",
+        ROW_NUMBER() OVER (PARTITION BY mr."meetingId" ORDER BY mr."startedAt" DESC) AS rn
+    FROM "meeting_recording" mr
+) r
+where r.rn = 1;
 
 create table "meeting_welcome" (
 	"meetingId" varchar(100) primary key references "meeting"("meetingId") ON DELETE CASCADE,
