@@ -440,7 +440,7 @@ The encoding options can be adjusted to speed up encoding or increase quality of
 
 #### Reduce bandwidth from webcams
 
-You can use a banwidth usage on your BigBlueButton server using a tool such as `bmon` (`sudo apt-get install bmon`). You can change the maximum bandwidth settings for each webcam options (low, medium, high, high definition) by editing `/usr/share/meteor/bundle/programs/server/assets/app/config/settings.yml` and modifying the entries for
+You can use a banwidth usage on your BigBlueButton server using a tool such as `bmon` (`sudo apt-get install bmon`). You can change the maximum bandwidth settings for each webcam options (low, medium, high, high definition) by editing `/usr/share/bigbluebutton/html5-client/private/config/settings.yml` and modifying the entries for
 
 ```yaml
 cameraProfiles:
@@ -464,7 +464,7 @@ cameraProfiles:
 
 The settings for `bitrate` are in kbits/sec (i.e. 100 kbits/sec). After your modify the values, save the file, restart your BigBlueButton server `sudo bbb-conf --restart` to have the settings take effect. The lowest setting allowed for WebRTC is 30 Kbits/sec.
 
-If you have sessions that like to share lots of webcams, such as ten or more, then then setting the `bitrate` for `low` to 50 and `medium` to 100 will help reduce the overall bandwidth on the server. When many webcams are shared, the size of the webcams get so small that the reduction in `bitrate` will not be noticeable during the live sessions.
+If you have sessions that like to share lots of webcams, such as ten or more, then setting the `bitrate` for `low` to 50 and `medium` to 100 will help reduce the overall bandwidth on the server. When many webcams are shared, the size of the webcams get so small that the reduction in `bitrate` will not be noticeable during the live sessions.
 
 #### Disable webcams
 
@@ -561,7 +561,7 @@ On a BigBlueButton 2.3 (or later) server, you can place the above in `/etc/bigbl
 
 If any of these thresholds are reached, then a user will receive a "Media resources not available (2002)" error when sharing webcams.
 
-BigBlueButton will dynamically reduce the number of webcams in a meeting as the meeting grows larger. These are set in `/usr/share/meteor/bundle/programs/server/assets/app/config/settings.yml`, but you can override them by placing them in `/etc/bigbluebutton/bbb-html5.yml`.
+BigBlueButton will dynamically reduce the number of webcams in a meeting as the meeting grows larger. These are set in `/usr/share/bigbluebutton/html5-client/private/config/settings.yml`, but you can override them by placing them in `/etc/bigbluebutton/bbb-html5.yml`.
 
 For example, the following `/etc/bigbluebutton/bbb-html5.yml` file would ensure that no single meeting will have more than 300 streams. For example, in a meeting with 30 users, the moderator will see 25 webcams and the viewers 6 webcams. This gives 25 + 29 _ 6 = 196 webcam streams. If the meeting grows to 100 users, the moderator will see 8 webcams and viewers will see 2 webcams. This gives 8 + 99 _ 2 = 206 webcam streams.
 
@@ -622,15 +622,15 @@ HERE
 
 Starting from version 2.4 BigBlueButton offers virtual background for webcams.
 To use your own background images copy them into the directory
-`/usr/share/meteor/bundle/programs/web.browser/app/resources/images/virtual-backgrounds`.
+`/usr/share/bigbluebutton/html5-client/resources/images/virtual-backgrounds`.
 For each image copy a thumbnail of the image of 50x50 pixels size into
-`/usr/share/meteor/bundle/programs/web.browser/app/resources/images/virtual-backgrounds/thumbnails`.
+`/usr/share/bigbluebutton/html5-client/resources/images/virtual-backgrounds/thumbnails`.
 
 To generate thumbnails you can use the following shell snippet:
 
 ```bash
 #!/bin/bash
-FULL="/usr/share/meteor/bundle/programs/web.browser/app/resources/images/virtual-backgrounds"
+FULL="/usr/share/bigbluebutton/html5-client/resources/images/virtual-backgrounds"
 THUMB="${FULL}/thumbnails"
 
 cd "$FULL"
@@ -941,7 +941,7 @@ Next change the restriction in bbb-web. Add an overwrite rule in `/etc/bigbluebu
 maxFileSizeUpload=30000000
 ```
 
-You will have to additionally increase the size for the HTML5 client, edit `/usr/share/meteor/bundle/programs/server/assets/app/config/settings.yml` and modify `uploadSizeMax`.
+You will have to additionally increase the size for the HTML5 client, edit `/usr/share/bigbluebutton/html5-client/private/config/settings.yml` and modify `uploadSizeMax`.
 
 Restart BigBlueButton with `sudo bbb-conf --restart`. You should now be able to upload larger presentations within the new limit.
 
@@ -1080,7 +1080,7 @@ Starting BigBlueButton
 
 #### Change UDP ports
 
-By default, BigBlueButton uses the UDP ports 16384-32768 which are used by FreeSWITCH, mediasoup and Kurento to send real-time packets (RTP).
+By default, BigBlueButton uses the UDP ports 16384-32768 which are used by FreeSWITCH, mediasoup and bbb-webrtc-recorder to send real-time packets (RTP).
 
 **FreeSWITCH** uses the range 16384 - 24576, which is defined in `/opt/freeswitch/etc/freeswitch/autoload_configs/switch.conf.xml`
 
@@ -1090,11 +1090,14 @@ By default, BigBlueButton uses the UDP ports 16384-32768 which are used by FreeS
     <param name="rtp-end-port" value="24576"/>
 ```
 
-**Kurento** uses the range 24577 - 32768, which is defined in `/etc/kurento/modules/kurento/BaseRtpEndpoint.conf.ini`
+**bbb-webrtc-recorder** uses the range 24577 - 32768, which is defined in `/etc/bbb-webrtc-recorder/bbb-webrtc-recorder.yml` (default) or `/etc/bigbluebutton/bbb-webrtc-recorder.yml` (override)
 
-```ini
-    minPort=24577
-    maxPort=32768
+```yaml
+[...]
+webrtc:
+  rtcMinPort: 24577
+  rtcMaxPort: 32768
+[...]
 ```
 
 **mediasoup** also uses 24577 - 32768 by default (defined in `/usr/local/bigbluebutton/bbb-webrtc-sfu/config/default.yml`). If it needs to be changed, bbb-webrtc-sfu's [override configuration file](/administration/configuration-files) (located in `/etc/bigbluebutton/bbb-webrtc-sfu/production.yml`) should be used. For example, setting the range to 50000 - 51999 should be of the following format (YAML syntax, `/etc/bigbluebutton/bbb-webrtc-sfu/production.yml`):
@@ -1168,10 +1171,10 @@ A common use case is to modify a particular string from the locales or to includ
 For example, if you would like to replace `de.json` with the version from a specific branch/tag of the repository, you could do the following:
 
 ```bash
-cd /usr/share/meteor/bundle/programs/web.browser/app/locales/
+cd /usr/share/bigbluebutton/html5-client/locales/
 mv de.json /tmp/de.json.old
 wget https://raw.githubusercontent.com/bigbluebutton/bigbluebutton/v3.0.x-release/bigbluebutton-html5/public/locales/de.json
-cd /usr/share/meteor/bundle/programs/web.browser.legacy/app/locales/
+cd /usr/share/bigbluebutton/html5-client/locales/
 rm de.json
 wget https://raw.githubusercontent.com/bigbluebutton/bigbluebutton/v3.0.x-release/bigbluebutton-html5/public/locales/de.json
 bbb-conf --restart
@@ -1207,7 +1210,7 @@ After a restart of nginx, your customized favicon.ico will be delivered. This ch
 
 #### Change title in the HTML5 client
 
-The configuration file for the HTML5 client is located in `/usr/share/meteor/bundle/programs/server/assets/app/config/settings.yml`. It contains all the settings for the HTML5 client.
+The configuration file for the HTML5 client is located in `/usr/share/bigbluebutton/html5-client/private/config/settings.yml`. It contains all the settings for the HTML5 client.
 
 To change the title, edit `settings.yml` and change the entry for `public.app.clientTitle`
 
@@ -1221,9 +1224,8 @@ public:
 You'll need to update this entry each time the package `bbb-html5` updates. The following script can help automate the change
 
 ```bash
-$ TARGET=/usr/share/meteor/bundle/programs/server/assets/app/config/settings.yml
+$ TARGET=/usr/share/bigbluebutton/html5-client/private/config/settings.yml
 $ yq e -i ".public.app.clientTitle = \"New Title\"" $TARGET
-$ chown meteor:meteor $TARGET
 ```
 
 #### Apply lock settings to restrict webcams
@@ -1250,12 +1252,10 @@ Edit nginx configuration file (`/usr/share/bigbluebutton/nginx/bbb-html5.nginx`)
 Do the same in `/usr/share/bbb-web/WEB-INF/classes/bigbluebutton.properties` in the following lines:
 
 ```
-defaultHTML5ClientUrl=${bigbluebutton.web.serverURL}/html5client/join
-
-defaultGuestWaitURL=${bigbluebutton.web.serverURL}/html5client/guestWait
+defaultHTML5ClientUrl=${bigbluebutton.web.serverURL}/html5client
 ```
 
-In configuration file for the HTML5 client, located in `/usr/share/meteor/bundle/programs/server/assets/app/config/settings.yml`, change the entry for `public.app.basename`:
+In configuration file for the HTML5 client, located in `/usr/share/bigbluebutton/html5-client/private/config/settings.yml`, change the entry for `public.app.basename`:
 
 ```
 public:
@@ -1263,8 +1263,6 @@ public:
     ...
     basename: '/html5client'
 ```
-
-Edit `systemd_start.sh` and `systemd_start_frontend.sh` files, located in `/usr/share/meteor/bundle`, replacing `/html5client` with the new path in both files;
 
 Finally, run the following command to reload configuration:
 
@@ -1290,10 +1288,35 @@ public:
 
 Restart BigBlueButton with `sudo bbb-conf --restart` and you should now see the options for live captions when joining audio.
 
+### Configuration of gladia.io
+
+To use gladia.io for automatic speech-to-text transcriptions, you first need to obtain an API key from [gladia.io](https://www.gladia.io).  You can sign up for free credentials to test the integration.
+
+Next, you must be using BigBlueButton 2.7.4+ (pass `-v focal-270`) or BigBlueButton 3.0.0-alpha.7+ (pass `-v jammy-300`) or later on a BigBlueButton server with a public IP and hostname.  
+
+Once you have BigBlueButton installed, run `sudo apt install bbb-transcription-controller` to install BigBlueButton's transcription service which supports gladia.io.
+
+Next, run `sudo bbb-conf --setip <hostname>` where \<hostname\> is the external hostname of the server (same as was passed to bbb-install.sh). This will update the bbb-transcription-controller configuration.
+
+Next, to enable gladia.io, run the following two commands
+
+```
+sudo yq e -i '.public.app.audioCaptions.enabled = true' /etc/bigbluebutton/bbb-html5.yml
+sudo yq e -i '.public.app.audioCaptions.provider = "gladia"' /etc/bigbluebutton/bbb-html5.yml
+```
+
+Next, set the gladia.io API key using the command below, replacing \<gladia_api_key\> with a glada.io API key obtained above.
+
+```
+sudo yq e -i '.gladia.startMessage = "{\"x_gladia_key\": \"<gladia-api-key>\", \"sample_rate\": 0, \"bit_depth\": 16, \"model_type\": \"fast\", \"endpointing\": 10 }"' /usr/local/bigbluebutton/bbb-transcription-controller/config/default.yml
+```
+
+Restart the BigBlueButton server with `bbb-conf --restart`.  You will now be able to select a speech-to-text option when joining audio (including auto translate).  When one or more users have selected the option, a CC button will appear at the bottom and a Transcript panel will also be available.
+
 
 ### Configuration of global settings
 
-The configuration file for the HTML5 client is located in `/usr/share/meteor/bundle/programs/server/assets/app/config/settings.yml`. It contains all the settings for the HTML5 client.
+The configuration file for the HTML5 client is located in `/usr/share/bigbluebutton/html5-client/private/config/settings.yml`. It contains all the settings for the HTML5 client.
 
 #### Modify the HTML5 client title
 
@@ -1313,6 +1336,10 @@ defaultGuestPolicy=ALWAYS_ACCEPT
 ### Show a custom logo on the client
 
 Ensure that the parameter `displayBrandingArea` is set to `true` in bbb-html5's configuration, restart BigBlueButton server with `sudo bbb-conf --restart` and pass `logo=<image-url>` in Custom parameters when creating the meeting.
+
+### Changing the default logo
+
+To update the default logo, navigate to the `images` folder located at `/var/www/bigbluebutton-default/assets/images/`, and replace the `logo.png` file with your new logo.
 
 ## Other meeting configs available
 These configs can be set in `/etc/bigbluebutton/bbb-web.properties`
@@ -1354,14 +1381,14 @@ These configs can be set in `/etc/bigbluebutton/bbb-web.properties`
 - _`overwritable`_: Config will be overwritten if the param is present in the API `/create` request
 
 
-### Passing custom parameters to the client on join
+### Passing user metadata to the client on join
 
 The HTML5 client supports a list of parameters that can be added to the `join` API call which modify the look and default behaviour of the client. This list is accurate as of BigBlueButton version 2.2.17 (build 937). These parameters override the global defaults set in `settings.yml`. As the parameters are passed on call to join, it allows for some powerful customization that can vary depending on which user is joining the session.
 
 Useful tools for development:
 
 - A tool like (https://meyerweb.com/eric/tools/dencoder/) is useful in the encoding-decoding process for the fields expecting encoded value passed (see below).
-- The [API mate](https://mconf.github.io/api-mate/) allows you to directly experiment with these custom parameters. To use the API mate, run the following command on your BigBlueButton machine: `sudo bbb-conf --secret`. This creates a link for you with your secret as a parameter so you can get started experimenting right away.
+- The [API mate](https://mconf.github.io/api-mate/) allows you to directly experiment with these user metadata. To use the API mate, run the following command on your BigBlueButton machine: `sudo bbb-conf --secret`. This creates a link for you with your secret as a parameter so you can get started experimenting right away.
 
 #### Application parameters
 
@@ -1374,16 +1401,19 @@ Useful tools for development:
 | `userdata-bbb_listen_only_mode=`               | If set to `false`, the user will not be able to join the audio part of the meeting without a microphone (disables listen-only mode)                                                                                                                                                                                             | `true`        |
 | `userdata-bbb_skip_check_audio=`               | If set to `true`, the user will not see the "echo test" prompt when sharing audio                                                                                                                                                                                                                                               | `false`       |
 | `userdata-bbb_skip_check_audio_on_first_join=` | (Introduced in BigBlueButton 2.3) If set to `true`, the user will not see the "echo test" when sharing audio for the first time in the session. If the user stops sharing, next time they try to share audio the echo test window will be displayed, allowing for configuration changes to be made prior to sharing audio again | `false`       |
+| `userdata-bbb_skip_echotest_if_previous_device=` | (Introduced in BigBlueButton 3.0) If set to `true`, the user will not see the "echo test" if session has valid input/output devices stored previously | `false`       |
 | `userdata-bbb_override_default_locale=`        | (Introduced in BigBlueButton 2.3) If set to `de`, the user's browser preference will be ignored - the client will be shown in 'de' (i.e. German) regardless of the otherwise preferred locale 'en' (or other)                                                                                                                   | `null`        |
 | `userdata-bbb_hide_presentation_on_join`        | (Introduced in BigBlueButton 2.6) If set to `true` it will make the user enter the meeting with presentation minimized (Only for non-presenters), not permanent. 
-
-| `userdata-bbb_direct_leave_button` | (Introduced in BigBlueButton 2.7) If set to `true` it will make a button to leave the meeting appear to the left of the Options menu. | `false` |                                                                                                                  | `false`        |
+| `userdata-bbb_direct_leave_button` | (Introduced in BigBlueButton 2.7) If set to `true` it will make a button to leave the meeting appear to the left of the Options menu. | `false`  |
+| `userdata-bbb_parent_room_moderator=` | (Introduced in BigBlueButton 3.0) Only used in breakouts: if set to `true`, user will have permission to kick other users inside the breakout | `false`                                                                      
+| `userdata-bbb_record_permission=` | (Introduced in BigBlueButton 3.0) If set to `true`, the user will be able to control the recording start/stop. If set to `false`, the user will not be allowed to control the recording start/stop even if their role is moderator. Otherwise only moderators will have the control (default).                                                                                                                   | `null`        |
+| `userdata-bbb_record_permission_tooltip=` | (Introduced in BigBlueButton 3.0) If set, the tooltip of the recording indicator shown when the user don't have permission to record will be replaced by it's content.                                                                                                                   | `null`        |
 
 #### Branding parameters
 
 | Parameter                             | Description                                                                               | Default value |
 | ------------------------------------- | ----------------------------------------------------------------------------------------- | ------------- |
-| `userdata-bbb_display_branding_area=` | If set to `true`, the client will display the branding area in the upper left hand corner | `false`       |
+| `userdata-bbb_display_branding_area=` | If set to `true`, the client will display the branding area in the upper left hand corner | `true`       |
 
 #### Shortcut parameters
 
@@ -1401,6 +1431,7 @@ Useful tools for development:
 | `userdata-bbb_record_video=`                     | If set to `false`, the user won't have her/his video stream recorded                                                                                                                                                                                                                                                                    | `true`        |
 | `userdata-bbb_skip_video_preview=`               | If set to `true`, the user will not see a preview of their webcam before sharing it                                                                                                                                                                                                                                                     | `false`       |
 | `userdata-bbb_skip_video_preview_on_first_join=` | (Introduced in BigBlueButton 2.3) If set to `true`, the user will not see a preview of their webcam before sharing it when sharing for the first time in the session. If the user stops sharing, next time they try to share webcam the video preview will be displayed, allowing for configuration changes to be made prior to sharing | `false`       |
+| `userdata-bbb_skip_video_preview_if_previous_device=` | (Introduced in BigBlueButton 3.0) If set to `true`, the user will not see a preview of their webcam before sharing it if session has a valid input device stored previously | `false`       |
 | `userdata-bbb_mirror_own_webcam=`                | If set to `true`, the client will see a mirrored version of their webcam. Doesn't affect the incoming video stream for other users.                                                                                                                                                                                                     | `false`       |
 | `userdata-bbb_fullaudio_bridge=`                 | Specifies the audio bridge to be used in the client. Supported values: `sipjs`, `fullaudio`.                                                                                       | `fullaudio`   |
 | `userdata-bbb_transparent_listen_only=`          | If set to `true`, the experimental "transparent listen only" audio mode will be used                                                                                                                                                                                                                                                    | `false`       |
@@ -1417,8 +1448,11 @@ Useful tools for development:
 | Parameter                           | Description                                                                                                     | Default value |
 | ----------------------------------- | --------------------------------------------------------------------------------------------------------------- | ------------- |
 | `userdata-bbb_multi_user_pen_only=` | If set to `true`, only the pen tool will be available to non-participants when multi-user whiteboard is enabled | `false`       |
-| `userdata-bbb_presenter_tools=`     | Pass in an array of permitted tools from `settings.yml`                                                         | all enabled   |
-| `userdata-bbb_multi_user_tools=`    | Pass in an array of permitted tools for non-presenters from `settings.yml`                                      | all enabled   |
+| `userdata-bbb_presenter_tools=`     | Pass in an array of permitted tools from `settings.yml`. The options we support are: `select`, `hand`, `draw`, `eraser`, `arrow`, `text`, `note`, `rectangle` and *`more`. Example: `userdata-bbb_presenter_tools=['eraser', 'note']` will allow only the eraser and note tools.                                                     | all enabled   |
+| `userdata-bbb_multi_user_tools=`    | Pass in an array of permitted tools for non-presenters from `settings.yml`. The options we support are: `select`, `hand`, `draw`, `eraser`, `arrow`, `text`, `note`, `rectangle` and *`more`. Example: `userdata-bbb_multi_user_tools=['eraser', 'note']` will allow only the eraser and note tools.                                          | all enabled   |
+*more: More includes the rest of the extra shapes, those being: `rectangle`, `ellipse`, `diamond`, `triangle`, `trapezoid`, `rhombus`, `hexagon`, `cloud`, `star`, `oval`, `x-box`, `check-box`, `arrow-left`, `arrow-up`, `arrow-down`, `arrow-right`, `frame`, `line`, `laser`.
+
+The use of *more will include all shapes listed above.
 
 #### Theming & styling parameters
 
@@ -1426,6 +1460,7 @@ Useful tools for development:
 | -------------------------------- | -------------------------------------------------------------------------------------------------------------------- | ------------- |
 | `userdata-bbb_custom_style=`     | URL encoded string with custom CSS                                                                                   | none          |
 | `userdata-bbb_custom_style_url=` | This parameter acts the same way as `userdata-bbb_custom_style` except that the CSS content comes from a hosted file | none          |
+| `userdata-bbb_prefer_dark_theme=` | This parameter makes the dark theme come in as default                                                               | false         |
 
 #### Layout parameters
 
@@ -1490,7 +1525,7 @@ To enable the feedback and it's logging to your server, run the following script
 #!/bin/bash
 
 HOST=$(cat /etc/bigbluebutton/bbb-web.properties | grep -v '#' | sed -n '/^bigbluebutton.web.serverURL/{s/.*\///;p}')
-HTML5_CONFIG=/usr/share/meteor/bundle/programs/server/assets/app/config/settings.yml
+HTML5_CONFIG=/usr/share/bigbluebutton/html5-client/private/config/settings.yml
 PROTOCOL=$(cat /etc/bigbluebutton/bbb-web.properties | grep -v '#' | grep '^bigbluebutton.web.serverURL' | sed 's/.*\(http[s]*\).*/\1/')
 
 apt-get install -y nginx-full
@@ -1498,7 +1533,6 @@ apt-get install -y nginx-full
 yq e -i '.public.clientLog.external.enabled = true' $HTML5_CONFIG
 yq e -i ".public.clientLog.external.url = \"$PROTOCOL://$HOST/html5log\"" $HTML5_CONFIG
 yq e -i '.public.app.askForFeedbackOnLogout = true' $HTML5_CONFIG
-chown meteor:meteor $HTML5_CONFIG
 
 mkdir -p /etc/bigbluebutton/nginx/
 

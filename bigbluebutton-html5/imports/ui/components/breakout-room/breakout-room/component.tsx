@@ -1,12 +1,10 @@
-import { useMutation, useSubscription } from '@apollo/client';
+import { useMutation } from '@apollo/client';
 import React, { useCallback, useEffect } from 'react';
 import { defineMessages, useIntl } from 'react-intl';
 import {
-  BreakoutRoom,
+  BreakoutRoom as BreakoutRoomType,
   GetBreakoutDataResponse,
-  GetIfUserJoinedBreakoutRoomResponse,
   getBreakoutData,
-  getIfUserJoinedBreakoutRoom,
 } from './queries';
 import logger from '/imports/startup/client/logger';
 import useCurrentUser from '/imports/ui/core/hooks/useCurrentUser';
@@ -23,17 +21,16 @@ import BreakoutMessageForm from './components/messageForm';
 import {
   finishScreenShare,
   forceExitAudio,
-  rejoinAudio,
   stopVideo,
 } from './service';
-import { useExitVideo, useStreams } from '../../video-provider/video-provider-graphql/hooks';
+import { useExitVideo, useStreams } from '/imports/ui/components/video-provider/hooks';
+import useDeduplicatedSubscription from '/imports/ui/core/hooks/useDeduplicatedSubscription';
 
 interface BreakoutRoomProps {
-  breakouts: BreakoutRoom[];
+  breakouts: BreakoutRoomType[];
   isModerator: boolean;
   presenter: boolean;
   durationInSeconds: number;
-  userJoinedRooms: number;
   userJoinedAudio: boolean;
   userId: string;
   meetingId: string;
@@ -111,7 +108,6 @@ const BreakoutRoom: React.FC<BreakoutRoomProps> = ({
   isModerator,
   durationInSeconds,
   presenter,
-  userJoinedRooms,
   userJoinedAudio,
   userId,
   meetingId,
@@ -127,7 +123,6 @@ const BreakoutRoom: React.FC<BreakoutRoomProps> = ({
   const panelRef = React.useRef<HTMLDivElement>(null);
   const [showChangeTimeForm, setShowChangeTimeForm] = React.useState(false);
   const [requestedBreakoutRoomId, setRequestedBreakoutRoomId] = React.useState<string>('');
-  const [joinedRooms, setJoinedRooms] = React.useState<number>(0);
 
   const transferUserToMeeting = (fromMeeting: string, toMeeting: string) => {
     breakoutRoomTransfer(
@@ -156,17 +151,6 @@ const BreakoutRoom: React.FC<BreakoutRoomProps> = ({
   }, []);
 
   useEffect(() => {
-    if (userJoinedRooms !== joinedRooms) {
-      setJoinedRooms((prev) => {
-        if (userJoinedRooms === 0 && prev > 0) {
-          rejoinAudio();
-        }
-        return userJoinedRooms;
-      });
-    }
-  }, [userJoinedRooms]);
-
-  useEffect(() => {
     if (requestedBreakoutRoomId) {
       const breakout = breakouts.find((b) => b.breakoutRoomId === requestedBreakoutRoomId);
       if (breakout && breakout.joinURL) {
@@ -177,7 +161,7 @@ const BreakoutRoom: React.FC<BreakoutRoomProps> = ({
   }, [breakouts]);
 
   const exitVideo = useExitVideo();
-  const { streams } = useStreams();
+  const streams = useStreams();
 
   return (
     <Styled.Panel
@@ -244,7 +228,7 @@ const BreakoutRoom: React.FC<BreakoutRoomProps> = ({
                   ) : (
                     <Styled.BreakoutActions>
                       {
-                        breakout.currentRoomJoined
+                        breakout.isUserCurrentlyInRoom
                           ? (
                             <Styled.AlreadyConnected data-test="alreadyConnected">
                               {intl.formatMessage(intlMessages.alreadyConnected)}
@@ -338,20 +322,14 @@ const BreakoutRoomContainer: React.FC = () => {
   }));
 
   const {
-    data: getIfUserJoinedBreakoutRoomData,
-    loading: getIfUserJoinedBreakoutRoomLoading,
-  } = useSubscription<GetIfUserJoinedBreakoutRoomResponse>(getIfUserJoinedBreakoutRoom);
-
-  const {
     data: breakoutData,
     loading: breakoutLoading,
     error: breakoutError,
-  } = useSubscription<GetBreakoutDataResponse>(getBreakoutData);
+  } = useDeduplicatedSubscription<GetBreakoutDataResponse>(getBreakoutData);
 
   if (
     breakoutLoading
     || currentUserLoading
-    || getIfUserJoinedBreakoutRoomLoading
   ) return null;
 
   if (breakoutError) {
@@ -370,7 +348,6 @@ const BreakoutRoomContainer: React.FC = () => {
       isModerator={currentUserData.isModerator ?? false}
       presenter={currentUserData.presenter ?? false}
       durationInSeconds={meetingData.durationInSeconds ?? 0}
-      userJoinedRooms={getIfUserJoinedBreakoutRoomData?.breakoutRoom_aggregate.aggregate.count ?? 0}
       userJoinedAudio={currentUserData?.voice?.joined ?? false}
       userId={currentUserData.userId ?? ''}
       meetingId={meetingData.meetingId ?? ''}

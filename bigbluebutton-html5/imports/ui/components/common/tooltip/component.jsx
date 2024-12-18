@@ -2,7 +2,7 @@ import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import cx from 'classnames';
 import { ESCAPE } from '/imports/utils/keyCodes';
-import Settings from '/imports/ui/services/settings';
+import { getSettingsSingletonInstance } from '/imports/ui/services/settings';
 import Tippy, { roundArrow } from 'tippy.js';
 import 'tippy.js/dist/svg-arrow.css';
 import 'tippy.js/animations/shift-away.css';
@@ -61,8 +61,9 @@ class Tooltip extends Component {
       placement,
     } = this.props;
 
+    const Settings = getSettingsSingletonInstance();
     const { animations } = Settings.application;
-    
+
     const overridePlacement = placement ? placement : position;
     let overrideDelay;
     if (animations) {
@@ -91,7 +92,7 @@ class Tooltip extends Component {
       content: title,
       delay: overrideDelay,
       duration: animations ? ANIMATION_DURATION : 0,
-      interactive: true,
+      interactive: false,
       interactiveBorder: 10,
       onShow: this.onShow,
       onHide: this.onHide,
@@ -99,11 +100,13 @@ class Tooltip extends Component {
       placement: overridePlacement,
       touch: ['hold', 1000],
       theme: 'bbbtip',
+      maxWidth: 300,
     };
     this.tooltip = Tippy(`#${this.tippySelectorId}`, options);
   }
 
   componentDidUpdate() {
+    const Settings = getSettingsSingletonInstance();
     const { animations } = Settings.application;
     const { title } = this.props;
     const elements = document.querySelectorAll('[id^="tippy-"]');

@@ -5,6 +5,7 @@ import EndMeetingConfirmationContainer from '/imports/ui/components/end-meeting-
 import BBBMenu from '/imports/ui/components/common/menu/component';
 import { colorDanger, colorWhite } from '/imports/ui/stylesheets/styled-components/palette';
 import Styled from './styles';
+import Session from '/imports/ui/services/storage/in-memory';
 
 const intlMessages = defineMessages({
   leaveMeetingBtnLabel: {
@@ -39,9 +40,9 @@ const propTypes = {
   }).isRequired,
   amIModerator: PropTypes.bool,
   isBreakoutRoom: PropTypes.bool,
-  isMeteorConnected: PropTypes.bool.isRequired,
+  connected: PropTypes.bool.isRequired,
   isDropdownOpen: PropTypes.bool,
-  isMobile: PropTypes.bool.isRequired,
+  ismobile: PropTypes.bool.isRequired,
   userLeaveMeeting: PropTypes.func.isRequired,
 };
 
@@ -77,12 +78,12 @@ class LeaveMeetingButton extends PureComponent {
     userLeaveMeeting();
     // we don't check askForFeedbackOnLogout here,
     // it is checked in meeting-ended component
-    Session.set('codeError', this.LOGOUT_CODE);
+    Session.setItem('codeError', this.LOGOUT_CODE);
   }
 
   renderMenuItems() {
     const {
-      intl, amIModerator, isBreakoutRoom, isMeteorConnected,
+      intl, amIModerator, isBreakoutRoom, connected,
     } = this.props;
 
     const allowedToEndMeeting = amIModerator && !isBreakoutRoom;
@@ -91,7 +92,7 @@ class LeaveMeetingButton extends PureComponent {
 
     this.menuItems = [];
 
-    if (allowLogoutSetting && isMeteorConnected) {
+    if (allowLogoutSetting && connected) {
       this.menuItems.push(
         {
           key: 'list-item-logout',
@@ -104,7 +105,7 @@ class LeaveMeetingButton extends PureComponent {
       );
     }
 
-    if (allowedToEndMeeting && isMeteorConnected) {
+    if (allowedToEndMeeting && connected) {
       const customStyles = { background: colorDanger, color: colorWhite };
 
       this.menuItems.push(
@@ -148,7 +149,7 @@ class LeaveMeetingButton extends PureComponent {
     const {
       intl,
       isDropdownOpen,
-      isMobile,
+      ismobile,
       isRTL,
     } = this.props;
 
@@ -159,10 +160,11 @@ class LeaveMeetingButton extends PureComponent {
     return (
       <>
         <BBBMenu
-          customStyles={!isMobile ? customStyles : null}
+          customStyles={!ismobile ? customStyles : null}
           trigger={(
             <Styled.LeaveButton
               state={isDropdownOpen ? 'open' : 'closed'}
+              ismobile={ismobile.toString()}
               aria-label={intl.formatMessage(intlMessages.leaveMeetingBtnLabel)}
               label={intl.formatMessage(intlMessages.leaveMeetingBtnLabel)}
               tooltipLabel={intl.formatMessage(intlMessages.leaveMeetingBtnLabel)}

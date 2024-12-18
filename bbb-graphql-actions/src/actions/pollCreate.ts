@@ -1,9 +1,20 @@
 import { RedisMessage } from '../types';
-import {throwErrorIfNotPresenter} from "../imports/validation";
+import {throwErrorIfInvalidInput, throwErrorIfNotPresenter} from "../imports/validation";
 import {ValidationError} from "../types/ValidationError";
 
 export default function buildRedisMessage(sessionVariables: Record<string, unknown>, input: Record<string, unknown>): RedisMessage {
   throwErrorIfNotPresenter(sessionVariables);
+  throwErrorIfInvalidInput(input,
+      [
+        {name: 'pollId', type: 'string', required: true},
+        {name: 'pollType', type: 'string', required: true},
+        {name: 'secretPoll', type: 'boolean', required: true},
+        {name: 'question', type: 'string', required: true},
+        {name: 'isMultipleResponse', type: 'boolean', required: true},
+        {name: 'answers', type: 'stringArray', required: false},
+      ]
+  )
+
   const eventName = input.pollType === 'CUSTOM' ? `StartCustomPollReqMsg` : `StartPollReqMsg`
 
   const routing = {

@@ -27,15 +27,8 @@ const intlMessages = defineMessages({
 
 interface ChatListItemProps {
   chat: Chat,
+  chatNodeRef: React.Ref<HTMLButtonElement>,
 }
-// @ts-ignore - temporary, while meteor exists in the project
-const CHAT_CONFIG = window.meetingClientSettings.public.chat;
-// @ts-ignore - temporary, while meteor exists in the project
-const ROLE_MODERATOR = window.meetingClientSettings.public.user.role_moderator;
-
-const PUBLIC_GROUP_CHAT_ID = CHAT_CONFIG.public_group_id;
-
-const isPublicGroupChat = (chat: Chat) => chat.chatId === PUBLIC_GROUP_CHAT_ID;
 
 const ChatListItem = (props: ChatListItemProps) => {
   const sidebarContent = layoutSelectInput((i: Input) => i.sidebarContent);
@@ -48,6 +41,7 @@ const ChatListItem = (props: ChatListItemProps) => {
   const TOGGLE_CHAT_PUB_AK: string = useShortcut('togglePublicChat');
   const {
     chat,
+    chatNodeRef,
   } = props;
 
   const countUnreadMessages = chat.totalUnread || 0;
@@ -57,6 +51,13 @@ const ChatListItem = (props: ChatListItemProps) => {
   const chatPanelOpen = sidebarContentIsOpen && sidebarContentPanel === PANELS.CHAT;
 
   const isCurrentChat = chat.chatId === idChatOpen && chatPanelOpen;
+
+  const ROLE_MODERATOR = window.meetingClientSettings.public.user.role_moderator;
+
+  const CHAT_CONFIG = window.meetingClientSettings.public.chat;
+  const PUBLIC_GROUP_CHAT_ID = CHAT_CONFIG.public_group_id;
+
+  const isPublicGroupChat = (chat: Chat) => chat.chatId === PUBLIC_GROUP_CHAT_ID;
 
   useEffect(() => {
     if (chat.chatId !== PUBLIC_GROUP_CHAT_ID && chat.chatId === idChatOpen) {
@@ -86,9 +87,27 @@ const ChatListItem = (props: ChatListItemProps) => {
         });
       } else {
         layoutContextDispatch({
-          type: ACTIONS.SET_ID_CHAT_OPEN,
-          value: chat.chatId,
+          type: ACTIONS.SET_SIDEBAR_CONTENT_PANEL,
+          value: PANELS.NONE,
         });
+        layoutContextDispatch({
+          type: ACTIONS.SET_ID_CHAT_OPEN,
+          value: '',
+        });
+        setTimeout(() => {
+          layoutContextDispatch({
+            type: ACTIONS.SET_SIDEBAR_CONTENT_IS_OPEN,
+            value: true,
+          });
+          layoutContextDispatch({
+            type: ACTIONS.SET_SIDEBAR_CONTENT_PANEL,
+            value: PANELS.CHAT,
+          });
+          layoutContextDispatch({
+            type: ACTIONS.SET_ID_CHAT_OPEN,
+            value: chat.chatId,
+          });
+        }, 0);
       }
     } else {
       layoutContextDispatch({
@@ -132,6 +151,7 @@ const ChatListItem = (props: ChatListItemProps) => {
           e.stopPropagation();
         }
       }}
+      ref={chatNodeRef}
     >
       <Styled.ChatListItemLink>
         <Styled.ChatIcon>

@@ -1,16 +1,16 @@
 package org.bigbluebutton.api.model.request;
 
-import org.bigbluebutton.api.model.constraint.MeetingExistsConstraint;
-import org.bigbluebutton.api.model.constraint.MeetingIDConstraint;
-import org.bigbluebutton.api.model.constraint.NotEmpty;
-import org.bigbluebutton.api.model.constraint.PasswordConstraint;
+import org.bigbluebutton.api.model.constraint.*;
 import org.bigbluebutton.api.model.shared.Checksum;
 import org.bigbluebutton.api.model.shared.ModeratorPassword;
 import org.bigbluebutton.api.model.shared.Password;
 
+import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
 import java.util.Map;
+import java.util.Set;
 
+@ContentTypeConstraint
 public class EndMeeting extends RequestWithChecksum<EndMeeting.Params> {
 
     public enum Params implements RequestParameters {
@@ -34,8 +34,8 @@ public class EndMeeting extends RequestWithChecksum<EndMeeting.Params> {
     @Valid
     private Password moderatorPassword;
 
-    public EndMeeting(Checksum checksum) {
-        super(checksum);
+    public EndMeeting(Checksum checksum, HttpServletRequest servletRequest) {
+        super(checksum, servletRequest);
         moderatorPassword = new ModeratorPassword();
     }
 

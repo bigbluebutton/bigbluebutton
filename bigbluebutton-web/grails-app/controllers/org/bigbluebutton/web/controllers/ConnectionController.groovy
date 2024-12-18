@@ -62,72 +62,77 @@ class ConnectionController {
 
   def checkGraphqlAuthorization = {
     try {
-      if(!request.getHeader("User-Agent").startsWith('hasura-graphql-engine')) {
-        throw new Exception("Invalid User Agent")
+      /* the graphql connection in cluster setups is a CORS request. The OPTIONS
+       * call is done as a preflight quest by the browser and does not contain
+       * secrets. The Access-Allow-Origin Header is added by Grails. This is just
+       * the auth_request endpoint called by nginx to check authorization.
+       */
+      if (request.getHeader("x-original-method") == 'OPTIONS') {
+          log.debug "OPTIONS SUCCESS \n"
+          response.setStatus(200)
+          response.addHeader("Cache-Control", "no-cache")
+          response.contentType = 'plain/text'
+          response.outputStream << 'graphql-success';
+          return;
       }
-
       String sessionToken = request.getHeader("x-session-token")
 
       UserSession userSession = meetingService.getUserSessionWithSessionToken(sessionToken)
       Boolean allowRequestsWithoutSession = meetingService.getAllowRequestsWithoutSession(sessionToken)
-      Boolean isSessionTokenInvalid = !session[sessionToken] && !allowRequestsWithoutSession
+      Boolean isSessionTokenValid = session[sessionToken] != null || allowRequestsWithoutSession
 
       response.addHeader("Cache-Control", "no-cache")
 
-      if (userSession != null && !isSessionTokenInvalid) {
+      if (userSession != null && isSessionTokenValid) {
         Meeting m = meetingService.getMeeting(userSession.meetingID)
         User u
         if(m) {
           u = m.getUserById(userSession.internalUserId)
         }
 
-        Boolean cursorLocked = false
-        Boolean annotationsLocked = false
-        Boolean userListLocked = false
-        Boolean webcamOnlyForMod = false
-        if(u && u.isLocked() && !u.isModerator()) {
-          cursorLocked = m.lockSettingsParams.hideViewersCursor
-          annotationsLocked = m.lockSettingsParams.hideViewersAnnotation
-          userListLocked = m.lockSettingsParams.hideUserList
-          webcamOnlyForMod = m.getWebcamsOnlyForModerator()
-        }
-
+        response.addHeader("Meeting-Id", userSession.meetingID)
+        response.addHeader("Meeting-External-Id", userSession.externMeetingID)
+        response.addHeader("User-Id", userSession.internalUserId)
+        response.addHeader("User-External-Id", userSession.externUserID)
+        response.addHeader("User-Name", URLEncoder.encode(userSession.fullname, StandardCharsets.UTF_8.name()))
+        response.addHeader("User-Is-Moderator", u && u.isModerator() ? "true" : "false")
+        response.addHeader("User-Is-Presenter", u && u.isPresenter() ? "true" : "false")
         response.setStatus(200)
         withFormat {
           json {
             def builder = new JsonBuilder()
             builder {
               "response" "authorized"
-              "X-Hasura-Role" m && u && !u.hasLeft() ? "bbb_client" : "not_joined_bbb_client"
-              "X-Hasura-ModeratorInMeeting" u && u.isModerator() ? userSession.meetingID : ""
-              "X-Hasura-PresenterInMeeting" u && u.isPresenter() ? userSession.meetingID : ""
-              "X-Hasura-UserId" userSession.internalUserId
-              "X-Hasura-MeetingId" userSession.meetingID
-              "X-Hasura-CursorNotLockedInMeeting" cursorLocked ? "" : userSession.meetingID
-              "X-Hasura-CursorLockedUserId" cursorLocked ? userSession.internalUserId : ""
-              "X-Hasura-AnnotationsNotLockedInMeeting" annotationsLocked ? "" : userSession.meetingID
-              "X-Hasura-AnnotationsLockedUserId" annotationsLocked ? userSession.internalUserId : ""
-              "X-Hasura-UserListNotLockedInMeeting" userListLocked ? "" : userSession.meetingID
-              "X-Hasura-WebcamsNotLockedInMeeting" webcamOnlyForMod ? "" : userSession.meetingID
-              "X-Hasura-WebcamsLockedUserId" webcamOnlyForMod ? userSession.internalUserId : ""
+              "X-Currently-Online" m && u && !u.hasLeft() ? "true" : "false"
+              "X-Moderator" u && u.isModerator() ? "true" : "false"
+              "X-Presenter" u && u.isPresenter() ? "true" : "false"
+              "X-UserId" userSession.internalUserId
+              "X-MeetingId" userSession.meetingID
             }
             render(contentType: "application/json", text: builder.toPrettyString())
           }
         }
-      } else {
+      } else if(isSessionTokenValid) {
         UserSessionBasicData removedUserSession = meetingService.getRemovedUserSessionWithSessionToken(sessionToken)
         if(removedUserSession) {
+          response.addHeader("Meeting-Id", removedUserSession.meetingId)
+          response.addHeader("Meeting-External-Id", removedUserSession.extMeetingId)
+          response.addHeader("User-Id", removedUserSession.userId)
+          response.addHeader("User-External-Id", removedUserSession.extUserId)
+          response.addHeader("User-Name", URLEncoder.encode(removedUserSession.userFullName, StandardCharsets.UTF_8.name()))
+          response.addHeader("User-Is-Moderator", removedUserSession.isModerator() ? "true" : "false")
+          response.addHeader("User-Is-Presenter", "false")
           response.setStatus(200)
           withFormat {
             json {
               def builder = new JsonBuilder()
               builder {
                 "response" "authorized"
-                "X-Hasura-Role" "not_joined_bbb_client"
-                "X-Hasura-ModeratorInMeeting" removedUserSession.isModerator()  ? removedUserSession.meetingId : ""
-                "X-Hasura-PresenterInMeeting" ""
-                "X-Hasura-UserId" removedUserSession.userId
-                "X-Hasura-MeetingId" removedUserSession.meetingId
+                "X-Currently-Online" "false"
+                "X-Moderator" removedUserSession.isModerator()  ? "true" : "false"
+                "X-Presenter" "false"
+                "X-UserId" removedUserSession.userId
+                "X-MeetingId" removedUserSession.meetingId
               }
               render(contentType: "application/json", text: builder.toPrettyString())
             }
@@ -135,6 +140,8 @@ class ConnectionController {
         } else {
           throw new Exception("Invalid User Session")
         }
+      } else {
+        throw new Exception("Invalid sessionToken")
       }
     } catch (Exception e) {
       log.debug("Error while authenticating graphql connection: " + e.getMessage())

@@ -17,7 +17,7 @@ import deviceInfo from '/imports/utils/deviceInfo';
 import { PANELS, ACTIONS, LAYOUT_TYPE } from '../layout/enums';
 import Button from '/imports/ui/components/common/button/component';
 import LeaveMeetingButtonContainer from './leave-meeting-button/container';
-import Settings from '/imports/ui/services/settings';
+import { getSettingsSingletonInstance } from '/imports/ui/services/settings';
 
 const intlMessages = defineMessages({
   toggleUserListLabel: {
@@ -272,6 +272,7 @@ class NavBar extends Component {
       currentUserId,
       isDirectLeaveButtonEnabled,
       isMeteorConnected,
+      hideTopRow,
     } = this.props;
 
     const hasNotification = hasUnreadMessages || (hasUnreadNotes && !isPinned);
@@ -284,10 +285,15 @@ class NavBar extends Component {
 
     const { leftPluginItems, centerPluginItems, rightPluginItems } = this.splitPluginItems();
 
+    const Settings = getSettingsSingletonInstance();
     const { selectedLayout } = Settings.application;
     const shouldShowNavBarToggleButton = selectedLayout !== LAYOUT_TYPE.CAMERAS_ONLY
       && selectedLayout !== LAYOUT_TYPE.PRESENTATION_ONLY
-      && selectedLayout !== LAYOUT_TYPE.PARTICIPANTS_AND_CHAT_ONLY;
+      && selectedLayout !== LAYOUT_TYPE.PARTICIPANTS_AND_CHAT_ONLY
+      && selectedLayout !== LAYOUT_TYPE.MEDIA_ONLY;
+
+    const APP_CONFIG = window.meetingClientSettings?.public?.app;
+    const enableTalkingIndicator = APP_CONFIG?.enableTalkingIndicator;
 
     return (
       <Styled.Navbar
@@ -308,60 +314,62 @@ class NavBar extends Component {
             }
         }
       >
-        <Styled.Top>
-          <Styled.Left>
-            {shouldShowNavBarToggleButton && isExpanded && document.dir === 'ltr'
-              && <Styled.ArrowLeft iconName="left_arrow" />}
-            {shouldShowNavBarToggleButton && !isExpanded && document.dir === 'rtl'
-              && <Styled.ArrowLeft iconName="left_arrow" />}
-            {shouldShowNavBarToggleButton && (
-              <Styled.NavbarToggleButton
-                tooltipplacement="right"
-                onClick={this.handleToggleUserList}
-                color={isPhone && isExpanded ? 'primary' : 'dark'}
-                size='md'
-                circle
-                hideLabel
-                data-test={hasNotification ? 'hasUnreadMessages' : 'toggleUserList'}
-                label={intl.formatMessage(intlMessages.toggleUserListLabel)}
-                tooltipLabel={intl.formatMessage(intlMessages.toggleUserListLabel)}
-                aria-label={ariaLabel}
-                icon="user"
-                aria-expanded={isExpanded}
-                accessKey={TOGGLE_USERLIST_AK}
-                hasNotification={hasNotification}
+        {!hideTopRow && (
+          <Styled.Top>
+            <Styled.Left>
+              {shouldShowNavBarToggleButton && isExpanded && document.dir === 'ltr'
+                && <Styled.ArrowLeft iconName="left_arrow" />}
+              {shouldShowNavBarToggleButton && !isExpanded && document.dir === 'rtl'
+                && <Styled.ArrowLeft iconName="left_arrow" />}
+              {shouldShowNavBarToggleButton && (
+                <Styled.NavbarToggleButton
+                  tooltipplacement="right"
+                  onClick={this.handleToggleUserList}
+                  color={isPhone && isExpanded ? 'primary' : 'dark'}
+                  size='md'
+                  circle
+                  hideLabel
+                  data-test={hasNotification ? 'hasUnreadMessages' : 'toggleUserList'}
+                  label={intl.formatMessage(intlMessages.toggleUserListLabel)}
+                  tooltipLabel={intl.formatMessage(intlMessages.toggleUserListLabel)}
+                  aria-label={ariaLabel}
+                  icon="user"
+                  aria-expanded={isExpanded}
+                  accessKey={TOGGLE_USERLIST_AK}
+                  hasNotification={hasNotification}
+                />
+              )}
+              {shouldShowNavBarToggleButton && !isExpanded && document.dir === 'ltr'
+                && <Styled.ArrowRight iconName="right_arrow" />}
+              {shouldShowNavBarToggleButton && isExpanded && document.dir === 'rtl'
+                && <Styled.ArrowRight iconName="right_arrow" />}
+              {renderPluginItems(leftPluginItems)}
+            </Styled.Left>
+            <Styled.Center>
+              <Styled.PresentationTitle data-test="presentationTitle">
+                {presentationTitle}
+              </Styled.PresentationTitle>
+              <RecordingIndicator
+                amIModerator={amIModerator}
+                currentUserId={currentUserId}
               />
-            )}
-            {shouldShowNavBarToggleButton && !isExpanded && document.dir === 'ltr'
-              && <Styled.ArrowRight iconName="right_arrow" />}
-            {shouldShowNavBarToggleButton && isExpanded && document.dir === 'rtl'
-              && <Styled.ArrowRight iconName="right_arrow" />}
-            {renderPluginItems(leftPluginItems)}
-          </Styled.Left>
-          <Styled.Center>
-            <Styled.PresentationTitle data-test="presentationTitle">
-              {presentationTitle}
-            </Styled.PresentationTitle>
-            <RecordingIndicator
-              amIModerator={amIModerator}
-              currentUserId={currentUserId}
-            />
-            {renderPluginItems(centerPluginItems)}
-          </Styled.Center>
-          <Styled.Right>
-            {renderPluginItems(rightPluginItems)}
-            {ConnectionStatusService.isEnabled() ? <ConnectionStatusButton /> : null}
-            {ConnectionStatusService.isEnabled() ? <ConnectionStatus /> : null}
-            {isDirectLeaveButtonEnabled && isMeteorConnected
-              ? <LeaveMeetingButtonContainer amIModerator={amIModerator} /> : null}
-            <OptionsDropdownContainer
-              amIModerator={amIModerator}
-              isDirectLeaveButtonEnabled={isDirectLeaveButtonEnabled}
-            />
-          </Styled.Right>
-        </Styled.Top>
+              {renderPluginItems(centerPluginItems)}
+            </Styled.Center>
+            <Styled.Right>
+              {renderPluginItems(rightPluginItems)}
+              {ConnectionStatusService.isEnabled() ? <ConnectionStatusButton /> : null}
+              {ConnectionStatusService.isEnabled() ? <ConnectionStatus /> : null}
+              {isDirectLeaveButtonEnabled && isMeteorConnected
+                ? <LeaveMeetingButtonContainer amIModerator={amIModerator} /> : null}
+              <OptionsDropdownContainer
+                amIModerator={amIModerator}
+                isDirectLeaveButtonEnabled={isDirectLeaveButtonEnabled}
+              />
+            </Styled.Right>
+          </Styled.Top>
+        )}
         <Styled.Bottom>
-          <TalkingIndicator amIModerator={amIModerator} />
+          {enableTalkingIndicator ? <TalkingIndicator amIModerator={amIModerator} /> : null}
           <TimerIndicatorContainer />
         </Styled.Bottom>
       </Styled.Navbar>

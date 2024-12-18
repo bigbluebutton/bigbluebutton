@@ -58,7 +58,6 @@ enableHTML5ClientLog() {
   yq e -i '.public.clientLog.external.enabled = true' $HTML5_CONFIG
   yq e -i ".public.clientLog.external.url = \"$PROTOCOL://$HOST/html5log\"" $HTML5_CONFIG
   yq e -i '.public.app.askForFeedbackOnLogout = true' $HTML5_CONFIG
-  chown meteor:meteor $HTML5_CONFIG
 
   cat > /usr/share/bigbluebutton/nginx/html5-client-log.nginx << HERE
 location /html5log {

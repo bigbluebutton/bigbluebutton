@@ -3,9 +3,6 @@ import org.bigbluebutton.common2.msgs.{BbbCommonEnvCoreMsg, NotifyAllInMeetingEv
 import PostgresProfile.api._
 import spray.json.JsValue
 
-import scala.util.{Failure, Success}
-import scala.concurrent.ExecutionContext.Implicits.global
-
 case class NotificationDbModel(
 //    notificationId:        String,
     meetingId:          String,
@@ -49,7 +46,7 @@ object NotificationDAO {
     }
 
     if (notificationType != "") {
-      DatabaseConnection.db.run(
+      DatabaseConnection.enqueue(
         TableQuery[NotificationDbTableDef].forceInsert(
           NotificationDbModel(
             meetingId,
@@ -67,10 +64,7 @@ object NotificationDAO {
             createdAt = new java.sql.Timestamp(System.currentTimeMillis())
           )
         )
-      ).onComplete {
-        case Success(rowsAffected) => DatabaseConnection.logger.debug(s"$rowsAffected row(s) inserted/updated on Notification table!")
-        case Failure(e)            => DatabaseConnection.logger.debug(s"Error inserting/updating Notification: $e")
-      }
+      )
     }
   }
 }

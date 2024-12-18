@@ -9,15 +9,15 @@ object UserJoinedMeetingEvtMsgBuilder {
     val envelope = BbbCoreEnvelope(UserJoinedMeetingEvtMsg.NAME, routing)
 
     val body = UserJoinedMeetingEvtMsgBody(intId = userState.intId, extId = userState.extId, name = userState.name,
-      role = userState.role, guest = userState.guest, authed = userState.authed,
+      role = userState.role, bot = userState.bot, guest = userState.guest, authed = userState.authed,
       guestStatus = userState.guestStatus,
-      emoji = userState.emoji,
       reactionEmoji = userState.reactionEmoji,
       raiseHand = userState.raiseHand,
       away = userState.away,
       pin = userState.pin,
-      presenter = userState.presenter, locked = userState.locked, avatar = userState.avatar, color = userState.color,
-      clientType = userState.clientType)
+      presenter = userState.presenter, locked = userState.locked, avatar = userState.avatar, webcamBackground = userState.webcamBackground, color = userState.color,
+      clientType = userState.clientType,
+      userMetadata = userState.userMetadata)
 
     val event = UserJoinedMeetingEvtMsg(meetingId, userState.intId, body)
 

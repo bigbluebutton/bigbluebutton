@@ -3,12 +3,13 @@ import {
   useRef, useState, useEffect, useMemo,
 } from 'react';
 import { FetchResult, gql, useApolloClient } from '@apollo/client';
-import R from 'ramda';
+import * as R from 'ramda';
 import { applyPatch, deepClone } from 'fast-json-patch';
 import { GraphqlDataHookSubscriptionResponse } from '../../Types/hook';
 import useDeepComparison from '../../hooks/useDeepComparison';
+import GrahqlSubscriptionStore, { stringToHash } from '../singletons/subscriptionStore';
 
-const makePatchedQuery = (query: DocumentNode | TypedQueryDocumentNode) => {
+export const makePatchedQuery = (query: DocumentNode | TypedQueryDocumentNode) => {
   if (!query) {
     throw new Error('Error: query is not defined');
   }
@@ -33,62 +34,88 @@ function createUseSubscription<T>(
   queryVariables = {},
   usePatchedSubscription = false,
 ) {
+  let newSubscriptionGQL = query;
+  if (usePatchedSubscription) {
+    newSubscriptionGQL = makePatchedQuery(query);
+  }
+  const queryHash = stringToHash(JSON.stringify({ subscription: newSubscriptionGQL, variables: queryVariables }));
   return function useGeneratedUseSubscription(
     projectionFunction: (element: Partial<T>) => Partial<T> = (element) => element,
   ): GraphqlDataHookSubscriptionResponse<Array<Partial<T>>> {
-    const client = useApolloClient();
+    const subscriptionHashRef = useRef<string>('');
+    const subscriptionRef = useRef <DocumentNode | TypedQueryDocumentNode | null>(null);
+    const optionsRef = useRef({});
+    const subHash = stringToHash(
+      JSON.stringify({ subscription: newSubscriptionGQL, variables: queryVariables }),
+    );
+
+    useEffect(() => {
+      if (subscriptionHashRef.current !== subHash) {
+        subscriptionHashRef.current = subHash;
+        if (subscriptionRef.current && optionsRef.current) {
+          GrahqlSubscriptionStore.unsubscribe(subscriptionRef.current, queryVariables);
+        }
+
+        subscriptionRef.current = query;
+        optionsRef.current = queryVariables;
+      }
+    }, [subHash]);
+
+    useEffect(() => {
+      return () => {
+        GrahqlSubscriptionStore.unsubscribe(newSubscriptionGQL, queryVariables);
+      };
+    }, []);
+
+    const observer = useRef({
+      //  @ts-ignore
+      next(response) {
+        const { data } = response;
+
+        if (!data) {
+          return;
+        }
+
+        const resultSetKey = Object.keys(data)[0];
+        const newProjectionOfData = data[resultSetKey].map((element: Partial<T>) => projectionFunction(element));
+        if (!R.equals(oldProjectionOfDataRef.current, newProjectionOfData)) {
+          const loading = response.data === undefined && response.errors === undefined;
+          const objectFromProjectionToSave: GraphqlDataHookSubscriptionResponse<Partial<T>[]> = {
+            ...response,
+            loading,
+          };
+          objectFromProjectionToSave.data = newProjectionOfData;
+          oldProjectionOfDataRef.current = newProjectionOfData;
+          setProjectedData(objectFromProjectionToSave);
+        }
+      },
+      //  @ts-ignore
+      error(err) {
+        // eslint-disable-next-line no-console
+        console.error('err', err);
+      },
+    });
     const [
       projectedData,
       setProjectedData,
     ] = useState<GraphqlDataHookSubscriptionResponse<Partial<T>[]>>({ loading: true });
     const oldProjectionOfDataRef = useRef<Partial<T>[]>([]);
-    const dataRef = useRef<Array<T>>([]);
-    let newSubscriptionGQL = query;
-    if (usePatchedSubscription) {
-      newSubscriptionGQL = makePatchedQuery(query);
-    }
 
     useEffect(() => {
-      const apolloSubscription = client
-        .subscribe({
-          query: newSubscriptionGQL,
-          variables: queryVariables,
-          fetchPolicy: usePatchedSubscription ? 'no-cache' : undefined,
-        })
-        .subscribe({
-          next(response) {
-            const { data } = response;
-            let currentData: T[] = [];
-            if (usePatchedSubscription && data.patch) {
-              const patchedData = applyPatch(deepClone(dataRef.current), data.patch).newDocument;
-              currentData = [...patchedData];
-            } else {
-              const resultSetKey = Object.keys(data)[0];
-              currentData = data[resultSetKey];
-            }
-            if (usePatchedSubscription) {
-              dataRef.current = currentData;
-            }
-
-            const newProjectionOfData = currentData.map((element: Partial<T>) => projectionFunction(element));
-            if (!R.equals(oldProjectionOfDataRef.current, newProjectionOfData)) {
-              const loading = response.data === undefined && response.errors === undefined;
-              const objectFromProjectionToSave: GraphqlDataHookSubscriptionResponse<Partial<T>[]> = {
-                ...response,
-                loading,
-              };
-              objectFromProjectionToSave.data = newProjectionOfData;
-              oldProjectionOfDataRef.current = newProjectionOfData;
-              setProjectedData(objectFromProjectionToSave);
-            }
-          },
-          error(err) {
-            // eslint-disable-next-line no-console
-            console.error('err', err);
-          },
-        });
-      return () => apolloSubscription.unsubscribe();
-    }, [queryVariables]);
+      const listener = (event: CustomEvent) => {
+        if (event.detail.subscriptionHash === subHash) {
+          //  @ts-ignore
+          observer.current[event.detail.type](event.detail.response);
+        }
+      };
+      //  @ts-ignore
+      window.addEventListener('graphqlSubscription', listener);
+      GrahqlSubscriptionStore.makeSubscription(newSubscriptionGQL, queryVariables, usePatchedSubscription ? 'no-cache' : undefined);
+      return () => {
+        //  @ts-ignore
+        // window.removeEventListener('graphqlSubscription', listener);
+      };
+    }, [queryHash]);
 
     return projectedData;
   };
@@ -186,6 +213,7 @@ export const useCreateUseSubscription = <T>(
 ) => {
   const queryString = JSON.stringify(query);
   const queryVariablesString = JSON.stringify(queryVariables);
+
   const createdSubscription = useMemo(() => {
     return createUseSubscription<T>(query, queryVariables, usePatchedSubscription);
   },

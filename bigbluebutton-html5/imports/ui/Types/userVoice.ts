@@ -1,7 +1,6 @@
 import { User } from './user';
 
 export interface UserVoice {
-  showTalkingIndicator: boolean;
   callerName: string;
   callerNum: number;
   callingWith: string;
@@ -11,7 +10,6 @@ export interface UserVoice {
   hideTalkingIndicatorAt: number;
   joined: boolean;
   lastFloorTime: number;
-  lastSpeakChangedAt: number;
   listenOnly: boolean;
   meetingId: string;
   muted: boolean;

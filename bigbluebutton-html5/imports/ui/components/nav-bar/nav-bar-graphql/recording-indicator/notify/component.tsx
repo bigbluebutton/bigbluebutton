@@ -1,7 +1,9 @@
-import React, { Dispatch, SetStateAction, useCallback } from 'react';
+import React, { useCallback } from 'react';
 import { defineMessages, useIntl } from 'react-intl';
 import { USER_LEAVE_MEETING } from '/imports/ui/core/graphql/mutations/userMutations';
 import { useMutation } from '@apollo/client';
+import Session from '/imports/ui/services/storage/in-memory';
+import logger from '/imports/startup/client/logger';
 
 import Styled from './styles';
 
@@ -38,8 +40,6 @@ const LOGOUT_CODE = '680';
 interface RecordingNotifyModalProps {
   toggleShouldNotify: () => void;
   closeModal: () => void;
-  // eslint-disable-next-line react/no-unused-prop-types
-  setIsOpen: Dispatch<SetStateAction<boolean>>;
   isOpen: boolean;
   priority: string;
 }
@@ -54,12 +54,25 @@ const RecordingNotifyModal: React.FC<RecordingNotifyModalProps> = ({
 
   const intl = useIntl();
   const skipButtonHandle = useCallback(() => {
+    logger.info({
+      logCode: 'recording_started_notify_user_hit_leave',
+      extraInfo: {},
+    }, 'The user is reminded that recording commences. The user pressed Leave.');
     userLeaveMeeting();
     // eslint-disable-next-line @typescript-eslint/ban-ts-comment
     // @ts-ignore Session is a global variable in Meteor
-    Session.set('codeError', LOGOUT_CODE);
+    Session.setItem('codeError', LOGOUT_CODE);
     toggleShouldNotify();
   }, []);
+
+  const handleContinueInRecordedSession = useCallback(() => {
+    logger.info({
+      logCode: 'recording_started_notify_user_hit_continue',
+      extraInfo: {},
+    }, 'The user is reminded that recording commences. The user pressed Continue.');
+    closeModal();
+  }, []);
+
   return (
     <Styled.RecordingNotifyModal
       contentLabel={intl.formatMessage(intlMessages.title)}
@@ -78,7 +91,7 @@ const RecordingNotifyModal: React.FC<RecordingNotifyModalProps> = ({
           <Styled.NotifyButton
             color="primary"
             label={intl.formatMessage(intlMessages.continue)}
-            onClick={closeModal}
+            onClick={handleContinueInRecordedSession}
             aria-label={intl.formatMessage(intlMessages.continueAriaLabel)}
           />
           <Styled.NotifyButton

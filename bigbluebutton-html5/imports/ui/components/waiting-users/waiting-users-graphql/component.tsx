@@ -4,7 +4,7 @@ import React, {
   useMemo,
   useState,
 } from 'react';
-import { useSubscription, useMutation } from '@apollo/client';
+import { useMutation } from '@apollo/client';
 import { defineMessages, useIntl } from 'react-intl';
 import { useMeeting } from '/imports/ui/core/hooks/useMeeting';
 import { notify } from '/imports/ui/services/notification';
@@ -32,15 +32,7 @@ import {
   SET_LOBBY_MESSAGE,
   SET_LOBBY_MESSAGE_PRIVATE,
 } from '../mutations';
-
-// @ts-ignore - temporary, while meteor exists in the project
-const isGuestLobbyMessageEnabled = window.meetingClientSettings.public.app.enableGuestLobbyMessage;
-// @ts-ignore - temporary, while meteor exists in the project
-const { guestPolicyExtraAllowOptions } = window.meetingClientSettings.public.app;
-
-// We use the dynamicGuestPolicy rule for allowing the rememberChoice checkbox
-// @ts-ignore - temporary, while meteor exists in the project
-const allowRememberChoice = window.meetingClientSettings.public.app.dynamicGuestPolicy;
+import useDeduplicatedSubscription from '/imports/ui/core/hooks/useDeduplicatedSubscription';
 
 interface LayoutDispatchProps {
   type: string,
@@ -165,6 +157,15 @@ const GuestUsersManagementPanel: React.FC<GuestUsersManagementPanelProps> = ({
   guestLobbyEnabled,
   guestLobbyMessage,
 }) => {
+  // @ts-ignore - temporary, while meteor exists in the project
+  const isGuestLobbyMessageEnabled = window.meetingClientSettings.public.app.enableGuestLobbyMessage;
+  // @ts-ignore - temporary, while meteor exists in the project
+  const { guestPolicyExtraAllowOptions } = window.meetingClientSettings.public.app;
+
+  // We use the dynamicGuestPolicy rule for allowing the rememberChoice checkbox
+  // @ts-ignore - temporary, while meteor exists in the project
+  const allowRememberChoice = window.meetingClientSettings.public.app.dynamicGuestPolicy;
+
   const intl = useIntl();
   const { isChrome } = browserInfo;
   const [rememberChoice, setRememberChoice] = useState(false);
@@ -344,7 +345,8 @@ const GuestUsersManagementPanel: React.FC<GuestUsersManagementPanelProps> = ({
                 &quot;
                 {
                   guestLobbyMessage && guestLobbyMessage !== ''
-                    ? guestLobbyMessage
+                  // eslint-disable-next-line react/no-danger
+                    ? <span dangerouslySetInnerHTML={{ __html: guestLobbyMessage }} />
                     : intl.formatMessage(intlMessages.emptyMessage)
                 }
                 &quot;
@@ -404,7 +406,7 @@ const GuestUsersManagementPanelContainer: React.FC = () => {
     data: guestWaitingUsersData,
     loading: guestWaitingUsersLoading,
     error: guestWaitingUsersError,
-  } = useSubscription<GuestWaitingUsers>(GET_GUEST_WAITING_USERS_SUBSCRIPTION);
+  } = useDeduplicatedSubscription<GuestWaitingUsers>(GET_GUEST_WAITING_USERS_SUBSCRIPTION);
 
   const { data: currentMeeting } = useMeeting((meeting) => {
     const a = {

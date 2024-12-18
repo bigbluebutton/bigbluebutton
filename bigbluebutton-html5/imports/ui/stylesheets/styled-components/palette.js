@@ -12,6 +12,8 @@ const colorGrayLightest = 'var(--color-gray-lightest, #D4D9DF)';
 const colorBlueLight = 'var(--color-blue-light, #54a1f3)';
 const colorBlueLighter = 'var(--color-blue-lighter, #92BCEA)';
 const colorBlueLightest = 'var(--color-blue-lightest, #E4ECF2)';
+const colorBlueLightestChannel = '228 236 242';
+const colorBlueLighterChannel = '146 188 234';
 
 const colorTransparent = 'var(--color-transparent, #ff000000)';
 
@@ -79,6 +81,7 @@ const btnMutedColor = `var(--btn-muted-color, ${colorMuted})`;
 const btnMutedBg = `var(--btn-muted-bg, ${colorMutedBackground})`;
 
 const toolbarButtonColor = `var(--toolbar-button-color, ${btnDefaultColor})`;
+const toolbarButtonColorDisabled = `var(--toolbar-button-color, ${colorGrayLight})`;
 const userThumbnailBorder = `var(--user-thumbnail-border, ${colorGrayLight})`;
 const loaderBg = `var(--loader-bg, ${colorGrayDark})`;
 const loaderBullet = `var(--loader-bullet, ${colorWhite})`;
@@ -135,6 +138,8 @@ export {
   colorBlueLight,
   colorBlueLighter,
   colorBlueLightest,
+  colorBlueLightestChannel,
+  colorBlueLighterChannel,
   colorPrimary,
   colorDanger,
   colorDangerDark,
@@ -182,6 +187,7 @@ export {
   btnMutedColor,
   btnMutedBg,
   toolbarButtonColor,
+  toolbarButtonColorDisabled,
   userThumbnailBorder,
   loaderBg,
   loaderBullet,

@@ -6,6 +6,7 @@ export const LAYOUT_TYPE = {
   CAMERAS_ONLY: 'camerasOnly',
   PRESENTATION_ONLY: 'presentationOnly',
   PARTICIPANTS_AND_CHAT_ONLY: 'participantsAndChatOnly',
+  MEDIA_ONLY: 'mediaOnly',
 };
 
 export const DEVICE_TYPE = {
@@ -17,6 +18,8 @@ export const DEVICE_TYPE = {
 };
 
 export const SMALL_VIEWPORT_BREAKPOINT = 640;
+
+export const MEDIA_ONLY_LAYOUT_MARGIN = 10;
 
 export const CAMERADOCK_POSITION = {
   CONTENT_TOP: 'contentTop',
@@ -31,7 +34,21 @@ export const HIDDEN_LAYOUTS = [
   LAYOUT_TYPE.CAMERAS_ONLY,
   LAYOUT_TYPE.PRESENTATION_ONLY,
   LAYOUT_TYPE.PARTICIPANTS_AND_CHAT_ONLY,
+  LAYOUT_TYPE.MEDIA_ONLY,
 ];
+
+export const LAYOUT_ELEMENTS = {
+  LAYOUT_TYPE: 'layoutType',
+  PRESENTATION_STATE: 'presentationState',
+  FOCUSED_CAMERA: 'focusedCamera',
+  CAMERA_DOCK_SIZE: 'cameraDockSize',
+  CAMERA_DOCK_POSITION: 'cameradockPosition',
+};
+
+export const SYNC = {
+  PROPAGATE_ELEMENTS: 'propagateElements',
+  REPLICATE_ELEMENTS: 'replicateElements',
+};
 
 export const ACTIONS = {
   SET_AUTO_ARRANGE_LAYOUT: 'setAutoArrangeLayout',
@@ -53,8 +70,10 @@ export const ACTIONS = {
 
   SET_HAS_BANNER_BAR: 'setHasBannerBar',
   SET_HAS_NOTIFICATIONS_BAR: 'setHasNotificationsBar',
+  SET_HIDE_NOTIFICATION_TOASTS: 'setHideNotificationToasts',
 
   SET_HAS_NAVBAR: 'setHasNavBar',
+  SET_HIDE_NAVBAR_TOP_ROW: 'setHideNavBarTopRow',
   SET_NAVBAR_OUTPUT: 'setNavBarOutput',
 
   SET_HAS_ACTIONBAR: 'setHasActionBar',
@@ -107,8 +126,8 @@ export const ACTIONS = {
   SET_EXTERNAL_VIDEO_SIZE: 'setExternalVideoSize',
   SET_EXTERNAL_VIDEO_OUTPUT: 'setExternalVideoOutput',
 
-  SET_HAS_GENERIC_COMPONENT: 'setHasGenericComponent',
-  SET_GENERIC_COMPONENT_OUTPUT: 'setGenericComponentOutput',
+  SET_HAS_GENERIC_CONTENT: 'setHasGenericContent',
+  SET_GENERIC_CONTENT_OUTPUT: 'setGenericContentOutput',
 
   SET_SHARED_NOTES_OUTPUT: 'setSharedNotesOutput',
   SET_NOTES_IS_PINNED: 'setNotesIsPinned',
@@ -117,7 +136,7 @@ export const ACTIONS = {
 };
 
 export const PRESENTATION_AREA = {
-  GENERIC_COMPONENT: 'genericComponent',
+  GENERIC_CONTENT: 'genericContent',
   PINNED_NOTES: 'pinnedNotes',
   EXTERNAL_VIDEO: 'externalVideo',
   SCREEN_SHARE: 'screenShare',
@@ -133,5 +152,6 @@ export const PANELS = {
   SHARED_NOTES: 'shared-notes',
   TIMER: 'timer',
   WAITING_USERS: 'waiting-users',
+  GENERIC_CONTENT_SIDEKICK: 'generic-content-sidekick',
   NONE: 'none',
 };

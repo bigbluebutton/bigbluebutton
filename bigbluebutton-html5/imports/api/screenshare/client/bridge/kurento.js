@@ -8,14 +8,6 @@ import { shouldForceRelay } from '/imports/ui/services/bbb-webrtc-sfu/utils';
 import MediaStreamUtils from '/imports/utils/media-stream-utils';
 import { notifyStreamStateChange } from '/imports/ui/services/bbb-webrtc-sfu/stream-state-service';
 
-const SFU_CONFIG = Meteor.settings.public.kurento;
-const SFU_URL = SFU_CONFIG.wsUrl;
-const OFFERING = SFU_CONFIG.screenshare.subscriberOffering;
-const SIGNAL_CANDIDATES = Meteor.settings.public.kurento.signalCandidates;
-const TRACE_LOGS = Meteor.settings.public.kurento.traceLogs;
-const { screenshare: NETWORK_PRIORITY } = Meteor.settings.public.media.networkPriorities || {};
-const GATHERING_TIMEOUT = Meteor.settings.public.kurento.gatheringTimeout;
-
 const BRIDGE_NAME = 'kurento'
 const SCREENSHARE_VIDEO_TAG = 'screenshareVideo';
 const SEND_ROLE = 'send';
@@ -52,9 +44,18 @@ export default class KurentoScreenshareBridge {
     this.connectionAttempts = 0;
     this.reconnecting = false;
     this.reconnectionTimeout;
-    this.restartIntervalMs = BridgeService.BASE_MEDIA_TIMEOUT;
+    this._restartIntervalMs = null;
     this.startedOnce = false;
     this.outputDeviceId = null;
+    this.bridgeName = BRIDGE_NAME;
+  }
+
+  get restartIntervalMs() {
+    return this._restartIntervalMs || BridgeService.BASE_MEDIA_TIMEOUT();
+  }
+
+  set restartIntervalMs(value) {
+    this._restartIntervalMs = value;
   }
 
   get gdmStream() {
@@ -147,7 +148,7 @@ export default class KurentoScreenshareBridge {
   }
 
   maxConnectionAttemptsReached () {
-    return this.connectionAttempts > BridgeService.MAX_CONN_ATTEMPTS;
+    return this.connectionAttempts > BridgeService.MAX_CONN_ATTEMPTS();
   }
 
   scheduleReconnect({
@@ -166,7 +167,7 @@ export default class KurentoScreenshareBridge {
 
   clearReconnectionTimeout () {
     this.reconnecting = false;
-    this.restartIntervalMs = BridgeService.BASE_MEDIA_TIMEOUT;
+    this.restartIntervalMs = BridgeService.BASE_MEDIA_TIMEOUT();
 
     if (this.reconnectionTimeout) {
       clearTimeout(this.reconnectionTimeout);
@@ -242,7 +243,7 @@ export default class KurentoScreenshareBridge {
       if (this.broker?.started) {
         overrideTimeout = 0;
       } else if (this.startedOnce) {
-        overrideTimeout = BridgeService.BASE_RECONNECTION_TIMEOUT;
+        overrideTimeout = BridgeService.BASE_RECONNECTION_TIMEOUT();
       }
 
       this.scheduleReconnect({ overrideTimeout });
@@ -255,6 +256,13 @@ export default class KurentoScreenshareBridge {
     hasAudio: false,
     outputDeviceId: null,
   }) {
+    const SETTINGS = window.meetingClientSettings;
+    const SFU_CONFIG = SETTINGS.public.kurento;
+    const SFU_URL = SFU_CONFIG.wsUrl;
+    const OFFERING = SFU_CONFIG.screenshare.subscriberOffering;
+    const SIGNAL_CANDIDATES = SFU_CONFIG.signalCandidates;
+    const TRACE_LOGS = SFU_CONFIG.traceLogs;
+    const GATHERING_TIMEOUT = SFU_CONFIG.gatheringTimeout;
     this.hasAudio = options.hasAudio;
     this.outputDeviceId = options.outputDeviceId;
     this.role = RECV_ROLE;
@@ -269,6 +277,9 @@ export default class KurentoScreenshareBridge {
       forceRelay: shouldForceRelay(),
       traceLogs: TRACE_LOGS,
       gatheringTimeout: GATHERING_TIMEOUT,
+      // ICE restart only works for publishers right now - recvonly full
+      // reconnection works ok without it.
+      restartIce: false,
     };
 
     this.broker = new ScreenshareBroker(
@@ -304,6 +315,17 @@ export default class KurentoScreenshareBridge {
 
   share(stream, onFailure, contentType) {
     return new Promise(async (resolve, reject) => {
+      const SETTINGS = window.meetingClientSettings;
+      const SFU_CONFIG = SETTINGS.public.kurento;
+      const SFU_URL = SFU_CONFIG.wsUrl;
+      const SIGNAL_CANDIDATES = SFU_CONFIG.signalCandidates;
+      const TRACE_LOGS = SFU_CONFIG.traceLogs;
+      const { screenshare: NETWORK_PRIORITY } = SETTINGS.public.media.networkPriorities || {};
+      const GATHERING_TIMEOUT = SFU_CONFIG.gatheringTimeout;
+      const {
+        enabled: RESTART_ICE = false,
+        retries: RESTART_ICE_RETRIES = 3,
+      } = SFU_CONFIG.restartIce?.screenshare || {};
       this.onerror = onFailure;
       this.connectionAttempts += 1;
       this.role = SEND_ROLE;
@@ -333,7 +355,7 @@ export default class KurentoScreenshareBridge {
         stream,
         hasAudio: this.hasAudio,
         contentType: contentType,
-        bitrate: BridgeService.BASE_BITRATE,
+        bitrate: BridgeService.BASE_BITRATE(),
         offering: true,
         mediaServer: BridgeService.getMediaServerAdapter(),
         signalCandidates: SIGNAL_CANDIDATES,
@@ -341,6 +363,8 @@ export default class KurentoScreenshareBridge {
         traceLogs: TRACE_LOGS,
         networkPriority: NETWORK_PRIORITY,
         gatheringTimeout: GATHERING_TIMEOUT,
+        restartIce: RESTART_ICE,
+        restartIceMaxRetries: RESTART_ICE_RETRIES,
       };
 
       this.broker = new ScreenshareBroker(

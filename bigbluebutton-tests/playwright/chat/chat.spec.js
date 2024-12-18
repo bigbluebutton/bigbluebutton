@@ -12,16 +12,16 @@ test.describe('Chat', () => {
   });
 
   // https://docs.bigbluebutton.org/2.6/release-tests.html#public-message-automated
-  test('Send public message @ci', async () => {
+  test('Send public message', { tag: '@ci' }, async () => {
     await chat.sendPublicMessage();
   });
 
   // https://docs.bigbluebutton.org/2.6/release-tests.html#private-message-automated
-  test('Send private message @ci', async () => {
+  test('Send private message', { tag: '@ci' }, async () => {
     await chat.sendPrivateMessage();
   });
 
-  test('Clear chat @ci', async () => {
+  test('Clear chat', { tag: '@ci' }, async () => {
     await chat.clearChat();
   });
 
@@ -29,16 +29,16 @@ test.describe('Chat', () => {
     await chat.copyChat();
   });
 
-  test('Save chat @ci', async ({}, testInfo) => {
+  test('Save chat', { tag: '@ci' }, async ({}, testInfo) => {
     await chat.saveChat(testInfo);
   });
 
-  test('Verify character limit', async () => {
+  test('Verify character limit', { tag: '@ci' }, async () => {
     await chat.characterLimit();
   });
 
   // https://docs.bigbluebutton.org/2.6/release-tests.html#sending-empty-chat-message-automated
-  test('Not able to send an empty message @ci', async () => {
+  test('Not able to send an empty message', { tag: '@ci' }, async () => {
     await chat.emptyMessage();
   });
 
@@ -47,7 +47,7 @@ test.describe('Chat', () => {
     await chat.copyPastePublicMessage();
   })
 
-  test('Send emoji on public chat @ci', async () => {
+  test('Send emoji on public chat', { tag: '@ci' }, async () => {
     await chat.sendEmoji();
   });
 
@@ -56,11 +56,11 @@ test.describe('Chat', () => {
     await chat.emojiCopyChat();
   });
 
-  test('Close private chat @ci', async () => {
+  test('Close private chat', { tag: '@ci' }, async () => {
     await chat.closePrivateChat();
   });
 
-  test('Save chat with emoji @ci', async ({}, testInfo) => {
+  test('Save chat with emoji', { tag: '@ci' }, async ({}, testInfo) => {
     await chat.emojiSaveChat(testInfo);
   });
 
@@ -85,7 +85,7 @@ test.describe('Chat', () => {
   });
 
   // failure only reproducible in CI (user leaves but keeps shown in the mod user list)
-  test('Private chat disabled when user leaves meeting @ci @flaky', async () => {
+  test('Private chat disabled when user leaves meeting', { tag: ['@ci', '@flaky'] }, async () => {
     await chat.chatDisabledUserLeaves();
   });
 });

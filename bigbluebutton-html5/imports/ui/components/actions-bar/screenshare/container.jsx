@@ -1,13 +1,25 @@
 import React from 'react';
-import { withTracker } from 'meteor/react-meteor-data';
 import ScreenshareButton from './component';
-import { isScreenSharingEnabled } from '/imports/ui/services/features';
-import {
-  isScreenBroadcasting,
-  dataSavingSetting,
-} from '/imports/ui/components/screenshare/service';
+import { useIsScreenSharingEnabled } from '/imports/ui/services/features';
+import { useIsScreenBroadcasting, useIsScreenGloballyBroadcasting } from '/imports/ui/components/screenshare/service';
+import useSettings from '/imports/ui/services/settings/hooks/useSettings';
+import { SETTINGS } from '/imports/ui/services/settings/enums';
 
-const ScreenshareButtonContainer = (props) => <ScreenshareButton {...props} />;
+const ScreenshareButtonContainer = (props) => {
+  const { viewScreenshare: screenshareDataSavingSetting } = useSettings(SETTINGS.DATA_SAVING);
+  const screenIsBroadcasting = useIsScreenBroadcasting();
+  const { screenIsShared: isScreenGloballyBroadcasting } = useIsScreenGloballyBroadcasting();
+  const enabled = useIsScreenSharingEnabled();
+  return (
+    <ScreenshareButton
+      screenshareDataSavingSetting={screenshareDataSavingSetting}
+      isScreenBroadcasting={screenIsBroadcasting}
+      isScreenGloballyBroadcasting={isScreenGloballyBroadcasting}
+      enabled={enabled}
+      {...props}
+    />
+  );
+};
 
 /*
  * All props, including the ones that are inherited from actions-bar
@@ -17,8 +29,4 @@ const ScreenshareButtonContainer = (props) => <ScreenshareButton {...props} />;
  * isMeteorConnected,
  * screenshareDataSavingSetting,
  */
-export default withTracker(() => ({
-  isScreenBroadcasting: isScreenBroadcasting(),
-  screenshareDataSavingSetting: dataSavingSetting(),
-  enabled: isScreenSharingEnabled(),
-}))(ScreenshareButtonContainer);
+export default ScreenshareButtonContainer;

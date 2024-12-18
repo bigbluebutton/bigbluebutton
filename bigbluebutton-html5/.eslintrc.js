@@ -21,6 +21,7 @@ module.exports = {
     'jsx-a11y/no-access-key': 0,
     'react/jsx-props-no-spreading': 'off',
     'max-classes-per-file': ['error', 2],
+    'react/require-default-props': 0,
   },
   globals: {
     browser: 'writable',
@@ -43,6 +44,7 @@ module.exports = {
         'import/extensions': [2, 'never'],
         'react/sort-comp': [0],
         'react/jsx-filename-extension': ['error', { extensions: ['.tsx', '.jsx'] }],
+        'react/require-default-props': 0,
         'max-len': [
           'error',
           {

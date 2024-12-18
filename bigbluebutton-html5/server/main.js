@@ -1,12 +1,3 @@
-import '/imports/startup/server';
-
-// 2x
-
-// Commons
-import '/imports/api/log-client/server';
-import '/imports/api/common/server/helpers';
-import '/imports/startup/server/logger';
-
 // Needed for Atmosphere package RocketChat/meteor-streamer
 // It is out of date and was written when Meteor contained lodash
 // package. However, we now import lodash as an npm package
@@ -17,3 +8,7 @@ import '/imports/startup/server/logger';
 import { isEmpty } from 'radash';
 
 global._ = { isEmpty };
+
+Meteor.settings.public.packages = {
+  'dynamic-import': { useLocationOrigin: true },
+};

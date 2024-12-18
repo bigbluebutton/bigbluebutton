@@ -1,6 +1,7 @@
 package common
 
 import (
+	"bytes"
 	"encoding/json"
 	"fmt"
 	evanphxjsonpatch "github.com/evanphx/json-patch"
@@ -8,46 +9,51 @@ import (
 	log "github.com/sirupsen/logrus"
 )
 
-func ValidateIfShouldUseCustomJsonPatch(original []byte, modified []byte, idFieldName string) bool {
+func ValidateIfShouldUseCustomJsonPatch(original []byte, modified []byte, idFieldName string) (bool, []byte) {
+	//Temporarily use CustomPatch only for UserList (testing feature)
+	if !bytes.Contains(modified, []byte("\"__typename\":\"user\"}]")) {
+		return false, nil
+	}
+
 	//Test Original Data
 	originalMap := GetMapFromByte(original)
 	if originalMap == nil {
-		return false
+		return false, nil
 	}
 
 	if len(originalMap) <= 1 {
-		return false
+		return false, nil
 	}
 
 	firstItem := originalMap[0]
 	if _, existsIdField := firstItem[idFieldName].(string); !existsIdField {
-		return false
+		return false, nil
 	}
 
 	if hasDuplicatedId(originalMap, idFieldName) {
-		return false
+		return false, nil
 	}
 
 	//Test Modified Data
 	modifiedMap := GetMapFromByte(modified)
 	if modifiedMap == nil {
-		return false
+		return false, nil
 	}
 
 	if len(modifiedMap) <= 1 {
-		return false
+		return false, nil
 	}
 
 	firstItem = modifiedMap[0]
 	if _, existsIdField := firstItem[idFieldName].(string); !existsIdField {
-		return false
+		return false, nil
 	}
 
 	if hasDuplicatedId(modifiedMap, idFieldName) {
-		return false
+		return false, nil
 	}
 
-	return true
+	return true, CreateJsonPatchFromMaps(originalMap, modifiedMap, modified, "userId")
 }
 
 func hasDuplicatedId(items []map[string]interface{}, idFieldName string) bool {
@@ -67,12 +73,10 @@ func CreateJsonPatch(original []byte, modified []byte, idFieldName string) []byt
 	originalMap := GetMapFromByte(original)
 	modifiedMap := GetMapFromByte(modified)
 
-	return CreateJsonPatchFromMaps(originalMap, modifiedMap, idFieldName)
+	return CreateJsonPatchFromMaps(originalMap, modifiedMap, modified, idFieldName)
 }
 
-func CreateJsonPatchFromMaps(original []map[string]interface{}, modified []map[string]interface{}, idFieldName string) []byte {
-	modifiedJson, _ := json.Marshal(modified)
-
+func CreateJsonPatchFromMaps(original []map[string]interface{}, modified []map[string]interface{}, modifiedJson []byte, idFieldName string) []byte {
 	//CREATE PATCHES FOR OPERATION "REPLACE"
 	replacesPatches, originalWithReplaces := CreateReplacePatches(original, modified, idFieldName)
 

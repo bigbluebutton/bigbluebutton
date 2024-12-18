@@ -33,26 +33,6 @@ case class ScreenshareRtmpBroadcastStartedEvtMsgBody(voiceConf: String, screensh
                                                      timestamp: String, hasAudio: Boolean, contentType: String)
 
 /**
- * Sync screenshare state with bbb-html5
- */
-object SyncGetScreenshareInfoRespMsg { val NAME = "SyncGetScreenshareInfoRespMsg" }
-case class SyncGetScreenshareInfoRespMsg(
-    header: BbbClientMsgHeader,
-    body:   SyncGetScreenshareInfoRespMsgBody
-) extends BbbCoreMsg
-case class SyncGetScreenshareInfoRespMsgBody(
-    isBroadcasting:  Boolean,
-    voiceConf:       String,
-    screenshareConf: String,
-    stream:          String,
-    vidWidth:        Int,
-    vidHeight:       Int,
-    timestamp:       String,
-    hasAudio:        Boolean,
-    contentType:     String
-)
-
-/**
  * Send by FS that RTMP stream has stopped.
  */
 object ScreenshareRtmpBroadcastStoppedVoiceConfEvtMsg { val NAME = "ScreenshareRtmpBroadcastStoppedVoiceConfEvtMsg" }
@@ -237,7 +217,12 @@ case class MuteUserInVoiceConfSysMsg(
     header: BbbCoreHeaderWithMeetingId,
     body:   MuteUserInVoiceConfSysMsgBody
 ) extends BbbCoreMsg
-case class MuteUserInVoiceConfSysMsgBody(voiceConf: String, voiceUserId: String, mute: Boolean)
+case class MuteUserInVoiceConfSysMsgBody(
+    voiceConf:   String,
+    intId:       String,
+    voiceUserId: String,
+    mute:        Boolean
+)
 
 /**
  * Sent by client to mute all users in the meeting.
@@ -468,6 +453,14 @@ case class UserTalkingVoiceEvtMsg(header: BbbClientMsgHeader, body: UserTalkingV
 case class UserTalkingVoiceEvtMsgBody(voiceConf: String, intId: String, voiceUserId: String, talking: Boolean)
 
 /**
+ * Sent from client to notify that an user is talking (client-side version of
+ * UserTalkingInVoiceConfEvtMsg).
+ * Used by audio bridges incapable of generating the event server-side (LiveKit)
+ */
+object SetUserTalkingReqMsg { val NAME = "SetUserTalkingReqMsg" }
+case class SetUserTalkingReqMsg(header: BbbClientMsgHeader, body: SetUserTalkingReqMsgBody) extends StandardMsg
+case class SetUserTalkingReqMsgBody(talking: Boolean)
+/**
  * Received from FS that user is talking in voice conference.
  */
 object UserTalkingInVoiceConfEvtMsg { val NAME = "UserTalkingInVoiceConfEvtMsg" }
@@ -518,13 +511,6 @@ case class UserDisconnectedFromGlobalAudioMsg(
 case class UserDisconnectedFromGlobalAudioMsgBody(userId: String, name: String)
 
 /**
- * Sync voice users with html5 client
- */
-object SyncGetVoiceUsersRespMsg { val NAME = "SyncGetVoiceUsersRespMsg" }
-case class SyncGetVoiceUsersRespMsg(header: BbbClientMsgHeader, body: SyncGetVoiceUsersRespMsgBody) extends BbbCoreMsg
-case class SyncGetVoiceUsersRespMsgBody(voiceUsers: Vector[VoiceConfUser])
-
-/**
  * Received from FS that a user has become a floor holder
  */
 object AudioFloorChangedVoiceConfEvtMsg { val NAME = "AudioFloorChangedVoiceConfEvtMsg" }
@@ -555,6 +541,7 @@ case class VoiceConfCallStateEvtMsgBody(
     callSession:      String,
     clientSession:    String,
     userId:           String,
+    voiceUserId:      String,
     callerName:       String,
     callState:        String,
     origCallerIdName: String,
@@ -640,7 +627,8 @@ case class GetMicrophonePermissionRespMsgBody(
     voiceConf:    String,
     userId:       String,
     sfuSessionId: String,
-    allowed:      Boolean
+    allowed:      Boolean,
+    muteOnStart:  Boolean
 )
 
 /**
@@ -685,6 +673,7 @@ case class ToggleListenOnlyModeSysMsg(
 case class ToggleListenOnlyModeSysMsgBody(
     voiceConf: String,
     userId:    String,
+    callerNum: String,
     enabled:   Boolean
 )
 
@@ -701,5 +690,6 @@ case class ListenOnlyModeToggledInSfuEvtMsgBody(
     meetingId: String,
     voiceConf: String,
     userId:    String,
+    callerNum: String,
     enabled:   Boolean
 )

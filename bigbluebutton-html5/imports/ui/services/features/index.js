@@ -1,107 +1,137 @@
-import Auth from '/imports/ui/services/auth';
-import Meetings from '/imports/api/meetings';
+import useMeeting from '../../core/hooks/useMeeting';
 
-export function getDisabledFeatures() {
-  const selector = {
-    meetingId: Auth.meetingID,
-  };
-
-  const meetingData = Meetings.findOne(selector, { fields: { disabledFeatures: 1 } });
-  const disabledFeatures = (meetingData || {}).disabledFeatures || [];
-
+export function useDisabledFeatures() {
+  const { data: meetingData } = useMeeting((m) => ({
+    disabledFeatures: m.disabledFeatures,
+  }));
+  const disabledFeatures = meetingData?.disabledFeatures || [];
   return disabledFeatures;
 }
 
-export function isScreenSharingEnabled() {
-  return getDisabledFeatures().indexOf('screenshare') === -1 && window.meetingClientSettings.public.kurento.enableScreensharing;
+export function useIsScreenSharingEnabled() {
+  return useDisabledFeatures().indexOf('screenshare') === -1 && window.meetingClientSettings.public.kurento.enableScreensharing;
 }
 
-export function isLearningDashboardEnabled() {
-  return getDisabledFeatures().indexOf('learningDashboard') === -1;
+export function useIsLearningDashboardEnabled() {
+  return useDisabledFeatures().indexOf('learningDashboard') === -1;
 }
 
-export function isPollingEnabled() {
-  return getDisabledFeatures().indexOf('polls') === -1 && window.meetingClientSettings.public.poll.enabled;
+export function useIsPollingEnabled() {
+  return useDisabledFeatures().indexOf('polls') === -1 && window.meetingClientSettings.public.poll.enabled;
 }
 
-export function isExternalVideoEnabled() {
-  return getDisabledFeatures().indexOf('externalVideos') === -1 && window.meetingClientSettings.public.externalVideoPlayer.enabled;
+export function useIsPresentationEnabled() {
+  return useDisabledFeatures().indexOf('presentation') === -1;
 }
 
-export function isChatEnabled() {
-  return getDisabledFeatures().indexOf('chat') === -1 && window.meetingClientSettings.public.chat.enabled;
+export function useIsExternalVideoEnabled() {
+  return useDisabledFeatures().indexOf('externalVideos') === -1 && window.meetingClientSettings.public.externalVideoPlayer.enabled;
 }
 
-export function isSharedNotesEnabled() {
-  return getDisabledFeatures().indexOf('sharedNotes') === -1 && window.meetingClientSettings.public.notes.enabled;
+export function useIsChatEnabled() {
+  return useDisabledFeatures().indexOf('chat') === -1 && window.meetingClientSettings.public.chat.enabled;
 }
 
-export function isCaptionsEnabled() {
-  return getDisabledFeatures().indexOf('captions') === -1 && window.meetingClientSettings.public.captions.enabled;
+export function useIsSharedNotesEnabled() {
+  return useDisabledFeatures().indexOf('sharedNotes') === -1 && window.meetingClientSettings.public.notes.enabled;
 }
 
-export function isLiveTranscriptionEnabled() {
-  return getDisabledFeatures().indexOf('liveTranscription') === -1 && window.meetingClientSettings.public.app.audioCaptions.enabled;
+export function useIsLiveTranscriptionEnabled() {
+  return useDisabledFeatures().indexOf('liveTranscription') === -1 && window.meetingClientSettings.public.app.audioCaptions.enabled;
 }
 
-export function isBreakoutRoomsEnabled() {
-  return getDisabledFeatures().indexOf('breakoutRooms') === -1;
+export function useIsBreakoutRoomsEnabled() {
+  return useDisabledFeatures().indexOf('breakoutRooms') === -1;
 }
 
-export function isLayoutsEnabled() {
-  return getDisabledFeatures().indexOf('layouts') === -1;
+export function useIsLayoutsEnabled() {
+  return useDisabledFeatures().indexOf('layouts') === -1;
 }
 
-export function isVirtualBackgroundsEnabled() {
-  return getDisabledFeatures().indexOf('virtualBackgrounds') === -1 && window.meetingClientSettings.public.virtualBackgrounds.enabled;
+export function useIsVirtualBackgroundsEnabled() {
+  return useDisabledFeatures().indexOf('virtualBackgrounds') === -1 && window.meetingClientSettings.public.virtualBackgrounds.enabled;
 }
 
-export function isCustomVirtualBackgroundsEnabled() {
-  return getDisabledFeatures().indexOf('customVirtualBackgrounds') === -1;
+export function useIsCustomVirtualBackgroundsEnabled() {
+  return useDisabledFeatures().indexOf('customVirtualBackgrounds') === -1;
 }
 
-export function isDownloadPresentationWithAnnotationsEnabled() {
-  return getDisabledFeatures().indexOf('downloadPresentationWithAnnotations') === -1 && window.meetingClientSettings.public.presentation.allowDownloadWithAnnotations;
+export function useIsDownloadPresentationWithAnnotationsEnabled() {
+  return useDisabledFeatures().indexOf('downloadPresentationWithAnnotations') === -1 && window.meetingClientSettings.public.presentation.allowDownloadWithAnnotations;
 }
 
-export function isDownloadPresentationConvertedToPdfEnabled() {
-  return getDisabledFeatures().indexOf('downloadPresentationConvertedToPdf') === -1;
+export function useIsDownloadPresentationConvertedToPdfEnabled() {
+  return useDisabledFeatures().indexOf('downloadPresentationConvertedToPdf') === -1;
 }
 
-export function isDownloadPresentationOriginalFileEnabled() {
-  return getDisabledFeatures().indexOf('downloadPresentationOriginalFile') === -1 && window.meetingClientSettings.public.presentation.allowDownloadOriginal;
+export function useIsDownloadPresentationOriginalFileEnabled() {
+  return useDisabledFeatures().indexOf('downloadPresentationOriginalFile') === -1 && window.meetingClientSettings.public.presentation.allowDownloadOriginal;
 }
 
-export function isSnapshotOfCurrentSlideEnabled() {
-  return getDisabledFeatures().indexOf('snapshotOfCurrentSlide') === -1 && window.meetingClientSettings.public.presentation.allowSnapshotOfCurrentSlide;
+export function useIsSnapshotOfCurrentSlideEnabled() {
+  return useDisabledFeatures().indexOf('snapshotOfCurrentSlide') === -1 && window.meetingClientSettings.public.presentation.allowSnapshotOfCurrentSlide;
 }
 
-export function isImportPresentationWithAnnotationsFromBreakoutRoomsEnabled() {
-  return getDisabledFeatures().indexOf('importPresentationWithAnnotationsFromBreakoutRooms') === -1;
+export function useIsImportPresentationWithAnnotationsFromBreakoutRoomsEnabled() {
+  return useDisabledFeatures().indexOf('importPresentationWithAnnotationsFromBreakoutRooms') === -1;
 }
 
-export function isImportSharedNotesFromBreakoutRoomsEnabled() {
-  return getDisabledFeatures().indexOf('importSharedNotesFromBreakoutRooms') === -1;
+export function useIsImportSharedNotesFromBreakoutRoomsEnabled() {
+  return useDisabledFeatures().indexOf('importSharedNotesFromBreakoutRooms') === -1;
 }
 
-export function isPresentationEnabled() {
-  return getDisabledFeatures().indexOf('presentation') === -1;
-}
-
-export function isReactionsEnabled() {
+export function useIsReactionsEnabled() {
   const USER_REACTIONS_ENABLED = window.meetingClientSettings.public.userReaction.enabled;
-  const REACTIONS_BUTTON_ENABLED = window.meetingClientSettings.public.app.reactionsButton.enabled;
 
-  return getDisabledFeatures().indexOf('reactions') === -1 && USER_REACTIONS_ENABLED && REACTIONS_BUTTON_ENABLED;
+  return useDisabledFeatures().indexOf('reactions') === -1 && USER_REACTIONS_ENABLED;
 }
 
-export function isTimerFeatureEnabled() {
-  return getDisabledFeatures().indexOf('timer') === -1 && window.meetingClientSettings.public.timer.enabled;
+export function useIsTimerFeatureEnabled() {
+  return useDisabledFeatures().indexOf('timer') === -1 && window.meetingClientSettings.public.timer.enabled;
 }
 
-export function isCameraAsContentEnabled() {
+export function useIsCameraAsContentEnabled() {
   return (
-    getDisabledFeatures().indexOf('cameraAsContent') === -1
+    useDisabledFeatures().indexOf('cameraAsContent') === -1
     && window.meetingClientSettings.public.app.enableCameraAsContent
   );
+}
+
+export function useIsInfiniteWhiteboardEnabled() {
+  return (
+    useDisabledFeatures().indexOf('infiniteWhiteboard') === -1
+    && window.meetingClientSettings.public.whiteboard.allowInfiniteWhiteboard
+  );
+}
+
+export function useIsReplyChatMessageEnabled() {
+  return (
+    useDisabledFeatures().indexOf('replyChatMessage') === -1
+    && window.meetingClientSettings.public.chat.toolbar.includes('reply')
+  );
+}
+
+export function useIsDeleteChatMessageEnabled() {
+  return (
+    useDisabledFeatures().indexOf('deleteChatMessage') === -1
+    && window.meetingClientSettings.public.chat.toolbar.includes('delete')
+  );
+}
+
+export function useIsEditChatMessageEnabled() {
+  return (
+    useDisabledFeatures().indexOf('editChatMessage') === -1
+    && window.meetingClientSettings.public.chat.toolbar.includes('edit')
+  );
+}
+
+export function useIsChatMessageReactionsEnabled() {
+  return (
+    useDisabledFeatures().indexOf('chatMessageReactions') === -1
+    && window.meetingClientSettings.public.chat.toolbar.includes('reactions')
+  );
+}
+
+export function useIsPrivateChatEnabled() {
+  return useDisabledFeatures().indexOf('privateChat') === -1;
 }

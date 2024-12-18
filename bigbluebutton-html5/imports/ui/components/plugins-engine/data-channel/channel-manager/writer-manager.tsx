@@ -5,12 +5,17 @@ import * as PluginSdk from 'bigbluebutton-html-plugin-sdk';
 import {
   DataChannelArguments,
   PushEntryFunction, ObjectTo, ToRole, ToUserId,
+  ReplaceEntryFunctionArguments,
+  PushEntryFunctionOptionArgument,
 } from 'bigbluebutton-html-plugin-sdk/dist/cjs/data-channel/types';
 import { DataChannelHooks } from 'bigbluebutton-html-plugin-sdk/dist/cjs/data-channel/enums';
 import { HookEvents } from 'bigbluebutton-html-plugin-sdk/dist/cjs/core/enum';
 import { HookEventWrapper, UpdatedEventDetails } from 'bigbluebutton-html-plugin-sdk/dist/cjs/core/types';
 
-import { PLUGIN_DATA_CHANNEL_DELETE_MUTATION, PLUGIN_DATA_CHANNEL_PUSH_MUTATION, PLUGIN_DATA_CHANNEL_RESET_MUTATION } from '../mutations';
+import {
+  PLUGIN_DATA_CHANNEL_DELETE_MUTATION, PLUGIN_DATA_CHANNEL_PUSH_MUTATION,
+  PLUGIN_DATA_CHANNEL_REPLACE_MUTATION, PLUGIN_DATA_CHANNEL_RESET_MUTATION,
+} from '../mutations';
 
 export interface DataChannelItemManagerWriterProps {
   pluginName: string;
@@ -23,7 +28,7 @@ export interface DataChannelItemManagerWriterProps {
 export interface MutationVariables {
   pluginName: string,
   channelName: string,
-  payloadJson: string,
+  payloadJson: object,
   toRoles: PluginSdk.DataChannelPushEntryFunctionUserRole[],
   toUserIds: string[],
 }
@@ -46,17 +51,23 @@ const DataChannelItemManagerWriter: React.ElementType<DataChannelItemManagerWrit
     dataChannelIdentifier,
   } = props;
 
-  const [pushEntryFunctionPluginDataChannelMessage] = useMutation(PLUGIN_DATA_CHANNEL_PUSH_MUTATION);
-  const [deleteEntryFunctionPluginDataChannelMessage] = useMutation(PLUGIN_DATA_CHANNEL_DELETE_MUTATION);
-  const [resetFunctionPluginDataChannelMessage] = useMutation(PLUGIN_DATA_CHANNEL_RESET_MUTATION);
+  const [pushEntryFunctionPluginDataChannel] = useMutation(PLUGIN_DATA_CHANNEL_PUSH_MUTATION);
+  const [deleteEntryFunctionPluginDataChannel] = useMutation(PLUGIN_DATA_CHANNEL_DELETE_MUTATION);
+  const [resetFunctionPluginDataChannel] = useMutation(PLUGIN_DATA_CHANNEL_RESET_MUTATION);
+  const [replaceEntryFunctionPluginDataChannel] = useMutation(PLUGIN_DATA_CHANNEL_REPLACE_MUTATION);
 
-  const useDataChannelHandlerFunction = ((msg: object, objectsTo?: ObjectTo[]) => {
+  const useDataChannelHandlerFunction = ((msg: object, options?: PushEntryFunctionOptionArgument) => {
+    const {
+      receivers: objectsTo,
+    } = options || {
+      receivers: undefined,
+    };
     const argumentsOfPushEntryFunction = {
       variables: {
         pluginName,
         channelName,
         subChannelName,
-        payloadJson: JSON.stringify(msg),
+        payloadJson: msg,
         toRoles: [],
         toUserIds: [],
       } as MutationVariables,
@@ -82,7 +93,7 @@ const DataChannelItemManagerWriter: React.ElementType<DataChannelItemManagerWrit
       if (rolesTo.length > 0) argumentsOfPushEntryFunction.variables.toRoles = rolesTo;
       if (usersTo.length > 0) argumentsOfPushEntryFunction.variables.toUserIds = usersTo;
     }
-    pushEntryFunctionPluginDataChannelMessage(argumentsOfPushEntryFunction);
+    pushEntryFunctionPluginDataChannel(argumentsOfPushEntryFunction);
   }) as PushEntryFunction;
 
   pluginApi.mapOfPushEntryFunctions[dataChannelIdentifier] = useDataChannelHandlerFunction;
@@ -93,18 +104,18 @@ const DataChannelItemManagerWriter: React.ElementType<DataChannelItemManagerWrit
       if (event.detail.hook === DataChannelHooks.DATA_CHANNEL_DELETE) {
         const eventDetails = event.detail as UpdatedEventDetails<string>;
         const hookArguments = eventDetails?.hookArguments as DataChannelArguments | undefined;
-        deleteEntryFunctionPluginDataChannelMessage({
+        deleteEntryFunctionPluginDataChannel({
           variables: {
             pluginName: hookArguments?.pluginName,
             channelName: hookArguments?.channelName,
-            messageId: eventDetails.data,
+            entryId: eventDetails.data,
             subChannelName,
           },
         });
       } else if (event.detail.hook === DataChannelHooks.DATA_CHANNEL_RESET) {
         const eventDetails = event.detail as UpdatedEventDetails<void>;
         const hookArguments = eventDetails?.hookArguments as DataChannelArguments | undefined;
-        resetFunctionPluginDataChannelMessage({
+        resetFunctionPluginDataChannel({
           variables: {
             pluginName: hookArguments?.pluginName,
             channelName: hookArguments?.channelName,
@@ -114,10 +125,29 @@ const DataChannelItemManagerWriter: React.ElementType<DataChannelItemManagerWrit
       }
     }) as EventListener;
 
+  const replaceEntryHandler: EventListener = (
+    (event: HookEventWrapper<void>) => {
+      if (event.detail.hook === DataChannelHooks.DATA_CHANNEL_REPLACE) {
+        const eventDetails = event.detail as UpdatedEventDetails<ReplaceEntryFunctionArguments<object>>;
+        const hookArguments = eventDetails?.hookArguments as DataChannelArguments | undefined;
+        replaceEntryFunctionPluginDataChannel({
+          variables: {
+            pluginName: hookArguments?.pluginName,
+            channelName: hookArguments?.channelName,
+            subChannelName: hookArguments?.subChannelName,
+            entryId: eventDetails.data.entryId,
+            payloadJson: eventDetails.data.payloadJson,
+          },
+        });
+      }
+    }) as EventListener;
+
   useEffect(() => {
-    window.addEventListener(HookEvents.UPDATED, deleteOrResetHandler);
+    window.addEventListener(HookEvents.PLUGIN_SENT_CHANGES_TO_BBB_CORE, deleteOrResetHandler);
+    window.addEventListener(HookEvents.PLUGIN_SENT_CHANGES_TO_BBB_CORE, replaceEntryHandler);
     return () => {
-      window.removeEventListener(HookEvents.UPDATED, deleteOrResetHandler);
+      window.removeEventListener(HookEvents.PLUGIN_SENT_CHANGES_TO_BBB_CORE, deleteOrResetHandler);
+      window.removeEventListener(HookEvents.PLUGIN_SENT_CHANGES_TO_BBB_CORE, replaceEntryHandler);
     };
   }, []);
   return null;

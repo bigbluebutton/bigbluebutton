@@ -4,10 +4,12 @@ import {
 } from 'recharts';
 import caseInsensitiveReducer from '/imports/utils/caseInsensitiveReducer';
 import { defineMessages, useIntl } from 'react-intl';
+import deviceInfo from '/imports/utils/deviceInfo';
 import Styled from './styles';
 
 interface ChatPollContentProps {
   metadata: string;
+  height?: number;
 }
 
 interface Metadata {
@@ -75,6 +77,7 @@ function assertAsMetadata(metadata: unknown): asserts metadata is Metadata {
 
 const ChatPollContent: React.FC<ChatPollContentProps> = ({
   metadata: string,
+  height = undefined,
 }) => {
   const intl = useIntl();
 
@@ -92,23 +95,27 @@ const ChatPollContent: React.FC<ChatPollContentProps> = ({
     };
   });
 
-  const height = translatedAnswers.length * 50;
+  const useHeight = height || translatedAnswers.length * 50;
+  const useWidth = deviceInfo.isPortrait() ? '100%' : '130%';
   return (
-    <div data-test="chatPollMessageText">
+    <Styled.PollWrapper data-test="chatPollMessageText">
       <Styled.PollText>
         {pollData.questionText}
       </Styled.PollText>
-      <ResponsiveContainer width="90%" height={height}>
+      <ResponsiveContainer width={useWidth} height={useHeight}>
         <BarChart
           data={translatedAnswers}
           layout="vertical"
         >
-          <XAxis type="number" />
+          <XAxis
+            type="number"
+            allowDecimals={false}
+          />
           <YAxis width={80} type="category" dataKey="pollAnswer" />
           <Bar dataKey="numVotes" fill="#0C57A7" />
         </BarChart>
       </ResponsiveContainer>
-    </div>
+    </Styled.PollWrapper>
   );
 };
 

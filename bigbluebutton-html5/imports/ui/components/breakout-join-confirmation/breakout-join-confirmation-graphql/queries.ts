@@ -6,6 +6,8 @@ export interface BreakoutRoom {
   sendInvitationToModerators: boolean;
   sequence: number;
   showInvitation: boolean;
+  isLastAssignedRoom: boolean;
+  isUserCurrentlyInRoom: boolean;
   joinURL: string | null;
   breakoutRoomId: string;
 }
@@ -24,11 +26,9 @@ export interface GetBreakoutCountResponse {
   breakoutRoom_aggregate: BreakoutRoomAggregate;
 }
 
-export const handleinviteDismissedAt = gql`
+export const handleInviteDismissedAt = gql`
   mutation {
-    update_breakoutRoom_user(where: {}, _set: {inviteDismissedAt: "now()"}) {
-      affected_rows
-    }
+    breakoutRoomSetInviteDismissed
   }
 `;
 
@@ -50,6 +50,8 @@ export const getBreakoutData = gql`
       sendInvitationToModerators
       sequence
       showInvitation
+      isLastAssignedRoom
+      isUserCurrentlyInRoom
       joinURL
       breakoutRoomId
     }

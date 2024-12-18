@@ -7,7 +7,7 @@ import ModalSimple from '/imports/ui/components/common/modal/simple/component';
 import Styled from './styles';
 import StyledSettings from '../settings/styles';
 import withShortcutHelper from './service';
-import { isChatEnabled } from '/imports/ui/services/features';
+import { useIsChatEnabled } from '/imports/ui/services/features';
 import { uniqueId } from '/imports/utils/string-utils';
 
 const intlMessages = defineMessages({
@@ -246,6 +246,10 @@ const intlMessages = defineMessages({
   duplicate: {
     id: 'app.shortcut-help.duplicate',
     description: 'describes the duplicate shortcut key',
+  },
+  pushToTalkDesc: {
+    id: 'app.shortcut-help.pushToTalk',
+    description: 'describes the push-to-talk shortcut',
   }
 });
 
@@ -269,15 +273,17 @@ const renderItemWhiteBoard = (func, key, alt) => {
   );
 }
 
-const ShortcutHelpComponent = (props) => {
-  const { intl, shortcuts,
-    isOpen,
-    onRequestClose,
-    priority,
-  } = props;
+const ShortcutHelpComponent = ({
+  intl = {},
+  shortcuts,
+  isOpen,
+  onRequestClose,
+  priority,
+}) => {
   const { browserName } = browserInfo;
   const { isIos, isMacos } = deviceInfo;
   const [ selectedTab, setSelectedTab] = React.useState(0);
+  const isChatEnabled = useIsChatEnabled();
 
   let accessMod = null;
 
@@ -306,12 +312,18 @@ const ShortcutHelpComponent = (props) => {
   }
 
   const generalShortcutItems = shortcuts.map((shortcut) => {
-    if (!isChatEnabled() && shortcut.descId.indexOf('Chat') !== -1) return null;
+    if (!isChatEnabled && shortcut.descId.indexOf('Chat') !== -1) return null;
     return renderItem(
       `${intl.formatMessage(intlMessages[`${shortcut.descId.toLowerCase()}`])}`,
       `${accessMod} + ${shortcut.accesskey}`
     );
   });
+
+  const ptt = renderItem(
+    `${intl.formatMessage(intlMessages.pushToTalkDesc)}`,
+    `M`
+  );
+  generalShortcutItems.splice(3, 0, ptt);
 
   const shortcutItems = [];
   shortcutItems.push(renderItem(intl.formatMessage(intlMessages.togglePan),
@@ -442,10 +454,6 @@ const ShortcutHelpComponent = (props) => {
       </Styled.SettingsTabs>
     </ModalSimple>
   );
-};
-
-ShortcutHelpComponent.defaultProps = {
-  intl: {},
 };
 
 ShortcutHelpComponent.propTypes = {

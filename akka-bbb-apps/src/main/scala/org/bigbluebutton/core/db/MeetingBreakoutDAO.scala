@@ -4,9 +4,6 @@ import org.bigbluebutton.common2.domain.{ BreakoutProps }
 import slick.lifted.ProvenShape
 import PostgresProfile.api._
 
-import scala.concurrent.ExecutionContext.Implicits.global
-import scala.util.{ Failure, Success, Try }
-
 case class MeetingBreakoutDbModel(
     meetingId:             String,
     parentId:              String,
@@ -41,7 +38,7 @@ class MeetingBreakoutDbTableDef(tag: Tag) extends Table[MeetingBreakoutDbModel](
 
 object MeetingBreakoutDAO {
   def insert(meetingId: String, breakoutProps: BreakoutProps) = {
-    DatabaseConnection.db.run(
+    DatabaseConnection.enqueue(
       TableQuery[MeetingBreakoutDbTableDef].forceInsert(
         MeetingBreakoutDbModel(
           meetingId = meetingId,
@@ -58,11 +55,6 @@ object MeetingBreakoutDAO {
           captureSlidesFilename = breakoutProps.captureSlidesFilename
         )
       )
-    ).onComplete {
-        case Success(rowsAffected) => {
-          DatabaseConnection.logger.debug(s"$rowsAffected row(s) inserted in MeetingBreakout table!")
-        }
-        case Failure(e) => DatabaseConnection.logger.error(s"Error inserting MeetingBreakout: $e")
-      }
+    )
   }
 }

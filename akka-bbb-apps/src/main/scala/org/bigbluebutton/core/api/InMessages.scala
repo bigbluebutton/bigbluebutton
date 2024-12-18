@@ -26,16 +26,7 @@ case class MonitorNumberOfUsersInternalMsg(meetingID: String) extends InMessage
  * Audit message sent to meeting to trigger updating clients of meeting time remaining.
  * @param meetingId
  */
-case class SendTimeRemainingAuditInternalMsg(meetingId: String, timeUpdatedInMinutes: Int) extends InMessage
-
-/**
- * Parent message sent to breakout rooms to trigger updating clients of meeting time remaining.
- * @param meetingId
- * @param timeLeftInSec
- */
-case class SendBreakoutTimeRemainingInternalMsg(meetingId: String, timeLeftInSec: Long, timeUpdatedInMinutes: Int) extends InMessage
-
-case class SendRecordingTimerInternalMsg(meetingId: String) extends InMessage
+case class MonitorGuestWaitPresenceInternalMsg(meetingId: String) extends InMessage
 
 case class ExtendMeetingDuration(meetingId: String, userId: String) extends InMessage
 case class DestroyMeetingInternalMsg(meetingId: String) extends InMessage
@@ -133,12 +124,15 @@ case class UserClosedAllGraphqlConnectionsInternalMsg(userId: String) extends In
  */
 case class UserEstablishedGraphqlConnectionInternalMsg(userId: String) extends InMessage
 
-// DeskShare
-case class DeskShareStartedRequest(conferenceName: String, callerId: String, callerIdName: String) extends InMessage
-case class DeskShareStoppedRequest(conferenceName: String, callerId: String, callerIdName: String) extends InMessage
-case class DeskShareRTMPBroadcastStartedRequest(conferenceName: String, streamname: String, videoWidth: Int, videoHeight: Int, timestamp: String) extends InMessage
-case class DeskShareRTMPBroadcastStoppedRequest(conferenceName: String, streamname: String, videoWidth: Int, videoHeight: Int, timestamp: String) extends InMessage
-case class DeskShareGetDeskShareInfoRequest(conferenceName: String, requesterID: String, replyTo: String) extends InMessage
+/**
+ * API endpoint /userInfo to provide User Session Variables messages
+ */
+case class GetUserApiMsg(sessionToken: String)
+case class UserInfosApiMsg(infos: Map[String, Any])
+
+trait ApiResponse
+case class ApiResponseSuccess(msg: String, any: Any = null) extends ApiResponse
+case class ApiResponseFailure(msg: String, msgId: String, any: Any = null) extends ApiResponse
 
 // gRPC messages
 case class IsMeetingRunning(meetingId: String) extends InMessage

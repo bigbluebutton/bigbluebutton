@@ -1,10 +1,24 @@
 import React from 'react';
-import { withTracker } from 'meteor/react-meteor-data';
-import Service from '/imports/ui/components/audio/service';
+import LocalEchoService from '/imports/ui/components/audio/local-echo/service';
 import LocalEcho from '/imports/ui/components/audio/local-echo/component';
 
-const LocalEchoContainer = (props) => <LocalEcho {...props} />;
+const LocalEchoContainer = (props) => {
+  const {
+    initialHearingState: settingsHearingState,
+  } = window.meetingClientSettings.public.media.localEchoTest;
+  const initialHearingState = settingsHearingState;
 
-export default withTracker(() => ({
-  initialHearingState: Service.localEchoInitHearingState,
-}))(LocalEchoContainer);
+  return (
+    <LocalEcho
+      {...props}
+      initialHearingState={initialHearingState}
+      playEchoStream={LocalEchoService.playEchoStream}
+      deattachEchoStream={LocalEchoService.deattachEchoStream}
+      shouldUseRTCLoopback={LocalEchoService.shouldUseRTCLoopback}
+      createAudioRTCLoopback={LocalEchoService.createAudioRTCLoopback}
+      setAudioSink={LocalEchoService.setAudioSink}
+    />
+  );
+};
+
+export default LocalEchoContainer;

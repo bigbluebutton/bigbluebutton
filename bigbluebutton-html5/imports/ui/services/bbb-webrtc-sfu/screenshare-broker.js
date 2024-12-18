@@ -41,6 +41,8 @@ class ScreenshareBroker extends BaseBroker {
     // traceLogs
     // networkPriority
     // gatheringTimeout
+    // restartIce
+    // restartIceMaxRetries
     Object.assign(this, options);
   }
 
@@ -96,6 +98,9 @@ class ScreenshareBroker extends BaseBroker {
         break;
       case 'iceCandidate':
         this.handleIceCandidate(parsedMessage.candidate);
+        break;
+      case 'restartIceResponse':
+        this.handleRestartIceResponse(parsedMessage);
         break;
       case 'error':
         this.handleSFUError(parsedMessage);

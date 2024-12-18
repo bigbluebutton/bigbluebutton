@@ -7,5 +7,6 @@
     <apiVersion>${apiVersion}</apiVersion>
     <bbbVersion>${bbbVersion}</bbbVersion>
     <graphqlWebsocketUrl>${graphqlWebsocketUrl}</graphqlWebsocketUrl>
+    <graphqlApiUrl>${graphqlApiUrl}</graphqlApiUrl>
 </response>
 </#compress>

@@ -24,7 +24,6 @@ class OldMeetingMsgHdlrActor(val olgMsgGW: OldMessageReceivedGW)
       case m: MeetingEndedEvtMsg                => handleMeetingEndedEvtMsg(m)
       case m: MeetingDestroyedEvtMsg            => handleMeetingDestroyedEvtMsg(m)
       case m: CheckAlivePongSysMsg              => handleCheckAlivePongSysMsg(m)
-      case m: UserEmojiChangedEvtMsg            => handleUserEmojiChangedEvtMsg(m)
       case m: PresenterUnassignedEvtMsg         => handlePresenterUnassignedEvtMsg(m)
       case m: PresenterAssignedEvtMsg           => handlePresenterAssignedEvtMsg(m)
       case m: UserJoinedMeetingEvtMsg           => handleUserJoinedMeetingEvtMsg(m)
@@ -128,6 +127,7 @@ class OldMeetingMsgHdlrActor(val olgMsgGW: OldMessageReceivedGW)
       msg.body.room.captureSlides,
       msg.body.room.captureNotesFilename,
       msg.body.room.captureSlidesFilename,
+      msg.body.room.pluginProp,
     ))
     
   }
@@ -143,8 +143,8 @@ class OldMeetingMsgHdlrActor(val olgMsgGW: OldMessageReceivedGW)
 
   def handleUserJoinedMeetingEvtMsg(msg: UserJoinedMeetingEvtMsg): Unit = {
     olgMsgGW.handle(new UserJoined(msg.header.meetingId, msg.body.intId,
-      msg.body.extId, msg.body.name, msg.body.role, msg.body.locked, msg.body.avatar,
-      msg.body.guest, msg.body.guestStatus, msg.body.clientType))
+      msg.body.extId, msg.body.name, msg.body.role, msg.body.locked, msg.body.avatar, msg.body.webcamBackground,
+      msg.body.bot, msg.body.guest, msg.body.guestStatus, msg.body.clientType))
   }
 
   def handlePresenterUnassignedEvtMsg(msg: PresenterUnassignedEvtMsg): Unit = {
@@ -153,10 +153,6 @@ class OldMeetingMsgHdlrActor(val olgMsgGW: OldMessageReceivedGW)
 
   def handlePresenterAssignedEvtMsg(msg: PresenterAssignedEvtMsg): Unit = {
     olgMsgGW.handle(new UserStatusChanged(msg.header.meetingId, msg.body.presenterId, "presenter", "true"))
-  }
-
-  def handleUserEmojiChangedEvtMsg(msg: UserEmojiChangedEvtMsg): Unit = {
-    //listener.handle(new UserStatusChanged(meetingId, userid, status, value))
   }
 
   def handleUserLeftMeetingEvtMsg(msg: UserLeftMeetingEvtMsg): Unit = {

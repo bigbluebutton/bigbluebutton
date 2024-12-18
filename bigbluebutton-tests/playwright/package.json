@@ -10,13 +10,13 @@
     "rewrite-snapshots": "read -p 'CAUTION: You will delete ALL testing folders containing snapshots and run the tests to rewrite these files.\nProceed? (y/n) ' confirm && test $confirm = 'y' && sh core/scripts/rewrite-snapshots.sh"
   },
   "dependencies": {
-    "@playwright/test": "^1.37.1",
-    "axios": "^1.6.0",
+    "@playwright/test": "^1.45.1",
+    "axios": "^1.7.8",
     "chalk": "^4.1.2",
-    "deep-equal": "^2.2.1",
-    "dotenv": "^16.1.4",
-    "playwright": "^1.37.1",
+    "deep-equal": "^2.2.3",
+    "dotenv": "^16.4.5",
+    "playwright": "^1.45.1",
     "sha.js": "^2.4.11",
-    "xml2js": "^0.6.0"
+    "xml2js": "^0.6.2"
   }
 }

@@ -25,9 +25,10 @@ export const GET_CHAT_DATA = gql`
 `;
 
 export const CLOSE_PRIVATE_CHAT_MUTATION = gql`
-  mutation UpdateChatUser($chatId: String) {
-    update_chat_user(where: { chatId: { _eq: $chatId } }, _set: { visible: false }) {
-      affected_rows
-    }
+  mutation UpdateChatVisible($chatId: String, $visible: Boolean) {
+    chatSetVisible(
+      chatId: $chatId
+      visible: $visible
+    )
   }
 `;

@@ -22,6 +22,8 @@ import {
   colorOffWhite,
 } from '/imports/ui/stylesheets/styled-components/palette';
 
+import Icon from '/imports/ui/components/common/icon/icon-ts/component';
+
 interface AvatarProps {
     moderator?: boolean;
     presenter?: boolean;
@@ -50,8 +52,6 @@ const UserItemContents = styled.div<UserItemContentsProps>`
   position: static;
   padding: .45rem;
   width: 100%;
-  margin-left: .5rem;
-
 
   ${({ selected }) => selected && `
     background-color: ${listItemBgHover};
@@ -82,7 +82,7 @@ const UserItemContents = styled.div<UserItemContentsProps>`
     &:first-child {
       margin-top: 0;
     }
-
+    &:focus,
     &:hover {
       outline: transparent;
       outline-style: dotted;
@@ -90,8 +90,7 @@ const UserItemContents = styled.div<UserItemContentsProps>`
       background-color: ${listItemBgHover};
     }
 
-    &:active,
-    &:focus {
+    &:active{
       outline: transparent;
       outline-width: ${borderSize};
       outline-style: solid;
@@ -133,6 +132,7 @@ const Avatar = styled.div<AvatarProps>`
   position: relative;
   height: 2.25rem;
   width: 2.25rem;
+  min-width: 2.25rem;
   border-radius: 50%;
   text-align: center;
   font-size: .85rem;
@@ -190,6 +190,7 @@ const Avatar = styled.div<AvatarProps>`
 
   ${({ moderator }) => moderator && `
     border-radius: 5px;
+    color: ${colorWhite} !important;
   `}
 
   ${({ presenter }) => presenter && `
@@ -311,6 +312,10 @@ const Avatar = styled.div<AvatarProps>`
   ${({ talking, animations, color }) => talking && animations && color && css`
     animation: ${pulse(color)} 1s infinite ease-in;
   `}
+
+  ${({ talking, animations }) => talking && !animations && `
+    box-shadow: 0 0 0 4px currentColor;
+  `}
   // ================ talking animation ================
   // ================ image ================
   ${({ avatar, emoji, color }) => avatar?.length !== 0 && !emoji && css`
@@ -322,7 +327,7 @@ const Avatar = styled.div<AvatarProps>`
   // ================ image ================
 
   // ================ content ================
-  color: ${colorWhite};
+  color: ${colorWhite} !important;
   font-size: 110%;
   text-transform: capitalize;
   display: flex;
@@ -338,6 +343,10 @@ const Avatar = styled.div<AvatarProps>`
 
 const Skeleton = styled.div`
  
+`;
+
+const UserAdditionalInformationIcon = styled(Icon)`
+  margin-right: ${smPaddingX};
 `;
 
 const pulse = (color: string) => keyframes`
@@ -360,6 +369,7 @@ const UserNameContainer = styled.div`
   margin: 0 0 0 ${smPaddingX};
   justify-content: center;
   font-size: 90%;
+  max-width: 70%;
 
   [dir="rtl"]  & {
     margin: 0 ${smPaddingX} 0 0;
@@ -413,6 +423,7 @@ export default {
   Skeleton,
   UserItemContents,
   UserNameContainer,
+  UserAdditionalInformationIcon,
   UserNameSub,
   UserName,
   IconRightContainer,

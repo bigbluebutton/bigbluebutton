@@ -5,10 +5,6 @@ import { escapeHtml } from '/imports/utils/string-utils';
 import { BREAKOUT_ROOM_SEND_MESSAGE_TO_ALL } from '../../mutations';
 import Styled from '../styles';
 
-const CHAT_CONFIG = window.meetingClientSettings.public.chat;
-const minMessageLength = CHAT_CONFIG.min_message_length;
-const maxMessageLength = CHAT_CONFIG.max_message_length;
-
 const intlMessages = defineMessages({
   submitLabel: {
     id: 'app.chat.submitLabel',
@@ -42,6 +38,10 @@ const intlMessages = defineMessages({
 
 const BreakoutMessageForm: React.FC = () => {
   const intl = useIntl();
+
+  const CHAT_CONFIG = window.meetingClientSettings.public.chat;
+  const minMessageLength = CHAT_CONFIG.min_message_length;
+  const maxMessageLength = CHAT_CONFIG.max_message_length;
 
   const [message, setMessage] = React.useState('');
   const [error, setError] = React.useState('');

@@ -15,12 +15,14 @@ export interface ExtensibleArea {
   actionsBarItems: PluginSdk.ActionsBarInterface[];
   presentationDropdownItems: PluginSdk.PresentationDropdownInterface[];
   navBarItems: PluginSdk.NavBarInterface[];
+  screenshareHelperItems: PluginSdk.ScreenshareHelperInterface[];
   optionsDropdownItems: PluginSdk.OptionsDropdownInterface[];
   cameraSettingsDropdownItems: PluginSdk.CameraSettingsDropdownInterface[];
   userCameraDropdownItems: PluginSdk.UserCameraDropdownInterface[];
+  userCameraHelperItems: PluginSdk.UserCameraHelperInterface[];
   userListItemAdditionalInformation: PluginSdk.UserListItemAdditionalInformationInterface[];
   floatingWindows: PluginSdk.FloatingWindowInterface[]
-  genericComponents: PluginSdk.GenericComponentInterface[]
+  genericContentItems: PluginSdk.GenericContentInterface[]
 }
 
 /**

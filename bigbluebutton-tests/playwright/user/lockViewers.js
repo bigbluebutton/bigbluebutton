@@ -14,26 +14,26 @@ class LockViewers extends MultiUsers {
 
   async lockShareWebcam() {
     await this.modPage.shareWebcam();
-    await this.modPage.hasElement(e.webcamVideoItem);
-    await this.userPage.hasElement(e.webcamVideoItem);
+    await this.modPage.hasElement(e.webcamVideoItem, 'should display the webcam video item for the moderator');
+    await this.userPage.hasElement(e.webcamVideoItem, 'should display the webcam video item for the attendee');
     await this.userPage.shareWebcam();
 
-    await this.modPage.hasNElements(e.webcamVideoItem, 2);
-    await this.userPage.hasNElements(e.webcamVideoItem, 2);
+    await this.modPage.hasNElements(e.webcamVideoItem, 2, 'should display two webcam video item for the moderator');
+    await this.userPage.hasNElements(e.webcamVideoItem, 2, 'should display two webcam video item for the attendee');
     await openLockViewers(this.modPage);
     await this.modPage.waitAndClickElement(e.lockShareWebcam);
     await this.modPage.waitAndClick(e.applyLockSettings);
     await waitAndClearNotification(this.modPage);
-    await this.userPage.checkElementCount(e.webcamContainer, 1);
+    await this.userPage.checkElementCount(e.webcamContainer, 1, 'should display one webcam container for the attendee');
     
     await this.initUserPage2(true);
-    await this.userPage2.hasElementDisabled(e.joinVideo);
+    await this.userPage2.hasElementDisabled(e.joinVideo, 'should the join video button to be disabled for the second attendee');
     await this.modPage.waitAndClick(`${e.userListItem}>>nth=1`);
     await this.modPage.waitAndClick(`${e.unlockUserButton}>>nth=1`);
     await this.userPage2.waitAndClick(e.joinVideo);
     await this.userPage2.waitAndClick(e.startSharingWebcam);
-    await this.modPage.checkElementCount(e.webcamContainer, 2);
-    await this.userPage.hasElementDisabled(e.joinVideo);
+    await this.modPage.checkElementCount(e.webcamContainer, 1, 'should display 1 webcams container for the moderator');
+    await this.userPage.hasElementDisabled(e.joinVideo, 'should the join video button to be disabled');
   }
 
   async lockSeeOtherViewersWebcams() {
@@ -48,7 +48,7 @@ class LockViewers extends MultiUsers {
       await this.modPage.getSelectorCount(e.webcamVideoItem),
       await this.userPage.getSelectorCount(e.webcamVideoItem),
     ];
-    await expect(videoContainersCount).toStrictEqual([2, 2]);
+    await expect(videoContainersCount, 'should the videos containter count to be stricted equal to 2 for the moderator and the attendee').toStrictEqual([2, 2]);
 
     await this.initUserPage2(true);
 
@@ -57,9 +57,9 @@ class LockViewers extends MultiUsers {
     await this.modPage.waitAndClick(`${e.userListItem}>>nth=1`);
     await this.modPage.waitAndClick(`${e.unlockUserButton}>>nth=1`);
 
-    await this.modPage.checkElementCount(e.webcamContainer, 3);
-    await this.userPage.checkElementCount(e.webcamContainer, 2);
-    await this.userPage2.checkElementCount(e.webcamContainer, 3);
+    await this.modPage.checkElementCount(e.webcamContainer, 2, 'should display 2 webcams container for the moderator');
+    await this.userPage.checkElementCount(e.webcamContainer, 1, 'should display 1 webcams container for the first attendee');
+    await this.userPage2.checkElementCount(e.webcamContainer, 2, 'should display 2 webcam container for the second attendee');
   }
 
   async lockShareMicrophone() {
@@ -68,10 +68,10 @@ class LockViewers extends MultiUsers {
     await openLockViewers(this.modPage);
     await this.modPage.waitAndClickElement(e.lockShareMicrophone);
     await this.modPage.waitAndClick(e.applyLockSettings);
-    await this.userPage.wasRemoved(e.isTalking);
+    await this.userPage.wasRemoved(e.isTalking, 'should not display the is talking element for the first attendee');
     await this.userPage.waitForSelector(e.unmuteMicButton);
     await this.initUserPage2(false);
-    await this.userPage2.hasElement(e.leaveListenOnly, ELEMENT_WAIT_LONGER_TIME);
+    await this.userPage2.hasElement(e.leaveListenOnly, 'should display the leave listen only button for the second attendee', ELEMENT_WAIT_LONGER_TIME);
 
     
     await this.modPage.waitAndClick(`${e.userListItem}>>nth=1`);
@@ -79,28 +79,28 @@ class LockViewers extends MultiUsers {
     await this.userPage2.waitAndClick(e.leaveListenOnly);
     await this.userPage2.waitAndClick(e.joinAudio);
     await this.userPage2.joinMicrophone();
-    await this.userPage2.hasElement(e.isTalking);
+    await this.userPage2.hasElement(e.isTalking, 'should display the is talking element for the second attendee');
   }
 
   async lockSendPublicChatMessages() {
     await openLockViewers(this.modPage);
     await this.modPage.waitAndClickElement(e.lockPublicChat);
     await this.modPage.waitAndClick(e.applyLockSettings);
-    await this.userPage.hasElementDisabled(e.chatBox);
-    await this.userPage.hasElementDisabled(e.sendButton);
+    await this.userPage.hasElementDisabled(e.chatBox, 'should have the public chat disabled for the first attendee');
+    await this.userPage.hasElementDisabled(e.sendButton, 'should have the send button on the public chat disabled for the first attendee');
     await this.initUserPage2(true);
-    await this.userPage2.hasElementDisabled(e.chatBox);
-    await this.userPage2.hasElementDisabled(e.sendButton);
+    await this.userPage2.hasElementDisabled(e.chatBox, 'should have the public chat disabled for the second attendee');
+    await this.userPage2.hasElementDisabled(e.sendButton, 'should have the send button on the public chat disabled for the second attendee');
     await this.modPage.type(e.chatBox, e.message);
     await this.modPage.waitAndClick(e.sendButton);
     await this.modPage.waitAndClick(`${e.userListItem}>>nth=1`);
     await this.modPage.waitAndClick(`${e.unlockUserButton}>>nth=1`);
-    await this.userPage2.hasElementEnabled(e.chatBox, ELEMENT_WAIT_LONGER_TIME);
+    await this.userPage2.hasElementEnabled(e.chatBox, 'should have the public chat enabled for the second attendee', ELEMENT_WAIT_LONGER_TIME);
     await this.userPage2.type(e.chatBox, e.message);
-    await this.modPage.hasElement(e.typingIndicator);
+    await this.modPage.hasElement(e.typingIndicator, 'should display the typing indicator element for the moderator');
     await this.userPage2.waitAndClick(e.sendButton);
     await this.userPage.waitForSelector(e.chatUserMessageText);
-    await this.userPage.checkElementCount(e.chatUserMessageText, 2);
+    await this.userPage.checkElementCount(e.chatUserMessageText, 2, 'should display two user messages on the public chat for the first attendee');
   }
 
   async lockSendPrivateChatMessages() {
@@ -117,15 +117,15 @@ class LockViewers extends MultiUsers {
 
     await this.userPage.getLocator(e.userListItem).filter({ hasText: this.userPage2.username }).click();
     await this.userPage.waitAndClick(`${e.startPrivateChat} >> visible=true`);
-    await this.userPage.hasElementEnabled(e.chatBox);
-    await this.userPage.hasElementEnabled(e.sendButton);
+    await this.userPage.hasElementEnabled(e.chatBox, 'should have the private chat enabled for the first attendee');
+    await this.userPage.hasElementEnabled(e.sendButton, 'should have the send button on the private chat enabled for the first attendee');
     await this.userPage.type(e.chatBox, 'Test');
     await this.userPage.waitAndClick(e.sendButton);
 
     await this.userPage2.getLocator(e.chatButton).filter({ hasText: this.userPage.username }).click();
     await this.userPage2.waitForSelector(e.closePrivateChat);
-    await this.userPage2.hasElementDisabled(e.chatBox);
-    await this.userPage2.hasElementDisabled(e.sendButton);
+    await this.userPage2.hasElementDisabled(e.chatBox, 'should have the private chat disabled for the second attendee');
+    await this.userPage2.hasElementDisabled(e.sendButton, 'should have the send button on the private chat disabled for the second attendee');
   }
 
   async lockEditSharedNotes() {
@@ -133,7 +133,7 @@ class LockViewers extends MultiUsers {
     await this.userPage.waitForSelector(e.hideNotesLabel);
     const sharedNotesLocator = getNotesLocator(this.userPage);
     await sharedNotesLocator.type(e.message, { timeout: ELEMENT_WAIT_LONGER_TIME });
-    await expect(sharedNotesLocator).toContainText(e.message, { timeout: ELEMENT_WAIT_TIME });
+    await expect(sharedNotesLocator, 'should the shared notes contain the text "Hello World!" for the first attende').toContainText(e.message, { timeout: ELEMENT_WAIT_TIME });
 
     await openLockViewers(this.modPage);
     await this.modPage.waitAndClickElement(e.lockEditSharedNotes);
@@ -141,10 +141,10 @@ class LockViewers extends MultiUsers {
 
     await this.initUserPage2(true);
     await this.userPage2.waitAndClick(e.sharedNotes);
-    await this.userPage2.wasRemoved(e.etherpadFrame);
+    await this.userPage2.wasRemoved(e.etherpadFrame, 'should not display the etherpad frame for the second attendee');
 
     await this.userPage.waitAndClick(e.sharedNotes);
-    await this.userPage.wasRemoved(e.etherpadFrame);
+    await this.userPage.wasRemoved(e.etherpadFrame, 'should not display the etherpad frame for the first attendee');
 
     await this.modPage.waitAndClick(`${e.userListItem}>>nth=1`);
     await this.modPage.waitAndClick(`${e.unlockUserButton}>>nth=1`);
@@ -155,13 +155,13 @@ class LockViewers extends MultiUsers {
     await this.modPage.waitAndClickElement(e.lockUserList);
     await this.modPage.waitAndClick(e.applyLockSettings);
     await this.initUserPage2(true);
-    await this.userPage2.checkElementCount(e.userListItem, 1);
+    await this.userPage2.checkElementCount(e.userListItem, 1, 'should contain one user on the user list for the second attendee');
     await sleep(1000);
-    await expect(await this.userPage.getLocator(e.userListItem).count()).toBe(1);
+    await expect(await this.userPage.getLocator(e.userListItem).count(), 'should contain one user on the user list for the first attendee').toBe(1);
 
     await this.modPage.waitAndClick(`${e.userListItem}>>nth=1`);
     await this.modPage.waitAndClick(`${e.unlockUserButton}>>nth=1`);
-    await this.userPage2.checkElementCount(e.userListItem, 2);
+    await this.userPage2.checkElementCount(e.userListItem, 2, 'should contain two users on the user list for the second attendee');
   }
 
   async lockSeeOtherViewersAnnotations() {
@@ -200,16 +200,16 @@ class LockViewers extends MultiUsers {
     await this.modPage.waitAndClickElement(e.hideViewersCursor);
     await this.modPage.waitAndClick(e.applyLockSettings);
 
-    await this.modPage.checkElementCount(e.whiteboardCursorIndicator, 1);
+    await this.modPage.checkElementCount(e.whiteboardCursorIndicator, 1, 'should contain one whiteboard cursor indicator for the moderator');
 
     await this.initUserPage2(true);
-    await this.userPage2.checkElementCount(e.whiteboardCursorIndicator, 0);
+    await this.userPage2.checkElementCount(e.whiteboardCursorIndicator, 0, 'should contain zero whiteboard cursor indicator for the second attendee');
 
     await this.modPage.waitAndClick(`${e.userListItem}>>nth=1`);
     await this.modPage.waitAndClick(`${e.unlockUserButton}>>nth=1`);
 
     await drawArrow(this.userPage);
-    await this.userPage2.checkElementCount(e.whiteboardCursorIndicator, 1);
+    await this.userPage2.checkElementCount(e.whiteboardCursorIndicator, 1, 'should contain one whiteboard cursor indicator for the second attendee');
   }
 }
 

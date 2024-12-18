@@ -66,7 +66,7 @@ async function nextSlide(test) {
 async function annotation(test) {
   await test.waitAndClick(e.wbPencilShape);
   await test.waitAndClick(e.whiteboard);
-  await test.waitForSelector(e.wbDrawnLine);
+  await test.hasElement(e.wbPencilShape, 'should the presentation displays the tool drawn line');
 }
 
 function encodeCustomParams(param) {

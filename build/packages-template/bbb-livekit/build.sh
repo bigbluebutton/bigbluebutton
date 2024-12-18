@@ -2,8 +2,9 @@
 
 TARGET=`basename $(pwd)`
 
-SERVER_VERSION=1.5.1
-CLI_VERSION=1.3.0
+SERVER_VERSION=1.7.2
+CLI_VERSION=2.2.0
+SIP_VERSION=0.8.0
 
 PACKAGE=$(echo $TARGET | cut -d'_' -f1)
 VERSION=$(echo $TARGET | cut -d'_' -f2)
@@ -24,15 +25,29 @@ mkdir -p $DESTDIR/usr/share/bigbluebutton/nginx
 cp livekit.nginx $DESTDIR/usr/share/bigbluebutton/nginx
 
 mkdir -p $DESTDIR/lib/systemd/system/
-cp livekit-server.service $DESTDIR/lib/systemd/system
+cp livekit-server.service livekit-sip.service $DESTDIR/lib/systemd/system
 
 mkdir -p $DESTDIR/usr/share/livekit-server
-cp livekit.yaml $DESTDIR/usr/share/livekit-server
+cp livekit.yaml livekit-sip.yaml $DESTDIR/usr/share/livekit-server
 
 mkdir -p $DESTDIR/usr/bin
 
 curl https://github.com/livekit/livekit/releases/download/v${SERVER_VERSION}/livekit_${SERVER_VERSION}_linux_amd64.tar.gz  -Lo - | tar -C $DESTDIR/usr/bin -xzf - livekit-server
-curl https://github.com/livekit/livekit-cli/releases/download/v${CLI_VERSION}/livekit-cli_${CLI_VERSION}_linux_amd64.tar.gz -Lo - | tar -C $DESTDIR/usr/bin -xzf - livekit-cli
+curl https://github.com/livekit/livekit-cli/releases/download/v${CLI_VERSION}/lk_${CLI_VERSION}_linux_amd64.tar.gz -Lo - | tar -C $DESTDIR/usr/bin -xzf - lk
+
+apt update && apt install -y pkg-config libopus-dev libopusfile-dev libsoxr-dev
+
+buildbase=$(mktemp -d)
+curl https://github.com/livekit/sip/archive/refs/tags/v${SIP_VERSION}.tar.gz -Lo - | tar -xzf - -C $buildbase
+pushd $buildbase/sip-${SIP_VERSION}
+
+if [ "$TARGETPLATFORM" = "linux/arm64" ]; then GOARCH=arm64; else GOARCH=amd64; fi && \
+    CGO_ENABLED=1 GOOS=linux GOARCH=${GOARCH} GO111MODULE=on go build -a -o livekit-sip ./cmd/livekit-sip
+
+cp livekit-sip $DESTDIR/usr/bin
+
+popd
+rm -rf $buildbase
 
 fpm -s dir -C $DESTDIR -n $PACKAGE \
     --version $VERSION --epoch 2 \

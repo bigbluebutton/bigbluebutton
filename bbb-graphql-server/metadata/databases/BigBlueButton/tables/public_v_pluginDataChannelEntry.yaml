@@ -7,11 +7,11 @@ configuration:
   custom_name: pluginDataChannelEntry
   custom_root_fields: {}
 object_relationships:
-  - name: sender
+  - name: creator
     using:
       manual_configuration:
         column_mapping:
-          fromUserId: userId
+          createdBy: userId
           meetingId: meetingId
         insertion_order: null
         remote_table:
@@ -27,7 +27,7 @@ select_permissions:
         - channelName
         - entryId
         - payloadJson
-        - fromUserId
+        - createdBy
         - toRoles
       filter:
         _and:

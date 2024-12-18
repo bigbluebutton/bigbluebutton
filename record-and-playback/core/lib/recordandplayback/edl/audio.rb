@@ -145,9 +145,9 @@ module BigBlueButton
               ffmpeg_filter << "#{FFMPEG_AEVALSRC},#{FFMPEG_AFORMAT}"
             end
 
-            ffmpeg_filter << ",atempo=#{speed},atrim=start=#{ms_to_s(audio[:timestamp])}" if speed != 1
+            ffmpeg_filter << ',asetpts=N'
 
-            ffmpeg_filter << ",asetpts=N"
+            ffmpeg_filter << ",atempo=#{speed},atrim=start=#{ms_to_s(audio[:timestamp])}" if speed != 1
           else
             BigBlueButton.logger.info "  Generating silence"
 

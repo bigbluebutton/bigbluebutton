@@ -5,12 +5,11 @@ import org.bigbluebutton.core.domain.MeetingState2x
 import org.bigbluebutton.core.running.{ LiveMeeting, OutMsgRouter }
 import org.bigbluebutton.core2.MeetingStatus2x
 import org.bigbluebutton.core.util.TimeUtil
-import org.bigbluebutton.core.bus.BigBlueButtonEvent
-import org.bigbluebutton.core.api.SendRecordingTimerInternalMsg
 import org.bigbluebutton.core.apps.{ PermissionCheck, RightsManagementTrait }
 import org.bigbluebutton.core2.message.senders.MsgBuilder
 import org.bigbluebutton.core.apps.voice.VoiceApp
 import org.bigbluebutton.core.db.{ MeetingRecordingDAO, NotificationDAO }
+import org.bigbluebutton.core.models.{ Users2x }
 
 trait SetRecordingStatusCmdMsgHdlr extends RightsManagementTrait {
   this: UsersApp =>
@@ -31,9 +30,19 @@ trait SetRecordingStatusCmdMsgHdlr extends RightsManagementTrait {
       BbbCommonEnvCoreMsg(envelope, event)
     }
 
-    if (permissionFailed(PermissionCheck.MOD_LEVEL, PermissionCheck.VIEWER_LEVEL, liveMeeting.users2x, msg.header.userId)) {
+    // Retrieve custom record permission from metadata
+    val customRecordPermission: Option[Boolean] = Users2x.findWithIntId(liveMeeting.users2x, msg.header.userId).flatMap { user =>
+      user.userMetadata.get("bbb_record_permission").map(_.toBoolean)
+    }
+
+    // Determine final permission using metadata or fallback
+    val hasPermission: Boolean = customRecordPermission.getOrElse {
+      !permissionFailed(PermissionCheck.MOD_LEVEL, PermissionCheck.VIEWER_LEVEL, liveMeeting.users2x, msg.header.userId)
+    }
+
+    if (!hasPermission) {
       val meetingId = liveMeeting.props.meetingProp.intId
-      val reason = "No permission to clear chat in meeting."
+      val reason = "No permission to set recording status in meeting."
       PermissionCheck.ejectUserForFailedPermission(meetingId, msg.header.userId, reason, outGW, liveMeeting)
       state
     } else {
@@ -101,7 +110,7 @@ trait SetRecordingStatusCmdMsgHdlr extends RightsManagementTrait {
           val tracker = state.recordingTracker.pauseTimer(TimeUtil.timeNowInMs())
           newState = state.update(tracker)
         }
-        eventBus.publish(BigBlueButtonEvent(liveMeeting.props.meetingProp.intId, SendRecordingTimerInternalMsg(liveMeeting.props.meetingProp.intId)))
+
         newState
       } else {
         state

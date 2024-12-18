@@ -21,6 +21,10 @@ const intlMessages = defineMessages({
     id: 'app.chat.notAway',
     description: 'message when user is no longer away',
   },
+  deleteMessage: {
+    id: 'app.chat.deleteMessage',
+    description: '',
+  },
 });
 
 export const htmlDecode = (input: string) => {
@@ -34,8 +38,10 @@ export const generateExportedMessages = (
   intl: IntlShape,
 ): string => {
   const welcomeMessage = htmlDecode(welcomeSettings.welcomeMsg);
-  const modOnlyMessage = welcomeSettings.welcomeMsgForModerators && htmlDecode(welcomeSettings.welcomeMsgForModerators);
-  const systemMessages = `${welcomeMessage ? `system: ${welcomeMessage}` : ''}\n ${modOnlyMessage ? `system: ${modOnlyMessage}` : ''}\n`;
+  const welcomeMsgForModerators = welcomeSettings.welcomeMsgForModerators
+      && htmlDecode(welcomeSettings.welcomeMsgForModerators);
+  const systemMessages = `${welcomeMessage ? `system: ${welcomeMessage}` : ''}\n 
+  ${welcomeMsgForModerators ? `system: ${welcomeMsgForModerators}` : ''}\n`;
 
   const text = messages.reduce((acc, message) => {
     const date = new Date(message.createdAt);
@@ -68,7 +74,9 @@ export const generateExportedMessages = (
       }
       case ChatMessageType.TEXT:
       default:
-        messageText = htmlDecode(message.message);
+        messageText = message.message
+          ? htmlDecode(message.message)
+          : intl.formatMessage(intlMessages.deleteMessage, { 0: message.deletedBy?.name });
         break;
     }
     return `${acc}${hourMin} ${userName}${messageText}\n`;

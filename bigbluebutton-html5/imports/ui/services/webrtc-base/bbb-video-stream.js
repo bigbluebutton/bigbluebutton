@@ -44,6 +44,7 @@ export default class BBBVideoStream extends EventEmitter2 {
     this.virtualBgService = null;
     this.virtualBgType = EFFECT_TYPES.NONE_TYPE;
     this.virtualBgName = BLUR_FILENAME;
+    this.virtualBgUniqueId = null;
     this._trackOriginalStreamTermination();
   }
 
@@ -72,6 +73,10 @@ export default class BBBVideoStream extends EventEmitter2 {
     return this._virtualBgService;
   }
 
+  inactivationHandler() {
+    this.emit('inactive', { id: this.mediaStream.id });
+  }
+
   _trackOriginalStreamTermination() {
     const notify = ({ id }) => {
       this.emit('inactive', { id });
@@ -90,6 +95,7 @@ export default class BBBVideoStream extends EventEmitter2 {
       });
       this.virtualBgType = type;
       this.virtualBgName = name;
+      this.virtualBgUniqueId = customParams?.uniqueId;
       return Promise.resolve();
     } catch (error) {
       return Promise.reject(error);
@@ -109,6 +115,7 @@ export default class BBBVideoStream extends EventEmitter2 {
       this.virtualBgService = service;
       this.virtualBgType = type;
       this.virtualBgName = name;
+      this.virtualBgUniqueId = customParams?.uniqueId;
       this.originalStream = this.mediaStream;
       this.mediaStream = effect;
       this.isVirtualBackgroundEnabled = true;
@@ -135,6 +142,7 @@ export default class BBBVideoStream extends EventEmitter2 {
 
     this.virtualBgType = EFFECT_TYPES.NONE_TYPE;
     this.virtualBgName = undefined;
+    this.virtualBgUniqueId = null;
     this.mediaStream = this.originalStream;
     this.isVirtualBackgroundEnabled = false;
   }

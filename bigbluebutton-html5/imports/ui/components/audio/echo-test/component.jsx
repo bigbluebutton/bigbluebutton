@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
-import { Session } from 'meteor/session';
 import { defineMessages, injectIntl } from 'react-intl';
+import Session from '/imports/ui/services/storage/in-memory';
 import Styled from './styles';
 
 const intlMessages = defineMessages({
@@ -42,11 +42,11 @@ class EchoTest extends Component {
   }
 
   componentDidMount() {
-    Session.set('inEchoTest', true);
+    Session.setItem('inEchoTest', true);
   }
 
   componentWillUnmount() {
-    Session.set('inEchoTest', false);
+    Session.setItem('inEchoTest', false);
   }
 
   render() {

@@ -25,7 +25,7 @@ const CurrentPresentationHookContainer = () => {
 
     window.dispatchEvent(
       new CustomEvent(
-        HookEvents.UPDATED,
+        HookEvents.BBB_CORE_SENT_NEW_DATA,
         {
           detail: {
             data: formattedCurrentPresentation,
@@ -45,11 +45,11 @@ const CurrentPresentationHookContainer = () => {
       if (event.detail.hook === DataConsumptionHooks.CURRENT_PRESENTATION) setSendSignal((signal) => !signal);
     }) as EventListener;
     window.addEventListener(
-      HookEvents.SUBSCRIBED, updateHookUseCurrentPresentation,
+      HookEvents.PLUGIN_SUBSCRIBED_TO_BBB_CORE, updateHookUseCurrentPresentation,
     );
     return () => {
       window.removeEventListener(
-        HookEvents.SUBSCRIBED, updateHookUseCurrentPresentation,
+        HookEvents.PLUGIN_SUBSCRIBED_TO_BBB_CORE, updateHookUseCurrentPresentation,
       );
     };
   }, []);

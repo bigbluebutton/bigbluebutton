@@ -3,12 +3,12 @@ import { gql } from '@apollo/client';
 const MEETING_SUBSCRIPTION = gql`
   subscription MeetingSubscription {
       meeting {
-        createdTime
         disabledFeatures
         durationInSeconds
         extId
         endWhenNoModerator
         endWhenNoModeratorDelayInMinutes
+        createdTime
         loginUrl
         lockSettings {
           disableCam
@@ -30,6 +30,9 @@ const MEETING_SUBSCRIPTION = gql`
         }
         maxPinnedCameras
         meetingCameraCap
+        cameraBridge
+        screenShareBridge
+        audioBridge
         meetingId
         name
         notifyRecordingIsOn
@@ -121,6 +124,7 @@ const MEETING_SUBSCRIPTION = gql`
           hasScreenshare
           hasTimer
           showRemainingTime
+          hasCameraAsContent
         }
       }
   }

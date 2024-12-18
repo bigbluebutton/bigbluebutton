@@ -303,11 +303,11 @@ You must configure bbb-web so that it will provide the list of turn servers to t
 
 Restart your BigBlueButton server to apply the changes.
 
-Going forward, when users connect behind a restrictive firewall that prevents outgoing UDP connections, the TURN server will enable BigBlueButton to connect to FreeSWITCH and Kurento via the TURN server through port 443 on their firewall.
+Going forward, when users connect behind a restrictive firewall that prevents outgoing UDP connections, the TURN server will enable BigBlueButton to connect to FreeSWITCH and mediasoup via the TURN server through port 443 on their firewall.
 
 ## Test your TURN server
 
-By default, your browser will try to connect directly to Kurento or FreeSWITCH using WebRTC. If it is unable to make a direct connection, it will fall back to using the TURN server as one of the interconnectivity connectivity exchange (ICE) candidates to relay the media.
+By default, your browser will try to connect directly to mediasoup or FreeSWITCH using WebRTC. If it is unable to make a direct connection, it will fall back to using the TURN server as one of the interconnectivity connectivity exchange (ICE) candidates to relay the media.
 
 Use FireFox to test your TURN server. FireFox allows you to disable direct connections and require fallback to your TURN server. Launch FireFox, open `about:config`, and search for 'relay`. You should see a parameter `media.peerconnection.ice.relay_only`. Set this value to `true`.
 

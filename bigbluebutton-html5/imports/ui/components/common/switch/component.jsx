@@ -1,7 +1,7 @@
 import React from 'react';
 import Toggle from 'react-toggle';
 import { defineMessages, injectIntl } from 'react-intl';
-import Settings from '/imports/ui/services/settings';
+import { getSettingsSingletonInstance } from '/imports/ui/services/settings';
 import Styled from './styles';
 
 const intlMessages = defineMessages({
@@ -32,9 +32,11 @@ class Switch extends Toggle {
       showToggleLabel,
       invertColors,
       disabled,
+      isMobile,
       ...inputProps
     } = this.props;
 
+    const Settings = getSettingsSingletonInstance();
     const { animations } = Settings.application;
 
     const {
@@ -56,6 +58,7 @@ class Switch extends Toggle {
           checked={checked}
           invertColors={invertColors}
           animations={animations}
+          isMobile={isMobile}
         >
           <Styled.ToggleTrackCheck checked={checked} animations={animations}>
             {showToggleLabel ? intl.formatMessage(intlMessages.on) : null}

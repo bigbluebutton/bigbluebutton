@@ -9,7 +9,8 @@ export interface BreakoutRoom {
   joinURL: string | null;
   breakoutRoomId: string;
   isDefaultName: boolean;
-  currentRoomJoined: boolean;
+  hasJoined: boolean;
+  isUserCurrentlyInRoom: boolean;
   participants: Array<{
     userId: string;
     isAudioOnly: string;
@@ -24,7 +25,7 @@ export interface GetBreakoutDataResponse {
   breakoutRoom: BreakoutRoom[];
 }
 
-export interface GetIfUserJoinedBreakoutRoomResponse {
+export interface GetIsUserCurrentlyInBreakoutRoomResponse {
   breakoutRoom_aggregate:{
   aggregate: {
     count: number;
@@ -43,7 +44,8 @@ export const getBreakoutData = gql`
       joinURL
       breakoutRoomId
       isDefaultName
-      currentRoomJoined
+      hasJoined
+      isUserCurrentlyInRoom
       participants {
         userId
         isAudioOnly
@@ -56,9 +58,9 @@ export const getBreakoutData = gql`
   }
 `;
 
-export const getIfUserJoinedBreakoutRoom = gql`
-  subscription getIdUserJoinedABreakout {
-    breakoutRoom_aggregate(where: {currentRoomJoined: {_eq: true}}) {
+export const getIsUserCurrentlyInBreakoutRoom = gql`
+  subscription getIsUserCurrentlyInBreakoutRoom {
+    breakoutRoom_aggregate(where: {isUserCurrentlyInRoom: {_eq: true}}) {
       aggregate {
         count
       }
@@ -68,5 +70,5 @@ export const getIfUserJoinedBreakoutRoom = gql`
 
 export default {
   getBreakoutData,
-  getIfUserJoinedBreakoutRoom,
+  getIsUserCurrentlyInBreakoutRoom,
 };

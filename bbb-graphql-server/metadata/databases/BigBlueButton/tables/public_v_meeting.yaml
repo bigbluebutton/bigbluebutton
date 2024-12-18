@@ -161,6 +161,7 @@ select_permissions:
         - createdAt
         - createdTime
         - customLogoUrl
+        - customDarkLogoUrl
         - disabledFeatures
         - durationInSeconds
         - endWhenNoModerator
@@ -176,6 +177,9 @@ select_permissions:
         - logoutUrl
         - maxPinnedCameras
         - meetingCameraCap
+        - cameraBridge
+        - screenShareBridge
+        - audioBridge
         - meetingId
         - name
         - notifyRecordingIsOn
@@ -184,12 +188,13 @@ select_permissions:
       filter:
         meetingId:
           _eq: X-Hasura-MeetingId
-  - role: not_joined_bbb_client
+  - role: bbb_client_not_in_meeting
     permission:
       columns:
         - bannerColor
         - bannerText
         - customLogoUrl
+        - customDarkLogoUrl
         - ended
         - endedAt
         - endedBy

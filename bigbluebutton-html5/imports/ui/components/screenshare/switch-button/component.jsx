@@ -24,21 +24,13 @@ const propTypes = {
   switched: PropTypes.bool,
 };
 
-const defaultProps = {
-  dark: false,
-  bottom: false,
-  handleSwitch: () => {},
-  switched: false,
-};
-
-const SwitchButtonComponent = (props) => {
-  const {
-    intl,
-    dark,
-    bottom,
-    handleSwitch,
-    switched,
-  } = props;
+const SwitchButtonComponent = ({
+  intl,
+  dark = false,
+  bottom = false,
+  handleSwitch = () => {},
+  switched = false,
+}) => {
   const formattedLabel = intl.formatMessage(switched
     ? intlMessages.switchButtonShrink
     : intlMessages.switchButtonExpand);
@@ -59,6 +51,5 @@ const SwitchButtonComponent = (props) => {
 };
 
 SwitchButtonComponent.propTypes = propTypes;
-SwitchButtonComponent.defaultProps = defaultProps;
 
 export default injectIntl(SwitchButtonComponent);

@@ -1,7 +1,7 @@
-import { useMutation, useSubscription } from '@apollo/client';
+import { useMutation } from '@apollo/client';
 import React, { useCallback } from 'react';
 import { defineMessages, useIntl } from 'react-intl';
-import { Session } from 'meteor/session';
+import Session from '/imports/ui/services/storage/in-memory';
 import {
   Bar, BarChart, ResponsiveContainer, XAxis, YAxis,
 } from 'recharts';
@@ -13,10 +13,11 @@ import {
   getCurrentPollDataResponse,
 } from '../queries';
 import logger from '/imports/startup/client/logger';
-import Settings from '/imports/ui/services/settings';
+import { getSettingsSingletonInstance } from '/imports/ui/services/settings';
 import { POLL_CANCEL, POLL_PUBLISH_RESULT } from '../mutations';
 import { layoutDispatch } from '../../layout/context';
 import { ACTIONS, PANELS } from '../../layout/enums';
+import useDeduplicatedSubscription from '/imports/ui/core/hooks/useDeduplicatedSubscription';
 
 const intlMessages = defineMessages({
   usersTitle: {
@@ -68,9 +69,6 @@ interface LiveResultProps {
   isSecret: boolean;
 }
 
-const CHAT_CONFIG = window.meetingClientSettings.public.chat;
-const PUBLIC_CHAT_KEY = CHAT_CONFIG.public_group_id;
-
 const LiveResult: React.FC<LiveResultProps> = ({
   questionText,
   responses,
@@ -81,6 +79,9 @@ const LiveResult: React.FC<LiveResultProps> = ({
   users,
   isSecret,
 }) => {
+  const CHAT_CONFIG = window.meetingClientSettings.public.chat;
+  const PUBLIC_CHAT_KEY = CHAT_CONFIG.public_group_id;
+
   const intl = useIntl();
   const [pollPublishResult] = useMutation(POLL_PUBLISH_RESULT);
   const [stopPoll] = useMutation(POLL_CANCEL);
@@ -120,7 +121,7 @@ const LiveResult: React.FC<LiveResultProps> = ({
             data={responses}
             layout="vertical"
           >
-            <XAxis type="number" />
+            <XAxis type="number" allowDecimals={false} />
             <YAxis width={70} type="category" dataKey="optionDesc" />
             <Bar dataKey="optionResponsesCount" fill="#0C57A7" />
           </BarChart>
@@ -131,7 +132,7 @@ const LiveResult: React.FC<LiveResultProps> = ({
           <Styled.ButtonsActions>
             <Styled.PublishButton
               onClick={() => {
-                Session.set('pollInitiated', false);
+                Session.setItem('pollInitiated', false);
                 publishPoll(pollId);
                 stopPoll();
                 layoutContextDispatch({
@@ -154,8 +155,8 @@ const LiveResult: React.FC<LiveResultProps> = ({
             />
             <Styled.CancelButton
               onClick={() => {
-                Session.set('pollInitiated', false);
-                Session.set('resetPollPanel', true);
+                Session.setItem('pollInitiated', false);
+                Session.setItem('resetPollPanel', true);
                 stopPoll();
               }}
               label={intl.formatMessage(intlMessages.cancelPollLabel)}
@@ -208,7 +209,7 @@ const LiveResultContainer: React.FC = () => {
     data: currentPollData,
     loading: currentPollLoading,
     error: currentPollDataError,
-  } = useSubscription<getCurrentPollDataResponse>(getCurrentPollData);
+  } = useDeduplicatedSubscription<getCurrentPollDataResponse>(getCurrentPollData);
 
   if (currentPollLoading || !currentPollData) {
     return null;
@@ -224,6 +225,7 @@ const LiveResultContainer: React.FC = () => {
   }
 
   if (!currentPollData.poll.length) return null;
+  const Settings = getSettingsSingletonInstance();
   // @ts-ignore - JS code
   const { animations } = Settings.application;
   const currentPoll = currentPollData.poll[0];

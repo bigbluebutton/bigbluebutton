@@ -1,6 +1,6 @@
 import React from 'react';
 import Styled from './styles';
-import Settings from '/imports/ui/services/settings';
+import { getSettingsSingletonInstance } from '/imports/ui/services/settings';
 
 class ToastContainer extends React.Component {
   // we never want this component to update since will break Toastify
@@ -9,6 +9,7 @@ class ToastContainer extends React.Component {
   }
 
   render() {
+    const Settings = getSettingsSingletonInstance();
     const { animations } = Settings.application;
 
     return (
@@ -22,6 +23,8 @@ class ToastContainer extends React.Component {
         hideProgressBar={false}
         closeOnClick
         pauseOnHover
+        icon={false}
+        theme="colored"
       />
     );
   }

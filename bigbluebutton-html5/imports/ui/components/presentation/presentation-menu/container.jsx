@@ -1,13 +1,11 @@
-import React from 'react';
-import { useContext } from 'react';
+import React, { useContext } from 'react';
 import PropTypes from 'prop-types';
 import PresentationMenu from './component';
 import FullscreenService from '/imports/ui/components/common/fullscreen-button/service';
 import Auth from '/imports/ui/services/auth';
 import { layoutSelect, layoutDispatch } from '/imports/ui/components/layout/context';
-import { isSnapshotOfCurrentSlideEnabled } from '/imports/ui/services/features';
+import { useIsSnapshotOfCurrentSlideEnabled } from '/imports/ui/services/features';
 import { PluginsContext } from '/imports/ui/components/components-data/plugin-context/context';
-import { useSubscription } from '@apollo/client';
 import {
   CURRENT_PAGE_WRITERS_SUBSCRIPTION,
 } from '/imports/ui/components/whiteboard/queries';
@@ -16,15 +14,17 @@ import useMeeting from '/imports/ui/core/hooks/useMeeting';
 import {
   persistShape,
 } from '/imports/ui/components/whiteboard/service';
-
+import { getSettingsSingletonInstance } from '/imports/ui/services/settings';
+import useDeduplicatedSubscription from '/imports/ui/core/hooks/useDeduplicatedSubscription';
 
 const PresentationMenuContainer = (props) => {
   const fullscreen = layoutSelect((i) => i.fullscreen);
   const { element: currentElement, group: currentGroup } = fullscreen;
   const layoutContextDispatch = layoutDispatch();
-  const { elementId } = props;
+  const { elementId, whiteboardId } = props;
   const isFullscreen = currentElement === elementId;
-  const isRTL = layoutSelect((i) => i.isRTL);
+  const Settings = getSettingsSingletonInstance();
+  const { isRTL } = Settings.application;
   const { pluginsExtensibleAreasAggregatedState } = useContext(PluginsContext);
   let presentationDropdownItems = [];
   if (pluginsExtensibleAreasAggregatedState.presentationDropdownItems) {
@@ -33,7 +33,13 @@ const PresentationMenuContainer = (props) => {
     ];
   }
 
-  const { data: whiteboardWritersData } = useSubscription(CURRENT_PAGE_WRITERS_SUBSCRIPTION);
+  const { data: whiteboardWritersData } = useDeduplicatedSubscription(
+    CURRENT_PAGE_WRITERS_SUBSCRIPTION,
+    {
+      variables: { pageId: whiteboardId },
+      skip: !whiteboardId,
+    },
+  );
   const whiteboardWriters = whiteboardWritersData?.pres_page_writers || [];
   const hasWBAccess = whiteboardWriters?.some((writer) => writer.userId === Auth.userID);
 
@@ -43,6 +49,7 @@ const PresentationMenuContainer = (props) => {
 
   const handleToggleFullscreen = (ref) => FullscreenService.toggleFullScreen(ref);
   const isIphone = !!(navigator.userAgent.match(/iPhone/i));
+  const allowSnapshotOfCurrentSlide = useIsSnapshotOfCurrentSlideEnabled();
 
   return (
     <PresentationMenu
@@ -58,8 +65,9 @@ const PresentationMenuContainer = (props) => {
         meetingName: meetingInfo?.name,
         handleToggleFullscreen,
         isIphone,
-        allowSnapshotOfCurrentSlide: isSnapshotOfCurrentSlideEnabled(),
+        allowSnapshotOfCurrentSlide,
         persistShape,
+        whiteboardWriters,
       }}
     />
   );

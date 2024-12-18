@@ -20,14 +20,6 @@ interface RemainingTimeProps {
   alertLabel?: intlMsg;
 }
 
-const defaultProps = {
-  endingLabel: undefined,
-  alertLabel: undefined,
-};
-
-const METEOR_SETTINGS_APP = window.meetingClientSettings.public.app;
-const REMAINING_TIME_ALERT_THRESHOLD_ARRAY: number[] = METEOR_SETTINGS_APP.remainingTimeAlertThresholdArray;
-
 let lastAlertTime: number | null = null;
 
 const RemainingTime: React.FC<RemainingTimeProps> = (props) => {
@@ -35,8 +27,8 @@ const RemainingTime: React.FC<RemainingTimeProps> = (props) => {
     referenceStartedTime,
     durationInSeconds,
     durationLabel,
-    endingLabel,
-    alertLabel,
+    endingLabel = undefined,
+    alertLabel = undefined,
     isBreakout,
     boldText,
   } = props;
@@ -80,6 +72,9 @@ const RemainingTime: React.FC<RemainingTimeProps> = (props) => {
 
   if (remainingTime >= 0 && timeRemainingInterval) {
     if (remainingTime > 0) {
+      const APP_SETTINGS = window.meetingClientSettings.public.app;
+      const REMAINING_TIME_ALERT_THRESHOLD_ARRAY: number[] = APP_SETTINGS.remainingTimeAlertThresholdArray;
+
       const alertsInSeconds = REMAINING_TIME_ALERT_THRESHOLD_ARRAY.map((item) => item * 60);
 
       if (alertsInSeconds.includes(remainingTime) && remainingTime !== lastAlertTime && alertLabel) {
@@ -125,7 +120,5 @@ const RemainingTime: React.FC<RemainingTimeProps> = (props) => {
     </span>
   );
 };
-
-RemainingTime.defaultProps = defaultProps;
 
 export default RemainingTime;

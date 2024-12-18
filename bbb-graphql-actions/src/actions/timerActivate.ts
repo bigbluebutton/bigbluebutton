@@ -1,8 +1,17 @@
 import { RedisMessage } from '../types';
-import {throwErrorIfNotModerator} from "../imports/validation";
+import {throwErrorIfInvalidInput, throwErrorIfNotModerator} from "../imports/validation";
 
 export default function buildRedisMessage(sessionVariables: Record<string, unknown>, input: Record<string, unknown>): RedisMessage {
   throwErrorIfNotModerator(sessionVariables);
+  throwErrorIfInvalidInput(input,
+      [
+        {name: 'stopwatch', type: 'boolean', required: true},
+        {name: 'running', type: 'boolean', required: true},
+        {name: 'time', type: 'int', required: true},
+        {name: 'track', type: 'string', required: false},
+      ]
+  )
+
   const eventName = `ActivateTimerReqMsg`;
 
   const routing = {

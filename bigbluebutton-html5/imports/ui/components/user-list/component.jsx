@@ -8,12 +8,15 @@ import UserContentContainer from './user-list-content/container';
 const propTypes = {
   compact: PropTypes.bool,
   CustomLogoUrl: PropTypes.string,
+  CustomDarkLogoUrl: PropTypes.string,
+  DarkModeIsEnabled: PropTypes.bool,
   showBranding: PropTypes.bool.isRequired,
 };
 
 const defaultProps = {
   compact: false,
   CustomLogoUrl: null,
+  CustomDarkLogoUrl: null,
 };
 
 class UserList extends PureComponent {
@@ -21,16 +24,19 @@ class UserList extends PureComponent {
     const {
       compact,
       CustomLogoUrl,
+      CustomDarkLogoUrl,
+      DarkModeIsEnabled,
       showBranding,
     } = this.props;
+    const logoUrl = DarkModeIsEnabled ? CustomDarkLogoUrl : CustomLogoUrl;
 
     return (
       <Styled.UserList>
         {
           showBranding
             && !compact
-            && CustomLogoUrl
-            ? <CustomLogo CustomLogoUrl={CustomLogoUrl} /> : null
+            && logoUrl
+            ? <CustomLogo CustomLogoUrl={logoUrl} /> : null
         }
         <UserContentContainer compact={compact} />
       </Styled.UserList>

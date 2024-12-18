@@ -12,14 +12,13 @@ select_permissions:
       columns:
         - accumulated
         - active
-        - endedAt
-        - endedOn
         - running
         - songTrack
         - startedAt
         - startedOn
         - stopwatch
         - time
+        - elapsed
       filter:
         meetingId:
           _eq: X-Hasura-MeetingId

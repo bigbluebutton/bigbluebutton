@@ -32,7 +32,7 @@ CONFDIR=$DESTDIR/opt/freeswitch/etc/freeswitch
 mkdir -p $DESTDIR/opt/freeswitch/share/freeswitch
 
 if [ ! -f sounds.tar.gz ] ; then
-  wget http://bigbluebutton.org/downloads/sounds.tar.gz -O sounds.tar.gz
+  wget https://ubuntu.bigbluebutton.org/sounds.tar.gz -O sounds.tar.gz
 fi
 tar xvfz sounds.tar.gz -C $DESTDIR/opt/freeswitch/share/freeswitch
 

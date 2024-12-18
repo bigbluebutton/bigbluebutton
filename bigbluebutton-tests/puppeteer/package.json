@@ -6,12 +6,12 @@
     "verbose": false
   },
   "dependencies": {
-    "axios": "^1.6.0",
+    "axios": "^1.7.4",
     "babel-jest": "^27.5.1",
     "child_process": "^1.0.2",
     "dotenv": "^16.0.1",
     "fs-extra": "^10.0.1",
-    "jest": "^27.5.1",
+    "jest": "^29.0.0",
     "jest-image-snapshot": "^4.5.1",
     "js-yaml": "^4.1.0",
     "moment": "^2.29.1",

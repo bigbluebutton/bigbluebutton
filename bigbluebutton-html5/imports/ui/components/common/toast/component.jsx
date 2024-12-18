@@ -7,23 +7,18 @@ import Styled from './styles';
 const propTypes = {
   icon: PropTypes.string,
   message: PropTypes.node.isRequired,
-  type: PropTypes.oneOf(Object.values(toast.TYPE)).isRequired,
-};
-
-const defaultProps = {
-  icon: null,
 };
 
 const defaultIcons = {
-  [toast.TYPE.INFO]: 'help',
-  [toast.TYPE.SUCCESS]: 'checkmark',
-  [toast.TYPE.WARNING]: 'warning',
-  [toast.TYPE.ERROR]: 'close',
-  [toast.TYPE.DEFAULT]: 'about',
+  info: 'help',
+  success: 'checkmark',
+  warning: 'warning',
+  error: 'close',
+  default: 'about',
 };
 
 const Toast = ({
-  icon,
+  icon = null,
   type,
   message,
   content,
@@ -53,4 +48,3 @@ const Toast = ({
 export default Toast;
 
 Toast.propTypes = propTypes;
-Toast.defaultProps = defaultProps;

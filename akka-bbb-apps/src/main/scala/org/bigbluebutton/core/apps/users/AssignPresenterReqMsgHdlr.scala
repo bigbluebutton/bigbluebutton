@@ -1,13 +1,17 @@
 package org.bigbluebutton.core.apps.users
 
+import org.bigbluebutton.ClientSettings.{ getConfigPropertyValueByPathAsBooleanOrElse, getConfigPropertyValueByPathAsIntOrElse }
 import org.bigbluebutton.common2.msgs._
 import org.bigbluebutton.core.apps.presentationpod.SetPresenterInPodActionHandler
 import org.bigbluebutton.core.apps.ExternalVideoModel
+import org.bigbluebutton.core.apps.groupchats.GroupChatApp
 import org.bigbluebutton.core.models.{ PresentationPod, RegisteredUsers, UserState, Users2x }
 import org.bigbluebutton.core.running.{ LiveMeeting, OutMsgRouter }
 import org.bigbluebutton.core.apps.{ PermissionCheck, RightsManagementTrait }
 import org.bigbluebutton.core.domain.MeetingState2x
 import org.bigbluebutton.core.apps.screenshare.ScreenshareApp2x.requestBroadcastStop
+import org.bigbluebutton.core.db.ChatMessageDAO
+import org.bigbluebutton.core.graphql.GraphqlMiddleware
 import org.bigbluebutton.core2.message.senders.Sender
 
 trait AssignPresenterReqMsgHdlr extends RightsManagementTrait {
@@ -85,7 +89,7 @@ object AssignPresenterActionHandler extends RightsManagementTrait {
           for {
             u <- RegisteredUsers.findWithUserId(oldPres.intId, liveMeeting.registeredUsers)
           } yield {
-            Sender.sendForceUserGraphqlReconnectionSysMsg(liveMeeting.props.meetingProp.intId, oldPres.intId, u.sessionToken, "role_changed", outGW)
+            GraphqlMiddleware.requestGraphqlReconnection(u.sessionToken, "assigned_presenter")
           }
         }
       }
@@ -100,8 +104,29 @@ object AssignPresenterActionHandler extends RightsManagementTrait {
         for {
           u <- RegisteredUsers.findWithUserId(newPres.intId, liveMeeting.registeredUsers)
         } yield {
-          Sender.sendForceUserGraphqlReconnectionSysMsg(liveMeeting.props.meetingProp.intId, newPres.intId, u.sessionToken, "role_changed", outGW)
+          GraphqlMiddleware.requestGraphqlReconnection(u.sessionToken, "assigned_presenter")
         }
+
+        //Chat message to announce new presenter
+        val announcePresenterChangeInChat = getConfigPropertyValueByPathAsBooleanOrElse(
+          liveMeeting.clientSettings,
+          "public.chat.announcePresenterChangeInChat",
+          alternativeValue = true
+        )
+
+        if (announcePresenterChangeInChat) {
+          val assignedByName = Users2x.findWithIntId(liveMeeting.users2x, assignedBy).get match {
+            case u: UserState => u.name
+            case _            => ""
+          }
+
+          //System message
+          val msgMeta = Map(
+            "assignedBy" -> assignedByName
+          )
+          ChatMessageDAO.insertSystemMsg(liveMeeting.props.meetingProp.intId, GroupChatApp.MAIN_PUBLIC_CHAT, "", GroupChatMessageType.USER_IS_PRESENTER_MSG, msgMeta, newPres.name)
+        }
+
       }
     }
   }

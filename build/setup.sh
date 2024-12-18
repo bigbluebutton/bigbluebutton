@@ -51,20 +51,43 @@ kill_docker() {
 
 trap 'kill_docker' SIGINT SIGTERM
 
+# Try to pull Docker Image 5 times (to bypass "toomanyrequests: You have reached your pull rate limit." error)
+retry_count=0
+max_retries=5
+retry_wait=300  # wait time in seconds (5 minutes)
+
+while [[ $retry_count -lt $max_retries ]]; do
+    if sudo docker pull "$DOCKER_IMAGE" || false; then
+        echo "Docker image pulled successfully."
+        break
+    else
+        echo "Failed to pull Docker image, attempt $((retry_count+1))/$max_retries."
+        retry_count=$((retry_count+1))
+        if [[ $retry_count -lt $max_retries ]]; then
+            echo "Waiting for $retry_wait seconds before retrying..."
+            sleep $retry_wait
+        else
+            echo "Exceeded maximum retry attempts. Exiting."
+            exit 1
+        fi
+    fi
+done
+
+
 # -v "$CACHE_DIR/dev":/root/dev
 sudo docker run --rm --detach --cidfile $DOCKER_CONTAINER_ID_FILE \
         --env GIT_REV=$GIT_REV --env COMMIT_DATE=$COMMIT_DATE --env LOCAL_BUILD=$LOCAL_BUILD \
         --mount type=bind,src="$PWD",dst=/mnt \
         --mount type=bind,src="${PWD}/artifacts,dst=/artifacts" \
         -t "$DOCKER_IMAGE" /mnt/build/setup-inside-docker.sh "$PACKAGE_TO_BUILD"
-        
+
 #        -v "$CACHE_DIR/$DISTRO/.gradle:/root/.gradle" \
 #        -v "$CACHE_DIR/$DISTRO/.grails:/root/.grails" \
 #        -v "$CACHE_DIR/$DISTRO/.ivy2:/root/.ivy2" \
 #        -v "$CACHE_DIR/$DISTRO/.m2:/root/.m2" \
 #        -v "$TMP/$TARGET:$TMP/$TARGET"  \
 
-docker attach --no-stdin $(cat $DOCKER_CONTAINER_ID_FILE)
+sudo docker attach --no-stdin $(sudo cat $DOCKER_CONTAINER_ID_FILE)
 sudo rm $DOCKER_CONTAINER_ID_FILE
 
 find artifacts

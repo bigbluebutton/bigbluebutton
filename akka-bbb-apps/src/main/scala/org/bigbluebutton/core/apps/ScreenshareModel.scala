@@ -1,7 +1,6 @@
 package org.bigbluebutton.core.apps
 
 import org.bigbluebutton.core.running.{ LiveMeeting, OutMsgRouter }
-import org.bigbluebutton.core2.message.senders.MsgBuilder
 
 object ScreenshareModel {
   def resetDesktopSharingParams(status: ScreenshareModel) = {

@@ -6,11 +6,11 @@ import { defineMessages, useIntl } from 'react-intl';
 import BBBMenu from '/imports/ui/components/common/menu/component';
 import { layoutSelect } from '/imports/ui/components/layout/context';
 import { Layout } from '/imports/ui/components/layout/layoutTypes';
-import { useLazyQuery, useMutation } from '@apollo/client';
+import { useLazyQuery, useMutation, useQuery } from '@apollo/client';
 import { uid } from 'radash';
 import { isEmpty } from 'ramda';
 import {
-  GET_CHAT_MESSAGE_HISTORY, GET_PERMISSIONS, getChatMessageHistory, getPermissions,
+  GET_CHAT_MESSAGE_HISTORY, getChatMessageHistory,
 } from './queries';
 import Trigger from '/imports/ui/components/common/control-header/right/component';
 import { generateExportedMessages } from './services';
@@ -18,10 +18,9 @@ import { getDateString } from '/imports/utils/string-utils';
 import { ChatCommands } from '/imports/ui/core/enums/chat';
 import { CHAT_PUBLIC_CLEAR_HISTORY } from './mutations';
 import useMeetingSettings from '/imports/ui/core/local-states/useMeetingSettings';
-
-// @ts-ignore - temporary, while meteor exists in the project
-// const CHAT_CONFIG = window.meetingClientSettings.public.chat;
-// const ENABLE_SAVE_AND_COPY_PUBLIC_CHAT = CHAT_CONFIG.enableSaveAndCopyPublicChat;
+import useCurrentUser from '/imports/ui/core/hooks/useCurrentUser';
+import useMeeting from '/imports/ui/core/hooks/useMeeting';
+import { GET_WELCOME_MESSAGE, WelcomeMsgsResponse } from '/imports/ui/components/chat/chat-graphql/chat-popup/queries';
 
 const intlMessages = defineMessages({
   clear: {
@@ -66,19 +65,20 @@ const ChatActions: React.FC = () => {
   const [meetingIsBreakout, setMeetingIsBreakout] = useState<boolean>(false);
   const [showShowWelcomeMessages, setShowShowWelcomeMessages] = useState<boolean>(false);
   const [chatPublicClearHistory] = useMutation(CHAT_PUBLIC_CLEAR_HISTORY);
+  const { data: currentUserData, loading: currentUserLoading } = useCurrentUser((u) => ({
+    isModerator: u.isModerator,
+  }));
+  const { data: meetingData, loading: meetingLoading } = useMeeting((m) => ({
+    isBreakout: m.isBreakout,
+    name: m.name,
+  }));
+  const { data: welcomeData } = useQuery<WelcomeMsgsResponse>(GET_WELCOME_MESSAGE);
   const [
     getChatMessageHistory,
     {
       error: errorHistory,
       data: dataHistory,
     }] = useLazyQuery<getChatMessageHistory>(GET_CHAT_MESSAGE_HISTORY, { fetchPolicy: 'no-cache' });
-
-  const [
-    getPermissions,
-    {
-      error: errorPermissions,
-      data: dataPermissions,
-    }] = useLazyQuery<getPermissions>(GET_PERMISSIONS, { fetchPolicy: 'cache-and-network' });
 
   useEffect(() => {
     if (dataHistory) {
@@ -106,15 +106,24 @@ const ChatActions: React.FC = () => {
   }, [dataHistory]);
 
   useEffect(() => {
-    if (dataPermissions) {
-      setUserIsmoderator(dataPermissions.user_current[0].isModerator);
-      setMeetingIsBreakout(dataPermissions.meeting[0].isBreakout);
-      if (!isEmpty(dataPermissions.user_welcomeMsgs[0].welcomeMsg || '')
-        || !isEmpty(dataPermissions.user_welcomeMsgs[0].welcomeMsgForModerators || '')) {
+    if (currentUserData) {
+      setUserIsmoderator(!!currentUserData.isModerator);
+    }
+    if (meetingData) {
+      setMeetingIsBreakout(!!meetingData.isBreakout);
+    }
+  }, [currentUserData, meetingData]);
+
+  useEffect(() => {
+    if (welcomeData) {
+      if (
+        !isEmpty(welcomeData.user_welcomeMsgs[0]?.welcomeMsg || '')
+        || !isEmpty(welcomeData.user_welcomeMsgs[0]?.welcomeMsgForModerators || '')
+      ) {
         setShowShowWelcomeMessages(true);
       }
     }
-  }, [dataPermissions]);
+  }, [welcomeData]);
 
   const actions = useMemo(() => {
     const dropdownActions = [
@@ -143,15 +152,18 @@ const ChatActions: React.FC = () => {
       },
       {
         key: uniqueIdsRef.current[2],
-        enable: userIsModerator && !meetingIsBreakout,
+        enable: true,
+        disabled: !userIsModerator || meetingIsBreakout,
         icon: 'delete',
         dataTest: 'chatClear',
         label: intl.formatMessage(intlMessages.clear),
         onClick: () => chatPublicClearHistory(),
+        loading: currentUserLoading || meetingLoading,
       },
       {
         key: uniqueIdsRef.current[3],
-        enable: showShowWelcomeMessages,
+        enable: true,
+        disabled: !showShowWelcomeMessages,
         icon: 'about',
         dataTest: 'restoreWelcomeMessages',
         label: intl.formatMessage(intlMessages.showWelcomeMessage),
@@ -159,10 +171,11 @@ const ChatActions: React.FC = () => {
           const restoreWelcomeMessagesEvent = new CustomEvent(ChatCommands.RESTORE_WELCOME_MESSAGES);
           window.dispatchEvent(restoreWelcomeMessagesEvent);
         },
+        loading: currentUserLoading,
       },
     ];
     return dropdownActions.filter((action) => action.enable);
-  }, [userIsModerator, meetingIsBreakout, showShowWelcomeMessages]);
+  }, [userIsModerator, meetingIsBreakout, showShowWelcomeMessages, currentUserLoading, meetingLoading]);
   if (errorHistory) {
     return (
       <p>
@@ -171,15 +184,7 @@ const ChatActions: React.FC = () => {
       </p>
     );
   }
-  if (errorPermissions) {
-    return (
-      <p>
-        Error loading permissions:
-        {' '}
-        {JSON.stringify(errorPermissions)}
-      </p>
-    );
-  }
+
   return (
     <BBBMenu
       trigger={(
@@ -188,10 +193,8 @@ const ChatActions: React.FC = () => {
           aria-label={intl.formatMessage(intlMessages.options)}
           hideLabel
           icon="more"
-          onClick={() => {
-            getPermissions();
-          }}
           data-test="chatOptionsMenu"
+          onClick={() => {}}
         />
       )}
       opts={{

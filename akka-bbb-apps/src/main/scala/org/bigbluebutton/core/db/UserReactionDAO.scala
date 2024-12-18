@@ -3,9 +3,6 @@ package org.bigbluebutton.core.db
 import slick.jdbc.PostgresProfile.api._
 import slick.lifted.{ ProvenShape }
 
-import scala.concurrent.ExecutionContext.Implicits.global
-import scala.util.{ Failure, Success }
-
 case class UserReactionDbModel(
     meetingId:         String,
     userId:            String,
@@ -26,7 +23,7 @@ class UserReactionDbTableDef(tag: Tag) extends Table[UserReactionDbModel](tag, "
 
 object UserReactionDAO {
   def insert(meetingId: String, userId: String, reactionEmoji: String, durationInSeconds: Int) = {
-    DatabaseConnection.db.run(
+    DatabaseConnection.enqueue(
       TableQuery[UserReactionDbTableDef].forceInsert(
         UserReactionDbModel(
           meetingId = meetingId,
@@ -36,10 +33,7 @@ object UserReactionDAO {
           createdAt = new java.sql.Timestamp(System.currentTimeMillis())
         )
       )
-    ).onComplete {
-        case Success(rowsAffected) => DatabaseConnection.logger.debug(s"$rowsAffected row(s) inserted on UserReaction table!")
-        case Failure(e)            => DatabaseConnection.logger.debug(s"Error inserting UserReaction: $e")
-      }
+    )
   }
 
 }

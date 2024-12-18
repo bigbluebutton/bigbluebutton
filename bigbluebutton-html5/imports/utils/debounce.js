@@ -21,6 +21,19 @@ export function debounce(func, delay, options = {}) {
     lastThis = null;
   }
 
+  function scheduleTimeout() {
+    timeoutId = setTimeout(() => {
+      if (!trailing) {
+        clearTimeout(timeoutId);
+        timeoutId = null;
+      } else {
+        invokeFunc();
+        timeoutId = null;
+      }
+      calledOnce = false;
+    }, delay);
+  }
+
   return function (...args) {
     lastArgs = args;
     lastThis = this;
@@ -31,22 +44,16 @@ export function debounce(func, delay, options = {}) {
         calledOnce = true;
       }
 
-      timeoutId = setTimeout(() => {
-        if (!trailing) {
-          clearTimeout(timeoutId);
-          timeoutId = null;
-        } else {
-          invokeFunc();
-          timeoutId = null;
-        }
-        calledOnce = false;
-      }, delay);
+      scheduleTimeout();
     } else if (trailing) {
       clearTimeout(timeoutId);
       timeoutId = setTimeout(() => {
         invokeFunc();
         timeoutId = null;
       }, delay);
+    } else if (leading && calledOnce) {
+      clearTimeout(timeoutId);
+      scheduleTimeout();
     }
   };
 }

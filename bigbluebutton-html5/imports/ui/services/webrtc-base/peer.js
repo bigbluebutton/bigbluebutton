@@ -37,6 +37,28 @@ export default class WebRtcPeer extends EventEmitter2 {
     this._gatheringTimeout = this.options.gatheringTimeout;
 
     this._assignOverrides();
+
+    this.logger.debug('BBB::WebRtcPeer::constructor - created', {
+      mode: this.mode,
+      options: this.options,
+    });
+  }
+
+  _getTransceiverDirection() {
+    switch (this.mode) {
+      case 'sendonly':
+      case 'recvonly':
+      case 'sendrecv':
+        return this.mode;
+      case 'recv':
+        return 'recvonly';
+      case 'send':
+        return 'sendonly';
+      case 'passive-sendrecv':
+        return 'sendrecv';
+      default:
+        return 'inactive';
+    }
   }
 
   _assignOverrides() {
@@ -202,7 +224,7 @@ export default class WebRtcPeer extends EventEmitter2 {
       }
 
       return stream;
-    }
+    };
 
     if (typeof this._mediaStreamFactory === 'function') {
       return this._mediaStreamFactory(this.mediaConstraints).then(handleGUMResolution);
@@ -326,6 +348,25 @@ export default class WebRtcPeer extends EventEmitter2 {
     }
   }
 
+  _processMediaStreams() {
+    if (this.videoStream) {
+      this.videoStream.getTracks().forEach((track) => {
+        this.peerConnection.addTrack(track, this.videoStream);
+      });
+    }
+
+    if (this.audioStream) {
+      this.audioStream.getTracks().forEach((track) => {
+        this.peerConnection.addTrack(track, this.audioStream);
+      });
+    }
+
+    this.peerConnection.getTransceivers().forEach((transceiver) => {
+      // eslint-disable-next-line no-param-reassign
+      transceiver.direction = this._getTransceiverDirection();
+    });
+  }
+
   async generateOffer() {
     switch (this.mode) {
       case 'recvonly': {
@@ -338,13 +379,13 @@ export default class WebRtcPeer extends EventEmitter2 {
 
         if (useAudio) {
           this.peerConnection.addTransceiver('audio', {
-            direction: 'recvonly',
+            direction: this._getTransceiverDirection(),
           });
         }
 
         if (useVideo) {
           this.peerConnection.addTransceiver('video', {
-            direction: 'recvonly',
+            direction: this._getTransceiverDirection(),
           });
         }
         break;
@@ -353,25 +394,13 @@ export default class WebRtcPeer extends EventEmitter2 {
       case 'sendonly':
       case 'sendrecv': {
         await this.mediaStreamFactory();
-
-        if (this.videoStream) {
-          this.videoStream.getTracks().forEach((track) => {
-            this.peerConnection.addTrack(track, this.videoStream);
-          });
-        }
-
-        if (this.audioStream) {
-          this.audioStream.getTracks().forEach((track) => {
-            this.peerConnection.addTrack(track, this.audioStream);
-          });
-        }
-
-        this.peerConnection.getTransceivers().forEach((transceiver) => {
-          // eslint-disable-next-line no-param-reassign
-          transceiver.direction = this.mode;
-        });
+        this._processMediaStreams();
         break;
       }
+
+      case 'passive-sendrecv':
+        this._processMediaStreams();
+        break;
 
       default:
         break;
@@ -387,6 +416,10 @@ export default class WebRtcPeer extends EventEmitter2 {
         const localDescription = this.getLocalSessionDescriptor();
         this.logger.debug('BBB::WebRtcPeer::generateOffer - local description set', localDescription);
         return localDescription.sdp;
+      })
+      .catch((error) => {
+        this.logger.error('BBB::WebRtcPeer::generateOffer - failed', error);
+        throw error;
       });
   }
 
@@ -409,23 +442,9 @@ export default class WebRtcPeer extends EventEmitter2 {
       .then(async () => {
         if (this.mode === 'sendonly' || this.mode === 'sendrecv') {
           await this.mediaStreamFactory();
-
-          if (this.videoStream) {
-            this.videoStream.getTracks().forEach((track) => {
-              this.peerConnection.addTrack(track, this.videoStream);
-            });
-          }
-
-          if (this.audioStream) {
-            this.audioStream.getTracks().forEach((track) => {
-              this.peerConnection.addTrack(track, this.audioStream);
-            });
-          }
-
-          this.peerConnection.getTransceivers().forEach((transceiver) => {
-            // eslint-disable-next-line no-param-reassign
-            transceiver.direction = this.mode;
-          });
+          this._processMediaStreams();
+        } else if (this.mode === 'passive-sendrecv') {
+          this._processMediaStreams();
         }
       })
       .then(() => this.peerConnection.createAnswer())
@@ -437,7 +456,47 @@ export default class WebRtcPeer extends EventEmitter2 {
         const localDescription = this.getLocalSessionDescriptor();
         this.logger.debug('BBB::WebRtcPeer::processOffer - local description set', localDescription.sdp);
         return localDescription.sdp;
+      })
+      .catch((error) => {
+        this.logger.error('BBB::WebRtcPeer::processOffer - failed', error);
+        throw error;
       });
+  }
+
+  restartIce(remoteSdp, initiator) {
+    if (this.isPeerConnectionClosed()) {
+      this.logger.error('BBB::WebRtcPeer::restartIce - peer connection closed');
+      throw new Error('Peer connection is closed');
+    }
+
+    const sdp = new RTCSessionDescription({
+      type: initiator ? 'offer' : 'answer',
+      sdp: remoteSdp,
+    });
+
+    this.logger.debug('BBB::WebRtcPeer::restartIce - setting remote description', sdp);
+
+    // If this peer was the original initiator, process remote first
+    if (initiator) {
+      return this.peerConnection.setRemoteDescription(sdp)
+        .then(() => this.peerConnection.createAnswer())
+        .then((answer) => this.peerConnection.setLocalDescription(answer))
+        .then(() => {
+          const localDescription = this.getLocalSessionDescriptor();
+          this.logger.debug('BBB::WebRtcPeer::restartIce - local description set', localDescription.sdp);
+          return localDescription.sdp;
+        });
+    }
+
+    // not the initiator - need to create offer first
+    return this.peerConnection.createOffer({ iceRestart: true })
+      .then((newOffer) => this.peerConnection.setLocalDescription(newOffer))
+      .then(() => {
+        const localDescription = this.getLocalSessionDescriptor();
+        this.logger.debug('BBB::WebRtcPeer::restartIce - local description set', localDescription.sdp);
+        return localDescription.sdp;
+      })
+      .then(() => this.peerConnection.setRemoteDescription(sdp));
   }
 
   dispose() {

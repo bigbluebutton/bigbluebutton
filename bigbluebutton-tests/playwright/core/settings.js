@@ -18,6 +18,7 @@ async function generateSettingsData(page) {
       forceListenOnly: settingsData.app.forceListenOnly,
       skipEchoTest: settingsData.app.skipCheck,
       skipEchoTestOnJoin: settingsData.app.skipCheckOnJoin,
+      skipEchoTestIfPreviousDevice: settingsData.app.skipEchoTestIfPreviousDevice,
       speechRecognitionEnabled: settingsData.app.audioCaptions.enabled,
       // Chat
       chatEnabled: settingsData.chat.enabled,
@@ -42,8 +43,7 @@ async function generateSettingsData(page) {
       webcamSharingEnabled: settingsData.kurento.enableVideo,
       skipVideoPreview: settingsData.kurento.skipVideoPreview,
       skipVideoPreviewOnFirstJoin: settingsData.kurento.skipVideoPreviewOnFirstJoin,
-      // User
-      userStatusEnabled: settingsData.userStatus.enabled,
+      skipVideoPreviewIfPreviousDevice: settingsData.kurento.skipVideoPreviewIfPreviousDevice,
     }
 
     return settings;

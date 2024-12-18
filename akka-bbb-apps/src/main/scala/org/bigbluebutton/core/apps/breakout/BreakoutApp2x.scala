@@ -16,6 +16,7 @@ trait BreakoutApp2x extends BreakoutRoomCreatedMsgHdlr
   with SendMessageToAllBreakoutRoomsMsgHdlr
   with SendMessageToBreakoutRoomInternalMsgHdlr
   with RequestBreakoutJoinURLReqMsgHdlr
+  with SetBreakoutRoomInviteDismissedReqMsgHdlr
   with SendBreakoutUsersUpdateMsgHdlr
   with TransferUserToMeetingRequestHdlr
   with EndBreakoutRoomInternalMsgHdlr
@@ -62,13 +63,23 @@ object BreakoutRoomsUtil extends SystemConfiguration {
     checksum(apiCall.concat(baseString).concat(sharedSecret))
   }
 
-  def joinParams(username: String, userId: String, isBreakout: Boolean, breakoutMeetingId: String,
-                 password: String): (collection.immutable.Map[String, String], collection.immutable.Map[String, String]) = {
+  def joinParams(
+      username:          String,
+      userId:            String,
+      isBreakout:        Boolean,
+      breakoutMeetingId: String,
+      avatarURL:         String,
+      role:              String,
+      password:          String
+  ): (collection.immutable.Map[String, String], collection.immutable.Map[String, String]) = {
+    val moderator = role == "MODERATOR"
     val params = collection.immutable.HashMap(
       "fullName" -> urlEncode(username),
       "userID" -> urlEncode(userId),
       "isBreakout" -> urlEncode(isBreakout.toString()),
       "meetingID" -> urlEncode(breakoutMeetingId),
+      "avatarURL" -> urlEncode(avatarURL),
+      "userdata-bbb_parent_room_moderator" -> urlEncode(moderator.toString()),
       "password" -> urlEncode(password),
       "redirect" -> urlEncode("true")
     )

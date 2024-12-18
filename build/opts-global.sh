@@ -1,2 +1,1 @@
-OPTS="--vendor BigBlueButon -m ffdixon@bigbluebutton.org --url http://bigbluebutton.org/"
-
+OPTS="--vendor BigBlueButon -m ffdixon@bigbluebutton.org --url https://bigbluebutton.org/"

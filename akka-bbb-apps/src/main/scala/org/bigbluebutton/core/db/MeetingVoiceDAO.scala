@@ -4,9 +4,6 @@ import org.bigbluebutton.common2.domain.{ VoiceProp }
 import slick.jdbc.PostgresProfile.api._
 import slick.lifted.{ ProvenShape }
 
-import scala.concurrent.ExecutionContext.Implicits.global
-import scala.util.{ Failure, Success }
-
 case class MeetingVoiceDbModel(
     meetingId:   String,
     telVoice:    String,
@@ -29,7 +26,7 @@ class MeetingVoiceDbTableDef(tag: Tag) extends Table[MeetingVoiceDbModel](tag, "
 
 object MeetingVoiceDAO {
   def insert(meetingId: String, voiceProp: VoiceProp) = {
-    DatabaseConnection.db.run(
+    DatabaseConnection.enqueue(
       TableQuery[MeetingVoiceDbTableDef].forceInsert(
         MeetingVoiceDbModel(
           meetingId = meetingId,
@@ -39,11 +36,6 @@ object MeetingVoiceDAO {
           muteOnStart = voiceProp.muteOnStart
         )
       )
-    ).onComplete {
-        case Success(rowsAffected) => {
-          DatabaseConnection.logger.debug(s"$rowsAffected row(s) inserted in MeetingVoice table!")
-        }
-        case Failure(e) => DatabaseConnection.logger.error(s"Error inserting MeetingVoice: $e")
-      }
+    )
   }
 }

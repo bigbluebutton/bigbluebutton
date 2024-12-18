@@ -1,12 +1,11 @@
-/* eslint-disable @typescript-eslint/ban-ts-comment */
 import styled from 'styled-components';
 import {
   colorBlueLight,
   colorText,
   colorGrayLighter,
-  colorPrimary,
   colorDanger,
   colorGrayDark,
+  colorGrayLightest,
 } from '/imports/ui/stylesheets/styled-components/palette';
 import {
   smPaddingX,
@@ -43,13 +42,13 @@ const Form = styled.form<FormProps>`
 const Wrapper = styled.div`
   display: flex;
   flex-direction: row;
+  border-radius: 0.75rem;
 `;
 
 const Input = styled(TextareaAutosize)`
   flex: 1;
   background: #fff;
   background-clip: padding-box;
-  margin: 0;
   color: ${colorText};
   -webkit-appearance: none;
   padding: calc(${smPaddingY} * 2.5) calc(${smPaddingX} * 1.25);
@@ -60,8 +59,17 @@ const Input = styled(TextareaAutosize)`
   line-height: 1;
   min-height: 2.5rem;
   max-height: 10rem;
-  border: 1px solid ${colorGrayLighter};
-  box-shadow: 0 0 0 1px ${colorGrayLighter};
+  border: none;
+  box-shadow: none;
+  outline: none;
+
+  [dir='ltr'] & {
+    border-radius: 0.75rem 0 0 0.75rem;
+  }
+
+  [dir='rtl'] & {
+    border-radius: 0 0.75rem 0.75rem 0;
+  }
 
   &:disabled,
   &[disabled] {
@@ -69,29 +77,22 @@ const Input = styled(TextareaAutosize)`
     opacity: .75;
     background-color: rgba(167,179,189,0.25);
   }
-
-  &:focus {
-    border-radius: ${borderSize};
-    box-shadow: 0 0 0 ${borderSize} ${colorBlueLight}, inset 0 0 0 1px ${colorPrimary};
-  }
-
-  &:hover,
-  &:active,
-  &:focus {
-    outline: transparent;
-    outline-style: dotted;
-    outline-width: ${borderSize};
-  }
 `;
 
 // @ts-ignore - as button comes from JS, we can't provide its props
 const SendButton = styled(Button)`
-  margin:0 0 0 ${smPaddingX};
   align-self: center;
   font-size: 0.9rem;
+  height: 100%;
+
+  & > span {
+    height: 100%;
+    display: flex;
+    align-items: center;
+    border-radius: 0 0.75rem 0.75rem 0;
+  }
 
   [dir="rtl"]  & {
-    margin: 0 ${smPaddingX} 0 0;
     -webkit-transform: scale(-1, 1);
     -moz-transform: scale(-1, 1);
     -ms-transform: scale(-1, 1);
@@ -119,6 +120,15 @@ const EmojiButton = styled(Button)`
 `;
 
 const EmojiPickerWrapper = styled.div`
+position: absolute;
+bottom: calc(100% + 0.5rem);
+left: 0;
+right: 0;
+border: 1px solid ${colorGrayLighter};
+border-radius: ${borderRadius};
+box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+z-index: 1000;
+
   .emoji-mart {
     max-width: 100% !important;
   }
@@ -136,7 +146,7 @@ const EmojiPickerWrapper = styled.div`
   }
 `;
 
-const Error = styled.div`
+const ChatMessageError = styled.div`
   color: ${colorDanger};
   font-size: calc(${fontSizeBase} * .75);
   color: ${colorGrayDark};
@@ -148,7 +158,31 @@ const Error = styled.div`
   margin-left: 0.05rem;
 `;
 
-const EmojiPicker = styled(EmojiPickerComponent)``;
+const EmojiPicker = styled(EmojiPickerComponent)`
+  position: relative;
+`;
+
+const InputWrapper = styled.div`
+  display: flex;
+  flex-direction: row;
+  flex-grow: 1;
+  min-width: 0;
+  z-index: 0;
+  padding: 1px 0 1px 1px;
+  border: 1px solid ${colorGrayLightest};
+
+  [dir='ltr'] & {
+    border-radius: 0.75rem 0 0 0.75rem;
+  }
+
+  [dir='rtl'] & {
+    border-radius: 0 0.75rem 0.75rem 0;
+  }
+
+  &:focus-within {
+    border: 1px solid ${colorBlueLight};
+  }
+`;
 
 export default {
   Form,
@@ -159,5 +193,6 @@ export default {
   EmojiButtonWrapper,
   EmojiPicker,
   EmojiPickerWrapper,
-  Error,
+  ChatMessageError,
+  InputWrapper,
 };

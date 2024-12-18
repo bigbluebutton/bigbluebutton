@@ -1,64 +1,58 @@
-import Breakouts from '/imports/api/breakouts';
-import Meetings from '/imports/api/meetings';
-import Settings from '/imports/ui/services/settings';
-import Auth from '/imports/ui/services/auth/index';
-import deviceInfo from '/imports/utils/deviceInfo';
+import * as DarkReader from 'darkreader';
 import Styled from './styles';
-import DarkReader from 'darkreader';
 import logger from '/imports/startup/client/logger';
+import useMeeting from '../../core/hooks/useMeeting';
+import Storage from '/imports/ui/services/storage/session';
 
-export const getFontSize = () => {
-  const applicationSettings = Settings.application;
-  return applicationSettings ? applicationSettings.fontSize : '16px';
-};
+const CUSTOM_LOGO_URL_KEY = 'CustomLogoUrl';
 
-export const getBreakoutRooms = () => Breakouts.find().fetch();
+const CUSTOM_DARK_LOGO_URL_KEY = 'CustomDarkLogoUrl';
 
-export function meetingIsBreakout() {
-  const meeting = Meetings.findOne(
-    { meetingId: Auth.meetingID },
-    { fields: { isBreakout: 1 } },
-  );
+const equalURLs = () => (
+  Storage.getItem(CUSTOM_LOGO_URL_KEY) === Storage.getItem(CUSTOM_DARK_LOGO_URL_KEY)
+);
+
+export function useMeetingIsBreakout() {
+  const { data: meeting } = useMeeting((m) => ({
+    isBreakout: m.isBreakout,
+  }));
+
   return meeting && meeting.isBreakout;
 }
 
 export const setDarkTheme = (value) => {
+  let invert = [Styled.DtfInvert];
+
+  if (equalURLs()) {
+    invert = [Styled.DtfBrandingInvert];
+  }
+
   if (value && !DarkReader.isEnabled()) {
     DarkReader.enable(
       { brightness: 100, contrast: 90 },
       {
-        invert: [Styled.DtfInvert],
+        invert,
         ignoreInlineStyle: [Styled.DtfCss],
         ignoreImageAnalysis: [Styled.DtfImages],
-      }
-    );
-    logger.info(
-      {
-        logCode: 'dark_mode',
       },
-      'Dark mode is on.'
     );
+    logger.info({ logCode: 'dark_mode' }, 'Dark mode is on.');
+
+    window.dispatchEvent(new CustomEvent('darkmodechange', { detail: { enabled: true } }));
   }
 
   if (!value && DarkReader.isEnabled()) {
     DarkReader.disable();
-    logger.info(
-      {
-        logCode: 'dark_mode',
-      },
-      'Dark mode is off.'
-    );
+    logger.info({ logCode: 'dark_mode' }, 'Dark mode is off.');
+
+    window.dispatchEvent(new CustomEvent('darkmodechange', { detail: { enabled: false } }));
   }
 };
 
-export const isDarkThemeEnabled = () => {
-  return DarkReader.isEnabled();
-};
+export const isDarkThemeEnabled = () => DarkReader.isEnabled();
 
 export default {
-  getFontSize,
-  meetingIsBreakout,
-  getBreakoutRooms,
   setDarkTheme,
   isDarkThemeEnabled,
+  useMeetingIsBreakout,
 };

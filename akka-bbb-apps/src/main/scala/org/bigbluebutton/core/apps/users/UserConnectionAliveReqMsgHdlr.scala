@@ -1,6 +1,6 @@
 package org.bigbluebutton.core.apps.users
 
-import org.bigbluebutton.ClientSettings.{ getConfigPropertyValueByPathAsListOfIntOrElse, getConfigPropertyValueByPathAsListOfStringOrElse }
+import org.bigbluebutton.ClientSettings.getConfigPropertyValueByPathAsIntOrElse
 import org.bigbluebutton.common2.msgs._
 import org.bigbluebutton.core.apps.RightsManagementTrait
 import org.bigbluebutton.core.db.UserConnectionStatusDAO
@@ -31,25 +31,17 @@ trait UserConnectionAliveReqMsgHdlr extends RightsManagementTrait {
   }
 
   def getLevelFromRtt(networkRttInMs: Double): String = {
-    val levelOptions = getConfigPropertyValueByPathAsListOfStringOrElse(
-      liveMeeting.clientSettings,
-      "public.stats.level",
-      List("warning", "danger", "critical")
-    )
+    val clientSettings = liveMeeting.clientSettings
+    val warningValue = getConfigPropertyValueByPathAsIntOrElse(clientSettings, "public.stats.rtt.warning", 500)
+    val dangerValue = getConfigPropertyValueByPathAsIntOrElse(clientSettings, "public.stats.rtt.danger", 1000)
+    val criticalValue = getConfigPropertyValueByPathAsIntOrElse(clientSettings, "public.stats.rtt.critical", 2000)
 
-    val rttOptions = getConfigPropertyValueByPathAsListOfIntOrElse(
-      liveMeeting.clientSettings,
-      "public.stats.rtt",
-      List(500, 1000, 2000)
-    )
-
-    val statusRttXLevel = levelOptions.zip(rttOptions).reverse
-
-    val statusFound = statusRttXLevel.collectFirst {
-      case (level, rtt) if networkRttInMs > rtt => level
+    networkRttInMs match {
+      case rtt if rtt > criticalValue => "critical"
+      case rtt if rtt > dangerValue   => "danger"
+      case rtt if rtt > warningValue  => "warning"
+      case _                          => "normal"
     }
-
-    statusFound.getOrElse("normal")
   }
 
 }

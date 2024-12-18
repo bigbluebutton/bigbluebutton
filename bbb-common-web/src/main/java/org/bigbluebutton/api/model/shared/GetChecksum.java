@@ -3,16 +3,16 @@ package org.bigbluebutton.api.model.shared;
 import org.bigbluebutton.api.model.constraint.GetChecksumConstraint;
 import org.bigbluebutton.api.util.ParamsUtil;
 
+import javax.servlet.http.HttpServletRequest;
 import javax.validation.constraints.NotEmpty;
 
 @GetChecksumConstraint(groups = ChecksumValidationGroup.class)
 public class GetChecksum extends Checksum {
-
-    @NotEmpty(message = "You must provide the query string")
+    
     private String queryString;
 
-    public GetChecksum(String apiCall, String checksum, String queryString) {
-        super(apiCall, checksum);
+    public GetChecksum(String apiCall, String checksum, String queryString, HttpServletRequest request) {
+        super(apiCall, checksum, request);
         this.queryString = ParamsUtil.sanitizeString(queryString);
         removeChecksumFromQueryString();
     }

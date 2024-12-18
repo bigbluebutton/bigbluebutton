@@ -7,65 +7,66 @@ const customStyleAvoidUploadingNotifications = encodeCustomParams(`userdata-bbb_
 
 test.describe.parallel('Presentation', () => {
   // https://docs.bigbluebutton.org/2.6/release-tests.html#navigation-automated
-  test('Skip slide @ci', async ({ browser, context, page }) => {
+  test('Skip slide', { tag: '@ci' }, async ({ browser, context, page }) => {
     const presentation = new Presentation(browser, context);
     await presentation.initPages(page);
     await presentation.skipSlide();
   });
 
-  test('Share Camera As Content', async ({ browser, context, page }) => {
+  test('Share Camera As Content', { tag: '@ci' }, async ({ browser, context, page }) => {
     const presentation = new Presentation(browser, context);
     await presentation.initPages(page);
     await presentation.shareCameraAsContent();
   });
 
   // https://docs.bigbluebutton.org/2.6/release-tests.html#minimizerestore-presentation-automated
-  test('Hide/Restore presentation @ci', async ({ browser, context, page }) => {
+  test('Hide/Restore presentation', { tag: '@ci' }, async ({ browser, context, page }) => {
     const presentation = new Presentation(browser, context);
     await presentation.initPages(page);
     await presentation.hideAndRestorePresentation();
   });
 
   // https://docs.bigbluebutton.org/2.6/release-tests.html#start-youtube-video-sharing
-  test('Start external video @ci', async ({ browser, context, page }) => {
+  test('Start external video', { tag: [ '@ci', '@flaky' ] }, async ({ browser, context, page }) => {
     const presentation = new Presentation(browser, context);
     await presentation.initPages(page);
     await presentation.startExternalVideo();
   });
 
   // https://docs.bigbluebutton.org/2.6/release-tests.html#fit-to-width-option
-  test('Presentation fit to width @ci', async ({ browser, context, page }) => {
+  test('Presentation fit to width', { tag: '@ci' }, async ({ browser, context, page }) => {
     const presentation = new Presentation(browser, context);
     await presentation.initModPage(page, true, { createParameter: customStyleAvoidUploadingNotifications });
     await presentation.initUserPage(true, context);
     await presentation.fitToWidthTest();
   });
 
-  test('Presentation fullscreen @ci', async ({ browser, context, page }) => {
+  test('Presentation fullscreen', { tag: '@ci' }, async ({ browser, context, page }) => {
     const presentation = new Presentation(browser, context);
     await presentation.initPages(page);
     await presentation.presentationFullscreen();
   });
 
-  test('Presentation snapshot @ci @flaky', async ({ browser, context, page }, testInfo) => {
+  test('Presentation snapshot', { tag: '@ci' }, async ({ browser, context, page }, testInfo) => {
     const presentation = new Presentation(browser, context);
     await presentation.initPages(page);
     await presentation.presentationSnapshot(testInfo);
   });
 
-  test('Hide Presentation Toolbar @ci @flaky', async ({ browser, context, page }) => {
+  test('Hide Presentation Toolbar', { tag: ['@ci', '@flaky'] }, async ({ browser, context, page }) => {
     const presentation = new Presentation(browser, context);
     await presentation.initPages(page);
     await presentation.hidePresentationToolbar();
   });
 
-  test('Zoom In, Zoom Out, Reset Zoom @ci', async ({ browser, context, page }) => {
+  test('Zoom In, Zoom Out, Reset Zoom', { tag: ['@ci', '@flaky'] }, async ({ browser, context, page }) => {
+    // @flaky: see https://github.com/bigbluebutton/bigbluebutton/issues/21266
     const presentation = new Presentation(browser, context);
     await presentation.initPages(page);
     await presentation.zoom();
   });
 
-  test('Select Slide @ci', async ({ browser, context, page }) => {
+  test('Select Slide', { tag: '@ci' }, async ({ browser, context, page }) => {
     const presentation = new Presentation(browser, context);
     await presentation.initPages(page);
     await presentation.selectSlide();
@@ -73,13 +74,13 @@ test.describe.parallel('Presentation', () => {
 
   test.describe.parallel('Manage', () => {
     // https://docs.bigbluebutton.org/2.6/release-tests.html#uploading-a-presentation-automated
-    test('Upload single presentation @ci @flaky', async ({ browser, context, page }) => {
+    test('Upload single presentation', { tag: ['@ci', '@flaky'] }, async ({ browser, context, page }) => {
       const presentation = new Presentation(browser, context);
       await presentation.initPages(page, true);
       await presentation.uploadSinglePresentationTest();
     });
 
-    test('Upload Other Presentations Format @ci @flaky', async ({ browser, context, page }) => {
+    test('Upload Other Presentations Format', { tag: ['@ci', '@flaky'] }, async ({ browser, context, page }) => {
       linkIssue(18971);
       const presentation = new Presentation(browser, context);
       await presentation.initPages(page, true);
@@ -94,19 +95,19 @@ test.describe.parallel('Presentation', () => {
     });
 
     // https://docs.bigbluebutton.org/2.6/release-tests.html#enabling-and-disabling-presentation-download-automated
-    test('Enable and disable original presentation download @ci', async ({ browser, context, page }, testInfo) => {
+    test('Enable and disable original presentation download', { tag: '@ci' }, async ({ browser, context, page }, testInfo) => {
       const presentation = new Presentation(browser, context);
       await presentation.initPages(page);
       await presentation.enableAndDisablePresentationDownload(testInfo);
     });
     
-    test('Send presentation in the current state (with annotations) to chat for downloading @ci', async ({ browser, context, page }, testInfo) => {
+    test('Send presentation in the current state (with annotations) to chat for downloading', { tag: '@ci' }, async ({ browser, context, page }, testInfo) => {
       const presentation = new Presentation(browser, context);
       await presentation.initPages(page);
       await presentation.sendPresentationToDownload(testInfo);
     });
 
-    test('Remove all presentation @ci', async ({ browser, context, page }) => {
+    test('Remove all presentation', { tag: '@ci' }, async ({ browser, context, page }) => {
       const presentation = new Presentation(browser, context);
       await presentation.initPages(page);
       await presentation.removeAllPresentation();

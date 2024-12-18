@@ -1,10 +1,10 @@
 import { useEffect } from 'react';
 import { isEqual } from 'radash';
 import { defineMessages, useIntl } from 'react-intl';
-import { useSubscription } from '@apollo/client';
 import { UNREAD_CHATS_SUBSCRIPTION, UnreadChatsSubscriptionResponse } from './queries';
 import usePreviousValue from '/imports/ui/hooks/usePreviousValue';
 import { addAlert } from './service';
+import useDeduplicatedSubscription from '../../core/hooks/useDeduplicatedSubscription';
 
 const intlMessages = defineMessages({
   newMsgAria: {
@@ -18,7 +18,9 @@ const intlMessages = defineMessages({
 });
 
 const ScreenReaderAlertAdapter = () => {
-  const { data, error, loading } = useSubscription<UnreadChatsSubscriptionResponse>(UNREAD_CHATS_SUBSCRIPTION);
+  const { data, error, loading } = useDeduplicatedSubscription<UnreadChatsSubscriptionResponse>(
+    UNREAD_CHATS_SUBSCRIPTION,
+  );
   const previousData = usePreviousValue(data);
   const intl = useIntl();
 

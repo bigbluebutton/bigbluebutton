@@ -5,7 +5,6 @@ import './App.css';
 import { SubscriptionClient } from 'subscriptions-transport-ws';
 import Auth from "./Auth";
 
-
 function App() {
   const [sessionToken, setSessionToken] = useState(null);
   const [userId, setUserId] = useState(null);
@@ -18,7 +17,6 @@ function App() {
 
   const queryString = window.location.search;
   const urlParams = new URLSearchParams(queryString);
-
 
     const findSessionToken = async () => {
         if (urlParams.has('sessionToken')) {
@@ -36,6 +34,16 @@ function App() {
         findSessionToken();
     },[]);
 
+    function generateRandomString(length) {
+        const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+        let result = '';
+        const charactersLength = characters.length;
+        for (let i = 0; i < length; i++) {
+            result += characters.charAt(Math.floor(Math.random() * charactersLength));
+        }
+        return result;
+    }
+
   async function connectGraphqlServer(sessionToken) {
       if(sessionToken == null) return;
       console.log('connectGraphqlServer');
@@ -46,7 +54,9 @@ function App() {
           connectionParams: {
               headers: {
                   'X-Session-Token': sessionToken,
-                  'json-patch-supported': 'true'
+                  'X-ClientSessionUUID': generateRandomString(15),
+                  'X-ClientType': 'HTML5',
+                  'X-ClientIsMobile': 'false'
               }
           },
           connectionCallback: (error) => {
@@ -101,7 +111,6 @@ function App() {
         connectGraphqlServer(sessionToken);
 
     },[sessionToken]);
-
 
   return (
     <div className="App">

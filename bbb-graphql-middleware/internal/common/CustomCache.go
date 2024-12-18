@@ -6,32 +6,59 @@ import (
 
 var GlobalCacheLocks = NewCacheLocks()
 
+type refMutex struct {
+	mutex    *sync.Mutex
+	refCount int
+}
+
 type CacheLocks struct {
-	locks map[string]*sync.Mutex
+	locks map[uint32]*refMutex
 	mutex sync.Mutex // Protects the 'locks' map
 }
 
 func NewCacheLocks() *CacheLocks {
 	return &CacheLocks{
-		locks: make(map[string]*sync.Mutex),
+		locks: make(map[uint32]*refMutex),
 	}
 }
 
-func (c *CacheLocks) Lock(id string) {
+func (c *CacheLocks) Lock(id uint32) {
+	var rm *refMutex
+
 	c.mutex.Lock()
-	if _, exists := c.locks[id]; !exists {
-		c.locks[id] = &sync.Mutex{}
+	if existingRm, exists := c.locks[id]; !exists {
+		rm = &refMutex{
+			mutex:    &sync.Mutex{},
+			refCount: 1,
+		}
+		c.locks[id] = rm
+	} else {
+		rm = existingRm
+		rm.refCount++
 	}
-	mtx := c.locks[id]
 	c.mutex.Unlock()
 
-	mtx.Lock() // Lock the specific ID mutex
+	// Lock rm.mutex outside of c.mutex to avoid deadlocks
+	rm.mutex.Lock()
 }
 
-func (c *CacheLocks) Unlock(id string) {
+func (c *CacheLocks) Unlock(id uint32) {
+	var rm *refMutex
+
 	c.mutex.Lock()
-	if mtx, exists := c.locks[id]; exists {
-		mtx.Unlock()
+	if existingRm, exists := c.locks[id]; exists {
+		rm = existingRm
+		rm.refCount--
+		if rm.refCount == 0 {
+			delete(c.locks, id)
+		}
+	} else {
+		// Handle the case where Unlock is called without a corresponding Lock
+		c.mutex.Unlock()
+		return
 	}
 	c.mutex.Unlock()
+
+	// Unlock rm.mutex outside of c.mutex to avoid deadlocks
+	rm.mutex.Unlock()
 }

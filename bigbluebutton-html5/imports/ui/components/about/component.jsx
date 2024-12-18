@@ -1,5 +1,5 @@
 import React from 'react';
-import { defineMessages, injectIntl } from 'react-intl';
+import { defineMessages, injectIntl, useIntl } from 'react-intl';
 import ModalSimple from '/imports/ui/components/common/modal/simple/component';
 
 const intlMessages = defineMessages({
@@ -39,7 +39,10 @@ const intlMessages = defineMessages({
 });
 
 const AboutComponent = (props) => {
-  const { intl, settings, isOpen, onRequestClose, priority, } = props;
+  const {
+    settings, isOpen, onRequestClose, priority,
+  } = props;
+  const intl = useIntl();
   const {
     html5ClientBuild,
     copyright,

@@ -13,7 +13,12 @@ trait PresentationConversionUpdatePubMsgHdlr {
   def handle(msg: PresentationConversionUpdateSysPubMsg, state: MeetingState2x,
              liveMeeting: LiveMeeting, bus: MessageBus): MeetingState2x = {
 
-    //    broadcastEvent(msg)
+    val presentationId = msg.body.presentationId
+    val pres = new PresentationInPod(presentationId, msg.body.presName, default = false, current = false, Map.empty, downloadable = false,
+      "", removable = true, filenameConverted = msg.body.presName, uploadCompleted = false, numPages = 0, errorDetails = Map.empty)
+
+    PresPresentationDAO.updateConversionStarted(liveMeeting.props.meetingProp.intId, pres)
+
     state
   }
 }

@@ -1,15 +1,18 @@
-import React, { useContext, useEffect } from 'react';
-import { setMeetingSettings } from '../../core/local-states/useMeetingSettings';
-import MeetingClientSettings from '../../Types/meetingClientSettings';
-import ClientStartup from '/client/clientStartup';
-import { LoadingContext } from '../common/loading-screen/loading-screen-HOC/component';
-import CustomUsersSettings from '../join-handler/custom-users-settings/component';
-import logger from '/imports/startup/client/logger';
+import React, { useEffect } from 'react';
+import { v4 as uuid } from 'uuid';
+import { setMeetingSettings } from '/imports/ui/core/local-states/useMeetingSettings';
+import MeetingClientSettings from '/imports/ui/Types/meetingClientSettings';
+import { ErrorScreen } from '/imports/ui/components/error-screen/component';
+import LoadingScreen from '/imports/ui/components/common/loading-screen/component';
+import Session from '/imports/ui/services/storage/in-memory';
+import BBBWeb from '/imports/api/bbb-web-api';
+
+const connectionTimeout = 60000;
 
 interface Response {
   meeting_clientSettings: Array<{
     clientSettingsJson: MeetingClientSettings,
-  }>
+  }>;
 }
 
 declare global {
@@ -18,43 +21,81 @@ declare global {
   }
 }
 
-const SettingsLoader: React.FC = () => {
-  const [allowToRender, setAllowToRender] = React.useState(false);
-  const loadingContextInfo = useContext(LoadingContext);
-  useEffect(() => {
-    logger.info('Fetching settings');
-    loadingContextInfo.setLoading(true, '3/4');
-  }, []);
+interface SettingsLoaderProps {
+  children: React.ReactNode;
+}
+
+const SettingsLoader: React.FC<SettingsLoaderProps> = (props) => {
+  const { children } = props;
+  const [settingsFetched, setSettingsFetched] = React.useState(false);
+  const [error, setError] = React.useState<string | null>(null);
+  const [loading, setLoading] = React.useState<boolean>(false);
+  const timeoutRef = React.useRef<ReturnType<typeof setTimeout>>();
 
   useEffect(() => {
+    setLoading(true);
+
+    const controller = new AbortController();
+    timeoutRef.current = setTimeout(() => {
+      controller.abort();
+      setError('Timeout fetching client settings');
+      setLoading(false);
+    }, connectionTimeout);
+
+    const clientSessionUUID = uuid();
+    sessionStorage.setItem('clientSessionUUID', clientSessionUUID);
+
     const urlParams = new URLSearchParams(window.location.search);
     const sessionToken = urlParams.get('sessionToken');
-    const clientStartupSettings = `/api/rest/clientSettings/?sessionToken=${sessionToken}`;
-    const url = new URL(`${window.location.origin}${clientStartupSettings}`);
-    fetch(url, { method: 'get' })
-      .then((resp) => resp.json())
-      .then((data: Response) => {
-        const settings = data?.meeting_clientSettings[0].clientSettingsJson;
 
-        window.meetingClientSettings = JSON.parse(JSON.stringify(settings as unknown as MeetingClientSettings));
-        const Meteor = { settings: {} };
-        Meteor.settings = window.meetingClientSettings;
-        setMeetingSettings(settings as unknown as MeetingClientSettings);
-        setAllowToRender(true);
-      }).catch(() => {
-        loadingContextInfo.setLoading(false, '');
-        throw new Error('Error on requesting client settings data.');
+    if (!sessionToken) {
+      setLoading(false);
+      setError('Missing session token');
+      return;
+    }
+
+    BBBWeb.index(controller.signal)
+      .then(({ data }) => {
+        const url = new URL(`${data.graphqlApiUrl}/clientSettings`);
+        fetch(url, {
+          method: 'get',
+          credentials: 'include',
+          headers: {
+            'x-session-token': sessionToken ?? '',
+          },
+          signal: controller.signal,
+        })
+          .then((resp) => resp.json())
+          .then((data: Response) => {
+            clearTimeout(timeoutRef.current);
+            const settings = data?.meeting_clientSettings[0].clientSettingsJson;
+            window.meetingClientSettings = JSON.parse(JSON.stringify(settings));
+            setMeetingSettings(settings);
+            setLoading(false);
+            setSettingsFetched(true);
+          }).catch(() => {
+            setLoading(false);
+            setError('Error fetching client settings');
+            Session.setItem('errorMessageDescription', 'meeting_ended');
+          });
+      }).catch((error) => {
+        setLoading(false);
+        setError('Error fetching GraphQL URL: '.concat(error.message || ''));
       });
-    // }
   }, []);
+
   return (
-    (allowToRender)
-      ? (
-        <CustomUsersSettings>
-          <ClientStartup />
-        </CustomUsersSettings>
-      )
-      : null
+    <>
+      {settingsFetched ? children : null}
+      {error ? (
+        <ErrorScreen
+          endedReason={error}
+        />
+      ) : null}
+      {loading ? (
+        <LoadingScreen />
+      ) : null}
+    </>
   );
 };
 

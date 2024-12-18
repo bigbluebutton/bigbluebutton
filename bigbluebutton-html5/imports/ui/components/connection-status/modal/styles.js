@@ -17,7 +17,6 @@ import {
   titlePositionLeft,
   mdPaddingX,
   borderSizeLarge,
-  jumboPaddingY,
 } from '/imports/ui/stylesheets/styled-components/general';
 import {
   fontSizeSmall,
@@ -81,7 +80,6 @@ const ClientNotRespondingText = styled.div`
     width: 100%;
   }
 `;
-
 
 const Text = styled.div`
   padding-left: .5rem;
@@ -165,7 +163,7 @@ const CopyContainer = styled.div`
   justify-content: flex-end;
   border: none;
   border-top: 1px solid ${colorOffWhite};
-  padding: ${jumboPaddingY} 0 0;
+  padding: ${mdPaddingX} 0 0 0;
 `;
 
 const ConnectionStatusModal = styled(ModalSimple)`

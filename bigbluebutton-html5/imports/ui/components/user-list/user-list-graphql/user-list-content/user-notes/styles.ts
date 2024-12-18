@@ -15,6 +15,10 @@ const UnreadMessagesText = styled(StyledContent.UnreadMessagesText)``;
 
 const ListItem = styled(StyledContent.ListItem)`
   i{ left: 4px; }
+
+  :disabled {
+    border: none;
+  }
 `;
 
 const NotesTitle = styled.div`
@@ -27,8 +31,9 @@ const NotesLock = styled.div`
   font-size: ${fontSizeSmaller};
   color: ${colorGray};
 
-  > i {
+  > span i {
     font-size: ${fontSizeXS};
+    left: 0;
   }
 `;
 

@@ -21,20 +21,20 @@ test.describe('Learning Dashboard', async () => {
     await learningDashboard.userTimeOnMeeting();
   });
 
-  test('Polls @ci', async () => {
+  test('Polls', { tag: '@ci' }, async () => {
     await learningDashboard.initUserPage(true, learningDashboard.modPage.context, { isRecording: true });
     await learningDashboard.polls();
   });
 
-  test('Basic Infos @ci', async () => {
+  test('Basic Infos', { tag: '@ci' }, async () => {
     await learningDashboard.basicInfos();
   });
-
-  test('Overview', async () => {
+  
+  test('Overview', { tag: '@ci' }, async () => {
     await learningDashboard.overview();
   });
 
-  test('Download Session Learning Dashboard @ci', async ({}, testInfo) => {
+  test('Download Session Learning Dashboard', { tag: '@ci' }, async ({}, testInfo) => {
     await learningDashboard.downloadSessionLearningDashboard(testInfo);
   });  
 });

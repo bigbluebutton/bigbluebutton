@@ -7,7 +7,7 @@ import {
 import Button from '/imports/ui/components/common/button/component';
 
 const SwitchButtonWrapper = styled.div`
-  position: absolute;
+  position: relative;
   right: 0;
   left: auto;
   background-color: ${colorTransparent};

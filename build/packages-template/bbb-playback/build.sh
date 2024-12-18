@@ -29,9 +29,10 @@ export REACT_APP_BBB_PLAYBACK_BUILD=$(git rev-parse --short HEAD)
 
 npm install
 npm run-script build
+grep \"version\"\: package.json | sed -e 's|.*\ \"||g' -e 's|\".*||g' > bbb-playback-version
+mkdir -p $BBB_PLAYBACK
+cp -r ./build/* bbb-playback-version $BBB_PLAYBACK
 
-mkdir -p $BBB_PLAYBACK_BASE
-cp -r ./build $BBB_PLAYBACK
 
 mkdir -p staging/usr/share/bigbluebutton/nginx
 cp playback.nginx staging/usr/share/bigbluebutton/nginx

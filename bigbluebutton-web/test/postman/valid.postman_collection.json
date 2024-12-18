@@ -159,30 +159,6 @@
 			"response": []
 		},
 		{
-			"name": "enter",
-			"request": {
-				"method": "GET",
-				"header": [],
-				"url": {
-					"raw": "{{base_url}}/{{path}}/enter?{{param_session_token}}={{session_token}}",
-					"host": [
-						"{{base_url}}"
-					],
-					"path": [
-						"{{path}}",
-						"enter"
-					],
-					"query": [
-						{
-							"key": "{{param_session_token}}",
-							"value": "{{session_token}}"
-						}
-					]
-				}
-			},
-			"response": []
-		},
-		{
 			"name": "isMeetingRunning",
 			"event": [
 				{

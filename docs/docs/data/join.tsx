@@ -50,6 +50,12 @@ const joinEndpointTableData = [
     "description": (<>The link for the user’s avatar to be displayed (default can be enabled/disabled and set with “useDefaultAvatar“ and “defaultAvatarURL“ in bbb-web.properties).</>)
   },
   {
+    "name": "webcamBackgroundURL",
+    "required": false,
+    "type": "String",
+    "description": (<>The link for the user's webcam background to be displayed (default can be enabled/disabled and set with “useDefaultWebcamBackground“ and “defaultWebcamBackgroundURL“ in bigbluebutton.properties). Added in BigBlueButton 2.7.10.</>)
+  },
+  {
     "name": "redirect",
     "required": false,
     "type": "String",
@@ -62,17 +68,22 @@ const joinEndpointTableData = [
     "description": (<>A custom URL to redirect users to when an error occurs while joining. By default users are redirected to the meeting's default logout URL.</>)
   },
   {
-    "name": "joinViaHtml5",
+    "name": "logoutURL",
     "required": false,
     "type": "String",
-    "description": (<><b>[DEPRECATED]</b>Set to “true” to force the HTML5 client to load for the user. (removed in 2.3 since HTML5 is the only client)</>),
-    "deprecated": true
+    "description": (<>A custom URL to redirect client when the user click on OK button in the meeting ended screen. By default users are redirected to the meeting's default logout URL.</>)
   },
   {
     "name": "guest",
     "required": false,
     "type": "String",
     "description": (<>Set to “true” to indicate that the user is a guest, otherwise do NOT send this parameter.</>)
+  },
+  {
+    "name": "bot",
+    "required": false,
+    "type": "String",
+    "description": (<>Set to “true” to indicate that the user is a bot or an automated agent, otherwise do NOT send this parameter.</>)
   },
   {
     "name": "excludeFromDashboard",

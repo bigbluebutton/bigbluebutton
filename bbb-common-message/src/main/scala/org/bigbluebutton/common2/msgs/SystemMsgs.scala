@@ -30,34 +30,6 @@ case class EndMeetingSysCmdMsg(
 ) extends StandardMsg
 case class EndMeetingSysCmdMsgBody(meetingId: String)
 
-object GetAllMeetingsReqMsg { val NAME = "GetAllMeetingsReqMsg" }
-case class GetAllMeetingsReqMsg(
-    header: BbbCoreBaseHeader,
-    body:   GetAllMeetingsReqMsgBody
-) extends BbbCoreMsg
-case class GetAllMeetingsReqMsgBody(requesterId: String)
-
-object GetRunningMeetingsReqMsg { val NAME = "GetRunningMeetingsReqMsg" }
-case class GetRunningMeetingsReqMsg(
-    header: BbbCoreBaseHeader,
-    body:   GetRunningMeetingsReqMsgBody
-) extends BbbCoreMsg
-case class GetRunningMeetingsReqMsgBody(requesterId: String)
-
-object GetRunningMeetingsRespMsg { val NAME = "GetRunningMeetingsRespMsg" }
-case class GetRunningMeetingsRespMsg(
-    header: BbbCoreBaseHeader,
-    body:   GetRunningMeetingsRespMsgBody
-) extends BbbCoreMsg
-case class GetRunningMeetingsRespMsgBody(meetings: Vector[String])
-
-object GetRunningMeetingStateReqMsg { val NAME = "GetRunningMeetingStateReqMsg" }
-case class GetRunningMeetingStateReqMsg(
-    header: BbbCoreBaseHeader,
-    body:   GetRunningMeetingStateReqMsgBody
-) extends BbbCoreMsg
-case class GetRunningMeetingStateReqMsgBody(meetingId: String)
-
 object PubSubPingSysReqMsg { val NAME = "PubSubPingSysReqMsg" }
 case class PubSubPingSysReqMsg(
     header: BbbCoreBaseHeader,
@@ -141,20 +113,6 @@ case class DisconnectAllClientsSysMsg(
 ) extends BbbCoreMsg
 case class DisconnectAllClientsSysMsgBody(meetingId: String, reason: String)
 
-object DisconnectClientSysMsg { val NAME = "DisconnectClientSysMsg" }
-case class DisconnectClientSysMsg(
-    header: BbbCoreHeaderWithMeetingId,
-    body:   DisconnectClientSysMsgBody
-) extends BbbCoreMsg
-case class DisconnectClientSysMsgBody(meetingId: String, userId: String, ejectedBy: String, reason: String)
-
-object EndAndKickAllSysMsg { val NAME = "EndAndKickAllSysMsg" }
-case class EndAndKickAllSysMsg(
-    header: BbbCoreHeaderWithMeetingId,
-    body:   EndAndKickAllSysMsgBody
-) extends BbbCoreMsg
-case class EndAndKickAllSysMsgBody(meetingId: String)
-
 object RecordStatusResetSysMsg { val NAME = "RecordStatusResetSysMsg" }
 case class RecordStatusResetSysMsg(
     header: BbbCoreHeaderWithMeetingId,
@@ -162,26 +120,12 @@ case class RecordStatusResetSysMsg(
 ) extends BbbCoreMsg
 case class RecordStatusResetSysMsgBody(recording: Boolean, setBy: String)
 
-object SyncGetMeetingInfoRespMsg { val NAME = "SyncGetMeetingInfoRespMsg" }
-case class SyncGetMeetingInfoRespMsg(
-    header: BbbCoreBaseHeader,
-    body:   SyncGetMeetingInfoRespMsgBody
-) extends BbbCoreMsg
-case class SyncGetMeetingInfoRespMsgBody(props: DefaultProps)
-
 object PubSubPongSysRespMsg { val NAME = "PubSubPongSysRespMsg" }
 case class PubSubPongSysRespMsg(
     header: BbbCoreBaseHeader,
     body:   PubSubPongSysRespMsgBody
 ) extends BbbCoreMsg
 case class PubSubPongSysRespMsgBody(system: String, timestamp: Long)
-
-object MeetingTimeRemainingUpdateEvtMsg { val NAME = "MeetingTimeRemainingUpdateEvtMsg" }
-case class MeetingTimeRemainingUpdateEvtMsg(
-    header: BbbClientMsgHeader,
-    body:   MeetingTimeRemainingUpdateEvtMsgBody
-) extends BbbCoreMsg
-case class MeetingTimeRemainingUpdateEvtMsgBody(timeLeftInSec: Long, timeUpdatedInMinutes: Int)
 
 object CheckAlivePingSysMsg { val NAME = "CheckAlivePingSysMsg" }
 case class CheckAlivePingSysMsg(
@@ -203,22 +147,6 @@ case class RecordingChapterBreakSysMsg(
     body:   RecordingChapterBreakSysMsgBody
 ) extends BbbCoreMsg
 case class RecordingChapterBreakSysMsgBody(meetingId: String, timestamp: Long)
-
-object ValidateConnAuthTokenSysMsg { val NAME = "ValidateConnAuthTokenSysMsg" }
-case class ValidateConnAuthTokenSysMsg(
-    header: BbbCoreBaseHeader,
-    body:   ValidateConnAuthTokenSysMsgBody
-) extends BbbCoreMsg
-case class ValidateConnAuthTokenSysMsgBody(meetingId: String, userId: String, authToken: String,
-                                           connId: String, app: String)
-
-object ValidateConnAuthTokenSysRespMsg { val NAME = "ValidateConnAuthTokenSysRespMsg" }
-case class ValidateConnAuthTokenSysRespMsg(
-    header: BbbCoreHeaderWithMeetingId,
-    body:   ValidateConnAuthTokenSysRespMsgBody
-) extends BbbCoreMsg
-case class ValidateConnAuthTokenSysRespMsgBody(meetingId: String, userId: String,
-                                               connId: String, authzed: Boolean, app: String)
 
 object PublishedRecordingSysMsg { val NAME = "PublishedRecordingSysMsg" }
 case class PublishedRecordingSysMsg(header: BbbCoreBaseHeader, body: PublishedRecordingSysMsgBody) extends BbbCoreMsg
@@ -262,6 +190,13 @@ case class ForceUserGraphqlReconnectionSysMsg(
 ) extends BbbCoreMsg
 case class ForceUserGraphqlReconnectionSysMsgBody(meetingId: String, userId: String, sessionToken: String, reason: String)
 
+object ForceUserGraphqlDisconnectionSysMsg { val NAME = "ForceUserGraphqlDisconnectionSysMsg" }
+case class ForceUserGraphqlDisconnectionSysMsg(
+    header: BbbCoreHeaderWithMeetingId,
+    body:   ForceUserGraphqlDisconnectionSysMsgBody
+) extends BbbCoreMsg
+case class ForceUserGraphqlDisconnectionSysMsgBody(meetingId: String, userId: String, sessionToken: String, reason: String, reasonMessageId: String)
+
 /**
  * Sent from graphql-middleware to akka-apps
  */
@@ -273,12 +208,26 @@ case class UserGraphqlReconnectionForcedEvtMsg(
 ) extends BbbCoreMsg
 case class UserGraphqlReconnectionForcedEvtMsgBody(middlewareUID: String, sessionToken: String, browserConnectionId: String)
 
+object UserGraphqlDisconnectionForcedEvtMsg { val NAME = "UserGraphqlDisconnectionForcedEvtMsg" }
+case class UserGraphqlDisconnectionForcedEvtMsg(
+    header: BbbCoreBaseHeader,
+    body:   UserGraphqlDisconnectionForcedEvtMsgBody
+) extends BbbCoreMsg
+case class UserGraphqlDisconnectionForcedEvtMsgBody(middlewareUID: String, sessionToken: String, browserConnectionId: String)
+
 object UserGraphqlConnectionEstablishedSysMsg { val NAME = "UserGraphqlConnectionEstablishedSysMsg" }
 case class UserGraphqlConnectionEstablishedSysMsg(
     header: BbbCoreBaseHeader,
     body:   UserGraphqlConnectionEstablishedSysMsgBody
 ) extends BbbCoreMsg
-case class UserGraphqlConnectionEstablishedSysMsgBody(middlewareUID: String, sessionToken: String, browserConnectionId: String)
+case class UserGraphqlConnectionEstablishedSysMsgBody(
+    middlewareUID:       String,
+    sessionToken:        String,
+    clientSessionUUID:   String,
+    clientType:          String,
+    clientIsMobile:      Boolean,
+    browserConnectionId: String
+)
 
 object UserGraphqlConnectionClosedSysMsg { val NAME = "UserGraphqlConnectionClosedSysMsg" }
 case class UserGraphqlConnectionClosedSysMsg(

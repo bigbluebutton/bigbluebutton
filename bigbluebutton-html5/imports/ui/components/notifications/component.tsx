@@ -1,4 +1,3 @@
-import { useSubscription } from '@apollo/client';
 import React, { useEffect } from 'react';
 import { FormattedMessage } from 'react-intl';
 import { Notification, NotificationResponse, getNotificationsStream } from './queries';
@@ -11,6 +10,8 @@ import {
   userJoinPushAlert,
   userLeavePushAlert,
 } from './service';
+import useDeduplicatedSubscription from '../../core/hooks/useDeduplicatedSubscription';
+import { getSettingsSingletonInstance } from '/imports/ui/services/settings';
 
 const Notifications: React.FC = () => {
   const [registeredAt, setRegisteredAt] = React.useState<string>(new Date().toISOString());
@@ -35,10 +36,34 @@ const Notifications: React.FC = () => {
     isModerator: u.isModerator,
   }));
 
+  const Settings = getSettingsSingletonInstance();
+  const {
+    userJoinPushAlerts,
+    userJoinAudioAlerts,
+    userLeavePushAlerts,
+    userLeaveAudioAlerts,
+    guestWaitingPushAlerts,
+    guestWaitingAudioAlerts,
+  } = Settings.application;
+
+  const excludedMessageIds = [];
+
+  if (!userJoinPushAlerts && !userJoinAudioAlerts) {
+    excludedMessageIds.push('app.notification.userJoinPushAlert');
+  }
+
+  if (!userLeavePushAlerts && !userLeaveAudioAlerts) {
+    excludedMessageIds.push('app.notification.userLeavePushAlert');
+  }
+
+  if (!guestWaitingPushAlerts && !guestWaitingAudioAlerts) {
+    excludedMessageIds.push('app.userList.guest.pendingGuestAlert');
+  }
+
   const {
     data: notificationsStream,
-  } = useSubscription<NotificationResponse>(getNotificationsStream, {
-    variables: { initialCursor: '2024-04-18' },
+  } = useDeduplicatedSubscription<NotificationResponse>(getNotificationsStream, {
+    variables: { initialCursor: '2024-04-18', excludedMessageIds },
   });
 
   const notifier = (notification: Notification) => {

@@ -1,11 +1,10 @@
 import React from 'react';
-import { withTracker } from 'meteor/react-meteor-data';
-import Meetings from '/imports/api/meetings';
-import Auth from '/imports/ui/services/auth';
 import { useMutation } from '@apollo/client';
 import LockViewersComponent from './component';
 import useCurrentUser from '/imports/ui/core/hooks/useCurrentUser';
 import { SET_LOCK_SETTINGS_PROPS, SET_WEBCAM_ONLY_FOR_MODERATOR } from './mutations';
+import useMeeting from '../../core/hooks/useMeeting';
+import { useIsChatEnabled, useIsPrivateChatEnabled, useIsSharedNotesEnabled } from '../../services/features';
 
 const LockViewersContainer = (props) => {
   const { data: currentUserData } = useCurrentUser((user) => ({
@@ -41,17 +40,29 @@ const LockViewersContainer = (props) => {
     });
   };
 
-  return amIModerator && (
+  const { setIsOpen } = props;
+  const closeModal = () => setIsOpen(false);
+  const { data: meeting } = useMeeting((m) => ({
+    lockSettings: m.lockSettings,
+    usersPolicies: m.usersPolicies,
+  }));
+  const isChatEnabled = useIsChatEnabled();
+  const isPrivateChatEnabled = useIsPrivateChatEnabled();
+  const isSharedNotesEnabled = useIsSharedNotesEnabled();
+
+  return amIModerator && meeting && (
     <LockViewersComponent
       updateWebcamsOnlyForModerator={updateWebcamsOnlyForModerator}
       updateLockSettings={updateLockSettings}
+      closeModal={closeModal}
+      showToggleLabel={false}
+      meeting={meeting}
+      isChatEnabled={isChatEnabled}
+      isPrivateChatEnabled={isPrivateChatEnabled}
+      isSharedNotesEnabled={isSharedNotesEnabled}
       {...props}
     />
   );
 };
 
-export default withTracker(({ setIsOpen }) => ({
-  closeModal: () => setIsOpen(false),
-  meeting: Meetings.findOne({ meetingId: Auth.meetingID }),
-  showToggleLabel: false,
-}))(LockViewersContainer);
+export default LockViewersContainer;

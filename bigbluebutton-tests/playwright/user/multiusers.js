@@ -82,116 +82,95 @@ class MultiUsers {
   }
 
   async userPresence() {
-    await this.modPage.checkElementCount(e.currentUser, 1);
-    await this.modPage.checkElementCount(e.userListItem, 1);
-    await this.userPage.checkElementCount(e.currentUser, 1);
-    await this.userPage.checkElementCount(e.userListItem, 1);
+    await this.modPage.checkElementCount(e.currentUser, 1, 'should contain one current user for the moderator');
+    await this.modPage.checkElementCount(e.userListItem, 1, 'should contain one user on user list for the moderator');
+    await this.userPage.checkElementCount(e.currentUser, 1, 'should contain one current user for the attendee');
+    await this.userPage.checkElementCount(e.userListItem, 1, 'should contain one user on user list for the attendee');
   }
 
   async makePresenter() {
     await this.modPage.waitAndClick(e.userListItem);
     await this.modPage.waitAndClick(e.makePresenter);
-    await this.modPage.wasRemoved(e.wbToolbar);
+    await this.modPage.wasRemoved(e.wbToolbar, 'should not display the whiteboard toolbar for the moderator');
 
-    await this.userPage.hasElement(e.startScreenSharing);
-    await this.userPage.hasElement(e.presentationToolbarWrapper);
-    await this.userPage.hasElement(e.wbToolbar);
-    await this.userPage.hasElement(e.actions);
-    await this.userPage.hasElement(e.userListItem);
+    await this.userPage.hasElement(e.startScreenSharing, 'should display the start screenshare button for the attendee');
+    await this.userPage.hasElement(e.presentationToolbarWrapper, 'should display the presentation toolbar for the attendee');
+    await this.userPage.hasElement(e.wbToolbar, 'should display the whiteboard toolbar for the attendee');
+    await this.userPage.hasElement(e.actions, 'should display the actions button for the attendee');
+    await this.userPage.hasElement(e.userListItem, 'should display the user list item for the attendee');
     const isPresenter = await checkIsPresenter(this.userPage);
-    await expect(isPresenter).toBeTruthy();
+    await expect(isPresenter, 'should the attende be presenter').toBeTruthy();
   }
 
   async takePresenter() {
     await this.modPage2.waitAndClick(e.currentUser);
     await this.modPage2.waitAndClick(e.takePresenter);
-    await this.modPage.wasRemoved(e.wbToolbar);
+    await this.modPage.wasRemoved(e.wbToolbar, 'should not display the whiteboard toolbar for the moderator');
 
-    await this.modPage2.hasElement(e.startScreenSharing);
-    await this.modPage2.hasElement(e.wbToolbar);
-    await this.modPage2.hasElement(e.presentationToolbarWrapper);
-    await this.modPage2.hasElement(e.userListItem);
+    await this.modPage2.hasElement(e.startScreenSharing, 'should display the start screenshare button for the second moderator');
+    await this.modPage2.hasElement(e.wbToolbar, 'should display the whiteboard toolbar for the second moderator');
+    await this.modPage2.hasElement(e.presentationToolbarWrapper, 'should presentation toolbar for the second moderator');
+    await this.modPage2.hasElement(e.userListItem, 'should display the user list item for the second moderator');
     const isPresenter = await checkIsPresenter(this.modPage2);
-    await expect(isPresenter).toBeTruthy();
+    await expect(isPresenter, 'should the second moderator to be presenter').toBeTruthy();
     await this.modPage2.waitAndClick(e.actions);
-    await this.modPage2.hasElement(e.managePresentations);
-    await this.modPage2.hasElement(e.polling);
-    await this.modPage2.hasElement(e.shareExternalVideoBtn);
+    await this.modPage2.hasElement(e.managePresentations, 'should display the manage presentations for the second moderator');
+    await this.modPage2.hasElement(e.polling, 'should display the polling option for the second moderator');
+    await this.modPage2.hasElement(e.shareExternalVideoBtn, 'should display the share external video button for the second moderator');
   }
 
   async promoteToModerator() {
     await checkAvatarIcon(this.userPage, false);
-    await this.userPage.wasRemoved(e.manageUsers);
+    await this.userPage.wasRemoved(e.manageUsers, 'should not display the manage users  for the attendee');
     await this.modPage.waitAndClick(e.userListItem);
     await this.modPage.waitAndClick(e.promoteToModerator);
     await checkAvatarIcon(this.userPage);
-    await this.userPage.hasElement(e.manageUsers);
+    await this.userPage.hasElement(e.manageUsers, 'should display the manage users for the attendee');
   }
 
   async demoteToViewer() {
     await checkAvatarIcon(this.modPage2);
-    await this.modPage2.hasElement(e.manageUsers);
+    await this.modPage2.hasElement(e.manageUsers, 'should display the manage users for the second moderator');
     await this.modPage.waitAndClick(e.userListItem);
     await this.modPage.waitAndClick(e.demoteToViewer);
     await checkAvatarIcon(this.modPage2, false);
-    await this.modPage2.wasRemoved(e.manageUsers);
+    await this.modPage2.wasRemoved(e.manageUsers, 'should not display the manage users for the second moderator');
   }
 
   async raiseAndLowerHand() {
-    const { reactionsButton } = getSettings();
-    if (!reactionsButton) {
-      await this.modPage.waitForSelector(e.whiteboard);
-      await this.modPage.hasElement(e.joinAudio);
-      await this.modPage.wasRemoved(e.reactionsButton);
-      return;
-    }
-
+    await this.modPage.waitForSelector(e.whiteboard);
     await this.initUserPage();
-    await this.userPage.waitAndClick(e.reactionsButton);
     await this.userPage.waitAndClick(e.raiseHandBtn);
-    await this.userPage.waitAndClick(e.reactionsButton);
-    await this.userPage.hasElement(e.lowerHandBtn);
-    await this.modPage.comparingSelectorsBackgroundColor(e.avatarsWrapperAvatar, `${e.userListItem}`);
-    await sleep(1000);
-    await this.userPage.waitAndClick(e.lowerHandBtn);
-    await this.userPage.waitAndClick(e.reactionsButton);
     await this.userPage.hasElement(e.raiseHandBtn);
+    await this.modPage.comparingSelectorsBackgroundColor(e.avatarsWrapperAvatar, `${e.userListItem} div:first-child`);
+    await sleep(1000);
+    await this.userPage.waitAndClick(e.raiseHandBtn);
+    await this.userPage.hasElement(e.raiseHandBtn, 'should display the raise hand button for the attendee');
   }
 
   async raiseHandRejected() {
-    const { reactionsButton } = getSettings();
-    if (!reactionsButton) {
-      await this.modPage.waitForSelector(e.whiteboard);
-      await this.modPage.hasElement(e.joinAudio);
-      await this.modPage.wasRemoved(e.reactionsButton);
-      return
-    }
-
-    await waitAndClearDefaultPresentationNotification(this.modPage);
+    await this.modPage.waitForSelector(e.whiteboard);
     await this.initUserPage();
-    await this.userPage.waitAndClick(e.reactionsButton);
     await this.userPage.waitAndClick(e.raiseHandBtn);
-    await this.userPage.waitAndClick(e.reactionsButton);
-    await this.userPage.hasElement(e.lowerHandBtn);
+    await this.userPage.hasElement(e.raiseHandBtn, 'should display the lower hand button for the attendee');
     await this.userPage.press('Escape');
-    await this.modPage.comparingSelectorsBackgroundColor(e.avatarsWrapperAvatar, `${e.userListItem}`);
+    await this.modPage.comparingSelectorsBackgroundColor(e.avatarsWrapperAvatar, `${e.userListItem} div:first-child`);
     await this.modPage.waitAndClick(e.raiseHandRejection);
-    await this.userPage.waitAndClick(e.reactionsButton);
-    await this.userPage.hasElement(e.raiseHandBtn);
+    await this.userPage.hasElement(e.raiseHandBtn, 'should display the raise hand button for the attendee');
   }
 
   async toggleUserList() {
-    await this.modPage.hasElement(e.chatWelcomeMessageText);
-    await this.modPage.hasElement(e.chatBox);
-    await this.modPage.hasElement(e.chatButton);
+    await this.modPage.hasElement(e.chatWelcomeMessageText, 'should display the public chat welcome message for the moderator ');
+    await this.modPage.hasElement(e.chatBox, 'should display the public chat box for the moderator');
+    await this.modPage.hasElement(e.chatButton, 'should display the public chat button for the moderator');
     await this.modPage.waitAndClick(e.userListToggleBtn);
-    await this.modPage.wasRemoved(e.chatWelcomeMessageText);
-    await this.modPage.wasRemoved(e.chatBox);
-    await this.modPage.wasRemoved(e.chatButton);
+    await this.modPage.wasRemoved(e.chatWelcomeMessageText, 'should not display the chat welcome message for the moderator');
+    await this.modPage.wasRemoved(e.chatBox, 'should not display the public chat box for the moderator');
+    await this.modPage.wasRemoved(e.chatButton, 'should not display the public chat button for the moderator');
     await this.modPage.waitAndClick(e.userListToggleBtn);
-    await this.modPage.wasRemoved(e.chatWelcomeMessageText);
-    await this.modPage.wasRemoved(e.chatBox);
-    await this.modPage.hasElement(e.chatButton);
+    await this.modPage.wasRemoved(e.chatWelcomeMessageText, 'should not display the chat welcome message for the moderator');
+    await this.modPage.wasRemoved(e.chatBox, 'should not display the public chat box for the moderator');
+    await this.modPage.hasElement(e.chatButton, 'should display the public chat button for the moderator');
   }
 
   async saveUserNames(testInfo) {
@@ -204,7 +183,7 @@ class MultiUsers {
       this.userPage.username,
       this.modPage.meetingId,
     ];
-    await checkTextContent(content, dataToCheck);
+    await checkTextContent(content, dataToCheck, 'should the downloaded content match the user names');
   }
 
   async pinningWebcams() {
@@ -219,29 +198,28 @@ class MultiUsers {
     // Pin first webcam (Mod2)
     await this.modPage.waitAndClick(`:nth-match(${e.dropdownWebcamButton}, 3)`);
     await this.modPage.waitAndClick(`:nth-match(${e.pinWebcamBtn}, 2)`);
-    await this.modPage.hasText(`:nth-match(${e.dropdownWebcamButton}, 1)`, this.modPage2.username);
-    await this.modPage2.hasText(`:nth-match(${e.dropdownWebcamButton}, 1)`, this.modPage2.username);
-    await this.userPage.hasText(`:nth-match(${e.dropdownWebcamButton}, 1)`, this.modPage2.username);
+    await this.modPage.hasText(`:nth-match(${e.dropdownWebcamButton}, 1)`, this.modPage2.username, 'should the first webcam display the second moderator username for the first moderator');
+    await this.modPage2.hasText(`:nth-match(${e.dropdownWebcamButton}, 1)`, this.modPage2.username, 'should the first webcam display the second moderator username for the second moderator');
+    await this.userPage.hasText(`:nth-match(${e.dropdownWebcamButton}, 1)`, this.modPage2.username, 'should the first webcam display the second moderator username for the attendee');
     // Pin second webcam (user)
     await this.modPage.waitAndClick(`:nth-match(${e.dropdownWebcamButton}, 3)`);
     await this.modPage.waitAndClick(`:nth-match(${e.pinWebcamBtn}, 3)`);
-    await this.modPage.hasText(`:nth-match(${e.dropdownWebcamButton}, 1)`, this.userPage.username);
-    await this.modPage.hasText(`:nth-match(${e.dropdownWebcamButton}, 2)`, this.modPage2.username);
-    await this.userPage.hasText(`:nth-match(${e.dropdownWebcamButton}, 1)`, this.modPage2.username);
-    await this.userPage.hasText(`:nth-match(${e.dropdownWebcamButton}, 2)`, this.userPage.username);
-    await this.modPage2.hasText(`:nth-match(${e.dropdownWebcamButton}, 1)`, this.userPage.username);
-    await this.modPage2.hasText(`:nth-match(${e.dropdownWebcamButton}, 2)`, this.modPage2.username);
+    await this.modPage.hasText(`:nth-match(${e.dropdownWebcamButton}, 1)`, this.userPage.username, 'should the first webcam display the attendee username for the first moderator');
+    await this.modPage.hasText(`:nth-match(${e.dropdownWebcamButton}, 2)`, this.modPage2.username, 'should the second webcam display the second moderator username for the first moderator');
+    await this.userPage.hasText(`:nth-match(${e.dropdownWebcamButton}, 1)`, this.modPage2.username, 'should the first webcam display the second moderator username for the first attendee');
+    await this.userPage.hasText(`:nth-match(${e.dropdownWebcamButton}, 2)`, this.userPage.username, 'should the second webcam display the attendee username for the attendee');
+    await this.modPage2.hasText(`:nth-match(${e.dropdownWebcamButton}, 1)`, this.userPage.username, 'should the first webcam display the attendee username for the second moderator');
+    await this.modPage2.hasText(`:nth-match(${e.dropdownWebcamButton}, 2)`, this.modPage2.username, 'should the second webcam display the second moderator username for the second moderator');
   }
 
-  async whiteboardAccess() {
+  async giveAndRemoveWhiteboardAccess() {
     await this.modPage.waitForSelector(e.whiteboard);
     await this.modPage.waitAndClick(e.userListItem);
     await this.modPage.waitAndClick(e.changeWhiteboardAccess);
-    await this.modPage.waitForSelector(e.multiUsersWhiteboardOff);
-    const resp = await this.modPage.page.evaluate((multiUsersWbBtn) => {
-      return document.querySelector(multiUsersWbBtn).parentElement.children[1].innerText;
-    }, e.multiUsersWhiteboardOff);
-    await expect(resp).toBeTruthy();
+    await this.modPage.hasElement(e.multiUsersWhiteboardOff);
+    await this.modPage.waitAndClick(e.userListItem);
+    await this.modPage.waitAndClick(e.changeWhiteboardAccess);
+    await this.modPage.hasElement(e.multiUsersWhiteboardOn);
   }
 
   async muteAllUsers() {
@@ -263,33 +241,23 @@ class MultiUsers {
     await this.modPage.waitAndClick(e.manageUsers);
     await this.modPage.waitAndClick(e.muteAllExceptPresenter);
     
-    await this.modPage.hasElement(e.isTalking);
+    await this.modPage.hasElement(e.isTalking, 'should display the is talking element for the moderator');
     await checkMutedUsers(this.modPage2);
     await checkMutedUsers(this.userPage);
-  }
-
-  async giveAndRemoveWhiteboardAccess() {
-    await this.whiteboardAccess();
-
-    await this.modPage.waitForSelector(e.whiteboard);
-    await this.modPage.waitAndClick(e.userListItem);
-    await this.modPage.waitAndClick(e.changeWhiteboardAccess);
-
-    await this.modPage.hasElement(e.multiUsersWhiteboardOn);
   }
 
   async removeUser() {
     await this.modPage.waitAndClick(e.userListItem);
     await this.modPage.waitAndClick(e.removeUser);
     await this.modPage.waitAndClick(e.removeUserConfirmationBtn);
-    await this.modPage.wasRemoved(e.userListItem);
+    await this.modPage.wasRemoved(e.userListItem, 'should not display a user on the user list for the moderator');
 
     //Will be modified when the issue is fixed and accept just one of both screens
     //https://github.com/bigbluebutton/bigbluebutton/issues/16463
     try {
-      await this.modPage2.hasElement(e.errorScreenMessage);
+      await this.modPage2.hasElement(e.errorScreenMessage, 'should display the error screen message for the second moderator');
     } catch (err) {
-      await this.modPage2.hasElement(e.meetingEndedModalTitle);
+      await this.modPage2.hasElement(e.meetingEndedModalTitle, 'should display the meeting ended modal for the second moderator');
     }
   }
 
@@ -298,23 +266,23 @@ class MultiUsers {
     await this.modPage.waitAndClick(e.removeUser);
     await this.modPage.waitAndClick(e.confirmationCheckbox);
     await this.modPage.waitAndClick(e.removeUserConfirmationBtn);
-    await this.modPage.wasRemoved(e.userListItem);
+    await this.modPage.wasRemoved(e.userListItem, 'should not display the user on the user list for the moderator');
 
     // Will be modified when the issue is fixed and accept just one of both screens
     // https://github.com/bigbluebutton/bigbluebutton/issues/16463
     try {
-      await this.modPage2.hasElement(e.errorScreenMessage);
+      await this.modPage2.hasElement(e.errorScreenMessage, 'should display the error screen message for the second moderator');
     } catch {
-      await this.modPage2.hasElement(e.meetingEndedModalTitle);
+      await this.modPage2.hasElement(e.meetingEndedModalTitle, 'should display the meeting ended modal for the second moderator');
     }
 
     await this.initModPage2(false, context, { meetingId: this.modPage.meetingId, joinParameter: 'userID=Moderator2', shouldCheckAllInitialSteps: false });
 
     // Due to same reason above, sometimes it displays different messages
     try {
-      await this.modPage2.hasText(e.userBannedMessage2, /banned/);
+      await this.modPage2.hasText(e.userBannedMessage2, /banned/, 'should display the banned message for the second moderator');
     } catch {
-      await this.modPage2.hasText(e.userBannedMessage1, /removed/);
+      await this.modPage2.hasText(e.userBannedMessage1, /removed/, 'should display the removed message for the second moderator');
     }
   }
 }

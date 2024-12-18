@@ -5,9 +5,6 @@ import org.bigbluebutton.core.models.GuestPolicy
 import slick.jdbc.PostgresProfile.api._
 import slick.lifted.ProvenShape
 
-import scala.concurrent.ExecutionContext.Implicits.global
-import scala.util.{Failure, Success}
-
 case class MeetingUsersPoliciesDbModel(
                                 meetingId: String,
                                 maxUsers: Int,
@@ -44,7 +41,7 @@ class MeetingUsersPoliciesDbTableDef(tag: Tag) extends Table[MeetingUsersPolicie
 
 object MeetingUsersPoliciesDAO {
   def insert(meetingId:String, usersProp: UsersProp) = {
-    DatabaseConnection.db.run(
+    DatabaseConnection.enqueue(
       TableQuery[MeetingUsersPoliciesDbTableDef].forceInsert(
         MeetingUsersPoliciesDbModel(
           meetingId = meetingId,
@@ -61,28 +58,20 @@ object MeetingUsersPoliciesDAO {
           allowPromoteGuestToModerator = usersProp.allowPromoteGuestToModerator,
         )
       )
-    ).onComplete {
-      case Success(rowsAffected) => {
-        DatabaseConnection.logger.debug(s"$rowsAffected row(s) inserted in MeetingUsersPolicies table!")
-      }
-      case Failure(e) => DatabaseConnection.logger.error(s"Error inserting MeetingUsersPolicies: $e")
-    }
+    )
   }
 
   def update(meetingId: String, policy: GuestPolicy) = {
-    DatabaseConnection.db.run(
+    DatabaseConnection.enqueue(
       TableQuery[MeetingUsersPoliciesDbTableDef]
         .filter(_.meetingId === meetingId)
         .map(u => u.guestPolicy)
         .update(policy.policy)
-    ).onComplete {
-      case Success(rowsAffected) => DatabaseConnection.logger.debug(s"$rowsAffected row(s) updated guestPolicy on meeting_usersPolicies table!")
-      case Failure(e) => DatabaseConnection.logger.error(s"Error updating guestPolicy on meeting_usersPolicies: $e")
-    }
+    )
   }
 
   def updateGuestLobbyMessage(meetingId: String, guestLobbyMessage: String) = {
-    DatabaseConnection.db.run(
+    DatabaseConnection.enqueue(
       TableQuery[MeetingUsersPoliciesDbTableDef]
         .filter(_.meetingId === meetingId)
         .map(u => u.guestLobbyMessage)
@@ -92,22 +81,16 @@ object MeetingUsersPoliciesDAO {
             case m => Some(m)
           }
         )
-    ).onComplete {
-      case Success(rowsAffected) => DatabaseConnection.logger.debug(s"$rowsAffected row(s) updated guestLobbyMessage on meeting_usersPolicies table!")
-      case Failure(e) => DatabaseConnection.logger.error(s"Error updating guestLobbyMessage on meeting_usersPolicies: $e")
-    }
+    )
   }
 
   def updateWebcamsOnlyForModerator(meetingId: String, webcamsOnlyForModerator: Boolean) = {
-    DatabaseConnection.db.run(
+    DatabaseConnection.enqueue(
       TableQuery[MeetingUsersPoliciesDbTableDef]
         .filter(_.meetingId === meetingId)
         .map(u => u.webcamsOnlyForModerator)
         .update(webcamsOnlyForModerator)
-    ).onComplete {
-      case Success(rowsAffected) => DatabaseConnection.logger.debug(s"$rowsAffected row(s) updated webcamsOnlyForModerator on meeting_usersPolicies table!")
-      case Failure(e) => DatabaseConnection.logger.error(s"Error updating webcamsOnlyForModerator on meeting_usersPolicies: $e")
-    }
+    )
   }
 
 }

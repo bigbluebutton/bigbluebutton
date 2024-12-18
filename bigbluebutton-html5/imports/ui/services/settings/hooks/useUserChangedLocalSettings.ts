@@ -8,7 +8,7 @@ const useUserChangedLocalSettings = () => {
   const setLocalSettings = (settings: Record<string, unknown>) => {
     return userChangedLocalSettings({
       variables: {
-        settings: JSON.stringify(settings),
+        settings,
       },
     });
   };

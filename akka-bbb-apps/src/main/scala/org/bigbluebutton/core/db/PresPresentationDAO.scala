@@ -4,12 +4,7 @@ import PostgresProfile.api._
 import org.bigbluebutton.core.models.PresentationInPod
 
 import scala.concurrent.ExecutionContext.Implicits.global
-import scala.util.{Failure, Success}
 import spray.json._
-
-import scala.concurrent.Future
-
-
 
 case class PresPresentationDbModel(
     presentationId:         String,
@@ -74,92 +69,74 @@ object PresPresentationDAO {
     }
   }
 
-  def insertToken(meetingId: String, userId: String, temporaryId: String, presentationId: String, uploadToken: String, filename: String) = {
-    val dbRun = DatabaseConnection.db.run(
-      TableQuery[PresPresentationDbTableDef].forceInsert(
-        PresPresentationDbModel(
-          presentationId = presentationId,
-          meetingId = meetingId,
-          uploadUserId = Some(userId),
-          uploadTemporaryId = Some(temporaryId),
-          uploadToken = Some(uploadToken),
-          name = filename,
-          filenameConverted = "",
-          isDefault = false,
-          current = false, //Set after pages were inserted
-          downloadable = false,
-          downloadFileExtension = None,
-          downloadFileUri = None,
-          removable = false,
-          uploadInProgress = false,
-          uploadCompleted = false,
-          totalPages = 0,
-          uploadErrorMsgKey = None,
-          uploadErrorDetailsJson = None,
-          exportToChatStatus = None,
-          exportToChatCurrentPage = None,
-          exportToChatHasError = None,
-        )
-      )
+  def insertUploadTokenIfNotExists(meetingId: String, userId: String, temporaryId: String, presentationId: String, uploadToken: String, filename: String) = {
+    DatabaseConnection.enqueue(
+      sqlu"""
+          insert into "pres_presentation"("meetingId","presentationId","uploadUserId","uploadTemporaryId","uploadToken","name",
+          "filenameConverted","isDefault","current","downloadable","removable","uploadInProgress","uploadCompleted","totalPages")
+           select
+             ${meetingId} as "meetingId",
+             ${presentationId} as "presentationId",
+             ${userId} as "uploadUserId",
+             ${temporaryId} as "uploadTemporaryId",
+             ${uploadToken} as "uploadToken",
+             ${filename} as "name",
+             '' as "filenameConverted",
+             false as "isDefault",
+             false as "current", --Set after pages were inserted
+             false as "downloadable",
+             false as "removable",
+             false as "uploadInProgress",
+             false as "uploadCompleted",
+             0 as "totalPages"
+             where NOT EXISTS (
+                select 1
+                from "pres_presentation" pp
+                where pp."meetingId" = ${meetingId}
+                and pp."presentationId" = ${presentationId}
+             )
+          """
     )
-
-    dbRun.onComplete {
-      case Success(rowsAffected) => DatabaseConnection.logger.debug(s"$rowsAffected row(s) inserted on Presentation table!")
-      case Failure(e) => DatabaseConnection.logger.error(s"Error inserting Presentation: $e")
-    }
-
-    dbRun
   }
 
   def updateConversionStarted(meetingId: String, presentation: PresentationInPod) = {
-    val checkAndInsert = DatabaseConnection.db.run(
-      TableQuery[PresPresentationDbTableDef]
-        .filter(_.presentationId === presentation.id).exists.result).flatMap { exists =>
-      if (!exists) {
-        insertToken(meetingId, "", "", presentation.id, "", presentation.name)
-      } else {
-        Future.successful(0)
-      }
-    }
+    insertUploadTokenIfNotExists(meetingId, "", "", presentation.id, "", presentation.name)
 
-    checkAndInsert.flatMap { _ =>
-      DatabaseConnection.db.run(
-        TableQuery[PresPresentationDbTableDef]
-          .filter(_.presentationId === presentation.id)
-          .map(p => (
-            p.name,
-            p.filenameConverted,
-            p.isDefault,
-            p.downloadable,
-            p.downloadFileExtension,
-            p.removable,
-            p.uploadInProgress,
-            p.uploadCompleted,
-            p.totalPages))
-          .update(
-            (presentation.name,
-              presentation.filenameConverted,
-              presentation.default,
-              presentation.downloadable,
-              presentation.downloadFileExtension match {
-                case "" => None
-                case downloadFileExtension => Some(downloadFileExtension)
-              },
-              presentation.removable,
-              !presentation.uploadCompleted,
-              presentation.uploadCompleted,
-              presentation.numPages
-            ))
-      )
-    }.onComplete {
-      case Success(rowAffected) => DatabaseConnection.logger.debug(s"$rowAffected row(s) updated basicData on PresPresentation table")
-      case Failure(e) => DatabaseConnection.logger.error(s"Error updating basicData on PresPresentation: $e")
-    }
+    DatabaseConnection.enqueue(
+      TableQuery[PresPresentationDbTableDef]
+        .filter(_.presentationId === presentation.id)
+        .map(p => (
+          p.name,
+          p.filenameConverted,
+          p.isDefault,
+          p.downloadable,
+          p.downloadFileExtension,
+          p.removable,
+          p.uploadInProgress,
+          p.uploadCompleted,
+          p.totalPages,
+          p.uploadErrorMsgKey,
+          p.uploadErrorDetailsJson
+        ))
+        .update((
+          presentation.name,
+          presentation.filenameConverted,
+          presentation.default,
+          presentation.downloadable,
+          if (presentation.downloadFileExtension.isEmpty) None else Some(presentation.downloadFileExtension),
+          presentation.removable,
+          !presentation.uploadCompleted,
+          presentation.uploadCompleted,
+          presentation.numPages,
+          if (presentation.errorMsgKey.isEmpty) None else Some(presentation.errorMsgKey),
+          if (presentation.errorDetails.isEmpty) None else Some(presentation.errorDetails.toJson)
+        ))
+    )
   }
 
 
   def updatePages(presentation: PresentationInPod) = {
-    DatabaseConnection.db.run(
+    DatabaseConnection.enqueue(
       TableQuery[PresPresentationDbTableDef]
         .filter(_.presentationId === presentation.id)
         .map(p => (p.downloadFileExtension, p.uploadInProgress, p.uploadCompleted, p.totalPages))
@@ -172,134 +149,104 @@ object PresPresentationDAO {
           presentation.uploadCompleted,
           presentation.numPages,
         ))
-    ).onComplete {
-      case Success(rowsAffected) => {
-        DatabaseConnection.logger.debug(s"$rowsAffected row(s) updated on PresPresentation table!")
+    )
 
-        DatabaseConnection.db.run(DBIO.sequence(
-            for {
-              page <- presentation.pages
-            } yield {
-              TableQuery[PresPageDbTableDef].insertOrUpdate(
-                PresPageDbModel(
-                  pageId = page._2.id,
-                  presentationId = presentation.id,
-                  num = page._2.num,
-                  urlsJson = page._2.urls.toJson,
-                  content = page._2.content,
-                  slideRevealed = page._2.current,
-                  current = page._2.current,
-                  xOffset = page._2.xOffset,
-                  yOffset = page._2.yOffset,
-                  widthRatio = page._2.widthRatio,
-                  heightRatio = page._2.heightRatio,
-                  width = page._2.width,
-                  height = page._2.height,
-                  viewBoxWidth = 1,
-                  viewBoxHeight = 1,
-                  maxImageWidth = 1440,
-                  maxImageHeight = 1080,
-                  uploadCompleted = page._2.converted
-                )
-              )
-            }
-          ).transactionally)
-          .onComplete {
-            case Success(rowsAffected) => DatabaseConnection.logger.debug(s"$rowsAffected row(s) updated on PresentationPage table!")
-            case Failure(e) => DatabaseConnection.logger.debug(s"Error updating PresentationPage: $e")
-          }
-
-        //Set current
-        if (presentation.current) {
-          setCurrentPres(presentation.id)
+    DatabaseConnection.enqueue(DBIO.sequence(
+        for {
+          page <- presentation.pages
+        } yield {
+          TableQuery[PresPageDbTableDef].insertOrUpdate(
+            PresPageDbModel(
+              pageId = page._2.id,
+              presentationId = presentation.id,
+              num = page._2.num,
+              urlsJson = page._2.urls.toJson,
+              content = page._2.content,
+              slideRevealed = page._2.current,
+              current = page._2.current,
+              xOffset = page._2.xOffset,
+              yOffset = page._2.yOffset,
+              widthRatio = page._2.widthRatio,
+              heightRatio = page._2.heightRatio,
+              width = page._2.width,
+              height = page._2.height,
+              viewBoxWidth = 1,
+              viewBoxHeight = 1,
+              maxImageWidth = 1440,
+              maxImageHeight = 1080,
+              uploadCompleted = page._2.converted,
+              infiniteWhiteboard = page._2.infiniteWhiteboard,
+            )
+          )
         }
+      ).transactionally)
 
-      }
-      case Failure(e) => DatabaseConnection.logger.debug(s"Error updating user: $e")
+    //Set current
+    if (presentation.current) {
+      setCurrentPres(presentation.id)
     }
   }
 
   def setCurrentPres(presentationId: String) = {
-    DatabaseConnection.db.run(
+    DatabaseConnection.enqueue(
       sqlu"""UPDATE pres_presentation SET
                 "current" = (case when "presentationId" = ${presentationId} then true else false end)
                 WHERE "meetingId" = (select "meetingId" from pres_presentation where "presentationId" = ${presentationId})
                 AND exists (select 1 from pres_page where "presentationId" = ${presentationId} AND "current" IS true)"""
-    ).onComplete {
-        case Success(rowsAffected) => DatabaseConnection.logger.debug(s"$rowsAffected row(s) updated current on PresPresentation table")
-        case Failure(e)            => DatabaseConnection.logger.error(s"Error updating current on PresPresentation: $e")
-      }
+    )
   }
 
   def updateDownloadable(presentationId: String, downloadable : Boolean, downloadableExtension: String) = {
-    DatabaseConnection.db.run(
+    DatabaseConnection.enqueue(
       TableQuery[PresPresentationDbTableDef]
         .filter(_.presentationId === presentationId)
         .map(p => (p.downloadable, p.downloadFileExtension))
         .update((downloadable, Some(downloadableExtension)))
-    ).onComplete {
-      case Success(rowAffected) => DatabaseConnection.logger.debug(s"$rowAffected row(s) updated downloadable on PresPresentation table")
-      case Failure(e) => DatabaseConnection.logger.error(s"Error updating downloadable on PresPresentation: $e")
-    }
+    )
   }
 
   def updateDownloadUri(presentationId: String, downloadFileUri: String) = {
-    DatabaseConnection.db.run(
+    DatabaseConnection.enqueue(
       TableQuery[PresPresentationDbTableDef]
         .filter(_.presentationId === presentationId)
         .map(p => p.downloadFileUri)
         .update(Some(downloadFileUri))
-    ).onComplete {
-        case Success(rowAffected) => DatabaseConnection.logger.debug(s"$rowAffected row(s) updated originalFileURI on PresPresentation table")
-        case Failure(e)           => DatabaseConnection.logger.error(s"Error updating originalFileURI on PresPresentation: $e")
-      }
+    )
   }
 
   def updateErrors(presentationId: String, errorMsgKey: String, errorDetails: scala.collection.immutable.Map[String, String]) = {
-    DatabaseConnection.db.run(
+    DatabaseConnection.enqueue(
       TableQuery[PresPresentationDbTableDef]
         .filter(_.presentationId === presentationId)
         .map(p => (p.uploadErrorMsgKey, p.uploadErrorDetailsJson))
         .update(Some(errorMsgKey), Some(errorDetails.toJson))
-    ).onComplete {
-        case Success(rowAffected) => DatabaseConnection.logger.debug(s"$rowAffected row(s) updated errorMsgKey on PresPresentation table")
-        case Failure(e)           => DatabaseConnection.logger.error(s"Error updating errorMsgKey on PresPresentation: $e")
-      }
+    )
   }
 
   def updateExportToChat(presentationId: String, exportToChatStatus: String, exportToChatCurrentPage: Int, exportToChatHasError: Boolean) = {
-    DatabaseConnection.db.run(
+    DatabaseConnection.enqueue(
       TableQuery[PresPresentationDbTableDef]
         .filter(_.presentationId === presentationId)
         .map(p => (p.exportToChatStatus, p.exportToChatCurrentPage, p.exportToChatHasError))
         .update(Some(exportToChatStatus), Some(exportToChatCurrentPage), Some(exportToChatHasError))
-    ).onComplete {
-      case Success(rowAffected) => DatabaseConnection.logger.debug(s"$rowAffected row(s) updated exportToChat on PresPresentation table")
-      case Failure(e) => DatabaseConnection.logger.error(s"Error updating exportToChat on PresPresentation: $e")
-    }
+    )
   }
 
   def updateExportToChatStatus(presentationId: String, exportToChatStatus: String) = {
-    DatabaseConnection.db.run(
+    DatabaseConnection.enqueue(
       TableQuery[PresPresentationDbTableDef]
         .filter(_.presentationId === presentationId)
         .map(p => p.exportToChatStatus)
         .update(Some(exportToChatStatus))
-    ).onComplete {
-      case Success(rowAffected) => DatabaseConnection.logger.debug(s"$rowAffected row(s) updated exportToChatStatus on PresPresentation table")
-      case Failure(e) => DatabaseConnection.logger.error(s"Error updating exportToChatStatus on PresPresentation: $e")
-    }
+    )
   }
 
   def delete(presentationId: String) = {
-    DatabaseConnection.db.run(
+    DatabaseConnection.enqueue(
       TableQuery[PresPresentationDbTableDef]
         .filter(_.presentationId === presentationId)
         .delete
-    ).onComplete {
-        case Success(rowAffected) => DatabaseConnection.logger.debug(s"$rowAffected row(s) deleted presentation on PresPresentation table")
-        case Failure(e)           => DatabaseConnection.logger.error(s"Error deleting presentation on PresPresentation: $e")
-      }
+    )
   }
 
 }

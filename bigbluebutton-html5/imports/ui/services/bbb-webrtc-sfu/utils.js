@@ -2,9 +2,6 @@ import browserInfo from '/imports/utils/browserInfo';
 import deviceInfo from '/imports/utils/deviceInfo';
 import { hasTurnServer } from '/imports/utils/fetchStunTurnServers';
 
-const FORCE_RELAY_ON_FF = window.meetingClientSettings.public.media.forceRelayOnFirefox;
-const FORCE_RELAY = window.meetingClientSettings.public.media.forceRelay;
-
 /*
  * Whether TURN/relay usage should be forced to work around Firefox's lack of
  * support for regular nomination when dealing with ICE-litee peers (e.g.:
@@ -16,6 +13,9 @@ const FORCE_RELAY = window.meetingClientSettings.public.media.forceRelay;
 const shouldForceRelay = () => {
   const { isFirefox } = browserInfo;
   const { isIos } = deviceInfo;
+
+  const FORCE_RELAY_ON_FF = window.meetingClientSettings.public.media.forceRelayOnFirefox;
+  const FORCE_RELAY = window.meetingClientSettings.public.media.forceRelay;
 
   return FORCE_RELAY || ((isFirefox && !isIos) && FORCE_RELAY_ON_FF && hasTurnServer());
 };

@@ -18,26 +18,19 @@ const propTypes = {
   contextDispatch: PropTypes.func.isRequired,
 };
 
-const defaultProps = {
-  left: null,
-  right: null,
-};
-
-const SidebarNavigation = (props) => {
-  const {
-    top,
-    left,
-    right,
-    zIndex,
-    minWidth,
-    width,
-    maxWidth,
-    height,
-    isResizable,
-    resizableEdge,
-    contextDispatch,
-  } = props;
-
+const SidebarNavigation = ({
+  top,
+  left = null,
+  right = null,
+  zIndex,
+  minWidth,
+  width,
+  maxWidth,
+  height,
+  isResizable,
+  resizableEdge,
+  contextDispatch,
+}) => {
   const [resizableWidth, setResizableWidth] = useState(width);
   const [isResizing, setIsResizing] = useState(false);
   const [resizeStartWidth, setResizeStartWidth] = useState(0);
@@ -106,5 +99,4 @@ const SidebarNavigation = (props) => {
 };
 
 SidebarNavigation.propTypes = propTypes;
-SidebarNavigation.defaultProps = defaultProps;
 export default SidebarNavigation;

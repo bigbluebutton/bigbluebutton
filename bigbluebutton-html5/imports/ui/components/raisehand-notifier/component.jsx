@@ -40,9 +40,9 @@ class RaiseHandNotifier extends Component {
   constructor(props) {
     super(props);
 
-    this.statusNotifierId = null;
+    this.statusNotifierId = 'statusNotifierId';
 
-    this.audio = new Audio(`${window.meetingClientSettings.public.app.cdn + window.meetingClientSettings.public.app.basename + window.meetingClientSettings.public.app.instanceId}/resources/sounds/bbb-handRaise.mp3`);
+    this.audio = new Audio(`${window.meetingClientSettings.public.app.cdn + window.meetingClientSettings.public.app.basename}/resources/sounds/bbb-handRaise.mp3`);
 
     this.renderRaisedHands = this.renderRaisedHands.bind(this);
     this.getRaisedHandNames = this.getRaisedHandNames.bind(this);
@@ -55,12 +55,12 @@ class RaiseHandNotifier extends Component {
     } = this.props;
 
     if (isViewer && !isPresenter) {
-      if (this.statusNotifierId) toast.dismiss(this.statusNotifierId);
+      if (toast.isActive(this.statusNotifierId)) toast.dismiss(this.statusNotifierId);
       return false;
     }
 
     if (raiseHandUsers.length === 0) {
-      return this.statusNotifierId ? toast.dismiss(this.statusNotifierId) : null;
+      return toast.isActive(this.statusNotifierId) ? toast.dismiss(this.statusNotifierId) : null;
     }
 
     if (raiseHandAudioAlert && raiseHandUsers.length > prevProps.raiseHandUsers.length) {
@@ -68,18 +68,18 @@ class RaiseHandNotifier extends Component {
     }
 
     if (raiseHandPushAlert) {
-      if (this.statusNotifierId) {
+      if (toast.isActive(this.statusNotifierId)) {
         return toast.update(this.statusNotifierId, {
           render: this.renderRaisedHands(),
         });
       }
 
-      this.statusNotifierId = toast(this.renderRaisedHands(), {
-        onClose: () => { this.statusNotifierId = null; },
+      toast(this.renderRaisedHands(), {
         autoClose: false,
         closeOnClick: false,
         closeButton: false,
         className: 'raiseHandToast',
+        toastId: this.statusNotifierId,
       });
     }
 

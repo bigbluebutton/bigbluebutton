@@ -1,11 +1,14 @@
 package org.bigbluebutton.api.model.request;
 
+import org.bigbluebutton.api.model.constraint.ContentTypeConstraint;
 import org.bigbluebutton.api.model.constraint.MeetingExistsConstraint;
 import org.bigbluebutton.api.model.constraint.MeetingIDConstraint;
 import org.bigbluebutton.api.model.shared.Checksum;
 
+import javax.servlet.http.HttpServletRequest;
 import java.util.Map;
 
+@ContentTypeConstraint
 public class MeetingInfo extends RequestWithChecksum<MeetingInfo.Params> {
 
     public enum Params implements RequestParameters {
@@ -22,8 +25,8 @@ public class MeetingInfo extends RequestWithChecksum<MeetingInfo.Params> {
     @MeetingExistsConstraint
     private String meetingID;
 
-    public MeetingInfo(Checksum checksum) {
-        super(checksum);
+    public MeetingInfo(Checksum checksum, HttpServletRequest servletRequest) {
+        super(checksum, servletRequest);
     }
 
     public String getMeetingID() {

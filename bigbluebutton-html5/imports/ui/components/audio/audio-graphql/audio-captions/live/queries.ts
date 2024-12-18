@@ -5,6 +5,7 @@ export interface Caption {
   user: Pick<User, 'avatar' | 'color' | 'isModerator' | 'name'>;
   captionText: string;
   captionId: string;
+  captionType: string;
   createdAt: string;
 }
 
@@ -36,6 +37,7 @@ export const GET_CAPTIONS = gql`
       }
       captionText
       captionId
+      captionType
       createdAt
     }
   }

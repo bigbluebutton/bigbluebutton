@@ -1,7 +1,7 @@
 import { gql } from '@apollo/client';
 
 const PLUGIN_DATA_CHANNEL_NEW_ITEMS = gql`
-  subscription FetchPluginDataChannelEntryMsg($pluginName: String!,
+  subscription FetchPluginDataChannelEntry($pluginName: String!,
     $channelName: String! , $createdAt: timestamptz!, $subChannelName: String!){
     pluginDataChannelEntry_stream(
       cursor: {initial_value: {createdAt: $createdAt}}, batch_size: 100,
@@ -16,7 +16,7 @@ const PLUGIN_DATA_CHANNEL_NEW_ITEMS = gql`
       subChannelName,
       entryId,
       payloadJson,
-      fromUserId,
+      createdBy,
       pluginName,
       toRoles,
     }
@@ -24,7 +24,7 @@ const PLUGIN_DATA_CHANNEL_NEW_ITEMS = gql`
 `;
 
 const PLUGIN_DATA_CHANNEL_All_ITEMS = gql`
-  subscription FetchPluginDataChannelEntryMsg($pluginName: String!,
+  subscription FetchPluginDataChannelEntry($pluginName: String!,
     $channelName: String!, $subChannelName: String!
   ){
     pluginDataChannelEntry(
@@ -40,7 +40,7 @@ const PLUGIN_DATA_CHANNEL_All_ITEMS = gql`
       subChannelName,
       entryId,
       payloadJson,
-      fromUserId,
+      createdBy,
       pluginName,
       toRoles,
     }
@@ -48,7 +48,7 @@ const PLUGIN_DATA_CHANNEL_All_ITEMS = gql`
 `;
 
 const PLUGIN_DATA_CHANNEL_LATEST_ITEM = gql`
-  subscription FetchPluginDataChannelEntryMsg($pluginName: String!,
+  subscription FetchPluginDataChannelEntry($pluginName: String!,
     $channelName: String!, $subChannelName: String!
   ){
     pluginDataChannelEntry(
@@ -65,7 +65,7 @@ const PLUGIN_DATA_CHANNEL_LATEST_ITEM = gql`
       subChannelName,
       entryId,
       payloadJson,
-      fromUserId,
+      createdBy,
       pluginName,
       toRoles,
     }

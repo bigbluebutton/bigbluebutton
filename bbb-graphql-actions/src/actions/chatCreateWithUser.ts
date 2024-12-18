@@ -1,6 +1,13 @@
 import { RedisMessage } from '../types';
+import {throwErrorIfInvalidInput} from "../imports/validation";
 
 export default function buildRedisMessage(sessionVariables: Record<string, unknown>, input: Record<string, unknown>): RedisMessage {
+  throwErrorIfInvalidInput(input,
+      [
+        {name: 'userId', type: 'string', required: true},
+      ]
+  )
+
   const eventName = `CreateGroupChatReqMsg`;
 
   const routing = {

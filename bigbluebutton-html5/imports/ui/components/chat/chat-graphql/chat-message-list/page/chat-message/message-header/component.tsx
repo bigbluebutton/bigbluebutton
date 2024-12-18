@@ -1,5 +1,6 @@
 import React from 'react';
 import { useIntl, defineMessages, FormattedTime } from 'react-intl';
+import Icon from '/imports/ui/components/common/icon/component';
 import Styled from './styles';
 
 const intlMessages = defineMessages({
@@ -7,20 +8,28 @@ const intlMessages = defineMessages({
     id: 'app.chat.offline',
     description: 'Offline',
   },
+  edited: {
+    id: 'app.chat.toolbar.edit.edited',
+    description: 'Edited',
+  },
 });
 
 interface ChatMessageHeaderProps {
   name: string;
-  isOnline: boolean;
+  currentlyInMeeting: boolean;
   dateTime: Date;
   sameSender: boolean;
+  deleteTime: Date | null;
+  editTime: Date | null;
 }
 
 const ChatMessageHeader: React.FC<ChatMessageHeaderProps> = ({
   sameSender,
   name,
-  isOnline,
+  currentlyInMeeting,
   dateTime,
+  deleteTime,
+  editTime,
 }) => {
   const intl = useIntl();
   if (sameSender) return null;
@@ -28,18 +37,30 @@ const ChatMessageHeader: React.FC<ChatMessageHeaderProps> = ({
   return (
     <Styled.HeaderContent>
       <Styled.ChatHeaderText>
-        <Styled.ChatUserName isOnline={isOnline}>
+        <Styled.ChatUserName currentlyInMeeting={currentlyInMeeting}>
           {name}
         </Styled.ChatUserName>
         {
-          isOnline ? null : (
+          currentlyInMeeting ? null : (
             <Styled.ChatUserOffline>
               {`(${intl.formatMessage(intlMessages.offline)})`}
             </Styled.ChatUserOffline>
           )
         }
+        <Styled.Center />
+        {!deleteTime && editTime && (
+          <Styled.EditLabel>
+            <Icon iconName="pen_tool" />
+            <span>{intl.formatMessage(intlMessages.edited)}</span>
+          </Styled.EditLabel>
+        )}
+        {deleteTime && (
+          <Styled.EditLabel>
+            <Icon iconName="delete" />
+          </Styled.EditLabel>
+        )}
         <Styled.ChatTime>
-          <FormattedTime value={dateTime} />
+          <FormattedTime value={dateTime} hour12={false} />
         </Styled.ChatTime>
       </Styled.ChatHeaderText>
     </Styled.HeaderContent>

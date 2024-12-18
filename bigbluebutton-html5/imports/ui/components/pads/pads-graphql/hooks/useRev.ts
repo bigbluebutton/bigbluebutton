@@ -1,5 +1,6 @@
-import { gql, useSubscription } from '@apollo/client';
+import { gql } from '@apollo/client';
 import { useEffect, useState } from 'react';
+import useDeduplicatedSubscription from '/imports/ui/core/hooks/useDeduplicatedSubscription';
 
 interface GetPadLastRevResponse {
   sharedNotes: Array<{
@@ -19,7 +20,7 @@ const GET_PAD_LAST_REV = gql`
 
 const useRev = (externalId: string) => {
   const [rev, setRev] = useState(0);
-  const { data: padRevData } = useSubscription<GetPadLastRevResponse>(
+  const { data: padRevData } = useDeduplicatedSubscription<GetPadLastRevResponse>(
     GET_PAD_LAST_REV,
     { variables: { externalId } },
   );

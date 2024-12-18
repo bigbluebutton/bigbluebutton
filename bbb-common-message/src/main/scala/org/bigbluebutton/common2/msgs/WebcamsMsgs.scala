@@ -7,8 +7,10 @@ case class UserBroadcastCamStartedEvtMsg(
     body:   UserBroadcastCamStartedEvtMsgBody
 ) extends BbbCoreMsg
 case class UserBroadcastCamStartedEvtMsgBody(
-    userId: String,
-    stream: String
+    userId:      String,
+    stream:      String,
+    contentType: String,
+    hasAudio:    Boolean
 )
 
 object UserBroadcastCamStartMsg { val NAME = "UserBroadcastCamStartMsg" }
@@ -16,7 +18,11 @@ case class UserBroadcastCamStartMsg(
     header: BbbClientMsgHeader,
     body:   UserBroadcastCamStartMsgBody
 ) extends StandardMsg
-case class UserBroadcastCamStartMsgBody(stream: String)
+case class UserBroadcastCamStartMsgBody(
+    stream:      String,
+    contentType: String,
+    hasAudio:    Boolean
+)
 
 object UserBroadcastCamStopMsg { val NAME = "UserBroadcastCamStopMsg" }
 case class UserBroadcastCamStopMsg(
@@ -181,15 +187,15 @@ case class CamStreamSubscribedInSfuEvtMsgBody(
 )
 
 /**
- * Sync webcam state with bbb-html5
+ * Sent from client to change the video showAsContent (used to send screenshare to presentation area).
  */
-object SyncGetWebcamInfoRespMsg { val NAME = "SyncGetWebcamInfoRespMsg" }
-case class SyncGetWebcamInfoRespMsg(
-    header: BbbClientMsgHeader,
-    body:   SyncGetWebcamInfoRespMsgBody
-) extends BbbCoreMsg
+object SetCamShowAsContentReqMsg { val NAME = "SetCamShowAsContentReqMsg" }
+case class SetCamShowAsContentReqMsg(header: BbbClientMsgHeader, body: SetCamShowAsContentReqMsgBody) extends StandardMsg
+case class SetCamShowAsContentReqMsgBody(streamId: String, showAsContent: Boolean, setBy: String)
 
-case class SyncGetWebcamInfoRespMsgBody(
-    webcamListSync: Vector[WebcamStreamInfo]
-)
-case class WebcamStreamInfo(stream: String, userId: String, name: String, pin: Boolean, floor: Boolean, lastFloorTime: String)
+object SetCamShowAsContentEvtMsg { val NAME = "SetCamShowAsContentEvtMsg" }
+case class SetCamShowAsContentEvtMsg(
+    header: BbbClientMsgHeader,
+    body:   SetCamShowAsContentEvtMsgBody
+) extends BbbCoreMsg
+case class SetCamShowAsContentEvtMsgBody(streamId: String, showAsContent: Boolean, setBy: String)

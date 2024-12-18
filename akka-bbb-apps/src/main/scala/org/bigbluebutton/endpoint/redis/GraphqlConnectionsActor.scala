@@ -37,6 +37,9 @@ case class GraphqlUserConnection(
                  middlewareUID:       String,
                  browserConnectionId: String,
                  sessionToken:        String,
+                 clientSessionUUID:   String,
+                 clientType:          String,
+                 clientIsMobile:      Boolean,
                  user:                GraphqlUser,
                )
 
@@ -65,6 +68,7 @@ class GraphqlConnectionsActor(
   private def handleBbbCommonEnvCoreMsg(msg: BbbCommonEnvCoreMsg): Unit = {
     msg.core match {
       case m: RegisterUserReqMsg                      => handleUserRegisteredRespMsg(m)
+      case m: RegisterUserSessionTokenReqMsg          => handleRegisterUserSessionTokenReqMsg(m)
       case m: DestroyMeetingSysCmdMsg                 => handleDestroyMeetingSysCmdMsg(m)
       // Messages from bbb-graphql-middleware
       case m: UserGraphqlConnectionEstablishedSysMsg  => handleUserGraphqlConnectionEstablishedSysMsg(m)
@@ -82,27 +86,47 @@ class GraphqlConnectionsActor(
     ))
   }
 
+  private def handleRegisterUserSessionTokenReqMsg(msg: RegisterUserSessionTokenReqMsg): Unit = {
+    users += (msg.body.sessionToken -> GraphqlUser(
+      msg.body.userId,
+      msg.body.meetingId,
+      msg.body.sessionToken
+    ))
+  }
+
   private def handleDestroyMeetingSysCmdMsg(msg: DestroyMeetingSysCmdMsg): Unit = {
     users = users.filter(u => u._2.meetingId != msg.body.meetingId)
     graphqlConnections = graphqlConnections.filter(c => c._2.user.meetingId != msg.body.meetingId)
   }
 
   private def handleUserGraphqlConnectionEstablishedSysMsg(msg: UserGraphqlConnectionEstablishedSysMsg): Unit = {
-    UserGraphqlConnectionDAO.insert(msg.body.sessionToken, msg.body.middlewareUID, msg.body.browserConnectionId)
+    UserGraphqlConnectionDAO.insert(
+      msg.body.sessionToken,
+      msg.body.clientSessionUUID,
+      msg.body.clientType,
+      msg.body.clientIsMobile,
+      msg.body.middlewareUID,
+      msg.body.browserConnectionId)
 
     for {
       user <- users.get(msg.body.sessionToken)
     } yield {
 
       //Send internal message informing user has connected
-      if (!graphqlConnections.values.exists(c => c.sessionToken == msg.body.sessionToken)) {
-        eventBus.publish(BigBlueButtonEvent(user.meetingId, UserEstablishedGraphqlConnectionInternalMsg(user.intId)))
-      }
+        eventBus.publish(BigBlueButtonEvent(user.meetingId,
+          UserEstablishedGraphqlConnectionInternalMsg(
+            user.intId,
+            msg.body.clientType,
+            msg.body.clientIsMobile)
+        ))
 
       graphqlConnections += (msg.body.browserConnectionId -> GraphqlUserConnection(
         msg.body.middlewareUID,
         msg.body.browserConnectionId,
         msg.body.sessionToken,
+        msg.body.clientSessionUUID,
+        msg.body.clientType,
+        msg.body.clientIsMobile,
         user
       ))
     }
@@ -121,7 +145,8 @@ class GraphqlConnectionsActor(
       graphqlConnections = graphqlConnections.-(browserConnectionId)
 
       //Send internal message informing user disconnected
-      if (!graphqlConnections.values.exists(c => c.sessionToken == sessionToken)) {
+      if (!graphqlConnections.values.exists(c => c.sessionToken == sessionToken
+        || (c.user.meetingId == user.meetingId && c.user.intId == user.intId))) {
         eventBus.publish(BigBlueButtonEvent(user.meetingId, UserClosedAllGraphqlConnectionsInternalMsg(user.intId)))
       }
     }

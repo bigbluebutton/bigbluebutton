@@ -1,61 +1,63 @@
-import Users from '/imports/api/users';
-import Auth from '/imports/ui/services/auth';
-import Settings from '/imports/ui/services/settings';
-import {notify} from '/imports/ui/services/notification';
-import GuestService from '/imports/ui/components/waiting-users/service';
-import Intl from '/imports/ui/services/locale';
+import { getSettingsSingletonInstance } from '/imports/ui/services/settings';
+import { notify } from '/imports/ui/services/notification';
+import intlHolder from '../../core/singletons/intlHolder';
 
-const getUserRoles = () => {
-  const user = Users.findOne({
-    userId: Auth.userID,
-  });
+export const isKeepPushingLayoutEnabled = () => window.meetingClientSettings.public.layout.showPushLayoutToggle;
 
-  return user?.role;
-};
-
-const isPresenter = () => {
-  const user = Users.findOne({
-    userId: Auth.userID,
-  });
-
-  return user?.presenter;
-};
-
-const showGuestNotification = () => {
-  const guestPolicy = GuestService.getGuestPolicy();
-
-  // Guest notification only makes sense when guest
-  // entrance is being controlled by moderators
-  return guestPolicy === 'ASK_MODERATOR';
-};
-
-const isKeepPushingLayoutEnabled = () => window.meetingClientSettings.public.layout.showPushLayoutToggle;
-
-const updateSettings = (obj, msgDescriptor, mutation) => {
+export const updateSettings = (obj, msgDescriptor, mutation) => {
+  const Settings = getSettingsSingletonInstance();
   Object.keys(obj).forEach(k => (Settings[k] = obj[k]));
   Settings.save(mutation);
 
   if (msgDescriptor) {
     // prevents React state update on unmounted component
-    setTimeout(() => {
-      Intl.formatMessage(msgDescriptor).then((txt) => {
-        notify(
-          txt,
-          'info',
-          'settings',
-        );
-      });
-    }, 0);
+    const intl = intlHolder.getIntl();
+    notify(
+      intl.formatMessage(msgDescriptor),
+      'info',
+      'settings',
+    );
   }
 };
 
-const getAvailableLocales = () => fetch('./locale-list').then(locales => locales.json());
+export const getAvailableLocales = () => fetch('./locales/')
+  .then((locales) => locales.json())
+  .then((locales) => locales.filter((locale) => locale.name !== 'index.json'));
 
-export {
-  getUserRoles,
-  isPresenter,
-  showGuestNotification,
+export const FALLBACK_LOCALES = {
+  dv: {
+    englishName: 'Dhivehi',
+    nativeName: 'ދިވެހި',
+  },
+  hy: {
+    englishName: 'Armenian',
+    nativeName: 'Հայերեն',
+  },
+  ka: {
+    englishName: 'Georgian',
+    nativeName: 'ქართული',
+  },
+  kk: {
+    englishName: 'Kazakh',
+    nativeName: 'қазақ',
+  },
+  'lo-LA': {
+    englishName: 'Lao',
+    nativeName: 'ລາວ',
+  },
+  oc: {
+    englishName: 'Occitan',
+    nativeName: 'Occitan',
+  },
+  'uz@Cyrl': {
+    englishName: 'Uzbek (Cyrillic)',
+    nativeName: 'ўзбек тили',
+  },
+};
+
+export default {
   updateSettings,
   isKeepPushingLayoutEnabled,
   getAvailableLocales,
+  FALLBACK_LOCALES,
 };

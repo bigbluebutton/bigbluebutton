@@ -1,21 +1,25 @@
 import React, { useContext } from 'react';
+import { useMutation } from '@apollo/client';
 import ActionsDropdown from './component';
 import { layoutSelectInput, layoutDispatch, layoutSelect } from '../../layout/context';
 import { SMALL_VIEWPORT_BREAKPOINT, ACTIONS, PANELS } from '../../layout/enums';
-import { isCameraAsContentEnabled, isTimerFeatureEnabled } from '/imports/ui/services/features';
+import {
+  useIsCameraAsContentEnabled,
+  useIsPresentationEnabled,
+  useIsTimerFeatureEnabled,
+} from '/imports/ui/services/features';
 import { PluginsContext } from '/imports/ui/components/components-data/plugin-context/context';
-import { useSubscription, useMutation } from '@apollo/client';
 import { useShortcut } from '/imports/ui/core/hooks/useShortcut';
 import {
   PROCESSED_PRESENTATIONS_SUBSCRIPTION,
 } from '/imports/ui/components/whiteboard/queries';
+import useDeduplicatedSubscription from '/imports/ui/core/hooks/useDeduplicatedSubscription';
 import { SET_PRESENTER } from '/imports/ui/core/graphql/mutations/userMutations';
 import { TIMER_ACTIVATE, TIMER_DEACTIVATE } from '../../timer/mutations';
 import Auth from '/imports/ui/services/auth';
 import { PRESENTATION_SET_CURRENT } from '../../presentation/mutations';
-
-const TIMER_CONFIG = window.meetingClientSettings.public.timer;
-const MILLI_IN_MINUTE = 60000;
+import { useStorageKey } from '/imports/ui/services/storage/hooks';
+import { useMeetingIsBreakout } from '/imports/ui/components/app/service';
 
 const ActionsDropdownContainer = (props) => {
   const sidebarContent = layoutSelectInput((i) => i.sidebarContent);
@@ -25,15 +29,28 @@ const ActionsDropdownContainer = (props) => {
   const layoutContextDispatch = layoutDispatch();
   const isRTL = layoutSelect((i) => i.isRTL);
   const { pluginsExtensibleAreasAggregatedState } = useContext(PluginsContext);
+  const meetingIsBreakout = useMeetingIsBreakout();
+
   let actionButtonDropdownItems = [];
   if (pluginsExtensibleAreasAggregatedState.actionButtonDropdownItems) {
-    actionButtonDropdownItems = [...pluginsExtensibleAreasAggregatedState.actionButtonDropdownItems];
+    actionButtonDropdownItems = [
+      ...pluginsExtensibleAreasAggregatedState.actionButtonDropdownItems,
+    ];
   }
 
   const openActions = useShortcut('openActions');
 
-  const { data: presentationData } = useSubscription(PROCESSED_PRESENTATIONS_SUBSCRIPTION);
+  const { data: presentationData } = useDeduplicatedSubscription(
+    PROCESSED_PRESENTATIONS_SUBSCRIPTION,
+  );
   const presentations = presentationData?.pres_presentation || [];
+
+  const {
+    allowPresentationManagementInBreakouts,
+  } = window.meetingClientSettings.public.app.breakouts;
+
+  const isPresentationManagementDisabled = meetingIsBreakout
+    && !allowPresentationManagementInBreakouts;
 
   const [setPresenter] = useMutation(SET_PRESENTER);
   const [timerActivate] = useMutation(TIMER_ACTIVATE);
@@ -49,6 +66,8 @@ const ActionsDropdownContainer = (props) => {
   };
 
   const activateTimer = () => {
+    const TIMER_CONFIG = window.meetingClientSettings.public.timer;
+    const MILLI_IN_MINUTE = 60000;
     const stopwatch = true;
     const running = false;
     const time = TIMER_CONFIG.time * MILLI_IN_MINUTE;
@@ -67,6 +86,11 @@ const ActionsDropdownContainer = (props) => {
     }, 500);
   };
 
+  const isDropdownOpen = useStorageKey('dropdownOpen');
+  const isPresentationEnabled = useIsPresentationEnabled();
+  const isTimerFeatureEnabled = useIsTimerFeatureEnabled();
+  const isCameraAsContentEnabled = useIsCameraAsContentEnabled();
+
   return (
     <ActionsDropdown
       {...{
@@ -77,14 +101,16 @@ const ActionsDropdownContainer = (props) => {
         isRTL,
         actionButtonDropdownItems,
         presentations,
-        isTimerFeatureEnabled: isTimerFeatureEnabled(),
-        isDropdownOpen: Session.get('dropdownOpen'),
+        isTimerFeatureEnabled,
+        isDropdownOpen,
         setPresentation,
-        isCameraAsContentEnabled: isCameraAsContentEnabled(),
+        isCameraAsContentEnabled,
         handleTakePresenter,
         activateTimer,
         deactivateTimer: timerDeactivate,
         shortcuts: openActions,
+        isPresentationEnabled,
+        isPresentationManagementDisabled,
         ...props,
       }}
     />

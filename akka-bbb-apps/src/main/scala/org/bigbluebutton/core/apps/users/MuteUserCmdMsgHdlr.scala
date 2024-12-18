@@ -2,10 +2,10 @@ package org.bigbluebutton.core.apps.users
 
 import org.bigbluebutton.common2.msgs.MuteUserCmdMsg
 import org.bigbluebutton.core.apps.{ PermissionCheck, RightsManagementTrait }
+import org.bigbluebutton.core.apps.voice.VoiceApp
 import org.bigbluebutton.core.models.{ Roles, Users2x, VoiceUsers }
 import org.bigbluebutton.core.running.{ LiveMeeting, OutMsgRouter }
 import org.bigbluebutton.core2.MeetingStatus2x
-import org.bigbluebutton.core2.message.senders.MsgBuilder
 
 trait MuteUserCmdMsgHdlr extends RightsManagementTrait {
   this: UsersApp =>
@@ -51,13 +51,12 @@ trait MuteUserCmdMsgHdlr extends RightsManagementTrait {
         } else {
           if (u.muted != msg.body.mute) {
             log.info("Send mute user request. meetingId=" + meetingId + " userId=" + u.intId + " user=" + u)
-            val event = MsgBuilder.buildMuteUserInVoiceConfSysMsg(
-              meetingId,
-              voiceConf,
-              u.voiceUserId,
+            VoiceApp.muteUserInVoiceConf(
+              liveMeeting,
+              outGW,
+              u.intId,
               msg.body.mute
             )
-            outGW.send(event)
           }
         }
       }

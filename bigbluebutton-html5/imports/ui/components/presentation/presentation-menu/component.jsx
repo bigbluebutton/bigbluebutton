@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import PropTypes from 'prop-types';
 import { defineMessages, injectIntl } from 'react-intl';
-import { toPng } from 'html-to-image';
+import { toPng, toSvg } from 'html-to-image';
 import { toast } from 'react-toastify';
 import logger from '/imports/startup/client/logger';
 import {
@@ -15,6 +15,8 @@ import { ACTIONS } from '/imports/ui/components/layout/enums';
 import deviceInfo from '/imports/utils/deviceInfo';
 import browserInfo from '/imports/utils/browserInfo';
 import AppService from '/imports/ui/components/app/service';
+import { getSettingsSingletonInstance } from '/imports/ui/services/settings';
+import SvgIcon from '/imports/ui/components/common/icon-svg/component';
 
 const intlMessages = defineMessages({
   downloading: {
@@ -76,6 +78,7 @@ const propTypes = {
   intl: PropTypes.shape({
     formatMessage: PropTypes.func.isRequired,
   }).isRequired,
+  allowSnapshotOfCurrentSlide: PropTypes.bool,
   handleToggleFullscreen: PropTypes.func.isRequired,
   isFullscreen: PropTypes.bool,
   elementName: PropTypes.string,
@@ -98,45 +101,32 @@ const propTypes = {
   })).isRequired,
 };
 
-const defaultProps = {
-  allowSnapshotOfCurrentSlide: PropTypes.bool.isRequired,
-  isIphone: false,
-  isFullscreen: false,
-  isRTL: false,
-  elementName: '',
-  meetingName: '',
-  fullscreenRef: null,
-  elementId: '',
-  elementGroup: '',
-  currentElement: '',
-  currentGroup: '',
-  tldrawAPI: null,
-};
-
 const PresentationMenu = (props) => {
+  const Settings = getSettingsSingletonInstance();
   const {
     intl,
-    isFullscreen,
-    elementId,
-    elementName,
-    elementGroup,
-    currentElement,
-    currentGroup,
-    fullscreenRef,
-    tldrawAPI,
+    isFullscreen = false,
+    elementId = '',
+    elementName = '',
+    elementGroup = '',
+    currentElement = '',
+    currentGroup = '',
+    fullscreenRef = null,
+    tldrawAPI = null,
     handleToggleFullscreen,
     layoutContextDispatch,
-    meetingName,
-    isIphone,
-    isRTL,
+    meetingName = '',
+    isIphone = false,
+    isRTL = Settings.application.isRTL,
     isToolbarVisible,
     setIsToolbarVisible,
-    allowSnapshotOfCurrentSlide,
+    allowSnapshotOfCurrentSlide = false,
     presentationDropdownItems,
     slideNum,
     currentUser,
     whiteboardId,
-    persistShape
+    persistShape,
+    hasWBAccess,
   } = props;
 
   const [state, setState] = useState({
@@ -145,14 +135,14 @@ const PresentationMenu = (props) => {
   });
 
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
-  const toastId = useRef(null);
+  const toastId = useRef('presentation-menu-toast');
   const dropdownRef = useRef(null);
 
   const formattedLabel = (fullscreen) => (fullscreen
     ? intl.formatMessage(intlMessages.exitFullscreenLabel)
     : intl.formatMessage(intlMessages.fullscreenLabel)
   );
-  
+
   const formattedVisibilityLabel = (visible) => (visible
     ? intl.formatMessage(intlMessages.hideToolsDesc)
     : intl.formatMessage(intlMessages.showToolsDesc)
@@ -198,9 +188,15 @@ const PresentationMenu = (props) => {
         const fileContent = e.target.result;
         const dataObj = extractShapes(JSON.parse(fileContent));
         const dataArray = Object.values(dataObj);
-        dataArray.forEach(shape => {
-          shape.parentId = `page:${slideNum}`;
-          shape.meta.createdBy = currentUser.userId;
+        dataArray.forEach((originalShape) => {
+          const shape = {
+            ...originalShape,
+            parentId: `page:${slideNum}`,
+            meta: {
+              ...originalShape.meta,
+              createdBy: currentUser.userId,
+            },
+          };
           persistShape(shape, whiteboardId, currentUser.isModerator);
         });
       };
@@ -211,14 +207,14 @@ const PresentationMenu = (props) => {
     }
   };
 
-  const handleFileClick = () => {
-    const fileInput = document.getElementById('hiddenFileInput');
-    if (fileInput) {
-      fileInput.click();
-    } else {
-      console.error('File input not found');
-    }
-  };
+  // const handleFileClick = () => {
+  //   const fileInput = document.getElementById('hiddenFileInput');
+  //   if (fileInput) {
+  //     fileInput.click();
+  //   } else {
+  //     console.error('File input not found');
+  //   }
+  // };
 
   function renderToastContent() {
     const { loading, hasError } = state;
@@ -290,14 +286,12 @@ const PresentationMenu = (props) => {
               hasError: false,
             });
 
-            toastId.current = toast.info(renderToastContent(), {
+            toast.info(renderToastContent(), {
               hideProgressBar: true,
               autoClose: false,
               newestOnTop: true,
               closeOnClick: true,
-              onClose: () => {
-                toastId.current = null;
-              },
+              toastId: toastId.current,
             });
 
             // This is a workaround to a conflict of the
@@ -310,20 +304,30 @@ const PresentationMenu = (props) => {
             try {
               // filter shapes that are inside the slide
               const backgroundShape = tldrawAPI.getCurrentPageShapes().find((s) => s.id === `shape:BG-${slideNum}`);
-              const shapes = tldrawAPI.getCurrentPageShapes().filter(
-                (shape) => shape.x <= backgroundShape.props.w
-                  && shape.y <= backgroundShape.props.h
-                  && shape.x >= 0
-                  && shape.y >= 0,
+              const shapes = tldrawAPI.getCurrentPageShapes();
+              const pollShape = shapes.find((shape) => shape.type === 'poll');
+              const svgElem = await tldrawAPI.getSvg(
+                shapes
+                  .filter((shape) => shape.type !== 'poll')
+                  .map((shape) => shape.id),
               );
-              const svgElem = await tldrawAPI.getSvg(shapes.map((shape) => shape.id));
+              svgElem.setAttribute('width', backgroundShape.props.w);
+              svgElem.setAttribute('height', backgroundShape.props.h);
+              svgElem.setAttribute('viewBox', `1 1 ${backgroundShape.props.w} ${backgroundShape.props.h}`);
+              if (pollShape) {
+                const pollShapeElement = document.getElementById(pollShape.id);
+                const pollShapeSvg = await toSvg(pollShapeElement);
+                const pollShapeImage = document.createElementNS('http://www.w3.org/2000/svg', 'image');
+                pollShapeImage.setAttribute('href', pollShapeSvg);
+                pollShapeImage.setAttribute('width', pollShape.props.w);
+                pollShapeImage.setAttribute('height', pollShape.props.h);
+                pollShapeImage.setAttribute('x', pollShape.x);
+                pollShapeImage.setAttribute('y', pollShape.y);
+                svgElem.appendChild(pollShapeImage);
+              }
 
               // workaround for ios
               if (isIos || isSafari) {
-                svgElem.setAttribute('width', backgroundShape.props.w);
-                svgElem.setAttribute('height', backgroundShape.props.h);
-                svgElem.setAttribute('viewBox', `1 1 ${backgroundShape.props.w} ${backgroundShape.props.h}`);
-
                 const svgString = new XMLSerializer().serializeToString(svgElem);
                 const blob = new Blob([svgString], { type: 'image/svg+xml' });
 
@@ -373,7 +377,9 @@ const PresentationMenu = (props) => {
       );
     }
 
-    menuItems.push(
+    const showVisibilityOption = currentUser?.presenter || hasWBAccess;
+
+    showVisibilityOption && menuItems.push(
       {
         key: 'list-item-toolvisibility',
         dataTest: 'toolVisibility',
@@ -385,15 +391,15 @@ const PresentationMenu = (props) => {
       },
     );
 
-    if (props.amIPresenter) {
-      menuItems.push({
-        key: 'list-item-load-shapes',
-        dataTest: 'loadShapes',
-        label: 'Load .tldr Data',
-        icon: 'pen_tool',
-        onClick: handleFileClick,
-      });
-    }
+    // if (props.amIPresenter) {
+    //   menuItems.push({
+    //     key: 'list-item-load-shapes',
+    //     dataTest: 'loadShapes',
+    //     label: 'Load .tldr Data',
+    //     icon: 'pen_tool',
+    //     onClick: handleFileClick,
+    //   });
+    // }
 
     presentationDropdownItems.forEach((item, index) => {
       switch (item.type) {
@@ -420,16 +426,13 @@ const PresentationMenu = (props) => {
   }
 
   useEffect(() => {
-    if (toastId.current) {
+    if (toast.isActive(toastId.current)) {
       toast.update(toastId.current, {
         render: renderToastContent(),
         hideProgressBar: state.loading,
         autoClose: state.loading ? false : 3000,
         newestOnTop: true,
         closeOnClick: true,
-        onClose: () => {
-          toastId.current = null;
-        },
       });
     }
 
@@ -454,7 +457,7 @@ const PresentationMenu = (props) => {
   }
 
   return (
-    <Styled.Left id='WhiteboardOptionButton'>
+    <Styled.Right id="WhiteboardOptionButton">
       <BBBMenu
         trigger={(
           <TooltipContainer title={intl.formatMessage(intlMessages.optionsLabel)}>
@@ -467,7 +470,7 @@ const PresentationMenu = (props) => {
                 setIsDropdownOpen((isOpen) => !isOpen);
               }}
             >
-              <Styled.ButtonIcon iconName="more" />
+              <SvgIcon iconName="whiteboardOptions" />
             </Styled.DropdownButton>
           </TooltipContainer>
         )}
@@ -490,11 +493,10 @@ const PresentationMenu = (props) => {
         style={{ display: 'none' }}
         onChange={handleFileInput}
       />
-    </Styled.Left>
+    </Styled.Right>
   );
 };
 
 PresentationMenu.propTypes = propTypes;
-PresentationMenu.defaultProps = defaultProps;
 
 export default injectIntl(PresentationMenu);

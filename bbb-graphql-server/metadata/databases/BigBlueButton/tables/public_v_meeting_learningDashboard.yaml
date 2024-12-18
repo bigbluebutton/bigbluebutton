@@ -10,7 +10,7 @@ select_permissions:
         meetingId:
           _eq: X-Hasura-ModeratorInMeeting
     comment: ""
-  - role: not_joined_bbb_client
+  - role: bbb_client_not_in_meeting
     permission:
       columns:
         - learningDashboardAccessToken

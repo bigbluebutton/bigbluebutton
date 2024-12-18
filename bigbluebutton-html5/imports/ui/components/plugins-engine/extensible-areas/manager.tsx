@@ -18,7 +18,9 @@ import {
   ExtensibleAreaComponentManager, ExtensibleAreaMap,
 } from './types';
 import FloatingWindowPluginStateContainer from './components/floating-window/manager';
-import GenericComponentPluginStateContainer from './components/generic-component/manager';
+import GenericContentPluginStateContainer from './components/generic-content/manager';
+import ScreenshareHelperPluginStateContainer from './components/screenshare-helper/manager';
+import UserCameraHelperPluginStateContainer from './components/user-camera-helper/manager';
 
 const extensibleAreaMap: ExtensibleAreaMap = {};
 
@@ -28,6 +30,7 @@ const extensibleAreaComponentManagers: ExtensibleAreaComponentManager[] = [
   ActionButtonDropdownPluginStateContainer,
   AudioSettingsDropdownPluginStateContainer,
   ActionBarPluginStateContainer,
+  UserCameraHelperPluginStateContainer,
   PresentationDropdownPluginStateContainer,
   NavBarPluginStateContainer,
   OptionsDropdownPluginStateContainer,
@@ -35,13 +38,16 @@ const extensibleAreaComponentManagers: ExtensibleAreaComponentManager[] = [
   UserCameraDropdownPluginStateContainer,
   UserListItemAdditionalInformationPluginStateContainer,
   FloatingWindowPluginStateContainer,
-  GenericComponentPluginStateContainer,
+  GenericContentPluginStateContainer,
+  ScreenshareHelperPluginStateContainer,
 ];
 
 function generateItemWithId<T extends PluginProvidedUiItemDescriptor>(
   item: T,
 ): T {
-  item.setItemId(uuidLib.v4());
+  if (!item.id) {
+    item.setItemId(uuidLib.v4());
+  }
   return item;
 }
 

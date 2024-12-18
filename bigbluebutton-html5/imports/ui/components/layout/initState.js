@@ -2,7 +2,7 @@ import DEFAULT_VALUES from '/imports/ui/components/layout/defaultValues';
 
 export const INITIAL_INPUT_STATE = {
   autoarrAngeLayout: true,
-  customParameters: {
+  userMetadata: {
 
   },
   browser: {
@@ -14,6 +14,7 @@ export const INITIAL_INPUT_STATE = {
   },
   notificationsBar: {
     hasNotification: false,
+    hideNotificationToasts: false,
   },
   navBar: {
     hasNavBar: true,
@@ -95,8 +96,8 @@ export const INITIAL_INPUT_STATE = {
     browserWidth: 0,
     browserHeight: 0,
   },
-  genericComponent: {
-    genericComponentId: undefined,
+  genericMainContent: {
+    genericContentId: undefined,
     width: 0,
     height: 0,
     browserWidth: 0,
@@ -114,6 +115,7 @@ export const INITIAL_INPUT_STATE = {
 export const INITIAL_OUTPUT_STATE = {
   navBar: {
     display: false,
+    hideTopRow: false,
     width: 0,
     height: 0,
     top: 0,
@@ -241,7 +243,7 @@ export const INITIAL_OUTPUT_STATE = {
     tabOrder: 0,
     zIndex: 1,
   },
-  genericComponent: {
+  genericMainContent: {
     display: false,
     width: 0,
     height: 0,

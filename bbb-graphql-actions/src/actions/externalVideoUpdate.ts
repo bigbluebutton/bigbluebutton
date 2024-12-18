@@ -1,8 +1,17 @@
 import { RedisMessage } from '../types';
-import {throwErrorIfNotPresenter} from "../imports/validation";
+import {throwErrorIfInvalidInput, throwErrorIfNotPresenter} from "../imports/validation";
 
 export default function buildRedisMessage(sessionVariables: Record<string, unknown>, input: Record<string, unknown>): RedisMessage {
   throwErrorIfNotPresenter(sessionVariables);
+  throwErrorIfInvalidInput(input,
+      [
+        {name: 'status', type: 'string', required: true},
+        {name: 'rate', type: 'number', required: true},
+        {name: 'time', type: 'number', required: true},
+        {name: 'state', type: 'number', required: true},
+      ]
+  )
+
   const eventName = `UpdateExternalVideoPubMsg`;
 
   const routing = {

@@ -22,16 +22,3 @@ select_permissions:
           - userId:
               _eq: X-Hasura-UserId
     comment: ""
-update_permissions:
-  - role: bbb_client
-    permission:
-      columns:
-        - inviteDismissedAt
-      filter:
-        _and:
-          - meetingId:
-              _eq: X-Hasura-MeetingId
-          - userId:
-              _eq: X-Hasura-UserId
-      check: null
-    comment: ""

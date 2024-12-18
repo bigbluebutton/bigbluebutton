@@ -6,9 +6,6 @@ import org.bigbluebutton.core.util.RandomStringGenerator
 import slick.jdbc.PostgresProfile.api._
 import slick.lifted.ProvenShape
 
-import scala.concurrent.ExecutionContext.Implicits.global
-import scala.util.{ Failure, Success }
-
 case class ScreenshareDbModel(
     screenshareId:   String,
     meetingId:       String,
@@ -40,7 +37,7 @@ class ScreenshareDbTableDef(tag: Tag) extends Table[ScreenshareDbModel](tag, "sc
 
 object ScreenshareDAO {
   def insert(meetingId: String, screenshareModel: ScreenshareModel) = {
-    DatabaseConnection.db.run(
+    DatabaseConnection.enqueue(
       TableQuery[ScreenshareDbTableDef].forceInsert(
         ScreenshareDbModel(
           screenshareId = System.currentTimeMillis() + "-" + RandomStringGenerator.randomAlphanumericString(8),
@@ -56,24 +53,18 @@ object ScreenshareDAO {
           stoppedAt = None
         )
       )
-    ).onComplete {
-        case Success(rowsAffected) => DatabaseConnection.logger.debug(s"$rowsAffected row(s) inserted in Screenshare table!")
-        case Failure(e)            => DatabaseConnection.logger.error(s"Error inserting Screenshare: $e")
-      }
+    )
   }
 
   def updateStopped(meetingId: String, stream: String) = {
-    DatabaseConnection.db.run(
+    DatabaseConnection.enqueue(
       TableQuery[ScreenshareDbTableDef]
         .filter(_.meetingId === meetingId)
         .filter(_.stream === stream)
         .filter(_.stoppedAt.isEmpty)
         .map(ev => ev.stoppedAt)
         .update(Some(new java.sql.Timestamp(System.currentTimeMillis())))
-    ).onComplete {
-        case Success(rowsAffected) => DatabaseConnection.logger.debug(s"$rowsAffected row(s) updated stoppedAt on Screenshare table!")
-        case Failure(e)            => DatabaseConnection.logger.debug(s"Error updating stoppedAt on Screenshare: $e")
-      }
+    )
   }
 
 }

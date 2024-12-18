@@ -6,9 +6,10 @@ const { encodeCustomParams, getAllShortcutParams, hexToRgb } = require('./util')
 const { CreateParameters } = require('./createParameters');
 const { PARAMETER_HIDE_PRESENTATION_TOAST } = require('../core/constants');
 
+// it only works for snapshot comparisons. playwright assertions will complain about the element (still in the DOM)
 const hidePresentationToast = encodeCustomParams(PARAMETER_HIDE_PRESENTATION_TOAST);
 
-test.describe.parallel('Create Parameters', () => {
+test.describe.parallel('Create Parameters', { tag: '@ci' }, () => {
   test('Record Meeting', async ({ browser, context, page }) => {
     const createParam = new CreateParameters(browser, context);
     await createParam.initModPage(page, true, { createParameter: c.recordMeeting });
@@ -16,13 +17,13 @@ test.describe.parallel('Create Parameters', () => {
   });
 
   test.describe.parallel('Banner', () => {
-    test('Banner Text @ci', async ({ browser, context, page }) => {
+    test('Banner Text', async ({ browser, context, page }) => {
       const createParam = new CreateParameters(browser, context);
       await createParam.initModPage(page, true, { createParameter: c.bannerText });
       await createParam.bannerText();
     });
 
-    test('Banner Color @ci', async ({ browser, context, page }) => {
+    test('Banner Color', async ({ browser, context, page }) => {
       const createParam = new CreateParameters(browser, context);
       const colorToRGB = hexToRgb(c.color.substring(1));
       await createParam.initModPage(page, true, { createParameter: `${encodeCustomParams(c.bannerColor)}&${c.bannerText}` });
@@ -31,7 +32,7 @@ test.describe.parallel('Create Parameters', () => {
   });
 
   // see https://github.com/bigbluebutton/bigbluebutton/issues/19426
-  test('Max Participants @flaky', async ({ browser, context, page }) => {
+  test('Max Participants', { tag: '@flaky' }, async ({ browser, context, page }) => {
     const createParam = new CreateParameters(browser, context);
     await createParam.initModPage(page, true, { createParameter: c.maxParticipants });
     await createParam.initModPage2(true, context);
@@ -39,7 +40,7 @@ test.describe.parallel('Create Parameters', () => {
   });
 
   // Not working due to missing data provided by GraphQL
-  test('Meeting Duration @flaky', async ({ browser, context, page }) => {
+  test('Meeting Duration', async ({ browser, context, page }) => {
     const createParam = new CreateParameters(browser, context);
     await createParam.initModPage(page, true, { createParameter: c.duration });
     await createParam.duration();
@@ -64,7 +65,7 @@ test.describe.parallel('Create Parameters', () => {
     await createParam.muteOnStart();
   });
 
-  test('Allow Mods To Unmute Users', async ({ browser, context, page }) => {
+  test('Allow Mods To Unmute Users', { tag: '@fci' }, async ({ browser, context, page }) => {
     const createParam = new CreateParameters(browser, context);
     await createParam.initModPage(page, true, { createParameter: c.allowModsToUnmuteUsers });
     await createParam.allowModsToUnmuteUsers(context);
@@ -106,33 +107,33 @@ test.describe.parallel('Create Parameters', () => {
     await createParam.allowModsToEjectCameras();
   });
 
-  test.describe.parallel('Disabled Features @ci', () => {
+  test.describe.parallel('Disabled Features', () => {
     test.describe.serial(() => {
-      test('Breakout rooms', async ({ browser, context, page}) => {
+      test('Breakout rooms', async ({ browser, context, page }) => {
         const disabledFeatures = new DisabledFeatures(browser, context);
         await disabledFeatures.initModPage(page, true, { createParameter: c.breakoutRoomsDisabled });
         await disabledFeatures.breakoutRooms();
       });
-      test('Breakout rooms (exclude)', async ({ browser, context, page}) => {
+      test('Breakout rooms (exclude)', async ({ browser, context, page }) => {
         const disabledFeatures = new DisabledFeatures(browser, context);
         await disabledFeatures.initModPage(page, true, { createParameter: c.breakoutRoomsExclude });
         await disabledFeatures.breakoutRoomsExclude();
       });
     });
-  
+
     test.describe.serial(() => {
-      test('Speech Recognition', async ({ browser, context, page}) => {
+      test('Speech Recognition', async ({ browser, context, page }) => {
         const disabledFeatures = new DisabledFeatures(browser, context);
         await disabledFeatures.initModPage(page, false, { createParameter: c.speechRecognitionDisabled });
         await disabledFeatures.speechRecognition();
       });
-      test('Speech Recognition (exclude)', async ({ browser, context, page}) => {
+      test('Speech Recognition (exclude)', async ({ browser, context, page }) => {
         const disabledFeatures = new DisabledFeatures(browser, context);
         await disabledFeatures.initModPage(page, false, { createParameter: c.speechRecognitionExclude });
         await disabledFeatures.speechRecognitionExclude();
       });
     });
-  
+
     test.describe.serial(() => {
       // current testing code is checking the old (write) captions
       // this parameter should works the same way with the automatic captions
@@ -148,7 +149,7 @@ test.describe.parallel('Create Parameters', () => {
         await disabledFeatures.captionsExclude();
       });
     });
-  
+
     test.describe.serial(() => {
       test('Chat', async ({ browser, context, page }) => {
         const disabledFeatures = new DisabledFeatures(browser, context);
@@ -161,7 +162,7 @@ test.describe.parallel('Create Parameters', () => {
         await disabledFeatures.chatExclude();
       });
     });
-  
+
     test.describe.serial(() => {
       test('External Videos', async ({ browser, context, page }) => {
         const disabledFeatures = new DisabledFeatures(browser, context);
@@ -174,7 +175,7 @@ test.describe.parallel('Create Parameters', () => {
         await disabledFeatures.externalVideosExclude();
       });
     });
-  
+
     test.describe.serial(() => {
       test('Layouts', async ({ browser, context, page }) => {
         const disabledFeatures = new DisabledFeatures(browser, context);
@@ -187,7 +188,7 @@ test.describe.parallel('Create Parameters', () => {
         await disabledFeatures.layoutsExclude();
       });
     });
-  
+
     test.describe.serial(() => {
       test('Learning Dashboard', async ({ browser, context, page }) => {
         const disabledFeatures = new DisabledFeatures(browser, context);
@@ -200,7 +201,7 @@ test.describe.parallel('Create Parameters', () => {
         await disabledFeatures.learningDashboardExclude();
       });
     });
-  
+
     test.describe.serial(() => {
       test('Polls', async ({ browser, context, page }) => {
         const disabledFeatures = new DisabledFeatures(browser, context);
@@ -213,7 +214,7 @@ test.describe.parallel('Create Parameters', () => {
         await disabledFeatures.pollsExclude();
       });
     });
-  
+
     test.describe.serial(() => {
       test('Screenshare', async ({ browser, context, page }) => {
         const disabledFeatures = new DisabledFeatures(browser, context);
@@ -226,7 +227,7 @@ test.describe.parallel('Create Parameters', () => {
         await disabledFeatures.screenshareExclude();
       });
     });
-  
+
     test.describe.serial(() => {
       test('Shared Notes', async ({ browser, context, page }) => {
         const disabledFeatures = new DisabledFeatures(browser, context);
@@ -239,7 +240,7 @@ test.describe.parallel('Create Parameters', () => {
         await disabledFeatures.sharedNotesExclude();
       });
     });
-  
+
     test.describe.serial(() => {
       test('Virtual Background', async ({ browser, context, page }) => {
         const disabledFeatures = new DisabledFeatures(browser, context);
@@ -252,7 +253,7 @@ test.describe.parallel('Create Parameters', () => {
         await disabledFeatures.virtualBackgroundsExclude();
       });
     });
-  
+
     test.describe.serial(() => {
       test('Download Presentation With Annotations', async ({ browser, context, page }) => {
         const disabledFeatures = new DisabledFeatures(browser, context);
@@ -278,7 +279,7 @@ test.describe.parallel('Create Parameters', () => {
         await disabledFeatures.importPresentationWithAnnotationsFromBreakoutRoomsExclude();
       });
     });
-  
+
     test.describe.serial(() => {
       test('Import Shared Notes From Breakout Rooms', async ({ browser, context, page }) => {
         const disabledFeatures = new DisabledFeatures(browser, context);
@@ -291,7 +292,7 @@ test.describe.parallel('Create Parameters', () => {
         await disabledFeatures.importSharedNotesFromBreakoutRoomsExclude();
       });
     });
-  
+
     test.describe.serial(() => {
       test('Presentation', async ({ browser, context, page }) => {
         const disabledFeatures = new DisabledFeatures(browser, context);
@@ -304,7 +305,7 @@ test.describe.parallel('Create Parameters', () => {
         await disabledFeatures.presentationExclude();
       });
     });
-  
+
     test.describe.serial(() => {
       test('Custom Virtual Background', async ({ browser, context, page }) => {
         const disabledFeatures = new DisabledFeatures(browser, context);
@@ -317,7 +318,7 @@ test.describe.parallel('Create Parameters', () => {
         await disabledFeatures.customVirtualBackgroundExclude();
       });
     });
-    
+
     test.describe.serial(() => {
       test('Slide Snapshot', async ({ browser, context, page }) => {
         const disabledFeatures = new DisabledFeatures(browser, context);
@@ -346,7 +347,7 @@ test.describe.parallel('Create Parameters', () => {
   });
 });
 
-test.describe.parallel('Custom Parameters', () => {
+test.describe.parallel('Custom Parameters', { tag: '@ci' }, () => {
   test('Show Public Chat On Login', async ({ browser, context, page }) => {
     const customParam = new CustomParameters(browser, context);
     await customParam.initModPage(page, true, { joinParameter: c.showPublicChatOnLogin });
@@ -365,7 +366,7 @@ test.describe.parallel('Custom Parameters', () => {
     await customParam.clientTitle();
   });
 
-  test('Ask For Feedback On Logout', async ({ browser, context, page }) => {
+  test('Ask for feedback on logout', { tag: '@ci' }, async ({ browser, context, page }) => {
     const customParam = new CustomParameters(browser, context);
     await customParam.initModPage(page, true, { joinParameter: c.askForFeedbackOnLogout });
     await customParam.askForFeedbackOnLogout();
@@ -377,7 +378,7 @@ test.describe.parallel('Custom Parameters', () => {
     await customParam.displayBrandingArea();
   });
 
-  test('Shortcuts @ci', async ({ browser, context, page }) => {
+  test('Shortcuts', async ({ browser, context, page }) => {
     const customParam = new CustomParameters(browser, context);
     const shortcutParam = getAllShortcutParams();
     await customParam.initModPage(page, true, { joinParameter: encodeCustomParams(shortcutParam) });
@@ -385,7 +386,7 @@ test.describe.parallel('Custom Parameters', () => {
     await customParam.shortcuts();
   });
 
-  test('Custom Styles: CSS code @ci', async ({ browser, context, page }) => {
+  test('Custom Styles: CSS code', async ({ browser, context, page }) => {
     const customParam = new CustomParameters(browser, context);
     await customParam.initModPage(page, true, { joinParameter: encodeCustomParams(c.customStyle) });
     await customParam.customStyle();
@@ -404,7 +405,7 @@ test.describe.parallel('Custom Parameters', () => {
     await customParam.autoSwapLayout();
   });
 
-  test('Hide Actions Bar @ci', async ({ browser, context, page }) => {
+  test('Hide Actions Bar', async ({ browser, context, page }) => {
     const customParam = new CustomParameters(browser, context);
     await customParam.initModPage(page, true, { joinParameter: c.hideActionsBar });
     await customParam.hideActionsBarTest();
@@ -416,7 +417,7 @@ test.describe.parallel('Custom Parameters', () => {
     await customParam.overrideDefaultLocaleTest();
   });
 
-  test('Hide NavBar @ci', async ({ browser, context, page }) => {
+  test('Hide NavBar', async ({ browser, context, page }) => {
     const customParam = new CustomParameters(browser, context);
     await customParam.initModPage(page, true, { joinParameter: c.hideNavBar });
     await customParam.hideNavBarTest();
@@ -430,20 +431,20 @@ test.describe.parallel('Custom Parameters', () => {
 
   test.describe.parallel('Audio', () => {
     // see https://github.com/bigbluebutton/bigbluebutton/issues/19427
-    test('Auto join @ci', async ({ browser, context, page }) => {
+    test('Auto join', async ({ browser, context, page }) => {
       const customParam = new CustomParameters(browser, context);
       await customParam.initModPage(page, false, { joinParameter: c.autoJoin });
       await customParam.autoJoin();
     });
 
-    test('Disable Listen Only Mode @ci', async ({ browser, context, page }) => {
+    test('Disable Listen Only Mode', async ({ browser, context, page }) => {
       const customParam = new CustomParameters(browser, context);
       await customParam.initModPage(page, false, { joinParameter: c.listenOnlyMode });
       await customParam.listenOnlyMode();
     });
 
     // see https://github.com/bigbluebutton/bigbluebutton/issues/19428
-    test('Force Listen Only @ci', async ({ browser, context, page }) => {
+    test('Force Listen Only', async ({ browser, context, page }) => {
       const customParam = new CustomParameters(browser, context);
       await customParam.initUserPage(false, context, { useModMeetingId: false, joinParameter: c.forceListenOnly });
       await customParam.forceListenOnly(page);
@@ -457,37 +458,37 @@ test.describe.parallel('Custom Parameters', () => {
 
     test('Skip audio check on first join', async ({ browser, context, page }) => {
       const customParam = new CustomParameters(browser, context);
-      await customParam.initModPage(page, false, { joinParameter: `${c.skipCheckOnFirstJoin}&${hidePresentationToast}` });
+      await customParam.initModPage(page, false, { joinParameter: c.skipCheckOnFirstJoin });
       await customParam.skipCheckOnFirstJoin();
+    });
+
+    test('Skip echo test if previous device', async ({ browser, context, page }) => {
+      const customParam = new CustomParameters(browser, context);
+      await customParam.initModPage(page, false, { joinParameter: c.skipEchoTestIfPreviousDevice });
+      await customParam.skipEchoTestIfPreviousDevice();
     });
   });
 
   test.describe.parallel('Presentation', () => {
     // see https://github.com/bigbluebutton/bigbluebutton/issues/19456
-    test('Hide Presentation on join @ci', async ({ browser, context, page }) => {
+    test('Hide Presentation on join', async ({ browser, context, page }) => {
       const customParam = new CustomParameters(browser, context);
       await customParam.initModPage(page, true, { joinParameter: c.hidePresentationOnJoin });
       await customParam.initUserPage(true, context, { useModMeetingId: true, joinParameter: c.hidePresentationOnJoin });
       await customParam.hidePresentationOnJoin();
     });
 
-    test('Force Restore Presentation On New Events @ci @flaky', async ({ browser, context, page }) => {
+    test('Force restore presentation on new events', { tag: ['@ci', '@flaky'] }, async ({ browser, context, page }) => {
+      // tagged as flaky because it's restoring presentation right after minimizing it due to unexpected zooming slide
       const customParam = new CustomParameters(browser, context);
-      const joinParameter = c.forceRestorePresentationOnNewEvents;
-      await customParam.initModPage(page, true, { joinParameter });
-      await customParam.forceRestorePresentationOnNewEvents(joinParameter);
-    });
-
-    test('Force Restore Presentation On New Poll Result', async ({ browser, context, page }) => {
-      const customParam = new CustomParameters(browser, context);
-      const joinParameter = `${c.forceRestorePresentationOnNewEvents}&${hidePresentationToast}`;
-      await customParam.initModPage(page, true, { joinParameter });
-      await customParam.forceRestorePresentationOnNewPollResult(joinParameter);
+      await customParam.initModPage(page);
+      await customParam.initUserPage(true, context, { useModMeetingId: true, joinParameter: c.forceRestorePresentationOnNewEvents });
+      await customParam.forceRestorePresentationOnNewEvents();
     });
   });
 
   test.describe.parallel('Webcam', () => {
-    test('Disable Webcam Sharing @ci', async ({ browser, context, page }) => {
+    test('Disable Webcam Sharing', async ({ browser, context, page }) => {
       const customParam = new CustomParameters(browser, context);
       await customParam.initModPage(page, true, { joinParameter: c.enableVideo });
       await customParam.enableVideo();
@@ -499,13 +500,19 @@ test.describe.parallel('Custom Parameters', () => {
       await customParam.skipVideoPreview();
     });
 
-    test('Skip Video Preview on First Join @ci', async ({ browser, context, page }) => {
+    test('Skip Video Preview on First Join', async ({ browser, context, page }) => {
       const customParam = new CustomParameters(browser, context);
       await customParam.initModPage(page, true, { joinParameter: c.skipVideoPreviewOnFirstJoin });
       await customParam.skipVideoPreviewOnFirstJoin();
     });
 
-    test('Mirror Own Webcam @ci', async ({ browser, context, page }) => {
+    test('Skip Video Preview if Previous Device', async ({ browser, context, page }) => {
+      const customParam = new CustomParameters(browser, context);
+      await customParam.initModPage(page, true, { joinParameter: c.skipVideoPreviewIfPreviousDevice });
+      await customParam.skipVideoPreviewIfPreviousDevice();
+    });
+
+    test('Mirror Own Webcam', async ({ browser, context, page }) => {
       const customParam = new CustomParameters(browser, context);
       await customParam.initModPage(page, true, { joinParameter: c.mirrorOwnWebcam });
       await customParam.mirrorOwnWebcam();
@@ -513,11 +520,10 @@ test.describe.parallel('Custom Parameters', () => {
   });
 
   test.describe.parallel('Whiteboard', () => {
-    test.skip();
     test('Multi Users Pen Only', async ({ browser, context, page }) => {
       const customParam = new CustomParameters(browser, context);
-      await customParam.initModPage(page, true, { joinParameter: c.multiUserPenOnly });
-      await customParam.initUserPage(true, context, { useModMeetingId: true, createParameter: c.multiUserPenOnly });
+      await customParam.initModPage(page, true);
+      await customParam.initUserPage(true, context, { useModMeetingId: true, joinParameter: c.multiUserPenOnly });
       await customParam.multiUserPenOnly();
     });
 

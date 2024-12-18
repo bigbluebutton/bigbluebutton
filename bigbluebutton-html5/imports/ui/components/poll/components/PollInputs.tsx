@@ -1,13 +1,7 @@
 import React from 'react';
 import { defineMessages, useIntl } from 'react-intl';
-import { Meteor } from 'meteor/meteor';
 import { pollTypes } from '../service';
 import Styled from '../styles';
-
-const POLL_SETTINGS = Meteor.settings.public.poll;
-const MAX_CUSTOM_FIELDS = POLL_SETTINGS.maxCustom;
-const MAX_INPUT_CHARS = POLL_SETTINGS.maxTypedAnswerLength;
-const MIN_OPTIONS_LENGTH = 2;
 
 const intlMessages = defineMessages({
   customPlaceholder: {
@@ -43,6 +37,10 @@ const PollInputs: React.FC<PollInputsProps> = ({
   type,
   error,
 }) => {
+  const POLL_SETTINGS = window.meetingClientSettings.public.poll;
+  const MAX_CUSTOM_FIELDS = POLL_SETTINGS.maxCustom;
+  const MAX_INPUT_CHARS = POLL_SETTINGS.maxTypedAnswerLength;
+  const MIN_OPTIONS_LENGTH = 2;
   const intl = useIntl();
   let hasVal = false;
   return optList.slice(0, MAX_CUSTOM_FIELDS).map((o: { val: string }, i: number) => {

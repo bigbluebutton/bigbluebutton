@@ -45,22 +45,25 @@ const getDeviceIdFromTrack = (track) => {
     const { deviceId } = track.getSettings();
     return deviceId;
   }
-  return '';
+  return null;
 };
 
 const extractDeviceIdFromStream = (stream, kind) => {
+  if (!stream) return null;
+
   // An empty string is the browser's default...
   let tracks = [];
 
   switch (kind) {
     case 'audio':
       tracks = getAudioTracks(stream);
+      if (tracks.length === 0) return 'listen-only';
       return getDeviceIdFromTrack(tracks[0]);
     case 'video':
       tracks = getVideoTracks(stream);
       return getDeviceIdFromTrack(tracks[0]);
     default: {
-      return '';
+      return null;
     }
   }
 };

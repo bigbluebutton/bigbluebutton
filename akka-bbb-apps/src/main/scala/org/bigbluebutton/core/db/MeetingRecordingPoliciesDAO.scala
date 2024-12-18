@@ -4,9 +4,6 @@ import org.bigbluebutton.common2.domain.{ RecordProp }
 import slick.jdbc.PostgresProfile.api._
 import slick.lifted.{ ProvenShape }
 
-import scala.concurrent.ExecutionContext.Implicits.global
-import scala.util.{ Failure, Success }
-
 case class MeetingRecordingPoliciesDbModel(
     meetingId:               String,
     record:                  Boolean,
@@ -28,7 +25,7 @@ class MeetingRecordingPoliciesDbTableDef(tag: Tag) extends Table[MeetingRecordin
 
 object MeetingRecordingPoliciesDAO {
   def insert(meetingId: String, recordProp: RecordProp) = {
-    DatabaseConnection.db.run(
+    DatabaseConnection.enqueue(
       TableQuery[MeetingRecordingPoliciesDbTableDef].forceInsert(
         MeetingRecordingPoliciesDbModel(
           meetingId = meetingId,
@@ -38,12 +35,7 @@ object MeetingRecordingPoliciesDAO {
           keepEvents = recordProp.keepEvents
         )
       )
-    ).onComplete {
-        case Success(rowsAffected) => {
-          DatabaseConnection.logger.debug(s"$rowsAffected row(s) inserted in MeetingRecordingPolicies table!")
-        }
-        case Failure(e) => DatabaseConnection.logger.error(s"Error inserting MeetingRecordingPolicies: $e")
-      }
+    )
   }
 
 }

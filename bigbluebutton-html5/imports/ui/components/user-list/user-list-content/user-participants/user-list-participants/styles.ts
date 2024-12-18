@@ -14,7 +14,7 @@ import {
 } from '/imports/ui/stylesheets/styled-components/palette';
 
 import {
-  VirtualizedScrollboxVertical,
+  ScrollboxVertical,
 } from '/imports/ui/stylesheets/styled-components/scrollable';
 
 interface AvatarProps {
@@ -259,7 +259,7 @@ const pulse = (color: string) => keyframes`
   }
 `;
 
-const VirtualizedList = styled(VirtualizedScrollboxVertical)`
+const VirtualizedList = styled(ScrollboxVertical)`
   background: linear-gradient(#f3f6f9 30%, rgba(255,255,255,0)),
     linear-gradient(rgba(255,255,255,0), #f3f6f9 70%) 0 100%,
     /* Shadows */
@@ -267,6 +267,12 @@ const VirtualizedList = styled(VirtualizedScrollboxVertical)`
     radial-gradient(farthest-side at 50% 100%, rgba(0,0,0,.2), rgba(0,0,0,0)) 0 100%;
 
   outline: none;
+  overflow-x: hidden;
+`;
+
+const UserListItem = styled.div`
+  padding: .25em 0;
+  margin-left: .5rem;
 `;
 
 export default {
@@ -274,4 +280,5 @@ export default {
   Skeleton,
   UserListColumn,
   VirtualizedList,
+  UserListItem,
 };

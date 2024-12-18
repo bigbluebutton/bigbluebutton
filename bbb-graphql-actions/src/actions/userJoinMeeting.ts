@@ -1,6 +1,15 @@
 import { RedisMessage } from '../types';
+import {throwErrorIfInvalidInput} from "../imports/validation";
 
 export default function buildRedisMessage(sessionVariables: Record<string, unknown>, input: Record<string, unknown>): RedisMessage {
+  throwErrorIfInvalidInput(input,
+      [
+        {name: 'authToken', type: 'string', required: true},
+        {name: 'clientType', type: 'string', required: true},
+        {name: 'clientIsMobile', type: 'boolean', required: true},
+      ]
+  )
+
   const eventName = `UserJoinMeetingReqMsg`;
 
   const routing = {
@@ -18,6 +27,7 @@ export default function buildRedisMessage(sessionVariables: Record<string, unkno
     userId: routing.userId,
     authToken: input.authToken,
     clientType: input.clientType,
+    clientIsMobile: input.clientIsMobile,
   };
 
   return { eventName, routing, header, body };

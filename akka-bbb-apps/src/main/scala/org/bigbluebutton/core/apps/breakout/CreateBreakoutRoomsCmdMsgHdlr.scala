@@ -5,9 +5,11 @@ import org.bigbluebutton.common2.msgs._
 import org.bigbluebutton.core.apps.{BreakoutModel, PermissionCheck, RightsManagementTrait}
 import org.bigbluebutton.core.db.BreakoutRoomDAO
 import org.bigbluebutton.core.domain.{BreakoutRoom2x, MeetingState2x}
-import org.bigbluebutton.core.models.PresentationInPod
+import org.bigbluebutton.core.models.PluginModel.getPlugins
+import org.bigbluebutton.core.models.{Plugin, PresentationInPod}
 import org.bigbluebutton.core.running.{LiveMeeting, OutMsgRouter}
 import org.bigbluebutton.core.running.MeetingActor
+import scala.jdk.CollectionConverters._
 
 trait CreateBreakoutRoomsCmdMsgHdlr extends RightsManagementTrait {
   this: MeetingActor =>
@@ -55,26 +57,34 @@ trait CreateBreakoutRoomsCmdMsgHdlr extends RightsManagementTrait {
   }
 
   def processRequest(msg: CreateBreakoutRoomsCmdMsg, state: MeetingState2x): MeetingState2x = {
-
-    val presId = getPresentationId(state)
-    val presSlide = getPresentationSlide(state)
+    val presId = getPresentationId(state) // The current presentation
+    val presSlide = getPresentationSlide(state) // The current slide
     val parentId = liveMeeting.props.meetingProp.intId
     var rooms = new collection.immutable.HashMap[String, BreakoutRoom2x]
+    val filteredPluginProp = liveMeeting.props.pluginProp.asScala
+      .filter { case (key, _) =>
+        getPlugins(liveMeeting.plugins).get(key).exists(_.manifest.content.enabledForBreakoutRooms)
+      }
+      .asJava
 
     var i = 0
     for (room <- msg.body.rooms) {
+      val roomPresId = if (room.presId.isEmpty) presId else room.presId;
+
       i += 1
       val (internalId, externalId) = BreakoutRoomsUtil.createMeetingIds(liveMeeting.props.meetingProp.intId, i)
       val voiceConf = BreakoutRoomsUtil.createVoiceConfId(liveMeeting.props.voiceProp.voiceConf, i)
 
       val breakout = BreakoutModel.create(parentId, internalId, externalId, room.name, room.sequence, room.shortName,
         room.isDefaultName, room.freeJoin, voiceConf, room.users, msg.body.captureNotes,
-        msg.body.captureSlides, room.captureNotesFilename, room.captureSlidesFilename)
+        msg.body.captureSlides, room.captureNotesFilename, room.captureSlidesFilename,
+        room.allPages, roomPresId)
 
       rooms = rooms + (breakout.id -> breakout)
     }
 
     for (breakout <- rooms.values.toVector) {
+      val roomSlides = if (breakout.allPages) -1 else presSlide;
       val roomDetail = new BreakoutRoomDetail(
         breakout.id, breakout.name,
         liveMeeting.props.meetingProp.intId,
@@ -87,12 +97,15 @@ trait CreateBreakoutRoomsCmdMsgHdlr extends RightsManagementTrait {
         msg.body.durationInMinutes,
         liveMeeting.props.password.moderatorPass,
         liveMeeting.props.password.viewerPass,
-        presId, presSlide, msg.body.record,
+        breakout.presId,
+        roomSlides,
+        msg.body.record,
         liveMeeting.props.breakoutProps.privateChatEnabled,
         breakout.captureNotes,
         breakout.captureSlides,
         breakout.captureNotesFilename,
         breakout.captureSlidesFilename,
+        pluginProp = filteredPluginProp,
       )
 
       val event = buildCreateBreakoutRoomSysCmdMsg(liveMeeting.props.meetingProp.intId, roomDetail)

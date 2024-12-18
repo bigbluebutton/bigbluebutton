@@ -63,12 +63,61 @@ class UrlMappings {
       action = [GET: 'downloadFile']
     }
 
+    "/bigbluebutton/api/create"(controller: "api") {
+      action = [GET: 'create', POST: 'create']
+    }
+
+    "/bigbluebutton/api/join"(controller: "api") {
+      action = [GET: 'join']
+    }
+
+    "/bigbluebutton/api/isMeetingRunning"(controller: "api") {
+      action = [GET: 'isMeetingRunning', POST: 'isMeetingRunning']
+    }
+
+    "/bigbluebutton/api/end"(controller: "api") {
+      action = [GET: 'end', POST: 'end']
+    }
+
+    "/bigbluebutton/api/getMeetingInfo"(controller: "api") {
+      action = [GET: 'getMeetingInfo', POST: 'getMeetingInfo']
+    }
+
     "/bigbluebutton/api/getMeetings"(controller: "api") {
       action = [GET: 'getMeetingsHandler', POST: 'getMeetingsHandler']
     }
 
     "/bigbluebutton/api/getSessions"(controller: "api") {
       action = [GET: 'getSessionsHandler', POST: 'getSessionsHandler']
+    }
+
+    "/bigbluebutton/api/stuns"(controller: "api") {
+      action = [GET: 'stuns', POST: 'stuns']
+    }
+
+    "/bigbluebutton/api/signOut"(controller: "api") {
+      action = [GET: 'signOut', POST: 'signOut']
+    }
+
+    "/bigbluebutton/api/insertDocument"(controller: "api") {
+      action = [POST: 'insertDocument']
+    }
+
+    "/bigbluebutton/api/getJoinUrl"(controller: "api") {
+      action = [GET: 'getJoinUrl', POST: 'getJoinUrl']
+    }
+
+    "/bigbluebutton/api/feedback"(controller: "api") {
+      action = [POST: 'feedback']
+    }
+
+    "/bigbluebutton/api/learningDashboard"(controller: "api") {
+      action = [GET: 'learningDashboard', POST: 'learningDashboard']
+    }
+
+
+    "/bigbluebutton/api/sendChatMessage"(controller: "api") {
+      action = [GET: 'sendChatMessage']
     }
 
     "/bigbluebutton/api/getRecordings"(controller: "recording") {

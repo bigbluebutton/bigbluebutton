@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { useSubscription, gql } from '@apollo/client';
+import { gql } from '@apollo/client';
 import logger from '/imports/startup/client/logger';
 import { CustomSubscriptionArguments } from 'bigbluebutton-html-plugin-sdk/dist/cjs/data-consumption/domain/shared/custom-subscription/types';
 import { SubscribedEventDetails, UpdatedEventDetails } from 'bigbluebutton-html-plugin-sdk/dist/cjs/core/types';
@@ -9,6 +9,7 @@ import {
 import { DataConsumptionHooks } from 'bigbluebutton-html-plugin-sdk/dist/cjs/data-consumption/enums';
 
 import { HookWithArgumentsContainerProps } from './types';
+import useDeduplicatedSubscription from '/imports/ui/core/hooks/useDeduplicatedSubscription';
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
 const CustomSubscriptionHookContainer = (props: HookWithArgumentsContainerProps) => {
@@ -19,7 +20,7 @@ const CustomSubscriptionHookContainer = (props: HookWithArgumentsContainerProps)
 
   let customSubscriptionData: any;
   try {
-    const subscriptionResult = useSubscription(gql`${queryFromPlugin}`, {
+    const subscriptionResult = useDeduplicatedSubscription(gql`${queryFromPlugin}`, {
       variables,
     });
     customSubscriptionData = subscriptionResult;
@@ -33,7 +34,7 @@ const CustomSubscriptionHookContainer = (props: HookWithArgumentsContainerProps)
   const updatePresentationForPlugin = () => {
     window.dispatchEvent(
       new CustomEvent<UpdatedEventDetails<any>>(
-        HookEvents.UPDATED,
+        HookEvents.BBB_CORE_SENT_NEW_DATA,
         {
           detail: {
             data: customSubscriptionData,
@@ -57,11 +58,11 @@ const CustomSubscriptionHookContainer = (props: HookWithArgumentsContainerProps)
       if (event.detail.hook === DataConsumptionHooks.CUSTOM_SUBSCRIPTION) setSendSignal((signal) => !signal);
     }) as EventListener;
     window.addEventListener(
-      HookEvents.SUBSCRIBED, updateHookUseCustomSubscription,
+      HookEvents.PLUGIN_SUBSCRIBED_TO_BBB_CORE, updateHookUseCustomSubscription,
     );
     return () => {
       window.removeEventListener(
-        HookEvents.SUBSCRIBED, updateHookUseCustomSubscription,
+        HookEvents.PLUGIN_SUBSCRIBED_TO_BBB_CORE, updateHookUseCustomSubscription,
       );
     };
   }, []);

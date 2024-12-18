@@ -8,8 +8,8 @@ export interface TimerData {
   stopwatch: boolean;
   running: boolean;
   startedOn: number;
-  endedOn: number;
   startedAt: string;
+  elapsed: boolean;
 }
 
 export interface GetTimerResponse {
@@ -27,7 +27,7 @@ export const GET_TIMER = gql`
       running
       startedOn
       startedAt
-      endedOn
+      elapsed
     }
   }
 `;

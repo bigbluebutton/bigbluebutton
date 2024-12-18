@@ -7,6 +7,7 @@ const CURRENT_FIELD = 'current';
 const useIntersectionObserver = (
   parentRef: React.MutableRefObject<HTMLDivElement | null>,
   childRef: React.MutableRefObject<HTMLDivElement | null>,
+  threshold: number = 0.1,
 ) => {
   const observer = useRef<IntersectionObserver | null>(null);
   const [intersecting, setIntersecting] = useState(false);
@@ -23,7 +24,7 @@ const useIntersectionObserver = (
         });
       }, {
         root,
-        threshold: 0.1,
+        threshold,
       });
       observer.current = newObserver;
     },

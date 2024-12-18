@@ -11,17 +11,11 @@ const propTypes = {
   color: PropTypes.string,
 };
 
-const defaultProps = {
-  color: 'default',
-};
-
-const NotificationsBar = (props) => {
-  const {
-    color,
-    children,
-    alert,
-  } = props;
-
+const NotificationsBar = ({
+  color = 'default',
+  children,
+  alert,
+}) => {
   const hasColor = COLORS.includes(color);
 
   return (
@@ -42,6 +36,5 @@ const NotificationsBar = (props) => {
 };
 
 NotificationsBar.propTypes = propTypes;
-NotificationsBar.defaultProps = defaultProps;
 
 export default injectWbResizeEvent(NotificationsBar);

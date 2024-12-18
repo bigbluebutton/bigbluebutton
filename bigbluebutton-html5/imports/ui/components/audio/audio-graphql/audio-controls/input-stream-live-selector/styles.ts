@@ -9,6 +9,8 @@ import {
   colorOffWhite,
   colorWhite,
 } from '/imports/ui/stylesheets/styled-components/palette';
+import { smPaddingY, smPadding } from '/imports/ui/stylesheets/styled-components/general';
+import { smallOnly } from '/imports/ui/stylesheets/styled-components/breakpoints';
 
 const pulse = keyframes`
   0% {
@@ -48,12 +50,30 @@ export const MuteToggleButton = styled(Button)`
         box-shadow: 0 0 0 4px rgba(255, 255, 255, 0.5);
       }
     `}
+  
+      @media ${smallOnly} {
+        margin-right: ${smPaddingY};
+      }
+  
+      [dir='rtl'] & {
+        margin-right: 0;
+        margin-left: -${smPadding};
+  
+        @media ${smallOnly} {
+          margin-left: ${smPaddingY};
+        }
+      }
+    }
 `;
 
 export const DisabledLabel = {
   color: colorGrayDark,
   fontWeight: 'bold',
   opacity: 1,
+};
+
+export const AudioSettingsOption = {
+  paddingLeft: 12,
 };
 
 export const SelectedLabel = {
@@ -70,7 +90,7 @@ export const DangerColor = {
 export const AudioDropdown = styled(ButtonEmoji)`
   span {
     i {
-      width: 0px !important;
+      width: 10px !important;
       bottom: 1px;
     }
   }
@@ -80,6 +100,7 @@ export default {
   MuteToggleButton,
   DisabledLabel,
   SelectedLabel,
+  AudioSettingsOption,
   DangerColor,
   AudioDropdown,
 };

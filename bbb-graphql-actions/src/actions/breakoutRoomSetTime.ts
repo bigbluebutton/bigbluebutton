@@ -1,8 +1,14 @@
 import { RedisMessage } from '../types';
-import {throwErrorIfNotModerator} from "../imports/validation";
+import {throwErrorIfInvalidInput, throwErrorIfNotModerator} from "../imports/validation";
 
 export default function buildRedisMessage(sessionVariables: Record<string, unknown>, input: Record<string, unknown>): RedisMessage {
   throwErrorIfNotModerator(sessionVariables);
+  throwErrorIfInvalidInput(input,
+      [
+        {name: 'timeInMinutes', type: 'int', required: true},
+      ]
+  )
+
   const eventName = 'UpdateBreakoutRoomsTimeReqMsg';
 
   const routing = {

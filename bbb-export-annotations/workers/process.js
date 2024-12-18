@@ -7,7 +7,6 @@ import WorkerStarter from '../lib/utils/worker-starter.js';
 import {workerData} from 'worker_threads';
 import path from 'path';
 import sanitize from 'sanitize-filename';
-import probe from 'probe-image-size';
 import redis from 'redis';
 import {PresAnnStatusMsg} from '../lib/utils/message-builder.js';
 import {sortByKey} from '../shapes/helpers.js';
@@ -322,15 +321,18 @@ async function processPresentationAnnotations() {
     } else if (fs.existsSync(`${bgImagePath}.jpeg`)) {
       backgroundFormat = 'jpeg';
     } else {
-      logger.error(`Skipping slide ${currentSlide.page} (${jobId})`);
+      logger.error(`Skipping slide ${currentSlide.page} (${jobId}): unknown extension`);
       continue;
     }
 
-    const dimensions = probe.sync(
-        fs.readFileSync(`${bgImagePath}.${backgroundFormat}`));
+    // Rescale slide width and height to match tldraw coordinates
+    const slideWidth = currentSlide.width;
+    const slideHeight = currentSlide.height;
 
-    const slideWidth = parseInt(dimensions.width, 10);
-    const slideHeight = parseInt(dimensions.height, 10);
+    if (!slideWidth || !slideHeight) {
+      logger.error(`Skipping slide ${currentSlide.page} (${jobId}): unknown dimensions`);
+      continue;
+    }
 
     const maxImageWidth = config.process.maxImageWidth;
     const maxImageHeight = config.process.maxImageHeight;
@@ -421,6 +423,7 @@ async function processPresentationAnnotations() {
   const serverFilenameWithExtension = `${sanitizedServerFilename}.pdf`;
   const mergePDFs = [
     '-dNOPAUSE',
+    '-dAutoRotatePages=/None',
     '-sDEVICE=pdfwrite',
     `-sOUTPUTFILE="${path.join(outputDir, serverFilenameWithExtension)}"`,
     `-dBATCH`].concat(ghostScriptInput);

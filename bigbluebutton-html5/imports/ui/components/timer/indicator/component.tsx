@@ -10,15 +10,11 @@ import { Input } from '../../layout/layoutTypes';
 import { TIMER_START, TIMER_STOP } from '../mutations';
 import useTimer from '/imports/ui/core/hooks/useTImer';
 
-const CDN = window.meetingClientSettings.public.app.cdn;
-const BASENAME = window.meetingClientSettings.public.app.basename;
-const HOST = CDN + BASENAME;
-const trackName = window.meetingClientSettings.public.timer.music;
-
 interface TimerIndicatorProps {
   passedTime: number;
   stopwatch: boolean;
   songTrack: string;
+  elapsed?: boolean;
   running: boolean;
   isModerator: boolean;
   sidebarNavigationIsOpen: boolean;
@@ -26,12 +22,11 @@ interface TimerIndicatorProps {
   startedOn: number;
 }
 
-type ObjectKey = keyof typeof trackName;
-
 const TimerIndicator: React.FC<TimerIndicatorProps> = ({
   passedTime,
   stopwatch,
   songTrack,
+  elapsed,
   running,
   isModerator,
   sidebarNavigationIsOpen,
@@ -48,6 +43,13 @@ const TimerIndicator: React.FC<TimerIndicatorProps> = ({
   const [startTimerMutation] = useMutation(TIMER_START);
   const [stopTimerMutation] = useMutation(TIMER_STOP);
   const [songTrackState, setSongTrackState] = useState<string>(songTrack);
+
+  const CDN = window.meetingClientSettings.public.app.cdn;
+  const BASENAME = window.meetingClientSettings.public.app.basename;
+  const HOST = CDN + BASENAME;
+  const trackName = window.meetingClientSettings.public.timer.music;
+
+  type ObjectKey = keyof typeof trackName;
 
   const startTimer = () => {
     startTimerMutation();
@@ -77,7 +79,6 @@ const TimerIndicator: React.FC<TimerIndicatorProps> = ({
     }
 
     return () => {
-      if (intervalRef.current) clearInterval(intervalRef.current);
       if (music.current) music.current.pause();
     };
   }, [songTrack]);
@@ -97,20 +98,27 @@ const TimerIndicator: React.FC<TimerIndicatorProps> = ({
         setTime((prev) => {
           if (stopwatch) return (Math.round(prev / 1000) * 1000) + 1000;
           const t = (Math.floor(prev / 1000) * 1000) - 1000;
-          if (t <= 0) {
-            if (!alreadyNotified.current) {
-              triggered.current = false;
-              alreadyNotified.current = true;
-              if (alarm.current) alarm.current.play();
-            }
-          }
           return t < 0 ? 0 : t;
         });
       }, 1000);
     } else if (!running) {
       clearInterval(intervalRef.current);
     }
+
+    return () => {
+      if (intervalRef.current) clearInterval(intervalRef.current);
+    };
   }, [running]);
+
+  useEffect(() => {
+    if (elapsed) {
+      if (!alreadyNotified.current) {
+        triggered.current = false;
+        alreadyNotified.current = true;
+        if (alarm.current) alarm.current.play();
+      }
+    }
+  }, [elapsed]);
 
   useEffect(() => {
     if (!running) return;
@@ -201,6 +209,7 @@ const TimerIndicatorContainer: React.FC = () => {
 
   const {
     accumulated,
+    elapsed,
     running,
     startedOn,
     stopwatch,
@@ -222,6 +231,7 @@ const TimerIndicatorContainer: React.FC = () => {
       passedTime={timePassed}
       stopwatch={stopwatch ?? false}
       songTrack={songTrack ?? 'noTrack'}
+      elapsed={elapsed}
       running={running ?? false}
       isModerator={currentUser?.isModerator ?? false}
       sidebarNavigationIsOpen={sidebarNavigationIsOpen}

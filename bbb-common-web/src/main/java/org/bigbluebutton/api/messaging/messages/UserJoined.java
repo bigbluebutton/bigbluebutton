@@ -8,6 +8,8 @@ public class UserJoined implements IMessage {
   public final String role;
   public final Boolean locked;
   public final String avatarURL;
+  public final String webcamBackgroundURL;
+	public final Boolean bot;
   public final Boolean guest;
   public final String guestStatus;
 	public final String clientType;
@@ -20,6 +22,8 @@ public class UserJoined implements IMessage {
 										String role,
 										Boolean locked,
 										String avatarURL,
+										String webcamBackgroundURL,
+										Boolean bot,
 										Boolean guest,
 										String guestStatus,
 										String clientType) {
@@ -30,6 +34,8 @@ public class UserJoined implements IMessage {
   	this.role = role;
   	this.locked = locked;
   	this.avatarURL = avatarURL;
+	  this.webcamBackgroundURL = webcamBackgroundURL;
+		this.bot = bot;
   	this.guest = guest;
   	this.guestStatus = guestStatus;
   	this.clientType = clientType;

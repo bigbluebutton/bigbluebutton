@@ -18,7 +18,7 @@ async function saveSettings(page) {
 }
 
 async function checkNotificationText(test, text) {
-  await test.hasText(e.smallToastMsg, text);
+  await test.hasText(e.smallToastMsg, text, 'should appear the text on the toast message notification');
 }
 
 async function checkNotificationIcon(test, icon) {
@@ -50,15 +50,15 @@ async function privateChatMessageToast(page2) {
 
 async function waitAndClearNotification(testPage) {
   await testPage.waitAndClick(e.smallToastMsg, ELEMENT_WAIT_LONGER_TIME);
-  await testPage.wasRemoved(e.smallToastMsg);
+  await testPage.wasRemoved(e.smallToastMsg, 'should the new small toast message disappear');
 }
 
 async function waitAndClearDefaultPresentationNotification(testPage) {
-  await testPage.waitForSelector(e.whiteboard, ELEMENT_WAIT_LONGER_TIME);
+  await testPage.hasElement(e.whiteboard, 'should the whiteboard appear on the meeting', ELEMENT_WAIT_LONGER_TIME);
   const hasCurrentPresentationToast = await testPage.checkElement(e.currentPresentationToast);
   if (hasCurrentPresentationToast) {
     await testPage.waitAndClick(e.currentPresentationToast, ELEMENT_WAIT_LONGER_TIME);
-    await testPage.wasRemoved(e.currentPresentationToast);
+    await testPage.wasRemoved(e.currentPresentationToast, 'should disappear the current presentation toast');
   }
 }
 

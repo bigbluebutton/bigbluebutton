@@ -1,3 +1,4 @@
+<!DOCTYPE html>
 <!--
 BigBlueButton open source conferencing system - http://www.bigbluebutton.org/
 
@@ -18,6 +19,8 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 
 <head>
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
+  <meta charset="utf-8">
+  <link rel="stylesheet" href="stylesheets/normalize.css" crossorigin="anonymous"/>
   <style>
     html {
       box-sizing: border-box;
@@ -135,16 +138,23 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
   <link rel="preload" href="fonts/SourceSansPro/SourceSansPro-Italic.woff?v=VERSION" as="font" crossorigin="anonymous"/>
   <link rel="preload" href="fonts/SourceSansPro/SourceSansPro-SemiboldItalic.woff?v=VERSION" as="font" crossorigin="anonymous"/>
   <link rel="preload" href="fonts/SourceSansPro/SourceSansPro-BoldItalic.woff?v=VERSION" as="font" crossorigin="anonymous"/>
-
+  
+  <link rel="stylesheet" href="stylesheets/bbb-icons.css" crossorigin="anonymous"/>
+  <link rel="stylesheet" href="stylesheets/fonts.css" crossorigin="anonymous"/>
+  <link rel="stylesheet" href="stylesheets/fontSizing.css" crossorigin="anonymous"/>
+  <link rel="stylesheet" href="stylesheets/modals.css" crossorigin="anonymous"/>
+  <link rel="stylesheet" href="stylesheets/toastify.css" crossorigin="anonymous"/>
+  <link rel="stylesheet" href="stylesheets/toggleSwitch.css" crossorigin="anonymous"/>
+  
   <style>
     @font-face {
       font-family: 'bbb-icons';
       src: url('fonts/BbbIcons/bbb-icons.woff2?v=VERSION') format('woff2'),
-        url('fonts/BbbIcons/bbb-icons.woff?v=VERSION') format('woff');
+      url('fonts/BbbIcons/bbb-icons.woff?v=VERSION') format('woff');
       font-weight: normal;
       font-style: normal;
     }
-  </style>
+    </style>
   <!-- fonts -->
 </head>
 <body style="background-color: #06172A">
@@ -161,7 +171,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
   </main>
   </div>
   <span id="destination"></span>
-  <audio id="remote-media" autoplay>
-  </audio>
+  <audio id="remote-media" autoplay></audio>
+  <audio id="local-media" autoplay></audio>
   <div id="modals-container"></div>
 </body>

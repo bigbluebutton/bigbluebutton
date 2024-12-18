@@ -6,6 +6,8 @@ import {
   ChildComponentProps,
   Room,
   moveUserRegistery,
+  Presentation,
+  RoomPresentations,
 } from './types';
 import { breakoutRoom, getBreakoutsResponse } from '../queries';
 
@@ -28,6 +30,13 @@ interface RoomManagmentStateProps {
   setFormIsValid: (isValid: boolean) => void;
   setRoomsRef: (rooms: Rooms) => void;
   setMoveRegisterRef: (moveRegister: moveUserRegistery) => void;
+  presentations: Presentation[];
+  roomPresentations: RoomPresentations;
+  setRoomPresentations: React.Dispatch<React.SetStateAction<RoomPresentations>>;
+  currentPresentation: string;
+  currentSlidePrefix: string;
+  getRoomPresentation: (roomId: number) => string;
+  isUpdate: boolean;
 }
 
 const RoomManagmentState: React.FC<RoomManagmentStateProps> = ({
@@ -38,6 +47,13 @@ const RoomManagmentState: React.FC<RoomManagmentStateProps> = ({
   runningRooms,
   setRoomsRef,
   setMoveRegisterRef,
+  presentations,
+  roomPresentations,
+  setRoomPresentations,
+  currentPresentation,
+  currentSlidePrefix,
+  getRoomPresentation,
+  isUpdate,
 }) => {
   const intl = useIntl();
   const [selectedId, setSelectedId] = useState<string>('');
@@ -226,6 +242,13 @@ const RoomManagmentState: React.FC<RoomManagmentStateProps> = ({
             randomlyAssign={randomlyAssign}
             resetRooms={resetRooms}
             users={users}
+            currentSlidePrefix={currentSlidePrefix}
+            presentations={presentations}
+            roomPresentations={roomPresentations}
+            setRoomPresentations={setRoomPresentations}
+            getRoomPresentation={getRoomPresentation}
+            currentPresentation={currentPresentation}
+            isUpdate={isUpdate}
           />
         ) : null
       }

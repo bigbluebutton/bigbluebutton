@@ -115,6 +115,7 @@ const TalkingIndicatorButton = styled(Button)`
   ${({ $isViewer }) => $isViewer
     && `
     cursor: default;
+    pointer-events: none;
   `}
 `;
 

@@ -1,7 +1,17 @@
 import { RedisMessage } from '../types';
+import {throwErrorIfInvalidInput} from "../imports/validation";
 
 export default function buildRedisMessage(sessionVariables: Record<string, unknown>, input: Record<string, unknown>): RedisMessage {
-  const eventName = `PluginDataChannelDeleteMessageMsg`;
+  throwErrorIfInvalidInput(input,
+      [
+        {name: 'pluginName', type: 'string', required: true},
+        {name: 'channelName', type: 'string', required: true},
+        {name: 'subChannelName', type: 'string', required: true},
+        {name: 'entryId', type: 'string', required: true},
+      ]
+  )
+
+  const eventName = `PluginDataChannelDeleteEntryMsg`;
 
   const routing = {
     meetingId: sessionVariables['x-hasura-meetingid'] as String,

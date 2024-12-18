@@ -1,7 +1,6 @@
 import React, { useEffect, useReducer, useRef } from 'react';
 import { createContext, useContextSelector } from 'use-context-selector';
 import PropTypes from 'prop-types';
-import { useSubscription } from '@apollo/client';
 import { equals } from 'ramda';
 import { PINNED_PAD_SUBSCRIPTION } from '/imports/ui/components/notes/queries';
 import {
@@ -10,7 +9,10 @@ import {
 import DEFAULT_VALUES from '/imports/ui/components/layout/defaultValues';
 import { INITIAL_INPUT_STATE, INITIAL_OUTPUT_STATE } from './initState';
 import useUpdatePresentationAreaContentForPlugin from '/imports/ui/components/plugins-engine/ui-data-hooks/layout/presentation-area/utils';
-import { isPresentationEnabled } from '/imports/ui/services/features';
+import { useIsPresentationEnabled } from '/imports/ui/services/features';
+import useDeduplicatedSubscription from '../../core/hooks/useDeduplicatedSubscription';
+import { usePrevious } from '../whiteboard/utils';
+import Session from '/imports/ui/services/storage/in-memory';
 
 // variable to debug in console log
 const debug = false;
@@ -42,16 +44,13 @@ const initPresentationAreaContentActions = [{
   },
 }];
 
-const CHAT_CONFIG = window.meetingClientSettings.public.chat;
-const PUBLIC_CHAT_ID = CHAT_CONFIG.public_id;
-
 const initState = {
   presentationAreaContentActions: initPresentationAreaContentActions,
   deviceType: null,
-  isRTL: false,
+  isRTL: DEFAULT_VALUES.isRTL,
   layoutType: DEFAULT_VALUES.layoutType,
   fontSize: DEFAULT_VALUES.fontSize,
-  idChatOpen: DEFAULT_VALUES.idChatOpen,
+  idChatOpen: '',
   fullscreen: {
     element: '',
     group: '',
@@ -85,7 +84,7 @@ const reducer = (state, action) => {
       if (state.input === action.value) return state;
       return {
         ...state,
-        input: action.value,
+        input: typeof action.value === 'function' ? action.value(state.input) : action.value,
       };
     }
 
@@ -206,6 +205,24 @@ const reducer = (state, action) => {
       };
     }
 
+    // NOTIFICATION TOASTS
+    case ACTIONS.SET_HIDE_NOTIFICATION_TOASTS: {
+      const { notificationsBar } = state.input;
+      if (notificationsBar.hideNotificationToasts === action.value) {
+        return state;
+      }
+      return {
+        ...state,
+        input: {
+          ...state.input,
+          notificationsBar: {
+            ...notificationsBar,
+            hideNotificationToasts: action.value,
+          },
+        },
+      };
+    }
+
     // NAV BAR
 
     case ACTIONS.SET_HAS_NAVBAR: {
@@ -220,6 +237,23 @@ const reducer = (state, action) => {
           navBar: {
             ...navBar,
             hasNavBar: action.value,
+          },
+        },
+      };
+    }
+
+    case ACTIONS.SET_HIDE_NAVBAR_TOP_ROW: {
+      const { navBar } = state.output;
+      if (navBar.hideTopRow === action.value) {
+        return state;
+      }
+      return {
+        ...state,
+        output: {
+          ...state.output,
+          navBar: {
+            ...navBar,
+            hideTopRow: action.value,
           },
         },
       };
@@ -856,6 +890,9 @@ const reducer = (state, action) => {
       if (presentation.isOpen === action.value) {
         return state;
       }
+      const { presentationAreaContentActions } = state;
+      presentationAreaContentActions[presentationAreaContentActions.length - 1]
+        .value.open = action.value;
       return {
         ...state,
         input: {
@@ -865,6 +902,7 @@ const reducer = (state, action) => {
             isOpen: action.value,
           },
         },
+        presentationAreaContentActions,
       };
     }
     case ACTIONS.SET_PRESENTATION_SLIDES_LENGTH: {
@@ -1204,24 +1242,24 @@ const reducer = (state, action) => {
     }
 
     // GENERIC COMPONENT
-    case ACTIONS.SET_HAS_GENERIC_COMPONENT: {
-      const { genericComponent } = state.input;
-      if (genericComponent.genericComponentId === action.value) {
+    case ACTIONS.SET_HAS_GENERIC_CONTENT: {
+      const { genericMainContent } = state.input;
+      if (genericMainContent.genericContentId === action.value) {
         return state;
       }
       return {
         ...state,
         input: {
           ...state.input,
-          genericComponent: {
-            ...genericComponent,
-            genericComponentId: action.value,
+          genericMainContent: {
+            ...genericMainContent,
+            genericContentId: action.value,
           },
         },
       };
     }
 
-    case ACTIONS.SET_GENERIC_COMPONENT_OUTPUT: {
+    case ACTIONS.SET_GENERIC_CONTENT_OUTPUT: {
       const {
         width,
         height,
@@ -1229,20 +1267,20 @@ const reducer = (state, action) => {
         left,
         right,
       } = action.value;
-      const { genericComponent } = state.output;
-      if (genericComponent.width === width
-        && genericComponent.height === height
-        && genericComponent.top === top
-        && genericComponent.left === left
-        && genericComponent.right === right) {
+      const { genericMainContent } = state.output;
+      if (genericMainContent.width === width
+        && genericMainContent.height === height
+        && genericMainContent.top === top
+        && genericMainContent.left === left
+        && genericMainContent.right === right) {
         return state;
       }
       return {
         ...state,
         output: {
           ...state.output,
-          genericComponent: {
-            ...genericComponent,
+          genericMainContent: {
+            ...genericMainContent,
             width,
             height,
             top,
@@ -1306,21 +1344,28 @@ const reducer = (state, action) => {
       if (action.value.open) {
         presentationAreaContentActions.push(action);
       } else {
-        const indexOfOpenedContent = presentationAreaContentActions.findIndex((p) => {
-          if (action.value.content === PRESENTATION_AREA.GENERIC_COMPONENT) {
-            return (
+        let indexesOfOpenedContent = presentationAreaContentActions.reduce((indexes, p, index) => {
+          if (action.value.content === PRESENTATION_AREA.GENERIC_CONTENT) {
+            if (
               p.value.content === action.value.content
-                && p.value.open
-                && p.value.genericComponentId === action.value.genericComponentId
-            );
+              && p.value.open
+              && p.value.genericContentId === action.value.genericContentId
+            ) {
+              indexes.push(index);
+            }
+          } else if (p.value.content === action.value.content) {
+            indexes.push(index);
           }
-          return (
-            p.value.content === action.value.content && p.value.open
-          );
-        });
+          return indexes;
+        }, []);
+        indexesOfOpenedContent = indexesOfOpenedContent.length > 0 ? indexesOfOpenedContent : -1;
         if (
-          indexOfOpenedContent !== -1
-        ) presentationAreaContentActions.splice(indexOfOpenedContent, 1);
+          indexesOfOpenedContent !== -1
+        ) {
+          indexesOfOpenedContent.reverse().forEach((index) => {
+            presentationAreaContentActions.splice(index, 1);
+          });
+        }
       }
       return {
         ...state,
@@ -1335,8 +1380,10 @@ const reducer = (state, action) => {
 
 const updatePresentationAreaContent = (
   layoutContextState,
+  previousLayoutType,
   previousPresentationAreaContentActions,
   layoutContextDispatch,
+  isPresentationEnabled,
 ) => {
   const { layoutType } = layoutContextState;
   const { sidebarContent } = layoutContextState.input;
@@ -1346,28 +1393,32 @@ const updatePresentationAreaContent = (
   if (!equals(
     currentPresentationAreaContentActions,
     previousPresentationAreaContentActions.current,
-  )) {
+  ) || layoutType !== previousLayoutType) {
+    const CHAT_CONFIG = window.meetingClientSettings.public.chat;
+    const PUBLIC_CHAT_ID = CHAT_CONFIG.public_id;
+
     // eslint-disable-next-line no-param-reassign
     previousPresentationAreaContentActions.current = currentPresentationAreaContentActions.slice(0);
     const lastIndex = currentPresentationAreaContentActions.length - 1;
     const lastPresentationContentInPile = currentPresentationAreaContentActions[lastIndex];
+    let shouldOpenPresentation = true;
     switch (lastPresentationContentInPile.value.content) {
-      case PRESENTATION_AREA.GENERIC_COMPONENT: {
+      case PRESENTATION_AREA.GENERIC_CONTENT: {
         layoutContextDispatch({
           type: ACTIONS.SET_NOTES_IS_PINNED,
           value: !lastPresentationContentInPile.value.open,
         });
         layoutContextDispatch({
-          type: ACTIONS.SET_HAS_GENERIC_COMPONENT,
-          value: lastPresentationContentInPile.value.genericComponentId,
+          type: ACTIONS.SET_HAS_GENERIC_CONTENT,
+          value: lastPresentationContentInPile.value.genericContentId,
         });
         break;
       }
       case PRESENTATION_AREA.PINNED_NOTES: {
         if (
-          (sidebarContent.isOpen || !isPresentationEnabled())
+          (sidebarContent.isOpen || !isPresentationEnabled)
           && (sidebarContent.sidebarContentPanel === PANELS.SHARED_NOTES
-            || !isPresentationEnabled())
+            || !isPresentationEnabled)
         ) {
           if (layoutType === LAYOUT_TYPE.VIDEO_FOCUS) {
             layoutContextDispatch({
@@ -1391,7 +1442,7 @@ const updatePresentationAreaContent = (
         }
 
         layoutContextDispatch({
-          type: ACTIONS.SET_HAS_GENERIC_COMPONENT,
+          type: ACTIONS.SET_HAS_GENERIC_CONTENT,
           value: undefined,
         });
         layoutContextDispatch({
@@ -1402,7 +1453,7 @@ const updatePresentationAreaContent = (
       }
       case PRESENTATION_AREA.EXTERNAL_VIDEO: {
         layoutContextDispatch({
-          type: ACTIONS.SET_HAS_GENERIC_COMPONENT,
+          type: ACTIONS.SET_HAS_GENERIC_CONTENT,
           value: undefined,
         });
         layoutContextDispatch({
@@ -1417,7 +1468,7 @@ const updatePresentationAreaContent = (
       }
       case PRESENTATION_AREA.SCREEN_SHARE: {
         layoutContextDispatch({
-          type: ACTIONS.SET_HAS_GENERIC_COMPONENT,
+          type: ACTIONS.SET_HAS_GENERIC_CONTENT,
           value: undefined,
         });
         layoutContextDispatch({
@@ -1440,13 +1491,14 @@ const updatePresentationAreaContent = (
           value: !lastPresentationContentInPile.value.open,
         });
         layoutContextDispatch({
-          type: ACTIONS.SET_HAS_GENERIC_COMPONENT,
+          type: ACTIONS.SET_HAS_GENERIC_CONTENT,
           value: undefined,
         });
         layoutContextDispatch({
           type: ACTIONS.PINNED_NOTES,
           value: !lastPresentationContentInPile.value.open,
         });
+        shouldOpenPresentation = Session.getItem('presentationLastState');
         break;
       }
       default:
@@ -1454,7 +1506,7 @@ const updatePresentationAreaContent = (
     }
     layoutContextDispatch({
       type: ACTIONS.SET_PRESENTATION_IS_OPEN,
-      value: true,
+      value: shouldOpenPresentation,
     });
   }
 };
@@ -1469,17 +1521,23 @@ const LayoutContextProvider = (props) => {
       },
     }],
   );
-  const { data: pinnedPadData } = useSubscription(PINNED_PAD_SUBSCRIPTION);
+  const { data: pinnedPadData } = useDeduplicatedSubscription(PINNED_PAD_SUBSCRIPTION);
 
   const [layoutContextState, layoutContextDispatch] = useReducer(reducer, initState);
+  const isPresentationEnabled = useIsPresentationEnabled();
   const { children } = props;
+  const { layoutType } = layoutContextState;
+  const previousLayoutType = usePrevious(layoutType);
+
   useEffect(() => {
     updatePresentationAreaContent(
       layoutContextState,
+      previousLayoutType,
       previousPresentationAreaContentActions,
       layoutContextDispatch,
+      isPresentationEnabled,
     );
-  }, [layoutContextState]);
+  }, [layoutContextState, isPresentationEnabled]);
   useEffect(() => {
     const isSharedNotesPinned = !!pinnedPadData
       && pinnedPadData.sharedNotes[0]?.pinned;

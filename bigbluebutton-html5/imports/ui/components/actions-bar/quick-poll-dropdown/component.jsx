@@ -1,16 +1,12 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { defineMessages } from 'react-intl';
+import { defineMessages, useIntl } from 'react-intl';
 import Dropdown from '/imports/ui/components/dropdown/component';
 import Styled from './styles';
 import { PANELS, ACTIONS } from '../../layout/enums';
 import { uniqueId, safeMatch } from '/imports/utils/string-utils';
 import PollService from '/imports/ui/components/poll/service';
-
-const POLL_SETTINGS = window.meetingClientSettings.public.poll;
-const MAX_CUSTOM_FIELDS = POLL_SETTINGS.maxCustom;
-const MAX_CHAR_LIMIT = POLL_SETTINGS.maxTypedAnswerLength;
-const CANCELED_POLL_DELAY = 250;
+import Session from '/imports/ui/services/storage/in-memory';
 
 const intlMessages = defineMessages({
   quickPollLabel: {
@@ -44,16 +40,12 @@ const intlMessages = defineMessages({
 });
 
 const propTypes = {
-  intl: PropTypes.shape({
-    formatMessage: PropTypes.func.isRequired,
-  }).isRequired,
   amIPresenter: PropTypes.bool.isRequired,
 };
 
 const QuickPollDropdown = (props) => {
   const {
     amIPresenter,
-    intl,
     startPoll,
     stopPoll,
     currentSlide,
@@ -62,6 +54,13 @@ const QuickPollDropdown = (props) => {
     layoutContextDispatch,
     pollTypes,
   } = props;
+
+  const intl = useIntl();
+
+  const POLL_SETTINGS = window.meetingClientSettings.public.poll;
+  const MAX_CUSTOM_FIELDS = POLL_SETTINGS.maxCustom;
+  const MAX_CHAR_LIMIT = POLL_SETTINGS.maxTypedAnswerLength;
+  const CANCELED_POLL_DELAY = 250;
 
   // Utility function to escape special characters for regex
   const escapeRegExp = (string) => string.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
@@ -241,8 +240,8 @@ const QuickPollDropdown = (props) => {
       type: ACTIONS.SET_SIDEBAR_CONTENT_PANEL,
       value: PANELS.POLL,
     });
-    Session.set('forcePollOpen', true);
-    Session.set('pollInitiated', true);
+    Session.setItem('forcePollOpen', true);
+    Session.setItem('pollInitiated', true);
   };
 
   const getAvailableQuickPolls = (
@@ -294,7 +293,7 @@ const QuickPollDropdown = (props) => {
       itemLabel = itemLabel?.replace(/\s+/g, '').toUpperCase();
 
       const numChars = {
-        1: 'A', 2: 'B', 3: 'C', 4: 'D', 5: 'E', 6: 'F', 7: 'G'
+        1: 'A', 2: 'B', 3: 'C', 4: 'D', 5: 'E', 6: 'F', 7: 'G', 8: 'H', 9: 'I',
       };
       itemLabel = itemLabel.split('').map((c) => {
         if (numChars[c]) return numChars[c];

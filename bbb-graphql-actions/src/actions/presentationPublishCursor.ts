@@ -1,6 +1,15 @@
 import { RedisMessage } from '../types';
+import {throwErrorIfInvalidInput} from "../imports/validation";
 
 export default function buildRedisMessage(sessionVariables: Record<string, unknown>, input: Record<string, unknown>): RedisMessage {
+  throwErrorIfInvalidInput(input,
+      [
+        {name: 'whiteboardId', type: 'string', required: true},
+        {name: 'xPercent', type: 'number', required: true},
+        {name: 'yPercent', type: 'number', required: true},
+      ]
+  )
+
   const eventName = `SendCursorPositionPubMsg`;
 
   const routing = {

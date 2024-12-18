@@ -4,10 +4,9 @@ import { headingsFontWeight } from '/imports/ui/stylesheets/styled-components/ty
 import {
   colorDanger,
   colorGray,
-  colorGrayDark,
   colorSuccess,
   colorGrayLightest,
-  colorWhite,
+  colorOffWhite,
 } from '/imports/ui/stylesheets/styled-components/palette';
 import {
   borderSizeLarge,
@@ -15,51 +14,54 @@ import {
   statusIconSize,
   borderSize,
   statusInfoHeight,
-  presentationMenuHeight,
 } from '/imports/ui/stylesheets/styled-components/general';
 
 const DropdownButton = styled.button`
-  background-color: #FFF;
+  background-color: ${colorOffWhite};
   border: none;
-  border-radius: 7px;
-  color: ${colorGrayDark};
+  border-radius: 13px;
+  box-shadow: 0px 0px 2px rgba(0, 0, 0, 0.16),
+    0px 2px 3px rgba(0, 0, 0, 0.24),
+    0px 2px 6px rgba(0, 0, 0, 0.1);
+  color: #2d2d2d;
   cursor: pointer;
   padding: .3rem .5rem;
-  padding-bottom: 6px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
   tab-index: 0;
 
   &:hover {
-    background-color: #ececec;
+    background-color: ${colorGrayLightest};
   }
 `;
 
-const Left = styled.div`
+const Right = styled.div`
   cursor: pointer;
   position: absolute;
-  left: 0px;
+  right: 2px;
+  top: 2px;
   z-index: 999;
-  box-shadow: 0 4px 2px -2px rgba(0, 0, 0, 0.05);
-  border-bottom: 1px solid ${colorWhite};
-  height: 44px;
-
   > div {
-    padding: 2px 4px 2px 4px;
-    background-color: ${colorWhite};
     width: 50px;
-    height: 100%;
+    height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
   }
-
   button {
     height: 100%;
     width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
   }
 
-  [dir="rtl"] & {
-    right: 0px;
-    left: auto;
-  }
+  [dir="rtl"] &{
+      left: 2px;
+      right: auto;
+    }
 `;
-
 const ToastText = styled.span`
   overflow: hidden;
   text-overflow: ellipsis;
@@ -140,7 +142,7 @@ const ButtonIcon = styled(Icon)`
 
 export default {
   DropdownButton,
-  Left,
+  Right,
   ToastText,
   StatusIcon,
   ToastIcon,

@@ -20,7 +20,7 @@ interface IntlLoaderProps extends IntlLoaderContainerProps {
 const buildFetchLocale = (locale: string) => {
   const localesPath = 'locales';
   return new Promise((resolve) => {
-    fetch(`${localesPath}/${locale}.json`)
+    fetch(`${localesPath}/${locale !== 'index' ? `${locale}.json` : ''}`)
       .then((response) => {
         if (!response.ok) {
           return resolve(false);
@@ -36,12 +36,11 @@ const buildFetchLocale = (locale: string) => {
 };
 
 const fetchLocaleOptions = (locale: string, init: boolean, localesList: string[] = []) => {
-  const clientSettings = JSON.parse(sessionStorage.getItem('clientStartupSettings') || '{}');
-  const fallback = clientSettings.fallbackLocale;
-  const override = clientSettings.overrideLocale;
+  const clientSettings = window.meetingClientSettings.public;
+  const { fallbackLocale: fallback, overrideLocale: override } = clientSettings.app.defaultSettings.application;
   const browserLocale = override && init ? override.split(/[-_]/g) : locale.split(/[-_]/g);
-  const defaultLanguage = clientSettings.fallbackLocale;
-  const fallbackOnEmptyString = clientSettings.fallbackOnEmptyLocaleString;
+  const defaultLanguage = fallback;
+  const fallbackOnEmptyString = clientSettings.app.fallbackOnEmptyLocaleString;
 
   let localeFile = fallback;
   let normalizedLocale: string = '';
@@ -102,7 +101,11 @@ const IntlLoader: React.FC<IntlLoaderProps> = ({
     setFetching(true);
     buildFetchLocale('index')
       .then((resp) => {
-        const data = fetchLocaleOptions(locale, init, resp as string[]);
+        const data = fetchLocaleOptions(
+          locale,
+          init,
+          (resp as { name: string }[]).map((l) => l.name),
+        );
 
         const {
           defaultLocale,
@@ -123,7 +126,7 @@ const IntlLoader: React.FC<IntlLoaderProps> = ({
             const foundLocales = typedResp.filter((locale) => locale instanceof Object) as LocaleJson[];
             if (foundLocales.length === 0) {
               const error = `${{ logCode: 'intl_fetch_locale_error' }},Could not fetch any locale file for ${languageSets.join(', ')}`;
-              loadingContextInfo.setLoading(false, '');
+              loadingContextInfo.setLoading(false);
               logger.error(error);
               throw new Error(error);
             }
@@ -134,15 +137,15 @@ const IntlLoader: React.FC<IntlLoaderProps> = ({
             setCurrentLocale(replacedLocale);
             setMessages(mergedLocale);
             if (!init) {
-              loadingContextInfo.setLoading(false, '');
+              loadingContextInfo.setLoading(false);
             }
           }).catch((error) => {
-            loadingContextInfo.setLoading(false, '');
+            loadingContextInfo.setLoading(false);
             throw new Error(error);
           });
       })
       .catch(() => {
-        loadingContextInfo.setLoading(false, '');
+        loadingContextInfo.setLoading(false);
         throw new Error('unable to fetch localized messages');
       });
   }, []);

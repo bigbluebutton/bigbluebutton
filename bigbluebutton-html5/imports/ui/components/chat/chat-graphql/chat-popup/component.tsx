@@ -15,9 +15,6 @@ interface ChatPopupProps {
 
 const WELCOME_MSG_KEY = 'welcomeMsg';
 const WELCOME_MSG_FOR_MODERATORS_KEY = 'welcomeMsgForModerators';
-// @ts-ignore - temporary, while meteor exists in the project
-const CHAT_CONFIG = window.meetingClientSettings.public.chat;
-const PUBLIC_GROUP_CHAT_KEY = CHAT_CONFIG.public_group_id;
 
 const setWelcomeMsgsOnSession = (key: string, value: boolean) => {
   sessionStorage.setItem(key, String(value));
@@ -96,6 +93,9 @@ const ChatPopupContainer: React.FC = () => {
     error: welcomeError,
   } = useQuery<WelcomeMsgsResponse>(GET_WELCOME_MESSAGE);
   const idChatOpen = layoutSelect((i: Layout) => i.idChatOpen);
+
+  const PUBLIC_GROUP_CHAT_KEY = window.meetingClientSettings.public.chat.public_group_id;
+
   if (idChatOpen !== PUBLIC_GROUP_CHAT_KEY) return null;
 
   if (welcomeLoading) return null;

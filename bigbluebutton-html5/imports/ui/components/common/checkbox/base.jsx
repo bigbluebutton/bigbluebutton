@@ -1,6 +1,5 @@
 import React, { createRef, PureComponent } from 'react';
 import PropTypes from 'prop-types';
-import { findDOMNode } from 'react-dom';
 
 const propTypes = {
   disabled: PropTypes.bool,
@@ -33,18 +32,18 @@ export default class Base extends PureComponent {
   }
 
   componentDidMount() {
-    const element = findDOMNode(this.element.current);
+    const element = this.element.current;
     if (element) element.addEventListener('keydown', this.handleKeyDown);
   }
 
   componentWillUnmount() {
-    const element = findDOMNode(this.element.current);
+    const element = this.element.current;
     if (element) element.removeEventListener('keydown', this.handleKeyDown);
   }
 
   handleKeyDown(event) {
     const { key } = event;
-    const node = findDOMNode(this.element.current);
+    const node = this.element.current;
     if (key === 'Enter' && node) {
       const input = node.getElementsByTagName('input')[0];
       input?.click();

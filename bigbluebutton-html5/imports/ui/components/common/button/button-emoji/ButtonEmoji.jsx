@@ -28,32 +28,22 @@ const propTypes = {
   rotate: PropTypes.bool,
 };
 
-const defaultProps = {
-  emoji: '',
-  label: '',
-  onKeyDown: null,
-  onFocus: null,
-  tabIndex: -1,
-  hideLabel: false,
-  onClick: null,
-  className: '',
-  rotate: false,
-};
-
 const ButtonEmoji = (props) => {
   const {
-    hideLabel,
-    className,
+    hideLabel = false,
+    className = '',
     hidden,
-    rotate,
+    rotate = false,
     ...newProps
   } = props;
 
   const {
-    emoji,
-    label,
-    tabIndex,
-    onClick,
+    emoji = '',
+    label = '',
+    tabIndex = -1,
+    onClick = null,
+    onKeyDown = null,
+    onFocus = null,
   } = newProps;
 
   const IconComponent = (<Styled.EmojiButtonIcon iconName={emoji} rotate={rotate} />);
@@ -68,6 +58,9 @@ const ButtonEmoji = (props) => {
           {...newProps}
           aria-label={label}
           onClick={onClick}
+          onKeyDown={onKeyDown}
+          onFocus={onFocus}
+          className={className}
         >
           <Styled.Label>
             { !hideLabel && label }
@@ -82,4 +75,3 @@ const ButtonEmoji = (props) => {
 export default ButtonEmoji;
 
 ButtonEmoji.propTypes = propTypes;
-ButtonEmoji.defaultProps = defaultProps;

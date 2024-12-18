@@ -11,6 +11,14 @@ const lgPaddingY = '0.6rem';
 const jumboPaddingY = '1.5rem';
 const jumboPaddingX = '3.025rem';
 
+const xsPadding = '0.125rem';
+const smPadding = '0.25rem';
+const mdPadding = '0.375rem';
+const lgPadding = '0.5rem';
+const xlPadding = '0.75rem';
+const $2xlPadding = '1rem';
+const $3xlPadding = '1.25rem';
+
 const whiteboardToolbarPadding = '.5rem';
 const whiteboardToolbarMargin = '.5rem';
 const whiteboardToolbarPaddingSm = '.3rem';
@@ -170,4 +178,11 @@ export {
   presentationMenuHeight,
   styleMenuOffset,
   styleMenuOffsetSmall,
+  lgPadding,
+  mdPadding,
+  smPadding,
+  $2xlPadding,
+  $3xlPadding,
+  xlPadding,
+  xsPadding,
 };

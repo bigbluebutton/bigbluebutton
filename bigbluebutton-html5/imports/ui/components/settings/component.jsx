@@ -1,6 +1,7 @@
 import React, { Component } from 'react';
 import ModalFullscreen from '/imports/ui/components/common/modal/fullscreen/component';
 import { defineMessages, injectIntl } from 'react-intl';
+import Langmap from 'langmap';
 import DataSaving from '/imports/ui/components/settings/submenus/data-saving/component';
 import Application from '/imports/ui/components/settings/submenus/application/component';
 import Notification from '/imports/ui/components/settings/submenus/notification/component';
@@ -9,6 +10,7 @@ import PropTypes from 'prop-types';
 import Styled from './styles';
 import { formatLocaleCode } from '/imports/utils/string-utils';
 import { setUseCurrentLocale } from '../../core/local-states/useCurrentLocale';
+import Transcription from '/imports/ui/components/settings/submenus/transcription/component';
 
 const intlMessages = defineMessages({
   appTabLabel: {
@@ -67,6 +69,10 @@ const intlMessages = defineMessages({
     id: 'app.switch.offLabel',
     description: 'label for toggle switch off state',
   },
+  transcriptionLabel: {
+    id: 'app.settings.transcriptionTab.label',
+    description: 'label for transcriptions tab',
+  },
 });
 
 const propTypes = {
@@ -96,6 +102,15 @@ const propTypes = {
   availableLocales: PropTypes.objectOf(PropTypes.array).isRequired,
   showToggleLabel: PropTypes.bool.isRequired,
   isReactionsEnabled: PropTypes.bool.isRequired,
+  transcription: PropTypes.shape({
+    partialUtterances: PropTypes.bool,
+    minUtteraceLength: PropTypes.number,
+  }).isRequired,
+  isGladiaEnabled: PropTypes.bool.isRequired,
+  fallbackLocales: PropTypes.objectOf(PropTypes.shape({
+    englishName: PropTypes.string.isRequired,
+    nativeName: PropTypes.string.isRequired,
+  })).isRequired,
 };
 
 class Settings extends Component {
@@ -107,13 +122,14 @@ class Settings extends Component {
     super(props);
 
     const {
-      dataSaving, application, selectedTab,
+      dataSaving, application, selectedTab, transcription,
     } = props;
 
     this.state = {
       current: {
         dataSaving: clone(dataSaving),
         application: clone(application),
+        transcription: clone(transcription),
       },
       saved: {
         dataSaving: clone(dataSaving),
@@ -131,10 +147,29 @@ class Settings extends Component {
   }
 
   componentDidMount() {
-    const { availableLocales } = this.props;
+    const { availableLocales, fallbackLocales } = this.props;
 
     availableLocales.then((locales) => {
-      this.setState({ allLocales: locales.filter((locale) => locale?.name !== 'index') });
+      const tempAggregateLocales = locales
+        .map((file) => file.name)
+        .map((file) => file.replace('.json', ''))
+        .map((file) => file.replace('_', '-'))
+        .map((locale) => {
+          const localeName = (Langmap[locale] || {}).nativeName
+            || (fallbackLocales[locale] || {}).nativeName
+            || locale;
+          return {
+            locale,
+            name: localeName,
+          };
+        })
+        .reverse()
+        .filter((item, index, self) => index === self.findIndex((i) => (
+          i.name === item.name
+        )))
+        .reverse();
+
+      this.setState({ allLocales: tempAggregateLocales });
     });
   }
 
@@ -176,6 +211,9 @@ class Settings extends Component {
       isScreenSharingEnabled,
       isVideoEnabled,
       isReactionsEnabled,
+      isGladiaEnabled,
+      paginationToggleEnabled,
+      isChatEnabled,
     } = this.props;
 
     const {
@@ -217,6 +255,17 @@ class Settings extends Component {
               </Styled.SettingsTabSelector>
             )
             : null}
+          {isGladiaEnabled
+            ? (
+              <Styled.SettingsTabSelector
+                aria-labelledby="transcriptionTab"
+                selectedClassName="is-selected"
+              >
+                <Styled.SettingsIcon iconName="closed_caption" />
+                <span id="transcriptionTab">{intl.formatMessage(intlMessages.transcriptionLabel)}</span>
+              </Styled.SettingsTabSelector>
+            )
+            : null}
         </Styled.SettingsTabList>
         <Styled.SettingsTabPanel selectedClassName="is-selected">
           <Application
@@ -229,6 +278,7 @@ class Settings extends Component {
             selectedLayout={selectedLayout}
             isPresenter={isPresenter}
             isReactionsEnabled={isReactionsEnabled}
+            paginationToggleEnabled={paginationToggleEnabled}
           />
         </Styled.SettingsTabPanel>
         <Styled.SettingsTabPanel selectedClassName="is-selected">
@@ -238,6 +288,7 @@ class Settings extends Component {
             showGuestNotification={showGuestNotification}
             showToggleLabel={showToggleLabel}
             displaySettingsStatus={this.displaySettingsStatus}
+            isChatEnabled={isChatEnabled}
             {...{ isModerator }}
           />
         </Styled.SettingsTabPanel>
@@ -251,6 +302,17 @@ class Settings extends Component {
                 displaySettingsStatus={this.displaySettingsStatus}
                 isScreenSharingEnabled={isScreenSharingEnabled}
                 isVideoEnabled={isVideoEnabled}
+              />
+            </Styled.SettingsTabPanel>
+          )
+          : null}
+        {isGladiaEnabled
+          ? (
+            <Styled.SettingsTabPanel selectedClassName="is-selected">
+              <Transcription
+                handleUpdateSettings={this.handleUpdateSettings}
+                settings={current.transcription}
+                displaySettingsStatus={this.displaySettingsStatus}
               />
             </Styled.SettingsTabPanel>
           )

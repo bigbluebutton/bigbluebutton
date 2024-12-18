@@ -29,16 +29,10 @@ class Eraser extends MultiUsers {
     await this.modPage.page.mouse.move(wbBox.x + 0.3 * wbBox.width, wbBox.y + 0.7 * wbBox.height);
     await this.modPage.page.mouse.down();
     await this.modPage.page.mouse.move(wbBox.x + 0.7 * wbBox.width, wbBox.y + 0.3 * wbBox.height);
-
-    await this.modPage.setHeightWidthViewPortSize();
-    await this.userPage.setHeightWidthViewPortSize();
-    const userWbLocator = this.userPage.getLocator(e.whiteboard);
-    await expect(modWbLocator).toHaveScreenshot('moderator-eraser1.png', screenshotOptions);
-    await expect(userWbLocator).toHaveScreenshot('viewer-eraser1.png', screenshotOptions);
-
     await this.modPage.page.mouse.up();
-    await expect(modWbLocator).toHaveScreenshot('moderator-eraser2.png', screenshotOptions);
-    await expect(userWbLocator).toHaveScreenshot('viewer-eraser2.png', screenshotOptions);
+
+    await this.modPage.wasRemoved(e.wbDrawnLine);
+    await this.userPage.wasRemoved(e.wbDrawnLine);
   }
 }
 

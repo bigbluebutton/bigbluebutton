@@ -1,19 +1,12 @@
-import Settings from '/imports/ui/services/settings';
+import { getSettingsSingletonInstance } from '/imports/ui/services/settings';
 import logger from '/imports/startup/client/logger';
-import BBBStorage from '/imports/ui/services/storage';
+import { getStorageSingletonInstance } from '/imports/ui/services/storage';
 
 const AUDIO_SESSION_NUM_KEY = 'AudioSessionNumber';
 const DEFAULT_INPUT_DEVICE_ID = '';
 const DEFAULT_OUTPUT_DEVICE_ID = '';
 const INPUT_DEVICE_ID_KEY = 'audioInputDeviceId';
 const OUTPUT_DEVICE_ID_KEY = 'audioOutputDeviceId';
-const AUDIO_MICROPHONE_CONSTRAINTS = Meteor.settings.public.app.defaultSettings
-  .application.microphoneConstraints;
-const MEDIA_TAG = Meteor.settings.public.media.mediaTag;
-
-const CONFIG = window.meetingClientSettings.public.app.audioCaptions;
-const PROVIDER = CONFIG.provider;
-const audioCaptionsEnabled = window.meetingClientSettings.public.app.audioCaptions.enabled;
 
 const getAudioSessionNumber = () => {
   let currItem = parseInt(sessionStorage.getItem(AUDIO_SESSION_NUM_KEY), 10);
@@ -38,14 +31,30 @@ const reloadAudioElement = (audioElement) => {
 };
 
 const getCurrentAudioSinkId = () => {
+  const MEDIA_TAG = window.meetingClientSettings.public.media.mediaTag;
   const audioElement = document.querySelector(MEDIA_TAG);
   return audioElement?.sinkId || DEFAULT_OUTPUT_DEVICE_ID;
 };
 
-const getStoredAudioInputDeviceId = () => BBBStorage.getItem(INPUT_DEVICE_ID_KEY);
-const getStoredAudioOutputDeviceId = () => BBBStorage.getItem(OUTPUT_DEVICE_ID_KEY);
-const storeAudioInputDeviceId = (deviceId) => BBBStorage.setItem(INPUT_DEVICE_ID_KEY, deviceId);
-const storeAudioOutputDeviceId = (deviceId) => BBBStorage.setItem(OUTPUT_DEVICE_ID_KEY, deviceId);
+const getStoredAudioOutputDeviceId = () => getStorageSingletonInstance()
+  .getItem(OUTPUT_DEVICE_ID_KEY);
+const storeAudioOutputDeviceId = (deviceId) => getStorageSingletonInstance()
+  .setItem(OUTPUT_DEVICE_ID_KEY, deviceId);
+const getStoredAudioInputDeviceId = () => getStorageSingletonInstance()
+  .getItem(INPUT_DEVICE_ID_KEY);
+const storeAudioInputDeviceId = (deviceId) => {
+  if (deviceId === 'listen-only') {
+    // Do not store listen-only "devices" and remove any stored device
+    // So it starts from scratch next time.
+    getStorageSingletonInstance().removeItem(INPUT_DEVICE_ID_KEY);
+
+    return false;
+  }
+
+  getStorageSingletonInstance().setItem(INPUT_DEVICE_ID_KEY, deviceId);
+
+  return true;
+};
 
 /**
  * Filter constraints set in audioDeviceConstraints, based on
@@ -81,9 +90,11 @@ const filterSupportedConstraints = (audioDeviceConstraints) => {
 
 const getAudioConstraints = (constraintFields = {}) => {
   const { deviceId = '' } = constraintFields;
+  const Settings = getSettingsSingletonInstance();
   const userSettingsConstraints = Settings.application.microphoneConstraints;
   const audioDeviceConstraints = userSettingsConstraints
-    || AUDIO_MICROPHONE_CONSTRAINTS || {};
+    || window.meetingClientSettings.public.app.defaultSettings.application.microphoneConstraints
+    || {};
 
   const matchConstraints = filterSupportedConstraints(
     audioDeviceConstraints,
@@ -111,7 +122,7 @@ const doGUM = async (constraints, retryOnFailure = false) => {
         },
       }, 'Audio getUserMedia returned OverconstrainedError, rollback');
 
-      return navigator.mediaDevices.getUserMedia({ audio: getAudioConstraints() });
+      return navigator.mediaDevices.getUserMedia({ audio: true });
     }
 
     // Not OverconstrainedError - bubble up the error.
@@ -119,15 +130,17 @@ const doGUM = async (constraints, retryOnFailure = false) => {
   }
 };
 
-const isEnabled = () => audioCaptionsEnabled;
+const isEnabled = () => window.meetingClientSettings.public.app.audioCaptions.enabled;
 
-const isWebSpeechApi = () => PROVIDER === 'webspeech';
+const getProvider = () => window.meetingClientSettings.public.app.audioCaptions.provider;
 
-const isVosk = () => PROVIDER === 'vosk';
+const isWebSpeechApi = () => getProvider() === 'webspeech';
 
-const isWhispering = () => PROVIDER === 'whisper';
+const isVosk = () => getProvider() === 'vosk';
 
-const isDeepSpeech = () => PROVIDER === 'deepSpeech';
+const isWhispering = () => getProvider() === 'whisper';
+
+const isDeepSpeech = () => getProvider() === 'deepSpeech';
 
 const isActive = () => isEnabled()
   && ((isWebSpeechApi()) || isVosk() || isWhispering() || isDeepSpeech());

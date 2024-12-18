@@ -29,7 +29,7 @@ const CurrentUserHookContainer: React.FunctionComponent<
     );
     window.dispatchEvent(
       new CustomEvent<UpdatedEventDetails<PluginSdk.GraphqlResponseWrapper<PluginSdk.CurrentUserData>>>(
-        HookEvents.UPDATED,
+        HookEvents.BBB_CORE_SENT_NEW_DATA,
         {
           detail: {
             data: currentUserProjection,
@@ -53,11 +53,11 @@ const CurrentUserHookContainer: React.FunctionComponent<
       if (event.detail.hook === DataConsumptionHooks.CURRENT_USER) setSendSignal((signal) => !signal);
     }) as EventListener;
     window.addEventListener(
-      HookEvents.SUBSCRIBED, updateHookUseCurrentUser,
+      HookEvents.PLUGIN_SUBSCRIBED_TO_BBB_CORE, updateHookUseCurrentUser,
     );
     return () => {
       window.removeEventListener(
-        HookEvents.SUBSCRIBED, updateHookUseCurrentUser,
+        HookEvents.PLUGIN_SUBSCRIBED_TO_BBB_CORE, updateHookUseCurrentUser,
       );
     };
   }, []);

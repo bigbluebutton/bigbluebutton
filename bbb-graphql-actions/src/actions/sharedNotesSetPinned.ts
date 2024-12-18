@@ -1,8 +1,15 @@
 import { RedisMessage } from '../types';
-import {throwErrorIfNotPresenter} from "../imports/validation";
+import {throwErrorIfInvalidInput, throwErrorIfNotPresenter} from "../imports/validation";
 
 export default function buildRedisMessage(sessionVariables: Record<string, unknown>, input: Record<string, unknown>): RedisMessage {
   throwErrorIfNotPresenter(sessionVariables);
+  throwErrorIfInvalidInput(input,
+      [
+        {name: 'sharedNotesExtId', type: 'string', required: true},
+        {name: 'pinned', type: 'boolean', required: true},
+      ]
+  )
+
   const eventName = `PadPinnedReqMsg`;
 
   const routing = {

@@ -31,19 +31,15 @@ select_permissions:
       columns:
         - assignedAt
         - breakoutRoomId
-        - currentRoomIsOnline
-        - currentRoomJoined
-        - currentRoomPriority
-        - currentRoomRegisteredAt
+        - isUserCurrentlyInRoom
+        - hasJoined
+        - isLastAssignedRoom
         - durationInSeconds
         - endedAt
         - freeJoin
         - inviteDismissedAt
         - isDefaultName
         - joinURL
-        - lastRoomIsOnline
-        - lastRoomJoinedAt
-        - lastRoomJoinedId
         - name
         - sendInvitationToModerators
         - sequence

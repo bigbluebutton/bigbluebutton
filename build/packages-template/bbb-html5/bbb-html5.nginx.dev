@@ -1,0 +1,15 @@
+# running from source (npm start)
+location /html5client/ {
+  gzip_static on;
+  proxy_pass http://localhost:3000/;
+  proxy_http_version 1.1;
+  proxy_set_header Upgrade $http_upgrade;
+  proxy_set_header Connection "Upgrade";
+  proxy_set_header Host $host;
+}
+
+location /html5client/locales {
+  alias /usr/share/bigbluebutton/html5-client/locales;
+  autoindex on;
+  autoindex_format json;
+}

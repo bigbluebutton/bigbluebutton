@@ -1,7 +1,19 @@
 import { RedisMessage } from '../types';
 import { ValidationError } from '../types/ValidationError';
+import {throwErrorIfInvalidInput} from "../imports/validation";
 
 export default function buildRedisMessage(sessionVariables: Record<string, unknown>, input: Record<string, unknown>): RedisMessage {
+    throwErrorIfInvalidInput(input,
+        [
+            {name: 'pluginName', type: 'string', required: true},
+            {name: 'subChannelName', type: 'string', required: true},
+            {name: 'channelName', type: 'string', required: true},
+            {name: 'payloadJson', type: 'json', required: true},
+            {name: 'toRoles', type: 'stringArray', required: true},
+            {name: 'toUserIds', type: 'stringArray', required: true},
+        ]
+    )
+
   const eventName = `PluginDataChannelPushEntryMsg`;
 
   const routing = {
@@ -14,12 +26,6 @@ export default function buildRedisMessage(sessionVariables: Record<string, unkno
     meetingId: routing.meetingId,
     userId: routing.userId
   };
-
-  try {
-    JSON.parse(<string>input.payloadJson);
-  } catch (e) {
-    throw new ValidationError('Field `payloadJson` contains an invalid Json.', 400);
-  }
 
   const body = {
     pluginName: input.pluginName,

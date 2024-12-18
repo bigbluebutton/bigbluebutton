@@ -1,6 +1,13 @@
 import { RedisMessage } from '../types';
+import {throwErrorIfInvalidInput} from "../imports/validation";
 
 export default function buildRedisMessage(sessionVariables: Record<string, unknown>, input: Record<string, unknown>): RedisMessage {
+  throwErrorIfInvalidInput(input,
+      [
+        {name: 'exitReason', type: 'string', required: true},
+      ]
+  )
+
   const eventName = `ChangeUserExitReasonCmdMsg`;
   //TODO Akka does not expect to receive this message
 

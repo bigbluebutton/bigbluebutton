@@ -1,0 +1,43 @@
+server:
+  listen_host: 127.0.0.1
+  listen_port: 8378
+  # Maximum number of concurrent connections allowed.
+  max_connections: 500
+  max_connections_per_session_token: 3
+  # Rate limit: maximum number of new connections/clients allowed per second.
+  max_connections_per_second: 100
+  # Rate limit: maximum number of queries each connection can send per minute.
+  max_connection_queries_per_minute: 200
+  # Rate limit: maximum number of mutations each connection can send per minute.
+  # A high number is recommended because the whiteboard cursor and annotations generate frequent mutations.
+  max_connection_mutations_per_minute: 900
+  # Maximum number of concurrent subscriptions allowed per connection.
+  max_connection_concurrent_subscriptions: 100
+  # Maximum length of the query body.
+  max_query_length: 5000
+  # Maximum query depth when querying relationships.
+  max_query_depth: 6
+  # Maximum length of the mutation body.
+  # A high number is recommended because the whiteboard annotations can be large.
+  max_mutation_length: 10000
+  # If you are running a cluster proxy setup, you need to allow the url of the Frontend
+  # Add an Authorized Cross Origin. See https://docs.bigbluebutton.org/administration/cluster-proxy
+  #authorized_cross_origin: 'bbb-proxy.example.com'
+  json_patch_disabled: false
+  subscriptions_allowed_list:
+  subscriptions_denied_list:
+  websocket_idle_timeout_seconds: 60
+redis:
+  host: 127.0.0.1
+  port: 6379
+  password: ""
+hasura:
+  url: ws://127.0.0.1:8085/v1/graphql
+graphql-actions:
+  url: http://127.0.0.1:8093
+auth_hook:
+  url: http://127.0.0.1:8090/bigbluebutton/connection/checkGraphqlAuthorization
+session_vars_hook:
+  url: http://127.0.0.1:8901/userInfo
+prometheus_advanced_metrics_enabled: false
+log_level: INFO

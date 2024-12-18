@@ -141,6 +141,35 @@ class CustomParameters {
     }
   }
 
+  async skipEchoTestIfPreviousDevice(testName, customParameter) {
+    try {
+      await this.page1.init(true, false, testName, 'Moderator', undefined, customParameter);
+      await this.page1.startRecording(testName);
+      await this.page1.screenshot(`${testName}`, `01-${testName}`);
+      await this.page1.waitAndClick(e.microphoneButton);
+      const firstCheck = await this.page1.hasElement(e.connecting);
+      await this.page1.screenshot(`${testName}`, `02-${testName}`);
+      await this.page1.leaveAudio();
+      await this.page1.screenshot(`${testName}`, `03-${testName}`);
+      await this.page1.waitAndClick(e.joinAudio);
+      await this.page1.waitAndClick(e.microphoneButton);
+      const secondCheck = await this.page1.hasElement(e.connectingToEchoTest);
+
+      if (firstCheck !== secondCheck) {
+        await this.page1.screenshot(`${testName}`, `04-fail-${testName}`);
+        await this.page1.logger(testName, ' failed');
+        return false;
+      }
+      await this.page1.screenshot(`${testName}`, `04-success-${testName}`);
+      await this.page1.logger(testName, ' passed');
+
+      return true;
+    } catch (err) {
+      await this.page1.logger(err);
+      return false;
+    }
+  }
+
   async clientTitle(testName, customParameter) {
     try {
       await this.page1.init(true, true, testName, 'Moderator', undefined, customParameter);

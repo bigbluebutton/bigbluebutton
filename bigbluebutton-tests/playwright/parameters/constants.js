@@ -26,6 +26,7 @@ exports.listenOnlyMode = 'userdata-bbb_listen_only_mode=false';
 exports.forceListenOnly = 'userdata-bbb_force_listen_only=true';
 exports.skipCheck = 'userdata-bbb_skip_check_audio=true';
 exports.skipCheckOnFirstJoin = 'userdata-bbb_skip_check_audio_on_first_join=true';
+exports.skipEchoTestIfPreviousDevice = 'userdata-bbb_skip_echotest_if_previous_device=true';
 const docTitle = 'playwright';
 exports.docTitle = docTitle;
 exports.clientTitle = `userdata-bbb_client_title=${docTitle}`;
@@ -35,8 +36,8 @@ exports.logo = 'logo=https://bigbluebutton.org/wp-content/uploads/2021/01/BigBlu
 exports.enableVideo = 'userdata-bbb_enable_video=false';
 exports.autoShareWebcam = 'userdata-bbb_auto_share_webcam=true';
 exports.multiUserPenOnly = 'userdata-bbb_multi_user_pen_only=true';
-exports.presenterTools = 'userdata-bbb_presenter_tools=["pencil","hand"]';
-exports.multiUserTools = 'userdata-bbb_multi_user_tools=["pencil","hand"]';
+exports.presenterTools = 'userdata-bbb_presenter_tools=["select","draw", "arrow"]';
+exports.multiUserTools = 'userdata-bbb_multi_user_tools=["arrow","text"]';
 const cssCode = `${e.presentationTitle}{display: none;}`;
 exports.customStyle = `userdata-bbb_custom_style=${cssCode}`;
 exports.customStyleUrl = 'userdata-bbb_custom_style_url=https://develop.bigbluebutton.org/css-test-file.css';
@@ -49,6 +50,7 @@ exports.forceRestorePresentationOnNewEvents = 'userdata-bbb_force_restore_presen
 exports.recordMeeting = 'record=true';
 exports.skipVideoPreview = 'userdata-bbb_skip_video_preview=true';
 exports.skipVideoPreviewOnFirstJoin = 'userdata-bbb_skip_video_preview_on_first_join=true';
+exports.skipVideoPreviewIfPreviousDevice = 'userdata-bbb_skip_video_preview_if_previous_device=true';
 exports.mirrorOwnWebcam = 'userdata-bbb_mirror_own_webcam=true';
 exports.showParticipantsOnLogin = 'userdata-bbb_show_participants_on_login=false';
 exports.hideActionsBar = 'userdata-bbb_hide_actions_bar=true';

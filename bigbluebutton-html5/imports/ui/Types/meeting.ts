@@ -7,6 +7,7 @@ export interface LockSettings {
   hasActiveLockSetting: boolean;
   hideUserList: boolean;
   hideViewersCursor: boolean;
+  hideViewersAnnotation: false,
   meetingId: boolean;
   webcamsOnlyForModerator: boolean;
   lockOnJoin: boolean;
@@ -20,8 +21,7 @@ export interface groups {
 
 export interface WelcomeSettings {
   welcomeMsg: string;
-  modOnlyMessage: string;
-  welcomeMsgTemplate: string;
+  welcomeMsgForModerators: string;
   meetingId: string;
 }
 
@@ -104,6 +104,7 @@ export interface ComponentsFlags {
   hasScreenshare: boolean;
   hasTimer: boolean;
   showRemainingTime: boolean;
+  hasCameraAsContent: boolean;
 }
 
 export interface Metadata {
@@ -120,6 +121,9 @@ export interface Meeting {
   learningDashboardAccessToken: string;
   maxPinnedCameras: number;
   meetingCameraCap: number;
+  cameraBridge: string;
+  screenShareBridge: string;
+  audioBridge: string;
   meetingId: string;
   name: string;
   notifyRecordingIsOn: boolean;

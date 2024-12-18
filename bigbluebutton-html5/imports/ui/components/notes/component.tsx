@@ -1,8 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { defineMessages, useIntl } from 'react-intl';
-import { useMutation, useSubscription } from '@apollo/client';
+import { useMutation } from '@apollo/client';
 import injectWbResizeEvent from '/imports/ui/components/presentation/resize-wrapper/component';
-import NotesService from '/imports/ui/components/notes/service';
 import PadContainer from '/imports/ui/components/pads/pads-graphql/component';
 import browserInfo from '/imports/utils/browserInfo';
 import Header from '/imports/ui/components/common/control-header/component';
@@ -19,11 +18,11 @@ import { PIN_NOTES } from './mutations';
 import { EXTERNAL_VIDEO_STOP } from '/imports/ui/components/external-video-player/mutations';
 import {
   screenshareHasEnded,
-  isScreenBroadcasting,
+  useIsScreenBroadcasting,
 } from '/imports/ui/components/screenshare/service';
-
-const NOTES_CONFIG = window.meetingClientSettings.public.notes;
-const DELAY_UNMOUNT_SHARED_NOTES = window.meetingClientSettings.public.app.delayForUnmountOfSharedNote;
+import useDeduplicatedSubscription from '../../core/hooks/useDeduplicatedSubscription';
+import { useIsPresentationEnabled } from '../../services/features';
+import { useStorageKey } from '/imports/ui/services/storage/hooks';
 
 const intlMessages = defineMessages({
   hide: {
@@ -58,9 +57,9 @@ interface NotesGraphqlProps extends NotesContainerGraphqlProps {
   isRTL: boolean;
   shouldShowSharedNotesOnPresentationArea: boolean;
   handlePinSharedNotes: (pinned: boolean) => void;
+  isPresentationEnabled: boolean;
 }
 
-let timoutRef: NodeJS.Timeout | undefined;
 const sidebarContentToIgnoreDelay = ['captions'];
 
 const NotesGraphql: React.FC<NotesGraphqlProps> = (props) => {
@@ -76,6 +75,7 @@ const NotesGraphql: React.FC<NotesGraphqlProps> = (props) => {
     isToSharedNotesBeShow,
     shouldShowSharedNotesOnPresentationArea,
     handlePinSharedNotes,
+    isPresentationEnabled,
   } = props;
   const [shouldRenderNotes, setShouldRenderNotes] = useState(false);
   const intl = useIntl();
@@ -96,10 +96,14 @@ const NotesGraphql: React.FC<NotesGraphqlProps> = (props) => {
     style.padding = 0;
     style.display = 'none';
   }
+
+  const DELAY_UNMOUNT_SHARED_NOTES = window.meetingClientSettings.public.app.delayForUnmountOfSharedNote;
+
+  let timoutRef: NodeJS.Timeout | undefined;
   useEffect(() => {
     if (isToSharedNotesBeShow) {
       setShouldRenderNotes(true);
-      clearTimeout(timoutRef);
+      clearTimeout(timoutRef!);
     } else {
       timoutRef = setTimeout(() => {
         setShouldRenderNotes(false);
@@ -107,7 +111,7 @@ const NotesGraphql: React.FC<NotesGraphqlProps> = (props) => {
         || shouldShowSharedNotesOnPresentationArea)
         ? 0 : DELAY_UNMOUNT_SHARED_NOTES);
     }
-    return () => clearTimeout(timoutRef);
+    return () => clearTimeout(timoutRef!);
   }, [isToSharedNotesBeShow, sidebarContent.sidebarContentPanel]);
 
   const renderHeaderOnMedia = () => {
@@ -125,6 +129,8 @@ const NotesGraphql: React.FC<NotesGraphqlProps> = (props) => {
       />
     ) : null;
   };
+
+  const NOTES_CONFIG = window.meetingClientSettings.public.notes;
 
   return (shouldRenderNotes || shouldShowSharedNotesOnPresentationArea) && (
     <Styled.Notes
@@ -151,12 +157,12 @@ const NotesGraphql: React.FC<NotesGraphqlProps> = (props) => {
             label: intl.formatMessage(intlMessages.title),
           }}
           customRightButton={
-            <NotesDropdown handlePinSharedNotes={handlePinSharedNotes} />
+            <NotesDropdown handlePinSharedNotes={handlePinSharedNotes} presentationEnabled={isPresentationEnabled} />
           }
         />
       ) : renderHeaderOnMedia()}
       <PadContainer
-        externalId={NotesService.ID}
+        externalId={NOTES_CONFIG.id}
         hasPermission={hasPermission}
         isResizing={isResizing}
         isRTL={isRTL}
@@ -169,7 +175,8 @@ const NotesContainerGraphql: React.FC<NotesContainerGraphqlProps> = (props) => {
   const { area, isToSharedNotesBeShow } = props;
 
   const hasPermission = useHasPermission();
-  const { data: pinnedPadData } = useSubscription<PinnedPadSubscriptionResponse>(PINNED_PAD_SUBSCRIPTION);
+  const { data: pinnedPadData } = useDeduplicatedSubscription<PinnedPadSubscriptionResponse>(PINNED_PAD_SUBSCRIPTION);
+
   const { data: currentUserData } = useCurrentUser((user) => ({
     presenter: user.presenter,
   }));
@@ -185,16 +192,25 @@ const NotesContainerGraphql: React.FC<NotesContainerGraphqlProps> = (props) => {
   const layoutContextDispatch = layoutDispatch();
   const amIPresenter = !!currentUserData?.presenter;
 
+  const NOTES_CONFIG = window.meetingClientSettings.public.notes;
+
   const isRTL = document.documentElement.getAttribute('dir') === 'rtl';
-  const shouldShowSharedNotesOnPresentationArea = !!pinnedPadData
+  const { isOpen: isSidebarContentOpen } = sidebarContent;
+  const isGridLayout = useStorageKey('isGridEnabled');
+
+  const shouldShowSharedNotesOnPresentationArea = isGridLayout ? !!pinnedPadData
+    && pinnedPadData.sharedNotes[0]?.sharedNotesExtId === NOTES_CONFIG.id
+    && isSidebarContentOpen : !!pinnedPadData
     && pinnedPadData.sharedNotes[0]?.sharedNotesExtId === NOTES_CONFIG.id;
 
   const [stopExternalVideoShare] = useMutation(EXTERNAL_VIDEO_STOP);
+  const isScreenBroadcasting = useIsScreenBroadcasting();
+  const isPresentationEnabled = useIsPresentationEnabled();
 
   const handlePinSharedNotes = (pinned: boolean) => {
     if (pinned) {
       stopExternalVideoShare();
-      if (isScreenBroadcasting()) screenshareHasEnded();
+      if (isScreenBroadcasting) screenshareHasEnded();
     }
     pinSharedNotes({ variables: { pinned } });
   };
@@ -212,6 +228,7 @@ const NotesContainerGraphql: React.FC<NotesContainerGraphqlProps> = (props) => {
       isRTL={isRTL}
       isToSharedNotesBeShow={isToSharedNotesBeShow}
       handlePinSharedNotes={handlePinSharedNotes}
+      isPresentationEnabled={isPresentationEnabled}
     />
   );
 };

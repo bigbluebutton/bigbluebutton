@@ -1,8 +1,13 @@
 import { RedisMessage } from '../types';
-import {throwErrorIfNotModerator} from "../imports/validation";
+import { throwErrorIfInvalidInput } from "../imports/validation";
 
 export default function buildRedisMessage(sessionVariables: Record<string, unknown>, input: Record<string, unknown>): RedisMessage {
-  throwErrorIfNotModerator(sessionVariables);
+  throwErrorIfInvalidInput(input,
+    [
+      { name: 'recording', type: 'boolean', required: true },
+    ]
+  )
+
   const eventName = 'SetRecordingStatusCmdMsg';
 
   const routing = {

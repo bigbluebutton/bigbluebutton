@@ -26,8 +26,6 @@ const intlMessages = defineMessages({
   },
 });
 
-const { warnAboutUnsavedContentOnMeetingEnd } = window.meetingClientSettings.public.app;
-
 const propTypes = {
   intl: PropTypes.shape({
     formatMessage: PropTypes.func.isRequired,
@@ -49,6 +47,8 @@ class EndMeetingComponent extends PureComponent {
     let description = users > 1
       ? intl.formatMessage(intlMessages.endMeetingDescription, { 0: users - 1 })
       : intl.formatMessage(intlMessages.endMeetingNoUserDescription);
+
+    const { warnAboutUnsavedContentOnMeetingEnd } = window.meetingClientSettings.public.app;
 
     if (warnAboutUnsavedContentOnMeetingEnd) {
       // the double breakline it to put one empty line between the descriptions

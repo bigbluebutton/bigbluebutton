@@ -18,14 +18,6 @@ export const SET_RAISE_HAND = gql`
   }
 `;
 
-export const SET_MOBILE_FLAG = gql`
-  mutation SetMobileFlag($mobile: Boolean!) {
-    userSetMobileFlag(
-      mobile: $mobile,
-    )
-  }
-`;
-
 export const EJECT_FROM_MEETING = gql`
   mutation EjectFromMeeting($userId: String!, $banUser: Boolean!) {
     userEjectFromMeeting(
@@ -52,14 +44,6 @@ export const SET_PRESENTER = gql`
   }
 `;
 
-export const SET_EMOJI_STATUS = gql`
-  mutation SetEmojiStatus($emoji: String!) {
-    userSetEmojiStatus(
-      emoji: $emoji,
-    )
-  }
-`;
-
 export const SET_REACTION_EMOJI = gql`
   mutation SetReactionEmoji($reactionEmoji: String!) {
     userSetReactionEmoji(
@@ -74,12 +58,6 @@ export const SET_LOCKED = gql`
       userId: $userId,
       locked: $locked,
     )
-  }
-`;
-
-export const CLEAR_ALL_EMOJI = gql`
-  mutation ClearAllUsersEmoji {
-    allUsersClearEmoji
   }
 `;
 
@@ -106,25 +84,41 @@ export const SET_SPEECH_LOCALE = gql`
   }
 `;
 
+export const SET_CAPTION_LOCALE = gql`
+  mutation SetCaptionLocale($locale: String!, $provider: String!) {
+    userSetCaptionLocale(
+      locale: $locale,
+      provider: $provider,
+    )
+  }
+`;
+
 export const USER_LEAVE_MEETING = gql`
   mutation UserLeaveMeeting {
     userLeaveMeeting
   }
 `;
 
+export const SET_USER_CHAT_LOCKED = gql`
+  mutation UserSetChatLocked($disablePubChat: Boolean!, $userId: String!) {
+    userSetUserLockSettings(
+      userId: $userId,
+      disablePubChat: $disablePubChat,
+    )
+  }
+`;
+
 export default {
   SET_CAMERA_PINNED,
   SET_RAISE_HAND,
-  SET_MOBILE_FLAG,
   EJECT_FROM_MEETING,
   EJECT_FROM_VOICE,
   SET_PRESENTER,
-  SET_EMOJI_STATUS,
   SET_REACTION_EMOJI,
   SET_LOCKED,
-  CLEAR_ALL_EMOJI,
   CLEAR_ALL_REACTION,
   SET_EXIT_REASON,
   SET_SPEECH_LOCALE,
   USER_LEAVE_MEETING,
+  SET_USER_CHAT_LOCKED,
 };

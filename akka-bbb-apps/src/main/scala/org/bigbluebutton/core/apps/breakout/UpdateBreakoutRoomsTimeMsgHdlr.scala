@@ -1,13 +1,13 @@
 package org.bigbluebutton.core.apps.breakout
 
 import org.bigbluebutton.common2.msgs._
-import org.bigbluebutton.core.api.{ SendTimeRemainingAuditInternalMsg, UpdateBreakoutRoomTimeInternalMsg }
+import org.bigbluebutton.core.api.UpdateBreakoutRoomTimeInternalMsg
 import org.bigbluebutton.core.apps.{ PermissionCheck, RightsManagementTrait }
 import org.bigbluebutton.core.bus.BigBlueButtonEvent
 import org.bigbluebutton.core.db.{ BreakoutRoomDAO, MeetingDAO, NotificationDAO }
 import org.bigbluebutton.core.domain.MeetingState2x
 import org.bigbluebutton.core.running.{ MeetingActor, OutMsgRouter }
-import org.bigbluebutton.core2.message.senders.{ MsgBuilder, Sender }
+import org.bigbluebutton.core2.message.senders.MsgBuilder
 import org.bigbluebutton.core.util.TimeUtil
 
 trait UpdateBreakoutRoomsTimeMsgHdlr extends RightsManagementTrait {
@@ -87,9 +87,6 @@ trait UpdateBreakoutRoomsTimeMsgHdlr extends RightsManagementTrait {
 
       val event = buildUpdateBreakoutRoomsTimeEvtMsg(msg.body.timeInMinutes)
       outGW.send(event)
-
-      //Force Update time remaining in the clients
-      eventBus.publish(BigBlueButtonEvent(props.meetingProp.intId, SendTimeRemainingAuditInternalMsg(props.meetingProp.intId, msg.body.timeInMinutes)))
 
       updatedModel match {
         case Some(model) => {

@@ -1,5 +1,5 @@
-/* eslint-disable camelcase */
 import { gql } from '@apollo/client';
+import { Message } from '/imports/ui/Types/message';
 
 export const CHAT_MESSAGE_PUBLIC_SUBSCRIPTION = gql`
   subscription chatMessages($limit: Int!, $offset: Int!) {
@@ -8,9 +8,32 @@ export const CHAT_MESSAGE_PUBLIC_SUBSCRIPTION = gql`
         name
         userId
         avatar
-        isOnline
+        currentlyInMeeting
         isModerator
         color
+      }
+      messageSequence
+      replyToMessage {
+        deletedAt
+        deletedBy {
+          name
+        }
+        chatEmphasizedText
+        messageSequence
+        message
+        user {
+          name
+          color
+        }
+      }
+      reactions(order_by: { createdAt: asc }) {
+        createdAt
+        reactionEmoji
+        reactionEmojiId
+        user {
+          name
+          userId
+        }
       }
       messageType
       chatEmphasizedText
@@ -18,6 +41,11 @@ export const CHAT_MESSAGE_PUBLIC_SUBSCRIPTION = gql`
       message
       messageId
       createdAt
+      editedAt
+      deletedAt
+      deletedBy {
+        name
+      }
       messageMetadata
       senderName
       senderRole
@@ -37,9 +65,32 @@ export const CHAT_MESSAGE_PRIVATE_SUBSCRIPTION = gql`
         name
         userId
         avatar
-        isOnline
+        currentlyInMeeting
         isModerator
         color
+      }
+      messageSequence
+      replyToMessage {
+        deletedAt
+        deletedBy {
+          name
+        }
+        chatEmphasizedText
+        messageSequence
+        message
+        user {
+          name
+          color
+        }
+      }
+      reactions {
+        createdAt
+        reactionEmoji
+        reactionEmojiId
+        user {
+          name
+          userId
+        }
       }
       chatId
       message
@@ -47,7 +98,19 @@ export const CHAT_MESSAGE_PRIVATE_SUBSCRIPTION = gql`
       chatEmphasizedText
       messageId
       createdAt
+      editedAt
+      deletedAt
+      deletedBy {
+        name
+      }
       messageMetadata
+      recipientHasSeen
     }
   }
 `;
+
+export type ChatMessageSubscriptionResponse = {
+  chat_message_public: Message[]
+} | {
+  chat_message_private: Message[]
+}

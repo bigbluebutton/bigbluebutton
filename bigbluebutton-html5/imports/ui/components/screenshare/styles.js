@@ -90,7 +90,37 @@ const HoverToolbar = styled.div`
   `}
 `;
 
+const ScreenshareButtonsContainterWrapper = styled.div`
+  position: absolute;
+  z-index: 2;
+  display: flex;
+  width: 50%;
+
+  ${({ positionXAxis }) => positionXAxis === 'right' && `
+    right: 0;
+    flex-direction: row-reverse;
+  `}
+  ${({ positionXAxis }) => positionXAxis === 'left' && `
+    left: 0;
+  `}
+
+  ${({ positionYAxis }) => positionYAxis === 'top' && `
+    top: 0;
+  `}
+  ${({ positionYAxis }) => positionYAxis === 'bottom' && `
+    bottom: 0;
+  `}
+`;
+
+const FullscreenButtonWrapperForScreenshare = styled.div`
+  & > * {
+    position: relative !important;
+  }
+`;
+
 export default {
+  FullscreenButtonWrapperForScreenshare,
+  ScreenshareButtonsContainterWrapper,
   ScreenshareContainerInside,
   MainText,
   ScreenshareVideo,

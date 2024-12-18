@@ -5,7 +5,7 @@ import TetherComponent from 'react-tether';
 import { defineMessages, injectIntl } from 'react-intl';
 import deviceInfo from '/imports/utils/deviceInfo';
 import screenreaderTrap from 'makeup-screenreader-trap';
-import { Session } from 'meteor/session';
+import Session from '/imports/ui/services/storage/in-memory';
 import Styled from './styles';
 
 import DropdownTrigger from '/imports/ui/components/dropdown/trigger/component';
@@ -91,11 +91,14 @@ class Dropdown extends Component {
     this.handleHide = this.handleHide.bind(this);
     this.handleToggle = this.handleToggle.bind(this);
     this.handleWindowClick = this.handleWindowClick.bind(this);
+    this.handleContextMenu = this.handleContextMenu.bind(this);
     this.updateOrientation = this.updateOrientation.bind(this);
+    this.updateZIndex = this.updateZIndex.bind(this);
   }
 
   componentDidMount() {
     window.addEventListener('resize', this.updateOrientation);
+    window.addEventListener('contextmenu', this.handleContextMenu);
   }
 
   componentDidUpdate(prevProps, prevState) {
@@ -125,20 +128,17 @@ class Dropdown extends Component {
 
   componentWillUnmount() {
     window.removeEventListener('resize', this.updateOrientation);
+    window.removeEventListener('contextmenu', this.handleContextMenu);
   }
 
-  handleHide() {
-    Session.set('dropdownOpen', false);
-    const { onHide } = this.props;
-    this.setState({ isOpen: false }, () => {
-      const { removeEventListener } = window;
-      onHide();
-      removeEventListener('click', this.handleWindowClick, true);
-    });
+  handleContextMenu(event) {
+    event.preventDefault();
+    this.handleHide();
   }
 
   handleShow() {
-    Session.set('dropdownOpen', true);
+    Session.setItem('dropdownOpen', true);
+    this.updateZIndex(0);
     const {
       onShow,
     } = this.props;
@@ -146,6 +146,17 @@ class Dropdown extends Component {
       const { addEventListener } = window;
       onShow();
       addEventListener('click', this.handleWindowClick, true);
+    });
+  }
+
+  handleHide() {
+    Session.setItem('dropdownOpen', false);
+    this.updateZIndex(1);
+    const { onHide } = this.props;
+    this.setState({ isOpen: false }, () => {
+      const { removeEventListener } = window;
+      onHide();
+      removeEventListener('click', this.handleWindowClick, true);
     });
   }
 
@@ -192,6 +203,15 @@ class Dropdown extends Component {
 
   updateOrientation() {
     this.setState({ isPortrait: deviceInfo.isPortrait() });
+  }
+
+  updateZIndex(zIndex) {
+    if (this) {
+      const presentationInnerWrapper = document.getElementById('presentationInnerWrapper');
+      if (presentationInnerWrapper) {
+        presentationInnerWrapper.style.zIndex = zIndex;
+      }
+    }
   }
 
   render() {

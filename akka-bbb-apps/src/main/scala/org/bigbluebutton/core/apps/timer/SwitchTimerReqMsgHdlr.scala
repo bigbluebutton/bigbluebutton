@@ -32,7 +32,7 @@ trait SwitchTimerReqMsgHdlr extends RightsManagementTrait {
       val reason = "You need to be the presenter or moderator to switch timer"
       PermissionCheck.ejectUserForFailedPermission(meetingId, msg.header.userId, reason, bus.outGW, liveMeeting)
     } else {
-      if (TimerModel.getStopwatch(liveMeeting.timerModel) != msg.body.stopwatch) {
+      if (TimerModel.isStopwatch(liveMeeting.timerModel) != msg.body.stopwatch) {
         TimerModel.setStopwatch(liveMeeting.timerModel, msg.body.stopwatch)
         TimerModel.setRunning(liveMeeting.timerModel, running = false)
         TimerModel.reset(liveMeeting.timerModel) //Reset on switch Stopwatch/Timer

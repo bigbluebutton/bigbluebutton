@@ -1,9 +1,10 @@
+import { AudioPresets } from 'livekit-client';
 import { MeetingClientSettings } from '../../Types/meetingClientSettings';
 
 export const meetingClientSettingsInitialValues: MeetingClientSettings = {
   public: {
     app: {
-      instanceId: '',
+      terminateAndRetryConnection: 30000,
       mobileFontSize: '16px',
       desktopFontSize: '14px',
       audioChatNotification: false,
@@ -21,6 +22,7 @@ export const meetingClientSettingsInitialValues: MeetingClientSettings = {
       html5ClientBuild: 'HTML5_CLIENT_VERSION',
       helpLink: 'https://bigbluebutton.org/html5/',
       delayForUnmountOfSharedNote: 120000,
+      enableApolloDevTools: false,
       bbbTabletApp: {
         enabled: true,
         iosAppStoreUrl: 'https://apps.apple.com/us/app/bigbluebutton-tablet/id1641156756',
@@ -59,6 +61,7 @@ export const meetingClientSettingsInitialValues: MeetingClientSettings = {
       preloadNextSlides: 2,
       warnAboutUnsavedContentOnMeetingEnd: false,
       audioCaptions: {
+        alwaysVisible: false,
         enabled: false,
         mobile: false,
         provider: 'webspeech',
@@ -92,14 +95,11 @@ export const meetingClientSettingsInitialValues: MeetingClientSettings = {
         captureSharedNotesByDefault: false,
         sendInvitationToAssignedModeratorsByDefault: false,
         breakoutRoomLimit: 16,
+        allowPresentationManagementInBreakouts: true,
       },
       customHeartbeat: false,
       showAllAvailableLocales: true,
       showAudioFilters: true,
-      raiseHandActionButton: {
-        enabled: false,
-        centered: true,
-      },
       reactionsButton: {
         enabled: true,
       },
@@ -129,6 +129,7 @@ export const meetingClientSettingsInitialValues: MeetingClientSettings = {
           wakeLock: true,
           paginationEnabled: true,
           whiteboardToolbarAutoHide: false,
+          pushToTalkEnabled: false,
           autoCloseReactionsBar: true,
           darkTheme: false,
           fallbackLocale: 'en',
@@ -141,6 +142,10 @@ export const meetingClientSettingsInitialValues: MeetingClientSettings = {
         dataSaving: {
           viewParticipantsWebcams: true,
           viewScreenshare: true,
+        },
+        transcription: {
+          partialUtterances: true,
+          minUtteranceLength: 1,
         },
       },
       shortcuts: {
@@ -489,6 +494,10 @@ export const meetingClientSettingsInitialValues: MeetingClientSettings = {
       ],
       lines: 2,
       time: 5000,
+      showButton: false,
+      defaultPad: 'en',
+      captionLimit: 3,
+      lineLimit: 60,
     },
     timer: {
       enabled: true,
@@ -538,6 +547,9 @@ export const meetingClientSettingsInitialValues: MeetingClientSettings = {
         showNames: true,
       },
       moderatorChatEmphasized: true,
+      privateMessageReadFeedback: {
+        enabled: false,
+      },
       autoConvertEmoji: true,
       emojiPicker: {
         enable: false,
@@ -559,6 +571,7 @@ export const meetingClientSettingsInitialValues: MeetingClientSettings = {
         'p',
         'strong',
       ],
+      toolbar: [],
     },
     userReaction: {
       enabled: true,
@@ -590,9 +603,6 @@ export const meetingClientSettingsInitialValues: MeetingClientSettings = {
         },
       ],
     },
-    userStatus: {
-      enabled: false,
-    },
     notes: {
       enabled: true,
       id: 'notes',
@@ -606,27 +616,13 @@ export const meetingClientSettingsInitialValues: MeetingClientSettings = {
     },
     pads: {
       url: 'ETHERPAD_HOST',
-      cookie: {
-        path: '/',
-        sameSite: 'None',
-        secure: true,
-      },
     },
     media: {
       audio: {
         defaultFullAudioBridge: 'fullaudio',
         defaultListenOnlyBridge: 'fullaudio',
-        bridges: [
-          {
-            name: 'sipjs',
-            path: 'bridge/sip',
-          },
-          {
-            name: 'fullaudio',
-            path: 'bridge/sfu-audio-bridge',
-          },
-        ],
         retryThroughRelay: false,
+        allowAudioJoinCancel: true,
       },
       stunTurnServersFetchAddress: '/bigbluebutton/api/stuns',
       cacheStunTurnServers: true,
@@ -664,7 +660,32 @@ export const meetingClientSettingsInitialValues: MeetingClientSettings = {
           maxDelayTime: 2,
         },
       },
-      showVolumeMeter: true,
+      muteAudioOutputWhenAway: false,
+      screenshare: {
+        showButtonForNonPresenters: false,
+      },
+      livekit: {
+        url: `wss://${window.location.hostname}/livekit`,
+        audio: {
+          publishOptions: {
+            audioPreset: AudioPresets.speech,
+            dtx: true,
+            red: false,
+            forceStereo: false,
+          },
+          unpublishOnMute: false,
+        },
+        camera: {
+          publishOptions: {
+            videoCodec: 'vp8',
+          },
+        },
+        screenshare: {
+          publishOptions: {
+            videoCodec: 'vp8',
+          },
+        },
+      },
     },
     stats: {
       enabled: true,
@@ -675,11 +696,6 @@ export const meetingClientSettingsInitialValues: MeetingClientSettings = {
         warning: false,
         error: true,
       },
-      jitter: [
-        10,
-        20,
-        30,
-      ],
       loss: [
         0.05,
         0.1,
@@ -804,6 +820,9 @@ export const meetingClientSettingsInitialValues: MeetingClientSettings = {
       pointerDiameter: 5,
       maxStickyNoteLength: 1000,
       maxNumberOfAnnotations: 300,
+      maxNumberOfActiveUsers: 25,
+      allowInfiniteWhiteboard: false,
+      allowInfiniteWhiteboardInBreakouts: false,
       annotations: {
         status: {
           start: 'DRAW_START',
@@ -818,156 +837,33 @@ export const meetingClientSettingsInitialValues: MeetingClientSettings = {
       },
       toolbar: {
         multiUserPenOnly: false,
-        colors: [
-          {
-            label: 'black',
-            value: '#000000',
-          },
-          {
-            label: 'white',
-            value: '#ffffff',
-          },
-          {
-            label: 'red',
-            value: '#ff0000',
-          },
-          {
-            label: 'orange',
-            value: '#ff8800',
-          },
-          {
-            label: 'eletricLime',
-            value: '#ccff00',
-          },
-          {
-            label: 'Lime',
-            value: '#00ff00',
-          },
-          {
-            label: 'Cyan',
-            value: '#00ffff',
-          },
-          {
-            label: 'dodgerBlue',
-            value: '#0088ff',
-          },
-          {
-            label: 'blue',
-            value: '#0000ff',
-          },
-          {
-            label: 'violet',
-            value: '#8800ff',
-          },
-          {
-            label: 'magenta',
-            value: '#ff00ff',
-          },
-          {
-            label: 'silver',
-            value: '#c0c0c0',
-          },
-        ],
-        thickness: [
-          {
-            value: 14,
-          },
-          {
-            value: 12,
-          },
-          {
-            value: 10,
-          },
-          {
-            value: 8,
-          },
-          {
-            value: 6,
-          },
-          {
-            value: 4,
-          },
-          {
-            value: 2,
-          },
-          {
-            value: 1,
-          },
-        ],
-        font_sizes: [
-          {
-            value: 36,
-          },
-          {
-            value: 32,
-          },
-          {
-            value: 28,
-          },
-          {
-            value: 24,
-          },
-          {
-            value: 20,
-          },
-          {
-            value: 16,
-          },
-        ],
-        tools: [
-          {
-            icon: 'text_tool',
-            value: 'text',
-          },
-          {
-            icon: 'line_tool',
-            value: 'line',
-          },
-          {
-            icon: 'circle_tool',
-            value: 'ellipse',
-          },
-          {
-            icon: 'triangle_tool',
-            value: 'triangle',
-          },
-          {
-            icon: 'rectangle_tool',
-            value: 'rectangle',
-          },
-          {
-            icon: 'pen_tool',
-            value: 'pencil',
-          },
-          {
-            icon: 'hand',
-            value: 'hand',
-          },
-        ],
         presenterTools: [
-          'text',
-          'line',
-          'ellipse',
-          'triangle',
-          'rectangle',
-          'pencil',
+          'select',
           'hand',
+          'draw',
+          'eraser',
+          'arrow',
+          'text',
+          'note',
+          'rectangle',
+          'more',
+          'actions',
         ],
         multiUserTools: [
+          'select',
+          'hand',
+          'draw',
+          'eraser',
+          'arrow',
           'text',
-          'line',
-          'ellipse',
-          'triangle',
+          'note',
           'rectangle',
-          'pencil',
+          'more',
+          'actions',
         ],
       },
     },
     clientLog: {
-      server: {
-        enabled: false,
-        level: 'info',
-      },
       console: {
         enabled: true,
         level: 'debug',
@@ -1005,15 +901,6 @@ export const meetingClientSettingsInitialValues: MeetingClientSettings = {
       localesUrl: '/locale-list',
       pencilChunkLength: 100,
       loadSlidesFromHttpAlways: false,
-    },
-    serverLog: {
-      level: 'info',
-      streamerLog: false,
-      includeServerInfo: true,
-      healthChecker: {
-        enable: true,
-        intervalMs: 30000,
-      },
     },
     minBrowserVersions: [
       {

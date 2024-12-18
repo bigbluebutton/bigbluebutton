@@ -3,9 +3,6 @@ package org.bigbluebutton.core.db
 import slick.jdbc.PostgresProfile.api._
 import slick.lifted.{ ProvenShape }
 
-import scala.concurrent.ExecutionContext.Implicits.global
-import scala.util.{ Failure, Success }
-
 case class MeetingRecordingDbModel(
     meetingId:               String,
     startedAt:               java.sql.Timestamp,
@@ -32,7 +29,7 @@ object MeetingRecordingDAO {
     //Stop any previous recoding for this meeting before starting a new one
     updateStopped(meetingId, startedBy)
 
-    DatabaseConnection.db.run(
+    DatabaseConnection.enqueue(
       TableQuery[MeetingRecordingDbTableDef].forceInsert(
         MeetingRecordingDbModel(
           meetingId = meetingId,
@@ -42,25 +39,17 @@ object MeetingRecordingDAO {
           stoppedBy = None,
         )
       )
-    ).onComplete {
-        case Success(rowsAffected) => {
-          DatabaseConnection.logger.debug(s"$rowsAffected row(s) inserted in MeetingRecording table!")
-        }
-        case Failure(e) => DatabaseConnection.logger.error(s"Error inserting MeetingRecording: $e")
-      }
+    )
   }
 
   def updateStopped(meetingId: String, stoppedBy: String) = {
-    DatabaseConnection.db.run(
+    DatabaseConnection.enqueue(
       TableQuery[MeetingRecordingDbTableDef]
         .filter(_.meetingId === meetingId)
         .filter(_.stoppedAt.isEmpty)
         .map(r => (r.stoppedAt, r.stoppedBy))
         .update(Some(new java.sql.Timestamp(System.currentTimeMillis())), Some(stoppedBy))
-    ).onComplete {
-      case Success(rowsAffected) => DatabaseConnection.logger.debug(s"$rowsAffected row(s) updated stoppedAt on MeetingRecording table!")
-      case Failure(e) => DatabaseConnection.logger.debug(s"Error updating stoppedAt on MeetingRecording: $e")
-    }
+    )
   }
 
 }

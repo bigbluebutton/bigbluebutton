@@ -1,12 +1,16 @@
 package org.bigbluebutton.api.model.request;
 
+import jakarta.ws.rs.core.MediaType;
 import org.bigbluebutton.api.model.constraint.*;
 import org.bigbluebutton.api.model.shared.Checksum;
 
+import javax.servlet.http.HttpServletRequest;
 import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.NotNull;
 import java.util.Map;
+import java.util.Set;
 
+@ContentTypeConstraint
 public class CreateMeeting extends RequestWithChecksum<CreateMeeting.Params> {
 
     public enum Params implements RequestParameters {
@@ -51,8 +55,8 @@ public class CreateMeeting extends RequestWithChecksum<CreateMeeting.Params> {
     private String recordString;
     private Boolean record;
 
-    public CreateMeeting(Checksum checksum) {
-        super(checksum);
+    public CreateMeeting(Checksum checksum, HttpServletRequest servletRequest) {
+        super(checksum, servletRequest);
     }
 
     public String getName() {
@@ -137,5 +141,10 @@ public class CreateMeeting extends RequestWithChecksum<CreateMeeting.Params> {
         }
         isBreakoutRoom = Boolean.parseBoolean(isBreakoutRoomString);
         record = Boolean.parseBoolean(recordString);
+    }
+
+    @Override
+    public Set<String> getSupportedContentTypes() {
+        return Set.of(MediaType.APPLICATION_FORM_URLENCODED, MediaType.MULTIPART_FORM_DATA, MediaType.APPLICATION_XML, MediaType.TEXT_XML);
     }
 }

@@ -2,7 +2,7 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import { defineMessages, injectIntl } from 'react-intl';
 import Styled from './styles';
-import Settings from '/imports/ui/services/settings';
+import { getSettingsSingletonInstance } from '/imports/ui/services/settings';
 
 const propTypes = {
   intl: PropTypes.shape({
@@ -36,6 +36,7 @@ class AudioTest extends React.Component {
       intl,
     } = this.props;
 
+    const Settings = getSettingsSingletonInstance();
     const { animations } = Settings.application;
 
     return (

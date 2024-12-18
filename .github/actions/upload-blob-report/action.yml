@@ -1,0 +1,36 @@
+name: Upload blob report
+description: Merge and upload the blob report to GitHub Actions Artifacts
+runs:
+  using: composite
+  steps:
+    - uses: actions/checkout@v4
+    - uses: actions/setup-node@v4
+      with:
+        node-version: 22
+    - name: Install dependencies
+      shell: bash
+      working-directory: ./bigbluebutton-tests/playwright
+      run: npm ci
+    - name: Merge artifacts
+      uses: actions/upload-artifact/merge@v4
+      with:
+        name: all-blob-reports
+        pattern: blob-report-*
+        delete-merged: true
+    - name: Download all blob reports from GitHub Actions Artifacts
+      uses: actions/download-artifact@v4
+      with:
+        name: all-blob-reports
+        path: bigbluebutton-tests/playwright/all-blob-reports
+    - name: Merge into HTML Report
+      shell: bash
+      working-directory: ./bigbluebutton-tests/playwright
+      run: npx playwright merge-reports --reporter html ./all-blob-reports
+    - name: Upload HTML tests report
+      uses: actions/upload-artifact@v4
+      with:
+        name: tests-report
+        overwrite: true
+        path: |
+          bigbluebutton-tests/playwright/playwright-report
+          bigbluebutton-tests/playwright/test-results

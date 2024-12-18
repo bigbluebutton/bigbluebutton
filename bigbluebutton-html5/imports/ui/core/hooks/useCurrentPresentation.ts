@@ -1,3 +1,4 @@
+import { useMemo } from 'react';
 import createUseSubscription from './createUseSubscription';
 import CURRENT_PRESENTATION_SUBSCRIPTION from '../graphql/queries/currentPresentationSubscription';
 import { CurrentPresentation } from '../../Types/presentation';
@@ -8,10 +9,10 @@ const useCurrentPresentationSubscription = createUseSubscription<CurrentPresenta
 
 const useCurrentPresentation = (fn: (c: Partial<CurrentPresentation>) => Partial<CurrentPresentation>) => {
   const response = useCurrentPresentationSubscription(fn);
-  const returnObject = {
+  const returnObject = useMemo(() => ({
     ...response,
     data: response.data?.[0],
-  };
+  }), [response]);
   return returnObject;
 };
 

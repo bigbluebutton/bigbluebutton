@@ -1,9 +1,8 @@
 import Auth from '/imports/ui/services/auth';
-import Settings from '/imports/ui/services/settings';
-
-const PADS_CONFIG = window.meetingClientSettings.public.pads;
+import { getSettingsSingletonInstance } from '/imports/ui/services/settings';
 
 const getLang = (): string => {
+  const Settings = getSettingsSingletonInstance();
   // @ts-ignore While Meteor in the project
   const { locale } = Settings.application;
   return locale ? locale.toLowerCase() : '';
@@ -22,6 +21,8 @@ const getParams = () => {
 };
 
 const buildPadURL = (padId: string, sessionIds: Array<string>) => {
+  const PADS_CONFIG = window.meetingClientSettings.public.pads;
+
   const params = getParams();
   const sessionIdsStr = sessionIds.join(',');
   const url = Auth.authenticateURL(

@@ -103,13 +103,11 @@ trait MakePresentationDownloadReqMsgHdlr extends RightsManagementTrait {
 
           val whiteboardId = s"${presId}/${pageNumber.toString}"
           val presentationPage: PresentationPage = currentPres.get.pages(whiteboardId)
-          val xOffset: Double = presentationPage.xOffset
-          val yOffset: Double = presentationPage.yOffset
-          val widthRatio: Double = presentationPage.widthRatio
-          val heightRatio: Double = presentationPage.heightRatio
+          val width: Double = presentationPage.width
+          val height: Double = presentationPage.height
           val whiteboardHistory: Array[AnnotationVO] = liveMeeting.wbModel.getHistory(whiteboardId)
 
-          val page = new PresentationPageForExport(pageNumber, xOffset, yOffset, widthRatio, heightRatio, whiteboardHistory)
+          val page = new PresentationPageForExport(pageNumber, width, height, whiteboardHistory)
           getPresentationPagesForExport(pages, pageCount, presId, currentPres, liveMeeting, storeAnnotationPages :+ page)
         } else {
           getPresentationPagesForExport(pages, pageCount, presId, currentPres, liveMeeting, storeAnnotationPages)
@@ -145,7 +143,7 @@ trait MakePresentationDownloadReqMsgHdlr extends RightsManagementTrait {
       && m.body.fileStateType == "Converted") {
       val reason = "Converted presentation download disabled for this meeting. (PDF format)"
       PermissionCheck.ejectUserForFailedPermission(meetingId, userId, reason, bus.outGW, liveMeeting)
-    } else if (permissionFailed(PermissionCheck.MOD_LEVEL, PermissionCheck.VIEWER_LEVEL, liveMeeting.users2x, userId)) {
+    } else if (permissionFailed(PermissionCheck.GUEST_LEVEL, PermissionCheck.PRESENTER_LEVEL, liveMeeting.users2x, userId)) {
       val reason = "No permission to download presentation."
       PermissionCheck.ejectUserForFailedPermission(meetingId, userId, reason, bus.outGW, liveMeeting)
     } else if (currentPres.isEmpty) {
@@ -210,11 +208,17 @@ trait MakePresentationDownloadReqMsgHdlr extends RightsManagementTrait {
     // Informs bbb-web about the token so that when we use it to upload the presentation, it is able to look it up in the list of tokens
     bus.outGW.send(buildPresentationUploadTokenSysPubMsg(parentMeetingId, userId, presentationUploadToken, filename, presentationId))
 
+    var pres = new PresentationInPod(presentationId, default = false, current = false, name = filename,
+      pages = Map.empty, downloadable = false, downloadFileExtension = "", removable = true, filenameConverted = filename,
+      uploadCompleted = false, numPages = 0, errorMsgKey = "", errorDetails = Map.empty)
+
     if (liveMeeting.props.meetingProp.disabledFeatures.contains("importPresentationWithAnnotationsFromBreakoutRooms")) {
       log.error(s"Capturing breakout rooms slides disabled in meeting ${meetingId}.")
     } else if (currentPres.isEmpty) {
       log.error(s"No presentation set in meeting ${meetingId}")
+      pres = pres.copy(errorMsgKey = "204")
       bus.outGW.send(buildBroadcastPresentationConversionUpdateEvtMsg(parentMeetingId, "204", jobId, filename, presentationUploadToken))
+      PresPresentationDAO.updateConversionStarted(parentMeetingId, pres)
     } else {
       val allPages: Boolean = m.allPages
       val pageCount = currentPres.get.pages.size
@@ -239,9 +243,13 @@ trait MakePresentationDownloadReqMsgHdlr extends RightsManagementTrait {
         val annotations = new StoredAnnotations(jobId, presId, storeAnnotationPages)
         bus.outGW.send(buildStoreAnnotationsInRedisSysMsg(annotations, liveMeeting))
       } else {
+        pres = pres.copy(errorMsgKey = "204")
+
         // Notify that no content is available to capture
         bus.outGW.send(buildBroadcastPresentationConversionUpdateEvtMsg(parentMeetingId, "204", jobId, filename, presentationUploadToken))
       }
+
+      PresPresentationDAO.updateConversionStarted(parentMeetingId, pres)
     }
   }
 

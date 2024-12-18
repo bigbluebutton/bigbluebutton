@@ -1,9 +1,20 @@
 import { RedisMessage } from '../types';
-import { ValidationError } from '../types/ValidationError';
-import {throwErrorIfNotPresenter} from "../imports/validation";
+import {throwErrorIfInvalidInput, throwErrorIfNotPresenter} from "../imports/validation";
 
 export default function buildRedisMessage(sessionVariables: Record<string, unknown>, input: Record<string, unknown>): RedisMessage {
   throwErrorIfNotPresenter(sessionVariables);
+  throwErrorIfInvalidInput(input,
+      [
+        {name: 'presentationId', type: 'string', required: true},
+        {name: 'pageId', type: 'string', required: true},
+        {name: 'pageNum', type: 'int', required: true},
+        {name: 'xOffset', type: 'number', required: true},
+        {name: 'yOffset', type: 'number', required: true},
+        {name: 'widthRatio', type: 'number', required: true},
+        {name: 'heightRatio', type: 'number', required: true},
+      ]
+  )
+
   const eventName = `ResizeAndMovePagePubMsg`;
 
   const routing = {

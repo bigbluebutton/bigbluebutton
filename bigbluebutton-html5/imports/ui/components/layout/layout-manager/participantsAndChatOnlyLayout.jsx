@@ -9,6 +9,7 @@ import {
   CAMERADOCK_POSITION,
 } from '/imports/ui/components/layout/enums';
 import { defaultsDeep } from '/imports/utils/array-utils';
+import Session from '/imports/ui/services/storage/in-memory';
 
 const windowWidth = () => window.document.documentElement.clientWidth;
 const windowHeight = () => window.document.documentElement.clientHeight;
@@ -111,7 +112,7 @@ const ParticipantsAndChatOnlyLayout = (props) => {
       fullscreenElement === 'Presentation'
       || fullscreenElement === 'Screenshare'
       || fullscreenElement === 'ExternalVideo'
-      || fullscreenElement === 'GenericComponent'
+      || fullscreenElement === 'GenericContent'
     ) {
       mediaBounds.width = windowWidth();
       mediaBounds.height = windowHeight();
@@ -336,7 +337,7 @@ const ParticipantsAndChatOnlyLayout = (props) => {
     });
 
     layoutContextDispatch({
-      type: ACTIONS.SET_GENERIC_COMPONENT_OUTPUT,
+      type: ACTIONS.SET_GENERIC_CONTENT_OUTPUT,
       value: {
         display: false,
         width: 0,
@@ -376,54 +377,57 @@ const ParticipantsAndChatOnlyLayout = (props) => {
   }, []);
 
   const init = () => {
-    const { sidebarContentPanel } = sidebarContentInput;
     layoutContextDispatch({
       type: ACTIONS.SET_LAYOUT_INPUT,
-      value: defaultsDeep(
-        {
-          sidebarNavigation: {
-            isOpen:
-              input.sidebarNavigation.isOpen || sidebarContentPanel !== PANELS.NONE || false,
-          },
-          sidebarContent: {
-            isOpen: sidebarContentPanel !== PANELS.NONE,
-            sidebarContentPanel,
-          },
-          SidebarContentHorizontalResizer: {
-            isOpen: false,
-          },
-          presentation: {
-            isOpen: false,
-            slidesLength: presentationInput.slidesLength,
-            currentSlide: {
-              ...presentationInput.currentSlide,
+      value: (prevInput) => {
+        const { sidebarNavigation, sidebarContent, presentation } = prevInput;
+        const { sidebarContentPanel } = sidebarContent;
+        return defaultsDeep(
+          {
+            sidebarNavigation: {
+              isOpen:
+                sidebarNavigation.isOpen || sidebarContentPanel !== PANELS.NONE || false,
             },
-            width: 0,
-            height: 0,
+            sidebarContent: {
+              isOpen: sidebarContentPanel !== PANELS.NONE,
+              sidebarContentPanel,
+            },
+            SidebarContentHorizontalResizer: {
+              isOpen: false,
+            },
+            presentation: {
+              isOpen: false,
+              slidesLength: presentation.slidesLength,
+              currentSlide: {
+                ...presentation.currentSlide,
+              },
+              width: 0,
+              height: 0,
+            },
+            cameraDock: {
+              numCameras: 0,
+            },
+            externalVideo: {
+              hasExternalVideo: false,
+              width: 0,
+              height: 0,
+            },
+            genericMainContent: {
+              genericContentId: undefined,
+              width: 0,
+              height: 0,
+            },
+            screenShare: {
+              hasScreenShare: false,
+              width: 0,
+              height: 0,
+            },
           },
-          cameraDock: {
-            numCameras: 0,
-          },
-          externalVideo: {
-            hasExternalVideo: false,
-            width: 0,
-            height: 0,
-          },
-          genericComponent: {
-            genericComponentId: undefined,
-            width: 0,
-            height: 0,
-          },
-          screenShare: {
-            hasScreenShare: false,
-            width: 0,
-            height: 0,
-          },
-        },
-        INITIAL_INPUT_STATE,
-      ),
+          INITIAL_INPUT_STATE,
+        );
+      },
     });
-    Session.set('layoutReady', true);
+    Session.setItem('layoutReady', true);
     throttledCalculatesLayout();
   };
 

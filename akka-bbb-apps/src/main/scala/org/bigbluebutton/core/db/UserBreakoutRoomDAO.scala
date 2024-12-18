@@ -3,9 +3,6 @@ package org.bigbluebutton.core.db
 import org.bigbluebutton.core.domain.BreakoutRoom2x
 import slick.jdbc.PostgresProfile.api._
 
-import scala.concurrent.ExecutionContext.Implicits.global
-import scala.util.{Failure, Success }
-
 case class UserBreakoutRoomDbModel(
         breakoutRoomId:   String,
         meetingId:        String,
@@ -31,7 +28,7 @@ class UserBreakoutRoomDbTableDef(tag: Tag) extends Table[UserBreakoutRoomDbModel
 object UserBreakoutRoomDAO {
 
   def updateLastBreakoutRoom(meetingId: String, userId: String, breakoutRoom: BreakoutRoom2x) = {
-    DatabaseConnection.db.run(
+    DatabaseConnection.enqueue(
       TableQuery[UserBreakoutRoomDbTableDef].insertOrUpdate(
         UserBreakoutRoomDbModel(
           meetingId = meetingId,
@@ -43,29 +40,21 @@ object UserBreakoutRoomDAO {
           currentlyInRoom = true
         )
       )
-    ).onComplete {
-      case Success(rowsAffected) => {
-        DatabaseConnection.logger.debug(s"$rowsAffected row(s) inserted on user_breakoutRoom table!")
-      }
-      case Failure(e) => DatabaseConnection.logger.error(s"Error inserting user_breakoutRoom: $e")
-    }
+    )
   }
 
   def updateLastBreakoutRoom(meetingId:String, usersInRoom: Vector[String], breakoutRoom: BreakoutRoom2x) = {
 
-    DatabaseConnection.db.run(
+    DatabaseConnection.enqueue(
       TableQuery[UserBreakoutRoomDbTableDef]
         .filter(_.meetingId === meetingId)
         .filterNot(_.userId inSet usersInRoom)
         .filter(_.breakoutRoomId === breakoutRoom.id)
         .map(u_bk => u_bk.currentlyInRoom)
         .update(false)
-    ).onComplete {
-      case Success(rowsAffected) => DatabaseConnection.logger.debug(s"$rowsAffected row(s) updated currentlyInRoom=false on user_breakoutRoom table!")
-      case Failure(e) => DatabaseConnection.logger.error(s"Error updating currentlyInRoom=false on user_breakoutRoom: $e")
-    }
+    )
 
-    DatabaseConnection.db.run(DBIO.sequence(
+    DatabaseConnection.enqueue(DBIO.sequence(
       for {
         userId <- usersInRoom
       } yield {
@@ -82,9 +71,5 @@ object UserBreakoutRoomDAO {
         )
       }
     ).transactionally)
-      .onComplete {
-        case Success(rowsAffected) => DatabaseConnection.logger.debug(s"$rowsAffected row(s) inserted on user_breakoutRoom table!")
-        case Failure(e) => DatabaseConnection.logger.error(s"Error inserting user_breakoutRoom: $e")
-      }
   }
 }

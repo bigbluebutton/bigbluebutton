@@ -114,7 +114,7 @@ if [ -d /var/mediasoup/screenshare ]; then
   chmod 0700 /var/mediasoup/screenshare
 fi
 
-sed -i 's/worker_connections 768/worker_connections 4000/g' /etc/nginx/nginx.conf
+sed -i 's/worker_connections 768/worker_connections 10000/g' /etc/nginx/nginx.conf
 
 if grep -q "worker_rlimit_nofile" /etc/nginx/nginx.conf; then
   num=$(grep worker_rlimit_nofile /etc/nginx/nginx.conf | grep -o '[0-9]*')
@@ -134,7 +134,7 @@ fi
 
 # set full BBB version in settings.yml so it can be displayed in the client
 BBB_RELEASE_FILE=/etc/bigbluebutton/bigbluebutton-release
-BBB_HTML5_SETTINGS_FILE=/usr/share/meteor/bundle/programs/server/assets/app/config/settings.yml
+BBB_HTML5_SETTINGS_FILE=/usr/share/bigbluebutton/html5-client/private/config/settings.yml
 if [ -f $BBB_RELEASE_FILE ] && [ -f $BBB_HTML5_SETTINGS_FILE ]; then
   BBB_FULL_VERSION=$(cat $BBB_RELEASE_FILE | sed -n '/^BIGBLUEBUTTON_RELEASE/{s/.*=//;p}' | tail -n 1)
   echo "setting public.app.bbbServerVersion: $BBB_FULL_VERSION in $BBB_HTML5_SETTINGS_FILE "

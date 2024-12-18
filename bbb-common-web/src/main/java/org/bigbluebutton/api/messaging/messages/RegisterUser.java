@@ -13,18 +13,21 @@ public class RegisterUser implements IMessage {
 	public final String authToken;
 	public final String sessionToken;
 	public final String avatarURL;
+	public final String webcamBackgroundURL;
+	public final Boolean bot;
 	public final Boolean guest;
 	public final Boolean authed;
 	public final String guestStatus;
 	public final Boolean excludeFromDashboard;
 	public final Boolean leftGuestLobby;
 	public final String enforceLayout;
-	public final Map<String, String> customParameters;
+	public final String logoutUrl;
+	public final Map<String, String> userMetadata;
 
 	public RegisterUser(String meetingID, String internalUserId, String fullname, String role, String externUserID,
-						String authToken, String sessionToken, String avatarURL, Boolean guest,
+						String authToken, String sessionToken, String avatarURL, String webcamBackgroundURL, Boolean bot, Boolean guest,
 						Boolean authed, String guestStatus, Boolean excludeFromDashboard, Boolean leftGuestLobby,
-						String enforceLayout, Map<String, String> customParameters) {
+						String enforceLayout, String logoutUrl, Map<String, String> userMetadata) {
 		this.meetingID = meetingID;
 		this.internalUserId = internalUserId;
 		this.fullname = fullname;
@@ -33,12 +36,15 @@ public class RegisterUser implements IMessage {
 		this.authToken = authToken;
 		this.sessionToken = sessionToken;
 		this.avatarURL = avatarURL;
+		this.webcamBackgroundURL = webcamBackgroundURL;
+		this.bot = bot;
 		this.guest = guest;
 		this.authed = authed;
 		this.guestStatus = guestStatus;
 		this.excludeFromDashboard = excludeFromDashboard;
 		this.leftGuestLobby = leftGuestLobby;
 		this.enforceLayout = enforceLayout;
-		this.customParameters = customParameters;
+		this.logoutUrl = logoutUrl;
+		this.userMetadata = userMetadata;
 	}
 }

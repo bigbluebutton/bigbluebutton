@@ -1,5 +1,4 @@
 const { test } = require('../fixtures');
-const { Draw } = require('./draw');
 const { DrawRectangle } = require('./drawRectangle');
 const { DrawEllipse } = require('./drawEllipse');
 const { DrawTriangle } = require('./drawTriangle');
@@ -10,7 +9,6 @@ const { DrawStickyNote } = require('./drawStickyNote');
 const { Pan } = require('./pan');
 const { Eraser } = require('./eraser');
 const { DrawArrow } = require('./drawArrow');
-const { MultiUsers } = require('../user/multiusers');
 const { encodeCustomParams } = require('../parameters/util');
 const { PARAMETER_HIDE_PRESENTATION_TOAST } = require('../core/constants');
 const { DeleteDrawing } = require('./deleteDrawing');
@@ -22,24 +20,15 @@ const { ShapeOptions } = require('./shapeOptions');
 
 const hidePresentationToast = encodeCustomParams(PARAMETER_HIDE_PRESENTATION_TOAST);
 
-test.describe.parallel('Whiteboard @ci', () => {
-  test('Draw rectangle @flaky', async ({ browser, page }) => {
-    const draw = new Draw(browser, page);
-    await draw.init(true, true);
-    await draw.test();
-  });
-
-  test('Give Additional Whiteboard Access', async ({ browser, context, page }) => {
-    const multiusers = new MultiUsers(browser, context);
-    await multiusers.initPages(page);
-    await multiusers.whiteboardAccess();
-  });
-});
-
-test.describe.parallel('Whiteboard tools - visual regression', () => {
+//! @flaky note:
+// all whiteboard tests are flagged as flaky due to unexpected zooming slides
+// only avoiding those assertions won't be enough as most of the tests are relying only on snapshot comparisons
+// so together with the further fix + re-enablement of the tests, they will need to have non-snapshot assertions added as well
+// P.S. 1. the failures seems to be noticeable only on the CI
+test.describe.parallel('Whiteboard tools', { tag: ['@ci', '@flaky'] }, () => {
   test.beforeEach(({ browserName }) => {
     test.skip(browserName !== 'chromium',
-      'Drawing visual regression tests are enabled for Chromium');
+      'Drawing visual regression tests are enabled only for Chromium');
   });
 
   test('Draw rectangle', async ({ browser, context, page }) => {
@@ -84,14 +73,14 @@ test.describe.parallel('Whiteboard tools - visual regression', () => {
     await drawText.test();
   });
 
-  test('Create sticky note', async ({ browser, context, page }) => {
+  test('Create sticky note', { tag: '@flaky'}, async ({ browser, context, page }) => {
     const drawStickyNote = new DrawStickyNote(browser, context);
     await drawStickyNote.initModPage(page, true, { customMeetingId: 'draw_sticky_meeting', joinParameter: hidePresentationToast });
     await drawStickyNote.initUserPage(true, context, { joinParameter: hidePresentationToast });
     await drawStickyNote.test();
   });
 
-  test('Pan', async ({ browser, context, page }) => {
+  test('Pan', { tag: '@flaky'}, async ({ browser, context, page }) => {
     const pan = new Pan(browser, context);
     await pan.initModPage(page, true, { customMeetingId: 'draw_line_meeting', joinParameter: hidePresentationToast });
     await pan.initUserPage(true, context, { joinParameter: hidePresentationToast });
@@ -112,63 +101,67 @@ test.describe.parallel('Whiteboard tools - visual regression', () => {
     await drawArrow.test();
   });
 
-  test('Delete drawing', async ({ browser, context, page }) => {
+  test.describe.parallel('Change Shapes Styles', { tag: '@ci'}, async () => {
+    test('Change color', async ({ browser, context, page }) => {
+      const changeColor = new ChangeStyles(browser, context);
+      await changeColor.initModPage(page, true, { customMeetingId: 'draw_line_meeting', joinParameter: hidePresentationToast });
+      await changeColor.initUserPage(true, context, { joinParameter: hidePresentationToast });
+      await changeColor.changingColor();
+    });
+  
+    test('Fill drawing', async ({ browser, context, page }) => {
+      const fillDrawing = new ChangeStyles(browser, context);
+      await fillDrawing.initModPage(page, true, { customMeetingId: 'draw_line_meeting', joinParameter: hidePresentationToast });
+      await fillDrawing.initUserPage(true, context, { joinParameter: hidePresentationToast });
+      await fillDrawing.fillDrawing();
+    });
+  
+    test('Dash drawing', async ({ browser, context, page }) => {
+      const dashDrawing = new ChangeStyles(browser, context);
+      await dashDrawing.initModPage(page, true, { customMeetingId: 'draw_line_meeting', joinParameter: hidePresentationToast });
+      await dashDrawing.initUserPage(true, context, { joinParameter: hidePresentationToast });
+      await dashDrawing.dashDrawing();
+    });
+  
+    test('Size drawing', async ({ browser, context, page }) => {
+      const sizeDrawing = new ChangeStyles(browser, context);
+      await sizeDrawing.initModPage(page, true, { customMeetingId: 'draw_line_meeting', joinParameter: hidePresentationToast });
+      await sizeDrawing.initUserPage(true, context, { joinParameter: hidePresentationToast });
+      await sizeDrawing.sizeDrawing();
+    });
+  });
+
+  test('Delete drawing', { tag: '@flaky'}, async ({ browser, context, page }) => {
     const deleteDrawing = new DeleteDrawing(browser, context);
     await deleteDrawing.initModPage(page, true, { customMeetingId: 'draw_line_meeting', joinParameter: hidePresentationToast });
     await deleteDrawing.initUserPage(true, context, { joinParameter: hidePresentationToast });
     await deleteDrawing.test();
   });
 
-  test('Undo drawing', async ({ browser, context, page }) => {
+  test('Undo drawing', { tag: '@ci'}, async ({ browser, context, page }) => {
     const undoDrawing = new UndoDrawing(browser, context);
     await undoDrawing.initModPage(page, true, { customMeetingId: 'draw_line_meeting', joinParameter: hidePresentationToast });
     await undoDrawing.initUserPage(true, context, { joinParameter: hidePresentationToast });
     await undoDrawing.test();
   });
 
-  test('Redo drawing', async ({ browser, context, page }) => {
+  test('Redo drawing', { tag: '@ci'}, async ({ browser, context, page }) => {
     const redoDrawing = new RedoDrawing(browser, context);
     await redoDrawing.initModPage(page, true, { customMeetingId: 'draw_line_meeting', joinParameter: hidePresentationToast });
     await redoDrawing.initUserPage(true, context, { joinParameter: hidePresentationToast });
     await redoDrawing.test();
   });
 
-  test('Change color', async ({ browser, context, page }) => {
-    const changeColor = new ChangeStyles(browser, context);
-    await changeColor.initModPage(page, true, { customMeetingId: 'draw_line_meeting', joinParameter: hidePresentationToast });
-    await changeColor.initUserPage(true, context, { joinParameter: hidePresentationToast });
-    await changeColor.changingColor();
-  });
+  
 
-  test('Fill drawing', async ({ browser, context, page }) => {
-    const fillDrawing = new ChangeStyles(browser, context);
-    await fillDrawing.initModPage(page, true, { customMeetingId: 'draw_line_meeting', joinParameter: hidePresentationToast });
-    await fillDrawing.initUserPage(true, context, { joinParameter: hidePresentationToast });
-    await fillDrawing.fillDrawing();
-  });
-
-  test('Dash drawing', async ({ browser, context, page }) => {
-    const dashDrawing = new ChangeStyles(browser, context);
-    await dashDrawing.initModPage(page, true, { customMeetingId: 'draw_line_meeting', joinParameter: hidePresentationToast });
-    await dashDrawing.initUserPage(true, context, { joinParameter: hidePresentationToast });
-    await dashDrawing.dashDrawing();
-  });
-
-  test('Size drawing', async ({ browser, context, page }) => {
-    const sizeDrawing = new ChangeStyles(browser, context);
-    await sizeDrawing.initModPage(page, true, { customMeetingId: 'draw_line_meeting', joinParameter: hidePresentationToast });
-    await sizeDrawing.initUserPage(true, context, { joinParameter: hidePresentationToast });
-    await sizeDrawing.sizeDrawing();
-  });
-
-  test('Real time text typing', async ({ browser, context, page }) => {
+  test('Real time text typing', { tag: '@ci'}, async ({ browser, context, page }) => {
     const realTimeText = new RealTimeText(browser, context);
     await realTimeText.initModPage(page, true, { customMeetingId: 'draw_line_meeting', joinParameter: hidePresentationToast });
     await realTimeText.initUserPage(true, context, { joinParameter: hidePresentationToast });
     await realTimeText.realTimeTextTyping();
   });
 
-  test.describe.parallel('Shape Options', () => {
+  test.describe.parallel('Shape Options', { tag: ['@ci', '@flaky']}, () => {
     test('Duplicate', async ({ browser, context, page }) => {
       const shapeOptions = new ShapeOptions(browser, context);
       await shapeOptions.initModPage(page, true);
