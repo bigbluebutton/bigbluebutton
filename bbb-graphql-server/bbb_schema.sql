@@ -901,21 +901,23 @@ CREATE TRIGGER "update_user_connectionStatus_trigger" AFTER UPDATE OF "connectio
     FOR EACH ROW EXECUTE FUNCTION "update_user_connectionStatus_trigger_func"();
 
 CREATE OR REPLACE VIEW "v_user_connectionStatusReport" AS
-SELECT u."meetingId", u."userId",
-max(cs."connectionAliveAt") AS "connectionAliveAt",
-max(cs."status") AS "currentStatus",
+SELECT distinct on (u."meetingId", u."userId")
+u."meetingId",
+u."userId",
+cs."connectionAliveAt",
+cs."status" AS "currentStatus",
 CASE WHEN
     u."currentlyInMeeting"
-    AND max(cs."connectionAliveAt") < current_timestamp - INTERVAL '1 millisecond' * max(cs."connectionAliveAtMaxIntervalMs")
+    AND cs."connectionAliveAt" < current_timestamp - INTERVAL '1 millisecond' * cs."connectionAliveAtMaxIntervalMs"
     THEN TRUE
     ELSE FALSE
 END AS "clientNotResponding",
-(array_agg(csm."status" ORDER BY csm."lastOccurrenceAt" DESC))[1] as "lastUnstableStatus",
-max(csm."lastOccurrenceAt") AS "lastUnstableStatusAt"
+csm."status" as "lastUnstableStatus",
+csm."lastOccurrenceAt" AS "lastUnstableStatusAt"
 FROM "user" u
 JOIN "user_connectionStatus" cs ON cs."meetingId" = u."meetingId" and cs."userId" = u."userId"
 LEFT JOIN "user_connectionStatusMetrics" csm ON csm."meetingId" = u."meetingId" AND csm."userId" = u."userId" AND csm."status" != 'normal'
-GROUP BY u."meetingId", u."userId";
+order by u."meetingId", u."userId", csm."lastOccurrenceAt" desc;
 
 CREATE INDEX "idx_user_connectionStatusMetrics_UnstableReport" ON "user_connectionStatusMetrics" ("meetingId", "userId") WHERE "status" != 'normal';
 
