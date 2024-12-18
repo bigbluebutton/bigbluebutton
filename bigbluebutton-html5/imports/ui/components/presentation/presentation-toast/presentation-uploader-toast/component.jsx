@@ -173,7 +173,15 @@ function renderPresentationItemStatus(item, intl) {
 
   if (('upload' in item) && (item.upload.done && item.upload.error)) {
     if (item.conversion.status === 'FILE_TOO_LARGE' || item.upload.status !== 413) {
-      constraint['0'] = ((item.conversion.maxFileSize) / 1000 / 1000).toFixed(2);
+      // Check if MB is has enough precision to display the number
+      // If not, display it in kB
+      const { maxFileSize } = item.conversion;
+      const maxFileSizeWithUnit = (
+        ((maxFileSize) / 1000 / 1000).toFixed(2) === '0.00'
+        || ((maxFileSize) / 1000 / 1000).toFixed(2) === '0,00')
+        ? `${((maxFileSize) / 1000).toFixed(2)} kB`
+        : `${((maxFileSize) / 1000 / 1000).toFixed(2)} MB`;
+      constraint['0'] = maxFileSizeWithUnit;
     } else if (item.progress < 100) {
       const errorMessage = intlMessages.badConnectionError;
       return intl.formatMessage(errorMessage);
@@ -192,9 +200,18 @@ function renderPresentationItemStatus(item, intl) {
         constraint['0'] = item.uploadErrorDetailsJson.numberPageError;
         constraint['1'] = item.uploadErrorDetailsJson.maxNumberOfAttempts;
         break;
-      case 'FILE_TOO_LARGE':
-        constraint['0'] = ((item.uploadErrorDetailsJson.maxFileSize) / 1000 / 1000).toFixed(2);
+      case 'FILE_TOO_LARGE': {
+        // Check if MB is has enough precision to display the number
+        // If not, display it in kB
+        const { maxFileSize } = item.uploadErrorDetailsJson;
+        const maxFileSizeWithUnit = (
+          ((maxFileSize) / 1000 / 1000).toFixed(2) === '0.00'
+          || ((maxFileSize) / 1000 / 1000).toFixed(2) === '0,00')
+          ? `${((maxFileSize) / 1000).toFixed(2)} kB`
+          : `${((maxFileSize) / 1000 / 1000).toFixed(2)} MB`;
+        constraint['0'] = maxFileSizeWithUnit;
         break;
+      }
       case 'PAGE_COUNT_EXCEEDED':
         constraint['0'] = item.uploadErrorDetailsJson.maxNumberPages;
         break;

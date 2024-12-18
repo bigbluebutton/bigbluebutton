@@ -83,11 +83,13 @@ public class PresentationFileProcessor {
     private void processUploadedPresentation(UploadedPresentation pres) {
         if (SupportedFileTypes.isPdfFile(pres.getFileType())) {
             pres.generateFilenameConverted("pdf");
-            determineNumberOfPages(pres);
-            sendDocPageConversionStartedProgress(pres);
-            PresentationConvertMessage msg = new PresentationConvertMessage(pres);
-            presentationConversionCompletionService.handle(msg);
-            extractIntoPages(pres);
+            boolean isNumberOfPagesOk = determineNumberOfPages(pres);
+            if (isNumberOfPagesOk) {
+                sendDocPageConversionStartedProgress(pres);
+                PresentationConvertMessage msg = new PresentationConvertMessage(pres);
+                presentationConversionCompletionService.handle(msg);
+                extractIntoPages(pres);
+            }
         } else if (SupportedFileTypes.isImageFile(pres.getFileType())) {
             pres.setNumberOfPages(1); // There should be only one image to convert.
             sendDocPageConversionStartedProgress(pres);
