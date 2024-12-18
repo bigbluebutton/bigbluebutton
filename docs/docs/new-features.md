@@ -194,6 +194,9 @@ To enable support for LiveKit:
     - Older 3.0 installations might still be using Node.js 18. If that's the case,
       re-run bbb-install or correct any custom installation scripts to ensure
       Node.js 22 is installed.
+  - Only when using BigBlueButton via the [cluster proxy](/administration/cluster-proxy) configuration:
+    - Set the appropriate LiveKit endpoint URL in bbb-html5.yml's `public.media.livekit.url`. See
+      the aforementioned [docs section](/administration/cluster-proxy.md#bigbluebutton-servers) for details.
 
 Once enabled, LiveKit still won't be used by default. There are two ways to make
 use of it in meetings:
