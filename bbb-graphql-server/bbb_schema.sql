@@ -106,22 +106,30 @@ CREATE TRIGGER "update_meeting_recording_trigger" BEFORE UPDATE OF "stoppedAt" O
 --(CASE WHEN "startedAt" IS NULL OR "stoppedAt" IS NULL THEN 0 ELSE EXTRACT(EPOCH FROM ("stoppedAt" - "startedAt")) END) STORED;
 
 CREATE VIEW v_meeting_recording AS
-SELECT r.*,
-CASE
-    WHEN "startedAt" IS NULL THEN false
-    WHEN "stoppedAt" IS NULL THEN true
-    ELSE "startedAt" > "stoppedAt"
-END AS "isRecording"
+SELECT
+    r."meetingId",
+    r."startedAt",
+    r."startedBy",
+    r."stoppedAt",
+    r."stoppedBy",
+    COALESCE(r."previousRecordedTimeInSeconds", 0) AS "previousRecordedTimeInSeconds",
+    CASE
+        WHEN r."startedAt" IS NULL THEN false
+        WHEN r."stoppedAt" IS NULL THEN true
+        ELSE r."startedAt" > r."stoppedAt"
+    END AS "isRecording"
 FROM (
-	select "meetingId",
-	(array_agg("startedAt" ORDER BY "startedAt" DESC))[1] as "startedAt",
-	(array_agg("startedBy" ORDER BY "startedAt" DESC))[1] as "startedBy",
-	(array_agg("stoppedAt" ORDER BY "startedAt" DESC))[1] as "stoppedAt",
-	(array_agg("stoppedBy" ORDER BY "startedAt" DESC))[1] as "stoppedBy",
-    coalesce(sum("recordedTimeInSeconds"),0) "previousRecordedTimeInSeconds"
-	from "meeting_recording"
-	GROUP BY "meetingId"
-) r;
+    SELECT
+        mr."meetingId",
+        mr."startedAt",
+        mr."startedBy",
+        mr."stoppedAt",
+        mr."stoppedBy",
+        SUM(mr."recordedTimeInSeconds") OVER (PARTITION BY mr."meetingId") AS "previousRecordedTimeInSeconds",
+        ROW_NUMBER() OVER (PARTITION BY mr."meetingId" ORDER BY mr."startedAt" DESC) AS rn
+    FROM "meeting_recording" mr
+) r
+where r.rn = 1;
 
 create table "meeting_welcome" (
 	"meetingId" varchar(100) primary key references "meeting"("meetingId") ON DELETE CASCADE,
@@ -893,21 +901,23 @@ CREATE TRIGGER "update_user_connectionStatus_trigger" AFTER UPDATE OF "connectio
     FOR EACH ROW EXECUTE FUNCTION "update_user_connectionStatus_trigger_func"();
 
 CREATE OR REPLACE VIEW "v_user_connectionStatusReport" AS
-SELECT u."meetingId", u."userId",
-max(cs."connectionAliveAt") AS "connectionAliveAt",
-max(cs."status") AS "currentStatus",
+SELECT distinct on (u."meetingId", u."userId")
+u."meetingId",
+u."userId",
+cs."connectionAliveAt",
+cs."status" AS "currentStatus",
 CASE WHEN
     u."currentlyInMeeting"
-    AND max(cs."connectionAliveAt") < current_timestamp - INTERVAL '1 millisecond' * max(cs."connectionAliveAtMaxIntervalMs")
+    AND cs."connectionAliveAt" < current_timestamp - INTERVAL '1 millisecond' * cs."connectionAliveAtMaxIntervalMs"
     THEN TRUE
     ELSE FALSE
 END AS "clientNotResponding",
-(array_agg(csm."status" ORDER BY csm."lastOccurrenceAt" DESC))[1] as "lastUnstableStatus",
-max(csm."lastOccurrenceAt") AS "lastUnstableStatusAt"
+csm."status" as "lastUnstableStatus",
+csm."lastOccurrenceAt" AS "lastUnstableStatusAt"
 FROM "user" u
 JOIN "user_connectionStatus" cs ON cs."meetingId" = u."meetingId" and cs."userId" = u."userId"
 LEFT JOIN "user_connectionStatusMetrics" csm ON csm."meetingId" = u."meetingId" AND csm."userId" = u."userId" AND csm."status" != 'normal'
-GROUP BY u."meetingId", u."userId";
+order by u."meetingId", u."userId", csm."lastOccurrenceAt" desc;
 
 CREATE INDEX "idx_user_connectionStatusMetrics_UnstableReport" ON "user_connectionStatusMetrics" ("meetingId", "userId") WHERE "status" != 'normal';
 
