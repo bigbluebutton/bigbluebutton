@@ -118,6 +118,8 @@ public:
   media:
     stunTurnServersFetchAddress: 'https://bbb-01.example.com/bigbluebutton/api/stuns'
     sip_ws_host: 'bbb-01.example.com'
+    livekit:
+      url: wss://bbb-01.example.com/livekit
   kurento:
     wsUrl: wss://bbb-01.example.com/bbb-webrtc-sfu
   presentation:
