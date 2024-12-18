@@ -690,7 +690,6 @@ const ChatMessageFormContainer: React.FC = () => {
         requestedChatId: idChatOpen,
       },
       fetchPolicy: 'no-cache',
-      pollInterval: 1000,
     },
   );
 
