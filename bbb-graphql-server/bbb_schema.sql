@@ -2272,7 +2272,18 @@ select "meeting"."meetingId",
             select 1
             from "v_caption_activeLocales"
             where "v_caption_activeLocales"."meetingId" = "meeting"."meetingId"
-        ) as "hasCaption"
+        ) as "hasCaption",
+        exists (
+            select 1
+            from "sharedNotes"
+            where "sharedNotes"."meetingId" = "meeting"."meetingId"
+            and "sharedNotes"."pinned" is true
+        ) as "isSharedNotedPinned",
+        exists (
+            select 1
+            from "v_pres_page_curr"
+            where "v_pres_page_curr"."meetingId" = "meeting"."meetingId"
+        ) as "hasCurrentPresentation"
 from "meeting";
 
 ------------------------
