@@ -17,6 +17,19 @@ export interface moveUserRegistery {
   }
 }
 
+export interface lastBreakoutRoomUser {
+  lastBreakoutRoom: {
+    breakoutRoomId: string;
+    currentlyInRoom: boolean;
+    isDefaultName: boolean;
+    sequence: string;
+    shortName: string;
+    userId: string;
+    __typename: string;
+  } | null;
+  __typename: string;
+}
+
 export type RoomToWithSettings = {
   name: string;
   users: string[];

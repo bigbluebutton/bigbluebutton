@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { defineMessages, useIntl } from 'react-intl';
+import { useSubscription } from '@apollo/client';
 import {
   BreakoutUser,
   Rooms,
@@ -8,8 +9,9 @@ import {
   moveUserRegistery,
   Presentation,
   RoomPresentations,
+  lastBreakoutRoomUser,
 } from './types';
-import { breakoutRoom, getBreakoutsResponse } from '../queries';
+import { breakoutRoom, getBreakoutsResponse, getLastBreakout } from '../queries';
 
 const intlMessages = defineMessages({
   breakoutRoom: {
@@ -172,6 +174,35 @@ const RoomManagmentState: React.FC<RoomManagmentStateProps> = ({
       }
     });
   };
+
+  const {
+    data: lastBreakoutData,
+  } = useSubscription(getLastBreakout);
+
+  useEffect(() => {
+    if (lastBreakoutData?.user) {
+      const usersToMove: string[] = [];
+      const toRooms: number[] = [];
+
+      lastBreakoutData.user.forEach((user: lastBreakoutRoomUser) => {
+        if (user.lastBreakoutRoom?.sequence) {
+          const roomSequence = Number(user.lastBreakoutRoom.sequence);
+
+          usersToMove.push(user.lastBreakoutRoom.userId);
+          toRooms.push(roomSequence);
+        } else {
+          console.log('User not moved:', {
+            userId: user?.lastBreakoutRoom?.userId,
+            lastBreakoutRoom: user.lastBreakoutRoom,
+          });
+        }
+      });
+
+      if (usersToMove.length > 0) {
+        moveUser(usersToMove, 0, toRooms);
+      }
+    }
+  }, [lastBreakoutData]);
 
   useEffect(() => {
     if (users && users.length > 0) {
