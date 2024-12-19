@@ -2,13 +2,13 @@ import { useEffect, useRef } from 'react';
 import { useMutation } from '@apollo/client';
 import { UPDATE_CONNECTION_ALIVE_AT } from './mutations';
 import {
-  getStatus,
   handleAudioStatsEvent,
 } from '/imports/ui/components/connection-status/service';
 import connectionStatus from '../../core/graphql/singletons/connectionStatus';
 
 import getBaseUrl from '/imports/ui/core/utils/getBaseUrl';
 import useCurrentUser from '../../core/hooks/useCurrentUser';
+import getStatus from '../../core/utils/getStatus';
 
 const ConnectionStatus = () => {
   const STATS_INTERVAL = window.meetingClientSettings.public.stats.interval;
