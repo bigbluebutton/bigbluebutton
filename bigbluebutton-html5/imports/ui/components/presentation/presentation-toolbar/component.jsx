@@ -142,7 +142,7 @@ class PresentationToolbar extends PureComponent {
       setTimeout(() => {
         fitToWidthHandler();
         this.setWasActive(false);
-      }, 150);
+      }, 350);
     }
   }
 

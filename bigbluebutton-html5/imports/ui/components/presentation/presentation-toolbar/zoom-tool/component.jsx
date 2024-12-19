@@ -139,7 +139,7 @@ class ZoomTool extends PureComponent {
 
   resetZoom() {
     const { stateZoomValue, initialstateZoomValue } = this.state;
-    if (stateZoomValue !== initialstateZoomValue) this.onChanger(initialstateZoomValue);
+    if (stateZoomValue !== initialstateZoomValue) this.onChanger(HUNDRED_PERCENT);
   }
 
   render() {
