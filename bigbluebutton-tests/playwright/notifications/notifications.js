@@ -49,22 +49,15 @@ class Notifications extends MultiUsers {
   }
 
   async raiseAndLowerHandNotification() {
-    const { reactionsButton } = getSettings();
-    if (!reactionsButton) {
-      await this.modPage.waitForSelector(e.whiteboard);
-      await this.modPage.hasElement(e.joinAudio);
-      return this.modPage.wasRemoved(e.reactionsButton);
-    }
-
-    await this.modPage.waitAndClick(e.reactionsButton);
+    await this.modPage.waitForSelector(e.whiteboard);
     await this.modPage.waitAndClick(e.raiseHandBtn);
     await sleep(1000);
-    await this.modPage.waitAndClick(e.reactionsButton);
-    await this.modPage.waitAndClick(e.lowerHandBtn);
-    await this.modPage.wasRemoved(e.raiseHandRejection, 'should the raise hand be rejected');
+    await this.modPage.hasElement(e.raiseHandRejection, 'should display raise hand rejection button on toast notification');
     await util.checkNotificationText(this.modPage, e.raisingHandToast);
-    await this.modPage.hasText(`${e.smallToastMsg}>>nth=0`, e.raisingHandToast);
-    await this.modPage.hasText(`${e.smallToastMsg}>>nth=1`, e.loweringHandToast);
+    await this.modPage.closeAllToastNotifications();
+    await this.modPage.waitAndClick(e.lowerHandBtn);
+    await this.modPage.wasRemoved(e.raiseHandRejection, 'should remove the toast notification with the raise hand rejection button');
+    await util.checkNotificationText(this.modPage, e.loweringHandToast);
   }
 
   async userJoinNotification(page) {

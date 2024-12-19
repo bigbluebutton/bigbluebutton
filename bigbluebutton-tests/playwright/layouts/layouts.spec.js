@@ -29,8 +29,7 @@ test.describe('Layout', { tag: '@ci' }, () => {
     await layouts.customLayout();
   });
 
-  test("Update everyone's layout", { tag: '@flaky' }, async () => {
-    // snapshot comparison failing due to unexpected zooming slide after layout update
+  test("Update everyone's layout", async () => {
     await layouts.updateEveryone();
   });
 });

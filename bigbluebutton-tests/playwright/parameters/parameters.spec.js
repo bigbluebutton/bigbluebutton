@@ -4,7 +4,6 @@ const { DisabledFeatures } = require('./disabledFeatures');
 const c = require('./constants');
 const { encodeCustomParams, getAllShortcutParams, hexToRgb } = require('./util');
 const { CreateParameters } = require('./createParameters');
-const { linkIssue } = require('../core/helpers');
 
 test.describe.parallel('Create Parameters', { tag: '@ci' }, () => {
   test('Record Meeting', async ({ browser, context, page }) => {
@@ -28,10 +27,7 @@ test.describe.parallel('Create Parameters', { tag: '@ci' }, () => {
     });
   });
 
-  test('Max Participants', { tag: '@flaky' }, async ({ browser, context, page }) => {
-    // considering value set - 1 (e.g. maxParticipants=3: 2 users would be able to join)
-    // see issue below
-    linkIssue(19426);
+  test('Max Participants', async ({ browser, context, page }) => {
     const createParam = new CreateParameters(browser, context);
     await createParam.initModPage(page, true, { createParameter: c.maxParticipants });
     await createParam.initModPage2(true, context);
@@ -428,10 +424,7 @@ test.describe.parallel('Custom Parameters', { tag: '@ci' }, () => {
   });
 
   test.describe.parallel('Audio', () => {
-    test('Auto join', { tag: '@flaky' }, async ({ browser, context, page }) => {
-      // first user to join the meeting is not auto-joining the audio
-      // see issue below
-      linkIssue(19427);
+    test('Auto join', async ({ browser, context, page }) => {
       const customParam = new CustomParameters(browser, context);
       await customParam.initModPage(page, false, { joinParameter: c.autoJoin });
       await customParam.autoJoin();
@@ -443,12 +436,8 @@ test.describe.parallel('Custom Parameters', { tag: '@ci' }, () => {
       await customParam.listenOnlyMode();
     });
 
-    test('Force Listen Only', { tag: '@flaky' }, async ({ browser, context, page }) => {
-      // param applied to moderators (not expected)
-      // see issue below
-      linkIssue(21326);
+    test('Force Listen Only', async ({ browser, context, page }) => {
       const customParam = new CustomParameters(browser, context);
-      // param only applied for attendees
       await customParam.initUserPage(false, context, { useModMeetingId: false, joinParameter: c.forceListenOnly });
       await customParam.forceListenOnly(page);
     });
@@ -480,8 +469,7 @@ test.describe.parallel('Custom Parameters', { tag: '@ci' }, () => {
       await customParam.hidePresentationOnJoin();
     });
 
-    test('Force restore presentation on new events', { tag: '@flaky' }, async ({ browser, context, page }) => {
-      // tagged as flaky because it's restoring presentation right after minimizing it due to unexpected zooming slide
+    test('Force restore presentation on new events', async ({ browser, context, page }) => {
       const customParam = new CustomParameters(browser, context);
       await customParam.initModPage(page);
       await customParam.initUserPage(true, context, { useModMeetingId: true, joinParameter: c.forceRestorePresentationOnNewEvents });

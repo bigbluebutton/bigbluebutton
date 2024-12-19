@@ -87,8 +87,7 @@ test.describe.parallel('Notifications', { tag: '@ci' }, () => {
 
     test('Presentation upload notification', { tag: '@flaky' }, async ({ browser, context, page }) => {
       // uploader notification not displayed sometimes
-      // see https://github.com/bigbluebutton/bigbluebutton/issues/21321#issuecomment-2390301906
-      linkIssue(21321);
+      linkIssue(21813);
       const presenterNotifications = new PresenterNotifications(browser, context);
       await presenterNotifications.initPages(page);
       await presenterNotifications.modPage.closeAllToastNotifications();
