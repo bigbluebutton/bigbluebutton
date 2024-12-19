@@ -44,6 +44,7 @@
     "app.chat.editTime": "Last edited at {0}",
     "app.chat.deleteMessage": "This message was deleted by {0}",
     "app.chat.toolbar.reply": "Reply to message {0}",
+    "app.chat.toolbar.reply.cancel": "Cancel ({0})",
     "app.chat.toolbar.edit": "Edit",
     "app.chat.toolbar.delete": "Delete",
     "app.chat.toolbar.reactions.reactionLabel": "{0} reacted with {1}",

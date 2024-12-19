@@ -94,7 +94,7 @@ const Markdown = styled(ReactMarkdown)<{
 const CloseBtn = styled(EmojiButton)`
   font-size: 75%;
   height: 1rem;
-  padding: 0;
+  padding: 2px;
 `;
 
 export default {

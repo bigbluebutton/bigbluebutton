@@ -2,6 +2,7 @@ import React from 'react';
 import { useIntl, defineMessages, FormattedTime } from 'react-intl';
 import Icon from '/imports/ui/components/common/icon/component';
 import Styled from './styles';
+import Tooltip from '/imports/ui/components/common/tooltip/container';
 
 const intlMessages = defineMessages({
   offline: {
@@ -49,10 +50,12 @@ const ChatMessageHeader: React.FC<ChatMessageHeaderProps> = ({
         }
         <Styled.Center />
         {!deleteTime && editTime && (
-          <Styled.EditLabel>
-            <Icon iconName="pen_tool" />
-            <span>{intl.formatMessage(intlMessages.edited)}</span>
-          </Styled.EditLabel>
+          <Tooltip title={intl.formatTime(editTime, { hour12: false })}>
+            <Styled.EditLabel>
+              <Icon iconName="pen_tool" />
+              <span>{intl.formatMessage(intlMessages.edited)}</span>
+            </Styled.EditLabel>
+          </Tooltip>
         )}
         {deleteTime && (
           <Styled.EditLabel>
