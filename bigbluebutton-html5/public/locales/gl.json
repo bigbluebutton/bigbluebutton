@@ -1538,7 +1538,7 @@
     "app.sessionDetails.joinByPhone": "Unirse por teléfono",
     "app.sessionDetails.copyUrlTooltip": "Copiar o URL para unirse",
     "app.sessionDetails.copyPhoneTooltip": "Copiar o número de teléfono",
-    "app.sessionDetails.phonePin": "pin",
+    "app.sessionDetails.phonePin": "fixar",
     "app.sessionDetails.copied": "Copiado!",
     "mobileApp.portals.list.empty.addFirstPortal.label": "Engada o seu primeiro portal usando o botón anterior,",
     "mobileApp.portals.list.empty.orUseOurDemoServer.label": "ou use o noso servidor de demostración.",
