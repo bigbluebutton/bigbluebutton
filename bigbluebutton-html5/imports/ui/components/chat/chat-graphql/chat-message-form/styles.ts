@@ -165,6 +165,7 @@ const InputWrapper = styled.div`
   min-width: 0;
   z-index: 0;
   border-radius: 0.75rem;
+  border: 1px solid ${colorGrayLighter};
 
   &:focus-within {
     box-shadow: 0 0 0 ${xsPadding} ${colorGrayLighter};

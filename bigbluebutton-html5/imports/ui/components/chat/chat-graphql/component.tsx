@@ -16,6 +16,14 @@ import { Chat as ChatType } from '/imports/ui/Types/chat';
 import { layoutDispatch } from '/imports/ui/components/layout/context';
 import { GraphqlDataHookSubscriptionResponse } from '/imports/ui/Types/hook';
 import { ChatEvents } from '/imports/ui/core/enums/chat';
+import {
+  colorWhite,
+  colorOffWhite,
+  colorGrayLight,
+  btnPrimaryBorder,
+  colorDanger,
+  btnPrimaryColor,
+} from '/imports/ui/stylesheets/styled-components/palette';
 
 const intlMessages = defineMessages({
   messagesTitle: {
@@ -132,23 +140,24 @@ const Chat: React.FC<ChatProps> = ({
               marginRight: '8px',
               padding: '8px 16px',
               textTransform: 'none',
-              backgroundColor: showMessages ? 'primary.main' : '#E3F2FD',
-              color: showMessages ? '#FFFFFF' : '#B0BEC5',
-              borderColor: showMessages ? 'transparent' : '#BBDEFB',
+              backgroundColor: showMessages ? btnPrimaryColor : colorOffWhite,
+              color: showMessages ? colorWhite : colorGrayLight,
+              borderColor: showMessages ? 'transparent' : btnPrimaryBorder,
             }}
             onClick={() => handleClickSelectChat(true)}
           >
             {intl.formatMessage(intlMessages.titlePublic)}
             {publicUnreadMessages && (
-              <span style={{
-                position: 'absolute',
-                bottom: '8px',
-                right: '8px',
-                width: '8px',
-                height: '8px',
-                backgroundColor: 'red',
-                borderRadius: '50%',
-              }}
+              <span
+                style={{
+                  position: 'absolute',
+                  bottom: '8px',
+                  right: '8px',
+                  width: '8px',
+                  height: '8px',
+                  backgroundColor: colorDanger,
+                  borderRadius: '50%',
+                }}
               />
             )}
           </Button>
@@ -162,23 +171,24 @@ const Chat: React.FC<ChatProps> = ({
               width: '100%',
               padding: '8px 16px',
               textTransform: 'none',
-              backgroundColor: !showMessages ? 'primary.main' : '#E3F2FD',
-              color: !showMessages ? '#FFFFFF' : '#B0BEC5',
-              borderColor: !showMessages ? 'transparent' : '#BBDEFB',
+              backgroundColor: !showMessages ? btnPrimaryColor : colorOffWhite,
+              color: !showMessages ? colorWhite : colorGrayLight,
+              borderColor: !showMessages ? 'transparent' : btnPrimaryBorder,
             }}
             onClick={() => handleClickSelectChat(false)}
           >
             {intl.formatMessage(intlMessages.titlePrivate)}
             {privateUnreadMessages && (
-              <span style={{
-                position: 'absolute',
-                bottom: '8px',
-                right: '8px',
-                width: '8px',
-                height: '8px',
-                backgroundColor: 'red',
-                borderRadius: '50%',
-              }}
+              <span
+                style={{
+                  position: 'absolute',
+                  bottom: '8px',
+                  right: '8px',
+                  width: '8px',
+                  height: '8px',
+                  backgroundColor: colorDanger,
+                  borderRadius: '50%',
+                }}
               />
             )}
           </Button>
