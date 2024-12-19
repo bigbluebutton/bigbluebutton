@@ -62,7 +62,11 @@ const LayoutEngine = () => {
 
     const cameraDockBounds = {};
 
-    if (cameraDockInput.numCameras === 0 && selectedLayout !== LAYOUT_TYPE.VIDEO_FOCUS) {
+    if ((cameraDockInput.numCameras === 0 && selectedLayout !== LAYOUT_TYPE.VIDEO_FOCUS)
+      || (isOpen
+    && windowHeight() < 350
+    && selectedLayout !== LAYOUT_TYPE.VIDEO_FOCUS
+    && selectedLayout !== LAYOUT_TYPE.PRESENTATION_FOCUS)) {
       cameraDockBounds.width = 0;
       cameraDockBounds.height = 0;
 
