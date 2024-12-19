@@ -82,6 +82,14 @@ case class PdfConversionInvalidErrorSysPubMsg(
 case class PdfConversionInvalidErrorSysPubMsgBody(podId: String, messageKey: String, code: String, presentationId: String,
                                                   bigPageNumber: Int, bigPageSize: Int, presName: String)
 
+object PresentationConversionFailedErrorSysPubMsg { val NAME = "PresentationConversionFailedErrorSysPubMsg" }
+case class PresentationConversionFailedErrorSysPubMsg(
+    header: BbbClientMsgHeader,
+    body:   PresentationConversionFailedErrorSysPubMsgBody
+) extends StandardMsg
+case class PresentationConversionFailedErrorSysPubMsgBody(podId: String, messageKey: String, presentationId: String,
+                                                  presName: String, meetingId: String, errorDetail: String)
+
 object PresentationPageGeneratedSysPubMsg { val NAME = "PresentationPageGeneratedSysPubMsg" }
 case class PresentationPageGeneratedSysPubMsg(
     header: BbbClientMsgHeader,
@@ -165,6 +173,7 @@ case class PresentationUploadedFileTooLargeErrorSysPubMsg(
     body:   PresentationUploadedFileTooLargeErrorSysPubMsgBody
 ) extends StandardMsg
 case class PresentationUploadedFileTooLargeErrorSysPubMsgBody(
+    presentationId:    String,
     podId:             String,
     messageKey:        String,
     code:              String,
