@@ -22,7 +22,7 @@ import {
   colorGrayLight,
   btnPrimaryBorder,
   colorDanger,
-  btnPrimaryColor,
+  btnPrimaryBg,
 } from '/imports/ui/stylesheets/styled-components/palette';
 
 const intlMessages = defineMessages({
@@ -140,7 +140,7 @@ const Chat: React.FC<ChatProps> = ({
               marginRight: '8px',
               padding: '8px 16px',
               textTransform: 'none',
-              backgroundColor: showMessages ? btnPrimaryColor : colorOffWhite,
+              backgroundColor: showMessages ? btnPrimaryBg : colorOffWhite,
               color: showMessages ? colorWhite : colorGrayLight,
               borderColor: showMessages ? 'transparent' : btnPrimaryBorder,
             }}
@@ -171,7 +171,7 @@ const Chat: React.FC<ChatProps> = ({
               width: '100%',
               padding: '8px 16px',
               textTransform: 'none',
-              backgroundColor: !showMessages ? btnPrimaryColor : colorOffWhite,
+              backgroundColor: !showMessages ? btnPrimaryBg : colorOffWhite,
               color: !showMessages ? colorWhite : colorGrayLight,
               borderColor: !showMessages ? 'transparent' : btnPrimaryBorder,
             }}

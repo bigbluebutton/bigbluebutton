@@ -47,7 +47,7 @@ import { CHAT_EDIT_MESSAGE_MUTATION } from '../chat-message-list/page/chat-messa
 import ChatTypingIndicatorContainer from '../chat-typing-indicator/component';
 import ChatReplyIntention from '../chat-reply-intention/component';
 import ChatEditingWarning from '../chat-editing-warning/component';
-import { btnPrimaryColor } from '/imports/ui/stylesheets/styled-components/palette';
+import { btnPrimaryBg } from '/imports/ui/stylesheets/styled-components/palette';
 
 const CLOSED_CHAT_LIST_KEY = 'closedChatList';
 const START_TYPING_THROTTLE_INTERVAL = 1000;
@@ -619,7 +619,7 @@ const ChatMessageForm: React.FC<ChatMessageFormProps> = ({
                     borderRadius: '0 0.75rem 0.75rem 0',
                     minWidth: 'auto',
                     padding: '8px',
-                    backgroundColor: btnPrimaryColor,
+                    backgroundColor: btnPrimaryBg,
                   }}
                   variant="contained"
                   disabled={disabled || partnerIsLoggedOut || chatSendMessageLoading}
