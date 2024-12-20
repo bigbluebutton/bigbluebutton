@@ -39,16 +39,32 @@ trait CreateAudioGroupReqMsgHdlr extends RightsManagementTrait {
       return state
     }
 
+    val senders = msg.body.senders
+    val receivers = msg.body.receivers
+
     AudioGroupApp.findAudioGroup(msg.body.id, state.audioGroups) match {
       case Some(ag) =>
         System.out.println("AG== Audio group already exists: " + ag)
-        state
+        // Just update the audio group with the new participants
+        val updatedGroups = AudioGroupApp.addAudioGroupParticipants(
+          msg.body.id,
+          senders,
+          receivers,
+          state.audioGroups
+        )
+        senders.foreach { sender =>
+          AudioGroupUserDAO.insert(liveMeeting.props.meetingProp.intId, ag.id, sender)
+        }
+        receivers.foreach { receiver =>
+          AudioGroupUserDAO.insert(liveMeeting.props.meetingProp.intId, ag.id, receiver)
+        }
+        state.update(updatedGroups)
       case None =>
         val newGroup = AudioGroupApp.createAudioGroup(
           msg.body.id,
           msg.header.userId,
-          msg.body.senders,
-          msg.body.receivers,
+          senders,
+          receivers,
           state.audioGroups
         )
         val updatedGroups = AudioGroupApp.addAudioGroup(newGroup, state.audioGroups)
