@@ -40,16 +40,33 @@ export const useAudioGroups = () => {
   if (!data) return { groups: [], hasGroups: false };
 
   const groups = data as AudioGroupStream[];
-  const myGroups = groups.filter((group) => group.userId === Auth.userID);
-  const hasGroups = myGroups.length > 0;
-  const typeFilter = [
+  const receiverFilter = [
+    ParticipantTypes.RECEIVER,
+    ParticipantTypes.SENDRECV,
+  ];
+  const myInboundGroupIds = groups.filter(
+    (group) => group.userId === Auth.userID && receiverFilter.includes(group.participantType),
+  ).map((group) => group.groupId);
+  const hasGroups = myInboundGroupIds.length > 0;
+  const senderFilter = [
     ParticipantTypes.SENDER,
     ParticipantTypes.SENDRECV,
   ];
 
+  const senders = groups
+    .filter((group) => myInboundGroupIds.includes(group.groupId))
+    .filter((stream) => senderFilter.includes(stream.participantType) && stream.active);
+
+  console.debug("LiveKit SIPG: new audio groups", {
+    groups,
+    myInboundGroupIds,
+    myGroups: groups.filter((group) => myInboundGroupIds.includes(group.groupId)),
+    senders,
+  });
+
   if (!hasGroups) {
     const senderIds = new Set(groups
-      .filter((group) => typeFilter.includes(group.participantType))
+      .filter((group) => senderFilter.includes(group.participantType))
       .map((group) => group.userId));
 
     const nonGroupParticipants = Array.from(liveKitRoom.remoteParticipants.values())
@@ -62,10 +79,6 @@ export const useAudioGroups = () => {
 
     return { groups: nonGroupParticipants, hasGroups: false };
   }
-
-  const senders = groups.filter(
-    (stream) => typeFilter.includes(stream.participantType) && stream.active,
-  );
 
   return { groups: senders, hasGroups };
 };
@@ -139,12 +152,6 @@ export const useAudioSubscriptions = () => {
 
   const handleSubscriptionChanges = useCallback(async () => {
     // eslint-disable-next-line no-console
-    console.log('LiveKit: handleSubscriptionChanges', {
-      liveKitRoom,
-      groups,
-      hasGroups,
-    });
-
     if (!liveKitRoom) return;
 
     const currentSubscriptions = new Set<string>();
@@ -159,6 +166,11 @@ export const useAudioSubscriptions = () => {
     const desiredSubscriptions = new Set(
       groups.map((sender) => sender.userId),
     );
+
+    console.debug("LiveKit SIPLG: new subscription set", {
+      currentSubscriptions,
+      desiredSubscriptions,
+    });
 
     currentSubscriptions.forEach((participantId) => {
       if (!desiredSubscriptions.has(participantId)) {

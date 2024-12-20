@@ -219,7 +219,7 @@ const BBBLiveKitRoomContainer: React.FC = () => {
     dynacast: true,
     stopLocalTrackOnUnpublish: false,
   };
-  const withSelectiveSubscription = meetingSettings.public.media?.livekit?.selectiveSubscription;
+  const withSelectiveSubscription = meetingSettings.public.media?.livekit?.selectiveSubscription || false;
   const { data: bridges } = useMeeting((m) => ({
     cameraBridge: m.cameraBridge,
     screenShareBridge: m.screenShareBridge,
