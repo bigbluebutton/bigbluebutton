@@ -122,7 +122,7 @@ case class UserClosedAllGraphqlConnectionsInternalMsg(userId: String) extends In
  * Sent by GraphqlActionsActor to inform MeetingActor that user came back from disconnection
  * @param userId
  */
-case class UserEstablishedGraphqlConnectionInternalMsg(userId: String) extends InMessage
+case class UserEstablishedGraphqlConnectionInternalMsg(userId: String, clientType: String, isMobile: Boolean) extends InMessage
 
 /**
  * API endpoint /userInfo to provide User Session Variables messages

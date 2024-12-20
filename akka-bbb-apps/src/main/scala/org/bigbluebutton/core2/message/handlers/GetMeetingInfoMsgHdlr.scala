@@ -24,7 +24,7 @@ trait GetMeetingInfoMsgHdlr {
         hasJoinedVoice = VoiceUsers.findAllNonListenOnlyVoiceUsers(liveMeeting.voiceUsers).exists(v => v.intId == u.intId),
         hasVideo = findAll(liveMeeting.webcams).exists(w => w.userId == u.intId),
         clientType = u.clientType,
-        customData = RegisteredUsers.findWithUserId(u.intId, liveMeeting.registeredUsers).get.customParameters
+        customData = RegisteredUsers.findWithUserId(u.intId, liveMeeting.registeredUsers).get.userMetadata
       )
     }
 

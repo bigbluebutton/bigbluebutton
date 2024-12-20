@@ -114,6 +114,9 @@ class BbbCoreServiceImpl(implicit materializer: Materializer, bbbActor: ActorRef
         intId = meetingSettings.meetingIntId,
         meetingCameraCap = meetingSettings.meetingCameraCap,
         maxPinnedCameras = meetingSettings.maxPinnedCameras,
+        cameraBridge = "", // TODO
+        screenShareBridge = "", // TODO
+        audioBridge = "", // TODO
         isBreakout = meetingSettings.isBreakout,
         disabledFeatures = meetingSettings.disabledFeatures.toVector,
         notifyRecordingIsOn = meetingSettings.notifyRecordingIsOn,
@@ -167,9 +170,8 @@ class BbbCoreServiceImpl(implicit materializer: Materializer, bbbActor: ActorRef
 
       val welcomeSettings = settings.welcomeSettings.get
       val welcomeProp = WelcomeProp(
-        welcomeMsgTemplate = welcomeSettings.welcomeMsgTemplate,
         welcomeMsg = welcomeSettings.welcomeMsg,
-        modOnlyMessage = welcomeSettings.modOnlyMsg
+        welcomeMsgForModerators = welcomeSettings.modOnlyMsg
       )
 
       val voiceSettings = settings.voiceSettings.get
@@ -191,7 +193,8 @@ class BbbCoreServiceImpl(implicit materializer: Materializer, bbbActor: ActorRef
         allowModsToUnmuteUsers = userSettings.allowModsUnmuteUsers,
         allowModsToEjectCameras = userSettings.allowModsEjectCameras,
         authenticatedGuest = userSettings.authenticatedGuest,
-        allowPromoteGuestToModerator = userSettings.allowPromoteGuest
+        allowPromoteGuestToModerator = userSettings.allowPromoteGuest,
+        waitingGuestUsersTimeout = 0 // TODO
       )
 
       val metadataSettings = settings.metadataSettings.get
@@ -218,6 +221,7 @@ class BbbCoreServiceImpl(implicit materializer: Materializer, bbbActor: ActorRef
         loginUrl = systemSettings.loginUrl,
         logoutUrl = systemSettings.logoutUrl,
         customLogoURL = systemSettings.customLogoUrl,
+        customDarkLogoURL = "", // TODO
         bannerText = systemSettings.bannerText,
         bannerColor = systemSettings.bannerColour
       )
@@ -241,39 +245,40 @@ class BbbCoreServiceImpl(implicit materializer: Materializer, bbbActor: ActorRef
         lockSettingsProps = lockSettingsProps,
         systemProps = systemProps,
         groups = groups,
-        overrideClientSettings = settings.overrideClientSettings
+        overrideClientSettings = settings.overrideClientSettings,
+        pluginProp = null, // TODO
       )
     }
 
     def createMeeting(settings: CreateMeetingSettings, voiceBridge: String): Future[CreateMeetingResponse] = {
       val defaultProps = settingsToProps(settings, voiceBridge)
       (bbbActor ? CreateMeeting(defaultProps)).mapTo[(RunningMeeting, Boolean, Boolean)].flatMap {
-          case (meeting, isDuplicate, isValid) => {
-            (meeting.actorRef ? HasUserJoined()).mapTo[Boolean].map(hasUserJoined => {
-              CreateMeetingResponse(
-                meetingExtId = meeting.props.meetingProp.extId,
-                meetingIntId = meeting.props.meetingProp.intId,
-                parentMeetingId = meeting.props.breakoutProps.parentId,
-                attendeePw = meeting.props.password.viewerPass,
-                moderatorPw = meeting.props.password.moderatorPass,
-                createTime = meeting.props.durationProps.createdTime,
-                voiceBridge = meeting.props.voiceProp.voiceConf,
-                dialNumber = meeting.props.voiceProp.dialNumber,
-                createDate = meeting.props.durationProps.createdDate,
-                hasUserJoined = hasUserJoined,
-                duration = meeting.props.durationProps.duration,
-                hasBeenForciblyEnded = false,
-                isDuplicate = isDuplicate,
-                isValid = isValid
-              )
-            })
-          }
-          case _ => Future.failed(GrpcServiceException(
-            Code.INTERNAL, 
-            "createError", 
-            Seq(new ErrorResponse("createError", "An unknown error occurred while attempting to create meeting."))
-          ))
+        case (meeting, isDuplicate, isValid) => {
+          (meeting.actorRef ? HasUserJoined()).mapTo[Boolean].map(hasUserJoined => {
+            CreateMeetingResponse(
+              meetingExtId = meeting.props.meetingProp.extId,
+              meetingIntId = meeting.props.meetingProp.intId,
+              parentMeetingId = meeting.props.breakoutProps.parentId,
+              attendeePw = meeting.props.password.viewerPass,
+              moderatorPw = meeting.props.password.moderatorPass,
+              createTime = meeting.props.durationProps.createdTime,
+              voiceBridge = meeting.props.voiceProp.voiceConf,
+              dialNumber = meeting.props.voiceProp.dialNumber,
+              createDate = meeting.props.durationProps.createdDate,
+              hasUserJoined = hasUserJoined,
+              duration = meeting.props.durationProps.duration,
+              hasBeenForciblyEnded = false,
+              isDuplicate = isDuplicate,
+              isValid = isValid
+            )
+          })
         }
+        case _ => Future.failed(GrpcServiceException(
+          Code.INTERNAL,
+          "createError",
+          Seq(new ErrorResponse("createError", "An unknown error occurred while attempting to create meeting."))
+        ))
+      }
     }
 
     in.createMeetingSettings match {
@@ -287,13 +292,13 @@ class BbbCoreServiceImpl(implicit materializer: Materializer, bbbActor: ActorRef
             (bbbActor ? GetNextVoiceBridge(voiceBridgeLength)).mapTo[Option[String]].flatMap {
               case Some(v) => createMeeting(settings, v)
               case None => Future.failed(GrpcServiceException(
-                Code.RESOURCE_EXHAUSTED, 
-                "voiceBridgeError", 
+                Code.RESOURCE_EXHAUSTED,
+                "voiceBridgeError",
                 Seq(new ErrorResponse("voiceBridgeError", "A voice bridge could not be generated. There are either no more voice bridges available or no more that meet your length criteria."))
-              )) 
+              ))
             }
           }
-          case vb: String => 
+          case vb: String =>
             (bbbActor ? IsVoiceBridgeInUse(vb)).mapTo[Boolean].flatMap(inUse => {
               if (inUse) {
                 Future.failed(GrpcServiceException(Code.ALREADY_EXISTS, "nonUniqueVoiceBridge", Seq(new ErrorResponse("nonUniqueVoiceBridge", "The selected voice bridge is already in use."))))
