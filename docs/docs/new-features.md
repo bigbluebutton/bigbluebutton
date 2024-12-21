@@ -28,7 +28,7 @@ This removes the need to choose between Microphone or Listen Only mode when join
 
 ![audio controls when joining audio](/img/30/30-ui-join-audio.png)
 
-Once you are joined in audio you can dynamicly change your audio device configuration from a dropdown located on the mute-yourself button.
+Once you are joined in audio you can dynamically change your audio device configuration from a dropdown located on the mute-yourself button.
 
 ![mute yourself has a dropdown menu allowing device changes](/img/30/30-ui-audio-devices-options.png)
 
@@ -168,13 +168,13 @@ You can test your setup with one of the files from [eicar.org](https://www.eicar
 
 #### Infinite Whiteboard (experimental)
 
-We have added initial support for inifinite whiteboard in the live session. Only the presenter can trigger it. It allows for annotations to be created in the margins, or to write content without being limited by space.
+We have added initial support for infinite whiteboard in the live session. Only the presenter can trigger it. It allows for annotations to be created in the margins, or to write content without being limited by space.
 
 ![the trigger for infinite whiteboard is in the middle of the presenter toolbar](/img/30/30-trigger-for-infinite-wb.png)
 
 Everyone sees the margins and follows the presenter's point of view. If multi-user whiteboard is also enabled, viewers can roam around the canvas independently.
 
-![with inifinite whiteboard enabled annotations can be made on the margins and more](/img/30/30-infinite-wb-in-action.png)
+![with infinite whiteboard enabled annotations can be made on the margins and more](/img/30/30-infinite-wb-in-action.png)
 
 Recording is not yet implemented, meaning that if you enable this experimental feature on your server and use it in a recorded session, the recording will most likely have broken whiteboard at best. The recording (and playback) work is planned for after BigBlueButton 3.0.
 
@@ -283,7 +283,7 @@ In BigBlueButton 3.0.0-alpha.5 we replaced the JOIN parameter `defaultLayout` wi
 #### Added new setting and userdata to allow skipping echo test if session has valid input/output devices stored
 
 - Client settings.yml: `skipEchoTestIfPreviousDevice`. Defaults to `false`
-- Can be overrided on JOIN with Custom Parameter: `userdata-bbb_skip_echotest_if_previous_device=`
+- Can be overridden on JOIN with Custom Parameter: `userdata-bbb_skip_echotest_if_previous_device=`
 
 #### Recording event TranscriptUpdatedRecordEvent blocked
 
@@ -292,7 +292,7 @@ In BigBlueButton 2.7.5/3.0.0-alpha.5 we stopped propagating the events.xml event
 #### Added new setting and userdata to allow skipping video preview if session has valid input devices stored
 
 - Client settings.yml: `skipVideoPreviewIfPreviousDevice`. Defaults to `false`
-- Can be overrided on JOIN with Custom Parameter: `userdata-bbb_skip_video_preview_if_previous_device=`
+- Can be overridden on JOIN with Custom Parameter: `userdata-bbb_skip_video_preview_if_previous_device=`
 
 ### Replaced all user facing instances of "meeting" with the word "session"
 

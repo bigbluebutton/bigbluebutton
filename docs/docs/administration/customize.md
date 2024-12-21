@@ -1300,7 +1300,7 @@ These captions will automatically appear in the recordings.  To enable live capt
 ```
 public:
   app:
-    # You may have other setting itms here
+    # You may have other setting items here
     audioCaptions:
       enabled: true
 ```
