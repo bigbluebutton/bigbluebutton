@@ -79,7 +79,7 @@ PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
 
 If you don't see this, do `sudo systemctl set-environment LANG=en_US.UTF-8` and run the above `sudo systemctl show-environment` again and confirm you see `LANG=en_US.UTF-8` in the output.
 
-Next, check that your server has (at lest) 16G of memory using the command `free -h`. Here's the output from one of our test servers.
+Next, check that your server has (at least) 16G of memory using the command `free -h`. Here's the output from one of our test servers.
 
 ```bash
 $ free -h
