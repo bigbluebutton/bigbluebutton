@@ -59,7 +59,7 @@ We started BigBlueButton as an open source project, and we intend to keep it tha
 
 To avoid SPAM in our mailing lists, when you apply to join you are prompted to ask a simple question. If we get an application without an answer, we assume the application is from a bot and delete it.
 
-Be sure to provide us an answer so we know your a real person that wants to join our community.
+Be sure to provide us an answer so we know you are a real person that wants to join our community.
 
 ## BigBlueButton Development Process
 
@@ -520,7 +520,7 @@ When a front-end makes an API request to BigBlueButton, the BigBlueButton server
 
 When the BigBlueButton client loads, it makes data connections back to the BigBlueButton server using a web socket connection encrypted HTTPS. When the BigBlueButton shares the user's audio, video, or screen, the browser uses the built-in web real-time communication (WebRTC) libraries that transmit real-time protocol packets (RTP) over user datagram protocol (UDP) via Datagram Transport Layer Security (see [DTLS](https://en.wikipedia.org/wiki/Datagram_Transport_Layer_Security)). Furthermore, to provide communications privacy for datagram protocols the media packets are encrypted using the Secure Real-Time Protocol (see [SRTP](https://en.wikipedia.org/wiki/Secure_Real-time_Transport_Protocol)).
 
-As described above, by saying there are _multiple_ security mechanisms BigBlueButton, does this mean BigBlueButton offers secure collaboration? No. No system is really secure, there are only levels of security. We care about security in the BigBlueButton project, and if you detect any security vulnerabilities in the project, you can make a responsible disclosure by emailing us at security@bigbluebutton.org.
+As described above, by saying there are _multiple_ security mechanisms in BigBlueButton, does this mean BigBlueButton offers secure collaboration? No. No system is really secure, there are only levels of security. We care about security in the BigBlueButton project, and if you detect any security vulnerabilities in the project, you can make a responsible disclosure by emailing us at security@bigbluebutton.org.
 
 
 ### Front Ends
@@ -795,7 +795,7 @@ When remote users experience audio problems, check the following areas:
 
 1. Check CPU availability on your BigBlueButton server
 
-Login to your BigBlueButton server during a session and watch it's CPU using the command `top`. When running `top`, press '1' to see a list of all CPUs and their load. You should see Cpu0, Cpu1, etc. If you are running a quad-core CPU with hyper-threading (recommended), you'll see eight virtual CPUs.
+Login to your BigBlueButton server during a session and watch its CPU using the command `top`. When running `top`, press '1' to see a list of all CPUs and their load. You should see Cpu0, Cpu1, etc. If you are running a quad-core CPU with hyper-threading (recommended), you'll see eight virtual CPUs.
 
 The overall CPU usage should stay below 70%. If the overall CPU usage consistently stays above 70%, you'll likely get audio troubles as the BigBlueButton server will not have enough available CPU to keep up with the audio packets.
 

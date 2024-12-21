@@ -622,7 +622,7 @@ $  sudo systemctl daemon-reload
 
 ### bbb-web takes a long time to startup
 
-`bbb-web` relies on the SecureRandom class (which uses available entropy) to provide random values for its session IDs. On a virtualized server, however, the available entropy can run low and cause bbb-web to block for a long period before it finishes it's startup sequence (see [Slow startup of tomcat](https://stackoverflow.com/questions/28201794/slow-startup-on-tomcat-7-0-57-because-of-securerandom)).
+`bbb-web` relies on the SecureRandom class (which uses available entropy) to provide random values for its session IDs. On a virtualized server, however, the available entropy can run low and cause bbb-web to block for a long period before it finishes its startup sequence (see [Slow startup of tomcat](https://stackoverflow.com/questions/28201794/slow-startup-on-tomcat-7-0-57-because-of-securerandom)).
 
 To provide `bbb-web` with more entropy, you can install haveged
 
@@ -663,7 +663,7 @@ $ sudo bbb-conf --start
 
 ### BigBlueButton does not load
 
-If your has changed it's network connection (such as on reboot), you can clean most of BigBlueButton's configuration files with the following steps.
+If your network connection has changed (for example, after a reboot), you can clean up most of BigBlueButton's configuration files by following the steps below.
 
 ```bash
 $ sudo bbb-conf --setip <ip_address_or_hostname>

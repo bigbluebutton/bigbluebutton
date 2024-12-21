@@ -89,7 +89,7 @@ The meeting business logic is in the MeetingActor. This is where information abo
 
 ### FSESL akka
 
-We have extracted out the component that integrates with FreeSWITCH into it's own application. This allows others who are using voice conference systems other than
+We have extracted out the component that integrates with FreeSWITCH into its own application. This allows others who are using voice conference systems other than
 FreeSWITCH to easily create their own integration. Communication between Akka Apps and FreeSWITCH Event Socket Layer (fsels) uses messages through redis pubsub.
 
 ![FsESL Akka architecture](/img/fsesl-akka-arch.png)

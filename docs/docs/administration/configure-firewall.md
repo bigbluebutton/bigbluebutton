@@ -51,7 +51,7 @@ If you are using EC2, you should also assign your server an [Elastic IP address]
 
 ### Azure
 
-On Microsot Azure, when you create an instance you need to add the following inbound port rules to enable incoming connections on ports 80, 443, and UDP port range 16384-32768:
+On Microsoft Azure, when you create an instance you need to add the following inbound port rules to enable incoming connections on ports 80, 443, and UDP port range 16384-32768:
 
 ![Azure Cloud ](/img/azure-firewall.png?raw=true 'Azure 80, 443, and UDP 16384-32768')
 
@@ -299,7 +299,7 @@ Mar 03 23:13:07 t4 freeswitch[19349]: FreeSWITCH[19349] System Ready pid:19361
 Mar 03 23:13:07 t4 systemd[1]: Started freeswitch.
 ```
 
-You should see `active (running)`. If FreeSWITCH is not running, you can check it's output log for clues on why it's not running `journalctl -u freeswitch.service`. If you continue to see the Error 1002, check the diagnostic stops below, under [Configure a dummy NIC](#configure-a-dummy-nic-if-required).
+You should see `active (running)`. If FreeSWITCH is not running, you can check its output log for clues on why it is not running `journalctl -u freeswitch.service`. If you continue to see the Error 1002, check the diagnostic stops below, under [Configure a dummy NIC](#configure-a-dummy-nic-if-required).
 
 For Error 1007, it means that the web socket connect was successful (FreeSWITCH is running and received the request from the browser to setup a media path), but none of the IP/Port combinations returned by FreeSWITCH enabled the browser to connect and start transmitting media. To diagnose this error, open `about:webrtc` in FireFox and click ‘show details’ for the most recent connection. Look under the column Remote Candidate and check if you see the internal IP address of the BigBlueButton server. If so, you probably have a misconfiguration in the FreeSWITCH settings. Re-check against the examples shown above.
 
