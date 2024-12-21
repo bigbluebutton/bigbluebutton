@@ -444,7 +444,7 @@ dpkg: error processing package bbb-libreoffice-docker (--configure):
  installed bbb-libreoffice-docker package post-installation script subprocess returned error exit status 100
 ```
 
-Ubuntu 22.04 uses systemd-resolved, which presents a local caching resolver and registers this at `/etc/resolv.conf`. If you get they above error and have a local name server, such as `10.11.12.13`, then try adding it with the hosts `resolv.conf`.
+Ubuntu 22.04 uses systemd-resolved, which presents a local caching resolver and registers this at `/etc/resolv.conf`. If you get the above error and have a local name server, such as `10.11.12.13`, then try adding it with the hosts `resolv.conf`.
 
 ```
 echo "nameserver 10.11.12.13" > /etc/resolv.conf
