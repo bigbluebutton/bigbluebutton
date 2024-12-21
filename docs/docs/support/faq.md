@@ -795,7 +795,7 @@ When remote users experience audio problems, check the following areas:
 
 1. Check CPU availability on your BigBlueButton server
 
-Login to your BigBlueButton server during a session and watch it's CPU using the command `top`. When running `top`, press '1' to see a list of all CPUs and their load. You should see Cpu0, Cpu1, etc. If you are running a quad-core CPU with hyper-threading (recommended), you'll see eight virtual CPUs.
+Login to your BigBlueButton server during a session and watch its CPU using the command `top`. When running `top`, press '1' to see a list of all CPUs and their load. You should see Cpu0, Cpu1, etc. If you are running a quad-core CPU with hyper-threading (recommended), you'll see eight virtual CPUs.
 
 The overall CPU usage should stay below 70%. If the overall CPU usage consistently stays above 70%, you'll likely get audio troubles as the BigBlueButton server will not have enough available CPU to keep up with the audio packets.
 
