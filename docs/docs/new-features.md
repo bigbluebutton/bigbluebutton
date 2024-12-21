@@ -28,7 +28,7 @@ This removes the need to choose between Microphone or Listen Only mode when join
 
 ![audio controls when joining audio](/img/30/30-ui-join-audio.png)
 
-Once you are joined in audio you can dynamically change your audio device configuration from a dropdown located on the mute-yourself button.
+Once you are joined in audio, you can dynamically change your audio device configuration from a dropdown located on the mute-yourself button.
 
 ![mute yourself has a dropdown menu allowing device changes](/img/30/30-ui-audio-devices-options.png)
 
