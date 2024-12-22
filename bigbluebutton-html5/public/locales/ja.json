@@ -46,7 +46,7 @@
     "app.chat.toolbar.reply": "{0} のメッセージに返事をする",
     "app.chat.toolbar.edit": "編集",
     "app.chat.toolbar.delete": "削除",
-    "app.chat.toolbar.reactions.reactionLabel": "{0} は {1} とリアクションしました",
+    "app.chat.toolbar.reactions.reactionLabel": "{0} が {1} と反応",
     "app.chat.toolbar.reactions.youLabel": "あなた",
     "app.chat.toolbar.reactions.andLabel": "と",
     "app.chat.toolbar.reactions.findReactionButtonLabel": "リアクションを探す",
