@@ -1000,7 +1000,7 @@
     "app.toast.chat.poll": "投票結果",
     "app.toast.chat.pollClick": "投票結果が公開されました。閲覧するにはここをクリックしてください。",
     "app.toast.usersJoinMutedOn.label": "ユーザーのミュートでの参加が標準となりました",
-    "app.toast.usersJoinMutedOff.label": "ユーザーは参加時に自動的にはミュートされません",
+    "app.toast.usersJoinMutedOff.label": "ユーザー参加時に自動的にはミュートされません",
     "app.toast.muteAllViewers.label": "全ての視聴者はミュートされました",
     "app.toast.wakeLock.acquireSuccess": "画面スリープを停止しています！設定メニューから再開することができます。",
     "app.toast.wakeLock.acquireFailed": "スリープの停止に失敗しました",
