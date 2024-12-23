@@ -1,92 +1,118 @@
+"use strict";
+
 // PLUGIN: Timeline
-(function ( Popcorn ) {
+(function(Popcorn) {
+  let i = 1;
 
-  /**
-     * chat-timeline popcorn plug-in
-     * Adds data associated with a certain time in the video, which creates a scrolling view of each item as the video progresses
-     * Options parameter will need a start, target, title, and text
-     * -Start is the time that you want this plug-in to execute
-     * -End is the time that you want this plug-in to stop executing, tho for this plugin an end time may not be needed ( optional )
-     * -Target is the id of the DOM element that you want the timeline to appear in. This element must be in the DOM
-     * -Name is the name of the current chat message sender
-     * -Text is text is simply related text that will be displayed
-     * -direction specifies whether the timeline will grow from the top or the bottom, receives input as "UP" or "DOWN"
-     * @param {Object} options
-     *
-     * Example:
-      var p = Popcorn("#video")
-        .timeline( {
-         start: 5, // seconds
-         target: "timeline",
-         name: "Seneca",
-         text: "Welcome to seneca",
-      } )
-    *
-  */
+  function formatTimestamp(seconds) {
+    seconds = Math.round(seconds);
+    let minutes = Math.floor(seconds / 60);
+    let hours = Math.floor(minutes / 60);
+    minutes = minutes % 60;
+    seconds = seconds % 60;
+    let timestamp = `${minutes}:${("00"+seconds).slice(-2)}`;
+    if (hours > 0) {
+      timestamp = `${hours}:${("00"+timestamp).slice(-5)}`;
+    }
+    return timestamp;
+  }
 
-  var i = 1;
-
-  Popcorn.plugin( "chattimeline" , function( options ) {
-
-    var target = document.getElementById( options.target ),
-        contentDiv = document.createElement( "div" ),
-        goingUp = true;
+  function renderChatContent(options) {
+    const target = document.getElementById(options.target);
+    const contentDiv = document.createElement("div");
 
     contentDiv.style.display = "none";
-    contentDiv.setAttribute('aria-hidden', true);
-    contentDiv.id = "timelineDiv" + i;
+    contentDiv.classList.add("chat-message");
+    contentDiv.setAttribute("aria-hidden", "true");
+    contentDiv.id = options.id || "timelineDiv" + i++;
+    contentDiv.dataset.senderId = options.senderId;
 
-    //  Default to up if options.direction is non-existant or not up or down
-    options.direction = options.direction || "up";
-    if ( options.direction.toLowerCase() === "down" ) {
-
-      goingUp = false;
+    let showHeader = true;
+    const prevChat = target.lastElementChild;
+    if (prevChat && prevChat.dataset.senderId === options.senderId) {
+      showHeader = false;
     }
 
-    if ( target ) {
-      // if this isnt the first div added to the target div
-      if( goingUp ){
-        // insert the current div before the previous div inserted
-        target.insertBefore( contentDiv, target.firstChild );
+    if (showHeader) {
+      const headerDiv = document.createElement("div");
+      headerDiv.classList.add("chat-header");
+
+      const userDiv = document.createElement("div");
+      userDiv.classList.add("chat-user");
+      userDiv.textContent = options.name;
+      headerDiv.appendChild(userDiv);
+
+      const timeDiv = document.createElement("div");
+      timeDiv.classList.add("chat-timestamp");
+      timeDiv.textContent = formatTimestamp(options.start);
+      headerDiv.appendChild(timeDiv);
+
+      contentDiv.appendChild(headerDiv);
+    }
+
+    if (options.replyToMessageId && options.replyToMessageId !== "") {
+      const replyToContent = document.getElementById(options.replyToMessageId);
+      if (replyToContent) {
+        const replyTextDiv = replyToContent.querySelector(".chat-text");
+        const replyDiv = document.createElement("div");
+        replyDiv.classList.add("chat-reply");
+        for (const childNode of replyTextDiv.childNodes) {
+          replyDiv.appendChild(childNode.cloneNode(true));
+        }
+        if (replyTextDiv.classList.contains("chat-emphasized-text")) {
+          replyDiv.classList.add("chat-emphasized-text");
+        }
+        contentDiv.appendChild(replyDiv);
       }
-      else {
+    }
 
-        target.appendChild( contentDiv );
+    const messageDiv = document.createElement("div");
+    messageDiv.classList.add("chat-text");
+    if (options.chatEmphasizedText === "true") { messageDiv.classList.add("chat-emphasized-text"); }
+    messageDiv.innerHTML = options.message;
+    for (const link of messageDiv.querySelectorAll("a")) {
+      link.setAttribute("target", "_blank");
+      link.setAttribute("rel", "nofollow noreferrer");
+    }
+    contentDiv.appendChild(messageDiv);
+
+    if (options.reactions) {
+      const reactionsDiv = document.createElement("div");
+      reactionsDiv.classList.add("chat-reactions");
+      contentDiv.appendChild(reactionsDiv);
+
+      const reactions = JSON.parse(options.reactions);
+      for (const [emoji, count] of Object.entries(reactions)) {
+        const reactionDiv = document.createElement("div");
+        reactionDiv.classList.add("chat-reaction");
+        reactionDiv.textContent = emoji + " " + count;
+        reactionsDiv.appendChild(reactionDiv);
       }
-
     }
 
-    i++;
+    target.appendChild(contentDiv);
+    return contentDiv;
+  }
 
-    contentDiv.innerHTML = "<strong>" + options.name + ":</strong>" + options.message;
-
-    //If chat message contains a link, we add to it a target attribute
-    //So when the user clicks on it, it opens in a new tab
-    var links = contentDiv.querySelectorAll("a");
-    for (var j = 0; j < links.length; ++j) {
-      links[j].setAttribute("target", "_blank");
-    }
+  Popcorn.plugin("chattimeline", function(options) {
+    const target = document.getElementById(options.target);
+    const contentDiv = renderChatContent(options);
 
     return {
-
-      start: function( event, options ) {
+      start: function(_event, _options) {
         contentDiv.style.display = "block";
         if (document.getElementById("exposechat").checked) {
           contentDiv.setAttribute('aria-hidden', false);
         }
-        if( options.direction === "down" ) {
-          target.scrollTop = target.scrollHeight;
-        }
+        contentDiv.scrollIntoView({ behavior: "smooth", block: "end" })
       },
-
-      end: function( event, options ) {
+      end: function(_event, _options) {
         contentDiv.style.display = "none";
         contentDiv.setAttribute('aria-hidden', true);
       },
     };
   },
   {
-
     options: {
       start: {
         elem: "input",
@@ -117,5 +143,4 @@
       }
     }
   });
-
-})( Popcorn );
+})(Popcorn);

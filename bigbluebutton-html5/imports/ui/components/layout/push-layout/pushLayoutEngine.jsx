@@ -358,7 +358,7 @@ const PushLayoutEngineContainer = (props) => {
   const { isOpen: presentationIsOpen } = presentationInput;
 
   const { data: currentUserData } = useCurrentUser((user) => ({
-    enforceLayout: user.enforceLayout,
+    enforceLayout: user.sessionCurrent.enforceLayout,
     isModerator: user.isModerator,
     presenter: user.presenter,
   }));

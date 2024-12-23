@@ -222,7 +222,7 @@ Any contribution by external members for inclusion into BigBlueButton will be re
 
 Before we can accept contributions to BigBlueButton, we need to ensure there isn't any ambiguity on the ownership of material committed to the project. Therefore, everyone wishing to send us a pull request for review must have a signed Contributor License Agreement in place. For background on our reasons for doing this, please see https://www.oss-watch.ac.uk/resources/cla.xml.
 
-To obtain a committer agreement, download [BigBlueButton Inc. Contributor Agreement](https://bigbluebutton.org/files/BigBlueButtonContributorAgreement121006.pdf). Except as set out in the agreement, you (and your employer if you have an intellectual property agreement in place) keep all right, title, and interest in your contribution. If you (and your employer) are in agreement with its terms (be sure to use a physical mailing address for the `address` section to make it legal), then sign, scan, and e-mail a copy to cla _at_ bigbluebutton _dot_ org.
+To obtain a committer agreement, download [BigBlueButton Inc. Contributor Agreement](https://github.com/user-attachments/files/17998921/BigBlueButtonContributorAgreement121006.pdf). Except as set out in the agreement, you (and your employer if you have an intellectual property agreement in place) keep all right, title, and interest in your contribution. If you (and your employer) are in agreement with its terms (be sure to use a physical mailing address for the `address` section to make it legal), then sign, scan, and e-mail a copy to cla _at_ bigbluebutton _dot_ org.
 
 Once we receive the signed Contributor Agreement, we can review your submission for inclusion in BigBlueButton. The process for submission depends on whether it's fixing a bug (submitting a pull request) or whether it's an enhancement (submitting a feature).
 
@@ -343,13 +343,13 @@ The easiest way to get your own BigBlueButton server under OS X is to install VM
 
 #### Android
 
-BigBlueButton runs within the default Chrome browser (no app to install) on Android 6.0+. You can test this at [https://test.bigbluebutton.org/](https://test.bigbluebutton.org/).
+BigBlueButton runs within the default Chrome browser (no app to install) on Android 6.0+. You can test this at [https://demo.bigbluebutton.org/](https://demo.bigbluebutton.org/).
 
 All the features of BigBlueButton are available on Android except screen sharing (Chrome does not support screen sharing on Android).
 
 #### iOS
 
-BigBlueButton runs within the default Safari Mobile browser (no app to install) on iOS 12.2+. You can test this at [https://test.bigbluebutton.org/](https://test.bigbluebutton.org/).
+BigBlueButton runs within the default Safari Mobile browser (no app to install) on iOS 12.2+. You can test this at [https://demo.bigbluebutton.org/](https://demo.bigbluebutton.org/).
 
 All the features of BigBlueButton are available on iOS except screen sharing (Safari Mobile does not support screen sharing on iOS).
 

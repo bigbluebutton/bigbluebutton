@@ -2,10 +2,11 @@ package org.bigbluebutton.core.apps.users
 
 import org.bigbluebutton.common2.msgs._
 import org.bigbluebutton.core.db.NotificationDAO
+import org.bigbluebutton.core.graphql.GraphqlMiddleware
 import org.bigbluebutton.core.models._
 import org.bigbluebutton.core.running.{ LiveMeeting, OutMsgRouter }
 import org.bigbluebutton.core.util.ColorPicker
-import org.bigbluebutton.core2.message.senders.{ MsgBuilder, Sender }
+import org.bigbluebutton.core2.message.senders.MsgBuilder
 
 trait RegisterUserReqMsgHdlr {
   this: UsersApp =>
@@ -48,7 +49,7 @@ trait RegisterUserReqMsgHdlr {
                 UsersApp.ejectUserFromMeeting(outGW, liveMeeting, userToRemove.id, SystemUser.ID, reason, EjectReasonCode.DUPLICATE_USER, ban = false)
 
                 // Force reconnection with graphql to refresh permissions
-                Sender.sendForceUserGraphqlReconnectionSysMsg(liveMeeting.props.meetingProp.intId, userToRemove.id, userToRemove.sessionToken, EjectReasonCode.DUPLICATE_USER, outGW)
+                GraphqlMiddleware.requestGraphqlReconnection(userToRemove.sessionToken, EjectReasonCode.DUPLICATE_USER)
               }
           }
         }

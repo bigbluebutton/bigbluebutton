@@ -18,6 +18,8 @@ select_permissions:
               _eq: X-Hasura-MeetingId
           - userId:
               _eq: X-Hasura-UserId
+          - sessionToken:
+              _eq: X-Hasura-SessionToken
   - role: bbb_client_not_in_meeting
     permission:
       columns:
