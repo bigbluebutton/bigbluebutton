@@ -202,7 +202,7 @@
     "app.userList.userOptions.manageUsersLabel": "ユーザー管理",
     "app.userList.userOptions.usersJoinMutedEnableLabel": "新規参加者をミュート",
     "app.userList.userOptions.usersJoinMutedEnableDesc": "ユーザーは参加時に通常ミュートされます",
-    "app.userList.userOptions.usersJoinMutedDisableLabel": "ユーザーのミュート参加をやめる",
+    "app.userList.userOptions.usersJoinMutedDisableLabel": "新規参加者のミュートをやめる",
     "app.userList.userOptions.usersJoinMutedDisableDesc": "参加ユーザーは通常ミュートされません",
     "app.userList.userOptions.clearAllReactionsLabel": "全てのリアクションを消去",
     "app.userList.userOptions.clearAllReactionsDesc": "全てのリアクション絵文字をユーザーから消去する",
