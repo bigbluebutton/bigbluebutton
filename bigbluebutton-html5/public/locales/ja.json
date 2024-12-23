@@ -200,7 +200,7 @@
     "app.userList.menu.lockPublicChat.label": "公開チャットを無効にする",
     "app.userList.menu.unlockPublicChat.label": "公開チャットを有効にする",
     "app.userList.userOptions.manageUsersLabel": "ユーザー管理",
-    "app.userList.userOptions.usersJoinMutedEnableLabel": "ユーザーにミュートで参加させる",
+    "app.userList.userOptions.usersJoinMutedEnableLabel": "新規参加者をミュート",
     "app.userList.userOptions.usersJoinMutedEnableDesc": "ユーザーは参加時に通常ミュートされます",
     "app.userList.userOptions.usersJoinMutedDisableLabel": "ユーザーのミュート参加をやめる",
     "app.userList.userOptions.usersJoinMutedDisableDesc": "参加ユーザーは通常ミュートされません",
