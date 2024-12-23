@@ -285,10 +285,10 @@ const WhiteboardContainer = (props) => {
   });
 
   useEffect(() => {
-    if (isTabVisible && curPageIdRef.current) {
+    if (isTabVisible && curPageId) {
       refetchInitialPageAnnotations();
     }
-  }, [isTabVisible, curPageIdRef.current, presentationId]);
+  }, [isTabVisible, curPageId, presentationId]);
 
   const processAnnotations = (data) => {
     let annotationsToBeRemoved = [];
