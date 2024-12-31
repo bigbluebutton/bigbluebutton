@@ -81,12 +81,3 @@ message CreateMeetingResponse {
   bool is_duplicate = 13;
   bool is_valid = 14;
 }
-
-service BbbCoreService {
-  rpc isMeetingRunning(MeetingRunningRequest) returns (MeetingRunningResponse);
-  rpc getMeetingInfo(MeetingInfoRequest) returns (MeetingInfoResponse);
-  rpc listMeetings(ListMeetingsRequest) returns (ListMeetingsResponse);
-  rpc getMeetingsStream(GetMeetingsStreamRequest) returns (stream MeetingInfoResponse);
-  rpc isVoiceBridgeInUse(VoiceBridgeInUseRequest) returns (VoiceBridgeInUseResponse);
-  rpc createMeeting(CreateMeetingRequest) returns (CreateMeetingResponse);
-}

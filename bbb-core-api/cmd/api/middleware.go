@@ -11,7 +11,6 @@ import (
 	"github.com/bigbluebutton/bigbluebutton/bbb-core-api/internal/model"
 	"github.com/bigbluebutton/bigbluebutton/bbb-core-api/internal/random"
 	"github.com/bigbluebutton/bigbluebutton/bbb-core-api/util"
-	"github.com/go-chi/chi/v5"
 )
 
 type ContextKey string
@@ -186,12 +185,4 @@ func (app *Config) collectParams(next http.Handler) http.Handler {
 		ctx := context.WithValue(r.Context(), ParamsKey, params)
 		next.ServeHTTP(w, r.WithContext(ctx))
 	})
-}
-
-func getRoutePattern(r *http.Request) string {
-	routeCtx := chi.RouteContext(r.Context())
-	if routeCtx == nil {
-		return ""
-	}
-	return routeCtx.RoutePattern()
 }

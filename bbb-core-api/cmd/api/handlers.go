@@ -4,15 +4,11 @@ import (
 	"context"
 	"io"
 	"log"
-	"mime"
 	"net/http"
-	"sync"
 	"time"
 
 	bbbcore "github.com/bigbluebutton/bigbluebutton/bbb-core-api/gen/bbb-core"
-	bbbmime "github.com/bigbluebutton/bigbluebutton/bbb-core-api/internal/mime"
 	"github.com/bigbluebutton/bigbluebutton/bbb-core-api/internal/model"
-	"github.com/bigbluebutton/bigbluebutton/bbb-core-api/internal/presentation"
 	"github.com/bigbluebutton/bigbluebutton/bbb-core-api/internal/validation"
 	"github.com/bigbluebutton/bigbluebutton/bbb-core-api/util"
 	"google.golang.org/grpc/codes"
@@ -258,20 +254,6 @@ func (app *Config) createMeeting(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	contentType, _, _ := mime.ParseMediaType(r.Header.Get("Content-Type"))
-	var modules RequestModules
-	if bbbmime.ApplicationXML.Matches(contentType) || bbbmime.TextXML.Matches(contentType) {
-		modules, err = app.processXMLModules(r.Body)
-		if err != nil {
-			app.respondWithErrorXML(w, model.ReturnCodeFailure, model.InvalidRequestBodyKey, model.InvalidRequestBodyMsg)
-			return
-		}
-
-		if cso := modules.Get("clientSettingsOverride"); cso != nil && app.ServerConfig.Override.ClientSettings {
-			settings.OverrideClientSettings = cso.Content
-		}
-	}
-
 	res, err := app.BbbCore.CreateMeeting(ctx, &bbbcore.CreateMeetingRequest{
 		CreateMeetingSettings: settings,
 	})
@@ -313,46 +295,5 @@ func (app *Config) createMeeting(w http.ResponseWriter, r *http.Request) {
 		payload.MessageKey = model.CreateMeetingDuplicateKey
 		payload.Message = model.CreateMeetingDuplicateMsg
 	}
-
-	docs, hasCurrent, err := app.parseDocuments(modules, &params, false)
-	if err != nil {
-		// TODO: modify CreateMeetingResponse to include section for document parsing errors
-	}
-
-	type UploadResult struct {
-		doc      *Document
-		pres     *presentation.UploadedPresentation
-		uploaded bool
-		err      error
-	}
-
-	resultChan := make(chan UploadResult)
-	var wg sync.WaitGroup
-
-	for i, doc := range docs {
-		wg.Add(1)
-		go func(doc Document, meetingID string, isFirst, isFromInsertAPI, hasCurrent bool) {
-			defer wg.Done()
-			pres, err := app.processDocument(doc, res.MeetingIntId, i == 0, false, hasCurrent)
-			if err != nil {
-				resultChan <- UploadResult{
-					doc:      &doc,
-					pres:     nil,
-					uploaded: false,
-					err:      err,
-				}
-			}
-
-			// TODO: Document conversion and call to akka apps
-		}(doc, res.MeetingIntId, i == 0, false, hasCurrent)
-	}
-
-	go func() {
-		wg.Wait()
-		close(resultChan)
-	}()
-
-	// TODO: modify CreateMeetingResponse to include section for document upload result information
-
 	app.writeXML(w, http.StatusAccepted, payload)
 }
