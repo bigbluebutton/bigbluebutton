@@ -513,7 +513,13 @@ const Whiteboard = React.memo((props) => {
         throwIfInvalid(cam.y, 'camera.y');
         throwIfInvalid(cam.z, 'camera.z');
       } catch (error) {
-        logger.error('Invalid camera object:', cam, error);
+        logger.error({
+          logCode: 'ValidateCameraObject',
+          extraInfo: {
+            camera: cam,
+          },
+        },
+        `Invalid camera object: ${error}`);
         return false;
       }
       return true;
@@ -594,7 +600,10 @@ const Whiteboard = React.memo((props) => {
           localStorage.setItem('initialViewBoxWidth', calculatedWidth.toString());
           localStorage.setItem('initialViewBoxHeight', calculatedHeight.toString());
         } catch (error) {
-          logger.warn('Failed to store viewbox dimensions:', error);
+          logger.warn({
+            logCode: 'InitialViewBoxStorage',
+          },
+          `Failed to store viewbox dimensions: ${error}`);
         }
       }
 
@@ -643,7 +652,10 @@ const Whiteboard = React.memo((props) => {
         isMountedRef.current = true;
       }
     } catch (error) {
-      logger.error('Error in adjustCameraOnMount:', error);
+      logger.error({
+        logCode: 'AdjustCameraOnMount'
+      },
+      `Failed to store viewbox dimensions: ${error}`);
       throw error;
     }
   };
