@@ -1,0 +1,25 @@
+syntax = "proto3";
+
+package org.bigbluebutton.protos;
+
+import "common/user.proto";
+import "common/duration_info.proto";
+import "common/participant_info.proto";
+import "common/breakout_info.proto";
+
+message MeetingInfo {
+  string meeting_name = 1;
+  string meeting_ext_id = 2;
+  string meeting_int_id = 3;
+  string voice_bridge = 6;
+  string dial_number = 7;
+  string attendee_pw = 8;
+  string moderator_pw = 9;
+  bool recording = 10;
+  repeated User users = 11;
+  map<string, string> metadata = 12;
+  repeated string breakout_rooms = 13;
+  DurationInfo duration_info = 14;
+  ParticipantInfo participant_info = 15;
+  BreakoutInfo breakout_info = 16;
+}

@@ -32,28 +32,35 @@ import org.bigbluebutton.common2.domain.GroupProps
 import org.bigbluebutton.core.api.CreateMeeting
 import org.bigbluebutton.core.api.HasUserJoined
 
-class BbbCoreServiceImpl(implicit materializer: Materializer, bbbActor: ActorRef) extends BbbCoreService {
+class CoreServiceImpl(implicit materializer: Materializer, bbbActor: ActorRef) extends CoreService {
 
   import materializer.executionContext
 
   override def isMeetingRunning(in: MeetingRunningRequest): Future[MeetingRunningResponse] = {
     implicit val timeout: Timeout = 3.seconds
 
-    // Ask the BigBlueButton actor if a meeting with the given ID is currently running.
-    (bbbActor ? IsMeetingRunning(in.meetingId)).mapTo[Boolean].map(msg => MeetingRunningResponse(msg))
+    in.meetingData match {
+      // Ask the BigBlueButton actor if a meeting with the given ID is currently running.
+      case Some(md) => (bbbActor ? IsMeetingRunning(md.meetingId)).mapTo[Boolean].map(msg => MeetingRunningResponse(Option(MeetingRunning(msg))))
+      case None => Future.failed(GrpcServiceException(Code.INVALID_ARGUMENT, "missingMeetingData", Seq(new ErrorResponse("missingMeetingData", "No meeting data was provided."))))
+    }
   }
 
   override def getMeetingInfo(in: MeetingInfoRequest): Future[MeetingInfoResponse] = {
     implicit val timeout: Timeout = 3.seconds
 
-    // Ask the BigBlueButton actor to try to retrieve a RunningMeeting with the given ID.
-    (bbbActor ? GetMeeting(in.meetingId)).mapTo[Option[RunningMeeting]].flatMap {
-      // If there is a meeting running with the given ID then ask its MeetingActor for the meeting's information.
-      // Map the MeetingInfo to a MeetingInfoResponse.
-      case Some(runningMeeting) => (runningMeeting.actorRef ? GetMeetingInfo()).mapTo[MeetingInfo].map(msg => MeetingInfoResponse(Some(msg)))
+    in.meetingData match {
+      case Some(md) =>
+        // Ask the BigBlueButton actor to try to retrieve a RunningMeeting with the given ID.
+        (bbbActor ? GetMeeting(md.meetingId)).mapTo[Option[RunningMeeting]].flatMap {
+          // If there is a meeting running with the given ID then ask its MeetingActor for the meeting's information.
+          // Map the MeetingInfo to a MeetingInfoResponse.
+          case Some(runningMeeting) => (runningMeeting.actorRef ? GetMeetingInfo()).mapTo[MeetingInfo].map(msg => MeetingInfoResponse(Some(msg)))
 
-      // If no meeting with the provided ID is running then return an error
-      case None                 => Future.failed(GrpcServiceException(Code.NOT_FOUND, "notFound", Seq(new ErrorResponse("notFound", "A meeting with that ID does not exist."))))
+          // If no meeting with the provided ID is running then return an error
+          case None                 => Future.failed(GrpcServiceException(Code.NOT_FOUND, "notFound", Seq(new ErrorResponse("notFound", "A meeting with that ID does not exist."))))
+        }
+      case None => Future.failed(GrpcServiceException(Code.INVALID_ARGUMENT, "missingMeetingData", Seq(new ErrorResponse("missingMeetingData", "No meeting data was provided."))))
     }
   }
 
@@ -62,6 +69,11 @@ class BbbCoreServiceImpl(implicit materializer: Materializer, bbbActor: ActorRef
   override def getMeetingsStream(in: GetMeetingsStreamRequest): Source[MeetingInfoResponse, NotUsed] = {
     implicit val timeout: Timeout = 3.seconds
 
+    val meetingId = in.meetingData match {
+      case Some(md) => md.meetingId
+      case None => ""
+    }
+
     // Ask the BigBlueButton actor for the collection of RunningMeetings.
     val runningMeetingsFuture: Future[VectorMap[String, RunningMeeting]] = (bbbActor ? GetMeetings()).mapTo[VectorMap[String, RunningMeeting]]
 
@@ -69,9 +81,9 @@ class BbbCoreServiceImpl(implicit materializer: Materializer, bbbActor: ActorRef
     Source.future(runningMeetingsFuture).flatMapConcat { runningMeetings: VectorMap[String, RunningMeeting] =>
       // Consumers of this API can pass an optional meetingId argument indicating that the stream should begin from the corresponding RunningMeeting.
       // Check if this argument has been provided. If not then use the entire collection of RunningMeetings.
-      val meetingsToReturn = if (Option(in.meetingId).forall(_.isBlank)) runningMeetings else {
+      val meetingsToReturn = if (Option(meetingId).forall(_.isBlank)) runningMeetings else {
         // A meetingId argument has been given. Lookup the index of the corresponding RunningMeeting.
-        val startIndex = runningMeetings.keys.indexOf(in.meetingId)
+        val startIndex = runningMeetings.keys.indexOf(meetingId)
         startIndex match {
           // No RunningMeeting exists with the provided meetingId so return an empty map.
           case -1    => VectorMap.empty
@@ -114,9 +126,9 @@ class BbbCoreServiceImpl(implicit materializer: Materializer, bbbActor: ActorRef
         intId = meetingSettings.meetingIntId,
         meetingCameraCap = meetingSettings.meetingCameraCap,
         maxPinnedCameras = meetingSettings.maxPinnedCameras,
-        cameraBridge = "", // TODO
-        screenShareBridge = "", // TODO
-        audioBridge = "", // TODO
+        cameraBridge = meetingSettings.cameraBridge, // TODO
+        screenShareBridge = meetingSettings.screenShareBridge, // TODO
+        audioBridge = meetingSettings.audioBridge, // TODO
         isBreakout = meetingSettings.isBreakout,
         disabledFeatures = meetingSettings.disabledFeatures.toVector,
         notifyRecordingIsOn = meetingSettings.notifyRecordingIsOn,
@@ -194,7 +206,7 @@ class BbbCoreServiceImpl(implicit materializer: Materializer, bbbActor: ActorRef
         allowModsToEjectCameras = userSettings.allowModsEjectCameras,
         authenticatedGuest = userSettings.authenticatedGuest,
         allowPromoteGuestToModerator = userSettings.allowPromoteGuest,
-        waitingGuestUsersTimeout = 0 // TODO
+        waitingGuestUsersTimeout = userSettings.waitingGuestUsersTimeout // TODO
       )
 
       val metadataSettings = settings.metadataSettings.get
@@ -221,7 +233,7 @@ class BbbCoreServiceImpl(implicit materializer: Materializer, bbbActor: ActorRef
         loginUrl = systemSettings.loginUrl,
         logoutUrl = systemSettings.logoutUrl,
         customLogoURL = systemSettings.customLogoUrl,
-        customDarkLogoURL = "", // TODO
+        customDarkLogoURL = systemSettings.customDarkLogoUrl, // TODO
         bannerText = systemSettings.bannerText,
         bannerColor = systemSettings.bannerColour
       )
@@ -256,20 +268,23 @@ class BbbCoreServiceImpl(implicit materializer: Materializer, bbbActor: ActorRef
         case (meeting, isDuplicate, isValid) => {
           (meeting.actorRef ? HasUserJoined()).mapTo[Boolean].map(hasUserJoined => {
             CreateMeetingResponse(
-              meetingExtId = meeting.props.meetingProp.extId,
-              meetingIntId = meeting.props.meetingProp.intId,
-              parentMeetingId = meeting.props.breakoutProps.parentId,
-              attendeePw = meeting.props.password.viewerPass,
-              moderatorPw = meeting.props.password.moderatorPass,
-              createTime = meeting.props.durationProps.createdTime,
-              voiceBridge = meeting.props.voiceProp.voiceConf,
-              dialNumber = meeting.props.voiceProp.dialNumber,
-              createDate = meeting.props.durationProps.createdDate,
-              hasUserJoined = hasUserJoined,
-              duration = meeting.props.durationProps.duration,
-              hasBeenForciblyEnded = false,
-              isDuplicate = isDuplicate,
-              isValid = isValid
+              Option(
+                CreatedMeetingInfo(
+                  meetingExtId = meeting.props.meetingProp.extId,
+                  meetingIntId = meeting.props.meetingProp.intId,
+                  parentMeetingId = meeting.props.breakoutProps.parentId,
+                  attendeePw = meeting.props.password.viewerPass,
+                  moderatorPw = meeting.props.password.moderatorPass,
+                  createTime = meeting.props.durationProps.createdTime,
+                  voiceBridge = meeting.props.voiceProp.voiceConf,
+                  dialNumber = meeting.props.voiceProp.dialNumber,
+                  createDate = meeting.props.durationProps.createdDate,
+                  hasUserJoined = hasUserJoined,
+                  duration = meeting.props.durationProps.duration,
+                  isDuplicate = isDuplicate,
+                  isValid = isValid
+                )
+              )
             )
           })
         }
@@ -314,6 +329,9 @@ class BbbCoreServiceImpl(implicit materializer: Materializer, bbbActor: ActorRef
   override def isVoiceBridgeInUse(in: VoiceBridgeInUseRequest): Future[VoiceBridgeInUseResponse] = {
     implicit val timeout: Timeout = 3.seconds
 
-    (bbbActor ? IsVoiceBridgeInUse(in.voiceBridge)).mapTo[Boolean].map(msg => VoiceBridgeInUseResponse(msg))
+    in.voiceData match {
+      case Some(vd) => (bbbActor ? IsVoiceBridgeInUse(vd.voiceBridge)).mapTo[Boolean].map(msg => VoiceBridgeInUseResponse(Option(VoiceBridgeInUse(msg))))
+      case None => Future.failed(GrpcServiceException(Code.INVALID_ARGUMENT, "missingVoiceData", Seq(new ErrorResponse("missingVoiceData", "No voice data was provided."))))
+    }
   }
 }

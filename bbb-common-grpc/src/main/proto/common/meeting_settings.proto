@@ -1,0 +1,19 @@
+syntax = "proto3";
+
+package org.bigbluebutton.protos;
+
+message MeetingSettings {
+  string name = 1;
+  string meeting_ext_id = 2;
+  string meeting_int_id = 3;
+  int32 meeting_camera_cap = 4;
+  int32 max_pinned_cameras = 5;
+  string camera_bridge = 6;
+  string screen_share_bridge = 7;
+  string audio_bridge = 8;
+  bool is_breakout = 9;
+  repeated string disabled_features = 10;
+  bool notify_recording_is_on = 11;
+  string pres_upload_ext_desc = 12;
+  string pres_upload_ext_url = 13;
+}

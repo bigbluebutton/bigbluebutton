@@ -1,0 +1,16 @@
+syntax = "proto3";
+
+package org.bigbluebutton.protos;
+
+message LockSettings {
+  bool disable_cam = 1;
+  bool disable_mic = 2;
+  bool disable_private_chat = 3;
+  bool disable_public_chat = 4;
+  bool disable_notes = 5;
+  bool hide_user_list = 6;
+  bool lock_on_join = 7;
+  bool lock_on_join_configurable = 8;
+  bool hide_viewers_cursor = 9;
+  bool hide_viewers_annotation = 10;
+}

@@ -11,8 +11,8 @@ import (
 	"strings"
 	"time"
 
-	bbbcore "github.com/bigbluebutton/bigbluebutton/bbb-core-api/gen/bbb-core"
 	"github.com/bigbluebutton/bigbluebutton/bbb-core-api/gen/common"
+	"github.com/bigbluebutton/bigbluebutton/bbb-core-api/gen/core"
 	"github.com/bigbluebutton/bigbluebutton/bbb-core-api/internal/model"
 	"github.com/bigbluebutton/bigbluebutton/bbb-core-api/internal/random"
 	"github.com/bigbluebutton/bigbluebutton/bbb-core-api/util"
@@ -104,8 +104,10 @@ func (app *Config) processCreateParams(params *Params) (*common.CreateMeetingSet
 	if isBreakout {
 		ctx, cancel := context.WithTimeout(context.Background(), time.Second)
 		defer cancel()
-		res, err := app.BbbCore.GetMeetingInfo(ctx, &bbbcore.MeetingInfoRequest{
-			MeetingId: util.GetStringOrDefaultValue(util.StripCtrlChars(params.Get("parentMeetingID")), ""),
+		res, err := app.Core.GetMeetingInfo(ctx, &core.MeetingInfoRequest{
+			MeetingData: &common.MeetingData{
+				MeetingId: util.GetStringOrDefaultValue(util.StripCtrlChars(params.Get("parentMeetingID")), ""),
+			},
 		})
 		if err != nil {
 			log.Println(err)

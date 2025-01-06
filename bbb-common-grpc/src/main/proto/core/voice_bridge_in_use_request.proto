@@ -1,0 +1,9 @@
+syntax = "proto3";
+
+package org.bigbluebutton.protos;
+
+import "common/voice_data.proto";
+
+message VoiceBridgeInUseRequest {
+ VoiceData voice_data = 1;
+}

@@ -1,0 +1,7 @@
+syntax = "proto3";
+
+package org.bigbluebutton.protos;
+
+message PluginSettings {
+  map<string, string> plugins = 1;
+}

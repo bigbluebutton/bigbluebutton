@@ -1,0 +1,17 @@
+syntax = "proto3";
+
+package org.bigbluebutton.protos;
+
+message UserSettings {
+  int32 max_users = 1;
+  int32 max_user_concurrent_accesses = 2;
+  bool webcams_only_for_mod = 3;
+  int32 user_camera_cap = 4;
+  string guest_policy = 5;
+  string meeting_layout = 6;
+  bool allow_mods_unmute_users = 7;
+  bool allow_mods_eject_cameras = 8;
+  bool authenticated_guest = 9;
+  bool allow_promote_guest = 10;
+  int32 waiting_guest_users_timeout = 11;
+}

@@ -1,0 +1,32 @@
+syntax = "proto3";
+
+package org.bigbluebutton.protos;
+
+import "common/meeting_settings.proto";
+import "common/breakout_settings.proto";
+import "common/duration_settings.proto";
+import "common/password_settings.proto";
+import "common/record_settings.proto";
+import "common/welcome_settings.proto";
+import "common/voice_settings.proto";
+import "common/user_settings.proto";
+import "common/metadata_settings.proto";
+import "common/lock_settings.proto";
+import "common/system_settings.proto";
+import "common/group_settings.proto";
+
+message CreateMeetingSettings {
+  MeetingSettings meeting_settings = 1;
+  BreakoutSettings breakout_settings = 2;
+  DurationSettings duration_settings = 3;
+  PasswordSettings password_settings = 4;
+  RecordSettings record_settings = 5;
+  WelcomeSettings welcome_settings = 6;
+  VoiceSettings voice_settings = 7;
+  UserSettings user_settings = 8;
+  MetadataSettings metadata_settings = 9;
+  LockSettings lock_settings = 10;
+  SystemSettings system_settings = 11;
+  repeated GroupSettings group_settings = 12;
+  string override_client_settings = 13;
+}

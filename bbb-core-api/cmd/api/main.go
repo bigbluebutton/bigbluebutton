@@ -6,14 +6,14 @@ import (
 	"net/http"
 	"time"
 
-	bbbcore "github.com/bigbluebutton/bigbluebutton/bbb-core-api/gen/bbb-core"
+	"github.com/bigbluebutton/bigbluebutton/bbb-core-api/gen/core"
 	"github.com/bigbluebutton/bigbluebutton/bbb-core-api/internal/config"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials/insecure"
 )
 
 type Config struct {
-	BbbCore            bbbcore.BbbCoreServiceClient
+	Core               core.CoreServiceClient
 	ChecksumAlgorithms map[string]struct{}
 	DisabledFeatures   map[string]struct{}
 	ServerConfig       *config.ServerConfig
@@ -53,8 +53,8 @@ func main() {
 	}
 	defer conn.Close()
 
-	client := bbbcore.NewBbbCoreServiceClient(conn)
-	app.BbbCore = client
+	client := core.NewCoreServiceClient(conn)
+	app.Core = client
 
 	app.NoRedirectClient = &http.Client{
 		Timeout: time.Minute,

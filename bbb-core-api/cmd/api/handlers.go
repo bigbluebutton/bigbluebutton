@@ -7,7 +7,8 @@ import (
 	"net/http"
 	"time"
 
-	bbbcore "github.com/bigbluebutton/bigbluebutton/bbb-core-api/gen/bbb-core"
+	"github.com/bigbluebutton/bigbluebutton/bbb-core-api/gen/common"
+	"github.com/bigbluebutton/bigbluebutton/bbb-core-api/gen/core"
 	"github.com/bigbluebutton/bigbluebutton/bbb-core-api/internal/model"
 	"github.com/bigbluebutton/bigbluebutton/bbb-core-api/internal/validation"
 	"github.com/bigbluebutton/bigbluebutton/bbb-core-api/util"
@@ -37,8 +38,10 @@ func (app *Config) isMeetingRunning(w http.ResponseWriter, r *http.Request) {
 	ctx, cancel := context.WithTimeout(context.Background(), time.Second)
 	defer cancel()
 
-	res, err := app.BbbCore.IsMeetingRunning(ctx, &bbbcore.MeetingRunningRequest{
-		MeetingId: meetingId,
+	res, err := app.Core.IsMeetingRunning(ctx, &core.MeetingRunningRequest{
+		MeetingData: &common.MeetingData{
+			MeetingId: meetingId,
+		},
 	})
 	if err != nil {
 		log.Println(err)
@@ -48,7 +51,7 @@ func (app *Config) isMeetingRunning(w http.ResponseWriter, r *http.Request) {
 
 	payload = model.Response{
 		ReturnCode: model.ReturnCodeSuccess,
-		Running:    &res.IsRunning,
+		Running:    &res.MeetingRunning.IsRunning,
 	}
 
 	app.writeXML(w, http.StatusAccepted, payload)
@@ -76,8 +79,10 @@ func (app *Config) getMeetingInfo(w http.ResponseWriter, r *http.Request) {
 	ctx, cancel := context.WithTimeout(context.Background(), time.Second)
 	defer cancel()
 
-	res, err := app.BbbCore.GetMeetingInfo(ctx, &bbbcore.MeetingInfoRequest{
-		MeetingId: meetingId,
+	res, err := app.Core.GetMeetingInfo(ctx, &core.MeetingInfoRequest{
+		MeetingData: &common.MeetingData{
+			MeetingId: meetingId,
+		},
 	})
 	if err != nil {
 		log.Println(err)
@@ -156,8 +161,10 @@ func (app *Config) getMeetings(w http.ResponseWriter, r *http.Request) {
 	ctx, cancel := context.WithTimeout(context.Background(), time.Second)
 	defer cancel()
 
-	stream, err := app.BbbCore.GetMeetingsStream(ctx, &bbbcore.GetMeetingsStreamRequest{
-		MeetingId: meetingId,
+	stream, err := app.Core.GetMeetingsStream(ctx, &core.GetMeetingsStreamRequest{
+		MeetingData: &common.MeetingData{
+			MeetingId: meetingId,
+		},
 	})
 	if err != nil {
 		log.Println(err)
@@ -232,8 +239,10 @@ func (app *Config) createMeeting(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 
-		res, err := app.BbbCore.IsMeetingRunning(ctx, &bbbcore.MeetingRunningRequest{
-			MeetingId: parentMeetingId,
+		res, err := app.Core.IsMeetingRunning(ctx, &core.MeetingRunningRequest{
+			MeetingData: &common.MeetingData{
+				MeetingId: parentMeetingId,
+			},
 		})
 		if err != nil {
 			log.Println(err)
@@ -241,7 +250,7 @@ func (app *Config) createMeeting(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 
-		if !res.IsRunning {
+		if !res.MeetingRunning.IsRunning {
 			app.respondWithErrorXML(w, model.ReturnCodeFailure, model.ParentMeetingDoesNotExistErrorKey, model.ParentMeetingDoesNotExistErrorMsg)
 			return
 		}
@@ -254,7 +263,7 @@ func (app *Config) createMeeting(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	res, err := app.BbbCore.CreateMeeting(ctx, &bbbcore.CreateMeetingRequest{
+	res, err := app.Core.CreateMeeting(ctx, &core.CreateMeetingRequest{
 		CreateMeetingSettings: settings,
 	})
 	if err != nil {
@@ -270,28 +279,28 @@ func (app *Config) createMeeting(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 
-	if !res.IsValid {
+	if !res.CreatedMeetingInfo.IsValid {
 		app.respondWithErrorXML(w, model.ReturnCodeFailure, model.MeetingIdNotUniqueErrorKey, model.MeetingIdNotUniqueErrorMsg)
 		return
 	}
 
 	payload := model.CreateMeetingResponse{
 		ReturnCode:           model.ReturnCodeSuccess,
-		MeetingId:            res.MeetingExtId,
-		InternalMeetingId:    res.MeetingIntId,
-		ParentMeetingId:      res.ParentMeetingId,
-		AttendeePW:           res.AttendeePw,
-		ModeratorPW:          res.ModeratorPw,
-		CreateTime:           res.CreateTime,
-		VoiceBridge:          res.VoiceBridge,
-		DialNumber:           res.DialNumber,
-		CreateDate:           res.CreateDate,
-		HasUserJoined:        res.HasUserJoined,
-		Duration:             res.Duration,
-		HasBeenForciblyEnded: res.HasBeenForciblyEnded,
+		MeetingId:            res.CreatedMeetingInfo.MeetingExtId,
+		InternalMeetingId:    res.CreatedMeetingInfo.MeetingIntId,
+		ParentMeetingId:      res.CreatedMeetingInfo.ParentMeetingId,
+		AttendeePW:           res.CreatedMeetingInfo.AttendeePw,
+		ModeratorPW:          res.CreatedMeetingInfo.ModeratorPw,
+		CreateTime:           res.CreatedMeetingInfo.CreateTime,
+		VoiceBridge:          res.CreatedMeetingInfo.VoiceBridge,
+		DialNumber:           res.CreatedMeetingInfo.DialNumber,
+		CreateDate:           res.CreatedMeetingInfo.CreateDate,
+		HasUserJoined:        res.CreatedMeetingInfo.HasUserJoined,
+		Duration:             res.CreatedMeetingInfo.Duration,
+		HasBeenForciblyEnded: res.CreatedMeetingInfo.HasBeenForciblyEnded,
 	}
 
-	if res.IsDuplicate {
+	if res.CreatedMeetingInfo.IsDuplicate {
 		payload.MessageKey = model.CreateMeetingDuplicateKey
 		payload.Message = model.CreateMeetingDuplicateMsg
 	}

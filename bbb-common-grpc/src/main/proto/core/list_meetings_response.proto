@@ -1,0 +1,11 @@
+syntax = "proto3";
+
+package org.bigbluebutton.protos;
+
+import "common/meeting_info.proto";
+import "common/pagination_response_data.proto";
+
+message ListMeetingsResponse {
+  repeated MeetingInfo meetings = 1;
+  PaginationResponseData pagination_response_data = 2;
+}
