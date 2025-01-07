@@ -1,5 +1,11 @@
-import { useCallback, useRef, useState } from 'react';
 import {
+  useCallback,
+  useRef,
+  useState,
+} from 'react';
+import {
+  RoomEvent,
+  RemoteParticipant,
   type RemoteTrackPublication,
 } from 'livekit-client';
 import { useRemoteParticipants } from '@livekit/components-react';
@@ -11,6 +17,7 @@ import {
 } from '/imports/ui/components/livekit/selective-subscription/queries';
 import {
   AudioGroupStream,
+  AudioSendersData,
   SUBSCRIPTION_RETRY,
   ParticipantTypes,
 } from '/imports/ui/components/livekit/selective-subscription/types';
@@ -22,9 +29,13 @@ const useAudioGroupStreamsSubscription = createUseSubscription(
   true,
 );
 
-export const useAudioGroups = () => {
+const PARTICIPANTS_UPDATE_FILTER = [
+  RoomEvent.TrackPublished,
+  RoomEvent.TrackUnpublished,
+];
+
+export const useAudioSenders = (remoteParticipants: RemoteParticipant[]): AudioSendersData => {
   const { data, errors } = useAudioGroupStreamsSubscription();
-  const remoteParticipants = useRemoteParticipants();
 
   if (errors) {
     errors.forEach((error) => {
@@ -45,7 +56,7 @@ export const useAudioGroups = () => {
   const myInboundGroupIds = groups.filter(
     (group) => group.userId === Auth.userID && receiverFilter.includes(group.participantType),
   ).map((group) => group.groupId);
-  const hasGroups = myInboundGroupIds.length > 0;
+  const inAnyGroup = myInboundGroupIds.length > 0;
   const senderFilter = [
     ParticipantTypes.SENDER,
     ParticipantTypes.SENDRECV,
@@ -53,27 +64,28 @@ export const useAudioGroups = () => {
 
   // If we don't have any groups, we need to subscribe to all senders that
   // are not part of a sender group
-  if (!hasGroups) {
+  if (!inAnyGroup) {
     const senderIds = new Set(groups
       .filter((group) => senderFilter.includes(group.participantType))
       .map((group) => group.userId));
 
-    const nonGroupParticipants = remoteParticipants
+    const grouplessSenders = remoteParticipants
       .filter((participant) => !senderIds.has(participant.identity))
       .map((participant) => ({
         userId: participant.identity,
+        groupId: 'default',
         participantType: ParticipantTypes.SENDRECV,
         active: true,
       }));
 
-    return { groups: nonGroupParticipants, hasGroups: false };
+    return { senders: grouplessSenders, inAnyGroup: false };
   }
 
   const senders = groups
     .filter((group) => myInboundGroupIds.includes(group.groupId))
     .filter((stream) => senderFilter.includes(stream.participantType) && stream.active);
 
-  return { groups: senders, hasGroups };
+  return { senders, inAnyGroup };
 };
 
 interface RetryState {
@@ -82,8 +94,10 @@ interface RetryState {
 }
 
 export const useAudioSubscriptions = () => {
-  const { groups, hasGroups } = useAudioGroups();
-  const remoteParticipants = useRemoteParticipants();
+  const remoteParticipants = useRemoteParticipants({
+    updateOnlyOn: PARTICIPANTS_UPDATE_FILTER,
+  });
+  const { senders, inAnyGroup } = useAudioSenders(remoteParticipants);
   const retryMap = useRef<Map<string, RetryState>>(new Map());
   const [subscriptionErrors, setSubscriptionErrors] = useState<Map<string, Error>>(new Map());
 
@@ -157,14 +171,8 @@ export const useAudioSubscriptions = () => {
     });
 
     const desiredSubscriptions = new Set(
-      groups.map((sender) => sender.userId),
+      senders.map((sender) => sender.userId),
     );
-
-    console.debug("LiveKit SIPLG: new subscription set", {
-      currentSubscriptions,
-      desiredSubscriptions,
-      groups,
-    });
 
     currentSubscriptions.forEach((participantId) => {
       if (!desiredSubscriptions.has(participantId)) {
@@ -181,7 +189,7 @@ export const useAudioSubscriptions = () => {
                   logCode: 'livekit_audio_unsubscribed',
                   extraInfo: {
                     userId: participantId,
-                    hasGroups,
+                    inAnyGroup,
                   },
                 }, `LiveKit: Unsubscribed from audio - ${trackSid}`);
               } catch (error) {
@@ -215,7 +223,7 @@ export const useAudioSubscriptions = () => {
                   logCode: 'livekit_audio_subscribed',
                   extraInfo: {
                     trackSid,
-                    hasGroups,
+                    inAnyGroup,
                   },
                 }, `LiveKit: Subscribed to audio - ${trackSid}`);
               } catch (error) {
@@ -241,7 +249,7 @@ export const useAudioSubscriptions = () => {
         }
       }
     });
-  }, [groups, hasGroups, retrySubscription, remoteParticipants]);
+  }, [senders, inAnyGroup, retrySubscription, remoteParticipants]);
 
   return {
     handleSubscriptionChanges,
