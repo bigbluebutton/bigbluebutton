@@ -126,9 +126,9 @@ class CoreServiceImpl(implicit materializer: Materializer, bbbActor: ActorRef) e
         intId = meetingSettings.meetingIntId,
         meetingCameraCap = meetingSettings.meetingCameraCap,
         maxPinnedCameras = meetingSettings.maxPinnedCameras,
-        cameraBridge = meetingSettings.cameraBridge, // TODO
-        screenShareBridge = meetingSettings.screenShareBridge, // TODO
-        audioBridge = meetingSettings.audioBridge, // TODO
+        cameraBridge = meetingSettings.cameraBridge,
+        screenShareBridge = meetingSettings.screenShareBridge,
+        audioBridge = meetingSettings.audioBridge,
         isBreakout = meetingSettings.isBreakout,
         disabledFeatures = meetingSettings.disabledFeatures.toVector,
         notifyRecordingIsOn = meetingSettings.notifyRecordingIsOn,
@@ -206,7 +206,7 @@ class CoreServiceImpl(implicit materializer: Materializer, bbbActor: ActorRef) e
         allowModsToEjectCameras = userSettings.allowModsEjectCameras,
         authenticatedGuest = userSettings.authenticatedGuest,
         allowPromoteGuestToModerator = userSettings.allowPromoteGuest,
-        waitingGuestUsersTimeout = userSettings.waitingGuestUsersTimeout // TODO
+        waitingGuestUsersTimeout = userSettings.waitingGuestUsersTimeout
       )
 
       val metadataSettings = settings.metadataSettings.get
@@ -233,7 +233,7 @@ class CoreServiceImpl(implicit materializer: Materializer, bbbActor: ActorRef) e
         loginUrl = systemSettings.loginUrl,
         logoutUrl = systemSettings.logoutUrl,
         customLogoURL = systemSettings.customLogoUrl,
-        customDarkLogoURL = systemSettings.customDarkLogoUrl, // TODO
+        customDarkLogoURL = systemSettings.customDarkLogoUrl,
         bannerText = systemSettings.bannerText,
         bannerColor = systemSettings.bannerColour
       )

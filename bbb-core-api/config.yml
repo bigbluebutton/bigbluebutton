@@ -11,8 +11,12 @@ server:
     # If "default", it returns to bigbluebutton.web.serverURL
     logout_url: default
     logo:
-      use_default_logo: false
-      default_logo_path: images/logo.png
+      default:
+        use: false
+        use_dark: false
+        path:
+          logo: images/logo.png
+          dark_logo: images/darklogo.png
   grpc:
     host: localhost # akka-apps gRPC host
     port: 9000 # akka-apps gRPC port
@@ -96,6 +100,10 @@ meeting:
       user_list: false
       viewers_cursor: false
       viewers_annotation: false
+  bridge:
+    camera: bbb-webrtc-sfu # Media bridge to use for camera streams
+    screen_share: bbb-webrtc-sfu # Media bridge to use for screen share streams
+    audio: bbb-webrtc-sfu # Media bridge to use for audio streams
 
 # Default user settings
 user:
@@ -105,6 +113,8 @@ user:
     inspect_interval: 0 # User inactivity audit timer interval
     threshold: 30 # Consider a user inactive after the specified number of minutes
     response_delay: 5 # Log inactive users out if they do not respond within the specified number of mintues
+  guest:
+    waiting_timeout: 30000
 
 # Default recording settings
 recording:

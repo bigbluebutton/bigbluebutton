@@ -185,6 +185,9 @@ func (app *Config) processMeetingSettings(params *Params, createTime int64, isBr
 		MeetingIntId:        meetingIntId,
 		MeetingCameraCap:    util.GetInt32OrDefaultValue(params.Get("meetingCameraCap"), app.ServerConfig.Meeting.Cameras.Cap),
 		MaxPinnedCameras:    util.GetInt32OrDefaultValue(params.Get("maxPinnedCamera"), app.ServerConfig.Meeting.Cameras.MaxPinned),
+		CameraBridge:        util.GetStringOrDefaultValue(params.Get("cameraBridge"), app.ServerConfig.Meeting.Brdige.Camera),
+		ScreenShareBridge:   util.GetStringOrDefaultValue(params.Get("screenShareBridge"), app.ServerConfig.Meeting.Brdige.ScreenShare),
+		AudioBridge:         util.GetStringOrDefaultValue(params.Get("audioBridge"), app.ServerConfig.Meeting.Brdige.Audio),
 		IsBreakout:          isBreakout,
 		DisabledFeatures:    disabledFeatures,
 		NotifyRecordingIsOn: util.GetBoolOrDefaultValue(params.Get("notfiyRecordingIsOn"), app.ServerConfig.Recording.NotifyRecordingIsOn),
@@ -275,11 +278,11 @@ func (app *Config) processWelcomeSettings(params *Params, isBreakout bool, dialN
 		welcomeMessageTemplate += "<br><br>" + app.ServerConfig.Meeting.Welcome.Message.Footer
 	}
 
-	welcomeMessage := replaceKeywords(welcomeMessageTemplate, dialNumber, voiceBridge, meetingName, app.ServerConfig.Server.BigBlueButton.Url)
+	welcomeMessage := replaceKeywords(welcomeMessageTemplate, dialNumber, voiceBridge, meetingName, app.ServerConfig.Server.BigBlueButton.URL)
 
 	modOnlyMsg := util.GetStringOrDefaultValue(util.StripCtrlChars(params.Get("moderatorOnlyMessage")), "")
 	if modOnlyMsg != "" {
-		modOnlyMsg = replaceKeywords(modOnlyMsg, dialNumber, voiceBridge, meetingName, app.ServerConfig.Server.BigBlueButton.Url)
+		modOnlyMsg = replaceKeywords(modOnlyMsg, dialNumber, voiceBridge, meetingName, app.ServerConfig.Server.BigBlueButton.URL)
 	}
 
 	return &common.WelcomeSettings{
@@ -305,6 +308,7 @@ func (app *Config) processUsersSettings(params *Params) *common.UserSettings {
 		AllowModsEjectCameras:     util.GetBoolOrDefaultValue(params.Get("allowModsToEjectCameras"), app.ServerConfig.Meeting.Cameras.AllowModsToEject),
 		AuthenticatedGuest:        app.ServerConfig.Meeting.Users.AuthenticatedGuest,
 		AllowPromoteGuest:         util.GetBoolOrDefaultValue(params.Get("allowPromoteGuestToModerator"), app.ServerConfig.Meeting.Users.AllowPromoteGuest),
+		WaitingGuestUsersTimeout:  app.ServerConfig.User.Guest.WaitingTimeout,
 	}
 }
 
@@ -340,27 +344,42 @@ func (app *Config) processLockSettings(params *Params) *common.LockSettings {
 }
 
 func (app *Config) processSystemSettings(params *Params) *common.SystemSettings {
-	logoutUrl := util.GetStringOrDefaultValue(util.StripCtrlChars(params.Get("logoutURL")), "")
-	defaultLogoutUrl := app.ServerConfig.Server.BigBlueButton.LogoutUrl
-	if logoutUrl == "" {
-		if defaultLogoutUrl == "" || defaultLogoutUrl == "default" {
-			logoutUrl = app.ServerConfig.Server.BigBlueButton.Url
+	logoutURL := util.GetStringOrDefaultValue(util.StripCtrlChars(params.Get("logoutURL")), "")
+	defaultLogoutURL := app.ServerConfig.Server.BigBlueButton.LogoutURL
+	if logoutURL == "" {
+		if defaultLogoutURL == "" || defaultLogoutURL == "default" {
+			logoutURL = app.ServerConfig.Server.BigBlueButton.URL
 		} else {
-			logoutUrl = defaultLogoutUrl
+			logoutURL = defaultLogoutURL
 		}
 	}
 
-	customLogoUrl := util.GetStringOrDefaultValue(util.StripCtrlChars(params.Get("logo")), "")
-	if customLogoUrl == "" && app.ServerConfig.Server.BigBlueButton.Logo.UseDefaultLogo {
-		customLogoUrl = app.ServerConfig.DefaultLogoURL()
+	var (
+		useLogo     = app.ServerConfig.Server.BigBlueButton.Logo.Default.Use
+		useDarkLogo = app.ServerConfig.Server.BigBlueButton.Logo.Default.UseDark
+	)
+
+	customLogoURL := util.GetStringOrDefaultValue(util.StripCtrlChars(params.Get("logo")), "")
+	if customLogoURL == "" && useLogo {
+		customLogoURL = app.ServerConfig.DefaultLogoURL()
+	}
+
+	customDarkLogoURL := util.GetStringOrDefaultValue(util.StripCtrlChars(params.Get("darklogo")), "")
+	if customDarkLogoURL == "" && customLogoURL != "" {
+		customDarkLogoURL = customLogoURL
+	} else if useDarkLogo {
+		customDarkLogoURL = app.ServerConfig.DefaultDarkLogoURL()
+	} else if !useDarkLogo && useLogo {
+		customDarkLogoURL = app.ServerConfig.DefaultLogoURL()
 	}
 
 	return &common.SystemSettings{
-		LoginUrl:      util.GetStringOrDefaultValue(util.StripCtrlChars(params.Get("loginURL")), ""),
-		LogoutUrl:     logoutUrl,
-		CustomLogoUrl: customLogoUrl,
-		BannerText:    util.GetStringOrDefaultValue(util.StripCtrlChars(params.Get("bannerText")), ""),
-		BannerColour:  util.GetStringOrDefaultValue(util.StripCtrlChars(params.Get("bannerColor")), ""),
+		LoginUrl:          util.GetStringOrDefaultValue(util.StripCtrlChars(params.Get("loginURL")), ""),
+		LogoutUrl:         logoutURL,
+		CustomLogoUrl:     customLogoURL,
+		CustomDarkLogoUrl: customDarkLogoURL,
+		BannerText:        util.GetStringOrDefaultValue(util.StripCtrlChars(params.Get("bannerText")), ""),
+		BannerColour:      util.GetStringOrDefaultValue(util.StripCtrlChars(params.Get("bannerColor")), ""),
 	}
 }
 

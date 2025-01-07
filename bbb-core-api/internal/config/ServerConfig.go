@@ -12,11 +12,17 @@ type ServerConfig struct {
 		Host          string `yaml:"host"`
 		Port          string `yaml:"port"`
 		BigBlueButton struct {
-			Url       string `yaml:"url"`
-			LogoutUrl string `yaml:"logout_url"`
+			URL       string `yaml:"url"`
+			LogoutURL string `yaml:"logout_url"`
 			Logo      struct {
-				UseDefaultLogo  bool   `yaml:"use_default_logo"`
-				DefaultLogoPath string `yaml:"default_logo_path"`
+				Default struct {
+					Use     bool `yaml:"use"`
+					UseDark bool `yaml:"use_dark"`
+					Path    struct {
+						Logo     string `yaml:"logo"`
+						DarkLogo string `yaml:"dark_logo"`
+					} `yaml:"path"`
+				} `yaml:"default"`
 			} `yaml:"logo"`
 		} `yaml:"bigbluebutton"`
 		Grpc struct {
@@ -86,6 +92,11 @@ type ServerConfig struct {
 				ViewersAnnotation bool `yaml:"viewers_annotation"`
 			} `yaml:"hide"`
 		} `yaml:"lock"`
+		Brdige struct {
+			Camera      string `yaml:"camera"`
+			ScreenShare string `yaml:"screen_share"`
+			Audio       string `yaml:"audio"`
+		} `yaml:"bridge"`
 	} `yaml:"meeting"`
 	User struct {
 		Camera struct {
@@ -96,6 +107,9 @@ type ServerConfig struct {
 			Threshold       int32 `yaml:"threshold"`
 			ResponseDelay   int32 `yaml:"response_deplay"`
 		} `yaml:"inactivity"`
+		Guest struct {
+			WaitingTimeout int32 `yaml:"waiting_timeout"`
+		} `yaml:"guest"`
 	} `yaml:"user"`
 	Recording struct {
 		NotifyRecordingIsOn     bool `yaml:"notifyRecordingIsOn"`
@@ -160,13 +174,17 @@ func ParseConfig(path string) (*ServerConfig, error) {
 }
 
 func (config *ServerConfig) DefaultPresentation() string {
-	return fmt.Sprintf("%s/%s", config.Server.BigBlueButton.Url, config.Presentation.Default)
+	return fmt.Sprintf("%s/%s", config.Server.BigBlueButton.URL, config.Presentation.Default)
 }
 
 func (config *ServerConfig) DefaultPresentationBaseURL() string {
-	return fmt.Sprintf("%s/%s", config.Server.BigBlueButton.Url, config.Presentation.BasePath)
+	return fmt.Sprintf("%s/%s", config.Server.BigBlueButton.URL, config.Presentation.BasePath)
 }
 
 func (config *ServerConfig) DefaultLogoURL() string {
-	return fmt.Sprintf("%s/%s", config.Server.BigBlueButton.Url, config.Server.BigBlueButton.Logo.DefaultLogoPath)
+	return fmt.Sprintf("%s/%s", config.Server.BigBlueButton.URL, config.Server.BigBlueButton.Logo.Default.Path.Logo)
+}
+
+func (config *ServerConfig) DefaultDarkLogoURL() string {
+	return fmt.Sprintf("%s/%s", config.Server.BigBlueButton.URL, config.Server.BigBlueButton.Logo.Default.Path.DarkLogo)
 }
