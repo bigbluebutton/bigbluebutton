@@ -19,6 +19,11 @@ export type AudioGroupStream = {
   active: boolean;
 };
 
+export type AudioSendersData = {
+  senders: AudioGroupStream[];
+  inAnyGroup: boolean;
+}
+
 export const SUBSCRIPTION_RETRY = {
   MAX_RETRIES: 3,
   RETRY_INTERVAL: 2000,
