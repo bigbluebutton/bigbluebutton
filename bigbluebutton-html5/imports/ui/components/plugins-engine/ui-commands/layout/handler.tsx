@@ -23,7 +23,7 @@ const PluginLayoutUiCommandsHandler = () => {
     );
 
     return () => {
-      window.addEventListener(
+      window.removeEventListener(
         LayoutEnum.CHANGE_ENFORCED_LAYOUT, handleChangeEnforcedLayout as EventListener,
       );
     };
