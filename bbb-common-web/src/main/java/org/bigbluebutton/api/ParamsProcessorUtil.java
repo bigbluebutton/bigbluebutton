@@ -111,6 +111,8 @@ public class ParamsProcessorUtil {
     private String defaultDarkLogoURL;
     private String defaultPresentationUploadExternalDescription = "";
     private String defaultPresentationUploadExternalUrl = "";
+    private String defaultScreenShareBroadcastAllowedFor = "PRESENTER";
+    private String defaultViewerScreenShareViewAllowedFor = "MODERATORS";
 
 		private boolean defaultBreakoutRoomsRecord;
         private boolean defaultBreakoutRoomsCaptureSlides = false;
@@ -778,6 +780,16 @@ public class ParamsProcessorUtil {
             maxUserConcurrentAccesses = 1;
         }
 
+        String screenShareBroadcastAllowedFor = defaultScreenShareBroadcastAllowedFor;
+        if (!StringUtils.isEmpty(params.get(ApiParams.SCREEN_SHARE_BROADCAST_ALLOWED_FOR))) {
+            screenShareBroadcastAllowedFor = params.get(ApiParams.SCREEN_SHARE_BROADCAST_ALLOWED_FOR);
+        }
+
+        String viewerScreenShareViewAllowedFor = defaultViewerScreenShareViewAllowedFor;
+        if (!StringUtils.isEmpty(params.get(ApiParams.VIEWER_SCREEN_SHARE_VIEW_ALLOWED_FOR))) {
+            viewerScreenShareViewAllowedFor = params.get(ApiParams.VIEWER_SCREEN_SHARE_VIEW_ALLOWED_FOR);
+        }
+
         // Create the meeting with all passed in parameters.
         Meeting meeting = new Meeting.Builder(externalMeetingId,
                 internalMeetingId, createTime).withName(meetingName)
@@ -824,6 +836,8 @@ public class ParamsProcessorUtil {
                 .withNotifyRecordingIsOn(notifyRecordingIsOn)
                 .withPresentationUploadExternalDescription(presentationUploadExternalDescription)
                 .withPresentationUploadExternalUrl(presentationUploadExternalUrl)
+                .withScreenShareBroadcastAllowedFor(screenShareBroadcastAllowedFor)
+                .withViewerScreenShareViewAllowedFor(viewerScreenShareViewAllowedFor)
                 .build();
 
         if (!StringUtils.isEmpty(params.get(ApiParams.MODERATOR_ONLY_MESSAGE))) {

@@ -49,6 +49,8 @@ public class ApiParams {
     public static final String MUTE_ON_START = "muteOnStart";
     public static final String CAMERA_BRIDGE = "cameraBridge";
     public static final String SCREEN_SHARE_BRIDGE = "screenShareBridge";
+    public static final String SCREEN_SHARE_BROADCAST_ALLOWED_FOR = "screenShareBroadcastAllowedFor";
+    public static final String VIEWER_SCREEN_SHARE_VIEW_ALLOWED_FOR = "viewerScreenShareViewAllowedFor";
     public static final String AUDIO_BRIDGE = "audioBridge";
     public static final String MEETING_KEEP_EVENTS = "meetingKeepEvents";
     public static final String ALLOW_MODS_TO_UNMUTE_USERS = "allowModsToUnmuteUsers";

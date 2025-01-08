@@ -172,7 +172,10 @@ class BbbWebApiGWApp(
                     presentationUploadExternalDescription:  String,
                     presentationUploadExternalUrl:          String,
                     plugins:                                util.Map[String, AnyRef],
-                    overrideClientSettings:                 String): Unit = {
+                    overrideClientSettings:                 String,
+                    screenShareBroadcastAllowedFor:         String,
+                    viewerScreenShareViewAllowedFor:        String,
+                   ): Unit = {
 
     val disabledFeaturesAsVector: Vector[String] = disabledFeatures.asScala.toVector
 
@@ -189,7 +192,9 @@ class BbbWebApiGWApp(
       disabledFeaturesAsVector,
       notifyRecordingIsOn,
       presentationUploadExternalDescription,
-      presentationUploadExternalUrl
+      presentationUploadExternalUrl,
+      screenShareBroadcastAllowedFor,
+      viewerScreenShareViewAllowedFor,
     )
 
     val durationProps = DurationProps(

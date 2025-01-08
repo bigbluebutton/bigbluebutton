@@ -73,7 +73,10 @@ public interface IBbbWebApiGWApp {
                      String presentationUploadExternalDescription,
                      String presentationUploadExternalUrl,
                      Map<String, Object> plugins,
-                     String overrideClientSettings);
+                     String overrideClientSettings,
+                     String screenShareBroadcastAllowedFor,
+                     String viewerScreenShareViewAllowedFor
+  );
 
   void registerUser(String meetingID, String internalUserId, String fullname, String role,
                     String externUserID, String authToken, String sessionToken, String avatarURL, String webcamBackgroundURL,

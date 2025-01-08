@@ -37,6 +37,8 @@ case class MeetingDbModel(
     endedAt:                               Option[java.sql.Timestamp],
     endedReasonCode:                       Option[String],
     endedBy:                               Option[String],
+    screenShareBroadcastAllowedFor:         String,
+    viewerScreenShareViewAllowedFor:        String
 )
 
 class MeetingDbTableDef(tag: Tag) extends Table[MeetingDbModel](tag, None, "meeting") {
@@ -62,7 +64,9 @@ class MeetingDbTableDef(tag: Tag) extends Table[MeetingDbModel](tag, None, "meet
     endWhenNoModeratorDelayInMinutes,
     endedAt,
     endedReasonCode,
-    endedBy
+    endedBy,
+    screenShareBroadcastAllowedFor,
+    viewerScreenShareViewAllowedFor,
   ) <> (MeetingDbModel.tupled, MeetingDbModel.unapply)
   val meetingId = column[String]("meetingId", O.PrimaryKey)
   val extId = column[String]("extId")
@@ -73,6 +77,8 @@ class MeetingDbTableDef(tag: Tag) extends Table[MeetingDbModel](tag, None, "meet
   val maxPinnedCameras = column[Int]("maxPinnedCameras")
   val cameraBridge = column[String]("cameraBridge")
   val screenShareBridge = column[String]("screenShareBridge")
+  val screenShareBroadcastAllowedFor = column[String]("screenShareBroadcastAllowedFor")
+  val viewerScreenShareViewAllowedFor = column[String]("viewerScreenShareViewAllowedFor")
   val audioBridge = column[String]("audioBridge")
   val notifyRecordingIsOn = column[Boolean]("notifyRecordingIsOn")
   val presentationUploadExternalDescription = column[String]("presentationUploadExternalDescription")
@@ -113,7 +119,9 @@ object MeetingDAO {
           presentationUploadExternalDescription = meetingProps.meetingProp.presentationUploadExternalDescription,
           presentationUploadExternalUrl = meetingProps.meetingProp.presentationUploadExternalUrl,
           learningDashboardAccessToken = meetingProps.password.learningDashboardAccessToken,
-          systemColumns = MeetingSystemColumnsDbModel(
+          screenShareBroadcastAllowedFor = meetingProps.meetingProp.screenShareBroadcastAllowedFor,
+          viewerScreenShareViewAllowedFor = meetingProps.meetingProp.viewerScreenShareViewAllowedFor,
+      systemColumns = MeetingSystemColumnsDbModel(
             loginUrl = meetingProps.systemProps.loginUrl match {
               case "" => None
               case loginUrl => Some(loginUrl)

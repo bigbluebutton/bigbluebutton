@@ -22,6 +22,8 @@ case class MeetingProp(
     notifyRecordingIsOn:                    Boolean,
     presentationUploadExternalDescription:  String,
     presentationUploadExternalUrl:          String,
+    screenShareBroadcastAllowedFor:         String,
+    viewerScreenShareViewAllowedFor:        String,
 )
 
 case class BreakoutProps(
