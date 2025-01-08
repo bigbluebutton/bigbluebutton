@@ -1,4 +1,5 @@
 import BBBWeb from '/imports/api/bbb-web-api';
+import logger from '/imports/startup/client/logger';
 
 export const textToMarkdown = (message: string) => {
   const parsedMessage = message || '';
@@ -46,13 +47,25 @@ export const uploadImage = async (fileUrl: string): Promise<string> => {
 
     const result = await response.json();
     if (result.imageUrl) {
-      console.log(`image uploaded successfully: ${result.imageUrl}`);
+      logger.info({
+        logCode: 'chat_image_upload',
+      }, `Image uploaded successfully: ${result.imageUrl}`);
       return `${url.href}?${result.imageUrl}`;
     }
-    console.log(`error on image upload: ${result.message}`);
+    logger.error({
+      logCode: 'chat_image_upload',
+    }, `Error on image upload: ${result.message}`);
     return '';
   } catch (error) {
-    console.log({ error });
+    if (error instanceof Error) {
+      logger.error({
+        logCode: 'chat_image_upload',
+        extraInfo: {
+          errorName: error.name,
+          errorMessage: error.message,
+        },
+      }, `Error on image upload: ${error.message}`);
+    }
     throw error;
   }
 };
