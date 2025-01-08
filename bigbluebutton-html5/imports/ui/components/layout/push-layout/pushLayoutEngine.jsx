@@ -366,6 +366,14 @@ const PushLayoutEngineContainer = (props) => {
   const horizontalPosition = cameraPosition === 'contentLeft' || cameraPosition === 'contentRight';
 
   const pluginLayoutChange = useReactiveVar(changeEnforcedLayout);
+
+  const validatePluginLayout = (layout) => {
+    const layoutTypes = Object.keys(LAYOUT_TYPE);
+    return layout && layoutTypes.includes(layout) ? layout : null;
+  };
+  const pluginEnforcedLayout = validatePluginLayout(
+    pluginLayoutChange.pluginEnforcedLayout,
+  );
   const {
     data: currentMeeting,
   } = useMeeting((m) => ({
@@ -412,7 +420,7 @@ const PushLayoutEngineContainer = (props) => {
   const enforceLayout = validateEnforceLayout(currentUserData);
   const meetingPresentationIsOpen = !meetingPresentationMinimized;
 
-  const enforceLayoutResult = pluginLayoutChange.pluginEnforcedLayout || enforceLayout;
+  const enforceLayoutResult = pluginEnforcedLayout || enforceLayout;
   return (
     <PushLayoutEngine
       {...{
