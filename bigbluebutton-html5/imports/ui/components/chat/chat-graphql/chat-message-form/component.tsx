@@ -375,9 +375,12 @@ const ChatMessageForm: React.FC<ChatMessageFormProps> = ({
     const formRef = useRef<HTMLFormElement | null>(null);
     const CHAT_EDIT_ENABLED = useIsEditChatMessageEnabled();
 
-    const handleSubmit = async (
-      e: React.FormEvent<HTMLFormElement> | React.KeyboardEvent<HTMLInputElement> | Event,
-    ) => {
+    type SubmitEvent =
+      | React.FormEvent<HTMLFormElement>
+      | React.KeyboardEvent<HTMLInputElement>
+      | Event
+
+    const handleSubmit = async (e: SubmitEvent) => {
       e.preventDefault();
 
       let msg = message;

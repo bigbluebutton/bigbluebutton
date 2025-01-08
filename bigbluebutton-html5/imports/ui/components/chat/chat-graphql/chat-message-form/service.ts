@@ -63,8 +63,9 @@ export const replaceImageLinks = async (message: string) => {
   const IMAGE_REGEX = /!\[([^\]]*)\]\(([^)]*)\)/g;
 
   const images: string[] = [];
-  newMessage.replace(IMAGE_REGEX, (_, __, p2) => {
+  newMessage.replace(IMAGE_REGEX, (match, _, p2) => {
     images.push(p2);
+    return match;
   });
 
   const uploadPromises = images.map(async (image) => {
