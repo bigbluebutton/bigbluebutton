@@ -213,7 +213,7 @@ function renderPresentationItemStatus(item, intl) {
         break;
       }
       case 'PAGE_COUNT_EXCEEDED':
-        constraint['0'] = item.uploadErrorDetailsJson.maxNumberPages;
+        constraint['0'] = item.uploadErrorDetailsJson.maxNumberOfPages;
         break;
       case 'PDF_HAS_BIG_PAGE':
         constraint['0'] = (item.uploadErrorDetailsJson.bigPageSize / 1000 / 1000).toFixed(2);
