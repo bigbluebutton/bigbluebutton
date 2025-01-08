@@ -350,7 +350,12 @@ const ChatMessageForm: React.FC<ChatMessageFormProps> = ({
   const renderForm = () => {
     const formRef = useRef<HTMLFormElement | null>(null);
 
-    const handleSubmit = async (e: React.FormEvent<HTMLFormElement> | React.KeyboardEvent<HTMLInputElement> | Event) => {
+    type SubmitEvent =
+      | React.FormEvent<HTMLFormElement>
+      | React.KeyboardEvent<HTMLInputElement>
+      | Event
+
+    const handleSubmit = async (e: SubmitEvent) => {
       e.preventDefault();
 
       let msg = textToMarkdown(message);
