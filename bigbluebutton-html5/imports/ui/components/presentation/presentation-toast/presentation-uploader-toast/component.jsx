@@ -201,15 +201,13 @@ function renderPresentationItemStatus(item, intl) {
         constraint['1'] = item.uploadErrorDetailsJson.maxNumberOfAttempts;
         break;
       case 'FILE_TOO_LARGE': {
-        // Check if MB is has enough precision to display the number
-        // If not, display it in kB
+        // If the size in MB is negligible (0.00), switch to kB for better precision
         const { maxFileSize } = item.uploadErrorDetailsJson;
-        const maxFileSizeWithUnit = (
-          ((maxFileSize) / 1000 / 1000).toFixed(2) === '0.00'
-          || ((maxFileSize) / 1000 / 1000).toFixed(2) === '0,00')
-          ? `${((maxFileSize) / 1000).toFixed(2)} kB`
-          : `${((maxFileSize) / 1000 / 1000).toFixed(2)} MB`;
-        constraint['0'] = maxFileSizeWithUnit;
+        const mbString = (maxFileSize / 1000000).toFixed(2);
+        const kbString = (maxFileSize / 1000).toFixed(2);
+        constraint['0'] = (mbString === '0.00' || mbString === '0,00')
+          ? `${kbString} kB`
+          : `${mbString} MB`;
         break;
       }
       case 'PAGE_COUNT_EXCEEDED':
