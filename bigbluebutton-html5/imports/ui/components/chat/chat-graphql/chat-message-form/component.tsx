@@ -16,7 +16,7 @@ import { ChatFormUiDataPayloads } from 'bigbluebutton-html-plugin-sdk/dist/cjs/u
 import * as PluginSdk from 'bigbluebutton-html-plugin-sdk';
 import { layoutSelect } from '/imports/ui/components/layout/context';
 import { defineMessages, useIntl } from 'react-intl';
-import { useIsChatEnabled } from '/imports/ui/services/features';
+import { useIsChatEnabled, useIsEditChatMessageEnabled } from '/imports/ui/services/features';
 import { checkText } from 'smile2emoji';
 import { findDOMNode } from 'react-dom';
 
@@ -356,6 +356,7 @@ const ChatMessageForm: React.FC<ChatMessageFormProps> = ({
 
   const renderForm = () => {
     const formRef = useRef<HTMLFormElement | null>(null);
+    const CHAT_EDIT_ENABLED = useIsEditChatMessageEnabled();
 
     const handleSubmit = (e: React.FormEvent<HTMLFormElement> | React.KeyboardEvent<HTMLInputElement> | Event) => {
       e.preventDefault();
@@ -439,7 +440,7 @@ const ChatMessageForm: React.FC<ChatMessageFormProps> = ({
         });
         handleSubmit(event);
       }
-      if (e.key === 'ArrowUp' && !editingMessage.current && messageRef.current === '') {
+      if (e.key === 'ArrowUp' && !editingMessage.current && messageRef.current === '' && CHAT_EDIT_ENABLED) {
         e.preventDefault();
         getUserLastSentMessage().then((msg) => {
           if (msg) {
