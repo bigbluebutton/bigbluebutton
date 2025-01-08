@@ -75,7 +75,6 @@ subscription {
     lastBreakoutRoom {
       breakoutRoomId
       currentlyInRoom
-      isDefaultName
       sequence
       shortName
       userId
