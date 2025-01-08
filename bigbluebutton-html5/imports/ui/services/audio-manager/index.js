@@ -319,6 +319,9 @@ class AudioManager {
    *                      the bridge.
    */
   loadBridges(bridges, userData) {
+    // Bridges can only be loaded once
+    if (this.fullAudioBridge && this.listenOnlyBridge) return;
+
     const { fullAudioBridge, listenOnlyBridge } = bridges;
 
     let FullAudioBridge = SFUAudioBridge;
@@ -365,7 +368,13 @@ class AudioManager {
     }
 
     this.fullAudioBridge = new FullAudioBridge(userData);
-    this.listenOnlyBridge = new ListenOnlyBridge(userData);
+
+    if (fullAudioBridge === listenOnlyBridge) {
+      this.listenOnlyBridge = this.fullAudioBridge;
+    } else {
+      this.listenOnlyBridge = new ListenOnlyBridge(userData);
+    }
+
     // Initialize device IDs in configured bridges
     this.fullAudioBridge.inputDeviceId = this.inputDeviceId;
     this.fullAudioBridge.outputDeviceId = this.outputDeviceId;
