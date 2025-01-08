@@ -158,6 +158,15 @@ const intlMessages = defineMessages({
   },
 });
 
+function getSizeWithUnit(size) {
+  // If the size in MB is negligible (0.00), switch to kB for better precision
+  const mbString = (size / 1000000).toFixed(2);
+  const kbString = (size / 1000).toFixed(2);
+  return (mbString === '0.00' || mbString === '0,00')
+    ? `${kbString} kB`
+    : `${mbString} MB`;
+}
+
 function renderPresentationItemStatus(item, intl) {
   if ((('progress' in item) && item.progress === 0) || (('upload' in item) && item.upload.progress === 0 && !item.upload.error)) {
     return intl.formatMessage(intlMessages.fileToUpload);
@@ -173,15 +182,8 @@ function renderPresentationItemStatus(item, intl) {
 
   if (('upload' in item) && (item.upload.done && item.upload.error)) {
     if (item.conversion.status === 'FILE_TOO_LARGE' || item.upload.status !== 413) {
-      // Check if MB is has enough precision to display the number
-      // If not, display it in kB
       const { maxFileSize } = item.conversion;
-      const maxFileSizeWithUnit = (
-        ((maxFileSize) / 1000 / 1000).toFixed(2) === '0.00'
-        || ((maxFileSize) / 1000 / 1000).toFixed(2) === '0,00')
-        ? `${((maxFileSize) / 1000).toFixed(2)} kB`
-        : `${((maxFileSize) / 1000 / 1000).toFixed(2)} MB`;
-      constraint['0'] = maxFileSizeWithUnit;
+      constraint['0'] = getSizeWithUnit(maxFileSize);
     } else if (item.progress < 100) {
       const errorMessage = intlMessages.badConnectionError;
       return intl.formatMessage(errorMessage);
@@ -201,13 +203,8 @@ function renderPresentationItemStatus(item, intl) {
         constraint['1'] = item.uploadErrorDetailsJson.maxNumberOfAttempts;
         break;
       case 'FILE_TOO_LARGE': {
-        // If the size in MB is negligible (0.00), switch to kB for better precision
         const { maxFileSize } = item.uploadErrorDetailsJson;
-        const mbString = (maxFileSize / 1000000).toFixed(2);
-        const kbString = (maxFileSize / 1000).toFixed(2);
-        constraint['0'] = (mbString === '0.00' || mbString === '0,00')
-          ? `${kbString} kB`
-          : `${mbString} MB`;
+        constraint['0'] = getSizeWithUnit(maxFileSize);
         break;
       }
       case 'PAGE_COUNT_EXCEEDED':
