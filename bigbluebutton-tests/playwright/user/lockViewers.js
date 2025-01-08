@@ -76,7 +76,6 @@ class LockViewers extends MultiUsers {
     await this.initUserPage2(false);
     await this.userPage2.hasElement(e.leaveListenOnly, 'should display the leave listen only button for the second attendee', ELEMENT_WAIT_LONGER_TIME);
 
-    
     await this.modPage.waitAndClick(`${e.userListItem}>>nth=1`);
     await this.modPage.waitAndClick(`${e.unlockUserButton}>>nth=1`);
     await this.userPage2.waitAndClick(e.leaveListenOnly);

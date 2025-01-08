@@ -25,9 +25,6 @@ class RecordingNotifications extends Page {
     await waitAndClearDefaultPresentationNotification(this);
     await this.waitAndClick(e.joinAudio, ELEMENT_WAIT_EXTRA_LONG_TIME);
     await this.waitAndClick(e.listenOnlyButton, ELEMENT_WAIT_EXTRA_LONG_TIME);
-    await waitAndClearNotification(this);
-    await this.waitAndClick(e.recordingIndicator);
-    await this.hasElement(e.smallToastMsg, 'should the small toast message be show');
     await util.checkNotificationText(this, e.noActiveMicrophoneToast);
   }
 

@@ -76,14 +76,19 @@ class Page {
     return newPage;
   }
 
-  async joinMicrophone() {
+  async joinMicrophone({ shouldUnmute = true } = {}) {
     await this.waitForSelector(e.audioModal);
     await this.waitAndClick(e.microphoneButton);
     await this.waitForSelector(e.stopHearingButton);
     await this.waitAndClick(e.joinEchoTestButton);
     await this.waitForSelector(e.establishingAudioLabel);
     await this.wasRemoved(e.establishingAudioLabel, ELEMENT_WAIT_LONGER_TIME);
-    await this.waitForSelector(e.isTalking);
+    await this.hasElement(e.unmuteMicButton);
+    if (shouldUnmute) {
+      await this.waitAndClick(e.unmuteMicButton);
+      await this.hasElement(e.muteMicButton);
+      await this.hasElement(e.isTalking);
+    }
   }
 
   async leaveAudio() {

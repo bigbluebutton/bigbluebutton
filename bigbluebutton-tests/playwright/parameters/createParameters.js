@@ -76,9 +76,7 @@ class CreateParameters extends MultiUsers {
     await this.initUserPage(false, context);
     await this.userPage.waitAndClick(e.microphoneButton);
     await this.userPage.waitAndClick(e.joinEchoTestButton);
-    await this.userPage.waitAndClick(e.muteMicButton);
     await this.userPage.hasElement(e.unmuteMicButton, 'should display the unmute microphone button for the attendee');
-
     await this.modPage.waitAndClick(e.userListItem);
     await this.modPage.waitAndClick(e.unmuteUser);
     await this.userPage.hasElement(e.muteMicButton, 'should display the mute microphone button for the attendee');
@@ -101,7 +99,7 @@ class CreateParameters extends MultiUsers {
 
   async lockSettingsHideUserList() {
     await this.modPage.hasElement(e.whiteboard, 'should display the whiteboard for the moderator');
-    await this.modPage.checkElementCount(e.userListItem, 2, 'should display the two attendess for the moderator');
+    await this.modPage.checkElementCount(e.userListItem, 2, 'should display the two attendees for the moderator');
     await this.userPage.checkElementCount(e.userListItem, 1, 'should display one user(the moderator) for the first attendee');
     await this.userPage2.checkElementCount(e.userListItem, 1, 'should display one user(the moderator) for the second attendee');
   }
