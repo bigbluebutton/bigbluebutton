@@ -1,0 +1,21 @@
+[Unit]
+Description=LiveKit SIP
+Wants=livekit-server.service
+After=syslog.target network.target livekit-server.service
+
+[Service]
+Type=exec
+ExecStartPre=-bash -c "umask 077; yq eval-all '. as $item ireduce ({}; . * $item )' /usr/share/livekit-server/livekit-sip.yaml /etc/bigbluebutton/livekit-sip.yaml > ${RUNTIME_DIRECTORY}/livekit-sip.yaml"
+ExecStart=/usr/bin/livekit-sip --config "${RUNTIME_DIRECTORY}/livekit-sip.yaml"
+ExecStopPost=rm ${RUNTIME_DIRECTORY}/livekit-sip.yaml
+RuntimeDirectory=livekit-sip
+Restart=always
+# LiveKit has a graceful shutdown, but we don't need it local BBB setup
+TimeoutStopSec=5
+User=bigbluebutton
+Group=bigbluebutton
+CPUSchedulingPolicy=fifo
+Nice=19
+
+[Install]
+WantedBy=multi-user.target

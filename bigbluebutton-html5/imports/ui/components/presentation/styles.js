@@ -86,9 +86,11 @@ const ToastTextContent = styled.div`
   position: relative;
   overflow: hidden;
   margin-top: ${smPaddingY};
+  color: black;
 
   & > div:first-of-type {
     font-weight: bold;
+    line-height: 2;
   }
 `;
 
