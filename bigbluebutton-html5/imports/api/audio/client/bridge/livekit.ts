@@ -221,6 +221,7 @@ export default class LiveKitAudioBridge extends BaseAudioBridge {
 
   private observeLiveKitEvents(): void {
     if (!this.liveKitRoom) return;
+
     this.removeLiveKitObservers();
     this.liveKitRoom.on(RoomEvent.TrackSubscribed, this.handleTrackSubscribed);
     this.liveKitRoom.on(RoomEvent.TrackUnsubscribed, this.handleTrackUnsubscribed);
@@ -233,6 +234,7 @@ export default class LiveKitAudioBridge extends BaseAudioBridge {
 
   private removeLiveKitObservers(): void {
     if (!this.liveKitRoom) return;
+
     this.liveKitRoom.off(RoomEvent.TrackSubscribed, this.handleTrackSubscribed);
     this.liveKitRoom.off(RoomEvent.TrackUnsubscribed, this.handleTrackUnsubscribed);
     this.liveKitRoom.off(RoomEvent.TrackSubscriptionFailed, this.handleTrackSubscriptionFailed);
@@ -253,6 +255,8 @@ export default class LiveKitAudioBridge extends BaseAudioBridge {
   setInputStream(stream: MediaStream | null, deviceId?: string): Promise<void> {
     if (!stream || this.originalStream?.id === stream.id) return Promise.resolve();
 
+    const trackPubs = Array.from(this.liveKitRoom.localParticipant.audioTrackPublications.values());
+    const hasCurrentPub = trackPubs.some((pub) => pub.source === Track.Source.Microphone);
     let newDeviceId = deviceId;
 
     if (deviceId == null) {
@@ -265,21 +269,26 @@ export default class LiveKitAudioBridge extends BaseAudioBridge {
     this.inputDeviceId = newDeviceId;
     this.originalStream = stream;
 
-    return this.publish(stream)
-      .catch((error) => {
-        logger.error({
-          logCode: 'livekit_audio_set_input_stream_error',
-          extraInfo: {
-            errorMessage: (error as Error).message,
-            errorName: (error as Error).name,
-            errorStack: (error as Error).stack,
-            bridgeName: this.bridgeName,
-            role: this.role,
-            inputDeviceId: this.inputDeviceId,
-          },
-        }, 'LiveKit: set audio input stream failed');
-        throw error;
-      });
+    if (hasCurrentPub) {
+      return this.publish(stream)
+        .catch((error) => {
+          logger.error({
+            logCode: 'livekit_audio_set_input_stream_error',
+            extraInfo: {
+              errorMessage: (error as Error).message,
+              errorName: (error as Error).name,
+              errorStack: (error as Error).stack,
+              bridgeName: this.bridgeName,
+              role: this.role,
+              inputDeviceId: this.inputDeviceId,
+            },
+          }, 'LiveKit: set audio input stream failed');
+          throw error;
+        });
+    }
+
+    // No previous publication, so no need to publish yet - unmute will handle it
+    return Promise.resolve();
   }
 
   setSenderTrackEnabled(shouldEnable: boolean): void {
@@ -329,7 +338,7 @@ export default class LiveKitAudioBridge extends BaseAudioBridge {
           },
         }, `LiveKit: audio track unmute+publish - ${trackName}`);
       } else {
-        logger.warn({
+        logger.debug({
           logCode: 'livekit_audio_track_unmute_noop',
           extraInfo: {
             bridgeName: this.bridgeName,
