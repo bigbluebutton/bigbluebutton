@@ -31,6 +31,8 @@ module BigBlueButton
     def self.create_audio_edl(events, archive_dir)
       audio_edl = []
       audio_dir = "#{archive_dir}/audio"
+      audios = {}
+      active_audios = []
 
       initial_timestamp = BigBlueButton::Events.first_event_timestamp(events)
       final_timestamp = BigBlueButton::Events.last_event_timestamp(events)
@@ -42,7 +44,7 @@ module BigBlueButton
       }
 
       # Add events for recording start/stop
-      events.xpath('/recording/event[@module="VOICE"]').each do |event|
+      events.xpath('/recording/event[@module="VOICE" or @module="bbb-webrtc-sfu"]').each do |event|
         timestamp = event['timestamp'].to_i - initial_timestamp
         case event['eventname']
         when 'StartRecordingEvent'
@@ -62,6 +64,41 @@ module BigBlueButton
               :audio => nil
             }
           end
+        when 'AudioTrackPublishedEvent'
+          source = event.at_xpath('source').text
+          next if source != 'microphone'
+          filename = event.at_xpath('filename').text
+          filename = "#{audio_dir}/#{File.basename(filename)}"
+          audios[filename] = { :timestamp => timestamp }
+          active_audios << filename;
+          edl_entry = {
+            :timestamp => timestamp,
+            :audios => []
+          }
+          active_audios.each do |filename|
+            edl_entry[:audios] << {
+              :filename => filename,
+              :timestamp => timestamp - audios[filename][:timestamp]
+            }
+          end
+          audio_edl << edl_entry
+        when 'AudioTrackUnpublishedEvent'
+          source = event.at_xpath('source').text
+          next if source != 'microphone'
+          filename = event.at_xpath('filename').text
+          filename = "#{audio_dir}/#{File.basename(filename)}"
+          active_audios.delete(filename)
+          edl_entry = {
+            :timestamp => timestamp,
+            :audios => []
+          }
+          active_audios.each do |filename|
+            edl_entry[:audios] << {
+              :filename => filename,
+              :timestamp => timestamp - audios[filename][:timestamp]
+            }
+          end
+          audio_edl << edl_entry
         end
       end
 
@@ -86,11 +123,16 @@ module BigBlueButton
         :audio => nil
       }
 
-      events.xpath('/recording/event[@module="bbb-webrtc-sfu" and (@eventname="StartWebRTCDesktopShareEvent" or @eventname="StopWebRTCDesktopShareEvent")]').each do |event|
+      events.xpath('/recording/event[@module="bbb-webrtc-sfu" and (@eventname="StartWebRTCDesktopShareEvent" or @eventname="StopWebRTCDesktopShareEvent" or @eventname="AudioTrackPublishedEvent" or @eventname="AudioTrackUnpublishedEvent")]').each do |event|
         filename = event.at_xpath('filename').text
         # Determine the audio filename
         case event['eventname']
         when 'StartWebRTCDesktopShareEvent', 'StopWebRTCDesktopShareEvent'
+          uri = event.at_xpath('filename').text
+          filename = "#{deskshare_dir}/#{File.basename(uri)}"
+        when 'AudioTrackPublishedEvent', 'AudioTrackUnpublishedEvent'
+          source = event.at_xpath('source').text
+          next if source != 'screen_share_audio'
           uri = event.at_xpath('filename').text
           filename = "#{deskshare_dir}/#{File.basename(uri)}"
         end
@@ -101,12 +143,12 @@ module BigBlueButton
           timestamp = event['timestamp'].to_i - initial_timestamp
           # Add the audio to the EDL
           case event['eventname']
-          when 'StartWebRTCDesktopShareEvent'
+          when 'StartWebRTCDesktopShareEvent', 'AudioTrackPublishedEvent'
             audio_edl << {
               :timestamp => timestamp,
               :audio => { :filename => filename, :timestamp => 0 }
             }
-          when 'StopWebRTCDesktopShareEvent'
+          when 'StopWebRTCDesktopShareEvent', 'AudioTrackUnpublishedEvent'
             if audio_edl.last[:audio] && audio_edl.last[:audio][:filename] == filename
               # Fill in the original/expected audo duration when available
               duration = event.at_xpath('duration')

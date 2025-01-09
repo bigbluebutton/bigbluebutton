@@ -537,6 +537,15 @@ module BigBlueButton
             timestamp: edl_entry[:audio][:timestamp] + offset
           }
         end
+        if edl_entry[:audios]
+          new_entry[:audios] = []
+          edl_entry[:audios].each do |audio|
+            new_entry[:audios] << {
+              filename: audio[:filename],
+              timestamp: audio[:timestamp] + offset
+            }
+          end
+        end
         if edl_entry[:original_duration]
           new_entry[:original_duration] = edl_entry[:original_duration]
         end
@@ -1159,6 +1168,12 @@ module BigBlueButton
         filename = "#{deskshare_dir}/#{File.basename(filename)}"
         fileHasAudio = !BigBlueButton::EDL::Audio.audio_info(filename)[:audio].nil?
         if fileHasAudio
+          return true
+        end
+      end
+      events.xpath('/recording/event[@eventname="AudioTrackPublishedEvent"]').each do |event|
+        source = event.at_xpath('source').text
+        if source == 'screen_share_audio'
           return true
         end
       end
