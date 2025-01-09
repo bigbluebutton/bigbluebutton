@@ -160,15 +160,12 @@ class MultiUsers {
   }
 
   async toggleUserList() {
-    await this.modPage.hasElement(e.chatWelcomeMessageText, 'should display the public chat welcome message for the moderator ');
     await this.modPage.hasElement(e.chatBox, 'should display the public chat box for the moderator');
     await this.modPage.hasElement(e.chatButton, 'should display the public chat button for the moderator');
     await this.modPage.waitAndClick(e.userListToggleBtn);
-    await this.modPage.wasRemoved(e.chatWelcomeMessageText, 'should not display the chat welcome message for the moderator');
     await this.modPage.wasRemoved(e.chatBox, 'should not display the public chat box for the moderator');
     await this.modPage.wasRemoved(e.chatButton, 'should not display the public chat button for the moderator');
     await this.modPage.waitAndClick(e.userListToggleBtn);
-    await this.modPage.wasRemoved(e.chatWelcomeMessageText, 'should not display the chat welcome message for the moderator');
     await this.modPage.wasRemoved(e.chatBox, 'should not display the public chat box for the moderator');
     await this.modPage.hasElement(e.chatButton, 'should display the public chat button for the moderator');
   }
@@ -220,18 +217,6 @@ class MultiUsers {
     await this.modPage.waitAndClick(e.userListItem);
     await this.modPage.waitAndClick(e.changeWhiteboardAccess);
     await this.modPage.hasElement(e.multiUsersWhiteboardOn);
-  }
-
-  async muteAllUsers() {
-    await this.modPage.joinMicrophone();
-    await this.modPage2.joinMicrophone();
-    await this.userPage.joinMicrophone();
-    await this.modPage.waitAndClick(e.manageUsers);
-    await this.modPage.waitAndClick(e.muteAll);
-    
-    await checkMutedUsers(this.modPage);
-    await checkMutedUsers(this.modPage2);
-    await checkMutedUsers(this.userPage);
   }
 
   async muteAllUsersExceptPresenter(){

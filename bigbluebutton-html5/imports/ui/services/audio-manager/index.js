@@ -588,6 +588,13 @@ class AudioManager {
       extraInfo: { logType: 'user_action' },
     }, 'user requested to connect to audio conference as listen only');
 
+    // If the bridge supports transparent listen-only, we set the placeholder
+    // input device ID to 'listen-only' so that both the bridge and UI know
+    // it can be changed on the fly later on.
+    if (this.supportsTransparentListenOnly()) {
+      this.inputDeviceId = 'listen-only';
+    }
+
     return this.onAudioJoining.bind(this)()
       .then(() => {
         const callOptions = {

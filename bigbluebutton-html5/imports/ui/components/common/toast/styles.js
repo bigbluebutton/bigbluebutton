@@ -118,6 +118,7 @@ const ToastMessage = styled.div`
   font-size: ${fontSizeSmall};
   max-height: 15vh;
   overflow: auto;
+  color: black !important;
 
   ${({ small }) => small && `
     font-size: 80%;

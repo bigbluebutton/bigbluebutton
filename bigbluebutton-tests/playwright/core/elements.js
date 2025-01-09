@@ -378,7 +378,7 @@ exports.promoteToModerator = 'li[data-test="promoteToModerator"]';
 exports.demoteToViewer = 'li[data-test="demoteToViewer"]';
 exports.makePresenter = 'li[data-test="makePresenter"]';
 exports.takePresenter = 'li[data-test="takePresenter"]';
-exports.muteAll = 'li[data-test="muteAll"]';
+exports.usersJoinMuted = 'li[data-test="usersJoinMuted"]';
 exports.muteAllExceptPresenter = 'li[data-test="muteAllExceptPresenter"]';
 exports.error403removedLabel = 'You have been removed from the meeting';
 exports.removeUser = 'li[data-test="removeUser"]';

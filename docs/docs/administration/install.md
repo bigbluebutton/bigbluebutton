@@ -8,7 +8,7 @@ keywords:
 - install
 ---
 
-We have tools to make it easy for you, a system administrator, to install BigBlueButton on a dedicated linux server. This document shows you how to install.
+We have tools to make it easy for you, a system administrator, to install BigBlueButton on a dedicated Linux server. This document shows you how to install.
 
 ## Before you install
 
@@ -58,7 +58,7 @@ $ cat /etc/default/locale
 LANG="en_US.UTF-8"
 ```
 
-If you don't see `LANG="en_US.UTF-8"`, enter the following commands to set the local to `en_US.UTF-8`.
+If you don't see `LANG="en_US.UTF-8"`, enter the following commands to set the locale to `en_US.UTF-8`.
 
 ```bash
 sudo apt-get install -y language-pack-en
@@ -79,7 +79,7 @@ PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
 
 If you don't see this, do `sudo systemctl set-environment LANG=en_US.UTF-8` and run the above `sudo systemctl show-environment` again and confirm you see `LANG=en_US.UTF-8` in the output.
 
-Next, check that your server has (at lest) 16G of memory using the command `free -h`. Here's the output from one of our test servers.
+Next, check that your server has (at least) 16G of memory using the command `free -h`. Here's the output from one of our test servers.
 
 ```bash
 $ free -h
@@ -92,7 +92,7 @@ Here it shows 15G of memory (that's close enough as the server has 16 gigabytes 
 
 If you see a value for `Mem:` in the `total` column less than 15G, then your server has insufficient memory to run BigBlueButton in production. You need to increase the server's memory to (at least) 16G. (As stated above, if your running this in a development environment, 8G is fine.)
 
-Next, check that the server has Ubuntu is 22.04 as its operating system.
+Next, check that the server has Ubuntu 22.04 as its operating system.
 
 ```bash
 $  cat /etc/lsb-release
@@ -109,7 +109,7 @@ $ uname -m
 x86_64
 ```
 
-Next, check that your server supports IPV6.
+Next, check that your server supports IPv6.
 
 ```bash
 $ ip addr | grep inet6
@@ -153,9 +153,9 @@ sudo ufw allow 80
 sudo ufw allow 443
 ```
 
-Sometimes we get asked "Why are you only supporting Ubuntu 22.04 64-bit?". The answer is based on choosing quality over quantity. Long ago we concluded that its better for the project to have solid, well-tested, well-documented installation for a specific version of Linux that works really, really well than to try and support may variants of Linux and have none of them work well.
+Sometimes we get asked "Why are you only supporting Ubuntu 22.04 64-bit?". The answer is based on choosing quality over quantity. Long ago we concluded that its better for the project to have solid, well-tested, well-documented installation for a specific version of Linux that works really, really well than to try and support many variants of Linux and have none of them work well.
 
-At the moment, the requirement for docker may preclude running 3.0 within some virtualized environments; however, it ensures libreoffice runs within a restricted sandbox for document conversion.  We are exploring if we can run libreoffice within systemd (such as systemd-nspawn).
+At the moment, the requirement for docker may preclude running 3.0 within some virtualized environments; however, it ensures LibreOffice runs within a restricted sandbox for document conversion.  We are exploring if we can run LibreOffice within systemd (such as systemd-nspawn).
 
 ## Install
 
@@ -444,7 +444,7 @@ dpkg: error processing package bbb-libreoffice-docker (--configure):
  installed bbb-libreoffice-docker package post-installation script subprocess returned error exit status 100
 ```
 
-Ubuntu 22.04 uses systemd-resolved, which presents a local caching resolver and registers this at `/etc/resolv.conf`. If you get they above error and have a local name server, such as `10.11.12.13`, then try adding it with the hosts `resolv.conf`.
+Ubuntu 22.04 uses systemd-resolved, which presents a local caching resolver and registers this at `/etc/resolv.conf`. If you get the above error and have a local name server, such as `10.11.12.13`, then try adding it with the hosts `resolv.conf`.
 
 ```
 echo "nameserver 10.11.12.13" > /etc/resolv.conf

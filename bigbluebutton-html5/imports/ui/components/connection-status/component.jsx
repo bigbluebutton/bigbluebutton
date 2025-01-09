@@ -30,7 +30,7 @@ const ConnectionStatus = () => {
   const handleUpdateConnectionAliveAt = () => {
     const startTime = performance.now();
     fetch(
-      `${getBaseUrl()}/ping`,
+      `${getBaseUrl()}/rtt-check`,
       { signal: AbortSignal.timeout(STATS_INTERVAL) },
     )
       .then((res) => {
