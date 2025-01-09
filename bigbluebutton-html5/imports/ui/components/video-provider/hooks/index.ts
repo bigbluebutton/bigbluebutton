@@ -452,6 +452,11 @@ const useOwnVideoStreamsQuery = () => useLazyQuery<OwnVideoStreamsResponse>(
       userId: Auth.userID,
       streamIdPrefix: `${videoService.getPrefix()}%`,
     },
+    // UID and prefix are stable, so for now we need to bust the cache. If we don't,
+    // users will hit issues where cannot unshare their webcam or unsharing deals
+    // with unexpected behavior. E.g.: a camera was first ejected server side (empty
+    // stream list), or multiple cameras were shared (just the first one is cached).
+    fetchPolicy: 'no-cache',
   },
 );
 
@@ -471,6 +476,7 @@ export const useExitVideo = (forceExit = false) => {
         if (data) {
           const streams = data.user_camera || [];
           const results = streams.map((s) => sendUserUnshareWebcam(s.streamId));
+
           return Promise.all(results).then(() => {
             videoService.exitedVideo();
             return true;
