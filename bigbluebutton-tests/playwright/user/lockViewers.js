@@ -237,9 +237,8 @@ class LockViewers extends MultiUsers {
     // Unlock user2
     await this.modPage.waitAndClick(`${e.userListItem}>>nth=1`);
     await this.modPage.waitAndClick(`${e.unlockUserButton}>>nth=1`);
-
-    await drawArrow(this.userPage);
     await this.userPage.getLocator(e.whiteboard).hover(); // ensure userPage cursor will be visible on the screenshot
+    await this.userPage.waitAndClick(e.whiteboard);
     await this.userPage2.checkElementCount(e.whiteboardCursorIndicator, 1, 'should be displayed the other viewer whiteboard cursor indicator when unlocking user is unlocked');
   }
 }

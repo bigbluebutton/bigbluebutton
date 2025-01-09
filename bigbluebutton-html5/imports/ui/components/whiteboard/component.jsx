@@ -1336,7 +1336,6 @@ const Whiteboard = React.memo((props) => {
         useElement.setAttribute('href', '#redPointer');
       } else if (useElement) {
         useElement.setAttribute('href', '#cursor');
-        useElement.setAttribute('data-test', 'whiteboardCursorIndicator');
       }
 
       const idsToRemove = [];
