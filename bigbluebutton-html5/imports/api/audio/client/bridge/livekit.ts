@@ -71,12 +71,16 @@ export default class LiveKitAudioBridge extends BaseAudioBridge {
   }
 
   get inputStream(): MediaStream | null {
-    const tracks = Array.from(
-      this.liveKitRoom.localParticipant.audioTrackPublications.values(),
-    );
-    const audioTrack = tracks.find((track) => track.source === Track.Source.Microphone);
+    const micTrackPublications = this.getLocalMicTrackPubs();
+    const publication = micTrackPublications[0];
 
-    return audioTrack?.track?.mediaStream || null;
+    return publication?.track?.mediaStream || null;
+  }
+
+  private getLocalMicTrackPubs(): LocalTrackPublication[] {
+    return Array.from(
+      this.liveKitRoom.localParticipant.audioTrackPublications.values(),
+    ).filter((publication) => publication.source === Track.Source.Microphone);
   }
 
   private async publicationStarted(): Promise<void> {
@@ -255,8 +259,7 @@ export default class LiveKitAudioBridge extends BaseAudioBridge {
   setInputStream(stream: MediaStream | null, deviceId?: string): Promise<void> {
     if (!stream || this.originalStream?.id === stream.id) return Promise.resolve();
 
-    const trackPubs = Array.from(this.liveKitRoom.localParticipant.audioTrackPublications.values());
-    const hasCurrentPub = trackPubs.some((pub) => pub.source === Track.Source.Microphone);
+    const hasCurrentPub = this.hasMicrophoneTrack();
     let newDeviceId = deviceId;
 
     if (deviceId == null) {
@@ -292,9 +295,7 @@ export default class LiveKitAudioBridge extends BaseAudioBridge {
   }
 
   setSenderTrackEnabled(shouldEnable: boolean): void {
-    const trackPubs = Array.from(
-      this.liveKitRoom.localParticipant.audioTrackPublications.values(),
-    );
+    const trackPubs = this.getLocalMicTrackPubs();
     const handleMuteError = (error: Error) => {
       logger.error({
         logCode: 'livekit_audio_set_sender_track_error',
@@ -349,6 +350,7 @@ export default class LiveKitAudioBridge extends BaseAudioBridge {
         }, 'LiveKit: audio track unmute no-op');
       }
     } else {
+      // @ts-ignore
       const LIVEKIT_SETTINGS = window.meetingClientSettings.public.media?.livekit?.audio;
 
       if (LIVEKIT_SETTINGS?.unpublishOnMute) {
@@ -400,11 +402,9 @@ export default class LiveKitAudioBridge extends BaseAudioBridge {
   }
 
   private hasMicrophoneTrack(): boolean {
-    const tracks = Array.from(
-      this.liveKitRoom.localParticipant.audioTrackPublications.values(),
-    );
+    const tracks = this.getLocalMicTrackPubs();
 
-    return tracks?.some((publication) => publication.source === Track.Source.Microphone);
+    return tracks.length > 0;
   }
 
   private async publish(inputStream: MediaStream | null): Promise<void> {
@@ -462,13 +462,11 @@ export default class LiveKitAudioBridge extends BaseAudioBridge {
   }
 
   private unpublish(): Promise<void | (void | LocalTrackPublication | undefined)[]> {
-    const { audioTrackPublications } = this.liveKitRoom.localParticipant;
+    const micTrackPublications = this.getLocalMicTrackPubs();
 
-    if (!audioTrackPublications || audioTrackPublications.size === 0) return Promise.resolve();
+    if (!micTrackPublications || micTrackPublications.length === 0) return Promise.resolve();
 
-    const unpublishers = Array.from(
-      audioTrackPublications.values(),
-    ).map((publication: LocalTrackPublication) => {
+    const unpublishers = micTrackPublications.map((publication: LocalTrackPublication) => {
       if (publication?.track && publication?.source === Track.Source.Microphone) {
         return this.liveKitRoom.localParticipant.unpublishTrack(publication.track);
       }
