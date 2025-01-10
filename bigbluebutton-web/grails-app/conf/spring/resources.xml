@@ -57,6 +57,8 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
         <property name="callbackUrlService" ref="callbackUrlService"/>
         <property name="usersTimeout" value="${usersTimeout}"/>
         <property name="enteredUsersTimeout" value="${enteredUsersTimeout}"/>
+        <property name="numPluginManifestsFetchingThreads" value="${numPluginManifestsFetchingThreads}"/>
+        <property name="pluginManifestFetchTimeout" value="${pluginManifestFetchTimeout}"/>
         <property name="slidesGenerationProgressNotifier" ref="slidesGenerationProgressNotifier"/>
     </bean>
 
@@ -155,7 +157,6 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
         <property name="autoStartRecording" value="${autoStartRecording}"/>
         <property name="allowStartStopRecording" value="${allowStartStopRecording}"/>
         <property name="recordFullDurationMedia" value="${recordFullDurationMedia}"/>
-        <property name="learningDashboardEnabled" value="${learningDashboardEnabled}"/>
         <property name="learningDashboardCleanupDelayInMinutes" value="${learningDashboardCleanupDelayInMinutes}"/>
         <property name="webcamsOnlyForModerator" value="${webcamsOnlyForModerator}"/>
         <property name="defaultMeetingCameraCap" value="${meetingCameraCap}"/>
@@ -179,9 +180,11 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
         <property name="maxPresentationFileUpload" value="${maxFileSizeUpload}"/>
         <property name="clientLogoutTimerInMinutes" value="${clientLogoutTimerInMinutes}"/>
         <property name="muteOnStart" value="${muteOnStart}"/>
+        <property name="cameraBridge" value="${cameraBridge}"/>
+        <property name="screenShareBridge" value="${screenShareBridge}"/>
+        <property name="audioBridge" value="${audioBridge}"/>
         <property name="allowModsToUnmuteUsers" value="${allowModsToUnmuteUsers}"/>
         <property name="allowModsToEjectCameras" value="${allowModsToEjectCameras}"/>
-        <property name="breakoutRoomsEnabled" value="${breakoutRoomsEnabled}"/>
         <property name="breakoutRoomsRecord" value="${breakoutRoomsRecord}"/>
         <property name="breakoutRoomsPrivateChatEnabled" value="${breakoutRoomsPrivateChatEnabled}"/>
         <property name="lockSettingsDisableCam" value="${lockSettingsDisableCam}"/>

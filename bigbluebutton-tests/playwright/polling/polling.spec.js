@@ -61,7 +61,7 @@ test.describe('Polling', { tag: '@ci' }, async () => {
     await polling.pollResultsOnChat();
   });
 
-  test('Poll results on whiteboard', { tag: '@flaky' } , async () => {
+  test('Poll results on whiteboard', async () => {
     await polling.pollResultsOnWhiteboard();
   });
 

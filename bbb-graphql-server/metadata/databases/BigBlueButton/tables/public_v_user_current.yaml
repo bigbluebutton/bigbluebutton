@@ -34,6 +34,15 @@ object_relationships:
         remote_table:
           name: v_user_breakoutRoom
           schema: public
+  - name: livekit
+    using:
+      manual_configuration:
+        column_mapping:
+          userId: userId
+        insertion_order: null
+        remote_table:
+          name: v_user_livekit
+          schema: public
   - name: meeting
     using:
       manual_configuration:
@@ -42,6 +51,16 @@ object_relationships:
         insertion_order: null
         remote_table:
           name: v_meeting
+          schema: public
+  - name: sessionCurrent
+    using:
+      manual_configuration:
+        column_mapping:
+          meetingId: meetingId
+          userId: userId
+        insertion_order: null
+        remote_table:
+          name: v_user_session_current
           schema: public
   - name: sharedNotesSession
     using:
@@ -164,6 +183,7 @@ select_permissions:
         - ejectReasonCode
         - ejected
         - enforceLayout
+        - logoutUrl
         - expired
         - extId
         - guest
@@ -210,6 +230,7 @@ select_permissions:
         - ejectReasonCode
         - ejected
         - expired
+        - logoutUrl
         - currentlyInMeeting
         - isModerator
         - extId

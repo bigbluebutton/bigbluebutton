@@ -165,6 +165,15 @@ WEBRTC_SFU_DEFAULT_CONFIG=/usr/local/bigbluebutton/bbb-webrtc-sfu/config/default
 WEBRTC_SFU_ETC_CONFIG=/etc/bigbluebutton/bbb-webrtc-sfu/production.yml
 WEBRTC_SFU_CONFIG=$(yq eval-all '. as $item ireduce ({}; . * $item )' $WEBRTC_SFU_DEFAULT_CONFIG $WEBRTC_SFU_ETC_CONFIG 2> /dev/null)
 
+LIVEKIT_SERVER_DEFAULT_CONFIG=/usr/share/livekit-server/livekit.yaml
+LIVEKIT_SERVER_ETC_CONFIG=/etc/bigbluebutton/livekit.yaml
+if [ -f $LIVEKIT_SERVER_ETC_CONFIG ]; then
+    LIVEKIT_SERVER_CONFIG=$(yq eval-all '. as $item ireduce ({}; . * $item )' $LIVEKIT_SERVER_DEFAULT_CONFIG $LIVEKIT_SERVER_ETC_CONFIG 2> /dev/null)
+else
+    LIVEKIT_SERVER_CONFIG=$(yq e $LIVEKIT_SERVER_DEFAULT_CONFIG 2> /dev/null)
+fi
+
+
 BBB_WEB_CONFIG="$SERVLET_DIR/WEB-INF/classes/bigbluebutton.properties"
 BBB_WEB_ETC_CONFIG="/etc/bigbluebutton/bbb-web.properties"
 NGINX_IP=$(cat /etc/nginx/sites-available/bigbluebutton | grep -v '#' | sed -n '/server_name/{s/.*server_name[ ]*//;s/;//;p}' | cut -d' ' -f1 | head -n 1)
@@ -360,8 +369,8 @@ start_bigbluebutton () {
         fi
     fi
 
-    echo "Reloading NginX configuration"
-    systemctl reload nginx
+    echo "Reloading NginX configuration, restarting if needed"
+    systemctl reload-or-restart nginx
 
     echo "Starting BigBlueButton"
 
@@ -369,7 +378,7 @@ start_bigbluebutton () {
 }
 
 display_bigbluebutton_status () {
-    units="nginx freeswitch $REDIS_SERVICE bbb-apps-akka bbb-fsesl-akka"
+    units="nginx freeswitch $REDIS_SERVICE bbb-apps-akka bbb-fsesl-akka postgresql"
 
     if [ -f /usr/lib/systemd/system/bbb-graphql-actions.service ]; then
         units="$units bbb-graphql-actions"
@@ -425,6 +434,10 @@ display_bigbluebutton_status () {
 
     if [ -f /usr/lib/systemd/system/bbb-transcription-controller.service ]; then
         units="$units bbb-transcription-controller"
+    fi
+
+    if [ -f /usr/lib/systemd/system/livekit-server.service ]; then
+        units="$units livekit-server"
     fi
 
     line='—————————————————————————————►'
@@ -635,6 +648,11 @@ if [[ $PORT_RANGE ]]; then
         yq e -i ".webrtc.rtcMinPort = \"$START_PORT\"" $WEBRTC_RECORDER_DEFAULT_CONFIG
         yq e -i ".webrtc.rtcMaxPort = \"$END_PORT\"" $WEBRTC_RECORDER_DEFAULT_CONFIG
 
+        if [ -f $LIVEKIT_SERVER_ETC_CONFIG ]; then
+            yq e -i ".rtc.port_range_start = \"$START_PORT\"" $LIVEKIT_SERVER_ETC_CONFIG
+            yq e -i ".rtc.port_range_end = \"$END_PORT\"" $LIVEKIT_SERVER_ETC_CONFIG
+        fi
+
         echo
         echo "BigBlueButton's UDP port range is now $START_PORT-$END_PORT"
         echo
@@ -677,6 +695,7 @@ check_configuration() {
     ignore_configs_args+=(-e "redis.pass")
     ignore_configs_args+=(-e "redisPassword")
     ignore_configs_args+=(-e "disabledFeatures")
+    ignore_configs_args+=(-e "pluginManifests")
 
     for file in $CONFIG_FILES ; do
         if [ ! -f $file ]; then
@@ -722,7 +741,7 @@ check_configuration() {
         fi
 
         WEBHOOKS_PROXY_PORT=$(cat /usr/share/bigbluebutton/nginx/webhooks.nginx | grep -v '#' | grep '^[ \t]*proxy_pass[ \t]*' | sed 's|.*http[s]\?://[^:]*:\([^;]*\);.*|\1|g')
-        WEBHOOKS_APP_PORT=$(yq e '.server.port' $WEBHOOKS_CONF)
+        WEBHOOKS_APP_PORT=$(yq e '.modules."../out/webhooks/index.js".config.api.port' $WEBHOOKS_CONF)
 
         if [ "$WEBHOOKS_PROXY_PORT" != "$WEBHOOKS_APP_PORT" ]; then
             echo "# Warning: Webhooks port mismatch: "
@@ -1277,6 +1296,10 @@ if [ $CHECK ]; then
 
     echo "                    bbb-webrtc-sfu: $(echo "$WEBRTC_SFU_CONFIG" | yq e '.mediasoup.worker.rtcMinPort' -)-$(echo "$WEBRTC_SFU_CONFIG" |yq e '.mediasoup.worker.rtcMaxPort' -)"
     echo "                    bbb-webrtc-recorder: $(echo "$WEBRTC_RECORDER_CONFIG" | yq e '.webrtc.rtcMinPort' -)-$(echo "$WEBRTC_RECORDER_CONFIG" | yq e '.webrtc.rtcMaxPort' -)"
+    if [ -n "$LIVEKIT_SERVER_CONFIG" ]; then
+        echo "                    livekit.rtc.port_range_start: $(echo "$LIVEKIT_SERVER_CONFIG" | yq e '.rtc.port_range_start' -)"
+        echo "                    livekit.rtc.port_range_end: $(echo "$LIVEKIT_SERVER_CONFIG" | yq e '.rtc.port_range_end' -)"
+    fi
 
     if [ -f $RECORD_CONFIG ]; then
         echo
@@ -1316,6 +1339,18 @@ if [ $CHECK ]; then
         echo "/etc/bigbluebutton/bbb-webrtc-recorder.yml (bbb-webrtc-recorder - override)"
         echo "               debug: $(echo "$WEBRTC_RECORDER_CONFIG" | yq e '.debug' -)"
         echo "               recorder.directory: $(echo "$WEBRTC_RECORDER_CONFIG" | yq e '.recorder.directory' -)"
+    fi
+
+    if [ -n "$LIVEKIT_SERVER_CONFIG" ]; then
+        LIVEKIT_ENABLED_CODECS=$(echo "$LIVEKIT_SERVER_CONFIG" | yq e '.room.enabled_codecs.[] | .mime' -)
+        echo
+        echo "/etc/bigbluebutton/livekit-server.yml (livekit-server)"
+        echo "               log_level: $(echo "$LIVEKIT_SERVER_CONFIG" | yq e '.log_level' -)"
+        echo "               port_range_start: $(echo "$LIVEKIT_SERVER_CONFIG" | yq e '.rtc.port_range_start' -)"
+        echo "               port_range_end: $(echo "$LIVEKIT_SERVER_CONFIG" | yq e '.rtc.port_range_end' -)"
+        echo "               room.enabled_codecs: $(echo "$LIVEKIT_ENABLED_CODECS" | awk -v ORS=", " '{ print $1 }' | sed 's/, $//')"
+        echo "               webrtc-sfu.livekit.enabled: $(echo "$WEBRTC_SFU_CONFIG" | yq e '.livekit.enabled' -)"
+        echo "               webrtc-sfu.livekit.keyIsSet: $(echo "$WEBRTC_SFU_CONFIG" | yq e '.livekit.key != null' -)"
     fi
 
     if [ -n "$HTML5_CONFIG" ]; then

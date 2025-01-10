@@ -1,6 +1,12 @@
 import React, { useState, useEffect } from 'react';
 import { throttle } from 'radash';
 
+const hasBackgroundImageUrl = (el) => {
+  const style = window.getComputedStyle(el);
+  const bg = style.backgroundImage || '';
+  return bg.includes('url(');
+}
+
 const useCursor = (publishCursorUpdate, whiteboardId) => {
   const [cursorPosition, setCursorPosition] = useState({ x: '', y: '' });
 
@@ -35,6 +41,7 @@ const useMouseEvents = ({
   setIsMouseDown,
   setIsWheelZoom,
   setWheelZoomTimeout,
+  isInfiniteWhiteboard,
 }) => {
   const timeoutIdRef = React.useRef();
 
@@ -65,13 +72,29 @@ const useMouseEvents = ({
   };
 
   const handleMouseDownWindow = (event) => {
+    const target = event.target;
+    const editor = tlEditorRef.current;
     const presentationInnerWrapper = document.getElementById('presentationInnerWrapper');
-    if (!(presentationInnerWrapper && presentationInnerWrapper.contains(event.target))) {
-      const editingShape = tlEditorRef.current?.getEditingShape();
-      if (editingShape) {
-        return tlEditorRef.current?.setEditingShape(null);
+
+    if (!(presentationInnerWrapper && presentationInnerWrapper.contains(target))) {
+      if (editor?.getEditingShape()) {
+        return editor.complete();
       }
     }
+
+    const selectedShapes = editor?.getSelectedShapes();
+    if (
+      selectedShapes?.length === 1 &&
+      selectedShapes[0].type === 'frame' &&
+      editor?.getCurrentToolId() === 'select' &&
+      !target.matches('[data-testid*="selection.resize"]') &&
+      !target.matches('[data-testid*="selection.target"]') &&
+      hasBackgroundImageUrl(target)
+    ) {
+      editor.selectNone();
+      return editor.complete();
+    }
+
     return undefined;
   };
 
@@ -111,7 +134,7 @@ const useMouseEvents = ({
     setIsWheelZoom(true);
 
     const MAX_ZOOM_FACTOR = 4; // Represents 400%
-    const MIN_ZOOM_FACTOR = 1; // Represents 100%
+    const MIN_ZOOM_FACTOR = isInfiniteWhiteboard ? .25 : 1;
     const ZOOM_IN_FACTOR = 0.25;
     const ZOOM_OUT_FACTOR = 0.25;
 

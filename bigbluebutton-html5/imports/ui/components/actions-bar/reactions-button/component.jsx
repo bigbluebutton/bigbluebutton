@@ -31,6 +31,7 @@ const ReactionsButton = (props) => {
     reactionsLabel: {
       id: 'app.actionsBar.reactions.reactionsButtonLabel',
       description: 'reactions Label',
+      defaultMessage: 'Share a reaction',
     },
   });
 

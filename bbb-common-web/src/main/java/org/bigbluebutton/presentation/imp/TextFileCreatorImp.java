@@ -24,6 +24,8 @@ import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.Writer;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -66,8 +68,13 @@ public class TextFileCreatorImp implements TextFileCreator {
       UploadedPresentation pres, int page) throws InterruptedException {
     boolean success = true;
     String source = pres.getUploadedFile().getAbsolutePath();
-    String dest;
+    String dest = textfilesDir.getAbsolutePath() + File.separatorChar + "slide-" + page + ".txt";
     String COMMAND = "";
+
+    // Skip processing if the destination file exists, as it was likely restored from the cache
+    if(Files.exists(Paths.get(dest))) {
+      return true;
+    }
 
     if (SupportedFileTypes.isImageFile(pres.getFileType())) {
       dest = textfilesDir.getAbsolutePath() + File.separatorChar + "slide-1.txt";
@@ -91,9 +98,7 @@ public class TextFileCreatorImp implements TextFileCreator {
       }
 
     } else {
-      dest = textfilesDir.getAbsolutePath() + File.separatorChar + "slide-" + page + ".txt";
       // sudo apt-get install xpdf-utils
-
         COMMAND = "pdftotext -raw -nopgbrk -enc UTF-8 -f " + page + " -l " + page
             + " " + source + " " + dest;
 

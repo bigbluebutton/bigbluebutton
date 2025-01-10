@@ -31,7 +31,7 @@ export const ChatUserName = styled.div<ChatUserNameProps>`
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
-  flex-grow: 1;
+  flex-shrink: 1;
 
   ${({ currentlyInMeeting }) => currentlyInMeeting && `
     color: ${colorHeading};
@@ -102,6 +102,10 @@ export const EditLabel = styled.span`
   }
 `;
 
+export const Center = styled.div`
+  flex-grow: 1;
+`;
+
 export default {
   HeaderContent,
   ChatTime,
@@ -109,4 +113,5 @@ export default {
   ChatUserName,
   ChatHeaderText,
   EditLabel,
+  Center,
 };

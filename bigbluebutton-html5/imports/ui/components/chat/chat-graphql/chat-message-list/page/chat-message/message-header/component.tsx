@@ -47,6 +47,7 @@ const ChatMessageHeader: React.FC<ChatMessageHeaderProps> = ({
             </Styled.ChatUserOffline>
           )
         }
+        <Styled.Center />
         {!deleteTime && editTime && (
           <Styled.EditLabel>
             <Icon iconName="pen_tool" />

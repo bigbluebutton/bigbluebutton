@@ -20,20 +20,23 @@ $$ LANGUAGE plpgsql IMMUTABLE;
 
 create table "meeting" (
 	"meetingId"	varchar(100) primary key,
-	"extId" 	varchar(100),
-	"name" varchar(100),
+	"extId" 	text,
+	"name" text,
 	"isBreakout" boolean,
 	"disabledFeatures" varchar[],
 	"meetingCameraCap" integer,
 	"maxPinnedCameras" integer,
+	"cameraBridge" varchar(30),
+	"screenShareBridge" varchar(30),
+	"audioBridge" varchar(30),
 	"notifyRecordingIsOn" boolean,
 	"presentationUploadExternalDescription" text,
-	"presentationUploadExternalUrl" varchar(500),
+	"presentationUploadExternalUrl" text,
 	"learningDashboardAccessToken" varchar(100),
-	"loginUrl" varchar(500),
-	"logoutUrl" varchar(500),
-	"customLogoUrl" varchar(500),
-    "customDarkLogoUrl" varchar(500),
+	"loginUrl" text,
+	"logoutUrl" text,
+	"customLogoUrl" text,
+    "customDarkLogoUrl" text,
 	"bannerText" text,
 	"bannerColor" varchar(50),
 	"createdTime" bigint,
@@ -103,22 +106,30 @@ CREATE TRIGGER "update_meeting_recording_trigger" BEFORE UPDATE OF "stoppedAt" O
 --(CASE WHEN "startedAt" IS NULL OR "stoppedAt" IS NULL THEN 0 ELSE EXTRACT(EPOCH FROM ("stoppedAt" - "startedAt")) END) STORED;
 
 CREATE VIEW v_meeting_recording AS
-SELECT r.*,
-CASE
-    WHEN "startedAt" IS NULL THEN false
-    WHEN "stoppedAt" IS NULL THEN true
-    ELSE "startedAt" > "stoppedAt"
-END AS "isRecording"
+SELECT
+    r."meetingId",
+    r."startedAt",
+    r."startedBy",
+    r."stoppedAt",
+    r."stoppedBy",
+    COALESCE(r."previousRecordedTimeInSeconds", 0) AS "previousRecordedTimeInSeconds",
+    CASE
+        WHEN r."startedAt" IS NULL THEN false
+        WHEN r."stoppedAt" IS NULL THEN true
+        ELSE r."startedAt" > r."stoppedAt"
+    END AS "isRecording"
 FROM (
-	select "meetingId",
-	(array_agg("startedAt" ORDER BY "startedAt" DESC))[1] as "startedAt",
-	(array_agg("startedBy" ORDER BY "startedAt" DESC))[1] as "startedBy",
-	(array_agg("stoppedAt" ORDER BY "startedAt" DESC))[1] as "stoppedAt",
-	(array_agg("stoppedBy" ORDER BY "startedAt" DESC))[1] as "stoppedBy",
-    coalesce(sum("recordedTimeInSeconds"),0) "previousRecordedTimeInSeconds"
-	from "meeting_recording"
-	GROUP BY "meetingId"
-) r;
+    SELECT
+        mr."meetingId",
+        mr."startedAt",
+        mr."startedBy",
+        mr."stoppedAt",
+        mr."stoppedBy",
+        SUM(mr."recordedTimeInSeconds") OVER (PARTITION BY mr."meetingId") AS "previousRecordedTimeInSeconds",
+        ROW_NUMBER() OVER (PARTITION BY mr."meetingId" ORDER BY mr."startedAt" DESC) AS rn
+    FROM "meeting_recording" mr
+) r
+where r.rn = 1;
 
 create table "meeting_welcome" (
 	"meetingId" varchar(100) primary key references "meeting"("meetingId") ON DELETE CASCADE,
@@ -283,6 +294,7 @@ CREATE TABLE "user" (
     "registeredOn" bigint,
     "excludeFromDashboard" bool,
     "enforceLayout" varchar(50),
+    "logoutUrl" varchar(500),
     --columns of user state below
     "raiseHand" bool default false,
     "raiseHandTime" timestamp with time zone,
@@ -473,6 +485,7 @@ AS SELECT "user"."userId",
     "user"."mobile",
     "user"."clientType",
     "user"."enforceLayout",
+    "user"."logoutUrl",
     "user"."isDialIn",
     "user"."role",
     "user"."authed",
@@ -568,19 +581,83 @@ AS SELECT
 FROM "user"
 where "firstJoinedAt" is not null;
 
+CREATE TABLE "user_sessionToken" (
+	"meetingId" varchar(100),
+	"userId" varchar(50),
+	"sessionToken" varchar(16),
+	"sessionName" varchar(255),
+	"enforceLayout" varchar(50),
+	"createdAt" timestamp with time zone not null default current_timestamp,
+	"removedAt" timestamp with time zone,
+	CONSTRAINT "user_sessionToken_pk" PRIMARY KEY ("meetingId", "userId","sessionToken"),
+	FOREIGN KEY ("meetingId", "userId") REFERENCES "user"("meetingId","userId") ON DELETE CASCADE
+);
+
+CREATE INDEX "idx_user_sessionToken_sessionToken" ON "user_sessionToken"("sessionToken");
+
+--Index for v_user_session
+CREATE INDEX "idx_user_sessionToken_not_removed"
+ON "user_sessionToken" ("meetingId", "userId", "sessionToken")
+WHERE "removedAt" IS NULL;
+
+--Index for v_user_metadata
+CREATE INDEX "idx_user_sessionToken_pk_reverse" ON "user_sessionToken" ("sessionToken", "userId", "meetingId");
+
+create view "v_user_sessionToken" as select * from "user_sessionToken";
+create view "v_user_session_current" as select * from "user_sessionToken";
+
+CREATE TABLE "user_graphqlConnection" (
+	"graphqlConnectionId" serial PRIMARY KEY,
+	"sessionToken" varchar(16),
+	"clientSessionUUID" varchar(36),
+	"clientType" varchar(50),
+	"clientIsMobile" bool,
+	"middlewareUID" varchar(36),
+	"middlewareConnectionId" varchar(12),
+	"establishedAt" timestamp with time zone,
+	"closedAt" timestamp with time zone
+);
+
+CREATE INDEX "idx_user_graphqlConnectionSessionToken" ON "user_graphqlConnection"("sessionToken");
+
+--Index for v_user_session
+CREATE INDEX "idx_user_graphqlConnection_sessionToken_closedAt"
+ON "user_graphqlConnection" ("sessionToken", "closedAt");
+
+
+create view "v_user_session" as
+select ust."meetingId", ust."userId", ust."sessionToken", ust."sessionName", ust."enforceLayout", count(ugc."graphqlConnectionId") as "connectionsAlive"
+from "user_sessionToken" ust
+left join "user_graphqlConnection" ugc on ugc."sessionToken" = ust."sessionToken" and ugc."closedAt" is null
+where ust."removedAt" is null
+group by ust."meetingId", ust."userId", ust."sessionToken", ust."sessionName", ust."enforceLayout";
+
 create table "user_metadata"(
     "meetingId" varchar(100),
     "userId" varchar(50),
+    "sessionToken" varchar(16),
 	"parameter" varchar(255),
 	"value" varchar(1000),
-	CONSTRAINT "user_metadata_pkey" PRIMARY KEY ("meetingId", "userId","parameter"),
+	CONSTRAINT "user_metadata_pkey" PRIMARY KEY ("meetingId", "userId", "sessionToken", "parameter"),
 	FOREIGN KEY ("meetingId", "userId") REFERENCES "user"("meetingId","userId") ON DELETE CASCADE
 );
 create index "idx_user_metadata_pk_reverse" on "user_metadata" ("userId", "meetingId");
+create index "idx_user_metadata_sessionToken" on "user_metadata" ("meetingId", "userId", "sessionToken");
 
 CREATE VIEW "v_user_metadata" AS
-SELECT *
-FROM "user_metadata";
+SELECT DISTINCT ON (ust."sessionToken", ust."meetingId", ust."userId", umd."parameter")
+    ust."sessionToken",
+    ust."meetingId",
+    ust."userId",
+    umd."parameter",
+    umd."value"
+FROM "user_sessionToken" ust
+JOIN "user_metadata" umd
+    ON umd."meetingId" = ust."meetingId"
+    AND umd."userId" = ust."userId"
+    AND (umd."sessionToken" = '' OR umd."sessionToken" = ust."sessionToken")
+    --show params specific for a sessionToken first and generic (with empty sessionToken) last
+ORDER BY ust."sessionToken", ust."meetingId", ust."userId", umd."parameter", umd."sessionToken" = '';
 
 CREATE VIEW "v_user_welcomeMsgs" AS
 SELECT
@@ -810,9 +887,9 @@ BEGIN
     "lastNetworkRttInMs" = NEW."networkRttInMs",
     "lastOccurrenceAt" = current_timestamp
     WHERE "meetingId"=NEW."meetingId" AND "userId"=NEW."userId" AND "status"= NEW."status" RETURNING *)
-    INSERT INTO "user_connectionStatusMetrics"("meetingId","userId","status","occurrencesCount", "firstOccurrenceAt",
+    INSERT INTO "user_connectionStatusMetrics"("meetingId","userId","status","occurrencesCount", "firstOccurrenceAt", "lastOccurrenceAt",
     "highestNetworkRttInMs", "lowestNetworkRttInMs", "lastNetworkRttInMs")
-    SELECT NEW."meetingId", NEW."userId", NEW."status", 1, current_timestamp,
+    SELECT NEW."meetingId", NEW."userId", NEW."status", 1, current_timestamp, current_timestamp,
     NEW."networkRttInMs", NEW."networkRttInMs", NEW."networkRttInMs"
     WHERE NOT EXISTS (SELECT * FROM upsert);
 
@@ -824,51 +901,25 @@ CREATE TRIGGER "update_user_connectionStatus_trigger" AFTER UPDATE OF "connectio
     FOR EACH ROW EXECUTE FUNCTION "update_user_connectionStatus_trigger_func"();
 
 CREATE OR REPLACE VIEW "v_user_connectionStatusReport" AS
-SELECT u."meetingId", u."userId",
-max(cs."connectionAliveAt") AS "connectionAliveAt",
-max(cs."status") AS "currentStatus",
+SELECT distinct on (u."meetingId", u."userId")
+u."meetingId",
+u."userId",
+cs."connectionAliveAt",
+cs."status" AS "currentStatus",
 CASE WHEN
     u."currentlyInMeeting"
-    AND max(cs."connectionAliveAt") < current_timestamp - INTERVAL '1 millisecond' * max(cs."connectionAliveAtMaxIntervalMs")
+    AND cs."connectionAliveAt" < current_timestamp - INTERVAL '1 millisecond' * cs."connectionAliveAtMaxIntervalMs"
     THEN TRUE
     ELSE FALSE
 END AS "clientNotResponding",
-(array_agg(csm."status" ORDER BY csm."lastOccurrenceAt" DESC))[1] as "lastUnstableStatus",
-max(csm."lastOccurrenceAt") AS "lastUnstableStatusAt"
+csm."status" as "lastUnstableStatus",
+csm."lastOccurrenceAt" AS "lastUnstableStatusAt"
 FROM "user" u
 JOIN "user_connectionStatus" cs ON cs."meetingId" = u."meetingId" and cs."userId" = u."userId"
 LEFT JOIN "user_connectionStatusMetrics" csm ON csm."meetingId" = u."meetingId" AND csm."userId" = u."userId" AND csm."status" != 'normal'
-GROUP BY u."meetingId", u."userId";
+order by u."meetingId", u."userId", csm."lastOccurrenceAt" desc;
 
 CREATE INDEX "idx_user_connectionStatusMetrics_UnstableReport" ON "user_connectionStatusMetrics" ("meetingId", "userId") WHERE "status" != 'normal';
-
-CREATE TABLE "user_sessionToken" (
-	"meetingId" varchar(100),
-	"userId" varchar(50),
-	"sessionToken" varchar(16),
-	"enforceLayout" varchar(50),
-	"createdAt" timestamp with time zone not null default current_timestamp,
-	"removedAt" timestamp with time zone,
-	CONSTRAINT "user_sessionToken_pk" PRIMARY KEY ("meetingId", "userId","sessionToken"),
-	FOREIGN KEY ("meetingId", "userId") REFERENCES "user"("meetingId","userId") ON DELETE CASCADE
-);
-
-CREATE INDEX "idx_user_sessionToken_stk" ON "user_sessionToken"("sessionToken");
-create view "v_user_sessionToken" as select * from "user_sessionToken";
-
-CREATE TABLE "user_graphqlConnection" (
-	"graphqlConnectionId" serial PRIMARY KEY,
-	"sessionToken" varchar(16),
-	"clientSessionUUID" varchar(36),
-	"clientType" varchar(50),
-	"clientIsMobile" bool,
-	"middlewareUID" varchar(36),
-	"middlewareConnectionId" varchar(12),
-	"establishedAt" timestamp with time zone,
-	"closedAt" timestamp with time zone
-);
-
-CREATE INDEX "idx_user_graphqlConnectionSessionToken" ON "user_graphqlConnection"("sessionToken");
 
 --ALTER TABLE "user_connectionStatus" ADD COLUMN "applicationRttInMs" NUMERIC GENERATED ALWAYS AS
 --(CASE WHEN  "connectionAliveAt" IS NULL OR "userClientResponseAt" IS NULL THEN NULL
@@ -1378,7 +1429,7 @@ CREATE TABLE "pres_annotation_history" (
 	"pageId" varchar(100) REFERENCES "pres_page"("pageId") ON DELETE CASCADE,
 	"meetingId" varchar(100),
 	"userId" varchar(50),
-	"annotationInfo" TEXT,
+	"annotationInfo" jsonb,
 	"updatedAt" timestamp with time zone
 );
 CREATE INDEX "idx_pres_annotation_history_pageId" ON "pres_annotation"("pageId");
@@ -2231,5 +2282,29 @@ select "meeting"."meetingId",
             select 1
             from "v_caption_activeLocales"
             where "v_caption_activeLocales"."meetingId" = "meeting"."meetingId"
-        ) as "hasCaption"
+        ) as "hasCaption",
+        exists (
+            select 1
+            from "sharedNotes"
+            where "sharedNotes"."meetingId" = "meeting"."meetingId"
+            and "sharedNotes"."pinned" is true
+        ) as "isSharedNotedPinned",
+        exists (
+            select 1
+            from "v_pres_page_curr"
+            where "v_pres_page_curr"."meetingId" = "meeting"."meetingId"
+        ) as "hasCurrentPresentation"
 from "meeting";
+
+------------------------
+----LiveKit
+CREATE TABLE "user_livekit"(
+	"meetingId" varchar(100),
+	"userId" varchar(50),
+	"livekitToken" TEXT,
+	CONSTRAINT "user_livekit_pkey" PRIMARY KEY ("meetingId", "userId"),
+	FOREIGN KEY ("meetingId", "userId") REFERENCES "user"("meetingId","userId") ON DELETE CASCADE
+);
+
+CREATE INDEX "idx_user_livekit_token" ON "user_livekit"("livekitToken");
+CREATE VIEW "v_user_livekit" AS SELECT * FROM "user_livekit";

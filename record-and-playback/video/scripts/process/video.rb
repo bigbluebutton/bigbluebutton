@@ -246,11 +246,19 @@ begin
       chats.each do |chat|
         chattimeline = {
           in: (chat[:in] / 1000.0).round(1),
+          id: chat[:id],
           direction: 'down',
           name: chat[:sender],
-          message: chat[:message]
+          senderId: chat[:sender_id],
+          chatEmphasizedText: chat[:chatEmphasizedText],
+          senderRole: chat[:senderRole],
+          message: chat[:message],
+          replyToMessageId: chat[:replyToMessageId],
+          lastEditedTimestamp: chat[:lastEditedTimestamp],
+          target: 'chat',
         }
         chattimeline[:out] = (chat[:out] / 1000.0).round(1) unless chat[:out].nil?
+        chattimeline[:reactions] = JSON.generate(chat[:reactions]) unless chat[:reactions].nil?
         xml.chattimeline(**chattimeline)
       end
     end
