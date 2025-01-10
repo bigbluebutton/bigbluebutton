@@ -32,6 +32,10 @@ select_permissions:
         - mobile
         - name
         - nameSortable
+        - firstName
+        - firstNameSortable
+        - lastName
+        - lastNameSortable
         - pinned
         - presenter
         - raiseHand
