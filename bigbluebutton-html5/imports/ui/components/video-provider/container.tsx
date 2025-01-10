@@ -26,7 +26,12 @@ import useSettings from '/imports/ui/services/settings/hooks/useSettings';
 import { SETTINGS } from '/imports/ui/services/settings/enums';
 import { useStorageKey } from '/imports/ui/services/storage/hooks';
 import ConnectionStatus from '/imports/ui/core/graphql/singletons/connectionStatus';
-import { setVideoState, useVideoState } from './state';
+import {
+  useConnectingStream,
+  setConnectingStream,
+  setVideoState,
+  useVideoState,
+} from './state';
 import { VIDEO_TYPES } from './enums';
 
 interface VideoProviderContainerProps {
@@ -43,6 +48,7 @@ const VideoProviderContainer: React.FC<VideoProviderContainerProps> = (props) =>
   } = props;
   const [cameraBroadcastStart] = useMutation(CAMERA_BROADCAST_START);
   const [meetingSettings] = useMeetingSettings();
+  const connectingStream = useConnectingStream();
 
   const sendUserShareWebcam = (cameraId: string) => {
     return cameraBroadcastStart({ variables: { cameraId, contentType: 'camera' } });
@@ -146,6 +152,17 @@ const VideoProviderContainer: React.FC<VideoProviderContainerProps> = (props) =>
       });
     }
   }, [myPageSize, numberOfPages, totalNumberOfOtherStreams, isPaginationEnabled]);
+
+  // Clean up local connecting stream state if the stream is connected
+  useEffect(() => {
+    if (!connectingStream) return;
+
+    const streamIsConnected = streams && streams.some(
+      (s) => s.type === VIDEO_TYPES.STREAM && s.stream === connectingStream.stream,
+    );
+
+    if (streamIsConnected) setConnectingStream(null);
+  }, [streams, connectingStream]);
 
   if (!usersVideo.length && !isGridEnabled) return null;
 
