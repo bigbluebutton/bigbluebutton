@@ -25,6 +25,7 @@ const ErrorBoundaryWithReload = ({ children }) => {
   const [hasError, setHasError] = useState(false);
   const [errorKey, setErrorKey] = useState(0);
   const [errorCount, setErrorCount] = useState(0);
+  const [isReady, setIsReady] = useState(false);
   const resetTimeout = useRef(null);
 
   const handleReset = useCallback(() => {
@@ -78,12 +79,16 @@ const ErrorBoundaryWithReload = ({ children }) => {
     window.addEventListener('error', handleGlobalError);
     window.addEventListener('unhandledrejection', handleUnhandledRejection);
 
+    setIsReady(true);
+
     return () => {
       if (resetTimeout.current) clearTimeout(resetTimeout.current);
       window.removeEventListener('error', handleGlobalError);
       window.removeEventListener('unhandledrejection', handleUnhandledRejection);
     };
   }, [triggerError]);
+
+  if (!isReady) return null;
 
   if (hasError && errorCount <= MAX_RETRIES) {
     return (
