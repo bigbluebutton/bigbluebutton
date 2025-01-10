@@ -95,7 +95,9 @@ const toggleMute = (
       toggle(storageKey);
     })
     .finally(() => {
-      muteLoadingState(true);
+      if (AudioManager.inputDeviceId !== 'listen-only') {
+        muteLoadingState(true);
+      }
     });
 };
 
