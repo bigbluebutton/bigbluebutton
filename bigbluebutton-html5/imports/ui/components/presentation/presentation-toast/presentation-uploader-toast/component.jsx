@@ -181,10 +181,7 @@ function renderPresentationItemStatus(item, intl) {
   const constraint = {};
 
   if (('upload' in item) && (item.upload.done && item.upload.error)) {
-    if (item.conversion.status === 'FILE_TOO_LARGE' || item.upload.status !== 413) {
-      const { maxFileSize } = item.conversion;
-      constraint['0'] = getSizeWithUnit(maxFileSize);
-    } else if (item.progress < 100) {
+    if (item.progress < 100) {
       const errorMessage = intlMessages.badConnectionError;
       return intl.formatMessage(errorMessage);
     }
