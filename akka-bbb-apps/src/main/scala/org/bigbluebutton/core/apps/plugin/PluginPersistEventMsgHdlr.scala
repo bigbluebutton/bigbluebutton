@@ -1,10 +1,11 @@
 package org.bigbluebutton.core.apps.plugin
 
-import org.bigbluebutton.common2.msgs.{ BbbClientMsgHeader, BbbCommonEnvCoreMsg, BbbCoreEnvelope, MessageTypes, PluginPersistEventEvtMsg, PluginPersistEventEvtMsgBody, PluginPersistEventMsg, Routing }
+import org.bigbluebutton.common2.msgs.{BbbClientMsgHeader, BbbCommonEnvCoreMsg, BbbCoreEnvelope, MessageTypes, PluginPersistEventEvtMsg, PluginPersistEventEvtMsgBody, PluginPersistEventMsg, Routing}
+import org.bigbluebutton.core.apps.PermissionCheck
 import org.bigbluebutton.core.bus.MessageBus
 import org.bigbluebutton.core.domain.MeetingState2x
 import org.bigbluebutton.core.models.PluginModel
-import org.bigbluebutton.core.running.{ HandlerHelpers, LiveMeeting }
+import org.bigbluebutton.core.running.{HandlerHelpers, LiveMeeting}
 
 trait PluginPersistEventMsgHdlr extends HandlerHelpers {
   this: PluginHdlrs =>
@@ -21,18 +22,30 @@ trait PluginPersistEventMsgHdlr extends HandlerHelpers {
       bus.outGW.send(msgEvent)
     }
 
-    val pluginsDisabled: Boolean = liveMeeting.props.meetingProp.disabledFeatures.contains("plugins")
-    for {
-      _ <- if (!pluginsDisabled) Some(()) else None
-    } yield {
+    if (liveMeeting.props.meetingProp.disabledFeatures.contains("plugins")) {
+      val meetingId = liveMeeting.props.meetingProp.intId
+      val reason = "Plugin feature is disabled for this meeting"
+      PermissionCheck.ejectUserForFailedPermission(meetingId, msg.header.userId, reason, bus.outGW, liveMeeting)
+    } else {
       PluginModel.getPluginByName(liveMeeting.plugins, msg.body.pluginName) match {
         case Some(p) =>
-          val eventPersistencePermissions = p.manifest.content.eventPersistence.orNull;
-          if (eventPersistencePermissions.isEnabled) {
-            broadcastEvent(msg, bus)
-          } else log.info(s"Event persistence not available for plugin '${msg.body.pluginName}'.")
-        case None => log.info(s"Plugin '${msg.body.pluginName}' not found.")
+          if (msg.body.eventName.trim.isEmpty) {
+            log.info(s"Empty event name received for plugin '${msg.body.pluginName}'")
+          } else {
+            val eventPersistence = p.manifest.content.eventPersistence
+            eventPersistence match {
+              case Some(permissions) if permissions.isEnabled =>
+                broadcastEvent(msg, bus)
+              case Some(_) =>
+                log.info(s"Event persistence is disabled for plugin '${msg.body.pluginName}'")
+              case None =>
+                log.info(s"Event persistence permissions not defined for plugin '${msg.body.pluginName}'")
+            }
+          }
+        case None =>
+          log.info(s"Plugin '${msg.body.pluginName}' not found.")
       }
+
     }
 
   }

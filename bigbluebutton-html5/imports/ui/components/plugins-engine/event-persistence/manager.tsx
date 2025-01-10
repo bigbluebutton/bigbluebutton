@@ -4,41 +4,41 @@ import { EventPersistenceEvents } from 'bigbluebutton-html-plugin-sdk/dist/cjs/e
 import { useMutation } from '@apollo/client';
 import PLUGIN_EVENT_PERSISTENCE_MUTATION from './mutations';
 import { PluginEventPersistenceManagerProps } from './types';
+import { stripTags } from '/imports/utils/string-utils';
 
-const PluginEventPersistenceManager: React.ElementType<
-  PluginEventPersistenceManagerProps> = ((
-    props: PluginEventPersistenceManagerProps,
-  ) => {
-    const { pluginName } = props;
+const PluginEventPersistenceManager: React.FC<PluginEventPersistenceManagerProps> = ((
+  { pluginName }: PluginEventPersistenceManagerProps,
+) => {
+  const [persistEvent] = useMutation(
+    PLUGIN_EVENT_PERSISTENCE_MUTATION,
+  );
 
-    const [persistEvent] = useMutation(
-      PLUGIN_EVENT_PERSISTENCE_MUTATION,
-    );
-
-    const handlePersistEventForPlugin: EventListener = (
+  const handlePersistEventForPlugin: EventListener = (
     (event: CustomEvent<EventPersistenceDetails>) => {
       if (event.detail.pluginName === pluginName) {
         const eventDetails = event.detail as EventPersistenceDetails;
+        // Escape event name for security reasons
+        const escapedEventName = stripTags(eventDetails.eventName);
         persistEvent({
           variables: {
             pluginName: eventDetails.pluginName,
-            eventName: eventDetails.eventName,
+            eventName: escapedEventName,
             payload: eventDetails.payload,
           },
         });
       }
     }) as EventListener;
 
-    useEffect(() => {
-      window.addEventListener(
+  useEffect(() => {
+    window.addEventListener(
+      EventPersistenceEvents.EVENT_PERSISTED, handlePersistEventForPlugin,
+    );
+    return () => {
+      window.removeEventListener(
         EventPersistenceEvents.EVENT_PERSISTED, handlePersistEventForPlugin,
       );
-      return () => {
-        window.removeEventListener(
-          EventPersistenceEvents.EVENT_PERSISTED, handlePersistEventForPlugin,
-        );
-      };
-    }, []);
-  }) as React.ElementType<PluginEventPersistenceManagerProps>;
+    };
+  }, []);
+}) as React.ElementType<PluginEventPersistenceManagerProps>;
 
 export default PluginEventPersistenceManager;
