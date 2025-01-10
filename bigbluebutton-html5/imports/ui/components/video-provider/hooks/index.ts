@@ -476,9 +476,12 @@ export const useExitVideo = (forceExit = false) => {
             return true;
           }).catch((e) => {
             logger.warn({
-              logCode: 'exit_audio',
-              extraInfo: e,
-            }, 'Exiting audio');
+              logCode: 'exit_video_error',
+              extraInfo: {
+                errorMessage: e.message,
+                errorStack: e.stack,
+              },
+            }, `Failed to exit video: ${e.message}`);
             return false;
           });
         }
