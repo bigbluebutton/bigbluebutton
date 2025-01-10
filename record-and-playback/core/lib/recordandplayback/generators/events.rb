@@ -1171,12 +1171,6 @@ module BigBlueButton
           return true
         end
       end
-      events.xpath('/recording/event[@eventname="AudioTrackPublishedEvent"]').each do |event|
-        source = event.at_xpath('source').text
-        if source == 'screen_share_audio'
-          return true
-        end
-      end
       return false
     end
 

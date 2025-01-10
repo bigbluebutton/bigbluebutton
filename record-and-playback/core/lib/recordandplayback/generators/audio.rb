@@ -65,12 +65,10 @@ module BigBlueButton
             }
           end
         when 'AudioTrackPublishedEvent'
-          source = event.at_xpath('source').text
-          next if source != 'microphone'
           filename = event.at_xpath('filename').text
           filename = "#{audio_dir}/#{File.basename(filename)}"
           audios[filename] = { :timestamp => timestamp }
-          active_audios << filename;
+          active_audios << filename
           edl_entry = {
             :timestamp => timestamp,
             :audios => []
@@ -83,8 +81,6 @@ module BigBlueButton
           end
           audio_edl << edl_entry
         when 'AudioTrackUnpublishedEvent'
-          source = event.at_xpath('source').text
-          next if source != 'microphone'
           filename = event.at_xpath('filename').text
           filename = "#{audio_dir}/#{File.basename(filename)}"
           active_audios.delete(filename)
@@ -123,16 +119,11 @@ module BigBlueButton
         :audio => nil
       }
 
-      events.xpath('/recording/event[@module="bbb-webrtc-sfu" and (@eventname="StartWebRTCDesktopShareEvent" or @eventname="StopWebRTCDesktopShareEvent" or @eventname="AudioTrackPublishedEvent" or @eventname="AudioTrackUnpublishedEvent")]').each do |event|
+      events.xpath('/recording/event[@module="bbb-webrtc-sfu" and (@eventname="StartWebRTCDesktopShareEvent" or @eventname="StopWebRTCDesktopShareEvent")]').each do |event|
         filename = event.at_xpath('filename').text
         # Determine the audio filename
         case event['eventname']
         when 'StartWebRTCDesktopShareEvent', 'StopWebRTCDesktopShareEvent'
-          uri = event.at_xpath('filename').text
-          filename = "#{deskshare_dir}/#{File.basename(uri)}"
-        when 'AudioTrackPublishedEvent', 'AudioTrackUnpublishedEvent'
-          source = event.at_xpath('source').text
-          next if source != 'screen_share_audio'
           uri = event.at_xpath('filename').text
           filename = "#{deskshare_dir}/#{File.basename(uri)}"
         end
@@ -143,12 +134,12 @@ module BigBlueButton
           timestamp = event['timestamp'].to_i - initial_timestamp
           # Add the audio to the EDL
           case event['eventname']
-          when 'StartWebRTCDesktopShareEvent', 'AudioTrackPublishedEvent'
+          when 'StartWebRTCDesktopShareEvent'
             audio_edl << {
               :timestamp => timestamp,
               :audio => { :filename => filename, :timestamp => 0 }
             }
-          when 'StopWebRTCDesktopShareEvent', 'AudioTrackUnpublishedEvent'
+          when 'StopWebRTCDesktopShareEvent'
             if audio_edl.last[:audio] && audio_edl.last[:audio][:filename] == filename
               # Fill in the original/expected audo duration when available
               duration = event.at_xpath('duration')
