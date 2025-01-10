@@ -35,6 +35,7 @@ find "${PROTO_DIR}" -name "*.proto" -exec protoc \
     --go_opt=Mcommon/pagination_response_data.proto=${BASE_PACKAGE}/common \
     --go_opt=Mcommon/participant_info.proto=${BASE_PACKAGE}/common \
     --go_opt=Mcommon/password_settings.proto=${BASE_PACKAGE}/common \
+    --go_opt=Mcommon/plugin_manifest.proto=${BASE_PACKAGE}/common \
     --go_opt=Mcommon/plugin_settings.proto=${BASE_PACKAGE}/common \
     --go_opt=Mcommon/record_settings.proto=${BASE_PACKAGE}/common \
     --go_opt=Mcommon/system_settings.proto=${BASE_PACKAGE}/common \
@@ -76,6 +77,7 @@ find "${PROTO_DIR}" -name "*.proto" -exec protoc \
     --go-grpc_opt=Mcommon/pagination_response_data.proto=${BASE_PACKAGE}/common \
     --go-grpc_opt=Mcommon/participant_info.proto=${BASE_PACKAGE}/common \
     --go-grpc_opt=Mcommon/password_settings.proto=${BASE_PACKAGE}/common \
+    --go-grpc_opt=Mcommon/plugin_manifest.proto=${BASE_PACKAGE}/common \
     --go-grpc_opt=Mcommon/plugin_settings.proto=${BASE_PACKAGE}/common \
     --go-grpc_opt=Mcommon/record_settings.proto=${BASE_PACKAGE}/common \
     --go-grpc_opt=Mcommon/system_settings.proto=${BASE_PACKAGE}/common \

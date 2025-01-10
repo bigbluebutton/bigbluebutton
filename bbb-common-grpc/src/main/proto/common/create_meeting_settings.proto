@@ -14,6 +14,7 @@ import "common/metadata_settings.proto";
 import "common/lock_settings.proto";
 import "common/system_settings.proto";
 import "common/group_settings.proto";
+import "common/plugin_settings.proto";
 
 message CreateMeetingSettings {
   MeetingSettings meeting_settings = 1;
@@ -29,4 +30,5 @@ message CreateMeetingSettings {
   SystemSettings system_settings = 11;
   repeated GroupSettings group_settings = 12;
   string override_client_settings = 13;
+  PluginSettings plugin_settings = 14;
 }

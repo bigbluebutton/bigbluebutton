@@ -399,6 +399,7 @@ public class MeetingService implements MessageListener {
 
     return result.toString();
   }
+
   public Map<String, Object> requestPluginManifests(Meeting m) {
     Map<String, Object> urlContents = new ConcurrentHashMap<>();
     Map<String, String> metadata = m.getMetadata();

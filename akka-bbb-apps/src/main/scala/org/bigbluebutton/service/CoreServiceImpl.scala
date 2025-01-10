@@ -8,11 +8,12 @@ import org.apache.pekko.pattern.ask
 import org.apache.pekko.stream.Materializer
 import org.apache.pekko.stream.scaladsl.Source
 import org.apache.pekko.util.Timeout
-import org.bigbluebutton.core.api.{ GetMeeting, GetMeetingInfo, GetMeetings, IsMeetingRunning, IsVoiceBridgeInUse }
+import org.bigbluebutton.core.api.{GetMeeting, GetMeetingInfo, GetMeetings, IsMeetingRunning, IsVoiceBridgeInUse}
 import org.bigbluebutton.core.running.RunningMeeting
 import org.bigbluebutton.protos._
 
 import scala.collection.immutable.VectorMap
+import scala.jdk.CollectionConverters._
 import scala.concurrent.Future
 import scala.concurrent.duration.DurationInt
 import org.bigbluebutton.core.api.GetNextVoiceBridge
@@ -31,6 +32,7 @@ import org.bigbluebutton.common2.domain.SystemProps
 import org.bigbluebutton.common2.domain.GroupProps
 import org.bigbluebutton.core.api.CreateMeeting
 import org.bigbluebutton.core.api.HasUserJoined
+import org.bigbluebutton.core.util.PluginManifestProcessor
 
 class CoreServiceImpl(implicit materializer: Materializer, bbbActor: ActorRef) extends CoreService {
 
@@ -244,6 +246,9 @@ class CoreServiceImpl(implicit materializer: Materializer, bbbActor: ActorRef) e
         usersExtId = g.usersExtIds.toVector
       )).toVector
 
+      val pluginSettings = settings.pluginSettings.get
+      val pluginProp = PluginManifestProcessor.requestPluginManifests(metadataSettings.metadata, pluginSettings.pluginManifests)
+
       DefaultProps(
         meetingProp = meetingProp,
         breakoutProps = breakoutProps,
@@ -258,7 +263,7 @@ class CoreServiceImpl(implicit materializer: Materializer, bbbActor: ActorRef) e
         systemProps = systemProps,
         groups = groups,
         overrideClientSettings = settings.overrideClientSettings,
-        pluginProp = null, // TODO
+        pluginProp = pluginProp.asJava,
       )
     }
 

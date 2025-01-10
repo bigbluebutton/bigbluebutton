@@ -163,3 +163,7 @@ learning_dashbaord:
 override:
   client_settings: false
   default_presentation: true
+
+plugins:
+  # List of plugin manifest URLs
+  manifests:

@@ -2,6 +2,8 @@ syntax = "proto3";
 
 package org.bigbluebutton.protos;
 
+import "common/plugin_manifest.proto";
+
 message PluginSettings {
-  map<string, string> plugins = 1;
+  repeated PluginManifest plugin_manifests = 1;
 }

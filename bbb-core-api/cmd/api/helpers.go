@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"encoding/xml"
 	"log"
+	"log/slog"
 	"net/http"
 	"regexp"
 	"strconv"
@@ -14,6 +15,7 @@ import (
 	"github.com/bigbluebutton/bigbluebutton/bbb-core-api/gen/common"
 	"github.com/bigbluebutton/bigbluebutton/bbb-core-api/gen/core"
 	"github.com/bigbluebutton/bigbluebutton/bbb-core-api/internal/model"
+	"github.com/bigbluebutton/bigbluebutton/bbb-core-api/internal/plugin"
 	"github.com/bigbluebutton/bigbluebutton/bbb-core-api/internal/random"
 	"github.com/bigbluebutton/bigbluebutton/bbb-core-api/util"
 	"google.golang.org/grpc/codes"
@@ -137,6 +139,8 @@ func (app *Config) processCreateParams(params *Params) (*common.CreateMeetingSet
 	settings.GroupSettings = app.processGroupSettings(params)
 
 	// TODO: Implement client settings override
+
+	settings.PluginSettings = app.processPluginSettings(params)
 
 	return &settings, nil
 }
@@ -407,6 +411,34 @@ func (app *Config) processGroupSettings(params *Params) []*common.GroupSettings 
 		}
 	}
 	return groupProps
+}
+
+func (app *Config) processPluginSettings(params *Params) *common.PluginSettings {
+	var pluginManifests []*common.PluginManifest
+
+	for _, m := range app.ServerConfig.Plugins.Manifests {
+		pluginManifests = append(pluginManifests, &common.PluginManifest{
+			Url: m,
+		})
+	}
+
+	if manifestData := util.GetStringOrDefaultValue(util.StripCtrlChars(params.Get("pluginManifests")), ""); manifestData != "" {
+		manifests, err := plugin.Parse(manifestData)
+		if err != nil {
+			slog.Error("Failed to parse plugin manifest data", "data", manifestData, "error", err)
+		}
+
+		for _, m := range manifests {
+			pluginManifests = append(pluginManifests, &common.PluginManifest{
+				Url:      m.URL,
+				Checksum: m.URL,
+			})
+		}
+	}
+
+	return &common.PluginSettings{
+		PluginManifests: pluginManifests,
+	}
 }
 
 func replaceKeywords(message string, dialNumber string, voiceBridge string, meetingName string, url string) string {

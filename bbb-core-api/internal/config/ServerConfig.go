@@ -154,6 +154,9 @@ type ServerConfig struct {
 		ClientSettings      bool `yaml:"client_settings"`
 		DefaultPresentation bool `yaml:"default_presentation"`
 	} `yaml:"override"`
+	Plugins struct {
+		Manifests []string `yaml:"maniftests"`
+	} `yaml:"plugins"`
 }
 
 func ParseConfig(path string) (*ServerConfig, error) {
