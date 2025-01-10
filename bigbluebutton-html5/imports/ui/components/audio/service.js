@@ -15,6 +15,24 @@ import apolloContextHolder from '/imports/ui/core/graphql/apolloContextHolder/ap
 import { MEETING_IS_BREAKOUT } from '/imports/ui/components/audio/audio-graphql/audio-controls/queries';
 
 const MUTED_KEY = 'muted';
+export const CLIENT_DID_USER_SELECT_MICROPHONE_KEY = 'clientUserSelectedMicrophone';
+export const CLIENT_DID_USER_SELECT_LISTEN_ONLY_KEY = 'clientUserSelectedListenOnly';
+
+export const setUserSelectedMicrophone = (value) => (
+  Storage.setItem(CLIENT_DID_USER_SELECT_MICROPHONE_KEY, !!value)
+);
+
+export const setUserSelectedListenOnly = (value) => (
+  Storage.setItem(CLIENT_DID_USER_SELECT_LISTEN_ONLY_KEY, !!value)
+);
+
+export const didUserSelectMicrophone = () => (
+  !!Storage.getItem(CLIENT_DID_USER_SELECT_MICROPHONE_KEY)
+);
+
+export const didUserSelectListenOnly = () => (
+  !!Storage.getItem(CLIENT_DID_USER_SELECT_LISTEN_ONLY_KEY)
+);
 
 const recoverMicState = (toggleVoice) => {
   const recover = (storageKey) => {
@@ -176,6 +194,8 @@ const hasMicrophonePermission = async ({
 };
 
 export default {
+  CLIENT_DID_USER_SELECT_MICROPHONE_KEY,
+  CLIENT_DID_USER_SELECT_LISTEN_ONLY_KEY,
   init,
   exitAudio: () => AudioManager.exitAudio(),
   forceExitAudio: () => AudioManager.forceExitAudio(),
@@ -230,4 +250,8 @@ export default {
   hasMicrophonePermission,
   notify: (message, error, icon) => { AudioManager.notify(message, error, icon); },
   useIsUsingAudio,
+  didUserSelectMicrophone,
+  didUserSelectListenOnly,
+  setUserSelectedMicrophone,
+  setUserSelectedListenOnly,
 };

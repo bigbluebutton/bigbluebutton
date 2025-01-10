@@ -26,7 +26,10 @@ import { useStorageKey } from '../../services/storage/hooks';
 import { BREAKOUT_COUNT } from './queries';
 import useMeeting from '../../core/hooks/useMeeting';
 import useWhoIsUnmuted from '../../core/hooks/useWhoIsUnmuted';
-import AudioService from '/imports/ui/components/audio/service';
+import AudioService, {
+  CLIENT_DID_USER_SELECT_MICROPHONE_KEY,
+  CLIENT_DID_USER_SELECT_LISTEN_ONLY_KEY,
+} from '/imports/ui/components/audio/service';
 
 const intlMessages = defineMessages({
   joinedAudio: {
@@ -121,8 +124,8 @@ const AudioContainer = (props) => {
 
   const prevProps = usePreviousValue(props);
   const toggleVoice = useToggleVoice();
-  const userSelectedMicrophone = !!useStorageKey('clientUserSelectedMicrophone', 'session');
-  const userSelectedListenOnly = !!useStorageKey('clientUserSelectedListenOnly', 'session');
+  const userSelectedMicrophone = !!useStorageKey(CLIENT_DID_USER_SELECT_MICROPHONE_KEY, 'session');
+  const userSelectedListenOnly = !!useStorageKey(CLIENT_DID_USER_SELECT_LISTEN_ONLY_KEY, 'session');
   const { microphoneConstraints } = useSettings(SETTINGS.APPLICATION);
   const { data: breakoutCountData } = useSubscription(BREAKOUT_COUNT);
   const hasBreakoutRooms = (breakoutCountData?.breakoutRoom_aggregate?.aggregate?.count ?? 0) > 0;
