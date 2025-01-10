@@ -39,6 +39,6 @@ const PluginEventPersistenceManager: React.FC<PluginEventPersistenceManagerProps
       );
     };
   }, []);
-}) as React.ElementType<PluginEventPersistenceManagerProps>;
+}) as React.FC<PluginEventPersistenceManagerProps>;
 
 export default PluginEventPersistenceManager;
