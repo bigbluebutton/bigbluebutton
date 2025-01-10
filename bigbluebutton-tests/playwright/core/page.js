@@ -49,6 +49,7 @@ class Page {
       const { autoJoinAudioModal } = this.settings;
       if (isRecording && !isModerator) await this.closeRecordingModal();
       if (shouldCloseAudioModal && autoJoinAudioModal) await this.closeAudioModal();
+      await this.waitAndClick(e.closeModal);
     }
   }
 
