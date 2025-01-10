@@ -1,11 +1,11 @@
 package org.bigbluebutton.core.apps.users
 
 import org.bigbluebutton.common2.msgs.UserLeaveReqMsg
-import org.bigbluebutton.core.api.{ UserClosedAllGraphqlConnectionsInternalMsg }
+import org.bigbluebutton.core.api.UserClosedAllGraphqlConnectionsInternalMsg
 import org.bigbluebutton.core.domain.MeetingState2x
+import org.bigbluebutton.core.graphql.GraphqlMiddleware
 import org.bigbluebutton.core.models.{ RegisteredUsers, Users2x }
 import org.bigbluebutton.core.running.{ HandlerHelpers, MeetingActor, OutMsgRouter }
-import org.bigbluebutton.core2.message.senders.Sender
 
 trait UserLeaveReqMsgHdlr extends HandlerHelpers {
   this: MeetingActor =>
@@ -48,7 +48,7 @@ trait UserLeaveReqMsgHdlr extends HandlerHelpers {
             ru <- RegisteredUsers.findWithUserId(userId, liveMeeting.registeredUsers)
           } yield {
             RegisteredUsers.setUserLoggedOutFlag(liveMeeting.registeredUsers, ru)
-            Sender.sendForceUserGraphqlReconnectionSysMsg(liveMeeting.props.meetingProp.intId, ru.id, ru.sessionToken, "user_loggedout", outGW)
+            GraphqlMiddleware.requestGraphqlReconnection(ru.sessionToken, "user_loggedout")
           }
         }
         state
