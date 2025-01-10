@@ -6,9 +6,11 @@ import PluginUserStatusUiCommandsHandler from './user-status/handler';
 import PluginConferenceUiCommandsHandler from './conference/handler';
 import PluginNotificationUiCommandsHandler from './notification/handler';
 import { PluginLayoutUiCommandsHandler } from './layout/handler';
+import PluginActionsBarUiCommandsHandler from './actions-bar/handler';
 
 const PluginUiCommandsHandler = () => (
   <>
+    <PluginActionsBarUiCommandsHandler />
     <PluginLayoutUiCommandsHandler />
     <PluginChatUiCommandsHandler />
     <PluginSidekickOptionsContainerUiCommandsHandler />
