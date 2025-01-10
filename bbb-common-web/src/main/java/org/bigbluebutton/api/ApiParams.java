@@ -63,9 +63,7 @@ public class ApiParams {
     public static final String SEQUENCE = "sequence";
     public static final String VOICE_BRIDGE = "voiceBridge";
     public static final String WEB_VOICE = "webVoice";
-    public static final String LEARNING_DASHBOARD_ENABLED = "learningDashboardEnabled";
     public static final String LEARNING_DASHBOARD_CLEANUP_DELAY_IN_MINUTES = "learningDashboardCleanupDelayInMinutes";
-    public static final String VIRTUAL_BACKGROUNDS_DISABLED = "virtualBackgroundsDisabled";
     public static final String WEBCAMS_ONLY_FOR_MODERATOR = "webcamsOnlyForModerator";
     public static final String MEETING_CAMERA_CAP = "meetingCameraCap";
     public static final String USER_CAMERA_CAP = "userCameraCap";
@@ -87,7 +85,6 @@ public class ApiParams {
     public static final String BREAKOUT_ROOMS_CAPTURE_NOTES  = "breakoutRoomsCaptureNotes";
     public static final String BREAKOUT_ROOMS_CAPTURE_SLIDES_FILENAME = "breakoutRoomsCaptureSlidesFilename";
     public static final String BREAKOUT_ROOMS_CAPTURE_NOTES_FILENAME = "breakoutRoomsCaptureNotesFilename";
-    public static final String BREAKOUT_ROOMS_ENABLED = "breakoutRoomsEnabled";
     public static final String BREAKOUT_ROOMS_RECORD = "breakoutRoomsRecord";
     public static final String BREAKOUT_ROOMS_PRIVATE_CHAT_ENABLED = "breakoutRoomsPrivateChatEnabled";
 

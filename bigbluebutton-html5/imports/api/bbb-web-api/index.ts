@@ -1,15 +1,13 @@
-import Session from '/imports/ui/services/storage/session';
 import { IndexResponse } from './types';
 
 class BBBWebApi {
-  private cachePrefix = 'bbbWebApi';
+  private lastResponse : IndexResponse['response'] | null = null;
 
   private routes = {
     index: {
       // this needs to be a relative path because it may be mounted as a subpath
       // for example in cluster setups
       path: 'bigbluebutton/api',
-      cacheKey: `${this.cachePrefix}_index`,
     },
   };
 
@@ -25,10 +23,9 @@ class BBBWebApi {
     data: IndexResponse['response'],
     response?: Response,
   }> {
-    const cache = Session.getItem(this.routes.index.cacheKey);
-    if (cache) {
+    if (this.lastResponse != null) {
       return {
-        data: cache as IndexResponse['response'],
+        data: this.lastResponse as IndexResponse['response'],
       };
     }
 
@@ -40,7 +37,7 @@ class BBBWebApi {
     });
 
     const body: IndexResponse = await response.json();
-    Session.setItem(this.routes.index.cacheKey, body.response);
+    this.lastResponse = body.response;
 
     return {
       response,

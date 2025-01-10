@@ -2,8 +2,9 @@ package org.bigbluebutton.core.apps.users
 
 import org.bigbluebutton.common2.msgs.UserJoinMeetingReqMsg
 import org.bigbluebutton.core.apps.breakout.BreakoutHdlrHelpers
-import org.bigbluebutton.core.db.{ NotificationDAO, UserDAO, UserStateDAO }
+import org.bigbluebutton.core.db.{NotificationDAO, UserDAO, UserStateDAO}
 import org.bigbluebutton.core.domain.MeetingState2x
+import org.bigbluebutton.core.graphql.GraphqlMiddleware
 import org.bigbluebutton.core.models._
 import org.bigbluebutton.core.running._
 import org.bigbluebutton.core2.message.senders._
@@ -52,9 +53,10 @@ trait UserJoinMeetingReqMsgHdlr extends HandlerHelpers {
     notifyPreviousUsersWithSameExtId(regUser)
     clearCachedVoiceUser(regUser)
     clearExpiredUserState(regUser)
-    forceUserGraphqlReconnection(regUser)
-    updateGraphqlDatabase(regUser)
-    generateLivekitToken(regUser, liveMeeting)
+    val newRegUser = RegisteredUsers.updateUserJoin(liveMeeting.registeredUsers, regUser, joined = true)
+    forceUserGraphqlReconnection(newRegUser)
+    updateGraphqlDatabase(newRegUser)
+    generateLivekitToken(newRegUser, liveMeeting)
 
     newState
   }
@@ -179,13 +181,11 @@ trait UserJoinMeetingReqMsgHdlr extends HandlerHelpers {
     UserStateDAO.updateExpired(regUser.meetingId, regUser.id, expired = false)
 
   private def forceUserGraphqlReconnection(regUser: RegisteredUser) = {
-    Sender.sendForceUserGraphqlReconnectionSysMsg(liveMeeting.props.meetingProp.intId, regUser.id, regUser.sessionToken, "user_joined", outGW)
+    GraphqlMiddleware.requestGraphqlReconnection(regUser.sessionToken, "user_joined")
   }
 
   private def updateGraphqlDatabase(regUser: RegisteredUser) = {
-    if (!regUser.joined) {
-      RegisteredUsers.updateUserJoin(liveMeeting.registeredUsers, regUser, joined = true)
-    }
+      UserDAO.update(regUser)
   }
 
 }

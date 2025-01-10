@@ -318,10 +318,18 @@ class BbbWebApiGWApp(
     msgToAkkaAppsEventBus.publish(MsgToAkkaApps(toAkkaAppsChannel, event))
   }
 
-  def registerUserSessionToken(meetingId: String, intUserId: String, sessionToken: String, replaceSessionToken: String,
-                               enforceLayout: String, userSessionMetadata: java.util.Map[String, String]): Unit = {
-    val regUserSessionToken = new RegisterUserSessionToken(meetingId, intUserId, sessionToken, replaceSessionToken,
-                                                            enforceLayout, userSessionMetadata)
+  def registerUserSessionToken(meetingId: String, intUserId: String, sessionToken: String, sessionName: String,
+                               replaceSessionToken: String, enforceLayout: String,
+                               userSessionMetadata: java.util.Map[String, String]): Unit = {
+    val regUserSessionToken = new RegisterUserSessionToken(
+      meetingId,
+      intUserId,
+      sessionToken,
+      sessionName,
+      replaceSessionToken,
+      enforceLayout,
+      userSessionMetadata
+    )
 
     val event = MsgBuilder.buildRegisterUserSessionTokenRequestToAkkaApps(regUserSessionToken)
     msgToAkkaAppsEventBus.publish(MsgToAkkaApps(toAkkaAppsChannel, event))
