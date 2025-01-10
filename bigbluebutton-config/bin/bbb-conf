@@ -741,7 +741,7 @@ check_configuration() {
         fi
 
         WEBHOOKS_PROXY_PORT=$(cat /usr/share/bigbluebutton/nginx/webhooks.nginx | grep -v '#' | grep '^[ \t]*proxy_pass[ \t]*' | sed 's|.*http[s]\?://[^:]*:\([^;]*\);.*|\1|g')
-        WEBHOOKS_APP_PORT=$(yq e '.server.port' $WEBHOOKS_CONF)
+        WEBHOOKS_APP_PORT=$(yq e '.modules."../out/webhooks/index.js".config.api.port' $WEBHOOKS_CONF)
 
         if [ "$WEBHOOKS_PROXY_PORT" != "$WEBHOOKS_APP_PORT" ]; then
             echo "# Warning: Webhooks port mismatch: "

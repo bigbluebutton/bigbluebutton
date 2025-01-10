@@ -44,7 +44,8 @@ test.describe.parallel('Create Parameters', { tag: '@ci' }, () => {
     await createParam.duration();
   });
 
-  test('Message Only To Moderators', async ({ browser, context, page }) => {
+  // welcome message moved on #21909
+  test.fixme('Message Only To Moderators', async ({ browser, context, page }) => {
     const createParam = new CreateParameters(browser, context);
     await createParam.initModPage(page, true, { createParameter: c.moderatorOnlyMessage });
     await createParam.moderatorOnlyMessage(context);
