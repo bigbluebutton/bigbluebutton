@@ -44,6 +44,7 @@
     "app.chat.editTime": "{0} に最終更新",
     "app.chat.deleteMessage": "{0} によってこのメッセージが削除されました",
     "app.chat.toolbar.reply": "{0} のメッセージに返事をする",
+    "app.chat.toolbar.reply.cancel": "キャンセル ({0})",
     "app.chat.toolbar.edit": "編集",
     "app.chat.toolbar.delete": "削除",
     "app.chat.toolbar.reactions.reactionLabel": "{0} が {1} と反応",
