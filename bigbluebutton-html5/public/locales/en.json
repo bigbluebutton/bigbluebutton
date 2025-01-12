@@ -359,7 +359,7 @@
     "app.presentationUploder.connectionClosedError": "Interrupted by poor connectivity. Please try again.",
     "app.presentationUploder.upload.progress": "Uploading ({0}%)",
     "app.presentationUploder.conversion.204": "No content to capture",
-    "app.presentationUploder.upload.413": "File is too large, exceeded the maximum of {0} MB",
+    "app.presentationUploder.upload.413": "File is too large, exceeded the maximum of {0}",
     "app.presentationUploder.genericError": "Oops, Something went wrong ...",
     "app.presentationUploder.upload.fileVirus": "Upload failed: Virus detected! Please check your file and retry.",
     "app.presentationUploder.upload.scanFailed": "Upload failed: the file could not be scanned",
