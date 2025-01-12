@@ -44,7 +44,6 @@
     "app.chat.editTime": "Viimati muudetud {0}",
     "app.chat.deleteMessage": "{0} kustutas selle sõnumi",
     "app.chat.toolbar.reply": "Vasta sõnumile {0}",
-    "app.chat.toolbar.reply.cancel": "Tühista ({0})",
     "app.chat.toolbar.edit": "Muuda",
     "app.chat.toolbar.delete": "Kustuta",
     "app.chat.toolbar.reactions.reactionLabel": "{0} reageeris: {1}",
