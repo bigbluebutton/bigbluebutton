@@ -43,10 +43,11 @@ EOT
   yq e -i ".livekit.key = \"$API_KEY\"" /etc/bigbluebutton/bbb-webrtc-sfu/production.yml
   yq e -i ".livekit.secret = \"$API_SECRET\"" /etc/bigbluebutton/bbb-webrtc-sfu/production.yml
 
-  if [ ! -f /.dockerenv ]; then
-    systemctl enable livekit-server.service
-    systemctl daemon-reload
-    reloadService nginx
-    startService livekit-server.service || echo "livekit-server service could not be registered or started"
-  fi
+fi
+
+if [ ! -f /.dockerenv ]; then
+  systemctl enable livekit-server.service
+  systemctl daemon-reload
+  reloadService nginx
+  startService livekit-server.service || echo "livekit-server service could not be registered or started"
 fi

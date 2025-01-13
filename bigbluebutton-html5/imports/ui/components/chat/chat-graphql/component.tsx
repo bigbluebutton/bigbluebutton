@@ -25,8 +25,8 @@ const Chat: React.FC<ChatProps> = ({ isRTL }) => {
   const isEditingMessage = useRef(false);
 
   React.useEffect(() => {
-    const handleMouseDown = () => {
-      if (window.getSelection) {
+    const handleMouseDown = (e: MouseEvent) => {
+      if (window.getSelection && e.button !== 2) {
         const selection = window.getSelection();
         if (selection) {
           selection.removeAllRanges();

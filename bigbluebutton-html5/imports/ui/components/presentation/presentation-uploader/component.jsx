@@ -385,6 +385,15 @@ class PresentationUploader extends Component {
         shouldUpdateState = true;
       }
 
+      if (
+        currentPropPres?.uploadErrorMsgKey !== prevPropPres?.uploadErrorMsgKey
+        && currentPropPres?.uploadErrorDetailsJson !== prevPropPres?.uploadErrorDetailsJson
+      ) {
+        presentation.uploadErrorMsgKey = currentPropPres.uploadErrorMsgKey;
+        presentation.uploadErrorDetailsJson = currentPropPres.uploadErrorDetailsJson;
+        shouldUpdateState = true;
+      }
+
       if (currentPropPres?.totalPages !== prevPropPres?.totalPages
         || presentation.totalPages !== currentPropPres?.totalPages) {
         modPresentation.totalPages = currentPropPres.totalPages;
@@ -835,7 +844,7 @@ class PresentationUploader extends Component {
       : item.current;
     const isUploading = !item.uploadCompleted;
     const uploadInProgress = item.uploadInProgress;
-    const hasError = !!item.uploadErrorMsgKey;
+    const hasError = !!item.uploadErrorMsgKey || !!item.uploadErrorDetailsJson;
     const isProcessing = (isUploading || uploadInProgress) && !hasError;
 
     if (hasError) {
@@ -869,6 +878,7 @@ class PresentationUploader extends Component {
         error={hasError}
         animated={isProcessing}
         animations={animations}
+        data-test="presentationItem"
       >
         <Styled.SetCurrentAction>
           <Radio

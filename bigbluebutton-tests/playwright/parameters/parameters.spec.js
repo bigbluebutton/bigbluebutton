@@ -4,10 +4,7 @@ const { DisabledFeatures } = require('./disabledFeatures');
 const c = require('./constants');
 const { encodeCustomParams, getAllShortcutParams, hexToRgb } = require('./util');
 const { CreateParameters } = require('./createParameters');
-const { PARAMETER_HIDE_PRESENTATION_TOAST } = require('../core/constants');
-
-// it only works for snapshot comparisons. playwright assertions will complain about the element (still in the DOM)
-const hidePresentationToast = encodeCustomParams(PARAMETER_HIDE_PRESENTATION_TOAST);
+const { linkIssue } = require('../core/helpers');
 
 test.describe.parallel('Create Parameters', { tag: '@ci' }, () => {
   test('Record Meeting', async ({ browser, context, page }) => {
@@ -31,22 +28,24 @@ test.describe.parallel('Create Parameters', { tag: '@ci' }, () => {
     });
   });
 
-  // see https://github.com/bigbluebutton/bigbluebutton/issues/19426
   test('Max Participants', { tag: '@flaky' }, async ({ browser, context, page }) => {
+    // considering value set - 1 (e.g. maxParticipants=3: 2 users would be able to join)
+    // see issue below
+    linkIssue(19426);
     const createParam = new CreateParameters(browser, context);
     await createParam.initModPage(page, true, { createParameter: c.maxParticipants });
     await createParam.initModPage2(true, context);
     await createParam.maxParticipants(context);
   });
 
-  // Not working due to missing data provided by GraphQL
   test('Meeting Duration', async ({ browser, context, page }) => {
     const createParam = new CreateParameters(browser, context);
     await createParam.initModPage(page, true, { createParameter: c.duration });
     await createParam.duration();
   });
 
-  test('Message Only To Moderators', async ({ browser, context, page }) => {
+  // welcome message moved on #21909
+  test.fixme('Message Only To Moderators', async ({ browser, context, page }) => {
     const createParam = new CreateParameters(browser, context);
     await createParam.initModPage(page, true, { createParameter: c.moderatorOnlyMessage });
     await createParam.moderatorOnlyMessage(context);
@@ -65,7 +64,7 @@ test.describe.parallel('Create Parameters', { tag: '@ci' }, () => {
     await createParam.muteOnStart();
   });
 
-  test('Allow Mods To Unmute Users', { tag: '@fci' }, async ({ browser, context, page }) => {
+  test('Allow Mods To Unmute Users', async ({ browser, context, page }) => {
     const createParam = new CreateParameters(browser, context);
     await createParam.initModPage(page, true, { createParameter: c.allowModsToUnmuteUsers });
     await createParam.allowModsToUnmuteUsers(context);
@@ -366,7 +365,7 @@ test.describe.parallel('Custom Parameters', { tag: '@ci' }, () => {
     await customParam.clientTitle();
   });
 
-  test('Ask for feedback on logout', { tag: '@ci' }, async ({ browser, context, page }) => {
+  test('Ask for feedback on logout', async ({ browser, context, page }) => {
     const customParam = new CustomParameters(browser, context);
     await customParam.initModPage(page, true, { joinParameter: c.askForFeedbackOnLogout });
     await customParam.askForFeedbackOnLogout();
@@ -393,7 +392,6 @@ test.describe.parallel('Custom Parameters', { tag: '@ci' }, () => {
   });
 
   test('Custom Styles: URL', async ({ browser, context, page }) => {
-    test.fixme();
     const customParam = new CustomParameters(browser, context);
     await customParam.initModPage(page, true, { joinParameter: encodeCustomParams(c.customStyleUrl) });
     await customParam.customStyle();
@@ -430,8 +428,10 @@ test.describe.parallel('Custom Parameters', { tag: '@ci' }, () => {
   });
 
   test.describe.parallel('Audio', () => {
-    // see https://github.com/bigbluebutton/bigbluebutton/issues/19427
-    test('Auto join', async ({ browser, context, page }) => {
+    test('Auto join', { tag: '@flaky' }, async ({ browser, context, page }) => {
+      // first user to join the meeting is not auto-joining the audio
+      // see issue below
+      linkIssue(19427);
       const customParam = new CustomParameters(browser, context);
       await customParam.initModPage(page, false, { joinParameter: c.autoJoin });
       await customParam.autoJoin();
@@ -443,9 +443,12 @@ test.describe.parallel('Custom Parameters', { tag: '@ci' }, () => {
       await customParam.listenOnlyMode();
     });
 
-    // see https://github.com/bigbluebutton/bigbluebutton/issues/19428
-    test('Force Listen Only', async ({ browser, context, page }) => {
+    test('Force Listen Only', { tag: '@flaky' }, async ({ browser, context, page }) => {
+      // param applied to moderators (not expected)
+      // see issue below
+      linkIssue(21326);
       const customParam = new CustomParameters(browser, context);
+      // param only applied for attendees
       await customParam.initUserPage(false, context, { useModMeetingId: false, joinParameter: c.forceListenOnly });
       await customParam.forceListenOnly(page);
     });
@@ -470,7 +473,6 @@ test.describe.parallel('Custom Parameters', { tag: '@ci' }, () => {
   });
 
   test.describe.parallel('Presentation', () => {
-    // see https://github.com/bigbluebutton/bigbluebutton/issues/19456
     test('Hide Presentation on join', async ({ browser, context, page }) => {
       const customParam = new CustomParameters(browser, context);
       await customParam.initModPage(page, true, { joinParameter: c.hidePresentationOnJoin });
@@ -478,7 +480,7 @@ test.describe.parallel('Custom Parameters', { tag: '@ci' }, () => {
       await customParam.hidePresentationOnJoin();
     });
 
-    test('Force restore presentation on new events', { tag: ['@ci', '@flaky'] }, async ({ browser, context, page }) => {
+    test('Force restore presentation on new events', { tag: '@flaky' }, async ({ browser, context, page }) => {
       // tagged as flaky because it's restoring presentation right after minimizing it due to unexpected zooming slide
       const customParam = new CustomParameters(browser, context);
       await customParam.initModPage(page);
