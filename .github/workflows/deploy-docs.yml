@@ -25,17 +25,17 @@ jobs:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
         with:
-          node-version: 18
-          cache: yarn
-          cache-dependency-path: ./docs/yarn.lock
+          node-version: 20
+          cache: npm
+          cache-dependency-path: ./docs/package-lock.json
       - name: Install dependencies
-        run: yarn install --frozen-lockfile
+        run: npm ci
 
       # Build static docs
       - name: Build all versions
         run: ./build.sh
       - name: Build website
-        run: yarn build
+        run: npm run docusaurus build
       - name: upload build artifact
         uses: actions/upload-pages-artifact@v1
         with:

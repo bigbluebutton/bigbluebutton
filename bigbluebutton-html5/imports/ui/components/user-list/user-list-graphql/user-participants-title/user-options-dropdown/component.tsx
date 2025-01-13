@@ -35,20 +35,20 @@ const intlMessages = defineMessages({
     id: 'app.userList.userOptions.clearAllDesc',
     description: 'Clear all description',
   },
-  muteAllLabel: {
-    id: 'app.userList.userOptions.muteAllLabel',
+  usersJoinMutedEnableLabel: {
+    id: 'app.userList.userOptions.usersJoinMutedEnableLabel',
     description: 'Mute all label',
   },
-  muteAllDesc: {
-    id: 'app.userList.userOptions.muteAllDesc',
-    description: 'Mute all description',
+  usersJoinMutedEnableDesc: {
+    id: 'app.userList.userOptions.usersJoinMutedEnableDesc',
+    description: 'Enable Join muted button',
   },
-  unmuteAllLabel: {
-    id: 'app.userList.userOptions.unmuteAllLabel',
-    description: 'Unmute all label',
+  usersJoinMutedDisableLabel: {
+    id: 'app.userList.userOptions.usersJoinMutedDisableLabel',
+    description: 'Disable Join muted button',
   },
-  unmuteAllDesc: {
-    id: 'app.userList.userOptions.unmuteAllDesc',
+  usersJoinMutedDisableDesc: {
+    id: 'app.userList.userOptions.usersJoinMutedDisableDesc',
     description: 'Unmute all desc',
   },
   lockViewersLabel: {
@@ -149,7 +149,7 @@ interface UserTitleOptionsProps {
 
 const UserTitleOptions: React.FC<UserTitleOptionsProps> = ({
   isRTL,
-  isMeetingMuted = false,
+  isMeetingMuted,
   isBreakout,
   isModerator,
   hasBreakoutRooms,
@@ -197,7 +197,7 @@ const UserTitleOptions: React.FC<UserTitleOptionsProps> = ({
     }
   }, [users]);
 
-  const toggleMute = (muted: boolean, exceptPresenter: boolean) => {
+  const callSetMuted = (muted: boolean, exceptPresenter: boolean) => {
     setMuted({
       variables: {
         muted,
@@ -237,18 +237,18 @@ const UserTitleOptions: React.FC<UserTitleOptionsProps> = ({
       {
         allow: !isBreakout,
         key: uuids.current[0],
-        label: intl.formatMessage(intlMessages[isMeetingMuted ? 'unmuteAllLabel' : 'muteAllLabel']),
-        description: intl.formatMessage(intlMessages[isMeetingMuted ? 'unmuteAllDesc' : 'muteAllDesc']),
-        onClick: toggleMute.bind(null, !isMeetingMuted, false),
+        label: intl.formatMessage(intlMessages[isMeetingMuted ? 'usersJoinMutedDisableLabel' : 'usersJoinMutedEnableLabel']),
+        description: intl.formatMessage(intlMessages[isMeetingMuted ? 'usersJoinMutedDisableDesc' : 'usersJoinMutedEnableDesc']),
+        onClick: callSetMuted.bind(null, !isMeetingMuted, false),
         icon: isMeetingMuted ? 'unmute' : 'mute',
-        dataTest: 'muteAll',
+        dataTest: 'usersJoinMuted',
       },
       {
-        allow: !isMeetingMuted,
+        allow: true,
         key: uuids.current[1],
         label: intl.formatMessage(intlMessages.muteAllExceptPresenterLabel),
         description: intl.formatMessage(intlMessages.muteAllExceptPresenterDesc),
-        onClick: toggleMute.bind(null, isMeetingMuted, true),
+        onClick: callSetMuted.bind(null, true, true),
         icon: 'mute',
         dataTest: 'muteAllExceptPresenter',
       },

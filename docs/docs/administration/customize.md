@@ -881,7 +881,7 @@ $ sudo bbb-conf --restart
 
 #### Change the default presentation
 
-When a new meeting starts, BigBlueButton displays a default presentation. The file for the default presentation is located in `/var/www/bigbluebutton-default/assets/default.pdf`. You can replace the contents of this file with your presentation. Whenever a meeting is created, BigBlueButton will automatically load, convert, and display this presentation for all users.
+When a new meeting starts, BigBlueButton displays a default presentation. The file for the default presentation is located in `/var/www/bigbluebutton-default/assets/default.pdf`. You can replace the contents of this file with your presentation. Whenever a meeting is created, BigBlueButton will automatically load, convert, and display this presentation for all users. Note that this file may be overwritten when BigBlueButton is upgraded. 
 
 Alternatively, you can change the global default by adding an overwriting rule in `/etc/bigbluebutton/bbb-web.properties` specifying the URL for `beans.presentationService.defaultUploadedPresentation`.
 
@@ -890,7 +890,9 @@ Alternatively, you can change the global default by adding an overwriting rule i
 beans.presentationService.defaultUploadedPresentation=${bigbluebutton.web.serverURL}/default.pdf
 ```
 
-You'll need to restart BigBlueButton after the change with `sudo bbb-conf --restart`.
+Please use the file name "default.pdf" if you would not like BigBlueButton to generate thumbnails from this file. The thumbnails will be used in some frontend apps, such as Greenlight.
+
+You'll need to restart BigBlueButton after the change with `sudo bbb-conf --restart`. 
 
 If you want to specify the default presentation for a given meeting, you can also pass a URL to the presentation as part of the [create](/development/api#pre-upload-slides) meeting API call.
 
@@ -972,6 +974,27 @@ public:
   whiteboard:
     maxNumberOfAnnotations: 500
 ```
+
+and restart BigBlueButton via `sudo bbb-conf --restart`
+
+#### Configure S3-based cache for presentation assets
+
+In BigBlueButton 3.0 we introduced a functionality to store outputs such as SVGs, PNGs, thumbnails and text generated from PDFs or document files uploaded as presentations.
+The processed outputs are cached in an S3-based storage system, keyed by a hash of the presentation file.
+When the same presentation is uploaded again, the system retrieves the cached outputs, avoiding redundant processing and improving performance.
+
+In order to enable this feature, change the file `/etc/bigbluebutton/bbb-web.properties` including the following content:
+
+```
+presentationConversionCacheEnabled=true
+presentationConversionCacheS3AccessKeyId=AAAAAAAAAAAAAAAAAAAA
+presentationConversionCacheS3AccessKeySecret=aaaAAAaaaaaaaaaaaAAAAAAAAAaaaaaaaaaaaaa+aaA
+presentationConversionCacheS3BucketName=my-storage-name
+presentationConversionCacheS3Region=nyc3
+presentationConversionCacheS3EndpointURL=https://nyc3.digitaloceanspaces.com
+presentationConversionCacheS3PathStyle=false
+```
+_This is an example of config for DigitalOcean Spaces S3-Compatible Object Storage._
 
 and restart BigBlueButton via `sudo bbb-conf --restart`
 
@@ -1279,7 +1302,7 @@ These captions will automatically appear in the recordings.  To enable live capt
 ```
 public:
   app:
-    # You may have other setting itms here
+    # You may have other setting items here
     audioCaptions:
       enabled: true
 ```
@@ -1405,7 +1428,7 @@ Useful tools for development:
 | `userdata-bbb_direct_leave_button` | (Introduced in BigBlueButton 2.7) If set to `true` it will make a button to leave the meeting appear to the left of the Options menu. | `false`  |
 | `userdata-bbb_parent_room_moderator=` | (Introduced in BigBlueButton 3.0) Only used in breakouts: if set to `true`, user will have permission to kick other users inside the breakout | `false`                                                                      
 | `userdata-bbb_record_permission=` | (Introduced in BigBlueButton 3.0) If set to `true`, the user will be able to control the recording start/stop. If set to `false`, the user will not be allowed to control the recording start/stop even if their role is moderator. Otherwise only moderators will have the control (default).                                                                                                                   | `null`        |
-| `userdata-bbb_record_permission_tooltip=` | (Introduced in BigBlueButton 3.0) If set, the tooltip of the recording indicator shown when the user don't have permission to record will be replaced by it's content.                                                                                                                   | `null`        |
+| `userdata-bbb_record_permission_tooltip=` | (Introduced in BigBlueButton 3.0) If set, the tooltip of the recording indicator shown when the user don't have permission to record will be replaced by its content.                                                                                                                   | `null`        |
 
 #### Branding parameters
 
@@ -1517,7 +1540,7 @@ Step-by-step instructions for how to configure logs from clients to be logged in
 
 The BigBlueButton client can ask the user for feedback when they leave a session. This feedback gives the administrator insight on a user's experiences within a BigBlueButton sessions.
 
-To enable the feedback and it's logging to your server, run the following script.
+To enable the feedback and its logging to your server, run the following script.
 
 ```bash
 #!/bin/bash

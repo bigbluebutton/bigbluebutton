@@ -90,7 +90,6 @@ public class ParamsProcessorUtil {
     private boolean autoStartRecording;
     private boolean allowStartStopRecording;
     private boolean recordFullDurationMedia;
-    private boolean learningDashboardEnabled = true;
     private int learningDashboardCleanupDelayInMinutes;
     private boolean webcamsOnlyForModerator;
     private Integer defaultMeetingCameraCap = 0;
@@ -113,7 +112,6 @@ public class ParamsProcessorUtil {
     private String defaultPresentationUploadExternalDescription = "";
     private String defaultPresentationUploadExternalUrl = "";
 
-		private boolean defaultBreakoutRoomsEnabled = true;
 		private boolean defaultBreakoutRoomsRecord;
         private boolean defaultBreakoutRoomsCaptureSlides = false;
         private boolean defaultBreakoutRoomsCaptureNotes = false;
@@ -593,28 +591,6 @@ public class ParamsProcessorUtil {
             }
         }
 
-        // Check if VirtualBackgrounds is disabled
-        if (!StringUtils.isEmpty(params.get(ApiParams.VIRTUAL_BACKGROUNDS_DISABLED))) {
-            boolean virtualBackgroundsDisabled = Boolean.valueOf(params.get(ApiParams.VIRTUAL_BACKGROUNDS_DISABLED));
-            if(virtualBackgroundsDisabled == true && !listOfDisabledFeatures.contains("virtualBackgrounds")) {
-                log.warn("[DEPRECATION] use disabledFeatures=virtualBackgrounds instead of virtualBackgroundsDisabled=true");
-                listOfDisabledFeatures.add("virtualBackgrounds");
-            }
-        }
-
-        boolean learningDashboardEn = learningDashboardEnabled;
-        if (!StringUtils.isEmpty(params.get(ApiParams.LEARNING_DASHBOARD_ENABLED))) {
-            try {
-                learningDashboardEn = Boolean.parseBoolean(params.get(ApiParams.LEARNING_DASHBOARD_ENABLED));
-            } catch (Exception ex) {
-                log.warn("Invalid param [learningDashboardEnabled] for meeting=[{}]",internalMeetingId);
-            }
-        }
-        if(learningDashboardEn == false && !listOfDisabledFeatures.contains("learningDashboard")) {
-            log.warn("[DEPRECATION] use disabledFeatures=learningDashboard instead of learningDashboardEnabled=false");
-            listOfDisabledFeatures.add("learningDashboard");
-        }
-
         // Learning Dashboard not allowed for Breakout Rooms
         if(isBreakout) {
 		listOfDisabledFeatures.add("learningDashboard");
@@ -763,16 +739,6 @@ public class ParamsProcessorUtil {
 
         if (!StringUtils.isEmpty(params.get(ApiParams.MEETING_LAYOUT))) {
             meetingLayout = params.get(ApiParams.MEETING_LAYOUT);
-        }
-
-        Boolean breakoutRoomsEnabled = defaultBreakoutRoomsEnabled;
-        String breakoutRoomsEnabledParam = params.get(ApiParams.BREAKOUT_ROOMS_ENABLED);
-        if (!StringUtils.isEmpty(breakoutRoomsEnabledParam)) {
-            breakoutRoomsEnabled = Boolean.parseBoolean(breakoutRoomsEnabledParam);
-        }
-        if(breakoutRoomsEnabled == false && !listOfDisabledFeatures.contains("breakoutRooms")) {
-            log.warn("[DEPRECATION] use disabledFeatures=breakoutRooms instead of breakoutRoomsEnabled=false");
-            listOfDisabledFeatures.add("breakoutRooms");
         }
 
         BreakoutRoomsParams breakoutParams = processBreakoutRoomsParams(params);
@@ -1387,10 +1353,6 @@ public class ParamsProcessorUtil {
         this.recordFullDurationMedia = recordFullDurationMedia;
     }
 
-    public void setLearningDashboardEnabled(boolean learningDashboardEnabled) {
-        this.learningDashboardEnabled = learningDashboardEnabled;
-    }
-
     public void setLearningDashboardCleanupDelayInMinutes(int learningDashboardCleanupDelayInMinutes) {
         this.learningDashboardCleanupDelayInMinutes = learningDashboardCleanupDelayInMinutes;
     }
@@ -1439,9 +1401,9 @@ public class ParamsProcessorUtil {
 		this.authenticatedGuest = value;
 	}
 
-	public void setDefaultAllowPromoteGuestToModerator(Boolean value) {
-		this.defaultAllowPromoteGuestToModerator = value;
-	}
+    public void setDefaultAllowPromoteGuestToModerator(Boolean value) {
+        this.defaultAllowPromoteGuestToModerator = value;
+    }
 
     public void setWaitingGuestUsersTimeout(Long value) {
         this.waitingGuestUsersTimeout = value;
@@ -1601,10 +1563,6 @@ public class ParamsProcessorUtil {
 
         return filters;
     }
-
-	public void setBreakoutRoomsEnabled(Boolean breakoutRoomsEnabled) {
-		this.defaultBreakoutRoomsEnabled = breakoutRoomsEnabled;
-	}
 
 	public void setBreakoutRoomsRecord(Boolean breakoutRoomsRecord) {
 		this.defaultBreakoutRoomsRecord = breakoutRoomsRecord;

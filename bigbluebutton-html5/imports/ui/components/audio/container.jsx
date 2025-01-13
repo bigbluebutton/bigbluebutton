@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React, { useCallback, useEffect } from 'react';
 import { useSubscription } from '@apollo/client';
 import PropTypes from 'prop-types';
 import Session from '/imports/ui/services/storage/in-memory';
@@ -131,8 +131,10 @@ const AudioContainer = (props) => {
     audioBridge: m.audioBridge,
     voiceSettings: {
       voiceConf: m?.voiceSettings?.voiceConf,
+      muteOnStart: m?.voiceSettings?.muteOnStart,
     },
   }));
+
   const { data: currentUserName } = useCurrentUser((u) => u.name);
   const { data: speechLocale } = useCurrentUser((u) => u.speechLocale);
   // public.media.defaultFullAudioBridge/public.media.defaultListenOnlyBridge
@@ -192,16 +194,16 @@ const AudioContainer = (props) => {
   const { data: unmutedUsers } = useWhoIsUnmuted();
   const currentUserMuted = currentUser?.userId && !unmutedUsers[currentUser.userId];
 
-  const joinAudio = () => {
+  const joinAudio = useCallback(() => {
     if (Service.isConnected()) return;
 
     if (userSelectedMicrophone) {
-      joinMicrophone({ skipEchoTest: true });
+      joinMicrophone({ skipEchoTest: true, muted: meeting?.voiceSettings?.muteOnStart });
       return;
     }
 
     if (userSelectedListenOnly) joinListenOnly();
-  };
+  }, [userSelectedMicrophone, userSelectedListenOnly, meeting?.voiceSettings?.muteOnStart]);
 
   useEffect(() => {
     // Data is not loaded yet.
