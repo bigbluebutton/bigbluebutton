@@ -230,14 +230,15 @@ class LockViewers extends MultiUsers {
     await this.modPage.checkElementCount(e.whiteboardCursorIndicator, 1, 'should contain one whiteboard cursor indicator for the moderator');
 
     await this.initUserPage2(true);
-    await this.userPage2.checkElementCount(e.whiteboardCursorIndicator, 0, 'should contain no whiteboard cursor indicator for the second attendee when locking viewers cursor');
+    await this.userPage2.checkElementCount(e.whiteboardCursorIndicator, 0,
+      'should contain no whiteboard cursor indicator for the second attendee when joining a meeting with the setting locked'
+    );
 
     // Unlock user2
     await this.modPage.waitAndClick(`${e.userListItem}>>nth=1`);
     await this.modPage.waitAndClick(`${e.unlockUserButton}>>nth=1`);
-
-    await drawArrow(this.userPage);
     await this.userPage.getLocator(e.whiteboard).hover(); // ensure userPage cursor will be visible on the screenshot
+    await this.userPage.waitAndClick(e.whiteboard);
     await this.userPage2.checkElementCount(e.whiteboardCursorIndicator, 1, 'should be displayed the other viewer whiteboard cursor indicator when unlocking user is unlocked');
   }
 }

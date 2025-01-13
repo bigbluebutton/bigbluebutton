@@ -31,7 +31,7 @@ public:
     appName: BigBlueButton HTML5 Client
     bbbServerVersion: HTML5_FULL_BBB_VERSION
     displayBbbServerVersion: true
-    copyright: '©2024 BigBlueButton Inc.'
+    copyright: '©2025 BigBlueButton Inc.'
     html5ClientBuild: HTML5_CLIENT_VERSION
     helpLink: https://bigbluebutton.org/html5/
     delayForUnmountOfSharedNote: 120000
@@ -922,6 +922,10 @@ public:
     livekit:
       # livekit.url is the URL of the LiveKit server. Default value is 'wss://{window.location.hostname}/livekit'
       #url: wss://LIVEKIT_HOST/livekit
+      # livekit.selectiveSubscription: whether to use selective subscription all
+      # applicable track sources. Default value is false. This overrides autoSubscribe
+      # when set to true and in effect (conditional to client behavior).
+      selectiveSubscription: false
       audio:
         # publishOptions: see https://docs.livekit.io/client-sdk-js/interfaces/TrackPublishOptions.html
         publishOptions:

@@ -629,6 +629,7 @@ export interface LiveKitAudioSettings {
 
 export interface LiveKitSettings {
   url?: string
+  selectiveSubscription?: boolean
   audio?: LiveKitAudioSettings
   camera?: LiveKitCameraSettings
   screenshare?: LiveKitScreenShareSettings

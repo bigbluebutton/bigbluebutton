@@ -35,6 +35,7 @@ import {
 import FullscreenService from '/imports/ui/components/common/fullscreen-button/service';
 import deviceInfo from '/imports/utils/deviceInfo';
 import Whiteboard from './component';
+import ErrorBoundaryWithReload from '../common/error-boundary/error-boundary-with-reload/component'
 
 import useCurrentUser from '/imports/ui/core/hooks/useCurrentUser';
 import {
@@ -67,7 +68,7 @@ const WhiteboardContainer = (props) => {
   const [annotations, setAnnotations] = useState([]);
   const [shapes, setShapes] = useState([]);
   const [removedShapes, setRemovedShapes] = useState([]);
-
+  const [isTabVisible, setIsTabVisible] = useState(document.visibilityState === 'visible');
   const [currentPresentationPage, setCurrentPresentationPage] = useState(null);
 
   const { userLocks } = useLockContext();
@@ -85,6 +86,18 @@ const WhiteboardContainer = (props) => {
   );
   const { pres_page_curr: presentationPageArray } = (presentationPageData || {});
   const newPresentationPage = presentationPageArray && presentationPageArray[0];
+
+  useEffect(() => {
+    const handleVisibilityChange = () => {
+      setIsTabVisible(document.visibilityState === 'visible');
+    };
+
+    document.addEventListener('visibilitychange', handleVisibilityChange);
+
+    return () => {
+      document.removeEventListener('visibilitychange', handleVisibilityChange);
+    };
+  }, []);
 
   useEffect(() => {
     if (newPresentationPage) {
@@ -271,11 +284,11 @@ const WhiteboardContainer = (props) => {
     },
   });
 
-  React.useEffect(() => {
-    if (curPageIdRef.current) {
+  useEffect(() => {
+    if (isTabVisible && curPageId) {
       refetchInitialPageAnnotations();
     }
-  }, [curPageIdRef.current, presentationId]);
+  }, [isTabVisible, curPageId, presentationId]);
 
   const processAnnotations = (data) => {
     let annotationsToBeRemoved = [];
@@ -343,7 +356,6 @@ const WhiteboardContainer = (props) => {
       setRemovedShapes([]);
     }
   }, [curPageId, lastUpdatedAt]);
-  
 
   const bgShape = [];
 
@@ -405,62 +417,64 @@ const WhiteboardContainer = (props) => {
   if (!currentPresentationPage) return null;
 
   return (
-    <Whiteboard
-      key={presentationId}
-      {...{
-        isPresenter,
-        isModerator,
-        currentUser,
-        isRTL,
-        width,
-        height,
-        maxStickyNoteLength,
-        maxNumberOfAnnotations,
-        fontFamily,
-        colorStyle,
-        dashStyle,
-        fillStyle,
-        fontStyle,
-        sizeStyle,
-        handleToggleFullScreen,
-        sidebarNavigationWidth,
-        layoutContextDispatch,
-        initDefaultPages,
-        persistShapeWrapper,
-        isMultiUserActive,
-        shapes,
-        removedShapes,
-        bgShape,
-        assets,
-        removeShapes,
-        zoomSlide,
-        notifyNotAllowedChange,
-        notifyShapeNumberExceeded,
-        whiteboardToolbarAutoHide: Settings?.application?.whiteboardToolbarAutoHide,
-        animations: Settings?.application?.animations,
-        toggleToolsAnimations,
-        isIphone,
-        isPhone,
-        currentPresentationPage,
-        numberOfPages: currentPresentationPage?.totalPages,
-        presentationId,
-        hasWBAccess,
-        whiteboardWriters,
-        zoomChanger,
-        skipToSlide,
-        locale: Settings?.application?.locale,
-        darkTheme: Settings?.application?.darkTheme,
-        selectedLayout: Settings?.application?.selectedLayout,
-        isInfiniteWhiteboard,
-        curPageNum,
-        setEditor,
-      }}
-      {...props}
-      meetingId={Auth.meetingID}
-      publishCursorUpdate={throttledPublishCursorUpdate}
-      otherCursors={cursorArray}
-      hideViewersCursor={userLocks?.hideViewersCursor}
-    />
+    <ErrorBoundaryWithReload>
+      <Whiteboard
+        key={presentationId}
+        {...{
+          isPresenter,
+          isModerator,
+          currentUser,
+          isRTL,
+          width,
+          height,
+          maxStickyNoteLength,
+          maxNumberOfAnnotations,
+          fontFamily,
+          colorStyle,
+          dashStyle,
+          fillStyle,
+          fontStyle,
+          sizeStyle,
+          handleToggleFullScreen,
+          sidebarNavigationWidth,
+          layoutContextDispatch,
+          initDefaultPages,
+          persistShapeWrapper,
+          isMultiUserActive,
+          shapes,
+          removedShapes,
+          bgShape,
+          assets,
+          removeShapes,
+          zoomSlide,
+          notifyNotAllowedChange,
+          notifyShapeNumberExceeded,
+          whiteboardToolbarAutoHide: Settings?.application?.whiteboardToolbarAutoHide,
+          animations: Settings?.application?.animations,
+          toggleToolsAnimations,
+          isIphone,
+          isPhone,
+          currentPresentationPage,
+          numberOfPages: currentPresentationPage?.totalPages,
+          presentationId,
+          hasWBAccess,
+          whiteboardWriters,
+          zoomChanger,
+          skipToSlide,
+          locale: Settings?.application?.locale,
+          darkTheme: Settings?.application?.darkTheme,
+          selectedLayout: Settings?.application?.selectedLayout,
+          isInfiniteWhiteboard,
+          curPageNum,
+          setEditor,
+        }}
+        {...props}
+        meetingId={Auth.meetingID}
+        publishCursorUpdate={throttledPublishCursorUpdate}
+        otherCursors={cursorArray}
+        hideViewersCursor={userLocks?.hideViewersCursor}
+      />
+    </ErrorBoundaryWithReload>
   );
 };
 

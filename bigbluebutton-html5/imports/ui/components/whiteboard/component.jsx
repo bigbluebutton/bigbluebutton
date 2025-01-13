@@ -122,23 +122,7 @@ const Whiteboard = React.memo((props) => {
 
   clearTldrawCache();
 
-  const [tlEditor, setTlEditor] = React.useState(null);
   const [isMounting, setIsMounting] = React.useState(true);
-  const [isTabVisible, setIsTabVisible] = React.useState(document.visibilityState === 'visible');
-
-  React.useEffect(() => {
-    const handleVisibilityChange = () => {
-      if (document.visibilityState === 'visible') {
-        setIsTabVisible(true);
-      }
-    };
-
-    document.addEventListener('visibilitychange', handleVisibilityChange);
-
-    return () => {
-      document.removeEventListener('visibilitychange', handleVisibilityChange);
-    };
-  }, []);
 
   if (isMounting) {
     setDefaultEditorAssetUrls(getCustomEditorAssetUrls());
@@ -148,7 +132,7 @@ const Whiteboard = React.memo((props) => {
   const whiteboardRef = React.useRef(null);
   const zoomValueRef = React.useRef(null);
   const prevShapesRef = React.useRef(shapes);
-  const tlEditorRef = React.useRef(tlEditor);
+  const tlEditorRef = React.useRef(null);
   const slideChanged = React.useRef(false);
   const slideNext = React.useRef(null);
   const prevZoomValueRef = React.useRef(null);
@@ -661,7 +645,7 @@ const Whiteboard = React.memo((props) => {
   };
 
   const handleTldrawMount = (editor) => {
-    setTlEditor(editor);
+    tlEditorRef.current = editor;
     setTldrawAPI(editor);
     setEditor(editor);
 
@@ -1042,10 +1026,6 @@ const Whiteboard = React.memo((props) => {
   );
 
   React.useEffect(() => {
-    tlEditorRef.current = tlEditor;
-  }, [tlEditor]);
-
-  React.useEffect(() => {
     const handleArrowPress = (event) => {
       const currPageNum = parseInt(curPageIdRef.current, 10);
       const shapeSelected = tlEditorRef.current.getSelectedShapes()?.length > 0;
@@ -1108,7 +1088,7 @@ const Whiteboard = React.memo((props) => {
     zoomValueRef.current = zoomValue;
 
     if (
-      tlEditor &&
+      tlEditorRef.current &&
       curPageIdRef.current &&
       currentPresentationPage &&
       isPresenter &&
@@ -1258,7 +1238,7 @@ const Whiteboard = React.memo((props) => {
       if (
         presentationAreaHeight > 0 &&
         presentationAreaWidth > 0 &&
-        tlEditor &&
+        tlEditorRef.current &&
         currentPresentationPage &&
         currentPresentationPage.scaledWidth > 0 &&
         currentPresentationPage.scaledHeight > 0
@@ -1368,7 +1348,6 @@ const Whiteboard = React.memo((props) => {
         useElement.setAttribute('href', '#redPointer');
       } else if (useElement) {
         useElement.setAttribute('href', '#cursor');
-        useElement.setAttribute('data-test', 'whiteboardCursorIndicator');
       }
 
       const idsToRemove = [];
@@ -1629,10 +1608,6 @@ const Whiteboard = React.memo((props) => {
   // TODO: we should add the dependency  list in [] parameter here
   // so this is not run on every render
   });
-
-  if (!isTabVisible) {
-    return null;
-  }
 
   return (
     <div

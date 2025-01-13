@@ -79,6 +79,13 @@ public class SvgImageCreatorImp implements SvgImageCreator {
             throws InterruptedException, TimeoutException {
         String source = pres.getUploadedFile().getAbsolutePath();
         String dest;
+
+        // Skip processing if the destination file exists, as it was likely restored from the cache
+        File destsvg = new File(imagePresentationDir.getAbsolutePath() + File.separatorChar + "slide" + page + ".svg");
+        if(destsvg.exists()) {
+            return true;
+        }
+
         int countOfTimeOut = 0;
 
         int numSlides = 1;
@@ -137,9 +144,6 @@ public class SvgImageCreatorImp implements SvgImageCreator {
             log.info("Font Type 3 identified on {} page {}, slide will be rasterized.", pres.getName(), page);
             rasterizeCurrSlide = true;
         }
-
-
-        File destsvg = new File(imagePresentationDir.getAbsolutePath() + File.separatorChar + "slide" + page + ".svg");
 
         SvgConversionHandler pHandler = new SvgConversionHandler();
 

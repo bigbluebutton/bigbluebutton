@@ -21,6 +21,9 @@ package org.bigbluebutton.presentation.imp;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.regex.Matcher;
@@ -77,15 +80,20 @@ public class ThumbnailCreatorImp implements ThumbnailCreator {
   private boolean generateThumbnail(File thumbsDir, UploadedPresentation pres, int page, File pageFile)
       throws InterruptedException {
     String source = pageFile.getAbsolutePath();
-    String dest;
+    String dest = thumbsDir.getAbsolutePath() + File.separatorChar + "thumb-" + page + ".png";
     String COMMAND = "";
+
+    // Skip processing if the destination file exists, as it was likely restored from the cache
+    if(Files.exists(Paths.get(dest))) {
+      return true;
+    }
 
     if (SupportedFileTypes.isImageFile(pres.getFileType())) {
       dest = thumbsDir.getAbsolutePath() + File.separatorChar + "thumb-" + page + ".png";
       COMMAND = IMAGEMAGICK_DIR + File.separatorChar + "convert -thumbnail 150x150 "  + source + " " + dest;
     } else {
-      dest = thumbsDir.getAbsolutePath() + File.separatorChar + TEMP_THUMB_NAME + "-" + page; // the "-x.png" is appended automagically
-      COMMAND = "pdftocairo -png -scale-to 150 -cropbox " + source + " " + dest;
+      String pdftocairoDest = thumbsDir.getAbsolutePath() + File.separatorChar + TEMP_THUMB_NAME + "-" + page; // the "-x.png" is appended automagically
+      COMMAND = "pdftocairo -png -scale-to 150 " + source + " " + pdftocairoDest;
     }
 
     //System.out.println(COMMAND);
