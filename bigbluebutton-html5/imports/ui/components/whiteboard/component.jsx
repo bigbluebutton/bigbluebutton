@@ -713,7 +713,7 @@ const Whiteboard = React.memo((props) => {
         );
       });
     } else {
-      logger.warn({ logCode: 'pollInnerWrapperWidthUntilStable' }, `Failed to store viewbox dimensions: ${error}`);
+      logger.warn({ logCode: 'pollInnerWrapperWidthUntilStable' }, `Failed to store viewbox dimensions`);
       onReady({ containerWidth, innerWrapperWidth });
     }
   }
