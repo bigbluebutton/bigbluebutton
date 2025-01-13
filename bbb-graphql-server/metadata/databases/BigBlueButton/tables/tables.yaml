@@ -1,5 +1,6 @@
 - "!include public_v_breakoutRoom.yaml"
 - "!include public_v_breakoutRoom_assignedUser.yaml"
+- "!include public_v_breakoutRoom_createdLatest.yaml"
 - "!include public_v_breakoutRoom_participant.yaml"
 - "!include public_v_breakoutRoom_user.yaml"
 - "!include public_v_caption.yaml"
