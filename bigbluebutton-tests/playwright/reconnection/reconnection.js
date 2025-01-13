@@ -40,7 +40,7 @@ class Reconnection extends MultiUsers {
 
     killConnection();
     await this.modPage.hasElement(e.notificationBannerBar, 'should the notification bar be displayed after connection lost');
-    await this.modPage.hasText(e.notificationBannerBar, 'Reconnection in progress'),
+    await this.modPage.hasText(e.notificationBannerBar, 'Reconnection in progress');
 
     // reconnected
     await this.modPage.wasRemoved(e.notificationBannerBar, 'notification bar should be removed after reconnecting successfully');
