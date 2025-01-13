@@ -62,7 +62,9 @@ trait JoinAudioGroupReqMsgHdlr extends RightsManagementTrait {
               groupId,
               participant,
             )
-            state.update(updatedGroups)
+            val newState = state.update(updatedGroups)
+            AudioGroupApp.handleAudioGroupUpdated(ag.id, updatedGroups, liveMeeting, bus.outGW)
+            newState
         }
 
       case None =>

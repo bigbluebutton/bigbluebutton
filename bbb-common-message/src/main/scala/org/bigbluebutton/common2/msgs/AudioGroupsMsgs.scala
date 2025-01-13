@@ -32,6 +32,15 @@ case class AudioGroupCreatedEvtMsgBody(
     receivers: Vector[AudioGroupParticipant]
 )
 
+object AudioGroupUpdatedEvtMsg { val NAME = "AudioGroupUpdatedEvtMsg" }
+case class AudioGroupUpdatedEvtMsg(header: BbbClientMsgHeader, body: AudioGroupUpdatedEvtMsgBody) extends BbbCoreMsg
+case class AudioGroupUpdatedEvtMsgBody(
+    id:        String,
+    createdBy: String,
+    senders:   Vector[AudioGroupParticipant],
+    receivers: Vector[AudioGroupParticipant]
+)
+
 object DestroyAudioGroupReqMsg { val NAME = "DestroyAudioGroupReqMsg" }
 case class DestroyAudioGroupReqMsg(header: BbbClientMsgHeader, body: DestroyAudioGroupReqMsgBody) extends StandardMsg
 case class DestroyAudioGroupReqMsgBody(id: String)
