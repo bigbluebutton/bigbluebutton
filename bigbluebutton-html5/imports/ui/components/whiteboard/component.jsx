@@ -123,21 +123,6 @@ const Whiteboard = React.memo((props) => {
   clearTldrawCache();
 
   const [isMounting, setIsMounting] = React.useState(true);
-  const [isTabVisible, setIsTabVisible] = React.useState(document.visibilityState === 'visible');
-
-  React.useEffect(() => {
-    const handleVisibilityChange = () => {
-      if (document.visibilityState === 'visible') {
-        setIsTabVisible(true);
-      }
-    };
-
-    document.addEventListener('visibilitychange', handleVisibilityChange);
-
-    return () => {
-      document.removeEventListener('visibilitychange', handleVisibilityChange);
-    };
-  }, []);
 
   if (isMounting) {
     setDefaultEditorAssetUrls(getCustomEditorAssetUrls());
@@ -1591,10 +1576,6 @@ const Whiteboard = React.memo((props) => {
   // TODO: we should add the dependency  list in [] parameter here
   // so this is not run on every render
   });
-
-  if (!isTabVisible) {
-    return null;
-  }
 
   return (
     <div
