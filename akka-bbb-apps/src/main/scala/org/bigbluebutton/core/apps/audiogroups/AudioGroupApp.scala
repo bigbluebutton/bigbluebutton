@@ -3,6 +3,8 @@ package org.bigbluebutton.core.apps.audiogroups
 import org.bigbluebutton.common2.msgs._
 import org.bigbluebutton.core.domain.MeetingState2x
 import org.bigbluebutton.core.models._
+import org.bigbluebutton.core.running.{ LiveMeeting, OutMsgRouter }
+
 object AudioGroupApp {
   val MAIN_AUDIO_GROUP = "MAIN-AUDIO-GROUP"
 
@@ -132,6 +134,33 @@ object AudioGroupApp {
         true
       case _ =>
         false
+    }
+  }
+
+  def handleAudioGroupUpdated(
+      agId:        String,
+      audioGroups: AudioGroups,
+      liveMeeting: LiveMeeting,
+      outGW:       OutMsgRouter
+  ): Unit = {
+    def broadcastEvent(ag: AudioGroup): Unit = {
+      val routing = Routing.addMsgToClientRouting(
+        MessageTypes.BROADCAST_TO_MEETING,
+        liveMeeting.props.meetingProp.intId,
+        ag.createdBy
+      )
+      val envelope = BbbCoreEnvelope(AudioGroupUpdatedEvtMsg.NAME, routing)
+      val header = BbbClientMsgHeader(AudioGroupUpdatedEvtMsg.NAME, liveMeeting.props.meetingProp.intId, ag.createdBy)
+      val body = AudioGroupUpdatedEvtMsgBody(ag.id, ag.createdBy, ag.findAllSenders(), ag.findAllReceivers())
+      val event = AudioGroupUpdatedEvtMsg(header, body)
+      val respMsg = BbbCommonEnvCoreMsg(envelope, event)
+      outGW.send(respMsg)
+    }
+
+    audioGroups.find(agId) match {
+      case Some(ag) =>
+        broadcastEvent(ag)
+      case _ =>
     }
   }
 }

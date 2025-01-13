@@ -58,7 +58,10 @@ trait CreateAudioGroupReqMsgHdlr extends RightsManagementTrait {
         receivers.foreach { receiver =>
           AudioGroupUserDAO.insert(liveMeeting.props.meetingProp.intId, ag.id, receiver)
         }
-        state.update(updatedGroups)
+
+        val newState = state.update(updatedGroups)
+        AudioGroupApp.handleAudioGroupUpdated(ag.id, updatedGroups, liveMeeting, bus.outGW)
+        newState
       case None =>
         val newGroup = AudioGroupApp.createAudioGroup(
           msg.body.id,
