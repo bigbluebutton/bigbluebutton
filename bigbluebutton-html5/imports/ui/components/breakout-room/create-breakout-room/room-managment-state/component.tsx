@@ -184,7 +184,7 @@ const RoomManagmentState: React.FC<RoomManagmentStateProps> = ({
       const usersToMove: string[] = [];
       const toRooms: number[] = [];
 
-      if (runningRooms) return;
+      if (runningRooms?.length && runningRooms.length > 0) return;
 
       lastBreakoutData.user.forEach((user: lastBreakoutRoomUser) => {
         if (user.lastBreakoutRoom?.sequence) {
