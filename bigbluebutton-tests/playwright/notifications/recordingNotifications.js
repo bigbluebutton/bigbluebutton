@@ -4,7 +4,6 @@ const util = require('./util');
 const { waitAndClearNotification, waitAndClearDefaultPresentationNotification } = require('../notifications/util');
 const e = require('../core/elements');
 const { connectMicrophone } = require('../audio/util');
-const { sleep } = require('../core/helpers');
 const { ELEMENT_WAIT_EXTRA_LONG_TIME } = require('../core/constants');
 
 class RecordingNotifications extends Page {
@@ -25,7 +24,7 @@ class RecordingNotifications extends Page {
     await waitAndClearDefaultPresentationNotification(this);
     await this.waitAndClick(e.joinAudio, ELEMENT_WAIT_EXTRA_LONG_TIME);
     await this.waitAndClick(e.listenOnlyButton, ELEMENT_WAIT_EXTRA_LONG_TIME);
-    await util.checkNotificationText(this, e.noActiveMicrophoneToast);
+    await util.checkNotificationText(this, e.joinAudioToast);
   }
 
   async noNotificationInAudio() {

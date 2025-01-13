@@ -89,7 +89,8 @@ class CreateParameters extends MultiUsers {
 
   async lockSettingsDisableMic() {
     await this.modPage.hasElement(e.whiteboard, 'should display the whiteboard for the moderator');
-    await this.userPage.hasElement(e.leaveListenOnly, 'should display the leave listen only', ELEMENT_WAIT_LONGER_TIME);
+    const unmuteMicButton = this.userPage.getLocator(e.unmuteMicButton);
+    await expect(unmuteMicButton, 'should the unmute button be disabled when microphone is locked').toBeDisabled();
   }
 
   async lockSettingsDisablePublicChat() {
