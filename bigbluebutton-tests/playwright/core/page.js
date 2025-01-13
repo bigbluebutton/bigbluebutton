@@ -29,7 +29,15 @@ class Page {
   }
 
   async init(isModerator, shouldCloseAudioModal, initOptions) {
-    const { fullName, meetingId, createParameter, joinParameter, customMeetingId, isRecording, shouldCheckAllInitialSteps } = initOptions || {};
+    const { fullName,
+      meetingId,
+      createParameter,
+      joinParameter,
+      customMeetingId,
+      isRecording,
+      shouldCheckAllInitialSteps,
+      shouldAvoidLayoutCheck,
+    } = initOptions || {};
 
     if (!isModerator) this.initParameters.moderatorPW = '';
     if (fullName) this.initParameters.fullName = fullName;
@@ -44,7 +52,7 @@ class Page {
     const hasErrorLabel = await this.checkElement(e.errorMessageLabel);
     await expect(hasErrorLabel, 'should pass the authentication and the layout element should be displayed').toBeFalsy();
     if (shouldCheckAllInitialSteps != undefined ? shouldCheckAllInitialSteps : true) {
-      await this.waitForSelector('div#layout', ELEMENT_WAIT_EXTRA_LONG_TIME);
+      if (!shouldAvoidLayoutCheck) await this.waitForSelector('div#layout', ELEMENT_WAIT_EXTRA_LONG_TIME);
       this.settings = await generateSettingsData(this.page);
       const { autoJoinAudioModal } = this.settings;
       if (isRecording && !isModerator) await this.closeRecordingModal();
@@ -268,7 +276,7 @@ class Page {
 
   async checkElementCount(selector, count, description) {
     const locator = await this.page.locator(selector);
-    await expect(locator, description).toHaveCount(count, { timeout: ELEMENT_WAIT_LONGER_TIME });
+    await expect(locator, description).toHaveCount(count, { timeout: ELEMENT_WAIT_TIME });
   }
 
   async hasValue(selector, value, description) {

@@ -34,11 +34,11 @@ class CreateParameters extends MultiUsers {
     await this.modPage.hasElement(e.whiteboard, 'should display the whiteboard for the first moderator');
     await this.modPage2.hasElement(e.whiteboard, 'should display the whiteboard for the second moderator');
 
-    await this.initUserPage(false, context);
+    await this.initUserPage(false, context, { shouldAvoidLayoutCheck: true });
     await this.userPage.hasElement('p[class="error-message"]', 'should display the error message for the attendee, the number of max participants should not be passed')
   }
 
-  async duration(context) {
+  async duration() {
     await this.modPage.hasElement(e.whiteboard, 'should display the whiteboard for the moderator');
     await this.modPage.hasText(e.timeRemaining, /[1-2]:[0-5][0-9]/, 'should display the time remaining of the meeting decreasing');
   }
