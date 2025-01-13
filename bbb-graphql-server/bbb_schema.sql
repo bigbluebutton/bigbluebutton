@@ -1796,6 +1796,7 @@ CREATE TABLE "breakoutRoom" (
 	"shortName" varchar(100),
 	"isDefaultName" bool,
 	"freeJoin" bool,
+	"createdAt" timestamp with time zone,
 	"startedAt" timestamp with time zone,
 	"endedAt" timestamp with time zone,
 	"durationInSeconds" int4,
@@ -1949,6 +1950,17 @@ SELECT u."meetingId" as "userMeetingId", u."userId", b."parentMeetingId", b."bre
             OR b."freeJoin" IS TRUE
             OR u."role" = 'MODERATOR')
     AND b."endedAt" IS NULL;
+
+--view used to restore last breakout rooms
+CREATE OR REPLACE VIEW "v_breakoutRoom_createdLatest" AS
+select "parentMeetingId", "breakoutRoomId", "sequence", "name", "shortName", "isDefaultName", "durationInSeconds", "freeJoin",
+		"sendInvitationToModerators", "captureNotes", "captureSlides", "createdAt", "startedAt", "endedAt"
+from "breakoutRoom"
+where "createdAt" = (
+					select max("createdAt")
+					from "breakoutRoom" bkr
+					where bkr."parentMeetingId" = "breakoutRoom"."parentMeetingId"
+					);
 
 CREATE OR REPLACE VIEW "v_breakoutRoom_assignedUser" AS
 SELECT "parentMeetingId", "breakoutRoomId", "userMeetingId", "userId"
