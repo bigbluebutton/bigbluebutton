@@ -482,6 +482,15 @@ const Whiteboard = React.memo((props) => {
       : calcedZoom;
   };
 
+  const getContainerDimensions = () => {
+    const container = document.querySelector('[data-test="presentationContainer"]');
+    const innerWrapper = document.getElementById('presentationInnerWrapper');
+    const containerWidth = container ? container.offsetWidth : 0;
+    const innerWrapperWidth = innerWrapper ? innerWrapper.offsetWidth : 0;
+    const widthGap = Math.max(containerWidth - innerWrapperWidth, 0);
+    return { containerWidth, innerWrapperWidth, widthGap };
+  }
+
   const coreCameraLogic = ({
     baseZoom,
     xOffset,
@@ -630,11 +639,7 @@ const Whiteboard = React.memo((props) => {
         throwIfInvalid(baseZoom, 'baseZoom');
 
         if (isPresenterRef.current) {
-          const container = document.querySelector('[data-test="presentationContainer"]');
-          const innerWrapper = document.getElementById('presentationInnerWrapper');
-          const containerWidth = container ? container.offsetWidth : 0;
-          const innerWrapperWidth = innerWrapper ? innerWrapper.offsetWidth : 0;
-          const widthGap = Math.max(containerWidth - innerWrapperWidth, 0);
+          const { containerWidth, innerWrapperWidth, widthGap } = getContainerDimensions();
 
           if (widthGap > 0) {
             const zoomWithGap = calculateZoomWithGapValue(scaledWidth, scaledHeight, widthGap);
@@ -1101,11 +1106,7 @@ const Whiteboard = React.memo((props) => {
       zoomLevelForReset = initialZoomRef.current;
     }
 
-    const container = document.querySelector('[data-test="presentationContainer"]');
-    const innerWrapper = document.getElementById('presentationInnerWrapper');
-    const containerWidth = container ? container.offsetWidth : 0;
-    const innerWrapperWidth = innerWrapper ? innerWrapper.offsetWidth : 0;
-    const widthGap = Math.max(containerWidth - innerWrapperWidth, 0);
+    const { containerWidth, innerWrapperWidth, widthGap } = getContainerDimensions();
 
     if (widthGap > 0) {
       zoomLevelForReset = calculateZoomWithGapValue(
@@ -1198,11 +1199,7 @@ const Whiteboard = React.memo((props) => {
     let adjustedZoom = (baseZoom * currentZoom) / HUNDRED_PERCENT;
 
     if (isPresenter) {
-      const container = document.querySelector('[data-test="presentationContainer"]');
-      const innerWrapper = document.getElementById('presentationInnerWrapper');
-      const containerWidth = container ? container.offsetWidth : 0;
-      const innerWrapperWidth = innerWrapper ? innerWrapper.offsetWidth : 0;
-      const widthGap = Math.max(containerWidth - innerWrapperWidth, 0);
+      const { containerWidth, innerWrapperWidth, widthGap } = getContainerDimensions();
 
       if (widthGap > 0) {
         const gapZoom = calculateZoomWithGapValue(scaledWidth, scaledHeight, widthGap);
