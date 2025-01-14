@@ -800,6 +800,7 @@ public:
     showParticipantsOnLogin: true
     showPushLayoutButton: true
     showPushLayoutToggle: true
+    showSessionDetailsOnJoin: true
   pads:
     url: ETHERPAD_HOST
   media:
