@@ -70,7 +70,7 @@ const AudioCaptionsSelect: React.FC<AudioCaptionsSelectProps> = ({
     setSpeechLocaleMutation({
       variables: {
         locale: speechLocale,
-        provider: speechLocale != '' ? provider : '',
+        provider: speechLocale !== '' ? provider : '',
       },
     });
   };

@@ -85,7 +85,7 @@ export const useFixedLocale = () => {
 };
 
 export const getLocaleName = (locale: string) => {
-  if (locale == '') {
+  if (locale === '' || locale == null) {
     return '';
   }
 

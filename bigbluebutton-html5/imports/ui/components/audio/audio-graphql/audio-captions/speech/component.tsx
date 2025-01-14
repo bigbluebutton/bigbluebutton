@@ -60,6 +60,8 @@ const AudioCaptionsSpeech: React.FC<AudioCaptionsSpeechProps> = ({
     isFinal: true,
   });
 
+  const localeRef = useRef(locale);
+
   const speechRecognitionRef = useRef<ReturnType<typeof SpeechRecognitionAPI>>(null);
   const prevIdRef = useRef('');
   const prevTranscriptRef = useRef('');
@@ -250,7 +252,6 @@ const AudioCaptionsSpeech: React.FC<AudioCaptionsSpeechProps> = ({
     }
   }, [speechRecognitionRef.current]);
 
-  const localeRef = useRef(locale);
   const connectedRef = useRef(connected);
   const mutedRef = useRef(muted);
 
