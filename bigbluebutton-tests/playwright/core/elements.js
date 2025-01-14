@@ -40,6 +40,7 @@ exports.testSpeakerButton = 'button[data-test="testSpeakerButton"]';
 exports.stopHearingButton = 'button[data-test="stopHearingButton"]';
 exports.joinEchoTestButton = 'button[data-test="joinEchoTestButton"]';
 exports.establishingAudioLabel = 'span[data-test="establishingAudioLabel"]';
+exports.selectMicrophoneButton = 'label[for="inputDeviceSelector"] select';
 exports.leaveListenOnly = 'button[data-test="leaveListenOnly"]';
 exports.leaveAudio = 'li[data-test="leaveAudio"]';
 exports.audioDropdownMenu = 'button[data-test="audioDropdownMenu"]';

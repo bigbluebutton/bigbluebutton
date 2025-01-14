@@ -7,7 +7,7 @@ public:
     # user to select an option ("Microphone" and/or "Listen only") for joining
     # audio
     autoJoin: true
-    # Disables the listen only option in audio modal.
+    # Set to false disables the listen only option in audio modal.
     listenOnlyMode: true
     forceListenOnly: false
     # Skips the echo test when connecting with microphone.
@@ -839,10 +839,15 @@ public:
     callHangupMaximumRetries: 10
     echoTestNumber: 'echo'
     listenOnlyCallTimeout: 15000
-    # Experimental: enables a new audio mechanism that has a server-side,
-    # transparent listen only mode. See issue #14021.
-    # bbb_userdata-transparent-listen-only supersedes this setting
-    transparentListenOnly: false
+    # transparentListenOnly: whether the client should use the transparent 
+    # listen only mechanism. 
+    # It does not remove the "Listen Only" option from the audio modal
+    # by itself, but it allows users to switch modes on the fly and
+    # improves server CPU efficiency for microphone users.
+    # To disable the dedicated listen only option in the audio modal,
+    # see `listenOnlyMode`/`userdata-bbb_transparent_listen_only_mode`
+    # userdata-bbb_transparent_listen_only supersedes this setting
+    transparentListenOnly: true
     # Dev flag. Controls the WebRTC SDP negotiation role for SFU full audio.
     fullAudioOffering: true
     # Dev flag. Controls the WebRTC negotiation role for listen only.
