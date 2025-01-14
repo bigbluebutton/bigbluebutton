@@ -85,6 +85,10 @@ export const useFixedLocale = () => {
 };
 
 export const getLocaleName = (locale: string) => {
+  if (locale == '') {
+    return '';
+  }
+
   const languageNames = new Intl.DisplayNames([locale], {
     type: 'language',
   });

@@ -188,12 +188,12 @@ const AudioCaptionsSpeech: React.FC<AudioCaptionsSpeechProps> = ({
     resultRef.current.isFinal = isFinal;
 
     if (isFinal) {
-      updateFinalTranscript(id, transcript, locale);
+      updateFinalTranscript(id, transcript, localeRef.current);
       resultRef.current.id = generateId();
     } else {
-      transcriptUpdate(id, transcript, locale, false);
+      transcriptUpdate(id, transcript, localeRef.current, false);
     }
-  }, [locale]);
+  }, [localeRef]);
 
   const stop = useCallback(() => {
     if (speechRecognitionRef.current) {
@@ -209,14 +209,14 @@ const AudioCaptionsSpeech: React.FC<AudioCaptionsSpeechProps> = ({
 
       if (!isFinal) {
         const { id } = resultRef.current;
-        updateFinalTranscript(id, transcript, locale);
+        updateFinalTranscript(id, transcript, localeRef.current);
         speechRecognitionRef.current.abort();
       } else {
         speechRecognitionRef.current.stop();
       }
       speechHasStarted.started = false;
     }
-  }, [locale]);
+  }, [localeRef]);
 
   const start = (settedLocale: string) => {
     if (speechRecognitionRef.current && isLocaleValid(settedLocale)) {
@@ -255,12 +255,16 @@ const AudioCaptionsSpeech: React.FC<AudioCaptionsSpeechProps> = ({
   const mutedRef = useRef(muted);
 
   useEffect(() => {
-    // Connected
-    if ((!connectedRef.current && connected && !muted)) {
+    // Disabled
+    if (locale == '') {
+      stop();
+      connectedRef.current = false;
+    } else if ((!connectedRef.current && connected && !muted)) {
+      // Connected
       logger.debug('Audio connected');
       start(locale);
       connectedRef.current = connected;
-    } else if (localeRef.current !== locale) {
+    } else if (locale !== '' && localeRef.current !== locale) {
       logger.debug('Locale changed', locale);
 
       // Locale changed
