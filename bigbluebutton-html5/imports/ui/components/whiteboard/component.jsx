@@ -1344,7 +1344,7 @@ const Whiteboard = React.memo((props) => {
       }
     }
     prevZoomValueRef.current = zoomValue;
-  }, [zoomValue, tlEditor, curPageId, isWheelZoomRef.current]);
+  }, [zoomValue, tlEditorRef.current, curPageIdRef.current, isWheelZoomRef.current]);
 
   React.useEffect(() => {
     if (isPresenter) {
