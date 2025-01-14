@@ -242,14 +242,20 @@ const AudioContainer = (props) => {
     }
   }, [currentUser?.userId, toggleVoice]);
 
-  if (Service.isConnected() && !Service.isListenOnly()) {
-    Service.updateAudioConstraints(microphoneConstraints);
-
-    if (userLocks.userMic && !currentUserMuted) {
-      toggleMuteMicrophone(!currentUserMuted, toggleVoice);
-      notify(intl.formatMessage(intlMessages.reconectingAsListener), 'info', 'volume_level_2');
+  useEffect(() => {
+    if (Service.isConnected() && !Service.isListenOnly()) {
+      Service.updateAudioConstraints(microphoneConstraints);
     }
-  }
+  }, [microphoneConstraints]);
+
+  useEffect(() => {
+    if (Service.isConnected() && !Service.isListenOnly()) {
+      if (userLocks.userMic && !currentUserMuted) {
+        toggleMuteMicrophone(!currentUserMuted, toggleVoice);
+        notify(intl.formatMessage(intlMessages.reconectingAsListener), 'info', 'volume_level_2');
+      }
+    }
+  }, [userLocks.userMic, currentUserMuted]);
 
   return (
     <>
