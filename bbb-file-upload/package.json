@@ -1,0 +1,37 @@
+{
+  "name": "bbb-file-upload",
+  "version": "0.0.1",
+  "description": "A server component designed to handle file uploads for BigBlueButton chat.",
+  "main": "index.ts",
+  "scripts": {
+    "start": "nodemon --watch src --ext ts,json --exec ts-node src/index.ts",
+    "build": "tsc",
+    "serve": "node dist/index.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/bigbluebutton/bigbluebutton/tree/develop/bbb-file-upload"
+  },
+  "keywords": [
+    "bigbluebutton",
+    "upload"
+  ],
+  "author": "BigBlueButton Inc.",
+  "license": "LGPL-3.0",
+  "bugs": {
+    "url": "https://github.com/bigbluebutton/bigbluebutton/issues"
+  },
+  "homepage": "https://github.com/bigbluebutton/bigbluebutton/tree/develop/bbb-file-upload#readme",
+  "dependencies": {
+    "@types/express": "^4.17.18",
+    "@types/node": "^20.7.0",
+    "axios": "^1.7.8",
+    "express": "^5.0.1",
+    "uuid": "^11.0.3"
+  },
+  "devDependencies": {
+    "nodemon": "^3.0.1",
+    "ts-node": "^10.9.1",
+    "typescript": "^5.2.2"
+  }
+}
