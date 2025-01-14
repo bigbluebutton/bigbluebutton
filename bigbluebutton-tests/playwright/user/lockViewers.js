@@ -28,7 +28,7 @@ class LockViewers extends MultiUsers {
     await this.modPage.waitAndClick(e.applyLockSettings);
     await waitAndClearNotification(this.modPage);
     await this.userPage.checkElementCount(e.webcamContainer, 1, 'should display one webcam container for the attendee');
-    
+
     await this.initUserPage2(true);
     await this.userPage2.hasElementDisabled(e.joinVideo, 'should the join video button to be disabled for the second attendee');
     await this.modPage.waitAndClick(`${e.userListItem}>>nth=1`);
@@ -42,7 +42,6 @@ class LockViewers extends MultiUsers {
   async lockSeeOtherViewersWebcams() {
     await this.modPage.shareWebcam();
     await this.userPage.shareWebcam();
-    
     await openLockViewers(this.modPage);
     await this.modPage.waitAndClickElement(e.lockSeeOtherViewersWebcam);
     await this.modPage.waitAndClick(e.applyLockSettings);
@@ -73,14 +72,28 @@ class LockViewers extends MultiUsers {
     await this.modPage.waitAndClick(e.applyLockSettings);
     await this.userPage.wasRemoved(e.isTalking, 'should not display the is talking element for the first attendee');
     await this.userPage.waitForSelector(e.unmuteMicButton);
+    // join second user
     await this.initUserPage2(false);
-    await this.userPage2.hasElement(e.leaveListenOnly, 'should display the leave listen only button for the second attendee', ELEMENT_WAIT_LONGER_TIME);
-
+    await this.userPage2.hasElement(e.audioDropdownMenu, 'should display the audio dropdown menu button for the second attendee when joined, indicating audio connected');
+    // check if second user is locked after joining
+    const unmuteMicButtonUser2 = this.userPage2.getLocator(e.unmuteMicButton);
+    await this.userPage2.hasElement(e.unmuteMicButton, 'should display the unmute button for the second attendee when joined, indicating audio connected');
+    await expect(unmuteMicButtonUser2, 'should display the unmute button disabled as the user is locked').toBeDisabled();
+    // unlock second user
     await this.modPage.waitAndClick(`${e.userListItem}>>nth=1`);
     await this.modPage.waitAndClick(`${e.unlockUserButton}>>nth=1`);
-    await this.userPage2.waitAndClick(e.leaveListenOnly);
+    // check second user audio after unlocking
+    await this.userPage2.waitAndClick(e.audioDropdownMenu);
+    await this.userPage2.waitAndClick(e.leaveAudio);
     await this.userPage2.waitAndClick(e.joinAudio);
-    await this.userPage2.joinMicrophone();
+    await this.userPage2.joinMicrophone({ shouldUnmute: false });
+    await expect(unmuteMicButtonUser2, 'should the unmute button be enabled as the user is unlocked').toBeEnabled();
+    await this.userPage2.waitAndClick(e.unmuteMicButton);
+    await this.userPage2.hasElement(e.stopHearingButton, 'should display the stop hearing button of the echo test when clicking to unmute button');
+    // select the default microphone to enable voice activity detection - not listen only mode
+    await this.userPage2.getLocator(e.selectMicrophoneButton).selectOption('default');
+    await this.userPage2.waitAndClick(e.joinEchoTestButton);
+    await this.userPage2.hasElement(e.muteMicButton, 'should connect with the mic unmuted');
     await this.userPage2.hasElement(e.isTalking, 'should display the is talking element for the second attendee');
   }
 
