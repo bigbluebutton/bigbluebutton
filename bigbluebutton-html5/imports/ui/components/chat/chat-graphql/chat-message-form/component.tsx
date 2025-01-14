@@ -40,6 +40,7 @@ import { GraphqlDataHookSubscriptionResponse } from '/imports/ui/Types/hook';
 import { throttle } from '/imports/utils/throttle';
 import logger from '/imports/startup/client/logger';
 import { CHAT_EDIT_MESSAGE_MUTATION } from '../chat-message-list/page/chat-message/mutations';
+import ChatRichTextEditor from './editor/component';
 
 const CLOSED_CHAT_LIST_KEY = 'closedChatList';
 const START_TYPING_THROTTLE_INTERVAL = 1000;
@@ -652,6 +653,24 @@ const ChatMessageFormContainer: React.FC = () => {
   }
 
   const CHAT_CONFIG = window.meetingClientSettings.public.chat;
+
+  if (CHAT_CONFIG.messageInputComponent === 'rich') {
+    return (
+      <ChatRichTextEditor
+        {...{
+          minMessageLength: CHAT_CONFIG.min_message_length,
+          maxMessageLength: CHAT_CONFIG.max_message_length,
+          chatId: idChatOpen,
+          connected: true, // TODO: monitoring network status
+          disabled: locked ?? false,
+          title,
+          isRTL,
+          partnerIsLoggedOut: chat?.participant ? !chat?.participant?.currentlyInMeeting : false,
+          locked: locked ?? false,
+        }}
+      />
+    );
+  }
 
   return (
     <ChatMessageForm
