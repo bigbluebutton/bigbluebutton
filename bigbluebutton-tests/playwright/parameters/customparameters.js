@@ -115,9 +115,13 @@ class CustomParameters extends MultiUsers {
 
   async forceListenOnly() {
     await this.userPage.wasRemoved(e.audioModal, 'should not display the audio modal after joining meeting');
-    await this.userPage.hasElement(e.leaveListenOnly, 'should join listen only mode and display button to leave it');
-    await this.userPage.wasRemoved(e.muteMicButton, 'should not display the mute mic button');
-    await this.userPage.wasRemoved(e.unmuteMicButton, 'should not display the mute mic button');
+    await this.userPage.hasElement(e.audioDropdownMenu, 'should display the audio dropdown menu');
+    await this.userPage.hasElement(e.unmuteMicButton, 'should display the unmute button when user joins audio / listen only');
+    await this.userPage.waitAndClick(e.unmuteMicButton);
+    await this.userPage.hasElement(e.joinEchoTestButton, 'should display the join echo test modal when user tries to unmute the mic in listen only mode');
+    await this.userPage.waitAndClick(e.closeModal);
+    await this.userPage.waitAndClick(e.audioDropdownMenu);
+    await this.userPage.hasElement(e.leaveAudio, 'should display leave button in the audio dropdown menu');
   }
 
   async skipCheck() {
