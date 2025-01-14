@@ -64,7 +64,7 @@ const findOptimalGrid = (
   };
 };
 
-const ASPECT_RATIO = 4 / 3;
+const ASPECT_RATIO = 16 / 9;
 // const ACTION_NAME_BACKGROUND = 'blurBackground';
 
 interface VideoListProps {
@@ -83,6 +83,7 @@ interface VideoListProps {
   onVideoItemMount: (stream: string, video: HTMLVideoElement) => void;
   onVideoItemUnmount: (stream: string) => void;
   onVirtualBgDrop: (stream: string, type: string, name: string, data: string) => Promise<unknown>;
+  screenShare: boolean;
 }
 
 interface VideoListState {
@@ -94,6 +95,7 @@ interface VideoListState {
     height: number;
     columns: number;
   },
+  aspectRatio: number,
   autoplayBlocked: boolean,
 }
 
@@ -120,9 +122,9 @@ class VideoList extends Component<VideoListProps, VideoListState> {
         height: 0,
         width: 0,
       },
+      aspectRatio: this.props.screenShare ? 16 / 9 : 4 / 3,
       autoplayBlocked: false,
     };
-
     this.ticking = false;
     this.grid = null;
     this.canvas = null;
@@ -228,8 +230,12 @@ class VideoList extends Component<VideoListProps, VideoListState> {
       cameraDock,
       layoutContextDispatch,
     } = this.props;
-    let numItems = streams.length;
 
+    const {
+      aspectRatio,
+    } = this.state;
+
+    let numItems = streams.length;
     if (numItems < 1 || !this.canvas || !this.grid) {
       return;
     }
@@ -252,7 +258,7 @@ class VideoList extends Component<VideoListProps, VideoListState> {
       .reduce((currentGrid, col) => {
         const testGrid = findOptimalGrid(
           canvasWidth, canvasHeight, gridGutter,
-          ASPECT_RATIO, numItems, col,
+          aspectRatio, numItems, col,
         );
         // We need a minimum of 2 rows and columns for the focused
         const focusedConstraint = hasFocusedItem ? testGrid.rows > 1 && testGrid.columns > 1 : true;
@@ -352,6 +358,7 @@ class VideoList extends Component<VideoListProps, VideoListState> {
       setUserCamerasRequestedFromPlugin,
       focusedId,
       pluginUserCameraHelperPerPosition,
+      screenShare,
     } = this.props;
     const numOfStreams = streams.length;
 
@@ -389,6 +396,7 @@ class VideoList extends Component<VideoListProps, VideoListState> {
                 return isStream ? onVirtualBgDrop(item.stream, type, name, data) : Promise.resolve(null);
               }
             }
+            screenShare={screenShare}
           />
         </Styled.VideoListItem>
       );

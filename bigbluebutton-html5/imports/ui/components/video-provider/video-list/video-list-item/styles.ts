@@ -8,6 +8,7 @@ import {
   webcamBackgroundColor,
   colorDanger,
   webcamPlaceholderBorder,
+  colorContentBackground,
 } from '/imports/ui/stylesheets/styled-components/palette';
 import { TextElipsis } from '/imports/ui/stylesheets/styled-components/placeholders';
 
@@ -144,6 +145,7 @@ const VideoContainer = styled.div<{
 const Video = styled.video<{
   mirrored: boolean;
   unhealthyStream: boolean;
+  screenShare: boolean;
 }>`
   position: relative;
   height: 100%;
@@ -158,6 +160,10 @@ const Video = styled.video<{
 
   ${({ unhealthyStream }) => unhealthyStream && `
     filter: grayscale(50%) opacity(50%);
+  `}
+
+  ${({screenShare})=> screenShare && `
+    background-color: ${colorContentBackground};
   `}
 `;
 

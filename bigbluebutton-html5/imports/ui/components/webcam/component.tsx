@@ -45,6 +45,7 @@ const WebcamComponent: React.FC<WebcamComponentProps> = ({
   displayPresentation,
   cameraOptimalGridSize: cameraSize,
   isRTL,
+  webcamUsers,
 }) => {
   const [isResizing, setIsResizing] = useState(false);
   const [isDragging, setIsDragging] = useState(false);
@@ -287,6 +288,7 @@ const WebcamComponent: React.FC<WebcamComponentProps> = ({
                   focusedId,
                   handleVideoFocus,
                 }}
+                streams={webcamUsers}
               />
             </Styled.Draggable>
           </Resizable>
@@ -344,6 +346,9 @@ const WebcamContainer: React.FC = () => {
 
   const audioModalIsOpen = useStorageKey('audioModalIsOpen');
 
+  const webcamUsers = usersVideo.filter((user) => user.contentType === 'camera');
+
+  if (!webcamUsers.length) return null;
   return !audioModalIsOpen && (usersVideo.length > 0 || isGridEnabled)
     ? (
       <WebcamComponent
@@ -360,6 +365,7 @@ const WebcamContainer: React.FC = () => {
           isRTL,
           floatingOverlay,
           hideOverlay,
+          webcamUsers,
         }}
       />
     )

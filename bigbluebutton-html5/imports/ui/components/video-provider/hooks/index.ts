@@ -80,18 +80,21 @@ export const useStreams = () => {
     return streams.current;
   }
 
-  const mappedStreams = (data as StreamSubscriptionData[]).map(({ streamId, user, voice }) => ({
-    stream: streamId,
-    deviceId: streamId.split('_')[3],
-    name: user.name,
-    nameSortable: user.nameSortable,
-    userId: user.userId,
-    user,
-    floor: voice?.floor ?? false,
-    lastFloorTime: voice?.lastFloorTime ?? '0',
-    voice,
-    type: VIDEO_TYPES.STREAM,
-  }));
+  const mappedStreams = (data as StreamSubscriptionData[]).map((fields) => {
+    const { streamId, user, voice } = fields;
+    return {
+      stream: streamId,
+      deviceId: streamId.split('_')[3],
+      name: user.name,
+      nameSortable: user.nameSortable,
+      userId: user.userId,
+      floor: voice?.floor ?? false,
+      lastFloorTime: voice?.lastFloorTime ?? '0',
+      voice,
+      type: VIDEO_TYPES.STREAM,
+      ...fields,
+    };
+  });
 
   streams.current = mappedStreams;
 
@@ -441,8 +444,10 @@ export const useVideoStreams = () => {
 
 export const useHasVideoStream = () => {
   const streams = useStreams();
+  console.log("🚀 -> useHasVideoStream -> streams:", streams)
   const connectingStream = useConnectingStream();
-  return !!connectingStream || streams.some((s) => videoService.isLocalStream(s.stream));
+  console.log("🚀 -> useHasVideoStream -> connectingStream:", connectingStream)
+  return (!!connectingStream && connectingStream.contentType.includes('camera')) || streams.filter(s => s.contentType.includes('camera')).some((s) => videoService.isLocalStream(s.stream));
 };
 
 const useOwnVideoStreamsQuery = () => useLazyQuery<OwnVideoStreamsResponse>(
