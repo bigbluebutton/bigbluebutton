@@ -34,16 +34,21 @@ interface JoinOptions {
   muted: boolean;
 }
 
+interface SetInputStreamOptions {
+  deviceId?: string | null;
+  force?: boolean;
+}
+
 export default class LiveKitAudioBridge extends BaseAudioBridge {
-  private readonly bridgeName: string;
+  public readonly bridgeName: string;
+
+  public _inputDeviceId: string | null;
 
   private readonly liveKitRoom: Room;
 
   private readonly role: string;
 
   private originalStream: MediaStream | null;
-
-  private inputDeviceId?: string;
 
   private callback: (args: { status: string; bridge: string }) => void;
 
@@ -57,6 +62,8 @@ export default class LiveKitAudioBridge extends BaseAudioBridge {
       logger.warn('LiveKitAudioBridge: callback not set');
     };
     this.liveKitRoom = liveKitRoom;
+    // eslint-disable-next-line no-underscore-dangle
+    this._inputDeviceId = null;
 
     this.publicationEnded = this.publicationEnded.bind(this);
     this.handleTrackSubscribed = this.handleTrackSubscribed.bind(this);
@@ -68,6 +75,16 @@ export default class LiveKitAudioBridge extends BaseAudioBridge {
     this.handleLocalTrackUnpublished = this.handleLocalTrackUnpublished.bind(this);
 
     this.observeLiveKitEvents();
+  }
+
+  set inputDeviceId(deviceId: string | null) {
+    // eslint-disable-next-line no-underscore-dangle
+    this._inputDeviceId = deviceId;
+  }
+
+  get inputDeviceId(): string | null {
+    // eslint-disable-next-line no-underscore-dangle
+    return this._inputDeviceId;
   }
 
   get inputStream(): MediaStream | null {
@@ -256,8 +273,15 @@ export default class LiveKitAudioBridge extends BaseAudioBridge {
   // Typings for setInputStream are absent in base class and needs to be corrected
   // there and in audio-manager
   // @ts-ignore
-  setInputStream(stream: MediaStream | null, deviceId?: string): Promise<void> {
-    if (!stream || this.originalStream?.id === stream.id) return Promise.resolve();
+  setInputStream(stream: MediaStream | null, options: SetInputStreamOptions = {}): Promise<void> {
+    const { deviceId = null, force = false } = options;
+    const streamDeviceId = MediaStreamUtils.extractDeviceIdFromStream(stream, 'audio');
+    const originalDeviceId = MediaStreamUtils.extractDeviceIdFromStream(this.originalStream, 'audio');
+
+    if ((!stream || this.originalStream?.id === stream.id || streamDeviceId === originalDeviceId)
+      && !force) {
+      return Promise.resolve();
+    }
 
     const hasCurrentPub = this.hasMicrophoneTrack();
     let newDeviceId = deviceId;
@@ -424,13 +448,10 @@ export default class LiveKitAudioBridge extends BaseAudioBridge {
       };
       const constraints = getAudioConstraints({ deviceId: this.inputDeviceId });
 
-      if (this.hasMicrophoneTrack()) {
-        await this.unpublish();
-      }
+      if (this.hasMicrophoneTrack()) await this.unpublish();
 
-      this.originalStream = inputStream;
-
-      if (this.originalStream) {
+      if (inputStream) {
+        this.originalStream = inputStream;
         const cloneStream = this.originalStream.clone();
         // Get tracks from the stream and publish them. Map into an array of
         // Promise objects and wait for all of them to resolve.
@@ -445,6 +466,7 @@ export default class LiveKitAudioBridge extends BaseAudioBridge {
           constraints,
           publishOptions,
         );
+        this.originalStream = this.inputStream;
       }
     } catch (error) {
       logger.error({
@@ -558,7 +580,7 @@ export default class LiveKitAudioBridge extends BaseAudioBridge {
         // @ts-ignore
         matchConstraints.deviceId = this.inputDeviceId;
         const stream = await doGUM({ audio: matchConstraints });
-        await this.setInputStream(stream, this.inputDeviceId);
+        await this.setInputStream(stream, { deviceId: this.inputDeviceId, force: true });
       } else {
         this.inputStream?.getAudioTracks()
           .forEach((track) => track.applyConstraints(matchConstraints));
