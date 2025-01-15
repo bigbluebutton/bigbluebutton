@@ -8,6 +8,7 @@ import {
   useConnectionState,
 } from '@livekit/components-react';
 import {
+  ConnectionState,
   type Room,
   type RoomConnectOptions,
 } from 'livekit-client';
@@ -47,9 +48,16 @@ const LiveKitObserver = ({
   const [setUserTalking] = useMutation(USER_SET_TALKING);
   const isSpeaking = useIsSpeaking(localParticipant);
   const connectionState = useConnectionState(room);
+  const { data: currentUserData } = useCurrentUser((u) => ({
+    voice: {
+      joined: u.voice?.joined ?? false,
+    },
+  }));
   /* eslint no-underscore-dangle: 0 */
   // @ts-ignore
   const isMuted = useReactiveVar(AudioManager._isMuted.value) as boolean;
+  // @ts-ignore
+  const isAudioManagerConnected = useReactiveVar(AudioManager._isConnected.value) as boolean;
 
   useEffect(() => {
     logger.debug({
@@ -70,6 +78,21 @@ const LiveKitObserver = ({
       },
     });
   }, [isSpeaking, isMuted]);
+
+  useEffect(() => {
+    if (!usingAudio) return;
+
+    // If the user is connected to LiveKit and server-side audio state is present,
+    // but audio-manager is not connected, run the onAudioJoin callback to mark
+    // it as connected. Reasoning: there's no option not to connect to audio
+    // with LiveKit, so this ensures the client-side audio state is in sync with
+    // this automatic behavior.
+    if (!isAudioManagerConnected
+      && connectionState === ConnectionState.Connected
+      && currentUserData?.voice?.joined) {
+      AudioManager.onAudioJoin();
+    }
+  }, [isAudioManagerConnected, currentUserData, connectionState]);
 
   return null;
 };

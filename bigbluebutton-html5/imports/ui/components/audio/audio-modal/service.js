@@ -1,31 +1,14 @@
-import Service from '../service';
-import Storage from '/imports/ui/services/storage/session';
-
-const CLIENT_DID_USER_SELECTED_MICROPHONE_KEY = 'clientUserSelectedMicrophone';
-const CLIENT_DID_USER_SELECTED_LISTEN_ONLY_KEY = 'clientUserSelectedListenOnly';
-
-export const setUserSelectedMicrophone = (value) => (
-  Storage.setItem(CLIENT_DID_USER_SELECTED_MICROPHONE_KEY, !!value)
-);
-
-export const setUserSelectedListenOnly = (value) => (
-  Storage.setItem(CLIENT_DID_USER_SELECTED_LISTEN_ONLY_KEY, !!value)
-);
-
-export const didUserSelectedMicrophone = () => (
-  !!Storage.getItem(CLIENT_DID_USER_SELECTED_MICROPHONE_KEY)
-);
-
-export const didUserSelectedListenOnly = () => (
-  !!Storage.getItem(CLIENT_DID_USER_SELECTED_LISTEN_ONLY_KEY)
-);
+import Service, {
+  setUserSelectedMicrophone,
+  setUserSelectedListenOnly,
+} from '/imports/ui/components/audio/service';
 
 export const joinMicrophone = (options = {}) => {
   const { skipEchoTest = false } = options;
   const shouldSkipEcho = skipEchoTest && Service.inputDeviceId() !== 'listen-only';
 
-  Storage.setItem(CLIENT_DID_USER_SELECTED_MICROPHONE_KEY, true);
-  Storage.setItem(CLIENT_DID_USER_SELECTED_LISTEN_ONLY_KEY, false);
+  setUserSelectedMicrophone(true);
+  setUserSelectedListenOnly(false);
 
   const {
     enabled: LOCAL_ECHO_TEST_ENABLED,
@@ -51,8 +34,8 @@ export const joinMicrophone = (options = {}) => {
 };
 
 export const joinListenOnly = () => {
-  Storage.setItem(CLIENT_DID_USER_SELECTED_MICROPHONE_KEY, false);
-  Storage.setItem(CLIENT_DID_USER_SELECTED_LISTEN_ONLY_KEY, true);
+  setUserSelectedMicrophone(false);
+  setUserSelectedListenOnly(true);
 
   return Service.joinListenOnly().then(() => {
     // Autoplay block wasn't triggered. Close the modal. If autoplay was
@@ -98,7 +81,5 @@ export default {
   closeModal,
   joinListenOnly,
   leaveEchoTest,
-  didUserSelectedMicrophone,
-  didUserSelectedListenOnly,
   getTroubleshootingLink,
 };

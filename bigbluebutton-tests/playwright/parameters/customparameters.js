@@ -105,7 +105,9 @@ class CustomParameters extends MultiUsers {
     await this.modPage.hasElement(e.audioSettingsModal, 'should display the audio settings modal when joining', ELEMENT_WAIT_EXTRA_LONG_TIME);
     await this.modPage.waitAndClick(e.joinEchoTestButton);
     await this.modPage.hasElement(e.establishingAudioLabel, 'should display the audio being established');
-    await this.modPage.hasElement(e.isTalking, 'should display the is talking indicator, after the audio being established');
+    await this.modPage.hasElement(e.unmuteMicButton, 'should display the unmute button when user joins audio');
+    await this.modPage.waitAndClick(e.unmuteMicButton);
+    await this.modPage.hasElement(e.isTalking, 'should display the is talking indicator, after the audio being established and mic unmuted');
     await this.modPage.leaveAudio();
     await this.modPage.waitAndClick(e.joinAudio);
     await this.modPage.hasElement(e.audioSettingsModal, 'should display the audio settings modal after clicked on the join audio button');
@@ -113,22 +115,30 @@ class CustomParameters extends MultiUsers {
 
   async forceListenOnly() {
     await this.userPage.wasRemoved(e.audioModal, 'should not display the audio modal after joining meeting');
-    await this.userPage.hasElement(e.leaveListenOnly, 'should join listen only mode and display button to leave it');
-    await this.userPage.wasRemoved(e.muteMicButton, 'should not display the mute mic button');
-    await this.userPage.wasRemoved(e.unmuteMicButton, 'should not display the mute mic button');
+    await this.userPage.hasElement(e.audioDropdownMenu, 'should display the audio dropdown menu');
+    await this.userPage.hasElement(e.unmuteMicButton, 'should display the unmute button when user joins audio / listen only');
+    await this.userPage.waitAndClick(e.unmuteMicButton);
+    await this.userPage.hasElement(e.joinEchoTestButton, 'should display the join echo test modal when user tries to unmute the mic in listen only mode');
+    await this.userPage.waitAndClick(e.closeModal);
+    await this.userPage.waitAndClick(e.audioDropdownMenu);
+    await this.userPage.hasElement(e.leaveAudio, 'should display leave button in the audio dropdown menu');
   }
 
   async skipCheck() {
     await this.modPage.waitAndClick(e.microphoneButton);
     await this.modPage.hasElement(e.establishingAudioLabel, 'should establish audio');
     await this.modPage.wasRemoved(e.establishingAudioLabel, 'should not display the audio being established label', ELEMENT_WAIT_LONGER_TIME);
-    await this.modPage.hasElement(e.isTalking);
+    await this.modPage.hasElement(e.unmuteMicButton, 'should display the unmute button when user joins audio');
+    await this.modPage.waitAndClick(e.unmuteMicButton);
+    await this.modPage.hasElement(e.isTalking, 'should display the is talking element when mic is unmuted');
   }
 
   async skipCheckOnFirstJoin() {
     await this.modPage.waitAndClick(e.microphoneButton, ELEMENT_WAIT_LONGER_TIME);
     await this.modPage.hasElement(e.establishingAudioLabel, 'should establish audio');
-    await this.modPage.hasElement(e.isTalking, 'should display the is talking element');
+    await this.modPage.hasElement(e.unmuteMicButton, 'should display the unmute button when user joins audio');
+    await this.modPage.waitAndClick(e.unmuteMicButton);
+    await this.modPage.hasElement(e.isTalking, 'should display the is talking element after unmuting the mic');
     await this.modPage.leaveAudio();
     await this.modPage.waitAndClick(e.joinAudio);
     await this.modPage.waitAndClick(e.microphoneButton);
