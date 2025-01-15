@@ -49,6 +49,14 @@ import ChatReplyIntention from '../chat-reply-intention/component';
 import ChatEditingWarning from '../chat-editing-warning/component';
 import { btnPrimaryBg } from '/imports/ui/stylesheets/styled-components/palette';
 
+import {
+  LastSentMessageData,
+  LastSentMessageResponse,
+  USER_LAST_SENT_PRIVATE_CHAT_MESSAGE_QUERY,
+  USER_LAST_SENT_PUBLIC_CHAT_MESSAGE_QUERY,
+} from './queries';
+import Auth from '/imports/ui/services/auth';
+
 const CLOSED_CHAT_LIST_KEY = 'closedChatList';
 const START_TYPING_THROTTLE_INTERVAL = 1000;
 
