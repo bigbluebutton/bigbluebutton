@@ -4,8 +4,8 @@ import {
 } from 'recharts';
 import caseInsensitiveReducer from '/imports/utils/caseInsensitiveReducer';
 import { defineMessages, useIntl } from 'react-intl';
-import deviceInfo from '/imports/utils/deviceInfo';
 import Styled from './styles';
+import CustomizedAxisTick from '/imports/ui/components/poll/components/CustomizedAxisTick';
 
 interface ChatPollContentProps {
   metadata: string;
@@ -96,13 +96,12 @@ const ChatPollContent: React.FC<ChatPollContentProps> = ({
   });
 
   const useHeight = height || translatedAnswers.length * 50;
-  const useWidth = deviceInfo.isPortrait() ? '100%' : '130%';
   return (
     <Styled.PollWrapper data-test="chatPollMessageText">
       <Styled.PollText>
         {pollData.questionText}
       </Styled.PollText>
-      <ResponsiveContainer width={useWidth} height={useHeight}>
+      <ResponsiveContainer width="100%" height={useHeight}>
         <BarChart
           data={translatedAnswers}
           layout="vertical"
@@ -111,7 +110,7 @@ const ChatPollContent: React.FC<ChatPollContentProps> = ({
             type="number"
             allowDecimals={false}
           />
-          <YAxis width={80} type="category" dataKey="pollAnswer" />
+          <YAxis width={100} type="category" dataKey="pollAnswer" tick={<CustomizedAxisTick />} />
           <Bar dataKey="numVotes" fill="#0C57A7" />
         </BarChart>
       </ResponsiveContainer>

@@ -13,7 +13,7 @@ exports.isSharingScreen = 'div[data-test="isSharingScreen"]';
 exports.pdfFileName = '100PagesFile.pdf';
 exports.reactionsButton = 'button[data-test="reactionsButton"]';
 exports.raiseHandBtn = 'button[data-test="raiseHandBtn"]';
-exports.lowerHandBtn = 'div[data-test="lowerHandBtn"]';
+exports.lowerHandBtn = 'button[data-test="lowerHandBtn"]';
 exports.raiseHandRejection = 'button[data-test="raiseHandRejection"]';
 exports.meetingEndedModal = 'div[data-test="meetingEndedModal"]';
 exports.leaveMeetingDropdown = 'button[data-test="leaveMeetingDropdown"]';
@@ -40,6 +40,7 @@ exports.testSpeakerButton = 'button[data-test="testSpeakerButton"]';
 exports.stopHearingButton = 'button[data-test="stopHearingButton"]';
 exports.joinEchoTestButton = 'button[data-test="joinEchoTestButton"]';
 exports.establishingAudioLabel = 'span[data-test="establishingAudioLabel"]';
+exports.selectMicrophoneButton = 'label[for="inputDeviceSelector"] select';
 exports.leaveListenOnly = 'button[data-test="leaveListenOnly"]';
 exports.leaveAudio = 'li[data-test="leaveAudio"]';
 exports.audioDropdownMenu = 'button[data-test="audioDropdownMenu"]';
@@ -159,7 +160,7 @@ exports.userListContent = 'div[data-test="userListContent"]';
 exports.brandingAreaLogo = 'div[data-test="brandingArea"]';
 exports.toolbarToolsList = 'div[data-test="toolbarToolsList"]';
 exports.notificationBannerBar = 'div[data-test="notificationBannerBar"]';
-exports.reconnectingBar = '//div[@data-test="notificationBannerBar" and contains(text(), "Connecting ...")]';
+exports.reconnectingBar = '//div[@data-test="notificationBannerBar" and contains(text(), "Reconnection in progress")]';
 exports.zoomInBtn = 'button[data-test="zoomInBtn"]';
 exports.recordingIndicator = 'div[data-test="recordingIndicator"]';
 exports.webcamMirroredVideoContainer = 'video[data-test="mirroredVideoContainer"]';
@@ -403,7 +404,7 @@ exports.lockEditSharedNotes = 'input[data-test="lockEditSharedNotes"]';
 exports.lockUserList = 'input[data-test="lockUserList"]';
 exports.hideViewersAnnotation = 'input[data-test="hideViewersAnnotation"]';
 exports.hideViewersCursor = 'input[data-test="hideViewersCursor"]';
-exports.whiteboardCursorIndicator = 'svg use[data-test="whiteboardCursorIndicator"]';
+exports.whiteboardCursorIndicator = 'svg use[href="#cursor"]';
 
 // Locales
 exports.locales = ['af', 'ar', 'az', 'bg-BG', 'bn', 'ca', 'cs-CZ', 'da', 'de',
