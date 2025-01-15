@@ -481,7 +481,7 @@ const ChatMessageList: React.FC<ChatListProps> = ({
                 aria-hidden
               />
             )}
-            <div
+            <ListBox
               role="listbox"
               ref={messageListRef}
               tabIndex={hasMessageToolbar ? 0 : -1}
