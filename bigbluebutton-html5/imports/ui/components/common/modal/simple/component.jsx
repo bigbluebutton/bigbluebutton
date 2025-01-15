@@ -106,6 +106,7 @@ class ModalSimple extends Component {
       width,
       height,
       padding,
+      anchorElement,
       ...otherProps
     } = this.props;
 
