@@ -13,6 +13,8 @@ import { getSettingsSingletonInstance } from '/imports/ui/services/settings';
 import { LAYOUT_TYPE } from '../layout/enums';
 import ReactionsButtonContainer from '/imports/ui/components/actions-bar/reactions-button/container';
 import RaiseHandButtonContainer from '/imports/ui/components/actions-bar/raise-hand-button/container';
+import Selector from '/imports/ui/components/common/selector/component';
+import ToggleGroup from '/imports/ui/components/common/toggle-group/component';
 
 const intlMessages = defineMessages({
   actionsBarLabel: {
@@ -55,6 +57,28 @@ class ActionsBar extends PureComponent {
                 actionBarItemToReturn = (
                   <Styled.Separator
                     key={`${plugin.type}-${plugin.id}`}
+                  />
+                );
+                break;
+              case ActionsBarItemType.SELECTOR:
+                actionBarItemToReturn = (
+                  <Selector
+                    title={plugin.title}
+                    options={plugin.options}
+                    defaultOption={plugin.defaultOption}
+                    onChange={plugin.onChange}
+                    width={plugin.width}
+                  />
+                );
+                break;
+              case ActionsBarItemType.TOGGLE_GROUP:
+                actionBarItemToReturn = (
+                  <ToggleGroup
+                    title={plugin.title}
+                    options={plugin.options}
+                    defaultOption={plugin.defaultOption}
+                    onChange={plugin.onChange}
+                    exclusive={plugin.exclusive}
                   />
                 );
                 break;
