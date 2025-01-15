@@ -2,7 +2,6 @@ import styled, { css } from 'styled-components';
 
 import {
   userIndicatorsOffset,
-  smPaddingX,
   smPaddingY,
   lgPadding,
   $3xlPadding,
@@ -21,7 +20,6 @@ import {
   colorBlueLightest,
   colorGrayLight,
   colorGrayLightest,
-  colorGrayDark,
 } from '/imports/ui/stylesheets/styled-components/palette';
 import { ChatTime as ChatTimeBase } from './message-header/styles';
 
@@ -110,19 +108,20 @@ export const ChatContent = styled.div<ChatContentProps>`
 export const ChatContentFooter = styled.div`
   justify-content: flex-end;
   gap: 0.25rem;
-  padding: ${smPadding} 0 0 ${smPadding};
   position: absolute;
-  bottom: calc(${lgPadding} + 2px);
+  bottom: 0.25rem;
+  line-height: 1;
+  font-size: 95%;
   display: none;
   background-color: inherit;
   border-radius: 0.5rem;
 
   [dir="rtl"] & {
-    left: ${$3xlPadding};
+    left: 0.25rem;
   }
 
   [dir="ltr"] & {
-    right: ${$3xlPadding};
+    right: 0.25rem;
   }
 
   .chat-message-wrapper-focused &,
@@ -216,7 +215,6 @@ export const ChatAvatar = styled.div<ChatAvatarProps>`
 export const Container = styled.div<{ $sequence: number }>`
   display: flex;
   flex-direction: column;
-  user-select: text;
 
   &:not(:first-of-type) {
     margin-top: calc((${fontSizeSmaller} + ${lgPadding} * 2) / 2);
@@ -252,13 +250,5 @@ export const EditLabel = styled.span`
 
 export const ChatTime = styled(ChatTimeBase)`
   font-style: italic;
-  color: ${colorGrayDark};
-  display: none;
-
-  .chat-message-wrapper-focused &,
-  .chat-message-wrapper-keyboard-focused &,
-  .chat-message-content:focus &,
-  .chat-message-content:hover & {
-    display: flex;
-  }
+  color: ${colorGrayLight};
 `;
