@@ -21,6 +21,7 @@ import {
   colorBlueLightest,
   colorGrayLight,
   colorGrayLightest,
+  colorGrayDark,
 } from '/imports/ui/stylesheets/styled-components/palette';
 
 import Header from '/imports/ui/components/common/control-header/component';
@@ -115,7 +116,7 @@ export const ChatContentFooter = styled.div`
   bottom: 0.25rem;
   line-height: 1;
   font-size: 95%;
-  display: none;
+  display: flex;
   background-color: inherit;
   border-radius: 0.5rem;
 
@@ -125,13 +126,6 @@ export const ChatContentFooter = styled.div`
 
   [dir="ltr"] & {
     right: 0.25rem;
-  }
-
-  .chat-message-wrapper-focused &,
-  .chat-message-wrapper-keyboard-focused &,
-  .chat-message-content:focus &,
-  .chat-message-content:hover & {
-    display: flex;
   }
 `;
 
@@ -264,5 +258,13 @@ export const EditLabel = styled.span`
 
 export const ChatTime = styled(ChatTimeBase)`
   font-style: italic;
-  color: ${colorGrayLight};
+  color: ${colorGrayDark};
+  display: none;
+
+  .chat-message-wrapper-focused &,
+  .chat-message-wrapper-keyboard-focused &,
+  .chat-message-content:focus &,
+  .chat-message-content:hover & {
+    display: flex;
+  }
 `;
