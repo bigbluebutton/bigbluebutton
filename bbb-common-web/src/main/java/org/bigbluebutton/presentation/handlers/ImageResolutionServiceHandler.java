@@ -54,7 +54,7 @@ public class ImageResolutionServiceHandler extends AbstractCommandHandler {
         try {
             return Integer.parseInt(outputParts[1]);
         } catch (NumberFormatException e) {
-            log.error("Received height is not an integer {}", outputParts[0]);
+            log.error("Received height is not an integer {}", outputParts[1]);
         }
       }
     } catch (Exception e) {
