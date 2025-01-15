@@ -25,6 +25,7 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.util.Calendar;
 
 public class LearningDashboardService {
@@ -50,7 +51,7 @@ public class LearningDashboardService {
             File jsonFile = this.getJsonDataFile(meetingId,learningDashboardAccessToken);
 
             fileOutput = new FileOutputStream(jsonFile);
-            fileOutput.write(activityJson.getBytes("UTF-8"));
+            fileOutput.write(activityJson.getBytes(StandardCharsets.UTF_8));
 
             log.info("Learning Dashboard ({}) updated for meeting {}.",jsonFile.getAbsolutePath(),meetingId);
         } catch(Exception e) {
