@@ -704,7 +704,7 @@ class LearningDashboardActor(
 
     //Avoid send repeated activity jsons
     val activityJsonHash : String = MessageDigest.getInstance("MD5").digest(activityJson.getBytes).mkString
-    if(!meetingsLastJsonHash.contains(meeting.intId) || meetingsLastJsonHash.get(meeting.intId).getOrElse("") != activityJsonHash) {
+    if(!meetingsLastJsonHash.contains(meeting.intId) || meetingsLastJsonHash.getOrElse(meeting.intId, "") != activityJsonHash) {
       for {
         learningDashboardAccessToken <- meetingAccessTokens.get(meeting.intId)
       } yield {
@@ -712,18 +712,9 @@ class LearningDashboardActor(
         outGW.send(event)
         meetingsLastJsonHash += (meeting.intId -> activityJsonHash)
 
-        for {
-          learningDashboardAccessToken <- meetingAccessTokens.get(meeting.intId)
-        } yield {
-          val event = MsgBuilder.buildLearningDashboardEvtMsg(meeting.intId, learningDashboardAccessToken, activityJson)
-          outGW.send(event)
-
-          meetingsLastJsonHash += (meeting.intId -> activityJsonHash)
-
-          log.info("Learning Dashboard data sent for meeting {}", meeting.intId)
-        }
+        log.info("Learning Dashboard data sent for meeting {}", meeting.intId)
       }
     }
   }
-
 }
+
