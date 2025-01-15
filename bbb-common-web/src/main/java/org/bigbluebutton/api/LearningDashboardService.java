@@ -22,7 +22,9 @@ package org.bigbluebutton.api;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileOutputStream;
+import java.io.IOException;
 import java.util.Calendar;
 
 public class LearningDashboardService {
@@ -38,23 +40,30 @@ public class LearningDashboardService {
     }
 
     public void writeJsonDataFile(String meetingId, String learningDashboardAccessToken, String activityJson) {
-
+        FileOutputStream fileOutput = null;
         try {
-            if(learningDashboardAccessToken.length() == 0) {
+            if(learningDashboardAccessToken.isEmpty()) {
                 log.error("LearningDashboard AccessToken not found. JSON file will not be saved for meeting {}.",meetingId);
                 return;
             }
 
             File jsonFile = this.getJsonDataFile(meetingId,learningDashboardAccessToken);
 
-            FileOutputStream fileOutput = new FileOutputStream(jsonFile);
+            fileOutput = new FileOutputStream(jsonFile);
             fileOutput.write(activityJson.getBytes("UTF-8"));
-
-            fileOutput.close();
 
             log.info("Learning Dashboard ({}) updated for meeting {}.",jsonFile.getAbsolutePath(),meetingId);
         } catch(Exception e) {
-            System.out.println(e);
+            log.error("Error on updating Learning Dashboard file for meeting [{}]: {}",meetingId, e.getMessage());
+        } finally {
+            // Ensure the file is closed
+            if (fileOutput != null) {
+                try {
+                    fileOutput.close();
+                } catch (IOException e) {
+                    log.error("Error on closing Learning Dashboard file for meeting [{}]: {}",meetingId, e.getMessage());
+                }
+            }
         }
     }
 
