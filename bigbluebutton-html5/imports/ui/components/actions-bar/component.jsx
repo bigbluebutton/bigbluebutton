@@ -15,6 +15,7 @@ import ReactionsButtonContainer from '/imports/ui/components/actions-bar/reactio
 import RaiseHandButtonContainer from '/imports/ui/components/actions-bar/raise-hand-button/container';
 import Selector from '/imports/ui/components/common/selector/component';
 import ToggleGroup from '/imports/ui/components/common/toggle-group/component';
+import Separator from '/imports/ui/components/common/separator/component';
 
 const intlMessages = defineMessages({
   actionsBarLabel: {
@@ -55,8 +56,10 @@ class ActionsBar extends PureComponent {
                 break;
               case ActionsBarItemType.SEPARATOR:
                 actionBarItemToReturn = (
-                  <Styled.Separator
+                  <Separator
                     key={`${plugin.type}-${plugin.id}`}
+                    actionsBar
+                    icon={plugin.icon}
                   />
                 );
                 break;
