@@ -27,7 +27,7 @@ public class ImageResolutionServiceHandler extends AbstractCommandHandler {
       .getLogger(ImageResolutionServiceHandler.class);
 
   /**
-   * @return The number of pages inside the scanned PDF document
+   * @return The resolution of the provided image
    */
   public int getWidth() {
     try {
