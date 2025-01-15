@@ -172,7 +172,7 @@ function notifications() {
           break;
         case 'NotifyRoleInMeeting': {
           const user = Users.findOne({ userId, meetingId }, { fields: { role: 1, userId: 1 } });
-          if (notification.meetingId === meetingId && notification.role === user.role) this.added('notifications', Random.id(), notification);
+          if (user && notification.meetingId === meetingId && notification.role === user.role) this.added('notifications', Random.id(), notification);
           break;
         }
         default: Logger.warn(`wrong type: ${notification.type} userId: ${userId}`);

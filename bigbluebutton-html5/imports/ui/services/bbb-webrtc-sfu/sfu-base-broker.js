@@ -6,6 +6,7 @@ const WS_HEARTBEAT_OPTS = {
   interval: 15000,
   delay: 3000,
 };
+const ICE_RESTART = 'restartIce';
 
 class BaseBroker {
   static assembleError(code, reason) {
@@ -29,6 +30,9 @@ class BaseBroker {
     this.signallingTransportOpen = false;
     this.logCodePrefix = `${this.sfuComponent}_broker`;
     this.peerConfiguration = {};
+    this.restartIce = false;
+    this.restartIceMaxRetries = 3;
+    this._restartIceRetries = 0;
 
     this.onbeforeunload = this.onbeforeunload.bind(this);
     this._onWSError = this._onWSError.bind(this);
@@ -277,18 +281,47 @@ class BaseBroker {
   handleConnectionStateChange (eventIdentifier) {
     if (this.webRtcPeer) {
       const { peerConnection } = this.webRtcPeer;
-      const connectionState = peerConnection.connectionState;
-      if (eventIdentifier) {
-        notifyStreamStateChange(eventIdentifier, connectionState);
-      }
-
-      if (connectionState === 'failed' || connectionState === 'closed') {
+      const { connectionState } = peerConnection;
+      const handleFatalFailure = () => {
         if (this.webRtcPeer?.peerConnection) {
           this.webRtcPeer.peerConnection.onconnectionstatechange = null;
         }
         // 1307: "ICE_STATE_FAILED",
         const error = BaseBroker.assembleError(1307);
         this.onerror(error);
+      };
+
+      if (eventIdentifier) notifyStreamStateChange(eventIdentifier, connectionState);
+
+      switch (connectionState) {
+        case 'closed':
+          handleFatalFailure();
+          break;
+
+        case 'failed':
+          if (!this.restartIce) {
+            handleFatalFailure();
+          } else {
+            try {
+              this.requestRestartIce();
+            } catch (error) {
+              handleFatalFailure();
+            }
+          }
+          break;
+
+        case 'connected':
+          if (this._restartIceRetries > 0) {
+            this._restartIceRetries = 0;
+            logger.info({
+              logCode: `${this.logCodePrefix}_ice_restarted`,
+              extraInfo: { sfuComponent: this.sfuComponent },
+            }, 'ICE restart successful');
+          }
+          break;
+
+        default:
+          break;
       }
     }
   }
@@ -330,6 +363,52 @@ class BaseBroker {
       // IT STILL HAPPENS - prlanzarin sept 2019
       // still happens - prlanzarin sept 2020
       peer.iceQueue.push(candidate);
+    }
+  }
+
+  // Sends a message to the SFU to restart ICE
+  requestRestartIce() {
+    if (this._restartIceRetries >= this.restartIceMaxRetries) {
+      throw new Error('Max ICE restart retries reached');
+    }
+
+    const message = {
+      id: ICE_RESTART,
+      type: this.sfuComponent,
+      role: this.role,
+    };
+
+    this._restartIceRetries += 1;
+    logger.warn({
+      logCode: `${this.logCodePrefix}_restart_ice`,
+      extraInfo: {
+        sfuComponent: this.sfuComponent,
+        retries: this._restartIceRetries,
+      },
+    }, `Requesting ICE restart (${this._restartIceRetries}/${this.restartIceMaxRetries})`);
+    this.sendMessage(message);
+  }
+
+  handleRestartIceResponse({ sdp }) {
+    if (this.webRtcPeer) {
+      this.webRtcPeer.restartIce(sdp, this.offering).catch((error) => {
+        logger.error({
+          logCode: `${this.logCodePrefix}_restart_ice_error`,
+          extraInfo: {
+            errorMessage: error?.message,
+            errorCode: error?.code,
+            errorName: error?.name,
+            sfuComponent: this.sfuComponent,
+          },
+        }, 'ICE restart failed');
+
+        if (this.webRtcPeer?.peerConnection) {
+          this.webRtcPeer.peerConnection.onconnectionstatechange = null;
+        }
+
+        // 1307: "ICE_STATE_FAILED",
+        this.onerror(BaseBroker.assembleError(1307));
+      });
     }
   }
 

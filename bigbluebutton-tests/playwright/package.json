@@ -11,7 +11,7 @@
   },
   "dependencies": {
     "@playwright/test": "^1.37.1",
-    "axios": "^1.6.4",
+    "axios": "^1.7.8",
     "chalk": "^4.1.2",
     "deep-equal": "^2.2.1",
     "dotenv": "^16.1.4",

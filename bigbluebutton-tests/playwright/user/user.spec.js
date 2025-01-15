@@ -1,11 +1,16 @@
 const { test, devices } = require('@playwright/test');
+const { encodeCustomParams } = require('../parameters/util');
+const { PARAMETER_HIDE_PRESENTATION_TOASTS } = require('../core/constants');
 const { Status } = require('./status');
 const { MultiUsers } = require('./multiusers');
 const { GuestPolicy } = require('./guestPolicy');
 const { LockViewers } = require('./lockViewers');
 const { MobileDevices } = require('./mobileDevices');
+const { Timer } = require('./timer');
 const motoG4 = devices['Moto G4'];
 const iPhone11 = devices['iPhone 11'];
+
+const customStyleAvoidNotificationToasts = encodeCustomParams(PARAMETER_HIDE_PRESENTATION_TOASTS);
 
 test.describe.parallel('User', () => {
   test.describe.parallel('Actions', () => {
@@ -26,6 +31,33 @@ test.describe.parallel('User', () => {
       const multiusers = new MultiUsers(browser, context);
       await multiusers.initModPage(page);
       await multiusers.toggleUserList();
+    });
+
+    test('Stopwatch @ci', async ({ browser, context, page })=> {
+      const timer = new Timer(browser, context);
+      await timer.initModPage(page, true, { joinParameter: customStyleAvoidNotificationToasts });
+      await timer.stopwatchTest();
+    });
+
+    test('Timer @ci', async ({ browser, context, page })=> {
+      const timer = new Timer(browser, context);
+      await timer.initModPage(page, true, { joinParameter: customStyleAvoidNotificationToasts });
+      await timer.timerTest();
+    });
+  });
+
+  test.describe.parallel('Reactions @ci', () => {
+    test('Reactions', async ({ browser, context, page }) => {
+      const multiusers = new MultiUsers(browser, context);
+      await multiusers.initModPage(page, true);
+      await multiusers.initUserPage(true, context);
+      await multiusers.reactionsTest();
+    });
+
+    test('Emoji rain', async ({ browser, context, page }) => {
+      const emojiRain = new MultiUsers(browser, context);
+      await emojiRain.initModPage(page, true);
+      await emojiRain.emojiRainTest();
     });
   });
 

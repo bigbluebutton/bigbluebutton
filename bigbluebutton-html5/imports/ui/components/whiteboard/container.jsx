@@ -49,27 +49,37 @@ const WhiteboardContainer = (props) => {
   const layoutContextDispatch = layoutDispatch();
 
   const { shapes } = props;
+  
   const hasShapeAccess = (id) => {
-    const owner = shapes[id]?.userId;
+    const shape = shapes[id];
+    const owner = shape?.userId;
     const isBackgroundShape = id?.includes('slide-background');
-    const isPollsResult = shapes[id]?.name?.includes('poll-result');
-    const hasAccess =
-      (!isBackgroundShape && !isPollsResult) ||
-      (isPresenter &&
-        ((owner && owner === currentUser?.userId) ||
-          !owner ||
-          isPresenter ||
-          isModerator));
+    const isPollsResult = shape?.name?.includes('poll-result');
 
-    return hasAccess;
-  };
-  // set shapes as locked for those who aren't allowed to edit it
-  Object.entries(shapes).forEach(([shapeId, shape]) => {
-    if (!shape.isLocked && !hasShapeAccess(shapeId) && !shape.name?.includes('poll-result')) {
-      const modShape = shape;
-      modShape.isLocked = true;
+    // Only the presenter has access to poll result shapes
+    if (isPollsResult) {
+      return isPresenter;
     }
-  });
+
+    // No one should have access to background shapes
+    if (isBackgroundShape) {
+      return false;
+    }
+
+    // Viewers can only access their own shapes
+    // Presenters and moderators have access to all shapes
+    return (!owner || owner === currentUser?.userId) || isPresenter || isModerator;
+  };
+
+  React.useEffect(() => {
+    Object.entries(shapes).forEach(([shapeId, shape]) => {
+      if (!hasShapeAccess(shapeId)) {
+        shape.isLocked = true;
+      } else {
+        shape.isLocked = false;
+      }
+    });
+  }, [shapes, isPresenter, isModerator]);
 
   return (
     <Whiteboard

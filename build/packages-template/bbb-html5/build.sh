@@ -92,6 +92,7 @@ cp mongod_start_pre.sh staging/usr/share/meteor/bundle
 chmod +rx staging/usr/share/meteor/bundle/mongod_start_pre.sh
 
 cp mongo-ramdisk.conf staging/usr/share/meteor/bundle
+chmod 644 staging/usr/share/meteor/bundle/mongo-ramdisk.conf
 
 mkdir -p staging/usr/lib/systemd/system
 cp bbb-html5.service staging/usr/lib/systemd/system

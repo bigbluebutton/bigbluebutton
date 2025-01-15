@@ -440,6 +440,42 @@ export default class WebRtcPeer extends EventEmitter2 {
       });
   }
 
+  restartIce(remoteSdp, initiator) {
+    if (this.isPeerConnectionClosed()) {
+      this.logger.error('BBB::WebRtcPeer::restartIce - peer connection closed');
+      throw new Error('Peer connection is closed');
+    }
+
+    const sdp = new RTCSessionDescription({
+      type: initiator ? 'offer' : 'answer',
+      sdp: remoteSdp,
+    });
+
+    this.logger.debug('BBB::WebRtcPeer::restartIce - setting remote description', sdp);
+
+    // If this peer was the original initiator, process remote first
+    if (initiator) {
+      return this.peerConnection.setRemoteDescription(sdp)
+        .then(() => this.peerConnection.createAnswer())
+        .then((answer) => this.peerConnection.setLocalDescription(answer))
+        .then(() => {
+          const localDescription = this.getLocalSessionDescriptor();
+          this.logger.debug('BBB::WebRtcPeer::restartIce - local description set', localDescription.sdp);
+          return localDescription.sdp;
+        });
+    }
+
+    // not the initiator - need to create offer first
+    return this.peerConnection.createOffer({ iceRestart: true })
+      .then((newOffer) => this.peerConnection.setLocalDescription(newOffer))
+      .then(() => {
+        const localDescription = this.getLocalSessionDescriptor();
+        this.logger.debug('BBB::WebRtcPeer::restartIce - local description set', localDescription.sdp);
+        return localDescription.sdp;
+      })
+      .then(() => this.peerConnection.setRemoteDescription(sdp));
+  }
+
   dispose() {
     this.logger.debug('BBB::WebRtcPeer::dispose');
 

@@ -350,7 +350,8 @@ const WaitingUsers = (props) => {
                 &quot;
                 {
                 guestLobbyMessage.length > 0
-                  ? guestLobbyMessage
+                  // eslint-disable-next-line react/no-danger
+                  ? <span dangerouslySetInnerHTML={{ __html: guestLobbyMessage }} />
                   : intl.formatMessage(intlMessages.emptyMessage)
               }
                 &quot;

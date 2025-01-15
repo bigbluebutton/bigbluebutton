@@ -28,6 +28,13 @@ const TOOL_CURSORS = {
   grabbing: 'grabbing',
   moving: 'move',
 };
+
+// Offset native tldraw eraser animation container
+const setOverlayPosition = () => {
+  const overlay = document.getElementsByClassName('tl-overlay')[0];
+  if (overlay) overlay.style.left = '0px';
+};
+
 const Cursors = (props) => {
   const cursorWrapper = React.useRef();
   const [active, setActive] = React.useState(false);
@@ -100,122 +107,123 @@ const Cursors = (props) => {
     const banners = document.querySelectorAll('[data-test="notificationBannerBar"]');
     let yOffset = 0;
     let xOffset = 0;
+
     const calcPresOffset = () => {
-      yOffset
-        += (parseFloat(presentationContainer?.style?.height)
-          - (parseFloat(presentation?.style?.height)
-            + (currentUser.presenter ? PRES_TOOLBAR_HEIGHT : 0))
-        ) / 2;
-      xOffset
-        += (parseFloat(presentationContainer?.style?.width)
-          - parseFloat(presentation?.style?.width)
-        ) / 2;
+      const presContainerHeight = parseFloat(presentationContainer?.style?.height);
+      const presHeight = parseFloat(presentation?.style?.height);
+      const presToolbarHeight = currentUser.presenter ? PRES_TOOLBAR_HEIGHT : 0;
+
+      yOffset += (presContainerHeight - (presHeight + presToolbarHeight)) / 2;
+
+      const presContainerWidth = parseFloat(presentationContainer?.style?.width);
+      const presWidth = parseFloat(presentation?.style?.width);
+
+      xOffset += (presContainerWidth - presWidth) / 2;
     };
-    // If the presentation container is the full screen element we don't
-    // need any offsets
+
+    // If the presentation container is the full screen element we don't need any offsets
     const { webkitFullscreenElement, fullscreenElement } = document;
     const fsEl = webkitFullscreenElement || fullscreenElement;
+
     if (fsEl?.getAttribute('data-test') === 'presentationContainer') {
       calcPresOffset();
-      return setPos({ x: x - xOffset, y: y - yOffset });
-    }
-    if (nav) yOffset += parseFloat(nav?.style?.height);
-    if (panel) xOffset += parseFloat(panel?.style?.width);
-    if (subPanel) xOffset += parseFloat(subPanel?.style?.width);
-
-    // offset native tldraw eraser animation container
-    const overlay = document.getElementsByClassName('tl-overlay')[0];
-    if (overlay) overlay.style.left = '0px';
-
-    if (type === 'touchmove') {
-      calcPresOffset();
-      if (!active) {
-        setActive(true);
-      }
-      const newX = event?.changedTouches[0]?.clientX - xOffset;
-      const newY = event?.changedTouches[0]?.clientY - yOffset;
-      return setPos({ x: newX, y: newY });
-    }
-
-    if (document?.documentElement?.dir === 'rtl') {
-      xOffset = 0;
-      if (presentationContainer && presentation) {
-        calcPresOffset();
-      }
-      if (sl.includes('custom')) {
-        if (webcams) {
-          if (camPosition === 'contentTop' || !camPosition) {
-            yOffset += (parseFloat(webcams?.style?.height || 0) + BOTTOM_CAM_HANDLE_HEIGHT);
-          }
-          if (camPosition === 'contentBottom') {
-            yOffset -= BOTTOM_CAM_HANDLE_HEIGHT;
-          }
-          if (camPosition === 'contentRight') {
-            xOffset += (parseFloat(webcams?.style?.width || 0) + SMALL_OFFSET);
-          }
-        }
-      }
-      if (sl?.includes('smart')) {
-        if (panel || subPanel) {
-          const dockPos = webcams?.getAttribute('data-position');
-          if (dockPos === 'contentTop') {
-            yOffset += (parseFloat(webcams?.style?.height || 0) + SMALL_OFFSET);
-          }
-        }
-      }
-      if (webcams && sl?.includes('videoFocus')) {
-        xOffset += parseFloat(nav?.style?.width);
-        yOffset += (parseFloat(panel?.style?.height || 0) - XL_OFFSET);
-      }
     } else {
-      if (sl.includes('custom')) {
-        if (webcams) {
-          if (camPosition === 'contentTop' || !camPosition) {
-            yOffset += (parseFloat(webcams?.style?.height) || 0) + XS_OFFSET;
-          }
-          if (camPosition === 'contentBottom') {
-            yOffset -= BOTTOM_CAM_HANDLE_HEIGHT;
-          }
-          if (camPosition === 'contentLeft') {
-            xOffset += (parseFloat(webcams?.style?.width) || 0) + SMALL_OFFSET;
-          }
-        }
-      }
+      const calculateOffsets = () => {
+        if (nav) yOffset += parseFloat(nav?.style?.height);
+        if (panel) xOffset += parseFloat(panel?.style?.width);
+        if (subPanel) xOffset += parseFloat(subPanel?.style?.width);
 
-      if (sl.includes('smart')) {
-        if (panel || subPanel) {
-          const dockPos = webcams?.getAttribute('data-position');
-          if (dockPos === 'contentLeft') {
-            xOffset += (parseFloat(webcams?.style?.width || 0) + SMALL_OFFSET);
+        if (document?.documentElement?.dir === 'rtl') {
+          xOffset = 0;
+          if (presentationContainer && presentation) {
+            calcPresOffset();
           }
-          if (dockPos === 'contentTop') {
-            yOffset += (parseFloat(webcams?.style?.height || 0) + SMALL_OFFSET);
+          if (sl.includes('custom')) {
+            if (webcams) {
+              if (camPosition === 'contentTop' || !camPosition) {
+                yOffset += (parseFloat(webcams?.style?.height || 0) + BOTTOM_CAM_HANDLE_HEIGHT);
+              }
+              if (camPosition === 'contentBottom') {
+                yOffset -= BOTTOM_CAM_HANDLE_HEIGHT;
+              }
+              if (camPosition === 'contentRight') {
+                xOffset += (parseFloat(webcams?.style?.width || 0) + SMALL_OFFSET);
+              }
+            }
+          }
+          if (sl?.includes('smart')) {
+            if (panel || subPanel) {
+              const dockPos = webcams?.getAttribute('data-position');
+              if (dockPos === 'contentTop') {
+                yOffset += (parseFloat(webcams?.style?.height || 0) + SMALL_OFFSET);
+              }
+            }
+          }
+          if (webcams && sl?.includes('videoFocus')) {
+            xOffset += parseFloat(nav?.style?.width);
+            yOffset += (parseFloat(panel?.style?.height || 0) - XL_OFFSET);
+          }
+        } else {
+          if (sl.includes('custom')) {
+            if (webcams) {
+              if (camPosition === 'contentTop' || !camPosition) {
+                yOffset += (parseFloat(webcams?.style?.height) || 0) + XS_OFFSET;
+              }
+              if (camPosition === 'contentBottom') {
+                yOffset -= BOTTOM_CAM_HANDLE_HEIGHT;
+              }
+              if (camPosition === 'contentLeft') {
+                xOffset += (parseFloat(webcams?.style?.width) || 0) + SMALL_OFFSET;
+              }
+            }
+          }
+
+          if (sl.includes('smart')) {
+            if (panel || subPanel) {
+              const dockPos = webcams?.getAttribute('data-position');
+              if (dockPos === 'contentLeft') {
+                xOffset += (parseFloat(webcams?.style?.width || 0) + SMALL_OFFSET);
+              }
+              if (dockPos === 'contentTop') {
+                yOffset += (parseFloat(webcams?.style?.height || 0) + SMALL_OFFSET);
+              }
+            }
+            if (!panel && !subPanel) {
+              if (webcams) {
+                xOffset = parseFloat(webcams?.style?.width || 0) + SMALL_OFFSET;
+              }
+            }
+          }
+          if (sl?.includes('videoFocus')) {
+            if (webcams) {
+              xOffset = parseFloat(subPanel?.style?.width);
+              yOffset = parseFloat(panel?.style?.height);
+            }
+          }
+          if (presentationContainer && presentation) {
+            calcPresOffset();
           }
         }
-        if (!panel && !subPanel) {
-          if (webcams) {
-            xOffset = parseFloat(webcams?.style?.width || 0) + SMALL_OFFSET;
-          }
+
+        if (banners) {
+          banners.forEach((el) => {
+            yOffset += parseFloat(window.getComputedStyle(el).height);
+          });
         }
-      }
-      if (sl?.includes('videoFocus')) {
-        if (webcams) {
-          xOffset = parseFloat(subPanel?.style?.width);
-          yOffset = parseFloat(panel?.style?.height);
-        }
-      }
-      if (presentationContainer && presentation) {
-        calcPresOffset();
-      }
+      };
+
+      calculateOffsets();
     }
 
-    if (banners) {
-      banners.forEach((el) => {
-        yOffset += parseFloat(window.getComputedStyle(el).height);
-      });
+    const posX = type === 'touchmove' ? event.changedTouches[0].clientX : x;
+    const posY = type === 'touchmove' ? event.changedTouches[0].clientY : y;
+
+    if (type === 'touchmove' && !active) {
+      setActive(true);
     }
 
-    return setPos({ x: event.x - xOffset, y: event.y - yOffset });
+    setOverlayPosition();
+    return setPos({ x: posX - xOffset, y: posY - yOffset });
   };
 
   React.useEffect(() => {
@@ -231,7 +239,7 @@ const Cursors = (props) => {
 
     return () => {
       currentCursor?.removeEventListener('mouseenter', start);
-      currentCursor?.addEventListener('touchstart', start);
+      currentCursor?.removeEventListener('touchstart', start);
       currentCursor?.removeEventListener('mouseleave', end);
       currentCursor?.removeEventListener('mousedown', handleGrabbing);
       currentCursor?.removeEventListener('mouseup', handleReleaseGrab);

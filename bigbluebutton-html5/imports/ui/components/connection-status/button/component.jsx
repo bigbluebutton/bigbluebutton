@@ -36,17 +36,21 @@ class ConnectionStatusButton extends PureComponent {
     );
   }
 
-  setModalIsOpen = (isOpen) => this.setState({ isModalOpen: isOpen }); 
+  setModalIsOpen = (isOpen) => this.setState({ isModalOpen: isOpen });
 
   renderModal(isModalOpen) {
+    const { logMediaStats, monitoringInterval } = this.props;
+
     return (
-      isModalOpen ?
-      <ConnectionStatusModalContainer
-        {...{
-          isModalOpen,
-          setModalIsOpen: this.setModalIsOpen
-        }}
-      /> : null
+      (isModalOpen || logMediaStats) ?
+        <ConnectionStatusModalContainer
+          {...{
+            isModalOpen,
+            setModalIsOpen: this.setModalIsOpen,
+            logMediaStats,
+            monitoringInterval,
+          }}
+        /> : null
     )
   }
 

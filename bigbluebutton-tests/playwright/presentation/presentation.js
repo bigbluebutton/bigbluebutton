@@ -33,6 +33,38 @@ class Presentation extends MultiUsers {
     await checkSvgIndex(this.modPage, '/svg/1');
   }
 
+  async shareCameraAsContent() {
+    await this.modPage.hasElement(e.whiteboard, ELEMENT_WAIT_LONGER_TIME);
+
+    await this.modPage.waitAndClick(e.actions);
+    await this.modPage.waitAndClick(e.shareCameraAsContent);
+    await this.modPage.hasElement(e.videoPreview);
+    await this.modPage.waitAndClick(e.startSharingWebcam);
+    await this.modPage.hasElement(e.screenshareConnecting);
+
+    await this.modPage.wasRemoved(e.screenshareConnecting);
+    await this.modPage.hasElement(e.screenShareVideo);
+    // close all notifications displayed before comparing screenshots
+    for (const closeButton of await this.modPage.getLocator(e.closeToastBtn).all()) {
+      await closeButton.click();
+    }
+    const modWhiteboardLocator = this.modPage.getLocator(e.screenShareVideo);
+    await expect(modWhiteboardLocator).toHaveScreenshot('moderator-share-camera-as-content.png', {
+      maxDiffPixels: 1000,
+    });
+
+    await this.userPage.wasRemoved(e.screenshareConnecting);
+    await this.userPage.hasElement(e.screenShareVideo);
+    // close all notifications displayed before comparing screenshots
+    for (const closeButton of await this.userPage.getLocator(e.closeToastBtn).all()) {
+      await closeButton.click();
+    }
+    const viewerWhiteboardLocator = this.userPage.getLocator(e.screenShareVideo);
+    await expect(viewerWhiteboardLocator).toHaveScreenshot('viewer-share-camera-as-content.png', {
+      maxDiffPixels: 1000,
+    });
+  }
+
   async hideAndRestorePresentation() {
     const { presentationHidden } = getSettings();
     if (!presentationHidden) {

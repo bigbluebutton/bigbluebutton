@@ -7,11 +7,22 @@ import {
   getAudioConstraints,
   doGUM,
 } from '/imports/api/audio/client/bridge/service';
+import { getTransportStats } from '/imports/utils/stats';
 
 const MEDIA = Meteor.settings.public.media;
 const BASE_BRIDGE_NAME = 'base';
 const CALL_TRANSFER_TIMEOUT = MEDIA.callTransferTimeout;
 const TRANSFER_TONE = '1';
+/**
+ * Audio status to be filtered in getStats()
+ */
+const FILTER_AUDIO_STATS = [
+  'outbound-rtp',
+  'inbound-rtp',
+  'candidate-pair',
+  'local-candidate',
+  'transport',
+];
 
 export default class BaseAudioBridge {
   constructor(userData) {
@@ -173,5 +184,56 @@ export default class BaseAudioBridge {
         });
       });
     });
+  }
+
+  /**
+   * Get stats about active audio peer.
+   * We filter the status based on FILTER_AUDIO_STATS constant.
+   * We also append to the returned object the information about peer's
+   * transport. This transport information is retrieved by
+   * getTransportStatsFromPeer().
+   *
+   * @returns An Object containing the status about the active audio peer.
+   *
+   * For more information see:
+   * https://developer.mozilla.org/en-US/docs/Web/API/RTCPeerConnection/getStats
+   * and
+   * https://developer.mozilla.org/en-US/docs/Web/API/RTCStatsReport
+   */
+  async getStats(stats) {
+    let peer;
+    let peerStats = stats;
+    let transportStats = {};
+
+    if (!peerStats) {
+      peer = this.getPeerConnection();
+
+      if (!peer) return null;
+
+      peerStats = await peer.getStats();
+    }
+
+    const audioStats = {};
+
+    peerStats.forEach((stat) => {
+      if (FILTER_AUDIO_STATS.includes(stat.type)) {
+        audioStats[stat.id] = stat;
+      }
+    });
+
+    try {
+      transportStats = await getTransportStats(peer, audioStats);
+    } catch (error) {
+      logger.debug({
+        logCode: 'audio_transport_stats_failed',
+        extraInfo: {
+          errorCode: error.errorCode,
+          errorMessage: error.errorMessage,
+          bridgeName: this.bridgeName,
+        },
+      }, 'Failed to get transport stats for audio');
+    }
+
+    return { transportStats, ...audioStats };
   }
 }

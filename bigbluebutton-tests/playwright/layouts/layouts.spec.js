@@ -1,10 +1,10 @@
 const { test } = require('@playwright/test');
 const { fullyParallel } = require('../playwright.config');
 const { encodeCustomParams } = require('../parameters/util');
-const { PARAMETER_HIDE_PRESENTATION_TOAST } = require('../core/constants');
+const { PARAMETER_HIDE_PRESENTATION_TOASTS } = require('../core/constants');
 const { Layouts } = require('./layouts');
 
-const hidePresentationToast = encodeCustomParams(PARAMETER_HIDE_PRESENTATION_TOAST);
+const hidePresentationToast = encodeCustomParams(PARAMETER_HIDE_PRESENTATION_TOASTS);
 
 const CUSTOM_MEETING_ID = 'layout_management_meeting';
 
@@ -16,8 +16,8 @@ test.describe("Layout management", () => {
   test.beforeAll(async ({ browser }) => {
     const context = await browser.newContext();
     const page = await context.newPage();
-    await layouts.initModPage(page, true, { createParameter: hidePresentationToast, customMeetingId: CUSTOM_MEETING_ID });
-    await layouts.initUserPage(true, context, { createParameter: hidePresentationToast });
+    await layouts.initModPage(page, true, { joinParameter: hidePresentationToast, customMeetingId: CUSTOM_MEETING_ID });
+    await layouts.initUserPage(true, context, { joinParameter: hidePresentationToast });
     await layouts.modPage.shareWebcam();
     await layouts.userPage.shareWebcam();
   });

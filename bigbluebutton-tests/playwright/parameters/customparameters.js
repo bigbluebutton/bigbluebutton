@@ -4,6 +4,7 @@ const e = require('../core/elements');
 const c = require('./constants');
 const { VIDEO_LOADING_WAIT_TIME, ELEMENT_WAIT_LONGER_TIME, ELEMENT_WAIT_EXTRA_LONG_TIME } = require('../core/constants');
 const util = require('./util');
+const { sleep } = require('../core/helpers');
 const { getSettings } = require('../core/settings');
 
 class CustomParameters extends MultiUsers {
@@ -229,6 +230,20 @@ class CustomParameters extends MultiUsers {
     await this.modPage.waitAndClick(e.joinVideo);
     expect(await this.modPage.getLocator(e.selectCameraQualityId).inputValue()).toBe('low');
     await this.modPage.waitAndClick(e.startSharingWebcam);
+  }
+
+  async webcamBackgroundURL() {
+    await this.modPage.waitForSelector(e.whiteboard);
+    await this.modPage.waitAndClick(e.joinVideo);
+    await this.modPage.waitForSelector(e.webcamSettingsModal);
+    await this.modPage.waitForSelector(e.noneBackgroundButton);
+    const appleBackground = await this.modPage.getLocator(e.selectCustomBackground);
+    await expect(appleBackground).toHaveCount(1);
+    await this.modPage.waitAndClick(e.selectCustomBackground);
+    await this.modPage.waitAndClick(e.startSharingWebcam);
+    await this.modPage.waitForSelector(e.webcamContainer);
+    const webcamBackgroundURL = this.modPage.getLocator(e.webcamContainer);
+    await expect(webcamBackgroundURL).toHaveScreenshot('webcam-background-passing-url.png');
   }
 }
 

@@ -40,6 +40,7 @@ pushd staging/usr/local/bigbluebutton/core
 popd
 
 cp Rakefile  staging/usr/local/bigbluebutton/core
+chmod 644 staging/usr/local/bigbluebutton/core/Rakefile
 cp bbb-record-core.logrotate staging/etc/logrotate.d
 
 SYSTEMDSYSTEMUNITDIR=$(pkg-config --variable systemdsystemunitdir systemd)

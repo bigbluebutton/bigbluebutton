@@ -127,7 +127,7 @@ class Page {
   }
 
   async closeAudioModal() {
-    await this.waitForSelector(e.audioModal, ELEMENT_WAIT_LONGER_TIME);
+    await this.waitForSelector(e.audioModal, 20000);
     await this.waitAndClick(e.closeModal);
   }
 

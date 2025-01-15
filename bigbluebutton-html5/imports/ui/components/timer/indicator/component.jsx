@@ -435,6 +435,7 @@ class Indicator extends Component {
               role="button"
               tabIndex={0}
               onClick={isModerator ? onClick : null}
+              data-test="timeIndicator"
             >
               <Styled.TimerContent>
                 <Styled.TimerIcon>

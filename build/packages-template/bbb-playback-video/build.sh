@@ -23,7 +23,10 @@ done
 
 mkdir -p staging/usr/local/bigbluebutton/core
 cp -r scripts staging/usr/local/bigbluebutton/core
+chmod a+rx staging/usr/local/bigbluebutton/core/scripts/process/*.rb
+chmod a+rx staging/usr/local/bigbluebutton/core/scripts/publish/*.rb
 cp -r playback staging/usr/local/bigbluebutton/core
+chmod -R a+rX staging/usr/local/bigbluebutton/core/playback/
 
 mkdir -p staging/usr/share/bigbluebutton/nginx
 mv staging/usr/local/bigbluebutton/core/scripts/playback-video.nginx staging/usr/share/bigbluebutton/nginx

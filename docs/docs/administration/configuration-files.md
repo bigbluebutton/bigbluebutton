@@ -110,16 +110,17 @@ The default values are:
 
 ```yaml
 clientLog:
-  server: { enabled: true, level: info }
+  server: { enabled: false, level: info }
   console: { enabled: true, level: debug }
   external:
     {
-      enabled: false,
-      level: info,
-      url: https://LOG_HOST/html5Log,
-      method: POST,
-      throttleInterval: 400,
-      flushOnClose: true,
+      enabled: false
+      level: info
+      url: https://LOG_HOST/html5Log
+      method: POST
+      throttleInterval: 400
+      flushOnClose: true
+      logTag: ''
     }
 ```
 

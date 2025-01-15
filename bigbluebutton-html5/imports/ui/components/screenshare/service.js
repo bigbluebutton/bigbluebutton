@@ -15,12 +15,6 @@ import NotesService from '/imports/ui/components/notes/service';
 
 const VOLUME_CONTROL_ENABLED = Meteor.settings.public.kurento.screenshare.enableVolumeControl;
 const SCREENSHARE_MEDIA_ELEMENT_NAME = 'screenshareVideo';
-
-const DEFAULT_SCREENSHARE_STATS_TYPES = [
-  'outbound-rtp',
-  'inbound-rtp',
-];
-
 const CONTENT_TYPE_CAMERA = "camera";
 const CONTENT_TYPE_SCREENSHARE = "screenshare";
 
@@ -355,9 +349,6 @@ const dataSavingSetting = () => Settings.dataSaving.viewScreenshare;
    * For more information see:
    *  - https://developer.mozilla.org/en-US/docs/Web/API/RTCPeerConnection/getStats
    *  - https://developer.mozilla.org/en-US/docs/Web/API/RTCStatsReport
-
-   * @param {Array[String]} statsType - An array containing valid RTCStatsType
-   *                                    values to include in the return object
    *
    * @returns {Object} The information about each active screen sharing peer.
    *          The returned format follows the format returned by video's service
@@ -367,22 +358,7 @@ const dataSavingSetting = () => Settings.dataSaving.viewScreenshare;
    *            peerIdString: RTCStatsReport
    *          }
    */
-const getStats = async (statsTypes = DEFAULT_SCREENSHARE_STATS_TYPES) => {
-  const screenshareStats = {};
-  const peer = KurentoBridge.getPeerConnection();
-
-  if (!peer) return null;
-
-  const peerStats = await peer.getStats();
-
-  peerStats.forEach((stat) => {
-    if (statsTypes.includes(stat.type)) {
-      screenshareStats[stat.type] = stat;
-    }
-  });
-
-  return { screenshareStats };
-};
+const getStats = () => KurentoBridge.getStats();
 
 // This method may throw errors
 const isMediaFlowing = (previousStats, currentStats) => {

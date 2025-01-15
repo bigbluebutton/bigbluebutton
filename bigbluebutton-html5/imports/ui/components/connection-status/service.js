@@ -9,10 +9,13 @@ import { makeCall } from '/imports/ui/services/api';
 import AudioService from '/imports/ui/components/audio/service';
 import VideoService from '/imports/ui/components/video-provider/service';
 import ScreenshareService from '/imports/ui/components/screenshare/service';
+import { getDataType, addExtraInboundNetworkParameters } from '/imports/utils/stats';
 
 const STATS = Meteor.settings.public.stats;
 const NOTIFICATION = STATS.notification;
 const STATS_INTERVAL = STATS.interval;
+const LOG_MEDIA_STATS = STATS.logMediaStats.enabled;
+const LOG_MONITORING_INTERVAL = STATS.logMediaStats.interval;
 const ROLE_MODERATOR = Meteor.settings.public.user.role_moderator;
 
 const intlMessages = defineMessages({
@@ -285,68 +288,6 @@ const notification = (level, intl) => {
 };
 
 /**
- * Calculates the jitter buffer average.
- * For more information see:
- * https://www.w3.org/TR/webrtc-stats/#dom-rtcinboundrtpstreamstats-jitterbufferdelay
- * @param {Object} inboundRtpData The RTCInboundRtpStreamStats object retrieved
- *                                in getStats() call.
- * @returns The jitter buffer average in ms
- */
-const calculateJitterBufferAverage = (inboundRtpData) => {
-  if (!inboundRtpData) return 0;
-
-  const {
-    jitterBufferDelay,
-    jitterBufferEmittedCount,
-  } = inboundRtpData;
-
-  if (!jitterBufferDelay || !jitterBufferEmittedCount) return '--';
-
-  return Math.round((jitterBufferDelay / jitterBufferEmittedCount) * 1000);
-};
-
-/**
- * Given the data returned from getStats(), returns an array containing all the
- * the stats of the given type.
- * For more information see:
- * https://developer.mozilla.org/en-US/docs/Web/API/RTCStatsReport
- * and
- * https://developer.mozilla.org/en-US/docs/Web/API/RTCStatsType
- * @param {Object} data - RTCStatsReport object returned from getStats() API
- * @param {String} type - The string type corresponding to RTCStatsType object
- * @returns {Array[Object]} An array containing all occurrences of the given
- *                          type in the data Object.
- */
-const getDataType = (data, type) => {
-  if (!data || typeof data !== 'object' || !type) return [];
-
-  return Object.values(data).filter((stat) => stat.type === type);
-};
-
-/**
- * Returns a new Object containing extra parameters calculated from inbound
- * data. The input data is also appended in the returned Object.
- * @param {Object} currentData - The object returned from getStats / service's
- *                               getNetworkData()
- * @returns {Object} the currentData object with the extra inbound network
- *                    added to it.
- */
-const addExtraInboundNetworkParameters = (data) => {
-  if (!data) return data;
-
-  const inboundRtpData = getDataType(data, 'inbound-rtp')[0];
-
-  if (!inboundRtpData) return data;
-
-  const extraParameters = {
-    jitterBufferAverage: calculateJitterBufferAverage(inboundRtpData),
-    packetsLost: inboundRtpData.packetsLost,
-  };
-
-  return Object.assign(inboundRtpData, extraParameters);
-};
-
-/**
  * Retrieves the inbound and outbound data using WebRTC getStats API, for audio.
  * @returns An Object with format (property:type) :
  *   {
@@ -546,6 +487,8 @@ const calculateBitsPerSecondFromMultipleData = (currentData, previousData) => {
 };
 
 export default {
+  LOG_MEDIA_STATS,
+  LOG_MONITORING_INTERVAL,
   isModerator,
   getConnectionStatus,
   getStats,

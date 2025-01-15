@@ -81,7 +81,8 @@ public class PresentationUrlDownloadService {
     }
 
     public void extractPresentationPage(final String sourceMeetingId, final String presentationId,
-                                        final Integer presentationSlide, final String destinationMeetingId)  {
+                                        final Integer presentationSlide, final String destinationMeetingId,
+                                        final String sourcePresentationFilename)  {
         /**
          * We delay processing of the presentation to make sure that the meeting has already been created.
          * Otherwise, the meeting won't get the conversion events.
@@ -89,17 +90,24 @@ public class PresentationUrlDownloadService {
         ScheduledFuture scheduledFuture =
                 scheduledThreadPool.schedule(new Runnable() {
                     public void run() {
-                        extractPage(sourceMeetingId, presentationId, presentationSlide, destinationMeetingId) ;
+                        extractPage(sourceMeetingId, presentationId, presentationSlide, destinationMeetingId, sourcePresentationFilename) ;
                     }
                 }, 5, TimeUnit.SECONDS);
     }
 
-    // A negative presentationSlide indicates the entire presentation deck should be used.
     private void extractPage(final String sourceMeetingId, final String presentationId,
-                             final Integer presentationSlide, final String destinationMeetingId) {
+                             final Integer presentationSlide, final String destinationMeetingId,
+                             final String sourcePresentationFilename) {
 
         Boolean uploadFailed = false;
         ArrayList<String> uploadFailedReasons = new ArrayList<String>();
+
+        // A negative presentationSlide indicates the entire presentation deck should be used.
+        Boolean extractWholePresentation = presentationSlide < 0;
+        String filenameWithoutExtension = FilenameUtils.removeExtension(sourcePresentationFilename);
+
+        // Append the slide number to the filename if a single slide is being extracted
+        String presentationSlideInFilename = extractWholePresentation ? "" : ("-" + presentationSlide.toString());
 
         // Build the source meeting path
         File sourceMeetingPath = new File(presentationDir + File.separatorChar
@@ -137,7 +145,8 @@ public class PresentationUrlDownloadService {
         }
 
         // Build the target meeting path
-        String filenameExt = FilenameUtils.getExtension(sourcePresentationFile.getName());
+        String filename = sourcePresentationFile.getName();
+        String filenameExt = FilenameUtils.getExtension(filename);
         String presId = Util.generatePresentationId(presentationId);
         String newFilename = Util.createNewFilename(presId, filenameExt);
 
@@ -147,7 +156,7 @@ public class PresentationUrlDownloadService {
                 + newFilename;
         File newPresentation = new File(newFilePath);
 
-        if (sourcePresentationFile.getName().toLowerCase().endsWith("pdf") && presentationSlide >= 0) {
+        if (sourcePresentationFile.getName().toLowerCase().endsWith("pdf") && !extractWholePresentation) {
             pageExtractor.extractPage(sourcePresentationFile, new File(
                     newFilePath), presentationSlide);
         } else {
@@ -163,7 +172,7 @@ public class PresentationUrlDownloadService {
         processUploadedFile("DEFAULT_PRESENTATION_POD",
           destinationMeetingId,
           presId,
-          "default-" + presentationSlide.toString() + "." + filenameExt,
+          filenameWithoutExtension + presentationSlideInFilename + "." + filenameExt,
           newPresentation,
           true,
           "breakout-authz-token",

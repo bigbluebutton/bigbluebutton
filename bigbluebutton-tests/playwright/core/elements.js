@@ -60,6 +60,7 @@ exports.resetAssignments = 'button[data-test="resetAssignments"]'
 exports.breakoutRoomsItem = 'div[data-test="breakoutRoomsItem"]';
 exports.alreadyConnected = 'span[data-test="alreadyConnected"]';
 exports.askJoinRoom1 = 'button[data-test="askToJoinRoom1"]';
+exports.askJoinRoom2 = 'button[data-test="askToJoinRoom2"]';
 exports.joinRoom1 = 'button[data-test="joinRoom1"]';
 exports.allowChoiceRoom = 'input[id="freeJoinCheckbox"]';
 exports.labelGeneratingURL = 'span[data-test="labelGeneratingURL"]';
@@ -91,6 +92,9 @@ exports.timeRemaining = 'span[data-test="timeRemaining"]';
 exports.captureBreakoutSharedNotes = 'input[id="captureNotesBreakoutCheckbox"]';
 exports.captureBreakoutWhiteboard = 'input[id="captureSlidesBreakoutCheckbox"]';
 exports.roomOption = 'option[data-test="roomOption"]';
+exports.changeSlideBreakoutRoom1 = 'select[data-test="changeSlideBreakoutRoom"]:nth-child(1)';
+exports.slide1BreakoutRoom = 'select[data-test="changeSlideBreakoutRoom"]'
+exports.slideBreakoutRoomOption = 'option[data-test="slideBreakoutRoomOption"]';
 
 // Chat
 exports.chatBox = 'textarea[id="message-input"]';
@@ -158,6 +162,20 @@ exports.usersList = 'div[data-test="userList"]';
 exports.selectCameraQualityId = 'select[id="setQuality"]';
 exports.virtualBackgrounds = 'div[data-test="virtualBackground"]';
 exports.learningDashboard = 'li[data-test="learningDashboard"]';
+
+// Timer
+exports.timerContainer = 'div[data-test="timerContainer"]';
+exports.stopwatchContainer = 'div[data-test="stopwatchContainer"]';
+exports.timerStopwatchFeature = 'li[data-test="timerStopWatchFeature"]';
+exports.timerCurrent = 'span[data-test="timerCurrent"]';
+exports.startStopTimer = 'button[data-test="startStopTimer"]';
+exports.resetTimerStopwatch = 'button[data-test="resetTimerStopWatch"]';
+exports.timerButton = 'button[data-test="timerButton"]';
+exports.timerIndicator = 'div[data-test="timeIndicator"]';
+exports.stopwatch = 'button[data-test="stopwatchButton"]';
+exports.hoursInput = 'input[data-test="hoursInput"]';
+exports.minutesInput = 'input[data-test="minutesInput"]';
+exports.secondsInput = 'input[data-test="secondsInput"]';
 
 // Notes
 exports.sharedNotes = 'div[data-test="sharedNotes"]';
@@ -377,6 +395,7 @@ exports.userBannedMessage2 = 'div[id="app"] >> div >> div:nth-child(2)';
 exports.meetingEndedModalTitle = 'h1[data-test="meetingEndedModalTitle"]';
 exports.unmuteUser = 'li[data-test="unmuteUser"]';
 exports.ejectCamera = 'li[data-test="ejectCamera"]';
+exports.togglePublicChat = 'li[data-test="togglePublicChat"]';
 
 // Lock Viewers
 exports.lockViewersButton = 'li[data-test="lockViewersButton"]';
@@ -433,6 +452,7 @@ exports.dropAreaLeft = 'div[data-test="dropArea-contentLeft"]';
 exports.dropAreaRight = 'div[data-test="dropArea-contentRight"]';
 exports.dropAreaTop = 'div[data-test="dropArea-contentTop"]';
 exports.dropAreaSidebarBottom = 'div[data-test="dropArea-sidebarContentBottom"]';
+exports.selfViewDisableBtn = 'li[data-test="selfViewDisableBtn"]';
 
 exports.videoQualitySelector = 'select[id="setQuality"]';
 exports.webcamItemTalkingUser = 'div[data-test="webcamItemTalkingUser"]';

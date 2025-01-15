@@ -6,6 +6,7 @@ import Icon from '/imports/ui/components/connection-status/icon/component';
 import Service from '../service';
 import Styled from './styles';
 import ConnectionStatusHelper from '../status-helper/container';
+import logger from '/imports/startup/client/logger';
 
 const NETWORK_MONITORING_INTERVAL_MS = 2000;
 const MIN_TIMEOUT = 3000;
@@ -138,6 +139,14 @@ const propTypes = {
   intl: PropTypes.shape({
     formatMessage: PropTypes.func.isRequired,
   }).isRequired,
+  isModalOpen: PropTypes.bool.isRequired,
+  logMonitoringInterval: PropTypes.number,
+  logMediaStats: PropTypes.bool,
+};
+
+const defaultProps = {
+  logMediaStats: false,
+  logMonitoringInterval: 30000,
 };
 
 const isConnectionStatusEmpty = (connectionStatus) => {
@@ -194,8 +203,18 @@ class ConnectionStatusComponent extends PureComponent {
     this.startMonitoringNetwork();
   }
 
+  componentDidUpdate(prevProps) {
+    const { isModalOpen } = this.props;
+
+    // If the modal changed open state, we should re-start network monitoring
+    // with the appropriate interval
+    if (prevProps.isModalOpen !== isModalOpen) {
+      this.startMonitoringNetwork();
+    }
+  }
+
   componentWillUnmount() {
-    Meteor.clearInterval(this.rateInterval);
+    this.stopMonitoringNetwork();
   }
 
   handleSelectTab(tab) {
@@ -210,13 +229,42 @@ class ConnectionStatusComponent extends PureComponent {
     });
   }
 
+  stopMonitoringNetwork() {
+    clearInterval(this.rateInterval);
+    this.rateInterval = null;
+    clearTimeout(this.copyNetworkDataTimeout);
+    this.copyNetworkDataTimeout = null;
+  }
+
+  shouldLogMediaStats() {
+    const { logMediaStats, isModalOpen } = this.props;
+    const { networkData } = this.state;
+    const { audio, video } = networkData;
+
+    return logMediaStats
+      && !isModalOpen
+      && (Object.keys(audio).length > 0 || Object.keys(video).length > 0);
+  }
+
   /**
    * Start monitoring the network data.
    * @return {Promise} A Promise that resolves when process started.
    */
   async startMonitoringNetwork() {
+    const {
+      isModalOpen,
+      logMonitoringInterval,
+      logMediaStats,
+    } = this.props;
+
+    const monitoringInterval = !isModalOpen
+      ? logMonitoringInterval
+      : NETWORK_MONITORING_INTERVAL_MS;
+
+    if (this.rateInterval) this.stopMonitoringNetwork();
+
     let previousData = await Service.getNetworkData();
-    this.rateInterval = Meteor.setInterval(async () => {
+    this.rateInterval = setInterval(async () => {
       const data = await Service.getNetworkData();
 
       const {
@@ -239,7 +287,7 @@ class ConnectionStatusComponent extends PureComponent {
         audioCurrentDownloadRate,
         jitter,
         packetsLost,
-        transportStats: data.audio.transportStats,
+        transportStats: data.audio?.transportStats || {},
       };
 
       const {
@@ -251,6 +299,7 @@ class ConnectionStatusComponent extends PureComponent {
       const video = {
         videoCurrentUploadRate,
         videoCurrentDownloadRate,
+        screenshareTransportStats: data.video?.screenshareStats?.transportStats || {},
       };
 
       const { user } = data;
@@ -266,7 +315,17 @@ class ConnectionStatusComponent extends PureComponent {
         networkData,
         hasNetworkData: true,
       });
-    }, NETWORK_MONITORING_INTERVAL_MS);
+
+      if (this.shouldLogMediaStats()) {
+        logger.info({
+          logCode: 'media_stats',
+          extraInfo: {
+            audio,
+            video,
+          },
+        }, 'Media stats');
+      }
+    }, monitoringInterval);
   }
 
   /**
@@ -523,6 +582,8 @@ class ConnectionStatusComponent extends PureComponent {
     } = this.props;
 
     const { selectedTab } = this.state;
+
+    if (!isModalOpen) return null;
 
     return (
       <Styled.ConnectionStatusModal

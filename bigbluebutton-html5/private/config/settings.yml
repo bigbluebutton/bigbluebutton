@@ -66,6 +66,7 @@ public:
     dynamicGuestPolicy: true
     enableGuestLobbyMessage: true
     guestPolicyExtraAllowOptions: false
+    delayForApprovalOfGuests: 500
     alwaysShowWaitingRoomUI: true
     enableLimitOfViewersInWebcam: false
     enableMultipleCameras: true
@@ -319,6 +320,21 @@ public:
     # Controls whether ICE candidates should be signaled to bbb-webrtc-sfu.
     # Enable this if you want to use Kurento as the media server.
     signalCandidates: false
+    # restartIce: controls whether ICE restarts should be signaled to bbb-webrtc-sfu
+    #   whenever peers of the selected type (audio, video, screenshare) transition
+    #   to failure states. Disabled by default (experimental).
+    # restartIce.<mediaType>.retries: number of ICE restart retries before giving up
+    #   (i.e.: throwing an error). Default is 1 for audio, 3 for video and screenshare.
+    restartIce:
+      audio:
+        enabled: false
+        retries: 1
+      video:
+        enabled: false
+        retries: 3
+      screenshare:
+        enabled: false
+        retries: 3
     # traceLogs: <Boolean> - enable trace logs in SFU peers
     traceLogs: false
     cameraTimeouts:
@@ -709,6 +725,9 @@ public:
     callHangupMaximumRetries: 10
     echoTestNumber: 'echo'
     listenOnlyCallTimeout: 15000
+    # skipInitialCamEnumeration: whether to skip the initial camera enumeration
+    # See https://github.com/bigbluebutton/bigbluebutton/issues/21746
+    skipInitialCamEnumeration: false
     # Experimental: enables a new audio mechanism that has a server-side,
     # transparent listen only mode. See issue #14021.
     # bbb_userdata-transparent-listen-only supersedes this setting
@@ -789,7 +808,16 @@ public:
     enabled: true
     interval: 10000
     timeout: 30000
+    # Server-side stats event logging. Everytime a connection status event update
+    # is received by Meteor, it'll be logged *by the server*.
     log: true
+    # Client-side WebRTC stats logging. If enabled, the client will log periodic
+    # WebRTC stats information to the configured logging transports.
+    # Disabled by default. This log is verbose and may incur in additional network
+    # usage if external logging targets are configured.
+    logMediaStats:
+      enabled: false
+      interval: 30000
     notification:
       warning: false
       error: true
