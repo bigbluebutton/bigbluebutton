@@ -2,8 +2,9 @@ import React from 'react';
 import SidebarContent from './component';
 import { layoutSelectInput, layoutSelectOutput, layoutDispatch } from '../layout/context';
 import { Input, Output } from '/imports/ui/components/layout/layoutTypes';
+import { SidebarContentContanerProps } from './types';
 
-const SidebarContentContainer = () => {
+const SidebarContentContainer = ({ isSharedNotesPinned }: SidebarContentContanerProps) => {
   const sidebarContentInput = layoutSelectInput((i: Input) => i.sidebarContent);
   const sidebarContentOutput = layoutSelectOutput((i: Output) => i.sidebarContent);
   const layoutContextDispatch = layoutDispatch();
@@ -41,7 +42,7 @@ const SidebarContentContainer = () => {
       resizableEdge={resizableEge}
       contextDispatch={layoutContextDispatch}
       sidebarContentPanel={sidebarContentPanel}
-      isSharedNotesPinned={false}
+      isSharedNotesPinned={isSharedNotesPinned}
     />
   );
 };

@@ -7,6 +7,10 @@ type ResizableEdge = {
   left: boolean;
 }
 
+interface SidebarContentContanerProps {
+  isSharedNotesPinned: boolean;
+}
+
 interface SidebarContentProps {
   top: number;
   left?: number;
@@ -31,6 +35,7 @@ interface SidebarContentPanelProps {
 }
 
 export {
+  SidebarContentContanerProps,
   SidebarContentPanelProps,
   SidebarContentProps,
 };
