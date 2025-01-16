@@ -79,6 +79,8 @@ const requestPresentationUploadToken = (
 });
 
 const uploadAndConvertPresentation = (
+  filename,
+  temporaryPresentationId,
   file,
   downloadable,
   meetingId,
@@ -89,8 +91,6 @@ const uploadAndConvertPresentation = (
   current,
 ) => {
   if (!file) return Promise.resolve();
-
-  const temporaryPresentationId = uniqueId(uuid());
 
   const data = new FormData();
   data.append('fileUpload', file);
@@ -109,10 +109,8 @@ const uploadAndConvertPresentation = (
     body: data,
   };
 
-  return requestPresentationUploadToken(temporaryPresentationId, meetingId, file.name)
-    .then((token) => (
-      futch(endpoint.replace('upload', `${token}/upload`), opts, onProgress)
-    ))
+  return requestPresentationUploadToken(temporaryPresentationId, meetingId, filename)
+    .then((token) => futch(endpoint.replace('upload', `${token}/upload`), opts, onProgress))
     // Trap the error so we can have parallel upload
     .catch((error) => {
       logger.debug({
@@ -131,7 +129,8 @@ const uploadAndConvertPresentations = (
   meetingId,
   uploadEndpoint,
 ) => Promise.all(presentationsToUpload.map((p) => uploadAndConvertPresentation(
-  p.file, p.downloadable, meetingId, uploadEndpoint,
+  p.name,
+  p.presentationId, p.file, p.downloadable, meetingId, uploadEndpoint,
   p.onUpload, p.onProgress, p.onConversion, p.current,
 )));
 
@@ -154,7 +153,6 @@ const persistPresentationChanges = (
   return uploadAndConvertPresentations(presentationsToUpload, Auth.meetingID, uploadEndpoint)
     .then((presentations) => {
       if (!presentations.length && !currentPresentation) return Promise.resolve();
-
       // Update the presentation with their new ids
       presentations.forEach((p, i) => {
         if (p === undefined) return;
@@ -197,7 +195,6 @@ const handleSavePresentation = (
   if (!isPresentationEnabled) {
     return null;
   }
-
   const PRESENTATION_CONFIG = window.meetingClientSettings.public.presentation;
 
   if (!isFromPresentationUploaderInterface) {
