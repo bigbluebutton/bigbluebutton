@@ -1,13 +1,10 @@
-const { expect, default: test } = require('@playwright/test');
+const { expect } = require('@playwright/test');
 const { MultiUsers } = require('../user/multiusers');
-const Page = require('../core/page');
 const e = require('../core/elements');
 const { checkSvgIndex, getSlideOuterHtml, uploadSinglePresentation, uploadMultiplePresentations, getCurrentPresentationHeight } = require('./util.js');
-const { ELEMENT_WAIT_LONGER_TIME, ELEMENT_WAIT_EXTRA_LONG_TIME, UPLOAD_PDF_WAIT_TIME, ELEMENT_WAIT_TIME } = require('../core/constants');
+const { ELEMENT_WAIT_LONGER_TIME, ELEMENT_WAIT_EXTRA_LONG_TIME, UPLOAD_PDF_WAIT_TIME, CI } = require('../core/constants');
 const { sleep } = require('../core/helpers');
 const { getSettings } = require('../core/settings');
-const { waitAndClearNotification } = require('../notifications/util.js');
-const CI = process.env.CI === 'true';
 
 const defaultZoomLevel = '100%';
 
@@ -112,23 +109,22 @@ class Presentation extends MultiUsers {
 
     await this.modPage.closeAllToastNotifications();
     await this.userPage.closeAllToastNotifications();
-    const modWhiteboardLocator = this.modPage.getLocator(e.whiteboard);
-
     await this.modPage.setHeightWidthViewPortSize();
 
     // Skip check for screenshot on ci, due to the ci and the local machine generating two different image sizes
     if (!CI) {
+      const modWhiteboardLocator = this.modPage.getLocator(e.whiteboard);
       await expect(modWhiteboardLocator).toHaveScreenshot('moderator-new-presentation-screenshot.png', {
         maxDiffPixels: 1000,
       });
     }
-     const imageURLSecondPresentation = await this.modPage.page.evaluate(() => {
+    const imageURLSecondPresentation = await this.modPage.page.evaluate(() => {
       const element = document.querySelector('div[id="whiteboard-element"] div[class="tl-image"]');
       const style = element.getAttribute('style')
       const urlMatch = style.match(/background-image: url\("([^"]+)"\)/);
       return urlMatch ? urlMatch[1] : null;
     });
-    
+
     await this.userPage.reloadPage();
     await this.userPage.closeAudioModal();
     await this.userPage.closeAllToastNotifications();
@@ -136,7 +132,7 @@ class Presentation extends MultiUsers {
     await this.userPage.setHeightWidthViewPortSize();
 
     await expect(imageURLFirstPresentation).not.toBe(imageURLSecondPresentation);
-    
+
     // Skip check for screenshot on ci, due to the ci and the local machine generating two different image sizes
     if (!CI) {
       await expect(userWhiteboardLocator).toHaveScreenshot('viewer-new-presentation-screenshot.png', {
@@ -337,17 +333,19 @@ class Presentation extends MultiUsers {
 
   async uploadAndRemoveAllPresentations() {
     await uploadSinglePresentation(this.modPage, e.uploadPresentationFileName);
+    await this.modPage.waitForSelector(e.whiteboard, ELEMENT_WAIT_LONGER_TIME);
+    await sleep(1000);  // timeout to avoid trying to get the slide data before it's ready
 
     const modSlides1 = await getSlideOuterHtml(this.modPage);
     const userSlides1 = await getSlideOuterHtml(this.userPage);
     await expect(modSlides1, 'should the moderator slide and the attendee slide to be equal').toEqual(userSlides1);
 
     // Remove
-    await this.modPage.waitForSelector(e.whiteboard, ELEMENT_WAIT_LONGER_TIME);
     await this.modPage.waitAndClick(e.actions);
     await this.modPage.waitAndClick(e.managePresentations);
-    await this.modPage.waitAndClick(e.removePresentation);
-    await this.modPage.waitAndClick(e.removePresentation);
+    await this.modPage.checkElementCount(e.presentationItem, 2, 'should display both default and uploaded presentation on the manage presentations modal');
+    await this.modPage.waitAndClick(e.removePresentation);  // remove first presentation
+    await this.modPage.waitAndClick(e.removePresentation);  // remove second presentation
     await this.modPage.waitAndClick(e.confirmManagePresentation);
 
     await this.modPage.wasRemoved(e.whiteboard, 'should not display the whiteboard for the moderator');
@@ -371,6 +369,8 @@ class Presentation extends MultiUsers {
   }
 
   async removePreviousPresentationFromPreviousPresenter() {
+    await this.modPage.waitForSelector(e.whiteboard, ELEMENT_WAIT_LONGER_TIME);
+    await this.modPage.closeAllToastNotifications();
     await uploadSinglePresentation(this.modPage, e.uploadPresentationFileName);
 
     const modSlides1 = await getSlideOuterHtml(this.modPage);
@@ -414,12 +414,16 @@ class Presentation extends MultiUsers {
   }
 
   async hidePresentationToolbar() {
+    await this.modPage.waitAndClick(e.multiUsersWhiteboardOn);
     await this.modPage.waitAndClick(e.whiteboardOptionsButton);
     await this.modPage.waitAndClick(e.toolVisibility);
+    const screenshotOptions = {
+      maxDiffPixels: 1000,
+    };
     await this.modPage.wasRemoved(e.wbToolbar, 'should not display the whiteboard toolbar for the moderator');
-    await this.modPage.wasRemoved(e.wbStyles, 'should not display the whiteboard styles menu');
-    await this.modPage.wasRemoved(e.wbUndo, 'should not display the whiteboard undo button');
-    await this.modPage.wasRemoved(e.wbRedo, 'should not display the whiteboard redo button');
+    if (!CI) await expect(this.modPage.page, 'should not display the presentation toolbar').toHaveScreenshot('mod-hide-toolbars.png', screenshotOptions);
+    await this.userPage.hasElement(e.wbToolbar, 'should display the whiteboard toolbar for the viewer with whiteboard access');
+    if (!CI) await expect(this.userPage.page, 'should display the presentation toolbar').toHaveScreenshot('user-toolbars.png', screenshotOptions);
   }
 
   async zoom() {
@@ -452,7 +456,7 @@ class Presentation extends MultiUsers {
     await this.modPage.waitAndClick(e.resetZoomButton);
     await expect(resetZoomButtonLocator, 'should the reset zoom button to contain the text 100%').toContainText(/100%/);
     await expect(zoomOutButtonLocator, 'should the zoom out button to be disabled').toBeDisabled();
-    await expect(wbBox).toHaveScreenshot('moderator1-zoom100.png');
+    await expect(wbBox).toHaveScreenshot('moderator1-no-zoom.png');
   }
 
   async selectSlide() {

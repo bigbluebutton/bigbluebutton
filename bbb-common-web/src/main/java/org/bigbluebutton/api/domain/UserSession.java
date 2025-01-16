@@ -43,6 +43,7 @@ public class UserSession {
   public String logoutUrl = null;
   public String defaultLayout = "NOLAYOUT";
   public String enforceLayout = "";
+  public String sessionName = "";
   public String avatarURL;
   public String webcamBackgroundURL;
   public String guestStatus = GuestPolicy.ALLOW;
@@ -135,6 +136,10 @@ public class UserSession {
 
   public String getEnforceLayout() {
     return enforceLayout;
+  }
+
+  public String getSessionName() {
+    return sessionName;
   }
 
   public String getAvatarURL() {

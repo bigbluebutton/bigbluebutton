@@ -1,9 +1,11 @@
-import AudioService from '/imports/ui/components/audio/service';
+import AudioService, {
+  didUserSelectListenOnly,
+  didUserSelectMicrophone,
+} from '/imports/ui/components/audio/service';
 import AudioManager from '/imports/ui/services/audio-manager';
 import VideoService from '/imports/ui/components/video-provider/service';
 import type { Stream } from '/imports/ui/components/video-provider/types';
 import { screenshareHasEnded } from '/imports/ui/components/screenshare/service';
-import { didUserSelectedListenOnly, didUserSelectedMicrophone } from '../../audio/audio-modal/service';
 import logger from '/imports/startup/client/logger';
 
 export const getIsMicrophoneUser = () => {
@@ -36,11 +38,11 @@ const logUserCouldNotRejoinAudio = () => {
 };
 
 export const rejoinAudio = () => {
-  if (didUserSelectedMicrophone()) {
-    AudioManager.joinMicrophone().catch(() => {
+  if (didUserSelectMicrophone()) {
+    AudioManager.joinMicrophone({ muted: true }).catch(() => {
       logUserCouldNotRejoinAudio();
     });
-  } else if (didUserSelectedListenOnly()) {
+  } else if (didUserSelectListenOnly()) {
     AudioManager.joinListenOnly().catch(() => {
       logUserCouldNotRejoinAudio();
     });

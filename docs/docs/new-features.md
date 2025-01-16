@@ -28,7 +28,7 @@ This removes the need to choose between Microphone or Listen Only mode when join
 
 ![audio controls when joining audio](/img/30/30-ui-join-audio.png)
 
-Once you are joined in audio you can dynamicly change your audio device configuration from a dropdown located on the mute-yourself button.
+Once you are joined in audio, you can dynamically change your audio device configuration from a dropdown located on the mute-yourself button.
 
 ![mute yourself has a dropdown menu allowing device changes](/img/30/30-ui-audio-devices-options.png)
 
@@ -89,7 +89,7 @@ You can now use the "M" shortcut while in a conference to control how long your 
 
 We have made significant changes to the architecture of BigBlueButton and have introduced support to plugins -- optional custom modules included in the client which allow expanding the capabilities of BigBlueButton. A data channel is provided to allow for data exchange between clients. See the [HTML5 Plugin SDK](https://github.com/bigbluebutton/bigbluebutton-html-plugin-sdk) for examples and more information.
 
-At the moment of writing these documentation, the official list of plugins includes: 
+At the moment of writing this documentation, the official list of plugins includes: 
 - [Select Random User](https://github.com/bigbluebutton/plugin-pick-random-user)
 - [Share a link](https://github.com/bigbluebutton/plugin-generic-link-share)
 - [H5P plugin for BigBlueButton](https://github.com/bigbluebutton/plugin-h5p)
@@ -166,17 +166,15 @@ You can test your setup with one of the files from [eicar.org](https://www.eicar
 
 ### Experimental
 
-<!-- #### LiveKit support -->
-
 #### Infinite Whiteboard (experimental)
 
-We have added initial support for inifinite whiteboard in the live session. Only the presenter can trigger it. It allows for annotations to be created in the margins, or to write content without being limited by space.
+We have added initial support for infinite whiteboard in the live session. Only the presenter can trigger it. It allows for annotations to be created in the margins, or to write content without being limited by space.
 
 ![the trigger for infinite whiteboard is in the middle of the presenter toolbar](/img/30/30-trigger-for-infinite-wb.png)
 
 Everyone sees the margins and follows the presenter's point of view. If multi-user whiteboard is also enabled, viewers can roam around the canvas independently.
 
-![with inifinite whiteboard enabled annotations can be made on the margins and more](/img/30/30-infinite-wb-in-action.png)
+![with infinite whiteboard enabled annotations can be made on the margins and more](/img/30/30-infinite-wb-in-action.png)
 
 Recording is not yet implemented, meaning that if you enable this experimental feature on your server and use it in a recorded session, the recording will most likely have broken whiteboard at best. The recording (and playback) work is planned for after BigBlueButton 3.0.
 
@@ -190,8 +188,15 @@ aforementioned issue provides parity tracking in section `Annex 1`.
 
 To enable support for LiveKit:
   - Install bbb-livekit: `$ sudo apt-get install bbb-livekit`
-  - Enable the LiveKit controller module in bbb-webrtc-sfu: `$ sudo yq -i '.livekit.enabled = true' /etc/bigbluebutton/bbb-webrtc-sfu/production.yml`
+  - Enable the LiveKit controller module in bbb-webrtc-sfu: `$ sudo yq e -i '.livekit.enabled = true' /etc/bigbluebutton/bbb-webrtc-sfu/production.yml`
   - Restart bbb-webrtc-sfu: `$ sudo systemctl restart bbb-webrtc-sfu`
+  - Guarantee that Node.js 22 is installed in your server: `$ node -v`
+    - Older 3.0 installations might still be using Node.js 18. If that's the case,
+      re-run bbb-install or correct any custom installation scripts to ensure
+      Node.js 22 is installed.
+  - Only when using BigBlueButton via the [cluster proxy](/administration/cluster-proxy) configuration:
+    - Set the appropriate LiveKit endpoint URL in bbb-html5.yml's `public.media.livekit.url`. See
+      the aforementioned [docs section](/administration/cluster-proxy.md#bigbluebutton-servers) for details.
 
 Once enabled, LiveKit still won't be used by default. There are two ways to make
 use of it in meetings:
@@ -223,6 +228,9 @@ For full details on what is new in BigBlueButton 3.0, see the release notes.
 
 Recent releases:
 
+- [3.0.0-beta.7](https://github.com/bigbluebutton/bigbluebutton/releases/tag/v3.0.0-beta.7)
+- [3.0.0-beta.6](https://github.com/bigbluebutton/bigbluebutton/releases/tag/v3.0.0-beta.6)
+- [3.0.0-beta.5](https://github.com/bigbluebutton/bigbluebutton/releases/tag/v3.0.0-beta.5)
 - [3.0.0-beta.4](https://github.com/bigbluebutton/bigbluebutton/releases/tag/v3.0.0-beta.4)
 - [3.0.0-beta.3](https://github.com/bigbluebutton/bigbluebutton/releases/tag/v3.0.0-beta.3)
 - [3.0.0-beta.2](https://github.com/bigbluebutton/bigbluebutton/releases/tag/v3.0.0-beta.2)
@@ -254,6 +262,12 @@ We implemented a plugin for typed captions - [Typed captions plugin](https://git
 
 The `userStatus` feature was replaced by `userReaction`. They were vastly overlapping, causing some confusion when using and maintaining.
 
+#### Changes to User Muting Actions
+
+- The **"Mute all except presenter"** button now only mutes all current users except the presenter, as the label suggests. It no longer affects the mute state of incoming users.
+- A new button, **"Enable Users Join Muted" / "Disable Users Join Muted"**, has been added to manage whether new users join muted.
+- The **"Mute all users"** button has been removed, as muting all users (except the presenter) is covered by the existing functionality, and the presenter can be muted individually if needed.
+
 #### Upgrade of config editing tool yq
 
 We have upgraded `yq` from version 3.4.1 (which was no longer maintained) to 4.16.2. This is a major jump and the syntax used is quite different as well. We went through all internal uses of `yq` - packaging, bbb-install.sh, bbb-conf and others and updated the syntax. However, if you have custom scripts, you may have to rework the syntax too. Here is a [guide](https://mikefarah.gitbook.io/yq/upgrading-from-v3).
@@ -269,7 +283,7 @@ In BigBlueButton 3.0.0-alpha.5 we replaced the JOIN parameter `defaultLayout` wi
 #### Added new setting and userdata to allow skipping echo test if session has valid input/output devices stored
 
 - Client settings.yml: `skipEchoTestIfPreviousDevice`. Defaults to `false`
-- Can be overrided on JOIN with Custom Parameter: `userdata-bbb_skip_echotest_if_previous_device=`
+- Can be overridden on JOIN with Custom Parameter: `userdata-bbb_skip_echotest_if_previous_device=`
 
 #### Recording event TranscriptUpdatedRecordEvent blocked
 
@@ -278,7 +292,7 @@ In BigBlueButton 2.7.5/3.0.0-alpha.5 we stopped propagating the events.xml event
 #### Added new setting and userdata to allow skipping video preview if session has valid input devices stored
 
 - Client settings.yml: `skipVideoPreviewIfPreviousDevice`. Defaults to `false`
-- Can be overrided on JOIN with Custom Parameter: `userdata-bbb_skip_video_preview_if_previous_device=`
+- Can be overridden on JOIN with Custom Parameter: `userdata-bbb_skip_video_preview_if_previous_device=`
 
 ### Replaced all user facing instances of "meeting" with the word "session"
 
@@ -301,6 +315,7 @@ Modified/added events
 - `allowOverrideClientSettingsOnCreateCall=false` added
 - `sessionsCleanupDelayInMinutes=60` added
 - `graphqlWebsocketUrl=${bigbluebutton.web.serverURL}/graphql` added
+- `muteOnStart` default value set to `true` - which helps now that `transparentListenOnly` is enabled by default too. See (PR 20848)[https://github.com/bigbluebutton/bigbluebutton/issues/20848] for more info.
 
 #### Removed support for POST requests on `join` endpoint and Content-Type headers are now required
 

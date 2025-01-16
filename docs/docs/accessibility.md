@@ -15,7 +15,7 @@ Based on the scope of the project, focus has been placed on disabilities related
 We have designed the BigBlueButton HTML5 client to be accessible to as many users as possible regardless of any underlying disability.
 
 The client follows the WCAG 2.0 color contrast guidelines for all visual elements, in addition to an aesthetically pleasing inclusive design.
-Keyboard and screen reader support has been improved, in particular for the open source NVDA screen reader. JAWS, the markets leading paid screen reader software is also compatible with the client.
+Keyboard and screen reader support has been improved, in particular for the open source NVDA screen reader. JAWS, the market's leading paid screen reader software is also compatible with the client.
 
 **_Note:
 There are a few minor controls within the client that are not fully accessible, The colour picker in the closed caption settings for example._**
@@ -65,11 +65,11 @@ Determines where keyboard events go on the page at any given moment. It is repre
 
 ![Image showing an icon with focus and an icon without focus](/img/accessibility-focusring.jpg)
 
-HTML5 by default uses the `outline` attribute to visually indicate focus. Due to it's limitations the outline is set to transparent so it is only becomes visible in window high contrast themes (for those with visual impairments related to color).
+HTML5 by default uses the `outline` attribute to visually indicate focus. Due to its limitations the outline is set to transparent so it is only becomes visible in window high contrast themes (for those with visual impairments related to color).
 
 ![Image showing join audio aria label over the join audio icon](/img/accessibility-focusring-hc.jpg)
 
-Aria labels are important to focus when navigating with a screen reader, these labels have been used extensively through out the client to provide audible announcements for selected
+Aria labels are important to focus when navigating with a screen reader, these labels have been used extensively throughout the client to provide audible announcements for selected
 elements.
 
 #### Keyboard Navigation
@@ -100,7 +100,7 @@ There are a number of provided keyboard shortcuts which have been set up using H
 |   Right Arrow   | Next slide (Presenter)                      |
 |   Left Arrow    | Previous slide (Presenter)                  |
 
-**_Note: the accessKey attribute has certain limitation like not being able to set the modifier key to activate the shortcut._**
+**_Note: the accessKey attribute has certain limitations like not being able to set the modifier key to activate the shortcut._**
 
 **_The benefit is the visibility it provides for screen readers about available shortcuts._**
 
@@ -178,7 +178,7 @@ offered by Google Accessibility
 
 https://chrome.google.com/webstore/detail/accessibility-developer-t/fpkknkljclfencbdbgkenhalefipecmb
 
-Both of these extensions provide the ability to scan the DOM and report on any accessibility issues based on levels which can be set, weather AA or AAA standards. For the purposes of the HTML5 client we follow the AA guidelines. Any reported errors also come with a listing of potential fixes.
+Both of these extensions provide the ability to scan the DOM and report on any accessibility issues based on levels which can be set, whether AA or AAA standards. For the purposes of the HTML5 client we follow the AA guidelines. Any reported errors also come with a listing of potential fixes.
 
 **_Note:_**
 **_Once these extensions are installed to the browser they must be run from inside the console._**
