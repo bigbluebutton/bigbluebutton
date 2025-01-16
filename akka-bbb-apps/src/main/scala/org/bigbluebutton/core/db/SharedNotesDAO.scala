@@ -20,7 +20,7 @@ class SharedNotesDbTableDef(tag: Tag) extends Table[SharedNotesDbModel](tag, Non
   val pinned = column[Boolean]("pinned")
   val * = (
     meetingId, sharedNotesExtId, padId, model, name, pinned
-  ) <> (SharedNotesDbModel.tupled, SharedNotesDbModel.unapply)
+  ).<>(SharedNotesDbModel.tupled, SharedNotesDbModel.unapply)
 }
 
 object SharedNotesDAO {

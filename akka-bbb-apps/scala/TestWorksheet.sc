@@ -1,6 +1,4 @@
-import scala.collection.immutable.StringOps
-import org.bigbluebutton.core.apps.Answer
-import org.bigbluebutton.core.apps.Question
+
 
 object TestWorksheet {
   println("Welcome to the Scala worksheet")       //> Welcome to the Scala worksheet
@@ -93,7 +91,7 @@ object TestWorksheet {
   }                                               //> createQuestion: (qType: String)Option[org.bigbluebutton.core.apps.Question]
                                                   //| 
 
-  def determineQType3(qType: String) {
+  def determineQType3(qType: String): Unit = {
     val qt = qType.toUpperCase()
     
     if (qt.matches(YesNoPollType)) {

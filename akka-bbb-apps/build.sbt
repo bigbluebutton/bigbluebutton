@@ -1,7 +1,5 @@
-import org.bigbluebutton.build._
-
-import NativePackagerHelper._
-import com.typesafe.sbt.SbtNativePackager.autoImport._
+import com.typesafe.sbt.SbtNativePackager.autoImport.*
+import org.bigbluebutton.build.*
 
 enablePlugins(JavaServerAppPackaging)
 enablePlugins(UniversalPlugin)
@@ -56,7 +54,10 @@ scalaVersion := "2.13.9"
 // https://github.com/muuki88/sbt-native-packager-examples/tree/master/akka-server-app
 // http://www.scala-sbt.org/sbt-native-packager/index.html
 //-----------
-mainClass := Some("org.bigbluebutton.Boot")
+
+//commented next line to avoid warn
+//mainClass := Some("org.bigbluebutton.Boot")
+
 
 maintainer in Linux := "Richard Alam <ritzalam@gmail.com>"
 

@@ -1,11 +1,11 @@
 package org.bigbluebutton.core.apps.polls
 
 import org.bigbluebutton.common2.msgs._
+import org.bigbluebutton.core.apps.{PermissionCheck, RightsManagementTrait}
 import org.bigbluebutton.core.bus.MessageBus
 import org.bigbluebutton.core.domain.MeetingState2x
 import org.bigbluebutton.core.models.Polls
 import org.bigbluebutton.core.running.LiveMeeting
-import org.bigbluebutton.core.apps.{ PermissionCheck, RightsManagementTrait }
 
 trait StopPollReqMsgHdlr extends RightsManagementTrait {
   this: PollApp2x =>

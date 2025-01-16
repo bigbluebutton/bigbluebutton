@@ -1,10 +1,10 @@
 package org.bigbluebutton.core.apps.users
 
-import org.bigbluebutton.common2.msgs.{ BbbClientMsgHeader, BbbCommonEnvCoreMsg, BbbCoreEnvelope, MessageTypes, Routing, UserMobileFlagChangedEvtMsg, UserMobileFlagChangedEvtMsgBody }
+import org.bigbluebutton.common2.msgs._
 import org.bigbluebutton.core.api.UserEstablishedGraphqlConnectionInternalMsg
 import org.bigbluebutton.core.domain.MeetingState2x
-import org.bigbluebutton.core.models.{ RegisteredUsers, UserState, Users2x }
-import org.bigbluebutton.core.running.{ HandlerHelpers, LiveMeeting, MeetingActor, OutMsgRouter }
+import org.bigbluebutton.core.models.{RegisteredUsers, UserState, Users2x}
+import org.bigbluebutton.core.running.{HandlerHelpers, LiveMeeting, MeetingActor, OutMsgRouter}
 
 trait UserEstablishedGraphqlConnectionInternalMsgHdlr extends HandlerHelpers {
   this: MeetingActor =>

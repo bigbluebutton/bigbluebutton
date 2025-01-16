@@ -15,7 +15,7 @@ case class UserBreakoutRoomDbModel(
 
 class UserBreakoutRoomDbTableDef(tag: Tag) extends Table[UserBreakoutRoomDbModel](tag, None, "user_breakoutRoom") {
   override def * = (
-    breakoutRoomId, meetingId, userId, isDefaultName, sequence, shortName, currentlyInRoom) <> (UserBreakoutRoomDbModel.tupled, UserBreakoutRoomDbModel.unapply)
+    breakoutRoomId, meetingId, userId, isDefaultName, sequence, shortName, currentlyInRoom) .<> (UserBreakoutRoomDbModel.tupled, UserBreakoutRoomDbModel.unapply)
   val meetingId = column[String]("meetingId", O.PrimaryKey)
   val userId = column[String]("userId", O.PrimaryKey)
   val breakoutRoomId = column[String]("breakoutRoomId")

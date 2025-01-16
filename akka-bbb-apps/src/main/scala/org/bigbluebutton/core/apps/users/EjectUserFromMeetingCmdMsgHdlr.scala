@@ -2,12 +2,12 @@ package org.bigbluebutton.core.apps.users
 
 import org.bigbluebutton.common2.msgs._
 import org.bigbluebutton.core.api.EjectUserFromBreakoutInternalMsg
-import org.bigbluebutton.core.running.{ LiveMeeting, OutMsgRouter }
 import org.bigbluebutton.core.apps.{ PermissionCheck, RightsManagementTrait }
 import org.bigbluebutton.core.bus.BigBlueButtonEvent
 import org.bigbluebutton.core.domain.MeetingState2x
 import org.bigbluebutton.core.graphql.GraphqlMiddleware
 import org.bigbluebutton.core.models.{ EjectReasonCode, RegisteredUsers }
+import org.bigbluebutton.core.running.{ LiveMeeting, OutMsgRouter }
 
 trait EjectUserFromMeetingCmdMsgHdlr extends RightsManagementTrait {
   this: UsersApp =>
@@ -15,7 +15,7 @@ trait EjectUserFromMeetingCmdMsgHdlr extends RightsManagementTrait {
   val liveMeeting: LiveMeeting
   val outGW: OutMsgRouter
 
-  def handleEjectUserFromMeetingCmdMsg(msg: EjectUserFromMeetingCmdMsg, state: MeetingState2x) {
+  def handleEjectUserFromMeetingCmdMsg(msg: EjectUserFromMeetingCmdMsg, state: MeetingState2x): Unit = {
     val meetingId = liveMeeting.props.meetingProp.intId
     val userId = msg.body.userId
     val ejectedBy = msg.body.ejectedBy
@@ -102,8 +102,7 @@ trait EjectUserFromMeetingSysMsgHdlr {
   val liveMeeting: LiveMeeting
   val outGW: OutMsgRouter
 
-  def handleEjectUserFromMeetingSysMsg(msg: EjectUserFromMeetingSysMsg) {
-    val meetingId = liveMeeting.props.meetingProp.intId
+  def handleEjectUserFromMeetingSysMsg(msg: EjectUserFromMeetingSysMsg): Unit = {
     val userId = msg.body.userId
     val ejectedBy = msg.body.ejectedBy
 

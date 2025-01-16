@@ -1,6 +1,6 @@
 package org.bigbluebutton.core.db
 
-import PostgresProfile.api._
+import org.bigbluebutton.core.db.PostgresProfile.api._
 import slick.lifted.ProvenShape
 import spray.json.JsValue
 
@@ -15,7 +15,7 @@ class UserClientSettingsDbTableDef(tag: Tag) extends Table[UserClientSettingsDbM
   val meetingId = column[String]("meetingId", O.PrimaryKey)
   val userClientSettingsJson = column[JsValue]("userClientSettingsJson")
 
-  override def * : ProvenShape[UserClientSettingsDbModel] = (userId, meetingId, userClientSettingsJson) <> (UserClientSettingsDbModel.tupled, UserClientSettingsDbModel.unapply)
+  override def * : ProvenShape[UserClientSettingsDbModel] = (userId, meetingId, userClientSettingsJson) .<> (UserClientSettingsDbModel.tupled, UserClientSettingsDbModel.unapply)
 }
 
 object UserClientSettingsDAO {

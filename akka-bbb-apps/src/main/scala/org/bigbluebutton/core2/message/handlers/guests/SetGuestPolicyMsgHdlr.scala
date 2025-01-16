@@ -1,11 +1,10 @@
 package org.bigbluebutton.core2.message.handlers.guests
 
 import org.bigbluebutton.common2.msgs.SetGuestPolicyCmdMsg
-import org.bigbluebutton.core.models.{ GuestPolicy, GuestPolicyType, GuestsWaiting }
-import org.bigbluebutton.core.running.{ LiveMeeting, OutMsgRouter }
-import org.bigbluebutton.core2.message.senders.MsgBuilder
 import org.bigbluebutton.core.apps.{ PermissionCheck, RightsManagementTrait }
-import org.bigbluebutton.core.running.MeetingActor
+import org.bigbluebutton.core.models.{ GuestPolicy, GuestPolicyType, GuestsWaiting }
+import org.bigbluebutton.core.running.{ LiveMeeting, MeetingActor, OutMsgRouter }
+import org.bigbluebutton.core2.message.senders.MsgBuilder
 
 trait SetGuestPolicyMsgHdlr extends RightsManagementTrait {
   this: MeetingActor =>

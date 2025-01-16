@@ -1,8 +1,7 @@
 package org.bigbluebutton.core.domain
 
 import org.bigbluebutton.core.apps.BreakoutModel
-import org.bigbluebutton.core.models.GroupChats
-import org.bigbluebutton.core.models.PresentationPodManager
+import org.bigbluebutton.core.models.{GroupChats, PresentationPodManager}
 
 object MeetingState2x {
 

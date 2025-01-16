@@ -1,8 +1,8 @@
 package org.bigbluebutton.core.bus
 
 import org.apache.pekko.actor.ActorRef
-import org.apache.pekko.event.{ EventBus, LookupClassification }
-import org.bigbluebutton.common2.msgs.{ BbbCommonEnvCoreMsg }
+import org.apache.pekko.event.{EventBus, LookupClassification}
+import org.bigbluebutton.common2.msgs.BbbCommonEnvCoreMsg
 
 case class BbbOutMessage(val topic: String, val payload: BbbCommonEnvCoreMsg)
 
@@ -27,5 +27,5 @@ class OutEventBus2 extends EventBus with LookupClassification {
 
   // determines the initial size of the index data structure
   // used internally (i.e. the expected number of different classifiers)
-  override protected def mapSize: Int = 128
+  override protected def mapSize(): Int = 128
 }

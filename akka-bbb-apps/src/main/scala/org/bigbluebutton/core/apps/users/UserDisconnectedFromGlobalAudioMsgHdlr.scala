@@ -9,7 +9,7 @@ trait UserDisconnectedFromGlobalAudioMsgHdlr {
 
   val outGW: OutMsgRouter
 
-  def handleUserDisconnectedFromGlobalAudioMsg(msg: UserDisconnectedFromGlobalAudioMsg) {
+  def handleUserDisconnectedFromGlobalAudioMsg(msg: UserDisconnectedFromGlobalAudioMsg): Unit = {
     log.info("Handling UserDisconnectedToGlobalAudio: meetingId=" + props.meetingProp.intId + " userId=" + msg.body.userId)
 
     def broadcastEvent(vu: VoiceUserState): Unit = {

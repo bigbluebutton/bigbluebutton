@@ -1,14 +1,14 @@
 package org.bigbluebutton.core.apps.breakout
 
-import org.bigbluebutton.ClientSettings.{getConfigPropertyValueByPath, getConfigPropertyValueByPathAsIntOrElse}
+import org.bigbluebutton.ClientSettings.getConfigPropertyValueByPathAsIntOrElse
 import org.bigbluebutton.common2.msgs._
 import org.bigbluebutton.core.apps.{BreakoutModel, PermissionCheck, RightsManagementTrait}
 import org.bigbluebutton.core.db.BreakoutRoomDAO
 import org.bigbluebutton.core.domain.{BreakoutRoom2x, MeetingState2x}
 import org.bigbluebutton.core.models.PluginModel.getPlugins
-import org.bigbluebutton.core.models.{Plugin, PresentationInPod}
-import org.bigbluebutton.core.running.{LiveMeeting, OutMsgRouter}
-import org.bigbluebutton.core.running.MeetingActor
+import org.bigbluebutton.core.models.PresentationInPod
+import org.bigbluebutton.core.running.{LiveMeeting, MeetingActor, OutMsgRouter}
+
 import scala.jdk.CollectionConverters._
 
 trait CreateBreakoutRoomsCmdMsgHdlr extends RightsManagementTrait {

@@ -1,9 +1,9 @@
 package org.bigbluebutton.core2.message.handlers
 
 import org.bigbluebutton.common2.msgs._
-import org.bigbluebutton.core.running.{ MeetingActor, OutMsgRouter }
-import org.bigbluebutton.core.models.Users2x
 import org.bigbluebutton.core.apps.PermissionCheck
+import org.bigbluebutton.core.models.Users2x
+import org.bigbluebutton.core.running.{MeetingActor, OutMsgRouter}
 import org.bigbluebutton.core2.message.senders.MsgBuilder
 
 trait GetScreenBroadcastPermissionReqMsgHdlr {
@@ -11,7 +11,7 @@ trait GetScreenBroadcastPermissionReqMsgHdlr {
 
   val outGW: OutMsgRouter
 
-  def handleGetScreenBroadcastPermissionReqMsg(msg: GetScreenBroadcastPermissionReqMsg) {
+  def handleGetScreenBroadcastPermissionReqMsg(msg: GetScreenBroadcastPermissionReqMsg): Unit = {
     var allowed = false
 
     for {

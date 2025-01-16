@@ -7,10 +7,8 @@ import org.bigbluebutton.core.api.{UserClosedAllGraphqlConnectionsInternalMsg, U
 import org.bigbluebutton.core.bus.{BigBlueButtonEvent, InternalEventBus}
 import org.bigbluebutton.core.db.UserGraphqlConnectionDAO
 import org.bigbluebutton.core2.message.senders.MsgBuilder
-
-import scala.concurrent.ExecutionContext
+import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.duration._
-import ExecutionContext.Implicits.global
 
 case object MiddlewareHealthCheckScheduler10Sec
 
@@ -54,7 +52,7 @@ class GraphqlConnectionsActor(
   private var graphqlConnections: Map[String, GraphqlUserConnection] = Map()
   private var pendingResponseMiddlewareUIDs: Map[String, BigInt] = Map()
 
-  system.scheduler.schedule(10.seconds, 10.seconds, self, MiddlewareHealthCheckScheduler10Sec)
+  system.scheduler.scheduleWithFixedDelay(10.seconds, 10.seconds, self, MiddlewareHealthCheckScheduler10Sec)
   private val maxMiddlewareInactivityInMillis = 11000
 
   def receive = {

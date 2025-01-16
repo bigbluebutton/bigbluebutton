@@ -19,7 +19,11 @@
 package org.bigbluebutton.core.util.jhotdraw;
 
 import java.awt.*;
-import java.awt.geom.*;
+import java.awt.geom.AffineTransform;
+import java.awt.geom.PathIterator;
+import java.awt.geom.Point2D;
+import java.awt.geom.Rectangle2D;
+
 import static java.lang.Math.*;
 
 /**

@@ -1,9 +1,9 @@
 package org.bigbluebutton.core.apps.users
 
 import org.bigbluebutton.common2.msgs._
-import org.bigbluebutton.core.apps.{ PermissionCheck, RightsManagementTrait }
+import org.bigbluebutton.core.apps.{PermissionCheck, RightsManagementTrait}
 import org.bigbluebutton.core.models.Users2x
-import org.bigbluebutton.core.running.{ BaseMeetingActor, LiveMeeting, OutMsgRouter }
+import org.bigbluebutton.core.running.{BaseMeetingActor, LiveMeeting, OutMsgRouter}
 
 trait ClearAllUsersReactionCmdMsgHdlr extends RightsManagementTrait {
   this: BaseMeetingActor =>
@@ -11,7 +11,7 @@ trait ClearAllUsersReactionCmdMsgHdlr extends RightsManagementTrait {
   val liveMeeting: LiveMeeting
   val outGW: OutMsgRouter
 
-  def handleClearAllUsersReactionCmdMsg(msg: ClearAllUsersReactionCmdMsg) {
+  def handleClearAllUsersReactionCmdMsg(msg: ClearAllUsersReactionCmdMsg): Unit = {
     val isUserModerator = !permissionFailed(
       PermissionCheck.MOD_LEVEL,
       PermissionCheck.VIEWER_LEVEL,

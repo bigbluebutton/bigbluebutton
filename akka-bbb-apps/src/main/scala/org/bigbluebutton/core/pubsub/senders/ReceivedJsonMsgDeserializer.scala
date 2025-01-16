@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.JsonNode
 import org.bigbluebutton.SystemConfiguration
 import org.bigbluebutton.common2.msgs._
 import org.bigbluebutton.core.bus.BbbMsgEvent
+
 import scala.reflect.runtime.universe._
 
 trait ReceivedJsonMsgDeserializer extends SystemConfiguration {

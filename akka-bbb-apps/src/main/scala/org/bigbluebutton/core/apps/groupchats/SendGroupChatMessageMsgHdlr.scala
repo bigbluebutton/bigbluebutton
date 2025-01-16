@@ -5,10 +5,9 @@ import org.bigbluebutton.common2.msgs._
 import org.bigbluebutton.core.apps.PermissionCheck
 import org.bigbluebutton.core.bus.MessageBus
 import org.bigbluebutton.core.domain.MeetingState2x
+import org.bigbluebutton.core.models.{ Roles, Users2x }
 import org.bigbluebutton.core.running.{ HandlerHelpers, LiveMeeting }
-import org.bigbluebutton.core.models.Users2x
 import org.bigbluebutton.core2.MeetingStatus2x
-import org.bigbluebutton.core.models.Roles
 
 trait SendGroupChatMessageMsgHdlr extends HandlerHelpers {
   this: GroupChatHdlrs =>

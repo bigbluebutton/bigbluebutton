@@ -12,10 +12,10 @@ trait GetWebcamsOnlyForModeratorReqMsgHdlr {
       msg:         GetWebcamsOnlyForModeratorReqMsg,
       liveMeeting: LiveMeeting,
       bus:         MessageBus
-  ) {
+  ): Unit = {
     val meetingId = liveMeeting.props.meetingProp.intId
 
-    def broadcastEvent(meetingId: String, userId: String, webcamsOnlyForModerator: Boolean) {
+    def broadcastEvent(meetingId: String, userId: String, webcamsOnlyForModerator: Boolean): Unit = {
       val routing = Routing.addMsgToClientRouting(MessageTypes.DIRECT, meetingId, userId)
       val envelope = BbbCoreEnvelope(GetWebcamsOnlyForModeratorRespMsg.NAME, routing)
       val body = GetWebcamsOnlyForModeratorRespMsgBody(webcamsOnlyForModerator, userId)

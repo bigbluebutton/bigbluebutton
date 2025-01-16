@@ -3,8 +3,7 @@ package org.bigbluebutton.service
 import org.apache.pekko.actor.{ActorRef, ActorSystem}
 import org.apache.pekko.http.scaladsl.model.headers.RawHeader
 import org.apache.pekko.http.scaladsl.model.{ContentTypes, HttpEntity, HttpResponse, StatusCode}
-import org.apache.pekko.pattern.ask
-import org.apache.pekko.pattern.AskTimeoutException
+import org.apache.pekko.pattern.{AskTimeoutException, ask}
 import org.apache.pekko.util.Timeout
 import org.bigbluebutton.common2.util.JsonUtil
 import org.bigbluebutton.core.api.{ApiResponse, ApiResponseFailure, GetUserApiMsg, UserInfosApiMsg}

@@ -10,7 +10,7 @@ case class Presentation(id: String, name: String, current: Boolean = false,
 class PresentationModel {
   private var presentations = new scala.collection.immutable.HashMap[String, Presentation] // todo remove
 
-  def addPresentation(pres: Presentation) { // todo remove
+  def addPresentation(pres: Presentation): Unit = { // todo remove
     savePresentation(pres)
   }
 
@@ -34,7 +34,7 @@ class PresentationModel {
   }
 
   def setCurrentPresentation(presId: String): Option[Presentation] = { // todo remove
-    getPresentations foreach (curPres => {
+    getPresentations() foreach (curPres => {
       if (curPres.id != presId) {
         val newPres = curPres.copy(current = false)
         savePresentation(newPres)
@@ -50,7 +50,7 @@ class PresentationModel {
     }
   }
 
-  private def savePresentation(pres: Presentation) { // todo remove
+  private def savePresentation(pres: Presentation): Unit = { // todo remove
     presentations += pres.id -> pres
   }
 

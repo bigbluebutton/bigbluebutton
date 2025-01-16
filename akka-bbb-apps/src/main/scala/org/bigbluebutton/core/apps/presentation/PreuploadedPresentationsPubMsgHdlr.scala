@@ -4,7 +4,7 @@ import org.bigbluebutton.common2.domain.PageVO
 import org.bigbluebutton.common2.msgs.PreuploadedPresentationsSysPubMsg
 import org.bigbluebutton.core.apps.Presentation
 import org.bigbluebutton.core.bus.MessageBus
-import org.bigbluebutton.core.running.{ LiveMeeting }
+import org.bigbluebutton.core.running.LiveMeeting
 
 trait PreuploadedPresentationsPubMsgHdlr {
   this: PresentationApp2x =>

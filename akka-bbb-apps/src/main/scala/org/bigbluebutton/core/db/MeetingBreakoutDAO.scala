@@ -1,8 +1,8 @@
 package org.bigbluebutton.core.db
 
-import org.bigbluebutton.common2.domain.{ BreakoutProps }
+import org.bigbluebutton.common2.domain.BreakoutProps
+import org.bigbluebutton.core.db.PostgresProfile.api._
 import slick.lifted.ProvenShape
-import PostgresProfile.api._
 
 case class MeetingBreakoutDbModel(
     meetingId:             String,
@@ -33,7 +33,9 @@ class MeetingBreakoutDbTableDef(tag: Tag) extends Table[MeetingBreakoutDbModel](
 
   //  def fk_meetingId: ForeignKeyQuery[MeetingDbTableDef, MeetingDbModel] = foreignKey("fk_meetingId", meetingId, TableQuery[MeetingDbTableDef])(_.meetingId)
 
-  override def * : ProvenShape[MeetingBreakoutDbModel] = (meetingId, parentId, sequence, freeJoin, breakoutRooms, record, privateChatEnabled, captureNotes, captureSlides, captureNotesFilename, captureSlidesFilename) <> (MeetingBreakoutDbModel.tupled, MeetingBreakoutDbModel.unapply)
+  override def * : ProvenShape[MeetingBreakoutDbModel] = (
+    meetingId, parentId, sequence, freeJoin, breakoutRooms, record, privateChatEnabled, captureNotes, captureSlides, captureNotesFilename, captureSlidesFilename
+  ).<>(MeetingBreakoutDbModel.tupled, MeetingBreakoutDbModel.unapply)
 }
 
 object MeetingBreakoutDAO {

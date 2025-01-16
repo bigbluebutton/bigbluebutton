@@ -1,7 +1,7 @@
 package org.bigbluebutton.core.db
 
-import slick.jdbc.PostgresProfile.api._
 import org.bigbluebutton.common2.msgs.GroupChatUser
+import slick.jdbc.PostgresProfile.api._
 
 case class ChatUserDbModel(
     chatId:          String,
@@ -24,7 +24,9 @@ class ChatUserDbTableDef(tag: Tag) extends Table[ChatUserDbModel](tag, None, "ch
   //  val chat = foreignKey("chat_message_chat_fk", (chatId, meetingId), ChatTable.chats)(c => (c.chatId, c.meetingId), onDelete = ForeignKeyAction.Cascade)
   //  val sender = foreignKey("chat_message_sender_fk", senderId, UserTable.users)(_.userId, onDelete = ForeignKeyAction.SetNull)
 
-  override def * = (chatId, meetingId, userId, lastSeenAt, startedTypingAt, lastTypingAt, visible) <> (ChatUserDbModel.tupled, ChatUserDbModel.unapply)
+  override def * = (
+    chatId, meetingId, userId, lastSeenAt, startedTypingAt, lastTypingAt, visible
+  ).<>(ChatUserDbModel.tupled, ChatUserDbModel.unapply)
 }
 
 object ChatUserDAO {

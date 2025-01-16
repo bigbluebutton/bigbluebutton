@@ -1,7 +1,7 @@
 package org.bigbluebutton.core.db
 
 import slick.jdbc.PostgresProfile.api._
-import slick.lifted.{ ProvenShape }
+import slick.lifted.ProvenShape
 
 case class UserLivekitDbModel(
     meetingId:         String,
@@ -18,7 +18,7 @@ class UserLivekitDbTableDef(tag: Tag) extends Table[UserLivekitDbModel](tag, "us
     meetingId,
     userId,
     livekitToken
-  ) <> (UserLivekitDbModel.tupled, UserLivekitDbModel.unapply)
+  ) .<> (UserLivekitDbModel.tupled, UserLivekitDbModel.unapply)
 }
 
 object UserLivekitDAO {

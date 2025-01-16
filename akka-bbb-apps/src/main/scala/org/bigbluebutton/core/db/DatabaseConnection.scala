@@ -3,10 +3,10 @@ package org.bigbluebutton.core.db
 import org.slf4j.LoggerFactory
 import slick.jdbc.PostgresProfile.api._
 
-import scala.concurrent.duration._
 import java.util.concurrent.ConcurrentLinkedQueue
-import scala.concurrent.ExecutionContext.Implicits.global
 import java.util.concurrent.atomic.AtomicBoolean
+import scala.concurrent.ExecutionContext.Implicits.global
+import scala.concurrent.duration._
 import scala.util.control.Breaks._
 
 object DatabaseConnection {

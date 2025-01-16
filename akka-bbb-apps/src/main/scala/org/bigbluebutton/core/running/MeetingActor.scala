@@ -1,55 +1,50 @@
 package org.bigbluebutton.core.running
 
-import java.io.{ PrintWriter, StringWriter }
+import org.apache.pekko.actor.{ OneForOneStrategy, Props }
 import org.apache.pekko.actor.SupervisorStrategy.Resume
+import org.bigbluebutton.ClientSettings.{ getConfigPropertyValueByPathAsBooleanOrElse, getConfigPropertyValueByPathAsIntOrElse, getConfigPropertyValueByPathAsStringOrElse }
 import org.bigbluebutton.SystemConfiguration
-import org.bigbluebutton.core.apps.groupchats.GroupChatHdlrs
-import org.bigbluebutton.core.apps.presentationpod._
-import org.bigbluebutton.core.apps.users._
-import org.bigbluebutton.core.apps.whiteboard.ClientToServerLatencyTracerMsgHdlr
-import org.bigbluebutton.core.domain._
-import org.bigbluebutton.core.util.TimeUtil
 import org.bigbluebutton.common2.domain.{ DefaultProps, LockSettingsProps }
+import org.bigbluebutton.common2.msgs
+import org.bigbluebutton.common2.msgs._
 import org.bigbluebutton.core.api._
 import org.bigbluebutton.core.apps._
+import org.bigbluebutton.core.apps.audiocaptions.AudioCaptionsApp2x
+import org.bigbluebutton.core.apps.breakout._
 import org.bigbluebutton.core.apps.caption.CaptionApp2x
 import org.bigbluebutton.core.apps.chat.ChatApp2x
 import org.bigbluebutton.core.apps.externalvideo.ExternalVideoApp2x
-import org.bigbluebutton.core.apps.pads.{ PadsApp2x, PadslHdlrHelpers }
-import org.bigbluebutton.core.apps.screenshare.ScreenshareApp2x
-import org.bigbluebutton.core.apps.audiocaptions.AudioCaptionsApp2x
-import org.bigbluebutton.core.apps.timer.TimerApp2x
-import org.bigbluebutton.core.apps.presentation.PresentationApp2x
-import org.bigbluebutton.core.apps.users.UsersApp2x
-import org.bigbluebutton.core.apps.webcam.WebcamApp2x
-import org.bigbluebutton.core.apps.whiteboard.WhiteboardApp2x
-import org.bigbluebutton.core.bus._
-import org.bigbluebutton.core.models.{ Users2x, VoiceUsers, _ }
-import org.bigbluebutton.core2.{ MeetingStatus2x, Permissions }
-import org.bigbluebutton.core2.message.handlers._
-import org.bigbluebutton.core2.message.handlers.meeting._
-import org.bigbluebutton.common2.msgs._
-import org.bigbluebutton.core.apps.breakout._
-import org.bigbluebutton.core.apps.polls._
-import org.bigbluebutton.core.apps.voice._
-import org.apache.pekko.actor.Props
-import org.apache.pekko.actor.OneForOneStrategy
-import org.bigbluebutton.ClientSettings.{ getConfigPropertyValueByPathAsBooleanOrElse, getConfigPropertyValueByPathAsIntOrElse, getConfigPropertyValueByPathAsStringOrElse }
-import org.bigbluebutton.common2.msgs
-
-import scala.concurrent.duration._
+import org.bigbluebutton.core.apps.groupchats.GroupChatHdlrs
 import org.bigbluebutton.core.apps.layout.LayoutApp2x
+import org.bigbluebutton.core.apps.pads.{ PadsApp2x, PadslHdlrHelpers }
 import org.bigbluebutton.core.apps.plugin.PluginHdlrs
-import org.bigbluebutton.core.apps.users.ChangeLockSettingsInMeetingCmdMsgHdlr
-import org.bigbluebutton.core.db.{ MeetingDAO, MeetingVoiceDAO, NotificationDAO, TimerDAO, UserDAO, UserStateDAO }
+import org.bigbluebutton.core.apps.polls._
+import org.bigbluebutton.core.apps.presentation.PresentationApp2x
+import org.bigbluebutton.core.apps.presentationpod._
+import org.bigbluebutton.core.apps.screenshare.ScreenshareApp2x
+import org.bigbluebutton.core.apps.timer.TimerApp2x
+import org.bigbluebutton.core.apps.users._
+import org.bigbluebutton.core.apps.voice._
+import org.bigbluebutton.core.apps.webcam.WebcamApp2x
+import org.bigbluebutton.core.apps.whiteboard.{ ClientToServerLatencyTracerMsgHdlr, WhiteboardApp2x }
+import org.bigbluebutton.core.bus._
+import org.bigbluebutton.core.db._
+import org.bigbluebutton.core.domain._
 import org.bigbluebutton.core.graphql.GraphqlMiddleware
 import org.bigbluebutton.core.models.VoiceUsers.{ findAllFreeswitchCallers, findAllListenOnlyVoiceUsers }
 import org.bigbluebutton.core.models.Webcams.findAll
+import org.bigbluebutton.core.models._
+import org.bigbluebutton.core.util.TimeUtil
 import org.bigbluebutton.core2.MeetingStatus2x.hasAuthedUserJoined
+import org.bigbluebutton.core2.message.handlers._
+import org.bigbluebutton.core2.message.handlers.meeting._
 import org.bigbluebutton.core2.message.senders.{ MsgBuilder, Sender }
+import org.bigbluebutton.core2.{ MeetingStatus2x, Permissions }
 
+import java.io.{ PrintWriter, StringWriter }
 import java.util.concurrent.TimeUnit
 import scala.concurrent.ExecutionContext.Implicits.global
+import scala.concurrent.duration._
 
 object MeetingActor {
   def props(
@@ -213,14 +208,14 @@ class MeetingActor(
   //FakeTestData.createFakeUsers(liveMeeting)
   /** *****************************************************************/
 
-  context.system.scheduler.schedule(
+  context.system.scheduler.scheduleWithFixedDelay(
     5 seconds,
     syncVoiceUsersStatusInterval seconds,
     self,
     SyncVoiceUserStatusInternalMsg
   )
 
-  context.system.scheduler.schedule(
+  context.system.scheduler.scheduleWithFixedDelay(
     5 seconds,
     checkVoiceRecordingInterval seconds,
     self,
@@ -233,14 +228,14 @@ class MeetingActor(
     MeetingInfoAnalyticsLogMsg
   )
 
-  context.system.scheduler.schedule(
+  context.system.scheduler.scheduleWithFixedDelay(
     10 seconds,
     30 seconds,
     self,
     MeetingInfoAnalyticsMsg
   )
 
-  context.system.scheduler.schedule(
+  context.system.scheduler.scheduleWithFixedDelay(
     5 seconds,
     5 seconds,
     self,
@@ -269,7 +264,7 @@ class MeetingActor(
     case m: RegisterUserSessionTokenReqMsg        => usersApp.handleRegisterUserSessionTokenReqMsg(m)
 
     //API Msgs
-    case m: GetUserApiMsg                         => usersApp.handleGetUserApiMsg(m, sender)
+    case m: GetUserApiMsg                         => usersApp.handleGetUserApiMsg(m, sender())
 
     // Meeting
     case m: DestroyMeetingSysCmdMsg               => handleDestroyMeetingSysCmdMsg(m)
@@ -356,7 +351,7 @@ class MeetingActor(
     }
   }
 
-  private def updateVoiceUserLastActivity(userId: String) {
+  private def updateVoiceUserLastActivity(userId: String): Unit = {
     for {
       vu <- VoiceUsers.findWithVoiceUserId(liveMeeting.voiceUsers, userId)
     } yield {
@@ -364,7 +359,7 @@ class MeetingActor(
     }
   }
 
-  private def updateUserLastActivity(userId: String) {
+  private def updateUserLastActivity(userId: String): Unit = {
     for {
       user <- Users2x.findWithIntId(liveMeeting.users2x, userId)
     } yield {
@@ -372,7 +367,7 @@ class MeetingActor(
     }
   }
 
-  private def updateModeratorsPresence() {
+  private def updateModeratorsPresence(): Unit = {
     if (Users2x.numActiveModerators(liveMeeting.users2x) > 0) {
       if (state.expiryTracker.moderatorHasJoined == false ||
         state.expiryTracker.lastModeratorLeftOnInMs != 0) {
@@ -404,7 +399,7 @@ class MeetingActor(
     }
   }
 
-  private def updateUserLastInactivityInspect(userId: String) {
+  private def updateUserLastInactivityInspect(userId: String): Unit = {
     for {
       user <- Users2x.findWithIntId(liveMeeting.users2x, userId)
     } yield {
@@ -850,14 +845,14 @@ class MeetingActor(
     val listOfUsers: List[UserState] = Users2x.findAll(liveMeeting.users2x).toList
     val breakoutRoomNames: List[String] = {
       if (state.breakout.isDefined)
-        state.breakout.get.getRooms.map(_.name).toList
+        state.breakout.get.getRooms().map(_.name).toList
       else
         List()
     }
     val breakoutRoom: BreakoutRoom = BreakoutRoom(liveMeeting.props.breakoutProps.parentId, breakoutRoomNames)
     MeetingInfoAnalytics(
-      meetingName, externalId, internalId, hasUserJoined, isMeetingRecorded, getMeetingInfoWebcamDetails, getMeetingInfoAudioDetails,
-      screenshare, listOfUsers.map(u => Participant(u.intId, u.name, u.role)), getMeetingInfoPresentationDetails, breakoutRoom
+      meetingName, externalId, internalId, hasUserJoined, isMeetingRecorded, getMeetingInfoWebcamDetails(), getMeetingInfoAudioDetails(),
+      screenshare, listOfUsers.map(u => Participant(u.intId, u.name, u.role)), getMeetingInfoPresentationDetails(), breakoutRoom
     )
   }
 
@@ -905,8 +900,8 @@ class MeetingActor(
 
   private def getMeetingInfoPresentationDetails(): PresentationInfo = {
     val presentationPods: Vector[PresentationPod] = state.presentationPodManager.getAllPresentationPodsInMeeting()
-    val presentationId: String = presentationPods.flatMap(_.getCurrentPresentation.map(_.id)).mkString
-    val presentationName: String = presentationPods.flatMap(_.getCurrentPresentation.map(_.name)).mkString
+    val presentationId: String = presentationPods.flatMap(_.getCurrentPresentation().map(_.id)).mkString
+    val presentationName: String = presentationPods.flatMap(_.getCurrentPresentation().map(_.name)).mkString
     PresentationInfo(presentationId, presentationName)
   }
 
@@ -921,7 +916,7 @@ class MeetingActor(
 
   }
 
-  def handleMonitorNumberOfUsers(msg: MonitorNumberOfUsersInternalMsg) {
+  def handleMonitorNumberOfUsers(msg: MonitorNumberOfUsersInternalMsg): Unit = {
     state = removeUsersWithExpiredUserLeftFlag(liveMeeting, state)
 
     if (!liveMeeting.props.meetingProp.isBreakout) {
@@ -940,7 +935,7 @@ class MeetingActor(
     checkIfNeedToEndMeetingWhenNoModerators(liveMeeting)
   }
 
-  def handleMonitorGuestWaitPresenceInternalMsg(msg: MonitorGuestWaitPresenceInternalMsg) {
+  def handleMonitorGuestWaitPresenceInternalMsg(msg: MonitorGuestWaitPresenceInternalMsg): Unit = {
     if (liveMeeting.props.usersProp.waitingGuestUsersTimeout > 0) {
       for {
         regUser <- RegisteredUsers.findAll(liveMeeting.registeredUsers)
@@ -1044,7 +1039,7 @@ class MeetingActor(
       state.expiryTracker.moderatorHasJoined &&
       state.expiryTracker.lastModeratorLeftOnInMs != 0 &&
       //Check if has moderator with leftFlag
-      Users2x.findModerator(liveMeeting.users2x).toVector.length == 0) {
+      Users2x.findModerator(liveMeeting.users2x).toVector.isEmpty) {
       val hasModeratorLeftRecently = (TimeUtil.timeNowInMs() - state.expiryTracker.endWhenNoModeratorDelayInMs) < state.expiryTracker.lastModeratorLeftOnInMs
       if (!hasModeratorLeftRecently) {
         log.info("Meeting will end due option endWhenNoModerator is enabled and all moderators have left the meeting. meetingId=" + props.meetingProp.intId)
@@ -1119,7 +1114,7 @@ class MeetingActor(
     }
   }
 
-  var lastUsersInactivityInspection = System.currentTimeMillis()
+  private var lastUsersInactivityInspection = System.currentTimeMillis()
 
   def processUserInactivityAudit(): Unit = {
 

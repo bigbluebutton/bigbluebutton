@@ -1,20 +1,21 @@
 package org.bigbluebutton.core.apps
 
-import scala.collection.immutable.HashMap
+import org.bigbluebutton.SystemConfiguration
 import org.bigbluebutton.common2.msgs.AnnotationVO
 import org.bigbluebutton.core.apps.whiteboard.Whiteboard
-import org.bigbluebutton.SystemConfiguration
 import org.bigbluebutton.core.db.{ PresAnnotationDAO, PresAnnotationHistoryDAO, PresPageWritersDAO }
+
+import scala.collection.immutable.HashMap
 
 class WhiteboardModel extends SystemConfiguration {
   private var _whiteboards = new HashMap[String, Whiteboard]()
 
-  private def saveWhiteboard(wb: Whiteboard) {
+  private def saveWhiteboard(wb: Whiteboard): Unit = {
     _whiteboards += wb.id -> wb
   }
 
   def getWhiteboard(id: String): Whiteboard = {
-    _whiteboards.get(id).getOrElse(createWhiteboard(id))
+    _whiteboards.getOrElse(id, createWhiteboard(id))
   }
 
   def hasWhiteboard(id: String): Boolean = {
@@ -38,8 +39,8 @@ class WhiteboardModel extends SystemConfiguration {
           case (Some(v), None) => v
           case (None, Some(v)) => v
           case (Some(v1), Some(v2)) =>
-            if (v1.isInstanceOf[Map[String, _]] && v2.isInstanceOf[Map[String, _]])
-              deepMerge(v1.asInstanceOf[Map[String, _]], v2.asInstanceOf[Map[String, _]])
+            if (v1.isInstanceOf[Map[_, _]] && v2.isInstanceOf[Map[_, _]])
+              deepMerge(v1.asInstanceOf[Map[String, Any]], v2.asInstanceOf[Map[String, Any]])
             else v2
           case (_, _) => ???
         }
@@ -94,22 +95,14 @@ class WhiteboardModel extends SystemConfiguration {
     annotationsDiffAdded
   }
 
-  private def overwriteLineShapeHandles(oldProps: Map[String, Any], newProps: Map[String, Any]): Map[String, Any] = {
-    val newHandles = newProps.get("handles")
-    val updatedProps = oldProps ++ newProps.filter {
-      case ("handles", _) => false // Remove the old handles
-      case _              => true
-    }
-    updatedProps ++ newHandles.map("handles" -> _)
-  }
-
   private def cleanArrowAnnotationProps(annotationInfo: Map[String, _]): Map[String, _] = {
     annotationInfo.get("props") match {
-      case Some(props: Map[String, _]) =>
-        val cleanedProps = props.map {
-          case ("end", endProps: Map[String, _])     => "end" -> cleanEndOrStartProps(endProps)
-          case ("start", startProps: Map[String, _]) => "start" -> cleanEndOrStartProps(startProps)
-          case other                                 => other
+      case Some(props) if props.isInstanceOf[Map[_, _]] =>
+        val propsMap = props.asInstanceOf[Map[String, _]]
+        val cleanedProps = propsMap.map {
+          case ("end", endProps: Map[_, _])     => "end" -> cleanEndOrStartProps(endProps.asInstanceOf[Map[String, _]])
+          case ("start", startProps: Map[_, _]) => "start" -> cleanEndOrStartProps(startProps.asInstanceOf[Map[String, _]])
+          case other                            => other
         }
         annotationInfo + ("props" -> cleanedProps)
       case _ => annotationInfo
@@ -118,8 +111,8 @@ class WhiteboardModel extends SystemConfiguration {
 
   private def cleanEndOrStartProps(props: Map[String, _]): Map[String, _] = {
     props.get("type") match {
-      case Some("binding") => props - ("x", "y") // Remove 'x' and 'y' for 'binding' type
-      case Some("point")   => props - ("boundShapeId", "normalizedAnchor", "isExact", "isPrecise") // Remove unwanted properties for 'point' type
+      case Some("binding") => props.removedAll(Seq("x", "y")) // Remove 'x' and 'y' for 'binding' type
+      case Some("point")   => props.removedAll(Seq("boundShapeId", "normalizedAnchor", "isExact", "isPrecise")) // Remove unwanted properties for 'point' type
       case _               => props
     }
   }
@@ -163,7 +156,7 @@ class WhiteboardModel extends SystemConfiguration {
     annotationsIdsRemoved
   }
 
-  def modifyWhiteboardAccess(meetingId: String, wbId: String, multiUser: Array[String]) {
+  def modifyWhiteboardAccess(meetingId: String, wbId: String, multiUser: Array[String]): Unit = {
     val wb = getWhiteboard(wbId)
     val newWb = wb.copy(multiUser = multiUser, oldMultiUser = wb.multiUser, changedModeOn = System.currentTimeMillis())
     PresPageWritersDAO.updateMultiuser(meetingId, newWb)

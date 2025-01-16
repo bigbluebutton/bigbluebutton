@@ -26,7 +26,9 @@ class ExternalVideoDbTableDef(tag: Tag) extends Table[ExternalVideoDbModel](tag,
   val playerPlaybackRate = column[Double]("playerPlaybackRate")
   val playerCurrentTime = column[Double]("playerCurrentTime")
   val playerPlaying = column[Boolean]("playerPlaying")
-  override def * : ProvenShape[ExternalVideoDbModel] = (externalVideoId, meetingId, externalVideoUrl, startedSharingAt, stoppedSharingAt, updatedAt, playerPlaybackRate, playerCurrentTime, playerPlaying) <> (ExternalVideoDbModel.tupled, ExternalVideoDbModel.unapply)
+  override def * : ProvenShape[ExternalVideoDbModel] = (
+    externalVideoId, meetingId, externalVideoUrl, startedSharingAt, stoppedSharingAt, updatedAt, playerPlaybackRate, playerCurrentTime, playerPlaying
+  ).<>(ExternalVideoDbModel.tupled, ExternalVideoDbModel.unapply)
 }
 
 object ExternalVideoDAO {
@@ -34,7 +36,7 @@ object ExternalVideoDAO {
     DatabaseConnection.enqueue(
       TableQuery[ExternalVideoDbTableDef].forceInsert(
         ExternalVideoDbModel(
-          externalVideoId = System.currentTimeMillis() + "-" + RandomStringGenerator.randomAlphanumericString(8),
+          externalVideoId = s"${System.currentTimeMillis()}-${RandomStringGenerator.randomAlphanumericString(8)}",
           meetingId = meetingId,
           externalVideoUrl = externalVideoUrl,
           startedSharingAt = new java.sql.Timestamp(System.currentTimeMillis()),
@@ -76,7 +78,7 @@ object ExternalVideoDAO {
         .filter(_.meetingId === meetingId)
         .filter(_.stoppedSharingAt.isEmpty)
         .map(ev => (ev.stoppedSharingAt, ev.playerPlaying))
-        .update(Some(new java.sql.Timestamp(System.currentTimeMillis())), false)
+        .update((Some(new java.sql.Timestamp(System.currentTimeMillis())), false))
     )
   }
 

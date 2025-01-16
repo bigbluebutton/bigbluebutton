@@ -1,7 +1,7 @@
 package org.bigbluebutton.core.db
 
 import org.bigbluebutton.core.apps.ScreenshareModel
-import org.bigbluebutton.core.apps.ScreenshareModel.{ getContentType, getHasAudio, getRTMPBroadcastingUrl, getScreenshareConf, getScreenshareVideoHeight, getScreenshareVideoWidth, getVoiceConf }
+import org.bigbluebutton.core.apps.ScreenshareModel._
 import org.bigbluebutton.core.util.RandomStringGenerator
 import slick.jdbc.PostgresProfile.api._
 import slick.lifted.ProvenShape
@@ -32,7 +32,9 @@ class ScreenshareDbTableDef(tag: Tag) extends Table[ScreenshareDbModel](tag, "sc
   val hasAudio = column[Boolean]("hasAudio")
   val startedAt = column[java.sql.Timestamp]("startedAt")
   val stoppedAt = column[Option[java.sql.Timestamp]]("stoppedAt")
-  override def * : ProvenShape[ScreenshareDbModel] = (screenshareId, meetingId, voiceConf, screenshareConf, contentType, stream, vidWidth, vidHeight, hasAudio, startedAt, stoppedAt) <> (ScreenshareDbModel.tupled, ScreenshareDbModel.unapply)
+  override def * : ProvenShape[ScreenshareDbModel] = (
+    screenshareId, meetingId, voiceConf, screenshareConf, contentType, stream, vidWidth, vidHeight, hasAudio, startedAt, stoppedAt
+  ).<>(ScreenshareDbModel.tupled, ScreenshareDbModel.unapply)
 }
 
 object ScreenshareDAO {
@@ -40,7 +42,7 @@ object ScreenshareDAO {
     DatabaseConnection.enqueue(
       TableQuery[ScreenshareDbTableDef].forceInsert(
         ScreenshareDbModel(
-          screenshareId = System.currentTimeMillis() + "-" + RandomStringGenerator.randomAlphanumericString(8),
+          screenshareId = s"${System.currentTimeMillis()}-${RandomStringGenerator.randomAlphanumericString(8)}",
           meetingId = meetingId,
           voiceConf = getVoiceConf(screenshareModel),
           screenshareConf = getScreenshareConf(screenshareModel),

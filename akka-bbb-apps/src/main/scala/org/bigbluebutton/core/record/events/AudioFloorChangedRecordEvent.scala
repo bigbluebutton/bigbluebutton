@@ -24,15 +24,15 @@ class AudioFloorChangedRecordEvent extends AbstractVoiceRecordEvent {
 
   setEvent("AudioFloorChangedEvent")
 
-  def setParticipant(p: String) {
+  def setParticipant(p: String): Unit = {
     eventMap.put(PARTICIPANT, p)
   }
 
-  def setFloor(floor: Boolean) {
+  def setFloor(floor: Boolean): Unit = {
     eventMap.put(FLOOR, floor.toString)
   }
 
-  def setLastFloorTime(lastFloorTime: String) {
+  def setLastFloorTime(lastFloorTime: String): Unit = {
     eventMap.put(LAST_FLOOR_TIME, lastFloorTime)
   }
 }

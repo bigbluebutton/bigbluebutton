@@ -2,7 +2,7 @@ package org.bigbluebutton.core.running
 
 import org.bigbluebutton.common2.domain.DefaultProps
 import org.bigbluebutton.common2.msgs._
-import org.bigbluebutton.core.bus.{ InternalEventBus }
+import org.bigbluebutton.core.bus.InternalEventBus
 
 trait AuditHelpers {
 

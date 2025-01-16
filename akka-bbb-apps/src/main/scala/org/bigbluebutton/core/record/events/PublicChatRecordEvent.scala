@@ -24,11 +24,11 @@ class PublicChatRecordEvent extends AbstractChatRecordEvent {
 
   setEvent("PublicChatEvent")
 
-  def setSenderId(senderId: String) {
+  def setSenderId(senderId: String): Unit = {
     eventMap.put(SENDERID, senderId)
   }
 
-  final def setMessageId(messageId: String) {
+  final def setMessageId(messageId: String): Unit = {
     eventMap.put(MESSAGE_ID, messageId)
   }
 
@@ -40,11 +40,11 @@ class PublicChatRecordEvent extends AbstractChatRecordEvent {
     eventMap.put(CHAT_EMPHASIZED_TEXT, chatEmphasizedText.toString)
   }
 
-  def setMessage(message: String) {
+  def setMessage(message: String): Unit = {
     eventMap.put(MESSAGE, message)
   }
 
-  def setReplyToMessageId(replyToMessageId: String) {
+  def setReplyToMessageId(replyToMessageId: String): Unit = {
     eventMap.put(REPLY_TO_MESSAGEID, replyToMessageId)
   }
 }

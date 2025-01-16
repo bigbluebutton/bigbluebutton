@@ -1,20 +1,19 @@
 package org.bigbluebutton.core2.message.handlers
 
 import org.bigbluebutton.common2.msgs._
-import org.bigbluebutton.core.models.{ UserState, Users2x, VoiceUserState, VoiceUsers }
-import org.bigbluebutton.core.running.{ MeetingActor, OutMsgRouter }
-import org.bigbluebutton.core2.MeetingStatus2x
+import org.bigbluebutton.core.apps.voice.VoiceApp
 import org.bigbluebutton.core.apps.{ PermissionCheck, RightsManagementTrait }
 import org.bigbluebutton.core.db.NotificationDAO
+import org.bigbluebutton.core.models.{ Users2x, VoiceUsers }
+import org.bigbluebutton.core.running.{ MeetingActor, OutMsgRouter }
 import org.bigbluebutton.core2.message.senders.MsgBuilder
-import org.bigbluebutton.core.apps.voice.VoiceApp
 
 trait MuteAllExceptPresentersCmdMsgHdlr extends RightsManagementTrait {
   this: MeetingActor =>
 
   val outGW: OutMsgRouter
 
-  def handleMuteAllExceptPresentersCmdMsg(msg: MuteAllExceptPresentersCmdMsg) {
+  def handleMuteAllExceptPresentersCmdMsg(msg: MuteAllExceptPresentersCmdMsg): Unit = {
     if (permissionFailed(PermissionCheck.MOD_LEVEL, PermissionCheck.VIEWER_LEVEL, liveMeeting.users2x, msg.header.userId) || liveMeeting.props.meetingProp.isBreakout) {
       val meetingId = liveMeeting.props.meetingProp.intId
       val reason = "No permission to mute all except presenters."

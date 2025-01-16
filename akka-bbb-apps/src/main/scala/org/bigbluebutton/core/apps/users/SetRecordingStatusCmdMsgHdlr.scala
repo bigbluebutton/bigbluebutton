@@ -1,15 +1,15 @@
 package org.bigbluebutton.core.apps.users
 
 import org.bigbluebutton.common2.msgs._
-import org.bigbluebutton.core.domain.MeetingState2x
-import org.bigbluebutton.core.running.{ LiveMeeting, OutMsgRouter }
-import org.bigbluebutton.core2.MeetingStatus2x
-import org.bigbluebutton.core.util.TimeUtil
-import org.bigbluebutton.core.apps.{ PermissionCheck, RightsManagementTrait }
-import org.bigbluebutton.core2.message.senders.MsgBuilder
 import org.bigbluebutton.core.apps.voice.VoiceApp
-import org.bigbluebutton.core.db.{ MeetingRecordingDAO, NotificationDAO }
-import org.bigbluebutton.core.models.{ Users2x }
+import org.bigbluebutton.core.apps.{PermissionCheck, RightsManagementTrait}
+import org.bigbluebutton.core.db.{MeetingRecordingDAO, NotificationDAO}
+import org.bigbluebutton.core.domain.MeetingState2x
+import org.bigbluebutton.core.models.Users2x
+import org.bigbluebutton.core.running.{LiveMeeting, OutMsgRouter}
+import org.bigbluebutton.core.util.TimeUtil
+import org.bigbluebutton.core2.MeetingStatus2x
+import org.bigbluebutton.core2.message.senders.MsgBuilder
 
 trait SetRecordingStatusCmdMsgHdlr extends RightsManagementTrait {
   this: UsersApp =>

@@ -24,7 +24,7 @@ class StopTimerRecordEvent extends AbstractTimerRecordEvent {
 
   setEvent("StopTimerEvent")
 
-  def setAccumulated(value: Int) {
+  def setAccumulated(value: Int): Unit = {
     eventMap.put(ACCUMULATED, value.toString)
   }
 }

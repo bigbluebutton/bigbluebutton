@@ -2,7 +2,6 @@ package org.bigbluebutton.core.apps
 
 import org.bigbluebutton.SystemConfiguration
 import org.bigbluebutton.core.apps.users.UsersApp
-import org.bigbluebutton.core.graphql.GraphqlMiddleware
 import org.bigbluebutton.core.models._
 import org.bigbluebutton.core.running.{ LiveMeeting, OutMsgRouter }
 

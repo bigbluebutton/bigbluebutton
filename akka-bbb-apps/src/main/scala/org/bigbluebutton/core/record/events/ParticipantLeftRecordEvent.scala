@@ -24,7 +24,7 @@ class ParticipantLeftRecordEvent extends AbstractParticipantRecordEvent {
 
   setEvent("ParticipantLeftEvent")
 
-  def setUserId(userId: String) {
+  def setUserId(userId: String): Unit = {
     eventMap.put(USER_ID, userId)
   }
 }

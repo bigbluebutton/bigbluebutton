@@ -1,19 +1,9 @@
-import org.bigbluebutton.core.api._
-import scala.util.{ Try, Success, Failure }
-import org.bigbluebutton.core.JsonMessageDecoder
-import org.bigbluebutton.messages.BreakoutRoomsList
-import org.bigbluebutton.messages.payload.BreakoutRoomsListPayload
-import java.util.ArrayList
-import org.bigbluebutton.core.messaging.Util
-import org.bigbluebutton.messages.payload.BreakoutRoomPayload
-import org.bigbluebutton.core.pubsub.senders.MeetingMessageToJsonConverter
+import spray.json.DefaultJsonProtocol._
 import spray.json._
-import DefaultJsonProtocol._
-import com.google.gson.JsonArray
+
 import scala.collection.mutable.ListBuffer
 
 object JsonTest {
-  import org.bigbluebutton.core.UserMessagesProtocol._
   import spray.json._
 
   println("Welcome to the Scala worksheet")       //> Welcome to the Scala worksheet

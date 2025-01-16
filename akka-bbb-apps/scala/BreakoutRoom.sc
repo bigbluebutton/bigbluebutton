@@ -1,5 +1,4 @@
 import com.google.gson.Gson
-import org.bigbluebutton.messages.BreakoutRoomJoinURL
 
 object BreakoutRoom {
   val gson = new Gson                             //> gson  : com.google.gson.Gson = {serializeNulls:falsefactories:[Factory[typeH

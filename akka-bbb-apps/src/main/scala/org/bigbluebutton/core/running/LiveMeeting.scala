@@ -5,8 +5,6 @@ import org.bigbluebutton.core.apps._
 import org.bigbluebutton.core.models._
 import org.bigbluebutton.core2.MeetingStatus2x
 
-import java.util
-
 class LiveMeeting(
     val props:               DefaultProps,
     val status:              MeetingStatus2x,

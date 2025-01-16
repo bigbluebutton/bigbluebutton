@@ -24,15 +24,15 @@ class WhiteboardCursorMoveRecordEvent extends AbstractWhiteboardRecordEvent {
 
   setEvent("WhiteboardCursorMoveEvent")
 
-  def setUserId(userId: String) {
+  def setUserId(userId: String): Unit = {
     eventMap.put(USER_ID, userId)
   }
 
-  def setXPercent(percent: Double) {
+  def setXPercent(percent: Double): Unit = {
     eventMap.put(X_OFFSET, percent.toString)
   }
 
-  def setYPercent(percent: Double) {
+  def setYPercent(percent: Double): Unit = {
     eventMap.put(Y_OFFSET, percent.toString)
   }
 }

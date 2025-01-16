@@ -24,7 +24,7 @@ class SendPublicChatMessageReactionRecordEvent extends AbstractChatRecordEvent {
 
   setEvent("SendPublicChatMessageReactionRecordEvent")
 
-  def setSenderId(senderId: String) {
+  def setSenderId(senderId: String): Unit = {
     eventMap.put(SENDERID, senderId)
   }
 
@@ -32,7 +32,7 @@ class SendPublicChatMessageReactionRecordEvent extends AbstractChatRecordEvent {
     eventMap.put(MESSAGEID, messageId)
   }
 
-  def setReactionEmoji(reactionEmoji: String) {
+  def setReactionEmoji(reactionEmoji: String): Unit = {
     eventMap.put(REACTIONEMOJI, reactionEmoji)
   }
 }

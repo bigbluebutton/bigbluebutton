@@ -14,7 +14,7 @@ case class PresPageCursorDbModel(
 class PresPageCursorDbTableDef(tag: Tag) extends Table[PresPageCursorDbModel](tag, None, "pres_page_cursor") {
   override def * = (
     pageId, meetingId, userId, xPercent, yPercent, lastUpdatedAt
-  ) <> (PresPageCursorDbModel.tupled, PresPageCursorDbModel.unapply)
+  ) .<> (PresPageCursorDbModel.tupled, PresPageCursorDbModel.unapply)
   val pageId = column[String]("pageId", O.PrimaryKey)
   val meetingId = column[String]("meetingId", O.PrimaryKey)
   val userId = column[String]("userId", O.PrimaryKey)

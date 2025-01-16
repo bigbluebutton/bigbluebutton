@@ -2,7 +2,7 @@ package org.bigbluebutton.core.apps.pads
 
 import org.bigbluebutton.common2.msgs._
 import org.bigbluebutton.core.bus.MessageBus
-import org.bigbluebutton.core.db.{ SharedNotesRevDAO }
+import org.bigbluebutton.core.db.SharedNotesRevDAO
 import org.bigbluebutton.core.models.Pads
 import org.bigbluebutton.core.running.LiveMeeting
 

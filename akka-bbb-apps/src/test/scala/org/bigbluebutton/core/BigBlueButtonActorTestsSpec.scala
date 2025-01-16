@@ -1,13 +1,12 @@
 package org.bigbluebutton.core
 
 import akka.actor.ActorSystem
-import akka.testkit.{ DefaultTimeout, ImplicitSender, TestKit }
+import akka.testkit.{DefaultTimeout, ImplicitSender, TestKit}
 import com.typesafe.config.ConfigFactory
 import org.bigbluebutton.SystemConfiguration
 import org.bigbluebutton.common2.domain.DefaultProps
 import org.bigbluebutton.common2.msgs._
 import org.bigbluebutton.core.bus._
-import org.scalatest.{ Matchers, WordSpecLike }
 
 import scala.concurrent.duration._
 

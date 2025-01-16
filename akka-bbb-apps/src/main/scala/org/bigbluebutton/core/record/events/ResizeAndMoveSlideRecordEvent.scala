@@ -24,27 +24,27 @@ class ResizeAndMoveSlideRecordEvent extends AbstractPresentationRecordEvent {
 
   setEvent("ResizeAndMoveSlideEvent")
 
-  def setPresentationName(name: String) {
+  def setPresentationName(name: String): Unit = {
     eventMap.put(PRES_NAME, name)
   }
 
-  def setId(id: String) {
+  def setId(id: String): Unit = {
     eventMap.put(ID, id)
   }
 
-  def setXOffset(offset: Double) {
+  def setXOffset(offset: Double): Unit = {
     eventMap.put(X_OFFSET, offset.toString)
   }
 
-  def setYOffset(offset: Double) {
+  def setYOffset(offset: Double): Unit = {
     eventMap.put(Y_OFFSET, offset.toString)
   }
 
-  def setWidthRatio(ratio: Double) {
+  def setWidthRatio(ratio: Double): Unit = {
     eventMap.put(WIDTH_RATIO, ratio.toString)
   }
 
-  def setHeightRatio(ratio: Double) {
+  def setHeightRatio(ratio: Double): Unit = {
     eventMap.put(HEIGHT_RATIO, ratio.toString)
   }
 }

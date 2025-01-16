@@ -1,8 +1,8 @@
 package org.bigbluebutton.core.db
 
-import org.bigbluebutton.common2.domain.{ WelcomeProp }
+import org.bigbluebutton.common2.domain.WelcomeProp
 import slick.jdbc.PostgresProfile.api._
-import slick.lifted.{ ProvenShape }
+import slick.lifted.ProvenShape
 
 case class MeetingWelcomeDbModel(
     meetingId:               String,
@@ -17,7 +17,7 @@ class MeetingWelcomeDbTableDef(tag: Tag) extends Table[MeetingWelcomeDbModel](ta
 
   //  def fk_meetingId: ForeignKeyQuery[MeetingDbTableDef, MeetingDbModel] = foreignKey("fk_meetingId", meetingId, TableQuery[MeetingDbTableDef])(_.meetingId)
 
-  override def * : ProvenShape[MeetingWelcomeDbModel] = (meetingId, welcomeMsg, welcomeMsgForModerators) <> (MeetingWelcomeDbModel.tupled, MeetingWelcomeDbModel.unapply)
+  override def * : ProvenShape[MeetingWelcomeDbModel] = (meetingId, welcomeMsg, welcomeMsgForModerators).<>(MeetingWelcomeDbModel.tupled, MeetingWelcomeDbModel.unapply)
 }
 
 object MeetingWelcomeDAO {

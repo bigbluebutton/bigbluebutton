@@ -3,10 +3,10 @@ package org.bigbluebutton.core.apps.caption
 import org.apache.pekko.actor.ActorContext
 import org.apache.pekko.event.Logging
 import org.bigbluebutton.common2.msgs._
-import org.bigbluebutton.core.bus.MessageBus
-import org.bigbluebutton.core.running.LiveMeeting
 import org.bigbluebutton.core.apps.{ PermissionCheck, RightsManagementTrait }
+import org.bigbluebutton.core.bus.MessageBus
 import org.bigbluebutton.core.db.{ CaptionDAO, CaptionLocaleDAO, CaptionTypes }
+import org.bigbluebutton.core.running.LiveMeeting
 
 class CaptionApp2x(implicit val context: ActorContext) extends RightsManagementTrait {
   val log = Logging(context.system, getClass)

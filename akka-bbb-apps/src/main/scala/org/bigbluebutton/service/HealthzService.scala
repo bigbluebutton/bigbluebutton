@@ -1,15 +1,14 @@
 package org.bigbluebutton.service
 
 import org.apache.pekko.actor.{ Actor, ActorLogging, ActorSystem, Props }
-import org.apache.pekko.util.Timeout
-
-import scala.concurrent.Future
-import scala.concurrent.duration._
 import org.apache.pekko.pattern.{ AskTimeoutException, ask }
+import org.apache.pekko.util.Timeout
 import org.bigbluebutton.core.BigBlueButtonActor
 
 import java.time.{ Instant, LocalDateTime }
 import java.util.TimeZone
+import scala.concurrent.Future
+import scala.concurrent.duration._
 
 sealed trait HealthMessage
 
@@ -81,7 +80,7 @@ class HealthzActor extends Actor with ActorLogging {
       val c3: Boolean = computeElapsedTimeFromNow(recordingDBResponseTimestamp) < twoMins
       val status: Boolean = c1 && c2 && c3
 
-      sender ! GetHealthResponseMessage(
+      sender() ! GetHealthResponseMessage(
         status,
         PubSubSendStatus(c1, convertLongTimestampToDateTimeString(lastSentTimestamp)),
         PubSubReceiveStatus(c2, convertLongTimestampToDateTimeString(lastReceivedTimestamp)),

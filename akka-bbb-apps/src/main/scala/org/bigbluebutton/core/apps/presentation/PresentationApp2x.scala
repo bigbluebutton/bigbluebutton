@@ -11,7 +11,7 @@ class PresentationApp2x(implicit val context: ActorContext)
 
   val log = Logging(context.system, getClass)
 
-  def processPreuploadedPresentations(liveMeeting: LiveMeeting, presentations: Vector[Presentation]) {
+  def processPreuploadedPresentations(liveMeeting: LiveMeeting, presentations: Vector[Presentation]): Unit = {
     presentations.foreach(presentation => {
       liveMeeting.presModel.addPresentation(presentation)
     })
@@ -27,7 +27,7 @@ class PresentationApp2x(implicit val context: ActorContext)
   }
 
   def getPresentationInfo(liveMeeting: LiveMeeting): Vector[Presentation] = {
-    liveMeeting.presModel.getPresentations
+    liveMeeting.presModel.getPresentations()
   }
 
 }

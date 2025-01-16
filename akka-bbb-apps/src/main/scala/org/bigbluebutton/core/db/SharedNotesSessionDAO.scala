@@ -13,7 +13,7 @@ class SharedNotesSessionDbTableDef(tag: Tag) extends Table[SharedNotesSessionDbM
   val sharedNotesExtId = column[String]("sharedNotesExtId", O.PrimaryKey)
   val userId = column[String]("userId", O.PrimaryKey)
   val sessionId = column[String]("sessionId")
-  val * = (meetingId, sharedNotesExtId, userId, sessionId) <> (SharedNotesSessionDbModel.tupled, SharedNotesSessionDbModel.unapply)
+  val * = (meetingId, sharedNotesExtId, userId, sessionId) .<> (SharedNotesSessionDbModel.tupled, SharedNotesSessionDbModel.unapply)
 }
 
 object SharedNotesSessionDAO {

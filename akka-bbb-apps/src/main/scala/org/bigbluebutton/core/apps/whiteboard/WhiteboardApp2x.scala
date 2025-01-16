@@ -2,9 +2,10 @@ package org.bigbluebutton.core.apps.whiteboard
 
 import org.apache.pekko.actor.ActorContext
 import org.apache.pekko.event.Logging
-import org.bigbluebutton.core.running.LiveMeeting
 import org.bigbluebutton.common2.msgs.AnnotationVO
-import scala.collection.immutable.{ Map }
+import org.bigbluebutton.core.running.LiveMeeting
+
+import scala.collection.immutable.Map
 
 case class Whiteboard(
     id:             String,
@@ -56,7 +57,7 @@ class WhiteboardApp2x(implicit val context: ActorContext)
     liveMeeting.wbModel.getWhiteboardAccess(whiteboardId)
   }
 
-  def modifyWhiteboardAccess(whiteboardId: String, multiUser: Array[String], liveMeeting: LiveMeeting) {
+  def modifyWhiteboardAccess(whiteboardId: String, multiUser: Array[String], liveMeeting: LiveMeeting): Unit = {
     liveMeeting.wbModel.modifyWhiteboardAccess(liveMeeting.props.meetingProp.intId, whiteboardId, multiUser)
   }
 

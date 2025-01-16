@@ -14,7 +14,7 @@ case class UserSessionTokenDbModel (
 class UserSessionTokenDbTableDef(tag: Tag) extends Table[UserSessionTokenDbModel](tag, None, "user_sessionToken") {
   override def * = (
     meetingId, userId, sessionToken, sessionName, enforceLayout, createdAt, removedAt
-  ) <> (UserSessionTokenDbModel.tupled, UserSessionTokenDbModel.unapply)
+  ) .<> (UserSessionTokenDbModel.tupled, UserSessionTokenDbModel.unapply)
   val meetingId = column[String]("meetingId", O.PrimaryKey)
   val userId = column[String]("userId", O.PrimaryKey)
   val sessionToken = column[String]("sessionToken", O.PrimaryKey)

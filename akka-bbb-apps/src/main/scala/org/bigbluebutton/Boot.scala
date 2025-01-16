@@ -3,21 +3,20 @@ package org.bigbluebutton
 import org.apache.pekko.actor.ActorSystem
 import org.apache.pekko.event.Logging
 import org.apache.pekko.http.scaladsl.Http
-import org.apache.pekko.stream.ActorMaterializer
+//import org.apache.pekko.stream.ActorMaterializer
+import org.bigbluebutton.common2.bus.IncomingJsonMessageBus
 import org.bigbluebutton.common2.redis.{MessageSender, RedisConfig, RedisPublisher}
 import org.bigbluebutton.core._
 import org.bigbluebutton.core.bus._
 import org.bigbluebutton.core.pubsub.senders.ReceivedJsonMsgHandlerActor
-import org.bigbluebutton.core2.AnalyticsActor
-import org.bigbluebutton.core2.FromAkkaAppsMsgSenderActor
-import org.bigbluebutton.endpoint.redis.{AppsRedisSubscriberActor, ExportAnnotationsActor, GraphqlConnectionsActor, LearningDashboardActor, RedisRecorderActor}
-import org.bigbluebutton.common2.bus.IncomingJsonMessageBus
+import org.bigbluebutton.core2.{AnalyticsActor, FromAkkaAppsMsgSenderActor}
+import org.bigbluebutton.endpoint.redis._
 import org.bigbluebutton.service.{HealthzService, MeetingInfoActor, MeetingInfoService, UserInfoService}
 
 object Boot extends App with SystemConfiguration {
 
   implicit val system = ActorSystem("bigbluebutton-apps-system")
-  implicit val materializer: ActorMaterializer = ActorMaterializer()
+//  implicit val materializer: ActorMaterializer = ActorMaterializer()
   implicit val executor = system.dispatcher
 
   val logger = Logging(system, getClass)
@@ -115,5 +114,5 @@ object Boot extends App with SystemConfiguration {
     "redis-subscriber"
   )
 
-  val bindingFuture = Http().bindAndHandle(apiService.routes, httpHost, httpPort)
+  Http().newServerAt(httpHost, httpPort).bindFlow(apiService.routes)
 }

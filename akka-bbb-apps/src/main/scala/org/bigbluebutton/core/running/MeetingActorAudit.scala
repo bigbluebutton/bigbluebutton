@@ -1,20 +1,15 @@
 package org.bigbluebutton.core.running
 
-import java.io.{ PrintWriter, StringWriter }
-
-import org.apache.pekko.actor.Actor
-import org.apache.pekko.actor.ActorLogging
-import org.apache.pekko.actor.Props
-import org.apache.pekko.actor.OneForOneStrategy
+import org.apache.pekko.actor.{ Actor, ActorLogging, OneForOneStrategy, Props }
 import org.apache.pekko.actor.SupervisorStrategy.Resume
-
-import scala.concurrent.duration._
 import org.bigbluebutton.SystemConfiguration
 import org.bigbluebutton.common2.domain.DefaultProps
 import org.bigbluebutton.core.api._
 import org.bigbluebutton.core.bus.{ BigBlueButtonEvent, InternalEventBus }
 
+import java.io.{ PrintWriter, StringWriter }
 import scala.concurrent.ExecutionContext.Implicits.global
+import scala.concurrent.duration._
 
 object MeetingActorAudit {
   def props(
@@ -47,7 +42,7 @@ class MeetingActorAudit(
 
   private val MonitorFrequency = 10 seconds
 
-  context.system.scheduler.schedule(5 seconds, MonitorFrequency, self, AuditMonitorInternalMsg)
+  context.system.scheduler.scheduleWithFixedDelay(5 seconds, MonitorFrequency, self, AuditMonitorInternalMsg)
 
   // Query to get voice conference users
   getUsersInVoiceConf(props, outGW)
@@ -65,11 +60,11 @@ class MeetingActorAudit(
     case AuditMonitorInternalMsg => handleMonitor()
   }
 
-  def handleMonitor() {
+  def handleMonitor(): Unit = {
     handleMonitorNumberOfWebUsers()
   }
 
-  def handleMonitorNumberOfWebUsers() {
+  def handleMonitorNumberOfWebUsers(): Unit = {
     eventBus.publish(BigBlueButtonEvent(props.meetingProp.intId, MonitorNumberOfUsersInternalMsg(props.meetingProp.intId)))
     eventBus.publish(BigBlueButtonEvent(props.meetingProp.intId, MonitorGuestWaitPresenceInternalMsg(props.meetingProp.intId)))
 

@@ -1,5 +1,5 @@
 package org.bigbluebutton.core
-import org.bigbluebutton.common2.msgs.{ BbbCommonEnvCoreMsg, BbbCoreMsg }
+import org.bigbluebutton.common2.msgs.{BbbCommonEnvCoreMsg, BbbCoreMsg}
 
 class OutMsgGWSeq extends OutMessageGateway {
   val msgs = new collection.mutable.Queue[BbbCoreMsg]

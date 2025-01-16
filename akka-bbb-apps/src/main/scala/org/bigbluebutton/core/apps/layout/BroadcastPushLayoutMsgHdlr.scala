@@ -1,10 +1,10 @@
 package org.bigbluebutton.core.apps.layout
 
 import org.bigbluebutton.common2.msgs._
-import org.bigbluebutton.core.models.Layouts
-import org.bigbluebutton.core.running.OutMsgRouter
 import org.bigbluebutton.core.apps.{PermissionCheck, RightsManagementTrait}
 import org.bigbluebutton.core.db.LayoutDAO
+import org.bigbluebutton.core.models.Layouts
+import org.bigbluebutton.core.running.OutMsgRouter
 
 trait BroadcastPushLayoutMsgHdlr extends RightsManagementTrait {
   this: LayoutApp2x =>

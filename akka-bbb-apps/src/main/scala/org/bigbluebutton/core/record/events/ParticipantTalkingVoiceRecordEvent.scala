@@ -24,11 +24,11 @@ class ParticipantTalkingVoiceRecordEvent extends AbstractVoiceRecordEvent {
 
   setEvent("ParticipantTalkingEvent")
 
-  def setParticipant(p: String) {
+  def setParticipant(p: String): Unit = {
     eventMap.put(PARTICIPANT, p)
   }
 
-  def setTalking(talking: Boolean) {
+  def setTalking(talking: Boolean): Unit = {
     eventMap.put(TALKING, talking.toString)
   }
 }

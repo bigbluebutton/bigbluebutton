@@ -1,9 +1,8 @@
 package org.bigbluebutton.core.apps.users
 
 import org.bigbluebutton.common2.msgs._
-import org.bigbluebutton.core.db.UserDAO
-import org.bigbluebutton.core.models.{ Users2x, VoiceUserState, VoiceUsers }
-import org.bigbluebutton.core.running.{ MeetingActor, OutMsgRouter }
+import org.bigbluebutton.core.models.{Users2x, VoiceUserState, VoiceUsers}
+import org.bigbluebutton.core.running.{MeetingActor, OutMsgRouter}
 
 trait UserConnectedToGlobalAudioMsgHdlr {
   this: MeetingActor =>

@@ -5,16 +5,16 @@ class TranscriptUpdatedRecordEvent extends AbstractAudioCaptionsRecordEvent {
 
   setEvent("TranscriptUpdatedEvent")
 
-  def setLocale(locale: String) {
+  def setLocale(locale: String): Unit = {
     eventMap.put(LOCALE, locale)
   }
 
-  def setTranscript(transcript: String) {
+  def setTranscript(transcript: String): Unit = {
     eventMap.put(TRANSCRIPT, transcript)
   }
 }
 
-object TranscriptUpdatedRecordEvent {
+private object TranscriptUpdatedRecordEvent {
   protected final val LOCALE = "locale"
   protected final val TRANSCRIPT = "transcript"
 }

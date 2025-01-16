@@ -21,7 +21,9 @@ package org.bigbluebutton.core.util.jhotdraw;
 import java.awt.*;
 import java.awt.geom.*;
 import java.io.Serializable;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
 
 /**
  * BezierPath allows the construction of paths consisting of straight lines,

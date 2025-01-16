@@ -1,7 +1,7 @@
 package org.bigbluebutton.core.apps.voice
 
 import org.bigbluebutton.common2.msgs._
-import org.bigbluebutton.core.running.{ MeetingActor, LiveMeeting, OutMsgRouter }
+import org.bigbluebutton.core.running.{ LiveMeeting, MeetingActor, OutMsgRouter }
 
 trait ChannelHoldChangedVoiceConfEvtMsgHdlr {
   this: MeetingActor =>

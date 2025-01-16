@@ -24,7 +24,7 @@ class SetPresenterInPodRecordEvent extends AbstractPresentationRecordEvent {
 
   setEvent("SetPresenterInPodEvent")
 
-  def setNextPresenterId(userId: String) {
+  def setNextPresenterId(userId: String): Unit = {
     eventMap.put(NEXT_PRESENTER, userId)
   }
 }

@@ -1,11 +1,11 @@
 package org.bigbluebutton.core.apps.breakout
 
 import org.bigbluebutton.common2.msgs._
-import org.bigbluebutton.core.domain.MeetingState2x
-import org.bigbluebutton.core.running.{ MeetingActor, OutMsgRouter }
 import org.bigbluebutton.core.apps.{ PermissionCheck, RightsManagementTrait }
 import org.bigbluebutton.core.db.BreakoutRoomUserDAO
+import org.bigbluebutton.core.domain.MeetingState2x
 import org.bigbluebutton.core.models.{ Roles, Users2x }
+import org.bigbluebutton.core.running.{ MeetingActor, OutMsgRouter }
 
 trait RequestBreakoutJoinURLReqMsgHdlr extends RightsManagementTrait {
   this: MeetingActor =>

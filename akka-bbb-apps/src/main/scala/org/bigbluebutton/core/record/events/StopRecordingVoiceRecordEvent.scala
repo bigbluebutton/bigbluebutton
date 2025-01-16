@@ -24,11 +24,11 @@ class StopRecordingVoiceRecordEvent extends AbstractVoiceRecordEvent {
 
   setEvent("StopRecordingEvent")
 
-  def setRecordingTimestamp(timestamp: String) {
+  def setRecordingTimestamp(timestamp: String): Unit = {
     eventMap.put(TIMESTAMP, timestamp)
   }
 
-  def setFilename(filename: String) {
+  def setFilename(filename: String): Unit = {
     eventMap.put(FILENAME, filename)
   }
 }

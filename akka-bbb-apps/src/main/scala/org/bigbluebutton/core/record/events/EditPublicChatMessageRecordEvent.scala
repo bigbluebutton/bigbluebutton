@@ -28,7 +28,7 @@ class EditPublicChatMessageRecordEvent extends AbstractChatRecordEvent {
     eventMap.put(MESSAGEID, messageId)
   }
 
-  def setMessage(message: String) {
+  def setMessage(message: String): Unit = {
     eventMap.put(MESSAGE, message)
   }
 }

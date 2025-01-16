@@ -20,7 +20,7 @@
 package org.bigbluebutton.core.record.events
 
 import org.bigbluebutton.common2.domain.SimpleVoteOutVO
-import scala.collection.immutable.List
+
 import scala.collection.Map
 import scala.collection.mutable.ArrayBuffer
 
@@ -29,27 +29,29 @@ class AddShapeWhiteboardRecordEvent extends AbstractWhiteboardRecordEvent {
 
   setEvent("AddShapeEvent")
 
-  def setUserId(id: String) {
+  def setUserId(id: String): Unit = {
     eventMap.put(USER_ID, id)
   }
 
-  def setAnnotationId(id: String) {
+  def setAnnotationId(id: String): Unit = {
     eventMap.put(SHAPE_ID, id)
   }
 
-  def setPosition(position: Int) {
+  def setPosition(position: Int): Unit = {
     eventMap.put(POSITION, position.toString)
   }
 
-  def addAnnotation(annotation: Map[String, Any]) {
+  def addAnnotation(annotation: Map[String, Any]): Unit = {
     annotation.foreach(f => {
       if (f._1 == "points") {
         f._2 match {
           case f2: List[_] => eventMap.put(POINTS, listToString(f2))
+          case _           => //unexpected value, do nothing
         }
       } else if (f._1 == "commands") {
         f._2 match {
           case f2: List[_] => eventMap.put(COMMANDS, listToString(f2))
+          case _           => //unexpected value, do nothing
         }
       } else if (f._1 == "numResponders") {
         eventMap.put(NUM_RESPONDERS, f._2.toString)
@@ -58,6 +60,7 @@ class AddShapeWhiteboardRecordEvent extends AbstractWhiteboardRecordEvent {
       } else if (f._1 == "result") {
         f._2 match {
           case f2: ArrayBuffer[_] => eventMap.put(RESULT, pollResultToString(f2))
+          case _                  => //unexpected value, do nothing
         }
       } else {
         eventMap.put(f._1, f._2.toString)
@@ -86,7 +89,7 @@ class AddShapeWhiteboardRecordEvent extends AbstractWhiteboardRecordEvent {
   private def pollResultToString(list: ArrayBuffer[_]): String = {
     val pollResult = list.map { f =>
       val res = f.asInstanceOf[SimpleVoteOutVO]
-      val result = Map("num_votes" -> res.numVotes, "id" -> res.id, "key" -> res.key)
+      val result: Map[String, Any] = Map("num_votes" -> res.numVotes, "id" -> res.id, "key" -> res.key)
       org.bigbluebutton.common2.util.JsonUtil.toJson(result)
     }.mkString(",")
 

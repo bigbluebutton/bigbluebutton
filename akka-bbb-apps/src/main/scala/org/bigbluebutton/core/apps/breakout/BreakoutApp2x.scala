@@ -1,10 +1,11 @@
 package org.bigbluebutton.core.apps.breakout
 
-import org.bigbluebutton.core.running.MeetingActor
-import java.net.URLEncoder
-import scala.collection.SortedSet
 import org.apache.commons.codec.digest.DigestUtils
 import org.bigbluebutton.SystemConfiguration
+import org.bigbluebutton.core.running.MeetingActor
+
+import java.net.URLEncoder
+import scala.collection.SortedSet
 
 trait BreakoutApp2x extends BreakoutRoomCreatedMsgHdlr
   with BreakoutRoomsListMsgHdlr

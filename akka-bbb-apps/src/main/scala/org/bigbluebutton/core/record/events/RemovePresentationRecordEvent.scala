@@ -24,7 +24,7 @@ class RemovePresentationRecordEvent extends AbstractPresentationRecordEvent {
 
   setEvent("RemovePresentationEvent")
 
-  def setPresentationName(name: String) {
+  def setPresentationName(name: String): Unit = {
     eventMap.put(PRES_NAME, name)
   }
 }

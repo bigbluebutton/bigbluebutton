@@ -1,6 +1,7 @@
 package org.bigbluebutton.core.apps
 
 import org.bigbluebutton.common2.msgs.ChatMessageVO
+
 import scala.collection.mutable.ArrayBuffer
 
 object ChatModel {
@@ -8,11 +9,11 @@ object ChatModel {
     chatModel.messages.toArray
   }
 
-  def addNewChatMessage(chatModel: ChatModel, msg: ChatMessageVO) {
+  def addNewChatMessage(chatModel: ChatModel, msg: ChatMessageVO): Unit = {
     chatModel.messages.append(msg)
   }
 
-  def clearPublicChatHistory(chatModel: ChatModel) {
+  def clearPublicChatHistory(chatModel: ChatModel): Unit = {
     chatModel.messages.clear()
   }
 }

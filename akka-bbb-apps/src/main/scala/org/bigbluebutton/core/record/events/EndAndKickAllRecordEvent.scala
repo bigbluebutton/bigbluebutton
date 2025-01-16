@@ -24,7 +24,7 @@ class EndAndKickAllRecordEvent extends AbstractParticipantRecordEvent {
 
   setEvent("EndAndKickAllEvent")
 
-  def setReason(reason: String) {
+  def setReason(reason: String): Unit = {
     eventMap.put(REASON, reason)
   }
 }

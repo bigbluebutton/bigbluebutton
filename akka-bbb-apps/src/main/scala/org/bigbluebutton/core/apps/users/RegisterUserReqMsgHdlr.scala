@@ -111,6 +111,8 @@ trait RegisterUserReqMsgHdlr {
       case GuestStatus.DENY =>
         val g = GuestApprovedVO(regUser.id, GuestStatus.DENY)
         UsersApp.approveOrRejectGuest(liveMeeting, outGW, g, SystemUser.ID)
+      case _ =>
+        log.warning(s"Unexpected guest status: $guestStatus")
     }
 
   }

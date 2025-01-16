@@ -36,7 +36,7 @@ class UserStateDbTableDef(tag: Tag) extends Table[UserStateDbModel](tag, None, "
   override def * = (
     meetingId, userId,away,raiseHand,guestStatus,guestStatusSetByModerator,guestLobbyMessage,mobile,clientType,disconnected,
     expired,ejectColumns,presenter,pinned,locked,speechLocale, captionLocale,
-    inactivityWarningDisplay, inactivityWarningTimeoutSecs, echoTestRunningAt) <> (UserStateDbModel.tupled, UserStateDbModel.unapply)
+    inactivityWarningDisplay, inactivityWarningTimeoutSecs, echoTestRunningAt) .<> (UserStateDbModel.tupled, UserStateDbModel.unapply)
   val meetingId = column[String]("meetingId", O.PrimaryKey)
   val userId = column[String]("userId", O.PrimaryKey)
   val away = column[Boolean]("away")
@@ -52,7 +52,7 @@ class UserStateDbTableDef(tag: Tag) extends Table[UserStateDbModel](tag, None, "
   val ejectReason = column[Option[String]]("ejectReason")
   val ejectReasonCode = column[Option[String]]("ejectReasonCode")
   val ejectedByModerator = column[Option[String]]("ejectedByModerator")
-  val ejectColumns = (ejected, ejectReason, ejectReasonCode, ejectedByModerator) <> (UserEjectColumnsDbModel.tupled, UserEjectColumnsDbModel.unapply)
+  val ejectColumns = (ejected, ejectReason, ejectReasonCode, ejectedByModerator) .<> (UserEjectColumnsDbModel.tupled, UserEjectColumnsDbModel.unapply)
   val presenter = column[Boolean]("presenter")
   val pinned = column[Boolean]("pinned")
   val locked = column[Boolean]("locked")
@@ -141,7 +141,6 @@ object UserStateDAO {
           inactivityWarningTimeoutSecs match {
             case 0 => None
             case timeout: Long => Some(timeout)
-            case _ => None
         }))
     )
   }

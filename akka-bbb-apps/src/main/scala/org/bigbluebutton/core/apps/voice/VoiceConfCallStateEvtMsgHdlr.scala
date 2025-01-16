@@ -1,8 +1,8 @@
 package org.bigbluebutton.core.apps.voice
 
-import org.bigbluebutton.common2.msgs.{ BbbClientMsgHeader, BbbCommonEnvCoreMsg, BbbCoreEnvelope, MessageTypes, Routing, VoiceCallStateEvtMsg, VoiceCallStateEvtMsgBody, VoiceConfCallStateEvtMsg }
-import org.bigbluebutton.core.db.{ UserVoiceConfStateDAO, UserVoiceDAO }
-import org.bigbluebutton.core.running.{ LiveMeeting, MeetingActor, OutMsgRouter }
+import org.bigbluebutton.common2.msgs._
+import org.bigbluebutton.core.db.UserVoiceConfStateDAO
+import org.bigbluebutton.core.running.{LiveMeeting, MeetingActor, OutMsgRouter}
 
 trait VoiceConfCallStateEvtMsgHdlr {
   this: MeetingActor =>

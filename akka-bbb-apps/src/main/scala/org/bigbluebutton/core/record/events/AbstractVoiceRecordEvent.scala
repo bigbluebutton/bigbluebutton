@@ -24,7 +24,7 @@ trait AbstractVoiceRecordEvent extends RecordEvent {
 
   setModule("VOICE")
 
-  def setBridge(bridge: String) {
+  def setBridge(bridge: String): Unit = {
     eventMap.put(BRIDGE, bridge)
   }
 }

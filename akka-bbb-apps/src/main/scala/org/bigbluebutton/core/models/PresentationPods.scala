@@ -1,10 +1,10 @@
 package org.bigbluebutton.core.models
 
+import org.bigbluebutton.core.db.{PresPageDAO, PresPresentationDAO}
 import org.bigbluebutton.core.util.RandomStringGenerator
-import org.bigbluebutton.core.db.{ PresPageDAO, PresPresentationDAO }
 
 object PresentationPodFactory {
-  private def genId(): String = System.currentTimeMillis() + "-" + RandomStringGenerator.randomAlphanumericString(8)
+  private def genId(): String = s"${System.currentTimeMillis()}-${RandomStringGenerator.randomAlphanumericString(8)}"
 
   def create(creatorId: String): PresentationPod = {
     val currentPresenter = creatorId

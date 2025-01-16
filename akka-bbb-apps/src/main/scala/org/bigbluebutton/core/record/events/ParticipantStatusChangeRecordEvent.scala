@@ -24,15 +24,15 @@ class ParticipantStatusChangeRecordEvent extends AbstractParticipantRecordEvent 
 
   setEvent("ParticipantStatusChangeEvent")
 
-  def setUserId(userId: String) {
+  def setUserId(userId: String): Unit = {
     eventMap.put(USER_ID, userId)
   }
 
-  def setStatus(status: String) {
+  def setStatus(status: String): Unit = {
     eventMap.put(STATUS, status)
   }
 
-  def setValue(value: String) {
+  def setValue(value: String): Unit = {
     eventMap.put(VALUE, value)
   }
 }

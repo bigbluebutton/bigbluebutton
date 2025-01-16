@@ -21,7 +21,9 @@ class BreakoutRoomUserDbTableDef(tag: Tag) extends Table[BreakoutRoomUserDbModel
   val joinURL = column[String]("joinURL")
   val assignedAt = column[Option[java.sql.Timestamp]]("assignedAt")
   val inviteDismissedAt = column[Option[java.sql.Timestamp]]("inviteDismissedAt")
-  override def * = (breakoutRoomId, meetingId, userId, joinURL, assignedAt, inviteDismissedAt) <> (BreakoutRoomUserDbModel.tupled, BreakoutRoomUserDbModel.unapply)
+  override def * = (
+    breakoutRoomId, meetingId, userId, joinURL, assignedAt, inviteDismissedAt
+  ) .<> (BreakoutRoomUserDbModel.tupled, BreakoutRoomUserDbModel.unapply)
 }
 
 object BreakoutRoomUserDAO {

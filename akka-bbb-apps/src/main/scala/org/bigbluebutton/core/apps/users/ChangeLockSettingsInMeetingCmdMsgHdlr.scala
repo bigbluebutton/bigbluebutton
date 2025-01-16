@@ -2,14 +2,12 @@ package org.bigbluebutton.core.apps.users
 
 import org.bigbluebutton.LockSettingsUtil
 import org.bigbluebutton.common2.msgs._
-import org.bigbluebutton.core.apps.{ PermissionCheck, RightsManagementTrait }
-import org.bigbluebutton.core.db.{ MeetingLockSettingsDAO, NotificationDAO }
+import org.bigbluebutton.core.apps.{PermissionCheck, RightsManagementTrait}
+import org.bigbluebutton.core.db.{MeetingLockSettingsDAO, NotificationDAO}
 import org.bigbluebutton.core.graphql.GraphqlMiddleware
 import org.bigbluebutton.core.models._
-import org.bigbluebutton.core.running.OutMsgRouter
-import org.bigbluebutton.core.running.MeetingActor
-import org.bigbluebutton.core2.MeetingStatus2x
-import org.bigbluebutton.core2.Permissions
+import org.bigbluebutton.core.running.{MeetingActor, OutMsgRouter}
+import org.bigbluebutton.core2.{MeetingStatus2x, Permissions}
 import org.bigbluebutton.core2.message.senders.MsgBuilder
 
 trait ChangeLockSettingsInMeetingCmdMsgHdlr extends RightsManagementTrait {
