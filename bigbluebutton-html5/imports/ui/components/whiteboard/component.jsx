@@ -680,7 +680,7 @@ const Whiteboard = React.memo((props) => {
     onReady,
     options = {
       maxTries: 120,
-      stabilityFrames: 25,
+      stabilityFrames: 50,
     },
     currentTry = 0,
     stableCount = 0,
