@@ -187,9 +187,10 @@ const RoomManagmentState: React.FC<RoomManagmentStateProps> = ({
 
   useEffect(() => {
     if (runningRooms?.length && runningRooms.length > 0) return;
-    if (lastBreakoutData?.breakoutRoom_createdLatest && init) {
+    const lastBreakouts = lastBreakoutData?.breakoutRoom_createdLatest ?? [];
+    if (lastBreakouts.length > 0 && init) {
       const roomState: Rooms = {};
-      lastBreakoutData.breakoutRoom_createdLatest.forEach((room) => {
+      lastBreakouts.forEach((room) => {
         roomState[room.sequence] = {
           id: room.sequence,
           name: room.name,
