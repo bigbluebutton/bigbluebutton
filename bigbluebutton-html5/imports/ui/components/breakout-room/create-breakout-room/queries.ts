@@ -33,19 +33,8 @@ export interface LastBreakoutData {
     }
   }[];
   breakoutRoom_createdLatest: {
-    breakoutRoomId: string;
     sequence: number;
     name: string;
-    shortName: string;
-    isDefaultName: boolean;
-    durationInSeconds: number;
-    freeJoin: boolean;
-    sendInvitationToModerators: boolean;
-    captureNotes: boolean;
-    captureSlides: boolean;
-    createdAt: string;
-    startedAt: string;
-    endedAt: string;
   }[];
 }
 
@@ -108,19 +97,8 @@ export const getLastBreakouts = gql`
       }
     }
     breakoutRoom_createdLatest {
-      breakoutRoomId
       sequence
       name
-      shortName
-      isDefaultName
-      durationInSeconds
-      freeJoin
-      sendInvitationToModerators
-      captureNotes
-      captureSlides
-      createdAt
-      startedAt
-      endedAt
     }
   }
 `;
