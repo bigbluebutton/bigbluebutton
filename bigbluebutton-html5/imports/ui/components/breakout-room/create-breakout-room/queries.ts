@@ -22,6 +22,33 @@ export interface getBreakoutsResponse {
   breakoutRoom: Array<breakoutRoom>
 }
 
+export interface LastBreakoutData {
+  user: {
+    lastBreakoutRoom: {
+      breakoutRoomId: string;
+      currentlyInRoom: boolean;
+      sequence: number;
+      shortName: string;
+      userId: string;
+    }
+  }[];
+  breakoutRoom_createdLatest: {
+    breakoutRoomId: string;
+    sequence: number;
+    name: string;
+    shortName: string;
+    isDefaultName: boolean;
+    durationInSeconds: number;
+    freeJoin: boolean;
+    sendInvitationToModerators: boolean;
+    captureNotes: boolean;
+    captureSlides: boolean;
+    createdAt: string;
+    startedAt: string;
+    endedAt: string;
+  }[];
+}
+
 export const getUser = gql`
   query getUser {
     user(
@@ -69,22 +96,37 @@ export const getBreakoutCount = gql`
   }
 `;
 
-export const getLastBreakout = gql`
-subscription {
-  user {
-    lastBreakoutRoom {
+export const getLastBreakouts = gql`
+  query {
+    user {
+      lastBreakoutRoom {
+        breakoutRoomId
+        currentlyInRoom
+        sequence
+        shortName
+        userId
+      }
+    }
+    breakoutRoom_createdLatest {
       breakoutRoomId
-      currentlyInRoom
       sequence
+      name
       shortName
-      userId
+      isDefaultName
+      durationInSeconds
+      freeJoin
+      sendInvitationToModerators
+      captureNotes
+      captureSlides
+      createdAt
+      startedAt
+      endedAt
     }
   }
-}
 `;
 
 export default {
   getUser,
   getBreakouts,
-  getLastBreakout,
+  getLastBreakouts,
 };

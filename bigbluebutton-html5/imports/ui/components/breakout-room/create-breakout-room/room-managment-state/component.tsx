@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { defineMessages, useIntl } from 'react-intl';
-import { useSubscription } from '@apollo/client';
+import { useQuery } from '@apollo/client';
 import {
   BreakoutUser,
   Rooms,
@@ -9,9 +9,10 @@ import {
   moveUserRegistery,
   Presentation,
   RoomPresentations,
-  lastBreakoutRoomUser,
 } from './types';
-import { breakoutRoom, getBreakoutsResponse, getLastBreakout } from '../queries';
+import {
+  breakoutRoom, getBreakoutsResponse, getLastBreakouts, LastBreakoutData,
+} from '../queries';
 
 const intlMessages = defineMessages({
   breakoutRoom: {
@@ -39,6 +40,7 @@ interface RoomManagmentStateProps {
   currentSlidePrefix: string;
   getRoomPresentation: (roomId: number) => string;
   isUpdate: boolean;
+  setNumberOfRooms: React.Dispatch<React.SetStateAction<number>>;
 }
 
 const RoomManagmentState: React.FC<RoomManagmentStateProps> = ({
@@ -56,12 +58,14 @@ const RoomManagmentState: React.FC<RoomManagmentStateProps> = ({
   currentSlidePrefix,
   getRoomPresentation,
   isUpdate,
+  setNumberOfRooms,
 }) => {
   const intl = useIntl();
   const [selectedId, setSelectedId] = useState<string>('');
   const [selectedRoom, setSelectedRoom] = useState<number>(0);
   const [rooms, setRooms] = useState<Rooms>({});
   const [init, setInit] = useState<boolean>(false);
+  const [roomsRestored, setRoomsRestored] = useState<boolean>(false);
   const [movementRegistered, setMovementRegistered] = useState<moveUserRegistery>({});
 
   // accepts one or multiple users
@@ -177,26 +181,43 @@ const RoomManagmentState: React.FC<RoomManagmentStateProps> = ({
 
   const {
     data: lastBreakoutData,
-  } = useSubscription(getLastBreakout);
+  } = useQuery<LastBreakoutData>(getLastBreakouts, {
+    fetchPolicy: 'network-only',
+  });
 
   useEffect(() => {
-    if (lastBreakoutData?.user) {
+    if (runningRooms?.length && runningRooms.length > 0) return;
+    if (lastBreakoutData?.breakoutRoom_createdLatest && init) {
+      const roomState: Rooms = {};
+      lastBreakoutData.breakoutRoom_createdLatest.forEach((room) => {
+        roomState[room.sequence] = {
+          id: room.sequence,
+          name: room.name,
+          users: [],
+        };
+      });
+      setNumberOfRooms(Object.keys(roomState).length);
+      setRooms((prevRooms: Rooms) => ({
+        ...(prevRooms ?? {}),
+        ...roomState,
+      }));
+      setRoomsRestored(true);
+    }
+  }, [lastBreakoutData, init]);
+
+  useEffect(() => {
+    if (lastBreakoutData?.user && roomsRestored) {
       const usersToMove: string[] = [];
       const toRooms: number[] = [];
 
       if (runningRooms?.length && runningRooms.length > 0) return;
 
-      lastBreakoutData.user.forEach((user: lastBreakoutRoomUser) => {
+      lastBreakoutData.user.forEach((user) => {
         if (user.lastBreakoutRoom?.sequence) {
           const roomSequence = Number(user.lastBreakoutRoom.sequence);
 
           usersToMove.push(user.lastBreakoutRoom.userId);
           toRooms.push(roomSequence);
-        } else {
-          console.log('User not moved:', {
-            userId: user?.lastBreakoutRoom?.userId,
-            lastBreakoutRoom: user.lastBreakoutRoom,
-          });
         }
       });
 
@@ -204,7 +225,7 @@ const RoomManagmentState: React.FC<RoomManagmentStateProps> = ({
         moveUser(usersToMove, 0, toRooms);
       }
     }
-  }, [lastBreakoutData]);
+  }, [lastBreakoutData, roomsRestored]);
 
   useEffect(() => {
     if (users && users.length > 0) {
