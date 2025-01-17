@@ -73,8 +73,6 @@ const PrivateChatListItem = (props: PrivateChatListItemProps) => {
   const {
     data: chatMessageData,
   } = useChatMessageSubscription((msg) => msg) as GraphqlDataHookSubscriptionResponse<Message[]>;
-  const lastMessage = !chatMessageData ? 'erro' : chatMessageData[0]?.message;
-  const lastMessageTime = !chatMessageData ? 'erro' : chatMessageData[0]?.createdAt;
 
   const isPublicGroupChat = (chat: Chat) => chat.chatId === PUBLIC_GROUP_CHAT_ID;
   
@@ -107,13 +105,9 @@ const PrivateChatListItem = (props: PrivateChatListItemProps) => {
     }
   };
 
-  const localizedChatName = isPublicGroupChat(chat)
-    ? intl.formatMessage(intlMessages.titlePublic)
-    : chat.participant?.name;
-
-  const arialabel = `${localizedChatName} ${countUnreadMessages > 1
-    ? intl.formatMessage(intlMessages.unreadPlural, { 0: countUnreadMessages })
-    : intl.formatMessage(intlMessages.unreadSingular)}`;
+  if (!chatMessageData) return null;
+  const lastMessage = chatMessageData[0]?.message;
+  const lastMessageTime = new Date(chatMessageData[0]?.createdAt);
 
   return (
     <Styled.ChatListItem
