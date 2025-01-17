@@ -348,7 +348,7 @@ const createEndpointTableData = [
               <code className="language-plaintext highlighter-rouge">deleteChatMessage</code> - <b>Delete a Chat Message (moderators or author)</b>
             </li>
             <li>
-              <code className="language-plaintext highlighter-rouge">editChatMessage</code> - <b>Edit a Chat Message (only owner)</b>
+              <code className="language-plaintext highlighter-rouge">editChatMessage</code> - <b>Edit a Chat Message (only author)</b>
             </li>
             <li>
               <code className="language-plaintext highlighter-rouge">replyChatMessage</code> - <b>Reply to a Chat Message</b>
