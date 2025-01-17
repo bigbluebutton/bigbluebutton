@@ -490,6 +490,12 @@ const createEndpointTableData = [
     "type": "Boolean",
     "default": "false",
     "description": (<> If passed as true, we allow moderators to promote guests to moderators even if the authenticatedGuest config is enabled. The defaultAllowPromoteGuestToModerator configuration sets this behaviour globally for all meetings if no api parameter is passed (added in BBB 2.7.9)</>)
+  },
+  {
+    "name": "pluginManifests",
+    "required": false,
+    "type": "JSON",
+    "description": (<> A list of the BigBlueButton client plugins you want included for the specific session (in addition to the list in `/etc/bigbluebutton/bbb-web.properties`) <code className="language-plaintext highlighter-rouge">pluginManifests=[{"url":"<your-domain>/path/to/manifest.json"}]</code> </>)
   }
 ]
 
