@@ -72,6 +72,7 @@ object MsgBuilder {
       meetingId = msg.meetingID,
       userId = msg.internalUserId,
       sessionToken = msg.sessionToken,
+      sessionName = msg.sessionName,
       replaceSessionToken = msg.replaceSessionToken,
       enforceLayout = msg.enforceLayout,
       userSessionMetadata = msg.userSessionMetadata.asScala.toMap
@@ -197,6 +198,16 @@ object MsgBuilder {
       code = msg.key, presentationId = msg.presId, presName = msg.filename,
       temporaryPresentationId = msg.temporaryPresentationId)
     val req = PresentationConversionUpdateSysPubMsg(header, body)
+    BbbCommonEnvCoreMsg(envelope, req)
+  }
+
+  def buildOfficeToPdfConversionFailedMsg(msg: OfficeToPdfConversionFailed): BbbCommonEnvCoreMsg = {
+    val routing = collection.immutable.HashMap("sender" -> "bbb-web")
+    val envelope = BbbCoreEnvelope(PresentationConversionFailedErrorSysPubMsg.NAME, routing)
+    val header = BbbClientMsgHeader(PresentationConversionFailedErrorSysPubMsg.NAME, msg.meetingId, "notUsed")
+    val body = PresentationConversionFailedErrorSysPubMsgBody(podId = msg.podId, messageKey = msg.messageKey,
+      presentationId = msg.presentationId, presName = msg.filename, meetingId = msg.meetingId, errorDetail = "OfficeToPdfConversionFailed")
+    val req = PresentationConversionFailedErrorSysPubMsg(header, body)
     BbbCommonEnvCoreMsg(envelope, req)
   }
 
@@ -355,8 +366,10 @@ object MsgBuilder {
     val envelope = BbbCoreEnvelope(PresentationUploadedFileTooLargeErrorSysPubMsg.NAME, routing)
     val header = BbbClientMsgHeader(PresentationUploadedFileTooLargeErrorSysPubMsg.NAME, msg.meetingId, msg.authzToken)
 
-    val body = PresentationUploadedFileTooLargeErrorSysPubMsgBody(podId = msg.podId, messageKey = msg.key,
-      code = msg.key, presentationName = msg.filename, presentationToken = msg.authzToken, fileSize = msg.uploadedFileSize.intValue(), maxFileSize = msg.maxUploadFileSize)
+    val body = PresentationUploadedFileTooLargeErrorSysPubMsgBody(
+      presentationId = msg.presentationId, podId = msg.podId, messageKey = msg.key,
+      code = msg.key, presentationName = msg.filename, presentationToken = msg.authzToken, fileSize = msg.uploadedFileSize.intValue(), maxFileSize = msg.maxUploadFileSize
+    )
 
     val req = PresentationUploadedFileTooLargeErrorSysPubMsg(header, body)
     BbbCommonEnvCoreMsg(envelope, req)

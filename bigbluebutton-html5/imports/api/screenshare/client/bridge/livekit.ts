@@ -75,9 +75,17 @@ export default class LiveKitScreenshareBridge {
     this.observeRoomEvents();
   }
 
+  private static isScreenSharePublication(publication: LocalTrackPublication | RemoteTrackPublication): boolean {
+    const { source } = publication;
+
+    return source === Track.Source.ScreenShare || source === Track.Source.ScreenShareAudio;
+  }
+
   private static isScreenShareTrack(track?: LocalTrack | RemoteTrack): boolean {
     if (!track) return false;
+
     const { source } = track;
+
     return source === Track.Source.ScreenShare || source === Track.Source.ScreenShareAudio;
   }
 
@@ -99,6 +107,10 @@ export default class LiveKitScreenshareBridge {
     return screenPublication || audioPublication;
   }
 
+  hasPublication(trackSid: string): boolean {
+    return this.screenPublications.has(trackSid) || this.audioPublications.has(trackSid);
+  }
+
   clearPublications(): void {
     this.screenPublications.clear();
     this.audioPublications.clear();
@@ -110,7 +122,13 @@ export default class LiveKitScreenshareBridge {
     const { source } = publication;
     const publications = this.getPublications(source);
 
-    if (publications) publications.set(publication.trackSid, publication);
+    if (publications) {
+      publications.set(publication.trackSid, publication);
+
+      if (publication.trackSid === this.streamId && this.role === RECV_ROLE) {
+        this.subscribe(publication as RemoteTrackPublication);
+      }
+    }
 
     return publication;
   }
@@ -154,19 +172,26 @@ export default class LiveKitScreenshareBridge {
     }, 'LiveKit: screen share published');
   }
 
-  private publicationEnded(): void {
+  private publicationEnded(publication: LocalTrackPublication | RemoteTrackPublication): void {
+    if (!LiveKitScreenshareBridge.isScreenSharePublication(publication)) return;
+
+    const { trackSid, source } = publication;
+
     if (this.role === SEND_ROLE) {
       logger.info({
         logCode: 'livekit_screenshare_unpublished',
         extraInfo: {
           bridgeName: BRIDGE_NAME,
           streamId: this.streamId,
+          trackSid,
           role: this.role,
         },
       }, 'LiveKit: screen share unpublished');
     }
 
-    screenShareEndAlert();
+    // We only want to alert the user once when the screen share ends, so
+    // only do it for the main screen share track (not the audio track)
+    if (source === Track.Source.ScreenShare) screenShareEndAlert();
   }
 
   private handleTrackPublished(publication: LocalTrackPublication | RemoteTrackPublication): void {
@@ -178,7 +203,7 @@ export default class LiveKitScreenshareBridge {
 
     this.removePublication(trackSid);
     this.removeSubscription(trackSid);
-    this.publicationEnded();
+    this.publicationEnded(publication);
   }
 
   private handleTrackSubscribed(
@@ -187,7 +212,7 @@ export default class LiveKitScreenshareBridge {
   ): void {
     if (!LiveKitScreenshareBridge.isScreenShareTrack(track)) return;
 
-    const { trackSid } = publication;
+    const { trackSid, source } = publication;
     this.setSubscription(trackSid, track, publication);
     if (trackSid === this.streamId) this.handleViewerStart(trackSid);
     logger.debug({
@@ -196,8 +221,10 @@ export default class LiveKitScreenshareBridge {
         bridgeName: this.bridgeName,
         streamId: trackSid,
         role: this.role,
+        source,
+        trackName: publication?.trackName,
       },
-    }, `LiveKit: screen share subscribed - ${trackSid}`);
+    }, `LiveKit: ${source} subscribed - ${trackSid}`);
   }
 
   private handleTrackUnsubscribed(
@@ -218,31 +245,36 @@ export default class LiveKitScreenshareBridge {
     }, `LiveKit: screen share unsubscribed - ${trackSid}`);
   }
 
-  private observeRoomEvents(): void {
+  private findInitialRemotePublications(): void {
     if (!this.liveKitRoom) return;
-    this.removeRoomObservers();
-    this.liveKitRoom.on(RoomEvent.TrackPublished, this.handleTrackPublished);
-    this.liveKitRoom.on(RoomEvent.TrackUnpublished, this.handleTrackUnpublished);
-    this.liveKitRoom.on(RoomEvent.TrackSubscribed, this.handleTrackSubscribed);
-    this.liveKitRoom.on(RoomEvent.TrackUnsubscribed, this.handleTrackUnsubscribed);
 
     this.liveKitRoom.remoteParticipants.forEach((participant) => {
       participant.trackPublications.forEach((publication) => {
         if (LiveKitScreenshareBridge.isScreenShareTrack(publication.track)) {
-          this.setPublication(publication);
-
-          if (publication.isSubscribed && publication.track) {
-            this.setSubscription(publication.trackSid, publication.track, publication);
-          }
+          this.handleTrackPublished(publication);
         }
       });
     });
   }
 
+  private observeRoomEvents(): void {
+    if (!this.liveKitRoom) return;
+
+    this.removeRoomObservers();
+    this.liveKitRoom.on(RoomEvent.TrackPublished, this.handleTrackPublished);
+    this.liveKitRoom.on(RoomEvent.TrackUnpublished, this.handleTrackUnpublished);
+    this.liveKitRoom.on(RoomEvent.LocalTrackUnpublished, this.handleTrackUnpublished);
+    this.liveKitRoom.on(RoomEvent.TrackSubscribed, this.handleTrackSubscribed);
+    this.liveKitRoom.on(RoomEvent.TrackUnsubscribed, this.handleTrackUnsubscribed);
+    this.findInitialRemotePublications();
+  }
+
   private removeRoomObservers(): void {
     if (!this.liveKitRoom) return;
+
     this.liveKitRoom.off(RoomEvent.TrackPublished, this.handleTrackPublished);
     this.liveKitRoom.off(RoomEvent.TrackUnpublished, this.handleTrackUnpublished);
+    this.liveKitRoom.off(RoomEvent.LocalTrackUnpublished, this.handleTrackUnpublished);
     this.liveKitRoom.off(RoomEvent.TrackSubscribed, this.handleTrackSubscribed);
     this.liveKitRoom.off(RoomEvent.TrackUnsubscribed, this.handleTrackUnsubscribed);
     this.clearPublications();
@@ -267,6 +299,41 @@ export default class LiveKitScreenshareBridge {
 
       this.liveKitRoom.once(RoomEvent.Connected, onRoomConnected);
     });
+  }
+
+  private unsubscribe(mainPublication: RemoteTrackPublication): void {
+    if (this.role === RECV_ROLE) {
+      // @ts-ignore
+      const withSelectiveSubscription = window.meetingClientSettings.public.media?.livekit?.selectiveSubscription
+        || false;
+      const { track } = mainPublication;
+      const mediaElement = document.getElementById(SCREENSHARE_VIDEO_TAG) as HTMLMediaElement;
+
+      if (track) track.detach(mediaElement);
+
+      if (withSelectiveSubscription) {
+        const audioPublications = Array.from(this.audioPublications.values()) as RemoteTrackPublication[];
+
+        if (audioPublications.length > 0) {
+          audioPublications.forEach((publication) => {
+            if (LiveKitScreenshareBridge.isScreenSharePublication(publication)) {
+              publication.setSubscribed(false);
+            }
+          });
+        }
+
+        mainPublication.setSubscribed(false);
+      }
+    }
+  }
+
+  private subscribe(publication: RemoteTrackPublication): void {
+    if (publication.isSubscribed) {
+      this.handleViewerStart(publication.trackSid);
+      return;
+    }
+
+    publication.setSubscribed(true);
   }
 
   // eslint-disable-next-line class-methods-use-this
@@ -354,7 +421,7 @@ export default class LiveKitScreenshareBridge {
     this.hasAudio = options.hasAudio || false;
 
     const handleInitError = (error: Error) => {
-      logger.error({
+      logger.warn({
         logCode: 'livekit_screenshare_init_error',
         extraInfo: {
           errorMessage: error.message,
@@ -368,19 +435,13 @@ export default class LiveKitScreenshareBridge {
 
     try {
       await this.waitForRoomConnection();
+      this.findInitialRemotePublications();
 
-      const publication = this.getPublication(streamId);
+      const publication = this.getPublication(this.streamId);
 
-      if (!publication || !(publication instanceof RemoteTrackPublication)) {
-        throw new Error('Publication not found');
-      }
+      if (!publication || !(publication instanceof RemoteTrackPublication)) throw new Error('Publication not found');
 
-      if (publication.isSubscribed) {
-        this.handleViewerStart(streamId);
-        return;
-      }
-
-      publication.setSubscribed(true);
+      this.subscribe(publication);
     } catch (error) {
       handleInitError(error as Error);
     }
@@ -426,7 +487,7 @@ export default class LiveKitScreenshareBridge {
           const publishOptions = {
             ...defaultPubOptions,
             source,
-            name: `${Auth.userID}-${contentType}`,
+            name: `${Auth.userID}-${contentType}-${track.kind}`,
           };
 
           return () => this.liveKitRoom.localParticipant.publishTrack(track, publishOptions);
@@ -448,7 +509,6 @@ export default class LiveKitScreenshareBridge {
     if (this.role === SEND_ROLE) {
       try {
         await this.liveKitRoom.localParticipant.setScreenShareEnabled(false);
-        this.publicationEnded();
       } catch (error) {
         logger.error({
           logCode: 'livekit_screenshare_exit_error',
@@ -461,6 +521,10 @@ export default class LiveKitScreenshareBridge {
           },
         }, 'Failed to exit screenshare');
       }
+    } else if (this.role === RECV_ROLE && this.streamId) {
+      const publication = this.getPublication(this.streamId) as RemoteTrackPublication;
+
+      if (publication) this.unsubscribe(publication);
     }
 
     if (mediaElement && typeof mediaElement.pause === 'function') {

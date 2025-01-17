@@ -8,6 +8,7 @@ import {
   useConnectionState,
 } from '@livekit/components-react';
 import {
+  ConnectionState,
   type Room,
   type RoomConnectOptions,
 } from 'livekit-client';
@@ -22,26 +23,41 @@ import {
 } from '/imports/ui/services/livekit';
 import { USER_SET_TALKING } from '/imports/ui/components/livekit/mutations';
 import { useIceServers } from '/imports/ui/components/livekit/hooks';
+import LKAutoplayModalContainer from '/imports/ui/components/livekit/autoplay-modal/container';
 
 interface BBBLiveKitRoomProps {
   url?: string;
   token?: string;
   bbbSessionToken: string;
+  usingAudio: boolean;
+  usingScreenShare: boolean;
 }
 
 interface ObserverProps {
   room: Room;
   url?: string;
+  usingAudio: boolean;
 }
 
-const LiveKitObserver = ({ room, url }: ObserverProps) => {
+const LiveKitObserver = ({
+  room,
+  url,
+  usingAudio,
+}: ObserverProps) => {
   const { localParticipant } = useLocalParticipant();
   const [setUserTalking] = useMutation(USER_SET_TALKING);
   const isSpeaking = useIsSpeaking(localParticipant);
   const connectionState = useConnectionState(room);
+  const { data: currentUserData } = useCurrentUser((u) => ({
+    voice: {
+      joined: u.voice?.joined ?? false,
+    },
+  }));
   /* eslint no-underscore-dangle: 0 */
   // @ts-ignore
   const isMuted = useReactiveVar(AudioManager._isMuted.value) as boolean;
+  // @ts-ignore
+  const isAudioManagerConnected = useReactiveVar(AudioManager._isConnected.value) as boolean;
 
   useEffect(() => {
     logger.debug({
@@ -54,6 +70,8 @@ const LiveKitObserver = ({ room, url }: ObserverProps) => {
   }, [connectionState]);
 
   useEffect(() => {
+    if (!usingAudio) return;
+
     setUserTalking({
       variables: {
         talking: isSpeaking,
@@ -61,15 +79,31 @@ const LiveKitObserver = ({ room, url }: ObserverProps) => {
     });
   }, [isSpeaking, isMuted]);
 
+  useEffect(() => {
+    if (!usingAudio) return;
+
+    // If the user is connected to LiveKit and server-side audio state is present,
+    // but audio-manager is not connected, run the onAudioJoin callback to mark
+    // it as connected. Reasoning: there's no option not to connect to audio
+    // with LiveKit, so this ensures the client-side audio state is in sync with
+    // this automatic behavior.
+    if (!isAudioManagerConnected
+      && connectionState === ConnectionState.Connected
+      && currentUserData?.voice?.joined) {
+      AudioManager.onAudioJoin();
+    }
+  }, [isAudioManagerConnected, currentUserData, connectionState]);
+
   return null;
 };
 
-const BBBLiveKitRoom: React.FC<BBBLiveKitRoomProps> = (props) => {
-  const {
-    url,
-    token,
-    bbbSessionToken,
-  } = props;
+const BBBLiveKitRoom: React.FC<BBBLiveKitRoomProps> = ({
+  url,
+  token,
+  bbbSessionToken,
+  usingAudio,
+  usingScreenShare,
+}) => {
   const {
     iceServers,
     isLoading: iceServersLoading,
@@ -111,6 +145,9 @@ const BBBLiveKitRoom: React.FC<BBBLiveKitRoomProps> = (props) => {
     });
   }, [url]);
 
+  // Screen share requires audio playback as well (Chrome supports it)
+  const withAudioPlayback = usingAudio || usingScreenShare;
+
   return (
     <LiveKitRoom
       video={false}
@@ -121,8 +158,9 @@ const BBBLiveKitRoom: React.FC<BBBLiveKitRoomProps> = (props) => {
       room={liveKitRoom}
       style={{ zIndex: 0, height: 'initial', width: 'initial' }}
     >
-      <LiveKitObserver room={liveKitRoom} url={url} />
-      <RoomAudioRenderer />
+      <LiveKitObserver room={liveKitRoom} url={url} usingAudio={usingAudio} />
+      {withAudioPlayback && <LKAutoplayModalContainer />}
+      {withAudioPlayback && <RoomAudioRenderer />}
     </LiveKitRoom>
   );
 };
@@ -150,6 +188,8 @@ const BBBLiveKitRoomContainer: React.FC = () => {
       token={currentUserData?.livekit?.livekitToken}
       url={url}
       bbbSessionToken={Auth.sessionToken as string}
+      usingAudio={bridges?.audioBridge === 'livekit'}
+      usingScreenShare={bridges?.screenShareBridge === 'livekit'}
     />
   );
 };

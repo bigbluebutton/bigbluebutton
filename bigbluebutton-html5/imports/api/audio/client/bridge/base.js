@@ -47,7 +47,10 @@ export default class BaseAudioBridge {
     console.error('The Bridge must implement changeInputDevice');
   }
 
-  setInputStream(inputStream, deviceId = null) {
+  setInputStream(inputStream, {
+    deviceId = null,
+    force = false,
+  } = {}) {
     console.error('The Bridge must implement setInputStream');
   }
 
@@ -120,7 +123,7 @@ export default class BaseAudioBridge {
       }
 
       newStream = await doGUM(constraints);
-      await this.setInputStream(newStream, deviceId);
+      await this.setInputStream(newStream, { deviceId });
       if (backupStream && backupStream.active) {
         backupStream.getAudioTracks().forEach((track) => track.stop());
         backupStream = null;

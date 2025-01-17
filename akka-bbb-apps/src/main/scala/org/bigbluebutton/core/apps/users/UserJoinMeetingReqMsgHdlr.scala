@@ -53,9 +53,10 @@ trait UserJoinMeetingReqMsgHdlr extends HandlerHelpers {
     notifyPreviousUsersWithSameExtId(regUser)
     clearCachedVoiceUser(regUser)
     clearExpiredUserState(regUser)
-    forceUserGraphqlReconnection(regUser)
-    updateGraphqlDatabase(regUser)
-    generateLivekitToken(regUser, liveMeeting)
+    val newRegUser = RegisteredUsers.updateUserJoin(liveMeeting.registeredUsers, regUser, joined = true)
+    forceUserGraphqlReconnection(newRegUser)
+    updateGraphqlDatabase(newRegUser)
+    generateLivekitToken(newRegUser, liveMeeting)
 
     newState
   }
@@ -184,9 +185,7 @@ trait UserJoinMeetingReqMsgHdlr extends HandlerHelpers {
   }
 
   private def updateGraphqlDatabase(regUser: RegisteredUser) = {
-    if (!regUser.joined) {
-      RegisteredUsers.updateUserJoin(liveMeeting.registeredUsers, regUser, joined = true)
-    }
+      UserDAO.update(regUser)
   }
 
 }

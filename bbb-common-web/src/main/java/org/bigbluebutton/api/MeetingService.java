@@ -154,12 +154,14 @@ public class MeetingService implements MessageListener {
           String meetingID,
           String internalUserId,
           String sessionToken,
+          String sessionName,
           String replaceSessionToken,
           String enforceLayout,
           Map<String, String> userSessionMetadata
   ) {
     handle(
-            new RegisterUserSessionToken(meetingID, internalUserId, sessionToken, replaceSessionToken, enforceLayout, userSessionMetadata)
+            new RegisterUserSessionToken(meetingID, internalUserId, sessionToken, sessionName,
+                    replaceSessionToken, enforceLayout, userSessionMetadata)
     );
   }
 
@@ -605,7 +607,7 @@ public class MeetingService implements MessageListener {
   }
 
   private void processRegisterUserSessionToken(RegisterUserSessionToken message) {
-    gw.registerUserSessionToken(message.meetingID, message.internalUserId, message.sessionToken,
+    gw.registerUserSessionToken(message.meetingID, message.internalUserId, message.sessionToken, message.sessionName,
             message.replaceSessionToken, message.enforceLayout, message.userSessionMetadata);
   }
 
@@ -822,6 +824,9 @@ public class MeetingService implements MessageListener {
       params.put(ApiParams.DURATION, message.durationInMinutes.toString());
       params.put(ApiParams.RECORD, message.record.toString());
       params.put(ApiParams.WELCOME, getMeeting(message.parentMeetingId).getWelcomeMessageTemplate());
+      params.put(ApiParams.AUDIO_BRIDGE, message.audioBridge);
+      params.put(ApiParams.CAMERA_BRIDGE, message.cameraBridge);
+      params.put(ApiParams.SCREEN_SHARE_BRIDGE, message.screenShareBridge);
       params.put(ApiParams.NOTIFY_RECORDING_IS_ON,parentMeeting.getNotifyRecordingIsOn().toString());
 
       Map<String, String> parentMeetingMetadata = parentMeeting.getMetadata();
