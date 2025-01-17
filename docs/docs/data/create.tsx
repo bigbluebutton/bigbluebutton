@@ -321,10 +321,10 @@ const createEndpointTableData = [
     "description": (<>Pass a URL to an image which will then be visible in the area above the participants list if <code>displayBrandingArea</code> is set to <code>true</code> in bbb-html5's configuration</>)
   },
   {
-    name: "disabledFeatures",
-    required: false,
-    type: "String",
-    description: (
+    "name": "disabledFeatures",
+    "required": false,
+    "type": "String",
+    "description": (
         <>
           List (comma-separated) of features to disable in a particular meeting. (added 2.5)
           <br />
@@ -418,29 +418,16 @@ const createEndpointTableData = [
             </li>
           </ul>
         </>
-),
-},
-{
-"name"
-:
-"disabledFeaturesExclude",
-    "required"
-:
-false,
-    "type"
-:
-"String",
-    "description"
-:
-(<>List (comma-separated) of features to no longer disable in a particular meeting. This is particularly useful if you
-  disabled a list of features on a per-server basis but want to allow one of two of these features for a specific
-  meeting. (added 2.6.9)<br/><br/>The available options to exclude are exactly the same as for <code
-      className="language-plaintext highlighter-rouge">disabledFeatures</code></>)
-},
-{
-"name"
-:
-"preUploadedPresentationOverrideDefault",
+    ),
+  },
+  {
+    "name":"disabledFeaturesExclude",
+    "required":false,
+    "type":"String",
+    "description": (<>List (comma-separated) of features to no longer disable in a particular meeting. This is particularly useful if you disabled a list of features on a per-server basis but want to allow one of two of these features for a specific meeting. (added 2.6.9)<br/><br/>The available options to exclude are exactly the same as for <code className="language-plaintext highlighter-rouge">disabledFeatures</code></>)
+  },
+  {
+    "name":"preUploadedPresentationOverrideDefault",
     "required": false,
     "type": "Boolean",
     "default": "true",
