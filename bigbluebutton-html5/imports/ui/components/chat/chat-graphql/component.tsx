@@ -20,7 +20,6 @@ import {
   colorWhite,
   colorOffWhite,
   colorGrayLight,
-  btnPrimaryBorder,
   colorDanger,
   btnPrimaryBg,
 } from '/imports/ui/stylesheets/styled-components/palette';
@@ -142,7 +141,7 @@ const Chat: React.FC<ChatProps> = ({
               textTransform: 'none',
               backgroundColor: showMessages ? btnPrimaryBg : colorOffWhite,
               color: showMessages ? colorWhite : colorGrayLight,
-              borderColor: showMessages ? 'transparent' : btnPrimaryBorder,
+              border: `1px solid ${btnPrimaryBg}`,
             }}
             onClick={() => handleClickSelectChat(true)}
           >
@@ -173,7 +172,7 @@ const Chat: React.FC<ChatProps> = ({
               textTransform: 'none',
               backgroundColor: !showMessages ? btnPrimaryBg : colorOffWhite,
               color: !showMessages ? colorWhite : colorGrayLight,
-              borderColor: !showMessages ? 'transparent' : btnPrimaryBorder,
+              border: `1px solid ${btnPrimaryBg}`,
             }}
             onClick={() => handleClickSelectChat(false)}
           >
