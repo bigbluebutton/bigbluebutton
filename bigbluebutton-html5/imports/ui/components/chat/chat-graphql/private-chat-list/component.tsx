@@ -63,7 +63,7 @@ const PrivateChatList: React.FC<ChatListProps> = ({ chats }) => {
 
 const PrivateChatListContainer: React.FC = () => {
   const { data } = useChat((chat) => chat) as GraphqlDataHookSubscriptionResponse<Chat[]>;
-  const chats = (data || []).filter((chat) => !chat.public);
+  const chats = (data || []).filter((chat) => !chat.public && chat.totalMessages !== 0);
 
   return (
     <PrivateChatList chats={chats} />
