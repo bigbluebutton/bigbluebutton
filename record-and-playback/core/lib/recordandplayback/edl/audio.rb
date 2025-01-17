@@ -100,7 +100,6 @@ module BigBlueButton
           edl.each do |event|
             if event[:audios]
               event[:audios].reject! { |a| corrupt_audios.include?(a[:filename]) }
-              event[:audios] = nil if event[:audios].empty?
             end
           end
           dump(edl)
@@ -206,9 +205,7 @@ module BigBlueButton
         ffmpeg_cmd = [*FFMPEG]
         ffmpeg_inputs.each do |input|
           # Seek
-          if input[:seek].positive?
-            ffmpeg_cmd += ['-ss', ms_to_s(input[:seek])]
-          end
+          ffmpeg_cmd += ['-ss', ms_to_s(input[:seek])]
           # Ensure that the entire contents of freeswitch wav files are read
           info = audioinfo[input[:filename]]
           if info && info[:format][:format_name] == 'wav'

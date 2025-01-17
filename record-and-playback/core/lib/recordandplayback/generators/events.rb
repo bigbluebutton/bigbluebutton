@@ -530,9 +530,8 @@ module BigBlueButton
 
     def self.edl_entry_offset_audio
       return Proc.new do |edl_entry, offset|
-        new_entry = { audios: nil }
+        new_entry = { audios: [] }
         if edl_entry[:audios]
-          new_entry[:audios] = []
           edl_entry[:audios].each do |audio|
             new_entry[:audios] << {
               filename: audio[:filename],

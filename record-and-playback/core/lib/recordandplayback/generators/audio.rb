@@ -40,7 +40,7 @@ module BigBlueButton
       # Initially start with silence
       audio_edl << {
         :timestamp => 0,
-        :audios => nil
+        :audios => []
       }
 
       # Add events for recording start/stop
@@ -57,11 +57,11 @@ module BigBlueButton
         when 'StopRecordingEvent'
           filename = event.at_xpath('filename').text
           filename = "#{audio_dir}/#{File.basename(filename)}"
-          if audio_edl.last[:audios] && audio_edl.last[:audios][0][:filename] == filename
+          if audio_edl.last.dig(:audios, 0, :filename) == filename
             audio_edl.last[:original_duration] = timestamp - audio_edl.last[:timestamp]
             audio_edl << {
               :timestamp => timestamp,
-              :audios => nil
+              :audios => []
             }
           end
         when 'AudioTrackPublishedEvent'
@@ -100,7 +100,7 @@ module BigBlueButton
 
       audio_edl << {
         :timestamp => final_timestamp - initial_timestamp,
-        :audios => nil
+        :audios => []
       }
 
       return audio_edl
@@ -116,7 +116,7 @@ module BigBlueButton
       # Initially start with silence
       audio_edl << {
         :timestamp => 0,
-        :audios => nil
+        :audios => []
       }
 
       events.xpath('/recording/event[@module="bbb-webrtc-sfu" and (@eventname="StartWebRTCDesktopShareEvent" or @eventname="StopWebRTCDesktopShareEvent")]').each do |event|
@@ -140,7 +140,7 @@ module BigBlueButton
               :audios => [{ :filename => filename, :timestamp => 0 }]
             }
           when 'StopWebRTCDesktopShareEvent'
-            if audio_edl.last[:audios] && audio_edl.last[:audios][0][:filename] == filename
+            if audio_edl.last.dig(:audios, 0, :filename) == filename
               # Fill in the original/expected audo duration when available
               duration = event.at_xpath('duration')
               if !duration.nil?
@@ -151,7 +151,7 @@ module BigBlueButton
               end
               audio_edl << {
                 :timestamp => timestamp,
-                :audios => nil
+                :audios => []
               }
             end
           end
@@ -162,7 +162,7 @@ module BigBlueButton
 
       audio_edl << {
         :timestamp => final_timestamp - initial_timestamp,
-        :audios => nil
+        :audios => []
       }
 
       return audio_edl
