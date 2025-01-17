@@ -326,7 +326,7 @@ const createEndpointTableData = [
     "type": "String",
     "description": (
         <>
-          List (comma-separated) of features to disable in a particular meeting. (added 2.5)
+          List (comma-separated) of features to disable in a particular meeting.
           <br />
           <br />
           Available options to disable:
