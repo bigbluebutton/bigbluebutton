@@ -290,6 +290,7 @@ function handleFiledrop(files, files2, that, intl, intlMessages) {
     that.setState(({ presentations }) => ({
       presentations: presentations.concat(presentationsToUpload),
       toUploadCount: (toUploadCount + presentationsToUpload.length),
+      shouldDisableExportButtonForAllDocuments: true,
     }), () => {
       // after the state is set (files have been dropped),
       // make the first of the new presentations current

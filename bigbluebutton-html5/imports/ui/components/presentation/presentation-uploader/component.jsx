@@ -302,6 +302,7 @@ class PresentationUploader extends Component {
       presentations: [],
       disableActions: false,
       presExporting: new Set(),
+      shouldDisableExportButtonForAllDocuments: false,
     };
 
     this.hasError = null;
@@ -437,8 +438,12 @@ class PresentationUploader extends Component {
     });
 
     if (shouldUpdateState) {
+      const shouldDisableExportButtonForAllDocuments = presStateFiltered.some(
+        (p) => (!p.uploadCompleted && !p.uploadErrorDetailsJson),
+      );
       this.setState({
-        presentations: unique(presStateFiltered, p => p.presentationId)
+        presentations: unique(presStateFiltered, (p) => p.presentationId),
+        shouldDisableExportButtonForAllDocuments,
       });
     }
 
@@ -503,8 +508,9 @@ class PresentationUploader extends Component {
     if (withErr) {
       const { presentations } = this.state;
       const { presentations: propPresentations } = this.props;
-    
-      const filteredPropPresentations = propPresentations.filter(d => d.uploadCompleted && !d.uploadInProgress);
+      const filteredPropPresentations = propPresentations.filter(
+        (d) => d.uploadCompleted && !d.uploadInProgress,
+      );
       const ids = new Set(filteredPropPresentations.map((d) => d.presentationId));
       const filteredPresentations = presentations.filter(
         (d) => !ids.has(d.presentationId)
@@ -685,8 +691,14 @@ class PresentationUploader extends Component {
   handleDismiss() {
     const { presentations: propPresentations } = this.props;
 
+    const shouldDisableExportButtonForAllDocuments = propPresentations.some(
+      (p) => !p.uploadCompleted,
+    );
     this.setState(
-      { presentations: JSON.parse(JSON.stringify(propPresentations)) },
+      {
+        presentations: JSON.parse(JSON.stringify(propPresentations)),
+        shouldDisableExportButtonForAllDocuments,
+      },
       Session.setItem('showUploadPresentationView', false),
     );
   }
@@ -821,7 +833,7 @@ class PresentationUploader extends Component {
   }
 
   renderPresentationItem(item) {
-    const { disableActions } = this.state;
+    const { disableActions, shouldDisableExportButtonForAllDocuments } = this.state;
     const {
       intl,
       selectedToBeNextCurrent,
@@ -860,6 +872,9 @@ class PresentationUploader extends Component {
       : intl.formatMessage(intlMessages.export);
 
     const formattedDownloadAriaLabel = `${formattedDownloadLabel} ${item.name}`;
+
+    const disableExportDropdown = shouldDisableExportButtonForAllDocuments
+    || shouldDisableExportButton;
 
     return (
       <Styled.PresentationItem
@@ -904,7 +919,7 @@ class PresentationUploader extends Component {
           <Styled.TableItemActions notDownloadable={!allowDownloadOriginal}>
             {allowDownloadOriginal || allowDownloadWithAnnotations || allowDownloadConverted ? (
               <PresentationDownloadDropdown
-                disabled={shouldDisableExportButton}
+                disabled={disableExportDropdown}
                 data-test="exportPresentation"
                 aria-label={formattedDownloadAriaLabel}
                 color="primary"

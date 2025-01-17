@@ -80,6 +80,8 @@ class BBBMenu extends React.Component {
   };
 
   handleClick(event) {
+    const { disabled } = this.props;
+    if (disabled) return;
     this.setState({ anchorEl: event.currentTarget });
   };
 

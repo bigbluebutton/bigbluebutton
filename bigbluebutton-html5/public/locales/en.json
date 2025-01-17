@@ -337,6 +337,7 @@
     "app.presentationUploader.disableOriginalPresentationDownload": "Disable download of the original presentation ({0})",
     "app.presentationUploader.export.withWhiteboardAnnotations": "with whiteboard annotations",
     "app.presentationUploader.dropdownExportOptions": "Export options",
+    "app.presentationUploader.dropdownExportOptionsUncomplete": "Disabled until upload is complete",
     "app.presentationUploader.export.linkAvailable": "Link for downloading {0} available on the public chat.",
     "app.presentationUploader.export.downloadButtonAvailable": "Download button for presentation {0} is available.",
     "app.presentationUploader.currentPresentationLabel": "Current presentation",
