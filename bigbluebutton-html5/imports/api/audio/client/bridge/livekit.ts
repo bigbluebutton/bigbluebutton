@@ -65,7 +65,7 @@ export default class LiveKitAudioBridge extends BaseAudioBridge {
     // eslint-disable-next-line no-underscore-dangle
     this._inputDeviceId = null;
 
-    this.publicationEnded = this.publicationEnded.bind(this);
+    this.audioEnded = this.audioEnded.bind(this);
     this.handleTrackSubscribed = this.handleTrackSubscribed.bind(this);
     this.handleTrackUnsubscribed = this.handleTrackUnsubscribed.bind(this);
     this.handleTrackSubscriptionFailed = this.handleTrackSubscriptionFailed.bind(this);
@@ -91,7 +91,7 @@ export default class LiveKitAudioBridge extends BaseAudioBridge {
     const micTrackPublications = this.getLocalMicTrackPubs();
     const publication = micTrackPublications[0];
 
-    return publication?.track?.mediaStream || null;
+    return this.originalStream || publication?.track?.mediaStream || null;
   }
 
   private getLocalMicTrackPubs(): LocalTrackPublication[] {
@@ -100,15 +100,19 @@ export default class LiveKitAudioBridge extends BaseAudioBridge {
     ).filter((publication) => publication.source === Track.Source.Microphone);
   }
 
-  private async publicationStarted(): Promise<void> {
+  private async audioStarted(): Promise<void> {
     this.callback({
       status: this.baseCallStates.started,
       bridge: this.bridgeName,
     });
   }
 
-  private publicationEnded(): void {
+  private audioEnded(): void {
     this.callback({ status: this.baseCallStates.ended, bridge: this.bridgeName });
+  }
+
+  private audioPublished(): void {
+    this.callback({ status: this.baseCallStates.audioPublished, bridge: this.bridgeName });
   }
 
   private static isMicrophonePublication(publication: TrackPublication): boolean {
@@ -451,8 +455,7 @@ export default class LiveKitAudioBridge extends BaseAudioBridge {
       if (this.hasMicrophoneTrack()) await this.unpublish();
 
       if (inputStream) {
-        this.originalStream = inputStream;
-        const cloneStream = this.originalStream.clone();
+        const cloneStream = inputStream.clone();
         // Get tracks from the stream and publish them. Map into an array of
         // Promise objects and wait for all of them to resolve.
         const trackPublishers = cloneStream.getTracks()
@@ -468,6 +471,8 @@ export default class LiveKitAudioBridge extends BaseAudioBridge {
         );
         this.originalStream = this.inputStream;
       }
+
+      this.audioPublished();
     } catch (error) {
       logger.error({
         logCode: 'livekit_audio_publish_error',
@@ -543,10 +548,11 @@ export default class LiveKitAudioBridge extends BaseAudioBridge {
 
     try {
       await this.waitForRoomConnection();
+      this.originalStream = inputStream;
 
       if (!muted) await this.publish(inputStream);
 
-      this.publicationStarted();
+      this.audioStarted();
     } catch (error) {
       logger.error({
         logCode: 'livekit_audio_init_error',
@@ -616,6 +622,6 @@ export default class LiveKitAudioBridge extends BaseAudioBridge {
         }, 'LiveKit: exit audio failed');
         return false;
       })
-      .finally(this.publicationEnded);
+      .finally(this.audioEnded);
   }
 }
