@@ -23,21 +23,21 @@ const PrivateChatListHeader: React.FC<PrivateChatListHeaderProps> = ({
   const intl = useIntl();
 
   return (
-      <Styled.ChatHeaderText>
-        <Styled.ChatUserName currentlyInMeeting={currentlyInMeeting}>
-          {name}
-        </Styled.ChatUserName>
-        {
-          currentlyInMeeting ? null : (
-            <Styled.ChatUserOffline>
-              {`(${intl.formatMessage(intlMessages.offline)})`}
-            </Styled.ChatUserOffline>
-          )
-        }
-        <Styled.ChatTime>
-          <FormattedTime value={dateTime} hour12={false} />
-        </Styled.ChatTime>
-      </Styled.ChatHeaderText>
+    <Styled.ChatHeaderText>
+      <Styled.ChatUserName currentlyInMeeting={currentlyInMeeting}>
+        {name}
+      </Styled.ChatUserName>
+      {
+        currentlyInMeeting ? null : (
+          <Styled.ChatUserOffline>
+            {`(${intl.formatMessage(intlMessages.offline)})`}
+          </Styled.ChatUserOffline>
+        )
+      }
+      <Styled.ChatTime>
+        <FormattedTime value={dateTime} hour12={false} />
+      </Styled.ChatTime>
+    </Styled.ChatHeaderText>
   );
 };
 

@@ -1,7 +1,5 @@
 import styled from 'styled-components';
 import {
-  colorBlueLight,
-  colorText,
   colorGrayLighter,
 } from '/imports/ui/stylesheets/styled-components/palette';
 
@@ -26,7 +24,6 @@ const ArrowWrapper = styled.div`
   padding: 8px;
   cursor: pointer;
 `;
-
 
 const InputWrapper = styled.div`
   display: flex; 

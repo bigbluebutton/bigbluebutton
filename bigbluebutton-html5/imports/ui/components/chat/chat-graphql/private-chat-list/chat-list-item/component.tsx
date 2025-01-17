@@ -5,7 +5,7 @@ import { layoutSelect, layoutSelectInput, layoutDispatch } from '/imports/ui/com
 import { ACTIONS, PANELS } from '/imports/ui/components/layout/enums';
 import { defineMessages, useIntl } from 'react-intl';
 import Styled from './styles';
-import PrivateChatListHeader from '/imports/ui/components/chat/chat-graphql/user-messages/chat-list/private-chats-header/component';
+import PrivateChatListHeader from '../private-chats-header/component';
 import { Input, Layout } from '/imports/ui/components/layout/layoutTypes';
 import { useShortcut } from '/imports/ui/core/hooks/useShortcut';
 import { Chat } from '/imports/ui/Types/chat';
@@ -64,14 +64,17 @@ const PrivateChatListItem = (props: PrivateChatListItemProps) => {
   const PUBLIC_GROUP_CHAT_ID = CHAT_CONFIG.public_group_id;
 
   const chatQuery = CHAT_MESSAGE_PRIVATE_SUBSCRIPTION;
-  const defaultVariables = { offset: chat.totalMessages-1, limit: 1 }; //to get only the last message from private chat
+  const defaultVariables = {
+    offset: chat.totalMessages - 1,
+    limit: 1,
+  }; // to get only the last message from private chat
   const variables = { ...defaultVariables, requestedChatId: chat.chatId };
   const useChatMessageSubscription = useCreateUseSubscription<Message>(chatQuery, variables);
   const {
     data: chatMessageData,
   } = useChatMessageSubscription((msg) => msg) as GraphqlDataHookSubscriptionResponse<Message[]>;
-  const lastMessage = !chatMessageData ? 'erro':  chatMessageData[0]?.message;
-  const lastMessageTime = !chatMessageData ? 'erro':  chatMessageData[0]?.createdAt;
+  const lastMessage = !chatMessageData ? 'erro' : chatMessageData[0]?.message;
+  const lastMessageTime = !chatMessageData ? 'erro' : chatMessageData[0]?.createdAt;
 
   const isPublicGroupChat = (chat: Chat) => chat.chatId === PUBLIC_GROUP_CHAT_ID;
   
@@ -85,24 +88,23 @@ const PrivateChatListItem = (props: PrivateChatListItemProps) => {
   }, [idChatOpen, sidebarContentIsOpen, sidebarContentPanel, chat]);
 
   const handleClickToggleChat = () => {
-
-      if (idChatOpen === chat.chatId) {
+    if (idChatOpen === chat.chatId) {
+      layoutContextDispatch({
+        type: ACTIONS.SET_ID_CHAT_OPEN,
+        value: '',
+      });
+    } else {
+      layoutContextDispatch({
+        type: ACTIONS.SET_ID_CHAT_OPEN,
+        value: '',
+      });
+      setTimeout(() => {
         layoutContextDispatch({
           type: ACTIONS.SET_ID_CHAT_OPEN,
-          value: '',
+          value: chat.chatId,
         });
-      } else {
-        layoutContextDispatch({
-          type: ACTIONS.SET_ID_CHAT_OPEN,
-          value: '',
-        });
-        setTimeout(() => {
-          layoutContextDispatch({
-            type: ACTIONS.SET_ID_CHAT_OPEN,
-            value: chat.chatId,
-          });
-        }, 0);
-      }
+      }, 0);
+    }
   };
 
   const localizedChatName = isPublicGroupChat(chat)
@@ -113,8 +115,8 @@ const PrivateChatListItem = (props: PrivateChatListItemProps) => {
     ? intl.formatMessage(intlMessages.unreadPlural, { 0: countUnreadMessages })
     : intl.formatMessage(intlMessages.unreadSingular)}`;
 
-    return (
-      <Styled.ChatListItem
+  return (
+    <Styled.ChatListItem
       data-test="chatButton"
       role="button"
       aria-expanded={isCurrentChat}
@@ -156,17 +158,17 @@ const PrivateChatListItem = (props: PrivateChatListItemProps) => {
               {lastMessage}
             </Styled.MessageItemWrapper>
             {countUnreadMessages > 0 ? (
-            <Styled.UnreadMessages data-test="unreadMessages">
-              <Styled.UnreadMessagesText aria-hidden="true">
-                {countUnreadMessages}
-              </Styled.UnreadMessagesText>
-            </Styled.UnreadMessages>
+              <Styled.UnreadMessages data-test="unreadMessages">
+                <Styled.UnreadMessagesText aria-hidden="true">
+                  {countUnreadMessages}
+                </Styled.UnreadMessagesText>
+              </Styled.UnreadMessages>
             ) : null}
           </Styled.ChatContent>
         </Styled.ChatWrapper>
       </Styled.ChatListItemLink>
     </Styled.ChatListItem>
-    );
+  );
 };
 
 export default PrivateChatListItem;

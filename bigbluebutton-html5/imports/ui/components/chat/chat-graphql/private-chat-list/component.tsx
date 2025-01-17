@@ -1,7 +1,7 @@
 import React from 'react';
 import { TransitionGroup, CSSTransition } from 'react-transition-group';
 import Styled from './styles';
-import PrivateChatListItem from '/imports/ui/components/chat/chat-graphql/user-messages/chat-list/chat-list-item/component';
+import PrivateChatListItem from './chat-list-item/component';
 import useChat from '/imports/ui/core/hooks/useChat';
 import { Chat } from '/imports/ui/Types/chat';
 import Service from '/imports/ui/components/user-list/service';
@@ -54,9 +54,9 @@ const PrivateChatList: React.FC<ChatListProps> = ({ chats }) => {
       ref={messageListRef}
       onKeyDown={rove}
     >
-        <TransitionGroup>
-          {getActiveChats(chats, chatNodeRef)}
-        </TransitionGroup>
+      <TransitionGroup>
+        {getActiveChats(chats, chatNodeRef)}
+      </TransitionGroup>
     </Styled.ScrollableList>
   );
 };
