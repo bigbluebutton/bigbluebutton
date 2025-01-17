@@ -9,7 +9,7 @@ const deepEqual = require('deep-equal');
 // might result in loss of connection with github server, causing the test to fail
 
 test.describe.parallel('Connection failure', () => {
-  // https://docs.bigbluebutton.org/2.6/release-tests.html#sharing-screen-in-full-screen-mode-automated
+  // https://docs.bigbluebutton.org/3.0/testing/release-testing/#sharing-screen-in-full-screen-mode-automated
   test('Screen share', async ({ browser, browserName, page }) => {
     await checkRootPermission(); // check sudo permission before starting test
     test.skip(browserName === 'firefox',

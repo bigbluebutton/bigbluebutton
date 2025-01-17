@@ -34,11 +34,11 @@ class CreateParameters extends MultiUsers {
     await this.modPage.hasElement(e.whiteboard, 'should display the whiteboard for the first moderator');
     await this.modPage2.hasElement(e.whiteboard, 'should display the whiteboard for the second moderator');
 
-    await this.initUserPage(false, context);
+    await this.initUserPage(false, context, { shouldAvoidLayoutCheck: true });
     await this.userPage.hasElement('p[class="error-message"]', 'should display the error message for the attendee, the number of max participants should not be passed')
   }
 
-  async duration(context) {
+  async duration() {
     await this.modPage.hasElement(e.whiteboard, 'should display the whiteboard for the moderator');
     await this.modPage.hasText(e.timeRemaining, /[1-2]:[0-5][0-9]/, 'should display the time remaining of the meeting decreasing');
   }
@@ -76,9 +76,7 @@ class CreateParameters extends MultiUsers {
     await this.initUserPage(false, context);
     await this.userPage.waitAndClick(e.microphoneButton);
     await this.userPage.waitAndClick(e.joinEchoTestButton);
-    await this.userPage.waitAndClick(e.muteMicButton);
     await this.userPage.hasElement(e.unmuteMicButton, 'should display the unmute microphone button for the attendee');
-
     await this.modPage.waitAndClick(e.userListItem);
     await this.modPage.waitAndClick(e.unmuteUser);
     await this.userPage.hasElement(e.muteMicButton, 'should display the mute microphone button for the attendee');
@@ -91,7 +89,8 @@ class CreateParameters extends MultiUsers {
 
   async lockSettingsDisableMic() {
     await this.modPage.hasElement(e.whiteboard, 'should display the whiteboard for the moderator');
-    await this.userPage.hasElement(e.leaveListenOnly, 'should display the leave listen only', ELEMENT_WAIT_LONGER_TIME);
+    const unmuteMicButton = this.userPage.getLocator(e.unmuteMicButton);
+    await expect(unmuteMicButton, 'should the unmute button be disabled when microphone is locked').toBeDisabled();
   }
 
   async lockSettingsDisablePublicChat() {
@@ -101,7 +100,7 @@ class CreateParameters extends MultiUsers {
 
   async lockSettingsHideUserList() {
     await this.modPage.hasElement(e.whiteboard, 'should display the whiteboard for the moderator');
-    await this.modPage.checkElementCount(e.userListItem, 2, 'should display the two attendess for the moderator');
+    await this.modPage.checkElementCount(e.userListItem, 2, 'should display the two attendees for the moderator');
     await this.userPage.checkElementCount(e.userListItem, 1, 'should display one user(the moderator) for the first attendee');
     await this.userPage2.checkElementCount(e.userListItem, 1, 'should display one user(the moderator) for the second attendee');
   }

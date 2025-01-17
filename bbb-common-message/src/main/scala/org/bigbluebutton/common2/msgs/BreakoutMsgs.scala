@@ -59,6 +59,9 @@ case class BreakoutRoomDetail(
     captureNotesFilename:    String,
     captureSlidesFilename:   String,
     pluginProp:              util.Map[String, AnyRef],
+    audioBridge:             String,
+    cameraBridge:            String,
+    screenShareBridge:       String,
 )
 
 /**
