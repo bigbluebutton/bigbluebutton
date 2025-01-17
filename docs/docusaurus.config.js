@@ -4,12 +4,14 @@
 const lightCodeTheme = require('prism-react-renderer').themes.github;
 const darkCodeTheme = require('prism-react-renderer').themes.dracula;
 
+const isDev = typeof process.env.NODE_ENV != 'undefined' && process.env.NODE_ENV === 'development';
+
 /** @type {import('@docusaurus/types').Config} */
 const config = {
     title: 'BigBlueButton',
     tagline: 'Official Documentation',
     url: 'https://docs.bigbluebutton.org/',
-    baseUrl: '/docs',
+    baseUrl: isDev ? '/docs' : '/',
     onBrokenLinks: 'throw',
     onBrokenMarkdownLinks: 'warn',
     favicon: 'img/favicon.ico',

@@ -28,4 +28,4 @@ echo "You can access https://`hostname`/docs"
 echo "----------------------"
 echo ""
 
-npx docusaurus start --host 0.0.0.0 --port 3001
+NODE_ENV=development npx docusaurus start --host 0.0.0.0 --port 3001
