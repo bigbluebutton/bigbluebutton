@@ -374,14 +374,13 @@ class NavBar extends Component {
                   <span>{presentationTitle}</span>
                 </Tooltip>
               </Styled.PresentationTitle>
-              {this.renderModal(isModalOpen, this.setModalIsOpen, "low", SessionDetailsModal)}
+              {renderPluginItems(centerPluginItems)}
+            </Styled.Center>
+            <Styled.Right>
               <RecordingIndicator
                 amIModerator={amIModerator}
                 currentUserId={currentUserId}
               />
-              {renderPluginItems(centerPluginItems)}
-            </Styled.Center>
-            <Styled.Right>
               {renderPluginItems(rightPluginItems)}
               {ConnectionStatusService.isEnabled() ? <ConnectionStatusButton /> : null}
               {ConnectionStatusService.isEnabled() ? <ConnectionStatus /> : null}

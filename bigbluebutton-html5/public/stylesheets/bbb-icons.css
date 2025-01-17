@@ -363,3 +363,6 @@
 .icon-bbb-media-area:before {
   content: "\e971";
 }
+.icon-bbb-pause:before {
+  content: "\e972";
+}
