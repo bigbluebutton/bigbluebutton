@@ -17,6 +17,7 @@ function Right(props) {
 }
 
 Right.propTypes = {
+  hideLabel: PropTypes.bool,
   disabled: PropTypes.bool,
   accessKey: PropTypes.any,
   'aria-label': PropTypes.string,
