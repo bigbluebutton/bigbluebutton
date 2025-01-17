@@ -31,19 +31,14 @@ module BigBlueButton
         edl.each do |entry|
           BigBlueButton.logger.debug "---"
           BigBlueButton.logger.debug "  Timestamp: #{entry[:timestamp]}"
-          BigBlueButton.logger.debug "  Audio(s):"
-          audio = entry[:audio]
-          if audio
-            BigBlueButton.logger.debug "    #{audio[:filename]} at #{audio[:timestamp]}"
-          else
-            audios = entry[:audios]
-            if audios
-              audios.each do |entry|
-                BigBlueButton.logger.debug "    #{entry[:filename]} at #{entry[:timestamp]}"
-              end
-            else
-              BigBlueButton.logger.debug "    silence"
+          BigBlueButton.logger.debug "  Audios:"
+          audios = entry[:audios]
+          if audios && !audios.empty?
+            audios.each do |entry|
+              BigBlueButton.logger.debug "    #{entry[:filename]} at #{entry[:timestamp]}"
             end
+          else
+            BigBlueButton.logger.debug "    silence"
           end
         end
       end
@@ -80,9 +75,7 @@ module BigBlueButton
       
         # Build a list of audio files to read information from
         edl.each do |entry|
-          if entry[:audio]
-            audioinfo[entry[:audio][:filename]] ||= {}
-          elsif entry[:audios]
+          if entry[:audios]
             entry[:audios].each { |a| audioinfo[a[:filename]] ||= {} }
           end
         end
@@ -105,11 +98,6 @@ module BigBlueButton
         if corrupt_audios.any?
           BigBlueButton.logger.info "Removing corrupt audio files from EDL"
           edl.each do |event|
-            # single :audio
-            if event[:audio] && corrupt_audios.include?(event[:audio][:filename])
-              event[:audio] = nil
-            end
-            # multi :audios
             if event[:audios]
               event[:audios].reject! { |a| corrupt_audios.include?(a[:filename]) }
               event[:audios] = nil if event[:audios].empty?
@@ -132,15 +120,9 @@ module BigBlueButton
       
           # label the final output of this segment as [segX]
           seg_label = "seg#{i}"
-      
-          # Grab multiple or single audio references
+
           audios = entry[:audios]
-          single = entry[:audio]
-      
           if audios && !audios.empty?
-            # ------------------------------------------------------
-            # MULTIPLE AUDIOS => amix
-            # ------------------------------------------------------
             track_labels = []
       
             audios.each_with_index do |audio_data, idx|
@@ -148,7 +130,23 @@ module BigBlueButton
               seek     = audio_data[:timestamp]
               info     = audioinfo[filename]
               speed    = 1.0
-              
+
+              # Check for and handle audio files with mismatched lengths (generated
+              # by buggy versions of freeswitch in old BigBlueButton
+              if ((info[:format][:format_name] == 'wav' ||
+                info[:audio][:codec_name] == 'vorbis') &&
+                  entry[:original_duration] &&
+                  (info[:duration].to_f / entry[:original_duration]) < 0.997 &&
+                  ((entry[:original_duration] - info[:duration]).to_f /
+                    entry[:original_duration]).abs < 0.05)
+
+                speed = audioinfo[audio[:filename]][:duration].to_f / entry[:original_duration]
+                seek = 0
+                BigBlueButton.logger.warn "  Audio file length mismatch, adjusting speed to #{speed}"
+              end
+
+              # Skip this input and generate silence if the seekpoint is past the end of the audio, which can happen
+              # if events are slightly misaligned and you get unlucky with a start/stop or chapter break.
               if seek < (info[:duration].to_f * speed)
                 input_index = ffmpeg_inputs.size
                 ffmpeg_inputs << { filename: filename, seek: seek }
@@ -169,62 +167,18 @@ module BigBlueButton
               end
             end
       
-            # Now we mix them
+            # Mix audios if more than one
             if track_labels.size > 1
               # e.g.: [t0_0][t0_1]amix=inputs=2[seg0]
               line = track_labels.join
-              line << "amix=inputs=#{track_labels.size}:dropout_transition=0[#{seg_label}];"
+              line << "amix=inputs=#{track_labels.size}:normalize=0[#{seg_label}];"
               filter_lines << line
             else
               # Only one track => rename it to [segX] (via anull or direct rename)
               line = "#{track_labels.first}anull[#{seg_label}];"
               filter_lines << line
             end
-      
-          elsif single
-            # ------------------------------------------------------
-            # SINGLE AUDIO
-            # ------------------------------------------------------
-            filename = single[:filename]
-            seek     = single[:timestamp]
-            info     = audioinfo[filename]
-            speed    = 1.0
-
-            BigBlueButton.logger.info "  Using input #{filename}"
-
-            # Check for and handle audio files with mismatched lengths (generated
-            # by buggy versions of freeswitch in old BigBlueButton
-            if ((info[:format][:format_name] == 'wav' ||
-              info[:audio][:codec_name] == 'vorbis') &&
-                 entry[:original_duration] &&
-                 (info[:duration].to_f / entry[:original_duration]) < 0.997 &&
-                 ((entry[:original_duration] - info[:duration]).to_f /
-                   entry[:original_duration]).abs < 0.05)
-
-              speed = audioinfo[audio[:filename]][:duration].to_f / entry[:original_duration]
-              seek = 0
-              BigBlueButton.logger.warn "  Audio file length mismatch, adjusting speed to #{speed}"
-            end
-
-            # Skip this input and generate silence if the seekpoint is past the end of the audio, which can happen
-            # if events are slightly misaligned and you get unlucky with a start/stop or chapter break.      
-            if seek < (info[:duration] * speed)
-              input_index = ffmpeg_inputs.size
-              ffmpeg_inputs << { filename: filename, seek: seek }
-              line = "[#{input_index}]#{FFMPEG_AFORMAT},apad,asetpts=N"
-              line << ",atempo=#{speed}" if speed != 1.0
-              line << "[#{seg_label}];"
-              filter_lines << line
-            else
-              # Past file => silence
-              line = "#{FFMPEG_AEVALSRC},#{FFMPEG_AFORMAT},asetpts=N[#{seg_label}];"
-              filter_lines << line
-            end
-      
           else
-            # ------------------------------------------------------
-            # NO AUDIO => SILENCE
-            # ------------------------------------------------------
             BigBlueButton.logger.info "  Generating silence"
             line = "#{FFMPEG_AEVALSRC},#{FFMPEG_AFORMAT},asetpts=N[#{seg_label}];"
             filter_lines << line
