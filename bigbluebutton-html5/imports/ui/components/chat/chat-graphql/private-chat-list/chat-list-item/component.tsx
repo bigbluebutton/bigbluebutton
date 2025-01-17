@@ -3,11 +3,9 @@
 import React, { useEffect } from 'react';
 import { layoutSelect, layoutSelectInput, layoutDispatch } from '/imports/ui/components/layout/context';
 import { ACTIONS, PANELS } from '/imports/ui/components/layout/enums';
-import { defineMessages, useIntl } from 'react-intl';
 import Styled from './styles';
 import PrivateChatListHeader from '../private-chats-header/component';
 import { Input, Layout } from '/imports/ui/components/layout/layoutTypes';
-import { useShortcut } from '/imports/ui/core/hooks/useShortcut';
 import { Chat } from '/imports/ui/Types/chat';
 import { useCreateUseSubscription } from '/imports/ui/core/hooks/createUseSubscription';
 import { Message } from '/imports/ui/Types/message';
@@ -16,24 +14,11 @@ import {
   CHAT_MESSAGE_PRIVATE_SUBSCRIPTION,
 } from '/imports/ui/components/chat/chat-graphql/chat-message-list/page/queries';
 
-const intlMessages = defineMessages({
-  titlePublic: {
-    id: 'app.chat.titlePublic',
-    description: 'title for public chat',
-  },
-  unreadPlural: {
-    id: 'app.userList.chatListItem.unreadPlural',
-    description: 'singular aria label for new message',
-  },
-  unreadSingular: {
-    id: 'app.userList.chatListItem.unreadSingular',
-    description: 'plural aria label for new messages',
-  },
-});
-
 interface PrivateChatListItemProps {
-  chat: Chat,
-  chatNodeRef: React.Ref<HTMLButtonElement>,
+  chat: Chat;
+  chatNodeRef: React.Ref<HTMLButtonElement>;
+  index: number;
+  privateChatSelectedCallback: () => void;
 }
 
 const PrivateChatListItem = (props: PrivateChatListItemProps) => {
@@ -44,15 +29,14 @@ const PrivateChatListItem = (props: PrivateChatListItemProps) => {
   const { sidebarContentPanel } = sidebarContent;
   const sidebarContentIsOpen = sidebarContent.isOpen;
 
-  const TOGGLE_CHAT_PUB_AK: string = useShortcut('togglePublicChat');
   const {
     chat,
     chatNodeRef,
+    index,
+    privateChatSelectedCallback,
   } = props;
 
   const countUnreadMessages = chat.totalUnread || 0;
-
-  const intl = useIntl();
 
   const chatPanelOpen = sidebarContentIsOpen && sidebarContentPanel === PANELS.CHAT;
 
@@ -74,8 +58,6 @@ const PrivateChatListItem = (props: PrivateChatListItemProps) => {
     data: chatMessageData,
   } = useChatMessageSubscription((msg) => msg) as GraphqlDataHookSubscriptionResponse<Message[]>;
 
-  const isPublicGroupChat = (chat: Chat) => chat.chatId === PUBLIC_GROUP_CHAT_ID;
-  
   useEffect(() => {
     if (chat.chatId !== PUBLIC_GROUP_CHAT_ID && chat.chatId === idChatOpen) {
       layoutContextDispatch({
@@ -85,24 +67,12 @@ const PrivateChatListItem = (props: PrivateChatListItemProps) => {
     }
   }, [idChatOpen, sidebarContentIsOpen, sidebarContentPanel, chat]);
 
-  const handleClickToggleChat = () => {
-    if (idChatOpen === chat.chatId) {
-      layoutContextDispatch({
-        type: ACTIONS.SET_ID_CHAT_OPEN,
-        value: '',
-      });
-    } else {
-      layoutContextDispatch({
-        type: ACTIONS.SET_ID_CHAT_OPEN,
-        value: '',
-      });
-      setTimeout(() => {
-        layoutContextDispatch({
-          type: ACTIONS.SET_ID_CHAT_OPEN,
-          value: chat.chatId,
-        });
-      }, 0);
-    }
+  const handleClickOpenPrivateChat = () => {
+    layoutContextDispatch({
+      type: ACTIONS.SET_ID_CHAT_OPEN,
+      value: chat.chatId,
+    });
+    privateChatSelectedCallback();
   };
 
   if (!chatMessageData) return null;
@@ -116,17 +86,9 @@ const PrivateChatListItem = (props: PrivateChatListItemProps) => {
       aria-expanded={isCurrentChat}
       active={isCurrentChat}
       tabIndex={-1}
-      accessKey={isPublicGroupChat(chat) ? TOGGLE_CHAT_PUB_AK : undefined}
-      onClick={handleClickToggleChat}
-      id="chat-toggle-button"
-      aria-label={isPublicGroupChat(chat) ? intl.formatMessage(intlMessages.titlePublic)
-        : chat.participant?.name}
-      onKeyDown={(e) => {
-        if (e.key === 'Enter') {
-          e.preventDefault();
-          e.stopPropagation();
-        }
-      }}
+      onClick={handleClickOpenPrivateChat}
+      id={`chat-list-${index}`}
+      aria-label={chat.participant?.name}
       ref={chatNodeRef}
     >
       <Styled.ChatListItemLink>

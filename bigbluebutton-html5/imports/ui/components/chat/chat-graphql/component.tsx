@@ -193,7 +193,7 @@ const Chat: React.FC<ChatProps> = ({
           </Button>
         </Styled.ButtonsWrapper>
         {privateList ? (
-          <PrivateChatListContainer />
+          <PrivateChatListContainer privateChatSelectedCallback={() => setPrivateList(false)} />
         ) : (
           <>
             {!showMessages && !privateList && (
