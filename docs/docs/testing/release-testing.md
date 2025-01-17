@@ -1794,7 +1794,7 @@ preUploadedPresentationName=ScientificPaper.pdf
     - You should see a new sidebar content with a timer countdown stopped, "Stopwatch" and "Timer" buttons on below the timer and "Start" and "Reset" buttons below
     - You should see a timer indicator in the top right corner of the meeting (below settings and connection status buttons) with the current time - initially zero
     - A new user list item should be displayed to all moderator with the title "TIME" and a button with "Stopwatch" or "Timer" (the one selected) with a clock icon
-    - All moderators should be able to interact with this panel and indicator (starting, stopping, changing stopwatch <-> timer)
+    - All moderators should be able to interact with this panel and indicator (starting, stopping, changing between stopwatch and  timer)
 
 4. Click on "Start" button
 
@@ -1828,7 +1828,7 @@ preUploadedPresentationName=ScientificPaper.pdf
     - You should see a new sidebar content with a timer countdown stopped, "Stopwatch" and "Timer" buttons on below the timer and "Start" and "Reset" buttons below
     - You should see a timer indicator in the top right corner of the meeting (below settings and connection status buttons) with the current time - initially zero
     - A new user list item should be displayed to all moderator with the title "TIME" and a button with "Stopwatch" or "Timer" (the one selected) with a clock icon
-    - All moderators should be able to interact with this panel and indicator (starting, stopping, changing stopwatch <-> timer)
+    - All moderators should be able to interact with this panel and indicator (starting, stopping, changing between stopwatch and timer)
 
 4. Click on "Timer" button
 
