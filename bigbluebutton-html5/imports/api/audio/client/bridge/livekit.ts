@@ -622,6 +622,9 @@ export default class LiveKitAudioBridge extends BaseAudioBridge {
         }, 'LiveKit: exit audio failed');
         return false;
       })
-      .finally(this.audioEnded);
+      .finally(() => {
+        this.originalStream = null;
+        this.audioEnded();
+      });
   }
 }
