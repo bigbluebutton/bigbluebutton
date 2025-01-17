@@ -164,41 +164,38 @@ class ActionsBar extends PureComponent {
           </Styled.Center>
           <Styled.Right>
             {shouldShowPresentationButton && shouldShowOptionsButton
-              ? (
-                <>
-                  <PresentationOptionsContainer
-                    presentationIsOpen={presentationIsOpen}
-                    setPresentationIsOpen={setPresentationIsOpen}
-                    layoutContextDispatch={layoutContextDispatch}
-                    hasPresentation={isThereCurrentPresentation}
-                    hasExternalVideo={isSharingVideo}
-                    hasScreenshare={hasScreenshare}
-                    hasPinnedSharedNotes={isSharedNotesPinned}
-                    hasGenericContent={hasGenericContent}
-                    hasCameraAsContent={hasCameraAsContent}
-                  />
-                  <MediaAreaDropdown {...{
-                    amIPresenter,
-                    amIModerator,
-                    isPollingEnabled,
-                    allowExternalVideo,
-                    intl,
-                    isSharingVideo,
-                    stopExternalVideoShare,
-                    isTimerActive,
-                    isTimerEnabled,
-                    isMeteorConnected,
-                    setMeetingLayout,
-                    setPushLayout,
-                    presentationIsOpen,
-                    showPushLayout,
-                    hasCameraAsContent,
-                    setPresentationFitToWidth,
-                  }}
-                  />
-                </>
-              )
-              : null}
+              && (
+                <PresentationOptionsContainer
+                  presentationIsOpen={presentationIsOpen}
+                  setPresentationIsOpen={setPresentationIsOpen}
+                  layoutContextDispatch={layoutContextDispatch}
+                  hasPresentation={isThereCurrentPresentation}
+                  hasExternalVideo={isSharingVideo}
+                  hasScreenshare={hasScreenshare}
+                  hasPinnedSharedNotes={isSharedNotesPinned}
+                  hasGenericContent={hasGenericContent}
+                  hasCameraAsContent={hasCameraAsContent}
+                />
+              )}
+            <MediaAreaDropdown {...{
+              amIPresenter,
+              amIModerator,
+              isPollingEnabled,
+              allowExternalVideo,
+              intl,
+              isSharingVideo,
+              stopExternalVideoShare,
+              isTimerActive,
+              isTimerEnabled,
+              isMeteorConnected,
+              setMeetingLayout,
+              setPushLayout,
+              presentationIsOpen,
+              showPushLayout,
+              hasCameraAsContent,
+              setPresentationFitToWidth,
+            }}
+            />
           </Styled.Right>
         </Styled.ActionsBar>
       </Styled.ActionsBarWrapper>
