@@ -340,6 +340,7 @@ class PresentationUploader extends Component {
       ...JSON.parse(JSON.stringify(presentations)),
     });
 
+    // New entries comming from graphql
     const propsDiffs = propPresentations.filter(
       (p) => !prevPropPresentations.some(
         (presentation) => p.presentationId === presentation.presentationId
@@ -348,11 +349,16 @@ class PresentationUploader extends Component {
     );
 
     if (propsDiffs.length > 0) {
+      // Always update when there is a new presentation entry from graphql
       shouldUpdateState = true;
+
+      // When the entry comes, remove previous presentation with the same temporaryId
       presState = presState.filter(
         (pres) => !propsDiffs.some((p) => pres.presentationId === p.uploadTemporaryId
           || pres.presentationId === p.presentationId),
       );
+
+      // Then add the new entries to state
       presState = [
         ...JSON.parse(JSON.stringify(presState)),
         ...JSON.parse(JSON.stringify(propsDiffs)),
