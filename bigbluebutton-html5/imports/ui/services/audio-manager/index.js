@@ -21,9 +21,12 @@ import {
 import MediaStreamUtils from '/imports/utils/media-stream-utils';
 import { makeVar } from '@apollo/client';
 import AudioErrors from '/imports/ui/services/audio-manager/error-codes';
-import Session from '/imports/ui/services/storage/in-memory';
 import GrahqlSubscriptionStore, { stringToHash } from '/imports/ui/core/singletons/subscriptionStore';
 import VOICE_ACTIVITY from '../../core/graphql/queries/whoIsTalking';
+import {
+  setUserSelectedMicrophone,
+  setUserSelectedListenOnly,
+} from '/imports/ui/components/audio/service';
 
 const CALL_STATES = {
   STARTED: 'started',
@@ -308,6 +311,7 @@ class AudioManager {
     this.loadBridges(bridges, userData);
     this.transparentListenOnlySupported = this.supportsTransparentListenOnly();
     this.audioEventHandler = audioEventHandler;
+    this.observeVoiceActivity();
     this.initialized = true;
   }
 
@@ -319,6 +323,9 @@ class AudioManager {
    *                      the bridge.
    */
   loadBridges(bridges, userData) {
+    // Bridges can only be loaded once
+    if (this.fullAudioBridge && this.listenOnlyBridge) return;
+
     const { fullAudioBridge, listenOnlyBridge } = bridges;
 
     let FullAudioBridge = SFUAudioBridge;
@@ -365,7 +372,13 @@ class AudioManager {
     }
 
     this.fullAudioBridge = new FullAudioBridge(userData);
-    this.listenOnlyBridge = new ListenOnlyBridge(userData);
+
+    if (fullAudioBridge === listenOnlyBridge) {
+      this.listenOnlyBridge = this.fullAudioBridge;
+    } else {
+      this.listenOnlyBridge = new ListenOnlyBridge(userData);
+    }
+
     // Initialize device IDs in configured bridges
     this.fullAudioBridge.inputDeviceId = this.inputDeviceId;
     this.fullAudioBridge.outputDeviceId = this.outputDeviceId;
@@ -610,7 +623,6 @@ class AudioManager {
     this.isConnecting = true;
     this.isMuted = true;
     this.error = false;
-    this.observeVoiceActivity();
     // Ensure the local mute state (this.isMuted) is aligned with the initial
     // placeholder value before joining audio.
     // Currently, the server sets the placeholder mute state to *true*, and this
@@ -670,10 +682,17 @@ class AudioManager {
   onAudioJoin() {
     this.isConnected = true;
     this.isConnecting = false;
-
     const STATS = window.meetingClientSettings.public.stats;
 
     try {
+      if (!this.isListenOnly) {
+        setUserSelectedMicrophone(true);
+        setUserSelectedListenOnly(false);
+      } else {
+        setUserSelectedMicrophone(false);
+        setUserSelectedListenOnly(true);
+      }
+
       this.inputStream = this.bridge ? this.bridge.inputStream : null;
       // Enforce correct output device on audio join
       this.changeOutputDevice(this.outputDeviceId, true);
@@ -729,7 +748,6 @@ class AudioManager {
         isListenOnly: this.isListenOnly,
       });
     }
-    Session.setItem('audioModalIsOpen', false);
   }
 
   onTransferStart() {
