@@ -105,6 +105,7 @@ class ActionsBar extends PureComponent {
       setPresentationFitToWidth,
       isPresentationEnabled,
       ariaHidden,
+      isDarkThemeEnabled,
     } = this.props;
 
     const Settings = getSettingsSingletonInstance();
@@ -175,6 +176,7 @@ class ActionsBar extends PureComponent {
                   hasPinnedSharedNotes={isSharedNotesPinned}
                   hasGenericContent={hasGenericContent}
                   hasCameraAsContent={hasCameraAsContent}
+                  isDarkThemeEnabled={isDarkThemeEnabled}
                 />
               )}
             <MediaAreaDropdown {...{

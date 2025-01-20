@@ -309,7 +309,8 @@ class NavBar extends Component {
     const shouldShowNavBarToggleButton = selectedLayout !== LAYOUT_TYPE.CAMERAS_ONLY
       && selectedLayout !== LAYOUT_TYPE.PRESENTATION_ONLY
       && selectedLayout !== LAYOUT_TYPE.PARTICIPANTS_AND_CHAT_ONLY
-      && selectedLayout !== LAYOUT_TYPE.MEDIA_ONLY;
+      && selectedLayout !== LAYOUT_TYPE.MEDIA_ONLY
+      && isPhone === true;
 
     const APP_CONFIG = window.meetingClientSettings?.public?.app;
     const enableTalkingIndicator = APP_CONFIG?.enableTalkingIndicator;

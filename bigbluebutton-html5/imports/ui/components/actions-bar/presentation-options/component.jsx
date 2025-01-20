@@ -46,6 +46,7 @@ const PresentationOptionsContainer = ({
   hasPinnedSharedNotes,
   hasGenericContent,
   hasCameraAsContent,
+  isDarkThemeEnabled,
 }) => {
   let buttonType = 'presentation';
   if (hasExternalVideo) {
@@ -80,7 +81,6 @@ const PresentationOptionsContainer = ({
         : intlMessages.minimizePresentationDesc)}
       description={intl.formatMessage(!presentationIsOpen ? intlMessages.restorePresentationDesc
         : intlMessages.minimizePresentationDesc)}
-      color="transparent"
       hideLabel
       circle
       size="lg"
@@ -107,6 +107,7 @@ const PresentationOptionsContainer = ({
       id="restore-presentation"
       disabled={!isThereCurrentPresentation}
       data-test={!presentationIsOpen ? 'restorePresentation' : 'minimizePresentation'}
+      isDarkThemeEnabled={isDarkThemeEnabled}
     />
   );
 };
