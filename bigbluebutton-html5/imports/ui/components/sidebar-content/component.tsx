@@ -8,7 +8,6 @@ import PollContainer from '/imports/ui/components/poll/container';
 import UserListComponent from '/imports/ui/components/user-list/component';
 import BreakoutRoomContainer from '../breakout-room/breakout-room/component';
 import TimerContainer from '/imports/ui/components/timer/panel/component';
-import GuestUsersManagementPanel from '/imports/ui/components/waiting-users/waiting-users-graphql/component';
 import Styled from './styles';
 import ErrorBoundary from '/imports/ui/components/common/error-boundary/component';
 import FallbackView from '/imports/ui/components/common/fallback-errors/fallback-view/component';
@@ -24,7 +23,6 @@ const SidebarContent = (props: SidebarContentProps) => {
     top,
     left = undefined,
     right = undefined,
-    zIndex,
     minWidth,
     width,
     maxWidth,

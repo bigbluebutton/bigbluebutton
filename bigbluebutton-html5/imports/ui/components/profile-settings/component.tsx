@@ -3,6 +3,7 @@ import React, {
 } from 'react';
 import { defineMessages, useIntl } from 'react-intl';
 import { useMutation } from '@apollo/client';
+import { Layout } from '../layout/layoutTypes';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import { SelectChangeEvent } from '@mui/material/Select';
 import MenuItem from '@mui/material/MenuItem';
@@ -270,7 +271,7 @@ const ProfileSettings: React.FC<ProfileSettingsProps> = () => {
   const [deviceError, setDeviceError] = useState<string | null>(null);
   const [previewError, setPreviewError] = useState<string | null>(null);
   const [brightness, setBrightness] = useState<number>(100);
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  // @ts-expect-error TS6133: Unused variable.
   const [wholeImageBrightness, setWholeImageBrightness] = useState<boolean>(false);
   const [isCameraLoading, setIsCameraLoading] = useState<boolean>(true);
   const [virtualBackgroundChecked, setVirtualBackgroundChecked] = React.useState(false);
@@ -479,7 +480,7 @@ const ProfileSettings: React.FC<ProfileSettingsProps> = () => {
         const { backgrounds } = customVirtualBackgroundsContext;
         const background = backgrounds[uniqueId]
           || Object.values(backgrounds).find(
-            (bg) => bg.uniqueId === uniqueId,
+            (bg : any) => bg.uniqueId === uniqueId, // TODO: typing
           );
 
         if (background && background.data) {

@@ -812,6 +812,7 @@ export const meetingClientSettingsInitialValues: MeetingClientSettings = {
       role_moderator: 'MODERATOR',
       role_viewer: 'VIEWER',
       label: {
+        presenter: false,
         moderator: false,
         mobile: true,
         guest: true,

@@ -156,5 +156,6 @@ export const PANELS = {
   CAPTIONS: 'captions',
   TIMER: 'timer',
   GENERIC_CONTENT_SIDEKICK: 'generic-content-sidekick',
+  WAITING_USERS: 'waiting-users',
   NONE: 'none',
 };

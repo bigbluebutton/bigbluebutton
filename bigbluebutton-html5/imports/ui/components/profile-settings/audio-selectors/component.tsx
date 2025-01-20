@@ -87,7 +87,7 @@ const AudioSelectors: React.FC<AudioSelectorsProps> = ({
   inAudio,
 }) => {
   const intl = useIntl();
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  // @ts-expect-error TS6133: Unused variable.
   const [findingDevices, setFindingDevices] = React.useState(false);
   const [inputDevices, setInputDevices] = React.useState<InputDeviceInfo[]>([]);
   const [outputDevices, setOutputDevices] = React.useState<MediaDeviceInfo[]>([]);

@@ -3,7 +3,12 @@ import ArrowBackIosNewIcon from '@mui/icons-material/ArrowBackIosNew';
 import { Typography } from '@mui/material';
 import Styled from './styles';
 
-const BackButton = ({ onClick, title }) => {
+interface BackButtonProps {
+  onClick: () => void;
+  title: string;
+}
+
+const BackButton : React.FC<BackButtonProps> = ({ onClick, title }) => {
   return (
     <Styled.Form onClick={onClick}>
       <Styled.InputWrapper>
