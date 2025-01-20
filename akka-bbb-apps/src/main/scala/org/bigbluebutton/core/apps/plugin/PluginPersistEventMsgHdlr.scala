@@ -1,11 +1,11 @@
 package org.bigbluebutton.core.apps.plugin
 
-import org.bigbluebutton.common2.msgs.{BbbClientMsgHeader, BbbCommonEnvCoreMsg, BbbCoreEnvelope, MessageTypes, PluginPersistEventEvtMsg, PluginPersistEventEvtMsgBody, PluginPersistEventMsg, Routing}
+import org.bigbluebutton.common2.msgs.{ BbbClientMsgHeader, BbbCommonEnvCoreMsg, BbbCoreEnvelope, MessageTypes, PluginPersistEventEvtMsg, PluginPersistEventEvtMsgBody, PluginPersistEventMsg, Routing }
 import org.bigbluebutton.core.apps.PermissionCheck
 import org.bigbluebutton.core.bus.MessageBus
 import org.bigbluebutton.core.domain.MeetingState2x
 import org.bigbluebutton.core.models.PluginModel
-import org.bigbluebutton.core.running.{HandlerHelpers, LiveMeeting}
+import org.bigbluebutton.core.running.{ HandlerHelpers, LiveMeeting }
 
 trait PluginPersistEventMsgHdlr extends HandlerHelpers {
   this: PluginHdlrs =>
@@ -16,7 +16,7 @@ trait PluginPersistEventMsgHdlr extends HandlerHelpers {
       val envelope = BbbCoreEnvelope(PluginPersistEventEvtMsg.NAME, routing)
       val header = BbbClientMsgHeader(PluginPersistEventEvtMsg.NAME, liveMeeting.props.meetingProp.intId, msg.header.userId)
 
-      val body = PluginPersistEventEvtMsgBody(msg.body.pluginName, msg.body.eventName, msg.body.payload)
+      val body = PluginPersistEventEvtMsgBody(msg.body.pluginName, msg.body.eventName, msg.body.payloadJson)
       val event = PluginPersistEventEvtMsg(header, body)
       val msgEvent = BbbCommonEnvCoreMsg(envelope, event)
       bus.outGW.send(msgEvent)

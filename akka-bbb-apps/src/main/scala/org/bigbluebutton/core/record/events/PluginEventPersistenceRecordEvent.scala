@@ -15,8 +15,8 @@ class PluginEventPersistenceRecordEvent extends AbstractPluginRecordEvent {
     eventMap.put(USER_ID, userId)
   }
 
-  def setPayload(payload: Map[String, Object]) {
-    eventMap.put(PAYLOAD, JsonUtil.toJson(payload))
+  def setPayloadJson(payloadJson: Map[String, Object]) {
+    eventMap.put(PAYLOAD_JSON, JsonUtil.toJson(payloadJson))
   }
 }
 
@@ -24,5 +24,5 @@ object PluginEventPersistenceRecordEvent {
   protected final val USER_ID = "userId"
   protected final val PERSISTED_EVENT_NAME = "persistedEventName"
   protected final val PLUGIN_NAME = "pluginName"
-  protected final val PAYLOAD = "payload"
+  protected final val PAYLOAD_JSON = "payloadJson"
 }

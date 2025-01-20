@@ -65,12 +65,12 @@ case class PluginPersistEventMsg(header: BbbClientMsgHeader, body: PluginPersist
 case class PluginPersistEventMsgBody(
                                       pluginName: String,
                                       eventName: String,
-                                      payload: Map[String, Object]
+                                      payloadJson: Map[String, Object]
                                     )
 object PluginPersistEventEvtMsg { val NAME = "PluginPersistEventEvtMsg" }
 case class PluginPersistEventEvtMsg(header: BbbClientMsgHeader, body: PluginPersistEventEvtMsgBody) extends StandardMsg
 case class PluginPersistEventEvtMsgBody(
                                         pluginName: String,
                                         eventName: String,
-                                        payload: Map[String, Object]
+                                        payloadJson: Map[String, Object]
                                         )

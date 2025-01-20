@@ -2,9 +2,9 @@ import { gql } from '@apollo/client';
 
 const PLUGIN_EVENT_PERSISTENCE_MUTATION = gql`
   mutation PluginPersistEvent($pluginName: String!,
-    $eventName: String!, $payload: json!) {
+    $eventName: String!, $payloadJson: json!) {
       pluginPersistEvent(
-        payload: $payload,
+        payloadJson: $payloadJson,
         eventName: $eventName,
         pluginName: $pluginName,
       )

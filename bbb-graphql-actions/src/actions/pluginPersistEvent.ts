@@ -6,7 +6,7 @@ export default function buildRedisMessage(sessionVariables: Record<string, unkno
     [
       {name: 'pluginName', type: 'string', required: true},
       {name: 'eventName', type: 'string', required: true},
-      {name: 'payload', type: 'json', required: true},
+      {name: 'payloadJson', type: 'json', required: true},
     ]
   )
 
@@ -26,7 +26,7 @@ export default function buildRedisMessage(sessionVariables: Record<string, unkno
   const body = {
     pluginName: input.pluginName,
     eventName: input.eventName,
-    payload: input.payload,
+    payloadJson: input.payloadJson,
   };
 
   return { eventName, routing, header, body };

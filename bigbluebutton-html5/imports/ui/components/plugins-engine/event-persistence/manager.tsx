@@ -23,7 +23,7 @@ const PluginEventPersistenceManager: React.FC<PluginEventPersistenceManagerProps
           variables: {
             pluginName: eventDetails.pluginName,
             eventName: escapedEventName,
-            payload: eventDetails.payload,
+            payloadJson: eventDetails.payload,
           },
         });
       }

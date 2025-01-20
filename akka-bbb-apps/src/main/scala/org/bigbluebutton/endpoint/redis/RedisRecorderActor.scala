@@ -753,7 +753,7 @@ class RedisRecorderActor(
     ev.setPersistedEventName(msg.body.eventName)
     ev.setPluginName(msg.body.pluginName)
     ev.setUserId(msg.header.userId)
-    ev.setPayload(msg.body.payload)
+    ev.setPayloadJson(msg.body.payloadJson)
 
     record(msg.header.meetingId, ev.toMap.asJava)
   }

@@ -321,9 +321,9 @@ type Mutation {
 
 type Mutation {
   pluginPersistEvent(
-    payload: String!
+    payloadJson: json!
     eventName: String!
-    pluginName: json!
+    pluginName: String!
   ): Boolean
 }
 
