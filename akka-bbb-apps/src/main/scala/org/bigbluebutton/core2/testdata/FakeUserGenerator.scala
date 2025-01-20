@@ -63,7 +63,7 @@ object FakeUserGenerator {
     )
     val logoutUrl = logoutUrlFormats(random.nextInt(logoutUrlFormats.length))
 
-    val ru = RegisteredUsers.create(meetingId, userId = id, extId, name, role,
+    val ru = RegisteredUsers.create(meetingId, userId = id, extId, name, "", "", role,
       authToken, Vector(sessionToken), avatarURL, webcamBackgroundURL, color, bot,
       guest, authed, guestStatus = GuestStatus.ALLOW, false, "", logoutUrl, Map(), false)
     RegisteredUsers.add(users, ru, meetingId)

@@ -5,7 +5,7 @@ import org.bigbluebutton.core.db.{UserDAO, UserLivekitDAO, UserSessionTokenDAO}
 import org.bigbluebutton.core.domain.BreakoutRoom2x
 
 object RegisteredUsers {
-  def create(meetingId: String, userId: String, extId: String, name: String, roles: String,
+  def create(meetingId: String, userId: String, extId: String, name: String, firstName: String, lastName: String, roles: String,
              authToken: String, sessionToken: Vector[String], avatar: String, webcamBackground: String, color: String, bot: Boolean,
              guest: Boolean, authenticated: Boolean, guestStatus: String, excludeFromDashboard: Boolean, enforceLayout: String, logoutUrl: String,
              userMetadata: Map[String, String], loggedOut: Boolean,
@@ -15,6 +15,8 @@ object RegisteredUsers {
       extId,
       meetingId,
       name,
+      firstName,
+      lastName,
       roles,
       authToken,
       sessionToken,
@@ -260,6 +262,8 @@ case class RegisteredUser(
     externId:                 String,
     meetingId:                String,
     name:                     String,
+    firstName:                String,
+    lastName:                 String,
     role:                     String,
     authToken:                String,
     sessionToken:             Vector[String],

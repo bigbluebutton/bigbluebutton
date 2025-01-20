@@ -276,6 +276,8 @@ CREATE TABLE "user" (
 	"userId" varchar(50) NOT NULL,
 	"extId" varchar(50),
 	"name" varchar(255),
+	"firstName" varchar(255),
+	"lastName" varchar(255),
 	"role" varchar(20),
 	"avatar" varchar(500),
     "webcamBackground" varchar(500),
@@ -393,6 +395,8 @@ EXECUTE FUNCTION "set_user_firstJoinedAt_trigger_func"();
 
 --Used to sort the Userlist
 ALTER TABLE "user" ADD COLUMN "nameSortable" varchar(255) GENERATED ALWAYS AS (trim(remove_emojis(immutable_lower_unaccent("name")))) STORED;
+ALTER TABLE "user" ADD COLUMN "firstNameSortable" varchar(255) GENERATED ALWAYS AS (trim(remove_emojis(immutable_lower_unaccent("firstName")))) STORED;
+ALTER TABLE "user" ADD COLUMN "lastNameSortable" varchar(255) GENERATED ALWAYS AS (trim(remove_emojis(immutable_lower_unaccent("lastName")))) STORED;
 
 CREATE INDEX "idx_user_waiting" ON "user"("meetingId") where "isWaiting" is true;
 
@@ -413,6 +417,10 @@ AS SELECT "user"."userId",
     "user"."meetingId",
     "user"."name",
     "user"."nameSortable",
+    "user"."firstName",
+    "user"."firstNameSortable",
+    "user"."lastName",
+    "user"."lastNameSortable",
     "user"."avatar",
     "user"."color",
     "user"."away",
@@ -474,6 +482,10 @@ AS SELECT "user"."userId",
     "user"."meetingId",
     "user"."name",
     "user"."nameSortable",
+    "user"."firstName",
+    "user"."firstNameSortable",
+    "user"."lastName",
+    "user"."lastNameSortable",
     "user"."avatar",
     "user"."webcamBackground",
     "user"."color",
@@ -541,6 +553,10 @@ AS SELECT
     "user"."extId",
     "user"."name",
     "user"."nameSortable",
+    "user"."firstName",
+    "user"."firstNameSortable",
+    "user"."lastName",
+    "user"."lastNameSortable",
     "user"."avatar",
     "user"."color",
     "user"."away",

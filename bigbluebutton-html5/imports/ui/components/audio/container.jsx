@@ -262,7 +262,7 @@ const AudioContainer = (props) => {
       {isAudioModalOpen ? (
         <AudioModalContainer
           {...{
-            priority: 'low',
+            priority: 'medium',
             setIsOpen: setAudioModalIsOpen,
             isOpen: isAudioModalOpen,
           }}
@@ -274,7 +274,7 @@ const AudioContainer = (props) => {
             callbackToClose: () => {
               setVideoPreviewModalIsOpen(false);
             },
-            priority: 'low',
+            priority: 'medium',
             setIsOpen: setVideoPreviewModalIsOpen,
             isOpen: isVideoPreviewModalOpen,
           }}

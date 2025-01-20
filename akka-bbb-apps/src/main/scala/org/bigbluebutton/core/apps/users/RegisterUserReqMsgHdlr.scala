@@ -59,7 +59,7 @@ trait RegisterUserReqMsgHdlr {
     val guestStatus = msg.body.guestStatus
 
     val regUser = RegisteredUsers.create(liveMeeting.props.meetingProp.intId, msg.body.intUserId, msg.body.extUserId,
-      msg.body.name, msg.body.role, msg.body.authToken, Vector(msg.body.sessionToken),
+      msg.body.name, msg.body.firstName, msg.body.lastName, msg.body.role, msg.body.authToken, Vector(msg.body.sessionToken),
       msg.body.avatarURL, msg.body.webcamBackgroundURL, ColorPicker.nextColor(liveMeeting.props.meetingProp.intId), msg.body.bot,
       msg.body.guest, msg.body.authed, guestStatus, msg.body.excludeFromDashboard, msg.body.enforceLayout, msg.body.logoutUrl, msg.body.userMetadata, false)
 

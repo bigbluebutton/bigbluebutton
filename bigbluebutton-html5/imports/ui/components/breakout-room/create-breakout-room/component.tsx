@@ -566,6 +566,7 @@ const CreateBreakoutRoom: React.FC<CreateBreakoutRoomProps> = ({
           currentSlidePrefix={CURRENT_SLIDE_PREFIX}
           getRoomPresentation={getRoomPresentation}
           isUpdate={isUpdate}
+          setNumberOfRooms={setNumberOfRooms}
         />
       </Styled.Content>
     </ModalFullscreen>

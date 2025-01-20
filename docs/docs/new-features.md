@@ -187,15 +187,15 @@ Feature parity with the current media framework is not yet achieved, but the
 aforementioned issue provides parity tracking in section `Annex 1`.
 
 To enable support for LiveKit:
-  - Install bbb-livekit: `$ sudo apt-get install bbb-livekit`
-  - Enable the LiveKit controller module in bbb-webrtc-sfu: `$ sudo yq e -i '.livekit.enabled = true' /etc/bigbluebutton/bbb-webrtc-sfu/production.yml`
-  - Restart bbb-webrtc-sfu: `$ sudo systemctl restart bbb-webrtc-sfu`
-  - Guarantee that Node.js 22 is installed in your server: `$ node -v`
-    - Older 3.0 installations might still be using Node.js 18. If that's the case,
+1. Install bbb-livekit: `$ sudo apt-get install bbb-livekit`
+2. Enable the LiveKit controller module in bbb-webrtc-sfu: `$ sudo yq e -i '.livekit.enabled = true' /etc/bigbluebutton/bbb-webrtc-sfu/production.yml`
+3. Restart bbb-webrtc-sfu: `$ sudo systemctl restart bbb-webrtc-sfu`
+4. Guarantee that Node.js 22 is installed in your server: `$ node -v`
+    * Older 3.0 installations might still be using Node.js 18. If that's the case,
       re-run bbb-install or correct any custom installation scripts to ensure
       Node.js 22 is installed.
-  - Only when using BigBlueButton via the [cluster proxy](/administration/cluster-proxy) configuration:
-    - Set the appropriate LiveKit endpoint URL in bbb-html5.yml's `public.media.livekit.url`. See
+5. Only when using BigBlueButton via the [cluster proxy](/administration/cluster-proxy) configuration:
+    1. Set the appropriate LiveKit endpoint URL in bbb-html5.yml's `public.media.livekit.url`. See
       the aforementioned [docs section](/administration/cluster-proxy.md#bigbluebutton-servers) for details.
 
 Once enabled, LiveKit still won't be used by default. There are two ways to make
@@ -212,6 +212,36 @@ use of it in meetings:
 Those parameters do *not* need to be set concurrently. LiveKit can be enabled for
 audio only, for example, while keeping the current media framework for camera
 and screen sharing by setting just `audioBridge=livekit`.
+
+To enable recording/capture with LiveKit (optional):
+1. Create **`/etc/bigbluebutton/egress.yaml`**
+    ```yaml
+    log_level: debug
+    redis:
+      address: localhost:6379
+    api_key: YOUR_API_KEY # see /etc/bigbluebutton/livekit.yaml
+    api_secret: YOUR_API_SECRET # see /etc/bigbluebutton/livekit.yaml
+    health_port: 7005
+    ws_url: ws://localhost:7880
+    file_prefix: /var/lib/bbb-webrtc-recorder
+    file_only: true
+    prometheus_port: 6790
+    ```
+2. Set appropriate key and secret in the file above
+3. Change capture directory permissions: **`chmod -R 777 /var/lib/bbb-webrtc-recorder`**
+    - The recorder runs as root in the docker container
+4. Enable egress in bbb-webrtc-sfu : **`yq e -i ".livekit.egress.enabled = true" /etc/bigbluebutton/bbb-webrtc-sfu/production.yml`**
+5. Run egress
+    ```bash
+    docker run -t -d --rm \
+        --name egress \
+        -e EGRESS_CONFIG_FILE=/etc/bigbluebutton/egress.yaml \
+        -v /etc/bigbluebutton/:/etc/bigbluebutton/ \
+        -v /var/lib/bbb-webrtc-recorder:/var/lib/bbb-webrtc-recorder \
+        --network host \
+        livekit/egress
+    ```
+6. Restart bbb-webrtc-sfu
 
 Keep in mind that the LiveKit integration is still experimental and not feature
 complete. Configuration, API parameters, and other details are subject to change.
