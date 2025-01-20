@@ -128,6 +128,7 @@ const roving = (
   }
 
   if (event.keyCode === KEY_CODES.ARROW_DOWN) {
+    event.preventDefault();
     const firstElement = elementsList.firstChild as HTMLElement;
     let elRef = element && numberOfChilds > 1 ? (element.nextSibling as HTMLElement) : firstElement;
 
@@ -140,6 +141,7 @@ const roving = (
   }
 
   if (event.keyCode === KEY_CODES.ARROW_UP) {
+    event.preventDefault();
     const lastElement = elementsList.lastChild as HTMLElement;
     let elRef = element ? (element.previousSibling as HTMLElement) : lastElement;
 

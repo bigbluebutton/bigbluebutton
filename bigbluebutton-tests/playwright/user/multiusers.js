@@ -144,8 +144,8 @@ class MultiUsers {
     await this.userPage.hasElement(e.raiseHandBtn);
     await this.modPage.comparingSelectorsBackgroundColor(e.avatarsWrapperAvatar, `${e.userListItem} div:first-child`);
     await sleep(1000);
-    await this.userPage.waitAndClick(e.raiseHandBtn);
-    await this.userPage.hasElement(e.raiseHandBtn, 'should display the raise hand button for the attendee');
+    await this.userPage.waitAndClick(e.lowerHandBtn);
+    await this.userPage.hasElement(e.raiseHandBtn, 'should display the raise hand button after lowering the hand');
   }
 
   async raiseHandRejected() {
@@ -156,7 +156,7 @@ class MultiUsers {
     await this.userPage.press('Escape');
     await this.modPage.comparingSelectorsBackgroundColor(e.avatarsWrapperAvatar, `${e.userListItem} div:first-child`);
     await this.modPage.waitAndClick(e.raiseHandRejection);
-    await this.userPage.hasElement(e.raiseHandBtn, 'should display the raise hand button for the attendee');
+    await this.userPage.hasElement(e.raiseHandBtn, 'should display the raise hand button after rejection');
   }
 
   async toggleUserList() {

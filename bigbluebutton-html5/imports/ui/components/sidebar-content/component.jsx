@@ -116,7 +116,7 @@ const SidebarContent = (props) => {
         top,
         left,
         right,
-        zIndex: '2',
+        zIndex,
         width,
         height,
       }}

@@ -456,7 +456,7 @@ class Presentation extends MultiUsers {
     await this.modPage.waitAndClick(e.resetZoomButton);
     await expect(resetZoomButtonLocator, 'should the reset zoom button to contain the text 100%').toContainText(/100%/);
     await expect(zoomOutButtonLocator, 'should the zoom out button to be disabled').toBeDisabled();
-    await expect(wbBox).toHaveScreenshot('moderator1-zoom100.png');
+    await expect(wbBox).toHaveScreenshot('moderator1-no-zoom.png');
   }
 
   async selectSlide() {
