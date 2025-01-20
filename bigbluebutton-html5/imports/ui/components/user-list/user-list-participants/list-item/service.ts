@@ -372,7 +372,7 @@ export const createToolbarOptions = (
         onClick: () => {
           toggleVoice(user.userId, true);
         },
-        icon: 'mute',
+        icon: 'unmute',
         dataTest: 'muteUser',
       },
       {
@@ -382,7 +382,7 @@ export const createToolbarOptions = (
         onClick: () => {
           toggleVoice(user.userId, false);
         },
-        icon: 'unmute',
+        icon: 'mute',
         dataTest: 'unmuteUser',
       },
       {
