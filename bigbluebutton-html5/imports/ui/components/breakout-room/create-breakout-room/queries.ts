@@ -34,7 +34,8 @@ export interface LastBreakoutData {
   }[];
   breakoutRoom_createdLatest: {
     sequence: number;
-    name: string;
+    shortName: string;
+    isDefaultName: boolean;
   }[];
 }
 
@@ -98,7 +99,8 @@ export const getLastBreakouts = gql`
     }
     breakoutRoom_createdLatest {
       sequence
-      name
+      shortName
+      isDefaultName
     }
   }
 `;
