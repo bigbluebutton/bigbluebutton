@@ -766,7 +766,7 @@ class PresentationUploader extends Component {
     try {
       presentationsSorted = presentations
         .sort((a, b) => a.uploadTimestamp - b.uploadTimestamp)
-        .sort((a, b) => a.name.louacaleCompare(b.name))
+        .sort((a, b) => a.name.localeCompare(b.name))
         .sort((a, b) => b.totalPagesUploaded - a.totalPagesUploaded)
         .sort((a, b) => b.uploadInProgress - a.uploadInProgress)
         .sort((a, b) => {
