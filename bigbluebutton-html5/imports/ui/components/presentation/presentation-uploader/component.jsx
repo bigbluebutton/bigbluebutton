@@ -123,10 +123,6 @@ const intlMessages = defineMessages({
     id: 'app.presentationUploder.connectionClosedError',
     description: 'message indicating that the connection was closed',
   },
-  uploadProcess: {
-    id: 'app.presentationUploder.upload.progress',
-    description: 'message that indicates the percentage of the upload',
-  },
   413: {
     id: 'app.presentationUploder.upload.413',
     description: 'error that file exceed the size limit',
@@ -229,10 +225,6 @@ const intlMessages = defineMessages({
   filename: {
     id: 'app.presentationUploder.tableHeading.filename',
     description: 'aria label for file name table heading',
-  },
-  uploading: {
-    id: 'app.presentationUploder.uploading',
-    description: 'uploading label for toast notification',
   },
   uploadStatus: {
     id: 'app.presentationUploder.uploadStatus',
