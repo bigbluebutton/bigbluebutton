@@ -53,7 +53,7 @@ const joinEndpointTableData = [
     "name": "firstName",
     "required": false,
     "type": "String",
-    "description": (<>The user's first name used for sorting purposes; it will not be displayed in the user list.</>)
+    "description": (<>The user's first name portion of "fullname". It is used for sorting purposes; it will not be displayed in the user list. This property is useful if the "fullname" is comprised of several words or if there are title/role/credentials which should be ignored when sorting.</>)
   },
   {
     "name": "lastName",
