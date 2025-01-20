@@ -750,7 +750,7 @@ class RedisRecorderActor(
 
   private def handlePluginPersistEvent(msg: PluginPersistEventEvtMsg): Unit = {
     val ev = new PluginEventPersistenceRecordEvent()
-    ev.setPersistedEventName(msg.body.eventName)
+    ev.setPluginEventName(msg.body.eventName)
     ev.setPluginName(msg.body.pluginName)
     ev.setUserId(msg.header.userId)
     ev.setPayloadJson(msg.body.payloadJson)

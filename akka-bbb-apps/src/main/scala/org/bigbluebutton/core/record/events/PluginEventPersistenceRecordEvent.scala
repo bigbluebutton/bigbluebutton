@@ -7,8 +7,8 @@ class PluginEventPersistenceRecordEvent extends AbstractPluginRecordEvent {
 
   setEvent("PluginGeneratedEvent")
 
-  def setPersistedEventName(eventName: String) {
-    eventMap.put(PERSISTED_EVENT_NAME, eventName)
+  def setPluginEventName(eventName: String) {
+    eventMap.put(PLUGIN_EVENT_NAME, eventName)
   }
 
   def setUserId(userId: String): Unit = {
@@ -22,7 +22,7 @@ class PluginEventPersistenceRecordEvent extends AbstractPluginRecordEvent {
 
 object PluginEventPersistenceRecordEvent {
   protected final val USER_ID = "userId"
-  protected final val PERSISTED_EVENT_NAME = "persistedEventName"
+  protected final val PLUGIN_EVENT_NAME = "pluginEventName"
   protected final val PLUGIN_NAME = "pluginName"
   protected final val PAYLOAD_JSON = "payloadJson"
 }
