@@ -254,8 +254,6 @@ const RecordingIndicator: React.FC<RecordingIndicatorProps> = ({
   }
 
   const recordingButton = recording ? recordMeetingButtonWithTooltip : recordMeetingButton;
-  const defaultRecordTooltip = intl.formatMessage(intlMessages.notificationRecordingStop);
-  const customRecordTooltip = Service.getCustomRecordTooltip(defaultRecordTooltip);
   if (!record) return null;
   return (
     <>

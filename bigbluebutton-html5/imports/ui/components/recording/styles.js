@@ -12,7 +12,7 @@ const NotificationContent = styled.div`
 
 const NotificationActions = styled.div`
   display: flex;
-  justify-content: flex-end;
+  justify-content: space-around;
   margin-top: 1.5rem;
   width: 100%;
 `;
@@ -29,7 +29,6 @@ const ConfirmationButton = styled.button`
   display: flex;
   align-items: center;
   justify-content: center
-  width: 12.75rem;
   height: 3.5rem;
   
   svg {
@@ -51,8 +50,6 @@ const CancelButton = styled.button`
   margin-right: 16px;
   border-radius: ${lgBorderRadius};
   border: none;
-  width: auto;
-  height: auto;
 
   &:hover {
     background-color: #f4f4f4;

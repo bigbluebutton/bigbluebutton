@@ -54,11 +54,15 @@ const RecordingComponent: React.FC<RecordingComponentProps> = ({
 
   const handleShowNotification = () => {
     const isResuming = recordingTime > 0 && !recordingStatus;
-    const title = recordingStatus
-      ? intl.formatMessage(intlMessages.stopTitle)
-      : isResuming
-        ? intl.formatMessage(intlMessages.resumeTitle)
-        : intl.formatMessage(intlMessages.startTitle);
+    let title;
+
+    if (recordingStatus) {
+      title = intl.formatMessage(intlMessages.stopTitle);
+    } else if (isResuming) {
+      title = intl.formatMessage(intlMessages.resumeTitle);
+    } else {
+      title = intl.formatMessage(intlMessages.startTitle);
+    }
 
     const description = recordingStatus
       ? intl.formatMessage(intlMessages.stopDescription)
