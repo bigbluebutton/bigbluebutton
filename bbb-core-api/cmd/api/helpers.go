@@ -4,6 +4,7 @@ import (
 	"context"
 	"encoding/json"
 	"encoding/xml"
+	"io"
 	"log"
 	"log/slog"
 	"net/http"
@@ -32,6 +33,52 @@ const (
 	confName                           = "%%CONFNAME%%"
 	serverUrl                          = "%%SERVERURL%%"
 )
+
+type Modules struct {
+	XMLName xml.Name `xml:"modules"`
+	Modules []Module `xml:"module"`
+}
+
+type Module struct {
+	XMLName xml.Name `xml:"module"`
+	Name    string   `xml:"name,attr"`
+	Content string   `xml:",innerxml"`
+}
+
+type RequestModules map[string][]Module
+
+func (r RequestModules) Get(key string) *Module {
+	vals := r[key]
+	if len(vals) == 0 {
+		return nil
+	}
+	return &vals[0]
+}
+
+func (r RequestModules) GetAll(key string) []Module {
+	vals := r[key]
+	if len(vals) == 0 {
+		return nil
+	}
+	return vals
+}
+
+func (r RequestModules) Set(key string, value Module) {
+	r[key] = []Module{value}
+}
+
+func (r RequestModules) Add(key string, value Module) {
+	r[key] = append(r[key], value)
+}
+
+func (r RequestModules) Del(key string) {
+	delete(r, key)
+}
+
+func (r RequestModules) Has(key string) bool {
+	_, ok := r[key]
+	return ok
+}
 
 func (app *Config) writeXML(w http.ResponseWriter, status int, data any, headers ...http.Header) error {
 	xml, err := xml.Marshal(data)
@@ -139,6 +186,9 @@ func (app *Config) processCreateParams(params *Params) (*common.CreateMeetingSet
 	settings.GroupSettings = app.processGroupSettings(params)
 
 	// TODO: Implement client settings override
+	if app.ServerConfig.Override.ClientSettings {
+
+	}
 
 	settings.PluginSettings = app.processPluginSettings(params)
 
@@ -411,6 +461,22 @@ func (app *Config) processGroupSettings(params *Params) []*common.GroupSettings 
 		}
 	}
 	return groupProps
+}
+
+func (app *Config) procesXMLModules(body io.ReadCloser) (RequestModules, error) {
+	var modules Modules
+	decoder := xml.NewDecoder(body)
+	err := decoder.Decode(&modules)
+	if err != nil {
+		return nil, err
+	}
+
+	reqModules := make(RequestModules)
+	for _, module := range modules.Modules {
+		reqModules.Add(module.Name, module)
+	}
+
+	return reqModules, nil
 }
 
 func (app *Config) processPluginSettings(params *Params) *common.PluginSettings {

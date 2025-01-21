@@ -4,11 +4,13 @@ import (
 	"context"
 	"io"
 	"log"
+	"mime"
 	"net/http"
 	"time"
 
 	"github.com/bigbluebutton/bigbluebutton/bbb-core-api/gen/common"
 	"github.com/bigbluebutton/bigbluebutton/bbb-core-api/gen/core"
+	bbbmime "github.com/bigbluebutton/bigbluebutton/bbb-core-api/internal/mime"
 	"github.com/bigbluebutton/bigbluebutton/bbb-core-api/internal/model"
 	"github.com/bigbluebutton/bigbluebutton/bbb-core-api/internal/validation"
 	"github.com/bigbluebutton/bigbluebutton/bbb-core-api/util"
@@ -261,6 +263,19 @@ func (app *Config) createMeeting(w http.ResponseWriter, r *http.Request) {
 		log.Println(err)
 		app.respondWithErrorXML(w, model.ReturnCodeFailure, model.CreateMeetingErrorKey, model.CreateMeetingErrorMsg)
 		return
+	}
+
+	contentType, _, _ := mime.ParseMediaType(r.Header.Get("Content-Type"))
+	if bbbmime.ApplicationXML.Matches(contentType) || bbbmime.TextXML.Matches(contentType) {
+		modules, err := app.procesXMLModules(r.Body)
+		if err != nil {
+			app.respondWithErrorXML(w, model.ReturnCodeFailure, model.InvalidRequestBodyKey, model.InvalidRequestBodyMsg)
+			return
+		}
+
+		if cso := modules.Get("clientSettingsOverride"); cso != nil && app.ServerConfig.Override.ClientSettings {
+			settings.OverrideClientSettings = cso.Content
+		}
 	}
 
 	res, err := app.Core.CreateMeeting(ctx, &core.CreateMeetingRequest{
