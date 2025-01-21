@@ -26,6 +26,7 @@ export default class BaseAudioBridge {
       failed: 'failed',
       reconnecting: 'reconnecting',
       autoplayBlocked: 'autoplayBlocked',
+      audioPublished: 'audioPublished',
     };
 
     this.bridgeName = BASE_BRIDGE_NAME;

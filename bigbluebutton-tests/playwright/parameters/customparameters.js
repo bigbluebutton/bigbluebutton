@@ -172,7 +172,7 @@ class CustomParameters extends MultiUsers {
 
   async hidePresentationOnJoin() {
     await this.modPage.hasElement(e.actions, 'should display the actions button');
-    await this.modPage.hasElement(e.minimizePresentation, 'should display the minimize presentation button for the moderator');
+    await this.modPage.hasElement(e.restorePresentation, 'should display the restore presentation button for the moderator');
     await this.userPage.hasElement(e.restorePresentation, 'should display the restore presentation button for the attendee');
     await this.userPage.wasRemoved(e.whiteboard, 'should not display the whiteboard for the attendee');
   }

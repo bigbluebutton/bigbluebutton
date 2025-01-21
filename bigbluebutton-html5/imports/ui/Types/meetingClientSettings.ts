@@ -1,4 +1,7 @@
-import type { TrackPublishOptions } from 'livekit-client';
+import type {
+  InternalRoomOptions,
+  TrackPublishOptions,
+} from 'livekit-client';
 
 export interface MeetingClientSettings {
   public: Public
@@ -630,6 +633,7 @@ export interface LiveKitAudioSettings {
 export interface LiveKitSettings {
   url?: string
   selectiveSubscription?: boolean
+  roomOptions?: Partial<InternalRoomOptions>
   audio?: LiveKitAudioSettings
   camera?: LiveKitCameraSettings
   screenshare?: LiveKitScreenShareSettings

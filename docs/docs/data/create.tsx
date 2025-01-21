@@ -324,16 +324,110 @@ const createEndpointTableData = [
     "name": "disabledFeatures",
     "required": false,
     "type": "String",
-    "description": (<>List (comma-separated) of features to disable in a particular meeting. (added 2.5)<br /><br />Available options to disable:<br /><ul><li><code className="language-plaintext highlighter-rouge">breakoutRooms</code>- <b>Breakout Rooms</b> </li><li><code className="language-plaintext highlighter-rouge">captions</code>- <b>Closed Caption</b> </li><li><code className="language-plaintext highlighter-rouge">chat</code>- <b>Chat</b></li><li><code className="language-plaintext highlighter-rouge">privateChat</code>- <b>Private Chat</b></li><li><code className="language-plaintext highlighter-rouge">downloadPresentationWithAnnotations</code>- <b>Annotated presentation download</b></li><li><code className="language-plaintext highlighter-rouge">downloadPresentationConvertedToPdf</code>- <b>Converted presentation download (if BigBlueButton had to convert to PDF)</b></li><li><code className="language-plaintext highlighter-rouge">downloadPresentationOriginalFile</code>- <b>Original presentation download</b></li><li><code className="language-plaintext highlighter-rouge">snapshotOfCurrentSlide</code>- <b>Allow snapshot of the current slide</b></li><li><code className="language-plaintext highlighter-rouge">externalVideos</code>- <b>Share an external video</b> </li><li><code className="language-plaintext highlighter-rouge">importPresentationWithAnnotationsFromBreakoutRooms</code>- <b>Capture breakout presentation</b></li><li><code className="language-plaintext highlighter-rouge">importSharedNotesFromBreakoutRooms</code>- <b>Capture breakout shared notes</b></li><li><code className="language-plaintext highlighter-rouge">layouts</code>- <b>Layouts</b> (allow only default layout)</li><li><code className="language-plaintext highlighter-rouge">learningDashboard</code>- <b>Learning Analytics Dashboard</b></li><li><code className="language-plaintext highlighter-rouge">learningDashboardDownloadSessionData</code>- <b>Learning Analytics Dashboard Download Session Data (prevents the option to download)</b></li><li><code className="language-plaintext highlighter-rouge">polls</code>- <b>Polls</b> </li><li><code className="language-plaintext highlighter-rouge">screenshare</code>- <b>Screen Sharing</b></li><li><code className="language-plaintext highlighter-rouge">sharedNotes</code>- <b>Shared Notes</b></li><li><code className="language-plaintext highlighter-rouge">virtualBackgrounds</code>- <b>Virtual Backgrounds</b></li><li><code className="language-plaintext highlighter-rouge">customVirtualBackgrounds</code>- <b>Virtual Backgrounds Upload</b></li><li><code className="language-plaintext highlighter-rouge">liveTranscription</code>- <b>Live Transcription</b></li><li><code className="language-plaintext highlighter-rouge">presentation</code>- <b>Presentation</b></li><li><code className="language-plaintext highlighter-rouge">cameraAsContent</code>-<b>Enables/Disables camera as a content</b></li><li><code className="language-plaintext highlighter-rouge">timer</code>- <b>disables timer</b></li><li><code className="language-plaintext highlighter-rouge">infiniteWhiteboard</code>- <b>Infinite Whiteboard (added in BigBlueButton 3.0)</b></li></ul></>)
+    "description": (
+        <>
+          List (comma-separated) of features to disable in a particular meeting.
+          <br />
+          <br />
+          Available options to disable:
+          <br />
+          <ul>
+            <li>
+              <code className="language-plaintext highlighter-rouge">breakoutRooms</code> - <b>Breakout Rooms</b>
+            </li>
+            <li>
+              <code className="language-plaintext highlighter-rouge">captions</code> - <b>Closed Caption</b>
+            </li>
+            <li>
+              <code className="language-plaintext highlighter-rouge">chat</code> - <b>Chat (Public and Private)</b>
+            </li>
+            <li>
+              <code className="language-plaintext highlighter-rouge">privateChat</code> - <b>Private Chat</b>
+            </li>
+            <li>
+              <code className="language-plaintext highlighter-rouge">deleteChatMessage</code> - <b>Delete a Chat Message (moderators or author)</b>
+            </li>
+            <li>
+              <code className="language-plaintext highlighter-rouge">editChatMessage</code> - <b>Edit a Chat Message (only author)</b>
+            </li>
+            <li>
+              <code className="language-plaintext highlighter-rouge">replyChatMessage</code> - <b>Reply to a Chat Message</b>
+            </li>
+            <li>
+              <code className="language-plaintext highlighter-rouge">chatMessageReactions</code> - <b>Send Reactions to a chat message</b>
+            </li>
+            <li>
+              <code className="language-plaintext highlighter-rouge">downloadPresentationWithAnnotations</code> - <b>Annotated presentation download</b>
+            </li>
+            <li>
+              <code className="language-plaintext highlighter-rouge">downloadPresentationConvertedToPdf</code> - <b>Converted presentation download (if BigBlueButton had to convert to PDF)</b>
+            </li>
+            <li>
+              <code className="language-plaintext highlighter-rouge">downloadPresentationOriginalFile</code> - <b>Original presentation download</b>
+            </li>
+            <li>
+              <code className="language-plaintext highlighter-rouge">snapshotOfCurrentSlide</code> - <b>Allow snapshot of the current slide</b>
+            </li>
+            <li>
+              <code className="language-plaintext highlighter-rouge">externalVideos</code> - <b>Share an external video</b>
+            </li>
+            <li>
+              <code className="language-plaintext highlighter-rouge">importPresentationWithAnnotationsFromBreakoutRooms</code> - <b>Capture breakout presentation</b>
+            </li>
+            <li>
+              <code className="language-plaintext highlighter-rouge">importSharedNotesFromBreakoutRooms</code> - <b>Capture breakout shared notes</b>
+            </li>
+            <li>
+              <code className="language-plaintext highlighter-rouge">layouts</code> - <b>Layouts</b> (allow only default layout)
+            </li>
+            <li>
+              <code className="language-plaintext highlighter-rouge">learningDashboard</code> - <b>Learning Analytics Dashboard</b>
+            </li>
+            <li>
+              <code className="language-plaintext highlighter-rouge">learningDashboardDownloadSessionData</code> - <b>Learning Analytics Dashboard Download Session Data (prevents the option to download)</b>
+            </li>
+            <li>
+              <code className="language-plaintext highlighter-rouge">polls</code> - <b>Polls</b>
+            </li>
+            <li>
+              <code className="language-plaintext highlighter-rouge">screenshare</code> - <b>Screen Sharing</b>
+            </li>
+            <li>
+              <code className="language-plaintext highlighter-rouge">sharedNotes</code> - <b>Shared Notes</b>
+            </li>
+            <li>
+              <code className="language-plaintext highlighter-rouge">virtualBackgrounds</code> - <b>Virtual Backgrounds</b>
+            </li>
+            <li>
+              <code className="language-plaintext highlighter-rouge">customVirtualBackgrounds</code> - <b>Virtual Backgrounds Upload</b>
+            </li>
+            <li>
+              <code className="language-plaintext highlighter-rouge">liveTranscription</code> - <b>Live Transcription</b>
+            </li>
+            <li>
+              <code className="language-plaintext highlighter-rouge">presentation</code> - <b>Presentation</b>
+            </li>
+            <li>
+              <code className="language-plaintext highlighter-rouge">cameraAsContent</code> - <b>Enables/Disables camera as a content</b>
+            </li>
+            <li>
+              <code className="language-plaintext highlighter-rouge">timer</code> - <b>Disables timer</b>
+            </li>
+            <li>
+              <code className="language-plaintext highlighter-rouge">infiniteWhiteboard</code> - <b>Infinite Whiteboard (added in BigBlueButton 3.0)</b>
+            </li>
+          </ul>
+        </>
+    ),
   },
   {
-    "name": "disabledFeaturesExclude",
-    "required": false,
-    "type": "String",
-    "description": (<>List (comma-separated) of features to no longer disable in a particular meeting. This is particularly useful if you disabled a list of features on a per-server basis but want to allow one of two of these features for a specific meeting. (added 2.6.9)<br /><br />The available options to exclude are exactly the same as for <code className="language-plaintext highlighter-rouge">disabledFeatures</code></>)
+    "name":"disabledFeaturesExclude",
+    "required":false,
+    "type":"String",
+    "description": (<>List (comma-separated) of features to no longer disable in a particular meeting. This is particularly useful if you disabled a list of features on a per-server basis but want to allow one of two of these features for a specific meeting. (added 2.6.9)<br/><br/>The available options to exclude are exactly the same as for <code className="language-plaintext highlighter-rouge">disabledFeatures</code></>)
   },
   {
-    "name": "preUploadedPresentationOverrideDefault",
+    "name":"preUploadedPresentationOverrideDefault",
     "required": false,
     "type": "Boolean",
     "default": "true",
@@ -396,6 +490,20 @@ const createEndpointTableData = [
     "type": "Boolean",
     "default": "false",
     "description": (<> If passed as true, we allow moderators to promote guests to moderators even if the authenticatedGuest config is enabled. The defaultAllowPromoteGuestToModerator configuration sets this behaviour globally for all meetings if no api parameter is passed (added in BBB 2.7.9)</>)
+  },
+  {
+    "name": "pluginManifests",
+    "required": false,
+    "type": "JSON",
+    "description": (
+      <>
+        A list of the BigBlueButton client plugins you want included for the
+        specific session (in addition to the list in <code>/etc/bigbluebutton/bbb-web.properties</code>){" "}
+        <code className="language-plaintext highlighter-rouge">
+          {`pluginManifests=[{"url":"https://someserver.com/plugins/bbb-plugin-pick-random-user/manifest.json"}]`}
+        </code>
+      </>
+    )
   }
 ]
 
