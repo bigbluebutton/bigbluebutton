@@ -43,6 +43,7 @@ export default function ToggleGroup({
         selected={isSelected(option)}
         value={value}
         key={value}
+        hasTitle={!!title}
       >
         {label}
       </Styled.ToggleButton>
@@ -55,7 +56,7 @@ export default function ToggleGroup({
         {title && <Styled.Title>{title}</Styled.Title>}
         <Styled.FormControl sx={{}} size="small">
           <ToggleButtonGroup
-            size="small"
+            size={title ? 'small' : 'medium'}
             color="primary"
             value={selectedValues}
             onChange={handleChange}
