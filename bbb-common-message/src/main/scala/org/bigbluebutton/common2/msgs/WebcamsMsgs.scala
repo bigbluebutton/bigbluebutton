@@ -199,3 +199,16 @@ case class SetCamShowAsContentEvtMsg(
     body:   SetCamShowAsContentEvtMsgBody
 ) extends BbbCoreMsg
 case class SetCamShowAsContentEvtMsgBody(streamId: String, showAsContent: Boolean, setBy: String)
+
+
+
+/**
+ * Sent from client to change Multi Screensharing Permission
+ * */
+object ScreenSharePermissionUpdateCmdMsg  { val NAME = "ScreenSharePermissionUpdateCmdMsg"}
+case class ScreenSharePermissionUpdateCmdMsg(header: BbbClientMsgHeader,body: ScreenSharePermissionUpdateCmdMsgBody ) extends StandardMsg
+case class ScreenSharePermissionUpdateCmdMsgBody(
+     screenShareBroadcastAllowedFor: String,
+     viewerScreenShareViewAllowedFor:String,
+     setBy: String,
+)

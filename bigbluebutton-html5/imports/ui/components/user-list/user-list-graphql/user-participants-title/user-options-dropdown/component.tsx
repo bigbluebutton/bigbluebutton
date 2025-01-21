@@ -168,10 +168,15 @@ const UserTitleOptions: React.FC<UserTitleOptionsProps> = ({
     uid(8, 'options-'),
     uid(8, 'options-'),
     uid(8, 'options-'),
+    uid(8, 'options-'),
   ]);
   const [isCreateBreakoutRoomModalOpen, setCreateBreakoutRoomModalIsOpen] = useState(false);
   const [isGuestPolicyModalOpen, setGuestPolicyModalIsOpen] = useState(false);
   const [isLockViewersModalOpen, setLockViewersModalIsOpen] = useState(false);
+  const [
+    isMultiScreenSharePermissionsModalOpen,
+    setIsMultiScreenSharePermissionsModalOpen,
+  ] = useState(false);
 
   const [setMuted] = useMutation(SET_MUTED);
   const [getUsers, { data: usersData, error: usersError }] = useLazyQuery(GET_USER_NAMES, { fetchPolicy: 'no-cache' });
@@ -260,6 +265,15 @@ const UserTitleOptions: React.FC<UserTitleOptionsProps> = ({
         onClick: () => setLockViewersModalIsOpen(true),
         icon: 'lock',
         dataTest: 'lockViewersButton',
+      },
+      {
+        allow: dynamicGuestPolicy,
+        key: uuids.current[3],
+        icon: 'user',
+        label: intl.formatMessage(intlMessages.guestPolicyLabel),
+        description: intl.formatMessage(intlMessages.guestPolicyDesc),
+        onClick: () => setGuestPolicyModalIsOpen(true),
+        dataTest: 'guestPolicyLabel',
       },
       {
         allow: dynamicGuestPolicy,

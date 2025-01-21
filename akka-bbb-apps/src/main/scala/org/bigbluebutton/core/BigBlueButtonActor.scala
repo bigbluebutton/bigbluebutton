@@ -13,6 +13,8 @@ import org.bigbluebutton.SystemConfiguration
 
 import java.util.concurrent.TimeUnit
 import org.bigbluebutton.common2.msgs._
+import org.bigbluebutton.core.apps.PermissionCheck
+import org.bigbluebutton.core.apps.webcam.CameraHdlrHelpers.permissionFailed
 import org.bigbluebutton.core.db.{ DatabaseConnection, MeetingDAO }
 import org.bigbluebutton.core.domain.MeetingEndReason
 import org.bigbluebutton.core.models.Roles

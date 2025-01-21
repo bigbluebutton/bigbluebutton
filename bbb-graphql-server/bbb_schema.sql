@@ -45,7 +45,9 @@ create table "meeting" (
     "endWhenNoModeratorDelayInMinutes" integer,
 	"endedAt" timestamp with time zone,
 	"endedReasonCode" varchar(200),
-	"endedBy" varchar(50)
+	"endedBy" varchar(50),
+    "screenShareBroadcastAllowedFor" varchar(50),
+    "viewerScreenShareViewAllowedFor" varchar(50)
 );
 ALTER TABLE "meeting" ADD COLUMN "createdAt" timestamp with time zone GENERATED ALWAYS AS (to_timestamp("createdTime"::double precision / 1000)) STORED;
 ALTER TABLE "meeting" ADD COLUMN "ended" boolean GENERATED ALWAYS AS ("endedAt" is not null) STORED;

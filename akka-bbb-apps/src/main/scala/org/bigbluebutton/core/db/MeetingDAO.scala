@@ -14,6 +14,16 @@ case class MeetingSystemColumnsDbModel(
       bannerColor:                           Option[String],
 )
 
+case class PresentationUploadExternalDbModel(
+      presentationUploadExternalDescription: String,
+      presentationUploadExternalUrl:         String,
+)
+
+case class ScreenSharePermissionsDbModel(
+     screenShareBroadcastAllowedFor:         String,
+     viewerScreenShareViewAllowedFor:        String,
+)
+
 case class MeetingDbModel(
     meetingId:                             String,
     extId:                                 String,
@@ -26,10 +36,7 @@ case class MeetingDbModel(
     screenShareBridge:                     String,
     audioBridge:                           String,
     notifyRecordingIsOn:                   Boolean,
-    presentationUploadExternalDescription: String,
-    presentationUploadExternalUrl:         String,
     learningDashboardAccessToken:          String,
-    systemColumns:                         MeetingSystemColumnsDbModel,
     createdTime:                           Long,
     durationInSeconds:                     Int,
     endWhenNoModerator:                    Boolean,
@@ -37,8 +44,9 @@ case class MeetingDbModel(
     endedAt:                               Option[java.sql.Timestamp],
     endedReasonCode:                       Option[String],
     endedBy:                               Option[String],
-    screenShareBroadcastAllowedFor:         String,
-    viewerScreenShareViewAllowedFor:        String
+    systemColumns:                         MeetingSystemColumnsDbModel,
+    PresentationUploadExternal:            PresentationUploadExternalDbModel,
+    screenSharePermissions:                ScreenSharePermissionsDbModel,
 )
 
 class MeetingDbTableDef(tag: Tag) extends Table[MeetingDbModel](tag, None, "meeting") {
@@ -54,10 +62,7 @@ class MeetingDbTableDef(tag: Tag) extends Table[MeetingDbModel](tag, None, "meet
     screenShareBridge,
     audioBridge,
     notifyRecordingIsOn,
-    presentationUploadExternalDescription,
-    presentationUploadExternalUrl,
     learningDashboardAccessToken,
-    systemColumns,
     createdTime,
     durationInSeconds,
     endWhenNoModerator,
@@ -65,8 +70,9 @@ class MeetingDbTableDef(tag: Tag) extends Table[MeetingDbModel](tag, None, "meet
     endedAt,
     endedReasonCode,
     endedBy,
-    screenShareBroadcastAllowedFor,
-    viewerScreenShareViewAllowedFor,
+    systemColumns,
+    PresentationUploadExternal,
+    screenSharePermissions,
   ) <> (MeetingDbModel.tupled, MeetingDbModel.unapply)
   val meetingId = column[String]("meetingId", O.PrimaryKey)
   val extId = column[String]("extId")
@@ -91,6 +97,8 @@ class MeetingDbTableDef(tag: Tag) extends Table[MeetingDbModel](tag, None, "meet
   val bannerText = column[Option[String]]("bannerText")
   val bannerColor = column[Option[String]]("bannerColor")
   val systemColumns = (loginUrl, logoutUrl, customLogoUrl, customDarkLogoUrl, bannerText, bannerColor) <> (MeetingSystemColumnsDbModel.tupled, MeetingSystemColumnsDbModel.unapply)
+  val PresentationUploadExternal = (presentationUploadExternalDescription, presentationUploadExternalUrl) <> (PresentationUploadExternalDbModel.tupled, PresentationUploadExternalDbModel.unapply)
+  val screenSharePermissions = (screenShareBroadcastAllowedFor, viewerScreenShareViewAllowedFor) <> (ScreenSharePermissionsDbModel.tupled, ScreenSharePermissionsDbModel.unapply)
   val createdTime = column[Long]("createdTime")
   val durationInSeconds = column[Int]("durationInSeconds")
   val endWhenNoModerator = column[Boolean]("endWhenNoModerator")
@@ -101,7 +109,7 @@ class MeetingDbTableDef(tag: Tag) extends Table[MeetingDbModel](tag, None, "meet
 }
 
 object MeetingDAO {
-  def insert(meetingProps: DefaultProps, clientSettings: Map[String, Object], pluginProps: PluginModel) = {
+  def insert(meetingProps: DefaultProps, clientSettings: Map[String, Object], pluginProps: PluginModel): Unit = {
     DatabaseConnection.enqueue(
       TableQuery[MeetingDbTableDef].forceInsert(
         MeetingDbModel(
@@ -116,12 +124,8 @@ object MeetingDAO {
           screenShareBridge = meetingProps.meetingProp.screenShareBridge,
           audioBridge = meetingProps.meetingProp.audioBridge,
           notifyRecordingIsOn = meetingProps.meetingProp.notifyRecordingIsOn,
-          presentationUploadExternalDescription = meetingProps.meetingProp.presentationUploadExternalDescription,
-          presentationUploadExternalUrl = meetingProps.meetingProp.presentationUploadExternalUrl,
           learningDashboardAccessToken = meetingProps.password.learningDashboardAccessToken,
-          screenShareBroadcastAllowedFor = meetingProps.meetingProp.screenShareBroadcastAllowedFor,
-          viewerScreenShareViewAllowedFor = meetingProps.meetingProp.viewerScreenShareViewAllowedFor,
-      systemColumns = MeetingSystemColumnsDbModel(
+          systemColumns = MeetingSystemColumnsDbModel(
             loginUrl = meetingProps.systemProps.loginUrl match {
               case "" => None
               case loginUrl => Some(loginUrl)
@@ -145,6 +149,26 @@ object MeetingDAO {
             bannerColor = meetingProps.systemProps.bannerColor match {
               case "" => None
               case bannerColor => Some(bannerColor)
+            },
+          ),
+          PresentationUploadExternal = PresentationUploadExternalDbModel(
+            presentationUploadExternalDescription = meetingProps.meetingProp.presentationUploadExternalDescription match {
+              case "" => ""
+              case presentationUploadExternalDescription => presentationUploadExternalDescription
+            },
+            presentationUploadExternalUrl = meetingProps.meetingProp.presentationUploadExternalUrl match {
+              case "" => ""
+              case presentationUploadExternalUrl => presentationUploadExternalUrl
+            },
+          ),
+          screenSharePermissions = ScreenSharePermissionsDbModel(
+            screenShareBroadcastAllowedFor = meetingProps.meetingProp.screenShareBroadcastAllowedFor match {
+              case "" => ""
+              case screenShareBroadcastAllowedFor => screenShareBroadcastAllowedFor
+            },
+            viewerScreenShareViewAllowedFor = meetingProps.meetingProp.viewerScreenShareViewAllowedFor match {
+              case "" => ""
+              case viewerScreenShareViewAllowedFor => viewerScreenShareViewAllowedFor
             },
           ),
           createdTime = meetingProps.durationProps.createdTime,
@@ -183,6 +207,18 @@ object MeetingDAO {
         .filter(_.extId in subqueryBreakoutRooms)
         .map(u => u.durationInSeconds)
         .update(newDurationInSeconds)
+    )
+  }
+
+  def updateScreenSharePermissions(parentMeetingId: String, screenShareBroadcastAllowedFor: String, viewerScreenShareViewAllowedFor: String, setBy: String) = {
+    DatabaseConnection.enqueue(
+      TableQuery[MeetingDbTableDef]
+        .filter(_.meetingId === parentMeetingId)
+        .map(m => (m.screenShareBroadcastAllowedFor, m.viewerScreenShareViewAllowedFor))
+        .update((
+          screenShareBroadcastAllowedFor,
+          viewerScreenShareViewAllowedFor
+        ))
     )
   }
 
