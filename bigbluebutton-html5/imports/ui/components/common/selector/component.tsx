@@ -39,14 +39,12 @@ export default function Selector({
   return (
     <Styled.Container>
       <Styled.FormControl sx={{ width }} size="small">
-        {title && <Styled.InputLabel id="selector-input-label">{title}</Styled.InputLabel>}
+        {title && <Styled.Title>{title}</Styled.Title>}
         <Styled.Select
           value={selected}
           onChange={handleChange}
-          autoWidth
           displayEmpty
-          label={title}
-          labelId="selector-input-label"
+          hasTitle={!!title}
         >
           {children}
         </Styled.Select>

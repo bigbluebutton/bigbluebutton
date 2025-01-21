@@ -1,11 +1,15 @@
 import styled from 'styled-components';
-import MuiToggleButton from '@mui/material/ToggleButton';
+import { ToggleButton as MuiToggleButton, ToggleButtonProps } from '@mui/material';
 import FormControlMui from '@mui/material/FormControl';
 import { colorPrimary, colorWhite, colorGrayLight } from '/imports/ui/stylesheets/styled-components/palette';
 
-const ToggleButton = styled(MuiToggleButton)`
+interface ToggleButton {
+  hasTitle?: boolean;
+}
+
+const ToggleButton = styled(MuiToggleButton)<ToggleButtonProps & ToggleButton>`
   border-radius: .5rem !important;
-  padding: 0.2rem 0.5rem !important;
+  ${({ hasTitle }) => hasTitle && 'padding: 0.2rem 0.5rem !important'};
 
   ${({ selected }) => selected && `
     background-color: ${colorPrimary} !important;
