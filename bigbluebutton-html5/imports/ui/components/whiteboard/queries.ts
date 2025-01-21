@@ -60,6 +60,7 @@ export const CURRENT_PRESENTATION_PAGE_SUBSCRIPTION = gql`subscription CurrentPr
 
 export const PRESENTATIONS_SUBSCRIPTION = gql`subscription PresentationsSubscription {
   pres_presentation {
+    uploadTemporaryId
     uploadInProgress
     current
     downloadFileUri
