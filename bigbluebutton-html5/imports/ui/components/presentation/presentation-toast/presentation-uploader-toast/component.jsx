@@ -158,6 +158,15 @@ const intlMessages = defineMessages({
   },
 });
 
+function getSizeWithUnit(size) {
+  // If the size in MB is negligible (0.00), switch to kB for better precision
+  const mbString = (size / 1000000).toFixed(2);
+  const kbString = (size / 1000).toFixed(2);
+  return (mbString === '0.00' || mbString === '0,00')
+    ? `${kbString} kB`
+    : `${mbString} MB`;
+}
+
 function renderPresentationItemStatus(item, intl) {
   if ((('progress' in item) && item.progress === 0) || (('upload' in item) && item.upload.progress === 0 && !item.upload.error)) {
     return intl.formatMessage(intlMessages.fileToUpload);
@@ -172,9 +181,7 @@ function renderPresentationItemStatus(item, intl) {
   const constraint = {};
 
   if (('upload' in item) && (item.upload.done && item.upload.error)) {
-    if (item.conversion.status === 'FILE_TOO_LARGE' || item.upload.status !== 413) {
-      constraint['0'] = ((item.conversion.maxFileSize) / 1000 / 1000).toFixed(2);
-    } else if (item.progress < 100) {
+    if (item.progress < 100) {
       const errorMessage = intlMessages.badConnectionError;
       return intl.formatMessage(errorMessage);
     }
@@ -192,11 +199,13 @@ function renderPresentationItemStatus(item, intl) {
         constraint['0'] = item.uploadErrorDetailsJson.numberPageError;
         constraint['1'] = item.uploadErrorDetailsJson.maxNumberOfAttempts;
         break;
-      case 'FILE_TOO_LARGE':
-        constraint['0'] = ((item.uploadErrorDetailsJson.maxFileSize) / 1000 / 1000).toFixed(2);
+      case 'FILE_TOO_LARGE': {
+        const { maxFileSize } = item.uploadErrorDetailsJson;
+        constraint['0'] = getSizeWithUnit(maxFileSize);
         break;
+      }
       case 'PAGE_COUNT_EXCEEDED':
-        constraint['0'] = item.uploadErrorDetailsJson.maxNumberPages;
+        constraint['0'] = item.uploadErrorDetailsJson.maxNumberOfPages;
         break;
       case 'PDF_HAS_BIG_PAGE':
         constraint['0'] = (item.uploadErrorDetailsJson.bigPageSize / 1000 / 1000).toFixed(2);
@@ -282,7 +291,7 @@ const renderToastList = (presentations, intl) => {
 
   presentationsSorted
     .forEach((p) => {
-      const presDone = !p.uploadInProgress;
+      const presDone = p?.totalPages !== 0 && p?.totalPagesUploaded === p?.totalPages;
       if (presDone) converted += 1;
       return p;
     });

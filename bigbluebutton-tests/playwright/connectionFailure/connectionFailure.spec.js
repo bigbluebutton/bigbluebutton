@@ -5,12 +5,16 @@ const e = require('../core/elements');
 const { getCurrentTCPSessions, killTCPSessions } = require('./util');
 const deepEqual = require('deep-equal');
 
+// @ci Note: This entire test suite is skipped in CI because killing TCP connection
+// might result in loss of connection with github server, causing the test to fail
+
 test.describe.parallel('Connection failure', () => {
-  // https://docs.bigbluebutton.org/2.6/release-tests.html#sharing-screen-in-full-screen-mode-automated
-  test('Screen sharer', async ({ browser, browserName, page }) => {
+  // https://docs.bigbluebutton.org/3.0/testing/release-testing/#sharing-screen-in-full-screen-mode-automated
+  test('Screen share', async ({ browser, browserName, page }) => {
     await checkRootPermission(); // check sudo permission before starting test
-    test.skip(browserName === 'firefox' && process.env.DISPLAY === undefined,
-              "Screenshare tests not able in Firefox browser without desktop");
+    test.skip(browserName === 'firefox',
+      "Screenshare tests not able in Firefox browser without desktop",
+    );
     const screenshare = new ScreenShare(browser, page);
     await screenshare.init(true, true);
     await screenshare.startSharing();
@@ -27,8 +31,9 @@ test.describe.parallel('Connection failure', () => {
 
   test('Screen share viewer', async ({ browser, browserName, page, context }) => {
     await checkRootPermission(); // check sudo permission before starting test
-    test.skip(browserName === 'firefox' && process.env.DISPLAY === undefined,
-              "Screenshare tests not able in Firefox browser without desktop");
+    test.skip(browserName === 'firefox',
+      "Screenshare tests not able in Firefox browser without desktop",
+    );
     const screenshare = new MultiUserScreenShare(browser, context);
 
     await screenshare.initModPage(page);

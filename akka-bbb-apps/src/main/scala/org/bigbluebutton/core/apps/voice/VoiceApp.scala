@@ -11,7 +11,7 @@ import org.bigbluebutton.common2.msgs._
 import org.bigbluebutton.core.running.{LiveMeeting, MeetingActor, OutMsgRouter}
 import org.bigbluebutton.core.models._
 import org.bigbluebutton.core.apps.users.UsersApp
-import org.bigbluebutton.core.db.{UserDAO, UserVoiceDAO}
+import org.bigbluebutton.core.db.{MeetingVoiceDAO, UserDAO, UserVoiceDAO}
 import org.bigbluebutton.core.util.ColorPicker
 import org.bigbluebutton.core.util.TimeUtil
 
@@ -487,6 +487,8 @@ object VoiceApp extends SystemConfiguration {
       )
       outGW.send(event)
     }
+
+    MeetingVoiceDAO.updateMuteOnStart(liveMeeting.props.meetingProp.intId, liveMeeting.status)
   }
 
 /** Toggle audio for the given user in voice conference.

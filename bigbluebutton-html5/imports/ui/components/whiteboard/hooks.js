@@ -1,6 +1,12 @@
 import React, { useState, useEffect } from 'react';
 import { throttle } from 'radash';
 
+const hasBackgroundImageUrl = (el) => {
+  const style = window.getComputedStyle(el);
+  const bg = style.backgroundImage || '';
+  return bg.includes('url(');
+}
+
 const useCursor = (publishCursorUpdate, whiteboardId) => {
   const [cursorPosition, setCursorPosition] = useState({ x: '', y: '' });
 
@@ -66,13 +72,29 @@ const useMouseEvents = ({
   };
 
   const handleMouseDownWindow = (event) => {
+    const target = event.target;
+    const editor = tlEditorRef.current;
     const presentationInnerWrapper = document.getElementById('presentationInnerWrapper');
-    if (!(presentationInnerWrapper && presentationInnerWrapper.contains(event.target))) {
-      const editingShape = tlEditorRef.current?.getEditingShape();
-      if (editingShape) {
-        return tlEditorRef.current?.complete();
+
+    if (!(presentationInnerWrapper && presentationInnerWrapper.contains(target))) {
+      if (editor?.getEditingShape()) {
+        return editor.complete();
       }
     }
+
+    const selectedShapes = editor?.getSelectedShapes();
+    if (
+      selectedShapes?.length === 1 &&
+      selectedShapes[0].type === 'frame' &&
+      editor?.getCurrentToolId() === 'select' &&
+      !target.matches('[data-testid*="selection.resize"]') &&
+      !target.matches('[data-testid*="selection.target"]') &&
+      hasBackgroundImageUrl(target)
+    ) {
+      editor.selectNone();
+      return editor.complete();
+    }
+
     return undefined;
   };
 

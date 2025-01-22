@@ -1,8 +1,9 @@
 package org.bigbluebutton.core.db
 
-import org.bigbluebutton.common2.domain.{ VoiceProp }
+import org.bigbluebutton.common2.domain.VoiceProp
+import org.bigbluebutton.core2.MeetingStatus2x
 import slick.jdbc.PostgresProfile.api._
-import slick.lifted.{ ProvenShape }
+import slick.lifted.ProvenShape
 
 case class MeetingVoiceDbModel(
     meetingId:   String,
@@ -36,6 +37,15 @@ object MeetingVoiceDAO {
           muteOnStart = voiceProp.muteOnStart
         )
       )
+    )
+  }
+
+  def updateMuteOnStart(meetingId: String, meetingStatus: MeetingStatus2x) = {
+    DatabaseConnection.enqueue(
+      TableQuery[MeetingVoiceDbTableDef]
+        .filter(_.meetingId === meetingId)
+        .map(u => (u.muteOnStart))
+        .update((MeetingStatus2x.isMeetingMuted(meetingStatus)))
     )
   }
 }
