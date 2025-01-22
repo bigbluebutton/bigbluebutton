@@ -304,14 +304,14 @@ class CustomParameters extends MultiUsers {
   async webcamBackgroundURL() {
     await this.modPage.waitForSelector(e.whiteboard);
     await this.modPage.waitAndClick(e.joinVideo);
-    await this.modPage.waitForSelector(e.webcamSettingsModal);
-    await this.modPage.waitForSelector(e.noneBackgroundButton);
+    await this.modPage.hasElement(e.webcamSettingsModal, 'should display the webcam settings modal when clicking to join video');
+    await this.modPage.waitAndClick(e.backgroundSettingsTitle);
     const appleBackground = await this.modPage.getLocator(e.selectCustomBackground);
     await expect(appleBackground).toHaveCount(1);
     await this.modPage.waitAndClick(e.selectCustomBackground);
     await this.modPage.waitAndClick(e.startSharingWebcam);
-    await this.modPage.waitForSelector(e.webcamContainer);
-    const webcamBackgroundURL = this.modPage.getLocator(e.webcamContainer);
+    await this.modPage.hasElement(e.webcamMirroredVideoContainer, 'should display the webcam (mirrored) container after successfully sharing webcam');
+    const webcamBackgroundURL = this.modPage.getLocator(e.webcamMirroredVideoContainer);
     await expect(webcamBackgroundURL).toHaveScreenshot('webcam-background-passing-url.png');
   }
 }
