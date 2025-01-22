@@ -2,6 +2,7 @@
 import React, { useContext, useState } from 'react';
 import * as PluginSdk from 'bigbluebutton-html-plugin-sdk';
 import { useIntl } from 'react-intl';
+import Auth from '/imports/ui/services/auth';
 import {
   UserListItemAdditionalInformationType,
 } from 'bigbluebutton-html-plugin-sdk/dist/cjs/extensible-areas/user-list-item-additional-information/enums';
@@ -182,12 +183,10 @@ const UserListItem: React.FC<UserListItemProps> = ({
         presenter={user.presenter}
         talking={voiceUser?.talking}
         muted={voiceUser?.muted}
-        listenOnly={voiceUser?.listenOnly}
-        voice={voiceUser?.joined}
-        noVoice={!voiceUser?.joined}
         color={user.color}
         animations={animations}
         avatar={userAvatarFiltered}
+        you={user.userId === Auth.userID}
       >
         <AvatarContent
           user={user}
