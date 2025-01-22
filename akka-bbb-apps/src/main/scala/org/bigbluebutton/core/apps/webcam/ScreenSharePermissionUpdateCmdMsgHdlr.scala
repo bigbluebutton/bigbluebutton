@@ -23,17 +23,14 @@ trait ScreenSharePermissionUpdateCmdMsgHdlr {
       liveMeeting: LiveMeeting,
       bus:         MessageBus
   ): Unit = {
-    log.info(s"\n\n\n\n\nAchou o handler")
     val meetingId = liveMeeting.props.meetingProp.intId
     val setBy = msg.body.setBy
     if (permissionFailed(PermissionCheck.MOD_LEVEL, PermissionCheck.VIEWER_LEVEL, liveMeeting.users2x, msg.header.userId)) {
-      log.info(s"\n\nTem Permissão")
       val screenShareBroadcastAllowedFor = msg.body.screenShareBroadcastAllowedFor
       val viewerScreenShareViewAllowedFor = msg.body.viewerScreenShareViewAllowedFor
 
       if (ScreenSharePermissionsType.screenShareBroadcastAllowedForPermissionsType.contains(screenShareBroadcastAllowedFor)
         && ScreenSharePermissionsType.viewerScreenShareViewAllowedForPermissionsType.contains(viewerScreenShareViewAllowedFor)) {
-        log.info(s"\n\n\nValores estão corretos")
         // TODO: update live meeting or create a new field on meeting status
         MeetingDAO.updateScreenSharePermissions(
           meetingId,

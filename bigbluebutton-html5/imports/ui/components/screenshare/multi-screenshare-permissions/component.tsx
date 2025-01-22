@@ -25,7 +25,15 @@ priority,
       contentLabel={"Multi-Screenshare Permissions"}
       title={"Multi-Screenshare Permissions"} 
     >
-      <div></div>
+      <Styled.Container
+        data-test="multi-screenshare-permissions-modal"
+      >
+        <Styled.Description>
+
+        </Styled.Description>
+        <Styled.Content>
+        </Styled.Content>
+      </Styled.Container>
     </Styled.MultiScreenSharePermissionsModal>
   );
 };
