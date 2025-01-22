@@ -301,7 +301,7 @@ const ChatMessageList: React.FC<ChatListProps> = ({
         return prev;
       });
     }
-  }, [isStartSentinelVisible, followingTail]);
+  }, [isStartSentinelVisible]);
 
   useEffect(() => {
     setter({
