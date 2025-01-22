@@ -121,8 +121,7 @@ test.describe.parallel('Breakout', { tag: '@ci' }, () => {
       await join.moveUserToOtherRoom();
     });
 
-    test('Export breakout room shared notes', { tag: '@flaky' }, async ({ browser, context, page }) => {
-      // frequently failing on CI due to missing "current presentation" notifications
+    test('Export breakout room shared notes', async ({ browser, context, page }) => {
       linkIssue(21576);
       const join = new Join(browser, context);
       await join.initPages(page);
