@@ -469,6 +469,16 @@ const ChatMessageList: React.FC<ChatListProps> = ({
                 setShowStartSentinel(userScrolledUp);
               }
             }}
+            onWheel={(e) => {
+              if (e.deltaY < 0 && isStartSentinelVisible) {
+                setUserLoadedBackUntilPage((prev) => {
+                  if (typeof prev === 'number' && prev > 0) {
+                    return prev - 1;
+                  }
+                  return prev;
+                });
+              }
+            }}
             data-test="chatMessages"
             isRTL={isRTL}
             ref={updateRefs}
