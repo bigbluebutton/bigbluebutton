@@ -44,6 +44,17 @@ const useMouseEvents = ({
   isInfiniteWhiteboard,
 }) => {
   const timeoutIdRef = React.useRef();
+  const fingerCountRef = React.useRef(0);
+  const initialPinchDistanceRef = React.useRef(0);
+  const isPinchingRef = React.useRef(false);
+
+  const PINCH_THRESHOLD = 10;
+
+  const getDistanceBetweenTouches = (touch1, touch2) => {
+    const dx = touch2.clientX - touch1.clientX;
+    const dy = touch2.clientY - touch1.clientY;
+    return Math.sqrt(dx * dx + dy * dy);
+  }
 
   const handleMouseUp = () => {
     if (timeoutIdRef.current) {
@@ -180,6 +191,46 @@ const useMouseEvents = ({
     setWheelZoomTimeout();
   });
 
+  const handleTouchStart = (event) => {
+    if (event.touches.length === 2) {
+      fingerCountRef.current = 2;
+      isPinchingRef.current = false;
+      const [t1, t2] = event.touches;
+      initialPinchDistanceRef.current = getDistanceBetweenTouches(t1, t2);
+    } else if (event.touches.length === 3) {
+      fingerCountRef.current = 3;
+    } else {
+      fingerCountRef.current = 0;
+    }
+  };
+
+  const handleTouchMove = (event) => {
+    if (fingerCountRef.current === 2 && event.touches.length === 2) {
+      const [t1, t2] = event.touches;
+      const currentDistance = getDistanceBetweenTouches(t1, t2);
+      const distanceDiff = Math.abs(currentDistance - initialPinchDistanceRef.current);
+      if (distanceDiff > PINCH_THRESHOLD) {
+        isPinchingRef.current = true;
+      }
+    }
+  };
+
+  const handleTouchEnd = (event) => {
+    if (event.touches.length === 0) {
+      const count = fingerCountRef.current;
+      if (count === 2) {
+        if (!isPinchingRef.current) {
+          tlEditorRef.current?.undo();
+        }
+      } else if (count === 3) {
+        tlEditorRef.current?.redo();
+      }
+      fingerCountRef.current = 0;
+      isPinchingRef.current = false;
+      initialPinchDistanceRef.current = 0;
+    }
+  };
+
   React.useEffect(() => {
     if (whiteboardToolbarAutoHide) {
       toggleToolsAnimations(
@@ -209,6 +260,10 @@ const useMouseEvents = ({
       whiteboardElement.addEventListener('mouseenter', handleMouseEnter);
       whiteboardElement.addEventListener('mouseleave', handleMouseLeave);
       whiteboardElement.addEventListener('wheel', handleMouseWheel, { passive: false, capture: true });
+
+      whiteboardElement.addEventListener('touchstart', handleTouchStart, { passive: false, capture: true });
+      whiteboardElement.addEventListener('touchend', handleTouchEnd, { passive: false, capture: true });
+      whiteboardElement.addEventListener('touchmove', handleTouchMove, { passive: false });
     }
 
     return () => {
@@ -218,6 +273,10 @@ const useMouseEvents = ({
         whiteboardElement.removeEventListener('mouseenter', handleMouseEnter);
         whiteboardElement.removeEventListener('mouseleave', handleMouseLeave);
         whiteboardElement.removeEventListener('wheel', handleMouseWheel);
+
+        whiteboardElement.removeEventListener('touchstart', handleTouchStart);
+        whiteboardElement.removeEventListener('touchend', handleTouchEnd);
+        whiteboardElement.removeEventListener('touchmove', handleTouchMove);
       }
 
       window.removeEventListener('mousedown', handleMouseDownWindow);
