@@ -218,6 +218,9 @@ const useMouseEvents = ({
   const handleTouchEnd = (event) => {
     if (event.touches.length === 0) {
       const count = fingerCountRef.current;
+
+      if (!hasWBAccess) return;
+
       if (count === 2) {
         if (!isPinchingRef.current) {
           tlEditorRef.current?.undo();
