@@ -179,16 +179,20 @@ const PresentationContainer = (props) => {
     if (PRELOAD_NEXT_SLIDE
       && !presentation.fetchedSlide[currentSlide.num + PRELOAD_NEXT_SLIDE]
       && presentation.canFetch) {
-      // TODO: preload next slides should be reimplemented in graphql
-      const slidesToFetch = [currentPresentationPage];
+      const nextSlidesSvgUrl = (currentPresentationPage.nextPagesSvg || [])
+        .map((url) => ({ svgUrl: url }));
+      const slidesToFetch = [
+        currentPresentationPage,
+        ...nextSlidesSvgUrl,
+      ];
 
       const promiseImageGet = slidesToFetch
-        .filter((s) => !fetchedpresentation[presentationId].fetchedSlide[s.num])
+        .filter((s) => !fetchedpresentation[presentationId].fetchedSlide[s.svgUrl])
         .map(async (slide) => {
           if (presentation.canFetch) presentation.canFetch = false;
           const image = await fetch(slide.svgUrl);
           if (image.ok) {
-            presentation.fetchedSlide[slide.num] = true;
+            presentation.fetchedSlide[slide.svgUrl] = true;
           }
         });
       Promise.all(promiseImageGet).then(() => {
