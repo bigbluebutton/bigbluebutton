@@ -1,17 +1,17 @@
 package org.bigbluebutton.core.util
 
-import com.fasterxml.jackson.databind.{JsonNode, ObjectMapper}
+import com.fasterxml.jackson.databind.{ JsonNode, ObjectMapper }
 import com.fasterxml.jackson.module.scala.DefaultScalaModule
 import org.apache.commons.codec.digest.DigestUtils
 import org.bigbluebutton.protos.PluginManifest
 
-import java.io.{BufferedReader, InputStreamReader}
+import java.io.{ BufferedReader, InputStreamReader }
 import java.net.URL
 import java.util.concurrent.Executors
 import scala.collection.concurrent.TrieMap
 import scala.concurrent.duration.DurationInt
-import scala.concurrent.{Await, ExecutionContext, Future, blocking}
-import scala.util.{Failure, Success, Try}
+import scala.concurrent.{ Await, ExecutionContext, Future, blocking }
+import scala.util.{ Failure, Success, Try }
 
 object PluginManifestProcessor {
   implicit val ec: ExecutionContext = ExecutionContext.fromExecutor(Executors.newFixedThreadPool(10))
@@ -83,7 +83,7 @@ object PluginManifestProcessor {
     val futures = pluginManifests.map { pluginManifest =>
       processManifest(pluginManifest, meetingMetadata).map {
         case Some((key, value)) => urlContents.put(key, value)
-        case None =>
+        case None               =>
       }
     }
 

@@ -14,7 +14,7 @@ type IsMeetingRunningValidator struct {
 }
 
 func (i *IsMeetingRunningValidator) Validate() (bool, string, string) {
-	ok, key, msg := IsMeetingIdValid(i.Request.MeetingId)
+	ok, key, msg := IsMeetingIdValid(i.Request.MeetingID)
 	return ok, key, msg
 }
 
@@ -23,7 +23,7 @@ type GetMeetingInfoValidator struct {
 }
 
 func (g *GetMeetingInfoValidator) Validate() (bool, string, string) {
-	ok, key, msg := IsMeetingIdValid(g.Request.MeetingId)
+	ok, key, msg := IsMeetingIdValid(g.Request.MeetingID)
 	return ok, key, msg
 }
 
@@ -32,7 +32,7 @@ type GetMeetingsValidator struct {
 }
 
 func (g *GetMeetingsValidator) Validate() (bool, string, string) {
-	meetingId := g.Request.MeetingId
+	meetingId := g.Request.MeetingID
 	if meetingId == "" {
 		return true, "", ""
 	}
@@ -46,7 +46,7 @@ type CreateValidator struct {
 }
 
 func (c *CreateValidator) Validate() (bool, string, string) {
-	ok, key, msg := IsMeetingIdValid(c.Request.MeetingId)
+	ok, key, msg := IsMeetingIdValid(c.Request.MeetingID)
 	if !ok {
 		return ok, key, msg
 	}
@@ -80,7 +80,7 @@ func (c *CreateValidator) Validate() (bool, string, string) {
 		}
 
 		if util.GetBoolOrDefaultValue(c.Request.IsBreakoutRoom, false) {
-			if c.Request.ParentMeetingId == "" {
+			if c.Request.ParentMeetingID == "" {
 				return false, model.ParentMeetingIdMissingErrorKey, model.ParentMeetingIdMissingErrorMsg
 			}
 		}
@@ -94,4 +94,13 @@ func (c *CreateValidator) Validate() (bool, string, string) {
 	}
 
 	return true, "", ""
+}
+
+type InsertDocumentValidator struct {
+	Request *model.InsertDocumentRequest
+}
+
+func (i *InsertDocumentValidator) Validate() (bool, string, string) {
+	ok, key, msg := IsMeetingIdValid(i.Request.MeetingID)
+	return ok, key, msg
 }

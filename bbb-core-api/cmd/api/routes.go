@@ -39,5 +39,7 @@ func (app *Config) routes() http.Handler {
 	mux.Get("/create", app.createMeeting)
 	mux.With(app.validateContentType([]mime.MimeType{mime.ApplicationFormURLEncoded, mime.MultipartFormData, mime.ApplicationXML, mime.TextXML})).Post("/create", app.createMeeting)
 
+	mux.With(app.validateContentType([]mime.MimeType{mime.ApplicationXML, mime.TextXML})).Post("/insertDocument", app.insertDocument)
+
 	return mux
 }

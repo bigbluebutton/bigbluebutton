@@ -70,7 +70,8 @@ trait GetMeetingInfoMsgHdlr {
       breakoutRooms = if (state.breakout.isDefined) state.breakout.get.getRooms().map(_.name).toList else List(),
       durationInfo = Some(durationInfo),
       participantInfo = Some(participantInfo),
-      breakoutInfo = Some(breakoutInfo)
+      breakoutInfo = Some(breakoutInfo),
+      disabledFeatures = liveMeeting.props.meetingProp.disabledFeatures
     )
   }
 }

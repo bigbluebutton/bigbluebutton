@@ -2,23 +2,27 @@ package model
 
 type CreateRequest struct {
 	Name            string
-	MeetingId       string
+	MeetingID       string
 	VoiceBridge     string
 	AttendeePw      string
 	ModeratorPw     string
 	IsBreakoutRoom  string
-	ParentMeetingId string
+	ParentMeetingID string
 	Record          string
 }
 
 type IsMeetingRunningRequest struct {
-	MeetingId string
+	MeetingID string
 }
 
 type GetMeetingInfoRequest struct {
-	MeetingId string
+	MeetingID string
 }
 
 type GetMeetingsRequest struct {
-	MeetingId string
+	MeetingID string
+}
+
+type InsertDocumentRequest struct {
+	MeetingID string
 }

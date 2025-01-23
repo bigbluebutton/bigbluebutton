@@ -7,7 +7,7 @@ import (
 )
 
 const (
-	ValidationErrorKey = "validationError"
+	ValidationErrorKey string = "validationError"
 
 	ReturnCodeSuccess string = "SUCCESS"
 	ReturnCodeFailure string = "FAILED"
@@ -48,8 +48,8 @@ const (
 	VoiceBridgeInUserErrorKey string = "nonUniqueVoiceBridge"
 	VoiceBridgeInUserErrorMsg string = "The selected voice bridge is already in use."
 
-	PasswordLengthErrorKey = "invalidPassword"
-	PasswordLengthErrorMsg = "Passwords must be between 2 and 64 character in length"
+	PasswordLengthErrorKey string = "invalidPassword"
+	PasswordLengthErrorMsg string = "Passwords must be between 2 and 64 character in length"
 
 	IsBreakoutRoomFormatErrorKey string = ValidationErrorKey
 	IsBreakoutRoomFormatErrorMsg string = "You must provide a boolean value (true or false) for the breakout room"
@@ -68,6 +68,12 @@ const (
 
 	CreateMeetingDuplicateKey string = "duplicateWarning"
 	CreateMeetingDuplicateMsg string = "This conference was already in existence and may currently be in progress."
+
+	MeetingNotFoundKey string = "notFound"
+	MeetingNotFoundMsg string = "A meeting with that ID does not exist."
+
+	PresentationDisabledKey string = "presentationDisabled"
+	PresentationDisabledMsg string = "Presentation feature is disabled, ignoring."
 )
 
 type Response struct {

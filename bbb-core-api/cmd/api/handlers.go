@@ -4,6 +4,7 @@ import (
 	"context"
 	"io"
 	"log"
+	"log/slog"
 	"mime"
 	"net/http"
 	"time"
@@ -18,14 +19,14 @@ import (
 )
 
 func (app *Config) isMeetingRunning(w http.ResponseWriter, r *http.Request) {
-	log.Println("Handling isMeetingRunning request")
+	slog.Info("Handling isMeetingRunning request")
 
 	params := r.Context().Value(ParamsKey).(Params)
 	var payload model.Response
 
-	meetingId := util.StripCtrlChars(params.Get("meetingID"))
+	meetingID := util.StripCtrlChars(params.Get("meetingID"))
 	req := &model.IsMeetingRunningRequest{
-		MeetingId: meetingId,
+		MeetingID: meetingID,
 	}
 
 	v := validation.IsMeetingRunningValidator{
@@ -42,7 +43,7 @@ func (app *Config) isMeetingRunning(w http.ResponseWriter, r *http.Request) {
 
 	res, err := app.Core.IsMeetingRunning(ctx, &core.MeetingRunningRequest{
 		MeetingData: &common.MeetingData{
-			MeetingId: meetingId,
+			MeetingId: meetingID,
 		},
 	})
 	if err != nil {
@@ -60,13 +61,13 @@ func (app *Config) isMeetingRunning(w http.ResponseWriter, r *http.Request) {
 }
 
 func (app *Config) getMeetingInfo(w http.ResponseWriter, r *http.Request) {
-	log.Println("Handling getMeetingInfo request")
+	slog.Info("Handling getMeetingInfo request")
 
 	params := r.Context().Value(ParamsKey).(Params)
 
-	meetingId := util.StripCtrlChars(params.Get("meetingID"))
+	meetingID := util.StripCtrlChars(params.Get("meetingID"))
 	req := &model.GetMeetingInfoRequest{
-		MeetingId: meetingId,
+		MeetingID: meetingID,
 	}
 
 	v := validation.GetMeetingInfoValidator{
@@ -83,7 +84,7 @@ func (app *Config) getMeetingInfo(w http.ResponseWriter, r *http.Request) {
 
 	res, err := app.Core.GetMeetingInfo(ctx, &core.MeetingInfoRequest{
 		MeetingData: &common.MeetingData{
-			MeetingId: meetingId,
+			MeetingId: meetingID,
 		},
 	})
 	if err != nil {
@@ -140,15 +141,15 @@ func (app *Config) getMeetingInfo(w http.ResponseWriter, r *http.Request) {
 }
 
 func (app *Config) getMeetings(w http.ResponseWriter, r *http.Request) {
-	log.Println("Handling getMeetings request")
+	slog.Info("Handling getMeetings request")
 
 	params := r.Context().Value(ParamsKey).(Params)
 	var payload model.Response
 
-	meetingId := util.StripCtrlChars(params.Get("meetingID"))
+	meetingID := util.StripCtrlChars(params.Get("meetingID"))
 
 	req := &model.GetMeetingsRequest{
-		MeetingId: meetingId,
+		MeetingID: meetingID,
 	}
 
 	v := validation.GetMeetingsValidator{
@@ -165,7 +166,7 @@ func (app *Config) getMeetings(w http.ResponseWriter, r *http.Request) {
 
 	stream, err := app.Core.GetMeetingsStream(ctx, &core.GetMeetingsStreamRequest{
 		MeetingData: &common.MeetingData{
-			MeetingId: meetingId,
+			MeetingId: meetingID,
 		},
 	})
 	if err != nil {
@@ -177,6 +178,7 @@ func (app *Config) getMeetings(w http.ResponseWriter, r *http.Request) {
 			return
 		default:
 			app.respondWithErrorXML(w, model.ReturnCodeFailure, model.UnknownErrorKey, model.UnknownErrorMsg)
+			return
 		}
 	}
 
@@ -207,18 +209,18 @@ func (app *Config) getMeetings(w http.ResponseWriter, r *http.Request) {
 }
 
 func (app *Config) createMeeting(w http.ResponseWriter, r *http.Request) {
-	log.Println("Handling createMeeting request")
+	slog.Info("Handling createMeeting request")
 
 	params := r.Context().Value(ParamsKey).(Params)
 
 	req := &model.CreateRequest{
 		Name:            util.StripCtrlChars(params.Get("name")),
-		MeetingId:       util.StripCtrlChars(params.Get("meetingID")),
+		MeetingID:       util.StripCtrlChars(params.Get("meetingID")),
 		VoiceBridge:     util.StripCtrlChars(params.Get("voiceBridge")),
 		AttendeePw:      util.StripCtrlChars(params.Get("attendeePW")),
 		ModeratorPw:     util.StripCtrlChars(params.Get("moderatorPW")),
 		IsBreakoutRoom:  util.StripCtrlChars(params.Get("isBreakoutRoom")),
-		ParentMeetingId: util.StripCtrlChars(params.Get("parentMeetingId")),
+		ParentMeetingID: util.StripCtrlChars(params.Get("parentMeetingId")),
 		Record:          util.StripCtrlChars(params.Get("record")),
 	}
 
@@ -320,4 +322,50 @@ func (app *Config) createMeeting(w http.ResponseWriter, r *http.Request) {
 		payload.Message = model.CreateMeetingDuplicateMsg
 	}
 	app.writeXML(w, http.StatusAccepted, payload)
+}
+
+func (app *Config) insertDocument(w http.ResponseWriter, r *http.Request) {
+	slog.Info("Handling insertDocument request")
+
+	params := r.Context().Value(ParamsKey).(Params)
+
+	meetingID := util.StripCtrlChars(params.Get("meetingID"))
+	req := &model.InsertDocumentRequest{
+		MeetingID: meetingID,
+	}
+
+	v := validation.InsertDocumentValidator{
+		Request: req,
+	}
+	ok, key, msg := v.Validate()
+	if !ok {
+		app.respondWithErrorXML(w, model.ReturnCodeFailure, key, msg)
+		return
+	}
+
+	ctx, cancel := context.WithTimeout(context.Background(), time.Second)
+	defer cancel()
+
+	res, err := app.Core.GetMeetingInfo(ctx, &core.MeetingInfoRequest{
+		MeetingData: &common.MeetingData{
+			MeetingId: meetingID,
+		},
+	})
+	if err != nil {
+		log.Println(err)
+		code := app.getGrpcErrorCode(err)
+		switch code {
+		case codes.NotFound:
+			app.writeXML(w, http.StatusAccepted, app.grpcErrorToErrorResp(err))
+			return
+		default:
+			app.respondWithErrorXML(w, model.ReturnCodeFailure, model.UnknownErrorKey, model.UnknownErrorMsg)
+		}
+	}
+
+	for _, df := range res.MeetingInfo.DisabledFeatures {
+		if df == "presentation" {
+			app.respondWithErrorXML(w, model.ReturnCodeFailure, model.PresentationDisabledKey, model.PresentationDisabledMsg)
+		}
+	}
 }
