@@ -69,11 +69,6 @@ const ErrorBoundaryWithReload = ({ children }) => {
     };
 
     const handleUnhandledRejection = (event) => {
-      // Ignore error caused by ReactDevTools (chrome-extension://fmkadmapgofadopljbjfkapdkoienihi/build/installHook.js)
-      if (event.reason?.stack?.toString().indexOf('fmkadmapgofadopljbjfkapdkoienihi') !== -1) {
-        return;
-      }
-
       logger.error({
         logCode: 'ErrorBoundaryWithReload.UnhandledRejection',
         extraInfo: {
@@ -81,6 +76,11 @@ const ErrorBoundaryWithReload = ({ children }) => {
           errorStack: event.reason?.stack,
         },
       }, 'Unhandled promise rejection caught by ErrorBoundaryWithReload');
+
+      // Ignore errors caused by a Chrome Extension
+      if (event.reason?.stack?.toString().indexOf('chrome-extension://') !== -1) {
+        return;
+      }
 
       triggerError();
     };
