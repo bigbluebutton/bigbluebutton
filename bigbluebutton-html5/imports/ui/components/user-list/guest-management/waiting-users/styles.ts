@@ -9,7 +9,6 @@ import {
   colorGrayLighter,
   colorGrayLightest,
   colorText,
-
 } from '/imports/ui/stylesheets/styled-components/palette';
 import {
   borderSize,
@@ -276,6 +275,7 @@ const SendButton = styled(Button)`
   align-self: center;
   font-size: 0.9rem;
   height: 100%;
+  background-color: ${colorPrimary} !important;
 
   & > span {
     height: 100%;
