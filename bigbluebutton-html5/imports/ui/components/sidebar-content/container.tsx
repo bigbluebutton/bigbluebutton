@@ -21,7 +21,7 @@ const SidebarContentContainer = ({ isSharedNotesPinned }: SidebarContentContaner
     height,
     maxHeight,
     isResizable,
-    resizableEge,
+    resizableEdge,
   } = sidebarContentOutput;
 
   if (sidebarContentOutput.display === false) return null;
@@ -39,7 +39,7 @@ const SidebarContentContainer = ({ isSharedNotesPinned }: SidebarContentContaner
       height={height}
       maxHeight={maxHeight}
       isResizable={isResizable}
-      resizableEdge={resizableEge}
+      resizableEdge={resizableEdge}
       contextDispatch={layoutContextDispatch}
       sidebarContentPanel={sidebarContentPanel}
       isSharedNotesPinned={isSharedNotesPinned}
