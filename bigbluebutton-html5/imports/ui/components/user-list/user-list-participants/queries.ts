@@ -42,18 +42,7 @@ subscription UserListCurrUser {
   }
 }`;
 
-export const USER_AGGREGATE_COUNT_SUBSCRIPTION = gql`
-subscription UsersCount {
-  user_aggregate {
-    aggregate {
-      count
-    }
-  }
-}
-`;
-
 export default {
   MEETING_PERMISSIONS_SUBSCRIPTION,
   CURRENT_USER_SUBSCRIPTION,
-  USER_AGGREGATE_COUNT_SUBSCRIPTION,
 };

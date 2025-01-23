@@ -170,7 +170,7 @@
     "app.user.activityCheck": "User activity check",
     "app.user.activityCheck.label": "Check if user is still in session ({0})",
     "app.user.activityCheck.check": "Check",
-    "app.userList.usersTitle": "User List",
+    "app.userList.usersTitle": "User List ({0})",
     "app.userList.close": "Close User List",
     "app.userList.profileTitle": "Profile",
     "app.userList.participantsTitle": "Participants",

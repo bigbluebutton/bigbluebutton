@@ -6,6 +6,10 @@ import { layoutDispatch } from '/imports/ui/components/layout/context';
 import { ACTIONS, PANELS } from '/imports/ui/components/layout/enums';
 import CrowActionsButtons from '/imports/ui/components/user-list/crowd-action-buttons/component';
 import useCurrentUser from '/imports/ui/core/hooks/useCurrentUser';
+import {
+  USER_AGGREGATE_COUNT_SUBSCRIPTION,
+} from './queries';
+import useDeduplicatedSubscription from '/imports/ui/core/hooks/useDeduplicatedSubscription';
 import { UserListComponentProps } from './types';
 import Styled from './styles';
 
@@ -26,6 +30,10 @@ const UserList: React.FC<UserListComponentProps> = () => {
   const { data: currentUserData } = useCurrentUser((user) => ({
     isModerator: user.isModerator,
   }));
+  const {
+    data: countData,
+  } = useDeduplicatedSubscription(USER_AGGREGATE_COUNT_SUBSCRIPTION);
+  const count: number = countData?.user_aggregate?.aggregate?.count || 0;
 
   const renderGuestManagement = () => {
     if (!currentUserData?.isModerator) return null;
@@ -50,7 +58,7 @@ const UserList: React.FC<UserListComponentProps> = () => {
   return (
     <Styled.PanelContent>
       <Styled.HeaderContainer
-        title={intl.formatMessage(intlMessages.usersTitle)}
+        title={intl.formatMessage(intlMessages.usersTitle, { 0: count })}
         rightButtonProps={{
           'aria-label': intl.formatMessage(intlMessages.closeLabel),
           'data-test': 'closeUserList',
@@ -70,7 +78,7 @@ const UserList: React.FC<UserListComponentProps> = () => {
       />
       <Styled.Separator />
       {renderGuestManagement()}
-      <UserListParticipants />
+      <UserListParticipants count={count} />
       {renderCrowdActionButtons()}
     </Styled.PanelContent>
   );
