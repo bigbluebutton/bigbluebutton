@@ -137,6 +137,7 @@ const WaitingUsersHeader = styled.div`
   align-items: center;
   gap: 1rem;
   align-self: stretch; 
+  cursor: pointer;
 `;
 
 const WaitingUsersContainer = styled.div`
