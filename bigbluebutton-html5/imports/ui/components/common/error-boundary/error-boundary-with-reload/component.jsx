@@ -1,7 +1,11 @@
-import React, { useState, useEffect, useRef, useCallback } from 'react';
+import React, {
+  useState, useEffect, useRef, useCallback,
+} from 'react';
 import { defineMessages, useIntl } from 'react-intl';
 import logger from '/imports/startup/client/logger';
-import { ErrorContainer, Message, Spinner, ReloadButton } from './styles';
+import {
+  ErrorContainer, Message, Spinner, ReloadButton,
+} from './styles';
 
 const intlMessages = defineMessages({
   attemptingToRecover: {
@@ -60,11 +64,16 @@ const ErrorBoundaryWithReload = ({ children }) => {
           errorStack: event.error?.stack,
         },
       }, 'Global error caught by ErrorBoundaryWithReload');
-    
+
       triggerError();
     };
 
     const handleUnhandledRejection = (event) => {
+      // Ignore error caused by ReactDevTools (chrome-extension://fmkadmapgofadopljbjfkapdkoienihi/build/installHook.js)
+      if (event.reason?.stack.toString().indexOf('fmkadmapgofadopljbjfkapdkoienihi') !== false) {
+        return;
+      }
+
       logger.error({
         logCode: 'ErrorBoundaryWithReload.UnhandledRejection',
         extraInfo: {
@@ -72,7 +81,7 @@ const ErrorBoundaryWithReload = ({ children }) => {
           errorStack: event.reason?.stack,
         },
       }, 'Unhandled promise rejection caught by ErrorBoundaryWithReload');
-    
+
       triggerError();
     };
 
