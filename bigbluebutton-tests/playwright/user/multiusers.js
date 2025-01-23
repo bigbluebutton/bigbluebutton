@@ -140,8 +140,9 @@ class MultiUsers {
   async raiseAndLowerHand() {
     await this.modPage.waitForSelector(e.whiteboard);
     await this.initUserPage();
+    await this.userPage.waitForSelector(e.whiteboard);
     await this.userPage.waitAndClick(e.raiseHandBtn);
-    await this.userPage.hasElement(e.raiseHandBtn);
+    await this.userPage.hasElement(e.lowerHandBtn, 'should display the lower hand button after raising the hand');
     await this.modPage.comparingSelectorsBackgroundColor(e.avatarsWrapperAvatar, `${e.userListItem} div:first-child`);
     await sleep(1000);
     await this.userPage.waitAndClick(e.lowerHandBtn);
