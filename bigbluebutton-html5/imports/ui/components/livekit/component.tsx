@@ -173,6 +173,7 @@ const BBBLiveKitRoom: React.FC<BBBLiveKitRoomProps> = ({
     if (!token || !url || iceServersLoading) return;
 
     const connectOptions: RoomConnectOptions = {
+      autoSubscribe: !withSelectiveSubscription,
       rtcConfig: {
         iceServers,
       },
