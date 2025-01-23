@@ -21,6 +21,7 @@ import {
   PanelContent as BasePanelContent,
   Separator as BaseSeparator,
 } from '/imports/ui/components/sidebar-content/styles';
+import { ScrollboxVertical } from '/imports/ui/stylesheets/styled-components/scrollable';
 
 const HeaderContainer = styled(BaseHeaderContainer)``;
 
@@ -28,13 +29,14 @@ const PanelContent = styled(BasePanelContent)``;
 
 const Separator = styled(BaseSeparator)``;
 
-const Wrapper = styled.div`
+const Wrapper = styled(ScrollboxVertical)`
   display: flex;
   flex-direction: column;
   align-items: center;
   gap: ${appsPanelGroupItemsSpacing};
-  flex-shrink: 0;
   padding: ${contentSidebarPadding};
+  flex-grow: 1;
+  margin: 0px 0.25rem;
 `;
 
 const PinnedAppsWrapper = styled.div`
@@ -117,6 +119,10 @@ const PinApp = styled.div<{pinned: boolean}>`
   }
 `;
 
+const DescWrapper = styled.div`
+  padding: ${contentSidebarPadding} ${contentSidebarPadding} 0px;
+`;
+
 const BoldText = styled.span`
   font-weight: ${titlesFontWeight};
 `;
@@ -133,5 +139,6 @@ export default {
   OpenButton,
   PinApp,
   ClickableArea,
+  DescWrapper,
   BoldText,
 };
