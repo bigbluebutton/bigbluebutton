@@ -70,7 +70,7 @@ const ErrorBoundaryWithReload = ({ children }) => {
 
     const handleUnhandledRejection = (event) => {
       // Ignore error caused by ReactDevTools (chrome-extension://fmkadmapgofadopljbjfkapdkoienihi/build/installHook.js)
-      if (event.reason?.stack.toString().indexOf('fmkadmapgofadopljbjfkapdkoienihi') !== false) {
+      if (event.reason?.stack?.toString().indexOf('fmkadmapgofadopljbjfkapdkoienihi') !== -1) {
         return;
       }
 
