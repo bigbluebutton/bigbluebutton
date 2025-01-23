@@ -104,7 +104,7 @@ export const SidebarContentPanel = styled.div<SidebarContentPanelProps>`
 
 export const HeaderContainer = styled(Header)`
   padding: ${contentSidebarPadding};
-  padding-bottom: 0.5rem;
+  padding-bottom: 0;
 `;
 
 export const Separator = styled.hr`

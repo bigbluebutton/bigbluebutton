@@ -1,10 +1,11 @@
 import styled, { css, keyframes } from 'styled-components';
 import {
-  colorWhite, colorText, colorPrimary, colorGrayLightest,
+  colorWhite, colorText, colorPrimary, colorGrayLightest, colorGrayLighter,
   colorGrayDark, colorLink, listItemBgHover,
 } from '/imports/ui/stylesheets/styled-components/palette';
 import {
   smPadding,
+  contentSidebarGap,
   contentSidebarPadding,
   contentSidebarBottomScrollPadding,
   contentSidebarBorderRadius,
@@ -40,7 +41,7 @@ const ProfileSettings = styled(ScrollboxVertical)`
   padding: ${contentSidebarPadding} 0 ${contentSidebarBottomScrollPadding} 0;
   margin: 0 ${smPadding} 0;
   flex-direction: column;
-  gap: ${contentSidebarPadding};
+  gap: ${contentSidebarGap};
   border-radius: ${contentSidebarBorderRadius};
   background: ${colorWhite};
   overflow-y: auto;
@@ -165,7 +166,7 @@ const UserPresenceContainer = styled.div`
   align-items: center;
   gap: 1rem;
   border-radius: 1rem;
-  border: 1px solid ${colorGrayLightest};
+  border: 1px solid ${colorGrayLighter};
 `;
 
 const UserPresenceButton = styled(SimpleButton)<{ active?: boolean }>`

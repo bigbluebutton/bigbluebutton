@@ -32,7 +32,7 @@ interface UserItemContentsProps {
 
 const UserItemContents = styled.div<UserItemContentsProps>`
   position: static;
-  padding: .45rem;
+  padding-right: 0.5rem;
   width: 100%;
 
   ${({ selected }) => selected && `
