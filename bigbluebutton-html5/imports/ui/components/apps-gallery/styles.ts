@@ -47,14 +47,6 @@ const PinnedAppsWrapper = styled.div`
 
 const UnpinnedAppsWrapper = PinnedAppsWrapper;
 
-const RegisteredAppWrapper = styled.div`
-  display: flex;
-  flex-direction: row;
-  gap: 0px;
-  flex-grow:1;
-  cursor: pointer;
-`;
-
 const AppTitle = styled.div`
   flex-grow: 1;
 `;
@@ -63,13 +55,11 @@ const RegisteredAppContent = styled.div`
   display: flex;
   flex-direction: row;
   flex-grow: 1;
-  border-radius: 0px ${appsButtonsBorderRadius} ${appsButtonsBorderRadius} 0px;
+  border-radius: ${appsButtonsBorderRadius};
   border-top: 1px solid ${appsGalleryOutlineColor};
   border-right: 1px solid ${appsGalleryOutlineColor};
   border-bottom: 1px solid ${appsGalleryOutlineColor};
   align-items: center;
-  gap: 4px;
-  padding: ${lgPadding} ${$2xlPadding};
 `;
 
 // @ts-expect-error -> Untyped component.
@@ -90,12 +80,40 @@ const OpenButton = styled(Button)<{pinned: boolean}>`
   }
 `;
 
+const ClickableArea = styled.div`
+  display: flex;
+  flex-direction: row;
+  flex-grow: 1;
+  justify-content: center;
+  align-items: center;
+  gap: ${lgPadding};
+  cursor: pointer;
+
+  &:hover > ${OpenButton} {
+    filter: brightness(90%);
+    background-color: ${colorPrimary};
+    color: ${colorWhite};
+  }
+`;
+
 const PinApp = styled.div<{pinned: boolean}>`
   color: ${colorPrimary};
   cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  margin: ${lgPadding};
+  padding: 0.5rem;
+  cursor: pointer;
+
   > i {
     font-size: 120%;
     color: ${({ pinned }) => (pinned ? colorPrimary : unpinnedAppIconColor)};
+  }
+
+  &:hover {
+    background-color: ${appsGalleryOutlineColor};
   }
 `;
 
@@ -110,10 +128,10 @@ export default {
   Wrapper,
   PinnedAppsWrapper,
   UnpinnedAppsWrapper,
-  RegisteredAppWrapper,
   AppTitle,
   RegisteredAppContent,
   OpenButton,
   PinApp,
+  ClickableArea,
   BoldText,
 };

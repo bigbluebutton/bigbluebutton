@@ -61,33 +61,33 @@ const AppsGallery: React.FC<AppsGalleryProps> = ({ registeredApps, pinnedApps })
       });
     };
     return (
-      <Styled.RegisteredAppWrapper
-        onClick={openAppPanel}
-      >
-        <Styled.OpenButton
-          key={`OPEN${appKey}`}
-          color="primary"
-          type="button"
+      <Styled.RegisteredAppContent>
+        <Styled.ClickableArea
           onClick={openAppPanel}
-          icon={icon}
-          pinned={isPinned}
-        />
-        <Styled.RegisteredAppContent>
+        >
+          <Styled.OpenButton
+            key={`OPEN${appKey}`}
+            color="primary"
+            type="button"
+            onClick={openAppPanel}
+            icon={icon}
+            pinned={isPinned}
+          />
           <Styled.AppTitle>
             {name}
           </Styled.AppTitle>
-          <Styled.PinApp
-            key={`PIN${appKey}`}
-            role="button"
-            onClick={togglePinApp}
-            onKeyDown={togglePinApp}
-            tabIndex={0}
-            pinned={isPinned}
-          >
-            <Icon iconName={isPinned ? 'pin-video_on' : 'pin-video_off'} />
-          </Styled.PinApp>
-        </Styled.RegisteredAppContent>
-      </Styled.RegisteredAppWrapper>
+        </Styled.ClickableArea>
+        <Styled.PinApp
+          key={`PIN${appKey}`}
+          role="button"
+          onClick={togglePinApp}
+          onKeyDown={togglePinApp}
+          tabIndex={0}
+          pinned={isPinned}
+        >
+          <Icon iconName={isPinned ? 'pin-video_on' : 'pin-video_off'} />
+        </Styled.PinApp>
+      </Styled.RegisteredAppContent>
     );
   };
 
