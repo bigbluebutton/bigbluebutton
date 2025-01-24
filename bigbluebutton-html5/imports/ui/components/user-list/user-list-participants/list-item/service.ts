@@ -394,7 +394,7 @@ export const createToolbarOptions = (
         onClick: () => {
           handleWhiteboardAccessChange(intl, user, pageId, getWriters, presentationSetWriters);
         },
-        icon: 'pen_tool',
+        icon: whiteboardAccess ? 'pen_tool' : 'pen_tool_off',
         dataTest: 'changeWhiteboardAccessUser',
       },
     ],
