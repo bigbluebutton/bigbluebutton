@@ -200,7 +200,6 @@ const SessionDetailsContainer: React.FC<SessionDetailsContainerProps> = ({
     isModerator: user.isModerator,
   }));
 
-
   if (welcomeLoading) return null;
   if (welcomeError) return <div>{JSON.stringify(welcomeError)}</div>;
   if (!welcomeData || loading || !currentMeeting) return null;
