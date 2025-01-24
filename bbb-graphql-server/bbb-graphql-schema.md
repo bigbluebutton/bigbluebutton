@@ -900,8 +900,6 @@ Permission: Restricted to Moderators
 Permission: Restricted to User Viewing Self-Related Data
 ### Fields:
 - `livekitToken`
-### Relationships:
-- `user: Object` [Type User](#type-user)
 
 ## Type: user_session
 Permission: Restricted to User Viewing Self-Related Data
