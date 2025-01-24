@@ -49,7 +49,6 @@ const TableWrapper = styled(ScrollboxVertical)`
 `;
 
 const TabPanel = styled(StyledSettings.SettingsTabPanel)`
-  margin-top: ${smPaddingX};
 
   @media ${smallOnly} {
     padding: 0;
