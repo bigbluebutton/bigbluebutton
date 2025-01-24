@@ -11,7 +11,7 @@ import {
   RoomPresentations,
 } from './types';
 import {
-  breakoutRoom, getBreakoutsResponse, getLastBreakouts, LastBreakoutData,
+  breakoutRoom, getBreakoutsResponse, getLastBreakouts, getMeetingGroupResponse, LastBreakoutData,
 } from '../queries';
 
 const intlMessages = defineMessages({
@@ -41,6 +41,7 @@ interface RoomManagmentStateProps {
   getRoomPresentation: (roomId: number) => string;
   isUpdate: boolean;
   setNumberOfRooms: React.Dispatch<React.SetStateAction<number>>;
+  groups: getMeetingGroupResponse['meeting_group'];
 }
 
 const RoomManagmentState: React.FC<RoomManagmentStateProps> = ({
@@ -59,6 +60,7 @@ const RoomManagmentState: React.FC<RoomManagmentStateProps> = ({
   getRoomPresentation,
   isUpdate,
   setNumberOfRooms,
+  groups,
 }) => {
   const intl = useIntl();
   const [selectedId, setSelectedId] = useState<string>('');
@@ -146,6 +148,7 @@ const RoomManagmentState: React.FC<RoomManagmentStateProps> = ({
         };
       }
       rooms[room].name = name;
+      console.log("🚀 -> setRooms -> rooms:", rooms)
       return rooms;
     });
   };
@@ -244,6 +247,39 @@ const RoomManagmentState: React.FC<RoomManagmentStateProps> = ({
       }));
     }
   }, [users]);
+
+  useEffect(() => {
+    if (groups && init) {
+      const sortedGroups = Array.from(groups).sort((a, b) => {
+        const aId = Number.parseInt(a.groupId, 10);
+        const bId = Number.parseInt(b.groupId, 10);
+
+        return aId - bId;
+      });
+
+      // set the number of rooms based in the last 
+      const lastRoom = sortedGroups[sortedGroups.length - 1];
+      setNumberOfRooms(Number.parseInt(lastRoom.groupId, 10));
+
+      // set the rooms based on the groups
+      setRooms((prevRooms: Rooms) => {
+        const rooms = { ...prevRooms };
+        sortedGroups.forEach((group) => {
+          const roomUsers = group.usersExtId
+            .map((id) => users.find((user) => user.extId === id))
+            .filter((user) => user) as BreakoutUser[];
+          rooms[Number.parseInt(group.groupId, 10)] = {
+            id: Number.parseInt(group.groupId, 10),
+            name: group.name,
+            users: roomUsers,
+          };
+
+          rooms[0].users = rooms[0].users.filter((user) => !roomUsers.find((u) => u.userId === user.userId));
+        });
+        return rooms;
+      });
+    }
+  }, [init]);
 
   useEffect(() => {
     if (runningRooms && init) {
