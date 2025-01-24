@@ -18,6 +18,7 @@ const LearningDashboardListItem = () => {
   const intl = useIntl();
   const { data: meetingInfo } = useMeeting((meeting: Partial<Meeting>) => ({
     learningDashboardAccessToken: meeting.learningDashboardAccessToken,
+    isBreakout: meeting?.isBreakout,
   }));
 
   const toggleLearningDashboardPanel = useCallback(() => {
@@ -25,6 +26,8 @@ const LearningDashboardListItem = () => {
   }, [intl, meetingInfo]);
 
   const label = intl.formatMessage(intlMessages.learningDashboardLabel);
+
+  if (meetingInfo?.isBreakout) return null;
 
   return (
     <TooltipContainer
