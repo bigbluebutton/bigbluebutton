@@ -29,7 +29,7 @@
     "app.chat.breakoutDurationUpdatedModerator": "Breakout rooms time is now {0} minutes, and a notification has been sent.",
     "app.chat.emptyLogLabel": "Chat log empty",
     "app.chat.away": "is away",
-    "app.chat.notAway": "is back online",
+    "app.chat.notAway": "is available",
     "app.chat.isPresenter": "{0} is now the presenter",
     "app.chat.isPresenterSetBy": "{0} is now the presenter, set by {1}",
     "app.chat.clearPublicChatMessage": "The public chat history was cleared by a moderator",
