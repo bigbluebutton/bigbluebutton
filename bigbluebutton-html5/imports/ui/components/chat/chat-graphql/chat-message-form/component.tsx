@@ -26,6 +26,7 @@ import usePreviousValue from '/imports/ui/hooks/usePreviousValue';
 import useChat from '/imports/ui/core/hooks/useChat';
 import useCurrentUser from '/imports/ui/core/hooks/useCurrentUser';
 import {
+  markdownToText,
   textToMarkdown,
 } from './service';
 import { Chat } from '/imports/ui/Types/chat';
@@ -316,7 +317,7 @@ const ChatMessageForm: React.FC<ChatMessageFormProps> = ({
           if (messageBeforeEditingRef.current === null) {
             messageBeforeEditingRef.current = messageRef.current;
           }
-          setMessage(e.detail.message);
+          setMessage(markdownToText(e.detail.message));
           textAreaRef.current?.textarea.focus();
           editingMessage.current = e.detail;
         }
