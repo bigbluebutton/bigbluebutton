@@ -186,7 +186,7 @@ class ScreenshareBroker extends BaseBroker {
       },
     }, 'Screenshare offer generation failed');
     // 1305: "PEER_NEGOTIATION_FAILED",
-    return this.onerror(error);
+    this.onerror(error);
   }
 
   startScreensharing() {
