@@ -8,6 +8,8 @@ import ScreenshareService from '/imports/ui/components/screenshare/service';
 import VideoService from '/imports/ui/components/video-provider/service';
 import connectionStatus from '../../core/graphql/singletons/connectionStatus';
 import getStatus from '../../core/utils/getStatus';
+import { getDataType, addExtraInboundNetworkParameters } from '/imports/utils/stats';
+import logger from '/imports/startup/client/logger';
 
 const intlMessages = defineMessages({
   saved: {
@@ -21,6 +23,12 @@ const intlMessages = defineMessages({
 });
 
 export const NETWORK_MONITORING_INTERVAL_MS = 2000;
+
+export const LOG_MEDIA_STATS = () => (
+  window.meetingClientSettings.public.stats.logMediaStats.enabled);
+
+export const LOG_MONITORING_INTERVAL = () => (
+  window.meetingClientSettings.public.stats.logMediaStats.interval);
 
 export const lastLevel = makeVar();
 
@@ -105,68 +113,6 @@ export const notification = (level, intl) => {
 
   if (intl) notify(intl.formatMessage(intlMessages.notification), level, 'warning');
   return null;
-};
-
-/**
- * Calculates the jitter buffer average.
- * For more information see:
- * https://www.w3.org/TR/webrtc-stats/#dom-rtcinboundrtpstreamstats-jitterbufferdelay
- * @param {Object} inboundRtpData The RTCInboundRtpStreamStats object retrieved
- *                                in getStats() call.
- * @returns The jitter buffer average in ms
- */
-export const calculateJitterBufferAverage = (inboundRtpData) => {
-  if (!inboundRtpData) return 0;
-
-  const {
-    jitterBufferDelay,
-    jitterBufferEmittedCount,
-  } = inboundRtpData;
-
-  if (!jitterBufferDelay || !jitterBufferEmittedCount) return '--';
-
-  return Math.round((jitterBufferDelay / jitterBufferEmittedCount) * 1000);
-};
-
-/**
- * Given the data returned from getStats(), returns an array containing all the
- * the stats of the given type.
- * For more information see:
- * https://developer.mozilla.org/en-US/docs/Web/API/RTCStatsReport
- * and
- * https://developer.mozilla.org/en-US/docs/Web/API/RTCStatsType
- * @param {Object} data - RTCStatsReport object returned from getStats() API
- * @param {String} type - The string type corresponding to RTCStatsType object
- * @returns {Array[Object]} An array containing all occurrences of the given
- *                          type in the data Object.
- */
-const getDataType = (data, type) => {
-  if (!data || typeof data !== 'object' || !type) return [];
-
-  return Object.values(data).filter((stat) => stat.type === type);
-};
-
-/**
- * Returns a new Object containing extra parameters calculated from inbound
- * data. The input data is also appended in the returned Object.
- * @param {Object} currentData - The object returned from getStats / service's
- *                               getNetworkData()
- * @returns {Object} the currentData object with the extra inbound network
- *                    added to it.
- */
-export const addExtraInboundNetworkParameters = (data) => {
-  if (!data) return data;
-
-  const inboundRtpData = getDataType(data, 'inbound-rtp')[0];
-
-  if (!inboundRtpData) return data;
-
-  const extraParameters = {
-    jitterBufferAverage: calculateJitterBufferAverage(inboundRtpData),
-    packetsLost: inboundRtpData.packetsLost,
-  };
-
-  return Object.assign(inboundRtpData, extraParameters);
 };
 
 /**
@@ -397,9 +343,13 @@ export const stopMonitoringNetwork = () => {
    * Start monitoring the network data.
    * @return {Promise} A Promise that resolves when process started.
    */
-export async function startMonitoringNetwork() {
+export async function startMonitoringNetwork(isConnectionStatusModalOpen = false) {
   // Reset the monitoring interval if it's already running
   if (monitoringInterval) stopMonitoringNetwork();
+
+  const interval = isConnectionStatusModalOpen
+    ? NETWORK_MONITORING_INTERVAL_MS
+    : LOG_MONITORING_INTERVAL();
 
   let previousData = await getNetworkData();
 
@@ -426,7 +376,7 @@ export async function startMonitoringNetwork() {
       audioCurrentDownloadRate,
       jitter,
       packetsLost,
-      transportStats: data.audio.transportStats,
+      transportStats: data.audio?.transportStats || {},
     };
 
     const {
@@ -438,6 +388,7 @@ export async function startMonitoringNetwork() {
     const video = {
       videoCurrentUploadRate,
       videoCurrentDownloadRate,
+      screenshareTransportStats: data.video?.screenshareStats?.transportStats || {},
     };
 
     const { user } = data;
@@ -452,7 +403,20 @@ export async function startMonitoringNetwork() {
     previousData = data;
 
     connectionStatus.setNetworkData(networkData);
-  }, NETWORK_MONITORING_INTERVAL_MS);
+
+    const shouldLogMediaStats = LOG_MEDIA_STATS() && !isConnectionStatusModalOpen &&
+      (Object.keys(audio).length > 0 || Object.keys(video).length > 0);
+
+    if (shouldLogMediaStats) {
+      logger.info({
+        logCode: 'media_stats',
+        extraInfo: {
+          audio,
+          video,
+        },
+      }, 'Media stats');
+    }
+  }, interval);
 }
 
 export function getWorstStatus(statuses) {
@@ -475,6 +439,8 @@ export function getWorstStatus(statuses) {
 }
 
 export default {
+  LOG_MEDIA_STATS,
+  LOG_MONITORING_INTERVAL,
   getStats,
   getHelp,
   isEnabled,

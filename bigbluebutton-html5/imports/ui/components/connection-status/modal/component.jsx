@@ -168,6 +168,7 @@ const propTypes = {
       videoCurrentDownloadRate: PropTypes.number,
     }),
   }),
+  isModalOpen: PropTypes.bool.isRequired,
 };
 
 const isConnectionStatusEmpty = (connectionStatusParam) => {
@@ -203,10 +204,10 @@ class ConnectionStatusComponent extends PureComponent {
   }
 
   async componentDidMount() {
-    const { startMonitoringNetwork } = this.props;
+    const { startMonitoringNetwork, isModalOpen } = this.props;
 
     try {
-      await startMonitoringNetwork();
+      await startMonitoringNetwork(isModalOpen);
     } catch (error) {
       logger.warn({
         logCode: 'stats_monitor_network_error',
@@ -215,6 +216,16 @@ class ConnectionStatusComponent extends PureComponent {
           errorStack: error?.stack,
         },
       }, 'Failed to start monitoring network');
+    }
+  }
+
+  componentDidUpdate(prevProps) {
+    const { isModalOpen, startMonitoringNetwork } = this.props;
+
+    // If the modal changed open state, we should re-start network monitoring
+    // with the appropriate interval
+    if (prevProps.isModalOpen !== isModalOpen) {
+      startMonitoringNetwork(isModalOpen);
     }
   }
 
@@ -235,6 +246,23 @@ class ConnectionStatusComponent extends PureComponent {
     this.setState({
       copyButtonText: msg,
     });
+  }
+
+  stopMonitoringNetwork() {
+    clearInterval(this.rateInterval);
+    this.rateInterval = null;
+    clearTimeout(this.copyNetworkDataTimeout);
+    this.copyNetworkDataTimeout = null;
+  }
+
+  shouldLogMediaStats() {
+    const { logMediaStats, isModalOpen } = this.props;
+    const { networkData } = this.state;
+    const { audio, video } = networkData;
+
+    return logMediaStats
+      && !isModalOpen
+      && (Object.keys(audio).length > 0 || Object.keys(video).length > 0);
   }
 
   /**
@@ -517,6 +545,8 @@ class ConnectionStatusComponent extends PureComponent {
     } = this.props;
 
     const { selectedTab } = this.state;
+
+    if (!isModalOpen) return null;
 
     return (
       <Styled.ConnectionStatusModal
