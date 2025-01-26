@@ -3,6 +3,17 @@ import { fetchWebRTCMappedStunTurnServers, getMappedFallbackStun } from '/import
 import loadAndPlayMediaStream from '/imports/ui/services/bbb-webrtc-sfu/load-play';
 import { SCREENSHARING_ERRORS } from './errors';
 import { getVoiceConf } from '/imports/ui/services/meeting-settings';
+import { getTransportStats } from '/imports/utils/stats';
+
+const DEFAULT_SCREENSHARE_STATS_TYPES = [
+  'outbound-rtp',
+  'inbound-rtp',
+  'candidate-pair',
+  'local-candidate',
+  'transport',
+];
+
+const NO_BRIDGE = '';
 
 const HAS_DISPLAY_MEDIA = (typeof navigator.getDisplayMedia === 'function'
   || (navigator.mediaDevices && typeof navigator.mediaDevices.getDisplayMedia === 'function'));
@@ -148,6 +159,38 @@ const screenshareLoadAndPlayMediaStream = (stream, mediaElement, muted) => {
   });
 }
 
+const parseStats = async ({
+  stats,
+  peer = undefined,
+  statsTypes = DEFAULT_SCREENSHARE_STATS_TYPES,
+  bridgeName = NO_BRIDGE,
+}) => {
+  let transportStats = {};
+  const aggregatedStats = {};
+
+  stats.forEach((stat) => {
+    if (statsTypes.includes(stat.type) && (!stat.kind || stat.kind === 'video')) {
+      aggregatedStats[stat.type] = stat;
+    }
+  });
+
+  try {
+    transportStats = await getTransportStats(peer, aggregatedStats);
+  } catch (error) {
+    logger.debug({
+      logCode: 'screenshare_transport_stats_failed',
+      extraInfo: {
+        errorCode: error.errorCode,
+        errorMessage: error.errorMessage,
+        role: this.role,
+        bridge: bridgeName,
+      },
+    }, 'Failed to get transport stats for screenshare');
+  }
+
+  return { screenshareStats: { transportStats, ...aggregatedStats } };
+};
+
 class EXPORTED_CONFIGS {
   static BASE_MEDIA_TIMEOUT() {
     const {
@@ -195,6 +238,7 @@ export default {
   getNextReconnectionInterval,
   streamHasAudioTrack,
   screenshareLoadAndPlayMediaStream,
+  parseStats,
   getMediaServerAdapter,
   BASE_MEDIA_TIMEOUT: EXPORTED_CONFIGS.BASE_MEDIA_TIMEOUT,
   BASE_RECONNECTION_TIMEOUT: EXPORTED_CONFIGS.BASE_RECONNECTION_TIMEOUT,

@@ -716,8 +716,9 @@ export default class LiveKitAudioBridge extends BaseAudioBridge {
   }
 
   // eslint-disable-next-line class-methods-use-this
-  async getStats(): Promise<Map<string, unknown>> {
-    return getLKStats();
+  async getStats(): Promise<{ transportStats: object, [key: string]: string | number | object | unknown }> {
+    const stats = getLKStats();
+    return this.parseStats(stats);
   }
 
   async joinAudio(
