@@ -7,10 +7,11 @@ async function connectMicrophone(testPage) {
     autoJoinAudioModal,
     skipEchoTest,
     skipEchoTestOnJoin,
+    listenOnlyMode,
   } = testPage.settings;
 
   if (!autoJoinAudioModal) await testPage.waitAndClick(e.joinAudio);
-  await testPage.waitAndClick(e.microphoneButton);
+  if (listenOnlyMode) await testPage.waitAndClick(e.microphoneButton);
   const shouldSkipEchoTest = skipEchoTest || skipEchoTestOnJoin;
   if (!shouldSkipEchoTest) {
     await testPage.waitForSelector(e.stopHearingButton);

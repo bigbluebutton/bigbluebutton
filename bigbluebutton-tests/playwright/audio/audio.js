@@ -12,6 +12,11 @@ class Audio extends MultiUsers {
     super(browser, context);
   }
 
+  async muteButtonCooldown() {
+    // cooldown based on the debounce time set in input-stream-live-selector/service.ts
+    await sleep(500);
+  }
+
   async joinAudio() {
     this.modPage.settings = await generateSettingsData(this.modPage);
     const { autoJoinAudioModal, listenOnlyCallTimeout } = this.modPage.settings;
@@ -47,12 +52,14 @@ class Audio extends MultiUsers {
     await this.modPage.hasElement(e.unmuteMicButton, 'should join audio with microphone muted');
     await this.modPage.waitAndClick(e.unmuteMicButton);
     await this.modPage.hasElement(e.isTalking, 'moderator should be talking');
+    await this.muteButtonCooldown();
     await this.modPage.waitAndClick(e.muteMicButton);
     await this.modPage.wasRemoved(e.isTalking, 'moderator should stop talking.');
     await this.modPage.hasElement(e.wasTalking, 'should stop talking');
     await this.modPage.wasRemoved(e.muteMicButton, 'should be muted');
     await this.modPage.hasElement(e.unmuteMicButton, 'should have the unmute mic button');
     await this.modPage.wasRemoved(e.talkingIndicator, 'talking indicator should disappear', ELEMENT_WAIT_LONGER_TIME);
+    await this.muteButtonCooldown();
     await this.modPage.waitAndClick(e.unmuteMicButton);
     await this.modPage.waitAndClick(e.audioDropdownMenu);
     await this.modPage.waitAndClick(e.leaveAudio);
@@ -74,15 +81,13 @@ class Audio extends MultiUsers {
   }
 
   async keepMuteStateOnRejoin() {
+    const { listenOnlyMode } = this.modPage.settings;
     await this.modPage.waitAndClick(e.joinAudio);
     await connectMicrophone(this.modPage);
     const isMuted = await this.modPage.checkElement(e.unmuteMicButton);
-    if (isMuted) {
-      await this.modPage.waitAndClick(e.unmuteMicButton);
-      await this.modPage.hasElement(e.isTalking, 'should be talking');
-    }
-
+    if (isMuted) await this.modPage.waitAndClick(e.unmuteMicButton);
     await this.modPage.hasElement(e.isTalking, 'should be talking');
+    await this.muteButtonCooldown();
     await this.modPage.waitAndClick(e.muteMicButton);
     await this.modPage.hasElement(e.wasTalking, 'should stopped talking');
     await this.modPage.wasRemoved(e.muteMicButton, 'should be muted');
@@ -90,7 +95,7 @@ class Audio extends MultiUsers {
     await this.modPage.waitAndClick(e.audioDropdownMenu);
     await this.modPage.waitAndClick(e.leaveAudio);
     await this.modPage.waitAndClick(e.joinAudio);
-    await this.modPage.waitAndClick(e.microphoneButton);
+    if (listenOnlyMode) await this.modPage.waitAndClick(e.microphoneButton);
     await this.modPage.waitAndClick(e.joinEchoTestButton);
     await this.modPage.waitForSelector(e.establishingAudioLabel);
     await this.modPage.wasRemoved(e.establishingAudioLabel, 'Audio should be established', ELEMENT_WAIT_LONGER_TIME);
@@ -104,11 +109,8 @@ class Audio extends MultiUsers {
     await this.modPage.waitAndClick(e.joinAudio);
     await connectMicrophone(this.modPage);
     const isMuted = await this.modPage.checkElement(e.unmuteMicButton);
-    if (isMuted) {
-      await this.modPage.waitAndClick(e.unmuteMicButton);
-      await this.modPage.hasElement(e.isTalking, 'should be talking');
-    }
-
+    if (isMuted) await this.modPage.waitAndClick(e.unmuteMicButton);
+    await this.modPage.hasElement(e.isTalking, 'should be talking');
     await this.modPage.waitAndClick(e.talkingIndicator);
     await this.modPage.hasElement(e.wasTalking, 'should stops talking');
     await this.modPage.wasRemoved(e.muteMicButton, 'should be unmuted');
@@ -127,7 +129,6 @@ class Audio extends MultiUsers {
     await this.userPage.joinMicrophone({ shouldUnmute: false });
     await this.userPage.hasElement(e.unmuteMicButton, 'should join audio with microphone muted');
     await this.userPage.waitAndClick(e.unmuteMicButton);
-    await sleep(1000);
     await this.modPage.waitAndClick(e.isTalking);
     await this.userPage.hasElement(e.unmuteMicButton, 'attendee should be muted');
 
