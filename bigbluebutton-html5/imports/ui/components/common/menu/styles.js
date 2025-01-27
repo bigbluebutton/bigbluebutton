@@ -143,7 +143,7 @@ const BBBMenuItem = styled(MenuItem)`
   &:focus,
   &:hover {
     i { 
-      color: #FFF;
+      color: #FFF !important;
     }
     color: #FFF !important;
     background-color: ${colorPrimary} !important;

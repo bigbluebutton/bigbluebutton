@@ -156,14 +156,11 @@ export const LiveSelection: React.FC<LiveSelectionProps> = ({
       {
         key: `audioDeviceList-${deviceKind}`,
         label: title,
-        iconRight: (deviceKind === 'audioinput') ? 'unmute' : 'volume_level_2',
+        icon: (deviceKind === 'audioinput') ? 'unmute' : 'listen',
         disabled: true,
         customStyles: Styled.DisabledLabel,
+        onClick: () => {},
       } as MenuOptionItemType,
-      {
-        key: 'separator-01',
-        isSeparator: true,
-      } as MenuSeparatorItemType,
     ];
 
     let deviceList: MenuOptionItemType[] = [];
@@ -182,7 +179,8 @@ export const LiveSelection: React.FC<LiveSelectionProps> = ({
           key: `${device.deviceId}-${deviceKind}`,
           dataTest: `${deviceKind}-${index + 1}`,
           label: truncateDeviceName(device.label || getFallbackLabel(device, index + 1)),
-          customStyles: isCurrentDevice ? Styled.SelectedLabel : null,
+          customStyles: isCurrentDevice ? Styled.SelectedLabel : Styled.DeviceLabel,
+          iconStyles: isCurrentDevice ? Styled.SelectedLabelIcon : null,
           iconRight: isCurrentDevice ? 'check' : null,
           onClick: () => onDeviceListClick(device.deviceId, deviceKind, callback),
         } as MenuOptionItemType;
@@ -219,7 +217,8 @@ export const LiveSelection: React.FC<LiveSelectionProps> = ({
         key: `listenOnly-${deviceKind}`,
         dataTest: `${deviceKind}-listenOnly`,
         label: intl.formatMessage(intlMessages.noMicListenOnlyLabel),
-        customStyles: listenOnly && Styled.SelectedLabel,
+        customStyles: listenOnly ? Styled.SelectedLabel : Styled.DeviceLabel,
+        iconStyles: listenOnly ? Styled.SelectedLabelIcon : null,
         iconRight: listenOnly ? 'check' : null,
         onClick: () => onDeviceListClick('listen-only', deviceKind, callback),
       } as MenuOptionItemType);
@@ -289,11 +288,15 @@ export const LiveSelection: React.FC<LiveSelectionProps> = ({
     onClick: () => handleLeaveAudio(meetingIsBreakout),
   };
   const dropdownListComplete = inputDeviceList
+    .concat({
+      key: 'separator-01',
+      isSeparator: true,
+    } as MenuOptionItemType)
     .concat(outputDeviceList)
     .concat({
       key: 'separator-02',
       isSeparator: true,
-    });
+    } as MenuOptionItemType);
   if (shouldTreatAsMicrophone()) dropdownListComplete.push(audioSettingsOption);
   dropdownListComplete.push(leaveAudioOption);
 

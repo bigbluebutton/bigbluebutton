@@ -805,7 +805,7 @@
     "app.audio.stopAudioFeedback": "Stop audio feedback",
     "app.audio.backLabel": "Back",
     "app.audio.loading": "Loading",
-    "app.audio.microphones": "Microphones",
+    "app.audio.microphones": "Microphone",
     "app.audio.speakers": "Speakers",
     "app.audio.noDeviceFound": "No device found (listen only)",
     "app.audio.audioSettings.titleLabel": "Your audio settings",
