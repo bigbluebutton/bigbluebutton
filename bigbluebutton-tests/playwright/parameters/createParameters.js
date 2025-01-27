@@ -110,12 +110,18 @@ class CreateParameters extends MultiUsers {
   }
 
   async overrideDefaultPresentation() {
+    await this.modPage.setHeightWidthViewPortSize();
+    await this.userPage.setHeightWidthViewPortSize();
     await this.modPage.waitForSelector(e.whiteboard);
     await this.userPage.waitForSelector(e.whiteboard);
-    const modWbLocator = this.modPage.getLocator(e.whiteboard);
-    await expect(modWbLocator).toHaveScreenshot('moderator-overridden-default-presentation.png');
-    const userWbLocator = this.userPage.getLocator(e.whiteboard);
-    await expect(userWbLocator).toHaveScreenshot('viewer-overridden-default-presentation.png');
+    await expect(
+      this.modPage.page,
+      'should display the overridden presentation for the mod',
+    ).toHaveScreenshot('mod-page-overridden-default-presentation.png');
+    await expect(
+      this.userPage.page,
+      'should display the overridden presentation for the viewer',
+    ).toHaveScreenshot('viewer-page-overridden-default-presentation.png');
   }
 }
 

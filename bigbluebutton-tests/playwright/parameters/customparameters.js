@@ -288,7 +288,7 @@ class CustomParameters extends MultiUsers {
   }
 
   async overrideDefaultLocaleTest() {
-    await this.modPage.hasText(e.chatButton, 'Bate-papo público','should display the new overrided default locale');
+    await this.modPage.hasText(e.chatButton, 'Bate-papo público','should display the new overridden default locale');
   }
 
   async hideNavBarTest() {
