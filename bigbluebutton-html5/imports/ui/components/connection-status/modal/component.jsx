@@ -387,7 +387,12 @@ class ConnectionStatusComponent extends PureComponent {
       videoDownloadLabel,
     } = this;
 
-    const { intl, setModalIsOpen, connectionData } = this.props;
+    const {
+      intl,
+      setModalIsOpen,
+      connectionData,
+      setAdjustYourSettingsModalIsOpen,
+    } = this.props;
 
     const { networkData } = this.props;
 
@@ -429,6 +434,7 @@ class ConnectionStatusComponent extends PureComponent {
             <ConnectionStatusHelper
               connectionData={connectionData}
               closeModal={() => setModalIsOpen(false)}
+              setAdjustYourSettingsModalIsOpen={setAdjustYourSettingsModalIsOpen}
             />
           </Styled.Helper>
         </Styled.HelperWrapper>

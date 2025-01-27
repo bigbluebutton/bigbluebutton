@@ -3,7 +3,6 @@ import { defineMessages, injectIntl } from 'react-intl';
 import { useReactiveVar } from '@apollo/client';
 import Styled from './styles';
 import Icon from '/imports/ui/components/connection-status/icon/component';
-import SettingsMenuContainer from '/imports/ui/components/settings/container';
 import connectionStatus from '/imports/ui/core/graphql/singletons/connectionStatus';
 import { getWorstStatus } from '../service';
 
@@ -19,13 +18,6 @@ const intlMessages = defineMessages({
 });
 
 class ConnectionStatusIcon extends PureComponent {
-  constructor(props) {
-    super(props);
-
-    this.state = { isSettingsMenuModalOpen: false };
-
-    this.setSettingsMenuModalIsOpen = this.setSettingsMenuModalIsOpen.bind(this);
-  }
   // eslint-disable-next-line
   renderIcon(level = 'normal') {
     return (
@@ -39,16 +31,10 @@ class ConnectionStatusIcon extends PureComponent {
   }
 
   openAdjustSettings() {
-    this.setSettingsMenuModalIsOpen(true);
-  }
-
-  setSettingsMenuModalIsOpen(value) {
-    const { closeModal } = this.props;
-
-    this.setState({ isSettingsMenuModalOpen: value });
-    if (!value) {
-      closeModal();
-    }
+    const {
+      setAdjustYourSettingsModalIsOpen,
+    } = this.props;
+    setAdjustYourSettingsModalIsOpen(true);
   }
 
   render() {
@@ -72,8 +58,6 @@ class ConnectionStatusIcon extends PureComponent {
         color = 'success';
     }
 
-    const { isSettingsMenuModalOpen } = this.state;
-
     return (
       <>
         <Styled.StatusIconWrapper color={color}>
@@ -82,7 +66,7 @@ class ConnectionStatusIcon extends PureComponent {
         <Styled.Label>
           {intl.formatMessage(intlMessages.label)}
         </Styled.Label>
-        {(currentStatus === 'critical' || currentStatus === 'danger') || isSettingsMenuModalOpen
+        {(currentStatus === 'critical' || currentStatus === 'danger')
           ? (
             <div>
               <Styled.Settings
@@ -92,18 +76,6 @@ class ConnectionStatusIcon extends PureComponent {
               >
                 {intl.formatMessage(intlMessages.settings)}
               </Styled.Settings>
-              {isSettingsMenuModalOpen
-                ? (
-                  <SettingsMenuContainer
-                    selectedTab={2}
-                    {...{
-                      onRequestClose: () => this.setSettingsMenuModalIsOpen(false),
-                      priority: 'medium',
-                      setIsOpen: this.setSettingsMenuModalIsOpen,
-                      isOpen: isSettingsMenuModalOpen,
-                    }}
-                  />
-                ) : null}
             </div>
           )
           : (
