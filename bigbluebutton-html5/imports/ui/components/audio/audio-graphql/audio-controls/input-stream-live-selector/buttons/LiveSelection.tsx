@@ -291,12 +291,12 @@ export const LiveSelection: React.FC<LiveSelectionProps> = ({
     .concat({
       key: 'separator-01',
       isSeparator: true,
-    } as MenuOptionItemType)
+    } as MenuSeparatorItemType)
     .concat(outputDeviceList)
     .concat({
       key: 'separator-02',
       isSeparator: true,
-    } as MenuOptionItemType);
+    } as MenuSeparatorItemType);
   if (shouldTreatAsMicrophone()) dropdownListComplete.push(audioSettingsOption);
   dropdownListComplete.push(leaveAudioOption);
 
@@ -318,7 +318,7 @@ export const LiveSelection: React.FC<LiveSelectionProps> = ({
         dropdownListComplete.push({
           isSeparator: true,
           key: audioSettingsDropdownSeparator.id,
-        });
+        } as MenuSeparatorItemType);
         break;
       }
       default:
