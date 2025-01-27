@@ -1,6 +1,6 @@
 const e = require('../core/elements');
 const { ELEMENT_WAIT_LONGER_TIME } = require('../core/constants');
-const { connectMicrophone, isAudioItemSelected } = require('./util');
+const { connectMicrophone, isAudioItemSelected, ensureUnmuted } = require('./util');
 const { MultiUsers } = require('../user/multiusers');
 const { generateSettingsData } = require('../core/settings');
 const { expect } = require('@playwright/test');
@@ -84,9 +84,7 @@ class Audio extends MultiUsers {
     const { listenOnlyMode } = this.modPage.settings;
     await this.modPage.waitAndClick(e.joinAudio);
     await connectMicrophone(this.modPage);
-    const isMuted = await this.modPage.checkElement(e.unmuteMicButton);
-    if (isMuted) await this.modPage.waitAndClick(e.unmuteMicButton);
-    await this.modPage.hasElement(e.isTalking, 'should be talking');
+    await ensureUnmuted(this.modPage);
     await this.muteButtonCooldown();
     await this.modPage.waitAndClick(e.muteMicButton);
     await this.modPage.hasElement(e.wasTalking, 'should stopped talking');
@@ -108,9 +106,7 @@ class Audio extends MultiUsers {
   async muteYourselfByTalkingIndicator() {
     await this.modPage.waitAndClick(e.joinAudio);
     await connectMicrophone(this.modPage);
-    const isMuted = await this.modPage.checkElement(e.unmuteMicButton);
-    if (isMuted) await this.modPage.waitAndClick(e.unmuteMicButton);
-    await this.modPage.hasElement(e.isTalking, 'should be talking');
+    await ensureUnmuted(this.modPage);
     await this.modPage.waitAndClick(e.talkingIndicator);
     await this.modPage.hasElement(e.wasTalking, 'should stops talking');
     await this.modPage.wasRemoved(e.muteMicButton, 'should be unmuted');

@@ -31,5 +31,12 @@ async function isAudioItemSelected(testPage, audioSelector) {
   await expect(isSelected).toBeTruthy();
 }
 
+async function ensureUnmuted(testPage) {
+  const isMuted = await testPage.checkElement(e.unmuteMicButton);
+  if (isMuted) await testPage.waitAndClick(e.unmuteMicButton);
+  await testPage.hasElement(e.isTalking, 'should be talking');
+}
+
 exports.connectMicrophone = connectMicrophone;
 exports.isAudioItemSelected = isAudioItemSelected;
+exports.ensureUnmuted = ensureUnmuted;
