@@ -122,16 +122,13 @@ test.describe.parallel('Breakout', { tag: '@ci' }, () => {
     });
 
     test('Export breakout room shared notes', async ({ browser, context, page }) => {
-      linkIssue(21576);
       const join = new Join(browser, context);
       await join.initPages(page);
       await join.create(true);
       await join.exportBreakoutNotes();
     });
 
-    test('Export breakout room whiteboard annotations', { tag: '@flaky' }, async ({ browser, context, page }) => {
-      // frequently failing on CI due to missing "current presentation" notifications
-      linkIssue(21576);
+    test('Export breakout room whiteboard annotations', async ({ browser, context, page }) => {
       const join = new Join(browser, context);
       await join.initPages(page);
       await join.create(false, true);

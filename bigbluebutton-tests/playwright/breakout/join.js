@@ -2,7 +2,7 @@ const { default: test } = require('@playwright/test');
 const { Create } = require('./create');
 const utilScreenShare = require('../screenshare/util');
 const e = require('../core/elements');
-const { ELEMENT_WAIT_LONGER_TIME } = require('../core/constants');
+const { ELEMENT_WAIT_LONGER_TIME, ELEMENT_WAIT_TIME } = require('../core/constants');
 const { getSettings } = require('../core/settings');
 const { expect } = require('@playwright/test');
 const { sleep } = require('../core/helpers');
@@ -225,9 +225,18 @@ class Join extends Create {
       "Share camera as content",
     ];
     await this.modPage.checkElementCount(e.actionsItem, expectedActionItems.length);
+    await this.modPage.press('Escape'); // close the actions menu
+    await this.modPage.hasElement(e.presentationUploadProgressToast, 'should display the presentation upload progress toast with the exported whiteboard');
+    await this.modPage.getLocator(e.presentationUploadProgressToast).click({
+      position: {
+        x: 0.5, y: 1,
+      },
+      timeout: ELEMENT_WAIT_TIME,
+    });
+    await this.modPage.wasRemoved(e.presentationUploadProgressToast, 'should have removed the presentation upload progress toast after clicking on it');
+    await this.modPage.waitAndClick(e.actions);
     await whiteboardPDF.click();
-    await this.modPage.waitAndClick('i[type="info"]');
-    await this.modPage.waitAndClick(e.currentPresentationToast);
+    await this.modPage.hasElement(e.currentPresentationToast, 'should display the current presentation toast when changing to the whiteboard exported file');
     //! avoiding the following screenshot comparison due to https://github.com/microsoft/playwright/issues/18827
     // const wbBox = await this.modPage.getLocator(e.whiteboard);
     // await expect(wbBox).toHaveScreenshot('capture-breakout-whiteboard.png', {

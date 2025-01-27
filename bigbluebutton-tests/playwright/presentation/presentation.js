@@ -106,6 +106,7 @@ class Presentation extends MultiUsers {
     await this.modPage.setHeightWidthViewPortSize();
 
     // Skip check for screenshot on ci, due to the ci and the local machine generating two different image sizes
+    // also because the slide location is different and inconsistent (it initially shakes to stabilize and then set incorrect location)
     if (!CI) {
       const modWhiteboardLocator = this.modPage.getLocator(e.whiteboard);
       await expect(modWhiteboardLocator).toHaveScreenshot('moderator-new-presentation-screenshot.png', {
@@ -128,6 +129,7 @@ class Presentation extends MultiUsers {
     await expect(imageURLFirstPresentation).not.toBe(imageURLSecondPresentation);
 
     // Skip check for screenshot on ci, due to the ci and the local machine generating two different image sizes
+    // also because the slide location is different and inconsistent (it initially shakes to stabilize and then set incorrect location)
     if (!CI) {
       await expect(userWhiteboardLocator).toHaveScreenshot('viewer-new-presentation-screenshot.png', {
         maxDiffPixels: 1000,
@@ -164,7 +166,7 @@ class Presentation extends MultiUsers {
     await expect(imageURLFirstPresentation).not.toBe(imageURLSecondPresentation);
 
     // Skip check for screenshot on ci, due to the ci and the local machine generating two different image sizes
-    if(!CI) {
+    if (!CI) {
       await expect(modWhiteboardLocator).toHaveScreenshot('moderator-png-presentation-screenshot.png', {
         maxDiffPixels: 1000,
       });
@@ -189,7 +191,7 @@ class Presentation extends MultiUsers {
     await this.userPage.setHeightWidthViewPortSize();
 
     // Skip check for screenshot on ci, due to the ci and the local machine generating two different image sizes
-    if(!CI) {
+    if (!CI) {
       await expect(modWhiteboardLocator).toHaveScreenshot('moderator-pptx-presentation-screenshot.png', {
         maxDiffPixels: 1000,
       });
@@ -215,7 +217,7 @@ class Presentation extends MultiUsers {
     await this.userPage.setHeightWidthViewPortSize();
 
     // Skip check for screenshot on ci, due to the ci and the local machine generating two different image sizes
-    if(!CI) {
+    if (!CI) {
       await expect(modWhiteboardLocator).toHaveScreenshot('moderator-txt-presentation-screenshot.png', {
         maxDiffPixels: 1000,
       });
