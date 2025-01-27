@@ -83,6 +83,7 @@ class PresentationService {
 	}
 
 	def processUploadedPresentation = { uploadedPres ->
+		// Run conversion on another thread to allow multiple conversions to run simultaneously
 		def scheduler = Executors.newSingleThreadScheduledExecutor()
 		def startTime = System.currentTimeMillis()
 		def timeout = 10000 // 10 secs
