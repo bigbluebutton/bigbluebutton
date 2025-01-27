@@ -285,10 +285,8 @@ class Join extends Create {
     await breakoutModPage.waitForSelector(e.whiteboard, ELEMENT_WAIT_EXTRA_LONG_TIME);
     await breakoutModPage.closeAllToastNotifications();
     // visual assertion on the presentations
-    const modWbLocator = breakoutModPage.getLocator(e.whiteboard);
-    await expect(modWbLocator).toHaveScreenshot('moderator-first-room-slide.png');
-    const userWbLocator = breakoutUserPage.getLocator(e.whiteboard);
-    await expect(userWbLocator).toHaveScreenshot('attendee-second-room-slide.png');
+    await expect(this.modPage.page).toHaveScreenshot('moderator-page-first-room.png');
+    await expect(this.userPage.page).toHaveScreenshot('attendee-page-second-room.png');
   }
 }
 
