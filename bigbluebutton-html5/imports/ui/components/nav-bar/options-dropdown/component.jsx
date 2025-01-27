@@ -302,7 +302,7 @@ class OptionsDropdown extends PureComponent {
             <Styled.AFKLabel>{ToggleAFKLabel()}</Styled.AFKLabel>
             <Toggle
               icons={false}
-              checked={away}
+              checked={!away}
               onChange={handleToggleAFK}
               ariaLabel={ToggleAFKLabel()}
               showToggleLabel={false}
