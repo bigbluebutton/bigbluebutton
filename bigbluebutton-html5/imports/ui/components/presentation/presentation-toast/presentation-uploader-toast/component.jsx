@@ -3,7 +3,7 @@ import Icon from '/imports/ui/components/common/icon/component';
 import Styled from '/imports/ui/components/presentation/presentation-uploader/styles';
 import { toast } from 'react-toastify';
 import { defineMessages } from 'react-intl';
-import usePreviousValue from '/imports/ui/hooks/usePreviousValue';
+import { usePreviousValue, useStatePreviousValue } from '/imports/ui/hooks/usePreviousValue';
 import { notify } from '/imports/ui/services/notification';
 import Session from '/imports/ui/services/storage/in-memory';
 
@@ -14,6 +14,8 @@ const EXPORT_STATUSES = {
   TIMEOUT: 'TIMEOUT',
   EXPORTED: 'EXPORTED',
 };
+
+const TIMEOUT_CLOSE_TOAST = 1; // second
 
 const intlMessages = defineMessages({
   item: {
@@ -242,8 +244,16 @@ function renderPresentationItemStatus(item, intl) {
   return null;
 }
 
+function checkSamePresentation(pres1, pres2) {
+  return pres1.presentationId === pres2.presentationId
+    || (pres1.uploadTemporaryId
+      && pres2.uploadTemporaryId
+      && pres1.uploadTemporaryId === pres2.uploadTemporaryId);
+}
+
 function renderToastItem(item, intl) {
-  const isUploading = ('totalPages' in item) && item.totalPages > 0;
+  const isUploading = ('totalPages' in item) && ('totalPagesUploaded' in item)
+    && item.totalPages > 0 && item.totalPages > item.totalPagesUploaded;
   const uploadInProgress = ('uploadCompleted' in item) && !item.uploadCompleted;
   const hasError = (('uploadErrorMsgKey' in item) && item.uploadErrorMsgKey);
   const isProcessing = (isUploading || uploadInProgress) && !hasError;
@@ -452,6 +462,7 @@ export const PresentationUploaderToast = ({
   convertingPresentations,
   presentations,
 }) => {
+  const previousConvertingPresentation = useStatePreviousValue(convertingPresentations);
   const dismissedErrorItems = useRef([]);
   const prevPresentations = usePreviousValue(presentations);
   const exportToastIdRef = useRef('presentationUploaderExportPresentationId');
@@ -513,11 +524,27 @@ export const PresentationUploaderToast = ({
       });
   }, [presentations]);
 
-  const showToast = convertingPresentations
+  const successfullyConvertedPresentations = previousConvertingPresentation
+    ? previousConvertingPresentation.filter(
+      (p) => !convertingPresentations.some(
+        (presentation) => checkSamePresentation(p, presentation),
+      ),
+    ).map((p) => {
+      const pres = presentations.find(
+        (presentation) => checkSamePresentation(p, presentation),
+      );
+      return pres || p;
+    }) : [];
+
+  const convertedPresentation = convertingPresentations.concat(
+    successfullyConvertedPresentations,
+  );
+
+  const showToast = convertedPresentation
     .filter((p) => !dismissedErrorItems.current.includes(p.presentationId)).length > 0;
 
   if (showToast && !toast.isActive(convertingToastIdRef.current)) {
-    toast(() => renderToastList(convertingPresentations, intl), {
+    toast(() => renderToastList(convertedPresentation, intl), {
       hideProgressBar: true,
       autoClose: false,
       newestOnTop: true,
@@ -530,10 +557,12 @@ export const PresentationUploaderToast = ({
       },
     });
   } else if (!showToast && toast.isActive(convertingToastIdRef.current)) {
-    handleDismissToast(convertingToastIdRef.current);
+    setTimeout(() => {
+      handleDismissToast(convertingToastIdRef.current);
+    }, TIMEOUT_CLOSE_TOAST * 1000);
   } else {
     toast.update(convertingToastIdRef.current, {
-      render: renderToastList(convertingPresentations, intl),
+      render: renderToastList(convertedPresentation, intl),
     });
   }
   return null;
