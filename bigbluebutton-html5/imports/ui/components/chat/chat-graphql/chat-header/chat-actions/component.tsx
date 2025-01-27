@@ -141,7 +141,7 @@ const ChatActions: React.FC = () => {
       },
     ];
     return dropdownActions.filter((action) => action.enable);
-  }, [userIsModerator, meetingIsBreakout, currentUserLoading, meetingLoading]);
+  }, [userIsModerator, meetingIsBreakout, currentUserLoading, meetingLoading, intl.locale]);
   if (errorHistory) {
     return (
       <p>
