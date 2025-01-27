@@ -105,16 +105,27 @@ class ConnectionStatus {
     return this.networkData;
   }
 
+  public setConnectionStatus(rtt: number, status: string): void {
+    if (rtt !== this.rttValue() || status !== this.rttStatus()) {
+      const warnLevels = ['danger', 'critical'];
+      if (
+        warnLevels.includes(status)
+        // Emit warning if the status changed to a warn level or if the status recovered from a warn level
+        || (warnLevels.includes(this.rttStatus()) && !warnLevels.includes(status))
+      ) {
+        logger.warn({ logCode: 'stats_rtt_state' }, `Connection status changed to ${status} (rtt=${rtt}ms)`);
+      } else {
+        logger.debug({ logCode: 'stats_rtt_state' }, `Connection status changed to ${status} (rtt=${rtt}ms)`);
+      }
+
+      this.setRttValue(rtt);
+      this.setRttStatus(status);
+    }
+  }
+
   public setRttValue(value: number): void {
     if (value !== this.rttValue()) {
-      const rttLevels = window.meetingClientSettings.public.stats.rtt;
-      const status = getStatus(rttLevels, value);
-      const isWarning = status === 'critical' || (this.rttStatus() === 'critical' && status !== 'critical');
-      if (isWarning) {
-        logger.warn({ logCode: 'stats_rtt_value_state', extraInfo: { rtt: value } }, `RTT value changed to ${value}ms`);
-      } else {
-        logger.debug({ logCode: 'stats_rtt_value_state', extraInfo: { rtt: value } }, `RTT value changed to ${value}ms`);
-      }
+      logger.debug({ logCode: 'stats_rtt_value_state', extraInfo: { rtt: value } }, `RTT value changed to ${value}ms`);
       this.rttValue(value);
     }
   }
@@ -144,11 +155,7 @@ class ConnectionStatus {
 
   public setRttStatus(value: string): void {
     if (value !== this.rttStatus()) {
-      if (value === 'critical' || (value !== 'critical' && this.rttStatus() === 'critical')) {
-        logger.warn({ logCode: 'stats_rtt_status_state' }, `Connection status changed to ${value} (rtt=${this.rttValue()}ms)`);
-      } else {
-        logger.info({ logCode: 'stats_rtt_status_state' }, `Connection status changed to ${value} (rtt=${this.rttValue()}ms)`);
-      }
+      logger.info({ logCode: 'stats_rtt_status_value' }, `RTT status changed to ${value}`);
       this.rttStatus(value);
     }
   }
@@ -233,4 +240,6 @@ class ConnectionStatus {
   }
 }
 
-export default new ConnectionStatus();
+const connectionsStatusSingleton = new ConnectionStatus();
+
+export default connectionsStatusSingleton;
