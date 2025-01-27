@@ -667,6 +667,11 @@ export const meetingClientSettingsInitialValues: MeetingClientSettings = {
       livekit: {
         url: `wss://${window.location.hostname}/livekit`,
         selectiveSubscription: false,
+        roomOptions: {
+          adaptiveStream: true,
+          dynacast: true,
+          stopLocalTrackOnUnpublish: false,
+        },
         audio: {
           publishOptions: {
             audioPreset: AudioPresets.speech,

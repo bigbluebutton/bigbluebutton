@@ -3,7 +3,6 @@ import { defineMessages, injectIntl } from 'react-intl';
 import PropTypes from 'prop-types';
 import EndMeetingConfirmationContainer from '/imports/ui/components/end-meeting-confirmation/container';
 import BBBMenu from '/imports/ui/components/common/menu/component';
-import { colorDanger, colorWhite } from '/imports/ui/stylesheets/styled-components/palette';
 import Styled from './styles';
 import Session from '/imports/ui/services/storage/in-memory';
 
@@ -106,8 +105,6 @@ class LeaveMeetingButton extends PureComponent {
     }
 
     if (allowedToEndMeeting && connected) {
-      const customStyles = { background: colorDanger, color: colorWhite };
-
       this.menuItems.push(
         {
           key: 'list-item-end-meeting',
@@ -115,7 +112,6 @@ class LeaveMeetingButton extends PureComponent {
           icon: 'close',
           label: intl.formatMessage(intlMessages.endMeetingLabel),
           description: intl.formatMessage(intlMessages.endMeetingDesc),
-          customStyles,
           onClick: () => this.setEndMeetingConfirmationModalIsOpen(true),
         },
       );

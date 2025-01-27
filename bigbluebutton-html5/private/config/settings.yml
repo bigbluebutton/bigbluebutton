@@ -932,6 +932,10 @@ public:
       # applicable track sources. Default value is false. This overrides autoSubscribe
       # when set to true and in effect (conditional to client behavior).
       selectiveSubscription: false
+      roomOptions:
+        adaptiveStream: true
+        dynacast: true
+        stopLocalTrackOnUnpublish: false
       audio:
         # publishOptions: see https://docs.livekit.io/client-sdk-js/interfaces/TrackPublishOptions.html
         publishOptions:

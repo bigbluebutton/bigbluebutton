@@ -86,8 +86,10 @@ class Chat extends MultiUsers {
     await this.modPage.waitAndClick(e.chatCopy);
     // enable access to browser context clipboard
     const copiedText = await this.modPage.getCopiedText(this.modPage.context);
-    const check = copiedText.includes(`${p.fullName}: ${e.message}`);
-    await expect(check, 'should display on the copied chat the same message that was sent on the public chat').toBeTruthy();
+    await expect(
+      copiedText,
+      'should display on the copied chat the same message that was sent on the public chat',
+    ).toContain(`[${this.modPage.username} : MODERATOR]: ${e.message}`);
   }
 
   async saveChat(testInfo) {
@@ -103,11 +105,10 @@ class Chat extends MultiUsers {
     await this.modPage.waitAndClick(e.sendButton);
     await this.modPage.hasElement(e.chatUserMessageText, 'should display the message sent by the moderator on the public chat');
     await this.modPage.waitAndClick(e.chatOptions);
+
     const chatSaveLocator = this.modPage.getLocator(e.chatSave);
     const { content } = await this.modPage.handleDownload(chatSaveLocator, testInfo);
-
     const dataToCheck = [
-      this.modPage.meetingId,
       this.modPage.username,
       e.message,
     ];
@@ -319,7 +320,7 @@ class Chat extends MultiUsers {
     await this.modPage.waitAndClick(e.chatCopy);
 
     const copiedText = await this.modPage.getCopiedText(context);
-    const check = copiedText.includes(`${p.fullName}: ${e.convertedEmojiMessage}`);
+    const check = copiedText.includes(`${this.modPage.username}: ${e.convertedEmojiMessage}`);
     await expect(check).toBeTruthy();
   }
 

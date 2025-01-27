@@ -1204,9 +1204,9 @@ CREATE TRIGGER "update_chat_message_history_trigger" BEFORE UPDATE OF "message" 
 
 
 CREATE OR REPLACE VIEW "v_chat" AS
-SELECT 	"user"."userId",
+SELECT 	"user"."meetingId",
+        "user"."userId",
         case when "user"."userId" = "chat"."createdBy" then true else false end "amIOwner",
-		chat."meetingId",
 		chat."chatId",
 		cu."visible",
 		chat_with."userId" AS "participantId",
@@ -1228,7 +1228,7 @@ LEFT JOIN "chat_user" chat_with ON chat_with."meetingId" = chat."meetingId" AND
 LEFT JOIN chat_message cm ON cm."meetingId" = chat."meetingId" AND
                              cm."chatId" = chat."chatId"
 WHERE cu."visible" is true
-GROUP BY "user"."userId", chat."meetingId", chat."chatId", cu."visible", cu."lastSeenAt", chat_with."userId";
+GROUP BY "user"."meetingId", "user"."userId", chat."meetingId", chat."chatId", cu."visible", cu."lastSeenAt", chat_with."userId";
 
 create index idx_v_chat_with on chat_user("meetingId","chatId","userId") where "chatId" != 'MAIN-PUBLIC-GROUP-CHAT';
 
