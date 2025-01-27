@@ -275,7 +275,7 @@ class Join extends Create {
     ).toHaveCount(3);
     await changeSlideBreakoutLocator.selectOption({ label: e.uploadPresentationFileName });
     await this.modPage.waitAndClick(e.modalConfirmButton);
-    await this.userPage.waitAndClick(e.modalConfirmButton);
+    await this.userPage.waitAndClick(e.modalDismissButton);
     // join user to breakout room and check the presentation loaded
     const breakoutUserPage = await this.joinRoom();
     await breakoutUserPage.waitForSelector(e.whiteboard, ELEMENT_WAIT_EXTRA_LONG_TIME);
