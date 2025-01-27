@@ -32,24 +32,35 @@
 - `presentationUploadExternalUrl`
 - `screenShareBridge`
 ### Relationships:
-- `breakoutPolicies`
-- `clientSettings`
-- `componentsFlags`
-- `externalVideo`
-- `groups`
-- `layout`
-- `learningDashboard`
-- `lockSettings`
-- `metadata`
-- `polls`
-- `recording`
-- `recordingPolicies`
-- `screenshare`
-- `timer`
-- `usersPolicies`
-- `voiceSettings`
+- `breakoutPolicies: Object` [Type meeting_breakoutPolicies](#type-meeting_breakoutPolicies)
+- `clientSettings: Object` [Type meeting_clientSettings](#type-meeting_clientSettings)
+- `componentsFlags: Object` **Type meeting_componentsFlags**
+  - `hasBreakoutRoom: Boolean`
+  - `hasCameraAsContent: Boolean`
+  - `hasCaption: Boolean`
+  - `hasCurrentPresentation: Boolean`
+  - `hasExternalVideo: Boolean`
+  - `hasPoll: Boolean`
+  - `hasScreenshare: Boolean`
+  - `hasTimer: Boolean`
+  - `isSharedNotedPinned: Boolean`
+  - `showRemainingTime: Boolean`
+- `externalVideo: Object` [Type externalVideo](#type-externalVideo)
+- `groups: Array` [Type meeting_group](#type-meeting_group)
+- `layout: Object` [Type layout](#type-layout)
+- `learningDashboard: Object` [Type meeting_learningDashboard](#type-meeting_learningDashboard)
+- `lockSettings: Object` [Type meeting_lockSettings](#type-meeting_lockSettings)
+- `metadata: Array` [Type meeting_metadata](#type-meeting_metadata)
+- `polls: Array` [Type poll](#type-poll)
+- `recording: Object` [Type meeting_recording](#type-meeting_recording)
+- `recordingPolicies: Object` [Type meeting_recordingPolicies](#type-meeting_recordingPolicies)
+- `screenshare: Object` [Type screenshare](#type-screenshare)
+- `timer: Object` [Type timer](#type-timer)
+- `usersPolicies: Object` [Type meeting_usersPolicies](#type-meeting_usersPolicies)
+- `voiceSettings: Object` [Type meeting_voiceSettings](#type-meeting_voiceSettings)
 
 ## Type: user_current
+Permission: Restricted to User Viewing Self-Related Data
 ### Fields:
 - `authToken`
 - `authed`
@@ -100,25 +111,26 @@
 - `userId`
 - `webcamBackground`
 ### Relationships:
-- `breakoutRooms`
-- `cameras`
-- `chats`
-- `connectionStatus`
-- `guestStatusDetails`
-- `lastBreakoutRoom`
-- `livekit`
-- `meeting`
-- `presPagesWritable`
-- `sessionCurrent`
-- `sharedNotesSession`
-- `transcriptionError`
-- `userClientSettings`
-- `userLockSettings`
-- `userMetadata`
-- `voice`
-- `welcomeMsgs`
+- `breakoutRooms: Array` [Type breakoutRooms](#type-breakoutroom)
+- `cameras: Array` [Type camera](#type-user_camera)
+- `chats: Array` [Type chat](#type-chat)
+- `connectionStatus: Object` [Type user_connectionStatus](#type-user_connectionstatus)
+- `guestStatusDetails: Object` [Type user_guest](#type-user_guest)
+- `lastBreakoutRoom: Object` [Type user_breakoutroom](#type-user_breakoutroom)
+- `livekit: Object` [Type user_livekit](#type-user_livekit)
+- `meeting: Object` [Type meeting](#type-meeting)
+- `presPagesWritable: Array` [Type pres_page_writers](#type-pres_page_writers)
+- `sessionCurrent: Object` [Type user_session_current](#type-user_session_current)
+- `sharedNotesSession: Object` [Type sharedNotes_session](#type-sharedNotes_session)
+- `transcriptionError: Object` [Type user_transcriptionError](#type-user_transcriptionError)
+- `userClientSettings: Object` [Type user_clientSettings](#type-user_clientSettings)
+- `userLockSettings: Object` [Type user_lockSettings](#type-user_lockSettings)
+- `userMetadata: Object` [Type user_metadata](#type-user_metadata)
+- `voice: Object` [Type user_voice](#type-user_voice)
+- `welcomeMsgs: Object` [Type user_welcomeMsgs](#type-user_welcomeMsgs)
 
 ## Type: chat_message_private
+Permission: Restricted to User Viewing Self-Related Data
 ### Fields:
 - `chatEmphasizedText`
 - `chatId`
@@ -136,10 +148,15 @@
 - `senderName`
 - `senderRole`
 ### Relationships:
-- `deletedBy`
-- `reactions`
-- `replyToMessage`
-- `user`
+- `deletedBy: Object` [Type User](#type-user)
+- `reactions: Array` **Type chat_message_reaction**
+  - `createdAt`
+  - `reactionEmoji`
+  - `reactionEmojiId`
+  - `userId`
+  - `user: Object` [Type User](#type-user)
+- `replyToMessage: Object` [Type chat_message_private](#type-chat_message_private)
+- `user: Object` [Type User](#type-user)
 
 ## Type: chat_message_public
 ### Fields:
@@ -158,12 +175,18 @@
 - `senderName`
 - `senderRole`
 ### Relationships:
-- `deletedBy`
-- `reactions`
-- `replyToMessage`
-- `user`
+- `deletedBy: Object` [Type User](#type-user)
+- `reactions: Array` **Type chat_message_reaction**
+  - `createdAt`
+  - `reactionEmoji`
+  - `reactionEmojiId`
+  - `userId`
+  - `user: Object` [Type User](#type-user)
+- `replyToMessage: Object` [Type type-chat_message_public](#type-chat_message_public)
+- `user: Object` [Type User](#type-user)
 
 ## Type: user
+Permission: Restricted by Lock Settings
 ### Fields:
 - `authed`
 - `avatar`
@@ -205,50 +228,13 @@
 - `speechLocale`
 - `userId`
 ### Relationships:
-- `cameras`
-- `connectionStatus`
-- `lastBreakoutRoom`
-- `meeting`
-- `presPagesWritable`
-- `userLockSettings`
-- `voice`
-
-## Type: user_ref
-### Fields:
-- `authed`
-- `avatar`
-- `away`
-- `banned`
-- `captionLocale`
-- `clientType`
-- `color`
-- `currentlyInMeeting`
-- `disconnected`
-- `expired`
-- `extId`
-- `firstName`
-- `firstNameSortable`
-- `guest`
-- `guestStatus`
-- `hasDrawPermissionOnCurrentPage`
-- `isDialIn`
-- `isModerator`
-- `joined`
-- `lastName`
-- `lastNameSortable`
-- `locked`
-- `loggedOut`
-- `mobile`
-- `name`
-- `nameSortable`
-- `pinned`
-- `presenter`
-- `raiseHand`
-- `reactionEmoji`
-- `registeredOn`
-- `role`
-- `speechLocale`
-- `userId`
+- `cameras: Array` [Type user_camera](#type-user_camera)
+- `connectionStatus: Object` [Type user_connectionstatus](#type-user_connectionstatus)
+- `lastBreakoutRoom: Object` [Type user_breakoutRoom](#type-user_breakoutRoom)
+- `meeting: Object` [Type meeting](#type-meeting)
+- `presPagesWritable: Array` [Type pres_page_writers](#type-pres_page_writers)
+- `userLockSettings: Object` [Type user_lockSettings](#type-user_lockSettings)
+- `voice: Object` [Type user_voice](#type-user_voice)
 
 ## Type: pres_annotation_curr
 ### Fields:
@@ -259,7 +245,7 @@
 - `presentationId`
 - `userId`
 ### Relationships:
-- `user`
+- `user: Object` [Type User](#type-user)
 
 ## Type: pres_annotation_history_curr
 ### Fields:
@@ -270,9 +256,10 @@
 - `updatedAt`
 - `userId`
 ### Relationships:
-- `user`
+- `user: Object` [Type User](#type-user)
 
 ## Type: user_camera
+Permission: Restricted by Lock Settings
 ### Fields:
 - `contentType`
 - `hasAudio`
@@ -280,10 +267,11 @@
 - `streamId`
 - `userId`
 ### Relationships:
-- `user`
-- `voice`
+- `user: Object` [Type User](#type-user)
+- `voice: Object` [Type user_voice](#type-user_voice)
 
 ## Type: breakoutRoom_user
+Permission: Restricted to User Viewing Self-Related Data
 ### Fields:
 - `assignedAt`
 - `breakoutRoomId`
@@ -299,7 +287,7 @@
 - `meetingId`
 - `userId`
 ### Relationships:
-- `user`
+- `user: Object` [Type User](#type-user)
 
 ## Type: meeting_componentFlags
 ### Fields:
@@ -315,6 +303,7 @@
 - `showRemainingTime`
 
 ## Type: pres_page
+Permission: Restricted to Presenter
 ### Fields:
 - `content`
 - `height`
@@ -337,7 +326,7 @@
 - `xOffset`
 - `yOffset`
 ### Relationships:
-- `presentation`
+- `presentation: Object` [Type pres_presentation](#type-pres_presentation)
 
 ## Type: pres_page_curr
 ### Fields:
@@ -372,6 +361,7 @@
 - `yOffset`
 
 ## Type: user_clientSettings
+Permission: Restricted to User Viewing Self-Related Data
 ### Fields:
 - `userClientSettingsJson`
 - `userId`
@@ -395,7 +385,7 @@
 - `voiceConfCallState`
 - `voiceUserId`
 ### Relationships:
-- `user`
+- `user: Object` [Type User](#type-user)
 
 ## Type: meeting_lockSettings
 ### Fields:
@@ -425,10 +415,11 @@
 - `secret`
 - `type`
 ### Relationships:
-- `options`
-- `responses`
-- `userCurrent`
-- `users`
+- `options: Array` [Type poll_option](#type-poll_option)
+- `responses: Array` [Type poll_response](#type-poll_response)
+- `userCurrent: Object` **Type poll_user_current**
+  - `responded: Boolean`
+- `users: Array` [Type poll_user](#type-poll_user)
 
 ## Type: poll_option
 ### Fields:
@@ -437,6 +428,7 @@
 - `pollId`
 
 ## Type: poll_response
+Permission: Restricted to Poll Owner or User Viewing Self-Related Data
 ### Fields:
 - `optionDesc`
 - `optionId`
@@ -456,7 +448,7 @@
 - `type`
 - `userId`
 ### Relationships:
-- `user`
+- `user: Object` [Type User](#type-user)
 
 ## Type: breakoutRoom
 ### Fields:
@@ -478,8 +470,11 @@
 - `showInvitation`
 - `startedAt`
 ### Relationships:
-- `assignedUsers`
-- `participants`
+- `assignedUsers: Array` **Type breakoutRoom_assignedUser** (Restricted to Moderators)
+  - `user: Object` [Type User](#type-user)
+- `participants: Array` **Type breakoutRoom_participant**
+  - `isAudioOnly: Boolean`
+  - `user: Object` [Type User](#type-user)
 
 ## Type: timer
 ### Fields:
@@ -503,9 +498,10 @@
 - `xPercent`
 - `yPercent`
 ### Relationships:
-- `user`
+- `user: Object` [Type User](#type-user)
 
 ## Type: pres_presentation
+Permission: Restricted to Presenter
 ### Fields:
 - `createdAt`
 - `current`
@@ -529,16 +525,16 @@
 - `uploadInProgress`
 - `uploadTemporaryId`
 ### Relationships:
-- `pages`
+- `pages: Array` [Type pres_page](#type-pres_page)
 
 ## Type: caption_activeLocales
 ### Fields:
 - `captionType`
 - `locale`
 ### Relationships:
-- `userOwner`
+- `userOwner: Object` [Type User](#type-user)
 
-## Type: v_meeting_usersPolicies
+## Type: meeting_usersPolicies
 ### Fields:
 - `allowModsToEjectCameras`
 - `allowModsToUnmuteUsers`
@@ -554,19 +550,6 @@
 - `userCameraCap`
 - `webcamsOnlyForModerator`
 
-## Type: breakoutRoom_assignedUser
-### Fields:
-- `userId`
-### Relationships:
-- `user`
-
-## Type: breakoutRoom_participant
-### Fields:
-- `isAudioOnly`
-- `userId`
-### Relationships:
-- `user`
-
 ## Type: chat
 ### Fields:
 - `chatId`
@@ -577,7 +560,7 @@
 - `totalUnread`
 - `visible`
 ### Relationships:
-- `participant`
+- `participant: Object` [Type User](#type-user)
 
 ## Type: pluginDataChannelEntry
 ### Fields:
@@ -590,7 +573,7 @@
 - `subChannelName`
 - `toRoles`
 ### Relationships:
-- `creator`
+- `creator: Object` [Type User](#type-user)
 
 ## Type: user_connectionStatus
 ### Fields:
@@ -601,7 +584,7 @@
 - `statusUpdatedAt`
 - `userId`
 ### Relationships:
-- `user`
+- `user: Object` [Type User](#type-user)
 
 ## Type: current_time
 ### Fields:
@@ -644,12 +627,14 @@
 - `sequence`
 
 ## Type: meeting_group
+Permission: Restricted to Moderators
 ### Fields:
 - `groupId`
 - `name`
 - `usersExtId`
 
 ## Type: user_guest
+Permission: Restricted to Moderators or the User Viewing Self-Related Data
 ### Fields:
 - `guestLobbyMessage`
 - `guestStatus`
@@ -659,7 +644,7 @@
 - `positionInWaitingQueue`
 - `userId`
 ### Relationships:
-- `user`
+- `user: Object` [Type User](#type-user)
 
 ## Type: meeting_recording
 ### Fields:
@@ -685,6 +670,7 @@
 - `voiceConf`
 
 ## Type: user_typing_private
+Permission: Restricted to User Viewing Self-Related Data
 ### Fields:
 - `chatId`
 - `isCurrentlyTyping`
@@ -692,7 +678,7 @@
 - `startedTypingAt`
 - `userId`
 ### Relationships:
-- `user`
+- `user: Object` [Type User](#type-user)
 
 ## Type: user_typing_public
 ### Fields:
@@ -702,7 +688,7 @@
 - `startedTypingAt`
 - `userId`
 ### Relationships:
-- `user`
+- `user: Object` [Type User](#type-user)
 
 ## Type: pres_page_writers
 ### Fields:
@@ -735,12 +721,13 @@
 - `sharedNotesExtId`
 
 ## Type: sharedNotes_session
+Permission: Restricted to User Viewing Self-Related Data
 ### Fields:
 - `padId`
 - `sessionId`
 - `sharedNotesExtId`
 ### Relationships:
-- `sharedNotes`
+- `sharedNotes: Object` [Type sharednotes](#type-sharednotes)
 
 ## Type: user_breakoutRoom
 ### Fields:
@@ -752,6 +739,7 @@
 - `userId`
 
 ## Type: user_connectionStatusReport
+Permission: Restricted to Moderators or the User Viewing Self-Related Data
 ### Fields:
 - `clientNotResponding`
 - `connectionAliveAt`
@@ -760,7 +748,7 @@
 - `lastUnstableStatusAt`
 - `userId`
 ### Relationships:
-- `user`
+- `user: Object` [Type User](#type-user)
 
 ## Type: user_reaction
 ### Fields:
@@ -769,19 +757,19 @@
 - `reactionEmoji`
 - `userId`
 ### Relationships:
-- `user`
+- `user: Object` [Type User](#type-user)
 
 ## Type: user_reaction_current
 ### Fields:
 - `reactionEmoji`
 - `userId`
 ### Relationships:
-- `user`
+- `user: Object` [Type User](#type-user)
 
 ## Type: user_welcomeMsgs
 ### Fields:
 - `welcomeMsg`
-- `welcomeMsgForModerators`
+- `welcomeMsgForModerators` (Restricted to Moderators)
 
 ## Type: meeting_clientSettings
 ### Fields:
@@ -796,9 +784,10 @@
 - `locale`
 - `userId`
 ### Relationships:
-- `user`
+- `user: Object` [Type User](#type-user)
 
-## Type: v_meeting_learningDashboard
+## Type: meeting_learningDashboard
+Permission: Restricted to Moderators
 ### Fields:
 - `learningDashboardAccessToken`
 
@@ -810,10 +799,12 @@
 - `url`
 
 ## Type: pollUserCurrent
+Permission: Restricted to User Viewing Self-Related Data
 ### Fields:
 - `responded`
 
 ## Type: pres_presentation_uploadToken
+Permission: Restricted to User Viewing Self-Related Data
 ### Fields:
 - `presentationId`
 - `uploadTemporaryId`
@@ -829,6 +820,7 @@
 - `userId`
 
 ## Type: user_metadata
+Permission: Restricted to User Viewing Self-Related Data
 ### Fields:
 - `parameter`
 - `value`
@@ -842,9 +834,10 @@
 - `userId`
 - `voiceActivityAt`
 ### Relationships:
-- `user`
+- `user: Object` [Type User](#type-user)
 
 ## Type: notification
+Permission: Restricted to User Viewing Self-Related Data
 ### Fields:
 - `createdAt`
 - `icon`
@@ -856,6 +849,7 @@
 - `role`
 
 ## Type: user_lockSettings
+Permission: Restricted to Moderators or the User Viewing Self-Related Data
 ### Fields:
 - `disablePublicChat`
 
@@ -865,19 +859,11 @@
 - `value`
 
 ## Type: user_transcriptionError
+Permission: Restricted to User Viewing Self-Related Data
 ### Fields:
 - `errorCode`
 - `errorMessage`
 - `lastUpdatedAt`
-
-## Type: chat_message_reaction
-### Fields:
-- `createdAt`
-- `reactionEmoji`
-- `reactionEmojiId`
-- `userId`
-### Relationships:
-- `user`
 
 ## Type: plugin
 ### Fields:
@@ -886,6 +872,7 @@
 - `name`
 
 ## Type: user_presenceLog
+Permission: Restricted by Lock Settings
 ### Fields:
 - `currentlyInMeeting`
 - `extId`
@@ -893,6 +880,7 @@
 - `userId`
 
 ## Type: breakoutRoom_createdLatest
+Permission: Restricted to Moderators
 ### Fields:
 - `breakoutRoomId`
 - `captureNotes`
@@ -908,13 +896,13 @@
 - `shortName`
 - `startedAt`
 
-## Type: v_user_livekit
+## Type: user_livekit
+Permission: Restricted to User Viewing Self-Related Data
 ### Fields:
 - `livekitToken`
-### Relationships:
-- `user`
 
 ## Type: user_session
+Permission: Restricted to User Viewing Self-Related Data
 ### Fields:
 - `connectionsAlive`
 - `enforceLayout`
@@ -922,6 +910,7 @@
 - `sessionToken`
 
 ## Type: user_session_current
+Permission: Restricted to User Viewing Self-Related Data
 ### Fields:
 - `enforceLayout`
 - `sessionName`
