@@ -140,7 +140,11 @@ class ConnectionStatus {
 
   public setLastRttRequestSuccess(value: boolean): void {
     if (value !== this.lastRttRequestSuccess()) {
-      logger.info({ logCode: 'stats_rtt_success_state' }, `Last RTT request changed to ${value}`);
+      if (value === false) {
+        logger.warn({ logCode: 'stats_rtt_success_state' }, `Last RTT request failed (rtt_success=${value})`);
+      } else {
+        logger.debug({ logCode: 'stats_rtt_success_state' }, `Last RTT request succeeded (rtt_success=${value})`);
+      }
       this.lastRttRequestSuccess(value);
     }
   }
@@ -241,5 +245,7 @@ class ConnectionStatus {
 }
 
 const connectionsStatusSingleton = new ConnectionStatus();
+
+window.teste = connectionsStatusSingleton;
 
 export default connectionsStatusSingleton;
