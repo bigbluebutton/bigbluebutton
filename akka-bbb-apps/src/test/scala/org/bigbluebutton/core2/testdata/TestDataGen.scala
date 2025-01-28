@@ -17,7 +17,7 @@ object TestDataGen {
       RandomStringGenerator.randomAlphanumericString(10) + ".jpg"
     val color = "#ff6242"
 
-    val ru = RegisteredUsers.create(meetingId, userId = id, extId, name, role,
+    val ru = RegisteredUsers.create(meetingId, userId = id, extId, name, "", "", role,
       authToken, Vector(sessionToken), avatarURL, webcamBackgroundURL, color, bot,
       guest, authed, GuestStatus.ALLOW, false, "", logoutUrl, Map(), false)
 

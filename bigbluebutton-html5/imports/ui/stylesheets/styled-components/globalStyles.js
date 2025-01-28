@@ -95,13 +95,13 @@ const GlobalStyle = createGlobalStyle`
     cursor: pointer;
     background-color: ${colorWhite};
 
-    &:hover,
     &:focus {
       background-color: #EEE;
     }
   }
 
   .toastBodyClass {
+    font-family: 'Source Sans Pro';
     margin: auto auto;
     flex: 1;
     background-color: inherit;

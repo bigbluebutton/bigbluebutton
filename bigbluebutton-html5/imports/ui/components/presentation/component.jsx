@@ -69,6 +69,8 @@ const getToolbarHeight = () => {
   return height;
 };
 
+const IGNORE_PRESENTATION_RESTORATION_TIMEOUT = 5000;
+
 class Presentation extends PureComponent {
   constructor() {
     super();
@@ -83,6 +85,7 @@ class Presentation extends PureComponent {
       tldrawIsMounting: true,
       isToolbarVisible: true,
       hadPresentation: false,
+      ignorePresentationRestoring: true,
     };
 
     const PAN_ZOOM_INTERVAL = window.meetingClientSettings.public.presentation.panZoomInterval || 200;
@@ -195,6 +198,10 @@ class Presentation extends PureComponent {
         value: 0,
       });
     }
+
+    setTimeout(() => {
+      this.setState({ ignorePresentationRestoring: false });
+    }, IGNORE_PRESENTATION_RESTORATION_TIMEOUT);
   }
 
   componentDidUpdate(prevProps) {
@@ -224,6 +231,7 @@ class Presentation extends PureComponent {
       isPanning,
       presentationId,
       hadPresentation,
+      ignorePresentationRestoring,
     } = this.state;
     const {
       numCameras: prevNumCameras,
@@ -312,6 +320,7 @@ class Presentation extends PureComponent {
         !presentationIsOpen
         && restoreOnUpdate
         && (currentSlide || presentationChanged)
+        && !ignorePresentationRestoring
       ) {
         const slideChanged = currentSlide.id !== prevProps.currentSlide.id;
         const positionChanged = slidePosition.viewBoxHeight

@@ -18,6 +18,7 @@ const PresentationUploaderToastContainer = (props) => {
   const convertingPresentations = presentations.filter(
     (p) => (!p.uploadCompleted || !!p.uploadErrorMsgKey),
   );
+
   if (presentationLoading) return null;
   if (!presentations.length) return null;
 

@@ -140,12 +140,13 @@ class MultiUsers {
   async raiseAndLowerHand() {
     await this.modPage.waitForSelector(e.whiteboard);
     await this.initUserPage();
+    await this.userPage.waitForSelector(e.whiteboard);
     await this.userPage.waitAndClick(e.raiseHandBtn);
-    await this.userPage.hasElement(e.raiseHandBtn);
+    await this.userPage.hasElement(e.lowerHandBtn, 'should display the lower hand button after raising the hand');
     await this.modPage.comparingSelectorsBackgroundColor(e.avatarsWrapperAvatar, `${e.userListItem} div:first-child`);
     await sleep(1000);
-    await this.userPage.waitAndClick(e.raiseHandBtn);
-    await this.userPage.hasElement(e.raiseHandBtn, 'should display the raise hand button for the attendee');
+    await this.userPage.waitAndClick(e.lowerHandBtn);
+    await this.userPage.hasElement(e.raiseHandBtn, 'should display the raise hand button after lowering the hand');
   }
 
   async raiseHandRejected() {
@@ -156,19 +157,16 @@ class MultiUsers {
     await this.userPage.press('Escape');
     await this.modPage.comparingSelectorsBackgroundColor(e.avatarsWrapperAvatar, `${e.userListItem} div:first-child`);
     await this.modPage.waitAndClick(e.raiseHandRejection);
-    await this.userPage.hasElement(e.raiseHandBtn, 'should display the raise hand button for the attendee');
+    await this.userPage.hasElement(e.raiseHandBtn, 'should display the raise hand button after rejection');
   }
 
   async toggleUserList() {
-    await this.modPage.hasElement(e.chatWelcomeMessageText, 'should display the public chat welcome message for the moderator ');
     await this.modPage.hasElement(e.chatBox, 'should display the public chat box for the moderator');
     await this.modPage.hasElement(e.chatButton, 'should display the public chat button for the moderator');
     await this.modPage.waitAndClick(e.userListToggleBtn);
-    await this.modPage.wasRemoved(e.chatWelcomeMessageText, 'should not display the chat welcome message for the moderator');
     await this.modPage.wasRemoved(e.chatBox, 'should not display the public chat box for the moderator');
     await this.modPage.wasRemoved(e.chatButton, 'should not display the public chat button for the moderator');
     await this.modPage.waitAndClick(e.userListToggleBtn);
-    await this.modPage.wasRemoved(e.chatWelcomeMessageText, 'should not display the chat welcome message for the moderator');
     await this.modPage.wasRemoved(e.chatBox, 'should not display the public chat box for the moderator');
     await this.modPage.hasElement(e.chatButton, 'should display the public chat button for the moderator');
   }
@@ -220,18 +218,6 @@ class MultiUsers {
     await this.modPage.waitAndClick(e.userListItem);
     await this.modPage.waitAndClick(e.changeWhiteboardAccess);
     await this.modPage.hasElement(e.multiUsersWhiteboardOn);
-  }
-
-  async muteAllUsers() {
-    await this.modPage.joinMicrophone();
-    await this.modPage2.joinMicrophone();
-    await this.userPage.joinMicrophone();
-    await this.modPage.waitAndClick(e.manageUsers);
-    await this.modPage.waitAndClick(e.muteAll);
-    
-    await checkMutedUsers(this.modPage);
-    await checkMutedUsers(this.modPage2);
-    await checkMutedUsers(this.userPage);
   }
 
   async muteAllUsersExceptPresenter(){

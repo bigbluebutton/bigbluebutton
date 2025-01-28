@@ -493,6 +493,14 @@ class ApiController {
       }
     }
 
+    if (!StringUtils.isEmpty(params.firstName)) {
+      us.firstName = params.firstName;
+    }
+
+    if (!StringUtils.isEmpty(params.lastName)) {
+      us.lastName = params.lastName;
+    }
+
     String meetingId = meeting.getInternalId()
 
     if (hasReachedMaxParticipants(meeting, us)) {
@@ -511,6 +519,8 @@ class ApiController {
         us.meetingID,
         us.internalUserId,
         us.fullname,
+        us.firstName,
+        us.lastName,
         us.role,
         us.externUserID,
         us.authToken,
@@ -608,6 +618,8 @@ class ApiController {
     us.externMeetingID = meeting.getExternalId()
     us.externUserID = existingUserSession.externUserID
     us.fullname = existingUserSession.fullname
+    us.firstName = existingUserSession.firstName
+    us.lastName = existingUserSession.lastName
     us.role = existingUserSession.role
     us.conference = meeting.getInternalId()
     us.room = meeting.getInternalId()
@@ -1205,10 +1217,14 @@ class ApiController {
           queryParameters.put("replaceSessionToken", sessionToken);
         }
 
+        if (!StringUtils.isEmpty(params.sessionName)) {
+          queryParameters.put("sessionName", sessionName);
+        }
+
         // If the user calling getJoinUrl is a moderator (except in breakout rooms), allow to specify additional parameters
         if (us.role.equals(ROLE_MODERATOR) && !meeting.isBreakout()) {
           request.getParameterMap()
-                  .findAll { key, value -> ["enforceLayout","sessionName"].contains(key) || key.startsWith("userdata-") }
+                  .findAll { key, value -> ["enforceLayout"].contains(key) || key.startsWith("userdata-") }
                   .findAll { key, value -> !StringUtils.isEmpty(value[-1]) }
                   .each { key, value -> queryParameters.put(key, value[-1]) };
         }

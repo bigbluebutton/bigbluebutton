@@ -1,15 +1,13 @@
 package org.bigbluebutton.presentation.imp;
 
-import java.io.File;
-import java.io.IOException;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.UUID;
+import java.io.*;
+import java.nio.charset.StandardCharsets;
+import java.util.*;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 
 import org.apache.commons.io.FileUtils;
+import org.bigbluebutton.presentation.ImageResolution;
 import org.bigbluebutton.presentation.SupportedFileTypes;
 import org.bigbluebutton.presentation.SvgImageCreator;
 import org.bigbluebutton.presentation.UploadedPresentation;
@@ -79,6 +77,13 @@ public class SvgImageCreatorImp implements SvgImageCreator {
             throws InterruptedException, TimeoutException {
         String source = pres.getUploadedFile().getAbsolutePath();
         String dest;
+
+        // Skip processing if the destination file exists, as it was likely restored from the cache
+        File destsvg = new File(imagePresentationDir.getAbsolutePath() + File.separatorChar + "slide" + page + ".svg");
+        if(destsvg.exists()) {
+            return true;
+        }
+
         int countOfTimeOut = 0;
 
         int numSlides = 1;
@@ -137,9 +142,6 @@ public class SvgImageCreatorImp implements SvgImageCreator {
             log.info("Font Type 3 identified on {} page {}, slide will be rasterized.", pres.getName(), page);
             rasterizeCurrSlide = true;
         }
-
-
-        File destsvg = new File(imagePresentationDir.getAbsolutePath() + File.separatorChar + "slide" + page + ".svg");
 
         SvgConversionHandler pHandler = new SvgConversionHandler();
 
@@ -236,33 +238,40 @@ public class SvgImageCreatorImp implements SvgImageCreator {
             }
 
             if(tempPng.length() > 0) {
-                // Step 2: Convert a PNG image to SVG
-                NuProcessBuilder convertPngToSvg = new NuProcessBuilder(Arrays.asList("timeout", convPdfToSvgTimeout + "s", "convert",
-                            tempPng.getAbsolutePath(), destsvg.getAbsolutePath()));
+                try  {
+                    byte[] pngData = readFileToByteArray(tempPng);
+                    String base64encodedPng = Base64.getEncoder().encodeToString(pngData);
+                    int base64Size = base64encodedPng.getBytes(StandardCharsets.UTF_8).length;
 
-                Png2SvgConversionHandler svgHandler = new Png2SvgConversionHandler();
-                convertPngToSvg.setProcessListener(svgHandler);
-                NuProcess svgProcess = convertPngToSvg.start();
-                try {
-                    svgProcess.waitFor(convPdfToSvgTimeout + 1, TimeUnit.SECONDS);
-                } catch (InterruptedException e) {
-                    log.error("Interrupted Exception while generating SVG image {}", pres.getName(), e);
-                }
+                    // Maximum base64 encoded PNG size to embed in the SVG (currently 4MB)
+                    int browserLimit = 2 * 2 * 1024 * 1024;
 
-                if(svgHandler.isCommandTimeout()) {
-                    log.error("Command execution (convertPngToSvg) exceeded the {} secs timeout for {} page {}.", convPdfToSvgTimeout, pres.getName(), page);
-                }
-                done = svgHandler.isCommandSuccessful();
+                    if (base64Size > browserLimit) {
+                        log.error("Encoded PNG is too large for the browser");
+                    } else {
+                        int width = 500;
+                        int height = 500;
 
-                if(!svgHandler.isCommandSuccessful()) {
-                    String errorOutput = svgHandler.getStderrString();
-                    if (!errorOutput.isEmpty()) {
-                        log.error("Error during conversion from PNG to SVG: " + errorOutput);
+                        ImageResolutionService imgResService = new ImageResolutionService();
+                        ImageResolution imageResolution = imgResService.identifyImageResolution(pres.getUploadedFile());
+                        log.debug("Identified image {} width={} and height={}", pres.getName(), imageResolution.getWidth(), imageResolution.getHeight());
+
+                        if (imageResolution.getWidth() != 0 && imageResolution.getHeight() != 0) {
+                            width = imageResolution.getWidth();
+                            height = imageResolution.getHeight();
+                        }
+
+                        String svg = createSvgWithEmbeddedPng(base64encodedPng, width, height);
+                        try (FileWriter writer = new FileWriter(destsvg)) {
+                            writer.write(svg);
+                        }
                     }
+                } catch (IOException e) {
+                    log.error("Error during conversion from PNG to SVG: {}", e.getMessage());
                 }
 
                 if(destsvg.length() > 0) {
-                    // Step 3: Add SVG namespace to the destionation file
+                    // Step 3: Add SVG namespace to the destination file
                     // Check : https://phabricator.wikimedia.org/T43174
                     NuProcessBuilder addNameSpaceToSVG = new NuProcessBuilder(Arrays.asList("timeout", convPdfToSvgTimeout + "s",
                             "/bin/sh", "-c",
@@ -367,7 +376,25 @@ public class SvgImageCreatorImp implements SvgImageCreator {
 		}
 	}
 
+    private byte[] readFileToByteArray(File file) throws IOException {
+        try (FileInputStream fis = new FileInputStream(file);
+             ByteArrayOutputStream bos = new ByteArrayOutputStream()) {
+            byte[] buffer = new byte[1024];
+            int bytesRead;
+            while ((bytesRead = fis.read(buffer)) != -1) {
+                bos.write(buffer, 0, bytesRead);
+            }
+            return bos.toByteArray();
+        }
+    }
 
+    private String createSvgWithEmbeddedPng(String base64Png, int width, int height) {
+        return """
+            <svg xmlns="http://www.w3.org/2000/svg" width="%d" height="%d">
+                <image href="data:image/png;base64,%s" width="%d" height="%d"/>
+            </svg>
+            """.formatted(width, height, base64Png, width, height);
+    }
 
 	public void setBlankSvg(String blankSvg) {
 		BLANK_SVG = blankSvg;

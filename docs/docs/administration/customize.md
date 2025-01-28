@@ -975,6 +975,27 @@ public:
 
 and restart BigBlueButton via `sudo bbb-conf --restart`
 
+#### Configure S3-based cache for presentation assets
+
+In BigBlueButton 3.0 we introduced a functionality to store outputs such as SVGs, PNGs, thumbnails and text generated from PDFs or document files uploaded as presentations.
+The processed outputs are cached in an S3-based storage system, keyed by a hash of the presentation file.
+When the same presentation is uploaded again, the system retrieves the cached outputs, avoiding redundant processing and improving performance.
+
+In order to enable this feature, change the file `/etc/bigbluebutton/bbb-web.properties` including the following content:
+
+```
+presentationConversionCacheEnabled=true
+presentationConversionCacheS3AccessKeyId=AAAAAAAAAAAAAAAAAAAA
+presentationConversionCacheS3AccessKeySecret=aaaAAAaaaaaaaaaaaAAAAAAAAAaaaaaaaaaaaaa+aaA
+presentationConversionCacheS3BucketName=my-storage-name
+presentationConversionCacheS3Region=nyc3
+presentationConversionCacheS3EndpointURL=https://nyc3.digitaloceanspaces.com
+presentationConversionCacheS3PathStyle=false
+```
+_This is an example of config for DigitalOcean Spaces S3-Compatible Object Storage._
+
+and restart BigBlueButton via `sudo bbb-conf --restart`
+
 
 ### Frontends
 
@@ -1279,7 +1300,7 @@ These captions will automatically appear in the recordings.  To enable live capt
 ```
 public:
   app:
-    # You may have other setting itms here
+    # You may have other setting items here
     audioCaptions:
       enabled: true
 ```
@@ -1401,11 +1422,11 @@ Useful tools for development:
 | `userdata-bbb_skip_check_audio_on_first_join=` | (Introduced in BigBlueButton 2.3) If set to `true`, the user will not see the "echo test" when sharing audio for the first time in the session. If the user stops sharing, next time they try to share audio the echo test window will be displayed, allowing for configuration changes to be made prior to sharing audio again | `false`       |
 | `userdata-bbb_skip_echotest_if_previous_device=` | (Introduced in BigBlueButton 3.0) If set to `true`, the user will not see the "echo test" if session has valid input/output devices stored previously | `false`       |
 | `userdata-bbb_override_default_locale=`        | (Introduced in BigBlueButton 2.3) If set to `de`, the user's browser preference will be ignored - the client will be shown in 'de' (i.e. German) regardless of the otherwise preferred locale 'en' (or other)                                                                                                                   | `null`        |
-| `userdata-bbb_hide_presentation_on_join`        | (Introduced in BigBlueButton 2.6) If set to `true` it will make the user enter the meeting with presentation minimized (Only for non-presenters), not permanent. 
 | `userdata-bbb_direct_leave_button` | (Introduced in BigBlueButton 2.7) If set to `true` it will make a button to leave the meeting appear to the left of the Options menu. | `false`  |
 | `userdata-bbb_parent_room_moderator=` | (Introduced in BigBlueButton 3.0) Only used in breakouts: if set to `true`, user will have permission to kick other users inside the breakout | `false`                                                                      
 | `userdata-bbb_record_permission=` | (Introduced in BigBlueButton 3.0) If set to `true`, the user will be able to control the recording start/stop. If set to `false`, the user will not be allowed to control the recording start/stop even if their role is moderator. Otherwise only moderators will have the control (default).                                                                                                                   | `null`        |
-| `userdata-bbb_record_permission_tooltip=` | (Introduced in BigBlueButton 3.0) If set, the tooltip of the recording indicator shown when the user don't have permission to record will be replaced by it's content.                                                                                                                   | `null`        |
+| `userdata-bbb_record_permission_tooltip=` | (Introduced in BigBlueButton 3.0) If set, the tooltip of the recording indicator shown when the user don't have permission to record will be replaced by its content.                                                                                                                   | `null`        |
+| `userdata-bbb_show_session_details_on_join=` | (Introduced in BigBlueButton 3.0) If set to `false` , the session details window will not be displayed when a user joins the session.                                                                                                                   | `null`        |
 
 #### Branding parameters
 
@@ -1517,7 +1538,7 @@ Step-by-step instructions for how to configure logs from clients to be logged in
 
 The BigBlueButton client can ask the user for feedback when they leave a session. This feedback gives the administrator insight on a user's experiences within a BigBlueButton sessions.
 
-To enable the feedback and it's logging to your server, run the following script.
+To enable the feedback and its logging to your server, run the following script.
 
 ```bash
 #!/bin/bash

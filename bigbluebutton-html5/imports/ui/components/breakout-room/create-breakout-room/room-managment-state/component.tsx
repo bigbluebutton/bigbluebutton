@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { defineMessages, useIntl } from 'react-intl';
+import { useQuery } from '@apollo/client';
 import {
   BreakoutUser,
   Rooms,
@@ -9,7 +10,9 @@ import {
   Presentation,
   RoomPresentations,
 } from './types';
-import { breakoutRoom, getBreakoutsResponse } from '../queries';
+import {
+  breakoutRoom, getBreakoutsResponse, getLastBreakouts, LastBreakoutData,
+} from '../queries';
 
 const intlMessages = defineMessages({
   breakoutRoom: {
@@ -37,6 +40,7 @@ interface RoomManagmentStateProps {
   currentSlidePrefix: string;
   getRoomPresentation: (roomId: number) => string;
   isUpdate: boolean;
+  setNumberOfRooms: React.Dispatch<React.SetStateAction<number>>;
 }
 
 const RoomManagmentState: React.FC<RoomManagmentStateProps> = ({
@@ -54,12 +58,14 @@ const RoomManagmentState: React.FC<RoomManagmentStateProps> = ({
   currentSlidePrefix,
   getRoomPresentation,
   isUpdate,
+  setNumberOfRooms,
 }) => {
   const intl = useIntl();
   const [selectedId, setSelectedId] = useState<string>('');
   const [selectedRoom, setSelectedRoom] = useState<number>(0);
   const [rooms, setRooms] = useState<Rooms>({});
   const [init, setInit] = useState<boolean>(false);
+  const [roomsRestored, setRoomsRestored] = useState<boolean>(false);
   const [movementRegistered, setMovementRegistered] = useState<moveUserRegistery>({});
 
   // accepts one or multiple users
@@ -172,6 +178,57 @@ const RoomManagmentState: React.FC<RoomManagmentStateProps> = ({
       }
     });
   };
+
+  const {
+    data: lastBreakoutData,
+  } = useQuery<LastBreakoutData>(getLastBreakouts, {
+    fetchPolicy: 'network-only',
+  });
+
+  useEffect(() => {
+    if (runningRooms?.length && runningRooms.length > 0) return;
+    const lastBreakouts = lastBreakoutData?.breakoutRoom_createdLatest ?? [];
+    if (lastBreakouts.length > 0 && init) {
+      const roomState: Rooms = {};
+      lastBreakouts.forEach((room) => {
+        roomState[room.sequence] = {
+          id: room.sequence,
+          name: room.isDefaultName
+            ? intl.formatMessage(intlMessages.breakoutRoom, { 0: room.sequence })
+            : room.shortName,
+          users: [],
+        };
+      });
+      setNumberOfRooms(Object.keys(roomState).length);
+      setRooms((prevRooms: Rooms) => ({
+        ...(prevRooms ?? {}),
+        ...roomState,
+      }));
+      setRoomsRestored(true);
+    }
+  }, [lastBreakoutData, init]);
+
+  useEffect(() => {
+    if (lastBreakoutData?.user && roomsRestored) {
+      const usersToMove: string[] = [];
+      const toRooms: number[] = [];
+
+      if (runningRooms?.length && runningRooms.length > 0) return;
+
+      lastBreakoutData.user.forEach((user) => {
+        if (user.lastBreakoutRoom?.sequence) {
+          const roomSequence = Number(user.lastBreakoutRoom.sequence);
+
+          usersToMove.push(user.lastBreakoutRoom.userId);
+          toRooms.push(roomSequence);
+        }
+      });
+
+      if (usersToMove.length > 0) {
+        moveUser(usersToMove, 0, toRooms);
+      }
+    }
+  }, [lastBreakoutData, roomsRestored]);
 
   useEffect(() => {
     if (users && users.length > 0) {

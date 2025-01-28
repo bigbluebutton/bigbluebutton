@@ -10,22 +10,22 @@ import slick.jdbc.PostgresProfile.api._
 import scala.util.Random
 
 case class BreakoutRoomDbModel(
-          breakoutRoomId:               String,
-          parentMeetingId:              String,
-          externalId:                   String,
-          sequence:                     Int,
-          name:                         String,
-          shortName:                    String,
-          isDefaultName:                Boolean,
-          freeJoin:                     Boolean,
-//        startedOn:                    Long,
-          startedAt:                    Option[java.sql.Timestamp],
-          endedAt:                      Option[java.sql.Timestamp],
-          durationInSeconds:            Int,
-          sendInvitationToModerators:   Boolean,
-          captureNotes:                 Boolean,
-          captureSlides:                Boolean,
-)
+                                breakoutRoomId:               String,
+                                parentMeetingId:              String,
+                                externalId:                   String,
+                                sequence:                     Int,
+                                name:                         String,
+                                shortName:                    String,
+                                isDefaultName:                Boolean,
+                                freeJoin:                     Boolean,
+                                createdAt:                    java.sql.Timestamp,
+                                startedAt:                    Option[java.sql.Timestamp],
+                                endedAt:                      Option[java.sql.Timestamp],
+                                durationInSeconds:            Int,
+                                sendInvitationToModerators:   Boolean,
+                                captureNotes:                 Boolean,
+                                captureSlides:                Boolean,
+                              )
 
 class BreakoutRoomDbTableDef(tag: Tag) extends Table[BreakoutRoomDbModel](tag, None, "breakoutRoom") {
   val breakoutRoomId = column[String]("breakoutRoomId", O.PrimaryKey)
@@ -36,22 +36,28 @@ class BreakoutRoomDbTableDef(tag: Tag) extends Table[BreakoutRoomDbModel](tag, N
   val shortName = column[String]("shortName")
   val isDefaultName = column[Boolean]("isDefaultName")
   val freeJoin = column[Boolean]("freeJoin")
+  val createdAt = column[java.sql.Timestamp]("createdAt")
   val startedAt = column[Option[java.sql.Timestamp]]("startedAt")
   val endedAt = column[Option[java.sql.Timestamp]]("endedAt")
   val durationInSeconds = column[Int]("durationInSeconds")
   val sendInvitationToModerators = column[Boolean]("sendInvitationToModerators")
   val captureNotes = column[Boolean]("captureNotes")
   val captureSlides = column[Boolean]("captureSlides")
-  override def * = (breakoutRoomId, parentMeetingId, externalId, sequence, name, shortName, isDefaultName, freeJoin, startedAt, endedAt, durationInSeconds, sendInvitationToModerators, captureNotes, captureSlides) <> (BreakoutRoomDbModel.tupled, BreakoutRoomDbModel.unapply)
+  override def * = (
+    breakoutRoomId, parentMeetingId, externalId, sequence, name, shortName, isDefaultName, freeJoin,
+    createdAt, startedAt, endedAt, durationInSeconds, sendInvitationToModerators, captureNotes, captureSlides
+  ) <> (BreakoutRoomDbModel.tupled, BreakoutRoomDbModel.unapply)
 }
 
 object BreakoutRoomDAO {
   def insert(breakout: BreakoutModel, liveMeeting: LiveMeeting) = {
+    val roomsCreatedAt = new java.sql.Timestamp(System.currentTimeMillis())
+
     DatabaseConnection.enqueue(DBIO.sequence(
       for {
         (_, room) <- breakout.rooms
       } yield {
-        prepareInsertOrUpdate(room, breakout.durationInSeconds, breakout.sendInviteToModerators)
+        prepareInsertOrUpdate(room, breakout.durationInSeconds, breakout.sendInviteToModerators, roomsCreatedAt)
       }
     ).transactionally)
 
@@ -84,25 +90,25 @@ object BreakoutRoomDAO {
       val roomsSeq = breakout.rooms.values.toSeq
 
       DatabaseConnection.enqueue(DBIO.sequence(
-          for {
-            userId <- nonAssignedUsers
-            randomIndex = Random.nextInt(roomsSeq.length)
-            room <- Some(roomsSeq(randomIndex))
-            (redirectToHtml5JoinURL, redirectJoinURL) <- BreakoutHdlrHelpers.getRedirectUrls(liveMeeting, userId, room.externalId, room.sequence.toString())
-          } yield {
-            BreakoutRoomUserDAO.prepareInsert(room.id, liveMeeting.props.meetingProp.intId, userId, redirectToHtml5JoinURL, wasAssignedByMod = true)
-          }
-        ).transactionally)
-      }
+        for {
+          userId <- nonAssignedUsers
+          randomIndex = Random.nextInt(roomsSeq.length)
+          room <- Some(roomsSeq(randomIndex))
+          (redirectToHtml5JoinURL, redirectJoinURL) <- BreakoutHdlrHelpers.getRedirectUrls(liveMeeting, userId, room.externalId, room.sequence.toString())
+        } yield {
+          BreakoutRoomUserDAO.prepareInsert(room.id, liveMeeting.props.meetingProp.intId, userId, redirectToHtml5JoinURL, wasAssignedByMod = true)
+        }
+      ).transactionally)
+    }
   }
 
-//  def update(room: BreakoutRoom2x) = {
-//    DatabaseConnection.enqueue(
-//      prepareInsertOrUpdate(room)
-//    )
-//  }
+  //  def update(room: BreakoutRoom2x) = {
+  //    DatabaseConnection.enqueue(
+  //      prepareInsertOrUpdate(room)
+  //    )
+  //  }
 
-  def prepareInsertOrUpdate(room: BreakoutRoom2x, durationInSeconds: Int, sendInvitationToModerators: Boolean) = {
+  def prepareInsertOrUpdate(room: BreakoutRoom2x, durationInSeconds: Int, sendInvitationToModerators: Boolean, createdAt: java.sql.Timestamp) = {
     TableQuery[BreakoutRoomDbTableDef].insertOrUpdate(
       BreakoutRoomDbModel(
         breakoutRoomId = room.id,
@@ -113,6 +119,7 @@ object BreakoutRoomDAO {
         shortName = room.shortName,
         isDefaultName = room.isDefaultName,
         freeJoin = room.freeJoin,
+        createdAt = createdAt,
         startedAt = None,
         endedAt = None,
         durationInSeconds = durationInSeconds,
@@ -123,35 +130,35 @@ object BreakoutRoomDAO {
     )
   }
 
-//  def update(breakout: BreakoutModel): Unit = {
-//    for (room <- breakout.rooms) {
-//      insert(room._2)
-//    }
-//  }
-//
-//  def insert(room : BreakoutRoom2x) = {
-//    DatabaseConnection.db.run(
-//      TableQuery[BreakoutRoomDbTableDef].insertOrUpdate(
-//        BreakoutRoomDbModel(
-//          breakoutRoomId = room.id,
-//          parentMeetingId = room.parentId,
-//          externalId = room.externalId,
-//          sequence = room.sequence,
-//          name = room.name,
-//          shortName = room.shortName,
-//          isDefaultName = room.isDefaultName,
-//          freeJoin = room.freeJoin,
-//          startedOn = room.startedOn.getOrElse(0),
-//          durationInSeconds = 0,
-//          captureNotes = room.captureNotes,
-//          captureSlides = room.captureSlides,
-//        )
-//      )
-//    ).onComplete {
-//        case Success(rowsAffected) => DatabaseConnection.logger.debug(s"$rowsAffected row(s) inserted on BreakoutRoom table!")
-//        case Failure(e)            => DatabaseConnection.logger.debug(s"Error inserting BreakoutRoom: $e")
-//      }
-//  }
+  //  def update(breakout: BreakoutModel): Unit = {
+  //    for (room <- breakout.rooms) {
+  //      insert(room._2)
+  //    }
+  //  }
+  //
+  //  def insert(room : BreakoutRoom2x) = {
+  //    DatabaseConnection.db.run(
+  //      TableQuery[BreakoutRoomDbTableDef].insertOrUpdate(
+  //        BreakoutRoomDbModel(
+  //          breakoutRoomId = room.id,
+  //          parentMeetingId = room.parentId,
+  //          externalId = room.externalId,
+  //          sequence = room.sequence,
+  //          name = room.name,
+  //          shortName = room.shortName,
+  //          isDefaultName = room.isDefaultName,
+  //          freeJoin = room.freeJoin,
+  //          startedOn = room.startedOn.getOrElse(0),
+  //          durationInSeconds = 0,
+  //          captureNotes = room.captureNotes,
+  //          captureSlides = room.captureSlides,
+  //        )
+  //      )
+  //    ).onComplete {
+  //        case Success(rowsAffected) => DatabaseConnection.logger.debug(s"$rowsAffected row(s) inserted on BreakoutRoom table!")
+  //        case Failure(e)            => DatabaseConnection.logger.debug(s"Error inserting BreakoutRoom: $e")
+  //      }
+  //  }
 
   def deletePermanently(meetingId: String) = {
     DatabaseConnection.enqueue(
@@ -165,7 +172,7 @@ object BreakoutRoomDAO {
     DatabaseConnection.enqueue(
       TableQuery[BreakoutRoomDbTableDef]
         .filter(_.parentMeetingId === meetingId)
-//        .filter(_.breakoutRoomId === breakoutRoomId)
+        .filter(_.startedAt.isEmpty)
         .map(u => u.startedAt)
         .update(Some(new java.sql.Timestamp(System.currentTimeMillis())))
     )
@@ -175,6 +182,7 @@ object BreakoutRoomDAO {
     DatabaseConnection.enqueue(
       TableQuery[BreakoutRoomDbTableDef]
         .filter(_.parentMeetingId === meetingId)
+        .filter(_.endedAt.isEmpty)
         .map(u => u.endedAt)
         .update(Some(new java.sql.Timestamp(System.currentTimeMillis())))
     )
@@ -190,16 +198,16 @@ object BreakoutRoomDAO {
     )
   }
 
-//  def update(meetingId: String, breakoutRoomModel: BreakoutRoomModel) = {
-//    DatabaseConnection.db.run(
-//      TableQuery[BreakoutRoomDbTableDef]
-//        .filter(_.meetingId === meetingId)
-//        .map(t => (t.stopwatch, t.running, t.active, t.time, t.accumulated, t.startedAt, t.endedAt, t.songTrack))
-//        .update((isStopwatch(breakoutRoomModel), getRunning(breakoutRoomModel), getIsACtive(breakoutRoomModel), getTime(breakoutRoomModel), getAccumulated(breakoutRoomModel), getStartedAt(breakoutRoomModel), getEndedAt(breakoutRoomModel), getTrack(breakoutRoomModel))
-//        )
-//    ).onComplete {
-//      case Success(rowsAffected) => DatabaseConnection.logger.debug(s"$rowsAffected row(s) updated on BreakoutRoom table!")
-//      case Failure(e) => DatabaseConnection.logger.debug(s"Error updating BreakoutRoom: $e")
-//    }
-//  }
+  //  def update(meetingId: String, breakoutRoomModel: BreakoutRoomModel) = {
+  //    DatabaseConnection.db.run(
+  //      TableQuery[BreakoutRoomDbTableDef]
+  //        .filter(_.meetingId === meetingId)
+  //        .map(t => (t.stopwatch, t.running, t.active, t.time, t.accumulated, t.startedAt, t.endedAt, t.songTrack))
+  //        .update((isStopwatch(breakoutRoomModel), getRunning(breakoutRoomModel), getIsACtive(breakoutRoomModel), getTime(breakoutRoomModel), getAccumulated(breakoutRoomModel), getStartedAt(breakoutRoomModel), getEndedAt(breakoutRoomModel), getTrack(breakoutRoomModel))
+  //        )
+  //    ).onComplete {
+  //      case Success(rowsAffected) => DatabaseConnection.logger.debug(s"$rowsAffected row(s) updated on BreakoutRoom table!")
+  //      case Failure(e) => DatabaseConnection.logger.debug(s"Error updating BreakoutRoom: $e")
+  //    }
+  //  }
 }

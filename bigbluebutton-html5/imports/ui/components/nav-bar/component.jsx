@@ -18,6 +18,8 @@ import { PANELS, ACTIONS, LAYOUT_TYPE } from '../layout/enums';
 import Button from '/imports/ui/components/common/button/component';
 import LeaveMeetingButtonContainer from './leave-meeting-button/container';
 import { getSettingsSingletonInstance } from '/imports/ui/services/settings';
+import Tooltip from '/imports/ui/components/common/tooltip/component';
+import SessionDetailsModal from '/imports/ui/components/session-details/component';
 
 const intlMessages = defineMessages({
   toggleUserListLabel: {
@@ -43,6 +45,10 @@ const intlMessages = defineMessages({
   leaveMeetingLabel: {
     id: 'app.navBar.leaveMeetingBtnLabel',
     description: 'Leave meeting button label',
+  },
+  openDetailsTooltip: {
+    id: 'app.navBar.openDetailsTooltip',
+    description: 'Open details tooltip',
   },
 });
 
@@ -144,6 +150,24 @@ class NavBar extends Component {
 
     this.handleToggleUserList = this.handleToggleUserList.bind(this);
     this.splitPluginItems = this.splitPluginItems.bind(this);
+
+    this.state = {
+      isModalOpen: props.showSessionDetailsOnJoin,
+    };
+  }
+
+  setModalIsOpen = (isOpen) => this.setState({ isModalOpen: isOpen })
+
+  renderModal(isOpen, setIsOpen, priority, Component, otherOptions) {
+    return isOpen ? <Component
+      {...{
+        ...otherOptions,
+        onRequestClose: () => setIsOpen(false),
+        priority,
+        setIsOpen,
+        isOpen
+      }}
+    /> : null
   }
 
   componentDidMount() {
@@ -275,6 +299,8 @@ class NavBar extends Component {
       hideTopRow,
     } = this.props;
 
+    const { isModalOpen } = this.state;
+
     const hasNotification = hasUnreadMessages || (hasUnreadNotes && !isPinned);
 
     let ariaLabel = intl.formatMessage(intlMessages.toggleUserListAria);
@@ -346,9 +372,16 @@ class NavBar extends Component {
               {renderPluginItems(leftPluginItems)}
             </Styled.Left>
             <Styled.Center>
-              <Styled.PresentationTitle data-test="presentationTitle">
-                {presentationTitle}
+              <Styled.PresentationTitle
+                data-test="presentationTitle"
+                id="presentationTitle"
+                onClick={() => this.setModalIsOpen(true)}
+              >
+                <Tooltip title={intl.formatMessage(intlMessages.openDetailsTooltip)}>
+                  <span>{presentationTitle}</span>
+                </Tooltip>
               </Styled.PresentationTitle>
+              {this.renderModal(isModalOpen, this.setModalIsOpen, "low", SessionDetailsModal)}
               <RecordingIndicator
                 amIModerator={amIModerator}
                 currentUserId={currentUserId}
