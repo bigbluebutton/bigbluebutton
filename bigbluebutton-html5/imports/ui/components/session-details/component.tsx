@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { defineMessages, useIntl } from 'react-intl';
 import useMeeting from '/imports/ui/core/hooks/useMeeting';
+import useCurrentUser from '/imports/ui/core/hooks/useCurrentUser';
 import ModalSimple from '/imports/ui/components/common/modal/simple/component';
 import { useQuery } from '@apollo/client';
 import { GET_WELCOME_MESSAGE, WelcomeMsgsResponse } from './queries';
@@ -195,6 +196,10 @@ const SessionDetailsContainer: React.FC<SessionDetailsContainerProps> = ({
     };
   });
 
+  const { data: currentUserData } = useCurrentUser((user) => ({
+    isModerator: user.isModerator,
+  }));
+
   if (welcomeLoading) return null;
   if (welcomeError) return <div>{JSON.stringify(welcomeError)}</div>;
   if (!welcomeData || loading || !currentMeeting) return null;
@@ -214,13 +219,21 @@ const SessionDetailsContainer: React.FC<SessionDetailsContainerProps> = ({
 
   const anchorElement = document.getElementById('presentationTitle') as HTMLElement;
 
+  // login url should only be displayed for moderators
+  let loginUrl = currentMeeting.loginUrl ?? '';
+  const isModerator = currentUserData?.isModerator;
+
+  if (!isModerator) {
+    loginUrl = '';
+  }
+
   return (
     <SessionDetails
       isOpen={isOpen}
       onRequestClose={onRequestClose}
       priority={priority}
       meetingName={currentMeeting.name ?? ''}
-      loginUrl={currentMeeting.loginUrl ?? ''}
+      loginUrl={loginUrl}
       welcomeMessage={welcomeData.user_welcomeMsgs[0]?.welcomeMsg ?? ''}
       welcomeMsgForModerators={welcomeData.user_welcomeMsgs[0]?.welcomeMsgForModerators ?? ''}
       formattedDialNum={formattedDialNum}
