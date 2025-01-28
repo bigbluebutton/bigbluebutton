@@ -85,6 +85,7 @@ function createUseSubscription<T>(
           };
           objectFromProjectionToSave.data = newProjectionOfData;
           oldProjectionOfDataRef.current = newProjectionOfData;
+          oldLoadingRef.current = loading;
           setProjectedData(objectFromProjectionToSave);
         }
       },
