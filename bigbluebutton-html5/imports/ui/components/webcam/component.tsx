@@ -22,6 +22,7 @@ import { useStorageKey } from '/imports/ui/services/storage/hooks';
 import useSettings from '../../services/settings/hooks/useSettings';
 import { SETTINGS } from '../../services/settings/enums';
 import { INITIAL_INPUT_STATE } from '../layout/initState';
+import { contentSidebarMarginToMedia } from '../../stylesheets/styled-components/general';
 
 interface WebcamComponentProps {
   cameraDock: Output['cameraDock'];
@@ -191,6 +192,9 @@ const WebcamComponent: React.FC<WebcamComponentProps> = ({
   const isDesktopWidth = isDragging ? cameraSize?.width : cameraDock.width;
   const isDesktopHeight = isDragging ? cameraSize?.height : cameraDock.height;
   const camOpacity = isDragging ? 0.5 : undefined;
+  let padding = '';
+  if (isCameraSidebar && isRTL) padding = `0px 0px 0px ${contentSidebarMarginToMedia}`;
+  if (isCameraSidebar && !isRTL) padding = `0px ${contentSidebarMarginToMedia} 0px 0px`;
 
   return (
     <>
@@ -265,6 +269,7 @@ const WebcamComponent: React.FC<WebcamComponentProps> = ({
             style={{
               position: 'absolute',
               zIndex: isCameraSidebar && !isDragging ? 0 : cameraDock?.zIndex,
+              padding,
             }}
           >
             <Styled.Draggable

@@ -25,6 +25,8 @@ export const UnreadButton = styled(ButtonElipsis)`
 
 export const Wrapper = styled.div`
   flex-flow: column;
+  flex-grow: 1;
+  flex-shrink: 1;
   overflow: hidden auto;
   display: flex;
   height: 100%;

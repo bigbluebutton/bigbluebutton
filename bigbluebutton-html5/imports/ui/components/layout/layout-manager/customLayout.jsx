@@ -1,7 +1,7 @@
 import { useEffect, useRef } from 'react';
 import { throttle } from '/imports/utils/throttle';
 import { layoutSelect, layoutSelectInput, layoutDispatch } from '/imports/ui/components/layout/context';
-import DEFAULT_VALUES from '/imports/ui/components/layout/defaultValues';
+import DEFAULT_VALUES, { SIDEBAR_CONTENT_MARGIN_TO_MEDIA } from '/imports/ui/components/layout/defaultValues';
 import { INITIAL_INPUT_STATE } from '/imports/ui/components/layout/initState';
 import { ACTIONS, CAMERADOCK_POSITION, PANELS } from '../enums';
 import Storage from '/imports/ui/services/storage/session';
@@ -257,6 +257,9 @@ const CustomLayout = (props) => {
     const hasPresentation = isPresentationEnabled && slidesLength !== 0;
     const isGeneralMediaOff = !hasPresentation && !hasExternalVideo
       && !hasScreenShare && !isSharedNotesPinned && !genericContentId;
+    const {
+      sidebarContentMinHeight,
+    } = DEFAULT_VALUES;
 
     let sidebarContentHeight = 0;
     if (sidebarContentInput.isOpen) {
@@ -274,7 +277,11 @@ const CustomLayout = (props) => {
       }
       sidebarContentHeight -= bannerAreaHeight();
     }
-    return sidebarContentHeight;
+    return {
+      height: sidebarContentHeight,
+      minHeight: sidebarContentMinHeight,
+      maxHeight: sidebarContentHeight,
+    };
   };
 
   const calculatesCameraDockBounds = (sidebarNavWidth, sidebarContentWidth, mediaAreaBounds) => {
@@ -294,6 +301,7 @@ const CustomLayout = (props) => {
       cameraDockMinWidth,
       navBarHeight,
       presentationToolbarMinWidth,
+      sidebarContentMinHeight,
     } = DEFAULT_VALUES;
 
     const cameraDockBounds = {};
@@ -320,7 +328,9 @@ const CustomLayout = (props) => {
         cameraDockInput.position === CAMERADOCK_POSITION.CONTENT_BOTTOM;
 
       Storage.setItem('webcamSize', {
-        width: isCameraTopOrBottom || isCameraSidebar ? lastWidth : cameraDockInput.width,
+        width: isCameraTopOrBottom || (
+          isCameraSidebar ? lastWidth : cameraDockInput.width - SIDEBAR_CONTENT_MARGIN_TO_MEDIA
+        ),
         height: isCameraTopOrBottom || isCameraSidebar ? cameraDockInput.height : lastHeight,
       });
 
@@ -420,7 +430,7 @@ const CustomLayout = (props) => {
       cameraDockBounds.maxWidth = sidebarContentWidth;
       cameraDockBounds.minHeight = cameraDockMinHeight;
       cameraDockBounds.height = cameraDockHeight;
-      cameraDockBounds.maxHeight = windowHeight() * 0.8;
+      cameraDockBounds.maxHeight = windowHeight() - sidebarContentMinHeight;
     }
     return cameraDockBounds;
   };
@@ -571,7 +581,11 @@ const CustomLayout = (props) => {
       sidebarContentWidth.width,
       cameraDockBounds,
     );
-    const sidebarContentHeight = calculatesSidebarContentHeight(cameraDockBounds.height);
+    const {
+      height: sidebarContentHeight,
+      minHeight: sidebarContentMinHeight,
+      maxHeight: sidebarContentMaxHeight,
+    } = calculatesSidebarContentHeight(cameraDockBounds.height);
     const mediaBounds = calculatesMediaBounds(
       sidebarNavWidth.horizontalSpaceOccupied,
       sidebarContentWidth.width,
@@ -649,6 +663,8 @@ const CustomLayout = (props) => {
         width: sidebarContentWidth.width,
         maxWidth: sidebarContentWidth.maxWidth,
         height: sidebarContentHeight,
+        minHeight: sidebarContentMinHeight,
+        maxHeight: sidebarContentMaxHeight,
         top: sidebarContentBounds.top,
         left: sidebarContentBounds.left,
         right: sidebarContentBounds.right,

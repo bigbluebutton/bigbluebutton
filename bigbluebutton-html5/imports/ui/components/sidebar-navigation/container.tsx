@@ -1,13 +1,14 @@
 import React, { useEffect, useMemo } from 'react';
 import {
   layoutDispatch,
+  layoutSelect,
   layoutSelectInput,
   layoutSelectOutput,
 } from '/imports/ui/components/layout/context';
 import { useIntl } from 'react-intl';
 import SidebarNavigation from './component';
 import { User } from '/imports/ui/Types/user';
-import { Input, Output } from '/imports/ui/components/layout/layoutTypes';
+import { Input, Layout, Output } from '/imports/ui/components/layout/layoutTypes';
 import useCurrentUser from '/imports/ui/core/hooks/useCurrentUser';
 import useDeduplicatedSubscription from '/imports/ui/core/hooks/useDeduplicatedSubscription';
 import { userIsInvited } from '/imports/ui/components/breakout-room/breakout-rooms-list-item/query';
@@ -15,7 +16,7 @@ import useTimer from '/imports/ui/core/hooks/useTImer';
 import { BREAKOUTS_ICON, BREAKOUTS_LABEL, BREAKOUTS_APP_KEY } from '/imports/ui/components/breakout-room/constants';
 import { TIMER_ICON, TIMER_LABEL, TIMER_APP_KEY } from '/imports/ui/components/timer/constants';
 import { POLLS_ICON, POLLS_LABEL, POLLS_APP_KEY } from '/imports/ui/components/poll/constants';
-import { ACTIONS } from '/imports/ui/components/layout/enums';
+import { ACTIONS, DEVICE_TYPE } from '/imports/ui/components/layout/enums';
 import useMeeting from '/imports/ui/core/hooks/useMeeting';
 import { Meeting } from '/imports/ui/Types/meeting';
 
@@ -47,6 +48,8 @@ const SidebarNavigationContainer = () => {
   const intl = useIntl();
   const sidebarNavigationInput = layoutSelectInput((i: Input) => i.sidebarNavigation);
   const sidebarNavigation = layoutSelectOutput((i: Output) => i.sidebarNavigation);
+  const deviceType = layoutSelect((i: Layout) => i.deviceType);
+  const isMobile = deviceType === DEVICE_TYPE.MOBILE;
   const layoutContextDispatch = layoutDispatch();
   const {
     top,
@@ -150,6 +153,7 @@ const SidebarNavigationContainer = () => {
 
   return (
     <SidebarNavigation
+      isMobile={isMobile}
       top={top}
       left={left}
       right={right}
