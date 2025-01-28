@@ -169,7 +169,7 @@ const AudioCaptionsButton: React.FC<AudioCaptionsButtonProps> = ({
     return availableVoices.map((caption) => {
       const localeName = knownLocales ? knownLocales.find((l) => l.locale === caption)?.name : 'en';
 
-      return localeName != '' ? {
+      return localeName !== '' ? {
         key: caption,
         label: localeName,
         customStyles: (selectedLocale.current === caption) && Styled.SelectedLabel,

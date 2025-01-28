@@ -257,7 +257,7 @@ const AudioCaptionsSpeech: React.FC<AudioCaptionsSpeechProps> = ({
 
   useEffect(() => {
     // Disabled
-    if (locale == '') {
+    if (locale === '') {
       stop();
       connectedRef.current = false;
     } else if ((!connectedRef.current && connected && !muted)) {
