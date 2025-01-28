@@ -30,6 +30,7 @@ import {
 import { calculatePresentationVideoRate } from './service';
 import { useMeetingLayoutUpdater, usePushLayoutUpdater } from './hooks';
 import { changeEnforcedLayout } from '/imports/ui/components/plugins-engine/ui-commands/layout/handler';
+import { useIsChatEnabled } from '/imports/ui/services/features';
 
 const equalDouble = (n1, n2) => {
   const precision = 0.01;
@@ -100,6 +101,7 @@ const PushLayoutEngine = (props) => {
     setMeetingLayout,
     setPushLayout,
     hasMeetingLayout,
+    isChatEnabled,
   } = props;
 
   useEffect(() => {
@@ -124,8 +126,10 @@ const PushLayoutEngine = (props) => {
     Settings.save(setLocalSettings);
 
     const HIDE_PRESENTATION = window.meetingClientSettings.public.layout.hidePresentationOnJoin;
+    const HIDE_CHAT = window.meetingClientSettings.public.chat.startClosed;
 
     const shouldOpenPresentation = shouldShowScreenshare || shouldShowExternalVideo;
+    const shouldOpenChat = isChatEnabled && getFromUserSettings('bbb_show_public_chat_on_login', !HIDE_CHAT);
     let presentationLastState = !getFromUserSettings('bbb_hide_presentation_on_join', HIDE_PRESENTATION);
     presentationLastState = pushLayoutMeeting ? meetingPresentationIsOpen : presentationLastState;
     presentationLastState = shouldOpenPresentation || presentationLastState;
@@ -143,15 +147,16 @@ const PushLayoutEngine = (props) => {
           type: ACTIONS.SET_CAMERA_DOCK_POSITION,
           value: meetingLayoutCameraPosition || 'contentTop',
         });
-
-        layoutContextDispatch({
-          type: ACTIONS.SET_SIDEBAR_CONTENT_IS_OPEN,
-          value: true,
-        });
-        layoutContextDispatch({
-          type: ACTIONS.SET_SIDEBAR_CONTENT_PANEL,
-          value: PANELS.CHAT,
-        });
+        if (shouldOpenChat) {
+          layoutContextDispatch({
+            type: ACTIONS.SET_SIDEBAR_CONTENT_IS_OPEN,
+            value: true,
+          });
+          layoutContextDispatch({
+            type: ACTIONS.SET_SIDEBAR_CONTENT_PANEL,
+            value: PANELS.CHAT,
+          });
+        }
         if (!equalDouble(meetingLayoutVideoRate, 0)) {
           let w; let h;
           if (horizontalPosition) {
@@ -345,6 +350,7 @@ const PushLayoutEngineContainer = (props) => {
   const cameraDockInput = layoutSelectInput((i) => i.cameraDock);
   const presentationInput = layoutSelectInput((i) => i.presentation);
   const layoutContextDispatch = layoutDispatch();
+  const isChatEnabled = useIsChatEnabled();
 
   const applicationSettings = useSettings(SETTINGS.APPLICATION);
   const {
@@ -441,6 +447,7 @@ const PushLayoutEngineContainer = (props) => {
         isMeetingLayoutResizing,
         isModerator,
         isPresenter,
+        isChatEnabled,
         layoutContextDispatch,
         meetingLayoutUpdatedAt,
         presentationIsOpen,
