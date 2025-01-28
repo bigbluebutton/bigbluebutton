@@ -178,8 +178,6 @@ const MeetingEnded: React.FC<MeetingEndedProps> = ({
   const [{
     authToken,
     meetingId,
-    userName,
-    userId,
   }] = useAuthData();
 
   const generateEndMessage = useCallback((joinErrorCode: string, meetingEndedCode: string, endedBy: string) => {
