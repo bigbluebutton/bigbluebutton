@@ -117,7 +117,7 @@ const PushLayoutEngine = (props) => {
     let { selectedLayout: actualLayout } = Settings.application;
     if (isMobile()) {
       actualLayout = actualLayout === 'custom' ? 'smart' : actualLayout;
-      Settings.application.actualLayout = actualLayout;
+      Settings.application.selectedLayout = actualLayout;
     }
     Session.setItem('isGridEnabled', actualLayout === LAYOUT_TYPE.VIDEO_FOCUS);
 
