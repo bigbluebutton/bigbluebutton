@@ -285,6 +285,15 @@ const PushLayoutEngine = (props) => {
         });
       }
     };
+    // Sync local state of push layout
+    if ((isModerator || isPresenter) && pushLayoutMeetingDidChange) {
+      updateSettings({
+        application: {
+          ...Settings.application,
+          pushLayout: pushLayoutMeeting,
+        },
+      }, null, setLocalSettings);
+    }
 
     // REPLICATE LAYOUT
     if (shouldSwitchLayout && layoutReplicateElements.includes(LAYOUT_ELEMENTS.LAYOUT_TYPE)) {
@@ -328,7 +337,7 @@ const PushLayoutEngine = (props) => {
       // single call just check whether there is any element to be propagate
       && layoutPropagateElements.length > 0
     ) {
-      if ((pushLayout && layoutChanged) || pushLayout !== prevProps.pushLayout) {
+      if (pushLayout && (layoutChanged || pushLayout !== prevProps.pushLayout)) {
         setMeetingLayout();
       }
     }

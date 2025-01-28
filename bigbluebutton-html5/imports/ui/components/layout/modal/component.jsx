@@ -225,7 +225,7 @@ const propTypes = {
   intl: PropTypes.shape({
     formatMessage: PropTypes.func.isRequired,
   }).isRequired,
-  isModerator: PropTypes.bool,
+  isModerator: PropTypes.bool.isRequired,
   isPresenter: PropTypes.bool.isRequired,
   application: PropTypes.shape({
     selectedLayout: PropTypes.string.isRequired,
