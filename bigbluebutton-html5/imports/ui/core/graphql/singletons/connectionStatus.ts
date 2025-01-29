@@ -1,7 +1,6 @@
 import { makeVar, ReactiveVar } from '@apollo/client';
 import logger from '/imports/startup/client/logger';
 import { User } from '/imports/ui/Types/user';
-import getStatus from '/imports/ui/core/utils/getStatus';
 
 type NetworkData = {
   ready: boolean;
@@ -245,6 +244,5 @@ class ConnectionStatus {
 }
 
 const connectionsStatusSingleton = new ConnectionStatus();
-
 
 export default connectionsStatusSingleton;
