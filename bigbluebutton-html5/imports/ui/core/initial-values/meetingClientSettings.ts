@@ -83,6 +83,9 @@ export const meetingClientSettingsInitialValues: MeetingClientSettings = {
         threshold: -50,
         duration: 4000,
       },
+      appsGallery: {
+        maxPinnedApps: 3,
+      },
       remainingTimeThreshold: 30,
       remainingTimeAlertThresholdArray: [
         1,
@@ -809,6 +812,7 @@ export const meetingClientSettingsInitialValues: MeetingClientSettings = {
       role_moderator: 'MODERATOR',
       role_viewer: 'VIEWER',
       label: {
+        presenter: false,
         moderator: false,
         mobile: true,
         guest: true,

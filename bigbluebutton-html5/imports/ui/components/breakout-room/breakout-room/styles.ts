@@ -1,12 +1,12 @@
 import styled, { css, keyframes } from 'styled-components';
 import {
-  mdPaddingX,
   borderSize,
-  borderSizeSmall,
   borderRadius,
   jumboPaddingY,
   smPaddingX,
   smPaddingY,
+  contentSidebarPadding,
+  contentSidebarBottomScrollPadding,
 } from '/imports/ui/stylesheets/styled-components/general';
 import {
   colorPrimary,
@@ -28,6 +28,17 @@ import {
 import { ScrollboxVertical } from '/imports/ui/stylesheets/styled-components/scrollable';
 import Button from '/imports/ui/components/common/button/component';
 import TextareaAutosize from 'react-autosize-textarea';
+import {
+  HeaderContainer as BaseHeaderContainer,
+  Separator as BaseSeparator,
+  PanelContent as BasePanelContent,
+} from '/imports/ui/components/sidebar-content/styles';
+
+const HeaderContainer = styled(BaseHeaderContainer)``;
+
+const Separator = styled(BaseSeparator)``;
+
+const PanelContent = styled(BasePanelContent)``;
 
 const BreakoutActions = styled.div`
   display: flex;
@@ -67,7 +78,7 @@ const BreakoutItems = styled.div`
   margin-bottom: 1rem;
 `;
 
-const Content = styled.div`
+const BreakoutRoomList = styled.div`
   display: flex;
   flex-direction: row;
   justify-content: space-between;
@@ -235,28 +246,20 @@ const Duration = styled.span`
   align-self: center;
 `;
 
-const Panel = styled(ScrollboxVertical)`
+const Content = styled(ScrollboxVertical)`
   background: linear-gradient(${colorWhite} 30%, rgba(255,255,255,0)),
     linear-gradient(rgba(255,255,255,0), ${colorWhite} 70%) 0 100%,
     radial-gradient(farthest-side at 50% 0, rgba(0,0,0,.2), rgba(0,0,0,0)),
     radial-gradient(farthest-side at 50% 100%, rgba(0,0,0,.2), rgba(0,0,0,0)) 0 100%;
 
   background-color: #fff;
-  padding: ${mdPaddingX};
+  padding: ${contentSidebarPadding} ${contentSidebarPadding} ${contentSidebarBottomScrollPadding};
   display: flex;
   flex-grow: 1;
   flex-direction: column;
   overflow: hidden;
   height: 100%;
-`;
-
-const Separator = styled.div`
-  position: relative;
-  width: 100%;
-  height: 10px;
-  height: ${borderSizeSmall};
-  background-color: ${colorGrayLighter};
-  margin: 30px 0px;
+  gap: ${contentSidebarPadding};
 `;
 
 const FlexRow = styled.div`
@@ -343,12 +346,15 @@ const ErrorMessage = styled.div`
 `;
 
 export default {
+  HeaderContainer,
+  Separator,
+  PanelContent,
   BreakoutActions,
   AlreadyConnected,
   JoinButton,
   AudioButton,
   BreakoutItems,
-  Content,
+  BreakoutRoomList,
   BreakoutRoomListNameLabel,
   UsersAssignedNumberLabel,
   ConnectingAnimation,
@@ -361,8 +367,7 @@ export default {
   WithError,
   EndButton,
   Duration,
-  Panel,
-  Separator,
+  Content,
   FlexRow,
   Form,
   Wrapper,

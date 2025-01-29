@@ -72,6 +72,8 @@ const ChatReplyIntention = () => {
     };
   }, [hidden]);
 
+  if (hidden) return null;
+
   return (
     <Styled.Container
       $hidden={hidden}

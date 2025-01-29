@@ -148,19 +148,23 @@ const ParticipantsAndChatOnlyLayout = (props) => {
     } = props;
     const { captionsMargin } = DEFAULT_VALUES;
 
-    const sidebarNavWidth = calculatesSidebarNavWidth();
-    const sidebarContentWidth = calculatesSidebarContentWidth(sidebarNavWidth.width);
+    const sidebarNavWidth = calculatesSidebarNavWidth(0);
+    const sidebarContentWidth = calculatesSidebarContentWidth(
+      sidebarNavWidth.horizontalSpaceOccupied,
+    );
     const sidebarNavBounds = calculatesSidebarNavBounds();
-    const sidebarContentBounds = calculatesSidebarContentBounds(sidebarNavWidth.width);
+    const sidebarContentBounds = calculatesSidebarContentBounds(
+      sidebarNavWidth.horizontalSpaceOccupied,
+    );
     const mediaAreaBounds = {
-      width: sidebarNavWidth.width + sidebarContentWidth.width,
+      width: sidebarNavWidth.horizontalSpaceOccupied + sidebarContentWidth.width,
       left: 0,
     };
     const navbarBounds = calculatesNavbarBounds(mediaAreaBounds);
     const actionbarBounds = calculatesActionbarBounds(mediaAreaBounds);
     const sidebarNavHeight = calculatesSidebarNavHeight(navbarBounds.height,
       actionbarBounds.height);
-    const sidebarSize = sidebarContentWidth.width + sidebarNavWidth.width;
+    const sidebarSize = sidebarContentWidth.width + sidebarNavWidth.horizontalSpaceOccupied;
     const mediaBounds = calculatesMediaBounds(mediaAreaBounds, sidebarSize);
     const sidebarContentHeight = calculatesSidebarContentHeight(navbarBounds.height,
       actionbarBounds.height);

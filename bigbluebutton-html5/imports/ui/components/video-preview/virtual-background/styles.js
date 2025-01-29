@@ -26,11 +26,11 @@ const VirtualBackgroundRowThumbnail = styled.div`
 const BgWrapper = styled(ScrollboxVertical)`
   display: flex;
   justify-content: flex-start;
-  max-width: 272px;
+  //max-width: 272px;
   max-height: 216px;
   flex-wrap: wrap;
   overflow-y: auto;
-  margin: ${borderSizeLarge};
+  //margin: ${borderSizeLarge};
   padding: ${borderSizeLarge};
 
   @media ${smallOnly}, ${mediumOnly} {
@@ -41,8 +41,8 @@ const BgWrapper = styled(ScrollboxVertical)`
 
 const BgNoneButton = styled(Button)`
   border-radius: ${borderSizeLarge};
-  height: 48px;
-  width: 48px;
+  height: 90px;
+  width: 90px;
   border: ${borderSizeSmall} solid ${userThumbnailBorder};
   margin: 0.5rem 0.5rem;
   flex-shrink: 0;
@@ -56,8 +56,8 @@ const ThumbnailButton = styled(Button)`
   align-items: center;
   border-radius: ${borderSizeLarge};
   cursor: pointer;
-  height: 48px;
-  width: 48px;
+  height: 90px;
+  width: 90px;
   z-index: 1;
   background-color: transparent;
   border: ${borderSizeSmall} solid ${userThumbnailBorder};

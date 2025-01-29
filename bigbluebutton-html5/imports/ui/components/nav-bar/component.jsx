@@ -62,6 +62,13 @@ const propTypes = {
   pluginNavBarItems: PropTypes.arrayOf(PropTypes.shape({
     id: PropTypes.string,
   })).isRequired,
+  sidebarNavigation: PropTypes.shape({
+    isOpen: PropTypes.boolean,
+  }).isRequired,
+  sidebarContent: PropTypes.shape({
+    isOpen: PropTypes.boolean,
+  }).isRequired,
+  layoutContextDispatch: PropTypes.func.isRequired,
 };
 
 const defaultProps = {
@@ -235,25 +242,11 @@ class NavBar extends Component {
           value: '',
         });
       }
-
-      layoutContextDispatch({
-        type: ACTIONS.SET_SIDEBAR_NAVIGATION_IS_OPEN,
-        value: false,
-      });
-      layoutContextDispatch({
-        type: ACTIONS.SET_SIDEBAR_NAVIGATION_PANEL,
-        value: PANELS.NONE,
-      });
-    } else {
-      layoutContextDispatch({
-        type: ACTIONS.SET_SIDEBAR_NAVIGATION_IS_OPEN,
-        value: true,
-      });
-      layoutContextDispatch({
-        type: ACTIONS.SET_SIDEBAR_NAVIGATION_PANEL,
-        value: PANELS.USERLIST,
-      });
     }
+    layoutContextDispatch({
+      type: ACTIONS.SET_SIDEBAR_NAVIGATION_IS_OPEN,
+      value: !sidebarNavigation.isOpen,
+    });
   }
 
   splitPluginItems() {
@@ -316,7 +309,8 @@ class NavBar extends Component {
     const shouldShowNavBarToggleButton = selectedLayout !== LAYOUT_TYPE.CAMERAS_ONLY
       && selectedLayout !== LAYOUT_TYPE.PRESENTATION_ONLY
       && selectedLayout !== LAYOUT_TYPE.PARTICIPANTS_AND_CHAT_ONLY
-      && selectedLayout !== LAYOUT_TYPE.MEDIA_ONLY;
+      && selectedLayout !== LAYOUT_TYPE.MEDIA_ONLY
+      && isPhone === true;
 
     const APP_CONFIG = window.meetingClientSettings?.public?.app;
     const enableTalkingIndicator = APP_CONFIG?.enableTalkingIndicator;
@@ -381,14 +375,13 @@ class NavBar extends Component {
                   <span>{presentationTitle}</span>
                 </Tooltip>
               </Styled.PresentationTitle>
-              {this.renderModal(isModalOpen, this.setModalIsOpen, "low", SessionDetailsModal)}
+              {renderPluginItems(centerPluginItems)}
+            </Styled.Center>
+            <Styled.Right>
               <RecordingIndicator
                 amIModerator={amIModerator}
                 currentUserId={currentUserId}
               />
-              {renderPluginItems(centerPluginItems)}
-            </Styled.Center>
-            <Styled.Right>
               {renderPluginItems(rightPluginItems)}
               {ConnectionStatusService.isEnabled() ? <ConnectionStatusButton /> : null}
               {ConnectionStatusService.isEnabled() ? <ConnectionStatus /> : null}

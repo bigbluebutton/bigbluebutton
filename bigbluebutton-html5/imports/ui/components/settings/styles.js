@@ -10,12 +10,15 @@ import {
   colorGrayDark,
   colorPrimary,
   colorWhite,
+  colorText,
+  colorBlueLighter,
 } from '/imports/ui/stylesheets/styled-components/palette';
 import { fontSizeLarge } from '/imports/ui/stylesheets/styled-components/typography';
 import {
   Tab, Tabs, TabList, TabPanel,
 } from 'react-tabs';
 import Icon from '/imports/ui/components/common/icon/component';
+import ModalSimple from '/imports/ui/components/common/modal/simple/component';
 
 const ToggleLabel = styled.span`
   margin-right: ${smPaddingX};
@@ -27,8 +30,10 @@ const ToggleLabel = styled.span`
 
 const SettingsTabs = styled(Tabs)`
   display: flex;
-  flex-flow: row;
-  justify-content: flex-start;
+  flex-grow: 1;
+  flex-direction: row;
+  width: 100%;
+  height: 100%;
 
   @media ${smallOnly} {
     width: 100%;
@@ -40,9 +45,11 @@ const SettingsTabList = styled(TabList)`
   display: flex;
   flex-flow: column;
   margin: 0;
-  border: none;
+  border-top: 1px solid #ddd;
+  border-bottom: 1px solid #ddd;
   padding: 0;
   width: calc(100% / 3);
+  height: 39rem;
 
   @media ${smallOnly} {
     width: 100%;
@@ -54,19 +61,16 @@ const SettingsTabList = styled(TabList)`
 
 const SettingsTabSelector = styled(Tab)`
   display: flex;
-  flex-flow: row;
-  font-size: 0.9rem;
-  flex: 0 0 auto;
   justify-content: flex-start;
-  border: none !important;
-  padding: ${mdPaddingY} ${mdPaddingX};
-  color: ${colorGrayDark};
-  border-radius: .2rem;
-  cursor: pointer;
-  margin-bottom: ${smPaddingY};
   align-items: center;
-  flex-grow: 0;
-  min-width: 0;
+  font-size: 1rem;
+  flex: none;
+  padding: 1rem;
+  color: ${colorGrayDark};
+  cursor: pointer;
+  border-radius: 10px;
+  margin: 1rem 1.5rem;
+  transition: background-color 0.3s, color 0.3s;
 
   & > span {
     min-width: 0;
@@ -79,23 +83,21 @@ const SettingsTabSelector = styled(Tab)`
   @media ${smallOnly} {
     max-width: 100%;
     margin: 0 ${smPaddingX} 0 0;
+
     & > i {
       display: none;
     }
 
     [dir="rtl"] & {
-       margin: 0 0 0 ${smPaddingX};
+      margin: 0 0 0 ${smPaddingX};
     }
   }
 
   &.is-selected {
-    color: ${colorWhite};
-    background-color: ${colorPrimary};
+    color: ${colorText};
+    background-color: #eaf4fc; // Azul mais claro
     font-weight: bold;
-
-    & > i {
-      color: ${colorWhite};
-    }
+    box-shadow: 0px 2px 4px rgba(0, 0, 0, 0.1);
   }
 `;
 
@@ -110,7 +112,11 @@ const SettingsIcon = styled(Icon)`
 
 const SettingsTabPanel = styled(TabPanel)`
   display: none;
-  margin: 0 0 0 1rem;
+  flex-grow: 1;
+  padding: 1.5rem 3rem;
+  border-top: 1px solid #ddd;
+  border-left: 1px solid #ddd;
+  border-bottom: 1px solid #ddd;
   width: calc(100% / 3 * 2);
 
   [dir="rtl"] & {
@@ -129,6 +135,48 @@ const SettingsTabPanel = styled(TabPanel)`
   }
 `;
 
+const ActionsContainer = styled.div`
+  display: flex;
+  justify-content: flex-end;
+  gap: 1.5rem;
+  padding: 1.5rem;
+  border-top: 1px solid #ccc;
+`;
+
+const ActionButton = styled.button`
+  width: 12.75rem;
+  height: 3.5rem;
+  padding: 0.5rem 1rem;
+  border: none;
+  border-radius: 1rem;
+  cursor: pointer;
+  font-size: 16px;
+  color: #fff;
+
+  &:first-child {
+    background-color: transparent; 
+    color: #ccc;
+  }
+
+  &:last-child {
+    background-color: #007bff;
+  }
+
+  &:hover {
+    opacity: 0.9;
+  }
+
+  &:disabled {
+    background-color: #aaa;
+    cursor: not-allowed;
+  }
+`;
+
+const Modal = styled(ModalSimple)`
+  padding: 0;
+  border-radius: 1rem;
+`;
+
 export default {
   ToggleLabel,
   SettingsTabs,
@@ -136,4 +184,7 @@ export default {
   SettingsTabSelector,
   SettingsIcon,
   SettingsTabPanel,
+  ActionsContainer,
+  ActionButton,
+  Modal,
 };

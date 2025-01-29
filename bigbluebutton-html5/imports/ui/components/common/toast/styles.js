@@ -136,6 +136,9 @@ const Separator = styled.div`
   background-color: ${colorGrayLighter};
   margin-top: calc(${lineHeightComputed} * .5);
   margin-bottom: calc(${lineHeightComputed} * .5);
+  ${({ visible }) => !visible && `
+    display: none;
+  `}
 `;
 
 const Toast = styled.div`

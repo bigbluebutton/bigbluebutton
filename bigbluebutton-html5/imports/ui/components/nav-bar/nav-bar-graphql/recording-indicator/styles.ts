@@ -9,8 +9,10 @@ import {
 import {
   colorWhite,
   colorPrimary,
+  colorDanger,
   colorDangerDark,
   colorGray,
+  btnDefaultGhostBg,
 } from '/imports/ui/stylesheets/styled-components/palette';
 import SpinnerStyles from '/imports/ui/components/common/loading-screen/styles';
 
@@ -21,6 +23,7 @@ interface RecordingIndicatorIconProps {
 interface RecordingIndicatorProps {
   recording: boolean;
   disabled: boolean;
+  time: number;
   isPhone?: boolean;
 }
 
@@ -49,7 +52,7 @@ const RecordingControl = styled.button<RecordingIndicatorProps>`
   display: flex;
   align-items: center;
   user-select: none;
-  background: none;
+  background: ${btnDefaultGhostBg};
 
   span {
     border: none;
@@ -69,32 +72,35 @@ const RecordingControl = styled.button<RecordingIndicatorProps>`
   }
 
   ${({ recording }) => recording && `
-    padding: 5px;
-    background-color: ${colorDangerDark};
-    border: ${borderSizeLarge} solid ${colorDangerDark};
-    border-radius: 10px;
-
-    &:focus {
-      background-clip: padding-box;
-      border: ${borderSizeLarge} solid transparent;
-    }
-  `}
-
-  ${({ recording }) => !recording && `
-    padding: 7px;
-    border: ${borderSizeSmall} solid ${colorWhite};
+    padding: 0.5rem 1rem;
+    background-color: ${colorDanger};
+    border: ${borderSizeSmall}} solid ${colorDanger};
     border-radius: 2em 2em;
 
     &:focus {
-      padding: 5px;
-      border: ${borderSizeLarge} solid ${colorWhite};
+      border: ${borderSizeLarge};
       box-shadow: none;
     }
   `}
 
-  ${({ disabled }) => disabled && css`
+  ${({ recording }) => !recording && `
+    padding: 0.5rem 1rem;
+    border: ${borderSizeSmall};
+    border-radius: 2em 2em;
+
+    &:focus {
+      border: ${borderSizeLarge};
+      box-shadow: none;
+    }
+  `}
+
+  ${({ disabled, time }) => disabled && time <= 0 && css`
+    display: none;
+  `}
+
+  ${({ disabled, time }) => disabled && time > 0 && css`
     cursor: not-allowed;
-    opacity: .5;
+    pointer-events: none;
   `}
 `;
 
@@ -144,6 +150,8 @@ const PresentationTitleSeparator = styled.span`
 `;
 
 const RecordingIndicator = styled.div<RecordingIndicatorProps>`
+  padding-right: 1rem;
+
   ${({ isPhone }) => isPhone && `
     margin-left: ${smPaddingX};
   `}
@@ -176,7 +184,7 @@ const RecordingStatusViewOnly = styled.div<RecordingStatusViewOnlyProps>`
 
 const SpinnerOverlay = styled(SpinnerStyles.Spinner)<SpinnerOverlayProps>`
   & > div {
-    background-color: white;
+    background-color: ${colorWhite};;
     height: 0.5625rem;
     width: 0.5625rem;
   }

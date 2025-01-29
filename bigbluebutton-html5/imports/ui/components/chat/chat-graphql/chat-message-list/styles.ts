@@ -1,14 +1,9 @@
 import styled from 'styled-components';
-import { smPaddingX } from '/imports/ui/stylesheets/styled-components/general';
 import { ScrollboxVertical } from '/imports/ui/stylesheets/styled-components/scrollable';
 import { ButtonElipsis } from '/imports/ui/stylesheets/styled-components/placeholders';
+import { mdPadding } from '/imports/ui/stylesheets/styled-components/general';
 
-interface MessageListProps {
-  isRTL: boolean;
-  $hasMessageToolbar: boolean;
-}
-
-export const MessageList = styled(ScrollboxVertical)<MessageListProps>`
+export const MessageList = styled(ScrollboxVertical)`
   flex-flow: column;
   flex-shrink: 1;
   outline-style: none;
@@ -17,16 +12,7 @@ export const MessageList = styled(ScrollboxVertical)<MessageListProps>`
   z-index: 2;
   overflow-y: auto;
   position: relative;
-  display: flex;
-  padding-bottom: ${smPaddingX};
-
-  ${({ isRTL }) => isRTL && `
-    padding-left: ${smPaddingX};
-  `}
-
-  ${({ isRTL }) => !isRTL && `
-    padding-right: ${smPaddingX};
-  `}
+  padding: 0 ${mdPadding};
 `;
 
 export const UnreadButton = styled(ButtonElipsis)`
@@ -37,7 +23,21 @@ export const UnreadButton = styled(ButtonElipsis)`
   z-index: 3;
 `;
 
+export const Wrapper = styled.div`
+  flex-flow: column;
+  overflow: hidden auto;
+  display: flex;
+  height: 100%;
+`;
+
+export const ListBox = styled.div`
+  display: flex;
+  flex-direction: column;
+`;
+
 export default {
   MessageList,
   UnreadButton,
+  Wrapper,
+  ListBox,
 };

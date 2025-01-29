@@ -2,7 +2,7 @@ import React, { PureComponent } from 'react';
 import { defineMessages } from 'react-intl';
 import { ActionsBarItemType, ActionsBarPosition } from 'bigbluebutton-html-plugin-sdk/dist/cjs/extensible-areas/actions-bar-item/enums';
 import Styled from './styles';
-import ActionsDropdown from './actions-dropdown/container';
+import MediaAreaDropdown from './media-area-dropdown/container';
 import AudioCaptionsButtonContainer from '/imports/ui/components/audio/audio-graphql/audio-captions/button/component';
 import ScreenshareButtonContainer from '/imports/ui/components/actions-bar/screenshare/container';
 import AudioControlsContainer from '../audio/audio-graphql/audio-controls/component';
@@ -132,6 +132,7 @@ class ActionsBar extends PureComponent {
       setPresentationFitToWidth,
       isPresentationEnabled,
       ariaHidden,
+      isDarkThemeEnabled,
     } = this.props;
 
     const Settings = getSettingsSingletonInstance();
@@ -169,27 +170,6 @@ class ActionsBar extends PureComponent {
             }
           }
         >
-          <Styled.Left>
-            <ActionsDropdown {...{
-              amIPresenter,
-              amIModerator,
-              isPollingEnabled,
-              allowExternalVideo,
-              intl,
-              isSharingVideo,
-              stopExternalVideoShare,
-              isTimerActive,
-              isTimerEnabled,
-              isMeteorConnected,
-              setMeetingLayout,
-              setPushLayout,
-              presentationIsOpen,
-              showPushLayout,
-              hasCameraAsContent,
-              setPresentationFitToWidth,
-            }}
-            />
-          </Styled.Left>
           <Styled.Center>
             {this.renderPluginsActionBarItems(ActionsBarPosition.LEFT)}
             <AudioCaptionsButtonContainer />
@@ -212,7 +192,7 @@ class ActionsBar extends PureComponent {
           </Styled.Center>
           <Styled.Right>
             {shouldShowPresentationButton && shouldShowOptionsButton
-              ? (
+              && (
                 <PresentationOptionsContainer
                   presentationIsOpen={presentationIsOpen}
                   setPresentationIsOpen={setPresentationIsOpen}
@@ -223,9 +203,28 @@ class ActionsBar extends PureComponent {
                   hasPinnedSharedNotes={isSharedNotesPinned}
                   hasGenericContent={hasGenericContent}
                   hasCameraAsContent={hasCameraAsContent}
+                  isDarkThemeEnabled={isDarkThemeEnabled}
                 />
-              )
-              : null}
+              )}
+            <MediaAreaDropdown {...{
+              amIPresenter,
+              amIModerator,
+              isPollingEnabled,
+              allowExternalVideo,
+              intl,
+              isSharingVideo,
+              stopExternalVideoShare,
+              isTimerActive,
+              isTimerEnabled,
+              isMeteorConnected,
+              setMeetingLayout,
+              setPushLayout,
+              presentationIsOpen,
+              showPushLayout,
+              hasCameraAsContent,
+              setPresentationFitToWidth,
+            }}
+            />
           </Styled.Right>
         </Styled.ActionsBar>
       </Styled.ActionsBarWrapper>

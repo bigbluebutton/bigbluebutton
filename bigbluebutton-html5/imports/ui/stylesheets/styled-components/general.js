@@ -2,6 +2,7 @@ const borderSizeSmall = '1px';
 const borderSize = '2px';
 const borderSizeLarge = '3px';
 const borderRadius = '.2rem';
+const lgBorderRadius = '1rem';
 const smPaddingX = '.75rem';
 const smPaddingY = '.3rem';
 const mdPaddingY = '.45rem';
@@ -22,13 +23,25 @@ const $3xlPadding = '1.25rem';
 const whiteboardToolbarPadding = '.5rem';
 const whiteboardToolbarMargin = '.5rem';
 const whiteboardToolbarPaddingSm = '.3rem';
+const contentSidebarPadding = '1.5rem';
+const contentSidebarBottomScrollPadding = '2rem';
+const contentSidebarHeight = '86%';
+const contentSidebarBorderRadius = '1rem';
 const minModalHeight = '20rem';
 const descriptionMargin = '3.5rem';
 const navbarHeight = '3.9375rem';
 const barsPadding = '0.8rem'; // so user-list and chat title is aligned with the presentation title
+const navigationSidebarLogoPadding = '15%';
+const navigationSidebarListItemsContainerGap = '2.5rem';
+const navigationSidebarListItemsGap = '0.8rem';
+const navigationSidebarListItemsWidth = '65%';
+const navigationSidebarBorderRadius = '48px';
+const navigationSidebarPaddingY = '20px';
 const pollHeaderOffset = '-0.875rem';
 const toastContentWidth = '98%';
 const modalMargin = '3rem';
+const settingsModalHeight = '50rem';
+const settingsModalWidth = '70rem';
 const titlePositionLeft = '2.2rem';
 const userIndicatorsOffset = '-5px';
 const indicatorPadding = '.45rem'; // used to center presenter indicator icon in Chrome / Firefox / Edge
@@ -97,10 +110,19 @@ const presentationMenuHeight = '45px';
 const styleMenuOffset = '6.25rem';
 const styleMenuOffsetSmall = '5rem';
 
+const appsPanelGroupItemsSpacing = '1.5rem';
+const appsPanelItemsSpacing = '1rem';
+const appsButtonsBorderRadius = '8px';
+const appsModalButtonPaddingX = '10%';
+const appsModalButtonPaddingY = '2%';
+const appsModalPadding = '3rem';
+const appsModalPaddingBottom = '1.5rem';
+
 export {
   borderSizeSmall,
   borderSize,
   borderSizeLarge,
+  lgBorderRadius,
   borderRadius,
   smPaddingX,
   smPaddingY,
@@ -116,6 +138,12 @@ export {
   descriptionMargin,
   navbarHeight,
   barsPadding,
+  navigationSidebarLogoPadding,
+  navigationSidebarListItemsContainerGap,
+  navigationSidebarListItemsGap,
+  navigationSidebarListItemsWidth,
+  navigationSidebarBorderRadius,
+  navigationSidebarPaddingY,
   pollHeaderOffset,
   toastContentWidth,
   modalMargin,
@@ -185,4 +213,17 @@ export {
   $3xlPadding,
   xlPadding,
   xsPadding,
+  contentSidebarPadding,
+  contentSidebarBottomScrollPadding,
+  contentSidebarHeight,
+  contentSidebarBorderRadius,
+  appsPanelGroupItemsSpacing,
+  appsPanelItemsSpacing,
+  appsButtonsBorderRadius,
+  appsModalButtonPaddingX,
+  appsModalButtonPaddingY,
+  appsModalPadding,
+  appsModalPaddingBottom,
+  settingsModalHeight,
+  settingsModalWidth,
 };
