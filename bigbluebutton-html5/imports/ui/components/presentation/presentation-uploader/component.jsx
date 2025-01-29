@@ -336,7 +336,9 @@ class PresentationUploader extends Component {
     const propsDiffs = propPresentations.filter(
       (p) => !prevPropPresentations.some(
         (presentation) => p.presentationId === presentation.presentationId
-          || p.uploadTemporaryId === presentation.uploadTemporaryId,
+          || (p.uploadTemporaryId
+            && presentation.uploadTemporaryId
+            && p.uploadTemporaryId === presentation.uploadTemporaryId),
       ),
     );
 
@@ -436,12 +438,21 @@ class PresentationUploader extends Component {
     });
 
     if (shouldUpdateState) {
-      const shouldDisableExportButtonForAllDocuments = presStateFiltered.some(
-        (p) => (!p.uploadCompleted && !p.uploadErrorDetailsJson),
+      let shouldDisableActions = false;
+      let shouldDisableExportButtonForAllDocuments = false;
+      presStateFiltered.forEach(
+        (p) => {
+          shouldDisableActions = shouldDisableExportButtonForAllDocuments
+            || !!p.uploadErrorMsgKey || !!p.uploadErrorDetailsJson;
+          shouldDisableExportButtonForAllDocuments = (
+            !p.uploadCompleted && !p.uploadErrorDetailsJson
+          );
+        },
       );
       this.setState({
         presentations: unique(presStateFiltered, (p) => p.presentationId),
         shouldDisableExportButtonForAllDocuments,
+        disableActions: shouldDisableActions,
       });
     }
 
@@ -503,6 +514,12 @@ class PresentationUploader extends Component {
   }
 
   handleRemove(item, withErr = false) {
+    const {
+      handleSave,
+      setPresentation,
+      removePresentation,
+      presentationEnabled,
+    } = this.props;
     if (withErr) {
       const { presentations } = this.state;
       const { presentations: propPresentations } = this.props;
@@ -518,12 +535,24 @@ class PresentationUploader extends Component {
         ...filteredPresentations,
         ...filteredPropPresentations,
       ];
-      let hasUploading
-      merged.forEach(d => {
+      let hasUploading;
+      merged.forEach((d) => {
         if (!d.uploadCompleted || d.uploadInProgress) {
           hasUploading = true;
-        }})
+        }
+      });
+      const hasCurrent = merged.some((pres) => pres.current);
+      if (!hasCurrent && merged.length > 0) merged[0].current = true;
       this.hasError = false;
+
+      // Save the state without errors in graphql
+      handleSave(merged,
+        true,
+        {},
+        propPresentations,
+        setPresentation,
+        removePresentation,
+        presentationEnabled);
       if (hasUploading) {
         this.setState({
           presentations: merged,
