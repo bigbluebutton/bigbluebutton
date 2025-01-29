@@ -210,7 +210,7 @@ const handleSavePresentation = (
       },
     }));
     const updatedNewPres = { ...newPres, current: true }; // Avoid mutating newPres
-    presentations.push(updatedNewPres);
+    updatedPresentations.push(updatedNewPres);
   }
   return persistPresentationChanges(
     currentPresentations,
