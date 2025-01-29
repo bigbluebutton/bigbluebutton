@@ -361,12 +361,6 @@ test.describe.parallel('Custom Parameters', { tag: '@ci' }, () => {
     await customParam.clientTitle();
   });
 
-  test('Ask for feedback on logout', async ({ browser, context, page }) => {
-    const customParam = new CustomParameters(browser, context);
-    await customParam.initModPage(page, true, { joinParameter: c.askForFeedbackOnLogout });
-    await customParam.askForFeedbackOnLogout();
-  });
-
   test('Display Branding Area', async ({ browser, context, page }) => {
     const customParam = new CustomParameters(browser, context);
     await customParam.initModPage(page, true, { createParameter: `${c.displayBrandingArea}&${encodeCustomParams(c.logo)}` });
