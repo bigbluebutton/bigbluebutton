@@ -179,7 +179,7 @@ const persistPresentationChanges = (
         return Promise.resolve();
       }
 
-      return Promise.resolve();
+      return setPresentation(currentPresentation?.presentationId);
     })
     .then(removePresentations.bind(null, presentationsToRemove, removePresentation));
 };
