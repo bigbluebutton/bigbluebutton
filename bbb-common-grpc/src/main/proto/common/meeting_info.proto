@@ -22,4 +22,5 @@ message MeetingInfo {
   DurationInfo duration_info = 14;
   ParticipantInfo participant_info = 15;
   BreakoutInfo breakout_info = 16;
+  repeated string disabled_features = 17;
 }
