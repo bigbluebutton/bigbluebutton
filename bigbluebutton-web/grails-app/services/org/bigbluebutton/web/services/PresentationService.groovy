@@ -96,12 +96,12 @@ class PresentationService {
 				return
 			}
 
-			// Check if meeting is already created
+			// Check if meeting is already started
 			Meeting meeting = ServiceUtils.findMeetingFromMeetingID(uploadedPres.getMeetingId())
-			boolean isCreated = meeting != null
+			boolean isStarted = meeting != null && meeting.getStartTime() !== 0
 
-			if (isCreated) {
-				log.debug "Meeting is already created, it will proceed with presentation upload"
+			if (isStarted) {
+				log.debug "Meeting is already started, it will proceed with presentation upload"
 				try {
 					documentConversionService.processDocument(uploadedPres, Boolean.parseBoolean(scanUploadedPresentationFiles))
 				} catch (Throwable e) {
@@ -110,7 +110,7 @@ class PresentationService {
 					scheduler.shutdown()
 				}
 			} else {
-				log.debug "Meeting is not created, waiting"
+				log.debug "Meeting is not started, waiting"
 			}
 		}, 0, 1, TimeUnit.SECONDS)
 	}
