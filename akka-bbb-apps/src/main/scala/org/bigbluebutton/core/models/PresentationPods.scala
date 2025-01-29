@@ -99,23 +99,24 @@ case class PresentationPod(id: String, currentPresenter: String,
     presentations.values filter (p => p.name.startsWith(filename))
 
   def setCurrentPresentation(presId: String): Option[PresentationPod] = {
+    var updatedPod: PresentationPod = this
     presentations.get(presId) match {
       case Some(newCurrentPresentation) =>
         // set new current presentation
-        addPresentation(newCurrentPresentation.copy(current = true))
+        updatedPod = updatedPod.addPresentation(newCurrentPresentation.copy(current = true))
 
         // unset previous current presentation
         presentations.values foreach (curPres => {
           if (curPres.current && curPres.id != presId) {
             val newPres = curPres.copy(current = false)
-            addPresentation(newPres)
+            updatedPod = updatedPod.addPresentation(newPres)
           }
         })
 
         // update graphql
         PresPresentationDAO.setCurrentPres(presId)
 
-        Some(this)
+        Some(updatedPod)
       case None =>
         None
     }
