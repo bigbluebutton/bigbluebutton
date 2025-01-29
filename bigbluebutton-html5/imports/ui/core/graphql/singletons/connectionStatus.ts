@@ -104,21 +104,24 @@ class ConnectionStatus {
     return this.networkData;
   }
 
-  public setConnectionStatus(rtt: number, status: string): void {
-    if (rtt !== this.rttValue() || status !== this.rttStatus()) {
-      const warnLevels = ['danger', 'critical'];
-      if (
-        warnLevels.includes(status)
-        // Emit warning if the status changed to a warn level or if the status recovered from a warn level
-        || (warnLevels.includes(this.rttStatus()) && !warnLevels.includes(status))
-      ) {
-        logger.warn({ logCode: 'stats_rtt_state' }, `Connection status changed to ${status} (rtt > ${rtt}ms)`);
-      } else {
-        logger.debug({ logCode: 'stats_rtt_state' }, `Connection status changed to ${status} (rtt > ${rtt}ms)`);
+  public setConnectionStatus(newRttValue: number, newRttStatus: string): void {
+    if (newRttValue !== this.rttValue() || newRttStatus !== this.rttStatus()) {
+      switch (newRttStatus) {
+        case 'critical':
+          logger.warn({ logCode: 'stats_rtt_state' }, `Connection status changed to critical(rtt > ${newRttValue}ms)`);
+          break;
+        case 'danger':
+          logger.warn({ logCode: 'stats_rtt_state' }, `Connection status changed to danger (rtt = ${newRttValue}ms)`);
+          break;
+        case 'warning':
+        case 'normal':
+          logger.debug({ logCode: 'stats_rtt_state' }, `Connection status changed to ${newRttStatus} (rtt = ${newRttValue}ms)`);
+          break;
+        default:
       }
 
-      this.setRttValue(rtt);
-      this.setRttStatus(status);
+      this.setRttValue(newRttValue);
+      this.setRttStatus(newRttStatus);
     }
   }
 
@@ -244,5 +247,7 @@ class ConnectionStatus {
 }
 
 const connectionsStatusSingleton = new ConnectionStatus();
+
+window.teste = connectionsStatusSingleton;
 
 export default connectionsStatusSingleton;
