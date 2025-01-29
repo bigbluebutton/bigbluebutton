@@ -66,14 +66,13 @@ const AudioCaptionsSelect: React.FC<AudioCaptionsSelectProps> = ({
   const [setSpeechLocaleMutation] = useMutation(SET_SPEECH_LOCALE);
 
   const setUserSpeechLocale = (speechLocale: string, provider: string) => {
-    if (speechLocale !== '') {
-      setSpeechLocaleMutation({
-        variables: {
-          locale: speechLocale,
-          provider,
-        },
-      });
-    }
+    // When speechLocale is '' we disable the transcription provider
+    setSpeechLocaleMutation({
+      variables: {
+        locale: speechLocale,
+        provider: speechLocale !== '' ? provider : '',
+      },
+    });
   };
 
   if (!isTranscriptionEnabled || useLocaleHook) return null;
