@@ -19,7 +19,6 @@ import org.bigbluebutton.core.apps.pads.{ PadsApp2x, PadslHdlrHelpers }
 import org.bigbluebutton.core.apps.screenshare.ScreenshareApp2x
 import org.bigbluebutton.core.apps.audiocaptions.AudioCaptionsApp2x
 import org.bigbluebutton.core.apps.timer.TimerApp2x
-import org.bigbluebutton.core.apps.presentation.PresentationApp2x
 import org.bigbluebutton.core.apps.users.UsersApp2x
 import org.bigbluebutton.core.apps.webcam.WebcamApp2x
 import org.bigbluebutton.core.apps.whiteboard.WhiteboardApp2x
@@ -121,7 +120,6 @@ class MeetingActor(
 
   val msgBus = MessageBus(eventBus, outGW)
 
-  val presentationApp2x = new PresentationApp2x
   val screenshareApp2x = new ScreenshareApp2x
   val audioCaptionsApp2x = new AudioCaptionsApp2x
   val captionApp2x = new CaptionApp2x
@@ -607,7 +605,6 @@ class MeetingActor(
         updateUserLastActivity(m.body.lockedBy)
 
       // Presentation
-      case m: PreuploadedPresentationsSysPubMsg => presentationApp2x.handle(m, liveMeeting, msgBus)
       case m: AssignPresenterReqMsg =>
         state = handlePresenterChange(m, state)
         updateUserLastActivity(m.body.assignedBy)

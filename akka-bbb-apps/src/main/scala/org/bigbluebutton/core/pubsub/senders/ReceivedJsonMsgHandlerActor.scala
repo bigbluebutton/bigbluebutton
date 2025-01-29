@@ -304,8 +304,6 @@ class ReceivedJsonMsgHandlerActor(
         routeGenericMsg[PresentationUploadTokenReqMsg](envelope, jsonNode)
       case GetAllPresentationPodsReqMsg.NAME =>
         routeGenericMsg[GetAllPresentationPodsReqMsg](envelope, jsonNode)
-      case PreuploadedPresentationsSysPubMsg.NAME =>
-        routeGenericMsg[PreuploadedPresentationsSysPubMsg](envelope, jsonNode)
       case PresentationUploadedFileTooLargeErrorSysPubMsg.NAME =>
         routeGenericMsg[PresentationUploadedFileTooLargeErrorSysPubMsg](envelope, jsonNode)
       case PresentationHasInvalidMimeTypeErrorSysPubMsg.NAME =>
