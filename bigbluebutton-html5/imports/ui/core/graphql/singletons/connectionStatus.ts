@@ -112,9 +112,9 @@ class ConnectionStatus {
         // Emit warning if the status changed to a warn level or if the status recovered from a warn level
         || (warnLevels.includes(this.rttStatus()) && !warnLevels.includes(status))
       ) {
-        logger.warn({ logCode: 'stats_rtt_state' }, `Connection status changed to ${status} (rtt=${rtt}ms)`);
+        logger.warn({ logCode: 'stats_rtt_state' }, `Connection status changed to ${status} (rtt > ${rtt}ms)`);
       } else {
-        logger.debug({ logCode: 'stats_rtt_state' }, `Connection status changed to ${status} (rtt=${rtt}ms)`);
+        logger.debug({ logCode: 'stats_rtt_state' }, `Connection status changed to ${status} (rtt > ${rtt}ms)`);
       }
 
       this.setRttValue(rtt);
