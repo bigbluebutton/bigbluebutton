@@ -88,9 +88,9 @@ const intlMessages = defineMessages({
     id: 'app.actionsBar.reactions.away',
     description: 'Away Label',
   },
-  activeLabel: {
-    id: 'app.actionsBar.reactions.active',
-    description: 'Active Label',
+  availableLabel: {
+    id: 'app.actionsBar.reactions.available',
+    description: 'Available Label',
   },
 });
 
@@ -205,8 +205,6 @@ class OptionsDropdown extends PureComponent {
     const { userLeaveMeeting } = this.props;
     
     userLeaveMeeting();
-    // we don't check askForFeedbackOnLogout here,
-    // it is checked in meeting-ended component
     Session.setItem('codeError', this.LOGOUT_CODE);
   }
 

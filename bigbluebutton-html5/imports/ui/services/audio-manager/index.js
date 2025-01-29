@@ -34,6 +34,7 @@ const CALL_STATES = {
   FAILED: 'failed',
   RECONNECTING: 'reconnecting',
   AUTOPLAY_BLOCKED: 'autoplayBlocked',
+  AUDIO_PUBLISHED: 'audioPublished',
 };
 
 const BREAKOUT_AUDIO_TRANSFER_STATES = {
@@ -796,6 +797,7 @@ class AudioManager {
         FAILED,
         RECONNECTING,
         AUTOPLAY_BLOCKED,
+        AUDIO_PUBLISHED,
       } = CALL_STATES;
       const {
         status,
@@ -884,6 +886,13 @@ class AudioManager {
         this.autoplayBlocked = true;
         this.onAudioJoin();
         resolve(AUTOPLAY_BLOCKED);
+      } else if (status === AUDIO_PUBLISHED) {
+        // Update input stream with the one from the bridge as LiveKit's bridge
+        // lazily creates the stream after the connection is established
+        if (this.inputStream === null && bridge?.inputStream) {
+          this.inputStream = bridge.inputStream;
+        }
+        resolve(AUDIO_PUBLISHED);
       }
     });
   }

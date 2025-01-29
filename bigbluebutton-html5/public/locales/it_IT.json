@@ -338,6 +338,7 @@
     "app.presentationUploader.disableOriginalPresentationDownload": "Disabilita lo scaricamento della presentazione originale ({0})",
     "app.presentationUploader.export.withWhiteboardAnnotations": "con le annotazioni della lavagna",
     "app.presentationUploader.dropdownExportOptions": "Opzioni esportazione",
+    "app.presentationUploader.dropdownExportOptionsUncomplete": "Disabilitato fino al completamento del caricamento",
     "app.presentationUploader.export.linkAvailable": "Il collegamento per scaricare {0} è disponibile nella chat pubblica.",
     "app.presentationUploader.export.downloadButtonAvailable": "Il pulsante per scaricare la presentazione {0} è attivo.",
     "app.presentationUploader.currentPresentationLabel": "Presentazione corrente",

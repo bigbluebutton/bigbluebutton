@@ -305,7 +305,7 @@ const LayoutEngine = () => {
     left = !isRTL ? left : null;
     right = isRTL ? right : null;
 
-    const zIndex = isMobile ? 11 : 1;
+    const zIndex = isMobile ? 11 : 2;
 
     return {
       top,

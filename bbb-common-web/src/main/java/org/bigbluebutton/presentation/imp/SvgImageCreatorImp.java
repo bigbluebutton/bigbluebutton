@@ -1,6 +1,5 @@
 package org.bigbluebutton.presentation.imp;
 
-import java.awt.image.BufferedImage;
 import java.io.*;
 import java.nio.charset.StandardCharsets;
 import java.util.*;
@@ -8,6 +7,7 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 
 import org.apache.commons.io.FileUtils;
+import org.bigbluebutton.presentation.ImageResolution;
 import org.bigbluebutton.presentation.SupportedFileTypes;
 import org.bigbluebutton.presentation.SvgImageCreator;
 import org.bigbluebutton.presentation.UploadedPresentation;
@@ -22,8 +22,6 @@ import org.slf4j.LoggerFactory;
 import com.google.gson.Gson;
 import com.zaxxer.nuprocess.NuProcess;
 import com.zaxxer.nuprocess.NuProcessBuilder;
-
-import javax.imageio.ImageIO;
 
 public class SvgImageCreatorImp implements SvgImageCreator {
     private static Logger log = LoggerFactory.getLogger(SvgImageCreatorImp.class);
@@ -254,10 +252,13 @@ public class SvgImageCreatorImp implements SvgImageCreator {
                         int width = 500;
                         int height = 500;
 
-                        BufferedImage img = ImageIO.read(tempPng);
-                        if (img != null) {
-                            width = img.getWidth();
-                            height = img.getHeight();
+                        ImageResolutionService imgResService = new ImageResolutionService();
+                        ImageResolution imageResolution = imgResService.identifyImageResolution(pres.getUploadedFile());
+                        log.debug("Identified image {} width={} and height={}", pres.getName(), imageResolution.getWidth(), imageResolution.getHeight());
+
+                        if (imageResolution.getWidth() != 0 && imageResolution.getHeight() != 0) {
+                            width = imageResolution.getWidth();
+                            height = imageResolution.getHeight();
                         }
 
                         String svg = createSvgWithEmbeddedPng(base64encodedPng, width, height);

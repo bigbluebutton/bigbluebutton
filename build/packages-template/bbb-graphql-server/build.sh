@@ -38,6 +38,7 @@ chmod -R a+rX staging/usr/share/bbb-graphql-server
 POSTGRES_MAJOR_VERSION=14
 mkdir -p staging/etc/postgresql/$POSTGRES_MAJOR_VERSION/main/conf.d
 cp bbb-pg.conf staging/etc/postgresql/$POSTGRES_MAJOR_VERSION/main/conf.d
+chmod 644 staging/etc/postgresql/$POSTGRES_MAJOR_VERSION/main/conf.d/bbb-pg.conf
 
 cp bbb-graphql-server.service staging/lib/systemd/system/bbb-graphql-server.service
 cp bbb-graphql-server@.service staging/lib/systemd/system/bbb-graphql-server@.service

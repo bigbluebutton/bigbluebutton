@@ -3,6 +3,18 @@ import Button from '/imports/ui/components/common/button/component';
 import { fontSizeBase } from '/imports/ui/stylesheets/styled-components/typography';
 
 const CloseButton = styled(Button)`
+  ${({ disabled }) => disabled && `
+    opacity: .5;
+    box-shadow: none;
+    span:first-of-type {
+      &:hover {
+        background-color: transparent !important;
+      }
+    }
+    &:hover {
+      cursor: not-allowed;
+    }
+  `}
   span:first-of-type {
     margin: 0;
 

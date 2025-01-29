@@ -32,6 +32,7 @@ import {
 import { smallOnly } from '/imports/ui/stylesheets/styled-components/breakpoints';
 
 const CloseIcon = styled(Icon)`
+  align-self: flex-start;
   background: transparent;
   outline: none;
   border: none;

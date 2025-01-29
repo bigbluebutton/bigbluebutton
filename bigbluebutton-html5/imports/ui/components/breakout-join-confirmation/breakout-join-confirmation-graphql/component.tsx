@@ -55,6 +55,10 @@ const intlMessages = defineMessages({
     id: 'app.createBreakoutRoom.generatingURLMessage',
     description: 'label for generating breakout room url',
   },
+  breakoutRoom: {
+    id: 'app.createBreakoutRoom.room',
+    description: 'breakout room',
+  },
 });
 
 interface BreakoutJoinConfirmationProps {
@@ -148,13 +152,15 @@ const BreakoutJoinConfirmation: React.FC<BreakoutJoinConfirmationProps> = ({
           data-test="selectBreakoutRoomBtn"
         >
           {
-            breakouts.sort((a, b) => a.sequence - b.sequence).map(({ shortName, breakoutRoomId }) => (
+            breakouts.sort((a, b) => a.sequence - b.sequence).map(({
+              shortName, breakoutRoomId, isDefaultName, sequence,
+            }) => (
               <option
                 data-test="roomOption"
                 key={breakoutRoomId}
                 value={breakoutRoomId}
               >
-                {shortName}
+                {isDefaultName ? intl.formatMessage(intlMessages.breakoutRoom, { 0: sequence }) : shortName}
               </option>
             ))
           }
@@ -163,6 +169,10 @@ const BreakoutJoinConfirmation: React.FC<BreakoutJoinConfirmationProps> = ({
       </Styled.SelectParent>
     );
   }, [breakouts, waiting, selectValue]);
+
+  const roomName = breakouts[0].isDefaultName
+    ? intl.formatMessage(intlMessages.breakoutRoom, { 0: breakouts[0].sequence })
+    : breakouts[0].shortName;
 
   useEffect(() => {
     if (waiting) {
@@ -203,7 +213,7 @@ const BreakoutJoinConfirmation: React.FC<BreakoutJoinConfirmationProps> = ({
         priority: 'medium',
       }}
     >
-      {freeJoin ? select : `${intl.formatMessage(intlMessages.message)} ${breakouts[0].shortName}?`}
+      {freeJoin ? select : `${intl.formatMessage(intlMessages.message)} ${roomName}?`}
     </ModalFullscreen>
   );
 };
