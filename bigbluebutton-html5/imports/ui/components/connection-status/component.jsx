@@ -60,7 +60,7 @@ const ConnectionStatus = () => {
       .catch(() => {
         connectionStatus.setLastRttRequestSuccess(false);
         // gets the worst status
-        connectionStatus.setRttStatus('critical');
+        connectionStatus.setConnectionStatus(2000, 'critical');
       })
       .finally(() => {
         if (timeoutRef.current) {
