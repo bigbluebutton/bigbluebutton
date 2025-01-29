@@ -18,6 +18,15 @@ type NetworkData = {
     videoCurrentDownloadRate: number,
   }
 };
+
+export enum MetricStatus {
+  Unknown = 'unknown',
+  Normal = 'normal',
+  Warning = 'warning',
+  Danger = 'danger',
+  Critical = 'critical',
+}
+
 class ConnectionStatus {
   private connected = makeVar(false);
 
@@ -56,6 +65,25 @@ class ConnectionStatus {
     lastUnstableStatusAt: Date | number,
     clientNotResponding?: boolean,
   }>>([]);
+
+  private liveKitConnectionStatus = makeVar(MetricStatus.Unknown);
+
+  public setLiveKitConnectionStatus(status: MetricStatus): void {
+    if (this.liveKitConnectionStatus() !== status) {
+      logger.info({
+        logCode: 'stats_livekit_conn_state',
+      }, `LiveKit connection status changed to ${status}`);
+      this.liveKitConnectionStatus(status);
+    }
+  }
+
+  public getLiveKitConnectionStatus() {
+    return this.liveKitConnectionStatus();
+  }
+
+  public getLiveKitConnectionStatusVar() {
+    return this.liveKitConnectionStatus;
+  }
 
   private packetLossFraction = makeVar(0);
 
