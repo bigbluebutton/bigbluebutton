@@ -22,6 +22,23 @@ export interface getBreakoutsResponse {
   breakoutRoom: Array<breakoutRoom>
 }
 
+export interface LastBreakoutData {
+  user: {
+    lastBreakoutRoom: {
+      breakoutRoomId: string;
+      currentlyInRoom: boolean;
+      sequence: number;
+      shortName: string;
+      userId: string;
+    }
+  }[];
+  breakoutRoom_createdLatest: {
+    sequence: number;
+    shortName: string;
+    isDefaultName: boolean;
+  }[];
+}
+
 export const getUser = gql`
   query getUser {
     user(
@@ -69,7 +86,27 @@ export const getBreakoutCount = gql`
   }
 `;
 
+export const getLastBreakouts = gql`
+  query {
+    user {
+      lastBreakoutRoom {
+        breakoutRoomId
+        currentlyInRoom
+        sequence
+        shortName
+        userId
+      }
+    }
+    breakoutRoom_createdLatest {
+      sequence
+      shortName
+      isDefaultName
+    }
+  }
+`;
+
 export default {
   getUser,
   getBreakouts,
+  getLastBreakouts,
 };

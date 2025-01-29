@@ -161,10 +161,7 @@ class Join extends Create {
 
     await this.modPage.waitAndClick(e.breakoutRoomsItem);
     await this.modPage.waitAndClick(e.breakoutOptionsMenu);
-    // close all notifications displayed before ending rooms
-    for (const closeButton of await this.modPage.getLocator(e.closeToastBtn).all()) {
-      await closeButton.click();
-    }
+    await this.modPage.closeAllToastNotifications();
     await this.modPage.waitAndClick(e.endAllBreakouts);
 
     await this.modPage.hasElement(e.presentationUploadProgressToast, 'should display the presentation upload progress toast');
@@ -208,10 +205,7 @@ class Join extends Create {
 
     await this.modPage.waitAndClick(e.breakoutRoomsItem);
     await this.modPage.waitAndClick(e.breakoutOptionsMenu);
-    // close all notifications displayed before ending rooms
-    for (const closeButton of await this.modPage.getLocator(e.closeToastBtn).all()) {
-      await closeButton.click();
-    }
+    await this.modPage.closeAllToastNotifications();
     await this.modPage.waitAndClick(e.endAllBreakouts);
 
     await this.modPage.hasElement(e.presentationUploadProgressToast, 'should display the presentation upload progress toast', ELEMENT_WAIT_LONGER_TIME);

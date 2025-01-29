@@ -29,6 +29,7 @@ const SidebarContent = (props: SidebarContentProps) => {
     minHeight,
     height,
     maxHeight,
+    zIndex,
     isResizable,
     resizableEdge,
     contextDispatch,
@@ -105,7 +106,7 @@ const SidebarContent = (props: SidebarContentProps) => {
         top,
         left,
         right,
-        zIndex: '2',
+        zIndex,
         width,
         height,
       }}

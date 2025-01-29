@@ -236,18 +236,29 @@ const CreateBreakoutRoom: React.FC<CreateBreakoutRoomProps> = ({
 
   const initialNumberOfRooms = runningRooms.length > 0 ? runningRooms.length : MIN_BREAKOUT_ROOMS;
 
-  const [numberOfRoomsIsValid, setNumberOfRoomsIsValid] = React.useState(true);
-  const [durationIsValid, setDurationIsValid] = React.useState(true);
-  const [freeJoin, setFreeJoin] = React.useState(false);
-  const [record, setRecord] = React.useState(false);
-  const [captureSlides, setCaptureSlides] = React.useState(false);
-  const [leastOneUserIsValid, setLeastOneUserIsValid] = React.useState(false);
-  const [captureNotes, setCaptureNotes] = React.useState(false);
-  const [inviteMods, setInviteMods] = React.useState(false);
-  const [numberOfRooms, setNumberOfRooms] = React.useState(initialNumberOfRooms);
-  const [durationTime, setDurationTime] = React.useState(DEFAULT_BREAKOUT_TIME);
   const isImportPresentationWithAnnotationsEnabled = useIsImportPresentationWithAnnotationsFromBreakoutRoomsEnabled();
   const isImportSharedNotesEnabled = useIsImportSharedNotesFromBreakoutRoomsEnabled();
+
+  // @ts-ignore
+  const BREAKOUT_SETTINGS = window.meetingClientSettings.public.app.breakouts;
+
+  const { allowUserChooseRoomByDefault } = BREAKOUT_SETTINGS;
+  const captureWhiteboardByDefault = BREAKOUT_SETTINGS.captureWhiteboardByDefault
+                                    && isImportPresentationWithAnnotationsEnabled;
+  const captureSharedNotesByDefault = BREAKOUT_SETTINGS.captureSharedNotesByDefault
+                                    && isImportPresentationWithAnnotationsEnabled;
+  const inviteModsByDefault = BREAKOUT_SETTINGS.sendInvitationToAssignedModeratorsByDefault;
+
+  const [numberOfRoomsIsValid, setNumberOfRoomsIsValid] = React.useState(true);
+  const [durationIsValid, setDurationIsValid] = React.useState(true);
+  const [freeJoin, setFreeJoin] = React.useState(allowUserChooseRoomByDefault);
+  const [record, setRecord] = React.useState(false);
+  const [captureSlides, setCaptureSlides] = React.useState(captureWhiteboardByDefault);
+  const [leastOneUserIsValid, setLeastOneUserIsValid] = React.useState(false);
+  const [captureNotes, setCaptureNotes] = React.useState(captureSharedNotesByDefault);
+  const [inviteMods, setInviteMods] = React.useState(inviteModsByDefault);
+  const [numberOfRooms, setNumberOfRooms] = React.useState(initialNumberOfRooms);
+  const [durationTime, setDurationTime] = React.useState(DEFAULT_BREAKOUT_TIME);
   const [roomPresentations, setRoomPresentations] = React.useState<RoomPresentations>([]);
 
   const [createBreakoutRoom] = useMutation(BREAKOUT_ROOM_CREATE);
@@ -367,6 +378,7 @@ const CreateBreakoutRoom: React.FC<CreateBreakoutRoomProps> = ({
     return [
       {
         allowed: true,
+        checked: freeJoin,
         htmlFor: 'freeJoinCheckbox',
         key: 'free-join-breakouts',
         id: 'freeJoinCheckbox',
@@ -378,6 +390,7 @@ const CreateBreakoutRoom: React.FC<CreateBreakoutRoomProps> = ({
       },
       {
         allowed: isBreakoutRecordable,
+        checked: record,
         htmlFor: 'recordBreakoutCheckbox',
         key: 'record-breakouts',
         id: 'recordBreakoutCheckbox',
@@ -386,6 +399,7 @@ const CreateBreakoutRoom: React.FC<CreateBreakoutRoomProps> = ({
       },
       {
         allowed: isImportPresentationWithAnnotationsEnabled,
+        checked: captureSlides,
         htmlFor: 'captureSlidesBreakoutCheckbox',
         key: 'capture-slides-breakouts',
         id: 'captureSlidesBreakoutCheckbox',
@@ -394,6 +408,7 @@ const CreateBreakoutRoom: React.FC<CreateBreakoutRoomProps> = ({
       },
       {
         allowed: isImportSharedNotesEnabled,
+        checked: captureNotes,
         htmlFor: 'captureNotesBreakoutCheckbox',
         key: 'capture-notes-breakouts',
         id: 'captureNotesBreakoutCheckbox',
@@ -402,6 +417,7 @@ const CreateBreakoutRoom: React.FC<CreateBreakoutRoomProps> = ({
       },
       {
         allowed: true,
+        checked: inviteMods,
         htmlFor: 'sendInvitationToAssignedModeratorsCheckbox',
         key: 'send-invitation-to-assigned-moderators-breakouts',
         id: 'sendInvitationToAssignedModeratorsCheckbox',
@@ -409,11 +425,21 @@ const CreateBreakoutRoom: React.FC<CreateBreakoutRoomProps> = ({
         label: intl.formatMessage(intlMessages.sendInvitationToMods),
       },
     ];
-  }, [isBreakoutRecordable, isImportPresentationWithAnnotationsEnabled, isImportSharedNotesEnabled]);
+  }, [
+    isBreakoutRecordable,
+    isImportPresentationWithAnnotationsEnabled,
+    isImportSharedNotesEnabled,
+    freeJoin,
+    record,
+    captureSlides,
+    captureNotes,
+    inviteMods,
+  ]);
 
   const form = useMemo(() => {
     if (isUpdate) return null;
 
+    // @ts-ignore
     const BREAKOUT_LIM = window.meetingClientSettings.public.app.breakouts.breakoutRoomLimit;
     const MAX_BREAKOUT_ROOMS = BREAKOUT_LIM > MIN_BREAKOUT_ROOMS ? BREAKOUT_LIM : MIN_BREAKOUT_ROOMS;
 
@@ -485,6 +511,7 @@ const CreateBreakoutRoom: React.FC<CreateBreakoutRoomProps> = ({
                     id={item.id}
                     onChange={item.onChange}
                     aria-label={item.label}
+                    checked={item.checked}
                   />
                   <span aria-hidden>{item.label}</span>
                 </Styled.FreeJoinLabel>
@@ -503,6 +530,7 @@ const CreateBreakoutRoom: React.FC<CreateBreakoutRoomProps> = ({
   }, [
     durationTime, durationIsValid, numberOfRooms, numberOfRoomsIsValid,
     isImportPresentationWithAnnotationsEnabled, isImportSharedNotesEnabled,
+    checkboxesInfo,
   ]);
 
   return (
@@ -549,6 +577,7 @@ const CreateBreakoutRoom: React.FC<CreateBreakoutRoomProps> = ({
           currentSlidePrefix={CURRENT_SLIDE_PREFIX}
           getRoomPresentation={getRoomPresentation}
           isUpdate={isUpdate}
+          setNumberOfRooms={setNumberOfRooms}
         />
       </Styled.Content>
     </ModalFullscreen>

@@ -56,13 +56,13 @@ public:
     customStyleUrl: null
     darkTheme:
       enabled: true
-    askForFeedbackOnLogout: false
     # the default logoutUrl matches window.location.origin i.e. bigbluebutton.org for demo.bigbluebutton.org
     # in some cases we want only custom logoutUrl to be used when provided on meeting create. Default value: true
     askForConfirmationOnLeave: true
     wakeLock: 
       enabled: true
     allowDefaultLogoutUrl: true
+    skipMeetingEnded: false
     dynamicGuestPolicy: true
     enableGuestLobbyMessage: true
     guestPolicyExtraAllowOptions: false
@@ -938,6 +938,10 @@ public:
       # applicable track sources. Default value is false. This overrides autoSubscribe
       # when set to true and in effect (conditional to client behavior).
       selectiveSubscription: false
+      roomOptions:
+        adaptiveStream: true
+        dynacast: true
+        stopLocalTrackOnUnpublish: false
       audio:
         # publishOptions: see https://docs.livekit.io/client-sdk-js/interfaces/TrackPublishOptions.html
         publishOptions:

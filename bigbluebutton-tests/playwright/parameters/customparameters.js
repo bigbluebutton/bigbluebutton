@@ -30,36 +30,6 @@ class CustomParameters extends MultiUsers {
     expect(pageTitle, 'should display the changed name of the client title').toContain(`${c.docTitle} - `);
   }
 
-  async askForFeedbackOnLogout() {
-    const rating = 4;
-    const feedbackMessage = 'This is a test comment';
-    await this.modPage.logoutFromMeeting();
-    await this.modPage.hasElement(e.meetingEndedModal, 'should display the meeting ended modal, when the user presses to leave the meeting');
-    await this.modPage.hasElement(e.rating, 'should display the question for feedback after the user presses to leave the meeting');
-    await this.modPage.wasRemoved(e.sendFeedbackButton, 'should not display the feedback button before the user rates the meeting');
-    await this.modPage.waitAndClick(`label[for="${rating}star"]`);
-    await this.modPage.hasElement(e.feedbackCommentInput, 'should display the feedback comment field after the user rates the meeting');
-    const feedbackField = await this.modPage.getLocator(e.feedbackCommentInput);
-    await feedbackField.fill(feedbackMessage);
-    await expect(feedbackField, 'feedback field should contain the typed message').toHaveValue(feedbackMessage);
-    const requestPromise = this.modPage.page.waitForRequest(async request => {
-      if (request.url().includes('feedback') && request.method() === 'POST') {
-        expect(
-          request.postDataJSON(),
-          'should send the feedback with the correct rating and message',
-        ).toMatchObject({
-          rating: rating,
-          comment: feedbackMessage,
-        });
-        return true;
-      }
-    }, ELEMENT_WAIT_TIME);
-    await this.modPage.waitAndClick(e.sendFeedbackButton);
-    await requestPromise;
-    await this.modPage.wasRemoved(e.feedbackCommentInput, 'should remove the feedback comment input after sending the feedback');
-    await this.modPage.wasRemoved(e.sendFeedbackButton, 'should remove the feedback button after sending the feedback');
-  }
-
   async displayBrandingArea() {
     await this.modPage.hasElement(e.userListContent, 'should display the user list on the meeting');
     await this.modPage.hasElement(e.brandingAreaLogo, 'should display the logo on the branding area');
@@ -171,7 +141,7 @@ class CustomParameters extends MultiUsers {
 
   async hidePresentationOnJoin() {
     await this.modPage.hasElement(e.actions, 'should display the actions button');
-    await this.modPage.hasElement(e.minimizePresentation, 'should display the minimize presentation button for the moderator');
+    await this.modPage.hasElement(e.restorePresentation, 'should display the restore presentation button for the moderator');
     await this.userPage.hasElement(e.restorePresentation, 'should display the restore presentation button for the attendee');
     await this.userPage.wasRemoved(e.whiteboard, 'should not display the whiteboard for the attendee');
   }

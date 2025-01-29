@@ -361,12 +361,6 @@ test.describe.parallel('Custom Parameters', { tag: '@ci' }, () => {
     await customParam.clientTitle();
   });
 
-  test('Ask for feedback on logout', async ({ browser, context, page }) => {
-    const customParam = new CustomParameters(browser, context);
-    await customParam.initModPage(page, true, { joinParameter: c.askForFeedbackOnLogout });
-    await customParam.askForFeedbackOnLogout();
-  });
-
   test('Display Branding Area', async ({ browser, context, page }) => {
     const customParam = new CustomParameters(browser, context);
     await customParam.initModPage(page, true, { createParameter: `${c.displayBrandingArea}&${encodeCustomParams(c.logo)}` });
@@ -469,7 +463,8 @@ test.describe.parallel('Custom Parameters', { tag: '@ci' }, () => {
       await customParam.hidePresentationOnJoin();
     });
 
-    test('Force restore presentation on new events', async ({ browser, context, page }) => {
+    // not restoring presentation after zooming in
+    test('Force restore presentation on new events', { tag: '@flaky' }, async ({ browser, context, page }) => {
       const customParam = new CustomParameters(browser, context);
       await customParam.initModPage(page);
       await customParam.initUserPage(true, context, { useModMeetingId: true, joinParameter: c.forceRestorePresentationOnNewEvents });

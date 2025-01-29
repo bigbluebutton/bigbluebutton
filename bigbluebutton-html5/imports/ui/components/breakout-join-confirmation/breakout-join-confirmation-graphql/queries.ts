@@ -8,6 +8,7 @@ export interface BreakoutRoom {
   showInvitation: boolean;
   isLastAssignedRoom: boolean;
   isUserCurrentlyInRoom: boolean;
+  isDefaultName: boolean;
   joinURL: string | null;
   breakoutRoomId: string;
 }
@@ -52,6 +53,7 @@ export const getBreakoutData = gql`
       showInvitation
       isLastAssignedRoom
       isUserCurrentlyInRoom
+      isDefaultName
       joinURL
       breakoutRoomId
     }

@@ -276,6 +276,8 @@ CREATE TABLE "user" (
 	"userId" varchar(50) NOT NULL,
 	"extId" varchar(50),
 	"name" varchar(255),
+	"firstName" varchar(255),
+	"lastName" varchar(255),
 	"role" varchar(20),
 	"avatar" varchar(500),
     "webcamBackground" varchar(500),
@@ -393,6 +395,8 @@ EXECUTE FUNCTION "set_user_firstJoinedAt_trigger_func"();
 
 --Used to sort the Userlist
 ALTER TABLE "user" ADD COLUMN "nameSortable" varchar(255) GENERATED ALWAYS AS (trim(remove_emojis(immutable_lower_unaccent("name")))) STORED;
+ALTER TABLE "user" ADD COLUMN "firstNameSortable" varchar(255) GENERATED ALWAYS AS (trim(remove_emojis(immutable_lower_unaccent("firstName")))) STORED;
+ALTER TABLE "user" ADD COLUMN "lastNameSortable" varchar(255) GENERATED ALWAYS AS (trim(remove_emojis(immutable_lower_unaccent("lastName")))) STORED;
 
 CREATE INDEX "idx_user_waiting" ON "user"("meetingId") where "isWaiting" is true;
 
@@ -413,6 +417,10 @@ AS SELECT "user"."userId",
     "user"."meetingId",
     "user"."name",
     "user"."nameSortable",
+    "user"."firstName",
+    "user"."firstNameSortable",
+    "user"."lastName",
+    "user"."lastNameSortable",
     "user"."avatar",
     "user"."color",
     "user"."away",
@@ -474,6 +482,10 @@ AS SELECT "user"."userId",
     "user"."meetingId",
     "user"."name",
     "user"."nameSortable",
+    "user"."firstName",
+    "user"."firstNameSortable",
+    "user"."lastName",
+    "user"."lastNameSortable",
     "user"."avatar",
     "user"."webcamBackground",
     "user"."color",
@@ -541,6 +553,10 @@ AS SELECT
     "user"."extId",
     "user"."name",
     "user"."nameSortable",
+    "user"."firstName",
+    "user"."firstNameSortable",
+    "user"."lastName",
+    "user"."lastNameSortable",
     "user"."avatar",
     "user"."color",
     "user"."away",
@@ -1188,9 +1204,9 @@ CREATE TRIGGER "update_chat_message_history_trigger" BEFORE UPDATE OF "message" 
 
 
 CREATE OR REPLACE VIEW "v_chat" AS
-SELECT 	"user"."userId",
+SELECT 	"user"."meetingId",
+        "user"."userId",
         case when "user"."userId" = "chat"."createdBy" then true else false end "amIOwner",
-		chat."meetingId",
 		chat."chatId",
 		cu."visible",
 		chat_with."userId" AS "participantId",
@@ -1212,7 +1228,7 @@ LEFT JOIN "chat_user" chat_with ON chat_with."meetingId" = chat."meetingId" AND
 LEFT JOIN chat_message cm ON cm."meetingId" = chat."meetingId" AND
                              cm."chatId" = chat."chatId"
 WHERE cu."visible" is true
-GROUP BY "user"."userId", chat."meetingId", chat."chatId", cu."visible", cu."lastSeenAt", chat_with."userId";
+GROUP BY "user"."meetingId", "user"."userId", chat."meetingId", chat."chatId", cu."visible", cu."lastSeenAt", chat_with."userId";
 
 create index idx_v_chat_with on chat_user("meetingId","chatId","userId") where "chatId" != 'MAIN-PUBLIC-GROUP-CHAT';
 

@@ -51,7 +51,7 @@ const PadGraphql: React.FC<PadGraphqlProps> = (props) => {
       return;
     }
     setPadURL(Service.buildPadURL(padId, sessionIds));
-  }, [isRTL, hasSession]);
+  }, [isRTL, hasSession, intl.locale]);
 
   if (!hasSession) {
     return <PadContent externalId={externalId} />;

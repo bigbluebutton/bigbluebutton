@@ -21,7 +21,7 @@ We have done significant work to adopt the newly released version 2 of tl;draw. 
 
 #### Improved UX for joining audio for transparentListenOnly
 
-When transparentListenOnly is enabled on the server, users can now switch seamlessly between Listen Only and Microphone modes without needing to rejoin audio.
+When transparentListenOnly is enabled on the server (enabled by default starting with BigBlueButton 3.0.0-rc.1), users can now switch seamlessly between Listen Only and Microphone modes without needing to rejoin audio.
 
 To further improve the user experience, you can disable listenOnlyMode (`public.app.listenOnlyMode` in `/etc/bigbluebutton/bbb-html5.yml` or `userdata-bbb_listen_only_mode`). 
 This removes the need to choose between Microphone or Listen Only mode when joining audio in a session. Instead, you are taken directly to the audio configuration screen.
@@ -32,27 +32,41 @@ Once you are joined in audio, you can dynamically change your audio device confi
 
 ![mute yourself has a dropdown menu allowing device changes](/img/30/30-ui-audio-devices-options.png)
 
+#### Chat improvements
+
+BigBlueButton 3.0's chat gained several new functionalities! Users are now able to edit their own messages in case a typo was made, they can react to chat messages and also reply to a previous message. The option to delete a message is available both to the original author and to moderators in the session.
+
+![delete or edit a message, add an emoji or reply to a message](/img/30/30-chat-improvements.png)
+
 #### New layouts for specific integration scenarios
 
 Several new layouts have been added ("Cameras Only", "Presentation Only", and "Participants and Chat Only") to address various use cases of hybrid education - for example splitting views of the BigBlueButton session to be visible on different physical screens.
 
 #### Improved Away mode
 
-We have made changes so that when you set yourself as being Away, your microphone is now automatically muted, your webcam is also muted (blank).
+We have moved the trigger to set yourself away to the three-dots menu and improved the design.
 
-![set yourself away](/img/30/30-set-away.png)
+![currently active](/img/30/30-currently-active.png)
 
- When you return and unmute yourself this counts as disabling Away mode. The control for toggling away mode is now positioned in the Reactions bar.
+Note that when you set yourself as away, the client mutes your microphone, masks the webcam, adds an icon on your user avatar and appends a note in the public chat.
 
-![set yourself active](/img/30/30-set-active.png)
+![set yourself active](/img/30/30-currently-away.png)
 
-Away mode also is recorded in the public chat area.
+#### Welcome message relocated
 
-![away public chat](/img/30/30-away-public-chat.png)
+The information previously displayed in the public chat on join is now located in its own dialog - Session details.
+To view the welcome message, moderator only message, a link to the session or a phone number for dial-in please click on the meeting name.
+By default this dialog is open on initial joining of the client.
+
+![moderator view of the session details](/img/30/30-welcome-message-full.png)
+
+Viewers do not see the link to invite others nor the moderator only message.
+
+![viewers see a bit less of the session details](/img/30/30-welcome-message.png)
 
 #### Leave meeting button
 
-A contribution from community member Jan Kessler, the direct Leave Meeting button was first introduced in BigBlueButton 2.7.5. Starting with BigBlueButton 3.0 we are making it enabled by default.
+A contribution from community member Jan Kessler, the direct Leave Meeting button was first introduced in BigBlueButton 2.7.5. Starting with BigBlueButton 3.0 we are making it enabled by default and have modified it slightly to ensure moderators are not ending the session when they try to leave.
 
 ![leave the meeting red button](/img/30/30-leave-meeting.png)
 
@@ -63,6 +77,10 @@ Viewers can leave the meeting by using this new red button, previously hidden ne
 We have enhanced the view of the polling results that appear over the whiteboard. It is now much more intuitive to read.
 
 ![better polling results](/img/30/30-poll-annotation.png)
+
+It matches the results displayed in the public chat!
+
+![better polling results](/img/30/30-poll-chat.png)
 
 
 #### Private chat messages have a "seen" indicator
@@ -83,7 +101,7 @@ You can now use the "M" shortcut while in a conference to control how long your 
 <!-- ### Analytics -->
 
 
-### Behind the scene
+### Behind the scenes
 
 #### Introduction of plugins
 
@@ -187,15 +205,15 @@ Feature parity with the current media framework is not yet achieved, but the
 aforementioned issue provides parity tracking in section `Annex 1`.
 
 To enable support for LiveKit:
-  - Install bbb-livekit: `$ sudo apt-get install bbb-livekit`
-  - Enable the LiveKit controller module in bbb-webrtc-sfu: `$ sudo yq e -i '.livekit.enabled = true' /etc/bigbluebutton/bbb-webrtc-sfu/production.yml`
-  - Restart bbb-webrtc-sfu: `$ sudo systemctl restart bbb-webrtc-sfu`
-  - Guarantee that Node.js 22 is installed in your server: `$ node -v`
-    - Older 3.0 installations might still be using Node.js 18. If that's the case,
+1. Install bbb-livekit: `$ sudo apt-get install bbb-livekit`
+2. Enable the LiveKit controller module in bbb-webrtc-sfu: `$ sudo yq e -i '.livekit.enabled = true' /etc/bigbluebutton/bbb-webrtc-sfu/production.yml`
+3. Restart bbb-webrtc-sfu: `$ sudo systemctl restart bbb-webrtc-sfu`
+4. Guarantee that Node.js 22 is installed in your server: `$ node -v`
+    * Older 3.0 installations might still be using Node.js 18. If that's the case,
       re-run bbb-install or correct any custom installation scripts to ensure
       Node.js 22 is installed.
-  - Only when using BigBlueButton via the [cluster proxy](/administration/cluster-proxy) configuration:
-    - Set the appropriate LiveKit endpoint URL in bbb-html5.yml's `public.media.livekit.url`. See
+5. Only when using BigBlueButton via the [cluster proxy](/administration/cluster-proxy) configuration:
+    1. Set the appropriate LiveKit endpoint URL in bbb-html5.yml's `public.media.livekit.url`. See
       the aforementioned [docs section](/administration/cluster-proxy.md#bigbluebutton-servers) for details.
 
 Once enabled, LiveKit still won't be used by default. There are two ways to make
@@ -213,6 +231,36 @@ Those parameters do *not* need to be set concurrently. LiveKit can be enabled fo
 audio only, for example, while keeping the current media framework for camera
 and screen sharing by setting just `audioBridge=livekit`.
 
+To enable recording/capture with LiveKit (optional):
+1. Create **`/etc/bigbluebutton/egress.yaml`**
+    ```yaml
+    log_level: debug
+    redis:
+      address: localhost:6379
+    api_key: YOUR_API_KEY # see /etc/bigbluebutton/livekit.yaml
+    api_secret: YOUR_API_SECRET # see /etc/bigbluebutton/livekit.yaml
+    health_port: 7005
+    ws_url: ws://localhost:7880
+    file_prefix: /var/lib/bbb-webrtc-recorder
+    file_only: true
+    prometheus_port: 6790
+    ```
+2. Set appropriate key and secret in the file above
+3. Change capture directory permissions: **`chmod -R 777 /var/lib/bbb-webrtc-recorder`**
+    - The recorder runs as root in the docker container
+4. Enable egress in bbb-webrtc-sfu : **`yq e -i ".livekit.egress.enabled = true" /etc/bigbluebutton/bbb-webrtc-sfu/production.yml`**
+5. Run egress
+    ```bash
+    docker run -t -d --rm \
+        --name egress \
+        -e EGRESS_CONFIG_FILE=/etc/bigbluebutton/egress.yaml \
+        -v /etc/bigbluebutton/:/etc/bigbluebutton/ \
+        -v /var/lib/bbb-webrtc-recorder:/var/lib/bbb-webrtc-recorder \
+        --network host \
+        livekit/egress
+    ```
+6. Restart bbb-webrtc-sfu
+
 Keep in mind that the LiveKit integration is still experimental and not feature
 complete. Configuration, API parameters, and other details are subject to change.
 We encourage users to test it and provide feedback via our GitHub issue tracker
@@ -228,6 +276,7 @@ For full details on what is new in BigBlueButton 3.0, see the release notes.
 
 Recent releases:
 
+- [3.0.0-rc.1](https://github.com/bigbluebutton/bigbluebutton/releases/tag/v3.0.0-rc.1)
 - [3.0.0-beta.7](https://github.com/bigbluebutton/bigbluebutton/releases/tag/v3.0.0-beta.7)
 - [3.0.0-beta.6](https://github.com/bigbluebutton/bigbluebutton/releases/tag/v3.0.0-beta.6)
 - [3.0.0-beta.5](https://github.com/bigbluebutton/bigbluebutton/releases/tag/v3.0.0-beta.5)
