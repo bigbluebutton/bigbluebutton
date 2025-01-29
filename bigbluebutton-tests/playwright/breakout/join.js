@@ -145,7 +145,7 @@ class Join extends Create {
 
   async exportBreakoutNotes() {
     const { sharedNotesEnabled } = getSettings();
-    if(!sharedNotesEnabled) {
+    if (!sharedNotesEnabled) {
       await this.modPage.hasElement(e.chatButton, 'should display the chat button to access the public chat');
       return this.modPage.wasRemoved(e.sharedNotes, 'should have removed the shared notes.');
     }
@@ -188,7 +188,7 @@ class Join extends Create {
 
   async exportBreakoutWhiteboard() {
     const { sharedNotesEnabled } = getSettings();
-    if(!sharedNotesEnabled) {
+    if (!sharedNotesEnabled) {
       await this.modPage.hasElement(e.chatButton, 'should display the chat button to access the public chat');
       return this.modPage.wasRemoved(e.sharedNotes, 'should have removed the shared notes');
     }
