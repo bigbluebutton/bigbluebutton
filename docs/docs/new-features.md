@@ -78,6 +78,10 @@ We have enhanced the view of the polling results that appear over the whiteboard
 
 ![better polling results](/img/30/30-poll-annotation.png)
 
+It matches the results displayed in the public chat!
+
+![better polling results](/img/30/30-poll-chat.png)
+
 
 #### Private chat messages have a "seen" indicator
 
