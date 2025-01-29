@@ -47,6 +47,10 @@ const intlMessages = defineMessages({
     id: 'app.shortcut-help.toggleUserList',
     description: 'describes the toggle userlist shortcut',
   },
+  openLeaveMenu: {
+    id: 'app.shortcut-help.openLeaveMenu',
+    description: 'describes the open leave menu shortcut',
+  },
   togglemute: {
     id: 'app.shortcut-help.toggleMute',
     description: 'describes the toggle mute shortcut',
