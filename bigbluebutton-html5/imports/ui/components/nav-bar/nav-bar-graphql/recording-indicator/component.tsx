@@ -120,7 +120,7 @@ const RecordingIndicator: React.FC<RecordingIndicatorProps> = ({
   const [isRecordingModalOpen, setIsRecordingModalOpen] = useState(false);
   const [isRecordingNotifyModalOpen, setIsRecordingNotifyModalOpen] = useState(false);
   const [shouldNotify, setShouldNotify] = useState(true);
-  const [time, setTime] = useState(0);
+  const [time, setTime] = useState(serverTime);
   const setIntervalRef = React.useRef<ReturnType<typeof setTimeout>>();
   const disabled = hasError || isLoading;
   const showButton = Service.mayIRecord(isModerator, allowStartStopRecording);
@@ -181,6 +181,15 @@ const RecordingIndicator: React.FC<RecordingIndicatorProps> = ({
     return intl.formatMessage(intlMessages.stopTitle);
   }, [recording, isPhone, disabled, isModerator, time]);
 
+  const tooltipTitle = useMemo(() => {
+    if (!recording) {
+      return recordTitle;
+    }
+    return isModerator
+      ? intl.formatMessage(intlMessages.stopTitle)
+      : intl.formatMessage(intlMessages.recordingTitle);
+  }, [recording, isModerator, recordTitle]);
+
   const recordingIndicatorIcon = useMemo(() => (
     <Styled.RecordingIndicatorIcon
       titleMargin={!isPhone || recording}
@@ -231,9 +240,9 @@ const RecordingIndicator: React.FC<RecordingIndicatorProps> = ({
     </Styled.RecordingControl>
   );
 
-  const recordMeetingButtonWithTooltip = (
-    <Tooltip title={intl.formatMessage(intlMessages.stopTitle)}>
-      {recordMeetingButton}
+  const recordingButtonWithTooltip = (
+    <Tooltip title={tooltipTitle}>
+      <span>{recordMeetingButton}</span>
     </Tooltip>
   );
 
@@ -253,7 +262,6 @@ const RecordingIndicator: React.FC<RecordingIndicatorProps> = ({
     );
   }
 
-  const recordingButton = recording ? recordMeetingButtonWithTooltip : recordMeetingButton;
   if (!record) return null;
   return (
     <>
@@ -264,7 +272,7 @@ const RecordingIndicator: React.FC<RecordingIndicatorProps> = ({
         time={time}
         disabled={!showButton}
       >
-        {recordingButton}
+        {recordingButtonWithTooltip}
       </Styled.RecordingIndicator>
       {isRecordingNotifyModalOpen ? (
         <RecordingNotify
