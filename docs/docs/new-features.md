@@ -44,17 +44,13 @@ Several new layouts have been added ("Cameras Only", "Presentation Only", and "P
 
 #### Improved Away mode
 
-We have made changes so that when you set yourself as being Away, your microphone is now automatically muted, your webcam is also muted (blank).
+We have moved the trigger to set yourself away to the three-dots menu and improved the design.
 
-![set yourself away](/img/30/30-set-away.png)
+![currently active](/img/30/30-currently-active.png)
 
- When you return and unmute yourself this counts as disabling Away mode. The control for toggling away mode is now positioned in the Reactions bar.
+Note that when you set yourself as away, the client mutes your microphone, masks the webcam, adds an icon on your user avatar and appends a note in the public chat.
 
-![set yourself active](/img/30/30-set-active.png)
-
-Away mode also is recorded in the public chat area.
-
-![away public chat](/img/30/30-away-public-chat.png)
+![set yourself active](/img/30/30-currently-away.png)
 
 #### Welcome message relocated
 
@@ -70,7 +66,7 @@ Viewers do not see the link to invite others nor the moderator only message.
 
 #### Leave meeting button
 
-A contribution from community member Jan Kessler, the direct Leave Meeting button was first introduced in BigBlueButton 2.7.5. Starting with BigBlueButton 3.0 we are making it enabled by default.
+A contribution from community member Jan Kessler, the direct Leave Meeting button was first introduced in BigBlueButton 2.7.5. Starting with BigBlueButton 3.0 we are making it enabled by default and have modified it slightly to ensure moderators are not ending the session when they try to leave.
 
 ![leave the meeting red button](/img/30/30-leave-meeting.png)
 
