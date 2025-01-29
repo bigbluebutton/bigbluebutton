@@ -248,5 +248,4 @@ class ConnectionStatus {
 
 const connectionsStatusSingleton = new ConnectionStatus();
 
-
 export default connectionsStatusSingleton;
