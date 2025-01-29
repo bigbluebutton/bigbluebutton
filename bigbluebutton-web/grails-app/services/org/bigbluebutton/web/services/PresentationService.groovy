@@ -98,7 +98,7 @@ class PresentationService {
 
 			// Check if meeting is already started
 			Meeting meeting = ServiceUtils.findMeetingFromMeetingID(uploadedPres.getMeetingId())
-			boolean isStarted = meeting != null && meeting.getStartTime() !== 0
+			boolean isStarted = meeting != null && meeting.getStartTime() != 0
 
 			if (isStarted) {
 				log.debug "Meeting is already started, it will proceed with presentation upload"
