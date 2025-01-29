@@ -246,6 +246,5 @@ class ConnectionStatus {
 
 const connectionsStatusSingleton = new ConnectionStatus();
 
-window.teste = connectionsStatusSingleton;
 
 export default connectionsStatusSingleton;
