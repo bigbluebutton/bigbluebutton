@@ -45,7 +45,7 @@ const ConnectionStatus = () => {
             },
           });
           const rttStatus = getStatus(rttLevels, networkRtt);
-          connectionStatus.setConnectedStatus(networkRtt, rttStatus);
+          connectionStatus.setConnectionStatus(networkRtt, rttStatus);
           connectionStatus.setLastRttRequestSuccess(true);
 
           if (Object.keys(rttLevels).includes(rttStatus)) {
