@@ -1473,7 +1473,7 @@
     "app.learningDashboard.shareLinkCopied": "Link erfolgreich kopiert!",
     "app.learningDashboard.user": "Teilnehmer",
     "app.learningDashboard.learnMore": "Mehr über die Benutzung des Dashboards hier {0} in unserer Wissensdatenbank.",
-    "app.learningDashboard.learnMoreLinkText": "Dieser Artikel",
+    "app.learningDashboard.learnMoreLinkText": "diesem Artikel",
     "app.learningDashboard.feedback": "Wie hat Ihnen dieses Feature gefallen? Wir würden uns freuen, Ihre Meinung zu erfahren oder sogar Vorschläge, wie es verbessert werden kann. Rückmeldungen bitte hier {0}.",
     "app.learningDashboard.feedbackLinkText": "hier",
     "app.learningDashboard.indicators.meetingStatusEnded": "Beendet",
