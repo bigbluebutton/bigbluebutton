@@ -814,7 +814,7 @@
     "app.audio.audioSettings.noMicSelectedWarning": "Kein Mikrofon ausgewählt, nur Zuhören möglich.",
     "app.audio.audioSettings.noMicListenOnly": "Kein Mikrofon (nur zuhören)",
     "app.audio.audioSettings.microphoneSourceLabel": "Mikrofon",
-    "app.audio.audioSettings.speakerSourceLabel": "Sprecher/in",
+    "app.audio.audioSettings.speakerSourceLabel": "Lautsprecher",
     "app.audio.audioSettings.testSpeakerLabel": "Lautsprecher testen",
     "app.audio.audioSettings.microphoneStreamLabel": "Lautstärke",
     "app.audio.audioSettings.retryMicLabel": "Erneut versuchen",
