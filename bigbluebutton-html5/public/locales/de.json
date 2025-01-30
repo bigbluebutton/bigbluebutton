@@ -41,7 +41,7 @@
     "app.chat.copyErr": "Kopieren des Chatprotokolls fehlgeschlagen",
     "app.chat.messageRead": "Nachricht wurde gelesen", 
     "app.chat.closePopup": "Schließen",
-    "app.chat.editTime": "Zuletzt bearbeitet {0}",
+    "app.chat.editTime": "Zuletzt bearbeitet um {0}",
     "app.chat.deleteMessage": "Diese Nachricht wurde gelöscht von {0}",
     "app.chat.toolbar.reply": "Auf Nachricht {0} antworten",
     "app.chat.toolbar.reply.cancel": "Schließen {0}",
