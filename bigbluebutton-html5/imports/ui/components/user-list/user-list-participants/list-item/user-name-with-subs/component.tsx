@@ -38,6 +38,10 @@ const intlMessages = defineMessages({
     id: 'app.userList.sharingWebcam',
     description: 'Text for identifying who is sharing webcam',
   },
+  you: {
+    id: 'app.userList.you',
+    description: 'Text for identifying your user',
+  },
 });
 
 const UserNameWithSubs: React.FC<UserNameWithSubsProps> = ({
@@ -129,7 +133,7 @@ const UserNameWithSubs: React.FC<UserNameWithSubsProps> = ({
       <Styled.UserName>
         <TooltipContainer title={subjectUser.name}>
           {isMe(subjectUser.userId) ? (
-            <Styled.StrongName>{subjectUser.name}</Styled.StrongName>
+            <Styled.StrongName>{subjectUser.name} {`(${intl.formatMessage(intlMessages.you)})`}</Styled.StrongName>
           ) : (
             <Styled.RegularName>{subjectUser.name}</Styled.RegularName>
           )}

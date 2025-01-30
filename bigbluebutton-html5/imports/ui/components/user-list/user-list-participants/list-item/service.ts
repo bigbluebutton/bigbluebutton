@@ -49,10 +49,6 @@ const intlMessages = defineMessages({
     id: 'app.createBreakoutRoom.room',
     description: 'breakout room',
   },
-  you: {
-    id: 'app.userList.you',
-    description: 'Text for identifying your user',
-  },
   startPrivateChat: {
     id: 'app.userList.menu.chat.label',
     description: 'label for option to start a new private chat',
