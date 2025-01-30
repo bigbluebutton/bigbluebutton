@@ -290,6 +290,8 @@ public class SvgImageCreatorImp implements SvgImageCreator {
                     if (namespaceHandler.isCommandTimeout()) {
                         log.error("Command execution (addNameSpaceToSVG) exceeded the {} secs timeout for {} page {}.", convPdfToSvgTimeout, pres.getName(), page);
                     }
+
+                    done = true;
                 }
             }
 
@@ -297,8 +299,6 @@ public class SvgImageCreatorImp implements SvgImageCreator {
             if(tempPng.exists()) {
                 tempPng.delete();
             }
-
-            done = true;
         }
 
 
