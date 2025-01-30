@@ -20,6 +20,7 @@ import LAST_SEEN_MUTATION from './queries';
 import {
   MessageList,
   UnreadButton,
+  PageWrapper,
 } from './styles';
 import useReactiveRef from '/imports/ui/hooks/useReactiveRef';
 import useStickyScroll from '/imports/ui/hooks/useStickyScroll';
@@ -119,7 +120,7 @@ const roving = (
   event: React.KeyboardEvent<HTMLElement>,
   changeState: (el: HTMLElement | null) => void,
   elementsList: HTMLElement,
-  element: HTMLElement | null,
+  element?: HTMLElement | null,
 ) => {
   const numberOfChilds = elementsList.childElementCount;
 
@@ -137,6 +138,7 @@ const roving = (
     }
 
     elRef = (elRef && elRef.dataset.focusable === 'true') ? elRef : firstElement;
+    elRef.focus();
     changeState(elRef);
   }
 
@@ -150,24 +152,14 @@ const roving = (
     }
 
     elRef = (elRef && elRef.dataset.focusable === 'true') ? elRef : lastElement;
+    elRef.focus();
     changeState(elRef);
   }
 
   if ([KEY_CODES.SPACE, KEY_CODES.ENTER].includes(event.keyCode)) {
     const elRef = document.activeElement?.firstChild as HTMLElement;
+    elRef.focus();
     changeState(elRef);
-  }
-
-  if ([KEY_CODES.ARROW_RIGHT].includes(event.keyCode)) {
-    if (element?.dataset) {
-      const { sequence } = element.dataset;
-
-      window.dispatchEvent(new CustomEvent(ChatEvents.CHAT_KEYBOARD_FOCUS_MESSAGE_REQUEST, {
-        detail: {
-          sequence,
-        },
-      }));
-    }
   }
 };
 
@@ -192,7 +184,7 @@ const ChatMessageList: React.FC<ChatListProps> = ({
   const [userLoadedBackUntilPage, setUserLoadedBackUntilPage] = useState<number | null>(null);
   const [lastMessageCreatedAt, setLastMessageCreatedAt] = useState<string>('');
   const [followingTail, setFollowingTail] = React.useState(true);
-  const [selectedMessage, setSelectedMessage] = React.useState<HTMLElement | null>(null);
+  const selectedMessageRef = React.useRef<HTMLElement | null>();
   const [showStartSentinel, setShowStartSentinel] = React.useState(false);
   const {
     childRefProxy: endSentinelRefProxy,
@@ -432,9 +424,9 @@ const ChatMessageList: React.FC<ChatListProps> = ({
     if (messageListRef.current) {
       roving(
         e,
-        setSelectedMessage,
+        (el) => { selectedMessageRef.current = el; },
         messageListRef.current,
-        selectedMessage,
+        selectedMessageRef.current,
       );
     }
   };
@@ -485,13 +477,13 @@ const ChatMessageList: React.FC<ChatListProps> = ({
                 aria-hidden
               />
             )}
-            <div
+            <PageWrapper
               role="listbox"
               ref={messageListRef}
               tabIndex={hasMessageToolbar ? 0 : -1}
               onKeyDown={rove}
               onBlur={() => {
-                setSelectedMessage(null);
+                selectedMessageRef.current = null;
               }}
             >
               {Array.from({ length: pagesToLoad }, (_v, k) => k + (firstPageToLoad)).map((page) => {
@@ -506,9 +498,6 @@ const ChatMessageList: React.FC<ChatListProps> = ({
                     chatId={chatId}
                     markMessageAsSeen={markMessageAsSeen}
                     scrollRef={messageListContainerRef}
-                    focusedId={selectedMessage?.dataset.sequence
-                      ? Number.parseInt(selectedMessage?.dataset.sequence, 10)
-                      : null}
                     meetingDisablePublicChat={!!meeting?.lockSettings?.disablePublicChat}
                     meetingDisablePrivateChat={!!meeting?.lockSettings?.disablePrivateChat}
                     currentUserDisablePublicChat={!!currentUser?.userLockSettings?.disablePublicChat}
@@ -526,7 +515,7 @@ const ChatMessageList: React.FC<ChatListProps> = ({
                   />
                 );
               })}
-            </div>
+            </PageWrapper>
             <div
               ref={endSentinelRefProxy}
               style={{
