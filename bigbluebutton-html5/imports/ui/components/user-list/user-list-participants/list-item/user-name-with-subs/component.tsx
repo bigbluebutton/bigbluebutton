@@ -10,6 +10,10 @@ import { UserNameWithSubsProps } from './types';
 import { uniqueId } from '/imports/utils/string-utils';
 
 const intlMessages = defineMessages({
+  bot: {
+    id: 'app.userList.bot',
+    description: 'Text for identifying bot user',
+  },
   presenter: {
     id: 'app.userList.presenter',
     description: 'Text for identifying presenter user',
@@ -65,6 +69,9 @@ const UserNameWithSubs: React.FC<UserNameWithSubsProps> = ({
   }
   if (subjectUser.mobile && LABEL.mobile) {
     subs.push(intl.formatMessage(intlMessages.mobile));
+  }
+  if (subjectUser.bot && LABEL.bot) {
+    subs.push(intl.formatMessage(intlMessages.bot));
   }
   if ((subjectUser.locked || subjectUser.userLockSettings?.disablePublicChat)
       && (subjectUser.userLockSettings?.disablePublicChat || lockSettings?.hasActiveLockSetting)

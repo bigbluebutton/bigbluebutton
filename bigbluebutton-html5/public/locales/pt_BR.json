@@ -169,6 +169,7 @@
     "app.userList.byModerator": "(por moderador)",
     "app.userList.label": "Lista de participantes",
     "app.userList.toggleCompactView.label": "Alternar para o modo de exibição compacta",
+    "app.userList.bot": "Automação",
     "app.userList.moderator": "Moderador",
     "app.userList.mobile": "Móvel",
     "app.userList.guest": "Convidado",
