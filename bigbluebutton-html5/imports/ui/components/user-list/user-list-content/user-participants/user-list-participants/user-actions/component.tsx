@@ -608,7 +608,6 @@ const UserActions: React.FC<UserActionsProps> = ({
                   setOpenUserAction(user.userId);
                 }
               }}
-              role="button"
             >
               {children}
             </Styled.UserActionsTrigger>
