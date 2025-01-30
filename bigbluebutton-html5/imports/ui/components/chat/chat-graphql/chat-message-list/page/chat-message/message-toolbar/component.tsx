@@ -147,7 +147,7 @@ const ChatMessageToolbar: React.FC<ChatMessageToolbarProps> = (props) => {
       <>
         <Tooltip title={intl.formatMessage(intlMessages.replyTooltip)}>
           <EmojiButton
-            aria-describedby={`chat-reply-btn-label-${messageSequence}`}
+            aria-label={intl.formatMessage(intlMessages.reply, { 0: messageSequence })}
             icon="undo"
             color="light"
             onClick={(e: React.MouseEvent<HTMLButtonElement, MouseEvent>) => {
@@ -171,14 +171,12 @@ const ChatMessageToolbar: React.FC<ChatMessageToolbarProps> = (props) => {
             }}
           />
         </Tooltip>
-        <span id={`chat-reply-btn-label-${messageSequence}`} className="sr-only">
-          {intl.formatMessage(intlMessages.reply, { 0: messageSequence })}
-        </span>
       </>
       )}
       {showReactionsButton && (
       <Tooltip title={intl.formatMessage(intlMessages.reactTooltip)}>
         <EmojiButton
+          aria-label={intl.formatMessage(intlMessages.reactTooltip)}
           onClick={(e: React.MouseEvent<HTMLButtonElement, MouseEvent>) => {
             e.stopPropagation();
             onReactionPopoverOpenChange(true);
@@ -194,6 +192,7 @@ const ChatMessageToolbar: React.FC<ChatMessageToolbarProps> = (props) => {
       {showEditButton && (
       <Tooltip title={intl.formatMessage(intlMessages.editTooltip)}>
         <EmojiButton
+          aria-label={intl.formatMessage(intlMessages.editTooltip)}
           onClick={(e: React.MouseEvent<HTMLButtonElement, MouseEvent>) => {
             e.stopPropagation();
             deactivateFocusTrap();
@@ -219,6 +218,7 @@ const ChatMessageToolbar: React.FC<ChatMessageToolbarProps> = (props) => {
       {showDeleteButton && (
       <Tooltip title={intl.formatMessage(intlMessages.deleteTooltip)}>
         <EmojiButton
+          aria-label={intl.formatMessage(intlMessages.deleteTooltip)}
           onClick={(e: React.MouseEvent<HTMLButtonElement, MouseEvent>) => {
             e.stopPropagation();
             deactivateFocusTrap();

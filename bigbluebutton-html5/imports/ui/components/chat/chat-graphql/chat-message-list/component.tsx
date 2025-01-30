@@ -486,7 +486,8 @@ const ChatMessageList: React.FC<ChatListProps> = ({
               />
             )}
             <div
-              role="listbox"
+              role="list"
+              aria-live="polite"
               ref={messageListRef}
               tabIndex={hasMessageToolbar ? 0 : -1}
               onKeyDown={rove}
