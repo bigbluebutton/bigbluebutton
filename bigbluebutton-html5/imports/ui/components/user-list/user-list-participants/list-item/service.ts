@@ -143,6 +143,7 @@ export const generateActionsPermissions = (
   const amISubjectUser = isMe(subjectUser.userId);
   const isSubjectUserModerator = subjectUser.isModerator;
   const isSubjectUserGuest = subjectUser.guest;
+  const isSubjectUserBot = subjectUser.bot;
   // Breakout rooms mess up with role permissions
   // A breakout room user that has a moderator role in it's parent room
   const parentRoomModerator = getFromUserSettings('bbb_parent_room_moderator', false);
@@ -156,6 +157,7 @@ export const generateActionsPermissions = (
     )) && !amISubjectUser
     && !isDialInUser
     && isPrivateChatEnabled
+    && !isSubjectUserBot
     && !isBreakout;
 
   const allowedToMuteAudio = hasAuthority
