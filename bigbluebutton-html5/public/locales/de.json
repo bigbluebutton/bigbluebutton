@@ -29,7 +29,7 @@
     "app.chat.breakoutDurationUpdatedModerator": "Gruppensitzungszeit beträgt nun {0} Minuten und eine Benachrichtigung wurde versandt.",
     "app.chat.emptyLogLabel": "Chatprotokoll ist leer",
     "app.chat.away": "Abwesend",
-    "app.chat.notAway": "Ist verfügbar",
+    "app.chat.notAway": "ist verfügbar",
     "app.chat.isPresenter": "{0} ist nun Präsentator:in",
     "app.chat.isPresenterSetBy": "{0} ist nun Präsentator:in, durch {1} erlaubt",
     "app.chat.clearPublicChatMessage": "Der gemeinsame Chatverlauf wurde durch die Moderation gelöscht",
