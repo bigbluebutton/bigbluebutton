@@ -260,7 +260,7 @@
     "app.cameraAsContent.presenterSharingLabel": "Die Kamera ist nun für alle anderen sichtbar",
     "app.meeting.ended": "Diese Konferenz wurde beendet",
     "app.meeting.endedFromAPI": "Die Sitzung wurde vom System beendet",
-    "app.meeting.endedWhenNoUserJoined": "Die Sitzung wurde beendet mangels Teilnehmer",
+    "app.meeting.endedWhenNoUserJoined": "Die Sitzung wurde mangels Teilnehmer beendet",
     "app.meeting.endedWhenLastUserLeft": "Die Sitzung wurde beendet, nachdem der letzte Teilnehmer gegangen ist",
     "app.meeting.endedAfterExceedingDuration": "Die Sitzung wurde beendet, weil die Maximaldauer erreicht ist",
     "app.meeting.breakoutEndedAfterExceedingDuration": "Gruppensitzung ist zu Ende, da die Maximalzeit erreicht ist",
