@@ -106,6 +106,8 @@ const appsGalleryOutlineColor = 'var(--apps-gallery-outline, #DCE4EC)';
 const unpinnedAppIconColor = 'var(--apps-unpinned-icon-color, #A5B2C7)';
 const appsPanelTextColor = 'var(--apps-panel-text-color, #393C48)';
 
+const settingsModalTabSelected = 'var(--settings-modal-tab-selected, #eaf4fc)';
+
 const toolbarButtonBorderColor = `var(--toolbar-button-border-color, ${colorGrayLighter})`;
 const toolbarListColor = `var(--toolbar-list-color, ${colorGray})`;
 const toolbarButtonBg = `var(--toolbar-button-bg, ${btnDefaultBg})`;
@@ -220,6 +222,7 @@ export {
   appsGalleryOutlineColor,
   unpinnedAppIconColor,
   appsPanelTextColor,
+  settingsModalTabSelected,
   toolbarButtonBorderColor,
   toolbarListColor,
   toolbarButtonBg,
