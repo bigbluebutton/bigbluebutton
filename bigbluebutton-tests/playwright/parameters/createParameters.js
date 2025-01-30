@@ -1,11 +1,6 @@
-const { expect, default: test } = require('@playwright/test');
+const { expect } = require('@playwright/test');
 const { MultiUsers } = require('../user/multiusers');
 const e = require('../core/elements');
-const c = require('./constants');
-const { VIDEO_LOADING_WAIT_TIME, ELEMENT_WAIT_LONGER_TIME, ELEMENT_WAIT_EXTRA_LONG_TIME } = require('../core/constants');
-const util = require('./util');
-const { getSettings } = require('../core/settings');
-const { waitAndClearDefaultPresentationNotification } = require('../notifications/util');
 
 class CreateParameters extends MultiUsers {
   constructor(browser, context) {
@@ -57,9 +52,9 @@ class CreateParameters extends MultiUsers {
 
     await this.userPage2.waitAndClick(e.joinVideo);
     await this.userPage2.waitAndClick(e.startSharingWebcam);
-    await this.userPage2.hasElement(e.webcamMirroredVideoContainer, 'should display the attende 2 camera');
+    await this.userPage2.hasElement(e.webcamMirroredVideoContainer, 'should display the attendee 2 camera');
 
-    await this.modPage.checkElementCount(e.webcamContainer, 1, 'should display one camera from the attende 2 for the moderator');
+    await this.modPage.checkElementCount(e.webcamContainer, 1, 'should display one camera from the attendee 2 for the moderator');
     await this.userPage2.checkElementCount(e.webcamMirroredVideoContainer, 1, 'should display one camera from the attendee 2 ');
     await this.initUserPage(true, context);
     await this.userPage.checkElementCount(e.webcamMirroredVideoContainer, 0, 'should not display any camera for the attendee 1');
@@ -112,6 +107,21 @@ class CreateParameters extends MultiUsers {
     await this.userPage.hasElement(e.webcamMirroredVideoContainer, 'should display the webcam container for the attendee');
     await this.modPage.waitAndClick(e.userListItem);
     await this.modPage.waitAndClick(e.ejectCamera);
+  }
+
+  async overrideDefaultPresentation() {
+    await this.modPage.setHeightWidthViewPortSize();
+    await this.userPage.setHeightWidthViewPortSize();
+    await this.modPage.waitForSelector(e.whiteboard);
+    await this.userPage.waitForSelector(e.whiteboard);
+    await expect(
+      this.modPage.page,
+      'should display the overridden presentation for the mod',
+    ).toHaveScreenshot('mod-page-overridden-default-presentation.png');
+    await expect(
+      this.userPage.page,
+      'should display the overridden presentation for the viewer',
+    ).toHaveScreenshot('viewer-page-overridden-default-presentation.png');
   }
 }
 

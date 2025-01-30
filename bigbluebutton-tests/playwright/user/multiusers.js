@@ -271,6 +271,47 @@ class MultiUsers {
       await this.modPage2.hasText('body', /removed/, 'should display the removed message for the second moderator');
     }
   }
+
+  // Reactions tests
+  async reactionsTest() {
+    await this.modPage.waitForSelector(e.whiteboard);
+    await this.userPage.waitForSelector(e.whiteboard);
+
+    // use the smiling reaction
+    await this.modPage.waitAndClick(e.reactionsButton);
+    await this.modPage.waitAndClick(`${e.singleReactionButton}:nth-child(1)`);
+    await this.modPage.hasText(e.moderatorAvatar, '😃', 'should display the smiling emoji in the moderator avatar for the moderator');
+    await this.modPage.hasText(e.reactionsButton, '😃', 'should display the smiling emoji on the reactions button when used');
+    await this.userPage.hasText(e.moderatorAvatar, '😃', 'should display the smiling emoji in the moderator avatar for the viewer');
+
+    // change the reaction to the thumbs up
+    await this.modPage.waitAndClick(e.reactionsButton);
+    await this.modPage.waitAndClick(`${e.singleReactionButton}:nth-child(5)`);
+    await this.modPage.hasText(e.moderatorAvatar, '👍', 'should display the thumbs up emoji in the moderator avatar for the moderator when changed');
+    await this.modPage.hasText(e.reactionsButton, '👍', 'should display the smiling emoji on the reactions button when changed');
+    await this.userPage.hasText(e.moderatorAvatar, '👍', 'should display the smiling emoji in the moderator avatar for the viewer when changed');
+  }
+
+  async emojiRainTest() {
+    const { emojiRain } = getSettings();
+    const smilingEmojiReaction = `${e.singleReactionButton}:nth-child(1)`;
+
+    if (!emojiRain) {
+      await this.modPage.waitForSelector(e.whiteboard);
+      await this.modPage.waitAndClick(e.reactionsButton);
+      await this.modPage.waitAndClick(smilingEmojiReaction);
+      await this.modPage.wasRemoved(e.emojiRain, 'should not display the emoji rain when disabled');
+      return
+    }
+
+    await this.modPage.waitForSelector(e.whiteboard);
+    await this.modPage.waitAndClick(e.reactionsButton);
+    await this.modPage.waitAndClick(smilingEmojiReaction);
+    const emojiRainLocator = this.modPage.getLocator(e.emojiRain);
+    await expect(emojiRainLocator, 'should display the emoji rain element when enabled').toHaveCount(5, { timeout: ELEMENT_WAIT_TIME });
+    await sleep(1000);
+    await expect(emojiRainLocator, 'should stop displaying the emoji rain element after a second').toHaveCount(0, { timeout: ELEMENT_WAIT_TIME });
+  }
 }
 
 exports.MultiUsers = MultiUsers;
