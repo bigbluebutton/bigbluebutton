@@ -302,7 +302,9 @@ const GuestUsersManagementPanel: React.FC<GuestUsersManagementPanelProps> = ({
       )}
       {unauthedGuestUsers.length > 0 && (
         <>
-          <Styled.WaitingUsersHeader>
+          <Styled.WaitingUsersHeader
+            onClick={() => setWaitingUnauthedUsersVisible(!waitingUnauthedUsersVisible)}
+          >
             <Tooltip title={waitingUnauthedUsersVisible
               ? intl.formatMessage(intlMessages.hideWaitingGuests)
               : intl.formatMessage(intlMessages.showWaitingGuests)}
@@ -318,7 +320,6 @@ const GuestUsersManagementPanel: React.FC<GuestUsersManagementPanelProps> = ({
                   width: '1.5rem',
                   height: '1.5rem',
                 }}
-                onClick={() => setWaitingUnauthedUsersVisible(!waitingUnauthedUsersVisible)}
               >
                 {waitingUnauthedUsersVisible ? <ExpandLessIcon fontSize="small" /> : <ExpandMoreIcon fontSize="small" />}
               </IconButton>

@@ -34,6 +34,7 @@ import { colorBlueLighterChannel } from '/imports/ui/stylesheets/styled-componen
 import ChatMessageNotificationContent from './message-content/notification-content/component';
 import { getValueByPointer } from '/imports/utils/object-utils';
 import Tooltip from '/imports/ui/components/common/tooltip/container';
+import Auth from '/imports/ui/services/auth';
 
 interface ChatMessageProps {
   message: Message;
@@ -509,8 +510,9 @@ const ChatMessage = React.forwardRef<ChatMessageRef, ChatMessageProps>(({
                 avatar={message.user?.avatar || ''}
                 color={messageContent.color}
                 moderator={messageContent.isModerator}
+                you={message.user?.userId === Auth.userID}
               >
-                {avatarDisplay}
+                {typeof avatarDisplay === 'string' ? <span>{avatarDisplay}</span> : avatarDisplay}
               </ChatAvatar>
             )}
             {shouldRenderHeader && (

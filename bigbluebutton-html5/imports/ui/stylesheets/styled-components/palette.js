@@ -20,6 +20,10 @@ const colorBlueLighterChannel = '146 188 234';
 
 const colorTransparent = 'var(--color-transparent, #ff000000)';
 
+const colorUserModerator = 'var(--color-user-moderator, #7B209F)';
+const colorUserYou = 'var(--color-user-you, #19237C)';
+const colorUserViewer = 'var(--color-user-viewer, #2296C9)';
+
 const colorPrimary = 'var(--color-primary, #0F70D7)';
 const colorDanger = 'var(--color-danger, #DF2721)';
 const colorDangerDark = 'var(--color-danger-dark, #AE1010)';
@@ -144,6 +148,9 @@ export {
   colorGrayIcons,
   colorGrayUserListToolbar,
   colorTransparent,
+  colorUserModerator,
+  colorUserYou,
+  colorUserViewer,
   colorBlueLight,
   colorBlueLighter,
   colorBlueLightest,

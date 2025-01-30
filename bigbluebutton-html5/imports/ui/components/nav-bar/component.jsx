@@ -375,6 +375,7 @@ class NavBar extends Component {
                   <span>{presentationTitle}</span>
                 </Tooltip>
               </Styled.PresentationTitle>
+              {this.renderModal(isModalOpen, this.setModalIsOpen, "low", SessionDetailsModal)}
               {renderPluginItems(centerPluginItems)}
             </Styled.Center>
             <Styled.Right>

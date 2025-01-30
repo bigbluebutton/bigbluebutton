@@ -98,7 +98,7 @@ const GuestUserItem: React.FC<GuestUserItemProps> = ({
               avatar={avatar}
               color={color}
             >
-              {getNameInitials(name)}
+              <span>{getNameInitials(name)}</span>
             </Styled.Avatar>
           </Styled.UserAvatarContainer>
           <Styled.UserName key={`user-name-${userId}`}>

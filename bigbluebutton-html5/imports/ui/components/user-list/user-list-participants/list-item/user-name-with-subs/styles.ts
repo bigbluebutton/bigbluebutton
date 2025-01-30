@@ -12,7 +12,6 @@ const UserNameContainer = styled.div`
   margin: 0 0 0 ${smPaddingX};
   justify-content: center;
   font-size: 90%;
-  max-width: 70%;
 
   [dir="rtl"]  & {
     margin: 0 ${smPaddingX} 0 0;

@@ -71,6 +71,8 @@ const SidebarContent = (props: SidebarContentProps) => {
 
   const { isChrome } = browserInfo;
 
+  if (sidebarContentPanel === PANELS.NONE) return null;
+
   return (
     <Resizable
       minWidth={minWidth}

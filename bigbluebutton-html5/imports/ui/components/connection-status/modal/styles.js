@@ -31,6 +31,7 @@ import {
 import {
   ScrollboxVertical,
 } from '/imports/ui/stylesheets/styled-components/scrollable';
+import UserAvatar from '/imports/ui/components/user-avatar/component';
 import {
   Tab, Tabs, TabList, TabPanel,
 } from 'react-tabs';
@@ -97,11 +98,18 @@ const Text = styled.div`
   }
 `;
 
-const Avatar = styled.div`
+const AvatarWrapper = styled.div`
   display: flex;
   height: 100%;
   justify-content: center;
   align-items: center;
+`;
+
+const Avatar = styled(UserAvatar)`
+  min-width: 2.25rem;
+  width: 2.25rem;
+  min-height: 2.25rem;
+  height: 2.25rem;
 `;
 
 const Icon = styled.div`
@@ -396,6 +404,7 @@ export default {
   Left,
   Name,
   Text,
+  AvatarWrapper,
   Avatar,
   Icon,
   Right,

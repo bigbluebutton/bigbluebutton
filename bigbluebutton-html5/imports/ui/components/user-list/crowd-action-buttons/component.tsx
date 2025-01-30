@@ -2,18 +2,18 @@ import React from 'react';
 import { useIntl, defineMessages } from 'react-intl';
 import { useMutation } from '@apollo/client';
 import logger from '/imports/startup/client/logger';
-import { SET_MUTED } from '../user-list-graphql/user-participants-title/user-options-dropdown/mutations';
+import { SET_MUTED } from './mutations';
 import { CrowdActionButtonsProps } from './types';
 import Styled from './styles';
 
 const intlMessages = defineMessages({
-  muteAllLabel: {
-    id: 'app.userList.userOptions.muteAllLabel',
-    description: 'Mute all label',
+  muteAllExceptPresenterLabel: {
+    id: 'app.userList.userOptions.muteAllExceptPresenterLabel',
+    description: 'Mute all label except presenter label',
   },
-  muteAllDesc: {
-    id: 'app.userList.userOptions.muteAllDesc',
-    description: 'Mute all description',
+  muteAllExceptPresenterDesc: {
+    id: 'app.userList.userOptions.muteAllExceptPresenterDesc',
+    description: 'Mute all except presenter description',
   },
 });
 
@@ -24,17 +24,17 @@ const CrowdActionButtons: React.FC<CrowdActionButtonsProps> = () => {
   const muteAll = () => {
     setMuted({
       variables: {
-        muted: false,
-        exceptPresenter: false,
+        muted: true,
+        exceptPresenter: true,
       },
     });
 
     return logger.info(
       {
-        logCode: 'useroptions_mute_all',
+        logCode: 'crowd_actions_mute_all_except_presenter',
         extraInfo: { logType: 'moderator_action' },
       },
-      'moderator enabled meeting mute, all users muted',
+      'moderator muted all users except presenter',
     );
   };
 
@@ -42,10 +42,11 @@ const CrowdActionButtons: React.FC<CrowdActionButtonsProps> = () => {
     <Styled.ActionButtonsWrapper>
       <Styled.ActionButtonWrapper>
         <Styled.ActionButtonLabel>
-          {intl.formatMessage(intlMessages.muteAllLabel)}
+          {intl.formatMessage(intlMessages.muteAllExceptPresenterLabel)}
         </Styled.ActionButtonLabel>
         {/* @ts-ignore - button is js component */}
         <Styled.ActionButton
+          aria-label={intl.formatMessage(intlMessages.muteAllExceptPresenterDesc)}
           icon="mute"
           size="lg"
           data-test="muteAllUsers"
