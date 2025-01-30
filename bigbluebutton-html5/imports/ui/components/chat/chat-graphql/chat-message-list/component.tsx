@@ -478,7 +478,6 @@ const ChatMessageList: React.FC<ChatListProps> = ({
               />
             )}
             <PageWrapper
-              role="listbox"
               ref={messageListRef}
               tabIndex={hasMessageToolbar ? 0 : -1}
               onKeyDown={rove}
