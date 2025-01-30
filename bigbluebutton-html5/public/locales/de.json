@@ -155,7 +155,7 @@
     "app.notes.notesDropdown.notesOptions": "Notizoptionen",
     "app.pads.hint": "Esc drücken, um die Symbolleiste des Pads auszuwählen",
     "app.user.activityCheck": "Teilnehmeraktivitätsprüfung",
-    "app.user.activityCheck.label": "Prüfen, ob Person noch in der Sitzung ist ({0})",
+    "app.user.activityCheck.label": "Prüfen, ob Person noch in der Sitzung ({0}) ist",
     "app.user.activityCheck.check": "Bestätigen",
     "app.userList.usersTitle": "Teilnehmer ({0})",
     "app.userList.participantsTitle": "Teilnehmer",
