@@ -510,6 +510,8 @@
     "app.navBar.recording.unavailable": "Recording unavailable",
     "app.navBar.emptyAudioBrdige": "No active microphone. Share your microphone to add audio to this recording.",
     "app.navBar.openDetailsTooltip": "Open session details",
+    "app.navBar.sessionControlLabel": "Session control",
+    "app.navBar.speakersListLabel": "Talking people",
     "app.leaveConfirmation.confirmLabel": "Leave",
     "app.leaveConfirmation.confirmDesc": "Logs you out of the session",
     "app.endMeeting.title": "End {0}",

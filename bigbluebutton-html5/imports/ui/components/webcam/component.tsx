@@ -280,6 +280,7 @@ const WebcamComponent: React.FC<WebcamComponentProps> = ({
                 background: 'none',
               }}
             >
+              <h2 class="sr-only">Cameras</h2>
               <VideoProviderContainer
                 {...{
                   swapLayout,

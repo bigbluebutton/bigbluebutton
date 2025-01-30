@@ -52,6 +52,10 @@ const intlMessages = defineMessages({
     id: 'app.presentation.emptySlideContent',
     description: 'No content available for slide',
   },
+  presentationHeader: {
+    id: 'playback.player.presentation.wrapper.aria',
+    description: 'Aria label for header navigation',
+  },
 });
 
 const { isSafari } = browserInfo;
@@ -850,6 +854,7 @@ class Presentation extends PureComponent {
                 : null,
           }}
         >
+          <h2 class="sr-only">{intl.formatMessage(intlMessages.presentationHeader)}</h2>
           <Styled.Presentation
             ref={(ref) => {
               this.refPresentation = ref;
