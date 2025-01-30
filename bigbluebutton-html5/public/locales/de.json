@@ -93,7 +93,7 @@
     "app.emojiPicker.skintones.6": "Dunkler Hautton",
     "app.errorBoundary.attemptingToRecover": "Etwas ist schiefgelaufen. Es wird nochmal probiert ...",
     "app.errorBoundary.unableToRecover": "Trotz mehrfacher Versuche leider kein Erfolg.",
-    "app.errorBoundary.reloadPage": "Seite nochmal laden.",
+    "app.errorBoundary.reloadPage": "Seite nochmal laden",
     "app.timer.title": "Zeit",
     "app.timer.stopwatch.title": "Stoppuhr",
     "app.timer.timer.title": "Kurzzeitwecker",
