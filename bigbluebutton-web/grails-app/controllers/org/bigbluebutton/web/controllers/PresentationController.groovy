@@ -82,7 +82,7 @@ class PresentationController {
           meetingService.sendPresentationUploadMaxFilesizeMessage(presUploadToken, originalContentLength,
                   presUploadToken.plugin.pluginAssetPersistenceMaxFileSize as int);
 
-          response.setStatus(403);
+          response.setStatus(413);
           response.addHeader("Cache-Control", "no-cache")
           response.addHeader("x-file-too-large", "1")
           response.contentType = 'plain/text'
@@ -102,7 +102,7 @@ class PresentationController {
         PresentationUploadToken presUploadToken = meetingService.getPresentationUploadToken(presentationToken);
         meetingService.sendPresentationUploadMaxFilesizeMessage(presUploadToken, originalContentLength, maxUploadFileSize as int);
 
-        response.setStatus(403);
+        response.setStatus(413);
         response.addHeader("Cache-Control", "no-cache")
         response.addHeader("x-file-too-large", "1")
         response.contentType = 'plain/text'
