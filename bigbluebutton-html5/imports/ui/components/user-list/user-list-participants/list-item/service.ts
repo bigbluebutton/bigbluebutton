@@ -160,6 +160,7 @@ export const generateActionsPermissions = (
     && subjectUserVoice?.joined
     && !isMuted
     && !subjectUserVoice?.listenOnly
+    && !isSubjectUserBot
     && !isBreakout;
 
   const allowedToUnmuteAudio = hasAuthority
@@ -172,10 +173,12 @@ export const generateActionsPermissions = (
 
   const allowedToChangeWhiteboardAccess = currentUser.presenter
       && !amISubjectUser && !subjectUser.presenter
+      && !isSubjectUserBot
       && !isDialInUser;
 
   const allowedToSetPresenter = amIModerator
       && !subjectUser.presenter
+      && !isSubjectUserBot
       && !isDialInUser;
 
   // if currentUser is a moderator, allow removing other users
@@ -188,6 +191,7 @@ export const generateActionsPermissions = (
     && !isSubjectUserModerator
     && !isDialInUser
     && !isBreakout
+    && !isSubjectUserBot
     && !(isSubjectUserGuest && usersPolicies?.authenticatedGuest && !usersPolicies?.allowPromoteGuestToModerator);
 
   const allowedToDemote = amIModerator
@@ -195,10 +199,12 @@ export const generateActionsPermissions = (
     && isSubjectUserModerator
     && !isDialInUser
     && !isBreakout
+    && !isSubjectUserBot
     && !(isSubjectUserGuest && usersPolicies?.authenticatedGuest && !usersPolicies?.allowPromoteGuestToModerator);
 
   const allowedToChangeUserLockStatus = amIModerator
     && !isSubjectUserModerator
+    && !isSubjectUserBot
     && lockSettings?.hasActiveLockSetting;
 
   const allowedToEjectCameras = amIModerator
