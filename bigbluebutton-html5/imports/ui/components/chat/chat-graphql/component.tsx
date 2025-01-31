@@ -1,28 +1,83 @@
-import React, { useRef } from 'react';
-import { CircularProgress } from '@mui/material';
+import React, { useRef, useState } from 'react';
+import { defineMessages, useIntl } from 'react-intl';
+import { Button } from '@mui/material';
+import BackButton from '/imports/ui/components/chat/chat-graphql/private-back-button/component';
 import ChatHeader from './chat-header/component';
 import { layoutSelect, layoutSelectInput } from '../../layout/context';
 import { Input, Layout } from '../../layout/layoutTypes';
 import Styled from './styles';
 import ChatMessageListContainer from './chat-message-list/component';
+import PrivateChatListContainer from './private-chat-list/component';
 import ChatMessageFormContainer from './chat-message-form/component';
-import ChatTypingIndicatorContainer from './chat-typing-indicator/component';
 import { PANELS, ACTIONS } from '/imports/ui/components/layout/enums';
 import usePendingChat from '/imports/ui/core/local-states/usePendingChat';
 import useChat from '/imports/ui/core/hooks/useChat';
 import { Chat as ChatType } from '/imports/ui/Types/chat';
 import { layoutDispatch } from '/imports/ui/components/layout/context';
-import browserInfo from '/imports/utils/browserInfo';
 import { GraphqlDataHookSubscriptionResponse } from '/imports/ui/Types/hook';
 import { ChatEvents } from '/imports/ui/core/enums/chat';
+import {
+  colorWhite,
+  colorOffWhite,
+  colorGrayLight,
+  colorDanger,
+  btnPrimaryBg,
+} from '/imports/ui/stylesheets/styled-components/palette';
+
+const intlMessages = defineMessages({
+  messagesTitle: {
+    id: 'app.userList.messagesTitle',
+    description: 'Title for the messages list',
+  },
+  titlePublic: {
+    id: 'app.chat.titlePublic',
+    description: 'title for public chat',
+  },
+  titlePrivate: {
+    id: 'app.chat.titlePrivate',
+    description: 'Private chat title',
+  },
+});
 
 interface ChatProps {
-  isRTL: boolean;
+  publicUnreadMessages: boolean;
+  privateUnreadMessages: boolean;
+  chatId: string;
+  participantName: string;
 }
 
-const Chat: React.FC<ChatProps> = ({ isRTL }) => {
-  const { isChrome } = browserInfo;
+const Chat: React.FC<ChatProps> = ({
+  publicUnreadMessages,
+  privateUnreadMessages,
+  chatId,
+  participantName,
+}) => {
+  const CHAT_CONFIG = window.meetingClientSettings.public.chat;
+  const PUBLIC_GROUP_CHAT_ID = CHAT_CONFIG.public_group_id;
+
   const isEditingMessage = useRef(false);
+  const [showMessages, setShowMessages] = useState(chatId === PUBLIC_GROUP_CHAT_ID);
+  const [privateList, setPrivateList] = useState(false); // novo estado
+  const layoutContextDispatch = layoutDispatch();
+  const intl = useIntl();
+
+  const handleClickSelectChat = (isPublicChat: boolean) => {
+    setShowMessages(isPublicChat);
+    setPrivateList(false);
+
+    if (isPublicChat) {
+      layoutContextDispatch({
+        type: ACTIONS.SET_ID_CHAT_OPEN,
+        value: PUBLIC_GROUP_CHAT_ID,
+      });
+    } else {
+      setPrivateList(true);
+    }
+  };
+
+  const handleClickReturnPrivateList = () => {
+    setPrivateList(true);
+  };
 
   React.useEffect(() => {
     const handleMouseDown = (e: MouseEvent) => {
@@ -68,36 +123,126 @@ const Chat: React.FC<ChatProps> = ({ isRTL }) => {
   }, []);
 
   return (
-    <Styled.Chat isRTL={isRTL} isChrome={isChrome}>
+    <>
       <ChatHeader />
-      <ChatMessageListContainer />
-      <ChatMessageFormContainer />
-      <ChatTypingIndicatorContainer />
-    </Styled.Chat>
+      <Styled.Separator />
+      <Styled.ContentWrapper>
+        <Styled.ButtonsWrapper>
+          <Button
+            variant={showMessages ? 'contained' : 'outlined'}
+            color="primary"
+            size="medium"
+            sx={{
+              position: 'relative',
+              borderRadius: '16px',
+              width: '100%',
+              marginRight: '8px',
+              padding: '8px 16px',
+              textTransform: 'none',
+              backgroundColor: showMessages ? btnPrimaryBg : colorOffWhite,
+              color: showMessages ? colorWhite : colorGrayLight,
+              border: `1px solid ${btnPrimaryBg}`,
+            }}
+            onClick={() => handleClickSelectChat(true)}
+          >
+            {intl.formatMessage(intlMessages.titlePublic)}
+            {publicUnreadMessages && (
+              <span
+                style={{
+                  position: 'absolute',
+                  bottom: '8px',
+                  right: '8px',
+                  width: '8px',
+                  height: '8px',
+                  backgroundColor: colorDanger,
+                  borderRadius: '50%',
+                }}
+              />
+            )}
+          </Button>
+          <Button
+            variant={!showMessages ? 'contained' : 'outlined'}
+            color="primary"
+            size="medium"
+            sx={{
+              position: 'relative',
+              borderRadius: '16px',
+              width: '100%',
+              padding: '8px 16px',
+              textTransform: 'none',
+              backgroundColor: !showMessages ? btnPrimaryBg : colorOffWhite,
+              color: !showMessages ? colorWhite : colorGrayLight,
+              border: `1px solid ${btnPrimaryBg}`,
+            }}
+            onClick={() => handleClickSelectChat(false)}
+          >
+            {intl.formatMessage(intlMessages.titlePrivate)}
+            {privateUnreadMessages && (
+              <span
+                style={{
+                  position: 'absolute',
+                  bottom: '8px',
+                  right: '8px',
+                  width: '8px',
+                  height: '8px',
+                  backgroundColor: colorDanger,
+                  borderRadius: '50%',
+                }}
+              />
+            )}
+          </Button>
+        </Styled.ButtonsWrapper>
+        {privateList ? (
+          <PrivateChatListContainer privateChatSelectedCallback={() => setPrivateList(false)} />
+        ) : (
+          <>
+            {!showMessages && !privateList && (
+              <BackButton onClick={handleClickReturnPrivateList} title={participantName} />
+            )}
+            <ChatMessageListContainer />
+            <ChatMessageFormContainer />
+          </>
+        )}
+      </Styled.ContentWrapper>
+    </>
   );
 };
-export const ChatLoading: React.FC<ChatProps> = ({ isRTL }) => {
-  const { isChrome } = browserInfo;
-  return (
-    <Styled.Chat isRTL={isRTL} isChrome={isChrome}>
-      <CircularProgress style={{ alignSelf: 'center' }} />
-    </Styled.Chat>
-  );
+
+export const ChatLoading: React.FC = () => {
+  return <Styled.CircularProgressContainer />;
 };
 
 const ChatContainer: React.FC = () => {
   const idChatOpen = layoutSelect((i: Layout) => i.idChatOpen);
-  const isRTL = layoutSelect((i: Layout) => i.isRTL);
   const sidebarContent = layoutSelectInput((i: Input) => i.sidebarContent);
   const layoutContextDispatch = layoutDispatch();
   const { data: chats } = useChat((chat) => {
     return {
       chatId: chat.chatId,
       participant: chat.participant,
+      totalUnread: chat.totalUnread,
     };
   }) as GraphqlDataHookSubscriptionResponse<Partial<ChatType>[]>;
 
   const [pendingChat, setPendingChat] = usePendingChat();
+
+  const PUBLIC_GROUP_CHAT_ID = window.meetingClientSettings.public.chat.public_group_id;
+  const publicUnreadMessages = !!chats?.some((chat) => (
+    chat.chatId === PUBLIC_GROUP_CHAT_ID
+    && chat?.totalUnread
+    && chat.totalUnread > 0
+  ));
+  const privateUnreadMessages = !!chats?.some((chat) => (
+    chat.chatId !== PUBLIC_GROUP_CHAT_ID
+    && chat?.totalUnread
+    && chat.totalUnread > 0
+  ));
+
+  let participantName = '';
+  const currentChat = chats?.find((chat) => chat.chatId === idChatOpen);
+  if (currentChat && currentChat.participant) {
+    participantName = currentChat.participant.name || '';
+  }
 
   if (pendingChat && chats) {
     const chat = chats.find((c) => {
@@ -113,8 +258,16 @@ const ChatContainer: React.FC = () => {
   }
 
   if (sidebarContent.sidebarContentPanel !== PANELS.CHAT) return null;
-  if (!idChatOpen) return <ChatLoading isRTL={isRTL} />;
-  return <Chat isRTL={isRTL} />;
+  if (!idChatOpen) return <ChatLoading />;
+
+  return (
+    <Chat
+      publicUnreadMessages={publicUnreadMessages}
+      privateUnreadMessages={privateUnreadMessages}
+      participantName={participantName}
+      chatId={idChatOpen}
+    />
+  );
 };
 
 export default ChatContainer;

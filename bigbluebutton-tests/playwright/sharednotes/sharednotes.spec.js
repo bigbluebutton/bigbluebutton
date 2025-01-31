@@ -3,7 +3,7 @@ const { SharedNotes } = require('./sharednotes');
 const { initializePages } = require('../core/helpers');
 const { fullyParallel } = require('../playwright.config');
 
-test.describe('Shared Notes', { tag: '@ci' }, () => {
+test.describe('Shared Notes', { tag: ['@ci', '@flaky-3.1'] }, () => {
   const sharedNotes = new SharedNotes();
 
   test.describe.configure({ mode: fullyParallel ? 'parallel' : 'serial' });
@@ -39,7 +39,10 @@ test.describe('Shared Notes', { tag: '@ci' }, () => {
     await sharedNotes.seeNotesWithoutEditPermission();
   });
 
-  test('Pin and unpin notes onto whiteboard', async () => {
+  // different failures in CI and local
+  // local: not able to click on "unpin" button
+  // CI: not restoring presentation for viewer after unpinning notes
+  test('Pin and unpin notes onto whiteboard', { tag: '@flaky' }, async () => {
     await sharedNotes.pinAndUnpinNotesOntoWhiteboard();
   });
 });

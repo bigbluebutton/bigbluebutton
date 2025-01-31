@@ -338,6 +338,7 @@
     "app.presentationUploader.disableOriginalPresentationDownload": "Keela algse esitluse allalaadimine ({0})",
     "app.presentationUploader.export.withWhiteboardAnnotations": "koos tahvlimärgetega",
     "app.presentationUploader.dropdownExportOptions": "Ekspordi valikud",
+    "app.presentationUploader.dropdownExportOptionsUncomplete": "Keelatud, kuni üleslaadimine on lõpetatud",
     "app.presentationUploader.export.linkAvailable": "Faili {0} allalaadimise link on avalikus vestluses.",
     "app.presentationUploader.export.downloadButtonAvailable": "Esitluse {0} allalaadimisnupp on saadaval.",
     "app.presentationUploader.currentPresentationLabel": "Aktiivne esitlus",

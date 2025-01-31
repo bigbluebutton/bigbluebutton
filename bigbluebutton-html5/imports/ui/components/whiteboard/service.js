@@ -320,6 +320,7 @@ const getCustomAssetUrls = () => {
       'geo-arrow-right': `${TL_ICON_PATHS}/geo-arrow-right.svg`,
       'align-left': `${TL_ICON_PATHS}/align-left.svg`,
       'align-top': `${TL_ICON_PATHS}/align-top.svg`,
+      'arrow-left': `${TL_ICON_PATHS}/arrow-left.svg`,
       'align-right': `${TL_ICON_PATHS}/align-right.svg`,
       'align-center-horizontal': `${TL_ICON_PATHS}/align-center-horizontal.svg`,
       'align-bottom': `${TL_ICON_PATHS}/align-bottom.svg`,

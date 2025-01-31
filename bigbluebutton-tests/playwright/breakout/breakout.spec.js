@@ -3,7 +3,7 @@ const { test } = require('../fixtures');
 const { Create } = require('./create');
 const { Join } = require('./join');
 
-test.describe.parallel('Breakout', { tag: '@ci' }, () => {
+test.describe.parallel('Breakout', { tag: ['@ci', '@flaky-3.1'] }, () => {
   test.describe.parallel('Creating', () => {
     test('Create Breakout room', async ({ browser, context, page }) => {
       const create = new Create(browser, context);

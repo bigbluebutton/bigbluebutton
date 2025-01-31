@@ -31,6 +31,8 @@ module BigBlueButton
     def self.create_audio_edl(events, archive_dir)
       audio_edl = []
       audio_dir = "#{archive_dir}/audio"
+      audios = {}
+      active_audios = []
 
       initial_timestamp = BigBlueButton::Events.first_event_timestamp(events)
       final_timestamp = BigBlueButton::Events.last_event_timestamp(events)
@@ -38,11 +40,11 @@ module BigBlueButton
       # Initially start with silence
       audio_edl << {
         :timestamp => 0,
-        :audio => nil
+        :audios => []
       }
 
       # Add events for recording start/stop
-      events.xpath('/recording/event[@module="VOICE"]').each do |event|
+      events.xpath('/recording/event[@module="VOICE" or @module="bbb-webrtc-sfu"]').each do |event|
         timestamp = event['timestamp'].to_i - initial_timestamp
         case event['eventname']
         when 'StartRecordingEvent'
@@ -50,24 +52,55 @@ module BigBlueButton
           filename = "#{audio_dir}/#{File.basename(filename)}"
           audio_edl << {
             :timestamp => timestamp,
-            :audio => { :filename => filename, :timestamp => 0 }
+            :audios => [{ :filename => filename, :timestamp => 0 }]
           }
         when 'StopRecordingEvent'
           filename = event.at_xpath('filename').text
           filename = "#{audio_dir}/#{File.basename(filename)}"
-          if audio_edl.last[:audio] && audio_edl.last[:audio][:filename] == filename
+          if audio_edl.last.dig(:audios, 0, :filename) == filename
             audio_edl.last[:original_duration] = timestamp - audio_edl.last[:timestamp]
             audio_edl << {
               :timestamp => timestamp,
-              :audio => nil
+              :audios => []
             }
           end
+        when 'AudioTrackPublishedEvent'
+          filename = event.at_xpath('filename').text
+          filename = "#{audio_dir}/#{File.basename(filename)}"
+          audios[filename] = { :timestamp => timestamp }
+          active_audios << filename
+          edl_entry = {
+            :timestamp => timestamp,
+            :audios => []
+          }
+          active_audios.each do |filename|
+            edl_entry[:audios] << {
+              :filename => filename,
+              :timestamp => timestamp - audios[filename][:timestamp]
+            }
+          end
+          audio_edl << edl_entry
+        when 'AudioTrackUnpublishedEvent'
+          filename = event.at_xpath('filename').text
+          filename = "#{audio_dir}/#{File.basename(filename)}"
+          active_audios.delete(filename)
+          edl_entry = {
+            :timestamp => timestamp,
+            :audios => []
+          }
+          active_audios.each do |filename|
+            edl_entry[:audios] << {
+              :filename => filename,
+              :timestamp => timestamp - audios[filename][:timestamp]
+            }
+          end
+          audio_edl << edl_entry
         end
       end
 
       audio_edl << {
         :timestamp => final_timestamp - initial_timestamp,
-        :audio => nil
+        :audios => []
       }
 
       return audio_edl
@@ -83,7 +116,7 @@ module BigBlueButton
       # Initially start with silence
       audio_edl << {
         :timestamp => 0,
-        :audio => nil
+        :audios => []
       }
 
       events.xpath('/recording/event[@module="bbb-webrtc-sfu" and (@eventname="StartWebRTCDesktopShareEvent" or @eventname="StopWebRTCDesktopShareEvent")]').each do |event|
@@ -104,10 +137,10 @@ module BigBlueButton
           when 'StartWebRTCDesktopShareEvent'
             audio_edl << {
               :timestamp => timestamp,
-              :audio => { :filename => filename, :timestamp => 0 }
+              :audios => [{ :filename => filename, :timestamp => 0 }]
             }
           when 'StopWebRTCDesktopShareEvent'
-            if audio_edl.last[:audio] && audio_edl.last[:audio][:filename] == filename
+            if audio_edl.last.dig(:audios, 0, :filename) == filename
               # Fill in the original/expected audo duration when available
               duration = event.at_xpath('duration')
               if !duration.nil?
@@ -118,7 +151,7 @@ module BigBlueButton
               end
               audio_edl << {
                 :timestamp => timestamp,
-                :audio => nil
+                :audios => []
               }
             end
           end
@@ -129,7 +162,7 @@ module BigBlueButton
 
       audio_edl << {
         :timestamp => final_timestamp - initial_timestamp,
-        :audio => nil
+        :audios => []
       }
 
       return audio_edl

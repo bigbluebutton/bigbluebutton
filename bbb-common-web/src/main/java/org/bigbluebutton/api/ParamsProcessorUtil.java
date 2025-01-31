@@ -1401,9 +1401,9 @@ public class ParamsProcessorUtil {
 		this.authenticatedGuest = value;
 	}
 
-	public void setDefaultAllowPromoteGuestToModerator(Boolean value) {
-		this.defaultAllowPromoteGuestToModerator = value;
-	}
+    public void setDefaultAllowPromoteGuestToModerator(Boolean value) {
+        this.defaultAllowPromoteGuestToModerator = value;
+    }
 
     public void setWaitingGuestUsersTimeout(Long value) {
         this.waitingGuestUsersTimeout = value;

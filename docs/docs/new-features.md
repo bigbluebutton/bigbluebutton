@@ -21,7 +21,7 @@ We have done significant work to adopt the newly released version 2 of tl;draw. 
 
 #### Improved UX for joining audio for transparentListenOnly
 
-When transparentListenOnly is enabled on the server, users can now switch seamlessly between Listen Only and Microphone modes without needing to rejoin audio.
+When transparentListenOnly is enabled on the server (enabled by default starting with BigBlueButton 3.0.0-rc.1), users can now switch seamlessly between Listen Only and Microphone modes without needing to rejoin audio.
 
 To further improve the user experience, you can disable listenOnlyMode (`public.app.listenOnlyMode` in `/etc/bigbluebutton/bbb-html5.yml` or `userdata-bbb_listen_only_mode`). 
 This removes the need to choose between Microphone or Listen Only mode when joining audio in a session. Instead, you are taken directly to the audio configuration screen.
@@ -32,27 +32,41 @@ Once you are joined in audio, you can dynamically change your audio device confi
 
 ![mute yourself has a dropdown menu allowing device changes](/img/30/30-ui-audio-devices-options.png)
 
+#### Chat improvements
+
+BigBlueButton 3.0's chat gained several new functionalities! Users are now able to edit their own messages in case a typo was made, they can react to chat messages and also reply to a previous message. The option to delete a message is available both to the original author and to moderators in the session.
+
+![delete or edit a message, add an emoji or reply to a message](/img/30/30-chat-improvements.png)
+
 #### New layouts for specific integration scenarios
 
 Several new layouts have been added ("Cameras Only", "Presentation Only", and "Participants and Chat Only") to address various use cases of hybrid education - for example splitting views of the BigBlueButton session to be visible on different physical screens.
 
 #### Improved Away mode
 
-We have made changes so that when you set yourself as being Away, your microphone is now automatically muted, your webcam is also muted (blank).
+We have moved the trigger to set yourself away to the three-dots menu and improved the design.
 
-![set yourself away](/img/30/30-set-away.png)
+![currently active](/img/30/30-currently-active.png)
 
- When you return and unmute yourself this counts as disabling Away mode. The control for toggling away mode is now positioned in the Reactions bar.
+Note that when you set yourself as away, the client mutes your microphone, masks the webcam, adds an icon on your user avatar and appends a note in the public chat.
 
-![set yourself active](/img/30/30-set-active.png)
+![set yourself active](/img/30/30-currently-away.png)
 
-Away mode also is recorded in the public chat area.
+#### Welcome message relocated
 
-![away public chat](/img/30/30-away-public-chat.png)
+The information previously displayed in the public chat on join is now located in its own dialog - Session details.
+To view the welcome message, moderator only message, a link to the session or a phone number for dial-in please click on the meeting name.
+By default this dialog is open on initial joining of the client.
+
+![moderator view of the session details](/img/30/30-welcome-message-full.png)
+
+Viewers do not see the link to invite others nor the moderator only message.
+
+![viewers see a bit less of the session details](/img/30/30-welcome-message.png)
 
 #### Leave meeting button
 
-A contribution from community member Jan Kessler, the direct Leave Meeting button was first introduced in BigBlueButton 2.7.5. Starting with BigBlueButton 3.0 we are making it enabled by default.
+A contribution from community member Jan Kessler, the direct Leave Meeting button was first introduced in BigBlueButton 2.7.5. Starting with BigBlueButton 3.0 we are making it enabled by default and have modified it slightly to ensure moderators are not ending the session when they try to leave.
 
 ![leave the meeting red button](/img/30/30-leave-meeting.png)
 
@@ -63,6 +77,10 @@ Viewers can leave the meeting by using this new red button, previously hidden ne
 We have enhanced the view of the polling results that appear over the whiteboard. It is now much more intuitive to read.
 
 ![better polling results](/img/30/30-poll-annotation.png)
+
+It matches the results displayed in the public chat!
+
+![better polling results](/img/30/30-poll-chat.png)
 
 
 #### Private chat messages have a "seen" indicator
@@ -83,7 +101,7 @@ You can now use the "M" shortcut while in a conference to control how long your 
 <!-- ### Analytics -->
 
 
-### Behind the scene
+### Behind the scenes
 
 #### Introduction of plugins
 
@@ -258,6 +276,7 @@ For full details on what is new in BigBlueButton 3.0, see the release notes.
 
 Recent releases:
 
+- [3.0.0-rc.1](https://github.com/bigbluebutton/bigbluebutton/releases/tag/v3.0.0-rc.1)
 - [3.0.0-beta.7](https://github.com/bigbluebutton/bigbluebutton/releases/tag/v3.0.0-beta.7)
 - [3.0.0-beta.6](https://github.com/bigbluebutton/bigbluebutton/releases/tag/v3.0.0-beta.6)
 - [3.0.0-beta.5](https://github.com/bigbluebutton/bigbluebutton/releases/tag/v3.0.0-beta.5)

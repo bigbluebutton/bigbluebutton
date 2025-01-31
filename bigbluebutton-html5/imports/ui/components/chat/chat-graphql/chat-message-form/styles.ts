@@ -1,6 +1,5 @@
 import styled from 'styled-components';
 import {
-  colorBlueLight,
   colorText,
   colorGrayLighter,
   colorDanger,
@@ -9,6 +8,7 @@ import {
 } from '/imports/ui/stylesheets/styled-components/palette';
 import {
   smPaddingX,
+  xsPadding,
   smPaddingY,
   borderRadius,
   borderSize,
@@ -16,7 +16,7 @@ import {
 import { fontSizeBase } from '/imports/ui/stylesheets/styled-components/typography';
 import TextareaAutosize from 'react-autosize-textarea';
 import EmojiPickerComponent from '/imports/ui/components/emoji-picker/component';
-import Button from '/imports/ui/components/common/button/component';
+import Button from '@mui/material/Button';
 
 interface FormProps {
   isRTL: boolean;
@@ -29,14 +29,6 @@ const Form = styled.form<FormProps>`
   width: 100%;
   position: relative;
   margin-top: .2rem;
-
-  ${({ isRTL }) => isRTL && `
-    padding-left: ${smPaddingX};
-  `}
-
-  ${({ isRTL }) => !isRTL && `
-    padding-right: ${smPaddingX};
-  `}
 `;
 
 const Wrapper = styled.div`
@@ -49,17 +41,19 @@ const Input = styled(TextareaAutosize)`
   flex: 1;
   background: #fff;
   background-clip: padding-box;
-  color: ${colorText};
+  margin: ${xsPadding} 0 ${xsPadding} ${xsPadding};
+  color: ${colorGrayLighter};
   -webkit-appearance: none;
-  padding: calc(${smPaddingY} * 2.5) calc(${smPaddingX} * 1.25);
+  padding: calc(${smPaddingY} * 2.5) 0 calc(${smPaddingX} * 1.25) calc(${smPaddingY} * 2.5);
   resize: none;
-  transition: none;
+  transition: color 0.3s ease;
   border-radius: ${borderRadius};
   font-size: ${fontSizeBase};
   line-height: 1;
   min-height: 2.5rem;
-  max-height: 10rem;
-  border: none;
+  max-height: 3.5rem;
+  overflow-y: auto;
+  border: ${colorGrayLightest};
   box-shadow: none;
   outline: none;
 
@@ -69,6 +63,10 @@ const Input = styled(TextareaAutosize)`
 
   [dir='rtl'] & {
     border-radius: 0 0.75rem 0.75rem 0;
+  }
+
+  &:focus {
+    color: ${colorText};
   }
 
   &:disabled,
@@ -106,8 +104,6 @@ const EmojiButtonWrapper = styled.div``;
 // @ts-ignore - as button comes from JS, we can't provide its props
 const EmojiButton = styled(Button)`
   margin:0 0 0 ${smPaddingX};
-  align-self: center;
-  font-size: 0.5rem;
 
   [dir="rtl"]  & {
     margin: 0 ${smPaddingX} 0 0;
@@ -168,19 +164,11 @@ const InputWrapper = styled.div`
   flex-grow: 1;
   min-width: 0;
   z-index: 0;
-  padding: 1px 0 1px 1px;
-  border: 1px solid ${colorGrayLightest};
-
-  [dir='ltr'] & {
-    border-radius: 0.75rem 0 0 0.75rem;
-  }
-
-  [dir='rtl'] & {
-    border-radius: 0 0.75rem 0.75rem 0;
-  }
+  border-radius: 0.75rem;
+  border: 1px solid ${colorGrayLighter};
 
   &:focus-within {
-    border: 1px solid ${colorBlueLight};
+    box-shadow: 0 0 0 ${xsPadding} ${colorGrayLighter};
   }
 `;
 

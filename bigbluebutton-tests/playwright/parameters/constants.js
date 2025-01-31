@@ -30,7 +30,6 @@ exports.skipEchoTestIfPreviousDevice = 'userdata-bbb_skip_echotest_if_previous_d
 const docTitle = 'playwright';
 exports.docTitle = docTitle;
 exports.clientTitle = `userdata-bbb_client_title=${docTitle}`;
-exports.askForFeedbackOnLogout = 'userdata-bbb_ask_for_feedback_on_logout=true';
 exports.displayBrandingArea = 'userdata-bbb_display_branding_area=true';
 exports.logo = 'logo=https://bigbluebutton.org/wp-content/uploads/2021/01/BigBlueButton_icon.svg.png';
 exports.enableVideo = 'userdata-bbb_enable_video=false';

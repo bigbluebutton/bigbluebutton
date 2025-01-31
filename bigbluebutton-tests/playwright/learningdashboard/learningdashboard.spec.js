@@ -4,7 +4,7 @@ const { LearningDashboard } = require('./learningdashboard');
 const c = require('../parameters/constants');
 const { initializePages } = require('../core/helpers');
 
-test.describe('Learning Dashboard', { tag: '@ci' } , async () => {
+test.describe('Learning Dashboard', { tag: ['@ci', '@flaky-3.1'] } , async () => {
   const learningDashboard = new LearningDashboard();
 
   test.describe.configure({ mode: fullyParallel ? 'parallel' : 'serial' });

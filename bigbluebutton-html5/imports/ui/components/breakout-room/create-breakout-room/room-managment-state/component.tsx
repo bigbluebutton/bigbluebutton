@@ -193,7 +193,9 @@ const RoomManagmentState: React.FC<RoomManagmentStateProps> = ({
       lastBreakouts.forEach((room) => {
         roomState[room.sequence] = {
           id: room.sequence,
-          name: room.name,
+          name: room.isDefaultName
+            ? intl.formatMessage(intlMessages.breakoutRoom, { 0: room.sequence })
+            : room.shortName,
           users: [],
         };
       });

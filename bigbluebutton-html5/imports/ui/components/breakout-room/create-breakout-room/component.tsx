@@ -1,5 +1,4 @@
-import React, { useMemo } from 'react';
-import ModalFullscreen from '/imports/ui/components/common/modal/fullscreen/component';
+import React, { Dispatch, SetStateAction, useMemo } from 'react';
 import { defineMessages, useIntl } from 'react-intl';
 import { range } from 'ramda';
 import { uniqueId } from '/imports/utils/string-utils';
@@ -29,6 +28,8 @@ import {
 } from './room-managment-state/types';
 import { BREAKOUT_ROOM_CREATE, BREAKOUT_ROOM_MOVE_USER } from '../mutations';
 import useDeduplicatedSubscription from '/imports/ui/core/hooks/useDeduplicatedSubscription';
+import { ACTIONS, PANELS } from '/imports/ui/components/layout/enums';
+import { layoutDispatch } from '/imports/ui/components/layout/context';
 
 const MIN_BREAKOUT_ROOMS = 2;
 const MIN_BREAKOUT_TIME = 5;
@@ -36,10 +37,8 @@ const DEFAULT_BREAKOUT_TIME = 15;
 const CURRENT_SLIDE_PREFIX = 'current-';
 
 interface CreateBreakoutRoomContainerProps {
-  isOpen: boolean
-  setIsOpen: (isOpen: boolean) => void
-  priority: string,
   isUpdate?: boolean,
+  setUpdateUsersWhileRunning: Dispatch<SetStateAction<boolean>>,
 }
 
 interface CreateBreakoutRoomProps extends CreateBreakoutRoomContainerProps {
@@ -48,6 +47,7 @@ interface CreateBreakoutRoomProps extends CreateBreakoutRoomContainerProps {
   runningRooms: getBreakoutsResponse['breakoutRoom'],
   presentations: Array<Presentation>,
   currentPresentation: string,
+  setUpdateUsersWhileRunning: Dispatch<SetStateAction<boolean>>,
 }
 
 const intlMessages = defineMessages({
@@ -218,18 +218,17 @@ const intlMessages = defineMessages({
 });
 
 const CreateBreakoutRoom: React.FC<CreateBreakoutRoomProps> = ({
-  isOpen,
-  setIsOpen,
-  priority,
   isUpdate = false,
   isBreakoutRecordable,
   users,
   runningRooms,
   presentations,
   currentPresentation,
+  setUpdateUsersWhileRunning,
 }) => {
   const { isMobile } = deviceInfo;
   const intl = useIntl();
+  const layoutContextDispatch = layoutDispatch();
 
   const initialNumberOfRooms = runningRooms.length > 0 ? runningRooms.length : MIN_BREAKOUT_ROOMS;
 
@@ -335,7 +334,14 @@ const CreateBreakoutRoom: React.FC<CreateBreakoutRoomProps> = ({
         },
       },
     );
-    setIsOpen(false);
+    layoutContextDispatch({
+      type: ACTIONS.SET_SIDEBAR_CONTENT_IS_OPEN,
+      value: true,
+    });
+    layoutContextDispatch({
+      type: ACTIONS.SET_SIDEBAR_CONTENT_PANEL,
+      value: PANELS.BREAKOUT,
+    });
   };
 
   const userUpdate = () => {
@@ -352,7 +358,7 @@ const CreateBreakoutRoom: React.FC<CreateBreakoutRoomProps> = ({
         });
       }
     });
-    setIsOpen(false);
+    setUpdateUsersWhileRunning(false);
   };
 
   const title = useMemo(() => (
@@ -513,7 +519,6 @@ const CreateBreakoutRoom: React.FC<CreateBreakoutRoomProps> = ({
         <span aria-hidden id="randomlyAssignDesc" className="sr-only">
           {intl.formatMessage(intlMessages.randomlyAssignDesc)}
         </span>
-        <Styled.Separator />
       </React.Fragment>
     );
   }, [
@@ -523,34 +528,40 @@ const CreateBreakoutRoom: React.FC<CreateBreakoutRoomProps> = ({
   ]);
 
   return (
-    <ModalFullscreen
-      title={
-        isUpdate
-          ? intl.formatMessage(intlMessages.updateTitle)
-          : intl.formatMessage(intlMessages.breakoutRoomTitle)
-      }
-      confirm={
-        {
-          label: isUpdate
-            ? intl.formatMessage(intlMessages.updateConfirm)
-            : intl.formatMessage(intlMessages.confirmButton),
-          callback: isUpdate ? userUpdate : createRoom,
-          disabled: !leastOneUserIsValid || !numberOfRoomsIsValid || !durationIsValid,
+    <>
+      <Styled.HeaderContainer
+        data-test="pollPaneTitle"
+        title={
+          isUpdate
+            ? intl.formatMessage(intlMessages.updateTitle)
+            : intl.formatMessage(intlMessages.breakoutRoomTitle)
         }
-      }
-      dismiss={{
-        label: isUpdate
-          ? intl.formatMessage(intlMessages.cancelLabel)
-          : intl.formatMessage(intlMessages.dismissLabel),
-        callback: () => setIsOpen(false),
-        disabled: false,
-      }}
-      isOpen={isOpen}
-      priority={priority}
-    >
-      <Styled.Content>
+        rightButtonProps={{
+          'data-test': 'closeBreakoutsCreation',
+          icon: 'close',
+          label: isUpdate
+            ? intl.formatMessage(intlMessages.cancelLabel)
+            : intl.formatMessage(intlMessages.dismissLabel),
+          onClick: () => {
+            layoutContextDispatch({
+              type: ACTIONS.SET_SIDEBAR_CONTENT_IS_OPEN,
+              value: false,
+            });
+            layoutContextDispatch({
+              type: ACTIONS.SET_SIDEBAR_CONTENT_PANEL,
+              value: PANELS.NONE,
+            });
+          },
+        }}
+        customRightButton={null}
+      />
+      <Styled.PanelSeparator />
+      <Styled.TitleWrapper>
         {title}
         {form}
+      </Styled.TitleWrapper>
+      <Styled.PanelSeparator />
+      <Styled.Content>
         <RoomManagmentState
           numberOfRooms={numberOfRooms}
           users={users}
@@ -569,15 +580,21 @@ const CreateBreakoutRoom: React.FC<CreateBreakoutRoomProps> = ({
           setNumberOfRooms={setNumberOfRooms}
         />
       </Styled.Content>
-    </ModalFullscreen>
+      <Styled.ActionButton
+        color="primary"
+        label={isUpdate
+          ? intl.formatMessage(intlMessages.updateConfirm)
+          : intl.formatMessage(intlMessages.confirmButton)}
+        onClick={isUpdate ? userUpdate : createRoom}
+        disabled={!leastOneUserIsValid || !numberOfRoomsIsValid || !durationIsValid}
+      />
+    </>
   );
 };
 
 const CreateBreakoutRoomContainer: React.FC<CreateBreakoutRoomContainerProps> = ({
-  isOpen,
-  setIsOpen,
-  priority,
   isUpdate = false,
+  setUpdateUsersWhileRunning = () => {},
 }) => {
   const [fetchedBreakouts, setFetchedBreakouts] = React.useState(false);
   // isBreakoutRecordable - get from meeting breakout policies breakoutPolicies/record
@@ -632,10 +649,8 @@ const CreateBreakoutRoomContainer: React.FC<CreateBreakoutRoomContainerProps> = 
   }
   return (
     <CreateBreakoutRoom
-      isOpen={isOpen}
-      setIsOpen={setIsOpen}
-      priority={priority}
       isUpdate={isUpdate}
+      setUpdateUsersWhileRunning={setUpdateUsersWhileRunning}
       isBreakoutRecordable={currentMeeting?.breakoutPolicies?.record ?? true}
       users={usersData?.user ?? []}
       runningRooms={breakoutsData?.breakoutRoom ?? []}

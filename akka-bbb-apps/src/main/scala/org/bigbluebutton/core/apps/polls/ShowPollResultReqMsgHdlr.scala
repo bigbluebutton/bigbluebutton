@@ -16,7 +16,7 @@ trait ShowPollResultReqMsgHdlr extends RightsManagementTrait {
 
   def handle(msg: ShowPollResultReqMsg, state: MeetingState2x, liveMeeting: LiveMeeting, bus: MessageBus): Unit = {
 
-    def broadcastEvent(msg: ShowPollResultReqMsg, result: SimplePollResultOutVO, annot: AnnotationVO): Unit = {
+    def broadcastEvent(msg: ShowPollResultReqMsg, result: SimplePollResultOutVO): Unit = {
       // PollShowResultEvtMsg
       val routing = Routing.addMsgToClientRouting(MessageTypes.BROADCAST_TO_MEETING, liveMeeting.props.meetingProp.intId, msg.header.userId)
       val envelope = BbbCoreEnvelope(PollShowResultEvtMsg.NAME, routing)
@@ -26,27 +26,6 @@ trait ShowPollResultReqMsgHdlr extends RightsManagementTrait {
       val event = PollShowResultEvtMsg(header, body)
       val msgEvent = BbbCommonEnvCoreMsg(envelope, event)
       bus.outGW.send(msgEvent)
-
-      val notifyEvent = MsgBuilder.buildNotifyAllInMeetingEvtMsg(
-        liveMeeting.props.meetingProp.intId,
-        "info",
-        "polling",
-        "app.whiteboard.annotations.poll",
-        "Message displayed when a poll is published",
-        Vector()
-      )
-      bus.outGW.send(notifyEvent)
-      NotificationDAO.insert(notifyEvent)
-
-      // SendWhiteboardAnnotationPubMsg
-      val annotationRouting = Routing.addMsgToClientRouting(MessageTypes.BROADCAST_TO_MEETING, liveMeeting.props.meetingProp.intId, msg.header.userId)
-      val annotationEnvelope = BbbCoreEnvelope(SendWhiteboardAnnotationsEvtMsg.NAME, annotationRouting)
-      val annotationHeader = BbbClientMsgHeader(SendWhiteboardAnnotationsEvtMsg.NAME, liveMeeting.props.meetingProp.intId, msg.header.userId)
-
-      val annotMsgBody = SendWhiteboardAnnotationsEvtMsgBody(annot.wbId, Array[AnnotationVO](annot))
-      val annotationEvent = SendWhiteboardAnnotationsEvtMsg(annotationHeader, annotMsgBody)
-      val annotationMsgEvent = BbbCommonEnvCoreMsg(annotationEnvelope, annotationEvent)
-      bus.outGW.send(annotationMsgEvent)
     }
 
     if (permissionFailed(PermissionCheck.GUEST_LEVEL, PermissionCheck.PRESENTER_LEVEL, liveMeeting.users2x, msg.header.userId)) {
@@ -77,8 +56,32 @@ trait ShowPollResultReqMsgHdlr extends RightsManagementTrait {
           "numResponders" -> result.numResponders,
         )
 
+        broadcastEvent(msg, result)
+
+        //Send notification
+        val notifyEvent = MsgBuilder.buildNotifyAllInMeetingEvtMsg(
+          liveMeeting.props.meetingProp.intId,
+          "info",
+          "polling",
+          "app.whiteboard.annotations.poll",
+          "Message displayed when a poll is published",
+          Vector()
+        )
+        bus.outGW.send(notifyEvent)
+        NotificationDAO.insert(notifyEvent)
+
+        // Add Chat message with result
         ChatMessageDAO.insertSystemMsg(liveMeeting.props.meetingProp.intId, GroupChatApp.MAIN_PUBLIC_CHAT, "", GroupChatMessageType.POLL, resultAsSimpleMap, "")
-        broadcastEvent(msg, result, annotationProp)
+
+        // Send annotations with the result to recordings
+        val annotationRouting = Routing.addMsgToClientRouting(MessageTypes.BROADCAST_TO_MEETING, liveMeeting.props.meetingProp.intId, msg.header.userId)
+        val annotationEnvelope = BbbCoreEnvelope(SendWhiteboardAnnotationsEvtMsg.NAME, annotationRouting)
+        val annotationHeader = BbbClientMsgHeader(SendWhiteboardAnnotationsEvtMsg.NAME, liveMeeting.props.meetingProp.intId, msg.header.userId)
+
+        val annotMsgBody = SendWhiteboardAnnotationsEvtMsgBody(annotationProp.wbId, Array[AnnotationVO](annotationProp))
+        val annotationEvent = SendWhiteboardAnnotationsEvtMsg(annotationHeader, annotMsgBody)
+        val annotationMsgEvent = BbbCommonEnvCoreMsg(annotationEnvelope, annotationEvent)
+        bus.outGW.send(annotationMsgEvent)
       }
     }
   }

@@ -10,7 +10,7 @@ export interface MeetingEndDataResponse {
       }
       isBreakout: boolean;
       clientSettings: {
-        askForFeedbackOnLogout: boolean;
+        skipMeetingEnded: boolean,
         allowDefaultLogoutUrl: boolean;
         learningDashboardBase: string;
       };
@@ -29,7 +29,7 @@ query getMeetingEndData {
       }
       isBreakout
       clientSettings {
-        askForFeedbackOnLogout: clientSettingsJson(path: "$.public.app.askForFeedbackOnLogout")
+        skipMeetingEnded: clientSettingsJson(path: "$.public.app.skipMeetingEnded")
         allowDefaultLogoutUrl: clientSettingsJson(path: "$.public.app.allowDefaultLogoutUrl")
         learningDashboardBase: clientSettingsJson(path: "$.public.app.learningDashboardBase")
       }

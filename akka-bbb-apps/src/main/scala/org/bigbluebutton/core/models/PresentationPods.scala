@@ -99,24 +99,27 @@ case class PresentationPod(id: String, currentPresenter: String,
     presentations.values filter (p => p.name.startsWith(filename))
 
   def setCurrentPresentation(presId: String): Option[PresentationPod] = {
-    PresPresentationDAO.setCurrentPres(presId)
+    var updatedPod: PresentationPod = this
+    presentations.get(presId) match {
+      case Some(newCurrentPresentation) =>
+        // set new current presentation
+        updatedPod = updatedPod.addPresentation(newCurrentPresentation.copy(current = true))
 
-    var tempPod: PresentationPod = this
-    presentations.values foreach (curPres => { // unset previous current presentation
-      if (curPres.id != presId) {
-        val newPres = curPres.copy(current = false)
-        tempPod = tempPod.addPresentation(newPres)
-      }
-    })
+        // unset previous current presentation
+        presentations.values foreach (curPres => {
+          if (curPres.current && curPres.id != presId) {
+            val newPres = curPres.copy(current = false)
+            updatedPod = updatedPod.addPresentation(newPres)
+          }
+        })
 
-    presentations.get(presId) match { // set new current presentation
-      case Some(pres) =>
-        val cp = pres.copy(current = true)
-        tempPod = tempPod.addPresentation(cp)
-      case None => None
+        // update graphql
+        PresPresentationDAO.setCurrentPres(presId)
+
+        Some(updatedPod)
+      case None =>
+        None
     }
-
-    Some(tempPod)
   }
 
   def setPresentationDownloadable(presentationId: String, downloadable: Boolean, downloadFileExtension: String): Option[PresentationPod] = {

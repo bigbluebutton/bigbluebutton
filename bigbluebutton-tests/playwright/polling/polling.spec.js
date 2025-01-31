@@ -7,7 +7,7 @@ const { PARAMETER_HIDE_PRESENTATION_TOAST } = require('../core/constants');
 
 const hidePresentationToast = encodeCustomParams(PARAMETER_HIDE_PRESENTATION_TOAST);
 
-test.describe('Polling', { tag: '@ci' }, async () => {
+test.describe('Polling', { tag: ['@ci', '@flaky-3.1'] }, async () => {
   const polling = new Polling();
 
   test.describe.configure({ mode: fullyParallel ? 'parallel' : 'serial' });

@@ -80,12 +80,16 @@ class BBBMenu extends React.Component {
   };
 
   handleClick(event) {
+    const { disabled } = this.props;
+    if (disabled) return;
     this.setState({ anchorEl: event.currentTarget });
   };
 
   handleClose(event) {
     const { onCloseCallback } = this.props;
-    this.setState({ anchorEl: null }, onCloseCallback());
+    this.setState({ anchorEl: null }, () => {
+      if (onCloseCallback) onCloseCallback();
+    });
 
     if (event) {
       event.persist();
@@ -116,8 +120,14 @@ class BBBMenu extends React.Component {
         marginRight: '0px',
       };
 
+      let iconStyles = {};
+
       if (a.customStyles) {
         customStyles = { ...customStyles, ...a.customStyles };
+      }
+
+      if (a.iconStyles) {
+        iconStyles = { ...iconStyles, ...a.iconStyles };
       }
 
       if (loading) {
@@ -153,7 +163,7 @@ class BBBMenu extends React.Component {
               {a.icon ? <Icon iconName={a.icon} key="icon" /> : null}
               <Styled.Option hasIcon={!!(a.icon)} isHorizontal={isHorizontal} isMobile={isMobile} aria-describedby={`${key}-option-desc`} $isToggle={isToggle}>{label}</Styled.Option>
               {description && <div className="sr-only" id={`${key}-option-desc`}>{`${description}${selected ? ` - ${intl.formatMessage(intlMessages.active)}` : ''}`}</div>}
-              {a.iconRight ? <Styled.IconRight iconName={a.iconRight} key="iconRight" /> : null}
+              {a.iconRight ? <Styled.IconRight iconName={a.iconRight} key="iconRight" style={iconStyles} /> : null}
             </Styled.MenuItemWrapper>
           </Styled.BBBMenuItem>
         ),
@@ -167,25 +177,25 @@ class BBBMenu extends React.Component {
               hasSpaceBetween={isTitle && titleActions}
             >
               {!contentFunction ? (
-                  <>
-                    {a.icon ? <Icon color={textColor} iconName={a.icon} key="icon" /> : null}
-                    <Styled.Option hasIcon={!!(a.icon)} isTitle={isTitle} textColor={textColor} isHorizontal={isHorizontal} isMobile={isMobile} aria-describedby={`${key}-option-desc`} $isToggle={isToggle}>{label}</Styled.Option>
-                    {a.iconRight ? <Styled.IconRight color={textColor} iconName={a.iconRight} key="iconRight" /> : null}
-                    {(isTitle && titleActions?.length > 0) ? (
-                      titleActions.map((item, index) => (
-                        <Styled.TitleAction
-                          key={item.id || index}
-                          tooltipplacement="right"
-                          size="md"
-                          onClick={item.onClick}
-                          circle
-                          tooltipLabel={item.tooltip}
-                          hideLabel
-                          icon={item.icon}
-                        />
-                      ))
-                    ) : null}
-                  </>
+                <>
+                  {a.icon ? <Icon color={textColor} iconName={a.icon} key="icon" /> : null}
+                  <Styled.Option hasIcon={!!(a.icon)} isTitle={isTitle} textColor={textColor} isHorizontal={isHorizontal} isMobile={isMobile} aria-describedby={`${key}-option-desc`} $isToggle={isToggle}>{label}</Styled.Option>
+                  {a.iconRight ? <Styled.IconRight color={textColor} iconName={a.iconRight} key="iconRight" /> : null}
+                  {(isTitle && titleActions?.length > 0) ? (
+                    titleActions.map((item, index) => (
+                      <Styled.TitleAction
+                        key={item.id || index}
+                        tooltipplacement="right"
+                        size="md"
+                        onClick={item.onClick}
+                        circle
+                        tooltipLabel={item.tooltip}
+                        hideLabel
+                        icon={item.icon}
+                      />
+                    ))
+                  ) : null}
+                </>
               ) : (
                 <GenericContentItem
                   width="100%"
@@ -227,7 +237,7 @@ class BBBMenu extends React.Component {
 
     if (isHorizontal) {
       const horizontalStyles = { display: 'flex' };
-      menuStyles = { ...menuStyles, ...horizontalStyles};
+      menuStyles = { ...menuStyles, ...horizontalStyles };
     }
 
     return (

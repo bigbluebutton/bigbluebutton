@@ -338,6 +338,7 @@
     "app.presentationUploader.disableOriginalPresentationDownload": "Απενεργοποίηση λήψης της πρωτότυπης παρουσίασης ({0})",
     "app.presentationUploader.export.withWhiteboardAnnotations": "με τις σημειώσεις του λευκοπίνακα",
     "app.presentationUploader.dropdownExportOptions": "Επιλογές εξαγωγής",
+    "app.presentationUploader.dropdownExportOptionsUncomplete": "Είναι απενεργοποιημένο μέχρι την ολοκλήρωση της μεταφόρτωσης",
     "app.presentationUploader.export.linkAvailable": "Ο σύνδεσμος λήψης {0} είναι διαθέσιμος στο δημόσιο χώρο μηνυμάτων.",
     "app.presentationUploader.export.downloadButtonAvailable": "Το κουμπί λήψης για την παρουσίαση {0} είναι διαθέσιμο.",
     "app.presentationUploader.currentPresentationLabel": "Τρέχουσα παρουσίαση",

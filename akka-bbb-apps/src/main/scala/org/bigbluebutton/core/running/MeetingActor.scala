@@ -1,50 +1,54 @@
 package org.bigbluebutton.core.running
 
-import org.apache.pekko.actor.{ OneForOneStrategy, Props }
+import java.io.{ PrintWriter, StringWriter }
 import org.apache.pekko.actor.SupervisorStrategy.Resume
-import org.bigbluebutton.ClientSettings.{ getConfigPropertyValueByPathAsBooleanOrElse, getConfigPropertyValueByPathAsIntOrElse, getConfigPropertyValueByPathAsStringOrElse }
 import org.bigbluebutton.SystemConfiguration
+import org.bigbluebutton.core.apps.groupchats.GroupChatHdlrs
+import org.bigbluebutton.core.apps.presentationpod._
+import org.bigbluebutton.core.apps.users._
+import org.bigbluebutton.core.apps.whiteboard.ClientToServerLatencyTracerMsgHdlr
+import org.bigbluebutton.core.domain._
+import org.bigbluebutton.core.util.TimeUtil
 import org.bigbluebutton.common2.domain.{ DefaultProps, LockSettingsProps }
-import org.bigbluebutton.common2.msgs
-import org.bigbluebutton.common2.msgs._
 import org.bigbluebutton.core.api._
 import org.bigbluebutton.core.apps._
-import org.bigbluebutton.core.apps.audiocaptions.AudioCaptionsApp2x
-import org.bigbluebutton.core.apps.breakout._
 import org.bigbluebutton.core.apps.caption.CaptionApp2x
 import org.bigbluebutton.core.apps.chat.ChatApp2x
 import org.bigbluebutton.core.apps.externalvideo.ExternalVideoApp2x
-import org.bigbluebutton.core.apps.groupchats.GroupChatHdlrs
-import org.bigbluebutton.core.apps.layout.LayoutApp2x
 import org.bigbluebutton.core.apps.pads.{ PadsApp2x, PadslHdlrHelpers }
-import org.bigbluebutton.core.apps.plugin.PluginHdlrs
-import org.bigbluebutton.core.apps.polls._
-import org.bigbluebutton.core.apps.presentation.PresentationApp2x
-import org.bigbluebutton.core.apps.presentationpod._
 import org.bigbluebutton.core.apps.screenshare.ScreenshareApp2x
+import org.bigbluebutton.core.apps.audiocaptions.AudioCaptionsApp2x
 import org.bigbluebutton.core.apps.timer.TimerApp2x
-import org.bigbluebutton.core.apps.users._
-import org.bigbluebutton.core.apps.voice._
+import org.bigbluebutton.core.apps.users.UsersApp2x
 import org.bigbluebutton.core.apps.webcam.WebcamApp2x
-import org.bigbluebutton.core.apps.whiteboard.{ ClientToServerLatencyTracerMsgHdlr, WhiteboardApp2x }
+import org.bigbluebutton.core.apps.whiteboard.WhiteboardApp2x
 import org.bigbluebutton.core.bus._
-import org.bigbluebutton.core.db._
-import org.bigbluebutton.core.domain._
+import org.bigbluebutton.core.models.{ Users2x, VoiceUsers, _ }
+import org.bigbluebutton.core2.{ MeetingStatus2x, Permissions }
+import org.bigbluebutton.core2.message.handlers._
+import org.bigbluebutton.core2.message.handlers.meeting._
+import org.bigbluebutton.common2.msgs._
+import org.bigbluebutton.core.apps.breakout._
+import org.bigbluebutton.core.apps.polls._
+import org.bigbluebutton.core.apps.voice._
+import org.apache.pekko.actor.Props
+import org.apache.pekko.actor.OneForOneStrategy
+import org.bigbluebutton.ClientSettings.{ getConfigPropertyValueByPathAsBooleanOrElse, getConfigPropertyValueByPathAsIntOrElse, getConfigPropertyValueByPathAsStringOrElse }
+import org.bigbluebutton.common2.msgs
+
+import scala.concurrent.duration._
+import org.bigbluebutton.core.apps.layout.LayoutApp2x
+import org.bigbluebutton.core.apps.plugin.PluginHdlrs
+import org.bigbluebutton.core.apps.users.ChangeLockSettingsInMeetingCmdMsgHdlr
+import org.bigbluebutton.core.db.{ MeetingDAO, MeetingVoiceDAO, NotificationDAO, TimerDAO, UserDAO, UserStateDAO }
 import org.bigbluebutton.core.graphql.GraphqlMiddleware
 import org.bigbluebutton.core.models.VoiceUsers.{ findAllFreeswitchCallers, findAllListenOnlyVoiceUsers }
 import org.bigbluebutton.core.models.Webcams.findAll
-import org.bigbluebutton.core.models._
-import org.bigbluebutton.core.util.TimeUtil
 import org.bigbluebutton.core2.MeetingStatus2x.hasAuthedUserJoined
-import org.bigbluebutton.core2.message.handlers._
-import org.bigbluebutton.core2.message.handlers.meeting._
 import org.bigbluebutton.core2.message.senders.{ MsgBuilder, Sender }
-import org.bigbluebutton.core2.{ MeetingStatus2x, Permissions }
 
-import java.io.{ PrintWriter, StringWriter }
 import java.util.concurrent.TimeUnit
 import scala.concurrent.ExecutionContext.Implicits.global
-import scala.concurrent.duration._
 
 object MeetingActor {
   def props(
@@ -116,7 +120,6 @@ class MeetingActor(
 
   val msgBus = MessageBus(eventBus, outGW)
 
-  val presentationApp2x = new PresentationApp2x
   val screenshareApp2x = new ScreenshareApp2x
   val audioCaptionsApp2x = new AudioCaptionsApp2x
   val captionApp2x = new CaptionApp2x
@@ -602,7 +605,6 @@ class MeetingActor(
         updateUserLastActivity(m.body.lockedBy)
 
       // Presentation
-      case m: PreuploadedPresentationsSysPubMsg => presentationApp2x.handle(m, liveMeeting, msgBus)
       case m: AssignPresenterReqMsg =>
         state = handlePresenterChange(m, state)
         updateUserLastActivity(m.body.assignedBy)

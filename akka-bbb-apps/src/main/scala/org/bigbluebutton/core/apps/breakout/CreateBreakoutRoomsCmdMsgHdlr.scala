@@ -145,7 +145,6 @@ trait CreateBreakoutRoomsCmdMsgHdlr extends RightsManagementTrait {
   }
 
   def getPresentationSlide(state: MeetingState2x): Int = {
-    if (!liveMeeting.presModel.getCurrentPage().isEmpty) liveMeeting.presModel.getCurrentPage().get.num else 0
     var currentSlide = 0
     for {
       defaultPod <- state.presentationPodManager.getDefaultPod()

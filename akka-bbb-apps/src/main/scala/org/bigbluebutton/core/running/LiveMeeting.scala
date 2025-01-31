@@ -18,7 +18,6 @@ class LiveMeeting(
     val registeredUsers:     RegisteredUsers,
     val polls:               Polls, // 2x
     val wbModel:             WhiteboardModel,
-    val presModel:           PresentationModel,
     val captionModel:        CaptionModel,
     val webcams:             Webcams,
     val voiceUsers:          VoiceUsers,

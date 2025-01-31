@@ -360,6 +360,9 @@ const BreakoutRoomUserAssignment: React.FC<ChildComponentProps> = ({
 
   return (
     <>
+      <Styled.SpanWarn data-test="warningNoUserAssigned" valid={rooms[0]?.users?.length < users.length}>
+        {intl.formatMessage(intlMessages.leastOneWarnBreakout)}
+      </Styled.SpanWarn>
       <ManageRoomLabel
         onAssignReset={() => { resetRooms(0); }}
         onAssignRandomly={randomlyAssign}
@@ -373,7 +376,7 @@ const BreakoutRoomUserAssignment: React.FC<ChildComponentProps> = ({
               type="text"
               readOnly
               value={
-                intl.formatMessage(intlMessages.notAssigned, { 0: 0 })
+                intl.formatMessage(intlMessages.notAssigned, { 0: rooms[0]?.users?.length ?? 0 })
               }
             />
           </Styled.FreeJoinLabel>
@@ -387,9 +390,6 @@ const BreakoutRoomUserAssignment: React.FC<ChildComponentProps> = ({
           >
             {roomUserList(0)}
           </Styled.BreakoutBox>
-          <Styled.SpanWarn data-test="warningNoUserAssigned" valid={rooms[0]?.users?.length < users.length}>
-            {intl.formatMessage(intlMessages.leastOneWarnBreakout)}
-          </Styled.SpanWarn>
         </Styled.Alert>
         <Styled.BoxContainer key="rooms-grid-" data-test="roomGrid">
           {

@@ -1,6 +1,6 @@
 import React from 'react';
-import Styled from './styles';
 import PropTypes from 'prop-types';
+import Styled from './styles';
 
 const propTypes = {
   hideBorder: PropTypes.bool,
@@ -51,7 +51,6 @@ class Header extends React.Component {
         {...other}
       >
         <Styled.Title
-          $hasMarginBottom={innerHeader}
           $headerOnTop={headerOnTop}
           $innerHeader={innerHeader}
         >

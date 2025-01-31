@@ -123,7 +123,7 @@ Next, check that your server is running Linux kernel 5.x.
 
 ```bash
 $ uname -r
-5.15.x-xx-generic
+6.2.x-xx-generic
 ```
 
 Next, check that your server has (at least) 8 CPU cores
@@ -168,9 +168,9 @@ After the `bbb-install.sh` script finishes, you can check the status of your ser
 ```bash
 $ sudo bbb-conf --check
 
-root@test27:~# bbb-conf --check
+root@test30:~# bbb-conf --check
 BigBlueButton Server 3.0.0-alpha.1 (68)
-                    Kernel version: 5.15.0-67-generic
+                    Kernel version: 6.2.0-39-generic
                       Distribution: Ubuntu 22.04.3 LTS (64-bit)
                             Memory: 8140 MB
                          CPU cores: 4
