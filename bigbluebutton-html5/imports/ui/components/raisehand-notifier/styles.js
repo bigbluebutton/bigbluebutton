@@ -22,9 +22,10 @@ import {
   smallOnly,
 } from '/imports/ui/stylesheets/styled-components/breakpoints';
 import Button from '/imports/ui/components/common/button/component';
+import UserAvatar from '/imports/ui/components/user-avatar/component';
 import ToastStyled from '/imports/ui/components/common/toast/styles';
 
-const Avatar = styled.div`
+const ButtonAvatar = styled.div`
   cursor: pointer;
   outline: transparent;
   outline-style: dotted;
@@ -32,12 +33,12 @@ const Avatar = styled.div`
   width: ${avatarSide};
   height: ${avatarSide};
   color: ${colorWhite};
-  border-radius: 50%;
   border: solid ${borderSize} ${colorWhite};
   margin-left: ${avatarInset};
   text-align: center;
-  padding: 5px 0;
+`;
 
+const Avatar = styled(UserAvatar)`
   &:hover,
   &:focus {
     border: solid ${borderSize} ${colorGrayLighter};
@@ -104,9 +105,11 @@ const IconWrapper = styled.div`
 const ToastMessage = styled.div`
   font-size: ${fontSizeSmall};
   margin-top: ${toastMargin};
+  color: black;
 
   & > div {
     font-weight: bold;
+    line-height: 2;
   }
 `;
 
@@ -128,10 +131,16 @@ const AvatarWrapper = styled.div`
   display: flex;
 `;
 
+const ToastContentWrapper = styled.div`
+  width: 100%;
+`;
+
 const ToastSeparator = styled(ToastStyled.Separator)``;
 
 export default {
+  ButtonAvatar,
   Avatar,
+  ToastContentWrapper,
   AvatarsExtra,
   ToastContent,
   IconWrapper,

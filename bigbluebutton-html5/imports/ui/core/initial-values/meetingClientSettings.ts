@@ -37,12 +37,12 @@ export const meetingClientSettingsInitialValues: MeetingClientSettings = {
       darkTheme: {
         enabled: true,
       },
-      askForFeedbackOnLogout: false,
       askForConfirmationOnLeave: false,
       wakeLock: {
         enabled: true,
       },
       allowDefaultLogoutUrl: true,
+      skipMeetingEnded: false,
       dynamicGuestPolicy: true,
       enableGuestLobbyMessage: true,
       guestPolicyExtraAllowOptions: false,
@@ -82,6 +82,9 @@ export const meetingClientSettingsInitialValues: MeetingClientSettings = {
         interval: 200,
         threshold: -50,
         duration: 4000,
+      },
+      appsGallery: {
+        maxPinnedApps: 3,
       },
       remainingTimeThreshold: 30,
       remainingTimeAlertThresholdArray: [
@@ -666,6 +669,12 @@ export const meetingClientSettingsInitialValues: MeetingClientSettings = {
       },
       livekit: {
         url: `wss://${window.location.hostname}/livekit`,
+        selectiveSubscription: false,
+        roomOptions: {
+          adaptiveStream: true,
+          dynacast: true,
+          stopLocalTrackOnUnpublish: false,
+        },
         audio: {
           publishOptions: {
             audioPreset: AudioPresets.speech,
@@ -808,6 +817,7 @@ export const meetingClientSettingsInitialValues: MeetingClientSettings = {
       role_moderator: 'MODERATOR',
       role_viewer: 'VIEWER',
       label: {
+        presenter: false,
         moderator: false,
         mobile: true,
         guest: true,

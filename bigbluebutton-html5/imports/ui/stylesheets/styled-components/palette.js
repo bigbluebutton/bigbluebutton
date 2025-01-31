@@ -8,14 +8,21 @@ const colorGrayDark = 'var(--color-gray-dark, #06172A)';
 const colorGrayLight = 'var(--color-gray-light, #8B9AA8)';
 const colorGrayLighter = 'var(--color-gray-lighter, #A7B3BD)';
 const colorGrayLightest = 'var(--color-gray-lightest, #D4D9DF)';
+const colorGrayIcons = 'var(--color-gray-icons, #909CAF)';
+const colorGrayUserListToolbar = 'var(--color-gray-user-list-toolbar, #F4F6FA)';
 
 const colorBlueLight = 'var(--color-blue-light, #54a1f3)';
 const colorBlueLighter = 'var(--color-blue-lighter, #92BCEA)';
 const colorBlueLightest = 'var(--color-blue-lightest, #E4ECF2)';
+const colorBlueAux = 'var(--color-blue-aux, #E5EFFB)';
 const colorBlueLightestChannel = '228 236 242';
 const colorBlueLighterChannel = '146 188 234';
 
 const colorTransparent = 'var(--color-transparent, #ff000000)';
+
+const colorUserModerator = 'var(--color-user-moderator, #7B209F)';
+const colorUserYou = 'var(--color-user-you, #19237C)';
+const colorUserViewer = 'var(--color-user-viewer, #2296C9)';
 
 const colorPrimary = 'var(--color-primary, #0F70D7)';
 const colorDanger = 'var(--color-danger, #DF2721)';
@@ -36,7 +43,7 @@ const colorGrayLabel = `var(--color-gray-label, ${colorGray})`;
 const colorText = `var(--color-text, ${colorGray})`;
 const colorLink = `var(--color-link, ${colorPrimary})`;
 
-const listItemBgHover = 'var(--list-item-bg-hover, #DCE4ED)';
+const listItemBgHover = `var(--list-item-bg-hover, ${colorBlueAux})`;
 const colorTipBg = 'var(--color-tip-bg, #333333)';
 const itemFocusBorder = `var(--item-focus-border, ${colorBlueLighter})`;
 
@@ -95,6 +102,10 @@ const colorHeading = `var(--color-heading, ${colorGrayDark})`;
 const palettePlaceholderText = 'var(--palette-placeholder-text, #787675)';
 const pollAnnotationGray = 'var(--poll-annotation-gray, #333333)';
 
+const appsGalleryOutlineColor = 'var(--apps-gallery-outline, #DCE4EC)';
+const unpinnedAppIconColor = 'var(--apps-unpinned-icon-color, #A5B2C7)';
+const appsPanelTextColor = 'var(--apps-panel-text-color, #393C48)';
+
 const toolbarButtonBorderColor = `var(--toolbar-button-border-color, ${colorGrayLighter})`;
 const toolbarListColor = `var(--toolbar-list-color, ${colorGray})`;
 const toolbarButtonBg = `var(--toolbar-button-bg, ${btnDefaultBg})`;
@@ -134,12 +145,18 @@ export {
   colorGrayLight,
   colorGrayLighter,
   colorGrayLightest,
+  colorGrayIcons,
+  colorGrayUserListToolbar,
   colorTransparent,
+  colorUserModerator,
+  colorUserYou,
+  colorUserViewer,
   colorBlueLight,
   colorBlueLighter,
   colorBlueLightest,
   colorBlueLightestChannel,
   colorBlueLighterChannel,
+  colorBlueAux,
   colorPrimary,
   colorDanger,
   colorDangerDark,
@@ -200,6 +217,9 @@ export {
   colorHeading,
   palettePlaceholderText,
   pollAnnotationGray,
+  appsGalleryOutlineColor,
+  unpinnedAppIconColor,
+  appsPanelTextColor,
   toolbarButtonBorderColor,
   toolbarListColor,
   toolbarButtonBg,

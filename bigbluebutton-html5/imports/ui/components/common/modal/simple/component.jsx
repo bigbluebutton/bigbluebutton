@@ -3,6 +3,7 @@ import PropTypes from 'prop-types';
 import { defineMessages, injectIntl } from 'react-intl';
 import FocusTrap from 'focus-trap-react';
 import Styled from './styles';
+import deviceInfo from '/imports/utils/deviceInfo';
 
 const intlMessages = defineMessages({
   modalClose: {
@@ -25,6 +26,9 @@ const propTypes = {
   shouldShowCloseButton: PropTypes.bool,
   overlayClassName: PropTypes.string,
   modalisOpen: PropTypes.bool,
+  width: PropTypes.string,
+  height: PropTypes.string,
+  padding: PropTypes.string,
 };
 
 const defaultProps = {
@@ -99,8 +103,33 @@ class ModalSimple extends Component {
       headerPosition,
       'data-test': dataTest,
       children,
+      width,
+      height,
+      padding,
+      anchorElement,
       ...otherProps
     } = this.props;
+
+    let modalStyles = {};
+
+    if (anchorElement) {
+      // if anchorElement is provided, position of the modal to be centered below it
+      const { isMobile } = deviceInfo;
+
+      const anchorRect = anchorElement.getBoundingClientRect();
+      const anchorCenterX = anchorRect.left + anchorRect.width / 2;
+      const modalWidth = 600;
+      const modalLeft = anchorCenterX - modalWidth / 2;
+
+      modalStyles = {
+        content: {
+          top: `${anchorRect.bottom + window.scrollY + 10}px`,
+          left: isMobile ? null : `${modalLeft + window.scrollX}px`,
+          overflow: 'visible',
+          position: 'fixed',
+        },
+      };
+    }
 
     return (
       <Styled.SimpleModal
@@ -110,6 +139,9 @@ class ModalSimple extends Component {
         onRequestClose={this.handleRequestClose}
         contentLabel={title || contentLabel}
         dataTest={dataTest}
+        width={width}
+        height={height}
+        padding={padding}
         {...otherProps}
       >
         <FocusTrap active={modalisOpen} focusTrapOptions={{ initialFocus: false }}>

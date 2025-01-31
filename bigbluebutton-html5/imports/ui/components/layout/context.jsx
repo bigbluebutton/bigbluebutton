@@ -13,6 +13,7 @@ import { useIsPresentationEnabled } from '/imports/ui/services/features';
 import useDeduplicatedSubscription from '../../core/hooks/useDeduplicatedSubscription';
 import { usePrevious } from '../whiteboard/utils';
 import Session from '/imports/ui/services/storage/in-memory';
+import logger from '/imports/startup/client/logger';
 
 // variable to debug in console log
 const debug = false;
@@ -387,22 +388,6 @@ const reducer = (state, action) => {
         },
       };
     }
-    case ACTIONS.SET_SIDEBAR_NAVIGATION_PANEL: {
-      const { sidebarNavigation } = state.input;
-      if (sidebarNavigation.sidebarNavPanel === action.value) {
-        return state;
-      }
-      return {
-        ...state,
-        input: {
-          ...state.input,
-          sidebarNavigation: {
-            ...sidebarNavigation,
-            sidebarNavPanel: action.value,
-          },
-        },
-      };
-    }
     case ACTIONS.SET_SIDEBAR_NAVIGATION_SIZE: {
       const { width, browserWidth } = action.value;
       const { sidebarNavigation } = state.input;
@@ -422,36 +407,118 @@ const reducer = (state, action) => {
         },
       };
     }
+    case ACTIONS.REGISTER_SIDEBAR_APP: {
+      const {
+        panel,
+        name,
+        icon,
+        contentFunction = undefined,
+      } = action.value;
+      const { sidebarNavigation } = state.input;
+      const { registeredApps } = sidebarNavigation;
+      return {
+        ...state,
+        input: {
+          ...state.input,
+          sidebarNavigation: {
+            ...sidebarNavigation,
+            registeredApps: {
+              ...registeredApps,
+              [panel]: {
+                name,
+                icon,
+                ...(contentFunction && { contentFunction }),
+              },
+            },
+          },
+        },
+      };
+    }
+    case ACTIONS.UNREGISTER_SIDEBAR_APP: {
+      const {
+        value,
+      } = action;
+      const { sidebarNavigation } = state.input;
+      const { registeredApps, pinnedApps } = sidebarNavigation;
+      if (!(value in registeredApps)) {
+        logger.warn({
+          logCode: 'unregister_not_found_app',
+          extraInfo: {
+            panel: value,
+          },
+        }, `Layout Context: Attempting to unregister an app "${value}" that is not registered.`);
+        return state;
+      }
+      const updatedRegisteredApps = { ...registeredApps };
+      delete updatedRegisteredApps[value];
+      // Also remove it from pinned apps
+      const updatedPinnedApps = pinnedApps.filter((pinnedApp) => pinnedApp !== value);
+      return {
+        ...state,
+        input: {
+          ...state.input,
+          sidebarNavigation: {
+            ...sidebarNavigation,
+            pinnedApps: updatedPinnedApps,
+            registeredApps: {
+              ...updatedRegisteredApps,
+            },
+          },
+        },
+      };
+    }
+    case ACTIONS.SET_SIDEBAR_NAVIGATION_PIN_APP: {
+      const APP_CONFIG = window.meetingClientSettings.public.app;
+      const MAX_PINNED_APPS_GALLERY = APP_CONFIG.appsGallery.maxPinnedApps;
+      const { panel: appKey, pin } = action.value;
+      const { sidebarNavigation } = state.input;
+      const { pinnedApps, registeredApps } = sidebarNavigation;
+
+      const isAppRegistered = appKey in registeredApps;
+      const isAppPinned = pinnedApps.includes(appKey);
+
+      if (!isAppRegistered) return state;
+      if ((pin && isAppPinned) || (!pin && !isAppPinned)) {
+        return state;
+      }
+      if (pin && pinnedApps.length === MAX_PINNED_APPS_GALLERY) {
+        return state;
+      }
+
+      const updatedPinnedApps = pin
+        ? [...pinnedApps, appKey]
+        : pinnedApps.filter((pinnedApp) => pinnedApp !== appKey);
+
+      return {
+        ...state,
+        input: {
+          ...state.input,
+          sidebarNavigation: {
+            ...sidebarNavigation,
+            pinnedApps: updatedPinnedApps,
+          },
+        },
+      };
+    }
     case ACTIONS.SET_SIDEBAR_NAVIGATION_OUTPUT: {
       const {
         display,
-        minWidth,
         width,
-        maxWidth,
-        minHeight,
         height,
-        maxHeight,
         top,
         left,
         right,
         tabOrder,
-        isResizable,
         zIndex,
       } = action.value;
       const { sidebarNavigation } = state.output;
       if (sidebarNavigation.display === display
-        && sidebarNavigation.minWidth === minWidth
-        && sidebarNavigation.maxWidth === maxWidth
         && sidebarNavigation.width === width
-        && sidebarNavigation.minHeight === minHeight
         && sidebarNavigation.height === height
-        && sidebarNavigation.maxHeight === maxHeight
-        && sidebarNavigation.top === top
         && sidebarNavigation.left === left
         && sidebarNavigation.right === right
         && sidebarNavigation.tabOrder === tabOrder
-        && sidebarNavigation.zIndex === zIndex
-        && sidebarNavigation.isResizable === isResizable) {
+        && sidebarNavigation.zIndex === zIndex) {
         return state;
       }
       return {
@@ -461,45 +528,13 @@ const reducer = (state, action) => {
           sidebarNavigation: {
             ...sidebarNavigation,
             display,
-            minWidth,
             width,
-            maxWidth,
-            minHeight,
             height,
-            maxHeight,
             top,
             left,
             right,
             tabOrder,
-            isResizable,
             zIndex,
-          },
-        },
-      };
-    }
-    case ACTIONS.SET_SIDEBAR_NAVIGATION_RESIZABLE_EDGE: {
-      const {
-        top, right, bottom, left,
-      } = action.value;
-      const { sidebarNavigation } = state.output;
-      if (sidebarNavigation.resizableEdge.top === top
-        && sidebarNavigation.resizableEdge.right === right
-        && sidebarNavigation.resizableEdge.bottom === bottom
-        && sidebarNavigation.resizableEdge.left === left) {
-        return state;
-      }
-      return {
-        ...state,
-        output: {
-          ...state.output,
-          sidebarNavigation: {
-            ...sidebarNavigation,
-            resizableEdge: {
-              top,
-              right,
-              bottom,
-              left,
-            },
           },
         },
       };

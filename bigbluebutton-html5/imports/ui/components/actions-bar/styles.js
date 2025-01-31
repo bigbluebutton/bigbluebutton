@@ -1,7 +1,7 @@
 import styled from 'styled-components';
 import { smallOnly } from '/imports/ui/stylesheets/styled-components/breakpoints';
 import { smPaddingX, smPaddingY, barsPadding } from '/imports/ui/stylesheets/styled-components/general';
-import { colorWhite, colorBackground } from '/imports/ui/stylesheets/styled-components/palette';
+import { colorWhite, colorBackground, btnDefaultGhostBg } from '/imports/ui/stylesheets/styled-components/palette';
 import Button from '/imports/ui/components/common/button/component';
 
 const ActionsBar = styled.div`
@@ -54,6 +54,8 @@ const Right = styled.div`
   display: flex;
   flex-direction: row;
   justify-content: center;
+  background-color: ${btnDefaultGhostBg};
+  border-radius: 3rem;
   position: relative;
   [dir="rtl"] & {
     right: auto;
@@ -105,14 +107,6 @@ const Wrapper = styled.div`
   }
 `;
 
-const Separator = styled.div`
-  height: 2.5rem;
-  width: 0;
-  border: 1px solid ${colorWhite};
-  align-self: center;
-  opacity: .75;
-`;
-
 export default {
   ActionsBar,
   Left,
@@ -122,6 +116,5 @@ export default {
   ButtonContainer,
   ReactionsDropdown,
   Wrapper,
-  Separator,
   ActionsBarWrapper,
 };

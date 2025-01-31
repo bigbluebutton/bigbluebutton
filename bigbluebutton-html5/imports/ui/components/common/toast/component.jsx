@@ -23,12 +23,18 @@ const Toast = ({
   message,
   content,
   small,
+  showSeparator = true,
 }) => (
-  <Styled.ToastContainer small={small} data-test="toastContainer">
+  <Styled.ToastContainer
+    small={small}
+    data-test="toastContainer"
+  >
     <Styled.Toast type={type}>
-      <Styled.ToastIcon className="toastIcon" small={small}>
-        <Icon iconName={icon || defaultIcons[type]} />
-      </Styled.ToastIcon>
+      {icon !== false && (
+        <Styled.ToastIcon className="toastIcon" small={small}>
+          <Icon iconName={icon || defaultIcons[type]} />
+        </Styled.ToastIcon>
+      )}
       <Styled.ToastMessage data-test="toastSmallMsg">
         <span>{message}</span>
       </Styled.ToastMessage>
@@ -36,7 +42,7 @@ const Toast = ({
     {content
       ? (
         <Styled.BackgroundColorInherit>
-          <Styled.Separator />
+          {showSeparator && <Styled.Separator visible={showSeparator} />}
           <Styled.BackgroundColorInherit>
             {content}
           </Styled.BackgroundColorInherit>

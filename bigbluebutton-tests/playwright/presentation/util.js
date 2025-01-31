@@ -36,7 +36,7 @@ async function uploadSinglePresentation(test, fileName, uploadTimeout = UPLOAD_P
   await test.hasText('body', e.statingUploadPresentationToast, 'should display the toast message uploading the presentation');
 
   await test.waitAndClick(e.confirmManagePresentation);
-  await test.hasElement(e.presentationUploadProgressToast, 'should display the toast presentation upload progress after confiming the presentation to be uploaded', ELEMENT_WAIT_EXTRA_LONG_TIME);
+  await test.hasElement(e.presentationUploadProgressToast, 'should display the toast presentation upload progress after confirming the presentation to be uploaded');
   await test.page.waitForFunction(([selector, firstSlideSrc]) => {
     const currentSrc = document.querySelector(selector)
     ?.style?.backgroundImage?.split('"')[1];

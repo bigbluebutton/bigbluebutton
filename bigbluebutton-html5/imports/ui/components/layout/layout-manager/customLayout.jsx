@@ -133,6 +133,7 @@ const CustomLayout = (props) => {
   };
 
   const init = () => {
+    const hasLayoutEngineLoadedOnce = Session.getItem('hasLayoutEngineLoadedOnce');
     if (isMobile) {
       layoutContextDispatch({
         type: ACTIONS.SET_LAYOUT_INPUT,
@@ -142,12 +143,14 @@ const CustomLayout = (props) => {
             externalVideo, genericMainContent, screenShare, sharedNotes,
           } = prevInput;
           const { sidebarContentPanel } = sidebarContent;
+          const { registeredApps, pinnedApps } = sidebarNavigation;
           return defaultsDeep(
             {
               sidebarNavigation: {
                 isOpen:
                   sidebarNavigation.isOpen || sidebarContentPanel !== PANELS.NONE || false,
-                sidebarNavPanel: sidebarNavigation.sidebarNavPanel,
+                registeredApps,
+                pinnedApps,
               },
               sidebarContent: {
                 isOpen: sidebarContentPanel !== PANELS.NONE,
@@ -181,7 +184,7 @@ const CustomLayout = (props) => {
                 isPinned: sharedNotes.isPinned,
               },
             },
-            INITIAL_INPUT_STATE,
+            hasLayoutEngineLoadedOnce ? prevInput : INITIAL_INPUT_STATE,
           );
         },
       });
@@ -194,11 +197,14 @@ const CustomLayout = (props) => {
             externalVideo, genericMainContent, screenShare, sharedNotes,
           } = prevInput;
           const { sidebarContentPanel } = sidebarContent;
+          const { registeredApps, pinnedApps } = sidebarNavigation;
           return defaultsDeep(
             {
               sidebarNavigation: {
                 isOpen:
                   sidebarNavigation.isOpen || sidebarContentPanel !== PANELS.NONE || false,
+                registeredApps,
+                pinnedApps,
               },
               sidebarContent: {
                 isOpen: sidebarContentPanel !== PANELS.NONE,
@@ -232,7 +238,7 @@ const CustomLayout = (props) => {
                 isPinned: sharedNotes.isPinned,
               },
             },
-            INITIAL_INPUT_STATE,
+            hasLayoutEngineLoadedOnce ? prevInput : INITIAL_INPUT_STATE,
           );
         },
       });
@@ -435,7 +441,7 @@ const CustomLayout = (props) => {
     const { element: fullscreenElement } = fullscreen;
     const { camerasMargin } = DEFAULT_VALUES;
 
-    const hasPresentation = isPresentationEnabled && slidesLength !== 0;
+    const hasPresentation = (isPresentationEnabled && slidesLength !== 0) || isOpen;
     const isGeneralMediaOff = !hasPresentation && !hasExternalVideo
       && !hasScreenShare && !isSharedNotesPinned && !genericContentId;
 
@@ -545,29 +551,31 @@ const CustomLayout = (props) => {
     const sidebarNavWidth = calculatesSidebarNavWidth();
     const sidebarNavHeight = calculatesSidebarNavHeight();
     const sidebarContentWidth = calculatesSidebarContentWidth();
-    const sidebarNavBounds = calculatesSidebarNavBounds();
-    const sidebarContentBounds = calculatesSidebarContentBounds(sidebarNavWidth.width);
+    const sidebarNavBounds = calculatesSidebarNavBounds(sidebarNavHeight);
+    const sidebarContentBounds = calculatesSidebarContentBounds(
+      sidebarNavWidth.horizontalSpaceOccupied,
+    );
     const mediaAreaBounds = calculatesMediaAreaBounds(
-      sidebarNavWidth.width,
-      sidebarContentWidth.width
+      sidebarNavWidth.horizontalSpaceOccupied,
+      sidebarContentWidth.width,
     );
     const navbarBounds = calculatesNavbarBounds(mediaAreaBounds);
     const actionbarBounds = calculatesActionbarBounds(mediaAreaBounds);
     const cameraDockBounds = calculatesCameraDockBounds(
-      sidebarNavWidth.width,
+      sidebarNavWidth.horizontalSpaceOccupied,
       sidebarContentWidth.width,
-      mediaAreaBounds
+      mediaAreaBounds,
     );
     const dropZoneAreas = calculatesDropAreas(
-      sidebarNavWidth.width,
+      sidebarNavWidth.horizontalSpaceOccupied,
       sidebarContentWidth.width,
-      cameraDockBounds
+      cameraDockBounds,
     );
     const sidebarContentHeight = calculatesSidebarContentHeight(cameraDockBounds.height);
     const mediaBounds = calculatesMediaBounds(
-      sidebarNavWidth.width,
+      sidebarNavWidth.horizontalSpaceOccupied,
       sidebarContentWidth.width,
-      cameraDockBounds
+      cameraDockBounds,
     );
     const sidebarSize = sidebarContentWidth.width + sidebarNavWidth.width;
     const { height: actionBarHeight } = calculatesActionbarHeight();
@@ -623,26 +631,13 @@ const CustomLayout = (props) => {
       type: ACTIONS.SET_SIDEBAR_NAVIGATION_OUTPUT,
       value: {
         display: sidebarNavigationInput.isOpen,
-        minWidth: sidebarNavWidth.minWidth,
         width: sidebarNavWidth.width,
-        maxWidth: sidebarNavWidth.maxWidth,
         height: sidebarNavHeight,
         top: sidebarNavBounds.top,
         left: sidebarNavBounds.left,
         right: sidebarNavBounds.right,
         tabOrder: DEFAULT_VALUES.sidebarNavTabOrder,
-        isResizable: !isMobile && !isTablet,
         zIndex: sidebarNavBounds.zIndex,
-      },
-    });
-
-    layoutContextDispatch({
-      type: ACTIONS.SET_SIDEBAR_NAVIGATION_RESIZABLE_EDGE,
-      value: {
-        top: false,
-        right: !isRTL,
-        bottom: false,
-        left: isRTL,
       },
     });
 
@@ -759,7 +754,7 @@ const CustomLayout = (props) => {
         right: isRTL ? mediaBounds.right + horizontalCameraDiff : null,
       },
     });
-    
+
     layoutContextDispatch({
       type: ACTIONS.SET_GENERIC_CONTENT_OUTPUT,
       value: {

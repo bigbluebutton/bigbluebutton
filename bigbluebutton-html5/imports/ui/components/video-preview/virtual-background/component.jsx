@@ -33,6 +33,7 @@ const propTypes = {
     type: PropTypes.string.isRequired,
     name: PropTypes.string,
   }),
+  renderSettingsLabel: PropTypes.bool,
 };
 
 const SKELETON_COUNT = 5;
@@ -55,6 +56,7 @@ const VirtualBgSelector = ({
   initialVirtualBgState = defaultInitialVirtualBgState,
   readFile,
   isCustomVirtualBackgroundsEnabled,
+  renderSettingsLabel = true,
 }) => {
   const IMAGE_NAMES = getImageNames();
 
@@ -384,7 +386,7 @@ const VirtualBgSelector = ({
     const renderInputButton = () => (
       <>
         <Styled.BgCustomButton
-          icon="plus"
+          icon="upload"
           label={intl.formatMessage(intlMessages.customLabel)}
           aria-describedby="vr-cam-btn-custom"
           hideLabel
@@ -502,13 +504,21 @@ const VirtualBgSelector = ({
 
   return (
     <>
-      <Styled.Label>
-        {intl.formatMessage(
-          isVirtualBackgroundSupported()
-            ? intlMessages.virtualBackgroundSettingsLabel
-            : intlMessages.virtualBackgroundSettingsDisabledLabel,
-        )}
-      </Styled.Label>
+      {renderSettingsLabel ? (
+        <Styled.Label>
+          {intl.formatMessage(
+            isVirtualBackgroundSupported()
+              ? intlMessages.virtualBackgroundSettingsLabel
+              : intlMessages.virtualBackgroundSettingsDisabledLabel,
+          )}
+        </Styled.Label>
+      ) : !isVirtualBackgroundSupported() && (
+        <Styled.Label>
+          {intl.formatMessage(
+            intlMessages.virtualBackgroundSettingsDisabledLabel,
+          )}
+        </Styled.Label>
+      )}
 
       {renderSelector()}
     </>

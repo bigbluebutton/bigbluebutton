@@ -73,6 +73,7 @@ const SmartLayout = (props) => {
   }, [input, deviceType, isRTL, fontSize, fullscreen, isPresentationEnabled]);
 
   const init = () => {
+    const hasLayoutEngineLoadedOnce = Session.getItem('hasLayoutEngineLoadedOnce');
     layoutContextDispatch({
       type: ACTIONS.SET_LAYOUT_INPUT,
       value: (prevInput) => {
@@ -80,12 +81,15 @@ const SmartLayout = (props) => {
           sidebarNavigation, sidebarContent, presentation, cameraDock,
           externalVideo, genericMainContent, screenShare, sharedNotes,
         } = prevInput;
+        const { registeredApps, pinnedApps } = sidebarNavigation;
         const { sidebarContentPanel } = sidebarContent;
         return defaultsDeep(
           {
             sidebarNavigation: {
               isOpen:
                 sidebarNavigation.isOpen || sidebarContentPanel !== PANELS.NONE || false,
+              registeredApps,
+              pinnedApps,
             },
             sidebarContent: {
               isOpen: sidebarContentPanel !== PANELS.NONE,
@@ -119,7 +123,7 @@ const SmartLayout = (props) => {
               isPinned: sharedNotes.isPinned,
             },
           },
-          INITIAL_INPUT_STATE,
+          hasLayoutEngineLoadedOnce ? prevInput : INITIAL_INPUT_STATE,
         );
       },
     });
@@ -351,22 +355,24 @@ const SmartLayout = (props) => {
     const sidebarNavHeight = calculatesSidebarNavHeight();
     const sidebarContentWidth = calculatesSidebarContentWidth();
     const sidebarContentHeight = calculatesSidebarContentHeight();
-    const sidebarNavBounds = calculatesSidebarNavBounds();
-    const sidebarContentBounds = calculatesSidebarContentBounds(sidebarNavWidth.width);
+    const sidebarNavBounds = calculatesSidebarNavBounds(sidebarNavHeight);
+    const sidebarContentBounds = calculatesSidebarContentBounds(
+      sidebarNavWidth.horizontalSpaceOccupied,
+    );
     const mediaAreaBounds = calculatesMediaAreaBounds(
-      sidebarNavWidth.width,
-      sidebarContentWidth.width
+      sidebarNavWidth.horizontalSpaceOccupied,
+      sidebarContentWidth.width,
     );
     const navbarBounds = calculatesNavbarBounds(mediaAreaBounds);
     const actionbarBounds = calculatesActionbarBounds(mediaAreaBounds);
     const slideSize = calculatesSlideSize(mediaAreaBounds);
     const screenShareSize = calculatesScreenShareSize(mediaAreaBounds);
-    const sidebarSize = sidebarContentWidth.width + sidebarNavWidth.width;
+    const sidebarSize = sidebarContentWidth.width + sidebarNavWidth.horizontalSpaceOccupied;
     const mediaBounds = calculatesMediaBounds(
       mediaAreaBounds,
       slideSize,
       sidebarSize,
-      screenShareSize
+      screenShareSize,
     );
     const cameraDockBounds = calculatesCameraDockBounds(mediaAreaBounds, mediaBounds, sidebarSize);
     const horizontalCameraDiff = cameraDockBounds.isCameraHorizontal

@@ -69,10 +69,10 @@ func ConnectionHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	browserWsConn, err := websocket.Accept(w, r, &acceptOptions)
-	browserWsConn.SetReadLimit(9999999) //10MB
 	if err != nil {
 		connectionLogger.Errorf("error: %v", err)
 	}
+	browserWsConn.SetReadLimit(9999999) //10MB
 
 	if common.HasReachedMaxGlobalConnections() {
 		common.WsConnectionRejectedCounter.With(prometheus.Labels{"reason": "limit of server connections exceeded"}).Inc()
@@ -272,7 +272,8 @@ func invalidateHasuraConnectionForSessionToken(bc *common.BrowserConnection, ses
 	}
 
 	// Send a reconnection confirmation message
-	go SendUserGraphqlReconnectionForcedEvtMsg(sessionToken)
+	// stop sending this message as no application is handling it
+	//go SendUserGraphqlReconnectionForcedEvtMsg(sessionToken)
 }
 
 func InvalidateSessionTokenBrowserConnections(sessionTokenToInvalidate string, reasonMsgId string, reason string) {

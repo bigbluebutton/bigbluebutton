@@ -41,7 +41,7 @@ import scala.concurrent.duration._
 import org.bigbluebutton.core.apps.layout.LayoutApp2x
 import org.bigbluebutton.core.apps.plugin.PluginHdlrs
 import org.bigbluebutton.core.apps.users.ChangeLockSettingsInMeetingCmdMsgHdlr
-import org.bigbluebutton.core.db.{ MeetingDAO, NotificationDAO, TimerDAO, UserStateDAO }
+import org.bigbluebutton.core.db.{ MeetingDAO, MeetingVoiceDAO, NotificationDAO, TimerDAO, UserDAO, UserStateDAO }
 import org.bigbluebutton.core.graphql.GraphqlMiddleware
 import org.bigbluebutton.core.models.VoiceUsers.{ findAllFreeswitchCallers, findAllListenOnlyVoiceUsers }
 import org.bigbluebutton.core.models.Webcams.findAll
@@ -197,6 +197,7 @@ class MeetingActor(
   } else {
     MeetingStatus2x.unmuteMeeting(liveMeeting.status)
   }
+  MeetingVoiceDAO.updateMuteOnStart(liveMeeting.props.meetingProp.intId, liveMeeting.status)
 
   // Set webcamsOnlyForModerator property in case we didn't after meeting creation
   MeetingStatus2x.setWebcamsOnlyForModerator(liveMeeting.status, liveMeeting.props.usersProp.webcamsOnlyForModerator)
@@ -637,6 +638,7 @@ class MeetingActor(
       case m: PresentationUploadedFileTooLargeErrorSysPubMsg   => state = presentationPodsApp.handle(m, state, liveMeeting, msgBus)
       case m: PresentationHasInvalidMimeTypeErrorSysPubMsg     => state = presentationPodsApp.handle(m, state, liveMeeting, msgBus)
       case m: PresentationUploadedFileTimeoutErrorSysPubMsg    => state = presentationPodsApp.handle(m, state, liveMeeting, msgBus)
+      case m: PresentationConversionFailedErrorSysPubMsg       => state = presentationPodsApp.handle(m, state, liveMeeting, msgBus)
       case m: PresentationUploadedFileVirusErrorSysPubMsg      => state = presentationPodsApp.handle(m, state, liveMeeting, msgBus)
       case m: PresentationUploadedFileScanFailedErrorSysPubMsg => state = presentationPodsApp.handle(m, state, liveMeeting, msgBus)
       case m: PresentationPageGeneratedSysPubMsg               => state = presentationPodsApp.handle(m, state, liveMeeting, msgBus)
@@ -1070,7 +1072,8 @@ class MeetingActor(
       } yield {
         log.info("Removing user from meeting. meetingId=" + props.meetingProp.intId + " userId=" + u.intId + " user=" + u)
 
-        RegisteredUsers.updateUserJoin(liveMeeting.registeredUsers, ru, joined = false)
+        val updatedRegUser = RegisteredUsers.updateUserJoin(liveMeeting.registeredUsers, ru, joined = false)
+        UserDAO.update(updatedRegUser)
 
         // send a user left event for the clients to update
         val userLeftMeetingEvent = MsgBuilder.buildUserLeftMeetingEvtMsg(liveMeeting.props.meetingProp.intId, u.intId)
@@ -1095,7 +1098,7 @@ class MeetingActor(
           Polls.handleStopPollReqMsg(state, u.intId, liveMeeting)
         }
 
-        UserStateDAO.updateExpired(u.meetingId, u.intId, true)
+        UserStateDAO.updateExpired(u.meetingId, u.intId, expired = true)
       }
     }
 

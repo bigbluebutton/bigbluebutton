@@ -18,6 +18,8 @@ const SimpleModal = styled(Styled.BaseModal)`
   flex-direction: column;
   padding: ${mdPaddingX};
   box-shadow: 0px 0px 15px rgba(0, 0, 0, 0.5);
+  width: ${({ width }) => width};
+  height: ${({ height }) => height};
   background-color: ${colorWhite} !important;
 `;
 

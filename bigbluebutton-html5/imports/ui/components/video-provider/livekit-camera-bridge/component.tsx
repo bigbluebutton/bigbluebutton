@@ -107,10 +107,11 @@ const LiveKitCameraBridge: React.FC<LiveKitCameraBridgeProps> = ({
     publications: new Map(),
     subscriptions: new Map(),
   });
+  const withSelectiveSubscription = meetingSettings.public.media?.livekit?.selectiveSubscription || false;
 
-  const isCameraSource = useCallback((track: TrackPublication | RemoteTrack): boolean => {
+  const isCameraSource = (track: TrackPublication | RemoteTrack): boolean => {
     return track.kind === Track.Kind.Video && track.source === Track.Source.Camera;
-  }, []);
+  };
 
   const handleStreamFailure = useCallback((error: Error, stream: string, isLocal: boolean) => {
     const { name: errorName, message: errorMessage } = error;
@@ -136,7 +137,7 @@ const LiveKitCameraBridge: React.FC<LiveKitCameraBridgeProps> = ({
       const stillExists = streams.some((item) => item.type === VIDEO_TYPES.STREAM && item.stream === stream);
       stopStream(stream, stillExists);
     }
-  }, [intl, streams, stopVideo]);
+  }, [intl, streams]);
 
   const handleLocalStreamInactive = useCallback((stream: string) => {
     const track = streamRefs.current.localTracks[stream];
@@ -164,8 +165,21 @@ const LiveKitCameraBridge: React.FC<LiveKitCameraBridgeProps> = ({
     destroyStream(stream);
   }, [stopVideo]);
 
-  const destroyStream = useCallback((stream: string) => {
+  const unsubscribeFromRemotePub = (
+    stream: string,
+    publication: RemoteTrackPublication,
+  ) => {
+    const track = streamRefs.current.remoteTracks[stream];
+
+    if (track) track.detach();
+    if (publication?.isSubscribed && withSelectiveSubscription) {
+      publication.setSubscribed(false);
+    }
+  };
+
+  const destroyStream = (stream: string) => {
     const localStream = streamRefs.current.localVideoStreams[stream];
+    const publication = streamRefs.current.publications.get(stream);
     const isLocal = VideoService.isLocalStream(stream);
 
     if (localStream) {
@@ -213,13 +227,12 @@ const LiveKitCameraBridge: React.FC<LiveKitCameraBridgeProps> = ({
       });
       delete streamRefs.current.localTracks[stream];
       delete streamRefs.current.localVideoStreams[stream];
-    } else {
-      const track = streamRefs.current.remoteTracks[stream];
-      if (track) track.detach();
+    } else if (publication) {
+      unsubscribeFromRemotePub(stream, publication as RemoteTrackPublication);
     }
-  }, [isCameraSource]);
+  };
 
-  const attachLiveKitStream = useCallback((stream: string) => {
+  const attachLiveKitStream = (stream: string) => {
     const videoElement = streamRefs.current.videoTags[stream];
     const isLocal = VideoService.isLocalStream(stream);
 
@@ -242,12 +255,29 @@ const LiveKitCameraBridge: React.FC<LiveKitCameraBridgeProps> = ({
         notifyStreamStateChange(stream, 'completed');
       }
     }
-  }, []);
+  };
+
+  const subscribeToRemotePub = (stream: string) => {
+    const publication = streamRefs.current.publications.get(stream) as RemoteTrackPublication;
+
+    // If a publication is not present yet, it will be added when we receive
+    // the publish event from the server and this function will be called again
+    if (publication) {
+      if (publication.isSubscribed) {
+        attachLiveKitStream(stream);
+        notifyStreamStateChange(stream, 'completed');
+        return;
+      }
+
+      if (withSelectiveSubscription) {
+        publication.setSubscribed(true);
+      }
+    }
+  };
 
   const startStream = useCallback(async (stream: string, isLocal: boolean) => {
     if (streamRefs.current.localTracks[stream] || streamRefs.current.connectingStreams[stream]) return;
 
-    const bbbVideoStream = VideoService.getPreloadedStream();
     const LIVEKIT_SETTINGS = meetingSettings.public.media.livekit?.camera;
     const source = Track.Source.Camera;
     const defaultPubOptions = LIVEKIT_SETTINGS?.publishOptions || {
@@ -260,9 +290,8 @@ const LiveKitCameraBridge: React.FC<LiveKitCameraBridgeProps> = ({
       name: stream,
     };
 
-    if (!isLocal || !bbbVideoStream) {
-      attachLiveKitStream(stream);
-      notifyStreamStateChange(stream, 'completed');
+    if (!isLocal) {
+      subscribeToRemotePub(stream);
       return;
     }
 
@@ -314,9 +343,9 @@ const LiveKitCameraBridge: React.FC<LiveKitCameraBridgeProps> = ({
     } finally {
       streamRefs.current.connectingStreams[stream] = false;
     }
-  }, [handleLocalStreamInactive, attachLiveKitStream, handleStreamFailure, playStart]);
+  }, [handleLocalStreamInactive, handleStreamFailure, playStart]);
 
-  const handleTrackSubscribed = useCallback((
+  const handleTrackSubscribed = (
     track: RemoteTrack,
     publication: RemoteTrackPublication,
   ) => {
@@ -339,9 +368,9 @@ const LiveKitCameraBridge: React.FC<LiveKitCameraBridgeProps> = ({
         },
       }, `LiveKit: camera subscribed - ${trackSid}`);
     }
-  }, [isCameraSource, attachLiveKitStream]);
+  };
 
-  const handleTrackUnsubscribed = useCallback((
+  const handleTrackUnsubscribed = (
     track: RemoteTrack,
     publication: RemoteTrackPublication,
   ) => {
@@ -362,49 +391,48 @@ const LiveKitCameraBridge: React.FC<LiveKitCameraBridgeProps> = ({
     }, `LiveKit: camera unsubscribed - ${trackSid}`);
 
     delete streamRefs.current.remoteTracks[stream];
-  }, [isCameraSource]);
+  };
 
   const handleTrackPublished = useCallback((publication: RemoteTrackPublication) => {
     const { trackName } = publication;
 
-    if (!isCameraSource(publication)) return;
+    if (!isCameraSource(publication) || streamRefs.current.publications.has(trackName)) return;
 
     streamRefs.current.publications.set(trackName, publication);
     if (publication.track) streamRefs.current.remoteTracks[trackName] = publication.track;
-  }, [isCameraSource]);
 
-  const handleTrackUnpublished = useCallback((publication: RemoteTrackPublication) => {
+    const isLocal = VideoService.isLocalStream(trackName);
+    // If the track is remote, should be subscribed to and is not already,
+    // subscribe to it
+    if (!isLocal
+      && !publication.isSubscribed
+      && streams.some((item) => item.type === VIDEO_TYPES.STREAM && item.stream === trackName)) {
+      subscribeToRemotePub(trackName);
+    }
+  }, [streams]);
+
+  const handleTrackUnpublished = (publication: RemoteTrackPublication) => {
     const { trackSid, trackName } = publication;
 
     if (!isCameraSource(publication)) return;
 
     streamRefs.current.publications.delete(trackName);
     streamRefs.current.subscriptions.delete(trackSid);
-  }, [isCameraSource]);
+  };
 
-  const removeRoomObservers = useCallback(() => {
-    liveKitRoom.off(RoomEvent.TrackPublished, handleTrackPublished);
-    liveKitRoom.off(RoomEvent.TrackUnpublished, handleTrackUnpublished);
-    liveKitRoom.off(RoomEvent.TrackSubscribed, handleTrackSubscribed);
-    liveKitRoom.off(RoomEvent.TrackUnsubscribed, handleTrackUnsubscribed);
-    streamRefs.current.publications.clear();
-    streamRefs.current.subscriptions.clear();
-  }, [
-    handleTrackPublished,
-    handleTrackUnpublished,
-    handleTrackSubscribed,
-    handleTrackUnsubscribed,
-  ]);
-
-  const observeRoomEvents = useCallback(() => {
-    if (!liveKitRoom) return;
-
-    removeRoomObservers();
+  useEffect(() => {
     liveKitRoom.on(RoomEvent.TrackPublished, handleTrackPublished);
+
+    return () => {
+      liveKitRoom.off(RoomEvent.TrackPublished, handleTrackPublished);
+    };
+  }, [handleTrackPublished]);
+
+  useEffect(() => {
+    window.addEventListener('beforeunload', exitVideo);
     liveKitRoom.on(RoomEvent.TrackUnpublished, handleTrackUnpublished);
     liveKitRoom.on(RoomEvent.TrackSubscribed, handleTrackSubscribed);
     liveKitRoom.on(RoomEvent.TrackUnsubscribed, handleTrackUnsubscribed);
-
     liveKitRoom.remoteParticipants.forEach((participant) => {
       participant.trackPublications.forEach((publication) => {
         if (isCameraSource(publication)) {
@@ -416,13 +444,24 @@ const LiveKitCameraBridge: React.FC<LiveKitCameraBridgeProps> = ({
         }
       });
     });
-  }, [
-    removeRoomObservers,
-    handleTrackPublished,
-    handleTrackUnpublished,
-    handleTrackSubscribed,
-    handleTrackUnsubscribed,
-  ]);
+
+    return () => {
+      liveKitRoom.off(RoomEvent.TrackUnpublished, handleTrackUnpublished);
+      liveKitRoom.off(RoomEvent.TrackSubscribed, handleTrackSubscribed);
+      liveKitRoom.off(RoomEvent.TrackUnsubscribed, handleTrackUnsubscribed);
+      window.removeEventListener('beforeunload', exitVideo);
+      VideoService.updatePeerDictionaryReference({});
+      exitVideo();
+      Object.keys(streamRefs.current.localTracks).forEach((stream) => {
+        stopStream(stream, false);
+      });
+      Object.keys(streamRefs.current.remoteTracks).forEach((stream) => {
+        stopStream(stream, false);
+      });
+      streamRefs.current.publications.clear();
+      streamRefs.current.subscriptions.clear();
+    };
+  }, []);
 
   const connectStreams = useCallback((streamsToConnect: string[]) => {
     streamsToConnect.forEach((stream) => {
@@ -431,9 +470,9 @@ const LiveKitCameraBridge: React.FC<LiveKitCameraBridgeProps> = ({
     });
   }, [startStream]);
 
-  const destroyStreams = useCallback((streamsToDisconnect: string[]) => {
+  const destroyStreams = (streamsToDisconnect: string[]) => {
     streamsToDisconnect.forEach(destroyStream);
-  }, [destroyStream]);
+  };
 
   const debouncedConnectStreams = useCallback(
     debounce(
@@ -461,9 +500,9 @@ const LiveKitCameraBridge: React.FC<LiveKitCameraBridgeProps> = ({
     }
 
     destroyStreams(streamsToDisconnect);
-  }, [connectStreams, destroyStreams, debouncedConnectStreams]);
+  }, [connectStreams, debouncedConnectStreams]);
 
-  const replaceVideoTracks = useCallback((streamId: string, mediaStream: MediaStream) => {
+  const replaceVideoTracks = (streamId: string, mediaStream: MediaStream) => {
     const track = streamRefs.current.localTracks[streamId];
     const videoElement = streamRefs.current.videoTags[streamId];
 
@@ -473,9 +512,9 @@ const LiveKitCameraBridge: React.FC<LiveKitCameraBridgeProps> = ({
         attachLiveKitStream(streamId);
       });
     }
-  }, [attachLiveKitStream]);
+  };
 
-  const createVideoTag = useCallback((stream: string, video: HTMLVideoElement) => {
+  const createVideoTag = (stream: string, video: HTMLVideoElement) => {
     const isLocal = VideoService.isLocalStream(stream);
     const track = isLocal
       ? streamRefs.current.localTracks[stream]
@@ -484,9 +523,9 @@ const LiveKitCameraBridge: React.FC<LiveKitCameraBridgeProps> = ({
     streamRefs.current.videoTags[stream] = video;
 
     if (track) attachLiveKitStream(stream);
-  }, [attachLiveKitStream]);
+  };
 
-  const destroyVideoTag = useCallback((stream: string) => {
+  const destroyVideoTag = (stream: string) => {
     const videoElement = streamRefs.current.videoTags[stream];
 
     if (videoElement == null) return;
@@ -497,40 +536,22 @@ const LiveKitCameraBridge: React.FC<LiveKitCameraBridgeProps> = ({
     }
 
     delete streamRefs.current.videoTags[stream];
-  }, []);
+  };
 
   const startVirtualBackgroundByDrop = useCallback(async (
     stream: string,
-    type: string,
+    backgroundType: string,
     name: string,
     data: string,
   ) => {
     try {
       const bbbVideoStream = streamRefs.current.localVideoStreams[stream];
-      await VideoService.startVirtualBackground(bbbVideoStream, type, name, data);
+      await VideoService.startVirtualBackground(bbbVideoStream, backgroundType, name, data);
     } catch (error) {
       const errorLocale = intlClientErrors.virtualBgGenericError;
       if (errorLocale) VideoService.notify(intl.formatMessage(errorLocale));
     }
   }, [intl]);
-
-  useEffect(() => {
-    window.addEventListener('beforeunload', exitVideo);
-    observeRoomEvents();
-
-    return () => {
-      VideoService.updatePeerDictionaryReference({});
-      window.removeEventListener('beforeunload', exitVideo);
-      removeRoomObservers();
-      exitVideo();
-      Object.keys(streamRefs.current.localTracks).forEach((stream) => {
-        stopStream(stream, false);
-      });
-      Object.keys(streamRefs.current.remoteTracks).forEach((stream) => {
-        stopStream(stream, false);
-      });
-    };
-  }, [exitVideo, observeRoomEvents, removeRoomObservers, stopStream]);
 
   useEffect(() => {
     const isLiveKitConnected = connectionState === ConnectionState.Connected;

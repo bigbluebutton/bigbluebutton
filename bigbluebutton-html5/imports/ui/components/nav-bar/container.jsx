@@ -33,7 +33,6 @@ const NavBarContainer = ({ children, ...props }) => {
   const { isPinned: notesIsPinned } = sharedNotes;
 
   const { sidebarContentPanel } = sidebarContent;
-  const { sidebarNavPanel } = sidebarNavigation;
 
   const toggleUserList = useShortcut('toggleUserList');
 
@@ -50,8 +49,6 @@ const NavBarContainer = ({ children, ...props }) => {
   }));
   const amIModerator = currentUserData?.isModerator;
 
-  const isExpanded = !!sidebarContentPanel || !!sidebarNavPanel;
-
   const hideNavBar = getFromUserSettings('bbb_hide_nav_bar', false);
 
   const PUBLIC_CONFIG = window.meetingClientSettings.public;
@@ -59,6 +56,10 @@ const NavBarContainer = ({ children, ...props }) => {
   const IS_DIRECT_LEAVE_BUTTON_ENABLED = getFromUserSettings(
     'bbb_direct_leave_button',
     PUBLIC_CONFIG.app.defaultSettings.application.directLeaveButton,
+  );
+  const SHOW_SESSION_DETAILS_ON_JOIN = getFromUserSettings(
+    'bbb_show_session_details_on_join',
+    PUBLIC_CONFIG.layout.showSessionDetailsOnJoin,
   );
 
   let meetingTitle;
@@ -104,12 +105,10 @@ const NavBarContainer = ({ children, ...props }) => {
         amIModerator,
         hasUnreadMessages,
         hasUnreadNotes,
-        sidebarNavPanel,
         sidebarContentPanel,
         sidebarNavigation,
         sidebarContent,
         layoutContextDispatch,
-        isExpanded,
         currentUserId: Auth.userID,
         pluginNavBarItems,
         shortcuts: toggleUserList,
@@ -122,6 +121,7 @@ const NavBarContainer = ({ children, ...props }) => {
         // TODO: Remove/Replace
         isMeteorConnected: true,
         hideTopRow: navBar.hideTopRow,
+        showSessionDetailsOnJoin: SHOW_SESSION_DETAILS_ON_JOIN,
         ...props,
       }}
       style={{ ...navBar }}

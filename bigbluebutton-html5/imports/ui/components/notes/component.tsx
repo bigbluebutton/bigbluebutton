@@ -3,8 +3,6 @@ import { defineMessages, useIntl } from 'react-intl';
 import { useMutation } from '@apollo/client';
 import injectWbResizeEvent from '/imports/ui/components/presentation/resize-wrapper/component';
 import PadContainer from '/imports/ui/components/pads/pads-graphql/component';
-import browserInfo from '/imports/utils/browserInfo';
-import Header from '/imports/ui/components/common/control-header/component';
 import NotesDropdown from './notes-dropdown/component';
 import {
   PANELS, ACTIONS,
@@ -36,6 +34,10 @@ const intlMessages = defineMessages({
   unpinNotes: {
     id: 'app.notes.notesDropdown.unpinNotes',
     description: 'Label for unpin shared notes button',
+  },
+  close: {
+    id: 'app.notes.close',
+    description: 'Label for the close shared notes panel',
   },
 });
 
@@ -80,7 +82,6 @@ const NotesGraphql: React.FC<NotesGraphqlProps> = (props) => {
   const [shouldRenderNotes, setShouldRenderNotes] = useState(false);
   const intl = useIntl();
 
-  const { isChrome } = browserInfo;
   const isOnMediaArea = area === 'media';
   const style = isOnMediaArea ? {
     position: 'absolute',
@@ -133,33 +134,37 @@ const NotesGraphql: React.FC<NotesGraphqlProps> = (props) => {
   const NOTES_CONFIG = window.meetingClientSettings.public.notes;
 
   return (shouldRenderNotes || shouldShowSharedNotesOnPresentationArea) && (
-    <Styled.Notes
+    <Styled.PanelContent
       data-test="notes"
-      isChrome={isChrome}
       style={style}
     >
       {!isOnMediaArea ? (
         // @ts-ignore Until everything in Typescript
-        <Header
-          leftButtonProps={{
-            onClick: () => {
-              layoutContextDispatch({
-                type: ACTIONS.SET_SIDEBAR_CONTENT_IS_OPEN,
-                value: false,
-              });
-              layoutContextDispatch({
-                type: ACTIONS.SET_SIDEBAR_CONTENT_PANEL,
-                value: PANELS.NONE,
-              });
-            },
-            'data-test': 'hideNotesLabel',
-            'aria-label': intl.formatMessage(intlMessages.hide),
-            label: intl.formatMessage(intlMessages.title),
-          }}
-          customRightButton={
-            <NotesDropdown handlePinSharedNotes={handlePinSharedNotes} presentationEnabled={isPresentationEnabled} />
-          }
-        />
+        <>
+          <Styled.HeaderContainer
+            title={intl.formatMessage(intlMessages.title)}
+            rightButtonProps={{
+              onClick: () => {
+                layoutContextDispatch({
+                  type: ACTIONS.SET_SIDEBAR_CONTENT_IS_OPEN,
+                  value: false,
+                });
+                layoutContextDispatch({
+                  type: ACTIONS.SET_SIDEBAR_CONTENT_PANEL,
+                  value: PANELS.NONE,
+                });
+              },
+              icon: 'close',
+              'data-test': 'hideNotesLabel',
+              'aria-label': intl.formatMessage(intlMessages.hide),
+              label: intl.formatMessage(intlMessages.close),
+            }}
+            customRightButton={
+              <NotesDropdown handlePinSharedNotes={handlePinSharedNotes} presentationEnabled={isPresentationEnabled} />
+            }
+          />
+          <Styled.Separator />
+        </>
       ) : renderHeaderOnMedia()}
       <PadContainer
         externalId={NOTES_CONFIG.id}
@@ -167,7 +172,7 @@ const NotesGraphql: React.FC<NotesGraphqlProps> = (props) => {
         isResizing={isResizing}
         isRTL={isRTL}
       />
-    </Styled.Notes>
+    </Styled.PanelContent>
   );
 };
 

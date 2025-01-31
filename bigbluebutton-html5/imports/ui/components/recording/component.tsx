@@ -1,6 +1,9 @@
 import React from 'react';
 import { defineMessages, useIntl } from 'react-intl';
-import ConfirmationModal from '/imports/ui/components/common/modal/confirmation/component';
+import { notify } from '/imports/ui/services/notification';
+import SvgIcon from '/imports/ui/components/common/icon-svg/component';
+import Icon from '/imports/ui/components/common/icon/component';
+import Styled from './styles';
 
 const intlMessages = defineMessages({
   startTitle: {
@@ -23,83 +26,98 @@ const intlMessages = defineMessages({
     id: 'app.recording.stopDescription',
     description: 'stop recording description',
   },
-  loadingTitle: {
-    id: 'app.recording.loadingTitle',
-    description: 'recording data is loading',
+  recordButtonLabel: {
+    id: 'app.recording.recordButton',
+    description: 'record button label',
   },
-  loadingDescription: {
-    id: 'app.recording.loadingDescription',
-    description: 'recording data is loading',
+  stopButtonLabel: {
+    id: 'app.recording.stopButton',
+    description: 'stop button label',
   },
-  errorTitle: {
-    id: 'app.recording.errorTitle',
-    description: 'recording data error',
-  },
-  errorDescription: {
-    id: 'app.recording.errorDescription',
-    description: 'recording data error',
-  },
-  cancelLabel: {
+  cancelButtonLabel: {
     id: 'app.recording.cancelLabel',
     description: 'cancel button label',
   },
 });
 
 interface RecordingComponentProps {
-  connected: boolean;
-  isOpen: boolean;
-  recordingStatus: boolean,
-  priority: string;
-  recordingTime: number,
+  recordingStatus: boolean;
+  recordingTime: number;
+  toggleRecording: () => void;
   onRequestClose: () => void;
-  toggleRecording: () => void,
-  setIsOpen: React.Dispatch<React.SetStateAction<boolean>>;
 }
 
-const RecordingComponent: React.FC<RecordingComponentProps> = (props) => {
-  const {
-    connected,
-    isOpen,
-    recordingStatus,
-    recordingTime,
-    priority,
-    onRequestClose,
-    toggleRecording,
-    setIsOpen,
-  } = props;
-
+const RecordingComponent: React.FC<RecordingComponentProps> = ({
+  recordingStatus, recordingTime, toggleRecording, onRequestClose,
+}) => {
   const intl = useIntl();
 
-  let title;
-  let description;
-  let cancelButtonLabel;
+  const handleShowNotification = () => {
+    const isResuming = recordingTime > 0 && !recordingStatus;
+    let title;
 
-  if (recordingStatus) {
-    description = intl.formatMessage(intlMessages.stopDescription);
-    title = intl.formatMessage(intlMessages.stopTitle);
-  } else {
-    description = intl.formatMessage(intlMessages.startDescription);
-    title = recordingTime > 0
-      ? intl.formatMessage(intlMessages.resumeTitle)
-      : intl.formatMessage(intlMessages.startTitle);
-  }
+    if (recordingStatus) {
+      title = intl.formatMessage(intlMessages.stopTitle);
+    } else if (isResuming) {
+      title = intl.formatMessage(intlMessages.resumeTitle);
+    } else {
+      title = intl.formatMessage(intlMessages.startTitle);
+    }
 
-  return (
-    <ConfirmationModal
-      intl={intl}
-      onConfirm={toggleRecording}
-      title={title}
-      description={description}
-      disableConfirmButton={!connected}
-      cancelButtonLabel={cancelButtonLabel}
-      {...{
-        isOpen,
-        onRequestClose,
-        priority,
-        setIsOpen,
-      }}
-    />
-  );
+    const description = recordingStatus
+      ? intl.formatMessage(intlMessages.stopDescription)
+      : intl.formatMessage(intlMessages.startDescription);
+
+    notify(
+      <div>
+        <Styled.TitleText>{title}</Styled.TitleText>
+        <Styled.DescriptionText>{description}</Styled.DescriptionText>
+      </div>,
+      'default',
+      false,
+      {
+        autoClose: false,
+        onClose: onRequestClose,
+      },
+      (
+        <Styled.NotificationContent>
+          <Styled.NotificationActions>
+            <Styled.CancelButton
+              onClick={() => {
+                onRequestClose();
+              }}
+            >
+              {intl.formatMessage(intlMessages.cancelButtonLabel)}
+            </Styled.CancelButton>
+            <Styled.ConfirmationButton
+              onClick={() => {
+                toggleRecording();
+              }}
+            >
+              <Styled.SvgCapsule>
+                {recordingStatus ? (
+                  <Icon iconName="pause" />
+                ) : (
+                  <SvgIcon iconName="recording" />
+                )}
+              </Styled.SvgCapsule>
+              {recordingStatus
+                ? intl.formatMessage(intlMessages.stopButtonLabel)
+                : intl.formatMessage(intlMessages.recordButtonLabel)}
+            </Styled.ConfirmationButton>
+          </Styled.NotificationActions>
+        </Styled.NotificationContent>
+      ),
+      false,
+      false,
+    );
+  };
+
+  React.useEffect(() => {
+    handleShowNotification();
+  }, [recordingStatus]);
+
+  return null;
 };
 
 export default RecordingComponent;

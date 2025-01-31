@@ -5,8 +5,9 @@ import React, {
   useEffect,
   useRef,
   useMemo,
+  useCallback,
 } from 'react';
-import { useMutation } from '@apollo/client';
+import { useLazyQuery, useMutation } from '@apollo/client';
 import TextareaAutosize from 'react-autosize-textarea';
 import { ChatFormCommandsEnum } from 'bigbluebutton-html-plugin-sdk/dist/cjs/ui-commands/chat/form/enums';
 import { FillChatFormCommandArguments } from 'bigbluebutton-html-plugin-sdk/dist/cjs/ui-commands/chat/form/types';
@@ -15,9 +16,12 @@ import { ChatFormUiDataPayloads } from 'bigbluebutton-html-plugin-sdk/dist/cjs/u
 import * as PluginSdk from 'bigbluebutton-html-plugin-sdk';
 import { layoutSelect } from '/imports/ui/components/layout/context';
 import { defineMessages, useIntl } from 'react-intl';
-import { useIsChatEnabled } from '/imports/ui/services/features';
+import { useIsChatEnabled, useIsEditChatMessageEnabled } from '/imports/ui/services/features';
 import { checkText } from 'smile2emoji';
 import { findDOMNode } from 'react-dom';
+import AddReactionIcon from '@mui/icons-material/AddReaction';
+import SendIcon from '@mui/icons-material/Send';
+import Tooltip from '@mui/material/Tooltip';
 
 import Styled from './styles';
 import deviceInfo from '/imports/utils/deviceInfo';
@@ -40,6 +44,18 @@ import { GraphqlDataHookSubscriptionResponse } from '/imports/ui/Types/hook';
 import { throttle } from '/imports/utils/throttle';
 import logger from '/imports/startup/client/logger';
 import { CHAT_EDIT_MESSAGE_MUTATION } from '../chat-message-list/page/chat-message/mutations';
+import ChatTypingIndicatorContainer from '../chat-typing-indicator/component';
+import ChatReplyIntention from '../chat-reply-intention/component';
+import ChatEditingWarning from '../chat-editing-warning/component';
+import { btnPrimaryBg } from '/imports/ui/stylesheets/styled-components/palette';
+
+import {
+  LastSentMessageData,
+  LastSentMessageResponse,
+  USER_LAST_SENT_PRIVATE_CHAT_MESSAGE_QUERY,
+  USER_LAST_SENT_PUBLIC_CHAT_MESSAGE_QUERY,
+} from './queries';
+import Auth from '/imports/ui/services/auth';
 
 const CLOSED_CHAT_LIST_KEY = 'closedChatList';
 const START_TYPING_THROTTLE_INTERVAL = 1000;
@@ -57,6 +73,7 @@ interface ChatMessageFormProps {
   locked: boolean,
   partnerIsLoggedOut: boolean,
   title: string,
+  getUserLastSentMessage: () => Promise<LastSentMessageData | null>,
 }
 
 const messages = defineMessages({
@@ -126,6 +143,7 @@ const ChatMessageForm: React.FC<ChatMessageFormProps> = ({
   connected,
   locked,
   isRTL,
+  getUserLastSentMessage,
 }) => {
   const isChatEnabled = useIsChatEnabled();
   if (!isChatEnabled) return null;
@@ -166,7 +184,7 @@ const ChatMessageForm: React.FC<ChatMessageFormProps> = ({
   const PUBLIC_CHAT_ID = CHAT_CONFIG.public_id;
   const PUBLIC_GROUP_CHAT_ID = CHAT_CONFIG.public_group_id;
   const AUTO_CONVERT_EMOJI = window.meetingClientSettings.public.chat.autoConvertEmoji;
-  const ENABLE_EMOJI_PICKER = window.meetingClientSettings.public.chat.emojiPicker.enable;
+  const ENABLE_EMOJI_PICKER = true;
   const ENABLE_TYPING_INDICATOR = CHAT_CONFIG.typingIndicator.enabled;
 
   const handleUserTyping = (hasError?: boolean) => {
@@ -346,6 +364,7 @@ const ChatMessageForm: React.FC<ChatMessageFormProps> = ({
 
   const renderForm = () => {
     const formRef = useRef<HTMLFormElement | null>(null);
+    const CHAT_EDIT_ENABLED = useIsEditChatMessageEnabled();
 
     const handleSubmit = (e: React.FormEvent<HTMLFormElement> | React.KeyboardEvent<HTMLInputElement> | Event) => {
       e.preventDefault();
@@ -428,6 +447,25 @@ const ChatMessageForm: React.FC<ChatMessageFormProps> = ({
           cancelable: true,
         });
         handleSubmit(event);
+      }
+      if (e.key === 'ArrowUp' && !editingMessage.current && messageRef.current === '' && CHAT_EDIT_ENABLED) {
+        e.preventDefault();
+        getUserLastSentMessage().then((msg) => {
+          if (msg) {
+            window.dispatchEvent(
+              new CustomEvent(ChatEvents.CHAT_EDIT_REQUEST, {
+                detail: {
+                  messageId: msg.messageId,
+                  chatId: msg.chatId,
+                  message: msg.message,
+                },
+              }),
+            );
+            window.dispatchEvent(
+              new CustomEvent(ChatEvents.CHAT_CANCEL_REPLY_INTENTION),
+            );
+          }
+        });
       }
     };
     const handleFillChatFormThroughPlugin = ((
@@ -517,6 +555,8 @@ const ChatMessageForm: React.FC<ChatMessageFormProps> = ({
         onSubmit={handleSubmit}
         isRTL={isRTL}
       >
+        <ChatReplyIntention key="chatReplyIntention" />
+        <ChatEditingWarning key="chatEditingWarning" />
         {showEmojiPicker ? (
           <Styled.EmojiPickerWrapper ref={emojiPickerRef}>
             <Styled.EmojiPicker
@@ -562,34 +602,43 @@ const ChatMessageForm: React.FC<ChatMessageFormProps> = ({
               async
             />
             {ENABLE_EMOJI_PICKER ? (
-              <Styled.EmojiButton
-                ref={emojiPickerButtonRef}
-                onClick={() => setShowEmojiPicker(!showEmojiPicker)}
-                icon="happy"
-                color="light"
-                ghost
-                type="button"
-                circle
-                hideLabel
-                label={intl.formatMessage(messages.emojiButtonLabel)}
-                data-test="emojiPickerButton"
-              />
+              <Tooltip title={<span style={{ fontSize: '0.9rem' }}>{intl.formatMessage(messages.emojiButtonLabel)}</span>} arrow>
+                <Styled.EmojiButton
+                  sx={{
+                    alignSelf: 'center',
+                    height: '100%',
+                    minWidth: 'auto',
+                    color: 'action.active',
+                  }}
+                  onClick={() => setShowEmojiPicker(!showEmojiPicker)}
+                  data-test="emojiPickerButton"
+                >
+                  <AddReactionIcon />
+                </Styled.EmojiButton>
+              </Tooltip>
             ) : null}
+            <div style={{ zIndex: 10 }}>
+              <Tooltip title={<span style={{ fontSize: '0.9rem' }}>{intl.formatMessage(messages.submitLabel)}</span>} arrow>
+                <Styled.SendButton
+                  sx={{
+                    alignSelf: 'center',
+                    fontSize: '0.9rem',
+                    height: '100%',
+                    borderRadius: '0 0.75rem 0.75rem 0',
+                    minWidth: 'auto',
+                    padding: '8px',
+                    backgroundColor: btnPrimaryBg,
+                  }}
+                  variant="contained"
+                  disabled={disabled || partnerIsLoggedOut || chatSendMessageLoading}
+                  type="submit"
+                  data-test="sendMessageButton"
+                >
+                  <SendIcon />
+                </Styled.SendButton>
+              </Tooltip>
+            </div>
           </Styled.InputWrapper>
-          <div style={{ zIndex: 10 }}>
-            <Styled.SendButton
-              hideLabel
-              circle
-              aria-label={intl.formatMessage(messages.submitLabel)}
-              type="submit"
-              disabled={disabled || partnerIsLoggedOut || chatSendMessageLoading}
-              label={intl.formatMessage(messages.submitLabel)}
-              color="primary"
-              icon="send"
-              onClick={() => { }}
-              data-test="sendMessageButton"
-            />
-          </div>
         </Styled.Wrapper>
         {
           error && (
@@ -599,6 +648,7 @@ const ChatMessageForm: React.FC<ChatMessageFormProps> = ({
           )
         }
 
+        <ChatTypingIndicatorContainer />
       </Styled.Form>
     );
   };
@@ -647,6 +697,37 @@ const ChatMessageFormContainer: React.FC = () => {
     }
   }
 
+  const userLastSentMessageQuery = chat?.public
+    ? USER_LAST_SENT_PUBLIC_CHAT_MESSAGE_QUERY
+    : USER_LAST_SENT_PRIVATE_CHAT_MESSAGE_QUERY;
+
+  const [loadUserLastSentMessage] = useLazyQuery<LastSentMessageResponse>(
+    userLastSentMessageQuery,
+    {
+      variables: chat?.public ? {
+        userId: Auth.userID,
+      } : {
+        userId: Auth.userID,
+        requestedChatId: idChatOpen,
+      },
+      fetchPolicy: 'no-cache',
+    },
+  );
+
+  const getUserLastSentMessage = useCallback(
+    async () => {
+      const { data } = await loadUserLastSentMessage();
+      if (data) {
+        if ('chat_message_public' in data) {
+          return data.chat_message_public[0] ?? null;
+        }
+        return data.chat_message_private[0] ?? null;
+      }
+      return null;
+    },
+    [loadUserLastSentMessage],
+  );
+
   if (chat?.participant && !chat.participant.currentlyInMeeting) {
     return <ChatOfflineIndicator participantName={chat.participant.name} />;
   }
@@ -667,6 +748,7 @@ const ChatMessageFormContainer: React.FC = () => {
         // if participant is not defined, it means that the chat is public
         partnerIsLoggedOut: chat?.participant ? !chat?.participant?.currentlyInMeeting : false,
         locked: locked ?? false,
+        getUserLastSentMessage,
       }}
     />
   );

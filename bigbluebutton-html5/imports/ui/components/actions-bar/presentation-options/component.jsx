@@ -1,7 +1,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import { defineMessages, injectIntl } from 'react-intl';
-import Button from '/imports/ui/components/common/button/component';
+import Styled from './styles';
 import Session from '/imports/ui/services/storage/in-memory';
 import { ACTIONS, PANELS } from '/imports/ui/components/layout/enums';
 import {
@@ -46,6 +46,7 @@ const PresentationOptionsContainer = ({
   hasPinnedSharedNotes,
   hasGenericContent,
   hasCameraAsContent,
+  isDarkThemeEnabled,
 }) => {
   let buttonType = 'presentation';
   if (hasExternalVideo) {
@@ -69,13 +70,17 @@ const PresentationOptionsContainer = ({
   const PUBLIC_CHAT_ID = window.meetingClientSettings.public.chat.public_group_id;
   const isGridLayout = useStorageKey('isGridEnabled');
   return (
-    <Button
+    <Styled.PresentationButton
       icon={`${buttonType}${!presentationIsOpen ? '_off' : ''}`}
-      label={intl.formatMessage(!presentationIsOpen ? intlMessages.restorePresentationLabel : intlMessages.minimizePresentationLabel)}
-      aria-label={intl.formatMessage(!presentationIsOpen ? intlMessages.restorePresentationLabel : intlMessages.minimizePresentationLabel)}
-      aria-describedby={intl.formatMessage(!presentationIsOpen ? intlMessages.restorePresentationDesc : intlMessages.minimizePresentationDesc)}
-      description={intl.formatMessage(!presentationIsOpen ? intlMessages.restorePresentationDesc : intlMessages.minimizePresentationDesc)}
-      color={presentationIsOpen ? "primary" : "default"}
+      label={intl.formatMessage(!presentationIsOpen ? intlMessages.restorePresentationLabel
+        : intlMessages.minimizePresentationLabel)}
+      aria-label={intl.formatMessage(!presentationIsOpen ? intlMessages.restorePresentationLabel
+        : intlMessages.minimizePresentationLabel)}
+      aria-describedby={intl.formatMessage(!presentationIsOpen
+        ? intlMessages.restorePresentationDesc
+        : intlMessages.minimizePresentationDesc)}
+      description={intl.formatMessage(!presentationIsOpen ? intlMessages.restorePresentationDesc
+        : intlMessages.minimizePresentationDesc)}
       hideLabel
       circle
       size="lg"
@@ -102,6 +107,7 @@ const PresentationOptionsContainer = ({
       id="restore-presentation"
       disabled={!isThereCurrentPresentation}
       data-test={!presentationIsOpen ? 'restorePresentation' : 'minimizePresentation'}
+      isDarkThemeEnabled={isDarkThemeEnabled}
     />
   );
 };

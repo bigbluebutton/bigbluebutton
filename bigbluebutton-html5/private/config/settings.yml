@@ -7,7 +7,7 @@ public:
     # user to select an option ("Microphone" and/or "Listen only") for joining
     # audio
     autoJoin: true
-    # Disables the listen only option in audio modal.
+    # Set to false disables the listen only option in audio modal.
     listenOnlyMode: true
     forceListenOnly: false
     # Skips the echo test when connecting with microphone.
@@ -31,7 +31,7 @@ public:
     appName: BigBlueButton HTML5 Client
     bbbServerVersion: HTML5_FULL_BBB_VERSION
     displayBbbServerVersion: true
-    copyright: '©2024 BigBlueButton Inc.'
+    copyright: '©2025 BigBlueButton Inc.'
     html5ClientBuild: HTML5_CLIENT_VERSION
     helpLink: https://bigbluebutton.org/html5/
     delayForUnmountOfSharedNote: 120000
@@ -56,13 +56,13 @@ public:
     customStyleUrl: null
     darkTheme:
       enabled: true
-    askForFeedbackOnLogout: false
     # the default logoutUrl matches window.location.origin i.e. bigbluebutton.org for demo.bigbluebutton.org
     # in some cases we want only custom logoutUrl to be used when provided on meeting create. Default value: true
     askForConfirmationOnLeave: true
     wakeLock: 
       enabled: true
     allowDefaultLogoutUrl: true
+    skipMeetingEnded: false
     dynamicGuestPolicy: true
     enableGuestLobbyMessage: true
     guestPolicyExtraAllowOptions: false
@@ -125,11 +125,17 @@ public:
         # [en-US, es-ES, pt-BR,...]: to set a specific locale
         # disabled: to set disabled
         locale: disabled
+      terms:
+        # The URL to the terms of service for the transcription service
+        # Specify the URL for each locale you want: 
+        # en-US: 'https://xxx/SubtitleTerms'
     mutedAlert:
       enabled: true
       interval: 200
       threshold: -50
       duration: 4000
+    appsGallery:
+      maxPinnedApps: 3
     remainingTimeThreshold: 30
     remainingTimeAlertThresholdArray: [1,5]
     enableDebugWindow: true
@@ -800,6 +806,7 @@ public:
     showParticipantsOnLogin: true
     showPushLayoutButton: true
     showPushLayoutToggle: true
+    showSessionDetailsOnJoin: true
   pads:
     url: ETHERPAD_HOST
   media:
@@ -838,10 +845,15 @@ public:
     callHangupMaximumRetries: 10
     echoTestNumber: 'echo'
     listenOnlyCallTimeout: 15000
-    # Experimental: enables a new audio mechanism that has a server-side,
-    # transparent listen only mode. See issue #14021.
-    # bbb_userdata-transparent-listen-only supersedes this setting
-    transparentListenOnly: false
+    # transparentListenOnly: whether the client should use the transparent 
+    # listen only mechanism. 
+    # It does not remove the "Listen Only" option from the audio modal
+    # by itself, but it allows users to switch modes on the fly and
+    # improves server CPU efficiency for microphone users.
+    # To disable the dedicated listen only option in the audio modal,
+    # see `listenOnlyMode`/`userdata-bbb_transparent_listen_only_mode`
+    # userdata-bbb_transparent_listen_only supersedes this setting
+    transparentListenOnly: true
     # Dev flag. Controls the WebRTC SDP negotiation role for SFU full audio.
     fullAudioOffering: true
     # Dev flag. Controls the WebRTC negotiation role for listen only.
@@ -922,6 +934,14 @@ public:
     livekit:
       # livekit.url is the URL of the LiveKit server. Default value is 'wss://{window.location.hostname}/livekit'
       #url: wss://LIVEKIT_HOST/livekit
+      # livekit.selectiveSubscription: whether to use selective subscription all
+      # applicable track sources. Default value is false. This overrides autoSubscribe
+      # when set to true and in effect (conditional to client behavior).
+      selectiveSubscription: false
+      roomOptions:
+        adaptiveStream: true
+        dynacast: true
+        stopLocalTrackOnUnpublish: false
       audio:
         # publishOptions: see https://docs.livekit.io/client-sdk-js/interfaces/TrackPublishOptions.html
         publishOptions:
@@ -1008,7 +1028,8 @@ public:
     role_moderator: MODERATOR
     role_viewer: VIEWER
     label:
-      moderator: false
+      presenter: true
+      moderator: true
       mobile: true
       guest: true
       sharingWebcam: true

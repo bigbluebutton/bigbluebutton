@@ -111,9 +111,7 @@ class ErrorScreen extends PureComponent {
   componentDidMount() {
     const { callback, endedReason } = this.props;
     // stop audio
-    window.dispatchEvent(new Event('StopAudioTracks'));
     callback(endedReason, () => {});
-    console.error({ logCode: 'startup_client_usercouldnotlogin_error' }, 'User could not log in HTML5');
   }
 
   render() {

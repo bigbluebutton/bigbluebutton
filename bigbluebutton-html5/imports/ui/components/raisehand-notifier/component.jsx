@@ -6,6 +6,7 @@ import Icon from '/imports/ui/components/common/icon/component';
 import { ENTER } from '/imports/utils/keyCodes';
 import Styled from './styles';
 import TooltipContainer from '/imports/ui/components/common/tooltip/container';
+import Auth from '/imports/ui/services/auth/index';
 
 const messages = defineMessages({
   lowerHandsLabel: {
@@ -127,18 +128,23 @@ class RaiseHandNotifier extends Component {
         key={`statusToastAvatar-${u.userId}`}
         title={intl.formatMessage(messages.lowerHandDescOneUser, { 0: u.name })}
       >
-        <Styled.Avatar
+        <Styled.ButtonAvatar
           role="button"
           tabIndex={0}
-          style={{ backgroundColor: `${u.color}` }}
           onClick={() => lowerUserHands(u.userId)}
           onKeyDown={(e) => (e.keyCode === ENTER ? lowerUserHands(u.userId) : null)}
           data-test="avatarsWrapperAvatar"
-          moderator={u.isModerator}
-          avatar={u.avatar}
         >
-          {u.name.slice(0, 2)}
-        </Styled.Avatar>
+          <Styled.Avatar
+            moderator={u.isModerator}
+            presenter={u.presenter}
+            color={u.color}
+            avatar={u.avatar}
+            you={u.userId === Auth.userID}
+          >
+            <span>{u.name.slice(0, 2)}</span>
+          </Styled.Avatar>
+        </Styled.ButtonAvatar>
       </TooltipContainer>
     ));
 
@@ -157,7 +163,7 @@ class RaiseHandNotifier extends Component {
     const { raiseHandUsers, intl, lowerUserHands } = this.props;
     const formattedRaisedHands = this.getRaisedHandNames();
     return (
-      <div>
+      <Styled.ToastContentWrapper>
         <Styled.ToastContent>
           <Styled.IconWrapper>
             <Icon iconName="hand" />
@@ -180,7 +186,7 @@ class RaiseHandNotifier extends Component {
           }}
           data-test="raiseHandRejection"
         />
-      </div>
+      </Styled.ToastContentWrapper>
     );
   }
 

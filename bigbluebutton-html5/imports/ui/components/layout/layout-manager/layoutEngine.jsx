@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { layoutSelect, layoutSelectInput, layoutSelectOutput } from '/imports/ui/components/layout/context';
 import DEFAULT_VALUES from '/imports/ui/components/layout/defaultValues';
 import { LAYOUT_TYPE, DEVICE_TYPE } from '/imports/ui/components/layout/enums';
@@ -13,6 +13,7 @@ import ParticipantsAndChatOnlyLayout from '/imports/ui/components/layout/layout-
 import useSettings from '/imports/ui/services/settings/hooks/useSettings';
 import { SETTINGS } from '/imports/ui/services/settings/enums';
 import { useIsPresentationEnabled } from '/imports/ui/services/features';
+import Session from '/imports/ui/services/storage/in-memory';
 import MediaOnlyLayout from './mediaOnlyLayout';
 
 const LayoutEngine = () => {
@@ -43,6 +44,16 @@ const LayoutEngine = () => {
   const windowHeight = () => window.document.documentElement.clientHeight;
   const min = (value1, value2) => (value1 <= value2 ? value1 : value2);
   const max = (value1, value2) => (value1 >= value2 ? value1 : value2);
+
+  useEffect(() => {
+    // If it has build one time, then set the flag to true
+    // This will prevent layout-engine to initiate the enforced layout with the
+    // default configurations.
+    const hasLayoutEngineLoadedOnce = Session.getItem('hasLayoutEngineLoadedOnce');
+    if (!hasLayoutEngineLoadedOnce) {
+      Session.setItem('hasLayoutEngineLoadedOnce', true);
+    }
+  }, []);
 
   const bannerAreaHeight = () => {
     const { hasNotification } = notificationsBarInput;
@@ -172,65 +183,75 @@ const LayoutEngine = () => {
 
   const calculatesSidebarNavWidth = () => {
     const {
-      sidebarNavMinWidth,
-      sidebarNavMaxWidth,
+      sidebarNavWidth,
+      sidebarNavWidthMobile,
+      sidebarNavHorizontalMargin,
     } = DEFAULT_VALUES;
 
-    const { isOpen, width: sidebarNavWidth } = sidebarNavigationInput;
+    const { isOpen } = sidebarNavigationInput;
 
-    let minWidth = 0;
     let width = 0;
-    let maxWidth = 0;
+    let horizontalSpaceOccupied = 0;
     if (isOpen) {
       if (isMobile) {
-        minWidth = windowWidth();
-        width = windowWidth();
-        maxWidth = windowWidth();
+        width = sidebarNavWidthMobile;
+        // The navigation sidebar is a floating window on mobile. We say it does not
+        // occupy any space, so that its width is not taken into account when calculating the
+        // position of other layout elements.
+        horizontalSpaceOccupied = 0;
       } else {
-        if (sidebarNavWidth === 0) {
-          width = min(max((windowWidth() * 0.2), sidebarNavMinWidth), sidebarNavMaxWidth);
-        } else {
-          width = min(max(sidebarNavWidth, sidebarNavMinWidth), sidebarNavMaxWidth);
-        }
-        minWidth = sidebarNavMinWidth;
-        maxWidth = sidebarNavMaxWidth;
+        width = sidebarNavWidth;
+        horizontalSpaceOccupied = sidebarNavWidth + (2 * sidebarNavHorizontalMargin);
       }
     }
     return {
-      minWidth,
       width,
-      maxWidth,
+      horizontalSpaceOccupied,
     };
   };
 
   const calculatesSidebarNavHeight = () => {
-    const { navBarHeight } = DEFAULT_VALUES;
+    const {
+      sidebarNavHeightPercentage,
+      sidebarNavHeightPercentageMobile,
+    } = DEFAULT_VALUES;
     const { isOpen } = sidebarNavigationInput;
 
-    let sidebarNavHeight = 0;
+    let sidebarNavigationHeight = 0;
+    let availableHeight = windowHeight();
     if (isOpen) {
       if (isMobile) {
-        sidebarNavHeight = windowHeight() - navBarHeight - bannerAreaHeight();
+        // The navigation sidebar is a floating tile on mobile, so it should
+        // not take into account the banner and navbar height when calculating
+        // its height.
+        sidebarNavigationHeight = availableHeight * sidebarNavHeightPercentageMobile;
       } else {
-        sidebarNavHeight = windowHeight() - bannerAreaHeight();
+        availableHeight -= bannerAreaHeight();
+        sidebarNavigationHeight = availableHeight * sidebarNavHeightPercentage;
       }
     }
-    return sidebarNavHeight;
+    return sidebarNavigationHeight;
   };
 
-  const calculatesSidebarNavBounds = () => {
-    const { sidebarNavTop, navBarHeight, sidebarNavLeft } = DEFAULT_VALUES;
+  const calculatesSidebarNavBounds = (sidebarNavHeight) => {
+    const {
+      sidebarNavLeft,
+      sidebarNavHorizontalMargin,
+      sidebarNavHorizontalMarginMobile,
+    } = DEFAULT_VALUES;
 
-    let top = sidebarNavTop + bannerAreaHeight();
-
+    let offset = bannerAreaHeight();
+    let horizontalPlacement = sidebarNavLeft + sidebarNavHorizontalMargin;
     if (isMobile) {
-      top = navBarHeight + bannerAreaHeight();
+      offset = 0;
+      horizontalPlacement = sidebarNavLeft + sidebarNavHorizontalMarginMobile;
     }
+    const remainingVerticalEmptySpace = windowHeight() - offset - sidebarNavHeight;
 
     return {
-      top,
-      left: !isRTL ? sidebarNavLeft : null,
-      right: isRTL ? sidebarNavLeft : null,
+      top: offset + (remainingVerticalEmptySpace / 2),
+      left: !isRTL ? horizontalPlacement : null,
+      right: isRTL ? horizontalPlacement : null,
       zIndex: isMobile ? 11 : 2,
     };
   };
@@ -284,7 +305,7 @@ const LayoutEngine = () => {
     left = !isRTL ? left : null;
     right = isRTL ? right : null;
 
-    const zIndex = isMobile ? 11 : 1;
+    const zIndex = isMobile ? 11 : 2;
 
     return {
       top,
@@ -294,7 +315,11 @@ const LayoutEngine = () => {
     };
   };
 
-  const calculatesMediaAreaBounds = (sidebarNavWidth, sidebarContentWidth, margin = 0) => {
+  const calculatesMediaAreaBounds = (
+    sidebarNavWidth,
+    sidebarContentWidth,
+    margin = 0,
+  ) => {
     const { height: actionBarHeight } = calculatesActionbarHeight();
     const navBarHeight = calculatesNavbarHeight();
 

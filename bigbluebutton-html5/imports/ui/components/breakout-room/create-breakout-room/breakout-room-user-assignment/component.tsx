@@ -284,6 +284,7 @@ const BreakoutRoomUserAssignment: React.FC<ChildComponentProps> = ({
             tabIndex={-1}
             id={`${user.userId}-${room}`}
             key={user.userId}
+            data-test="roomUserItem"
             draggable
             onDragStart={dragStart}
             onDragEnd={dragEnd}
@@ -319,8 +320,49 @@ const BreakoutRoomUserAssignment: React.FC<ChildComponentProps> = ({
     return '';
   };
 
+  const rover = (e: React.KeyboardEvent<HTMLDivElement>) => {
+    e.preventDefault();
+    e.stopPropagation();
+    const element = e.target as HTMLElement;
+    if (element.id.includes('breakoutBox')) {
+      if (e.key === 'Enter' || e.key === 'ArrowDown') {
+        (element.firstChild as HTMLElement).focus();
+      }
+    }
+
+    if (element?.dataset?.test?.includes('roomUserItem')) {
+      const splitted = element.id.split('-');
+      const [userId, StringFrom] = splitted;
+      const from = Number(StringFrom);
+      const maxRooms = numberOfRooms;
+      if (e.key === 'ArrowDown' || e.key === 'ArrowUp') {
+        const nextElement = e.key === 'ArrowDown' ? element.nextSibling : element.previousSibling;
+        if (nextElement) (nextElement as HTMLElement).focus();
+      }
+
+      if (e.key === 'ArrowRight') {
+        const nextRoom = from + 1;
+        if (nextRoom <= maxRooms) {
+          moveUser(userId, from, from + 1);
+          updateSortedRooms();
+        }
+      }
+
+      if (e.key === 'ArrowLeft') {
+        const prevRoom = from - 1;
+        if (prevRoom >= 0) {
+          moveUser(userId, from, from - 1 < 0 ? 0 : from - 1);
+          updateSortedRooms();
+        }
+      }
+    }
+  };
+
   return (
     <>
+      <Styled.SpanWarn data-test="warningNoUserAssigned" valid={rooms[0]?.users?.length < users.length}>
+        {intl.formatMessage(intlMessages.leastOneWarnBreakout)}
+      </Styled.SpanWarn>
       <ManageRoomLabel
         onAssignReset={() => { resetRooms(0); }}
         onAssignRandomly={randomlyAssign}
@@ -334,7 +376,7 @@ const BreakoutRoomUserAssignment: React.FC<ChildComponentProps> = ({
               type="text"
               readOnly
               value={
-                intl.formatMessage(intlMessages.notAssigned, { 0: 0 })
+                intl.formatMessage(intlMessages.notAssigned, { 0: rooms[0]?.users?.length ?? 0 })
               }
             />
           </Styled.FreeJoinLabel>
@@ -344,12 +386,10 @@ const BreakoutRoomUserAssignment: React.FC<ChildComponentProps> = ({
             onDrop={drop(0)}
             onDragOver={allowDrop}
             tabIndex={0}
+            onKeyDown={rover}
           >
             {roomUserList(0)}
           </Styled.BreakoutBox>
-          <Styled.SpanWarn data-test="warningNoUserAssigned" valid={rooms[0]?.users?.length < users.length}>
-            {intl.formatMessage(intlMessages.leastOneWarnBreakout)}
-          </Styled.SpanWarn>
         </Styled.Alert>
         <Styled.BoxContainer key="rooms-grid-" data-test="roomGrid">
           {
@@ -404,6 +444,7 @@ const BreakoutRoomUserAssignment: React.FC<ChildComponentProps> = ({
                   onDragOver={allowDrop}
                   hundred={false}
                   tabIndex={0}
+                  onKeyDown={rover}
                 >
                   {roomUserList(value)}
                 </Styled.BreakoutBox>

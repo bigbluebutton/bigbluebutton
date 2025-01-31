@@ -2,7 +2,6 @@ import Auth from '/imports/ui/services/auth';
 import logger from '/imports/startup/client/logger';
 import { partition } from '/imports/utils/array-utils';
 import update from 'immutability-helper';
-import { v4 as uuid } from 'uuid';
 import { uniqueId } from '/imports/utils/string-utils';
 import { notify } from '/imports/ui/services/notification';
 import apolloContextHolder from '/imports/ui/core/graphql/apolloContextHolder/apolloContextHolder';
@@ -79,6 +78,8 @@ const requestPresentationUploadToken = (
 });
 
 const uploadAndConvertPresentation = (
+  filename,
+  temporaryPresentationId,
   file,
   downloadable,
   meetingId,
@@ -89,8 +90,6 @@ const uploadAndConvertPresentation = (
   current,
 ) => {
   if (!file) return Promise.resolve();
-
-  const temporaryPresentationId = uniqueId(uuid());
 
   const data = new FormData();
   data.append('fileUpload', file);
@@ -109,10 +108,8 @@ const uploadAndConvertPresentation = (
     body: data,
   };
 
-  return requestPresentationUploadToken(temporaryPresentationId, meetingId, file.name)
-    .then((token) => (
-      futch(endpoint.replace('upload', `${token}/upload`), opts, onProgress)
-    ))
+  return requestPresentationUploadToken(temporaryPresentationId, meetingId, filename)
+    .then((token) => futch(endpoint.replace('upload', `${token}/upload`), opts, onProgress))
     // Trap the error so we can have parallel upload
     .catch((error) => {
       logger.debug({
@@ -131,7 +128,8 @@ const uploadAndConvertPresentations = (
   meetingId,
   uploadEndpoint,
 ) => Promise.all(presentationsToUpload.map((p) => uploadAndConvertPresentation(
-  p.file, p.downloadable, meetingId, uploadEndpoint,
+  p.name,
+  p.presentationId, p.file, p.downloadable, meetingId, uploadEndpoint,
   p.onUpload, p.onProgress, p.onConversion, p.current,
 )));
 
@@ -148,13 +146,14 @@ const persistPresentationChanges = (
   removePresentation,
 ) => {
   const presentationsToUpload = newState.filter((p) => !p.uploadCompleted);
-  const presentationsToRemove = oldState.filter((p) => !newState.find((u) => { return u.presentationId === p.presentationId }));
+  const presentationsToRemove = oldState.filter((p) => !newState.find(
+    (u) => u.presentationId === p.presentationId,
+  ));
 
   let currentPresentation = newState.find((p) => p.current);
   return uploadAndConvertPresentations(presentationsToUpload, Auth.meetingID, uploadEndpoint)
     .then((presentations) => {
       if (!presentations.length && !currentPresentation) return Promise.resolve();
-
       // Update the presentation with their new ids
       presentations.forEach((p, i) => {
         if (p === undefined) return;
@@ -197,24 +196,25 @@ const handleSavePresentation = (
   if (!isPresentationEnabled) {
     return null;
   }
-
   const PRESENTATION_CONFIG = window.meetingClientSettings.public.presentation;
 
+  let updatedPresentations = [...presentations];
+
   if (!isFromPresentationUploaderInterface) {
-    if (presentations.length === 0) {
-      presentations = [...currentPresentations];
+    if (updatedPresentations.length === 0) {
+      updatedPresentations = [...currentPresentations];
     }
-    presentations = presentations.map((p) => update(p, {
+    updatedPresentations = updatedPresentations.map((p) => update(p, {
       current: {
         $set: false,
       },
     }));
-    newPres.current = true;
-    presentations.push(newPres);
+    const updatedNewPres = { ...newPres, current: true }; // Avoid mutating newPres
+    updatedPresentations.push(updatedNewPres);
   }
   return persistPresentationChanges(
     currentPresentations,
-    presentations,
+    updatedPresentations,
     PRESENTATION_CONFIG.uploadEndpoint,
     setPresentation,
     removePresentation,
@@ -293,6 +293,7 @@ function handleFiledrop(files, files2, that, intl, intlMessages) {
     that.setState(({ presentations }) => ({
       presentations: presentations.concat(presentationsToUpload),
       toUploadCount: (toUploadCount + presentationsToUpload.length),
+      shouldDisableExportButtonForAllDocuments: true,
     }), () => {
       // after the state is set (files have been dropped),
       // make the first of the new presentations current

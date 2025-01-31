@@ -8,27 +8,24 @@ const Header = ({
   leftButtonProps,
   rightButtonProps,
   customRightButton,
+  title,
   'data-test': dataTest,
   ...rest
 }) => {
-  const renderCloseButton = () => (
-    <Right {...rightButtonProps} />
-  );
-
-  const renderCustomRightButton = () => (
-    <Styled.RightWrapper>
-      {customRightButton}
-    </Styled.RightWrapper>
-  );
 
   return (
     <Styled.Header data-test={dataTest ? dataTest : ''} {...rest}>
-      {leftButtonProps ? <Left {...leftButtonProps} /> : <div />}
-      {customRightButton
-        ? renderCustomRightButton()
-        : rightButtonProps
-          ? renderCloseButton()
-          : null}
+      <Styled.Title>{title}</Styled.Title>
+      {customRightButton && (
+        <Styled.RightWrapper>
+          {customRightButton}
+        </Styled.RightWrapper>
+      )}
+      {rightButtonProps && (
+        <Styled.RightWrapper>
+          <Right {...rightButtonProps} />
+        </Styled.RightWrapper>
+      )}
     </Styled.Header>
   );
 }

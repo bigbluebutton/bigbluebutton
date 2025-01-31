@@ -2,9 +2,9 @@ import styled from 'styled-components';
 import {
   borderSize,
   borderSizeLarge,
-  smPaddingX,
   toastContentWidth,
   borderRadius,
+  contentSidebarPadding,
 } from '../../../stylesheets/styled-components/general';
 import {
   colorGrayDark,
@@ -17,26 +17,17 @@ import {
 } from '../../../stylesheets/styled-components/palette';
 import { TextElipsis } from '../../../stylesheets/styled-components/placeholders';
 import Button from '/imports/ui/components/common/button/component';
+import {
+  HeaderContainer as BaseHeaderContainer,
+  Separator as BaseSeparator,
+  PanelContent as BasePanelContent,
+} from '/imports/ui/components/sidebar-content/styles';
 
-const TimerSidebarContent = styled.div`
-  background-color: ${colorWhite};
-  padding: ${smPaddingX};
-  display: flex;
-  flex-grow: 1;
-  flex-direction: column;
-  justify-content: space-around;
-  overflow: hidden;
-  height: 100%;
-  transform: translateZ(0);
-`;
+const HeaderContainer = styled(BaseHeaderContainer)``;
 
-const TimerHeader = styled.header`
-  position: relative;
-  display: flex;
-  flex-direction: row;
-  align-items: center;
-  justify-content: space-between;
-`;
+const Separator = styled(BaseSeparator)``;
+
+const TimerSidebarContent = styled(BasePanelContent)``;
 
 const TimerTitle = styled.div`
   ${TextElipsis};
@@ -84,6 +75,7 @@ const TimerContent = styled.div`
   flex-direction: column;
   width: 100%;
   height: 100%;
+  padding: ${contentSidebarPadding};
 `;
 
 const TimerCurrent = styled.span`
@@ -238,8 +230,9 @@ const TimerInput = styled.input`
 `;
 
 export default {
+  HeaderContainer,
+  Separator,
   TimerSidebarContent,
-  TimerHeader,
   TimerTitle,
   TimerMinimizeButton,
   TimerContent,

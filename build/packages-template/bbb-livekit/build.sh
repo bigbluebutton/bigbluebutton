@@ -2,9 +2,9 @@
 
 TARGET=`basename $(pwd)`
 
-SERVER_VERSION=1.7.2
-CLI_VERSION=2.2.0
-SIP_VERSION=0.8.0
+SERVER_VERSION=1.8.3
+CLI_VERSION=2.3.1
+SIP_VERSION=0.9.0
 
 PACKAGE=$(echo $TARGET | cut -d'_' -f1)
 VERSION=$(echo $TARGET | cut -d'_' -f2)
@@ -29,6 +29,7 @@ cp livekit-server.service livekit-sip.service $DESTDIR/lib/systemd/system
 
 mkdir -p $DESTDIR/usr/share/livekit-server
 cp livekit.yaml livekit-sip.yaml $DESTDIR/usr/share/livekit-server
+chmod 644 $DESTDIR/usr/share/livekit-server/livekit*.yaml
 
 mkdir -p $DESTDIR/usr/bin
 

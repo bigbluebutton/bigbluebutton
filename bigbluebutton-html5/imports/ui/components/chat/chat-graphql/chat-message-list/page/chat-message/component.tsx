@@ -33,6 +33,8 @@ import Icon from '/imports/ui/components/common/icon/component';
 import { colorBlueLighterChannel } from '/imports/ui/stylesheets/styled-components/palette';
 import ChatMessageNotificationContent from './message-content/notification-content/component';
 import { getValueByPointer } from '/imports/utils/object-utils';
+import Tooltip from '/imports/ui/components/common/tooltip/container';
+import Auth from '/imports/ui/services/auth';
 
 interface ChatMessageProps {
   message: Message;
@@ -256,6 +258,12 @@ const ChatMessage = React.forwardRef<ChatMessageRef, ChatMessageProps>(({
       scrollRef?.current?.removeEventListener('scrollend', callbackFunction);
     };
   }, [message, messageRef, markMessageAsSeenOnScrollEnd]);
+
+  useEffect(() => {
+    if (focused) {
+      containerRef.current?.scrollIntoView({ behavior: 'instant', block: 'center', inline: 'center' });
+    }
+  }, [focused]);
 
   if (!message) return null;
   const pluginMessageNotCustom = (previousMessage?.messageType !== ChatMessageType.PLUGIN
@@ -502,8 +510,9 @@ const ChatMessage = React.forwardRef<ChatMessageRef, ChatMessageProps>(({
                 avatar={message.user?.avatar || ''}
                 color={messageContent.color}
                 moderator={messageContent.isModerator}
+                you={message.user?.userId === Auth.userID}
               >
-                {avatarDisplay}
+                {typeof avatarDisplay === 'string' ? <span>{avatarDisplay}</span> : avatarDisplay}
               </ChatAvatar>
             )}
             {shouldRenderHeader && (
@@ -530,6 +539,7 @@ const ChatMessage = React.forwardRef<ChatMessageRef, ChatMessageProps>(({
           $focused={focused}
           $keyboardFocused={keyboardFocused}
           $reactionPopoverIsOpen={isToolbarReactionPopoverOpen}
+          data-test="chatMessageItem"
         >
           <ChatMessageToolbar
             keyboardFocused={keyboardFocused}
@@ -574,10 +584,12 @@ const ChatMessage = React.forwardRef<ChatMessageRef, ChatMessageProps>(({
           {sameSender && (
             <ChatContentFooter>
               {!deleteTime && editTime && (
-                <EditLabel>
-                  <Icon iconName="pen_tool" />
-                  <span>{intl.formatMessage(intlMessages.edited)}</span>
-                </EditLabel>
+                <Tooltip title={intl.formatTime(editTime, { hour12: false })}>
+                  <EditLabel>
+                    <Icon iconName="pen_tool" />
+                    <span>{intl.formatMessage(intlMessages.edited)}</span>
+                  </EditLabel>
+                </Tooltip>
               )}
               <ChatTime>
                 <FormattedTime value={dateTime} hour12={false} />
