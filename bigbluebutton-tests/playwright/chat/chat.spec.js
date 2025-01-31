@@ -17,7 +17,7 @@ test.describe('Chat', { tag: '@ci' }, () => {
   });
 
   // https://docs.bigbluebutton.org/3.0/testing/release-testing/#private-message-automated
-  test('Send private message', async () => {
+  test('Send private message', { tag: '@flaky-3.1' }, async () => {
     await chat.sendPrivateMessage();
   });
 
@@ -43,7 +43,7 @@ test.describe('Chat', { tag: '@ci' }, () => {
     await chat.emptyMessage();
   });
 
-  test('Copy and paste public message', async () => {
+  test('Copy and paste public message', { tag: '@flaky-3.1' }, async () => {
     await chat.copyPastePublicMessage();
   })
 
@@ -55,7 +55,7 @@ test.describe('Chat', { tag: '@ci' }, () => {
     await chat.emojiCopyChat();
   });
 
-  test('Close private chat', async () => {
+  test('Close private chat', { tag: '@flaky-3.1' }, async () => {
     await chat.closePrivateChat();
   });
 
@@ -85,7 +85,7 @@ test.describe('Chat', { tag: '@ci' }, () => {
 
   // failure only reproducible in CI (user leaves but keeps shown in the mod user list)
   //! flaky flag recently removed in order to see current behavior
-  test('Private chat disabled when user leaves meeting', { tag: '@ci' }, async () => {
+  test('Private chat disabled when user leaves meeting', { tag: ['@ci', '@flaky-3.1'] }, async () => {
     await chat.chatDisabledUserLeaves();
   });
 });
