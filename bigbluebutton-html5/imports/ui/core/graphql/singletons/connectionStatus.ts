@@ -1,7 +1,6 @@
 import { makeVar, ReactiveVar } from '@apollo/client';
 import logger from '/imports/startup/client/logger';
 import { User } from '/imports/ui/Types/user';
-import getStatus from '/imports/ui/core/utils/getStatus';
 
 type NetworkData = {
   ready: boolean;
@@ -105,16 +104,30 @@ class ConnectionStatus {
     return this.networkData;
   }
 
+  public setConnectionStatus(newRttValue: number, newRttStatus: string): void {
+    if (newRttValue !== this.rttValue() || newRttStatus !== this.rttStatus()) {
+      switch (newRttStatus) {
+        case 'critical':
+          logger.warn({ logCode: 'stats_rtt_state' }, `Connection status changed to critical(rtt > ${newRttValue}ms)`);
+          break;
+        case 'danger':
+          logger.warn({ logCode: 'stats_rtt_state' }, `Connection status changed to danger (rtt = ${newRttValue}ms)`);
+          break;
+        case 'warning':
+        case 'normal':
+          logger.debug({ logCode: 'stats_rtt_state' }, `Connection status changed to ${newRttStatus} (rtt = ${newRttValue}ms)`);
+          break;
+        default:
+      }
+
+      this.setRttValue(newRttValue);
+      this.setRttStatus(newRttStatus);
+    }
+  }
+
   public setRttValue(value: number): void {
     if (value !== this.rttValue()) {
-      const rttLevels = window.meetingClientSettings.public.stats.rtt;
-      const status = getStatus(rttLevels, value);
-      const isWarning = status === 'critical' || (this.rttStatus() === 'critical' && status !== 'critical');
-      if (isWarning) {
-        logger.warn({ logCode: 'stats_rtt_value_state', extraInfo: { rtt: value } }, `RTT value changed to ${value}ms`);
-      } else {
-        logger.debug({ logCode: 'stats_rtt_value_state', extraInfo: { rtt: value } }, `RTT value changed to ${value}ms`);
-      }
+      logger.debug({ logCode: 'stats_rtt_value_state', extraInfo: { rtt: value } }, `RTT value changed to ${value}ms`);
       this.rttValue(value);
     }
   }
@@ -129,7 +142,11 @@ class ConnectionStatus {
 
   public setLastRttRequestSuccess(value: boolean): void {
     if (value !== this.lastRttRequestSuccess()) {
-      logger.info({ logCode: 'stats_rtt_success_state' }, `Last RTT request changed to ${value}`);
+      if (value === false) {
+        logger.warn({ logCode: 'stats_rtt_success_state' }, `Last RTT request failed (rtt_success=${value})`);
+      } else {
+        logger.debug({ logCode: 'stats_rtt_success_state' }, `Last RTT request succeeded (rtt_success=${value})`);
+      }
       this.lastRttRequestSuccess(value);
     }
   }
@@ -144,11 +161,7 @@ class ConnectionStatus {
 
   public setRttStatus(value: string): void {
     if (value !== this.rttStatus()) {
-      if (value === 'critical' || (value !== 'critical' && this.rttStatus() === 'critical')) {
-        logger.warn({ logCode: 'stats_rtt_status_state' }, `Connection status changed to ${value} (rtt=${this.rttValue()}ms)`);
-      } else {
-        logger.info({ logCode: 'stats_rtt_status_state' }, `Connection status changed to ${value} (rtt=${this.rttValue()}ms)`);
-      }
+      logger.info({ logCode: 'stats_rtt_status_value' }, `RTT status changed to ${value}`);
       this.rttStatus(value);
     }
   }
@@ -233,4 +246,6 @@ class ConnectionStatus {
   }
 }
 
-export default new ConnectionStatus();
+const connectionsStatusSingleton = new ConnectionStatus();
+
+export default connectionsStatusSingleton;

@@ -1440,7 +1440,7 @@ Useful tools for development:
 | ------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------ |
 | `userdata-bbb_shortcuts=` | The value passed has to be URL encoded. For example if you would like to disable shortcuts, pass `%5B%5D` which is the encoded version of the empty array `[]` | See `settings.yml` |
 
-#### Kurento parameters
+#### Media parameters
 
 | Parameter                                        | Description                                                                                                                                                                                                                                                                                                                             | Default value |
 | ------------------------------------------------ | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------- |
@@ -1493,6 +1493,8 @@ The use of *more will include all shapes listed above.
 | `userdata-bbb_hide_nav_bar=`               | If set to `true`, the navigation bar (the top portion of the client) will not be displayed. Introduced in BBB 2.4-rc-3. | `false`       |
 | `userdata-bbb_hide_actions_bar=`           | If set to `true`, the actions bar (the bottom portion of the client) will not be displayed. Introduced in BBB 2.4-rc-3. | `false`       |
 | `userdata-bbb_default_layout=`             | The initial layout on client load. Options are: `CUSTOM_LAYOUT`, `SMART_LAYOUT`, `PRESENTATION_FOCUS`, `VIDEO_FOCUS`. If none is provided, the meeting layout (preset in bbb-web) will be used. Introduced in BBB 3.0.0-alpha.5. | `none`       |
+| `userdata-bbb_hide_notifications=`         | When this parameter is set to `true`, all notification toasts are suppressed in the client. Introduced in BBB 3.0.0-beta.4. | `false`       |
+| `userdata-bbb_hide_controls=`              | When this parameter is set to `true`, it hides the actions bar and the top row of the navigation bar (including the close sidebar button, room title, connectivity indicator, and leave meeting button) while keeping the row with the talking indicator and timer indicator visible. Introduced in BBB 3.0.0-beta.4. | `false`    |
 
 #### Examples
 

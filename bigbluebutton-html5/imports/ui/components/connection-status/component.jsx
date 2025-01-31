@@ -45,8 +45,7 @@ const ConnectionStatus = () => {
             },
           });
           const rttStatus = getStatus(rttLevels, networkRtt);
-          connectionStatus.setRttValue(networkRtt);
-          connectionStatus.setRttStatus(rttStatus);
+          connectionStatus.setConnectionStatus(networkRtt, rttStatus);
           connectionStatus.setLastRttRequestSuccess(true);
 
           if (Object.keys(rttLevels).includes(rttStatus)) {
@@ -61,7 +60,7 @@ const ConnectionStatus = () => {
       .catch(() => {
         connectionStatus.setLastRttRequestSuccess(false);
         // gets the worst status
-        connectionStatus.setRttStatus('critical');
+        connectionStatus.setConnectionStatus(2000, 'critical');
       })
       .finally(() => {
         if (timeoutRef.current) {
