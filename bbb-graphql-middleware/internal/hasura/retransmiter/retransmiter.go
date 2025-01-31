@@ -1,7 +1,9 @@
 package retransmiter
 
 import (
+	"bbb-graphql-middleware/config"
 	"bbb-graphql-middleware/internal/common"
+	"slices"
 )
 
 func RetransmitSubscriptionStartMessages(hc *common.HasuraConnection) {
@@ -20,9 +22,9 @@ func RetransmitSubscriptionStartMessages(hc *common.HasuraConnection) {
 		}
 
 		//When user left the meeting, Retransmit only Presence Manager subscriptions
+
 		if !userCurrentlyInMeeting &&
-			subscription.OperationName != "getUserInfo" &&
-			subscription.OperationName != "getUserCurrent" {
+			!slices.Contains(config.AllowedSubscriptionsForNotInMeetingUsers, subscription.OperationName) {
 			hc.BrowserConn.Logger.Debugf("Skipping retransmit %s because the user is offline", subscription.OperationName)
 			continue
 		}

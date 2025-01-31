@@ -12,6 +12,7 @@ import (
 	"github.com/graphql-go/graphql/language/source"
 	"github.com/prometheus/client_golang/prometheus"
 	"nhooyr.io/websocket"
+	"slices"
 	"strings"
 	"sync"
 	"time"
@@ -264,11 +265,11 @@ RangeLoop:
 
 				if !userCurrentlyInMeeting &&
 					browserMessage.Type == "subscribe" &&
-					browserMessage.Payload.OperationName != "getUserInfo" &&
-					browserMessage.Payload.OperationName != "getUserCurrent" {
+					!slices.Contains(config.AllowedSubscriptionsForNotInMeetingUsers, browserMessage.Payload.OperationName) {
 					hc.BrowserConn.Logger.Debugf("Not sending to Hasura %s because the user is not logged", browserMessage.Payload.OperationName)
 					continue
 				} else {
+					//println("2")
 					//Sending to Hasura
 					hc.BrowserConn.Logger.Tracef("sending to hasura: %s", string(fromBrowserMessage))
 					errWrite := hc.Websocket.Write(hc.Context, websocket.MessageText, fromBrowserMessage)
