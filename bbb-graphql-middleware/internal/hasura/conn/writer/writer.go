@@ -12,6 +12,7 @@ import (
 	"github.com/graphql-go/graphql/language/source"
 	"github.com/prometheus/client_golang/prometheus"
 	"nhooyr.io/websocket"
+	"slices"
 	"strings"
 	"sync"
 	"time"
@@ -256,13 +257,27 @@ RangeLoop:
 					continue
 				}
 
-				hc.BrowserConn.Logger.Tracef("sending to hasura: %s", string(fromBrowserMessage))
-				errWrite := hc.Websocket.Write(hc.Context, websocket.MessageText, fromBrowserMessage)
-				if errWrite != nil {
-					if !errors.Is(errWrite, context.Canceled) {
-						hc.BrowserConn.Logger.Errorf("error on write (we're disconnected from hasura): %v", errWrite)
+				//Check if user is in meeting and avoid sending to Hasura subscriptions that user doesn't have permission
+				userCurrentlyInMeeting := false
+				if hasuraRole, exists := hc.BrowserConn.BBBWebSessionVariables["x-hasura-role"]; exists {
+					userCurrentlyInMeeting = hasuraRole == "bbb_client"
+				}
+
+				if !userCurrentlyInMeeting &&
+					browserMessage.Type == "subscribe" &&
+					!slices.Contains(config.AllowedSubscriptionsForNotInMeetingUsers, browserMessage.Payload.OperationName) {
+					hc.BrowserConn.Logger.Debugf("Not sending to Hasura %s because the user is not in meeting", browserMessage.Payload.OperationName)
+					continue
+				} else {
+					//Sending to Hasura
+					hc.BrowserConn.Logger.Tracef("sending to hasura: %s", string(fromBrowserMessage))
+					errWrite := hc.Websocket.Write(hc.Context, websocket.MessageText, fromBrowserMessage)
+					if errWrite != nil {
+						if !errors.Is(errWrite, context.Canceled) {
+							hc.BrowserConn.Logger.Errorf("error on write (we're disconnected from hasura): %v", errWrite)
+						}
+						return
 					}
-					return
 				}
 			}
 		}
