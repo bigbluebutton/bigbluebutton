@@ -257,7 +257,7 @@ RangeLoop:
 					continue
 				}
 
-				//Check if user is logged and avoid sending to Hasura subscriptions that user doesn't have permission
+				//Check if user is in meeting and avoid sending to Hasura subscriptions that user doesn't have permission
 				userCurrentlyInMeeting := false
 				if hasuraRole, exists := hc.BrowserConn.BBBWebSessionVariables["x-hasura-role"]; exists {
 					userCurrentlyInMeeting = hasuraRole == "bbb_client"
@@ -266,10 +266,9 @@ RangeLoop:
 				if !userCurrentlyInMeeting &&
 					browserMessage.Type == "subscribe" &&
 					!slices.Contains(config.AllowedSubscriptionsForNotInMeetingUsers, browserMessage.Payload.OperationName) {
-					hc.BrowserConn.Logger.Debugf("Not sending to Hasura %s because the user is not logged", browserMessage.Payload.OperationName)
+					hc.BrowserConn.Logger.Debugf("Not sending to Hasura %s because the user is not in meeting", browserMessage.Payload.OperationName)
 					continue
 				} else {
-					//println("2")
 					//Sending to Hasura
 					hc.BrowserConn.Logger.Tracef("sending to hasura: %s", string(fromBrowserMessage))
 					errWrite := hc.Websocket.Write(hc.Context, websocket.MessageText, fromBrowserMessage)

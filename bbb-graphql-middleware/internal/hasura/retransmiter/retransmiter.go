@@ -22,10 +22,9 @@ func RetransmitSubscriptionStartMessages(hc *common.HasuraConnection) {
 		}
 
 		//When user left the meeting, Retransmit only Presence Manager subscriptions
-
 		if !userCurrentlyInMeeting &&
 			!slices.Contains(config.AllowedSubscriptionsForNotInMeetingUsers, subscription.OperationName) {
-			hc.BrowserConn.Logger.Debugf("Skipping retransmit %s because the user is offline", subscription.OperationName)
+			hc.BrowserConn.Logger.Debugf("Skipping retransmit %s because the user is not in meeting", subscription.OperationName)
 			continue
 		}
 
