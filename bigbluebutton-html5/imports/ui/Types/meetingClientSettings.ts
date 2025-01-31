@@ -1,4 +1,7 @@
-import type { TrackPublishOptions } from 'livekit-client';
+import type {
+  InternalRoomOptions,
+  TrackPublishOptions,
+} from 'livekit-client';
 
 export interface MeetingClientSettings {
   public: Public
@@ -56,10 +59,10 @@ export interface App {
   learningDashboardBase: string
   customStyleUrl: string | null
   darkTheme: DarkTheme
-  askForFeedbackOnLogout: boolean
   askForConfirmationOnLeave: boolean
   wakeLock: WakeLock
   allowDefaultLogoutUrl: boolean
+  skipMeetingEnded: boolean
   dynamicGuestPolicy: boolean
   enableGuestLobbyMessage: boolean
   guestPolicyExtraAllowOptions: boolean
@@ -629,6 +632,8 @@ export interface LiveKitAudioSettings {
 
 export interface LiveKitSettings {
   url?: string
+  selectiveSubscription?: boolean
+  roomOptions?: Partial<InternalRoomOptions>
   audio?: LiveKitAudioSettings
   camera?: LiveKitCameraSettings
   screenshare?: LiveKitScreenShareSettings

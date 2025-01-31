@@ -1,12 +1,14 @@
 package org.bigbluebutton.presentation.imp;
 
 import com.google.gson.Gson;
+import org.bigbluebutton.api.Util;
 import org.bigbluebutton.presentation.messages.IPresentationCompletionMessage;
 import org.bigbluebutton.presentation.messages.PageConvertProgressMessage;
 import org.bigbluebutton.presentation.messages.PresentationConvertMessage;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.File;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.*;
@@ -15,6 +17,7 @@ public class PresentationConversionCompletionService {
     private static Logger log = LoggerFactory.getLogger(PresentationConversionCompletionService.class);
 
     private SlidesGenerationProgressNotifier notifier;
+    private S3FileManager s3FileManager;
 
     private ExecutorService executor;
     private volatile boolean processProgress = false;
@@ -76,6 +79,34 @@ public class PresentationConversionCompletionService {
         log.info(" --analytics-- data={}", logStr);
 
         notifier.sendConversionCompletedMessage(p.pres);
+
+        //Store presentation outputs in cache (if enabled)
+        if(!p.pres.getUploadedFileHash().isEmpty()) {
+            try {
+                String remoteFileName = p.pres.getUploadedFileHash() + ".tar.gz";
+                if(s3FileManager.isPresentationConversionCacheEnabled() && !s3FileManager.exists(remoteFileName)) {
+                    File parentDir = new File(p.pres.getUploadedFile().getParent());
+                    File compressedFile = TarGzManager.compress(
+                            parentDir.getAbsolutePath(),
+                            p.pres.getUploadedFileHash(),
+                            p.pres.getNumberOfPages()
+                    );
+                    s3FileManager.upload(remoteFileName, compressedFile);
+                    log.info("Presentation outputs stored into cache successfully for {}.", p.pres.getId());
+                }
+            } catch (Exception e) {
+                log.error("Error while storing presentations outputs into cache: {}", e.getMessage());
+            }
+        }
+
+        // Remove pdf of each page (it was necessary just during conversions)
+        String presDir = p.pres.getUploadedFile().getParent();
+        for (int page = 1; page <= p.pres.getNumberOfPages(); page++) {
+            File pageFile = new File(presDir + "/page" + "-" + page + ".pdf");
+            if(pageFile.exists()) {
+                pageFile.delete();
+            }
+        }
     }
     public void start() {
         log.info("Ready to process presentation files!");
@@ -107,5 +138,9 @@ public class PresentationConversionCompletionService {
 
     public void setSlidesGenerationProgressNotifier(SlidesGenerationProgressNotifier notifier) {
         this.notifier = notifier;
+    }
+
+    public void setS3FileManager(S3FileManager s3FileManager) {
+        this.s3FileManager = s3FileManager;
     }
 }

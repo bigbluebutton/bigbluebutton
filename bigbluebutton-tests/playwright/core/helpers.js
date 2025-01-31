@@ -76,7 +76,7 @@ async function createMeeting(params, createParameter, page) {
 
 function getJoinURL(meetingID, params, moderator, joinParameter) {
   const pw = moderator ? params.moderatorPW : params.attendeePW;
-  const baseQuery = `fullName=${params.fullName}&meetingID=${meetingID}&password=${pw}`;
+  const baseQuery = `fullName=${params.fullName}&meetingID=${meetingID}&password=${pw}&userdata-bbb_show_session_details_on_join=false`;
   const query = joinParameter !== undefined ? `${baseQuery}&${joinParameter}` : baseQuery;
   const apiCall = `join${query}${params.secret}`;
   const checksum = getChecksum(apiCall, parameters.secret);

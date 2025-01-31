@@ -5,8 +5,8 @@ case class RegisterUserReqMsg(
     header: BbbCoreHeaderWithMeetingId,
     body:   RegisterUserReqMsgBody
 ) extends BbbCoreMsg
-case class RegisterUserReqMsgBody(meetingId: String, intUserId: String, name: String, role: String,
-                                  extUserId: String, authToken: String, sessionToken: String, avatarURL: String,
+case class RegisterUserReqMsgBody(meetingId: String, intUserId: String, name: String, firstName: String, lastName: String,
+                                  role: String, extUserId: String, authToken: String, sessionToken: String, avatarURL: String,
                                   webcamBackgroundURL: String, bot: Boolean, guest: Boolean, authed: Boolean,
                                   guestStatus: String, excludeFromDashboard: Boolean, enforceLayout: String,
                                   logoutUrl: String, userMetadata: Map[String, String])
@@ -28,6 +28,7 @@ case class RegisterUserSessionTokenReqMsgBody(
     meetingId:           String,
     userId:              String,
     sessionToken:        String,
+    sessionName:         String,
     replaceSessionToken: String,
     enforceLayout:       String,
     userSessionMetadata: Map[String, String]

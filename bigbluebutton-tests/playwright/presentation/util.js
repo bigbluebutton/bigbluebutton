@@ -36,7 +36,7 @@ async function uploadSinglePresentation(test, fileName, uploadTimeout = UPLOAD_P
   await test.hasText('body', e.statingUploadPresentationToast, 'should display the toast message uploading the presentation');
 
   await test.waitAndClick(e.confirmManagePresentation);
-  await test.hasElement(e.presentationUploadProgressToast, 'should display the toast presentation upload progress after confiming the presentation to be uploaded', ELEMENT_WAIT_EXTRA_LONG_TIME);
+  await test.hasElement(e.presentationUploadProgressToast, 'should display the toast presentation upload progress after confirming the presentation to be uploaded');
   await test.page.waitForFunction(([selector, firstSlideSrc]) => {
     const currentSrc = document.querySelector(selector)
     ?.style?.backgroundImage?.split('"')[1];
@@ -55,7 +55,8 @@ async function uploadMultiplePresentations(test, fileNames, uploadTimeout = ELEM
   await test.hasText('body', e.statingUploadPresentationToast, 'should display the toast of a presentation to be uploaded after selecting the files to upload');
 
   await test.waitAndClick(e.confirmManagePresentation);
-  await test.hasText(e.presentationStatusInfo, [e.convertingPresentationFileToast], 'should display the presentation status info after confimation to upload the new file', uploadTimeout);
+  await test.hasText(e.presentationStatusInfo, 'Processing', 'should display the presentation status info after confirmation to upload the new file', uploadTimeout);
+  await test.hasText(e.presentationStatusInfo, e.convertingPresentationFileToast, 'should display the presentation status info after confirmation to upload the new file', uploadTimeout);
   await test.hasText(e.smallToastMsg, e.presentationUploadedToast, 'should display the toast notification saying that the presentation is uploaded', uploadTimeout);
 }
 

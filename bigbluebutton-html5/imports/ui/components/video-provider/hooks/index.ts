@@ -39,7 +39,6 @@ import {
   GridUsersResponse,
   OwnVideoStreamsResponse,
   StreamSubscriptionData,
-  Stream,
 } from '/imports/ui/components/video-provider/types';
 import { DesktopPageSizes, MobilePageSizes } from '/imports/ui/Types/meetingClientSettings';
 import logger from '/imports/startup/client/logger';
@@ -60,9 +59,8 @@ const useVideoStreamsSubscription = createUseSubscription(
 
 export const useStreams = () => {
   const { data, loading, errors } = useVideoStreamsSubscription();
-  const streams = useRef<Stream[]>([]);
 
-  if (loading) return streams.current;
+  if (loading) return [];
 
   if (errors) {
     errors.forEach((error) => {
@@ -73,11 +71,6 @@ export const useStreams = () => {
         },
       }, 'Video streams subscription failed.');
     });
-  }
-
-  if (!data) {
-    streams.current = [];
-    return streams.current;
   }
 
   const mappedStreams = (data as StreamSubscriptionData[]).map(({ streamId, user, voice }) => ({
@@ -93,9 +86,7 @@ export const useStreams = () => {
     type: VIDEO_TYPES.STREAM,
   }));
 
-  streams.current = mappedStreams;
-
-  return streams.current;
+  return mappedStreams.length > 0 ? mappedStreams : [];
 };
 
 export const useStatus = () => {
@@ -452,6 +443,11 @@ const useOwnVideoStreamsQuery = () => useLazyQuery<OwnVideoStreamsResponse>(
       userId: Auth.userID,
       streamIdPrefix: `${videoService.getPrefix()}%`,
     },
+    // UID and prefix are stable, so for now we need to bust the cache. If we don't,
+    // users will hit issues where cannot unshare their webcam or unsharing deals
+    // with unexpected behavior. E.g.: a camera was first ejected server side (empty
+    // stream list), or multiple cameras were shared (just the first one is cached).
+    fetchPolicy: 'no-cache',
   },
 );
 
@@ -471,14 +467,18 @@ export const useExitVideo = (forceExit = false) => {
         if (data) {
           const streams = data.user_camera || [];
           const results = streams.map((s) => sendUserUnshareWebcam(s.streamId));
+
           return Promise.all(results).then(() => {
             videoService.exitedVideo();
             return true;
           }).catch((e) => {
             logger.warn({
-              logCode: 'exit_audio',
-              extraInfo: e,
-            }, 'Exiting audio');
+              logCode: 'exit_video_error',
+              extraInfo: {
+                errorMessage: e.message,
+                errorStack: e.stack,
+              },
+            }, `Failed to exit video: ${e.message}`);
             return false;
           });
         }

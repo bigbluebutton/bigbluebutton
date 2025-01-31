@@ -99,7 +99,7 @@ public class DocumentConversionServiceImp implements DocumentConversionService {
           // Send notification that office to pdf conversion failed.
           // The cause should have been set by the previous step.
           // (ralam feb 15, 2020)
-          ocsf.sendProgress(pres);
+          ocsf.sendOfficeToPdfConversionFailed(pres);
         }
       } else if (SupportedFileTypes.isPdfFile(fileType)) {
         presentationFileProcessor.process(pres);

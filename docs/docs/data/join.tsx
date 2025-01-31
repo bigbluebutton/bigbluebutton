@@ -50,6 +50,18 @@ const joinEndpointTableData = [
     "description": (<>The link for the user’s avatar to be displayed (default can be enabled/disabled and set with “useDefaultAvatar“ and “defaultAvatarURL“ in bbb-web.properties).</>)
   },
   {
+    "name": "firstName",
+    "required": false,
+    "type": "String",
+    "description": (<>The user's first name portion of "fullname". It is used for sorting purposes; it will not be displayed in the user list. This property is useful if the "fullname" is comprised of several words or if there are title/role/credentials which should be ignored when sorting.</>)
+  },
+  {
+    "name": "lastName",
+    "required": false,
+    "type": "String",
+    "description": (<>The user's last name portion of "fullname". It is used for sorting purposes; it will not be displayed in the user list. This property is useful if the "fullname" is comprised of several words or if there are title/role/credentials which should be ignored when sorting.</>)
+  },
+  {
     "name": "webcamBackgroundURL",
     "required": false,
     "type": "String",
@@ -74,13 +86,6 @@ const joinEndpointTableData = [
     "description": (<>A custom URL to redirect client when the user click on OK button in the meeting ended screen. By default users are redirected to the meeting's default logout URL.</>)
   },
   {
-    "name": "joinViaHtml5",
-    "required": false,
-    "type": "String",
-    "description": (<><b>[DEPRECATED]</b>Set to “true” to force the HTML5 client to load for the user. (removed in 2.3 since HTML5 is the only client)</>),
-    "deprecated": true
-  },
-  {
     "name": "guest",
     "required": false,
     "type": "String",
@@ -101,7 +106,7 @@ const joinEndpointTableData = [
     "name": "enforceLayout",
     "required": false,
     "type": "String",
-    "description": (<>If passed it overrides the value of `meetingLayout` passed on CREATE or the value of `defaultMeetingLayout` read from configuration. Accepted values are the standard layouts: CUSTOM_LAYOUT, SMART_LAYOUT, PRESENTATION_FOCUS, VIDEO_FOCUS, but also several layouts which are not meant to be selectable via UI: CAMERAS_ONLY, PARTICIPANTS_CHAT_ONLY, PRESENTATION_ONLY. Added in BBB 3.0</>)
+    "description": (<>If passed it overrides the value of `meetingLayout` passed on CREATE or the value of `defaultMeetingLayout` read from configuration. Accepted values are the standard layouts: CUSTOM_LAYOUT, SMART_LAYOUT, PRESENTATION_FOCUS, VIDEO_FOCUS, but also several layouts which are not meant to be selectable via UI: CAMERAS_ONLY, PARTICIPANTS_CHAT_ONLY, PRESENTATION_ONLY, MEDIA_ONLY. Added in BBB 3.0</>)
   }
 ];
 
