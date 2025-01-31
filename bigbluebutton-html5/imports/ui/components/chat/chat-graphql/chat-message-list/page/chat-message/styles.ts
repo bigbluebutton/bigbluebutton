@@ -8,7 +8,6 @@ import {
   $3xlPadding,
   xlPadding,
   mdPadding,
-  smPadding,
 } from '/imports/ui/stylesheets/styled-components/general';
 import {
   fontSizeBase,
@@ -22,6 +21,7 @@ import {
   colorBlueLightest,
   colorGrayLight,
   colorGrayLightest,
+  colorGrayDark,
 } from '/imports/ui/stylesheets/styled-components/palette';
 
 import Header from '/imports/ui/components/common/control-header/component';
@@ -112,26 +112,20 @@ export const ChatContent = styled.div<ChatContentProps>`
 export const ChatContentFooter = styled.div`
   justify-content: flex-end;
   gap: 0.25rem;
-  padding: ${smPadding} 0 0 ${smPadding};
   position: absolute;
-  bottom: calc(${lgPadding} + 2px);
-  display: none;
+  bottom: 0.25rem;
+  line-height: 1;
+  font-size: 95%;
+  display: flex;
   background-color: inherit;
   border-radius: 0.5rem;
 
   [dir="rtl"] & {
-    left: ${$3xlPadding};
+    left: 0.25rem;
   }
 
   [dir="ltr"] & {
-    right: ${$3xlPadding};
-  }
-
-  .chat-message-wrapper-focused &,
-  .chat-message-wrapper-keyboard-focused &,
-  .chat-message-content:focus &,
-  .chat-message-content:hover & {
-    display: flex;
+    right: 0.25rem;
   }
 `;
 
@@ -228,6 +222,7 @@ export const ChatAvatar = styled.div<ChatAvatarProps>`
 export const Container = styled.div<{ $sequence: number }>`
   display: flex;
   flex-direction: column;
+  user-select: text;
 
   &:not(:first-of-type) {
     margin-top: calc((${fontSizeSmaller} + ${lgPadding} * 2) / 2);
@@ -263,5 +258,13 @@ export const EditLabel = styled.span`
 
 export const ChatTime = styled(ChatTimeBase)`
   font-style: italic;
-  color: ${colorGrayLight};
+  color: ${colorGrayDark};
+  display: none;
+
+  .chat-message-wrapper-focused &,
+  .chat-message-wrapper-keyboard-focused &,
+  .chat-message-content:focus &,
+  .chat-message-content:hover & {
+    display: flex;
+  }
 `;

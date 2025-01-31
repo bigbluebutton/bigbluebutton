@@ -14,7 +14,6 @@ let lastToast = {
 
 export function notify(message, type = 'default', icon, options, content, small) {
   const settings = {
-    type,
     ...options,
   };
 
@@ -53,7 +52,6 @@ export function notify(message, type = 'default', icon, options, content, small)
         {
           render: <div role="alert"><Toast {...toastProps} /></div>,
           autoClose: options.autoClose,
-          ...toastProps,
         },
       );
     } else {

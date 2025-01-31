@@ -32,6 +32,7 @@ public final class UploadedPresentation {
   private final boolean uploadFailed;
   private final ArrayList<String> uploadFailReason;
   private File uploadedFile;
+  private String uploadedFileHash;
   private String fileType = "unknown";
   private int numberOfPages = 0;
   private String conversionStatus;
@@ -117,6 +118,14 @@ public final class UploadedPresentation {
 
   public void setUploadedFile(File uploadedFile) {
     this.uploadedFile = uploadedFile;
+  }
+
+  public String getUploadedFileHash() {
+    return uploadedFileHash;
+  }
+
+  public void setUploadedFileHash(String uploadedFileHash) {
+    this.uploadedFileHash = uploadedFileHash;
   }
 
   public String getMeetingId() {

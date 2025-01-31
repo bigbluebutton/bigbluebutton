@@ -33,6 +33,7 @@ class UserInfoService(system: ActorSystem, bbbActor: ActorRef) {
     val infos = userInfos.infos
     val meetingID = infos.getOrElse("meetingID", "").toString
     val userId = infos.getOrElse("internalUserID", "").toString
+    val sessionToken = infos.getOrElse("sessionToken", "").toString
 
     def conditionalValue(key: String, defaultValueTrue: String, defaultValueFalse: String): String = {
       infos.get(key) match {
@@ -49,6 +50,7 @@ class UserInfoService(system: ActorSystem, bbbActor: ActorRef) {
         "X-Hasura-PresenterInMeeting" -> conditionalValue("presenter", meetingID, ""),
         "X-Hasura-UserId" -> userId,
         "X-Hasura-MeetingId" -> meetingID,
+        "X-Hasura-SessionToken" -> sessionToken,
         "X-Hasura-CursorNotLockedInMeeting" -> conditionalValue("hideViewersCursor", "", meetingID),
         "X-Hasura-CursorLockedUserId" -> conditionalValue("hideViewersCursor", userId, ""),
         "X-Hasura-AnnotationsNotLockedInMeeting" -> conditionalValue("hideViewersAnnotation", "", meetingID),
@@ -65,6 +67,7 @@ class UserInfoService(system: ActorSystem, bbbActor: ActorRef) {
         "X-Hasura-PresenterInMeeting" -> conditionalValue("presenter", meetingID, ""),
         "X-Hasura-UserId" -> userId,
         "X-Hasura-MeetingId" -> meetingID,
+        "X-Hasura-SessionToken" -> sessionToken,
       )
     }
 

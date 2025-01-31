@@ -190,6 +190,7 @@ const ExternalVideoPlayer: React.FC<ExternalVideoPlayerProps> = ({
   const presenterRef = useRef(isPresenter);
   const [duration, setDuration] = React.useState(0);
   const [reactPlayerPlaying, setReactPlayerPlaying] = React.useState(false);
+  const clientReloadedRef = useRef(false);
 
   let currentTime = getCurrentTime();
 
@@ -263,6 +264,7 @@ const ExternalVideoPlayer: React.FC<ExternalVideoPlayerProps> = ({
 
   useEffect(() => {
     if (isPresenter !== presenterRef.current) {
+      clientReloadedRef.current = true;
       setPlayerKey(uniqueId('react-player'));
       presenterRef.current = isPresenter;
     }
@@ -275,7 +277,7 @@ const ExternalVideoPlayer: React.FC<ExternalVideoPlayerProps> = ({
 
   const handleOnPlay = async () => {
     setReactPlayerPlaying(true);
-    if (isPresenter && !playing) {
+    if (isPresenter && !playing && !clientReloadedRef.current) {
       const internalPlayer = playerRef.current?.getInternalPlayer();
       const rate = internalPlayer instanceof HTMLVideoElement
         ? internalPlayer.playbackRate
@@ -290,6 +292,9 @@ const ExternalVideoPlayer: React.FC<ExternalVideoPlayerProps> = ({
 
     if (!playing && !isPresenter) {
       playerRef.current?.getInternalPlayer().pauseVideo();
+    }
+    if (clientReloadedRef.current) {
+      clientReloadedRef.current = false;
     }
   };
 
@@ -412,6 +417,7 @@ const ExternalVideoPlayer: React.FC<ExternalVideoPlayerProps> = ({
           onPause={handleOnStop}
           onEnded={handleOnStop}
           muted={mute || isEchoTest}
+          controls={isPresenter}
         />
         {
           shouldShowTools() ? (

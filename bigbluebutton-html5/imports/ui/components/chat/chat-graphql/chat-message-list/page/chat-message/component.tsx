@@ -33,6 +33,7 @@ import Icon from '/imports/ui/components/common/icon/component';
 import { colorBlueLighterChannel } from '/imports/ui/stylesheets/styled-components/palette';
 import ChatMessageNotificationContent from './message-content/notification-content/component';
 import { getValueByPointer } from '/imports/utils/object-utils';
+import Tooltip from '/imports/ui/components/common/tooltip/container';
 
 interface ChatMessageProps {
   message: Message;
@@ -79,6 +80,14 @@ const intlMessages = defineMessages({
   chatClear: {
     id: 'app.chat.clearPublicChatMessage',
     description: 'message of when clear the public chat',
+  },
+  userIsPresenter: {
+    id: 'app.chat.isPresenter',
+    description: 'message when user is set presenter',
+  },
+  userIsPresenterSetBy: {
+    id: 'app.chat.isPresenterSetBy',
+    description: 'message when user is set presenter by someone else',
   },
   userAway: {
     id: 'app.chat.away',
@@ -249,6 +258,12 @@ const ChatMessage = React.forwardRef<ChatMessageRef, ChatMessageProps>(({
     };
   }, [message, messageRef, markMessageAsSeenOnScrollEnd]);
 
+  useEffect(() => {
+    if (focused) {
+      containerRef.current?.scrollIntoView({ behavior: 'instant', block: 'center', inline: 'center' });
+    }
+  }, [focused]);
+
   if (!message) return null;
   const pluginMessageNotCustom = (previousMessage?.messageType !== ChatMessageType.PLUGIN
     || !JSON.parse(previousMessage?.messageMetadata).custom);
@@ -382,6 +397,27 @@ const ChatMessage = React.forwardRef<ChatMessageRef, ChatMessageProps>(({
           showToolbar: false,
         };
       }
+      case ChatMessageType.USER_IS_PRESENTER_MSG: {
+        const { assignedBy } = JSON.parse(message.messageMetadata);
+        const userIsPresenterMsg = (assignedBy)
+          ? `${intl.formatMessage(intlMessages.userIsPresenterSetBy, { 0: message.senderName, 1: assignedBy })}`
+          : `${intl.formatMessage(intlMessages.userIsPresenter, { 0: message.senderName })}`;
+        return {
+          name: message.senderName,
+          color: '#0F70D7',
+          isModerator: true,
+          isSystemSender: true,
+          component: (
+            <ChatMessageNotificationContent
+              iconName="presentation"
+              text={userIsPresenterMsg}
+            />
+          ),
+          showAvatar: false,
+          showHeading: false,
+          showToolbar: false,
+        };
+      }
       case ChatMessageType.PLUGIN: {
         return {
           name: message.user?.name,
@@ -501,6 +537,7 @@ const ChatMessage = React.forwardRef<ChatMessageRef, ChatMessageProps>(({
           $focused={focused}
           $keyboardFocused={keyboardFocused}
           $reactionPopoverIsOpen={isToolbarReactionPopoverOpen}
+          data-test="chatMessageItem"
         >
           <ChatMessageToolbar
             keyboardFocused={keyboardFocused}
@@ -545,10 +582,12 @@ const ChatMessage = React.forwardRef<ChatMessageRef, ChatMessageProps>(({
           {sameSender && (
             <ChatContentFooter>
               {!deleteTime && editTime && (
-                <EditLabel>
-                  <Icon iconName="pen_tool" />
-                  <span>{intl.formatMessage(intlMessages.edited)}</span>
-                </EditLabel>
+                <Tooltip title={intl.formatTime(editTime, { hour12: false })}>
+                  <EditLabel>
+                    <Icon iconName="pen_tool" />
+                    <span>{intl.formatMessage(intlMessages.edited)}</span>
+                  </EditLabel>
+                </Tooltip>
               )}
               <ChatTime>
                 <FormattedTime value={dateTime} hour12={false} />

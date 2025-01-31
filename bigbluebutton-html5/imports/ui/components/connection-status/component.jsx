@@ -2,13 +2,13 @@ import { useEffect, useRef } from 'react';
 import { useMutation } from '@apollo/client';
 import { UPDATE_CONNECTION_ALIVE_AT } from './mutations';
 import {
-  getStatus,
   handleAudioStatsEvent,
 } from '/imports/ui/components/connection-status/service';
 import connectionStatus from '../../core/graphql/singletons/connectionStatus';
 
 import getBaseUrl from '/imports/ui/core/utils/getBaseUrl';
 import useCurrentUser from '../../core/hooks/useCurrentUser';
+import getStatus from '../../core/utils/getStatus';
 
 const ConnectionStatus = () => {
   const STATS_INTERVAL = window.meetingClientSettings.public.stats.interval;
@@ -30,7 +30,7 @@ const ConnectionStatus = () => {
   const handleUpdateConnectionAliveAt = () => {
     const startTime = performance.now();
     fetch(
-      `${getBaseUrl()}/ping`,
+      `${getBaseUrl()}/rtt-check`,
       { signal: AbortSignal.timeout(STATS_INTERVAL) },
     )
       .then((res) => {
@@ -45,8 +45,7 @@ const ConnectionStatus = () => {
             },
           });
           const rttStatus = getStatus(rttLevels, networkRtt);
-          connectionStatus.setRttValue(networkRtt);
-          connectionStatus.setRttStatus(rttStatus);
+          connectionStatus.setConnectionStatus(networkRtt, rttStatus);
           connectionStatus.setLastRttRequestSuccess(true);
 
           if (Object.keys(rttLevels).includes(rttStatus)) {
@@ -61,7 +60,7 @@ const ConnectionStatus = () => {
       .catch(() => {
         connectionStatus.setLastRttRequestSuccess(false);
         // gets the worst status
-        connectionStatus.setRttStatus('critical');
+        connectionStatus.setConnectionStatus(2000, 'critical');
       })
       .finally(() => {
         if (timeoutRef.current) {

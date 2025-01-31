@@ -264,9 +264,14 @@ class ApiController {
             request
     )
 
+    String errorRedirectUrl = ""
+    if(!StringUtils.isEmpty(params.errorRedirectUrl)) {
+      errorRedirectUrl = params.errorRedirectUrl
+    }
+
     boolean redirectClient = REDIRECT_RESPONSE
     if(!(validationResponse == null)) {
-      invalid(validationResponse.getKey(), validationResponse.getValue(), redirectClient)
+      invalid(validationResponse.getKey(), validationResponse.getValue(), redirectClient, errorRedirectUrl);
       return
     }
 
@@ -316,11 +321,6 @@ class ApiController {
     String attPW = params.password
 
     Meeting meeting = ServiceUtils.findMeetingFromMeetingID(params.meetingID);
-
-    String errorRedirectUrl = ""
-    if(!StringUtils.isEmpty(params.errorRedirectUrl)) {
-      errorRedirectUrl = params.errorRedirectUrl
-    }
 
     // the createTime mismatch with meeting's createTime, complain
     // In the future, the createTime param will be required
@@ -416,6 +416,21 @@ class ApiController {
       externUserID = internalUserID
     }
 
+    // Get the logoutUrl, either from the meeting or from the join api.
+    // Also replace the tokens.
+    String logoutUrl = meeting.getLogoutUrl()
+    if(!StringUtils.isEmpty(params.get(ApiParams.LOGOUT_URL))) {
+      String userProvidedUrl = params.get(ApiParams.LOGOUT_URL)
+      if(!ServiceUtils.getValidationService().isValidURL(userProvidedUrl)) {
+        log.warn("Invalid logout URL provided: " + userProvidedUrl)
+        // Use default URL from meeting
+      } else {
+        logoutUrl = params.get(ApiParams.LOGOUT_URL)
+        log.debug "The following logout URL is present: " + logoutUrl
+      }
+    }
+    logoutUrl = subLogoutParams(logoutUrl, meeting.getInternalId(), internalUserID, fullName);
+
     //Return a Map with the user custom data
     Map<String, String> userCustomData = meetingService.getUserCustomData(meeting, externUserID, params);
 
@@ -444,7 +459,7 @@ class ApiController {
     us.guest = guest
     us.authed = authenticated
     us.guestStatus = guestStatusVal
-    us.logoutUrl = meeting.getLogoutUrl()
+    us.logoutUrl = logoutUrl
     us.defaultLayout = meeting.getMeetingLayout()
     us.leftGuestLobby = false
 
@@ -478,6 +493,14 @@ class ApiController {
       }
     }
 
+    if (!StringUtils.isEmpty(params.firstName)) {
+      us.firstName = params.firstName;
+    }
+
+    if (!StringUtils.isEmpty(params.lastName)) {
+      us.lastName = params.lastName;
+    }
+
     String meetingId = meeting.getInternalId()
 
     if (hasReachedMaxParticipants(meeting, us)) {
@@ -496,6 +519,8 @@ class ApiController {
         us.meetingID,
         us.internalUserId,
         us.fullname,
+        us.firstName,
+        us.lastName,
         us.role,
         us.externUserID,
         us.authToken,
@@ -509,6 +534,7 @@ class ApiController {
         us.excludeFromDashboard,
         us.leftGuestLobby,
         us.enforceLayout,
+        us.logoutUrl,
         meeting.getUserCustomData(us.externUserID)
     )
 
@@ -592,6 +618,8 @@ class ApiController {
     us.externMeetingID = meeting.getExternalId()
     us.externUserID = existingUserSession.externUserID
     us.fullname = existingUserSession.fullname
+    us.firstName = existingUserSession.firstName
+    us.lastName = existingUserSession.lastName
     us.role = existingUserSession.role
     us.conference = meeting.getInternalId()
     us.room = meeting.getInternalId()
@@ -617,20 +645,24 @@ class ApiController {
       us.enforceLayout = params.enforceLayout;
     }
 
+    if (!StringUtils.isEmpty(params.sessionName)) {
+      us.sessionName = params.sessionName;
+    }
+
     //used to drop the previous session of the user
     String replaceSessionToken = ""
     if (!StringUtils.isEmpty(params.replaceSessionToken)) {
       replaceSessionToken = params.replaceSessionToken;
     }
 
-    //TODO parse user-session-metadata
-    Map<String, String> userSessionCustomData = new LinkedHashMap<String, String>()
+    Map<String, String> userSessionCustomData = paramsProcessorUtil.getUserCustomData(params)
 
     // Register a new session token to the user
     meetingService.registerUserSession(
             us.meetingID,
             us.internalUserId,
             sessionToken,
+            us.sessionName,
             replaceSessionToken,
             us.enforceLayout,
             userSessionCustomData
@@ -1180,12 +1212,22 @@ class ApiController {
         queryParameters.put("redirect", "true");
         queryParameters.put("existingUserID", us.getInternalUserId());
 
-        // revokePreviousSession: If this link is intended to replace the previous session of the user
+        // replaceSession: If this link is intended to replace the previous session of the user
         if (!StringUtils.isEmpty(params.replaceSession) && Boolean.parseBoolean(params.replaceSession)) {
           queryParameters.put("replaceSessionToken", sessionToken);
         }
 
-        // TODO allow to specify enforceLayout and user-session-data
+        if (!StringUtils.isEmpty(params.sessionName)) {
+          queryParameters.put("sessionName", sessionName);
+        }
+
+        // If the user calling getJoinUrl is a moderator (except in breakout rooms), allow to specify additional parameters
+        if (us.role.equals(ROLE_MODERATOR) && !meeting.isBreakout()) {
+          request.getParameterMap()
+                  .findAll { key, value -> ["enforceLayout"].contains(key) || key.startsWith("userdata-") }
+                  .findAll { key, value -> !StringUtils.isEmpty(value[-1]) }
+                  .each { key, value -> queryParameters.put(key, value[-1]) };
+        }
 
         String httpQueryString = "";
         for(String parameterName : queryParameters.keySet()) {
@@ -1970,24 +2012,39 @@ class ApiController {
     }
   }
 
+  private String subLogoutParams(logoutUrl, meetingID, userID, fullName) {
+    String newURL = logoutUrl;
+    String userName = fullName != null ? validationService.encodeString(fullName) : "";
+
+    newURL = newURL.replace('%%MEETINGID%%', meetingID != null ? meetingID : "");
+    newURL = newURL.replace('%%USERID%%', userID != null ? userID : "");
+    newURL = newURL.replace('%%USERNAME%%', userName);
+
+    return newURL;
+  }
+
   private void respondWithRedirect(errorsJSONArray, redirectUrl = "") {
-    String logoutUrl = paramsProcessorUtil.getDefaultLogoutUrl()
-    URI oldUri = URI.create(logoutUrl)
+    String uriString = paramsProcessorUtil.getDefaultLogoutUrl();
 
     if (!StringUtils.isEmpty(params.logoutURL)) {
       try {
-        oldUri = URI.create(params.logoutURL)
+        uriString = params.logoutURL;
       } catch (Exception e) {
         // Do nothing, the variable oldUri was already initialized
       }
     }
 
+    // If logoutUrl strings get here with %%FIELDS%% we don't
+    // have enough info to construct them, so just clear the fields
+    uriString = subLogoutParams(uriString, "", "", "");
+
     if(!StringUtils.isEmpty(redirectUrl)) {
       try {
-        oldUri = URI.create(redirectUrl)
+        uriString = redirectUrl;
       } catch(Exception ignored) {}
     }
 
+    URI oldUri = URI.create(uriString);
     String newQuery = oldUri.getQuery();
 
     if (newQuery == null) {

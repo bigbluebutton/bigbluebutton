@@ -7,7 +7,7 @@ public:
     # user to select an option ("Microphone" and/or "Listen only") for joining
     # audio
     autoJoin: true
-    # Disables the listen only option in audio modal.
+    # Set to false disables the listen only option in audio modal.
     listenOnlyMode: true
     forceListenOnly: false
     # Skips the echo test when connecting with microphone.
@@ -31,7 +31,7 @@ public:
     appName: BigBlueButton HTML5 Client
     bbbServerVersion: HTML5_FULL_BBB_VERSION
     displayBbbServerVersion: true
-    copyright: '©2024 BigBlueButton Inc.'
+    copyright: '©2025 BigBlueButton Inc.'
     html5ClientBuild: HTML5_CLIENT_VERSION
     helpLink: https://bigbluebutton.org/html5/
     delayForUnmountOfSharedNote: 120000
@@ -56,13 +56,13 @@ public:
     customStyleUrl: null
     darkTheme:
       enabled: true
-    askForFeedbackOnLogout: false
     # the default logoutUrl matches window.location.origin i.e. bigbluebutton.org for demo.bigbluebutton.org
     # in some cases we want only custom logoutUrl to be used when provided on meeting create. Default value: true
     askForConfirmationOnLeave: true
     wakeLock: 
       enabled: true
     allowDefaultLogoutUrl: true
+    skipMeetingEnded: false
     dynamicGuestPolicy: true
     enableGuestLobbyMessage: true
     guestPolicyExtraAllowOptions: false
@@ -773,7 +773,8 @@ public:
     allowedElements: ['a', 'code', 'em', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'li', 'ol', 'ul', 'p', 'strong']
     # available options for toolbar: reply, edit, delete, reactions
     # example: ['reply', 'delete']
-    toolbar: []
+    toolbar: ['reply', 'delete', 'edit', 'reactions']
+    announcePresenterChangeInChat: true
   userReaction:
     enabled: true
     expire: 30
@@ -784,10 +785,10 @@ public:
         native: '😐'
       - id: 'slightly_frowning_face'
         native: '🙁'
-      - id: '+1'
-        native: '👍'
       - id: '-1'
         native: '👎'
+      - id: '+1'
+        native: '👍'
       - id: 'clap'
         native: '👏'
   notes:
@@ -799,51 +800,29 @@ public:
     showParticipantsOnLogin: true
     showPushLayoutButton: true
     showPushLayoutToggle: true
+    showSessionDetailsOnJoin: true
   pads:
     url: ETHERPAD_HOST
   media:
     audio:
-      #
-      #
-      # Default bridge to be used by full audio mechanism.
-      # This is the bridge's name as contained in 'bridges' array
+      # defaultFullAudioBridge: bridge to be used by full audio mechanism.
+      # Deprecated, superseded by `audioBridge` (bigbluebutton.properties, /create)
       defaultFullAudioBridge: fullaudio
-      #
-      #
-      # Server wide configuration to choose which bbb-webrtc-sfu
-      # media server adapter should be used for fullaudio.
+      # fullAudioMediaServer: which bbb-webrtc-sfu media server adapter should
+      # be used for microphone audio.
       # Default is undefined, which means the default setting in bbb-webrtc-sfu
       # prevails (fullAudioMediaServer).
       #fullAudioMediaServer: mediasoup
       #
-      #
-      # Default bridge to be used by listen only mechanism.
+      # defaultListenOnlyBridge: bridge to be used by listen only mechanism.
+      # Deprecated, no alternative as this audio mode will be removed.
       defaultListenOnlyBridge: fullaudio
-      #
-      #
-      # Bridge array, here's where we list our bridges.
-      # To add new bridges, simply add the corresponding .js file in
-      # /imports/api/audio/client/bridge/ and add it to this list.
-      #
-      # Each bridge in this list, must have a name and path attribute.
-      # The name is the desired name/string you can set for your bridge, while
-      # the path specifies the file path, relative to
-      # '/imports/api/audio/client' dir.
-      #
-      bridges:
-        # name:  The name of the bridge
-        - name: sipjs
-          # path: the bridge file path, relative to /imports/api/audio/client
-          path: 'bridge/sip'
-        - name: fullaudio
-          path: 'bridge/sfu-audio-bridge'
-      # Forces a retry with iceTransportPolicy = 'relay' if the first attempt
-      # fails with a few selected errors codes (eg 1007, 1010)
+      # retryThroughRelay: forces a retry with iceTransportPolicy = 'relay'
+      # if the first attempt fails with selected errors codes (eg 1007, 1010)
       retryThroughRelay: false
-      # allowAudioJoinCancel: permit users to cancel audio join requests by
-      # letting them close the audio modal while audio is being negotiated.
-      # If false, the audio modal will be locked until the audio is successfully
-      # joined or the request fails.
+      # allowAudioJoinCancel: allow users to cancel audio join requests by
+      # by closing the audio modal while audio is being negotiated.
+      # If false, the audio modal will be locked until the process finishes.
       allowAudioJoinCancel: true
     stunTurnServersFetchAddress: '/bigbluebutton/api/stuns'
     cacheStunTurnServers: true
@@ -860,10 +839,15 @@ public:
     callHangupMaximumRetries: 10
     echoTestNumber: 'echo'
     listenOnlyCallTimeout: 15000
-    # Experimental: enables a new audio mechanism that has a server-side,
-    # transparent listen only mode. See issue #14021.
-    # bbb_userdata-transparent-listen-only supersedes this setting
-    transparentListenOnly: false
+    # transparentListenOnly: whether the client should use the transparent 
+    # listen only mechanism. 
+    # It does not remove the "Listen Only" option from the audio modal
+    # by itself, but it allows users to switch modes on the fly and
+    # improves server CPU efficiency for microphone users.
+    # To disable the dedicated listen only option in the audio modal,
+    # see `listenOnlyMode`/`userdata-bbb_transparent_listen_only_mode`
+    # userdata-bbb_transparent_listen_only supersedes this setting
+    transparentListenOnly: true
     # Dev flag. Controls the WebRTC SDP negotiation role for SFU full audio.
     fullAudioOffering: true
     # Dev flag. Controls the WebRTC negotiation role for listen only.
@@ -941,6 +925,30 @@ public:
     #   - 1136: permission denied
     screenshareTroubleshootingLinks:
       1136: 'https://support.bigbluebutton.org/hc/en-us/articles/1500005316582-Share-my-screen#:~:text=Error%201136%3A%20Permission%20to%20capture,able%20to%20screen%20share%20again'
+    livekit:
+      # livekit.url is the URL of the LiveKit server. Default value is 'wss://{window.location.hostname}/livekit'
+      #url: wss://LIVEKIT_HOST/livekit
+      # livekit.selectiveSubscription: whether to use selective subscription all
+      # applicable track sources. Default value is false. This overrides autoSubscribe
+      # when set to true and in effect (conditional to client behavior).
+      selectiveSubscription: false
+      roomOptions:
+        adaptiveStream: true
+        dynacast: true
+        stopLocalTrackOnUnpublish: false
+      audio:
+        # publishOptions: see https://docs.livekit.io/client-sdk-js/interfaces/TrackPublishOptions.html
+        publishOptions:
+          audioPreset: 'speech'
+          dtx: true
+          red: false
+          forceStereo: false
+      camera:
+        publishOptions:
+          videoCodec: 'vp8'
+      screenshare:
+        publishOptions:
+          videoCodec: 'vp8'
   stats:
     enabled: true
     interval: 10000
@@ -1063,6 +1071,7 @@ public:
         - note
         - rectangle
         - more
+        - actions
       multiUserTools:
         - select
         - hand
@@ -1073,6 +1082,7 @@ public:
         - note
         - rectangle
         - more
+        - actions
   clientLog:
     console:
       enabled: true

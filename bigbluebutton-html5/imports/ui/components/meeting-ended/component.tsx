@@ -3,11 +3,11 @@ import React, {
   useContext,
   useEffect,
   useMemo,
-  useState,
 } from 'react';
 import { defineMessages, useIntl } from 'react-intl';
 import { isEmpty } from 'radash';
 import { ApolloLink, useQuery } from '@apollo/client';
+import isURL from 'validator/lib/isURL';
 import {
   JoinErrorCodeTable,
   MeetingEndedTable,
@@ -18,11 +18,9 @@ import { MeetingEndDataResponse, getMeetingEndData } from './queries';
 import useAuthData from '/imports/ui/core/local-states/useAuthData';
 import Icon from '/imports/ui/components/common/icon/icon-ts/component';
 import Styled from './styles';
-import Rating from './rating/component';
 import { LoadingContext } from '../common/loading-screen/loading-screen-HOC/component';
 import logger from '/imports/startup/client/logger';
 import apolloContextHolder from '/imports/ui/core/graphql/apolloContextHolder/apolloContextHolder';
-import getFromUserSettings from '/imports/ui/services/users-settings';
 
 const intlMessage = defineMessages({
   410: {
@@ -61,29 +59,9 @@ const intlMessage = defineMessages({
     id: 'app.meeting.endNotification.ok.label',
     description: 'label okay for button',
   },
-  title: {
-    id: 'app.feedback.title',
-    description: 'title for feedback screen',
-  },
-  subtitle: {
-    id: 'app.feedback.subtitle',
-    description: 'subtitle for feedback screen',
-  },
-  textarea: {
-    id: 'app.feedback.textarea',
-    description: 'placeholder for textarea',
-  },
   confirmDesc: {
     id: 'app.leaveConfirmation.confirmDesc',
     description: 'adds context to confim option',
-  },
-  sendLabel: {
-    id: 'app.feedback.sendFeedback',
-    description: 'send feedback button label',
-  },
-  sendDesc: {
-    id: 'app.feedback.sendFeedbackDesc',
-    description: 'adds context to send feedback option',
   },
   [JoinErrorCodeTable.DUPLICATE_USER]: {
     id: 'app.meeting.logout.duplicateUserEjectReason',
@@ -175,9 +153,10 @@ interface MeetingEndedContainerProps {
 
 interface MeetingEndedProps extends MeetingEndedContainerProps {
   allowDefaultLogoutUrl: boolean;
-  askForFeedbackOnLogout: boolean
+  skipMeetingEnded: boolean;
   learningDashboardAccessToken: string;
   isModerator: boolean;
+  logoutUrl: string;
   learningDashboardBase: string;
   isBreakout: boolean;
 }
@@ -187,9 +166,10 @@ const MeetingEnded: React.FC<MeetingEndedProps> = ({
   joinErrorCode,
   meetingEndedCode,
   allowDefaultLogoutUrl,
-  askForFeedbackOnLogout,
+  skipMeetingEnded,
   learningDashboardAccessToken,
   isModerator,
+  logoutUrl,
   learningDashboardBase,
   isBreakout,
 }) => {
@@ -198,12 +178,7 @@ const MeetingEnded: React.FC<MeetingEndedProps> = ({
   const [{
     authToken,
     meetingId,
-    logoutUrl,
-    userName,
-    userId,
   }] = useAuthData();
-  const [selectedStars, setSelectedStars] = useState(0);
-  const [dispatched, setDispatched] = useState(false);
 
   const generateEndMessage = useCallback((joinErrorCode: string, meetingEndedCode: string, endedBy: string) => {
     if (!isEmpty(endedBy)) {
@@ -215,64 +190,12 @@ const MeetingEnded: React.FC<MeetingEndedProps> = ({
     return intl.formatMessage(intlMessage[code]);
   }, []);
 
-  const sendFeedback = useCallback(() => {
-    const textarea = document.getElementById('feedbackComment') as HTMLTextAreaElement;
-    const comment = (textarea?.value || '').trim();
-
-    const message = {
-      rating: selectedStars,
-      userId,
-      userName,
-      authToken,
-      meetingId,
-      comment,
-      isModerator,
-    };
-
-    const pathMatch = window.location.pathname.match('^(.*)/html5client/$');
-    if (pathMatch == null) {
-      throw new Error('Failed to match BBB client URI');
-    }
-    const serverPathPrefix = pathMatch[1];
-
-    const sessionToken = sessionStorage.getItem('sessionToken');
-
-    const url = `https://${window.location.hostname}${serverPathPrefix}/bigbluebutton/api/feedback?sessionToken=${sessionToken}`;
-    const options = {
-      method: 'POST',
-      body: JSON.stringify(message),
-      headers: {
-        'Content-Type': 'application/json',
-      },
-    };
-    setDispatched(true);
-
-    fetch(url, options).then(() => {
-      if (!isModerator) {
-        const REDIRECT_WAIT_TIME = 5000;
-        setTimeout(() => {
-          window.location.href = logoutUrl;
-        }, REDIRECT_WAIT_TIME);
-      }
-    }).catch((e) => {
-      logger.warn({
-        logCode: 'user_feedback_not_sent_error',
-        extraInfo: {
-          errorName: e.name,
-          errorMessage: e.message,
-        },
-      }, `Unable to send feedback: ${e.message}`);
-    });
-  }, [selectedStars]);
-
   const confirmRedirect = (isBreakout: boolean, allowRedirect: boolean) => {
     if (isBreakout) window.close();
     if (allowRedirect) {
-      let redirectTo = logoutUrl;
-      redirectTo = redirectTo.replaceAll('%%USERID%%', userId);
-      redirectTo = redirectTo.replaceAll('%%USERNAME%%', userName);
-      redirectTo = redirectTo.replaceAll('%%MEETINGID%%', meetingId);
-      window.location.href = redirectTo;
+      if (isURL(logoutUrl)) {
+        window.location.href = logoutUrl;
+      }
     }
   };
 
@@ -320,64 +243,6 @@ const MeetingEnded: React.FC<MeetingEndedProps> = ({
     );
   }, [learningDashboardAccessToken, isModerator, meetingId, authToken, learningDashboardBase]);
 
-  const feedbackScreen = useMemo(() => {
-    const shouldShowFeedback = askForFeedbackOnLogout && !dispatched;
-    const noRating = selectedStars === 0;
-
-    let buttonAction = () => confirmRedirect(isBreakout, allowDefaultLogoutUrl);
-    let buttonDesc = intl.formatMessage(intlMessage.confirmDesc);
-    let buttonLabel = intl.formatMessage(intlMessage.buttonOkay);
-
-    if (!dispatched) {
-      if (noRating) {
-        buttonAction = () => setDispatched(true);
-        buttonDesc = intl.formatMessage(intlMessage.confirmDesc);
-        buttonLabel = intl.formatMessage(intlMessage.buttonOkay);
-      } else {
-        buttonAction = () => sendFeedback();
-        buttonDesc = intl.formatMessage(intlMessage.sendDesc);
-        buttonLabel = intl.formatMessage(intlMessage.sendLabel);
-      }
-    }
-
-    return (
-      <>
-        <Styled.Text>
-          {shouldShowFeedback
-            ? intl.formatMessage(intlMessage.subtitle)
-            : intl.formatMessage(intlMessage.messageEnded)}
-        </Styled.Text>
-
-        {shouldShowFeedback ? (
-          <div data-test="rating">
-            <Rating
-              total="5"
-              onRate={setSelectedStars}
-            />
-            {!noRating ? (
-              <Styled.TextArea
-                rows={5}
-                id="feedbackComment"
-                placeholder={intl.formatMessage(intlMessage.textarea)}
-                aria-describedby="textareaDesc"
-              />
-            ) : null}
-          </div>
-        ) : null}
-        <Styled.Wrapper>
-          <Styled.MeetingEndedButton
-            color="primary"
-            onClick={buttonAction}
-            aria-details={buttonDesc}
-            data-test={(!noRating && !dispatched) ? 'sendFeedbackButton' : null}
-          >
-            {buttonLabel}
-          </Styled.MeetingEndedButton>
-        </Styled.Wrapper>
-      </>
-    );
-  }, [askForFeedbackOnLogout, dispatched, selectedStars]);
-
   useEffect(() => {
     // Sets Loading to falsed and removes loading splash screen
     loadingContextInfo.setLoading(false);
@@ -414,6 +279,11 @@ const MeetingEnded: React.FC<MeetingEndedProps> = ({
     }
   }, []);
 
+  if (skipMeetingEnded) {
+    confirmRedirect(isBreakout, allowDefaultLogoutUrl);
+    return <></>; // even though well redirect, return empty component and prevent lint error
+  }
+
   return (
     <Styled.Parent>
       <Styled.Modal data-test="meetingEndedModal">
@@ -421,8 +291,7 @@ const MeetingEnded: React.FC<MeetingEndedProps> = ({
           <Styled.Title>
             {generateEndMessage(joinErrorCode, meetingEndedCode, endedBy)}
           </Styled.Title>
-          {allowDefaultLogoutUrl && !askForFeedbackOnLogout ? logoutButton : null}
-          {askForFeedbackOnLogout ? feedbackScreen : null}
+          {allowDefaultLogoutUrl ? logoutButton : null}
         </Styled.Content>
       </Styled.Modal>
     </Styled.Parent>
@@ -447,9 +316,10 @@ const MeetingEndedContainer: React.FC<MeetingEndedContainerProps> = ({
         joinErrorCode=""
         meetingEndedCode=""
         allowDefaultLogoutUrl={false}
-        askForFeedbackOnLogout={false}
+        skipMeetingEnded={false}
         learningDashboardAccessToken=""
         isModerator={false}
+        logoutUrl=""
         learningDashboardBase=""
         isBreakout={false}
       />
@@ -464,9 +334,10 @@ const MeetingEndedContainer: React.FC<MeetingEndedContainerProps> = ({
         joinErrorCode=""
         meetingEndedCode=""
         allowDefaultLogoutUrl={false}
-        askForFeedbackOnLogout={false}
+        skipMeetingEnded={false}
         learningDashboardAccessToken=""
         isModerator={false}
+        logoutUrl=""
         learningDashboardBase=""
         isBreakout={false}
       />
@@ -478,6 +349,7 @@ const MeetingEndedContainer: React.FC<MeetingEndedContainerProps> = ({
   } = meetingEndData;
   const {
     isModerator,
+    logoutUrl,
     meeting,
   } = user_current[0];
 
@@ -488,14 +360,10 @@ const MeetingEndedContainer: React.FC<MeetingEndedContainerProps> = ({
   } = meeting;
 
   const {
-    askForFeedbackOnLogout,
     allowDefaultLogoutUrl,
+    skipMeetingEnded,
     learningDashboardBase,
   } = clientSettings;
-
-  const shouldAskForFeedback = !isBreakout
-  && (askForFeedbackOnLogout
-  || getFromUserSettings('bbb_ask_for_feedback_on_logout'));
 
   return (
     <MeetingEnded
@@ -503,9 +371,10 @@ const MeetingEndedContainer: React.FC<MeetingEndedContainerProps> = ({
       joinErrorCode={joinErrorCode}
       meetingEndedCode={meetingEndedCode}
       allowDefaultLogoutUrl={allowDefaultLogoutUrl}
-      askForFeedbackOnLogout={shouldAskForFeedback}
+      skipMeetingEnded={skipMeetingEnded}
       learningDashboardAccessToken={learningDashboard?.learningDashboardAccessToken}
       isModerator={isModerator}
+      logoutUrl={logoutUrl}
       learningDashboardBase={learningDashboardBase}
       isBreakout={isBreakout}
     />

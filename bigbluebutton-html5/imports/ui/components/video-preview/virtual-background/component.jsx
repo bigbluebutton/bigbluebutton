@@ -384,7 +384,7 @@ const VirtualBgSelector = ({
     const renderInputButton = () => (
       <>
         <Styled.BgCustomButton
-          icon="plus"
+          icon="upload"
           label={intl.formatMessage(intlMessages.customLabel)}
           aria-describedby="vr-cam-btn-custom"
           hideLabel

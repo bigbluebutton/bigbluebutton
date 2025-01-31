@@ -11,7 +11,7 @@ class Layouts extends MultiUsers {
     await this.modPage.closeAllToastNotifications();
     await this.modPage.wasRemoved(e.toastContainer);
 
-    await checkScreenshots(this, 'should be the layout focus on presentation', e.webcamContainer, 'focus-on-presentation');
+    await checkScreenshots(this, 'should be the layout focus on presentation', [e.webcamContainer, e.webcamMirroredVideoContainer], 'focus-on-presentation');
   }
 
   async gridLayout() {
@@ -22,7 +22,7 @@ class Layouts extends MultiUsers {
     await this.modPage.closeAllToastNotifications();
     await this.modPage.wasRemoved(e.toastContainer);
 
-    await checkScreenshots(this, 'should be the grid layout', e.webcamContainer, 'grid-layout');
+    await checkScreenshots(this, 'should be the grid layout', [e.webcamContainer, e.webcamMirroredVideoContainer], 'grid-layout');
   }
 
   async smartLayout() {
@@ -33,12 +33,12 @@ class Layouts extends MultiUsers {
     await this.modPage.closeAllToastNotifications();
     await this.modPage.wasRemoved(e.toastContainer);
 
-    await checkScreenshots(this, 'should the cameras be above the presentation', e.webcamContainer, 'smart-layout', 1);
+    await checkScreenshots(this, 'should the cameras be above the presentation', [e.webcamContainer, e.webcamMirroredVideoContainer], 'smart-layout', 1);
 
     await this.modPage.waitAndClick(e.userListToggleBtn);
     await this.modPage.wasRemoved(e.chatButton, '');
 
-    await checkScreenshots(this, 'should the cameras be on the side of presentation', e.webcamContainer, 'smart-layout', 2);
+    await checkScreenshots(this, 'should the cameras be on the side of presentation', [e.webcamContainer, e.webcamMirroredVideoContainer], 'smart-layout', 2);
     await reopenChatSidebar(this.modPage);
   }
 
@@ -103,6 +103,7 @@ class Layouts extends MultiUsers {
     await this.modPage.hasElement(e.restorePresentation, 'should be displayed the restore presentation button for the moderator');
 
     await this.modPage.waitAndClick(e.restorePresentation);
+    await this.modPage.closeAllToastNotifications();
     await this.modPage.dragAndDropWebcams(e.dropAreaSidebarBottom);
 
     await checkScreenshots(this, 'layout should be updated for everyone', 'video', 'update-everyone');

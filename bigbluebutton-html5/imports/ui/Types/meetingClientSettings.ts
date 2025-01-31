@@ -1,3 +1,8 @@
+import type {
+  InternalRoomOptions,
+  TrackPublishOptions,
+} from 'livekit-client';
+
 export interface MeetingClientSettings {
   public: Public
   private: Private
@@ -54,10 +59,10 @@ export interface App {
   learningDashboardBase: string
   customStyleUrl: string | null
   darkTheme: DarkTheme
-  askForFeedbackOnLogout: boolean
   askForConfirmationOnLeave: boolean
   wakeLock: WakeLock
   allowDefaultLogoutUrl: boolean
+  skipMeetingEnded: boolean
   dynamicGuestPolicy: boolean
   enableGuestLobbyMessage: boolean
   guestPolicyExtraAllowOptions: boolean
@@ -609,23 +614,40 @@ export interface Media {
   sdpSemantics: string
   localEchoTest: LocalEchoTest
   muteAudioOutputWhenAway: boolean
+  livekit: LiveKitSettings
+}
+
+export interface LiveKitCameraSettings {
+  publishOptions?: TrackPublishOptions
+}
+
+export interface LiveKitScreenShareSettings {
+  publishOptions?: TrackPublishOptions
+}
+
+export interface LiveKitAudioSettings {
+  publishOptions?: TrackPublishOptions
+  unpublishOnMute?: boolean
+}
+
+export interface LiveKitSettings {
+  url?: string
+  selectiveSubscription?: boolean
+  roomOptions?: Partial<InternalRoomOptions>
+  audio?: LiveKitAudioSettings
+  camera?: LiveKitCameraSettings
+  screenshare?: LiveKitScreenShareSettings
 }
 
 export interface Audio2 {
   defaultFullAudioBridge: string
   defaultListenOnlyBridge: string
-  bridges: Bridge[]
   retryThroughRelay: boolean
   allowAudioJoinCancel: boolean
 }
 
 export interface Screenshare2 {
   showButtonForNonPresenters: boolean
-}
-
-export interface Bridge {
-  name: string
-  path: string
 }
 
 export interface LocalEchoTest {

@@ -103,6 +103,11 @@ class AnalyticsActor(val includeChat: Boolean) extends Actor with ActorLogging {
       case m: ListenOnlyModeToggledInSfuEvtMsg => logMessage(msg)
       case m: MeetingMutedEvtMsg => logMessage(msg)
 
+      // LiveKit/RTC
+      case m: GenerateLiveKitTokenReqMsg => logMessage(msg)
+      case m: GenerateLiveKitTokenRespMsg => logMessage(msg)
+      case m: LiveKitParticipantLeftEvtMsg => logMessage(msg)
+
       // Breakout
       case m: BreakoutRoomEndedEvtMsg => logMessage(msg)
 
@@ -134,6 +139,7 @@ class AnalyticsActor(val includeChat: Boolean) extends Actor with ActorLogging {
       case m: PresentationUploadedFileTooLargeErrorSysPubMsg => logMessage(msg)
       case m: PresentationUploadedFileTooLargeErrorEvtMsg => logMessage(msg)
       case m: PresentationUploadedFileVirusErrorSysPubMsg => logMessage(msg)
+      case m: PresentationConversionFailedErrorSysPubMsg => logMessage(msg)
       case m: PresentationUploadedFileVirusErrorEvtMsg => logMessage(msg)
       case m: PresentationUploadedFileScanFailedErrorSysPubMsg => logMessage(msg)
       case m: PresentationUploadedFileScanFailedErrorEvtMsg => logMessage(msg)
