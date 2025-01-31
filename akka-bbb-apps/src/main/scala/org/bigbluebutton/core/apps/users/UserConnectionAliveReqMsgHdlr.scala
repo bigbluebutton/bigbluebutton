@@ -5,7 +5,7 @@ import org.bigbluebutton.common2.msgs._
 import org.bigbluebutton.core.apps.RightsManagementTrait
 import org.bigbluebutton.core.db.UserConnectionStatusDAO
 import org.bigbluebutton.core.models.Users2x
-import org.bigbluebutton.core.running.{LiveMeeting, OutMsgRouter}
+import org.bigbluebutton.core.running.{ LiveMeeting, OutMsgRouter }
 
 trait UserConnectionAliveReqMsgHdlr extends RightsManagementTrait {
   this: UsersApp =>

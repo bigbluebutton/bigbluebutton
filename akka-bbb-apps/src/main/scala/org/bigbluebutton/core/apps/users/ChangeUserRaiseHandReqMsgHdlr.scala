@@ -1,9 +1,9 @@
 package org.bigbluebutton.core.apps.users
 
 import org.bigbluebutton.common2.msgs._
-import org.bigbluebutton.core.apps.{PermissionCheck, RightsManagementTrait}
-import org.bigbluebutton.core.models.{UserState, Users2x}
-import org.bigbluebutton.core.running.{LiveMeeting, OutMsgRouter}
+import org.bigbluebutton.core.apps.{ PermissionCheck, RightsManagementTrait }
+import org.bigbluebutton.core.models.{ UserState, Users2x }
+import org.bigbluebutton.core.running.{ LiveMeeting, OutMsgRouter }
 
 trait ChangeUserRaiseHandReqMsgHdlr extends RightsManagementTrait {
   this: UsersApp =>

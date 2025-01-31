@@ -1,7 +1,7 @@
 package org.bigbluebutton.core.apps.screenshare
 
 import org.bigbluebutton.common2.msgs._
-import org.bigbluebutton.core.apps.{ExternalVideoModel, ScreenshareModel}
+import org.bigbluebutton.core.apps.{ ExternalVideoModel, ScreenshareModel }
 import org.bigbluebutton.core.bus.MessageBus
 import org.bigbluebutton.core.db.ScreenshareDAO
 import org.bigbluebutton.core.running.LiveMeeting

@@ -1,7 +1,7 @@
 package org.bigbluebutton.core.models
 
 import com.softwaremill.quicklens._
-import org.bigbluebutton.core.db.{UserLockSettingsDAO, UserReactionDAO, UserStateDAO}
+import org.bigbluebutton.core.db.{ UserLockSettingsDAO, UserReactionDAO, UserStateDAO }
 
 object Users2x {
   def findWithIntId(users: Users2x, intId: String): Option[UserState] = {

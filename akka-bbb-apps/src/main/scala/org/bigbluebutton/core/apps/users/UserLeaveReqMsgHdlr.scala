@@ -4,8 +4,8 @@ import org.bigbluebutton.common2.msgs.UserLeaveReqMsg
 import org.bigbluebutton.core.api.UserClosedAllGraphqlConnectionsInternalMsg
 import org.bigbluebutton.core.domain.MeetingState2x
 import org.bigbluebutton.core.graphql.GraphqlMiddleware
-import org.bigbluebutton.core.models.{RegisteredUsers, Users2x}
-import org.bigbluebutton.core.running.{HandlerHelpers, MeetingActor, OutMsgRouter}
+import org.bigbluebutton.core.models.{ RegisteredUsers, Users2x }
+import org.bigbluebutton.core.running.{ HandlerHelpers, MeetingActor, OutMsgRouter }
 
 trait UserLeaveReqMsgHdlr extends HandlerHelpers {
   this: MeetingActor =>

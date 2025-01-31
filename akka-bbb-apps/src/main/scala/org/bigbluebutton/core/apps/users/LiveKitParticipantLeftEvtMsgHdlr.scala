@@ -5,8 +5,8 @@ import org.bigbluebutton.core.apps.ScreenshareModel
 import org.bigbluebutton.core.apps.screenshare.ScreenshareApp2x
 import org.bigbluebutton.core.apps.webcam.CameraHdlrHelpers
 import org.bigbluebutton.core.db.ScreenshareDAO
-import org.bigbluebutton.core.models.{Users2x, VoiceUsers, Webcams}
-import org.bigbluebutton.core.running.{BaseMeetingActor, LiveMeeting, OutMsgRouter}
+import org.bigbluebutton.core.models.{ Users2x, VoiceUsers, Webcams }
+import org.bigbluebutton.core.running.{ BaseMeetingActor, LiveMeeting, OutMsgRouter }
 import org.bigbluebutton.core2.message.senders.MsgBuilder
 
 trait LiveKitParticipantLeftEvtMsgHdlr {

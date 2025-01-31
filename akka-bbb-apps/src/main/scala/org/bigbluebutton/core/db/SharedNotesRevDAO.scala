@@ -24,7 +24,7 @@ class SharedNotesRevDbTableDef(tag: Tag) extends Table[SharedNotesRevDbModel](ta
   val end = column[Option[Int]]("end")
   val diff = column[Option[String]]("diff")
   val createdAt = column[java.sql.Timestamp]("createdAt")
-  val * = (meetingId, sharedNotesExtId, rev, userId, changeset, start, end, diff, createdAt) .<> (SharedNotesRevDbModel.tupled, SharedNotesRevDbModel.unapply)
+  val * = (meetingId, sharedNotesExtId, rev, userId, changeset, start, end, diff, createdAt).<>(SharedNotesRevDbModel.tupled, SharedNotesRevDbModel.unapply)
 }
 
 object SharedNotesRevDAO {

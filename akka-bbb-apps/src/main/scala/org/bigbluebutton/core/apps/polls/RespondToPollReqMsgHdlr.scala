@@ -3,7 +3,7 @@ package org.bigbluebutton.core.apps.polls
 import org.bigbluebutton.common2.domain.SimplePollResultOutVO
 import org.bigbluebutton.common2.msgs._
 import org.bigbluebutton.core.bus.MessageBus
-import org.bigbluebutton.core.models.{Polls, Users2x}
+import org.bigbluebutton.core.models.{ Polls, Users2x }
 import org.bigbluebutton.core.running.LiveMeeting
 
 trait RespondToPollReqMsgHdlr {

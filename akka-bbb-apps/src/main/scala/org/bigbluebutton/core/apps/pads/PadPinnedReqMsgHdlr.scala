@@ -1,7 +1,7 @@
 package org.bigbluebutton.core.apps.pads
 
 import org.bigbluebutton.common2.msgs._
-import org.bigbluebutton.core.apps.{PermissionCheck, RightsManagementTrait}
+import org.bigbluebutton.core.apps.{ PermissionCheck, RightsManagementTrait }
 import org.bigbluebutton.core.bus.MessageBus
 import org.bigbluebutton.core.db.SharedNotesDAO
 import org.bigbluebutton.core.models.Pads

@@ -3,7 +3,7 @@ package org.bigbluebutton.core2.message.handlers
 import org.bigbluebutton.common2.msgs._
 import org.bigbluebutton.core.apps.PermissionCheck
 import org.bigbluebutton.core.models.Users2x
-import org.bigbluebutton.core.running.{MeetingActor, OutMsgRouter}
+import org.bigbluebutton.core.running.{ MeetingActor, OutMsgRouter }
 import org.bigbluebutton.core2.message.senders.MsgBuilder
 
 trait GetScreenBroadcastPermissionReqMsgHdlr {

@@ -2,7 +2,7 @@ package org.bigbluebutton.core.apps.users
 
 import org.bigbluebutton.common2.msgs._
 import org.bigbluebutton.core.models.RegisteredUsers
-import org.bigbluebutton.core.running.{BaseMeetingActor, LiveMeeting, OutMsgRouter}
+import org.bigbluebutton.core.running.{ BaseMeetingActor, LiveMeeting, OutMsgRouter }
 
 trait GenerateLiveKitTokenRespMsgHdlr {
   this: BaseMeetingActor =>

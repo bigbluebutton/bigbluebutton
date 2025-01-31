@@ -1,7 +1,7 @@
 package org.bigbluebutton.core.bus
 
 import org.apache.pekko.actor.ActorRef
-import org.apache.pekko.event.{EventBus, LookupClassification}
+import org.apache.pekko.event.{ EventBus, LookupClassification }
 
 class IncomingEventBusImp extends EventBus with LookupClassification {
   type Event = BigBlueButtonEvent

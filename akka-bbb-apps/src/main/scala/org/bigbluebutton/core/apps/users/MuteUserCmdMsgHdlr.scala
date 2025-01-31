@@ -2,9 +2,9 @@ package org.bigbluebutton.core.apps.users
 
 import org.bigbluebutton.common2.msgs.MuteUserCmdMsg
 import org.bigbluebutton.core.apps.voice.VoiceApp
-import org.bigbluebutton.core.apps.{PermissionCheck, RightsManagementTrait}
-import org.bigbluebutton.core.models.{Roles, Users2x, VoiceUsers}
-import org.bigbluebutton.core.running.{LiveMeeting, OutMsgRouter}
+import org.bigbluebutton.core.apps.{ PermissionCheck, RightsManagementTrait }
+import org.bigbluebutton.core.models.{ Roles, Users2x, VoiceUsers }
+import org.bigbluebutton.core.running.{ LiveMeeting, OutMsgRouter }
 import org.bigbluebutton.core2.MeetingStatus2x
 
 trait MuteUserCmdMsgHdlr extends RightsManagementTrait {

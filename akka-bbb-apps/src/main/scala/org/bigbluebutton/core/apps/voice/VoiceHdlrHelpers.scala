@@ -1,7 +1,7 @@
 package org.bigbluebutton.core.apps.voice
 
-import org.bigbluebutton.{LockSettingsUtil, SystemConfiguration}
-import org.bigbluebutton.core.models.{Users2x, VoiceUsers}
+import org.bigbluebutton.{ LockSettingsUtil, SystemConfiguration }
+import org.bigbluebutton.core.models.{ Users2x, VoiceUsers }
 import org.bigbluebutton.core.running.LiveMeeting
 
 object VoiceHdlrHelpers extends SystemConfiguration {

@@ -5,8 +5,8 @@ import org.bigbluebutton.core.api.SetPresenterInDefaultPodInternalMsg
 import org.bigbluebutton.core.apps.RightsManagementTrait
 import org.bigbluebutton.core.bus.MessageBus
 import org.bigbluebutton.core.domain.MeetingState2x
-import org.bigbluebutton.core.models.{PresentationPod, Users2x}
-import org.bigbluebutton.core.running.{LiveMeeting, OutMsgRouter}
+import org.bigbluebutton.core.models.{ PresentationPod, Users2x }
+import org.bigbluebutton.core.running.{ LiveMeeting, OutMsgRouter }
 
 trait SetPresenterInDefaultPodInternalMsgHdlr {
   this: PresentationPodHdlrs =>

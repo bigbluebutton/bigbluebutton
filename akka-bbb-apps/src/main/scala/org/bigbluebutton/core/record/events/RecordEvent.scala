@@ -22,7 +22,7 @@ package org.bigbluebutton.core.record.events
 import org.bigbluebutton.core.api.TimestampGenerator
 
 import java.text.SimpleDateFormat
-import scala.collection.{Map, mutable}
+import scala.collection.{ Map, mutable }
 
 trait RecordEvent {
   import RecordEvent._

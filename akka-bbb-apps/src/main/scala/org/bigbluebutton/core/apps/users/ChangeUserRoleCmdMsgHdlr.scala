@@ -2,11 +2,11 @@ package org.bigbluebutton.core.apps.users
 
 import org.bigbluebutton.LockSettingsUtil
 import org.bigbluebutton.common2.msgs._
-import org.bigbluebutton.core.apps.{PermissionCheck, RightsManagementTrait}
-import org.bigbluebutton.core.db.{NotificationDAO, UserDAO}
+import org.bigbluebutton.core.apps.{ PermissionCheck, RightsManagementTrait }
+import org.bigbluebutton.core.db.{ NotificationDAO, UserDAO }
 import org.bigbluebutton.core.graphql.GraphqlMiddleware
 import org.bigbluebutton.core.models._
-import org.bigbluebutton.core.running.{LiveMeeting, OutMsgRouter}
+import org.bigbluebutton.core.running.{ LiveMeeting, OutMsgRouter }
 import org.bigbluebutton.core2.message.senders.MsgBuilder
 
 trait ChangeUserRoleCmdMsgHdlr extends RightsManagementTrait {
