@@ -234,7 +234,7 @@ class Presentation extends MultiUsers {
     const userSlides0 = await getSlideOuterHtml(this.userPage);
     await expect(modSlides0).toEqual(userSlides0);
 
-    await uploadMultiplePresentations(this.modPage, [e.uploadPresentationFileName, e.questionSlideFileName]);
+    await uploadMultiplePresentations(this.modPage, [e.questionSlideFileName, e.uploadPresentationFileName]);
 
     const modSlides1 = await getSlideOuterHtml(this.modPage);
     const userSlides1 = await getSlideOuterHtml(this.userPage);
