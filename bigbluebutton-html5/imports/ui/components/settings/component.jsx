@@ -138,7 +138,7 @@ class Settings extends Component {
         dataSaving: clone(dataSaving),
         application: clone(application),
       },
-      selectedTab: Number.isFinite(selectedTab) && selectedTab >= 0 && selectedTab <= 2
+      selectedTab: Number.isFinite(selectedTab) && selectedTab >= 0 && selectedTab <= 3
         ? selectedTab
         : 0,
     };

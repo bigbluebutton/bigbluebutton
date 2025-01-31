@@ -1,5 +1,11 @@
 import { useMutation } from '@apollo/client';
-import React, { useCallback, useEffect, useState } from 'react';
+import React, {
+  useCallback,
+  useEffect,
+  useState,
+  Dispatch,
+  SetStateAction,
+} from 'react';
 import { defineMessages, useIntl } from 'react-intl';
 import {
   BreakoutRoom as BreakoutRoomType,
@@ -34,6 +40,7 @@ interface BreakoutRoomProps {
   userJoinedAudio: boolean;
   userId: string;
   meetingId: string;
+  setUpdateUsersWhileRunning: Dispatch<SetStateAction<boolean>>;
 }
 
 const intlMessages = defineMessages({
@@ -115,6 +122,7 @@ const BreakoutRoom: React.FC<BreakoutRoomProps> = ({
   userJoinedAudio,
   userId,
   meetingId,
+  setUpdateUsersWhileRunning,
 }) => {
   const [breakoutRoomEndAll] = useMutation(BREAKOUT_ROOM_END_ALL);
   const [breakoutRoomTransfer] = useMutation(USER_TRANSFER_VOICE_TO_MEETING);
@@ -198,6 +206,7 @@ const BreakoutRoom: React.FC<BreakoutRoomProps> = ({
             isMeteorConnected
             amIModerator={isModerator}
             isRTL={isRTL}
+            setUpdateUsersWhileRunning={setUpdateUsersWhileRunning}
           />
         )}
       />
@@ -317,7 +326,6 @@ const BreakoutRoom: React.FC<BreakoutRoomProps> = ({
 };
 
 const BreakoutRoomContainer: React.FC = () => {
-  const layoutContextDispatch = layoutDispatch();
   const {
     data: meetingData,
   } = useMeeting((m) => ({
@@ -325,6 +333,7 @@ const BreakoutRoomContainer: React.FC = () => {
     meetingId: m.meetingId,
     componentsFlags: m.componentsFlags,
   }));
+  const [updateUsersWhileRunning, setUpdateUsersWhileRunning] = useState(false);
 
   const {
     data: currentUserData,
@@ -341,7 +350,6 @@ const BreakoutRoomContainer: React.FC = () => {
     loading: breakoutLoading,
     error: breakoutError,
   } = useDeduplicatedSubscription<GetBreakoutDataResponse>(getBreakoutData);
-  const [isOpen, setIsOpen] = useState(!hasBreakoutRoom);
   if (
     breakoutLoading
     || currentUserLoading
@@ -357,24 +365,11 @@ const BreakoutRoomContainer: React.FC = () => {
     );
   }
   if (!currentUserData || !breakoutData || !meetingData) return null; // or loading spinner or error
-  if (!hasBreakoutRoom && currentUserData.isModerator && isOpen) {
+  if ((!hasBreakoutRoom && currentUserData.isModerator) || updateUsersWhileRunning) {
     return (
       <CreateBreakoutRoomContainer
-        isOpen={isOpen}
-        setIsOpen={(value: boolean) => {
-          if (!hasBreakoutRoom) {
-            layoutContextDispatch({
-              type: ACTIONS.SET_SIDEBAR_CONTENT_IS_OPEN,
-              value: false,
-            });
-            layoutContextDispatch({
-              type: ACTIONS.SET_SIDEBAR_CONTENT_PANEL,
-              value: PANELS.NONE,
-            });
-          }
-          setIsOpen(value);
-        }}
-        priority="low"
+        isUpdate={updateUsersWhileRunning}
+        setUpdateUsersWhileRunning={setUpdateUsersWhileRunning}
       />
     );
   }
@@ -387,6 +382,7 @@ const BreakoutRoomContainer: React.FC = () => {
       userJoinedAudio={currentUserData?.voice?.joined ?? false}
       userId={currentUserData.userId ?? ''}
       meetingId={meetingData.meetingId ?? ''}
+      setUpdateUsersWhileRunning={setUpdateUsersWhileRunning}
     />
   );
 };

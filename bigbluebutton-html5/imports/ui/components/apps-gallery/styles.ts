@@ -21,6 +21,7 @@ import {
   PanelContent as BasePanelContent,
   Separator as BaseSeparator,
 } from '/imports/ui/components/sidebar-content/styles';
+import { ScrollboxVertical } from '/imports/ui/stylesheets/styled-components/scrollable';
 
 const HeaderContainer = styled(BaseHeaderContainer)``;
 
@@ -28,13 +29,14 @@ const PanelContent = styled(BasePanelContent)``;
 
 const Separator = styled(BaseSeparator)``;
 
-const Wrapper = styled.div`
+const Wrapper = styled(ScrollboxVertical)`
   display: flex;
   flex-direction: column;
   align-items: center;
   gap: ${appsPanelGroupItemsSpacing};
-  flex-shrink: 0;
   padding: ${contentSidebarPadding};
+  flex-grow: 1;
+  margin: 0px 0.25rem;
 `;
 
 const PinnedAppsWrapper = styled.div`
@@ -47,14 +49,6 @@ const PinnedAppsWrapper = styled.div`
 
 const UnpinnedAppsWrapper = PinnedAppsWrapper;
 
-const RegisteredAppWrapper = styled.div`
-  display: flex;
-  flex-direction: row;
-  gap: 0px;
-  flex-grow:1;
-  cursor: pointer;
-`;
-
 const AppTitle = styled.div`
   flex-grow: 1;
 `;
@@ -63,13 +57,11 @@ const RegisteredAppContent = styled.div`
   display: flex;
   flex-direction: row;
   flex-grow: 1;
-  border-radius: 0px ${appsButtonsBorderRadius} ${appsButtonsBorderRadius} 0px;
+  border-radius: ${appsButtonsBorderRadius};
   border-top: 1px solid ${appsGalleryOutlineColor};
   border-right: 1px solid ${appsGalleryOutlineColor};
   border-bottom: 1px solid ${appsGalleryOutlineColor};
   align-items: center;
-  gap: 4px;
-  padding: ${lgPadding} ${$2xlPadding};
 `;
 
 // @ts-expect-error -> Untyped component.
@@ -90,13 +82,45 @@ const OpenButton = styled(Button)<{pinned: boolean}>`
   }
 `;
 
+const ClickableArea = styled.div`
+  display: flex;
+  flex-direction: row;
+  flex-grow: 1;
+  justify-content: center;
+  align-items: center;
+  gap: ${lgPadding};
+  cursor: pointer;
+
+  &:hover > ${OpenButton} {
+    filter: brightness(90%);
+    background-color: ${colorPrimary};
+    color: ${colorWhite};
+  }
+`;
+
 const PinApp = styled.div<{pinned: boolean}>`
   color: ${colorPrimary};
   cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  margin: ${lgPadding};
+  padding: 0.5rem;
+  cursor: pointer;
+
   > i {
     font-size: 120%;
     color: ${({ pinned }) => (pinned ? colorPrimary : unpinnedAppIconColor)};
   }
+
+  &:hover {
+    background-color: ${appsGalleryOutlineColor};
+  }
+`;
+
+const DescWrapper = styled.div`
+  padding: ${contentSidebarPadding} ${contentSidebarPadding} 0px;
 `;
 
 const BoldText = styled.span`
@@ -110,10 +134,11 @@ export default {
   Wrapper,
   PinnedAppsWrapper,
   UnpinnedAppsWrapper,
-  RegisteredAppWrapper,
   AppTitle,
   RegisteredAppContent,
   OpenButton,
   PinApp,
+  ClickableArea,
+  DescWrapper,
   BoldText,
 };

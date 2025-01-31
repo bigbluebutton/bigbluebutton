@@ -7,7 +7,7 @@ const { recordMeeting } = require('../parameters/constants');
 const { linkIssue } = require('../core/helpers');
 
 test.describe.parallel('Notifications', { tag: '@ci' }, () => {
-  test('Save settings notification', async ({ browser, context, page }) => {
+  test('Save settings notification', { tag: '@flaky-3.1' }, async ({ browser, context, page }) => {
     const notifications = new Notifications(browser, context);
     await notifications.initModPage(page);
     await notifications.saveSettingsNotification();
@@ -19,7 +19,7 @@ test.describe.parallel('Notifications', { tag: '@ci' }, () => {
     await notifications.audioNotification();
   });
 
-  test('User join notification', async ({ browser, context, page }) => {
+  test('User join notification', { tag: '@flaky-3.1' }, async ({ browser, context, page }) => {
     const notifications = new Notifications(browser, context);
     await notifications.initModPage(page);
     await notifications.getUserJoinPopupResponse();
@@ -32,7 +32,7 @@ test.describe.parallel('Notifications', { tag: '@ci' }, () => {
     await notifications.raiseAndLowerHandNotification();
   });
 
-  test.describe.parallel('Chat', () => {
+  test.describe.parallel('Chat', { tag: '@flaky-3.1' }, () => {
     test('Public Chat notification', async ({ browser, context, page }) => {
       const chatNotifications = new ChatNotifications(browser, context);
       await chatNotifications.initPages(page);
@@ -51,7 +51,7 @@ test.describe.parallel('Notifications', { tag: '@ci' }, () => {
   });
 
   test.describe.parallel('Recording', () => {
-    test('Notification appearing when user is not in audio', async ({ browser, page }) => {
+    test('Notification appearing when user is not in audio', { tag: '@flaky-3.1' }, async ({ browser, page }) => {
       const recordingNotifications = new RecordingNotifications(browser, page);
       await recordingNotifications.init(true, true, { createParameter: recordMeeting });
       await recordingNotifications.notificationNoAudio();
@@ -63,13 +63,13 @@ test.describe.parallel('Notifications', { tag: '@ci' }, () => {
       await recordingNotifications.notificationListenOnly();
     });
 
-    test('No notification appearing when user is in audio', async ({ browser, page }) => {
+    test('No notification appearing when user is in audio', { tag: '@flaky-3.1' }, async ({ browser, page }) => {
       const recordingNotifications = new RecordingNotifications(browser, page);
       await recordingNotifications.init(true, true, { createParameter: recordMeeting });
       await recordingNotifications.noNotificationInAudio();
     });
 
-    test('Modal appearing when user wants to start recording', async ({ browser, page }) => {
+    test('Modal appearing when user wants to start recording', { tag: '@flaky-3.1' }, async ({ browser, page }) => {
       const recordingNotifications = new RecordingNotifications(browser, page);
       await recordingNotifications.init(true, true, { createParameter: recordMeeting });
       await recordingNotifications.modalStartRecording();
@@ -77,7 +77,7 @@ test.describe.parallel('Notifications', { tag: '@ci' }, () => {
   });
 
   test.describe.parallel('Presenter', () => {
-    test('Poll results notification', async ({ browser, context, page }) => {
+    test('Poll results notification', { tag: '@flaky-3.1' }, async ({ browser, context, page }) => {
       const presenterNotifications = new PresenterNotifications(browser, context);
       await presenterNotifications.initPages(page);
       await presenterNotifications.modPage.closeAllToastNotifications();

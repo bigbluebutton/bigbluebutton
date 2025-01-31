@@ -61,37 +61,37 @@ const AppsGallery: React.FC<AppsGalleryProps> = ({ registeredApps, pinnedApps })
       });
     };
     return (
-      <Styled.RegisteredAppWrapper
-        onClick={openAppPanel}
-      >
-        <Styled.OpenButton
-          key={`OPEN${appKey}`}
-          color="primary"
-          type="button"
+      <Styled.RegisteredAppContent>
+        <Styled.ClickableArea
           onClick={openAppPanel}
-          icon={icon}
-          pinned={isPinned}
-        />
-        <Styled.RegisteredAppContent>
+        >
+          <Styled.OpenButton
+            key={`OPEN${appKey}`}
+            color="primary"
+            type="button"
+            onClick={openAppPanel}
+            icon={icon}
+            pinned={isPinned}
+          />
           <Styled.AppTitle>
             {name}
           </Styled.AppTitle>
-          <Styled.PinApp
-            key={`PIN${appKey}`}
-            role="button"
-            onClick={togglePinApp}
-            onKeyDown={togglePinApp}
-            tabIndex={0}
-            pinned={isPinned}
-          >
-            <Icon iconName={isPinned ? 'pin-video_on' : 'pin-video_off'} />
-          </Styled.PinApp>
-        </Styled.RegisteredAppContent>
-      </Styled.RegisteredAppWrapper>
+        </Styled.ClickableArea>
+        <Styled.PinApp
+          key={`PIN${appKey}`}
+          role="button"
+          onClick={togglePinApp}
+          onKeyDown={togglePinApp}
+          tabIndex={0}
+          pinned={isPinned}
+        >
+          <Icon iconName={isPinned ? 'pin-video_on' : 'pin-video_off'} />
+        </Styled.PinApp>
+      </Styled.RegisteredAppContent>
     );
   };
 
-  const renderedpinnedApps = useMemo(() => (
+  const renderedPinnedApps = useMemo(() => (
     pinnedApps.map((pinnedAppKey) => {
       const { name, icon } = registeredApps[pinnedAppKey];
       return renderApp(pinnedAppKey, name, icon, true);
@@ -108,7 +108,7 @@ const AppsGallery: React.FC<AppsGalleryProps> = ({ registeredApps, pinnedApps })
   ), [registeredApps, pinnedApps]);
 
   return (
-    <Styled.PanelContent>
+    <>
       { error && (
         <TooManyPinnedAppsModal
           setError={setError}
@@ -140,21 +140,25 @@ const AppsGallery: React.FC<AppsGalleryProps> = ({ registeredApps, pinnedApps })
       />
       <Styled.Separator />
 
+      <Styled.DescWrapper>
+        <Styled.BoldText>
+          {intl.formatMessage(intlMessages.pinnedApps, { 0: pinnedApps.length, 1: MAX_PINNED_APPS_GALLERY })}
+        </Styled.BoldText>
+        {intl.formatMessage(intlMessages.pinnedAppsContinue)}
+      </Styled.DescWrapper>
       <Styled.Wrapper>
-        <Styled.PinnedAppsWrapper>
-          <div>
-            <Styled.BoldText>
-              {intl.formatMessage(intlMessages.pinnedApps, { 0: pinnedApps.length, 1: MAX_PINNED_APPS_GALLERY })}
-            </Styled.BoldText>
-            {intl.formatMessage(intlMessages.pinnedAppsContinue)}
-          </div>
-          {renderedpinnedApps}
-        </Styled.PinnedAppsWrapper>
-        <Styled.UnpinnedAppsWrapper>
-          {renderedUnpinnedApps}
-        </Styled.UnpinnedAppsWrapper>
+        {renderedPinnedApps.length > 0 && (
+          <Styled.PinnedAppsWrapper>
+            {renderedPinnedApps}
+          </Styled.PinnedAppsWrapper>
+        )}
+        {renderedUnpinnedApps.length > 0 && (
+          <Styled.UnpinnedAppsWrapper>
+            {renderedUnpinnedApps}
+          </Styled.UnpinnedAppsWrapper>
+        )}
       </Styled.Wrapper>
-    </Styled.PanelContent>
+    </>
   );
 };
 

@@ -469,7 +469,7 @@ const PollCreationPanel: React.FC<PollCreationPanelProps> = ({
   };
 
   return (
-    <Styled.PanelContent>
+    <>
       <Styled.HeaderContainer
         data-test="pollPaneTitle"
         title={intl.formatMessage(intlMessages.pollPaneTitle)}
@@ -516,7 +516,7 @@ const PollCreationPanel: React.FC<PollCreationPanelProps> = ({
         <span className="sr-only" id="add-item-button">{intl.formatMessage(intlMessages.addRespDesc)}</span>
         <span className="sr-only" id="start-poll-button">{intl.formatMessage(intlMessages.startPollDesc)}</span>
       </Styled.ContentWrapper>
-    </Styled.PanelContent>
+    </>
   );
 };
 

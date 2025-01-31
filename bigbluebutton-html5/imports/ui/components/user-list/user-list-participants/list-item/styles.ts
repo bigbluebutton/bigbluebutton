@@ -1,4 +1,4 @@
-import styled, { css, keyframes } from 'styled-components';
+import styled from 'styled-components';
 import {
   lgPaddingY,
   smPaddingY,
@@ -7,22 +7,18 @@ import {
 import {
   listItemBgHover,
   itemFocusBorder,
-  colorWhite,
 } from '/imports/ui/stylesheets/styled-components/palette';
+import UserAvatar from '/imports/ui/components/user-avatar/component';
 
 interface AvatarProps {
-    moderator?: boolean;
-    presenter?: boolean;
-    talking?: boolean;
-    muted?: boolean;
-    listenOnly?: boolean;
-    voice?: boolean;
-    noVoice?: boolean;
-    color?: string;
-    animations?: boolean;
-    emoji?: boolean;
-    avatar?: string;
-    isSkeleton?: boolean;
+  moderator?: boolean;
+  presenter?: boolean;
+  talking?: boolean;
+  color?: string;
+  animations?: boolean;
+  emoji?: boolean;
+  avatar?: string;
+  isSkeleton?: boolean;
 }
 
 interface UserItemContentsProps {
@@ -34,6 +30,7 @@ const UserItemContents = styled.div<UserItemContentsProps>`
   position: static;
   padding: .45rem;
   width: 100%;
+  overflow: hidden;
 
   ${({ selected }) => selected && `
     background-color: ${listItemBgHover};
@@ -95,74 +92,16 @@ const UserItemContents = styled.div<UserItemContentsProps>`
 
 // ===== avatar =====
 
-const Avatar = styled.div<AvatarProps>`
+const Avatar = styled(UserAvatar)<AvatarProps>`
   position: relative;
-  height: 3rem;
-  width: 3rem;
-  min-width: 3rem;
-  border-radius: 50%;
   text-align: center;
   font-size: .85rem;
   border: 2px solid transparent;
   user-select: none;
-  ${
-  ({ color }) => css`
-    background-color: ${color};
-  `}
-  }
-
-  ${({ animations }) => animations && `
-    transition: .3s ease-in-out;
-  `}
-
-  ${({ moderator }) => moderator && `
-    border-radius: 5px;
-    color: ${colorWhite} !important;
-  `}
-
-  // ================ talking animation ================
-  ${({ talking, animations, color }) => talking && animations && color && css`
-    animation: ${pulse(color)} 1s infinite ease-in;
-  `}
-
-  ${({ talking, animations }) => talking && !animations && `
-    box-shadow: 0 0 0 4px currentColor;
-  `}
-  // ================ talking animation ================
-  // ================ image ================
-  ${({ avatar, emoji, color }) => avatar?.length !== 0 && !emoji && css`
-    background-image: url(${avatar});
-    background-repeat: no-repeat;
-    background-size: contain;
-    border: 2px solid ${color};
-  `}
-  // ================ image ================
-
-  // ================ content ================
-  color: ${colorWhite} !important;
-  font-size: 110%;
-  text-transform: capitalize;
-  display: flex;
-  justify-content: center;
-  align-items:center;  
-  // ================ content ================
-
-  & .react-loading-skeleton {    
-    height: 3rem;
-    width: 3rem;
-  }
-`;
-
-const Skeleton = styled.div``;
-
-const pulse = (color: string) => keyframes`
-    0% {
-      box-shadow: 0 0 0 0 ${color}80;
-    }
-    100% {
-      box-shadow: 0 0 0 10px ${color}00;
-    }
-  }
+  width: 3.5rem;
+  min-width: 3.5rem;
+  height: 3.5rem;
+  min-height: 3.5rem;
 `;
 
 // ======================== Icon Right Container ========================
@@ -173,7 +112,6 @@ const IconRightContainer = styled.div`
 
 export default {
   Avatar,
-  Skeleton,
   UserItemContents,
   IconRightContainer,
 };

@@ -1,4 +1,5 @@
 import React from 'react';
+import { FormattedMessage, defineMessages } from 'react-intl';
 import Auth from '/imports/ui/services/auth';
 import Storage from '/imports/ui/services/storage/session';
 import AudioService from '/imports/ui/components/audio/service';
@@ -7,9 +8,23 @@ import logger from '/imports/startup/client/logger';
 import Session from '/imports/ui/services/storage/in-memory';
 import { getSettingsSingletonInstance } from '/imports/ui/services/settings';
 import { notify } from '/imports/ui/services/notification';
-import { FormattedMessage } from 'react-intl';
 import { getDateString } from '/imports/utils/string-utils';
 import { isEmpty } from 'radash';
+
+const intlMessages = defineMessages({
+  savedNamesListTitle: {
+    id: 'app.userList.userOptions.savedNames.title',
+    description: '',
+  },
+  sortedFirstNameHeading: {
+    id: 'app.userList.userOptions.sortedFirstName.heading',
+    description: '',
+  },
+  sortedLastNameHeading: {
+    id: 'app.userList.userOptions.sortedLastName.heading',
+    description: '',
+  },
+});
 
 const DIAL_IN_CLIENT_TYPE = 'dial-in-user';
 
@@ -446,6 +461,27 @@ const UserLeftMeetingAlert = (obj) => {
       obj.icon,
     );
   }
+};
+
+export const onSaveUserNames = (intl, meetingName, users) => {
+  const Settings = getSettingsSingletonInstance();
+  // @ts-ignore - temporary while settings are still in .js
+  const lang = Settings.application.locale;
+  const date = new Date();
+
+  const dateString = lang ? date.toLocaleDateString(lang) : date.toLocaleDateString();
+  const timeString = lang ? date.toLocaleTimeString(lang) : date.toLocaleTimeString();
+
+  getUserNamesLink(
+    intl.formatMessage(intlMessages.savedNamesListTitle, {
+      0: meetingName,
+      1: `${dateString}:${timeString}`,
+    }),
+    intl.formatMessage(intlMessages.sortedFirstNameHeading),
+    intl.formatMessage(intlMessages.sortedLastNameHeading),
+    users,
+    meetingName,
+  ).dispatchEvent(new MouseEvent('click', { bubbles: true, cancelable: true, view: window }));
 };
 
 export default {

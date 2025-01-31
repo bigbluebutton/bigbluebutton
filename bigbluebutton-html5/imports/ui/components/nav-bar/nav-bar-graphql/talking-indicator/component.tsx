@@ -1,5 +1,6 @@
 import React, { useEffect, useMemo } from 'react';
 import { defineMessages, useIntl } from 'react-intl';
+import Auth from '/imports/ui/services/auth/index';
 import {
   IsBreakoutSubscriptionData,
   MEETING_ISBREAKOUT_SUBSCRIPTION,
@@ -62,6 +63,7 @@ const TalkingIndicator: React.FC<TalkingIndicatorProps> = ({
   isModerator,
   toggleVoice,
 }) => {
+  const ROLE_MODERATOR = window.meetingClientSettings.public.user.role_moderator;
   const intl = useIntl();
   useEffect(() => {
     // component will unmount
@@ -78,6 +80,7 @@ const TalkingIndicator: React.FC<TalkingIndicatorProps> = ({
         color,
         speechLocale,
         name,
+        role,
       },
       userId,
     } = talkingUser;
@@ -87,6 +90,7 @@ const TalkingIndicator: React.FC<TalkingIndicatorProps> = ({
       color,
       speechLocale,
       name,
+      role,
       userId,
     };
   });
@@ -95,11 +99,13 @@ const TalkingIndicator: React.FC<TalkingIndicatorProps> = ({
     const {
       talking,
       muted,
-      color,
       speechLocale,
       name,
       userId,
     } = talkingUser;
+
+    const isYou = talkingUser.userId === Auth.userID;
+    const isTalkingUserMod = talkingUser.role === ROLE_MODERATOR;
 
     const ariaLabel = intl.formatMessage(talking
       ? intlMessages.isTalking : intlMessages.wasTalking, {
@@ -124,6 +130,9 @@ const TalkingIndicator: React.FC<TalkingIndicatorProps> = ({
           $spoke={!talking || undefined}
           $muted={muted || undefined}
           $isViewer={!isModerator || undefined}
+          $talkingUserIsViewer={!isTalkingUserMod && !isYou}
+          $you={isYou}
+          $moderator={isTalkingUserMod}
           key={userId}
           onClick={() => {
             // eslint-disable-next-line @typescript-eslint/ban-ts-comment
@@ -140,14 +149,6 @@ const TalkingIndicator: React.FC<TalkingIndicatorProps> = ({
           color="primary"
           icon={icon}
           size="lg"
-          style={
-            isModerator
-              ? {
-                backgroundColor: color,
-                border: `solid 2px ${color}`,
-              }
-              : undefined
-          }
         >
           {talking ? (
             <Styled.Hidden id="description">
@@ -175,7 +176,8 @@ const TalkingIndicator: React.FC<TalkingIndicatorProps> = ({
       <Styled.TalkingIndicatorButton
         $spoke={nobodyTalking}
         $muted={false}
-        $isViewer={false}
+        $you={false}
+        $talkingUserIsViewer
         key={uniqueId('_has__More_')}
         onClick={() => { }} // maybe add a dropdown to show the rest of the users
         label="..."
@@ -183,13 +185,6 @@ const TalkingIndicator: React.FC<TalkingIndicatorProps> = ({
         aria-label={ariaLabel}
         color="primary"
         size="sm"
-        style={
-          isModerator ? {
-            backgroundColor: '#4a148c',
-            border: 'solid 2px #4a148c',
-            cursor: 'default',
-          } : undefined
-        }
       />
     );
   };
