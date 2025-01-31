@@ -3,7 +3,7 @@ const { SharedNotes } = require('./sharednotes');
 const { initializePages } = require('../core/helpers');
 const { fullyParallel } = require('../playwright.config');
 
-test.describe('Shared Notes', { tag: '@ci' }, () => {
+test.describe('Shared Notes', { tag: ['@ci', '@flaky-3.1'] }, () => {
   const sharedNotes = new SharedNotes();
 
   test.describe.configure({ mode: fullyParallel ? 'parallel' : 'serial' });

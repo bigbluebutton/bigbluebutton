@@ -3,7 +3,7 @@ const { fullyParallel } = require('../playwright.config');
 const { Layouts } = require('./layouts');
 const { initializePages } = require('../core/helpers');
 
-test.describe('Layout', { tag: '@ci' }, () => {
+test.describe('Layout', { tag: ['@ci', '@flaky-3.1'] }, () => {
   const layouts = new Layouts();
 
   test.describe.configure({ mode: fullyParallel ? 'parallel' : 'serial' });
