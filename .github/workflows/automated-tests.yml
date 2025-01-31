@@ -71,7 +71,7 @@ jobs:
           - package: others
             build-list: bbb-mkclean bbb-pads bbb-libreoffice-docker bbb-transcription-controller bigbluebutton
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
       - name: Merge branches
         uses: ./.github/actions/merge-branches
       - name: Set cache-key vars
@@ -86,7 +86,7 @@ jobs:
       - name: Handle cache
         if: matrix.cache-files-list != ''
         id: cache-action
-        uses: actions/cache@v3
+        uses: actions/cache@v4
         with:
           path: artifacts.tar
           key: ${{ runner.os }}-${{ matrix.package }}-${{ env.BIGBLUEBUTTON_RELEASE }}-commits-${{ env.CACHE_KEY_FILES }}-urls-${{ env.CACHE_KEY_URLS }}
@@ -98,7 +98,7 @@ jobs:
           echo "${{ matrix.build-list || matrix.package }}" | xargs -n 1 ./build/setup.sh
           tar cvf artifacts.tar artifacts/
       - name: Archive packages
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: artifacts_${{ matrix.package }}.tar
           path: artifacts.tar
@@ -110,67 +110,67 @@ jobs:
       matrix:
         shard: [1/8, 2/8, 3/8, 4/8, 5/8, 6/8, 7/8, 8/8]
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
       - name: Merge branches
         uses: ./.github/actions/merge-branches
       - run: ./build/get_external_dependencies.sh
       - name: Download artifacts_bbb-apps-akka
-        uses: actions/download-artifact@v3
+        uses: actions/download-artifact@v4
         with:
           name: artifacts_bbb-apps-akka.tar
       - run: tar xf artifacts.tar
       - name: Download artifacts_bbb-config
-        uses: actions/download-artifact@v3
+        uses: actions/download-artifact@v4
         with:
           name: artifacts_bbb-config.tar
       - run: tar xf artifacts.tar
       - name: Download artifacts_bbb-export-annotations
-        uses: actions/download-artifact@v3
+        uses: actions/download-artifact@v4
         with:
           name: artifacts_bbb-export-annotations.tar
       - run: tar xf artifacts.tar
       - name: Download artifacts_bbb-learning-dashboard
-        uses: actions/download-artifact@v3
+        uses: actions/download-artifact@v4
         with:
           name: artifacts_bbb-learning-dashboard.tar
       - run: tar xf artifacts.tar
       - name: Download artifacts_bbb-playback-record
-        uses: actions/download-artifact@v3
+        uses: actions/download-artifact@v4
         with:
           name: artifacts_bbb-playback-record.tar
       - run: tar xf artifacts.tar
       - name: Download artifacts_bbb-etherpad
-        uses: actions/download-artifact@v3
+        uses: actions/download-artifact@v4
         with:
           name: artifacts_bbb-etherpad.tar
       - run: tar xf artifacts.tar
       - name: Download artifacts_bbb-freeswitch
-        uses: actions/download-artifact@v3
+        uses: actions/download-artifact@v4
         with:
           name: artifacts_bbb-freeswitch.tar
       - run: tar xf artifacts.tar
       - name: Download artifacts_bbb-webrtc
-        uses: actions/download-artifact@v3
+        uses: actions/download-artifact@v4
         with:
           name: artifacts_bbb-webrtc.tar
       - run: tar xf artifacts.tar
       - name: Download artifacts_bbb-web
-        uses: actions/download-artifact@v3
+        uses: actions/download-artifact@v4
         with:
           name: artifacts_bbb-web.tar
       - run: tar xf artifacts.tar
       - name: Download artifacts_bbb-fsesl-akka
-        uses: actions/download-artifact@v3
+        uses: actions/download-artifact@v4
         with:
           name: artifacts_bbb-fsesl-akka.tar
       - run: tar xf artifacts.tar
       - name: Download artifacts_bbb-html5
-        uses: actions/download-artifact@v3
+        uses: actions/download-artifact@v4
         with:
           name: artifacts_bbb-html5.tar
       - run: tar xf artifacts.tar
       - name: Download artifacts
-        uses: actions/download-artifact@v3
+        uses: actions/download-artifact@v4
         with:
           name: artifacts_others.tar
       - run: tar xf artifacts.tar
@@ -288,7 +288,7 @@ jobs:
           '
       - if: always() && github.event_name == 'pull_request'
         name: Upload blob report to GitHub Actions Artifacts
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: all-blob-reports
           path: bigbluebutton-tests/playwright/blob-report
@@ -318,12 +318,12 @@ jobs:
           ls -t /root/*.tar.gz | head -1 | xargs -I '{}' cp '{}' /home/runner/work/bigbluebutton/bigbluebutton/bbb-logs.tar.gz
           EOF
       - if: failure()
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: bbb-configs
           path: configs
       - if: failure()
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: bbb-logs
           path: ./bbb-logs.tar.gz
@@ -332,15 +332,15 @@ jobs:
     needs: install-and-run-tests
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
-      - uses: actions/setup-node@v3
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
         with:
           node-version: 18
       - name: Install dependencies
         working-directory: ./bigbluebutton-tests/playwright
         run: npm ci
       - name: Download all blob reports from GitHub Actions Artifacts
-        uses: actions/download-artifact@v3
+        uses: actions/download-artifact@v4
         with:
           name: all-blob-reports
           path: bigbluebutton-tests/playwright/all-blob-reports
@@ -348,7 +348,7 @@ jobs:
         working-directory: ./bigbluebutton-tests/playwright
         run: npx playwright merge-reports --reporter html ./all-blob-reports
       - name: Upload HTML tests report
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: tests-report
           path: |
@@ -363,7 +363,7 @@ jobs:
           echo ${{ github.run_id }} > ./pr-comment-data/workflow_id
       - name: Upload PR data for auto-comment
         if: github.event_name == 'pull_request'
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: pr-comment-data
           path: pr-comment-data
