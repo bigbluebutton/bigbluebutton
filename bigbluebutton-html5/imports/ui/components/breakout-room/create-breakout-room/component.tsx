@@ -240,9 +240,9 @@ const CreateBreakoutRoom: React.FC<CreateBreakoutRoomProps> = ({
 
   const { allowUserChooseRoomByDefault } = BREAKOUT_SETTINGS;
   const captureWhiteboardByDefault = BREAKOUT_SETTINGS.captureWhiteboardByDefault
-                                    && isImportPresentationWithAnnotationsEnabled;
+    && isImportPresentationWithAnnotationsEnabled;
   const captureSharedNotesByDefault = BREAKOUT_SETTINGS.captureSharedNotesByDefault
-                                    && isImportPresentationWithAnnotationsEnabled;
+    && isImportPresentationWithAnnotationsEnabled;
   const inviteModsByDefault = BREAKOUT_SETTINGS.sendInvitationToAssignedModeratorsByDefault;
 
   const [numberOfRoomsIsValid, setNumberOfRoomsIsValid] = React.useState(true);
@@ -556,12 +556,12 @@ const CreateBreakoutRoom: React.FC<CreateBreakoutRoomProps> = ({
         customRightButton={null}
       />
       <Styled.PanelSeparator />
-      <Styled.TitleWrapper>
-        {title}
-        {form}
-      </Styled.TitleWrapper>
-      <Styled.PanelSeparator />
       <Styled.Content>
+        <Styled.TitleWrapper>
+          {title}
+          {form}
+        </Styled.TitleWrapper>
+        <Styled.PanelSeparator />
         <RoomManagmentState
           numberOfRooms={numberOfRooms}
           users={users}
@@ -594,7 +594,7 @@ const CreateBreakoutRoom: React.FC<CreateBreakoutRoomProps> = ({
 
 const CreateBreakoutRoomContainer: React.FC<CreateBreakoutRoomContainerProps> = ({
   isUpdate = false,
-  setUpdateUsersWhileRunning = () => {},
+  setUpdateUsersWhileRunning = () => { },
 }) => {
   const [fetchedBreakouts, setFetchedBreakouts] = React.useState(false);
   // isBreakoutRecordable - get from meeting breakout policies breakoutPolicies/record
