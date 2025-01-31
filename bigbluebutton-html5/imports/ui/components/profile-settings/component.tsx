@@ -653,6 +653,7 @@ const ProfileSettings: React.FC<ProfileSettingsProps> = () => {
 
   // Unused for now, but will be used in the future when UI/UX for sharing
   // through the profile settings is implemented - prlanzarin
+  // @ts-expect-error TS6133: Unused variable.
   const handleStartSharing = async () => {
     if (!currentVideoStream.current) return;
     if (
