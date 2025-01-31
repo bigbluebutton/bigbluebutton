@@ -108,7 +108,10 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        shard: [1/8, 2/8, 3/8, 4/8, 5/8, 6/8, 7/8, 8/8]
+        shard: [1, 2, 3, 4, 5, 6, 7, 8]
+    env:
+      shard: ${{ matrix.shard }}/8
+      MATRIX_SHARD_UNDERSCORED: ${{ matrix.shard }}_8
     steps:
       - uses: actions/checkout@v4
       - name: Merge branches
@@ -269,7 +272,7 @@ jobs:
           ACTIONS_RUNNER_DEBUG: true
           BBB_URL: https://bbb-ci.test/bigbluebutton/api
           BBB_SECRET: bbbci
-        run: npm run test-chromium-ci -- --shard ${{ matrix.shard }}
+        run: npm run test-chromium-ci -- --shard ${{ env.shard }}
       - name: Run Firefox tests
         working-directory: ./bigbluebutton-tests/playwright
         if: |
@@ -284,13 +287,13 @@ jobs:
         run: |
           sh -c '
           find $HOME/.cache/ms-playwright -name libnssckbi.so -exec rm {} \; -exec ln -s /usr/lib/x86_64-linux-gnu/pkcs11/p11-kit-trust.so {} \;
-          npm run test-firefox-ci -- --shard ${{ matrix.shard }}
+          npm run test-firefox-ci -- --shard ${{ env.shard }}
           '
       - if: always() && github.event_name == 'pull_request'
         name: Upload blob report to GitHub Actions Artifacts
         uses: actions/upload-artifact@v4
         with:
-          name: all-blob-reports
+          name: blob-report-${{ matrix.shard }}
           path: bigbluebutton-tests/playwright/blob-report
       - if: failure()
         name: Prepare artifacts (configs and logs)
@@ -320,40 +323,29 @@ jobs:
       - if: failure()
         uses: actions/upload-artifact@v4
         with:
-          name: bbb-configs
+          name: bbb-configs-${{ env.MATRIX_SHARD_UNDERSCORED }}
           path: configs
       - if: failure()
         uses: actions/upload-artifact@v4
         with:
-          name: bbb-logs
+          name: bbb-logs-${{ env.MATRIX_SHARD_UNDERSCORED }}
           path: ./bbb-logs.tar.gz
   upload-report:
-    if: always()
+    if: always() && !contains(github.event.head_commit.message, 'Merge pull request')
     needs: install-and-run-tests
     runs-on: ubuntu-latest
+    env:
+      hasReportData: ${{ needs.install-and-run-tests.result == 'success' || needs.install-and-run-tests.result == 'failure' }}
     steps:
       - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
-        with:
-          node-version: 18
-      - name: Install dependencies
-        working-directory: ./bigbluebutton-tests/playwright
-        run: npm ci
-      - name: Download all blob reports from GitHub Actions Artifacts
-        uses: actions/download-artifact@v4
+      - name: Upload blob report
+        if: ${{ env.hasReportData }}
+        uses: ./.github/actions/upload-blob-report
+      - name: Remove unnecessary artifact
+        uses: geekyeggo/delete-artifact@v5
         with:
           name: all-blob-reports
-          path: bigbluebutton-tests/playwright/all-blob-reports
-      - name: Merge into HTML Report
-        working-directory: ./bigbluebutton-tests/playwright
-        run: npx playwright merge-reports --reporter html ./all-blob-reports
-      - name: Upload HTML tests report
-        uses: actions/upload-artifact@v4
-        with:
-          name: tests-report
-          path: |
-            bigbluebutton-tests/playwright/playwright-report
-            bigbluebutton-tests/playwright/test-results
+          failOnError: false
       - name: Write PR data for auto-comment
         if: github.event_name == 'pull_request'
         working-directory: ./
