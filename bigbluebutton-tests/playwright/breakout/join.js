@@ -195,11 +195,13 @@ class Join extends Create {
     ];
     await this.modPage.checkElementCount(e.actionsItem, expectedActionItems.length);
     await shareNotesPDF.click();
+    await this.modPage.hasElement(e.currentPresentationToast, 'should display the current presentation toast when changing to the whiteboard exported file');
+    //! avoiding the following screenshot comparison due to https://github.com/microsoft/playwright/issues/18827
+    // TODO should be updated and use entire view page screenshot after https://github.com/bigbluebutton/bigbluebutton/issues/22160 is fixed
     // visual assertion
-    const wbBox = await this.modPage.getLocator(e.whiteboard);
-    await expect(wbBox).toHaveScreenshot('capture-breakout-notes.png', {
-      maxDiffPixels: 1000,
-    });
+    // await expect(this.modPage.page).toHaveScreenshot('capture-breakout-notes.png', {
+    //   maxDiffPixels: 1500,
+    // });
   }
 
   async exportBreakoutWhiteboard() {
@@ -254,8 +256,9 @@ class Join extends Create {
     await whiteboardPDF.click();
     await this.modPage.hasElement(e.currentPresentationToast, 'should display the current presentation toast when changing to the whiteboard exported file');
     //! avoiding the following screenshot comparison due to https://github.com/microsoft/playwright/issues/18827
-    // const wbBox = await this.modPage.getLocator(e.whiteboard);
-    // await expect(wbBox).toHaveScreenshot('capture-breakout-whiteboard.png', {
+    // TODO should be updated and use entire view page screenshot after https://github.com/bigbluebutton/bigbluebutton/issues/22160 is fixed
+    // visual assertion
+    // await expect(this.modPage.page).toHaveScreenshot('capture-breakout-whiteboard.png', {
     //   maxDiffPixels: 1500,
     // });
   }
