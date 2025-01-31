@@ -217,15 +217,12 @@ const PushLayoutEngine = (props) => {
         value: contextLayout,
       });
 
-      // Shouldn't run when enforceLayoutDidChange
-      if (pushLayoutMeetingDidChange) {
-        updateSettings({
-          application: {
-            ...Settings.application,
-            selectedLayout: contextLayout,
-          },
-        }, null, setLocalSettings);
-      }
+      updateSettings({
+        application: {
+          ...Settings.application,
+          selectedLayout: contextLayout,
+        },
+      }, null, setLocalSettings);
     };
 
     const replicatePresentationState = () => {
