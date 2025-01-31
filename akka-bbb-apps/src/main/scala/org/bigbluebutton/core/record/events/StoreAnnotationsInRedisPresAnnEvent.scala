@@ -19,7 +19,7 @@
 
 package org.bigbluebutton.core.record.events
 
-import org.bigbluebutton.common2.msgs.{ AnnotationVO, ExportJob, StoredAnnotations, PresentationPageForExport }
+import org.bigbluebutton.common2.msgs.PresentationPageForExport
 import org.bigbluebutton.common2.util.JsonUtil
 
 class StoreAnnotationsInRedisPresAnnEvent extends AbstractPresentationWithAnnotations {
@@ -27,15 +27,15 @@ class StoreAnnotationsInRedisPresAnnEvent extends AbstractPresentationWithAnnota
 
   setEvent("StoreAnnotationsInRedisPresAnnEvent")
 
-  def setJobId(jobId: String) {
+  def setJobId(jobId: String): Unit = {
     eventMap.put(JOB_ID, jobId)
   }
 
-  def setPresId(presId: String) {
+  def setPresId(presId: String): Unit = {
     eventMap.put(PRES_ID, presId)
   }
 
-  def setPages(pages: List[PresentationPageForExport]) {
+  def setPages(pages: List[PresentationPageForExport]): Unit = {
     eventMap.put(PAGES, JsonUtil.toJson(pages))
   }
 }

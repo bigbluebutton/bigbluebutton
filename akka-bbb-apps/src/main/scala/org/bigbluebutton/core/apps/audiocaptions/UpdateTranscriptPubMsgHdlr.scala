@@ -4,8 +4,9 @@ import org.bigbluebutton.ClientSettings.getConfigPropertyValueByPathAsStringOrEl
 import org.bigbluebutton.common2.msgs._
 import org.bigbluebutton.core.bus.MessageBus
 import org.bigbluebutton.core.db.CaptionDAO
-import org.bigbluebutton.core.models.{AudioCaptions, UserState, Pads, Users2x}
+import org.bigbluebutton.core.models.{AudioCaptions, Pads, UserState, Users2x}
 import org.bigbluebutton.core.running.LiveMeeting
+
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
 

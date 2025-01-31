@@ -1,7 +1,7 @@
 package org.bigbluebutton.core.db
 
 import org.bigbluebutton.core.models.Layouts
-import org.bigbluebutton.core.models.Layouts.{getCameraDockIsResizing, getCameraPosition, getCurrentLayout, getFocusedCamera, getPresentationIsOpen, getPresentationVideoRate, getPushLayout, setCurrentLayout}
+import org.bigbluebutton.core.models.Layouts._
 import slick.jdbc.PostgresProfile.api._
 
 case class LayoutDbModel(
@@ -26,7 +26,9 @@ class LayoutDbTableDef(tag: Tag) extends Table[LayoutDbModel](tag, None, "layout
   val cameraWithFocus = column[String]("cameraWithFocus")
   val propagateLayout = column[Boolean]("propagateLayout")
   val updatedAt = column[java.sql.Timestamp]("updatedAt")
-  override def * = (meetingId, currentLayoutType, presentationMinimized, cameraDockIsResizing, cameraDockPlacement, cameraDockAspectRatio, cameraWithFocus, propagateLayout, updatedAt) <> (LayoutDbModel.tupled, LayoutDbModel.unapply)
+  override def * = (
+    meetingId, currentLayoutType, presentationMinimized, cameraDockIsResizing, cameraDockPlacement, cameraDockAspectRatio, cameraWithFocus, propagateLayout, updatedAt
+  ) .<> (LayoutDbModel.tupled, LayoutDbModel.unapply)
 }
 
 object LayoutDAO {

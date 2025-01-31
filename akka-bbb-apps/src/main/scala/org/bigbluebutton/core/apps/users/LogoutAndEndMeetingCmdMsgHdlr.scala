@@ -1,11 +1,11 @@
 package org.bigbluebutton.core.apps.users
 
 import org.bigbluebutton.common2.msgs._
+import org.bigbluebutton.core.apps.{ PermissionCheck, RightsManagementTrait }
 import org.bigbluebutton.core.bus.InternalEventBus
 import org.bigbluebutton.core.domain.{ MeetingEndReason, MeetingState2x }
 import org.bigbluebutton.core.models.{ Roles, Users2x }
 import org.bigbluebutton.core.running.{ LiveMeeting, OutMsgRouter }
-import org.bigbluebutton.core.apps.{ PermissionCheck, RightsManagementTrait }
 
 trait LogoutAndEndMeetingCmdMsgHdlr extends RightsManagementTrait {
   this: UsersApp =>

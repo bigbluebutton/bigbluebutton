@@ -4,7 +4,7 @@ import org.bigbluebutton.common2.msgs.{ GroupChatAccess, GroupChatUser }
 import org.bigbluebutton.core.util.RandomStringGenerator
 
 object GroupChatFactory {
-  def genId(): String = System.currentTimeMillis() + "-" + RandomStringGenerator.randomAlphanumericString(8)
+  def genId(): String = s"${System.currentTimeMillis()}-${RandomStringGenerator.randomAlphanumericString(8)}"
   def create(id: String, access: String, createdBy: GroupChatUser,
              users: Vector[GroupChatUser], msgs: Vector[GroupChatMessage]): GroupChat = {
     new GroupChat(id, access, createdBy, users, msgs)

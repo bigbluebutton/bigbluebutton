@@ -1,8 +1,8 @@
 package org.bigbluebutton.core.db
 
-import org.bigbluebutton.common2.domain.{ GroupProps }
-import PostgresProfile.api._
-import slick.lifted.{ ProvenShape }
+import org.bigbluebutton.common2.domain.GroupProps
+import org.bigbluebutton.core.db.PostgresProfile.api._
+import slick.lifted.ProvenShape
 
 case class MeetingGroupDbModel(
     meetingId:  String,
@@ -19,7 +19,7 @@ class MeetingGroupDbTableDef(tag: Tag) extends Table[MeetingGroupDbModel](tag, N
 
   //  def fk_meetingId: ForeignKeyQuery[MeetingDbTableDef, MeetingDbModel] = foreignKey("fk_meetingId", meetingId, TableQuery[MeetingDbTableDef])(_.meetingId)
 
-  override def * : ProvenShape[MeetingGroupDbModel] = (meetingId, groupId, name, usersExtId) <> (MeetingGroupDbModel.tupled, MeetingGroupDbModel.unapply)
+  override def * : ProvenShape[MeetingGroupDbModel] = (meetingId, groupId, name, usersExtId).<>(MeetingGroupDbModel.tupled, MeetingGroupDbModel.unapply)
 }
 
 object MeetingGroupDAO {

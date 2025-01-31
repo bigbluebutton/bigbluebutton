@@ -2,11 +2,10 @@ package org.bigbluebutton.core.pubsub.sender
 
 import org.bigbluebutton.SystemConfiguration
 import org.bigbluebutton.common2.msgs._
-import org.bigbluebutton.core.{ AppsTestFixtures, UnitSpec }
-import org.bigbluebutton.core.bus.{ BbbMsgEvent, BbbMsgRouterEventBus }
+import org.bigbluebutton.core.bus.{BbbMsgEvent, BbbMsgRouterEventBus}
+import org.bigbluebutton.core.{AppsTestFixtures, UnitSpec}
 import org.bigbluebutton.core2.ReceivedMessageRouter
 import org.mockito.Mockito._
-import org.scalatest.mockito.MockitoSugar
 
 class ReceivedJsonMsgHandlerTraitTests extends UnitSpec
   with AppsTestFixtures with MockitoSugar with SystemConfiguration {

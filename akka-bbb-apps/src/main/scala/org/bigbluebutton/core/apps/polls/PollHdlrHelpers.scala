@@ -1,7 +1,7 @@
 package org.bigbluebutton.core.apps.polls
 
 import org.bigbluebutton.common2.domain.SimplePollResultOutVO
-import org.bigbluebutton.common2.msgs.{ BbbClientMsgHeader, BbbCommonEnvCoreMsg, BbbCoreEnvelope, MessageTypes, PollUpdatedEvtMsg, PollUpdatedEvtMsgBody, Routing, UserRespondedToPollRecordMsg, UserRespondedToPollRecordMsgBody, UserRespondedToPollRespMsg, UserRespondedToPollRespMsgBody, UserRespondedToTypedPollRespMsg, UserRespondedToTypedPollRespMsgBody }
+import org.bigbluebutton.common2.msgs._
 import org.bigbluebutton.core.running.OutMsgRouter
 
 object PollHdlrHelpers {

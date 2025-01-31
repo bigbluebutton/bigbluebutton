@@ -11,7 +11,7 @@ trait ClearAllUsersReactionCmdMsgHdlr extends RightsManagementTrait {
   val liveMeeting: LiveMeeting
   val outGW: OutMsgRouter
 
-  def handleClearAllUsersReactionCmdMsg(msg: ClearAllUsersReactionCmdMsg) {
+  def handleClearAllUsersReactionCmdMsg(msg: ClearAllUsersReactionCmdMsg): Unit = {
     val isUserModerator = !permissionFailed(
       PermissionCheck.MOD_LEVEL,
       PermissionCheck.VIEWER_LEVEL,

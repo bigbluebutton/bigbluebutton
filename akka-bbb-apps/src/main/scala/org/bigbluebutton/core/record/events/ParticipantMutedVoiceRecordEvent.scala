@@ -24,11 +24,11 @@ class ParticipantMutedVoiceRecordEvent extends AbstractVoiceRecordEvent {
 
   setEvent("ParticipantMutedEvent")
 
-  def setParticipant(p: String) {
+  def setParticipant(p: String): Unit = {
     eventMap.put(PARTICIPANT, p)
   }
 
-  def setMuted(muted: Boolean) {
+  def setMuted(muted: Boolean): Unit = {
     eventMap.put(MUTED, muted.toString)
   }
 }

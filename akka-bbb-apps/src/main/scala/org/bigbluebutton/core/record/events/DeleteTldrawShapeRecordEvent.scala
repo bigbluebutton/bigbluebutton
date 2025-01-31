@@ -24,11 +24,11 @@ class DeleteTldrawShapeRecordEvent extends AbstractWhiteboardRecordEvent {
 
   setEvent("DeleteTldrawShapeEvent")
 
-  def setUserId(userId: String) {
+  def setUserId(userId: String): Unit = {
     eventMap.put(USER_ID, userId)
   }
 
-  def setShapeId(shapeId: String) {
+  def setShapeId(shapeId: String): Unit = {
     eventMap.put(SHAPE_ID, shapeId)
   }
 }

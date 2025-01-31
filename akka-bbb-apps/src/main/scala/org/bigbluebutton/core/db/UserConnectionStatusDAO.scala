@@ -13,7 +13,7 @@ case class UserConnectionStatusDbModel(
 class UserConnectionStatusDbTableDef(tag: Tag) extends Table[UserConnectionStatusDbModel](tag, None, "user_connectionStatus") {
   override def * = (
     userId, meetingId, connectionAliveAt, networkRttInMs, status, statusUpdatedAt
-  ) <> (UserConnectionStatusDbModel.tupled, UserConnectionStatusDbModel.unapply)
+  ) .<> (UserConnectionStatusDbModel.tupled, UserConnectionStatusDbModel.unapply)
   val userId = column[String]("userId", O.PrimaryKey)
   val meetingId = column[String]("meetingId", O.PrimaryKey)
   val connectionAliveAt = column[Option[java.sql.Timestamp]]("connectionAliveAt")

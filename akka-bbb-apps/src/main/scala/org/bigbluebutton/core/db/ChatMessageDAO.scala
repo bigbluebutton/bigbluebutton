@@ -1,7 +1,7 @@
 package org.bigbluebutton.core.db
 
-import slick.jdbc.PostgresProfile.api._
 import org.bigbluebutton.core.models.{GroupChatFactory, GroupChatMessage}
+import slick.jdbc.PostgresProfile.api._
 
 case class ChatMessageDbModel(
     messageId:          String,
@@ -46,7 +46,7 @@ class ChatMessageDbTableDef(tag: Tag) extends Table[ChatMessageDbModel](tag, Non
     messageId, chatId, meetingId, correlationId, chatEmphasizedText,
     message, messageType, replyToMessageId, messageMetadata, senderId, senderName, senderRole,
     createdAt, editedAt, deletedByUserId, deletedAt
-  ) <> (ChatMessageDbModel.tupled, ChatMessageDbModel.unapply)
+  ) .<> (ChatMessageDbModel.tupled, ChatMessageDbModel.unapply)
 }
 
 object ChatMessageDAO {

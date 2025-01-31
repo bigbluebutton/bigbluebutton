@@ -1,9 +1,9 @@
 package org.bigbluebutton.core.apps.whiteboard
 
-import org.bigbluebutton.core.running.LiveMeeting
 import org.bigbluebutton.common2.msgs._
-import org.bigbluebutton.core.bus.MessageBus
 import org.bigbluebutton.core.apps.{ PermissionCheck, RightsManagementTrait }
+import org.bigbluebutton.core.bus.MessageBus
+import org.bigbluebutton.core.running.LiveMeeting
 
 trait SendWhiteboardAnnotationsPubMsgHdlr extends RightsManagementTrait {
   this: WhiteboardApp2x =>
@@ -22,6 +22,7 @@ trait SendWhiteboardAnnotationsPubMsgHdlr extends RightsManagementTrait {
     }
 
     // For testing
+    /*
     def printAnnotationShape(annotationInfo: scala.collection.immutable.Map[String, Any], annotation: AnnotationVO): AnnotationVO = {
       println("************* Printing Shape annotation *************")
       annotationInfo.foreach { an =>
@@ -30,14 +31,17 @@ trait SendWhiteboardAnnotationsPubMsgHdlr extends RightsManagementTrait {
       println("************* Printing Shape annotation *************")
       annotation
     }
+     */
 
     // For testing
+    /*
     def printAnnotationInfo(annotation: AnnotationVO): AnnotationVO = {
       annotation.annotationInfo.foreach { an =>
         println(">>> key=" + an._1 + ", value=" + an._2)
       }
       annotation
     }
+     */
 
     val isUserOneOfPermited = !filterWhiteboardMessage(msg.body.whiteboardId, msg.header.userId, liveMeeting)
 

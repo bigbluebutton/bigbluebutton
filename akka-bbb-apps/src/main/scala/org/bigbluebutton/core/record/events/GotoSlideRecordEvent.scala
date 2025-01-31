@@ -24,11 +24,11 @@ class GotoSlideRecordEvent extends AbstractPresentationRecordEvent {
 
   setEvent("GotoSlideEvent")
 
-  def setPresentationName(name: String) {
+  def setPresentationName(name: String): Unit = {
     eventMap.put(PRES_NAME, name)
   }
 
-  def setSlide(slide: Integer) {
+  def setSlide(slide: Integer): Unit = {
     /*
      * Subtract 1 from the page number to be zero-based to be
      * compatible with 0.81 and earlier. (ralam Sept 2, 2014)
@@ -36,7 +36,7 @@ class GotoSlideRecordEvent extends AbstractPresentationRecordEvent {
     eventMap.put(SLIDE, Integer.toString(slide - 1))
   }
 
-  def setId(id: String) {
+  def setId(id: String): Unit = {
     eventMap.put(ID, id)
   }
 }

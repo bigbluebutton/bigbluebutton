@@ -24,11 +24,11 @@ class ClearWhiteboardRecordEvent extends AbstractWhiteboardRecordEvent {
 
   setEvent("ClearWhiteboardEvent")
 
-  def setUserId(userId: String) {
+  def setUserId(userId: String): Unit = {
     eventMap.put(USER_ID, userId)
   }
 
-  def setFullClear(fullClear: Boolean) {
+  def setFullClear(fullClear: Boolean): Unit = {
     eventMap.put(FULL_CLEAR, fullClear.toString)
   }
 }

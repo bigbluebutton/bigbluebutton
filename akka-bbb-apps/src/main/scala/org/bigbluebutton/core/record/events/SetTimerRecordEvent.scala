@@ -24,7 +24,7 @@ class SetTimerRecordEvent extends AbstractTimerRecordEvent {
 
   setEvent("SetTimerEvent")
 
-  def setTime(value: Int) {
+  def setTime(value: Int): Unit = {
     eventMap.put(TIME, value.toString)
   }
 }

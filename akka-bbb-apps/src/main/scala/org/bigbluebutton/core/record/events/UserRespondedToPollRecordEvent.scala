@@ -24,15 +24,15 @@ class UserRespondedToPollRecordEvent extends AbstractPollRecordEvent {
 
   setEvent("UserRespondedToPollRecordEvent")
 
-  def setUserId(userId: String) {
+  def setUserId(userId: String): Unit = {
     eventMap.put(USER_ID, userId)
   }
 
-  def setAnswerId(answerId: Int) {
+  def setAnswerId(answerId: Int): Unit = {
     eventMap.put(ANSWER_ID, Integer.toString(answerId))
   }
 
-  def setAnswer(answer: String) {
+  def setAnswer(answer: String): Unit = {
     eventMap.put(ANSWER, answer)
   }
 }

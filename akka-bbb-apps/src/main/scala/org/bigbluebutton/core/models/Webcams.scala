@@ -1,7 +1,8 @@
 package org.bigbluebutton.core.models
 
 import org.bigbluebutton.core.db.UserCameraDAO
-import collection.immutable.HashMap
+
+import scala.collection.immutable.HashMap
 
 object Webcams {
   def findWithStreamId(webcams: Webcams, streamId: String): Option[WebcamStream] = {

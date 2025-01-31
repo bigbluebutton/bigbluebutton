@@ -24,11 +24,11 @@ class RecordStatusRecordEvent extends AbstractParticipantRecordEvent {
 
   setEvent("RecordStatusEvent")
 
-  def setUserId(userId: String) {
+  def setUserId(userId: String): Unit = {
     eventMap.put(USER_ID, userId)
   }
 
-  def setRecordingStatus(status: Boolean) {
+  def setRecordingStatus(status: Boolean): Unit = {
     eventMap.put(STATUS, status.toString)
   }
 }

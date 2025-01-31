@@ -27,6 +27,6 @@ class BbbMsgRouterEventBus extends EventBus with LookupClassification {
 
   // determines the initial size of the index data structure
   // used internally (i.e. the expected number of different classifiers)
-  override protected def mapSize: Int = 128
+  override protected def mapSize(): Int = 128
 }
 

@@ -1,6 +1,5 @@
 package org.bigbluebutton.core.models
 
-import com.fasterxml.jackson.annotation.{ JsonIgnoreProperties, JsonProperty }
 import com.fasterxml.jackson.core.JsonProcessingException
 import com.fasterxml.jackson.databind.{ JsonMappingException, ObjectMapper }
 import com.fasterxml.jackson.module.scala.DefaultScalaModule
@@ -83,8 +82,7 @@ object PluginModel {
         val pluginObjectWithAbsoluteJavascriptEntrypoint = replaceRelativeJavascriptEntrypoint(pluginObject)
         pluginsMap = pluginsMap + (pluginName -> pluginObjectWithAbsoluteJavascriptEntrypoint)
       } catch {
-        case err @ (_: JsonProcessingException | _: JsonMappingException) => println("Error while processing plugin " +
-          pluginName + ": ", err)
+        case err @ (_: JsonProcessingException | _: JsonMappingException)   => println(s"Error while processing plugin $pluginName: $err")
       }
     }
     instance.plugins = pluginsMap

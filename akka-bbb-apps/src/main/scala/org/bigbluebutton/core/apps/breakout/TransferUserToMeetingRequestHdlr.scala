@@ -24,7 +24,7 @@ trait TransferUserToMeetingRequestHdlr extends RightsManagementTrait {
     state
   }
 
-  def processTransferUserToMeetingRequest(msg: TransferUserToMeetingRequestMsg) {
+  def processTransferUserToMeetingRequest(msg: TransferUserToMeetingRequestMsg): Unit = {
     if (msg.body.fromMeetingId == liveMeeting.props.meetingProp.intId) {
       // want to transfer from parent meeting to breakout
       for {

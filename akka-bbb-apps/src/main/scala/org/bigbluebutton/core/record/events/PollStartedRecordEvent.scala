@@ -27,23 +27,23 @@ class PollStartedRecordEvent extends AbstractPollRecordEvent {
 
   setEvent("PollStartedRecordEvent")
 
-  def setUserId(userId: String) {
+  def setUserId(userId: String): Unit = {
     eventMap.put(USER_ID, userId)
   }
 
-  def setQuestion(question: String) {
+  def setQuestion(question: String): Unit = {
     eventMap.put(QUESTION, question)
   }
 
-  def setAnswers(answers: Array[SimpleAnswerOutVO]) {
+  def setAnswers(answers: Array[SimpleAnswerOutVO]): Unit = {
     eventMap.put(ANSWERS, JsonUtil.toJson(answers))
   }
 
-  def setType(pollType: String) {
+  def setType(pollType: String): Unit = {
     eventMap.put(TYPE, pollType)
   }
 
-  def setSecretPoll(secretPoll: Boolean) {
+  def setSecretPoll(secretPoll: Boolean): Unit = {
     eventMap.put(SECRET_POLL, secretPoll.toString)
   }
 }

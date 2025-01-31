@@ -1,9 +1,9 @@
 package org.bigbluebutton.core.models
 
-import scala.collection.mutable.Map
+import scala.collection.mutable
 
 object Layouts {
-  def setCurrentLayout(instance: Layouts, layout: String) {
+  def setCurrentLayout(instance: Layouts, layout: String): Unit = {
     instance.currentLayout = layout
   }
 
@@ -11,7 +11,7 @@ object Layouts {
     instance.currentLayout
   }
 
-  def setPushLayout(instance: Layouts, pushLayout: Boolean) {
+  def setPushLayout(instance: Layouts, pushLayout: Boolean): Unit = {
     instance.pushLayout = pushLayout
   }
 
@@ -80,7 +80,7 @@ class Layouts {
 }
 
 object LayoutsType {
-  val layoutsType = Map(
+  val layoutsType = mutable.Map(
     "custom" -> "CUSTOM_LAYOUT",
     "smart" -> "SMART_LAYOUT",
     "presentationFocus" -> "PRESENTATION_FOCUS",

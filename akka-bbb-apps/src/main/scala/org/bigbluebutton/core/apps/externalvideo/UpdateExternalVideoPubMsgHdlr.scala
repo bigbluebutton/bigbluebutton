@@ -9,7 +9,7 @@ import org.bigbluebutton.core.running.LiveMeeting
 trait UpdateExternalVideoPubMsgHdlr extends RightsManagementTrait {
 
   def handle(msg: UpdateExternalVideoPubMsg, liveMeeting: LiveMeeting, bus: MessageBus): Unit = {
-    def broadcastEvent(msg: UpdateExternalVideoPubMsg) {
+    def broadcastEvent(msg: UpdateExternalVideoPubMsg): Unit = {
       val routing = Routing.addMsgToClientRouting(MessageTypes.DIRECT, liveMeeting.props.meetingProp.intId, "nodeJSapp")
       val envelope = BbbCoreEnvelope(UpdateExternalVideoEvtMsg.NAME, routing)
       val header = BbbClientMsgHeader(UpdateExternalVideoEvtMsg.NAME, liveMeeting.props.meetingProp.intId, msg.header.userId)

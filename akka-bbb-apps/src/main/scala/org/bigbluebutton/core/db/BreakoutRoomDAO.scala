@@ -46,7 +46,7 @@ class BreakoutRoomDbTableDef(tag: Tag) extends Table[BreakoutRoomDbModel](tag, N
   override def * = (
     breakoutRoomId, parentMeetingId, externalId, sequence, name, shortName, isDefaultName, freeJoin,
     createdAt, startedAt, endedAt, durationInSeconds, sendInvitationToModerators, captureNotes, captureSlides
-  ) <> (BreakoutRoomDbModel.tupled, BreakoutRoomDbModel.unapply)
+  ) .<> (BreakoutRoomDbModel.tupled, BreakoutRoomDbModel.unapply)
 }
 
 object BreakoutRoomDAO {

@@ -12,7 +12,7 @@ trait CamStreamUnsubscribedInSfuEvtMsgHdlr {
       msg:         CamStreamUnsubscribedInSfuEvtMsg,
       liveMeeting: LiveMeeting,
       bus:         MessageBus
-  ) {
+  ): Unit = {
 
     Webcams.removeSubscriber(
       liveMeeting.webcams,

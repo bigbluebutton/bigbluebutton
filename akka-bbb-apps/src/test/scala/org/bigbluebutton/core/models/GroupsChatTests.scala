@@ -1,6 +1,6 @@
 package org.bigbluebutton.core.models
 
-import org.bigbluebutton.common2.msgs.{ GroupChatAccess, GroupChatUser }
+import org.bigbluebutton.common2.msgs.{GroupChatAccess, GroupChatUser}
 import org.bigbluebutton.core.UnitSpec
 
 class GroupsChatTests extends UnitSpec {

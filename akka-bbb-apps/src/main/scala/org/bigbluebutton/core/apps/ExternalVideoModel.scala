@@ -4,15 +4,15 @@ import org.bigbluebutton.core.running.{ LiveMeeting, OutMsgRouter }
 import org.bigbluebutton.core2.message.senders.MsgBuilder
 
 object ExternalVideoModel {
-  def setURL(externalVideoModel: ExternalVideoModel, externalVideoUrl: String) {
+  def setURL(externalVideoModel: ExternalVideoModel, externalVideoUrl: String): Unit = {
     externalVideoModel.externalVideoUrl = externalVideoUrl
   }
 
-  def clear(externalVideoModel: ExternalVideoModel) {
+  def clear(externalVideoModel: ExternalVideoModel): Unit = {
     externalVideoModel.externalVideoUrl = ""
   }
 
-  def stop(outGW: OutMsgRouter, liveMeeting: LiveMeeting) {
+  def stop(outGW: OutMsgRouter, liveMeeting: LiveMeeting): Unit = {
     if (!liveMeeting.externalVideoModel.externalVideoUrl.isEmpty) {
       liveMeeting.externalVideoModel.externalVideoUrl = ""
 

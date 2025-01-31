@@ -2,11 +2,11 @@ package org.bigbluebutton.core.apps.voice
 
 import org.bigbluebutton.SystemConfiguration
 import org.bigbluebutton.common2.msgs._
-import org.bigbluebutton.core.running.{ LiveMeeting, MeetingActor, OutMsgRouter }
-import org.bigbluebutton.core2.message.senders.MsgBuilder
 import org.bigbluebutton.core.models._
+import org.bigbluebutton.core.running.{ LiveMeeting, MeetingActor, OutMsgRouter }
 import org.bigbluebutton.core.util.ColorPicker
 import org.bigbluebutton.core2.MeetingStatus2x
+import org.bigbluebutton.core2.message.senders.MsgBuilder
 
 trait UserJoinedVoiceConfEvtMsgHdlr extends SystemConfiguration {
   this: MeetingActor =>
@@ -121,6 +121,7 @@ trait UserJoinedVoiceConfEvtMsgHdlr extends SystemConfiguration {
                 case GuestPolicyType.ALWAYS_ACCEPT => letUserEnter()
                 case GuestPolicyType.ALWAYS_DENY   => VoiceApp.removeUserFromVoiceConf(liveMeeting, outGW, msg.body.voiceUserId)
                 case GuestPolicyType.ASK_MODERATOR => registerUserAsGuest()
+                case _                             => log.warning(s"Unexpected policy status: $policy")
               }
             }
           }

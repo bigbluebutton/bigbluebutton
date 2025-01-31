@@ -5,7 +5,7 @@ import org.bigbluebutton.core.apps.PermissionCheck
 import org.bigbluebutton.core.apps.webcam.CameraHdlrHelpers.permissionFailed
 import org.bigbluebutton.core.bus.MessageBus
 import org.bigbluebutton.core.db.UserCameraDAO
-import org.bigbluebutton.core.models.{ WebcamStream, Webcams }
+import org.bigbluebutton.core.models.Webcams
 import org.bigbluebutton.core.running.LiveMeeting
 
 trait SetCamShowAsContentReqMsgHdlr {

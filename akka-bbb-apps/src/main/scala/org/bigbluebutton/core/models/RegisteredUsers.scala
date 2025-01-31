@@ -1,13 +1,7 @@
 package org.bigbluebutton.core.models
 
 import com.softwaremill.quicklens._
-import org.bigbluebutton.core.db.{
-  UserBreakoutRoomDAO,
-  UserDAO,
-  UserDbModel,
-  UserSessionTokenDAO,
-  UserLivekitDAO
-}
+import org.bigbluebutton.core.db.{UserDAO, UserLivekitDAO, UserSessionTokenDAO}
 import org.bigbluebutton.core.domain.BreakoutRoom2x
 
 object RegisteredUsers {
@@ -252,6 +246,7 @@ class RegisteredUsers {
     regUsers.values.toVector
   }
 
+  /*
   private def delete(id: String): Option[RegisteredUser] = {
     val ru = regUsers.values.find(p => p.id == id)
     ru foreach { u =>
@@ -259,6 +254,7 @@ class RegisteredUsers {
     }
     ru
   }
+   */
 }
 
 case class RegisteredUser(

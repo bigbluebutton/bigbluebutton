@@ -1,9 +1,7 @@
 package org.bigbluebutton.core.db
 
-import PostgresProfile.api._
+import org.bigbluebutton.core.db.PostgresProfile.api._
 import org.bigbluebutton.core.models.PresentationInPod
-
-import scala.concurrent.ExecutionContext.Implicits.global
 import spray.json._
 
 case class PresPresentationDbModel(
@@ -59,7 +57,7 @@ class PresPresentationDbTableDef(tag: Tag) extends Table[PresPresentationDbModel
     presentationId, meetingId, uploadUserId, uploadTemporaryId, uploadToken,  name, filenameConverted, isDefault, current, downloadable, downloadFileExtension, downloadFileUri, removable,
     uploadInProgress, uploadCompleted, uploadErrorMsgKey, uploadErrorDetailsJson, totalPages,
     exportToChatStatus, exportToChatCurrentPage, exportToChatHasError
-  ) <> (PresPresentationDbModel.tupled, PresPresentationDbModel.unapply)
+  ) .<> (PresPresentationDbModel.tupled, PresPresentationDbModel.unapply)
 }
 
 object PresPresentationDAO {
@@ -219,7 +217,7 @@ object PresPresentationDAO {
       TableQuery[PresPresentationDbTableDef]
         .filter(_.presentationId === presentationId)
         .map(p => (p.uploadErrorMsgKey, p.uploadErrorDetailsJson))
-        .update(Some(errorMsgKey), Some(errorDetails.toJson))
+        .update((Some(errorMsgKey), Some(errorDetails.toJson)))
     )
   }
 
@@ -228,7 +226,7 @@ object PresPresentationDAO {
       TableQuery[PresPresentationDbTableDef]
         .filter(_.presentationId === presentationId)
         .map(p => (p.exportToChatStatus, p.exportToChatCurrentPage, p.exportToChatHasError))
-        .update(Some(exportToChatStatus), Some(exportToChatCurrentPage), Some(exportToChatHasError))
+        .update((Some(exportToChatStatus), Some(exportToChatCurrentPage), Some(exportToChatHasError)))
     )
   }
 

@@ -18,7 +18,8 @@
 
 package org.bigbluebutton.core.util.jhotdraw;
 
-import java.awt.geom.*;
+import java.awt.geom.AffineTransform;
+import java.awt.geom.PathIterator;
 
 /**
  * This class represents the iterator for a BezierPath.

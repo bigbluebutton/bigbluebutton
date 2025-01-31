@@ -1,8 +1,7 @@
 package org.bigbluebutton.core.running
 
-import org.bigbluebutton.common2.msgs._
 import org.bigbluebutton.core.bus.InternalEventBus
-import org.bigbluebutton.core.domain.{ MeetingEndReason, MeetingState2x }
+import org.bigbluebutton.core.domain.MeetingState2x
 import org.bigbluebutton.core.util.TimeUtil
 
 trait MeetingExpiryTrackerHelper extends HandlerHelpers {

@@ -1,6 +1,6 @@
 package org.bigbluebutton.core.db
 
-import org.bigbluebutton.core.models.{ WebcamStream}
+import org.bigbluebutton.core.models.WebcamStream
 import slick.jdbc.PostgresProfile.api._
 
 case class UserCameraDbModel(
@@ -14,7 +14,7 @@ case class UserCameraDbModel(
 
 class UserCameraDbTableDef(tag: Tag) extends Table[UserCameraDbModel](tag, None, "user_camera") {
   override def * = (
-    streamId, meetingId, userId, contentType, hasAudio, showAsContent) <> (UserCameraDbModel.tupled, UserCameraDbModel.unapply)
+    streamId, meetingId, userId, contentType, hasAudio, showAsContent) .<> (UserCameraDbModel.tupled, UserCameraDbModel.unapply)
   val streamId = column[String]("streamId", O.PrimaryKey)
   val meetingId = column[String]("meetingId")
   val userId = column[String]("userId")

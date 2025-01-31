@@ -24,7 +24,7 @@ class SetTimerTrackRecordEvent extends AbstractTimerRecordEvent {
 
   setEvent("SetTimerTrackEvent")
 
-  def setTrack(value: String) {
+  def setTrack(value: String): Unit = {
     eventMap.put(TRACK, value)
   }
 }

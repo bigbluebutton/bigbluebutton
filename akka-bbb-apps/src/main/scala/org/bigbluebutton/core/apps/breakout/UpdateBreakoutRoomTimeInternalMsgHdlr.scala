@@ -1,7 +1,7 @@
 package org.bigbluebutton.core.apps.breakout
 
-import org.bigbluebutton.core.api.{ UpdateBreakoutRoomTimeInternalMsg }
-import org.bigbluebutton.core.domain.{ MeetingState2x }
+import org.bigbluebutton.core.api.UpdateBreakoutRoomTimeInternalMsg
+import org.bigbluebutton.core.domain.MeetingState2x
 import org.bigbluebutton.core.running.{ MeetingActor, OutMsgRouter }
 
 trait UpdateBreakoutRoomTimeInternalMsgHdlr {

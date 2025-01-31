@@ -1,6 +1,6 @@
 package org.bigbluebutton.core.apps.pads
 
-import org.bigbluebutton.common2.msgs.{ BbbCommonEnvCoreMsg, BbbCoreEnvelope, BbbCoreHeaderWithMeetingId, PadCreateCmdMsg, PadCreateCmdMsgBody, PadCreateGroupCmdMsg, PadCreateGroupCmdMsgBody }
+import org.bigbluebutton.common2.msgs._
 import org.bigbluebutton.core.running.OutMsgRouter
 
 object PadslHdlrHelpers {

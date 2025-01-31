@@ -1,8 +1,8 @@
 package org.bigbluebutton.core.db
 
-import org.bigbluebutton.common2.domain.{ RecordProp }
+import org.bigbluebutton.common2.domain.RecordProp
 import slick.jdbc.PostgresProfile.api._
-import slick.lifted.{ ProvenShape }
+import slick.lifted.ProvenShape
 
 case class MeetingRecordingPoliciesDbModel(
     meetingId:               String,
@@ -20,7 +20,7 @@ class MeetingRecordingPoliciesDbTableDef(tag: Tag) extends Table[MeetingRecordin
   val keepEvents = column[Boolean]("keepEvents")
   //  def fk_meetingId: ForeignKeyQuery[MeetingDbTableDef, MeetingDbModel] = foreignKey("fk_meetingId", meetingId, TableQuery[MeetingDbTableDef])(_.meetingId)
 
-  override def * : ProvenShape[MeetingRecordingPoliciesDbModel] = (meetingId, record, autoStartRecording, allowStartStopRecording, keepEvents) <> (MeetingRecordingPoliciesDbModel.tupled, MeetingRecordingPoliciesDbModel.unapply)
+  override def * : ProvenShape[MeetingRecordingPoliciesDbModel] = (meetingId, record, autoStartRecording, allowStartStopRecording, keepEvents).<>(MeetingRecordingPoliciesDbModel.tupled, MeetingRecordingPoliciesDbModel.unapply)
 }
 
 object MeetingRecordingPoliciesDAO {

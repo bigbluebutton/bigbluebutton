@@ -1,7 +1,7 @@
 package org.bigbluebutton.core.db
 
 import slick.jdbc.PostgresProfile.api._
-import slick.lifted.{ ProvenShape }
+import slick.lifted.ProvenShape
 
 case class UserMetadataDbModel(
     meetingId:    String,
@@ -18,7 +18,7 @@ class UserMetadataDbTableDef(tag: Tag) extends Table[UserMetadataDbModel](tag, "
   val parameter = column[String]("parameter", O.PrimaryKey)
   val value = column[String]("value")
 
-  override def * : ProvenShape[UserMetadataDbModel] = (meetingId, userId, sessionToken, parameter, value) <> (UserMetadataDbModel.tupled, UserMetadataDbModel.unapply)
+  override def * : ProvenShape[UserMetadataDbModel] = (meetingId, userId, sessionToken, parameter, value).<>(UserMetadataDbModel.tupled, UserMetadataDbModel.unapply)
 }
 
 object UserMetadataDAO {

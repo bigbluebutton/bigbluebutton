@@ -1,19 +1,12 @@
 package org.bigbluebutton.endpoint.redis
 
-import scala.collection.immutable.StringOps
-import scala.collection.JavaConverters._
+import org.apache.pekko.actor.{ Actor, ActorLogging, ActorSystem, Props }
 import org.bigbluebutton.common2.msgs._
 import org.bigbluebutton.common2.redis.{ RedisConfig, RedisStorageProvider }
-import org.bigbluebutton.core.record.events.{ AbstractPresentationWithAnnotations, StoreAnnotationsInRedisPresAnnEvent, StoreExportJobInRedisPresAnnEvent }
-import org.apache.pekko.actor.Actor
-import org.apache.pekko.actor.ActorLogging
-import org.apache.pekko.actor.ActorSystem
-import org.apache.pekko.actor.Props
+import org.bigbluebutton.core.record.events.{ StoreAnnotationsInRedisPresAnnEvent, StoreExportJobInRedisPresAnnEvent }
 import org.bigbluebutton.service.HealthzService
 
-import scala.concurrent.duration._
-import scala.concurrent._
-import ExecutionContext.Implicits.global
+import scala.jdk.CollectionConverters._
 
 object ExportAnnotationsActor {
   def props(
@@ -60,17 +53,17 @@ class ExportAnnotationsActor(
     }
   }
 
-  private def handleStoreAnnotationsInRedisSysMsg(msg: StoreAnnotationsInRedisSysMsg) {
+  private def handleStoreAnnotationsInRedisSysMsg(msg: StoreAnnotationsInRedisSysMsg): Unit = {
     val ev = new StoreAnnotationsInRedisPresAnnEvent()
 
     ev.setJobId(msg.body.annotations.jobId)
     ev.setPresId(msg.body.annotations.presId)
     ev.setPages(msg.body.annotations.pages)
 
-    storePresentationAnnotations(msg.header.meetingId, ev.toMap.asJava, "PresAnn")
+    storePresentationAnnotations(msg.header.meetingId, ev.toMap().asJava, "PresAnn")
   }
 
-  private def handleStoreExportJobInRedisSysMsg(msg: StoreExportJobInRedisSysMsg) {
+  private def handleStoreExportJobInRedisSysMsg(msg: StoreExportJobInRedisSysMsg): Unit = {
     val ev = new StoreExportJobInRedisPresAnnEvent()
 
     ev.setserverSideFilename(msg.body.exportJob.serverSideFilename)
@@ -84,6 +77,6 @@ class ExportAnnotationsActor(
     ev.setParentMeetingId(msg.body.exportJob.parentMeetingId)
     ev.setPresentationUploadToken(msg.body.exportJob.presUploadToken)
 
-    storePresentationAnnotations(msg.header.meetingId, ev.toMap.asJava, "ExportJob")
+    storePresentationAnnotations(msg.header.meetingId, ev.toMap().asJava, "ExportJob")
   }
 }

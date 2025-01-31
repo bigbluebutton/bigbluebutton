@@ -13,7 +13,7 @@ case class UserVoiceConfStateDbModel(
 class UserVoiceConfStateDbTableDef(tag: Tag) extends Table[UserVoiceConfStateDbModel](tag, None, "user_voice") {
   override def * = (
     meetingId, userId, voiceConf, voiceConfCallSession, voiceConfClientSession, voiceConfCallState
-  ) <> (UserVoiceConfStateDbModel.tupled, UserVoiceConfStateDbModel.unapply)
+  ) .<> (UserVoiceConfStateDbModel.tupled, UserVoiceConfStateDbModel.unapply)
   val meetingId = column[String]("meetingId", O.PrimaryKey)
   val userId = column[String]("userId", O.PrimaryKey)
   val voiceConf = column[String]("voiceConf")

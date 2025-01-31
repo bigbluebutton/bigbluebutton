@@ -1,11 +1,11 @@
 package org.bigbluebutton.core.db
 
+import org.bigbluebutton.core.db.PostgresProfile.api._
 import org.bigbluebutton.core.models.{PresentationInPod, PresentationPage}
-import PostgresProfile.api._
-import spray.json.JsValue
-import spray.json._
-import scala.util.{Success, Failure}
+import spray.json.{JsValue, _}
+
 import scala.concurrent.ExecutionContext
+import scala.util.{Failure, Success}
 
 case class PresPageDbModel(
     pageId:          String,
@@ -52,7 +52,7 @@ class PresPageDbTableDef(tag: Tag) extends Table[PresPageDbModel](tag, None, "pr
 
   def * = (
     pageId, presentationId, num, urlsJson, content, slideRevealed, current, xOffset, yOffset, widthRatio, heightRatio, width, height, viewBoxWidth, viewBoxHeight, maxImageWidth, maxImageHeight, uploadCompleted, infiniteWhiteboard
-  ) <> (PresPageDbModel.tupled, PresPageDbModel.unapply)
+  ) .<> (PresPageDbModel.tupled, PresPageDbModel.unapply)
 }
 
 object PresPageDAO {

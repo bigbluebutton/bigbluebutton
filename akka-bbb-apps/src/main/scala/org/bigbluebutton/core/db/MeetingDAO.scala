@@ -1,8 +1,8 @@
 package org.bigbluebutton.core.db
 
 import org.bigbluebutton.common2.domain.DefaultProps
-import PostgresProfile.api._
 import org.bigbluebutton.core.apps.groupchats.GroupChatApp
+import org.bigbluebutton.core.db.PostgresProfile.api._
 import org.bigbluebutton.core.models.PluginModel
 
 case class MeetingSystemColumnsDbModel(
@@ -63,7 +63,7 @@ class MeetingDbTableDef(tag: Tag) extends Table[MeetingDbModel](tag, None, "meet
     endedAt,
     endedReasonCode,
     endedBy
-  ) <> (MeetingDbModel.tupled, MeetingDbModel.unapply)
+  ) .<> (MeetingDbModel.tupled, MeetingDbModel.unapply)
   val meetingId = column[String]("meetingId", O.PrimaryKey)
   val extId = column[String]("extId")
   val name = column[String]("name")
@@ -84,7 +84,7 @@ class MeetingDbTableDef(tag: Tag) extends Table[MeetingDbModel](tag, None, "meet
   val customDarkLogoUrl = column[Option[String]]("customDarkLogoUrl")
   val bannerText = column[Option[String]]("bannerText")
   val bannerColor = column[Option[String]]("bannerColor")
-  val systemColumns = (loginUrl, logoutUrl, customLogoUrl, customDarkLogoUrl, bannerText, bannerColor) <> (MeetingSystemColumnsDbModel.tupled, MeetingSystemColumnsDbModel.unapply)
+  val systemColumns = (loginUrl, logoutUrl, customLogoUrl, customDarkLogoUrl, bannerText, bannerColor) .<> (MeetingSystemColumnsDbModel.tupled, MeetingSystemColumnsDbModel.unapply)
   val createdTime = column[Long]("createdTime")
   val durationInSeconds = column[Int]("durationInSeconds")
   val endWhenNoModerator = column[Boolean]("endWhenNoModerator")

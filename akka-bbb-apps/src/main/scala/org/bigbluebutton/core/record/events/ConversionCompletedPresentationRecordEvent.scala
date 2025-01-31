@@ -24,11 +24,11 @@ class ConversionCompletedPresentationRecordEvent extends AbstractPresentationRec
 
   setEvent("ConversionCompletedEvent")
 
-  def setPresentationName(name: String) {
+  def setPresentationName(name: String): Unit = {
     eventMap.put(PRES_NAME, name)
   }
 
-  def setOriginalFilename(name: String) {
+  def setOriginalFilename(name: String): Unit = {
     eventMap.put(ORIG_FILE_NAME, name)
   }
 }

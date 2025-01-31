@@ -1,6 +1,6 @@
-import scala.collection.immutable.StringOps
 import java.net.URLEncoder
 import scala.collection._
+import scala.collection.immutable.StringOps
 
 object Test2 {
   println("Welcome to the Scala worksheet")       //> Welcome to the Scala worksheet

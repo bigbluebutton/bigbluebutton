@@ -16,7 +16,9 @@ class CaptionLocaleTableDef(tag: Tag) extends Table[CaptionLocaleDbModel](tag, N
   val captionType = column[String]("captionType", O.PrimaryKey)
   val createdBy = column[String]("createdBy")
   val updatedAt = column[java.sql.Timestamp]("updatedAt")
-  def * = (meetingId, locale, captionType, createdBy, updatedAt) <> (CaptionLocaleDbModel.tupled, CaptionLocaleDbModel.unapply)
+  def * = (
+    meetingId, locale, captionType, createdBy, updatedAt
+  ).<>(CaptionLocaleDbModel.tupled, CaptionLocaleDbModel.unapply)
 }
 
 object CaptionLocaleDAO {

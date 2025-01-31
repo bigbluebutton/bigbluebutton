@@ -24,7 +24,7 @@ class ParticipantLeftVoiceRecordEvent extends AbstractVoiceRecordEvent {
 
   setEvent("ParticipantLeftEvent")
 
-  def setParticipant(p: String) {
+  def setParticipant(p: String): Unit = {
     eventMap.put(PARTICIPANT, p)
   }
 }

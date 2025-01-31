@@ -1,10 +1,8 @@
 package org.bigbluebutton
 
-import com.fasterxml.jackson.databind.ObjectMapper
-import com.fasterxml.jackson.dataformat.yaml.YAMLFactory
-
-import scala.util.{ Failure, Success, Try }
 import com.typesafe.config.ConfigFactory
+
+import scala.util.Try
 
 trait SystemConfiguration {
   val config = ConfigFactory.load()

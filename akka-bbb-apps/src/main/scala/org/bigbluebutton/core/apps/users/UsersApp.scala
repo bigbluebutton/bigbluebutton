@@ -8,13 +8,15 @@ import org.bigbluebutton.common2.msgs._
 import org.bigbluebutton.core.api.SetPresenterInDefaultPodInternalMsg
 import org.bigbluebutton.core.apps.ExternalVideoModel
 import org.bigbluebutton.core.apps.groupchats.GroupChatApp
-import org.bigbluebutton.core.bus.{BigBlueButtonEvent, InternalEventBus}
-import org.bigbluebutton.core.models._
-import org.bigbluebutton.core.running.{LiveMeeting, OutMsgRouter}
-import org.bigbluebutton.core2.message.senders.{MsgBuilder, Sender}
 import org.bigbluebutton.core.apps.screenshare.ScreenshareApp2x
+import org.bigbluebutton.core.bus.{BigBlueButtonEvent, InternalEventBus}
 import org.bigbluebutton.core.db.{ChatMessageDAO, UserDAO, UserStateDAO}
 import org.bigbluebutton.core.graphql.GraphqlMiddleware
+import org.bigbluebutton.core.models._
+import org.bigbluebutton.core.running.{LiveMeeting, OutMsgRouter}
+import org.bigbluebutton.core2.message.senders.MsgBuilder
+
+import scala.annotation.nowarn
 
 object UsersApp {
   def broadcastAddUserToPresenterGroup(meetingId: String, userId: String, requesterId: String,
@@ -94,6 +96,7 @@ object UsersApp {
     outGW.send(event)
   }
 
+  @nowarn("msg=Selecting value eventBus from object Boot, which extends scala.DelayedInit")
   def sendPresenterInPodReq(meetingId: String, newPresenterIntId: String): Unit = {
     eventBus.publish(BigBlueButtonEvent(meetingId, SetPresenterInDefaultPodInternalMsg(newPresenterIntId)))
   }

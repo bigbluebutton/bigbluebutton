@@ -1,11 +1,11 @@
 package org.bigbluebutton.core.apps.whiteboard
 
-import org.bigbluebutton.core.running.LiveMeeting
-import org.bigbluebutton.common2.msgs._
-import org.bigbluebutton.core.bus.MessageBus
-import org.bigbluebutton.core.apps.{ PermissionCheck, RightsManagementTrait }
 import org.bigbluebutton.ClientSettings.getConfigPropertyValueByPathAsIntOrElse
+import org.bigbluebutton.common2.msgs._
+import org.bigbluebutton.core.apps.{ PermissionCheck, RightsManagementTrait }
+import org.bigbluebutton.core.bus.MessageBus
 import org.bigbluebutton.core.db.NotificationDAO
+import org.bigbluebutton.core.running.LiveMeeting
 import org.bigbluebutton.core2.message.senders.MsgBuilder
 
 trait ModifyWhiteboardAccessPubMsgHdlr extends RightsManagementTrait {

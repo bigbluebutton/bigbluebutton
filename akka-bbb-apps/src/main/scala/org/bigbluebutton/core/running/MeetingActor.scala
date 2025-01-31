@@ -211,14 +211,14 @@ class MeetingActor(
   //FakeTestData.createFakeUsers(liveMeeting)
   /** *****************************************************************/
 
-  context.system.scheduler.schedule(
+  context.system.scheduler.scheduleWithFixedDelay(
     5 seconds,
     syncVoiceUsersStatusInterval seconds,
     self,
     SyncVoiceUserStatusInternalMsg
   )
 
-  context.system.scheduler.schedule(
+  context.system.scheduler.scheduleWithFixedDelay(
     5 seconds,
     checkVoiceRecordingInterval seconds,
     self,
@@ -231,14 +231,14 @@ class MeetingActor(
     MeetingInfoAnalyticsLogMsg
   )
 
-  context.system.scheduler.schedule(
+  context.system.scheduler.scheduleWithFixedDelay(
     10 seconds,
     30 seconds,
     self,
     MeetingInfoAnalyticsMsg
   )
 
-  context.system.scheduler.schedule(
+  context.system.scheduler.scheduleWithFixedDelay(
     5 seconds,
     5 seconds,
     self,
@@ -267,7 +267,7 @@ class MeetingActor(
     case m: RegisterUserSessionTokenReqMsg        => usersApp.handleRegisterUserSessionTokenReqMsg(m)
 
     //API Msgs
-    case m: GetUserApiMsg                         => usersApp.handleGetUserApiMsg(m, sender)
+    case m: GetUserApiMsg                         => usersApp.handleGetUserApiMsg(m, sender())
 
     // Meeting
     case m: DestroyMeetingSysCmdMsg               => handleDestroyMeetingSysCmdMsg(m)
@@ -354,7 +354,7 @@ class MeetingActor(
     }
   }
 
-  private def updateVoiceUserLastActivity(userId: String) {
+  private def updateVoiceUserLastActivity(userId: String): Unit = {
     for {
       vu <- VoiceUsers.findWithVoiceUserId(liveMeeting.voiceUsers, userId)
     } yield {
@@ -362,7 +362,7 @@ class MeetingActor(
     }
   }
 
-  private def updateUserLastActivity(userId: String) {
+  private def updateUserLastActivity(userId: String): Unit = {
     for {
       user <- Users2x.findWithIntId(liveMeeting.users2x, userId)
     } yield {
@@ -370,7 +370,7 @@ class MeetingActor(
     }
   }
 
-  private def updateModeratorsPresence() {
+  private def updateModeratorsPresence(): Unit = {
     if (Users2x.numActiveModerators(liveMeeting.users2x) > 0) {
       if (state.expiryTracker.moderatorHasJoined == false ||
         state.expiryTracker.lastModeratorLeftOnInMs != 0) {
@@ -402,7 +402,7 @@ class MeetingActor(
     }
   }
 
-  private def updateUserLastInactivityInspect(userId: String) {
+  private def updateUserLastInactivityInspect(userId: String): Unit = {
     for {
       user <- Users2x.findWithIntId(liveMeeting.users2x, userId)
     } yield {
@@ -847,14 +847,14 @@ class MeetingActor(
     val listOfUsers: List[UserState] = Users2x.findAll(liveMeeting.users2x).toList
     val breakoutRoomNames: List[String] = {
       if (state.breakout.isDefined)
-        state.breakout.get.getRooms.map(_.name).toList
+        state.breakout.get.getRooms().map(_.name).toList
       else
         List()
     }
     val breakoutRoom: BreakoutRoom = BreakoutRoom(liveMeeting.props.breakoutProps.parentId, breakoutRoomNames)
     MeetingInfoAnalytics(
-      meetingName, externalId, internalId, hasUserJoined, isMeetingRecorded, getMeetingInfoWebcamDetails, getMeetingInfoAudioDetails,
-      screenshare, listOfUsers.map(u => Participant(u.intId, u.name, u.role)), getMeetingInfoPresentationDetails, breakoutRoom
+      meetingName, externalId, internalId, hasUserJoined, isMeetingRecorded, getMeetingInfoWebcamDetails(), getMeetingInfoAudioDetails(),
+      screenshare, listOfUsers.map(u => Participant(u.intId, u.name, u.role)), getMeetingInfoPresentationDetails(), breakoutRoom
     )
   }
 
@@ -902,8 +902,8 @@ class MeetingActor(
 
   private def getMeetingInfoPresentationDetails(): PresentationInfo = {
     val presentationPods: Vector[PresentationPod] = state.presentationPodManager.getAllPresentationPodsInMeeting()
-    val presentationId: String = presentationPods.flatMap(_.getCurrentPresentation.map(_.id)).mkString
-    val presentationName: String = presentationPods.flatMap(_.getCurrentPresentation.map(_.name)).mkString
+    val presentationId: String = presentationPods.flatMap(_.getCurrentPresentation().map(_.id)).mkString
+    val presentationName: String = presentationPods.flatMap(_.getCurrentPresentation().map(_.name)).mkString
     PresentationInfo(presentationId, presentationName)
   }
 
@@ -918,7 +918,7 @@ class MeetingActor(
 
   }
 
-  def handleMonitorNumberOfUsers(msg: MonitorNumberOfUsersInternalMsg) {
+  def handleMonitorNumberOfUsers(msg: MonitorNumberOfUsersInternalMsg): Unit = {
     state = removeUsersWithExpiredUserLeftFlag(liveMeeting, state)
 
     if (!liveMeeting.props.meetingProp.isBreakout) {
@@ -937,7 +937,7 @@ class MeetingActor(
     checkIfNeedToEndMeetingWhenNoModerators(liveMeeting)
   }
 
-  def handleMonitorGuestWaitPresenceInternalMsg(msg: MonitorGuestWaitPresenceInternalMsg) {
+  def handleMonitorGuestWaitPresenceInternalMsg(msg: MonitorGuestWaitPresenceInternalMsg): Unit = {
     if (liveMeeting.props.usersProp.waitingGuestUsersTimeout > 0) {
       for {
         regUser <- RegisteredUsers.findAll(liveMeeting.registeredUsers)
@@ -1041,7 +1041,7 @@ class MeetingActor(
       state.expiryTracker.moderatorHasJoined &&
       state.expiryTracker.lastModeratorLeftOnInMs != 0 &&
       //Check if has moderator with leftFlag
-      Users2x.findModerator(liveMeeting.users2x).toVector.length == 0) {
+      Users2x.findModerator(liveMeeting.users2x).toVector.isEmpty) {
       val hasModeratorLeftRecently = (TimeUtil.timeNowInMs() - state.expiryTracker.endWhenNoModeratorDelayInMs) < state.expiryTracker.lastModeratorLeftOnInMs
       if (!hasModeratorLeftRecently) {
         log.info("Meeting will end due option endWhenNoModerator is enabled and all moderators have left the meeting. meetingId=" + props.meetingProp.intId)
@@ -1116,7 +1116,7 @@ class MeetingActor(
     }
   }
 
-  var lastUsersInactivityInspection = System.currentTimeMillis()
+  private var lastUsersInactivityInspection = System.currentTimeMillis()
 
   def processUserInactivityAudit(): Unit = {
 

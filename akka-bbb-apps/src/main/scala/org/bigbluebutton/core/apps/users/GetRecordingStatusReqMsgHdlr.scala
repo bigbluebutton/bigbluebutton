@@ -10,7 +10,7 @@ trait GetRecordingStatusReqMsgHdlr {
   val liveMeeting: LiveMeeting
   val outGW: OutMsgRouter
 
-  def handleGetRecordingStatusReqMsg(msg: GetRecordingStatusReqMsg) {
+  def handleGetRecordingStatusReqMsg(msg: GetRecordingStatusReqMsg): Unit = {
 
     def buildGetRecordingStatusRespMsg(
         meetingId:               String,

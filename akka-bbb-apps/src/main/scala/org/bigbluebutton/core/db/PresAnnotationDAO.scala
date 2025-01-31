@@ -19,7 +19,7 @@ class PresAnnotationDbTableDef(tag: Tag) extends Table[PresAnnotationDbModel](ta
   val userId = column[String]("userId")
   val annotationInfo = column[String]("annotationInfo")
   val lastUpdatedAt = column[java.sql.Timestamp]("lastUpdatedAt")
-  def * = (annotationId, pageId, meetingId, userId, annotationInfo, lastUpdatedAt) <> (PresAnnotationDbModel.tupled, PresAnnotationDbModel.unapply)
+  def * = (annotationId, pageId, meetingId, userId, annotationInfo, lastUpdatedAt).<>(PresAnnotationDbModel.tupled, PresAnnotationDbModel.unapply)
 }
 
 object PresAnnotationDAO {
@@ -48,7 +48,7 @@ object PresAnnotationDAO {
       TableQuery[PresAnnotationDbTableDef]
         .filter(_.annotationId inSet annotationIds)
         .map(a => (a.annotationInfo, a.meetingId, a.userId, a.lastUpdatedAt))
-        .update("", meetingId, userId, new java.sql.Timestamp(annotationUpdatedAt))
+        .update(("", meetingId, userId, new java.sql.Timestamp(annotationUpdatedAt)))
     )
   }
 

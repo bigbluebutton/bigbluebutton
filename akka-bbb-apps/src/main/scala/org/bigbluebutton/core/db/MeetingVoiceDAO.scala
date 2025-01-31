@@ -22,7 +22,7 @@ class MeetingVoiceDbTableDef(tag: Tag) extends Table[MeetingVoiceDbModel](tag, "
 
   //  def fk_meetingId: ForeignKeyQuery[MeetingDbTableDef, MeetingDbModel] = foreignKey("fk_meetingId", meetingId, TableQuery[MeetingDbTableDef])(_.meetingId)
 
-  override def * : ProvenShape[MeetingVoiceDbModel] = (meetingId, telVoice, voiceConf, dialNumber, muteOnStart) <> (MeetingVoiceDbModel.tupled, MeetingVoiceDbModel.unapply)
+  override def * : ProvenShape[MeetingVoiceDbModel] = (meetingId, telVoice, voiceConf, dialNumber, muteOnStart).<>(MeetingVoiceDbModel.tupled, MeetingVoiceDbModel.unapply)
 }
 
 object MeetingVoiceDAO {

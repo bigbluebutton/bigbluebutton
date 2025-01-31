@@ -2,7 +2,7 @@ package org.bigbluebutton.core.apps.breakout
 
 import org.bigbluebutton.SystemConfiguration
 import org.bigbluebutton.common2.msgs._
-import org.bigbluebutton.core.api.{ BreakoutRoomUsersUpdateInternalMsg }
+import org.bigbluebutton.core.api.BreakoutRoomUsersUpdateInternalMsg
 import org.bigbluebutton.core.bus.{ BigBlueButtonEvent, InternalEventBus }
 import org.bigbluebutton.core.domain.{ BreakoutUser, BreakoutVoiceUser }
 import org.bigbluebutton.core.models.{ Users2x, VoiceUsers }
@@ -16,7 +16,7 @@ object BreakoutHdlrHelpers extends SystemConfiguration {
       externalMeetingId: String,
       roomSequence:      String,
       breakoutId:        String
-  ) {
+  ): Unit = {
     for {
       (redirectToHtml5JoinURL, redirectJoinURL) <- getRedirectUrls(liveMeeting, userId, externalMeetingId, roomSequence)
     } yield {

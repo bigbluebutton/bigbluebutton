@@ -15,7 +15,7 @@ class UserLockSettingsDbTableDef(tag: Tag) extends Table[UserLockSettingsDbModel
   val userId = column[String]("userId", O.PrimaryKey)
   val disablePublicChat = column[Boolean]("disablePublicChat")
 
-  override def * : ProvenShape[UserLockSettingsDbModel] = (meetingId, userId, disablePublicChat) <> (UserLockSettingsDbModel.tupled, UserLockSettingsDbModel.unapply)
+  override def * : ProvenShape[UserLockSettingsDbModel] = (meetingId, userId, disablePublicChat) .<> (UserLockSettingsDbModel.tupled, UserLockSettingsDbModel.unapply)
 }
 
 object UserLockSettingsDAO {

@@ -8,7 +8,7 @@ case class BigBlueButtonEvent(val topic: String, val payload: InMessage)
 trait InternalEventBus {
 
   def publish(event: BigBlueButtonEvent): Unit
-  def subscribe(actorRef: ActorRef, topic: String)
-  def unsubscribe(actorRef: ActorRef, topic: String)
+  def subscribe(actorRef: ActorRef, topic: String): Unit
+  def unsubscribe(actorRef: ActorRef, topic: String): Unit
 }
 

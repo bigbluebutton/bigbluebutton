@@ -1,11 +1,9 @@
 package org.bigbluebutton.core2.message.handlers.guests
 
 import org.bigbluebutton.common2.msgs.UpdatePositionInWaitingQueueReqMsg
-import org.bigbluebutton.core.models.{ GuestsWaiting }
-import org.bigbluebutton.core.running.{ LiveMeeting, OutMsgRouter }
+import org.bigbluebutton.core.apps.RightsManagementTrait
+import org.bigbluebutton.core.running.{ LiveMeeting, MeetingActor, OutMsgRouter }
 import org.bigbluebutton.core2.message.senders.MsgBuilder
-import org.bigbluebutton.core.apps.{ PermissionCheck, RightsManagementTrait }
-import org.bigbluebutton.core.running.MeetingActor
 
 trait UpdatePositionInWaitingQueueReqMsgHdlr extends RightsManagementTrait {
   this: MeetingActor =>

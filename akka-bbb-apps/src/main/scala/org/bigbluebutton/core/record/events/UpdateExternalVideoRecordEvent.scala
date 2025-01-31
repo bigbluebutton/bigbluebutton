@@ -24,19 +24,19 @@ class UpdateExternalVideoRecordEvent extends AbstractExternalVideoRecordEvent {
 
   setEvent("UpdateExternalVideoRecordEvent")
 
-  def setStatus(status: String) {
+  def setStatus(status: String): Unit = {
     eventMap.put(STATUS, status)
   }
 
-  def setRate(rate: Double) {
+  def setRate(rate: Double): Unit = {
     eventMap.put(RATE, rate.toString)
   }
 
-  def setTime(time: Double) {
+  def setTime(time: Double): Unit = {
     eventMap.put(TIME, time.toString)
   }
 
-  def setState(state: Int) {
+  def setState(state: Int): Unit = {
     eventMap.put(STATE, state.toString)
   }
 }

@@ -12,7 +12,7 @@ case class PresPageWritersDbModel(
 
 class PresPageWritersDbTableDef(tag: Tag) extends Table[PresPageWritersDbModel](tag, None, "pres_page_writers") {
   override def * = (
-    pageId, meetingId, userId, changedModeOn) <> (PresPageWritersDbModel.tupled, PresPageWritersDbModel.unapply)
+    pageId, meetingId, userId, changedModeOn) .<> (PresPageWritersDbModel.tupled, PresPageWritersDbModel.unapply)
   val pageId = column[String]("pageId", O.PrimaryKey)
   val meetingId = column[String]("meetingId", O.PrimaryKey)
   val userId = column[String]("userId", O.PrimaryKey)

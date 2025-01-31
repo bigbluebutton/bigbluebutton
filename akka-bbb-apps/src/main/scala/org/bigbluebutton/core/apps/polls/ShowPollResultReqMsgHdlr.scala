@@ -3,14 +3,13 @@ package org.bigbluebutton.core.apps.polls
 import org.bigbluebutton.common2.domain.SimplePollResultOutVO
 import org.bigbluebutton.common2.msgs._
 import org.bigbluebutton.core.apps.groupchats.GroupChatApp
+import org.bigbluebutton.core.apps.{PermissionCheck, RightsManagementTrait}
 import org.bigbluebutton.core.bus.MessageBus
+import org.bigbluebutton.core.db.{ChatMessageDAO, NotificationDAO}
 import org.bigbluebutton.core.domain.MeetingState2x
 import org.bigbluebutton.core.models.Polls
 import org.bigbluebutton.core.running.LiveMeeting
-import org.bigbluebutton.core.apps.{PermissionCheck, RightsManagementTrait}
-import org.bigbluebutton.core.db.{ChatMessageDAO, JsonUtils, NotificationDAO}
 import org.bigbluebutton.core2.message.senders.MsgBuilder
-import spray.json.DefaultJsonProtocol.jsonFormat2
 
 trait ShowPollResultReqMsgHdlr extends RightsManagementTrait {
   this: PollApp2x =>
@@ -38,7 +37,7 @@ trait ShowPollResultReqMsgHdlr extends RightsManagementTrait {
         (result, annotationProp) <- Polls.handleShowPollResultReqMsg(state, msg.header.userId, msg.body.pollId, liveMeeting)
       } yield {
         //it will be used to render the chat message (will be stored as json in chat-msg metadata)
-        val resultAsSimpleMap = Map(
+        val resultAsSimpleMap: Map[String, Any] = Map(
           "id" -> result.id,
           "questionType" -> result.questionType,
           "questionText" -> result.questionText.getOrElse(""),
@@ -46,7 +45,7 @@ trait ShowPollResultReqMsgHdlr extends RightsManagementTrait {
             for {
               answer <- result.answers
             } yield {
-              Map(
+              Map[String, Any](
                 "id" -> answer.id,
                 "key" -> answer.key,
                 "numVotes" -> answer.numVotes

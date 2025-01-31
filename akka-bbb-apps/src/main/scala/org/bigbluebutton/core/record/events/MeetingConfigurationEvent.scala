@@ -24,7 +24,7 @@ class MeetingConfigurationEvent extends StarterConfigurationEvent {
 
   setEvent("MeetingConfigurationEvent")
 
-  def setWebcamsOnlyForModerator(webcamsOnlyForModerator: Boolean) {
+  def setWebcamsOnlyForModerator(webcamsOnlyForModerator: Boolean): Unit = {
     eventMap.put(WEBCAMS_ONLY_FOR_MODERATOR, webcamsOnlyForModerator.toString)
   }
 }

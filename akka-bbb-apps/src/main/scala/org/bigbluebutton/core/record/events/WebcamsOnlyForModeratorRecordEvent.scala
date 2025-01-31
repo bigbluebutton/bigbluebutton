@@ -24,11 +24,11 @@ class WebcamsOnlyForModeratorRecordEvent extends AbstractParticipantRecordEvent 
 
   setEvent("WebcamsOnlyForModeratorEvent")
 
-  def setUserId(userId: String) {
+  def setUserId(userId: String): Unit = {
     eventMap.put(USER_ID, userId)
   }
 
-  def setWebcamsOnlyForModerator(webcamsOnlyForModerator: Boolean) {
+  def setWebcamsOnlyForModerator(webcamsOnlyForModerator: Boolean): Unit = {
     eventMap.put(WEBCAMS_ONLY_FOR_MODERATOR, webcamsOnlyForModerator.toString)
   }
 }

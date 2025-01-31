@@ -38,14 +38,14 @@ case class UserDbModel(
 class UserDbTableDef(tag: Tag) extends Table[UserDbModel](tag, None, "user") {
   override def * = (
     meetingId,userId,extId,nameColumns,role,avatar,webcamBackground,color, authToken, authed,joined,joinErrorCode,
-    joinErrorMessage, banned,loggedOut,bot, guest,guestStatus,registeredOn,excludeFromDashboard, enforceLayout, logoutUrl) <> (UserDbModel.tupled, UserDbModel.unapply)
+    joinErrorMessage, banned,loggedOut,bot, guest,guestStatus,registeredOn,excludeFromDashboard, enforceLayout, logoutUrl) .<> (UserDbModel.tupled, UserDbModel.unapply)
   val meetingId = column[String]("meetingId", O.PrimaryKey)
   val userId = column[String]("userId", O.PrimaryKey)
   val extId = column[String]("extId")
   val name = column[String]("name")
   val firstName = column[Option[String]]("firstName")
   val lastName = column[Option[String]]("lastName")
-  val nameColumns = (name, firstName, lastName) <> (UserNameColumnsDbModel.tupled, UserNameColumnsDbModel.unapply)
+  val nameColumns = (name, firstName, lastName) .<> (UserNameColumnsDbModel.tupled, UserNameColumnsDbModel.unapply)
   val role = column[String]("role")
   val avatar = column[String]("avatar")
   val webcamBackground = column[String]("webcamBackground")

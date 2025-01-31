@@ -24,15 +24,15 @@ class AssignPresenterRecordEvent extends AbstractParticipantRecordEvent {
 
   setEvent("AssignPresenterEvent")
 
-  def setUserId(userid: String) {
+  def setUserId(userid: String): Unit = {
     eventMap.put(USER_ID, userid)
   }
 
-  def setName(name: String) {
+  def setName(name: String): Unit = {
     eventMap.put(NAME, name)
   }
 
-  def setAssignedBy(by: String) {
+  def setAssignedBy(by: String): Unit = {
     eventMap.put(ASSIGNED_BY, by)
   }
 }

@@ -1,7 +1,7 @@
 package org.bigbluebutton.core.apps.voice
 
 import org.bigbluebutton.common2.msgs._
-import org.bigbluebutton.core.models.{ VoiceUsers }
+import org.bigbluebutton.core.models.VoiceUsers
 import org.bigbluebutton.core.running.{ BaseMeetingActor, LiveMeeting, OutMsgRouter }
 
 trait UserTalkingInVoiceConfEvtMsgHdlr {

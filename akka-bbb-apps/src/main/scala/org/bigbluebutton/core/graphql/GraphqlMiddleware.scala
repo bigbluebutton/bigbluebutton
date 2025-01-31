@@ -3,8 +3,8 @@ package org.bigbluebutton.core.graphql
 import org.bigbluebutton.SystemConfiguration
 import org.slf4j.LoggerFactory
 
-import java.net.{ URI, URLEncoder }
 import java.net.http.{ HttpClient, HttpRequest, HttpResponse }
+import java.net.{ URI, URLEncoder }
 import java.nio.charset.StandardCharsets
 import java.time.Duration
 

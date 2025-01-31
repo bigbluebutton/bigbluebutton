@@ -2,16 +2,15 @@ package org.bigbluebutton.core.apps.users
 
 import org.bigbluebutton.ClientSettings.getConfigPropertyValueByPathAsBooleanOrElse
 import org.bigbluebutton.common2.msgs._
-import org.bigbluebutton.core.apps.presentationpod.SetPresenterInPodActionHandler
-import org.bigbluebutton.core.apps.ExternalVideoModel
 import org.bigbluebutton.core.apps.groupchats.GroupChatApp
+import org.bigbluebutton.core.apps.presentationpod.SetPresenterInPodActionHandler
+import org.bigbluebutton.core.apps.screenshare.ScreenshareApp2x.requestBroadcastStop
+import org.bigbluebutton.core.apps.{ ExternalVideoModel, PermissionCheck, RightsManagementTrait }
+import org.bigbluebutton.core.db.{ ChatMessageDAO, UserStateDAO }
+import org.bigbluebutton.core.domain.MeetingState2x
+import org.bigbluebutton.core.graphql.GraphqlMiddleware
 import org.bigbluebutton.core.models.{ PresentationPod, RegisteredUsers, UserState, Users2x }
 import org.bigbluebutton.core.running.{ LiveMeeting, OutMsgRouter }
-import org.bigbluebutton.core.apps.{ PermissionCheck, RightsManagementTrait }
-import org.bigbluebutton.core.domain.MeetingState2x
-import org.bigbluebutton.core.apps.screenshare.ScreenshareApp2x.requestBroadcastStop
-import org.bigbluebutton.core.db.{ ChatMessageDAO, UserStateDAO }
-import org.bigbluebutton.core.graphql.GraphqlMiddleware
 
 trait AssignPresenterReqMsgHdlr extends RightsManagementTrait {
   this: UsersApp =>
