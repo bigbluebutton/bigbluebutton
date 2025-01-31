@@ -1,12 +1,12 @@
-const { default: test } = require('@playwright/test');
 const { Create } = require('./create');
 const utilScreenShare = require('../screenshare/util');
 const e = require('../core/elements');
-const { ELEMENT_WAIT_LONGER_TIME } = require('../core/constants');
+const { ELEMENT_WAIT_LONGER_TIME, ELEMENT_WAIT_EXTRA_LONG_TIME } = require('../core/constants');
 const { getSettings } = require('../core/settings');
 const { expect } = require('@playwright/test');
 const { sleep } = require('../core/helpers');
 const { getNotesLocator } = require('../sharednotes/util');
+const { uploadSinglePresentation } = require('../presentation/util.js');
 
 class Join extends Create {
   constructor(browser, context) {
@@ -54,6 +54,22 @@ class Join extends Create {
 
     await breakoutUserPage.hasElement(e.talkingIndicator, 'should display the talking indicator element');
     await breakoutUserPage.hasElement(e.isTalking, 'should have the element isTalking active');
+  }
+
+  async joinRoomWithModerator() {
+    await this.modPage.bringToFront();
+
+    await this.modPage.waitAndClick(e.breakoutRoomsItem);
+    await this.modPage.waitAndClick(e.askJoinRoom2);
+    await this.modPage.waitForSelector(e.alreadyConnected, ELEMENT_WAIT_LONGER_TIME);
+
+    const breakoutModPage = await this.modPage.getLastTargetPage(this.context);
+    await breakoutModPage.bringToFront();
+
+    await breakoutModPage.closeAudioModal();
+    
+    await breakoutModPage.waitForSelector(e.presentationTitle);
+    return breakoutModPage;
   }
 
   async messageToAllRooms() {
@@ -238,6 +254,39 @@ class Join extends Create {
     const breakoutUserPage = await this.userPage.getLastTargetPage(this.context);
     await breakoutUserPage.bringToFront();
     await breakoutUserPage.hasElement(e.presentationTitle, 'should display the presentation title on the breakout room', ELEMENT_WAIT_LONGER_TIME);    
+  }
+
+  async breakoutWithDifferentPresentations() {
+    await this.modPage.waitForSelector(e.whiteboard);
+    await this.modPage.closeAllToastNotifications();
+    // upload presentations
+    await uploadSinglePresentation(this.modPage, e.uploadPresentationFileName);
+    await this.modPage.closeAllToastNotifications();
+    // create breakouts
+    await this.modPage.waitAndClick(e.manageUsers);
+    await this.modPage.waitAndClick(e.createBreakoutRooms);
+    await this.modPage.waitForSelector(e.randomlyAssign);
+    await this.modPage.dragDropSelector(e.attendeeNotAssigned, e.breakoutBox1);
+    // select different presentation for the first breakout room
+    const changeSlideBreakoutLocator = await this.modPage.getLocator(e.changeSlideBreakoutRoom1);
+    await expect(
+      changeSlideBreakoutLocator.locator('option'),
+      'should display 3 available option on presentation selection (current slide, default and uploaded presentation)',
+    ).toHaveCount(3);
+    await changeSlideBreakoutLocator.selectOption({ label: e.uploadPresentationFileName });
+    await this.modPage.waitAndClick(e.modalConfirmButton);
+    await this.userPage.waitAndClick(e.modalDismissButton);
+    // join user to breakout room and check the presentation loaded
+    const breakoutUserPage = await this.joinRoom();
+    await breakoutUserPage.waitForSelector(e.whiteboard, ELEMENT_WAIT_EXTRA_LONG_TIME);
+    await this.modPage.waitForSelector(e.breakoutRoomsItem);
+    const breakoutModPage = await this.joinRoomWithModerator();
+    await breakoutModPage.waitForSelector(e.presentationTitle);
+    await breakoutModPage.waitForSelector(e.whiteboard, ELEMENT_WAIT_EXTRA_LONG_TIME);
+    await breakoutModPage.closeAllToastNotifications();
+    // visual assertion on the presentations
+    await expect(this.modPage.page).toHaveScreenshot('moderator-page-first-room.png');
+    await expect(this.userPage.page).toHaveScreenshot('attendee-page-second-room.png');
   }
 }
 

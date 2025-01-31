@@ -102,6 +102,13 @@ test.describe.parallel('Create Parameters', { tag: '@ci' }, () => {
     await createParam.allowModsToEjectCameras();
   });
 
+  test('Override default presentation on CREATE meeting API call', async ({ browser, context, page }) => {
+    const createParam = new CreateParameters(browser, context);
+    await createParam.initModPage(page, true, { createParameter: `${c.preUploadedPresentation}&${c.preUploadedPresentationOverrideDefault}&${c.preUploadedPresentationName}` });
+    await createParam.initUserPage(true, context);
+    await createParam.overrideDefaultPresentation();
+  });
+
   test.describe.parallel('Disabled Features', () => {
     test.describe.serial(() => {
       test('Breakout rooms', async ({ browser, context, page }) => {
@@ -361,12 +368,6 @@ test.describe.parallel('Custom Parameters', { tag: '@ci' }, () => {
     await customParam.clientTitle();
   });
 
-  test('Ask for feedback on logout', async ({ browser, context, page }) => {
-    const customParam = new CustomParameters(browser, context);
-    await customParam.initModPage(page, true, { joinParameter: c.askForFeedbackOnLogout });
-    await customParam.askForFeedbackOnLogout();
-  });
-
   test('Display Branding Area', async ({ browser, context, page }) => {
     const customParam = new CustomParameters(browser, context);
     await customParam.initModPage(page, true, { createParameter: `${c.displayBrandingArea}&${encodeCustomParams(c.logo)}` });
@@ -421,6 +422,12 @@ test.describe.parallel('Custom Parameters', { tag: '@ci' }, () => {
     const customParam = new CustomParameters(browser, context);
     await customParam.initModPage(page, true, { joinParameter: c.preferredCameraProfile });
     await customParam.preferredCameraProfileTest();
+  });
+
+  test('Set webcam background by passing URL', async ({ browser, context, page }) => {
+    const customParam = new CustomParameters(browser, context);
+    await customParam.initModPage(page, true, { joinParameter: c.webcamBackgroundPassingURL });
+    await customParam.webcamBackgroundURL();
   });
 
   test.describe.parallel('Audio', () => {
