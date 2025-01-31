@@ -6,7 +6,6 @@ import { defineMessages } from 'react-intl';
 import { usePreviousValue } from '/imports/ui/hooks/usePreviousValue';
 import { notify } from '/imports/ui/services/notification';
 import Session from '/imports/ui/services/storage/in-memory';
-import checkSamePresentation from './utils';
 
 const EXPORT_STATUSES = {
   RUNNING: 'RUNNING',
@@ -184,17 +183,6 @@ function renderPresentationItemStatus(item, intl) {
   const constraint = {};
 
   if (('upload' in item) && (item.upload.done && item.upload.error)) {
-    if (item.conversion.status === 'FILE_TOO_LARGE' || item.upload.status !== 413) {
-      // Check if MB is has enough precision to display the number
-      // If not, display it in kB
-      const { maxFileSize } = item.conversion;
-      const maxFileSizeWithUnit = (
-        ((maxFileSize) / 1000 / 1000).toFixed(2) === '0.00'
-        || ((maxFileSize) / 1000 / 1000).toFixed(2) === '0,00')
-        ? `${((maxFileSize) / 1000).toFixed(2)} kB`
-        : `${((maxFileSize) / 1000 / 1000).toFixed(2)} MB`;
-      constraint['0'] = maxFileSizeWithUnit;
-    } else if (item.progress < 100) {
     if (item.progress < 100) {
       const errorMessage = intlMessages.badConnectionError;
       return intl.formatMessage(errorMessage);
