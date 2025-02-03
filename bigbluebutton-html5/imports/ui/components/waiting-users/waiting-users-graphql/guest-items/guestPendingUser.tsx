@@ -20,7 +20,7 @@ const renderPendingUsers = (
     <Styled.PendingUsers>
       <Styled.MainTitle>{message}</Styled.MainTitle>
       <Styled.UsersWrapper>
-        <Styled.Users>
+        <Styled.Users role="list">
           {usersArray.map((user, idx) => renderGuestUserItem(
             user.user.name ?? '',
             user.user.color ?? '',
