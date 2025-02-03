@@ -383,17 +383,21 @@ const UserActions: React.FC<UserActionsProps> = ({
       icon: user.pinned ? 'pin-video_off' : 'pin-video_on',
     },
     {
-      allowed: isChatEnabled
-        && (
-          currentUser.isModerator ? allowedToChatPrivately
-            : allowedToChatPrivately && (
-              !(currentUser.locked && lockSettings?.disablePrivateChat)
-              // TODO: Add check for hasPrivateChat between users
-              || user.isModerator
-            )
-        )
-        && !isVoiceOnlyUser(user.userId)
-        && !isBreakout,
+      allowed: (() => {
+        const preventSelfChat = user.userId !== currentUser.userId;
+        const moderatorOverride = currentUser.isModerator
+          && allowedToChatPrivately;
+        const regularUserCondition = (isChatEnabled
+          && !lockSettings?.disablePrivateChat
+          && !isVoiceOnlyUser(user.userId)
+          && !isBreakout)
+          || user.isModerator;
+
+        const isAllowed = preventSelfChat
+          && (moderatorOverride || regularUserCondition || !currentUser.locked);
+
+        return isAllowed;
+      })(),
       key: 'activeChat',
       label: intl.formatMessage(messages.StartPrivateChat),
       onClick: () => {
