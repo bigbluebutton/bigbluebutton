@@ -394,7 +394,7 @@ const UserActions: React.FC<UserActionsProps> = ({
           || user.isModerator;
 
         const isAllowed = preventSelfChat
-          && (moderatorOverride || regularUserCondition);
+          && (moderatorOverride || regularUserCondition || !currentUser.locked);
 
         return isAllowed;
       })(),

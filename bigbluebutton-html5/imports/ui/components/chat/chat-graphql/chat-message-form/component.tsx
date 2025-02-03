@@ -653,7 +653,7 @@ const ChatMessageFormContainer: React.FC = () => {
 
   const CHAT_CONFIG = window.meetingClientSettings.public.chat;
 
-  const disabled = !isModerator && disablePrivateChat && !isPublicChat && !chat?.participant?.isModerator;
+  const disabled = locked && !isModerator && disablePrivateChat && !isPublicChat && !chat?.participant?.isModerator;
 
   return (
     <ChatMessageForm
