@@ -198,7 +198,6 @@ const JoinVideoButton: React.FC<JoinVideoButtonProps> = ({
             data-test="videoDropdownMenu"
             hideLabel
             label={intl.formatMessage(intlMessages.videoSettings)}
-            rotate
             tabIndex={0}
           />
         )}
