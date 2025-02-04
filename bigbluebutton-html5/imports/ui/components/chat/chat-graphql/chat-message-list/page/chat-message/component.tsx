@@ -24,7 +24,7 @@ import {
   ChatContentFooter,
   ChatTime,
 } from './styles';
-import {ChatMessageType, SYSTEM_SENDERS} from '/imports/ui/core/enums/chat';
+import { ChatMessageType, SYSTEM_SENDERS } from '/imports/ui/core/enums/chat';
 import MessageReadConfirmation from './message-read-confirmation/component';
 import ChatMessageToolbar from './message-toolbar/component';
 import ChatMessageReactions from './message-reactions/component';
