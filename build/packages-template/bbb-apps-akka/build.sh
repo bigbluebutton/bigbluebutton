@@ -16,15 +16,17 @@ find -name build.sbt -exec sed -i "s|\(.*org.bigbluebutton.*bbb-common-message[^
 
 export JAVA_TOOL_OPTIONS=-Dfile.encoding=UTF8
 
+# Compile Protobuf for grpc msgs
+cd bbb-common-grpc
+sbt compile
+cd ..
+
+# Compile common message for redis msgs
 cd bbb-common-message
 sbt publish
 sbt publishLocal
 cd ..
 
-# Compile Protobuf for grpc
-cd bbb-common-grpc
-sbt compile
-cd ..
 
 cd akka-bbb-apps
 sed -i 's/\r$//' project/Dependencies.scala
