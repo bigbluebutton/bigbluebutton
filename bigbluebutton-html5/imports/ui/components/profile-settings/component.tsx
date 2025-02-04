@@ -7,7 +7,6 @@ import { Layout } from '../layout/layoutTypes';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import { SelectChangeEvent } from '@mui/material/Select';
 import MenuItem from '@mui/material/MenuItem';
-import Slider from '@mui/material/Slider';
 import Styled from './styles';
 import { layoutDispatch, layoutSelect } from '../layout/context';
 import { ACTIONS, PANELS } from '../layout/enums';
@@ -40,16 +39,16 @@ import VirtualBgSelector from '/imports/ui/components/video-preview/virtual-back
 import AudioSelectors from './audio-selectors/component';
 import AudioCaptions from './audio-captions/component';
 import BBBVideoStream from '/imports/ui/services/webrtc-base/bbb-video-stream';
-import { colorPrimary } from '../../stylesheets/styled-components/palette';
+import Tooltip from '/imports/ui/components/common/tooltip/component';
 
 const intlMessages: { [key: string]: { id: string; description?: string } } = defineMessages({
   title: {
     id: 'app.profileSettings.title',
     description: 'Label for the profile settings panel title',
   },
-  close: {
-    id: 'app.profileSettings.close',
-    description: 'Label for the close profile settings button',
+  minimizeLabel: {
+    id: 'app.profileSettings.minimize',
+    description: 'Minimize button label',
   },
   username: {
     id: 'app.profileSettings.usernameTitle',
@@ -462,6 +461,10 @@ const ProfileSettings: React.FC<ProfileSettingsProps> = () => {
         terminateCameraStream(currentVideoStream.current, deviceId);
         cleanupStreamAndVideo();
       }
+      // restore brightness
+      if (brightness !== 100) {
+        setCameraBrightness(brightness);
+      }
       setIsCameraLoading(false);
     }
   };
@@ -480,7 +483,7 @@ const ProfileSettings: React.FC<ProfileSettingsProps> = () => {
         const { backgrounds } = customVirtualBackgroundsContext;
         const background = backgrounds[uniqueId]
           || Object.values(backgrounds).find(
-            (bg : any) => bg.uniqueId === uniqueId, // TODO: typing
+            (bg: any) => bg.uniqueId === uniqueId, // TODO: typing
           );
 
         if (background && background.data) {
@@ -510,6 +513,7 @@ const ProfileSettings: React.FC<ProfileSettingsProps> = () => {
 
     await getCameraStream(webcamValue, PreviewService.getDefaultProfile());
     displayPreview();
+    PreviewService.changeWebcam(webcamValue);
   };
 
   const handleSelectProfile = async (event: SelectChangeEvent<unknown>) => {
@@ -518,6 +522,7 @@ const ProfileSettings: React.FC<ProfileSettingsProps> = () => {
     const selectedProfile = PreviewService.getCameraProfile(profileValue) as CameraProfileProps;
     await getCameraStream(webcamDeviceId, selectedProfile);
     displayPreview();
+    PreviewService.changeProfile(selectedProfile);
   };
 
   const handleVirtualBgError = (error: Error, type: string, name: string | undefined) => {
@@ -558,7 +563,7 @@ const ProfileSettings: React.FC<ProfileSettingsProps> = () => {
         customParams,
       );
       if (switched) updateVirtualBackgroundInfo();
-      setVirtualBackgroundChecked(true);
+      if (type !== EFFECT_TYPES.NONE_TYPE) setVirtualBackgroundChecked(true);
       return switched;
     }
     stopVirtualBackground(currentVideoStream.current);
@@ -653,6 +658,7 @@ const ProfileSettings: React.FC<ProfileSettingsProps> = () => {
 
   // Unused for now, but will be used in the future when UI/UX for sharing
   // through the profile settings is implemented - prlanzarin
+  // @ts-expect-error TS6133: Unused variable.
   const handleStartSharing = async () => {
     if (!currentVideoStream.current) return;
     if (
@@ -826,7 +832,6 @@ const ProfileSettings: React.FC<ProfileSettingsProps> = () => {
                   )
               }
             </Styled.VideoCol>
-            {/* this.renderTabsContent(selectedTab) */}
           </Styled.VideoPreviewContent>
         );
     }
@@ -843,25 +848,28 @@ const ProfileSettings: React.FC<ProfileSettingsProps> = () => {
         </Styled.CameraQualityText>
         {PREVIEW_CAMERA_PROFILES.length > 0
           ? (
-            <Styled.CameraQualitySelector
-              value={selectedProfile || ''}
-              onChange={handleSelectProfile}
-              IconComponent={ExpandMoreIcon}
-            >
-              {PREVIEW_CAMERA_PROFILES.map((profile) => {
-                // @ts-ignore
-                const label = intlMessages[`${profile.id}`]
+            <Tooltip title={formatMessage(intlMessages.sharedCameraLabel)}>
+              <Styled.CameraQualitySelector
+                value={selectedProfile || ''}
+                onChange={handleSelectProfile}
+                IconComponent={ExpandMoreIcon}
+                disabled={isAlreadyShared(webcamDeviceId as string)}
+              >
+                {PREVIEW_CAMERA_PROFILES.map((profile) => {
                   // @ts-ignore
-                  ? formatMessage(intlMessages[`${profile.id}`])
-                  : profile.name;
+                  const label = intlMessages[`${profile.id}`]
+                    // @ts-ignore
+                    ? formatMessage(intlMessages[`${profile.id}`])
+                    : profile.name;
 
-                return (
-                  <MenuItem key={profile.id} value={profile.id}>
-                    {label}
-                  </MenuItem>
-                );
-              })}
-            </Styled.CameraQualitySelector>
+                  return (
+                    <MenuItem key={profile.id} value={profile.id}>
+                      {label}
+                    </MenuItem>
+                  );
+                })}
+              </Styled.CameraQualitySelector>
+            </Tooltip>
           )
           : (
             <span>
@@ -877,19 +885,15 @@ const ProfileSettings: React.FC<ProfileSettingsProps> = () => {
     if (!ENABLE_CAMERA_BRIGHTNESS) return null;
 
     return (
-      <Slider
+      <Styled.BrightnessSlider
         value={brightness - 100}
         defaultValue={0}
         min={-100}
         max={100}
-        // size="small"
         onChange={(_, value) => setCameraBrightness((value as number) + 100)}
         aria-describedby="brightness-slider-desc"
         valueLabelDisplay="auto"
         disabled={!isVirtualBackgroundSupported() || isCameraLoading}
-        sx={{
-          color: colorPrimary,
-        }}
       />
     );
   };
@@ -964,8 +968,8 @@ const ProfileSettings: React.FC<ProfileSettingsProps> = () => {
         customRightButton={null}
       />
       <Styled.Separator />
+      {renderWebcamPreview()}
       <Styled.ProfileSettings>
-        {renderWebcamPreview()}
         <Styled.UsernameContainer>
           <Styled.UsernameTitle>{formatMessage(intlMessages.username)}</Styled.UsernameTitle>
           <Styled.Username>{currentUserData?.name ?? ''}</Styled.Username>

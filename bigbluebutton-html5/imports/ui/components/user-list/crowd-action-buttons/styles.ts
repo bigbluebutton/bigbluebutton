@@ -15,7 +15,7 @@ const ActionButtonsWrapper = styled.div`
 `;
 
 const ActionButtonWrapper = styled.div`
-  flex-grow: 1;
+  flex: 1;
   display: flex;
   flex-direction: column;
   gap: 0.5rem;
@@ -34,6 +34,7 @@ const ActionButtonLabel = styled.span`
 const ActionButton = styled<ActionButtonProps>(Button)`
   justify-content: center;
   align-items: center;
+  height: 3rem;
   border-radius: 1rem;
   border: 1px solid ${appsGalleryOutlineColor};
   background: ${colorGrayUserListToolbar};

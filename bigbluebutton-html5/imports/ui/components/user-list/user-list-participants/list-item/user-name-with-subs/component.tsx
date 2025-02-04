@@ -10,6 +10,10 @@ import { UserNameWithSubsProps } from './types';
 import { uniqueId } from '/imports/utils/string-utils';
 
 const intlMessages = defineMessages({
+  bot: {
+    id: 'app.userList.bot',
+    description: 'Text for identifying bot user',
+  },
   presenter: {
     id: 'app.userList.presenter',
     description: 'Text for identifying presenter user',
@@ -38,6 +42,10 @@ const intlMessages = defineMessages({
     id: 'app.userList.sharingWebcam',
     description: 'Text for identifying who is sharing webcam',
   },
+  you: {
+    id: 'app.userList.you',
+    description: 'Text for identifying your user',
+  },
 });
 
 const UserNameWithSubs: React.FC<UserNameWithSubsProps> = ({
@@ -61,6 +69,9 @@ const UserNameWithSubs: React.FC<UserNameWithSubsProps> = ({
   }
   if (subjectUser.mobile && LABEL.mobile) {
     subs.push(intl.formatMessage(intlMessages.mobile));
+  }
+  if (subjectUser.bot && LABEL.bot) {
+    subs.push(intl.formatMessage(intlMessages.bot));
   }
   if ((subjectUser.locked || subjectUser.userLockSettings?.disablePublicChat)
       && (subjectUser.userLockSettings?.disablePublicChat || lockSettings?.hasActiveLockSetting)
@@ -129,7 +140,7 @@ const UserNameWithSubs: React.FC<UserNameWithSubsProps> = ({
       <Styled.UserName>
         <TooltipContainer title={subjectUser.name}>
           {isMe(subjectUser.userId) ? (
-            <Styled.StrongName>{subjectUser.name}</Styled.StrongName>
+            <Styled.StrongName>{subjectUser.name} {`(${intl.formatMessage(intlMessages.you)})`}</Styled.StrongName>
           ) : (
             <Styled.RegularName>{subjectUser.name}</Styled.RegularName>
           )}

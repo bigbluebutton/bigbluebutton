@@ -250,7 +250,7 @@ const AudioSelectors: React.FC<AudioSelectorsProps> = ({
         {outputDevices.length > 0
           ? (
             <Styled.DeviceSelector
-              value={outputDeviceId || ''}
+              value={outputDeviceId || outputDevices[0].deviceId}
               IconComponent={ExpandMoreIcon}
               onChange={(event: SelectChangeEvent<unknown>) => {
                 const deviceId = event.target.value as string;
@@ -271,7 +271,7 @@ const AudioSelectors: React.FC<AudioSelectorsProps> = ({
         {inputDevices.length > 0
           ? (
             <Styled.DeviceSelector
-              value={inputDeviceId || ''}
+              value={inputDeviceId || inputDevices[0].deviceId}
               IconComponent={ExpandMoreIcon}
               onChange={(event: SelectChangeEvent<unknown>) => {
                 const deviceId = event.target.value as string;

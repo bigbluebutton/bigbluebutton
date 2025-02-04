@@ -146,7 +146,7 @@ const SidebarNavigationContainer = () => {
     }
   }, [intl]);
 
-  if (sidebarNavigation.display === false) return null;
+  if (sidebarNavigation.display === false || !width || !height) return null;
 
   return (
     <SidebarNavigation

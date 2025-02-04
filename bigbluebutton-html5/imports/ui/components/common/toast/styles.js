@@ -144,6 +144,7 @@ const Separator = styled.div`
 
 const Toast = styled.div`
   display: flex;
+  cursor: ${(props) => (props.$disablePointer ? 'auto' : 'default')};
 
   ${({ type }) => type === 'default' && `
     & .toastIcon {

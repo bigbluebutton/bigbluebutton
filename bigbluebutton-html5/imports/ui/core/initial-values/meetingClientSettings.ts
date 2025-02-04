@@ -822,6 +822,7 @@ export const meetingClientSettingsInitialValues: MeetingClientSettings = {
         mobile: true,
         guest: true,
         sharingWebcam: true,
+        bot: false,
       },
     },
     whiteboard: {

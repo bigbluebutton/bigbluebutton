@@ -1,10 +1,11 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { useIntl, defineMessages } from 'react-intl';
 import { useMutation } from '@apollo/client';
 import logger from '/imports/startup/client/logger';
 import { SET_MUTED } from './mutations';
 import { CrowdActionButtonsProps } from './types';
 import Styled from './styles';
+import LockViewersContainer from '../../lock-viewers/container';
 
 const intlMessages = defineMessages({
   muteAllExceptPresenterLabel: {
@@ -15,11 +16,20 @@ const intlMessages = defineMessages({
     id: 'app.userList.userOptions.muteAllExceptPresenterDesc',
     description: 'Mute all except presenter description',
   },
+  lockSettingsButtonLabel: {
+    id: 'app.lock-viewers.title',
+    description: 'Lock settings button label',
+  },
+  lockSettingsButtonDescription: {
+    id: 'app.lock-viewers.description',
+    description: 'Description for the lock settings button',
+  },
 });
 
 const CrowdActionButtons: React.FC<CrowdActionButtonsProps> = () => {
   const intl = useIntl();
   const [setMuted] = useMutation(SET_MUTED);
+  const [isLockSettingsModalOpen, setIsLockSettingsModalOpen] = useState(false);
 
   const muteAll = () => {
     setMuted({
@@ -38,22 +48,48 @@ const CrowdActionButtons: React.FC<CrowdActionButtonsProps> = () => {
     );
   };
 
+  const openLockSettingsModal = () => {
+    setIsLockSettingsModalOpen(true);
+  };
+
   return (
-    <Styled.ActionButtonsWrapper>
-      <Styled.ActionButtonWrapper>
-        <Styled.ActionButtonLabel>
-          {intl.formatMessage(intlMessages.muteAllExceptPresenterLabel)}
-        </Styled.ActionButtonLabel>
-        {/* @ts-ignore - button is js component */}
-        <Styled.ActionButton
-          aria-label={intl.formatMessage(intlMessages.muteAllExceptPresenterDesc)}
-          icon="mute"
-          size="lg"
-          data-test="muteAllUsers"
-          onClick={muteAll}
+    <>
+      {isLockSettingsModalOpen && (
+        <LockViewersContainer
+          onRequestClose={() => setIsLockSettingsModalOpen(false)}
+          isOpen={isLockSettingsModalOpen}
+          setIsOpen={setIsLockSettingsModalOpen}
         />
-      </Styled.ActionButtonWrapper>
-    </Styled.ActionButtonsWrapper>
+      )}
+      <Styled.ActionButtonsWrapper>
+        <Styled.ActionButtonWrapper>
+          <Styled.ActionButtonLabel>
+            {intl.formatMessage(intlMessages.muteAllExceptPresenterLabel)}
+          </Styled.ActionButtonLabel>
+          {/* @ts-ignore - button is js component */}
+          <Styled.ActionButton
+            aria-label={intl.formatMessage(intlMessages.muteAllExceptPresenterDesc)}
+            icon="mute"
+            size="lg"
+            data-test="muteAllUsers"
+            onClick={muteAll}
+          />
+        </Styled.ActionButtonWrapper>
+        <Styled.ActionButtonWrapper>
+          <Styled.ActionButtonLabel>
+            {intl.formatMessage(intlMessages.lockSettingsButtonLabel)}
+          </Styled.ActionButtonLabel>
+          {/* @ts-ignore - button is js component */}
+          <Styled.ActionButton
+            aria-label={intl.formatMessage(intlMessages.lockSettingsButtonDescription)}
+            icon="lock"
+            size="lg"
+            data-test="lockViewersButton"
+            onClick={openLockSettingsModal}
+          />
+        </Styled.ActionButtonWrapper>
+      </Styled.ActionButtonsWrapper>
+    </>
   );
 };
 

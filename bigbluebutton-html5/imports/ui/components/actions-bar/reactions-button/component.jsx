@@ -89,7 +89,7 @@ const ReactionsButton = (props) => {
         <Styled.ReactionsDropdown id="interactionsButton">
           <Styled.ReactionsButton
             data-test="reactionsButton"
-            svgIcon={svgIcon}
+            icon={!customIcon ? 'reactions' : null}
             customIcon={customIcon}
             label={intl.formatMessage(intlMessages.reactionsLabel)}
             description="Reactions"
