@@ -4,6 +4,7 @@ import org.bigbluebutton.build.*
 enablePlugins(JavaServerAppPackaging)
 enablePlugins(UniversalPlugin)
 enablePlugins(DebianPlugin)
+enablePlugins(PekkoGrpcPlugin)
 
 version := "0.0.4"
 
@@ -41,6 +42,8 @@ testOptions in Test += Tests.Argument(TestFrameworks.ScalaTest, "-h", "target/sc
 
 Seq(Revolver.settings: _*)
 lazy val bbbAppsAkka = (project in file(".")).settings(name := "bbb-apps-akka", libraryDependencies ++= Dependencies.runtime).settings(compileSettings)
+
+PB.protoSources in Compile += baseDirectory.value / "../bbb-common-grpc/src/main/proto"
 
 // See https://github.com/scala-ide/scalariform
 // Config file is in ./.scalariform.conf

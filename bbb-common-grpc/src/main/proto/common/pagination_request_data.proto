@@ -1,0 +1,17 @@
+syntax = "proto3";
+
+package org.bigbluebutton.protos;
+
+message PaginationRequestData {
+  // The maximum number of items to return. The service may return fewer than this value.
+  // If unspecified, at most 50 items will be returned.
+  // The maximum value is 100; values above 100 will be coerced to 100.
+  int32 page_size = 1;
+
+  // Token received from the previous paginated call.
+  // Provide this to retrieve the subsequent page.
+  string page_token = 2;
+
+  // Number of items to be skipped.
+  int32 skip = 3;
+}

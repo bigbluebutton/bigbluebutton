@@ -1,0 +1,20 @@
+syntax = "proto3";
+
+package org.bigbluebutton.protos;
+
+message CreatedMeetingInfo {
+  string meeting_ext_id = 1;
+  string meeting_int_id = 2;
+  string parent_meeting_id = 3;
+  string attendee_pw = 4;
+  string moderator_pw = 5;
+  int64 create_time = 6;
+  string voice_bridge = 7;
+  string dial_number = 8;
+  string create_date = 9;
+  bool has_user_joined = 10;
+  int32 duration = 11;
+  bool has_been_forcibly_ended = 12;
+  bool is_duplicate = 13;
+  bool is_valid = 14;
+}

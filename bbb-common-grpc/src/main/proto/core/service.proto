@@ -1,0 +1,24 @@
+syntax = "proto3";
+
+package org.bigbluebutton.protos;
+
+import "core/meeting_running_request.proto";
+import "core/meeting_running_response.proto";
+import "core/meeting_info_request.proto";
+import "core/meeting_info_response.proto";
+import "core/list_meetings_request.proto";
+import "core/list_meetings_response.proto";
+import "core/get_meetings_stream_request.proto";
+import "core/voice_bridge_in_use_request.proto";
+import "core/voice_bridge_in_use_response.proto";
+import "core/create_meeting_request.proto";
+import "core/create_meeting_response.proto";
+
+service CoreService {
+  rpc isMeetingRunning(MeetingRunningRequest) returns (MeetingRunningResponse);
+  rpc getMeetingInfo(MeetingInfoRequest) returns (MeetingInfoResponse);
+  rpc listMeetings(ListMeetingsRequest) returns (ListMeetingsResponse);
+  rpc getMeetingsStream(GetMeetingsStreamRequest) returns (stream MeetingInfoResponse);
+  rpc isVoiceBridgeInUse(VoiceBridgeInUseRequest) returns (VoiceBridgeInUseResponse);
+  rpc createMeeting(CreateMeetingRequest) returns (CreateMeetingResponse);
+}

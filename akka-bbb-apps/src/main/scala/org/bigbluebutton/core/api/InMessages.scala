@@ -2,6 +2,7 @@ package org.bigbluebutton.core.api
 
 import org.bigbluebutton.core.domain.{ BreakoutUser, BreakoutVoiceUser }
 import spray.json.JsObject
+import org.bigbluebutton.common2.domain.DefaultProps
 case class InMessageHeader(name: String)
 case class InHeaderAndJsonPayload(header: InMessageHeader, payload: JsObject)
 case class MessageProcessException(message: String) extends Exception(message)
@@ -131,3 +132,13 @@ case class UserInfosApiMsg(infos: Map[String, Any])
 trait ApiResponse
 case class ApiResponseSuccess(msg: String, any: Any = null) extends ApiResponse
 case class ApiResponseFailure(msg: String, msgId: String, any: Any = null) extends ApiResponse
+
+// gRPC messages
+case class IsMeetingRunning(meetingId: String) extends InMessage
+case class GetMeeting(meetingId: String) extends InMessage
+case class GetMeetings() extends InMessage
+case class GetMeetingInfo() extends InMessage
+case class GetNextVoiceBridge(length: Int) extends InMessage
+case class CreateMeeting(props: DefaultProps) extends InMessage
+case class HasUserJoined() extends InMessage
+case class IsVoiceBridgeInUse(voiceBridge: String) extends InMessage

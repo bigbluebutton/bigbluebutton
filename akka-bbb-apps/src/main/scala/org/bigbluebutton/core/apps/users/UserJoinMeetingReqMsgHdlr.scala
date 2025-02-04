@@ -48,7 +48,10 @@ trait UserJoinMeetingReqMsgHdlr extends HandlerHelpers {
   }
 
   private def handleSuccessfulUserJoin(msg: UserJoinMeetingReqMsg, regUser: RegisteredUser) = {
+    if (Users2x.numUsers(liveMeeting.users2x) == 0) meetingEndTime = 0
+
     val newState = userJoinMeeting(outGW, msg.body.authToken, msg.body.clientType, msg.body.clientIsMobile, liveMeeting, state)
+
     updateParentMeetingWithNewListOfUsers()
     notifyPreviousUsersWithSameExtId(regUser)
     clearCachedVoiceUser(regUser)
@@ -159,7 +162,7 @@ trait UserJoinMeetingReqMsgHdlr extends HandlerHelpers {
         room = liveMeeting.props.meetingProp.intId,
         canPublish = true,
         canSubscribe = true,
-        )
+      )
       val metadata = buildLiveKitParticipantMetadata(liveMeeting)
 
       val generateLiveKitTokenReqMsg = MsgBuilder.buildGenerateLiveKitTokenReqMsg(

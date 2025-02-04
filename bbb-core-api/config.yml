@@ -1,0 +1,169 @@
+# Default server settings
+server:
+  host: localhost # bbb-core-api host
+  port: 9100 # bbb-core-api port
+  bigbluebutton:
+    # This URL is where the BBB client is accessible. When a user successfully
+    # enters a name and password, they are redirected here to load the client.
+    # Do not commit changes to this field.
+    url: http://bigbluebutton.example.com
+    # Assign URL where the logged-out participant will be redirected after sign-out.
+    # If "default", it returns to bigbluebutton.web.serverURL
+    logout_url: default
+    logo:
+      default:
+        use: false
+        use_dark: false
+        path:
+          logo: images/logo.png
+          dark_logo: images/darklogo.png
+  grpc:
+    host: localhost # akka-apps gRPC host
+    port: 9000 # akka-apps gRPC port
+
+# Default security settings
+security:
+  salt: 330a8b08c3b4c61533e1d0c5ce1ac88f # Security salt used for checksum validation
+  checksum:
+    # Supported checksum validation hash algorithms
+    algorithms:
+      - sha-1
+      - sha-256
+      - sha-384
+      - sha-512
+
+# Default meeting settings
+meeting:
+  cameras:
+    cap: 0 # Per meeting camera share limit (0 means no limit)
+    max_pinned: 3 # Maximum number of cameras that can be pinned simultaneously
+    mod_only: false # Allow webcam streaming reception only to and from moderators
+    allow_mods_to_eject: false
+  features:
+    # List of features to disable (comma-separated)
+    # https://docs.bigbluebutton.org/3.0/development/api/#create
+    # Available options:
+    # chat, sharedNotes, polls, screenshare, externalVideos, layouts, captions, liveTranscription,
+    # breakoutRooms, importSharedNotesFromBreakoutRooms, importPresentationWithAnnotationsFromBreakoutRooms,
+    # presentation, downloadPresentationWithAnnotations, downloadPresentationOriginalFile, downloadPresentationConvertedToPdf,
+    # learningDashboard, learningDashboardDownloadSessionData,
+    # virtualBackgrounds, customVirtualBackgrounds
+    disabled:
+  duration: 0 # Default duration of meetings in minutes (0 means meeting does not end)
+  expiry:
+    no_user_joined: 5 # End meeting if no user has joined within the specified number of minutes
+    last_user_left: 1 # When the last user has left a meeting end the meeting after the specified number of minutes
+    end_when_no_moderator: false # End meeting after a period of time when there are no moderators
+    end_when_no_moderator_delay: 1 # Number of minutes to wait for a moderator to rejoin before ending the meeting
+  # Default welcome message to display when the participant joins the web
+  # conference. This is only used for the old scheduling which will be
+  # removed in the future. Use the API to create a conference.
+  #
+  # If the message contains characters not in ISO-8859-1 character sets
+  # they must be properly escaped to unicode characters. An easy way to
+  # do this is running the native2ascii command setting UTF8 encoding and
+  # passing this file's path as input and output parameters, e.g.:
+  #
+  # native2ascii -encoding UTF8 bigbluebutton.properties bigbluebutton.properties  
+  welcome:
+    message: 
+      template: Welcome to <b>%%CONFNAME%%</b>!<br><br>For help on using BigBlueButton see these (short) <a href="https://bigbluebutton.org/teachers/tutorials/"><u>tutorial videos</u></a>.<br><br>To join the audio bridge click the speaker button.  Use a headset to avoid causing background noise for others.
+      footer: This server is running <a href="https://bigbluebutton.org/" target="_blank"><u>BigBlueButton</u></a>.
+  voice:
+    voice_bridge_length: 5 # Default number of digits for voice conference users
+    dial_access_number: 613-555-1234 # Default dial access number
+    mute_on_start: false # Mute the meeting on start
+  users:
+    max: 0 # Maximum number of users a meeting can have (0 means no limit)
+    max_concurrent_access: 3 # Maximum number of sessions for each external user ID in the same meeting (0 means no limit)
+    allow_duplicate_ext_user_id: true # Deprecated use max_concurrent_access instead to control user concurrent access to meetings
+    guest_policy: ALWAYS_ACCEPT # Default guest policy. Valid values are ALWAYS_ACCEPT, ALWAYS_DENY, and ASK_MODERATOR
+    allow_mods_to_unmute: false
+    authenticated_guest: true
+    allow_promote_guest: false
+  # Default Meeting Layout
+  # Accepted values are the standard layouts: CUSTOM_LAYOUT, SMART_LAYOUT, PRESENTATION_FOCUS, VIDEO_FOCUS
+  # but also several layouts which are not meant to be selectable via UI: CAMERAS_ONLY, PARTICIPANTS_CHAT_ONLY, PRESENTATION_ONLY
+  layout: CUSTOM_LAYOUT
+  # Default lock settings
+  lock:
+    disable:
+      cam: false
+      mic: false
+      notes: false
+      chat:
+        private: false
+        public: false
+    on_join: true
+    on_join_configurable: false
+    hide:
+      user_list: false
+      viewers_cursor: false
+      viewers_annotation: false
+  bridge:
+    camera: bbb-webrtc-sfu # Media bridge to use for camera streams
+    screen_share: bbb-webrtc-sfu # Media bridge to use for screen share streams
+    audio: bbb-webrtc-sfu # Media bridge to use for audio streams
+
+# Default user settings
+user:
+  camera:
+    cap: 3 # Per user camera share limit (0 means no limit)
+  inactivity:
+    inspect_interval: 0 # User inactivity audit timer interval
+    threshold: 30 # Consider a user inactive after the specified number of minutes
+    response_delay: 5 # Log inactive users out if they do not respond within the specified number of mintues
+  guest:
+    waiting_timeout: 30000
+
+# Default recording settings
+recording:
+  notify_recording_is_on: false # Notify users that recording is on
+  disabled: false # Should the recording of any meetings be disallowed
+  auto_start: false # Should recording be started when the first user joins the meeting
+  allow_start_stop_recording: true # Can a user start/stop recording
+  record_full_duration_media: false # Should media (audio, camera, and screen sharing) be captured on their full duration
+  keep_events: false # Should meeting events be saved even if the meeting is not recorded
+
+# Default presentation settings
+presentation:
+  upload:
+    external:
+      description:
+      url:
+    directory: /var/bigbluebutton # Directory where BigBlueButton stores uploaded slides
+    protocols:
+      - https
+    blocked_hosts:
+      - localhost
+  conversion:
+    generate_pngs: false
+    placements_threshold: 800
+    image_tag_threshold: 800
+    # These will be copied in cases where the conversion process
+    # fails to generate a slide from the uploaded presentation
+    blank:
+      presentation: /usr/share/bigbluebutton/blank/blank-presentation.pdf
+      thumbnail: /usr/share/bigbluebutton/blank/blank-thumb.png
+      png: /usr/share/bigbluebutton/blank/blank-png.png
+      svg: /usr/share/bigbluebutton/blank/blank-svg.svg
+    
+  default: default.pdf
+  base_path: bigbluebutton/presentation
+
+# Default breakout room settings
+breakout_rooms:
+  record: false
+  private_chat_enabled: true
+
+# Default learning dashboard settings
+learning_dashbaord:
+  cleanup_delay: 2 # Number of minutes that the Learning Dashboard will be available after the meeting ends (0 means the dashboard will be available permanently)
+
+override:
+  client_settings: false # Determines whether client settings can be overidden
+  default_presentation: true
+
+plugins:
+  # List of plugin manifest URLs
+  manifests:

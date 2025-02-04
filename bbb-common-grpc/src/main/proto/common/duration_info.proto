@@ -1,0 +1,13 @@
+syntax = "proto3";
+
+package org.bigbluebutton.protos;
+
+message DurationInfo {
+  int64 create_time = 1;
+  string created_on = 2;
+  int32 duration = 3;
+  int64 start_time = 4;
+  int64 end_time = 5;
+  bool is_running = 6;
+  bool has_been_forcibly_ended = 7;
+}
