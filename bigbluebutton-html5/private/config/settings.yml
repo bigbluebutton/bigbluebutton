@@ -1033,6 +1033,7 @@ public:
       mobile: true
       guest: true
       sharingWebcam: true
+      bot: true
   whiteboard:
     annotationsQueueProcessInterval: 60
     cursorInterval: 150

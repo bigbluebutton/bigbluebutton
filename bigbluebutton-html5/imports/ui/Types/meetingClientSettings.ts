@@ -719,6 +719,7 @@ export interface Label {
   mobile: boolean
   guest: boolean
   sharingWebcam: boolean
+  bot: boolean
 }
 
 export interface Whiteboard {
