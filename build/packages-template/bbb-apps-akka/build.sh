@@ -21,6 +21,11 @@ sbt publish
 sbt publishLocal
 cd ..
 
+# Compile Protobuf for grpc
+cd bbb-common-grpc
+sbt compile
+cd ..
+
 cd akka-bbb-apps
 sed -i 's/\r$//' project/Dependencies.scala
 sed -i 's|\(val bbbCommons = \)"[^"]*"$|\1"EPHEMERAL_VERSION"|g' project/Dependencies.scala
