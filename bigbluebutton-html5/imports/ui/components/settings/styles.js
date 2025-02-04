@@ -1,17 +1,13 @@
 import styled from 'styled-components';
 import {
   smPaddingX,
-  smPaddingY,
-  mdPaddingY,
-  mdPaddingX,
 } from '/imports/ui/stylesheets/styled-components/general';
 import { smallOnly } from '/imports/ui/stylesheets/styled-components/breakpoints';
 import {
   colorGrayDark,
   colorPrimary,
-  colorWhite,
   colorText,
-  colorBlueLighter,
+  settingsModalTabSelected,
 } from '/imports/ui/stylesheets/styled-components/palette';
 import { fontSizeLarge } from '/imports/ui/stylesheets/styled-components/typography';
 import {
@@ -95,7 +91,7 @@ const SettingsTabSelector = styled(Tab)`
 
   &.is-selected {
     color: ${colorText};
-    background-color: #eaf4fc; // Azul mais claro
+    background-color: ${settingsModalTabSelected};
     font-weight: bold;
     box-shadow: 0px 2px 4px rgba(0, 0, 0, 0.1);
   }
@@ -159,7 +155,7 @@ const ActionButton = styled.button`
   }
 
   &:last-child {
-    background-color: #007bff;
+    background-color: ${colorPrimary};
   }
 
   &:hover {

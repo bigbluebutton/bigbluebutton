@@ -55,7 +55,6 @@ const LockViewersContainer = (props) => {
       updateWebcamsOnlyForModerator={updateWebcamsOnlyForModerator}
       updateLockSettings={updateLockSettings}
       closeModal={closeModal}
-      showToggleLabel={false}
       meeting={meeting}
       isChatEnabled={isChatEnabled}
       isPrivateChatEnabled={isPrivateChatEnabled}
