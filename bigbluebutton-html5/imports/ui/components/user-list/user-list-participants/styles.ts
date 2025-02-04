@@ -85,7 +85,7 @@ const UserListColumn = styled.div`
   flex-flow: column;
   min-height: 0;
   flex-grow: 1;
-  padding: ${contentSidebarPadding} ${contentSidebarPadding} ${contentSidebarBottomScrollPadding};
+  padding: 0.5rem 0rem 0rem ${contentSidebarPadding};
 `;
 
 const pulse = (color: string) => keyframes`
