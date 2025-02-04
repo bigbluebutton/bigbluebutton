@@ -25,3 +25,8 @@ export const enum ChatMessageType {
   USER_IS_PRESENTER_MSG = 'userIsPresenterMsg',
   PLUGIN = 'plugin'
 }
+
+export const SYSTEM_SENDERS = new Set<ChatMessageType>([
+  ChatMessageType.BREAKOUT_ROOM,
+  ChatMessageType.API,
+]);
