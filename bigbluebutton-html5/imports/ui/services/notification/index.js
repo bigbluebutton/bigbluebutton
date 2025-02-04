@@ -33,6 +33,7 @@ export function notify(
     content,
     small,
     showSeparator,
+    $disablePointer: options?.disablePointer ?? true,
   };
 
   if (!toast.isActive(lastToast.id) || !isEqual(lastToastProps, toastProps)) {

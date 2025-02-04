@@ -71,6 +71,11 @@ const RecordingControl = styled.button<RecordingIndicatorProps>`
     box-shadow: 0 0 0 ${borderSize} ${colorPrimary};
   }
 
+  &:active {
+    transform: scale(0.95);
+    box-shadow: 0 0 0 ${borderSizeSmall} ${colorPrimary};
+  }
+
   ${({ recording }) => recording && `
     padding: 0.5rem 1rem;
     background-color: ${colorDanger};
@@ -94,7 +99,7 @@ const RecordingControl = styled.button<RecordingIndicatorProps>`
     }
   `}
 
-  ${({ disabled, time }) => disabled && time <= 0 && css`
+  ${({ disabled, time }) => disabled && time === 0 && css`
     display: none;
   `}
 
@@ -150,7 +155,7 @@ const PresentationTitleSeparator = styled.span`
 `;
 
 const RecordingIndicator = styled.div<RecordingIndicatorProps>`
-  padding-right: 1rem;
+  padding-right: 0.5rem;
 
   ${({ isPhone }) => isPhone && `
     margin-left: ${smPaddingX};

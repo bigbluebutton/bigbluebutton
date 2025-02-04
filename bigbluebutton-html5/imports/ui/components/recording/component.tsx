@@ -1,6 +1,7 @@
 import React from 'react';
 import { defineMessages, useIntl } from 'react-intl';
 import { notify } from '/imports/ui/services/notification';
+import { toast } from 'react-toastify';
 import SvgIcon from '/imports/ui/components/common/icon-svg/component';
 import Icon from '/imports/ui/components/common/icon/component';
 import Styled from './styles';
@@ -68,7 +69,7 @@ const RecordingComponent: React.FC<RecordingComponentProps> = ({
       ? intl.formatMessage(intlMessages.stopDescription)
       : intl.formatMessage(intlMessages.startDescription);
 
-    notify(
+    const toastId = notify(
       <div>
         <Styled.TitleText>{title}</Styled.TitleText>
         <Styled.DescriptionText>{description}</Styled.DescriptionText>
@@ -77,13 +78,18 @@ const RecordingComponent: React.FC<RecordingComponentProps> = ({
       false,
       {
         autoClose: false,
-        onClose: onRequestClose,
+        closeButton: false,
+        closeOnClick: false,
+        disablePointer: true,
       },
       (
         <Styled.NotificationContent>
           <Styled.NotificationActions>
             <Styled.CancelButton
               onClick={() => {
+                if (toastId !== null) {
+                  toast.dismiss(toastId);
+                }
                 onRequestClose();
               }}
             >
@@ -91,6 +97,9 @@ const RecordingComponent: React.FC<RecordingComponentProps> = ({
             </Styled.CancelButton>
             <Styled.ConfirmationButton
               onClick={() => {
+                if (toastId !== null) {
+                  toast.dismiss(toastId);
+                }
                 toggleRecording();
               }}
             >
