@@ -91,7 +91,7 @@ class MeetingActor(
   with DestroyMeetingSysCmdMsgHdlr
   with ChangeLockSettingsInMeetingCmdMsgHdlr
   with ClientToServerLatencyTracerMsgHdlr
-  with GetMeetingInfoMsgHldr
+  with GetMeetingInfoMsgHdlr
   with UserActivitySignCmdMsgHdlr {
 
   object CheckVoiceRecordingInternalMsg
@@ -263,18 +263,18 @@ class MeetingActor(
     //=============================
 
     // 2x messages
-    case msg: BbbCommonEnvCoreMsg                 => handleBbbCommonEnvCoreMsg(msg)
+    case msg: BbbCommonEnvCoreMsg          => handleBbbCommonEnvCoreMsg(msg)
 
     // Handling RegisterUserReqMsg as it is forwarded from BBBActor and
     // its type is not BbbCommonEnvCoreMsg
-    case m: RegisterUserReqMsg                    => usersApp.handleRegisterUserReqMsg(m)
-    case m: RegisterUserSessionTokenReqMsg        => usersApp.handleRegisterUserSessionTokenReqMsg(m)
+    case m: RegisterUserReqMsg             => usersApp.handleRegisterUserReqMsg(m)
+    case m: RegisterUserSessionTokenReqMsg => usersApp.handleRegisterUserSessionTokenReqMsg(m)
 
     //API Msgs
-    case m: GetUserApiMsg                         => usersApp.handleGetUserApiMsg(m, sender())
+    case m: GetUserApiMsg                  => usersApp.handleGetUserApiMsg(m, sender())
 
     // Meeting
-    case m: DestroyMeetingSysCmdMsg               =>
+    case m: DestroyMeetingSysCmdMsg =>
       meetingEndTime = System.currentTimeMillis()
       handleDestroyMeetingSysCmdMsg(m)
 
@@ -291,7 +291,6 @@ class MeetingActor(
     case msg: UserEstablishedGraphqlConnectionInternalMsg =>
       state = handleUserEstablishedGraphqlConnectionInternalMsg(msg, state)
       updateModeratorsPresence()
-
 
     // Internal gRPC messages
     case msg: GetMeetingInfo                       => sender() ! handleGetMeetingInfo()
