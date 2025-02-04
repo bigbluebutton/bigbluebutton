@@ -238,11 +238,11 @@ const GuestUsersManagementPanel: React.FC<GuestUsersManagementPanelProps> = ({
       )}
       {authedGuestUsers.length > 0 && (
         <>
-          <Styled.WaitingUsersHeader>
-            <Tooltip title={waitingAuthedUsersVisible
-              ? intl.formatMessage(intlMessages.hideWaitingGuests)
-              : intl.formatMessage(intlMessages.showWaitingGuests)}
-            >
+          <Tooltip title={waitingAuthedUsersVisible
+            ? intl.formatMessage(intlMessages.hideWaitingGuests)
+            : intl.formatMessage(intlMessages.showWaitingGuests)}
+          >
+            <Styled.WaitingUsersHeader onClick={() => setWaitingAuthedUsersVisible(!waitingAuthedUsersVisible)}>
               <IconButton
                 size="small"
                 sx={{
@@ -258,14 +258,14 @@ const GuestUsersManagementPanel: React.FC<GuestUsersManagementPanelProps> = ({
               >
                 {waitingAuthedUsersVisible ? <ExpandLessIcon fontSize="small" /> : <ExpandMoreIcon fontSize="small" />}
               </IconButton>
-            </Tooltip>
-            <Styled.MainTitle>{intl.formatMessage(intlMessages.title)}</Styled.MainTitle>
-            <Avatar sx={{ bgcolor: '#F59240', width: '1.25rem', height: '1.25rem' }}>
-              <Styled.GuestNumberIndicator>
-                {authedGuestUsers.length}
-              </Styled.GuestNumberIndicator>
-            </Avatar>
-          </Styled.WaitingUsersHeader>
+              <Styled.MainTitle>{intl.formatMessage(intlMessages.title)}</Styled.MainTitle>
+              <Avatar sx={{ bgcolor: '#F59240', width: '1.25rem', height: '1.25rem' }}>
+                <Styled.GuestNumberIndicator>
+                  {authedGuestUsers.length}
+                </Styled.GuestNumberIndicator>
+              </Avatar>
+            </Styled.WaitingUsersHeader>
+          </Tooltip>
           {waitingAuthedUsersVisible && (
             renderPendingUsers(
               authedGuestUsers,
