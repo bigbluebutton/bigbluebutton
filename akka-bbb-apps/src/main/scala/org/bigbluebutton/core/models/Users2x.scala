@@ -1,9 +1,7 @@
 package org.bigbluebutton.core.models
 
 import com.softwaremill.quicklens._
-import org.bigbluebutton.core.db.{ UserDAO, UserLockSettingsDAO, UserReactionDAO, UserStateDAO }
-import org.bigbluebutton.core.util.TimeUtil
-import org.bigbluebutton.core2.message.senders.MsgBuilder
+import org.bigbluebutton.core.db.{ UserLockSettingsDAO, UserReactionDAO, UserStateDAO }
 
 object Users2x {
   def findWithIntId(users: Users2x, intId: String): Option[UserState] = {
@@ -136,7 +134,6 @@ object Users2x {
       _ <- users.remove(intId)
       ejectedUser <- users.removeFromCache(intId)
     } yield {
-      //      UserDAO.softDelete(intId)  --it will keep the user on Db
       ejectedUser
     }
   }
@@ -147,7 +144,6 @@ object Users2x {
     } yield {
       val newUser = u.modify(_.presenter).setTo(true)
       users.save(newUser)
-      UserStateDAO.update(newUser)
       newUser
     }
   }
@@ -158,7 +154,6 @@ object Users2x {
     } yield {
       val newUser = u.modify(_.presenter).setTo(false)
       users.save(newUser)
-      UserStateDAO.update(newUser)
       newUser
     }
   }
@@ -350,7 +345,7 @@ class Users2x {
   // the user reconnected by refreshing the client. (ralam june 13, 2017)
   private var usersCache: collection.immutable.HashMap[String, UserState] = new collection.immutable.HashMap[String, UserState]
 
-  private var pinned: collection.mutable.Queue[String] = new collection.mutable.Queue[String]()
+  private val pinned: collection.mutable.Queue[String] = new collection.mutable.Queue[String]()
 
   private def toVector: Vector[UserState] = users.values.toVector
 
@@ -382,9 +377,9 @@ class Users2x {
     }
   }
 
-  private def findUserFromCache(intId: String): Option[UserState] = {
-    usersCache.values.find(u => u.intId == intId)
-  }
+  //  private def findUserFromCache(intId: String): Option[UserState] = {
+  //    usersCache.values.find(u => u.intId == intId)
+  //  }
 
   private def updatePresenterGroup(updatedGroup: Vector[String]): Unit = {
     presenterGroup = updatedGroup

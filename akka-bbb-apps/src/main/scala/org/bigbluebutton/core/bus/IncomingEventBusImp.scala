@@ -1,8 +1,7 @@
 package org.bigbluebutton.core.bus
 
 import org.apache.pekko.actor.ActorRef
-import org.apache.pekko.event.EventBus
-import org.apache.pekko.event.LookupClassification
+import org.apache.pekko.event.{ EventBus, LookupClassification }
 
 class IncomingEventBusImp extends EventBus with LookupClassification {
   type Event = BigBlueButtonEvent
@@ -25,6 +24,6 @@ class IncomingEventBusImp extends EventBus with LookupClassification {
 
   // determines the initial size of the index data structure
   // used internally (i.e. the expected number of different classifiers)
-  override protected def mapSize: Int = 128
+  override protected def mapSize(): Int = 128
 
 }

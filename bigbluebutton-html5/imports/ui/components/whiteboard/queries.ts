@@ -54,11 +54,13 @@ export const CURRENT_PRESENTATION_PAGE_SUBSCRIPTION = gql`subscription CurrentPr
     presentationName
     isDefaultPresentation
     infiniteWhiteboard
+    nextPagesSvg
   }  
 }`;
 
 export const PRESENTATIONS_SUBSCRIPTION = gql`subscription PresentationsSubscription {
   pres_presentation {
+    uploadTemporaryId
     uploadInProgress
     current
     downloadFileUri

@@ -1,11 +1,11 @@
 package org.bigbluebutton.core.apps.breakout
 
-import org.bigbluebutton.common2.msgs.{ BbbClientMsgHeader, BbbCommonEnvCoreMsg, BbbCoreEnvelope, BbbCoreHeaderWithMeetingId, ExportJob, MessageTypes, PresentationConversionUpdateEvtMsg, PresentationConversionUpdateEvtMsgBody, PresentationConversionUpdateSysPubMsg, PresentationPageForExport, PresentationUploadTokenSysPubMsg, PresentationUploadTokenSysPubMsgBody, Routing, StoreExportJobInRedisSysMsg, StoreExportJobInRedisSysMsgBody, StoredAnnotations }
+import org.bigbluebutton.common2.msgs._
 import org.bigbluebutton.core.api.{ CapturePresentationReqInternalMsg, EndBreakoutRoomInternalMsg }
 import org.bigbluebutton.core.apps.presentationpod.PresentationPodsApp
 import org.bigbluebutton.core.bus.{ BigBlueButtonEvent, InternalEventBus }
-import org.bigbluebutton.core.db.{ PresPresentationDAO }
-import org.bigbluebutton.core.models.{ Pads, PresentationInPod, PresentationPage, PresentationPod }
+import org.bigbluebutton.core.db.PresPresentationDAO
+import org.bigbluebutton.core.models.{ Pads, PresentationInPod }
 import org.bigbluebutton.core.running.{ BaseMeetingActor, HandlerHelpers, LiveMeeting, OutMsgRouter }
 
 trait EndBreakoutRoomInternalMsgHdlr extends HandlerHelpers {
@@ -30,7 +30,7 @@ trait EndBreakoutRoomInternalMsgHdlr extends HandlerHelpers {
     sendEndMeetingDueToExpiry(msg.reason, eventBus, outGW, liveMeeting, "system")
   }
 
-  def handleCaptureNotes(msg: EndBreakoutRoomInternalMsg) {
+  def handleCaptureNotes(msg: EndBreakoutRoomInternalMsg): Unit = {
     for {
       group <- Pads.getGroup(liveMeeting.pads, "notes")
     } yield {

@@ -20,28 +20,28 @@
 package org.bigbluebutton.core.record.events
 
 import org.bigbluebutton.common2.domain.SimpleVoteOutVO
-import scala.collection.immutable.List
-import scala.collection.Map
-import scala.collection.mutable.ArrayBuffer
 import spray.json._
 import DefaultJsonProtocol._
+
+import scala.annotation.nowarn
 
 class AddTldrawShapeWhiteboardRecordEvent extends AbstractWhiteboardRecordEvent {
   import AddTldrawShapeWhiteboardRecordEvent._
 
+  @nowarn("msg=Implicit resolves to enclosing object AnyJsonFormat")
   implicit object AnyJsonFormat extends JsonFormat[Any] {
     def write(x: Any) = x match {
-      case n: Int => JsNumber(n)
-      case s: String => JsString(s)
-      case d: Double => JsNumber(d)
-      case m: scala.collection.immutable.Map[String, _] => mapFormat[String, Any].write(m)
-      case l: List[_] => listFormat[Any].write(l)
-      case b: Boolean if b == true => JsTrue
-      case b: Boolean if b == false => JsFalse
-      case v: SimpleVoteOutVO => JsObject("id" -> JsNumber(v.id), "key" -> JsString(v.key), "numVotes" -> JsNumber(v.numVotes))
-      case arr: Array[_] => JsArray(arr.map(write).toVector)
-      case null => JsNull
-      case _ => throw new IllegalArgumentException(s"Unsupported type: ${x.getClass.getName}")
+      case n: Int                                  => JsNumber(n)
+      case s: String                               => JsString(s)
+      case d: Double                               => JsNumber(d)
+      case m: scala.collection.immutable.Map[_, _] => mapFormat[String, Any].write(m.asInstanceOf[Map[String, Any]])
+      case l: List[_]                              => listFormat[Any].write(l.asInstanceOf[List[Any]])
+      case b: Boolean if b == true                 => JsTrue
+      case b: Boolean if b == false                => JsFalse
+      case v: SimpleVoteOutVO                      => JsObject("id" -> JsNumber(v.id), "key" -> JsString(v.key), "numVotes" -> JsNumber(v.numVotes))
+      case arr: Array[_]                           => JsArray(arr.map(write).toVector)
+      case null                                    => JsNull
+      case _                                       => throw new IllegalArgumentException(s"Unsupported type: ${x.getClass.getName}")
     }
 
     def read(value: JsValue) = {}
@@ -49,15 +49,15 @@ class AddTldrawShapeWhiteboardRecordEvent extends AbstractWhiteboardRecordEvent 
 
   setEvent("AddTldrawShapeEvent")
 
-  def setUserId(id: String) {
+  def setUserId(id: String): Unit = {
     eventMap.put(USER_ID, id)
   }
 
-  def setAnnotationId(id: String) {
+  def setAnnotationId(id: String): Unit = {
     eventMap.put(SHAPE_ID, id)
   }
 
-  def addAnnotation(annotation: scala.collection.immutable.Map[String, Any]) {
+  def addAnnotation(annotation: scala.collection.immutable.Map[String, Any]): Unit = {
     eventMap.put(SHAPE_DATA, annotation.toJson.compactPrint)
   }
 }

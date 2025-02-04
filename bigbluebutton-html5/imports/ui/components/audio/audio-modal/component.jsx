@@ -16,7 +16,7 @@ import AudioDial from '../audio-dial/component';
 import AudioAutoplayPrompt from '../autoplay/component';
 import { getSettingsSingletonInstance } from '/imports/ui/services/settings';
 import usePreviousValue from '/imports/ui/hooks/usePreviousValue';
-import { SET_AWAY } from '/imports/ui/components/user-list/user-list-content/user-participants/user-list-participants/user-actions/mutations';
+import { SET_AWAY } from '/imports/ui/components/user-list/user-list-participants/list-item/mutations';
 import VideoService from '/imports/ui/components/video-provider/service';
 import AudioCaptionsSelectContainer from '../audio-graphql/audio-captions/captions/component';
 import useToggleVoice from '/imports/ui/components/audio/audio-graphql/hooks/useToggleVoice';

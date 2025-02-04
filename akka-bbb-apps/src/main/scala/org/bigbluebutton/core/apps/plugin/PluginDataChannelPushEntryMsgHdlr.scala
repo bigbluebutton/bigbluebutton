@@ -1,7 +1,7 @@
 package org.bigbluebutton.core.apps.plugin
 
 import org.bigbluebutton.common2.msgs.PluginDataChannelPushEntryMsg
-import org.bigbluebutton.core.apps.plugin.PluginHdlrHelpers.{ checkPermission, dataChannelCheckingLogic, defaultCreatorCheck }
+import org.bigbluebutton.core.apps.plugin.PluginHdlrHelpers.{ checkPermission, dataChannelCheckingLogic }
 import org.bigbluebutton.core.db.PluginDataChannelEntryDAO
 import org.bigbluebutton.core.domain.MeetingState2x
 import org.bigbluebutton.core.running.{ HandlerHelpers, LiveMeeting }

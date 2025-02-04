@@ -1,6 +1,6 @@
 package org.bigbluebutton.core.db
 import org.bigbluebutton.common2.msgs.{BbbCommonEnvCoreMsg, NotifyAllInMeetingEvtMsg, NotifyRoleInMeetingEvtMsg, NotifyUserInMeetingEvtMsg}
-import PostgresProfile.api._
+import org.bigbluebutton.core.db.PostgresProfile.api._
 import spray.json.JsValue
 
 case class NotificationDbModel(
@@ -28,7 +28,9 @@ class NotificationDbTableDef(tag: Tag) extends Table[NotificationDbModel](tag, N
   val userMeetingId = column[Option[String]]("userMeetingId")
   val userId = column[Option[String]]("userId")
   val createdAt = column[java.sql.Timestamp]("createdAt")
-  override def * = (meetingId, notificationType, icon, messageId, messageDescription, messageValues, role, userMeetingId, userId, createdAt) <> (NotificationDbModel.tupled, NotificationDbModel.unapply)
+  override def * = (
+    meetingId, notificationType, icon, messageId, messageDescription, messageValues, role, userMeetingId, userId, createdAt
+  ) .<> (NotificationDbModel.tupled, NotificationDbModel.unapply)
 }
 
 object NotificationDAO {

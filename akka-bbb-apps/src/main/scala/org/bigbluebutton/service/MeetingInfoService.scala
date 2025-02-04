@@ -1,8 +1,7 @@
 package org.bigbluebutton.service
 
 import org.apache.pekko.actor.{ Actor, ActorLogging, ActorRef, ActorSystem, Props }
-import org.apache.pekko.pattern.ask
-import org.apache.pekko.pattern.AskTimeoutException
+import org.apache.pekko.pattern.{ AskTimeoutException, ask }
 import org.apache.pekko.util.Timeout
 import org.bigbluebutton.MeetingInfoAnalytics
 import org.bigbluebutton.common2.msgs.{ BbbCommonEnvCoreMsg, MeetingEndingEvtMsg, MeetingInfoAnalyticsServiceMsg }
@@ -52,22 +51,22 @@ object MeetingInfoActor {
 }
 
 class MeetingInfoActor extends Actor with ActorLogging {
-  var optionMeetingInfo: Option[MeetingInfoAnalytics] = None
-  var meetingInfoMap: mutable.HashMap[String, MeetingInfoAnalytics] = mutable.HashMap.empty[String, MeetingInfoAnalytics]
+  private var optionMeetingInfo: Option[MeetingInfoAnalytics] = None
+  private val meetingInfoMap: mutable.HashMap[String, MeetingInfoAnalytics] = mutable.HashMap.empty[String, MeetingInfoAnalytics]
 
   override def receive: Receive = {
     case msg: BbbCommonEnvCoreMsg => handle(msg)
     case GetMeetingsInfoMessage =>
-      if (meetingInfoMap.size > 0) {
-        sender ! MeetingInfoListResponseMsg(Option(meetingInfoMap.values.toList))
+      if (meetingInfoMap.nonEmpty) {
+        sender() ! MeetingInfoListResponseMsg(Option(meetingInfoMap.values.toList))
       } else {
-        sender ! MeetingInfoListResponseMsg(None)
+        sender() ! MeetingInfoListResponseMsg(None)
       }
     case GetMeetingInfoMessage(meetingId) =>
       meetingInfoMap.get(meetingId) match {
         case Some(meetingInfoAnalytics) =>
-          sender ! MeetingInfoResponseMsg(Option(meetingInfoAnalytics))
-        case None => sender ! MeetingInfoResponseMsg(None)
+          sender() ! MeetingInfoResponseMsg(Option(meetingInfoAnalytics))
+        case None => sender() ! MeetingInfoResponseMsg(None)
       }
     case _ => // ignore other messages
   }

@@ -55,6 +55,14 @@ const intlMessages = defineMessages({
     id: 'app.recording.resumeTitle',
     description: 'resume recording title',
   },
+  resumeViewTitle: {
+    id: 'app.recording.resumeViewTitle',
+    description: 'warning for viewer when recording is paused',
+  },
+  recordingTitle: {
+    id: 'app.recording.recordingTitle',
+    description: 'recording in progress title',
+  },
   recordingIndicatorOn: {
     id: 'app.navBar.recording.on',
     description: 'label for indicator when the session is being recorded',
@@ -115,6 +123,7 @@ const RecordingIndicator: React.FC<RecordingIndicatorProps> = ({
   const [time, setTime] = useState(0);
   const setIntervalRef = React.useRef<ReturnType<typeof setTimeout>>();
   const disabled = hasError || isLoading;
+  const showButton = Service.mayIRecord(isModerator, allowStartStopRecording);
 
   const recordingToggle = useCallback((hasMicUser: boolean, isRecording: boolean) => {
     if (!hasMicUser && !isRecording) {
@@ -159,13 +168,18 @@ const RecordingIndicator: React.FC<RecordingIndicatorProps> = ({
   const recordTitle = useMemo(() => {
     if (isPhone) return '';
     if (disabled) return intl.formatMessage(intlMessages.unavailableTitle);
+
     if (!recording) {
+      if (!isModerator && time > 0) {
+        return intl.formatMessage(intlMessages.resumeViewTitle);
+      }
       return time > 0
         ? intl.formatMessage(intlMessages.resumeTitle)
         : intl.formatMessage(intlMessages.startTitle);
     }
+
     return intl.formatMessage(intlMessages.stopTitle);
-  }, [recording, isPhone, disabled]);
+  }, [recording, isPhone, disabled, isModerator, time]);
 
   const recordingIndicatorIcon = useMemo(() => (
     <Styled.RecordingIndicatorIcon
@@ -186,15 +200,18 @@ const RecordingIndicator: React.FC<RecordingIndicatorProps> = ({
     <Styled.RecordingControl
       aria-label={recordTitle}
       aria-describedby="recording-description"
-      recording={recording} // Removed the recording prop here
-      disabled={disabled}
+      recording={recording}
+      disabled={!showButton}
+      time={time}
       tabIndex={0}
       key="recording-toggle"
       onClick={() => {
         recordingToggle(micUser, recording);
       }}
       onKeyDown={(ev) => {
-        ev.preventDefault();
+        if (ev.key !== 'Tab') {
+          ev.preventDefault();
+        }
         if (ev.key === 'Enter') {
           recordingToggle(micUser, recording);
         }
@@ -203,10 +220,10 @@ const RecordingIndicator: React.FC<RecordingIndicatorProps> = ({
       {recordingIndicatorIcon}
       <Styled.PresentationTitle>
         <Styled.VisuallyHidden id="recording-description">
-          {`${title} ${recording ? humanizeSeconds(time) : ''}`}
+          {`${title} ${recording ? `${intl.formatMessage(intlMessages.recordingTitle)} ${humanizeSeconds(time)}` : ''}`}
         </Styled.VisuallyHidden>
         {recording ? (
-          <span aria-hidden>{humanizeSeconds(time)}</span>
+          <span aria-hidden>{`${intl.formatMessage(intlMessages.recordingTitle)} ${humanizeSeconds(time)}`}</span>
         ) : (
           <span>{recordTitle}</span>
         )}
@@ -237,43 +254,17 @@ const RecordingIndicator: React.FC<RecordingIndicatorProps> = ({
   }
 
   const recordingButton = recording ? recordMeetingButtonWithTooltip : recordMeetingButton;
-  const showButton = Service.mayIRecord(isModerator, allowStartStopRecording);
-  const defaultRecordTooltip = intl.formatMessage(intlMessages.notificationRecordingStop);
-  const customRecordTooltip = Service.getCustomRecordTooltip(defaultRecordTooltip);
   if (!record) return null;
   return (
     <>
-      {record && !isMobile ? (
-        <Styled.PresentationTitleSeparator aria-hidden="true">|</Styled.PresentationTitleSeparator>
-      ) : null}
       <Styled.RecordingIndicator
         data-test="recordingIndicator"
         isPhone={isMobile}
         recording={recording}
+        time={time}
         disabled={!showButton}
       >
-        {showButton ? recordingButton : null}
-        {showButton ? null : (
-          <Tooltip
-            title={recording
-              ? `${intl.formatMessage(intlMessages.notificationRecordingStart)}`
-              : customRecordTooltip}
-          >
-            <Styled.RecordingStatusViewOnly
-              aria-label={recording
-                ? `${intl.formatMessage(intlMessages.notificationRecordingStart)}`
-                : customRecordTooltip}
-              recording={recording}
-            >
-              {recordingIndicatorIcon}
-              {recording ? (
-                <Styled.PresentationTitle>
-                  {humanizeSeconds(time)}
-                </Styled.PresentationTitle>
-              ) : null}
-            </Styled.RecordingStatusViewOnly>
-          </Tooltip>
-        )}
+        {recordingButton}
       </Styled.RecordingIndicator>
       {isRecordingNotifyModalOpen ? (
         <RecordingNotify
@@ -339,7 +330,6 @@ const RecordingIndicatorContainer: React.FC = () => {
   if (meetingRecordingPoliciesLoading || meetingRecordingLoading) {
     return (
       <>
-        <Styled.PresentationTitleSeparator aria-hidden="true">|</Styled.PresentationTitleSeparator>
         <div>
           <Styled.SpinnerOverlay animations={animations}>
             <Styled.Bounce1 animations={animations} />
@@ -407,7 +397,7 @@ const RecordingIndicatorContainer: React.FC = () => {
       recordingNotificationEnabled={
         (meetingRecording?.startedBy !== currentUser?.userId
           && currentMeeting?.notifyRecordingIsOn)
-          ?? false
+        ?? false
       }
       serverTime={passedTime > 0 ? passedTime : 0}
       isModerator={currentUser?.isModerator ?? false}

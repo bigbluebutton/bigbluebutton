@@ -1,16 +1,14 @@
 import styled, { css, keyframes } from 'styled-components';
 import {
   userIndicatorsOffset,
-  mdPaddingY,
-  indicatorPadding,
 } from '/imports/ui/stylesheets/styled-components/general';
 import {
-  colorPrimary,
   colorWhite,
   userListBg,
   colorSuccess,
-  colorDanger,
-  colorOffWhite,
+  colorUserModerator,
+  colorUserYou,
+  colorUserViewer,
 } from '/imports/ui/stylesheets/styled-components/palette';
 
 const Content = styled.div`
@@ -99,8 +97,7 @@ const Talking = styled.div`
 
 const Avatar = styled.div`
   position: relative;
-  height: 2.25rem;
-  width: 2.25rem;
+  aspect-ratio: 1;
   border-radius: 50%;
   text-align: center;
   font-size: .85rem;
@@ -151,122 +148,20 @@ const Avatar = styled.div`
     `}
   }
 
+  ${({ viewer }) => viewer && `
+    background-color: ${colorUserViewer};
+    color: ${colorUserViewer};
+  `}
+    
   ${({ moderator }) => moderator && `
     border-radius: 5px;
+    background-color: ${colorUserModerator};
+    color: ${colorUserModerator};
   `}
 
-  ${({ presenter }) => presenter && `
-    &:before {
-      content: "\\00a0\\e90b\\00a0";
-      padding: ${mdPaddingY} !important;
-      opacity: 1;
-      top: ${userIndicatorsOffset};
-      left: ${userIndicatorsOffset};
-      bottom: auto;
-      right: auto;
-      border-radius: 5px;
-      background-color: ${colorPrimary};
-
-      [dir="rtl"] & {
-        left: auto;
-        right: ${userIndicatorsOffset};
-        letter-spacing: -.33rem;
-      }
-    }
-  `}
-
-  ${({
-    presenter, isChrome, isFirefox, isEdge,
-  }) => presenter && (isChrome || isFirefox || isEdge) && `
-    &:before {
-      padding: ${indicatorPadding} !important;
-    }
-  `}
-
-  ${({ whiteboardAccess }) => whiteboardAccess && `
-    &:before {
-      content: "\\00a0\\e925\\00a0";
-      padding: ${mdPaddingY} !important;
-      border-radius: 50% !important;
-      opacity: 1;
-      top: ${userIndicatorsOffset};
-      left: ${userIndicatorsOffset};
-      bottom: auto;
-      right: auto;
-      border-radius: 5px;
-      background-color: ${colorPrimary};
-
-      [dir="rtl"] & {
-        left: auto;
-        right: ${userIndicatorsOffset};
-        letter-spacing: -.33rem;
-        transform: scale(-1, 1);
-      }
-    }
-  `}
-
-  ${({
-    whiteboardAccess, isChrome, isFirefox, isEdge,
-  }) => whiteboardAccess && (isChrome || isFirefox || isEdge) && `
-    &:before {
-      padding: ${indicatorPadding};
-    }
-  `}
-
-  ${({ voice }) => voice && `
-    &:after {
-      content: "\\00a0\\e931\\00a0";
-      background-color: ${colorSuccess};
-      top: 1.375rem;
-      left: 1.375rem;
-      right: auto;
-
-      [dir="rtl"] & {
-        left: auto;
-        right: 1.375rem;
-      }
-      opacity: 1;
-      width: 1.2rem;
-      height: 1.2rem;
-    }
-  `}
-
-  ${({ muted }) => muted && `
-    &:after {
-      content: "\\00a0\\e932\\00a0";
-      background-color: ${colorDanger};
-      opacity: 1;
-      width: 1.2rem;
-      height: 1.2rem;
-    }
-  `}
-
-  ${({ listenOnly }) => listenOnly && `
-    &:after {
-      content: "\\00a0\\e90c\\00a0";
-      opacity: 1;
-      width: 1.2rem;
-      height: 1.2rem;
-    }
-  `}
-
-  ${({ noVoice }) => noVoice && `
-    &:after {
-      content: "";
-      background-color: ${colorOffWhite};
-      top: 1.375rem;
-      left: 1.375rem;
-      right: auto;
-
-      [dir="rtl"] & {
-        left: auto;
-        right: 1.375rem;
-      }
-
-      opacity: 1;
-      width: 1.2rem;
-      height: 1.2rem;
-    }
+  ${({ you }) => you && `
+    background-color: ${colorUserYou};
+    color: ${colorUserYou};
   `}
 `;
 

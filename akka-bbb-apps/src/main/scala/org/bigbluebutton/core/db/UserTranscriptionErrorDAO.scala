@@ -12,7 +12,7 @@ case class UserTranscriptionErrorDbModel(
 class UserTranscriptionErrorDbTableDef(tag: Tag) extends Table[UserTranscriptionErrorDbModel](tag, None, "user_transcriptionError") {
   override def * = (
     meetingId, userId, errorCode, errorMessage, lastUpdatedAt
-  ) <> (UserTranscriptionErrorDbModel.tupled, UserTranscriptionErrorDbModel.unapply)
+  ) .<> (UserTranscriptionErrorDbModel.tupled, UserTranscriptionErrorDbModel.unapply)
   val meetingId = column[String]("meetingId", O.PrimaryKey)
   val userId = column[String]("userId", O.PrimaryKey)
   val errorCode = column[String]("errorCode")

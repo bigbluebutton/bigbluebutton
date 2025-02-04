@@ -1,10 +1,11 @@
 package org.bigbluebutton.core.db
 
-import PostgresProfile.api._
-import org.bigbluebutton.core.db.DatabaseConnection.{db, logger}
+import org.bigbluebutton.core.db.DatabaseConnection.logger
+import org.bigbluebutton.core.db.PostgresProfile.api._
 import org.bigbluebutton.core.util.RandomStringGenerator
 import spray.json.JsValue
-import scala.concurrent.{Await}
+
+import scala.concurrent.Await
 import scala.concurrent.duration.Duration
 
 object Permission {
@@ -37,7 +38,9 @@ class PluginDataChannelEntryDbTableDef(tag: Tag) extends Table[PluginDataChannel
   val toUserIds = column[Option[List[String]]]("toUserIds")
   val createdAt = column[java.sql.Timestamp]("createdAt")
   val deletedAt = column[Option[java.sql.Timestamp]]("deletedAt")
-  override def * = (meetingId, pluginName, channelName, subChannelName, entryId, payloadJson, createdBy, toRoles, toUserIds, createdAt, deletedAt) <> (PluginDataChannelEntryDbModel.tupled, PluginDataChannelEntryDbModel.unapply)
+  override def * = (
+    meetingId, pluginName, channelName, subChannelName, entryId, payloadJson, createdBy, toRoles, toUserIds, createdAt, deletedAt
+  ) .<> (PluginDataChannelEntryDbModel.tupled, PluginDataChannelEntryDbModel.unapply)
 }
 
 object PluginDataChannelEntryDAO {

@@ -1,7 +1,7 @@
 package org.bigbluebutton.core.db
 
 import slick.jdbc.PostgresProfile.api._
-import slick.lifted.{ ProvenShape }
+import slick.lifted.ProvenShape
 
 case class MeetingRecordingDbModel(
     meetingId:               String,
@@ -20,7 +20,7 @@ class MeetingRecordingDbTableDef(tag: Tag) extends Table[MeetingRecordingDbModel
 
   //  def fk_meetingId: ForeignKeyQuery[MeetingDbTableDef, MeetingDbModel] = foreignKey("fk_meetingId", meetingId, TableQuery[MeetingDbTableDef])(_.meetingId)
 
-  override def * : ProvenShape[MeetingRecordingDbModel] = (meetingId, startedAt, startedBy, stoppedAt, stoppedBy) <> (MeetingRecordingDbModel.tupled, MeetingRecordingDbModel.unapply)
+  override def * : ProvenShape[MeetingRecordingDbModel] = (meetingId, startedAt, startedBy, stoppedAt, stoppedBy) .<> (MeetingRecordingDbModel.tupled, MeetingRecordingDbModel.unapply)
 }
 
 object MeetingRecordingDAO {
@@ -48,7 +48,7 @@ object MeetingRecordingDAO {
         .filter(_.meetingId === meetingId)
         .filter(_.stoppedAt.isEmpty)
         .map(r => (r.stoppedAt, r.stoppedBy))
-        .update(Some(new java.sql.Timestamp(System.currentTimeMillis())), Some(stoppedBy))
+        .update((Some(new java.sql.Timestamp(System.currentTimeMillis())), Some(stoppedBy)))
     )
   }
 

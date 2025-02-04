@@ -2,7 +2,7 @@ import { useEffect } from 'react';
 import { useMutation } from '@apollo/client';
 import { muteAway } from '/imports/ui/components/audio/audio-graphql/audio-controls/input-stream-live-selector/service';
 import useToggleVoice from '/imports/ui/components/audio/audio-graphql/hooks/useToggleVoice';
-import { SET_AWAY } from '/imports/ui/components/user-list/user-list-content/user-participants/user-list-participants/user-actions/mutations';
+import { SET_AWAY } from '/imports/ui/components/user-list/user-list-participants/list-item/mutations';
 import useWhoIsUnmuted from '/imports/ui/core/hooks/useWhoIsUnmuted';
 import useCurrentUser from '/imports/ui/core/hooks/useCurrentUser';
 import Auth from '/imports/ui/services/auth';

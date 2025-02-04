@@ -27,19 +27,19 @@ class PollPublishedRecordEvent extends AbstractPollRecordEvent {
 
   setEvent("PollPublishedRecordEvent")
 
-  def setQuestion(question: String) {
+  def setQuestion(question: String): Unit = {
     eventMap.put(QUESTION, question)
   }
 
-  def setAnswers(answers: Array[SimpleVoteOutVO]) {
+  def setAnswers(answers: Array[SimpleVoteOutVO]): Unit = {
     eventMap.put(ANSWERS, JsonUtil.toJson(answers))
   }
 
-  def setNumRespondents(numRespondents: Int) {
+  def setNumRespondents(numRespondents: Int): Unit = {
     eventMap.put(NUM_RESPONDENTS, Integer.toString(numRespondents))
   }
 
-  def setNumResponders(numResponders: Int) {
+  def setNumResponders(numResponders: Int): Unit = {
     eventMap.put(NUM_RESPONDERS, Integer.toString(numResponders))
   }
 }

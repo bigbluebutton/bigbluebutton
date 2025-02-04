@@ -30,7 +30,6 @@ exports.skipEchoTestIfPreviousDevice = 'userdata-bbb_skip_echotest_if_previous_d
 const docTitle = 'playwright';
 exports.docTitle = docTitle;
 exports.clientTitle = `userdata-bbb_client_title=${docTitle}`;
-exports.askForFeedbackOnLogout = 'userdata-bbb_ask_for_feedback_on_logout=true';
 exports.displayBrandingArea = 'userdata-bbb_display_branding_area=true';
 exports.logo = 'logo=https://bigbluebutton.org/wp-content/uploads/2021/01/BigBlueButton_icon.svg.png';
 exports.enableVideo = 'userdata-bbb_enable_video=false';
@@ -40,7 +39,7 @@ exports.presenterTools = 'userdata-bbb_presenter_tools=["select","draw", "arrow"
 exports.multiUserTools = 'userdata-bbb_multi_user_tools=["arrow","text"]';
 const cssCode = `${e.presentationTitle}{display: none;}`;
 exports.customStyle = `userdata-bbb_custom_style=${cssCode}`;
-exports.customStyleUrl = 'userdata-bbb_custom_style_url=https://develop.bigbluebutton.org/css-test-file.css';
+exports.customStyleUrl = 'userdata-bbb_custom_style_url=https://dev30.bigbluebutton.org/css-test-file.css';
 exports.autoSwapLayout = 'userdata-bbb_auto_swap_layout=true';
 exports.hidePresentationOnJoin = 'userdata-bbb_hide_presentation_on_join=true';
 exports.outsideToggleSelfVoice = 'userdata-bbb_outside_toggle_self_voice=true';

@@ -1,11 +1,11 @@
 package org.bigbluebutton.core.apps.externalvideo
 
 import org.bigbluebutton.common2.msgs._
+import org.bigbluebutton.core.apps.screenshare.ScreenshareApp2x.requestBroadcastStop
 import org.bigbluebutton.core.apps.{ ExternalVideoModel, PermissionCheck, RightsManagementTrait }
 import org.bigbluebutton.core.bus.MessageBus
-import org.bigbluebutton.core.running.LiveMeeting
-import org.bigbluebutton.core.apps.screenshare.ScreenshareApp2x.requestBroadcastStop
 import org.bigbluebutton.core.db.ExternalVideoDAO
+import org.bigbluebutton.core.running.LiveMeeting
 
 trait StartExternalVideoPubMsgHdlr extends RightsManagementTrait {
   this: ExternalVideoApp2x =>
@@ -13,7 +13,7 @@ trait StartExternalVideoPubMsgHdlr extends RightsManagementTrait {
   def handle(msg: StartExternalVideoPubMsg, liveMeeting: LiveMeeting, bus: MessageBus): Unit = {
     log.info("Received StartExternalVideoPubMsgr meetingId={} url={}", liveMeeting.props.meetingProp.intId, msg.body.externalVideoUrl)
 
-    def broadcastEvent(msg: StartExternalVideoPubMsg) {
+    def broadcastEvent(msg: StartExternalVideoPubMsg): Unit = {
 
       val routing = Routing.addMsgToClientRouting(MessageTypes.DIRECT, liveMeeting.props.meetingProp.intId, "nodeJSapp")
       val envelope = BbbCoreEnvelope(StartExternalVideoEvtMsg.NAME, routing)

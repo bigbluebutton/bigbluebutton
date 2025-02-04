@@ -2,7 +2,7 @@ import React, { PureComponent } from 'react';
 import { defineMessages } from 'react-intl';
 import { ActionsBarItemType, ActionsBarPosition } from 'bigbluebutton-html-plugin-sdk/dist/cjs/extensible-areas/actions-bar-item/enums';
 import Styled from './styles';
-import ActionsDropdown from './actions-dropdown/container';
+import MediaAreaDropdown from './media-area-dropdown/container';
 import AudioCaptionsButtonContainer from '/imports/ui/components/audio/audio-graphql/audio-captions/button/component';
 import ScreenshareButtonContainer from '/imports/ui/components/actions-bar/screenshare/container';
 import AudioControlsContainer from '../audio/audio-graphql/audio-controls/component';
@@ -13,6 +13,9 @@ import { getSettingsSingletonInstance } from '/imports/ui/services/settings';
 import { LAYOUT_TYPE } from '../layout/enums';
 import ReactionsButtonContainer from '/imports/ui/components/actions-bar/reactions-button/container';
 import RaiseHandButtonContainer from '/imports/ui/components/actions-bar/raise-hand-button/container';
+import Selector from '/imports/ui/components/common/selector/component';
+import ToggleGroup from '/imports/ui/components/common/toggle-group/component';
+import Separator from '/imports/ui/components/common/separator/component';
 
 const intlMessages = defineMessages({
   actionsBarLabel: {
@@ -53,8 +56,32 @@ class ActionsBar extends PureComponent {
                 break;
               case ActionsBarItemType.SEPARATOR:
                 actionBarItemToReturn = (
-                  <Styled.Separator
+                  <Separator
                     key={`${plugin.type}-${plugin.id}`}
+                    actionsBar
+                    icon={plugin.icon}
+                  />
+                );
+                break;
+              case ActionsBarItemType.SELECTOR:
+                actionBarItemToReturn = (
+                  <Selector
+                    title={plugin.title}
+                    options={plugin.options}
+                    defaultOption={plugin.defaultOption}
+                    onChange={plugin.onChange}
+                    width={plugin.width}
+                  />
+                );
+                break;
+              case ActionsBarItemType.TOGGLE_GROUP:
+                actionBarItemToReturn = (
+                  <ToggleGroup
+                    title={plugin.title}
+                    options={plugin.options}
+                    defaultOption={plugin.defaultOption}
+                    onChange={plugin.onChange}
+                    exclusive={plugin.exclusive}
                   />
                 );
                 break;
@@ -105,6 +132,7 @@ class ActionsBar extends PureComponent {
       setPresentationFitToWidth,
       isPresentationEnabled,
       ariaHidden,
+      isDarkThemeEnabled,
     } = this.props;
 
     const Settings = getSettingsSingletonInstance();
@@ -142,27 +170,6 @@ class ActionsBar extends PureComponent {
             }
           }
         >
-          <Styled.Left>
-            <ActionsDropdown {...{
-              amIPresenter,
-              amIModerator,
-              isPollingEnabled,
-              allowExternalVideo,
-              intl,
-              isSharingVideo,
-              stopExternalVideoShare,
-              isTimerActive,
-              isTimerEnabled,
-              isMeteorConnected,
-              setMeetingLayout,
-              setPushLayout,
-              presentationIsOpen,
-              showPushLayout,
-              hasCameraAsContent,
-              setPresentationFitToWidth,
-            }}
-            />
-          </Styled.Left>
           <Styled.Center>
             {this.renderPluginsActionBarItems(ActionsBarPosition.LEFT)}
             <AudioCaptionsButtonContainer />
@@ -185,7 +192,7 @@ class ActionsBar extends PureComponent {
           </Styled.Center>
           <Styled.Right>
             {shouldShowPresentationButton && shouldShowOptionsButton
-              ? (
+              && (
                 <PresentationOptionsContainer
                   presentationIsOpen={presentationIsOpen}
                   setPresentationIsOpen={setPresentationIsOpen}
@@ -196,9 +203,28 @@ class ActionsBar extends PureComponent {
                   hasPinnedSharedNotes={isSharedNotesPinned}
                   hasGenericContent={hasGenericContent}
                   hasCameraAsContent={hasCameraAsContent}
+                  isDarkThemeEnabled={isDarkThemeEnabled}
                 />
-              )
-              : null}
+              )}
+            <MediaAreaDropdown {...{
+              amIPresenter,
+              amIModerator,
+              isPollingEnabled,
+              allowExternalVideo,
+              intl,
+              isSharingVideo,
+              stopExternalVideoShare,
+              isTimerActive,
+              isTimerEnabled,
+              isMeteorConnected,
+              setMeetingLayout,
+              setPushLayout,
+              presentationIsOpen,
+              showPushLayout,
+              hasCameraAsContent,
+              setPresentationFitToWidth,
+            }}
+            />
           </Styled.Right>
         </Styled.ActionsBar>
       </Styled.ActionsBarWrapper>

@@ -24,23 +24,23 @@ class ParticipantJoinedVoiceRecordEvent extends AbstractVoiceRecordEvent {
 
   setEvent("ParticipantJoinedEvent")
 
-  def setParticipant(p: String) {
+  def setParticipant(p: String): Unit = {
     eventMap.put(PARTICIPANT, p)
   }
 
-  def setCallerName(name: String) {
+  def setCallerName(name: String): Unit = {
     eventMap.put(CALLER_NAME, name)
   }
 
-  def setCallerNumber(name: String) {
+  def setCallerNumber(name: String): Unit = {
     eventMap.put(CALLER_NUM, name)
   }
 
-  def setMuted(muted: Boolean) {
+  def setMuted(muted: Boolean): Unit = {
     eventMap.put(MUTED, muted.toString)
   }
 
-  def setTalking(talking: Boolean) {
+  def setTalking(talking: Boolean): Unit = {
     eventMap.put(TALKING, talking.toString)
   }
 }

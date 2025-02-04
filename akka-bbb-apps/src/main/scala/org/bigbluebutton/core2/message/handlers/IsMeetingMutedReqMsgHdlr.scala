@@ -9,7 +9,7 @@ trait IsMeetingMutedReqMsgHdlr {
 
   val outGW: OutMsgRouter
 
-  def handleIsMeetingMutedReqMsg(msg: IsMeetingMutedReqMsg) {
+  def handleIsMeetingMutedReqMsg(msg: IsMeetingMutedReqMsg): Unit = {
 
     def build(meetingId: String, userId: String, muted: Boolean): BbbCommonEnvCoreMsg = {
       val routing = Routing.addMsgToClientRouting(MessageTypes.DIRECT, meetingId, userId)

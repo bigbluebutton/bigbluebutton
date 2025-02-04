@@ -1,10 +1,10 @@
 package org.bigbluebutton.core.apps.voice
 
 import org.bigbluebutton.common2.msgs._
-import org.bigbluebutton.core.models._
-import org.bigbluebutton.core.apps.users.UsersApp
 import org.bigbluebutton.core.apps.breakout.BreakoutHdlrHelpers
+import org.bigbluebutton.core.apps.users.UsersApp
 import org.bigbluebutton.core.db.UserDAO
+import org.bigbluebutton.core.models._
 import org.bigbluebutton.core.running.{ LiveMeeting, MeetingActor, OutMsgRouter }
 
 trait UserLeftVoiceConfEvtMsgHdlr {

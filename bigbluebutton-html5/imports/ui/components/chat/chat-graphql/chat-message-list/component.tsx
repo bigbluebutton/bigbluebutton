@@ -7,7 +7,6 @@ import React, {
 } from 'react';
 import { makeVar, useMutation } from '@apollo/client';
 import { defineMessages, useIntl } from 'react-intl';
-import ChatPopupContainer from '/imports/ui/components/chat/chat-graphql/chat-popup/component';
 import useChat from '/imports/ui/core/hooks/useChat';
 import useIntersectionObserver from '/imports/ui/hooks/useIntersectionObserver';
 import { Chat } from '/imports/ui/Types/chat';
@@ -21,11 +20,11 @@ import LAST_SEEN_MUTATION from './queries';
 import {
   MessageList,
   UnreadButton,
+  Wrapper,
+  ListBox,
 } from './styles';
 import useReactiveRef from '/imports/ui/hooks/useReactiveRef';
 import useStickyScroll from '/imports/ui/hooks/useStickyScroll';
-import ChatReplyIntention from '../chat-reply-intention/component';
-import ChatEditingWarning from '../chat-editing-warning/component';
 import KEY_CODES from '/imports/utils/keyCodes';
 import useMeeting from '/imports/ui/core/hooks/useMeeting';
 import useCurrentUser from '/imports/ui/core/hooks/useCurrentUser';
@@ -56,7 +55,6 @@ interface ChatListProps {
   totalUnread: number;
   totalPages: number;
   chatId: string;
-  isRTL: boolean;
   setMessageAsSeenMutation: (
     data: {
       variables: {
@@ -129,6 +127,7 @@ const roving = (
   }
 
   if (event.keyCode === KEY_CODES.ARROW_DOWN) {
+    event.preventDefault();
     const firstElement = elementsList.firstChild as HTMLElement;
     let elRef = element && numberOfChilds > 1 ? (element.nextSibling as HTMLElement) : firstElement;
 
@@ -141,6 +140,7 @@ const roving = (
   }
 
   if (event.keyCode === KEY_CODES.ARROW_UP) {
+    event.preventDefault();
     const lastElement = elementsList.lastChild as HTMLElement;
     let elRef = element ? (element.previousSibling as HTMLElement) : lastElement;
 
@@ -175,7 +175,6 @@ const ChatMessageList: React.FC<ChatListProps> = ({
   chatId,
   setMessageAsSeenMutation,
   totalUnread,
-  isRTL,
 }) => {
   const intl = useIntl();
   // I used a ref here because I don't want to re-render the component when the last sender changes
@@ -450,7 +449,7 @@ const ChatMessageList: React.FC<ChatListProps> = ({
   }, []);
 
   return (
-    <>
+    <Wrapper>
       {
         [
           <MessageList
@@ -469,9 +468,7 @@ const ChatMessageList: React.FC<ChatListProps> = ({
               }
             }}
             data-test="chatMessages"
-            isRTL={isRTL}
             ref={updateRefs}
-            $hasMessageToolbar={hasMessageToolbar}
           >
             {showStartSentinel && (
               <div
@@ -484,7 +481,7 @@ const ChatMessageList: React.FC<ChatListProps> = ({
                 aria-hidden
               />
             )}
-            <div
+            <ListBox
               role="listbox"
               ref={messageListRef}
               tabIndex={hasMessageToolbar ? 0 : -1}
@@ -493,7 +490,6 @@ const ChatMessageList: React.FC<ChatListProps> = ({
                 setSelectedMessage(null);
               }}
             >
-              <ChatPopupContainer />
               {Array.from({ length: pagesToLoad }, (_v, k) => k + (firstPageToLoad)).map((page) => {
                 return (
                   <ChatListPage
@@ -526,7 +522,7 @@ const ChatMessageList: React.FC<ChatListProps> = ({
                   />
                 );
               })}
-            </div>
+            </ListBox>
             <div
               ref={endSentinelRefProxy}
               style={{
@@ -538,17 +534,14 @@ const ChatMessageList: React.FC<ChatListProps> = ({
             />
           </MessageList>,
           renderUnreadNotification,
-          <ChatReplyIntention key="chatReplyIntention" />,
-          <ChatEditingWarning key="chatEditingWarning" />,
         ]
       }
-    </>
+    </Wrapper>
   );
 };
 
 const ChatMessageListContainer: React.FC = () => {
   const idChatOpen = layoutSelect((i: Layout) => i.idChatOpen);
-  const isRTL = layoutSelect((i: Layout) => i.isRTL);
 
   const CHAT_CONFIG = window.meetingClientSettings.public.chat;
   const PUBLIC_CHAT_KEY = CHAT_CONFIG.public_id;
@@ -575,7 +568,6 @@ const ChatMessageListContainer: React.FC = () => {
       chatId={chatId}
       setMessageAsSeenMutation={setMessageAsSeenMutation}
       totalUnread={currentChat?.totalUnread || 0}
-      isRTL={isRTL}
     />
   );
 };

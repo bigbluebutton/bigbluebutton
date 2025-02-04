@@ -1,15 +1,32 @@
 import React, { useEffect, useState } from 'react';
+import { defineMessages, useIntl } from 'react-intl';
 import Styled from './styles';
 import useSettings from '/imports/ui/services/settings/hooks/useSettings';
 import { SETTINGS } from '/imports/ui/services/settings/enums';
 import { ChatEvents } from '/imports/ui/core/enums/chat';
-import Storage from '/imports/ui/services/storage/in-memory';
+import Tooltip from '/imports/ui/components/common/tooltip/container';
+
+const intlMessages = defineMessages({
+  cancel: {
+    id: 'app.chat.toolbar.reply.cancel',
+    description: '',
+  },
+});
+
+const CANCEL_KEY = 'Esc';
 
 const ChatReplyIntention = () => {
   const [username, setUsername] = useState<string>();
   const [message, setMessage] = useState<string>();
   const [emphasizedMessage, setEmphasizedMessage] = useState<boolean>();
   const [sequence, setSequence] = useState<number>();
+  const intl = useIntl();
+  const { animations } = useSettings(SETTINGS.APPLICATION) as {
+    animations: boolean;
+  };
+
+  const hidden = !username || !message;
+  const messageChunks = message ? message.split('\n') : null;
 
   useEffect(() => {
     const handleReplyIntention = (e: Event) => {
@@ -39,12 +56,23 @@ const ChatReplyIntention = () => {
     };
   }, []);
 
-  const { animations } = useSettings(SETTINGS.APPLICATION) as {
-    animations: boolean;
-  };
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape' && !hidden) {
+        window.dispatchEvent(
+          new CustomEvent(ChatEvents.CHAT_CANCEL_REPLY_INTENTION),
+        );
+      }
+    };
 
-  const hidden = !username || !message;
-  const messageChunks = message ? message.split('\n') : null;
+    document.addEventListener('keydown', handleKeyDown);
+
+    return () => {
+      document.removeEventListener('keydown', handleKeyDown);
+    };
+  }, [hidden]);
+
+  if (hidden) return null;
 
   return (
     <Styled.Container
@@ -58,8 +86,6 @@ const ChatReplyIntention = () => {
             },
           }),
         );
-        Storage.removeItem(ChatEvents.CHAT_FOCUS_MESSAGE_REQUEST);
-        if (sequence) Storage.setItem(ChatEvents.CHAT_FOCUS_MESSAGE_REQUEST, sequence);
       }}
     >
       <Styled.Message>
@@ -69,17 +95,20 @@ const ChatReplyIntention = () => {
           {messageChunks ? messageChunks[0] : ''}
         </Styled.Markdown>
       </Styled.Message>
-      <Styled.CloseBtn
-        onClick={(e) => {
-          e.stopPropagation();
-          window.dispatchEvent(
-            new CustomEvent(ChatEvents.CHAT_CANCEL_REPLY_INTENTION),
-          );
-        }}
-        icon="close"
-        tabIndex={hidden ? -1 : 0}
-        aria-hidden={hidden}
-      />
+      <Tooltip title={intl.formatMessage(intlMessages.cancel, { 0: CANCEL_KEY })}>
+        <Styled.CloseBtn
+          onClick={(e) => {
+            e.stopPropagation();
+            window.dispatchEvent(
+              new CustomEvent(ChatEvents.CHAT_CANCEL_REPLY_INTENTION),
+            );
+          }}
+          icon="close"
+          tabIndex={hidden ? -1 : 0}
+          aria-hidden={hidden}
+          aria-label={intl.formatMessage(intlMessages.cancel, { 0: CANCEL_KEY })}
+        />
+      </Tooltip>
     </Styled.Container>
   );
 };

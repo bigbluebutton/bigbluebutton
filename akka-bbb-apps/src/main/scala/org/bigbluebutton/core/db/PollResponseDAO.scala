@@ -1,7 +1,7 @@
 package org.bigbluebutton.core.db
 
-import slick.jdbc.PostgresProfile.api._
 import org.bigbluebutton.core.models.Poll
+import slick.jdbc.PostgresProfile.api._
 
 case class PollResponseDbModel(
     pollId:    String,
@@ -15,7 +15,7 @@ class PollResponseDbTableDef(tag: Tag) extends Table[PollResponseDbModel](tag, N
   val optionId = column[Option[Int]]("optionId")
   val meetingId = column[Option[String]]("meetingId")
   val userId = column[Option[String]]("userId")
-  val * = (pollId, optionId, meetingId, userId) <> (PollResponseDbModel.tupled, PollResponseDbModel.unapply)
+  val * = (pollId, optionId, meetingId, userId).<>(PollResponseDbModel.tupled, PollResponseDbModel.unapply)
 }
 
 object PollResponseDAO {

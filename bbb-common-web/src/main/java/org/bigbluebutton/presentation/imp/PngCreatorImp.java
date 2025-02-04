@@ -31,6 +31,8 @@ import org.slf4j.LoggerFactory;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
@@ -86,7 +88,12 @@ public class PngCreatorImp implements PngCreator {
 	private boolean generatePng(File pngsDir, UploadedPresentation pres, int page, File pageFile)
 					throws InterruptedException {
 		String source = pageFile.getAbsolutePath();
-		String dest;
+		String dest = pngsDir.getAbsolutePath() + File.separator + "slide-" + page + ".png";
+
+		// Skip processing if the destination file exists, as it was likely restored from the cache
+		if(Files.exists(Paths.get(dest))) {
+			return true;
+		}
 
 		if (SupportedFileTypes.isImageFile(pres.getFileType())) {
 			// Need to create a PDF as intermediate step.

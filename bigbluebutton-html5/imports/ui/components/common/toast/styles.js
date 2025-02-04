@@ -32,6 +32,7 @@ import {
 import { smallOnly } from '/imports/ui/stylesheets/styled-components/breakpoints';
 
 const CloseIcon = styled(Icon)`
+  align-self: flex-start;
   background: transparent;
   outline: none;
   border: none;
@@ -118,6 +119,7 @@ const ToastMessage = styled.div`
   font-size: ${fontSizeSmall};
   max-height: 15vh;
   overflow: auto;
+  color: black !important;
 
   ${({ small }) => small && `
     font-size: 80%;
@@ -135,6 +137,9 @@ const Separator = styled.div`
   background-color: ${colorGrayLighter};
   margin-top: calc(${lineHeightComputed} * .5);
   margin-bottom: calc(${lineHeightComputed} * .5);
+  ${({ visible }) => !visible && `
+    display: none;
+  `}
 `;
 
 const Toast = styled.div`

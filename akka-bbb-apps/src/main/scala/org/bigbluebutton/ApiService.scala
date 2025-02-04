@@ -1,15 +1,14 @@
 package org.bigbluebutton
 
-import org.apache.pekko.http.scaladsl.model._
 import org.apache.pekko.http.scaladsl.marshallers.sprayjson.SprayJsonSupport
+import org.apache.pekko.http.scaladsl.model._
 import org.apache.pekko.http.scaladsl.server.Directives._
 import org.bigbluebutton.common2.msgs._
-import org.bigbluebutton.core.api.{ ApiResponseFailure, ApiResponseSuccess, UserInfosApiMsg }
-import org.bigbluebutton.service.{ HealthzService, MeetingInfoService, PubSubReceiveStatus, PubSubSendStatus, RecordingDBSendStatus, UserInfoService }
+import org.bigbluebutton.core.api.{ApiResponseFailure, ApiResponseSuccess, UserInfosApiMsg}
+import org.bigbluebutton.service._
 import spray.json._
 
-import scala.concurrent._
-import ExecutionContext.Implicits.global
+import scala.concurrent.ExecutionContext.Implicits.global
 
 case class HealthResponse(
     isHealthy:           Boolean,
@@ -100,7 +99,7 @@ class ApiService(healthz: HealthzService, meetingInfoz: MeetingInfoService, user
       }
     } ~
       path("analytics") {
-        parameter('meetingId.as[String]) { meetingId =>
+        parameter(Symbol("meetingId").as[String]) { meetingId =>
           get {
             val meetingAnalyticsFuture = meetingInfoz.getAnalytics(meetingId)
             val entityFuture = meetingAnalyticsFuture.map { resp =>
@@ -142,6 +141,15 @@ class ApiService(healthz: HealthzService, meetingInfoz: MeetingInfoService, user
                     "response"    -> "unauthorized",
                     "message"     -> msg,
                     "message_id"  -> msgId,
+                  )
+                )
+              case _ =>
+                userInfoService.createHttpResponse(
+                  StatusCodes.OK,
+                  Map(
+                    "response"    -> "unauthorized",
+                    "message"     -> "",
+                    "message_id"  -> "",
                   )
                 )
             }

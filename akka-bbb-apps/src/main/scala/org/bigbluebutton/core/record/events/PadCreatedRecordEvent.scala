@@ -24,7 +24,7 @@ class PadCreatedRecordEvent extends AbstractPadRecordEvent {
 
   setEvent("PadCreatedEvent")
 
-  def setPadId(padId: String) {
+  def setPadId(padId: String): Unit = {
     eventMap.put(PAD_ID, padId)
   }
 }

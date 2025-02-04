@@ -41,9 +41,9 @@ class GuestsWaiting {
 
   private var guestPolicy = GuestPolicy(GuestPolicyType.ALWAYS_ACCEPT, SystemUser.ID)
 
-  private var guestLobbyMessage = ""
+  var guestLobbyMessage = ""
 
-  private var guestsWithPrivateGuestLobbyMessages: collection.mutable.HashMap[String, String] = new collection.mutable.HashMap[String, String]
+  private val guestsWithPrivateGuestLobbyMessages: collection.mutable.HashMap[String, String] = new collection.mutable.HashMap[String, String]
 
   private def toVector: Vector[GuestWaiting] = guests.values.toVector
 

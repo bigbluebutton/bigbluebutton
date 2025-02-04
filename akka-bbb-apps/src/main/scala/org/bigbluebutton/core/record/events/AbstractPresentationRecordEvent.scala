@@ -24,7 +24,7 @@ trait AbstractPresentationRecordEvent extends RecordEvent {
 
   setModule("PRESENTATION")
 
-  def setPodId(id: String) {
+  def setPodId(id: String): Unit = {
     eventMap.put(POD_ID, id)
   }
 }

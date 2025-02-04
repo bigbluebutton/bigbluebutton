@@ -28,7 +28,7 @@ class PollDbTableDef(tag: Tag) extends Table[PollDbModel](tag, None, "poll") {
   val ended = column[Boolean]("ended")
   val published = column[Boolean]("published")
   val publishedAt = column[Option[java.sql.Timestamp]]("publishedAt")
-  val * = (pollId, meetingId, ownerId, questionText, pollType, secret, multipleResponses, ended, published, publishedAt) <> (PollDbModel.tupled, PollDbModel.unapply)
+  val * = (pollId, meetingId, ownerId, questionText, pollType, secret, multipleResponses, ended, published, publishedAt).<>(PollDbModel.tupled, PollDbModel.unapply)
 }
 
 object PollDAO {
@@ -77,7 +77,7 @@ object PollDAO {
       TableQuery[PollDbTableDef]
         .filter(_.pollId === pollId)
         .map(p => (p.published, p.publishedAt))
-        .update(true, Some(new java.sql.Timestamp(System.currentTimeMillis())))
+        .update((true, Some(new java.sql.Timestamp(System.currentTimeMillis()))))
     )
   }
 

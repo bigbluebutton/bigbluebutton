@@ -11,7 +11,7 @@ trait GetCamSubscribePermissionReqMsgHdlr {
       msg:         GetCamSubscribePermissionReqMsg,
       liveMeeting: LiveMeeting,
       bus:         MessageBus
-  ) {
+  ): Unit = {
     val meetingId = liveMeeting.props.meetingProp.intId
 
     def broadcastEvent(
@@ -20,7 +20,7 @@ trait GetCamSubscribePermissionReqMsgHdlr {
         streamId:     String,
         sfuSessionId: String,
         allowed:      Boolean
-    ) {
+    ): Unit = {
       val routing = Routing.addMsgToClientRouting(MessageTypes.DIRECT, meetingId, userId)
       val envelope = BbbCoreEnvelope(GetCamSubscribePermissionRespMsg.NAME, routing)
       val header = BbbClientMsgHeader(GetCamSubscribePermissionRespMsg.NAME, meetingId, userId)

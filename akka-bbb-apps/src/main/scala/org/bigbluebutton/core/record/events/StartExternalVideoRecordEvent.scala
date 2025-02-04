@@ -24,7 +24,7 @@ class StartExternalVideoRecordEvent extends AbstractExternalVideoRecordEvent {
 
   setEvent("StartExternalVideoRecordEvent")
 
-  def setExternalVideoUrl(externalVideoUrl: String) {
+  def setExternalVideoUrl(externalVideoUrl: String): Unit = {
     eventMap.put(EXTERNAL_VIDEO_URL, externalVideoUrl)
   }
 }

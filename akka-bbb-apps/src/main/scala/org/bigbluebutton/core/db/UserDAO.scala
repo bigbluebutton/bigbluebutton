@@ -2,11 +2,17 @@ package org.bigbluebutton.core.db
 import org.bigbluebutton.core.models.{RegisteredUser, UserLockSettings, VoiceUserState}
 import slick.jdbc.PostgresProfile.api._
 
+case class UserNameColumnsDbModel(
+    name:                   String,
+    firstName:              Option[String],
+    lastName:               Option[String],
+)
+
 case class UserDbModel(
     meetingId:              String,
     userId:                 String,
     extId:                  String,
-    name:                   String,
+    nameColumns:            UserNameColumnsDbModel,
     role:                   String,
     avatar:                 String = "",
     webcamBackground:       String = "",
@@ -31,12 +37,15 @@ case class UserDbModel(
 
 class UserDbTableDef(tag: Tag) extends Table[UserDbModel](tag, None, "user") {
   override def * = (
-    meetingId,userId,extId,name,role,avatar,webcamBackground,color, authToken, authed,joined,joinErrorCode,
-    joinErrorMessage, banned,loggedOut,bot, guest,guestStatus,registeredOn,excludeFromDashboard, enforceLayout, logoutUrl) <> (UserDbModel.tupled, UserDbModel.unapply)
+    meetingId,userId,extId,nameColumns,role,avatar,webcamBackground,color, authToken, authed,joined,joinErrorCode,
+    joinErrorMessage, banned,loggedOut,bot, guest,guestStatus,registeredOn,excludeFromDashboard, enforceLayout, logoutUrl) .<> (UserDbModel.tupled, UserDbModel.unapply)
   val meetingId = column[String]("meetingId", O.PrimaryKey)
   val userId = column[String]("userId", O.PrimaryKey)
   val extId = column[String]("extId")
   val name = column[String]("name")
+  val firstName = column[Option[String]]("firstName")
+  val lastName = column[Option[String]]("lastName")
+  val nameColumns = (name, firstName, lastName) .<> (UserNameColumnsDbModel.tupled, UserNameColumnsDbModel.unapply)
   val role = column[String]("role")
   val avatar = column[String]("avatar")
   val webcamBackground = column[String]("webcamBackground")
@@ -66,7 +75,17 @@ object UserDAO {
           extId = regUser.externId,
           authToken = regUser.authToken,
           meetingId = meetingId,
-          name = regUser.name,
+          nameColumns = UserNameColumnsDbModel(
+            name = regUser.name,
+            firstName = regUser.firstName match {
+              case "" => None
+              case firstName: String => Some(firstName)
+            },
+            lastName = regUser.lastName match {
+              case "" => None
+              case lastName: String => Some(lastName)
+            },
+          ),
           role = regUser.role,
           avatar = regUser.avatarURL,
           webcamBackground = regUser.webcamBackgroundURL,

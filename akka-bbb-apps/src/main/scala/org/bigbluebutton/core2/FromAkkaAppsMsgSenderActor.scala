@@ -3,8 +3,8 @@ package org.bigbluebutton.core2
 import org.apache.pekko.actor.{ Actor, ActorLogging, Props }
 import org.bigbluebutton.SystemConfiguration
 import org.bigbluebutton.common2.msgs._
-import org.bigbluebutton.common2.util.JsonUtil
 import org.bigbluebutton.common2.redis.MessageSender
+import org.bigbluebutton.common2.util.JsonUtil
 
 object FromAkkaAppsMsgSenderActor {
   def props(msgSender: MessageSender): Props = Props(classOf[FromAkkaAppsMsgSenderActor], msgSender)

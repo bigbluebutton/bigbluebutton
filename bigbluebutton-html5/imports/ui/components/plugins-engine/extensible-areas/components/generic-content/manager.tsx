@@ -1,15 +1,19 @@
 import { useEffect, useState, useContext } from 'react';
 import * as PluginSdk from 'bigbluebutton-html-plugin-sdk';
+import { GenericContentType } from 'bigbluebutton-html-plugin-sdk/dist/cjs/extensible-areas/generic-content-item/enums';
 
 import {
   ExtensibleAreaComponentManagerProps, ExtensibleArea,
   ExtensibleAreaComponentManager,
 } from '../../types';
 import { PluginsContext } from '../../../../components-data/plugin-context/context';
+import { layoutDispatch } from '/imports/ui/components/layout/context';
+import { ACTIONS, PANELS } from '/imports/ui/components/layout/enums';
 
 const GenericContentPluginStateContainer = ((
   props: ExtensibleAreaComponentManagerProps,
 ) => {
+  const layoutContextDispatch = layoutDispatch();
   const {
     uuid,
     generateItemWithId,
@@ -40,6 +44,20 @@ const GenericContentPluginStateContainer = ((
         ...previousState,
         genericContentItems: aggregatedGenericContentItems,
       }));
+    const genericContentSidekickId = (id: string) => PANELS.GENERIC_CONTENT_SIDEKICK + id;
+    const genericContentSidekickArea = genericContentItems
+      .filter((g) => g.type === GenericContentType.SIDEKICK_AREA) as PluginSdk.GenericContentSidekickArea[];
+    genericContentSidekickArea.map((genericContentItem) => {
+      return layoutContextDispatch({
+        type: ACTIONS.REGISTER_SIDEBAR_APP,
+        value: {
+          panel: genericContentSidekickId(genericContentItem.id),
+          name: genericContentItem.name,
+          icon: genericContentItem.buttonIcon,
+          contentFunction: genericContentItem.contentFunction,
+        },
+      });
+    });
   }, [genericContentItems, setPluginsExtensibleAreasAggregatedState]);
 
   pluginApi.setGenericContentItems = (items: PluginSdk.GenericContentInterface[]) => {

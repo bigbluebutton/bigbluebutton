@@ -1,6 +1,6 @@
 package org.bigbluebutton.core.apps.users
 
-import org.bigbluebutton.ClientSettings.{ getConfigPropertyValueByPath, getConfigPropertyValueByPathAsIntOrElse }
+import org.bigbluebutton.ClientSettings.getConfigPropertyValueByPathAsIntOrElse
 import org.bigbluebutton.common2.msgs._
 import org.bigbluebutton.core.apps.RightsManagementTrait
 import org.bigbluebutton.core.models.{ UserState, Users2x }

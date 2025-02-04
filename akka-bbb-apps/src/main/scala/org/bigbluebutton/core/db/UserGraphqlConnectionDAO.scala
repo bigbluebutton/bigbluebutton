@@ -16,7 +16,7 @@ case class UserGraphqlConnectionDbModel (
 class UserGraphqlConnectionDbTableDef(tag: Tag) extends Table[UserGraphqlConnectionDbModel](tag, None, "user_graphqlConnection") {
   override def * = (
     graphqlConnectionId, sessionToken, clientSessionUUID, clientType, clientIsMobile, middlewareUID, middlewareConnectionId, establishedAt, closedAt
-  ) <> (UserGraphqlConnectionDbModel.tupled, UserGraphqlConnectionDbModel.unapply)
+  ) .<> (UserGraphqlConnectionDbModel.tupled, UserGraphqlConnectionDbModel.unapply)
   val graphqlConnectionId = column[Option[Int]]("graphqlConnectionId", O.PrimaryKey, O.AutoInc)
   val sessionToken = column[String]("sessionToken")
   val clientSessionUUID = column[String]("clientSessionUUID")

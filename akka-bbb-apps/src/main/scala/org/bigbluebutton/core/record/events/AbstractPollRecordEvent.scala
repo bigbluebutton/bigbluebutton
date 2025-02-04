@@ -24,7 +24,7 @@ trait AbstractPollRecordEvent extends RecordEvent {
 
   setModule("POLL")
 
-  def setPollId(pollId: String) {
+  def setPollId(pollId: String): Unit = {
     eventMap.put(POLL_ID, pollId)
   }
 }

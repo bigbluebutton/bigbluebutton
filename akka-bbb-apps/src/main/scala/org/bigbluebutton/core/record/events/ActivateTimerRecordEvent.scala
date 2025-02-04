@@ -24,27 +24,27 @@ class ActivateTimerRecordEvent extends AbstractTimerRecordEvent {
 
   setEvent("ActivateTimerEvent")
 
-  def setStopwatch(value: Boolean) {
+  def setStopwatch(value: Boolean): Unit = {
     eventMap.put(STOPWATCH, value.toString)
   }
 
-  def setRunning(value: Boolean) {
+  def setRunning(value: Boolean): Unit = {
     eventMap.put(RUNNING, value.toString)
   }
 
-  def setTime(value: Int) {
+  def setTime(value: Int): Unit = {
     eventMap.put(TIME, value.toString)
   }
 
-  def setAccumulated(value: Int) {
+  def setAccumulated(value: Int): Unit = {
     eventMap.put(ACCUMULATED, value.toString)
   }
 
-  def setTimestamp(value: Int) {
+  def setTimestamp(value: Int): Unit = {
     eventMap.put(TIMESTAMP, value.toString)
   }
 
-  def setTrack(value: String) {
+  def setTrack(value: String): Unit = {
     eventMap.put(TRACK, value)
   }
 }

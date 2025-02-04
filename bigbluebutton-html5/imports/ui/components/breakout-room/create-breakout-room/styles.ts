@@ -18,9 +18,15 @@ import { fontSizeSmall, fontSizeBase, fontSizeSmaller } from '/imports/ui/styles
 import {
   borderRadius,
   borderSize,
+  contentSidebarBottomScrollPadding,
+  contentSidebarPadding,
   lgPaddingX,
   lgPaddingY,
 } from '/imports/ui/stylesheets/styled-components/general';
+import {
+  HeaderContainer as BaseHeaderContainer,
+  Separator as BaseSeparator,
+} from '/imports/ui/components/sidebar-content/styles';
 
 type withValidProp = {
   valid: boolean;
@@ -39,6 +45,10 @@ type RoomNameProps = {
 type LabelTextProps = {
   bold: boolean;
 };
+
+const HeaderContainer = styled(BaseHeaderContainer)``;
+
+const PanelSeparator = styled(BaseSeparator)``;
 
 const BoxContainer = styled.div`
   display: grid;
@@ -257,13 +267,6 @@ const CheckBoxesContainer = styled(FlexRow)`
   justify-content: flex-end; 
 `;
 
-const Separator = styled.div`
-  width: 100%;
-  height: 1px;
-  margin: 1rem 0;
-  border: 1px solid ${colorGrayLightest};
-`;
-
 const FreeJoinCheckbox = styled.input`
   width: 1rem;
   height: 1rem;
@@ -346,7 +349,16 @@ const SubTitle = styled.p`
   color: ${colorGray};
 `;
 
-const Content = styled(FlexColumn)``;
+const TitleWrapper = styled.div`
+  padding: 0px ${contentSidebarPadding};
+`;
+
+const Content = styled(ScrollboxVertical)`
+  overflow: hidden auto;
+  flex-grow: 1;
+  padding: 0px ${contentSidebarPadding} ${contentSidebarBottomScrollPadding};
+  margin-right: 0.25rem;
+`;
 
 const BreakoutSlideLabel = styled.label`
   font-size: ${fontSizeSmall};
@@ -357,7 +369,16 @@ const BreakoutSlideLabel = styled.label`
   margin-bottom: 0.2rem;
 `;
 
+// @ts-ignore - Button is a JS component
+const ActionButton = styled(Button)`
+  padding: 1rem 1.5rem;
+  border-radius: 1rem;
+  margin: 1.5rem auto;
+`;
+
 export default {
+  HeaderContainer,
+  PanelSeparator,
   BoxContainer,
   Alert,
   FreeJoinLabel,
@@ -376,7 +397,6 @@ export default {
   AssignBtnsContainer,
   AssignBtns,
   CheckBoxesContainer,
-  Separator,
   FreeJoinCheckbox,
   RoomUserItem,
   LockIcon,
@@ -386,7 +406,9 @@ export default {
   ItemButton,
   WithError,
   SubTitle,
+  TitleWrapper,
   Content,
   ContentContainer,
   BreakoutSlideLabel,
+  ActionButton,
 };

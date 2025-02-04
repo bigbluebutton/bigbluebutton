@@ -1,10 +1,8 @@
 package org.bigbluebutton.core.apps.voice
 
-import org.bigbluebutton.common2.msgs._
+import org.bigbluebutton.{ LockSettingsUtil, SystemConfiguration }
 import org.bigbluebutton.core.models.{ Users2x, VoiceUsers }
-import org.bigbluebutton.core.running.{ LiveMeeting }
-import org.bigbluebutton.LockSettingsUtil
-import org.bigbluebutton.SystemConfiguration
+import org.bigbluebutton.core.running.LiveMeeting
 
 object VoiceHdlrHelpers extends SystemConfiguration {
   def isGlobalAudioSubscribeAllowed(

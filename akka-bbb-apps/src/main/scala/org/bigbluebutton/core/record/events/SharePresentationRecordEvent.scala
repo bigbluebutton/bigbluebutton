@@ -24,11 +24,11 @@ class SharePresentationRecordEvent extends AbstractPresentationRecordEvent {
 
   setEvent("SharePresentationEvent")
 
-  def setPresentationName(name: String) {
+  def setPresentationName(name: String): Unit = {
     eventMap.put(PRES_NAME, name)
   }
 
-  def setShare(share: Boolean) {
+  def setShare(share: Boolean): Unit = {
     eventMap.put(SHARE, share.toString)
   }
 }

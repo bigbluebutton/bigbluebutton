@@ -24,23 +24,23 @@ class EditCaptionHistoryRecordEvent extends AbstractCaptionRecordEvent {
 
   setEvent("EditCaptionHistoryEvent")
 
-  def setStartIndex(startIndex: Integer) {
+  def setStartIndex(startIndex: Integer): Unit = {
     eventMap.put(START_INDEX, startIndex.toString)
   }
 
-  def setEndIndex(endIndex: Integer) {
+  def setEndIndex(endIndex: Integer): Unit = {
     eventMap.put(END_INDEX, endIndex.toString)
   }
 
-  def setName(name: String) {
+  def setName(name: String): Unit = {
     eventMap.put(NAME, name)
   }
 
-  def setLocale(locale: String) {
+  def setLocale(locale: String): Unit = {
     eventMap.put(LOCALE, locale)
   }
 
-  def setText(text: String) {
+  def setText(text: String): Unit = {
     eventMap.put(TEXT, text)
   }
 }

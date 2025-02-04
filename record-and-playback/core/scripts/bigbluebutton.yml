@@ -4,6 +4,7 @@ mediasoup_video_src: /var/mediasoup/recordings
 mediasoup_screenshare_src: /var/mediasoup/screenshare
 webrtc_recorder_video_src: /var/lib/bbb-webrtc-recorder/recordings
 webrtc_recorder_screenshare_src: /var/lib/bbb-webrtc-recorder/screenshare
+webrtc_recorder_audio_src: /var/lib/bbb-webrtc-recorder/audio
 raw_deskshare_src: /var/bigbluebutton/deskshare
 raw_presentation_src: /var/bigbluebutton
 notes_endpoint: http://127.0.0.1:9002/p

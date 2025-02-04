@@ -1,8 +1,9 @@
 package org.bigbluebutton.core.db
 
-import org.bigbluebutton.common2.domain.{ VoiceProp }
+import org.bigbluebutton.common2.domain.VoiceProp
+import org.bigbluebutton.core2.MeetingStatus2x
 import slick.jdbc.PostgresProfile.api._
-import slick.lifted.{ ProvenShape }
+import slick.lifted.ProvenShape
 
 case class MeetingVoiceDbModel(
     meetingId:   String,
@@ -21,7 +22,7 @@ class MeetingVoiceDbTableDef(tag: Tag) extends Table[MeetingVoiceDbModel](tag, "
 
   //  def fk_meetingId: ForeignKeyQuery[MeetingDbTableDef, MeetingDbModel] = foreignKey("fk_meetingId", meetingId, TableQuery[MeetingDbTableDef])(_.meetingId)
 
-  override def * : ProvenShape[MeetingVoiceDbModel] = (meetingId, telVoice, voiceConf, dialNumber, muteOnStart) <> (MeetingVoiceDbModel.tupled, MeetingVoiceDbModel.unapply)
+  override def * : ProvenShape[MeetingVoiceDbModel] = (meetingId, telVoice, voiceConf, dialNumber, muteOnStart).<>(MeetingVoiceDbModel.tupled, MeetingVoiceDbModel.unapply)
 }
 
 object MeetingVoiceDAO {
@@ -36,6 +37,15 @@ object MeetingVoiceDAO {
           muteOnStart = voiceProp.muteOnStart
         )
       )
+    )
+  }
+
+  def updateMuteOnStart(meetingId: String, meetingStatus: MeetingStatus2x) = {
+    DatabaseConnection.enqueue(
+      TableQuery[MeetingVoiceDbTableDef]
+        .filter(_.meetingId === meetingId)
+        .map(u => (u.muteOnStart))
+        .update((MeetingStatus2x.isMeetingMuted(meetingStatus)))
     )
   }
 }

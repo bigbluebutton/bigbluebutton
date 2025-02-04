@@ -11,7 +11,7 @@ trait DestroyMeetingSysCmdMsgHdlr {
   val liveMeeting: LiveMeeting
   val outGW: OutMsgRouter
 
-  def handleDestroyMeetingSysCmdMsg(msg: DestroyMeetingSysCmdMsg) {
+  def handleDestroyMeetingSysCmdMsg(msg: DestroyMeetingSysCmdMsg): Unit = {
     log.info("Handling DestroyMeeting message for meetingId={}", msg.body.meetingId)
 
     if (liveMeeting.props.meetingProp.isBreakout) {

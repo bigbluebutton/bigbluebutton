@@ -1,18 +1,12 @@
 package org.bigbluebutton.core
 
-import java.io.{ PrintWriter, StringWriter }
-import org.apache.pekko.actor._
-import org.apache.pekko.actor.ActorLogging
 import org.apache.pekko.actor.SupervisorStrategy.Resume
+import org.apache.pekko.actor.{ ActorLogging, _ }
 import org.apache.pekko.util.Timeout
-
-import scala.concurrent.duration._
-import org.bigbluebutton.core.bus._
-import org.bigbluebutton.core.api._
 import org.bigbluebutton.SystemConfiguration
-
-import java.util.concurrent.TimeUnit
 import org.bigbluebutton.common2.msgs._
+import org.bigbluebutton.core.api._
+import org.bigbluebutton.core.bus._
 import org.bigbluebutton.core.db.{ DatabaseConnection, MeetingDAO }
 import org.bigbluebutton.core.domain.MeetingEndReason
 import org.bigbluebutton.core.models.Roles
@@ -21,6 +15,10 @@ import org.bigbluebutton.core.util.ColorPicker
 import org.bigbluebutton.core2.RunningMeetings
 import org.bigbluebutton.core2.message.senders.MsgBuilder
 import org.bigbluebutton.service.HealthzService
+
+import java.io.{ PrintWriter, StringWriter }
+import java.util.concurrent.TimeUnit
+import scala.concurrent.duration._
 
 object BigBlueButtonActor extends SystemConfiguration {
   def props(
@@ -64,14 +62,14 @@ class BigBlueButtonActor(
   }
 
   object BBBTasksExecutor
-  context.system.scheduler.schedule(
+  context.system.scheduler.scheduleWithFixedDelay(
     1 minute,
     1 minute,
     self,
     BBBTasksExecutor
   )
 
-  override def preStart() {
+  override def preStart(): Unit = {
     bbbMsgBus.subscribe(self, meetingManagerChannel)
     DatabaseConnection.initialize()
 
@@ -79,7 +77,7 @@ class BigBlueButtonActor(
     MeetingDAO.setAllMeetingsEnded(MeetingEndReason.ENDED_DUE_TO_SERVICE_INTERRUPTION, "system")
   }
 
-  override def postStop() {
+  override def postStop(): Unit = {
     bbbMsgBus.unsubscribe(self, meetingManagerChannel)
   }
 
@@ -95,7 +93,7 @@ class BigBlueButtonActor(
     case msg: IsVoiceBridgeInUse        => handleIsVoiceBridgeInUse(sender(), msg)
 
     //Api messages
-    case msg: GetUserApiMsg             => handleGetUserApiMsg(msg, sender)
+    case msg: GetUserApiMsg             => handleGetUserApiMsg(msg, sender())
 
     // 2x messages
     case msg: BbbCommonEnvCoreMsg       => handleBbbCommonEnvCoreMsg(msg)
@@ -119,7 +117,7 @@ class BigBlueButtonActor(
             case None =>
               //The meeting is ended, it will return some data just to confirm the session was valid
               //The client can request data after the meeting is ended
-              val userInfos = Map(
+              val userInfos: Map[String, Any] = Map(
                 "returncode" -> "SUCCESS",
                 "sessionToken" -> msg.sessionToken,
                 "meetingID" -> sessionTokenInfo.meetingId,

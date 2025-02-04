@@ -247,7 +247,7 @@ const MediaOnlyLayout = (props) => {
     } = props;
     const { camerasMargin } = DEFAULT_VALUES;
 
-    const sidebarNavBounds = calculatesSidebarNavBounds();
+    const sidebarNavBounds = calculatesSidebarNavBounds(0);
     const sidebarContentBounds = calculatesSidebarContentBounds(0);
     const mediaAreaBounds = calculatesMediaAreaBounds(0, 0, MEDIA_ONLY_LAYOUT_MARGIN);
     const navbarBounds = calculatesNavbarBounds(mediaAreaBounds);
@@ -451,6 +451,7 @@ const MediaOnlyLayout = (props) => {
   });
 
   const init = () => {
+    const hasLayoutEngineLoadedOnce = Session.getItem('hasLayoutEngineLoadedOnce');
     layoutContextDispatch({
       type: ACTIONS.SET_LAYOUT_INPUT,
       value: (prevInput) => {
@@ -496,7 +497,7 @@ const MediaOnlyLayout = (props) => {
               isPinned: sharedNotes.isPinned,
             },
           },
-          INITIAL_INPUT_STATE,
+          hasLayoutEngineLoadedOnce ? prevInput : INITIAL_INPUT_STATE,
         );
       },
     });

@@ -4,7 +4,6 @@ import org.bigbluebutton.SystemConfiguration
 import org.bigbluebutton.common2.msgs.VoiceConfRunningEvtMsg
 import org.bigbluebutton.core.running.{ BaseMeetingActor, LiveMeeting, OutMsgRouter }
 import org.bigbluebutton.core2.MeetingStatus2x
-import org.bigbluebutton.core.apps.voice.VoiceApp
 
 trait VoiceConfRunningEvtMsgHdlr extends SystemConfiguration {
   this: BaseMeetingActor =>

@@ -50,6 +50,18 @@ const joinEndpointTableData = [
     "description": (<>The link for the user’s avatar to be displayed (default can be enabled/disabled and set with “useDefaultAvatar“ and “defaultAvatarURL“ in bbb-web.properties).</>)
   },
   {
+    "name": "firstName",
+    "required": false,
+    "type": "String",
+    "description": (<>The user's first name portion of "fullname". It is used for sorting purposes; it will not be displayed in the user list. This property is useful if the "fullname" is comprised of several words or if there are title/role/credentials which should be ignored when sorting.</>)
+  },
+  {
+    "name": "lastName",
+    "required": false,
+    "type": "String",
+    "description": (<>The user's last name portion of "fullname". It is used for sorting purposes; it will not be displayed in the user list. This property is useful if the "fullname" is comprised of several words or if there are title/role/credentials which should be ignored when sorting.</>)
+  },
+  {
     "name": "webcamBackgroundURL",
     "required": false,
     "type": "String",

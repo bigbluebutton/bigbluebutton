@@ -1,21 +1,11 @@
 package org.bigbluebutton
 
 import org.apache.pekko.actor.ActorContext
-
-import org.bigbluebutton.common2.msgs.{ BbbCommonEnvCoreMsg, BbbCoreEnvelope, BbbCoreHeaderWithMeetingId, MessageTypes, Routing }
-import org.bigbluebutton.core.running.{ LiveMeeting, OutMsgRouter }
-import org.bigbluebutton.core2.{ MeetingStatus2x }
-import org.bigbluebutton.core.apps.webcam.CameraHdlrHelpers
 import org.bigbluebutton.core.apps.voice.VoiceApp
-import org.bigbluebutton.core.models.{
-  Roles,
-  Users2x,
-  UserState,
-  VoiceUserState,
-  VoiceUsers,
-  Webcams,
-  WebcamStream
-}
+import org.bigbluebutton.core.apps.webcam.CameraHdlrHelpers
+import org.bigbluebutton.core.models._
+import org.bigbluebutton.core.running.{ LiveMeeting, OutMsgRouter }
+import org.bigbluebutton.core2.MeetingStatus2x
 
 object LockSettingsUtil {
 

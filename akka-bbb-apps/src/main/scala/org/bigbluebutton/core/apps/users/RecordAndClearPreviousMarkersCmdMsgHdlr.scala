@@ -4,8 +4,8 @@ import org.bigbluebutton.common2.msgs._
 import org.bigbluebutton.core.db.MeetingRecordingDAO
 import org.bigbluebutton.core.domain.MeetingState2x
 import org.bigbluebutton.core.running.{ LiveMeeting, OutMsgRouter }
-import org.bigbluebutton.core2.MeetingStatus2x
 import org.bigbluebutton.core.util.TimeUtil
+import org.bigbluebutton.core2.MeetingStatus2x
 import org.bigbluebutton.core2.message.senders.MsgBuilder
 
 trait RecordAndClearPreviousMarkersCmdMsgHdlr {

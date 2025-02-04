@@ -19,7 +19,6 @@
 
 package org.bigbluebutton.core.record.events
 
-import org.bigbluebutton.common2.msgs.{ AnnotationVO, ExportJob, StoredAnnotations, PresentationPageForExport }
 import org.bigbluebutton.common2.util.JsonUtil
 
 class StoreExportJobInRedisPresAnnEvent extends AbstractPresentationWithAnnotations {
@@ -27,43 +26,43 @@ class StoreExportJobInRedisPresAnnEvent extends AbstractPresentationWithAnnotati
 
   setEvent("StoreExportJobInRedisPresAnnEvent")
 
-  def setserverSideFilename(serverSideFilename: String) {
+  def setserverSideFilename(serverSideFilename: String): Unit = {
     eventMap.put(SERVER_SIDE_FILENAME, serverSideFilename)
   }
 
-  def setJobId(jobId: String) {
+  def setJobId(jobId: String): Unit = {
     eventMap.put(JOB_ID, jobId)
   }
 
-  def setJobType(jobType: String) {
+  def setJobType(jobType: String): Unit = {
     eventMap.put(JOB_TYPE, jobType)
   }
 
-  def setFilename(filename: String) {
+  def setFilename(filename: String): Unit = {
     eventMap.put(FILENAME, filename)
   }
 
-  def setPresId(presId: String) {
+  def setPresId(presId: String): Unit = {
     eventMap.put(PRES_ID, presId)
   }
 
-  def setPresLocation(presLocation: String) {
+  def setPresLocation(presLocation: String): Unit = {
     eventMap.put(PRES_LOCATION, presLocation)
   }
 
-  def setAllPages(allPages: String) {
+  def setAllPages(allPages: String): Unit = {
     eventMap.put(ALL_PAGES, allPages)
   }
 
-  def setPages(pages: List[Int]) {
+  def setPages(pages: List[Int]): Unit = {
     eventMap.put(PAGES, JsonUtil.toJson(pages))
   }
 
-  def setParentMeetingId(parentMeetingId: String) {
+  def setParentMeetingId(parentMeetingId: String): Unit = {
     eventMap.put(PARENT_MEETING_ID, parentMeetingId)
   }
 
-  def setPresentationUploadToken(presentationUploadToken: String) {
+  def setPresentationUploadToken(presentationUploadToken: String): Unit = {
     eventMap.put(PRESENTATION_UPLOAD_TOKEN, presentationUploadToken)
   }
 }

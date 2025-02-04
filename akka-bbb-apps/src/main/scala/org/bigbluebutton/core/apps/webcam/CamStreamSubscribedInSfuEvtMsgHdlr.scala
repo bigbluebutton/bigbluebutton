@@ -12,7 +12,7 @@ trait CamStreamSubscribedInSfuEvtMsgHdlr {
       msg:         CamStreamSubscribedInSfuEvtMsg,
       liveMeeting: LiveMeeting,
       bus:         MessageBus
-  ) {
+  ): Unit = {
     val meetingId = liveMeeting.props.meetingProp.intId
 
     val allowed = CameraHdlrHelpers.isCameraSubscribeAllowed(

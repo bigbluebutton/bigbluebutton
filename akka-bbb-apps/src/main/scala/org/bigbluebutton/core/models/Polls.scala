@@ -4,11 +4,10 @@ import org.bigbluebutton.common2.domain._
 import org.bigbluebutton.common2.msgs.AnnotationVO
 import org.bigbluebutton.core.db.{ PollDAO, PollResponseDAO }
 import org.bigbluebutton.core.domain.MeetingState2x
-
-import scala.collection.mutable.ArrayBuffer
-import scala.collection.mutable.HashMap
 import org.bigbluebutton.core.running.LiveMeeting
-import org.bigbluebutton.core.models.PresentationPage
+
+import scala.collection.mutable
+import scala.collection.mutable.ArrayBuffer
 
 object Polls {
 
@@ -57,7 +56,7 @@ object Polls {
   }
 
   def handleStopPollReqMsg(state: MeetingState2x, userId: String, lm: LiveMeeting): Option[String] = {
-    var stoppedPoll = for {
+    val stoppedPoll = for {
       pod <- state.presentationPodManager.getDefaultPod()
       pres <- pod.getCurrentPresentation()
       page <- PresentationInPod.getCurrentPage(pres)
@@ -83,6 +82,7 @@ object Polls {
   }
 
   def handleShowPollResultReqMsg(state: MeetingState2x, requesterId: String, pollId: String, lm: LiveMeeting): Option[(SimplePollResultOutVO, AnnotationVO)] = {
+    /*
     def sanitizeAnnotation(annotation: AnnotationVO): AnnotationVO = {
       // Remove null values by wrapping value with Option
       val shape = annotation.annotationInfo.collect {
@@ -96,6 +96,7 @@ object Polls {
 
       annotation.copy(annotationInfo = shape2)
     }
+     */
 
     def send(poll: SimplePollResultOutVO, shape: scala.collection.immutable.Map[String, Object]): Option[AnnotationVO] = {
       for {
@@ -313,6 +314,7 @@ object Polls {
 
   }
 
+  /*
   def getPolls(polls: Polls): Array[PollVO] = {
     val poll = new ArrayBuffer[PollVO]
     polls.polls.values.foreach(p => {
@@ -321,8 +323,9 @@ object Polls {
 
     poll.toArray
   }
+   */
 
-  def startPoll(pollId: String, polls: Polls) {
+  def startPoll(pollId: String, polls: Polls): Unit = {
     polls.get(pollId) foreach {
       p =>
         p.start()
@@ -330,7 +333,7 @@ object Polls {
     }
   }
 
-  def stopPoll(pollId: String, polls: Polls) {
+  def stopPoll(pollId: String, polls: Polls): Unit = {
     polls.get(pollId) foreach (p => p.stop())
     PollDAO.updateEnded(pollId)
   }
@@ -403,16 +406,16 @@ object Polls {
     }
   }
 
-  def showPollResult(pollId: String, polls: Polls) {
+  def showPollResult(pollId: String, polls: Polls): Unit = {
     polls.get(pollId) foreach {
       p =>
-        p.showResult
+        p.showResult()
         polls.currentPoll = Some(p)
     }
     PollDAO.updatePublished(pollId)
   }
 
-  def respondToQuestion(pollId: String, questionID: Int, responseIDs: Seq[Int], responder: Responder, polls: Polls) {
+  def respondToQuestion(pollId: String, questionID: Int, responseIDs: Seq[Int], responder: Responder, polls: Polls): Unit = {
     polls.polls.get(pollId) match {
       case Some(p) => {
         if (!p.getResponders().contains(responder)) {
@@ -424,7 +427,7 @@ object Polls {
     }
   }
 
-  def addQuestionResponse(pollId: String, questionID: Int, answer: String, requesterId: String, polls: Polls) {
+  def addQuestionResponse(pollId: String, questionID: Int, answer: String, requesterId: String, polls: Polls): Unit = {
     polls.polls.get(pollId) match {
       case Some(p) => {
         if (!p.getTypedPollResponders().contains(requesterId)) {
@@ -594,29 +597,30 @@ case class QuestionOutVO(id: String, multiResponse: Boolean, question: String, r
 class Poll(val id: String, val questions: Array[Question], val numRespondents: Int, val title: Option[String], val isSecret: Boolean) {
   private var _started: Boolean = false
   private var _stopped: Boolean = false
-  private var _showResult: Boolean = false
+  private val _showResult: Boolean = false
   private var _numResponders: Int = 0
-  private var _responders = new ArrayBuffer[Responder]()
-  private var _respondersTypedPoll = new ArrayBuffer[String]()
+  private val _responders = new ArrayBuffer[Responder]()
+  private val _respondersTypedPoll = new ArrayBuffer[String]()
 
-  def showingResult() { _showResult = true }
+  //  def showingResult(): Unit = { _showResult = true }
   def showResult(): Boolean = { _showResult }
-  def start() { _started = true }
-  def stop() { _stopped = true }
-  def isStarted(): Boolean = { return _started }
-  def isStopped(): Boolean = { return _stopped }
-  def isRunning(): Boolean = { return isStarted() && !isStopped() }
-  def clear() {
-    questions.foreach(q => { q.clear })
+  def start(): Unit = { _started = true }
+  def stop(): Unit = { _stopped = true }
+  def isStarted(): Boolean = { _started }
+  def isStopped(): Boolean = { _stopped }
+  def isRunning(): Boolean = { isStarted() && !isStopped() }
+  def clear(): Unit = {
+    questions.foreach(q => { q.clear() })
     _started = false
     _stopped = false
   }
 
-  def addResponder(responder: Responder) { _responders += (responder) }
-  def getResponders(): ArrayBuffer[Responder] = { return _responders }
-  def addTypedPollResponder(responderId: String) { _respondersTypedPoll += (responderId) }
-  def getTypedPollResponders(): ArrayBuffer[String] = { return _respondersTypedPoll }
+  def addResponder(responder: Responder): Unit = { _responders += (responder) }
+  def getResponders(): ArrayBuffer[Responder] = { _responders }
+  def addTypedPollResponder(responderId: String): Unit = { _respondersTypedPoll += (responderId) }
+  def getTypedPollResponders(): ArrayBuffer[String] = { _respondersTypedPoll }
 
+  /*
   def hasResponses(): Boolean = {
     questions.foreach(q => {
       if (q.hasResponders) return true
@@ -624,8 +628,9 @@ class Poll(val id: String, val questions: Array[Question], val numRespondents: I
 
     return false
   }
+   */
 
-  def respondToQuestion(questionID: Int, responseIDs: Seq[Int], responder: Responder) {
+  def respondToQuestion(questionID: Int, responseIDs: Seq[Int], responder: Responder): Unit = {
     questions.foreach(q => {
       if (q.id == questionID) {
         q.respondToQuestion(responseIDs, responder)
@@ -634,7 +639,7 @@ class Poll(val id: String, val questions: Array[Question], val numRespondents: I
     })
   }
 
-  def addQuestionResponse(questionID: Int, answer: String) {
+  def addQuestionResponse(questionID: Int, answer: String): Unit = {
     questions.foreach(q => {
       if (q.id == questionID) {
         q.addQuestionResponse(answer)
@@ -645,56 +650,52 @@ class Poll(val id: String, val questions: Array[Question], val numRespondents: I
   def toPollVO(): PollVO = {
     val qvos = new ArrayBuffer[QuestionVO]
     questions.foreach(q => {
-      qvos += q.toQuestionVO
+      qvos += q.toQuestionVO()
     })
 
-    new PollVO(id, qvos.toArray, title, _started, _stopped, _showResult, isSecret)
+    PollVO(id, qvos.toArray, title, _started, _stopped, _showResult, isSecret)
   }
 
   def toSimplePollOutVO(): SimplePollOutVO = {
-    new SimplePollOutVO(id, questions(0).multiResponse, questions(0).toSimpleAnswerOutVO())
+    SimplePollOutVO(id, questions(0).multiResponse, questions(0).toSimpleAnswerOutVO())
   }
 
   def toSimplePollResultOutVO(): SimplePollResultOutVO = {
-    new SimplePollResultOutVO(id, questions(0).questionType, questions(0).text, questions(0).toSimpleVotesOutVO(), numRespondents, _numResponders)
+    SimplePollResultOutVO(id, questions(0).questionType, questions(0).text, questions(0).toSimpleVotesOutVO(), numRespondents, _numResponders)
   }
 }
 
 class Question(val id: Int, val questionType: String, val multiResponse: Boolean, val text: Option[String], val answers: ArrayBuffer[Answer]) {
-  def addAnswer(text: String) {
+  def addAnswer(text: String): Unit = {
     answers += new Answer(answers.size, text, Some(text))
   }
 
-  def clear() {
-    answers.foreach(r => r.clear)
+  def clear(): Unit = {
+    answers.foreach(r => r.clear())
   }
 
   def hasResponders(): Boolean = {
-    answers.foreach(r => {
-      if (r.numResponders > 0) return true
-    })
-
-    return false
+    answers.exists(r => r.numResponders() > 0)
   }
 
-  def respondToQuestion(ids: Seq[Int], responder: Responder) {
+  def respondToQuestion(ids: Seq[Int], responder: Responder): Unit = {
     answers.foreach(r => {
       if (ids.contains(r.id)) r.addResponder(responder)
     })
   }
 
-  def addQuestionResponse(answer: String) {
+  def addQuestionResponse(answer: String): Unit = {
     addAnswer(answer)
   }
 
   def toQuestionVO(): QuestionVO = {
     val rvos = new ArrayBuffer[AnswerVO]
     answers.foreach(answer => {
-      val r = new AnswerVO(answer.id, answer.key, answer.text, Some(answer.getResponders))
+      val r = AnswerVO(answer.id, answer.key, answer.text, Some(answer.getResponders()))
       rvos += r
     })
 
-    new QuestionVO(id, questionType, multiResponse, text, Some(rvos.toArray))
+    QuestionVO(id, questionType, multiResponse, text, Some(rvos.toArray))
   }
 
   def toSimpleAnswerOutVO(): Array[SimpleAnswerOutVO] = {
@@ -720,10 +721,10 @@ class Answer(val id: Int, val key: String, val text: Option[String]) {
 
   val responders = new ArrayBuffer[Responder]()
 
-  def clear() {
-    responders.clear
+  def clear(): Unit = {
+    responders.clear()
   }
-  def addResponder(responder: Responder) {
+  def addResponder(responder: Responder): Unit = {
     responders += responder
   }
 
@@ -732,21 +733,21 @@ class Answer(val id: Int, val key: String, val text: Option[String]) {
   }
 
   def getResponders(): Array[Responder] = {
-    return responders.toArray
+    responders.toArray
   }
 
   def toSimpleAnswerOutVO(): SimpleAnswerOutVO = {
-    new SimpleAnswerOutVO(id, key)
+    SimpleAnswerOutVO(id, key)
   }
 
   def toSimpleVoteOutVO(): SimpleVoteOutVO = {
-    new SimpleVoteOutVO(id, key, numResponders)
+    SimpleVoteOutVO(id, key, numResponders())
   }
 }
 
 class Polls {
-  private val polls = new HashMap[String, Poll]()
-  private var currentPoll: Option[Poll] = None
+  private val polls = new mutable.HashMap[String, Poll]()
+  var currentPoll: Option[Poll] = None
 
   private def save(poll: Poll): Poll = {
     polls += poll.id -> poll

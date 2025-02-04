@@ -24,11 +24,11 @@ class SetPresentationDownloadable extends AbstractPresentationRecordEvent {
 
   setEvent("SetPresentationDownloadable")
 
-  def setPresentationName(name: String) {
+  def setPresentationName(name: String): Unit = {
     eventMap.put(PRES_NAME, name)
   }
 
-  def setDownloadable(value: Boolean) {
+  def setDownloadable(value: Boolean): Unit = {
     eventMap.put(DOWNLOADABLE, value.toString)
   }
 

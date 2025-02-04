@@ -24,7 +24,7 @@ class CreatePresentationPodRecordEvent extends AbstractPresentationRecordEvent {
 
   setEvent("CreatePresentationPodEvent")
 
-  def setCurrentPresenter(name: String) {
+  def setCurrentPresenter(name: String): Unit = {
     eventMap.put(CURRENT_PRESENTER, name)
   }
 }

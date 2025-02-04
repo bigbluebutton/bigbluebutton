@@ -28,13 +28,13 @@ object ClientSettings extends SystemConfiguration {
         common2.util.YamlUtil.toMap[Object](clientSettingsFile.mkString) match {
           case Success(value) => value
           case Failure(exception) =>
-            println("Error while fetching client Settings: ", exception)
+            println(s"Error while fetching client Settings: ${exception}")
             Map[String, Object]()
         },
         common2.util.YamlUtil.toMap[Object](clientSettingsFileOverride.mkString) match {
           case Success(value) => value
           case Failure(exception) =>
-            println("Error while fetching client override Settings: ", exception)
+            println(s"Error while fetching client override Settings: ${exception}")
             Map[String, Object]()
         }
       )
@@ -84,7 +84,7 @@ object ClientSettings extends SystemConfiguration {
 
   def getConfigPropertyValueByPathAsListOfStringOrElse(map: Map[String, Any], path: String, alternativeValue: List[String]): List[String] = {
     getConfigPropertyValueByPath(map, path) match {
-      case Some(configValue: List[String]) => configValue
+      case Some(configValue: List[_]) if configValue.forall(_.isInstanceOf[String]) => configValue.asInstanceOf[List[String]]
       case _ =>
         logger.debug(s"Config `$path` with type List[String] not found in clientSettings.")
         alternativeValue
@@ -93,7 +93,7 @@ object ClientSettings extends SystemConfiguration {
 
   def getConfigPropertyValueByPathAsListOfIntOrElse(map: Map[String, Any], path: String, alternativeValue: List[Int]): List[Int] = {
     getConfigPropertyValueByPath(map, path) match {
-      case Some(configValue: List[Int]) => configValue
+      case Some(configValue: List[_]) if configValue.forall(_.isInstanceOf[Int]) => configValue.asInstanceOf[List[Int]]
       case _ =>
         logger.debug(s"Config `$path` with type List[Int] not found in clientSettings.")
         alternativeValue
@@ -107,15 +107,17 @@ object ClientSettings extends SystemConfiguration {
       keys match {
         case Seq(head, tail @ _*) =>
           map.get(head) match {
-            case Some(innerMap: Map[String, Any]) => getRecursive(innerMap, tail)
-            case otherValue if tail.isEmpty       => otherValue
-            case _                                => None
+            case Some(innerMap: Map[_, _]) if tail.nonEmpty =>
+              // Safe cast to Map[String, Any], assuming all keys are Strings
+              getRecursive(innerMap.asInstanceOf[Map[String, Any]], tail)
+            case value if tail.isEmpty => value
+            case _                     => None
           }
         case _ => None
       }
     }
 
-    getRecursive(map, keys)
+    getRecursive(map, keys.toIndexedSeq)
   }
 
   def getPluginsFromConfig(config: Map[String, Any]): Map[String, Plugin] = {
@@ -123,9 +125,9 @@ object ClientSettings extends SystemConfiguration {
 
     val pluginsConfig = getConfigPropertyValueByPath(config, "public.plugins")
     pluginsConfig match {
-      case Some(plugins: List[Map[String, Any]]) =>
+      case Some(plugins: List[_]) =>
         for {
-          plugin <- plugins
+          plugin <- plugins.asInstanceOf[List[Map[String, Any]]]
         } yield {
           if (plugin.contains("name") && plugin.contains("url")) {
 
@@ -134,16 +136,16 @@ object ClientSettings extends SystemConfiguration {
             var pluginDataChannels: Map[String, DataChannel] = Map()
             if (plugin.contains("dataChannels")) {
               plugin("dataChannels") match {
-                case dataChannels: List[Map[String, Any]] =>
+                case dataChannels: List[_] =>
                   for {
-                    dataChannel <- dataChannels
+                    dataChannel <- dataChannels.asInstanceOf[List[Map[String, Any]]]
                   } yield {
                     if (dataChannel.contains("name")) {
                       val channelName = dataChannel("name").toString
                       val pushPermission = {
                         if (dataChannel.contains("pushPermission")) {
                           dataChannel("pushPermission") match {
-                            case wPerm: List[String] => wPerm
+                            case wPerm: List[_] if wPerm.forall(_.isInstanceOf[String]) => wPerm.asInstanceOf[List[String]]
                             case _ => {
                               logger.warn(s"Invalid pushPermission for channel $channelName in plugin $pluginName")
                               List()
@@ -157,7 +159,7 @@ object ClientSettings extends SystemConfiguration {
                       val replaceOrDeletePermission = {
                         if (dataChannel.contains("replaceOrDeletePermission")) {
                           dataChannel("replaceOrDeletePermission") match {
-                            case dPerm: List[String] => dPerm
+                            case dPerm: List[_] if dPerm.forall(_.isInstanceOf[String]) => dPerm.asInstanceOf[List[String]]
                             case _ => {
                               logger.warn(s"Invalid replaceOrDeletePermission for channel $channelName in plugin $pluginName")
                               List()

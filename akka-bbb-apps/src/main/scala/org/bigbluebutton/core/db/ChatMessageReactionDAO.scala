@@ -1,7 +1,7 @@
 package org.bigbluebutton.core.db
 
 import slick.jdbc.PostgresProfile.api._
-import slick.lifted.{ ProvenShape }
+import slick.lifted.ProvenShape
 
 case class ChatMessageReactionDbModel(
     meetingId:       String,
@@ -20,7 +20,9 @@ class ChatMessageReactionDbTableDef(tag: Tag) extends Table[ChatMessageReactionD
   val reactionEmojiId = column[String]("reactionEmojiId")
   val createdAt = column[java.sql.Timestamp]("createdAt")
 
-  override def * : ProvenShape[ChatMessageReactionDbModel] = (meetingId, messageId, userId, reactionEmoji, reactionEmojiId, createdAt) <> (ChatMessageReactionDbModel.tupled, ChatMessageReactionDbModel.unapply)
+  override def * : ProvenShape[ChatMessageReactionDbModel] = (
+    meetingId, messageId, userId, reactionEmoji, reactionEmojiId, createdAt
+  ).<>(ChatMessageReactionDbModel.tupled, ChatMessageReactionDbModel.unapply)
 }
 
 object ChatMessageReactionDAO {

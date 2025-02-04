@@ -10,7 +10,7 @@ trait RecordingStartedVoiceConfEvtMsgHdlr {
   val liveMeeting: LiveMeeting
   val outGW: OutMsgRouter
 
-  def handleRecordingStartedVoiceConfEvtMsg(msg: RecordingStartedVoiceConfEvtMsg) {
+  def handleRecordingStartedVoiceConfEvtMsg(msg: RecordingStartedVoiceConfEvtMsg): Unit = {
     if (msg.body.recording) {
       MeetingStatus2x.voiceRecordingStarted(liveMeeting.status, msg.body.stream)
 

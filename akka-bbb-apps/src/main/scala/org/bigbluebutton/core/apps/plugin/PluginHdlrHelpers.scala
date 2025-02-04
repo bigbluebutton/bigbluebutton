@@ -2,7 +2,7 @@ package org.bigbluebutton.core.apps.plugin
 
 import org.bigbluebutton.common2.msgs.PluginDataChannelReplaceOrDeleteBaseBody
 import org.bigbluebutton.core.db.PluginDataChannelEntryDAO
-import org.bigbluebutton.core.models.{ DataChannel, PluginModel, Roles, UserState, Users2x }
+import org.bigbluebutton.core.models._
 import org.bigbluebutton.core.running.LiveMeeting
 
 object PluginHdlrHelpers {

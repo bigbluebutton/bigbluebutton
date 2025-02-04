@@ -1,15 +1,15 @@
 package org.bigbluebutton.core.apps.presentationpod
 
 import org.bigbluebutton.common2.msgs._
-import org.bigbluebutton.core.api.{ CapturePresentationReqInternalMsg }
+import org.bigbluebutton.core.api.CapturePresentationReqInternalMsg
 import org.bigbluebutton.core.apps.groupchats.GroupChatApp
 import org.bigbluebutton.core.apps.{ PermissionCheck, RightsManagementTrait }
 import org.bigbluebutton.core.bus.MessageBus
 import org.bigbluebutton.core.db.{ ChatMessageDAO, PresPresentationDAO }
 import org.bigbluebutton.core.domain.MeetingState2x
+import org.bigbluebutton.core.models.{ PresentationInPod, PresentationPage, PresentationPod }
 import org.bigbluebutton.core.running.LiveMeeting
 import org.bigbluebutton.core.util.RandomStringGenerator
-import org.bigbluebutton.core.models.{ PresentationInPod, PresentationPage, PresentationPod }
 
 import java.io.File
 
@@ -125,7 +125,7 @@ trait MakePresentationDownloadReqMsgHdlr extends RightsManagementTrait {
 
     val presentationPods: Vector[PresentationPod] = state.presentationPodManager.getAllPresentationPodsInMeeting()
     val presId: String = m.body.presId match {
-      case "" => PresentationPodsApp.getAllPresentationPodsInMeeting(state).flatMap(_.getCurrentPresentation.map(_.id)).mkString
+      case "" => PresentationPodsApp.getAllPresentationPodsInMeeting(state).flatMap(_.getCurrentPresentation().map(_.id)).mkString
       case _  => m.body.presId
     }
 
@@ -223,7 +223,7 @@ trait MakePresentationDownloadReqMsgHdlr extends RightsManagementTrait {
       val allPages: Boolean = m.allPages
       val pageCount = currentPres.get.pages.size
 
-      val presId: String = PresentationPodsApp.getAllPresentationPodsInMeeting(state).flatMap(_.getCurrentPresentation.map(_.id)).mkString
+      val presId: String = PresentationPodsApp.getAllPresentationPodsInMeeting(state).flatMap(_.getCurrentPresentation().map(_.id)).mkString
       val presLocation = List("var", "bigbluebutton", meetingId, meetingId, presId).mkString(File.separator, File.separator, "");
 
       val currentPage: PresentationPage = PresentationInPod.getCurrentPage(currentPres.get).get
@@ -232,7 +232,7 @@ trait MakePresentationDownloadReqMsgHdlr extends RightsManagementTrait {
       val exportJob: ExportJob = ExportJob(jobId, JobTypes.CAPTURE_PRESENTATION, filename, filename, presId, presLocation, allPages, pagesRange, parentMeetingId, presentationUploadToken)
       val storeAnnotationPages: List[PresentationPageForExport] = getPresentationPagesForExport(pagesRange, pageCount, presId, currentPres, liveMeeting);
 
-      val annotationCount: Int = storeAnnotationPages.map(_.annotations.size).sum
+      val annotationCount: Int = storeAnnotationPages.map(_.annotations.length).sum
 
       if (annotationCount > 0) {
         // Send Export Job to Redis

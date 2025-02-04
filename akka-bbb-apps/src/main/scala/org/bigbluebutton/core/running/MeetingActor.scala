@@ -19,7 +19,6 @@ import org.bigbluebutton.core.apps.pads.{ PadsApp2x, PadslHdlrHelpers }
 import org.bigbluebutton.core.apps.screenshare.ScreenshareApp2x
 import org.bigbluebutton.core.apps.audiocaptions.AudioCaptionsApp2x
 import org.bigbluebutton.core.apps.timer.TimerApp2x
-import org.bigbluebutton.core.apps.presentation.PresentationApp2x
 import org.bigbluebutton.core.apps.users.UsersApp2x
 import org.bigbluebutton.core.apps.webcam.WebcamApp2x
 import org.bigbluebutton.core.apps.whiteboard.WhiteboardApp2x
@@ -41,7 +40,7 @@ import scala.concurrent.duration._
 import org.bigbluebutton.core.apps.layout.LayoutApp2x
 import org.bigbluebutton.core.apps.plugin.PluginHdlrs
 import org.bigbluebutton.core.apps.users.ChangeLockSettingsInMeetingCmdMsgHdlr
-import org.bigbluebutton.core.db.{ MeetingDAO, NotificationDAO, TimerDAO, UserStateDAO }
+import org.bigbluebutton.core.db.{ MeetingDAO, MeetingVoiceDAO, NotificationDAO, TimerDAO, UserDAO, UserStateDAO }
 import org.bigbluebutton.core.graphql.GraphqlMiddleware
 import org.bigbluebutton.core.models.VoiceUsers.{ findAllFreeswitchCallers, findAllListenOnlyVoiceUsers }
 import org.bigbluebutton.core.models.Webcams.findAll
@@ -92,7 +91,7 @@ class MeetingActor(
   with DestroyMeetingSysCmdMsgHdlr
   with ChangeLockSettingsInMeetingCmdMsgHdlr
   with ClientToServerLatencyTracerMsgHdlr
-  with GetMeetingInfoMsgHdlr
+  with GetMeetingInfoMsgHldr
   with UserActivitySignCmdMsgHdlr {
 
   object CheckVoiceRecordingInternalMsg
@@ -122,7 +121,6 @@ class MeetingActor(
 
   val msgBus = MessageBus(eventBus, outGW)
 
-  val presentationApp2x = new PresentationApp2x
   val screenshareApp2x = new ScreenshareApp2x
   val audioCaptionsApp2x = new AudioCaptionsApp2x
   val captionApp2x = new CaptionApp2x
@@ -172,9 +170,10 @@ class MeetingActor(
 
   // Send new 2x message
   val msgEvent = MsgBuilder.buildMeetingCreatedEvtMsg(liveMeeting.props.meetingProp.intId, liveMeeting.props)
+  outGW.send(msgEvent)
+
   val meetingStartTme = System.currentTimeMillis()
   var meetingEndTime = 0L
-  outGW.send(msgEvent)
 
   //Insert meeting into the database
   MeetingDAO.insert(liveMeeting.props, liveMeeting.clientSettings, liveMeeting.plugins)
@@ -200,6 +199,7 @@ class MeetingActor(
   } else {
     MeetingStatus2x.unmuteMeeting(liveMeeting.status)
   }
+  MeetingVoiceDAO.updateMuteOnStart(liveMeeting.props.meetingProp.intId, liveMeeting.status)
 
   // Set webcamsOnlyForModerator property in case we didn't after meeting creation
   MeetingStatus2x.setWebcamsOnlyForModerator(liveMeeting.status, liveMeeting.props.usersProp.webcamsOnlyForModerator)
@@ -215,14 +215,14 @@ class MeetingActor(
   //FakeTestData.createFakeUsers(liveMeeting)
   /** *****************************************************************/
 
-  context.system.scheduler.schedule(
+  context.system.scheduler.scheduleWithFixedDelay(
     5 seconds,
     syncVoiceUsersStatusInterval seconds,
     self,
     SyncVoiceUserStatusInternalMsg
   )
 
-  context.system.scheduler.schedule(
+  context.system.scheduler.scheduleWithFixedDelay(
     5 seconds,
     checkVoiceRecordingInterval seconds,
     self,
@@ -235,14 +235,14 @@ class MeetingActor(
     MeetingInfoAnalyticsLogMsg
   )
 
-  context.system.scheduler.schedule(
+  context.system.scheduler.scheduleWithFixedDelay(
     10 seconds,
     30 seconds,
     self,
     MeetingInfoAnalyticsMsg
   )
 
-  context.system.scheduler.schedule(
+  context.system.scheduler.scheduleWithFixedDelay(
     5 seconds,
     5 seconds,
     self,
@@ -263,18 +263,18 @@ class MeetingActor(
     //=============================
 
     // 2x messages
-    case msg: BbbCommonEnvCoreMsg          => handleBbbCommonEnvCoreMsg(msg)
+    case msg: BbbCommonEnvCoreMsg                 => handleBbbCommonEnvCoreMsg(msg)
 
     // Handling RegisterUserReqMsg as it is forwarded from BBBActor and
     // its type is not BbbCommonEnvCoreMsg
-    case m: RegisterUserReqMsg             => usersApp.handleRegisterUserReqMsg(m)
-    case m: RegisterUserSessionTokenReqMsg => usersApp.handleRegisterUserSessionTokenReqMsg(m)
+    case m: RegisterUserReqMsg                    => usersApp.handleRegisterUserReqMsg(m)
+    case m: RegisterUserSessionTokenReqMsg        => usersApp.handleRegisterUserSessionTokenReqMsg(m)
 
     //API Msgs
-    case m: GetUserApiMsg                  => usersApp.handleGetUserApiMsg(m, sender)
+    case m: GetUserApiMsg                         => usersApp.handleGetUserApiMsg(m, sender())
 
     // Meeting
-    case m: DestroyMeetingSysCmdMsg =>
+    case m: DestroyMeetingSysCmdMsg               =>
       meetingEndTime = System.currentTimeMillis()
       handleDestroyMeetingSysCmdMsg(m)
 
@@ -291,6 +291,7 @@ class MeetingActor(
     case msg: UserEstablishedGraphqlConnectionInternalMsg =>
       state = handleUserEstablishedGraphqlConnectionInternalMsg(msg, state)
       updateModeratorsPresence()
+
 
     // Internal gRPC messages
     case msg: GetMeetingInfo                       => sender() ! handleGetMeetingInfo()
@@ -364,7 +365,7 @@ class MeetingActor(
     }
   }
 
-  private def updateVoiceUserLastActivity(userId: String) {
+  private def updateVoiceUserLastActivity(userId: String): Unit = {
     for {
       vu <- VoiceUsers.findWithVoiceUserId(liveMeeting.voiceUsers, userId)
     } yield {
@@ -372,7 +373,7 @@ class MeetingActor(
     }
   }
 
-  private def updateUserLastActivity(userId: String) {
+  private def updateUserLastActivity(userId: String): Unit = {
     for {
       user <- Users2x.findWithIntId(liveMeeting.users2x, userId)
     } yield {
@@ -380,7 +381,7 @@ class MeetingActor(
     }
   }
 
-  private def updateModeratorsPresence() {
+  private def updateModeratorsPresence(): Unit = {
     if (Users2x.numActiveModerators(liveMeeting.users2x) > 0) {
       if (state.expiryTracker.moderatorHasJoined == false ||
         state.expiryTracker.lastModeratorLeftOnInMs != 0) {
@@ -412,7 +413,7 @@ class MeetingActor(
     }
   }
 
-  private def updateUserLastInactivityInspect(userId: String) {
+  private def updateUserLastInactivityInspect(userId: String): Unit = {
     for {
       user <- Users2x.findWithIntId(liveMeeting.users2x, userId)
     } yield {
@@ -431,9 +432,7 @@ class MeetingActor(
   private def handleMessageThatAffectsInactivity(msg: BbbCommonEnvCoreMsg): Unit = {
 
     msg.core match {
-      case m: EndMeetingSysCmdMsg =>
-        meetingEndTime = System.currentTimeMillis()
-        handleEndMeeting(m, state)
+      case m: EndMeetingSysCmdMsg => handleEndMeeting(m, state)
 
       // Users
       case m: UserJoinMeetingReqMsg =>
@@ -617,7 +616,6 @@ class MeetingActor(
         updateUserLastActivity(m.body.lockedBy)
 
       // Presentation
-      case m: PreuploadedPresentationsSysPubMsg => presentationApp2x.handle(m, liveMeeting, msgBus)
       case m: AssignPresenterReqMsg =>
         state = handlePresenterChange(m, state)
         updateUserLastActivity(m.body.assignedBy)
@@ -648,6 +646,7 @@ class MeetingActor(
       case m: PresentationUploadedFileTooLargeErrorSysPubMsg   => state = presentationPodsApp.handle(m, state, liveMeeting, msgBus)
       case m: PresentationHasInvalidMimeTypeErrorSysPubMsg     => state = presentationPodsApp.handle(m, state, liveMeeting, msgBus)
       case m: PresentationUploadedFileTimeoutErrorSysPubMsg    => state = presentationPodsApp.handle(m, state, liveMeeting, msgBus)
+      case m: PresentationConversionFailedErrorSysPubMsg       => state = presentationPodsApp.handle(m, state, liveMeeting, msgBus)
       case m: PresentationUploadedFileVirusErrorSysPubMsg      => state = presentationPodsApp.handle(m, state, liveMeeting, msgBus)
       case m: PresentationUploadedFileScanFailedErrorSysPubMsg => state = presentationPodsApp.handle(m, state, liveMeeting, msgBus)
       case m: PresentationPageGeneratedSysPubMsg               => state = presentationPodsApp.handle(m, state, liveMeeting, msgBus)
@@ -859,14 +858,14 @@ class MeetingActor(
     val listOfUsers: List[UserState] = Users2x.findAll(liveMeeting.users2x).toList
     val breakoutRoomNames: List[String] = {
       if (state.breakout.isDefined)
-        state.breakout.get.getRooms.map(_.name).toList
+        state.breakout.get.getRooms().map(_.name).toList
       else
         List()
     }
     val breakoutRoom: BreakoutRoom = BreakoutRoom(liveMeeting.props.breakoutProps.parentId, breakoutRoomNames)
     MeetingInfoAnalytics(
-      meetingName, externalId, internalId, hasUserJoined, isMeetingRecorded, getMeetingInfoWebcamDetails, getMeetingInfoAudioDetails,
-      screenshare, listOfUsers.map(u => Participant(u.intId, u.name, u.role)), getMeetingInfoPresentationDetails, breakoutRoom
+      meetingName, externalId, internalId, hasUserJoined, isMeetingRecorded, getMeetingInfoWebcamDetails(), getMeetingInfoAudioDetails(),
+      screenshare, listOfUsers.map(u => Participant(u.intId, u.name, u.role)), getMeetingInfoPresentationDetails(), breakoutRoom
     )
   }
 
@@ -914,8 +913,8 @@ class MeetingActor(
 
   private def getMeetingInfoPresentationDetails(): PresentationInfo = {
     val presentationPods: Vector[PresentationPod] = state.presentationPodManager.getAllPresentationPodsInMeeting()
-    val presentationId: String = presentationPods.flatMap(_.getCurrentPresentation.map(_.id)).mkString
-    val presentationName: String = presentationPods.flatMap(_.getCurrentPresentation.map(_.name)).mkString
+    val presentationId: String = presentationPods.flatMap(_.getCurrentPresentation().map(_.id)).mkString
+    val presentationName: String = presentationPods.flatMap(_.getCurrentPresentation().map(_.name)).mkString
     PresentationInfo(presentationId, presentationName)
   }
 
@@ -930,7 +929,7 @@ class MeetingActor(
 
   }
 
-  def handleMonitorNumberOfUsers(msg: MonitorNumberOfUsersInternalMsg) {
+  def handleMonitorNumberOfUsers(msg: MonitorNumberOfUsersInternalMsg): Unit = {
     state = removeUsersWithExpiredUserLeftFlag(liveMeeting, state)
 
     if (!liveMeeting.props.meetingProp.isBreakout) {
@@ -949,7 +948,7 @@ class MeetingActor(
     checkIfNeedToEndMeetingWhenNoModerators(liveMeeting)
   }
 
-  def handleMonitorGuestWaitPresenceInternalMsg(msg: MonitorGuestWaitPresenceInternalMsg) {
+  def handleMonitorGuestWaitPresenceInternalMsg(msg: MonitorGuestWaitPresenceInternalMsg): Unit = {
     if (liveMeeting.props.usersProp.waitingGuestUsersTimeout > 0) {
       for {
         regUser <- RegisteredUsers.findAll(liveMeeting.registeredUsers)
@@ -1053,7 +1052,7 @@ class MeetingActor(
       state.expiryTracker.moderatorHasJoined &&
       state.expiryTracker.lastModeratorLeftOnInMs != 0 &&
       //Check if has moderator with leftFlag
-      Users2x.findModerator(liveMeeting.users2x).toVector.length == 0) {
+      Users2x.findModerator(liveMeeting.users2x).toVector.isEmpty) {
       val hasModeratorLeftRecently = (TimeUtil.timeNowInMs() - state.expiryTracker.endWhenNoModeratorDelayInMs) < state.expiryTracker.lastModeratorLeftOnInMs
       if (!hasModeratorLeftRecently) {
         log.info("Meeting will end due option endWhenNoModerator is enabled and all moderators have left the meeting. meetingId=" + props.meetingProp.intId)
@@ -1081,7 +1080,8 @@ class MeetingActor(
       } yield {
         log.info("Removing user from meeting. meetingId=" + props.meetingProp.intId + " userId=" + u.intId + " user=" + u)
 
-        RegisteredUsers.updateUserJoin(liveMeeting.registeredUsers, ru, joined = false)
+        val updatedRegUser = RegisteredUsers.updateUserJoin(liveMeeting.registeredUsers, ru, joined = false)
+        UserDAO.update(updatedRegUser)
 
         // send a user left event for the clients to update
         val userLeftMeetingEvent = MsgBuilder.buildUserLeftMeetingEvtMsg(liveMeeting.props.meetingProp.intId, u.intId)
@@ -1106,7 +1106,7 @@ class MeetingActor(
           Polls.handleStopPollReqMsg(state, u.intId, liveMeeting)
         }
 
-        UserStateDAO.updateExpired(u.meetingId, u.intId, true)
+        UserStateDAO.updateExpired(u.meetingId, u.intId, expired = true)
       }
     }
 
@@ -1128,7 +1128,7 @@ class MeetingActor(
     }
   }
 
-  var lastUsersInactivityInspection = System.currentTimeMillis()
+  private var lastUsersInactivityInspection = System.currentTimeMillis()
 
   def processUserInactivityAudit(): Unit = {
 

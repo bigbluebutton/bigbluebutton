@@ -2,7 +2,7 @@ package org.bigbluebutton.core.apps.users
 
 import org.bigbluebutton.common2.msgs._
 import org.bigbluebutton.core.apps.RightsManagementTrait
-import org.bigbluebutton.core.db.{ JsonUtils, UserClientSettingsDAO, UserStateDAO }
+import org.bigbluebutton.core.db.{ JsonUtils, UserClientSettingsDAO }
 import org.bigbluebutton.core.models.Users2x
 import org.bigbluebutton.core.running.{ LiveMeeting, OutMsgRouter }
 

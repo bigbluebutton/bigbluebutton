@@ -4,7 +4,7 @@ import org.bigbluebutton.common2.msgs._
 import org.bigbluebutton.core.apps.RightsManagementTrait
 import org.bigbluebutton.core.apps.groupchats.GroupChatApp
 import org.bigbluebutton.core.db.ChatMessageDAO
-import org.bigbluebutton.core.models.{ GroupChatFactory, GroupChatMessage, Roles, UserState, Users2x }
+import org.bigbluebutton.core.models.{ Roles, UserState, Users2x }
 import org.bigbluebutton.core.running.{ LiveMeeting, OutMsgRouter }
 import org.bigbluebutton.core2.MeetingStatus2x
 

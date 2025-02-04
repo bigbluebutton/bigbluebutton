@@ -1,7 +1,7 @@
 package org.bigbluebutton.core.db
 
 import org.bigbluebutton.core.apps.TimerModel
-import org.bigbluebutton.core.apps.TimerModel.{getAccumulated, getIsActive, isRunning, getStartedAt, isStopwatch, getTime, getTrack}
+import org.bigbluebutton.core.apps.TimerModel._
 import slick.jdbc.PostgresProfile.api._
 
 case class TimerDbModel(
@@ -24,7 +24,7 @@ class TimerDbTableDef(tag: Tag) extends Table[TimerDbModel](tag, None, "timer") 
   val accumulated = column[Long]("accumulated")
   val startedOn = column[Long]("startedOn")
   val songTrack = column[String]("songTrack")
-  override def * = (meetingId, stopwatch, running, active, time, accumulated, startedOn, songTrack) <> (TimerDbModel.tupled, TimerDbModel.unapply)
+  override def * = (meetingId, stopwatch, running, active, time, accumulated, startedOn, songTrack) .<> (TimerDbModel.tupled, TimerDbModel.unapply)
 }
 
 object TimerDAO {

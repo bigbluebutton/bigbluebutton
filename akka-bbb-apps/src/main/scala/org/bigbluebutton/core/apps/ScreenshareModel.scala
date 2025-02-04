@@ -1,7 +1,5 @@
 package org.bigbluebutton.core.apps
 
-import org.bigbluebutton.core.running.{ LiveMeeting, OutMsgRouter }
-
 object ScreenshareModel {
   def resetDesktopSharingParams(status: ScreenshareModel) = {
     status.broadcastingRTMP = false
@@ -19,15 +17,15 @@ object ScreenshareModel {
     return status.screenshareStarted
   }
 
-  def setScreenshareStarted(status: ScreenshareModel, b: Boolean) {
+  def setScreenshareStarted(status: ScreenshareModel, b: Boolean): Unit = {
     status.screenshareStarted = b
   }
 
-  def setScreenshareVideoWidth(status: ScreenshareModel, videoWidth: Int) {
+  def setScreenshareVideoWidth(status: ScreenshareModel, videoWidth: Int): Unit = {
     status.screenshareVideoWidth = videoWidth
   }
 
-  def setScreenshareVideoHeight(status: ScreenshareModel, videoHeight: Int) {
+  def setScreenshareVideoHeight(status: ScreenshareModel, videoHeight: Int): Unit = {
     status.screenshareVideoHeight = videoHeight
   }
 
@@ -39,7 +37,7 @@ object ScreenshareModel {
     status.screenshareVideoHeight
   }
 
-  def broadcastingRTMPStarted(status: ScreenshareModel) {
+  def broadcastingRTMPStarted(status: ScreenshareModel): Unit = {
     status.broadcastingRTMP = true
   }
 
@@ -47,11 +45,11 @@ object ScreenshareModel {
     status.broadcastingRTMP
   }
 
-  def broadcastingRTMPStopped(status: ScreenshareModel) {
+  def broadcastingRTMPStopped(status: ScreenshareModel): Unit = {
     status.broadcastingRTMP = false
   }
 
-  def setRTMPBroadcastingUrl(status: ScreenshareModel, path: String) {
+  def setRTMPBroadcastingUrl(status: ScreenshareModel, path: String): Unit = {
     status.rtmpBroadcastingUrl = path
   }
 

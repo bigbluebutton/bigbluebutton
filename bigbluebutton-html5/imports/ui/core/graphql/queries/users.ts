@@ -82,6 +82,9 @@ export const GET_USER_NAMES = gql`
   query Users {
     user(where: { bot: { _eq: false } } ) {
       name
+      nameSortable
+      firstNameSortable
+      lastNameSortable
     }
   }
 `;

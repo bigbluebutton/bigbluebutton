@@ -24,7 +24,7 @@ class SwitchTimerRecordEvent extends AbstractTimerRecordEvent {
 
   setEvent("SwitchTimerEvent")
 
-  def setStopwatch(value: Boolean) {
+  def setStopwatch(value: Boolean): Unit = {
     eventMap.put(STOPWATCH, value.toString)
   }
 }

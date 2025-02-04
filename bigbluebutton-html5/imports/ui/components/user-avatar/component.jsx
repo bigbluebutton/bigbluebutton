@@ -5,14 +5,12 @@ import Styled from './styles';
 import browserInfo from '/imports/utils/browserInfo';
 
 const propTypes = {
-  children: PropTypes.node,
+  children: React.ReactNode,
   moderator: PropTypes.bool,
   presenter: PropTypes.bool,
+  you: PropTypes.bool,
   talking: PropTypes.bool,
   muted: PropTypes.bool,
-  listenOnly: PropTypes.bool,
-  voice: PropTypes.bool,
-  noVoice: PropTypes.bool,
   color: PropTypes.string,
   emoji: PropTypes.bool,
   avatar: PropTypes.string,
@@ -26,16 +24,13 @@ const UserAvatar = ({
   children = <></>,
   moderator = false,
   presenter = false,
+  you = false,
   className = '',
   talking = false,
   muted = false,
-  listenOnly = false,
   color = '#000',
-  voice = false,
   emoji = false,
   avatar = '',
-  noVoice = false,
-  whiteboardAccess = false,
   isSkeleton = false,
 }) => {
   const Settings = getSettingsSingletonInstance();
@@ -51,19 +46,13 @@ const UserAvatar = ({
           data-test={moderator ? 'moderatorAvatar' : 'viewerAvatar'}
           moderator={moderator}
           presenter={presenter}
+          you={you}
+          viewer={!you && !moderator}
           className={className}
-          whiteboardAccess={whiteboardAccess && !presenter}
-          muted={muted}
-          listenOnly={listenOnly}
-          voice={voice}
-          noVoice={noVoice && !listenOnly}
           isChrome={isChrome}
           isFirefox={isFirefox}
           isEdge={isEdge}
-          style={{
-            backgroundColor: color,
-            color, // We need the same color on both for the border
-          }}
+          color={color}
         >
 
           <Styled.Talking talking={talking && !muted} animations={animations} />
@@ -84,7 +73,7 @@ const UserAvatar = ({
         </Styled.Avatar>
       )}
     </>
-  )
+  );
 };
 
 UserAvatar.propTypes = propTypes;

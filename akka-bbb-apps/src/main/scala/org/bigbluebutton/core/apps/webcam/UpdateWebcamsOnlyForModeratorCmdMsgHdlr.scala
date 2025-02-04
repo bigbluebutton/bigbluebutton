@@ -4,10 +4,10 @@ import org.bigbluebutton.common2.msgs._
 import org.bigbluebutton.core.apps.PermissionCheck
 import org.bigbluebutton.core.bus.MessageBus
 import org.bigbluebutton.core.db.{ MeetingUsersPoliciesDAO, NotificationDAO }
+import org.bigbluebutton.core.graphql.GraphqlMiddleware
 import org.bigbluebutton.core.models.{ RegisteredUsers, Roles, Users2x }
 import org.bigbluebutton.core.running.LiveMeeting
 import org.bigbluebutton.core2.message.senders.MsgBuilder
-import org.bigbluebutton.core.graphql.GraphqlMiddleware
 
 trait UpdateWebcamsOnlyForModeratorCmdMsgHdlr {
   this: WebcamApp2x =>
@@ -16,10 +16,10 @@ trait UpdateWebcamsOnlyForModeratorCmdMsgHdlr {
       msg:         UpdateWebcamsOnlyForModeratorCmdMsg,
       liveMeeting: LiveMeeting,
       bus:         MessageBus
-  ) {
+  ): Unit = {
     val meetingId = liveMeeting.props.meetingProp.intId
 
-    def broadcastEvent(meetingId: String, userId: String, webcamsOnlyForModerator: Boolean) {
+    def broadcastEvent(meetingId: String, userId: String, webcamsOnlyForModerator: Boolean): Unit = {
       val routing = Routing.addMsgToClientRouting(MessageTypes.BROADCAST_TO_MEETING, meetingId, userId)
       val envelope = BbbCoreEnvelope(WebcamsOnlyForModeratorChangedEvtMsg.NAME, routing)
       val body = WebcamsOnlyForModeratorChangedEvtMsgBody(webcamsOnlyForModerator, userId)

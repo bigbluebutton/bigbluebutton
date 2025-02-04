@@ -24,7 +24,7 @@ class UserVoiceDbTableDef(tag: Tag) extends Table[UserVoiceDbModel](tag, None, "
   override def * = (
     meetingId, userId, voiceUserId, callerName, callerNum, callingWith, joined, listenOnly,
     muted, spoke, talking, floor, lastFloorTime, startTime, endTime
-  ) <> (UserVoiceDbModel.tupled, UserVoiceDbModel.unapply)
+  ) .<> (UserVoiceDbModel.tupled, UserVoiceDbModel.unapply)
   val meetingId = column[String]("meetingId", O.PrimaryKey)
   val userId = column[String]("userId", O.PrimaryKey)
   val voiceUserId = column[String]("voiceUserId")

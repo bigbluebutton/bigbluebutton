@@ -1,24 +1,11 @@
 package org.bigbluebutton.core.apps
 
 import org.bigbluebutton.common2.msgs.TranscriptVO
+
 import scala.collection.immutable.HashMap
 
 class CaptionModel {
   private var transcripts = new HashMap[String, TranscriptVO]()
-
-  private def createTranscript(name: String, locale: String, ownerId: String): TranscriptVO = {
-    val transcript = TranscriptVO(ownerId, "", locale)
-    transcripts += name -> transcript
-    transcript
-  }
-
-  private def findTranscriptByOwnerId(userId: String): Option[(String, TranscriptVO)] = {
-    transcripts.find(_._2.ownerId == userId).foreach(t => {
-      return Some(t)
-    })
-
-    return None
-  }
 
   def getHistory(): Map[String, TranscriptVO] = {
     transcripts

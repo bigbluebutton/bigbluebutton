@@ -1,11 +1,10 @@
 package org.bigbluebutton.core.apps.layout
 
 import org.bigbluebutton.common2.msgs._
-import org.bigbluebutton.core.models.{ Layouts, LayoutsType }
-import org.bigbluebutton.core.running.OutMsgRouter
-import org.bigbluebutton.core2.MeetingStatus2x
 import org.bigbluebutton.core.apps.{ PermissionCheck, RightsManagementTrait }
 import org.bigbluebutton.core.db.{ LayoutDAO, NotificationDAO }
+import org.bigbluebutton.core.models.{ Layouts, LayoutsType }
+import org.bigbluebutton.core.running.OutMsgRouter
 import org.bigbluebutton.core2.message.senders.MsgBuilder
 
 trait BroadcastLayoutMsgHdlr extends RightsManagementTrait {

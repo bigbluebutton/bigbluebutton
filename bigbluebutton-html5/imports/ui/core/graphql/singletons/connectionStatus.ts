@@ -1,6 +1,7 @@
 import { makeVar, ReactiveVar } from '@apollo/client';
 import logger from '/imports/startup/client/logger';
 import { User } from '/imports/ui/Types/user';
+import getStatus from '/imports/ui/core/utils/getStatus';
 
 type NetworkData = {
   ready: boolean;
@@ -106,7 +107,14 @@ class ConnectionStatus {
 
   public setRttValue(value: number): void {
     if (value !== this.rttValue()) {
-      logger.debug({ logCode: 'stats_rtt_value_state' }, `RTT value changed to ${value}ms`);
+      const rttLevels = window.meetingClientSettings.public.stats.rtt;
+      const status = getStatus(rttLevels, value);
+      const isWarning = status === 'critical' || (this.rttStatus() === 'critical' && status !== 'critical');
+      if (isWarning) {
+        logger.warn({ logCode: 'stats_rtt_value_state', extraInfo: { rtt: value } }, `RTT value changed to ${value}ms`);
+      } else {
+        logger.debug({ logCode: 'stats_rtt_value_state', extraInfo: { rtt: value } }, `RTT value changed to ${value}ms`);
+      }
       this.rttValue(value);
     }
   }
@@ -136,7 +144,11 @@ class ConnectionStatus {
 
   public setRttStatus(value: string): void {
     if (value !== this.rttStatus()) {
-      logger.info({ logCode: 'stats_rtt_status_state' }, `Connection status changed to ${value} (rtt=${this.rttValue()}ms)`);
+      if (value === 'critical' || (value !== 'critical' && this.rttStatus() === 'critical')) {
+        logger.warn({ logCode: 'stats_rtt_status_state' }, `Connection status changed to ${value} (rtt=${this.rttValue()}ms)`);
+      } else {
+        logger.info({ logCode: 'stats_rtt_status_state' }, `Connection status changed to ${value} (rtt=${this.rttValue()}ms)`);
+      }
       this.rttStatus(value);
     }
   }

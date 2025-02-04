@@ -1,17 +1,11 @@
 package org.bigbluebutton.core.models
 
 import com.softwaremill.quicklens._
-import org.bigbluebutton.core.db.{
-  UserBreakoutRoomDAO,
-  UserDAO,
-  UserDbModel,
-  UserSessionTokenDAO,
-  UserLivekitDAO
-}
+import org.bigbluebutton.core.db.{UserDAO, UserLivekitDAO, UserSessionTokenDAO}
 import org.bigbluebutton.core.domain.BreakoutRoom2x
 
 object RegisteredUsers {
-  def create(meetingId: String, userId: String, extId: String, name: String, roles: String,
+  def create(meetingId: String, userId: String, extId: String, name: String, firstName: String, lastName: String, roles: String,
              authToken: String, sessionToken: Vector[String], avatar: String, webcamBackground: String, color: String, bot: Boolean,
              guest: Boolean, authenticated: Boolean, guestStatus: String, excludeFromDashboard: Boolean, enforceLayout: String, logoutUrl: String,
              userMetadata: Map[String, String], loggedOut: Boolean,
@@ -21,6 +15,8 @@ object RegisteredUsers {
       extId,
       meetingId,
       name,
+      firstName,
+      lastName,
       roles,
       authToken,
       sessionToken,
@@ -141,7 +137,6 @@ object RegisteredUsers {
       // ralam april 21, 2020
       val u = ejectedUser.modify(_.banned).setTo(true)
       users.save(u)
-      UserDAO.update(u)
       u
     } else {
       val u = ejectedUser.modify(_.ejected).setTo(true)
@@ -171,7 +166,6 @@ object RegisteredUsers {
                      role: String): RegisteredUser = {
     val u = user.modify(_.role).setTo(role)
     users.save(u)
-    UserDAO.update(u)
     u
   }
 
@@ -186,7 +180,6 @@ object RegisteredUsers {
   def updateUserJoin(users: RegisteredUsers, user: RegisteredUser, joined: Boolean): RegisteredUser = {
     val u = user.copy(joined = joined)
     users.save(u)
-    UserDAO.update(u)
     u
   }
 
@@ -253,6 +246,7 @@ class RegisteredUsers {
     regUsers.values.toVector
   }
 
+  /*
   private def delete(id: String): Option[RegisteredUser] = {
     val ru = regUsers.values.find(p => p.id == id)
     ru foreach { u =>
@@ -260,6 +254,7 @@ class RegisteredUsers {
     }
     ru
   }
+   */
 }
 
 case class RegisteredUser(
@@ -267,6 +262,8 @@ case class RegisteredUser(
     externId:                 String,
     meetingId:                String,
     name:                     String,
+    firstName:                String,
+    lastName:                 String,
     role:                     String,
     authToken:                String,
     sessionToken:             Vector[String],

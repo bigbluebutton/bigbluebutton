@@ -19,17 +19,15 @@
 
 package org.bigbluebutton.core.record.events
 
-import java.text.SimpleDateFormat
-
-import scala.collection.Map
-import scala.collection.mutable.HashMap
-
 import org.bigbluebutton.core.api.TimestampGenerator
+
+import java.text.SimpleDateFormat
+import scala.collection.{ Map, mutable }
 
 trait RecordEvent {
   import RecordEvent._
 
-  protected final val eventMap = new HashMap[String, String]()
+  protected final val eventMap = new mutable.HashMap[String, String]()
 
   setTimestamp(TimestampGenerator.generateTimestamp())
   timestampUTC(System.currentTimeMillis())
@@ -44,7 +42,7 @@ trait RecordEvent {
    * Set the module that generated the event.
    * @param module
    */
-  final def setModule(module: String) {
+  final def setModule(module: String): Unit = {
     eventMap.put(MODULE, module)
   }
 
@@ -52,7 +50,7 @@ trait RecordEvent {
    * Set the timestamp of the event.
    * @param timestamp
    */
-  final def setTimestamp(timestamp: Long) {
+  final def setTimestamp(timestamp: Long): Unit = {
     eventMap.put(TIMESTAMP, timestamp.toString)
   }
 
@@ -60,7 +58,7 @@ trait RecordEvent {
    * Set the meetingId for this particular event.
    * @param meetingId
    */
-  final def setMeetingId(meetingId: String) {
+  final def setMeetingId(meetingId: String): Unit = {
     eventMap.put(MEETING, meetingId)
   }
 
@@ -68,7 +66,7 @@ trait RecordEvent {
    * Set the name of the event.
    * @param event
    */
-  final def setEvent(event: String) {
+  final def setEvent(event: String): Unit = {
     eventMap.put(EVENT, event)
   }
 

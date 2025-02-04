@@ -1,9 +1,9 @@
 const { test } = require('../fixtures');
 const { fullyParallel } = require('../playwright.config');
-const { linkIssue, initializePages } = require('../core/helpers');
+const { initializePages } = require('../core/helpers');
 const { Chat } = require('./chat');
 
-test.describe('Chat', () => {
+test.describe('Chat', { tag: '@ci' }, () => {
   const chat = new Chat();
 
   test.describe.configure({ mode: fullyParallel ? 'parallel' : 'serial' });
@@ -11,81 +11,81 @@ test.describe('Chat', () => {
     await initializePages(chat, browser, { isMultiUser: true });
   });
 
-  // https://docs.bigbluebutton.org/2.6/release-tests.html#public-message-automated
-  test('Send public message', { tag: '@ci' }, async () => {
+  // https://docs.bigbluebutton.org/3.0/testing/release-testing/#public-message-automated
+  test('Send public message', async () => {
     await chat.sendPublicMessage();
   });
 
-  // https://docs.bigbluebutton.org/2.6/release-tests.html#private-message-automated
-  test('Send private message', { tag: '@ci' }, async () => {
+  // https://docs.bigbluebutton.org/3.0/testing/release-testing/#private-message-automated
+  test('Send private message', { tag: '@flaky-3.1' }, async () => {
     await chat.sendPrivateMessage();
   });
 
-  test('Clear chat', { tag: '@ci' }, async () => {
+  test('Clear chat', async () => {
     await chat.clearChat();
   });
 
-  test.skip('Copy chat', async () => {
+  test('Copy chat', { tag: '@only-headed' }, async ({}, testInfo) => {
+    test.skip(testInfo.project.use.headless, 'Only works in headed mode');
     await chat.copyChat();
   });
 
-  test('Save chat', { tag: '@ci' }, async ({}, testInfo) => {
+  test('Save chat', async ({}, testInfo) => {
     await chat.saveChat(testInfo);
   });
 
-  test('Verify character limit', { tag: '@ci' }, async () => {
+  test('Verify character limit', async () => {
     await chat.characterLimit();
   });
 
-  // https://docs.bigbluebutton.org/2.6/release-tests.html#sending-empty-chat-message-automated
-  test('Not able to send an empty message', { tag: '@ci' }, async () => {
+  // https://docs.bigbluebutton.org/3.0/testing/release-testing/#sending-empty-chat-message-automated
+  test('Not able to send an empty message', async () => {
     await chat.emptyMessage();
   });
 
-  test('Copy and paste public message', async () => {
-    linkIssue('15948');
+  test('Copy and paste public message', { tag: '@flaky-3.1' }, async () => {
     await chat.copyPastePublicMessage();
   })
 
-  test('Send emoji on public chat', { tag: '@ci' }, async () => {
+  test('Send emoji on public chat using emoji picker', { tag: '@setting-required:chat.emojiPicker' }, async () => {
     await chat.sendEmoji();
   });
 
-  test.skip('Copy chat with emoji', async () => {
-    // Only works in headed mode
+  test('Copy chat with emoji', { tag: '@only-headed' }, async () => {
     await chat.emojiCopyChat();
   });
 
-  test('Close private chat', { tag: '@ci' }, async () => {
+  test('Close private chat', { tag: '@flaky-3.1' }, async () => {
     await chat.closePrivateChat();
   });
 
-  test('Save chat with emoji', { tag: '@ci' }, async ({}, testInfo) => {
+  test('Save chat with emoji', { tag: '@setting-required:chat.emojiPicker' }, async ({}, testInfo) => {
     await chat.emojiSaveChat(testInfo);
   });
 
-  test('Send emoji on private chat', async () => {
+  test('Send emoji on private chat', { tag: '@setting-required:chat.emojiPicker' }, async () => {
     await chat.emojiSendPrivateChat();
   });
 
-  test('Send auto converted emoji on public chat', async () => {
+  test('Send auto converted emoji on public chat', { tag: '@setting-required:chat.autoConvertEmoji' }, async () => {
     await chat.autoConvertEmojiPublicChat();
   });
 
-  test.skip('Copy chat with auto converted emoji', async () => {
+  test('Copy chat with auto converted emoji', { tag: '@setting-required:chat.autoConvertEmoji' }, async () => {
     await chat.autoConvertEmojiCopyChat();
   });
 
-  test('Auto convert emoji save chat', async ({}, testInfo) => {
+  test('Auto convert emoji save chat', { tag: '@setting-required:chat.autoConvertEmoji' }, async ({}, testInfo) => {
     await chat.autoConvertEmojiSaveChat(testInfo);
   });
 
-  test('Send auto converted emoji on private chat', async () => {
+  test('Send auto converted emoji on private chat', { tag: '@setting-required:chat.autoConvertEmoji' }, async () => {
     await chat.autoConvertEmojiSendPrivateChat();
   });
 
   // failure only reproducible in CI (user leaves but keeps shown in the mod user list)
-  test('Private chat disabled when user leaves meeting', { tag: ['@ci', '@flaky'] }, async () => {
+  //! flaky flag recently removed in order to see current behavior
+  test('Private chat disabled when user leaves meeting', { tag: ['@ci', '@flaky-3.1'] }, async () => {
     await chat.chatDisabledUserLeaves();
   });
 });

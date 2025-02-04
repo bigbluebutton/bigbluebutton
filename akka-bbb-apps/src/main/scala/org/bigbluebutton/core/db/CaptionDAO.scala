@@ -2,6 +2,8 @@ package org.bigbluebutton.core.db
 
 import slick.jdbc.PostgresProfile.api._
 
+import scala.collection.compat.immutable.ArraySeq
+
 case class CaptionDbModel(
     captionId:   String,
     meetingId:   String,
@@ -20,7 +22,9 @@ class CaptionTableDef(tag: Tag) extends Table[CaptionDbModel](tag, None, "captio
   val locale = column[String]("locale")
   val captionText = column[String]("captionText")
   val createdAt = column[java.sql.Timestamp]("createdAt")
-  def * = (captionId, meetingId, captionType, userId, locale, captionText, createdAt) <> (CaptionDbModel.tupled, CaptionDbModel.unapply)
+  def * = (
+    captionId, meetingId, captionType, userId, locale, captionText, createdAt
+  ).<>(CaptionDbModel.tupled, CaptionDbModel.unapply)
 }
 
 object CaptionTypes {
@@ -51,8 +55,9 @@ object CaptionDAO {
 
     val lines: Array[String] = text.split("\\r?\\n").filter(_.trim.nonEmpty)
     val lastTwoLines = lines.takeRight(2)
+    val lastTwoLinesSeq = ArraySeq.unsafeWrapArray(lastTwoLines) // Use efficient wrapping
 
-    val actions: Seq[DBIO[Int]] = lastTwoLines.map { line =>
+    val actions: Seq[DBIO[Int]] = lastTwoLinesSeq.map { line =>
       sqlu"""
         WITH upsert AS (
           UPDATE caption

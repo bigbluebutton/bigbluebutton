@@ -20,7 +20,7 @@ class RecordingFileSplitter(
   val extension: String = stream.substring(lastPointPos, stream.length())
 
   class RecordingFileSplitterStopTask extends java.util.TimerTask {
-    def run() {
+    def run(): Unit = {
       val event = MsgBuilder.buildStopRecordingVoiceConfSysMsg(
         liveMeeting.props.meetingProp.intId,
         liveMeeting.props.voiceProp.voiceConf,
@@ -33,7 +33,7 @@ class RecordingFileSplitter(
   class RecordingFileSplitterStartTask extends java.util.TimerTask {
     var currentFileNumber: Int = 0
 
-    def run() {
+    def run(): Unit = {
       val newStreamPath = pathWithoutExtension + "_" + String.valueOf(currentFileNumber) + extension;
       MeetingStatus2x.voiceRecordingStart(liveMeeting.status, newStreamPath)
       val event = MsgBuilder.buildStartRecordingVoiceConfSysMsg(
@@ -58,7 +58,7 @@ class RecordingFileSplitter(
     }
   }
 
-  def stop() {
+  def stop(): Unit = {
     startRecTimer.cancel()
     if (stopRecTimer != null) {
       stopRecTimer.cancel()

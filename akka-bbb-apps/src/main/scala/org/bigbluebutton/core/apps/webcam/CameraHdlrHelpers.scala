@@ -1,10 +1,9 @@
 package org.bigbluebutton.core.apps.webcam
 
+import org.bigbluebutton.{ LockSettingsUtil, SystemConfiguration }
 import org.bigbluebutton.common2.msgs._
-import org.bigbluebutton.LockSettingsUtil
-import org.bigbluebutton.SystemConfiguration
 import org.bigbluebutton.core.apps.{ PermissionCheck, RightsManagementTrait }
-import org.bigbluebutton.core.models.{ Users2x, Webcams, WebcamStream }
+import org.bigbluebutton.core.models.{ Users2x, WebcamStream, Webcams }
 import org.bigbluebutton.core.running.{ LiveMeeting, OutMsgRouter }
 import org.bigbluebutton.core2.MeetingStatus2x
 
@@ -137,7 +136,7 @@ object CameraHdlrHelpers extends SystemConfiguration with RightsManagementTrait 
       outGW:       OutMsgRouter
   ): Unit = {
 
-    def broadcastEvent(meetingId: String, userId: String, streamId: String) {
+    def broadcastEvent(meetingId: String, userId: String, streamId: String): Unit = {
       val routing = Routing.addMsgToClientRouting(MessageTypes.BROADCAST_TO_MEETING, meetingId, userId)
       val envelope = BbbCoreEnvelope(UserBroadcastCamStoppedEvtMsg.NAME, routing)
       val header = BbbClientMsgHeader(UserBroadcastCamStoppedEvtMsg.NAME, meetingId, userId)

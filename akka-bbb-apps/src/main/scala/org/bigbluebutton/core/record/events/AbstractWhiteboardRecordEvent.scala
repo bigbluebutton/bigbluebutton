@@ -24,11 +24,11 @@ trait AbstractWhiteboardRecordEvent extends RecordEvent {
 
   setModule("WHITEBOARD")
 
-  def setPresentation(name: String) {
+  def setPresentation(name: String): Unit = {
     eventMap.put(PRESENTATION, name)
   }
 
-  def setPageNumber(num: Integer) {
+  def setPageNumber(num: Integer): Unit = {
     /*
 		 * Subtract 1 from the page number to be zero-based to be
 		 * compatible with 0.81 and earlier. (ralam Sept 2, 2014)
@@ -36,7 +36,7 @@ trait AbstractWhiteboardRecordEvent extends RecordEvent {
     eventMap.put(PAGE_NUM, (num - 1).toString)
   }
 
-  def setWhiteboardId(id: String) {
+  def setWhiteboardId(id: String): Unit = {
     eventMap.put(WHITEBOARD_ID, id)
   }
 }

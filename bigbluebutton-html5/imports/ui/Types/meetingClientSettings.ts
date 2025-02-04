@@ -1,4 +1,7 @@
-import type { TrackPublishOptions } from 'livekit-client';
+import type {
+  InternalRoomOptions,
+  TrackPublishOptions,
+} from 'livekit-client';
 
 export interface MeetingClientSettings {
   public: Public
@@ -56,10 +59,10 @@ export interface App {
   learningDashboardBase: string
   customStyleUrl: string | null
   darkTheme: DarkTheme
-  askForFeedbackOnLogout: boolean
   askForConfirmationOnLeave: boolean
   wakeLock: WakeLock
   allowDefaultLogoutUrl: boolean
+  skipMeetingEnded: boolean
   dynamicGuestPolicy: boolean
   enableGuestLobbyMessage: boolean
   guestPolicyExtraAllowOptions: boolean
@@ -79,6 +82,7 @@ export interface App {
   warnAboutUnsavedContentOnMeetingEnd: boolean
   audioCaptions: AudioCaptions
   mutedAlert: MutedAlert
+  appsGallery: AppsGallery
   remainingTimeThreshold: number
   remainingTimeAlertThresholdArray: number[]
   enableDebugWindow: boolean
@@ -138,6 +142,10 @@ export interface MutedAlert {
   interval: number
   threshold: number
   duration: number
+}
+
+export interface AppsGallery {
+  maxPinnedApps: number
 }
 
 export interface Breakouts {
@@ -629,6 +637,8 @@ export interface LiveKitAudioSettings {
 
 export interface LiveKitSettings {
   url?: string
+  selectiveSubscription?: boolean
+  roomOptions?: Partial<InternalRoomOptions>
   audio?: LiveKitAudioSettings
   camera?: LiveKitCameraSettings
   screenshare?: LiveKitScreenShareSettings
@@ -704,6 +714,7 @@ export interface User {
 }
 
 export interface Label {
+  presenter: boolean;
   moderator: boolean
   mobile: boolean
   guest: boolean
