@@ -217,12 +217,15 @@ const PushLayoutEngine = (props) => {
         value: contextLayout,
       });
 
-      updateSettings({
-        application: {
-          ...Settings.application,
-          selectedLayout: contextLayout,
-        },
-      }, null, setLocalSettings);
+      // Shouldn't run when enforceLayoutDidChange
+      if (pushLayoutMeeting) {
+        updateSettings({
+          application: {
+            ...Settings.application,
+            selectedLayout: contextLayout,
+          },
+        }, null, setLocalSettings);
+      }
     };
 
     const replicatePresentationState = () => {
@@ -286,7 +289,9 @@ const PushLayoutEngine = (props) => {
       }
     };
     // Sync local state of push layout
-    if ((isModerator || isPresenter) && pushLayoutMeetingDidChange) {
+    if ((isModerator || isPresenter)
+      && pushLayoutMeetingDidChange
+      && pushLayoutMeeting !== pushLayout) {
       updateSettings({
         application: {
           ...Settings.application,
@@ -323,8 +328,6 @@ const PushLayoutEngine = (props) => {
       || enforceLayoutResult !== prevProps.enforceLayoutResult
       || !equalDouble(presentationVideoRate, prevProps.presentationVideoRate);
 
-    // push layout once after presenter toggles
-    // special case where we set pushLayout to false in all viewers
     if (pushLayout !== prevProps.pushLayout) {
       if (isModerator) {
         setPushLayout(pushLayout);
