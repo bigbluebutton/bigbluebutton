@@ -158,7 +158,6 @@
     "app.user.activityCheck.label": "Kontrolli, kas kasutaja on veel sessioonil ({0})",
     "app.user.activityCheck.check": "Kontrolli",
     "app.userList.usersTitle": "Kasutajad ({0})",
-    "app.userList.lockedUsersTitle": "Moderaatorid ({0})",
     "app.userList.participantsTitle": "Osalejad",
     "app.userList.messagesTitle": "Sõnumid",
     "app.userList.notesTitle": "Märkmed",
