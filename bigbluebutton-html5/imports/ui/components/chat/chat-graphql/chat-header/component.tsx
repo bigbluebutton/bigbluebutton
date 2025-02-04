@@ -48,7 +48,7 @@ const ChatHeader: React.FC<ChatHeaderProps> = ({
         accessKey: HIDE_CHAT_AK,
         'aria-label': intl.formatMessage(intlMessages.hideChatLabel, { 0: title }),
         'data-test': 'hidePrivateChat',
-        icon: 'close',
+        icon: 'minus',
         label: intl.formatMessage(intlMessages.hideChatLabel, { 0: title }),
         onClick: () => {
           updateVisible({ variables: { chatId, visible: false } });

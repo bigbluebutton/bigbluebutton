@@ -35,9 +35,9 @@ const intlMessages = defineMessages({
     id: 'app.notes.notesDropdown.unpinNotes',
     description: 'Label for unpin shared notes button',
   },
-  close: {
-    id: 'app.notes.close',
-    description: 'Label for the close shared notes panel',
+  minimize: {
+    id: 'app.notes.minimize',
+    description: 'Label for the minimize shared notes panel',
   },
 });
 
@@ -154,10 +154,10 @@ const NotesGraphql: React.FC<NotesGraphqlProps> = (props) => {
                   value: PANELS.NONE,
                 });
               },
-              icon: 'close',
+              icon: 'minus',
               'data-test': 'hideNotesLabel',
               'aria-label': intl.formatMessage(intlMessages.hide),
-              label: intl.formatMessage(intlMessages.close),
+              label: intl.formatMessage(intlMessages.minimize),
             }}
             customRightButton={
               <NotesDropdown handlePinSharedNotes={handlePinSharedNotes} presentationEnabled={isPresentationEnabled} />
