@@ -329,8 +329,8 @@ class Page {
     }
   }
 
-  async setHeightWidthViewPortSize() {
-    await this.page.setViewportSize({ width: 1366, height: 768 });
+  async setHeightWidthViewPortSize({ width = 1366, height = 768 } = {}) {
+    await this.page.setViewportSize({ width, height });
   }
 
   async getYoutubeFrame() {

@@ -27,7 +27,7 @@ class Create {
       await this.userPage1.screenshot(testName, '01-page02-initialized');
 
       await this.modPage1.waitAndClick(e.manageUsers);
-      await this.modPage1.waitAndClick(e.createBreakoutRooms);
+      await this.modPage1.waitAndClick(e.createBreakoutRoomsButton);
       await this.modPage1.screenshot(testName, '02-page01-creating-breakoutrooms');
 
       await this.modPage1.waitAndClick(e.randomlyAssign);

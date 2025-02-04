@@ -59,13 +59,16 @@ exports.speechRecognition = 'select[id="speechSelect"]';
 exports.speechRecognitionUnsupported = 'div[data-test="speechRecognitionUnsupported"]';
 
 // Breakout
-exports.createBreakoutRooms = 'li[data-test="createBreakoutRooms"]';
+exports.createBreakoutRoomsButton = 'button[data-test="createBreakoutRoomsButton"]';
+exports.updateBreakoutRoomsButton = 'button[data-test="updateBreakoutRoomsButton"]';
+exports.breakoutRoomSidebarButton = 'div[data-test="breakoutroomSidebarButton"]';
 exports.randomlyAssign = 'button[data-test="randomlyAssign"]';
 exports.resetAssignments = 'button[data-test="resetAssignments"]'
 exports.breakoutRoomsItem = 'div[data-test="breakoutRoomsItem"]';
 exports.alreadyConnected = 'span[data-test="alreadyConnected"]';
 exports.askJoinRoom1 = 'button[data-test="askToJoinRoom1"]';
 exports.joinRoom1 = 'button[data-test="joinRoom1"]';
+exports.joinFirstRoom = 'button[data-test^="joinRoom"]';
 exports.allowChoiceRoom = 'input[id="freeJoinCheckbox"]';
 exports.labelGeneratingURL = 'span[data-test="labelGeneratingURL"]';
 exports.endBreakoutRoomsButton = 'button[data-test="endBreakoutRoomsButton"]';
@@ -184,7 +187,7 @@ exports.minutesInput = 'input[data-test="minutesInput"]';
 exports.secondsInput = 'input[data-test="secondsInput"]';
 
 // Notes
-exports.sharedNotes = 'div[data-test="sharedNotes"]';
+exports.sharedNotes = 'div[data-test="sharedNotesButton"]';
 exports.hideNotesLabel = 'button[data-test="hideNotesLabel"]';
 exports.etherpadFrame = 'iframe[title="pad"]';
 exports.etherpadOuter = 'iframe[title="Ether"]';

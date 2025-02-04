@@ -10,7 +10,7 @@ class DisabledFeatures extends MultiUsers {
 
   async breakoutRooms() {
     await this.modPage.waitAndClick(e.manageUsers);
-    await this.modPage.wasRemoved(e.createBreakoutRooms, 'should not display the option to create breakout rooms on the manage users');
+    await this.modPage.wasRemoved(e.createBreakoutRoomsButton, 'should not display the option to create breakout rooms on the manage users');
   }
 
   async speechRecognition() {
@@ -75,14 +75,12 @@ class DisabledFeatures extends MultiUsers {
   }
 
   async importPresentationWithAnnotationsFromBreakoutRooms() {
-    await this.modPage.waitAndClick(e.manageUsers);
-    await this.modPage.waitAndClick(e.createBreakoutRooms);
+    await this.modPage.waitAndClick(e.createBreakoutRoomsButton);
     await this.modPage.wasRemoved(e.captureBreakoutWhiteboard, 'should not display the option to capture the breakout room whiteboard when the create breakout rooms modal is opened');
   }
 
   async importSharedNotesFromBreakoutRooms() {
-    await this.modPage.waitAndClick(e.manageUsers);
-    await this.modPage.waitAndClick(e.createBreakoutRooms);
+    await this.modPage.waitAndClick(e.createBreakoutRoomsButton);
     await this.modPage.wasRemoved(e.captureBreakoutSharedNotes, 'should not display the option to capture the breakout room shared notes when the create breakout room modal is opened');
   }
 
@@ -114,8 +112,7 @@ class DisabledFeatures extends MultiUsers {
 
   // Disabled Features Exclude
   async breakoutRoomsExclude() {
-    await this.modPage.waitAndClick(e.manageUsers);
-    await this.modPage.hasElement(e.createBreakoutRooms, 'should display the create breakout rooms option on the manage users');
+    await this.modPage.hasElement(e.createBreakoutRoomsButton, 'should display the create breakout rooms option on the manage users');
   }
 
   async speechRecognitionExclude() {
@@ -182,14 +179,12 @@ class DisabledFeatures extends MultiUsers {
   }
 
   async importPresentationWithAnnotationsFromBreakoutRoomsExclude() {
-    await this.modPage.waitAndClick(e.manageUsers);
-    await this.modPage.waitAndClick(e.createBreakoutRooms);
+    await this.modPage.waitAndClick(e.createBreakoutRoomsButton);
     await this.modPage.hasElement(e.captureBreakoutWhiteboard, 'should display the option to capture the breakout whiteboard on the create breakout rooms modal');
   }
 
   async importSharedNotesFromBreakoutRoomsExclude() {
-    await this.modPage.waitAndClick(e.manageUsers);
-    await this.modPage.waitAndClick(e.createBreakoutRooms);
+    await this.modPage.waitAndClick(e.createBreakoutRoomsButton);
     await this.modPage.hasElement(e.captureBreakoutSharedNotes, 'should display the option to capture the shared notes whiteboard on the create breakout rooms modal');
   }
 
