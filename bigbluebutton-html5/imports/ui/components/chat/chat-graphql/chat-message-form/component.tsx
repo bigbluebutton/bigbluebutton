@@ -641,6 +641,7 @@ const ChatMessageFormContainer: React.FC = () => {
   const intl = useIntl();
   const idChatOpen: string = layoutSelect((i: Layout) => i.idChatOpen);
   const isRTL = layoutSelect((i: Layout) => i.isRTL);
+  const isConnected = useReactiveVar(connectionStatus.getConnectedStatusVar());
   const { data: chat } = useChat((c: Partial<Chat>) => ({
     participant: c?.participant,
     chatId: c?.chatId,
@@ -714,7 +715,6 @@ const ChatMessageFormContainer: React.FC = () => {
   }
 
   const CHAT_CONFIG = window.meetingClientSettings.public.chat;
-  const isConnected = useReactiveVar(connectionStatus.getConnectedStatusVar());
 
   return (
     <ChatMessageForm
