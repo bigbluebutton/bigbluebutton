@@ -1669,3 +1669,37 @@ $ sudo apt-get install bbb-webhooks
 ```
 
 For information on configuring bbb-webhooks, see [bbb-webhooks](/development/webhooks).
+
+### Scalability
+
+#### Number of Hasura instances
+
+BigBlueButton comes in with one instance of Hasura (bbb-graphql-server), whose responsibility is to handle GraphQL queries and subscriptions from clients and once there is a subscription to continually update whenever new data is available.
+This works fine for server load of under couple of hundred users (depending on their activities). Afterwards queries tend to take longer to be completed. Enabling more than one instance of Hasura addresses this problem.
+
+##### How to enable additional Hasura instances?
+
+Edit `/etc/nginx/sites-available/hasura-loadbalancer.conf` and add to the list inside of the `hasura` block. Adding one more instance listening at port 8086 looks like this:
+
+```
+upstream hasura {
+    least_conn;
+    server 127.0.0.1:8085;
+    server 127.0.0.1:8086;
+}
+```
+
+After saving the file use `systemctl` to enable this new instance via:
+
+`systemctl enable --now bbb-graphql-server@8086`
+
+Finally, restart BigBlueButton
+
+`bbb-conf --restart`
+
+You may want to double check that both instances are running fine via `systemctl status bbb-graphql-server*` which should list the services on both ports as "running".
+
+##### How many Hasura instances should I run?
+
+As of BigBlueButton 3.0, we recommend keeping the default (single instance) unless you expect that your BigBlueButton server will be handling hundreds of simultaneous users. A second instance would prove benefitial for those aiming to support a larger number (several hundreds users), especially on hardware which is multiple times more performant than what we outline in the [minimum server requirements](/administration/install#minimum-server-requirements).
+We have not yet noticed visible difference with more than two instances of Hasura, because at this level of usage, there are other aspects of BigBlueButton which will also begin showing signs of slowing down.
