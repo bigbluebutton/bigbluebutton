@@ -290,7 +290,7 @@ const WebcamComponent: React.FC<WebcamComponentProps> = ({
               }}
             >
               <>
-                <h2>{intl.formatMessage(intlMessages.camerasAriaLabel)}</h2>
+                <h2 className="sr-only">{intl.formatMessage(intlMessages.camerasAriaLabel)}</h2>
                 <VideoProviderContainer
                   {...{
                     swapLayout,
