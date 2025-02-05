@@ -10,6 +10,7 @@ import {
 } from '/imports/ui/stylesheets/styled-components/palette';
 import {
   smPaddingX,
+  mdPadding,
   borderSize,
   contentSidebarBottomScrollPadding,
 } from '/imports/ui/stylesheets/styled-components/general';
@@ -32,6 +33,7 @@ const Separator = styled(BaseSeparator)``;
 const ScrollableSection = styled(ScrollboxVertical)`
   flex-grow: 1;
   padding-bottom: ${contentSidebarBottomScrollPadding};
+  margin: ${mdPadding};
 `;
 
 const UserList = styled(FlexColumn)`

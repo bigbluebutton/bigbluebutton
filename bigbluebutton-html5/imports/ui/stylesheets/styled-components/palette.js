@@ -11,6 +11,8 @@ const colorGrayLightest = 'var(--color-gray-lightest, #D4D9DF)';
 const colorGrayIcons = 'var(--color-gray-icons, #909CAF)';
 const colorGrayUserListToolbar = 'var(--color-gray-user-list-toolbar, #F4F6FA)';
 
+const colorBorder = 'var(--color-border, #B8C9D8)';
+
 const colorBlueLight = 'var(--color-blue-light, #54a1f3)';
 const colorBlueLighter = 'var(--color-blue-lighter, #92BCEA)';
 const colorBlueLightest = 'var(--color-blue-lightest, #E4ECF2)';
@@ -149,6 +151,7 @@ export {
   colorGrayLightest,
   colorGrayIcons,
   colorGrayUserListToolbar,
+  colorBorder,
   colorTransparent,
   colorUserModerator,
   colorUserYou,
