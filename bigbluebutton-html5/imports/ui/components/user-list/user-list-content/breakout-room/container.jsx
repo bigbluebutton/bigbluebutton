@@ -7,8 +7,11 @@ import useCurrentUser from '/imports/ui/core/hooks/useCurrentUser';
 import { ACTIONS, PANELS } from '../../../layout/enums';
 import logger from '/imports/startup/client/logger';
 import useDeduplicatedSubscription from '/imports/ui/core/hooks/useDeduplicatedSubscription';
+import { useIntl } from 'react-intl';
+import { notify } from '/imports/ui/services/notification';
 
 const BreakoutRoomContainer = ({ breakoutRoom }) => {
+  const intl = useIntl();
   const sidebarContent = layoutSelectInput((i) => i.sidebarContent);
   const { sidebarContentPanel } = sidebarContent;
   const layoutContextDispatch = layoutDispatch();
@@ -32,12 +35,19 @@ const BreakoutRoomContainer = ({ breakoutRoom }) => {
   }));
 
   if (userIsInvitedError) {
-    logger.error('Error in userIsInvited subscription:', userIsInvitedError);
-    return (
-      <div>
-        {JSON.stringify(userIsInvitedError)}
-      </div>
+    notify(intl.formatMessage({
+      id: 'app.error.issueLoadingData',
+    }), 'warning', 'warning');
+    logger.error(
+      {
+        logCode: 'subscription_Failed',
+        extraInfo: {
+          error: userIsInvitedError,
+        },
+      },
+      'Subscription failed to load',
     );
+    return null;
   }
 
   if (userIsInvitedLoading) return null;

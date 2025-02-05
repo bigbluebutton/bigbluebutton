@@ -910,6 +910,7 @@
     "app.audio.captions.select.vi-VN": "Vietnamese",
     "app.error.removed": "You have been removed from the conference",
     "app.error.meeting.ended": "You have logged out of the conference",
+    "app.error.issueLoadingData": "We’re sorry, but we couldn’t load some data. Please refresh your client.",
     "app.meeting.logout.duplicateUserEjectReason": "Duplicate user trying to join session",
     "app.meeting.logout.permissionEjectReason": "Ejected due to permission violation",
     "app.meeting.logout.ejectedFromMeeting": "You have been removed from the session",

@@ -7,6 +7,8 @@ import useAudioCaptionEnable from '/imports/ui/core/local-states/useAudioCaption
 import useCurrentUser from '/imports/ui/core/hooks/useCurrentUser';
 import { splitTranscript } from '../service';
 import useDeduplicatedSubscription from '/imports/ui/core/hooks/useDeduplicatedSubscription';
+import { useIntl } from 'react-intl';
+import { notify } from '/imports/ui/services/notification';
 
 interface AudioCaptionsLiveProps {
   captions: Caption[];
@@ -60,6 +62,7 @@ const AudioCaptionsLive: React.FC<AudioCaptionsLiveProps> = ({
 };
 
 const AudioCaptionsLiveContainer: React.FC = () => {
+  const intl = useIntl();
   const {
     data: currentUser,
   } = useCurrentUser((u) => ({
@@ -79,12 +82,19 @@ const AudioCaptionsLiveContainer: React.FC = () => {
   if (AudioCaptionsLiveLoading) return null;
 
   if (AudioCaptionsLiveError) {
-    logger.error(AudioCaptionsLiveError);
-    return (
-      <div>
-        {JSON.stringify(AudioCaptionsLiveError)}
-      </div>
+    notify(intl.formatMessage({
+      id: 'app.error.issueLoadingData',
+    }), 'warning', 'warning');
+    logger.error(
+      {
+        logCode: 'subscription_Failed',
+        extraInfo: {
+          error: AudioCaptionsLiveError,
+        },
+      },
+      'Subscription failed to load',
     );
+    return null;
   }
 
   if (!AudioCaptionsLiveData) return null;

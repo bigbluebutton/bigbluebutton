@@ -19,6 +19,7 @@ import { layoutDispatch } from '../../layout/context';
 import { ACTIONS, PANELS } from '../../layout/enums';
 import useDeduplicatedSubscription from '/imports/ui/core/hooks/useDeduplicatedSubscription';
 import CustomizedAxisTick from './CustomizedAxisTick';
+import { notify } from '/imports/ui/services/notification';
 
 const intlMessages = defineMessages({
   usersTitle: {
@@ -206,6 +207,7 @@ const LiveResult: React.FC<LiveResultProps> = ({
 };
 
 const LiveResultContainer: React.FC = () => {
+  const intl = useIntl();
   const {
     data: currentPollData,
     loading: currentPollLoading,
@@ -217,12 +219,19 @@ const LiveResultContainer: React.FC = () => {
   }
 
   if (currentPollDataError) {
-    logger.error(currentPollDataError);
-    return (
-      <div>
-        {JSON.stringify(currentPollDataError)}
-      </div>
+    notify(intl.formatMessage({
+      id: 'app.error.issueLoadingData',
+    }), 'warning', 'warning');
+    logger.error(
+      {
+        logCode: 'subscription_Failed',
+        extraInfo: {
+          error: currentPollDataError,
+        },
+      },
+      'Subscription failed to load',
     );
+    return null;
   }
 
   if (!currentPollData.poll.length) return null;

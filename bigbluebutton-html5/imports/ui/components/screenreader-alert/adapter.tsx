@@ -5,6 +5,7 @@ import { UNREAD_CHATS_SUBSCRIPTION, UnreadChatsSubscriptionResponse } from './qu
 import usePreviousValue from '/imports/ui/hooks/usePreviousValue';
 import { addAlert } from './service';
 import useDeduplicatedSubscription from '../../core/hooks/useDeduplicatedSubscription';
+import logger from '/imports/startup/client/logger';
 
 const intlMessages = defineMessages({
   newMsgAria: {
@@ -39,6 +40,18 @@ const ScreenReaderAlertAdapter = () => {
       });
     }
   }, [data, previousData, error, loading]);
+
+  if (error) {
+    logger.error(
+      {
+        logCode: 'subscription_Failed',
+        extraInfo: {
+          error,
+        },
+      },
+      'Subscription failed to load',
+    );
+  }
 
   return null;
 };

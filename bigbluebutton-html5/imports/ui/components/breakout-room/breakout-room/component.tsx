@@ -25,6 +25,7 @@ import {
 } from './service';
 import { useExitVideo, useStreams } from '/imports/ui/components/video-provider/hooks';
 import useDeduplicatedSubscription from '/imports/ui/core/hooks/useDeduplicatedSubscription';
+import { notify } from '/imports/ui/services/notification';
 
 interface BreakoutRoomProps {
   breakouts: BreakoutRoomType[];
@@ -304,6 +305,7 @@ const BreakoutRoom: React.FC<BreakoutRoomProps> = ({
 };
 
 const BreakoutRoomContainer: React.FC = () => {
+  const intl = useIntl();
   const {
     data: meetingData,
   } = useMeeting((m) => ({
@@ -333,13 +335,19 @@ const BreakoutRoomContainer: React.FC = () => {
   ) return null;
 
   if (breakoutError) {
-    logger.error(breakoutError);
-    return (
-      <div>
-        Error:
-        {JSON.stringify(breakoutError)}
-      </div>
+    notify(intl.formatMessage({
+      id: 'app.error.issueLoadingData',
+    }), 'warning', 'warning');
+    logger.error(
+      {
+        logCode: 'subscription_Failed',
+        extraInfo: {
+          error: breakoutError,
+        },
+      },
+      'Subscription failed to load',
     );
+    return null;
   }
   if (!currentUserData || !breakoutData || !meetingData) return null; // or loading spinner or error
   return (

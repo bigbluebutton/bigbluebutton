@@ -26,6 +26,7 @@ import {
 import useTimeSync from '/imports/ui/core/local-states/useTimeSync';
 import humanizeSeconds from '/imports/utils/humanizeSeconds';
 import useDeduplicatedSubscription from '/imports/ui/core/hooks/useDeduplicatedSubscription';
+import { notify } from '/imports/ui/services/notification';
 
 const MAX_HOURS = 23;
 const MILLI_IN_HOUR = 3600000;
@@ -429,6 +430,7 @@ const TimerPanel: React.FC<TimerPanelProps> = ({
 
 const TimerPanelContaier: React.FC = () => {
   const [timeSync] = useTimeSync();
+  const intl = useIntl();
 
   const {
     loading: timerLoading,
@@ -439,8 +441,19 @@ const TimerPanelContaier: React.FC = () => {
   if (timerLoading || !timerData) return null;
 
   if (timerError) {
-    logger.error('TimerIndicatorContainer', timerError);
-    return (<div>{JSON.stringify(timerError)}</div>);
+    notify(intl.formatMessage({
+      id: 'app.error.issueLoadingData',
+    }), 'warning', 'warning');
+    logger.error(
+      {
+        logCode: 'subscription_Failed',
+        extraInfo: {
+          error: timerError,
+        },
+      },
+      'Subscription failed to load',
+    );
+    return null;
   }
 
   const timer = timerData.timer[0];

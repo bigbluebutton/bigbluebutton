@@ -4,6 +4,7 @@ import { defineMessages, useIntl } from 'react-intl';
 import { FIRST_BREAKOUT_DURATION_DATA_SUBSCRIPTION, breakoutDataResponse } from './queries';
 import logger from '/imports/startup/client/logger';
 import useDeduplicatedSubscription from '/imports/ui/core/hooks/useDeduplicatedSubscription';
+import { notify } from '/imports/ui/services/notification';
 
 const intlMessages = defineMessages({
   calculatingBreakoutTimeRemaining: {
@@ -40,14 +41,21 @@ const BreakoutRemainingTimeContainer: React.FC<BreakoutRemainingTimeContainerPro
 
   if (breakoutLoading) return loadingRemainingTime();
   if (!breakoutData) return null;
+
   if (breakoutError) {
-    logger.error('Error when loading breakout data', breakoutError);
-    return (
-      <div>
-        Error:
-        {JSON.stringify(breakoutError)}
-      </div>
+    notify(intl.formatMessage({
+      id: 'app.error.issueLoadingData',
+    }), 'warning', 'warning');
+    logger.error(
+      {
+        logCode: 'subscription_Failed',
+        extraInfo: {
+          error: breakoutError,
+        },
+      },
+      'Subscription failed to load',
     );
+    return null;
   }
 
   const breakoutDuration: number = breakoutData.breakoutRoom[0]?.durationInSeconds;

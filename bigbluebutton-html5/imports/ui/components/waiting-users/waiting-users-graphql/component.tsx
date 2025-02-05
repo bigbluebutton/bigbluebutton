@@ -400,6 +400,7 @@ const GuestUsersManagementPanel: React.FC<GuestUsersManagementPanelProps> = ({
 };
 
 const GuestUsersManagementPanelContainer: React.FC = () => {
+  const intl = useIntl();
   const layoutContextDispatch = layoutDispatch();
 
   const {
@@ -421,12 +422,19 @@ const GuestUsersManagementPanelContainer: React.FC = () => {
   }
 
   if (guestWaitingUsersError) {
-    if (guestWaitingUsersError) logger.error('guestWaitingUsersError', guestWaitingUsersError);
-    return (
-      <div>
-        {guestWaitingUsersError && <p>{JSON.stringify(guestWaitingUsersError)}</p>}
-      </div>
+    notify(intl.formatMessage({
+      id: 'app.error.issueLoadingData',
+    }), 'warning', 'warning');
+    logger.error(
+      {
+        logCode: 'subscription_Failed',
+        extraInfo: {
+          error: guestWaitingUsersError,
+        },
+      },
+      'Subscription failed to load',
     );
+    return null;
   }
 
   const separateGuestUsersByAuthed = guestWaitingUsersData
