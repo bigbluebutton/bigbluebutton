@@ -1345,7 +1345,7 @@ public:
 
 Restart BigBlueButton with `sudo bbb-conf --restart` and you should now see the options for live captions when joining audio.
 
-### Configuration of gladia.io
+#### Configuration of gladia.io
 
 To use gladia.io for automatic speech-to-text transcriptions, you first need to obtain an API key from [gladia.io](https://www.gladia.io).  You can sign up for free credentials to test the integration.
 
@@ -1371,7 +1371,7 @@ sudo yq e -i '.gladia.startMessage = "{\"x_gladia_key\": \"<gladia-api-key>\", \
 Restart the BigBlueButton server with `bbb-conf --restart`.  You will now be able to select a speech-to-text option when joining audio (including auto translate).  When one or more users have selected the option, a CC button will appear at the bottom and a Transcript panel will also be available.
 
 
-### Configuration of global settings
+#### Configuration# of global settings
 
 The configuration file for the HTML5 client is located in `/usr/share/bigbluebutton/html5-client/private/config/settings.yml`. It contains all the settings for the HTML5 client.
 
@@ -1390,15 +1390,15 @@ You can overwrite the default guest policy in `/etc/bigbluebutton/bbb-web.proper
 #
 defaultGuestPolicy=ALWAYS_ACCEPT
 ```
-### Show a custom logo on the client
+#### Show a custom logo on the client
 
 Ensure that the parameter `displayBrandingArea` is set to `true` in bbb-html5's configuration, restart BigBlueButton server with `sudo bbb-conf --restart` and pass `logo=<image-url>` in Custom parameters when creating the meeting.
 
-### Changing the default logo
+#### Changing the default logo
 
 To update the default logo, navigate to the `images` folder located at `/var/www/bigbluebutton-default/assets/images/`, and replace the `logo.png` file with your new logo.
 
-## Other meeting configs available
+### Other meeting configs available
 These configs can be set in `/etc/bigbluebutton/bbb-web.properties`
 
 | Parameter                                | Description                                                                                   | Options                                                      | Default value                  |
@@ -1438,7 +1438,7 @@ These configs can be set in `/etc/bigbluebutton/bbb-web.properties`
 - _`overwritable`_: Config will be overwritten if the param is present in the API `/create` request
 
 
-### Passing user metadata to the client on join
+#### Passing user metadata to the client on join
 
 The HTML5 client supports a list of parameters that can be added to the `join` API call which modify the look and default behaviour of the client. This list is accurate as of BigBlueButton version 2.2.17 (build 937). These parameters override the global defaults set in `settings.yml`. As the parameters are passed on call to join, it allows for some powerful customization that can vary depending on which user is joining the session.
 
@@ -1570,7 +1570,7 @@ If you are adding this to a join-url you need to URI encode the string (see a sa
 %3Aroot%7B--loader-bg%3A%23000%3B%7D.overlay--1aTlbi%7Bbackground-color%3A%23000!important%3B%7Dbody%7Bbackground-color%3A%23000!important%3B%7D
 ```
 
-### Send client logs to the server
+#### Send client logs to the server
 
 Step-by-step instructions for how to configure logs from clients to be logged in a server log file are located in [Administration -> Configuration Files](/administration/configuration-files#logs-sent-directly-from-the-client)
 
