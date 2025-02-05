@@ -143,6 +143,11 @@ We upgraded tl;draw from version 1 to version 2.0.0-alpha.19 (the last version o
 Collabora Productivity contributed the support for an alternative conversion script where Collabora Online (deployed locally [as a docker container] or running remotely) can be used for document conversion.
 For more information check the [pull request](https://github.com/bigbluebutton/bigbluebutton/pull/18783)
 
+#### S3-based cache for presentation assets
+
+BigBlueButton now supports caching for presentation assets at Amazon S3/Minio or similar.
+For details check the [server customization](/administration/customize/#configure-s3-based-cache-for-presentation-assets) portion of the documents.
+
 #### Support for ClamAV as presentation file scanner
 
 We have added support for ClamAV to automatically scan every presentation file for viruses before sharing it with the others in the session.
