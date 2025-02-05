@@ -394,7 +394,7 @@ const TimerPanel: React.FC<TimerPanelProps> = ({
         rightButtonProps={{
           'aria-label': intl.formatMessage(intlMessages.hideTimerLabel),
           'data-test': 'closeTimer',
-          icon: 'close',
+          icon: 'minus',
           label: intl.formatMessage(intlMessages.hideTimerLabel),
           onClick: closePanel,
         }}

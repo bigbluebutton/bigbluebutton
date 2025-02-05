@@ -9,7 +9,7 @@ import { ActionButtonProps } from './types';
 
 const ActionButtonsWrapper = styled.div`
   display: flex;
-  padding: 1.5rem;
+  padding: 1rem;
   align-items: flex-end;
   gap: 1.5rem;
 `;

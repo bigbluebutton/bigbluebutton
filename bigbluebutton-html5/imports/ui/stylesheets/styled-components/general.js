@@ -23,7 +23,8 @@ const $3xlPadding = '1.25rem';
 const whiteboardToolbarPadding = '.5rem';
 const whiteboardToolbarMargin = '.5rem';
 const whiteboardToolbarPaddingSm = '.3rem';
-const contentSidebarPadding = '1.5rem';
+const contentSidebarGap = '0.5rem';
+const contentSidebarPadding = '1rem';
 const contentSidebarBottomScrollPadding = '2rem';
 const contentSidebarHeight = '86%';
 const contentSidebarBorderRadius = '1rem';
@@ -213,6 +214,7 @@ export {
   $3xlPadding,
   xlPadding,
   xsPadding,
+  contentSidebarGap,
   contentSidebarPadding,
   contentSidebarBottomScrollPadding,
   contentSidebarHeight,

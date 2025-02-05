@@ -44,6 +44,7 @@ interface ChatProps {
   privateUnreadMessages: boolean;
   chatId: string;
   participantName: string;
+  filteredPrivateChats: Partial<ChatType>[];
 }
 
 const Chat: React.FC<ChatProps> = ({
@@ -51,13 +52,14 @@ const Chat: React.FC<ChatProps> = ({
   privateUnreadMessages,
   chatId,
   participantName,
+  filteredPrivateChats,
 }) => {
   const CHAT_CONFIG = window.meetingClientSettings.public.chat;
   const PUBLIC_GROUP_CHAT_ID = CHAT_CONFIG.public_group_id;
 
   const isEditingMessage = useRef(false);
   const [showMessages, setShowMessages] = useState(chatId === PUBLIC_GROUP_CHAT_ID);
-  const [privateList, setPrivateList] = useState(false); // novo estado
+  const [privateList, setPrivateList] = useState(false);
   const layoutContextDispatch = layoutDispatch();
   const intl = useIntl();
 
@@ -127,75 +129,80 @@ const Chat: React.FC<ChatProps> = ({
       <ChatHeader />
       <Styled.Separator />
       <Styled.ContentWrapper>
-        <Styled.ButtonsWrapper>
-          <Button
-            variant={showMessages ? 'contained' : 'outlined'}
-            color="primary"
-            size="medium"
-            data-test="publicChatButton"
-            sx={{
-              position: 'relative',
-              borderRadius: '16px',
-              width: '100%',
-              marginRight: '8px',
-              padding: '8px 16px',
-              textTransform: 'none',
-              backgroundColor: showMessages ? btnPrimaryBg : colorOffWhite,
-              color: showMessages ? colorWhite : colorGrayLight,
-              border: `1px solid ${btnPrimaryBg}`,
-            }}
-            onClick={() => handleClickSelectChat(true)}
-          >
-            {intl.formatMessage(intlMessages.titlePublic)}
-            {publicUnreadMessages && (
-              <span
-                style={{
-                  position: 'absolute',
-                  bottom: '8px',
-                  right: '8px',
-                  width: '8px',
-                  height: '8px',
-                  backgroundColor: colorDanger,
-                  borderRadius: '50%',
-                }}
-              />
-            )}
-          </Button>
-          <Button
-            variant={!showMessages ? 'contained' : 'outlined'}
-            color="primary"
-            size="medium"
-            data-test="privateChatButton"
-            sx={{
-              position: 'relative',
-              borderRadius: '16px',
-              width: '100%',
-              padding: '8px 16px',
-              textTransform: 'none',
-              backgroundColor: !showMessages ? btnPrimaryBg : colorOffWhite,
-              color: !showMessages ? colorWhite : colorGrayLight,
-              border: `1px solid ${btnPrimaryBg}`,
-            }}
-            onClick={() => handleClickSelectChat(false)}
-          >
-            {intl.formatMessage(intlMessages.titlePrivate)}
-            {privateUnreadMessages && (
-              <span
-                style={{
-                  position: 'absolute',
-                  bottom: '8px',
-                  right: '8px',
-                  width: '8px',
-                  height: '8px',
-                  backgroundColor: colorDanger,
-                  borderRadius: '50%',
-                }}
-              />
-            )}
-          </Button>
-        </Styled.ButtonsWrapper>
+        {filteredPrivateChats.length > 0 ? (
+          <Styled.ButtonsWrapper>
+            <Button
+              variant={showMessages ? 'contained' : 'outlined'}
+              color="primary"
+              size="medium"
+              data-test="publicChatButton"
+              sx={{
+                position: 'relative',
+                borderRadius: '16px',
+                width: '100%',
+                marginRight: '8px',
+                padding: '8px 16px',
+                textTransform: 'none',
+                backgroundColor: showMessages ? btnPrimaryBg : colorOffWhite,
+                color: showMessages ? colorWhite : colorGrayLight,
+                border: `1px solid ${btnPrimaryBg}`,
+              }}
+              onClick={() => handleClickSelectChat(true)}
+            >
+              {intl.formatMessage(intlMessages.titlePublic)}
+              {publicUnreadMessages && (
+                <span
+                  style={{
+                    position: 'absolute',
+                    bottom: '8px',
+                    right: '8px',
+                    width: '8px',
+                    height: '8px',
+                    backgroundColor: colorDanger,
+                    borderRadius: '50%',
+                  }}
+                />
+              )}
+            </Button>
+            <Button
+              variant={!showMessages ? 'contained' : 'outlined'}
+              color="primary"
+              size="medium"
+              data-test="privateChatButton"
+              sx={{
+                position: 'relative',
+                borderRadius: '16px',
+                width: '100%',
+                padding: '8px 16px',
+                textTransform: 'none',
+                backgroundColor: !showMessages ? btnPrimaryBg : colorOffWhite,
+                color: !showMessages ? colorWhite : colorGrayLight,
+                border: `1px solid ${btnPrimaryBg}`,
+              }}
+              onClick={() => handleClickSelectChat(false)}
+            >
+              {intl.formatMessage(intlMessages.titlePrivate)}
+              {privateUnreadMessages && (
+                <span
+                  style={{
+                    position: 'absolute',
+                    bottom: '8px',
+                    right: '8px',
+                    width: '8px',
+                    height: '8px',
+                    backgroundColor: colorDanger,
+                    borderRadius: '50%',
+                  }}
+                />
+              )}
+            </Button>
+          </Styled.ButtonsWrapper>
+        ) : null}
         {privateList ? (
-          <PrivateChatListContainer privateChatSelectedCallback={() => setPrivateList(false)} />
+          <PrivateChatListContainer
+            privateChatSelectedCallback={() => setPrivateList(false)}
+            chats={filteredPrivateChats}
+          />
         ) : (
           <>
             {!showMessages && !privateList && (
@@ -223,6 +230,8 @@ const ChatContainer: React.FC = () => {
       chatId: chat.chatId,
       participant: chat.participant,
       totalUnread: chat.totalUnread,
+      public: chat.public,
+      totalMessages: chat.totalMessages,
     };
   }) as GraphqlDataHookSubscriptionResponse<Partial<ChatType>[]>;
 
@@ -239,6 +248,9 @@ const ChatContainer: React.FC = () => {
     && chat?.totalUnread
     && chat.totalUnread > 0
   ));
+  const filteredPrivateChats = (chats || []).filter(
+    (chat) => !chat.public && chat.totalMessages !== 0,
+  );
 
   let participantName = '';
   const currentChat = chats?.find((chat) => chat.chatId === idChatOpen);
@@ -268,6 +280,7 @@ const ChatContainer: React.FC = () => {
       privateUnreadMessages={privateUnreadMessages}
       participantName={participantName}
       chatId={idChatOpen}
+      filteredPrivateChats={filteredPrivateChats}
     />
   );
 };

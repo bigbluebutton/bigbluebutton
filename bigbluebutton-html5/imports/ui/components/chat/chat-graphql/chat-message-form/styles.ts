@@ -57,6 +57,23 @@ const Input = styled(TextareaAutosize)`
   box-shadow: none;
   outline: none;
 
+  &::-webkit-scrollbar {
+    width: 5px;
+  }
+
+  &::-webkit-scrollbar-thumb {
+    background: ${colorGrayLighter};
+    border-radius: 10px;
+  }
+
+  &::-webkit-scrollbar-thumb:hover {
+    background: ${colorGrayDark};
+  }
+
+  &::-webkit-scrollbar-track {
+    background: transparent;
+  }
+
   [dir='ltr'] & {
     border-radius: 0.75rem 0 0 0.75rem;
   }
