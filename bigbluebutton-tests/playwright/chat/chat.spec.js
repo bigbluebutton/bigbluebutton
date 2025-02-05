@@ -55,8 +55,8 @@ test.describe('Chat', { tag: '@ci' }, () => {
     await chat.emojiCopyChat();
   });
 
-  test.skip('Close private chat', { tag: '@flaky-3.1' }, async () => {
-    await chat.closePrivateChat();
+  test('Hide public messages', async () => {
+    await chat.hidePublicMessages();
   });
 
   test('Save chat with emoji', { tag: '@setting-required:chat.emojiPicker' }, async ({}, testInfo) => {

@@ -197,26 +197,21 @@ class Chat extends MultiUsers {
     await expect(copiedText, 'should the copied text be the same as the message on the chat').toContain(`${this.modPage.username} : MODERATOR]: ${e.frequentlyUsedEmoji}`);
   }
 
-  async closePrivateChat() {
-    await openPrivateChat(this.modPage);
-    await this.modPage.type(e.chatBox, e.message1);
-    await this.modPage.waitAndClick(e.sendButton);
-    await this.userPage.waitAndClick(e.privateChatButton);
-    await this.userPage.hasElement(e.privateChatItem, 'should display the private chat item when user receives a private message');
-    // const privateChatLocator = this.modPage.getLocatorByIndex(e.chatButton, -1);
-    // expect(privateChatLocator, 'should the private chat contain the user name').toContainText(this.userPage.username);
-
-    const chatMessageCount = await this.modPage.getSelectorCount(e.chatUserMessageText);
-    await this.modPage.hasElement(e.hideMessagesButton, 'the private chat should display the hide private chat element when opened');
-    await this.modPage.checkElementCount(e.chatUserMessageText, chatMessageCount);
-    await this.modPage.type(e.chatBox, e.message1);
-    await this.modPage.waitAndClick(e.sendButton);
-    await this.userPage.waitUntilHaveCountSelector(e.chatButton, 2);
-    await this.modPage.wasRemoved(e.hideMessagesButton, 'should not display the hide messages button');
-    await this.modPage.waitUntilHaveCountSelector(e.chatButton, 1, ELEMENT_WAIT_LONGER_TIME);
-    const userChatCount = await this.userPage.getSelectorCount(e.chatButton);
-    await this.modPage.waitAndClick(e.chatButton);
-    expect(userChatCount, '').toBe(2);
+  async hidePublicMessages() {
+    await openPublicChat(this.modPage);
+    await this.modPage.hasElement(e.chatTitle, 'should display the chat title element');
+    await this.modPage.hasElement(e.publicChatButton, 'should display the public chat button element');
+    await this.modPage.hasElement(e.privateChatButton, 'should display the private chat button element');
+    await this.modPage.hasElement(e.chatBox, 'should display the chat box element');
+    await this.modPage.hasElement(e.sendButton, 'should display the send button element');
+    await this.modPage.hasElement(e.chatOptions, 'should display the chat options element');
+    await this.modPage.waitAndClick(e.hideMessagesButton);
+    await this.modPage.wasRemoved(e.chatTitle, 'should not display the chat title element after hiding the messages');
+    await this.modPage.wasRemoved(e.publicChatButton, 'should not display the public chat button element after hiding the messages');
+    await this.modPage.wasRemoved(e.privateChatButton, 'should not display the private chat button element after hiding the messages');
+    await this.modPage.wasRemoved(e.chatBox, 'should not display the chat box element after hiding the messages');
+    await this.modPage.wasRemoved(e.sendButton, 'should not display the send button element after hiding the messages');
+    await this.modPage.wasRemoved(e.chatOptions, 'should not display the chat options element after hiding the messages');
   }
 
   async emojiSaveChat(testInfo) {

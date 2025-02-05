@@ -28,7 +28,7 @@ async function checkNotificationIcon(test, icon) {
 
 async function publicChatMessageToast(page1, page2) {
   // Open private Chat with the other User
-  await page1.waitAndClick(e.userListItem);
+  await page1.waitAndClick(e.usersListSidebarButton);
   await page1.waitAndClick(e.startPrivateChat);
   await page1.waitForSelector(e.privateChatBackButton);
   // send a public message
@@ -38,7 +38,7 @@ async function publicChatMessageToast(page1, page2) {
 
 async function privateChatMessageToast(page2) {
   // Open private Chat with the other User
-  await page2.waitAndClick(e.userListItem);
+  await page2.waitAndClick(e.usersListSidebarButton);
   await page2.waitAndClick(e.startPrivateChat);
   // wait for the private chat to be ready
   await page2.waitUntilHaveCountSelector(e.chatButton, 2);

@@ -347,7 +347,7 @@ const networkDataContainer = 'div[data-test="networkDataContainer"]';
 exports.userAvatar = userAvatar;
 exports.moderatorAvatar = 'div[data-test="moderatorAvatar"]';
 exports.viewerAvatar = 'div[data-test="viewerAvatar"]';
-// exports.userListItem = 'div[data-test="userListItem"]';
+exports.userListItem = 'div[data-test="userListItem"]';
 exports.usersListSidebarButton = 'div[data-test="usersListSidebarButton"]';
 exports.currentUser = 'div[data-test="userListItemCurrent"]';
 exports.multiWhiteboardTool = 'span[data-test="multiWhiteboardTool"]';
