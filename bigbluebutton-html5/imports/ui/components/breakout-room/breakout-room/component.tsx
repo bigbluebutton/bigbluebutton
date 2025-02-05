@@ -211,7 +211,7 @@ const BreakoutRoom: React.FC<BreakoutRoomProps> = ({
         )}
       />
       <Styled.Separator />
-      <Styled.Content>
+      <Styled.Content id="scroll-box">
         <TimeRemaingPanel
           showChangeTimeForm={showChangeTimeForm}
           isModerator={isModerator}

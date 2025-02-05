@@ -78,7 +78,7 @@ const UserList: React.FC<UserListComponentProps> = () => {
 
   const renderScrollableSection = () => {
     return (
-      <Styled.ScrollableSection>
+      <Styled.ScrollableSection id="scroll-box">
         {renderGuestManagement()}
         <UserListParticipants count={count} />
       </Styled.ScrollableSection>

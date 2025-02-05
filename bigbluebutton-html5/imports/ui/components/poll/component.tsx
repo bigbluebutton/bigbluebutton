@@ -510,7 +510,9 @@ const PollCreationPanel: React.FC<PollCreationPanelProps> = ({
         customRightButton={null}
       />
       <Styled.Separator />
-      <Styled.ContentWrapper>
+      <Styled.ContentWrapper
+        id="scroll-box"
+      >
         {pollOptions()}
         <span className="sr-only" id="poll-config-button">{intl.formatMessage(intlMessages.showRespDesc)}</span>
         <span className="sr-only" id="add-item-button">{intl.formatMessage(intlMessages.addRespDesc)}</span>

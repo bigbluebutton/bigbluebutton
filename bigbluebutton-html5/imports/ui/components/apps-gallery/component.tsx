@@ -146,7 +146,9 @@ const AppsGallery: React.FC<AppsGalleryProps> = ({ registeredApps, pinnedApps })
         </Styled.BoldText>
         {intl.formatMessage(intlMessages.pinnedAppsContinue)}
       </Styled.DescWrapper>
-      <Styled.Wrapper>
+      <Styled.Wrapper
+        id="scroll-box"
+      >
         {renderedPinnedApps.length > 0 && (
           <Styled.PinnedAppsWrapper>
             {renderedPinnedApps}

@@ -140,6 +140,12 @@ const webcamPlaceholderBorder = 'var(--webcam-placeholder-border, rgba(255, 255,
 const toastWarningColor = `var(--toast-warning-color, ${colorWhite})`;
 const toastWarningBg = `var(--toast-warning-bg, ${colorWarning})`;
 
+// DARK THEME COLORS
+const colorBackgroundDarkTheme = 'var(--color-background-dark-theme, #181A23)';
+const colorOverlaysDarkTheme = 'var(--color-overlays-dark-theme, #2D2F38)';
+const colorTextDarkTheme = `var(--color-text-dark-theme, ${colorWhite})`;
+const colorPrimaryDarkTheme = `var(--color-primary-dark-theme, ${colorPrimary})`;
+
 export {
   colorWhite,
   colorOffWhite,
@@ -247,4 +253,8 @@ export {
   toastWarningBg,
   webcamBackgroundColor,
   webcamPlaceholderBorder,
+  colorBackgroundDarkTheme,
+  colorOverlaysDarkTheme,
+  colorTextDarkTheme,
+  colorPrimaryDarkTheme,
 };

@@ -426,6 +426,7 @@ class ConnectionStatusComponent extends PureComponent {
 
     return (
       <Styled.NetworkDataContainer
+        id="scroll-box"
         data-test="networkDataContainer"
         tabIndex={0}
       >

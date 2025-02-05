@@ -128,7 +128,9 @@ const Chat: React.FC<ChatProps> = ({
     <>
       <ChatHeader />
       <Styled.Separator />
-      <Styled.ContentWrapper>
+      <Styled.ContentWrapper
+        id="scroll-box"
+      >
         {filteredPrivateChats.length > 0 ? (
           <Styled.ButtonsWrapper>
             <Button
