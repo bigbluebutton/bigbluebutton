@@ -159,7 +159,7 @@
             proxy_set_header        X-Original-URI $request_uri;
         }
 
-        location /bigbluebutton/ping {
+        location /bigbluebutton/rtt-check {
             default_type text/plain;
             add_header Cache-Control "no-store, no-cache, must-revalidate, proxy-revalidate, max-age=0";
             add_header Pragma "no-cache";

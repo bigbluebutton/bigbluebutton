@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { layoutSelect, layoutSelectInput, layoutSelectOutput } from '/imports/ui/components/layout/context';
 import DEFAULT_VALUES from '/imports/ui/components/layout/defaultValues';
 import { LAYOUT_TYPE, DEVICE_TYPE } from '/imports/ui/components/layout/enums';
@@ -10,9 +10,8 @@ import VideoFocusLayout from '/imports/ui/components/layout/layout-manager/video
 import CamerasOnlyLayout from '/imports/ui/components/layout/layout-manager/camerasOnly';
 import PresentationOnlyLayout from '/imports/ui/components/layout/layout-manager/presentationOnlyLayout';
 import ParticipantsAndChatOnlyLayout from '/imports/ui/components/layout/layout-manager/participantsAndChatOnlyLayout';
-import useSettings from '/imports/ui/services/settings/hooks/useSettings';
-import { SETTINGS } from '/imports/ui/services/settings/enums';
 import { useIsPresentationEnabled } from '/imports/ui/services/features';
+import Session from '/imports/ui/services/storage/in-memory';
 import MediaOnlyLayout from './mediaOnlyLayout';
 
 const LayoutEngine = () => {
@@ -34,7 +33,7 @@ const LayoutEngine = () => {
   const isRTL = layoutSelect((i) => i.isRTL);
   const fontSize = layoutSelect((i) => i.fontSize);
   const deviceType = layoutSelect((i) => i.deviceType);
-  const { selectedLayout } = useSettings(SETTINGS.APPLICATION);
+  const selectedLayout = layoutSelect((i) => i.layoutType);
   const isPresentationEnabled = useIsPresentationEnabled();
 
   const isMobile = deviceType === DEVICE_TYPE.MOBILE;
@@ -43,6 +42,16 @@ const LayoutEngine = () => {
   const windowHeight = () => window.document.documentElement.clientHeight;
   const min = (value1, value2) => (value1 <= value2 ? value1 : value2);
   const max = (value1, value2) => (value1 >= value2 ? value1 : value2);
+
+  useEffect(() => {
+    // If it has build one time, then set the flag to true
+    // This will prevent layout-engine to initiate the enforced layout with the
+    // default configurations.
+    const hasLayoutEngineLoadedOnce = Session.getItem('hasLayoutEngineLoadedOnce');
+    if (!hasLayoutEngineLoadedOnce) {
+      Session.setItem('hasLayoutEngineLoadedOnce', true);
+    }
+  }, []);
 
   const bannerAreaHeight = () => {
     const { hasNotification } = notificationsBarInput;
@@ -284,7 +293,7 @@ const LayoutEngine = () => {
     left = !isRTL ? left : null;
     right = isRTL ? right : null;
 
-    const zIndex = isMobile ? 11 : 1;
+    const zIndex = isMobile ? 11 : 2;
 
     return {
       top,

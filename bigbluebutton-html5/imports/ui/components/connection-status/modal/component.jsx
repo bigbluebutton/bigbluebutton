@@ -139,6 +139,10 @@ const intlMessages = defineMessages({
     id: 'app.connection-status.connectionStatusNoEvent',
     description: 'Text for inform on status without event ot time of occurrence',
   },
+  lastTimeActive: {
+    id: 'app.connection-status.lastTimeActive',
+    description: 'Last time the client confirmed its connection was alive (sent a connection-alive message)',
+  },
 });
 
 const propTypes = {
@@ -292,6 +296,8 @@ class ConnectionStatusComponent extends PureComponent {
 
     return connections.map((conn, index) => {
       const dateTime = new Date(conn.lastUnstableStatusAt);
+      const lastActiveConnection = conn.connectionAliveAt
+        ? new Date(conn.connectionAliveAt) : new Date();
       return (
         <Styled.Item
           key={`${conn.user.name}-${conn.user.userId}`}
@@ -340,7 +346,7 @@ class ConnectionStatusComponent extends PureComponent {
           <Styled.Right>
             <Styled.Time>
               {
-                conn.lastUnstableStatusAt
+                !conn.clientNotResponding
                   ? (
                     <time dateTime={dateTime}>
                       <FormattedTime value={dateTime} />
@@ -349,9 +355,11 @@ class ConnectionStatusComponent extends PureComponent {
                   : (
                     <TooltipContainer
                       placement="top"
-                      title={intl.formatMessage(intlMessages.noEvent)}
+                      title={intl.formatMessage(intlMessages.lastTimeActive)}
                     >
-                      <CommonIcon iconName="close" rotate={false} />
+                      <Styled.TimeActive dateTime={lastActiveConnection}>
+                        <FormattedTime value={lastActiveConnection} />
+                      </Styled.TimeActive>
                     </TooltipContainer>
                   )
               }

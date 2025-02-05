@@ -2,6 +2,7 @@ package org.bigbluebutton.core.apps.presentationpod
 
 import org.bigbluebutton.common2.msgs._
 import org.bigbluebutton.core.bus.MessageBus
+import org.bigbluebutton.core.db.PresPresentationDAO
 import org.bigbluebutton.core.domain.MeetingState2x
 import org.bigbluebutton.core.running.LiveMeeting
 
@@ -30,6 +31,12 @@ trait PresentationUploadedFileTooLargeErrorPubMsgHdlr {
       bus.outGW.send(msgEvent)
     }
 
+    val errorDetails = scala.collection.immutable.Map(
+      "maxFileSize" -> msg.body.maxFileSize.toString,
+      "actualFileSize" -> msg.body.fileSize.toString
+    )
+
+    PresPresentationDAO.updateErrors(msg.body.presentationId, msg.body.messageKey, errorDetails)
     broadcastEvent(msg)
     state
   }

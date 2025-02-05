@@ -131,12 +131,12 @@ public class MeetingService implements MessageListener {
   }
 
   public void registerUser(String meetingID, String internalUserId,
-                           String fullname, String role, String externUserID,
+                           String fullname, String firstName, String lastName, String role, String externUserID,
                            String authToken, String sessionToken, String avatarURL, String webcamBackgroundURL, Boolean bot,
                            Boolean guest, Boolean authed, String guestStatus, Boolean excludeFromDashboard, Boolean leftGuestLobby,
                            String enforceLayout, String logoutUrl, Map<String, String> userMetadata) {
     handle(
-            new RegisterUser(meetingID, internalUserId, fullname, role,
+            new RegisterUser(meetingID, internalUserId, fullname, firstName, lastName, role,
                             externUserID, authToken, sessionToken, avatarURL, webcamBackgroundURL, bot, guest, authed, guestStatus,
                             excludeFromDashboard, leftGuestLobby, enforceLayout, logoutUrl, userMetadata
             )
@@ -154,12 +154,14 @@ public class MeetingService implements MessageListener {
           String meetingID,
           String internalUserId,
           String sessionToken,
+          String sessionName,
           String replaceSessionToken,
           String enforceLayout,
           Map<String, String> userSessionMetadata
   ) {
     handle(
-            new RegisterUserSessionToken(meetingID, internalUserId, sessionToken, replaceSessionToken, enforceLayout, userSessionMetadata)
+            new RegisterUserSessionToken(meetingID, internalUserId, sessionToken, sessionName,
+                    replaceSessionToken, enforceLayout, userSessionMetadata)
     );
   }
 
@@ -599,13 +601,13 @@ public class MeetingService implements MessageListener {
 
   private void processRegisterUser(RegisterUser message) {
     gw.registerUser(message.meetingID,
-      message.internalUserId, message.fullname, message.role,
+      message.internalUserId, message.fullname, message.firstName, message.lastName, message.role,
       message.externUserID, message.authToken, message.sessionToken, message.avatarURL, message.webcamBackgroundURL, message.bot,
       message.guest, message.authed, message.guestStatus, message.excludeFromDashboard, message.enforceLayout, message.logoutUrl, message.userMetadata);
   }
 
   private void processRegisterUserSessionToken(RegisterUserSessionToken message) {
-    gw.registerUserSessionToken(message.meetingID, message.internalUserId, message.sessionToken,
+    gw.registerUserSessionToken(message.meetingID, message.internalUserId, message.sessionToken, message.sessionName,
             message.replaceSessionToken, message.enforceLayout, message.userSessionMetadata);
   }
 
@@ -822,6 +824,9 @@ public class MeetingService implements MessageListener {
       params.put(ApiParams.DURATION, message.durationInMinutes.toString());
       params.put(ApiParams.RECORD, message.record.toString());
       params.put(ApiParams.WELCOME, getMeeting(message.parentMeetingId).getWelcomeMessageTemplate());
+      params.put(ApiParams.AUDIO_BRIDGE, message.audioBridge);
+      params.put(ApiParams.CAMERA_BRIDGE, message.cameraBridge);
+      params.put(ApiParams.SCREEN_SHARE_BRIDGE, message.screenShareBridge);
       params.put(ApiParams.NOTIFY_RECORDING_IS_ON,parentMeeting.getNotifyRecordingIsOn().toString());
 
       Map<String, String> parentMeetingMetadata = parentMeeting.getMetadata();

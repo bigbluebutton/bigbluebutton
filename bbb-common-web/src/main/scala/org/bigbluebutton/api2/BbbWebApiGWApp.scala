@@ -295,7 +295,7 @@ class BbbWebApiGWApp(
 
   }
 
-  def registerUser(meetingId: String, intUserId: String, name: String,
+  def registerUser(meetingId: String, intUserId: String, name: String, firstName: String, lastName: String,
                    role: String, extUserId: String, authToken: String, sessionToken: String,
                    avatarURL: String, webcamBackgroundURL: String, bot: java.lang.Boolean, guest: java.lang.Boolean,
                    authed: java.lang.Boolean, guestStatus: String, excludeFromDashboard: java.lang.Boolean,
@@ -308,7 +308,7 @@ class BbbWebApiGWApp(
     // Check whether the logout Url is either empty or a valid url.
     require(logoutUrl.isEmpty || ServiceUtils.getValidationService().isValidURL(logoutUrl), "Invalid logout URL provided")
 
-    val regUser = new RegisterUser(meetingId = meetingId, intUserId = intUserId, name = name,
+    val regUser = new RegisterUser(meetingId = meetingId, intUserId = intUserId, name = name, firstName = firstName, lastName = lastName,
       role = role, extUserId = extUserId, authToken = authToken, sessionToken = sessionToken,
       avatarURL = avatarURL, webcamBackgroundURL = webcamBackgroundURL, bot = bot.booleanValue(), guest = guest.booleanValue(),
       authed = authed.booleanValue(), guestStatus = guestStatus, excludeFromDashboard = excludeFromDashboard,
@@ -318,10 +318,18 @@ class BbbWebApiGWApp(
     msgToAkkaAppsEventBus.publish(MsgToAkkaApps(toAkkaAppsChannel, event))
   }
 
-  def registerUserSessionToken(meetingId: String, intUserId: String, sessionToken: String, replaceSessionToken: String,
-                               enforceLayout: String, userSessionMetadata: java.util.Map[String, String]): Unit = {
-    val regUserSessionToken = new RegisterUserSessionToken(meetingId, intUserId, sessionToken, replaceSessionToken,
-                                                            enforceLayout, userSessionMetadata)
+  def registerUserSessionToken(meetingId: String, intUserId: String, sessionToken: String, sessionName: String,
+                               replaceSessionToken: String, enforceLayout: String,
+                               userSessionMetadata: java.util.Map[String, String]): Unit = {
+    val regUserSessionToken = new RegisterUserSessionToken(
+      meetingId,
+      intUserId,
+      sessionToken,
+      sessionName,
+      replaceSessionToken,
+      enforceLayout,
+      userSessionMetadata
+    )
 
     val event = MsgBuilder.buildRegisterUserSessionTokenRequestToAkkaApps(regUserSessionToken)
     msgToAkkaAppsEventBus.publish(MsgToAkkaApps(toAkkaAppsChannel, event))
@@ -370,6 +378,9 @@ class BbbWebApiGWApp(
       msgToAkkaAppsEventBus.publish(MsgToAkkaApps(toAkkaAppsChannel, newEvent))
     } else if (msg.isInstanceOf[DocConversionProgress]) {
       val event = MsgBuilder.buildPresentationConversionUpdateSysPubMsg(msg.asInstanceOf[DocConversionProgress])
+      msgToAkkaAppsEventBus.publish(MsgToAkkaApps(toAkkaAppsChannel, event))
+    } else if (msg.isInstanceOf[OfficeToPdfConversionFailed]) {
+      val event = MsgBuilder.buildOfficeToPdfConversionFailedMsg(msg.asInstanceOf[OfficeToPdfConversionFailed])
       msgToAkkaAppsEventBus.publish(MsgToAkkaApps(toAkkaAppsChannel, event))
     } else if (msg.isInstanceOf[DocPageCompletedProgress]) {
       val event = MsgBuilder.buildPresentationConversionCompletedSysPubMsg(msg.asInstanceOf[DocPageCompletedProgress])

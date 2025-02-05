@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useMemo } from 'react';
 
 import { UI_DATA_LISTENER_SUBSCRIBED } from 'bigbluebutton-html-plugin-sdk/dist/cjs/ui-data-hooks/consts';
 import { UserListUiDataPayloads } from 'bigbluebutton-html-plugin-sdk/dist/cjs/ui-data-hooks/user-list/types';
@@ -12,6 +12,7 @@ import useDeduplicatedSubscription from '/imports/ui/core/hooks/useDeduplicatedS
 import UserListParticipantsPageContainer from './page/component';
 import IntersectionWatcher from './intersection-watcher/intersectionWatcher';
 import { setLocalUserList } from '/imports/ui/core/hooks/useLoadedUserList';
+import roveBuilder from '/imports/ui/core/utils/keyboardRove';
 
 interface UserListParticipantsProps {
   count: number;
@@ -41,6 +42,8 @@ const UserListParticipants: React.FC<UserListParticipantsProps> = ({
       setLocalUserList(visibleUserArr);
     }
   }, [visibleUsers]);
+
+  const rove = useMemo(() => roveBuilder(selectedUserRef, 'user-index'), []);
 
   // --- Plugin related code ---
   useEffect(() => {
@@ -74,34 +77,6 @@ const UserListParticipants: React.FC<UserListParticipantsProps> = ({
     };
   }, []);
   // --- End of plugin related code ---
-  const rove = (ev: KeyboardEvent) => {
-    if (ev.code === 'Enter' || ev.code === 'Space' || (ev.code === 'ArrowDown' && selectedUserRef.current !== document.activeElement)) {
-      if (selectedUserRef.current && (selectedUserRef.current === document.activeElement)) {
-        selectedUserRef.current.click();
-      } else {
-        const userItem = document.getElementById('user-index-0');
-        selectedUserRef.current = userItem;
-
-        if (selectedUserRef.current) {
-          selectedUserRef.current.focus();
-        }
-      }
-      return;
-    }
-
-    if (ev.code === 'ArrowDown' || ev.code === 'ArrowUp') {
-      const sum = ev.code === 'ArrowDown' ? 1 : -1;
-      const el = selectedUserRef.current;
-      if (el) {
-        const nextId = Number.parseInt(el.id.split('-')[2], 10) + sum;
-        const nextEl = document.getElementById(`user-index-${nextId}`);
-        if (nextEl) {
-          selectedUserRef.current = nextEl;
-          nextEl.focus();
-        }
-      }
-    }
-  };
 
   const amountOfPages = Math.ceil(count / 50);
   return (
@@ -110,6 +85,7 @@ const UserListParticipants: React.FC<UserListParticipantsProps> = ({
       // @ts-ignore
         onKeyDown={rove}
         tabIndex={0}
+        role="list"
       >
         <Styled.VirtualizedList ref={userListRef}>
           {

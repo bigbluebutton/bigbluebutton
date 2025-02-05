@@ -18,6 +18,8 @@ import { PANELS, ACTIONS, LAYOUT_TYPE } from '../layout/enums';
 import Button from '/imports/ui/components/common/button/component';
 import LeaveMeetingButtonContainer from './leave-meeting-button/container';
 import { getSettingsSingletonInstance } from '/imports/ui/services/settings';
+import Tooltip from '/imports/ui/components/common/tooltip/component';
+import SessionDetailsModal from '/imports/ui/components/session-details/component';
 
 const intlMessages = defineMessages({
   toggleUserListLabel: {
@@ -43,6 +45,18 @@ const intlMessages = defineMessages({
   leaveMeetingLabel: {
     id: 'app.navBar.leaveMeetingBtnLabel',
     description: 'Leave meeting button label',
+  },
+  openDetailsTooltip: {
+    id: 'app.navBar.openDetailsTooltip',
+    description: 'Open details tooltip',
+  },
+  sessionControlLabel: {
+    id: 'app.navBar.sessionControlLabel',
+    description: 'label for screen reader to jump to leave button and options menu',
+  },
+  speakersListLabel: {
+    id: 'app.navBar.speakersListLabel',
+    description: 'label for screen reader to jump to speakers list',
   },
 });
 
@@ -144,6 +158,24 @@ class NavBar extends Component {
 
     this.handleToggleUserList = this.handleToggleUserList.bind(this);
     this.splitPluginItems = this.splitPluginItems.bind(this);
+
+    this.state = {
+      isModalOpen: props.showSessionDetailsOnJoin,
+    };
+  }
+
+  setModalIsOpen = (isOpen) => this.setState({ isModalOpen: isOpen })
+
+  renderModal(isOpen, setIsOpen, priority, Component, otherOptions) {
+    return isOpen ? <Component
+      {...{
+        ...otherOptions,
+        onRequestClose: () => setIsOpen(false),
+        priority,
+        setIsOpen,
+        isOpen
+      }}
+    /> : null
   }
 
   componentDidMount() {
@@ -275,6 +307,8 @@ class NavBar extends Component {
       hideTopRow,
     } = this.props;
 
+    const { isModalOpen } = this.state;
+
     const hasNotification = hasUnreadMessages || (hasUnreadNotes && !isPinned);
 
     let ariaLabel = intl.formatMessage(intlMessages.toggleUserListAria);
@@ -346,9 +380,16 @@ class NavBar extends Component {
               {renderPluginItems(leftPluginItems)}
             </Styled.Left>
             <Styled.Center>
-              <Styled.PresentationTitle data-test="presentationTitle">
-                {presentationTitle}
+              <Styled.PresentationTitle
+                data-test="presentationTitle"
+                id="presentationTitle"
+                onClick={() => this.setModalIsOpen(true)}
+              >
+                <Tooltip title={intl.formatMessage(intlMessages.openDetailsTooltip)}>
+                  <span>{presentationTitle}</span>
+                </Tooltip>
               </Styled.PresentationTitle>
+              {this.renderModal(isModalOpen, this.setModalIsOpen, "low", SessionDetailsModal)}
               <RecordingIndicator
                 amIModerator={amIModerator}
                 currentUserId={currentUserId}
@@ -356,6 +397,7 @@ class NavBar extends Component {
               {renderPluginItems(centerPluginItems)}
             </Styled.Center>
             <Styled.Right>
+              <h2 class="sr-only">{intl.formatMessage(intlMessages.sessionControlLabel)}</h2>
               {renderPluginItems(rightPluginItems)}
               {ConnectionStatusService.isEnabled() ? <ConnectionStatusButton /> : null}
               {ConnectionStatusService.isEnabled() ? <ConnectionStatus /> : null}
@@ -369,6 +411,7 @@ class NavBar extends Component {
           </Styled.Top>
         )}
         <Styled.Bottom>
+          <h2 class="sr-only">{intl.formatMessage(intlMessages.speakersListLabel)}</h2>
           {enableTalkingIndicator ? <TalkingIndicator amIModerator={amIModerator} /> : null}
           <TimerIndicatorContainer />
         </Styled.Bottom>

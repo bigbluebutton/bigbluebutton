@@ -43,7 +43,7 @@ test.describe.parallel('Breakout', { tag: '@ci' }, () => {
   });
 
   test.describe.parallel('After creating', () => {
-    // https://docs.bigbluebutton.org/2.6/release-tests.html#moderators-creating-breakout-rooms-and-assiging-users-automated
+    // https://docs.bigbluebutton.org/3.0/testing/release-testing/#moderators-creating-breakout-rooms-and-assiging-users-automated
     test('Join Breakout room', async ({ browser, context, page }) => {
       const join = new Join(browser, context);
       await join.initPages(page);
@@ -144,6 +144,12 @@ test.describe.parallel('Breakout', { tag: '@ci' }, () => {
       await join.initPages(page);
       await join.createToAllowChooseOwnRoom();
       await join.userCanChooseRoom();
+    });
+    
+    test('Breakout rooms can use different presentations', async ({ browser, context, page }) => {
+      const join = new Join(browser, context);
+      await join.initPages(page);
+      await join.breakoutWithDifferentPresentations();
     });
   });
 });

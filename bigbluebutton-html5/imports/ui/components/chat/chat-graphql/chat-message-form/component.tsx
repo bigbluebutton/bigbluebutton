@@ -5,8 +5,9 @@ import React, {
   useEffect,
   useRef,
   useMemo,
+  useCallback,
 } from 'react';
-import { useMutation } from '@apollo/client';
+import { useLazyQuery, useMutation } from '@apollo/client';
 import TextareaAutosize from 'react-autosize-textarea';
 import { ChatFormCommandsEnum } from 'bigbluebutton-html-plugin-sdk/dist/cjs/ui-commands/chat/form/enums';
 import { FillChatFormCommandArguments } from 'bigbluebutton-html-plugin-sdk/dist/cjs/ui-commands/chat/form/types';
@@ -15,7 +16,7 @@ import { ChatFormUiDataPayloads } from 'bigbluebutton-html-plugin-sdk/dist/cjs/u
 import * as PluginSdk from 'bigbluebutton-html-plugin-sdk';
 import { layoutSelect } from '/imports/ui/components/layout/context';
 import { defineMessages, useIntl } from 'react-intl';
-import { useIsChatEnabled } from '/imports/ui/services/features';
+import { useIsChatEnabled, useIsEditChatMessageEnabled } from '/imports/ui/services/features';
 import { checkText } from 'smile2emoji';
 import { findDOMNode } from 'react-dom';
 
@@ -24,9 +25,6 @@ import deviceInfo from '/imports/utils/deviceInfo';
 import usePreviousValue from '/imports/ui/hooks/usePreviousValue';
 import useChat from '/imports/ui/core/hooks/useChat';
 import useCurrentUser from '/imports/ui/core/hooks/useCurrentUser';
-import {
-  textToMarkdown,
-} from './service';
 import { Chat } from '/imports/ui/Types/chat';
 import { Layout } from '../../../layout/layoutTypes';
 import useMeeting from '/imports/ui/core/hooks/useMeeting';
@@ -40,6 +38,13 @@ import { GraphqlDataHookSubscriptionResponse } from '/imports/ui/Types/hook';
 import { throttle } from '/imports/utils/throttle';
 import logger from '/imports/startup/client/logger';
 import { CHAT_EDIT_MESSAGE_MUTATION } from '../chat-message-list/page/chat-message/mutations';
+import {
+  LastSentMessageData,
+  LastSentMessageResponse,
+  USER_LAST_SENT_PRIVATE_CHAT_MESSAGE_QUERY,
+  USER_LAST_SENT_PUBLIC_CHAT_MESSAGE_QUERY,
+} from './queries';
+import Auth from '/imports/ui/services/auth';
 
 const CLOSED_CHAT_LIST_KEY = 'closedChatList';
 const START_TYPING_THROTTLE_INTERVAL = 1000;
@@ -57,6 +62,7 @@ interface ChatMessageFormProps {
   locked: boolean,
   partnerIsLoggedOut: boolean,
   title: string,
+  getUserLastSentMessage: () => Promise<LastSentMessageData | null>,
 }
 
 const messages = defineMessages({
@@ -126,6 +132,7 @@ const ChatMessageForm: React.FC<ChatMessageFormProps> = ({
   connected,
   locked,
   isRTL,
+  getUserLastSentMessage,
 }) => {
   const isChatEnabled = useIsChatEnabled();
   if (!isChatEnabled) return null;
@@ -346,11 +353,12 @@ const ChatMessageForm: React.FC<ChatMessageFormProps> = ({
 
   const renderForm = () => {
     const formRef = useRef<HTMLFormElement | null>(null);
+    const CHAT_EDIT_ENABLED = useIsEditChatMessageEnabled();
 
     const handleSubmit = (e: React.FormEvent<HTMLFormElement> | React.KeyboardEvent<HTMLInputElement> | Event) => {
       e.preventDefault();
 
-      const msg = textToMarkdown(message);
+      const msg = message;
 
       if (msg.length < minMessageLength || chatSendMessageLoading) return;
 
@@ -428,6 +436,25 @@ const ChatMessageForm: React.FC<ChatMessageFormProps> = ({
           cancelable: true,
         });
         handleSubmit(event);
+      }
+      if (e.key === 'ArrowUp' && !editingMessage.current && messageRef.current === '' && CHAT_EDIT_ENABLED) {
+        e.preventDefault();
+        getUserLastSentMessage().then((msg) => {
+          if (msg) {
+            window.dispatchEvent(
+              new CustomEvent(ChatEvents.CHAT_EDIT_REQUEST, {
+                detail: {
+                  messageId: msg.messageId,
+                  chatId: msg.chatId,
+                  message: msg.message,
+                },
+              }),
+            );
+            window.dispatchEvent(
+              new CustomEvent(ChatEvents.CHAT_CANCEL_REPLY_INTENTION),
+            );
+          }
+        });
       }
     };
     const handleFillChatFormThroughPlugin = ((
@@ -647,11 +674,44 @@ const ChatMessageFormContainer: React.FC = () => {
     }
   }
 
+  const userLastSentMessageQuery = chat?.public
+    ? USER_LAST_SENT_PUBLIC_CHAT_MESSAGE_QUERY
+    : USER_LAST_SENT_PRIVATE_CHAT_MESSAGE_QUERY;
+
+  const [loadUserLastSentMessage] = useLazyQuery<LastSentMessageResponse>(
+    userLastSentMessageQuery,
+    {
+      variables: chat?.public ? {
+        userId: Auth.userID,
+      } : {
+        userId: Auth.userID,
+        requestedChatId: idChatOpen,
+      },
+      fetchPolicy: 'no-cache',
+    },
+  );
+
+  const getUserLastSentMessage = useCallback(
+    async () => {
+      const { data } = await loadUserLastSentMessage();
+      if (data) {
+        if ('chat_message_public' in data) {
+          return data.chat_message_public[0] ?? null;
+        }
+        return data.chat_message_private[0] ?? null;
+      }
+      return null;
+    },
+    [loadUserLastSentMessage],
+  );
+
   if (chat?.participant && !chat.participant.currentlyInMeeting) {
     return <ChatOfflineIndicator participantName={chat.participant.name} />;
   }
 
   const CHAT_CONFIG = window.meetingClientSettings.public.chat;
+
+  const disabled = locked && !isModerator && disablePrivateChat && !isPublicChat && !chat?.participant?.isModerator;
 
   return (
     <ChatMessageForm
@@ -661,12 +721,13 @@ const ChatMessageFormContainer: React.FC = () => {
         idChatOpen,
         chatId: idChatOpen,
         connected: true, // TODO: monitoring network status
-        disabled: locked ?? false,
+        disabled: isPublicChat ? locked : disabled ?? false,
         title,
         isRTL,
         // if participant is not defined, it means that the chat is public
         partnerIsLoggedOut: chat?.participant ? !chat?.participant?.currentlyInMeeting : false,
         locked: locked ?? false,
+        getUserLastSentMessage,
       }}
     />
   );

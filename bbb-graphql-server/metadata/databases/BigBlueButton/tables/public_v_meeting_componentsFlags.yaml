@@ -13,11 +13,13 @@ select_permissions:
         - hasBreakoutRoom
         - hasCameraAsContent
         - hasCaption
+        - hasCurrentPresentation
         - hasExternalVideo
         - hasPoll
         - hasScreenshare
         - hasScreenshareAsContent
         - hasTimer
+        - isSharedNotedPinned
         - showRemainingTime
       filter:
         meetingId:

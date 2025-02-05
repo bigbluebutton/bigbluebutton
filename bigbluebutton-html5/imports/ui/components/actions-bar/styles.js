@@ -127,7 +127,7 @@ export default {
   ButtonContainer,
   ReactionsDropdown,
   Wrapper,
-  Separator,
   ActionsBarWrapper,
   Gap,
+  Separator,
 };

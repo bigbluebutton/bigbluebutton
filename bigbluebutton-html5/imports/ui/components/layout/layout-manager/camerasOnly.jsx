@@ -353,6 +353,7 @@ const CamerasOnlyLayout = (props) => {
   }, []);
 
   const init = () => {
+    const hasLayoutEngineLoadedOnce = Session.getItem('hasLayoutEngineLoadedOnce');
     layoutContextDispatch({
       type: ACTIONS.SET_LAYOUT_INPUT,
       value: (prevInput) => {
@@ -388,7 +389,7 @@ const CamerasOnlyLayout = (props) => {
               hasScreenShare: false,
             },
           },
-          INITIAL_INPUT_STATE,
+          hasLayoutEngineLoadedOnce ? prevInput : INITIAL_INPUT_STATE,
         );
       },
     });

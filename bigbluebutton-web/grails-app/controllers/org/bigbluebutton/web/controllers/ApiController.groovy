@@ -416,6 +416,8 @@ class ApiController {
       externUserID = internalUserID
     }
 
+    // Get the logoutUrl, either from the meeting or from the join api.
+    // Also replace the tokens.
     String logoutUrl = meeting.getLogoutUrl()
     if(!StringUtils.isEmpty(params.get(ApiParams.LOGOUT_URL))) {
       String userProvidedUrl = params.get(ApiParams.LOGOUT_URL)
@@ -427,6 +429,7 @@ class ApiController {
         log.debug "The following logout URL is present: " + logoutUrl
       }
     }
+    logoutUrl = subLogoutParams(logoutUrl, meeting.getInternalId(), internalUserID, fullName);
 
     //Return a Map with the user custom data
     Map<String, String> userCustomData = meetingService.getUserCustomData(meeting, externUserID, params);
@@ -490,6 +493,14 @@ class ApiController {
       }
     }
 
+    if (!StringUtils.isEmpty(params.firstName)) {
+      us.firstName = params.firstName;
+    }
+
+    if (!StringUtils.isEmpty(params.lastName)) {
+      us.lastName = params.lastName;
+    }
+
     String meetingId = meeting.getInternalId()
 
     if (hasReachedMaxParticipants(meeting, us)) {
@@ -508,6 +519,8 @@ class ApiController {
         us.meetingID,
         us.internalUserId,
         us.fullname,
+        us.firstName,
+        us.lastName,
         us.role,
         us.externUserID,
         us.authToken,
@@ -605,6 +618,8 @@ class ApiController {
     us.externMeetingID = meeting.getExternalId()
     us.externUserID = existingUserSession.externUserID
     us.fullname = existingUserSession.fullname
+    us.firstName = existingUserSession.firstName
+    us.lastName = existingUserSession.lastName
     us.role = existingUserSession.role
     us.conference = meeting.getInternalId()
     us.room = meeting.getInternalId()
@@ -630,20 +645,24 @@ class ApiController {
       us.enforceLayout = params.enforceLayout;
     }
 
+    if (!StringUtils.isEmpty(params.sessionName)) {
+      us.sessionName = params.sessionName;
+    }
+
     //used to drop the previous session of the user
     String replaceSessionToken = ""
     if (!StringUtils.isEmpty(params.replaceSessionToken)) {
       replaceSessionToken = params.replaceSessionToken;
     }
 
-    //TODO parse user-session-metadata
-    Map<String, String> userSessionCustomData = new LinkedHashMap<String, String>()
+    Map<String, String> userSessionCustomData = paramsProcessorUtil.getUserCustomData(params)
 
     // Register a new session token to the user
     meetingService.registerUserSession(
             us.meetingID,
             us.internalUserId,
             sessionToken,
+            us.sessionName,
             replaceSessionToken,
             us.enforceLayout,
             userSessionCustomData
@@ -1193,12 +1212,22 @@ class ApiController {
         queryParameters.put("redirect", "true");
         queryParameters.put("existingUserID", us.getInternalUserId());
 
-        // revokePreviousSession: If this link is intended to replace the previous session of the user
+        // replaceSession: If this link is intended to replace the previous session of the user
         if (!StringUtils.isEmpty(params.replaceSession) && Boolean.parseBoolean(params.replaceSession)) {
           queryParameters.put("replaceSessionToken", sessionToken);
         }
 
-        // TODO allow to specify enforceLayout and user-session-data
+        if (!StringUtils.isEmpty(params.sessionName)) {
+          queryParameters.put("sessionName", sessionName);
+        }
+
+        // If the user calling getJoinUrl is a moderator (except in breakout rooms), allow to specify additional parameters
+        if (us.role.equals(ROLE_MODERATOR) && !meeting.isBreakout()) {
+          request.getParameterMap()
+                  .findAll { key, value -> ["enforceLayout"].contains(key) || key.startsWith("userdata-") }
+                  .findAll { key, value -> !StringUtils.isEmpty(value[-1]) }
+                  .each { key, value -> queryParameters.put(key, value[-1]) };
+        }
 
         String httpQueryString = "";
         for(String parameterName : queryParameters.keySet()) {

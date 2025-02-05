@@ -104,9 +104,11 @@ const IconWrapper = styled.div`
 const ToastMessage = styled.div`
   font-size: ${fontSizeSmall};
   margin-top: ${toastMargin};
+  color: black;
 
   & > div {
     font-weight: bold;
+    line-height: 2;
   }
 `;
 
@@ -128,10 +130,15 @@ const AvatarWrapper = styled.div`
   display: flex;
 `;
 
+const ToastContentWrapper = styled.div`
+  width: 100%;
+`;
+
 const ToastSeparator = styled(ToastStyled.Separator)``;
 
 export default {
   Avatar,
+  ToastContentWrapper,
   AvatarsExtra,
   ToastContent,
   IconWrapper,

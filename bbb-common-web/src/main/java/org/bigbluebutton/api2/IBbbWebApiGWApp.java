@@ -75,11 +75,11 @@ public interface IBbbWebApiGWApp {
                      Map<String, Object> plugins,
                      String overrideClientSettings);
 
-  void registerUser(String meetingID, String internalUserId, String fullname, String role,
+  void registerUser(String meetingID, String internalUserId, String fullname, String firstName, String lastName, String role,
                     String externUserID, String authToken, String sessionToken, String avatarURL, String webcamBackgroundURL,
                     Boolean bot, Boolean guest, Boolean authed, String guestStatus, Boolean excludeFromDashboard,
                     String enforceLayout, String logoutUrl, Map<String, String> userMetadata);
-  void registerUserSessionToken(String meetingID, String internalUserId, String sessionToken,
+  void registerUserSessionToken(String meetingID, String internalUserId, String sessionToken, String sessionName,
                                 String replaceSessionToken, String enforceLayout, Map<String, String> userSessionMetadata);
 
   void destroyMeeting(DestroyMeetingMessage msg);
