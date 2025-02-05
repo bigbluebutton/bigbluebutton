@@ -115,6 +115,11 @@ At the moment of writing this documentation, the official list of plugins includ
 - [Decrease the volume of external video when someone speaks](https://github.com/bigbluebutton/plugin-decrease-volume-on-speak)
 - [Typed captions](https://github.com/bigbluebutton/plugin-typed-captions)
 - [Source code highlight](https://github.com/bigbluebutton/plugin-code-highlight)
+- [Tour](https://github.com/bigbluebutton/plugin-tour)
+- [Chat mention](https://github.com/bigbluebutton/plugin-chat-mention)
+- [Media popout](https://github.com/bigbluebutton/plugin-media-popout)
+
+For the most accurate information check the [plugins reporisory](https://github.com/bigbluebutton/plugins) where all the plugins are listed.
 
 #### Replaced Akka framework with Pekko
 
