@@ -255,15 +255,6 @@ const TalkingIndicatorContainer: React.FC = () => {
   if (talkingUsersLoading || isBreakoutLoading) return null;
 
   if (isBreakoutError) {
-    return (
-      <div>
-        error:
-        {JSON.stringify(isBreakoutError)}
-      </div>
-    );
-  }
-
-  if (isBreakoutError) {
     notify(intl.formatMessage({
       id: 'app.error.issueLoadingData',
     }), 'warning', 'warning');
