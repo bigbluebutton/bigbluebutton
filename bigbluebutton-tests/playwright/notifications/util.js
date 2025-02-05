@@ -30,7 +30,7 @@ async function publicChatMessageToast(page1, page2) {
   // Open private Chat with the other User
   await page1.waitAndClick(e.userListItem);
   await page1.waitAndClick(e.startPrivateChat);
-  await page1.waitForSelector(e.hidePrivateChat);
+  await page1.waitForSelector(e.privateChatBackButton);
   // send a public message
   await page2.type(e.chatBox, e.publicMessage1);
   await page2.waitAndClick(e.sendButton);

@@ -149,8 +149,7 @@ class Page {
     return locator.count();
   }
 
-  async getCopiedText(context) {
-    await context.grantPermissions(['clipboard-write', 'clipboard-read'], { origin: process.env.BBB_URL });
+  async getCopiedText() {
     return this.page.evaluate(async () => navigator.clipboard.readText());
   }
 
@@ -202,6 +201,10 @@ class Page {
     await this.waitForSelector(selector, timeout);
     await this.page.focus(selector);
     await this.page.click(selector, { timeout });
+  }
+
+  async getByLabelAndClick(label, timeout = ELEMENT_WAIT_TIME) {
+    await this.page.getByLabel(label).click({ timeout });
   }
 
   async clickOnLocator(locator, timeout = ELEMENT_WAIT_TIME) {

@@ -11,7 +11,7 @@ interface BackButtonProps {
 const BackButton : React.FC<BackButtonProps> = ({ onClick, title }) => {
   return (
     <Styled.Form onClick={onClick}>
-      <Styled.InputWrapper>
+      <Styled.InputWrapper data-test="privateChatBackButton">
         <Styled.ArrowWrapper>
           <ArrowBackIosNewIcon fontSize="small" sx={{ marginRight: '8px', backgroundColor: '#E3F2FD' }} />
         </Styled.ArrowWrapper>

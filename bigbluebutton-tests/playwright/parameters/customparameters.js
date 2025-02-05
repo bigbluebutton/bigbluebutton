@@ -44,7 +44,7 @@ class CustomParameters extends MultiUsers {
     // Open private chat
     await this.modPage.waitAndClick(e.userListItem);
     await this.modPage.waitAndClick(e.startPrivateChat);
-    await this.modPage.hasElement(e.hidePrivateChat, 'should display the hide private chat element when the user has the private chat open');
+    await this.modPage.hasElement(e.privateChatBackButton, 'should display the private chat back button when the user has a private chat open');
     // Check the later shortcuts that can be used after joining audio and opening private chat
     await util.checkShortcutsArray(this.modPage, c.laterShortcuts);
   }

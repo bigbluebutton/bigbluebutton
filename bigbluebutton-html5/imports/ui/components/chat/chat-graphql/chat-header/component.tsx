@@ -47,7 +47,7 @@ const ChatHeader: React.FC<ChatHeaderProps> = ({
       rightButtonProps={{
         accessKey: HIDE_CHAT_AK,
         'aria-label': intl.formatMessage(intlMessages.hideChatLabel, { 0: title }),
-        'data-test': 'hidePrivateChat',
+        'data-test': 'hideMessagesButton',
         icon: 'close',
         label: intl.formatMessage(intlMessages.hideChatLabel, { 0: title }),
         onClick: () => {
