@@ -189,6 +189,7 @@ public:
     defaultSettings:
       application:
         selectedLayout: 'custom'
+        pushLayout: false
         animations: true
         chatAudioAlerts: false
         chatPushAlerts: false
