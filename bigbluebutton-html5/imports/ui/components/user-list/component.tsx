@@ -76,6 +76,15 @@ const UserList: React.FC<UserListComponentProps> = () => {
     );
   };
 
+  const renderScrollableSection = () => {
+    return (
+      <Styled.ScrollableSection>
+        {renderGuestManagement()}
+        <UserListParticipants count={count} />
+      </Styled.ScrollableSection>
+    );
+  };
+
   const renderCrowdActionButtons = () => {
     if (!currentUserData?.isModerator) return null;
     return (
@@ -111,14 +120,13 @@ const UserList: React.FC<UserListComponentProps> = () => {
             data-test="downloadUserNamesList"
             icon="template_download"
             aria-label={intl.formatMessage(intlMessages.saveUsersNames)}
-            tooltip={intl.formatMessage(intlMessages.saveUsersNames)}
+            label={intl.formatMessage(intlMessages.saveUsersNames)}
             onClick={getUsers}
           />
         )}
       />
       <Styled.Separator />
-      {renderGuestManagement()}
-      <UserListParticipants count={count} />
+      {renderScrollableSection()}
       {renderCrowdActionButtons()}
     </Styled.PanelContent>
   );
