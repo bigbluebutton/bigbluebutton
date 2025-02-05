@@ -24,6 +24,9 @@ class Chat extends MultiUsers {
   }
 
   async sendPrivateMessage() {
+    await this.modPage.hasElement(e.chatBox, 'should display the chat box element when chat is open');
+    await this.modPage.wasRemoved(e.publicChatButton, 'should not display the public chat button when there is no private messages');
+    await this.modPage.wasRemoved(e.privateChatButton, 'should not display the private chat button when there is no private messages');
     await openPrivateChat(this.modPage);
     await this.modPage.hasElement(e.hideMessagesButton, 'should display the hide private chat element when opening a private chat');
     await sleep(500); // prevent a race condition when running on a deployed server
@@ -200,18 +203,14 @@ class Chat extends MultiUsers {
   async hidePublicMessages() {
     await openPublicChat(this.modPage);
     await this.modPage.hasElement(e.chatTitle, 'should display the chat title element');
-    await this.modPage.hasElement(e.publicChatButton, 'should display the public chat button element');
-    await this.modPage.hasElement(e.privateChatButton, 'should display the private chat button element');
+    await this.modPage.hasElement(e.chatOptions, 'should display the chat options element');
     await this.modPage.hasElement(e.chatBox, 'should display the chat box element');
     await this.modPage.hasElement(e.sendButton, 'should display the send button element');
-    await this.modPage.hasElement(e.chatOptions, 'should display the chat options element');
     await this.modPage.waitAndClick(e.hideMessagesButton);
     await this.modPage.wasRemoved(e.chatTitle, 'should not display the chat title element after hiding the messages');
-    await this.modPage.wasRemoved(e.publicChatButton, 'should not display the public chat button element after hiding the messages');
-    await this.modPage.wasRemoved(e.privateChatButton, 'should not display the private chat button element after hiding the messages');
+    await this.modPage.wasRemoved(e.chatOptions, 'should not display the chat options element after hiding the messages');
     await this.modPage.wasRemoved(e.chatBox, 'should not display the chat box element after hiding the messages');
     await this.modPage.wasRemoved(e.sendButton, 'should not display the send button element after hiding the messages');
-    await this.modPage.wasRemoved(e.chatOptions, 'should not display the chat options element after hiding the messages');
   }
 
   async emojiSaveChat(testInfo) {

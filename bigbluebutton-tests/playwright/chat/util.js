@@ -17,10 +17,10 @@ async function openPublicChat(testPage) {
 async function openPrivateChat(testPage) {
   const { chatEnabled } = getSettings();
   await testPage.waitAndClick(e.usersListSidebarButton);
+  await testPage.waitForSelector(e.userListItem);
 
   if (!chatEnabled) {
-    await testPage.waitForSelector(e.userListItem);
-    return await testPage.wasRemoved(e.startPrivateChat, 'should not display the private chat');
+    return testPage.wasRemoved(e.startPrivateChat, 'should not display the private chat');
   }
   await testPage.waitAndClick(e.startPrivateChat);
 }
