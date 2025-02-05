@@ -207,7 +207,7 @@
     "app.userList.userOptions.usersJoinMutedDisableDesc": "Novos usuários não são mutados por padrão",
     "app.userList.userOptions.clearAllReactionsLabel": "Limpar reações",
     "app.userList.userOptions.clearAllReactionsDesc": "Limpa as reações de todos os usuários",
-    "app.userList.userOptions.muteAllExceptPresenterLabel": "Colocar todos em mudo, exceto o apresentador",
+    "app.userList.userOptions.muteAllExceptPresenterLabel": "Silenciar todos",
     "app.userList.userOptions.muteAllExceptPresenterDesc": "Coloca todos em mudo exceto o apresentador",
     "app.userList.userOptions.lockViewersLabel": "Restringir espectadores",
     "app.userList.userOptions.lockViewersDesc": "Restringir algumas funcionalidades aos participantes da sessão",

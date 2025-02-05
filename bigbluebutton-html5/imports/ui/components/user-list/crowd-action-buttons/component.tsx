@@ -69,6 +69,7 @@ const CrowdActionButtons: React.FC<CrowdActionButtonsProps> = () => {
           {/* @ts-ignore - button is js component */}
           <Styled.ActionButton
             aria-label={intl.formatMessage(intlMessages.muteAllExceptPresenterDesc)}
+            tooltipLabel={intl.formatMessage(intlMessages.muteAllExceptPresenterDesc)}
             icon="mute"
             size="lg"
             data-test="muteAllUsers"
@@ -82,6 +83,7 @@ const CrowdActionButtons: React.FC<CrowdActionButtonsProps> = () => {
           {/* @ts-ignore - button is js component */}
           <Styled.ActionButton
             aria-label={intl.formatMessage(intlMessages.lockSettingsButtonDescription)}
+            tooltipLabel={intl.formatMessage(intlMessages.lockSettingsButtonDescription)}
             icon="lock"
             size="lg"
             data-test="lockViewersButton"
