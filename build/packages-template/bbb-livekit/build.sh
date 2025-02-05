@@ -29,6 +29,7 @@ cp livekit-server.service livekit-sip.service $DESTDIR/lib/systemd/system
 
 mkdir -p $DESTDIR/usr/share/livekit-server
 cp livekit.yaml livekit-sip.yaml $DESTDIR/usr/share/livekit-server
+chmod 644 $DESTDIR/usr/share/livekit-server/livekit*.yaml
 
 mkdir -p $DESTDIR/usr/bin
 

@@ -25,9 +25,6 @@ import deviceInfo from '/imports/utils/deviceInfo';
 import usePreviousValue from '/imports/ui/hooks/usePreviousValue';
 import useChat from '/imports/ui/core/hooks/useChat';
 import useCurrentUser from '/imports/ui/core/hooks/useCurrentUser';
-import {
-  textToMarkdown,
-} from './service';
 import { Chat } from '/imports/ui/Types/chat';
 import { Layout } from '../../../layout/layoutTypes';
 import useMeeting from '/imports/ui/core/hooks/useMeeting';
@@ -362,7 +359,7 @@ const ChatMessageForm: React.FC<ChatMessageFormProps> = ({
     const handleSubmit = (e: React.FormEvent<HTMLFormElement> | React.KeyboardEvent<HTMLInputElement> | Event) => {
       e.preventDefault();
 
-      const msg = textToMarkdown(message);
+      const msg = message;
 
       if (msg.length < minMessageLength || chatSendMessageLoading) return;
 
@@ -716,6 +713,8 @@ const ChatMessageFormContainer: React.FC = () => {
 
   const CHAT_CONFIG = window.meetingClientSettings.public.chat;
 
+  const disabled = locked && !isModerator && disablePrivateChat && !isPublicChat && !chat?.participant?.isModerator;
+
   return (
     <ChatMessageForm
       {...{
@@ -724,7 +723,7 @@ const ChatMessageFormContainer: React.FC = () => {
         idChatOpen,
         chatId: idChatOpen,
         connected: true, // TODO: monitoring network status
-        disabled: (locked || !isConnected) ?? false,
+        disabled: ((isPublicChat ? locked : disabled) || !isConnected) ?? false,
         title,
         isRTL,
         // if participant is not defined, it means that the chat is public

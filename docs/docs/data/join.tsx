@@ -106,7 +106,7 @@ const joinEndpointTableData = [
     "name": "enforceLayout",
     "required": false,
     "type": "String",
-    "description": (<>If passed it overrides the value of `meetingLayout` passed on CREATE or the value of `defaultMeetingLayout` read from configuration. Accepted values are the standard layouts: CUSTOM_LAYOUT, SMART_LAYOUT, PRESENTATION_FOCUS, VIDEO_FOCUS, but also several layouts which are not meant to be selectable via UI: CAMERAS_ONLY, PARTICIPANTS_CHAT_ONLY, PRESENTATION_ONLY. Added in BBB 3.0</>)
+    "description": (<>If passed it overrides the value of `meetingLayout` passed on CREATE or the value of `defaultMeetingLayout` read from configuration. Accepted values are the standard layouts: CUSTOM_LAYOUT, SMART_LAYOUT, PRESENTATION_FOCUS, VIDEO_FOCUS, but also several layouts which are not meant to be selectable via UI: CAMERAS_ONLY, PARTICIPANTS_CHAT_ONLY, PRESENTATION_ONLY, MEDIA_ONLY. Added in BBB 3.0</>)
   }
 ];
 

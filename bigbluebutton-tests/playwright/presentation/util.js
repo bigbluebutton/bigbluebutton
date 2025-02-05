@@ -55,7 +55,8 @@ async function uploadMultiplePresentations(test, fileNames, uploadTimeout = ELEM
   await test.hasText('body', e.statingUploadPresentationToast, 'should display the toast of a presentation to be uploaded after selecting the files to upload');
 
   await test.waitAndClick(e.confirmManagePresentation);
-  await test.hasText(e.presentationStatusInfo, [e.convertingPresentationFileToast], 'should display the presentation status info after confimation to upload the new file', uploadTimeout);
+  await test.hasText(e.presentationStatusInfo, 'Processing', 'should display the presentation status info after confirmation to upload the new file', uploadTimeout);
+  await test.hasText(e.presentationStatusInfo, e.convertingPresentationFileToast, 'should display the presentation status info after confirmation to upload the new file', uploadTimeout);
   await test.hasText(e.smallToastMsg, e.presentationUploadedToast, 'should display the toast notification saying that the presentation is uploaded', uploadTimeout);
 }
 
