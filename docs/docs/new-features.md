@@ -150,42 +150,8 @@ For details check the [server customization](/administration/customize/#configur
 
 #### Support for ClamAV as presentation file scanner
 
-We have added support for ClamAV to automatically scan every presentation file for viruses before sharing it with the others in the session.
-To use it you would need to first install ClamAV:
-The simplest way would be to run it locally as a container.
-
-```
-docker pull clamav/clamav`
-docker run --name "clamav" --mount type=bind,source=/var/bigbluebutton,target=/var/bigbluebutton -p 3310:3310 -p 7357:7357 clamav/clamav:latest
-```
-
-
-The above run command may take a minute to start. If you prefer you could run with `-d` flag to make it detachable.
-
-Now when you check the running containers you should see an entry like this one:
-
-```
-root@test30:~# docker ps
-CONTAINER ID   IMAGE                                                       COMMAND                  CREATED          STATUS                    PORTS                                                                                                           NAMES
-bda7f5596192   clamav/clamav:latest                                        "/init"                  21 minutes ago   Up 21 minutes (healthy)   0.0.0.0:3310->3310/tcp, :::3310->3310/tcp, 0.0.0.0:7357->7357/tcp, :::7357->7357/tcp                            clamav
-```
-
-
-Additionally you will have to enable scanning:
-Specify `scanUploadedPresentationFiles=true` in `/etc/bigbluebutton/bbb-web.properties` and restart BigBlueButton via `sudo bbb-conf --restart`
-
-When you create a new session and try uploading some presentation files, you should not see anything different if the file was fine.
-However, if a threat was detected, you will see the message "Upload failed: Virus detected! Please check your file and retry." in the client and the presentation sharing will not proceed.
-Additionally, in the logs for `bbb-web` you will see similar log lines:
-
-```
-Oct 09 01:07:18 test30 java[2810929]: 2024-10-09T01:07:18.285Z DEBUG o.b.w.c.PresentationController - processing file upload eicar.com.txt (presId: f7ff3fd7c0ab460f7139541c02df46f24ac90b67-1728436037947)
-Oct 09 01:07:18 test30 java[2810929]: 2024-10-09T01:07:18.550Z DEBUG o.b.w.c.PresentationController - file upload success eicar.com.txt
-Oct 09 01:07:23 test30 java[2810929]: 2024-10-09T01:07:23.589Z ERROR o.b.p.DocumentConversionServiceImp - Presentation upload failed for meetingId=4814d8e60f2e15576bebfe7cef34367ef5b54539-1728435987030 presId=f7ff3fd7c0ab460f7139541c02df46f24ac90b67-1728436037947
-Oct 09 01:07:23 test30 java[2810929]: 2024-10-09T01:07:23.590Z ERROR o.b.p.DocumentConversionServiceImp - Presentation upload failed because a virus was detected in the uploaded file
-```
-
-You can test your setup with one of the files from [eicar.org](https://www.eicar.org/download-anti-malware-testfile/).
+BigBlueButton now supports file scanning (virus detection) for presentation files using ClamAV.
+For details check the [ClamAV section](/administration/customize#support-for-clamav-as-presentation-file-scanner) of the server customization documentation.
 
 ### Experimental
 
