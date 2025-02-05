@@ -1223,6 +1223,8 @@ Missing parameter error
 
 This call enables you to send a message to the public chat of a running meeting.
 
+<i>Added:</i> 3.0
+
 **Resource URL:**
 
 http&#58;//yourserver.com/bigbluebutton/api/sendChatMessage?[parameters]&checksum=[checksum]
