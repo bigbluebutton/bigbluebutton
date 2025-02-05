@@ -40,7 +40,7 @@ BigBlueButton 3.0's chat gained several new functionalities! Users are now able 
 
 #### New layouts for specific integration scenarios
 
-Several new layouts have been added ("Cameras Only", "Presentation Only", and "Participants and Chat Only") to address various use cases of hybrid education - for example splitting views of the BigBlueButton session to be visible on different physical screens.
+Several new layouts have been added ("Cameras Only", "Presentation Only", "Participants and Chat Only", and "Media Only") to address various use cases of hybrid education - for example splitting views of the BigBlueButton session to be visible on different physical screens.
 
 #### Improved Away mode
 
@@ -247,6 +247,7 @@ For full details on what is new in BigBlueButton 3.0, see the release notes.
 
 Recent releases:
 
+- [3.0.0-rc.2](https://github.com/bigbluebutton/bigbluebutton/releases/tag/v3.0.0-rc.2)
 - [3.0.0-rc.1](https://github.com/bigbluebutton/bigbluebutton/releases/tag/v3.0.0-rc.1)
 - [3.0.0-beta.7](https://github.com/bigbluebutton/bigbluebutton/releases/tag/v3.0.0-beta.7)
 - [3.0.0-beta.6](https://github.com/bigbluebutton/bigbluebutton/releases/tag/v3.0.0-beta.6)
