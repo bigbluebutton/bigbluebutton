@@ -90,6 +90,7 @@ class Presentation extends PureComponent {
       isToolbarVisible: true,
       hadPresentation: false,
       ignorePresentationRestoring: true,
+      lastNotifiedPresentation: localStorage.getItem('lastNotifiedPresentation') ?? '',
     };
 
     const PAN_ZOOM_INTERVAL = window.meetingClientSettings.public.presentation.panZoomInterval || 200;
@@ -114,6 +115,7 @@ class Presentation extends PureComponent {
     this.renderCurrentPresentationToast = this.renderCurrentPresentationToast.bind(this);
     this.setPresentationRef = this.setPresentationRef.bind(this);
     this.setTldrawIsMounting = this.setTldrawIsMounting.bind(this);
+    this.setNotifiedPresentation = this.setNotifiedPresentation.bind(this)
     Session.setItem('componentPresentationWillUnmount', false);
   }
 
@@ -236,6 +238,7 @@ class Presentation extends PureComponent {
       presentationId,
       hadPresentation,
       ignorePresentationRestoring,
+      lastNotifiedPresentation,
     } = this.state;
     const {
       numCameras: prevNumCameras,
@@ -281,7 +284,7 @@ class Presentation extends PureComponent {
             autoClose: shouldCloseToast,
             render: this.renderCurrentPresentationToast(),
           });
-        } else {
+        } else if (lastNotifiedPresentation !== currentPresentationId) {
           toast(
             this.renderCurrentPresentationToast(),
             {
@@ -292,6 +295,7 @@ class Presentation extends PureComponent {
               toastId: this.currentPresentationToastId,
             },
           );
+          this.setNotifiedPresentation(currentPresentationId);
         }
       }
 
@@ -411,6 +415,7 @@ class Presentation extends PureComponent {
     }
   }
 
+
   handlePanShortcut(e) {
     const { userIsPresenter } = this.props;
     const { isPanning } = this.state;
@@ -447,6 +452,11 @@ class Presentation extends PureComponent {
     if (isFullscreen !== newIsFullscreen) {
       this.setState({ isFullscreen: newIsFullscreen });
     }
+  }
+
+  setNotifiedPresentation(id) {
+    this.setState({ lastNotifiedPresentation: id });
+    localStorage.setItem('lastNotifiedPresentation', id);
   }
 
   setTldrawAPI(api) {
@@ -839,7 +849,7 @@ class Presentation extends PureComponent {
     const presentationZIndex = fullscreenContext ? presentationBounds.zIndex : undefined;
 
     const APP_CRASH_METADATA = { logCode: 'whiteboard_crash', logMessage: 'Possible whiteboard crash' };
-  if (!presentationIsOpen) return null;
+    if (!presentationIsOpen) return null;
     return (
       <>
         <Styled.PresentationContainer
