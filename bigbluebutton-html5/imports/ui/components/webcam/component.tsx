@@ -289,15 +289,17 @@ const WebcamComponent: React.FC<WebcamComponentProps> = ({
                 background: 'none',
               }}
             >
-              <h2 class="sr-only">{intl.formatMessage(intlMessages.camerasAriaLabel)}</h2>
-              <VideoProviderContainer
-                {...{
-                  swapLayout,
-                  cameraDock,
-                  focusedId,
-                  handleVideoFocus,
-                }}
-              />
+              <>
+                <h2 className="sr-only">{intl.formatMessage(intlMessages.camerasAriaLabel)}</h2>
+                <VideoProviderContainer
+                  {...{
+                    swapLayout,
+                    cameraDock,
+                    focusedId,
+                    handleVideoFocus,
+                  }}
+                />
+              </>
             </Styled.Draggable>
           </Resizable>
         </Draggable>
