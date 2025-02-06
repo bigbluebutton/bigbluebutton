@@ -1372,16 +1372,25 @@ class AudioManager {
   async getStats() {
     if (!this.bridge) return null;
 
-    const peer = this.bridge.getPeerConnection();
+    let stats = null;
 
-    if (!peer) return null;
+    if (typeof this.bridge.getStats === 'function') {
+      stats = await this.bridge.getStats();
+    } else {
+      const peer = this.bridge.getPeerConnection();
 
-    const peerStats = await peer.getStats();
+      if (!peer) return null;
+
+      stats = await peer.getStats();
+    }
+
+    if (!stats) return null;
 
     const audioStats = {};
 
-    peerStats.forEach((stat) => {
-      if (FILTER_AUDIO_STATS.includes(stat.type)) {
+    stats.forEach((stat) => {
+      if (FILTER_AUDIO_STATS.includes(stat.type)
+        && (!stat.kind || stat.kind === 'audio')) {
         audioStats[stat.id] = stat;
       }
     });

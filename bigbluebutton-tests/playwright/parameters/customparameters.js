@@ -44,7 +44,8 @@ class CustomParameters extends MultiUsers {
     await this.modPage.joinMicrophone();
     // Open private chat
     await this.modPage.waitAndClick(e.userListItem);
-    await this.modPage.waitAndClick(e.startPrivateChat);
+    const lastUserStartPrivateChat = await this.modPage.getLocator(e.startPrivateChat).last();
+    await this.modPage.clickOnLocator(lastUserStartPrivateChat);
     await this.modPage.hasElement(e.hidePrivateChat, 'should display the hide private chat element when the user has the private chat open');
     // Check the later shortcuts that can be used after joining audio and opening private chat
     await util.checkShortcutsArray(this.modPage, c.laterShortcuts);
