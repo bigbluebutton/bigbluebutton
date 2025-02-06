@@ -62,10 +62,6 @@ const intlMessages: { [key: string]: { id: string; description?: string } } = de
     id: 'app.videoPreview.webcamSettingsTitle',
     description: 'Title for the video preview modal',
   },
-  minimizeLabel: {
-    id: 'app.videoPreview.minimizeLabel',
-    description: 'Minimize button label',
-  },
   cancelLabel: {
     id: 'app.mobileAppModal.dismissLabel',
     description: 'Close button label',

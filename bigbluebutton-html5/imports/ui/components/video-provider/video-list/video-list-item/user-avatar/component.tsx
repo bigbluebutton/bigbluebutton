@@ -47,7 +47,7 @@ const UserAvatarVideo: React.FC<UserAvatarVideoProps> = (props) => {
       avatar={avatar}
       unhealthyStream={unhealthyStream}
       talking={talking}
-      whiteboardAccess={undefined}
+      whiteboardAccess={false}
     >
       {handleUserIcon()}
     </Styled.UserAvatarStyled>
