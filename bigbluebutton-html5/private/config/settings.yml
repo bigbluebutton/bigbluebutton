@@ -259,6 +259,9 @@ public:
       toggleUserList:
         accesskey: U
         descId: toggleUserList
+      openLeaveMenu:
+        accesskey: X
+        descId: openLeaveMenu
       toggleMute:
         accesskey: M
         descId: toggleMute

@@ -1034,6 +1034,7 @@
     "app.shortcut-help.closeDesc": "Closes keyboard shortcuts modal",
     "app.shortcut-help.openOptions": "Open Options",
     "app.shortcut-help.toggleUserList": "Toggle UserList",
+    "app.shortcut-help.openLeaveMenu": "Open leave meeting menu",
     "app.shortcut-help.toggleMute": "Mute / Unmute",
     "app.shortcut-help.togglePublicChat": "Toggle Public Chat (User list must be open)",
     "app.shortcut-help.hidePrivateChat": "Hide private chat",
