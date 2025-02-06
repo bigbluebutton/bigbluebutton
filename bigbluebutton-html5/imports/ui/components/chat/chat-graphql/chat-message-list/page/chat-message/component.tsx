@@ -24,7 +24,7 @@ import {
   ChatContentFooter,
   ChatTime,
 } from './styles';
-import { ChatMessageType } from '/imports/ui/core/enums/chat';
+import { ChatMessageType, SYSTEM_SENDERS } from '/imports/ui/core/enums/chat';
 import MessageReadConfirmation from './message-read-confirmation/component';
 import ChatMessageToolbar from './message-toolbar/component';
 import ChatMessageReactions from './message-reactions/component';
@@ -269,7 +269,7 @@ const ChatMessage = React.forwardRef<ChatMessageRef, ChatMessageProps>(({
     || !JSON.parse(previousMessage?.messageMetadata).custom);
   let sameSender = ((previousMessage?.user?.userId
     || lastSenderPreviousPage) === message?.user?.userId) && pluginMessageNotCustom;
-  const isSystemSender = message.messageType === ChatMessageType.BREAKOUT_ROOM;
+  const isSystemSender = SYSTEM_SENDERS.has(message.messageType as ChatMessageType);
   const currentPluginMessageMetadata = message.messageType === ChatMessageType.PLUGIN
     && JSON.parse(message.messageMetadata);
   const isCustomPluginMessage = currentPluginMessageMetadata.custom;
@@ -368,12 +368,13 @@ const ChatMessage = React.forwardRef<ChatMessageRef, ChatMessageProps>(({
           isModerator: true,
           isSystemSender: true,
           component: (
-            <ChatMessageNotificationContent
+            <ChatMessageTextContent
+              emphasizedMessage
               text={message.message}
             />
           ),
-          showAvatar: false,
-          showHeading: false,
+          showAvatar: true,
+          showHeading: true,
           showToolbar: false,
         };
       case ChatMessageType.USER_AWAY_STATUS_MSG: {
