@@ -4,10 +4,12 @@ import (
 	"context"
 	"encoding/json"
 	"encoding/xml"
+	"errors"
 	"io"
 	"log"
 	"log/slog"
 	"net/http"
+	"path/filepath"
 	"regexp"
 	"strconv"
 	"strings"
@@ -78,6 +80,22 @@ func (r RequestModules) Del(key string) {
 func (r RequestModules) Has(key string) bool {
 	_, ok := r[key]
 	return ok
+}
+
+type Presentation struct {
+	Documents []Document `xml:"document"`
+}
+
+type Document struct {
+	XMLName       xml.Name `xml:"document"`
+	Name          string   `xml:"name,attr,omitempty"`
+	Current       bool     `xml:"current,attr,omitempty"`
+	Removable     bool     `xml:"removable,attr,omitempty"`
+	Downloadable  bool     `xml:"downloadable,attr,omitempty"`
+	URL           string   `xml:"url,attr,omitempty"`
+	Filename      string   `xml:"filename,attr,omitempty"`
+	PresFromParam bool     `xml:"isPreUploadedPresentationFromParameter,attr,omitempty"`
+	Content       string   `xml:",chardata"`
 }
 
 func (app *Config) writeXML(w http.ResponseWriter, status int, data any, headers ...http.Header) error {
@@ -479,6 +497,109 @@ func (app *Config) procesXMLModules(body io.ReadCloser) (RequestModules, error) 
 	return reqModules, nil
 }
 
+func (app *Config) parseDocuments(modules RequestModules, params *Params, isFromInsertAPI bool) ([]Document, bool, error) {
+	for _, df := range app.ServerConfig.Meeting.Features.Disabled {
+		if df == "presentation" {
+			return nil, false, errors.New("presentation feature is disabled")
+		}
+	}
+
+	overrideDefaultPresentation := true
+	if !isFromInsertAPI {
+		if po := params.Get("preUploadedPresentationOverrideDefault"); po == "" {
+			overrideDefaultPresentation = app.ServerConfig.Override.DefaultPresentation
+		} else {
+			overrideDefaultPresentation = util.GetBoolOrDefaultValue(po, overrideDefaultPresentation)
+		}
+	}
+
+	isDefaultPresUsed := false
+	isDefaultPresCurrent := false
+	var documents []Document
+	presentationsHasCurrent := false
+	presURLInParameter := false
+
+	pres := params.Get("preUploadedPresentation")
+	presName := params.Get("preUploadedPresentationName")
+
+	if pres != "" {
+		presURLInParameter = true
+		if presName == "" {
+			fileName := filepath.Base(pres)
+			if fileName == "." {
+				fileName = "untitled"
+			}
+		}
+
+		doc := Document{
+			Removable:     true,
+			Downloadable:  false,
+			URL:           pres,
+			Filename:      presName,
+			PresFromParam: true,
+		}
+		documents = append(documents, doc)
+	}
+
+	if !modules.Has("presentation") {
+		if isFromInsertAPI {
+			return nil, presentationsHasCurrent, errors.New("insertDocument API called without a payload")
+		}
+
+		if presURLInParameter {
+			if !overrideDefaultPresentation {
+				documents = append(documents, Document{
+					Name:    "default",
+					Current: true,
+				})
+			}
+		} else {
+			documents = append(documents, Document{
+				Name:    "default",
+				Current: true,
+			})
+		}
+	} else {
+		hasCurrent := presURLInParameter
+		hasPresModule := false
+		if modules.Has("presentation") {
+			presModule := modules.Get("presentation")
+			presentation, err := parsePresentationModule(presModule.Content)
+			if err != nil {
+				return nil, presentationsHasCurrent, err
+			}
+			hasPresModule = true
+			for _, doc := range presentation.Documents {
+				if doc.Current {
+					documents = append([]Document{doc}, documents...)
+					hasCurrent = true
+				} else {
+					documents = append(documents, doc)
+				}
+			}
+
+			uploadDefault := !overrideDefaultPresentation && !isDefaultPresUsed && !isFromInsertAPI
+			if uploadDefault {
+				isDefaultPresCurrent = !hasCurrent
+				hasCurrent = true
+				isDefaultPresUsed = true
+				if isDefaultPresCurrent {
+					documents = append([]Document{{Name: "default", Current: true}}, documents...)
+				} else {
+					documents = append(documents, Document{Name: "default", Current: false})
+				}
+			}
+		}
+		if !hasPresModule {
+			hasCurrent = true
+			documents = append([]Document{{Name: "default", Current: true}}, documents...)
+		}
+		presentationsHasCurrent = hasCurrent
+	}
+
+	return documents, presentationsHasCurrent, nil
+}
+
 func (app *Config) processPluginSettings(params *Params) *common.PluginSettings {
 	var pluginManifests []*common.PluginManifest
 
@@ -522,4 +643,13 @@ func replaceKeywords(message string, dialNumber string, voiceBridge string, meet
 		}
 	}
 	return message
+}
+
+func parsePresentationModule(content string) (*Presentation, error) {
+	var presentation Presentation
+	err := xml.Unmarshal([]byte(content), &presentation)
+	if err != nil {
+		return nil, err
+	}
+	return &presentation, nil
 }
