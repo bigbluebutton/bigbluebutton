@@ -1083,6 +1083,8 @@
     "app.shortcut-help.selectAll": "Select All",
     "app.shortcut-help.delete": "Delete",
     "app.shortcut-help.duplicate": "Duplicate",
+    "app.shortcut-help.gesture": "Gestures",
+    "app.shortcut-help.fingerTap": "finger tap",
     "app.lock-viewers.title": "Lock viewers",
     "app.lock-viewers.description": "These options enable you to restrict viewers from using specific features.",
     "app.lock-viewers.featuresLable": "Feature",
