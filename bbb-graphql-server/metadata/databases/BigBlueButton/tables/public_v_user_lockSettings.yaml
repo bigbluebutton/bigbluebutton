@@ -14,4 +14,6 @@ select_permissions:
       filter:
         meetingId:
           _eq: X-Hasura-MeetingId
+      query_root_fields: []
+      subscription_root_fields: []
     comment: ""
