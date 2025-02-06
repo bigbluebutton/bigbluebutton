@@ -124,7 +124,8 @@ Permission: Restricted to User Viewing Self-Related Data
 - `sharedNotesSession: Object` [Type sharedNotes_session](#type-sharedNotes_session)
 - `transcriptionError: Object` [Type user_transcriptionError](#type-user_transcriptionError)
 - `userClientSettings: Object` [Type user_clientSettings](#type-user_clientSettings)
-- `userLockSettings: Object` [Type user_lockSettings](#type-user_lockSettings)
+- `userLockSettings: Object` **Type user_lockSettings**
+  - `disablePublicChat`
 - `userMetadata: Object` [Type user_metadata](#type-user_metadata)
 - `voice: Object` [Type user_voice](#type-user_voice)
 - `welcomeMsgs: Object` [Type user_welcomeMsgs](#type-user_welcomeMsgs)
@@ -233,7 +234,8 @@ Permission: Restricted by Lock Settings
 - `lastBreakoutRoom: Object` [Type user_breakoutRoom](#type-user_breakoutRoom)
 - `meeting: Object` [Type meeting](#type-meeting)
 - `presPagesWritable: Array` [Type pres_page_writers](#type-pres_page_writers)
-- `userLockSettings: Object` [Type user_lockSettings](#type-user_lockSettings)
+- `userLockSettings: Object` **Type user_lockSettings**
+  - `disablePublicChat`
 - `voice: Object` [Type user_voice](#type-user_voice)
 
 ## Type: pres_annotation_curr
@@ -847,11 +849,6 @@ Permission: Restricted to User Viewing Self-Related Data
 - `messageValues`
 - `notificationType`
 - `role`
-
-## Type: user_lockSettings
-Permission: Restricted to Moderators or the User Viewing Self-Related Data
-### Fields:
-- `disablePublicChat`
 
 ## Type: meeting_metadata
 ### Fields:
