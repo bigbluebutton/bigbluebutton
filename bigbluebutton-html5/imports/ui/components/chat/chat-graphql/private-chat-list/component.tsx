@@ -2,7 +2,7 @@ import React from 'react';
 import { TransitionGroup, CSSTransition } from 'react-transition-group';
 import Styled from './styles';
 import PrivateChatListItem from './chat-list-item/component';
-import { Chat as Chat } from '/imports/ui/Types/chat';
+import { Chat } from '/imports/ui/Types/chat';
 import Service from '/imports/ui/components/user-list/service';
 
 interface ChatListProps {

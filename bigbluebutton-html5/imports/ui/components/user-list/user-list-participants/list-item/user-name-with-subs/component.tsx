@@ -140,7 +140,10 @@ const UserNameWithSubs: React.FC<UserNameWithSubsProps> = ({
       <Styled.UserName>
         <TooltipContainer title={subjectUser.name}>
           {isMe(subjectUser.userId) ? (
-            <Styled.StrongName>{subjectUser.name} {`(${intl.formatMessage(intlMessages.you)})`}</Styled.StrongName>
+            <Styled.StrongName>
+              {subjectUser.name}
+              {`(${intl.formatMessage(intlMessages.you)})`}
+            </Styled.StrongName>
           ) : (
             <Styled.RegularName>{subjectUser.name}</Styled.RegularName>
           )}

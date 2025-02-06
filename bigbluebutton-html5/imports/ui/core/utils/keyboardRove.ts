@@ -42,6 +42,7 @@ const roveBuilder = (
           nextEl.focus();
         }
       } catch (error) {
+        // eslint-disable-next-line
         console.error('Navigation error:', error);
       }
     }
