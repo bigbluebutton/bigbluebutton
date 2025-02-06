@@ -301,7 +301,7 @@ const ChatMessageList: React.FC<ChatListProps> = ({
         return prev;
       });
     }
-  }, [isStartSentinelVisible, followingTail]);
+  }, [isStartSentinelVisible]);
 
   useEffect(() => {
     setter({
@@ -467,6 +467,16 @@ const ChatMessageList: React.FC<ChatListProps> = ({
               if (e.target instanceof HTMLDivElement) {
                 const userScrolledUp = Math.ceil(e.target.scrollTop + e.target.clientHeight) < e.target.scrollHeight;
                 setShowStartSentinel(userScrolledUp);
+              }
+            }}
+            onWheel={(e) => {
+              if (e.deltaY < 0 && isStartSentinelVisible) {
+                setUserLoadedBackUntilPage((prev) => {
+                  if (typeof prev === 'number' && prev > 0) {
+                    return prev - 1;
+                  }
+                  return prev;
+                });
               }
             }}
             data-test="chatMessages"
