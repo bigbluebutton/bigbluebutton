@@ -586,6 +586,7 @@ const CreateBreakoutRoom: React.FC<CreateBreakoutRoomProps> = ({
           ? intl.formatMessage(intlMessages.updateConfirm)
           : intl.formatMessage(intlMessages.confirmButton)}
         onClick={isUpdate ? userUpdate : createRoom}
+        data-test={isUpdate ? 'updateBreakoutRoomsButton' : 'createBreakoutRoomsButton'}
         disabled={!leastOneUserIsValid || !numberOfRoomsIsValid || !durationIsValid}
       />
     </>

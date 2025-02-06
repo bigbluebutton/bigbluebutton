@@ -52,8 +52,7 @@ class Stress {
 
     // Create breakout rooms with the allow choice option enabled
     await this.modPage.bringToFront();
-    await this.modPage.waitAndClick(e.manageUsers);
-    await this.modPage.waitAndClick(e.createBreakoutRooms);
+    await this.modPage.waitAndClick(e.createBreakoutRoomsButton);
     await this.modPage.waitAndClick(e.allowChoiceRoom);
     await this.modPage.waitAndClick(e.modalConfirmButton);
 
@@ -70,8 +69,7 @@ class Stress {
     await this.modPage.closeAudioModal();
 
     // Create breakout rooms with the allow choice option NOT enabled (randomly assign)
-    await this.modPage.waitAndClick(e.manageUsers);
-    await this.modPage.waitAndClick(e.createBreakoutRooms);
+    await this.modPage.waitAndClick(e.createBreakoutRoomsButton);
     await this.modPage.waitAndClick(e.randomlyAssign);
     await this.modPage.waitAndClick(e.modalConfirmButton);
 

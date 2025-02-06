@@ -31,6 +31,7 @@ const PinnedApps = ({ sidebarNavigationInput }: PinnedAppsProps) => {
           role="button"
           tabIndex={0}
           active={sidebarContentPanel === pinnedAppKey}
+          data-test={`${pinnedAppKey}SidebarButton`}
           onClick={() => {
             layoutContextDispatch({
               type: ACTIONS.SET_SIDEBAR_CONTENT_IS_OPEN,
