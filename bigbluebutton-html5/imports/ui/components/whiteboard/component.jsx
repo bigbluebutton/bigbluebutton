@@ -727,7 +727,7 @@ const Whiteboard = React.memo((props) => {
 
           const zoomed = prevCam.z !== nextCam.z;
 
-          if ((panned || (zoomed && fitToWidthRef.current)) && isPresenterRef.current) {
+          if ((panned || zoomed) && isPresenterRef.current) {
             const viewedRegionW = SlideCalcUtil.calcViewedRegionWidth(
               editor?.getViewportPageBounds()?.w,
               currentPresentationPageRef.current?.scaledWidth,
@@ -1026,7 +1026,6 @@ const Whiteboard = React.memo((props) => {
 
   React.useEffect(() => {
     zoomValueRef.current = zoomValue;
-    let timeoutId = null;
     setPageZoomMap(prev => ({
       ...prev,
       [curPageIdRef.current]: zoomValue,
@@ -1104,31 +1103,9 @@ const Whiteboard = React.memo((props) => {
       if (newCamera) {
         tlEditorRef.current.setCamera(newCamera, { duration: 175 });
       }
-
-      timeoutId = setTimeout(() => {
-        const viewportBounds = tlEditorRef.current.getViewportPageBounds();
-        const viewedRegionW = SlideCalcUtil.calcViewedRegionWidth(
-          viewportBounds.w,
-          currentPresentationPageRef.current.scaledWidth
-        );
-        const viewedRegionH = SlideCalcUtil.calcViewedRegionHeight(
-          viewportBounds.h,
-          currentPresentationPageRef.current.scaledHeight
-        );
-        const updatedCamera = tlEditorRef.current.getCamera();
-
-        zoomSlide(
-          viewedRegionW,
-          viewedRegionH,
-          updatedCamera.x,
-          updatedCamera.y,
-          currentPresentationPageRef.current
-        );
-      }, 500);
     }
 
     prevZoomValueRef.current = zoomValue;
-    return () => clearTimeout(timeoutId);
   }, [
     zoomValue, tlEditorRef.current, curPageId, isWheelZoomRef.current, fitToWidthRef.current,
   ]);
