@@ -7,6 +7,7 @@ import { ACTIONS, PANELS } from '/imports/ui/components/layout/enums';
 import { Layout } from '/imports/ui/components/layout/layoutTypes';
 import Styled from './styles';
 import TooManyPinnedAppsModal from './modal/component';
+import TooltipContainer from '/imports/ui/components/common/tooltip/container';
 
 const intlMessages = defineMessages({
   appsGalleryTitle: {
@@ -24,6 +25,14 @@ const intlMessages = defineMessages({
   pinnedAppsContinue: {
     id: 'app.appsGallery.maxpinnedAppsContinue',
     description: 'Last part of warning about pinned apps',
+  },
+  pinTooltip: {
+    id: 'app.appsGallery.pinTooltip',
+    description: 'Tooltip of the pin button',
+  },
+  unpinTooltip: {
+    id: 'app.appsGallery.unpinTooltip',
+    description: 'Tooltip of the unpin buuton',
   },
 });
 
@@ -61,7 +70,9 @@ const AppsGallery: React.FC<AppsGalleryProps> = ({ registeredApps, pinnedApps })
       });
     };
     return (
-      <Styled.RegisteredAppContent>
+      <Styled.RegisteredAppContent
+        key={`${appKey}${isPinned}`}
+      >
         <Styled.ClickableArea
           onClick={openAppPanel}
         >
@@ -71,22 +82,27 @@ const AppsGallery: React.FC<AppsGalleryProps> = ({ registeredApps, pinnedApps })
             type="button"
             onClick={openAppPanel}
             icon={icon}
-            pinned={isPinned}
+            $pinned={isPinned}
           />
           <Styled.AppTitle>
             {name}
           </Styled.AppTitle>
         </Styled.ClickableArea>
-        <Styled.PinApp
-          key={`PIN${appKey}`}
-          role="button"
-          onClick={togglePinApp}
-          onKeyDown={togglePinApp}
-          tabIndex={0}
-          pinned={isPinned}
+        <TooltipContainer
+          title={isPinned
+            ? intl.formatMessage(intlMessages.unpinTooltip)
+            : intl.formatMessage(intlMessages.pinTooltip)}
         >
-          <Icon iconName={isPinned ? 'pin-video_on' : 'pin-video_off'} />
-        </Styled.PinApp>
+          <Styled.PinApp
+            role="button"
+            onClick={togglePinApp}
+            onKeyDown={togglePinApp}
+            tabIndex={0}
+            pinned={isPinned}
+          >
+            <Icon iconName={isPinned ? 'pin-video_on' : 'pin-video_off'} />
+          </Styled.PinApp>
+        </TooltipContainer>
       </Styled.RegisteredAppContent>
     );
   };

@@ -159,6 +159,8 @@
     "app.appsGallery.minimize": "Minimize Apps Gallery",
     "app.appsGallery.maxpinnedApps": "{0} out of {1} pinned apps",
     "app.appsGallery.maxpinnedAppsContinue": " in the sidebar.",
+    "app.appsGallery.pinTooltip": "Pin app",
+    "app.appsGallery.unpinTooltip": "Unpin app",
     "app.appsGallery.modal.title": "Oops!",
     "app.appsGallery.modal.subtitle": "You already have {0} pinned apps in the sidebar.",
     "app.appsGallery.modal.description": "To pin a new app, you must unpin another first.",

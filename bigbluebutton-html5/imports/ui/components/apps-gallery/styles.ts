@@ -66,11 +66,11 @@ const RegisteredAppContent = styled.div`
 `;
 
 // @ts-expect-error -> Untyped component.
-const OpenButton = styled(Button)<{pinned: boolean}>`
+const OpenButton = styled(Button)<{$pinned: boolean}>`
   padding: ${$2xlPadding};
   border-radius: ${appsButtonsBorderRadius} 0px 0px ${appsButtonsBorderRadius};
   
-  ${({ pinned }) => (pinned ? `
+  ${({ $pinned }) => ($pinned ? `
     background-color: ${colorPrimary};
     color: ${colorWhite};
   ` : `
