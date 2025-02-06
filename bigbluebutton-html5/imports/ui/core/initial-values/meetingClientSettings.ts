@@ -231,6 +231,7 @@ export const meetingClientSettingsInitialValues: MeetingClientSettings = {
         maxTimeout: 60000,
       },
       screenshare: {
+        allowScreensharePresentationSwitch: false,
         enableVolumeControl: true,
         subscriberOffering: false,
         bitrate: 1500,

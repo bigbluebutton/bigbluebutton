@@ -332,6 +332,7 @@ export interface CameraTimeouts {
 }
 
 export interface Screenshare {
+  allowScreensharePresentationSwitch: boolean
   enableVolumeControl: boolean
   subscriberOffering: boolean
   bitrate: number

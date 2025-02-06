@@ -351,6 +351,7 @@ public:
       # subscribe reattempt increases the reconnection timer up to this
       maxTimeout: 60000
     screenshare:
+      allowScreensharePresentationSwitch: false
       showButtonForNonPresenters: false
       # Whether volume control should be allowed if screen sharing has audio
       enableVolumeControl: true

@@ -130,6 +130,8 @@ const ActionsBarContainer = (props) => {
       ...{
         ...props,
         enableVideo: getFromUserSettings('bbb_enable_video', window.meetingClientSettings.public.kurento.enableVideo),
+        allowScreensharePresentationSwitch: window.meetingClientSettings
+          .public.kurento.screenshare.allowScreensharePresentationSwitch,
         multiUserTools: getFromUserSettings('bbb_multi_user_tools', window.meetingClientSettings.public.whiteboard.toolbar.multiUserTools),
         isReactionsButtonEnabled: isReactionsButtonEnabled(),
         setPresentationIsOpen: MediaService.setPresentationIsOpen,
