@@ -148,7 +148,6 @@ const RoomManagmentState: React.FC<RoomManagmentStateProps> = ({
         };
       }
       rooms[room].name = name;
-      console.log("🚀 -> setRooms -> rooms:", rooms)
       return rooms;
     });
   };
