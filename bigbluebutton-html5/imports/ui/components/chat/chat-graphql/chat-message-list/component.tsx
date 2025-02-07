@@ -116,9 +116,19 @@ const dispatchLastSeen = () => setTimeout(() => {
   }
 }, 500);
 
+const findFirstFocusableChild = (element: HTMLElement) => {
+  const childElements = Array.from(element.children) as HTMLElement[];
+  return childElements.find((c) => (c as HTMLElement).dataset.focusable === 'true');
+};
+
+const findLastFocusableChild = (element: HTMLElement) => {
+  const childElements = Array.from(element.children) as HTMLElement[];
+  return childElements.reverse().find((c) => (c as HTMLElement).dataset.focusable === 'true');
+};
+
 const roving = (
   event: React.KeyboardEvent<HTMLElement>,
-  changeState: (el: HTMLElement | null) => void,
+  changeState: (el?: HTMLElement | null) => void,
   elementsList: HTMLElement,
   element?: HTMLElement | null,
 ) => {
@@ -130,7 +140,7 @@ const roving = (
 
   if (event.keyCode === KEY_CODES.ARROW_DOWN) {
     event.preventDefault();
-    const firstElement = elementsList.firstChild as HTMLElement;
+    const firstElement = findFirstFocusableChild(elementsList);
     let elRef = element && numberOfChilds > 1 ? (element.nextSibling as HTMLElement) : firstElement;
 
     while (elRef && elRef.dataset.focusable !== 'true' && elRef.nextSibling) {
@@ -138,13 +148,13 @@ const roving = (
     }
 
     elRef = (elRef && elRef.dataset.focusable === 'true') ? elRef : firstElement;
-    elRef.focus();
+    elRef?.focus?.();
     changeState(elRef);
   }
 
   if (event.keyCode === KEY_CODES.ARROW_UP) {
     event.preventDefault();
-    const lastElement = elementsList.lastChild as HTMLElement;
+    const lastElement = findLastFocusableChild(elementsList);
     let elRef = element ? (element.previousSibling as HTMLElement) : lastElement;
 
     while (elRef && elRef.dataset.focusable !== 'true' && elRef.previousSibling) {
@@ -152,7 +162,7 @@ const roving = (
     }
 
     elRef = (elRef && elRef.dataset.focusable === 'true') ? elRef : lastElement;
-    elRef.focus();
+    elRef?.focus?.();
     changeState(elRef);
   }
 

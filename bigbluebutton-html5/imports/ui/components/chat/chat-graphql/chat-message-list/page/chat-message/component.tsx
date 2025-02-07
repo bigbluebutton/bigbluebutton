@@ -578,6 +578,8 @@ const ChatMessage = React.forwardRef<ChatMessageRef, ChatMessageProps>(({
     />
   );
 
+  const focusable = !deleteTime && !messageContent.isSystemSender;
+
   return (
     <Container
       className={classNames('chat-message-container', {
@@ -586,7 +588,7 @@ const ChatMessage = React.forwardRef<ChatMessageRef, ChatMessageProps>(({
       ref={containerRef}
       $sequence={message.messageSequence}
       data-sequence={message.messageSequence}
-      data-focusable={!deleteTime && !messageContent.isSystemSender}
+      data-focusable={focusable}
       onFocus={(e) => {
         setFocused(Object.is(e.target, e.currentTarget));
       }}
@@ -598,7 +600,7 @@ const ChatMessage = React.forwardRef<ChatMessageRef, ChatMessageProps>(({
           setKeyboardFocused(true);
         }
       }}
-      tabIndex={-1}
+      tabIndex={focusable ? -1 : undefined}
     >
       <ChatWrapper
         isSystemSender={isSystemSender}

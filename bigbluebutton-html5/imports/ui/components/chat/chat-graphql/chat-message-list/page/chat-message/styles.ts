@@ -237,6 +237,10 @@ export const Container = styled.div<{ $sequence: number }>`
   &:not(:first-of-type) {
     margin-top: calc((${fontSizeSmaller} + ${lgPadding} * 2) / 2);
   }
+
+  &[data-focusable="false"] {
+    pointer-events: none;
+  }
 `;
 
 export const MessageItemWrapper = styled.div`
