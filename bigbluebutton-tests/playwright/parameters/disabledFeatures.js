@@ -45,8 +45,8 @@ class DisabledFeatures extends MultiUsers {
   }
 
   async learningDashboard() {
-    await this.modPage.waitAndClick(e.manageUsers);
-    await this.modPage.wasRemoved(e.learningDashboard, 'should not display the learning dashboard on the manage users');
+    await this.modPage.hasElement(e.usersListSidebarButton);
+    await this.modPage.wasRemoved(e.learningDashboardSidebarButton, 'should not display the learning dashboard button on the sidebar');
   }
 
   async polls() {
@@ -147,8 +147,8 @@ class DisabledFeatures extends MultiUsers {
   }
 
   async learningDashboardExclude() {
-    await this.modPage.waitAndClick(e.manageUsers);
-    await this.modPage.hasElement(e.learningDashboard, 'should display the learning dashboard on the manage users');
+    await this.modPage.hasElement(e.usersListSidebarButton);
+    await this.modPage.hasElement(e.learningDashboardSidebarButton, 'should display the learning dashboard button on the sidebar');
   }
 
   async pollsExclude() {

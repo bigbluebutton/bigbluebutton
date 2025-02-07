@@ -5,7 +5,7 @@ const { getSettings } = require('../core/settings');
 async function openPublicChat(testPage) {
   const { chatEnabled } = getSettings();
 
-  if(!chatEnabled) {
+  if (!chatEnabled) {
     return testPage.wasRemoved(e.chatButton, 'public chat should not be displayed');
   }
 

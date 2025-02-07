@@ -170,7 +170,6 @@ exports.webcamMirroredVideoContainer = 'video[data-test="mirroredVideoContainer"
 exports.usersList = 'div[data-test="userList"]';
 exports.selectCameraQualityId = 'select[id="setQuality"]';
 exports.virtualBackgrounds = 'div[data-test="virtualBackground"]';
-exports.learningDashboard = 'li[data-test="learningDashboard"]';
 
 // Timer
 exports.timerContainer = 'div[data-test="timerContainer"]';
@@ -241,6 +240,7 @@ exports.checkedIcon = `${baseBbbIcon}check`;
 exports.pollQuestion = 'Are we good ?';
 exports.answerMessage = 'All good!';
 exports.questionSlideFileName = 'mockPollSlide.pdf';
+exports.pollSidebarButton = 'div[data-test="pollSidebarButton"]';
 exports.polling = 'li[data-test="polling"]';
 exports.startPoll = 'button[data-test="startPoll"]';
 exports.restartPoll = 'button[data-test="restartPoll"]';
@@ -350,6 +350,7 @@ exports.userAvatar = userAvatar;
 exports.moderatorAvatar = 'div[data-test="moderatorAvatar"]';
 exports.viewerAvatar = 'div[data-test="viewerAvatar"]';
 exports.userListItem = 'div[data-test="userListItem"]';
+exports.usersListSidebarButton = 'div[data-test="usersListSidebarButton"]';
 exports.currentUser = 'div[data-test="userListItemCurrent"]';
 exports.multiWhiteboardTool = 'span[data-test="multiWhiteboardTool"]';
 exports.manageUsers = 'button[data-test="manageUsers"]';
@@ -530,11 +531,11 @@ exports.increaseFontSize = 'button[data-test="increaseFontSize"]';
 exports.decreaseFontSize = 'button[data-test="decreaseFontSize"]';
 
 // Learning dashboard
-exports.learningDashboard = 'li[data-test="learningDashboard"]';
+exports.learningDashboardSidebarButton = 'div[data-test="learningDashboardSidebarButton"]';
 exports.panels = 'div[role="tablist"]';
 exports.messageLearningDashboard = 'td[data-test="userTotalMessagesDashboard"]';
 exports.userOnlineTime = 'td[data-test="userOnlineTimeDashboard"]';
-exports.confirmRecording = 'div[id="simpleModal"] button:nth-child(1)';
+exports.confirmRecordingButton = 'button[data-test="confirmRecordingButton"]';
 exports.pollTrueFalse = 'button[data-test="pollTrueFalse"]';
 exports.pollPanel = 'button[data-test="pollsPanelDashboard"]';
 exports.pollTrueFalseQuestion = 'div[role="rowgroup"] div:nth-child(3) div';
