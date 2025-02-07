@@ -474,13 +474,13 @@ const CreateBreakoutRoom: React.FC<CreateBreakoutRoomProps> = ({
                 onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
                   const { value } = e.target;
                   const v = Number.parseInt(value, 10);
-                  setDurationTime(v);
+                  setDurationTime((v && !(v <= 0) && v >= MIN_BREAKOUT_TIME) ? v : MIN_BREAKOUT_TIME);
                   setDurationIsValid(v >= MIN_BREAKOUT_TIME);
                 }}
                 onBlur={(e: React.FocusEvent<HTMLInputElement>) => {
                   const { value } = e.target;
                   const v = Number.parseInt(value, 10);
-                  setDurationTime((v && !(v <= 0)) ? v : MIN_BREAKOUT_TIME);
+                  setDurationTime((v && !(v <= 0) && v >= MIN_BREAKOUT_TIME) ? v : MIN_BREAKOUT_TIME);
                   setDurationIsValid(true);
                 }}
                 aria-label={intl.formatMessage(intlMessages.duration)}
