@@ -8,6 +8,16 @@ export const USER_SET_TALKING = gql`
   }
 `;
 
+export const USER_SET_DEAFENED = gql`
+  mutation UserSetDeafened($userId: String, $deafened: Boolean!) {
+    userSetDeafened(
+      userId: $userId,
+      deafened: $deafened
+    )
+  }
+`;
+
 export default {
+  USER_SET_DEAFENED,
   USER_SET_TALKING,
 };

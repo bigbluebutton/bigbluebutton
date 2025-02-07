@@ -1,17 +1,14 @@
 import React, { useCallback, useEffect, useState } from 'react';
-import { useReactiveVar } from '@apollo/client';
 import { useRoomContext } from '@livekit/components-react';
-import AudioManager from '/imports/ui/services/audio-manager';
 import logger from '/imports/startup/client/logger';
 import LKAutoplayModal from './component';
 import { useAutoplayState } from './hooks';
 import { useStorageKey } from '/imports/ui/services/storage/hooks';
+import useIsAudioConnected from '/imports/ui/components/audio/audio-graphql/hooks/useIsAudioConnected';
 
 const LKAutoplayModalContainer: React.FC = () => {
   const [isOpen, setIsOpen] = useState(false);
-  // @ts-ignore
-  // eslint-disable-next-line no-underscore-dangle
-  const isConnected = useReactiveVar(AudioManager._isConnected.value);
+  const isConnected = useIsAudioConnected();
   const room = useRoomContext();
   const [autoplayState, handleStartAudio] = useAutoplayState(room);
   const audioModalIsOpen = useStorageKey('audioModalIsOpen');
