@@ -930,7 +930,7 @@
     "app.modal.randomUser.selected.description": "あなたが選ばれました",
     "app.modal.randomUser.title": "選ばれた人",
     "app.modal.randomUser.who": "誰が選ばれるでしょう..?",
-    "app.modal.randomUser.alone": "ビューアーが一人しかいません",
+    "app.modal.randomUser.alone": "視聴者が一人しかいません",
     "app.modal.randomUser.reselect.label": "もう一度当てる",
     "app.modal.randomUser.ariaLabel.title": "無作為選択モーダル",
     "app.dropdown.close": "閉じる",
