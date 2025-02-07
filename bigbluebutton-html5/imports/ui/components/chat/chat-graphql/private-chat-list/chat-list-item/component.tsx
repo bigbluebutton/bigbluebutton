@@ -81,7 +81,7 @@ const PrivateChatListItem = (props: PrivateChatListItemProps) => {
 
   return (
     <Styled.ChatListItem
-      data-test="chatButton"
+      data-test="privateChatItem"
       role="button"
       aria-expanded={isCurrentChat}
       active={isCurrentChat}

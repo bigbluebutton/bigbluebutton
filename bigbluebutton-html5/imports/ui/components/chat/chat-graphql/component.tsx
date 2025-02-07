@@ -135,6 +135,7 @@ const Chat: React.FC<ChatProps> = ({
               variant={showMessages ? 'contained' : 'outlined'}
               color="primary"
               size="medium"
+              data-test="publicChatButton"
               sx={{
                 position: 'relative',
                 borderRadius: '16px',
@@ -167,6 +168,7 @@ const Chat: React.FC<ChatProps> = ({
               variant={!showMessages ? 'contained' : 'outlined'}
               color="primary"
               size="medium"
+              data-test="privateChatButton"
               sx={{
                 position: 'relative',
                 borderRadius: '16px',
