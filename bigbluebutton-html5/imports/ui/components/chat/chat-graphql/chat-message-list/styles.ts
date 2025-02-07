@@ -37,7 +37,10 @@ export const UnreadButton = styled(ButtonElipsis)`
   z-index: 3;
 `;
 
+export const PageWrapper = styled.div``;
+
 export default {
   MessageList,
   UnreadButton,
+  PageWrapper,
 };

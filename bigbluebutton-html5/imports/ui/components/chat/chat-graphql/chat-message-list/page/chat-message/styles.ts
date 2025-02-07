@@ -41,7 +41,6 @@ interface ChatContentProps {
   $editing: boolean;
   $highlight: boolean;
   $reactionPopoverIsOpen: boolean;
-  $focused: boolean;
   $keyboardFocused: boolean;
 }
 
@@ -51,6 +50,12 @@ interface ChatAvatarProps {
   moderator: boolean;
   emoji?: string;
 }
+
+export const FlexColumn = styled.div`
+  display: flex;
+  flex-flow: column;
+  gap: ${smPaddingY};
+`;
 
 export const ChatWrapper = styled.div<ChatWrapperProps>`
   pointer-events: auto;
@@ -102,11 +107,15 @@ export const ChatContent = styled.div<ChatContentProps>`
   `}
 
   ${({
-    $editing, $reactionPopoverIsOpen, $focused, $keyboardFocused,
-  }) => ($reactionPopoverIsOpen || $editing || $focused || $keyboardFocused)
+    $editing, $reactionPopoverIsOpen, $keyboardFocused,
+  }) => ($reactionPopoverIsOpen || $editing || $keyboardFocused)
     && `
     background-color: ${colorBlueLightest} !important;
   `}
+
+  .chat-message-container:focus & {
+    background-color: ${colorBlueLightest} !important;
+  }
 `;
 
 export const ChatContentFooter = styled.div`
@@ -223,9 +232,14 @@ export const Container = styled.div<{ $sequence: number }>`
   display: flex;
   flex-direction: column;
   user-select: text;
+  outline: none;
 
   &:not(:first-of-type) {
     margin-top: calc((${fontSizeSmaller} + ${lgPadding} * 2) / 2);
+  }
+
+  &[data-focusable="false"] {
+    pointer-events: none;
   }
 `;
 
@@ -261,9 +275,8 @@ export const ChatTime = styled(ChatTimeBase)`
   color: ${colorGrayDark};
   display: none;
 
-  .chat-message-wrapper-focused &,
-  .chat-message-wrapper-keyboard-focused &,
-  .chat-message-content:focus &,
+  .chat-message-container:focus &,
+  .chat-message-container-keyboard-focused &,
   .chat-message-content:hover & {
     display: flex;
   }
