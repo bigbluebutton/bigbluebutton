@@ -157,6 +157,7 @@ const SidebarNavigationContainer = () => {
       width={width}
       height={height}
       sidebarNavigationInput={sidebarNavigationInput}
+      isModerator={isModerator}
     />
   );
 };
