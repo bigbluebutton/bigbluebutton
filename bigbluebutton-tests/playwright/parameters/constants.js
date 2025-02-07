@@ -122,7 +122,7 @@ exports.laterShortcuts = [{
   param: 'leaveAudio',
   key: 'L'
 }, {
-  param: 'hidePrivateChat',
+  param: 'hideMessages',
   key: 'H'
 }, {
   param: 'closePrivateChat',

@@ -138,7 +138,6 @@ class LockViewers extends MultiUsers {
     await this.userPage.waitAndClick(e.sendButton);
 
     await this.userPage2.getLocator(e.chatButton).filter({ hasText: this.userPage.username }).click();
-    await this.userPage2.waitForSelector(e.closePrivateChat);
     await this.userPage2.hasElementDisabled(e.chatBox, 'should have the private chat disabled for the second attendee');
     await this.userPage2.hasElementDisabled(e.sendButton, 'should have the send button on the private chat disabled for the second attendee');
   }
