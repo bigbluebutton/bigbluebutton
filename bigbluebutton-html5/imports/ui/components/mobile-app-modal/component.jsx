@@ -8,6 +8,7 @@ import Styled from './styles';
 import Meetings from '/imports/api/meetings';
 
 const BBB_TABLET_APP_CONFIG = Meteor.settings.public.app.bbbTabletApp;
+const BBB_WEB_BASE = Meteor.settings.public.app.bbbWebBase;
 
 const intlMessages = defineMessages({
   title: {
@@ -73,7 +74,7 @@ class MobileAppModal extends Component {
       this.setState({ meetingName: meetingObject.meetingProp.name });
     }
 
-    const url = `/bigbluebutton/api/getJoinUrl?sessionToken=${sessionToken}`;
+    const url = `${BBB_WEB_BASE}/api/getJoinUrl?sessionToken=${sessionToken}`;
     const options = {
       method: 'GET',
       headers: {
@@ -97,7 +98,9 @@ class MobileAppModal extends Component {
   }
 
   render() {
-    const { intl, isOpen, onRequestClose, priority, } = this.props;
+    const {
+      intl, isOpen, onRequestClose, priority,
+    } = this.props;
     const { url, urlMessage, meetingName } = this.state;
 
     return (
