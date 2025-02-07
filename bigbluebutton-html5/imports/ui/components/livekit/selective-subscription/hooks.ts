@@ -8,6 +8,7 @@ import {
   RemoteParticipant,
   type RemoteTrackPublication,
 } from 'livekit-client';
+import { useReactiveVar } from '@apollo/client';
 import { useRemoteParticipants } from '@livekit/components-react';
 import { liveKitRoom } from '/imports/ui/services/livekit';
 import logger from '/imports/startup/client/logger';
@@ -22,6 +23,7 @@ import {
   ParticipantTypes,
 } from '/imports/ui/components/livekit/selective-subscription/types';
 import createUseSubscription from '/imports/ui/core/hooks/createUseSubscription';
+import AudioManager from '/imports/ui/services/audio-manager';
 
 const useAudioGroupStreamsSubscription = createUseSubscription(
   AUDIO_GROUP_STREAMS_SUBSCRIPTION,
@@ -34,7 +36,10 @@ const PARTICIPANTS_UPDATE_FILTER = [
   RoomEvent.TrackUnpublished,
 ];
 
-export const useAudioSenders = (remoteParticipants: RemoteParticipant[]): AudioSendersData => {
+export const useAudioSenders = (
+  remoteParticipants: RemoteParticipant[],
+  deafened: boolean,
+): AudioSendersData => {
   const { data, errors } = useAudioGroupStreamsSubscription();
 
   if (errors) {
@@ -47,6 +52,8 @@ export const useAudioSenders = (remoteParticipants: RemoteParticipant[]): AudioS
       }, 'LiveKit: Audio group streams subscription failed.');
     });
   }
+
+  if (deafened) return { senders: [], inAnyGroup: false };
 
   const groups = data as AudioGroupStream[] || [];
   const receiverFilter = [
@@ -94,10 +101,13 @@ interface RetryState {
 }
 
 export const useAudioSubscriptions = () => {
+  /* eslint no-underscore-dangle: 0 */
+  // @ts-ignore
+  const deafened = useReactiveVar(AudioManager._isDeafened.value) as boolean;
   const remoteParticipants = useRemoteParticipants({
     updateOnlyOn: PARTICIPANTS_UPDATE_FILTER,
   });
-  const { senders, inAnyGroup } = useAudioSenders(remoteParticipants);
+  const { senders, inAnyGroup } = useAudioSenders(remoteParticipants, deafened);
   const retryMap = useRef<Map<string, RetryState>>(new Map());
   const [subscriptionErrors, setSubscriptionErrors] = useState<Map<string, Error>>(new Map());
 
@@ -249,7 +259,13 @@ export const useAudioSubscriptions = () => {
         }
       }
     });
-  }, [senders, inAnyGroup, retrySubscription, remoteParticipants]);
+  }, [
+    senders,
+    inAnyGroup,
+    retrySubscription,
+    remoteParticipants,
+    deafened,
+  ]);
 
   return {
     handleSubscriptionChanges,

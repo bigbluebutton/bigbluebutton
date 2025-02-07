@@ -37,6 +37,7 @@ subscription UserListSubscription($offset: Int!, $limit: Int!) {
     loggedOut
     voice {
       joined
+      deafened
       listenOnly
       voiceUserId
     }

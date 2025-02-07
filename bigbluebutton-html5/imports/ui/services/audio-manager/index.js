@@ -69,6 +69,7 @@ class AudioManager {
       isListenOnly: makeVar(false),
       isEchoTest: makeVar(false),
       isTalking: makeVar(false),
+      isDeafened: makeVar(true),
       isWaitingPermissions: makeVar(false),
       error: makeVar(null),
       autoplayBlocked: makeVar(false),
@@ -245,6 +246,10 @@ class AudioManager {
 
   get outputDevicesJSON() {
     return this.outputDevices.map((device) => device.toJSON());
+  }
+
+  isAudioConnected() {
+    return this.isConnected && !this.isDeafened;
   }
 
   async enumerateDevices() {
@@ -682,9 +687,11 @@ class AudioManager {
     }
   }
 
-  onAudioJoin() {
+  onAudioJoin({ deafened = false } = {}) {
     this.isConnected = true;
     this.isConnecting = false;
+    this.isHangingUp = false;
+    this.isDeafened = deafened;
     const STATS = window.meetingClientSettings.public.stats;
 
     try {
@@ -779,6 +786,7 @@ class AudioManager {
     this.isConnecting = false;
     this.isHangingUp = false;
     this.autoplayBlocked = false;
+    this.isDeafened = true;
     this.failedMediaElements = [];
 
     if (this.inputStream) {

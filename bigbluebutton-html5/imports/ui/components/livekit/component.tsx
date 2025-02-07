@@ -24,7 +24,10 @@ import useCurrentUser from '/imports/ui/core/hooks/useCurrentUser';
 import {
   liveKitRoom,
 } from '/imports/ui/services/livekit';
-import { USER_SET_TALKING } from '/imports/ui/components/livekit/mutations';
+import {
+  USER_SET_DEAFENED,
+  USER_SET_TALKING,
+} from '/imports/ui/components/livekit/mutations';
 import { useIceServers } from '/imports/ui/components/livekit/hooks';
 import LKAutoplayModalContainer from '/imports/ui/components/livekit/autoplay-modal/container';
 import connectionStatus, { MetricStatus } from '/imports/ui/core/graphql/singletons/connectionStatus';
@@ -53,6 +56,7 @@ const LiveKitObserver = ({
 }: ObserverProps) => {
   const { localParticipant } = useLocalParticipant();
   const [setUserTalking] = useMutation(USER_SET_TALKING);
+  const [setUserDeafened] = useMutation(USER_SET_DEAFENED);
   const isSpeaking = useIsSpeaking(localParticipant);
   const connectionState = useConnectionState(room);
   const { quality } = useConnectionQualityIndicator({ participant: localParticipant });
@@ -66,6 +70,8 @@ const LiveKitObserver = ({
   const isMuted = useReactiveVar(AudioManager._isMuted.value) as boolean;
   // @ts-ignore
   const isAudioManagerConnected = useReactiveVar(AudioManager._isConnected.value) as boolean;
+  // @ts-ignore
+  const isDeafened = useReactiveVar(AudioManager._isDeafened.value) as boolean;
 
   useEffect(() => {
     logger.debug({
@@ -90,6 +96,16 @@ const LiveKitObserver = ({
   useEffect(() => {
     if (!usingAudio) return;
 
+    setUserDeafened({
+      variables: {
+        deafened: isDeafened,
+      },
+    });
+  }, [isDeafened]);
+
+  useEffect(() => {
+    if (!usingAudio) return;
+
     // If the user is connected to LiveKit and server-side audio state is present,
     // but audio-manager is not connected, run the onAudioJoin callback to mark
     // it as connected. Reasoning: there's no option not to connect to audio
@@ -98,9 +114,9 @@ const LiveKitObserver = ({
     if (!isAudioManagerConnected
       && connectionState === ConnectionState.Connected
       && currentUserData?.voice?.joined) {
-      AudioManager.onAudioJoin();
+      AudioManager.onAudioJoin({ deafened: isDeafened });
     }
-  }, [isAudioManagerConnected, currentUserData, connectionState]);
+  }, [isAudioManagerConnected, currentUserData, connectionState, isDeafened]);
 
   useEffect(() => {
     let mappedQuality = MetricStatus.Normal;
