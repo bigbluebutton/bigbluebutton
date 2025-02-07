@@ -564,6 +564,9 @@ class MeetingActor(
       case m: MuteAllExceptPresentersCmdMsg =>
         handleMuteAllExceptPresentersCmdMsg(m)
         updateUserLastActivity(m.body.mutedBy)
+      case m: DeafenUserCmdMsg =>
+        handleDeafenUserCmdMsg(m)
+        updateUserLastActivity(m.body.deafenedBy)
       case m: EjectUserFromVoiceCmdMsg => handleEjectUserFromVoiceCmdMsg(m)
       case m: IsMeetingMutedReqMsg     => handleIsMeetingMutedReqMsg(m)
       case m: MuteMeetingCmdMsg =>

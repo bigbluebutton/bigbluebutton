@@ -252,7 +252,12 @@ case class DeafUserInVoiceConfSysMsg(
     header: BbbCoreHeaderWithMeetingId,
     body:   DeafUserInVoiceConfSysMsgBody
 ) extends BbbCoreMsg
-case class DeafUserInVoiceConfSysMsgBody(voiceConf: String, voiceUserId: String, deaf: Boolean)
+case class DeafUserInVoiceConfSysMsgBody(
+    voiceConf:   String,
+    intId:       String,
+    voiceUserId: String,
+    deaf:        Boolean
+)
 
 /**
  * Send to FS to hold user in the voice conference.
@@ -386,7 +391,8 @@ case class UserJoinedVoiceConfEvtMsg(
     body:   UserJoinedVoiceConfEvtMsgBody
 ) extends VoiceStandardMsg
 case class UserJoinedVoiceConfEvtMsgBody(voiceConf: String, voiceUserId: String, intId: String,
-                                         callerIdName: String, callerIdNum: String, muted: Boolean,
+                                         callerIdName: String, callerIdNum: String,
+                                         muted:   Boolean,
                                          talking: Boolean, callingWith: String,
                                          hold: Boolean,
                                          uuid: String)
@@ -693,3 +699,21 @@ case class ListenOnlyModeToggledInSfuEvtMsgBody(
     callerNum: String,
     enabled:   Boolean
 )
+
+object DeafenUserCmdMsg { val NAME = "DeafenUserCmdMsg" }
+case class DeafenUserCmdMsg(
+    header: BbbClientMsgHeader,
+    body:   DeafenUserCmdMsgBody
+) extends StandardMsg
+case class DeafenUserCmdMsgBody(userId: String, deafenedBy: String, deaf: Boolean)
+
+object UserDeafenedVoiceEvtMsg { val NAME = "UserDeafenedVoiceEvtMsg" }
+case class UserDeafenedVoiceEvtMsg(header: BbbClientMsgHeader, body: UserDeafenedVoiceEvtMsgBody) extends BbbCoreMsg
+case class UserDeafenedVoiceEvtMsgBody(voiceConf: String, intId: String, voiceUserId: String, deafened: Boolean)
+
+object UserDeafenedInVoiceConfEvtMsg { val NAME = "UserDeafenedInVoiceConfEvtMsg" }
+case class UserDeafenedInVoiceConfEvtMsg(
+    header: BbbCoreVoiceConfHeader,
+    body:   UserDeafenedInVoiceConfEvtMsgBody
+) extends VoiceStandardMsg
+case class UserDeafenedInVoiceConfEvtMsgBody(voiceConf: String, voiceUserId: String, deafened: Boolean)
