@@ -6,7 +6,6 @@ import { defineMessages } from 'react-intl';
 import { usePreviousValue } from '/imports/ui/hooks/usePreviousValue';
 import { notify } from '/imports/ui/services/notification';
 import Session from '/imports/ui/services/storage/in-memory';
-import checkSamePresentation from './utils';
 
 const EXPORT_STATUSES = {
   RUNNING: 'RUNNING',

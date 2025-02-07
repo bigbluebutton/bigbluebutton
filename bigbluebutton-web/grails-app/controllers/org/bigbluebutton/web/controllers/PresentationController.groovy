@@ -76,11 +76,25 @@ class PresentationController {
           && meetingService.authzTokenIsValid(presentationToken) // this we do in the upload handling
           && originalContentLength < maxUploadFileSize
           && 0 != originalContentLength) {
-        log.debug "SUCCESS\n"
-        response.setStatus(200);
-        response.addHeader("Cache-Control", "no-cache")
-        response.contentType = 'plain/text'
-        response.outputStream << 'upload-success';
+        PresentationUploadToken presUploadToken = meetingService.getPresentationUploadToken(presentationToken);
+        if (presUploadToken.plugin.isFromPlugin && presUploadToken.plugin.pluginAssetPersistenceMaxFileSize < originalContentLength) {
+          log.debug "NO SUCCESS - Plugin ${presUploadToken.plugin.pluginName} sent a bigger file than what is allowed \n"
+          meetingService.sendPresentationUploadMaxFilesizeMessage(presUploadToken, originalContentLength,
+                  presUploadToken.plugin.pluginAssetPersistenceMaxFileSize as int);
+
+          response.setStatus(413);
+          response.addHeader("Cache-Control", "no-cache")
+          response.addHeader("x-file-too-large", "1")
+          response.contentType = 'plain/text'
+          response.outputStream << 'file-empty';
+
+        } else {
+          log.debug "SUCCESS\n"
+          response.setStatus(200);
+          response.addHeader("Cache-Control", "no-cache")
+          response.contentType = 'plain/text'
+          response.outputStream << 'upload-success';
+        }
       } else {
         log.debug "NO SUCCESS \n"
 
@@ -88,7 +102,7 @@ class PresentationController {
         PresentationUploadToken presUploadToken = meetingService.getPresentationUploadToken(presentationToken);
         meetingService.sendPresentationUploadMaxFilesizeMessage(presUploadToken, originalContentLength, maxUploadFileSize as int);
 
-        response.setStatus(403);
+        response.setStatus(413);
         response.addHeader("Cache-Control", "no-cache")
         response.addHeader("x-file-too-large", "1")
         response.contentType = 'plain/text'

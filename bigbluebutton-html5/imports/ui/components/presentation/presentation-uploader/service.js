@@ -39,6 +39,7 @@ const requestPresentationUploadToken = (
   temporaryPresentationId,
   meetingId,
   filename,
+  pluginName,
 ) => new Promise((resolve, reject) => {
   const client = apolloContextHolder.getClient();
   client.mutate({
@@ -47,6 +48,7 @@ const requestPresentationUploadToken = (
       podId: POD_ID,
       filename,
       uploadTemporaryId: temporaryPresentationId,
+      pluginName,
     },
   });
 
@@ -88,6 +90,7 @@ const uploadAndConvertPresentation = (
   onProgress,
   onConversion,
   current,
+  pluginName = '',
 ) => {
   if (!file) return Promise.resolve();
 
@@ -108,8 +111,13 @@ const uploadAndConvertPresentation = (
     body: data,
   };
 
-  return requestPresentationUploadToken(temporaryPresentationId, meetingId, filename)
-    .then((token) => futch(endpoint.replace('upload', `${token}/upload`), opts, onProgress))
+  return requestPresentationUploadToken(temporaryPresentationId, meetingId, file.name, pluginName)
+    .then((token) => {
+      const endpointToPost = endpoint.replace('upload', `${token}/upload`);
+      return (
+        futch(endpointToPost, opts, onProgress)
+      );
+    })
     // Trap the error so we can have parallel upload
     .catch((error) => {
       logger.debug({
@@ -238,6 +246,29 @@ const useExternalUploadData = () => {
   };
 };
 
+function createUploadFileObject(file) {
+  const id = uniqueId(file.name);
+  const PRESENTATION_CONFIG = window.meetingClientSettings.public.presentation;
+
+  return {
+    file,
+    downloadable: false, // by default new presentations are set not to be downloadable
+    isRemovable: true,
+    presentationId: id,
+    meetingId: Auth.meetingID,
+    endpoint: PRESENTATION_CONFIG.uploadEndpoint,
+    name: file.name,
+    current: false,
+    conversion: { done: false, error: false },
+    upload: { done: false, error: false, progress: 0 },
+    exportation: { error: false },
+    onProgress: () => {},
+    onConversion: () => {},
+    onUpload: () => {},
+    onDone: () => {},
+  };
+}
+
 function handleFiledrop(files, files2, that, intl, intlMessages) {
   if (that) {
     const { fileValidMimeTypes } = that.props;
@@ -314,5 +345,6 @@ export default {
   requestPresentationUploadToken,
   uploadAndConvertPresentation,
   handleFiledrop,
+  createUploadFileObject,
   useExternalUploadData,
 };

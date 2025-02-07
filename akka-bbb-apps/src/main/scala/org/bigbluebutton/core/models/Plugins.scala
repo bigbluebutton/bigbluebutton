@@ -32,6 +32,12 @@ case class RemoteDataSource(
     permissions: List[String]
 )
 
+case class AssetPersistence(
+    enabled:              Boolean,
+    maxFileSize:          Option[Int] = None,
+    maxUploadSizePerUser: Option[Int] = None
+)
+
 case class PluginManifestContent(
     requiredSdkVersion:            String,
     name:                          String,
@@ -41,7 +47,8 @@ case class PluginManifestContent(
     localesBaseUrl:                Option[String]                 = None,
     eventPersistence:              Option[EventPersistence]       = None,
     dataChannels:                  Option[List[DataChannel]]      = None,
-    remoteDataSources:             Option[List[RemoteDataSource]] = None
+    remoteDataSources:             Option[List[RemoteDataSource]] = None,
+    assetPersistence:              Option[AssetPersistence]       = None
 )
 
 case class PluginManifest(
@@ -92,8 +99,18 @@ object PluginModel {
   }
   def persistPluginsForClient(instance: PluginModel, meetingId: String): Unit = {
     instance.plugins.foreach { case (_, plugin) =>
+      val defaultAssetPersistenceObject = AssetPersistence(enabled = false, Option(-1), Option(-1))
       PluginDAO.insert(meetingId, plugin.manifest.content.name, plugin.manifest.content.javascriptEntrypointUrl,
-        plugin.manifest.content.javascriptEntrypointIntegrity.getOrElse(""))
+        plugin.manifest.content.javascriptEntrypointIntegrity.getOrElse(""),
+        plugin.manifest.content.assetPersistence.getOrElse(
+          defaultAssetPersistenceObject
+        ).enabled,
+        plugin.manifest.content.assetPersistence.getOrElse(
+          defaultAssetPersistenceObject
+        ).maxFileSize.getOrElse(0),
+        plugin.manifest.content.assetPersistence.getOrElse(
+          defaultAssetPersistenceObject
+        ).maxUploadSizePerUser.getOrElse(0))
     }
   }
 }

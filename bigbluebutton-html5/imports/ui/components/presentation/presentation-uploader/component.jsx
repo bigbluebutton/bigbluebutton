@@ -396,6 +396,15 @@ class PresentationUploader extends Component {
         shouldUpdateState = true;
       }
 
+      if (
+        currentPropPres?.uploadErrorMsgKey !== prevPropPres?.uploadErrorMsgKey
+        && currentPropPres?.uploadErrorDetailsJson !== prevPropPres?.uploadErrorDetailsJson
+      ) {
+        presentation.uploadErrorMsgKey = currentPropPres.uploadErrorMsgKey;
+        presentation.uploadErrorDetailsJson = currentPropPres.uploadErrorDetailsJson;
+        shouldUpdateState = true;
+      }
+
       if (currentPropPres?.totalPages !== prevPropPres?.totalPages
         || presentation.totalPages !== currentPropPres?.totalPages) {
         modPresentation.totalPages = currentPropPres?.totalPages;
